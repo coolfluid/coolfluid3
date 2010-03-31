@@ -123,20 +123,20 @@ MACRO( CF_ADD_LIBRARY LIBNAME )
         ADD_CUSTOM_COMMAND(
           TARGET ${LIBNAME}
           POST_BUILD
-          COMMAND ${CMAKE_COMMAND} -E remove ${COOLFluiD_DSO_DIR}/${DSO_LIB_NAME}
-          COMMAND ${CMAKE_COMMAND} -E create_symlink ${LIB_LOCNAME} ${COOLFluiD_DSO_DIR}/${DSO_LIB_NAME}
+          COMMAND ${CMAKE_COMMAND} -E remove ${coolfluid_DSO_DIR}/${DSO_LIB_NAME}
+          COMMAND ${CMAKE_COMMAND} -E create_symlink ${LIB_LOCNAME} ${coolfluid_DSO_DIR}/${DSO_LIB_NAME}
         )
       ELSE()
         ADD_CUSTOM_COMMAND(
           TARGET ${LIBNAME}
           POST_BUILD
-          COMMAND ${CMAKE_COMMAND} -E remove ${COOLFluiD_DSO_DIR}/${DSO_LIB_NAME}
-          COMMAND ${CMAKE_COMMAND} -E copy ${LIB_LOCNAME} ${COOLFluiD_DSO_DIR}/${DSO_LIB_NAME}
+          COMMAND ${CMAKE_COMMAND} -E remove ${coolfluid_DSO_DIR}/${DSO_LIB_NAME}
+          COMMAND ${CMAKE_COMMAND} -E copy ${LIB_LOCNAME} ${coolfluid_DSO_DIR}/${DSO_LIB_NAME}
         )
       ENDIF()
     ENDIF()
 
-	  # if not kernel lib and static is set 
+	  # if not kernel lib and static is set 	
 	  # then this lib will be added to the list of kernel libs
 	  IF ( NOT ${LIBNAME}_kernellib AND CF_ENABLE_STATIC )
 	      CF_CACHE_LIST_APPEND ( CF_KERNEL_STATIC_LIBS ${LIBNAME} )
