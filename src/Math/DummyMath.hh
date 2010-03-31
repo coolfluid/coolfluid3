@@ -3,11 +3,13 @@
 
 #include <string>
 
+#include "Math/MathAPI.hh"
+
 namespace COOLFluiD {
 
 namespace Math {
 	
-	class DummyMath
+	class Math_API DummyMath
 		{
 		public:
 			

@@ -31,8 +31,10 @@ ENDIF()
 
 # option to skip fortran language
 # kernel does not need fortran but some plugins might
-# developers that know htat they wont need it may turn it off in systems where is not available 
-enable_language ( Fortran OPTIONAL )
+# developers that know htat they wont need it may turn it off in systems where is not available
+IF(NOT CF_SKIP_FORTRAN)
+ enable_language ( Fortran OPTIONAL )
+ENDIF(NOT CF_SKIP_FORTRAN)
 
 # optionally include personal options ( alternative to passing a cache initialization to cmake)
 # developers may create this file and to define options that they don't want on the cache

@@ -1,0 +1,20 @@
+#ifndef COOLFluiD_Math_MathAPI_hh
+#define COOLFluiD_Math_MathAPI_hh
+
+//////////////////////////////////////////////////////////////////////////////
+
+#include "Common/ExportAPI.hh"
+
+//////////////////////////////////////////////////////////////////////////////
+
+/// Define the macro Math_API
+/// @note build system defines Math_EXPORTS when compiling Math files
+#ifdef Math_EXPORTS
+#   define Math_API CF_EXPORT_API
+#else
+#   define Math_API CF_IMPORT_API
+#endif
+
+//////////////////////////////////////////////////////////////////////////////
+
+#endif // COOLFluiD_Math_MathAPI_hh

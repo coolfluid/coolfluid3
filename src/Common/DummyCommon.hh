@@ -3,11 +3,13 @@
 
 #include <string>
 
+#include "Common/CommonAPI.hh"
+
 namespace COOLFluiD {
 
 namespace Common {
 	
-	class DummyCommon
+	class Common_API DummyCommon
 		{
 		public:
 			

@@ -1,4 +1,4 @@
-LIST ( APPEND Common_files a.hh a.cxx b.h b.cpp DummyCommon.hh DummyCommon.cxx )
+LIST ( APPEND Common_files a.hh a.cxx b.h b.cpp DummyCommon.hh DummyCommon.cxx ExportAPI.hh CommonAPI.hh)
 
 SET  ( Common_kernellib TRUE )
 
