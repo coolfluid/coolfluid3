@@ -1,4 +1,4 @@
-LIST ( APPEND Common_files a.hh a.cxx b.h b.cpp )
+LIST ( APPEND Common_files a.hh a.cxx b.h b.cpp DummyCommon.hh DummyCommon.cxx )
 
 SET  ( Common_kernellib TRUE )
 
