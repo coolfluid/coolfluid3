@@ -2,13 +2,11 @@
 # coolfluid cmake build system
 ##############################################################################
 # TODO
-#  * packaging with the build system
-#  * check precompiled headers
+#  * test packaging with the build system
+#  * try using precompiled headers and add a check to their support
 ##############################################################################
 # Command line options for cmake:
 # -DCMAKE_BUILD_TYPE=DEBUG     will set the build type
-# -DCF_SKIP_FORTRAN=:BOOL=ON   will not test for fortran language
-# -DCMAKE_SKIP_RPATH:BOOL=ON   will remove rpath
 # -G"Visual Studio 9 2008"     will generate for WIN32
 # -DCMAKE_INSTALL_PREFIX=DIR   will specify where to install
 # -DCF_PLUGINS_SEARCH_DIRS:STRING="/dir/path1;/dir/path2"
@@ -18,7 +16,7 @@
 # cmake behavior
 ##############################################################################
 
-CMAKE_MINIMUM_REQUIRED( VERSION 2.8 FATAL_ERROR )
+CMAKE_MINIMUM_REQUIRED ( VERSION 2.8 FATAL_ERROR )
 
 ##############################################################################
 # project definition and versioning
