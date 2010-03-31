@@ -49,13 +49,15 @@ include ( DefineVersions )        # define variables with coolfluid versions
 # cmake setup
 ##############################################################################
 
-include ( DefineFileExtensions )   # define project files extensions
+include ( DefineFileExtensions )    # define project files extensions
 
-include ( DefineMacros )           # define our own macros
+include ( DefineMacros )            # define our own macros
 
-include ( CTest )                  # include testing support
+include ( CTest )                   # include testing support
 
-include ( DefineInstallPaths )     # define where to install the files after building
+include ( DefineInstallPaths )      # define where to install the files after building
+
+include ( ResetVariables )          # reset variables used for the build
 
 ##############################################################################
 # configuration options
@@ -78,46 +80,29 @@ LOG ( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 ##############################################################################
 
 add_subdirectory ( cmake )         # dir with macros to be installed
+
 add_subdirectory ( doc )           # dir with documentation to be installed
+
+##############################################################################
+# finding MPI (essential)
+##############################################################################
+
+LOG ( " +++ Searching for MPI ..." )
+include ( DetectMPI )
 
 ##############################################################################
 # finding boost (essential)
 ##############################################################################
 
-# find boost package (essential)
-# SET ( Boost_DEBUG 1 )  # to debug boost search
-SET ( Boost_USE_STATIC_LIBS ${CF_ENABLE_STATIC} )
-SET ( Boost_USE_MULTITHREAD ON  )
-# find based on minimal version defined below
-SET ( Boost_FIND_VERSION        ON   )
-SET ( Boost_FIND_VERSION_MAJOR  "1"  )
-SET ( Boost_FIND_VERSION_MINOR  "42" )
-SET ( Boost_FIND_VERSION_PATCH  "0"  )
-# older cmakes dont have these versions
-SET ( Boost_ADDITIONAL_VERSIONS "1.42" "1.42.0" )
-# components to search for
-LIST ( APPEND CF_Boost_COMPONENTS thread filesystem system regex unit_test_framework )
-
-find_package( Boost COMPONENTS ${CF_Boost_COMPONENTS} )
-
-LOG ( "Boost include path [${Boost_INCLUDE_DIR}]" )
-LOG ( "Boost lib version  [${Boost_LIB_VERSION}]" )
-LOG ( "Boost libraries    [${Boost_LIBRARIES}]"   )
-
-# if not found give more information
-IF ( NOT Boost_FOUND )
-  LOG ( ${Boost_ERROR_REASON} )
-  MESSAGE ( FATAL_ERROR "Boost is required to compile coolfluid Kernel" )
-ENDIF()
-# add boost include path
-INCLUDE_DIRECTORIES ( ${Boost_INCLUDE_DIR} )
-SET ( CF_Boost_LIBRARIES ${Boost_LIBRARIES} )
+LOG ( " +++ Searching for Boost ..." )
+include ( DetectBoost )
 
 ##############################################################################
 # find non essential packages
 ##############################################################################
 
 # using our find macros
+
 find_package(BlasLapack)    # search for Blas Lapack support
 find_package(Metis)         # serial domain decomposition
 find_package(Parmetis)      # parallel domain decomposition
@@ -159,15 +144,9 @@ if ( CF_HAVE_MPI AND NOT CF_HAVE_MPI_COMPILER )
   include_directories ( ${MPI_INCLUDE_PATH} )
 endif ()
 
-add_subdirectory ( src )        # build the kernel sources
-
 add_subdirectory ( config )     # finalize kernel configuration 
 
-# install global configuration headers
-install ( FILES ${coolfluid_BINARY_DIR}/coolfluid_config.h
-                ${coolfluid_BINARY_DIR}/coolfluid_svnversion.h
-          DESTINATION
-                ${CF_INSTALL_INCLUDE_DIR} )
+add_subdirectory ( src )        # build the kernel sources
 
 ##############################################################################
 LOG ( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
@@ -200,7 +179,7 @@ foreach( EXDIR ${CF_PLUGIN_SEARCH_DIRS} )
       
       list ( APPEND CF_PLUGIN_LIST ${aPluginName} )
 
-      LOG ( " + PLUGIN [${aPluginName}]")
+      LOG ( " + PLUGIN [${aPluginName}]" )
       
       add_subdirectory    ( ${aPluginDir} plugins/${aPluginName} )
       
@@ -215,32 +194,32 @@ endforeach()
 # print summary
 ##############################################################################
 
-LOG ( "")
-LOG ( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-LOG ( "+ coolfluid configuration summary ")
-LOG ( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-LOG ( " coolfluid Release     : [${CF_VERSION}]")
-LOG ( " coolfluid Kernel      : [${CF_KERNEL_VERSION}]")
-LOG ( " coolfluid SVN version : [${coolfluid_svnversion}]")
+LOG ( "" )
+LOG ( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
+LOG ( "+ coolfluid configuration summary " )
+LOG ( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
+LOG ( " coolfluid Release     : [${CF_VERSION}]" )
+LOG ( " coolfluid Kernel      : [${CF_KERNEL_VERSION}]" )
+LOG ( " coolfluid SVN version : [${coolfluid_svnversion}]" )
 LOG ( "---------------------------------------------------------" )
-LOG ( " CMake Version         : [${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}]")
-LOG ( " CMake Generator       : [${CMAKE_GENERATOR}]")
-LOG ( " Build Type            : [${CMAKE_BUILD_TYPE}]")
-LOG ( " Operating System      : [${CMAKE_SYSTEM}]")
-LOG ( " Memory address        : [${CF_OS_BITS} bits]")
+LOG ( " CMake Version         : [${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}]" )
+LOG ( " CMake Generator       : [${CMAKE_GENERATOR}]" )
+LOG ( " Build Type            : [${CMAKE_BUILD_TYPE}]" )
+LOG ( " Operating System      : [${CMAKE_SYSTEM}]" )
+LOG ( " Memory address        : [${CF_OS_BITS} bits]" )
 LOG ( "---------------------------------------------------------" )
-LOG ( " Install path          : [${CMAKE_INSTALL_PATH}]")
+LOG ( " Install path          : [${CMAKE_INSTALL_PATH}]" )
 LOG ( "---------------------------------------------------------" )
-LOG ( " C compiler            : [${CMAKE_C_COMPILER}]")
-LOG ( " C flags               : [${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_${CMAKE_BUILD_TYPE}}]")
-LOG ( " C++ compiler          : [${CMAKE_CXX_COMPILER}]")
-LOG ( " C++ flags             : [${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}}]")
-LOG ( " C++ link flags        : [${CMAKE_CXX_LINK_FLAGS}]")
+LOG ( " C compiler            : [${CMAKE_C_COMPILER}]" )
+LOG ( " C flags               : [${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_${CMAKE_BUILD_TYPE}}]" )
+LOG ( " C++ compiler          : [${CMAKE_CXX_COMPILER}]" )
+LOG ( " C++ flags             : [${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}}]" )
+LOG ( " C++ link flags        : [${CMAKE_CXX_LINK_FLAGS}]" )
 IF( NOT CF_SKIP_FORTRAN )
-LOG ( " Fortran compiler      : [${CMAKE_Fortran_COMPILER}]")
-LOG ( " Fortran flags         : [${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_${CMAKE_BUILD_TYPE}}]")
+LOG ( " Fortran compiler      : [${CMAKE_Fortran_COMPILER}]" )
+LOG ( " Fortran flags         : [${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_${CMAKE_BUILD_TYPE}}]" )
 ENDIF()
-LOG ( " Shared Linker flags   : [${CMAKE_SHARED_LINKER_FLAGS}]")
+LOG ( " Shared Linker flags   : [${CMAKE_SHARED_LINKER_FLAGS}]" )
 
 LOG ( "---------------------------------------------------------" )
 LOG ( " MPI                   : [${CF_HAVE_MPI}]" )
@@ -271,9 +250,9 @@ LOG ( "")
 # finalize build
 ##############################################################################
 
-include  ( ProcessOrphanFiles ) # processes the list of orphan files
+include  ( ProcessOrphanFiles )    # processes the list of orphan files
 
-include  ( DumpVariables )      # dump relevant variables in the log file
+include  ( DumpVariables )         # dump relevant variables in the log file
 
-include  ( PrepareCPack  )      # packaging instructions
+include  ( PrepareCPack  )         # packaging instructions
 

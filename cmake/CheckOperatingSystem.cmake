@@ -28,6 +28,7 @@ IF ( WIN32 )
   ENDIF()
 ENDIF()
 
+###############################################################################
 ### FINAL MESSAGE
 IF ( CF_OS_UNRECOGNIZED_REASON )
   SET ( CF_OS_UNRECOGNIZED 1 )
@@ -39,3 +40,6 @@ IF ( CF_OS_UNRECOGNIZED_REASON )
     MESSAGE ( STATUS "Nevertheless we try to continue ..." )
   ENDIF()
 ENDIF()
+
+###############################################################################
+

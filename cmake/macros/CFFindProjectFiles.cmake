@@ -10,7 +10,7 @@ FOREACH( CFEXT ${CF_FILE_EXTENSIONS} )
     
     LIST ( LENGTH  listFilesWithExt sizeFilesWithExt )
     IF ( sizeFilesWithExt GREATER 0 )
-      SET ( ${aFileList} ${${aFileList}} ${listFilesWithExt} CACHE INTERNAL "" FORCE )
+      SET ( ${aFileList} ${${aFileList}} ${listFilesWithExt} )
     ENDIF ()
   
 ENDFOREACH()
@@ -21,17 +21,17 @@ ENDMACRO ( CF_LIST_PROJECT_FILES )
 ##############################################################################
 # finds project files and adds them to the passed variable
 ##############################################################################
-MACRO ( CF_FIND_ORPHAN_FILES )
+FUNCTION ( CF_FIND_ORPHAN_FILES )
 
 	CF_LIST_PROJECT_FILES ( cwdFiles )
-      
+
 	# append found files to orphan files (will be removed later as they are used)
 	SET ( CF_PROJECT_FILES ${CF_PROJECT_FILES} ${cwdFiles} CACHE INTERNAL "" FORCE )
 	
 	# append found files to orphan files (will be removed later as they are used)
 	SET ( CF_ORPHAN_FILES ${CF_ORPHAN_FILES} ${cwdFiles} CACHE INTERNAL "" FORCE )
 
-ENDMACRO ( CF_FIND_ORPHAN_FILES )
+ENDFUNCTION ( CF_FIND_ORPHAN_FILES )
 ##############################################################################
 
 

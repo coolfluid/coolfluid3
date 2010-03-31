@@ -34,8 +34,6 @@ MACRO( CF_ADD_LIBRARY LIBNAME )
   # add to list of local libs
   LIST ( APPEND CF_LOCAL_LIBNAMES ${LIBNAME} )
 
-#   CF_DEBUG_VAR(CF_MODULES_LIST)
-
   # check if all required modules are present
   SET ( ${LIBNAME}_all_mods_pres ON )
   FOREACH ( reqmod ${${LIBNAME}_requires_mods} )
@@ -71,6 +69,8 @@ MACRO( CF_ADD_LIBRARY LIBNAME )
 
     SOURCE_GROUP ( Headers FILES ${${LIBNAME}_headers} )
     SOURCE_GROUP ( Sources FILES ${${LIBNAME}_sources} )
+
+    LOG ( " +++ LIB [${LIBNAME}]" )
 
     ADD_LIBRARY(${LIBNAME} ${${LIBNAME}_buildtype} ${${LIBNAME}_sources} ${${LIBNAME}_headers})
 

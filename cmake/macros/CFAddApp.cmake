@@ -45,6 +45,8 @@ MACRO( CF_ADD_APP APPNAME )
     SOURCE_GROUP ( Headers FILES ${${APPNAME}_headers} )
     SOURCE_GROUP ( Sources FILES ${${APPNAME}_sources} )
 
+    LOG ( " +++ APP [${APPNAME}]" )
+
     ADD_EXECUTABLE ( ${APPNAME} ${${APPNAME}_sources} ${${APPNAME}_headers} )
 
     # add installation paths
