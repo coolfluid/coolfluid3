@@ -38,4 +38,6 @@ OPTION ( CF_ENABLE_PROFILING    "Enable code profiling"                 OFF )
 # user option to static build
 OPTION ( CF_ENABLE_STATIC       "Enable static building"                OFF)
 
+OPTION ( CF_INSTALL_TESTS       "Enable testing applications install"   OFF)
+
 
