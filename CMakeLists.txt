@@ -2,7 +2,6 @@
 # coolfluid cmake build system
 ##############################################################################
 # TODO
-#  * kernel headers not installed
 #  * test packaging with the build system
 #  * try using precompiled headers and add a check to their support
 ##############################################################################

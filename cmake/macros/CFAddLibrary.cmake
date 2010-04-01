@@ -4,25 +4,26 @@
 MACRO( CF_ADD_LIBRARY LIBNAME )
 
   # option to build it or not
-  OPTION ( CF_BUILD_${LIBNAME} "Build the ${LIBNAME} library" ON )
+  option ( CF_BUILD_${LIBNAME} "Build the ${LIBNAME} library" ON )
+	mark_as_advanced ( CF_BUILD_${LIBNAME}_API )	# and mark the option advanced 
 
   # by default libraries are not part of the kernel
-  IF ( NOT DEFINED ${LIBNAME}_kernellib )
-    SET ( ${LIBNAME}_kernellib OFF )
-  ELSE()
-  	# add the library to the list of kernel libs
-		IF ( ${LIBNAME}_kernellib )
-  		CF_CACHE_LIST_APPEND ( CF_KERNEL_LIBS ${LIBNAME} )
-		ENDIF()
-		# and mark the option advanced
-		MARK_AS_ADVANCED ( CF_BUILD_${LIBNAME} )
-  ENDIF()
+  if ( NOT DEFINED ${LIBNAME}_kernellib )
+    set ( ${LIBNAME}_kernellib OFF )
+  endif()
 
-  # should we install these headers ?
+  # if is kernel library
+  # add the library to the list of kernel libs
+  # and add option to install or not the API headers 
   # default for kernel libs is to install
   # default for plugin libs is not to install
-  OPTION ( CF_BUILD_${LIBNAME}_API "Publish the ${LIBNAME} library API" ${LIBNAME}_kernellib )
-  MARK_AS_ADVANCED( CF_BUILD_${LIBNAME}_API )
+  if ( ${LIBNAME}_kernellib )
+      option ( CF_BUILD_${LIBNAME}_API "Publish the ${LIBNAME} (kernel) library API" ON )
+  		CF_CACHE_LIST_APPEND ( CF_KERNEL_LIBS ${LIBNAME} )
+  else ()
+      option ( CF_BUILD_${LIBNAME}_API "Publish the ${LIBNAME} (plugin) library API" OFF )
+  endif()	
+	mark_as_advanced ( CF_BUILD_${LIBNAME}_API )	# and mark the option advanced 
 
   # library is shared or static?
   IF ( BUILD_SHARED_LIBS )
@@ -86,14 +87,13 @@ MACRO( CF_ADD_LIBRARY LIBNAME )
 
     # install headers for the libraries but
     # check if this library headers should be installed with the API
-    IF(${LIBNAME}_install_api)
+    if ( CF_BUILD_${LIBNAME}_API )
       # replace the current directory with target
-      STRING ( REPLACE ${CMAKE_BINARY_DIR} ${CF_INSTALL_INCLUDE_DIR} LIBNAME_INSTALL_HEADERS ${CMAKE_CURRENT_BINARY_DIR} )
-      STRING ( REPLACE coolfluid/src     coolfluid LIBNAME_INSTALL_HEADERS ${LIBNAME_INSTALL_HEADERS} )
-      # STRING ( REPLACE coolfluid/plugins coolfluid LIBNAME_INSTALL_HEADERS ${LIBNAME_INSTALL_HEADERS} )
-      # STRING ( REPLACE coolfluid/extra   coolfluid LIBNAME_INSTALL_HEADERS ${LIBNAME_INSTALL_HEADERS} )
-      INSTALL(FILES ${${LIBNAME}_headers} DESTINATION ${LIBNAME_INSTALL_HEADERS})
-    ENDIF()
+      string  ( REPLACE ${CMAKE_BINARY_DIR} ${CF_INSTALL_INCLUDE_DIR} ${LIBNAME}_INSTALL_HEADERS ${CMAKE_CURRENT_BINARY_DIR} )
+      string  ( REPLACE coolfluid/src  coolfluid ${LIBNAME}_INSTALL_HEADERS ${${LIBNAME}_INSTALL_HEADERS} )
+      install ( FILES ${${LIBNAME}_headers} DESTINATION ${${LIBNAME}_INSTALL_HEADERS})
+      LOG ("${LIBNAME}_INSTALL_HEADERS : [${${LIBNAME}_INSTALL_HEADERS}]")
+    endif()
 
     # if mpi was found add it to the libraries
     IF   (CF_HAVE_MPI AND NOT CF_HAVE_MPI_COMPILER)
@@ -149,7 +149,8 @@ MACRO( CF_ADD_LIBRARY LIBNAME )
   # log some info about the library
   LOGFILE("${LIBNAME} enabled         : [${CF_BUILD_${LIBNAME}}]")
   LOGFILE("${LIBNAME} will compile    : [${${LIBNAME}_will_compile}]")
-  LOGFILE("${LIBNAME} installdir      : [${LIBNAME_INSTALL_HEADERS}]")
+  LOGFILE("${LIBNAME} install dir     : [${${LIBNAME}_INSTALL_HEADERS}]")
+  LOGFILE("${LIBNAME} install API     : [${CF_BUILD_${LIBNAME}_API}]")
   LOGFILE("${LIBNAME}_dir             : [${${LIBNAME}_dir}]")
   LOGFILE("${LIBNAME}_kernellib       : [${${LIBNAME}_kernellib}]")
   LOGFILE("${LIBNAME}_includedirs     : [${${LIBNAME}_includedirs}]")
