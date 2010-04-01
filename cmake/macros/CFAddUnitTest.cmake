@@ -96,5 +96,5 @@ MACRO( CF_ADD_UNITTEST UTESTNAME )
   LOGFILE("${UTESTNAME}_LINK_LIBRARIES  : [${${UTESTNAME}_LINK_LIBRARIES}]")
 
 
-ENDMACRO( CF_ADD_APP )
+ENDMACRO( CF_ADD_UNITTEST )
 ##############################################################################
