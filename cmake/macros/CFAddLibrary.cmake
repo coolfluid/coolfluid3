@@ -78,7 +78,7 @@ MACRO( CF_ADD_LIBRARY LIBNAME )
     SET_TARGET_PROPERTIES ( ${LIBNAME} PROPERTIES DEFINE_SYMBOL ${LIBNAME}_EXPORTS )
 
     # add installation paths
-    INSTALL( TARGETS ${LIBNAME}
+    INSTALL ( TARGETS ${LIBNAME}
       RUNTIME DESTINATION ${CF_INSTALL_BIN_DIR}
       LIBRARY DESTINATION ${CF_INSTALL_LIB_DIR}
       ARCHIVE DESTINATION ${CF_INSTALL_LIB_DIR}
@@ -97,8 +97,8 @@ MACRO( CF_ADD_LIBRARY LIBNAME )
 
     # if mpi was found add it to the libraries
     IF   (CF_HAVE_MPI AND NOT CF_HAVE_MPI_COMPILER)
-    #           MESSAGE ( STATUS "${APPNAME} links to ${MPI_LIBRARIES}" )
-              TARGET_LINK_LIBRARIES ( ${LIBNAME} ${MPI_LIBRARIES} )
+    #           MESSAGE ( STATUS "${LIBNAME} links to ${MPI_LIBRARIES}" )
+        TARGET_LINK_LIBRARIES ( ${LIBNAME} ${MPI_LIBRARIES} )
     ENDIF()
 
     # add coolfluid internal dependency libraries if defined
@@ -147,8 +147,8 @@ MACRO( CF_ADD_LIBRARY LIBNAME )
   GET_TARGET_PROPERTY ( ${LIBNAME}_LINK_LIBRARIES  ${LIBNAME} LINK_LIBRARIES )
   
   # log some info about the library
-  LOGFILE("${LIBNAME} : [${CF_BUILD_${LIBNAME}}]")
-  LOGFILE("${LIBNAME} : [${${LIBNAME}_will_compile}]")
+  LOGFILE("${LIBNAME} enabled         : [${CF_BUILD_${LIBNAME}}]")
+  LOGFILE("${LIBNAME} will compile    : [${${LIBNAME}_will_compile}]")
   LOGFILE("${LIBNAME} installdir      : [${LIBNAME_INSTALL_HEADERS}]")
   LOGFILE("${LIBNAME}_dir             : [${${LIBNAME}_dir}]")
   LOGFILE("${LIBNAME}_kernellib       : [${${LIBNAME}_kernellib}]")

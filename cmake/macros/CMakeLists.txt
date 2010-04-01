@@ -1,3 +1,3 @@
 # install the cmake files
-file (GLOB cmakeFiles "${CMAKE_CURRENT_SOURCE_DIR}/*.cmake")
-install( FILES ${cmakeFiles} DESTINATION ${CF_INSTALL_SHARE_DIR}/cmake )
+file (GLOB macroFiles "${CMAKE_CURRENT_SOURCE_DIR}/*.cmake")
+install( FILES ${macroFiles} DESTINATION ${CF_INSTALL_SHARE_DIR}/cmake )

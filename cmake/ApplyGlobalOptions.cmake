@@ -22,17 +22,6 @@ IF( NOT CF_ENABLE_DEBUG_MACROS)
   ADD_DEFINITIONS(-DCF_NO_DEBUG_MACROS)
 ENDIF()
 
-###############################################################################
-# if user disables MPI we overwrite the CF_HAVE_MPI variable
-IF ( CF_ENABLE_MPI )
-  IF ( CF_MPI_AVAILABLE )
-    SET ( CF_HAVE_MPI 1 CACHE BOOL "User enabled MPI [FOUND]" )
-  ELSE()
-    SET ( CF_HAVE_MPI 0 CACHE BOOL "User enabled MPI [NOT-FOUND]" )
-  ENDIF()
-ELSE()
-  SET ( CF_HAVE_MPI 0 CACHE BOOL "User disabled MPI" )
-ENDIF ()
 
 ###############################################################################
 # explicit template support

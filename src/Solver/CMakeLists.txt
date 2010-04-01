@@ -1,6 +1,6 @@
-LIST ( APPEND Solver_files main.cxx )
+LIST ( APPEND coolfluid-solver_files main.cxx )
 
-LIST (APPEND Solver_libs Common Math)
+LIST (APPEND coolfluid-solver_libs Common Math)
 
-CF_ADD_APP (Solver)
+CF_ADD_APP (coolfluid-solver)
 

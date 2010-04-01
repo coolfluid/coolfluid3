@@ -2,6 +2,7 @@
 # coolfluid cmake build system
 ##############################################################################
 # TODO
+#  * kernel headers not installed
 #  * test packaging with the build system
 #  * try using precompiled headers and add a check to their support
 ##############################################################################
@@ -26,7 +27,7 @@ project ( coolfluid C CXX )
 
 # disallow in-source build
 IF("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
-  MESSAGE(FATAL_ERROR "coolfluid requires an out of source build.\nPlease create a separate build directory and run 'cmake path_to_coolfluid [options]' there.")
+  MESSAGE(FATAL_ERROR "${PROJECT_NAME} requires an out of source build.\nPlease create a separate build directory and run 'cmake path/to/project [options]' there.")
 ENDIF()
 
 # option to skip fortran language
@@ -73,6 +74,7 @@ include ( DefineBuildRules )        # defined default compilation flags and link
 
 include ( ApplyGlobalOptions )      # take options into effect
 
+LOG ( "" )
 ##############################################################################
 LOG ( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 LOG ( "General Configuration ")
@@ -84,25 +86,22 @@ add_subdirectory ( cmake )         # dir with macros to be installed
 add_subdirectory ( doc )           # dir with documentation to be installed
 
 ##############################################################################
-# finding MPI (essential)
-##############################################################################
+# finding MPI (essential) must be after the GlobalOptions
 
-LOG ( " +++ Searching for MPI ..." )
+LOG ( "\n +++ Searching for MPI ..." )
 include ( DetectMPI )
 
 ##############################################################################
 # finding boost (essential)
-##############################################################################
 
-LOG ( " +++ Searching for Boost ..." )
+LOG ( "\n +++ Searching for Boost ..." )
 include ( DetectBoost )
 
 ##############################################################################
 # find non essential packages
-##############################################################################
 
 # using our find macros
-
+LOG ( "" )
 find_package(BlasLapack)    # search for Blas Lapack support
 find_package(Metis)         # serial domain decomposition
 find_package(Parmetis)      # parallel domain decomposition
@@ -129,25 +128,24 @@ ENDIF()
 
 include ( CheckSvnVersion ) # check for subversion support 
 
+LOG ( "" )
 ##############################################################################
 LOG ( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 LOG ( "Kernel Configuration ")
 LOG ( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 ##############################################################################
 
-# include the generated config file
+
+# add dir with kernel config (automatic generated headers)
 add_definitions     ( -DCF_HAVE_CONFIG_H )
 include_directories ( ${coolfluid_BINARY_DIR} )
+add_subdirectory ( config ) 
 
-# if mpi was found add it to the include path if needed
-if ( CF_HAVE_MPI AND NOT CF_HAVE_MPI_COMPILER )
-  include_directories ( ${MPI_INCLUDE_PATH} )
-endif ()
+# add dir with kernel sources 
+include_directories ( ${coolfluid_SOURCE_DIR}/src )
+add_subdirectory ( src )
 
-add_subdirectory ( config )     # finalize kernel configuration 
-
-add_subdirectory ( src )        # build the kernel sources
-
+LOG ( "" )
 ##############################################################################
 LOG ( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 LOG ( "Plugin's Configuration ")
@@ -190,14 +188,12 @@ foreach( EXDIR ${CF_PLUGIN_SEARCH_DIRS} )
 endforeach()
 
 
-##############################################################################
-# print summary
-##############################################################################
-
 LOG ( "" )
+##############################################################################
 LOG ( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 LOG ( "+ coolfluid configuration summary " )
 LOG ( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
+##############################################################################
 LOG ( " coolfluid Release     : [${CF_VERSION}]" )
 LOG ( " coolfluid Kernel      : [${CF_KERNEL_VERSION}]" )
 LOG ( " coolfluid SVN version : [${coolfluid_svnversion}]" )

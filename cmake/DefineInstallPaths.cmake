@@ -3,10 +3,10 @@ SET  ( PROJECT_LOG_FILE ${PROJECT_BINARY_DIR}/CMakeLogInfo.txt )
 FILE ( WRITE ${PROJECT_LOG_FILE} "coolfluid cmake log file\n")
 
 # set installation paths
-set ( CF_INSTALL_BIN_DIR      bin                               CACHE STRING "Installation path for application binaries" )
-set ( CF_INSTALL_LIB_DIR      lib                               CACHE STRING "Installation path for libraries" )
-set ( CF_INSTALL_INCLUDE_DIR  include/coolfluid-${CF_VERSION}   CACHE STRING "Installation path for API header files" )
-set ( CF_INSTALL_SHARE_DIR    share/coolfluid-${CF_VERSION}     CACHE STRING "Installation path for shared files" )
+set ( CF_INSTALL_BIN_DIR      bin                 CACHE STRING "Installation path for application binaries" )
+set ( CF_INSTALL_LIB_DIR      lib                 CACHE STRING "Installation path for libraries" )
+set ( CF_INSTALL_INCLUDE_DIR  include/coolfluid   CACHE STRING "Installation path for API header files" )
+set ( CF_INSTALL_SHARE_DIR    share/coolfluid     CACHE STRING "Installation path for shared files" )
 
 # setup library building rpaths
 SET ( CMAKE_SKIP_BUILD_RPATH  FALSE )          # use RPATHs for the build tree 
