@@ -102,15 +102,10 @@ ENDIF(WIN32)
 
 IF ( APPLE )
 
-	# Apple linker with GCC does not support explicit templates so force them OFF
-	IF( CMAKE_COMPILER_IS_GNUCC )
-  		SET ( CF_HAVE_CXX_EXPLICIT_TEMPLATES OFF CACHE BOOL "Support for explicit templates deactivated -- Apple with GCC don't support it" )
-	ENDIF()
-	
-	
-	#  # improve the linker compiler to avoid unresolved symbols causing errors
-        #  SET(CMAKE_CXX_CREATE_SHARED_LIBRARY
-        #  "<CMAKE_CXX_COMPILER> -undefined dynamic_lookup <LANGUAGE_COMPILE_FLAGS> <CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS> <LINK_FLAGS> -o <TARGET> -install_name <TARGET_INSTALLNAME_DIR><TARGET_SONAME> <OBJECTS> <LINK_LIBRARIES>")
+	# improve the linker compiler to avoid unresolved symbols causing errors
+  # not needed anymore because all lib depencies are explicitly set
+  #  SET(CMAKE_CXX_CREATE_SHARED_LIBRARY
+  #  "<CMAKE_CXX_COMPILER> -undefined dynamic_lookup <LANGUAGE_COMPILE_FLAGS> <CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS> <LINK_FLAGS> -o <TARGET> -install_name <TARGET_INSTALLNAME_DIR><TARGET_SONAME> <OBJECTS> <LINK_LIBRARIES>")
 
 ENDIF()
 

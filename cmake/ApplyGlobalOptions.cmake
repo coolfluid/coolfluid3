@@ -6,6 +6,7 @@ endif ()
 
 ###############################################################################
 # Logging options
+
 IF( NOT CF_ENABLE_TRACE)
   ADD_DEFINITIONS(-DCF_NO_TRACE)
 ENDIF()
@@ -25,17 +26,26 @@ ENDIF()
 
 ###############################################################################
 # explicit template support
-IF ( CF_ENABLE_EXPLICIT_TEMPLATES AND CF_CXX_SUPPORTS_EXPLICIT_TEMPLATES )
-  SET ( CF_HAVE_CXX_EXPLICIT_TEMPLATES ON CACHE BOOL "Support for Explicit templates activated" )
-ELSE ()
-  SET ( CF_HAVE_CXX_EXPLICIT_TEMPLATES OFF CACHE BOOL "Support for Explicit templates deactivated" )
-ENDIF()
 
+if ( CF_ENABLE_EXPLICIT_TEMPLATES AND CF_CXX_SUPPORTS_EXPLICIT_TEMPLATES )
+  set ( CF_HAVE_CXX_EXPLICIT_TEMPLATES ON CACHE BOOL "Support for Explicit templates activated" )
+ELSE ()
+  set ( CF_HAVE_CXX_EXPLICIT_TEMPLATES OFF CACHE BOOL "Support for Explicit templates deactivated" )
+endif()
+
+# Apple linker with GCC does not support explicit templates so force them OFF
+if ( APPLE AND CMAKE_COMPILER_IS_GNUCC )
+  		set ( CF_HAVE_CXX_EXPLICIT_TEMPLATES OFF CACHE BOOL "Support for explicit templates deactivated -- Apple with GCC don't support it" )
+endif()
+
+mark_as_advanced ( CF_HAVE_CXX_EXPLICIT_TEMPLATES )
+	
 ###############################################################################
 # sys and time together
-IF (CF_HAVE_SYS_TIME_H AND CF_HAVE_TIME_H)
-  SET ( CF_TIME_WITH_SYS_TIME 1 CACHE BOOL "Have time.h and sys/time.h together")
-ENDIF (CF_HAVE_SYS_TIME_H AND CF_HAVE_TIME_H)
+if ( CF_HAVE_SYS_TIME_H AND CF_HAVE_TIME_H )
+  set ( CF_TIME_WITH_SYS_TIME 1 CACHE BOOL "Have time.h and sys/time.h together")
+  mark_as_advanced ( CF_TIME_WITH_SYS_TIME )
+endif ()
 
 #########################################################################################
 # PROFILING OPTIONS

@@ -81,6 +81,7 @@
 #cmakedefine CF_ENABLE_STDASSERT
 #cmakedefine CF_ENABLE_GROWARRAY
 
+
 #cmakedefine CF_PRECISION_DOUBLE
 #ifndef CF_PRECISION_DOUBLE
   #cmakedefine CF_PRECISION_LONG_DOUBLE

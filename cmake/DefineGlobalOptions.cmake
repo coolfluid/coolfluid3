@@ -6,9 +6,11 @@
 OPTION ( CF_ENABLE_ASSERTIONS "Enable code assertions" ON )
 
 # precision real numbers
-OPTION(CF_PRECISION_SINGLE       "Real numbers have single precision (will choose most precise)"       OFF )
-OPTION(CF_PRECISION_DOUBLE       "Real numbers have double precision (will choose most precise)"       ON  )
-OPTION(CF_PRECISION_LONG_DOUBLE  "Real numbers have long double precision (will choose most precise)"  OFF )
+OPTION ( CF_PRECISION_SINGLE       "Real numbers have single precision (will choose most precise)"       OFF )
+OPTION ( CF_PRECISION_DOUBLE       "Real numbers have double precision (will choose most precise)"       ON  )
+OPTION ( CF_PRECISION_LONG_DOUBLE  "Real numbers have long double precision (will choose most precise)"  OFF )
+
+mark_as_advanced ( CF_PRECISION_SINGLE CF_PRECISION_DOUBLE CF_PRECISION_LONG_DOUBLE )
 
 # user option to add tracing
 OPTION(CF_ENABLE_TRACE 	"Enable tracing code"  ON)
@@ -23,14 +25,11 @@ OPTION ( CF_ENABLE_MPI                "Enable MPI compilation"                  
 OPTION ( CF_ENABLE_DOCS               "Enable build of documentation"           ON   )
 OPTION ( CF_ENABLE_EXPLICIT_TEMPLATES "Enable explicit template instantiation"  ON   )
 OPTION ( CF_ENABLE_GROWARRAY          "Enable GrowArray usage"                  ON   )
-OPTION ( CF_ENABLE_INTERNAL_DEPS      "Enable internal dependencies between libraries"  ON   )
-OPTION ( CF_ENABLE_AUTOMATIC_UPDATE_MODULES  "Enable automatic subversion update of the plugins" OFF  )
-OPTION ( CF_ENABLE_TESTCASES          "Enable checking testcases from CMake system" OFF )
-OPTION ( CF_ENABLE_UNITTESTS          "Enable creation of unit tests"            OFF )
-OPTION ( CF_ENABLE_WARNINGS           "Enable lots of warnings while compiling"  ON )
-OPTION ( CF_ENABLE_STDASSERT          "Enable standard assert() functions "  OFF )
-
-SET    ( CF_TESTCASES_NCPUS "2" CACHE STRING "Number of CPUs to ue in parallel run" )
+OPTION ( CF_ENABLE_INTERNAL_DEPS      "Enable internal dependencies between libraries" ON  )
+OPTION ( CF_ENABLE_TESTCASES          "Enable checking testcases from CMake system"    OFF )
+OPTION ( CF_ENABLE_UNITTESTS          "Enable creation of unit tests"                  ON  )
+OPTION ( CF_ENABLE_WARNINGS           "Enable lots of warnings while compiling"        ON  )
+OPTION ( CF_ENABLE_STDASSERT          "Enable standard assert() functions "            OFF )
 
 # user option to add system depedent profiling
 OPTION ( CF_ENABLE_PROFILING    "Enable code profiling"                 OFF )

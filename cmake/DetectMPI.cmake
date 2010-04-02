@@ -67,6 +67,8 @@ ELSE()
   SET ( CF_HAVE_MPI 0 CACHE BOOL "User disabled MPI" )
 ENDIF ()
 
+MARK_AS_ADVANCED ( CF_HAVE_MPI )
+
 #######################################################################
 # add MPI include path
 
