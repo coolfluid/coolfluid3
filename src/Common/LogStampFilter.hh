@@ -1,5 +1,5 @@
-#ifndef COOLFluiD_Common_CFLogStrampFilter_hh
-#define COOLFluiD_Common_CFLogStrampFilter_hh
+#ifndef COOLFluiD_Common_LogStrampFilter_hh
+#define COOLFluiD_Common_LogStrampFilter_hh
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +34,7 @@ namespace Common {
  ///
  /// @author Quentin Gasper
  
- class Common_API CFLogStampFilter
+ class Common_API LogStampFilter
  {
   public:
       
@@ -45,7 +45,7 @@ namespace Common {
    
    /// @param streamName The stream name.
    /// @param stamp The stamp. Can be empty.
-   CFLogStampFilter(const std::string & streamName, 
+   LogStampFilter(const std::string & streamName, 
                     const std::string & stamp = std::string());
    
    /// @brief Sets stamp.
@@ -118,7 +118,7 @@ namespace Common {
    /// It can be set back to @c true by calling @c #endMessage()
    bool m_newMessage;
  
- }; // class CFLogStampFilter
+ }; // class LogStampFilter
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -128,4 +128,4 @@ namespace Common {
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // COOLFluiD_Common_CFLogStrampFilter_hh
+#endif // COOLFluiD_Common_LogStrampFilter_hh

@@ -4,29 +4,29 @@
 #include <boost/iostreams/device/file_descriptor.hpp>
 
 #include "PE.hh"
-#include "CFLog.hh"
-#include "CFLogStream.hh"
-#include "CFLogLevelFilter.hh"
-#include "CFLogStampFilter.hh"
+#include "Log.hh"
+#include "LogStream.hh"
+#include "LogLevelFilter.hh"
+#include "LogStampFilter.hh"
 
 using namespace MPI;
 using namespace CF;
 using namespace CF::Common;
 using namespace boost;
 
-CFLogStream::CFLogStream(const std::string & streamName, CFLogLevel level) 
+LogStream::LogStream(const std::string & streamName, LogLevel level) 
  : m_flushed(true), 
    m_buffer(),
    m_streamName(streamName),
    m_level(level)
 {
  iostreams::filtering_ostream * stream;
- CFLogLevelFilter levelFilter(level);
+ LogLevelFilter levelFilter(level);
   
  // SCREEN
  stream = new iostreams::filtering_ostream();
  stream->push(levelFilter);
- stream->push(CFLogStampFilter(streamName));
+ stream->push(LogStampFilter(streamName));
  stream->push(std::cout);
  this->m_destinations[SCREEN] = stream;
  
@@ -36,14 +36,14 @@ CFLogStream::CFLogStream(const std::string & streamName, CFLogLevel level)
  // STRING
  stream = new iostreams::filtering_ostream();
  stream->push(levelFilter);
- stream->push(CFLogStampFilter(streamName));
+ stream->push(LogStampFilter(streamName));
  stream->push(back_inserter(m_buffer));
  this->m_destinations[STRING] = stream;
  
  // SYNC_SCREEN
  stream = new iostreams::filtering_ostream();
  stream->push(levelFilter);
- stream->push(CFLogStampFilter(streamName));
+ stream->push(LogStampFilter(streamName));
  stream->push(std::cout);
  this->m_destinations[SYNC_SCREEN] = stream;
  
@@ -64,9 +64,9 @@ CFLogStream::CFLogStream(const std::string & streamName, CFLogLevel level)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CFLogStream::~CFLogStream()
+LogStream::~LogStream()
 {
- std::map<CFLogDestination, iostreams::filtering_ostream *>::iterator it;
+ std::map<LogDestination, iostreams::filtering_ostream *>::iterator it;
  
  if(!this->m_flushed)
   this->flush();
@@ -78,7 +78,7 @@ CFLogStream::~CFLogStream()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CFLogStream & CFLogStream::operator << (CFLogLevel level)
+LogStream & LogStream::operator << (LogLevel level)
 {
  this->getLevelFilter(SCREEN).setCurrentLogLevel(level);
  
@@ -94,7 +94,7 @@ CFLogStream & CFLogStream::operator << (CFLogLevel level)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CFLogStream & CFLogStream::operator << (LogTag tag) 
+LogStream & LogStream::operator << (LogTag tag) 
 {
  if(tag == ENDLINE)
   this->flush();
@@ -105,7 +105,7 @@ CFLogStream & CFLogStream::operator << (LogTag tag)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CFLogStream & CFLogStream::operator << (const CodeLocation & place)
+LogStream & LogStream::operator << (const CodeLocation & place)
 {
  this->getStampFilter(SCREEN).setPlace(place);
  
@@ -121,9 +121,9 @@ CFLogStream & CFLogStream::operator << (const CodeLocation & place)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CFLogStream::flush()
+void LogStream::flush()
 { 
- std::map<CFLogDestination, iostreams::filtering_ostream *>::iterator it;
+ std::map<LogDestination, iostreams::filtering_ostream *>::iterator it;
  
  for(it = this->m_destinations.begin() ; it != this->m_destinations.end() ; it++)
  {
@@ -152,7 +152,7 @@ void CFLogStream::flush()
  
  if(!this->m_buffer.empty())
  {
-  std::list<CFLogStringForwarder *>::iterator it = m_stringForwarders.begin();
+  std::list<LogStringForwarder *>::iterator it = m_stringForwarders.begin();
   
   while(it != m_stringForwarders.end())
   {
@@ -168,7 +168,7 @@ void CFLogStream::flush()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CFLogStream::setLogLevel(CFLogLevel level)
+void LogStream::setLogLevel(LogLevel level)
 {
  m_level = level;
  this->getLevelFilter(SCREEN).setLogLevel(level);
@@ -183,7 +183,7 @@ void CFLogStream::setLogLevel(CFLogLevel level)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CFLogStream::setLogLevel(CFLogDestination destination, CFLogLevel level)
+void LogStream::setLogLevel(LogDestination destination, LogLevel level)
 {
  this->getLevelFilter(destination).setLogLevel(level);
 }
@@ -191,7 +191,7 @@ void CFLogStream::setLogLevel(CFLogDestination destination, CFLogLevel level)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CFLogLevel CFLogStream::getLogLevel(CFLogDestination destination) const
+LogLevel LogStream::getLogLevel(LogDestination destination) const
 {
  
  return this->getLevelFilter(destination).getLogLevel();
@@ -200,7 +200,7 @@ CFLogLevel CFLogStream::getLogLevel(CFLogDestination destination) const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CFLogStream::useDestination(CFLogDestination destination, bool use)
+void LogStream::useDestination(LogDestination destination, bool use)
 {
  this->m_usedDests[destination] = use;
 }
@@ -208,7 +208,7 @@ void CFLogStream::useDestination(CFLogDestination destination, bool use)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool CFLogStream::isDestinationUsed(CFLogDestination destination) const
+bool LogStream::isDestinationUsed(LogDestination destination) const
 {
  if(destination == FILE && !this->isFileOpen())
   return false;
@@ -219,7 +219,7 @@ bool CFLogStream::isDestinationUsed(CFLogDestination destination) const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CFLogStream::setStamp(CFLogDestination destination, const std::string & stampFormat)
+void LogStream::setStamp(LogDestination destination, const std::string & stampFormat)
 {
  this->getStampFilter(destination).setStamp(stampFormat);
 }
@@ -227,7 +227,7 @@ void CFLogStream::setStamp(CFLogDestination destination, const std::string & sta
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-std::string CFLogStream::getStamp(CFLogDestination destination)
+std::string LogStream::getStamp(LogDestination destination)
 {
  return this->getStampFilter(destination).getStamp();
 }
@@ -236,7 +236,7 @@ std::string CFLogStream::getStamp(CFLogDestination destination)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CFLogStream::setStamp(const std::string & stampFormat)
+void LogStream::setStamp(const std::string & stampFormat)
 {
  this->getStampFilter(SCREEN).setStamp(stampFormat);
  
@@ -250,7 +250,7 @@ void CFLogStream::setStamp(const std::string & stampFormat)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CFLogStream::setFilterRankZero(CFLogDestination dest, bool filterRankZero)
+void LogStream::setFilterRankZero(LogDestination dest, bool filterRankZero)
 {
  this->m_filterRankZero[dest] = filterRankZero;
 }
@@ -258,7 +258,7 @@ void CFLogStream::setFilterRankZero(CFLogDestination dest, bool filterRankZero)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CFLogStream::setFilterRankZero(bool filterRankZero)
+void LogStream::setFilterRankZero(bool filterRankZero)
 { 
  this->m_filterRankZero[SCREEN] = filterRankZero;
  this->m_filterRankZero[FILE] = filterRankZero;
@@ -269,14 +269,14 @@ void CFLogStream::setFilterRankZero(bool filterRankZero)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CFLogStream::setFile(const iostreams::file_descriptor_sink & fileDescr)
+void LogStream::setFile(const iostreams::file_descriptor_sink & fileDescr)
 {
  if(!this->isFileOpen())
  {
   iostreams::filtering_ostream * stream = new iostreams::filtering_ostream();
   
-  stream->push(CFLogLevelFilter(m_level));
-  stream->push(CFLogStampFilter(m_streamName));
+  stream->push(LogLevelFilter(m_level));
+  stream->push(LogStampFilter(m_streamName));
   stream->push(fileDescr);
   
   m_destinations[FILE] = stream;
@@ -286,23 +286,23 @@ void CFLogStream::setFile(const iostreams::file_descriptor_sink & fileDescr)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CFLogLevelFilter & CFLogStream::getLevelFilter(CFLogDestination dest) const
+LogLevelFilter & LogStream::getLevelFilter(LogDestination dest) const
 {
- return *m_destinations.find(dest)->second->component<CFLogLevelFilter>(0);
+ return *m_destinations.find(dest)->second->component<LogLevelFilter>(0);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CFLogStampFilter & CFLogStream::getStampFilter(CFLogDestination dest) const
+LogStampFilter & LogStream::getStampFilter(LogDestination dest) const
 {
- return *m_destinations.find(dest)->second->component<CFLogStampFilter>(1);
+ return *m_destinations.find(dest)->second->component<LogStampFilter>(1);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool CFLogStream::isFileOpen() const
+bool LogStream::isFileOpen() const
 {
  return m_destinations.find(FILE)->second != NULL;
 }
@@ -310,10 +310,10 @@ bool CFLogStream::isFileOpen() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CFLogStream::addStringForwarder(CFLogStringForwarder * forwarder)
+void LogStream::addStringForwarder(LogStringForwarder * forwarder)
 {
- std::list<CFLogStringForwarder *>::iterator begin = m_stringForwarders.begin();
- std::list<CFLogStringForwarder *>::iterator end = m_stringForwarders.end();
+ std::list<LogStringForwarder *>::iterator begin = m_stringForwarders.begin();
+ std::list<LogStringForwarder *>::iterator end = m_stringForwarders.end();
  
  if(forwarder != NULL && std::find(begin, end, forwarder) == end)
   m_stringForwarders.push_back(forwarder);
@@ -322,7 +322,7 @@ void CFLogStream::addStringForwarder(CFLogStringForwarder * forwarder)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CFLogStream::removeStringForwarder(CFLogStringForwarder * forwarder)
+void LogStream::removeStringForwarder(LogStringForwarder * forwarder)
 {
  m_stringForwarders.remove(forwarder);
 }

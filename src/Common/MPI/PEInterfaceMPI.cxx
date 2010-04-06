@@ -2,7 +2,7 @@
 #include "Common/MPI/MPIInitObject.hh"
 #include "Common/MPI/MPIHelper.hh"
 
-#include "Common/CFLog.hh"
+#include "Common/Log.hh"
 
 //////////////////////////////////////////////////////////////////////////////
 

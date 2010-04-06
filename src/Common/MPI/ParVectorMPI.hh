@@ -45,7 +45,7 @@
 
 #include "Common/ArrayAllocator.hh"
 
-#include "Common/CFLog.hh"
+#include "Common/Log.hh"
 
 #include "Common/MPI/MPIHelper.hh"
 #include "Common/PE.hh"

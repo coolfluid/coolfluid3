@@ -1,9 +1,9 @@
-#ifndef COOLFluiD_Common_CFLog_hh
-#define COOLFluiD_Common_CFLog_hh
+#ifndef COOLFluiD_Common_Log_hh
+#define COOLFluiD_Common_Log_hh
 
 #include "Common/Common.hh"
-#include "CFLogLevel.hh"
-#include "CFLogStream.hh"
+#include "LogLevel.hh"
+#include "LogStream.hh"
 #include "CodeLocation.hh"
 
 #include <map>
@@ -14,12 +14,12 @@ namespace CF {
 
 namespace Common {
  
- class CFLogStream;
+ class LogStream;
 
  /// @brief Main class of the logging system.
  
  /// This class manages all streams used for logs. This class is a singleton.@n
- /// @c CFLogger manages 5 streams: @e info, @e error, @e warning, @e debug and 
+ /// @c Logger manages 5 streams: @e info, @e error, @e warning, @e debug and 
  /// @e trace. These streams differ on the type of messages they forward. By 
  /// default, streams default level is @c #NORMAL and no file is open. Once an 
  /// MPI environment has been initialized, @c #openFiles() can be called. 
@@ -28,9 +28,9 @@ namespace Common {
  /// <code>output-p<i>i</i>.trace</code>, where <code><i>i</i></code> if the 
  /// MPI rank number).
  
- /// @see CFLogStream
+ /// @see LogStream
  /// @author Quentin Gasper 
- class Common_API CFLogger /*: public Common::NonCopyable<CFLogger>*/
+ class Common_API Logger /*: public Common::NonCopyable<Logger>*/
  {  
   
   public:
@@ -54,41 +54,41 @@ namespace Common {
     TRACE_STREAM
    };
    
-   /// @brief Gives the current @c #CFLogger instance.
+   /// @brief Gives the current @c #Logger instance.
    
    /// If no instance exists, a new one is created.
    /// @return Returns the current instance.
-   static CFLogger & getInstance();
+   static Logger & getInstance();
    
    /// @brief Gives the info stream.
    
    /// @param place The code location from where this method was called
    /// @return Returns a reference to the info stream.
-   CFLogStream & getInfo (const CodeLocation & place = CodeLocation("", 0, ""));
+   LogStream & getInfo (const CodeLocation & place = CodeLocation("", 0, ""));
    
    /// @brief Gives the error stream.
    
    /// @param place The code location from where this method was called
    /// @return Returns a reference to the error stream.
-   CFLogStream & getError (const CodeLocation & place = CodeLocation("", 0, ""));
+   LogStream & getError (const CodeLocation & place = CodeLocation("", 0, ""));
    
    /// @brief Gives the warning stream.
    
    /// @param place The code location from where this method was called
    /// @return Returns a reference to the warning stream.
-   CFLogStream & getWarn (const CodeLocation & place = CodeLocation("", 0, ""));
+   LogStream & getWarn (const CodeLocation & place = CodeLocation("", 0, ""));
    
    /// @brief Gives the debug stream.
    
    /// @param place The code location from where this method was called
    /// @return Returns a reference to the debug stream.
-   CFLogStream & getDebug (const CodeLocation & place = CodeLocation("", 0, ""));
+   LogStream & getDebug (const CodeLocation & place = CodeLocation("", 0, ""));
    
    /// @brief Gives the trace stream.
    
    /// @param place The code location from where this method was called
    /// @return Returns a reference to the trace stream.
-   CFLogStream & getTrace (const CodeLocation & place = CodeLocation("", 0, ""));
+   LogStream & getTrace (const CodeLocation & place = CodeLocation("", 0, ""));
    
    /// @brief Creates file descriptors and gives them to streams.
    void openFiles();
@@ -98,15 +98,15 @@ namespace Common {
    /// @brief Managed streams.
    
    /// The key is the stream type. The value is a pointer to the stream.
-   std::map<StreamType, CFLogStream *> m_streams; 
+   std::map<StreamType, LogStream *> m_streams; 
    
    /// @brief Constructor
-   CFLogger();
+   Logger();
    
    /// @brief Destructor
-   ~CFLogger();
+   ~Logger();
    
- }; // class CFLogger
+ }; // class Logger
  
 //////////////////////////////////////////////////////////////////////////////
 // Logging macros
@@ -114,12 +114,12 @@ namespace Common {
 
 /// these are always defined
 
-#define CFinfo   CFLogger::getInstance().getInfo (FromHere())
-#define CFerr    CFLogger::getInstance().getError(FromHere())
-#define CFwarn   CFLogger::getInstance().getWarn (FromHere())
-#define CFdebug  CFLogger::getInstance().getDebug(FromHere())
-#define CFtrace  CFLogger::getInstance().getTrace(FromHere())
-#define CFendl   CFLogStream::ENDLINE
+#define CFinfo   Logger::getInstance().getInfo (FromHere())
+#define CFerr    Logger::getInstance().getError(FromHere())
+#define CFwarn   Logger::getInstance().getWarn (FromHere())
+#define CFdebug  Logger::getInstance().getDebug(FromHere())
+#define CFtrace  Logger::getInstance().getTrace(FromHere())
+#define CFendl   LogStream::ENDLINE
 
  //////////////////////////////////////////////////////////////////////////////
 
@@ -151,7 +151,7 @@ namespace Common {
 // Tracing macros
  //////////////////////////////////////////////////////////////////////////////
  
-// #include "CFLogStream.hh"
+// #include "LogStream.hh"
  
 /// Class to help trace functions which is easy to use and catches all function exits (return,throw,...)
 /// @author Dries Kimpe
@@ -230,4 +230,4 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // COOLFluiD_Common_CFLog.hh
+#endif // COOLFluiD_Common_Log.hh

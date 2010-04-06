@@ -1,5 +1,5 @@
-#ifndef COOLFluiD_Common_CFLogStringForwarder_hh
-#define COOLFluiD_Common_CFLogStringForwarder_hh
+#ifndef COOLFluiD_Common_LogStringForwarder_hh
+#define COOLFluiD_Common_LogStringForwarder_hh
 
 #include <string>
 
@@ -11,13 +11,13 @@ namespace Common {
  
 //////////////////////////////////////////////////////////////////////////////
 
- class CFLogStringForwarder
+ class LogStringForwarder
  {
   public:
    
    virtual void message(const std::string & str) = 0;
    
- }; // class CFLogStringForwarder
+ }; // class LogStringForwarder
  
 //////////////////////////////////////////////////////////////////////////////
  
@@ -27,4 +27,4 @@ namespace Common {
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // COOLFluiD_Common_CFLogStringForwarder_hh
+#endif // COOLFluiD_Common_LogStringForwarder_hh

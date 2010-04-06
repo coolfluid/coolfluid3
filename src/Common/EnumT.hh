@@ -1,6 +1,8 @@
 #ifndef COOLFluiD_Common_EnumT_hh
 #define COOLFluiD_Common_EnumT_hh
 
+#include <map>
+
  //#include "Common/COOLFluiD.hh"
 #include "Common/NonInstantiable.hh"
 

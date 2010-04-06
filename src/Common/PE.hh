@@ -60,7 +60,7 @@ private:
     /// Flag to keep track of Parallel Enviroment Initialized
     /// Note: cannot rely on m_curr_PE pointer because objects held by the enviroment
     ///       could not then check for initialization. An egg and chicken problem,
-    ///       that appeared when using CFLog on the destructors of PEInterface related objects.
+    ///       that appeared when using Log on the destructors of PEInterface related objects.
     static bool m_is_init;
     
     /// Path to the executable used to run the workers

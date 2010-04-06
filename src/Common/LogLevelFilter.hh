@@ -1,5 +1,5 @@
-#ifndef COOLFluiD_Common_CFLogLevelFilter_hh
-#define COOLFluiD_Common_CFLogLevelFilter_hh
+#ifndef COOLFluiD_Common_LogLevelFilter_hh
+#define COOLFluiD_Common_LogLevelFilter_hh
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -9,7 +9,7 @@
 #include <iostream>
 
 #include "Common/Common.hh"
-#include "CFLogLevel.hh"
+#include "LogLevel.hh"
 
 namespace CF {
 
@@ -32,7 +32,7 @@ namespace Common {
  ///
  /// @author Quentin Gasper
  
- class Common_API CFLogLevelFilter
+ class Common_API LogLevelFilter
  {
   public:
    
@@ -42,27 +42,27 @@ namespace Common {
    /// @brief Constructor
    
    /// @param level Default log level.
-   CFLogLevelFilter(CFLogLevel level);
+   LogLevelFilter(LogLevel level);
    
    /// @brief Sets the default log level.
    
    /// @param level The new default level.
-   void setLogLevel(CFLogLevel level);
+   void setLogLevel(LogLevel level);
    
    /// @brief Gives the default log level.
    
    /// @return Returns the default log level.
-   CFLogLevel getLogLevel() const;
+   LogLevel getLogLevel() const;
    
    /// @brief Sets the current log level.
    
    /// @param level The current log level.
-   void setCurrentLogLevel(CFLogLevel level);
+   void setCurrentLogLevel(LogLevel level);
    
    /// @brief Gives the current log level.
    
    /// @return Returns the current log level.
-   CFLogLevel getCurrentLogLevel() const;
+   LogLevel getCurrentLogLevel() const;
    
    /// @brief Resets the current log level to the default level.
    
@@ -94,12 +94,12 @@ namespace Common {
   private:
    
    /// @brief The default log level.
-   CFLogLevel m_logLevel;
+   LogLevel m_logLevel;
    
    /// @brief The current log level.
-   CFLogLevel m_currentLogLevel;
+   LogLevel m_currentLogLevel;
    
-  }; // struct CFLogLevelFilter
+  }; // struct LogLevelFilter
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -109,4 +109,4 @@ namespace Common {
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // COOLFluiD_Common_CFLogLevelFilter_hh
+#endif // COOLFluiD_Common_LogLevelFilter_hh

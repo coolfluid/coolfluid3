@@ -10,7 +10,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "CFLogger.hh"
+#include "Log.hh"
 #include "StringOps.hh"
 #include "PE.hh"
 
@@ -18,23 +18,23 @@ using namespace CF;
 using namespace CF::Common;
 using namespace boost;
 
-CFLogger::CFLogger()
+Logger::Logger()
 {
 
  // streams initialization
- this->m_streams[INFO_STREAM] = new CFLogStream("INFO"); 
- this->m_streams[ERROR_STREAM] = new CFLogStream("ERROR");
- this->m_streams[WARN_STREAM] = new CFLogStream("WARNING");
- this->m_streams[DEBUG_STREAM] = new CFLogStream("DEBUG"); 
- this->m_streams[TRACE_STREAM] = new CFLogStream("TRACE");
+ this->m_streams[INFO_STREAM] = new LogStream("INFO"); 
+ this->m_streams[ERROR_STREAM] = new LogStream("ERROR");
+ this->m_streams[WARN_STREAM] = new LogStream("WARNING");
+ this->m_streams[DEBUG_STREAM] = new LogStream("DEBUG"); 
+ this->m_streams[TRACE_STREAM] = new LogStream("TRACE");
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CFLogger::~CFLogger()
+Logger::~Logger()
 {
- std::map<StreamType, CFLogStream *>::iterator it;
+ std::map<StreamType, LogStream *>::iterator it;
  
  for(it = this->m_streams.begin() ; it != this->m_streams.end() ; it++)
   delete it->second;
@@ -43,16 +43,16 @@ CFLogger::~CFLogger()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CFLogger & CFLogger::getInstance()
+Logger & Logger::getInstance()
 {
- static CFLogger log;
+ static Logger log;
  return log;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CFLogStream & CFLogger::getInfo (const CodeLocation & place)
+LogStream & Logger::getInfo (const CodeLocation & place)
 {
  return *(this->m_streams[INFO_STREAM]) << place;
 }
@@ -60,7 +60,7 @@ CFLogStream & CFLogger::getInfo (const CodeLocation & place)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CFLogStream & CFLogger::getError(const CodeLocation & place)
+LogStream & Logger::getError(const CodeLocation & place)
 {
  return *(this->m_streams[ERROR_STREAM]) << place;
 }
@@ -68,7 +68,7 @@ CFLogStream & CFLogger::getError(const CodeLocation & place)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CFLogStream & CFLogger::getWarn(const CodeLocation & place)
+LogStream & Logger::getWarn(const CodeLocation & place)
 {
  return *(this->m_streams[WARN_STREAM]) << place;
 }
@@ -76,7 +76,7 @@ CFLogStream & CFLogger::getWarn(const CodeLocation & place)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CFLogStream & CFLogger::getDebug(const CodeLocation & place)
+LogStream & Logger::getDebug(const CodeLocation & place)
 {
  return *(this->m_streams[DEBUG_STREAM]) << place;
 }
@@ -84,12 +84,12 @@ CFLogStream & CFLogger::getDebug(const CodeLocation & place)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CFLogStream & CFLogger::getTrace(const CodeLocation & place)
+LogStream & Logger::getTrace(const CodeLocation & place)
 {
  return *(this->m_streams[TRACE_STREAM]) << place;
 }
 
-void CFLogger::openFiles()
+void Logger::openFiles()
 {
  if(PE::get_instance().is_init())
  {

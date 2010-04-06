@@ -1,6 +1,8 @@
 #ifndef COOLFluiD_Common_PEInterface_hh
 #define COOLFluiD_Common_PEInterface_hh
 
+#include <string>
+
 #include "Common/Common.hh"
 
 #include "Common/NotImplementedException.hh"

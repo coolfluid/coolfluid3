@@ -1,10 +1,10 @@
-#include "CFLogLevel.hh"
-#include "CFLogLevelFilter.hh"
+#include "LogLevel.hh"
+#include "LogLevelFilter.hh"
 
 using namespace CF;
 using namespace CF::Common;
 
-CFLogLevelFilter::CFLogLevelFilter(CFLogLevel level)
+LogLevelFilter::LogLevelFilter(LogLevel level)
  : m_logLevel(level),
    m_currentLogLevel(level)
 {
@@ -14,7 +14,7 @@ CFLogLevelFilter::CFLogLevelFilter(CFLogLevel level)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CFLogLevelFilter::setLogLevel(CFLogLevel level)
+void LogLevelFilter::setLogLevel(LogLevel level)
 {
  m_logLevel = level;
 }
@@ -22,7 +22,7 @@ void CFLogLevelFilter::setLogLevel(CFLogLevel level)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CFLogLevel CFLogLevelFilter::getLogLevel() const
+LogLevel LogLevelFilter::getLogLevel() const
 {
  return m_logLevel;
 }
@@ -30,7 +30,7 @@ CFLogLevel CFLogLevelFilter::getLogLevel() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CFLogLevelFilter::setCurrentLogLevel(CFLogLevel level)
+void LogLevelFilter::setCurrentLogLevel(LogLevel level)
 {
  m_currentLogLevel = level;
 }
@@ -38,7 +38,7 @@ void CFLogLevelFilter::setCurrentLogLevel(CFLogLevel level)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CFLogLevel CFLogLevelFilter::getCurrentLogLevel() const
+LogLevel LogLevelFilter::getCurrentLogLevel() const
 {
  return m_currentLogLevel;
 }
@@ -46,7 +46,7 @@ CFLogLevel CFLogLevelFilter::getCurrentLogLevel() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CFLogLevelFilter::resetToDefaultLevel()
+void LogLevelFilter::resetToDefaultLevel()
 {
  m_currentLogLevel = m_logLevel;
 }

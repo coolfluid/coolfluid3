@@ -2,11 +2,11 @@
 
 #include "CodeLocation.hh"
 
-#include "CFLogStampFilter.hh"
+#include "LogStampFilter.hh"
 
 using namespace CF::Common;
 
-CFLogStampFilter::CFLogStampFilter(const std::string & streamName, 
+LogStampFilter::LogStampFilter(const std::string & streamName, 
                                    const std::string & stamp)
  : m_stamp(stamp),
    m_newMessage(true),
@@ -19,7 +19,7 @@ CFLogStampFilter::CFLogStampFilter(const std::string & streamName,
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CFLogStampFilter::setStamp(const std::string & stamp)
+void LogStampFilter::setStamp(const std::string & stamp)
 {
  m_stamp = stamp;
 }
@@ -27,7 +27,7 @@ void CFLogStampFilter::setStamp(const std::string & stamp)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-std::string CFLogStampFilter::getStamp() const
+std::string LogStampFilter::getStamp() const
 {
  return m_stamp;
 }
@@ -35,7 +35,7 @@ std::string CFLogStampFilter::getStamp() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CFLogStampFilter::endMessage()
+void LogStampFilter::endMessage()
 {
  m_newMessage = true;
 }
@@ -43,7 +43,7 @@ void CFLogStampFilter::endMessage()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CFLogStampFilter::setPlace(const CodeLocation & place)
+void LogStampFilter::setPlace(const CodeLocation & place)
 {
  m_place = place;
 }

@@ -5,8 +5,8 @@
 
 #include <typeinfo>
 
-#include "Common/CFLog.hh"
-#include "Common/CFLogLevel.hh"
+#include "Common/Log.hh"
+#include "Common/LogLevel.hh"
 
 /*
  * UNSAFE_MPITYPES enables generic MPI Type registration code.

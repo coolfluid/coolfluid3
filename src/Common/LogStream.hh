@@ -1,5 +1,5 @@
-#ifndef COOLFluiD_Common_CFLogStream_hh
-#define COOLFluiD_Common_CFLogStream_hh
+#ifndef COOLFluiD_Common_LogStream_hh
+#define COOLFluiD_Common_LogStream_hh
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -8,8 +8,8 @@
 #include <boost/iostreams/filtering_stream.hpp>
 
 #include "Common/Common.hh"
-#include "CFLogStringForwarder.hh"
-#include "CFLogLevel.hh"
+#include "LogStringForwarder.hh"
+#include "LogLevel.hh"
 #include "CodeLocation.hh"
 #include "StringOps.hh"
 #include "PE.hh"
@@ -20,17 +20,17 @@ namespace Common {
  
  class CodeLocation;
  class StringOps;
- class CFLogToStream;
- class CFLogLevelFilter;
- class CFLogStampFilter;
- class CFLogStringForwarder;
+ class LogToStream;
+ class LogLevelFilter;
+ class LogStampFilter;
+ class LogStringForwarder;
  
 /////////////////////////////////////////////////////////////////////////////
  
  /// @brief Manages a log stream.
  
  /// @author Quentin Gasper 
- class Common_API CFLogStream
+ class Common_API LogStream
  {
   public:
    
@@ -47,7 +47,7 @@ namespace Common {
    };
    
    /// @brief Message destination
-   enum CFLogDestination
+   enum LogDestination
    {
     /// @brief Standard output
     SCREEN = 1,
@@ -65,45 +65,45 @@ namespace Common {
    /// @brief Constructor
    
    /// @param fileStream The file stream.
-   CFLogStream(const std::string & streamName, CFLogLevel level = NORMAL);
+   LogStream(const std::string & streamName, LogLevel level = NORMAL);
    
    /// @brief Destructor.
    
    /// Frees all allocated memory. The file stream is not destroyed. All 
    /// unflushed streams are flushed
-   ~CFLogStream();
+   ~LogStream();
    
    /// @brief Flushes the stream contents.
    void flush();
    
-   /// @brief Overrides operator &lt;&lt; for @c #CFLogLevel type.
+   /// @brief Overrides operator &lt;&lt; for @c #LogLevel type.
    
    /// Sets @c #level as current level for all destinations.
    /// @param level The level.
    /// @return Returns a reference to this object.
-   CFLogStream & operator << (CFLogLevel level);
+   LogStream & operator << (LogLevel level);
    
    /// @brief Overrides operator &lt;&lt; for @c #Logtag type.
    
    /// If @c tag is @c #ENDLINE, all stream buffers are flushed.
    /// @param tag The tag
    /// @return Returns a reference to this object.
-   CFLogStream & operator << (LogTag tag);
+   LogStream & operator << (LogTag tag);
    
-   /// @brief Overrides operator &lt;&lt; for @c #CFLogLevel type.
+   /// @brief Overrides operator &lt;&lt; for @c #LogLevel type.
    
    /// Sets @c #codeLoction as current code location for all destinations.
    /// @return Returns a reference to this object.
-   CFLogStream & operator << (const CodeLocation & codeLoction);
+   LogStream & operator << (const CodeLocation & codeLoction);
    
    /// @brief Overrides operator &lt;&lt; for any type.
    
    /// Appends @c t to the stream
    /// @param t The value to append
    /// @return Returns a reference to this object.
-   template <typename T> CFLogStream & operator << (const T & t)
+   template <typename T> LogStream & operator << (const T & t)
    {
-    std::map<CFLogDestination, boost::iostreams::filtering_ostream *>::iterator it;
+    std::map<LogDestination, boost::iostreams::filtering_ostream *>::iterator it;
 
     for(it = m_destinations.begin() ; it != m_destinations.end() ; it++)
     {
@@ -138,8 +138,8 @@ namespace Common {
    
    /// @c level is set as default log level to all destinations.
    /// @param level The new default level.
-   /// @see CFLogLevelFilter
-   void setLogLevel(CFLogLevel level);
+   /// @see LogLevelFilter
+   void setLogLevel(LogLevel level);
    
    /// @brief Sets new default level to the specified destination.
    
@@ -147,15 +147,15 @@ namespace Common {
    /// nothing is done.
    /// @param destination The destination.
    /// @param level The new default level.
-   /// @see CFLogLevelFilter
-   void setLogLevel(CFLogDestination destination, CFLogLevel level);
+   /// @see LogLevelFilter
+   void setLogLevel(LogDestination destination, LogLevel level);
    
    /// @brief Gives the default log level of a specified destination.
    
    /// @param destination The destination.
    /// @return Returns the default log level of the specified destination.
-   /// @see CFLogLevelFilter
-   CFLogLevel getLogLevel(CFLogDestination destination) const;
+   /// @see LogLevelFilter
+   LogLevel getLogLevel(LogDestination destination) const;
    
    /// @brief Modifies the use policy of a destination
    
@@ -164,14 +164,14 @@ namespace Common {
    /// @param destination The destination.
    /// @param use If @c true, the destination is set to "use"; otherwise
    /// it is set to "not use".
-   void useDestination(CFLogDestination destination, bool use);
+   void useDestination(LogDestination destination, bool use);
    
    /// @brief Gives the use policy of a destination.
    
    /// If @c destination is @c #FILE but @c #isFileOpen() returns @c false, 
    /// this method returns @c false.
    /// @return The use policy of the specified destination.
-   bool isDestinationUsed(CFLogDestination destination) const;
+   bool isDestinationUsed(LogDestination destination) const;
    
    /// @brief Sets a stamp format to a specified destination.
    
@@ -179,20 +179,20 @@ namespace Common {
    /// nothing is done.
    /// @param destination The destination
    /// @param stampFormat The stamp format
-   /// @see CFLogStampFilter
-   void setStamp(CFLogDestination destination, const std::string & stampFormat);
+   /// @see LogStampFilter
+   void setStamp(LogDestination destination, const std::string & stampFormat);
    
    /// @brief Gives the stamp format of a specified destination.
    
    /// @param destination The destination
    /// @return Returns the stamp format of the specified destination
-   /// @see CFLogStampFilter
-   std::string getStamp(CFLogDestination destination);
+   /// @see LogStampFilter
+   std::string getStamp(LogDestination destination);
 
    /// @brief Sets a stamp format to all destinations.
    
    /// @param stampFormat The stamp format
-   /// @see CFLogStampFilter
+   /// @see LogStampFilter
    void setStamp(const std::string & stampFormat);
    
    /// @brief Enables or disables the filter on MPI rank zero on a destination
@@ -202,7 +202,7 @@ namespace Common {
    /// @param dest The destination
    /// @param filterRankZero If @c true, the filter is set to "enabled"; 
    /// otherwise, it is set to "disabled".
-   void setFilterRankZero(CFLogDestination dest, bool filterRankZero);
+   void setFilterRankZero(LogDestination dest, bool filterRankZero);
    
    /// @brief Enables or disables the filter on MPI rank zero on all destinations
    
@@ -229,12 +229,12 @@ namespace Common {
    /// @brief Appends a string forwarder to the forwarder list.
    
    /// The forwarder is linked to the string buffer and its 
-   /// @link CFLogStringForwarder::message @c message() @endlink method is called.
+   /// @link LogStringForwarder::message @c message() @endlink method is called.
    /// If the pointer is @c NULL or already exists in the forwarder list, 
    /// nothing is done.
    /// @param forwarder The forwarder to append.
    /// @see removeStringForwarder
-   void addStringForwarder(CFLogStringForwarder * forwarder);
+   void addStringForwarder(LogStringForwarder * forwarder);
   
    /// @brief Removes a string from the forwarder list.
    
@@ -245,27 +245,27 @@ namespace Common {
    /// to a <i>segmentation fault</i>.
    /// @param forwarder The forwarder to remove.
    /// @see addStringForwarder
-   void removeStringForwarder(CFLogStringForwarder * forwarder);
+   void removeStringForwarder(LogStringForwarder * forwarder);
    
   private:
    
    /// @brief Destinations.
    
    /// The key is the destination. The value is the corresponding stream.
-   std::map<CFLogDestination, boost::iostreams::filtering_ostream *> m_destinations;
+   std::map<LogDestination, boost::iostreams::filtering_ostream *> m_destinations;
    
    /// @brief The forwarder list
-   std::list<CFLogStringForwarder *> m_stringForwarders;
+   std::list<LogStringForwarder *> m_stringForwarders;
    
    /// @brief Use policies
    
    /// The key is the destination. The value is the corresponding use policy.
-   std::map<CFLogDestination, bool> m_usedDests;
+   std::map<LogDestination, bool> m_usedDests;
    
    /// @brief Rank zero filter
    
    /// The key is the destination. The value is the corresponding filter policy.
-   std::map<CFLogDestination, bool> m_filterRankZero;
+   std::map<LogDestination, bool> m_filterRankZero;
    
    /// @brief Buffer for @c #STRING destination
    std::string m_buffer;
@@ -278,8 +278,8 @@ namespace Common {
    /// @brief Default value.
    
    /// This attribute is used on @c #FILE stream creation. Its value is modified
-   /// by @c #setLogLevel(CFLogLevel).
-   CFLogLevel m_level;
+   /// by @c #setLogLevel(LogLevel).
+   LogLevel m_level;
    
    /// @brief Flush status
    
@@ -292,15 +292,15 @@ namespace Common {
    
    /// @param dest The destination
    /// @return Returns the level filter
-   CFLogLevelFilter & getLevelFilter(CFLogDestination dest) const;
+   LogLevelFilter & getLevelFilter(LogDestination dest) const;
    
    /// @brief Gives the stamp filter of a destination
    
    /// @param dest The destination
    /// @return Returns the stamp filter
-   CFLogStampFilter & getStampFilter(CFLogDestination dest) const;
+   LogStampFilter & getStampFilter(LogDestination dest) const;
    
- }; // class CFLogStream
+ }; // class LogStream
  
 /////////////////////////////////////////////////////////////////////////////
  
@@ -310,4 +310,4 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // COOLFluiD_Common_CFLogStream_hh
+#endif // COOLFluiD_Common_LogStream_hh

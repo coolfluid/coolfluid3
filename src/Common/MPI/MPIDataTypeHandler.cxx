@@ -1,5 +1,5 @@
 #include "Common/MPI/MPIDataTypeHandler.hh"
-#include "Common/CFLog.hh"
+#include "Common/Log.hh"
 #include <mpi.h>
 
 //////////////////////////////////////////////////////////////////////////////

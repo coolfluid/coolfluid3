@@ -1,16 +1,16 @@
 LIST ( APPEND Common_files 
-   CFLog.cxx
-   CFLog.hh
-   CFLogLevel.hh
-   CFLogLevelFilter.cxx
-   CFLogLevelFilter.hh
-   CFLogStampFilter.cxx
-   CFLogStampFilter.hh
-   CFLogStream.cxx
-   CFLogStream.hh
-   CFLogStringDisplayer.cxx
-   CFLogStringDisplayer.hh
-   CFLogStringForwarder.hh
+   Log.cxx
+   Log.hh
+   LogLevel.hh
+   LogLevelFilter.cxx
+   LogLevelFilter.hh
+   LogStampFilter.cxx
+   LogStampFilter.hh
+   LogStream.cxx
+   LogStream.hh
+   LogStringDisplayer.cxx
+   LogStringDisplayer.hh
+   LogStringForwarder.hh
    CodeLocation.cxx
    CodeLocation.hh
    Common.hh

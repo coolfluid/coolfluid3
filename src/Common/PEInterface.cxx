@@ -1,5 +1,3 @@
-#include <string>
-
 #include "Common/PEInterface.hh"
 
 namespace CF {
