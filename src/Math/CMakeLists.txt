@@ -1,4 +1,4 @@
-LIST ( APPEND Math_files DummyMath.hh DummyMath.cxx MathAPI.hh)
+LIST ( APPEND Math_files MathAPI.hh)
 
 SET  ( Math_kernellib TRUE )
 
