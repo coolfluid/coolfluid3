@@ -21,6 +21,22 @@ ENDMACRO ( CF_LIST_PROJECT_FILES )
 ##############################################################################
 # finds project files and adds them to the passed variable
 ##############################################################################
+MACRO ( CF_MARK_NOT_ORPHAN )
+
+  # remove files marked as not orphan
+  foreach( AFILE ${ARGV} )
+    list ( REMOVE_ITEM CF_ORPHAN_FILES ${AFILE} )
+  endforeach()
+
+  # rewrite the orphan file list in cache
+  set ( CF_ORPHAN_FILES ${CF_ORPHAN_FILES} CACHE INTERNAL "" FORCE )
+
+ENDMACRO ( CF_LIST_PROJECT_FILES )
+##############################################################################
+
+##############################################################################
+# finds project files and adds them to the passed variable
+##############################################################################
 FUNCTION ( CF_FIND_ORPHAN_FILES )
 
 	CF_LIST_PROJECT_FILES ( cwdFiles )

@@ -16,13 +16,13 @@ MACRO( CF_SEPARATE_SOURCES FILELIST TGTNAME )
       # separate headers
       IF(${AFILE} MATCHES "(\\.hh|\\.ci|\\.h|\\.hpp)")
         LIST ( APPEND ${TGTNAME}_headers ${AFILE})
-	LIST( REMOVE_ITEM CF_ORPHAN_FILES ${thisFileName} )
+        LIST ( REMOVE_ITEM CF_ORPHAN_FILES ${thisFileName} )
       ENDIF()
 
       # separate sources
       IF(${AFILE} MATCHES "(\\.cxx|\\.cpp|\\.cc|\\.c|\\.f|\\.f77|\\.f90)")
         LIST ( APPEND ${TGTNAME}_sources ${AFILE})
-	LIST( REMOVE_ITEM CF_ORPHAN_FILES ${thisFileName} )
+        LIST( REMOVE_ITEM CF_ORPHAN_FILES ${thisFileName} )
       ENDIF()
 
 

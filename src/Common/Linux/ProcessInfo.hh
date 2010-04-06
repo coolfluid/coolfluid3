@@ -16,7 +16,7 @@ namespace CF {
 /// This class represents the current information on the memory usage.
 /// Is is an implementation for the Linux operating system
 /// @author Tiago Quintino
-class Common_API ProcessInfo :  public ProcessInfo {
+class Common_API ProcessInfo :  public Common::ProcessInfo {
 
 public:
 

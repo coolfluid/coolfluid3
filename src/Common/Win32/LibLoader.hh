@@ -12,16 +12,15 @@ namespace Win32 {
 //////////////////////////////////////////////////////////////////////////////
 
 /// Class to load libraries in the Win32 OS
-class  Common_API Win32LibLoader :
-  public LibLoader {
+class  Common_API LibLoader : public Common::LibLoader {
 
 public: // functions
 
   /// constructor
-  Win32LibLoader();
+  LibLoader();
 
   /// virtual destructor
-  virtual ~Win32LibLoader();
+  virtual ~LibLoader();
 
   /// class interface to load a library depending on the operating system
   /// and the library loading algorithm

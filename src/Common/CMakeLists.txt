@@ -28,22 +28,14 @@ LIST ( APPEND Common_files
    DemangledTypeID.cxx
    Exception.cxx
    OSystem.cxx
-AssertionManager.hh
-BasicExpections.hh
-CF.hh
-DemangledTypeID.hh
-EnumT.hh
-Exception.hh
-Linux/ProcessInfo.cxx
-Linux/SignalHandler.cxx
-Linux/ProcessInfo.hh
-Linux/SignalHandler.hh
-MacOSX/ProcessInfo.hh
-MacOSX/SignalHandler.hh
-MacOSX/ProcessInfo.cxx
-MacOSX/SignalHandler.cxx
-OSystem.hh
-PtrAlloc.hh )
+   AssertionManager.hh
+   BasicExpections.hh
+   CF.hh
+   DemangledTypeID.hh
+   EnumT.hh
+   Exception.hh
+   OSystem.hh
+   PtrAlloc.hh )
 
 ###############################################################################
 # MPI Files

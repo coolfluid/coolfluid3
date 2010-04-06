@@ -1,5 +1,5 @@
-#ifndef CF_Common_SignalHandlerWin32_hh
-#define CF_Common_SignalHandlerWin32_hh
+#ifndef CF_Common_Win32_SignalHandler_hh
+#define CF_Common_Win32_SignalHandler_hh
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -8,14 +8,14 @@
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-
   namespace Common {
+	namespace Win32 {
 
 //////////////////////////////////////////////////////////////////////////////
 
 /// This class handles of signals from the Win32 operating system
 /// @author Tiago Quintino
-class Common_API SignalHandlerWin32 : public SignalHandler {
+class Common_API SignalHandlerWin32 : public Common::SignalHandler {
 
 public: // methods
 
@@ -32,10 +32,10 @@ public: // methods
 
 //////////////////////////////////////////////////////////////////////////////
 
-  } // namespace Common
-
+} // Win32
+} // namespace Common
 } // namespace CF
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // COOFluiD_Common_SignalHandlerWin32_hh
+#endif // COOFluiD_Common_Win32_SignalHandler_hh

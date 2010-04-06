@@ -15,7 +15,7 @@ namespace CF {
 
 /// This class handles of signals from the MacOSX operating system
 /// @author Tiago Quintino
-class Common_API SignalHandler : public SignalHandler {
+class Common_API SignalHandler : public Common::SignalHandler {
 
 public: // methods
 

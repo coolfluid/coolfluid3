@@ -1,31 +1,30 @@
-#ifndef CF_Common_ProcessInfoWin32_hh
-#define CF_Common_ProcessInfoWin32_hh
+#ifndef CF_Common_Win32_ProcessInfo_hh
+#define CF_Common_Win32_ProcessInfo_hh
 
-//////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////ProcessInfo/////////////////////////////////////////////
 
 #include "Common/ProcessInfo.hh"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-
   namespace Common {
+	namespace Win32 {
 
 //////////////////////////////////////////////////////////////////////////////
 
 /// This class represents the current information on the memory usage.
 /// Is is an implementation for the Win32 operating system
 /// @author Tiago Quintino
-class Common_API ProcessInfoWin32 :
-  public ProcessInfo {
+class Common_API ProcessInfo : public Common::ProcessInfo {
 
 public:
 
   /// Constructor without arguments
-  ProcessInfoWin32();
+  ProcessInfo();
 
   /// Destructor
-  virtual ~ProcessInfoWin32();
+  virtual ~ProcessInfo();
 
   /// @returns string with platform name
   virtual std::string getPlatformName () const { return "Win32"; };
@@ -46,10 +45,10 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////
 
-  } // namespace Common
-
+} // Win32
+} // namespace Common
 } // namespace CF
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_ProcessInfoWin32_hh
+#endif // CF_Common_Win32_ProcessInfo_hh

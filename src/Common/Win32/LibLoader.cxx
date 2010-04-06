@@ -1,44 +1,43 @@
 #include <cstdlib>
 
-#include "Common/CFLog.hh" // CF_HAVE_WINDOWSH is defined via this header
+#include "Common/Log.hh" // CF_HAVE_WINDOWSH is defined via this header
 
 // windows header ( maybe this define should be in the coolfluid_config.h )
 #define _WIN32_WINNT 0x0502 // minimum requirement is ( "Windows Server 2003 with SP1" ) or ( "Windows XP with SP2" )
 #include <windows.h>
 
-#include "Common/Win32LibLoader.hh"
-#include "Common/Common.hh"
+#include "Common/Win32/LibLoader.hh"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-
   namespace Common {
+	  namespace Win32 {
 
 //////////////////////////////////////////////////////////////////////////////
 
-Win32LibLoader::Win32LibLoader()
+LibLoader::LibLoader()
 {
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-Win32LibLoader::~Win32LibLoader()
+LibLoader::~LibLoader()
 {
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Win32LibLoader::set_search_paths(std::vector< boost::filesystem::path >& paths)
+void LibLoader::set_search_paths(std::vector< boost::filesystem::path >& paths)
 {
   m_search_paths = paths;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Win32LibLoader::load_library(const std::string& lib)
+void LibLoader::load_library(const std::string& lib)
 {
-  CFLog( VERBOSE , "Win32LibLoader: Attempting to load '" << lib << "'\n" );
+  CFLog( VERBOSE , "LibLoader: Attempting to load '" << lib << "'\n" );
   using boost::filesystem::path;
   std::string libname = lib + ".dll";
 
@@ -70,7 +69,7 @@ void Win32LibLoader::load_library(const std::string& lib)
   // check for success
   if(hdl != NULL)
   {
-    CFLog( WARN, "Win32LibLoader: Loaded '" << libname << "'\n" );
+    CFLog( WARN, "LibLoader: Loaded '" << libname << "'\n" );
   }
   else
   {
@@ -81,8 +80,8 @@ void Win32LibLoader::load_library(const std::string& lib)
 
 //////////////////////////////////////////////////////////////////////////////
 
+	| // Win32
   } // namespace Common
-
 } // namespace CF
 
 //////////////////////////////////////////////////////////////////////////////

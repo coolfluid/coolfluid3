@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "Common/ProcessInfoWin32.hh"
+#include "Common/Win32/ProcessInfo.hh"
 #include "Common/Common.hh"
 
 #include <windows.h> // for CaptureStackBacktrace
@@ -238,22 +238,23 @@ using namespace std;
 
 namespace CF {
   namespace Common {
+	namespace Win32 {
 
 //////////////////////////////////////////////////////////////////////////////
 
-ProcessInfoWin32::ProcessInfoWin32()
+ProcessInfo::ProcessInfo()
 {
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-ProcessInfoWin32::~ProcessInfoWin32()
+ProcessInfo::~ProcessInfo()
 {
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-std::string ProcessInfoWin32::getBackTrace () const
+std::string ProcessInfo::getBackTrace () const
 {
   printf ("\n\nWin32 dumping backtrace ...\n");
 
@@ -310,14 +311,14 @@ void *array[max_callers];
 
 //////////////////////////////////////////////////////////////////////////////
 
-Uint ProcessInfoWin32::getPID () const
+Uint ProcessInfo::getPID () const
 {
   return (Uint) GetCurrentProcessId();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-double ProcessInfoWin32::memoryUsageBytes () const
+double ProcessInfo::memoryUsageBytes () const
 {
   double return_value = 0.;
 
@@ -351,7 +352,7 @@ double ProcessInfoWin32::memoryUsageBytes () const
 }
 
 //////////////////////////////////////////////////////////////////////////////
-
+	} // Win32
   } // namespace Common
 } // namespace CF
 

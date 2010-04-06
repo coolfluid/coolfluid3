@@ -1,5 +1,5 @@
 #ifndef CF_Common_Linux_SignalHandler_hh
-#define CF_Common_Linux__SignalHandler_hh
+#define CF_Common_Linux_SignalHandler_hh
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -15,7 +15,7 @@ namespace CF {
 
 /// This class handles of signals from the Linux operating system
 /// @author Tiago Quintino
-class Common_API SignalHandler : public SignalHandler {
+class Common_API SignalHandler : public Common::SignalHandler {
 
 public: // methods
 
@@ -46,4 +46,4 @@ protected: // methods
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // COOFluiD_Common_Linux__SignalHandler_hh
+#endif // COOFluiD_Common_Linux_SignalHandler_hh
