@@ -1,5 +1,5 @@
-#ifndef COOLFluiD_Common_ExportAPI_hh
-#define COOLFluiD_Common_ExportAPI_hh
+#ifndef CF_Common_ExportAPI_hh
+#define CF_Common_ExportAPI_hh
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -50,4 +50,4 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // COOLFluiD_Common_ExportAPI_hh
+#endif // CF_Common_ExportAPI_hh
