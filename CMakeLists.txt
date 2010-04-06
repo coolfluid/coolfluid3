@@ -9,7 +9,7 @@
 # -DCMAKE_BUILD_TYPE=DEBUG     will set the build type
 # -G"Visual Studio 9 2008"     will generate for WIN32
 # -DCMAKE_INSTALL_PREFIX=DIR   will specify where to install
-# -DCF_PLUGINS_SEARCH_DIRS:STRING="/dir/path1;/dir/path2"
+# -DCF_PLUGIN_DIRS:STRING="/dir/path1;/dir/path2"
 ##############################################################################
 
 ##############################################################################
@@ -153,7 +153,7 @@ LOG ( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 
 # find plugins
 # developer may set several base directories that host multiple plugins each
-foreach( EXDIR ${CF_PLUGIN_SEARCH_DIRS} )
+foreach( EXDIR ${CF_PLUGIN_DIRS} )
 
   include_directories ( ${EXDIR} )
 

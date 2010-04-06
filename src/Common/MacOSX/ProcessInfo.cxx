@@ -1,43 +1,43 @@
 #include <execinfo.h>    // for backtrace() from glibc
 #include <sys/types.h>   // for getting the PID of the process
 
-#include <mach/mach_types.h> 
+#include <mach/mach_types.h>
 #include <mach/mach_init.h>
 #include <mach/task.h>
 
-#include "Common/ProcessInfoMacOSX.hh"
+#include "Common/ProcessInfo.hh"
 #include "Common/Common.hh"
 
 //////////////////////////////////////////////////////////////////////////////
 
 using namespace std;
 
-namespace COOLFluiD {
-
+namespace CF {
   namespace Common {
+    namespace MacOSX {
 
 //////////////////////////////////////////////////////////////////////////////
 
-ProcessInfoMacOSX::ProcessInfoMacOSX()
+ProcessInfo::ProcessInfo()
 {
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-ProcessInfoMacOSX::~ProcessInfoMacOSX()
+ProcessInfo::~ProcessInfo()
 {
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-std::string ProcessInfoMacOSX::getBackTrace () const
+std::string ProcessInfo::getBackTrace () const
 {
   return dumpBackTrace ();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-std::string ProcessInfoMacOSX::dumpBackTrace ()
+std::string ProcessInfo::dumpBackTrace ()
 {
   #define BUFFER_SIZE 500
 
@@ -65,35 +65,35 @@ std::string ProcessInfoMacOSX::dumpBackTrace ()
 
 //////////////////////////////////////////////////////////////////////////////
 
-CFuint ProcessInfoMacOSX::getPID() const
+Uint ProcessInfo::getPID() const
 {
   pid_t pid = getpid();
-  return static_cast<CFuint> ( pid );
+  return static_cast<Uint> ( pid );
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-CFdouble ProcessInfoMacOSX::memoryUsageBytes() const
+double ProcessInfo::memoryUsageBytes() const
 {
-  
+
   struct task_basic_info t_info;
   mach_msg_type_number_t t_info_count = TASK_BASIC_INFO_COUNT;
 
   if (KERN_SUCCESS != task_info(mach_task_self(),
-                                TASK_BASIC_INFO, (task_info_t)&t_info, 
+                                TASK_BASIC_INFO, (task_info_t)&t_info,
                                 &t_info_count))
   {
       return -1;
   }
   // resident size is in t_info.resident_size;
   // virtual size is in t_info.virtual_size;
-  
-  return static_cast<CFdouble>(t_info.resident_size);
+
+  return static_cast<double>(t_info.resident_size);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
+    } // MacOSX
   } // namespace Common
-
-} // namespace COOLFluiD
+} // namespace CF
 

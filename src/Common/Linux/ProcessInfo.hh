@@ -1,5 +1,5 @@
-#ifndef COOLFluiD_Common_ProcessInfoLinux_hh
-#define COOLFluiD_Common_ProcessInfoLinux_hh
+#ifndef CF_Common_Linux_ProcessInfo_hh
+#define CF_Common_Linux_ProcessInfo_hh
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -7,24 +7,24 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace COOLFluiD {
-
+namespace CF {
   namespace Common {
+    namespace Linux {
 
 //////////////////////////////////////////////////////////////////////////////
 
 /// This class represents the current information on the memory usage.
 /// Is is an implementation for the Linux operating system
 /// @author Tiago Quintino
-class Common_API ProcessInfoLinux :  public ProcessInfo {
+class Common_API ProcessInfo :  public ProcessInfo {
 
 public:
 
   /// Constructor without arguments
-  ProcessInfoLinux();
+  ProcessInfo();
 
   /// Destructor
-  virtual ~ProcessInfoLinux();
+  virtual ~ProcessInfo();
 
   /// @returns string with platform name
   virtual std::string getPlatformName () const { return "Linux"; };
@@ -38,20 +38,20 @@ public:
 
   /// Gets the current process ID
   /// @return a integer witht he current process ID
-  virtual CFuint getPID () const;
+  virtual Uint getPID () const;
 
   /// Gets the memory usage
   /// @return a double with the memory usage
-  virtual CFdouble memoryUsageBytes() const;
+  virtual double memoryUsageBytes() const;
 
 }; // end of class ProcessInfo
 
 //////////////////////////////////////////////////////////////////////////////
 
+    } // Linux
   } // namespace Common
-
-} // namespace COOLFluiD
+} // namespace CF
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // COOLFluiD_Common_ProcessInfoLinux_hh
+#endif // CF_Common_Linux_ProcessInfo_hh

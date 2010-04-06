@@ -23,6 +23,26 @@ IF( NOT CF_ENABLE_DEBUG_MACROS)
   ADD_DEFINITIONS(-DCF_NO_DEBUG_MACROS)
 ENDIF()
 
+###############################################################################
+# process precision option
+if  ( CF_USER_PRECISION MATCHES "[Ss][Ii][Nn][Gg][Ll][Ee]" )
+  set ( CF_REAL_TYPE "float" CACHE STRING "Real type" FORCE )
+endif()
+
+if  ( CF_USER_PRECISION MATCHES "[Dd][Oo][Uu][Bb][Ll][Ee]" )
+  set ( CF_REAL_TYPE "double" CACHE STRING "Real type" FORCE )
+endif()
+
+if  ( CF_USER_PRECISION MATCHES "[Qq][Uu][Aa][Dd]" )
+  set ( CF_REAL_TYPE "long double" CACHE STRING "Real type" FORCE )
+endif()
+
+# default is double precision
+if ( NOT DEFINED CF_REAL_TYPE )
+  set ( CF_REAL_TYPE "double" CACHE STRING "Real type" FORCE )
+endif()
+
+mark_as_advanced ( CF_REAL_TYPE )
 
 ###############################################################################
 # explicit template support

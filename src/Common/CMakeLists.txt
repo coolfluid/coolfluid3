@@ -28,12 +28,6 @@ LIST ( APPEND Common_files
    DemangledTypeID.cxx
    Exception.cxx
    OSystem.cxx
-Win32/LibLoader.hh
-Win32/ProcessInfo.hh
-Win32/Win32LibLoader.hh
-Win32/LibLoader.cxx
-Win32/ProcessInfo.cxx
-Win32/SignalHandler.cxx
 AssertionManager.hh
 BasicExpections.hh
 CF.hh
@@ -51,6 +45,7 @@ MacOSX/SignalHandler.cxx
 OSystem.hh
 PtrAlloc.hh )
 
+###############################################################################
 # MPI Files
 IF(CF_HAVE_MPI)
  LIST(APPEND Common_files
@@ -78,6 +73,55 @@ IF(CF_HAVE_MPI)
       MPI/PEInterfaceMPI.hh
  )
 ENDIF()
+
+###############################################################################
+# Operating System dependent files
+
+### UNIXES ####
+IF (UNIX)
+
+  IF ( CF_HAVE_DLOPEN )
+    LIST ( APPEND Common_files PosixDlopenLibLoader.hh PosixDlopenLibLoader.cxx )
+    LIST ( APPEND Common_libs  dl )
+    SET ( CF_HAVE_LIBLOADER ON )
+  ENDIF()
+
+  IF    ( CF_OS_MACOSX )
+    LIST ( APPEND Common_files MacOSX/SignalHandler.hh MacOSX/SignalHandler.cxx )
+    LIST ( APPEND Common_files MacOSX/ProcessInfo.hh   MacOSX/ProcessInfo.cxx )
+  ENDIF ()
+
+  IF    ( CF_OS_LINUX )
+    LIST ( APPEND Common_files Linux/ProcessInfo.hh   Linux/ProcessInfo.cxx )
+    LIST ( APPEND Common_files Linux/SignalHandler.hh Linux/SignalHandler.cxx )
+  ENDIF ()
+
+ENDIF(UNIX)
+
+### WINDOWS ####
+IF (WIN32)
+  
+  LIST ( APPEND Common_files Win32/ProcessInfo.hh   Win32/ProcessInfo.cxx )
+  LIST ( APPEND Common_files Win32/SignalHandler.hh Win32/SignalHandler.cxx )
+
+  # should search explicitly for dbghelp.dll
+  # should search for psapi.dll if not in windows 7 (already in kernel32.dll)
+
+  # libraries for ProcessInfoWin32
+  LIST ( APPEND Common_libs dbghelp psapi )
+
+  IF ( CF_HAVE_WINDOWSH )
+    LIST ( APPEND Common_files Win32/LibLoader.hh     Win32/LibLoader.cxx )
+    SET ( CF_HAVE_LIBLOADER ON )
+  ENDIF()
+
+ENDIF()
+
+IF    ( NOT CF_HAVE_LIBLOADER )
+  MESSAGE ( FATAL_ERROR "No dynamic library loader was found!")
+ENDIF()
+
+
 
 SET  ( Common_kernellib TRUE )
 

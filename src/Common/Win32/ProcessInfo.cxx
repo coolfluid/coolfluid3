@@ -1,11 +1,11 @@
-#include <iostream> 
+#include <iostream>
 
 #include "Common/ProcessInfoWin32.hh"
 #include "Common/Common.hh"
 
 #include <windows.h> // for CaptureStackBacktrace
 #include <dbghelp.h> // for stack trace
-#include <psapi.h>   // for memory usage   
+#include <psapi.h>   // for memory usage
 
 // The arraysize(arr) macro returns the # of elements in an array arr.
 // The expression is a compile-time constant, and therefore can be
@@ -40,7 +40,7 @@ struct _EXCEPTION_POINTERS;
 // stacktrace member in a object (probably around #ifndef NDEBUG) so that you
 // can later see where the given object was created from.
 class StackTrace {
- public:
+public:
   // Creates a stacktrace from the current location
   StackTrace();
 
@@ -58,7 +58,7 @@ class StackTrace {
   // Resolves backtrace to symbols and write to stream.
   void OutputToStream(std::ostream* os);
 
- private:
+private:
   // From http://msdn.microsoft.com/en-us/library/bb204633.aspx,
   // the sum of FramesToSkip and FramesToCapture must be less than 63,
   // so set it to 62. Even if on POSIX it could be a larger value, it usually
@@ -75,10 +75,10 @@ namespace {
 // of functions.  The Sym* family of functions may only be invoked by one
 // thread at a time.
 class SymbolContext {
- public:
-  static SymbolContext* Get() 
+public:
+  static SymbolContext* Get()
   {
-    
+
     // We use a leaky singleton because code may call this during process termination.
     static SymbolContext aSymContxt;
     return &aSymContxt;
@@ -100,7 +100,7 @@ class SymbolContext {
   void OutputTraceToStream(const void* const* trace,
                            int count,
                            std::ostream* os) {
-    
+
     /* AutoLock lock(lock_); */ // from chromium
 
     for (int i = 0; (i < count) && os->good(); ++i) {
@@ -146,7 +146,7 @@ class SymbolContext {
     }
   }
 
- private:
+private:
 
   SymbolContext() : init_error_(ERROR_SUCCESS) {
     // Initializes the symbols for the process.
@@ -236,7 +236,7 @@ void StackTrace::OutputToStream(std::ostream* os) {
 
 using namespace std;
 
-namespace COOLFluiD {
+namespace CF {
   namespace Common {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -272,7 +272,7 @@ std::string ProcessInfoWin32::getBackTrace () const
 #if 0
   const int max_callers = 62;
 
-	void *array[max_callers];
+void *array[max_callers];
   printf ("Calling  CaptureStackBackTrace ...\n");
   int num = CaptureStackBackTrace(0,max_callers,array, NULL);
 
@@ -280,7 +280,7 @@ std::string ProcessInfoWin32::getBackTrace () const
   for (int i = 0; i < num; i++)
   {
     printf("%s\n",(char*) array[i]);
-		oss << (char*) array[i] << "\n";
+  	oss << (char*) array[i] << "\n";
   }
 #endif
 
@@ -300,8 +300,8 @@ std::string ProcessInfoWin32::getBackTrace () const
   } else {
     trace_.resize(0);
   // When walking our own stack, use CaptureStackBackTrace().
-  count_ = CaptureStackBackTrace(0, arraysize(trace_), trace_, NULL);  
-  
+  count_ = CaptureStackBackTrace(0, arraysize(trace_), trace_, NULL);
+
 #endif
 
 
@@ -310,16 +310,16 @@ std::string ProcessInfoWin32::getBackTrace () const
 
 //////////////////////////////////////////////////////////////////////////////
 
-CFuint ProcessInfoWin32::getPID () const
+Uint ProcessInfoWin32::getPID () const
 {
-  return (CFuint) GetCurrentProcessId();
+  return (Uint) GetCurrentProcessId();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-CFdouble ProcessInfoWin32::memoryUsageBytes () const
+double ProcessInfoWin32::memoryUsageBytes () const
 {
-  CFdouble return_value = 0.;  
+  double return_value = 0.;
 
 #if 1
   HANDLE hProcess = GetCurrentProcess();
@@ -337,12 +337,12 @@ CFdouble ProcessInfoWin32::memoryUsageBytes () const
 //        printf( "\tQuotaPagedPoolUsage: 0x%08X\n", pmc.QuotaPagedPoolUsage );
 //        printf( "\tQuotaPeakNonPagedPoolUsage: 0x%08X\n", pmc.QuotaPeakNonPagedPoolUsage );
 //        printf( "\tQuotaNonPagedPoolUsage: 0x%08X\n",  pmc.QuotaNonPagedPoolUsage );
-//        printf( "\tPagefileUsage: 0x%08X\n",      pmc.PagefileUsage ); 
+//        printf( "\tPagefileUsage: 0x%08X\n",      pmc.PagefileUsage );
 //        printf( "\tPeakPagefileUsage: 0x%08X\n",  pmc.PeakPagefileUsage );
     }
 
-    return_value = (CFuint) pmc.WorkingSetSize;
-    
+    return_value = (Uint) pmc.WorkingSetSize;
+
   CloseHandle( hProcess );
   }
 #endif
@@ -353,5 +353,5 @@ CFdouble ProcessInfoWin32::memoryUsageBytes () const
 //////////////////////////////////////////////////////////////////////////////
 
   } // namespace Common
-} // namespace COOLFluiD
+} // namespace CF
 

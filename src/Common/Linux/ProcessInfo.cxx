@@ -11,40 +11,39 @@
 #include <sstream>       // streamstring
 #include <cstdlib>       // for free() and abort()
 
-#include "Common/ProcessInfoLinux.hh"
-#include "Common/Common.hh"
+#include "Common/Linux/ProcessInfo.hh"
 #include "Common/CFLog.hh"
 
 //////////////////////////////////////////////////////////////////////////////
 
 using namespace std;
 
-namespace COOLFluiD {
+namespace CF {
 
   namespace Common {
 
 //////////////////////////////////////////////////////////////////////////////
 
-ProcessInfoLinux::ProcessInfoLinux()
+ProcessInfo::ProcessInfo()
 {
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-ProcessInfoLinux::~ProcessInfoLinux()
+ProcessInfo::~ProcessInfo()
 {
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-std::string ProcessInfoLinux::getBackTrace () const
+std::string ProcessInfo::getBackTrace () const
 {
   return dumpBacktrace ();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-std::string ProcessInfoLinux::dumpBacktrace ()
+std::string ProcessInfo::dumpBacktrace ()
 {
 #define CF_BUFFER_SIZE 256
 
@@ -72,15 +71,15 @@ std::string ProcessInfoLinux::dumpBacktrace ()
 
 //////////////////////////////////////////////////////////////////////////////
 
-CFuint ProcessInfoLinux::getPID() const
+Uint ProcessInfo::getPID() const
 {
   pid_t pid = getpid();
-  return static_cast<CFuint> ( pid );
+  return static_cast<Uint> ( pid );
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-CFdouble ProcessInfoLinux::memoryUsageBytes() const
+double ProcessInfo::memoryUsageBytes() const
 {
   struct mallinfo info;
 
@@ -125,13 +124,13 @@ CFdouble ProcessInfoLinux::memoryUsageBytes() const
         }
 #endif
 
-  return static_cast<CFdouble>(info.arena) +
-         static_cast<CFdouble>(info.hblkhd);
+  return static_cast<double>(info.arena) +
+         static_cast<double>(info.hblkhd);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
   } // namespace Common
 
-} // namespace COOLFluiD
+} // namespace CF
 

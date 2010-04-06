@@ -2,11 +2,9 @@
 #define COOLFluiD_Common_Log_hh
 
 #include "Common/Common.hh"
-#include "LogLevel.hh"
-#include "LogStream.hh"
-#include "CodeLocation.hh"
-
-#include <map>
+#include "Common/LogLevel.hh"
+#include "Common/LogStream.hh"
+#include "Common/CodeLocation.hh"
 
 /////////////////////////////////////////////////////////////////////////////
 

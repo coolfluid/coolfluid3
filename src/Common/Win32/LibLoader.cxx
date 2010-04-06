@@ -11,7 +11,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace COOLFluiD {
+namespace CF {
 
   namespace Common {
 
@@ -49,9 +49,9 @@ void Win32LibLoader::load_library(const std::string& lib)
   {
     // set the current search directory
     CFLog ( WARN, "searching in dir: '" <<  (*itr).string() << "'\n" );
-	  SetDllDirectory((*itr).string().c_str());
+  SetDllDirectory((*itr).string().c_str());
 
-	  // try to load the library
+  // try to load the library
     hdl = LoadLibrary(TEXT(libname.c_str()));
     if( hdl != CFNULL ) break;
     CFLog ( WARN, "didnt find '" <<  lib << "' in dir '" <<  (*itr).string() << "'\n" );
@@ -75,7 +75,7 @@ void Win32LibLoader::load_library(const std::string& lib)
   else
   {
     CFLog( WARN, "LoadLibrary() failed to load module : '" << libname << "'\n" );
-    throw LibLoaderException (FromHere(), "Module failed to load '" + libname + "'"  );
+    throw LibLoader (FromHere(), "Module failed to load '" + libname + "'"  );
   }
 }
 
@@ -83,7 +83,7 @@ void Win32LibLoader::load_library(const std::string& lib)
 
   } // namespace Common
 
-} // namespace COOLFluiD
+} // namespace CF
 
 //////////////////////////////////////////////////////////////////////////////
 

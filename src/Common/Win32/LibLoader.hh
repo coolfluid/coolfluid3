@@ -1,41 +1,49 @@
-#ifndef COOLFluiD_Common_SignalHandlerWin32_hh
-#define COOLFluiD_Common_SignalHandlerWin32_hh
+#ifndef Win32LibLoader_hh
+#define Win32LibLoader_hh
+
+#include "Common/LibLoader.hh"
 
 //////////////////////////////////////////////////////////////////////////////
 
-#include "Common/SignalHandler.hh"
+namespace CF {
+namespace Common {
+namespace Win32 {
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace COOLFluiD {
+/// Class to load libraries in the Win32 OS
+class  Common_API Win32LibLoader :
+  public LibLoader {
 
-  namespace Common {
+public: // functions
 
-//////////////////////////////////////////////////////////////////////////////
+  /// constructor
+  Win32LibLoader();
 
-/// This class handles of signals from the Win32 operating system
-/// @author Tiago Quintino
-class Common_API SignalHandlerWin32 : public SignalHandler {
+  /// virtual destructor
+  virtual ~Win32LibLoader();
 
-public: // methods
+  /// class interface to load a library depending on the operating system
+  /// and the library loading algorithm
+  /// @throw LibLoader if loading fails for any reason
+  virtual void load_library(const std::string& lib);
 
-  /// Constructor
-  SignalHandlerWin32();
+  /// class interface to add paths to search for libraries
+  virtual void set_search_paths(std::vector< boost::filesystem::path >& paths);
 
-  /// Default destructor
-  virtual ~SignalHandlerWin32();
+  private: // data
 
-  /// Regists the signal handlers that will be handled by this class
-  virtual void registSignalHandlers();
+  /// paths where to search for the libraries to load
+  std::vector< boost::filesystem::path > m_search_paths;
 
-}; // end of class SignalHandlerWin32
-
-//////////////////////////////////////////////////////////////////////////////
-
-  } // namespace Common
-
-} // namespace COOLFluiD
+}; // end of class Win32LibLoader
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // COOFluiD_Common_SignalHandlerWin32_hh
+} // Win32
+} // namespace Common
+} // namespace CF
+
+//////////////////////////////////////////////////////////////////////////////
+
+#endif // Win32LibLoader

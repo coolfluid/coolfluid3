@@ -1,5 +1,5 @@
-#ifndef COOLFluiD_Common_ProcessInfoWin32_hh
-#define COOLFluiD_Common_ProcessInfoWin32_hh
+#ifndef CF_Common_ProcessInfoWin32_hh
+#define CF_Common_ProcessInfoWin32_hh
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -7,7 +7,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace COOLFluiD {
+namespace CF {
 
   namespace Common {
 
@@ -36,11 +36,11 @@ public:
 
   /// Gets the current process ID
   /// @return a integer witht he current process ID
-  virtual CFuint getPID () const;
+  virtual Uint getPID () const;
 
   /// Gets the memory usage
   /// @return a double with the memory usage
-  virtual CFdouble memoryUsageBytes() const;
+  virtual double memoryUsageBytes() const;
 
 }; // end of class ProcessInfo
 
@@ -48,8 +48,8 @@ public:
 
   } // namespace Common
 
-} // namespace COOLFluiD
+} // namespace CF
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // COOLFluiD_Common_ProcessInfoWin32_hh
+#endif // CF_Common_ProcessInfoWin32_hh

@@ -1,5 +1,5 @@
-#ifndef COOLFluiD_Common_SignalHandlerLinux_hh
-#define COOLFluiD_Common_SignalHandlerLinux_hh
+#ifndef CF_Common_Linux_SignalHandler_hh
+#define CF_Common_Linux__SignalHandler_hh
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -7,23 +7,23 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace COOLFluiD {
-
+namespace CF {
   namespace Common {
+    namespace Linux {
 
 //////////////////////////////////////////////////////////////////////////////
 
 /// This class handles of signals from the Linux operating system
 /// @author Tiago Quintino
-class Common_API SignalHandlerLinux : public SignalHandler {
+class Common_API SignalHandler : public SignalHandler {
 
 public: // methods
 
   /// Constructor
-  SignalHandlerLinux();
+  SignalHandler();
 
   /// Default destructor
-  virtual ~SignalHandlerLinux();
+  virtual ~SignalHandler();
 
   /// Regists the signal handlers that will be handled by this class
   virtual void registSignalHandlers();
@@ -36,14 +36,14 @@ protected: // methods
   /// SIGSEGV signal handler
   static int handleSIGSEGV(int signal);
 
-}; // end of class SignalHandlerLinux
+}; // end of class SignalHandler
 
 //////////////////////////////////////////////////////////////////////////////
 
+    } // Linux
   } // namespace Common
-
-} // namespace COOLFluiD
+} // namespace CF
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // COOFluiD_Common_SignalHandlerLinux_hh
+#endif // COOFluiD_Common_Linux__SignalHandler_hh

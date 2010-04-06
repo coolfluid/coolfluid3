@@ -81,14 +81,11 @@
 #cmakedefine CF_ENABLE_STDASSERT
 #cmakedefine CF_ENABLE_GROWARRAY
 
+#define CF_REAL_TYPE ${CF_REAL_TYPE}
 
-#cmakedefine CF_PRECISION_DOUBLE
-#ifndef CF_PRECISION_DOUBLE
-  #cmakedefine CF_PRECISION_LONG_DOUBLE
-  #ifndef CF_PRECISION_LONG_DOUBLE
-    #cmakedefine CF_PRECISION_SINGLE
-  #endif
+/// for compilers that do not define the __FUNCTION__ variable
+#ifndef CF_HAVE_FUNCTION_DEF
+#  define __FUNCTION__ ""
 #endif
-
 
 #endif // !coolfluid_config_h

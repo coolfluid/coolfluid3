@@ -1,29 +1,27 @@
-#include "Common/FloatingPointException.hh"
+#include "Common/FloatingPoint.hh"
 #include "Common/Common.hh"
-#include "Common/SignalHandlerMacOSX.hh"
-#include "Common/ProcessInfoMacOSX.hh"
+#include "Common/MacOSX/SignalHandler.hh"
+#include "Common/MacOSX/ProcessInfo.hh"
 
 #include <cstdio>     // for printf()
 #include <cstdlib>    // for free() and abort()
 #include <csignal>    // POSIX signal(), SIGFPE and SIGSEGV
-#include <fenv.h>     // floating Common access
+#include <fenv.h>     // floating environment access
 #include <sstream>    // streamstring
 
 //////////////////////////////////////////////////////////////////////////////
 
 using namespace std;
 
-namespace COOLFluiD {
-
+namespace CF {
   namespace Common {
-    
+    namespace MacOSX {
+
 //////////////////////////////////////////////////////////////////////////////
 
-/*
- * Following functions are required since they are not available for Mac OSX
- * This only works for intel architecture
- * http://www-personal.umich.edu/~williams/archive/computation/fe-handling-example.c
- */ 
+/// Following functions are required since they are not available for Mac OSX
+/// This only works for intel architecture
+/// http://www-personal.umich.edu/~williams/archive/computation/fe-handling-example.c
 
 static int
 fegetexcept (void)
@@ -69,23 +67,23 @@ fedisableexcept (unsigned int excepts)
 
 //////////////////////////////////////////////////////////////////////////////
 
-SignalHandlerMacOSX::SignalHandlerMacOSX()
+SignalHandler::SignalHandler()
 {
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-SignalHandlerMacOSX::~SignalHandlerMacOSX()
+SignalHandler::~SignalHandler()
 {
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SignalHandlerMacOSX::registSignalHandlers()
+void SignalHandler::registSignalHandlers()
 {
   // register handler functions for the signals
-  signal(SIGFPE,    (sighandler_t) SignalHandlerMacOSX::handleSIGFPE);
-  signal(SIGSEGV,   (sighandler_t) SignalHandlerMacOSX::handleSIGSEGV);
+  signal(SIGFPE,    (sighandler_t) MacOSX::SignalHandler::handleSIGFPE);
+  signal(SIGSEGV,   (sighandler_t) MacOSX::SignalHandler::handleSIGSEGV);
 
   // enable the exceptions that will raise the SIGFPE signal
   feenableexcept ( FE_DIVBYZERO );
@@ -96,20 +94,20 @@ void SignalHandlerMacOSX::registSignalHandlers()
 
 //////////////////////////////////////////////////////////////////////////////
 
-int SignalHandlerMacOSX::handleSIGFPE (int signal)
+int SignalHandler::handleSIGFPE (int signal)
 {
   printf("\nreceived signal SIGFPE [%d] - 'Floating Point Exception'\n",signal);
-  static std::string dump = ProcessInfoMacOSX::dumpBackTrace();
+  static std::string dump = MacOSX::ProcessInfo::dumpBackTrace();
   printf( "%s\n", dump.c_str() );
-  throw Common::FloatingPointException (FromHere(), "Some floating point operation has given an invalid result");
+  throw Common::FloatingPoint (FromHere(), "Some floating point operation has given an invalid result");
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-int SignalHandlerMacOSX::handleSIGSEGV(int signal)
+int SignalHandler::handleSIGSEGV(int signal)
 {
   printf("\nreceived signal SIGSEGV [%d] - 'Segmentation violation'\n",signal);
-  static std::string dump = ProcessInfoMacOSX::dumpBackTrace();
+  static std::string dump = MacOSX::ProcessInfo::dumpBackTrace();
   printf( "%s\n", dump.c_str() );
   abort();
 }
@@ -117,8 +115,8 @@ int SignalHandlerMacOSX::handleSIGSEGV(int signal)
 
 //////////////////////////////////////////////////////////////////////////////
 
-  } // namespace Common
-
-} // namespace COOLFluiD
+    } // MacOSX
+  } // Common
+} // CF
 
 //////////////////////////////////////////////////////////////////////////////

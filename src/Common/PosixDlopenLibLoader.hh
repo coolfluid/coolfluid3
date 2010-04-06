@@ -1,5 +1,5 @@
-#ifndef Win32LibLoader_hh
-#define Win32LibLoader_hh
+#ifndef COOLFluiD_Common_PosixDlopenLibLoader_hh
+#define COOLFluiD_Common_PosixDlopenLibLoader_hh
 
 #include "Common/LibLoader.hh"
 
@@ -11,24 +11,24 @@ namespace COOLFluiD {
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// Class to load libraries in the Win32 OS
-class  Common_API Win32LibLoader :
-  public LibLoader {
+class Common_API PosixDlopenLibLoader : public LibLoader {
 
 public: // functions
 
   /// constructor
-  Win32LibLoader();
+  PosixDlopenLibLoader();
 
   /// virtual destructor
-  virtual ~Win32LibLoader();
+  virtual ~PosixDlopenLibLoader();
 
   /// class interface to load a library depending on the operating system
   /// and the library loading algorithm
   /// @throw LibLoaderException if loading fails for any reason
+  ///
   virtual void load_library(const std::string& lib);
 
   /// class interface to add paths to search for libraries
+  ///
   virtual void set_search_paths(std::vector< boost::filesystem::path >& paths);
 
   private: // data
@@ -36,7 +36,7 @@ public: // functions
     /// paths where to search for the libraries to load
     std::vector< boost::filesystem::path > m_search_paths;
 
-}; // end of class Win32LibLoader
+}; // end of class PosixDlopenLibLoader
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -46,4 +46,4 @@ public: // functions
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // Win32LibLoader
+#endif // COOLFluiD_Common_PosixDlopenLibLoader_hh

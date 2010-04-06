@@ -1,5 +1,5 @@
-#ifndef CF_Common_MacOSX_SignalHandler_hh
-#define CF_Common_MacOSX_SignalHandler_hh
+#ifndef CF_Common_SignalHandlerWin32_hh
+#define CF_Common_SignalHandlerWin32_hh
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -8,42 +8,34 @@
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
+
   namespace Common {
-    namespace MacOSX {
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// This class handles of signals from the MacOSX operating system
+/// This class handles of signals from the Win32 operating system
 /// @author Tiago Quintino
-class Common_API SignalHandler : public SignalHandler {
+class Common_API SignalHandlerWin32 : public SignalHandler {
 
 public: // methods
 
   /// Constructor
-  SignalHandler();
+  SignalHandlerWin32();
 
   /// Default destructor
-  virtual ~SignalHandler();
+  virtual ~SignalHandlerWin32();
 
   /// Regists the signal handlers that will be handled by this class
   virtual void registSignalHandlers();
 
-protected:
-
-  /// SIGFPE signal handler
-  static int handleSIGFPE(int signal);
-
-  /// SIGSEGV signal handler
-  static int handleSIGSEGV(int signal);
-
-}; // SignalHandler
+}; // end of class SignalHandlerWin32
 
 //////////////////////////////////////////////////////////////////////////////
 
-    } // MacOSX
   } // namespace Common
+
 } // namespace CF
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_MacOSX_SignalHandler_hh
+#endif // COOFluiD_Common_SignalHandlerWin32_hh

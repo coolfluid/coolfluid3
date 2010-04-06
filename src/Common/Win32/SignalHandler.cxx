@@ -1,10 +1,10 @@
-#include "Common/FloatingPointException.hh"
+#include "Common/FloatingPoint.hh"
 #include "Common/Common.hh"
 #include "Common/SignalHandlerWin32.hh"
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace COOLFluiD {
+namespace CF {
 
   namespace Common {
 
@@ -30,6 +30,6 @@ void SignalHandlerWin32::registSignalHandlers()
 
   } // namespace Common
 
-} // namespace COOLFluiD
+} // namespace CF
 
 //////////////////////////////////////////////////////////////////////////////
