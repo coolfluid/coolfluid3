@@ -8,15 +8,13 @@ LIST ( APPEND Common_files
    LogStampFilter.hh
    LogStream.cxx
    LogStream.hh
-   LogStringDisplayer.cxx
-   LogStringDisplayer.hh
    LogStringForwarder.hh
    CodeLocation.cxx
    CodeLocation.hh
    Common.hh
    ExportAPI.hh
    NonCopyable.hh
-   NonInstanciable.hh
+   NonInstantiable.hh
    PE.cxx
    PE.hh
    PEInterface.cxx
@@ -24,7 +22,34 @@ LIST ( APPEND Common_files
    StringOps.hh
    StringOps.cxx
    WorkerStatus.cxx
-   WorkerStatus.hh)
+   WorkerStatus.hh
+   AssertionManager.cxx
+   BasicExpections.cxx
+   DemangledTypeID.cxx
+   Exception.cxx
+   OSystem.cxx
+Win32/LibLoader.hh
+Win32/ProcessInfo.hh
+Win32/Win32LibLoader.hh
+Win32/LibLoader.cxx
+Win32/ProcessInfo.cxx
+Win32/SignalHandler.cxx
+AssertionManager.hh
+BasicExpections.hh
+CF.hh
+DemangledTypeID.hh
+EnumT.hh
+Exception.hh
+Linux/ProcessInfo.cxx
+Linux/SignalHandler.cxx
+Linux/ProcessInfo.hh
+Linux/SignalHandler.hh
+MacOSX/ProcessInfo.hh
+MacOSX/SignalHandler.hh
+MacOSX/ProcessInfo.cxx
+MacOSX/SignalHandler.cxx
+OSystem.hh
+PtrAlloc.hh )
 
 # MPI Files
 IF(CF_HAVE_MPI)
