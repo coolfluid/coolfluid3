@@ -1,0 +1,21 @@
+#include "Common/BasicExceptions.hh"
+
+//////////////////////////////////////////////////////////////////////////////
+
+using namespace std;
+using namespace CF::Common;
+
+namespace CF {
+  namespace Common {
+
+//////////////////////////////////////////////////////////////////////////////
+
+FailedAssertion::FailedException (const Common::CodeLocation& where, const std::string& what)
+: Common::Exception(where, what, "FailedAssertion") 
+{}
+
+//////////////////////////////////////////////////////////////////////////////
+
+  } // namespace Common
+} // namespace CF
+

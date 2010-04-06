@@ -1,0 +1,81 @@
+#ifndef CF_Common_OSystem_hh
+#define CF_Common_OSystem_hh
+
+#include "Common/Exception.hh"
+#include "Common/NonCopyable.hh"
+#include "Common/SelfRegistPtr.hh"
+#include "Common/SafePtr.hh"
+
+#include "Common/CommonAPI.hh"
+
+//////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+  namespace Common {
+
+  class ProcessInfo;
+  class SignalHandler;
+  class LibLoader;
+
+//////////////////////////////////////////////////////////////////////////////
+
+class Common_API OSystemError : public Common::Exception {
+
+public:
+
+  /// Constructor
+  OSystemError ( const Common::CodeLocation& where, const std::string& what) :
+    Common::Exception(where, what, "OSystemError") {}
+
+}; // end class OSystemException
+
+//////////////////////////////////////////////////////////////////////////////
+
+/// Represents the operating system
+/// @author Tiago Quintino
+class Common_API OSystem : public Common::NonCopyable<OSystem> {
+
+public: // methods
+
+  /// @return the single object that represents the operating system
+  static OSystem& getInstance();
+
+  /// @return ProcessInfo object
+  Common::SafePtr<Common::ProcessInfo> getProcessInfo();
+
+  /// @return SignalHandler object
+  Common::SafePtr<Common::SignalHandler> getSignalHandler();
+
+  /// @return LibLoader object
+  Common::SafePtr<Common::LibLoader> getLibLoader();
+
+  /// Executes the command passed in the string
+  /// @todo should return the output of the command but not yet implemented.
+  void execute_command (const std::string& call);
+
+private: // functions
+
+  /// constructor
+  OSystem ();
+  /// destructor
+  ~OSystem ();
+
+private: // data
+
+  /// memory usage object
+  Common::ProcessInfo * m_process_info;
+  /// signal handler object
+  Common::SignalHandler * m_sig_handler;
+  /// libloader object
+  Common::LibLoader * m_lib_loader;
+
+}; // class FileHandlerOutput
+
+//////////////////////////////////////////////////////////////////////////////
+
+  } // namespace Common
+} // namespace CF
+
+//////////////////////////////////////////////////////////////////////////////
+
+#endif // CF_Common_OSystem_hh
