@@ -133,22 +133,17 @@ namespace Common {
 
 #ifndef CF_NO_DEBUG_LOG
 
-#define CFLogDebug(x)    CFdebug << x << CFendl;
-#define CFLogDebugMax(x) CFdebug << VERBOSE << x << CFendl;
-#define CFLogDebugMed(x) CFdebug << VERBOSE << x << CFendl;
-#define CFLogDebugMin(x) CFdebug << x << CFendl;
+#define CFLogDebug(x)        CFdebug << x << CFendl;
+#define CFLogDebugVerbose(x) CFdebug << VERBOSE << x << CFendl;
 
 #else // CF_NO_DEBUG_LOG
 
 #define CFLogDebug(x)
-#define CFLogDebugMax(x)
-#define CFLogDebugMed(x)
-#define CFLogDebugMin(x)
+#define CFLogDebugVerbose(x)
 
 #endif // CF_NO_DEBUG_LOG
 
 #define CFLogInfo(x)   CFinfo << x << CFendl;
-#define CFLogNotice(x) CFinfo << x << CFendl;
 #define CFLogWarn(x)   CFwarn << x << CFendl;
 #define CFLogError(x)  CFerr << x << CFendl; 
 
