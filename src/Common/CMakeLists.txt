@@ -1,10 +1,58 @@
 LIST ( APPEND Common_files 
-   CommonAPI.hh
-   DummyCommon.cxx 
-   DummyCommon.hh 
+   CFLog.cxx
+   CFLog.hh
+   CFLogLevel.hh
+   CFLogLevelFilter.cxx
+   CFLogLevelFilter.hh
+   CFLogStampFilter.cxx
+   CFLogStampFilter.hh
+   CFLogStream.cxx
+   CFLogStream.hh
+   CFLogStringDisplayer.cxx
+   CFLogStringDisplayer.hh
+   CFLogStringForwarder.hh
+   CodeLocation.cxx
+   CodeLocation.hh
+   Common.hh
    ExportAPI.hh
-   MyInt.cxx
-   MyInt.hh)
+   NonCopyable.hh
+   NonInstanciable.hh
+   PE.cxx
+   PE.hh
+   PEInterface.cxx
+   PEInterface.hh
+   StringOps.hh
+   StringOps.cxx
+   WorkerStatus.cxx
+   WorkerStatus.hh)
+
+# MPI Files
+IF(CF_HAVE_MPI)
+ LIST(APPEND Common_files
+      MPI/CommIteratorBase.hh
+      MPI/CommPattern.cxx
+      MPI/CommPattern.hh
+      MPI/GlobalReduceMPI.hh
+      MPI/MPIDataType.cxx
+      MPI/MPIDataTypeHandler.cxx
+      MPI/MPIDataTypeHandler.hh
+      MPI/MPIDataType.hh
+      MPI/MPIDataTypeRegistrar_Helper.cxx
+      MPI/MPIDataTypeRegistrar_Helper.hh
+      MPI/MPIDataTypeRegistrar.hh
+      MPI/MPIException.hh
+      MPI/MPIHelper.cxx
+      MPI/MPIHelper.hh
+      MPI/MPIInitObject.hh
+      MPI/MPIStructDef.hh
+      MPI/ParVectorException.hh
+      MPI/ParVectorMPI.hh
+      MPI/PatternFullExchange.hh
+      MPI/PatternRing.hh
+      MPI/PEInterfaceMPI.cxx
+      MPI/PEInterfaceMPI.hh
+ )
+ENDIF()
 
 SET  ( Common_kernellib TRUE )
 

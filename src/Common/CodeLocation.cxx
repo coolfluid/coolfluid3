@@ -35,4 +35,3 @@ std::string CodeLocation::str () const
 
   } // namespace Common
 } // namespace CF
-
