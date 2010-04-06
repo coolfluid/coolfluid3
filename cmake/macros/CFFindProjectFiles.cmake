@@ -15,7 +15,7 @@ FOREACH( CFEXT ${CF_FILE_EXTENSIONS} )
   
 ENDFOREACH()
 
-ENDMACRO ( CF_LIST_PROJECT_FILES )
+ENDMACRO ()
 ##############################################################################
 
 ##############################################################################
@@ -25,13 +25,15 @@ MACRO ( CF_MARK_NOT_ORPHAN )
 
   # remove files marked as not orphan
   foreach( AFILE ${ARGV} )
-    list ( REMOVE_ITEM CF_ORPHAN_FILES ${AFILE} )
+	set ( thisFileName ${CMAKE_CURRENT_SOURCE_DIR}/${AFILE} )
+	CF_DEBUG_VAR ( thisFileName )
+    list ( REMOVE_ITEM CF_ORPHAN_FILES ${thisFileName} )
   endforeach()
 
   # rewrite the orphan file list in cache
   set ( CF_ORPHAN_FILES ${CF_ORPHAN_FILES} CACHE INTERNAL "" FORCE )
 
-ENDMACRO ( CF_LIST_PROJECT_FILES )
+ENDMACRO ()
 ##############################################################################
 
 ##############################################################################
@@ -47,7 +49,7 @@ FUNCTION ( CF_FIND_ORPHAN_FILES )
 	# append found files to orphan files (will be removed later as they are used)
 	SET ( CF_ORPHAN_FILES ${CF_ORPHAN_FILES} ${cwdFiles} CACHE INTERNAL "" FORCE )
 
-ENDFUNCTION ( CF_FIND_ORPHAN_FILES )
+ENDFUNCTION ()
 ##############################################################################
 
 

@@ -113,7 +113,16 @@ IF    ( NOT CF_HAVE_LIBLOADER )
   MESSAGE ( FATAL_ERROR "No dynamic library loader was found!")
 ENDIF()
 
-
+CF_MARK_NOT_ORPHAN ( 
+	PosixDlopenLibLoader.hh PosixDlopenLibLoader.cxx
+	MacOSX/SignalHandler.hh MacOSX/SignalHandler.cxx
+	MacOSX/ProcessInfo.hh   MacOSX/ProcessInfo.cxx
+	Linux/ProcessInfo.hh    Linux/ProcessInfo.cxx
+	Linux/SignalHandler.hh  Linux/SignalHandler.cxx
+	Win32/ProcessInfo.hh    Win32/ProcessInfo.cxx
+	Win32/SignalHandler.hh  Win32/SignalHandler.cxx
+	Win32/LibLoader.hh      Win32/LibLoader.cxx
+)
 
 SET  ( Common_kernellib TRUE )
 
