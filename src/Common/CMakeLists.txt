@@ -17,7 +17,6 @@ LIST ( APPEND Common_files
      LibLoader.hh
      Log.cxx
      Log.hh
-     LogLevel.hh
      LogLevelFilter.cxx
      LogLevelFilter.hh
      LogStampFilter.cxx
