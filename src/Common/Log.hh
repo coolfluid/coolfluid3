@@ -2,7 +2,6 @@
 #define CF_Common_Log_hh
 
 #include "Common/CommonAPI.hh"
-#include "Common/LogLevel.hh"
 #include "Common/LogStream.hh"
 #include "Common/CodeLocation.hh"
 
@@ -51,7 +50,15 @@ class Common_API Logger : public Common::NonCopyable<Logger>
     /// @brief Stream for trace message.
     TRACE
   };
-
+  
+  /// Output levels for the Log facility
+  enum LogLevel
+  {
+   SILENT = 100,
+   NORMAL = 50,
+   VERBOSE = 0
+  }; // enum LogLevel
+ 
   /// @brief Gives the current @c #Logger instance.
 
   /// If no instance exists, a new one is created.
