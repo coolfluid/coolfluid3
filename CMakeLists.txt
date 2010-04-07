@@ -1,15 +1,16 @@
 ##############################################################################
 # coolfluid cmake build system
 ##############################################################################
-# TODO
-#  * test packaging with the build system
-#  * try using precompiled headers and add a check to their support
-##############################################################################
 # Command line options for cmake:
 # -DCMAKE_BUILD_TYPE=DEBUG     will set the build type
 # -G"Visual Studio 9 2008"     will generate for WIN32
 # -DCMAKE_INSTALL_PREFIX=DIR   will specify where to install
 # -DCF_PLUGIN_DIRS:STRING="/dir/path1;/dir/path2"
+##############################################################################
+# TODO
+#  * test packaging with the build system
+#  * try using precompiled headers and add a check to their support
+#  * consider removing CF_ENABLE_INTERNAL_DEPS
 ##############################################################################
 
 ##############################################################################
