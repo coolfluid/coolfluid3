@@ -1,5 +1,5 @@
-#ifndef CF_Common_PEInterface_hh
-#define CF_Common_PEInterface_hh
+#ifndef CF_Common_PEInterfaceBase_hh
+#define CF_Common_PEInterfaceBase_hh
 
 #include <string>
 
@@ -59,4 +59,4 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_PEInterface_hh
+#endif // CF_Common_PEInterfaceBase_hh

@@ -33,8 +33,8 @@ LIST ( APPEND Common_files
      OwnedObject.hh
      PE.cxx
      PE.hh
-     PEInterface.cxx
-     PEInterface.hh
+     PEInterfaceBase.cxx
+     PEInterfaceBase.hh
      ProcessInfo.cxx
      ProcessInfo.hh
      ProviderBase.cxx

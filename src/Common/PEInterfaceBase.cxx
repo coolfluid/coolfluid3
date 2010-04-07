@@ -1,4 +1,4 @@
-#include "Common/PEInterface.hh"
+#include "Common/PEInterfaceBase.hh"
 
 namespace CF {
   namespace Common  {
