@@ -8,3 +8,8 @@ TODO
  * update cdash server
  * create build server for Linux / MacOSX
 
+ * test doxygen documentation generation and install 
+ 
+ * add license file to coolfluid kernel directory
+
+
