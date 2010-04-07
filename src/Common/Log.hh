@@ -37,19 +37,19 @@ class Common_API Logger : public Common::NonCopyable<Logger>
   enum StreamType
   {
     /// @brief Stream for normal messages.
-    INFO_STREAM,
+    INFO,
 
     /// @brief Stream for error messages.
-    ERROR_STREAM,
+    ERROR,
 
     /// @brief Stream for warning messages.
-    WARN_STREAM,
+    WARN,
 
     /// @brief Stream for debug messages.
-    DEBUG_STREAM,
+    DEBUG,
 
     /// @brief Stream for trace message.
-    TRACE_STREAM
+    TRACE
   };
 
   /// @brief Gives the current @c #Logger instance.
@@ -62,31 +62,33 @@ class Common_API Logger : public Common::NonCopyable<Logger>
 
   /// @param place The code location from where this method was called
   /// @return Returns a reference to the info stream.
-  LogStream & getInfo (const CodeLocation & place = CodeLocation("", 0, ""));
+  LogStream & Info (const CodeLocation & place);
 
   /// @brief Gives the error stream.
 
   /// @param place The code location from where this method was called
   /// @return Returns a reference to the error stream.
-  LogStream & getError (const CodeLocation & place = CodeLocation("", 0, ""));
+  LogStream & Error (const CodeLocation & place);
 
   /// @brief Gives the warning stream.
 
   /// @param place The code location from where this method was called
   /// @return Returns a reference to the warning stream.
-  LogStream & getWarn (const CodeLocation & place = CodeLocation("", 0, ""));
+  LogStream & Warn (const CodeLocation & place);
 
   /// @brief Gives the debug stream.
 
   /// @param place The code location from where this method was called
   /// @return Returns a reference to the debug stream.
-  LogStream & getDebug (const CodeLocation & place = CodeLocation("", 0, ""));
+  LogStream & Debug (const CodeLocation & place);
 
   /// @brief Gives the trace stream.
 
   /// @param place The code location from where this method was called
   /// @return Returns a reference to the trace stream.
-  LogStream & getTrace (const CodeLocation & place = CodeLocation("", 0, ""));
+  LogStream & Trace (const CodeLocation & place);
+  
+  LogStream & getStream(StreamType type);
 
   /// @brief Creates file descriptors and gives them to streams.
   void openFiles();
@@ -112,11 +114,11 @@ class Common_API Logger : public Common::NonCopyable<Logger>
 
 /// these are always defined
 
-#define CFinfo   Logger::getInstance().getInfo (FromHere())
-#define CFerr    Logger::getInstance().getError(FromHere())
-#define CFwarn   Logger::getInstance().getWarn (FromHere())
-#define CFdebug  Logger::getInstance().getDebug(FromHere())
-#define CFtrace  Logger::getInstance().getTrace(FromHere())
+#define CFinfo   Logger::getInstance().Info (FromHere())
+#define CFerr    Logger::getInstance().Error(FromHere())
+#define CFwarn   Logger::getInstance().Warn (FromHere())
+#define CFdebug  Logger::getInstance().Debug(FromHere())
+#define CFtrace  Logger::getInstance().Trace(FromHere())
 #define CFendl   LogStream::ENDLINE
 
 //////////////////////////////////////////////////////////////////////////////

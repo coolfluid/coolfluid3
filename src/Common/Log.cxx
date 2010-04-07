@@ -22,101 +22,111 @@ using namespace boost;
 
 Logger::Logger()
 {
-
-// streams initialization
-this->m_streams[INFO_STREAM] = new LogStream("INFO");
-this->m_streams[ERROR_STREAM] = new LogStream("ERROR");
-this->m_streams[WARN_STREAM] = new LogStream("WARNING");
-this->m_streams[DEBUG_STREAM] = new LogStream("DEBUG");
-this->m_streams[TRACE_STREAM] = new LogStream("TRACE");
+  // streams initialization
+ this->m_streams[INFO] = new LogStream("INFO");
+ this->m_streams[ERROR] = new LogStream("ERROR");
+ this->m_streams[WARN] = new LogStream("WARNING");
+ this->m_streams[DEBUG] = new LogStream("DEBUG");
+ this->m_streams[TRACE] = new LogStream("TRACE");
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 Logger::~Logger()
 {
-std::map<StreamType, LogStream *>::iterator it;
-
-for(it = this->m_streams.begin() ; it != this->m_streams.end() ; it++)
+ std::map<StreamType, LogStream *>::iterator it;
+ 
+ for(it = this->m_streams.begin() ; it != this->m_streams.end() ; it++)
   delete it->second;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 Logger & Logger::getInstance()
 {
-static Logger log;
-return log;
+ static Logger log;
+ return log;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-LogStream & Logger::getInfo (const CodeLocation & place)
+LogStream & Logger::Info (const CodeLocation & place)
 {
-return *(this->m_streams[INFO_STREAM]) << place;
+ return *(this->m_streams[INFO]) << place;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-LogStream & Logger::getError(const CodeLocation & place)
+LogStream & Logger::Error(const CodeLocation & place)
 {
-return *(this->m_streams[ERROR_STREAM]) << place;
+ return *(this->m_streams[ERROR]) << place;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-LogStream & Logger::getWarn(const CodeLocation & place)
+LogStream & Logger::Warn(const CodeLocation & place)
 {
-return *(this->m_streams[WARN_STREAM]) << place;
+ return *(this->m_streams[WARN]) << place;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-LogStream & Logger::getDebug(const CodeLocation & place)
+LogStream & Logger::Debug(const CodeLocation & place)
 {
-return *(this->m_streams[DEBUG_STREAM]) << place;
+ return *(this->m_streams[DEBUG]) << place;
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-LogStream & Logger::getTrace(const CodeLocation & place)
+LogStream & Logger::Trace(const CodeLocation & place)
 {
-return *(this->m_streams[TRACE_STREAM]) << place;
+ return *(this->m_streams[TRACE]) << place;
 }
+
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+LogStream & Logger::getStream(Logger::StreamType type)
+{
+ return *(this->m_streams[type]);
+}
+
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 void Logger::openFiles()
 {
-if(FakePE::get_instance().is_init())
-{
+ if(FakePE::get_instance().is_init())
+ {
   std::ostringstream logFile;
   std::ostringstream traceFile;
-  // unused // iostreams::filtering_ostream * logFileStream;
-  // unused // iostreams::filtering_ostream * traceFileStream;
+  
   iostreams::file_descriptor_sink fdLogFile;
   iostreams::file_descriptor_sink fdTraceFile;
+  
   int rank = FakePE::get_instance().get_rank();
-
+  
   logFile << "output-p" << rank << ".log";
   traceFile << "output-p" << rank << ".trace";
-
+  
   filesystem::remove(logFile.str());
   filesystem::remove(traceFile.str());
-
+  
   fdLogFile = iostreams::file_descriptor_sink(logFile.str());
   fdTraceFile = iostreams::file_descriptor_sink(traceFile.str());
-
-// setFiles
-  this->m_streams[INFO_STREAM]->setFile(fdLogFile);
-  this->m_streams[ERROR_STREAM]->setFile(fdLogFile);
-  this->m_streams[WARN_STREAM]->setFile(fdLogFile);
-  this->m_streams[DEBUG_STREAM]->setFile(fdLogFile);
-  this->m_streams[TRACE_STREAM]->setFile(fdTraceFile);
-}
+  
+   // setFiles
+  this->m_streams[INFO]->setFile(fdLogFile);
+  this->m_streams[ERROR]->setFile(fdLogFile);
+  this->m_streams[WARN]->setFile(fdLogFile);
+  this->m_streams[DEBUG]->setFile(fdLogFile);
+  this->m_streams[TRACE]->setFile(fdTraceFile);
+ }
 }
