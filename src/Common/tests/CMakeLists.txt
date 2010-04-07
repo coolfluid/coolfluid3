@@ -1,11 +1,11 @@
 ################################################################################
 
- LIST ( APPEND CommonTest_libs Common )
- LIST ( APPEND CommonTest_files
-  TestCommon.cxx
-  LogStreamTest.cxx
-  PETest.cxx )
+ LIST ( APPEND uTestCommon_libs Common )
+ LIST ( APPEND uTestCommon_files
+  UTestCommon.cxx
+  TestLogStream.cxx
+  TestPE.cxx )
 
- CF_ADD_UNITTEST ( CommonTest )
+ CF_ADD_UNITTEST ( uTestCommon )
 
 ################################################################################
