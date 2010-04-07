@@ -1,29 +1,31 @@
 #ifndef CF_Common_LogStringForwarder_hh
 #define CF_Common_LogStringForwarder_hh
 
-#include <string>
+#include "Common/CF.hh"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-
 namespace Common {
 
 //////////////////////////////////////////////////////////////////////////////
 
-class LogStringForwarder
+class Common_API LogStringForwarder
 {
   public:
 
+  /// Empty constructor
+  LogStringForwarder();
+
+  /// @todo missing API documentation
   virtual void message(const std::string & str) = 0;
 
 }; // class LogStringForwarder
 
 //////////////////////////////////////////////////////////////////////////////
 
-} // namespace Common
-
-} // namespace CF
+} //  Common
+} //  CF
 
 //////////////////////////////////////////////////////////////////////////////
 

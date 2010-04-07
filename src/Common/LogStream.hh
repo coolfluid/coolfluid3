@@ -5,14 +5,9 @@
 
 #include <sstream>
 
-#define BOOST_SELECT_BY_SIZE_MAX_CASE 20
-
-#include <boost/iostreams/device/file_descriptor.hpp>
-#include <boost/iostreams/filtering_stream.hpp>
+#include "Common/BoostIostreams.hh"
 
 #include "Common/CF.hh"
-
-#include "Common/CommonAPI.hh"
 #include "Common/LogStringForwarder.hh"
 #include "Common/LogLevel.hh"
 #include "Common/CodeLocation.hh"
@@ -24,8 +19,6 @@ namespace CF {
 
 namespace Common {
 
-class CodeLocation;
-class StringOps;
 class LogToStream;
 class LogLevelFilter;
 class LogStampFilter;

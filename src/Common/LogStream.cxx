@@ -1,24 +1,20 @@
 #include <iostream>
 
-#include <mpi.h>
-#include <boost/iostreams/device/file_descriptor.hpp>
+#include "Common/PE.hh"
+#include "Common/Log.hh"
+#include "Common/LogStream.hh"
+#include "Common/LogLevelFilter.hh"
+#include "Common/LogStampFilter.hh"
 
-#include "PE.hh"
-#include "Log.hh"
-#include "LogStream.hh"
-#include "LogLevelFilter.hh"
-#include "LogStampFilter.hh"
-
-using namespace MPI;
 using namespace CF;
 using namespace CF::Common;
 using namespace boost;
 
 LogStream::LogStream(const std::string & streamName, LogLevel level)
-: m_flushed(true),
-  m_buffer(),
+: m_buffer(),
   m_streamName(streamName),
-  m_level(level)
+  m_level(level),
+  m_flushed(true)
 {
 iostreams::filtering_ostream * stream;
 LogLevelFilter levelFilter(level);

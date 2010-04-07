@@ -22,7 +22,7 @@ public:
   /// @returns a string where the location is
   std::string str () const;
   
-  std::string shortStr() const;
+  std::string short_str() const;
 
 private:
   /// from which file the exception was thrown

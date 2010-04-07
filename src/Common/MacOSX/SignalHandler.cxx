@@ -23,6 +23,7 @@ namespace CF {
 /// This only works for intel architecture
 /// http://www-personal.umich.edu/~williams/archive/computation/fe-handling-example.c
 
+#if 0 // not used for the moment
 static int
 fegetexcept (void)
 {
@@ -30,6 +31,7 @@ fegetexcept (void)
 
   return fegetenv (&fenv) ? -1 : (fenv.__control & FE_ALL_EXCEPT);
 }
+#endif
 
 static int
 feenableexcept (unsigned int excepts)
@@ -48,6 +50,7 @@ feenableexcept (unsigned int excepts)
   return ( fesetenv (&fenv) ? -1 : old_excepts );
 }
 
+#if 0 // not used for the moment
 static int
 fedisableexcept (unsigned int excepts)
 {
@@ -64,6 +67,7 @@ fedisableexcept (unsigned int excepts)
 
   return ( fesetenv (&fenv) ? -1 : old_excepts );
 }
+#endif
 
 //////////////////////////////////////////////////////////////////////////////
 

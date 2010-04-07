@@ -3,17 +3,14 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-#include <boost/iostreams/categories.hpp> // output_filter_tag
-#include <boost/iostreams/operations.hpp> // put
+#include "Common/BoostIostreams.hh"
 
 #include "Common/CommonAPI.hh"
-#include "StringOps.hh"
-#include "PE.hh"
+#include "Common/StringOps.hh"
+#include "Common/PE.hh"
 
-#include <iostream>
 
 namespace CF {
-
 namespace Common {
 
 class StringOps;
@@ -87,7 +84,7 @@ class Common_API LogStampFilter
 
     StringOps::subst("%time%", "TIME", stamp);
     StringOps::subst("%type%", m_streamName, stamp);
-    StringOps::subst("%place%", m_place.shortStr(), stamp);
+    StringOps::subst("%place%", m_place.short_str(), stamp);
     StringOps::subst("%rank%", StringOps::to_str(PE::GetPE().GetRank()), stamp);
 
     m_newMessage = false;
@@ -123,7 +120,6 @@ class Common_API LogStampFilter
 //////////////////////////////////////////////////////////////////////////////
 
 } // namespace Common
-
 } // namespace CF
 
 //////////////////////////////////////////////////////////////////////////////

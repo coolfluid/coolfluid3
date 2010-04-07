@@ -3,16 +3,14 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-#include <boost/iostreams/categories.hpp> // output_filter_tag
-#include <boost/iostreams/operations.hpp> // put
+#include "Common/BoostIostreams.hh"
 
 #include <iostream>
 
 #include "Common/CommonAPI.hh"
-#include "LogLevel.hh"
+#include "Common/LogLevel.hh"
 
 namespace CF {
-
 namespace Common {
 
 //////////////////////////////////////////////////////////////////////////////

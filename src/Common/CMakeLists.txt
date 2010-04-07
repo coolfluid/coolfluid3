@@ -3,6 +3,7 @@ LIST ( APPEND Common_files
      AssertionManager.hh
      BasicExceptions.cxx
      BasicExceptions.hh
+     BoostIostreams.hh
      CF.hh
      CodeLocation.cxx
      CodeLocation.hh
@@ -17,6 +18,7 @@ LIST ( APPEND Common_files
      LibLoader.hh
      Log.cxx
      Log.hh
+     LogLevel.hh
      LogLevelFilter.cxx
      LogLevelFilter.hh
      LogStampFilter.cxx
@@ -24,6 +26,7 @@ LIST ( APPEND Common_files
      LogStream.cxx
      LogStream.hh
      LogStringForwarder.hh
+     LogStringForwarder.cxx
      NonCopyable.hh
      NonInstantiable.hh
      OSystem.cxx

@@ -1,17 +1,14 @@
-#include <string>
-
-#include "CodeLocation.hh"
-
-#include "LogStampFilter.hh"
+#include "Common/CodeLocation.hh"
+#include "Common/LogStampFilter.hh"
 
 using namespace CF::Common;
 
 LogStampFilter::LogStampFilter(const std::string & streamName,
-                                   const std::string & stamp)
-: m_stamp(stamp),
-  m_newMessage(true),
+                               const std::string & stamp)
+: m_place("", 0, ""),
+  m_stamp(stamp),
   m_streamName(streamName),
-  m_place("", 0, "")
+  m_newMessage(true)
 {
 
 }

@@ -42,7 +42,7 @@ std::string CodeLocation::str () const
 
 ///////////////////////////////////////////////////////////////////////////////
 
-std::string CodeLocation::shortStr() const
+std::string CodeLocation::short_str() const
 {
  char line [50];
  sprintf (line, "%d", m_line);

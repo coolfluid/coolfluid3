@@ -1,5 +1,5 @@
-#include "LogLevel.hh"
-#include "LogLevelFilter.hh"
+#include "Common/LogLevel.hh"
+#include "Common/LogLevelFilter.hh"
 
 using namespace CF;
 using namespace CF::Common;

@@ -78,17 +78,16 @@ MPI_Info_create(&info);
 
 if(hosts != CFNULL && strlen(hosts) != 0)
 {
-  char hostKey[] = "host";
-  char * hostsNonConst;
+  char host_str [] = "host";
+  char * hosts_non_const;
 
-  hostsNonConst = new char[strlen(hosts) + 1];
-  strcpy(hostsNonConst, hosts);
+  hosts_non_const = new char[strlen(hosts) + 1];
+  strcpy(hosts_non_const, hosts);
 
-  CFLogInfo("Spawning " << count << " worker(s) on the following host(s): "
-    << hosts << ".\n");
-  MPI_Info_set(info, hostKey, hostsNonConst);
+  CFLogInfo("Spawning " << count << " worker(s) on the following host(s): " << hosts_non_const << ".\n");
+  MPI_Info_set(info, host_str, hosts_non_const);
 
-  delete_ptr_array(hostsNonConst);
+  delete_ptr_array(hosts_non_const);
 }
 else
 {
@@ -97,7 +96,9 @@ else
   // this does not work here since we pass a hostfile : MPI uses this file
   // to determine which hosts to use if no "host" value is provided...
   // setting "host" explicitly to "localhost" prevents this unwanted behaviour
-  MPI_Info_set(info, "host", "localhost");
+  char host_str [] = "host";
+  char localhost_str [] = "localhost";
+  MPI_Info_set(info, host_str, localhost_str);
   CFLogInfo("Spawning " << count << " worker(s) on local host.\n");
 }
 
