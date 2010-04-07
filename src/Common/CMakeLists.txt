@@ -151,5 +151,5 @@ ADD_SUBDIRECTORY ( MacOSX )   # support for Mac OSX
 ADD_SUBDIRECTORY ( Linux  )   # support for Linux
 ADD_SUBDIRECTORY ( Win32  )   # support for Win32
 
-ADD_SUBDIRECTORY(tests)
+ADD_SUBDIRECTORY ( tests )    # unit tests for Common
 

@@ -2,7 +2,6 @@
 #define FakePE_HH
 
 namespace CF {
-
 namespace Common {
 
 class FakePE 
@@ -33,7 +32,6 @@ class FakePE
 };
 
 }
-
 }
 
 #endif // FakePE_HH

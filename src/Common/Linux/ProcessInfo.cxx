@@ -12,15 +12,15 @@
 #include <cstdlib>       // for free() and abort()
 
 #include "Common/Linux/ProcessInfo.hh"
-#include "Common/CFLog.hh"
+#include "Common/Log.hh"
 
 //////////////////////////////////////////////////////////////////////////////
 
 using namespace std;
 
 namespace CF {
-
-  namespace Common {
+namespace Common {
+namespace Linux {
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -130,7 +130,7 @@ double ProcessInfo::memoryUsageBytes() const
 
 //////////////////////////////////////////////////////////////////////////////
 
-  } // namespace Common
-
-} // namespace CF
+} // Linux
+} // Common
+} // CF
 
