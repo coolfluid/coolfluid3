@@ -32,6 +32,8 @@ LIST ( APPEND Common_files
      OwnedObject.hh
      PE.cxx
      PE.hh
+     FakePE.cxx
+     FakePE.hh
      PM.hh
      PEInterfaceBase.cxx
      PEInterfaceBase.hh
@@ -49,6 +51,8 @@ LIST ( APPEND Common_files
      WorkerStatus.cxx
      WorkerStatus.hh
 )
+
+LIST(APPEND Common_libs ${Boost_LIBRARIES})
 
 ###############################################################################
 # MPI Files

@@ -19,7 +19,7 @@ static void ThrowMPI (MPI_Comm * Comm, int * Error, ...)
 //////////////////////////////////////////////////////////////////////////////
 
 PEInterface<PM_MPI>::PEInterface (int * argc, char *** args, MPI_Comm UsedCom)
-    : Comm(UsedCom), DataTypeHandler (UsedCom), InitOK_(false), StopCalled_(false)
+    : Comm(UsedCom), /*DataTypeHandler (UsedCom),*/ InitOK_(false), StopCalled_(false)
 {
     int Ret = MPI_Init (argc, args);
     if (Ret != MPI_SUCCESS) throw std::string("MPI_Init failed!");
@@ -28,7 +28,7 @@ PEInterface<PM_MPI>::PEInterface (int * argc, char *** args, MPI_Comm UsedCom)
     Common::CheckMPIStatus(MPI_Errhandler_create (ThrowMPI, &ErrHandler_));
     Common::CheckMPIStatus(MPI_Errhandler_set (Comm, ErrHandler_));
 
-    DataTypeHandler.InitTypes ();
+  // DataTypeHandler.InitTypes ();
 
     CallInitFunctions ();
 }
@@ -39,7 +39,7 @@ PEInterface<PM_MPI>::~PEInterface ()
 {
     CallDoneFunctions ();
 
-    DataTypeHandler.DoneTypes ();
+  //DataTypeHandler.DoneTypes ();
 
     MPI_Finalize ();
     InitOK_=false;

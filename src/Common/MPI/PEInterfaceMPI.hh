@@ -24,7 +24,7 @@ class Common_API PEInterface<PM_MPI>
 {
   private:
     MPI_Comm Comm;
-    MPIDataTypeHandler DataTypeHandler;
+   // MPIDataTypeHandler DataTypeHandler;
 
     typedef std::list<MPIInitObject *> InitContainerType;
     std::list<MPIInitObject *> InitList_;

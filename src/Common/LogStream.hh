@@ -17,7 +17,7 @@
 #include "Common/LogLevel.hh"
 #include "Common/CodeLocation.hh"
 #include "Common/StringOps.hh"
-#include "Common/PE.hh"
+#include "Common/FakePE.hh"
 #include "Common/MPI/PEInterfaceMPI.hh"
 
 namespace CF {
@@ -114,28 +114,29 @@ class Common_API LogStream
 
     for(it = m_destinations.begin() ; it != m_destinations.end() ; it++)
     {
-     if(it->first != SYNC_SCREEN && this->isDestinationUsed(it->first) &&
-         (PE::GetPE().GetRank() == 0 || !m_filterRankZero[it->first]))
+     if(it->first != SYNC_SCREEN && this->isDestinationUsed(it->first) && 
+        (FakePE::get_instance().get_rank() == 0 || !m_filterRankZero[it->first]))
      {
-       *(it->second) << t;
-       m_flushed = false;
+      *(it->second) << t;
+      m_flushed = false;
      }
-     else if(it->first != SYNC_SCREEN && PE::IsInitialised()
-         && this->isDestinationUsed(it->first))
+     else if(it->first != SYNC_SCREEN && FakePE::get_instance().is_init() 
+        && this->isDestinationUsed(it->first))
      {
-      for(unsigned int i = 0 ; i < PE::GetPE().GetProcessorCount() ; i++)
+      for(int i = 0 ; i < FakePE::get_instance().get_size() ; i++)
       {
-       PE::GetPE().setBarrier();  
-
-       if(i == PE::GetPE().GetRank())
-       {
-        *(it->second) << t;
-        m_flushed = false;
-       }
-      } 
+        FakePE::get_instance().set_barrier();
+        
+        if(i == FakePE::get_instance().get_rank())
+        {
+         *(it->second) << t;
+         m_flushed = false;
+        }
+      }
+      
      }
+     
     }
-
     return *this;
   }
 

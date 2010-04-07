@@ -54,7 +54,6 @@ this->m_usedDests[FILE] = true;
 this->m_usedDests[STRING] = true;
 this->m_usedDests[SYNC_SCREEN] = true;
 
-//  this->setFilterRankZero(tr
 this->m_filterRankZero[SCREEN] = true;
 this->m_filterRankZero[FILE] = true;
 this->m_filterRankZero[STRING] = true;
