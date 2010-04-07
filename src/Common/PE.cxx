@@ -3,8 +3,7 @@
 #ifdef CF_HAVE_MPI
 #  include "Common/MPI/PEInterfaceMPI.hh"
 #else
-#error Do not have MPI!
- //#  include "Common/SERIAL/PEInterfaceSERIAL.hh"
+#  include "Common/SERIAL/PEInterfaceSERIAL.hh"
 #endif // CF_HAVE_MPI
 
 #include "Common/PE.hh"

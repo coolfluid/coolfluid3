@@ -6,7 +6,6 @@
 #include <typeinfo>
 
 #include "Common/Log.hh"
-#include "Common/LogLevel.hh"
 
 //#ifndef CFinfo
 // #error CFinfo is defined

@@ -9,7 +9,6 @@
 
 #include "Common/CF.hh"
 #include "Common/LogStringForwarder.hh"
-#include "Common/LogLevel.hh"
 #include "Common/CodeLocation.hh"
 #include "Common/StringOps.hh"
 #include "Common/FakePE.hh"
@@ -61,6 +60,7 @@ class Common_API LogStream
     /// @brief Standard output (with MPI synchronization)
     SYNC_SCREEN = 8
   };
+  
 
   /// @brief Constructor
 

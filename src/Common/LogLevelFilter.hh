@@ -33,7 +33,7 @@ namespace Common {
 class Common_API LogLevelFilter
 {
   public:
-
+  
   typedef char char_type;
   typedef boost::iostreams::multichar_output_filter_tag category;
 
