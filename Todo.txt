@@ -1,0 +1,10 @@
+TODO
+
+ * utest logging
+ * utest parallel interface
+
+ * test that debugging is working within XCode, QtCreator
+ * integrate tools for performance checking
+ * update cdash server
+ * create build server for Linux / MacOSX
+
