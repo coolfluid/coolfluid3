@@ -7,7 +7,7 @@
 
 #include "Common/CommonAPI.hh"
 
-#include "Common/PEInterface.hh"
+#include "Common/PEInterfaceBase.hh"
 #include "Common/NonCopyable.hh"
 #include "Common/MPI/MPIDataTypeHandler.hh"
 

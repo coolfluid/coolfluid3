@@ -112,26 +112,26 @@ class Common_API LogStream
 
     for(it = m_destinations.begin() ; it != m_destinations.end() ; it++)
     {
-     //if(it->first != SYNC_SCREEN && this->isDestinationUsed(it->first) &&
-//         (PE::GetPE().GetRank() == 0 || !m_filterRankZero[it->first]))
-//     {
-//       *(it->second) << t;
-//       m_flushed = false;
-//     }
-//     else if(it->first != SYNC_SCREEN && PE::IsInitialised()
-//         && this->isDestinationUsed(it->first))
-//     {
-//      for(unsigned int i = 0 ; i < PE::GetPE().GetProcessorCount() ; i++)
-//      {
-//       PE::GetPE().setBarrier();  
-//
-//       if(i == PE::GetPE().GetRank())
-//       {
-//        *(it->second) << t;
-//        m_flushed = false;
-//       }
-//      } 
-//     }
+     if(it->first != SYNC_SCREEN && this->isDestinationUsed(it->first) &&
+         (PE::GetPE().GetRank() == 0 || !m_filterRankZero[it->first]))
+     {
+       *(it->second) << t;
+       m_flushed = false;
+     }
+     else if(it->first != SYNC_SCREEN && PE::IsInitialised()
+         && this->isDestinationUsed(it->first))
+     {
+      for(unsigned int i = 0 ; i < PE::GetPE().GetProcessorCount() ; i++)
+      {
+       PE::GetPE().setBarrier();  
+
+       if(i == PE::GetPE().GetRank())
+       {
+        *(it->second) << t;
+        m_flushed = false;
+       }
+      } 
+     }
     }
 
     return *this;

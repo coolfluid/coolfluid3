@@ -3,12 +3,12 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-//#include "Common/PEInterface.hh"
+#include "Common/PEInterfaceBase.hh"
 #include "Common/WorkerStatus.hh"
 
-//#ifdef CF_HAVE_MPI
+#ifdef CF_HAVE_MPI
 #include "Common/MPI/PEInterfaceMPI.hh"
-//#endif // CF_HAVE_MPI
+#endif // CF_HAVE_MPI
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -16,7 +16,7 @@ namespace CF {
 
     namespace Common {
 
-class PEInterface;
+//class PEInterface;
 
 //////////////////////////////////////////////////////////////////////////////
 
