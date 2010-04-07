@@ -6,7 +6,6 @@ LIST ( APPEND Common_files
      CF.hh
      CodeLocation.cxx
      CodeLocation.hh
-     Common.hh
      CommonAPI.hh
      DemangledTypeID.cxx
      DemangledTypeID.hh

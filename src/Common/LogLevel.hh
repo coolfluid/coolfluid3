@@ -8,14 +8,13 @@ namespace CF {
 //////////////////////////////////////////////////////////////////////////////
 
 /// Output levels for the Log facility
-/// These values are relative to the logcpp levels, so keep them this way.
-/// @author Tiago Quintino
-
-enum LogLevel {
-SILENT = 100,
-NORMAL = 50,
-VERBOSE = 0
-}; // enum LogLevel
+/// @author Quentin Gasper
+enum LogLevel
+{
+  SILENT = 100,
+  NORMAL = 50,
+  VERBOSE = 0
+}; // !LogLevel
 
 //////////////////////////////////////////////////////////////////////////////
 

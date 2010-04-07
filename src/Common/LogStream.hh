@@ -5,6 +5,8 @@
 
 #include <sstream>
 
+#define BOOST_SELECT_BY_SIZE_MAX_CASE 20
+
 #include <boost/iostreams/device/file_descriptor.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 

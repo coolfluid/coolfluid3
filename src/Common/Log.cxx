@@ -1,3 +1,5 @@
+#define BOOST_SELECT_BY_SIZE_MAX_CASE 20
+
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/device/file.hpp>
 
@@ -95,8 +97,8 @@ if(PE::IsInitialised())
 {
   std::ostringstream logFile;
   std::ostringstream traceFile;
-  iostreams::filtering_ostream * logFileStream;
-  iostreams::filtering_ostream * traceFileStream;
+  // unused // iostreams::filtering_ostream * logFileStream;
+  // unused // iostreams::filtering_ostream * traceFileStream;
   iostreams::file_descriptor_sink fdLogFile;
   iostreams::file_descriptor_sink fdTraceFile;
   int rank = PE::GetPE().GetRank();

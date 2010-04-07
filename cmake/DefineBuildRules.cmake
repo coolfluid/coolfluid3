@@ -37,7 +37,8 @@ IF(UNIX)
       CF_ADD_CXX_FLAGS("-Wundef" )
       # accept functions that dont use all parameters, due to virtual functions may not need all
       CF_ADD_CXX_FLAGS("-Wno-unused-parameter")
-    
+      CF_ADD_CXX_FLAGS("-Wno-missing-field-initializers")
+
       # this is temporary until we all move to using openmpi
       # must turn off non-virtual-dtor because many mpi implementations use it
       # KDE uses -Wnon-virtual-dtor
