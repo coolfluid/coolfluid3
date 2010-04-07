@@ -1,5 +1,5 @@
-#ifndef CF_Common_Exception_hh
-#define CF_Common_Exception_hh
+#ifndef CF_Common__hh
+#define CF_Common__hh
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -19,7 +19,7 @@ public:
 
   /// Constructor
   ExceptionManager();
-  
+
   /// Gets the instance of the manager
   static ExceptionManager& getInstance ();
 
@@ -27,7 +27,7 @@ public:
   bool ExceptionOutputs;
   /// if exception contructor should dump backtrace
   bool ExceptionDumps;
-  /// if exception contructor should abort execution immedietly 
+  /// if exception contructor should abort execution immedietly
   bool ExceptionAborts;
 
 }; // class ExceptionManager
@@ -115,4 +115,4 @@ protected: // data
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_Exception_hh
+#endif // CF_Common__hh

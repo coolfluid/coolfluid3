@@ -1,8 +1,7 @@
 #include <cstdlib>  // provides system call
 
-#include "Common/ProcessInfo.hh"
+#include "Common/ProcessInfo.hh" 
 #include "Common/SignalHandler.hh"
-#include "Common/OSystem.hh"
 #include "Common/StringOps.hh"
 
 #ifdef CF_HAVE_DLOPEN
@@ -25,6 +24,7 @@
   #include "Common/Win32/LibLoader.hh"
 #endif
 
+#include "Common/OSystem.hh"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -36,7 +36,7 @@ namespace CF {
 //////////////////////////////////////////////////////////////////////////////
 
 OSystemError::OSystemError ( const Common::CodeLocation& where, const std::string& what)
-: Common::Exception(where, what, "OSystemError") 
+: Common::Exception(where, what, "OSystemError")
 {}
 
 //////////////////////////////////////////////////////////////////////////////
@@ -69,9 +69,9 @@ OSystem::OSystem() :
 #endif
 #endif
 
-     cf_assert ( m_process_info != CFNULL);
-     cf_assert ( m_sig_handler  != CFNULL);
-     cf_assert ( m_lib_loader   != CFNULL);
+    cf_assert ( m_process_info != CFNULL);
+    cf_assert ( m_sig_handler  != CFNULL);
+    cf_assert ( m_lib_loader   != CFNULL);
 
 }
 
@@ -79,9 +79,9 @@ OSystem::OSystem() :
 
 OSystem::~OSystem()
 {
-  delete_prt (m_process_info);
-  delete_prt (m_sig_handler);
-  delete_prt (m_lib_loader);
+  delete_ptr (m_process_info);
+  delete_ptr (m_sig_handler);
+  delete_ptr (m_lib_loader);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -124,13 +124,13 @@ void OSystem::executeCommand(const std::string& call)
     msg += "Command \'";
     msg += call;
     msg += "\' return error code";
-    throw OSystemException ( FromHere(), msg );
+    throw OSystemError ( FromHere(), msg );
   }
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void OSystem::sleep (const CFuint& seconds)
+void OSystem::sleep (const CF::Uint& seconds)
 {
   std::string callSleep = "sleep " + Common::StringOps::to_str(seconds);
   executeCommand (callSleep);

@@ -1,18 +1,20 @@
-#include "Common/CFLog.hh"
+#include "Common/Log.hh"
 
 // dlopen header
 #ifdef CF_HAVE_DLOPEN
 #  include <dlfcn.h>
 #endif // CF_HAVE_DLOPEN
 
+#include <boost/filesystem/path.hpp>
+
 #include "Common/PosixDlopenLibLoader.hh"
-#include "Common/Common.hh"
+#include "Common/CommonAPI.hh"
 
 //////////////////////////////////////////////////////////////////////////////
 
 using namespace std;
 
-namespace COOLFluiD {
+namespace CF {
 
   namespace Common {
 
@@ -76,19 +78,19 @@ void PosixDlopenLibLoader::load_library(const std::string& lib)
   // check for success
   if(hdl != NULL)
   {
-    CFLog( WARN, "PosixDlopenLibLoader: Loaded " << libname  << "\n" );
+    CFLog( NORMAL, "PosixDlopenLibLoader: Loaded " << libname  << "\n" );
   }
   else
   {
-    CFLog( WARN, "dlopen() failed to load module : " << libname  << "\n" );
+    CFLog( NORMAL, "dlopen() failed to load module : " << libname  << "\n" );
     const char * msg = dlerror();
     if (msg != NULL)
     {
-      CFLog( WARN, "dlerror() says : " << msg  << "\n" );
+      CFLog( NORMAL, "dlerror() says : " << msg  << "\n" );
     }
     else
     {
-      CFLog( WARN, "dlerror() said nothing." << "\n" );
+      CFLog( NORMAL, "dlerror() said nothing." << "\n" );
     }
     throw LibLoaderException (FromHere(),"Module failed to load");
   }
@@ -98,6 +100,6 @@ void PosixDlopenLibLoader::load_library(const std::string& lib)
 
   } // namespace Common
 
-} // namespace COOLFluiD
+} // namespace CF
 
 //////////////////////////////////////////////////////////////////////////////

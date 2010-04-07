@@ -1,11 +1,11 @@
-#ifndef COOLFluiD_Common_PEInterface_hh
-#define COOLFluiD_Common_PEInterface_hh
+#ifndef CF_Common_PEInterface_hh
+#define CF_Common_PEInterface_hh
 
 #include <string>
 
-#include "Common/Common.hh"
+#include "Common/CommonAPI.hh"
 
-#include "Common/NotImplementedException.hh"
+#include "Common/BasicExceptions.hh"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +34,7 @@ public:
   void setBarrier();
 
   /// Return true if this is a parallel simulation in some way
-  /// (IMPORTANT: When COOLFluiD was compiled for multiple CPU's
+  /// (IMPORTANT: When CF was compiled for multiple CPU's
   ///  - either MPI or SHM - but is started/called using only ONE
   ///  cpu, the run is NOT considered parallel!)
   bool IsParallel () const;
@@ -49,14 +49,14 @@ public:
   /// pending communication requests.
   void AdvanceCommunication ();
 
-}; // end class PEInterface
+}; // end class PEInterfaceBase
 
 //////////////////////////////////////////////////////////////////////////////
 
   } // Common
 
-} // COOLFluiD
+} // CF
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // COOLFluiD_Common_PEInterface_hh
+#endif // CF_Common_PEInterface_hh

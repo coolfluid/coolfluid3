@@ -1,14 +1,14 @@
-#ifndef COOLFluiD_Common_EnumT_hh
-#define COOLFluiD_Common_EnumT_hh
+#ifndef CF_Common_EnumT_hh
+#define CF_Common_EnumT_hh
 
 #include <map>
 
- //#include "Common/COOLFluiD.hh"
+#include "Common/CF.hh"
 #include "Common/NonInstantiable.hh"
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace COOLFluiD {
+namespace CF {
 namespace Common {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -28,14 +28,14 @@ class EnumT : public Common::NonInstantiable< EnumT<EClass> >
 
   public:
 
-   /// conversion from enum to string
-   static bool is_valid ( const EnumType& in )
-   {
+  /// conversion from enum to string
+  static bool is_valid ( const EnumType& in )
+  {
     FwdMap_t& all_fwd = EClass::Convert::all_fwd;
     return !( in == EClass::INVALID || all_fwd.find(in) == all_fwd.end() );
-   }
+  }
 
-   /// conversion from enum to string
+  /// conversion from enum to string
   static std::string to_str ( const EnumType& in )
   {
     FwdMap_t& all_fwd = EClass::Convert::all_fwd;
@@ -74,8 +74,8 @@ class EnumT : public Common::NonInstantiable< EnumT<EClass> >
 //////////////////////////////////////////////////////////////////////////////
 
 } // Common
-} // COOLFluiD
+} // CF
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // COOLFluiD_Common_EnumT_hh
+#endif // CF_Common_EnumT_hh

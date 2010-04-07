@@ -1,5 +1,5 @@
-#include "Common/FloatingPoint.hh"
-#include "Common/Common.hh"
+#include "Common/BasicExceptions.hh"
+#include "Common/CommonAPI.hh"
 #include "Common/MacOSX/SignalHandler.hh"
 #include "Common/MacOSX/ProcessInfo.hh"
 
@@ -99,7 +99,7 @@ int SignalHandler::handleSIGFPE (int signal)
   printf("\nreceived signal SIGFPE [%d] - 'Floating Point Exception'\n",signal);
   static std::string dump = MacOSX::ProcessInfo::dumpBackTrace();
   printf( "%s\n", dump.c_str() );
-  throw Common::FloatingPoint (FromHere(), "Some floating point operation has given an invalid result");
+  throw Common::FloatingPointError (FromHere(), "Some floating point operation has given an invalid result");
 }
 
 //////////////////////////////////////////////////////////////////////////////

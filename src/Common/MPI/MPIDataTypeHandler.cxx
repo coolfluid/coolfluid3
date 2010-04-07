@@ -49,7 +49,7 @@ void MPIDataTypeHandler::InitTypes ()
 
 void MPIDataTypeHandler::DoneTypes()
 {
-  CFLogDebugMin("MPIDataTypeHandler::DoneTypes() begin" << "\n");
+  CFLogDebug("MPIDataTypeHandler::DoneTypes() begin" << "\n");
 
   cf_assert(Initialized);
 
@@ -62,7 +62,7 @@ void MPIDataTypeHandler::DoneTypes()
 
   Initialized = false;
 
-  CFLogDebugMin("MPIDataTypeHandler::DoneTypes() end" << "\n");
+  CFLogDebug("MPIDataTypeHandler::DoneTypes() end" << "\n");
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -85,7 +85,7 @@ MPIDataTypeHandler::MPIDataTypeHandler (MPI_Comm Comm) :
 
 MPIDataTypeHandler::~MPIDataTypeHandler()
 {
-  CFLogDebugMin( "MPIDataTypeHandler::~MPIDataTypeHandler (): " << Types.size () << " types to destroy" << "\n");
+  CFLogDebug( "MPIDataTypeHandler::~MPIDataTypeHandler (): " << Types.size () << " types to destroy" << "\n");
 
   if (IsInitialized ()) {
     DoneTypes ();

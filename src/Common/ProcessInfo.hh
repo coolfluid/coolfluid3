@@ -1,26 +1,24 @@
-#ifndef CF_Common_MacOSX_ProcessInfo_hh
-#define CF_Common_MacOSX_ProcessInfo_hh
+#ifndef COOLFluiD_Common_ProcessInfo_hh
+#define COOLFluiD_Common_ProcessInfo_hh
 
 //////////////////////////////////////////////////////////////////////////////
 
-#include "Common/CommonAPI.hh"
-
-#include "Common/ProcessInfo.hh"
+#include "Common/CF.hh"
+#include "Common/NonCopyable.hh"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
+
   namespace Common {
-    namespace MacOSX {
 
 //////////////////////////////////////////////////////////////////////////////
 
 /// This class represents the current information on the memory usage.
-/// Is is an implementation for the MacOSX operating system
 /// @author Tiago Quintino
-class Common_API ProcessInfo : public Common::ProcessInfo {
+class Common_API ProcessInfo : public Common::NonCopyable<ProcessInfo> {
 
-public:
+public: // functions
 
   /// Constructor without arguments
   ProcessInfo();
@@ -29,30 +27,38 @@ public:
   virtual ~ProcessInfo();
 
   /// @returns string with platform name
-  virtual std::string getPlatformName () const { return "MacOSX"; };
+  virtual std::string getPlatformName () const = 0;
 
   /// Dump backtrace
-  static std::string dumpBackTrace ();
-
+  /// The format of the backtrace is operating system dependent
   /// @returns a string with the backtrace dump
-  virtual std::string getBackTrace () const;
+  virtual std::string getBackTrace () const = 0;
 
   /// Gets the current process ID
   /// @return a integer witht he current process ID
-  virtual Uint getPID () const;
+  virtual CF::Uint getPID () const = 0;
 
   /// Gets the memory usage
-  /// @return a double with the memory usage
-  virtual double memoryUsageBytes() const;
+  /// @return a double with the memory usage in bytes
+  virtual CF::Real memoryUsageBytes () const = 0;
+
+  /// @returns a string with the memory usage
+  /// @post adds the unit of memory (B, KB, MB or GB)
+  /// @post  no end of line added
+  /// @param out the output stream
+  std::string memoryUsage () const;
+
+  /// Gets the Class name
+  static std::string getClassName() { return "ProcessInfo"; }
 
 }; // end of class ProcessInfo
 
 //////////////////////////////////////////////////////////////////////////////
 
-    } // namespace MacOSX
   } // namespace Common
+
 } // namespace CF
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_MacOSX_ProcessInfo_hh
+#endif // COOLFluiD_Common_ProcessInfo_hh

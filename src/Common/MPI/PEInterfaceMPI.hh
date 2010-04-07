@@ -5,6 +5,8 @@
 
 #include <mpi.h>
 
+#include "Common/CommonAPI.hh"
+
 #include "Common/PEInterface.hh"
 #include "Common/NonCopyable.hh"
 #include "Common/MPI/MPIDataTypeHandler.hh"
@@ -13,19 +15,19 @@ namespace CF  {
     namespace Common {
 
        class MPIInitObject;
+       class MPIDataTypeHandler;
 
 
 /// Parallel Environment interface for MPI
 /// Cannot be in the MPI namespace because it is a specialization of
 /// a class in the Common namespace
-template <>
-class Common_API PEInterface<PM_MPI>
+class Common_API PEInterface
   : public PEInterfaceBase,
-    public Common::NonCopyable < PEInterface<PM_MPI> >
+    public Common::NonCopyable < PEInterface >
 {
   private:
     MPI_Comm Comm;
-    MPIDataTypeHandler DataTypeHandler;
+   // MPIDataTypeHandler DataTypeHandler;
 
     typedef std::list<MPIInitObject *> InitContainerType;
     std::list<MPIInitObject *> InitList_;
@@ -91,36 +93,36 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-inline void PEInterface<PM_MPI>::AdvanceCommunication ()
+inline void PEInterface::AdvanceCommunication ()
 {
     int Flag;
     MPI_Iprobe (MPI_ANY_SOURCE, MPI_ANY_TAG, GetCommunicator(), &Flag,
     MPI_STATUS_IGNORE);
 }
 
-inline MPI_Comm PEInterface<PM_MPI>::GetCommunicator () const
+inline MPI_Comm PEInterface::GetCommunicator () const
 {
     return MPI_COMM_WORLD;
 }
 
-inline bool PEInterface<PM_MPI>::IsParallelCapable () const
+inline bool PEInterface::IsParallelCapable () const
 {
     return true;
 }
 
-inline std::string PEInterface<PM_MPI>::GetName () const
+inline std::string PEInterface::GetName () const
 {
     return "MPI";
 }
 
-unsigned int PEInterface<PM_MPI>::GetProcessorCount () const
+unsigned int PEInterface::GetProcessorCount () const
 {
     int Size;
     MPI_Comm_size (Comm, &Size);
     return static_cast<unsigned>(Size);
 }
 
-unsigned int PEInterface<PM_MPI>::GetRank () const
+unsigned int PEInterface::GetRank () const
 {
     static int Rank = -1;
     if (Rank != -1)
@@ -130,7 +132,7 @@ return Rank;
     return static_cast<unsigned int>(Rank);
 }
 
-bool PEInterface<PM_MPI>::IsParallel () const
+bool PEInterface::IsParallel () const
 {
     return (GetProcessorCount() > 1);
 }

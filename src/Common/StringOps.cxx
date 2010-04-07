@@ -6,7 +6,7 @@
 
 using namespace std; // for all the std::string stuff
 
-namespace COOLFluiD {
+namespace CF {
 namespace Common {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -92,7 +92,7 @@ void StringOps::trim (std::string& out)
   if(( string::npos == startpos ) || ( string::npos == endpos))
   {  out = ""; }
   else
-     out = out.substr( startpos, endpos-startpos+1 );
+    out = out.substr( startpos, endpos-startpos+1 );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -106,7 +106,7 @@ std::vector<std::string> StringOps::getWords (const std::string& in)
   std::string word;              // current word
   for (size_t i = 0, len = s.length(); i < len; ++i)
   {
-    CFchar ch = s[i];
+    char ch = s[i];
     if (inWord)
     {
       if (isspace(ch))
@@ -137,7 +137,7 @@ std::vector<std::string> StringOps::getWords (const std::string& in)
 
 //////////////////////////////////////////////////////////////////////////////
 
-vector<std::string> StringOps::getWords  (const std::string& in, const CFchar sep )
+vector<std::string> StringOps::getWords  (const std::string& in, const char sep )
 {
   std::string s = in;                // copy
   vector<std::string> words;         // return vector
@@ -145,7 +145,7 @@ vector<std::string> StringOps::getWords  (const std::string& in, const CFchar se
   bool inWord = false;        // whether we're in a word
   std::string word;                // current word
   for (size_t i = 0, len = s.length(); i < len; ++i) {
-    CFchar ch = s[i];
+    char ch = s[i];
     if (inWord) {
       if (ch == sep) {
         words.push_back(word);
@@ -180,10 +180,10 @@ bool StringOps::startsWith (const std::string& in, const std::string& str)
 
 bool StringOps::endsWith (const std::string& in, const std::string& str)
 {
- return in.length() >= str.length() && in.substr(in.length() - str.length()) == str;
+return in.length() >= str.length() && in.substr(in.length() - str.length()) == str;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 } // namespace Common
-} // namespace COOLFluiD
+} // namespace CF

@@ -59,16 +59,16 @@ namespace CF {
 
 #ifdef CF_ENABLE_PARALLEL_DEBUG
 void WriteCommPatternHelper (MPI_Comm Comm,
-  CFuint LocalSize, CFuint GhostSize,
-  std::vector<CFuint> & Sends,
-  std::vector<CFuint> & Receives)
+  CF::Uint LocalSize, CF::Uint GhostSize,
+  std::vector<CF::Uint> & Sends,
+  std::vector<CF::Uint> & Receives)
 {
     // In order not to overwrite files from another parvector
-    static CFuint Count = 0;
+    static CF::Uint Count = 0;
 
     CFAUTOTRACE;
 
-    CFLogNotice ("Writing communication pattern...\n");
+    CFLogInfo ("Writing communication pattern...\n");
 
     int CommRank, CommSize;
 
@@ -102,7 +102,7 @@ void WriteCommPatternHelper (MPI_Comm Comm,
 
     S << "  P" << CommRank << " [label=\"CPU" << CommRank << " ("
   << LocalSize << "+" << GhostSize << ")\"];\n";
-    for (CFuint i=0; i<static_cast<CFuint>(CommSize); ++i)
+    for (CF::Uint i=0; i<static_cast<CF::Uint>(CommSize); ++i)
     {
   if (!Sends[i])
       continue;
@@ -311,7 +311,7 @@ public: // funcions
 
   /// Constructor.
   /// WARNING: Size parameter is IGNORED!
-  ParVectorMPI (const T& Init, CFuint Size, CFuint ESize = 0);
+  ParVectorMPI (const T& Init, CF::Uint Size, CF::Uint ESize = 0);
 
   /// Destructor
   /// Before destructing the class, DoneMPI should be called
@@ -433,7 +433,7 @@ public: // funcions
   /// Make sure we can have up to capacity elements
   /// before needing to allocate
   /// (and possible invalidate pointers & references)
-  void reserve (IndexType capacity, CFuint elementSize);
+  void reserve (IndexType capacity, CF::Uint elementSize);
 
   /// Returns true if the given local index is a ghost element
   inline bool IsGhost (IndexType LocalID) const;
@@ -528,12 +528,12 @@ protected:
       // Ghosts contains the local index of the ghost element
 
       // The number of locally owned elements
-      const CFuint LocalOwned = GetLocalSize();
+      const CF::Uint LocalOwned = GetLocalSize();
 
-      CFuint StartID;
+      CF::Uint StartID;
 
       // Prefix scan
-      MPI_Scan (const_cast<CFuint*>(&LocalOwned),
+      MPI_Scan (const_cast<CF::Uint*>(&LocalOwned),
           &StartID, 1, MPI_UNSIGNED,
           MPI_SUM, _Communicator);
 
@@ -541,7 +541,7 @@ protected:
       StartID -= LocalOwned;
 
       _FirstCGlobal = StartID;
-      CFLogDebugMin( "First CGlobal ID: " << _FirstCGlobal <<
+      CFLogDebug( "First CGlobal ID: " << _FirstCGlobal <<
          ", Count=" << LocalOwned << "\n");
 
       // resize CGlobal
@@ -549,7 +549,7 @@ protected:
 
       cf_assert (GetTotalSize()==GetLocalSize()+GetGhostSize());
 
-      for (CFuint i=0; i<GetTotalSize(); ++i)
+      for (CF::Uint i=0; i<GetTotalSize(); ++i)
         {
     if (IsGhost (i))
       {
@@ -564,7 +564,7 @@ protected:
     ++StartID;
         }
 
-      CFLogDebugMin( "ParVector: CMap: Remaining to translate: "
+      CFLogDebug( "ParVector: CMap: Remaining to translate: "
          << Ghosts.size() << " ghost elements...\n");
       // Now all CGlobal IDs are set for every non-ghost element
     }
@@ -585,10 +585,10 @@ protected:
       }
 
       // Determine maximum number of ghost elements
-      const CFuint LocalGhostSize = GetGhostSize();
-      CFuint MaxGhostSize = 0;
+      const CF::Uint LocalGhostSize = GetGhostSize();
+      CF::Uint MaxGhostSize = 0;
 
-      Common::CheckMPIStatus(MPI_Allreduce (const_cast<CFuint *>(&LocalGhostSize),
+      Common::CheckMPIStatus(MPI_Allreduce (const_cast<CF::Uint *>(&LocalGhostSize),
             &MaxGhostSize, 1,
             MPI_UNSIGNED, MPI_MAX, _Communicator));
 
@@ -614,7 +614,7 @@ protected:
       int SendTo = (_CommRank == _CommSize - 1 ? 0 : _CommRank + 1);
       int ReceiveFrom = (_CommRank ? _CommRank - 1 : _CommSize - 1);
 
-      CFLogDebugMin( "Starting ghost element lookup..."
+      CFLogDebug( "Starting ghost element lookup..."
          " Receiving from " << ReceiveFrom << ", sending to "
          << SendTo << "\n");
 
@@ -630,10 +630,10 @@ protected:
       // and set the ghost flag to indicate that the number isn't translated
       // yet
       SendBuf[0] = Ghosts.size();
-      for (CFuint i=0; i<static_cast<CFuint>(Ghosts.size()); ++i)
+      for (CF::Uint i=0; i<static_cast<CF::Uint>(Ghosts.size()); ++i)
         SendBuf[i+1] = SetFlag(LocalToGlobal(Ghosts[i]), _FLAG_GHOST);
 
-      for (CFuint Round = 0; Round < static_cast<CFuint>(_CommSize);
+      for (CF::Uint Round = 0; Round < static_cast<CF::Uint>(_CommSize);
     ++Round)
         {
     Common::CheckMPIStatus(MPI_Isend (&SendBuf[0], SendBuf[0]+1,
@@ -648,16 +648,16 @@ protected:
     // Process receive buffer
 
     // It is impossible that we receive more elements than we agreed on.
-    const CFuint EleCount = ReceiveBuf[0];
+    const CF::Uint EleCount = ReceiveBuf[0];
 
     cf_assert (EleCount <= MaxGhostSize);
 
-    CFLogDebugMin( "BuildCMap: Translating "
+    CFLogDebug( "BuildCMap: Translating "
              << EleCount << " elements...\n");
 
-    for (CFuint i=0; i<EleCount; ++i)
+    for (CF::Uint i=0; i<EleCount; ++i)
       {
-        const CFuint CurID = i+1;
+        const CF::Uint CurID = i+1;
 
         const IndexType CurVal = ReceiveBuf[CurID];
 
@@ -709,7 +709,7 @@ protected:
 
       // Now we have the global mapping ghosts and the translated
       // mapping in SendBuf...
-      for (CFuint i=0; i<Ghosts.size(); ++i)
+      for (CF::Uint i=0; i<Ghosts.size(); ++i)
         {
     _CGlobal[Ghosts[i]] = SendBuf[i+1];
     cf_assert (!IsFlagSet (SendBuf[i+1], _FLAG_GHOST));
@@ -729,7 +729,7 @@ protected:
     void ParVectorMPI<T>::InvalidateCGlobal ()
     {
       _CGlobalValid = false;
-      std::swap (_CGlobal, std::vector<CFuint>());
+      std::swap (_CGlobal, std::vector<CF::Uint>());
     }
 
     template <typename T>
@@ -807,7 +807,7 @@ protected:
 
       CFLogDebugMax( "Warning: Using slow FindLocal (no index created) in"
          " parvector\n");
-      for (CFuint i=0; i<size (); i++)
+      for (CF::Uint i=0; i<size (); i++)
         {
     IndexType I = _MetaData[i].GlobalIndex;
     if (IsFlagSet (I, _FLAG_DELETED|_FLAG_GHOST))
@@ -834,7 +834,7 @@ protected:
 
       CFLogDebugMax( "Warning: Using slow FindGhost (no index created) in"
          " parvector\n");
-      for (CFuint i=0; i<size (); i++)
+      for (CF::Uint i=0; i<size (); i++)
         {
     IndexType I = _MetaData[i].GlobalIndex;
     if (!IsFlagSet (I, _FLAG_GHOST))
@@ -1112,11 +1112,11 @@ protected:
       cf_assert (_InitMPIOK);
 
       cf_assert (_GhostSendList.size()==
-           static_cast<CFuint>(_CommSize));
+           static_cast<CF::Uint>(_CommSize));
       cf_assert (_GhostReceiveList.size()==
-           static_cast<CFuint>(_CommSize));
+           static_cast<CF::Uint>(_CommSize));
 
-      CFLogNotice("ParVectorMPI<T>::BuildGhostMap() START");
+      CFLogInfo("ParVectorMPI<T>::BuildGhostMap() START");
 
       // Clear old mapping
       for (int j=0; j<_CommSize; j++)
@@ -1145,9 +1145,9 @@ protected:
 	  // Error: we don't have all the ghost points
 	  CFLog(NORMAL, "Not all ghost points were found! Starting investigation\n");
 
-	  std::set<CFuint> Ghosts;
-	  std::set<CFuint> Receives;
-	  std::set<CFuint> Missing;
+	  std::set<CF::Uint> Ghosts;
+	  std::set<CF::Uint> Receives;
+	  std::set<CF::Uint> Missing;
 
 	  typename TGhostMap::const_iterator Iter;
 
@@ -1163,7 +1163,7 @@ protected:
 
 	  std::ostringstream S;
 	  S << "Missing ghost elements (globalID): ";
-	  for (std::set<CFuint>::const_iterator I = Missing.begin();
+	  for (std::set<CF::Uint>::const_iterator I = Missing.begin();
 	       I!=Missing.end(); ++I)
 	      S << *I << " ";
 	  S << "\n";
@@ -1171,7 +1171,7 @@ protected:
 	  throw NotFoundException(FromHere(), S.str().c_str());
       }
 
-      CFLogNotice("ParVectorMPI<T>::BuildGhostMap()  => Sync_BuildReceiveTypes");
+      CFLogInfo("ParVectorMPI<T>::BuildGhostMap()  => Sync_BuildReceiveTypes");
 
       // Build receive datatype
       Sync_BuildReceiveTypes ();
@@ -1180,7 +1180,7 @@ protected:
       WriteCommPattern ();
 #endif
 
-      CFLogNotice("ParVectorMPI<T>::BuildGhostMap()  END");
+      CFLogInfo("ParVectorMPI<T>::BuildGhostMap()  END");
     }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1215,7 +1215,7 @@ protected:
     if (!V[i].size())
       continue;
 
-    for (CFuint j=0; j<V[i].size(); j++)
+    for (CF::Uint j=0; j<V[i].size(); j++)
       {
         Length[j]=1;
         Offset[j]=V[i][j];
@@ -1247,7 +1247,7 @@ protected:
     *==============================================================*/
     template <class T>
     inline void ParVectorMPI<T>::reserve (IndexType reservesize,
-              CFuint elementSize)
+              CF::Uint elementSize)
     {
       CFLog ( VERBOSE, "_InitMPIOK  = " << _InitMPIOK << "\n" );
       CFLog ( VERBOSE, "elementSize = " << elementSize << "\n" );
@@ -1270,7 +1270,7 @@ protected:
         return;
 
       IndexType GrowBy =  reservesize - _Data.GetSize ();
-      CFLogDebugMin( "par_vector reserve called: reservesize="
+      CFLogDebug( "par_vector reserve called: reservesize="
          << reservesize << ", growing by " << GrowBy
          << ", current size=" << _Data.GetSize() << "\n");
       Grow (GrowBy);
@@ -1376,7 +1376,7 @@ protected:
 
       Out << "Content dump for rank " << _CommRank << "\n";
 
-      for (CFuint i=0; i<size(); ++i)
+      for (CF::Uint i=0; i<size(); ++i)
         {
     int Global = LocalToGlobal(i);
     Out << i << " " << Global;
@@ -1678,7 +1678,7 @@ protected:
 	}
       }
 
-      CFLogDebugMin( "parVector DoneMPI\n");
+      CFLogDebug( "parVector DoneMPI\n");
     }
 
 
@@ -1733,7 +1733,7 @@ protected:
 #endif
         }
 
-      CFLogDebugMin( "parvector InitMPI\n");
+      CFLogDebug( "parvector InitMPI\n");
     }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -1748,7 +1748,7 @@ protected:
 //////////////////////////////////////////////////////////////////////////////
 
     template <class T>
-    ParVectorMPI<T>::ParVectorMPI (const T & Init, CFuint Size, CFuint ESize)
+    ParVectorMPI<T>::ParVectorMPI (const T & Init, CF::Uint Size, CF::Uint ESize)
       : _ElementSize(ESize), _LocalSize(0), _GhostSize(0),
         _NextFree(_NO_MORE_FREE), _Data(Init, 0, ESize), _MetaData(DataType(), 0),
         _IsIndexed(false), _InitMPIOK(false), _CGlobalValid(false)
@@ -1764,11 +1764,11 @@ protected:
     template <class T>
     void ParVectorMPI<T>::WriteCommPattern () const
     {
-      std::vector<CFuint> Send(_CommSize), Receive(_CommSize);
+      std::vector<CF::Uint> Send(_CommSize), Receive(_CommSize);
 
 
 
-      for (CFuint i=0; i<_GhostSendList.size(); ++i)
+      for (CF::Uint i=0; i<_GhostSendList.size(); ++i)
         {
     Send[i] = _GhostSendList[i].size();
     Receive[i] = _GhostReceiveList[i].size();

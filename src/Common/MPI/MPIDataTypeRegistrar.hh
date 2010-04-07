@@ -8,6 +8,12 @@
 #include "Common/Log.hh"
 #include "Common/LogLevel.hh"
 
+//#ifndef CFinfo
+// #error CFinfo is defined
+//#else
+// #error CFinfo is *not* defined
+//#endif
+
 /*
  * UNSAFE_MPITYPES enables generic MPI Type registration code.
  * This means MPI no longer 'knows' the exact meaning of the data,
@@ -63,17 +69,18 @@ public:
 
     virtual void Register (MPI_Comm Comm)
     {
-      CFLogDebugMin( "MPIDataTypeRegistrar(generic): Registering type " <<
-        typeid(T).name() << " of size " << sizeof (T) << "\n");
+      //CFinfo << "MPIDataTypeRegistrar(generic): Registering type " <<
+//        typeid(T).name() << " of size " << sizeof (T) << 
+//        '\n';
       MPI_Type_contiguous (sizeof (T), MPI_BYTE, &TheType);
       MPI_Type_commit (&TheType);
     }
 
     virtual void UnRegister ()
     {
-      CFLogDebugMin( "MPIDataTypeRegistrar(generic): "
-        << "DeRegistering type " <<
-        typeid(T).name() << " of size " << sizeof (T) << "\n");
+      //CFLogDebug( "MPIDataTypeRegistrar(generic): "
+//        << "DeRegistering type " <<
+//        typeid(T).name() << " of size " << sizeof (T) << "\n");
       MPI_Type_free (&TheType);
     }
 

@@ -5,8 +5,8 @@
 #include <mach/mach_init.h>
 #include <mach/task.h>
 
-#include "Common/ProcessInfo.hh"
-#include "Common/Common.hh"
+#include "Common/MacOSX/ProcessInfo.hh"
+#include "Common/CommonAPI.hh"
 
 //////////////////////////////////////////////////////////////////////////////
 

@@ -2,7 +2,7 @@
 
 #include "Common/Exception.hh"
 #include "Common/OSystem.hh"
-#include "Common/ProcessInfo.hh"
+ //#include "Common/ProcessInfo.hh" /// @todo QG: fix this
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -41,7 +41,7 @@ Exception::Exception(CodeLocation where, std::string msg, std::string className)
 
   if ( ExceptionManager::getInstance().ExceptionDumps )
   {
-    std::string backtrace = OSystem::getInstance().getProcessInfo()->getBackTrace();
+   std::string backtrace = ""; //OSystem::getInstance().getProcessInfo()->getBackTrace(); /// @todo QG: fix this
     std::cout << "+++ Exception backtrace ++++++++++++++" << std::endl;
     std::cout << backtrace << std::endl;
     std::cout << "++++++++++++++++++++++++++++++++++++++" << std::endl;

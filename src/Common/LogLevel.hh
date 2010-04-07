@@ -1,5 +1,5 @@
-#ifndef COOLFluiD_Common_LogLevel_hh
-#define COOLFluiD_Common_LogLevel_hh
+#ifndef CF_Common_LogLevel_hh
+#define CF_Common_LogLevel_hh
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -11,10 +11,10 @@ namespace CF {
 /// These values are relative to the logcpp levels, so keep them this way.
 /// @author Tiago Quintino
 
-enum LogLevel { 
- SILENT = 100,
- NORMAL = 50,
- VERBOSE = 0
+enum LogLevel {
+SILENT = 100,
+NORMAL = 50,
+VERBOSE = 0
 }; // enum LogLevel
 
 //////////////////////////////////////////////////////////////////////////////
@@ -23,4 +23,4 @@ enum LogLevel {
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // COOLFluiD_Common_LogLevel_hh
+#endif // CF_Common_LogLevel_hh

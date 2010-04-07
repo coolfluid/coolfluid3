@@ -1,12 +1,12 @@
 #include <sstream>
 #include <iostream>
 
-#include "Common/Common.hh"
+#include "Common/CommonAPI.hh"
 #include "Common/AssertionManager.hh"
-#include "Common/FailedAssertionException.hh"
+#include "Common/BasicExceptions.hh"
+#include "Common/ProcessInfo.hh"
 
 #include "Common/OSystem.hh"
-#include "Common/ProcessInfo.hh"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -57,7 +57,7 @@ void AssertionManager::do_assert ( bool condition,
 
     if ( AssertionManager::getInstance().AssertionThrows )
     {
-      throw FailedAssertionException (FromHere(),out.str());
+      throw FailedAssertion (FromHere(),out.str());
     }
     else
     {

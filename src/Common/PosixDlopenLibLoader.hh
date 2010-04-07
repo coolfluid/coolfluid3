@@ -1,11 +1,11 @@
 #ifndef COOLFluiD_Common_PosixDlopenLibLoader_hh
 #define COOLFluiD_Common_PosixDlopenLibLoader_hh
 
-#include "Common/LibLoader.hh"
+#include "Common/LibLoader.hh" 
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace COOLFluiD {
+namespace CF {
 
   namespace Common {
 
@@ -42,7 +42,7 @@ public: // functions
 
   } // namespace Common
 
-} // namespace COOLFluiD
+} // namespace CF
 
 //////////////////////////////////////////////////////////////////////////////
 

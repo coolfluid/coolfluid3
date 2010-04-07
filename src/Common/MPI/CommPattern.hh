@@ -3,7 +3,7 @@
 
 #include <mpi.h>
 
-#include "Common/COOLFluiD.hh"
+#include "Common/CF.hh"
 
 namespace CF {
     namespace Common {

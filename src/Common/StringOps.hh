@@ -1,15 +1,15 @@
-#ifndef COOLFluiD_StringOps_hh
-#define COOLFluiD_StringOps_hh
+#ifndef CF_StringOps_hh
+#define CF_StringOps_hh
 
 //////////////////////////////////////////////////////////////////////////////
 
- //#include "Common/COOLFluiD.hh"
+#include "Common/CF.hh"
 #include "Common/NonInstantiable.hh"
-#include "Common/Common.hh"
+#include "Common/CommonAPI.hh"
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace COOLFluiD {
+namespace CF {
 namespace Common {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -62,14 +62,14 @@ public:
   /// @param in string to split
   /// @param sep the separator character
   /// @return a vector with the separated std::string's
-  static std::vector<std::string> getWords  (const std::string& in, const CFchar sep );
+  static std::vector<std::string> getWords  (const std::string& in, const char sep );
 
   /// Returns whether this std::string starts with the given std::string.
   /// @param in string to split
   /// @param str missing documentation
   /// @return missing documentation
   static bool startsWith (const std::string& in, const std::string& str);
-  
+
   /// Returns whether this std::string ends with the given std::string.
   /// @param in string to split
   /// @param str missing documentation
@@ -77,7 +77,7 @@ public:
   static bool endsWith (const std::string& in, const std::string& str);
 
   /// Converts to std::string
-  /// Don't use this to convert to a CFchar, use c_str for that.
+  /// Don't use this to convert to a char, use c_str for that.
   /// Typical use is to convert to numbers.
   /// @param str string to convert from
   /// @return converter type
@@ -90,7 +90,7 @@ public:
   }
 
   /// Converts from std::string
-  /// Don't use this to convert to a CFchar, use c_str for that.
+  /// Don't use this to convert to a char, use c_str for that.
   /// Typical use is to convert to numbers.
   /// @param str string to convert from
   /// @return converter type
@@ -116,8 +116,8 @@ public:
 //////////////////////////////////////////////////////////////////////////////
 
 } // namespace Common
-} // namespace COOLFluiD
+} // namespace CF
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // COOLFluiD_StringOps_hh
+#endif // CF_StringOps_hh

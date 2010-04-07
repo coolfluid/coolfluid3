@@ -3,7 +3,7 @@
 
 #include <mpi.h>
 
-#include "Common/Common.hh"
+#include "Common/CommonAPI.hh"
 
 namespace CF {
     namespace Common {

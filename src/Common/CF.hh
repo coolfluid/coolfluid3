@@ -20,7 +20,7 @@
 #include <typeinfo>  // for typeid
 #include <complex>   // for complex numbers and complex functions
 
-#include "Common/Common.hh"
+#include "Common/CommonAPI.hh"
 #include "Common/AssertionManager.hh"
 #include "Common/DemangledTypeID.hh"
 #include "Common/PtrAlloc.hh"

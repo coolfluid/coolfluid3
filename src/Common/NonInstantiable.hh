@@ -1,9 +1,9 @@
-#ifndef COOLFluiD_Common_NonInstantiable_hh
-#define COOLFluiD_Common_NonInstantiable_hh
+#ifndef CF_Common_NonInstantiable_hh
+#define CF_Common_NonInstantiable_hh
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace COOLFluiD {
+namespace CF {
     namespace Common {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -18,6 +18,6 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
     } // namespace Common
-} // namespace COOLFluiD
+} // namespace CF
 
-#endif // COOLFluiD_Common_NonInstantiable_hh
+#endif // CF_Common_NonInstantiable_hh

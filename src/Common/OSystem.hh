@@ -24,10 +24,8 @@ class Common_API OSystemError : public Common::Exception {
 public:
 
   /// Constructor
-  OSystemError ( const Common::CodeLocation& where, const std::string& what) :
-    Common::Exception(where, what, "OSystemError") {}
-
-}; // end class OSystemException
+  OSystemError ( const Common::CodeLocation& where, const std::string& what);
+}; // end class OSystem
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -41,17 +39,21 @@ public: // methods
   static OSystem& getInstance();
 
   /// @return ProcessInfo object
-  Common::SafePtr<Common::ProcessInfo> getProcessInfo();
-
+  Common::SafePtr<Common::ProcessInfo> getProcessInfo(); 
+  
   /// @return SignalHandler object
-  Common::SafePtr<Common::SignalHandler> getSignalHandler();
+  Common::SafePtr<Common::SignalHandler> getSignalHandler(); 
 
   /// @return LibLoader object
   Common::SafePtr<Common::LibLoader> getLibLoader();
 
   /// Executes the command passed in the string
   /// @todo should return the output of the command but not yet implemented.
-  void execute_command (const std::string& call);
+  void executeCommand (const std::string& call);
+  
+  /// Sleeps for a certain number of seconds
+  /// @param seconds to sleep ( default is 1 )
+  void sleep(const CF::Uint& seconds = 1);
 
 private: // functions
 

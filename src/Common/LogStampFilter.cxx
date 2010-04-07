@@ -6,12 +6,12 @@
 
 using namespace CF::Common;
 
-LogStampFilter::LogStampFilter(const std::string & streamName, 
+LogStampFilter::LogStampFilter(const std::string & streamName,
                                    const std::string & stamp)
- : m_stamp(stamp),
-   m_newMessage(true),
-   m_streamName(streamName),
-   m_place("", 0, "")
+: m_stamp(stamp),
+  m_newMessage(true),
+  m_streamName(streamName),
+  m_place("", 0, "")
 {
 
 }
@@ -21,7 +21,7 @@ LogStampFilter::LogStampFilter(const std::string & streamName,
 
 void LogStampFilter::setStamp(const std::string & stamp)
 {
- m_stamp = stamp;
+m_stamp = stamp;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -29,7 +29,7 @@ void LogStampFilter::setStamp(const std::string & stamp)
 
 std::string LogStampFilter::getStamp() const
 {
- return m_stamp;
+return m_stamp;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -37,7 +37,7 @@ std::string LogStampFilter::getStamp() const
 
 void LogStampFilter::endMessage()
 {
- m_newMessage = true;
+m_newMessage = true;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -45,5 +45,5 @@ void LogStampFilter::endMessage()
 
 void LogStampFilter::setPlace(const CodeLocation & place)
 {
- m_place = place;
+m_place = place;
 }
