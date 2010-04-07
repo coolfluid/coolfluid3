@@ -10,9 +10,9 @@
 #include <iostream>
 #include <sstream>
 
-#include "Log.hh"
-#include "StringOps.hh"
-#include "PE.hh"
+#include "Common/Log.hh"
+#include "Common/StringOps.hh"
+#include "Common/PE.hh"
 
 using namespace CF;
 using namespace CF::Common;

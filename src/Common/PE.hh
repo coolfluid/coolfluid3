@@ -16,8 +16,6 @@ namespace CF {
 
     namespace Common {
 
-//class PEInterface;
-
 //////////////////////////////////////////////////////////////////////////////
 
 /// This class controls the Parallel environment
@@ -29,7 +27,7 @@ public:
     /// Checks if the PE is initialized
     static bool IsInitialised ();
     /// Return a reference to the current PE
-    static PEInterface& GetPE ();
+    static PEInterface<>& GetPE ();
     /// Free the PE
     static void DonePE ();
 
@@ -55,7 +53,7 @@ public:
 private:
 
     /// the current PE
-    static PEInterface * m_curr_PE;
+    static PEInterface<> * m_curr_PE;
 
     /// Flag to keep track of Parallel Enviroment Initialized
     /// Note: cannot rely on m_curr_PE pointer because objects held by the enviroment

@@ -1,10 +1,13 @@
-#include "Common/PE.hh"
+#include "Common/CF.hh"
 
-//#ifdef CF_HAVE_MPI
-//#  include "Common/MPI/PEInterfaceMPI.hh"
-//#else
-//#  include "Common/SERIAL/PEInterfaceSERIAL.hh"
-//#endif // CF_HAVE_MPI
+#ifdef CF_HAVE_MPI
+#  include "Common/MPI/PEInterfaceMPI.hh"
+#else
+#error Do not have MPI!
+ //#  include "Common/SERIAL/PEInterfaceSERIAL.hh"
+#endif // CF_HAVE_MPI
+
+#include "Common/PE.hh"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -15,7 +18,7 @@ namespace CF {
 //////////////////////////////////////////////////////////////////////////////
 
 // initialize the static data
-PEInterface        * PE::m_curr_PE = CFNULL;
+PEInterface<>      * PE::m_curr_PE = CFNULL;
 bool                 PE::m_is_init = false;
 char               * PE::m_command_workers = CFNULL;
 WorkerStatus::Type   PE::m_current_status = WorkerStatus::NOT_RUNNING;
@@ -36,14 +39,14 @@ void PE::InitPE (int * argc, char *** args)
     m_command_workers = new char[strlen(*args[0]) + 1];
     strcpy(m_command_workers, *args[0]);
 
-    m_curr_PE = new PEInterface (argc, args);
+    m_curr_PE = new PEInterface<>(argc, args);
     cf_assert (m_curr_PE != CFNULL);
     m_is_init = true;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-PEInterface & PE::GetPE ()
+PEInterface<> & PE::GetPE ()
 {
   cf_assert(m_is_init);
   cf_assert (m_curr_PE != CFNULL);

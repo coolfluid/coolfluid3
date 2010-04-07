@@ -3,6 +3,7 @@
 
 #include <string>
 
+#include "Common/PM.hh"
 #include "Common/CommonAPI.hh"
 
 #include "Common/BasicExceptions.hh"
@@ -12,6 +13,8 @@
 namespace CF {
 
     namespace Common {
+    
+template <typename PARMODEL = Common::PM_CUR>  class PEInterface;
 
 //////////////////////////////////////////////////////////////////////////////
 

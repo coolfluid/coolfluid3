@@ -18,8 +18,8 @@ static void ThrowMPI (MPI_Comm * Comm, int * Error, ...)
 
 //////////////////////////////////////////////////////////////////////////////
 
-PEInterface::PEInterface (int * argc, char *** args, MPI_Comm UsedCom)
-    : Comm(UsedCom), /*DataTypeHandler (UsedCom),*/ InitOK_(false), StopCalled_(false)
+PEInterface<PM_MPI>::PEInterface (int * argc, char *** args, MPI_Comm UsedCom)
+    : Comm(UsedCom), DataTypeHandler (UsedCom), InitOK_(false), StopCalled_(false)
 {
     int Ret = MPI_Init (argc, args);
     if (Ret != MPI_SUCCESS) throw std::string("MPI_Init failed!");
@@ -28,26 +28,26 @@ PEInterface::PEInterface (int * argc, char *** args, MPI_Comm UsedCom)
     Common::CheckMPIStatus(MPI_Errhandler_create (ThrowMPI, &ErrHandler_));
     Common::CheckMPIStatus(MPI_Errhandler_set (Comm, ErrHandler_));
 
-  //DataTypeHandler.InitTypes ();
+    DataTypeHandler.InitTypes ();
 
     CallInitFunctions ();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-PEInterface::~PEInterface ()
+PEInterface<PM_MPI>::~PEInterface ()
 {
     CallDoneFunctions ();
 
-  //DataTypeHandler.DoneTypes ();
+    DataTypeHandler.DoneTypes ();
 
     MPI_Finalize ();
     InitOK_=false;
 }
 
-void PEInterface::CallInitFunctions ()
+void PEInterface<PM_MPI>::CallInitFunctions ()
 {
-    CFLogDebug( "PEInterface::CallInitFunctions()\n");
+    CFLogDebug( "PEInterface<PM_MPI>::CallInitFunctions()\n");
     cf_assert (!StopCalled_);
     InitContainerType::iterator Cur = InitList_.begin();
     while (Cur != InitList_.end())
@@ -57,9 +57,9 @@ void PEInterface::CallInitFunctions ()
     }
 }
 
-void PEInterface::CallDoneFunctions ()
+void PEInterface<PM_MPI>::CallDoneFunctions ()
 {
-    CFLogDebug( "PEInterface::CallDoneFunctions ()\n");
+    CFLogDebug( "PEInterface<PM_MPI>::CallDoneFunctions ()\n");
     InitContainerType::iterator Cur = InitList_.begin();
     while (Cur != InitList_.end())
     {
@@ -71,18 +71,18 @@ void PEInterface::CallDoneFunctions ()
     InitList_.clear ();
 }
 
-void PEInterface::CallInitFunction (MPIInitObject * NewObj) const
+void PEInterface<PM_MPI>::CallInitFunction (MPIInitObject * NewObj) const
 {
     CFLogDebug( "Calling MPI_Init on " << NewObj << "\n");
     NewObj->MPI_Init (GetCommunicator());
 }
-void PEInterface::CallDoneFunction (MPIInitObject * NewObj) const
+void PEInterface<PM_MPI>::CallDoneFunction (MPIInitObject * NewObj) const
 {
     CFLogDebug( "Calling MPI_Done on " << NewObj << "\n");
     NewObj->MPI_Done ();
 }
 
-void PEInterface::RegisterInitObject (MPIInitObject * NewObj)
+void PEInterface<PM_MPI>::RegisterInitObject (MPIInitObject * NewObj)
 {
     cf_assert (!StopCalled_);
 
