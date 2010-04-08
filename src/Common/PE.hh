@@ -22,6 +22,8 @@ public:
   static PE& getInstance ();
 
   /// Return a reference to the current PEInterface
+  /// @pre init() must have been called
+  /// @pre is_init() returns true
   static PEInterface& interface ();
 
   /// Initialise the PE
@@ -29,6 +31,10 @@ public:
 
   /// Checks if the PE is initialized
   bool is_init ();
+
+  /// Gets the rank of the processor if already MPI is init
+  /// else returns zero
+  Uint get_rank () const;
 
   /// Free the PE
   void finalize ();
