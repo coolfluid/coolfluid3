@@ -210,6 +210,13 @@ class Common_API LogStream
   /// @param filterRankZero If @c true, the filter is set to "enabled";
   /// otherwise, it is set to "disabled".
   void setFilterRankZero(bool filterRankZero);
+  
+  /// @brief Checks whether the filter for rank 0 is set on the specified 
+  /// destination.
+  
+  /// @param dest The destination to check
+  /// @return Returns @c true if the filter is set; otherwise, returns @c false.
+  bool getFilterRankZero(LogDestination dest) const;
 
   /// @brief Sets the file.
 
@@ -245,6 +252,11 @@ class Common_API LogStream
   /// @param forwarder The forwarder to remove.
   /// @see addStringForwarder
   void removeStringForwarder(LogStringForwarder * forwarder);
+  
+  /// @brief Gives the number of string forwarders the stream contains
+  
+  /// @return Returns the number of string forwarders.
+  int getStringForwarderCount() const;  
 
   private:
 
