@@ -14,7 +14,7 @@
 
 #include "Common/Log.hh"
 #include "Common/StringOps.hh"
-#include "Common/FakePE.hh"
+#include "Common/PE.hh"
 
 using namespace CF;
 using namespace CF::Common;
@@ -103,7 +103,7 @@ LogStream & Logger::getStream(Logger::StreamType type)
 
 void Logger::openFiles()
 {
-  if(FakePE::get_instance().is_init())
+  if(PE::getInstance().is_init())
   {
     std::ostringstream logFile;
     std::ostringstream traceFile;
@@ -111,7 +111,7 @@ void Logger::openFiles()
     iostreams::file_descriptor_sink fdLogFile;
     iostreams::file_descriptor_sink fdTraceFile;
     
-    int rank = FakePE::get_instance().get_rank();
+    int rank = PE::getInstance().get_rank();
     
     logFile << "output-p" << rank << ".log";
     traceFile << "output-p" << rank << ".trace";

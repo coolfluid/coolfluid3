@@ -41,9 +41,6 @@ LIST ( APPEND Common_files
      OwnedObject.hh
      PE.cxx
      PE.hh
-     PM.hh
-     FakePE.cxx
-     FakePE.hh
      PEInterface.cxx
      PEInterface.hh
      ProcessInfo.cxx

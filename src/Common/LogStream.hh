@@ -11,7 +11,7 @@
 #include "Common/LogStringForwarder.hh"
 #include "Common/CodeLocation.hh"
 #include "Common/StringOps.hh"
-#include "Common/FakePE.hh"
+#include "Common/PE.hh"
 #include "Common/MPI/PE_MPI.hh"
 
 namespace CF {
@@ -108,19 +108,19 @@ class Common_API LogStream
     for(it = m_destinations.begin() ; it != m_destinations.end() ; it++)
     {
      if(it->first != SYNC_SCREEN && this->isDestinationUsed(it->first) && 
-        (FakePE::get_instance().get_rank() == 0 || !m_filterRankZero[it->first]))
+        ( PE::getInstance().get_rank() == 0 || !m_filterRankZero[it->first]))
      {
       *(it->second) << t;
       m_flushed = false;
      }
-     else if(it->first != SYNC_SCREEN && FakePE::get_instance().is_init() 
+     else if(it->first != SYNC_SCREEN && PE::getInstance().is_init()
         && this->isDestinationUsed(it->first))
      {
-      for(int i = 0 ; i < FakePE::get_instance().get_size() ; i++)
+      for( Uint i = 0 ; i < PE::interface().get_procesor_count(); ++i )
       {
-        FakePE::get_instance().set_barrier();
+        PE::interface().set_barrier();
         
-        if(i == FakePE::get_instance().get_rank())
+        if(i == PE::getInstance().get_rank())
         {
          *(it->second) << t;
          m_flushed = false;

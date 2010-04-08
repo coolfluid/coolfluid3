@@ -32,7 +32,8 @@ ProcessInfo::~ProcessInfo()
 
 std::string ProcessInfo::getBackTrace () const
 {
-  return dumpBackTrace ();
+   printf ("getBackTrace ...\n");
+   return dumpBackTrace ();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -41,7 +42,10 @@ std::string ProcessInfo::dumpBackTrace ()
 {
   #define BUFFER_SIZE 500
 
-  printf ("\n\ndumping backtrace ...\n");
+  static int i = 0;
+  ++i;
+
+  printf ("dumping %d backtrace ...\n", i);
 
   std::ostringstream oss;
   int j, nptrs;
@@ -59,6 +63,8 @@ std::string ProcessInfo::dumpBackTrace ()
   free(strings);
 
   #undef BUFFER_SIZE
+
+  printf ("exit dumping backtrace ...\n\n");
 
   return oss.str();
 }

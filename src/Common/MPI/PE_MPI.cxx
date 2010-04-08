@@ -26,19 +26,19 @@ PE_MPI::PE_MPI (int * argc, char *** args, MPI_Comm UsedCom) :
     m_stop_called(false),
     m_command_workers (CFNULL)
 {
-    int Ret = MPI_Init (argc, args);
-    if (Ret != MPI_SUCCESS) throw std::string("MPI_Init failed!");
-    m_init_ok = true;
+  int Ret = MPI_Init (argc, args);
+  if (Ret != MPI_SUCCESS) throw std::string("MPI_Init failed!");
+  m_init_ok = true;
 
-    m_command_workers = new char[strlen(*args[0]) + 1];
-    strcpy(m_command_workers, *args[0]);
+  m_command_workers = new char[strlen(*args[0]) + 1];
+  strcpy(m_command_workers, *args[0]);
 
-    CheckMPIStatus(MPI_Errhandler_create (ThrowMPI, &m_error_handler));
-    CheckMPIStatus(MPI_Errhandler_set (m_comm, m_error_handler));
+  CheckMPIStatus(MPI_Errhandler_create (ThrowMPI, &m_error_handler));
+  CheckMPIStatus(MPI_Errhandler_set (m_comm, m_error_handler));
 
   // DataTypeHandler.InitTypes ();
 
-    CallInitFunctions ();
+  CallInitFunctions ();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -101,37 +101,35 @@ bool PE_MPI::is_parallel () const
 
 void PE_MPI::CallInitFunctions ()
 {
-    CFLogDebug( "PE_MPI::CallInitFunctions()\n");
-    cf_assert (!m_stop_called);
-    InitContainerType::iterator Cur = m_init_list.begin();
-    while (Cur != m_init_list.end())
-    {
-	CallInitFunction (*Cur);
-	++Cur;
-    }
+  cf_assert (!m_stop_called);
+
+  InitContainerType::iterator Cur = m_init_list.begin();
+  while (Cur != m_init_list.end())
+  {
+    CallInitFunction (*Cur);
+    ++Cur;
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 void PE_MPI::CallDoneFunctions ()
 {
-    CFLogDebug( "PE_MPI::CallDoneFunctions ()\n");
-    InitContainerType::iterator Cur = m_init_list.begin();
-    while (Cur != m_init_list.end())
-    {
-	CallDoneFunction (*Cur);
-	++Cur;
-    }
-    m_stop_called = true;
-    // Clear the list
-    m_init_list.clear ();
+  InitContainerType::iterator Cur = m_init_list.begin();
+  while (Cur != m_init_list.end())
+  {
+    CallDoneFunction (*Cur);
+    ++Cur;
+  }
+  m_stop_called = true;
+
+  m_init_list.clear ();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 void PE_MPI::CallInitFunction (MPIInitObject * NewObj) const
 {
-    CFLogDebug( "Calling MPI_Init on " << NewObj << "\n");
     NewObj->MPI_Init (getCommunicator());
 }
 
@@ -139,7 +137,6 @@ void PE_MPI::CallInitFunction (MPIInitObject * NewObj) const
 
 void PE_MPI::CallDoneFunction (MPIInitObject * NewObj) const
 {
-    CFLogDebug( "Calling MPI_Done on " << NewObj << "\n");
     NewObj->MPI_Done ();
 }
 
@@ -147,15 +144,15 @@ void PE_MPI::CallDoneFunction (MPIInitObject * NewObj) const
 
 void PE_MPI::registInitObj (MPIInitObject * NewObj)
 {
-    cf_assert (!m_stop_called);
+  cf_assert (!m_stop_called);
 
-    m_init_list.push_back (NewObj);
+  m_init_list.push_back (NewObj);
 
-    if (m_init_ok)
-    {
-  // Initialization is already started, so we can call init immediately
-  CallInitFunction (m_init_list.back());
-    }
+  if (m_init_ok)
+  {
+    // Initialization is already started, so we can call init immediately
+    CallInitFunction (m_init_list.back());
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -196,13 +193,13 @@ MPI_Comm PE_MPI::spawn(unsigned int count, const char * hosts)
   }
 
   MPI_Comm_spawn(command,        // command to run
-                  MPI_ARGV_NULL,  // arguments to the command
-                  count,          // number of processes
-                  info,           // infos
-                  myRank, // manager (root) rank
-                  getCommunicator(),
-                  &comm,
-                  MPI_ERRCODES_IGNORE);
+                 MPI_ARGV_NULL,  // arguments to the command
+                 count,          // number of processes
+                 info,           // infos
+                 myRank, // manager (root) rank
+                 getCommunicator(),
+                 &comm,
+                 MPI_ERRCODES_IGNORE);
 
   return comm;
 }

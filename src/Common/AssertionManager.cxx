@@ -20,7 +20,7 @@ namespace CF {
 AssertionManager::AssertionManager() :
   DoAssertions    ( true ),
   AssertionDumps  ( true ),
-  AssertionThrows ( true ) {}
+  AssertionThrows ( false ) {}
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -62,6 +62,7 @@ void AssertionManager::do_assert ( bool condition,
     else
     {
       std::cerr << out << std::endl;
+      std::cerr << "aborting..." << std::endl;
       cerr.flush ();
       abort ();
     }

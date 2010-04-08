@@ -145,7 +145,7 @@ class Common_API Logger : public Common::NonCopyable<Logger>
 
 #define CFLogInfo(x)   CFinfo << x << CFendl;
 #define CFLogWarn(x)   CFwarn << x << CFendl;
-#define CFLogError(x)  CFerr << x << CFendl;
+#define CFLogError(x)  CFerr  << x << CFendl;
 
 //////////////////////////////////////////////////////////////////////////////
 // Tracing macros
