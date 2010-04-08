@@ -16,6 +16,8 @@ LIST ( APPEND Common_files
      Exception.cxx
      Exception.hh
      ExportAPI.hh
+     HourMinSec.cxx
+     HourMinSec.hh
      LibLoader.cxx
      LibLoader.hh
      Log.cxx
@@ -53,8 +55,11 @@ LIST ( APPEND Common_files
      SelfRegistPtr.hh
      SignalHandler.cxx
      SignalHandler.hh
+     Stopwatch.hh
      StringOps.cxx
      StringOps.hh
+     TimePolicies.cxx
+     TimePolicies.hh
      WorkerStatus.cxx
      WorkerStatus.hh
 )
