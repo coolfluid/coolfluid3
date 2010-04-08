@@ -38,26 +38,26 @@
 #include <iostream>
 #include <limits>
 
-#include "Common/COOLFluiD.hh"
-#include "Common/MPI/MPIDataTypeHandler.hh"
-#include "Common/MPI/ParVectorException.hh"
-#include "Common/MPI/MPIException.hh"
+#include "Common/CF.hh"
+#include "Common/BasicExceptions.hh"
+#include "Common/MPI/DataTypeHandler.hh"
 
 #include "Common/ArrayAllocator.hh"
 
 #include "Common/Log.hh"
 
-#include "Common/MPI/MPIHelper.hh"
+#include "Common/MPI/HelperFuncs.hh"
 #include "Common/PE.hh"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-    namespace Common {
+namespace Common  {
+namespace MPI  {
 
 //////////////////////////////////////////////////////////////////////////////
 
-#ifdef CF_ENABLE_PARALLEL_DEBUG
+#ifdef 0
 void WriteCommPatternHelper (MPI_Comm Comm,
   CF::Uint LocalSize, CF::Uint GhostSize,
   std::vector<CF::Uint> & Sends,
@@ -637,10 +637,10 @@ protected:
     ++Round)
         {
     Common::CheckMPIStatus(MPI_Isend (&SendBuf[0], SendBuf[0]+1,
-            MPIDataTypeHandler::GetType<IndexType>(),
+            DataTypeHandler::GetType<IndexType>(),
             SendTo, Round, _Communicator, &SendRequest));
     Common::CheckMPIStatus(MPI_Irecv (&ReceiveBuf[0], ReceiveBuf.size(),
-            MPIDataTypeHandler::GetType<IndexType>(),
+            DataTypeHandler::GetType<IndexType>(),
             ReceiveFrom, Round, _Communicator, &ReceiveRequest));
 
     Common::CheckMPIStatus(MPI_Wait (&ReceiveRequest, MPI_STATUS_IGNORE));
@@ -940,7 +940,7 @@ protected:
       if (Iter2!=_GhostMap.end())
         return Iter2->second;
 
-      throw NotFoundException (FromHere(),"Parvector: NotFoundException");
+      throw ParallelError (FromHere(),"Parvector: local index not found");
     }
 
 
@@ -1062,7 +1062,7 @@ protected:
       SendStorage[j++]=NormalIndex(_MetaData[*iter].GlobalIndex);
 
     Common::CheckMPIStatus(MPI_Send (SendStorage, _GhostSendList[i].size(),
-           MPIDataTypeHandler::GetType<IndexType>(), i,
+           DataTypeHandler::GetType<IndexType>(), i,
            _MPI_TAG_BUILDGHOSTMAP, _Communicator));
         }
 
@@ -1083,7 +1083,7 @@ protected:
 
     IndexType Aantal;
 
-    MPI_Get_count (&Status, MPIDataTypeHandler::GetType<IndexType>(),
+    MPI_Get_count (&Status, DataTypeHandler::GetType<IndexType>(),
              (int *) &Aantal);
 
     // it is unsigned, so this is useless // cf_assert (Aantal >= 0 );
@@ -1168,7 +1168,7 @@ protected:
 	      S << *I << " ";
 	  S << "\n";
 
-	  throw NotFoundException(FromHere(), S.str().c_str());
+    throw ParallelError (FromHere(), S.str() );
       }
 
       CFLogInfo("ParVectorMPI<T>::BuildGhostMap()  => Sync_BuildReceiveTypes");
@@ -1506,7 +1506,7 @@ protected:
 
       // Misschien 1 grote array gebruiken om 1 MPI_Waitall te kunnen doen
       Common::CheckMPIStatus(MPI_Waitall (_CommSize, &_SendRequests[0], MPI_STATUSES_IGNORE));
-      Common::CheckMPIStatus(MPI_Waitall (_CommSize, &_ReceiveRequests[0], MPI_STATUSES_IGNORE));
+      Common::CheckMPIStParallelErroratus(MPI_Waitall (_CommSize, &_ReceiveRequests[0], MPI_STATUSES_IGNORE));
     }
 
 
@@ -1521,8 +1521,7 @@ protected:
       typename TGhostMap::const_iterator Iter = _GhostMap.find(GlobalIndex);
 
       if (Iter!=_GhostMap.end())
-        throw DoubleElementException
-    (FromHere(), "Parvector: AddGhostPoint: DoubleElementException");
+        throw ParallelError (FromHere(), "Parvector: AddGhostPoint: didnt find global index");
 
       //
       // Alternative:
@@ -1531,8 +1530,7 @@ protected:
       //
       typename TIndexMap::const_iterator Iter2 = _IndexMap.find(GlobalIndex);
       if (Iter2!=_IndexMap.end())
-        throw DoubleElementException
-    (FromHere(), "ParVector: AddGhostPoint: DoubleElementException");
+        throw ParallelError (FromHere(), "ParVector: AddGhostPoint: inserting double element");
 
       IndexType NewLocalID = AllocNext ();
 
@@ -1544,8 +1542,7 @@ protected:
 
       _GhostMap[GlobalIndex]=NewLocalID;
 
-      CFLogDebugMax( "AddGhostPoint: local=" << NewLocalID << ", global=" <<
-         GlobalIndex << "\n");
+      CFLogDebugMax( "AddGhostPoint: local=" << NewLocalID << ", global=" << GlobalIndex << "\n");
 
       return NewLocalID;
     }
@@ -1562,8 +1559,7 @@ protected:
       IndexType NewLocalID = AllocNext ();
 
       if (NewLocalID == _NO_MORE_FREE )
-        throw StorageException
-    (FromHere(), "ParVector: AddLocalPoint: No more free space");
+        throw ParallelError (FromHere(), "ParVector: AddLocalPoint: No more free space");
 
       cf_assert (NewLocalID!=_NO_MORE_FREE);
 
@@ -1572,14 +1568,12 @@ protected:
 
       typename TIndexMap::const_iterator Iter = _IndexMap.find(GlobalIndex);
       if (Iter != _IndexMap.end())
-        throw DoubleElementException
-    (FromHere(), "ParVector: AddLocalPoint: DoubleElementException!");
+        throw ParallelError (FromHere(), "ParVector: AddLocalPoint: inserting double element");
 
       _IndexMap[GlobalIndex]=NewLocalID;
 
 
-      CFLogDebugMax( "Add localpoint: local " << NewLocalID << ", global " <<
-         GlobalIndex << "\n");
+      CFLogDebugMax( "Add localpoint: local " << NewLocalID << ", global " << GlobalIndex << "\n");
 
       return NewLocalID;
     }
@@ -1650,7 +1644,7 @@ protected:
       IndexType Local = GetLocalSize();
 
       Common::CheckMPIStatus(MPI_Allreduce (&Local, &Total, 1,
-            MPIDataTypeHandler::GetType<IndexType>(), MPI_SUM,
+            DataTypeHandler::GetType<IndexType>(), MPI_SUM,
             _Communicator));
 
       return Total;
@@ -1726,10 +1720,10 @@ protected:
       else
         {
 #ifdef HAVE_MPI_TYPE_DUP
-    MPI_Type_dup (MPIDataTypeHandler::GetType<T>(), &_BasicType);
+    MPI_Type_dup (DataTypeHandler::GetType<T>(), &_BasicType);
     MPI_Type_commit (&_BasicType);
 #else
-    _BasicType = MPIDataTypeHandler::GetType<T>();
+    _BasicType = DataTypeHandler::GetType<T>();
 #endif
         }
 
@@ -1782,9 +1776,9 @@ protected:
 
 //////////////////////////////////////////////////////////////////////////////
 
-    } // Common
-
-} // COOLFluiD
+} // MPI
+} // Common
+} // CF
 
 #endif
 

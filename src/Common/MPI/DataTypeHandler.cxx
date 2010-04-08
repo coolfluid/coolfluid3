@@ -1,39 +1,39 @@
-#include "Common/MPI/MPIDataTypeHandler.hh"
+#include "Common/MPI/DataTypeHandler.hh"
 #include "Common/Log.hh"
 #include <mpi.h>
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-
-    namespace Common {
+namespace Common  {
+namespace MPI  {
 
 //////////////////////////////////////////////////////////////////////////////
 
-MPIDataTypeHandler * MPIDataTypeHandler::TheInstance = 0;
+DataTypeHandler * DataTypeHandler::TheInstance = 0;
 
-void MPIDataTypeHandler::InitType (MPIDataType * Type)
+void DataTypeHandler::InitType (DataType * Type)
 {
-    Type->Register (Communicator);
+    Type->regist (Communicator);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MPIDataTypeHandler::DoneType (MPIDataType * Type)
+void DataTypeHandler::DoneType (DataType * Type)
 {
-    Type->UnRegister ();
+    Type->unregist ();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MPIDataTypeHandler::RegisterType (MPIDataType * Type)
+void DataTypeHandler::RegisterType (DataType * Type)
 {
     Types.insert(Type);
     if (IsInitialized ())
         InitType (Type);
 }
 
-void MPIDataTypeHandler::InitTypes ()
+void DataTypeHandler::InitTypes ()
 {
     cf_assert (!Initialized);
     ContainerType::const_iterator Iter = Types.begin ();
@@ -47,9 +47,9 @@ void MPIDataTypeHandler::InitTypes ()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MPIDataTypeHandler::DoneTypes()
+void DataTypeHandler::DoneTypes()
 {
-  CFLogDebug("MPIDataTypeHandler::DoneTypes() begin" << "\n");
+  CFLogDebug("DataTypeHandler::DoneTypes() begin" << "\n");
 
   cf_assert(Initialized);
 
@@ -62,19 +62,19 @@ void MPIDataTypeHandler::DoneTypes()
 
   Initialized = false;
 
-  CFLogDebug("MPIDataTypeHandler::DoneTypes() end" << "\n");
+  CFLogDebug("DataTypeHandler::DoneTypes() end" << "\n");
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool MPIDataTypeHandler::IsInitialized () const
+bool DataTypeHandler::IsInitialized () const
 {
   return Initialized;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-MPIDataTypeHandler::MPIDataTypeHandler (MPI_Comm Comm) :
+DataTypeHandler::DataTypeHandler (MPI_Comm Comm) :
     Communicator(Comm), Initialized(false)
 {
   cf_assert (TheInstance == 0);
@@ -83,9 +83,9 @@ MPIDataTypeHandler::MPIDataTypeHandler (MPI_Comm Comm) :
 
 //////////////////////////////////////////////////////////////////////////////
 
-MPIDataTypeHandler::~MPIDataTypeHandler()
+DataTypeHandler::~DataTypeHandler()
 {
-  CFLogDebug( "MPIDataTypeHandler::~MPIDataTypeHandler (): " << Types.size () << " types to destroy" << "\n");
+  CFLogDebug( "DataTypeHandler::~DataTypeHandler (): " << Types.size () << " types to destroy" << "\n");
 
   if (IsInitialized ()) {
     DoneTypes ();
@@ -96,7 +96,7 @@ MPIDataTypeHandler::~MPIDataTypeHandler()
 
 //////////////////////////////////////////////////////////////////////////////
 
-MPIDataTypeHandler & MPIDataTypeHandler::GetHandler()
+DataTypeHandler & DataTypeHandler::GetHandler()
 {
   cf_assert (TheInstance != CFNULL);
   return *TheInstance;
@@ -104,6 +104,6 @@ MPIDataTypeHandler & MPIDataTypeHandler::GetHandler()
 
 //////////////////////////////////////////////////////////////////////////////
 
-  } // Common
-
-} // COOLFluiD
+} // MPI
+} // Common
+} // CF

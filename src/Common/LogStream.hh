@@ -12,7 +12,7 @@
 #include "Common/CodeLocation.hh"
 #include "Common/StringOps.hh"
 #include "Common/FakePE.hh"
-#include "Common/MPI/PEInterfaceMPI.hh"
+#include "Common/MPI/PE_MPI.hh"
 
 namespace CF {
 

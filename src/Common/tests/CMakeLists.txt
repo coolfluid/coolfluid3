@@ -4,6 +4,7 @@
  LIST ( APPEND uTestCommon_files
   UTestCommon.cxx
   TestLogStream.cxx
+  TestFakePE.cxx
   TestPE.cxx )
 
  CF_ADD_UNITTEST ( uTestCommon )

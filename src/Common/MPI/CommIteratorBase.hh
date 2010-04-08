@@ -3,8 +3,9 @@
 
 #include "Common/MPI/CommPattern.hh"
 
-namespace CF  {
-    namespace Common  {
+namespace CF {
+namespace Common  {
+namespace MPI  {
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -150,7 +151,8 @@ protected:
 
 //////////////////////////////////////////////////////////////////////////////
 
-    }
-}
+} // MPI
+} // Common
+} // CF
 
 #endif

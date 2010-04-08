@@ -1,21 +1,22 @@
-#ifndef MPIDATATYPEREGISTRAR_HELPER_HH
-#define MPIDATATYPEREGISTRAR_HELPER_HH
+#ifndef DataTypeREGISTRAR_HELPER_HH
+#define DataTypeREGISTRAR_HELPER_HH
 
-#include "Common/MPI/MPIDataType.hh"
-#include <mpi.h>
+#include "Common/MPI/DataType.hh"
 
 namespace CF {
-    namespace Common  {
+namespace Common  {
+namespace MPI {
+
 //////////////////////////////////////////////////////////////////////////////
 
-class MPIDataTypeRegistrar_Helper : public MPIDataType
+class DataTypeRegistrar_Helper : public MPI::DataType
 {
 protected:
     MPI_Datatype TheType;
 
 public:
-    MPIDataTypeRegistrar_Helper ();
-    virtual ~MPIDataTypeRegistrar_Helper ();
+    DataTypeRegistrar_Helper ();
+    virtual ~DataTypeRegistrar_Helper ();
 
 
     void DoRegister ();
@@ -27,7 +28,8 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////
 
-   }
-}
+} // MPI
+} // Common
+} // CF
 
 #endif

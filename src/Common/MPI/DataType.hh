@@ -1,33 +1,37 @@
-#ifndef MPIDATATYPE_HH
-#define MPIDATATYPE_HH
+#ifndef CF_Common_MPI_DATATYPE_HH
+#define CF_Common_MPI_DATATYPE_HH
 
 #include <mpi.h>
 
+#include "Common/CommonAPI.hh"
+
 namespace CF {
-  namespace Common  {
+namespace Common  {
+namespace MPI  {
 
 //////////////////////////////////////////////////////////////////////////////
 
 /// Interface for MPI Datatypes
-class MPIDataType {
+class Common_API DataType {
 public:
 
+  /// Virtual destructor
+  virtual ~DataType ();
+
   /// Regist the Datatype
-  virtual void Register(MPI_Comm Comm) = 0;
+  virtual void regist( MPI_Comm Comm ) = 0;
 
   /// Unregist the Datatype
-  virtual void UnRegister() = 0;
+  virtual void unregist () = 0;
 
-  /// Virtual destructor
-  virtual ~MPIDataType ();
-
-}; // end class MPIDataType
+}; // DataType
 
 //////////////////////////////////////////////////////////////////////////////
 
-  } // Common
-} // COOLFluiD
+} // MPI
+} // Common
+} // CF
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // MPIDATATYPE_HH
+#endif // CF_Common_MPI_DATATYPE_HH

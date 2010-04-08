@@ -1,5 +1,5 @@
-#ifndef MPIDATATYPEREGISTRAR_HH
-#define MPIDATATYPEREGISTRAR_HH
+#ifndef DataTypeREGISTRAR_HH
+#define DataTypeREGISTRAR_HH
 
 #include <mpi.h>
 
@@ -26,20 +26,21 @@
 #define UNSAFE_MPITYPES
 
 #ifdef UNSAFE_MPITYPES
-#include "Common/MPI/MPIDataTypeRegistrar_Helper.hh"
+#include "Common/MPI/DataTypeRegistrar_Helper.hh"
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-   namespace Common  {
+namespace Common  {
+namespace MPI  {
 
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef UNSAFE_MPITYPES
 //=========================== SAFE MPI Types ==========================
 /*template <class T>
-class MPIDataTypeRegistrar
+class DataTypeRegistrar
 {
 public:
 
@@ -54,21 +55,21 @@ public:
 //=========================== UNSAFE MPI Types ======================
 
 template <class T>
-class MPIDataTypeRegistrar : public MPIDataTypeRegistrar_Helper {
+class DataTypeRegistrar : public DataTypeRegistrar_Helper {
 public:
 
-    MPIDataTypeRegistrar()
+    DataTypeRegistrar()
     {
       DoRegister ();
     }
 
-    virtual ~MPIDataTypeRegistrar ()
+    virtual ~DataTypeRegistrar ()
     {
     }
 
     virtual void Register (MPI_Comm Comm)
     {
-      //CFinfo << "MPIDataTypeRegistrar(generic): Registering type " <<
+      //CFinfo << "DataTypeRegistrar(generic): Registering type " <<
 //        typeid(T).name() << " of size " << sizeof (T) << 
 //        '\n';
       MPI_Type_contiguous (sizeof (T), MPI_BYTE, &TheType);
@@ -77,19 +78,19 @@ public:
 
     virtual void UnRegister ()
     {
-      //CFLogDebug( "MPIDataTypeRegistrar(generic): "
+      //CFLogDebug( "DataTypeRegistrar(generic): "
 //        << "DeRegistering type " <<
 //        typeid(T).name() << " of size " << sizeof (T) << "\n");
       MPI_Type_free (&TheType);
     }
 
-}; // end class MPIDataTypeRegistrar
+}; // end class DataTypeRegistrar
 
 #endif // UNSAFE_MPITYPES
 
 #define REGISTRAR_TYPE(CT,MT) \
     template <>           \
-    class MPIDataTypeRegistrar<CT>      \
+    class DataTypeRegistrar<CT>      \
     {             \
   public:           \
       MPI_Datatype GetType () const   \
@@ -106,8 +107,8 @@ REGISTRAR_TYPE(unsigned long, MPI_LONG)
 
 //////////////////////////////////////////////////////////////////////////////
 
-  } // namespace Common
-
-} // namespace CF
+} // MPI
+} // Common
+} // CF
 
 #endif

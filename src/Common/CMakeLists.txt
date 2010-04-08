@@ -36,9 +36,8 @@ LIST ( APPEND Common_files
      PE.hh
      FakePE.cxx
      FakePE.hh
-     PM.hh
-     PEInterfaceBase.cxx
-     PEInterfaceBase.hh
+     PEInterface.cxx
+     PEInterface.hh
      ProcessInfo.cxx
      ProcessInfo.hh
      ProviderBase.cxx
@@ -64,24 +63,20 @@ IF(CF_HAVE_MPI)
       MPI/CommPattern.cxx
       MPI/CommPattern.hh
       MPI/GlobalReduceMPI.hh
-      MPI/MPIDataType.cxx
-      MPI/MPIDataTypeHandler.cxx
-      MPI/MPIDataTypeHandler.hh
-      MPI/MPIDataType.hh
-      MPI/MPIDataTypeRegistrar_Helper.cxx
-      MPI/MPIDataTypeRegistrar_Helper.hh
-      MPI/MPIDataTypeRegistrar.hh
-      MPI/MPIException.hh
-      MPI/MPIHelper.cxx
-      MPI/MPIHelper.hh
+      MPI/DataType.hh
+      MPI/DataType.cxx
+      MPI/DataTypeHandler.cxx
+      MPI/DataTypeHandler.hh
+      MPI/DataTypeRegistrar_Helper.cxx
+      MPI/DataTypeRegistrar_Helper.hh
+      MPI/DataTypeRegistrar.hh
+      MPI/HelperFuncs.cxx
+      MPI/HelperFuncs.hh
       MPI/MPIInitObject.hh
       MPI/MPIStructDef.hh
-      MPI/ParVectorException.hh
       MPI/ParVectorMPI.hh
-      MPI/PatternFullExchange.hh
-      MPI/PatternRing.hh
-      MPI/PEInterfaceMPI.cxx
-      MPI/PEInterfaceMPI.hh
+      MPI/PE_MPI.cxx
+      MPI/PE_MPI.hh
  )
 ENDIF()
 

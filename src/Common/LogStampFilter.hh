@@ -85,7 +85,7 @@ class Common_API LogStampFilter
     StringOps::subst("%time%", "TIME", stamp);
     StringOps::subst("%type%", m_streamName, stamp);
     StringOps::subst("%place%", m_place.short_str(), stamp);
-    StringOps::subst("%rank%", StringOps::to_str(PE::GetPE().GetRank()), stamp);
+    StringOps::subst("%rank%", StringOps::to_str( PE::interface().get_rank() ), stamp);
 
     m_newMessage = false;
 

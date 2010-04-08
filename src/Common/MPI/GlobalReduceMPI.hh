@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 
-#include "Common/COOLFluiD.hh"
+#include "Common/CF.hh"
 
 #include <mpi.h>
 
@@ -12,11 +12,11 @@
 #include "Common/PE.hh"
 #include "Common/NonCopyable.hh"
 #include "Common/GlobalReduce.hh"
-#include "Common/MPI/MPIDataTypeHandler.hh"
-#include "Common/MPI/MPIException.hh"
+#include "Common/MPI/DataTypeHandler.hh"
 
 namespace CF {
-    namespace Common {
+namespace Common  {
+namespace MPI  {
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -51,8 +51,7 @@ public:
 private: // functions
 
     /// The actual function called by MPI
-    static void CombineMPI (void * A, void * B, int * len, MPI_Datatype *
-    Datatype);
+    static void CombineMPI (void * A, void * B, int * len, MPI_Datatype *Datatype);
 
     /// Register our function
     void Register ();
@@ -100,7 +99,7 @@ private: // variables
               throw Common::MPIException (FromHere(), "MPI_Done called before MPI_Init!!\n");
           if (UserCount_)
               throw Common::MPIException (FromHere(), "GlobalReduce: RegisterHelper: "
-                    "destructor called on this object while our parent "
+                    "destructor called on this object while the parent "
                     "GlobalReduce object is still using the function!\n");
 
           MPI_Op_free (&OperationHandle_);
@@ -149,7 +148,7 @@ GlobalReduce<PROVIDER, Common::PM_MPI>::GetGlobalValue () const
     RESULTTYPE SendBuf = Provider_.GR_GetLocalValue ();
     RESULTTYPE ReceiveBuf;
     MPI_Allreduce (&SendBuf, &ReceiveBuf, 1,
-    Common::MPIDataTypeHandler::GetType<RESULTTYPE>(),
+    Common::DataTypeHandler::GetType<RESULTTYPE>(),
     Helper_->GetOperation (), Common::PE::GetPE().GetCommunicator());
     return ReceiveBuf;
 }
@@ -246,7 +245,7 @@ public:
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename TAGCLASS, typename BASETYPE>
-class GlobalReduceOperationMPIHelper
+class GlobalReduceOperationHelperFuncs
 {
 public:
     typedef BASETYPE GR_RESULTTYPE;
@@ -258,7 +257,7 @@ public:
 
     GR_RESULTTYPE GR_GetLocalValue () const  {  return *Source_; }
 
-    GlobalReduceOperationMPIHelper (BASETYPE * S, BASETYPE * D, unsigned int Count)
+    GlobalReduceOperationHelperFuncs (BASETYPE * S, BASETYPE * D, unsigned int Count)
       : Source_(S), Dest_(D), Count_(Count), Reduce_(*this) {}
 
     void GetGlobalValue (BASETYPE * Dest) {  *Dest = Reduce_.GetGlobalValue (); }
@@ -268,7 +267,7 @@ private:
     BASETYPE * Dest_;
     unsigned int Count_;
 
-    GlobalReduce < GlobalReduceOperationMPIHelper <TAGCLASS, BASETYPE> , Common::PM_MPI > Reduce_;
+    GlobalReduce < GlobalReduceOperationHelperFuncs <TAGCLASS, BASETYPE> , Common::PM_MPI > Reduce_;
 
 };
 
@@ -293,14 +292,15 @@ class GlobalReduceOperationHelper<TAGCLASS, BASETYPE, Common::PM_MPI>
 public:
     static inline void DoReduce (BASETYPE * S, BASETYPE * D, unsigned int Count)
     {
-      GlobalReduceOperationMPIHelper <TAGCLASS, BASETYPE> Helper (S,D,Count);
+      GlobalReduceOperationHelperFuncs <TAGCLASS, BASETYPE> Helper (S,D,Count);
       Helper.GetGlobalValue (D);
     }
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-    }
-}
+} // MPI
+} // Common
+} // CF
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef MPIDATATYPEHANDLER_HH
-#define MPIDATATYPEHANDLER_HH
+#ifndef DataTypeHANDLER_HH
+#define DataTypeHANDLER_HH
 
 /*****************************************************************
  *  This class handles correct initialisation and destruction    *
@@ -7,35 +7,33 @@
  *****************************************************************/
 
 #include <mpi.h>
-#include "Common/MPI/MPIDataTypeRegistrar.hh"
-#include "Common/MPI/MPIDataType.hh"
+#include "Common/MPI/DataTypeRegistrar.hh"
+#include "Common/MPI/DataType.hh"
 
 #include <set>
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-
-  namespace Common {
+namespace Common  {
+namespace MPI  {
 
 //////////////////////////////////////////////////////////////////////////////
 
-/**
- *  This class handles correct initialisation and destruction
- *  of the registered datatypes
- */
-class MPIDataTypeHandler {
+/// This class handles correct initialisation and destruction
+/// of the registered datatypes
+class DataTypeHandler {
 public:
 
-    static MPIDataTypeHandler & GetHandler ();
+    static DataTypeHandler & GetHandler ();
 
     template <class CTYPE>
     static MPI_Datatype GetType ();
 
-    MPIDataTypeHandler (MPI_Comm Comm);
-    ~MPIDataTypeHandler ();
+    DataTypeHandler (MPI_Comm Comm);
+    ~DataTypeHandler ();
 
-    void RegisterType (MPIDataType * Type);
+    void RegisterType (DataType * Type);
 
     bool IsInitialized () const;
 
@@ -45,34 +43,34 @@ public:
 private:
 
 
-    void InitType (MPIDataType * T);
-    void DoneType (MPIDataType * T);
+    void InitType (DataType * T);
+    void DoneType (DataType * T);
 
 
     MPI_Comm Communicator;
     bool Initialized;
 
-    static MPIDataTypeHandler * TheInstance;
+    static DataTypeHandler * TheInstance;
 
-    typedef std::set<MPIDataType *> ContainerType;
+    typedef std::set<DataType *> ContainerType;
 
     ContainerType Types;
 
-}; // end class MPIDataTypeHandler
+}; // end class DataTypeHandler
 
 //////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-MPI_Datatype MPIDataTypeHandler::GetType ()
+MPI_Datatype DataTypeHandler::GetType ()
 {
-    static MPIDataTypeRegistrar<T> TheRegistrar;
+    static DataTypeRegistrar<T> TheRegistrar;
     return TheRegistrar.GetType ();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-  } // Common
-
-} // COOLFluiD
+} // MPI
+} // Common
+} // CF
 
 #endif

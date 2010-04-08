@@ -8,12 +8,12 @@
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-  namespace Common {
+namespace Common  {
+namespace MPI  {
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// The following struct defines the basic data needed by a generic
-/// MPI struct
+/// The following struct defines the basic data needed by a generic MPI struct
 /// @author Andrea Lani
 struct MPIStruct {
   MPI_Datatype type;
@@ -113,7 +113,7 @@ public:
     obj.start = t1;
   }
 
-  /// The following function build a MPIStruct with 4 types
+  /// The following function build a MPIStruct with 5 types
   template <typename T1, typename T2,
     typename T3, typename T4,
     typename T5>
@@ -153,7 +153,7 @@ public:
     obj.start = t1;
   }
 
-  /// The following function build a MPIStruct with 4 types
+  /// The following function build a MPIStruct with 6 types
   template <typename T1, typename T2,
     typename T3, typename T4,
     typename T5, typename T6>
@@ -226,8 +226,9 @@ MPIDTYPE(char,MPI_CHAR)
 
 //////////////////////////////////////////////////////////////////////////////
 
-  } // namespace Common
-} // namespace CF
+} // MPI
+} // Common
+} // CF
 
 //////////////////////////////////////////////////////////////////////////////
 

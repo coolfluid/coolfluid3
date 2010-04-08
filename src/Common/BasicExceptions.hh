@@ -138,10 +138,7 @@ struct Common_API NullPointerError: public Common::Exception {
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// This exception is thrown in any place of the code which
-/// by some conceptual impossibility should not be reached.
-/// Typically on a switch-case construction where one of the choices
-/// should be taken and the default never reached.
+/// Exception thrown when an error related occurs on the parallel communication
 /// @author Tiago Quintino
 struct Common_API ParallelError: public Common::Exception {
 

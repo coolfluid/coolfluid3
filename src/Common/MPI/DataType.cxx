@@ -1,14 +1,16 @@
-#include "Common/MPI/MPIDataType.hh"
+#include "Common/MPI/DataType.hh"
 
 namespace CF {
-   namespace Common  {
+namespace Common  {
+namespace MPI  {
 
 //////////////////////////////////////////////////////////////////////////////
 
-MPIDataType::~MPIDataType () {}
+DataType::~DataType () {}
 
 //////////////////////////////////////////////////////////////////////////////
 
-   }
-}
+} // MPI
+} // Common
+} // CF
 
