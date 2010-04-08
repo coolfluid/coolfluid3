@@ -62,6 +62,8 @@ LIST ( APPEND Common_files
      TimePolicies.hh
      WorkerStatus.cxx
      WorkerStatus.hh
+     xmlParser.cpp
+     xmlParser.h
 )
 
 LIST(APPEND Common_libs ${Boost_LIBRARIES})
