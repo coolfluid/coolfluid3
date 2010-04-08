@@ -44,7 +44,7 @@ bool PE::is_init ()
 
 //////////////////////////////////////////////////////////////////////////////
 
-Uint PE::get_rank ()
+Uint PE::get_rank () const
 {
   if ( m_is_init ) return interface().get_rank();
   else return 0;

@@ -1,8 +1,10 @@
 LIST ( APPEND Common_files 
+     ArrayAllocator.hh
      AssertionManager.cxx
      AssertionManager.hh
      BasicExceptions.cxx
      BasicExceptions.hh
+     BigAllocator.hh
      BoostIostreams.hh
      CF.hh
      CodeLocation.cxx
@@ -27,6 +29,9 @@ LIST ( APPEND Common_files
      LogStream.hh
      LogStringForwarder.hh
      LogStringForwarder.cxx
+     MemoryAllocator.hh
+     MemoryAllocatorNormal.cxx
+     MemoryAllocatorNormal.hh
      NonCopyable.hh
      NonInstantiable.hh
      OSystem.cxx
@@ -34,6 +39,7 @@ LIST ( APPEND Common_files
      OwnedObject.hh
      PE.cxx
      PE.hh
+     PM.hh
      FakePE.cxx
      FakePE.hh
      PEInterface.cxx
@@ -78,6 +84,13 @@ IF(CF_HAVE_MPI)
       MPI/PE_MPI.cxx
       MPI/PE_MPI.hh
  )
+ENDIF()
+
+###############################################################################
+# MMap allocation
+LIST ( APPEND OPTIONAL_dirfiles MemoryAllocatorMMap.hh MemoryAllocatorMMap.cxx )
+IF(CF_HAVE_ALLOC_MMAP AND CF_HAVE_UNISTD_H )
+  LIST(APPEND Common_files MemoryAllocatorMMap.hh MemoryAllocatorMMap.cxx )
 ENDIF()
 
 ###############################################################################
@@ -136,6 +149,7 @@ CF_MARK_NOT_ORPHAN (
 	Win32/ProcessInfo.hh    Win32/ProcessInfo.cxx
 	Win32/SignalHandler.hh  Win32/SignalHandler.cxx
 	Win32/LibLoader.hh      Win32/LibLoader.cxx
+	MemoryAllocatorMMap.hh  MemoryAllocatorMMap.cxx
 )
 
 SET  ( Common_kernellib TRUE )
