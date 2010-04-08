@@ -92,7 +92,7 @@ void PosixDlopenLibLoader::load_library(const std::string& lib)
     {
       CFLog( NORMAL, "dlerror() said nothing." << "\n" );
     }
-    throw LibLoaderException (FromHere(),"Module failed to load");
+    throw LibLoadingError (FromHere(),"Module failed to load");
   }
 }
 

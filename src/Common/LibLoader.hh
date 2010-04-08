@@ -16,17 +16,17 @@ namespace CF {
 
 //////////////////////////////////////////////////////////////////////////////
 
-class Common_API LibLoaderException : public Common::Exception {
+class Common_API LibLoadingError : public Common::Exception {
 public:
 
   /// Constructor
-  LibLoaderException ( const Common::CodeLocation& where, const std::string& what) :
-    Common::Exception(where, what, "LibLoaderException") {}
+  LibLoadingError ( const Common::CodeLocation& where, const std::string& what) :
+    Common::Exception(where, what, "LibLoadingError") {}
 
   /// Copy constructor
-  LibLoaderException ( const LibLoaderException& e) throw () : Exception(e) {}
+  LibLoadingError ( const LibLoadingError& e) throw () : Exception(e) {}
 
-}; // end class LibLoaderException
+}; // end class LibLoadingError
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -46,7 +46,7 @@ public: // methods
 
   /// class interface to load a library depending on the operating system
   /// and the library loading algorithm
-  /// @throw LibLoaderException if loading fails for any reason
+  /// @throw LibLoadingError if loading fails for any reason
   ///
   virtual void load_library(const std::string& lib) = 0;
 

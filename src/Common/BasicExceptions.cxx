@@ -3,7 +3,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 using namespace std;
-using namespace CF::Common;
 
 namespace CF {
   namespace Common {
@@ -31,7 +30,13 @@ CastingFailed::CastingFailed ( const Common::CodeLocation& where, const std::str
 FileFormatError::FileFormatError (const Common::CodeLocation& where, const std::string& what)
 : Common::Exception(where,what,"FileFormatError")
 {}
-
+    
+//////////////////////////////////////////////////////////////////////////////
+    
+FileSystemError::FileSystemError (const Common::CodeLocation& where, const std::string& what)
+: Common::Exception(where,what,"FileSystemError")
+{}
+    
 //////////////////////////////////////////////////////////////////////////////
 
 FloatingPointError::FloatingPointError ( const Common::CodeLocation& where, const std::string& what)
@@ -76,6 +81,12 @@ ParsingFailed::ParsingFailed ( const Common::CodeLocation& where, const std::str
 
 //////////////////////////////////////////////////////////////////////////////
 
+SetupError::SetupError ( const Common::CodeLocation& where, const std::string& what)
+: Exception(where, what,"SetupError")
+{}
+
+//////////////////////////////////////////////////////////////////////////////
+
 ShouldNotBeHere::ShouldNotBeHere(const Common::CodeLocation& where, const std::string& what)
 : Exception(where, what,"ShouldNotBeHere")
 {}
@@ -84,6 +95,12 @@ ShouldNotBeHere::ShouldNotBeHere(const Common::CodeLocation& where, const std::s
 
 StorageExists::StorageExists ( const Common::CodeLocation& where, const std::string& what)
 : Common::Exception(where, what, "StorageExists")
+{}
+
+//////////////////////////////////////////////////////////////////////////////
+
+URLError::URLError ( const Common::CodeLocation& where, const std::string& what)
+: Common::Exception(where, what, "URLError")
 {}
 
   } // namespace Common

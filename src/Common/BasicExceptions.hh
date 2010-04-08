@@ -62,6 +62,23 @@ struct FileFormatError: public Common::Exception {
 
 //////////////////////////////////////////////////////////////////////////////
 
+/// This class represents the exception thrown
+/// if an error occurs when accessing the filesystem.
+/// It is preferable to using directly the boost::filesystem_error
+/// exception. These boost exceptions should be intercepted and
+/// recast into this.
+struct FileSystemError: public Common::Exception {
+
+  /// Constructor
+  /// @param what is the value that has been requested,
+  ///             but actually doesn't exist
+  /// @see Exception()
+  FileSystemError(const Common::CodeLocation& where, const std::string& what);
+
+}; // end of struct FileSystemError
+
+//////////////////////////////////////////////////////////////////////////////
+
 /// This struct represents an Exception thrown when
 /// a floating point error happens.
 /// @author Tiago Quintino
@@ -146,6 +163,17 @@ struct Common_API ParsingFailed: public Common::Exception {
 
 //////////////////////////////////////////////////////////////////////////////
 
+/// This class represents the exception thrown if an error occurs when setting up an object.
+/// @author Tiago Quintino
+struct Common_API SetupError : public Common::Exception {
+
+  /// Constructor
+  SetupError ( const Common::CodeLocation& where, const std::string& what);
+
+}; // end of struct SetupException
+
+//////////////////////////////////////////////////////////////////////////////
+
 /// This exception is thrown in any place of the code which
 /// by some conceptual impossibility should not be reached.
 /// Typically on a switch-case construction where one of the choices
@@ -170,6 +198,18 @@ struct Common_API StorageExists: public Common::Exception {
   StorageExists( const Common::CodeLocation& where, const std::string& what);
 
 }; // end of struct StorageExists
+
+//////////////////////////////////////////////////////////////////////////////
+
+/// This class represents the exception thrown
+/// if an error occurs when accessing a network URL.
+/// @author Tiago Quintino
+struct Common_API URLError : public Common::Exception {
+
+  /// Constructor
+  URLError (const Common::CodeLocation& where, const std::string& what);
+
+}; // end of struct URLException
 
 //////////////////////////////////////////////////////////////////////////////
 

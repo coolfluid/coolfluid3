@@ -23,7 +23,7 @@ public: // functions
 
   /// class interface to load a library depending on the operating system
   /// and the library loading algorithm
-  /// @throw LibLoaderException if loading fails for any reason
+  /// @throw LibLoadingError if loading fails for any reason
   ///
   virtual void load_library(const std::string& lib);
 
