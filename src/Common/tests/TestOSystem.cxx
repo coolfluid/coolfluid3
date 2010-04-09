@@ -17,7 +17,6 @@ struct OSystem_Fixture
   /// common tear-down for each test case
   ~OSystem_Fixture()
   {
-    PE::getInstance().finalize();
   }
   
   /// possibly common functions used on the tests below
