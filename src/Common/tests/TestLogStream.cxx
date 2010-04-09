@@ -2,6 +2,8 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/test/unit_test_suite.hpp>
 
+#include <iostream>
+
 #include "Common/Log.hh"
 
 using namespace std;
@@ -147,11 +149,25 @@ BOOST_AUTO_TEST_CASE( setStamp )
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 BOOST_AUTO_TEST_CASE( operators )
-{
-  /// @todo test whether the string is forwarded
+{  
+  /// test whether the string is forwarded
+  LogStreamFixture f;
+  MyStringForwarder * forwarder = new MyStringForwarder();
+
+  f.m_stream->addStringForwarder(forwarder);
+  
+  *(f.m_stream) << "Hello world!";
+  f.m_stream->flush();
+  BOOST_CHECK_EQUAL(forwarder->m_str, std::string("Hello world!"));
+  
   /// @todo test whether the stamp is correctly used
+  /// 1. everything ok
+  /// 2. test when a tag is mispelled (eg: %plaec% instead of %place%) 
+  
   /// @todo test whether the rank filter is respected
-  /// @todo test the log levels
+  
+  /// @todo test the log levels  
+     
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

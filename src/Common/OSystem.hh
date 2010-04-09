@@ -51,10 +51,6 @@ public: // methods
   /// @todo should return the output of the command but not yet implemented.
   void executeCommand (const std::string& call);
   
-  /// Sleeps for a certain number of seconds
-  /// @param seconds to sleep ( default is 1 )
-  void sleep(const CF::Uint& seconds = 1);
-
 private: // functions
 
   /// constructor

@@ -130,13 +130,5 @@ void OSystem::executeCommand(const std::string& call)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void OSystem::sleep (const CF::Uint& seconds)
-{
-  std::string callSleep = "sleep " + Common::StringOps::to_str(seconds);
-  executeCommand (callSleep);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
   } // namespace Common
 } // namespace CF
