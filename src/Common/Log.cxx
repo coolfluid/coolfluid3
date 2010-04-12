@@ -115,6 +115,9 @@ void Logger::openFiles()
     
     int rank = PE::getInstance().get_rank();
     
+    filesystem::remove(logFile.str());
+    filesystem::remove(traceFile.str());
+
     logFile << "output-p" << rank << ".log";
     traceFile << "output-p" << rank << ".trace";
     
