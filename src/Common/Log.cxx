@@ -12,6 +12,8 @@
 #include <iostream>
 #include <sstream>
 
+#include <stdio.h>
+
 #include "Common/Log.hh"
 #include "Common/StringOps.hh"
 #include "Common/PE.hh"
@@ -116,11 +118,8 @@ void Logger::openFiles()
     logFile << "output-p" << rank << ".log";
     traceFile << "output-p" << rank << ".trace";
     
-    filesystem::remove(logFile.str());
-    filesystem::remove(traceFile.str());
-    
     fdLogFile = iostreams::file_descriptor_sink(logFile.str());
-    fdTraceFile = iostreams::file_descriptor_sink(traceFile.str());
+	fdTraceFile = iostreams::file_descriptor_sink(traceFile.str());
     
     // setFiles
     m_streams[INFO]->setFile(fdLogFile);
@@ -128,5 +127,5 @@ void Logger::openFiles()
     m_streams[WARN]->setFile(fdLogFile);
     m_streams[DEBUG]->setFile(fdLogFile);
     m_streams[TRACE]->setFile(fdTraceFile);
-  }
+  }			 
 }

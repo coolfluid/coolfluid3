@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "Common/Win32/ProcessInfo.hh"
-#include "Common/Common.hh"
+#include "Common/CommonAPI.hh"
 
 #include <windows.h> // for CaptureStackBacktrace
 #include <dbghelp.h> // for stack trace

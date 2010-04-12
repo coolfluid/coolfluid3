@@ -1,33 +1,34 @@
-#include "Common/FloatingPoint.hh"
-#include "Common/Common.hh"
-#include "Common/SignalHandlerWin32.hh"
+#include "Common/BasicExceptions.hh"
+#include "Common/CommonAPI.hh"
+#include "Common/Win32/SignalHandler.hh"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 
   namespace Common {
+	  namespace Win32   {
 
 //////////////////////////////////////////////////////////////////////////////
 
-SignalHandlerWin32::SignalHandlerWin32()
+SignalHandler::SignalHandler()
 {
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-SignalHandlerWin32::~SignalHandlerWin32()
+SignalHandler::~SignalHandler()
 {
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void SignalHandlerWin32::registSignalHandlers()
+void SignalHandler::registSignalHandlers()
 {
 }
 
 //////////////////////////////////////////////////////////////////////////////
-
+   }
   } // namespace Common
 
 } // namespace CF

@@ -47,13 +47,13 @@ void LibLoader::load_library(const std::string& lib)
   for (; itr != m_search_paths.end() ; ++itr)
   {
     // set the current search directory
-    CFLog ( WARN, "searching in dir: '" <<  (*itr).string() << "'\n" );
+    CFLog ( VERBOSE, "searching in dir: '" <<  (*itr).string() << "'\n" );
   SetDllDirectory((*itr).string().c_str());
 
   // try to load the library
     hdl = LoadLibrary(TEXT(libname.c_str()));
     if( hdl != CFNULL ) break;
-    CFLog ( WARN, "didnt find '" <<  lib << "' in dir '" <<  (*itr).string() << "'\n" );
+    CFLog ( VERBOSE, "didnt find '" <<  lib << "' in dir '" <<  (*itr).string() << "'\n" );
   }
 
   // searhc in the global path
@@ -63,24 +63,24 @@ void LibLoader::load_library(const std::string& lib)
     char * pPath;
     pPath = getenv ("PATH");
     if (pPath != CFNULL)
-      CFLog ( WARN, "didnt find '" <<  lib << "' in global path variable PATH='" << pPath << "'\n" );
+      CFLog ( VERBOSE, "didnt find '" <<  lib << "' in global path variable PATH='" << pPath << "'\n" );
   }
 
   // check for success
   if(hdl != NULL)
   {
-    CFLog( WARN, "LibLoader: Loaded '" << libname << "'\n" );
+    CFLog( VERBOSE, "LibLoader: Loaded '" << libname << "'\n" );
   }
   else
   {
-    CFLog( WARN, "LoadLibrary() failed to load module : '" << libname << "'\n" );
-    throw LibLoader (FromHere(), "Module failed to load '" + libname + "'"  );
+    CFLog( VERBOSE, "LoadLibrary() failed to load module : '" << libname << "'\n" );
+    throw LibLoadingError (FromHere(), "Module failed to load '" + libname + "'"  );
   }
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-	| // Win32
+	} // Win32
   } // namespace Common
 } // namespace CF
 

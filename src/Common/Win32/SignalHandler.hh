@@ -15,20 +15,20 @@ namespace CF {
 
 /// This class handles of signals from the Win32 operating system
 /// @author Tiago Quintino
-class Common_API SignalHandlerWin32 : public Common::SignalHandler {
+class Common_API SignalHandler : public Common::SignalHandler {
 
 public: // methods
 
   /// Constructor
-  SignalHandlerWin32();
+  SignalHandler();
 
   /// Default destructor
-  virtual ~SignalHandlerWin32();
+  virtual ~SignalHandler();
 
   /// Regists the signal handlers that will be handled by this class
   virtual void registSignalHandlers();
 
-}; // end of class SignalHandlerWin32
+}; // end of class SignalHandler
 
 //////////////////////////////////////////////////////////////////////////////
 
