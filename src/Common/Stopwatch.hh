@@ -1,5 +1,5 @@
-#ifndef COOLFluiD_Common_Stopwatch_hh
-#define COOLFluiD_Common_Stopwatch_hh
+#ifndef CF_Common_Stopwatch_hh
+#define CF_Common_Stopwatch_hh
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -234,5 +234,5 @@ void Stopwatch<TIMEPOLICY>::takeStopTime()
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // COOLFluiD_Common_Stopwatch_hh
+#endif // CF_Common_Stopwatch_hh
 

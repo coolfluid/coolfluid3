@@ -149,7 +149,7 @@ public:
   //===============================================================
 
   /// The index type (inherited from ArrayAllocator)
-  typedef typename COOLFluiD::Common::ArrayAllocator<T>::IndexType  IndexType;
+  typedef typename CF::Common::ArrayAllocator<T>::IndexType  IndexType;
 
   /// Represents the type stored in the vector
   typedef T _ElementType;
@@ -196,10 +196,10 @@ private:
   IndexType _NextFree;
 
   /// This stores the actual element data
-  COOLFluiD::Common::ArrayAllocator<T> _Data;
+  CF::Common::ArrayAllocator<T> _Data;
 
   /// This stores the metadata for an element
-  COOLFluiD::Common::ArrayAllocator<DataType> _MetaData;
+  CF::Common::ArrayAllocator<DataType> _MetaData;
 
   /// Do we have an index?
   bool    _IsIndexed;

@@ -1,5 +1,5 @@
-#ifndef COOLFluiD_Common_SafePtr_hh
-#define COOLFluiD_Common_SafePtr_hh
+#ifndef CF_Common_SafePtr_hh
+#define CF_Common_SafePtr_hh
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -262,4 +262,4 @@ SafePtr<DTYPE> SafePtr<TYPE>::d_castTo() const
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif //COOLFluiD_Common_SafePtr_hh
+#endif //CF_Common_SafePtr_hh

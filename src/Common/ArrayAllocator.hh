@@ -303,5 +303,5 @@ ArrayAllocator<T,A>::~ArrayAllocator ()
 
 } // namespace Common
 
-} // COOLFluiD
+} // CF
 #endif

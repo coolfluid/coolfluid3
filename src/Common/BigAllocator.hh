@@ -1,5 +1,5 @@
-#ifndef COOLFluiD_Common_BIGALLOCATOR_HH
-#define COOLFluiD_Common_BIGALLOCATOR_HH
+#ifndef CF_Common_BIGALLOCATOR_HH
+#define CF_Common_BIGALLOCATOR_HH
 
 #ifdef CF_HAVE_CONFIG_H
 #  include "coolfluid_config.h"
@@ -27,8 +27,8 @@ namespace CF {
 //////////////////////////////////////////////////////////////////////////////
 
     } // Common
-} // COOLFluiD
+} // CF
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // COOLFluiD_Common_BIGALLOCATOR_HH
+#endif // CF_Common_BIGALLOCATOR_HH

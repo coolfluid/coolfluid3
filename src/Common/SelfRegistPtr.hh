@@ -1,5 +1,5 @@
-#ifndef COOLFLUID_Common_SelfRegistPtr_hh
-#define COOLFLUID_Common_SelfRegistPtr_hh
+#ifndef CF_Common_SelfRegistPtr_hh
+#define CF_Common_SelfRegistPtr_hh
 
 //////////////////////////////////////////////////////////////////////////////
 

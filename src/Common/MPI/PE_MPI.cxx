@@ -161,7 +161,7 @@ MPI_Comm PE_MPI::spawn(unsigned int count, const char * hosts)
 {
   MPI_Info info;
   MPI_Comm comm;
-  char command[] = "/nobackup/st/gasper/coolfluid/x86_64/optim/plugins/ClientServer/server/app_server";
+  char command[] = "/nobackup/st/gasper/coolfluid/x86_64/optim/plugins/GUI/server/app_server";
   int myRank = get_rank();
 
   MPI_Info_create(&info);

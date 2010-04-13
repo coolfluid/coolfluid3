@@ -103,6 +103,12 @@ URLError::URLError ( const Common::CodeLocation& where, const std::string& what)
 : Common::Exception(where, what, "URLError")
 {}
 
+//////////////////////////////////////////////////////////////////////////////
+
+BuilderParserError::BuilderParserError(const CodeLocation& where, const string& what) 
+: Exception(where, what,"BuilderParserException") 
+{}
+
   } // namespace Common
 } // namespace CF
 

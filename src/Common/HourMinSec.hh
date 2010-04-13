@@ -1,5 +1,5 @@
-#ifndef COOLFluiD_Common_HourMinSec_hh
-#define COOLFluiD_Common_HourMinSec_hh
+#ifndef CF_Common_HourMinSec_hh
+#define CF_Common_HourMinSec_hh
 
 #include "CF.hh"
 #include "CommonAPI.hh"
@@ -60,5 +60,5 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // COOLFluiD_Common_HourMinSec_hh
+#endif // CF_Common_HourMinSec_hh
 

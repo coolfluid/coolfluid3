@@ -1,5 +1,5 @@
-#ifndef COOLFluiD_Common_ProcessInfo_hh
-#define COOLFluiD_Common_ProcessInfo_hh
+#ifndef CF_Common_ProcessInfo_hh
+#define CF_Common_ProcessInfo_hh
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -61,4 +61,4 @@ public: // functions
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // COOLFluiD_Common_ProcessInfo_hh
+#endif // CF_Common_ProcessInfo_hh

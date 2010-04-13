@@ -1,5 +1,5 @@
-#ifndef COOLFluiD_Common_TimePolicies_hh
-#define COOLFluiD_Common_TimePolicies_hh
+#ifndef CF_Common_TimePolicies_hh
+#define CF_Common_TimePolicies_hh
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -180,5 +180,5 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // COOLFluiD_Common_TimePolicies_hh
+#endif // CF_Common_TimePolicies_hh
 

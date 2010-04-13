@@ -1,5 +1,5 @@
-#ifndef COOLFluiD_Common_SignalHandler_hh
-#define COOLFluiD_Common_SignalHandler_hh
+#ifndef CF_Common_SignalHandler_hh
+#define CF_Common_SignalHandler_hh
 
 //////////////////////////////////////////////////////////////////////////////
 

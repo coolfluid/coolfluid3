@@ -6,10 +6,21 @@ LIST ( APPEND Common_files
      BasicExceptions.hh
      BigAllocator.hh
      BoostIostreams.hh
+     BuilderParser.cxx
+     BuilderParser.hh
+     BuilderParserFrameInfo.cxx
+     BuilderParserFrameInfo.hh
+     BuilderParserMandType.hh
+     BuilderParserRules.cxx
+     BuilderParserRules.hh
      CF.hh
      CodeLocation.cxx
      CodeLocation.hh
      CommonAPI.hh
+     ConfigArgs.cxx
+     ConfigArgs.hh
+     ConverterTools.cxx
+     ConverterTools.hh
      DemangledTypeID.cxx
      DemangledTypeID.hh
      EnumT.hh

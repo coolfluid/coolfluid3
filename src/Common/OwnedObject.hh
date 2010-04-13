@@ -1,5 +1,5 @@
-#ifndef COOLFluiD_Common_OwnedObject_hh
-#define COOLFluiD_Common_OwnedObject_hh
+#ifndef CF_Common_OwnedObject_hh
+#define CF_Common_OwnedObject_hh
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -56,4 +56,4 @@ private: // data
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // COOLFluiD_Common_OwnedObject_hh
+#endif // CF_Common_OwnedObject_hh

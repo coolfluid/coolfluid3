@@ -1,5 +1,5 @@
-#ifndef COOLFluiD_Common_LibLoader_hh
-#define COOLFluiD_Common_LibLoader_hh
+#ifndef CF_Common_LibLoader_hh
+#define CF_Common_LibLoader_hh
 
 #include <boost/filesystem/path.hpp>
 
@@ -67,4 +67,4 @@ public: // methods
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // COOLFluiD_Common_LibLoader_hh
+#endif // CF_Common_LibLoader_hh
