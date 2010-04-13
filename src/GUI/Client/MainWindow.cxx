@@ -91,7 +91,7 @@ MainWindow::MainWindow()
   connectKernel(deleteNode(const QDomNode &));
   connectKernel(commitChanges(const QDomDocument &));
   connectKernel(connectSimulation(const QModelIndex &, 
-                                  const ::TSshInformation &));
+                                  const TSshInformation &));
   connectKernel(disconnectSimulation(const QModelIndex &, bool));
   connectKernel(runSimulation(const QModelIndex &));
   connectKernel(stopSimulation(const QModelIndex &));
