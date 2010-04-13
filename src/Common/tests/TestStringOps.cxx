@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE( boostFunctions )
   
   // getWords
   algorithm::split(myVector, str, algorithm::is_any_of(" "), token_compress_on);
-  BOOST_CHECK_EQUAL(myVector.size(), 5);
+  BOOST_CHECK_EQUAL(myVector.size(), (unsigned int) 5);
   BOOST_CHECK_EQUAL(myVector[0], "");
   BOOST_CHECK_EQUAL(myVector[1], "HeLLo");
   BOOST_CHECK_EQUAL(myVector[2], "World");
