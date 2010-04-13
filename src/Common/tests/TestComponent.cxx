@@ -75,6 +75,10 @@ BOOST_AUTO_TEST_CASE( add_component )
   BOOST_CHECK_EQUAL ( root->full_path().string() , "//root" );
   BOOST_CHECK_EQUAL ( dir1->full_path().string() , "//root/dir1" );
   BOOST_CHECK_EQUAL ( dir2->full_path().string() , "//root/dir1/dir2" );
+
+  delete_ptr ( dir2 );
+  delete_ptr ( dir1 );
+  delete_ptr ( root );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
