@@ -30,11 +30,11 @@ struct Common_API BadValue: public Common::Exception {
   /// Constructor
   BadValue( const Common::CodeLocation& where, const std::string& what);
 
-}; // end of struct BadValue
+}; //  BadValue
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// This struct represents an Exception thrown
+///  Exception thrown
 /// when a dynamic cast of a pointer fails.
 /// @author Tiago Quintino
 struct CastingFailed: public Common::Exception {
@@ -42,23 +42,18 @@ struct CastingFailed: public Common::Exception {
   /// Constructor
   CastingFailed( const Common::CodeLocation& where, const std::string& what);
 
-}; // end of struct CastingFailed
+}; //  CastingFailed
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// This struct represents an Exception thrown when a certain
-/// value is not found in a storage or container.
-/// @author Andrea Lani
+/// Exception thrown when a file is wrongly formated
 /// @author Tiago Quintino
 struct FileFormatError: public Common::Exception {
 
   /// Constructor
-  /// @param what is the value that has been requested,
-  ///             but actually doesn't exist
-  /// @see Exception()
   FileFormatError(const Common::CodeLocation& where, const std::string& what);
 
-}; // end of struct FileFormatError
+}; //  FileFormatError
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -70,49 +65,48 @@ struct FileFormatError: public Common::Exception {
 struct FileSystemError: public Common::Exception {
 
   /// Constructor
-  /// @param what is the value that has been requested,
-  ///             but actually doesn't exist
   /// @see Exception()
   FileSystemError(const Common::CodeLocation& where, const std::string& what);
 
-}; // end of struct FileSystemError
+}; //  FileSystemError
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// This struct represents an Exception thrown when
-/// a floating point error happens.
+/// Exception thrown when a floating point error happens
 /// @author Tiago Quintino
 struct Common_API FloatingPointError: public Common::Exception {
 
   /// Constructor
   FloatingPointError( const Common::CodeLocation& where, const std::string& what);
-}; // end of struct FloatingPointError
+
+}; //  FloatingPointError
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// This struct represents an Exception thrown when a certain
-/// value is not found in a storage.
+/// Exception thrown when a certain value already exists in a storage.
 /// @author Andrea Lani
 /// @author Tiago Quintino
-struct NoSuchStorage: public Common::Exception {
-
-    /// Constructor
-    NoSuchStorage( const Common::CodeLocation& where, const std::string& what);
-
-}; // end of struct NoSuchStorage
-
-  //////////////////////////////////////////////////////////////////////////////
-
-struct Common_API NoSuchValue: public Common::Exception {
+struct Common_API ValueExists: public Common::Exception {
 
   /// Constructor
-  NoSuchValue( const Common::CodeLocation& where, const std::string& what);
+  ValueExists( const Common::CodeLocation& where, const std::string& what);
 
-}; // end of struct NoSuchValue
+}; //  StorageExists
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// This struct represents an Exception throwna certain functionality is not implemented
+/// Exception thrown when a certain value is not found.
+/// @author Tiago Quintino
+struct Common_API ValueNotFound: public Common::Exception {
+
+  /// Constructor
+  ValueNotFound( const Common::CodeLocation& where, const std::string& what);
+
+}; //  NoSuchValue
+
+//////////////////////////////////////////////////////////////////////////////
+
+///  Exception throwna certain functionality is not implemented
 /// @author Andrea Lani
 /// @author Tiago Quintino
 struct Common_API  NotImplemented: public Common::Exception {
@@ -120,7 +114,7 @@ struct Common_API  NotImplemented: public Common::Exception {
   /// Constructor
   /// @see CF::Exception()
   NotImplemented(const Common::CodeLocation& where, const std::string& what);
-}; // end of struct NotImplemented
+}; //  NotImplemented
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -134,7 +128,7 @@ struct Common_API NullPointerError: public Common::Exception {
   /// Constructor
   NullPointerError(const Common::CodeLocation& where, const std::string& what);
 
-}; // end of struct NullPointerError
+}; //  NullPointerError
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -145,7 +139,7 @@ struct Common_API ParallelError: public Common::Exception {
   /// Constructor
   ParallelError(const Common::CodeLocation& where, const std::string& what);
 
-}; // end of struct ParallelError
+}; //  ParallelError
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -156,18 +150,18 @@ struct Common_API ParsingFailed: public Common::Exception {
   /// Constructor
   ParsingFailed( const Common::CodeLocation& where, const std::string& what);
 
-}; // end of struct ParsingFailed
+}; //  ParsingFailed
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// This class represents the exception thrown if an error occurs when setting up an object.
+/// Exception thrown if an error occurs when setting up an object.
 /// @author Tiago Quintino
 struct Common_API SetupError : public Common::Exception {
 
   /// Constructor
   SetupError ( const Common::CodeLocation& where, const std::string& what);
 
-}; // end of struct SetupException
+}; //  SetupException
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -181,32 +175,18 @@ struct Common_API ShouldNotBeHere: public Common::Exception {
   /// Constructor
   ShouldNotBeHere(const Common::CodeLocation& where, const std::string& what);
 
-}; // end of struct ShouldNotBeHere
+}; //  ShouldNotBeHere
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// This struct represents an Exception thrown when a certain
-/// value already exists in a storage.
-/// @author Andrea Lani
-/// @author Tiago Quintino
-struct Common_API StorageExists: public Common::Exception {
-
-  /// Constructor
-  StorageExists( const Common::CodeLocation& where, const std::string& what);
-
-}; // end of struct StorageExists
-
-//////////////////////////////////////////////////////////////////////////////
-
-/// This class represents the exception thrown
-/// if an error occurs when accessing a network URL.
+/// Exception thrown if an error occurs when accessing a network URL.
 /// @author Tiago Quintino
 struct Common_API URLError : public Common::Exception {
 
   /// Constructor
   URLError (const Common::CodeLocation& where, const std::string& what);
 
-}; // end of struct URLException
+}; //  URLException
 
 //////////////////////////////////////////////////////////////////////////////
 

@@ -1,3 +1,5 @@
+CF_FIND_ORPHAN_FILES()
+
 LIST ( APPEND Common_files 
      ArrayAllocator.hh
      AssertionManager.cxx
@@ -17,6 +19,10 @@ LIST ( APPEND Common_files
      CodeLocation.cxx
      CodeLocation.hh
      CommonAPI.hh
+     Component.hh
+     Component.cxx
+     CPath.hh
+     CPath.cxx
      ConfigArgs.cxx
      ConfigArgs.hh
      ConverterTools.cxx

@@ -44,6 +44,7 @@ BOOST_AUTO_TEST_CASE( getLibLoader )
 
 BOOST_AUTO_TEST_CASE( executeCommand )
 {
+  /// @todo this test is not cross-platform
   // should exit normally
   BOOST_CHECK_NO_THROW( OSystem::getInstance().executeCommand("echo something"));
   // the command does *normally* not exist, should throw an exception

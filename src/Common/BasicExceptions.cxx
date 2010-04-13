@@ -45,14 +45,14 @@ FloatingPointError::FloatingPointError ( const Common::CodeLocation& where, cons
 
 //////////////////////////////////////////////////////////////////////////////
 
-NoSuchStorage::NoSuchStorage ( const Common::CodeLocation& where, const std::string& what)
-: Common::Exception(where, what, "NoSuchStorage")
+ValueExists::ValueExists ( const Common::CodeLocation& where, const std::string& what)
+: Common::Exception(where, what, "ValueExists")
 {}
 
 //////////////////////////////////////////////////////////////////////////////
 
-NoSuchValue::NoSuchValue ( const Common::CodeLocation& where, const std::string& what)
-: Common::Exception(where, what, "NoSuchValue")
+ValueNotFound::ValueNotFound ( const Common::CodeLocation& where, const std::string& what)
+: Common::Exception(where, what, "ValueNotFound")
 {}
 
 //////////////////////////////////////////////////////////////////////////////
@@ -93,12 +93,6 @@ ShouldNotBeHere::ShouldNotBeHere(const Common::CodeLocation& where, const std::s
 
 //////////////////////////////////////////////////////////////////////////////
 
-StorageExists::StorageExists ( const Common::CodeLocation& where, const std::string& what)
-: Common::Exception(where, what, "StorageExists")
-{}
-
-//////////////////////////////////////////////////////////////////////////////
-
 URLError::URLError ( const Common::CodeLocation& where, const std::string& what)
 : Common::Exception(where, what, "URLError")
 {}
@@ -108,6 +102,8 @@ URLError::URLError ( const Common::CodeLocation& where, const std::string& what)
 BuilderParserError::BuilderParserError(const CodeLocation& where, const string& what) 
 : Exception(where, what,"BuilderParserException") 
 {}
+
+//////////////////////////////////////////////////////////////////////////////
 
   } // namespace Common
 } // namespace CF
