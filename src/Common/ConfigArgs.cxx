@@ -6,6 +6,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 using namespace std;
+using namespace boost;
 using namespace CF::Common;
 
 namespace CF {
@@ -57,7 +58,7 @@ void ConfigArgs::remove_filter(const ConfigKey& filtkey)
   for (ConfigArgs::iterator it = begin(); it != end(); ++it)
   {
     const ConfigKey& this_key = it->first;
-    if (StringOps::startsWith(this_key,filtkey))
+    if (algorithm::starts_with(this_key,filtkey))
       remove_args.push_back(this_key);
   }
   consume(remove_args);
@@ -71,7 +72,7 @@ void ConfigArgs::pass_filter(const ConfigKey& filtkey)
   for (ConfigArgs::iterator it = begin(); it != end(); ++it)
   {
     const ConfigKey& this_key = it->first;
-    if ( ! StringOps::startsWith(this_key,filtkey) )
+    if ( ! algorithm::starts_with(this_key,filtkey) )
       remove_args.push_back(this_key);
   }
   consume(remove_args);

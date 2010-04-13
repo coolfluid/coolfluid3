@@ -15,7 +15,6 @@
 #include <stdio.h>
 
 #include "Common/Log.hh"
-#include "Common/StringOps.hh"
 #include "Common/PE.hh"
 
 using namespace CF;

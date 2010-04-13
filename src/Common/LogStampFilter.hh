@@ -9,6 +9,7 @@
 #include "Common/StringOps.hh"
 #include "Common/PE.hh"
 
+using namespace boost;
 
 namespace CF {
 namespace Common {
@@ -81,11 +82,11 @@ class Common_API LogStampFilter
     if(m_newMessage)
     {
     std::string stamp = m_stamp;
-
-    StringOps::subst("%time%", "TIME", stamp);
-    StringOps::subst("%type%", m_streamName, stamp);
-    StringOps::subst("%place%", m_place.short_str(), stamp);
-    StringOps::subst("%rank%", StringOps::to_str( PE::getInstance().get_rank() ), stamp);
+    
+    algorithm::replace_all(stamp, "%time%", "TIME");
+    algorithm::replace_all(stamp, "%type%", m_streamName);
+    algorithm::replace_all(stamp, "%place%", m_place.short_str());
+    algorithm::replace_all(stamp, "%rank%", StringOps::to_str( PE::getInstance().get_rank() ));
 
     m_newMessage = false;
 

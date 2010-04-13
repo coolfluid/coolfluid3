@@ -3,6 +3,15 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+
+#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/algorithm/string/join.hpp>
+#include <boost/algorithm/string/replace.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/trim.hpp>
+
 #include "Common/CF.hh"
 #include "Common/NonInstantiable.hh"
 #include "Common/CommonAPI.hh"
@@ -19,62 +28,6 @@ namespace Common {
 class Common_API StringOps : public Common::NonInstantiable<StringOps> {
 
 public:
-
-  /// Joins the array of parts, using the delimiter.
-  /// @param delim Missing documentation
-  /// @param parts Missing Documentation
-  /// @param nparts Missing documentation
-  /// @param out string to modify
-  static void join (const std::string& delim, std::string parts[], unsigned int nparts, std::string& out);
-
-  /// Modifies string to lowercase.
-  /// @param out string to modify
-  static void toLower (std::string& out);
-
-  /// Modifies string to uppercase.
-  /// @param out string to modify
-  static void toUpper (std::string& out);
-
-  /// Substitute the rhs for the lhs wherever it appears in the string
-  /// @param lhs partial std::string to match
-  /// @param rhs partial std::string to substitute
-  /// @param out string to modify
-  static void subst (const std::string& lhs, const std::string& rhs, std::string& out);
-
-  /// Removes the leading whitespace.
-  /// @param out string to modify
-  static void trimFront (std::string& out);
-
-  /// Removes the trailing whitespaces.
-  /// @param out string to modify
-  static void trimRear (std::string& out);
-
-  /// Removes the trailing and leading whitespace.
-  /// @param out string to modify
-  static void trim (std::string& out);
-
-  /// Splits the given std::string on whitespace, and puts the words into the given vector.
-  /// @param in string to split
-  /// @return a vector with the separated std::string's
-  static std::vector<std::string> getWords (const std::string& in);
-
-  /// Splits the given std::string on the passed characters, and puts the words into the given vector.
-  /// @param in string to split
-  /// @param sep the separator character
-  /// @return a vector with the separated std::string's
-  static std::vector<std::string> getWords  (const std::string& in, const char sep );
-
-  /// Returns whether this std::string starts with the given std::string.
-  /// @param in string to split
-  /// @param str missing documentation
-  /// @return missing documentation
-  static bool startsWith (const std::string& in, const std::string& str);
-
-  /// Returns whether this std::string ends with the given std::string.
-  /// @param in string to split
-  /// @param str missing documentation
-  /// @return missing documentation
-  static bool endsWith (const std::string& in, const std::string& str);
 
   /// Converts to std::string
   /// Don't use this to convert to a char, use c_str for that.

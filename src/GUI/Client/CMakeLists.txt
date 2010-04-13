@@ -113,6 +113,6 @@ LIST ( APPEND coolfluid-client_files
   UnknownTypeException.hh  )
 
 # Use Qt Libraries
-LIST( APPEND coolfluid-client_libs Network ${MPI_LIBRARIES} ${QT_LIBRARIES})
+LIST( APPEND coolfluid-client_libs Network ${QT_LIBRARIES})
 
 CF_ADD_APP(coolfluid-client)

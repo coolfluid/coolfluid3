@@ -1,7 +1,7 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
-#include "Common/PE.hh"
+#include "Common/OSystem.hh"
 
 using namespace std;
 using namespace CF;
@@ -27,6 +27,10 @@ struct OSystem_Fixture
 
 BOOST_FIXTURE_TEST_SUITE( OSystem_TestSuite, OSystem_Fixture )
 
+BOOST_AUTO_TEST_CASE( getProcessInfo )
+{
+  // BOOST_CHECK_NE( PE::interface().get_rank() , (Uint) 0 );
+}
 
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -64,7 +64,6 @@ LIST ( APPEND Common_files
      SignalHandler.cxx
      SignalHandler.hh
      Stopwatch.hh
-     StringOps.cxx
      StringOps.hh
      TimePolicies.cxx
      TimePolicies.hh

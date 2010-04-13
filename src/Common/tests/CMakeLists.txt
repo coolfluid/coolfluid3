@@ -5,7 +5,8 @@
   UTestCommon.cxx
   TestLogStream.cxx
   TestOSystem.cxx
-  TestPE.cxx )
+  TestPE.cxx 
+  TestStringOps.cxx)
 
  CF_ADD_UNITTEST ( uTestCommon )
 
