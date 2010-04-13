@@ -1,5 +1,7 @@
 #include <cstdlib>  // provides system call
 
+#include <iostream>
+
 #include "Common/ProcessInfo.hh" 
 #include "Common/SignalHandler.hh"
 #include "Common/StringOps.hh"
@@ -118,6 +120,9 @@ SafePtr<LibLoader> OSystem::getLibLoader()
 void OSystem::executeCommand(const std::string& call)
 {
   int return_value = system ( call.c_str() );
+  
+  std::cout << "Return value for " << call << ":" << return_value << std::endl;
+  
   if ( return_value == -1)
   {
     std::string msg;
