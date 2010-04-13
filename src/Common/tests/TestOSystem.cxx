@@ -46,7 +46,7 @@ BOOST_AUTO_TEST_CASE( executeCommand )
 {
   /// @todo this test is not cross-platform
   // should exit normally
-  BOOST_CHECK_NO_THROW( OSystem::getInstance().executeCommand("echo something"));
+  BOOST_CHECK_NO_THROW( OSystem::getInstance().executeCommand("echo"));
   // the command does *normally* not exist, should throw an exception
   /// @todo find a command that throws an exception 
   //BOOST_CHECK_THROW( OSystem::getInstance().executeCommand("cd /aDirThatDoesNotExist"), OSystemError);

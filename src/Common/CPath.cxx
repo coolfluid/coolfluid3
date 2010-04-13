@@ -39,11 +39,8 @@ CPath::CPath ( const char* c ):
 
 CPath& CPath::operator/= (const CPath& rhs)
 {
-  if ( ! rhs.m_path.empty() )
-  {
-    m_path += separator();
-    m_path += rhs.m_path;
-  }
+  if ( !m_path.empty() && !rhs.m_path.empty() ) m_path += separator();
+  m_path += rhs.m_path;
   return *this;
 }
 
@@ -52,20 +49,17 @@ CPath& CPath::operator/= (const std::string& s)
   if ( ! is_valid_path(s) )
     throw InvalidPath (FromHere(),"Trying to construct path with string '" +s+ "'");
 
-  if ( ! s.empty() )
-  {
-    m_path += separator();
-    m_path += s;
-  }
+  if ( !m_path.empty() && !s.empty() ) m_path += separator();
+  m_path += s;
+
   return *this;
 }
 
 CPath  CPath::operator/  (const CPath& p) const
 {
-  if ( p.m_path.empty() )
-    return *this;
-  else
-    return CPath ( m_path + separator() + p.m_path );
+  return ( !m_path.empty() && !p.m_path.empty() ) ?
+      CPath ( m_path + separator() + p.m_path ) : // both not empty
+      CPath ( m_path + p.m_path );                // one is empty
 }
 
 CPath  CPath::operator/  (const std::string& p) const
