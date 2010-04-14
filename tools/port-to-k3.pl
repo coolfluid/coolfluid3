@@ -180,7 +180,8 @@ sub process ($)
       s/NoSuchStorage/ValueNotFound/g;
 
       s/(\w+)Exception/\1/g;
-      
+
+      # modified types
       s/CFchar/char/g;
       s/CFfloat/float/g;
       s/CFldouble/long double/g;
@@ -189,6 +190,9 @@ sub process ($)
       s/CFuint/Uint/g;
       s/CFreal/Real/g;
      
+      # modified global functions
+      s/deletePtr/delete_ptr/g;
+
       # modified extenions
       s/(\w+)\.hh/\1\.hpp/;
       s/(\w+)\.cxx/\1\.cpp/;
