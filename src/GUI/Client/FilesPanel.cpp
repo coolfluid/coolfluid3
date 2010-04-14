@@ -1,8 +1,8 @@
 #include <QtCore>
 #include <QtGui>
 
-#include "GUI/Client/RemoteOpenFile.hh"
-#include "GUI/Client/FilesPanel.hh"
+#include "GUI/Client/RemoteOpenFile.hpp"
+#include "GUI/Client/FilesPanel.hpp"
 
 using namespace CF::GUI::Client;
 

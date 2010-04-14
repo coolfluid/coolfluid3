@@ -1,7 +1,7 @@
 #include <QtGui>
 
-#include "GUI/Client/ConnectionDialog.hh"
-#include "GUI/Client/TSshInformation.hh"
+#include "GUI/Client/ConnectionDialog.hpp"
+#include "GUI/Client/TSshInformation.hpp"
 
 using namespace CF::GUI::Client;
 

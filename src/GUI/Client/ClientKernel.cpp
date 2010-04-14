@@ -35,10 +35,6 @@ ClientKernel::~ClientKernel()
 }
 
  
- PUBLIC METHODS/FUNCTIONS
- 
- ****************************************************************************/
-
 ClientKernel * ClientKernel::getInstance()
 {
   if(m_instance == NULL)

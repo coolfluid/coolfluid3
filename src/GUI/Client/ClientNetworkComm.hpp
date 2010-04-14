@@ -9,7 +9,7 @@
 
 #include "Common/BuilderParserFrameInfo.hpp"
 #include "GUI/Network/HostInfos.hpp"
-#include "GUI/Network/Network.hpp"
+#include "GUI/Network/NetworkException.hpp"
 #include "GUI/Network/NetworkProtocol.hpp"
 
 class QDomDocument;

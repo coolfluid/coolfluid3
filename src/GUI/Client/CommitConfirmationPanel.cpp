@@ -1,7 +1,7 @@
 #include <QtGui>
 
-#include "GUI/Client/CloseConfirmationInfos.hh"
-#include "GUI/Client/CommitConfirmationPanel.hh"
+#include "GUI/Client/CloseConfirmationInfos.hpp"
+#include "GUI/Client/CommitConfirmationPanel.hpp"
 
 using namespace CF::GUI::Client;
 

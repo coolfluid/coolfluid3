@@ -7,9 +7,9 @@
 
 #include "GUI/Client/FilesPanel.hpp"
 #include "GUI/Client/LibrariesPanel.hpp"
-#include "GUI/Client/InvalidValue.hpp"
+#include "GUI/Client/InvalidValueException.hpp"
 #include "GUI/Client/HostListPanel.hpp"
-#include "GUI/Client/UnknownType.hpp"
+#include "GUI/Client/UnknownTypeException.hpp"
 
 #include "GUI/Client/GraphicalOption.hpp"
 

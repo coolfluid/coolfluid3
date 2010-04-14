@@ -1,6 +1,6 @@
 #include <QtGui>
 
-#include "GUI/Client/LoggingList.hh"
+#include "GUI/Client/LoggingList.hpp"
 
 using namespace CF::GUI::Client;
 

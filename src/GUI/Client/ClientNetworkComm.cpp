@@ -4,14 +4,14 @@
 #include <string>
 
 #include "Common/xmlParser.h"
-#include "Common/StringOps.hh"
+#include "Common/StringOps.hpp"
 
-#include "Common/BuilderParser.hh"
-#include "Common/BuilderParserFrameInfo.hh"
+#include "Common/BuilderParser.hpp"
+#include "Common/BuilderParserFrameInfo.hpp"
 
-#include "GUI/Client/GlobalLog.hh"
+#include "GUI/Client/GlobalLog.hpp"
 
-#include "GUI/Client/ClientNetworkComm.hh"
+#include "GUI/Client/ClientNetworkComm.hpp"
 
 using namespace CF::GUI::Client;
 using namespace CF::GUI::Network;
@@ -352,11 +352,7 @@ bool ClientNetworkComm::sendGetSubSystemList()
   
   return this->buildAndSend(NETWORK_GET_SUBSYSTEM_LIST);
 }
-
  
- PRIVATE METHOD
- 
- ****************************************************************************/
 
 int ClientNetworkComm::send(const QString & frame) const
 {

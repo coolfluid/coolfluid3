@@ -3,14 +3,14 @@
 #include <QtCore>
 #include <QtGui>
 
-#include "GUI/Client/CloseConfirmationInfos.hh"
-#include "GUI/Client/CommitDetails.hh"
-#include "GUI/Client/CommitDetailsDialog.hh"
-#include "GUI/Client/GraphicalOption.hh"
-#include "GUI/Client/UnknownTypeException.hh"
-#include "GUI/Client/OptionTypes.hh"
+#include "GUI/Client/CloseConfirmationInfos.hpp"
+#include "GUI/Client/CommitDetails.hpp"
+#include "GUI/Client/CommitDetailsDialog.hpp"
+#include "GUI/Client/GraphicalOption.hpp"
+#include "GUI/Client/UnknownTypeException.hpp"
+#include "GUI/Client/OptionTypes.hpp"
 
-#include "GUI/Client/OptionPanel.hh"
+#include "GUI/Client/OptionPanel.hpp"
 
 using namespace CF::GUI::Client;
 

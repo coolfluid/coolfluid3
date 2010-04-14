@@ -6,13 +6,13 @@
 
 #include <QDomDocument>
 
-#include "GUI/Client/TreeModel.hh"
-#include "GUI/Client/ClientKernel.hh"
-#include "GUI/Client/GlobalLog.hh"
-#include "GUI/Client/ClientNetworkComm.hh"
-#include "GUI/Client/FilesListItem.hh"
+#include "GUI/Client/TreeModel.hpp"
+#include "GUI/Client/ClientKernel.hpp"
+#include "GUI/Client/GlobalLog.hpp"
+#include "GUI/Client/ClientNetworkComm.hpp"
+#include "GUI/Client/FilesListItem.hpp"
 
-#include "GUI/Client/RemoteFSBrowser.hh"
+#include "GUI/Client/RemoteFSBrowser.hpp"
 
 using namespace CF::GUI::Client;
 using namespace CF::GUI::Network;

@@ -1,12 +1,12 @@
 #include <QtGui>
 
-#include "GUI/Client/CommitConfirmationPanel.hh"
-#include "GUI/Client/CloseConfirmationInfos.hh"
-#include "GUI/Client/CloseConfirmationPanel.hh"
-#include "GUI/Client/SaveConfirmationPanel.hh"
-#include "GUI/Client/ShutdownConfirmationPanel.hh"
+#include "GUI/Client/CommitConfirmationPanel.hpp"
+#include "GUI/Client/CloseConfirmationInfos.hpp"
+#include "GUI/Client/CloseConfirmationPanel.hpp"
+#include "GUI/Client/SaveConfirmationPanel.hpp"
+#include "GUI/Client/ShutdownConfirmationPanel.hpp"
 
-#include "GUI/Client/CloseConfirmationDialog.hh"
+#include "GUI/Client/CloseConfirmationDialog.hpp"
 
 using namespace CF::GUI::Client;
 

@@ -1,6 +1,6 @@
 #include <QtGui>
 
-#include "GUI/Client/CloseConfirmationPanel.hh"
+#include "GUI/Client/CloseConfirmationPanel.hpp"
 
 using namespace CF::GUI::Client;
 
