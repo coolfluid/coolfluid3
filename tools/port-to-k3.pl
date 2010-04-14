@@ -178,6 +178,7 @@ sub process ($)
       s/SetupException/SetupError/g;
       s/StorageExists/ValueExists/g;
       s/NoSuchStorage/ValueNotFound/g;
+      s/NoSuchValue/ValueNotFound/g;
 
       s/(\w+)Exception/\1/g;
 
