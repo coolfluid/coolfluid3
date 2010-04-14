@@ -202,6 +202,12 @@ sub process ($)
       s/Environment\.hpp/CommonAPI\.hpp/;
       s/Config\.hpp/CommonAPI\.hpp/;
       s/Common\.hpp/CommonAPI\.hpp/;
+
+
+      # class rename
+      s/CFEnvVars/CoreVars/g;
+      s/CFEnv/CoreEnv/g;
+
     }
     untie @lines;
 
