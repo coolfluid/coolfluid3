@@ -118,12 +118,23 @@ sub process ($)
     foreach ( @lines )
     {
       s/COOLFluiD/CF/g;
+      
       s/CFLog\./Log\./g;
       s/CFLogLevel\./LogLevel\./g;
+
+      s/Config::/Config::/g;
       s/Config\//Common\//g;
+      s/namespace(\s+)Config/namespace Common/;
+      
       s/Environment::/Common::/g;
       s/Environment\//Common\//g;
       s/namespace(\s+)Environment/namespace Common/;
+      
+      s/MathTools::/Math::/g;
+      s/MathTools\//Math\//g;
+      s/namespace(\s+)MathTools/namespace Math/;
+      
+      
       s/CFchar/char/g;
       s/CFfloat/float/g;
       s/CFldouble/long double/g;
@@ -131,6 +142,7 @@ sub process ($)
       s/CFint/int/g;
       s/CFuint/Uint/g;
       s/CFreal/Real/g;
+      
       s/(\w+)Exception/\1/g;
       s/(\w+)\.hh/\1\.hpp/;
       s/(\w+)\.cxx/\1\.cpp/;
