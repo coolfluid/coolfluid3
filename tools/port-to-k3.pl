@@ -141,14 +141,18 @@ sub process ($)
       s/CFLog(\s*)\((\s*)DEBUG_MED(\s*)\,/CFLogDebugVerbose \( /g;
       s/CFLog(\s*)\((\s*)DEBUG_MAX(\s*)\,/CFLogDebugVerbose \( /g;
 
+      s/COOLFluiD_Common/CF_Common/;
+      
       s/Config::/Config::/g;
       s/Config\//Common\//g;
       s/Config_API/Common_API/g;
+      s/(CF|COOLFluiD)_Config/CF_Common/;
       s/namespace(\s+)Config/namespace Common/;
       
       s/Environment::/Common::/g;
       s/Environment\//Common\//g;
       s/Environment_API/Common_API/g;
+      s/(CF|COOLFluiD)_Environment/CF_Common/;
       s/namespace(\s+)Environment/namespace Common/;
       
       s/MathTools::/Math::/g;
