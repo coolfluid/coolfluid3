@@ -1,0 +1,140 @@
+namespace COOLFluiD {
+
+  namespace MathTools {
+
+//////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Instantiation of the static data
+ */
+template <class T, class TAG, CFuint N>
+T MatrixLET<T,TAG,N>::_v[N*N];
+
+//////////////////////////////////////////////////////////////////////////////
+
+template <class T, class TAG, CFuint N>
+MatrixLET<T,TAG,N>::MatrixLET() : 
+  LExpr<MatrixLET<T,TAG,N>,T,N>()
+{
+}
+    
+//////////////////////////////////////////////////////////////////////////////
+    
+template <class T, class TAG, CFuint N>
+MatrixLET<T,TAG,N>::~MatrixLET() 
+{
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+template <class T, class TAG, CFuint N>
+std::ostream& operator<< (std::ostream& out, const MatrixLET<T,TAG,N>& v)
+{
+  using std::endl;
+
+  for (CFuint i = 0; i < N; ++i) {
+    for (CFuint j = 0; j < N; ++j) {
+      out << v(i,j) << " ";
+    }
+    out << endl;
+  }
+  out << endl;
+  return out;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+template <class T, class TAG, CFuint N>
+std::istream& operator>> (std::istream& in, MatrixLET<T,TAG,N>& v)
+{
+  using std::endl;
+  
+  for (CFuint i = 0; i < N; ++i) {
+    for (CFuint j = 0; j < N; ++j) {
+      in >> v(i,j);
+    }
+  }
+  return in;
+}  
+
+//////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Instantiation of the static data
+ */
+template <class T, class TAG>
+T* MatrixLET<T,TAG,0>::_v = CFNULL;
+
+/**
+ * Instantiation of the static data
+ */
+template <class T, class TAG>
+CFuint MatrixLET<T,TAG,0>::_nr = 0;
+
+/**
+ * Instantiation of the static data
+ */
+template <class T, class TAG>
+CFuint MatrixLET<T,TAG,0>::_nc = 0;
+
+//////////////////////////////////////////////////////////////////////////////
+
+template <class T, class TAG>
+MatrixLET<T,TAG,0>::MatrixLET(CFuint nr, 
+			      CFuint nc) : 
+  LExpr<MatrixLET<T,TAG,0>,T,0>()
+{
+  _nr = nr;
+  _nc = nc;
+  
+  cf_assert(_v == NULL);
+  const CFuint nrc = size();
+  _v = new T[nrc];
+  for (CFuint i = 0; i < nrc; ++i) {
+    _v[i] = 0.0;
+  } 
+}
+    
+//////////////////////////////////////////////////////////////////////////////
+    
+template <class T, class TAG>
+MatrixLET<T,TAG,0>::~MatrixLET() 
+{
+  delete [] _v;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+  
+template <class T, class TAG>
+std::ostream& operator<< (std::ostream& out, const MatrixLET<T,TAG,0>& v)
+{
+  using std::endl;
+  
+  for (CFuint i = 0; i < v._nr; ++i) {
+    for (CFuint j = 0; j < v._nc; ++j) {
+      out << v(i,j) << " ";
+    }
+    out << endl;
+  }
+  out << endl;
+  return out;
+}
+    
+//////////////////////////////////////////////////////////////////////////////
+
+template <class T, class TAG>
+std::istream& operator>> (std::istream& in, MatrixLET<T,TAG,0>& v)
+{
+  for (CFuint i = 0; i < v._nr; ++i) {
+    for (CFuint j = 0; j < v._nc; ++j) {
+      in >> v(i,j);
+    }
+  }
+  return in;
+}
+    
+//////////////////////////////////////////////////////////////////////////////
+    
+  } // namespace MathTools
+
+}   // namespace COOLFluiD
