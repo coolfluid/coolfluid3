@@ -159,9 +159,13 @@ sub process ($)
       
       s/MathTools::/Math::/g;
       s/MathTools\//Math\//g;
-      s/MathTools_API\//Math_API\//g;
-      s/(CF|COOLFluiD)_MathTools/CF_Math/;
+      s/MathTools_API/Math_API/g;
+      s/MathTools_TEMPLATE/Math_TEMPLATE/g;
+      s/MathTools_EXPORTS/Math_EXPORTS/g;
+      s/(CF|COOLFluiD)_MathTools/CF_Math/i;
+      s/MathTools.(hpp|hh)/Math.hpp/;
       s/namespace(\s+)MathTools/namespace Math/;
+      s/LTGT//g;
      
       s/FailedCastException/CastingFailed/g;
       s/FileFormatException/FileFormatError/g;
