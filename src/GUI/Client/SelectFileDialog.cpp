@@ -106,9 +106,8 @@ void SelectFileDialog::clearFileTypes()
 }
 
  
- SLOT
+// SLOT
  
- ****************************************************************************/
 
 void SelectFileDialog::accept()
 {

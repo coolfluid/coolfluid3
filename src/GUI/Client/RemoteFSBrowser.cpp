@@ -413,9 +413,8 @@ void RemoteFSBrowser::setStatus(const QString & text)
 }
 
  
- SLOTS
+// SLOTS
  
- ****************************************************************************/
 
 void RemoteFSBrowser::btOkClicked()
 {
