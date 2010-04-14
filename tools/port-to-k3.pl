@@ -128,6 +128,8 @@ sub process ($)
       s/CFuint/Uint/;
       s/CFreal/Real/;
       s/(\w+)Exception/\1/;
+      s/(\w+)\.hh/\1\.hpp/;
+      s/(\w+)\.cxx/\1\.cpp/;
     }
     untie @lines;
 
