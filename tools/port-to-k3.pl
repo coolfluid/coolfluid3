@@ -117,16 +117,18 @@ sub process ($)
     tie @lines, 'Tie::File', $filename or die ("Error opening file $filename!\n");
     foreach ( @lines )
     {
-      s/COOLFluiD/CF/;
-      s/Config::/Common::/;
-      s/Environment::/Common::/;
-      s/CFchar/char/;
-      s/CFfloat/float/;
-      s/CFldouble/long double/;
-      s/CFdouble/double/;
-      s/CFint/int/;
-      s/CFuint/Uint/;
-      s/CFreal/Real/;
+      s/COOLFluiD/CF/g;
+      s/Config::/Common::/g;
+      s/Config\//Common\//g;
+      s/Environment::/Common::/g;
+      s/Environment\//Common\//g;
+      s/CFchar/char/g;
+      s/CFfloat/float/g;
+      s/CFldouble/long double/g;
+      s/CFdouble/double/g;
+      s/CFint/int/g;
+      s/CFuint/Uint/g;
+      s/CFreal/Real/g;
       s/(\w+)Exception/\1/g;
       s/(\w+)\.hh/\1\.hpp/;
       s/(\w+)\.cxx/\1\.cpp/;
