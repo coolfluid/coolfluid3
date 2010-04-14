@@ -3,10 +3,6 @@
 LIST ( APPEND Network_files
   HostInfos.cpp
   HostInfos.hpp
-  IOException.cpp
-  IOException.hpp
-  MalformedDataException.cpp
-  MalformedDataException.hpp
   NetworkAPI.hpp
   NetworkException.cpp
   NetworkException.hpp
