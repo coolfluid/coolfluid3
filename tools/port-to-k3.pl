@@ -200,7 +200,9 @@ sub process ($)
 
       # modified headers
       s/Environment\.hpp/CommonAPI\.hpp/;
+      s/EnvironmentAPI\.hpp/CommonAPI\.hpp/;
       s/Config\.hpp/CommonAPI\.hpp/;
+      s/ConfigAPI\.hpp/CommonAPI\.hpp/;
       s/Common\.hpp/CommonAPI\.hpp/;
 
 
