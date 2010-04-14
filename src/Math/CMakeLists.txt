@@ -1,3 +1,5 @@
+CF_FIND_ORPHAN_FILES()
+
 # try to compile using boost
 SET ( CMAKE_REQUIRED_INCLUDES ${Boost_INCLUDE_DIR} )
 CHECK_CXX_SOURCE_COMPILES (
@@ -65,8 +67,5 @@ RCM.cxx
 LIST ( APPEND MathTools_cflibs Common )
 
 CF_ADD_KERNEL_LIBRARY ( MathTools )
-
-CF_WARN_ORPHAN_FILES()
-
 
 
