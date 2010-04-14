@@ -118,6 +118,7 @@ sub process ($)
     foreach ( @lines )
     {
       s/COOLFluiD/CF/g;
+      s/COOFluiD/CF/g;  # there were some strange mispelings
       
       s/CFLog\./Log\./g;
       s/CFLogLevel\./LogLevel\./g;
@@ -150,6 +151,7 @@ sub process ($)
       s/namespace(\s+)Config/namespace Common/;
       
       s/Environment::/Common::/g;
+      s/Environment::/Common::/g;
       s/Environment\//Common\//g;
       s/Environment_API/Common_API/g;
       s/(CF|COOLFluiD)_Environment/CF_Common/;
@@ -180,9 +182,15 @@ sub process ($)
       s/CFint/int/g;
       s/CFuint/Uint/g;
       s/CFreal/Real/g;
-      
+     
+      # modified extenions
       s/(\w+)\.hh/\1\.hpp/;
       s/(\w+)\.cxx/\1\.cpp/;
+
+      # modified headers
+      s/Environment\.hpp/CommonAPI\.hpp/;
+      s/Config\.hpp/CommonAPI\.hpp/;
+      s/Common\.hpp/CommonAPI\.hpp/;
     }
     untie @lines;
 
