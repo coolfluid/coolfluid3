@@ -6,8 +6,8 @@
 #include "Common/CF.hpp"
 
 #include "Common/CF.hpp"
-//#include "Common/NoSuchStorage.hpp"
-//#include "Common/StorageExists.hpp"
+//#include "Common/ValueNotFound.hpp"
+//#include "Common/ValueExists.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -60,20 +60,20 @@ public: // functions
   /// Adds a storage.
   /// @param name std::string identifier for the storage
   /// @param ptr pointer to the storage
-  /// @throw Common::StorageExists when entry with the same name already exists
+  /// @throw Common::ValueExists when entry with the same name already exists
   void addEntry(const std::string& name, TYPE* ptr)
   {
     if (!checkEntry(name)) {
       addPtr(name,ptr);
     }
     else {
-      throw Common::StorageExists (FromHere(),name + " already exists");
+      throw Common::ValueExists (FromHere(),name + " already exists");
     }
   }
 
   /// Removes a storage.
   /// @param name std::string identifier for the storage
-  /// @throw Common::NoSuchStorage when entry with the same name doesnt exists
+  /// @throw Common::ValueNotFound when entry with the same name doesnt exists
   void removeEntry(const std::string& name)
   {
     TYPE * ptr = getPtr(name);
@@ -82,13 +82,13 @@ public: // functions
       erasePtr(name);
     }
     else {
-      throw Common::NoSuchStorage (FromHere()," didn't find " + name);
+      throw Common::ValueNotFound (FromHere()," didn't find " + name);
     }
   }
 
   /// Removes a storage and frees its memory.
   /// @param name std::string identifier for the storage
-  /// @throw Common::NoSuchStorage when entry with the same name doesnt exists
+  /// @throw Common::ValueNotFound when entry with the same name doesnt exists
   void deleteEntry(const std::string& name)
   {
     TYPE * ptr = getPtr(name);
@@ -98,19 +98,19 @@ public: // functions
       deletePtr(ptr);
     }
     else {
-      throw Common::NoSuchStorage (FromHere()," didn't find " + name);
+      throw Common::ValueNotFound (FromHere()," didn't find " + name);
     }
   }
 
   /// Gets a storage.
   /// @param name std::string identifier for the storage
   /// @return the pointer to the storage
-  /// @throw Common::NoSuchStorage when entry with the same name doesnt exists
+  /// @throw Common::ValueNotFound when entry with the same name doesnt exists
   TYPE * getEntry(const std::string& name) const
   {
     TYPE * ptr = getPtr(name);
     if (ptr == CFNULL) {
-      throw Common::NoSuchStorage (FromHere()," didn't find " + name);
+      throw Common::ValueNotFound (FromHere()," didn't find " + name);
     }
     return ptr;
   }

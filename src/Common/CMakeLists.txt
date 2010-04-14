@@ -51,9 +51,16 @@ LIST ( APPEND Common_files
     LogStream.hpp
     LogStringForwarder.hpp
     LogStringForwarder.cpp
+    ModuleRegistry.hpp
+    ModuleRegisterBase.hpp
+    ModuleRegistry.cpp
+    ModuleRegister.hpp
+    ModuleRegisterBase.cpp
     MemoryAllocator.hpp
     MemoryAllocatorNormal.cpp
     MemoryAllocatorNormal.hpp
+    NamedObject.hpp
+    NamedObject.cpp
     NonCopyable.hpp
     NonInstantiable.hpp
     OSystem.cpp
