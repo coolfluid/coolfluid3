@@ -3,8 +3,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/CF.hh"
-#include "Common/Exception.hh"
+#include "Common/CF.hpp"
+#include "Common/Exception.hpp"
 
 namespace CF {
 namespace Common {

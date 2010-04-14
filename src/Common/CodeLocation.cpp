@@ -7,23 +7,23 @@
 #include <boost/filesystem/convenience.hpp>
 #include <boost/filesystem/exception.hpp>
 
-#include "Common/CodeLocation.hh"
+#include "Common/CodeLocation.hpp"
 
 using namespace boost;
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
   namespace Common {
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 CodeLocation::CodeLocation(const char * file, int line, const char * function)
 : m_file(file), m_function(function), m_line (line)
 {
 }
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 std::string CodeLocation::str () const
 {
@@ -40,46 +40,46 @@ std::string CodeLocation::str () const
   return place;
 }
 
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 std::string CodeLocation::short_str() const
 {
- char line [50];
- sprintf (line, "%d", m_line);
- std::string place;// = filesystem::path(m_file).end().;//(filesystem::path(m_file).parent_path().string());
- 
- filesystem::path path(m_file);
- std::list<std::string> parts;
- copy(path.begin(), path.end(), back_inserter(parts));
+char line [50];
+sprintf (line, "%d", m_line);
+std::string place;// = filesystem::path(m_file).end().;//(filesystem::path(m_file).parent_path().string());
 
- if (parts.size() < 2)
- {
+filesystem::path path(m_file);
+std::list<std::string> parts;
+copy(path.begin(), path.end(), back_inserter(parts));
+
+if (parts.size() < 2)
+{
   place = path.string();
- }
- else
- {
+}
+else
+{
   boost::filesystem::path pathSub;
   std::list<std::string>::iterator it = parts.end();
-  
+
   it--; it--;
   for ( ; it != parts.end(); ++it)
-   pathSub /= *it;
-  
+  pathSub /= *it;
+
   place = pathSub.string();
- }
- 
- place += ":";
- place += line;
- if (!m_function.empty()) // skip if compiler doees not set function
- {
-  place += ":";
-  place += m_function; 
-//   filesystem::path(m_function).parent_path();
- }
- return place;
 }
 
-//////////////////////////////////////////////////////////////////////////////
+place += ":";
+place += line;
+if (!m_function.empty()) // skip if compiler doees not set function
+{
+  place += ":";
+  place += m_function;
+//   filesystem::path(m_function).parent_path();
+}
+return place;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
   } // namespace Common
 } // namespace CF

@@ -1,5 +1,5 @@
-#include "Common/Component.hh"
-#include "Common/BasicExceptions.hh"
+#include "Common/Component.hpp"
+#include "Common/Basics.hpp"
 
 namespace CF {
 namespace Common {

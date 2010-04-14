@@ -81,7 +81,6 @@ void CommitConfirmationPanel::hideComponents(bool hide)
   CloseConfirmationPanel::hideComponents(hide);
 }
 
-/****************************************************************************
  
  SLOTS
  

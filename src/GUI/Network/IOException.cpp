@@ -1,23 +1,23 @@
 #include <string>
 
-#include "Common/CodeLocation.hh"
+#include "Common/CodeLocation.hpp"
 
-#include "GUI/Network/IOException.hh"
+#include "GUI/Network/IO.hpp"
 
 using namespace CF::Common;
 using namespace CF::GUI::Network;
 
-IOException::IOException(const CodeLocation& where, const std::string& what) 
-: Exception(where, what, "IOException") 
+IO::IOException(const CodeLocation& where, const std::string& what)
+: Exception(where, what, "IO")
 {
-  
+
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-IOException::IOException(const IOException& e) throw() 
-: Exception(e) 
+IO::IOException(const IOException& e) throw()
+: Exception(e)
 {
-  
+
 }

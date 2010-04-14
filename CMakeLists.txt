@@ -34,7 +34,7 @@ ENDIF()
 # kernel does not need fortran but some plugins might
 # developers that know htat they wont need it may turn it off in systems where is not available
 IF(NOT CF_SKIP_FORTRAN)
- enable_language ( Fortran OPTIONAL )
+enable_language ( Fortran OPTIONAL )
 ENDIF(NOT CF_SKIP_FORTRAN)
 
 # optionally include personal options ( alternative to passing a cache initialization to cmake)
@@ -113,20 +113,20 @@ find_package(Valgrind)      # valgrind for profiling and memmory leak detection
 find_package(ZLIB)          # file compression support
 LOG ( "ZLIB_FOUND: [${ZLIB_FOUND}]" )
 IF ( ZLIB_FOUND )
-	LOG ( "  ZLIB_INCLUDE_DIRS: [${ZLIB_INCLUDE_DIRS}]" )
-	LOG ( "  ZLIB_LIBRARIES:    [${ZLIB_LIBRARIES}]" )
+LOG ( "  ZLIB_INCLUDE_DIRS: [${ZLIB_INCLUDE_DIRS}]" )
+LOG ( "  ZLIB_LIBRARIES:    [${ZLIB_LIBRARIES}]" )
 ENDIF()
 
 find_package (BZip2)        # file compression support
 LOG ( "BZIP2_FOUND: [${BZIP2_FOUND}]" )
 IF ( BZIP2_FOUND )
-	LOG ( "  BZIP2_INCLUDE_DIR:  [${BZIP2_INCLUDE_DIR}]" )
-	LOG ( "  BZIP2_LIBRARIES:    [${BZIP2_LIBRARIES}]" )
-	LOG ( "  BZIP2_DEFINITIONS:  [${BZIP2_DEFINITIONS}]" )
-	LOG ( "  BZIP2_NEED_PREFIX:  [${BZIP2_NEED_PREFIX}]" )
+LOG ( "  BZIP2_INCLUDE_DIR:  [${BZIP2_INCLUDE_DIR}]" )
+LOG ( "  BZIP2_LIBRARIES:    [${BZIP2_LIBRARIES}]" )
+LOG ( "  BZIP2_DEFINITIONS:  [${BZIP2_DEFINITIONS}]" )
+LOG ( "  BZIP2_NEED_PREFIX:  [${BZIP2_NEED_PREFIX}]" )
 ENDIF()
 
-include ( CheckSvnVersion ) # check for subversion support 
+include ( CheckSvnVersion ) # check for subversion support
 
 LOG ( "" )
 ##############################################################################
@@ -139,9 +139,9 @@ LOG ( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 # add dir with kernel config (automatic generated headers)
 add_definitions     ( -DCF_HAVE_CONFIG_H )
 include_directories ( ${coolfluid_BINARY_DIR} )
-add_subdirectory ( config ) 
+add_subdirectory ( config )
 
-# add dir with kernel sources 
+# add dir with kernel sources
 include_directories ( ${coolfluid_SOURCE_DIR}/src )
 add_subdirectory ( src )
 
@@ -170,17 +170,17 @@ foreach( EXDIR ${CF_PLUGIN_DIRS} )
   foreach( ADIR ${FOUND_PLUGIN_DIRS} )
 
     string (REGEX REPLACE "(/)*CMakeLists.txt" "" aPluginDir ${ADIR})
-   
+
     if ( IS_DIRECTORY ${aPluginDir} )
 
       get_filename_component ( aPluginName ${aPluginDir} NAME )
-      
+
       list ( APPEND CF_PLUGIN_LIST ${aPluginName} )
 
       LOG ( " + PLUGIN [${aPluginName}]" )
-      
+
       add_subdirectory    ( ${aPluginDir} plugins/${aPluginName} )
-      
+
     endif ()
 
   endforeach()

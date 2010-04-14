@@ -412,7 +412,6 @@ void RemoteFSBrowser::setStatus(const QString & text)
   m_labStatus->setText(text);
 }
 
-/****************************************************************************
  
  SLOTS
  

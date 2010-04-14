@@ -167,7 +167,6 @@ int TreeItem::getChildCount() const
   return this->childItems.count();
 }
 
-/****************************************************************************
  
  PRIVATE METHODS
  

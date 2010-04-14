@@ -1,7 +1,7 @@
 #ifndef CF_GUI_Client_AboutCFDialog_hh
 #define CF_GUI_Client_AboutCFDialog_hh
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 #include <QDialog>
 #include <QList>
@@ -11,14 +11,14 @@ class QLabel;
 class QPushButton;
 class QVBoxLayout;
 class QWidget;
-  
-/////////////////////////////////////////////////////////////////////////////
-  
+
+////////////////////////////////////////////////////////////////////////////////
+
 namespace CF {
 namespace GUI {
 namespace Client {
 
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
   class AboutCFDialog : public QDialog
   {
@@ -27,36 +27,36 @@ namespace Client {
       public:
       QLabel * labName;
       QLabel * labValue;
-      
+
       CFInfo(const QString & name, const QString & value, QFormLayout * parent);
-      
+
       ~CFInfo();
     };
-    
-   public:
-    
+
+  public:
+
     AboutCFDialog(QWidget * parent = NULL);
-    
+
     ~AboutCFDialog();
-    
-   private: // data
-    
+
+  private: // data
+
     QVBoxLayout * m_mainLayout;
-    
+
     QPushButton * m_btOK;
-    
+
     QFormLayout * m_infoLayout;
-    
+
     QList<CFInfo *> m_infoList;
-    
+
   }; // class AboutCFDialog
-  
+
   ///////////////////////////////////////////////////////////////////////////////
 
 } // namespace Client
-} // namespace GUI   
+} // namespace GUI
 } // namespace CF
 
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Client_AboutCFDialo.hh
+#endif // CF_GUI_Client_AboutCFDialo.hpp

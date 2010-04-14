@@ -353,7 +353,6 @@ bool ClientNetworkComm::sendGetSubSystemList()
   return this->buildAndSend(NETWORK_GET_SUBSYSTEM_LIST);
 }
 
-/****************************************************************************
  
  PRIVATE METHOD
  

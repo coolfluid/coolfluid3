@@ -1,5 +1,5 @@
-#include "Common/CodeLocation.hh"
-#include "Common/LogStampFilter.hh"
+#include "Common/CodeLocation.hpp"
+#include "Common/LogStampFilter.hpp"
 
 using namespace CF::Common;
 
@@ -10,7 +10,7 @@ m_stamp(stamp),
 m_streamName(streamName),
 m_newMessage(true)
 {
-  
+
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

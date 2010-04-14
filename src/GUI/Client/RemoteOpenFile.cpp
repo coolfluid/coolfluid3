@@ -1,7 +1,7 @@
 #include <QtGui>
 
-#include "GUI/Client/FilesListItem.hh"
-#include "GUI/Client/RemoteOpenFile.hh"
+#include "GUI/Client/FilesListItem.hpp"
+#include "GUI/Client/RemoteOpenFile.hpp"
 
 using namespace CF::GUI::Client;
 
@@ -17,17 +17,17 @@ RemoteOpenFile::RemoteOpenFile(const QModelIndex & index, QMainWindow * parent)
 
 RemoteOpenFile::~RemoteOpenFile()
 {
-  
+
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-ValidationPolicy RemoteOpenFile::isAcceptable(const QString & name, bool isDir) 
+ValidationPolicy RemoteOpenFile::isAcceptable(const QString & name, bool isDir)
 {
   if(isDir)
     return POLICY_ENTER_DIRECTORY;
-  
+
   m_fileList << name;
   return POLICY_VALID;
 }
@@ -35,32 +35,32 @@ ValidationPolicy RemoteOpenFile::isAcceptable(const QString & name, bool isDir)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-ValidationPolicy RemoteOpenFile::isAcceptable(const QStringList & names) 
+ValidationPolicy RemoteOpenFile::isAcceptable(const QStringList & names)
 {
   QStringList::const_iterator it = names.begin();
   ValidationPolicy validation = POLICY_VALID;
-  
+
   while(it != names.end() && validation == POLICY_VALID)
   {
     QString item = *it;
-    
+
     if(this->isDirectory(item) && names.size() > 1)
     {
       this->showError("Directories are not allowed in multiple selection.");
       validation = POLICY_NOT_VALID;
       m_fileList.clear();
     }
-    
+
     else if(this->isDirectory(item) && names.size() == 1)
       validation = POLICY_ENTER_DIRECTORY;
-    
+
     else
       m_fileList << item;
-    
+
     it++;
   }
-  
-  
+
+
   return validation;
 }
 
@@ -71,7 +71,7 @@ QString RemoteOpenFile::getSelectedFile() const
 {
   if(!m_fileList.isEmpty())
     return m_fileList.at(0);
-  
+
   return QString();
 }
 

@@ -1,24 +1,24 @@
 #include <string>
 
-#include "Common/CodeLocation.hh"
+#include "Common/CodeLocation.hpp"
 
-#include "GUI/Client/UnknownTypeException.hh"
+#include "GUI/Client/UnknownType.hpp"
 
 using namespace CF::Common;
 using namespace CF::GUI::Client;
 
-UnknownTypeException::UnknownTypeException(const CodeLocation& where, 
-                                           const std::string& what) 
-: Exception(where, what, "UnknownTypeException") 
+UnknownType::UnknownTypeException(const CodeLocation& where,
+                                           const std::string& what)
+: Exception(where, what, "UnknownType")
 {
-  
+
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-UnknownTypeException::UnknownTypeException(const UnknownTypeException& e) throw() 
-: Exception(e) 
+UnknownType::UnknownTypeException(const UnknownTypeException& e) throw()
+: Exception(e)
 {
-  
+
 }

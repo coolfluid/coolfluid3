@@ -822,7 +822,6 @@ QModelIndex TreeModel::getParentSimIndex(const QModelIndex & index) const
   return this->getSimulationIndex(node.attributes().namedItem("name").nodeValue());
 }
 
-/****************************************************************************
  
  PRIVATE METHODS
  

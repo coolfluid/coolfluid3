@@ -1,17 +1,17 @@
 #ifndef CF_Common_MPI_MPIStructDef_hh
 #define CF_Common_MPI_MPIStructDef_hh
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 #include <mpi.h>
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace Common  {
 namespace MPI  {
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 /// The following struct defines the basic data needed by a generic MPI struct
 /// @author Andrea Lani
@@ -29,8 +29,8 @@ public:
   /// The following function build a MPIStruct with 2 types
   template <typename T1, typename T2>
   static void buildMPIStruct(T1* t1, T2* t2,
-  		     int blockLengths[],
-  		     MPIStruct& obj)
+    	     int blockLengths[],
+    	     MPIStruct& obj)
   {
     const unsigned int N = 2;
     MPI_Datatype typelist[N];
@@ -54,8 +54,8 @@ public:
   /// The following function build a MPIStruct with 3 types
   template <typename T1, typename T2, typename T3>
   static void buildMPIStruct(T1* t1, T2* t2, T3* t3,
-  		     int blockLengths[],
-  		     MPIStruct& obj)
+    	     int blockLengths[],
+    	     MPIStruct& obj)
   {
     const unsigned int N = 3;
     MPI_Datatype typelist[N];
@@ -83,8 +83,8 @@ public:
   /// The following function build a MPIStruct with 4 types
   template <typename T1, typename T2, typename T3, typename T4>
   static void buildMPIStruct(T1* t1, T2* t2, T3* t3, T3* t4,
-  		     int blockLengths[],
-  		     MPIStruct& obj)
+    	     int blockLengths[],
+    	     MPIStruct& obj)
   {
     const unsigned int N = 4;
     MPI_Datatype typelist[N];
@@ -118,9 +118,9 @@ public:
     typename T3, typename T4,
     typename T5>
   static void buildMPIStruct(T1* t1, T2* t2, T3* t3,
-  		     T4* t4, T5* t5,
-  		     int blockLengths[],
-  		     MPIStruct& obj)
+    	     T4* t4, T5* t5,
+    	     int blockLengths[],
+    	     MPIStruct& obj)
   {
     const unsigned int N = 5;
     MPI_Datatype typelist[N];
@@ -158,9 +158,9 @@ public:
     typename T3, typename T4,
     typename T5, typename T6>
   static void buildMPIStruct(T1* t1, T2* t2, T3* t3,
-  		     T4* t4, T5* t5, T6* t6,
-  		     int blockLengths[],
-  		     MPIStruct& obj)
+    	     T4* t4, T5* t5, T6* t6,
+    	     int blockLengths[],
+    	     MPIStruct& obj)
   {
     const unsigned int N = 6;
     MPI_Datatype typelist[N];
@@ -204,10 +204,10 @@ private:
 
   /// The following function returns the MPI basic type
   /// corresponding to the given argument
-#define MPIDTYPE(__type__,__mpidtype__)  	\
+#define MPIDTYPE(__type__,__mpidtype__)    \
 static MPI_Datatype getMPIType(__type__* type)  \
-{  				  \
-  return __mpidtype__;  		  \
+{    			  \
+  return __mpidtype__;    	  \
 }
 
 MPIDTYPE(double,MPI_DOUBLE)
@@ -224,12 +224,12 @@ MPIDTYPE(char,MPI_CHAR)
 
 };
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 } // MPI
 } // Common
 } // CF
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_Common_MPI_MPIStructDef_hh

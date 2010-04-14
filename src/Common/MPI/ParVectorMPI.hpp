@@ -38,24 +38,24 @@
 #include <iostream>
 #include <limits>
 
-#include "Common/CF.hh"
-#include "Common/BasicExceptions.hh"
-#include "Common/MPI/DataTypeHandler.hh"
+#include "Common/CF.hpp"
+#include "Common/Basics.hpp"
+#include "Common/MPI/DataTypeHandler.hpp"
 
-#include "Common/ArrayAllocator.hh"
+#include "Common/ArrayAllocator.hpp"
 
-#include "Common/Log.hh"
+#include "Common/Log.hpp"
 
-#include "Common/MPI/HelperFuncs.hh"
-#include "Common/PE.hh"
+#include "Common/MPI/HelperFuncs.hpp"
+#include "Common/PE.hpp"
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace Common  {
 namespace MPI  {
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 #ifdef 0
 void WriteCommPatternHelper (MPI_Comm Comm,
@@ -977,46 +977,46 @@ protected:
       // Broadcast needed points
       for (int RankTurn=0; RankTurn<_CommSize; RankTurn++)
       {
-	  if (RankTurn==_CommRank)
-	  {
-	      //
-	      // We send our list
-	      //
-	      Storage[0]=_GhostMap.size();
+  if (RankTurn==_CommRank)
+  {
+      //
+      // We send our list
+      //
+      Storage[0]=_GhostMap.size();
 
-	      int i=1;
-	      for (typename TGhostMap::const_iterator Iter=_GhostMap.begin();
-		   Iter!=_GhostMap.end(); Iter++)
-		  Storage[i++]=Iter->first;
+      int i=1;
+      for (typename TGhostMap::const_iterator Iter=_GhostMap.begin();
+    Iter!=_GhostMap.end(); Iter++)
+  	  Storage[i++]=Iter->first;
 
-	      Common::CheckMPIStatus(MPI_Bcast (Storage, StorageSize, MPI_INT, RankTurn,
-						_Communicator));
-	  }
-	  else
-	  {
-	      //
-	      // Time to receive the list
-	      //
-	      Common::CheckMPIStatus(MPI_Bcast (Storage, StorageSize, MPI_INT, RankTurn,
-						_Communicator));
+      Common::CheckMPIStatus(MPI_Bcast (Storage, StorageSize, MPI_INT, RankTurn,
+  					_Communicator));
+  }
+  else
+  {
+      //
+      // Time to receive the list
+      //
+      Common::CheckMPIStatus(MPI_Bcast (Storage, StorageSize, MPI_INT, RankTurn,
+  					_Communicator));
 
-	      const IndexType Aantal = Storage[0];
-	      cf_assert (Aantal <= MaxGhostSize);
+      const IndexType Aantal = Storage[0];
+      cf_assert (Aantal <= MaxGhostSize);
 
-	      for (IndexType j=1; j<=Aantal; j++)
-	      {
-		  // Could use GlobalToLocal here, the exception-
-		  // overhead would be too big.
-		  Iter=_IndexMap.find( Storage[j]);
+      for (IndexType j=1; j<=Aantal; j++)
+      {
+  	  // Could use GlobalToLocal here, the exception-
+  	  // overhead would be too big.
+  	  Iter=_IndexMap.find( Storage[j]);
 
-		  if (Iter==_IndexMap.end())
-		      continue; // We don't have this one
+  	  if (Iter==_IndexMap.end())
+  	      continue; // We don't have this one
 
-		  _GhostSendList[RankTurn].push_back(Iter->second);
-	      }
-	  }
+  	  _GhostSendList[RankTurn].push_back(Iter->second);
+      }
+  }
 
-	  //MPI_Barrier (_Communicator);
+  //MPI_Barrier (_Communicator);
       }
 
       delete[] (Storage);
@@ -1121,8 +1121,8 @@ protected:
       // Clear old mapping
       for (int j=0; j<_CommSize; j++)
       {
-	  _GhostSendList[j].clear();
-	  _GhostReceiveList[j].clear();
+  _GhostSendList[j].clear();
+  _GhostReceiveList[j].clear();
       }
 
       // Broadcast needed points
@@ -1142,31 +1142,31 @@ protected:
       cf_assert (_GhostSize == _GhostMap.size());
       if (GhostFound != _GhostSize)
       {
-	  // Error: we don't have all the ghost points
-	  CFLog(NORMAL, "Not all ghost points were found! Starting investigation\n");
+  // Error: we don't have all the ghost points
+  CFLog(NORMAL, "Not all ghost points were found! Starting investigation\n");
 
-	  std::set<CF::Uint> Ghosts;
-	  std::set<CF::Uint> Receives;
-	  std::set<CF::Uint> Missing;
+  std::set<CF::Uint> Ghosts;
+  std::set<CF::Uint> Receives;
+  std::set<CF::Uint> Missing;
 
-	  typename TGhostMap::const_iterator Iter;
+  typename TGhostMap::const_iterator Iter;
 
-	  for (Iter=_GhostMap.begin(); Iter!=_GhostMap.end(); ++Iter)
-	      Ghosts.insert(Iter->first);
+  for (Iter=_GhostMap.begin(); Iter!=_GhostMap.end(); ++Iter)
+      Ghosts.insert(Iter->first);
 
-	  for (int i=0; i<_CommSize; ++i)
-	      std::copy(_GhostReceiveList[i].begin(), _GhostReceiveList[i].end(),
-			std::inserter(Receives, Receives.begin()));
+  for (int i=0; i<_CommSize; ++i)
+      std::copy(_GhostReceiveList[i].begin(), _GhostReceiveList[i].end(),
+  std::inserter(Receives, Receives.begin()));
 
-	  std::set_difference(Ghosts.begin(), Ghosts.end(), Receives.begin(),
-			      Receives.end(), std::inserter(Missing, Missing.begin()));
+  std::set_difference(Ghosts.begin(), Ghosts.end(), Receives.begin(),
+  		      Receives.end(), std::inserter(Missing, Missing.begin()));
 
-	  std::ostringstream S;
-	  S << "Missing ghost elements (globalID): ";
-	  for (std::set<CF::Uint>::const_iterator I = Missing.begin();
-	       I!=Missing.end(); ++I)
-	      S << *I << " ";
-	  S << "\n";
+  std::ostringstream S;
+  S << "Missing ghost elements (globalID): ";
+  for (std::set<CF::Uint>::const_iterator I = Missing.begin();
+         I!=Missing.end(); ++I)
+      S << *I << " ";
+  S << "\n";
 
     throw ParallelError (FromHere(), S.str() );
       }
@@ -1183,7 +1183,7 @@ protected:
       CFLogInfo("ParVectorMPI<T>::BuildGhostMap()  END");
     }
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 
     template <class T>
@@ -1232,7 +1232,7 @@ protected:
 
 
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
     template <class T>
     void ParVectorMPI<T>::Sync_BuildSendTypes ()
@@ -1240,7 +1240,7 @@ protected:
       Sync_BuildTypeHelper (_GhostSendList, _SendTypes);
     }
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
     /*==============================================================
     * Allocation of elements
@@ -1276,7 +1276,7 @@ protected:
       Grow (GrowBy);
     }
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 
     template <class T>
@@ -1328,7 +1328,7 @@ protected:
 
 
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 
     template <class T>
@@ -1360,7 +1360,7 @@ protected:
 
 
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 
     /// Dump the local contents
@@ -1391,7 +1391,7 @@ protected:
 
 
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 
     template <class T>
@@ -1449,7 +1449,7 @@ protected:
     }
 
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -1492,7 +1492,7 @@ protected:
     }
 
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -1510,7 +1510,7 @@ protected:
     }
 
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -1548,7 +1548,7 @@ protected:
     }
 
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -1580,7 +1580,7 @@ protected:
 
 
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -1592,7 +1592,7 @@ protected:
     }
 
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -1604,7 +1604,7 @@ protected:
     }
 
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -1617,7 +1617,7 @@ protected:
     }
 
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -1630,7 +1630,7 @@ protected:
     }
 
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -1651,7 +1651,7 @@ protected:
     }
 
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
     template <class T>
     void ParVectorMPI<T>::DoneMPI ()
@@ -1664,19 +1664,19 @@ protected:
       //    MPI_Waitall (_CommSize, _ReceiveRequests, MPI_STATUSES_IGNORE);
 
       for (int i = 0; i <_CommSize; i++) {
-       	if (_SendTypes[i]!=MPI_DATATYPE_NULL) {
-	  MPI_Type_free (&_SendTypes[i]);
-	}
-	if (_ReceiveTypes[i]!=MPI_DATATYPE_NULL) {
-	  MPI_Type_free (&_ReceiveTypes[i]);
-	}
+         if (_SendTypes[i]!=MPI_DATATYPE_NULL) {
+  MPI_Type_free (&_SendTypes[i]);
+}
+if (_ReceiveTypes[i]!=MPI_DATATYPE_NULL) {
+  MPI_Type_free (&_ReceiveTypes[i]);
+}
       }
 
       CFLogDebug( "parVector DoneMPI\n");
     }
 
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 
     template <class T>
@@ -1730,7 +1730,7 @@ protected:
       CFLogDebug( "parvector InitMPI\n");
     }
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
     template <class T>
     ParVectorMPI<T>::~ParVectorMPI ()
@@ -1739,7 +1739,7 @@ protected:
     }
 
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
     template <class T>
     ParVectorMPI<T>::ParVectorMPI (const T & Init, CF::Uint Size, CF::Uint ESize)
@@ -1752,7 +1752,7 @@ protected:
       }
     }
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 #ifdef CF_ENABLE_PARALLEL_DEBUG
     template <class T>
@@ -1774,7 +1774,7 @@ protected:
     }
 #endif
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 } // MPI
 } // Common

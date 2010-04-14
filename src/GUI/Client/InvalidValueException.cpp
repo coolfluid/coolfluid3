@@ -1,24 +1,24 @@
 #include <string>
 
-#include "Common/CodeLocation.hh"
+#include "Common/CodeLocation.hpp"
 
-#include "GUI/Client/InvalidValueException.hh"
+#include "GUI/Client/InvalidValue.hpp"
 
 using namespace CF::Common;
 using namespace CF::GUI::Client;
 
-InvalidValueException::InvalidValueException(const CodeLocation& where, 
-                                             const std::string& what) 
-: Exception(where, what, "InvalidValueException") 
+InvalidValue::InvalidValueException(const CodeLocation& where,
+                                             const std::string& what)
+: Exception(where, what, "InvalidValue")
 {
-  
+
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-InvalidValueException::InvalidValueException(const InvalidValueException& e) throw() 
-: Exception(e) 
+InvalidValue::InvalidValueException(const InvalidValueException& e) throw()
+: Exception(e)
 {
-  
+
 }

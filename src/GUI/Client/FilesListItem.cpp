@@ -1,9 +1,9 @@
 #include <QtCore>
 #include <stdexcept>
 
-#include "GUI/Client/UnknownTypeException.hh"
+#include "GUI/Client/UnknownType.hpp"
 
-#include "GUI/Client/FilesListItem.hh"
+#include "GUI/Client/FilesListItem.hpp"
 
 using namespace CF::GUI::Client;
 
@@ -12,10 +12,10 @@ FilesListItem::FilesListItem(const QIcon & icon, const QString & text,
 : QStandardItem(icon, text)
 {
   if(type != DIRECTORY && type != FILE)
-    throw UnknownTypeException(FromHere(), "Unknown item type");
-  
+    throw UnknownType(FromHere(), "Unknown item type");
+
   m_type = type;
-  
+
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

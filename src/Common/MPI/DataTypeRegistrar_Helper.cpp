@@ -1,14 +1,14 @@
-#include "Common/MPI/DataTypeRegistrar_Helper.hh"
-#include "Common/MPI/DataTypeHandler.hh"
+#include "Common/MPI/DataTypeRegistrar_Helper.hpp"
+#include "Common/MPI/DataTypeHandler.hpp"
 
 namespace CF {
 namespace Common  {
 namespace MPI  {
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 DataTypeRegistrar_Helper::DataTypeRegistrar_Helper ()
-	    : TheType (MPI_DATATYPE_NULL)
+    : TheType (MPI_DATATYPE_NULL)
 {
 }
 
@@ -20,7 +20,7 @@ void DataTypeRegistrar_Helper::DoRegister ()
 {
     DataTypeHandler::GetHandler ().RegisterType (this);
 }
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 } // MPI
 } // Common

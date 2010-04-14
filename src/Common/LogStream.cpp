@@ -1,10 +1,10 @@
 #include <iostream>
 
-#include "Common/PE.hh"
-#include "Common/Log.hh"
-#include "Common/LogStream.hh"
-#include "Common/LogLevelFilter.hh"
-#include "Common/LogStampFilter.hh"
+#include "Common/PE.hpp"
+#include "Common/Log.hpp"
+#include "Common/LogStream.hpp"
+#include "Common/LogLevelFilter.hpp"
+#include "Common/LogStampFilter.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -18,38 +18,38 @@ m_flushed(true)
 {
   iostreams::filtering_ostream * stream;
   LogLevelFilter levelFilter(level);
-  
+
   // SCREEN
   stream = new iostreams::filtering_ostream();
   stream->push(levelFilter);
   stream->push(LogStampFilter(streamName));
   stream->push(std::cout);
   m_destinations[SCREEN] = stream;
-  
+
   // FILE
   m_destinations[FILE] = NULL;
-  
+
   // STRING
   stream = new iostreams::filtering_ostream();
   stream->push(levelFilter);
   stream->push(LogStampFilter(streamName));
   stream->push(back_inserter(m_buffer));
   m_destinations[STRING] = stream;
-  
+
   // SYNC_SCREEN
   stream = new iostreams::filtering_ostream();
   stream->push(levelFilter);
   stream->push(LogStampFilter(streamName));
   stream->push(std::cout);
   m_destinations[SYNC_SCREEN] = stream;
-  
-  
+
+
   // by default, we use all destinations
   m_usedDests[SCREEN] = true;
   m_usedDests[FILE] = true;
   m_usedDests[STRING] = true;
   m_usedDests[SYNC_SCREEN] = true;
-  
+
   m_filterRankZero[SCREEN] = true;
   m_filterRankZero[FILE] = true;
   m_filterRankZero[STRING] = true;
@@ -62,10 +62,10 @@ m_flushed(true)
 LogStream::~LogStream()
 {
   std::map<LogDestination, iostreams::filtering_ostream *>::iterator it;
-  
+
   if(!m_flushed)
     this->flush();
-  
+
   for(it = m_destinations.begin() ; it != m_destinations.end() ; it++)
     delete it->second;
 }
@@ -76,13 +76,13 @@ LogStream::~LogStream()
 LogStream & LogStream::operator << (LogLevel level)
 {
   this->getLevelFilter(SCREEN).setCurrentLogLevel(level);
-  
+
   if(this->isFileOpen())
     this->getLevelFilter(FILE).setCurrentLogLevel(level);
-  
+
   this->getLevelFilter(STRING).setCurrentLogLevel(level);
   this->getLevelFilter(SYNC_SCREEN).setCurrentLogLevel(level);
-  
+
   return *this;
 }
 
@@ -93,7 +93,7 @@ LogStream & LogStream::operator << (LogTag tag)
 {
   if(tag == ENDLINE)
     this->flush();
-  
+
   return *this;
 }
 
@@ -103,13 +103,13 @@ LogStream & LogStream::operator << (LogTag tag)
 LogStream & LogStream::operator << (const CodeLocation & place)
 {
   this->getStampFilter(SCREEN).setPlace(place);
-  
+
   if(this->isFileOpen())
     this->getStampFilter(FILE).setPlace(place);
-  
+
   this->getStampFilter(STRING).setPlace(place);
   this->getStampFilter(SYNC_SCREEN).setPlace(place);
-  
+
   return *this;
 }
 
@@ -119,7 +119,7 @@ LogStream & LogStream::operator << (const CodeLocation & place)
 void LogStream::flush()
 {
   std::map<LogDestination, iostreams::filtering_ostream *>::iterator it;
-  
+
   for(it = m_destinations.begin() ; it != m_destinations.end() ; it++)
   {
     if(this->isDestinationUsed(it->first))
@@ -128,27 +128,27 @@ void LogStream::flush()
       it->second->clear();
     }
   }
-  
+
   this->getLevelFilter(SCREEN).resetToDefaultLevel();
-  
+
   if(this->isFileOpen())
     this->getLevelFilter(FILE).resetToDefaultLevel();
-  
+
   this->getLevelFilter(STRING).resetToDefaultLevel();
   this->getLevelFilter(SYNC_SCREEN).resetToDefaultLevel();
-  
+
   this->getStampFilter(SCREEN).endMessage();
-  
+
   if(this->isFileOpen())
     this->getStampFilter(FILE).endMessage();
-  
+
   this->getStampFilter(STRING).endMessage();
   this->getStampFilter(SYNC_SCREEN).endMessage();
-  
+
   if(!m_buffer.empty())
   {
     std::list<LogStringForwarder *>::iterator it = m_stringForwarders.begin();
-    
+
     while(it != m_stringForwarders.end())
     {
       (*it)->message(m_buffer);
@@ -156,7 +156,7 @@ void LogStream::flush()
     }
     m_buffer.clear();
   }
-  
+
   m_flushed = true;
 }
 
@@ -167,10 +167,10 @@ void LogStream::setLogLevel(LogLevel level)
 {
   m_level = level;
   this->getLevelFilter(SCREEN).setLogLevel(level);
-  
+
   if(this->isFileOpen())
     this->getLevelFilter(FILE).setLogLevel(level);
-  
+
   this->getLevelFilter(STRING).setLogLevel(level);
   this->getLevelFilter(SYNC_SCREEN).setLogLevel(level);
 }
@@ -188,7 +188,7 @@ void LogStream::setLogLevel(LogDestination destination, LogLevel level)
 
 LogLevel LogStream::getLogLevel(LogDestination destination) const
 {
-  
+
   return this->getLevelFilter(destination).getLogLevel();
 }
 
@@ -207,7 +207,7 @@ bool LogStream::isDestinationUsed(LogDestination destination) const
 {
   if(destination == FILE && !this->isFileOpen())
     return false;
-  
+
   return m_usedDests.find(destination)->second;
 }
 
@@ -237,10 +237,10 @@ std::string LogStream::getStamp(LogDestination destination)
 void LogStream::setStamp(const std::string & stampFormat)
 {
   this->getStampFilter(SCREEN).setStamp(stampFormat);
-  
+
   if(this->isFileOpen())
     this->getStampFilter(FILE).setStamp(stampFormat);
-  
+
   this->getStampFilter(STRING).setStamp(stampFormat);
   this->getStampFilter(SYNC_SCREEN).setStamp(stampFormat);
 }
@@ -280,11 +280,11 @@ void LogStream::setFile(const iostreams::file_descriptor_sink & fileDescr)
   if(!this->isFileOpen())
   {
     iostreams::filtering_ostream * stream = new iostreams::filtering_ostream();
-    
+
     stream->push(LogLevelFilter(m_level));
     stream->push(LogStampFilter(m_streamName));
     stream->push(fileDescr);
-    
+
     m_destinations[FILE] = stream;
   }
 }
@@ -320,7 +320,7 @@ void LogStream::addStringForwarder(LogStringForwarder * forwarder)
 {
   std::list<LogStringForwarder *>::iterator begin = m_stringForwarders.begin();
   std::list<LogStringForwarder *>::iterator end = m_stringForwarders.end();
-  
+
   if(forwarder != NULL && std::find(begin, end, forwarder) == end)
     m_stringForwarders.push_back(forwarder);
 }

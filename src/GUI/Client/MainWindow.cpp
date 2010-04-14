@@ -162,7 +162,6 @@ MainWindow::~MainWindow()
   delete m_aboutCFDialog;
 }
 
-/****************************************************************************
  
  PRIVATE METHODS
  

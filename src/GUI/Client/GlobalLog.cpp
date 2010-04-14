@@ -1,6 +1,6 @@
 #include <QString>
 
-#include "GUI/Client/GlobalLog.hh"
+#include "GUI/Client/GlobalLog.hpp"
 
 using namespace CF::GUI::Client;
 
@@ -8,7 +8,7 @@ GlobalLog * GlobalLog::m_instance = NULL;
 
 GlobalLog::GlobalLog()
 {
-  
+
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -18,7 +18,7 @@ GlobalLog * GlobalLog::getInstance()
 {
   if(m_instance == NULL)
     m_instance = new GlobalLog();
-  
+
   return m_instance;
 }
 

@@ -1,14 +1,14 @@
 #ifndef CF_Common_OSystem_hh
 #define CF_Common_OSystem_hh
 
-#include "Common/Exception.hh"
-#include "Common/NonCopyable.hh"
-#include "Common/SelfRegistPtr.hh"
-#include "Common/SafePtr.hh"
+#include "Common/Exception.hpp"
+#include "Common/NonCopyable.hpp"
+#include "Common/SelfRegistPtr.hpp"
+#include "Common/SafePtr.hpp"
 
-#include "Common/CommonAPI.hh"
+#include "Common/CommonAPI.hpp"
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
   namespace Common {
@@ -17,7 +17,7 @@ namespace CF {
   class SignalHandler;
   class LibLoader;
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 class Common_API OSystemError : public Common::Exception {
 
@@ -27,7 +27,7 @@ public:
   OSystemError ( const Common::CodeLocation& where, const std::string& what);
 }; // end class OSystem
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 /// Represents the operating system
 /// @author Tiago Quintino
@@ -39,10 +39,10 @@ public: // methods
   static OSystem& getInstance();
 
   /// @return ProcessInfo object
-  Common::SafePtr<Common::ProcessInfo> getProcessInfo(); 
-  
+  Common::SafePtr<Common::ProcessInfo> getProcessInfo();
+
   /// @return SignalHandler object
-  Common::SafePtr<Common::SignalHandler> getSignalHandler(); 
+  Common::SafePtr<Common::SignalHandler> getSignalHandler();
 
   /// @return LibLoader object
   Common::SafePtr<Common::LibLoader> getLibLoader();
@@ -50,7 +50,7 @@ public: // methods
   /// Executes the command passed in the string
   /// @todo should return the output of the command but not yet implemented.
   void executeCommand (const std::string& call);
-  
+
 private: // functions
 
   /// constructor
@@ -69,11 +69,11 @@ private: // data
 
 }; // class FileHandlerOutput
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
   } // namespace Common
 } // namespace CF
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_Common_OSystem_hh

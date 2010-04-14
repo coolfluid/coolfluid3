@@ -1,6 +1,6 @@
 #include <boost/tokenizer.hpp>
 
-#include "Common/CPath.hh"
+#include "Common/CPath.hpp"
 
 namespace CF {
 namespace Common {

@@ -1,8 +1,8 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Log.hh"
-#include "Common/Component.hh"
+#include "Common/Log.hpp"
+#include "Common/Component.hpp"
 
 using namespace std;
 using namespace boost;

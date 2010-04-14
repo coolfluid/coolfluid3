@@ -1,5 +1,5 @@
-#include "Common/LogLevel.hh"
-#include "Common/LogLevelFilter.hh"
+#include "Common/LogLevel.hpp"
+#include "Common/LogLevelFilter.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -8,7 +8,7 @@ LogLevelFilter::LogLevelFilter(LogLevel level)
 : m_logLevel(level),
 m_currentLogLevel(level)
 {
-  
+
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

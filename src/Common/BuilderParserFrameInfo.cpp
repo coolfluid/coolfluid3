@@ -1,6 +1,6 @@
 #include "Common/xmlParser.h"
 
-#include "Common/BuilderParserFrameInfo.hh"
+#include "Common/BuilderParserFrameInfo.hpp"
 
 #include <iostream>
 
@@ -10,7 +10,7 @@ using namespace CF::Common;
 
 BuilderParserFrameInfo::BuilderParserFrameInfo()
 {
- 
+
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -18,8 +18,8 @@ BuilderParserFrameInfo::BuilderParserFrameInfo()
 
 void BuilderParserFrameInfo::setFrameType(unsigned int frameType)
 {
- this->clear();
- this->frameType = frameType;
+this->clear();
+this->frameType = frameType;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -27,8 +27,8 @@ void BuilderParserFrameInfo::setFrameType(unsigned int frameType)
 
 void BuilderParserFrameInfo::clear()
 {
- this->frameAttributes.clear();
- this->frameData.deleteNodeContent();
+this->frameAttributes.clear();
+this->frameData.deleteNodeContent();
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -36,29 +36,29 @@ void BuilderParserFrameInfo::clear()
 
 string BuilderParserFrameInfo::getAttribute(const string & attrName, bool * ok) const
 {
- map<string, string>::const_iterator it = this->frameAttributes.find(attrName);
- bool found = it != this->frameAttributes.end() && it->first == attrName;
- 
- if(ok != CFNULL)
+map<string, string>::const_iterator it = this->frameAttributes.find(attrName);
+bool found = it != this->frameAttributes.end() && it->first == attrName;
+
+if(ok != CFNULL)
   *ok = found;
- 
- if(found)
+
+if(found)
   return it->second;
- 
- return "";
+
+return "";
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool BuilderParserFrameInfo::isAttributeSet(const string & attrName, 
+bool BuilderParserFrameInfo::isAttributeSet(const string & attrName,
                                             bool emptyAllowed) const
 {
- bool ok;
- string value = this->getAttribute(attrName, &ok);
- 
- if(!ok)
+bool ok;
+string value = this->getAttribute(attrName, &ok);
+
+if(!ok)
   return false;
- 
- return emptyAllowed || !value.empty();
+
+return emptyAllowed || !value.empty();
 }

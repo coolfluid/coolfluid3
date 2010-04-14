@@ -113,7 +113,6 @@ void CloseConfirmationPanel::setWidgetBesideButtons(QWidget * widget)
     m_buttonsLayout->addWidget(widget, 0, 0);
 }
 
-/****************************************************************************
  
  SLOTS
  

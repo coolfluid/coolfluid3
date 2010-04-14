@@ -14,8 +14,8 @@
 
 #include <stdio.h>
 
-#include "Common/Log.hh"
-#include "Common/PE.hh"
+#include "Common/Log.hpp"
+#include "Common/PE.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -37,7 +37,7 @@ Logger::Logger()
 Logger::~Logger()
 {
   std::map<StreamType, LogStream *>::iterator it;
-  
+
   for(it = m_streams.begin() ; it != m_streams.end() ; it++)
     delete it->second;
 }
@@ -108,26 +108,26 @@ void Logger::openFiles()
   {
     std::ostringstream logFile;
     std::ostringstream traceFile;
-    
+
     iostreams::file_descriptor_sink fdLogFile;
     iostreams::file_descriptor_sink fdTraceFile;
-    
+
     int rank = PE::getInstance().get_rank();
-    
+
     filesystem::remove(logFile.str());
     filesystem::remove(traceFile.str());
 
     logFile << "output-p" << rank << ".log";
     traceFile << "output-p" << rank << ".trace";
-    
+
     fdLogFile = iostreams::file_descriptor_sink(logFile.str());
-	fdTraceFile = iostreams::file_descriptor_sink(traceFile.str());
-    
+fdTraceFile = iostreams::file_descriptor_sink(traceFile.str());
+
     // setFiles
     m_streams[INFO]->setFile(fdLogFile);
     m_streams[ERROR]->setFile(fdLogFile);
     m_streams[WARN]->setFile(fdLogFile);
     m_streams[DEBUG]->setFile(fdLogFile);
     m_streams[TRACE]->setFile(fdTraceFile);
-  }			 
+  }
 }

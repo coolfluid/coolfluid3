@@ -140,7 +140,6 @@ bool CloseConfirmationDialog::show(CloseConfirmationInfos & infos)
   return m_okClicked;
 }
 
-/****************************************************************************
  
  SLOTS
  

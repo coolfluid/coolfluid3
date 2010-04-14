@@ -130,7 +130,6 @@ void SaveConfirmationPanel::hideComponents(bool hide)
   CloseConfirmationPanel::hideComponents(hide);
 }
 
-/****************************************************************************
  
  PRIVATE METHODS
  

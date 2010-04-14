@@ -34,7 +34,6 @@ ClientKernel::~ClientKernel()
   //  delete this->timer;
 }
 
-/****************************************************************************
  
  PUBLIC METHODS/FUNCTIONS
  

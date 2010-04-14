@@ -1,7 +1,7 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
-#include "Common/CPath.hh"
+#include "Common/CPath.hpp"
 
 using namespace std;
 using namespace boost;
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE( concatenation )
   CPath p1 ( "dir2/dir3" );
   CPath p2 = p0 / p1;
   BOOST_CHECK_EQUAL( std::strcmp( p2.string().c_str(), "/root/dir1/dir2/dir3" ), 0 );
-  
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

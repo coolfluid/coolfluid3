@@ -1,6 +1,6 @@
 #include <QString>
 
-#include "GUI/Network/HostInfos.hh"
+#include "GUI/Network/HostInfos.hpp"
 
 using namespace CF::GUI::Network;
 

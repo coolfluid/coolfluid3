@@ -1,24 +1,24 @@
 #ifndef GLOBALREDUCEMPI_HH
 #define GLOBALREDUCEMPI_HH
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 
-#include "Common/CF.hh"
+#include "Common/CF.hpp"
 
 #include <mpi.h>
 
-#include "Common/MPI/MPIInitObject.hh"
-#include "Common/PE.hh"
-#include "Common/NonCopyable.hh"
-#include "Common/GlobalReduce.hh"
-#include "Common/MPI/DataTypeHandler.hh"
+#include "Common/MPI/MPIInitObject.hpp"
+#include "Common/PE.hpp"
+#include "Common/NonCopyable.hpp"
+#include "Common/GlobalReduce.hpp"
+#include "Common/MPI/DataTypeHandler.hpp"
 
 namespace CF {
 namespace Common  {
 namespace MPI  {
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 /// The moment you instantiate this class the PE should be initialised
 /// (and it should be freed before the PE is stopped)!
@@ -77,11 +77,11 @@ private: // variables
       virtual ~RegisterHelper ()
       {
           if (Registered_)
-          throw Common::MPIException (FromHere(), "GlobalReduce: RegisterHelper: "
+          throw Common::MPI (FromHere(), "GlobalReduce: RegisterHelper: "
         "destructor called before MPI_Done was called on "
         "this object!\n");
           if (UserCount_)
-          throw Common::MPIException (FromHere(), "GlobalReduce: RegisterHelper: "
+          throw Common::MPI (FromHere(), "GlobalReduce: RegisterHelper: "
         "destructor called on this object while our parent "
         "GlobalReduce object is still using the function!\n");
       }
@@ -96,9 +96,9 @@ private: // variables
       virtual void MPI_Done ()
       {
           if (!Registered_)
-              throw Common::MPIException (FromHere(), "MPI_Done called before MPI_Init!!\n");
+              throw Common::MPI (FromHere(), "MPI_Done called before MPI_Init!!\n");
           if (UserCount_)
-              throw Common::MPIException (FromHere(), "GlobalReduce: RegisterHelper: "
+              throw Common::MPI (FromHere(), "GlobalReduce: RegisterHelper: "
                     "destructor called on this object while the parent "
                     "GlobalReduce object is still using the function!\n");
 
@@ -119,7 +119,7 @@ private: // variables
       MPI_Op GetOperation ()
       {
           if (!Registered_)
-          throw Common::MPIException
+          throw Common::MPI
               (FromHere(), "GlobalReduce::RegisterHelper: GetOperation called"
             " before the PE called MPI_Init!\n");
           return OperationHandle_;
@@ -135,7 +135,7 @@ private: // variables
 
 }; // class GlobalReduce
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 template <typename PROVIDER>
 typename GlobalReduce<PROVIDER,Common::PM_MPI>::RegisterHelper *
@@ -201,12 +201,12 @@ void GlobalReduce<PROVIDER, Common::PM_MPI>::UnRegister ()
     Helper_->UnRegisterUser ();
 }
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 template <typename TAGCLASS, typename BASETYPE>
 class GR_CombineHelper;
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 template <typename BASETYPE>
 class GR_CombineHelper<GRO_SUM,BASETYPE>
@@ -218,7 +218,7 @@ public:
     }
 };
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 template <typename BASETYPE>
 class GR_CombineHelper<GRO_MAX,BASETYPE>
@@ -226,11 +226,11 @@ class GR_CombineHelper<GRO_MAX,BASETYPE>
 public:
     static void DoOperation (const BASETYPE & S1, const BASETYPE & S2, BASETYPE & Out)
     {
-       Out = std::max(S1,S2);
+      Out = std::max(S1,S2);
     }
 };
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 template <typename BASETYPE>
 class GR_CombineHelper<GRO_MIN,BASETYPE>
@@ -238,11 +238,11 @@ class GR_CombineHelper<GRO_MIN,BASETYPE>
 public:
     static void DoOperation (const BASETYPE & S1, const BASETYPE & S2, BASETYPE & Out)
     {
-       Out = std::min(S1,S2);
+      Out = std::min(S1,S2);
     }
 };
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 template <typename TAGCLASS, typename BASETYPE>
 class GlobalReduceOperationHelperFuncs
@@ -271,7 +271,7 @@ private:
 
 };
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 /*
 template <>
@@ -281,7 +281,7 @@ void GlobalReduceOperationMPI<GRO_SUM, MPI_INT> (int * S, int * D, int Count)
     Common::PE::GetPE().GetCommunicator());
 }*/
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 
 /// Default (non MPI specialized)
@@ -297,7 +297,7 @@ public:
     }
 };
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 } // MPI
 } // Common

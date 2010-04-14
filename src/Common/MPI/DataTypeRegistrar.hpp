@@ -5,7 +5,7 @@
 
 #include <typeinfo>
 
-#include "Common/Log.hh"
+#include "Common/Log.hpp"
 
 //#ifndef CFinfo
 // #error CFinfo is defined
@@ -14,28 +14,27 @@
 //#endif
 
 /*
- * UNSAFE_MPITYPES enables generic MPI Type registration code.
- * This means MPI no longer 'knows' the exact meaning of the data,
- * but will consider it as meaningless bytes.
- *
- * This shouldn't be a problem when staying within one architecture within
- * the cluster...
- *
- */
+* UNSAFE_MPITYPES enables generic MPI Type registration code.
+* This means MPI no longer 'knows' the exact meaning of the data,
+* but will consider it as meaningless bytes.
+*
+* This shouldn't be a problem when staying within one architecture within
+* the cluster...
+*
 
 #define UNSAFE_MPITYPES
 
 #ifdef UNSAFE_MPITYPES
-#include "Common/MPI/DataTypeRegistrar_Helper.hh"
+#include "Common/MPI/DataTypeRegistrar_Helper.hpp"
 #endif
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace Common  {
 namespace MPI  {
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 #ifndef UNSAFE_MPITYPES
 //=========================== SAFE MPI Types ==========================
@@ -70,7 +69,7 @@ public:
     virtual void Register (MPI_Comm Comm)
     {
       //CFinfo << "DataTypeRegistrar(generic): Registering type " <<
-//        typeid(T).name() << " of size " << sizeof (T) << 
+//        typeid(T).name() << " of size " << sizeof (T) <<
 //        '\n';
       MPI_Type_contiguous (sizeof (T), MPI_BYTE, &TheType);
       MPI_Type_commit (&TheType);
@@ -105,7 +104,7 @@ REGISTRAR_TYPE(unsigned int,MPI_UNSIGNED)
 REGISTRAR_TYPE(long, MPI_LONG)
 REGISTRAR_TYPE(unsigned long, MPI_LONG)
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 } // MPI
 } // Common

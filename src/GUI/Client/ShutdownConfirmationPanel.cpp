@@ -1,7 +1,7 @@
 #include <QtGui>
 
-#include "GUI/Client/CloseConfirmationInfos.hh"
-#include "GUI/Client/ShutdownConfirmationPanel.hh"
+#include "GUI/Client/CloseConfirmationInfos.hpp"
+#include "GUI/Client/ShutdownConfirmationPanel.hpp"
 
 using namespace CF::GUI::Client;
 
@@ -9,18 +9,18 @@ ShutdownConfirmationPanel::ShutdownConfirmationPanel(QDialog * parent)
 : CloseConfirmationPanel("Shutdown the server", parent)
 {
   m_comboBox = new QComboBox(this);
-  
+
   this->setText("The server is still running. <i>What do you want to do?</i>");
-  
+
   this->setHelp("If you choose to shutdown the server while a simulation is "
                 "running, the simulation will be stopped and data may be lost.");
-  
+
   m_comboBox->addItem("--> [ Select an item ] <--");
   m_comboBox->addItem("Keep the server running");
   m_comboBox->addItem("Shutdown the server");
-  
+
   this->addWidget(m_comboBox);
-  
+
   this->hideComponents(true);
 }
 
@@ -56,7 +56,7 @@ void ShutdownConfirmationPanel::setData(const CloseConfirmationInfos & infos)
 {
   if(infos.shutdownServerRequested)
     m_comboBox->setCurrentIndex(2);
-  
+
   else
     m_comboBox->setCurrentIndex(0);
 }

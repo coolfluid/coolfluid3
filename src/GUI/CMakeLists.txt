@@ -16,12 +16,12 @@ IF (QT4_FOUND)
 
   # Add useful macros and variables
   INCLUDE( ${QT_USE_FILE} )
-  
+
   # sub project dirs
   INCLUDE_DIRECTORIES ( ${CMAKE_SOURCE_DIR} ${QT_INCLUDES} )
 
   ADD_SUBDIRECTORY ( Client )
   ADD_SUBDIRECTORY ( Network )
   #ADD_SUBDIRECTORY ( Server )
-  
+
 ENDIF()

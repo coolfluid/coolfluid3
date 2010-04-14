@@ -11,9 +11,9 @@
 ///       --> Seems like Meshreader relies on it!! (strange)
 
 
-#include "Common/BigAllocator.hh"
-#include "Common/Obj_Helper.hh"
-#include "Common/CFLog.hh"
+#include "Common/BigAllocator.hpp"
+#include "Common/Obj_Helper.hpp"
+#include "Common/CFLog.hpp"
 
 namespace CF {
     namespace Common {

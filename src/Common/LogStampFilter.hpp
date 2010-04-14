@@ -1,13 +1,13 @@
 #ifndef CF_Common_LogStrampFilter_hh
 #define CF_Common_LogStrampFilter_hh
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/BoostIostreams.hh"
+#include "Common/BoostIostreams.hpp"
 
-#include "Common/CommonAPI.hh"
-#include "Common/StringOps.hh"
-#include "Common/PE.hh"
+#include "Common/CommonAPI.hpp"
+#include "Common/StringOps.hpp"
+#include "Common/PE.hpp"
 
 using namespace boost;
 
@@ -17,7 +17,7 @@ namespace Common {
 class StringOps;
 class CodeLocation;
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 /// @brief Prepends a stamp to the log messages.
 
@@ -82,7 +82,7 @@ class Common_API LogStampFilter
     if(m_newMessage)
     {
     std::string stamp = m_stamp;
-    
+
     algorithm::replace_all(stamp, "%time%", "TIME");
     algorithm::replace_all(stamp, "%type%", m_streamName);
     algorithm::replace_all(stamp, "%place%", m_place.short_str());
@@ -118,11 +118,11 @@ class Common_API LogStampFilter
 
 }; // class LogStampFilter
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 } // namespace Common
 } // namespace CF
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_Common_LogStrampFilter_hh

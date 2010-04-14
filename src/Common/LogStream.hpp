@@ -1,18 +1,18 @@
 #ifndef CF_Common_LogStream_hh
 #define CF_Common_LogStream_hh
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 #include <sstream>
 
-#include "Common/BoostIostreams.hh"
+#include "Common/BoostIostreams.hpp"
 
-#include "Common/CF.hh"
-#include "Common/LogStringForwarder.hh"
-#include "Common/CodeLocation.hh"
-#include "Common/StringOps.hh"
-#include "Common/PE.hh"
-#include "Common/MPI/PE_MPI.hh"
+#include "Common/CF.hpp"
+#include "Common/LogStringForwarder.hpp"
+#include "Common/CodeLocation.hpp"
+#include "Common/StringOps.hpp"
+#include "Common/PE.hpp"
+#include "Common/MPI/PE_MPI.hpp"
 
 namespace CF {
 
@@ -24,7 +24,7 @@ class LogStampFilter;
 class LogStringForwarder;
 class PE;
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 /// @brief Manages a log stream.
 
@@ -60,7 +60,7 @@ class Common_API LogStream
     /// @brief Standard output (with MPI synchronization)
     SYNC_SCREEN = 8
   };
-  
+
 
   /// @brief Constructor
 
@@ -107,28 +107,28 @@ class Common_API LogStream
 
     for(it = m_destinations.begin() ; it != m_destinations.end() ; it++)
     {
-     if(it->first != SYNC_SCREEN && this->isDestinationUsed(it->first) && 
+    if(it->first != SYNC_SCREEN && this->isDestinationUsed(it->first) &&
         ( PE::getInstance().get_rank() == 0 || !m_filterRankZero[it->first]))
-     {
+    {
       *(it->second) << t;
       m_flushed = false;
-     }
-     else if(it->first != SYNC_SCREEN && PE::getInstance().is_init()
+    }
+    else if(it->first != SYNC_SCREEN && PE::getInstance().is_init()
         && this->isDestinationUsed(it->first))
-     {
+    {
       for( Uint i = 0 ; i < PE::interface().get_procesor_count(); ++i )
       {
         PE::interface().set_barrier();
-        
+
         if(i == PE::getInstance().get_rank())
         {
          *(it->second) << t;
          m_flushed = false;
         }
       }
-      
-     }
-     
+
+    }
+
     }
     return *this;
   }
@@ -210,10 +210,10 @@ class Common_API LogStream
   /// @param filterRankZero If @c true, the filter is set to "enabled";
   /// otherwise, it is set to "disabled".
   void setFilterRankZero(bool filterRankZero);
-  
-  /// @brief Checks whether the filter for rank 0 is set on the specified 
+
+  /// @brief Checks whether the filter for rank 0 is set on the specified
   /// destination.
-  
+
   /// @param dest The destination to check
   /// @return Returns @c true if the filter is set; otherwise, returns @c false.
   bool getFilterRankZero(LogDestination dest) const;
@@ -252,11 +252,11 @@ class Common_API LogStream
   /// @param forwarder The forwarder to remove.
   /// @see addStringForwarder
   void removeStringForwarder(LogStringForwarder * forwarder);
-  
+
   /// @brief Gives the number of string forwarders the stream contains
-  
+
   /// @return Returns the number of string forwarders.
-  int getStringForwarderCount() const;  
+  int getStringForwarderCount() const;
 
   private:
 
@@ -313,12 +313,12 @@ class Common_API LogStream
 
 }; // class LogStream
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 } // namespace Common
 
 } // namespace CF
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_Common_LogStream_hh

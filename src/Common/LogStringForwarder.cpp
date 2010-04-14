@@ -1,13 +1,13 @@
-#include "Common/LogStringForwarder.hh"
+#include "Common/LogStringForwarder.hpp"
 
 namespace CF{
 namespace Common{
-    
+
     //////////////////////////////////////////////////////////////////////////////
-    
+
     LogStringForwarder::LogStringForwarder() {}
-    
+
     //////////////////////////////////////////////////////////////////////////////
-    
+
   } // Common
 } // CF

@@ -1,7 +1,7 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
-#include "Common/OSystem.hh"
+#include "Common/OSystem.hpp"
 
 using namespace std;
 using namespace CF;
@@ -11,18 +11,18 @@ struct OSystem_Fixture
 {
   /// common setup for each test case
   OSystem_Fixture()
-  {    
+  {
   }
-  
+
   /// common tear-down for each test case
   ~OSystem_Fixture()
   {
   }
-  
+
   /// possibly common functions used on the tests below
-  
+
   /// common values accessed by all tests goes here
-  
+
 };
 
 BOOST_FIXTURE_TEST_SUITE( OSystem_TestSuite, OSystem_Fixture )
@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE( executeCommand )
   // should exit normally
   BOOST_CHECK_NO_THROW( OSystem::getInstance().executeCommand("echo"));
   // the command does *normally* not exist, should throw an exception
-  /// @todo find a command that throws an exception 
+  /// @todo find a command that throws an exception
   //BOOST_CHECK_THROW( OSystem::getInstance().executeCommand("cd /aDirThatDoesNotExist"), OSystemError);
 }
 

@@ -128,7 +128,6 @@ void LoggingList::appendToLog(const QString & string, LogMessageType type)
   }
 }
 
-/****************************************************************************
  
  PUBLIC SLOTS
  

@@ -1,24 +1,23 @@
 #ifndef DataTypeHANDLER_HH
 #define DataTypeHANDLER_HH
 
-/*****************************************************************
- *  This class handles correct initialisation and destruction    *
- *  of the registered datatypes                                  *
- *****************************************************************/
+*  This class handles correct initialisation and destruction    *
+*  of the registered datatypes                                  *
+*****************************************************************/
 
 #include <mpi.h>
-#include "Common/MPI/DataTypeRegistrar.hh"
-#include "Common/MPI/DataType.hh"
+#include "Common/MPI/DataTypeRegistrar.hpp"
+#include "Common/MPI/DataType.hpp"
 
 #include <set>
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace Common  {
 namespace MPI  {
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 /// This class handles correct initialisation and destruction
 /// of the registered datatypes
@@ -58,7 +57,7 @@ private:
 
 }; // end class DataTypeHandler
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
 MPI_Datatype DataTypeHandler::GetType ()
@@ -67,7 +66,7 @@ MPI_Datatype DataTypeHandler::GetType ()
     return TheRegistrar.GetType ();
 }
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 } // MPI
 } // Common

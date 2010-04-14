@@ -1,24 +1,24 @@
 #include <string>
 
-#include "Common/CodeLocation.hh"
+#include "Common/CodeLocation.hpp"
 
-#include "GUI/Network/MalformedDataException.hh"
+#include "GUI/Network/MalformedData.hpp"
 
 using namespace CF::Common;
 using namespace CF::GUI::Network;
 
-MalformedDataException::MalformedDataException(const CodeLocation& where, 
-                                               const std::string& what) 
-: Exception(where, what, "MalformedDataException") 
+MalformedData::MalformedDataException(const CodeLocation& where,
+                                               const std::string& what)
+: Exception(where, what, "MalformedData")
 {
-  
+
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-MalformedDataException::MalformedDataException(const MalformedDataException& e) throw() 
-: Exception(e) 
+MalformedData::MalformedDataException(const MalformedDataException& e) throw()
+: Exception(e)
 {
-  
+
 }

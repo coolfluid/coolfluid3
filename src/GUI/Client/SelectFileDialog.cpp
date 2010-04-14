@@ -105,7 +105,6 @@ void SelectFileDialog::clearFileTypes()
   m_extensions.clear();
 }
 
-/****************************************************************************
  
  SLOT
  

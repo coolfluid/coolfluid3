@@ -1,82 +1,82 @@
 CF_FIND_ORPHAN_FILES()
 
-LIST ( APPEND Common_files 
-     ArrayAllocator.hh
-     AssertionManager.cxx
-     AssertionManager.hh
-     BasicExceptions.cxx
-     BasicExceptions.hh
-     BigAllocator.hh
-     BoostIostreams.hh
-     BuilderParser.cxx
-     BuilderParser.hh
-     BuilderParserFrameInfo.cxx
-     BuilderParserFrameInfo.hh
-     BuilderParserMandType.hh
-     BuilderParserRules.cxx
-     BuilderParserRules.hh
-     CF.hh
-     CodeLocation.cxx
-     CodeLocation.hh
-     CommonAPI.hh
-     Component.hh
-     Component.cxx
-     CPath.hh
-     CPath.cxx
-     ConfigArgs.cxx
-     ConfigArgs.hh
-     ConverterTools.cxx
-     ConverterTools.hh
-     DemangledTypeID.cxx
-     DemangledTypeID.hh
-     EnumT.hh
-     Exception.cxx
-     Exception.hh
-     ExportAPI.hh
-     HourMinSec.cxx
-     HourMinSec.hh
-     LibLoader.cxx
-     LibLoader.hh
-     Log.cxx
-     Log.hh
-     LogLevel.hh
-     LogLevelFilter.cxx
-     LogLevelFilter.hh
-     LogStampFilter.cxx
-     LogStampFilter.hh
-     LogStream.cxx
-     LogStream.hh
-     LogStringForwarder.hh
-     LogStringForwarder.cxx
-     MemoryAllocator.hh
-     MemoryAllocatorNormal.cxx
-     MemoryAllocatorNormal.hh
-     NonCopyable.hh
-     NonInstantiable.hh
-     OSystem.cxx
-     OSystem.hh
-     OwnedObject.hh
-     PE.cxx
-     PE.hh
-     PEInterface.cxx
-     PEInterface.hh
-     ProcessInfo.cxx
-     ProcessInfo.hh
-     ProviderBase.cxx
-     ProviderBase.hh
-     PtrAlloc.hh
-     SafePtr.hh
-     SelfRegistPtr.hh
-     SignalHandler.cxx
-     SignalHandler.hh
-     Stopwatch.hh
-     StringOps.hh
-     TimePolicies.cxx
-     TimePolicies.hh
-     WorkerStatus.cxx
-     WorkerStatus.hh
-     xmlParser.cpp
-     xmlParser.h
+LIST ( APPEND Common_files
+    ArrayAllocator.hpp
+    AssertionManager.cpp
+    AssertionManager.hpp
+    BasicExceptions.cpp
+    BasicExceptions.hpp
+    BigAllocator.hpp
+    BoostIostreams.hpp
+    BuilderParser.cpp
+    BuilderParser.hpp
+    BuilderParserFrameInfo.cpp
+    BuilderParserFrameInfo.hpp
+    BuilderParserMandType.hpp
+    BuilderParserRules.cpp
+    BuilderParserRules.hpp
+    CF.hpp
+    CodeLocation.cpp
+    CodeLocation.hpp
+    CommonAPI.hpp
+    Component.hpp
+    Component.cpp
+    CPath.hpp
+    CPath.cpp
+    ConfigArgs.cpp
+    ConfigArgs.hpp
+    ConverterTools.cpp
+    ConverterTools.hpp
+    DemangledTypeID.cpp
+    DemangledTypeID.hpp
+    EnumT.hpp
+    Exception.cpp
+    Exception.hpp
+    ExportAPI.hpp
+    HourMinSec.cpp
+    HourMinSec.hpp
+    LibLoader.cpp
+    LibLoader.hpp
+    Log.cpp
+    Log.hpp
+    LogLevel.hpp
+    LogLevelFilter.cpp
+    LogLevelFilter.hpp
+    LogStampFilter.cpp
+    LogStampFilter.hpp
+    LogStream.cpp
+    LogStream.hpp
+    LogStringForwarder.hpp
+    LogStringForwarder.cpp
+    MemoryAllocator.hpp
+    MemoryAllocatorNormal.cpp
+    MemoryAllocatorNormal.hpp
+    NonCopyable.hpp
+    NonInstantiable.hpp
+    OSystem.cpp
+    OSystem.hpp
+    OwnedObject.hpp
+    PE.cpp
+    PE.hpp
+    PEInterface.cpp
+    PEInterface.hpp
+    ProcessInfo.cpp
+    ProcessInfo.hpp
+    ProviderBase.cpp
+    ProviderBase.hpp
+    PtrAlloc.hpp
+    SafePtr.hpp
+    SelfRegistPtr.hpp
+    SignalHandler.cpp
+    SignalHandler.hpp
+    Stopwatch.hpp
+    StringOps.hpp
+    TimePolicies.cpp
+    TimePolicies.hpp
+    WorkerStatus.cpp
+    WorkerStatus.hpp
+    xmlParser.cpp
+    xmlParser.h
 )
 
 LIST(APPEND Common_libs ${Boost_LIBRARIES})
@@ -84,33 +84,33 @@ LIST(APPEND Common_libs ${Boost_LIBRARIES})
 ###############################################################################
 # MPI Files
 IF(CF_HAVE_MPI)
- LIST(APPEND Common_files
-      MPI/CommIteratorBase.hh
-      MPI/CommPattern.cxx
-      MPI/CommPattern.hh
-      MPI/GlobalReduceMPI.hh
-      MPI/DataType.hh
-      MPI/DataType.cxx
-      MPI/DataTypeHandler.cxx
-      MPI/DataTypeHandler.hh
-      MPI/DataTypeRegistrar_Helper.cxx
-      MPI/DataTypeRegistrar_Helper.hh
-      MPI/DataTypeRegistrar.hh
-      MPI/HelperFuncs.cxx
-      MPI/HelperFuncs.hh
-      MPI/MPIInitObject.hh
-      MPI/MPIStructDef.hh
-      MPI/ParVectorMPI.hh
-      MPI/PE_MPI.cxx
-      MPI/PE_MPI.hh
- )
+LIST(APPEND Common_files
+      MPI/CommIteratorBase.hpp
+      MPI/CommPattern.cpp
+      MPI/CommPattern.hpp
+      MPI/GlobalReduceMPI.hpp
+      MPI/DataType.hpp
+      MPI/DataType.cpp
+      MPI/DataTypeHandler.cpp
+      MPI/DataTypeHandler.hpp
+      MPI/DataTypeRegistrar_Helper.cpp
+      MPI/DataTypeRegistrar_Helper.hpp
+      MPI/DataTypeRegistrar.hpp
+      MPI/HelperFuncs.cpp
+      MPI/HelperFuncs.hpp
+      MPI/MPIInitObject.hpp
+      MPI/MPIStructDef.hpp
+      MPI/ParVectorMPI.hpp
+      MPI/PE_MPI.cpp
+      MPI/PE_MPI.hpp
+)
 ENDIF()
 
 ###############################################################################
 # MMap allocation
-LIST ( APPEND OPTIONAL_dirfiles MemoryAllocatorMMap.hh MemoryAllocatorMMap.cxx )
+LIST ( APPEND OPTIONAL_dirfiles MemoryAllocatorMMap.hpp MemoryAllocatorMMap.cpp )
 IF(CF_HAVE_ALLOC_MMAP AND CF_HAVE_UNISTD_H )
-  LIST(APPEND Common_files MemoryAllocatorMMap.hh MemoryAllocatorMMap.cxx )
+  LIST(APPEND Common_files MemoryAllocatorMMap.hpp MemoryAllocatorMMap.cpp )
 ENDIF()
 
 ###############################################################################
@@ -120,28 +120,28 @@ ENDIF()
 IF (UNIX)
 
   IF ( CF_HAVE_DLOPEN )
-    LIST ( APPEND Common_files PosixDlopenLibLoader.hh PosixDlopenLibLoader.cxx )
+    LIST ( APPEND Common_files PosixDlopenLibLoader.hpp PosixDlopenLibLoader.cpp )
     LIST ( APPEND Common_libs  dl )
     SET ( CF_HAVE_LIBLOADER ON )
   ENDIF()
 
   IF    ( CF_OS_MACOSX )
-    LIST ( APPEND Common_files MacOSX/SignalHandler.hh MacOSX/SignalHandler.cxx )
-    LIST ( APPEND Common_files MacOSX/ProcessInfo.hh   MacOSX/ProcessInfo.cxx )
+    LIST ( APPEND Common_files MacOSX/SignalHandler.hpp MacOSX/SignalHandler.cpp )
+    LIST ( APPEND Common_files MacOSX/ProcessInfo.hpp   MacOSX/ProcessInfo.cpp )
   ENDIF ()
 
   IF    ( CF_OS_LINUX )
-    LIST ( APPEND Common_files Linux/ProcessInfo.hh   Linux/ProcessInfo.cxx )
-    LIST ( APPEND Common_files Linux/SignalHandler.hh Linux/SignalHandler.cxx )
+    LIST ( APPEND Common_files Linux/ProcessInfo.hpp   Linux/ProcessInfo.cpp )
+    LIST ( APPEND Common_files Linux/SignalHandler.hpp Linux/SignalHandler.cpp )
   ENDIF ()
 
 ENDIF(UNIX)
 
 ### WINDOWS ####
 IF (WIN32)
-  
-  LIST ( APPEND Common_files Win32/ProcessInfo.hh   Win32/ProcessInfo.cxx )
-  LIST ( APPEND Common_files Win32/SignalHandler.hh Win32/SignalHandler.cxx )
+
+  LIST ( APPEND Common_files Win32/ProcessInfo.hpp   Win32/ProcessInfo.cpp )
+  LIST ( APPEND Common_files Win32/SignalHandler.hpp Win32/SignalHandler.cpp )
 
   # should search explicitly for dbghelp.dll
   # should search for psapi.dll if not in windows 7 (already in kernel32.dll)
@@ -150,7 +150,7 @@ IF (WIN32)
   LIST ( APPEND Common_libs dbghelp psapi )
 
   IF ( CF_HAVE_WINDOWSH )
-    LIST ( APPEND Common_files Win32/LibLoader.hh     Win32/LibLoader.cxx )
+    LIST ( APPEND Common_files Win32/LibLoader.hpp     Win32/LibLoader.cpp )
     SET ( CF_HAVE_LIBLOADER ON )
   ENDIF()
 
@@ -160,16 +160,16 @@ IF    ( NOT CF_HAVE_LIBLOADER )
   MESSAGE ( FATAL_ERROR "No dynamic library loader was found!")
 ENDIF()
 
-CF_MARK_NOT_ORPHAN ( 
-	PosixDlopenLibLoader.hh PosixDlopenLibLoader.cxx
-	MacOSX/SignalHandler.hh MacOSX/SignalHandler.cxx
-	MacOSX/ProcessInfo.hh   MacOSX/ProcessInfo.cxx
-	Linux/ProcessInfo.hh    Linux/ProcessInfo.cxx
-	Linux/SignalHandler.hh  Linux/SignalHandler.cxx
-	Win32/ProcessInfo.hh    Win32/ProcessInfo.cxx
-	Win32/SignalHandler.hh  Win32/SignalHandler.cxx
-	Win32/LibLoader.hh      Win32/LibLoader.cxx
-	MemoryAllocatorMMap.hh  MemoryAllocatorMMap.cxx
+CF_MARK_NOT_ORPHAN (
+PosixDlopenLibLoader.hpp PosixDlopenLibLoader.cpp
+MacOSX/SignalHandler.hpp MacOSX/SignalHandler.cpp
+MacOSX/ProcessInfo.hpp   MacOSX/ProcessInfo.cpp
+Linux/ProcessInfo.hpp    Linux/ProcessInfo.cpp
+Linux/SignalHandler.hpp  Linux/SignalHandler.cpp
+Win32/ProcessInfo.hpp    Win32/ProcessInfo.cpp
+Win32/SignalHandler.hpp  Win32/SignalHandler.cpp
+Win32/LibLoader.hpp      Win32/LibLoader.cpp
+MemoryAllocatorMMap.hpp  MemoryAllocatorMMap.cpp
 )
 
 SET  ( Common_kernellib TRUE )

@@ -1,5 +1,5 @@
-#include "Common/CF.hh"
-#include "Common/MemoryAllocatorMMap.hh"
+#include "Common/CF.hpp"
+#include "Common/MemoryAllocatorMMap.hpp"
 
 #include <unistd.h>
 #include <sys/mman.h>
@@ -7,20 +7,20 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 
     namespace Common {
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 MemoryAllocatorMMap::~MemoryAllocatorMMap ()
 {
   Free ();
 }
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 MemoryAllocatorMMap::MemoryAllocatorMMap (MA_Size InitialSize)
     : DataPtr(0),CurrentSize(0),FileDesc(-1)
@@ -28,7 +28,7 @@ MemoryAllocatorMMap::MemoryAllocatorMMap (MA_Size InitialSize)
     Alloc(InitialSize);
 }
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 MemoryAllocatorMMap::MA_Size MemoryAllocatorMMap::GetGranularity () const
 {
@@ -37,7 +37,7 @@ MemoryAllocatorMMap::MA_Size MemoryAllocatorMMap::GetGranularity () const
   return (int) sysconf(_SC_PAGESIZE);
 }
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 void MemoryAllocatorMMap::Alloc (MA_Size size)
 {
@@ -51,21 +51,21 @@ void MemoryAllocatorMMap::Alloc (MA_Size size)
   /* map /dev/zero */
   FileDesc = open ("/dev/zero", O_RDWR);
   if (FileDesc < 0)
-    throw MemoryAllocatorException (FromHere());
+    throw MemoryAllocator (FromHere());
 
   /* do memory mapping */
   DataPtr = mmap (0, size, PROT_READ|PROT_WRITE, MAP_PRIVATE, FileDesc, 0);
   if (DataPtr == MAP_FAILED)
   {
     DataPtr=0;
-    throw MemoryAllocatorException (FromHere());
+    throw MemoryAllocator (FromHere());
   }
   cf_assert (DataPtr!=0);
 
   CurrentSize = size;
 }
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 void MemoryAllocatorMMap::Free ()
 {
@@ -74,7 +74,7 @@ void MemoryAllocatorMMap::Free ()
 
   int Ret = munmap (DataPtr, CurrentSize);
   if (Ret < 0)
-    throw MemoryAllocatorException (FromHere());
+    throw MemoryAllocator (FromHere());
   DataPtr = 0;
 
   Ret = close (FileDesc);
@@ -83,7 +83,7 @@ void MemoryAllocatorMMap::Free ()
   CurrentSize = 0;
 }
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 MemoryAllocatorMMap::MA_Size MemoryAllocatorMMap::Resize (MA_Size NewSize)
 {
@@ -99,21 +99,21 @@ MemoryAllocatorMMap::MA_Size MemoryAllocatorMMap::Resize (MA_Size NewSize)
 
   MA_Ptr NewData = mremap (DataPtr, CurrentSize, NewSize, MREMAP_MAYMOVE);
   if (NewData == MA_Ptr(-1))
-    throw MemoryAllocatorException (FromHere());
+    throw MemoryAllocator (FromHere());
 
   CurrentSize = NewSize;
   DataPtr = NewData;
   return CurrentSize;
 }
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 bool MemoryAllocatorMMap::IsValid () const
 {
   return (FileDesc != -1);
 }
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 } // End namespace Common
 

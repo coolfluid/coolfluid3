@@ -1,11 +1,11 @@
 #include <QtCore>
 
-#include "GUI/Client/CommitDetailsItem.hh"
+#include "GUI/Client/CommitDetailsItem.hpp"
 
 using namespace CF::GUI::Client;
 
-CommitDetailsItem::CommitDetailsItem(const QString & optionName, 
-                                     const QString & oldValue, 
+CommitDetailsItem::CommitDetailsItem(const QString & optionName,
+                                     const QString & oldValue,
                                      const QString & currentValue)
 {
   m_optionName = optionName;
@@ -17,7 +17,7 @@ CommitDetailsItem::CommitDetailsItem(const QString & optionName,
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CommitDetailsItem::CommitDetailsItem(const QString & oldValue, 
+CommitDetailsItem::CommitDetailsItem(const QString & oldValue,
                                      const QString & currentValue)
 {
   m_optionName = m_optionName;

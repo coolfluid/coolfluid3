@@ -126,7 +126,6 @@ void ConnectionDialog::setSshInfos(const TSshInformation & sshInfos)
   m_spinPortNumber->setValue(sshInfos.port);
 }
 
-/****************************************************************************
  
  SLOTS
  
