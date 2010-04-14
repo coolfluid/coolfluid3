@@ -144,7 +144,7 @@ sub process ($)
 
       s/COOLFluiD_Common/CF_Common/;
       
-      s/Config::/Config::/g;
+      s/Config::/Common::/g;
       s/Config\//Common\//g;
       s/Config_API/Common_API/g;
       s/(CF|COOLFluiD)_Config/CF_Common/;
