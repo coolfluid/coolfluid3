@@ -51,14 +51,14 @@ void MemoryAllocatorMMap::Alloc (MA_Size size)
   /* map /dev/zero */
   FileDesc = open ("/dev/zero", O_RDWR);
   if (FileDesc < 0)
-    throw MemoryAllocator (FromHere());
+    throw MemoryAllocatorException (FromHere());
 
   /* do memory mapping */
   DataPtr = mmap (0, size, PROT_READ|PROT_WRITE, MAP_PRIVATE, FileDesc, 0);
   if (DataPtr == MAP_FAILED)
   {
     DataPtr=0;
-    throw MemoryAllocator (FromHere());
+    throw MemoryAllocatorException (FromHere());
   }
   cf_assert (DataPtr!=0);
 
@@ -74,7 +74,7 @@ void MemoryAllocatorMMap::Free ()
 
   int Ret = munmap (DataPtr, CurrentSize);
   if (Ret < 0)
-    throw MemoryAllocator (FromHere());
+    throw MemoryAllocatorException (FromHere());
   DataPtr = 0;
 
   Ret = close (FileDesc);
@@ -99,7 +99,7 @@ MemoryAllocatorMMap::MA_Size MemoryAllocatorMMap::Resize (MA_Size NewSize)
 
   MA_Ptr NewData = mremap (DataPtr, CurrentSize, NewSize, MREMAP_MAYMOVE);
   if (NewData == MA_Ptr(-1))
-    throw MemoryAllocator (FromHere());
+    throw MemoryAllocatorException (FromHere());
 
   CurrentSize = NewSize;
   DataPtr = NewData;

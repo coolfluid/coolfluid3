@@ -4,7 +4,7 @@
 #include <fenv.h>     // floating Common access
 #include <sstream>    // streamstring
 
-#include "Common/Basics.hpp"
+#include "Common/BasicExceptions.hpp"
 #include "Common/Linux/ProcessInfo.hpp"
 #include "Common/Linux/SignalHandler.hpp"
 
