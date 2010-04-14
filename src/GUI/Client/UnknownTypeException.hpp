@@ -13,16 +13,16 @@ namespace Client {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  class UnknownType : public CF::Common::Exception
+  class UnknownTypeException : public CF::Common::Exception
   {
     public:
 
     /// Constructor
-    UnknownType(const CF::Common::CodeLocation& where,
+    UnknownTypeException(const CF::Common::CodeLocation& where,
     const std::string& what);
 
     /// Copy constructor
-    UnknownType(const UnknownTypeException& e) throw ();
+    UnknownTypeException(const UnknownTypeException& e) throw ();
 
 
   }; // class UnknownType
