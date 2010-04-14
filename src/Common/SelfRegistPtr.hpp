@@ -6,7 +6,7 @@
 #include "Common/CF.hpp"
 
 #include "Common/ProviderBase.hpp"
-#include "Common/Basics.hpp"
+#include "Common/BasicExceptions.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 

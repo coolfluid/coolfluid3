@@ -8,18 +8,17 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-
-    namespace Common {
+namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Exception used in MemoryAllocator
 /// @author Dries Kimpe
-class  Common_API  MemoryAllocator : public Common::Exception {
+class  Common_API  MemoryAllocatorException : public Common::Exception {
 public:
 
   /// Constructor
-  MemoryAllocator (const Common::CodeLocation& where, const std::string& what = "Memory exhausted") :
+  MemoryAllocatorException (const Common::CodeLocation& where, const std::string& what = "Memory exhausted") :
     Common::Exception(where, what, "MemoryAllocator") {}
 
 }; // end class MemoryAllocator

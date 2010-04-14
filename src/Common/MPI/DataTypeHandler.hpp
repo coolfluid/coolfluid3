@@ -1,9 +1,8 @@
 #ifndef DataTypeHANDLER_HH
 #define DataTypeHANDLER_HH
 
-*  This class handles correct initialisation and destruction    *
-*  of the registered datatypes                                  *
-*****************************************************************/
+// This class handles correct initialisation and destruction
+// of the registered datatypes
 
 #include <mpi.h>
 #include "Common/MPI/DataTypeRegistrar.hpp"

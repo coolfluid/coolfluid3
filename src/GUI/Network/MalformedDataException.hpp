@@ -21,17 +21,17 @@ namespace Network {
 
   /// @author Quentin Gasper.
 
-  class Network_API MalformedData : public CF::Common::Exception
+  class Network_API MalformedDataException : public CF::Common::Exception
   {
 
     public:
 
     /// Constructor
-    MalformedData(const CF::Common::CodeLocation& where,
+    MalformedDataException(const CF::Common::CodeLocation& where,
                            const std::string& what);
 
     /// Copy constructor
-    MalformedData(const MalformedDataException& e) throw ();
+    MalformedDataException(const MalformedDataException& e) throw ();
 
   }; // class
 

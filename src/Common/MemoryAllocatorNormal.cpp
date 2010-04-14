@@ -17,7 +17,7 @@ MemoryAllocatorNormal::MemoryAllocatorNormal (MA_Size _initsize)
     _ptr=malloc(_initsize);
 
     if ( _ptr == NULL )
-    throw MemoryAllocator ( FromHere(), "Memory may have exhausted" );
+    throw MemoryAllocatorException ( FromHere(), "Memory may have exhausted" );
 
     _size=_initsize;
 }
@@ -41,7 +41,7 @@ MemoryAllocatorNormal::MA_Size MemoryAllocatorNormal::Resize(MA_Size _newsize)
   MA_Ptr NewPtr = realloc (_ptr, _newsize);
 
   if ( _newsize > 0 && NewPtr == NULL )
-    throw MemoryAllocator ( FromHere(), "Memory may have exhausted" );
+    throw MemoryAllocatorException ( FromHere(), "Memory may have exhausted" );
 
   _ptr = NewPtr;
   _size = _newsize;

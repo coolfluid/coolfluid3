@@ -3,7 +3,7 @@
 
 #include "Common/CommonAPI.hpp"
 #include "Common/AssertionManager.hpp"
-#include "Common/Basics.hpp"
+#include "Common/BasicExceptions.hpp"
 #include "Common/ProcessInfo.hpp"
 
 #include "Common/OSystem.hpp"

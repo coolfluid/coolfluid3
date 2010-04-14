@@ -1,4 +1,4 @@
- ****************************************************************************
+ /****************************************************************************
  * <P> XML.c - implementation file for basic XML parser written in ANSI C++
  * for portability. It works by using recursion and a node tree for breaking
  * down the elements of an XML document.  </P>

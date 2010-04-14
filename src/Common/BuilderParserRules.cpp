@@ -1,5 +1,5 @@
 #include "Common/BuilderParserRules.hpp"
-#include "Common/Basics.hpp"
+#include "Common/BasicExceptions.hpp"
 
 using namespace std;
 using namespace CF;
@@ -198,11 +198,6 @@ if(it != this->m_frameDataMand.end() && this->isValid(type))
 
 return mandType;
 }
-
-
-                              PRIVATE METHODS
-
-****************************************************************************/
 
 bool BuilderParserRules::check(unsigned int type, const string & str) const
 {

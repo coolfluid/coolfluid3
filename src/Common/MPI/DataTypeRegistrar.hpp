@@ -13,15 +13,13 @@
 // #error CFinfo is *not* defined
 //#endif
 
-/*
-* UNSAFE_MPITYPES enables generic MPI Type registration code.
-* This means MPI no longer 'knows' the exact meaning of the data,
-* but will consider it as meaningless bytes.
-*
-* This shouldn't be a problem when staying within one architecture within
-* the cluster...
-*
 
+/// UNSAFE_MPITYPES enables generic MPI Type registration code.
+/// This means MPI no longer 'knows' the exact meaning of the data,
+/// but will consider it as meaningless bytes.
+///
+///  This shouldn't be a problem when staying within one architecture within
+///  the cluster...
 #define UNSAFE_MPITYPES
 
 #ifdef UNSAFE_MPITYPES

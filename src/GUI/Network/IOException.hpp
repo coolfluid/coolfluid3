@@ -21,16 +21,16 @@ namespace Network {
 
   /// @author Quentin Gasper.
 
-  class Network_API IO : public CF::Common::Exception
+  class Network_API IOException : public CF::Common::Exception
   {
 
     public:
 
     /// Constructor
-    IO(const CF::Common::CodeLocation& where, const std::string& what);
+    IOException(const CF::Common::CodeLocation& where, const std::string& what);
 
     /// Copy constructor
-    IO(const IOException& e) throw ();
+    IOException(const IOException& e) throw ();
 
   }; // class IO
 

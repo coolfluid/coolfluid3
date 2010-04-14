@@ -1,13 +1,13 @@
 
 #include <QtCore>
 
-#include "GUI/Client/ClientNetworkComm.hh"
-#include "GUI/Client/GlobalLog.hh"
-#include "GUI/Network/NetworkFrameType.hh"
-#include "GUI/Client/StatusModel.hh"
-#include "GUI/Client/TSshInformation.hh"
+#include "GUI/Client/ClientNetworkComm.hpp"
+#include "GUI/Client/GlobalLog.hpp"
+#include "GUI/Network/NetworkFrameType.hpp"
+#include "GUI/Client/StatusModel.hpp"
+#include "GUI/Client/TSshInformation.hpp"
 
-#include "GUI/Client/ClientKernel.hh"
+#include "GUI/Client/ClientKernel.hpp"
 
 #define connectSig(comm,slotSig) connect(comm, SIGNAL(slotSig), this, SLOT(slotSig));
 
