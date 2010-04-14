@@ -7,12 +7,12 @@
 
 #include <boost/filesystem/path.hpp>
 
-#include "Common/ConfigArgs.hh"
+#include "Common/ConfigArgs.hpp"
 
-#include "GUI/Client/TreeItem.hh"
-#include "GUI/Client/TSshInformation.hh"
-#include "GUI/Client/TObjectProperties.hh"
-#include "GUI/Client/TreeModel.hh"
+#include "GUI/Client/TreeItem.hpp"
+#include "GUI/Client/TSshInformation.hpp"
+#include "GUI/Client/TObjectProperties.hpp"
+#include "GUI/Client/TreeModel.hpp"
 
 using namespace CF::Common;
 using namespace CF::GUI::Client;
