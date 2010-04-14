@@ -122,6 +122,15 @@ sub process ($)
       s/CFLog\./Log\./g;
       s/CFLogLevel\./LogLevel\./g;
 
+      s/CFLogNotice/CFinfo/g;
+      s/CFLogDebugMin/CFDebug/g;
+      s/CFLogDebugMed/CFDebugVerbose/g;
+      s/CFLogDebugMax/CFDebugVerbose/g;
+      s/CFLogNotice/CFinfo/g;
+      
+      s/CFLog(\s*)\((\s*)INFO(\s*)\,/CFLogInfo \( /g;
+      s/CFLog(\s*)\((\s*)VERBOSE(\s*)\,/CFLogInfo \( /g;
+
       s/Config::/Config::/g;
       s/Config\//Common\//g;
       s/namespace(\s+)Config/namespace Common/;
@@ -133,6 +142,11 @@ sub process ($)
       s/MathTools::/Math::/g;
       s/MathTools\//Math\//g;
       s/namespace(\s+)MathTools/namespace Math/;
+     
+      s/FailedCastException/CastingFailed/g;
+      s/FileFormatException/FileFormatError/g;
+      
+      s/(\w+)Exception/\1/g;
       
       
       s/CFchar/char/g;
@@ -143,7 +157,6 @@ sub process ($)
       s/CFuint/Uint/g;
       s/CFreal/Real/g;
       
-      s/(\w+)Exception/\1/g;
       s/(\w+)\.hh/\1\.hpp/;
       s/(\w+)\.cxx/\1\.cpp/;
     }
