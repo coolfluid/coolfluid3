@@ -23,6 +23,7 @@ LIST ( APPEND Common_files
     Component.cpp
     CPath.hpp
     CPath.cpp
+    ConcreteProvider.hpp
     ConfigArgs.cpp
     ConfigArgs.hpp
     ConverterTools.cpp
@@ -35,6 +36,10 @@ LIST ( APPEND Common_files
     Exception.cpp
     Exception.hpp
     ExportAPI.hpp
+    Factory.hpp
+    FactoryBase.hpp
+    FactoryRegistry.cpp
+    FactoryRegistry.hpp
     GeneralStorage.hpp
     HourMinSec.cpp
     HourMinSec.hpp
@@ -63,6 +68,7 @@ LIST ( APPEND Common_files
     NamedObject.cpp
     NonCopyable.hpp
     NonInstantiable.hpp
+    ObjectProvider.hpp
     OSystem.cpp
     OSystem.hpp
     OwnedObject.hpp
@@ -72,6 +78,7 @@ LIST ( APPEND Common_files
     PEInterface.hpp
     ProcessInfo.cpp
     ProcessInfo.hpp
+    Provider.hpp
     ProviderBase.cpp
     ProviderBase.hpp
     PtrAlloc.hpp
