@@ -118,10 +118,12 @@ sub process ($)
     foreach ( @lines )
     {
       s/COOLFluiD/CF/g;
-      s/Config::/Common::/g;
+      s/CFLog\./Log\./g;
+      s/CFLogLevel\./LogLevel\./g;
       s/Config\//Common\//g;
       s/Environment::/Common::/g;
       s/Environment\//Common\//g;
+      s/namespace(\s+)Environment/namespace Common/;
       s/CFchar/char/g;
       s/CFfloat/float/g;
       s/CFldouble/long double/g;
