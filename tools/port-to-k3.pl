@@ -122,11 +122,15 @@ sub process ($)
       s/CFLog\./Log\./g;
       s/CFLogLevel\./LogLevel\./g;
 
-      s/CFLogNotice/CFinfo/g;
-      s/CFLogDebugMin/CFDebug/g;
-      s/CFLogDebugMed/CFDebugVerbose/g;
-      s/CFLogDebugMax/CFDebugVerbose/g;
-      s/CFLogNotice/CFinfo/g;
+      s/CFLogNotice/CFLogInfo/g;
+      s/CFLogDebugMin/CFLogDebug/g;
+      s/CFLogDebugMed/CFLogDebugVerbose/g;
+      s/CFLogDebugMax/CFLogDebugVerbose/g;
+      s/CFLogNotice/CFLogInfo/g;
+      
+      s/CFout/CFinfo/g;
+      s/CFlog/CFinfo/g;
+      s/CFerr/CFerror/g;
       
       s/CFLog(\s*)\((\s*)ERROR(\s*)\,/CFLogError \( /g;
       s/CFLog(\s*)\((\s*)WARN(\s*)\,/CFLogWarn \( /g;
@@ -164,7 +168,6 @@ sub process ($)
       s/SetupException/SetupError/g;
       
       s/(\w+)Exception/\1/g;
-      
       
       s/CFchar/char/g;
       s/CFfloat/float/g;
