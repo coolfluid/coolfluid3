@@ -154,6 +154,13 @@ sub process ($)
      
       s/FailedCastException/CastingFailed/g;
       s/FileFormatException/FileFormatError/g;
+      s/FileSystemException/FileFileSystemError/g;
+      s/FloatingException/FloatingPointError/g;
+      s/LibLoaderException/LibLoadingError/g;
+      s/NullPointerException/NullPointerError/g;
+      s/ParallelException/ParallelError/g;
+      s/ParserException/ParsingFailed/g;
+      s/SetupException/SetupError/g;
       
       s/(\w+)Exception/\1/g;
       
