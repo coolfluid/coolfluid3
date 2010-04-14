@@ -141,10 +141,8 @@ bool CloseConfirmationDialog::show(CloseConfirmationInfos & infos)
 }
 
  
- SLOTS
+ // SLOTS
  
- ****************************************************************************/
-
 void CloseConfirmationDialog::btOkClicked()
 {
   bool allAccepted = true;

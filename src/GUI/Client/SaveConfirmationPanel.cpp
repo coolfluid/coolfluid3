@@ -1,11 +1,11 @@
 #include <QtGui>
 
 
-#include "GUI/Client/CloseConfirmationInfos.hh"
-#include "GUI/Client/RemoteSaveFile.hh"
-#include "GUI/Client/SelectFileDialog.hh"
+#include "GUI/Client/CloseConfirmationInfos.hpp"
+#include "GUI/Client/RemoteSaveFile.hpp"
+#include "GUI/Client/SelectFileDialog.hpp"
 
-#include "GUI/Client/SaveConfirmationPanel.hh"
+#include "GUI/Client/SaveConfirmationPanel.hpp"
 
 using namespace CF::GUI::Client;
 

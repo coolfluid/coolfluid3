@@ -163,9 +163,7 @@ MainWindow::~MainWindow()
 }
 
  
- PRIVATE METHODS
- 
- ****************************************************************************/
+ // PRIVATE METHODS
 
 void MainWindow::buildMenus()
 {

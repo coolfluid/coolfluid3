@@ -84,8 +84,6 @@ void CommitConfirmationPanel::hideComponents(bool hide)
  
  SLOTS
  
- ****************************************************************************/
-
 void CommitConfirmationPanel::showDetails()
 {
   emit showHelp(this->details);

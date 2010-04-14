@@ -114,10 +114,6 @@ void CloseConfirmationPanel::setWidgetBesideButtons(QWidget * widget)
 }
 
  
- SLOTS
- 
- ****************************************************************************/
-
 void CloseConfirmationPanel::help()
 {
   emit showHelp(m_helpText);

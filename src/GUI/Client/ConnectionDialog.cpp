@@ -127,9 +127,7 @@ void ConnectionDialog::setSshInfos(const TSshInformation & sshInfos)
 }
 
  
- SLOTS
- 
- ****************************************************************************/
+ // SLOTS
 
 void ConnectionDialog::btOkClicked()
 {
