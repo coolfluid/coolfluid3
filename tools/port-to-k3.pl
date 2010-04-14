@@ -150,6 +150,7 @@ sub process ($)
       s/MathTools::/Math::/g;
       s/MathTools\//Math\//g;
       s/MathTools_API\//Math_API\//g;
+      s/(CF|COOLFluiD)_MathTools/CF_Math/;
       s/namespace(\s+)MathTools/namespace Math/;
      
       s/FailedCastException/CastingFailed/g;
