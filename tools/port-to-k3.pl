@@ -172,7 +172,9 @@ sub process ($)
       s/ParallelException/ParallelError/g;
       s/ParserException/ParsingFailed/g;
       s/SetupException/SetupError/g;
-      
+      s/StorageExists/ValueExists/g;
+      s/NoSuchStorage/ValueNotFound/g;
+
       s/(\w+)Exception/\1/g;
       
       s/CFchar/char/g;
