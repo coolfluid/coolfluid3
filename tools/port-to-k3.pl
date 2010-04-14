@@ -128,19 +128,28 @@ sub process ($)
       s/CFLogDebugMax/CFDebugVerbose/g;
       s/CFLogNotice/CFinfo/g;
       
+      s/CFLog(\s*)\((\s*)ERROR(\s*)\,/CFLogError \( /g;
+      s/CFLog(\s*)\((\s*)WARN(\s*)\,/CFLogWarn \( /g;
+      s/CFLog(\s*)\((\s*)NOTICE(\s*)\,/CFLogInfo \( /g;
       s/CFLog(\s*)\((\s*)INFO(\s*)\,/CFLogInfo \( /g;
       s/CFLog(\s*)\((\s*)VERBOSE(\s*)\,/CFLogInfo \( /g;
+      s/CFLog(\s*)\((\s*)DEBUG_MIN(\s*)\,/CFLogDebug \( /g;
+      s/CFLog(\s*)\((\s*)DEBUG_MED(\s*)\,/CFLogDebugVerbose \( /g;
+      s/CFLog(\s*)\((\s*)DEBUG_MAX(\s*)\,/CFLogDebugVerbose \( /g;
 
       s/Config::/Config::/g;
       s/Config\//Common\//g;
+      s/Config_API/Common_API/g;
       s/namespace(\s+)Config/namespace Common/;
       
       s/Environment::/Common::/g;
       s/Environment\//Common\//g;
+      s/Environment_API/Common_API/g;
       s/namespace(\s+)Environment/namespace Common/;
       
       s/MathTools::/Math::/g;
       s/MathTools\//Math\//g;
+      s/MathTools_API\//Math_API\//g;
       s/namespace(\s+)MathTools/namespace Math/;
      
       s/FailedCastException/CastingFailed/g;
