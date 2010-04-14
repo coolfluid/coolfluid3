@@ -29,10 +29,13 @@ LIST ( APPEND Common_files
     ConverterTools.hpp
     DemangledTypeID.cpp
     DemangledTypeID.hpp
+    DirPaths.cpp
+    DirPaths.hpp
     EnumT.hpp
     Exception.cpp
     Exception.hpp
     ExportAPI.hpp
+    GeneralStorage.hpp
     HourMinSec.cpp
     HourMinSec.hpp
     LibLoader.cpp
