@@ -1,7 +1,7 @@
 #include <QtXml>
 #include <QDomNamedNodeMap>
 
-#include "GUI/Client/TreeItem.hh"
+#include "GUI/Client/TreeItem.hpp"
 
 using namespace CF::GUI::Client;
 
@@ -168,9 +168,7 @@ int TreeItem::getChildCount() const
 }
 
  
- PRIVATE METHODS
- 
- ****************************************************************************/
+ // PRIVATE METHODS
 
 int TreeItem::getChildNumber(TreeItem * child) 
 {

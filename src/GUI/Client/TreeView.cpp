@@ -7,7 +7,7 @@
 #include "GUI/Client/OptionPanel.hpp"
 #include "GUI/Client/CommitDetailsDialog.hpp"
 #include "GUI/Client/MenuActionInfo.hpp"
-#include "GUI/Client/UnknownType.hpp"
+#include "GUI/Client/UnknownTypeException.hpp"
 #include "GUI/Client/TObjectProperties.hpp"
 #include "GUI/Client/TreeModel.hpp"
 #include "GUI/Client/TreeItem.hpp"

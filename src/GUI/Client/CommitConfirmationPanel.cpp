@@ -82,7 +82,7 @@ void CommitConfirmationPanel::hideComponents(bool hide)
 }
 
  
- SLOTS
+// SLOTS
  
 void CommitConfirmationPanel::showDetails()
 {

@@ -823,9 +823,7 @@ QModelIndex TreeModel::getParentSimIndex(const QModelIndex & index) const
 }
 
  
- PRIVATE METHODS
- 
- ****************************************************************************/
+ // PRIVATE METHODS
 
 QStringList TreeModel::getParentNodeNames(const QDomNode & node) const
 {

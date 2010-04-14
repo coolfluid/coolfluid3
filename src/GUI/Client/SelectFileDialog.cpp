@@ -1,6 +1,6 @@
 #include <QtGui>
 
-#include "GUI/Client/SelectFileDialog.hh"
+#include "GUI/Client/SelectFileDialog.hpp"
 
 using namespace CF::GUI::Client;
 

@@ -69,7 +69,7 @@ GraphicalOption::GraphicalOption(TOptionTypes type)
       break;
 
     default:
-      throw UnknownType(FromHere(), "Uknowmn option type");
+      throw UnknownTypeException(FromHere(), "Uknowmn option type");
   }
 
   m_name = new QLabel();
@@ -207,7 +207,7 @@ void GraphicalOption::setValue(const QVariant & newValue)
         val = newValue.toInt(&ok);
 
         if(!ok) // if ok is false, the conversion failed
-          throw InvalidValue(FromHere(), "Failed to convert to an integer");
+          throw InvalidValueException(FromHere(), "Failed to convert to an integer");
       }
 
       ((QSpinBox *) m_valueWidget)->setValue(val);
@@ -224,7 +224,7 @@ void GraphicalOption::setValue(const QVariant & newValue)
         val = newValue.toUInt(&ok);
 
         if(!ok) // if ok is false, the conversion failed
-          throw InvalidValue(FromHere(), "Failed to convert to an unsigned "
+          throw InvalidValueException(FromHere(), "Failed to convert to an unsigned "
                                       "integer");
       }
 
@@ -270,7 +270,7 @@ void GraphicalOption::setValue(const QVariant & newValue)
       QDomNodeList childNodes;
 
       if(!valueString.isEmpty() && !doc.setContent(valueString, false, &errString))
-        throw InvalidValue(FromHere(), errString.toStdString());
+        throw InvalidValueException(FromHere(), errString.toStdString());
 
       panel->setItems(doc);
 

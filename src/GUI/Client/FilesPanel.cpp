@@ -165,9 +165,8 @@ void FilesPanel::invertSelection()
 }
 
  
- SLOTS
+// SLOTS
  
- ****************************************************************************/
 
 void FilesPanel::btOkClicked()
 {

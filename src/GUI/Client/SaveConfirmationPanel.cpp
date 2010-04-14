@@ -131,11 +131,9 @@ void SaveConfirmationPanel::hideComponents(bool hide)
 }
 
  
- PRIVATE METHODS
+ // PRIVATE METHODS
  
- ****************************************************************************/
-
-QString SaveConfirmationPanel::saveLocally()
+ QString SaveConfirmationPanel::saveLocally()
 {
   SelectFileDialog sfd;
   sfd.addFileType("CFcase", "CFcase");
