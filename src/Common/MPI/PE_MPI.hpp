@@ -62,7 +62,7 @@ public:
   virtual bool is_parallel () const;
 
   /// return the name of the model
-  std::string getModelName () const;
+  virtual std::string getModelName () const;
 
   /// init- en finalize functions
   /// The object will be freed by the PE (should

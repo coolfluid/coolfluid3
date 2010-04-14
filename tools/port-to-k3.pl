@@ -3,21 +3,25 @@
 # modules
 use Getopt::Long;
 use Tie::File;
+use File::Copy;
 
 my $separator = "\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/";
 
 # command line options
-my $opt_help    = 0;
+my $opt_help      = 0;
+my $opt_rename    = 0;
 
 # Parse command line
-$opt_help=1 unless GetOptions ( 'help' => \$opt_help, );
+$opt_help=1 unless GetOptions ( 'help'   => \$opt_help,
+                                'rename' => \$opt_rename );
 
 sub show_help ()
 {
   print <<ZZZ;
-reformat-src-files.pl [files] : Formats source files
+port-to-k3.pl [files] : Formats source files
 options:
         --help            Show this help
+        --rename          Rename the files to new extensions .hpp .cpp
 ZZZ
 }
 
@@ -73,6 +77,7 @@ sub process ($)
     untie @lines;
 
     # correct indentations
+    # odd number of spaces is converted to even number
     tie @lines, 'Tie::File', $filename or die ("Error opening file $filename!\n");
     foreach ( @lines )
     {
@@ -176,9 +181,10 @@ sub process ($)
       s/ParallelException/ParallelError/g;
       s/ParserException/ParsingFailed/g;
       s/SetupException/SetupError/g;
-      s/StorageExists/ValueExists/g;
-      s/NoSuchStorage/ValueNotFound/g;
-      s/NoSuchValue/ValueNotFound/g;
+      s/StorageExistsException/ValueExists/g;
+      s/NoSuchStorageException/ValueNotFound/g;
+      s/NoSuchValueException/ValueNotFound/g;
+      s/SignalException/SignalError/g;
 
       s/(\w+)Exception/\1/g;
 
@@ -198,23 +204,22 @@ sub process ($)
       s/(\w+)\.hh/\1\.hpp/;
       s/(\w+)\.cxx/\1\.cpp/;
 
+      # class rename
+      s/CFEnvVars/CoreVars/g;
+      s/CFEnv/CoreEnv/g;
+
       # modified headers
       s/Environment\.hpp/CommonAPI\.hpp/;
       s/EnvironmentAPI\.hpp/CommonAPI\.hpp/;
       s/Config\.hpp/CommonAPI\.hpp/;
       s/ConfigAPI\.hpp/CommonAPI\.hpp/;
       s/Common\.hpp/CommonAPI\.hpp/;
-
-
-      # class rename
-      s/CFEnvVars/CoreVars/g;
-      s/CFEnv/CoreEnv/g;
-
+      s/SetupError\.hpp/BasicExceptions\.hpp/;
     }
     untie @lines;
 
-    my $nc = $lc + $li + $ls + $lr + $lss;
-    print "$filename changed $nc lines ( $li indentations, $ls trail spaces, $lss separators, $lc comments changes and $lr removed )\n" unless ($nc eq 0 )
+    # my $nc = $lc + $li + $ls + $lr + $lss;
+    # print "$filename changed $nc lines ( $li indentations, $ls trail spaces, $lss separators, $lc comments changes and $lr removed )\n" unless ($nc eq 0 )
 }
 
 #==========================================================================
@@ -229,7 +234,26 @@ foreach  $file (@ARGV)
 {
   if (( -e $file ) and ( -r $file ))
   {
+    # process the file
+    print "[$file]";
     process ("$file");
+
+    if ($opt_rename)
+    {
+      # now copy the file to a name with correct extension
+      my $newfile = $file;
+      $newfile =~ s/\.hh/\.hpp/;
+      $newfile =~ s/\.cxx/\.cpp/;
+
+      # finally remove old file
+      unless ( $file eq $newfile )
+      {
+        print " -> [$newfile]";
+        copy($file, $newfile) or die "File $file cannot be copied.";
+        unlink ($file);
+      }
+       print "\n";
+    }
   }
   else
   {

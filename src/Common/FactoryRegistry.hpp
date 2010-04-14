@@ -16,18 +16,18 @@ namespace CF {
   namespace Common {
 
     class FactoryBase;
-    class CFEnv;
+    class CoreEnv;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// This class is a singleton object which serves as registry for all the
 /// Factory objects that are created
-/// The only instance of this object is held by the CFEnv.
+/// The only instance of this object is held by the CoreEnv.
 /// @author Tiago Quintino
 class Common_API FactoryRegistry :
   public Common::NonCopyable<FactoryRegistry> {
 
-  friend class Common::CFEnv;
+  friend class Common::CoreEnv;
 
 public:
 

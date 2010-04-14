@@ -4,16 +4,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/CF.hpp"
-
-#include "Common/CF.hpp"
-//#include "Common/ValueNotFound.hpp"
-//#include "Common/ValueExists.hpp"
+#include "Common/BasicExceptions.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-
-    namespace Common {
+namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -95,7 +91,7 @@ public: // functions
     if (ptr != CFNULL)
     {
       erasePtr(name);
-      deletePtr(ptr);
+      delete_ptr(ptr);
     }
     else {
       throw Common::ValueNotFound (FromHere()," didn't find " + name);
@@ -192,7 +188,7 @@ private: // data
   /// map to store the pointers
   StorageType m_storage;
 
-}; // end class DataStorage
+}; // DataStorage
 
 ////////////////////////////////////////////////////////////////////////////////
 

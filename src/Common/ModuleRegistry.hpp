@@ -16,7 +16,7 @@ namespace CF {
 
   namespace Common {
 
-    class CFEnv;
+    class CoreEnv;
     class ModuleRegisterBase;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -28,7 +28,7 @@ namespace CF {
 class Common_API ModuleRegistry :
   public Common::NonCopyable<ModuleRegistry> {
 
-  friend class Common::CFEnv;
+  friend class Common::CoreEnv;
 
 public:
 

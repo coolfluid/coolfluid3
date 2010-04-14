@@ -28,18 +28,26 @@ LIST ( APPEND Common_files
     ConfigArgs.hpp
     ConverterTools.cpp
     ConverterTools.hpp
+    CoreEnv.hpp
+    CoreEnv.cpp
+    CoreVars.hpp
+    CoreVars.cpp
     DemangledTypeID.cpp
     DemangledTypeID.hpp
     DirPaths.cpp
     DirPaths.hpp
+    DynamicObject.hpp
+    DynamicObject.cpp
     EnumT.hpp
+    EventHandler.hpp
+    EventHandler.cpp
     Exception.cpp
     Exception.hpp
     ExportAPI.hpp
     Factory.hpp
     FactoryBase.hpp
-    FactoryRegistry.cpp
     FactoryRegistry.hpp
+    FactoryRegistry.cpp
     GeneralStorage.hpp
     HourMinSec.cpp
     HourMinSec.hpp
@@ -81,15 +89,19 @@ LIST ( APPEND Common_files
     Provider.hpp
     ProviderBase.cpp
     ProviderBase.hpp
-    PtrAlloc.hpp
     SafePtr.hpp
+    SharedPtr.hpp
     SelfRegistPtr.hpp
+    SetupObject.hpp
+    SetupObject.cpp
     SignalHandler.cpp
     SignalHandler.hpp
     Stopwatch.hpp
     StringOps.hpp
     TimePolicies.cpp
     TimePolicies.hpp
+    VarRegistry.hpp
+    VarRegistry.cpp
     WorkerStatus.cpp
     WorkerStatus.hpp
     xmlParser.cpp

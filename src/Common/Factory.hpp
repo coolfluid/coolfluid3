@@ -6,9 +6,11 @@
 #include "Common/FactoryBase.hpp"
 #include "Common/Log.hpp"
 #include "Common/SafePtr.hpp"
+#include "Common/ValueNotFound.hpp"
+#include "Common/ValueExists.hpp"
 #include "Common/FactoryRegistry.hpp"
 #include "Common/Provider.hpp"
-//#include "Common/CFEnv.hpp"
+#include "Common/CoreEnv.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -40,7 +42,7 @@ public: // methods
   void regist(Common::Provider<BASE>* provider);
 
   /// Remove a registered provider
-  /// @throw Common::NoSuchValue if the provider is not registered
+  /// @throw Common::ValueNotFound if the provider is not registered
   void unregist(const std::string& providerName);
 
   /// @return the name of the BASE of this factory
@@ -50,7 +52,7 @@ public: // methods
   std::vector<Common::ProviderBase*> getAllProviders();
 
   /// Get a given Provider
-  /// @throw Common::NoSuchValue if the Provider is not registered
+  /// @throw Common::ValueNotFound if the Provider is not registered
   Common::SafePtr< typename BASE::PROVIDER > getProvider(const std::string& providerName);
 
 protected: // helper function
@@ -84,7 +86,7 @@ Factory<BASE>& Factory<BASE>::getInstance()
 template <class BASE>
 Factory<BASE>::Factory()
 {
-  //Common::CFEnv::getInstance().getFactoryRegistry()->regist(this);
+  Common::CoreEnv::getInstance().getFactoryRegistry()->regist(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

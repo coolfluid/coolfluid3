@@ -63,12 +63,6 @@ NotImplemented::NotImplemented(const Common::CodeLocation& where, const std::str
 
 ////////////////////////////////////////////////////////////////////////////////
 
-NullPointerError::NullPointerError(const Common::CodeLocation& where, const std::string& what)
-: Exception(where, what,"NullPointerError")
-{}
-
-////////////////////////////////////////////////////////////////////////////////
-
 ParallelError::ParallelError(const Common::CodeLocation& where, const std::string& what)
 : Exception(where, what,"ParallelError")
 {}

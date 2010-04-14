@@ -34,8 +34,7 @@ struct Common_API BadValue: public Common::Exception {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-///  Exception thrown
-/// when a dynamic cast of a pointer fails.
+///  Exception thrown when a dynamic cast of a pointer fails.
 /// @author Tiago Quintino
 struct CastingFailed: public Common::Exception {
 
@@ -57,11 +56,9 @@ struct FileFormatError: public Common::Exception {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// This class represents the exception thrown
-/// if an error occurs when accessing the filesystem.
-/// It is preferable to using directly the boost::filesystem_error
-/// exception. These boost exceptions should be intercepted and
-/// recast into this.
+/// Exception throw if an error occurs when accessing the filesystem.
+/// It is preferable to using directly the boost::filesystem_error exception.
+/// These boost exceptions should be intercepted and recast into this.
 struct FileSystemError: public Common::Exception {
 
   /// Constructor
@@ -106,7 +103,7 @@ struct Common_API ValueNotFound: public Common::Exception {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-///  Exception throwna certain functionality is not implemented
+/// Exception throwna certain functionality is not implemented
 /// @author Andrea Lani
 /// @author Tiago Quintino
 struct Common_API  NotImplemented: public Common::Exception {
@@ -115,20 +112,6 @@ struct Common_API  NotImplemented: public Common::Exception {
   /// @see CF::Exception()
   NotImplemented(const Common::CodeLocation& where, const std::string& what);
 }; //  NotImplemented
-
-////////////////////////////////////////////////////////////////////////////////
-
-/// This exception is thrown in any place of the code which
-/// by some conceptual impossibility should not be reached.
-/// Typically on a switch-case construction where one of the choices
-/// should be taken and the default never reached.
-/// @author Tiago Quintino
-struct Common_API NullPointerError: public Common::Exception {
-
-  /// Constructor
-  NullPointerError(const Common::CodeLocation& where, const std::string& what);
-
-}; //  NullPointerError
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -143,7 +126,7 @@ struct Common_API ParallelError: public Common::Exception {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Exception thrown when user provides a bad value input
+/// Exception thrown when error occured while parsing some input
 /// @author Tiago Quintino
 struct Common_API ParsingFailed: public Common::Exception {
 
@@ -165,7 +148,7 @@ struct Common_API SetupError : public Common::Exception {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// This exception is thrown in any place of the code which
+/// Exception thrown in any place of the code which
 /// by some conceptual impossibility should not be reached.
 /// Typically on a switch-case construction where one of the choices
 /// should be taken and the default never reached.

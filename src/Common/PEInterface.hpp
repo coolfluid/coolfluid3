@@ -31,6 +31,9 @@ public:
   /// Running only 1 processor is NOT parallel
   virtual bool is_parallel () const = 0;
 
+  /// return the name of the model
+  virtual std::string getModelName () const = 0;
+
 }; // PEInterface
 
 ////////////////////////////////////////////////////////////////////////////////
