@@ -6,9 +6,10 @@ IF (QT4_FOUND)
 
   CF_FIND_ORPHAN_FILES()
 
-  # why is this here ? - explain
-  SET ( CMAKE_C_FLAGS   "" )
-  SET ( CMAKE_CXX_FLAGS "" )
+  # deactivate some c++ warnings in Qt
+  if( CMAKE_COMPILER_IS_GNUCC )
+    SET ( CMAKE_CXX_FLAGS   "${CMAKE_CXX_FLAGS} -Wno-sign-promo" )
+  endif()
 
   # I need XML and Network modules
 #  SET( QT_USE_QTXML TRUE     )
