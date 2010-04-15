@@ -163,7 +163,7 @@ namespace Client {
     /// @param includeFiles If @c true, sub-directories and files will be
     /// requested. If @c false, only sub-directories will be requested.
     /// @param extensions List of wanted extensions. According to the network
-    /// m_protocol, this list may be empty.
+    /// protocol, this list may be empty.
     /// @param includeNoExtension If @c true, files without any extension will
     /// be requested. If @c false, they will not.
     /// @return Return @c true if the frame was successfully built and sent;
@@ -356,7 +356,7 @@ namespace Client {
     /// skipped and this attribute is set to @c false.
     bool m_skipRefused;
 
-    /// @brief Network m_protocol rules
+    /// @brief Network protocol rules
     CF::GUI::Network::NetworkProtocol m_protocol;
 
   }; // class ClientNetworkComm

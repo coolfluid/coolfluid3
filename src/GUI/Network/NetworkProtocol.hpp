@@ -18,7 +18,7 @@ namespace Network {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  /// @brief Defines the network m_protocol rules
+  /// @brief Defines the network protocol rules
 
   /// @author Quentin Gasper
 

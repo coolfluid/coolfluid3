@@ -37,7 +37,7 @@ namespace CF {
       class FilesListItem;
       class TreeModel;
       
-      /// @brief This enum defines a validation m_protocol between @c RemoteFSBrowser
+      /// @brief This enum defines a validation protocol between @c RemoteFSBrowser
       /// and its subclasses.
       
       /// It allows subclasses to inform the base class that the currently selected

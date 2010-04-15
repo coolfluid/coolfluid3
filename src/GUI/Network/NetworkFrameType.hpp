@@ -13,12 +13,12 @@ namespace Network {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  /// @brief Defines all frame types allowed in the network m_protocol.
+  /// @brief Defines all frame types allowed in the network protocol.
 
   enum NetworkFrameType
   {
     /// @brief Type id used to indicate that a frame has no type (i.e. it
-    /// does not respect the m_protocol).
+    /// does not respect the protocol).
     NETWORK_NO_TYPE,
 
     /// @brief Type id for the frame root tag.
