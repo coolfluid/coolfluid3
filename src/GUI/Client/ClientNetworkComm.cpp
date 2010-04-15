@@ -402,7 +402,7 @@ bool ClientNetworkComm::buildAndSend(NetworkFrameType type)
 {
   BuilderParserFrameInfo fi;
   fi.setFrameType(type);
-  this->buildAndSend(fi);
+  return this->buildAndSend(fi);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

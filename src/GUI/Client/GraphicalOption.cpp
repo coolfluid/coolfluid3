@@ -109,6 +109,8 @@ QVariant GraphicalOption::getValue() const
 {
   QVariant value;
 
+  /// @todo TQ: handle the NO_TYPE in the switch
+
   switch(m_type)
   {
       // if type valueWidget is a bool
@@ -151,6 +153,7 @@ QVariant GraphicalOption::getValue() const
     case TYPE_HOST_LIST:
       value = ((HostListPanel *) m_valueWidget)->getDocument().toString();
       break;
+
   }
 
   return value;
@@ -181,6 +184,8 @@ TOptionTypes GraphicalOption::getType() const
 void GraphicalOption::setValue(const QVariant & newValue)
 {
   bool ok; // used to validate conversions
+
+  /// @todo TQ: handle the NO_TYPE in the switch
 
   switch(m_type)
   {

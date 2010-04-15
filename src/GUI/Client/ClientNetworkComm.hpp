@@ -321,7 +321,7 @@ namespace Client {
     /// @param type Frame type.
     /// @return Return @c true if the frame was successfully built and sent;
     /// otherwise returns @c false.
-    bool buildAndSend(CF::GUI::Network::NetworkFrameType type);
+    void buildAndSend(CF::GUI::Network::NetworkFrameType type);
 
     /// @brief Recursive method that builds a @c QSting with
     /// all parent nodes names of a given node.

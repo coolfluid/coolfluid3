@@ -122,49 +122,60 @@ QVariant TreeModel::data(const QModelIndex & index, int role) const
   if(index.column() == 0)
   {
     QDomNamedNodeMap attributes = node.attributes();
-    
+
     if(this->isSimulationNode(node))
       return attributes.namedItem("name").nodeValue();
-    
+
     if(attributes.namedItem("tree").nodeValue() == "object")
     {
-      if(!m_advancedMode && attributes.namedItem("mode").nodeValue() == 
+      if(!m_advancedMode && attributes.namedItem("mode").nodeValue() ==
          "advanced")
         return QVariant();
-      
+
       if(!this->isSimulationNode(node))
       {
         QModelIndex parentIndex = this->getParentSimIndex(index);
-        
+
         if(!this->isSimulationConnected(parentIndex))
           return QVariant();
       }
-      
+
       return QString("%1 [%2]").arg(node.nodeName()).arg(attributes.namedItem("type").nodeValue());
     }
     return QVariant();
   }
-  else if(this->isSimulationNode(node))
+  else
   {
-    QDomNamedNodeMap attrs = node.attributes();
-    
-    if(index.column() == 1)
+    if(this->isSimulationNode(node))
     {
-      if(attrs.namedItem("connected").nodeValue() == "true")
-        return "Yes";
+      QDomNamedNodeMap attrs = node.attributes();
+
+      if(index.column() == 1)
+      {
+        if(attrs.namedItem("connected").nodeValue() == "true")
+          return "Yes";
+        else
+          return "No";
+      }
       else
-        return "No";
+      {
+        if(index.column() == 2)
+        {
+          if(attrs.namedItem("active").nodeValue() == "true")
+            return "Yes";
+          else
+            return "No";
+        }
+        /// @todo no alternative to this if branch??
+        ///        maybe refactor the function with a default return
+
+      }
     }
-    else if(index.column() == 2)
+    else
     {
-      if(attrs.namedItem("active").nodeValue() == "true")
-        return "Yes";
-      else
-        return "No";
+      return QVariant();
     }
   }
-  else
-    return QVariant();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
