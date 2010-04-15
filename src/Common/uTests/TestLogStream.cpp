@@ -247,8 +247,25 @@ BOOST_AUTO_TEST_CASE( operators )
   BOOST_CHECK_EQUAL(forwarder->m_str, std::string("Hello world as VERBOSE 2!"));
   
   
-  /// @todo test whether the rank filter is respected (with MPI)
+  /// Test the rank filter
+  /// 1. with the filter disabled
+  forwarder->m_str.clear();  
+  f.m_stream->setFilterRankZero(LogStream::STRING, false);
+  *(f.m_stream) << "Hello world!";
+  f.m_stream->flush();
+  BOOST_CHECK_EQUAL(forwarder->m_str, std::string("Hello world!"));
 
+  /// 2. with the filter enabled
+  forwarder->m_str.clear();  
+  f.m_stream->setFilterRankZero(LogStream::STRING, true);
+  *(f.m_stream) << "Hello world!";
+  f.m_stream->flush();
+  
+  if(PE::getInstance().get_rank() == 0)
+    BOOST_CHECK_EQUAL(forwarder->m_str, std::string("Hello world!"));
+  else
+    BOOST_CHECK_EQUAL(forwarder->m_str, std::string(""));
+  
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
