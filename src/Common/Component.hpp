@@ -4,6 +4,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/CPath.hpp"
+#include "Common/xmlParser.h"
 
 namespace CF {
 namespace Common {
@@ -49,6 +50,11 @@ namespace Common {
     /// Add a (sub)component of this component
     void add_component ( Component * subcomp );
 
+    /// lists the sub components and puts them on the xml_tree
+    void xml_tree ( XMLNode xml );
+
+  private:
+    typedef std::map < CName , Component* > CompList_type;
   private:
 
     /// component name (stored as path to ensure validity)
@@ -56,7 +62,7 @@ namespace Common {
     /// component current path
     CPath m_path;
     /// list of children
-    std::map < CName , Component* > m_components;
+    CompList_type m_components;
 
   };
 

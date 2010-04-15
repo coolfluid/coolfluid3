@@ -83,6 +83,37 @@ BOOST_AUTO_TEST_CASE( add_component )
 
 ////////////////////////////////////////////////////////////////////////////////
 
+BOOST_AUTO_TEST_CASE( xml_tree )
+{
+  Component* root = new Component ( "root", "/" );
+
+  Component* dir1 =  new Component ( "dir1" );
+  Component* dir2 =  new Component ( "dir2" );
+
+  root->add_component( dir1 );
+  dir1->add_component( dir2 );
+
+  XMLNode root_node = XMLNode::createXMLTopNode("xml", TRUE);
+
+  root_node.addAttribute("version","1.0");
+  root_node.addAttribute("encoding","UTF-8");
+  root_node.addAttribute("standalone","yes");
+
+  root->xml_tree( root_node );
+
+  XMLSTR xml_str = root_node.createXMLString();
+
+  CFinfo << "xml_str\n" << xml_str << CFendl;
+
+  freeXMLString(xml_str);
+
+  delete_ptr ( dir2 );
+  delete_ptr ( dir1 );
+  delete_ptr ( root );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 BOOST_AUTO_TEST_SUITE_END()
 
 ////////////////////////////////////////////////////////////////////////////////

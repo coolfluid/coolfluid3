@@ -48,6 +48,17 @@ void Component::change_path (const CPath &new_path)
   /// @todo inform the tree manager
 }
 
+void Component::xml_tree(XMLNode parent)
+{
+  XMLNode this_node = parent.addChild( name().c_str() );
+
+  for ( CompList_type::const_iterator itr = m_components.begin() ; itr != m_components.end(); ++itr)
+  {
+    Component * child_comp = itr->second;
+    child_comp->xml_tree( this_node );
+  }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Common
