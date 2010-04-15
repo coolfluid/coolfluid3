@@ -108,74 +108,65 @@ QVariant TreeModel::data(const QModelIndex & index, int role) const
 {
   TreeItem *item;
   QDomNode node;
+  QVariant returnValue;
   
-  if (!index.isValid() || role != Qt::DisplayRole)
-    return QVariant();
-  
-  item = this->indexToItem(index);
-  
-  if(item == NULL)
-    return QVariant();
-  
-  node = item->getDomNode();
-  
-  if(index.column() == 0)
+  if (index.isValid() && role == Qt::DisplayRole)
   {
-    QDomNamedNodeMap attributes = node.attributes();
-
-    if(this->isSimulationNode(node))
-      return attributes.namedItem("name").nodeValue();
-
-    if(attributes.namedItem("tree").nodeValue() == "object")
+    item = this->indexToItem(index);
+    
+    if(item != NULL)
     {
-      if(!m_advancedMode && attributes.namedItem("mode").nodeValue() ==
-         "advanced")
-        return QVariant();
-
-      if(!this->isSimulationNode(node))
+      node = item->getDomNode();
+      
+      if(index.column() == 0)
       {
-        QModelIndex parentIndex = this->getParentSimIndex(index);
-
-        if(!this->isSimulationConnected(parentIndex))
-          return QVariant();
+        QDomNamedNodeMap attributes = node.attributes();
+        
+        if(this->isSimulationNode(node))
+          returnValue = attributes.namedItem("name").nodeValue();
+        
+        if(attributes.namedItem("tree").nodeValue() == "object")
+        {
+          if(!m_advancedMode ||
+             (m_advancedMode && attributes.namedItem("mode").nodeValue() == "advanced"))
+          {
+            
+            if(this->isSimulationNode(node) ||
+               this->isSimulationConnected(this->getParentSimIndex(index)))
+              returnValue = QString("%1 [%2]").arg(node.nodeName()).arg(attributes.namedItem("type").nodeValue());
+          }
+        }
       }
-
-      return QString("%1 [%2]").arg(node.nodeName()).arg(attributes.namedItem("type").nodeValue());
     }
-    return QVariant();
   }
   else
   {
     if(this->isSimulationNode(node))
     {
       QDomNamedNodeMap attrs = node.attributes();
-
+      
       if(index.column() == 1)
       {
         if(attrs.namedItem("connected").nodeValue() == "true")
-          return "Yes";
+          returnValue = "Yes";
         else
-          return "No";
+          returnValue = "No";
       }
       else
       {
         if(index.column() == 2)
         {
           if(attrs.namedItem("active").nodeValue() == "true")
-            return "Yes";
+            returnValue = "Yes";
           else
-            return "No";
+            returnValue = "No";
         }
-        /// @todo no alternative to this if branch??
-        ///        maybe refactor the function with a default return
-
+        
       }
     }
-    else
-    {
-      return QVariant();
-    }
   }
+  
+  return returnValue;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -833,8 +824,8 @@ QModelIndex TreeModel::getParentSimIndex(const QModelIndex & index) const
   return this->getSimulationIndex(node.attributes().namedItem("name").nodeValue());
 }
 
- 
- // PRIVATE METHODS
+
+// PRIVATE METHODS
 
 QStringList TreeModel::getParentNodeNames(const QDomNode & node) const
 {

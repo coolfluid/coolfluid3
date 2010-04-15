@@ -5,6 +5,8 @@
 #include <stdexcept>
 #include <climits>
 
+#include "Common/BasicExceptions.hpp"
+
 #include "GUI/Client/FilesPanel.hpp"
 #include "GUI/Client/LibrariesPanel.hpp"
 #include "GUI/Client/InvalidValueException.hpp"
@@ -13,6 +15,7 @@
 
 #include "GUI/Client/GraphicalOption.hpp"
 
+using namespace CF::Common;
 using namespace CF::GUI::Client;
 
 GraphicalOption::GraphicalOption(TOptionTypes type)
@@ -154,6 +157,9 @@ QVariant GraphicalOption::getValue() const
       value = ((HostListPanel *) m_valueWidget)->getDocument().toString();
       break;
 
+  default:
+      throw ShouldNotBeHere(FromHere(), "GraphicalOption::getValue()");
+
   }
 
   return value;
@@ -281,6 +287,11 @@ void GraphicalOption::setValue(const QVariant & newValue)
 
       break;
     }
+
+  default:
+      throw ShouldNotBeHere(FromHere(), "GraphicalOption::setValue()");
+
+
   }
 
   // if execution arrives here => no exception were thrown

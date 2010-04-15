@@ -81,7 +81,7 @@ namespace Client {
     /// @param row Child row.
     void deleteChild(int row, bool remove = false);
 
-    bool deleteChildren(int row, unsigned int m_count, bool remove = false);
+    bool deleteChildren(int row, int m_count, bool remove = false);
 
     bool addChild(QDomNode & node);
 

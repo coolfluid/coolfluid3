@@ -49,7 +49,7 @@ RemoteFSBrowser::RemoteFSBrowser(const QModelIndex & index, QMainWindow * parent
   
   // create 2 m_buttons : "Ok" and "Cancel"
   m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok
-                                         | QDialogButtonBox::Cancel);
+                                   | QDialogButtonBox::Cancel);
   
   m_okClicked = false;
   m_multipleSelectAllowed = false;
@@ -336,7 +336,7 @@ ValidationPolicy RemoteFSBrowser::isAcceptable(const QString & name, bool isDir)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-ValidationPolicy RemoteFSBrowser::isAcceptable(const QStringList & names) 
+ValidationPolicy RemoteFSBrowser::isAcceptableList(const QStringList & names)
 {
   return POLICY_VALID;
 }
@@ -412,9 +412,9 @@ void RemoteFSBrowser::setStatus(const QString & text)
   m_labStatus->setText(text);
 }
 
- 
+
 // SLOTS
- 
+
 
 void RemoteFSBrowser::btOkClicked()
 {
@@ -453,7 +453,7 @@ void RemoteFSBrowser::btOkClicked()
   } // for "if(!this->multipleSelectAllowed)"
   else // if showMultipleSelect() was called
   {
-    validation = this->isAcceptable(RemoteFSBrowser::getSelectedFileList());
+    validation = this->isAcceptableList(RemoteFSBrowser::getSelectedFileList());
     
     if(validation == POLICY_VALID)
     {

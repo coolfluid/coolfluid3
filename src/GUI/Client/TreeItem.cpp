@@ -106,7 +106,7 @@ void TreeItem::deleteChild(int row, bool remove)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool TreeItem::deleteChildren(int row, unsigned int count, bool remove)
+bool TreeItem::deleteChildren(int row, int count, bool remove)
 {
   bool success = false;
   
