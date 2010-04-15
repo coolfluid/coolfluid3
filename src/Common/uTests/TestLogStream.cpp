@@ -155,18 +155,99 @@ BOOST_AUTO_TEST_CASE( operators )
   MyStringForwarder * forwarder = new MyStringForwarder();
 
   f.m_stream->addStringForwarder(forwarder);
+  // deactivate the stdout
+  f.m_stream->useDestination(LogStream::SCREEN, false);
 
   *(f.m_stream) << "Hello world!";
   f.m_stream->flush();
   BOOST_CHECK_EQUAL(forwarder->m_str, std::string("Hello world!"));
+  
+  // test the stamps ("TestStream" is the name of the stream created by
+  // LogStreamFixture class
+  f.m_stream->setStamp(LogStream::STRING, "<%type%> ");
+  *(f.m_stream) << "Hello world!";
+  f.m_stream->flush();
+  BOOST_CHECK_EQUAL(forwarder->m_str, std::string("<TestStream> Hello world!"));
 
-  /// @todo test whether the stamp is correctly used
-  /// 1. everything ok
-  /// 2. test when a tag is mispelled (eg: %plaec% instead of %place%)
+  // test the stamps (with a spelling error in the tag)
+  f.m_stream->setStamp(LogStream::STRING, "<%tpye%> ");
+  *(f.m_stream) << "Hello world!";
+  f.m_stream->flush();
+  BOOST_CHECK_EQUAL(forwarder->m_str, std::string("<%tpye%> Hello world!"));
+  
+  f.m_stream->setStamp(LogStream::STRING, "");
+  /// test the log levels
+  /// for each level we do 4 checks: one for each level (explicitly given)
+  /// and a fourth where no level is given (meaning that the default has to 
+  /// be used)
+  /// 1. the stream log level is SILENT: nothing should be forwarded
+  f.m_stream->setLogLevel(SILENT);
+  forwarder->m_str.clear();
+  *(f.m_stream) << "Hello world!";
+  f.m_stream->flush();
+  BOOST_CHECK_EQUAL(forwarder->m_str, std::string(""));
 
-  /// @todo test whether the rank filter is respected
+  forwarder->m_str.clear();
+  *(f.m_stream) << SILENT << "Hello world!";
+  f.m_stream->flush();
+  BOOST_CHECK_EQUAL(forwarder->m_str, std::string(""));
+  
+  forwarder->m_str.clear();
+  *(f.m_stream) << NORMAL << "Hello world!";
+  f.m_stream->flush();
+  BOOST_CHECK_EQUAL(forwarder->m_str, std::string(""));
+  
+  forwarder->m_str.clear();
+  *(f.m_stream) << VERBOSE << "Hello world!";
+  f.m_stream->flush();
+  BOOST_CHECK_EQUAL(forwarder->m_str, std::string(""));
+  
+  /// 2. the stream log level is NORMAL: only this level should be forwarded
+  f.m_stream->setLogLevel(NORMAL);
+  forwarder->m_str.clear();
+  *(f.m_stream) << SILENT << "Hello world!";
+  f.m_stream->flush();
+  BOOST_CHECK_EQUAL(forwarder->m_str, std::string(""));
+  
+  forwarder->m_str.clear();
+  *(f.m_stream) << "Hello world as NORMAL 1!";
+  f.m_stream->flush();
+  BOOST_CHECK_EQUAL(forwarder->m_str, std::string("Hello world as NORMAL 1!"));
+  
+  forwarder->m_str.clear();
+  *(f.m_stream) << NORMAL << "Hello world as NORMAL 2!";
+  f.m_stream->flush();
+  BOOST_CHECK_EQUAL(forwarder->m_str, std::string("Hello world as NORMAL 2!"));
+  
+  forwarder->m_str.clear();
+  *(f.m_stream) << VERBOSE << "Hello world!";
+  f.m_stream->flush();
+  BOOST_CHECK_EQUAL(forwarder->m_str, std::string(""));
 
-  /// @todo test the log levels
+  /// 3. the stream log level is VERBOSE: NORMAL and VERBOSE should be forwarded
+  f.m_stream->setLogLevel(VERBOSE);
+  forwarder->m_str.clear();
+  *(f.m_stream) << SILENT << "Hello world!";
+  f.m_stream->flush();
+  BOOST_CHECK_EQUAL(forwarder->m_str, std::string(""));
+  
+  forwarder->m_str.clear();
+  *(f.m_stream) << NORMAL << "Hello world!";
+  f.m_stream->flush();
+  BOOST_CHECK_EQUAL(forwarder->m_str, std::string("Hello world!"));
+  
+  forwarder->m_str.clear();
+  *(f.m_stream) << "Hello world as VERBOSE 1!";
+  f.m_stream->flush();
+  BOOST_CHECK_EQUAL(forwarder->m_str, std::string("Hello world as VERBOSE 1!"));
+  
+  forwarder->m_str.clear();
+  *(f.m_stream) << VERBOSE << "Hello world as VERBOSE 2!";
+  f.m_stream->flush();
+  BOOST_CHECK_EQUAL(forwarder->m_str, std::string("Hello world as VERBOSE 2!"));
+  
+  
+  /// @todo test whether the rank filter is respected (with MPI)
 
 }
 
