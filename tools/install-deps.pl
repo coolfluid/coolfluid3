@@ -109,7 +109,7 @@ my %packages = (  #  version   default install priority      function
     "distcc"     => [ "2.18.3", 'off',  'off', $priority++,  sub { install_gnu("distcc") } ],
     "cgnslib"    => [ "2.5-4",  'off',  'off', $priority++,  \&install_cgnslib ],
     "cgnstools"  => [ "2-5-4",  'off',  'off', $priority++,  \&install_cgnstools ],
-    "google-perftools" => [ "0.93",'off','off', $priority++, \&install_google_perftools ],
+    "google-perftools" => [ "1.5",'off','off', $priority++, \&install_google_perftools ],
 );
 
 #==========================================================================
