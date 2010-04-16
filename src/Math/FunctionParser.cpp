@@ -10,7 +10,7 @@
 #include <new>
 #include <cmath>
 
-#include "Math/BoostMath.hpp"
+#include "Math/BoostHeaders.hpp"
 #include "Math/FunctionParser.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////

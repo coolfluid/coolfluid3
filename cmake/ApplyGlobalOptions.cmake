@@ -49,14 +49,19 @@ mark_as_advanced ( CF_REAL_TYPE )
 
 if ( CF_ENABLE_EXPLICIT_TEMPLATES AND CF_CXX_SUPPORTS_EXPLICIT_TEMPLATES )
   set ( CF_HAVE_CXX_EXPLICIT_TEMPLATES ON CACHE BOOL "Support for Explicit templates activated" )
-ELSE ()
+else()
   set ( CF_HAVE_CXX_EXPLICIT_TEMPLATES OFF CACHE BOOL "Support for Explicit templates deactivated" )
 endif()
 
 # Apple linker with GCC does not support explicit templates so force them OFF
 if ( APPLE AND CMAKE_COMPILER_IS_GNUCC )
-  		set ( CF_HAVE_CXX_EXPLICIT_TEMPLATES OFF CACHE BOOL "Support for explicit templates deactivated -- Apple with GCC don't support it" )
+  set ( CF_HAVE_CXX_EXPLICIT_TEMPLATES OFF CACHE BOOL "Support for explicit templates deactivated -- Apple with GCC don't support it" FORCE )
+  if ( CF_ENABLE_EXPLICIT_TEMPLATES )
+    LOG  ( "Explicit templates requested but not supported on Mac OS X" )
+  endif()
 endif()
+
+LOGFILE ( "CF_HAVE_CXX_EXPLICIT_TEMPLATES [${CF_HAVE_CXX_EXPLICIT_TEMPLATES}]" )
 
 mark_as_advanced ( CF_HAVE_CXX_EXPLICIT_TEMPLATES )
 	

@@ -85,7 +85,7 @@ IF(WIN32)
 
   # under windows internal deps must be used so force them
   IF( NOT CF_ENABLE_INTERNAL_DEPS )
-  	SET ( CF_ENABLE_INTERNAL_DEPS ON CACHE BOOL "Use of internal deps is forced" )
+    SET ( CF_ENABLE_INTERNAL_DEPS ON CACHE BOOL "Use of internal deps is forced" FORCE )
   ENDIF()
 
   # linker flags:
@@ -107,6 +107,11 @@ IF ( APPLE )
   # not needed anymore because all lib depencies are explicitly set
   #  SET(CMAKE_CXX_CREATE_SHARED_LIBRARY
   #  "<CMAKE_CXX_COMPILER> -undefined dynamic_lookup <LANGUAGE_COMPILE_FLAGS> <CMAKE_SHARED_LIBRARY_CREATE_CXX_FLAGS> <LINK_FLAGS> -o <TARGET> -install_name <TARGET_INSTALLNAME_DIR><TARGET_SONAME> <OBJECTS> <LINK_LIBRARIES>")
+
+  # under Mac OS X internal deps must be used so force them
+  IF( NOT CF_ENABLE_INTERNAL_DEPS )
+    SET ( CF_ENABLE_INTERNAL_DEPS ON CACHE BOOL "Use of internal deps is forced" FORCE )
+  ENDIF()
 
 ENDIF()
 

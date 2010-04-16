@@ -1,10 +1,9 @@
 CF_FIND_ORPHAN_FILES()
 
 LIST ( APPEND Math_files
-BoostMath.hpp
+BoostHeaders.hpp
 FindMinimum.hpp
 MatrixInverter.cpp
-Cmp.hpp
 MatrixEigenSolver.hpp
 IntersectSolver.hpp
 JacobiEigenSolver.cpp
@@ -22,7 +21,6 @@ RealVector.hpp
 ConstantFunctor.hpp
 InverterDiag.hpp
 LUInverter.cpp
-NExprOp.hpp
 CFSliceMatrix.hpp
 MathChecks.hpp
 Math.hpp
