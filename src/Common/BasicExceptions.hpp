@@ -103,7 +103,18 @@ struct Common_API ValueNotFound: public Common::Exception {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Exception throwna certain functionality is not implemented
+/// This exception is thrown when convergence cannot be reached
+/// @author Willem Deconinck
+struct Common_API ConvergenceNotReached : public Common::Exception {
+
+  /// Constructor
+  ConvergenceNotReached(const Common::CodeLocation& where, const std::string& what);
+
+}; // class ConvergenceNotReached
+
+////////////////////////////////////////////////////////////////////////////////
+
+///  Exception throwna certain functionality is not implemented
 /// @author Andrea Lani
 /// @author Tiago Quintino
 struct Common_API  NotImplemented: public Common::Exception {
@@ -180,11 +191,9 @@ struct Common_API BuilderParserError : public Common::Exception {
   /// Constructor
   BuilderParserError(const Common::CodeLocation& where, const std::string& what);
 
-  }; // class BuilderParser
-
+}; // class BuilderParser
 
 ////////////////////////////////////////////////////////////////////////////////
-
   } // namespace Common
 } // namespace CF
 

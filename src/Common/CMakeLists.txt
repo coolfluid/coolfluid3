@@ -26,6 +26,7 @@ LIST ( APPEND Common_files
     ConcreteProvider.hpp
     ConfigArgs.cpp
     ConfigArgs.hpp
+    ConnectivityTable.hpp
     ConverterTools.cpp
     ConverterTools.hpp
     CoreEnv.hpp

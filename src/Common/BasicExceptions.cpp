@@ -57,6 +57,12 @@ ValueNotFound::ValueNotFound ( const Common::CodeLocation& where, const std::str
 
 ////////////////////////////////////////////////////////////////////////////////
 
+ConvergenceNotReached::ConvergenceNotReached(const Common::CodeLocation& where, const std::string& what)
+: Exception(where, what,"ConvergenceNotReached")
+{}
+
+////////////////////////////////////////////////////////////////////////////////
+
 NotImplemented::NotImplemented(const Common::CodeLocation& where, const std::string& what)
 : Exception(where, what,"NotImplemented")
 {}
