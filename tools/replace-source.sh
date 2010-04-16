@@ -30,8 +30,8 @@ shift 2
 
 files=$( find $D $* \
 	        -iname "CMakeLists.txt" -or -iname "*.cmake" \
-                -or -iname "*.h" -or -iname "*.hh" \
-                -or -iname "*.c"  -or -iname "*.cxx" -or -iname "*.cpp" -or -iname "*.ci" \
+                -or -iname "*.h" -or -iname "*.hh" -or -iname "*.hpp" \
+                -or -iname "*.c"  -or -iname "*.cxx" -or -iname "*.cpp" -or -iname "*.ci" -or -iname "*.cc" \
 		-or -iname "*.f" -or -iname "*.f77" -or -iname "*.f90" -or -iname "*.for" \
 		-or -iname "*.CFcase" -or -iname "*.in" \
 		-or -iname "*.pl" -or -iname "*.sh" \
