@@ -207,6 +207,10 @@ sub process ($)
       # class rename
       s/CFEnvVars/CoreVars/g;
       s/CFEnv/CoreEnv/g;
+      s/CFMatrix/MatrixT/g;
+      s/CFVector/VectorT/g;
+      s/CFSliceMatrix/MatrixSliceT/g;
+      s/CFSliceVector/VectorSliceT/g;
 
       # modified headers
       s/Environment\.hpp/CommonAPI\.hpp/;

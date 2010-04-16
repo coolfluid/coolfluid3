@@ -1,12 +1,12 @@
-#ifndef CF_Math_CFMatrix_hh
-#define CF_Math_CFMatrix_hh
+#ifndef CF_Math_MatrixT_hh
+#define CF_Math_MatrixT_hh
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <ostream>
 
-#include "Math/CFVector.hpp"
-#include "Math/CFSliceMatrix.hpp"
+#include "Math/VectorT.hpp"
+#include "Math/MatrixSliceT.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -14,12 +14,12 @@ namespace CF {
 
   namespace Math {
 
-    template <class T> class CFMatrix;
-    template <class T> std::ostream& operator<< (std::ostream& out, const CFMatrix<T>& A);
-    template <class T> std::istream& operator>> (std::istream& in, CFMatrix<T>& A);
-    template <class T> bool operator== (const CFMatrix<T>& A, const CFMatrix<T>& B);
-    template <class T> bool operator!= (const CFMatrix<T>& A, const CFMatrix<T>& B);
-    template <class T> void copy       (const CFMatrix<T>& v1, CFMatrix<T>& v2);
+    template <class T> class MatrixT;
+    template <class T> std::ostream& operator<< (std::ostream& out, const MatrixT<T>& A);
+    template <class T> std::istream& operator>> (std::istream& in, MatrixT<T>& A);
+    template <class T> bool operator== (const MatrixT<T>& A, const MatrixT<T>& B);
+    template <class T> bool operator!= (const MatrixT<T>& A, const MatrixT<T>& B);
+    template <class T> void copy       (const MatrixT<T>& v1, MatrixT<T>& v2);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -44,54 +44,54 @@ namespace CF {
 
 ///  Definition of a class Matrix for numerical applications that stores the
 ///  elements in a std::valarray but transparently gives access as a matrix.
-///  The CFMatrix is always oriented by rows. Consider generalizing it to both
+///  The MatrixT is always oriented by rows. Consider generalizing it to both
 ///  orientations in the future.
 /// @author Andrea Lani
 /// @author Tiago Quintino
 template < typename T >
-class CFMatrix : public Expr<CFMatrix<T>, T> {
+class MatrixT : public Expr<MatrixT<T>, T> {
 public:
 
   /// Overloading of the stream operator "<<" for the output.
   /// "\n"ine introduced at the end of every line of the matrix.
-  friend std::ostream& operator<< <> (std::ostream& out, const CFMatrix<T>& A);
+  friend std::ostream& operator<< <> (std::ostream& out, const MatrixT<T>& A);
 
   /// Overloading of the stream operator ">>" for the input
-  friend std::istream& operator>> <> (std::istream& in, CFMatrix<T>& A);
+  friend std::istream& operator>> <> (std::istream& in, MatrixT<T>& A);
 
   /// Overloading of the "==" operator.
   /// @return true if all elements are equal elementwise
-  friend bool operator== <> (const CFMatrix<T>& A, const CFMatrix<T>& B);
+  friend bool operator== <> (const MatrixT<T>& A, const MatrixT<T>& B);
 
   /// Overloading of the "!=" operator.
   /// @return true if all elements are different elementwise
-  friend bool operator!= <> (const CFMatrix<T>& A, const CFMatrix<T>& B);
+  friend bool operator!= <> (const MatrixT<T>& A, const MatrixT<T>& B);
 
-  /// Copy one CFVector into another one
+  /// Copy one VectorT into another one
   /// @pre v1.size() == v2.size()
   /// @param v1 source vector
   /// @param v2 destination vector
-  friend void copy <> (const CFMatrix<T>& orig, CFMatrix<T>& dest);
+  friend void copy <> (const MatrixT<T>& orig, MatrixT<T>& dest);
 
   /// Default Constructor
-  CFMatrix() :  Expr<CFMatrix<T>, T>(*this),
+  MatrixT() :  Expr<MatrixT<T>, T>(*this),
   m_owner(true), m_rows(0), m_cols(0), m_data(CFNULL) {}
 
   /// Constructor with initialization.
   /// @param mn number of rows
   /// @param nn number of columns
   /// @param value to initialize
-  CFMatrix(Uint mn, Uint nn, T value = T());
+  MatrixT(Uint mn, Uint nn, T value = T());
 
   /// Constructor by size and array initializer
   /// @param mn Uint with rows of matrix described in array
   /// @param nn Uint with columns of matrix described in array
   /// @param init T* array storing dynamical allocated memory
-  CFMatrix(bool owner, Uint mn, Uint nn, T* init);
+  MatrixT(bool owner, Uint mn, Uint nn, T* init);
 
   /// Copy Constructor
   /// @param init object to copy from
-  CFMatrix(const CFMatrix<T>& init);
+  MatrixT(const MatrixT<T>& init);
 
   /// Copy Constructor from an expression
   /// @param expr from which constructing the vector
@@ -99,19 +99,19 @@ public:
   /// @pre this works only for squared matrices
   /// @pre this should be used carefully
   template <class EXPR>
-  CFMatrix(const Expr<EXPR,T>& expr);
+  MatrixT(const Expr<EXPR,T>& expr);
 
   /// Destructor
-  ~CFMatrix();
+  ~MatrixT();
 
-  /// This allows to reset the inner pointer of the CFMatrix
+  /// This allows to reset the inner pointer of the MatrixT
   /// It must be used cautiously, only in case in which there is no ownership
   void resetPtr(T* ptr) {cf_assert(!m_owner);  m_data = ptr;}
 
   /// Overloading for operator= taking an expression as argument
 #define MAT_EQ_OP(__op__)        \
   template <class EXPR>          \
-  const CFMatrix<T>& operator __op__ (const Expr<EXPR,T>& expr)  \
+  const MatrixT<T>& operator __op__ (const Expr<EXPR,T>& expr)  \
   {\
     const size_t nm = size();    \
     for (size_t i = 0; i < nm; ++i) {    \
@@ -130,7 +130,7 @@ MAT_EQ_OP(/=)
 
 /// Overloading for operator= taking a constant value as argument
 #define MAT_EQ_OP_CONST(__op__) \
-  const CFMatrix<T>& operator __op__ (const T& value)  \
+  const MatrixT<T>& operator __op__ (const T& value)  \
   {              \
     const size_t nm = size();      \
 for (size_t i = 0; i < nm; ++i) {\
@@ -146,9 +146,9 @@ MAT_EQ_OP_CONST(*=)
 
 #undef MAT_EQ_OP_CONST
 
-  /// Overloading of the assignment op=() operators for CFVector
-#define MAT_ASSIGN_OP_CFVECTOR(__op__)          \
-const CFMatrix<T>& operator __op__ (const CFVector<T>& diag) \
+  /// Overloading of the assignment op=() operators for VectorT
+#define MAT_ASSIGN_OP_VectorT(__op__)          \
+const MatrixT<T>& operator __op__ (const VectorT<T>& diag) \
 {                                                            \
   for (size_t i = 0; i < m_rows; ++i) { \
     (*this)(i,i) __op__ diag[i];     \
@@ -156,18 +156,18 @@ const CFMatrix<T>& operator __op__ (const CFVector<T>& diag) \
   return *this;                      \
 }
 
-  MAT_ASSIGN_OP_CFVECTOR(=)
-  MAT_ASSIGN_OP_CFVECTOR(+=)
-  MAT_ASSIGN_OP_CFVECTOR(-=)
-  MAT_ASSIGN_OP_CFVECTOR(*=)
-  MAT_ASSIGN_OP_CFVECTOR(/=)
+  MAT_ASSIGN_OP_VectorT(=)
+  MAT_ASSIGN_OP_VectorT(+=)
+  MAT_ASSIGN_OP_VectorT(-=)
+  MAT_ASSIGN_OP_VectorT(*=)
+  MAT_ASSIGN_OP_VectorT(/=)
 
-#undef MAT_ASSIGN_OP_CFVECTOR
+#undef MAT_ASSIGN_OP_VectorT
 
   /// Fast implementation of matrix*matrix product (overloading of the general
   /// function taking the corresponding expression)
 #define MAT_MAT_PROD(__op__,__prodFun__) \
-const CFMatrix<T>& operator __op__ (const Expr<Mult<CFMatrix<T>,CFMatrix<T>,T>,T>& expr) \
+const MatrixT<T>& operator __op__ (const Expr<Mult<MatrixT<T>,MatrixT<T>,T>,T>& expr) \
 {\
 __prodFun__ (expr.getData().ex1.getData(), expr.getData().ex2.getData()); \
 return *this; \
@@ -182,7 +182,7 @@ MAT_MAT_PROD(-=,prod< SubBin<T> >)
   /// Fast implementation of matrix*(vector*matrix) product (overloading of the general
   /// function taking the corresponding expression)
 #define MAT_VEC_MAT_PROD(__op__,__prodFun__) \
-const CFMatrix<T>& operator __op__ (const Expr<Mult<CFMatrix<T>,Mult<CFVector<T>,CFMatrix<T>,T>,T>,T>& expr) \
+const MatrixT<T>& operator __op__ (const Expr<Mult<MatrixT<T>,Mult<VectorT<T>,MatrixT<T>,T>,T>,T>& expr) \
 {\
 __prodFun__ (expr.getData().ex1.getData(), \
 expr.getData().ex2.getData().ex1.getData(), \
@@ -199,11 +199,11 @@ return *this; \
   /// Overloading of the assignment operator "=".
   /// If the sizes don't match, assignee is erased and resized.
   /// @param B object to equal
-  const CFMatrix<T>& operator= (const CFMatrix<T>& B);
+  const MatrixT<T>& operator= (const MatrixT<T>& B);
 
   /// Overloading of "/="
   /// @param value of type T
-  const CFMatrix<T>& operator/= (const T& value)
+  const MatrixT<T>& operator/= (const T& value)
   {
     cf_assert(std::abs(value) > std::numeric_limits<T>::epsilon());
     const size_t msize = size();
@@ -231,7 +231,7 @@ return *this; \
   /// Returns the transposes of the object matrix.
   /// The object remains untransposed.
   /// @param result transposed matrix
-  void transpose(CFMatrix<T>& result) const;
+  void transpose(MatrixT<T>& result) const;
 
   /// Gets the number of Rows.
   /// @return the number of rows in the matrix
@@ -241,54 +241,54 @@ return *this; \
   /// @return the number of columns in the matrix
   Uint nbCols() const { return m_cols; }
 
-  /// Function returning a slice of this CFMatrix
-  CFSliceMatrix<T> slice (const Uint iStart, const Uint jStart)
+  /// Function returning a slice of this MatrixT
+  MatrixSliceT<T> slice (const Uint iStart, const Uint jStart)
   {
-    return CFSliceMatrix<T>(m_rows, m_cols, &m_data[iStart*m_cols + jStart]);
+    return MatrixSliceT<T>(m_rows, m_cols, &m_data[iStart*m_cols + jStart]);
   }
 
-  /// Gets a CFVector with the copy of the row of the CFMatrix.
+  /// Gets a VectorT with the copy of the row of the MatrixT.
   /// @param iRow  number of the row
   /// @return the specified row of the matrix.
-  CFVector<T> getRow(const Uint iRow) const;
+  VectorT<T> getRow(const Uint iRow) const;
 
-  /// Gets a  CFVector with the copy of the column of the CFMatrix.
+  /// Gets a  VectorT with the copy of the column of the MatrixT.
   /// @param iCol  number of the column
   /// @return the specified column of the matrix.
-  CFVector<T> getColumn(const Uint iCol) const;
+  VectorT<T> getColumn(const Uint iCol) const;
 
-  /// Puts in a supplied CFVector, the copy of the row of the CFMatrix.
+  /// Puts in a supplied VectorT, the copy of the row of the MatrixT.
   /// @param iRow  number of the row
-  void putRow(const Uint iRow, CFVector<T>& v) const;
+  void putRow(const Uint iRow, VectorT<T>& v) const;
 
-  /// Puts in a supplied CFVector, the copy of the column of the CFMatrix.
+  /// Puts in a supplied VectorT, the copy of the column of the MatrixT.
   /// @param iCol  number of the column
-  void putColumn(const Uint iCol, CFVector<T>& v) const;
+  void putColumn(const Uint iCol, VectorT<T>& v) const;
 
   /// Set a row of the matrix.
-  /// @param row CFVector with the row to set
+  /// @param row VectorT with the row to set
   /// @param iRow  number of the row
-  void setRow(const CFVector<T>& row, const Uint iRow);
+  void setRow(const VectorT<T>& row, const Uint iRow);
 
   /// Set a column of the matrix.
-  /// @param col CFVector with the column to set
+  /// @param col VectorT with the column to set
   /// @param iCol  number of the column
-  void setColumn(const CFVector<T>& col, const Uint iCol);
+  void setColumn(const VectorT<T>& col, const Uint iCol);
 
   /// Add a row to the matrix.
-  /// @param row CFVector with the row to set
+  /// @param row VectorT with the row to set
   /// @param iRow  number of the row
-  void addRow(const CFVector<T>& row, const Uint iRow);
+  void addRow(const VectorT<T>& row, const Uint iRow);
 
   /// Add a column to the matrix.
-  /// @param col CFVector with the column to set
+  /// @param col VectorT with the column to set
   /// @param iCol  number of the column
-  void addColumn(const CFVector<T>& col, const Uint iCol);
+  void addColumn(const VectorT<T>& col, const Uint iCol);
 
   /// Set a column of the given matrix in the current one.
-  /// @param col CFVector with the column to set
+  /// @param col VectorT with the column to set
   /// @param iCol  number of the column
-  void setColumn(Uint iCol1, const CFMatrix<T>& m1, Uint iCol2)
+  void setColumn(Uint iCol1, const MatrixT<T>& m1, Uint iCol2)
   {
     for (size_t i = 0; i < m_rows; ++i) {
       const size_t ni = m_cols*i;
@@ -296,39 +296,39 @@ return *this; \
     }
   }
 
-  /// Get a CFVector with all data of the matrix in a row oriented disposition.
-  /// @return CFVector with data of the matrix.
-  CFVector<T> getVector() const;
+  /// Get a VectorT with all data of the matrix in a row oriented disposition.
+  /// @return VectorT with data of the matrix.
+  VectorT<T> getVector() const;
 
-  /// Sums the rows of the CFMatrix into a CFVector
-  /// @return  CFVector<T> with the row summation of CFMatrix.
-  CFVector<T> sumRows() const;
+  /// Sums the rows of the MatrixT into a VectorT
+  /// @return  VectorT<T> with the row summation of MatrixT.
+  VectorT<T> sumRows() const;
 
-  /// Sums the columns of the CFMatrix into a CFVector
-  /// @return  CFVector<T> with the column sumation of CFMatrix.
-  CFVector<T> sumColumns() const;
+  /// Sums the columns of the MatrixT into a VectorT
+  /// @return  VectorT<T> with the column sumation of MatrixT.
+  VectorT<T> sumColumns() const;
 
-  /// Sums the squares of the rows of the CFMatrix into a CFVector
-  /// @return  CFVector<T> with the row square sumation of CFMatrix.
-  CFVector<T> sumSqRows() const;
+  /// Sums the squares of the rows of the MatrixT into a VectorT
+  /// @return  VectorT<T> with the row square sumation of MatrixT.
+  VectorT<T> sumSqRows() const;
 
-  /// Sums the squares of the columns of the CFMatrix into a CFVector
-  /// @return  CFVector<T> with the column square sumation of CFMatrix.
-  CFVector<T> sumSqColumns() const;
+  /// Sums the squares of the columns of the MatrixT into a VectorT
+  /// @return  VectorT<T> with the column square sumation of MatrixT.
+  VectorT<T> sumSqColumns() const;
 
   /// Sums the rows into the passed vector
-  void sumRowsTo (CFVector<T>& v) const;
+  void sumRowsTo (VectorT<T>& v) const;
   /// Sums the columns into the passed vector
-  void sumColumnsTo (CFVector<T>& v) const;
+  void sumColumnsTo (VectorT<T>& v) const;
   /// Copies the ith row into the passed vector
-  void copyRowTo(CFVector<T>& v, const Uint& i) const;
+  void copyRowTo(VectorT<T>& v, const Uint& i) const;
   /// Copies the jth column into the passed vector
-  void copyColumnTo(CFVector<T>& v, const Uint& j) const;
+  void copyColumnTo(VectorT<T>& v, const Uint& j) const;
   /// Copies the diagonal into the passed vector
-  void copyDiagonalTo(CFVector<T>& v, const Uint begin, const Uint end);
+  void copyDiagonalTo(VectorT<T>& v, const Uint begin, const Uint end);
 
-  /// Calculates the trace of the CFMatrix
-  /// @return T with the trace of the CFMatrix
+  /// Calculates the trace of the MatrixT
+  /// @return T with the trace of the MatrixT
   T trace() const;
 
   /// Clears and resizes the matrix
@@ -336,18 +336,18 @@ return *this; \
   /// @param cols number of columns for new size
   void resize(const Uint rows, const Uint cols, bool owner = true);
 
-  /// Gets the size of the CFMatrix
+  /// Gets the size of the MatrixT
   /// @return Uint with size of the std::valarray stored inside
   Uint size() const { return m_rows*m_cols; }
 
-  /// Checks if CFMatrix is null
+  /// Checks if MatrixT is null
   bool isNull() const;
 
-  /// Checks if CFMatrix is a square matrix.
+  /// Checks if MatrixT is a square matrix.
   /// @return true if square, false otherwise
   bool isSquare() const;
 
-  /// Checks if CFMatrix is a symmetric matrix.
+  /// Checks if MatrixT is a symmetric matrix.
   /// @return true if symmetric, false otherwise
   bool isSymmetric() const;
 
@@ -361,7 +361,7 @@ return *this; \
   T determ4() const;
 
   /// Invert a diagonal matrix
-  void invertDiag(CFMatrix<T>& result) const;
+  void invertDiag(MatrixT<T>& result) const;
 
   /// Get the maximum element
   T emax() const;
@@ -382,12 +382,12 @@ private: // helper function
   /// Fast implementation for matrix*matrix (impossible with conventional "elementwise"
   /// expression templates).
   template <class BINOP>
-  void prod(const CFMatrix<T>& A, const CFMatrix<T>& B);
+  void prod(const MatrixT<T>& A, const MatrixT<T>& B);
 
   /// Fast implementation for matrix*(vector*matrix) (impossible with conventional "elementwise"
   /// expression templates).
   template <class BINOP>
-  void prod(const CFMatrix<T>& A, const CFVector<T>& v, const CFMatrix<T>& B);
+  void prod(const MatrixT<T>& A, const VectorT<T>& v, const MatrixT<T>& B);
 
   /// Deletes the allocated memory in case of ownership
   void release_mem ();
@@ -413,15 +413,15 @@ private: // data
   /// storage of the data
   T* cf_restrict m_data;
 
-}; // end class CFMatrix
+}; // end class MatrixT
 
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-CFMatrix<T>::CFMatrix(Uint mn,
+MatrixT<T>::MatrixT(Uint mn,
           Uint nn,
           T value) :
-  Expr<CFMatrix<T>, T>(*this),
+  Expr<MatrixT<T>, T>(*this),
   m_owner (true), m_rows(mn), m_cols(nn), m_data(CFNULL)
 {
   alloc_mem();
@@ -431,11 +431,11 @@ CFMatrix<T>::CFMatrix(Uint mn,
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-CFMatrix<T>::CFMatrix(bool owner,
+MatrixT<T>::MatrixT(bool owner,
           Uint mn,
           Uint nn,
           T* init) :
-  Expr<CFMatrix<T>, T>(*this),
+  Expr<MatrixT<T>, T>(*this),
   m_owner(owner), m_rows(mn), m_cols(nn), m_data(CFNULL)
 {
   if (m_owner) {
@@ -453,8 +453,8 @@ CFMatrix<T>::CFMatrix(bool owner,
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-CFMatrix<T>::CFMatrix(const CFMatrix<T>& init) :
-  Expr<CFMatrix<T>, T>(*this),
+MatrixT<T>::MatrixT(const MatrixT<T>& init) :
+  Expr<MatrixT<T>, T>(*this),
   m_owner (true),
   m_rows(init.m_rows),
   m_cols(init.m_cols),
@@ -468,8 +468,8 @@ CFMatrix<T>::CFMatrix(const CFMatrix<T>& init) :
 
 template<class T>
 template <class EXPR>
-CFMatrix<T>::CFMatrix(const Expr<EXPR,T>& expr) :
-  Expr<CFMatrix<T>, T>(*this),
+MatrixT<T>::MatrixT(const Expr<EXPR,T>& expr) :
+  Expr<MatrixT<T>, T>(*this),
   m_owner(true)
 {
   const Uint sizeN = static_cast<Uint>(std::sqrt(static_cast<T>(expr.size())));
@@ -487,7 +487,7 @@ CFMatrix<T>::CFMatrix(const Expr<EXPR,T>& expr) :
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-CFMatrix<T>::~CFMatrix()
+MatrixT<T>::~MatrixT()
 {
   release_mem();
 }
@@ -495,7 +495,7 @@ CFMatrix<T>::~CFMatrix()
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-void CFMatrix<T>::release_mem ()
+void MatrixT<T>::release_mem ()
 {
   if (m_owner && m_data != CFNULL)
   {
@@ -507,7 +507,7 @@ void CFMatrix<T>::release_mem ()
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-const CFMatrix<T>& CFMatrix<T>::operator= (const CFMatrix<T>& B)
+const MatrixT<T>& MatrixT<T>::operator= (const MatrixT<T>& B)
 {
   cf_assert(&B != this);
 
@@ -535,7 +535,7 @@ const CFMatrix<T>& CFMatrix<T>::operator= (const CFMatrix<T>& B)
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-inline T& CFMatrix<T>::operator()(Uint i, Uint j)
+inline T& MatrixT<T>::operator()(Uint i, Uint j)
 {
   cf_assert(i < m_rows);
   cf_assert(j < m_cols);
@@ -545,7 +545,7 @@ inline T& CFMatrix<T>::operator()(Uint i, Uint j)
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-inline T CFMatrix<T>::operator()(Uint i, Uint j) const
+inline T MatrixT<T>::operator()(Uint i, Uint j) const
 {
   cf_assert(i < m_rows);
   cf_assert(j < m_cols);
@@ -555,7 +555,7 @@ inline T CFMatrix<T>::operator()(Uint i, Uint j) const
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-inline T& CFMatrix<T>::operator[](Uint i)
+inline T& MatrixT<T>::operator[](Uint i)
 {
   cf_assert(i < size());
   return m_data[i];
@@ -564,7 +564,7 @@ inline T& CFMatrix<T>::operator[](Uint i)
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-inline T CFMatrix<T>::operator[](Uint i) const
+inline T MatrixT<T>::operator[](Uint i) const
 {
   cf_assert(i < size());
   return m_data[i];
@@ -573,7 +573,7 @@ inline T CFMatrix<T>::operator[](Uint i) const
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-inline T CFMatrix<T>::determ2() const
+inline T MatrixT<T>::determ2() const
 {
   cf_assert(m_rows == 2);
   cf_assert(m_cols == 2);
@@ -583,7 +583,7 @@ inline T CFMatrix<T>::determ2() const
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-T CFMatrix<T>::determ4() const
+T MatrixT<T>::determ4() const
 {
   cf_assert(m_rows == 4);
   cf_assert(m_cols == 4);
@@ -613,7 +613,7 @@ T CFMatrix<T>::determ4() const
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-inline T CFMatrix<T>::determ3() const
+inline T MatrixT<T>::determ3() const
 {
   cf_assert(m_rows == 3);
   cf_assert(m_cols == 3);
@@ -626,7 +626,7 @@ inline T CFMatrix<T>::determ3() const
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-inline void CFMatrix<T>::invertDiag(CFMatrix<T>& result) const
+inline void MatrixT<T>::invertDiag(MatrixT<T>& result) const
 {
   T temp = T();
   for (size_t i = 0; i < m_cols; ++i) {
@@ -639,7 +639,7 @@ inline void CFMatrix<T>::invertDiag(CFMatrix<T>& result) const
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-inline void CFMatrix<T>::resize(const Uint rows,
+inline void MatrixT<T>::resize(const Uint rows,
     const Uint cols,
     bool owner)
 {
@@ -657,9 +657,9 @@ inline void CFMatrix<T>::resize(const Uint rows,
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-CFVector<T> CFMatrix<T>::sumRows() const
+VectorT<T> MatrixT<T>::sumRows() const
 {
-  CFVector<T> temp(m_rows);
+  VectorT<T> temp(m_rows);
   T sum;
   for (size_t i = 0; i < m_rows; ++i) {
     sum = T();
@@ -672,9 +672,9 @@ CFVector<T> CFMatrix<T>::sumRows() const
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-CFVector<T> CFMatrix<T>::sumColumns() const
+VectorT<T> MatrixT<T>::sumColumns() const
 {
-  CFVector<T> temp(m_cols);
+  VectorT<T> temp(m_cols);
   T sum;
   for (size_t i = 0; i < m_cols; ++i) {
     sum = T();
@@ -687,9 +687,9 @@ CFVector<T> CFMatrix<T>::sumColumns() const
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-CFVector<T> CFMatrix<T>::sumSqRows() const
+VectorT<T> MatrixT<T>::sumSqRows() const
 {
-  CFVector<T> temp(m_rows);
+  VectorT<T> temp(m_rows);
   T sum;
   for (size_t i = 0; i < m_rows; ++i) {
     sum = T();
@@ -702,9 +702,9 @@ CFVector<T> CFMatrix<T>::sumSqRows() const
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-CFVector<T> CFMatrix<T>::sumSqColumns() const
+VectorT<T> MatrixT<T>::sumSqColumns() const
 {
-  CFVector<T> temp(m_cols);
+  VectorT<T> temp(m_cols);
   T sum;
   for (size_t i = 0; i < m_cols; ++i) {
     sum = T();
@@ -717,10 +717,10 @@ CFVector<T> CFMatrix<T>::sumSqColumns() const
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-inline CFVector<T> CFMatrix<T>::getRow(const Uint iRow) const
+inline VectorT<T> MatrixT<T>::getRow(const Uint iRow) const
 {
   cf_assert(iRow < m_rows);
-  CFVector<T> row(m_cols);
+  VectorT<T> row(m_cols);
   putRow(iRow,row);
   return row;
 }
@@ -728,10 +728,10 @@ inline CFVector<T> CFMatrix<T>::getRow(const Uint iRow) const
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-inline CFVector<T> CFMatrix<T>::getColumn(const Uint iCol) const
+inline VectorT<T> MatrixT<T>::getColumn(const Uint iCol) const
 {
   cf_assert(iCol < m_cols);
-  CFVector<T> col(m_rows);
+  VectorT<T> col(m_rows);
   putColumn(iCol,col);
   return col;
 }
@@ -739,10 +739,10 @@ inline CFVector<T> CFMatrix<T>::getColumn(const Uint iCol) const
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-inline CFVector<T> CFMatrix<T>::getVector() const
+inline VectorT<T> MatrixT<T>::getVector() const
 {
   const size_t msize = size();
-  CFVector<T> all(msize);
+  VectorT<T> all(msize);
   for(size_t i = 0; i < msize; ++i)
     all[i] = m_data[i];
   return all;
@@ -751,7 +751,7 @@ inline CFVector<T> CFMatrix<T>::getVector() const
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-inline void CFMatrix<T>::putRow(const Uint iRow, CFVector<T>& v) const
+inline void MatrixT<T>::putRow(const Uint iRow, VectorT<T>& v) const
 {
   cf_assert(iRow < m_rows);
   cf_assert(v.size() == m_cols);
@@ -762,7 +762,7 @@ inline void CFMatrix<T>::putRow(const Uint iRow, CFVector<T>& v) const
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-inline void CFMatrix<T>::putColumn(const Uint iCol, CFVector<T>& v) const
+inline void MatrixT<T>::putColumn(const Uint iCol, VectorT<T>& v) const
 {
   cf_assert(iCol < m_cols);
   cf_assert(v.size() == m_rows);
@@ -773,7 +773,7 @@ inline void CFMatrix<T>::putColumn(const Uint iCol, CFVector<T>& v) const
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-inline void CFMatrix<T>::setRow(const CFVector<T>& row, const Uint iRow)
+inline void MatrixT<T>::setRow(const VectorT<T>& row, const Uint iRow)
 {
   cf_assert(row.size() == m_cols);
   size_t istart = iRow*m_cols;
@@ -785,7 +785,7 @@ inline void CFMatrix<T>::setRow(const CFVector<T>& row, const Uint iRow)
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-inline void CFMatrix<T>::setColumn(const CFVector<T>& col, const Uint iCol)
+inline void MatrixT<T>::setColumn(const VectorT<T>& col, const Uint iCol)
 {
   cf_assert(col.size() == m_rows);
   for (size_t i = 0; i < m_rows; ++i) {
@@ -796,7 +796,7 @@ inline void CFMatrix<T>::setColumn(const CFVector<T>& col, const Uint iCol)
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-inline void CFMatrix<T>::addRow(const CFVector<T>& row, const Uint iRow)
+inline void MatrixT<T>::addRow(const VectorT<T>& row, const Uint iRow)
 {
   cf_assert(row.size() == m_cols);
   size_t istart = iRow*m_cols;
@@ -808,7 +808,7 @@ inline void CFMatrix<T>::addRow(const CFVector<T>& row, const Uint iRow)
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-inline void CFMatrix<T>::addColumn(const CFVector<T>& col, const Uint iCol)
+inline void MatrixT<T>::addColumn(const VectorT<T>& col, const Uint iCol)
 {
   cf_assert(col.size() == m_rows);
   for (size_t i = 0; i < m_rows; ++i) {
@@ -819,7 +819,7 @@ inline void CFMatrix<T>::addColumn(const CFVector<T>& col, const Uint iCol)
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-inline bool CFMatrix<T>::isNull() const
+inline bool MatrixT<T>::isNull() const
 {
   const size_t msize = size();
   for (size_t i = 0; i < msize; ++i) {
@@ -831,7 +831,7 @@ inline bool CFMatrix<T>::isNull() const
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-inline bool CFMatrix<T>::isSquare() const
+inline bool MatrixT<T>::isSquare() const
 {
   return m_rows == m_cols;
 }
@@ -839,7 +839,7 @@ inline bool CFMatrix<T>::isSquare() const
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-bool CFMatrix<T>::isSymmetric() const
+bool MatrixT<T>::isSymmetric() const
 {
   if (m_rows != m_cols)
     return false;
@@ -855,7 +855,7 @@ bool CFMatrix<T>::isSymmetric() const
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-inline T CFMatrix<T>::trace() const
+inline T MatrixT<T>::trace() const
 {
   T traceRes = 0;
   size_t n = std::min( m_rows , m_cols );
@@ -866,7 +866,7 @@ inline T CFMatrix<T>::trace() const
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
-inline void CFMatrix<T>::transpose(CFMatrix<T>& result) const
+inline void MatrixT<T>::transpose(MatrixT<T>& result) const
 {
   for (size_t i = 0; i < m_cols; ++i) {
     for (size_t j = 0; j < m_rows; ++j) {
@@ -878,7 +878,7 @@ inline void CFMatrix<T>::transpose(CFMatrix<T>& result) const
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-std::ostream& operator<< (std::ostream& out, const CFMatrix<T>& A)
+std::ostream& operator<< (std::ostream& out, const MatrixT<T>& A)
 {
   for (size_t i = 0; i < A.m_rows; ++i) {
     for (size_t j = 0; j < A.m_cols; ++j) {
@@ -892,7 +892,7 @@ std::ostream& operator<< (std::ostream& out, const CFMatrix<T>& A)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-std::istream& operator>> (std::istream& in, CFMatrix<T>& A)
+std::istream& operator>> (std::istream& in, MatrixT<T>& A)
 {
   for (size_t i = 0; i < A.m_rows; ++i) {
     for (size_t j = 0; j < A.m_cols; ++j) {
@@ -905,7 +905,7 @@ std::istream& operator>> (std::istream& in, CFMatrix<T>& A)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-bool operator== (const CFMatrix<T>& A, const CFMatrix<T>& B)
+bool operator== (const MatrixT<T>& A, const MatrixT<T>& B)
 {
   cf_assert(A.size() == B.size());
   for(size_t i = 0; i < A.size(); ++i) {
@@ -919,7 +919,7 @@ bool operator== (const CFMatrix<T>& A, const CFMatrix<T>& B)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-bool operator!= (const CFMatrix<T>& A, const CFMatrix<T>& B)
+bool operator!= (const MatrixT<T>& A, const MatrixT<T>& B)
 {
   return !(A == B);
 }
@@ -928,7 +928,7 @@ bool operator!= (const CFMatrix<T>& A, const CFMatrix<T>& B)
 
 template <class T>
 template <class BINOP>
-void CFMatrix<T>::prod(const CFMatrix<T>& A, const CFMatrix<T>& B)
+void MatrixT<T>::prod(const MatrixT<T>& A, const MatrixT<T>& B)
 {
   cf_assert(B.m_rows == A.m_cols);
 
@@ -958,8 +958,8 @@ void CFMatrix<T>::prod(const CFMatrix<T>& A, const CFMatrix<T>& B)
 
 template <class T>
 template <class BINOP>
-void CFMatrix<T>::prod(const CFMatrix<T>& A, const CFVector<T>& d,
-                       const CFMatrix<T>& B)
+void MatrixT<T>::prod(const MatrixT<T>& A, const VectorT<T>& d,
+                       const MatrixT<T>& B)
 {
   cf_assert(B.m_rows == A.m_cols);
   cf_assert(d.size() == B.m_rows);
@@ -989,7 +989,7 @@ void CFMatrix<T>::prod(const CFMatrix<T>& A, const CFVector<T>& d,
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-void CFMatrix<T>::sumRowsTo(CFVector<T>& v) const
+void MatrixT<T>::sumRowsTo(VectorT<T>& v) const
 {
   const size_t m = nbRows();
   const size_t n = nbCols();
@@ -1006,7 +1006,7 @@ void CFMatrix<T>::sumRowsTo(CFVector<T>& v) const
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-void CFMatrix<T>::sumColumnsTo(CFVector<T>& v) const
+void MatrixT<T>::sumColumnsTo(VectorT<T>& v) const
 {
   const size_t m = nbRows();
   const size_t n = nbCols();
@@ -1025,7 +1025,7 @@ void CFMatrix<T>::sumColumnsTo(CFVector<T>& v) const
 
 template <class T>
 inline
-void CFMatrix<T>::copyRowTo(CFVector<T>& v, const Uint& i) const
+void MatrixT<T>::copyRowTo(VectorT<T>& v, const Uint& i) const
 {
   cf_assert(size() == nbCols());
   const size_t n = nbCols();
@@ -1038,7 +1038,7 @@ void CFMatrix<T>::copyRowTo(CFVector<T>& v, const Uint& i) const
 
 template <class T>
 inline
-void CFMatrix<T>::copyColumnTo(CFVector<T>& v, const Uint& j) const
+void MatrixT<T>::copyColumnTo(VectorT<T>& v, const Uint& j) const
 {
   cf_assert(size() == nbRows());
   const size_t m = nbRows();
@@ -1051,7 +1051,7 @@ void CFMatrix<T>::copyColumnTo(CFVector<T>& v, const Uint& j) const
 
 template <class T>
 inline
-void CFMatrix<T>::copyDiagonalTo(CFVector<T>& v, const Uint begin, const Uint end)
+void MatrixT<T>::copyDiagonalTo(VectorT<T>& v, const Uint begin, const Uint end)
 {
   cf_assert( begin <= end );
   cf_assert( end < std::min<Uint> ( nbRows(), nbCols() ));
@@ -1065,7 +1065,7 @@ void CFMatrix<T>::copyDiagonalTo(CFVector<T>& v, const Uint begin, const Uint en
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-inline void CFMatrix<T>::factorizeLU()
+inline void MatrixT<T>::factorizeLU()
 {
   // actual LU factorization
   // loop over the diagonal elements
@@ -1087,7 +1087,7 @@ inline void CFMatrix<T>::factorizeLU()
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-void copy (const CFMatrix<T>& orig, CFMatrix<T>& dest)
+void copy (const MatrixT<T>& orig, MatrixT<T>& dest)
 {
   cf_assert(orig.size() == dest.size());
   const size_t size = orig.size();
@@ -1098,7 +1098,7 @@ void copy (const CFMatrix<T>& orig, CFMatrix<T>& dest)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-inline T CFMatrix<T>::emax () const
+inline T MatrixT<T>::emax () const
 {
   const size_t msize = this->size();
   cf_assert (msize > 0);
@@ -1111,7 +1111,7 @@ inline T CFMatrix<T>::emax () const
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-inline T CFMatrix<T>::emin () const
+inline T MatrixT<T>::emin () const
 {
   const size_t msize = this->size();
   cf_assert (msize > 0);
@@ -1129,4 +1129,4 @@ inline T CFMatrix<T>::emin () const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Math_CFMatrix_hh
+#endif // CF_Math_MatrixT_hh

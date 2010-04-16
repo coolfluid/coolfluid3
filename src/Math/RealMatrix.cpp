@@ -1,5 +1,5 @@
-#include "Math/CFMatrix.hpp"
-#include "Math/CFVector.hpp"
+#include "Math/MatrixT.hpp"
+#include "Math/VectorT.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -11,8 +11,8 @@ namespace CF {
 
 // #ifdef CF_HAVE_CXX_EXPLICIT_TEMPLATES
 //   // explicit template instantiation
-//   template class Math_API Math::CFMatrix<Real>;
-//   template class Math_API Math::CFSliceMatrix<Real>;
+//   template class Math_API Math::MatrixT<Real>;
+//   template class Math_API Math::MatrixSliceT<Real>;
 // #endif // CF_HAVE_EXPLICIT_TEMPLATES
 
 ////////////////////////////////////////////////////////////////////////////////

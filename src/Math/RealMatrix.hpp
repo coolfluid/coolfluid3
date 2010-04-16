@@ -3,7 +3,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Math/CFMatrix.hpp"
+#include "Math/MatrixT.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,15 +13,15 @@ namespace CF {
 
 #ifdef CF_HAVE_CXX_EXPLICIT_TEMPLATES
   // explicit template instantiation
-  Math_TEMPLATE template class Math_API Math::CFMatrix<Real>;
-  Math_TEMPLATE template class Math_API Math::CFSliceMatrix<Real>;
+  Math_TEMPLATE template class Math_API Math::MatrixT<Real>;
+  Math_TEMPLATE template class Math_API Math::MatrixSliceT<Real>;
 #endif
 
-/// RealMatrix is a CFMatrix templatized with a Real
-typedef Math::CFMatrix<Real> RealMatrix;
+/// RealMatrix is a MatrixT templatized with a Real
+typedef Math::MatrixT<Real> RealMatrix;
 
-/// RealSliceMatrix is a CFSliceMatrix templatized with a Real
-typedef Math::CFSliceMatrix<Real> RealSliceMatrix;
+/// RealSliceMatrix is a MatrixSliceT templatized with a Real
+typedef Math::MatrixSliceT<Real> RealSliceMatrix;
 
 ////////////////////////////////////////////////////////////////////////////////
 

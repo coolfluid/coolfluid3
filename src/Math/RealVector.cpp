@@ -10,8 +10,8 @@ namespace CF {
 
 // #ifdef CF_HAVE_CXX_EXPLICIT_TEMPLATES
 //   // explicit template instantiation
-//   template class Math_API Math::CFVector<Real>;
-//   template class Math_API Math::CFSliceVector<Real>;
+//   template class Math_API Math::VectorT<Real>;
+//   template class Math_API Math::VectorSliceT<Real>;
 // #endif
 
 ////////////////////////////////////////////////////////////////////////////////

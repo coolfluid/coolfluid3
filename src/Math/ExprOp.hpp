@@ -11,10 +11,10 @@ namespace CF {
 
   namespace Math {
 
-    template <class T> class CFMatrix;
-    template <class T> class CFVector;
-    template <class T> class CFSliceVector;
-    template <class T> class CFSliceMatrix;
+    template <class T> class MatrixT;
+    template <class T> class VectorT;
+    template <class T> class VectorSliceT;
+    template <class T> class MatrixSliceT;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -149,21 +149,21 @@ EXPR_BINARY_OP_CONST2(Div,/)
 #undef EXPR_BINARY_OP_CONST2
 
 /// Partial specialization of the previous expression template class
-/// for multiplication between a CFMatrix and another type
-/// (e.g. CFVector or expressions involving CFVectors).
+/// for multiplication between a MatrixT and another type
+/// (e.g. VectorT or expressions involving VectorTs).
 /// The expression template accepts two parameters:
 /// 2. second operand expression type
 /// 3. built-in type of both the expressions (double, float, etc.).
 /// The constructor accepts as arguments two references, one to a
-/// CFMatrix expression template object, the other to an expression template
+/// MatrixT expression template object, the other to an expression template
 /// object.
 ///
 /// @author Andrea Lani
 template <class V2, class T>
-class Mult<CFMatrix<T>,V2,T> : public Expr< Mult<CFMatrix<T>,V2,T>,T> {
+class Mult<MatrixT<T>,V2,T> : public Expr< Mult<MatrixT<T>,V2,T>,T> {
 public:
-  Mult(const Expr<CFMatrix<T>,T>& v1, const Expr<V2,T>& v2) :
-    Expr<Mult<CFMatrix<T>,V2,T>, T>(*this),
+  Mult(const Expr<MatrixT<T>,T>& v1, const Expr<V2,T>& v2) :
+    Expr<Mult<MatrixT<T>,V2,T>, T>(*this),
     ex1(v1), ex2(v2) {}
 
   T at(const Uint& i) const
@@ -179,25 +179,25 @@ public:
   Uint size() const {return ex2.size();}
 
 private:
-  const Expr<CFMatrix<T>, T>& ex1;
+  const Expr<MatrixT<T>, T>& ex1;
   const Expr<V2,T>&         ex2;
 };
 
 /// Partial specialization of the previous expression template class
-/// for multiplication between two CFMatrix's.
+/// for multiplication between two MatrixT's.
 /// The expression template accepts one parameter, namely the
 /// built-in type of both the expressions (double, float, etc.).
 ///
 /// The constructor accepts as arguments two references to
-/// CFMatrix expression template objects.
+/// MatrixT expression template objects.
 ///
 /// @author Andrea Lani
 template <class T>
-class Mult<CFMatrix<T>,CFMatrix<T>,T> : public Expr< Mult<CFMatrix<T>,CFMatrix<T>,T>,T> {
-  friend class CFMatrix<T>;
+class Mult<MatrixT<T>,MatrixT<T>,T> : public Expr< Mult<MatrixT<T>,MatrixT<T>,T>,T> {
+  friend class MatrixT<T>;
 public:
-  Mult(const Expr<CFMatrix<T>,T>& v1, const Expr<CFMatrix<T>,T>& v2) :
-    Expr<Mult<CFMatrix<T>,CFMatrix<T>,T>, T>(*this),
+  Mult(const Expr<MatrixT<T>,T>& v1, const Expr<MatrixT<T>,T>& v2) :
+    Expr<Mult<MatrixT<T>,MatrixT<T>,T>, T>(*this),
     ex1(v1), ex2(v2) {}
 
   T at(const Uint& i) const
@@ -214,30 +214,30 @@ public:
   Uint size() const {return ex1.getData().nbRows()*ex2.getData().nbCols();}
 
 private:
-  const Expr<CFMatrix<T>, T>& ex1;
-  const Expr<CFMatrix<T>, T>& ex2;
+  const Expr<MatrixT<T>, T>& ex1;
+  const Expr<MatrixT<T>, T>& ex2;
 };
 
 /// Partial specialization of the previous expression template class
-/// for multiplication of the type CFMatrix*CFVector*CFMatrix,
-/// being CFVector a diagonal matrix.
+/// for multiplication of the type MatrixT*VectorT*MatrixT,
+/// being VectorT a diagonal matrix.
 /// The expression template accepts one parameter, namely the
 /// built-in type of both the expressions (double, float, etc.).
 ///
 /// The constructor accepts as arguments two references, one to
-/// a CFMatrix and the other one to an expression template object
-/// corresponding to the CFVector-CFMatrix product.
+/// a MatrixT and the other one to an expression template object
+/// corresponding to the VectorT-MatrixT product.
 ///
 /// @author Andrea Lani
 template <class T>
-class Mult<CFMatrix<T>,Mult<CFVector<T>,CFMatrix<T>,T>,T> :
-  public Expr<Mult<CFMatrix<T>,Mult<CFVector<T>,CFMatrix<T>,T>,T>,T> {
+class Mult<MatrixT<T>,Mult<VectorT<T>,MatrixT<T>,T>,T> :
+  public Expr<Mult<MatrixT<T>,Mult<VectorT<T>,MatrixT<T>,T>,T>,T> {
 
-  friend class CFMatrix<T>;
+  friend class MatrixT<T>;
 public:
-  Mult(const Expr<CFMatrix<T>,T>& v1,
-      const Expr<Mult<CFVector<T>,CFMatrix<T>,T>,T>& v2) :
-    Expr<Mult<CFMatrix<T>,Mult<CFVector<T>,CFMatrix<T>,T>,T>,T>(*this),
+  Mult(const Expr<MatrixT<T>,T>& v1,
+      const Expr<Mult<VectorT<T>,MatrixT<T>,T>,T>& v2) :
+    Expr<Mult<MatrixT<T>,Mult<VectorT<T>,MatrixT<T>,T>,T>,T>(*this),
     ex1(v1), ex2(v2) {}
 
   T at(const Uint& i) const
@@ -258,27 +258,27 @@ public:
   }
 
 private:
-  const Expr<CFMatrix<T>, T>& ex1;
-  const Expr<Mult<CFVector<T>,CFMatrix<T>,T>,T>& ex2;
+  const Expr<MatrixT<T>, T>& ex1;
+  const Expr<Mult<VectorT<T>,MatrixT<T>,T>,T>& ex2;
 };
 
 /// Partial specialization of the previous expression template class
-/// for multiplication between a CFSliceMatrix and another type
-/// (e.g. CFVector or expressions involving CFVectors).
+/// for multiplication between a MatrixSliceT and another type
+/// (e.g. VectorT or expressions involving VectorTs).
 /// The expression template accepts two parameters:
 /// 2. second operand expression type
 /// 3. built-in type of both the expressions (double, float, etc.).
 ///
 /// The constructor accepts as arguments two references, one to a
-/// CFSliceMatrix expression template object, the other to an expression template
+/// MatrixSliceT expression template object, the other to an expression template
 /// object.
 ///
 /// @author Andrea Lani
 template <class V2, class T>
-class Mult<CFSliceMatrix<T>,V2,T> : public Expr< Mult<CFSliceMatrix<T>,V2,T>,T> {
+class Mult<MatrixSliceT<T>,V2,T> : public Expr< Mult<MatrixSliceT<T>,V2,T>,T> {
 public:
-  Mult(const Expr<CFSliceMatrix<T>,T>& v1, const Expr<V2,T>& v2) :
-    Expr<Mult<CFSliceMatrix<T>,V2,T>, T>(*this),
+  Mult(const Expr<MatrixSliceT<T>,T>& v1, const Expr<V2,T>& v2) :
+    Expr<Mult<MatrixSliceT<T>,V2,T>, T>(*this),
     ex1(v1), ex2(v2) {}
 
   T at(const Uint& i) const
@@ -294,24 +294,24 @@ public:
   Uint size() const {return ex2.size();}
 
 private:
-  const Expr<CFSliceMatrix<T>, T>& ex1;
+  const Expr<MatrixSliceT<T>, T>& ex1;
   const Expr<V2,T>&         ex2;
 };
 
 /// Partial specialization of the previous expression template class
-/// for multiplication between two CFSliceMatrix's.
+/// for multiplication between two MatrixSliceT's.
 /// The expression template accepts one parameter, namely the
 /// built-in type of both the expressions (double, float, etc.).
 ///
 /// The constructor accepts as arguments two references to
-/// CFSliceMatrix expression template objects.
+/// MatrixSliceT expression template objects.
 ///
 /// @author Andrea Lani
 template <class T>
-class Mult<CFSliceMatrix<T>,CFSliceMatrix<T>,T> : public Expr< Mult<CFSliceMatrix<T>,CFSliceMatrix<T>,T>,T> {
+class Mult<MatrixSliceT<T>,MatrixSliceT<T>,T> : public Expr< Mult<MatrixSliceT<T>,MatrixSliceT<T>,T>,T> {
 public:
-  Mult(const Expr<CFSliceMatrix<T>,T>& v1, const Expr<CFSliceMatrix<T>,T>& v2) :
-    Expr<Mult<CFSliceMatrix<T>,CFSliceMatrix<T>,T>, T>(*this),
+  Mult(const Expr<MatrixSliceT<T>,T>& v1, const Expr<MatrixSliceT<T>,T>& v2) :
+    Expr<Mult<MatrixSliceT<T>,MatrixSliceT<T>,T>, T>(*this),
     ex1(v1), ex2(v2) {}
 
   T at(const Uint& i) const
@@ -328,28 +328,28 @@ public:
   Uint size() const {return ex1.getData().nbRows()*ex2.getData().nbCols();}
 
 private:
-  const Expr<CFSliceMatrix<T>, T>& ex1;
-  const Expr<CFSliceMatrix<T>, T>& ex2;
+  const Expr<MatrixSliceT<T>, T>& ex1;
+  const Expr<MatrixSliceT<T>, T>& ex2;
 };
 
 /// Partial specialization of the previous expression template class
-/// for multiplication of the type CFSliceMatrix*CFSliceVector*CFSliceMatrix,
-/// being CFSliceVector a diagonal matrix.
+/// for multiplication of the type MatrixSliceT*VectorSliceT*MatrixSliceT,
+/// being VectorSliceT a diagonal matrix.
 /// The expression template accepts one parameter, namely the
 /// built-in type of both the expressions (double, float, etc.).
 ///
 /// The constructor accepts as arguments two references, one to
-/// a CFSliceMatrix and the other one to an expression template object
-/// corresponding to the CFSliceVector*CFSliceMatrix product.
+/// a MatrixSliceT and the other one to an expression template object
+/// corresponding to the VectorSliceT*MatrixSliceT product.
 ///
 /// @author Andrea Lani
 template <class T>
-class Mult<CFSliceMatrix<T>,Mult<CFSliceVector<T>,CFSliceMatrix<T>,T>,T> :
-  public Expr<Mult<CFSliceMatrix<T>,Mult<CFSliceVector<T>,CFSliceMatrix<T>,T>,T>,T> {
+class Mult<MatrixSliceT<T>,Mult<VectorSliceT<T>,MatrixSliceT<T>,T>,T> :
+  public Expr<Mult<MatrixSliceT<T>,Mult<VectorSliceT<T>,MatrixSliceT<T>,T>,T>,T> {
 public:
-  Mult(const Expr<CFSliceMatrix<T>,T>& v1,
-      const Expr<Mult<CFSliceVector<T>,CFSliceMatrix<T>,T>,T>& v2) :
-    Expr<Mult<CFSliceMatrix<T>,Mult<CFSliceVector<T>,CFSliceMatrix<T>,T>,T>,T>(*this),
+  Mult(const Expr<MatrixSliceT<T>,T>& v1,
+      const Expr<Mult<VectorSliceT<T>,MatrixSliceT<T>,T>,T>& v2) :
+    Expr<Mult<MatrixSliceT<T>,Mult<VectorSliceT<T>,MatrixSliceT<T>,T>,T>,T>(*this),
     ex1(v1), ex2(v2) {}
 
   T at(const Uint& i) const
@@ -370,8 +370,8 @@ public:
   }
 
 private:
-  const Expr<CFSliceMatrix<T>, T>& ex1;
-  const Expr<Mult<CFSliceVector<T>,CFSliceMatrix<T>,T>,T>& ex2;
+  const Expr<MatrixSliceT<T>, T>& ex1;
+  const Expr<Mult<VectorSliceT<T>,MatrixSliceT<T>,T>,T>& ex2;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

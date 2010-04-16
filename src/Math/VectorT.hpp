@@ -1,12 +1,12 @@
-#ifndef CF_Math_CFVector_hh
-#define CF_Math_CFVector_hh
+#ifndef CF_Math_VectorT_hh
+#define CF_Math_VectorT_hh
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Math/MathChecks.hpp"
 #include "Math/MathFunctions.hpp"
 #include "Math/ExprOp.hpp"
-#include "Math/CFSliceVector.hpp"
+#include "Math/VectorSliceT.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -14,59 +14,59 @@ namespace CF {
 
   namespace Math {
 
-    template <class T> class CFVector;
-    template <class T> std::ostream& operator<< (std::ostream& out, const CFVector<T>& v);
-    template <class T> std::istream& operator>> (std::istream& in, CFVector<T>& v);
-    template <class T> bool operator== (const CFVector<T>& v1, const CFVector<T>& v2);
-    template <class T> bool operator== (const CFVector<T>& v1, const T& value);
-    template <class T> bool operator!= (const CFVector<T>& v1, const CFVector<T>& v2);
-    template <class T> bool operator!= (const CFVector<T>& v1, const T& value);
-    template <class T> bool operator>  (const CFVector<T>& v1, const CFVector<T>& v2);
-    template <class T> bool operator>= (const CFVector<T>& v1, const CFVector<T>& v2);
-    template <class T> bool operator<  (const CFVector<T>& v1, const CFVector<T>& v2);
-    template <class T> bool operator<= (const CFVector<T>& v1, const CFVector<T>& v2);
-    template <class T> bool operator>  (const CFVector<T>& v1, const T& value);
-    template <class T> bool operator>= (const CFVector<T>& v1, const T& value);
-    template <class T> bool operator<  (const CFVector<T>& v1, const T& value);
-    template <class T> bool operator<= (const CFVector<T>& v1, const T& value);
-    template <class T> void copy       (const CFVector<T>& v1, CFVector<T>& v2);
+    template <class T> class VectorT;
+    template <class T> std::ostream& operator<< (std::ostream& out, const VectorT<T>& v);
+    template <class T> std::istream& operator>> (std::istream& in, VectorT<T>& v);
+    template <class T> bool operator== (const VectorT<T>& v1, const VectorT<T>& v2);
+    template <class T> bool operator== (const VectorT<T>& v1, const T& value);
+    template <class T> bool operator!= (const VectorT<T>& v1, const VectorT<T>& v2);
+    template <class T> bool operator!= (const VectorT<T>& v1, const T& value);
+    template <class T> bool operator>  (const VectorT<T>& v1, const VectorT<T>& v2);
+    template <class T> bool operator>= (const VectorT<T>& v1, const VectorT<T>& v2);
+    template <class T> bool operator<  (const VectorT<T>& v1, const VectorT<T>& v2);
+    template <class T> bool operator<= (const VectorT<T>& v1, const VectorT<T>& v2);
+    template <class T> bool operator>  (const VectorT<T>& v1, const T& value);
+    template <class T> bool operator>= (const VectorT<T>& v1, const T& value);
+    template <class T> bool operator<  (const VectorT<T>& v1, const T& value);
+    template <class T> bool operator<= (const VectorT<T>& v1, const T& value);
+    template <class T> void copy       (const VectorT<T>& v1, VectorT<T>& v2);
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Definition of a class CFVector for numerical applications that stores the
+/// Definition of a class VectorT for numerical applications that stores the
 /// elements on an array and provides some numerical functions.
-/// Mathematically this CFVector is a vector in a Euclidean [n]-space, where n
+/// Mathematically this VectorT is a vector in a Euclidean [n]-space, where n
 /// is the dimension of the vector. All transformations assume a right handed
 /// Cartesian frame of reference.
 /// @author Andrea Lani
 /// @author Tiago Quintino
 template < typename T >
-class CFVector : public Expr < CFVector<T>, T > {
+class VectorT : public Expr < VectorT<T>, T > {
 public:
 
   /// Constructor taking size, also works as empty constructor with default size to zero
   /// @param size number of elements in the vector
-  explicit CFVector ( const Uint size = 0 );
+  explicit VectorT ( const Uint size = 0 );
 
   /// Constructor taking preallocated memory
-  explicit CFVector ( const Uint size, T* mem );
+  explicit VectorT ( const Uint size, T* mem );
 
   /// Constructor by size and with initializing value.
   /// @todo this can be called even if not wanted
   /// @param value initializing value
   /// @param size  number of elements in the vector
-  explicit CFVector ( const T& value, const Uint size );
+  explicit VectorT ( const T& value, const Uint size );
 
   /// Copy Constructor.
   /// @param orig source to copy from
-  CFVector (const CFVector<T>& orig);
+  VectorT (const VectorT<T>& orig);
 
   /// Copy Constructor from an expression
   /// @param expr from which constructing the vector
   /// @param n    size of the vector to contruct
   template <class EXPR>
-  CFVector(const Expr<EXPR,T>& expr) :
-    Expr<CFVector<T>, T>(*this),
+  VectorT(const Expr<EXPR,T>& expr) :
+    Expr<VectorT<T>, T>(*this),
     m_owner (true),
     m_size  ( expr.size() ),
     m_data  (CFNULL)
@@ -79,12 +79,12 @@ public:
   }
 
   /// Destructor
-  ~CFVector ();
+  ~VectorT ();
 
   /// Overloading for operator= taking an expression as argument
 #define VEC_EQ_OP(__op__) \
   template <class EXPR>          \
-  const CFVector<T>& operator __op__ (const Expr<EXPR,T>& expr)  \
+  const VectorT<T>& operator __op__ (const Expr<EXPR,T>& expr)  \
   {                \
     const size_t n = size();          \
     for (size_t i = 0; i < n; ++i) {        \
@@ -103,7 +103,7 @@ VEC_EQ_OP(/=)
 
   /// Overloading for operator= taking a constant value as argument
 #define VEC_EQ_OP_CONST(__op__) \
-  const CFVector<T>& operator __op__ (const T& value)  \
+  const VectorT<T>& operator __op__ (const T& value)  \
   {              \
     const size_t n = size();        \
     for (size_t i = 0; i < n; ++i) {      \
@@ -121,7 +121,7 @@ VEC_EQ_OP_CONST(*=)
 
   /// Overloading of "/="
   /// @param value of type T
-  const CFVector<T>& operator/= (const T& value)
+  const VectorT<T>& operator/= (const T& value)
   {
     cf_assert( MathChecks::isNotZeroWithError(value, std::numeric_limits<T>::epsilon() ) );
     const size_t n = size();
@@ -133,23 +133,23 @@ VEC_EQ_OP_CONST(*=)
 
   /// Overloading of the assignment operator "="
   /// @pre the assignee is supposed to have the same size
-  ///      as this CFVector (as in std::valarray).
+  ///      as this VectorT (as in std::valarray).
   /// @param other missing documentation
   /// @return missing documentation
-  const CFVector<T>& operator= (const CFVector<T>& other)
+  const VectorT<T>& operator= (const VectorT<T>& other)
   {
     cf_assert(&other != this);
     copy(other,*this);
     return *this;
   }
 
-  /// Function returning a slice of this CFVector
-  CFSliceVector<T> slice (const Uint& start)
+  /// Function returning a slice of this VectorT
+  VectorSliceT<T> slice (const Uint& start)
   {
-    return CFSliceVector<T>(&m_data[start]);
+    return VectorSliceT<T>(&m_data[start]);
   }
 
-  /// This allows to reset the inner pointer of the CFVector
+  /// This allows to reset the inner pointer of the VectorT
   /// It must be used cautiously, only in case in which there is no ownership
   void resetPtr(T* ptr) {cf_assert(!m_owner);  m_data = ptr;}
 
@@ -181,11 +181,11 @@ VEC_EQ_OP_CONST(*=)
     return m_data[iElem];
   }
 
-  /// Gets the size (the number of elements) of the CFVector
-  /// @return size of the CFVector
+  /// Gets the size (the number of elements) of the VectorT
+  /// @return size of the VectorT
   Uint size() const { return m_size; }
 
-  /// Calculates the sum of all values stored in CFVector
+  /// Calculates the sum of all values stored in VectorT
   /// @return T equal to sum of elements
   T sum () const;
 
@@ -212,49 +212,49 @@ VEC_EQ_OP_CONST(*=)
   void normalize() { *this /= std::sqrt(MathFunctions::innerProd(*this, *this));  }
 
   /// Clamps the values around zero to zero, by a neighbour fuzz value.
-  /// @param fuzz threshold value to clamp the CFVector, if none is given,  machine-epsilon is used.
-  /// @post all entries of this CFVector that have an absolute value that is
+  /// @param fuzz threshold value to clamp the VectorT, if none is given,  machine-epsilon is used.
+  /// @post all entries of this VectorT that have an absolute value that is
   /// less than fuzz have been set to zero.
   void clamp(const T& fuzz = std::numeric_limits<T>::epsilon());
 
   /// Projection of one vector onto another.
   /// @pre Objects must be of the same size.
-  /// @param v1 1st CFVector
-  /// @param v2 2nd CFVector
-  /// @post this CFVector contains the projected vector of v2 onto v1.
-  void proj(const CFVector<T>& v1, const CFVector<T>& v2)
+  /// @param v1 1st VectorT
+  /// @param v2 2nd VectorT
+  /// @post this VectorT contains the projected vector of v2 onto v1.
+  void proj(const VectorT<T>& v1, const VectorT<T>& v2)
   {
     // Mind that the precondition is not checked here, but in innerProd!!
     T scale = (MathFunctions::innerProd(v1, v2) / v1.sqrNorm());
     *this = v1 * scale;
   }
 
-  /// Projection of this CFVector onto a given one.
+  /// Projection of this VectorT onto a given one.
   /// @pre this and the given object must be of the same size.
-  /// @param v1 the other CFVector
-  /// @post this CFVector contains the projected vector of itself onto v1.
-  void proj(const CFVector<T>& v1) { proj(*this,v1); }
+  /// @param v1 the other VectorT
+  /// @post this VectorT contains the projected vector of itself onto v1.
+  void proj(const VectorT<T>& v1) { proj(*this,v1); }
 
-  /// Check if this CFVector and a given one are colinear.
-  /// @param v1 the other CFVector
+  /// Check if this VectorT and a given one are colinear.
+  /// @param v1 the other VectorT
   /// @param fuzz minimal distance for comparison [optional]
   /// @return true if this and v1 are colinear.
-  bool isColinear(const CFVector<T>& v1, const T& fuzz = std::numeric_limits<T>::epsilon()) const;
+  bool isColinear(const VectorT<T>& v1, const T& fuzz = std::numeric_limits<T>::epsilon()) const;
 
-  /// Checks if this CFVector and a given one are orthogonal
-  /// @param v1 the other CFVector
+  /// Checks if this VectorT and a given one are orthogonal
+  /// @param v1 the other VectorT
   /// @param fuzz minimal distance for comparison [optional]
   /// @return true if this and v1 are orthogonal.
-  bool isOrthogonal(const CFVector<T>& v1,  const T& fuzz = std::numeric_limits<T>::epsilon()) const;
+  bool isOrthogonal(const VectorT<T>& v1,  const T& fuzz = std::numeric_limits<T>::epsilon()) const;
 
-  /// Resize this CFVector. This is only done if the new size is different from the current one.
-  /// @param size the new size of this CFVector
+  /// Resize this VectorT. This is only done if the new size is different from the current one.
+  /// @param size the new size of this VectorT
   /// @param value put the all values of the vector to this, default will be T()
-  /// @post the size of this CFVector equals the given size.
+  /// @post the size of this VectorT equals the given size.
   /// @post data stored is of unknown value.
   void resize (const Uint size, const T& value = T())
   {
-    cf_always_assert_desc("Cannot use resize in a CFVector with preallocated memory", m_owner);
+    cf_always_assert_desc("Cannot use resize in a VectorT with preallocated memory", m_owner);
     if (size != m_size)
     {
       release_mem();
@@ -270,93 +270,93 @@ VEC_EQ_OP_CONST(*=)
   /// @param out missing documentation
   /// @param v missing documentation
   /// @return missing documentation
-  friend std::ostream& operator<< <> (std::ostream& out, const CFVector<T>& v);
+  friend std::ostream& operator<< <> (std::ostream& out, const VectorT<T>& v);
 
   /// Overloading of the stream operator ">>" for the input
   /// @param in missing documentation
   /// @param v missing documentation
   /// @return missing documentation
-  friend std::istream& operator>> <> (std::istream& in, CFVector<T>& v);
+  friend std::istream& operator>> <> (std::istream& in, VectorT<T>& v);
 
   /// Overloading of the "==" operator.
   /// @param v1 missing documentation
   /// @param v2 missing documentation
   /// @return true if all elements are equal elementwise
-  friend bool operator== <> (const CFVector<T>& v1, const CFVector<T>& v2);
+  friend bool operator== <> (const VectorT<T>& v1, const VectorT<T>& v2);
 
   /// Overloading of the "==" operator.
   /// @param v given array
   /// @param value value for the comparison
   /// @return true if all elements are equal to value
-  friend bool operator== <> (const CFVector<T>& v1, const T& value);
+  friend bool operator== <> (const VectorT<T>& v1, const T& value);
 
   /// Overloading of the "!=" operator.
   /// @param v1 missing documentation
   /// @param v2 missing documentation
   /// @return true if not all elements are equal elementwise
-  friend bool operator!= <> (const CFVector<T>& v1, const CFVector<T>& v2);
+  friend bool operator!= <> (const VectorT<T>& v1, const VectorT<T>& v2);
 
   /// Overloading of the "!=" operator.
   /// @param v given array
   /// @param value value for the comparison
   /// @return true if there is at least one element not equal to value
-  friend bool operator!= <> (const CFVector<T>& v1, const T& value);
+  friend bool operator!= <> (const VectorT<T>& v1, const T& value);
 
   /// Overloading of the ">" operator.
   /// @param v1 missing documentation
   /// @param v2 missing documentation
-  /// @return true if the norm of the first CFVector is bigger than  the norm of the second CFVector.
-  friend bool operator> <> (const CFVector<T>& v1, const CFVector<T>& v2);
+  /// @return true if the norm of the first VectorT is bigger than  the norm of the second VectorT.
+  friend bool operator> <> (const VectorT<T>& v1, const VectorT<T>& v2);
 
   /// Overloading of the ">=" operator.
   /// @param v1 missing documentation
   /// @param v2 missing documentation
-  /// @return true if the norm of the first CFVector is bigger than or equal to the norm of the second CFVector.
-  friend bool operator>= <> (const CFVector<T>& v1, const CFVector<T>& v2);
+  /// @return true if the norm of the first VectorT is bigger than or equal to the norm of the second VectorT.
+  friend bool operator>= <> (const VectorT<T>& v1, const VectorT<T>& v2);
 
   /// Overloading of the "<=" operator.
   /// @param v1 missing documentation
   /// @param v2 missing documentation
-  /// @return true if the norm of the first CFVector is smaller than the norm of the second CFVector.
-  friend bool operator< <> (const CFVector<T>& v1, const CFVector<T>& v2);
+  /// @return true if the norm of the first VectorT is smaller than the norm of the second VectorT.
+  friend bool operator< <> (const VectorT<T>& v1, const VectorT<T>& v2);
 
   /// Overloading of the "<=" operator.
   /// @param v1 missing documentation
   /// @param v2 missing documentation
-  /// @return true if the norm of the first CFVector is smaller than or equal to the norm of the second CFVector.
-  friend bool operator<= <> (const CFVector<T>& v1, const CFVector<T>& v2);
+  /// @return true if the norm of the first VectorT is smaller than or equal to the norm of the second VectorT.
+  friend bool operator<= <> (const VectorT<T>& v1, const VectorT<T>& v2);
 
   /// Overloading of the ">" operator.
   /// @param v1 missing documentation
   /// @param v2 missing documentation
-  /// @return true if the norm of the first CFVector is bigger than the norm of the second CFVector.
-  friend bool operator> <> (const CFVector<T>& v1, const T& value);
+  /// @return true if the norm of the first VectorT is bigger than the norm of the second VectorT.
+  friend bool operator> <> (const VectorT<T>& v1, const T& value);
 
   /// Overloading of the ">=" operator.
   /// @param v1 missing documentation
   /// @param v2 missing documentation
-  /// @return true if the norm of the first CFVector is bigger than or equal to the norm of the second CFVector.
-  friend bool operator>= <> (const CFVector<T>& v1, const T& value);
+  /// @return true if the norm of the first VectorT is bigger than or equal to the norm of the second VectorT.
+  friend bool operator>= <> (const VectorT<T>& v1, const T& value);
 
   /// Overloading of the "<=" operator.
   /// @param v1 missing documentation
   /// @param v2 missing documentation
-  /// @return true if the norm of the first CFVector is smaller than the norm of the second CFVector.
-  friend bool operator< <> (const CFVector<T>& v1, const T& value);
+  /// @return true if the norm of the first VectorT is smaller than the norm of the second VectorT.
+  friend bool operator< <> (const VectorT<T>& v1, const T& value);
 
   /// Overloading of the "<=" operator.
   /// @param v1 missing documentation
   /// @param v2 missing documentation
-  /// @return true if the norm of the first CFVector is smaller than or equal to the norm of the second CFVector.
-  friend bool operator<= <> (const CFVector<T>& v1, const T& value);
+  /// @return true if the norm of the first VectorT is smaller than or equal to the norm of the second VectorT.
+  friend bool operator<= <> (const VectorT<T>& v1, const T& value);
 
-  /// Copy one CFVector into another one
+  /// Copy one VectorT into another one
   /// @pre v1.size() == v2.size()
   /// @param v1 source vector
   /// @param v2 destination vector
-  friend void copy <> (const CFVector<T>& orig, CFVector<T>& dest);
+  friend void copy <> (const VectorT<T>& orig, VectorT<T>& dest);
 
-  /// Compute the partial sum of the elements in the CFVector
+  /// Compute the partial sum of the elements in the VectorT
   /// @param iStart start index
   /// @param iEnd   end index
   /// @return the partial sum from iStart to iEnd
@@ -368,8 +368,8 @@ VEC_EQ_OP_CONST(*=)
   /// Get the min in the vector
   T emin() const;
 
-  ///  Put the absolute value (abs) of the given vector in this CFVector
-  void abs (const CFVector<T>& v);
+  ///  Put the absolute value (abs) of the given vector in this VectorT
+  void abs (const VectorT<T>& v);
 
 private: // helper functions
 
@@ -388,12 +388,12 @@ private: // data
   /// Internal storage
   T* cf_restrict m_data;
 
-}; // class CFVector
+}; // class VectorT
 
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-CFVector<T>::CFVector ( const Uint size ) : Expr<CFVector<T>,T>(*this),
+VectorT<T>::VectorT ( const Uint size ) : Expr<VectorT<T>,T>(*this),
   m_owner (true),
   m_size  (size),
   m_data  (CFNULL)
@@ -405,8 +405,8 @@ CFVector<T>::CFVector ( const Uint size ) : Expr<CFVector<T>,T>(*this),
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-CFVector<T>::CFVector(const Uint size, T* ptr) :
-  Expr<CFVector<T>,T>(*this),
+VectorT<T>::VectorT(const Uint size, T* ptr) :
+  Expr<VectorT<T>,T>(*this),
   m_owner (false),
   m_size  (size),
   m_data  (ptr)
@@ -416,8 +416,8 @@ CFVector<T>::CFVector(const Uint size, T* ptr) :
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-CFVector<T>::CFVector ( const T& value, const Uint size ) :
-  Expr<CFVector<T>,T>(*this),
+VectorT<T>::VectorT ( const T& value, const Uint size ) :
+  Expr<VectorT<T>,T>(*this),
   m_owner (true),
   m_size  (size),
   m_data  (CFNULL)
@@ -429,7 +429,7 @@ CFVector<T>::CFVector ( const T& value, const Uint size ) :
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-CFVector<T>::~CFVector()
+VectorT<T>::~VectorT()
 {
   release_mem();
 }
@@ -437,7 +437,7 @@ CFVector<T>::~CFVector()
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-void CFVector<T>::release_mem ()
+void VectorT<T>::release_mem ()
 {
   if (m_owner && m_data != CFNULL)
   {
@@ -449,8 +449,8 @@ void CFVector<T>::release_mem ()
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-CFVector<T>::CFVector(const CFVector<T>& orig) :
-  Expr<CFVector<T>,T>(*this),
+VectorT<T>::VectorT(const VectorT<T>& orig) :
+  Expr<VectorT<T>,T>(*this),
   m_owner (true),
   m_size  (orig.m_size),
   m_data  (CFNULL)
@@ -464,7 +464,7 @@ CFVector<T>::CFVector(const CFVector<T>& orig) :
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-inline void CFVector<T>::clamp(const T& fuzz)
+inline void VectorT<T>::clamp(const T& fuzz)
 {
   const size_t size = this->size();
   for (size_t i = 0; i < size; ++i) {
@@ -477,7 +477,7 @@ inline void CFVector<T>::clamp(const T& fuzz)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-inline T CFVector<T>::emax () const
+inline T VectorT<T>::emax () const
 {
   const size_t size = this->size();
   cf_assert (size > 0);
@@ -490,7 +490,7 @@ inline T CFVector<T>::emax () const
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-inline T CFVector<T>::emin () const
+inline T VectorT<T>::emin () const
 {
   const size_t size = this->size();
   cf_assert (size > 0);
@@ -503,7 +503,7 @@ inline T CFVector<T>::emin () const
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-inline T CFVector<T>::sum () const
+inline T VectorT<T>::sum () const
 {
   T ret_sum = (T) 0;
   const size_t size = this->size();
@@ -515,7 +515,7 @@ inline T CFVector<T>::sum () const
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-inline T CFVector<T>::norm1 () const
+inline T VectorT<T>::norm1 () const
 {
   T norm = (T) 0;
   const size_t size = this->size();
@@ -527,7 +527,7 @@ inline T CFVector<T>::norm1 () const
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-inline T CFVector<T>::normInf () const
+inline T VectorT<T>::normInf () const
 {
   const size_t size = this->size();
   cf_assert (size > 0);
@@ -540,7 +540,7 @@ inline T CFVector<T>::normInf () const
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-bool CFVector<T>::isColinear(const CFVector<T>& v1, const T& fuzz) const
+bool VectorT<T>::isColinear(const VectorT<T>& v1, const T& fuzz) const
 {
   const size_t size = this->size();
   cf_assert (size > 0);
@@ -560,7 +560,7 @@ bool CFVector<T>::isColinear(const CFVector<T>& v1, const T& fuzz) const
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-inline bool CFVector<T>::isOrthogonal(const CFVector<T>& v1, const T& fuzz) const
+inline bool VectorT<T>::isOrthogonal(const VectorT<T>& v1, const T& fuzz) const
 {
   return (std::abs(MathFunctions::innerProd(*this, v1)) < fuzz);
 }
@@ -568,7 +568,7 @@ inline bool CFVector<T>::isOrthogonal(const CFVector<T>& v1, const T& fuzz) cons
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-inline T CFVector<T>::partialSum(const Uint iStart, const Uint iEnd) const
+inline T VectorT<T>::partialSum(const Uint iStart, const Uint iEnd) const
 {
   T result = T();
   for (size_t i = iStart; i < iEnd; ++i) {
@@ -580,7 +580,7 @@ inline T CFVector<T>::partialSum(const Uint iStart, const Uint iEnd) const
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-std::ostream& operator<< (std::ostream& out, const CFVector<T>& v)
+std::ostream& operator<< (std::ostream& out, const VectorT<T>& v)
 {
   const size_t size = v.size();
   for (size_t i = 0; i < size; ++i)
@@ -591,7 +591,7 @@ std::ostream& operator<< (std::ostream& out, const CFVector<T>& v)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-std::istream& operator>> (std::istream& in, CFVector<T>& v)
+std::istream& operator>> (std::istream& in, VectorT<T>& v)
 {
   const size_t size = v.size();
   for (size_t i = 0; i < size; ++i)
@@ -602,7 +602,7 @@ std::istream& operator>> (std::istream& in, CFVector<T>& v)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-bool operator== (const CFVector<T>& v1, const CFVector<T>& v2)
+bool operator== (const VectorT<T>& v1, const VectorT<T>& v2)
 {
   cf_assert(v1.size() == v2.size());
   const size_t size = v1.size();
@@ -617,7 +617,7 @@ bool operator== (const CFVector<T>& v1, const CFVector<T>& v2)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-bool operator== (const CFVector<T>& v, const T& value)
+bool operator== (const VectorT<T>& v, const T& value)
 {
   const size_t size = v.size();
   for (size_t i = 0; i < size; ++i) {
@@ -629,7 +629,7 @@ bool operator== (const CFVector<T>& v, const T& value)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-bool operator!= (const CFVector<T>& v1, const CFVector<T>& v2)
+bool operator!= (const VectorT<T>& v1, const VectorT<T>& v2)
 {
   return !(v1 == v2);
 }
@@ -637,7 +637,7 @@ bool operator!= (const CFVector<T>& v1, const CFVector<T>& v2)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-bool operator!= (const CFVector<T>& v, const T& value)
+bool operator!= (const VectorT<T>& v, const T& value)
 {
   return !(v == value);
 }
@@ -645,7 +645,7 @@ bool operator!= (const CFVector<T>& v, const T& value)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-bool operator> (const CFVector<T>& v1, const CFVector<T>& v2)
+bool operator> (const VectorT<T>& v1, const VectorT<T>& v2)
 {
   return v1.sqrNorm() > v2.sqrNorm();
 }
@@ -653,7 +653,7 @@ bool operator> (const CFVector<T>& v1, const CFVector<T>& v2)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-bool operator>= (const CFVector<T>& v1, const CFVector<T>& v2)
+bool operator>= (const VectorT<T>& v1, const VectorT<T>& v2)
 {
   return !(v1.sqrNorm() < v2.sqrNorm());
 }
@@ -661,7 +661,7 @@ bool operator>= (const CFVector<T>& v1, const CFVector<T>& v2)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-bool operator< (const CFVector<T>& v1, const CFVector<T>& v2)
+bool operator< (const VectorT<T>& v1, const VectorT<T>& v2)
 {
   return v1.sqrNorm() < v2.sqrNorm();
 }
@@ -669,7 +669,7 @@ bool operator< (const CFVector<T>& v1, const CFVector<T>& v2)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-bool operator<= (const CFVector<T>& v1, const CFVector<T>& v2)
+bool operator<= (const VectorT<T>& v1, const VectorT<T>& v2)
 {
   return !(v1.sqrNorm() > v2.sqrNorm());
 }
@@ -677,7 +677,7 @@ bool operator<= (const CFVector<T>& v1, const CFVector<T>& v2)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-bool operator> (const CFVector<T>& v1, const T& value)
+bool operator> (const VectorT<T>& v1, const T& value)
 {
   const size_t size = v1.size();
   for (size_t i = 0; i < size; ++i) {
@@ -689,7 +689,7 @@ bool operator> (const CFVector<T>& v1, const T& value)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-bool operator>= (const CFVector<T>& v1, const T& value)
+bool operator>= (const VectorT<T>& v1, const T& value)
 {
   const size_t size = v1.size();
   for (size_t i = 0; i < size; ++i) {
@@ -701,7 +701,7 @@ bool operator>= (const CFVector<T>& v1, const T& value)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-bool operator< (const CFVector<T>& v1, const T& value)
+bool operator< (const VectorT<T>& v1, const T& value)
 {
   const size_t size = v1.size();
   for (size_t i = 0; i < size; ++i) {
@@ -713,7 +713,7 @@ bool operator< (const CFVector<T>& v1, const T& value)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-bool operator<= (const CFVector<T>& v1, const T& value)
+bool operator<= (const VectorT<T>& v1, const T& value)
 {
   const size_t size = v1.size();
   for (size_t i = 0; i < size; ++i) {
@@ -725,7 +725,7 @@ bool operator<= (const CFVector<T>& v1, const T& value)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-void copy (const CFVector<T>& orig, CFVector<T>& dest)
+void copy (const VectorT<T>& orig, VectorT<T>& dest)
 {
   cf_assert(orig.size() == dest.size());
   const size_t size = orig.size();
@@ -736,7 +736,7 @@ void copy (const CFVector<T>& orig, CFVector<T>& dest)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-inline void CFVector<T>::abs(const CFVector<T>& v)
+inline void VectorT<T>::abs(const VectorT<T>& v)
 {
   cf_assert (m_size == v.size());
   const size_t size = this->size();
@@ -752,4 +752,4 @@ inline void CFVector<T>::abs(const CFVector<T>& v)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Math_CFVector_hh
+#endif // CF_Math_VectorT_hh

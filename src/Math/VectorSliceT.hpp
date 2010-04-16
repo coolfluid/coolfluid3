@@ -1,5 +1,5 @@
-#ifndef CF_Math_CFSliceVector_hh
-#define CF_Math_CFSliceVector_hh
+#ifndef CF_Math_VectorSliceT_hh
+#define CF_Math_VectorSliceT_hh
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -11,41 +11,41 @@ namespace CF {
 
   namespace Math {
 
-    template <class T> class CFSliceVector;
+    template <class T> class VectorSliceT;
 
-    template <class T> std::ostream& operator<< (std::ostream& out, const CFSliceVector<T>& v);
-    template <class T> std::istream& operator>> (std::istream& in, CFSliceVector<T>& v);
-    template <class T> bool operator== (const CFSliceVector<T>& v1, const CFSliceVector<T>& v2);
-    template <class T> bool operator== (const CFSliceVector<T>& v,  const T& value);
-    template <class T> bool operator!= (const CFSliceVector<T>& v1, const CFSliceVector<T>& v2);
-    template <class T> bool operator!= (const CFSliceVector<T>& v, const T& value);
-    template <class T> T mixedProd (const CFSliceVector<T>& v1, const CFSliceVector<T>& v2, const CFSliceVector<T>& v3, CFSliceVector<T>& temp);
-    template <class T> void crossProd (const CFSliceVector<T>& v1, const CFSliceVector<T>& v2, CFSliceVector<T>& result);
-    template <class T> T innerProd (const CFSliceVector<T>& v1, const CFSliceVector<T>& v2);
-    template <class T> void copy (const CFSliceVector<T>& v1, CFSliceVector<T>& v2);
+    template <class T> std::ostream& operator<< (std::ostream& out, const VectorSliceT<T>& v);
+    template <class T> std::istream& operator>> (std::istream& in, VectorSliceT<T>& v);
+    template <class T> bool operator== (const VectorSliceT<T>& v1, const VectorSliceT<T>& v2);
+    template <class T> bool operator== (const VectorSliceT<T>& v,  const T& value);
+    template <class T> bool operator!= (const VectorSliceT<T>& v1, const VectorSliceT<T>& v2);
+    template <class T> bool operator!= (const VectorSliceT<T>& v, const T& value);
+    template <class T> T mixedProd (const VectorSliceT<T>& v1, const VectorSliceT<T>& v2, const VectorSliceT<T>& v3, VectorSliceT<T>& temp);
+    template <class T> void crossProd (const VectorSliceT<T>& v1, const VectorSliceT<T>& v2, VectorSliceT<T>& result);
+    template <class T> T innerProd (const VectorSliceT<T>& v1, const VectorSliceT<T>& v2);
+    template <class T> void copy (const VectorSliceT<T>& v1, VectorSliceT<T>& v2);
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Definition of a class CFSliceVector for numerical applications that
-/// manipulates subsets (slices) of elements of a CFVector and provides
-/// the same numerical functions and operators given by CFVector.
+/// Definition of a class VectorSliceT for numerical applications that
+/// manipulates subsets (slices) of elements of a VectorT and provides
+/// the same numerical functions and operators given by VectorT.
 /// @author Andrea Lani
 template <class T>
-class CFSliceVector : public Expr<CFSliceVector<T>, T> {
+class VectorSliceT : public Expr<VectorSliceT<T>, T> {
 public:
 
   /// Constructor.
   /// @param start where first element should be addressed
-  explicit CFSliceVector(T *const start);
+  explicit VectorSliceT(T *const start);
 
   /// Copy Constructor.
   /// @param orig source to copy from
-  CFSliceVector(const CFSliceVector<T>& orig);
+  VectorSliceT(const VectorSliceT<T>& orig);
 
   /// Overloading for operator= taking an expression as argument
 #define SLICEVEC_EQ_OP(__op__)        \
   template <class EXPR>          \
-  const CFSliceVector<T>& operator __op__ (const Expr<EXPR,T>& expr)  \
+  const VectorSliceT<T>& operator __op__ (const Expr<EXPR,T>& expr)  \
   {\
 for (Uint i = 0; i < _size; ++i) {\
   _start[i] __op__ expr.at(i);\
@@ -63,7 +63,7 @@ SLICEVEC_EQ_OP(/=)
 
 /// Overloading for operator= taking a constant value as argument
 #define SLICEVEC_EQ_OP_CONST(__op__) \
-  const CFSliceVector<T>& operator __op__ (const T& value)  \
+  const VectorSliceT<T>& operator __op__ (const T& value)  \
   {              \
 for (Uint i = 0; i < _size; ++i) {\
   _start[i] __op__ value;\
@@ -83,8 +83,8 @@ SLICEVEC_EQ_OP_CONST(*=)
   /// but remains
   /// other._start != this->_start
   /// @pre the assignee is supposed to have the same size
-  ///      as this CFSliceVector (as in std::valarray).
-  const CFSliceVector<T>& operator= (const CFSliceVector<T>& other)
+  ///      as this VectorSliceT (as in std::valarray).
+  const VectorSliceT<T>& operator= (const VectorSliceT<T>& other)
   {
     cf_assert(&other != this);
     T* ptr1 = _start;
@@ -97,7 +97,7 @@ SLICEVEC_EQ_OP_CONST(*=)
 
   /// Overloading of "/="
   /// @param value of type T
-  const CFSliceVector<T>& operator/= (const T& value)
+  const VectorSliceT<T>& operator/= (const T& value)
   {
     T* ptr = _start;
     cf_assert(std::abs(value) > std::numeric_limits<T>::epsilon());
@@ -108,7 +108,7 @@ SLICEVEC_EQ_OP_CONST(*=)
   }
 
   /// Destructor.
-  ~CFSliceVector();
+  ~VectorSliceT();
 
   /// Accessor used by the expression template wrapper class
   T at (Uint i) const
@@ -130,7 +130,7 @@ SLICEVEC_EQ_OP_CONST(*=)
     return *(_start + iElem);
   }
 
-  /// Calculates the sum of all values stored in CFSliceVector
+  /// Calculates the sum of all values stored in VectorSliceT
   /// @return T equal to sum of elements
   T sum() const
   {
@@ -147,81 +147,81 @@ SLICEVEC_EQ_OP_CONST(*=)
   /// @param out missing documentation
   /// @param v missing documentation
   /// @return missing documentation
-  friend std::ostream& operator<< <> (std::ostream& out, const CFSliceVector<T>& v);
+  friend std::ostream& operator<< <> (std::ostream& out, const VectorSliceT<T>& v);
 
   /// Overloading of the stream operator ">>" for the input
   /// @param in missing documentation
   /// @param v missing documentation
   /// @return missing documentation
-  friend std::istream& operator>> <> (std::istream& in, CFSliceVector<T>& v);
+  friend std::istream& operator>> <> (std::istream& in, VectorSliceT<T>& v);
 
   /// Overloading of the "==" operator.
   /// @param v1 missing documentation
   /// @param v2 missing documentation
   /// @return true if all elements are equal elementwise
-  friend bool operator== <> (const CFSliceVector<T>& v1, const CFSliceVector<T>& v2);
+  friend bool operator== <> (const VectorSliceT<T>& v1, const VectorSliceT<T>& v2);
 
   /// Overloading of the "==" operator.
   /// @param v given array
   /// @param value value for the comparison
   /// @return true if all elements are equal to value
-  friend bool operator== <> (const CFSliceVector<T>& v, const T& value);
+  friend bool operator== <> (const VectorSliceT<T>& v, const T& value);
 
   /// Overloading of the "!=" operator.
   /// @param v1 missing documentation
   /// @param v2 missing documentation
   /// @return true if not all elements are equal elementwise
-  friend bool operator!= <> (const CFSliceVector<T>& v1, const CFSliceVector<T>& v2);
+  friend bool operator!= <> (const VectorSliceT<T>& v1, const VectorSliceT<T>& v2);
 
   /// Overloading of the "!=" operator.
   /// @param v given array
   /// @param value value for the comparison
   /// @return true if there is at least one element not
   ///         equal to value
-  friend bool operator!= <> (const CFSliceVector<T>& v, const T& value);
+  friend bool operator!= <> (const VectorSliceT<T>& v, const T& value);
 
   /// Mixed Product of three vectors
   /// @pre size() == 3 == v1.size() == v2.size() == v3.size() == temp.size()
   ///      (cf_assertion can check this)
-  /// @param v1   first CFSliceVector
-  /// @param v2   second CFSliceVector
-  /// @param v3   third CFSliceVector
-  /// @param temp temporary CFSliceVector
+  /// @param v1   first VectorSliceT
+  /// @param v2   second VectorSliceT
+  /// @param v3   third VectorSliceT
+  /// @param temp temporary VectorSliceT
   /// @return the mixed product
-  friend T mixedProd <> (const CFSliceVector<T>& v1,
-      const CFSliceVector<T>& v2,
-      const CFSliceVector<T>& v3,
-      CFSliceVector<T>& temp);
+  friend T mixedProd <> (const VectorSliceT<T>& v1,
+      const VectorSliceT<T>& v2,
+      const VectorSliceT<T>& v3,
+      VectorSliceT<T>& temp);
 
   /// Internal Product for vector*vector operations
   /// \f$ s = v \cdot v1 \f$.
   /// Objects must be of same size.
-  /// @param v1 first CFSliceVector
-  /// @param v2 second CFSliceVector
+  /// @param v1 first VectorSliceT
+  /// @param v2 second VectorSliceT
   /// @return the inner product of the two given vectors
-  friend T innerProd <> (const CFSliceVector<T>& v1,
-      const CFSliceVector<T>& v2);
+  friend T innerProd <> (const VectorSliceT<T>& v1,
+      const VectorSliceT<T>& v2);
 
   /// Cross Product for vector*vector operations
   /// @pre v1.size() == v2.size() == result.size() == 3
   ///      (cf_assertion can check this)
-  /// @param v1 first CFSliceVector
-  /// @param v2 second CFSliceVector
-  /// @param result CFSliceVector storing the result
-  friend void crossProd <> (const CFSliceVector<T>& v1,
-             const CFSliceVector<T>& v2,
-             CFSliceVector<T>& result);
+  /// @param v1 first VectorSliceT
+  /// @param v2 second VectorSliceT
+  /// @param result VectorSliceT storing the result
+  friend void crossProd <> (const VectorSliceT<T>& v1,
+             const VectorSliceT<T>& v2,
+             VectorSliceT<T>& result);
 
-  /// Copy one CFSliceVector into another one
+  /// Copy one VectorSliceT into another one
   /// @pre v1.size() == v2.size()
   /// @param v1 source vector
   /// @param v2 destination vector
-  friend void copy <> (const CFSliceVector<T>& v1,
-    CFSliceVector<T>& v2);
+  friend void copy <> (const VectorSliceT<T>& v1,
+    VectorSliceT<T>& v2);
 
   /// Set the size of the slice
   /// @pre this method MUST be called before using whatever operation
-  ///      with CFSliceVector
+  ///      with VectorSliceT
   static void setSize(const Uint size)
   {
     _size = size;
@@ -248,8 +248,8 @@ SLICEVEC_EQ_OP_CONST(*=)
 }
 
   /// Put the absolute value (abs) of the given vector in this
-  /// CFSliceVector
-  void abs(const CFSliceVector<T>& v);
+  /// VectorSliceT
+  void abs(const VectorSliceT<T>& v);
 
   /// Reset the pointer
   void reset(T* const newStart)
@@ -257,8 +257,8 @@ SLICEVEC_EQ_OP_CONST(*=)
     _start = newStart;
   }
 
-  /// Gets the size (the number of elements) of the CFSliceVector
-  /// @return size of the CFSliceVector
+  /// Gets the size (the number of elements) of the VectorSliceT
+  /// @return size of the VectorSliceT
   Uint size() const { return _size; }
 
 private: //data
@@ -269,18 +269,18 @@ private: //data
   /// size of the slice
   static Uint _size;
 
-}; // class CFSliceVector
+}; // class VectorSliceT
 
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-Uint CFSliceVector<T>::_size = 0;
+Uint VectorSliceT<T>::_size = 0;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-CFSliceVector<T>::CFSliceVector(T *const start) :
-  Expr<CFSliceVector<T>, T>(*this),
+VectorSliceT<T>::VectorSliceT(T *const start) :
+  Expr<VectorSliceT<T>, T>(*this),
   _start(start)
 {
 }
@@ -288,15 +288,15 @@ CFSliceVector<T>::CFSliceVector(T *const start) :
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-CFSliceVector<T>::~CFSliceVector()
+VectorSliceT<T>::~VectorSliceT()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-CFSliceVector<T>::CFSliceVector(const CFSliceVector<T>& orig) :
-  Expr<CFSliceVector<T>, T>(*this),
+VectorSliceT<T>::VectorSliceT(const VectorSliceT<T>& orig) :
+  Expr<VectorSliceT<T>, T>(*this),
   _start(orig._start)
 {
 }
@@ -304,7 +304,7 @@ CFSliceVector<T>::CFSliceVector(const CFSliceVector<T>& orig) :
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-std::ostream& operator<< (std::ostream& out, const CFSliceVector<T>& v)
+std::ostream& operator<< (std::ostream& out, const VectorSliceT<T>& v)
 {
   const Uint ns = v._size;
   for(Uint i = 0; i < ns; ++i) {
@@ -317,7 +317,7 @@ std::ostream& operator<< (std::ostream& out, const CFSliceVector<T>& v)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-std::istream& operator>> (std::istream& in, CFSliceVector<T>& v)
+std::istream& operator>> (std::istream& in, VectorSliceT<T>& v)
 {
   const Uint ns = v._size;
   for(Uint i = 0; i < ns; ++i) {
@@ -329,8 +329,8 @@ std::istream& operator>> (std::istream& in, CFSliceVector<T>& v)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-bool operator== (const CFSliceVector<T>& v1,
-      const CFSliceVector<T>& v2)
+bool operator== (const VectorSliceT<T>& v1,
+      const VectorSliceT<T>& v2)
 {
   for(Uint i = 0; i < v1._size; ++i) {
     if (MathChecks::isNotEqual(v1[i],v2[i])) {
@@ -343,7 +343,7 @@ bool operator== (const CFSliceVector<T>& v1,
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-bool operator== (const CFSliceVector<T>& v,
+bool operator== (const VectorSliceT<T>& v,
       const T& value)
 {
   for(Uint i = 0; i < v._size; ++i) {
@@ -357,8 +357,8 @@ bool operator== (const CFSliceVector<T>& v,
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-bool operator!= (const CFSliceVector<T>& v1,
-      const CFSliceVector<T>& v2)
+bool operator!= (const VectorSliceT<T>& v1,
+      const VectorSliceT<T>& v2)
 {
   return !(v1 == v2);
 }
@@ -366,7 +366,7 @@ bool operator!= (const CFSliceVector<T>& v1,
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-bool operator!= (const CFSliceVector<T>& v,
+bool operator!= (const VectorSliceT<T>& v,
       const T& value)
 {
   return !(v == value);
@@ -375,10 +375,10 @@ bool operator!= (const CFSliceVector<T>& v,
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-T mixedProd (const CFSliceVector<T>& v1,
-      const CFSliceVector<T>& v2,
-      const CFSliceVector<T>& v3,
-      CFSliceVector<T>& temp)
+T mixedProd (const VectorSliceT<T>& v1,
+      const VectorSliceT<T>& v2,
+      const VectorSliceT<T>& v3,
+      VectorSliceT<T>& temp)
 {
   cf_assert(v1._size == 3);
 
@@ -389,7 +389,7 @@ T mixedProd (const CFSliceVector<T>& v1,
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-T innerProd (const CFSliceVector<T>& v1, const CFSliceVector<T>& v2)
+T innerProd (const VectorSliceT<T>& v1, const VectorSliceT<T>& v2)
 {
   T* p1 = v1._start;
   T* p2 = v2._start;
@@ -404,9 +404,9 @@ T innerProd (const CFSliceVector<T>& v1, const CFSliceVector<T>& v2)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-void crossProd (const CFSliceVector<T>& v1,
-    const CFSliceVector<T>& v2,
-    CFSliceVector<T>& result)
+void crossProd (const VectorSliceT<T>& v1,
+    const VectorSliceT<T>& v2,
+    VectorSliceT<T>& result)
 {
   cf_assert(v1._size == 3);
 
@@ -418,7 +418,7 @@ void crossProd (const CFSliceVector<T>& v1,
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-void copy (const CFSliceVector<T>& v1, CFSliceVector<T>& v2)
+void copy (const VectorSliceT<T>& v1, VectorSliceT<T>& v2)
 {
   T* p1 = v1._start;
   T* p2 = v2._start;
@@ -431,7 +431,7 @@ void copy (const CFSliceVector<T>& v1, CFSliceVector<T>& v2)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class T>
-void CFSliceVector<T>::abs (const CFSliceVector<T>& v)
+void VectorSliceT<T>::abs (const VectorSliceT<T>& v)
 {
   T* p1 = _start;
   T* p2 = v._start;
@@ -448,4 +448,4 @@ void CFSliceVector<T>::abs (const CFSliceVector<T>& v)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Math_CFSliceVector_hh
+#endif // CF_Math_VectorSliceT_hh
