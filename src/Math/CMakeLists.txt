@@ -1,71 +1,56 @@
 CF_FIND_ORPHAN_FILES()
 
-# try to compile using boost
-SET ( CMAKE_REQUIRED_INCLUDES ${Boost_INCLUDE_DIR} )
-CHECK_CXX_SOURCE_COMPILES (
-	"#include <boost/math/special_functions/erf.hpp>
-	int main(int argc, char* argv[])
-	{
-	 boost::math::erfc(0.);
-	}"
-	CF_HAVE_BOOST_ERFC )
-
-LIST ( APPEND MathTools_files
-FindMinimum.hh
-MatrixInverter.cxx
-Cmp.hh
-MatrixEigenSolver.hh
-IntersectSolver.hh
-JacobiEigenSolver.cxx
-LExprOp.hh
-LinearFunctor.hh
-MathConsts.hh
-MathFunctions.hh
-ZeroDeterminantException.hh
-ZeroDeterminantException.cxx
-RealMatrix.hh
-RealMatrix.cxx
-RealVector.cxx
-MatrixIntersect.hh
-MatrixInverter.hh
-InverterT.hh
-OutOfBoundsException.hh
-LUInverter.hh
-RealVector.hh
-ConstantFunctor.hh
-InverterDiag.hh
-LUInverter.cxx
-NExprOp.hh
-BinaryOp.hh
-CFSliceMatrix.hh
-MathChecks.hh
-MacroLET.hh
-MathTools.hh
-FunctionParser.hh
-FunctionParser.cxx
-CFMatrix.hh
-CFSliceVector.hh
-MatrixIntersect.cxx
-ExprOp.hh
-MatrixEigenSolver.cxx
-JacobiEigenSolver.hh
-VectorLET.ci
-VectorLET.hh
-IntersectSolver.cxx
-CFVector.hh
-MatrixLET.ci
-MatrixLET.hh
-LUInverterT.hh
+LIST ( APPEND Math_files
+FindMinimum.hpp
+MatrixInverter.cpp
+Cmp.hpp
+MatrixEigenSolver.hpp
+IntersectSolver.hpp
+JacobiEigenSolver.cpp
+LExprOp.hpp
+LinearFunctor.hpp
+MathConsts.hpp
+MathFunctions.hpp
+RealMatrix.hpp
+RealMatrix.cpp
+RealVector.cpp
+MatrixIntersect.hpp
+MatrixInverter.hpp
+InverterT.hpp
+LUInverter.hpp
+RealVector.hpp
+ConstantFunctor.hpp
+InverterDiag.hpp
+LUInverter.cpp
+NExprOp.hpp
+BinaryOp.hpp
+CFSliceMatrix.hpp
+MathChecks.hpp
+Math.hpp
+MathExceptions.hpp
+MathExceptions.cpp
+FunctionParser.hpp
+FunctionParser.cpp
+CFMatrix.hpp
+CFSliceVector.hpp
+MatrixIntersect.cpp
+ExprOp.hpp
+MatrixEigenSolver.cpp
+JacobiEigenSolver.hpp
+IntersectSolver.cpp
+CFVector.hpp
+LUInverterT.hpp
 LUInverterT.ci
-MatrixInverterT.hh
-SVDInverter.hh
-SVDInverter.cxx
-RCM.h
-RCM.cxx
+MatrixInverterT.hpp
+SVDInverter.hpp
+SVDInverter.cpp
+RCM.hpp
+RCM.cpp
 )
 
-LIST ( APPEND MathTools_cflibs Common )
+LIST ( APPEND Math_cflibs Common )
 
-CF_ADD_KERNEL_LIBRARY ( MathTools )
+SET  ( Math_kernellib TRUE )
 
+CF_ADD_LIBRARY ( Math )
 

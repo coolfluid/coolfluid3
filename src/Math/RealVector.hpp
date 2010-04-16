@@ -1,0 +1,33 @@
+#ifndef CF_RealVector_hh
+#define CF_RealVector_hh
+
+////////////////////////////////////////////////////////////////////////////////
+
+#include "Math/Math.hpp"
+#include "Math/CFVector.hpp"
+
+////////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+
+////////////////////////////////////////////////////////////////////////////////
+
+#ifdef CF_HAVE_CXX_EXPLICIT_TEMPLATES
+  // explicit template instantiation
+  Math_TEMPLATE template class Math_API Math::CFVector<Real>;
+  Math_TEMPLATE template class Math_API Math::CFSliceVector<Real>;
+#endif
+
+/// RealVector is a CFVector templatized with a Real
+typedef Math::CFVector<Real> RealVector;
+
+/// RealSliceVector is a CFSliceVector templatized with a Real
+typedef Math::CFSliceVector<Real> RealSliceVector;
+
+////////////////////////////////////////////////////////////////////////////////
+
+} // namespace CF
+
+////////////////////////////////////////////////////////////////////////////////
+
+#endif // CF_RealVector_hh
