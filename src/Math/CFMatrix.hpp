@@ -7,7 +7,6 @@
 
 #include "Math/CFVector.hpp"
 #include "Math/CFSliceMatrix.hpp"
-#include "Math/BinaryOp.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -21,6 +20,25 @@ namespace CF {
     template <class T> bool operator== (const CFMatrix<T>& A, const CFMatrix<T>& B);
     template <class T> bool operator!= (const CFMatrix<T>& A, const CFMatrix<T>& B);
     template <class T> void copy       (const CFMatrix<T>& v1, CFMatrix<T>& v2);
+
+////////////////////////////////////////////////////////////////////////////////
+
+/// Provides some functors applying binary functions.
+/// @author Andrea Lani
+#define BINARYOP(__name__,__op__) \
+    template <class T> \
+        class __name__ {\
+        public: \
+          static void op(T& a, const T& b) {a __op__ b;} \
+        };
+
+    BINARYOP(EqualBin,=)
+    BINARYOP(AddBin,+=)
+    BINARYOP(SubBin,-=)
+    BINARYOP(MultBin,*=)
+    BINARYOP(DivBin,/=)
+
+#undef BINARYOP
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -110,26 +128,7 @@ MAT_EQ_OP(/=)
 
 #undef MAT_EQ_OP
 
-/// Overloading for operator= taking a size deducing fast expression template as argument
-#define MAT_MATLET_EQ_OP(__op__)                                        \
-template <class EXPR>                                                   \
-const CFMatrix<T>& operator __op__ (const LExpr<EXPR,T,EXPR::SIZE>& expr) \
-  {                                                                       \
-    const size_t nmax = CMP<0,EXPR::SIZE>::MAX;                           \
-    for (size_t i = 0; i < GETMATSIZE(nmax); ++i) {  \
-      m_data[i] __op__ EXPR::at(i);}                                       \
-    return *this;                                                         \
-  }
-
-  MAT_MATLET_EQ_OP(=)
-  MAT_MATLET_EQ_OP(+=)
-  MAT_MATLET_EQ_OP(-=)
-  MAT_MATLET_EQ_OP(*=)
-  MAT_MATLET_EQ_OP(/=)
-
-#undef MAT_MATLET_EQ_OP
-
-  /// Overloading for operator= taking a constant value as argument
+/// Overloading for operator= taking a constant value as argument
 #define MAT_EQ_OP_CONST(__op__) \
   const CFMatrix<T>& operator __op__ (const T& value)  \
   {              \

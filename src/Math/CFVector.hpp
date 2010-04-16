@@ -7,7 +7,6 @@
 #include "Math/MathFunctions.hpp"
 #include "Math/ExprOp.hpp"
 #include "Math/CFSliceVector.hpp"
-#include "Math/LExprOp.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -101,25 +100,6 @@ VEC_EQ_OP(*=)
 VEC_EQ_OP(/=)
 
 #undef VEC_EQ_OP
-
-  /// Overloading for operator= taking a size deducing fast expression template as argument
-#define VEC_VECLET_EQ_OP(__op__)          \
-template <class EXPR>              \
-const CFVector<T>& operator __op__ (const LExpr<EXPR,T,EXPR::SIZE>& expr) \
-{                  \
-  const size_t nmax = CMP<0,EXPR::SIZE>::MAX;        \
-  for (size_t i = 0; i < GETSIZE(nmax); ++i) {        \
-    m_data[i] __op__ EXPR::at(i);}          \
-  return *this;                \
-}
-
-  VEC_VECLET_EQ_OP(=)
-  VEC_VECLET_EQ_OP(+=)
-  VEC_VECLET_EQ_OP(-=)
-  VEC_VECLET_EQ_OP(*=)
-  VEC_VECLET_EQ_OP(/=)
-
-#undef VEC_VECLET_EQ_OP
 
   /// Overloading for operator= taking a constant value as argument
 #define VEC_EQ_OP_CONST(__op__) \

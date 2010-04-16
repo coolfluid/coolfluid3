@@ -6,28 +6,13 @@
 #include "Common/CF.hpp"
 #include "Common/NonInstantiable.hpp"
 
+#include "Math/BoostHeaders.hpp"
 #include "Math/MathConsts.hpp"
-
-#include "boost/math/special_functions/fpclassify.hpp"
-
-/// Define the cfFinite and cfIsNaN macros
-#if defined(_MSC_VER)     /* Microsoft Visual C++ */
-    #include <float.h>   // for _isnan
-    #define cfFinite(n) _finite(n)
-    #define cfIsNaN(n)  _isnan(n)
-#elif defined(__GNUC__) /* GNU C++ */
-    #define cfFinite(n) std::isfinite(n)
-    #define cfIsNaN(n)  std::isnan(n)
-#else // other compilers
-    #define cfFinite(n) 1 // don't know
-    #define cfIsNaN((n) ((n) != (n))
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-
-  namespace Math {
+namespace Math {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -157,8 +142,7 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  } // namespace Math
-
+} // namespace Math
 } // namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////

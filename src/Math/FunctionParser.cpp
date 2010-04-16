@@ -10,12 +10,8 @@
 #include <new>
 #include <cmath>
 
+#include "Math/BoostMath.hpp"
 #include "Math/FunctionParser.hpp"
-
-#ifdef CF_HAVE_BOOST_ERFC
-  #include <boost/math/special_functions/erf.hpp>
-#endif
-
 
 ////////////////////////////////////////////////////////////////////////////////
 
