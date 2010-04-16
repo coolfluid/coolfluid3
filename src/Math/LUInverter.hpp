@@ -5,8 +5,9 @@
 
 #include <valarray>
 
-#include "RealVector.hpp"
-#include "MatrixInverter.hpp"
+#include "Math/RealVector.hpp"
+#include "Math/MatrixInverter.hpp"
+#include "Math/MathChecks.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 

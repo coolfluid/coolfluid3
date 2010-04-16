@@ -290,91 +290,91 @@ VEC_EQ_OP_CONST(*=)
   /// @param out missing documentation
   /// @param v missing documentation
   /// @return missing documentation
-  friend std::ostream& operator<<  (std::ostream& out, const CFVector<T>& v);
+  friend std::ostream& operator<< <> (std::ostream& out, const CFVector<T>& v);
 
   /// Overloading of the stream operator ">>" for the input
   /// @param in missing documentation
   /// @param v missing documentation
   /// @return missing documentation
-  friend std::istream& operator>>  (std::istream& in, CFVector<T>& v);
+  friend std::istream& operator>> <> (std::istream& in, CFVector<T>& v);
 
   /// Overloading of the "==" operator.
   /// @param v1 missing documentation
   /// @param v2 missing documentation
   /// @return true if all elements are equal elementwise
-  friend bool operator==  (const CFVector<T>& v1, const CFVector<T>& v2);
+  friend bool operator== <> (const CFVector<T>& v1, const CFVector<T>& v2);
 
   /// Overloading of the "==" operator.
   /// @param v given array
   /// @param value value for the comparison
   /// @return true if all elements are equal to value
-  friend bool operator==  (const CFVector<T>& v1, const T& value);
+  friend bool operator== <> (const CFVector<T>& v1, const T& value);
 
   /// Overloading of the "!=" operator.
   /// @param v1 missing documentation
   /// @param v2 missing documentation
   /// @return true if not all elements are equal elementwise
-  friend bool operator!=  (const CFVector<T>& v1, const CFVector<T>& v2);
+  friend bool operator!= <> (const CFVector<T>& v1, const CFVector<T>& v2);
 
   /// Overloading of the "!=" operator.
   /// @param v given array
   /// @param value value for the comparison
   /// @return true if there is at least one element not equal to value
-  friend bool operator!=  (const CFVector<T>& v1, const T& value);
+  friend bool operator!= <> (const CFVector<T>& v1, const T& value);
 
   /// Overloading of the ">" operator.
   /// @param v1 missing documentation
   /// @param v2 missing documentation
   /// @return true if the norm of the first CFVector is bigger than  the norm of the second CFVector.
-  friend bool operator>  (const CFVector<T>& v1, const CFVector<T>& v2);
+  friend bool operator> <> (const CFVector<T>& v1, const CFVector<T>& v2);
 
   /// Overloading of the ">=" operator.
   /// @param v1 missing documentation
   /// @param v2 missing documentation
   /// @return true if the norm of the first CFVector is bigger than or equal to the norm of the second CFVector.
-  friend bool operator>=  (const CFVector<T>& v1, const CFVector<T>& v2);
+  friend bool operator>= <> (const CFVector<T>& v1, const CFVector<T>& v2);
 
   /// Overloading of the "<=" operator.
   /// @param v1 missing documentation
   /// @param v2 missing documentation
   /// @return true if the norm of the first CFVector is smaller than the norm of the second CFVector.
-  friend bool operator<  (const CFVector<T>& v1, const CFVector<T>& v2);
+  friend bool operator< <> (const CFVector<T>& v1, const CFVector<T>& v2);
 
   /// Overloading of the "<=" operator.
   /// @param v1 missing documentation
   /// @param v2 missing documentation
   /// @return true if the norm of the first CFVector is smaller than or equal to the norm of the second CFVector.
-  friend bool operator<=  (const CFVector<T>& v1, const CFVector<T>& v2);
+  friend bool operator<= <> (const CFVector<T>& v1, const CFVector<T>& v2);
 
   /// Overloading of the ">" operator.
   /// @param v1 missing documentation
   /// @param v2 missing documentation
   /// @return true if the norm of the first CFVector is bigger than the norm of the second CFVector.
-  friend bool operator>  (const CFVector<T>& v1, const T& value);
+  friend bool operator> <> (const CFVector<T>& v1, const T& value);
 
   /// Overloading of the ">=" operator.
   /// @param v1 missing documentation
   /// @param v2 missing documentation
   /// @return true if the norm of the first CFVector is bigger than or equal to the norm of the second CFVector.
-  friend bool operator>=  (const CFVector<T>& v1, const T& value);
+  friend bool operator>= <> (const CFVector<T>& v1, const T& value);
 
   /// Overloading of the "<=" operator.
   /// @param v1 missing documentation
   /// @param v2 missing documentation
   /// @return true if the norm of the first CFVector is smaller than the norm of the second CFVector.
-  friend bool operator<  (const CFVector<T>& v1, const T& value);
+  friend bool operator< <> (const CFVector<T>& v1, const T& value);
 
   /// Overloading of the "<=" operator.
   /// @param v1 missing documentation
   /// @param v2 missing documentation
   /// @return true if the norm of the first CFVector is smaller than or equal to the norm of the second CFVector.
-  friend bool operator<=  (const CFVector<T>& v1, const T& value);
+  friend bool operator<= <> (const CFVector<T>& v1, const T& value);
 
   /// Copy one CFVector into another one
   /// @pre v1.size() == v2.size()
   /// @param v1 source vector
   /// @param v2 destination vector
-  friend void copy  (const CFVector<T>& orig, CFVector<T>& dest);
+  friend void copy <> (const CFVector<T>& orig, CFVector<T>& dest);
 
   /// Compute the partial sum of the elements in the CFVector
   /// @param iStart start index

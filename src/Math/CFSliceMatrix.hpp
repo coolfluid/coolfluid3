@@ -42,19 +42,19 @@ public:
 
   /// Overloading of the stream operator "<<" for the output.
   /// "\n"ine introduced at the end of every line of the matrix.
-  friend std::ostream& operator<<  (std::ostream& out, const CFSliceMatrix<T>& A);
+  friend std::ostream& operator<< <> (std::ostream& out, const CFSliceMatrix<T>& A);
 
   /// Overloading of the stream operator ">>" for the input
-  friend std::istream& operator>>  (std::istream& in, CFSliceMatrix<T>& A);
+  friend std::istream& operator>> <> (std::istream& in, CFSliceMatrix<T>& A);
 
   /// Overloading of the "==" operator.
   /// @return true if all elements are equal elementwise
-  friend bool operator==  (const CFSliceMatrix<T>& A,
+  friend bool operator== <> (const CFSliceMatrix<T>& A,
     const CFSliceMatrix<T>& B);
 
   /// Overloading of the "!=" operator.
   /// @return true if all elements are different elementwise
-  friend bool operator!=  (const CFSliceMatrix<T>& A,
+  friend bool operator!= <> (const CFSliceMatrix<T>& A,
     const CFSliceMatrix<T>& B);
 
   /// Constructor

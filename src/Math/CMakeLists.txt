@@ -40,7 +40,6 @@ JacobiEigenSolver.hpp
 IntersectSolver.cpp
 CFVector.hpp
 LUInverterT.hpp
-LUInverterT.ci
 MatrixInverterT.hpp
 SVDInverter.hpp
 SVDInverter.cpp

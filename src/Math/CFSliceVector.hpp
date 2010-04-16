@@ -147,42 +147,38 @@ SLICEVEC_EQ_OP_CONST(*=)
   /// @param out missing documentation
   /// @param v missing documentation
   /// @return missing documentation
-  friend std::ostream& operator<< (std::ostream& out, const CFSliceVector<T>& v);
+  friend std::ostream& operator<< <> (std::ostream& out, const CFSliceVector<T>& v);
 
   /// Overloading of the stream operator ">>" for the input
   /// @param in missing documentation
   /// @param v missing documentation
   /// @return missing documentation
-  friend std::istream& operator>>  (std::istream& in, CFSliceVector<T>& v);
+  friend std::istream& operator>> <> (std::istream& in, CFSliceVector<T>& v);
 
   /// Overloading of the "==" operator.
   /// @param v1 missing documentation
   /// @param v2 missing documentation
   /// @return true if all elements are equal elementwise
-  friend bool operator==  (const CFSliceVector<T>& v1,
-          const CFSliceVector<T>& v2);
+  friend bool operator== <> (const CFSliceVector<T>& v1, const CFSliceVector<T>& v2);
 
   /// Overloading of the "==" operator.
   /// @param v given array
   /// @param value value for the comparison
   /// @return true if all elements are equal to value
-  friend bool operator==  (const CFSliceVector<T>& v,
-          const T& value);
+  friend bool operator== <> (const CFSliceVector<T>& v, const T& value);
 
   /// Overloading of the "!=" operator.
   /// @param v1 missing documentation
   /// @param v2 missing documentation
   /// @return true if not all elements are equal elementwise
-  friend bool operator!=  (const CFSliceVector<T>& v1,
-          const CFSliceVector<T>& v2);
+  friend bool operator!= <> (const CFSliceVector<T>& v1, const CFSliceVector<T>& v2);
 
   /// Overloading of the "!=" operator.
   /// @param v given array
   /// @param value value for the comparison
   /// @return true if there is at least one element not
   ///         equal to value
-  friend bool operator!=  (const CFSliceVector<T>& v,
-          const T& value);
+  friend bool operator!= <> (const CFSliceVector<T>& v, const T& value);
 
   /// Mixed Product of three vectors
   /// @pre size() == 3 == v1.size() == v2.size() == v3.size() == temp.size()
@@ -192,7 +188,7 @@ SLICEVEC_EQ_OP_CONST(*=)
   /// @param v3   third CFSliceVector
   /// @param temp temporary CFSliceVector
   /// @return the mixed product
-  friend T mixedProd  (const CFSliceVector<T>& v1,
+  friend T mixedProd <> (const CFSliceVector<T>& v1,
       const CFSliceVector<T>& v2,
       const CFSliceVector<T>& v3,
       CFSliceVector<T>& temp);
@@ -203,7 +199,7 @@ SLICEVEC_EQ_OP_CONST(*=)
   /// @param v1 first CFSliceVector
   /// @param v2 second CFSliceVector
   /// @return the inner product of the two given vectors
-  friend T innerProd  (const CFSliceVector<T>& v1,
+  friend T innerProd <> (const CFSliceVector<T>& v1,
       const CFSliceVector<T>& v2);
 
   /// Cross Product for vector*vector operations
@@ -212,7 +208,7 @@ SLICEVEC_EQ_OP_CONST(*=)
   /// @param v1 first CFSliceVector
   /// @param v2 second CFSliceVector
   /// @param result CFSliceVector storing the result
-  friend void crossProd  (const CFSliceVector<T>& v1,
+  friend void crossProd <> (const CFSliceVector<T>& v1,
              const CFSliceVector<T>& v2,
              CFSliceVector<T>& result);
 
@@ -220,7 +216,7 @@ SLICEVEC_EQ_OP_CONST(*=)
   /// @pre v1.size() == v2.size()
   /// @param v1 source vector
   /// @param v2 destination vector
-  friend void copy  (const CFSliceVector<T>& v1,
+  friend void copy <> (const CFSliceVector<T>& v1,
     CFSliceVector<T>& v2);
 
   /// Set the size of the slice

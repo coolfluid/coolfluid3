@@ -36,24 +36,24 @@ public:
 
   /// Overloading of the stream operator "<<" for the output.
   /// "\n"ine introduced at the end of every line of the matrix.
-  friend std::ostream& operator<<  (std::ostream& out, const CFMatrix<T>& A);
+  friend std::ostream& operator<< <> (std::ostream& out, const CFMatrix<T>& A);
 
   /// Overloading of the stream operator ">>" for the input
-  friend std::istream& operator>>  (std::istream& in, CFMatrix<T>& A);
+  friend std::istream& operator>> <> (std::istream& in, CFMatrix<T>& A);
 
   /// Overloading of the "==" operator.
   /// @return true if all elements are equal elementwise
-  friend bool operator==  (const CFMatrix<T>& A, const CFMatrix<T>& B);
+  friend bool operator== <> (const CFMatrix<T>& A, const CFMatrix<T>& B);
 
   /// Overloading of the "!=" operator.
   /// @return true if all elements are different elementwise
-  friend bool operator!=  (const CFMatrix<T>& A, const CFMatrix<T>& B);
+  friend bool operator!= <> (const CFMatrix<T>& A, const CFMatrix<T>& B);
 
   /// Copy one CFVector into another one
   /// @pre v1.size() == v2.size()
   /// @param v1 source vector
   /// @param v2 destination vector
-  friend void copy  (const CFMatrix<T>& orig, CFMatrix<T>& dest);
+  friend void copy <> (const CFMatrix<T>& orig, CFMatrix<T>& dest);
 
   /// Default Constructor
   CFMatrix() :  Expr<CFMatrix<T>, T>(*this),
