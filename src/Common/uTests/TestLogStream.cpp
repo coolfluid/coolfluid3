@@ -176,11 +176,11 @@ BOOST_AUTO_TEST_CASE( operators )
   BOOST_CHECK_EQUAL(forwarder->m_str, std::string("<%tpye%> Hello world!"));
   
   f.m_stream->setStamp(LogStream::STRING, "");
-  /// test the log levels
-  /// for each level we do 4 checks: one for each level (explicitly given)
-  /// and a fourth where no level is given (meaning that the default has to 
-  /// be used)
-  /// 1. the stream log level is SILENT: nothing should be forwarded
+  // test the log levels
+  // for each level we do 4 checks: one for each level (explicitly given)
+  // and a fourth where no level is given (meaning that the default has to 
+  // be used)
+  // 1. the stream log level is SILENT: nothing should be forwarded
   f.m_stream->setLogLevel(SILENT);
   forwarder->m_str.clear();
   *(f.m_stream) << "Hello world!";
@@ -202,7 +202,7 @@ BOOST_AUTO_TEST_CASE( operators )
   f.m_stream->flush();
   BOOST_CHECK_EQUAL(forwarder->m_str, std::string(""));
   
-  /// 2. the stream log level is NORMAL: only this level should be forwarded
+  // 2. the stream log level is NORMAL: only this level should be forwarded
   f.m_stream->setLogLevel(NORMAL);
   forwarder->m_str.clear();
   *(f.m_stream) << SILENT << "Hello world!";
@@ -224,7 +224,7 @@ BOOST_AUTO_TEST_CASE( operators )
   f.m_stream->flush();
   BOOST_CHECK_EQUAL(forwarder->m_str, std::string(""));
 
-  /// 3. the stream log level is VERBOSE: NORMAL and VERBOSE should be forwarded
+  // 3. the stream log level is VERBOSE: NORMAL and VERBOSE should be forwarded
   f.m_stream->setLogLevel(VERBOSE);
   forwarder->m_str.clear();
   *(f.m_stream) << SILENT << "Hello world!";
