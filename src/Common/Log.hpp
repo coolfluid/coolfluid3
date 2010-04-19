@@ -114,12 +114,12 @@ class Common_API Logger : public Common::NonCopyable<Logger>
 
 /// these are always defined
 
-#define CFinfo   Logger::getInstance().Info (FromHere())
-#define CFerr    Logger::getInstance().Error(FromHere())
-#define CFwarn   Logger::getInstance().Warn (FromHere())
-#define CFdebug  Logger::getInstance().Debug(FromHere())
-#define CFtrace  Logger::getInstance().Trace(FromHere())
-#define CFendl   LogStream::ENDLINE
+#define CFinfo   CF::Common::Logger::getInstance().Info (FromHere())
+#define CFerr    CF::Common::Logger::getInstance().Error(FromHere())
+#define CFwarn   CF::Common::Logger::getInstance().Warn (FromHere())
+#define CFdebug  CF::Common::Logger::getInstance().Debug(FromHere())
+#define CFtrace  CF::Common::Logger::getInstance().Trace(FromHere())
+#define CFendl   CF::Common::LogStream::ENDLINE
 
 ////////////////////////////////////////////////////////////////////////////////
 
