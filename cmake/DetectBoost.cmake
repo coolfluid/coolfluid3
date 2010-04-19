@@ -26,3 +26,16 @@ ENDIF()
 # add boost include path
 INCLUDE_DIRECTORIES ( ${Boost_INCLUDE_DIR} )
 ADD_DEFINITIONS ( -DBOOST_STRICT_CONFIG )
+
+#######################################################################################
+
+LOG ( "+++++  Checking for boost erfc function" )
+SET ( CMAKE_REQUIRED_INCLUDES ${Boost_INCLUDE_DIR} )
+CHECK_CXX_SOURCE_COMPILES (
+"#include <boost/math/special_functions/erf.hpp>
+int main(int argc, char* argv[])
+{
+  boost::math::erfc(0.);
+}"
+CF_HAVE_BOOST_ERFC )
+
