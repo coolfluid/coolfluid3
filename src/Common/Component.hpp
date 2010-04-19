@@ -3,8 +3,12 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <boost/weak_ptr.hpp>
+
+#include "Common/DynamicObject.hpp"
 #include "Common/CPath.hpp"
-#include "Common/xmlParser.h"
+
+#include "Common/xmlParser.h"  // move to stand-alone function
 
 namespace CF {
 namespace Common {
@@ -12,13 +16,11 @@ namespace Common {
 ////////////////////////////////////////////////////////////////////////////////
 
   /// Base class for defining CF components
-  ///
   /// @author Tiago Quintino
-  ///
   /// @todo add ownership of (sub) components
   /// @todo add dumping of the (sub)tree to a string
   /// @todo add registration into CTree
-  class Common_API Component {
+  class Common_API Component : public DynamicObject {
 
   public:
 
@@ -32,37 +34,54 @@ namespace Common {
     /// @param parent path where this component will be placed
     Component ( const CName& name, const CPath& parent_path = CPath() );
 
-    /// Virtual contructor
+    /// Virtual destructor
     virtual ~Component();
+
+    /// derefence the componment throught the links to the actual components
+    virtual Component& deref ();
+
+    /// checks if this component is in fact a link to another component
+    bool is_link () const { return m_is_link; }
 
     /// Access the name of the component
     const CName& name () const { return m_name.string(); }
+
     /// Rename the component
     void rename ( const CName& name );
 
     /// Access the path of the component
     const CPath& path () const { return m_path; }
+
     /// Modify the path of the component
     void change_path ( const CPath& new_path );
+
     /// Construct the full path
     CPath full_path () const { return m_path / m_name; }
 
     /// Add a (sub)component of this component
-    void add_component ( Component * subcomp );
+    void add_component ( boost::shared_ptr<Component> subcomp );
 
     /// lists the sub components and puts them on the xml_tree
     void xml_tree ( XMLNode xml );
 
   private:
-    typedef std::map < CName , Component* > CompList_type;
-  private:
+    /// type for storing the sub components
+    typedef std::map < CName , boost::shared_ptr<Component> > CompStorage_t;
+
+  protected:
 
     /// component name (stored as path to ensure validity)
     CPath m_name;
     /// component current path
     CPath m_path;
     /// list of children
-    CompList_type m_components;
+    CompStorage_t m_components;
+    /// pointer to the root of this tree
+    boost::weak_ptr<Component> m_root;
+    /// pointer to the parent component
+    boost::weak_ptr<Component> m_parent;
+    /// is this a link component
+    bool m_is_link;
 
   };
 

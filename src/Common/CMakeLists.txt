@@ -23,6 +23,12 @@ LIST ( APPEND Common_files
     Component.cpp
     CPath.hpp
     CPath.cpp
+    CRoot.hpp
+    CRoot.cpp
+    CGroup.hpp
+    CGroup.cpp
+    CLink.hpp
+    CLink.cpp
     ConcreteProvider.hpp
     ConfigArgs.cpp
     ConfigArgs.hpp

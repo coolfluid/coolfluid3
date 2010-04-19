@@ -64,10 +64,9 @@ BOOST_AUTO_TEST_CASE( constructors )
 
 BOOST_AUTO_TEST_CASE( add_component )
 {
-  Component* root = new Component ( "root", "/" );
-
-  Component* dir1 =  new Component ( "dir1" );
-  Component* dir2 =  new Component ( "dir2" );
+  boost::shared_ptr<Component> root ( new Component ( "root", "/" ) );
+  boost::shared_ptr<Component> dir1 ( new Component ( "dir1" ) );
+  boost::shared_ptr<Component> dir2 ( new Component ( "dir2" ) );
 
   root->add_component( dir1 );
   dir1->add_component( dir2 );
@@ -75,20 +74,15 @@ BOOST_AUTO_TEST_CASE( add_component )
   BOOST_CHECK_EQUAL ( root->full_path().string() , "//root" );
   BOOST_CHECK_EQUAL ( dir1->full_path().string() , "//root/dir1" );
   BOOST_CHECK_EQUAL ( dir2->full_path().string() , "//root/dir1/dir2" );
-
-  delete_ptr ( dir2 );
-  delete_ptr ( dir1 );
-  delete_ptr ( root );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( xml_tree )
 {
-  Component* root = new Component ( "root", "/" );
-
-  Component* dir1 =  new Component ( "dir1" );
-  Component* dir2 =  new Component ( "dir2" );
+  boost::shared_ptr<Component> root ( new Component ( "root", "/" ) );
+  boost::shared_ptr<Component> dir1 ( new Component ( "dir1" ) );
+  boost::shared_ptr<Component> dir2 ( new Component ( "dir2" ) );
 
   root->add_component( dir1 );
   dir1->add_component( dir2 );
@@ -106,10 +100,19 @@ BOOST_AUTO_TEST_CASE( xml_tree )
   CFinfo << "xml_str\n" << xml_str << CFendl;
 
   freeXMLString(xml_str);
+}
 
-  delete_ptr ( dir2 );
-  delete_ptr ( dir1 );
-  delete_ptr ( root );
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( is_link )
+{
+  boost::shared_ptr<Component> root ( new Component ( "root", "/" ) );
+  boost::shared_ptr<Component> dir1 ( new Component ( "dir1" ) );
+
+  root->add_component( dir1 );
+
+  BOOST_CHECK ( ! root->is_link() );
+  BOOST_CHECK ( ! dir1->is_link() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -16,7 +16,7 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Exception thrown when errors detected while accessing a signal in DynamicObject
+/// Exception thrown when errors detected while handling signals in DynamicObject
 /// @author Tiago Quintino
 class Common_API SignalError : public Common::Exception {
 public:
@@ -29,6 +29,7 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Class that harbours the types handled by the DynamicObject
+/// @author Tiago Quintino
 struct Signal : public NonInstantiable<Signal>
 {
     /// signal key
@@ -41,7 +42,7 @@ struct Signal : public NonInstantiable<Signal>
     typedef std::string arg_t;
 };
 
-/// DynamicObject executes calls rpvided by string by issuing singals to the slots
+/// DynamicObject executes calls received as string by issuing singals to the slots
 /// Slots may be:
 ///  * its own derived classes that regist  member functions to be called dynamically
 ///  * other classes that regist themselves to be notified when a signal is issued
@@ -52,7 +53,7 @@ class Common_API DynamicObject
 
   public:
 
-  /// combiner which returns the conbined result of all slots
+  /// combiner which returns the combined result of all slots
   template <typename T> struct result_xml
   {
     typedef T result_type;
@@ -84,9 +85,6 @@ class Common_API DynamicObject
     /// Calls the signal by providing its name and input
     Signal::return_t call_signal ( const Signal::id_t& sname, const Signal::arg_t& sinput );
 
-    /// Get a signal by providing its name
-    boost::shared_ptr<signal_t> get_signal ( const Signal::id_t& sname );
-
     /// Regist signal
     boost::shared_ptr<signal_t> regist_signal ( const Signal::id_t& sname,  const Signal::desc_t& desc );
 
@@ -98,10 +96,15 @@ class Common_API DynamicObject
     }
 
   protected: // functions
+
+    /// Get a signal by providing its name
+    boost::shared_ptr<signal_t> get_signal ( const Signal::id_t& sname );
+
     /// Create a signal
     boost::shared_ptr<signal_t> create_signal ( const Signal::id_t& sname,  const Signal::desc_t& desc );
 
   protected: // data
+
     /// storage of the signals
     sigmap_t  m_signals;
 
