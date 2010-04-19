@@ -96,9 +96,7 @@ Real tsh = 0.5*sqrt(m_rows+m_cols+1.)*m_s[0]*MathConsts::RealEps();
 void SVDInverter::solve(const RealMatrix& a, const RealVector& b, RealVector& x, Real thresh)
 {
   if (!m_decomposed) {
-    m_u = a;
-    decompose();
-    reorder();
+    decompose(a);
 }
   solve(b,x,thresh);
 }
@@ -205,8 +203,17 @@ return nullsp;
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void SVDInverter::decompose(const RealMatrix& a) {
+  m_u = a;
+  decompose();
+  reorder();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 void SVDInverter::decompose() {
 bool flag;
+
 int i=0,its=0,j=0,jj=0,k=0,l=0,nm=0;
   int rows(m_rows), cols(m_cols); //conversion from Uint to int
 Real anorm,c,f,g,h,s,scale,x,y,z;
@@ -382,6 +389,7 @@ for (k=m_cols-1;k>=0;k--) {
   }
 }
   m_decomposed = true;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

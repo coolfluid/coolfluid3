@@ -118,9 +118,9 @@ void solve(const RealMatrix& b, RealMatrix& x, Real thresh = -1.);
   Real inv_condition() {
   return (m_s[0] <= 0. || m_s[m_cols-1] <= 0.) ? 0. : m_s[m_cols-1]/m_s[0];
   }
-
+  
   /// Singular Value Decomposition
-  void decompose();
+  void decompose(const RealMatrix& a);
 
   /// Reorder singular values in descending order
   void reorder();
@@ -129,6 +129,9 @@ private: //helper functions
 
   Real pythag(const Real a, const Real b);
 
+  /// Singular Value Decomposition
+  void decompose();
+  
 private: //data
 
   /// The number of rows and columns of A=U*S*V'

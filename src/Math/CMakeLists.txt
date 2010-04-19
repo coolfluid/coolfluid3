@@ -50,3 +50,5 @@ SET  ( Math_kernellib TRUE )
 
 CF_ADD_LIBRARY ( Math )
 
+ADD_SUBDIRECTORY ( uTests )    # unit tests for Math
+
