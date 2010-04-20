@@ -47,7 +47,7 @@ void CTable::initialize(const Uint& cols, const Uint& buffersize)
   m_nbCols = cols;
   m_nbRows = 0;
   m_buffersize = 0;
-  m_buffer.resize(boost::extents[m_buffersize][m_nbCols]);
+  m_buffer.resize(boost::extents[m_maxBuffersize][m_nbCols]);
 }
 
 //////////////////////////////////////////////////////////////////////////////
