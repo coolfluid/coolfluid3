@@ -38,8 +38,6 @@ LUInverterT.hpp
 MatrixInverterT.hpp
 SVDInverter.hpp
 SVDInverter.cpp
-RCM.hpp
-RCM.cpp
 VectorialFunction.hpp
 VectorialFunction.cpp
 )

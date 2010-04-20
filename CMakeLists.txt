@@ -150,6 +150,10 @@ add_subdirectory ( config )
 include_directories ( ${coolfluid_SOURCE_DIR}/src )
 add_subdirectory ( src )
 
+if ( CF_ENABLE_SANDBOX )
+  add_subdirectory ( sandbox )
+endif()
+
 LOG ( "" )
 ##############################################################################
 LOG ( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )

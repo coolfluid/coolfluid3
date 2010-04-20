@@ -23,6 +23,7 @@ option ( CF_ENABLE_TESTCASES          "Enable checking testcases from CMake syst
 option ( CF_ENABLE_UNITTESTS          "Enable creation of unit tests"                  ON  )
 option ( CF_ENABLE_WARNINGS           "Enable lots of warnings while compiling"        ON  )
 option ( CF_ENABLE_STDASSERT          "Enable standard assert() functions "            OFF )
+option ( CF_ENABLE_SANDBOX            "Enable build of sandbox projects"               OFF   )
 
 # user option to add system depedent profiling
 option ( CF_ENABLE_PROFILING    "Enable code profiling"                 OFF )

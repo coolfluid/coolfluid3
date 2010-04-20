@@ -4,14 +4,16 @@
 #include <string>
 #include <cstdlib>
 
-#include "Common/ConnectivityTable.hpp"
-
-#include "Math/RCM.hpp"
+#include "Mesh/ConnectivityTable.hpp"
+#include "Mesh/RCM.hpp"
 
 using namespace std;
 using namespace CF;
 using namespace CF::Common;
 
+
+namespace CF {
+namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -30,9 +32,9 @@ void RCM::renumber ( ConnectivityTable<Uint>& cellnode, std::valarray <Uint>& ne
   Uint writecount  = 0; // counter of nodes filling newV[]..
 
   std::valarray < Uint > newV ( ( Uint ) 0, nnodes );
-std::valarray < Uint > newV_R ( ( Uint ) 0, nnodes ); // Used in Reverse CUTHILL MCKEE
+  std::valarray < Uint > newV_R ( ( Uint ) 0, nnodes ); // Used in Reverse CUTHILL MCKEE
 
-std::valarray<bool> flag ( false , nnodes );
+  std::valarray<bool> flag ( false , nnodes );
 
 
 // ############################################################################
@@ -362,5 +364,8 @@ std::cout << "Wrote file " << filename << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+} // Mesh
+} // CF
 
 

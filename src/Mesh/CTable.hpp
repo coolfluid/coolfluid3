@@ -1,5 +1,5 @@
-#ifndef CF_Mesh_CRegion_HH
-#define CF_Mesh_CRegion_HH
+#ifndef CF_Mesh_CTable_HH
+#define CF_Mesh_CTable_HH
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -11,31 +11,23 @@ namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  /// Mesh component class
+  /// Component holding a connectivity table
   /// @author Tiago Quintino
-  class Mesh_API CRegion : public Common::Component {
+  class Mesh_API CTable : public Common::Component {
 
   public:
 
     /// Contructor
     /// @param name of the component
-    CRegion ( const CName& name );
+    CTable ( const CName& name );
 
     /// Virtual destructor
-    virtual ~CRegion();
+    virtual ~CTable();
 
     /// Get the class name
-    static std::string getClassName () { return "CRegion"; }
+    static std::string getClassName () { return "CTable"; }
 
-    // functions specific to the CRegion component
-
-    /// create a region
-    /// @param name of the region
-    void create_region ( const CName& name );
-
-  private:
-
-    std::vector< boost::shared_ptr<CRegion> > m_subregions;
+    // functions specific to the CTable component
 
   };
 
@@ -46,4 +38,4 @@ namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CRegion_HH
+#endif // CF_Mesh_CTable_HH

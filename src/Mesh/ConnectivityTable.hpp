@@ -13,7 +13,7 @@
 
 namespace CF {
 
-  namespace Common {
+  namespace Mesh {
 
     template <class T> class ConnectivityTable;
 
