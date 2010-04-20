@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE( xml_tree )
 
   XMLSTR xml_str = root_node.createXMLString();
 
-  CFinfo << "xml_str\n" << xml_str << CFendl;
+//  CFinfo << "xml_str\n" << xml_str << CFendl;
 
   freeXMLString(xml_str);
 }
@@ -126,11 +126,25 @@ BOOST_AUTO_TEST_CASE( get )
   boost::shared_ptr<Component> dir1 ( new CGroup ( "dir1" ) );
   boost::shared_ptr<Component> lnk1 ( new CLink  ( "lnk1" ) );
 
+  // add child components to root
   root->add_component( dir1 );
+  root->add_component( lnk1 );
 
-  Common::SafePtr<Component> p_root = root->get();
+  // point link to the dir1
+  boost::shared_ptr<CLink> p_lnk1 = boost::dynamic_pointer_cast<CLink>(lnk1);
+  p_lnk1->link_to(dir1);
 
-  CFinfo << p_root->name() << CFendl;
+  // check that the root returns himself
+  BOOST_CHECK_EQUAL ( root->get()->name(), "root" );
+  BOOST_CHECK_EQUAL ( root->get()->full_path().string(), "//root" );
+
+  // check that the link is sane
+  BOOST_CHECK_EQUAL ( lnk1->name(), "lnk1" );
+  BOOST_CHECK_EQUAL ( lnk1->full_path().string(), "//root/lnk1" );
+
+  // check that the link returns the dir1
+  BOOST_CHECK_EQUAL ( lnk1->get()->name(), "dir1" );
+  BOOST_CHECK_EQUAL ( lnk1->get()->full_path().string(), "//root/dir1" );
 
 }
 

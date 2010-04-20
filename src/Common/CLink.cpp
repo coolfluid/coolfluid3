@@ -29,6 +29,9 @@ SafePtr<Component> CLink::get ()
 
 void CLink::link_to ( boost::shared_ptr<Component> lnkto )
 {
+  if (lnkto->is_link())
+    throw SetupError(FromHere(), "Cannot link a CLink to another CLink");
+
   m_link_component = lnkto;
 }
 

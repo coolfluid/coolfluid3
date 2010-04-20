@@ -8,7 +8,6 @@ namespace Common {
 CGroup::CGroup ( const CName& name, const CPath& parent_path ) :
     Component ( name, parent_path )
 {
-  m_is_link = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
