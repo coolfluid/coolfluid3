@@ -7,6 +7,8 @@ LIST ( APPEND Mesh_files
   CMesh.cpp
   CRegion.hpp
   CRegion.cpp
+  CArray.hpp
+  CArray.cpp
 )
 
 LIST ( APPEND Mesh_cflibs Common )
