@@ -3,12 +3,14 @@
 LIST ( APPEND Mesh_files
   MeshAPI.hpp
   MeshAPI.cpp
+  CArray.hpp
+  CArray.cpp
+  CField.hpp
+  CField.cpp
   CMesh.hpp
   CMesh.cpp
   CRegion.hpp
   CRegion.cpp
-  CArray.hpp
-  CArray.cpp
 )
 
 LIST ( APPEND Mesh_cflibs Common )
