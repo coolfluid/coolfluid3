@@ -11,7 +11,9 @@ namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Mesh component class
+/// Array component class
+/// This class can store an array
+/// @todo make it with templates
 /// @author Willem Deconinck, Tiago Quintino
 class Mesh_API CArray : public Common::Component {
 

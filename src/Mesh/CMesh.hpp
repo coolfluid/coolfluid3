@@ -10,37 +10,50 @@ namespace CF {
 namespace Mesh {
 
   class CRegion;
+  class CArray;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  /// Mesh component class
-  /// @author Tiago Quintino
-  class Mesh_API CMesh : public Common::Component {
+/// Mesh component class
+/// Mesh now stores:
+///   - regions which subdivide in subregions
+///   - arrays containing coordinates, variables, ...
+/// @author Tiago Quintino, Willem Deconinck
+class Mesh_API CMesh : public Common::Component {
 
-  public:
+public:
 
-    /// Contructor
-    /// @param name of the component
-    CMesh ( const CName& name );
+  /// Contructor
+  /// @param name of the component
+  CMesh ( const CName& name );
 
-    /// Virtual destructor
-    virtual ~CMesh();
+  /// Virtual destructor
+  virtual ~CMesh();
 
-    /// Get the class name
-    static std::string getClassName () { return "CMesh"; }
+  /// Get the class name
+  static std::string getClassName () { return "CMesh"; }
 
-    // functions specific to the CMesh component
+  // functions specific to the CMesh component
 
 
-    /// create a region
-    /// @param name of the region
-    void create_region ( const CName& name );
+  /// create a region
+  /// @param name of the region
+  void create_region ( const CName& name );
+  
+  /// create an array
+  /// @param name of the array
+  /// @todo allow templates
+  void create_array ( const CName& name );
 
-  private:
+private:
 
-    std::vector< boost::shared_ptr<CRegion> > m_regions;
+  /// storage of region pointers
+  std::vector< boost::shared_ptr<CRegion> > m_regions;
+  
+  /// storage of array pointers
+  std::vector< boost::shared_ptr<CArray> > m_arrays;
 
-  };
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 

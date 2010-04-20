@@ -3,8 +3,6 @@
 LIST ( APPEND Mesh_files
   MeshAPI.hpp
   MeshAPI.cpp
-  CTable.hpp
-  CTable.cpp
   CMesh.cpp
   CArray.hpp
   CArray.cpp
@@ -14,6 +12,8 @@ LIST ( APPEND Mesh_files
   CMesh.cpp
   CRegion.hpp
   CRegion.cpp
+  CTable.hpp
+  CTable.cpp
   ConnectivityTable.hpp
   RCM.hpp
   RCM.cpp

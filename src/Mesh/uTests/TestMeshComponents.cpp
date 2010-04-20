@@ -62,6 +62,17 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
   region2->create_region("subregion2");
   BOOST_CHECK_EQUAL ( region2->get_component("subregion2")->full_path().string() , "mesh/region2/subregion2" );
 
+  // Create a connectivity table inside a subregion
+  SafePtr<CRegion> subregion = region2->get_component("subregion2").d_castTo<CRegion>();
+  subregion->create_connectivityTable("connTable");
+  BOOST_CHECK_EQUAL ( subregion->get_component("connTable")->full_path().string() , "mesh/region2/subregion2/connTable" );
+  
+  // Create an array of coordinates inside mesh
+  mesh.create_array("coordinates");
+  BOOST_CHECK_EQUAL ( mesh.get_component("coordinates")->full_path().string() , "mesh/coordinates" );
+
+  
+  
 }
 
 

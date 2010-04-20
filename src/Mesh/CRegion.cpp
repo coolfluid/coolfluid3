@@ -32,5 +32,15 @@ void CRegion::create_region( const CName& name )
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void CRegion::create_connectivityTable( const CName& name )
+{
+  boost::shared_ptr<CTable> new_connTable ( new CTable(name) );
+  m_connTable = new_connTable;
+  
+  add_component ( m_connTable );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // Mesh
 } // CF

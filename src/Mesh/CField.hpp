@@ -11,7 +11,9 @@ namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Mesh component class
+/// Field component class
+/// This class stores fields which can be applied 
+/// to regions (CRegion)
 /// @author Willem Deconinck, Tiago Quintino
 class Mesh_API CField : public Common::Component {
 

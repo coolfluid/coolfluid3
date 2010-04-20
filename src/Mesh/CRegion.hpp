@@ -3,41 +3,51 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/Component.hpp"
 #include "Mesh/MeshAPI.hpp"
+#include "Mesh/CTable.hpp"
 
 namespace CF {
 namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  /// Mesh component class
-  /// @author Tiago Quintino
-  class Mesh_API CRegion : public Common::Component {
+/// Region component class
+/// This class stores
+///   - subregions (same class)
+///   - mesh connectivity table, assuming same element type
+///   - element type
+/// @author Tiago Quintino, Willem Deconinck
+class Mesh_API CRegion : public Common::Component {
 
-  public:
+public:
 
-    /// Contructor
-    /// @param name of the component
-    CRegion ( const CName& name );
+  /// Contructor
+  /// @param name of the component
+  CRegion ( const CName& name );
 
-    /// Virtual destructor
-    virtual ~CRegion();
+  /// Virtual destructor
+  virtual ~CRegion();
 
-    /// Get the class name
-    static std::string getClassName () { return "CRegion"; }
+  /// Get the class name
+  static std::string getClassName () { return "CRegion"; }
 
-    // functions specific to the CRegion component
+  // functions specific to the CRegion component
 
-    /// create a region
-    /// @param name of the region
-    void create_region ( const CName& name );
+  /// create a CRegion component
+  /// @param name of the region
+  void create_region ( const CName& name );
+  
+  /// create a CTable component
+  /// @param name of the region
+  void create_connectivityTable ( const CName& name );
 
-  private:
+private:
 
-    std::vector< boost::shared_ptr<CRegion> > m_subregions;
+  std::vector< boost::shared_ptr<CRegion> > m_subregions;
+  
+  boost::shared_ptr<CTable> m_connTable;
 
-  };
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 

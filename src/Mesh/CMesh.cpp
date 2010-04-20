@@ -1,5 +1,6 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
+#include "Mesh/CArray.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -28,6 +29,17 @@ void CMesh::create_region( const CName& name )
   m_regions.push_back(new_region);
 
   add_component ( new_region );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CMesh::create_array( const CName& name )
+{
+  boost::shared_ptr<CArray> new_array ( new CArray(name) );
+
+  m_arrays.push_back(new_array);
+
+  add_component ( new_array );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
