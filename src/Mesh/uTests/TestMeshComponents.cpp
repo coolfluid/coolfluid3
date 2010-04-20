@@ -3,6 +3,7 @@
 
 #include "Common/Log.hpp"
 #include "Mesh/CMesh.hpp"
+#include "Mesh/CRegion.hpp"
 
 using namespace std;
 using namespace boost;
@@ -43,7 +44,24 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
 {
   CFinfo << "testing MeshComponents " << CFendl;
 
-  BOOST_CHECK_EQUAL(1.,1.);
+  // Create mesh component
+  CMesh mesh ( "mesh" );
+  BOOST_CHECK_EQUAL ( mesh.name() , "mesh" );
+  BOOST_CHECK_EQUAL ( mesh.path().string() , "" );
+  BOOST_CHECK_EQUAL ( mesh.full_path().string() , "mesh" );
+  
+  // Create one region inside mesh
+  mesh.create_region("region1");
+  SafePtr<CRegion> region1 = mesh.get_component("region1").d_castTo<CRegion>();
+  BOOST_CHECK_EQUAL ( region1->full_path().string() , "mesh/region1" );
+
+  // Create second region inside mesh, with 2 subregions inside
+  mesh.create_region("region2");
+  SafePtr<CRegion> region2 = mesh.get_component("region2").d_castTo<CRegion>();
+  region2->create_region("subregion1");
+  region2->create_region("subregion2");
+  BOOST_CHECK_EQUAL ( region2->get_component("subregion2")->full_path().string() , "mesh/region2/subregion2" );
+
 }
 
 
