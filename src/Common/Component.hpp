@@ -65,6 +65,10 @@ namespace Common {
     /// Add a (sub)component of this component
     void add_component ( boost::shared_ptr<Component> subcomp );
 
+    /// Get a (sub)component of this component
+    /// @param name the component
+    SafePtr<Component> get_component ( const CName& name );
+
     /// lists the sub components and puts them on the xml_tree
     void xml_tree ( XMLNode xml );
 

@@ -64,6 +64,13 @@ void Component::add_component ( boost::shared_ptr<Component> subcomp )
 
 ////////////////////////////////////////////////////////////////////////////////
 
+SafePtr<Component> Component::get_component ( const CName& name )
+{
+  return m_components[name].get();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void Component::change_path (const CPath &new_path)
 {
   m_path = new_path;
