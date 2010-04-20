@@ -15,6 +15,10 @@ LIST ( APPEND Mesh_files
   CTable.hpp
   CTable.cpp
   ConnectivityTable.hpp
+  ElementType.hpp
+  ElementType.cpp
+  GeoShape.hpp
+  GeoShape.cpp
   RCM.hpp
   RCM.cpp
 )

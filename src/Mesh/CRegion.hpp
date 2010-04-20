@@ -5,6 +5,7 @@
 
 #include "Mesh/MeshAPI.hpp"
 #include "Mesh/CTable.hpp"
+#include "Mesh/ElementType.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -40,8 +41,13 @@ public:
   /// create a CTable component
   /// @param name of the region
   void create_connectivityTable ( const CName& name );
-
+  
+  /// return the elementType
+  ElementType& get_elementType() { return m_elementType; }
+  
 private:
+
+  ElementType m_elementType;
 
   std::vector< boost::shared_ptr<CRegion> > m_subregions;
   

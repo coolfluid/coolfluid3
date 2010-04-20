@@ -8,7 +8,8 @@ using namespace Common;
 ////////////////////////////////////////////////////////////////////////////////
 
 CRegion::CRegion ( const CName& name  ) :
-  Component ( name )
+  Component ( name ),
+  m_elementType()
 {
 }
 

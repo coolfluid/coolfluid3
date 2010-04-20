@@ -139,6 +139,25 @@ BOOST_AUTO_TEST_CASE( CTableTest )
     
 }
 
+//////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( CRegionTest )
+{
+  CFinfo << "testing CRegion \n" << CFendl;
+
+  // Create mesh component
+  CMesh mesh ( "mesh" );
+  
+  // Create one region inside mesh
+  mesh.create_region("region");
+  SafePtr<CRegion> region = mesh.get_component("region").d_castTo<CRegion>();
+
+  // Set the region's element type to Triag
+  region->get_elementType().setGeoShape(GeoShape::TRIAG);
+  BOOST_CHECK_EQUAL(region->get_elementType().getShape(), "Triag");
+  BOOST_CHECK_EQUAL(region->get_elementType().getNbFaces(), (Uint) 3);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()
