@@ -1,6 +1,6 @@
 #include <google/profiler.h>
 
-#include "GooglePerfTools/GooglePerfTools.hpp"
+#include "Tools/GooglePerf/GooglePerfTools.hpp"
 
 #include "Common/DirPaths.hpp"
 #include "Common/Log.hpp"

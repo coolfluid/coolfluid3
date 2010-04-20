@@ -1,5 +1,3 @@
-include ( FindGooglePerftools )
-
 if ( CF_HAVE_GOOGLE_PERFTOOLS )
 
   CF_FIND_ORPHAN_FILES()

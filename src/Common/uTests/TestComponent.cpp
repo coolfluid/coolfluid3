@@ -3,6 +3,9 @@
 
 #include "Common/Log.hpp"
 #include "Common/Component.hpp"
+#include "Common/CRoot.hpp"
+#include "Common/CGroup.hpp"
+#include "Common/CLink.hpp"
 
 using namespace std;
 using namespace boost;
@@ -113,6 +116,20 @@ BOOST_AUTO_TEST_CASE( is_link )
 
   BOOST_CHECK ( ! root->is_link() );
   BOOST_CHECK ( ! dir1->is_link() );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( get )
+{
+  boost::shared_ptr<Component> root ( new CRoot  ( "root", "/" ) );
+  boost::shared_ptr<Component> dir1 ( new CGroup ( "dir1"  ) );
+  boost::shared_ptr<Component> lnk1 ( new CLink  ( "link1" ) );
+
+  root->add_component( dir1 );
+
+  boost::weak_ptr<Component> p_root = root.get();
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

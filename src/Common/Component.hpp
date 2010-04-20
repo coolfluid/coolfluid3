@@ -4,6 +4,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <boost/weak_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 #include "Common/DynamicObject.hpp"
 #include "Common/CPath.hpp"
@@ -20,7 +21,9 @@ namespace Common {
   /// @todo add ownership of (sub) components
   /// @todo add dumping of the (sub)tree to a string
   /// @todo add registration into CTree
-  class Common_API Component : public DynamicObject {
+  class Common_API Component :
+      public boost::enable_shared_from_this<Component>,
+      public DynamicObject {
 
   public:
 
@@ -37,8 +40,8 @@ namespace Common {
     /// Virtual destructor
     virtual ~Component();
 
-    /// derefence the componment throught the links to the actual components
-    virtual Component& deref ();
+    /// Get the componment throught the links to the actual components
+    virtual boost::weak_ptr<Component> get ();
 
     /// checks if this component is in fact a link to another component
     bool is_link () const { return m_is_link; }
@@ -65,6 +68,7 @@ namespace Common {
     void xml_tree ( XMLNode xml );
 
   private:
+
     /// type for storing the sub components
     typedef std::map < CName , boost::shared_ptr<Component> > CompStorage_t;
 

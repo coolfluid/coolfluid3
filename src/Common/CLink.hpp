@@ -26,8 +26,11 @@ namespace Common {
     /// Get the class name
     static std::string getClassName () { return "CLink"; }
 
-    /// derefence the componment throught the links to the actual components
-    virtual Component& deref ();
+    /// get the componment throught the links to the actual components
+    virtual boost::weak_ptr<Component> get ();
+
+    /// link to component
+    void link_to ( boost::shared_ptr<Component> lnkto );
 
   private:
 
