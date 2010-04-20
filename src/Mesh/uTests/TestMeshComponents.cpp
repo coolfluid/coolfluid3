@@ -42,7 +42,7 @@ BOOST_FIXTURE_TEST_SUITE( MeshComponent_TestSuite, MeshComponent_Fixture )
 
 BOOST_AUTO_TEST_CASE( MeshComponentTest )
 {
-  CFinfo << "testing MeshComponents " << CFendl;
+  CFinfo << "testing MeshComponents \n" << CFendl;
 
   // Create mesh component
   CMesh mesh ( "mesh" );
@@ -70,11 +70,74 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
   // Create an array of coordinates inside mesh
   mesh.create_array("coordinates");
   BOOST_CHECK_EQUAL ( mesh.get_component("coordinates")->full_path().string() , "mesh/coordinates" );
-
-  
   
 }
 
+//////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( CTableTest )
+{
+  CFinfo << "testing CTable \n" << CFendl;
+
+  // Create mesh component
+  CMesh mesh ( "mesh" );
+  
+  // Create one region inside mesh
+  mesh.create_region("region");
+  SafePtr<CRegion> region = mesh.get_component("region").d_castTo<CRegion>();
+
+  // Create connectivity table inside the region
+  region->create_connectivityTable("connTable");
+  SafePtr<CTable> connTable = region->get_component("connTable").d_castTo<CTable>();
+  
+  // check constructor
+  BOOST_CHECK_EQUAL(connTable->nbRows(),(Uint) 0);
+  BOOST_CHECK_EQUAL(connTable->nbCols(),(Uint) 0);
+  BOOST_CHECK_EQUAL(connTable->size(),(Uint) 0);
+  
+  // check initalization
+  Uint cols = 5;
+  Uint buffersize = 3;
+  connTable->initialize(cols,buffersize);
+  
+  BOOST_CHECK_EQUAL(connTable->nbRows(),(Uint) 0);
+  BOOST_CHECK_EQUAL(connTable->nbCols(),(Uint) 5);
+  BOOST_CHECK_EQUAL(connTable->size(),(Uint) 0);
+  
+  // check for adding rows to table
+  std::vector<Uint> row(cols);
+  for (Uint i=0; i<cols; ++i)
+    row[i] = i;
+    
+  connTable->add_row(row);
+  connTable->flush();
+  BOOST_CHECK_EQUAL(connTable->nbRows(),(Uint) 1);
+  BOOST_CHECK_EQUAL(connTable->nbCols(),(Uint) 5);
+  BOOST_CHECK_EQUAL(connTable->size(),(Uint) 5);
+  
+  // check if buffer flushes without calling flush by the user
+  for (Uint i=0; i<buffersize; ++i)
+    connTable->add_row(row);
+  BOOST_CHECK_EQUAL(connTable->nbRows(),(Uint) 4);
+  BOOST_CHECK_EQUAL(connTable->nbCols(),(Uint) 5);
+  BOOST_CHECK_EQUAL(connTable->size(),(Uint) 20);
+  
+  // check if accessor / mutator works
+  BOOST_CHECK_EQUAL((*connTable)(0,0), (Uint) 0);
+  BOOST_CHECK_EQUAL((*connTable)(1,1), (Uint) 1);
+  BOOST_CHECK_EQUAL((*connTable)(2,2), (Uint) 2);
+  for (Uint i=0; i<cols; ++i) {
+    (*connTable)(2,i) = 0;
+    BOOST_CHECK_EQUAL((*connTable)(2,i), (Uint) 0);
+  }
+  
+  // check if a row can be set
+  std::vector<Uint> row2(cols);
+  connTable->set_row(3,row2);
+  for (Uint i=0; i<cols; ++i)
+    BOOST_CHECK_EQUAL(row2[i], i);
+    
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
