@@ -1,7 +1,4 @@
-if ( CF_HAVE_GOOGLE_PERFTOOLS )
-
   CF_FIND_ORPHAN_FILES()
-
 
   LIST ( APPEND GooglePerfTools_files
     GooglePerfTools.cpp
@@ -13,6 +10,4 @@ if ( CF_HAVE_GOOGLE_PERFTOOLS )
   LIST ( APPEND GooglePerfTools_libs ${GOOGLE_PERFTOOLS_LIBS} )
 
   CF_ADD_LIBRARY ( GooglePerfTools )
-
-endif ()
 

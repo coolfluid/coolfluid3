@@ -1,4 +1,4 @@
-CF_FIND_ORPHAN_FILES()
-
-add_subdirectory ( GooglePerf )
+if ( CF_HAVE_GOOGLE_PERFTOOLS )
+  add_subdirectory ( GooglePerf )
+endif ()
 
