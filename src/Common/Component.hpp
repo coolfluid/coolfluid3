@@ -6,6 +6,7 @@
 #include <boost/weak_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
+#include "Common/SafePtr.hpp"
 #include "Common/DynamicObject.hpp"
 #include "Common/CPath.hpp"
 
@@ -41,7 +42,7 @@ namespace Common {
     virtual ~Component();
 
     /// Get the componment throught the links to the actual components
-    virtual boost::weak_ptr<Component> get ();
+    virtual Common::SafePtr<Component>  get ();
 
     /// checks if this component is in fact a link to another component
     bool is_link () const { return m_is_link; }

@@ -128,7 +128,9 @@ BOOST_AUTO_TEST_CASE( get )
 
   root->add_component( dir1 );
 
-  boost::weak_ptr<Component> p_root = root->get();
+  Common::SafePtr<Component> p_root = root->get();
+
+  CFinfo << p_root->name() << CFendl;
 
 }
 
