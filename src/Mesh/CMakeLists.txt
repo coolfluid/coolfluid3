@@ -1,4 +1,6 @@
-CF_FIND_ORPHAN_FILES()
+# MUST UNCOMMENT FIRST AND LAST LINE WHEN Mesh lib can be created!
+
+#CF_FIND_ORPHAN_FILES()
 
 LIST ( APPEND Mesh_files
   Mesh.hpp
@@ -10,5 +12,7 @@ SET  ( Mesh_kernellib TRUE )
 
 CF_ADD_LIBRARY ( Mesh )
 
-ADD_SUBDIRECTORY ( uTests )    # unit tests for Mesh
+ADD_SUBDIRECTORY ( CFmesh )    # CFmesh file IO
+ADD_SUBDIRECTORY ( Neu )       # Neutral file IO
+#ADD_SUBDIRECTORY ( uTests )    # unit tests for Mesh
 
