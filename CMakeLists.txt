@@ -98,15 +98,20 @@ LOG ( "\n +++ Searching for Boost ..." )
 include ( DetectBoost )
 
 ##############################################################################
+# Find Qt - defines QT_USE_FILE and QT_LIBRARIES used below
+find_package( Qt4 4.5.0 COMPONENTS QtCore QtGui QtXml QtNetwork )
+
+##############################################################################
 # find non essential packages
 
 # using our find macros
 LOG ( "" )
-find_package(BlasLapack)    # search for Blas Lapack support
-find_package(Metis)         # serial domain decomposition
-find_package(Parmetis)      # parallel domain decomposition
-find_package(Curl)          # curl downloads files on the fly
-find_package(Valgrind)      # valgrind for profiling and memmory leak detection
+find_package(BlasLapack)      # search for Blas Lapack support
+find_package(Metis)           # serial domain decomposition
+find_package(Parmetis)        # parallel domain decomposition
+find_package(Curl)            # curl downloads files on the fly
+find_package(Valgrind)        # valgrind for profiling and memmory leak detection
+find_package(GooglePerftools) # dynamic profiler and memory checker
 
 # using cmake find macros
 

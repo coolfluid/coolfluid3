@@ -6,10 +6,9 @@
 #include "Common/Log.hpp"
 #include "Common/ObjectProvider.hpp"
 
-
-
 namespace CF {
-  namespace GooglePerfTools {
+namespace Tools {
+namespace GooglePerf {
 
   Common::ObjectProvider < GooglePerfToolsModule,
                                 GooglePerfToolsModule,
@@ -25,16 +24,17 @@ void GooglePerfToolsModule::initiate() {
   if(!isInitialized()) {
     m_init = true;
     boost::filesystem::path prof_path = Common::DirPaths::getInstance().getResultsDir() / boost::filesystem::path("perftools-profile.pprof");
-    CF::Common::CFinfo <<  getModuleName() << ": Saving profile data to: "  << prof_path.native_file_string() << "\n";
+    CFinfo <<  getModuleName() << ": Saving profile data to: "  << prof_path.native_file_string() << "\n";
     ProfilerStart(prof_path.native_file_string().c_str());
   }
 }
 
 void GooglePerfToolsModule::terminate()
 {
-  CF::Common::CFinfo << getModuleName() << ": Stopping profiling\n";
+  CFinfo << getModuleName() << ": Stopping profiling\n";
   ProfilerStop();
 }
 
-  } // namespace GooglePerfTools
-} // namespace CF
+} // GooglePerfTools
+} // Tools
+} // CF

@@ -10,7 +10,7 @@ if ( CF_HAVE_GOOGLE_PERFTOOLS )
 
   LIST ( APPEND GooglePerfTools_includedirs ${GOOGLE_PERFTOOLS_INCLUDE_DIR} )
   LIST ( APPEND GooglePerfTools_cflibs Common )
-  LIST ( APPEND GooglePerfTools_libs ${GOOGLE_PERFTOOLS_LIBRARY} )
+  LIST ( APPEND GooglePerfTools_libs ${GOOGLE_PERFTOOLS_LIBS} )
 
   CF_ADD_LIBRARY ( GooglePerfTools )
 
