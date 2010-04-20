@@ -10,7 +10,7 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  /// Component class for tree root
+  /// Component for creating links between components
   /// @author Tiago Quintino
   class Common_API CLink : public Component {
 
@@ -28,6 +28,8 @@ namespace Common {
 
     /// get the componment throught the links to the actual components
     virtual Common::SafePtr<Component> get ();
+
+    // functions specific to the CLink component
 
     /// link to component
     void link_to ( boost::shared_ptr<Component> lnkto );

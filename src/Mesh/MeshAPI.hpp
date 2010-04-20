@@ -4,6 +4,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/ExportAPI.hpp"
+#include "Common/ModuleRegister.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -23,9 +24,43 @@ namespace CF {
 
   /// Basic Classes for Mesh applications used by CF
   namespace Mesh {
-    
-  } // namespace Mesh
 
+////////////////////////////////////////////////////////////////////////////////
+    
+  /// Class defines the initialization and termination of the library Mesh
+  /// @author Tiago Quintino
+  class MeshLib :
+      public Common::ModuleRegister<MeshLib>
+  {
+  public:
+
+    /// Static function that returns the module name.
+    /// Must be implemented for the ModuleRegister template
+    /// @return name of the module
+    static std::string getModuleName() { return "Mesh"; }
+
+    /// Static function that returns the description of the module.
+    /// Must be implemented for the ModuleRegister template
+    /// @return descripton of the module
+    static std::string getModuleDescription()
+    {
+      return "This library implements the mesh manipulation API.";
+    }
+
+    /// Gets the Class name
+    static std::string getClassName() { return "MeshLib"; }
+
+    /// Start profiling
+    virtual void initiate();
+
+    /// Stop profiling
+    virtual void terminate();
+
+  }; // end MeshLib
+
+////////////////////////////////////////////////////////////////////////////////
+
+} // namespace Mesh
 } // namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////

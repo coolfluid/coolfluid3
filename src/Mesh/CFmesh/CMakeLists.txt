@@ -4,4 +4,4 @@ LIST ( APPEND CFmesh_files
 
 LIST ( APPEND CFmesh_cflibs Mesh )
 
-CF_ADD_LIBRARY ( CFmesh )
+# CF_ADD_LIBRARY ( CFmesh )

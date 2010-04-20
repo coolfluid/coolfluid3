@@ -4,4 +4,4 @@ LIST ( APPEND Neu_files
 
 LIST ( APPEND Neu_cflibs Mesh )
 
-CF_ADD_LIBRARY ( Neu )
+# CF_ADD_LIBRARY ( Neu )

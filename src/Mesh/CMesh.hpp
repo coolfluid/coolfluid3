@@ -1,42 +1,52 @@
-#ifndef CF_Common_CRoot_HH
-#define CF_Common_CRoot_HH
+#ifndef CF_Mesh_CMesh_HH
+#define CF_Mesh_CMesh_HH
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/Component.hpp"
+#include "Mesh/MeshAPI.hpp"
 
 namespace CF {
-namespace Common {
+namespace Mesh {
+
+  class CRegion;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  /// Component class for tree root
+  /// Mesh component class
   /// @author Tiago Quintino
-  class Common_API CRoot : public Component {
+  class Mesh_API CMesh : public Common::Component {
 
   public:
 
     /// Contructor
     /// @param name of the component
-    CRoot ( const CName& name );
+    CMesh ( const CName& name );
 
     /// Virtual destructor
-    virtual ~CRoot();
+    virtual ~CMesh();
 
     /// Get the class name
-    static std::string getClassName () { return "CLink"; }
+    static std::string getClassName () { return "CMesh"; }
 
-    // functions specific to the CLink component
+    // functions specific to the CMesh component
+
+
+    /// create a region
+    /// @param name of the region
+    void create_region ( const CName& name );
 
   private:
+
+    std::vector< boost::shared_ptr<CRegion> > m_regions;
 
   };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
+} // Mesh
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_CRoot_HH
+#endif // CF_Mesh_CMesh_HH
