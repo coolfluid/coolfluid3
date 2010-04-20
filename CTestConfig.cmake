@@ -3,7 +3,7 @@
 ## project to incorporate the testing dashboard.
 
 set(CTEST_PROJECT_NAME       "coolfluid")
-set(CTEST_NIGHTLY_START_TIME "00:00:00 GMT")
+set(CTEST_NIGHTLY_START_TIME "00:05:00 GMT")
 
 set(CTEST_DROP_METHOD "http")
 set(CTEST_DROP_SITE "coolfluidsrv.vki.ac.be")
