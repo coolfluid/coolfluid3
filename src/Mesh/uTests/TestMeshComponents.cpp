@@ -42,7 +42,7 @@ BOOST_FIXTURE_TEST_SUITE( MeshComponent_TestSuite, MeshComponent_Fixture )
 
 BOOST_AUTO_TEST_CASE( MeshComponentTest )
 {
-  CFinfo << "testing MeshComponents \n" << CFendl;
+  // CFinfo << "testing MeshComponents \n" << CFendl;
 
   // Create mesh component
   CMesh mesh ( "mesh" );
@@ -67,6 +67,11 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
   subregion->create_connectivityTable("connTable");
   BOOST_CHECK_EQUAL ( subregion->get_component("connTable")->full_path().string() , "mesh/region2/subregion2/connTable" );
   
+  // Create a elementsType component inside a subregion
+  subregion->create_elementType("elementType");
+  BOOST_CHECK_EQUAL ( subregion->get_component("elementType")->full_path().string() , "mesh/region2/subregion2/elementType" );
+  
+  
   // Create an array of coordinates inside mesh
   mesh.create_array("coordinates");
   BOOST_CHECK_EQUAL ( mesh.get_component("coordinates")->full_path().string() , "mesh/coordinates" );
@@ -77,7 +82,7 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
 
 BOOST_AUTO_TEST_CASE( CTableTest )
 {
-  CFinfo << "testing CTable \n" << CFendl;
+  // CFinfo << "testing CTable \n" << CFendl;
 
   // Create mesh component
   CMesh mesh ( "mesh" );
@@ -143,7 +148,7 @@ BOOST_AUTO_TEST_CASE( CTableTest )
 
 BOOST_AUTO_TEST_CASE( CRegionTest )
 {
-  CFinfo << "testing CRegion \n" << CFendl;
+//  CFinfo << "testing CRegion \n" << CFendl;
 
   // Create mesh component
   CMesh mesh ( "mesh" );
@@ -152,10 +157,15 @@ BOOST_AUTO_TEST_CASE( CRegionTest )
   mesh.create_region("region");
   SafePtr<CRegion> region = mesh.get_component("region").d_castTo<CRegion>();
 
-  // Set the region's element type to Triag
-  region->get_elementType().setGeoShape(GeoShape::TRIAG);
-  BOOST_CHECK_EQUAL(region->get_elementType().getShape(), "Triag");
-  BOOST_CHECK_EQUAL(region->get_elementType().getNbFaces(), (Uint) 3);
+  // Create a CElements component in region
+  region->create_elementType("elementType");
+  SafePtr<CElements> elementType = region->get_component("elementType").d_castTo<CElements>();
+  BOOST_CHECK_EQUAL(elementType->get_elementType().getShape(), "Invalid");
+
+  // Set the elementType's element type to Triag
+  elementType->get_elementType().setGeoShape(GeoShape::TRIAG);
+  BOOST_CHECK_EQUAL(elementType->get_elementType().getShape(), "Triag");
+  BOOST_CHECK_EQUAL(elementType->get_elementType().getNbFaces(), (Uint) 3);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

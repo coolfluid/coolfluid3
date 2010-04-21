@@ -8,7 +8,7 @@ namespace Mesh {
 ////////////////////////////////////////////////////////////////////////////////
 
 ElementType::ElementType() :
-  m_nameShape(),
+  m_nameShape("Invalid"),
   m_geoShape(GeoShape::INVALID),
   m_nbElems(0),
   m_startIdx(0),

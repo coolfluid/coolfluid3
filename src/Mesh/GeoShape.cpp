@@ -21,7 +21,7 @@ GeoShape::Convert::FwdMap_t GeoShape::Convert::all_fwd = boost::assign::map_list
     ( GeoShape::HEXA,    "Hexa");
 
 GeoShape::Convert::BwdMap_t GeoShape::Convert::all_rev = boost::assign::map_list_of
-    ("INVALID",  GeoShape::INVALID)
+    ("Invalid",  GeoShape::INVALID)
     ("Point",    GeoShape::POINT)
     ("Line",     GeoShape::LINE)
     ("Triag",    GeoShape::TRIAG)

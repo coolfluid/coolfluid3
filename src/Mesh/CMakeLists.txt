@@ -6,6 +6,8 @@ LIST ( APPEND Mesh_files
   CMesh.cpp
   CArray.hpp
   CArray.cpp
+  CElements.hpp
+  CElements.cpp
   CField.hpp
   CField.cpp
   CMesh.hpp
