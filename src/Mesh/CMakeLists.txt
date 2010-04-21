@@ -23,6 +23,8 @@ LIST ( APPEND Mesh_files
   GeoShape.cpp
   RCM.hpp
   RCM.cpp
+  Triag2D.hpp
+  Triag2D.cpp
 )
 
 LIST ( APPEND Mesh_cflibs Common )

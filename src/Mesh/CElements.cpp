@@ -1,4 +1,7 @@
 #include "Mesh/CElements.hpp"
+#include "Mesh/Triag2D.hpp"
+
+#include "Common/Log.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -19,6 +22,14 @@ CElements::~CElements()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+void CElements::set_elementType(const std::string& elementName)
+{
+  boost::shared_ptr<ElementType> new_elementType (new Triag2D());
+  m_elementType = new_elementType;
+}
+
+//////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
 } // CF

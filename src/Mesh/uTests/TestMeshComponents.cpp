@@ -1,5 +1,6 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
+#include <boost/foreach.hpp>
 
 #include "Common/Log.hpp"
 #include "Mesh/CMesh.hpp"
@@ -146,26 +147,32 @@ BOOST_AUTO_TEST_CASE( CTableTest )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( CRegionTest )
+BOOST_AUTO_TEST_CASE( CElementsTest )
 {
-//  CFinfo << "testing CRegion \n" << CFendl;
+//  CFinfo << "testing CElements \n" << CFendl;
 
-  // Create mesh component
-  CMesh mesh ( "mesh" );
+  // Create a CElements component
+  boost::shared_ptr<CElements> comp (new CElements("comp")) ;
+
+  // The element is automatically triangle for now
+  comp->set_elementType("whatever for now");
+  BOOST_CHECK_EQUAL(comp->get_elementType()->getShapeName(), "Triag");
+  BOOST_CHECK_EQUAL(comp->get_elementType()->getNbFaces(), (Uint) 3);
+
+//  CFinfo << "volume nodes = ";
+//  BOOST_FOREACH(Uint node, comp->get_elementType()->getVolumeNodes()) 
+//    CFinfo << node << " " ;
+//  CFinfo << "\n" << CFendl ;
+//  
+//  CFinfo << "Faces = \n";
+//  BOOST_FOREACH(std::vector<Uint>& face, comp->get_elementType()->getFacesConnectivity())
+//  { 
+//    BOOST_FOREACH(Uint node, face)
+//      CFinfo << node << " " ;
+//    CFinfo << "\n" << CFendl ;
+//  }
   
-  // Create one region inside mesh
-  mesh.create_region("region");
-  SafePtr<CRegion> region = mesh.get_component("region").d_castTo<CRegion>();
-
-  // Create a CElements component in region
-  region->create_elementType("elementType");
-  SafePtr<CElements> elementType = region->get_component("elementType").d_castTo<CElements>();
-  BOOST_CHECK_EQUAL(elementType->get_elementType().getShape(), "Invalid");
-
-  // Set the elementType's element type to Triag
-  elementType->get_elementType().setGeoShape(GeoShape::TRIAG);
-  BOOST_CHECK_EQUAL(elementType->get_elementType().getShape(), "Triag");
-  BOOST_CHECK_EQUAL(elementType->get_elementType().getNbFaces(), (Uint) 3);
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////

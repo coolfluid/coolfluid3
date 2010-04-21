@@ -33,11 +33,14 @@ public:
   // functions specific to the CElements component
 
   /// return the elementType
-  ElementType& get_elementType() { return m_elementType; }
+  boost::shared_ptr<ElementType>& get_elementType() { return m_elementType; }
 
+  /// set the element type
+  void set_elementType(const std::string& elementName);
+  
 private:
   
-  ElementType m_elementType;
+  boost::shared_ptr<ElementType> m_elementType;
   
 };
 
