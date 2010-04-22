@@ -172,6 +172,22 @@ BOOST_AUTO_TEST_CASE( CElementsTest )
   BOOST_CHECK_EQUAL(comp->get_elementType()->getShapeName(), "Triag");
   BOOST_CHECK_EQUAL(comp->get_elementType()->getNbFaces(), (Uint) 3);
 
+  // Check volume calculation
+  RealVector A(2), B(2), C(2);
+  A[XX]=15; A[YY]=15;
+  B[XX]=25; B[YY]=30;
+  C[XX]=40; C[YY]=25;
+
+  std::vector<RealVector*> coord(3);
+  coord[1] = &A;
+  coord[2] = &B;
+  coord[3] = &C;
+  
+  CFinfo << (*coord[1])[YY] << "\n" << CFendl;
+  
+  Real volume = comp->get_elementType()->computeVolume(coord);
+  BOOST_CHECK_EQUAL(volume, 137.5);
+
 //  
 //  CFinfo << "Faces = \n";
 //  BOOST_FOREACH(std::vector<Uint>& face, comp->get_elementType()->getFacesConnectivity())
