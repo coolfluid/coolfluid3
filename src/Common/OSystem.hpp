@@ -3,9 +3,7 @@
 
 #include "Common/Exception.hpp"
 #include "Common/NonCopyable.hpp"
-#include "Common/SelfRegistPtr.hpp"
 #include "Common/SafePtr.hpp"
-
 #include "Common/CommonAPI.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////

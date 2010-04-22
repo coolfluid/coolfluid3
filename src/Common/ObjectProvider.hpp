@@ -6,15 +6,19 @@
 #include "Common/CF.hpp"
 #include "Common/Log.hpp"
 
-#include "Common/SelfRegistPtr.hpp"
+
 #include "Common/ModuleRegister.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-  namespace Common {
+namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
+
+  /// Operator to delete the contents of the boost::shared_ptr
+  template < typename BASE >
+      struct deleter { void operator()( BASE * p ) { delete_ptr<BASE>(p); } };
 
 /// This class represents a concrete templated provider to create
 /// whatever kind of polymorphic objects. By default it takes two
@@ -41,21 +45,10 @@ public:
   }
 
   /// Polymorphic function to create objects of dynamical type BASE
-  /// @return SelfRegistPtr olding the created object
-  Common::SelfRegistPtr<BASE> create()
+  /// @return boost::shared_ptr olding the created object
+  boost::shared_ptr<BASE> create()
   {
-    return Common::SelfRegistPtr<BASE>(new CONCRETE(), this);
-  }
-
-  /// Free an instance created by this factory
-  /// @param ptr pointer to be freed
-  void freeInstance ( void* ptr )
-  {
-    cf_assert(ptr != CFNULL);
-    CONCRETE* obj = reinterpret_cast<CONCRETE*>(ptr);
-
-    cf_assert(obj != CFNULL);
-    delete_ptr<CONCRETE>( obj );
+    return boost::shared_ptr<BASE>(new CONCRETE(), deleter<BASE>() );
   }
 
 }; // end of class ObjectProvider
@@ -87,22 +80,10 @@ public:
   }
 
   /// Polymorphic function to create objects of dynamical type BASE
-  /// @param arg1 first parameter
-  /// @return SelfRegistPtr olding the created object
-  Common::SelfRegistPtr<BASE> create(typename BASE::ARG1 arg)
+  /// @return boost::shared_ptr olding the created object
+  boost::shared_ptr<BASE> create(typename BASE::ARG1 arg)
   {
-    return Common::SelfRegistPtr<BASE>(new CONCRETE(arg), this);
-  }
-
-  /// Free an instance created by this factory
-  /// @param ptr pointer to be freed
-  void freeInstance ( void* ptr )
-  {
-    cf_assert(ptr != CFNULL);
-    CONCRETE* obj = reinterpret_cast<CONCRETE*>(ptr);
-
-    cf_assert(obj != CFNULL);
-    delete_ptr<CONCRETE>( obj );
+    return boost::shared_ptr<BASE>(new CONCRETE(arg), deleter<BASE>());
   }
 
 }; // end of class ObjectProvider
@@ -137,22 +118,17 @@ public:
   /// Polymorphic function to create objects of dynamical type BASE
   /// @param arg1 first parameter
   /// @param arg2 first parameter
-  /// @return SelfRegistPtr olding the created object
-  Common::SelfRegistPtr<BASE> create(typename BASE::ARG1 arg1,
-                                    typename BASE::ARG2 arg2)
+  /// @return boost::shared_ptr olding the created object
+  boost::shared_ptr<BASE> create(typename BASE::ARG1 arg1,
+                                 typename BASE::ARG2 arg2)
   {
-    return Common::SelfRegistPtr<BASE>(new CONCRETE(arg1, arg2), this);
+    return boost::shared_ptr<BASE>(new CONCRETE(arg1, arg2), deleter<BASE>());
   }
 
-  /// Free an instance created by this factory
-  /// @param ptr pointer to be freed
-  void freeInstance ( void* ptr )
+  /// Polymorphic function to create objects of dynamical type BASE
+  /// @return boost::shared_ptr olding the created object
+  boost::shared_ptr<BASE> create()
   {
-    cf_assert(ptr != CFNULL);
-    CONCRETE* obj = reinterpret_cast<CONCRETE*>(ptr);
-
-    cf_assert(obj != CFNULL);
-    delete_ptr<CONCRETE>( obj );
   }
 
 }; // end of class ObjectProvider

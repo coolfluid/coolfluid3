@@ -1,7 +1,8 @@
-#include "Mesh/CElements.hpp"
-#include "Mesh/P1/Triag2D.hpp"
-
 #include "Common/Log.hpp"
+#include "Common/Factory.hpp"
+
+#include "Mesh/CElements.hpp"
+#include "Mesh/ElementType.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -23,10 +24,12 @@ CElements::~CElements()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CElements::set_elementType(const std::string& elementName)
+void CElements::set_elementType(const std::string& etype_name)
 {
-  // boost::shared_ptr<ElementType> new_elementType (new P1::Triag2D());
-  // m_elementType = new_elementType;
+  Common::SafePtr< ElementType::PROVIDER > prov =
+      Factory<ElementType>::getInstance().getProvider( etype_name );
+
+  m_elementType = prov->create();
 }
 
 //////////////////////////////////////////////////////////////////////////////

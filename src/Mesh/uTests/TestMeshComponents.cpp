@@ -6,6 +6,7 @@
 #include "Common/CRoot.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
+#include "Mesh/ElementType.hpp"
 
 using namespace std;
 using namespace boost;

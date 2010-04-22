@@ -5,10 +5,11 @@
 
 #include "Common/Component.hpp"
 #include "Mesh/MeshAPI.hpp"
-#include "ElementType.hpp"
 
 namespace CF {
 namespace Mesh {
+
+  class ElementType;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -36,7 +37,7 @@ public:
   boost::shared_ptr<ElementType>& get_elementType() { return m_elementType; }
 
   /// set the element type
-  void set_elementType(const std::string& elementName);
+  void set_elementType(const std::string& etype_name);
   
 private:
   

@@ -1,7 +1,7 @@
 //#include <iostream>
 
 #include "Common/ModuleRegisterBase.hpp"
-//#include "Common/CFEnv.hpp"
+//#include "Common/CoreEnv.hpp"
 #include "Common/ModuleRegistry.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -18,7 +18,7 @@ NamedObject(name),
 m_init(false)
 {
 //  std::cout << "Registering module [" << name << "]" << std::endl;
-//  Common::CFEnv::getInstance().getModuleRegistry()->regist(this);
+//  Common::CoreEnv::getInstance().getModuleRegistry()->regist(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

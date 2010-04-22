@@ -7,4 +7,9 @@ LIST ( APPEND P1_files
 
 LIST ( APPEND P1_cflibs Mesh )
 
+SET  ( P1_kernellib TRUE )
+
 CF_ADD_LIBRARY ( P1 )
+
+# ADD_SUBDIRECTORY ( uTests )    # unit tests for P1
+

@@ -4,9 +4,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/StringOps.hpp"
-#include "Mesh/GeoShape.hpp"
 #include "Common/BasicExceptions.hpp"
+#include "Common/ConcreteProvider.hpp"
+
 #include "Math/RealVector.hpp"
+
+#include "Mesh/GeoShape.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -17,8 +20,7 @@ namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-template <typename T> 
-class Mesh_API VolumeComputer;
+template <typename T>  class Mesh_API VolumeComputer;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -28,11 +30,15 @@ class Mesh_API ElementType {
 
 public: // functions
 
+  typedef Common::ConcreteProvider < ElementType > PROVIDER;
+
   /// Default constructor without arguments
   ElementType();
 
   /// Default destructor
   ~ElementType();
+
+  static std::string getClassName() { return "ElementType"; }
 
 public: // accessors
 
