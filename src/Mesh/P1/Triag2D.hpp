@@ -57,29 +57,30 @@ private:
   
 Real VolumeComputer<P1::Triag2D>::computeVolume(const std::vector<RealVector*>& coord) 
 {
- RealMatrix matrix(3,3);
- for (Uint i = 0; i < 3; ++i) {
-   for (Uint j = 0; j < 3; ++j) {
-     if (j > 0) {
-       matrix(i,j) = (*coord[i])[j-1];
-     }
-     else {
-       matrix(i,j) = 1.0;
-     }
-   }
- }
- 
- const Real volume = 0.5*matrix.determ3();
- 
- return volume;
+// RealMatrix matrix(3,3);
+// for (Uint i = 0; i < 3; ++i) {
+//   for (Uint j = 0; j < 3; ++j) {
+//     if (j > 0) {
+//       matrix(i,j) = (*coord[i])[j-1];
+//     }
+//     else {
+//       matrix(i,j) = 1.0;
+//     }
+//   }
+// }
+// 
+// const Real volume = 0.5*matrix.determ3();
+// 
+// return volume;
 
-  // RealVector *A, *B, *C;
-  //  A=coord[0];
-  //  B=coord[1];
-  //  C=coord[2];
-  //  
-  //  return 0.5*(((*B)[XX]-(*A)[XX])*((*C)[YY]-(*A)[YY])-((*C)[XX]-(*A)[XX])*((*B)[YY]-(*A)[YY]));
-   
+  RealVector *A, *B, *C;
+  A=coord[0];
+  B=coord[1];
+  C=coord[2];
+    
+  return 0.5*(((*coord[1])[XX]-(*coord[0])[XX])*((*coord[2])[YY]-(*coord[0])[YY])-((*coord[2])[XX]-(*coord[0])[XX])*((*coord[1])[YY]-(*coord[0])[YY]));
+  //return 0.5*(((*B)[XX]-(*A)[XX])*((*C)[YY]-(*A)[YY])-((*C)[XX]-(*A)[XX])*((*B)[YY]-(*A)[YY]));
+ 
 }
   
 ////////////////////////////////////////////////////////////////////////////////
