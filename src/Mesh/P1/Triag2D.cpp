@@ -1,11 +1,11 @@
-#include "Mesh/Triag2D.hpp"
+#include "Mesh/P1/Triag2D.hpp"
 #include <boost/foreach.hpp>
-#include "Math/RealMatrix.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace Mesh {
+namespace P1 {
   
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -32,26 +32,6 @@ Triag2D::Triag2D()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Real VolumeComputer<Triag2D>::computeVolume(const std::vector<RealVector*>& coord) 
-{
-  RealMatrix matrix(3,3);
-  for (Uint i = 0; i < 3; ++i) {
-    for (Uint j = 0; j < 3; ++j) {
-      if (j > 0) {
-        matrix(i,j) = (*coord[i])[j-1];
-      }
-      else {
-        matrix(i,j) = 1.0;
-      }
-    }
-  }
-  
-  const Real volume = 0.5*matrix.determ3();
-  
-  return volume;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
+} // P1
 } // Mesh
 } // CF

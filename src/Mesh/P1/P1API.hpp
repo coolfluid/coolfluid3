@@ -1,5 +1,5 @@
-#ifndef CF_Mesh_HH
-#define CF_Mesh_HH
+#ifndef CF_P1_HH
+#define CF_P1_HH
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -8,36 +8,35 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Define the macro Mesh_API
-/// @note build system defines Mesh_EXPORTS when compiling MeshTools files
-#ifdef Mesh_EXPORTS
-#   define Mesh_API      CF_EXPORT_API
-#   define Mesh_TEMPLATE
+/// Define the macro P1_API
+/// @note build system defines P1_EXPORTS when compiling MeshTools files
+#ifdef P1_EXPORTS
+#   define P1_API      CF_EXPORT_API
+#   define P1_TEMPLATE
 #else
-#   define Mesh_API      CF_IMPORT_API
-#   define Mesh_TEMPLATE CF_TEMPLATE_EXTERN
+#   define P1_API      CF_IMPORT_API
+#   define P1_TEMPLATE CF_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-
-  /// Basic Classes for Mesh applications used by CF
-  namespace Mesh {
+namespace Mesh {
+namespace P1 {
 
 ////////////////////////////////////////////////////////////////////////////////
     
   /// Class defines the initialization and termination of the library Mesh
-  /// @author Tiago Quintino
-  class MeshLib :
-      public Common::ModuleRegister<MeshLib>
+  /// @author Tiago Quintino, Willem Deconinck
+  class P1Lib :
+      public Common::ModuleRegister<P1Lib>
   {
   public:
 
     /// Static function that returns the module name.
     /// Must be implemented for the ModuleRegister template
     /// @return name of the module
-    static std::string getModuleName() { return "Mesh"; }
+    static std::string getModuleName() { return "P1"; }
 
     /// Static function that returns the description of the module.
     /// Must be implemented for the ModuleRegister template
@@ -48,7 +47,7 @@ namespace CF {
     }
 
     /// Gets the Class name
-    static std::string getClassName() { return "MeshLib"; }
+    static std::string getClassName() { return "P1Lib"; }
 
     /// Start profiling
     virtual void initiate();
@@ -56,13 +55,14 @@ namespace CF {
     /// Stop profiling
     virtual void terminate();
 
-  }; // end MeshLib
+  }; // end P1Lib
 
 ////////////////////////////////////////////////////////////////////////////////
 
+} // namespace P1
 } // namespace Mesh
 } // namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_HH
+#endif // CF_P1_HH

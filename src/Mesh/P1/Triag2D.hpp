@@ -1,22 +1,24 @@
-#ifndef CF_Triag2D_HH
-#define CF_Triag2D_HH
+#ifndef CF_Mesh_P1_Triag2D_HH
+#define CF_Mesh_P1_Triag2D_HH
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Mesh/MeshAPI.hpp"
+#include "Mesh/P1/P1API.hpp"
 #include "Mesh/ElementType.hpp"
+#include "Math/RealMatrix.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace Mesh {
+namespace P1{
   
   class Triag2D;
   
 ////////////////////////////////////////////////////////////////////////////////
   
 template<>
-class Mesh_API VolumeComputer<Triag2D> 
+class P1_API VolumeComputer<Triag2D> 
 {
 public:
   static Real computeVolume(const std::vector<RealVector*>& coord); 
@@ -26,7 +28,7 @@ public:
     
 /// This class defines a 2D Triangle mesh element
 /// @author Willem Deconinck
-class Mesh_API Triag2D : public ElementType
+class P1_API Triag2D : public ElementType
 {
 public:
   
@@ -48,10 +50,32 @@ private:
 }; // end TriagD2
   
 ////////////////////////////////////////////////////////////////////////////////
+  
+Real VolumeComputer<Triag2D>::computeVolume(const std::vector<RealVector*>& coord) 
+{
+  RealMatrix matrix(3,3);
+  for (Uint i = 0; i < 3; ++i) {
+    for (Uint j = 0; j < 3; ++j) {
+      if (j > 0) {
+        matrix(i,j) = (*coord[i])[j-1];
+      }
+      else {
+        matrix(i,j) = 1.0;
+      }
+    }
+  }
+  
+  const Real volume = 0.5*matrix.determ3();
+  
+  return volume;
+}
+  
+////////////////////////////////////////////////////////////////////////////////
 
+} // namespace P1
 } // namespace Mesh
 } // namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_HH
+#endif // CF_Mesh_P1_Triag2D_HH

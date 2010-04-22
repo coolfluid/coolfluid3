@@ -1,19 +1,21 @@
-#include "Mesh/MeshAPI.hpp"
+#include "Mesh/P1/P1API.hpp"
 
 namespace CF {
 namespace Mesh {
+namespace P1 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void MeshLib::initiate()
+void P1Lib::initiate()
 {
 }
 
-void MeshLib::terminate()
+void P1Lib::terminate()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
+} // P1
 } // Mesh
 } // CF

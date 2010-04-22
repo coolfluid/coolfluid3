@@ -1,5 +1,5 @@
 #include "Mesh/CElements.hpp"
-#include "Mesh/Triag2D.hpp"
+#include "Mesh/P1/Triag2D.hpp"
 
 #include "Common/Log.hpp"
 
@@ -25,7 +25,7 @@ CElements::~CElements()
 
 void CElements::set_elementType(const std::string& elementName)
 {
-  boost::shared_ptr<ElementType> new_elementType (new Triag2D());
+  boost::shared_ptr<ElementType> new_elementType (new P1::Triag2D());
   m_elementType = new_elementType;
 }
 
