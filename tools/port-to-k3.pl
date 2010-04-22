@@ -203,10 +203,14 @@ sub process ($)
       # modified extenions
       s/(\w+)\.hh/\1\.hpp/;
       s/(\w+)\.cxx/\1\.cpp/;
+      
+      s/\#include(\s+)\"((\w|\/)*)SelfRegistPtr\.hpp\"//;
 
       # class rename
       s/CFEnvVars/CoreVars/g;
       s/CFEnv/CoreEnv/g;
+      s/Common::SelfRegistPtr/boost::shared_ptr/g;
+      s/SelfRegistPtr/boost::shared_ptr/g;
       s/CFMatrix/MatrixT/g;
       s/CFVector/VectorT/g;
       s/CFSliceMatrix/MatrixSliceT/g;
@@ -256,8 +260,8 @@ foreach  $file (@ARGV)
         copy($file, $newfile) or die "File $file cannot be copied.";
         unlink ($file);
       }
-       print "\n";
     }
+    print "\n";
   }
   else
   {
