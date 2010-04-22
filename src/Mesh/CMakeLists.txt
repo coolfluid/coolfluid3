@@ -33,6 +33,7 @@ SET  ( Mesh_kernellib TRUE )
 
 CF_ADD_LIBRARY ( Mesh )
 
+ADD_SUBDIRECTORY ( P1 )        # implementation of P1 elements
 ADD_SUBDIRECTORY ( CFmesh )    # CFmesh file IO
 ADD_SUBDIRECTORY ( Neu )       # Neutral file IO
 ADD_SUBDIRECTORY ( uTests )    # unit tests for Mesh

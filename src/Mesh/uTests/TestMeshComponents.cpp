@@ -3,6 +3,7 @@
 #include <boost/foreach.hpp>
 
 #include "Common/Log.hpp"
+#include "Common/CRoot.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 
@@ -45,28 +46,34 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
 {
   // CFinfo << "testing MeshComponents \n" << CFendl;
 
-  // Create mesh component
-  CMesh mesh ( "mesh" );
-  BOOST_CHECK_EQUAL ( mesh.name() , "mesh" );
-  BOOST_CHECK_EQUAL ( mesh.path().string() , "" );
-  BOOST_CHECK_EQUAL ( mesh.full_path().string() , "mesh" );
+  // Create root and mesh component
+  boost::shared_ptr<Component> mesh ( new CMesh  ( "mesh" ) );
+  boost::shared_ptr<Component> root ( new CRoot  ( "root" ) );
+
+  root->add_component( mesh );
+
+  BOOST_CHECK_EQUAL ( mesh->name() , "mesh" );
+  BOOST_CHECK_EQUAL ( mesh->path().string() , "//root" );
+  BOOST_CHECK_EQUAL ( mesh->full_path().string() , "//root/mesh" );
   
   // Create one region inside mesh
-  mesh.create_region("region1");
-  SafePtr<CRegion> region1 = mesh.get_component("region1").d_castTo<CRegion>();
-  BOOST_CHECK_EQUAL ( region1->full_path().string() , "mesh/region1" );
+  boost::shared_ptr<CMesh> p_mesh = boost::dynamic_pointer_cast<CMesh>(mesh);
+
+  p_mesh->create_region("region1");
+  SafePtr<CRegion> region1 = p_mesh->get_component("region1").d_castTo<CRegion>();
+  BOOST_CHECK_EQUAL ( region1->full_path().string() , "//root/mesh/region1" );
 
   // Create second region inside mesh, with 2 subregions inside
-  mesh.create_region("region2");
-  SafePtr<CRegion> region2 = mesh.get_component("region2").d_castTo<CRegion>();
+  p_mesh->create_region("region2");
+  SafePtr<CRegion> region2 = p_mesh->get_component("region2").d_castTo<CRegion>();
   region2->create_region("subregion1");
   region2->create_region("subregion2");
-  BOOST_CHECK_EQUAL ( region2->get_component("subregion2")->full_path().string() , "mesh/region2/subregion2" );
+  BOOST_CHECK_EQUAL ( region2->get_component("subregion2")->full_path().string() , "//root/mesh/region2/subregion2" );
 
   // Create a connectivity table inside a subregion
   SafePtr<CRegion> subregion = region2->get_component("subregion2").d_castTo<CRegion>();
   subregion->create_connectivityTable("connTable");
-  BOOST_CHECK_EQUAL ( subregion->get_component("connTable")->full_path().string() , "mesh/region2/subregion2/connTable" );
+  BOOST_CHECK_EQUAL ( subregion->get_component("connTable")->full_path().string() , "//root/mesh/region2/subregion2/connTable" );
   
   // Create a elementsType component inside a subregion
   subregion->create_elementType("elementType");
@@ -74,8 +81,8 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
   
   
   // Create an array of coordinates inside mesh
-  mesh.create_array("coordinates");
-  BOOST_CHECK_EQUAL ( mesh.get_component("coordinates")->full_path().string() , "mesh/coordinates" );
+  p_mesh->create_array("coordinates");
+  BOOST_CHECK_EQUAL ( p_mesh->get_component("coordinates")->full_path().string() , "//root/mesh/coordinates" );
   
 }
 
@@ -86,11 +93,16 @@ BOOST_AUTO_TEST_CASE( CTableTest )
   // CFinfo << "testing CTable \n" << CFendl;
 
   // Create mesh component
-  CMesh mesh ( "mesh" );
+  boost::shared_ptr<Component> mesh ( new CMesh  ( "mesh" ) );
+  boost::shared_ptr<Component> root ( new CRoot  ( "root" ) );
+
+  root->add_component( mesh );
   
   // Create one region inside mesh
-  mesh.create_region("region");
-  SafePtr<CRegion> region = mesh.get_component("region").d_castTo<CRegion>();
+  boost::shared_ptr<CMesh> p_mesh = boost::dynamic_pointer_cast<CMesh>(mesh);
+
+  p_mesh->create_region("region");
+  SafePtr<CRegion> region = p_mesh->get_component("region").d_castTo<CRegion>();
 
   // Create connectivity table inside the region
   region->create_connectivityTable("connTable");
