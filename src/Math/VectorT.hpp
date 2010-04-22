@@ -78,6 +78,21 @@ public:
     }
   }
 
+  /// Provide STL-compatible construction, useful for compatibility with boost::assign::list_of
+  template< typename InputIterator >
+  VectorT( InputIterator start, InputIterator end ) :
+	  Expr<VectorT<T>,T>(*this),
+      m_owner (true),
+      m_size  ( end-start ),
+      m_data  (CFNULL)
+    {
+      alloc_mem();
+      size_t i = 0;
+      for (InputIterator it = start; it != end; ++it) {
+        m_data[i++] = *it;
+      }
+    }
+
   /// Destructor
   ~VectorT ();
 

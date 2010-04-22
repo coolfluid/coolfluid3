@@ -49,6 +49,7 @@ IF(UNIX)
       # CF_ADD_CXX_FLAGS("-pedantic") # Disabled for now, see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=33305
       CF_ADD_CXX_FLAGS("-fpermissive")
       CF_ADD_CXX_FLAGS("-Wno-empty-body") # Problem in boost
+      CF_ADD_CXX_FLAGS("-Wno-uninitialized") # Problem with boost accumulators 
 
       # could add even these
       #-Wcast-align -Wchar-subscripts -Wpointer-arith -Wformat-security

@@ -7,4 +7,10 @@ LIST ( APPEND uTestMesh_files
 
 CF_ADD_UNITTEST ( uTestMesh )
 
+LIST ( APPEND uTestLagrangeSF_libs Common )
+LIST ( APPEND uTestLagrangeSF_files
+  uTestLagrangeSF.cpp )
+
+CF_ADD_UNITTEST ( uTestLagrangeSF )
+
 ################################################################################
