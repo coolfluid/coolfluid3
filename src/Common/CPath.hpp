@@ -25,14 +25,21 @@ namespace Common {
 
   public:
 
+    // constructors
+
     /// Empty constructor
     CPath ();
     /// Copy constructor from other path object
+    /// @param path object
     CPath ( const CPath& path );
     /// Constructor from string object
+    /// @param s string with path
     CPath ( const std::string& s );
     /// Constructor from const char*
+    /// @param c C string with path
     CPath ( const char* c );
+
+    // operators
 
     CPath& operator/= (const CPath& rhs);
     CPath& operator/= (const std::string& s);
@@ -43,8 +50,21 @@ namespace Common {
     CPath& operator=  (const CPath& p);
     CPath& operator=  (const std::string& s);
 
+    // accessors
+
+    /// Check if path is absolute.
+    /// Should start with "//"
+    /// @returns true if the path is absolute
+    bool is_absolute() const;
+
+    /// Check is path is relative.
+    /// Should not start with "//"
+    /// @returns true if the path is a relative path
+    bool is_relative() const;
+
     /// @return if the path is empty
     bool empty() const { return m_path.empty(); }
+
     /// @return the path as a string
     const std::string& string() const { return m_path; }
 
@@ -54,8 +74,10 @@ namespace Common {
     /// check that the passed string is a valid path
     /// @post string does not contain ";,./"
     static bool is_valid_path ( const std::string& str);
+
     /// check that the passed string is a valid path element
     static bool is_valid_element ( const std::string& str);
+
     /// separator for path tokens
     static const std::string& separator ();
 

@@ -1,8 +1,10 @@
 #include <boost/cast.hpp>
 #include <boost/foreach.hpp>
+#include <boost/tokenizer.hpp>
 
 #include "Common/Component.hpp"
 #include "Common/BasicExceptions.hpp"
+#include "Common/Log.hpp"
 
 namespace CF {
 namespace Common {
@@ -67,6 +69,23 @@ void Component::add_component ( boost::shared_ptr<Component> subcomp )
 SafePtr<Component> Component::get_component ( const CName& name )
 {
   return m_components[name].get();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+boost::shared_ptr<Component> Component::access_component ( const CPath& path )
+{
+  CFinfo << "HERE\n" << CFendl;
+//  if ( path.is_relative() ) // transform it to absolute
+  {    
+    std::string sp = path.string();
+    boost::char_separator<char> sep("/");
+    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+    tokenizer tok (sp,sep);
+    for(tokenizer::iterator beg=tok.begin(); beg!=tok.end();++beg)
+        CFinfo << *beg << "\n";
+  }
+  CFinfo << "HERE\n" << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

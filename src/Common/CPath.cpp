@@ -1,6 +1,7 @@
 #include <boost/tokenizer.hpp>
 
 #include "Common/CPath.hpp"
+#include "Common/StringOps.hpp"
 
 namespace CF {
 namespace Common {
@@ -92,6 +93,16 @@ bool CPath::is_valid_path ( const std::string& str )
 {
   /// @todo implement validity check of the string as a path
   return true;
+}
+
+bool CPath::is_relative () const
+{
+  return !is_absolute();
+}
+
+bool CPath::is_absolute () const
+{
+  return boost::algorithm::starts_with( m_path, "//" );
 }
 
 //CPath CPath::base_path () const

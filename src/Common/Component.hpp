@@ -69,6 +69,11 @@ namespace Common {
     /// @param name the component
     SafePtr<Component> get_component ( const CName& name );
 
+    /// Access a component on the tree by path
+    /// The path may be relative or absolute
+    /// @param path to the component
+    boost::shared_ptr<Component> access_component ( const CPath& path );
+
     /// lists the sub components and puts them on the xml_tree
     void xml_tree ( XMLNode xml );
 

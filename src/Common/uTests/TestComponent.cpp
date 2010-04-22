@@ -150,6 +150,21 @@ BOOST_AUTO_TEST_CASE( get )
 
 ////////////////////////////////////////////////////////////////////////////////
 
+BOOST_AUTO_TEST_CASE( access_component )
+{
+  boost::shared_ptr<Component> root ( new CRoot  ( "root" ) );
+  boost::shared_ptr<Component> dir1 ( new CGroup ( "dir1" ) );
+  boost::shared_ptr<Component> dir2 ( new CGroup ( "dir2" ) );
+
+  // add child components to root
+  root->add_component( dir1 );
+  dir1->add_component( dir2 );
+
+//  dir2->access_component( "../dir1" );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 BOOST_AUTO_TEST_SUITE_END()
 
 ////////////////////////////////////////////////////////////////////////////////
