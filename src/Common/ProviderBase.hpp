@@ -28,10 +28,6 @@ public: // methods
   /// Virtual destructor
   virtual ~ProviderBase ();
 
-  /// Free an instance created by this factory
-  /// @param ptr pointer to be freed
-  virtual void freeInstance ( void * ptr ) = 0;
-
   /// @return the name of this provider
   virtual std::string getProviderName () const = 0;
 

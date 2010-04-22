@@ -4,7 +4,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/CF.hpp"
-#include "Common/SelfRegistPtr.hpp"
+
 
 #include "Common/Provider.hpp"
 #include "Common/Factory.hpp"
@@ -31,8 +31,8 @@ public:
   virtual ~ConcreteProvider() {}
 
   /// Polymorphic function to create objects of dynamical type BASE
-  /// @return SelfRegistPtr olding the created object
-  virtual Common::SelfRegistPtr<BASE> create() = 0;
+  /// @return boost::shared_ptr olding the created object
+  virtual boost::shared_ptr<BASE> create() = 0;
 
 }; // end of class ConcreteProvider
 
@@ -56,8 +56,8 @@ public:
 
   /// Polymorphic function to create objects of dynamical type BASE
   /// @param arg1 first parameter
-  /// @return SelfRegistPtr olding the created object
-  virtual Common::SelfRegistPtr<BASE> create(BASE_ARG1 arg1) = 0;
+  /// @return boost::shared_ptr olding the created object
+  virtual boost::shared_ptr<BASE> create(BASE_ARG1 arg1) = 0;
 
 }; // end of class ConcreteProvider
 
@@ -83,8 +83,8 @@ public:
   /// Polymorphic function to create objects of dynamical type BASE
   /// @param arg1 first parameter
   /// @param arg2 first parameter
-  /// @return SelfRegistPtr olding the created object
-  virtual Common::SelfRegistPtr<BASE> create(BASE_ARG1 arg1, BASE_ARG2 arg2) = 0;
+  /// @return boost::shared_ptr olding the created object
+  virtual boost::shared_ptr<BASE> create(BASE_ARG1 arg1, BASE_ARG2 arg2) = 0;
 
 }; // end of class ConcreteProvider
 
