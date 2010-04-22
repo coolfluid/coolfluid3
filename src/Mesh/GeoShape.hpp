@@ -1,5 +1,5 @@
-#ifndef CF_GeoShape_hh
-#define CF_GeoShape_hh
+#ifndef CF_Mesh_GeoShape_hh
+#define CF_Mesh_GeoShape_hh
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -52,4 +52,4 @@ Mesh_API std::istream& operator>> ( std::istream& is, GeoShape::Type& in );
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GeoShape_hh
+#endif // CF_Mesh_GeoShape_hh

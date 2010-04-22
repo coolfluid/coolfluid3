@@ -25,8 +25,8 @@ CElements::~CElements()
 
 void CElements::set_elementType(const std::string& elementName)
 {
-  boost::shared_ptr<ElementType> new_elementType (new P1::Triag2D());
-  m_elementType = new_elementType;
+  // boost::shared_ptr<ElementType> new_elementType (new P1::Triag2D());
+  // m_elementType = new_elementType;
 }
 
 //////////////////////////////////////////////////////////////////////////////

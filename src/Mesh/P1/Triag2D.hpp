@@ -11,21 +11,23 @@
 
 namespace CF {
 namespace Mesh {
-namespace P1{
-  
-  class Triag2D;
-  
+namespace P1 {
+    class Triag2D;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
   
 template<>
-class P1_API VolumeComputer<Triag2D> 
+class Mesh_API VolumeComputer<P1::Triag2D> 
 {
 public:
   static Real computeVolume(const std::vector<RealVector*>& coord); 
 };
 
-////////////////////////////////////////////////////////////////////////////////
-    
+//////////////////////////////////////////////////////////////////////////////
+
+namespace P1 {
+  
 /// This class defines a 2D Triangle mesh element
 /// @author Willem Deconinck
 class P1_API Triag2D : public ElementType
@@ -49,9 +51,11 @@ private:
   
 }; // end TriagD2
   
+} // namespace P1
+
 ////////////////////////////////////////////////////////////////////////////////
   
-Real VolumeComputer<Triag2D>::computeVolume(const std::vector<RealVector*>& coord) 
+Real VolumeComputer<P1::Triag2D>::computeVolume(const std::vector<RealVector*>& coord) 
 {
   RealMatrix matrix(3,3);
   for (Uint i = 0; i < 3; ++i) {
@@ -68,11 +72,11 @@ Real VolumeComputer<Triag2D>::computeVolume(const std::vector<RealVector*>& coor
   const Real volume = 0.5*matrix.determ3();
   
   return volume;
+
 }
   
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace P1
 } // namespace Mesh
 } // namespace CF
 
