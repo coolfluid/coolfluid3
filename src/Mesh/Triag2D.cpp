@@ -19,15 +19,11 @@ Triag2D::Triag2D()
   m_nbEdges=0;
   
   // set size of connectivity order
-  m_volume.resize(3);
   m_faces.resize(3);
   BOOST_FOREACH( std::vector<Uint>& face, m_faces )
     face.resize(2);
   // Note: edges must not set as they coincide with nodes
-  
-  m_volume[0]=0;
-  m_volume[1]=1;
-  m_volume[2]=2;
+
   
   m_faces[0][0]=0;    m_faces[0][1]=1;
   m_faces[1][0]=1;    m_faces[1][1]=2;

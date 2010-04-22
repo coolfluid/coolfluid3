@@ -6,6 +6,7 @@
 #include "Common/StringOps.hpp"
 #include "Mesh/GeoShape.hpp"
 #include "Common/BasicExceptions.hpp"
+#include "Math/RealVector.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -52,15 +53,16 @@ public: // accessors
 
   /// @return m_order
   Uint getOrder() const { return m_order; }
-  
-  /// @return volume nodes
-  std::vector< Uint >& getVolumeNodes() { return m_volume; }
 
   /// @return faces connectivity
+  /// faces[iFace][iNode]
   std::vector< std::vector< Uint > >& getFacesConnectivity() { return m_faces; }
 
   /// @return edges connectivity
+  /// edges[iEdge][iNode]
   std::vector< std::vector< Uint > >& getEdgesConnectivity() { return m_edges; }
+  
+  virtual Real computeVolume(const std::vector<RealVector*>& coord) =0; 
   
 protected: // data
 
@@ -77,7 +79,6 @@ protected: // data
   /// number of edges
   Uint m_nbEdges;
   
-  std::vector< Uint > m_volume;
   std::vector< std::vector< Uint > > m_edges;
   std::vector< std::vector< Uint > > m_faces;
 

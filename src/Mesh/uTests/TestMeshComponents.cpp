@@ -159,10 +159,6 @@ BOOST_AUTO_TEST_CASE( CElementsTest )
   BOOST_CHECK_EQUAL(comp->get_elementType()->getShapeName(), "Triag");
   BOOST_CHECK_EQUAL(comp->get_elementType()->getNbFaces(), (Uint) 3);
 
-//  CFinfo << "volume nodes = ";
-//  BOOST_FOREACH(Uint node, comp->get_elementType()->getVolumeNodes()) 
-//    CFinfo << node << " " ;
-//  CFinfo << "\n" << CFendl ;
 //  
 //  CFinfo << "Faces = \n";
 //  BOOST_FOREACH(std::vector<Uint>& face, comp->get_elementType()->getFacesConnectivity())
