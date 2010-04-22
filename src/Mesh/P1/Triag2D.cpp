@@ -1,5 +1,7 @@
-#include "Mesh/P1/Triag2D.hpp"
 #include <boost/foreach.hpp>
+
+#include "Common/ObjectProvider.hpp"
+#include "Mesh/P1/Triag2D.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -8,6 +10,12 @@ namespace Mesh {
 namespace P1 {
   
 ////////////////////////////////////////////////////////////////////////////////
+
+Common::ObjectProvider < Triag2D,
+                         ElementType,
+                         P1Lib >
+aTriag2D_Provider ( "Triag2D" );
+
 
 Triag2D::Triag2D() 
 {

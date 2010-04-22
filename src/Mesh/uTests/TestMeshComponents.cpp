@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
   
   // Create a elementsType component inside a subregion
   subregion->create_elementType("elementType");
-  BOOST_CHECK_EQUAL ( subregion->get_component("elementType")->full_path().string() , "mesh/region2/subregion2/elementType" );
+  BOOST_CHECK_EQUAL ( subregion->get_component("elementType")->full_path().string() , "//root/mesh/region2/subregion2/elementType" );
   
   
   // Create an array of coordinates inside mesh
