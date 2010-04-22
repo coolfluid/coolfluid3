@@ -10,10 +10,10 @@ namespace CF {
 namespace Tools {
 namespace GooglePerf {
 
-  Common::ObjectProvider < GooglePerfToolsModule,
-                                GooglePerfToolsModule,
-                                GooglePerfToolsModule >
-  aCPUProfiler_Provider ( "GooglePerfTools" );
+Common::ObjectProvider < GooglePerfToolsModule,
+                         GooglePerfToolsModule,
+                         GooglePerfToolsModule >
+aCPUProfiler_Provider ( "GooglePerfTools" );
 
 GooglePerfToolsModule::GooglePerfToolsModule()
 {

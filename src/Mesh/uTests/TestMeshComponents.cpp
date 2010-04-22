@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE( CElementsTest )
   boost::shared_ptr<CElements> comp (new CElements("comp")) ;
 
   // The element is automatically triangle for now
-  comp->set_elementType("whatever for now");
+  comp->set_elementType("Triag2D");
   BOOST_CHECK_EQUAL(comp->get_elementType()->getShapeName(), "Triag");
   BOOST_CHECK_EQUAL(comp->get_elementType()->getNbFaces(), (Uint) 3);
 

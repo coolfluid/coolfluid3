@@ -97,7 +97,6 @@ LIST ( APPEND Common_files
     ProviderBase.hpp
     SafePtr.hpp
     SharedPtr.hpp
-    SelfRegistPtr.hpp
     SetupObject.hpp
     SetupObject.cpp
     SignalHandler.cpp
