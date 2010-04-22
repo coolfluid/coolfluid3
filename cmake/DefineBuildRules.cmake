@@ -46,8 +46,9 @@ IF(UNIX)
       # must turn long long off because many mpi implementations use it
       CF_ADD_CXX_FLAGS("-Wno-long-long")
       # be pedantic but issue warnings instead of errors
-      CF_ADD_CXX_FLAGS("-pedantic")
+      # CF_ADD_CXX_FLAGS("-pedantic") # Disabled for now, see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=33305
       CF_ADD_CXX_FLAGS("-fpermissive")
+      CF_ADD_CXX_FLAGS("-Wno-empty-body") # Problem in boost
 
       # could add even these
       #-Wcast-align -Wchar-subscripts -Wpointer-arith -Wformat-security
