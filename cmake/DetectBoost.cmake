@@ -23,6 +23,7 @@ IF ( NOT Boost_FOUND )
   LOG ( ${Boost_ERROR_REASON} )
   MESSAGE ( FATAL_ERROR "Boost is required to compile coolfluid Kernel" )
 ENDIF()
+
 # add boost include path
 INCLUDE_DIRECTORIES ( ${Boost_INCLUDE_DIR} )
 ADD_DEFINITIONS ( -DBOOST_STRICT_CONFIG )
