@@ -1,5 +1,5 @@
-#ifndef CF_Mesh_P1_Triag2D_HH
-#define CF_Mesh_P1_Triag2D_HH
+#ifndef CF_Mesh_P1_Quad2D_HH
+#define CF_Mesh_P1_Quad2D_HH
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -12,13 +12,13 @@
 namespace CF {
 namespace Mesh {
 namespace P1 {
-    class Triag2D;
+    class Quad2D;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
   
 template<>
-class Mesh_API VolumeComputer<P1::Triag2D> 
+class Mesh_API VolumeComputer<P1::Quad2D> 
 {
 public:
   static Real computeVolume(const std::vector<RealVector*>& coord); 
@@ -28,19 +28,19 @@ public:
 
 namespace P1 {
   
-/// This class defines a 2D Triangle mesh element
+/// This class defines a 2D Quad mesh element
 /// @author Willem Deconinck
-class P1_API Triag2D : public ElementType
+class P1_API Quad2D : public ElementType
 {
 public:
   
-  typedef VolumeComputer<Triag2D> VolumeComputerType;
+  typedef VolumeComputer<Quad2D> VolumeComputerType;
   
   /// constructor
-  Triag2D();
+  Quad2D();
   
   /// Gets the Class name
-  static std::string getClassName() { return "Triag2D"; }
+  static std::string getClassName() { return "Quad2D"; }
   
   Real computeVolume(const std::vector<RealVector*>& coord) 
   { 
@@ -49,16 +49,19 @@ public:
 
 private:
   
-}; // end Triag2D
+}; // end Quad2D
   
 } // namespace P1
 
 ////////////////////////////////////////////////////////////////////////////////
   
-Real VolumeComputer<P1::Triag2D>::computeVolume(const std::vector<RealVector*>& coord) 
+Real VolumeComputer<P1::Quad2D>::computeVolume(const std::vector<RealVector*>& coord) 
 {
-  return 0.5*(((*coord[1])[XX]-(*coord[0])[XX])*((*coord[2])[YY]-(*coord[0])[YY])
-    -((*coord[2])[XX]-(*coord[0])[XX])*((*coord[1])[YY]-(*coord[0])[YY]));
+  const Real diagonalsProd = 
+    ((*coord[2])[0] - (*coord[0])[0]) * ((*coord[3])[1] - (*coord[1])[1]) -
+    ((*coord[2])[1] - (*coord[0])[1]) * ((*coord[3])[0] - (*coord[1])[0]);
+
+  return 0.5*diagonalsProd;
 }
   
 ////////////////////////////////////////////////////////////////////////////////
@@ -68,4 +71,4 @@ Real VolumeComputer<P1::Triag2D>::computeVolume(const std::vector<RealVector*>& 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_P1_Triag2D_HH
+#endif // CF_Mesh_P1_Quad2D_HH
