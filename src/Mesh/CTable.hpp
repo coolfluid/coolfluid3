@@ -5,7 +5,7 @@
 
 #include "Common/Component.hpp"
 #include "Mesh/MeshAPI.hpp"
-#include "Mesh/ConnectivityTable.hpp"
+#include "Mesh/Table.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -23,6 +23,8 @@ class Mesh_API CTable : public Common::Component {
 
 public:
 
+  typedef Table<Uint> ConnectivityTable;
+  
   /// Contructor
   /// @param name of the component
   CTable ( const CName& name );

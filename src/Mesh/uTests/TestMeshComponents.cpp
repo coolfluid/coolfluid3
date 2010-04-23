@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE( CTableTest )
   // check constructor
   BOOST_CHECK_EQUAL(connTable->getTable().nbRows(),(Uint) 0);
   BOOST_CHECK_EQUAL(connTable->getTable().nbCols(),(Uint) 0);
-  BOOST_CHECK_EQUAL(connTable->getTable().size(),(Uint) 0);
+  BOOST_CHECK_EQUAL(connTable->getTable().num_elements(),(Uint) 0);
   
   // check initalization
   Uint cols = 5;
@@ -121,7 +121,8 @@ BOOST_AUTO_TEST_CASE( CTableTest )
   
   BOOST_CHECK_EQUAL(connTable->getTable().nbRows(),(Uint) 0);
   BOOST_CHECK_EQUAL(connTable->getTable().nbCols(),(Uint) 5);
-  BOOST_CHECK_EQUAL(connTable->getTable().size(),(Uint) 0);
+  BOOST_CHECK_EQUAL(connTable->getTable().num_elements(),(Uint) 0);
+  BOOST_CHECK_EQUAL(connTable->getTable().size(),connTable->getTable().nbRows());
   
   // check for adding rows to table
   std::vector<Uint> row(cols);
@@ -132,14 +133,17 @@ BOOST_AUTO_TEST_CASE( CTableTest )
   connTable->getTable().flush();
   BOOST_CHECK_EQUAL(connTable->getTable().nbRows(),(Uint) 1);
   BOOST_CHECK_EQUAL(connTable->getTable().nbCols(),(Uint) 5);
-  BOOST_CHECK_EQUAL(connTable->getTable().size(),(Uint) 5);
+  BOOST_CHECK_EQUAL(connTable->getTable().num_elements(),(Uint) 5);
+  BOOST_CHECK_EQUAL(connTable->getTable().size(),connTable->getTable().nbRows());
+  
   
   // check if buffer flushes without calling flush by the user
   for (Uint i=0; i<buffersize; ++i)
     connTable->getTable().add_row(row);
   BOOST_CHECK_EQUAL(connTable->getTable().nbRows(),(Uint) 4);
   BOOST_CHECK_EQUAL(connTable->getTable().nbCols(),(Uint) 5);
-  BOOST_CHECK_EQUAL(connTable->getTable().size(),(Uint) 20);
+  BOOST_CHECK_EQUAL(connTable->getTable().num_elements(),(Uint) 20);
+  BOOST_CHECK_EQUAL(connTable->getTable().size(),connTable->getTable().nbRows());
   
   // check if accessor / mutator works
   BOOST_CHECK_EQUAL(connTable->getTable()[0][0], (Uint) 0);

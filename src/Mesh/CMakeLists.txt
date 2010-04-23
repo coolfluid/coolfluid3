@@ -16,8 +16,8 @@ LIST ( APPEND Mesh_files
   CRegion.cpp
   CTable.hpp
   CTable.cpp
-  ConnectivityTable.hpp
-  ConnectivityTable.cpp
+  Table.hpp
+  Table.cpp
   ConnectivityTableCF2.hpp
   ElementType.hpp
   ElementType.cpp
