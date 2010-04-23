@@ -41,6 +41,13 @@ struct MeshConstruction_Fixture
     coordVec.assign(coord,coord+2);
     return coordVec;
   }
+  
+  std::vector<Uint> create_quad(const Uint& A, const Uint& B, const Uint& C, const Uint& D) {
+    Uint quad[] = {A,B,C,D};
+    std::vector<Uint> quadVec;
+    quadVec.assign(quad,quad+4);
+    return quadVec;
+  }
   /// common values accessed by all tests goes here
 
 };
@@ -53,7 +60,8 @@ BOOST_FIXTURE_TEST_SUITE( MeshConstruction_TestSuite, MeshConstruction_Fixture )
 
 BOOST_AUTO_TEST_CASE( MeshConstruction )
 {
-
+  
+  
   // Create root and mesh component
   boost::shared_ptr<Component> root ( new CRoot  ( "root" ) );
   boost::shared_ptr<Component> mesh ( new CMesh  ( "mesh" ) );
@@ -79,6 +87,30 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   // create a coordinates array in the mesh component
   p_mesh->create_array("coordinates");
   
+  // create pointers to the coordinates array and connectivity table
+  SafePtr<CArray::Array> coordinates = (&p_mesh->get_component("coordinates").d_castTo<CArray>()->getArray());
+  SafePtr<CTable::ConnectivityTable> qTable = (&quadRegion->get_component("table").d_castTo<CTable>()->getTable());
+  
+  // initialize the coordinates array and connectivity table
+  coordinates->initialize(2,20);
+  qTable->initialize(4,10);
+  
+  // fill coordinates in the buffer
+  coordinates->add_row(create_coord( 0.0 , 0.0 ));  // 0
+  coordinates->add_row(create_coord( 1.0 , 0.0 ));  // 1
+  coordinates->add_row(create_coord( 1.0 , 1.0 ));  // 2
+  coordinates->add_row(create_coord( 0.0 , 1.0 ));  // 3
+  coordinates->add_row(create_coord( 0.0 , 2.0 ));  // 4
+  coordinates->add_row(create_coord( 1.0 , 1.0 ));  // 5
+  
+  // fill connectivity in the buffer
+  qTable->add_row(create_quad( 0 , 1 , 2 , 3));
+  qTable->add_row(create_quad( 3 , 2 , 4 , 5));
+
+  // flush buffers into the table. 
+  // This causes the table and array to be resized and filled.
+  coordinates->flush();
+  qTable->flush();
   
 }
 
