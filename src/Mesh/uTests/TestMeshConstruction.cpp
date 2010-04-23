@@ -95,6 +95,14 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   coordinates->initialize(2,20);
   qTable->initialize(4,10);
   
+  //  Mesh of quads with node numbering:
+  //
+  //    5----4 
+  //    |    | 
+  //    3----2 
+  //    |    | 
+  //    0----1   
+  
   // fill coordinates in the buffer
   coordinates->add_row(create_coord( 0.0 , 0.0 ));  // 0
   coordinates->add_row(create_coord( 1.0 , 0.0 ));  // 1
@@ -104,8 +112,8 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   coordinates->add_row(create_coord( 1.0 , 1.0 ));  // 5
   
   // fill connectivity in the buffer
-  qTable->add_row(create_quad( 0 , 1 , 2 , 3));
-  qTable->add_row(create_quad( 3 , 2 , 4 , 5));
+  qTable->add_row(create_quad( 0 , 1 , 2 , 3 ));
+  qTable->add_row(create_quad( 3 , 2 , 4 , 5 ));
 
   // flush buffers into the table. 
   // This causes the table and array to be resized and filled.
