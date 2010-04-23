@@ -4,7 +4,7 @@
 #include <string>
 #include <cstdlib>
 
-#include "Mesh/ConnectivityTable.hpp"
+#include "Mesh/ConnectivityTableCF2.hpp"
 #include "Mesh/RCM.hpp"
 
 using namespace std;
@@ -19,9 +19,9 @@ namespace Mesh {
 
 //.......... RCM_algorithm begins here.............
 
-void RCM::renumber ( ConnectivityTable<Uint>& cellnode, std::valarray <Uint>& new_id )
+void RCM::renumber ( ConnectivityTableCF2<Uint>& cellnode, std::valarray <Uint>& new_id )
 {
-  ConnectivityTable<Uint> nodenode;
+  ConnectivityTableCF2<Uint> nodenode;
 
   RCM::transformCellNode2NodeNode (cellnode, nodenode);
 
@@ -203,7 +203,7 @@ for ( Uint i=0; i< nbelems; ++i )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void RCM::transformCellNode2NodeNode ( const ConnectivityTable<Uint>& cellnode, ConnectivityTable<Uint>& nodenode )
+void RCM::transformCellNode2NodeNode ( const ConnectivityTableCF2<Uint>& cellnode, ConnectivityTableCF2<Uint>& nodenode )
 {
   Uint maxN = 0;
   const Uint nbrows = cellnode.nbRows();
@@ -304,7 +304,7 @@ void RCM::transformCellNode2NodeNode ( const ConnectivityTable<Uint>& cellnode, 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-int RCM::read_input ( const std::string& filename, ConnectivityTable<Uint>& cellnode )
+int RCM::read_input ( const std::string& filename, ConnectivityTableCF2<Uint>& cellnode )
 {
 Uint nb_elems;
 
@@ -332,10 +332,10 @@ file_in >> cellnode;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void RCM::print_table ( const std::string& filename, const ConnectivityTable<Uint>& cellnode )
+void RCM::print_table ( const std::string& filename, const ConnectivityTableCF2<Uint>& cellnode )
 {
 
-  ConnectivityTable<Uint> nodenode;
+  ConnectivityTableCF2<Uint> nodenode;
 
   transformCellNode2NodeNode (cellnode, nodenode);
 
