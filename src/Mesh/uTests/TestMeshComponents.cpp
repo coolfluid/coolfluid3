@@ -160,10 +160,8 @@ BOOST_AUTO_TEST_CASE( CTableTest )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( CElementsTest )
+BOOST_AUTO_TEST_CASE( CElementsTriag2DTest )
 {
-//  CFinfo << "testing CElements \n" << CFendl;
-
   // Create a CElements component
   boost::shared_ptr<CElements> comp (new CElements("comp")) ;
 
@@ -179,16 +177,29 @@ BOOST_AUTO_TEST_CASE( CElementsTest )
   B[XX]=40; B[YY]=25;   coord[1] = &B;
   C[XX]=25; C[YY]=30;   coord[2] = &C;
   BOOST_CHECK_EQUAL(comp->get_elementType()->computeVolume(coord), 137.5);
-
-//  
-//  CFinfo << "Faces = \n";
-//  BOOST_FOREACH(std::vector<Uint>& face, comp->get_elementType()->getFacesConnectivity())
-//  { 
-//    BOOST_FOREACH(Uint node, face)
-//      CFinfo << node << " " ;
-//    CFinfo << "\n" << CFendl ;
-//  }
   
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( CElementsQuad2DTest )
+{
+  // Create a CElements component
+  boost::shared_ptr<CElements> comp (new CElements("comp")) ;
+
+  // The element is automatically triangle for now
+  comp->set_elementType("Quad2D");
+  BOOST_CHECK_EQUAL(comp->get_elementType()->getShapeName(), "Quad");
+  BOOST_CHECK_EQUAL(comp->get_elementType()->getNbFaces(), (Uint) 4);
+
+  // Check volume calculation
+  RealVector A(2), B(2), C(2), D(2);
+  std::vector<RealVector*> coord(4);
+  A[XX]=15; A[YY]=15;   coord[0] = &A;
+  B[XX]=40; B[YY]=25;   coord[1] = &B;
+  C[XX]=25; C[YY]=30;   coord[2] = &C;
+  D[XX]=30; D[YY]=40;   coord[3] = &D;
+  BOOST_CHECK_EQUAL(comp->get_elementType()->computeVolume(coord), 150);
   
 }
 
