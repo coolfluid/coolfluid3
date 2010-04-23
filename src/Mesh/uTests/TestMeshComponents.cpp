@@ -110,49 +110,45 @@ BOOST_AUTO_TEST_CASE( CTableTest )
   SafePtr<CTable> connTable = region->get_component("connTable").d_castTo<CTable>();
   
   // check constructor
-  BOOST_CHECK_EQUAL(connTable->nbRows(),(Uint) 0);
-  BOOST_CHECK_EQUAL(connTable->nbCols(),(Uint) 0);
-  BOOST_CHECK_EQUAL(connTable->size(),(Uint) 0);
+  BOOST_CHECK_EQUAL(connTable->getTable().nbRows(),(Uint) 0);
+  BOOST_CHECK_EQUAL(connTable->getTable().nbCols(),(Uint) 0);
+  BOOST_CHECK_EQUAL(connTable->getTable().size(),(Uint) 0);
   
   // check initalization
   Uint cols = 5;
   Uint buffersize = 3;
-  connTable->initialize(cols,buffersize);
+  connTable->getTable().initialize(cols,buffersize);
   
-  BOOST_CHECK_EQUAL(connTable->nbRows(),(Uint) 0);
-  BOOST_CHECK_EQUAL(connTable->nbCols(),(Uint) 5);
-  BOOST_CHECK_EQUAL(connTable->size(),(Uint) 0);
+  BOOST_CHECK_EQUAL(connTable->getTable().nbRows(),(Uint) 0);
+  BOOST_CHECK_EQUAL(connTable->getTable().nbCols(),(Uint) 5);
+  BOOST_CHECK_EQUAL(connTable->getTable().size(),(Uint) 0);
   
   // check for adding rows to table
   std::vector<Uint> row(cols);
   for (Uint i=0; i<cols; ++i)
     row[i] = i;
     
-  connTable->add_row(row);
-  connTable->flush();
-  BOOST_CHECK_EQUAL(connTable->nbRows(),(Uint) 1);
-  BOOST_CHECK_EQUAL(connTable->nbCols(),(Uint) 5);
-  BOOST_CHECK_EQUAL(connTable->size(),(Uint) 5);
+  connTable->getTable().add_row(row);
+  connTable->getTable().flush();
+  BOOST_CHECK_EQUAL(connTable->getTable().nbRows(),(Uint) 1);
+  BOOST_CHECK_EQUAL(connTable->getTable().nbCols(),(Uint) 5);
+  BOOST_CHECK_EQUAL(connTable->getTable().size(),(Uint) 5);
   
   // check if buffer flushes without calling flush by the user
   for (Uint i=0; i<buffersize; ++i)
-    connTable->add_row(row);
-  BOOST_CHECK_EQUAL(connTable->nbRows(),(Uint) 4);
-  BOOST_CHECK_EQUAL(connTable->nbCols(),(Uint) 5);
-  BOOST_CHECK_EQUAL(connTable->size(),(Uint) 20);
+    connTable->getTable().add_row(row);
+  BOOST_CHECK_EQUAL(connTable->getTable().nbRows(),(Uint) 4);
+  BOOST_CHECK_EQUAL(connTable->getTable().nbCols(),(Uint) 5);
+  BOOST_CHECK_EQUAL(connTable->getTable().size(),(Uint) 20);
   
   // check if accessor / mutator works
-  BOOST_CHECK_EQUAL((*connTable)(0,0), (Uint) 0);
-  BOOST_CHECK_EQUAL((*connTable)(1,1), (Uint) 1);
-  BOOST_CHECK_EQUAL((*connTable)(2,2), (Uint) 2);
-  for (Uint i=0; i<cols; ++i) {
-    (*connTable)(2,i) = 0;
-    BOOST_CHECK_EQUAL((*connTable)(2,i), (Uint) 0);
-  }
+  BOOST_CHECK_EQUAL(connTable->getTable()[0][0], (Uint) 0);
+  BOOST_CHECK_EQUAL(connTable->getTable()[1][1], (Uint) 1);
+  BOOST_CHECK_EQUAL(connTable->getTable()[2][2], (Uint) 2);
   
   // check if a row can be set
   std::vector<Uint> row2(cols);
-  connTable->set_row(3,row2);
+  connTable->getTable().set_row(3,row2);
   for (Uint i=0; i<cols; ++i)
     BOOST_CHECK_EQUAL(row2[i], i);
     
