@@ -5,6 +5,7 @@
 
 #include "Common/Component.hpp"
 #include "Mesh/MeshAPI.hpp"
+#include "Mesh/Table.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -19,6 +20,8 @@ class Mesh_API CArray : public Common::Component {
 
 public:
 
+  typedef Table<Real> Array;
+
   /// Contructor
   /// @param name of the component
   CArray ( const CName& name );
@@ -31,8 +34,12 @@ public:
 
   // functions specific to the CArray component
   
+  Array& getArray() { return m_array; }
+  
 private:
-
+  
+  Array m_array;
+  
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -6,6 +6,8 @@
 #include "Common/CRoot.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
+#include "Mesh/CElements.hpp"
+#include "Mesh/CArray.hpp"
 #include "Mesh/ElementType.hpp"
 
 using namespace std;
@@ -33,6 +35,12 @@ struct MeshComponent_Fixture
 
   /// possibly common functions used on the tests below
 
+  std::vector<Real> create_coord(const Real& x, const Real& y) {
+    Real coord[] = {x,y};
+    std::vector<Real> coordVec;
+    coordVec.assign(coord,coord+2);
+    return coordVec;
+  }
   /// common values accessed by all tests goes here
 
 };
@@ -156,6 +164,28 @@ BOOST_AUTO_TEST_CASE( CTableTest )
   for (Uint i=0; i<cols; ++i)
     BOOST_CHECK_EQUAL(row2[i], i);
     
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( CArrayTest )
+{
+  // Create a CElements component
+  boost::shared_ptr<CArray> coordinates (new CArray("coords")) ;
+
+  // initialize the array
+  Uint dim = 2;
+  Uint buffersize = 20;
+  coordinates->getArray().initialize(dim,buffersize);
+ 
+  // Add coordinates to the array
+  coordinates->getArray().add_row(create_coord( 0.0 , 0.0 ));
+  coordinates->getArray().add_row(create_coord( 1.0 , 0.0 ));
+  coordinates->getArray().add_row(create_coord( 1.0 , 1.0 ));
+  coordinates->getArray().add_row(create_coord( 0.0 , 1.0 ));
+  coordinates->getArray().flush();
+  
+  BOOST_CHECK_EQUAL(coordinates->getArray()[2][1], 1.0);  
 }
 
 //////////////////////////////////////////////////////////////////////////////

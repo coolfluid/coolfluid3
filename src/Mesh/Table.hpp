@@ -52,7 +52,7 @@ public:
   
   /// add a row to the buffer. If the buffer is full, 
   /// it is flushed into the connectivity table
-  void add_row(const std::vector<Uint>& row);
+  void add_row(const std::vector<T>& row);
   
   /// Set the row to the given values from the table
   void set_row(Uint iRow, std::vector<Uint>& row) const;
@@ -147,7 +147,7 @@ void Table<T>::clear()
 //////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-void Table<T>::add_row(const std::vector<Uint>& row)
+void Table<T>::add_row(const std::vector<T>& row)
 {
   cf_assert(row.size() == m_nbCols);
   
