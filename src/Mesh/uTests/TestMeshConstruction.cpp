@@ -182,7 +182,7 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   {
     SafePtr<CElements>  elementType = region->get_component("type").d_castTo<CElements>();
     SafePtr<CTable>     connTable   = region->get_component("table").d_castTo<CTable>();
-    CFinfo << "type = " << elementType->getShapeName() << "\n" << CFendl;
+    // CFinfo << "type = " << elementType->getShapeName() << "\n" << CFendl;
     std::vector<Real> volumes(connTable->nbRows());
     
     // the loop
@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
         elementCoordinates.push_back(region->get_row(iElem,iNode,coordinates));
       }
       volumes[iElem]=elementType->computeVolume(elementCoordinates);
-      CFinfo << "\t volume["<<iElem<<"] =" << volumes[iElem] << "\n" << CFendl;
+      // CFinfo << "\t volume["<<iElem<<"] =" << volumes[iElem] << "\n" << CFendl;
 
       // check
       if(elementType->getShapeName()=="Quad")
