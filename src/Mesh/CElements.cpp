@@ -3,6 +3,7 @@
 
 #include "Mesh/CElements.hpp"
 #include "Mesh/ElementType.hpp"
+#include "Mesh/GeoShape.hpp"
 
 namespace CF {
 namespace Mesh {

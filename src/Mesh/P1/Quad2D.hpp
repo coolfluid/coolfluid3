@@ -21,7 +21,9 @@ template<>
 class Mesh_API VolumeComputer<P1::Quad2D> 
 {
 public:
-  static Real computeVolume(const std::vector<RealVector*>& coord); 
+  static Real computeVolume(const std::vector<RealVector*>& coord);
+  static Real computeVolume(const std::vector<CArray::Row>& coord); 
+
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -46,6 +48,11 @@ public:
   { 
     return VolumeComputerType::computeVolume(coord); 
   }
+  
+  Real computeVolume(const std::vector<CArray::Row>& coord) 
+  { 
+    return VolumeComputerType::computeVolume(coord); 
+  }
 
 private:
   
@@ -61,6 +68,17 @@ Real VolumeComputer<P1::Quad2D>::computeVolume(const std::vector<RealVector*>& c
     ((*coord[2])[0] - (*coord[0])[0]) * ((*coord[3])[1] - (*coord[1])[1]) -
     ((*coord[2])[1] - (*coord[0])[1]) * ((*coord[3])[0] - (*coord[1])[0]);
 
+  return 0.5*diagonalsProd;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Real VolumeComputer<P1::Quad2D>::computeVolume(const std::vector<CArray::Row>& coord) 
+{
+  const Real diagonalsProd =
+  (coord[2][0] - coord[0][0]) * (coord[3][1] - coord[1][1]) -
+  (coord[2][1] - coord[0][1]) * (coord[3][0] - coord[1][0]);
+  
   return 0.5*diagonalsProd;
 }
   

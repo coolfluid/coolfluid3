@@ -90,10 +90,12 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   p_mesh->get_component("superRegion").d_castTo<CRegion>()->create_region("triags");
   
   // create a pointer to the quads and triag region
+  SafePtr<CRegion> superRegion = 
+    p_mesh->get_component("superRegion").d_castTo<CRegion>(); 
   SafePtr<CRegion> quadRegion = 
-    p_mesh->get_component("superRegion")->get_component("quads").d_castTo<CRegion>(); 
+    superRegion->get_component("quads").d_castTo<CRegion>(); 
   SafePtr<CRegion> triagRegion = 
-  p_mesh->get_component("superRegion")->get_component("triags").d_castTo<CRegion>(); 
+    superRegion->get_component("triags").d_castTo<CRegion>(); 
 
   // create connectivity table and element type in the quads and triags region
   quadRegion->create_connectivityTable("table");
@@ -109,10 +111,9 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   p_mesh->create_array("coordinates");
   
   // create pointers to the coordinates array and connectivity table
-  SafePtr<CArray> p_coordinatesComp = p_mesh->get_component("coordinates").d_castTo<CArray>();
-  SafePtr<CArray::Array> coordinates = (&p_mesh->get_component("coordinates").d_castTo<CArray>()->getArray());
-  SafePtr<CTable::ConnectivityTable> qTable = (&quadRegion->get_component("table").d_castTo<CTable>()->getTable());
-  SafePtr<CTable::ConnectivityTable> tTable = (&triagRegion->get_component("table").d_castTo<CTable>()->getTable());
+  SafePtr<CArray> coordinates = p_mesh->get_component("coordinates").d_castTo<CArray>();
+  SafePtr<CTable> qTable = quadRegion->get_component("table").d_castTo<CTable>();
+  SafePtr<CTable> tTable = triagRegion->get_component("table").d_castTo<CTable>();
 
   // initialize the coordinates array and connectivity tables
   coordinates->initialize(2,20);
@@ -160,18 +161,58 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   qTable->flush();
   tTable->flush();
   
+  // check if coordinates match (3 ways)
+  Uint elem=1, node=2;
   boost::array<Real,2> coord;
-  quadRegion->set_row(coord,1,2,p_coordinatesComp);
+  quadRegion->set_row(coord,elem,node,coordinates);
   BOOST_CHECK_EQUAL(coord[0],1.0);
   BOOST_CHECK_EQUAL(coord[1],2.0);
   
   std::vector<Real> stlcoord(2);
-  triagRegion->set_row(stlcoord,1,2,p_coordinatesComp);
+  triagRegion->set_row(stlcoord,elem,node,coordinates);
   BOOST_CHECK_EQUAL(stlcoord[0],1.0);
   BOOST_CHECK_EQUAL(stlcoord[1],1.0);
-
-
   
+  CArray::Row coordRef = triagRegion->get_row(elem,node,coordinates);
+  BOOST_CHECK_EQUAL(coordRef[0],1.0);
+  BOOST_CHECK_EQUAL(coordRef[1],1.0);
+
+  // calculate all volumes of a region
+  BOOST_FOREACH(boost::shared_ptr<CRegion> region,superRegion->get_subregions())
+  {
+    SafePtr<CElements>  elementType = region->get_component("type").d_castTo<CElements>();
+    SafePtr<CTable>     connTable   = region->get_component("table").d_castTo<CTable>();
+    CFinfo << "type = " << elementType->getShapeName() << "\n" << CFendl;
+    std::vector<Real> volumes(connTable->nbRows());
+    
+    // the loop
+    for (Uint iElem=0; iElem<connTable->nbRows(); ++iElem) {
+      std::vector<CArray::Row > elementCoordinates;
+      for (Uint iNode=0; iNode<elementType->getNbNodes(); iNode++) {
+        elementCoordinates.push_back(region->get_row(iElem,iNode,coordinates));
+      }
+      volumes[iElem]=elementType->computeVolume(elementCoordinates);
+      CFinfo << "\t volume["<<iElem<<"] =" << volumes[iElem] << "\n" << CFendl;
+
+      // check
+      if(elementType->getShapeName()=="Quad")
+        BOOST_CHECK_EQUAL(volumes[iElem],1.0);
+      if(elementType->getShapeName()=="Triag")
+        BOOST_CHECK_EQUAL(volumes[iElem],0.5);
+    }
+    
+  }
+    
+  
+//  BOOST_FOREACH(CArray::Row node , elementCoordinates)
+//  {
+//    CFinfo << "node = ";
+//    for (Uint j=0; j<node.size(); j++) {
+//      CFinfo << node[j] << " ";
+//    }
+//    CFinfo << "\n" << CFendl;
+//  }
+      
 }
 
 

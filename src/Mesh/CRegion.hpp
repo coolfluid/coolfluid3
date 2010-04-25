@@ -58,9 +58,16 @@ public:
   {
     for (Uint j=0; j<cArray->getArray().nbCols(); ++j) 
     {
-      row[j] = cArray->getArray()[ m_connTable->getTable()[iElem][iNode] ][j];
+      row[j] = cArray->get_row(m_connTable->get_row(iElem)[iNode])[j];
     }
   }
+  
+  CArray::Row get_row(const Uint iElem, const Uint iNode, Common::SafePtr<CArray>& cArray)
+  {
+      return cArray->get_row(m_connTable->get_row(iElem)[iNode]);
+  }
+  
+  std::vector< boost::shared_ptr<CRegion> >& get_subregions() {return m_subregions; }
   
 private:
 
