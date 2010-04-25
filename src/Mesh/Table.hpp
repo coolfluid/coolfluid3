@@ -25,7 +25,10 @@ template < typename T >
 class Mesh_API Table : public boost::multi_array<T, 2> {
 
 public:
-
+  
+  /// a subarray of this table is a row. It is const thus safe
+  typedef typename Table<T>::template subarray<1>::type Row;
+  
   /// Contructor
   /// @param name of the component
   Table ();
@@ -39,8 +42,13 @@ public:
   // functions specific to the Table component
 
   /// Initialize the connectivity table
+  /// This will set the column size and allocate a buffer
   void initialize(const Uint& cols, const Uint& buffersize);
-  
+
+  /// Finalize the table
+  /// This will deallocate the memory of the buffer
+  void finalize();
+
   /// Change the buffer to the new size
   void change_buffersize(const Uint& buffersize);
   
@@ -52,10 +60,12 @@ public:
   
   /// add a row to the buffer. If the buffer is full, 
   /// it is flushed into the connectivity table
-  void add_row(const std::vector<T>& row);
+  template<typename vectorType>
+  void add_row(const vectorType& row);
   
   /// Set the row to the given values from the table
-  void set_row(Uint iRow, std::vector<Uint>& row) const;
+  template<typename vectorType>
+  void set_row(Uint iRow, vectorType& row) const;
     
   /// Get the number of rows
   Uint nbRows() const {return this->size(); }
@@ -63,12 +73,7 @@ public:
   /// Get the number of columns
   Uint nbCols() const {return m_nbCols; }
   
-
-/// private functions
-private:
-  
-  /// set the dimensions of the buffer
-  void create_buffer(const Uint& rows, const Uint& cols);
+  Row get_row(const Uint idx) { return (*this)[idx]; }
   
 /// private data
 private:
@@ -133,6 +138,16 @@ void Table<T>::initialize(const Uint& cols, const Uint& buffersize)
   m_buffersize = 0;
   m_buffer.resize(boost::extents[m_maxBuffersize][m_nbCols]);
 }
+  
+//////////////////////////////////////////////////////////////////////////////
+
+template<typename T>
+void Table<T>::finalize()
+{
+  m_maxBuffersize = 0;
+  m_buffersize = 0;
+  m_buffer.resize(boost::extents[0][0]);
+}
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -147,15 +162,15 @@ void Table<T>::clear()
 //////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-void Table<T>::add_row(const std::vector<T>& row)
+template<typename vectorType>
+void Table<T>::add_row(const vectorType& row)
 {
   cf_assert(row.size() == m_nbCols);
-  
+    
   for(Uint j=0; j<m_nbCols; ++j)
     m_buffer[m_buffersize][j] = row[j];
   
   m_buffersize++;
-  
   
   if (m_buffersize == m_maxBuffersize)
     flush();
@@ -164,7 +179,8 @@ void Table<T>::add_row(const std::vector<T>& row)
 //////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-void Table<T>::set_row(Uint iRow, std::vector<Uint>& row) const
+template<typename vectorType>
+void Table<T>::set_row(Uint iRow, vectorType& row) const
 {
   cf_assert(row.size() <= m_nbCols);
   for (Uint jCol = 0; jCol < m_nbCols; ++jCol) {
@@ -180,7 +196,7 @@ void Table<T>::change_buffersize(const Uint& buffersize)
   if (buffersize != m_maxBuffersize) {
     flush();
     m_maxBuffersize = buffersize;
-    m_buffer.resize(boost::extents[m_buffersize][m_nbCols]);
+    m_buffer.resize(boost::extents[m_maxBuffersize][m_nbCols]);
   }
 
 }
