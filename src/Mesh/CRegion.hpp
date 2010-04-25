@@ -6,10 +6,11 @@
 #include "Mesh/MeshAPI.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CElements.hpp"
+#include "Mesh/CArray.hpp"
 
 namespace CF {
 namespace Mesh {
-
+  
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Region component class
@@ -45,6 +46,21 @@ public:
   /// create a CElements component
   /// @param name of the region
   void create_elementType ( const CName& name );
+  
+  /// copy a CArray entry from a given CArray into a given row
+  /// templated with row vector type
+  /// @param row      out   the row
+  /// @param iElem    in    the rowindex in the connectivity table
+  /// @param iNode    in    the columnindex in the connectivity table
+  /// @param cArray   in    the CArray which data will be copied from
+  template<typename vectorType>
+  void set_row(vectorType& row, const Uint iElem, const Uint iNode, Common::SafePtr<CArray>& cArray)
+  {
+    for (Uint j=0; j<cArray->getArray().nbCols(); ++j) 
+    {
+      row[j] = cArray->getArray()[ m_connTable->getTable()[iElem][iNode] ][j];
+    }
+  }
   
 private:
 
