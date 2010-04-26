@@ -26,7 +26,7 @@ class Mesh_API Table : public boost::multi_array<T, 2> {
 
 public:
   
-  /// a subarray of this table is a row. It is const thus safe
+  /// a subarray of this table is a row.
   typedef typename Table<T>::template subarray<1>::type Row;
   
   /// Contructor
