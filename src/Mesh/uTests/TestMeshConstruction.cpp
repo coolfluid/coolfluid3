@@ -116,9 +116,10 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   SafePtr<CTable> tTable = triagRegion->get_component("table").d_castTo<CTable>();
 
   // initialize the coordinates array and connectivity tables
-  coordinates->getArray().initialize(2,20);
-  qTable->getTable().initialize(4,10);
-  tTable->getTable().initialize(3,10);
+  const Uint dim=2;
+  coordinates->initialize(dim);
+  qTable->initialize(4);
+  tTable->initialize(3);
   
   //  Mesh of quads and triangles with node and element numbering:
   //
@@ -135,31 +136,31 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   //    0----1----8   
   
   // fill coordinates in the buffer
-  coordinates->getArray().add_row(create_coord( 0.0 , 0.0 ));  // 0
-  coordinates->getArray().add_row(create_coord( 1.0 , 0.0 ));  // 1
-  coordinates->getArray().add_row(create_coord( 1.0 , 1.0 ));  // 2
-  coordinates->getArray().add_row(create_coord( 0.0 , 1.0 ));  // 3
-  coordinates->getArray().add_row(create_coord( 1.0 , 2.0 ));  // 4
-  coordinates->getArray().add_row(create_coord( 0.0 , 2.0 ));  // 5
-  coordinates->getArray().add_row(create_coord( 2.0 , 2.0 ));  // 6
-  coordinates->getArray().add_row(create_coord( 2.0 , 1.0 ));  // 7
-  coordinates->getArray().add_row(create_coord( 2.0 , 0.0 ));  // 8
+  coordinates->get_buffer().add_row(create_coord( 0.0 , 0.0 ));  // 0
+  coordinates->get_buffer().add_row(create_coord( 1.0 , 0.0 ));  // 1
+  coordinates->get_buffer().add_row(create_coord( 1.0 , 1.0 ));  // 2
+  coordinates->get_buffer().add_row(create_coord( 0.0 , 1.0 ));  // 3
+  coordinates->get_buffer().add_row(create_coord( 1.0 , 2.0 ));  // 4
+  coordinates->get_buffer().add_row(create_coord( 0.0 , 2.0 ));  // 5
+  coordinates->get_buffer().add_row(create_coord( 2.0 , 2.0 ));  // 6
+  coordinates->get_buffer().add_row(create_coord( 2.0 , 1.0 ));  // 7
+  coordinates->get_buffer().add_row(create_coord( 2.0 , 0.0 ));  // 8
 
   
   // fill connectivity in the buffer
-  qTable->getTable().add_row(create_quad( 0 , 1 , 2 , 3 ));
-  qTable->getTable().add_row(create_quad( 3 , 2 , 4 , 5 ));
+  qTable->get_buffer().add_row(create_quad( 0 , 1 , 2 , 3 ));
+  qTable->get_buffer().add_row(create_quad( 3 , 2 , 4 , 5 ));
 
-  tTable->getTable().add_row(create_triag( 1 , 8 , 2 ));
-  tTable->getTable().add_row(create_triag( 8 , 7 , 2 ));
-  tTable->getTable().add_row(create_triag( 2 , 7 , 4 ));
-  tTable->getTable().add_row(create_triag( 7 , 6 , 4 ));
+  tTable->get_buffer().add_row(create_triag( 1 , 8 , 2 ));
+  tTable->get_buffer().add_row(create_triag( 8 , 7 , 2 ));
+  tTable->get_buffer().add_row(create_triag( 2 , 7 , 4 ));
+  tTable->get_buffer().add_row(create_triag( 7 , 6 , 4 ));
 
   // flush buffers into the table. 
   // This causes the table and array to be resized and filled.
-  coordinates->flush();
-  qTable->flush();
-  tTable->flush();
+  coordinates->get_buffer().finalize();
+  qTable->get_buffer().finalize();
+  tTable->get_buffer().finalize();
   
   // check if coordinates match (3 ways)
   Uint elem=1, node=2;
@@ -183,10 +184,11 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
     SafePtr<CElements>  elementType = region->get_component("type").d_castTo<CElements>();
     SafePtr<CTable>     connTable   = region->get_component("table").d_castTo<CTable>();
     // CFinfo << "type = " << elementType->getShapeName() << "\n" << CFendl;
-    std::vector<Real> volumes(connTable->nbRows());
+    const Uint nbRows = connTable->get_table().size();
+    std::vector<Real> volumes(nbRows);
     
     // the loop
-    for (Uint iElem=0; iElem<connTable->nbRows(); ++iElem) {
+    for (Uint iElem=0; iElem<nbRows; ++iElem) {
       std::vector<CArray::Row > elementCoordinates;
       for (Uint iNode=0; iNode<elementType->getNbNodes(); iNode++) {
         elementCoordinates.push_back(region->get_row(iElem,iNode,coordinates));

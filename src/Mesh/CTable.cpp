@@ -8,7 +8,9 @@ using namespace Common;
 ////////////////////////////////////////////////////////////////////////////////
 
 CTable::CTable ( const CName& name  ) :
-  Component ( name )
+  Component ( name ),
+  m_table(boost::extents[0][0]),
+  m_buffer(m_table,1024)
 {
 }
 
@@ -18,6 +20,13 @@ CTable::~CTable()
 {
 }
 
+//////////////////////////////////////////////////////////////////////////////
+
+void CTable::initialize(const Uint nbCols) 
+{
+  m_table.resize(boost::extents[0][nbCols]); 
+  m_buffer.initialize();
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

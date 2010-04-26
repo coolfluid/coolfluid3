@@ -8,7 +8,9 @@ using namespace Common;
 ////////////////////////////////////////////////////////////////////////////////
 
 CArray::CArray ( const CName& name  ) :
-  Component ( name )
+  Component ( name ),
+  m_array(boost::extents[0][0]),
+  m_buffer(m_array,1024)
 {
 }
 
@@ -16,6 +18,14 @@ CArray::CArray ( const CName& name  ) :
 
 CArray::~CArray()
 {
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void CArray::initialize(const Uint nbCols)
+{
+  m_array.resize(boost::extents[0][nbCols]); 
+  m_buffer.initialize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

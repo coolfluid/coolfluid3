@@ -55,16 +55,19 @@ public:
   /// @param cArray   in    the CArray which data will be copied from
   template<typename vectorType>
   void set_row(vectorType& row, const Uint iElem, const Uint iNode, Common::SafePtr<CArray>& cArray)
-  {
-    for (Uint j=0; j<cArray->getArray().nbCols(); ++j) 
+  { 
+    const Uint nbCols = cArray->get_array().shape()[1];
+    for (Uint j=0; j<nbCols; ++j) 
     {
-      row[j] = cArray->get_row(m_connTable->get_row(iElem)[iNode])[j];
+      const Uint row_in_array = m_connTable->get_table()[iElem][iNode];
+      row[j] = cArray->get_array()[row_in_array][j];
     }
   }
   
   CArray::Row get_row(const Uint iElem, const Uint iNode, Common::SafePtr<CArray>& cArray)
   {
-      return cArray->get_row(m_connTable->get_row(iElem)[iNode]);
+    const Uint row_in_array = m_connTable->get_table()[iElem][iNode];
+    return cArray->get_array()[row_in_array];
   }
   
   std::vector< boost::shared_ptr<CRegion> >& get_subregions() {return m_subregions; }

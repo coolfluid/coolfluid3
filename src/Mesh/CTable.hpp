@@ -3,9 +3,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#define BOOST_MULTI_ARRAY_NO_GENERATORS false
+#include "boost/multi_array.hpp" 
+#undef BOOST_MULTI_ARRAY_NO_GENERATORS
+
 #include "Common/Component.hpp"
 #include "Mesh/MeshAPI.hpp"
-#include "Mesh/Table.hpp"
+#include "Mesh/Buffer.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -22,12 +26,9 @@ namespace Mesh {
 class Mesh_API CTable : public Common::Component {
 
 public:
-
-  /// type of the connectivity table
-  typedef Table<Uint> ConnectivityTable;
   
-  /// subarray or row of connectivity table
-  typedef ConnectivityTable::Row Row;
+  typedef boost::multi_array<Uint,2> ConnectivityTable;
+  typedef ConnectivityTable::subarray<1>::type ConnRow;  
   
   /// Contructor
   /// @param name of the component
@@ -40,49 +41,23 @@ public:
   static std::string getClassName () { return "CTable"; }
 
   // functions specific to the CTable component
-
+    
   /// Initialize the connectivity table
   /// This will set the column size and allocate a buffer
-  void initialize(const Uint& cols, const Uint& buffersize = 100) { m_table.initialize(cols,buffersize); }
-    
-  /// get the row with given index.
-  /// @return row by reference (boost::multi_array::subarray&)
-  Row get_row(const Uint idx) { return m_table.get_row(idx); }
-
-  /// set a vector to the row of the table
-  /// @param [in] idx   row index
-  /// @param [out] row   vectortype
-  template<typename vectorType>
-  void set_row(const Uint idx, vectorType& row) { m_table.set_row(idx,row); }
+  void initialize(const Uint nbCols);
   
-  /// add a row to the table
-  /// @param [in] row vectortype
-  template<typename vectorType>
-  void add_row(const vectorType& row) { m_table.add_row(row); }
-
-  /// flush the buffer in the table
-  /// Better use finalize(), which also deallocates the buffer
-  void flush() { m_table.flush(); }
-
-  /// flush the buffer in the table
-  /// Better use finalize(), which also deallocates the buffer
-  void finalize() { m_table.finalize(); }
+  ConnectivityTable& get_table() { return m_table; }
   
-  /// get the table to gain boost::multi_array operators
-  ConnectivityTable& getTable() { return m_table; }
-  
-  /// Get the number of rows
-  Uint nbRows() const {return m_table.nbRows(); }
-
-  /// Get the number of columns
-  Uint nbCols() const {return m_table.nbCols(); }
+  Buffer<ConnectivityTable>& get_buffer() { return m_buffer; }
   
   
 /// private data
 private:
   
   ConnectivityTable m_table;
+  Buffer<ConnectivityTable> m_buffer;
   
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

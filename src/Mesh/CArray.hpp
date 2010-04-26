@@ -3,82 +3,56 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#define BOOST_MULTI_ARRAY_NO_GENERATORS false
+#include "boost/multi_array.hpp" 
+#undef BOOST_MULTI_ARRAY_NO_GENERATORS
+
 #include "Common/Component.hpp"
 #include "Mesh/MeshAPI.hpp"
-#include "Mesh/Table.hpp"
+
+#include "Mesh/Buffer.hpp"
 
 namespace CF {
 namespace Mesh {
-
+  
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Array component class
 /// This class can store an array
-/// @todo make it with templates
 /// @author Willem Deconinck, Tiago Quintino
 class Mesh_API CArray : public Common::Component {
 
 public:
 
-  /// type of the array
-  typedef Table<Real> Array;
-  
-  /// subarray or row of connectivity table
-  typedef Array::Row Row;
-  
+    typedef boost::multi_array<Real,2> Array;
+    typedef Array::subarray<1>::type Row;  
 
-  /// Contructor
-  /// @param name of the component
-  CArray ( const CName& name );
+    /// Contructor
+    /// @param name of the component
+    CArray ( const CName& name );
 
-  /// Virtual destructor
-  virtual ~CArray();
+    /// Virtual destructor
+    virtual ~CArray();
 
-  /// Get the class name
-  static std::string getClassName () { return "CArray"; }
+    /// Get the class name
+    static std::string getClassName () { return "CArray"; }
 
-  // functions specific to the CArray component
-  
-  /// Initialize the connectivity table
-  /// This will set the column size and allocate a buffer
-  void initialize(const Uint& cols, const Uint& buffersize = 1000) { m_array.initialize(cols,buffersize); }
-    
-  /// get the row with given index.
-  /// @return row by reference (boost::multi_array::subarray&)
-  Row get_row(const Uint idx) { return m_array.get_row(idx); }
+    // functions specific to the CArray component
 
-  /// set a vector to the row of the table
-  /// @param [in] idx   row index
-  /// @param [out] row   vectortype
-  template<typename vectorType>
-  void set_row(const Uint idx, vectorType& row) { m_array.set_row(idx,row); }
-  
-  /// add a row to the table
-  /// @param [in] row vectortype
-  template<typename vectorType>
-  void add_row(const vectorType& row) { m_array.add_row(row); }
+    /// Initialize the connectivity array
+    /// This will set the column size and allocate a buffer
+    void initialize(const Uint nbCols);
 
-  /// flush the buffer in the table
-  /// Better use finalize(), which also deallocates the buffer
-  void flush() { m_array.flush(); }
+    Array& get_array() { return m_array; }
 
-  /// flush the buffer in the table
-  /// Better use finalize(), which also deallocates the buffer
-  void finalize() { m_array.finalize(); }
-  
-  /// get the array to gain boost::multi_array operators
-  Array& getArray() { return m_array; }
-  
-  /// Get the number of rows
-  Uint nbRows() const {return m_array.nbRows(); }
+    Buffer<Array>& get_buffer() { return m_buffer; }
 
-  /// Get the number of columns
-  Uint nbCols() const {return m_array.nbCols(); }
-  
-private:
-  
-  Array m_array;
-  
+
+  /// private data
+  private:
+
+    Array m_array;
+    Buffer<Array> m_buffer;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

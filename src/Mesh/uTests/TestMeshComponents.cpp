@@ -118,52 +118,52 @@ BOOST_AUTO_TEST_CASE( CTableTest )
   SafePtr<CTable> connTable = region->get_component("connTable").d_castTo<CTable>();
   
   // check constructor
-  BOOST_CHECK_EQUAL(connTable->getTable().nbRows(),(Uint) 0);
-  BOOST_CHECK_EQUAL(connTable->getTable().nbCols(),(Uint) 0);
-  BOOST_CHECK_EQUAL(connTable->getTable().num_elements(),(Uint) 0);
+  BOOST_CHECK_EQUAL(connTable->get_table().size(),(Uint) 0);
+  BOOST_CHECK_EQUAL(connTable->get_table().shape()[1],(Uint) 0);
+  BOOST_CHECK_EQUAL(connTable->get_table().num_elements(),(Uint) 0);
   
   // check initalization
-  Uint cols = 5;
-  Uint buffersize = 3;
-  connTable->getTable().initialize(cols,buffersize);
+  Uint nbCols = 5;
+  connTable->initialize(nbCols);
   
-  BOOST_CHECK_EQUAL(connTable->getTable().nbRows(),(Uint) 0);
-  BOOST_CHECK_EQUAL(connTable->getTable().nbCols(),(Uint) 5);
-  BOOST_CHECK_EQUAL(connTable->getTable().num_elements(),(Uint) 0);
-  BOOST_CHECK_EQUAL(connTable->getTable().size(),connTable->getTable().nbRows());
+  BOOST_CHECK_EQUAL(connTable->get_table().size(),(Uint) 0);
+  BOOST_CHECK_EQUAL(connTable->get_table().shape()[1],(Uint) 5);
+  BOOST_CHECK_EQUAL(connTable->get_table().num_elements(),(Uint) 0);  
   
   // check for adding rows to table
-  std::vector<Uint> row(cols);
-  for (Uint i=0; i<cols; ++i)
+  std::vector<Uint> row(nbCols);
+  for (Uint i=0; i<nbCols; ++i)
     row[i] = i;
     
-  connTable->getTable().add_row(row);
-  connTable->getTable().flush();
-  BOOST_CHECK_EQUAL(connTable->getTable().nbRows(),(Uint) 1);
-  BOOST_CHECK_EQUAL(connTable->getTable().nbCols(),(Uint) 5);
-  BOOST_CHECK_EQUAL(connTable->getTable().num_elements(),(Uint) 5);
-  BOOST_CHECK_EQUAL(connTable->getTable().size(),connTable->getTable().nbRows());
+  connTable->get_buffer().add_row(row);
+  connTable->get_buffer().flush();
+  BOOST_CHECK_EQUAL(connTable->get_table().size(),(Uint) 1);
+  BOOST_CHECK_EQUAL(connTable->get_table().shape()[1],(Uint) 5);
+  BOOST_CHECK_EQUAL(connTable->get_table().num_elements(),(Uint) 5);  
   
   
   // check if buffer flushes without calling flush by the user
-  for (Uint i=0; i<buffersize; ++i)
-    connTable->getTable().add_row(row);
-  BOOST_CHECK_EQUAL(connTable->getTable().nbRows(),(Uint) 4);
-  BOOST_CHECK_EQUAL(connTable->getTable().nbCols(),(Uint) 5);
-  BOOST_CHECK_EQUAL(connTable->getTable().num_elements(),(Uint) 20);
-  BOOST_CHECK_EQUAL(connTable->getTable().size(),connTable->getTable().nbRows());
+  for (Uint i=0; i<1023; ++i)
+    connTable->get_buffer().add_row(row);
+  BOOST_CHECK_EQUAL(connTable->get_table().size(),(Uint) 1);
+  BOOST_CHECK_EQUAL(connTable->get_table().shape()[1],(Uint) 5);
+  BOOST_CHECK_EQUAL(connTable->get_table().num_elements(),(Uint) 5); 
   
+  connTable->get_buffer().add_row(row);
+  BOOST_CHECK_EQUAL(connTable->get_table().size(),(Uint) 1025);
+  BOOST_CHECK_EQUAL(connTable->get_table().shape()[1],(Uint) 5);
+  BOOST_CHECK_EQUAL(connTable->get_table().num_elements(),(Uint) 5*1025); 
+      
   // check if accessor / mutator works
-  BOOST_CHECK_EQUAL(connTable->getTable()[0][0], (Uint) 0);
-  BOOST_CHECK_EQUAL(connTable->getTable()[1][1], (Uint) 1);
-  BOOST_CHECK_EQUAL(connTable->getTable()[2][2], (Uint) 2);
+  BOOST_CHECK_EQUAL(connTable->get_table()[0][0], (Uint) 0);
+  BOOST_CHECK_EQUAL(connTable->get_table()[1][1], (Uint) 1);
+  BOOST_CHECK_EQUAL(connTable->get_table()[2][2], (Uint) 2);
   
-  // check if a row can be set
-  std::vector<Uint> row2(cols);
-  connTable->getTable().set_row(3,row2);
-  for (Uint i=0; i<cols; ++i)
-    BOOST_CHECK_EQUAL(row2[i], i);
-    
+  // check if a row can be accessed
+  CTable::ConnRow rowRef = connTable->get_table()[35];
+  for (Uint i=0; i<nbCols; ++i)
+    BOOST_CHECK_EQUAL(rowRef[i], i);
+  
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -175,17 +175,16 @@ BOOST_AUTO_TEST_CASE( CArrayTest )
 
   // initialize the array
   Uint dim = 2;
-  Uint buffersize = 20;
-  coordinates->getArray().initialize(dim,buffersize);
+  coordinates->initialize(dim);
  
   // Add coordinates to the array
-  coordinates->getArray().add_row(create_coord( 0.0 , 0.0 ));
-  coordinates->getArray().add_row(create_coord( 1.0 , 0.0 ));
-  coordinates->getArray().add_row(create_coord( 1.0 , 1.0 ));
-  coordinates->getArray().add_row(create_coord( 0.0 , 1.0 ));
-  coordinates->getArray().flush();
+  coordinates->get_buffer().add_row(create_coord( 0.0 , 0.0 ));
+  coordinates->get_buffer().add_row(create_coord( 1.0 , 0.0 ));
+  coordinates->get_buffer().add_row(create_coord( 1.0 , 1.0 ));
+  coordinates->get_buffer().add_row(create_coord( 0.0 , 1.0 ));
+  coordinates->get_buffer().flush();
   
-  BOOST_CHECK_EQUAL(coordinates->getArray()[2][1], 1.0);  
+  BOOST_CHECK_EQUAL(coordinates->get_array()[2][1], 1.0);  
 }
 
 //////////////////////////////////////////////////////////////////////////////
