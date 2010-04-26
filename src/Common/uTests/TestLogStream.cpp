@@ -162,21 +162,8 @@ BOOST_AUTO_TEST_CASE( operators )
   f.m_stream->flush();
   BOOST_CHECK_EQUAL(forwarder->m_str, std::string("Hello world!"));
   
-  // test the stamps ("TestStream" is the name of the stream created by
-  // LogStreamFixture class
-  f.m_stream->setStamp(LogStream::STRING, "<%type%> ");
-  *(f.m_stream) << "Hello world!";
-  f.m_stream->flush();
-  BOOST_CHECK_EQUAL(forwarder->m_str, std::string("<TestStream> Hello world!"));
-
-  // test the stamps (with a spelling error in the tag)
-  f.m_stream->setStamp(LogStream::STRING, "<%tpye%> ");
-  *(f.m_stream) << "Hello world!";
-  f.m_stream->flush();
-  BOOST_CHECK_EQUAL(forwarder->m_str, std::string("<%tpye%> Hello world!"));
-  
   f.m_stream->setStamp(LogStream::STRING, "");
-  // test the log levels
+  // test the log levels redirection
   // for each level we do 4 checks: one for each level (explicitly given)
   // and a fourth where no level is given (meaning that the default has to 
   // be used)
@@ -186,7 +173,7 @@ BOOST_AUTO_TEST_CASE( operators )
   *(f.m_stream) << "Hello world!";
   f.m_stream->flush();
   BOOST_CHECK_EQUAL(forwarder->m_str, std::string(""));
-
+  
   forwarder->m_str.clear();
   *(f.m_stream) << SILENT << "Hello world!";
   f.m_stream->flush();
@@ -223,7 +210,7 @@ BOOST_AUTO_TEST_CASE( operators )
   *(f.m_stream) << VERBOSE << "Hello world!";
   f.m_stream->flush();
   BOOST_CHECK_EQUAL(forwarder->m_str, std::string(""));
-
+  
   // 3. the stream log level is VERBOSE: NORMAL and VERBOSE should be forwarded
   f.m_stream->setLogLevel(VERBOSE);
   forwarder->m_str.clear();
@@ -245,8 +232,7 @@ BOOST_AUTO_TEST_CASE( operators )
   *(f.m_stream) << VERBOSE << "Hello world as VERBOSE 2!";
   f.m_stream->flush();
   BOOST_CHECK_EQUAL(forwarder->m_str, std::string("Hello world as VERBOSE 2!"));
-  
-  
+    
   /// Test the rank filter
   /// 1. with the filter disabled
   forwarder->m_str.clear();  

@@ -1,4 +1,3 @@
-#include "Common/CodeLocation.hpp"
 #include "Common/LogStampFilter.hpp"
 
 using namespace CF::Common;

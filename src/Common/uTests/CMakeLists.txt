@@ -4,7 +4,9 @@ LIST ( APPEND uTestCommon_libs Common )
 LIST ( APPEND uTestCommon_files
   UTestCommon.cpp
   TestHourMinSec.cpp
-  TestLogStream.cpp
+  TestLogLevelFilter.cpp
+  TestLogStampFilter.cpp
+  TestLogStream.cpp  
   TestOSystem.cpp
   TestCPath.cpp
   TestComponent.cpp
