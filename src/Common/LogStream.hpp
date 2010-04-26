@@ -256,7 +256,7 @@ class Common_API LogStream
   /// @brief Gives the number of string forwarders the stream contains
 
   /// @return Returns the number of string forwarders.
-  int getStringForwarderCount() const;
+  unsigned int getStringForwarderCount() const;
 
   private:
 

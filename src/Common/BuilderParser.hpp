@@ -6,7 +6,7 @@
 #include "Common/CommonAPI.hpp"
 #include <string>
 
-class XMLNode;
+struct XMLNode;
 
 namespace CF {
 
@@ -14,7 +14,7 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  class BuilderParserFrameInfo;
+  struct BuilderParserFrameInfo;
   class BuilderParserRules;
 
   /// @brief Builds and parses a frame according to a given protocol.

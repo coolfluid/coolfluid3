@@ -336,8 +336,8 @@ void LogStream::removeStringForwarder(LogStringForwarder * forwarder)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-int LogStream::getStringForwarderCount() const
+unsigned int LogStream::getStringForwarderCount() const
 {
-  return m_stringForwarders.size();
+  return (unsigned int) m_stringForwarders.size();
 }
 
