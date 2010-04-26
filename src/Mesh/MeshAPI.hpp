@@ -27,6 +27,12 @@ namespace CF {
 
 ////////////////////////////////////////////////////////////////////////////////
     
+  enum ArrayDim {
+    SCALAR=1,
+    VECTOR=2,
+    TENSOR=3
+  };
+    
   /// Class defines the initialization and termination of the library Mesh
   /// @author Tiago Quintino
   class MeshLib :

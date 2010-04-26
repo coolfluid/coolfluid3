@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE( CTableTest )
 BOOST_AUTO_TEST_CASE( CArrayTest )
 {
   // Create a CElements component
-  boost::shared_ptr<CArray> coordinates (new CArray("coords")) ;
+  boost::shared_ptr<CArray<VECTOR> > coordinates (new CArray<VECTOR>("coords")) ;
 
   // initialize the array
   Uint dim = 2;

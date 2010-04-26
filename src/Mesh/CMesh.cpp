@@ -35,7 +35,7 @@ void CMesh::create_region( const CName& name )
 
 void CMesh::create_array( const CName& name )
 {
-  boost::shared_ptr<CArray> new_array ( new CArray(name) );
+  boost::shared_ptr<CArray<VECTOR> > new_array ( new CArray<VECTOR>(name) );
 
   m_arrays.push_back(new_array);
 
