@@ -41,14 +41,16 @@ namespace Common {
 
     // operators
 
+    /// assignement operator with CPath
+    CPath& operator=  (const CPath& p);
+
+    /// concatenation and assignement operator with CPath
     CPath& operator/= (const CPath& rhs);
+    /// concatenation and assignement operator with std::string
     CPath& operator/= (const std::string& s);
 
+    /// concatenation operator with CPath
     CPath  operator/  (const CPath& p) const;
-    CPath  operator/  (const std::string& s) const;
-
-    CPath& operator=  (const CPath& p);
-    CPath& operator=  (const std::string& s);
 
     // accessors
 
@@ -62,18 +64,22 @@ namespace Common {
     /// @returns true if the path is a relative path
     bool is_relative() const;
 
+    /// check this path is complete
+    /// @post true if does not contain ".." or "."
+    bool is_complete() const;
+
     /// @return if the path is empty
     bool empty() const { return m_path.empty(); }
 
     /// @return the path as a string
-    const std::string& string() const { return m_path; }
+    std::string string() const { return m_path; }
 
-//    /// @return the base path
-//    CPath base_path() const;
+    /// @return the base path
+    CPath base_path() const;
 
     /// check that the passed string is a valid path
-    /// @post string does not contain ";,./"
-    static bool is_valid_path ( const std::string& str);
+    /// @post string does not contain ";,"
+    static bool is_valid ( const std::string& str);
 
     /// check that the passed string is a valid path element
     static bool is_valid_element ( const std::string& str);

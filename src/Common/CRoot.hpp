@@ -16,19 +16,36 @@ namespace Common {
 
   public:
 
-    /// Contructor
-    /// @param name of the component
-    CRoot ( const CName& name );
+    /// Get the class name
+    static boost::shared_ptr<CRoot> create ( const CName& name );
 
     /// Virtual destructor
     virtual ~CRoot();
 
     /// Get the class name
-    static std::string getClassName () { return "CLink"; }
+    static std::string getClassName () { return "CRoot"; }
 
-    // functions specific to the CLink component
+    // functions specific to the CRoot component
 
-  private:
+    /// Access the component described by the path
+    /// The path should be absolute
+    boost::shared_ptr<Component> access_component ( const CPath& path );
+
+    /// define the component path
+    void define_component_path ( const CPath& path, boost::shared_ptr<Component> );
+
+  private: // functions
+
+    typedef std::map< std::string , boost::shared_ptr<Component> > CompStorage_t;
+
+    /// Private constructor forces creation via the create() funtion
+    /// @param name of the component
+    CRoot ( const CName& name );
+
+  private: // data
+
+    /// map the paths to each component
+    CompStorage_t  m_component_storage;
 
   };
 

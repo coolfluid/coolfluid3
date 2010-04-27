@@ -36,7 +36,7 @@ namespace Common {
     /// Contructor
     /// @param name of the component
     /// @param parent path where this component will be placed
-    Component ( const CName& name, const CPath& parent_path = CPath() );
+    Component ( const CName& name );
 
     /// Virtual destructor
     virtual ~Component();
@@ -48,7 +48,7 @@ namespace Common {
     bool is_link () const { return m_is_link; }
 
     /// Access the name of the component
-    const CName& name () const { return m_name.string(); }
+    CName name () const { return m_name.string(); }
 
     /// Rename the component
     void rename ( const CName& name );
@@ -56,8 +56,8 @@ namespace Common {
     /// Access the path of the component
     const CPath& path () const { return m_path; }
 
-    /// Modify the path of the component
-    void change_path ( const CPath& new_path );
+    /// Modify the parent of this component
+    void change_parent ( boost::shared_ptr<Component> new_parent );
 
     /// Construct the full path
     CPath full_path () const { return m_path / m_name; }
@@ -69,14 +69,29 @@ namespace Common {
     /// @param name the component
     SafePtr<Component> get_component ( const CName& name );
 
-    /// Access a component on the tree by path
-    /// The path may be relative or absolute
+    /// Get a (sub)component of this component automatically cast to the specified type
+    /// @param name the component
+    template < typename TYPE >
+        SafePtr<TYPE> get_component ( const CName& name );
+
+    /// Looks for a component via its path
     /// @param path to the component
-    boost::shared_ptr<Component> access_component ( const CPath& path );
+    boost::shared_ptr<Component> look_component ( const CPath& path );
+
+    /// Resolves relative elements within a path to complete it.
+    /// The path may be relative to this component or absolute.
+    /// This is strictly a path operation so the path may not actually point anywhere
+    /// @param path to a component
+    /// @post path statisfies CPath::is_complete()
+    /// @post path statisfies CPath::is_absolute()
+    void complete_path ( CPath& path );
 
     /// lists the sub components and puts them on the xml_tree
     void xml_tree ( XMLNode xml );
 
+    /// lists the options of this component
+    void list_options ( XMLNode xml );
+        
   private:
 
     /// type for storing the sub components
@@ -98,6 +113,14 @@ namespace Common {
     bool m_is_link;
 
   };
+
+////////////////////////////////////////////////////////////////////////////////
+
+template < typename TYPE >
+inline SafePtr<TYPE> Component::get_component ( const CName& name )
+{
+  return this->get_component(name).d_castTo<TYPE>();
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

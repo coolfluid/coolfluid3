@@ -19,7 +19,7 @@ namespace CF {
 
 AssertionManager::AssertionManager() :
   DoAssertions    ( true ),
-  AssertionDumps  ( true ),
+  AssertionDumps  ( false ),
   AssertionThrows ( false ) {}
 
 ////////////////////////////////////////////////////////////////////////////////

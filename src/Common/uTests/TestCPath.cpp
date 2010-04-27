@@ -62,8 +62,19 @@ BOOST_AUTO_TEST_CASE( concatenation )
 {
   CPath p0 ( "/root/dir1" );
   CPath p1 ( "dir2/dir3" );
+
   CPath p2 = p0 / p1;
   BOOST_CHECK_EQUAL( std::strcmp( p2.string().c_str(), "/root/dir1/dir2/dir3" ), 0 );
+
+  CPath p3;
+  p3 /= p0;
+  BOOST_CHECK_EQUAL( std::strcmp( p3.string().c_str(), "/root/dir1" ), 0 );
+
+  CPath p5 = p0 / "dir5/dir55";
+  BOOST_CHECK_EQUAL( std::strcmp( p5.string().c_str(), "/root/dir1/dir5/dir55" ), 0 );
+
+  CPath p6 = "/root/dir6";
+  BOOST_CHECK_EQUAL( std::strcmp( p6.string().c_str(), "/root/dir6" ), 0 );
 
 }
 

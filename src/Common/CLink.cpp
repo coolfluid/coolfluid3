@@ -6,8 +6,7 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CLink::CLink ( const CName& name, const CPath& parent_path ) :
-    Component ( name, parent_path )
+CLink::CLink ( const CName& name, const CPath& parent_path ) : Component ( name )
 {
   m_is_link = true;
 }

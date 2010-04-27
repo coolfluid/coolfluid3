@@ -5,8 +5,7 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CGroup::CGroup ( const CName& name, const CPath& parent_path ) :
-    Component ( name, parent_path )
+CGroup::CGroup ( const CName& name ) : Component ( name )
 {
 }
 

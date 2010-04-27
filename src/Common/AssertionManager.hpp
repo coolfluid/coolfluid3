@@ -60,13 +60,13 @@ public:
 /// Assertion that always should be checked, even in optimized builds.
 /// Use this for testing in non-speed-critical code.
 #define cf_always_assert(a) \
-    { if (!(a)) { ::CF::AssertionManager::do_assert((a), #a, __FILE__, __LINE__, __FUNCTION__); } }
+    { if (a) {} else { ::CF::AssertionManager::do_assert((a), #a, __FILE__, __LINE__, __FUNCTION__); } }
 
 /// Assertion that always should be checked, even in optimized builds.
 /// Use this for testing in non-speed-critical code.
 /// Adds a description of the assertion
 #define cf_always_assert_desc(msg,a) \
-    { if (!(a)) { ::CF::AssertionManager::do_assert((a), #a, __FILE__, __LINE__, __FUNCTION__, msg); } }
+    { if (a) {} else { ::CF::AssertionManager::do_assert((a), #a, __FILE__, __LINE__, __FUNCTION__, msg); } }
 
 /// CF assertion
 /// Assertions are off if compiled with DNDEBUG

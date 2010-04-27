@@ -18,7 +18,7 @@ namespace Common {
 
     /// Contructor
     /// @param name of the component
-    CGroup ( const CName& name, const CPath& parent_path = CPath() );
+    CGroup ( const CName& name );
 
     /// Virtual destructor
     virtual ~CGroup();

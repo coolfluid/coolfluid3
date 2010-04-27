@@ -1,6 +1,7 @@
 #include <boost/tokenizer.hpp>
 
 #include "Common/CPath.hpp"
+#include "Common/Log.hpp"
 #include "Common/StringOps.hpp"
 
 namespace CF {
@@ -27,14 +28,14 @@ CPath::CPath ( const CPath& path )
 CPath::CPath ( const std::string& s ):
   m_path ( s )
 {
-  if ( ! is_valid_path(s) )
+  if ( ! is_valid(s) )
     throw InvalidPath (FromHere(),"Trying to construct path with string '" +s+ "'");
 }
 
 CPath::CPath ( const char* c ):
   m_path ( c )
 {
-  if ( ! is_valid_path(m_path) )
+  if ( ! is_valid(m_path) )
     throw InvalidPath (FromHere(),"Trying to construct path with string '" +m_path+ "'");
 }
 
@@ -47,7 +48,7 @@ CPath& CPath::operator/= (const CPath& rhs)
 
 CPath& CPath::operator/= (const std::string& s)
 {
-  if ( ! is_valid_path(s) )
+  if ( ! is_valid(s) )
     throw InvalidPath (FromHere(),"Trying to construct path with string '" +s+ "'");
 
   if ( !m_path.empty() && !s.empty() ) m_path += separator();
@@ -63,41 +64,32 @@ CPath  CPath::operator/  (const CPath& p) const
       CPath ( m_path + p.m_path );                // one is empty
 }
 
-CPath  CPath::operator/  (const std::string& p) const
-{
-  return *this / CPath ( p );
-}
-
 CPath& CPath::operator=  (const CPath& p)
 {
   m_path = p.m_path;
   return *this;
 }
 
-CPath& CPath::operator=  (const std::string& s)
-{
-  if ( ! is_valid_path(s) )
-    throw InvalidPath (FromHere(),"Trying to construct path with string '" +s+ "'");
-
-  m_path = s;
-  return *this;
-}
-
 bool CPath::is_valid_element ( const std::string& str )
 {
-  /// @todo implement validity check of the string as a path element
-  return true;
+  return boost::algorithm::all(str, boost::algorithm::is_alnum());
 }
 
-bool CPath::is_valid_path ( const std::string& str )
+bool CPath::is_valid ( const std::string& str )
 {
-  /// @todo implement validity check of the string as a path
-  return true;
+  return boost::algorithm::all(str,
+                               boost::algorithm::is_alnum() ||
+                               boost::algorithm::is_any_of("./"));
+}
+
+bool CPath::is_complete () const
+{
+  return ! boost::algorithm::contains( m_path, "." );
 }
 
 bool CPath::is_relative () const
 {
-  return !is_absolute();
+  return ! is_absolute();
 }
 
 bool CPath::is_absolute () const
@@ -105,11 +97,13 @@ bool CPath::is_absolute () const
   return boost::algorithm::starts_with( m_path, "//" );
 }
 
-//CPath CPath::base_path () const
-//{
-//  /// @todo implement base_path
-//  return m_path;
-//}
+CPath CPath::base_path () const
+{
+  using namespace boost::algorithm;
+  std::string rpath = m_path;
+  rpath.erase ( find_last(rpath,separator()).begin(), rpath.end() );
+  return rpath;
+}
 
 const std::string& CPath::separator ()
 {

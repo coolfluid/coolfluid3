@@ -76,7 +76,8 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   
   
   // Create root and mesh component
-  boost::shared_ptr<Component> root ( new CRoot  ( "root" ) );
+  boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
+
   boost::shared_ptr<Component> mesh ( new CMesh  ( "mesh" ) );
 
   root->add_component( mesh );
@@ -104,8 +105,8 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   triagRegion->create_elementType("type");
   
   // set the element types
-  quadRegion->get_component("type").d_castTo<CElements>()->set_elementType("Quad2D");
-  triagRegion->get_component("type").d_castTo<CElements>()->set_elementType("Triag2D");
+  quadRegion->get_component<CElements>("type")->set_elementType("Quad2D");
+  triagRegion->get_component<CElements>("type")->set_elementType("Triag2D");
 
   // create a coordinates array in the mesh component
   p_mesh->create_array("coordinates");
@@ -166,7 +167,8 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   tTableBuffer.flush();
   
   // check if coordinates match (3 ways)
-  Uint elem=1, node=2;
+  Uint elem=1;
+  Uint node=2;
   boost::array<Real,2> coord;
   quadRegion->set_row(coord,elem,node,coordinates);
   BOOST_CHECK_EQUAL(coord[0],1.0);
