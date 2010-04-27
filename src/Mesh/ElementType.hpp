@@ -73,7 +73,7 @@ public: // accessors
   virtual Real computeVolume(const std::vector<RealVector*>& coord) =0; 
   
   /// compute volume given coordinates
-  virtual Real computeVolume(const std::vector<CArray<VECTOR>::Row>& coord) =0; 
+  virtual Real computeVolume(const std::vector<CArray::Row>& coord) =0; 
 
 protected: // data
 

@@ -20,16 +20,12 @@ namespace Mesh {
 /// Array component class
 /// This class can store an array
 /// @author Willem Deconinck, Tiago Quintino
-  
-template<ArrayDim DIM>
 class Mesh_API CArray : public Common::Component {
 
 public:
-  // typedef typename Table<T>::template subarray<1>::type Row;
 
-    typedef boost::multi_array<Real,DIM> Array;
-    // typedef Array::subarray<1>::type Row;  
-    typedef typename Array::template subarray<DIM-1>::type Row;
+    typedef boost::multi_array<Real,2> Array;
+    typedef Array::subarray<1>::type Row;  
 
     /// Contructor
     /// @param name of the component
@@ -60,30 +56,6 @@ public:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-
-template<ArrayDim DIM>
-CArray<DIM>::CArray ( const CName& name  ) :
-  Component ( name ),
-  m_array(boost::extents[0][0]),
-  m_buffer(m_array,1024)
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-template<ArrayDim DIM>
-CArray<DIM>::~CArray()
-{
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-template<ArrayDim DIM>
-void CArray<DIM>::initialize(const Uint nbCols)
-{
-  m_array.resize(boost::extents[0][nbCols]); 
-  m_buffer.initialize();
-}
 
 } // Mesh
 } // CF

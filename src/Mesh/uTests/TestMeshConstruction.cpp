@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   p_mesh->create_array("coordinates");
   
   // create pointers to the coordinates array and connectivity table
-  SafePtr<CArray<VECTOR> > coordinates = p_mesh->get_component("coordinates").d_castTo<CArray<VECTOR> >();
+  SafePtr<CArray> coordinates = p_mesh->get_component("coordinates").d_castTo<CArray>();
   SafePtr<CTable> qTable = quadRegion->get_component("table").d_castTo<CTable>();
   SafePtr<CTable> tTable = triagRegion->get_component("table").d_castTo<CTable>();
 
@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   BOOST_CHECK_EQUAL(stlcoord[0],1.0);
   BOOST_CHECK_EQUAL(stlcoord[1],1.0);
   
-  CArray<VECTOR>::Row coordRef = triagRegion->get_row(elem,node,coordinates);
+  CArray::Row coordRef = triagRegion->get_row(elem,node,coordinates);
   BOOST_CHECK_EQUAL(coordRef[0],1.0);
   BOOST_CHECK_EQUAL(coordRef[1],1.0);
 
@@ -189,7 +189,7 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
     
     // the loop
     for (Uint iElem=0; iElem<nbRows; ++iElem) {
-      std::vector<CArray<VECTOR>::Row > elementCoordinates;
+      std::vector<CArray::Row > elementCoordinates;
       for (Uint iNode=0; iNode<elementType->getNbNodes(); iNode++) {
         elementCoordinates.push_back(region->get_row(iElem,iNode,coordinates));
       }
@@ -223,3 +223,4 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
 BOOST_AUTO_TEST_SUITE_END()
 
 ////////////////////////////////////////////////////////////////////////////////
+

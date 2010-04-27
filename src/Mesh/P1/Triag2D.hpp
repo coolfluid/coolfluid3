@@ -22,7 +22,7 @@ class Mesh_API VolumeComputer<P1::Triag2D>
 {
 public:
   static Real computeVolume(const std::vector<RealVector*>& coord); 
-  static Real computeVolume(const std::vector<CArray<VECTOR>::Row>& coord); 
+  static Real computeVolume(const std::vector<CArray::Row>& coord); 
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -48,7 +48,7 @@ public:
     return VolumeComputerType::computeVolume(coord); 
   }
   
-  Real computeVolume(const std::vector<CArray<VECTOR>::Row>& coord) 
+  Real computeVolume(const std::vector<CArray::Row>& coord) 
   { 
     return VolumeComputerType::computeVolume(coord); 
   }
@@ -69,7 +69,7 @@ Real VolumeComputer<P1::Triag2D>::computeVolume(const std::vector<RealVector*>& 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Real VolumeComputer<P1::Triag2D>::computeVolume(const std::vector<CArray<VECTOR>::Row>& coord) 
+Real VolumeComputer<P1::Triag2D>::computeVolume(const std::vector<CArray::Row>& coord) 
 {
   return 0.5*((coord[1][XX]-coord[0][XX])*(coord[2][YY]-coord[0][YY])
                 -(coord[2][XX]-coord[0][XX])*(coord[1][YY]-coord[0][YY]));

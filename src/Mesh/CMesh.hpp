@@ -5,15 +5,13 @@
 
 #include "Common/Component.hpp"
 #include "Mesh/MeshAPI.hpp"
-// #include "Mesh/CArray.hpp"
+
 namespace CF {
 namespace Mesh {
 
   class CRegion;
-  
-  template<ArrayDim DIM>
   class CArray;
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Mesh component class
@@ -53,7 +51,7 @@ private:
   std::vector< boost::shared_ptr<CRegion> > m_regions;
   
   /// storage of array pointers
-  std::vector< boost::shared_ptr<CArray<VECTOR> > > m_arrays;
+  std::vector< boost::shared_ptr<CArray> > m_arrays;
 
 };
 

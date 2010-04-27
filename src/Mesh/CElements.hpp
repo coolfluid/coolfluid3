@@ -61,7 +61,7 @@ public:
   std::vector< std::vector< Uint > >& getEdgesConnectivity() { return m_elementType->getEdgesConnectivity(); }
     
   /// compute volume of the element given by its coordinates
-  virtual Real computeVolume(const std::vector<CArray<VECTOR>::Row>& coord) { return m_elementType->computeVolume(coord); } 
+  virtual Real computeVolume(const std::vector<CArray::Row>& coord) { return m_elementType->computeVolume(coord); } 
 
   /// set the element type
   void set_elementType(const std::string& etype_name);
