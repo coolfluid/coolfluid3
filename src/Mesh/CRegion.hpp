@@ -12,57 +12,6 @@
 namespace CF {
 namespace Mesh {
   
-  class CRegion;
-
-  //////////////////////////////////////////////////////////////////////////////
-  
-  // iterator class
-# include <boost/iterator/iterator_facade.hpp>
-  class Mesh_API CRegion_iterator
-  : public boost::iterator_facade<
-  CRegion_iterator
-  , CRegion
-  , boost::forward_traversal_tag
-  >
-  {
-  public:
-    CRegion_iterator()
-    : m_region(0), m_root(0)
-    {}
-    
-    explicit CRegion_iterator(CRegion* p)
-    : m_region(p), m_root(p)
-    {
-    }
-    
-    void fillVector(CRegion* p);
-    
-    void increment();
-    
-    void first();
-    
-    bool isDone();
-    
-    CRegion_iterator end();
-    
-  private:
-    
-    friend class boost::iterator_core_access;
-    
-    bool equal(CRegion_iterator const& other) const
-    {
-      return this->m_region == other.m_region;
-    }
-    
-    CRegion& dereference() const { return *m_region; }
-    
-    CRegion* m_region;
-    CRegion* m_root;
-    
-    std::vector<CRegion*> m_vec;
-    std::vector<CRegion*>::iterator m_it;
-  };
-  
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Region component class
@@ -138,7 +87,56 @@ private:
 
 };
 
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+  // iterator class
+# include <boost/iterator/iterator_facade.hpp>
+  class Mesh_API CRegion_iterator
+  : public boost::iterator_facade<
+  CRegion_iterator
+  , CRegion
+  , boost::forward_traversal_tag
+  >
+  {
+  public:
+    CRegion_iterator()
+    : m_region(0), m_root(0)
+    {}
+
+    explicit CRegion_iterator(CRegion* p)
+    : m_region(p), m_root(p)
+    {
+    }
+
+    void fillVector(CRegion* p);
+
+    void increment();
+
+    void first();
+
+    bool isDone();
+
+    CRegion_iterator end();
+
+  private:
+
+    friend class boost::iterator_core_access;
+
+    bool equal(CRegion_iterator const& other) const
+    {
+      return this->m_region == other.m_region;
+    }
+
+    CRegion& dereference() const { return *m_region; }
+
+    CRegion* m_region;
+    CRegion* m_root;
+
+    std::vector<CRegion*> m_vec;
+    std::vector<CRegion*>::iterator m_it;
+  };
+
+  ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
 } // CF
