@@ -8,7 +8,8 @@ using namespace Common;
 ////////////////////////////////////////////////////////////////////////////////
 
 CRegion::CRegion ( const CName& name  ) :
-  Component ( name )
+  Component ( name ),
+  m_isLowestLevelRegion ( true )
 {
 }
 
@@ -25,6 +26,7 @@ void CRegion::create_region( const CName& name )
   boost::shared_ptr<CRegion> new_region ( new CRegion(name) );
   m_subregions.push_back(new_region);
   add_component ( new_region );
+  m_isLowestLevelRegion = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -44,6 +46,53 @@ void CRegion::create_elementType( const CName& name )
   m_elementType = new_elementType;
   add_component ( m_elementType );
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CRegion_iterator::first() 
+{
+  m_vec.resize(0);
+  fillVector(m_root);
+  m_it = m_vec.begin();
+  increment();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool CRegion_iterator::isDone()
+// returns true when the traversal is completed
+{
+  return m_region==NULL;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+CRegion_iterator CRegion_iterator::end()
+{
+  return CRegion_iterator();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void CRegion_iterator::fillVector(CRegion* p) {
+  m_vec.push_back(p);
+  const Uint nb_subregions = p->get_subregions().size();
+  for(Uint i = 0; i<nb_subregions; i++ )
+  { 
+    fillVector(p->get_subregions()[i].get());
+  }
+}
+
+void CRegion_iterator::increment() 
+{ 
+  m_it++;
+  if (m_it != m_vec.end()) {
+    m_region = *m_it;
+  }
+  else {
+    m_region = NULL;
+  }
+} 
 
 ////////////////////////////////////////////////////////////////////////////////
 

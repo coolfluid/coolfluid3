@@ -7,9 +7,61 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CArray.hpp"
+#include <stack>
 
 namespace CF {
 namespace Mesh {
+  
+  class CRegion;
+
+  //////////////////////////////////////////////////////////////////////////////
+  
+  // iterator class
+# include <boost/iterator/iterator_facade.hpp>
+  class Mesh_API CRegion_iterator
+  : public boost::iterator_facade<
+  CRegion_iterator
+  , CRegion
+  , boost::forward_traversal_tag
+  >
+  {
+  public:
+    CRegion_iterator()
+    : m_region(0), m_root(0)
+    {}
+    
+    explicit CRegion_iterator(CRegion* p)
+    : m_region(p), m_root(p)
+    {
+    }
+    
+    void fillVector(CRegion* p);
+    
+    void increment();
+    
+    void first();
+    
+    bool isDone();
+    
+    CRegion_iterator end();
+    
+  private:
+    
+    friend class boost::iterator_core_access;
+    
+    bool equal(CRegion_iterator const& other) const
+    {
+      return this->m_region == other.m_region;
+    }
+    
+    CRegion& dereference() const { return *m_region; }
+    
+    CRegion* m_region;
+    CRegion* m_root;
+    
+    std::vector<CRegion*> m_vec;
+    std::vector<CRegion*>::iterator m_it;
+  };
   
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -22,7 +74,7 @@ namespace Mesh {
 class Mesh_API CRegion : public Common::Component {
 
 public:
-
+    
   /// Contructor
   /// @param name of the component
   CRegion ( const CName& name );
@@ -70,10 +122,14 @@ public:
     return cArray->get_array()[row_in_array];
   }
   
-  std::vector< boost::shared_ptr<CRegion> >& get_subregions() {return m_subregions; }
+  std::vector< boost::shared_ptr<CRegion> >& get_subregions() {return m_subregions; }  
+  
+  bool isLowestLevelRegion() {return m_isLowestLevelRegion;}
   
 private:
 
+  bool m_isLowestLevelRegion;
+  
   std::vector< boost::shared_ptr<CRegion> > m_subregions;
   
   boost::shared_ptr<CTable> m_connTable;

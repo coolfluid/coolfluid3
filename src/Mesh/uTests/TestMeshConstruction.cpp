@@ -87,16 +87,16 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
 
   // create regions
   p_mesh->create_region("superRegion");
-  p_mesh->get_component("superRegion").d_castTo<CRegion>()->create_region("quads");
-  p_mesh->get_component("superRegion").d_castTo<CRegion>()->create_region("triags");
+  p_mesh->get_component<CRegion>("superRegion")->create_region("quads");
+  p_mesh->get_component<CRegion>("superRegion")->create_region("triags");
   
   // create a pointer to the quads and triag region
   SafePtr<CRegion> superRegion = 
-    p_mesh->get_component("superRegion").d_castTo<CRegion>(); 
+    p_mesh->get_component<CRegion>("superRegion"); 
   SafePtr<CRegion> quadRegion = 
-    superRegion->get_component("quads").d_castTo<CRegion>(); 
+    superRegion->get_component<CRegion>("quads"); 
   SafePtr<CRegion> triagRegion = 
-    superRegion->get_component("triags").d_castTo<CRegion>(); 
+    superRegion->get_component<CRegion>("triags"); 
 
   // create connectivity table and element type in the quads and triags region
   quadRegion->create_connectivityTable("table");
@@ -112,9 +112,9 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   p_mesh->create_array("coordinates");
   
   // create pointers to the coordinates array and connectivity table
-  SafePtr<CArray> coordinates = p_mesh->get_component("coordinates").d_castTo<CArray>();
-  SafePtr<CTable> qTable = quadRegion->get_component("table").d_castTo<CTable>();
-  SafePtr<CTable> tTable = triagRegion->get_component("table").d_castTo<CTable>();
+  SafePtr<CArray> coordinates = p_mesh->get_component<CArray>("coordinates");
+  SafePtr<CTable> qTable = quadRegion->get_component<CTable>("table");
+  SafePtr<CTable> tTable = triagRegion->get_component<CTable>("table");
 
   // initialize the coordinates array and connectivity tables
   const Uint dim=2;
@@ -186,8 +186,8 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   // calculate all volumes of a region
   BOOST_FOREACH(boost::shared_ptr<CRegion> region,superRegion->get_subregions())
   {
-    SafePtr<CElements>  elementType = region->get_component("type").d_castTo<CElements>();
-    SafePtr<CTable>     connTable   = region->get_component("table").d_castTo<CTable>();
+    SafePtr<CElements>  elementType = region->get_component<CElements>("type");
+    SafePtr<CTable>     connTable   = region->get_component<CTable>("table");
     // CFinfo << "type = " << elementType->getShapeName() << "\n" << CFendl;
     const Uint nbRows = connTable->get_table().size();
     std::vector<Real> volumes(nbRows);
