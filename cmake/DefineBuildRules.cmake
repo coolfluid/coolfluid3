@@ -29,7 +29,7 @@ IF(UNIX)
       # use many warnings
       CF_ADD_CXX_FLAGS("-Wall")
       # Explicitely add only supported warnings, to support older gcc (breaks on -Wno-empty-body)
-      CF_ADD_CXX_FLAGS("-Wclobbered -Wignored-qualifiers -Wsign-compare -Wtype-limits")
+      CF_ADD_CXX_FLAGS("-Wsign-compare")
       CF_ADD_CXX_FLAGS("-Woverloaded-virtual")
       CF_ADD_CXX_FLAGS("-Wsign-promo")
       CF_ADD_CXX_FLAGS("-Wformat")
