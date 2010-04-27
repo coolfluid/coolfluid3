@@ -70,6 +70,9 @@ LIST ( APPEND Common_files
     LogStream.hpp
     LogStringForwarder.hpp
     LogStringForwarder.cpp
+    ManagerWorkerFrameType.hpp
+    ManagerWorkerProtocol.cpp
+    ManagerWorkerProtocol.hpp
     ModuleRegistry.hpp
     ModuleRegisterBase.hpp
     ModuleRegistry.cpp

@@ -19,6 +19,6 @@ IF (QT4_FOUND)
 
   ADD_SUBDIRECTORY ( Client )
   ADD_SUBDIRECTORY ( Network )
-# ADD_SUBDIRECTORY ( Server )
+  ADD_SUBDIRECTORY ( Server )
 
 ENDIF()

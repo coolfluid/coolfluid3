@@ -1,0 +1,31 @@
+#ifndef CF_Common_ManagerWorkerProtocol_hh
+#define CF_Common_ManagerWorkerProtocol_hh
+
+#include "Common/BuilderParserRules.hpp"
+#include "Common/CommonAPI.hpp"
+
+////////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+
+namespace Common {
+
+////////////////////////////////////////////////////////////////////////////////
+
+  class Common_API ManagerWorkerProtocol : public BuilderParserRules
+  {
+  private:
+    void buildRules();
+
+  public:
+    ManagerWorkerProtocol();
+  }; // class ManagerWorkerProtocol
+
+////////////////////////////////////////////////////////////////////////////////
+
+} // namespace Common
+} // namespace CF
+
+////////////////////////////////////////////////////////////////////////////////
+
+#endif // CF_Common_ManagerWorkerProtocol_hh
