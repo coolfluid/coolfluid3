@@ -158,7 +158,7 @@ void ServerKernel::createSimulator(const QString & name)
   connect(m_srvSimulation, SIGNAL(error(const QString&)), this,
           SLOT(error(const QString&)));
 
-  connect(m_srvSimulation, SIGNAL(m_finished()),
+  connect(m_srvSimulation, SIGNAL(finished()),
           this, SLOT(simulationFinished()));
 }
 
@@ -445,7 +445,7 @@ void ServerKernel::openDirectory(int clientId, const QString & dirPath,
 {
   QStringList directories;
   QStringList files;
-  bool dotDot;
+  // bool dotDot;
 
   QString directory;
 

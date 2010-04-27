@@ -64,8 +64,6 @@ void SimulationManager::spawn(const QString & subSysName, const QString & subSys
     for(unsigned int i = 0 ; i < nbProcs ; i++)
       emit simulationStatus(subSysName, i, WorkerStatus::Convert::to_str(WorkerStatus::STARTING).c_str());
 
-    // PE::getInstance().spawn(nbProcs, hosts.toStdString().c_str());
-
     m_subSysComms[subSysName] = dynamic_cast<PE_MPI&>(PE::interface()).spawn(nbProcs, hosts.toStdString().c_str());
     m_subSysComms[subSysName].Barrier();
     m_listener.addComm(m_subSysComms[subSysName]);

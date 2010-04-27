@@ -358,6 +358,6 @@ void SimulationWorker::createSimulator()
   connect(m_srvSimulation, SIGNAL(message(const QString &)),
           this, SLOT(sendToParent(const QString &)));
 
-  connect(m_srvSimulation, SIGNAL(m_finished()),
+  connect(m_srvSimulation, SIGNAL(finished()),
           this, SLOT(simulationFinished()));
 }
