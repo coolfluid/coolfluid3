@@ -120,6 +120,9 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   coordinates->initialize(dim);
   qTable->initialize(4);
   tTable->initialize(3);
+  Buffer<CTable::ConnectivityTable> qTableBuffer = qTable->create_buffer();
+  Buffer<CTable::ConnectivityTable> tTableBuffer = tTable->create_buffer();
+  Buffer<CArray::Array> coordinatesBuffer = coordinates->create_buffer();
   
   //  Mesh of quads and triangles with node and element numbering:
   //
@@ -136,31 +139,31 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   //    0----1----8   
   
   // fill coordinates in the buffer
-  coordinates->get_buffer().add_row(create_coord( 0.0 , 0.0 ));  // 0
-  coordinates->get_buffer().add_row(create_coord( 1.0 , 0.0 ));  // 1
-  coordinates->get_buffer().add_row(create_coord( 1.0 , 1.0 ));  // 2
-  coordinates->get_buffer().add_row(create_coord( 0.0 , 1.0 ));  // 3
-  coordinates->get_buffer().add_row(create_coord( 1.0 , 2.0 ));  // 4
-  coordinates->get_buffer().add_row(create_coord( 0.0 , 2.0 ));  // 5
-  coordinates->get_buffer().add_row(create_coord( 2.0 , 2.0 ));  // 6
-  coordinates->get_buffer().add_row(create_coord( 2.0 , 1.0 ));  // 7
-  coordinates->get_buffer().add_row(create_coord( 2.0 , 0.0 ));  // 8
+  coordinatesBuffer.add_row(create_coord( 0.0 , 0.0 ));  // 0
+  coordinatesBuffer.add_row(create_coord( 1.0 , 0.0 ));  // 1
+  coordinatesBuffer.add_row(create_coord( 1.0 , 1.0 ));  // 2
+  coordinatesBuffer.add_row(create_coord( 0.0 , 1.0 ));  // 3
+  coordinatesBuffer.add_row(create_coord( 1.0 , 2.0 ));  // 4
+  coordinatesBuffer.add_row(create_coord( 0.0 , 2.0 ));  // 5
+  coordinatesBuffer.add_row(create_coord( 2.0 , 2.0 ));  // 6
+  coordinatesBuffer.add_row(create_coord( 2.0 , 1.0 ));  // 7
+  coordinatesBuffer.add_row(create_coord( 2.0 , 0.0 ));  // 8
 
   
   // fill connectivity in the buffer
-  qTable->get_buffer().add_row(create_quad( 0 , 1 , 2 , 3 ));
-  qTable->get_buffer().add_row(create_quad( 3 , 2 , 4 , 5 ));
+  qTableBuffer.add_row(create_quad( 0 , 1 , 2 , 3 ));
+  qTableBuffer.add_row(create_quad( 3 , 2 , 4 , 5 ));
 
-  tTable->get_buffer().add_row(create_triag( 1 , 8 , 2 ));
-  tTable->get_buffer().add_row(create_triag( 8 , 7 , 2 ));
-  tTable->get_buffer().add_row(create_triag( 2 , 7 , 4 ));
-  tTable->get_buffer().add_row(create_triag( 7 , 6 , 4 ));
+  tTableBuffer.add_row(create_triag( 1 , 8 , 2 ));
+  tTableBuffer.add_row(create_triag( 8 , 7 , 2 ));
+  tTableBuffer.add_row(create_triag( 2 , 7 , 4 ));
+  tTableBuffer.add_row(create_triag( 7 , 6 , 4 ));
 
   // flush buffers into the table. 
   // This causes the table and array to be resized and filled.
-  coordinates->get_buffer().finalize();
-  qTable->get_buffer().finalize();
-  tTable->get_buffer().finalize();
+  coordinatesBuffer.flush();
+  qTableBuffer.flush();
+  tTableBuffer.flush();
   
   // check if coordinates match (3 ways)
   Uint elem=1, node=2;

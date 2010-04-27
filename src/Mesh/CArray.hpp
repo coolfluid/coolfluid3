@@ -24,35 +24,36 @@ class Mesh_API CArray : public Common::Component {
 
 public:
 
-    typedef boost::multi_array<Real,2> Array;
-    typedef Array::subarray<1>::type Row;  
+  typedef boost::multi_array<Real,2> Array;
+  typedef Array::subarray<1>::type Row;  
 
-    /// Contructor
-    /// @param name of the component
-    CArray ( const CName& name );
+  /// Contructor
+  /// @param name of the component
+  CArray ( const CName& name );
 
-    /// Virtual destructor
-    virtual ~CArray();
+  /// Virtual destructor
+  virtual ~CArray();
 
-    /// Get the class name
-    static std::string getClassName () { return "CArray"; }
+  /// Get the class name
+  static std::string getClassName () { return "CArray"; }
 
-    // functions specific to the CArray component
+  // functions specific to the CArray component
 
-    /// Initialize the connectivity array
-    /// This will set the column size and allocate a buffer
-    void initialize(const Uint nbCols);
+  /// Initialize the array with a fixed column size
+  void initialize(const Uint nbCols);
 
-    Array& get_array() { return m_array; }
+  /// @return A reference to the array data
+  Array& get_array() { return m_array; }
 
-    Buffer<Array>& get_buffer() { return m_buffer; }
-
+  /// @return A Buffer object that can fill this Array
+  Buffer<Array> create_buffer(const size_t buffersize=1024);
 
   /// private data
-  private:
+private:
 
-    Array m_array;
-    Buffer<Array> m_buffer;
+  /// storage of the array
+  Array m_array;
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

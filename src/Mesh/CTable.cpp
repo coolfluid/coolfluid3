@@ -25,7 +25,15 @@ CTable::~CTable()
 void CTable::initialize(const Uint nbCols) 
 {
   m_table.resize(boost::extents[0][nbCols]); 
-  m_buffer.initialize();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+Buffer<CTable::ConnectivityTable> CTable::create_buffer(const size_t buffersize)
+{ 
+  // make sure the connectivity table has its columnsize defined
+  cf_assert(m_table.shape()[1] > 0);
+  return Buffer<ConnectivityTable>(m_table,buffersize); 
 }
 
 ////////////////////////////////////////////////////////////////////////////////

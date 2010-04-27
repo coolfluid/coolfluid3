@@ -40,10 +40,6 @@ public:
   static std::string getClassName () { return "Buffer"; }
 
   // functions specific to the Buffer component
-
-  /// Finalize the Buffer
-  /// This will deallocate the memory of the buffer
-  void finalize();
   
   /// Change the buffer to the new size
   void change_buffersize(const size_t nbRows);
@@ -98,6 +94,8 @@ void Buffer<Array_t>::initialize ()
 template<typename Array_t>
 Buffer<Array_t>::~Buffer()
 {
+  // make sure to flush before deleting the buffer
+  flush();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -115,18 +113,6 @@ void Buffer<Array_t>::flush()
   }
   
   m_nbFilledRows = 0;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-template<typename Array_t>
-void Buffer<Array_t>::finalize()
-{
-  flush();
-  m_nbFilledRows = 0;
-  m_nbAllocatedRows = 0;
-  m_buffer.resize(boost::extents[0][0]);
-  /// @todo Check if resize(boost::extents[0][0]) really deallocates memory
 }
 
 //////////////////////////////////////////////////////////////////////////////

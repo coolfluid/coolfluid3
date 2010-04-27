@@ -28,7 +28,7 @@ class Mesh_API CTable : public Common::Component {
 public:
   
   typedef boost::multi_array<Uint,2> ConnectivityTable;
-  typedef ConnectivityTable::subarray<1>::type ConnRow;  
+  typedef ConnectivityTable::subarray<1>::type Row;  
   
   /// Contructor
   /// @param name of the component
@@ -42,14 +42,14 @@ public:
 
   // functions specific to the CTable component
     
-  /// Initialize the connectivity table
-  /// This will set the column size and allocate a buffer
+  /// Initialize the connectivity array with a fixed column size
   void initialize(const Uint nbCols);
   
+  /// @return A reference to the connectivity table data
   ConnectivityTable& get_table() { return m_table; }
   
-  Buffer<ConnectivityTable>& get_buffer() { return m_buffer; }
-  
+  /// @return A Buffer object that can fill this Connectivity Table
+  Buffer<ConnectivityTable> create_buffer(const size_t buffersize=1024);
   
 /// private data
 private:

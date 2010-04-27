@@ -125,6 +125,7 @@ BOOST_AUTO_TEST_CASE( CTableTest )
   // check initalization
   Uint nbCols = 5;
   connTable->initialize(nbCols);
+  Buffer<CTable::ConnectivityTable> tableBuffer = connTable->create_buffer();
   
   BOOST_CHECK_EQUAL(connTable->get_table().size(),(Uint) 0);
   BOOST_CHECK_EQUAL(connTable->get_table().shape()[1],(Uint) 5);
@@ -135,8 +136,8 @@ BOOST_AUTO_TEST_CASE( CTableTest )
   for (Uint i=0; i<nbCols; ++i)
     row[i] = i;
     
-  connTable->get_buffer().add_row(row);
-  connTable->get_buffer().flush();
+  tableBuffer.add_row(row);
+  tableBuffer.flush();
   BOOST_CHECK_EQUAL(connTable->get_table().size(),(Uint) 1);
   BOOST_CHECK_EQUAL(connTable->get_table().shape()[1],(Uint) 5);
   BOOST_CHECK_EQUAL(connTable->get_table().num_elements(),(Uint) 5);  
@@ -144,12 +145,12 @@ BOOST_AUTO_TEST_CASE( CTableTest )
   
   // check if buffer flushes without calling flush by the user
   for (Uint i=0; i<1023; ++i)
-    connTable->get_buffer().add_row(row);
+    tableBuffer.add_row(row);
   BOOST_CHECK_EQUAL(connTable->get_table().size(),(Uint) 1);
   BOOST_CHECK_EQUAL(connTable->get_table().shape()[1],(Uint) 5);
   BOOST_CHECK_EQUAL(connTable->get_table().num_elements(),(Uint) 5); 
   
-  connTable->get_buffer().add_row(row);
+  tableBuffer.add_row(row);
   BOOST_CHECK_EQUAL(connTable->get_table().size(),(Uint) 1025);
   BOOST_CHECK_EQUAL(connTable->get_table().shape()[1],(Uint) 5);
   BOOST_CHECK_EQUAL(connTable->get_table().num_elements(),(Uint) 5*1025); 
@@ -160,7 +161,7 @@ BOOST_AUTO_TEST_CASE( CTableTest )
   BOOST_CHECK_EQUAL(connTable->get_table()[2][2], (Uint) 2);
   
   // check if a row can be accessed
-  CTable::ConnRow rowRef = connTable->get_table()[35];
+  CTable::Row rowRef = connTable->get_table()[35];
   for (Uint i=0; i<nbCols; ++i)
     BOOST_CHECK_EQUAL(rowRef[i], i);
   
@@ -176,13 +177,14 @@ BOOST_AUTO_TEST_CASE( CArrayTest )
   // initialize the array
   Uint dim = 2;
   coordinates->initialize(dim);
- 
+  Buffer<CArray::Array> coordinatesBuffer = coordinates->create_buffer();
+  
   // Add coordinates to the array
-  coordinates->get_buffer().add_row(create_coord( 0.0 , 0.0 ));
-  coordinates->get_buffer().add_row(create_coord( 1.0 , 0.0 ));
-  coordinates->get_buffer().add_row(create_coord( 1.0 , 1.0 ));
-  coordinates->get_buffer().add_row(create_coord( 0.0 , 1.0 ));
-  coordinates->get_buffer().flush();
+  coordinatesBuffer.add_row(create_coord( 0.0 , 0.0 ));
+  coordinatesBuffer.add_row(create_coord( 1.0 , 0.0 ));
+  coordinatesBuffer.add_row(create_coord( 1.0 , 1.0 ));
+  coordinatesBuffer.add_row(create_coord( 0.0 , 1.0 ));
+  coordinatesBuffer.flush();
   
   BOOST_CHECK_EQUAL(coordinates->get_array()[2][1], 1.0);  
 }
@@ -229,6 +231,17 @@ BOOST_AUTO_TEST_CASE( CElementsQuad2DTest )
   C[XX]=25; C[YY]=30;   coord[2] = &C;
   D[XX]=30; D[YY]=40;   coord[3] = &D;
   BOOST_CHECK_EQUAL(comp->get_elementType()->computeVolume(coord), 150);
+  
+}
+
+BOOST_AUTO_TEST_CASE( CArrayTemplates )
+{
+  CArray vectorArray("vector");
+  vectorArray.initialize(3);
+  //CFinfo << "numdim = " << CArray<VECTOR>::Array::NumDims() << "\n" << CFendl;
+
+  // CArray<SCALAR> scalarArray("scalar");
+  // scalarArray.initialize(3);
   
 }
 
