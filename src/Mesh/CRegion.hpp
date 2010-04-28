@@ -7,11 +7,49 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CArray.hpp"
-#include <stack>
 
 namespace CF {
 namespace Mesh {
   
+  class CRegion;
+
+  //////////////////////////////////////////////////////////////////////////////
+  
+  // iterator class
+# include <boost/iterator/iterator_facade.hpp>
+  class Mesh_API CRegion_iterator
+  : public boost::iterator_facade<
+  CRegion_iterator
+  , CRegion
+  , boost::forward_traversal_tag
+  >
+  {
+  public:
+    CRegion_iterator()
+    : m_region()
+    {}
+      
+    explicit CRegion_iterator(std::vector<boost::shared_ptr<CRegion> >& vec, boost::shared_ptr<Component> parent);    
+    
+    void increment();
+
+  private:
+    
+    friend class boost::iterator_core_access;
+    
+    bool equal(CRegion_iterator const& other) const
+    {
+      return this->m_region == other.m_region;
+    }
+    
+    CRegion& dereference() const { return *m_region; }
+
+    std::vector<boost::shared_ptr<CRegion> > m_vec;
+    std::vector<boost::shared_ptr<CRegion> >::iterator m_vecIt;
+    boost::shared_ptr<CRegion> m_region;
+    boost::shared_ptr<Component> m_parent;
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Region component class
@@ -71,13 +109,13 @@ public:
     return cArray->get_array()[row_in_array];
   }
   
-  std::vector< boost::shared_ptr<CRegion> >& get_subregions() {return m_subregions; }  
+  void put_subregions(std::vector< boost::shared_ptr<CRegion> >& vec);  
   
-  bool isLowestLevelRegion() {return m_isLowestLevelRegion;}
+  CRegion_iterator begin();
   
+  CRegion_iterator end();
+    
 private:
-
-  bool m_isLowestLevelRegion;
   
   std::vector< boost::shared_ptr<CRegion> > m_subregions;
   
@@ -88,55 +126,6 @@ private:
 };
 
 //////////////////////////////////////////////////////////////////////////////
-
-  // iterator class
-# include <boost/iterator/iterator_facade.hpp>
-  class Mesh_API CRegion_iterator
-  : public boost::iterator_facade<
-  CRegion_iterator
-  , CRegion
-  , boost::forward_traversal_tag
-  >
-  {
-  public:
-    CRegion_iterator()
-    : m_region(0), m_root(0)
-    {}
-
-    explicit CRegion_iterator(CRegion* p)
-    : m_region(p), m_root(p)
-    {
-    }
-
-    void fillVector(CRegion* p);
-
-    void increment();
-
-    void first();
-
-    bool isDone();
-
-    CRegion_iterator end();
-
-  private:
-
-    friend class boost::iterator_core_access;
-
-    bool equal(CRegion_iterator const& other) const
-    {
-      return this->m_region == other.m_region;
-    }
-
-    CRegion& dereference() const { return *m_region; }
-
-    CRegion* m_region;
-    CRegion* m_root;
-
-    std::vector<CRegion*> m_vec;
-    std::vector<CRegion*>::iterator m_it;
-  };
-
-  ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
 } // CF

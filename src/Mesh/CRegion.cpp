@@ -1,3 +1,5 @@
+#include <boost/foreach.hpp>
+
 #include "Mesh/CRegion.hpp"
 
 namespace CF {
@@ -8,8 +10,7 @@ using namespace Common;
 ////////////////////////////////////////////////////////////////////////////////
 
 CRegion::CRegion ( const CName& name  ) :
-  Component ( name ),
-  m_isLowestLevelRegion ( true )
+  Component ( name )
 {
 }
 
@@ -26,7 +27,6 @@ void CRegion::create_region( const CName& name )
   boost::shared_ptr<CRegion> new_region ( new CRegion(name) );
   m_subregions.push_back(new_region);
   add_component ( new_region );
-  m_isLowestLevelRegion = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -47,50 +47,56 @@ void CRegion::create_elementType( const CName& name )
   add_component ( m_elementType );
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-void CRegion_iterator::first() 
-{
-  m_vec.resize(0);
-  fillVector(m_root);
-  m_it = m_vec.begin();
-  increment();
-}
-
 //////////////////////////////////////////////////////////////////////////////
 
-bool CRegion_iterator::isDone()
-// returns true when the traversal is completed
-{
-  return m_region==NULL;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-CRegion_iterator CRegion_iterator::end()
-{
-  return CRegion_iterator();
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-void CRegion_iterator::fillVector(CRegion* p) {
-  m_vec.push_back(p);
-  const Uint nb_subregions = p->get_subregions().size();
-  for(Uint i = 0; i<nb_subregions; i++ )
-  { 
-    fillVector(p->get_subregions()[i].get());
+void CRegion::put_subregions(std::vector< boost::shared_ptr<CRegion> >& vec)
+{  
+  BOOST_FOREACH(boost::shared_ptr<CRegion> subregion, m_subregions)
+  {
+    vec.push_back(subregion);
+    subregion->put_subregions(vec);
   }
 }
+
+//////////////////////////////////////////////////////////////////////////////
+  
+CRegion_iterator::CRegion_iterator(std::vector<boost::shared_ptr<CRegion> >& vec, boost::shared_ptr<Component> parent) :  
+  m_vec(vec) , 
+  m_vecIt(m_vec.begin()), 
+  m_region(boost::dynamic_pointer_cast<CRegion>(parent)),
+  m_parent(parent)
+{
+  if(vec.size())
+    m_region = (*m_vecIt); 
+}    
+
+//////////////////////////////////////////////////////////////////////////////
+
+CRegion_iterator CRegion::begin()
+{
+  std::vector<boost::shared_ptr<CRegion> > vec;
+  put_subregions(vec);
+  return CRegion_iterator(vec, shared_from_this());
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+CRegion_iterator CRegion::end()
+{
+  std::vector<boost::shared_ptr<CRegion> > vec;
+  return CRegion_iterator(vec, shared_from_this());
+}
+
+//////////////////////////////////////////////////////////////////////////////
 
 void CRegion_iterator::increment() 
 { 
-  m_it++;
-  if (m_it != m_vec.end()) {
-    m_region = *m_it;
+  m_vecIt++;
+  if (m_vecIt != m_vec.end()) {
+    m_region = (*m_vecIt);
   }
   else {
-    m_region = NULL;
+    m_region = boost::dynamic_pointer_cast<CRegion>( m_parent );
   }
 } 
 
