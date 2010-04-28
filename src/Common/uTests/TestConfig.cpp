@@ -6,6 +6,7 @@
 
 
 #include "Common/CF.hpp"
+#include "Common/BasicExceptions.hpp"
 #include "Common/Log.hpp"
 
 using namespace std;
@@ -37,6 +38,7 @@ public:
   Option ( const std::string& name,
            const std::string& type,
            const std::string& desc ) :
+  m_value(CFNULL),
   m_name(name),
   m_type(type),
   m_description(desc)
@@ -46,7 +48,11 @@ public:
   std::string type() const { return m_name; }
   std::string description() const { return m_description; }
 
+  void link_to_value ( void *const value ) { m_value = value; }
+
 protected:
+
+  void * m_value;
 
   std::string m_name;
   std::string m_type;
@@ -97,7 +103,6 @@ private:
 
 public:
 
-
   template < typename TYPE >
       Option::Ptr addConfigOption(const std::string& name, const std::string& description, TYPE def )
   {
@@ -106,6 +111,17 @@ public:
     m_options.insert( std::make_pair(name, opt ) );
     return opt;
   }
+
+  Option::Ptr getOption( const std::string& optname)
+  {
+    OptionStorage_t::iterator itr = m_options.find(optname);
+    if ( itr != m_options.end() )
+      return itr->second;
+    else
+      throw ValueNotFound(FromHere(), "Option with name [" + optname + "] not found" );
+  }
+
+public:
 
   /// storage of options
   OptionStorage_t m_options;
@@ -129,7 +145,10 @@ public:
 
 protected:
 
-  //  Option::Ptr getOption() { m_options.get; }
+  Option::Ptr getOption( const std::string& optname )
+  {
+    return m_option_list.getOption(optname);
+  }
 
 private:
 
@@ -159,7 +178,11 @@ class MyC : public ConfigObject
   {
     addConfigOptionsTo(this);
 
+    getOption("OptBool")->link_to_value(&b);
+    getOption("OptInt")->link_to_value(&i);
+    getOption("OptStr")->link_to_value(&s);
 
+    //  getOption("OptStr")->attach_processor( boost::bind ( MyC::config_bool, this, _1 ) ); ?????????
 
   };
 
