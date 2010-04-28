@@ -60,9 +60,9 @@ private:
   /// Workaround for boost:assign ambiguity
   NodesT init_nodes()
   {
-    static const CF::RealVector c0 = list_of(0.5)(0.3);
-    static const CF::RealVector c1 = list_of(1.1)(1.2);
-    static const CF::RealVector c2 = list_of(0.8)(2.1);
+    static CF::RealVector c0 = list_of(0.5)(0.3);
+    static CF::RealVector c1 = list_of(1.1)(1.2);
+    static CF::RealVector c2 = list_of(0.8)(2.1);
     return list_of(&c0)(&c1)(&c2);
   }
 
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE( computeShapeFunction )
   TriagP1::computeShapeFunction(mapped_coords, result);
   CF::Tools::Difference::Accumulator accumulator;
   CF::Tools::Difference::vector_test(result, reference_result, accumulator);
-  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 10);
+  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 10); // Maximal difference can't be greater than 10 times the least representable unit
 }
 
 BOOST_AUTO_TEST_CASE( computeJacobianDeterminant )
