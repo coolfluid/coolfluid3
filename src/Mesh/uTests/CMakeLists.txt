@@ -8,10 +8,20 @@ LIST ( APPEND uTestMesh_files
 
 CF_ADD_UNITTEST ( uTestMesh )
 
-LIST ( APPEND uTestLagrangeSF_libs Common P1 )
-LIST ( APPEND uTestLagrangeSF_files
+################################################################################
+
+LIST ( APPEND uTestLagrangeSFTriagP1_libs Common P1 )
+LIST ( APPEND uTestLagrangeSFTriagP1_files
   uTestLagrangeSFTriagP1.cpp )
 
-CF_ADD_UNITTEST ( uTestLagrangeSF )
+CF_ADD_UNITTEST ( uTestLagrangeSFTriagP1 )
+
+################################################################################
+
+LIST ( APPEND uTestLagrangeSFQuadP1_libs Common P1 )
+LIST ( APPEND uTestLagrangeSFQuadP1_files
+  uTestLagrangeSFQuadP1.cpp )
+
+CF_ADD_UNITTEST ( uTestLagrangeSFQuadP1 )
 
 ################################################################################

@@ -1,15 +1,12 @@
-#ifndef CF_Mesh_LagrangeSF_P1_HH
-#define CF_Mesh_LagrangeSF_P1_HH
+#ifndef CF_Mesh_LagrangeSF_TriagP1_HH
+#define CF_Mesh_LagrangeSF_TriagP1_HH
 
 #include "Common/AssertionManager.hpp"
-#include "Math/RealVector.hpp"
+#include "Mesh/LagrangeSF/LagrangeSF.hpp"
 
 namespace CF {
 namespace Mesh {
 namespace LagrangeSF {
-
-/// Storage for element nodes
-typedef std::vector<RealVector*> NodesT;
 
 /// This class provides the lagrangian shape function describing the
 /// representation of the solution and/or the geometry in a P1 (linear)
@@ -33,9 +30,11 @@ static void computeShapeFunction(const RealVector& mappedCoord, RealVector& shap
   shapeFunc[2] = mappedCoord[1];
 }
 
+/// Compute the jacobian determinant at the given
+/// mapped coordinates
 inline static Real computeJacobianDeterminant(const RealVector& mappedCoord, const NodesT& nodes) {
-  return   (nodes[1]->at(XX) - nodes[0]->at(XX)) * (nodes[2]->at(YY) - nodes[0]->at(YY))
-         - (nodes[2]->at(XX) - nodes[0]->at(XX)) * (nodes[1]->at(YY) - nodes[0]->at(YY));
+  return   (nodes[1][XX] - nodes[0][XX]) * (nodes[2][YY] - nodes[0][YY])
+         - (nodes[2][XX] - nodes[0][XX]) * (nodes[1][YY] - nodes[0][YY]);
 }
 
 /// Compute Mapped Coordinates
@@ -46,6 +45,9 @@ static void computeMappedCoordinates(const RealVector& coord, const NodesT& node
   cf_assert(coord.size() == 2);
   cf_assert(mappedCoord.size() == 2);
   cf_assert(nodes.size() == 3);
+  const Real invDet = 1. / computeJacobianDeterminant(mappedCoord, nodes);
+  mappedCoord[KSI] = invDet * ((nodes[2][YY] - nodes[0][YY])*coord[XX] + (nodes[0][XX] - nodes[2][XX])*coord[YY] - nodes[0][XX]*nodes[2][YY] + nodes[2][XX]*nodes[0][YY]);
+  mappedCoord[ETA] = invDet * ((nodes[0][YY] - nodes[1][YY])*coord[XX] + (nodes[1][XX] - nodes[0][XX])*coord[YY] + nodes[0][XX]*nodes[1][YY] - nodes[1][XX]*nodes[0][YY]);
 }
 
 
@@ -63,4 +65,4 @@ TriagP1() {}
 } // namespace Mesh
 } // namespace CF
 
-#endif /* CF_Mesh_LagrangeSF_P1 */
+#endif /* CF_Mesh_LagrangeSF_TriagP1 */

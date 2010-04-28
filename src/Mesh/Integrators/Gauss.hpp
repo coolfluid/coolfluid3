@@ -4,6 +4,7 @@
 #include <boost/assign/list_of.hpp>
 
 #include "Common/AssertionManager.hpp"
+#include "Mesh/LagrangeSF/QuadP1.hpp"
 #include "Mesh/LagrangeSF/TriagP1.hpp"
 #include "Math/RealVector.hpp"
 
@@ -36,6 +37,20 @@ public:
   {
     static const double mu = 0.3333333333333333333333333;
     static const double w = 0.5;
+    static const RealVector mapped_coords = boost::assign::list_of(mu)(mu);
+    Result = w * functor(mapped_coords);
+  }
+};
+
+template<>
+class Gauss<QuadP1, QuadP1, 1>
+{
+public:
+  template<typename FunctorT, typename ResultT>
+  static void integrate(FunctorT& functor, ResultT& Result)
+  {
+    static const double mu = 0.;
+    static const double w = 4.;
     static const RealVector mapped_coords = boost::assign::list_of(mu)(mu);
     Result = w * functor(mapped_coords);
   }
