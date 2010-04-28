@@ -28,13 +28,16 @@ IF(UNIX)
     if ( CF_ENABLE_WARNINGS )
       # use many warnings
       CF_ADD_CXX_FLAGS("-Wall")
-      # Explicitely add only supported warnings, to support older gcc (breaks on -Wno-empty-body)
-      CF_ADD_CXX_FLAGS("-Wsign-compare")
+      CF_ADD_CXX_FLAGS("-W")
+      CF_ADD_CXX_FLAGS("-Wextra")
       CF_ADD_CXX_FLAGS("-Woverloaded-virtual")
       CF_ADD_CXX_FLAGS("-Wsign-promo")
       CF_ADD_CXX_FLAGS("-Wformat")
       # Warn if an undefined identifier is evaluated in an #if directive.
       CF_ADD_CXX_FLAGS("-Wundef" )
+      # accept functions that dont use all parameters, due to virtual functions may not need all
+      CF_ADD_CXX_FLAGS("-Wno-unused-parameter")
+      CF_ADD_CXX_FLAGS("-Wno-missing-field-initializers")
 
       # this is temporary until we all move to using openmpi
       # must turn off non-virtual-dtor because many mpi implementations use it
@@ -44,7 +47,9 @@ IF(UNIX)
       CF_ADD_CXX_FLAGS("-Wno-long-long")
       # be pedantic but issue warnings instead of errors
       # CF_ADD_CXX_FLAGS("-pedantic") # Disabled for now, see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=33305
-      CF_ADD_CXX_FLAGS("-fpermissive") 
+      CF_ADD_CXX_FLAGS("-fpermissive")
+      CF_ADD_CXX_FLAGS("-Wno-empty-body") # Problem in boost
+      CF_ADD_CXX_FLAGS("-Wno-uninitialized") # Problem with boost accumulators 
 
       # could add even these
       #-Wcast-align -Wchar-subscripts -Wpointer-arith -Wformat-security
