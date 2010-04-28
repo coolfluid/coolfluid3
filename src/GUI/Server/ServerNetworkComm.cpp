@@ -544,7 +544,7 @@ void ServerNetworkComm::newData()
   QTcpSocket * socket = qobject_cast<QTcpSocket *>(sender());
   BuilderParserFrameInfo fi;
 
-  int clientId;
+  // unused // int clientId;
 
   QString frame;
   QDataStream in(socket);
