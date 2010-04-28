@@ -59,7 +59,7 @@ void CRegion::put_subregions(std::vector< boost::shared_ptr<CRegion> >& vec)
 }
 
 //////////////////////////////////////////////////////////////////////////////
-  
+
 CRegion::iterator::iterator(std::vector<boost::shared_ptr<CRegion> >& vec, boost::shared_ptr<Component> parent) :  
   m_vec(vec) , 
   m_vecIt(m_vec.begin()), 
@@ -68,7 +68,7 @@ CRegion::iterator::iterator(std::vector<boost::shared_ptr<CRegion> >& vec, boost
 {
   if(vec.size())
     m_region = (*m_vecIt); 
-}    
+}
 
 //////////////////////////////////////////////////////////////////////////////
 
