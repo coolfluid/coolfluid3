@@ -97,9 +97,9 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
   region2->get_component<CRegion>("subregion1")->create_region("subsubregion1");
   region2->get_component<CRegion>("subregion1")->create_region("subsubregion2");
 
-  CRegion_iterator it = region2->begin();
+  CRegion::iterator it = region2->begin();
   for ( ; it != region2->end() ; ++it) {
-    CFinfo << "path = " << it->full_path().string() << " \n" << CFendl;
+    //CFinfo << "path = " << it->full_path().string() << " \n" << CFendl;
   }
   
 }

@@ -60,7 +60,7 @@ void CRegion::put_subregions(std::vector< boost::shared_ptr<CRegion> >& vec)
 
 //////////////////////////////////////////////////////////////////////////////
   
-CRegion_iterator::CRegion_iterator(std::vector<boost::shared_ptr<CRegion> >& vec, boost::shared_ptr<Component> parent) :  
+CRegion::iterator::iterator(std::vector<boost::shared_ptr<CRegion> >& vec, boost::shared_ptr<Component> parent) :  
   m_vec(vec) , 
   m_vecIt(m_vec.begin()), 
   m_region(boost::dynamic_pointer_cast<CRegion>(parent)),
@@ -72,24 +72,24 @@ CRegion_iterator::CRegion_iterator(std::vector<boost::shared_ptr<CRegion> >& vec
 
 //////////////////////////////////////////////////////////////////////////////
 
-CRegion_iterator CRegion::begin()
+CRegion::iterator CRegion::begin()
 {
   std::vector<boost::shared_ptr<CRegion> > vec;
   put_subregions(vec);
-  return CRegion_iterator(vec, shared_from_this());
+  return iterator(vec, shared_from_this());
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-CRegion_iterator CRegion::end()
+CRegion::iterator CRegion::end()
 {
   std::vector<boost::shared_ptr<CRegion> > vec;
-  return CRegion_iterator(vec, shared_from_this());
+  return iterator(vec, shared_from_this());
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CRegion_iterator::increment() 
+void CRegion::iterator::increment() 
 { 
   m_vecIt++;
   if (m_vecIt != m_vec.end()) {
