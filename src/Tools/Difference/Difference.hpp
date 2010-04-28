@@ -33,14 +33,12 @@
 
 #include "Common/CF.hpp"
 
-namespace CF
-{
-
-namespace difference
-{
+namespace CF {
+namespace Tools {
+namespace Difference {
 
 /// Stores the results of the difference::test() function.
-class accumulator
+class Accumulator
 {
 public:
   /// Stores statistics for comparisons of exact (string and integer) types, including the number of tests, and the min and max test values.
@@ -52,9 +50,9 @@ public:
 /// Function that tests the difference between two objects, returning separate results for exact (integer and string) and inexact (floating-point) types.
 /// See "Comparing floating point numbers" by Bruce Dawson at http://www.cygnus-software.com/papers/comparingfloats/comparingfloats.htm
 template<typename T>
-const accumulator test(const T& A, const T& B)
+const Accumulator test(const T& A, const T& B)
 {
-  accumulator result;
+  Accumulator result;
   test(A, B, result);
   return result;
 };
@@ -62,38 +60,38 @@ const accumulator test(const T& A, const T& B)
 /// Function that tests the difference between two objects, returning separate results for exact (integer and string) and inexact (floating-point) types.
 /// See "Comparing floating point numbers" by Bruce Dawson at http://www.cygnus-software.com/papers/comparingfloats/comparingfloats.htm
 template<typename T>
-void test(const T& A, const T& B, accumulator& Result)
+void test(const T& A, const T& B, Accumulator& Result)
 {
   // This will be triggered if this template is ever instantiated
   BOOST_STATIC_ASSERT(sizeof(T) == 0);
 };
 
 /// Specialization of test() that tests bool
-inline void test(const bool& A, const bool& B, accumulator& Result)
+inline void test(const bool& A, const bool& B, Accumulator& Result)
 {
   Result.exact(A == B);
 };
 
 /// Specialization of test that tests int
-inline void test(const int& A, const int& B, accumulator& Result)
+inline void test(const int& A, const int& B, Accumulator& Result)
 {
   Result.exact(A == B);
 };
 
 /// Specialization of test that tests char
-inline void test(const char& A, const char& B, accumulator& Result)
+inline void test(const char& A, const char& B, Accumulator& Result)
 {
   Result.exact(A == B);
 };
 
 /// Specialization of test that tests Uint
-inline void test(const Uint& A, const Uint& B, accumulator& Result)
+inline void test(const Uint& A, const Uint& B, Accumulator& Result)
 {
   Result.exact(A == B);
 };
 
 /// Specialization of test that tests Real
-inline void test(const Real& A, const Real& B, accumulator& Result)
+inline void test(const Real& A, const Real& B, Accumulator& Result)
 {
   Result.ulps(std::fabs(boost::math::float_distance(A, B)));
 };
@@ -101,7 +99,7 @@ inline void test(const Real& A, const Real& B, accumulator& Result)
 /// Given iterators designating two sequences, calls the test() function for each pair of values,
 /// and confirms that both sequences are the same length.
 template<typename IteratorT>
-void range_test(IteratorT A, IteratorT LastA, IteratorT B, IteratorT LastB, accumulator& Result)
+void range_test(IteratorT A, IteratorT LastA, IteratorT B, IteratorT LastB, Accumulator& Result)
 {
   for(; A != LastA && B != LastB; ++A, ++B)
     test(*A, *B, Result);
@@ -111,7 +109,7 @@ void range_test(IteratorT A, IteratorT LastA, IteratorT B, IteratorT LastB, accu
 
 /// Compares vector-like sequences
 template<typename VectorT>
-void vector_test(const VectorT& A, const VectorT& B, accumulator& Result)
+void vector_test(const VectorT& A, const VectorT& B, Accumulator& Result)
 {
   const Uint sizeA = A.size();
   const Uint sizeB = B.size();
@@ -121,8 +119,8 @@ void vector_test(const VectorT& A, const VectorT& B, accumulator& Result)
   Result.exact(sizeA == sizeB);
 };
 
-} // namespace difference
-
+} // namespace Difference
+} // namespace Tools
 } // namespace CF
 
 #endif // !CF_Mesh_uTests_difference_HH
