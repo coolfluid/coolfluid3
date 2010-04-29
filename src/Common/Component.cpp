@@ -32,9 +32,9 @@ Component::~Component()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::SafePtr<Component> Component::get ()
+Component::Ptr Component::get ()
 {
-  return this;
+  return shared_from_this();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -62,7 +62,7 @@ void Component::rename ( const CName& name )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Component::add_component ( boost::shared_ptr<Component> subcomp )
+void Component::add_component ( Component::Ptr subcomp )
 {
   // check that no other component with such name exists
   if (m_components.find(subcomp->name()) != m_components.end() )
@@ -78,9 +78,9 @@ void Component::add_component ( boost::shared_ptr<Component> subcomp )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SafePtr<Component> Component::get_component ( const CName& name )
+Component::Ptr Component::get_component ( const CName& name )
 {
-  return m_components[name].get();
+  return m_components[name];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -153,7 +153,7 @@ void Component::complete_path ( CPath& path )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Component::change_parent (boost::shared_ptr<Component> new_parent)
+void Component::change_parent ( Component::Ptr new_parent)
 {
 	if( new_parent ) // valid ?
 	{
@@ -178,7 +178,7 @@ void Component::change_parent (boost::shared_ptr<Component> new_parent)
   }
 }
 
-boost::shared_ptr<Component> Component::look_component ( const CPath& path )
+Component::Ptr Component::look_component ( const CPath& path )
 {
   cf_assert ( ! m_root.expired() );
 

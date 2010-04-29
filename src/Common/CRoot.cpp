@@ -1,4 +1,5 @@
 #include "Common/CRoot.hpp"
+#include "Common/BasicExceptions.hpp"
 
 namespace CF {
 namespace Common {
@@ -10,6 +11,9 @@ namespace Common {
     boost::shared_ptr<CRoot> root ( new CRoot(name) );
     root->m_root = root;
     root->m_parent = root;
+
+    root->m_toc[root->full_path().string()] = root; // put himself in the database
+
     return root;
   }
 
@@ -26,8 +30,8 @@ namespace Common {
   {
     cf_assert ( path.is_complete() );
 
-    CompStorage_t::iterator itr = m_component_storage.find(path.string());
-    if ( itr != m_component_storage.end() )
+    CompStorage_t::iterator itr = m_toc.find(path.string());
+    if ( itr != m_toc.end() )
       return itr->second;
     else
       throw InvalidPath(FromHere(), "No component exists with path [" + path.string() + "]");
@@ -38,16 +42,16 @@ namespace Common {
     cf_assert ( path.is_complete() );
 
     // remove the current path of the component, if exists
-    CompStorage_t::iterator old = m_component_storage.find( comp->full_path().string() );
-    if ( old != m_component_storage.end() )
-      m_component_storage.erase(old);
+    CompStorage_t::iterator old = m_toc.find( comp->full_path().string() );
+    if ( old != m_toc.end() )
+      m_toc.erase(old);
 
     // set the new path
-    CompStorage_t::iterator itr = m_component_storage.find(path.string());
-    if ( itr != m_component_storage.end() )
+    CompStorage_t::iterator itr = m_toc.find(path.string());
+    if ( itr != m_toc.end() )
       throw ValueExists(FromHere(), "A component exists with path [" + path.string() + "]");
 
-    m_component_storage[path.string()] = comp;
+    m_toc[path.string()] = comp;
   }
 
  ////////////////////////////////////////////////////////////////////////////////

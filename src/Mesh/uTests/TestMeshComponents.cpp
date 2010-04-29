@@ -70,18 +70,18 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
   boost::shared_ptr<CMesh> p_mesh = boost::dynamic_pointer_cast<CMesh>(mesh);
 
   p_mesh->create_region("region1");
-  SafePtr<CRegion> region1 = p_mesh->get_component<CRegion>("region1");
+  boost::shared_ptr<CRegion> region1 = p_mesh->get_component<CRegion>("region1");
   BOOST_CHECK_EQUAL ( region1->full_path().string() , "//root/mesh/region1" );
 
   // Create second region inside mesh, with 2 subregions inside
   p_mesh->create_region("region2");
-  SafePtr<CRegion> region2 = p_mesh->get_component<CRegion>("region2");
+  boost::shared_ptr<CRegion> region2 = p_mesh->get_component<CRegion>("region2");
   region2->create_region("subregion1");
   region2->create_region("subregion2");
   BOOST_CHECK_EQUAL ( region2->get_component("subregion2")->full_path().string() , "//root/mesh/region2/subregion2" );
 
   // Create a connectivity table inside a subregion
-  SafePtr<CRegion> subregion = region2->get_component<CRegion>("subregion2");
+  boost::shared_ptr<CRegion> subregion = region2->get_component<CRegion>("subregion2");
   subregion->create_connectivityTable("connTable");
   BOOST_CHECK_EQUAL ( subregion->get_component("connTable")->full_path().string() , "//root/mesh/region2/subregion2/connTable" );
   
@@ -121,11 +121,11 @@ BOOST_AUTO_TEST_CASE( CTableTest )
   boost::shared_ptr<CMesh> p_mesh = boost::dynamic_pointer_cast<CMesh>(mesh);
 
   p_mesh->create_region("region");
-  SafePtr<CRegion> region = p_mesh->get_component<CRegion>("region");
+  boost::shared_ptr<CRegion> region = p_mesh->get_component<CRegion>("region");
 
   // Create connectivity table inside the region
   region->create_connectivityTable("connTable");
-  SafePtr<CTable> connTable = region->get_component<CTable>("connTable");
+  boost::shared_ptr<CTable> connTable = region->get_component<CTable>("connTable");
   
   // check constructor
   BOOST_CHECK_EQUAL(connTable->get_table().size(),(Uint) 0);

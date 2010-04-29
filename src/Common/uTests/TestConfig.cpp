@@ -5,6 +5,7 @@
 #include <boost/function.hpp>
 
 #include <boost/function.hpp>
+#include <boost/any.hpp>
 
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -36,8 +37,10 @@ public:
 
   Option ( const std::string& name,
            const std::string& type,
-           const std::string& desc ) :
-  m_value(CFNULL),
+           const std::string& desc,
+           boost::any def) :
+  m_value(def),
+  m_default(def),
   m_name(name),
   m_type(type),
   m_description(desc)
@@ -47,20 +50,16 @@ public:
   std::string type() const { return m_name; }
   std::string description() const { return m_description; }
 
-  void link_to_value ( void *const value ) { m_value = value; }
   void attach_processor ( boost::function< void()> proc ) { m_processors.push_back(proc); }
-
-  virtual void set_value (const std::string& value) = 0;
 
 protected:
 
-  void * m_value;
+  boost::any m_value;
+  const boost::any m_default;
 
   std::string m_name;
   std::string m_type;
   std::string m_description;
-
-  //  std::vector<OptionValidation> m_vals;
 
   std::vector< boost::function< void()> > m_processors;
 };
@@ -72,27 +71,18 @@ class OptionT : public Option
 {
 public:
 
+  typedef TYPE value_type;
+
   OptionT ( const std::string& name, const std::string& desc, TYPE def ) :
-      Option(name,DEMANGLED_TYPEID(TYPE), desc),
-      m_default(def)
+      Option(name,DEMANGLED_TYPEID(TYPE), desc, def)
   {
     CFinfo
         << " creating option ["
         << m_name << "] of type ["
         << m_type << "] w default ["
-        << m_default << "] desc ["
+        << def << "] desc ["
         << m_description << "]\n" << CFendl;
   }
-
-  virtual void set_value (const std::string& value_str )
-  {
-    TYPE * value = static_cast<TYPE*>(m_value);
-    *value = Common::StringOps::from_str < TYPE > ( value_str );
-  }
-
-private:
-
-  TYPE m_default;
 
 };
 
@@ -106,11 +96,11 @@ private:
 
 public:
 
-  template < typename TYPE >
-  Option::Ptr addConfigOption(const std::string& name, const std::string& description, TYPE def )
+  template < typename OPTION_TYPE >
+      Option::Ptr add (const std::string& name, const std::string& description, typename OPTION_TYPE::value_type def )
   {
     cf_assert_desc ( "Class has already option with same name", m_options.find(name) == m_options.end() );
-    Option::Ptr opt ( new OptionT<TYPE>(name, description, def ) );
+    Option::Ptr opt ( new OPTION_TYPE(name, description, def ) );
     m_options.insert( std::make_pair(name, opt ) );
     return opt;
   }
@@ -148,7 +138,7 @@ public:
 
 protected:
 
-  Option::Ptr getOption( const std::string& optname )
+  Option::Ptr option( const std::string& optname )
   {
     return m_option_list.getOption(optname);
   }
@@ -170,13 +160,9 @@ class MyC : public ConfigObject
   {
     addConfigOptionsTo(this);
 
-    getOption("OptBool")->link_to_value(&b);
-    getOption("OptInt")->link_to_value(&i);
-    getOption("OptStr")->link_to_value(&s);
-
-    getOption("OptBool")->attach_processor( boost::bind ( &MyC::config_bool, this ) );
-    getOption("OptInt")->attach_processor ( boost::bind ( &MyC::config_int,  this ) );
-    getOption("OptStr")->attach_processor ( boost::bind ( &MyC::config_str,  this ) );
+    option("OptBool")->attach_processor( boost::bind ( &MyC::config_bool, this ) );
+    option("OptInt")->attach_processor ( boost::bind ( &MyC::config_int,  this ) );
+    option("OptStr")->attach_processor ( boost::bind ( &MyC::config_str,  this ) );
 
   };
 
@@ -198,9 +184,9 @@ class MyC : public ConfigObject
 
   static void defineConfigOptions ( OptionList& options )
   {
-    options.addConfigOption< bool >         ( "OptBool", "bool option"   , false  );
-    options.addConfigOption< Uint >         ( "OptInt",  "int option"    , 10     );
-    options.addConfigOption< std::string >  ( "OptStr",  "string option" , "LOLO" );
+    options.add< OptionT<bool> >         ( "OptBool", "bool option"   , false  );
+    options.add< OptionT<Uint> >         ( "OptInt",  "int option"    , 10     );
+    options.add< OptionT<std::string> >  ( "OptStr",  "string option" , "LOLO" );
   }
 
 private:

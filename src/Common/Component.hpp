@@ -6,7 +6,6 @@
 #include <boost/weak_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
-#include "Common/SafePtr.hpp"
 #include "Common/DynamicObject.hpp"
 #include "Common/CPath.hpp"
 
@@ -28,6 +27,9 @@ namespace Common {
 
   public:
 
+    /// typedef of pointers to components
+    typedef boost::shared_ptr<Component> Ptr;
+
     /// type for names of components
     typedef std::string CName;
 
@@ -42,7 +44,7 @@ namespace Common {
     virtual ~Component();
 
     /// Get the componment throught the links to the actual components
-    virtual Common::SafePtr<Component>  get ();
+    virtual Component::Ptr  get ();
 
     /// checks if this component is in fact a link to another component
     bool is_link () const { return m_is_link; }
@@ -67,16 +69,16 @@ namespace Common {
 
     /// Get a (sub)component of this component
     /// @param name the component
-    SafePtr<Component> get_component ( const CName& name );
+    Component::Ptr get_component ( const CName& name );
 
     /// Get a (sub)component of this component automatically cast to the specified type
     /// @param name the component
     template < typename TYPE >
-        SafePtr<TYPE> get_component ( const CName& name );
+        boost::shared_ptr<TYPE> get_component ( const CName& name );
 
     /// Looks for a component via its path
     /// @param path to the component
-    boost::shared_ptr<Component> look_component ( const CPath& path );
+    Component::Ptr look_component ( const CPath& path );
 
     /// Resolves relative elements within a path to complete it.
     /// The path may be relative to this component or absolute.
@@ -95,7 +97,7 @@ namespace Common {
   private:
 
     /// type for storing the sub components
-    typedef std::map < CName , boost::shared_ptr<Component> > CompStorage_t;
+    typedef std::map < CName , Component::Ptr > CompStorage_t;
 
   protected:
 
@@ -117,9 +119,9 @@ namespace Common {
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename TYPE >
-inline SafePtr<TYPE> Component::get_component ( const CName& name )
+inline boost::shared_ptr<TYPE> Component::get_component ( const CName& name )
 {
-  return this->get_component(name).d_castTo<TYPE>();
+  return boost::dynamic_pointer_cast<TYPE>( shared_from_this() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

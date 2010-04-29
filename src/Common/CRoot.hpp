@@ -45,7 +45,7 @@ namespace Common {
   private: // data
 
     /// map the paths to each component
-    CompStorage_t  m_component_storage;
+    CompStorage_t  m_toc;
 
   };
 
