@@ -1,5 +1,5 @@
-#ifndef CF_Common_FactoryBase_hh
-#define CF_Common_FactoryBase_hh
+#ifndef CF_Common_FactoryBase_hpp
+#define CF_Common_FactoryBase_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -41,4 +41,4 @@ public: // methods
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_FactoryBase_hh
+#endif // CF_Common_FactoryBase_hpp

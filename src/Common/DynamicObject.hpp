@@ -1,5 +1,5 @@
-#ifndef CF_Common_DynamicObject_hh
-#define CF_Common_DynamicObject_hh
+#ifndef CF_Common_DynamicObject_hpp
+#define CF_Common_DynamicObject_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -117,4 +117,4 @@ class Common_API DynamicObject
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_DynamicObject_hh
+#endif // CF_Common_DynamicObject_hpp

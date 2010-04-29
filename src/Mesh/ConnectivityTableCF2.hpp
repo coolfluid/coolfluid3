@@ -1,5 +1,5 @@
-#ifndef CF_Common_ConnectivityTableCF2_hh
-#define CF_Common_ConnectivityTableCF2_hh
+#ifndef CF_Common_ConnectivityTableCF2_hpp
+#define CF_Common_ConnectivityTableCF2_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -289,4 +289,4 @@ const T ConnectivityTableCF2<T>::NOVALUE = std::numeric_limits<T>::max();
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_ConnectivityTableCF2_hh
+#endif // CF_Common_ConnectivityTableCF2_hpp

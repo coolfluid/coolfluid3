@@ -1,5 +1,5 @@
-#ifndef CF_Common_PosixDlopenLibLoader_hh
-#define CF_Common_PosixDlopenLibLoader_hh
+#ifndef CF_Common_PosixDlopenLibLoader_hpp
+#define CF_Common_PosixDlopenLibLoader_hpp
 
 #include "Common/LibLoader.hpp"
 
@@ -46,4 +46,4 @@ public: // functions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_PosixDlopenLibLoader_hh
+#endif // CF_Common_PosixDlopenLibLoader_hpp

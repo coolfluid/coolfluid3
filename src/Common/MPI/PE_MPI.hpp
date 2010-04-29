@@ -1,5 +1,5 @@
-#ifndef CF_Common_MPI_PE_MPI_HH
-#define CF_Common_MPI_PE_MPI_HH
+#ifndef CF_Common_MPI_PE_MPI_hpp
+#define CF_Common_MPI_PE_MPI_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -109,4 +109,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_MPI_PE_MPI_HH
+#endif // CF_Common_MPI_PE_MPI_hpp

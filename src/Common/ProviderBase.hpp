@@ -1,5 +1,5 @@
-#ifndef COOFluiD_Common_ProviderBase_hh
-#define COOFluiD_Common_ProviderBase_hh
+#ifndef COOFluiD_Common_ProviderBase_hpp
+#define COOFluiD_Common_ProviderBase_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -43,4 +43,4 @@ public: // methods
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // COOFluiD_Common_ProviderBase_hh
+#endif // COOFluiD_Common_ProviderBase_hpp

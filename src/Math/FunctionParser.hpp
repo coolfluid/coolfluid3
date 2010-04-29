@@ -1,5 +1,5 @@
-#ifndef CF_Math_FunctionParser_hh
-#define CF_Math_FunctionParser_hh
+#ifndef CF_Math_FunctionParser_hpp
+#define CF_Math_FunctionParser_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -143,4 +143,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Math_FunctionParser_hh
+#endif // CF_Math_FunctionParser_hpp

@@ -1,5 +1,5 @@
-#ifndef CF_Math_IntersectSolver_hh
-#define CF_Math_IntersectSolver_hh
+#ifndef CF_Math_IntersectSolver_hpp
+#define CF_Math_IntersectSolver_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -42,4 +42,4 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Math_IntersectSolver_hh
+#endif // CF_Math_IntersectSolver_hpp

@@ -1,5 +1,5 @@
-#ifndef CF_Common_Provider_hh
-#define CF_Common_Provider_hh
+#ifndef CF_Common_Provider_hpp
+#define CF_Common_Provider_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -54,4 +54,4 @@ public: // methods
 } // namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////
-#endif // CF_Common_Provider_hh
+#endif // CF_Common_Provider_hpp

@@ -1,5 +1,5 @@
-#ifndef CF_Common_ConfigArgs_hh
-#define CF_Common_ConfigArgs_hh
+#ifndef CF_Common_ConfigArgs_hpp
+#define CF_Common_ConfigArgs_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -61,4 +61,4 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_ConfigArgs_hh
+#endif // CF_Common_ConfigArgs_hpp

@@ -1,5 +1,5 @@
-#ifndef CF_Common_ConcreteProvider_hh
-#define CF_Common_ConcreteProvider_hh
+#ifndef CF_Common_ConcreteProvider_hpp
+#define CF_Common_ConcreteProvider_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -96,4 +96,4 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_ConcreteProvider_hh
+#endif // CF_Common_ConcreteProvider_hpp

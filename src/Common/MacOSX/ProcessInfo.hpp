@@ -1,5 +1,5 @@
-#ifndef CF_Common_MacOSX_ProcessInfo_hh
-#define CF_Common_MacOSX_ProcessInfo_hh
+#ifndef CF_Common_MacOSX_ProcessInfo_hpp
+#define CF_Common_MacOSX_ProcessInfo_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -53,4 +53,4 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_MacOSX_ProcessInfo_hh
+#endif // CF_Common_MacOSX_ProcessInfo_hpp

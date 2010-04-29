@@ -1,5 +1,5 @@
-#ifndef CF_Common_ModuleRegisterBase_hh
-#define CF_Common_ModuleRegisterBase_hh
+#ifndef CF_Common_ModuleRegisterBase_hpp
+#define CF_Common_ModuleRegisterBase_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -86,4 +86,4 @@ protected: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_ModuleRegisterBase_hh
+#endif // CF_Common_ModuleRegisterBase_hpp

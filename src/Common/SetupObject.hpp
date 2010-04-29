@@ -1,5 +1,5 @@
-#ifndef CF_Common_SetupObject_hh
-#define CF_Common_SetupObject_hh
+#ifndef CF_Common_SetupObject_hpp
+#define CF_Common_SetupObject_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -48,4 +48,4 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_SetupObject_hh
+#endif // CF_Common_SetupObject_hpp

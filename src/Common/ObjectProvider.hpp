@@ -1,5 +1,5 @@
-#ifndef CF_Common_ObjectProvider_hh
-#define CF_Common_ObjectProvider_hh
+#ifndef CF_Common_ObjectProvider_hpp
+#define CF_Common_ObjectProvider_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -140,4 +140,4 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_ObjectProvider_hh
+#endif // CF_Common_ObjectProvider_hpp

@@ -1,5 +1,5 @@
-#ifndef CF_Mesh_LagrangeSF_TriagP1_HH
-#define CF_Mesh_LagrangeSF_TriagP1_HH
+#ifndef CF_Mesh_LagrangeSF_TriagP1_hpp
+#define CF_Mesh_LagrangeSF_TriagP1_hpp
 
 #include "Common/AssertionManager.hpp"
 #include "Mesh/LagrangeSF/LagrangeSF.hpp"

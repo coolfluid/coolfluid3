@@ -1,5 +1,5 @@
-#ifndef CF_Mesh_ElementType_hh
-#define CF_Mesh_ElementType_hh
+#ifndef CF_Mesh_ElementType_hpp
+#define CF_Mesh_ElementType_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -103,4 +103,4 @@ protected: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_ElementType_hh
+#endif // CF_Mesh_ElementType_hpp

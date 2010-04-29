@@ -1,5 +1,5 @@
-#ifndef CF_Common_BuilderParserRules_hh
-#define CF_Common_BuilderParserRules_hh
+#ifndef CF_Common_BuilderParserRules_hpp
+#define CF_Common_BuilderParserRules_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -251,4 +251,4 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_BuilderParserRules_hh
+#endif // CF_Common_BuilderParserRules_hpp

@@ -1,5 +1,5 @@
-#ifndef CF_Mesh_LagrangeSF_LagrangeSF_HH
-#define CF_Mesh_LagrangeSF_LagrangeSF_HH
+#ifndef CF_Mesh_LagrangeSF_LagrangeSF_hpp
+#define CF_Mesh_LagrangeSF_LagrangeSF_hpp
 
 #include "Math/RealVector.hpp"
 

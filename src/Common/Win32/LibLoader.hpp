@@ -1,5 +1,5 @@
-#ifndef Win32LibLoader_hh
-#define Win32LibLoader_hh
+#ifndef Win32LibLoader_hpp
+#define Win32LibLoader_hpp
 
 #include "Common/LibLoader.hpp"
 

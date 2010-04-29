@@ -1,5 +1,5 @@
-#ifndef CF_Common_CoreVars_hh
-#define CF_Common_CoreVars_hh
+#ifndef CF_Common_CoreVars_hpp
+#define CF_Common_CoreVars_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -58,4 +58,4 @@ class Common_API CoreVars : public Common::NonCopyable<CoreVars>
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_CoreVars_hh
+#endif // CF_Common_CoreVars_hpp

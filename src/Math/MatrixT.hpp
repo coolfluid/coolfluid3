@@ -1,5 +1,5 @@
-#ifndef CF_Math_MatrixT_hh
-#define CF_Math_MatrixT_hh
+#ifndef CF_Math_MatrixT_hpp
+#define CF_Math_MatrixT_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -1129,4 +1129,4 @@ inline T MatrixT<T>::emin () const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Math_MatrixT_hh
+#endif // CF_Math_MatrixT_hpp

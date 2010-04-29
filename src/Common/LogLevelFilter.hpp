@@ -1,5 +1,5 @@
-#ifndef CF_Common_LogLevelFilter_hh
-#define CF_Common_LogLevelFilter_hh
+#ifndef CF_Common_LogLevelFilter_hpp
+#define CF_Common_LogLevelFilter_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -107,4 +107,4 @@ class Common_API LogLevelFilter
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_LogLevelFilter_hh
+#endif // CF_Common_LogLevelFilter_hpp

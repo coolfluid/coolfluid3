@@ -1,5 +1,5 @@
-#ifndef CF_Common_HourMinSec_hh
-#define CF_Common_HourMinSec_hh
+#ifndef CF_Common_HourMinSec_hpp
+#define CF_Common_HourMinSec_hpp
 
 #include "CF.hpp"
 #include "CommonAPI.hpp"
@@ -60,5 +60,5 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_HourMinSec_hh
+#endif // CF_Common_HourMinSec_hpp
 

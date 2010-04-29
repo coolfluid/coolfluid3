@@ -1,5 +1,5 @@
-#ifndef CF_Common_ModuleRegister_hh
-#define CF_Common_ModuleRegister_hh
+#ifndef CF_Common_ModuleRegister_hpp
+#define CF_Common_ModuleRegister_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -77,4 +77,4 @@ std::string ModuleRegister<MODULE>::getDescription() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_ModuleRegister_hh
+#endif // CF_Common_ModuleRegister_hpp

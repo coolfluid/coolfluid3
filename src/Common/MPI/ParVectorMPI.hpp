@@ -28,8 +28,8 @@
 /// @todo make assert inline function that checks and throws if neccesairy
 
 
-#ifndef PAR_VECTOR_IMP_HH
-#define PAR_VECTOR_IMP_HH
+#ifndef PAR_VECTOR_IMP_hpp
+#define PAR_VECTOR_IMP_hpp
 
 #include <mpi.h>
 #include <set>

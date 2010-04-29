@@ -1,5 +1,5 @@
-#ifndef CF_Common_ManagerWorkerProtocol_hh
-#define CF_Common_ManagerWorkerProtocol_hh
+#ifndef CF_Common_ManagerWorkerProtocol_hpp
+#define CF_Common_ManagerWorkerProtocol_hpp
 
 #include "Common/BuilderParserRules.hpp"
 #include "Common/CommonAPI.hpp"
@@ -28,4 +28,4 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_ManagerWorkerProtocol_hh
+#endif // CF_Common_ManagerWorkerProtocol_hpp

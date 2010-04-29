@@ -1,5 +1,5 @@
-#ifndef CF_Common_CodeLocation_hh
-#define CF_Common_CodeLocation_hh
+#ifndef CF_Common_CodeLocation_hpp
+#define CF_Common_CodeLocation_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -46,4 +46,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_CodeLocation_hh
+#endif // CF_Common_CodeLocation_hpp

@@ -1,5 +1,5 @@
-#ifndef CF_Math_MatrixInverterT_hh
-#define CF_Math_MatrixInverterT_hh
+#ifndef CF_Math_MatrixInverterT_hpp
+#define CF_Math_MatrixInverterT_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -189,4 +189,4 @@ template <> struct MatrixInverterT <4> {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Math_MatrixInverterT_hh
+#endif // CF_Math_MatrixInverterT_hpp

@@ -1,5 +1,5 @@
-#ifndef CF_Common_GeneralStorage_hh
-#define CF_Common_GeneralStorage_hh
+#ifndef CF_Common_GeneralStorage_hpp
+#define CF_Common_GeneralStorage_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -217,4 +217,4 @@ GeneralStorage<TYPE>::~GeneralStorage()
 
 } // namespace CF
 
-#endif // CF_Common_GeneralStorage_hh
+#endif // CF_Common_GeneralStorage_hpp

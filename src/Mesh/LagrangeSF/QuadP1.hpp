@@ -1,5 +1,5 @@
-#ifndef CF_Mesh_LagrangeSF_QuadP1_HH
-#define CF_Mesh_LagrangeSF_QuadP1_HH
+#ifndef CF_Mesh_LagrangeSF_QuadP1_hpp
+#define CF_Mesh_LagrangeSF_QuadP1_hpp
 
 #include "Common/AssertionManager.hpp"
 #include "Math/MatrixInverterT.hpp"

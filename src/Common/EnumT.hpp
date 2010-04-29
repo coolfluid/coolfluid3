@@ -1,5 +1,5 @@
-#ifndef CF_Common_EnumT_hh
-#define CF_Common_EnumT_hh
+#ifndef CF_Common_EnumT_hpp
+#define CF_Common_EnumT_hpp
 
 #include <map>
 
@@ -78,4 +78,4 @@ class EnumT : public Common::NonInstantiable< EnumT<EClass> >
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_EnumT_hh
+#endif // CF_Common_EnumT_hpp

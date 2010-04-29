@@ -1,5 +1,5 @@
-#ifndef CF_Common_LogStringForwarder_hh
-#define CF_Common_LogStringForwarder_hh
+#ifndef CF_Common_LogStringForwarder_hpp
+#define CF_Common_LogStringForwarder_hpp
 
 #include "Common/CF.hpp"
 
@@ -29,4 +29,4 @@ class Common_API LogStringForwarder
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_LogStringForwarder_hh
+#endif // CF_Common_LogStringForwarder_hpp

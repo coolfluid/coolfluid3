@@ -1,5 +1,5 @@
-#ifndef CF_Common_StatusWorker_hh
-#define CF_Common_StatusWorker_hh
+#ifndef CF_Common_StatusWorker_hpp
+#define CF_Common_StatusWorker_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -51,4 +51,4 @@ Common_API std::istream& operator>> ( std::istream& is, WorkerStatus::Type& in )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_StatusWorker_hh
+#endif // CF_Common_StatusWorker_hpp

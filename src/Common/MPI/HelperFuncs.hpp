@@ -1,5 +1,5 @@
-#ifndef CF_Common_MPI_HelperFuncs_HH
-#define CF_Common_MPI_HelperFuncs_HH
+#ifndef CF_Common_MPI_HelperFuncs_hpp
+#define CF_Common_MPI_HelperFuncs_hpp
 
 #include <mpi.h>
 
@@ -25,4 +25,4 @@ void ThrowErrorHere ( int status, const CodeLocation& here );
 } // Common
 } // CF
 
-#endif // CF_Common_MPI_HelperFuncs_HH
+#endif // CF_Common_MPI_HelperFuncs_hpp

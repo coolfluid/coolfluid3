@@ -1,5 +1,5 @@
-#ifndef CF_Common_MPI_DATATYPE_HH
-#define CF_Common_MPI_DATATYPE_HH
+#ifndef CF_Common_MPI_DATATYPE_hpp
+#define CF_Common_MPI_DATATYPE_hpp
 
 #include <mpi.h>
 
@@ -34,4 +34,4 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_MPI_DATATYPE_HH
+#endif // CF_Common_MPI_DATATYPE_hpp

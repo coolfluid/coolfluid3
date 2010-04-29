@@ -1,5 +1,5 @@
-#ifndef CF_GooglePerfTools_GooglePerfTools_hh
-#define CF_GooglePerfTools_GooglePerfTools_hh
+#ifndef CF_GooglePerfTools_GooglePerfTools_hpp
+#define CF_GooglePerfTools_GooglePerfTools_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -71,4 +71,4 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GooglePerfTools_GooglePerfTools_hh
+#endif // CF_GooglePerfTools_GooglePerfTools_hpp

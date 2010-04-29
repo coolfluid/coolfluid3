@@ -1,5 +1,5 @@
-#ifndef CF_Common_BOOSTIOSTREAMS_HH
-#define CF_Common_BOOSTIOSTREAMS_HH
+#ifndef CF_Common_BOOSTIOSTREAMS_hpp
+#define CF_Common_BOOSTIOSTREAMS_hpp
 
 #define BOOST_SELECT_BY_SIZE_MAX_CASE 20
 
@@ -10,4 +10,4 @@
 #include <boost/iostreams/operations.hpp> // put
 
 
-#endif // CF_Common_BOOSTIOSTREAMS_HH
+#endif // CF_Common_BOOSTIOSTREAMS_hpp

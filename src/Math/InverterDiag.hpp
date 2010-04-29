@@ -1,5 +1,5 @@
-#ifndef CF_Math_InverterDiag_hh
-#define CF_Math_InverterDiag_hh
+#ifndef CF_Math_InverterDiag_hpp
+#define CF_Math_InverterDiag_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -33,4 +33,4 @@ struct Math_API InverterDiag : public MatrixInverter {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Math_InverterDiag_hh
+#endif // CF_Math_InverterDiag_hpp

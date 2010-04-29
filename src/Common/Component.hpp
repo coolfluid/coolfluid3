@@ -1,5 +1,5 @@
-#ifndef CF_Common_Component_HH
-#define CF_Common_Component_HH
+#ifndef CF_Common_Component_hpp
+#define CF_Common_Component_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -131,4 +131,4 @@ inline boost::shared_ptr<TYPE> Component::get_component ( const CName& name )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_Component_HH
+#endif // CF_Common_Component_hpp

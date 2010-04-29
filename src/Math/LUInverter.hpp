@@ -1,5 +1,5 @@
-#ifndef CF_Math_LUInverter_hh
-#define CF_Math_LUInverter_hh
+#ifndef CF_Math_LUInverter_hpp
+#define CF_Math_LUInverter_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -62,4 +62,4 @@ private: //data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Math_LUInverter_hh
+#endif // CF_Math_LUInverter_hpp

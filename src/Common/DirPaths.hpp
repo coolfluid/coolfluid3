@@ -1,5 +1,5 @@
-#ifndef CF_Environment_DirPaths_hh
-#define CF_Environment_DirPaths_hh
+#ifndef CF_Environment_DirPaths_hpp
+#define CF_Environment_DirPaths_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -109,4 +109,4 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Environment_DirPaths_hh
+#endif // CF_Environment_DirPaths_hpp

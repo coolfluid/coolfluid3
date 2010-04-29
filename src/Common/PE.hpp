@@ -1,5 +1,5 @@
-#ifndef CF_Parallel_PE_hh
-#define CF_Parallel_PE_hh
+#ifndef CF_Parallel_PE_hpp
+#define CF_Parallel_PE_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -72,4 +72,4 @@ private:
 } // Common
 } // CF
 
-#endif // CF_Parallel_PE_hh
+#endif // CF_Parallel_PE_hpp

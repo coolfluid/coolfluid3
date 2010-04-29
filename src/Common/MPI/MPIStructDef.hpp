@@ -1,5 +1,5 @@
-#ifndef CF_Common_MPI_MPIStructDef_hh
-#define CF_Common_MPI_MPIStructDef_hh
+#ifndef CF_Common_MPI_MPIStructDef_hpp
+#define CF_Common_MPI_MPIStructDef_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -232,4 +232,4 @@ MPIDTYPE(char,MPI_CHAR)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_MPI_MPIStructDef_hh
+#endif // CF_Common_MPI_MPIStructDef_hpp

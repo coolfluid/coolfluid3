@@ -1,5 +1,5 @@
-#ifndef CF_Math_MatrixEigenSolver_hh
-#define CF_Math_MatrixEigenSolver_hh
+#ifndef CF_Math_MatrixEigenSolver_hpp
+#define CF_Math_MatrixEigenSolver_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -47,4 +47,4 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Math_MatrixEigenSolver_hh
+#endif // CF_Math_MatrixEigenSolver_hpp

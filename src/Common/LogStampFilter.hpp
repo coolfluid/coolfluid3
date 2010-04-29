@@ -1,5 +1,5 @@
-#ifndef CF_Common_LogStrampFilter_hh
-#define CF_Common_LogStrampFilter_hh
+#ifndef CF_Common_LogStrampFilter_hpp
+#define CF_Common_LogStrampFilter_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -126,4 +126,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_LogStrampFilter_hh
+#endif // CF_Common_LogStrampFilter_hpp

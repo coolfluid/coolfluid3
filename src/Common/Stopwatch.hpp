@@ -1,5 +1,5 @@
-#ifndef CF_Common_Stopwatch_hh
-#define CF_Common_Stopwatch_hh
+#ifndef CF_Common_Stopwatch_hpp
+#define CF_Common_Stopwatch_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -234,5 +234,5 @@ void Stopwatch<TIMEPOLICY>::takeStopTime()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_Stopwatch_hh
+#endif // CF_Common_Stopwatch_hpp
 

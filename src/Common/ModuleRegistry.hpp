@@ -1,5 +1,5 @@
-#ifndef CF_Common_ModuleRegistry_hh
-#define CF_Common_ModuleRegistry_hh
+#ifndef CF_Common_ModuleRegistry_hpp
+#define CF_Common_ModuleRegistry_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -75,4 +75,4 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_ModuleRegistry_hh
+#endif // CF_Common_ModuleRegistry_hpp

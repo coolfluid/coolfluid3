@@ -1,5 +1,5 @@
-#ifndef CF_Common_VarRegistry_hh
-#define CF_Common_VarRegistry_hh
+#ifndef CF_Common_VarRegistry_hpp
+#define CF_Common_VarRegistry_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -106,4 +106,4 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_VarRegistry_hh
+#endif // CF_Common_VarRegistry_hpp

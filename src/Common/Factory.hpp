@@ -1,5 +1,5 @@
-#ifndef CF_Common_Factory_hh
-#define CF_Common_Factory_hh
+#ifndef CF_Common_Factory_hpp
+#define CF_Common_Factory_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -173,4 +173,4 @@ std::vector<Common::ProviderBase*> Factory<BASE>::getAllProviders()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_Factory_hh
+#endif // CF_Common_Factory_hpp

@@ -1,5 +1,5 @@
-#ifndef CF_RealMatrix_hh
-#define CF_RealMatrix_hh
+#ifndef CF_RealMatrix_hpp
+#define CF_RealMatrix_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -29,4 +29,4 @@ typedef Math::MatrixSliceT<Real> RealSliceMatrix;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_RealMatrix_hh
+#endif // CF_RealMatrix_hpp

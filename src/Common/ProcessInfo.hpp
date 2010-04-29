@@ -1,5 +1,5 @@
-#ifndef CF_Common_ProcessInfo_hh
-#define CF_Common_ProcessInfo_hh
+#ifndef CF_Common_ProcessInfo_hpp
+#define CF_Common_ProcessInfo_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -61,4 +61,4 @@ public: // functions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_ProcessInfo_hh
+#endif // CF_Common_ProcessInfo_hpp

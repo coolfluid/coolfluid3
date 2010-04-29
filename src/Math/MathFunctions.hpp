@@ -1,5 +1,5 @@
-#ifndef CF_Math_MathFunctions_hh
-#define CF_Math_MathFunctions_hh
+#ifndef CF_Math_MathFunctions_hpp
+#define CF_Math_MathFunctions_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -187,4 +187,4 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Math_MathFunctions_hh
+#endif // CF_Math_MathFunctions_hpp

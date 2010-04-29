@@ -1,5 +1,5 @@
-#ifndef ARRAYALLOCATOR_HH
-#define ARRAYALLOCATOR_HH
+#ifndef ARRAYALLOCATOR_hpp
+#define ARRAYALLOCATOR_hpp
 
 ///
 /// ArrayAllocator

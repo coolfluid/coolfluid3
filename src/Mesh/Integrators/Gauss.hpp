@@ -1,5 +1,5 @@
-#ifndef CF_Mesh_Integrators_Gauss_HH
-#define CF_Mesh_Integrators_Gauss_HH
+#ifndef CF_Mesh_Integrators_Gauss_hpp
+#define CF_Mesh_Integrators_Gauss_hpp
 
 #include <boost/assign/list_of.hpp>
 
@@ -60,4 +60,4 @@ public:
 } // namespace Mesh
 } // namespace CF
 
-#endif /* CF_Mesh_Integrators_Gauss_HH */
+#endif /* CF_Mesh_Integrators_Gauss_hpp */

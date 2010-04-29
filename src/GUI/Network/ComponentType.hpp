@@ -1,5 +1,5 @@
-#ifndef CF_GUI_Network_ComponentType_hh
-#define CF_GUI_Network_ComponentType_hh
+#ifndef CF_GUI_Network_ComponentType_hpp
+#define CF_GUI_Network_ComponentType_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -49,4 +49,4 @@ namespace Network {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Network_ComponentType_hh
+#endif // CF_GUI_Network_ComponentType_hpp

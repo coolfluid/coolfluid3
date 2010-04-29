@@ -1,5 +1,5 @@
-#ifndef CF_Math_VectorialFunction_hh
-#define CF_Math_VectorialFunction_hh
+#ifndef CF_Math_VectorialFunction_hpp
+#define CF_Math_VectorialFunction_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -111,4 +111,4 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Framework_VectorialFunction_hh
+#endif // CF_Framework_VectorialFunction_hpp

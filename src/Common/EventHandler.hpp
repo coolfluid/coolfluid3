@@ -1,5 +1,5 @@
-#ifndef CF_Common_EventHandler_hh
-#define CF_Common_EventHandler_hh
+#ifndef CF_Common_EventHandler_hpp
+#define CF_Common_EventHandler_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -45,4 +45,4 @@ public: // methods
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_EventHandler_hh
+#endif // CF_Common_EventHandler_hpp

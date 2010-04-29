@@ -1,5 +1,5 @@
-#ifndef CF_RealVector_hh
-#define CF_RealVector_hh
+#ifndef CF_RealVector_hpp
+#define CF_RealVector_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -30,4 +30,4 @@ typedef Math::VectorSliceT<Real> RealSliceVector;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_RealVector_hh
+#endif // CF_RealVector_hpp

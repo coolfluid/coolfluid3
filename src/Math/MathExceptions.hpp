@@ -1,5 +1,5 @@
-#ifndef CF_Math_MathExceptions_hh
-#define CF_Math_MathExceptions_hh
+#ifndef CF_Math_MathExceptions_hpp
+#define CF_Math_MathExceptions_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -38,5 +38,5 @@ struct ZeroDeterminant  : public Common::Exception {
 
 } // namespace CF
 
-#endif // CF_Math_MathExceptions_hh
+#endif // CF_Math_MathExceptions_hpp
 

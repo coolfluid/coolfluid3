@@ -1,5 +1,5 @@
-#ifndef CF_Math_LUInverterT_hh
-#define CF_Math_LUInverterT_hh
+#ifndef CF_Math_LUInverterT_hpp
+#define CF_Math_LUInverterT_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -177,4 +177,4 @@ sum -= m_a(i,j)*m_tmp_col[j];
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Math_LUInverterT_hh
+#endif // CF_Math_LUInverterT_hpp

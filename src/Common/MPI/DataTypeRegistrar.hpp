@@ -1,5 +1,5 @@
-#ifndef DataTypeREGISTRAR_HH
-#define DataTypeREGISTRAR_HH
+#ifndef DataTypeREGISTRAR_hpp
+#define DataTypeREGISTRAR_hpp
 
 #include <mpi.h>
 

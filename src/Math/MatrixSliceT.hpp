@@ -1,5 +1,5 @@
-#ifndef CF_Math_MatrixSliceT_hh
-#define CF_Math_MatrixSliceT_hh
+#ifndef CF_Math_MatrixSliceT_hpp
+#define CF_Math_MatrixSliceT_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -357,4 +357,4 @@ bool operator!= (const MatrixSliceT<T>& m1,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Math_MatrixSliceT_hh
+#endif // CF_Math_MatrixSliceT_hpp

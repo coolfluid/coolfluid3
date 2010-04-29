@@ -1,5 +1,5 @@
-#ifndef CF_Common_CFASSERT_HH
-#define CF_Common_CFASSERT_HH
+#ifndef CF_Common_CFASSERT_hpp
+#define CF_Common_CFASSERT_hpp
 
 /// @note This header should be included by including CF.hpp instead.
 #include <cassert>
@@ -104,4 +104,4 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_CFASSERT_HH
+#endif // CF_Common_CFASSERT_hpp

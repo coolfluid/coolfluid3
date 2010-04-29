@@ -1,5 +1,5 @@
-#ifndef CF_Mesh_P1_Triag2D_HH
-#define CF_Mesh_P1_Triag2D_HH
+#ifndef CF_Mesh_P1_Triag2D_hpp
+#define CF_Mesh_P1_Triag2D_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -82,4 +82,4 @@ Real VolumeComputer<P1::Triag2D>::computeVolume(const std::vector<CArray::Row>& 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_P1_Triag2D_HH
+#endif // CF_Mesh_P1_Triag2D_hpp

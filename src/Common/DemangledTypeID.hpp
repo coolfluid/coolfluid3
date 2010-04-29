@@ -1,5 +1,5 @@
-#ifndef CF_Common_DemangledTypeID_hh
-#define CF_Common_DemangledTypeID_hh
+#ifndef CF_Common_DemangledTypeID_hpp
+#define CF_Common_DemangledTypeID_hpp
 
 /// @note This header should be included by including CF.hpp instead.
 
@@ -24,4 +24,4 @@ Common_API std::string demangle (const char* type);
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_DemangledTypeID_hh
+#endif // CF_Common_DemangledTypeID_hpp

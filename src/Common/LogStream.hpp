@@ -1,5 +1,5 @@
-#ifndef CF_Common_LogStream_hh
-#define CF_Common_LogStream_hh
+#ifndef CF_Common_LogStream_hpp
+#define CF_Common_LogStream_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -321,4 +321,4 @@ class Common_API LogStream
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_LogStream_hh
+#endif // CF_Common_LogStream_hpp

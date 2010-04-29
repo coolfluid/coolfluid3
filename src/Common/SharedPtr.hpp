@@ -1,5 +1,5 @@
-#ifndef CF_Common_SharedPtr_hh
-#define CF_Common_SharedPtr_hh
+#ifndef CF_Common_SharedPtr_hpp
+#define CF_Common_SharedPtr_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -226,4 +226,4 @@ inline bool SharedPtr<T>::operator== (const SharedPtr& other)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif //CF_Common_SharedPtr_hh
+#endif //CF_Common_SharedPtr_hpp

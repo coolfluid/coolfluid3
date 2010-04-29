@@ -1,5 +1,5 @@
-#ifndef CF_Math_SVDInverter_hh
-#define CF_Math_SVDInverter_hh
+#ifndef CF_Math_SVDInverter_hpp
+#define CF_Math_SVDInverter_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -156,4 +156,4 @@ private: //data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Math_SVDInverter_hh
+#endif // CF_Math_SVDInverter_hpp

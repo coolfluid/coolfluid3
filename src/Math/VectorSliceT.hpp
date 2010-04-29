@@ -1,5 +1,5 @@
-#ifndef CF_Math_VectorSliceT_hh
-#define CF_Math_VectorSliceT_hh
+#ifndef CF_Math_VectorSliceT_hpp
+#define CF_Math_VectorSliceT_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -448,4 +448,4 @@ void VectorSliceT<T>::abs (const VectorSliceT<T>& v)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Math_VectorSliceT_hh
+#endif // CF_Math_VectorSliceT_hpp

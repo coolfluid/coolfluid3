@@ -1,5 +1,5 @@
-#ifndef CF_Common_ManagerWorkerFrameType_hh
-#define CF_Common_ManagerWorkerFrameType_hh
+#ifndef CF_Common_ManagerWorkerFrameType_hpp
+#define CF_Common_ManagerWorkerFrameType_hpp
 
 #include "Common/CommonAPI.hpp"
 
@@ -45,4 +45,4 @@ namespace Common {
 } // namespace Common
 } // namespace CF
 
-#endif // CF_Common_ManagerWorkerFrameType_hh
+#endif // CF_Common_ManagerWorkerFrameType_hpp

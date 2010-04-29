@@ -4,7 +4,7 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
-#include <boost/function.hpp>
+#include <boost/property_tree/detail/rapidxml.hpp>
 #include <boost/any.hpp>
 
 #include <boost/date_time/gregorian/gregorian.hpp>
@@ -49,6 +49,9 @@ public:
   std::string name() const { return m_name; }
   std::string type() const { return m_name; }
   std::string description() const { return m_description; }
+
+  boost::any value() const { return m_value; }
+  boost::any def() const { return m_default; }
 
   void attach_processor ( boost::function< void()> proc ) { m_processors.push_back(proc); }
 
@@ -143,6 +146,11 @@ protected:
     return m_option_list.getOption(optname);
   }
 
+  void configure_opts ( const std::string& pars )
+  {
+
+  }
+
 private:
 
   OptionList m_option_list;
@@ -168,17 +176,19 @@ class MyC : public ConfigObject
 
   void config_bool ()
   {
-    CFinfo << "config bool\n" << CFendl;
+    boost::any value = option("OptBool")->value();
+    bool b = boost::any_cast<bool>(value);
+    CFinfo << "config bool [" << Common::StringOps::to_str(b) << "]\n" << CFendl;
   }
 
   void config_int ()
   {
-    CFinfo << "config int" << CFendl;
+//    CFinfo << "config int [" << option("OptInt")->value() << "]\n" << CFendl;
   }
 
   void config_str ()
   {
-    CFinfo << "config str\n" << CFendl;
+//    CFinfo << "config str [" << option("OptStr")->value() << "]\n" << CFendl;
   }
 
 
@@ -191,9 +201,9 @@ class MyC : public ConfigObject
 
 private:
 
-  bool b;
-  Uint i;
-  std::string s;
+//  bool b;
+//  Uint i;
+//  std::string s;
 
 };
 
@@ -234,6 +244,10 @@ BOOST_AUTO_TEST_CASE( addConfigOptionsTo )
 
   boost::shared_ptr<MyC> pm ( new MyC );
 
+  pm->config_bool();
+  pm->config_int();
+  pm->config_str();
+
   CFinfo << "ending\n" << CFendl;
 }
 
@@ -251,6 +265,54 @@ BOOST_AUTO_TEST_CASE( defineConfigOptions )
   MyC::defineConfigOptions(ll);
 
   CFinfo << "ending\n" << CFendl;
+}
+
+
+void print_xml_node(rapidxml::xml_node<> *node)
+{
+  using namespace rapidxml;
+
+//  cout << "Node [" << node->name() << "]";
+//  cout << " w value [" << node->value() << "]\n";
+
+  for (xml_attribute<> *attr = node->first_attribute(); attr; attr = attr->next_attribute())
+  {
+//    cout << "++ attribute " << attr->name() << " ";
+//    cout << "with value " << attr->value() << "\n";
+  }
+
+  for (xml_node<> * itr = node->first_node(); itr; itr = itr->next_sibling() )
+  {
+    print_xml_node(itr);
+  }
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( rapidxml )
+{
+  using namespace rapidxml;
+
+  std::string text = ( "<debug lolo=\"1\" koko=\"2\" >"
+                       "<filename>debug.log</filename>"
+                       "<modules NBS=\"3\">"
+                       "    <module>Finance</module>"
+                       "    <module>Admin</module>"
+                       "    <module>HR</module>"
+                       "</modules>"
+                       "<level>2</level>"
+                       "</debug>" );
+
+  xml_document<> doc;    // character type defaults to char
+
+  char* ctext = doc.allocate_string(text.c_str());
+
+  doc.parse< parse_no_data_nodes >(ctext);    // 0 means default parse flags
+
+  print_xml_node(doc.first_node());
+//  print_xml_node(doc);
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

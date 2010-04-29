@@ -1,5 +1,5 @@
-#ifndef CF_Common_Win32_SignalHandler_hh
-#define CF_Common_Win32_SignalHandler_hh
+#ifndef CF_Common_Win32_SignalHandler_hpp
+#define CF_Common_Win32_SignalHandler_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -38,4 +38,4 @@ public: // methods
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // COOFluiD_Common_Win32_SignalHandler_hh
+#endif // COOFluiD_Common_Win32_SignalHandler_hpp

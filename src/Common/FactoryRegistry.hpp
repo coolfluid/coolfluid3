@@ -1,5 +1,5 @@
-#ifndef CF_Common_FactoryRegistry_hh
-#define CF_Common_FactoryRegistry_hh
+#ifndef CF_Common_FactoryRegistry_hpp
+#define CF_Common_FactoryRegistry_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -66,4 +66,4 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_FactoryRegistry_hh
+#endif // CF_Common_FactoryRegistry_hpp

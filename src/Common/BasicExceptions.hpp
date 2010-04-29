@@ -1,5 +1,5 @@
-#ifndef CF_Common_Basics_hh
-#define CF_Common_Basics_hh
+#ifndef CF_Common_Basics_hpp
+#define CF_Common_Basics_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -199,5 +199,5 @@ struct Common_API BuilderParserError : public Common::Exception {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_FailedAssertion_hh
+#endif // CF_Common_FailedAssertion_hpp
 

@@ -1,5 +1,5 @@
-#ifndef CF_Math_ExprOp_hh
-#define CF_Math_ExprOp_hh
+#ifndef CF_Math_ExprOp_hpp
+#define CF_Math_ExprOp_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 

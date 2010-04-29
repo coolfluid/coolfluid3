@@ -1,5 +1,5 @@
-#ifndef DataTypeREGISTRAR_HELPER_HH
-#define DataTypeREGISTRAR_HELPER_HH
+#ifndef DataTypeREGISTRAR_HELPER_hpp
+#define DataTypeREGISTRAR_HELPER_hpp
 
 #include "Common/MPI/DataType.hpp"
 

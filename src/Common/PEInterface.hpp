@@ -1,5 +1,5 @@
-#ifndef CF_Common_PEInterface_hh
-#define CF_Common_PEInterface_hh
+#ifndef CF_Common_PEInterface_hpp
+#define CF_Common_PEInterface_hpp
 
 #include "Common/CF.hpp"
 #include "Common/NonCopyable.hpp"
@@ -43,4 +43,4 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_PEInterface_hh
+#endif // CF_Common_PEInterface_hpp

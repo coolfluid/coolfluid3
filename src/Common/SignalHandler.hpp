@@ -1,5 +1,5 @@
-#ifndef CF_Common_SignalHandler_hh
-#define CF_Common_SignalHandler_hh
+#ifndef CF_Common_SignalHandler_hpp
+#define CF_Common_SignalHandler_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -52,4 +52,4 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // COOFluiD_Common_SignalHandler_hh
+#endif // COOFluiD_Common_SignalHandler_hpp

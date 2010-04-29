@@ -1,5 +1,5 @@
-#ifndef CF_Common_Log_hh
-#define CF_Common_Log_hh
+#ifndef CF_Common_Log_hpp
+#define CF_Common_Log_hpp
 
 #include "Common/CommonAPI.hpp"
 #include "Common/LogLevel.hpp"

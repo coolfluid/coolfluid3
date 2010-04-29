@@ -1,5 +1,5 @@
-#ifndef CF_Common_NonInstantiable_hh
-#define CF_Common_NonInstantiable_hh
+#ifndef CF_Common_NonInstantiable_hpp
+#define CF_Common_NonInstantiable_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -20,4 +20,4 @@ private:
 } // namespace Common
 } // namespace CF
 
-#endif // CF_Common_NonInstantiable_hh
+#endif // CF_Common_NonInstantiable_hpp

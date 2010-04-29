@@ -1,5 +1,5 @@
-#ifndef CF_server_RemoteClientAppender_hh
-#define CF_server_RemoteClientAppender_hh
+#ifndef CF_server_RemoteClientAppender_hpp
+#define CF_server_RemoteClientAppender_hpp
 
 #include <string>
 #include <iostream>
@@ -41,4 +41,4 @@ namespace Server {
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_server_RemoteClientAppender_hh
+#endif // CF_server_RemoteClientAppender_hpp

@@ -1,5 +1,5 @@
-#ifndef CF_Common_OwnedObject_hh
-#define CF_Common_OwnedObject_hh
+#ifndef CF_Common_OwnedObject_hpp
+#define CF_Common_OwnedObject_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -56,4 +56,4 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_OwnedObject_hh
+#endif // CF_Common_OwnedObject_hpp

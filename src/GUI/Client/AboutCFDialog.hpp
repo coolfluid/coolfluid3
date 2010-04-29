@@ -1,5 +1,5 @@
-#ifndef CF_GUI_Client_AboutCFDialog_hh
-#define CF_GUI_Client_AboutCFDialog_hh
+#ifndef CF_GUI_Client_AboutCFDialog_hpp
+#define CF_GUI_Client_AboutCFDialog_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -1,5 +1,5 @@
-#ifndef CF_Math_MatrixIntersect_hh
-#define CF_Math_MatrixIntersect_hh
+#ifndef CF_Math_MatrixIntersect_hpp
+#define CF_Math_MatrixIntersect_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -46,4 +46,4 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Math_MatrixIntersect_hh
+#endif // CF_Math_MatrixIntersect_hpp

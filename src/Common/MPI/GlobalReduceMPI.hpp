@@ -1,5 +1,5 @@
-#ifndef GLOBALREDUCEMPI_HH
-#define GLOBALREDUCEMPI_HH
+#ifndef GLOBALREDUCEMPI_hpp
+#define GLOBALREDUCEMPI_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 

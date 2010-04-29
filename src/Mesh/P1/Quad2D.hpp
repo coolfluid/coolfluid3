@@ -1,5 +1,5 @@
-#ifndef CF_Mesh_P1_Quad2D_HH
-#define CF_Mesh_P1_Quad2D_HH
+#ifndef CF_Mesh_P1_Quad2D_hpp
+#define CF_Mesh_P1_Quad2D_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -89,4 +89,4 @@ Real VolumeComputer<P1::Quad2D>::computeVolume(const std::vector<CArray::Row>& c
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_P1_Quad2D_HH
+#endif // CF_Mesh_P1_Quad2D_hpp

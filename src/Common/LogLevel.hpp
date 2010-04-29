@@ -1,5 +1,5 @@
-#ifndef CF_Common_LogLevel_hh
-#define CF_Common_LogLevel_hh
+#ifndef CF_Common_LogLevel_hpp
+#define CF_Common_LogLevel_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -22,4 +22,4 @@ enum LogLevel
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_LogLevel_hh
+#endif // CF_Common_LogLevel_hpp

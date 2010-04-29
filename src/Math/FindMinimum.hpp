@@ -1,5 +1,5 @@
-#ifndef CF_Math_FindMinimum_hh
-#define CF_Math_FindMinimum_hh
+#ifndef CF_Math_FindMinimum_hpp
+#define CF_Math_FindMinimum_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -425,5 +425,5 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Math_FindMinimum_hh
+#endif // CF_Math_FindMinimum_hpp
 

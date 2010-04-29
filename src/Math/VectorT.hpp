@@ -1,5 +1,5 @@
-#ifndef CF_Math_VectorT_hh
-#define CF_Math_VectorT_hh
+#ifndef CF_Math_VectorT_hpp
+#define CF_Math_VectorT_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -767,4 +767,4 @@ inline void VectorT<T>::abs(const VectorT<T>& v)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Math_VectorT_hh
+#endif // CF_Math_VectorT_hpp

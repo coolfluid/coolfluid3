@@ -1,5 +1,5 @@
-#ifndef DataTypeHANDLER_HH
-#define DataTypeHANDLER_HH
+#ifndef DataTypeHANDLER_hpp
+#define DataTypeHANDLER_hpp
 
 // This class handles correct initialisation and destruction
 // of the registered datatypes

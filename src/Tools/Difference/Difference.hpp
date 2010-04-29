@@ -1,5 +1,5 @@
-#ifndef CF_Mesh_uTests_difference_HH
-#define CF_Mesh_uTests_difference_HH
+#ifndef CF_Mesh_uTests_difference_hpp
+#define CF_Mesh_uTests_difference_hpp
 
 // Adapted from K-3D by Bart Janssens
 // Copyright (c) 1995-2010, Timothy M. Shead
@@ -123,5 +123,5 @@ void vector_test(const VectorT& A, const VectorT& B, Accumulator& Result)
 } // namespace Tools
 } // namespace CF
 
-#endif // !CF_Mesh_uTests_difference_HH
+#endif // !CF_Mesh_uTests_difference_hpp
 

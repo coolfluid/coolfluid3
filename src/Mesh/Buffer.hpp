@@ -1,5 +1,5 @@
-#ifndef CF_Mesh_Buffer_HH
-#define CF_Mesh_Buffer_HH
+#ifndef CF_Mesh_Buffer_hpp
+#define CF_Mesh_Buffer_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -150,4 +150,4 @@ void Buffer<Array_t>::change_buffersize(const size_t buffersize)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_Buffer_HH
+#endif // CF_Mesh_Buffer_hpp

@@ -1,5 +1,5 @@
-#ifndef CF_Common_OSystem_hh
-#define CF_Common_OSystem_hh
+#ifndef CF_Common_OSystem_hpp
+#define CF_Common_OSystem_hpp
 
 #include "Common/Exception.hpp"
 #include "Common/NonCopyable.hpp"
@@ -74,4 +74,4 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_OSystem_hh
+#endif // CF_Common_OSystem_hpp

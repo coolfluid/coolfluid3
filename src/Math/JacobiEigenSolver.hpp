@@ -1,5 +1,5 @@
-#ifndef CF_Math_JacobiEigenSolver_hh
-#define CF_Math_JacobiEigenSolver_hh
+#ifndef CF_Math_JacobiEigenSolver_hpp
+#define CF_Math_JacobiEigenSolver_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -48,4 +48,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Math_JacobiEigenSolver_hh
+#endif // CF_Math_JacobiEigenSolver_hpp
