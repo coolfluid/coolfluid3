@@ -9,6 +9,7 @@ namespace Common {
   {
     boost::shared_ptr<CRoot> root ( new CRoot(name) );
     root->m_root = root;
+    root->m_parent = root;
     return root;
   }
 
