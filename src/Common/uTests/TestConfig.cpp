@@ -1,9 +1,13 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
-#include <boost/property_map/property_map.hpp>
-#include <boost/property_map/dynamic_property_map.hpp>
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 
+#include <boost/function.hpp>
+
+#include <boost/date_time/gregorian/gregorian.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 #include "Common/CF.hpp"
 #include "Common/BasicExceptions.hpp"
@@ -16,11 +20,6 @@ using namespace CF;
 using namespace CF::Common;
 
 ////////////////////////////////////////////////////////////////////////////////
-
-//class OptionValidation
-//{
-//public:
-//};
 
 /// Definition of the ConfigKey type
 typedef std::string ConfigKey;
@@ -49,6 +48,9 @@ public:
   std::string description() const { return m_description; }
 
   void link_to_value ( void *const value ) { m_value = value; }
+  void attach_processor ( boost::function< void()> proc ) { m_processors.push_back(proc); }
+
+  virtual void set_value (const std::string& value) = 0;
 
 protected:
 
@@ -58,26 +60,23 @@ protected:
   std::string m_type;
   std::string m_description;
 
-//  std::vector<OptionValidation> m_vals;
+  //  std::vector<OptionValidation> m_vals;
+
+  std::vector< boost::function< void()> > m_processors;
 };
 
 //------------------------------------------------------------------------------
 
 template < typename TYPE >
-    class OptionT : public Option
+class OptionT : public Option
 {
 public:
 
-//  typedef boost::function< void ( CLASS_TYPE*, TYPE ) > FUNC_TYPE;
-//  typedef boost::shared_ptr< OptionT<TYPE> > Ptr;
-
   OptionT ( const std::string& name, const std::string& desc, TYPE def ) :
       Option(name,DEMANGLED_TYPEID(TYPE), desc),
-//      m_processors(),
       m_default(def)
   {
     CFinfo
-//        <<  "class [" << DEMANGLED_TYPEID(CLASS_TYPE) << "]"
         << " creating option ["
         << m_name << "] of type ["
         << m_type << "] w default ["
@@ -85,7 +84,11 @@ public:
         << m_description << "]\n" << CFendl;
   }
 
-//  void attach_processor ( FUNC_TYPE proc ) { m_processors.push_back(proc); };
+  virtual void set_value (const std::string& value_str )
+  {
+    TYPE * value = static_cast<TYPE*>(m_value);
+    *value = Common::StringOps::from_str < TYPE > ( value_str );
+  }
 
 private:
 
@@ -104,7 +107,7 @@ private:
 public:
 
   template < typename TYPE >
-      Option::Ptr addConfigOption(const std::string& name, const std::string& description, TYPE def )
+  Option::Ptr addConfigOption(const std::string& name, const std::string& description, TYPE def )
   {
     cf_assert_desc ( "Class has already option with same name", m_options.find(name) == m_options.end() );
     Option::Ptr opt ( new OptionT<TYPE>(name, description, def ) );
@@ -156,17 +159,6 @@ private:
 
 };
 
-//------------------------------------------------------------------------------
-
-//struct is_positive : public OptionValidation
-//{
-//  is_positive() {}
-//
-//  std::string desc () { return "Value must be positive"; }
-//
-//  template < typename TYPE >
-//      bool operator () ( TYPE v ) { return v > 0; }
-//};
 
 //------------------------------------------------------------------------------
 
@@ -182,7 +174,9 @@ class MyC : public ConfigObject
     getOption("OptInt")->link_to_value(&i);
     getOption("OptStr")->link_to_value(&s);
 
-    //  getOption("OptStr")->attach_processor( boost::bind ( MyC::config_bool, this, _1 ) ); ?????????
+    getOption("OptBool")->attach_processor( boost::bind ( &MyC::config_bool, this ) );
+    getOption("OptInt")->attach_processor ( boost::bind ( &MyC::config_int,  this ) );
+    getOption("OptStr")->attach_processor ( boost::bind ( &MyC::config_str,  this ) );
 
   };
 
@@ -206,7 +200,6 @@ class MyC : public ConfigObject
   {
     options.addConfigOption< bool >         ( "OptBool", "bool option"   , false  );
     options.addConfigOption< Uint >         ( "OptInt",  "int option"    , 10     );
-//        ->attach_validation( is_positive() );
     options.addConfigOption< std::string >  ( "OptStr",  "string option" , "LOLO" );
   }
 
@@ -248,25 +241,30 @@ BOOST_FIXTURE_TEST_SUITE( Config_TestSuite, Config_Fixture )
 
 BOOST_AUTO_TEST_CASE( addConfigOptionsTo )
 {
-  CFinfo << "starting config\n" << CFendl;
+  boost::gregorian::date today = boost::gregorian::day_clock::local_day();
+  boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
+
+  CFinfo << "starting [" << today << "] [" << now << "]\n" << CFendl;
 
   boost::shared_ptr<MyC> pm ( new MyC );
 
-  CFinfo << "ending config\n" << CFendl;
-
+  CFinfo << "ending\n" << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( defineConfigOptions )
 {
-  CFinfo << "starting config\n" << CFendl;
+  boost::gregorian::date today = boost::gregorian::day_clock::local_day();
+  boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
+
+  CFinfo << "starting [" << today << "] [" << now << "]\n" << CFendl;
 
   OptionList ll;
 
   MyC::defineConfigOptions(ll);
 
-  CFinfo << "ending config\n" << CFendl;
+  CFinfo << "ending\n" << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -276,3 +274,14 @@ BOOST_AUTO_TEST_SUITE_END()
 ////////////////////////////////////////////////////////////////////////////////
 
 
+    //------------------------------------------------------------------------------
+
+    //struct is_positive : public OptionValidation
+    //{
+    //  is_positive() {}
+    //
+    //  std::string desc () { return "Value must be positive"; }
+    //
+    //  template < typename TYPE >
+    //      bool operator () ( TYPE v ) { return v > 0; }
+    //};
