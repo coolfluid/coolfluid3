@@ -181,7 +181,7 @@ class Common_API AutoTracer {
 
 #define CFAUTOTRACE_PASTE_(a,b) a##b
 #define CFAUTOTRACE_PASTE(a,b) CFAUTOTRACE_PASTE_(a,b)
-#define CFAUTOTRACE /*::CF::Common::*/AutoTracer CFAUTOTRACE_PASTE(AutoTrace_Uniq,__LINE__) (__FUNCTION__,__FILE__,__LINE__)
+#define CFAUTOTRACE ::CF::Common::AutoTracer CFAUTOTRACE_PASTE(AutoTrace_Uniq,__LINE__) (__FUNCTION__,__FILE__,__LINE__)
 
 #define CFTRACEBEGIN CFtrace << "### BEGIN ### " << __FUNCTION__ << " : " << __FILE__ << " : " << __LINE__ << "\n" << CFendl; //CFtrace.flush();
 #define CFTRACEEND   CFtrace << "### END ##### " << __FUNCTION__ << " : " << __FILE__ << " : " << __LINE__ << "\n" << CFendl;/* CFtrace.flush();*/
@@ -202,22 +202,19 @@ class Common_API AutoTracer {
 #ifndef CF_NO_DEBUG_MACROS
 
 /// Definition of a macro for placing a debug point in the code
-#define CF_DEBUG_POINT  CFerr << "DEBUG : " << __FILE__ << " : " << __LINE__ << " : " << __FUNCTION__ << "\n" ; CFerr.flush()
+#define CF_DEBUG_POINT  CFdebug << "DEBUG : " << __FILE__ << " : " << __LINE__ << " : " << __FUNCTION__ << "\n" ; CFdebug.flush()
 /// Definition of a macro for outputing an object that implements the output stream operator
-#define CF_DEBUG_OBJ(x) CFerr << "DEBUG : OBJECT " << #x << " -> " << x << " : " << __FILE__ << " : " << __LINE__ << " : " << __FUNCTION__ << "\n" ; CFerr.flush()
+#define CF_DEBUG_OBJ(x) CFdebug << "DEBUG : OBJECT " << #x << " -> " << x << " : " << __FILE__ << " : " << __LINE__ << " : " << __FUNCTION__ << "\n" ; CFdebug.flush()
 /// Definition of a macro for outputing a debug string in the code
-#define CF_DEBUG_STR(x) CFerr << "DEBUG : STRING : " << x << " : " << __FILE__ << " : " << __LINE__ << " : " << __FUNCTION__ << "\n" ; CFerr.flush()
-/// Definition of a macro for debug exit
-#define CF_DEBUG_EXIT   CFerr << "DEBUG : EXIT "  << __FILE__ << " : " << __LINE__ << " : " << __FUNCTION__ << "\n" ; CFerr.flush() ; exit(0)
+#define CF_DEBUG_STR(x) CFdebug << "DEBUG : STRING : " << x << " : " << __FILE__ << " : " << __LINE__ << " : " << __FUNCTION__ << "\n" ; CFdebug.flush()
 /// Definition of a macro for debug abort
-#define CF_DEBUG_ABORT  CFerr << "DEBUG : ABORT " << __FILE__ << " : " << __LINE__ << " : " << __FUNCTION__ << "\n" ; CFerr.flush() ; abort()
+#define CF_DEBUG_ABORT  CFdebug << "DEBUG : ABORT " << __FILE__ << " : " << __LINE__ << " : " << __FUNCTION__ << "\n" ; CFdebug.flush() ; abort()
 
 #else // CF_NO_DEBUG_MACROS
 
 #define CF_DEBUG_POINT
 #define CF_DEBUG_OBJ(x)
 #define CF_DEBUG_STR(x)
-#define CF_DEBUG_EXIT
 #define CF_DEBUG_ABORT
 
 #endif // CF_NO_DEBUG_MACROS
