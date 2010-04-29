@@ -193,10 +193,7 @@ void ServerSimulation::addComponent(const QString & path,
   
   try 
   {
-    if(path.toStdString() == m_rootComponent->full_path().string())
-      compo = m_rootComponent;
-    else
-      compo = m_rootComponent->look_component(path.toStdString());    
+    compo = m_rootComponent->look_component(path.toStdString())->get();
 
     switch(type)
     {
