@@ -18,7 +18,7 @@
 #include "Common/CPath.hpp"
 #include "Common/EventHandler.hpp"
 #include "Common/SharedPtr.hpp"
-
+#include "Common/BasicExceptions.hpp"
 #include "Common/ConverterTools.hpp"
 //#include "Common/ConfigFileReader.hpp"
 
@@ -190,13 +190,7 @@ void ServerSimulation::addComponent(const QString & path,
                                     const QString & name)
 {
   boost::shared_ptr<Component> compo;
-  QString msg = "Added a new component named \"%1\" of type \"%2\" to '%3'";
   
-  msg = msg.arg(name);
-  msg = msg.arg(name);
-  msg = msg.arg(name);
-  
-
   try 
   {
     if(path.toStdString() == m_rootComponent->full_path().string())
@@ -221,7 +215,7 @@ void ServerSimulation::addComponent(const QString & path,
       }
         
       default:
-        // @todo throw ShouldNotBeHere
+        throw ShouldNotBeHere(FromHere(), "Can not use this type");
         break;        
         
     }
@@ -233,7 +227,6 @@ void ServerSimulation::addComponent(const QString & path,
   }
   catch (CF::Common::Exception e) 
   {
-    //Logger::getInstance().getStream(Logger::ERROR).setLogLevel(VERBOSE);
     emit error(e.what());
   }
 }
