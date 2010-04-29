@@ -57,10 +57,16 @@ namespace Client {
     /// @brief Recursive method that builds a @c QStingList with
     /// all parent nodes names of a given node.
 
-    /// The first string is the root of the tree.
+    /// The first string is the root of the tree. 
+    /// @param list String list to which the names will be written. This list is
+    /// not cleared.
     /// @param node Node from which the parents are returned
-    /// @return Returns the built list
-    QStringList getParentNodeNames(const QDomNode & node) const;
+    /// @param inSim If @ true, the loop will stop at the simulation root. 
+    /// If @c inSim is @c true but the given node is not a part of the 
+    /// simulation tree, the loop stops and the list is cleared.
+    void getParentNodeNames(QStringList & list, const QDomNode & node) const;
+    
+    void getParentNodeNamesInSim(QStringList & list, const QDomNode & node) const;
 
     bool isSimulationNode(const QDomNode & node) const;
 
@@ -255,15 +261,24 @@ namespace Client {
     /// @brief Builds a string representing the path from the root node to
     /// the node pointed by @c index.
 
-    /// Path is structured like a UNIX-like path. For example : /path/to/node
+    /// Path is structured like a UNIX path. For example : /path/to/node
     /// @param index Index for which the path has to be built.
     /// @return Returns the built path, or a null string (built with @c QString
     /// default constructor) if @c index.isValid() returns @c false.
     QString getNodePath(const QModelIndex & index) const;
 
+    /// @brief Builds a string representing the path from the simulation root
+    // node to the node pointed by @c index.
+    
+    /// Path is structured like a UNIX path. For example : /path/to/node
+    /// @param index Index for which the path has to be built.
+    /// @return Returns the built path, or a null string (built with @c QString
+    /// default constructor) if @c index.isValid() returns @c false.
+    QString getNodePathInSim(const QModelIndex & index, bool * ok = NULL) const;
+
     /// @brief Gives the index of the node found at the given path.
 
-    /// Path is structured like a UNIX-like path. For example : /path/to/node
+    /// Path is structured like a UNIX path. For example : /path/to/node
     /// The leading @e slash is optional.
     /// @param path Path of the wanted node.
     /// @return Returns the index to that node or a non-valid index (built with

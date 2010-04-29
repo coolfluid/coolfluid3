@@ -52,6 +52,8 @@ namespace Server {
     
     private slots:
     
+    void treeUpdated();
+    
     /// @brief Slot called when a new client connects
     
     /// Sends server status (file open, simulation running) to the new client.

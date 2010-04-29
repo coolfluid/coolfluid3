@@ -8,6 +8,7 @@
 #include <QStringList>
 
 #include "Common/BuilderParserFrameInfo.hpp"
+#include "GUI/Network/ComponentType.hpp"
 #include "GUI/Network/HostInfos.hpp"
 #include "GUI/Network/NetworkException.hpp"
 #include "GUI/Network/NetworkProtocol.hpp"
@@ -22,6 +23,9 @@ class QTcpSocket;
 
 namespace CF {
 namespace GUI {
+  
+namespace Network { class ComponentType; }
+  
 namespace Client {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -217,6 +221,10 @@ namespace Client {
     bool sendDeactivateSimulation();
     
     bool sendGetSubSystemList();
+    
+    bool sendAddComponent(const QString & path, 
+                          CF::GUI::Network::ComponentType::Type type, 
+                          const QString & name);
     
     public slots :
     

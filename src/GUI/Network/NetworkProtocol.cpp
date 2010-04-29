@@ -261,4 +261,9 @@ void NetworkProtocol::buildRules()
   this->addAttribute(NETWORK_SUBSYSTEM_LIST, "subSystems");
 
   this->setTypeName(NETWORK_GET_SUBSYSTEM_LIST, "getSubSystemList");
+  
+  this->setTypeName(NETWORK_ADD_COMPONENT, "addComponent");
+  this->addAttribute(NETWORK_ADD_COMPONENT, "parentPath");
+  this->addAttribute(NETWORK_ADD_COMPONENT, "type");
+  this->addAttribute(NETWORK_ADD_COMPONENT, "name");
 }

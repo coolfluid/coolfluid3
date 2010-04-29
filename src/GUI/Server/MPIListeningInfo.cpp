@@ -31,3 +31,4 @@ void MPIListeningInfo::incCounter()
     m_finished = m_counter == m_processCount;
   }
 }
+

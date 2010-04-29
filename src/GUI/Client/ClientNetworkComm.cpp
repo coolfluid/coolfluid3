@@ -5,7 +5,7 @@
 
 #include "Common/xmlParser.h"
 #include "Common/StringOps.hpp"
-
+#include "Common/ConverterTools.hpp"
 #include "Common/BuilderParser.hpp"
 #include "Common/BuilderParserFrameInfo.hpp"
 
@@ -15,7 +15,6 @@
 
 using namespace CF::GUI::Client;
 using namespace CF::GUI::Network;
-using namespace CF::Common;
 using namespace CF::Common;
 
 ClientNetworkComm::ClientNetworkComm()
@@ -352,7 +351,9 @@ bool ClientNetworkComm::sendGetSubSystemList()
   
   return this->buildAndSend(NETWORK_GET_SUBSYSTEM_LIST);
 }
- 
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 int ClientNetworkComm::send(const QString & frame) const
 {
@@ -371,6 +372,26 @@ int ClientNetworkComm::send(const QString & frame) const
   m_socket->flush();
   
   return charsWritten;
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+bool ClientNetworkComm::sendAddComponent(const QString & path, 
+                                         ComponentType::Type type, 
+                                         const QString & name)
+{
+  BuilderParserFrameInfo fi;
+  
+  if(!this->checkConnected())
+    return false;
+  
+  fi.setFrameType(NETWORK_ADD_COMPONENT);
+  fi.frameAttributes["parentPath"] = path.toStdString();
+  fi.frameAttributes["type"] = ComponentType::Convert::to_str(type);
+  fi.frameAttributes["name"] = name.toStdString();
+  
+  return this->buildAndSend(fi);  
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -498,7 +519,8 @@ void ClientNetworkComm::newData()
         case NETWORK_TREE :
         {
           QDomDocument doc;
-          doc.setContent((QString) fi.frameData.createXMLString());
+          
+          doc.setContent((QString) ConverterTools::xCFcaseToXml(fi.frameData).c_str());
           emit newTree(doc);
           break;
         }

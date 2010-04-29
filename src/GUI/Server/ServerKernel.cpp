@@ -60,9 +60,9 @@ ServerKernel::ServerKernel(const QString & hostname, quint16 portNumber,
   connect(&m_simulationManager, SIGNAL(message(const QString &)),
           this, SLOT(message(const QString &)));
 
-  connect(&m_simulationManager, SIGNAL(simulationStatus(const QString &, int,
-                                                              const QString &)), this, SLOT(simulationStatus(const QString &, int,
-                                                                                                             const QString &)));
+  connect(&m_simulationManager,
+          SIGNAL(simulationStatus(const QString &, int, const QString &)), 
+          this, SLOT(simulationStatus(const QString &, int, const QString &)));
 
   connect(&m_simulationManager, SIGNAL(simulationTree(const XMLNode &)),
           this, SLOT(simulationTree(const XMLNode &)));
@@ -71,7 +71,7 @@ ServerKernel::ServerKernel(const QString & hostname, quint16 portNumber,
           this, SLOT(simulationFinished()));
 
   connect(&m_simulationManager, SIGNAL(spawned()), this, SLOT(spawned()));
-
+  
   connSig(SIGNAL(newClient(int)),
           SLOT(newClient(int)));
 
@@ -160,6 +160,18 @@ void ServerKernel::createSimulator(const QString & name)
 
   connect(m_srvSimulation, SIGNAL(finished()),
           this, SLOT(simulationFinished()));
+  
+  connect(m_commServer, 
+          SIGNAL(addComponent(const QString &,
+                              CF::GUI::Network::ComponentType::Type,
+                              const QString &)),
+          m_srvSimulation,
+          SLOT(addComponent(const QString &,
+                            CF::GUI::Network::ComponentType::Type,
+                            const QString &)));
+
+  connect(m_srvSimulation, SIGNAL(treeUpdated()), this, SLOT(treeUpdated()));
+
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -244,6 +256,14 @@ SLOTS
 
 ******************************************************************************/
 
+void ServerKernel::treeUpdated()
+{
+  this->getTree(-1);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 void ServerKernel::newClient(int clientId)
 {
   if(m_fileOpen)
@@ -257,6 +277,8 @@ void ServerKernel::newClient(int clientId)
 
   // send a welcome message to the new client
   m_commServer->sendMessage(clientId, "Welcome to the Client-Server project!");
+  
+  this->getTree(clientId);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

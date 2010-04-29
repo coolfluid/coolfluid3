@@ -1,6 +1,8 @@
 
 # Add the project files
 LIST ( APPEND Network_files
+  ComponentType.cpp
+  ComponentType.hpp
   HostInfos.cpp
   HostInfos.hpp
   NetworkAPI.hpp

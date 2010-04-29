@@ -6,8 +6,11 @@
 #include <QMap>
 #include <QObject>
 
+#include "GUI/Network/ComponentType.hpp"
+
 #include "GUI/Network/NetworkFrameType.hpp"
 #include "GUI/Network/HostInfos.hpp"
+
 #include "GUI/Client/TreeModel.hpp"
 
 class QProcess;
@@ -117,6 +120,10 @@ namespace Client {
     void sshError();
 
     public slots:
+    
+    void addComponent(const QModelIndex & index, 
+                      CF::GUI::Network::ComponentType::Type type, 
+                      const QString & name);
 
     /// @brief Slot called when user wants to connect a simulation to its server.
 
@@ -185,6 +192,8 @@ namespace Client {
     void deleteNode(const QDomNode & node);
 
     void commitChanges(const QDomDocument & doc);
+    
+    void updateTree(const QModelIndex & index);
 
     signals:
 

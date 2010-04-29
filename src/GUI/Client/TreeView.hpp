@@ -7,6 +7,8 @@
 #include <QList>
 #include <QHash>
 
+#include "GUI/Network/ComponentType.hpp"
+
 #include "GUI/Client/TSshInformation.hpp"
 
 class QDomDocument;
@@ -46,7 +48,10 @@ namespace Client {
     ACTION_OBJECT_ADD_NODE,
     ACTION_OBJECT_RENAME_NODE,
     ACTION_OBJECT_DELETE,
-    ACTION_OBJECT_PROPERTIES
+    ACTION_OBJECT_PROPERTIES,
+    ACTION_COMP_ADD_CMESH,
+    ACTION_COMP_ADD_CLINK,
+    ACTION_COMP_ADD_CPATH
   };
 
   /////////////////////////////////////////////////////////////////////////////
@@ -126,6 +131,8 @@ namespace Client {
     virtual void keyPressEvent(QKeyEvent * event);
 
     private slots:
+    
+    void addComponent();
 
     /// @brief Slot called when user wants to add a node.
     void addNode();
@@ -194,6 +201,10 @@ namespace Client {
     void nodeActivated(const QModelIndex & index);
 
     signals:
+    
+    void addComponent(const QModelIndex & index, 
+                      CF::GUI::Network::ComponentType::Type type,
+                      const QString & name);
 
     /// @brief Signal emitted when user wants to add a node.
 
@@ -263,6 +274,8 @@ namespace Client {
     /// @todo Replace QModelIndex by QPersistentModelIndex
     void deactivateSimulation(const QModelIndex & index);
 
+    void updateTree(const QModelIndex & index);
+
     private:
 
     /// @brief Hashmap containing all available actions for menu m_items.
@@ -292,6 +305,8 @@ namespace Client {
 
     /// @brief "Add a child node" sub-menu.
     QMenu * m_mnuNewOption;
+    
+    QMenu * m_mnuComponents;
 
     /// @brief Panel used to display and modify m_options for a selected
     /// object.
@@ -322,6 +337,8 @@ namespace Client {
 
     /// @brief Builds the simulation menu
     void buildSimulationMenu();
+    
+    void buildComponentMenu();
 
     /// @brief Asks user to commit or rollback before changing m_options in
     /// m_options panel.

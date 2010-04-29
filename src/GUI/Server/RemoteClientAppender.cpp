@@ -2,28 +2,16 @@
 
 #include "GUI/Server/RemoteClientAppender.hpp"
 
+using namespace CF::Common;
 using namespace CF::GUI::Server;
 
-    RemoteClientAppender::RemoteClientAppender(const std::string& name)// : logcpp::LayoutAppender(name)
-    {}
+RemoteClientAppender::RemoteClientAppender() : LogStringForwarder()
+{}
 
-    RemoteClientAppender::~RemoteClientAppender()
-    {
-      close();
-    }
 
-    void RemoteClientAppender::close()
-    {
-      // empty
-    }
+void RemoteClientAppender::message(const std::string & data)
+{
+  emit newData( data.c_str() );
+}
 
-  //  void RemoteClientAppender::_append(const logcpp::LoggingEvent& event)
-//    {
-//      emit newData( _getLayout().format(event).c_str() );
-//    }
-
-    bool RemoteClientAppender::reopen()
-    {
-      return true;
-    }
 

@@ -125,7 +125,8 @@ QVariant TreeModel::data(const QModelIndex & index, int role) const
         if(this->isSimulationNode(node))
           returnValue = attributes.namedItem("name").nodeValue();
         
-        if(attributes.namedItem("tree").nodeValue() == "object")
+        //       if(attributes.namedItem("tree").nodeValue() == "object")
+        else // this "else" replaces the above commented "if"
         {
           if(!m_advancedMode ||
              (m_advancedMode && attributes.namedItem("mode").nodeValue() == "advanced"))
@@ -138,30 +139,30 @@ QVariant TreeModel::data(const QModelIndex & index, int role) const
         }
       }
     }
-  }
-  else
-  {
-    if(this->isSimulationNode(node))
+    else
     {
-      QDomNamedNodeMap attrs = node.attributes();
-      
-      if(index.column() == 1)
+      if(this->isSimulationNode(node))
       {
-        if(attrs.namedItem("connected").nodeValue() == "true")
-          returnValue = "Yes";
-        else
-          returnValue = "No";
-      }
-      else
-      {
-        if(index.column() == 2)
+        QDomNamedNodeMap attrs = node.attributes();
+        
+        if(index.column() == 1)
         {
-          if(attrs.namedItem("active").nodeValue() == "true")
+          if(attrs.namedItem("connected").nodeValue() == "true")
             returnValue = "Yes";
           else
             returnValue = "No";
         }
-        
+        else
+        {
+          if(index.column() == 2)
+          {
+            if(attrs.namedItem("active").nodeValue() == "true")
+              returnValue = "Yes";
+            else
+              returnValue = "No";
+          }
+          
+        }
       }
     }
   }
@@ -286,9 +287,12 @@ void TreeModel::buildModification(const QString & tagName,
                                   QDomDocument & doc, bool keepAttrs)
 {
   QDomElement node;
-  QStringList parents = this->getParentNodeNames(parent);
-  QString parentsString = QString("/") + parents.join("/");
+  QStringList parents;
+  QString parentsString;
   QDomNodeList childNodes = options.childNodes();
+  
+  this->getParentNodeNames(parents, parent);
+  parentsString = QString("/") + parents.join("/");
   
   if(!childNodes.isEmpty())
   {
@@ -378,7 +382,8 @@ QDomNode TreeModel::newChildToNode(const QModelIndex & index,
   if(item == NULL)
     return QDomDocument();
   
-  QStringList parents = this->getParentNodeNames(indexNode.parentNode());
+  QStringList parents;
+  this->getParentNodeNames(parents, indexNode.parentNode());
   
   if(parents.count() > 0)
   {
@@ -429,7 +434,8 @@ QDomNode TreeModel::renameToNode(const QModelIndex & index,
   if(item == NULL)
     return QDomDocument();
   
-  QStringList parents = this->getParentNodeNames(indexNode.parentNode());
+  QStringList parents;
+  this->getParentNodeNames(parents, indexNode.parentNode());
   
   if(parents.count() > 0)
   {
@@ -528,7 +534,23 @@ QString TreeModel::getNodePath(const QModelIndex & index) const
   if(item == NULL || item->getDomNode() == m_domDocument.firstChild())
     return QString();
   
-  return this->getParentNodeNames(item->getDomNode()).join("/").prepend("/");
+  QStringList parents;
+  this->getParentNodeNames(parents, item->getDomNode());
+  return parents.join("/").prepend("/");
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+QString TreeModel::getNodePathInSim(const QModelIndex & index, bool * ok) const
+{
+  QStringList parents;
+  TreeItem * item = static_cast<TreeItem *> (index.internalPointer());
+  
+  cf_assert(item != CFNULL);
+  
+  this->getParentNodeNamesInSim(parents, item->getDomNode());
+  return parents.join("/").prepend("/");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -758,7 +780,7 @@ void TreeModel::setSimulationTree(const QDomDocument & tree,
   if(this->isSimulationNode(index))
   {
     QDomNode simNode = this->indexToNode(index);
-    QDomNode node = simNode.firstChildElement("Simulator");
+    QDomNode node = simNode.firstChildElement("XCFcase");
     
     // if the "Simulator" node was found, we replace the old tree with the new one
     
@@ -827,24 +849,42 @@ QModelIndex TreeModel::getParentSimIndex(const QModelIndex & index) const
 
 // PRIVATE METHODS
 
-QStringList TreeModel::getParentNodeNames(const QDomNode & node) const
+void TreeModel::getParentNodeNames(QStringList & list, 
+                                   const QDomNode & node) const
 {
   QDomNode parentNode = node.parentNode();
-  QStringList list;
   
-  if(parentNode.parentNode().isNull()) // if the node has no parent
-    return list;
-  else
+  if(!parentNode.parentNode().isNull()) // if the node has a parent
   {
-    list = this->getParentNodeNames(parentNode);
+    this->getParentNodeNames(list, parentNode);
     
     if(this->isSimulationNode(node))
       list << node.attributes().namedItem("name").nodeValue();
     else
       list << node.nodeName();
-    
-    return  list;
   }
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void TreeModel::getParentNodeNamesInSim(QStringList & list, 
+                                        const QDomNode & node) const
+{
+  QDomNode parentNode = node.parentNode();
+  
+  if(!this->isSimulationNode(parentNode))
+  {
+
+    this->getParentNodeNamesInSim(list, parentNode);
+    
+    if(this->isSimulationNode(node))
+      list << node.attributes().namedItem("name").nodeValue();
+    else
+      list << node.nodeName();
+  }
+  else if (node.attributes().namedItem("tree").nodeValue() == "option")
+    list.clear();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -891,7 +931,9 @@ QModelIndex TreeModel::getIndex(QStringList & path, const QModelIndex & index) c
 
 QModelIndex TreeModel::getIndex(const QDomNode & node) const
 {
-  return this->getIndex(this->getParentNodeNames(node).join("/").prepend('/'));
+  QStringList parents;
+  this->getParentNodeNames(parents, node);
+  return this->getIndex(parents.join("/").prepend('/'));
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

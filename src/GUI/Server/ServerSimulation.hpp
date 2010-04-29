@@ -7,6 +7,9 @@
 #include "Common/ConfigArgs.hpp"
 //#include "Framework/Maestro.hpp"
 
+#include "Common/CRoot.hpp"
+#include "GUI/Network/ComponentType.hpp"
+
 #include <QObject>
 #include <QThread>
 #include <QStringList>
@@ -110,6 +113,11 @@ namespace Server {
     QString getSubSystem(int subSystem) const;
     
     public slots:
+    
+    void addComponent(const QString & path, 
+                      CF::GUI::Network::ComponentType::Type type, 
+                      const QString & name);
+    
     /// @brief Slot called when a message has been forwarded from the
     /// simulator.
     
@@ -127,9 +135,12 @@ namespace Server {
     /// @param message The error message
     void error(const QString & message);
     
+    void treeUpdated();
+    
   private:
     /// @brief The simulator
     //CF::Common::SharedPtr<CF::Framework::Simulator> m_simulator;
+    boost::shared_ptr<CF::Common::CRoot> m_rootComponent;
     
     /// @brief If not empty, the name of the case file currently open.
     QString m_caseFile;

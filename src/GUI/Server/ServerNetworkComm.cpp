@@ -20,6 +20,7 @@
 
 #include "GUI/Server/ServerNetworkComm.hpp"
 
+using namespace std;
 using namespace CF::Common;
 //using namespace CF::Config;
 using namespace CF::GUI::Network;
@@ -716,6 +717,17 @@ void ServerNetworkComm::newData()
         case NETWORK_GET_SUBSYSTEM_LIST:
           emit getSubSysList(clientId);
           break;
+
+        case NETWORK_ADD_COMPONENT:
+        {
+          string path = fi.frameAttributes["parentPath"];
+          string name = fi.frameAttributes["name"];
+          ComponentType::Type type;
+          type = ComponentType::Convert::to_enum(fi.frameAttributes["type"]);
+          
+          emit addComponent(path.c_str(), type, name.c_str());
+          break;
+        }
       }
     }
 

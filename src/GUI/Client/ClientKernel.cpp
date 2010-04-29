@@ -1,9 +1,11 @@
 
 #include <QtCore>
 
+#include "GUI/Network/ComponentType.hpp"
+#include "GUI/Network/NetworkFrameType.hpp"
+
 #include "GUI/Client/ClientNetworkComm.hpp"
 #include "GUI/Client/GlobalLog.hpp"
-#include "GUI/Network/NetworkFrameType.hpp"
 #include "GUI/Client/StatusModel.hpp"
 #include "GUI/Client/TSshInformation.hpp"
 
@@ -415,11 +417,11 @@ void ClientKernel::connectSimulation(const QModelIndex & index,
     connectSig(comm, connected());
     connectSig(comm, ack(CF::GUI::Network::NetworkFrameType));
     connectSig(comm, nack(CF::GUI::Network::NetworkFrameType));
-    connectSig(comm, m_abstractTypes(const QStringList &));
+    connectSig(comm, abstractTypes(const QStringList &));
     connectSig(comm, concreteTypes(const QStringList &));
     connectSig(comm, ack(CF::GUI::Network::NetworkFrameType));
     connectSig(comm, nack(CF::GUI::Network::NetworkFrameType)); 
-    connectSig(comm, m_hostList(const QList<CF::GUI::Network::HostInfos> &));
+    connectSig(comm, hostList(const QList<CF::GUI::Network::HostInfos> &));
     connectSig(comm, simulationStatus(const QString &, int, const QString &));
     connectSig(comm, subsystemList(const QStringList &));
     
@@ -566,6 +568,22 @@ void ClientKernel::nack(NetworkFrameType type)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+void ClientKernel::addComponent(const QModelIndex & index, 
+                                ComponentType::Type type, const QString & name)
+{
+  cf_assert(type != ComponentType::INVALID && type != ComponentType::ROOT);
+  
+  QString path = m_treeModel->getNodePathInSim(index);
+  ClientNetworkComm * comm = m_networkComms[m_treeModel->getParentSimIndex(index)];
+  
+  path.prepend("/");
+  
+  comm->sendAddComponent(path, type, name);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 void ClientKernel::addNode(const QString & abstractType)
 {
   
@@ -594,4 +612,13 @@ void ClientKernel::commitChanges(const QDomDocument & doc)
 {
   ClientNetworkComm * comm = m_networkComms[m_treeModel->getCurrentSimulation()];
   comm->sendModifyNode(doc);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void ClientKernel::updateTree(const QModelIndex & index)
+{
+  ClientNetworkComm * comm = m_networkComms[m_treeModel->getCurrentSimulation()];
+  comm->sendGetTree();
 }

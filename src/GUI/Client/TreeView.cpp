@@ -3,6 +3,8 @@
 #include <QtCore>
 #include <stdexcept>
 
+#include "Common/CF.hpp"
+
 #include "GUI/Client/CommitDetails.hpp"
 #include "GUI/Client/OptionPanel.hpp"
 #include "GUI/Client/CommitDetailsDialog.hpp"
@@ -14,9 +16,12 @@
 #include "GUI/Client/TSshInformation.hpp"
 #include "GUI/Client/ConfirmCommitDialog.hpp"
 
+#include "GUI/Network/ComponentType.hpp"
+
 #include "GUI/Client/TreeView.hpp"
 
 using namespace CF::GUI::Client;
+using namespace CF::GUI::Network;
 
 TreeView::TreeView(OptionPanel * optionsPanel, QMainWindow * parent)
 : QTreeView(parent)
@@ -39,6 +44,7 @@ TreeView::TreeView(OptionPanel * optionsPanel, QMainWindow * parent)
   QRegExp reg(QRegExp(".+", Qt::CaseInsensitive, QRegExp::RegExp));
   m_modelFilter->setFilterRegExp(reg);
 
+  this->buildComponentMenu();
   this->buildSimulationMenu();
   this->buildObjectMenu();
 
@@ -222,6 +228,39 @@ void TreeView::keyPressEvent(QKeyEvent * event)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+void TreeView::buildComponentMenu()
+{
+  MenuActionInfo actionInfo;
+  
+  // context menu init
+  QStringList typesList = OptionTypes::getTypesList();
+  QStringList::iterator it = typesList.begin();
+
+  m_mnuComponents = new QMenu("New component");
+  
+  //----------------------------------------------------
+  //----------------------------------------------------
+  
+  actionInfo.m_menu = m_mnuComponents;
+  actionInfo.m_slot = SLOT(addComponent());
+  
+  //--------------------------------------------
+  
+  actionInfo.m_text = ComponentType::Convert::to_str(ComponentType::LINK).c_str();
+  actionInfo.buildAction(this);
+  
+  //--------------------------------------------
+
+  actionInfo.m_text = ComponentType::Convert::to_str(ComponentType::GROUP).c_str();
+  actionInfo.buildAction(this);
+  
+  //--------------------------------------------
+  
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 void TreeView::buildObjectMenu()
 {
   MenuActionInfo actionInfo;
@@ -230,7 +269,7 @@ void TreeView::buildObjectMenu()
   QStringList typesList = OptionTypes::getTypesList();
   QStringList::iterator it = typesList.begin();
 
-  // build menu m_items
+  // build menu items
   actionInfo.m_slot = SLOT(addOption());
   actionInfo.m_menu = m_mnuNewOption;
 
@@ -250,6 +289,14 @@ void TreeView::buildObjectMenu()
   m_objectMenu->addMenu(m_simulationMenu);
   m_objectMenu->addMenu(m_mnuAbstractTypes);
   m_objectMenu->addMenu(m_mnuNewOption);
+
+  //--------------------------------------------
+  
+  m_objectMenu->addSeparator();
+  
+  //--------------------------------------------
+  
+  m_objectMenu->addMenu(m_mnuComponents);
 
   //--------------------------------------------
 
@@ -297,6 +344,12 @@ void TreeView::buildSimulationMenu()
 {
   MenuActionInfo config;
   m_simulationMenu = new QMenu("Simulation");
+    
+  //--------------------------------------------
+  
+  m_simulationMenu->addSeparator();
+  
+  //--------------------------------------------
 
   config.initDefaults();
   config.m_menu = m_simulationMenu;
@@ -401,6 +454,29 @@ void TreeView::buildSimulationMenu()
   config.m_slot = SLOT(deactivateSimulation());
 
   m_actions[ACTION_SIM_DEACTIVATE_SIM] = config.buildAction(this);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void TreeView::addComponent()
+{
+  QAction * mnuItem = static_cast<QAction *> (this->sender());
+  ComponentType::Type type;
+  bool ok;
+  QString name;
+  
+  cf_assert(mnuItem != CFNULL);
+  
+  type = ComponentType::Convert::to_enum(mnuItem->text().toStdString());
+      
+  name = QInputDialog::getText(this, tr("New ") + mnuItem->text(),
+                               tr("New component name:"), QLineEdit::Normal, 
+                               "", &ok);
+  
+  if(!name.isEmpty())
+    emit addComponent(m_treeModel->getCurrentIndex(), type, name);
+  
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -761,7 +837,7 @@ void TreeView::disconnectSimulation()
 
 void TreeView::updateTree()
 {
-
+  emit updateTree(m_treeModel->getCurrentSimulation());
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

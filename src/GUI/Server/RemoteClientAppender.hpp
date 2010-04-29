@@ -4,6 +4,8 @@
 #include <string>
 #include <iostream>
 
+#include "Common/LogStringForwarder.hpp"
+
 #include <QObject>
 
 ////////////////////////////////////////////////////////////////////////////
@@ -16,23 +18,19 @@ namespace Server {
 
   /// Appends LoggingEvents to the remote client log window.
   
-  class RemoteClientAppender : public QObject//, public logcpp::LayoutAppender
+  class RemoteClientAppender : public QObject, public CF::Common::LogStringForwarder
   {
     Q_OBJECT
     
   public:
     
-    RemoteClientAppender(const std::string& name);
-    virtual ~RemoteClientAppender();
-    
-    virtual bool reopen();
-    virtual void close();
+    RemoteClientAppender();
     
   protected:
-    //    virtual void _append(const logcpp::LoggingEvent& event);
+    virtual void message(const std::string & data);
     
   signals:
-    void newData(const QString & m_data);
+    void newData(const QString & data);
   };
   
 ////////////////////////////////////////////////////////////////////////////

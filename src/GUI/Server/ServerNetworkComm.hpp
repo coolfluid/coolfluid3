@@ -12,6 +12,7 @@
 #include "Common/BuilderParserFrameInfo.hpp"
 #include "GUI/Network/NetworkProtocol.hpp"
 #include "GUI/Network/HostInfos.hpp"
+#include "GUI/Network/ComponentType.hpp"
 
 class QHostAdress;
 class QTcpServer;
@@ -25,7 +26,7 @@ namespace GUI {
 
 namespace Network
 {
-  class Network;
+  class ComponentType;
   struct FrameInfos;
 }
   
@@ -191,6 +192,10 @@ namespace Server {
     void error(const QString & message);
     
   signals:
+    
+    void addComponent(const QString & path, 
+                      CF::GUI::Network::ComponentType::Type type, 
+                      const QString & name);
     
     void newClient(int clientId);
     
