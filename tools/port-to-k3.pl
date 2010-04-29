@@ -202,6 +202,8 @@ sub process ($)
 
       # modified extenions
       s/(\w+)\.hh/\1\.hpp/;
+      s/(\w+)_hh/\1_hpp/;
+      s/(\w+)_HH/\1_HPP/;
       s/(\w+)\.cxx/\1\.cpp/;
       
       s/\#include(\s+)\"((\w|\/)*)SelfRegistPtr\.hpp\"//;
