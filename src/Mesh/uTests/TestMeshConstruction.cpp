@@ -121,9 +121,9 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   coordinates->initialize(dim);
   qTable->initialize(4);
   tTable->initialize(3);
-  Buffer<CTable::ConnectivityTable> qTableBuffer = qTable->create_buffer();
-  Buffer<CTable::ConnectivityTable> tTableBuffer = tTable->create_buffer();
-  Buffer<CArray::Array> coordinatesBuffer = coordinates->create_buffer();
+  CTable::Buffer qTableBuffer = qTable->create_buffer();
+  CTable::Buffer tTableBuffer = tTable->create_buffer();
+  CArray::Buffer coordinatesBuffer = coordinates->create_buffer();
   
   //  Mesh of quads and triangles with node and element numbering:
   //

@@ -106,10 +106,128 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
 
 //////////////////////////////////////////////////////////////////////////////
 
+BOOST_AUTO_TEST_CASE( AddRemoveTest )
+{
+  // create table
+  boost::shared_ptr<CTable> table (new CTable("table"));
+  // initialize with number of columns
+  Uint nbCols = 3;
+  table->initialize(nbCols);
+  // create a buffer to interact with the table
+  CTable::Buffer buffer = table->create_buffer();
+  
+  // make a row
+  std::vector<Uint> row(nbCols);
+  
+  // add 4 rows to buffer
+  for(Uint i=0; i<nbCols; i++) row[i] = 0;
+  buffer.add_row(row);
+  for(Uint i=0; i<nbCols; i++) row[i] = 1;
+  buffer.add_row(row);
+  for(Uint i=0; i<nbCols; i++) row[i] = 2;
+  buffer.add_row(row);
+  for(Uint i=0; i<nbCols; i++) row[i] = 3;
+  buffer.add_row(row);
+  
+  // remove row 0 and 2
+  buffer.rm_row(0);
+  buffer.rm_row(2);
+  
+  // table should still be empty as the buffer is not flushed
+  BOOST_CHECK_EQUAL(table->get_table().size(),(Uint) 0);
+
+
+  buffer.flush();
+  
+  // table should have 2 elements as the buffer is flushed
+  BOOST_CHECK_EQUAL(table->get_table().size(),(Uint) 2);
+  BOOST_CHECK_EQUAL(table->get_table()[0][0], (Uint) 1);
+  BOOST_CHECK_EQUAL(table->get_table()[1][0], (Uint) 3);
+        
+  
+  // Test now if 2 rows can be deleted and only 1 added
+  
+  for(Uint i=0; i<nbCols; i++) row[i] = 4;
+  buffer.add_row(row);
+  buffer.rm_row(0);
+  buffer.rm_row(1);
+  
+  buffer.flush();
+  BOOST_CHECK_EQUAL(table->get_table().size(),(Uint) 2);
+  BOOST_CHECK_EQUAL(table->get_table()[1][0], (Uint) 4);
+  
+  // table row 0 should be unmodified but also marked as empty
+  BOOST_CHECK_EQUAL(table->get_table()[0][0], (Uint) 1);
+  BOOST_CHECK_EQUAL(buffer.m_nbEmptyArrayRows, (Uint) 1);
+  BOOST_CHECK_EQUAL(buffer.m_emptyArrayRows[0], (Uint) 0);
+    
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( FlushTest )
+{
+  // create table
+  boost::shared_ptr<CTable> table (new CTable("table"));
+  // initialize with number of columns
+  Uint nbCols = 3;
+  table->initialize(nbCols);
+  // create a buffer to interact with the table with buffersize 3 (if no argument, use default buffersize)
+  CTable::Buffer buffer = table->create_buffer(3);
+  
+  // make a row
+  std::vector<Uint> row(nbCols);
+  
+  // add 4 rows to buffer
+  for(Uint i=0; i<nbCols; i++) row[i] = 0;
+  buffer.add_row(row);
+  for(Uint i=0; i<nbCols; i++) row[i] = 1;
+  buffer.add_row(row);
+  for(Uint i=0; i<nbCols; i++) row[i] = 2;
+  buffer.add_row(row);
+  
+  // buffer should automatically flush as its size is 3
+  BOOST_CHECK_EQUAL(table->get_table().size(),(Uint) 3);
+  
+  // buffer is now empty.
+  // add a row to buffer, remove that same row, and add another row.
+  for(Uint i=0; i<nbCols; i++) row[i] = 4;
+  buffer.add_row(row);
+  buffer.rm_row(3);
+  for(Uint i=0; i<nbCols; i++) row[i] = 3;
+  buffer.add_row(row);
+  
+  // the buffer should have one filled in value. flush it
+  buffer.flush();
+  
+  // the table should have grown with 1 as the buffer with 1 item was flushed
+  BOOST_CHECK_EQUAL(table->get_table().size(),(Uint) 4);
+  BOOST_CHECK_EQUAL(table->get_table()[3][0],(Uint) 3);
+  
+  // remove row 0, 1, 2
+  buffer.rm_row(0);
+  buffer.rm_row(1);
+  buffer.rm_row(2);
+  
+  // table still has 4 rows, but first 3 rows are marked as disabled
+  BOOST_CHECK_EQUAL(table->get_table().size(),(Uint) 4);
+  
+  buffer.compact();
+  // now the table should only have 1 row, as the 3 disabled rows should be removed
+  
+  BOOST_CHECK_EQUAL(table->get_table().size(),(Uint) 1);
+  BOOST_CHECK_EQUAL(table->get_table()[0][0],(Uint) 3);
+  
+  
+
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 BOOST_AUTO_TEST_CASE( CTableTest )
 {
   // CFinfo << "testing CTable \n" << CFendl;
-
+  Logger::getInstance().getStream(Logger::DEBUG).setLogLevel(SILENT);
   // Create mesh component
   boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
 
@@ -135,7 +253,7 @@ BOOST_AUTO_TEST_CASE( CTableTest )
   // check initalization
   Uint nbCols = 5;
   connTable->initialize(nbCols);
-  Buffer<CTable::ConnectivityTable> tableBuffer = connTable->create_buffer();
+  CTable::Buffer tableBuffer = connTable->create_buffer();
   
   BOOST_CHECK_EQUAL(connTable->get_table().size(),(Uint) 0);
   BOOST_CHECK_EQUAL(connTable->get_table().shape()[1],(Uint) 5);
@@ -187,7 +305,7 @@ BOOST_AUTO_TEST_CASE( CArrayTest )
   // initialize the array
   Uint dim = 2;
   coordinates->initialize(dim);
-  Buffer<CArray::Array> coordinatesBuffer = coordinates->create_buffer();
+  CArray::Buffer coordinatesBuffer = coordinates->create_buffer();
   
   // Add coordinates to the array
   coordinatesBuffer.add_row(create_coord( 0.0 , 0.0 ));

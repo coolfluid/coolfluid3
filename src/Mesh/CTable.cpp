@@ -9,8 +9,7 @@ using namespace Common;
 
 CTable::CTable ( const CName& name  ) :
   Component ( name ),
-  m_table(boost::extents[0][0]),
-  m_buffer(m_table,1024)
+  m_table(boost::extents[0][0])
 {
 }
 
@@ -29,11 +28,11 @@ void CTable::initialize(const Uint nbCols)
 
 //////////////////////////////////////////////////////////////////////////////
 
-Buffer<CTable::ConnectivityTable> CTable::create_buffer(const size_t buffersize)
+CTable::Buffer CTable::create_buffer(const size_t buffersize)
 { 
   // make sure the connectivity table has its columnsize defined
   cf_assert(m_table.shape()[1] > 0);
-  return Buffer<ConnectivityTable>(m_table,buffersize); 
+  return CTable::Buffer(m_table,buffersize); 
 }
 
 ////////////////////////////////////////////////////////////////////////////////

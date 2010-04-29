@@ -26,7 +26,7 @@ public:
 
   typedef boost::multi_array<Real,2> Array;
   typedef Array::subarray<1>::type Row;  
-
+  typedef Buffer<Real> Buffer;
   /// Contructor
   /// @param name of the component
   CArray ( const CName& name );
@@ -46,7 +46,7 @@ public:
   Array& get_array() { return m_array; }
 
   /// @return A Buffer object that can fill this Array
-  Buffer<Array> create_buffer(const size_t buffersize=1024);
+  Buffer create_buffer(const size_t buffersize=1024);
 
   /// private data
 private:

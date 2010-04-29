@@ -28,11 +28,11 @@ void CArray::initialize(const Uint nbCols)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Buffer<CArray::Array> CArray::create_buffer(const size_t buffersize)
+CArray::Buffer CArray::create_buffer(const size_t buffersize)
 { 
   // make sure the array has its columnsize defined
   cf_assert(m_array.shape()[1] > 0);
-  return Buffer<Array>(m_array,buffersize); 
+  return CArray::Buffer(m_array,buffersize); 
 }
 
 ////////////////////////////////////////////////////////////////////////////////

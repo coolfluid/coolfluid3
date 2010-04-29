@@ -28,7 +28,8 @@ class Mesh_API CTable : public Common::Component {
 public:
   
   typedef boost::multi_array<Uint,2> ConnectivityTable;
-  typedef ConnectivityTable::subarray<1>::type Row;  
+  typedef ConnectivityTable::subarray<1>::type Row;
+  typedef Buffer<Uint> Buffer;
   
   /// Contructor
   /// @param name of the component
@@ -49,14 +50,12 @@ public:
   ConnectivityTable& get_table() { return m_table; }
   
   /// @return A Buffer object that can fill this Connectivity Table
-  Buffer<ConnectivityTable> create_buffer(const size_t buffersize=1024);
+  Buffer create_buffer(const size_t buffersize=1024);
   
 /// private data
 private:
   
-  ConnectivityTable m_table;
-  Buffer<ConnectivityTable> m_buffer;
-  
+  ConnectivityTable m_table;  
 
 };
 
