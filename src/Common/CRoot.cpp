@@ -1,5 +1,6 @@
-#include "Common/CRoot.hpp"
 #include "Common/BasicExceptions.hpp"
+
+#include "Common/CRoot.hpp"
 
 namespace CF {
 namespace Common {

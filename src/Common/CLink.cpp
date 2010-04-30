@@ -1,8 +1,16 @@
-#include "Common/CLink.hpp"
 #include "Common/BasicExceptions.hpp"
+#include "Common/ObjectProvider.hpp"
+#include "Common/CommonLib.hpp"
+
+#include "Common/CLink.hpp"
 
 namespace CF {
 namespace Common {
+
+////////////////////////////////////////////////////////////////////////////////
+
+Common::ObjectProvider < CLink, Component, CommonLib, NB_ARGS_1 >
+CLink_Provider ( CLink::getClassName() );
 
 ////////////////////////////////////////////////////////////////////////////////
 

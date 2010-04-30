@@ -4,7 +4,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/NonCopyable.hpp"
-
 #include "Common/NamedObject.hpp"
 
 //#include "Common/SelfRegistry.hpp"

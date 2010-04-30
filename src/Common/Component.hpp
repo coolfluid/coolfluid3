@@ -8,6 +8,7 @@
 
 #include "Common/DynamicObject.hpp"
 #include "Common/CPath.hpp"
+#include "Common/ConcreteProvider.hpp"
 
 #include "Common/xmlParser.h"  // move to stand-alone function
 
@@ -33,7 +34,15 @@ namespace Common {
     /// type for names of components
     typedef std::string CName;
 
+    /// type of this class contruction provider
+    typedef Common::ConcreteProvider < Component, NB_ARGS_1 > PROVIDER;
+    /// type of first argument of constructor
+    typedef const CName& ARG1;
+
   public:
+
+    /// Get the class name
+    static std::string getClassName () { return "Component"; }
 
     /// Contructor
     /// @param name of the component

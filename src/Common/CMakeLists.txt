@@ -19,6 +19,7 @@ LIST ( APPEND Common_files
     CodeLocation.cpp
     CodeLocation.hpp
     CommonAPI.hpp
+    CommonLib.hpp
     Component.hpp
     Component.cpp
     CPath.hpp

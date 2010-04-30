@@ -1,7 +1,14 @@
 #include "Common/CGroup.hpp"
+#include "Common/ObjectProvider.hpp"
+#include "Common/CommonLib.hpp"
 
 namespace CF {
 namespace Common {
+
+////////////////////////////////////////////////////////////////////////////////
+
+Common::ObjectProvider < CGroup, Component, CommonLib, NB_ARGS_1 >
+CGroup_Provider ( CGroup::getClassName() );
 
 ////////////////////////////////////////////////////////////////////////////////
 
