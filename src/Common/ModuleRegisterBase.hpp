@@ -3,7 +3,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/NonCopyable.hpp"
 #include "Common/NamedObject.hpp"
 
 //#include "Common/SelfRegistry.hpp"
@@ -26,7 +25,7 @@ namespace CF {
 /// object.
 /// @author Tiago Quintino
 class Common_API ModuleRegisterBase :
-  public Common::NonCopyable<ModuleRegisterBase>,
+  public boost::noncopyable,
   public Common::NamedObject  {
 
 public: // methods

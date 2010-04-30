@@ -3,8 +3,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/NonCopyable.hpp"
-
 #include "Common/SafePtr.hpp"
 #include "Common/GeneralStorage.hpp"
 
@@ -25,8 +23,7 @@ namespace CF {
 /// modules that are loaded
 /// The only instance of this object is held by the CFEnv.
 /// @author Tiago Quintino
-class Common_API ModuleRegistry :
-  public Common::NonCopyable<ModuleRegistry> {
+class Common_API ModuleRegistry : public boost::noncopyable {
 
   friend class Common::CoreEnv;
 

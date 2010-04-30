@@ -30,10 +30,8 @@ namespace Common {
 
     /// typedef of pointers to components
     typedef boost::shared_ptr<Component> Ptr;
-
     /// type for names of components
     typedef std::string CName;
-
     /// type of this class contruction provider
     typedef Common::ConcreteProvider < Component, NB_ARGS_1 > PROVIDER;
     /// type of first argument of constructor

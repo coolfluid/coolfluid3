@@ -3,7 +3,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/NonCopyable.hpp"
 #include "Common/OwnedObject.hpp"
 
 #include "Common/CommonAPI.hpp"
@@ -19,7 +18,7 @@ namespace CF {
 /// This class is an interface for handlers of signals from the
 /// opwrating system
 /// @author Tiago Quintino
-class Common_API SignalHandler : public Common::NonCopyable<SignalHandler> {
+class Common_API SignalHandler : public boost::noncopyable {
 
 public: // methods
 

@@ -5,7 +5,6 @@
 
 #include "Common/SafePtr.hpp"
 #include "Common/GeneralStorage.hpp"
-#include "Common/NonCopyable.hpp"
 
 #include "Common/CommonAPI.hpp"
 
@@ -24,8 +23,7 @@ namespace CF {
 /// Factory objects that are created
 /// The only instance of this object is held by the CoreEnv.
 /// @author Tiago Quintino
-class Common_API FactoryRegistry :
-  public Common::NonCopyable<FactoryRegistry> {
+class Common_API FactoryRegistry : public boost::noncopyable {
 
   friend class Common::CoreEnv;
 

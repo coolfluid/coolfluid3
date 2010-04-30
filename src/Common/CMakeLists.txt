@@ -52,7 +52,6 @@ LIST ( APPEND Common_files
     Exception.hpp
     ExportAPI.hpp
     Factory.hpp
-    FactoryBase.hpp
     FactoryRegistry.hpp
     FactoryRegistry.cpp
     GeneralStorage.hpp
@@ -84,7 +83,6 @@ LIST ( APPEND Common_files
     MemoryAllocatorNormal.hpp
     NamedObject.hpp
     NamedObject.cpp
-    NonCopyable.hpp
     NonInstantiable.hpp
     ObjectProvider.hpp
     OSystem.cpp

@@ -6,7 +6,6 @@
 #include <mpi.h>
 
 #include "Common/PEInterface.hpp"
-#include "Common/NonCopyable.hpp"
 #include "Common/MPI/DataTypeHandler.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////

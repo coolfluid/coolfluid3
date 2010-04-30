@@ -3,7 +3,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/FactoryBase.hpp"
 #include "Common/Log.hpp"
 #include "Common/SafePtr.hpp"
 #include "Common/BasicExceptions.hpp"
@@ -14,12 +13,27 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
+namespace Common {
 
-  namespace Common {
-
-    template < class BASE > class Provider;
+  template < class BASE > class Provider;
 
 ////////////////////////////////////////////////////////////////////////////////
+
+
+  /// This class serves as a base class for factory's so that all factories
+  /// can be held by a FactoryRegistry
+  /// @author Tiago Quintino
+  class Common_API FactoryBase : public boost::noncopyable {
+
+  public: // methods
+
+    /// @return the name of the type of this factory
+    virtual std::string getTypeName() const = 0;
+
+    /// @return all the providers in this Factory in a std::vector
+    virtual std::vector<Common::ProviderBase*> getAllProviders() = 0;
+
+  }; // end class FactoryBase
 
 /// Stores the Provider's that create self-registration objects polymorphically.
 /// It is part of an abstract factory pattern implementation.

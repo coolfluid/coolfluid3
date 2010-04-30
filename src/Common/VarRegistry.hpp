@@ -3,7 +3,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/NonCopyable.hpp"
 #include "Common/GeneralStorage.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -22,7 +21,7 @@ namespace CF {
 /// Each variable is stored with its name given as a std::string and its type,
 /// encoded also into std::string.
 /// @author Tiago Quintino
-class Common_API VarRegistry : public Common::NonCopyable<VarRegistry> {
+class Common_API VarRegistry : public boost::noncopyable {
 
 public: // functions
 

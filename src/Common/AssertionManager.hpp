@@ -2,18 +2,21 @@
 #define CF_Common_CFASSERT_hpp
 
 /// @note This header should be included by including CF.hpp instead.
-#include <cassert>
+
+#include <boost/utility.hpp>           // for boost::noncopyable
+
+#ifndef CF_ENABLE_STDASSERT
+  #include <cassert>
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
-
-#include "Common/NonCopyable.hpp"
 
 namespace CF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Manager of behavior of assertions
-class Common_API AssertionManager : public Common::NonCopyable <AssertionManager> {
+class Common_API AssertionManager : public boost::noncopyable {
 public:
 
   /// Constructor

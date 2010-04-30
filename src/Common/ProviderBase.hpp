@@ -4,7 +4,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/CF.hpp"
-#include "Common/NonCopyable.hpp"
 
 #include "Common/CommonAPI.hpp"
 
@@ -18,7 +17,7 @@ namespace CF {
 /// @brief Base class for provider types
 /// @author Dries Kimpe
 /// @author Tiago Quintino
-class Common_API ProviderBase : public Common::NonCopyable<ProviderBase> {
+class Common_API ProviderBase : public boost::noncopyable {
 
 public: // methods
 

@@ -15,7 +15,7 @@ namespace CF {
 
 /// This class controls the Parallel environment
 /// @todo remove direct references to MPI from here
-class Common_API PE : Common::NonCopyable<PE> {
+class Common_API PE : public boost::noncopyable {
 public:
 
   /// Return a reference to the current PE

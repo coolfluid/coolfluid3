@@ -7,7 +7,6 @@
 #include <boost/filesystem/exception.hpp>
 #include <boost/filesystem/convenience.hpp>
 
-#include "Common/NonCopyable.hpp"
 #include "Common/BasicExceptions.hpp"
 
 
@@ -23,7 +22,7 @@ namespace CF {
 /// the paths for certain directories are stored.
 /// This class is a Singleton pattern implementation.
 /// @author Tiago Quintino
-class Common_API DirPaths : public Common::NonCopyable<DirPaths> {
+class Common_API DirPaths : public boost::noncopyable {
 
 public: // methods
 

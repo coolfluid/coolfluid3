@@ -5,14 +5,11 @@
 
 #include "boost/checked_delete.hpp"
 
-#include "Common/NonCopyable.hpp"
 #include "Common/CF.hpp"
 
 #include "Common/SafePtr.hpp"
 #include "Common/SetupObject.hpp"
 #include "Common/SharedPtr.hpp"
-
-//#include "Common/ConfigObject.hpp"
 
 #include "Common/CommonAPI.hpp"
 
@@ -33,9 +30,9 @@ namespace Common {
 /// which is used to initialize the CF runtime environment.
 /// @author Tiago Quintino
 class Common_API  CoreEnv :
+    public boost::noncopyable,
 //  public Common::ConfigObject,
-  public Common::SetupObject,
-  public Common::NonCopyable<CoreEnv> {
+  public Common::SetupObject {
 
 public: // methods
 

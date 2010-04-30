@@ -2,7 +2,6 @@
 #define CF_Common_OSystem_hpp
 
 #include "Common/Exception.hpp"
-#include "Common/NonCopyable.hpp"
 #include "Common/SafePtr.hpp"
 #include "Common/CommonAPI.hpp"
 
@@ -29,7 +28,7 @@ public:
 
 /// Represents the operating system
 /// @author Tiago Quintino
-class Common_API OSystem : public Common::NonCopyable<OSystem> {
+class Common_API OSystem : public boost::noncopyable {
 
 public: // methods
 

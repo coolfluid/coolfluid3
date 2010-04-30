@@ -110,7 +110,7 @@ void MPIListener::init()
 
     if(!info.m_finished && info.m_ready)
     {
-      info.m_request = it.key().Irecv(info.m_data, MPIListeningInfo::BUFFER_SIZE,
+      info.m_request = it.key().Irecv(info.m_data, MPIListeningInfo::buffer_size(),
                                       CHAR, MPI_ANY_SOURCE, 0);
       info.m_ready = false;
     }

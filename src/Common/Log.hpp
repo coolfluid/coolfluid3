@@ -28,7 +28,7 @@ class LogStream;
 
 /// @see LogStream
 /// @author Quentin Gasper
-class Common_API Logger : public Common::NonCopyable<Logger>
+class Common_API Logger : public boost::noncopyable
 {
 
   public:

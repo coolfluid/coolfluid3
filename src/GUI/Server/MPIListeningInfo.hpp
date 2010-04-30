@@ -4,7 +4,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <mpi.h>
-#include <boost/config/suffix.hpp>
+
+#include "Common/CF.hpp"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -22,8 +23,8 @@ namespace Server {
   {
   public:
     
-    /// @brief Buffer size
-    BOOST_STATIC_CONSTANT(int, BUFFER_SIZE = 65536);
+    /// @returns buffer size
+    static Uint buffer_size() { return 65536; }
     
     /// @brief Counter
     /// @todo this attribute should be removed

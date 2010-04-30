@@ -1,5 +1,5 @@
 #include "Common/FactoryRegistry.hpp"
-#include "Common/FactoryBase.hpp"
+#include "Common/Factory.hpp"
 #include "Common/Log.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////

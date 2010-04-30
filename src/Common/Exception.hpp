@@ -1,20 +1,19 @@
-#ifndef CF_Common__hpp
-#define CF_Common__hpp
+#ifndef CF_Common_Exception_hpp
+#define CF_Common_Exception_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/CodeLocation.hpp"
-#include "Common/NonCopyable.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-  namespace Common {
+namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Manager of behavior of exceptions
-class Common_API ExceptionManager : public Common::NonCopyable <ExceptionManager> {
+class Common_API ExceptionManager : public boost::noncopyable {
 public:
 
   /// Constructor
@@ -110,9 +109,9 @@ protected: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  } // namespace Common
-} // namespace CF
+} //  Common
+} //  CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common__hpp
+#endif // CF_Common_Exception_hpp

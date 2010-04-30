@@ -2,7 +2,6 @@
 #define CF_Common_PEInterface_hpp
 
 #include "Common/CF.hpp"
-#include "Common/NonCopyable.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -12,7 +11,7 @@ namespace Common {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Base class for the PEInterface
-class Common_API PEInterface : public NonCopyable<PEInterface> {
+class Common_API PEInterface : public boost::noncopyable {
 public:
 
   /// virtual destructor

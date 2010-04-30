@@ -3,7 +3,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/NonCopyable.hpp"
 #include "Common/DynamicObject.hpp"
 #include "Common/OwnedObject.hpp"
 
@@ -19,7 +18,7 @@ namespace Common {
 class Common_API EventHandler :
     public Common::OwnedObject,
     public Common::DynamicObject,
-    public Common::NonCopyable<EventHandler>
+    public boost::noncopyable
 {
 public: // methods
 

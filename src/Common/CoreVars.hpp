@@ -4,7 +4,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/CF.hpp"
-#include "Common/NonCopyable.hpp"
 #include "Common/LogLevel.hpp"
 #include "Common/CommonAPI.hpp"
 
@@ -18,7 +17,7 @@ namespace CF {
 
 /// Stores CF Runtime environment variables
 /// @author Tiago Quintino
-class Common_API CoreVars : public Common::NonCopyable<CoreVars>
+class Common_API CoreVars : public boost::noncopyable
 {
   public: // functions
 

@@ -4,7 +4,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/CF.hpp"
-#include "Common/NonCopyable.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,7 +15,7 @@ namespace CF {
 
 /// This class represents the current information on the memory usage.
 /// @author Tiago Quintino
-class Common_API ProcessInfo : public Common::NonCopyable<ProcessInfo> {
+class Common_API ProcessInfo : public boost::noncopyable {
 
 public: // functions
 

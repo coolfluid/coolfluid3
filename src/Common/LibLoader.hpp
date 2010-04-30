@@ -6,7 +6,6 @@
 #include "Common/CommonAPI.hpp"
 
 #include "Common/Exception.hpp"
-#include "Common/NonCopyable.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +33,7 @@ public:
 /// Class that explicit loads shared libraries
 /// independently of the operating system
 /// @author Tiago Quintino
-class Common_API LibLoader : public Common::NonCopyable<LibLoader> {
+class Common_API LibLoader : public boost::noncopyable {
 
 public: // methods
 

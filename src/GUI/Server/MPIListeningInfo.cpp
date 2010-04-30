@@ -7,7 +7,6 @@ MPIListeningInfo::MPIListeningInfo()
 {
   m_counter = 0;
   m_ready = true;
-  m_data = new char[BUFFER_SIZE];
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

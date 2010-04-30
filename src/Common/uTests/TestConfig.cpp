@@ -20,6 +20,11 @@ using namespace boost;
 using namespace CF;
 using namespace CF::Common;
 
+
+/// @todo
+///   * option of vector of T
+///   * option of pointer to base class init from self regist
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Definition of the ConfigKey type
@@ -197,6 +202,7 @@ class MyC : public ConfigObject
     options.add< OptionT<bool> >         ( "OptBool", "bool option"   , false  );
     options.add< OptionT<Uint> >         ( "OptInt",  "int option"    , 10     );
     options.add< OptionT<std::string> >  ( "OptStr",  "string option" , "LOLO" );
+//    options.add< Option<std::string> >  ( "OptStr",  "string option" , "LOLO" );
   }
 
 private:
