@@ -10,6 +10,8 @@
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
+
+
 #include "Common/CF.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/Log.hpp"
@@ -199,10 +201,11 @@ class MyC : public ConfigObject
 
   static void defineConfigOptions ( OptionList& options )
   {
-    options.add< OptionT<bool> >         ( "OptBool", "bool option"   , false  );
-    options.add< OptionT<Uint> >         ( "OptInt",  "int option"    , 10     );
-    options.add< OptionT<std::string> >  ( "OptStr",  "string option" , "LOLO" );
-//    options.add< Option<std::string> >  ( "OptStr",  "string option" , "LOLO" );
+    options.add< OptionT<bool> >            ( "OptBool", "bool option"   , false  );
+    options.add< OptionT<Uint> >            ( "OptInt",  "int option"    , 10     );
+    options.add< OptionT<std::string> >     ( "OptStr",  "string option" , "LOLO" );
+//    vector<int> def; def += 1,2,3,4,5,6,7,8,9;
+//    options.add< OptionT< std::vector < int > >  ( "VecInt", "vector ints option" , def );
   }
 
 private:

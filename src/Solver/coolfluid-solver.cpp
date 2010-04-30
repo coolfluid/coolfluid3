@@ -1,6 +1,11 @@
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 
+
+#include <boost/assign/list_inserter.hpp> // for 'push_back()'
+#include <boost/assign/list_of.hpp>       // for 'list_of()' and 'ref_list_of()'
+
+
 #include "Common/Log.hpp"
 
 int g( int x ) { return x*x; }
@@ -25,4 +30,5 @@ int main(int argc, char * argv[])
   // bind used with boost::function to create a functor
   boost::function<int()> fix = boost::bind( &A::f, a,  4 );
   std::cout << fix() << std::endl;
+
 }
