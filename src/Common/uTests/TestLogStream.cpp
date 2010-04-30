@@ -66,34 +66,34 @@ BOOST_AUTO_TEST_CASE( addStringForwarder )
   MyStringForwarder * anotherForwarder = new MyStringForwarder();
 
   // we have no forwarder
-  BOOST_CHECK_EQUAL( f.m_stream->getStringForwarderCount(), 0);
+  BOOST_CHECK_EQUAL( f.m_stream->getStringForwarderCount(), (Uint) 0);
 
   // adding a forwarder should modify the count
   f.m_stream->addStringForwarder(forwarder);
-  BOOST_CHECK_EQUAL( f.m_stream->getStringForwarderCount(), 1);
+  BOOST_CHECK_EQUAL( f.m_stream->getStringForwarderCount(), (Uint) 1);
 
   // adding a forwarder twice should be ignored
   f.m_stream->addStringForwarder(forwarder);
-  BOOST_CHECK_EQUAL( f.m_stream->getStringForwarderCount(), 1);
+  BOOST_CHECK_EQUAL( f.m_stream->getStringForwarderCount(), (Uint) 1);
 
   f.m_stream->addStringForwarder(anotherForwarder);
-  BOOST_CHECK_EQUAL( f.m_stream->getStringForwarderCount(), 2);
+  BOOST_CHECK_EQUAL( f.m_stream->getStringForwarderCount(), (Uint) 2);
 
   // adding a NULL forwarder should be ignored
   f.m_stream->addStringForwarder(NULL);
-  BOOST_CHECK_EQUAL( f.m_stream->getStringForwarderCount(), 2);
+  BOOST_CHECK_EQUAL( f.m_stream->getStringForwarderCount(), (Uint) 2);
 
   // removing a forwarder should modify the count
   f.m_stream->removeStringForwarder(forwarder);
-  BOOST_CHECK_EQUAL( f.m_stream->getStringForwarderCount(), 1);
+  BOOST_CHECK_EQUAL( f.m_stream->getStringForwarderCount(), (Uint) 1);
 
   // removing a forwarder twice should be ignored
   f.m_stream->removeStringForwarder(forwarder);
-  BOOST_CHECK_EQUAL( f.m_stream->getStringForwarderCount(), 1);
+  BOOST_CHECK_EQUAL( f.m_stream->getStringForwarderCount(), (Uint) 1);
 
   // removing a NULL forwarder should be ignored
   f.m_stream->removeStringForwarder(NULL);
-  BOOST_CHECK_EQUAL( f.m_stream->getStringForwarderCount(), 1);
+  BOOST_CHECK_EQUAL( f.m_stream->getStringForwarderCount(), (Uint) 1);
 
   delete forwarder;
   delete anotherForwarder;
