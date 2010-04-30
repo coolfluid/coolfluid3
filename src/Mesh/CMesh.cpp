@@ -1,3 +1,7 @@
+#include "Common/ObjectProvider.hpp"
+
+#include "Mesh/MeshAPI.hpp"
+
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CArray.hpp"
@@ -6,6 +10,9 @@ namespace CF {
 namespace Mesh {
 
 using namespace Common;
+
+Common::ObjectProvider < CMesh, Component, MeshLib, NB_ARGS_1 >
+CMesh_Provider ( CMesh::getClassName() );
 
 ////////////////////////////////////////////////////////////////////////////////
 

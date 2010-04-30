@@ -1,5 +1,5 @@
-#ifndef CF_server_ServerSimulation_h
-#define CF_server_ServerSimulation_h
+#ifndef CF_server_ServerSimulation_hpp
+#define CF_server_ServerSimulation_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -182,4 +182,4 @@ namespace Server {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_server_Simulation_h
+#endif // CF_server_ServerSimulation_hpp

@@ -1,9 +1,15 @@
+#include "Common/ObjectProvider.hpp"
+
+#include "Mesh/MeshAPI.hpp"
 #include "Mesh/CArray.hpp"
 
 namespace CF {
 namespace Mesh {
 
 using namespace Common;
+
+Common::ObjectProvider < CArray, Component, MeshLib, NB_ARGS_1 >
+CArray_Provider ( CArray::getClassName() );
 
 ////////////////////////////////////////////////////////////////////////////////
 
