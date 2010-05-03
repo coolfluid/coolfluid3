@@ -101,9 +101,9 @@ my %packages = (  #  version   default install priority      function
     "parmetis"   => [ "3.1.1",    'on' ,  'off', $priority++,  \&install_parmetis ],
     "hdf5"       => [ "1.6.4",  'off',  'off', $priority++,  \&install_hdf5 ],
     "subversion" => [ "1.4.3",  'off',  'off', $priority++,  \&install_subversion ],
-    "trilinos"   => [ "10.0.2", 'off',  'off', $priority++,  \&install_trilinos ],
+    "trilinos"   => [ "10.2.0", 'off',  'off', $priority++,  \&install_trilinos ],
     "petsc2"     => [ "2.2.0",  'off',  'off', $priority++,  \&install_petsc2 ],
-    "petsc"      => [ "3.0.0-p11",'on',  'off', $priority++,  \&install_petsc3 ],
+    "petsc"      => [ "3.1-p2", 'on',   'off', $priority++,  \&install_petsc3 ],
     "gmsh"       => [ "1.60.1", 'off',  'off', $priority++,  sub { install_gnu("gmsh") } ],
     "ccache"     => [ "2.4",    'off',  'off', $priority++,  sub { install_gnu("ccache") } ],
     "distcc"     => [ "2.18.3", 'off',  'off', $priority++,  sub { install_gnu("distcc") } ],
@@ -1223,12 +1223,17 @@ sub install_trilinos() {
 -D CMAKE_CXX_COMPILER:FILEPATH=$opt_mpi_dir/bin/mpic++ " 
  }
 
-  unless ($opt_fetchonly) {
-    rmtree "$opt_tmp_dir/$lib-$version";
+  unless ($opt_fetchonly) 
+  {
+    my $build_dir =  "$opt_tmp_dir/$lib-$version-Source/build"; 
+
+    rmtree "$opt_tmp_dir/$lib-$version-Source";
     untar_src($lib,$version);
-    safe_chdir("$opt_tmp_dir/$lib-$version-Source/");
+    # make build dir - newer versions dont support in-source builds
+    mkpath $build_dir or die ("could not create dir $build_dir\n");
+    safe_chdir($build_dir);
     run_command_or_die("$opt_cmake_dir/bin/cmake -G KDevelop3 \\
--D CMAKE_BUILD_TYPE:STRING=RELEASE \\
+-D CMAKE_INSTALL_PREFIX:PATH=$opt_install_mpi_dir -D CMAKE_BUILD_TYPE:STRING=RELEASE \\
 -D Trilinos_ENABLE_DEFAULT_PACKAGES:BOOL=OFF \\
 -D Trilinos_ENABLE_ALL_OPTIONAL_PACKAGES:BOOL=ON \\
 -D Trilinos_ENABLE_TESTS:BOOL=OFF \\
@@ -1254,10 +1259,9 @@ sub install_trilinos() {
 $mpiopt \\
 -D CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE \\
 -D BUILD_SHARED_LIBS:BOOL=ON\\
--D Trilinos_VERBOSE_CONFIGURE:BOOL=FALSE \\
--D CMAKE_INSTALL_PREFIX:PATH=$opt_install_mpi_dir \\
-$opt_tmp_dir/$lib-$version-Source"
+-D Trilinos_VERBOSE_CONFIGURE:BOOL=FALSE  $opt_tmp_dir/$lib-$version-Source"
 );
+
 #-D CMAKE_Fortran_COMPILER:FILEPATH=$opt_install_dir/bin/mpif90 
 #-D TPL_ENABLE_PARMETIS:BOOL=ON \\
 #-D PARMETIS_LIBRARY_DIRS:PATH=\"$opt_install_dir/lib\" \\
@@ -1425,10 +1429,11 @@ sub install_hdf5() {
 
 sub print_info() # print information about the
 {
-    print my_colored("Installing COOLFluiD and its dependencies\n",$HEADINGCOLOR);
+    print my_colored("Installing COOLFLUID dependencies\n",$HEADINGCOLOR);
 
     print_var("Install     dir ","$opt_install_dir");
     print_var("Install MPI dir ","$opt_install_mpi_dir");
+    print_var("CMake       dir ","$opt_cmake_dir");
     print_var("MPI         dir ","$opt_mpi_dir");
     print_var("Temporary   dir ","$opt_tmp_dir");
 
