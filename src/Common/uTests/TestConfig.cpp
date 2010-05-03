@@ -3,6 +3,7 @@
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
+#include <boost/foreach.hpp>
 
 #include <boost/property_tree/detail/rapidxml.hpp>
 #include <boost/any.hpp>
@@ -15,6 +16,7 @@
 #include "Common/CF.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/Log.hpp"
+#include "Common/Component.hpp"
 
 using namespace std;
 using namespace boost;
@@ -24,23 +26,36 @@ using namespace CF::Common;
 
 
 /// @todo
-///   * option of vector of T
 ///   * option of pointer to base class init from self regist
+///   * option for pointer to Component
+///   * vector of components
+///   * modify DynamicObject class - signals with XML
+///   * option sets with own processors
+///   * option for paths ( file and dirs )
+///   * option for component path
+///
+/// How to:
+///   * how to define processors statically?
+///   * how to define the validations statically??
+///   * components inform GUI of
+///      * their signals
+///      * hide signals from GUI in advanced mode
+///      * inform of XML parameters for each signal
+///
+/// Done:
+///   * option of vector of T
+///   * configure values from XMLNode
+///   * access configured values
 
 ////////////////////////////////////////////////////////////////////////////////
-
-/// Definition of the ConfigKey type
-typedef std::string ConfigKey;
-/// Definition of the ConfigValue type
-typedef std::string ConfigValue;
-/// Definition of the map std::string to std::string type.
-typedef std::map<ConfigKey,ConfigValue> ConfigMap;
 
 class Option
 {
 public:
 
   typedef boost::shared_ptr<Option> Ptr;
+  typedef boost::function< void()> Processor_t;
+  typedef std::vector< Processor_t > ProcStorage_t;
 
   Option ( const std::string& name,
            const std::string& type,
@@ -53,6 +68,15 @@ public:
   m_description(desc)
   {}
 
+  virtual ~Option () {}
+
+  /// Assume that the xml node passed is correct for this option
+  virtual void change_value ( rapidxml::xml_node<> *node ) = 0;
+
+  void attach_processor ( Processor_t proc ) { m_processors.push_back(proc); }
+
+  // accessor functions
+
   std::string name() const { return m_name; }
   std::string type() const { return m_name; }
   std::string description() const { return m_description; }
@@ -60,7 +84,15 @@ public:
   boost::any value() const { return m_value; }
   boost::any def() const { return m_default; }
 
-  void attach_processor ( boost::function< void()> proc ) { m_processors.push_back(proc); }
+  template < typename TYPE >
+      TYPE value() const { return boost::any_cast<TYPE>(m_value); }
+  template < typename TYPE >
+      TYPE def() const { return boost::any_cast<TYPE>(m_default); }
+
+  template < typename TYPE >
+  void put_value( TYPE& value ) const { value = boost::any_cast<TYPE>(m_value); }
+  template < typename TYPE >
+  void put_def( TYPE& def ) const { def = boost::any_cast<TYPE>(m_default); }
 
 protected:
 
@@ -71,10 +103,44 @@ protected:
   std::string m_type;
   std::string m_description;
 
-  std::vector< boost::function< void()> > m_processors;
+  ProcStorage_t m_processors;
 };
 
 //------------------------------------------------------------------------------
+
+template < typename TYPE >
+struct ConvertValue
+{
+  static TYPE convert ( char * str )
+  {
+    CFinfo << "converting string to POD\n" << CFendl;
+    std::string ss (str);
+    return StringOps::from_str< TYPE >(ss);
+  }
+};
+
+template < typename TYPE >
+struct ConvertValue< std::vector<TYPE> >
+{
+  static std::vector<TYPE> convert ( char * str )
+  {
+    CFinfo << "converting string to vector\n" << CFendl;
+
+    std::vector < TYPE > vvalues; // start with clean vector
+
+    std::string ss (str);
+    boost::tokenizer<> tok (ss);
+    for(boost::tokenizer<>::iterator elem = tok.begin(); elem != tok.end(); ++elem)
+    {
+      vvalues.push_back( StringOps::from_str< TYPE >(*elem) );
+    }
+
+    return vvalues; // assign to m_value (replaces old values)
+  }
+};
+
+//------------------------------------------------------------------------------
+
 
 template < typename TYPE >
 class OptionT : public Option
@@ -83,31 +149,69 @@ public:
 
   typedef TYPE value_type;
 
-  OptionT ( const std::string& name, const std::string& desc, TYPE def ) :
-      Option(name,DEMANGLED_TYPEID(TYPE), desc, def)
+  OptionT ( const std::string& name, const std::string& desc, value_type def ) :
+      Option(name,DEMANGLED_TYPEID(value_type), desc, def)
   {
     CFinfo
         << " creating option ["
         << m_name << "] of type ["
         << m_type << "] w default ["
-        << def << "] desc ["
+//        << def << "] desc ["
         << m_description << "]\n" << CFendl;
+  }
+
+  virtual void change_value ( rapidxml::xml_node<> *node )
+  {
+    TYPE vt = ConvertValue<TYPE>::convert( node->value() );
+    m_value = vt;
+
+    BOOST_FOREACH( Option::Processor_t& proc, m_processors )
+        proc();
   }
 
 };
 
 //------------------------------------------------------------------------------
 
+class OptionComponent : public Option
+{
+public:
+
+  OptionComponent ( const std::string& name, const std::string& desc, const std::string& keyname ) :
+      Option(name, "Component", desc, keyname )
+  {
+    CFinfo
+        << " creating option ["
+        << m_name << "] of type ["
+        << m_type << "] w default ["
+//        << def << "] desc ["
+        << m_description << "]\n" << CFendl;
+  }
+
+protected:
+
+  /// name of the component type (use to get the provider in the component factory)
+  std::string m_name;
+  /// storage of the component pointer
+  Component::Ptr m_component;
+
+};
+
+
+
+//------------------------------------------------------------------------------
+
 class OptionList
 {
-private:
+
+public:
 
   typedef std::map < std::string , Option::Ptr > OptionStorage_t;
 
 public:
 
   template < typename OPTION_TYPE >
-      Option::Ptr add (const std::string& name, const std::string& description, typename OPTION_TYPE::value_type def )
+      Option::Ptr add (const std::string& name, const std::string& description, const typename OPTION_TYPE::value_type& def )
   {
     cf_assert_desc ( "Class has already option with same name", m_options.find(name) == m_options.end() );
     Option::Ptr opt ( new OPTION_TYPE(name, description, def ) );
@@ -146,6 +250,20 @@ public:
     CLASS::defineConfigOptions(m_option_list);
   }
 
+  void configure ( rapidxml::xml_node<> *node )
+  {
+    using namespace rapidxml;
+    OptionList::OptionStorage_t& options = m_option_list.m_options;
+
+    // loop on the child nodes which should be option configurations
+    for (xml_node<>* itr = node->first_node(); itr; itr = itr->next_sibling() )
+    {
+      OptionList::OptionStorage_t::iterator opt = options.find( itr->name() );
+      if (opt != options.end())
+        opt->second->change_value(itr);
+    }
+  }
+
 protected:
 
   Option::Ptr option( const std::string& optname )
@@ -153,12 +271,7 @@ protected:
     return m_option_list.getOption(optname);
   }
 
-  void configure_opts ( const std::string& pars )
-  {
-
-  }
-
-private:
+protected:
 
   OptionList m_option_list;
 
@@ -175,9 +288,14 @@ class MyC : public ConfigObject
   {
     addConfigOptionsTo(this);
 
-    option("OptBool")->attach_processor( boost::bind ( &MyC::config_bool, this ) );
-    option("OptInt")->attach_processor ( boost::bind ( &MyC::config_int,  this ) );
-    option("OptStr")->attach_processor ( boost::bind ( &MyC::config_str,  this ) );
+    option("OptBool")->attach_processor( boost::bind ( &MyC::config_bool,  this ) );
+    option("OptInt")->attach_processor ( boost::bind ( &MyC::config_int,   this ) );
+    option("OptStr")->attach_processor ( boost::bind ( &MyC::config_str,   this ) );
+    option("VecInt")->attach_processor ( boost::bind ( &MyC::config_vecint,this ) );
+
+    std::vector<int> vi = option("VecInt")->value< std::vector<int> >();
+    for (Uint i = 0; i < vi.size(); ++i)
+      CFinfo << "vi[" << i << "] : " << vi[i] << "\n" << CFendl;
 
   };
 
@@ -190,29 +308,37 @@ class MyC : public ConfigObject
 
   void config_int ()
   {
-//    CFinfo << "config int [" << option("OptInt")->value() << "]\n" << CFendl;
+    CFinfo << "config int [" << option("OptInt")->value<Uint>() << "]\n" << CFendl;
   }
 
   void config_str ()
   {
-//    CFinfo << "config str [" << option("OptStr")->value() << "]\n" << CFendl;
+    std::string s; option("OptStr")->put_value(s);
+    CFinfo << "config str [" << s << "]\n" << CFendl;
+  }
+  void config_vecint ()
+  {
+    std::vector<int> vi; option("VecInt")->put_value(vi);
+    BOOST_FOREACH ( int i, vi )
+        CFinfo << "config vi [" << i << "]\n" << CFendl;
   }
 
 
   static void defineConfigOptions ( OptionList& options )
   {
+
+    // POD's (plain old data)
     options.add< OptionT<bool> >            ( "OptBool", "bool option"   , false  );
     options.add< OptionT<Uint> >            ( "OptInt",  "int option"    , 10     );
     options.add< OptionT<std::string> >     ( "OptStr",  "string option" , "LOLO" );
-//    vector<int> def; def += 1,2,3,4,5,6,7,8,9;
-//    options.add< OptionT< std::vector < int > >  ( "VecInt", "vector ints option" , def );
+
+    // vector of POD's
+    std::vector<int> def;  // def += 1,2,3,4,5,6,7,8,9;
+    def.push_back(3);
+    def.push_back(5);
+    def.push_back(7);
+    options.add< OptionT< std::vector<int> > >     ( "VecInt",  "vector ints option" , def );
   }
-
-private:
-
-//  bool b;
-//  Uint i;
-//  std::string s;
 
 };
 
@@ -253,10 +379,6 @@ BOOST_AUTO_TEST_CASE( addConfigOptionsTo )
 
   boost::shared_ptr<MyC> pm ( new MyC );
 
-  pm->config_bool();
-  pm->config_int();
-  pm->config_str();
-
   CFinfo << "ending\n" << CFendl;
 }
 
@@ -276,6 +398,40 @@ BOOST_AUTO_TEST_CASE( defineConfigOptions )
   CFinfo << "ending\n" << CFendl;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( configure )
+{
+  using namespace rapidxml;
+
+  boost::gregorian::date today = boost::gregorian::day_clock::local_day();
+  boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
+
+  CFinfo << "starting [" << today << "] [" << now << "]\n" << CFendl;
+
+  boost::shared_ptr<MyC> pm ( new MyC );
+
+  std::string text = (
+      "<MyC>"
+      "<OptBool>   1  </OptBool>"
+      "<OptInt>  134  </OptInt>"
+      "<OptStr> lolo  </OptStr>"
+      "<Unused> popo  </Unused>"
+      "<VecInt>2 8 9  </VecInt>"
+      "</MyC>"
+   );
+
+  xml_document<> doc;    // character type defaults to char
+  char* ctext = doc.allocate_string(text.c_str());
+  doc.parse< parse_no_data_nodes >(ctext);
+
+  pm->configure(doc.first_node());
+
+  CFinfo << "ending\n" << CFendl;
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 void print_xml_node(rapidxml::xml_node<> *node)
 {
@@ -293,6 +449,29 @@ void print_xml_node(rapidxml::xml_node<> *node)
   for (xml_node<> * itr = node->first_node(); itr; itr = itr->next_sibling() )
   {
     print_xml_node(itr);
+  }
+
+}
+
+void print_xmlnode( XMLNode node )
+{
+//  cout << "Node [" << node.getName() << "]\n";
+
+  for ( int i = 0; i < node.nText(); ++i)
+  {
+//    cout << " w text [" << node.getText() << "]\n";
+  }
+
+  for ( int i = 0; i < node.nAttribute(); ++i)
+  {
+    XMLAttribute attr = node.getAttribute(i);
+//    cout << "++ attribute [" << attr.lpszName << "] ";
+//    cout << "with value [" << attr.lpszValue << "]\n";
+  }
+
+  for ( int i = 0; i < node.nChildNode(); ++i)
+  {
+    print_xmlnode(node.getChildNode(i));
   }
 
 }
@@ -321,6 +500,26 @@ BOOST_AUTO_TEST_CASE( rapidxml )
 
   print_xml_node(doc.first_node());
 //  print_xml_node(doc);
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( xmlnode )
+{
+  std::string text = ( "<debug lolo=\"1\" koko=\"2\" >"
+                       "<filename>debug.log</filename>"
+                       "<modules NBS=\"3\">"
+                       "    <module>Finance</module>"
+                       "    <module>Admin</module>"
+                       "    <module>HR</module>"
+                       "</modules>"
+                       "<level>2</level>"
+                       "</debug>" );
+
+  XMLNode root_node = XMLNode::parseString(text.c_str());
+
+  print_xmlnode(root_node);
 
 }
 
