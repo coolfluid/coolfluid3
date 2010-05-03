@@ -1,4 +1,3 @@
-#include <iostream>
 #include <iterator>
 
 #include <QtCore>
@@ -7,7 +6,9 @@
 
 #include <boost/filesystem/path.hpp>
 
+#include "Common/CF.hpp"
 #include "Common/ConfigArgs.hpp"
+#include "Common/Log.hpp"
 
 #include "GUI/Client/TreeItem.hpp"
 #include "GUI/Client/TSshInformation.hpp"
@@ -16,7 +17,6 @@
 
 using namespace CF::Common;
 using namespace CF::GUI::Client;
-
 
 TreeModel::TreeModel(QDomDocument document, QObject * parent)
 : QAbstractItemModel(parent)
@@ -117,7 +117,7 @@ QVariant TreeModel::data(const QModelIndex & index, int role) const
     if(item != NULL)
     {
       node = item->getDomNode();
-      
+
       if(index.column() == 0)
       {
         QDomNamedNodeMap attributes = node.attributes();
@@ -804,6 +804,24 @@ void TreeModel::setSimulationTree(const QDomDocument & tree,
       this->endInsertRows();
     }
   }
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void TreeModel::getSimulationTree(const QModelIndex & index, QDomDocument & tree) const
+{
+ cf_assert(index.isValid());
+ cf_assert(this->hasIndex(index.row(), index.column(), index.parent()));
+ cf_assert(this->isSimulationNode(index));
+
+ QDomNode simNode = this->indexToNode(index);
+ QDomNode node = simNode.firstChildElement("XCFcase");
+
+// tree.clear();
+ tree.appendChild(node.cloneNode(true));
+
+ qDebug() << tree.toString() << node.isNull();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -266,4 +266,9 @@ void NetworkProtocol::buildRules()
   this->addAttribute(NETWORK_ADD_COMPONENT, "parentPath");
   this->addAttribute(NETWORK_ADD_COMPONENT, "type");
   this->addAttribute(NETWORK_ADD_COMPONENT, "name");
+
+  this->setTypeName(NETWORK_ADD_LINK, "addLink");
+  this->addAttribute(NETWORK_ADD_LINK, "parentPath");
+  this->addAttribute(NETWORK_ADD_LINK, "name");
+  this->addAttribute(NETWORK_ADD_LINK, "target");
 }

@@ -4,6 +4,7 @@
 #include <stdexcept>
 
 #include "Common/CF.hpp"
+#include "Common/Exception.hpp"
 
 #include "GUI/Client/CommitDetails.hpp"
 #include "GUI/Client/OptionPanel.hpp"
@@ -15,11 +16,14 @@
 #include "GUI/Client/TreeItem.hpp"
 #include "GUI/Client/TSshInformation.hpp"
 #include "GUI/Client/ConfirmCommitDialog.hpp"
+#include "GUI/Client/AddLinkDialog.hpp"
+#include "GUI/Client/GlobalLog.hpp"
 
 #include "GUI/Network/ComponentType.hpp"
 
 #include "GUI/Client/TreeView.hpp"
 
+using namespace CF::Common;
 using namespace CF::GUI::Client;
 using namespace CF::GUI::Network;
 
@@ -462,21 +466,41 @@ void TreeView::buildSimulationMenu()
 void TreeView::addComponent()
 {
   QAction * mnuItem = static_cast<QAction *> (this->sender());
+  QModelIndex index = m_treeModel->getCurrentIndex();
   ComponentType::Type type;
-  bool ok;
   QString name;
   
   cf_assert(mnuItem != CFNULL);
   
   type = ComponentType::Convert::to_enum(mnuItem->text().toStdString());
       
-  name = QInputDialog::getText(this, tr("New ") + mnuItem->text(),
+  if(type == ComponentType::LINK)
+  {
+    AddLinkDialog * ald = new AddLinkDialog(this);
+
+    QMessageBox::critical(NULL, "Error", "This feature is not available for now");
+//    QString name;
+//    QModelIndex target;
+//    QDomDocument tree;
+//
+//    m_treeModel->getSimulationTree(m_treeModel->getParentSimIndex(index), tree);
+//
+//    ald->setTreeModel(tree);
+//
+//    if(ald->show(m_treeModel->getParentSimIndex(index), target, name))
+//      emit addLink(index, name, target);
+
+    delete ald;
+
+  }
+  else
+  {
+    name = QInputDialog::getText(this, tr("New ") + mnuItem->text(),
                                tr("New component name:"), QLineEdit::Normal, 
-                               "", &ok);
-  
-  if(!name.isEmpty())
-    emit addComponent(m_treeModel->getCurrentIndex(), type, name);
-  
+                               "");
+    if(!name.isEmpty())
+      emit addComponent(index, type, name);
+  }  
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

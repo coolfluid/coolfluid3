@@ -124,7 +124,9 @@ namespace Network {
 
     NETWORK_GET_SUBSYSTEM_LIST,
     
-    NETWORK_ADD_COMPONENT
+    NETWORK_ADD_COMPONENT,
+    
+    NETWORK_ADD_LINK
 
   }; // enum FrameTypes
 

@@ -225,6 +225,9 @@ namespace Client {
     bool sendAddComponent(const QString & path, 
                           CF::GUI::Network::ComponentType::Type type, 
                           const QString & name);
+
+    bool sendAddLink(const QString & path, const QString & name,
+                     const QString & target);
     
     public slots :
     

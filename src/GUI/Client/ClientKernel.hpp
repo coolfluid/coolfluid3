@@ -125,6 +125,9 @@ namespace Client {
                       CF::GUI::Network::ComponentType::Type type, 
                       const QString & name);
 
+    void addLink(const QModelIndex & index, const QString & name,
+                 const QModelIndex & target);
+
     /// @brief Slot called when user wants to connect a simulation to its server.
 
     /// @param index Simulation index

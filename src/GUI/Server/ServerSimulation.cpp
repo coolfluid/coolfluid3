@@ -213,7 +213,6 @@ void ServerSimulation::addComponent(const QString & path,
       default:
         throw ShouldNotBeHere(FromHere(), "Can not use this type");
         break;        
-        
     }
     
     emit message(QString("Added a new component named \"%1\" of type \"%2\" to '%3'")

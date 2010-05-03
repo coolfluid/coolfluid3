@@ -206,6 +206,9 @@ namespace Client {
                       CF::GUI::Network::ComponentType::Type type,
                       const QString & name);
 
+    void addLink(const QModelIndex & index, const QString & name,
+                 const QModelIndex & target);
+
     /// @brief Signal emitted when user wants to add a node.
 
     /// @param abstractType Abstract type of the new node.

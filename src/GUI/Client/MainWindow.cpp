@@ -98,8 +98,12 @@ MainWindow::MainWindow()
   connectKernel(activateSimulation(const QModelIndex &));
   connectKernel(deactivateSimulation(const QModelIndex &));
   connectKernel(updateTree(const QModelIndex &));
-  connectKernel(addComponent(const QModelIndex &, CF::GUI::Network::ComponentType::Type, 
+  connectKernel(addComponent(const QModelIndex &,
+                             CF::GUI::Network::ComponentType::Type,
                              const QString &));
+
+  connectKernel(addLink(const QModelIndex &, const QString &,
+                        const QModelIndex &));
   
   connectSig(m_treeView, openSimulation(const QModelIndex &));
   

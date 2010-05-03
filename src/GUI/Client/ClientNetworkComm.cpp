@@ -397,6 +397,26 @@ bool ClientNetworkComm::sendAddComponent(const QString & path,
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+bool ClientNetworkComm::sendAddLink(const QString & path,
+                                    const QString & name,
+                                    const QString & target)
+{
+  BuilderParserFrameInfo fi;
+
+  if(!this->checkConnected())
+    return false;
+
+  fi.setFrameType(NETWORK_ADD_LINK);
+  fi.frameAttributes["parentPath"] = path.toStdString();
+  fi.frameAttributes["name"] = name.toStdString();
+  fi.frameAttributes["target"] = target.toStdString();
+
+  return this->buildAndSend(fi);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 bool ClientNetworkComm::buildAndSend(const BuilderParserFrameInfo & frameInfos)
 {
   bool success = false;

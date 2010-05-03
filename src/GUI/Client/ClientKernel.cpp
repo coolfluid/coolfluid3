@@ -50,8 +50,9 @@ ClientKernel * ClientKernel::getInstance()
 
 void ClientKernel::setTreeModel(TreeModel * treeModel)
 {
-  if(m_treeModel != NULL)
-    disconnect(m_treeModel);
+  //if(m_treeModel != NULL)
+    //m_treeModel->disconnect(this);
+    //disconnect(m_treeModel);
   
   m_treeModel = treeModel;
   
@@ -579,6 +580,22 @@ void ClientKernel::addComponent(const QModelIndex & index,
   path.prepend("/");
   
   comm->sendAddComponent(path, type, name);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void ClientKernel::addLink(const QModelIndex & index, const QString & name,
+                           const QModelIndex & target)
+{
+  ClientNetworkComm * comm = m_networkComms[m_treeModel->getParentSimIndex(index)];
+
+  cf_assert(comm != CFNULL);
+
+  QString path = m_treeModel->getNodePathInSim(index);
+  QString targetPath = m_treeModel->getNodePathInSim(target);
+
+  comm->sendAddLink(path, name, targetPath);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

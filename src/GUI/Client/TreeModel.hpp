@@ -4,6 +4,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <QAbstractItemModel>
+#include <QThread>
 #include <QDomDocument>
 #include <QHash>
 #include <QStringList>
@@ -268,7 +269,7 @@ namespace Client {
     QString getNodePath(const QModelIndex & index) const;
 
     /// @brief Builds a string representing the path from the simulation root
-    // node to the node pointed by @c index.
+    /// node to the node pointed by @c index.
     
     /// Path is structured like a UNIX path. For example : /path/to/node
     /// @param index Index for which the path has to be built.
@@ -332,6 +333,8 @@ namespace Client {
     /// @param tree Simulation tree.
     /// @param index Simulation index.
     void setSimulationTree(const QDomDocument & tree, const QModelIndex & index);
+
+    void getSimulationTree(const QModelIndex & index, QDomDocument & tree) const;
 
     /// @brief Gives simulation connection information.
 
