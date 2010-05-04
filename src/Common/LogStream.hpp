@@ -11,7 +11,7 @@
 #include "Common/LogStringForwarder.hpp"
 #include "Common/CodeLocation.hpp"
 #include "Common/StringOps.hpp"
-#include "Common/PE.hpp"
+#include "Common/MPI/PE.hpp"
 #include "Common/MPI/PE_MPI.hpp"
 
 namespace CF {

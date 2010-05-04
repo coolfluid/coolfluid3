@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "Common/PE.hpp"
+#include "Common/MPI/PE.hpp"
 #include "Common/Log.hpp"
 #include "Common/LogStream.hpp"
 #include "Common/LogLevelFilter.hpp"

@@ -7,7 +7,7 @@
 
 #include "Common/CodeLocation.hpp"
 #include "Common/StringOps.hpp"
-#include "Common/PE.hpp"
+#include "Common/MPI/PE.hpp"
 
 #include "Common/CommonAPI.hpp"
 

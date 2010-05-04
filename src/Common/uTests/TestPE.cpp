@@ -1,7 +1,7 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
-#include "Common/PE.hpp"
+#include "Common/MPI/PE.hpp"
 
 using namespace std;
 using namespace boost;

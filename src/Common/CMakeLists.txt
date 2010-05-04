@@ -88,10 +88,6 @@ LIST ( APPEND Common_files
     OSystem.cpp
     OSystem.hpp
     OwnedObject.hpp
-    PE.cpp
-    PE.hpp
-    PEInterface.cpp
-    PEInterface.hpp
     ProcessInfo.cpp
     ProcessInfo.hpp
     Provider.hpp
@@ -121,24 +117,14 @@ LIST(APPEND Common_libs ${Boost_LIBRARIES})
 # MPI Files
 IF(CF_HAVE_MPI)
 LIST(APPEND Common_files
-      MPI/CommIteratorBase.hpp
-      MPI/CommPattern.cpp
-      MPI/CommPattern.hpp
-      MPI/GlobalReduceMPI.hpp
-      MPI/DataType.hpp
-      MPI/DataType.cpp
-      MPI/DataTypeHandler.cpp
-      MPI/DataTypeHandler.hpp
-      MPI/DataTypeRegistrar_Helper.cpp
-      MPI/DataTypeRegistrar_Helper.hpp
-      MPI/DataTypeRegistrar.hpp
       MPI/HelperFuncs.cpp
       MPI/HelperFuncs.hpp
-      MPI/MPIInitObject.hpp
-      MPI/MPIStructDef.hpp
-      MPI/ParVectorMPI.hpp
       MPI/PE_MPI.cpp
       MPI/PE_MPI.hpp
+      MPI/PE.cpp
+      MPI/PE.hpp
+      MPI/PEInterface.cpp
+      MPI/PEInterface.hpp
 )
 ENDIF()
 
@@ -206,6 +192,20 @@ Win32/ProcessInfo.hpp    Win32/ProcessInfo.cpp
 Win32/SignalHandler.hpp  Win32/SignalHandler.cpp
 Win32/LibLoader.hpp      Win32/LibLoader.cpp
 MemoryAllocatorMMap.hpp  MemoryAllocatorMMap.cpp
+      MPI/CommIteratorBase.hpp
+      MPI/CommPattern.cpp
+      MPI/CommPattern.hpp
+      MPI/GlobalReduceMPI.hpp
+      MPI/DataType.hpp
+      MPI/DataType.cpp
+      MPI/DataTypeHandler.cpp
+      MPI/DataTypeHandler.hpp
+      MPI/DataTypeRegistrar_Helper.cpp
+      MPI/DataTypeRegistrar_Helper.hpp
+      MPI/DataTypeRegistrar.hpp
+      MPI/MPIInitObject.hpp
+      MPI/MPIStructDef.hpp
+      MPI/ParVectorMPI.hpp
 )
 
 SET  ( Common_kernellib TRUE )

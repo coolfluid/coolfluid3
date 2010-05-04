@@ -15,7 +15,7 @@
 #include <stdio.h>
 
 #include "Common/Log.hpp"
-#include "Common/PE.hpp"
+#include "Common/MPI/PE.hpp"
 
 using namespace CF;
 using namespace CF::Common;

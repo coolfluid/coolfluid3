@@ -1,4 +1,4 @@
-#include "Common/PEInterface.hpp"
+#include "Common/MPI/PEInterface.hpp"
 
 namespace CF {
   namespace Common  {

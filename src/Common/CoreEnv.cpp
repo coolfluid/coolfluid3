@@ -6,7 +6,7 @@
 
 #include "coolfluid_svnversion.h"
 
-#include "Common/PE.hpp"
+#include "Common/MPI/PE.hpp"
 
 #include "Common/EventHandler.hpp"
 #include "Common/VarRegistry.hpp"

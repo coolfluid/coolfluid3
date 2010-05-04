@@ -5,7 +5,7 @@
 
 #include <mpi.h>
 
-#include "Common/PEInterface.hpp"
+#include "Common/MPI/PEInterface.hpp"
 #include "Common/MPI/DataTypeHandler.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
