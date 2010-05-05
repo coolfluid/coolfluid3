@@ -36,6 +36,10 @@ public:
   /// set the mesh reader
   void set_reader(const std::string& reader_name);
   
+  /// set the mesh reader
+  boost::shared_ptr<MeshReader>& get_reader() { return m_meshReader; }
+  
+  
 private:
     
   boost::shared_ptr<MeshReader> m_meshReader;

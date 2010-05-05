@@ -3,7 +3,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <fstream>
+#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/fstream.hpp>
 
 #include "Common/StringOps.hpp"
 #include "Common/BasicExceptions.hpp"
@@ -42,13 +43,28 @@ public: // accessors
 
   void set_mesh(const boost::shared_ptr<CMesh>& mesh) { m_mesh = mesh; }
 
-  void read(std::fstream& file, const boost::shared_ptr<CMesh>& mesh)
-  {
-    set_mesh(mesh);
+  void read(boost::filesystem::path& fp, const boost::shared_ptr<CMesh>& mesh)
+  {    
+    set_mesh(mesh);    
+        
+    // if the file is present open it
+    boost::filesystem::fstream file;
+    if( boost::filesystem::exists(fp) )
+    {
+       CFLog(VERBOSE, "Opening file " <<  fp.string() << "\n");
+       file.open(fp,std::ios_base::in); // exists so open it
+    }
+    else // doesnt exist so throw exception
+    {
+       throw boost::filesystem::filesystem_error( fp.string() + " does not exist",
+                                                  boost::system::error_code() );
+    }    
     read_impl(file);
+    file.close();
   }
   
   virtual void read_impl(std::fstream& file) = 0;
+
   
 protected: // data
 

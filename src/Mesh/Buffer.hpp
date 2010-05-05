@@ -84,6 +84,7 @@ public:
   
   void compact();
   
+  Array_t& get_appointed() {return m_array;}
   
 /// private functions
 private:
