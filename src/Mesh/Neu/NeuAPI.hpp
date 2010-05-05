@@ -19,17 +19,43 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////////////////////////////
+
 namespace CF {
+namespace Mesh {
+namespace Neu {
 
-  namespace Mesh {
+////////////////////////////////////////////////////////////////////////////////
     
-    /// Basic Classes for using the Neu mesh format
-    namespace Neu {
-      
-    } // namespace Neu
-    
-  } // namespace Mesh
+/// Class defines the Neutral mesh format operations
+/// @author Willem Deconinck
+class NeuLib :
+    public Common::ModuleRegister<NeuLib>
+{
+public:
 
+  /// Static function that returns the module name.
+  /// Must be implemented for the ModuleRegister template
+  /// @return name of the module
+  static std::string getModuleName() { return "Neu"; }
+
+  /// Static function that returns the description of the module.
+  /// Must be implemented for the ModuleRegister template
+  /// @return descripton of the module
+  static std::string getModuleDescription()
+  {
+    return "This library implements the Neutral mesh format operations.";
+  }
+
+  /// Gets the Class name
+  static std::string getClassName() { return "NeuLib"; }
+
+}; // end NeuLib
+
+////////////////////////////////////////////////////////////////////////////////
+
+} // namespace Neu
+} // namespace Mesh
 } // namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////

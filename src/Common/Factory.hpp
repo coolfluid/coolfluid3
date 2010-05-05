@@ -121,7 +121,7 @@ void Factory<BASE>::regist(Provider<BASE>* provider)
       "] a provider with the name [" + provider->getName() +
       "] was found when trying to regist it" );
   }
-  CFtrace << "Registering provider [" << provider->getName() << "] in factory of [" << BASE::getClassName() << "]\n";
+  CFtrace << "Registering provider [" << provider->getName() << "] in factory of [" << BASE::getClassName() << "]\n" << CFendl;
   getProviderMap()[provider->getName()] = provider;
 }
 

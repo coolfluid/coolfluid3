@@ -1,7 +1,11 @@
 LIST ( APPEND Neu_files
   NeuAPI.hpp
+  NeuReader.hpp
+  NeuReader.cpp
 )
 
 LIST ( APPEND Neu_cflibs Mesh )
 
-# CF_ADD_LIBRARY ( Neu )
+SET  ( Neu_kernellib TRUE )
+
+CF_ADD_LIBRARY ( Neu )

@@ -45,7 +45,10 @@ public: // accessors
   void read(std::fstream& file, const boost::shared_ptr<CMesh>& mesh)
   {
     set_mesh(mesh);
+    read_impl(file);
   }
+  
+  virtual void read_impl(std::fstream& file) = 0;
   
 protected: // data
 

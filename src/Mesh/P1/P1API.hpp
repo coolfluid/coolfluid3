@@ -49,12 +49,6 @@ namespace P1 {
     /// Gets the Class name
     static std::string getClassName() { return "P1Lib"; }
 
-    /// Start profiling
-    virtual void initiate();
-
-    /// Stop profiling
-    virtual void terminate();
-
   }; // end P1Lib
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -9,7 +9,7 @@
 namespace CF {
 namespace Mesh {
 
-  class CMesh;
+  class MeshReader;
   
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -34,11 +34,11 @@ public:
   // functions specific to the CMeshReader component
   
   /// set the mesh reader
-  void set_reader(const std::string& etype_name);
+  void set_reader(const std::string& reader_name);
   
 private:
-  
-  boost::shared_ptr<CMesh> m_mesh;
+    
+  boost::shared_ptr<MeshReader> m_meshReader;
   
 };
 

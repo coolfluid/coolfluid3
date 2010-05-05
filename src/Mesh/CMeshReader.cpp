@@ -2,7 +2,7 @@
 #include "Common/Factory.hpp"
 
 #include "Mesh/CMeshReader.hpp"
-//#include "Mesh/MeshReader.hpp"
+#include "Mesh/MeshReader.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -24,12 +24,12 @@ CMeshReader::~CMeshReader()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMeshReader::set_reader(const std::string& etype_name)
+void CMeshReader::set_reader(const std::string& reader_name)
 {
-  //Common::SafePtr< ElementType::PROVIDER > prov =
-  //    Factory<ElementType>::getInstance().getProvider( etype_name );
+  Common::SafePtr< MeshReader::PROVIDER > prov =
+     Factory<MeshReader>::getInstance().getProvider( reader_name );
 
-  //m_elementType = prov->create();
+  m_meshReader = prov->create();
 }
 
 //////////////////////////////////////////////////////////////////////////////

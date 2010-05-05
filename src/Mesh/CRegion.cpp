@@ -60,91 +60,16 @@ void CRegion::put_subregions(std::vector<boost::shared_ptr<CRegion> >& vec)
 
 //////////////////////////////////////////////////////////////////////////////
 
-// CRegion::iterator::iterator(std::vector<CRegion*>& vec, Component* parent) :  
-//   m_vec(vec) , 
-//   m_vecIt(m_vec.begin()), 
-//   m_region(dynamic_cast<CRegion*>(parent)),
-//   m_parent(parent)
-// {
-//   if(vec.size())
-//     m_region = (*m_vecIt); 
-// }
-
-//////////////////////////////////////////////////////////////////////////////
-
-// CRegion::iterator CRegion::begin()
-// {
-//   std::vector<boost::shared_ptr<CRegion> > vec;
-//   put_subregions(vec);
-//   return iterator(vec, this);
-// }
-
-//////////////////////////////////////////////////////////////////////////////
-
-// CRegion::iterator CRegion::end()
-// {
-//   std::vector<CRegion*> vec;
-//   return iterator(vec, this);
-// }
-
-//////////////////////////////////////////////////////////////////////////////
-
-// void CRegion::iterator::increment() 
-// { 
-//   m_vecIt++;
-//   if (m_vecIt != m_vec.end()) {
-//     m_region = (*m_vecIt);
-//   }
-//   else {
-//     m_region = dynamic_cast<CRegion*>( m_parent );
-//   }
-// } 
-
-//////////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////////
-
-// CRegion::const_iterator::const_iterator(std::vector<boost::shared_ptr<CRegion> >& vec, boost::shared_ptr<Component>& parent)
-//  :  
-//   m_vec(vec) , 
-//   m_vecIt(m_vec.begin()), 
-//   m_region(boost::dynamic_pointer_cast<const CRegion>(parent)),
-//   m_parent(parent)
-// {
-//   if(vec.size())
-//     m_region = (*m_vecIt); 
-// }
-
-//////////////////////////////////////////////////////////////////////////////
-
-// CRegion::const_iterator CRegion::begin() const
-// {
-//   std::vector<boost::shared_ptr<CRegion> > vec;
-//   put_subregions(vec);
-//   return const_iterator(vec, shared_from_this());
-// }
-// 
-// //////////////////////////////////////////////////////////////////////////////
-// 
-// CRegion::const_iterator CRegion::end() const
-// {
-//   std::vector<boost::shared_ptr<CRegion> > vec;
-//   return const_iterator(vec, shared_from_this());
-// }
-
-// //////////////////////////////////////////////////////////////////////////////
-// 
-// void CRegion::const_iterator::increment() 
-// { 
-//   m_vecIt++;
-//   if (m_vecIt != m_vec.end()) {
-//     m_region = (*m_vecIt);
-//   }
-//   else {
-//     m_region = boost::dynamic_pointer_cast<const CRegion>( m_parent );
-//   }
-// }
-
+void CRegion::create_region_with_elementType ( const CName& etype_name )
+{
+  create_region(etype_name);
+  boost::shared_ptr<CRegion> region = get_component<CRegion>(etype_name);
+  region->create_connectivityTable();
+  region->create_elementType();
+  region->get_component<CElements>("type")->set_elementType(etype_name);
+  Uint nbNodes = region->get_component<CElements>("type")->get_elementType()->getNbNodes();
+  region->get_component<CTable>("table")->initialize(nbNodes);
+}
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh

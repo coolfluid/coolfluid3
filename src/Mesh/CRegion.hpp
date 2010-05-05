@@ -100,11 +100,15 @@ public:
   
   /// create a CTable component
   /// @param name of the region
-  void create_connectivityTable ( const CName& name );
+  void create_connectivityTable ( const CName& name = "table");
   
   /// create a CElements component
   /// @param name of the region
-  void create_elementType ( const CName& name );
+  void create_elementType ( const CName& name = "type");
+  
+  /// a shortcut command to avoid boilerplate code
+  /// @param [in] etype_name create a region with connectivity table and element info
+  void create_region_with_elementType ( const CName& etype_name );
   
   /// copy a CArray entry from a given CArray into a given row
   /// templated with row vector type
