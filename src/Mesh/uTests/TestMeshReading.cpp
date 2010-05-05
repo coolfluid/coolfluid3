@@ -80,6 +80,56 @@ BOOST_AUTO_TEST_CASE( NeutralFileReaderConstruction )
  
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( NeutralFileReaderFile )
+{
+  
+  boost::shared_ptr<CMeshReader> meshreader ( new CMeshReader  ( "meshreader" ) );
+  meshreader->set_reader("NeuReader");
+  
+  /*
+   
+  UNCOMMENT ALL THIS AND CHANGE THE FILEPATH "fp" TO A VALID PATH
+  
+  // the file to read from
+  boost::filesystem::path fp ("/Users/willem/workspace/coolfluid3/Kernel/src/Mesh/uTests/quadtriag.neu");
+  // the mesh to store in
+  boost::shared_ptr<CMesh> mesh ( new CMesh  ( "mesh" ) );
+  
+  meshreader->get_reader()->read(fp,mesh);
+  
+  // Output data structure
+  XMLNode mesh_node = XMLNode::createXMLTopNode("xml", TRUE);
+  mesh_node.addAttribute("version","1.0");
+  mesh_node.addAttribute("encoding","UTF-8");
+  mesh_node.addAttribute("standalone","yes");
+  mesh->xml_tree( mesh_node );
+  XMLSTR xml_str = mesh_node.createXMLString();
+  // CFinfo << "xml_str\n" << xml_str << CFendl;
+  freeXMLString(xml_str);
+  
+  boost::shared_ptr<CRegion> tmp_region = mesh->get_component<CRegion>("regions");
+  for (CRegion::iterator region = tmp_region->begin(); region != tmp_region->end(); region++)
+  {
+    std::vector<boost::shared_ptr<CRegion> > vec;   // |
+    region->put_subregions(vec);                    //  > some trick to see if there are subregions
+    if (vec.size())                                 // |
+    {
+      CFinfo << "\n" << region->name() << " \n" << CFendl; 
+    }
+    else if (region->get_component<CTable>("table")->get_table().size())
+    {
+      CFinfo << "    " << region->name() << " \t --> elements: " 
+             << region->get_component<CTable>("table")->get_table().size() << "\n" << CFendl; 
+    }
+  }
+  
+  CFinfo << "There are " << mesh->get_component<CArray>("coordinates")->get_array().size() << " coordinates. \n" << CFendl;
+ */
+ 
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
