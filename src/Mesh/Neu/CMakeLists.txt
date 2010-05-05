@@ -1,5 +1,5 @@
 LIST ( APPEND Neu_files
-  Neu.hpp
+  NeuAPI.hpp
 )
 
 LIST ( APPEND Neu_cflibs Mesh )
