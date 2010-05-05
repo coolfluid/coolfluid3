@@ -12,6 +12,8 @@ LIST ( APPEND Mesh_files
   CField.cpp
   CMesh.hpp
   CMesh.cpp
+  CMeshReader.hpp
+  CMeshReader.cpp
   CRegion.hpp
   CRegion.cpp
   CTable.hpp
