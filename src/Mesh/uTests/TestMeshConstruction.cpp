@@ -183,32 +183,31 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   BOOST_CHECK_EQUAL(coordRef[0],1.0);
   BOOST_CHECK_EQUAL(coordRef[1],1.0);
 
-//  // calculate all volumes of a region
-//  BOOST_FOREACH(boost::shared_ptr<CRegion> region,superRegion->get_subregions())
-//  {
-//    boost::shared_ptr<CElements>  elementType = region->get_component<CElements>("type");
-//    boost::shared_ptr<CTable>     connTable   = region->get_component<CTable>("table");
-//    // CFinfo << "type = " << elementType->getShapeName() << "\n" << CFendl;
-//    const Uint nbRows = connTable->get_table().size();
-//    std::vector<Real> volumes(nbRows);
-//    
-//    // the loop
-//    for (Uint iElem=0; iElem<nbRows; ++iElem) {
-//      std::vector<CArray::Row > elementCoordinates;
-//      for (Uint iNode=0; iNode<elementType->getNbNodes(); iNode++) {
-//        elementCoordinates.push_back(region->get_row(iElem,iNode,coordinates));
-//      }
-//      volumes[iElem]=elementType->computeVolume(elementCoordinates);
-//      // CFinfo << "\t volume["<<iElem<<"] =" << volumes[iElem] << "\n" << CFendl;
-//
-//      // check
-//      if(elementType->getShapeName()=="Quad")
-//        BOOST_CHECK_EQUAL(volumes[iElem],1.0);
-//      if(elementType->getShapeName()=="Triag")
-//        BOOST_CHECK_EQUAL(volumes[iElem],0.5);
-//    }
-    //
-  //}
+ // calculate all volumes of a region
+  for (CRegion::iterator region = superRegion->begin(); region!=superRegion->end(); region++)
+  {
+   boost::shared_ptr<CElements>  elementType = region->get_component<CElements>("type");
+   boost::shared_ptr<CTable>     connTable   = region->get_component<CTable>("table");
+   //CFinfo << "type = " << elementType->getShapeName() << "\n" << CFendl;
+   const Uint nbRows = connTable->get_table().size();
+   std::vector<Real> volumes(nbRows);
+   
+   // the loop
+   for (Uint iElem=0; iElem<nbRows; ++iElem) {
+     std::vector<CArray::Row > elementCoordinates;
+     for (Uint iNode=0; iNode<elementType->getNbNodes(); iNode++) {
+       elementCoordinates.push_back(region->get_row(iElem,iNode,coordinates));
+     }
+     volumes[iElem]=elementType->computeVolume(elementCoordinates);
+     //CFinfo << "\t volume["<<iElem<<"] =" << volumes[iElem] << "\n" << CFendl;
+
+     // check
+     if(elementType->getShapeName()=="Quad")
+       BOOST_CHECK_EQUAL(volumes[iElem],1.0);
+     if(elementType->getShapeName()=="Triag")
+       BOOST_CHECK_EQUAL(volumes[iElem],0.5);
+   }
+ }
     
   
 //  BOOST_FOREACH(CArray::Row node , elementCoordinates)

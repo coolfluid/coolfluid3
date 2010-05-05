@@ -15,6 +15,56 @@ namespace Mesh {
   
 ////////////////////////////////////////////////////////////////////////////////
 
+class CRegion;
+class Mesh_API CRegion_iterator
+        : public boost::iterator_facade<CRegion_iterator, 
+                                        CRegion, 
+                                        boost::forward_traversal_tag> 
+{
+public:
+        CRegion_iterator() 
+        {}
+
+private:
+        friend class boost::iterator_core_access;
+        friend class CRegion;
+
+        explicit CRegion_iterator(std::vector<boost::shared_ptr<CRegion> >& vec)
+                : m_vec(vec), m_vecIt(m_vec.begin())
+        {
+          if (m_vec.size()) {
+            m_region = vec[0];
+          }
+        }
+
+        void increment() 
+        {
+          m_vecIt++;
+          if (m_vecIt != m_vec.end()) {
+            m_region = (*m_vecIt);
+          }
+          else {
+            m_region = boost::shared_ptr<CRegion>();
+          }
+        }
+
+        bool equal(CRegion_iterator const& other) const
+        {
+                return m_region == other.m_region;
+        }
+
+        CRegion& dereference() const
+        {
+                return *m_region; 
+        }
+
+        boost::shared_ptr<CRegion> m_region;
+        std::vector<boost::shared_ptr<CRegion> > m_vec;
+        std::vector<boost::shared_ptr<CRegion> >::iterator m_vecIt;
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
 /// Region component class
 /// This class stores
 ///   - subregions (same class)
@@ -24,6 +74,13 @@ namespace Mesh {
 class Mesh_API CRegion : public Common::Component {
 
 public:
+    
+    typedef CRegion_iterator                       Iterator;
+
+    // required for boost_foreach
+    typedef Iterator                                iterator;
+    typedef const iterator                          const_iterator;
+    
     
   /// Contructor
   /// @param name of the component
@@ -72,14 +129,21 @@ public:
     return cArray->get_array()[row_in_array];
   }
   
-  void put_subregions(std::vector< boost::shared_ptr<CRegion> >& vec);  
+  void put_subregions(std::vector<boost::shared_ptr<CRegion> >& vec);  
   
-  class Mesh_API iterator;
+  Iterator begin() 
+   {
+      std::vector<boost::shared_ptr<CRegion> > vec;
+      put_subregions(vec);
+      return Iterator(vec);
+   }
+
+   Iterator end() 
+   {
+     std::vector<boost::shared_ptr<CRegion> > vec;
+     return Iterator(vec);
+   }
   
-  iterator begin();
-  
-  iterator end();
-    
 private:
   
   std::vector< boost::shared_ptr<CRegion> > m_subregions;
@@ -88,41 +152,6 @@ private:
   
   boost::shared_ptr<CElements> m_elementType;
 
-};
-
-//////////////////////////////////////////////////////////////////////////////
-
-class Mesh_API CRegion::iterator
-: public boost::iterator_facade<
-iterator
-, CRegion
-, boost::forward_traversal_tag
->
-{
-public:
-  iterator()
-  : m_region()
-  {}
-
-  explicit iterator(std::vector<boost::shared_ptr<CRegion> >& vec, boost::shared_ptr<Component> parent);
-
-  void increment();
-
-private:
-
-  friend class boost::iterator_core_access;
-
-  bool equal(iterator const& other) const
-  {
-    return this->m_region == other.m_region;
-  }
-
-  CRegion& dereference() const { return *m_region; }
-
-  std::vector<boost::shared_ptr<CRegion> > m_vec;
-  std::vector<boost::shared_ptr<CRegion> >::iterator m_vecIt;
-  boost::shared_ptr<CRegion> m_region;
-  boost::shared_ptr<Component> m_parent;
 };
 
 //////////////////////////////////////////////////////////////////////////////
