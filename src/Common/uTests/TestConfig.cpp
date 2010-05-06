@@ -205,10 +205,10 @@ public:
 
     m_component.reset(); // delete previous pointee
 
-    Common::SafePtr< Component::PROVIDER > prov =
-        Factory< Component >::getInstance().getProvider( keyname );
+//    Common::SafePtr< Component::PROVIDER > prov =
+//        Factory< Component >::getInstance().getProvider( keyname );
 
-    m_component = prov->create( keyname );
+//    m_component = prov->create( keyname );
     // for the moment we repeat the keyname for the actual component name
     // later we will create subnodes in the xml,
     //  * one for the concrete type

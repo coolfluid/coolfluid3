@@ -83,19 +83,21 @@ Component::Ptr Component::remove_component ( const CName& name )
   // find the component exists
   Component::CompStorage_t::iterator itr = m_components.find(name);
 
-  if ( itr != m_components.end() )     // if exists
+  if ( itr != m_components.end() )         // if exists
   {
-    Component::Ptr comp = itr->second; // get the component
-    m_components.erase(itr);            // remove it from the storage
-    return comp;                        // return it to client to do somethinng typically delete it
+    Component::Ptr comp = itr->second;     // get the component
+    m_components.erase(itr);                // remove it from the storage
+    comp->change_parent(Component::Ptr());  // set parent to invalid
+    return comp;                             // return it to client to do somethinng typically delete it
   }
-  else                                   // if does not exist
+  else                                        // if does not exist
   {
     throw ValueNotFound(FromHere(), "Component with name '"
                         + name + "' does not exist in component '"
                         + this->name() + "' with path ["
                         + m_path.string() + "]");
   }
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -184,30 +186,45 @@ void Component::complete_path ( CPath& path )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Component::change_parent ( Component::Ptr new_parent)
+void Component::change_parent ( Component::Ptr new_parent )
 {
-	if( new_parent ) // valid ?
-	{
-		m_parent = new_parent;   // modify the parent
-    
+  if( !m_root.expired() )   // get the root and remove the current path
+  {
+    boost::shared_ptr<CRoot> root =
+        boost::dynamic_pointer_cast<CRoot>( m_root.lock() );
+    root->remove_component_path(full_path());
+  }
+
+  if( new_parent ) // valid ?
+	{    
 		m_path = new_parent->full_path(); // modify the path
     m_root = new_parent->m_root;      // modify the root
     
-    if( !m_root.expired() )
+    if( !m_root.expired() )   // get the root and set the new path
     {
-      // get the root and inform about the change in path
       boost::shared_ptr<CRoot> root =
           boost::dynamic_pointer_cast<CRoot>( m_root.lock() );
       root->define_component_path( full_path() , shared_from_this() );
     }
+  }
+  else // new parent is invalid
+  {
+    m_path = "";
+    m_root.reset();
+  }
 
-    // modify the children
-    BOOST_FOREACH( CompStorage_t::value_type c, m_components )
-    {
-      c.second->change_parent( shared_from_this() );
-    }
+  // modifiy the parent
+  // may be invalid
+  m_parent = new_parent;
+
+  // modify the children
+  BOOST_FOREACH( CompStorage_t::value_type c, m_components )
+  {
+    c.second->change_parent( shared_from_this() );
   }
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 Component::Ptr Component::look_component ( const CPath& path )
 {

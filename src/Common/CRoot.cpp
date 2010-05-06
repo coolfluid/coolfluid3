@@ -18,6 +18,8 @@ namespace Common {
     return root;
   }
 
+////////////////////////////////////////////////////////////////////////////////
+
   CRoot::CRoot ( const CName& name ) : Component ( name )
   {
     m_path = "/";
@@ -26,6 +28,8 @@ namespace Common {
   CRoot::~CRoot()
   {
   }
+
+////////////////////////////////////////////////////////////////////////////////
 
   boost::shared_ptr<Component> CRoot::access_component( const CPath& path )
   {
@@ -37,6 +41,8 @@ namespace Common {
     else
       throw InvalidPath(FromHere(), "No component exists with path [" + path.string() + "]");
   }
+
+////////////////////////////////////////////////////////////////////////////////
 
   void CRoot::define_component_path( const CPath& path , boost::shared_ptr<Component> comp )
   {
@@ -50,6 +56,8 @@ namespace Common {
     m_toc[path.string()] = comp;
   }
 
+////////////////////////////////////////////////////////////////////////////////
+
   void CRoot::remove_component_path( const CPath& path )
   {
     cf_assert ( path.is_complete() );
@@ -60,7 +68,7 @@ namespace Common {
       m_toc.erase(old);
   }
 
- ////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 } // Common
 } // CF
