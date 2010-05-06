@@ -34,6 +34,9 @@ namespace Common {
     /// define the component path
     void define_component_path ( const CPath& path, boost::shared_ptr<Component> );
 
+    /// remove a component path
+    void remove_component_path ( const CPath& path );
+
   private: // functions
 
     typedef std::map< std::string , boost::shared_ptr<Component> > CompStorage_t;

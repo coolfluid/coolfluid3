@@ -40,12 +40,7 @@ namespace Common {
 
   void CRoot::define_component_path( const CPath& path , boost::shared_ptr<Component> comp )
   {
-    cf_assert ( path.is_complete() );
-
-    // remove the current path of the component, if exists
-    CompStorage_t::iterator old = m_toc.find( comp->full_path().string() );
-    if ( old != m_toc.end() )
-      m_toc.erase(old);
+    remove_component_path( comp->full_path().string() );
 
     // set the new path
     CompStorage_t::iterator itr = m_toc.find(path.string());
@@ -53,6 +48,16 @@ namespace Common {
       throw ValueExists(FromHere(), "A component exists with path [" + path.string() + "]");
 
     m_toc[path.string()] = comp;
+  }
+
+  void CRoot::remove_component_path( const CPath& path )
+  {
+    cf_assert ( path.is_complete() );
+
+    // remove the current path of the component, if exists
+    CompStorage_t::iterator old = m_toc.find( path.string() );
+    if ( old != m_toc.end() )
+      m_toc.erase(old);
   }
 
  ////////////////////////////////////////////////////////////////////////////////
