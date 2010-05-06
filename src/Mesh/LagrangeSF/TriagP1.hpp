@@ -2,6 +2,8 @@
 #define CF_Mesh_LagrangeSF_TriagP1_hpp
 
 #include "Common/AssertionManager.hpp"
+#include "Math/RealMatrix.hpp"
+#include "Mesh/GeoShape.hpp"
 #include "Mesh/LagrangeSF/LagrangeSF.hpp"
 
 namespace CF {
@@ -18,6 +20,8 @@ namespace LagrangeSF {
 class TriagP1 {
 public:
 
+static const GeoShape::Type shape = GeoShape::TRIAG;
+
 /// Compute the shape functions corresponding to the given
 /// mapped coordinates
 /// @param mappedCoord The mapped coordinates
@@ -28,13 +32,6 @@ static void computeShapeFunction(const RealVector& mappedCoord, RealVector& shap
   shapeFunc[0] = 1.0 - mappedCoord[0] - mappedCoord[1];
   shapeFunc[1] = mappedCoord[0];
   shapeFunc[2] = mappedCoord[1];
-}
-
-/// Compute the jacobian determinant at the given
-/// mapped coordinates
-inline static Real computeJacobianDeterminant(const RealVector& mappedCoord, const NodesT& nodes) {
-  return   (nodes[1][XX] - nodes[0][XX]) * (nodes[2][YY] - nodes[0][YY])
-         - (nodes[2][XX] - nodes[0][XX]) * (nodes[1][YY] - nodes[0][YY]);
 }
 
 /// Compute Mapped Coordinates
@@ -50,7 +47,51 @@ static void computeMappedCoordinates(const RealVector& coord, const NodesT& node
   mappedCoord[ETA] = invDet * ((nodes[0][YY] - nodes[1][YY])*coord[XX] + (nodes[1][XX] - nodes[0][XX])*coord[YY] + nodes[0][XX]*nodes[1][YY] - nodes[1][XX]*nodes[0][YY]);
 }
 
+/// Compute the gradient with respect to mapped coordinates, i.e. parial derivatives are in terms of the
+/// mapped coordinates. The result needs to be multiplied with the inverse jacobian to get the result in real
+/// coordinates.
+/// @param mappedCoord The mapped coordinates where the gradient should be calculated
+/// @param result Storage for the resulting gradient matrix
+static void computeMappedGradient(const RealVector& mappedCoord, RealMatrix& result) {
+  cf_assert(result.nbRows() == 3);
+  cf_assert(result.nbCols() == 2);
+  result(0, XX) = -1.;
+  result(0, YY) = -1.;
+  result(1, XX) = 1.;
+  result(1, YY) = 0.;
+  result(2, XX) = 0.;
+  result(2, YY) = 1.;
+}
 
+/// Compute the jacobian determinant at the given mapped coordinates
+inline static Real computeJacobianDeterminant(const RealVector& mappedCoord, const NodesT& nodes) {
+  return   (nodes[1][XX] - nodes[0][XX]) * (nodes[2][YY] - nodes[0][YY])
+         - (nodes[2][XX] - nodes[0][XX]) * (nodes[1][YY] - nodes[0][YY]);
+}
+
+/// Compute the Jacobian matrix
+/// @param mappedCoord The mapped coordinates where the Jacobian should be calculated
+/// @param result Storage for the resulting Jacobian matrix
+static void computeJacobian(const RealVector& mappedCoord, const NodesT& nodes, RealMatrix& result) {
+  cf_assert(result.nbRows() == 2);
+  cf_assert(result.isSquare());
+  result(KSI,XX) = nodes[1][XX] - nodes[0][XX];
+  result(KSI,YY) = nodes[1][YY] - nodes[0][YY];
+  result(ETA,XX) = nodes[2][XX] - nodes[0][XX];
+  result(ETA,YY) = nodes[2][YY] - nodes[0][YY];
+}
+
+/// Compute the adjoint of Jacobian matrix
+/// @param mappedCoord The mapped coordinates where the Jacobian should be calculated
+/// @param result Storage for the resulting adjoint
+static void computeJacobianAdjoint(const RealVector& mappedCoord, const NodesT& nodes, RealMatrix& result) {
+  cf_assert(result.nbRows() == 2);
+  cf_assert(result.isSquare());
+  result(ETA,YY) = nodes[1][XX] - nodes[0][XX];
+  result(KSI,YY) = nodes[0][YY] - nodes[1][YY];
+  result(ETA,XX) = nodes[0][XX] - nodes[2][XX];
+  result(KSI,XX) = nodes[2][YY] - nodes[0][YY];
+}
 
 private:
 /// Cannot be instantiated

@@ -92,12 +92,6 @@ BOOST_AUTO_TEST_CASE( computeShapeFunction )
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 10); // Maximal difference can't be greater than 10 times the least representable unit
 }
 
-BOOST_AUTO_TEST_CASE( computeJacobianDeterminant )
-{
-  // Shapefunction determinant should be double the volume for triangles
-  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Difference::test(0.5*TriagP1::computeJacobianDeterminant(mapped_coords, nodes), CF::Mesh::VolumeComputer<Triag2D>::computeVolume(nodes_ptr)).ulps), 1);
-}
-
 BOOST_AUTO_TEST_CASE( computeMappedCoordinates )
 {
   const CF::RealVector test_coords = list_of(0.8)(1.2);
@@ -111,11 +105,60 @@ BOOST_AUTO_TEST_CASE( computeMappedCoordinates )
 
 BOOST_AUTO_TEST_CASE( integrateConst )
 {
-  // Shapefunction determinant should be double the volume for triangles
   const_functor<TriagP1> ftor(nodes);
   CF::Real result = 0.0;
   Gauss<TriagP1>::integrate(ftor, result);
   BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Difference::test(result, CF::Mesh::VolumeComputer<Triag2D>::computeVolume(nodes_ptr)).ulps), 1);
+}
+
+BOOST_AUTO_TEST_CASE( computeMappedGradient )
+{
+  CF::RealMatrix expected(3, 2);
+  expected(0,0) = -1.;
+  expected(0,1) = -1.;
+  expected(1,0) = 1.;
+  expected(1,1) = 0.;
+  expected(2,0) = 0.;
+  expected(2,1) = 1.;
+  CF::RealMatrix result(3, 2);
+  TriagP1::computeMappedGradient(mapped_coords, result);
+  CF::Tools::Difference::Accumulator accumulator;
+  CF::Tools::Difference::vector_test(result, expected, accumulator);
+  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 2);
+}
+
+BOOST_AUTO_TEST_CASE( computeJacobianDeterminant )
+{
+  // Shapefunction determinant should be double the volume for triangles
+  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Difference::test(0.5*TriagP1::computeJacobianDeterminant(mapped_coords, nodes), CF::Mesh::VolumeComputer<Triag2D>::computeVolume(nodes_ptr)).ulps), 1);
+}
+
+BOOST_AUTO_TEST_CASE( computeJacobian )
+{
+  CF::RealMatrix expected(2, 2);
+  expected(0,0) = 0.6;
+  expected(0,1) = 0.9;
+  expected(1,0) = 0.3;
+  expected(1,1) = 1.8;
+  CF::RealMatrix result(2, 2);
+  TriagP1::computeJacobian(mapped_coords, nodes, result);
+  CF::Tools::Difference::Accumulator accumulator;
+  CF::Tools::Difference::vector_test(result, expected, accumulator);
+  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 2);
+}
+
+BOOST_AUTO_TEST_CASE( computeJacobianAdjoint )
+{
+  CF::RealMatrix expected(2, 2);
+  expected(0,0) = 1.8;
+  expected(0,1) = -0.9;
+  expected(1,0) = -0.3;
+  expected(1,1) = 0.6;
+  CF::RealMatrix result(2, 2);
+  TriagP1::computeJacobianAdjoint(mapped_coords, nodes, result);
+  CF::Tools::Difference::Accumulator accumulator;
+  CF::Tools::Difference::vector_test(result, expected, accumulator);
+  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 2);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
