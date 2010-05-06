@@ -15,55 +15,7 @@ namespace Mesh {
   
 ////////////////////////////////////////////////////////////////////////////////
 
-class CRegion;
-class Mesh_API CRegion_iterator
-        : public boost::iterator_facade<CRegion_iterator, 
-                                        CRegion, 
-                                        boost::forward_traversal_tag> 
-{
-public:
-        CRegion_iterator() 
-        {}
-
-private:
-        friend class boost::iterator_core_access;
-        friend class CRegion;
-
-        explicit CRegion_iterator(std::vector<boost::shared_ptr<CRegion> >& vec)
-                : m_vec(vec), m_vecIt(m_vec.begin())
-        {
-          if (m_vec.size()) {
-            m_region = vec[0];
-          }
-        }
-
-        void increment() 
-        {
-          m_vecIt++;
-          if (m_vecIt != m_vec.end()) {
-            m_region = (*m_vecIt);
-          }
-          else {
-            m_region = boost::shared_ptr<CRegion>();
-          }
-        }
-
-        bool equal(CRegion_iterator const& other) const
-        {
-                return m_region == other.m_region;
-        }
-
-        CRegion& dereference() const
-        {
-                return *m_region; 
-        }
-
-        boost::shared_ptr<CRegion> m_region;
-        std::vector<boost::shared_ptr<CRegion> > m_vec;
-        std::vector<boost::shared_ptr<CRegion> >::iterator m_vecIt;
-};
-
-//////////////////////////////////////////////////////////////////////////////
+class CRegion_iterator;
 
 /// Region component class
 /// This class stores
@@ -135,20 +87,11 @@ public:
   
   void put_subregions(std::vector<boost::shared_ptr<CRegion> >& vec);  
   
-  Iterator begin() 
-   {
-      std::vector<boost::shared_ptr<CRegion> > vec;
-      put_subregions(vec);
-      return Iterator(vec);
-   }
+  Iterator begin();
 
-   Iterator end() 
-   {
-     std::vector<boost::shared_ptr<CRegion> > vec;
-     return Iterator(vec);
-   }
-   
-   bool has_subregions() {return m_subregions.size(); }
+  Iterator end();
+
+  bool has_subregions() {return m_subregions.size(); }
   
 private:
   
@@ -158,6 +101,57 @@ private:
   
   boost::shared_ptr<CElements> m_elementType;
 
+};
+
+//////////////////////////////////////////////////////////////////////////////
+
+
+class CRegion;
+class Mesh_API CRegion_iterator
+        : public boost::iterator_facade<CRegion_iterator,
+                                        CRegion,
+                                        boost::forward_traversal_tag>
+{
+public:
+  CRegion_iterator()
+  {}
+
+private:
+  friend class boost::iterator_core_access;
+  friend class CRegion;
+
+  explicit CRegion_iterator(std::vector<boost::shared_ptr<CRegion> >& vec)
+          : m_vec(vec), m_vecIt(m_vec.begin())
+  {
+    if (m_vec.size()) {
+      m_region = vec[0];
+    }
+  }
+
+  void increment()
+  {
+    m_vecIt++;
+    if (m_vecIt != m_vec.end()) {
+      m_region = (*m_vecIt);
+    }
+    else {
+      m_region = boost::shared_ptr<CRegion>();
+    }
+  }
+
+  bool equal(CRegion_iterator const& other) const
+  {
+          return m_region == other.m_region;
+  }
+
+  CRegion& dereference() const
+  {
+          return *m_region;
+  }
+
+  boost::shared_ptr<CRegion> m_region;
+  std::vector<boost::shared_ptr<CRegion> > m_vec;
+  std::vector<boost::shared_ptr<CRegion> >::iterator m_vecIt;
 };
 
 //////////////////////////////////////////////////////////////////////////////

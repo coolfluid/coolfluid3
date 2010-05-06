@@ -72,5 +72,18 @@ void CRegion::create_region_with_elementType ( const CName& etype_name )
 }
 ////////////////////////////////////////////////////////////////////////////////
 
+CRegion::Iterator CRegion::begin()
+{
+  std::vector<boost::shared_ptr<CRegion> > vec;
+  put_subregions(vec);
+  return Iterator(vec);
+}
+
+CRegion::Iterator CRegion::end()
+{
+ std::vector<boost::shared_ptr<CRegion> > vec;
+ return Iterator(vec);
+}
+
 } // Mesh
 } // CF
