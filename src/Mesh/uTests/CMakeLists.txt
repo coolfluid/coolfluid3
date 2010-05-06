@@ -1,6 +1,6 @@
 ################################################################################
 
-LIST ( APPEND uTestMesh_libs P1 Neu )
+LIST ( APPEND uTestMesh_libs P1 Neu Gmsh)
 LIST ( APPEND uTestMesh_files
   uTestMesh.cpp
   TestMeshComponents.cpp

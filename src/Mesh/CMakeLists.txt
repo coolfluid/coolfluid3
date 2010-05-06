@@ -14,6 +14,8 @@ LIST ( APPEND Mesh_files
   CMesh.cpp
   CMeshReader.hpp
   CMeshReader.cpp
+  CMeshWriter.hpp
+  CMeshWriter.cpp
   CRegion.hpp
   CRegion.cpp
   CTable.hpp
@@ -27,6 +29,8 @@ LIST ( APPEND Mesh_files
   GeoShape.cpp
   MeshReader.hpp
   MeshReader.cpp
+  MeshWriter.hpp
+  MeshWriter.cpp
   RCM.hpp
   RCM.cpp
 )
@@ -41,5 +45,6 @@ ADD_SUBDIRECTORY ( P1 )        # implementation of P1 elements
 ADD_SUBDIRECTORY ( CFmesh )    # CFmesh file IO
 ADD_SUBDIRECTORY ( LagrangeSF ) 
 ADD_SUBDIRECTORY ( Neu )       # Neutral file IO
+ADD_SUBDIRECTORY ( Gmsh )      # Gmsh file IO
 ADD_SUBDIRECTORY ( uTests )    # unit tests for Mesh
 

@@ -147,6 +147,8 @@ public:
      std::vector<boost::shared_ptr<CRegion> > vec;
      return Iterator(vec);
    }
+   
+   bool has_subregions() {return m_subregions.size(); }
   
 private:
   

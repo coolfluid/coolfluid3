@@ -1,6 +1,7 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 #include <boost/foreach.hpp>
+#include <boost/filesystem/path.hpp>
 
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
@@ -9,7 +10,9 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CArray.hpp"
 #include "Mesh/CMeshReader.hpp"
+#include "Mesh/CMeshWriter.hpp"
 #include "Mesh/MeshReader.hpp"
+#include "Mesh/MeshWriter.hpp"
 
 using namespace std;
 using namespace boost;
@@ -72,11 +75,15 @@ BOOST_FIXTURE_TEST_SUITE( MeshReading_TestSuite, MeshReading_Fixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( NeutralFileReaderConstruction )
+BOOST_AUTO_TEST_CASE( Constructors )
 {
   
   boost::shared_ptr<CMeshReader> meshreader ( new CMeshReader  ( "meshreader" ) );
   meshreader->set_reader("NeuReader");
+  
+  boost::shared_ptr<CMeshWriter> meshwriter ( new CMeshWriter  ( "meshwriter" ) );
+  meshwriter->set_writer("GmshWriter");
+  
  
 }
 
@@ -88,16 +95,16 @@ BOOST_AUTO_TEST_CASE( NeutralFileReaderFile )
   boost::shared_ptr<CMeshReader> meshreader ( new CMeshReader  ( "meshreader" ) );
   meshreader->set_reader("NeuReader");
   
-  /*
    
-  UNCOMMENT ALL THIS AND CHANGE THE FILEPATH "fp" TO A VALID PATH
+  // UNCOMMENT ALL THIS AND CHANGE THE FILEPATH "fp" TO A VALID PATH
   
   // the file to read from
-  boost::filesystem::path fp ("/Users/willem/workspace/coolfluid3/Kernel/src/Mesh/uTests/quadtriag.neu");
+  // boost::filesystem::path fp_in ("/Users/willem/workspace/coolfluid3/Kernel/src/Mesh/uTests/quadtriag.neu");
+  boost::filesystem::path fp_in ("/Users/willem/workspace/testcases/square_2D_Re10000_FVM_LES/cases/refined.neu");
   // the mesh to store in
   boost::shared_ptr<CMesh> mesh ( new CMesh  ( "mesh" ) );
   
-  meshreader->get_reader()->read(fp,mesh);
+  meshreader->get_reader()->read(fp_in,mesh);
   
   // Output data structure
   XMLNode mesh_node = XMLNode::createXMLTopNode("xml", TRUE);
@@ -112,9 +119,7 @@ BOOST_AUTO_TEST_CASE( NeutralFileReaderFile )
   boost::shared_ptr<CRegion> tmp_region = mesh->get_component<CRegion>("regions");
   for (CRegion::iterator region = tmp_region->begin(); region != tmp_region->end(); region++)
   {
-    std::vector<boost::shared_ptr<CRegion> > vec;   // |
-    region->put_subregions(vec);                    //  > some trick to see if there are subregions
-    if (vec.size())                                 // |
+    if (region->has_subregions())
     {
       CFinfo << "\n" << region->name() << " \n" << CFendl; 
     }
@@ -126,7 +131,14 @@ BOOST_AUTO_TEST_CASE( NeutralFileReaderFile )
   }
   
   CFinfo << "There are " << mesh->get_component<CArray>("coordinates")->get_array().size() << " coordinates. \n" << CFendl;
- */
+ 
+ 
+  // boost::filesystem::path fp_out ("/Users/willem/workspace/coolfluid3/Kernel/src/Mesh/uTests/quadtriag.msh");
+  boost::filesystem::path fp_out ("/Users/willem/workspace/testcases/square_2D_Re10000_FVM_LES/cases/refined.msh");
+  boost::shared_ptr<CMeshWriter> meshwriter ( new CMeshWriter  ( "meshwriter" ) );
+  meshwriter->set_writer("GmshWriter");
+  meshwriter->get_writer()->write(mesh,fp_out);
+ 
  
 }
 

@@ -34,7 +34,6 @@ NeuReader::NeuReader()
 
 void NeuReader::read_headerData(std::fstream& file)
 {
-    
   Uint NUMNP, NELEM, NGRPS, NBSETS, NDFCD, NDFVL;
   std::string line;
 
@@ -53,13 +52,15 @@ void NeuReader::read_headerData(std::fstream& file)
   m_headerData.NBSETS = NBSETS;
   m_headerData.NDFCD  = NDFCD;
   m_headerData.NDFVL  = NDFVL;
+  
+  getline(file,line);
+  cf_assert(line.compare("ENDOFSECTION"));
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 void NeuReader::read_coordinates(std::fstream& file)
 {
-  
   // Create the coordinates array
   m_mesh->create_array("coordinates");
   // create pointers to the coordinates array
@@ -70,9 +71,8 @@ void NeuReader::read_coordinates(std::fstream& file)
   CArray::Buffer buffer = coordinates->create_buffer(m_headerData.NUMNP);
   
   std::string line;
-  // skip next two lines
-  for (unsigned i=0; i<2; ++i)
-    getline(file,line);
+  // skip one line
+  getline(file,line);
 
   // declare and allocate one coordinate row
   std::vector<Real> rowVector(m_headerData.NDFCD);
@@ -88,13 +88,15 @@ void NeuReader::read_coordinates(std::fstream& file)
     buffer.add_row(rowVector);
   }
   buffer.flush();
+  
+  getline(file,line);
+  cf_assert(line.compare("ENDOFSECTION"));
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 void NeuReader::read_connectivity(std::fstream& file)
 {
-  
   // make temporary regions for each element type possible
   m_mesh->create_region("tmp");
   boost::shared_ptr<CRegion> tmp = m_mesh->get_component<CRegion>("tmp");
@@ -118,13 +120,12 @@ void NeuReader::read_connectivity(std::fstream& file)
 
   
   
-  // skip next two lines
+  // skip next line
   std::string line;
-  for (unsigned i=0; i<2; ++i)
-    getline(file,line);
+  getline(file,line);
     
   // read every line and store the connectivity in the correct region through the buffer
-  for (Uint i=0; i<m_headerData.NUMNP; ++i) {
+  for (Uint i=0; i<m_headerData.NELEM; ++i) {
     // element description
     Uint elementNumber, elementType, nbElementNodes;
     file >> elementNumber >> elementType >> nbElementNodes;
@@ -165,6 +166,8 @@ void NeuReader::read_connectivity(std::fstream& file)
     getline(file,line);
   }
   getline(file,line);  // ENDOFSECTION
+  cf_assert(line.compare("ENDOFSECTION"));
+  
   
   // flush all buffers
   quad2D_buffer->flush();
@@ -177,8 +180,9 @@ void NeuReader::read_groups(std::fstream& file)
 {
   std::string line;
   int dummy;
+  
   std::vector<GroupData> groups(m_headerData.NGRPS);
-  for (Uint g=0; g<m_headerData.NGRPS; ++g) {
+  for (Uint g=0; g<m_headerData.NGRPS; ++g) {    
     std::string ELMMAT;
     Uint NGP, NELGP, MTYP, NFLAGS, I;
     getline(file,line);  // ELEMENT GROUP...
@@ -201,7 +205,6 @@ void NeuReader::read_groups(std::fstream& file)
     getline(file,line);  // finish the line (read new line)
     getline(file,line);  // ENDOFSECTION
   }
-  
   // Create Region for each group
   m_mesh->create_region("regions");
   boost::shared_ptr<CRegion> regions = m_mesh->get_component<CRegion>("regions");
@@ -228,6 +231,9 @@ void NeuReader::read_groups(std::fstream& file)
     }
     
   }
+  
+  // truely deallocate this vector
+  std::vector<Region_TableIndex_pair>().swap (m_global_to_tmp);
 }
 
 //////////////////////////////////////////////////////////////////////////////
