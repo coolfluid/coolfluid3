@@ -74,6 +74,9 @@ namespace Common {
     /// Add a (sub)component of this component
     void add_component ( boost::shared_ptr<Component> subcomp );
 
+    /// Remove a (sub)component of this component
+    Component::Ptr remove_component ( const CName& name );
+
     /// Get a (sub)component of this component
     /// @param name the component
     Component::Ptr get_component ( const CName& name );

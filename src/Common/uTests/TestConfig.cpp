@@ -33,6 +33,9 @@ using namespace CF::Common;
 ///   * option sets with own processors
 ///   * option for paths ( file and dirs )
 ///   * option for component path
+///   * break into files
+///       - Configurable ( Configurable, OptionList )
+///       - Option ( Option, OptionT )
 ///
 /// How to:
 ///   * how to define processors statically?
@@ -72,6 +75,15 @@ public:
 
   /// Assume that the xml node passed is correct for this option
   virtual void change_value ( rapidxml::xml_node<> *node ) = 0;
+
+  void configure_option ( rapidxml::xml_node<> *node )
+  {
+    this->change_value(node); // update the value
+
+    // call all process functors
+    BOOST_FOREACH( Option::Processor_t& process, m_processors )
+        process();
+  }
 
   void attach_processor ( Processor_t proc ) { m_processors.push_back(proc); }
 
@@ -141,7 +153,6 @@ struct ConvertValue< std::vector<TYPE> >
 
 //------------------------------------------------------------------------------
 
-
 template < typename TYPE >
 class OptionT : public Option
 {
@@ -164,9 +175,6 @@ public:
   {
     TYPE vt = ConvertValue<TYPE>::convert( node->value() );
     m_value = vt;
-
-    BOOST_FOREACH( Option::Processor_t& proc, m_processors )
-        proc();
   }
 
 };
@@ -177,26 +185,43 @@ class OptionComponent : public Option
 {
 public:
 
-  OptionComponent ( const std::string& name, const std::string& desc, const std::string& keyname ) :
-      Option(name, "Component", desc, keyname )
+  typedef std::string value_type;
+
+  OptionComponent ( const std::string& name, const std::string& desc, const std::string& def_name ) :
+      Option(name, Component::getClassName(), desc, def_name )
   {
     CFinfo
         << " creating option ["
         << m_name << "] of type ["
         << m_type << "] w default ["
-//        << def << "] desc ["
+        << def_name << "] desc ["
         << m_description << "]\n" << CFendl;
+  }
+
+  virtual void change_value ( rapidxml::xml_node<> *node )
+  {
+    std::string keyname = node->value();
+    m_value = keyname;
+
+    m_component.reset(); // delete previous pointee
+
+    Common::SafePtr< Component::PROVIDER > prov =
+        Factory< Component >::getInstance().getProvider( keyname );
+
+    m_component = prov->create( keyname );
+    // for the moment we repeat the keyname for the actual component name
+    // later we will create subnodes in the xml,
+    //  * one for the concrete type
+    //  * one for the name
+
   }
 
 protected:
 
-  /// name of the component type (use to get the provider in the component factory)
-  std::string m_name;
   /// storage of the component pointer
   Component::Ptr m_component;
 
 };
-
 
 
 //------------------------------------------------------------------------------
@@ -260,7 +285,7 @@ public:
     {
       OptionList::OptionStorage_t::iterator opt = options.find( itr->name() );
       if (opt != options.end())
-        opt->second->change_value(itr);
+        opt->second->configure_option(itr);
     }
   }
 
@@ -297,6 +322,7 @@ class MyC : public ConfigObject
     for (Uint i = 0; i < vi.size(); ++i)
       CFinfo << "vi[" << i << "] : " << vi[i] << "\n" << CFendl;
 
+    option("Comp")->attach_processor ( boost::bind ( &MyC::config_comp,this ) );
   };
 
   void config_bool ()
@@ -316,6 +342,7 @@ class MyC : public ConfigObject
     std::string s; option("OptStr")->put_value(s);
     CFinfo << "config str [" << s << "]\n" << CFendl;
   }
+
   void config_vecint ()
   {
     std::vector<int> vi; option("VecInt")->put_value(vi);
@@ -323,6 +350,11 @@ class MyC : public ConfigObject
         CFinfo << "config vi [" << i << "]\n" << CFendl;
   }
 
+  void config_comp ()
+  {
+    std::string n; option("Comp")->put_value(n);
+    CFinfo << "config COMPONENT [" << n << "]\n" << CFendl;
+  }
 
   static void defineConfigOptions ( OptionList& options )
   {
@@ -338,6 +370,9 @@ class MyC : public ConfigObject
     def.push_back(5);
     def.push_back(7);
     options.add< OptionT< std::vector<int> > >     ( "VecInt",  "vector ints option" , def );
+
+    // option for componets
+    options.add< OptionComponent >     ( "Comp",  "component option" , "CLink" );
   }
 
 };
@@ -413,11 +448,12 @@ BOOST_AUTO_TEST_CASE( configure )
 
   std::string text = (
       "<MyC>"
-      "<OptBool>   1  </OptBool>"
-      "<OptInt>  134  </OptInt>"
-      "<OptStr> lolo  </OptStr>"
-      "<Unused> popo  </Unused>"
-      "<VecInt>2 8 9  </VecInt>"
+      "<OptBool>     1  </OptBool>"
+      "<OptInt>    134  </OptInt>"
+      "<OptStr>   lolo  </OptStr>"
+      "<Unused>   popo  </Unused>"
+      "<VecInt>  2 8 9  </VecInt>"
+      "<Comp>   CGroup  </Comp>"
       "</MyC>"
    );
 
@@ -528,16 +564,3 @@ BOOST_AUTO_TEST_CASE( xmlnode )
 BOOST_AUTO_TEST_SUITE_END()
 
 ////////////////////////////////////////////////////////////////////////////////
-
-
-    //------------------------------------------------------------------------------
-
-    //struct is_positive : public OptionValidation
-    //{
-    //  is_positive() {}
-    //
-    //  std::string desc () { return "Value must be positive"; }
-    //
-    //  template < typename TYPE >
-    //      bool operator () ( TYPE v ) { return v > 0; }
-    //};

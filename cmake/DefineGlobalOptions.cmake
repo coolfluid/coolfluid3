@@ -15,6 +15,7 @@ option ( CF_ENABLE_LOGDEBUG           "Enable debug logging via CFLog facility" 
 option ( CF_ENABLE_DEBUG_MACROS       "Enable debug macros"                     ON )
 
 option ( CF_ENABLE_MPI                "Enable MPI compilation"                  ON   )
+option ( CF_ENABLE_GUI                "Enable GUI compilation"                  ON   )
 option ( CF_ENABLE_DOCS               "Enable build of documentation"           ON   )
 option ( CF_ENABLE_EXPLICIT_TEMPLATES "Enable explicit template instantiation"  ON   )
 option ( CF_ENABLE_GROWARRAY          "Enable GrowArray usage"                  ON   )

@@ -78,9 +78,40 @@ void Component::add_component ( Component::Ptr subcomp )
 
 ////////////////////////////////////////////////////////////////////////////////
 
+Component::Ptr Component::remove_component ( const CName& name )
+{
+  // find the component exists
+  Component::CompStorage_t::iterator itr = m_components.find(name);
+
+  if ( itr != m_components.end() )     // if exists
+  {
+    Component::Ptr comp = itr->second; // get the component
+    m_components.erase(itr);            // remove it from the storage
+    return comp;                        // return it to client to do somethinng typically delete it
+  }
+  else                                   // if does not exist
+  {
+    throw ValueNotFound(FromHere(), "Component with name '"
+                        + name + "' does not exist in component '"
+                        + this->name() + "' with path ["
+                        + m_path.string() + "]");
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 Component::Ptr Component::get_component ( const CName& name )
 {
-  return m_components[name];
+  // find the component exists
+  Component::CompStorage_t::iterator itr = m_components.find(name);
+
+  if ( itr != m_components.end() )     // if exists
+    return itr->second;                  // return it
+  else                                   // if does not exist
+    throw ValueNotFound(FromHere(), "Component with name '"
+                        + name + "' does not exist in component '"
+                        + this->name() + "' with path ["
+                        + m_path.string() + "]");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
