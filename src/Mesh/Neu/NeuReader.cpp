@@ -249,7 +249,9 @@ void NeuReader::read_groups(std::fstream& file)
     // Remove tmp region from component
     boost::shared_ptr<Component> tmp = m_mesh->remove_component("tmp");
     
-    /// @todo must still be deleted from memory
+    /// @todo check if the following really deletes it from memory
+    tmp.reset();
+    
   }
   
   

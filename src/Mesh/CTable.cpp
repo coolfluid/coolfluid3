@@ -23,6 +23,7 @@ CTable::CTable ( const CName& name  ) :
 
 CTable::~CTable()
 {
+  m_table.resize(boost::extents[0][0]);
 }
 
 //////////////////////////////////////////////////////////////////////////////
