@@ -181,6 +181,9 @@ void NeuReader::read_groups(std::fstream& file)
   std::string line;
   int dummy;
   
+  m_mesh->create_region("regions");
+  boost::shared_ptr<CRegion> regions = m_mesh->get_component<CRegion>("regions");
+  
   std::vector<GroupData> groups(m_headerData.NGRPS);
   for (Uint g=0; g<m_headerData.NGRPS; ++g) {    
     std::string ELMMAT;
@@ -205,32 +208,51 @@ void NeuReader::read_groups(std::fstream& file)
     getline(file,line);  // finish the line (read new line)
     getline(file,line);  // ENDOFSECTION
   }
-  // Create Region for each group
-  m_mesh->create_region("regions");
-  boost::shared_ptr<CRegion> regions = m_mesh->get_component<CRegion>("regions");
-  BOOST_FOREACH(GroupData& group, groups)
+  
+  // 2 cases:
+  // 1) there is only one group --> The tmp region can just be renamed
+  //    and put in the filesystem as subcomponent of "mesh/regions"
+  if (m_headerData.NGRPS == 1)
   {
-    regions->create_region(group.ELMMAT);
-    boost::shared_ptr<CRegion> region = regions->get_component<CRegion>(group.ELMMAT);
-    
-    // Create regions for each element type in each group-region
-    std::map<std::string,boost::shared_ptr<CTable::Buffer> > buffer;
-    BOOST_FOREACH(std::string& type, m_supported_types)
-    {
-      region->create_region_with_elementType(type);
-      buffer[type]=boost::shared_ptr<CTable::Buffer>
-        (new CTable::Buffer(region->get_component<CRegion>(type)->get_component<CTable>("table")->create_buffer()));
-    }
-    
-    // Copy elements from tmp_region in the correct region
-    BOOST_FOREACH(Uint global_element, group.ELEM)
-    {
-      boost::shared_ptr<CRegion> tmp_region = m_global_to_tmp[global_element].first;
-      Uint local_element = m_global_to_tmp[global_element].second;
-      buffer[tmp_region->name()]->add_row(tmp_region->get_component<CTable>("table")->get_table()[local_element]);
-    }
-    
+    m_mesh->get_component("tmp")->change_parent(regions);
+    regions->get_component("tmp")->rename(groups[0].ELMMAT);
   }
+  // 2) there are multiple groups --> New regions have to be created
+  //    and the elements from the tmp region have to be distributed among
+  //    these new regions.
+  else
+  {
+    // Create Region for each group
+    BOOST_FOREACH(GroupData& group, groups)
+    {
+      regions->create_region(group.ELMMAT);
+      boost::shared_ptr<CRegion> region = regions->get_component<CRegion>(group.ELMMAT);
+
+      // Create regions for each element type in each group-region
+      std::map<std::string,boost::shared_ptr<CTable::Buffer> > buffer;
+      BOOST_FOREACH(std::string& type, m_supported_types)
+      {
+        region->create_region_with_elementType(type);
+        buffer[type]=boost::shared_ptr<CTable::Buffer>
+          (new CTable::Buffer(region->get_component<CRegion>(type)->get_component<CTable>("table")->create_buffer()));
+      }
+
+      // Copy elements from tmp_region in the correct region
+      BOOST_FOREACH(Uint global_element, group.ELEM)
+      {
+        boost::shared_ptr<CRegion> tmp_region = m_global_to_tmp[global_element].first;
+        Uint local_element = m_global_to_tmp[global_element].second;
+        buffer[tmp_region->name()]->add_row(tmp_region->get_component<CTable>("table")->get_table()[local_element]);
+      }
+    }
+    
+    // Remove tmp region from component
+    boost::shared_ptr<Component> tmp = m_mesh->remove_component("tmp");
+    
+    /// @todo must still be deleted from memory
+  }
+  
+  
   
   // truely deallocate this vector
   std::vector<Region_TableIndex_pair>().swap (m_global_to_tmp);

@@ -131,7 +131,7 @@ namespace Common {
 template < typename TYPE >
 inline boost::shared_ptr<TYPE> Component::get_component ( const CName& name )
 {
-  return boost::dynamic_pointer_cast<TYPE>( m_components[name] );
+  return boost::dynamic_pointer_cast<TYPE>( get_component(name) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
