@@ -181,6 +181,9 @@ options:
         --dwnldsrc=       URL of download server from where to download sources of dependencies
                             Default: $opt_dwnldsrc
 
+        --makeopts=       Options to pass to make
+                            Default: $opt_makeopts
+
         --install         Comma separated list of packages to install.
                           Every test will be run for on the number of cpus specified here.
                             Example: --install=all,hdf5,lam
@@ -1364,7 +1367,16 @@ sub install_boost()
 
     # build boost libs
     safe_chdir("../../..");
-    run_command_or_die("./tools/jam/src/bin.$boost_arch/bjam --prefix=$opt_install_dir --without-mpi --without-python toolset=$toolset threading=multi variant=release stage install");
+    
+    my $boostmpiopt=" --without-mpi ";
+    unless ($opt_nompi) {
+      $boostmpiopt=" --with-mpi cxxflags=-DBOOST_MPI_HOMOGENEOUS ";
+      open  (USERCONFIGJAM, '>>~/user-config.jam');
+      print  USERCONFIGJAM "using mpi : $opt_mpi_dir/bin/mpiCC";
+      close (USERCONFIGJAM); 
+    }
+
+    run_command_or_die("./tools/jam/src/bin.$boost_arch/bjam --prefix=$opt_install_dir $boostmpiopt toolset=$toolset threading=multi variant=release stage install");
 
   }
 }
