@@ -11,8 +11,7 @@
 #include "Common/LogStringForwarder.hpp"
 #include "Common/CodeLocation.hpp"
 #include "Common/StringOps.hpp"
-#include "Common/MPI/PE.hpp"
-#include "Common/MPI/PE_MPI.hpp"
+#include "Common/MPI/PEInterface.hpp"
 
 namespace CF {
 
@@ -108,19 +107,19 @@ class Common_API LogStream
     for(it = m_destinations.begin() ; it != m_destinations.end() ; it++)
     {
     if(it->first != SYNC_SCREEN && this->isDestinationUsed(it->first) &&
-        ( PE::getInstance().get_rank() == 0 || !m_filterRankZero[it->first]))
+         (PEInterface::getInstance().rank() == 0 || !m_filterRankZero[it->first]))
     {
       *(it->second) << t;
       m_flushed = false;
     }
-    else if(it->first != SYNC_SCREEN && PE::getInstance().is_init()
+    else if(it->first != SYNC_SCREEN && PEInterface::getInstance()  .is_init()
         && this->isDestinationUsed(it->first))
     {
-      for( Uint i = 0 ; i < PE::interface().get_procesor_count(); ++i )
+      for( Uint i = 0 ; i < (Uint)(PEInterface::getInstance().size()); ++i )
       {
-        PE::interface().set_barrier();
+        PEInterface::getInstance().barrier();
 
-        if(i == PE::getInstance().get_rank())
+        if(i == (Uint)PEInterface::getInstance().rank())
         {
          *(it->second) << t;
          m_flushed = false;

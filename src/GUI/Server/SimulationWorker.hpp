@@ -7,7 +7,7 @@
 #include <QHash>
 #include <mpi.h>
 
-#include "Common/PE.hpp"
+#include "Common/MPI/PEInterface.hpp"
 
 #include "Common/ManagerWorkerProtocol.hpp"
 #include "Common/BuilderParserFrameInfo.hpp"

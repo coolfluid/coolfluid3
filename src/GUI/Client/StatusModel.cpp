@@ -7,7 +7,7 @@
 
 #include <boost/filesystem/path.hpp>
 
-#include "Common/PE.hpp"
+#include "Common/MPI/PEInterface.hpp"
 
 #include "Common/ConfigArgs.hpp"
 

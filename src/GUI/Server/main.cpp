@@ -17,7 +17,7 @@
 //#include "Framework/Simulator.hpp"
 #include "Common/DirPaths.hpp"
 #include "Common/CoreVars.hpp"
-#include "Common/PE.hpp"
+#include "Common/MPI/PEInterface.hpp"
 
 #define CF_NO_TRACE
 

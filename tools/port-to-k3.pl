@@ -218,6 +218,10 @@ sub process ($)
       s/CFSliceMatrix/MatrixSliceT/g;
       s/CFSliceVector/VectorSliceT/g;
 
+      # class and members change
+      s/PE::getInstance()\.get_rank()/PEInterface::getInstance()\.rank()/g;
+      s/PE::getInstance()\.get_processor_count()/PEInterface::getInstance()\.size()/g;
+
       # modified headers
       s/Environment\.hpp/CommonAPI\.hpp/;
       s/EnvironmentAPI\.hpp/CommonAPI\.hpp/;
@@ -225,6 +229,9 @@ sub process ($)
       s/ConfigAPI\.hpp/CommonAPI\.hpp/;
       s/Common\.hpp/CommonAPI\.hpp/;
       s/SetupError\.hpp/BasicExceptions\.hpp/;
+      s/PE\.hpp/PEInterface\.hpp/;
+      s/PE_MPI\.hpp/PEInterface\.hpp/;
+      
     }
     untie @lines;
 

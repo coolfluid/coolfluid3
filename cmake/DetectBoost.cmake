@@ -10,7 +10,7 @@ SET ( Boost_FIND_VERSION_PATCH  "0"  )
 # older cmakes dont have these versions
 SET ( Boost_ADDITIONAL_VERSIONS "1.42" "1.42.0" )
 # components to search for
-LIST ( APPEND CF_Boost_COMPONENTS thread iostreams filesystem system regex unit_test_framework date_time program_options )
+LIST ( APPEND CF_Boost_COMPONENTS thread iostreams filesystem system regex unit_test_framework date_time program_options mpi serialization )
 
 find_package( Boost COMPONENTS ${CF_Boost_COMPONENTS} )
 

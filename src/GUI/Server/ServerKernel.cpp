@@ -5,7 +5,7 @@
 #include <boost/filesystem/path.hpp>
 
 #include "Common/xmlParser.h"
-#include "Common/PE.hpp"
+#include "Common/MPI/PEInterface.hpp"
 #include "Common/Log.hpp"
 
 #include "Common/ConfigArgs.hpp"
@@ -187,7 +187,7 @@ bool ServerKernel::connSig(const char * signal, const char * slot)
 
 void ServerKernel::setStatus(WorkerStatus::Type status)
 {
-  PE::getInstance().change_status(status);
+  PEInterface::getInstance().change_status(status);
   //  this->commServer->sendStatus(-1, PE::getStatusString(status).c_str());
 }
 

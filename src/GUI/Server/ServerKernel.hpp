@@ -9,7 +9,7 @@
 #include <QDomDocument>
 #include <mpi.h>
 
-#include "Common/PE.hpp"
+#include "Common/MPI/PEInterface.hpp"
 #include "GUI/Network/HostInfos.hpp"
 #include "GUI/Server/ServerSimulation.hpp"
 #include "GUI/Server/SimulationManager.hpp"

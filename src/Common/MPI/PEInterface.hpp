@@ -1,9 +1,17 @@
 #ifndef CF_Common_PEInterface_hpp
 #define CF_Common_PEInterface_hpp
 
+#include "boost/mpi.hpp"
+#include "Common/WorkerStatus.hpp"
 #include "Common/CF.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
+
+/// Parallel Environment Interface
+/// The whole interface depends on boost.mpi, it is basically an encapsulation of mpi::environment mpi::world and WorkerStatus
+/// @author Tamas Banyai to blame
+
+using namespace boost;
 
 namespace CF {
 namespace Common {
@@ -11,33 +19,57 @@ namespace Common {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Base class for the PEInterface
-class Common_API PEInterface : public boost::noncopyable {
+class Common_API PEInterface : public boost::noncopyable, public mpi::communicator {
 public:
 
-  /// virtual destructor
-  virtual ~PEInterface ();
+  /// public constructor
+  PEInterface(int argc, char** args);
 
-  /// Returns the total number of execution contexts in the universum
-  virtual Uint get_procesor_count () const = 0;
+  /// destructor
+  ~PEInterface ();
 
-  /// Return the ID of this processor (between 0 and get_procesor_count)
-  virtual Uint get_rank () const = 0;
+  /// Return a reference to the current PE
+  static PEInterface& getInstance ();
 
-  /// Set a barrier
-  virtual void set_barrier() = 0;
+  /// Initialise the PE
+  void init (int argc, char** args);
 
-  /// Return true if this is a parallel simulation in some way
-  /// Running only 1 processor is NOT parallel
-  virtual bool is_parallel () const = 0;
+  /// Checks if the PE is initialized
+  bool is_init ();
 
-  /// return the name of the model
-  virtual std::string getModelName () const = 0;
+  /// Free the PE, careful with this because some mpi-s fail upon re-init after finalize
+  void finalize ();
+
+  /// Sets current process status.
+  /// @param status New status
+  /// @todo the name WorkerStatus is inappropriate, better to name it for example ProcessStatus
+  void change_status (WorkerStatus::Type status);
+
+  /// Gives the current process status.
+  /// @return Returns the current process status
+  WorkerStatus::Type status ();
+
+  /// Operator to boost.mpi environment, environment is noncopyable
+  operator mpi::environment&() { return m_environment; };
+  operator mpi::environment*() { return &m_environment; };
+
+private:
+
+  /// private constructor
+  PEInterface();
+
+  /// Current status.
+  /// Default value is @c #NOT_RUNNING.
+  WorkerStatus::Type m_current_status;
+
+  /// mpi environment
+  mpi::environment m_environment;
 
 }; // PEInterface
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
+  } // Common
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////

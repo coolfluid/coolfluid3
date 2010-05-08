@@ -2,8 +2,7 @@
 
 #include <QtCore>
 
-#include "Common/PE.hpp"
-#include "Common/MPI/PE_MPI.hpp"
+#include "Common/MPI/PEInterface.hpp"
 #include "Common/StringOps.hpp"
 #include "Common/xmlParser.h"
 #include "Common/BuilderParser.hpp"
@@ -17,7 +16,6 @@ using namespace MPI;
 using namespace std;
 
 using namespace CF::Common;
-using namespace CF::Common::MPI;
 //using namespace CF::Config;
 
 using namespace CF::GUI::Server;
@@ -64,8 +62,8 @@ void SimulationManager::spawn(const QString & subSysName, const QString & subSys
     for(unsigned int i = 0 ; i < nbProcs ; i++)
       emit simulationStatus(subSysName, i, WorkerStatus::Convert::to_str(WorkerStatus::STARTING).c_str());
 
-    m_subSysComms[subSysName] = dynamic_cast<PE_MPI&>(PE::interface()).spawn(nbProcs, hosts.toStdString().c_str());
-    m_subSysComms[subSysName].Barrier();
+//TH    m_subSysComms[subSysName] = dynamic_cast<PE_MPI&>(PE::interface()).spawn(nbProcs, hosts.toStdString().c_str());
+//TH    m_subSysComms[subSysName].Barrier();
     m_listener.addComm(m_subSysComms[subSysName]);
     m_spawning = true;
     m_listener.waitForAcks(m_subSysComms[subSysName], MGR_WKR_SET_SUBSYS);

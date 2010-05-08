@@ -6,7 +6,7 @@
 
 #include "coolfluid_svnversion.h"
 
-#include "Common/MPI/PE.hpp"
+#include "Common/MPI/PEInterface.hpp"
 
 #include "Common/EventHandler.hpp"
 #include "Common/VarRegistry.hpp"
@@ -265,10 +265,9 @@ void CoreEnv::initiate ( int argc, char** argv )
   CFinfo << "-------------------------------------------------------------\n" << CFendl;
 
   CFinfo << "Initializing Parallel Environment : " << CFendl;
-  PE::getInstance().init(&argc, &argv);
+  PEInterface::getInstance().init(argc,argv);
 
   CFinfo << "CF version    : " << getVersionString () << "\n";
-  CFinfo << "Parallel Environment : " << PE::interface().getModelName() << "\n";
   CFinfo << "Build system         : " << getBuildSystem() << "\n";
   CFinfo << "Build OS             : " << getLongSystemName() << " [" << getSystemBits() << "bits]\n";
   CFinfo << "Build processor      : " << getBuildProcessor() << "\n";
@@ -312,8 +311,7 @@ void CoreEnv::terminate()
   CFinfo << "Terminating Hook Modules ...\n" << CFendl;
   terminateModules();
 
-  CFinfo << "Terminating Parallel Environment : Model " << PE::interface().getModelName() << "\n";
-  PE::getInstance().finalize ();
+  PEInterface::getInstance().finalize();
 
   CFinfo << "-------------------------------------------------------------\n" << CFendl;
   CFinfo << "CF Environment Terminated\n";

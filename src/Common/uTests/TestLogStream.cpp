@@ -247,7 +247,7 @@ BOOST_AUTO_TEST_CASE( operators )
   *(f.m_stream) << "Hello world!";
   f.m_stream->flush();
   
-  if(PE::getInstance().get_rank() == 0)
+  if(PEInterface::getInstance().rank() == 0)
     BOOST_CHECK_EQUAL(forwarder->m_str, std::string("Hello world!"));
   else
     BOOST_CHECK_EQUAL(forwarder->m_str, std::string(""));
