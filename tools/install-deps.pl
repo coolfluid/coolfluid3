@@ -1376,7 +1376,7 @@ sub install_boost()
       close (USERCONFIGJAM); 
     }
 
-    run_command_or_die("./tools/jam/src/bin.$boost_arch/bjam --prefix=$opt_install_dir $boostmpiopt toolset=$toolset threading=multi variant=release stage install");
+    run_command_or_die("./tools/jam/src/bin.$boost_arch/bjam --prefix=$opt_install_dir $opt_makeopts --with-test --with-thread --with-iostreams --with-filesystem --with-system --with-regex --with-date_time --with-program_options $boostmpiopt toolset=$toolset threading=multi variant=release stage install");
 
   }
 }

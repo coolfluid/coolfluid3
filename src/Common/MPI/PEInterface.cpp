@@ -57,6 +57,13 @@ void PEInterface::finalize() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+Uint PEInterface::rank() {
+  if (!is_init()) return 0;
+  return (Uint)mpi::communicator::rank();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void PEInterface::change_status(WorkerStatus::Type status) {
   cf_assert ( WorkerStatus::Convert::is_valid(status) );
   m_current_status = status;

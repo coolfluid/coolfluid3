@@ -3,20 +3,20 @@
 LIST ( APPEND uTestCommon_libs Common )
 LIST ( APPEND uTestCommon_files
   UTestCommon.cpp
-  TestPE.cpp
-)
-
-CF_MARK_NOT_ORPHAN (
   TestCPath.cpp
   TestComponent.cpp
   TestConfig.cpp
+  TestOSystem.cpp
+  TestStringOps.cpp
   TestHourMinSec.cpp
   TestLog.cpp
   TestLogLevelFilter.cpp
   TestLogStampFilter.cpp
   TestLogStream.cpp
-  TestOSystem.cpp
-  TestStringOps.cpp
+  TestPE.cpp
+)
+
+CF_MARK_NOT_ORPHAN (
 )
 
 

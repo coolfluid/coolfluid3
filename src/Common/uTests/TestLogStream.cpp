@@ -15,16 +15,12 @@ struct LogStreamFixture
 {
   /// common setup for each test case
   LogStreamFixture() { 
-    int    argc = boost::unit_test::framework::master_test_suite().argc;
-    char** argv = boost::unit_test::framework::master_test_suite().argv;
-    PEInterface::getInstance().init(argc,argv);
     m_stream = new LogStream("TestStream"); 
   }
 
   /// common tear-down for each test case
   ~LogStreamFixture() { 
     delete m_stream; 
-    PEInterface::getInstance().finalize();
   }
 
   /// possibly common functions used on the tests below
@@ -38,7 +34,6 @@ struct LogStreamFixture
 struct MyStringForwarder : public LogStringForwarder
 {
   void message(const std::string & str) { m_str = str; }
-
   std::string m_str;
 };
 
@@ -61,7 +56,6 @@ BOOST_AUTO_TEST_CASE( setLogLevel )
 
 //  BOOST_CHECK_EQUAL( (int)f.m_stream->getLogLevel(LogStream::FILE), (int)VERBOSE);
   BOOST_CHECK_EQUAL( (int)f.m_stream->getLogLevel(LogStream::SCREEN), (int)SILENT);
-
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -144,7 +138,7 @@ BOOST_AUTO_TEST_CASE( setFilterRankZero )
 
 BOOST_AUTO_TEST_CASE( setStamp )
 {
-LogStreamFixture f;
+  LogStreamFixture f;
 
   f.m_stream->setStamp("");
   f.m_stream->setStamp(LogStream::SCREEN, "[%place%][%type%]");
@@ -254,12 +248,11 @@ BOOST_AUTO_TEST_CASE( operators )
   f.m_stream->setFilterRankZero(LogStream::STRING, true);
   *(f.m_stream) << "Hello world!";
   f.m_stream->flush();
-  
+
   if(PEInterface::getInstance().rank() == 0)
     BOOST_CHECK_EQUAL(forwarder->m_str, std::string("Hello world!"));
   else
     BOOST_CHECK_EQUAL(forwarder->m_str, std::string(""));
-  
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

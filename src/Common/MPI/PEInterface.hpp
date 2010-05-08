@@ -26,28 +26,31 @@ public:
   PEInterface(int argc, char** args);
 
   /// destructor
-  ~PEInterface ();
+  ~PEInterface();
 
   /// Return a reference to the current PE
   static PEInterface& getInstance();
 
   /// Initialise the PE
-  void init (int argc, char** args);
+  void init(int argc, char** args);
 
   /// Checks if the PE is initialized
-  bool is_init ();
+  bool is_init();
 
   /// Free the PE, careful because some mpi-s fail upon re-init after a proper finalize
-  void finalize ();
+  void finalize();
+
+  /// Return rank, additionally, if is_init==0 returns 0
+  Uint rank();
 
   /// Sets current process status.
   /// @param status New status
   /// @todo the name WorkerStatus is inappropriate, better to name it for example ProcessStatus
-  void change_status (WorkerStatus::Type status);
+  void change_status(WorkerStatus::Type status);
 
   /// Gives the current process status.
   /// @return Returns the current process status
-  WorkerStatus::Type status ();
+  WorkerStatus::Type status();
 
   /// Operator to boost.mpi environment, environment is noncopyable
   operator mpi::environment&() { return *m_environment; };
