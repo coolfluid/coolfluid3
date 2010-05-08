@@ -12,10 +12,10 @@
 #include "GUI/Server/MPIReceiver.hpp"
 #include "GUI/Server/SimulationManager.hpp"
 
-using namespace MPI;
 using namespace std;
 
 using namespace CF::Common;
+using namespace MPI;
 //using namespace CF::Config;
 
 using namespace CF::GUI::Server;

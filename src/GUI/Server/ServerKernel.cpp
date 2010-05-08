@@ -19,7 +19,6 @@
 
 #include "GUI/Server/ServerKernel.hpp"
 
-using namespace MPI;
 using namespace CF::Common;
 //using namespace CF::Config;
 using namespace CF::GUI::Network;
