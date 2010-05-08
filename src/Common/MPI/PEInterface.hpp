@@ -29,7 +29,7 @@ public:
   ~PEInterface ();
 
   /// Return a reference to the current PE
-  static PEInterface& getInstance ();
+  static PEInterface& getInstance();
 
   /// Initialise the PE
   void init (int argc, char** args);
@@ -37,7 +37,7 @@ public:
   /// Checks if the PE is initialized
   bool is_init ();
 
-  /// Free the PE, careful with this because some mpi-s fail upon re-init after finalize
+  /// Free the PE, careful because some mpi-s fail upon re-init after a proper finalize
   void finalize ();
 
   /// Sets current process status.
@@ -50,8 +50,8 @@ public:
   WorkerStatus::Type status ();
 
   /// Operator to boost.mpi environment, environment is noncopyable
-  operator mpi::environment&() { return m_environment; };
-  operator mpi::environment*() { return &m_environment; };
+  operator mpi::environment&() { return *m_environment; };
+  operator mpi::environment*() { return m_environment; };
 
 private:
 
@@ -63,7 +63,7 @@ private:
   WorkerStatus::Type m_current_status;
 
   /// mpi environment
-  mpi::environment m_environment;
+  mpi::environment *m_environment;
 
 }; // PEInterface
 

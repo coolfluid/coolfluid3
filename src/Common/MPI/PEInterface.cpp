@@ -5,24 +5,28 @@ namespace CF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PEInterface::PEInterface(int argc, char** args) : m_environment(argc, args) {
-  PEInterface::PEInterface();
+PEInterface::PEInterface(int argc, char** args) {
+  PEInterface();
+  m_environment=new mpi::environment(argc,args);
+  mpi::communicator();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PEInterface::PEInterface(){
+PEInterface::PEInterface() {
+  m_environment=0;
   m_current_status=WorkerStatus::NOT_RUNNING;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 PEInterface::~PEInterface () {
+  finalize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PEInterface& PEInterface::getInstance () {
+PEInterface& PEInterface::getInstance() {
   static PEInterface pe_instance;
   return pe_instance;
 }
@@ -30,20 +34,25 @@ PEInterface& PEInterface::getInstance () {
 ////////////////////////////////////////////////////////////////////////////////
 
 void PEInterface::init(int argc, char** args) {
-  mpi::environment(argc,args); // does it only if it is not initialized already
+  if (m_environment!=0) delete(m_environment);
+  m_environment=new mpi::environment(argc,args);
   mpi::communicator();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 bool PEInterface::is_init(){
-  return m_environment.initialized();
+  if (m_environment==0) return false;
+  return m_environment->initialized();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void PEInterface::finalize() {
-  //mpi::environment::~environment();
+  delete(m_environment);
+  m_environment=0;
+  /// TODO: communicator has no destructor, see boost/mpi/communicator.hpp, this is sort of dangerous
+  /// needs to be checked if it somehow realizes that
 }
 
 ////////////////////////////////////////////////////////////////////////////////

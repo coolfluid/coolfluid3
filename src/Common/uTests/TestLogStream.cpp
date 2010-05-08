@@ -14,10 +14,18 @@ using namespace CF::Common;
 struct LogStreamFixture
 {
   /// common setup for each test case
-  LogStreamFixture() { m_stream = new LogStream("TestStream"); }
+  LogStreamFixture() { 
+    int    argc = boost::unit_test::framework::master_test_suite().argc;
+    char** argv = boost::unit_test::framework::master_test_suite().argv;
+    PEInterface::getInstance().init(argc,argv);
+    m_stream = new LogStream("TestStream"); 
+  }
 
   /// common tear-down for each test case
-  ~LogStreamFixture() { delete m_stream; }
+  ~LogStreamFixture() { 
+    delete m_stream; 
+    PEInterface::getInstance().finalize();
+  }
 
   /// possibly common functions used on the tests below
 
