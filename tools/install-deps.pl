@@ -93,12 +93,12 @@ my %packages = (  #  version   default install priority      function
     "dateshift"  => [ "1.0",    'off',  'off', $priority++,  sub { install_gnu("dateshift") } ],
     "curl"       => [ "7.19.7", 'on' ,  'off', $priority++,  \&install_curl ],
     "libfaketime"=> [ "0.8",    'off',  'off', $priority++,  \&install_libfaketime ],
-    "boost"      => [ "1_42_0", 'on' ,  'off', $priority++,  \&install_boost ],
     "lam"        => [ "7.1.4",  'off',  'off', $priority++,  \&install_lam ],
     "openmpi"    => [ "1.4.1",  'off',  'off', $priority++,  \&install_openmpi ],
     "mpich"      => [ "1.2.7p1",'off',  'off', $priority++,  \&install_mpich ],
     "mpich2"     => [ "1.2.1",  'off',  'off', $priority++,  \&install_mpich2 ],
-    "parmetis"   => [ "3.1.1",    'on' ,  'off', $priority++,  \&install_parmetis ],
+    "boost"      => [ "1_42_0", 'on' ,  'off', $priority++,  \&install_boost ],
+    "parmetis"   => [ "3.1.1",  'on' ,  'off', $priority++,  \&install_parmetis ],
     "hdf5"       => [ "1.6.4",  'off',  'off', $priority++,  \&install_hdf5 ],
     "subversion" => [ "1.4.3",  'off',  'off', $priority++,  \&install_subversion ],
     "trilinos"   => [ "10.2.0", 'off',  'off', $priority++,  \&install_trilinos ],
@@ -1371,8 +1371,16 @@ sub install_boost()
     my $boostmpiopt=" --without-mpi ";
     unless ($opt_nompi) {
       $boostmpiopt=" --with-mpi cxxflags=-DBOOST_MPI_HOMOGENEOUS ";
-      open  (USERCONFIGJAM, '>>~/user-config.jam');
-      print  USERCONFIGJAM "using mpi : $opt_mpi_dir/bin/mpiCC";
+      open  (USERCONFIGJAM, ">>./tools/build/v2/user-config.jam") || die("Cannot Open File ./tools/build/v2/user-config.jam") ;
+      print  USERCONFIGJAM <<ZZZ;
+
+
+# ----------------------
+# mpi configuration.
+# ----------------------
+using mpi : $opt_mpi_dir/bin/mpicxx ;
+
+ZZZ
       close (USERCONFIGJAM); 
     }
 
