@@ -97,7 +97,7 @@ my %packages = (  #  version   default install priority      function
     "openmpi"    => [ "1.4.1",  'off',  'off', $priority++,  \&install_openmpi ],
     "mpich"      => [ "1.2.7p1",'off',  'off', $priority++,  \&install_mpich ],
     "mpich2"     => [ "1.2.1",  'off',  'off', $priority++,  \&install_mpich2 ],
-    "boost"      => [ "1_42_0", 'on' ,  'off', $priority++,  \&install_boost ],
+    "boost"      => [ "1_43_0", 'on' ,  'off', $priority++,  \&install_boost ],
     "parmetis"   => [ "3.1.1",  'on' ,  'off', $priority++,  \&install_parmetis ],
     "hdf5"       => [ "1.6.4",  'off',  'off', $priority++,  \&install_hdf5 ],
     "subversion" => [ "1.4.3",  'off',  'off', $priority++,  \&install_subversion ],
@@ -1223,7 +1223,8 @@ sub install_trilinos() {
       $mpiopt = " -D TPL_ENABLE_MPI:BOOL=ON \\
 -D MPI_BASE_DIR_PATH:PATH=$opt_mpi_dir \\
 -D CMAKE_C_COMPILER:FILEPATH=$opt_mpi_dir/bin/mpicc \\
--D CMAKE_CXX_COMPILER:FILEPATH=$opt_mpi_dir/bin/mpic++ " 
+-D CMAKE_CXX_COMPILER:FILEPATH=$opt_mpi_dir/bin/mpic++ \\
+-D CMAKE_Fortran_COMPILER:FILEPATH=$opt_mpi_dir/bin/mpif77 " 
  }
 
   unless ($opt_fetchonly) 
