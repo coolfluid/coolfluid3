@@ -99,7 +99,7 @@ my %packages = (  #  version   default install priority      function
     "mpich2"     => [ "1.2.1",  'off',  'off', $priority++,  \&install_mpich2 ],
     "boost"      => [ "1_43_0", 'on' ,  'off', $priority++,  \&install_boost ],
     "parmetis"   => [ "3.1.1",  'on' ,  'off', $priority++,  \&install_parmetis ],
-    "hdf5"       => [ "1.6.4",  'off',  'off', $priority++,  \&install_hdf5 ],
+    "hdf5"       => [ "1.8.4-patch1",  'on',  'off', $priority++,  \&install_hdf5 ],
     "subversion" => [ "1.4.3",  'off',  'off', $priority++,  \&install_subversion ],
     "trilinos"   => [ "10.2.0", 'off',  'off', $priority++,  \&install_trilinos ],
     "petsc2"     => [ "2.2.0",  'off',  'off', $priority++,  \&install_petsc2 ],
@@ -108,6 +108,7 @@ my %packages = (  #  version   default install priority      function
     "ccache"     => [ "2.4",    'off',  'off', $priority++,  sub { install_gnu("ccache") } ],
     "distcc"     => [ "2.18.3", 'off',  'off', $priority++,  sub { install_gnu("distcc") } ],
     "cgnslib"    => [ "2.5-4",  'off',  'off', $priority++,  \&install_cgnslib ],
+    "cgns"       => [ "3.0.8",  'on',   'off', $priority++,  \&install_cgns ],
     "cgnstools"  => [ "2-5-4",  'off',  'off', $priority++,  \&install_cgnstools ],
     "google-perftools" => [ "1.5",'off','off', $priority++, \&install_google_perftools ],
 );
@@ -598,7 +599,7 @@ sub install_wgetprog() {
   untar_src($lib,$version);
   safe_chdir("$opt_tmp_dir/$lib-$version/");
   run_command_or_die("./configure --prefix=$opt_install_dir");
-  run_command_or_die("make");
+  run_command_or_die("make $opt_makeopts");
   run_command_or_die("make install");
 }
 
@@ -630,7 +631,7 @@ sub install_google_perftools ()
     untar_src($lib,$version);
     safe_chdir("$opt_tmp_dir/$lib-$version/");
     run_command_or_die("./configure --enable-frame-pointers  --prefix=$opt_install_dir");
-    run_command_or_die("make");
+    run_command_or_die("make $opt_makeopts");
     run_command_or_die("make install");
   }
 }
@@ -651,7 +652,7 @@ sub install_gnu ($)
     untar_src($lib,$version);
     safe_chdir("$opt_tmp_dir/$lib-$version/");
     run_command_or_die("./configure --prefix=$opt_install_dir");
-    run_command_or_die("make");
+    run_command_or_die("make $opt_makeopts");
     run_command_or_die("make install");
   }
 }
@@ -676,7 +677,7 @@ sub install_gcc4() {
     mkpath $objdir;
     safe_chdir($objdir);
     run_command_or_die("$opt_tmp_dir/$lib-$version/configure --prefix=$opt_install_dir --enable-languages=c,c++,fortran");
-    run_command_or_die("make");
+    run_command_or_die("make $opt_makeopts");
     run_command_or_die("make install");
   }
 }
@@ -701,7 +702,7 @@ sub install_gcc3() {
     mkpath $objdir;
     safe_chdir($objdir);
     run_command_or_die("$opt_tmp_dir/$lib-$version/configure --prefix=$opt_install_dir --enable-languages=c,c++,f77");
-    run_command_or_die("make");
+    run_command_or_die("make $opt_makeopts");
     run_command_or_die("make install");
   }
 }
@@ -722,7 +723,7 @@ sub install_openssl ()
     untar_src($lib,$version);
     safe_chdir("$opt_tmp_dir/$lib-$version/");
     run_command_or_die("./config --prefix=$opt_install_dir --shared --openssldir=$opt_install_dir");
-    run_command_or_die("make");
+    run_command_or_die("make $opt_makeopts");
     run_command_or_die("make install");
   }
 }
@@ -743,7 +744,7 @@ sub install_curl ()
     untar_src($lib,$version);
     safe_chdir("$opt_tmp_dir/$lib-$version/");
     run_command_or_die("./configure --prefix=$opt_install_dir --without-ssl --without-libidn --without-gnutls --disable-ipv6 ");
-    run_command_or_die("make");
+    run_command_or_die("make $opt_makeopts");
     run_command_or_die("make install");
   }
 }
@@ -863,7 +864,7 @@ sub install_lam() {
     untar_src($lib,$version);
     safe_chdir("$opt_tmp_dir/$lib-$version/");
     run_command_or_die("./configure --enable-shared --enable-static --with-threads=posix --enable-long-long --enable-languages=c,c++,f77 --disable-checking --enable-cstdio=stdio --with-system-zlib --prefix=$opt_mpi_dir");
-    run_command_or_die("make");
+    run_command_or_die("make $opt_makeopts");
     run_command_or_die("make install");
   }
 }
@@ -884,7 +885,7 @@ sub install_openmpi() {
     untar_src($lib,$version);
     safe_chdir("$opt_tmp_dir/$lib-$version/");
     run_command_or_die("./configure --enable-shared --enable-static --with-threads=posix --disable-mpi-f90  --prefix=$opt_mpi_dir");
-    run_command_or_die("make");
+    run_command_or_die("make $opt_makeopts");
     run_command_or_die("make install");
   }
 }
@@ -904,8 +905,31 @@ sub install_mpich2() {
       untar_src($lib,$version);
       safe_chdir("$opt_tmp_dir/$lib-$version/");
       run_command_or_die("./configure --enable-cxx --enable-f77 --enable-f90 --enable-sharedlibs=osx-gcc --prefix=$opt_mpi_dir");
-      run_command_or_die("make");
+      run_command_or_die("make $opt_makeopts");
       run_command_or_die("make install");
+  }
+}
+
+#==========================================================================
+
+sub install_cgns() {
+  my $lib = "cgns";
+  my $version = $packages{$lib}[$vrs];
+  print my_colored("Installing $lib-$version\n",$HEADINGCOLOR);
+
+  safe_chdir($opt_tmp_dir);
+  download_src($lib,$version);
+  unless ($opt_fetchonly)
+  {
+    rmtree "$opt_tmp_dir/$lib-$version";
+    untar_src($lib,$version);
+    safe_chdir("$opt_tmp_dir/$lib-$version/");
+    
+    mkpath("build",1);
+    safe_chdir("build");
+    run_command_or_die("cmake ../ -DHDF5_LIBRARY_DIR=$opt_mpi_dir/lib -DHDF5_INCLUDE_DIR=$opt_mpi_dir/include -DHDF5_NEED_MPI=ON -DHDF5_NEED_ZLIB=ON -DHDF5_NEED_SZIP=OFF -DMPI_INCLUDE_DIR=$opt_mpi_dir/include -DMPI_LIBRARY_DIR=$opt_mpi_dir/lib -DCMAKE_INSTALL_PREFIX=$opt_mpi_dir");
+    run_command_or_die("make $opt_makeopts");
+    run_command_or_die("make install");
   }
 }
 
@@ -930,7 +954,7 @@ sub install_cgnslib() {
         $loptions  = $loptions . " --enable-64bit";
     }
     run_command_or_die("./configure " . $loptions);
-    run_command_or_die("make");
+    run_command_or_die("make $opt_makeopts");
     run_command_or_die("make install");
   }
 }
@@ -976,7 +1000,7 @@ sub install_cgnstools() {
         $loptions  = $loptions . " --enable-64bit";
 }
     run_command_or_die("./configure " . $loptions);
-    run_command_or_die("make");
+    run_command_or_die("make $opt_makeopts");
     run_command_or_die("make install");
 }
 }
@@ -996,7 +1020,7 @@ sub install_mpich() {
       untar_src($lib,$version);
       safe_chdir("$opt_tmp_dir/$lib-$version/");
       run_command_or_die("./configure --prefix=$opt_mpi_dir --enable-f77 --enable-f90");
-      run_command_or_die("make");
+      run_command_or_die("make $opt_makeopts");
       run_command_or_die("make install");
   }
 }
@@ -1271,7 +1295,7 @@ $mpiopt \\
 #-D PARMETIS_LIBRARY_DIRS:PATH=\"$opt_install_dir/lib\" \\
 #-D PARMETIS_INCLUDE_DIRS:PATH=\"$opt_install_dir/include\" \\
 
-    run_command_or_die("make");
+    run_command_or_die("make $opt_makeopts");
     run_command_or_die("make install");
   }
 }
@@ -1307,7 +1331,7 @@ sub install_libfaketime() {
     run_command_or_die("tar zxf $pack.tar.gz");
     safe_chdir("$opt_tmp_dir/$pack/");
 
-    run_command_or_die("make");
+    run_command_or_die("make $opt_makeopts");
 
     safe_copy("libfaketime.so.1","$opt_install_dir/lib/libfaketime.so.1") or die;
     safe_copy("libfaketimeMT.so.1","$opt_install_dir/lib/libfaketimeMT.so.1") or die;
@@ -1408,7 +1432,7 @@ sub install_cmake() {
     safe_chdir("$opt_tmp_dir/$pack/");
 
     run_command_or_die("./bootstrap --prefix=$opt_cmake_dir");
-    run_command_or_die("make");
+    run_command_or_die("make $opt_makeopts");
     run_command_or_die("make install");
 
   }
@@ -1434,11 +1458,10 @@ sub install_hdf5() {
     unless ($opt_nompi) {
         $ENV{CC}   = "mpicc";
         $ENV{CXX}  = "mpic++";
-        $mpiopt = "--enable-parallel";
     }
 
-    run_command_or_die("./configure --prefix=$opt_install_mpi_dir $mpiopt --enable-cxx --enable-zlib --enable-linux-lfs --with-gnu-ld --enable-hl");
-    run_command_or_die("make");
+    run_command_or_die("./configure --prefix=$opt_install_mpi_dir --enable-zlib --enable-linux-lfs --with-gnu-ld --enable-hl --enable-shared");
+    run_command_or_die("make $opt_makeopts");
     run_command_or_die("make install");
 
     $ENV{CC}   = $old_cc;
