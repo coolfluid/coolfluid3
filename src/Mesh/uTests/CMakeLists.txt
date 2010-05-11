@@ -15,7 +15,7 @@ LIST ( APPEND uTestLagrangeSFTriagP1_libs Common P1 )
 LIST ( APPEND uTestLagrangeSFTriagP1_files
   uTestLagrangeSFTriagP1.cpp )
 
-CF_ADD_UNITTEST ( uTestLagrangeSFTriagP1 )
+# CF_ADD_UNITTEST ( uTestLagrangeSFTriagP1 )
 
 ################################################################################
 
@@ -23,6 +23,8 @@ LIST ( APPEND uTestLagrangeSFQuadP1_libs Common P1 )
 LIST ( APPEND uTestLagrangeSFQuadP1_files
   uTestLagrangeSFQuadP1.cpp )
 
-CF_ADD_UNITTEST ( uTestLagrangeSFQuadP1 )
+# CF_ADD_UNITTEST ( uTestLagrangeSFQuadP1 )
 
 ################################################################################
+
+CF_MARK_NOT_ORPHAN ( uTestLagrangeSFTriagP1 uTestLagrangeSFQuadP1.cpp )

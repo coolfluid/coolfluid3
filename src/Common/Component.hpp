@@ -3,9 +3,9 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <boost/weak_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
+#include "Common/ConfigObject.hpp"
 #include "Common/DynamicObject.hpp"
 #include "Common/CPath.hpp"
 #include "Common/ConcreteProvider.hpp"
@@ -19,11 +19,13 @@ namespace Common {
 
   /// Base class for defining CF components
   /// @author Tiago Quintino
+  /// @todo remove XMLNode and use RapidXML
   /// @todo add ownership of (sub) components
   /// @todo add dumping of the (sub)tree to a string
   /// @todo add registration into CTree
   class Common_API Component :
       public boost::enable_shared_from_this<Component>,
+      public ConfigObject,
       public DynamicObject {
 
   public:

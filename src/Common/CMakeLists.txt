@@ -85,6 +85,13 @@ LIST ( APPEND Common_files
     NamedObject.cpp
     NonInstantiable.hpp
     ObjectProvider.hpp
+    Option.hpp
+    Option.cpp
+    OptionT.hpp
+    OptionComponent.hpp
+    OptionComponent.cpp
+    ConfigObject.hpp
+    ConfigObject.cpp
     OSystem.cpp
     OSystem.hpp
     OwnedObject.hpp
