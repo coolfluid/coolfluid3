@@ -1,4 +1,5 @@
 #include <boost/foreach.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include "Mesh/CRegion.hpp"
 
@@ -60,10 +61,13 @@ void CRegion::put_subregions(std::vector<boost::shared_ptr<CRegion> >& vec)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CRegion::create_region_with_elementType ( const CName& etype_name )
+void CRegion::create_leaf_region (const std::string& etype_name )
 {
-  create_region(etype_name);
-  boost::shared_ptr<CRegion> region = get_component<CRegion>(etype_name);
+  std::string region_name(etype_name);
+  boost::erase_all(region_name, "Mesh::");
+  boost::erase_all(region_name, "::");
+  create_region(region_name);
+  boost::shared_ptr<CRegion> region = get_component<CRegion>(region_name);
   region->create_connectivityTable();
   region->create_elementType();
   region->get_component<CElements>("type")->set_elementType(etype_name);

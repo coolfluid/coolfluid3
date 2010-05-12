@@ -59,7 +59,7 @@ public:
   
   /// a shortcut command to avoid boilerplate code
   /// @param [in] etype_name create a region with connectivity table and element info
-  void create_region_with_elementType ( const CName& etype_name );
+  void create_leaf_region (const std::string& etype_name );
   
   /// copy a CArray entry from a given CArray into a given row
   /// templated with row vector type

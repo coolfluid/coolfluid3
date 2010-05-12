@@ -1,5 +1,5 @@
 #include <boost/foreach.hpp>
-
+#include <boost/algorithm/string/erase.hpp>
 #include "Common/ObjectProvider.hpp"
 #include "Mesh/Neu/Reader.hpp"
 
@@ -105,18 +105,18 @@ void Reader::read_connectivity(std::fstream& file)
   boost::shared_ptr<CRegion> region;
 
   // quadrilateral
-  tmp->create_region_with_elementType("Mesh::P1::Quad2D");
+  tmp->create_leaf_region("Mesh::P1::Quad2D");
   boost::shared_ptr<CTable::Buffer> quad2D_buffer 
-      (new CTable::Buffer(tmp->get_component<CRegion>("Mesh::P1::Quad2D")->get_component<CTable>("table")->create_buffer()));
+      (new CTable::Buffer(tmp->get_component<CRegion>("P1Quad2D")->get_component<CTable>("table")->create_buffer()));
   Uint quad2D_elementCounter(0);
-  boost::shared_ptr<CRegion> quad2D_region = tmp->get_component<CRegion>("Mesh::P1::Quad2D");
+  boost::shared_ptr<CRegion> quad2D_region = tmp->get_component<CRegion>("P1Quad2D");
 
   // triangle
-  tmp->create_region_with_elementType("Mesh::P1::Triag2D");
+  tmp->create_leaf_region("Mesh::P1::Triag2D");
   boost::shared_ptr<CTable::Buffer> triag2D_buffer 
-      (new CTable::Buffer(tmp->get_component<CRegion>("Mesh::P1::Triag2D")->get_component<CTable>("table")->create_buffer()));
+      (new CTable::Buffer(tmp->get_component<CRegion>("P1Triag2D")->get_component<CTable>("table")->create_buffer()));
   Uint triag2D_elementCounter(0);
-  boost::shared_ptr<CRegion> triag2D_region = tmp->get_component<CRegion>("Mesh::P1::Triag2D");
+  boost::shared_ptr<CRegion> triag2D_region = tmp->get_component<CRegion>("P1Triag2D");
 
   
   
@@ -233,9 +233,13 @@ void Reader::read_groups(std::fstream& file)
       std::map<std::string,boost::shared_ptr<CTable::Buffer> > buffer;
       BOOST_FOREACH(std::string& type, m_supported_types)
       {
-        region->create_region_with_elementType(type);
-        buffer[type]=boost::shared_ptr<CTable::Buffer>
-          (new CTable::Buffer(region->get_component<CRegion>(type)->get_component<CTable>("table")->create_buffer()));
+        region->create_leaf_region(type);
+        std::string region_name(type);
+        boost::erase_all(region_name, "Mesh::");
+        boost::erase_all(region_name, "::");
+        CFinfo << "region_name = " << region_name << "\n" << CFendl;
+        buffer[region_name]=boost::shared_ptr<CTable::Buffer>
+          (new CTable::Buffer(region->get_component<CRegion>(region_name)->get_component<CTable>("table")->create_buffer()));
       }
 
       // Copy elements from tmp_region in the correct region
