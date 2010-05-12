@@ -20,8 +20,8 @@ LIST ( APPEND Mesh_files
   CRegion.cpp
   CTable.hpp
   CTable.cpp
-  Buffer.hpp
-  Buffer.cpp
+  BufferT.hpp
+  BufferT.cpp
   ConnectivityTableCF2.hpp
   ElementType.hpp
   ElementType.cpp

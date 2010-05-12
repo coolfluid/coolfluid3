@@ -1,5 +1,5 @@
-#ifndef CF_Mesh_Buffer_hpp
-#define CF_Mesh_Buffer_hpp
+#ifndef CF_Mesh_BufferT_hpp
+#define CF_Mesh_BufferT_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -45,7 +45,7 @@ namespace Mesh {
 /// the buffer is flushed.
 /// @author Willem Deconinck
 template < typename T >
-class Mesh_API Buffer {
+class Mesh_API BufferT {
 
 public:
   
@@ -54,10 +54,10 @@ public:
   /// Contructor
   /// @param array The table that will be interfaced with
   /// @param nbRows The size the buffer will be allocated with
-  Buffer (Array_t& array, size_t nbRows);  
+  BufferT (Array_t& array, size_t nbRows);
 
   /// Virtual destructor
-  virtual ~Buffer();
+  virtual ~BufferT();
 
   /// Get the class name
   static std::string getClassName () { return "Buffer"; }
@@ -137,12 +137,12 @@ public:
 //////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-const T Buffer<T>::INVALID = std::numeric_limits<T>::max();
+const T BufferT<T>::INVALID = std::numeric_limits<T>::max();
   
 ////////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-  Buffer<T>::Buffer (Buffer<T>::Array_t& array, size_t nbRows) :
+  BufferT<T>::BufferT (BufferT<T>::Array_t& array, size_t nbRows) :
   m_nbFilledBufferRows(0),
   m_nbAllocatedBufferRows(nbRows),
   m_array(array),
@@ -158,7 +158,7 @@ template<typename T>
 ////////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-Buffer<T>::~Buffer()
+BufferT<T>::~BufferT()
 {
   // make sure to flush and compact the table before deleting the buffer
   compact();
@@ -167,7 +167,7 @@ Buffer<T>::~Buffer()
 ////////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-void Buffer<T>::flush()
+void BufferT<T>::flush()
 {
   Uint iRow = m_nbAllocatedArrayRows;
   const Uint nbCols=m_array.shape()[1];
@@ -212,7 +212,7 @@ void Buffer<T>::flush()
 
 template<typename T>
 template<typename vectorType>
-void Buffer<T>::add_row(const vectorType& row)
+void BufferT<T>::add_row(const vectorType& row)
 {
   const Uint nbCols=m_array.shape()[1];
   cf_assert(row.size() == nbCols);
@@ -248,7 +248,7 @@ void Buffer<T>::add_row(const vectorType& row)
 //////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-void Buffer<T>::rm_row(const Uint array_idx)
+void BufferT<T>::rm_row(const Uint array_idx)
 {
   // two cases:
   // 1) the empty row is in the table
@@ -274,7 +274,7 @@ void Buffer<T>::rm_row(const Uint array_idx)
 ////////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-void Buffer<T>::compact()
+void BufferT<T>::compact()
 {
   flush();
   if (m_nbEmptyArrayRows)
@@ -314,7 +314,7 @@ void Buffer<T>::compact()
 //////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-void Buffer<T>::change_buffersize(const size_t buffersize)
+void BufferT<T>::change_buffersize(const size_t buffersize)
 {
   flush();
   m_nbAllocatedBufferRows = buffersize;
@@ -327,7 +327,7 @@ void Buffer<T>::change_buffersize(const size_t buffersize)
 
 template<typename T>
 template <typename TValue, boost::detail::multi_array::size_type K>
-void Buffer<T>::swap(
+void BufferT<T>::swap(
     boost::detail::multi_array::sub_array<TValue, K> lhs,
     boost::detail::multi_array::sub_array<TValue, K> rhs)
 {

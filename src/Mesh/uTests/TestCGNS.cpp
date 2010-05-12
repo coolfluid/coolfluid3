@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE( TestCGNSLib )
  int maxelemi = 20*16*8;
  int maxelemj = 1216;
 
-  double x[21*17*9],y[21*17*9],z[21*17*9];
+  double x[21*17*9],y[21*17*9]; //,z[21*17*9];
   int isize[3][1],ielem[maxelemi][4],jelem[maxelemj][4];
   int ni,nj,nk,iset,i,j,k,index_file,icelldim,iphysdim;
   int index_base,index_zone,index_coord,ielem_no,nelem_start;
@@ -303,7 +303,7 @@ relationships:
  /* write QUAD element connectivity for sidewall face (user can give any name) */
      cg_section_write(index_file,index_base,index_zone,"SidewallElem",QUAD_4,nelem_start,  \
                       nelem_end,nbdyelem,jelem[0],&index_section);
- /* ----------------------------------------------------------
+ /* ---------------------------------------------------------- */
 /* close CGNS file */
   cg_close(index_file);
   printf("\nSuccessfully wrote unstructured grid to file grid_c.cgns\n");

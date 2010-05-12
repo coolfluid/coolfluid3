@@ -9,7 +9,7 @@
 
 #include "Common/Component.hpp"
 #include "Mesh/MeshAPI.hpp"
-#include "Mesh/Buffer.hpp"
+#include "Mesh/BufferT.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -29,7 +29,7 @@ public:
   
   typedef boost::multi_array<Uint,2> ConnectivityTable;
   typedef ConnectivityTable::subarray<1>::type Row;
-  typedef Buffer<Uint> Buffer;
+  typedef BufferT<Uint> Buffer;
   
   /// Contructor
   /// @param name of the component

@@ -10,7 +10,7 @@
 #include "Common/Component.hpp"
 #include "Mesh/MeshAPI.hpp"
 
-#include "Mesh/Buffer.hpp"
+#include "Mesh/BufferT.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -26,7 +26,7 @@ public:
 
   typedef boost::multi_array<Real,2> Array;
   typedef Array::subarray<1>::type Row;  
-  typedef Buffer<Real> Buffer;
+  typedef BufferT<Real> Buffer;
 
   /// Contructor
   /// @param name of the component
