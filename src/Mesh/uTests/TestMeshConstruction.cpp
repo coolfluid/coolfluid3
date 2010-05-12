@@ -105,8 +105,8 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   triagRegion->create_elementType("type");
   
   // set the element types
-  quadRegion->get_component<CElements>("type")->set_elementType("Quad2D");
-  triagRegion->get_component<CElements>("type")->set_elementType("Triag2D");
+  quadRegion->get_component<CElements>("type")->set_elementType("Mesh::P1::Quad2D");
+  triagRegion->get_component<CElements>("type")->set_elementType("Mesh::P1::Triag2D");
 
   // create a coordinates array in the mesh component
   p_mesh->create_array("coordinates");

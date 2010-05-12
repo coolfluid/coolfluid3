@@ -1,7 +1,7 @@
 LIST ( APPEND Neu_files
   NeuAPI.hpp
-  NeuReader.hpp
-  NeuReader.cpp
+  Reader.hpp
+  Reader.cpp
 )
 
 LIST ( APPEND Neu_cflibs Mesh )

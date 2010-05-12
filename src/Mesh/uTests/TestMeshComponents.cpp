@@ -325,7 +325,7 @@ BOOST_AUTO_TEST_CASE( CElementsTriag2DTest )
   boost::shared_ptr<CElements> comp (new CElements("comp")) ;
 
   // The element is automatically triangle for now
-  comp->set_elementType("Triag2D");
+  comp->set_elementType("Mesh::P1::Triag2D");
   BOOST_CHECK_EQUAL(comp->get_elementType()->getShapeName(), "Triag");
   BOOST_CHECK_EQUAL(comp->get_elementType()->getNbFaces(), (Uint) 3);
 
@@ -347,7 +347,7 @@ BOOST_AUTO_TEST_CASE( CElementsQuad2DTest )
   boost::shared_ptr<CElements> comp (new CElements("comp")) ;
 
   // The element is automatically triangle for now
-  comp->set_elementType("Quad2D");
+  comp->set_elementType("Mesh::P1::Quad2D");
   BOOST_CHECK_EQUAL(comp->get_elementType()->getShapeName(), "Quad");
   BOOST_CHECK_EQUAL(comp->get_elementType()->getNbFaces(), (Uint) 4);
 

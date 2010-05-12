@@ -1,7 +1,7 @@
 #include <boost/foreach.hpp>
 
 #include "Common/ObjectProvider.hpp"
-#include "Mesh/Gmsh/GmshWriter.hpp"
+#include "Mesh/Gmsh/Writer.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CArray.hpp"
@@ -15,14 +15,14 @@ namespace Gmsh {
   
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ObjectProvider < GmshWriter,
+Common::ObjectProvider < Writer,
                          Mesh::MeshWriter,
                          GmshLib >
-aGmshWriter_Provider ( "GmshWriter" );
+aGmshWriter_Provider ( "Mesh::Gmsh::Writer" );
 
 //////////////////////////////////////////////////////////////////////////////
 
-GmshWriter::GmshWriter()
+Writer::Writer()
 : MeshWriter()
 {
   m_elementTypes[GeoShape::TRIAG]=2;
@@ -30,7 +30,7 @@ GmshWriter::GmshWriter()
 }
 /////////////////////////////////////////////////////////////////////////////
 
-void GmshWriter::write_header(std::fstream& file)
+void Writer::write_header(std::fstream& file)
 {
   std::string version = "2";
   Uint file_type = 0; // ASCII
@@ -67,7 +67,7 @@ void GmshWriter::write_header(std::fstream& file)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void GmshWriter::write_coordinates(std::fstream& file)
+void Writer::write_coordinates(std::fstream& file)
 {
   // set precision for Real
   Uint prec = file.precision();
@@ -99,7 +99,7 @@ void GmshWriter::write_coordinates(std::fstream& file)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void GmshWriter::write_connectivity(std::fstream& file)
+void Writer::write_connectivity(std::fstream& file)
 {
   // file << "$Elements                                                               \n";
   // file << "number-of-elements                                                      \n";

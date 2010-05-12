@@ -14,7 +14,7 @@ namespace P1 {
 Common::ObjectProvider < Quad2D,
                          ElementType,
                          P1Lib >
-aQuad2D_Provider ( "Quad2D" );
+aP1Quad2D_Provider ( "Mesh::P1::Quad2D" );
 
 
 Quad2D::Quad2D() 

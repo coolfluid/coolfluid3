@@ -1,7 +1,7 @@
 #include <boost/foreach.hpp>
 
 #include "Common/ObjectProvider.hpp"
-#include "Mesh/Neu/NeuReader.hpp"
+#include "Mesh/Neu/Reader.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CArray.hpp"
@@ -15,24 +15,24 @@ namespace Neu {
   
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ObjectProvider < NeuReader,
+Common::ObjectProvider < Reader,
                          Mesh::MeshReader,
                          NeuLib >
-aNeuReader_Provider ( "NeuReader" );
+aNeuReader_Provider ( "Mesh::Neu::Reader" );
 
 //////////////////////////////////////////////////////////////////////////////
 
-NeuReader::NeuReader()
+Reader::Reader()
 : MeshReader()
 {
   m_supported_types.reserve(2);
-  m_supported_types.push_back("Quad2D");
-  m_supported_types.push_back("Triag2D");
+  m_supported_types.push_back("Mesh::P1::Quad2D");
+  m_supported_types.push_back("Mesh::P1::Triag2D");
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void NeuReader::read_headerData(std::fstream& file)
+void Reader::read_headerData(std::fstream& file)
 {
   Uint NUMNP, NELEM, NGRPS, NBSETS, NDFCD, NDFVL;
   std::string line;
@@ -59,7 +59,7 @@ void NeuReader::read_headerData(std::fstream& file)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void NeuReader::read_coordinates(std::fstream& file)
+void Reader::read_coordinates(std::fstream& file)
 {
   // Create the coordinates array
   m_mesh->create_array("coordinates");
@@ -95,7 +95,7 @@ void NeuReader::read_coordinates(std::fstream& file)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void NeuReader::read_connectivity(std::fstream& file)
+void Reader::read_connectivity(std::fstream& file)
 {
   // make temporary regions for each element type possible
   m_mesh->create_region("tmp");
@@ -105,18 +105,18 @@ void NeuReader::read_connectivity(std::fstream& file)
   boost::shared_ptr<CRegion> region;
 
   // quadrilateral
-  tmp->create_region_with_elementType("Quad2D");
+  tmp->create_region_with_elementType("Mesh::P1::Quad2D");
   boost::shared_ptr<CTable::Buffer> quad2D_buffer 
-      (new CTable::Buffer(tmp->get_component<CRegion>("Quad2D")->get_component<CTable>("table")->create_buffer()));
+      (new CTable::Buffer(tmp->get_component<CRegion>("Mesh::P1::Quad2D")->get_component<CTable>("table")->create_buffer()));
   Uint quad2D_elementCounter(0);
-  boost::shared_ptr<CRegion> quad2D_region = tmp->get_component<CRegion>("Quad2D");
+  boost::shared_ptr<CRegion> quad2D_region = tmp->get_component<CRegion>("Mesh::P1::Quad2D");
 
   // triangle
-  tmp->create_region_with_elementType("Triag2D");
+  tmp->create_region_with_elementType("Mesh::P1::Triag2D");
   boost::shared_ptr<CTable::Buffer> triag2D_buffer 
-      (new CTable::Buffer(tmp->get_component<CRegion>("Triag2D")->get_component<CTable>("table")->create_buffer()));
+      (new CTable::Buffer(tmp->get_component<CRegion>("Mesh::P1::Triag2D")->get_component<CTable>("table")->create_buffer()));
   Uint triag2D_elementCounter(0);
-  boost::shared_ptr<CRegion> triag2D_region = tmp->get_component<CRegion>("Triag2D");
+  boost::shared_ptr<CRegion> triag2D_region = tmp->get_component<CRegion>("Mesh::P1::Triag2D");
 
   
   
@@ -177,7 +177,7 @@ void NeuReader::read_connectivity(std::fstream& file)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void NeuReader::read_groups(std::fstream& file)
+void Reader::read_groups(std::fstream& file)
 {
   std::string line;
   int dummy;

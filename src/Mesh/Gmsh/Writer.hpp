@@ -1,5 +1,5 @@
-#ifndef CF_Mesh_Gmsh_GmshWriter_hpp
-#define CF_Mesh_Gmsh_GmshWriter_hpp
+#ifndef CF_Mesh_Gmsh_Writer_hpp
+#define CF_Mesh_Gmsh_Writer_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -17,15 +17,15 @@ namespace Gmsh {
 
 /// This class defines Gmshtral mesh format writer
 /// @author Willem Deconinck
-class Gmsh_API GmshWriter : public MeshWriter
+class Gmsh_API Writer : public MeshWriter
 {
 public:
   
   /// constructor
-  GmshWriter();
+  Writer();
   
   /// Gets the Class name
-  static std::string getClassName() { return "GmshWriter"; }
+  static std::string getClassName() { return "Writer"; }
   
 private:
   
@@ -58,7 +58,7 @@ private:
   
   std::map<GeoShape::Type,Uint> m_elementTypes;
   
-}; // end GmshWriter
+}; // end Writer
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -69,4 +69,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_Gmsh_GmshWriter_hpp
+#endif // CF_Mesh_Gmsh_Writer_hpp

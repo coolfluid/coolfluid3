@@ -46,5 +46,6 @@ ADD_SUBDIRECTORY ( CFmesh )    # CFmesh file IO
 ADD_SUBDIRECTORY ( LagrangeSF ) 
 ADD_SUBDIRECTORY ( Neu )       # Neutral file IO
 ADD_SUBDIRECTORY ( Gmsh )      # Gmsh file IO
+ADD_SUBDIRECTORY ( CGNS )       # CGNS file IO
 ADD_SUBDIRECTORY ( uTests )    # unit tests for Mesh
 

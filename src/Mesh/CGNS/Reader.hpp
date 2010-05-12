@@ -1,9 +1,9 @@
-#ifndef CF_Mesh_Neu_NeuReader_hpp
-#define CF_Mesh_Neu_NeuReader_hpp
+#ifndef CF_Mesh_CGNS_Reader_hpp
+#define CF_Mesh_CGNS_Reader_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Mesh/Neu/NeuAPI.hpp"
+#include "Mesh/CGNS/CGNSAPI.hpp"
 #include "Mesh/MeshReader.hpp"
 
 #include "Mesh/CTable.hpp"
@@ -13,21 +13,21 @@
 namespace CF {
 namespace Mesh {
   class CRegion;
-namespace Neu {
+namespace CGNS {
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// This class defines Neutral mesh format reader
+/// This class defines CGNStral mesh format reader
 /// @author Willem Deconinck
-class Neu_API NeuReader : public MeshReader
+class CGNS_API Reader : public MeshReader
 {
 public:
   
   /// constructor
-  NeuReader();
+  Reader();
   
   /// Gets the Class name
-  static std::string getClassName() { return "NeuReader"; }
+  static std::string getClassName() { return "Reader"; }
   
 private:
   
@@ -76,18 +76,18 @@ private:
   typedef std::pair<boost::shared_ptr<CRegion>,Uint> Region_TableIndex_pair;
   std::vector<Region_TableIndex_pair> m_global_to_tmp;
   
-  // supported types from coolfluid. Neutral can support more.
+  // supported types from coolfluid. CGNStral can support more.
   std::vector<std::string> m_supported_types;
   
-}; // end NeuReader
+}; // end Reader
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace Neu
+} // namespace CGNS
 } // namespace Mesh
 } // namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_Neu_NeuReader_hpp
+#endif // CF_Mesh_CGNS_Reader_hpp

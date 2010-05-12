@@ -79,10 +79,10 @@ BOOST_AUTO_TEST_CASE( Constructors )
 {
   
   boost::shared_ptr<CMeshReader> meshreader ( new CMeshReader  ( "meshreader" ) );
-  meshreader->set_reader("NeuReader");
+  meshreader->set_reader("Mesh::Neu::Reader");
   
   boost::shared_ptr<CMeshWriter> meshwriter ( new CMeshWriter  ( "meshwriter" ) );
-  meshwriter->set_writer("GmshWriter");
+  meshwriter->set_writer("Mesh::Gmsh::Writer");
   
  
 }
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh )
 {
   
   boost::shared_ptr<CMeshReader> meshreader ( new CMeshReader  ( "meshreader" ) );
-  meshreader->set_reader("NeuReader");
+  meshreader->set_reader("Mesh::Neu::Reader");
   
   /*
   // UNCOMMENT ALL THIS AND CHANGE THE FILEPATH "fp" TO A VALID PATH
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh )
   boost::filesystem::path fp_out ("/Users/willem/workspace/coolfluid3/Kernel/src/Mesh/uTests/quadtriag.msh");
   // boost::filesystem::path fp_out ("/Users/willem/workspace/testcases/square_2D_Re10000_FVM_LES/cases/refined.msh");
   boost::shared_ptr<CMeshWriter> meshwriter ( new CMeshWriter  ( "meshwriter" ) );
-  meshwriter->set_writer("GmshWriter");
+  meshwriter->set_writer("Mesh::Gmsh::Writer");
   meshwriter->get_writer()->write(mesh,fp_out);
  */
  
