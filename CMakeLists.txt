@@ -112,7 +112,7 @@ find_package(Parmetis)        # parallel domain decomposition
 find_package(Curl)            # curl downloads files on the fly
 find_package(Valgrind)        # valgrind for profiling and memmory leak detection
 find_package(GooglePerftools) # dynamic profiler and memory checker
-
+find_package(CGNS)            # CGNS library
 # using cmake find macros
 
 find_package(ZLIB)          # file compression support

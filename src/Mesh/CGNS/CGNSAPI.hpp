@@ -3,6 +3,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "cgnslib.h"
 #include "Common/ExportAPI.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -29,7 +30,7 @@ namespace CGNS {
     
 /// Class defines the CGNStral mesh format operations
 /// @author Willem Deconinck
-class CGNSLib :
+class CGNS_API CGNSLib :
     public Common::ModuleRegister<CGNSLib>
 {
 public:

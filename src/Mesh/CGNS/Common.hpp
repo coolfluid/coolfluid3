@@ -1,36 +1,34 @@
-#ifndef CF_Mesh_CGNS_Reader_hpp
-#define CF_Mesh_CGNS_Reader_hpp
+#ifndef CF_Mesh_CGNS_Common_hpp
+#define CF_Mesh_CGNS_Common_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Mesh/CGNS/CGNSAPI.hpp"
-#include "Mesh/MeshReader.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace Mesh {
+  class CRegion;
 namespace CGNS {
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// This class defines CGNS mesh format reader
+/// This class defines CGNStral mesh format Common
 /// @author Willem Deconinck
-class CGNS_API Reader : public MeshReader
+class CGNS_API Common
 {
 public:
   
   /// constructor
-  Reader();
+  Common();
   
   /// Gets the Class name
-  static std::string getClassName() { return "Reader"; }
+  static std::string getClassName() { return "Common"; }
   
 private:
-  
-  virtual void read_impl(std::fstream&) {}
-
-}; // end Reader
+    
+}; // end Common
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -41,4 +39,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CGNS_Reader_hpp
+#endif // CF_Mesh_CGNS_Common_hpp

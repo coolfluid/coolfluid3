@@ -1,11 +1,12 @@
 ################################################################################
 
-LIST ( APPEND uTestMesh_libs P1 Neu Gmsh)
+LIST ( APPEND uTestMesh_cflibs P1 Neu Gmsh CGNS3)
 LIST ( APPEND uTestMesh_files
   uTestMesh.cpp
   TestMeshComponents.cpp
   TestMeshConstruction.cpp 
-  TestMeshReading.cpp )
+  TestMeshReading.cpp
+  TestCGNS.cpp )
 
 CF_ADD_UNITTEST ( uTestMesh )
 
