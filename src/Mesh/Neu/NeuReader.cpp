@@ -101,21 +101,21 @@ void NeuReader::read_connectivity(std::fstream& file)
   m_mesh->create_region("tmp");
   boost::shared_ptr<CRegion> tmp = m_mesh->get_component<CRegion>("tmp");
   boost::shared_ptr<CTable::Buffer> buffer;
-  boost::shared_ptr<Uint> elementCounter;
+  Uint* elementCounter;
   boost::shared_ptr<CRegion> region;
 
   // quadrilateral
   tmp->create_region_with_elementType("Quad2D");
   boost::shared_ptr<CTable::Buffer> quad2D_buffer 
       (new CTable::Buffer(tmp->get_component<CRegion>("Quad2D")->get_component<CTable>("table")->create_buffer()));
-  boost::shared_ptr<Uint> quad2D_elementCounter (new Uint(0));
+  Uint quad2D_elementCounter(0);
   boost::shared_ptr<CRegion> quad2D_region = tmp->get_component<CRegion>("Quad2D");
 
   // triangle
   tmp->create_region_with_elementType("Triag2D");
   boost::shared_ptr<CTable::Buffer> triag2D_buffer 
       (new CTable::Buffer(tmp->get_component<CRegion>("Triag2D")->get_component<CTable>("table")->create_buffer()));
-  boost::shared_ptr<Uint> triag2D_elementCounter (new Uint(0));
+  Uint triag2D_elementCounter(0);
   boost::shared_ptr<CRegion> triag2D_region = tmp->get_component<CRegion>("Triag2D");
 
   
@@ -134,13 +134,13 @@ void NeuReader::read_connectivity(std::fstream& file)
     {
       buffer         = quad2D_buffer; 
       region         = quad2D_region;
-      elementCounter = quad2D_elementCounter;
+      elementCounter = &quad2D_elementCounter;
     }
     else if (elementType==3 && nbElementNodes==3) // triangle
     {
       buffer         = triag2D_buffer; 
       region         = triag2D_region;
-      elementCounter = triag2D_elementCounter;
+      elementCounter = &triag2D_elementCounter;
     }
     /// @todo to be implemented
     // else if (elementType==4 && nbElementNodes==8) ;// brick
@@ -172,6 +172,7 @@ void NeuReader::read_connectivity(std::fstream& file)
   // flush all buffers
   quad2D_buffer->flush();
   triag2D_buffer->flush();
+
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -253,11 +254,21 @@ void NeuReader::read_groups(std::fstream& file)
     tmp.reset();
     
   }
-  
-  
-  
+
   // truely deallocate this vector
   std::vector<Region_TableIndex_pair>().swap (m_global_to_tmp);
+  
+  // // Remove regions with empty connectivity tables
+  // for (CRegion::Iterator region=regions->begin(); region!=regions->end(); region++)
+  // {
+  //   if (!region->has_subregions())
+  //   {
+  //     if (region->get_component<CTable>("table")->get_table().size() == 0)
+  //     {
+  //       
+  //     }
+  //   }
+  // }  
 }
 
 //////////////////////////////////////////////////////////////////////////////

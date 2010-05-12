@@ -4,7 +4,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 # include <boost/iterator/iterator_facade.hpp>
-
 #include "Mesh/MeshAPI.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CElements.hpp"
@@ -96,12 +95,11 @@ public:
 private:
   
   std::vector< boost::shared_ptr<CRegion> > m_subregions;
-  
   boost::shared_ptr<CTable> m_connTable;
   
   boost::shared_ptr<CElements> m_elementType;
-
 };
+
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -154,7 +152,7 @@ private:
   std::vector<boost::shared_ptr<CRegion> >::iterator m_vecIt;
 };
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
 } // CF
