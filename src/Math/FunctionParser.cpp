@@ -10,7 +10,6 @@
 #include <new>
 #include <cmath>
 
-#include "Math/BoostHeaders.hpp"
 #include "Math/FunctionParser.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -28,7 +27,7 @@ namespace CF {
         "abs","exp","ceil","floor","log","sqrt","int",
         "sinh","cosh","tanh","sin","cos","tan",
         "arctan",
-#if   ( defined(CF_HAVE_BOOST_ERFC) || defined(CF_HAVE_MATH_ERFC) )
+#if    defined(CF_HAVE_MATH_ERFC) 
         "erfc",
 #endif
 #ifdef CF_HAVE_MATH_ASINH
@@ -53,7 +52,7 @@ namespace CF {
         1, 1, 1, 1, 1, 1, 1,
         1, 1, 1, 1, 1, 1,
         2,
-#if   ( defined (CF_HAVE_BOOST_ERFC) || defined(CF_HAVE_MATH_ERFC) )
+#if   defined(CF_HAVE_MATH_ERFC) 
         1,
 #endif
 #ifdef CF_HAVE_MATH_ASINH
@@ -80,7 +79,7 @@ namespace CF {
         cAbs, cExp, cCeil, cFloor, cLog, cSqrt, cInt,
         cSinh, cCosh, cTanh, cSin, cCos, cTan,
         cArctan,
-#if   ( defined(CF_HAVE_BOOST_ERFC) || defined(CF_HAVE_MATH_ERFC) )
+#if    defined(CF_HAVE_MATH_ERFC) 
         cErfc,
 #endif
 #ifdef CF_HAVE_MATH_ASINH
@@ -769,12 +768,8 @@ double FunctionParser::Eval(const RealVector& Vars)
           case cArctan: Comp.Stack[SP-1]=atan2(Comp.Stack[SP-1],Comp.Stack[SP]);
                        SP--; break;
 
-#ifdef CF_HAVE_BOOST_ERFC
-          case  cErfc: Comp.Stack[SP]=boost::math::erfc(Comp.Stack[SP]); break;
-#else
-  #ifdef CF_HAVE_MATH_ERFC
+#ifdef CF_HAVE_MATH_ERFC
           case  cErfc: Comp.Stack[SP]=erfc(Comp.Stack[SP]); break;
-  #endif
 #endif
 
 #ifdef CF_HAVE_MATH_ASINH
