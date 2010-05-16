@@ -8,7 +8,7 @@ SET ( Boost_FIND_VERSION_MAJOR  "1"  )
 SET ( Boost_FIND_VERSION_MINOR  "42" )
 SET ( Boost_FIND_VERSION_PATCH  "0"  )
 # older cmakes dont have these versions
-SET ( Boost_ADDITIONAL_VERSIONS "1.42" "1.42.0" )
+SET ( Boost_ADDITIONAL_VERSIONS "1.43" "1.43.0" "1.42" "1.42.0" )
 # components to search for
 LIST ( APPEND CF_Boost_COMPONENTS thread iostreams filesystem system regex unit_test_framework date_time program_options mpi serialization )
 
