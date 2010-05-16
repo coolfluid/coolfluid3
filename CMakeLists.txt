@@ -34,7 +34,9 @@ ENDIF()
 # kernel does not need fortran but some plugins might
 # developers that know htat they wont need it may turn it off in systems where is not available
 IF(NOT CF_SKIP_FORTRAN)
-enable_language ( Fortran OPTIONAL )
+  enable_language ( Fortran OPTIONAL )
+ELSE()
+  set ( CF_SKIP_FORTRAN ON CACHE BOOL "Skipping fortran language" FORCE )
 ENDIF(NOT CF_SKIP_FORTRAN)
 
 # optionally include personal options ( alternative to passing a cache initialization to cmake)
