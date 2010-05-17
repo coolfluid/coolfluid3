@@ -79,7 +79,7 @@ bool CPath::is_valid ( const std::string& str )
 {
   return boost::algorithm::all(str,
                                boost::algorithm::is_alnum() ||
-                               boost::algorithm::is_any_of("./"));
+                               boost::algorithm::is_any_of("./-_"));
 }
 
 bool CPath::is_complete () const
