@@ -85,6 +85,10 @@ public:
   void compact();
   
   Array_t& get_appointed() {return m_array;}
+
+  Uint get_total_nbRows()
+  { return (m_nbAllocatedArrayRows - m_nbEmptyArrayRows) +
+           (m_nbFilledBufferRows - m_nbEmptyBufferRows); }
   
 /// private functions
 private:

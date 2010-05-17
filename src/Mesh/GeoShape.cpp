@@ -10,7 +10,7 @@ namespace Mesh {
 ////////////////////////////////////////////////////////////////////////////////
 
 GeoShape::Convert::FwdMap_t GeoShape::Convert::all_fwd = boost::assign::map_list_of
-    ( GeoShape::INVALID, "INVALID" )
+    ( GeoShape::INVALID, "Invalid" )
     ( GeoShape::POINT,   "Point")
     ( GeoShape::LINE,    "Line")
     ( GeoShape::TRIAG,   "Triag")
