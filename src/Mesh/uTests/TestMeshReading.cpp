@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh )
   boost::shared_ptr<CMeshReader> meshreader ( new CMeshReader  ( "meshreader" ) );
   meshreader->set_reader("Mesh::Neu::Reader");
   
-
+#if 0
   // UNCOMMENT ALL THIS AND CHANGE THE FILEPATH "fp" TO A VALID PATH
   
   // the file to read from
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh )
   boost::shared_ptr<CMeshWriter> meshwriter ( new CMeshWriter  ( "meshwriter" ) );
   meshwriter->set_writer("Mesh::Gmsh::Writer");
   meshwriter->get_writer()->write(mesh,fp_out);
-
+#endif
  
 }
 
