@@ -88,7 +88,11 @@ namespace Common {
     template < typename TYPE >
         boost::shared_ptr<TYPE> get_component ( const CName& name );
 
+    /// Return the parent component
+    Component::Ptr get_parent() { return m_parent.lock(); }
+
     /// Looks for a component via its path
+    /// (wdeconinck: relative path doesn't work if no root is available)
     /// @param path to the component
     Component::Ptr look_component ( const CPath& path );
 
