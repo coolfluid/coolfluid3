@@ -21,7 +21,6 @@ template<>
 class Mesh_API VolumeComputer<P1::Quad2D> 
 {
 public:
-  static Real computeVolume(const std::vector<RealVector*>& coord);
   static Real computeVolume(const std::vector<CArray::Row>& coord); 
 
 };
@@ -43,11 +42,9 @@ public:
   
   /// Gets the Class name
   static std::string getClassName() { return "Quad2D"; }
-  
-  Real computeVolume(const std::vector<RealVector*>& coord) 
-  { 
-    return VolumeComputerType::computeVolume(coord); 
-  }
+
+  /// Get the full name defining this element type uniquely
+  static std::string getFullName() { return "P1-Quad2D"; }
   
   Real computeVolume(const std::vector<CArray::Row>& coord) 
   { 
@@ -59,17 +56,6 @@ private:
 }; // end Quad2D
   
 } // namespace P1
-
-////////////////////////////////////////////////////////////////////////////////
-  
-Real VolumeComputer<P1::Quad2D>::computeVolume(const std::vector<RealVector*>& coord) 
-{
-  const Real diagonalsProd = 
-    ((*coord[2])[0] - (*coord[0])[0]) * ((*coord[3])[1] - (*coord[1])[1]) -
-    ((*coord[2])[1] - (*coord[0])[1]) * ((*coord[3])[0] - (*coord[1])[0]);
-
-  return 0.5*diagonalsProd;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 

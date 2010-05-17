@@ -14,7 +14,7 @@ namespace P1 {
 Common::ObjectProvider < Triag2D,
                          ElementType,
                          P1Lib >
-aP1Triag2D_Provider ( "Mesh::P1::Triag2D" );
+aP1Triag2D_Provider ( Triag2D::getFullName() );
 
 
 Triag2D::Triag2D() 
@@ -23,6 +23,7 @@ Triag2D::Triag2D()
   m_shapeName=GeoShape::Convert::to_str(m_shape);
   m_order=1;
   m_nbNodes=3;
+  m_dimensionality=2;
   m_nbFaces=3;
   m_nbEdges=0;
   

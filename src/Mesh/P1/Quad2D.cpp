@@ -14,8 +14,9 @@ namespace P1 {
 Common::ObjectProvider < Quad2D,
                          ElementType,
                          P1Lib >
-aP1Quad2D_Provider ( "Mesh::P1::Quad2D" );
+aP1Quad2D_Provider ( Quad2D::getFullName() );
 
+////////////////////////////////////////////////////////////////////////////////
 
 Quad2D::Quad2D() 
 {
@@ -23,6 +24,7 @@ Quad2D::Quad2D()
   m_shapeName=GeoShape::Convert::to_str(m_shape);
   m_order=1;
   m_nbNodes=4;
+  m_dimensionality=2;
   m_nbFaces=4;
   m_nbEdges=0;
   

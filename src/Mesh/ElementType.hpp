@@ -61,6 +61,9 @@ public: // accessors
   /// @return m_order
   Uint getOrder() const { return m_order; }
 
+  /// @return m_dimensionality
+  Uint getDimensionality() const { return m_dimensionality; }
+
   /// @return faces connectivity
   /// faces[iFace][iNode]
   std::vector< std::vector< Uint > >& getFacesConnectivity() { return m_faces; }
@@ -68,9 +71,6 @@ public: // accessors
   /// @return edges connectivity
   /// edges[iEdge][iNode]
   std::vector< std::vector< Uint > >& getEdgesConnectivity() { return m_edges; }
-
-  /// compute volume given coordinates
-  virtual Real computeVolume(const std::vector<RealVector*>& coord) =0; 
   
   /// compute volume given coordinates
   virtual Real computeVolume(const std::vector<CArray::Row>& coord) =0; 
@@ -85,6 +85,8 @@ protected: // data
   Uint m_nbNodes;
   /// the  geometric order of this element
   Uint m_order;
+  /// the dimensionality of the element
+  Uint m_dimensionality;
   /// number of faces
   Uint m_nbFaces;
   /// number of edges
