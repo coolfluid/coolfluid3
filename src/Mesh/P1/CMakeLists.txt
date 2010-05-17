@@ -5,6 +5,8 @@ LIST ( APPEND P1_files
   Triag2D.cpp
   Quad2D.hpp
   Quad2D.cpp
+  Hexa3D.hpp
+  Hexa3D.cpp
 )
 
 LIST ( APPEND P1_cflibs Mesh )
