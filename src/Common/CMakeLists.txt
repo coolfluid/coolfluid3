@@ -126,6 +126,8 @@ IF(CF_HAVE_MPI)
 LIST(APPEND Common_files
       MPI/PEInterface.hpp
       MPI/PEInterface.cpp
+      MPI/PECommPattern.hpp
+      MPI/PECommPattern.cpp
       MPI/ParVectorMPI.hpp
 )
 ENDIF()

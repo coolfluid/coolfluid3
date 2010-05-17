@@ -13,13 +13,28 @@ LIST ( APPEND uTestCommon_files
   TestLogLevelFilter.cpp
   TestLogStampFilter.cpp
   TestLogStream.cpp
+)
+
+CF_ADD_UNITTEST ( uTestCommon )
+
+
+
+LIST ( APPEND uTestPE_libs Common )
+LIST ( APPEND uTestPE_files
+  uTestPE.cpp
+  TestPE_Finalize.cpp
+  TestPECommPattern.cpp
+  TestPE_Init.cpp
+)
+
+CF_ADD_UNITTEST ( uTestPE )
+
+
+
+CF_MARK_NOT_ORPHAN (
   TestPE.cpp
 )
 
-CF_MARK_NOT_ORPHAN (
-)
 
-
-CF_ADD_UNITTEST ( uTestCommon )
 
 ################################################################################

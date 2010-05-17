@@ -11,17 +11,17 @@ using namespace boost;
 using namespace CF;
 using namespace CF::Common;
 
-struct PE_Fixture
+struct PE_Init_Fixture
 {
   /// common setup for each test case
-  PE_Fixture()
+  PE_Init_Fixture()
   {
     m_argc = boost::unit_test::framework::master_test_suite().argc;
     m_argv = boost::unit_test::framework::master_test_suite().argv;
   }
 
   /// common tear-down for each test case
-  ~PE_Fixture()
+  ~PE_Init_Fixture()
   {
   }
 
@@ -33,7 +33,7 @@ struct PE_Fixture
 
 };
 
-BOOST_FIXTURE_TEST_SUITE( PE_TestSuite, PE_Fixture )
+BOOST_FIXTURE_TEST_SUITE( PE_Init_TestSuite, PE_Init_Fixture )
 
 BOOST_AUTO_TEST_CASE( isinit_preinit )
 {
@@ -68,12 +68,7 @@ BOOST_AUTO_TEST_CASE( collective_op )
   BOOST_CHECK_EQUAL( rank_based_sum , size_based_sum );
 }
 
-BOOST_AUTO_TEST_CASE( finalize )
-{
-  PEInterface::getInstance().finalize();
-  BOOST_CHECK_EQUAL( PEInterface::getInstance().is_init() , false );
-}
-
 BOOST_AUTO_TEST_SUITE_END()
+
 
 
