@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh )
   boost::shared_ptr<CMeshReader> meshreader ( new CMeshReader  ( "meshreader" ) );
   meshreader->set_reader("Mesh::Neu::Reader");
   
-/*
+
   // UNCOMMENT ALL THIS AND CHANGE THE FILEPATH "fp" TO A VALID PATH
   
   // the file to read from
@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh )
   CFinfo << "xml_str\n" << xml_str << CFendl;
   freeXMLString(xml_str);
   
-  boost::shared_ptr<CRegion> tmp_region = mesh->get_component<CRegion>("regions");
+  CRegion::Ptr tmp_region = mesh->get_component<CRegion>("regions");
   for (CRegion::iterator region = tmp_region->begin(); region != tmp_region->end(); region++)
   {
     if (region->has_subregions())
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh )
   boost::shared_ptr<CMeshWriter> meshwriter ( new CMeshWriter  ( "meshwriter" ) );
   meshwriter->set_writer("Mesh::Gmsh::Writer");
   meshwriter->get_writer()->write(mesh,fp_out);
-*/
+
  
 }
 

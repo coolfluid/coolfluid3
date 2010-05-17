@@ -67,21 +67,18 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
   BOOST_CHECK_EQUAL ( mesh->full_path().string() , "//root/mesh" );
   
   // Create one region inside mesh
-  boost::shared_ptr<CMesh> p_mesh = boost::dynamic_pointer_cast<CMesh>(mesh);
+  CMesh::Ptr p_mesh = boost::dynamic_pointer_cast<CMesh>(mesh);
 
-  p_mesh->create_region("region1");
-  boost::shared_ptr<CRegion> region1 = p_mesh->get_component<CRegion>("region1");
+  CRegion::Ptr region1 = p_mesh->create_region("region1");
   BOOST_CHECK_EQUAL ( region1->full_path().string() , "//root/mesh/region1" );
 
   // Create second region inside mesh, with 2 subregions inside
-  p_mesh->create_region("region2");
-  boost::shared_ptr<CRegion> region2 = p_mesh->get_component<CRegion>("region2");
+  CRegion::Ptr region2 = p_mesh->create_region("region2");
   region2->create_region("subregion1");
-  region2->create_region("subregion2");
-  BOOST_CHECK_EQUAL ( region2->get_component("subregion2")->full_path().string() , "//root/mesh/region2/subregion2" );
+  CRegion::Ptr subregion = region2->create_region("subregion2");
+  BOOST_CHECK_EQUAL ( subregion->full_path().string() , "//root/mesh/region2/subregion2" );
 
   // Create a connectivity table inside a subregion
-  boost::shared_ptr<CRegion> subregion = region2->get_component<CRegion>("subregion2");
   subregion->create_connectivityTable("connTable");
   BOOST_CHECK_EQUAL ( subregion->get_component("connTable")->full_path().string() , "//root/mesh/region2/subregion2/connTable" );
   
@@ -109,7 +106,7 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
 BOOST_AUTO_TEST_CASE( AddRemoveTest )
 {
   // create table
-  boost::shared_ptr<CTable> table (new CTable("table"));
+  CTable::Ptr table (new CTable("table"));
   // initialize with number of columns
   Uint nbCols = 3;
   table->initialize(nbCols);
@@ -168,7 +165,7 @@ BOOST_AUTO_TEST_CASE( AddRemoveTest )
 BOOST_AUTO_TEST_CASE( FlushTest )
 {
   // create table
-  boost::shared_ptr<CTable> table (new CTable("table"));
+  CTable::Ptr table (new CTable("table"));
   // initialize with number of columns
   Uint nbCols = 3;
   table->initialize(nbCols);
@@ -236,14 +233,13 @@ BOOST_AUTO_TEST_CASE( CTableTest )
   root->add_component( mesh );
   
   // Create one region inside mesh
-  boost::shared_ptr<CMesh> p_mesh = boost::dynamic_pointer_cast<CMesh>(mesh);
+  CMesh::Ptr p_mesh = boost::dynamic_pointer_cast<CMesh>(mesh);
 
-  p_mesh->create_region("region");
-  boost::shared_ptr<CRegion> region = p_mesh->get_component<CRegion>("region");
+  CRegion::Ptr region = p_mesh->create_region("region");
 
   // Create connectivity table inside the region
   region->create_connectivityTable("connTable");
-  boost::shared_ptr<CTable> connTable = region->get_component<CTable>("connTable");
+  CTable::Ptr connTable = region->get_component<CTable>("connTable");
   
   // check constructor
   BOOST_CHECK_EQUAL(connTable->get_table().size(),(Uint) 0);
@@ -300,7 +296,7 @@ BOOST_AUTO_TEST_CASE( CTableTest )
 BOOST_AUTO_TEST_CASE( CArrayTest )
 {
   // Create a CElements component
-  boost::shared_ptr<CArray> coordinates (new CArray("coords")) ;
+  CArray::Ptr coordinates (new CArray("coords")) ;
 
   // initialize the array
   Uint dim = 2;
@@ -322,20 +318,24 @@ BOOST_AUTO_TEST_CASE( CArrayTest )
 BOOST_AUTO_TEST_CASE( CElementsTriag2DTest )
 {
   // Create a CElements component
-  boost::shared_ptr<CElements> comp (new CElements("comp")) ;
+  CElements::Ptr comp (new CElements("comp")) ;
 
   // The element is automatically triangle for now
-  comp->set_elementType("Mesh::P1::Triag2D");
+  comp->set_elementType("P1-Triag2D");
   BOOST_CHECK_EQUAL(comp->get_elementType()->getShapeName(), "Triag");
   BOOST_CHECK_EQUAL(comp->get_elementType()->getNbFaces(), (Uint) 3);
 
   // Check volume calculation
-  RealVector A(2), B(2), C(2);
-  std::vector<RealVector*> coord(3);
-  A[XX]=15; A[YY]=15;   coord[0] = &A;
-  B[XX]=40; B[YY]=25;   coord[1] = &B;
-  C[XX]=25; C[YY]=30;   coord[2] = &C;
-  BOOST_CHECK_EQUAL(comp->get_elementType()->computeVolume(coord), 137.5);
+  CArray::Array coord(boost::extents[3][2]);
+  coord[0][XX]=15; coord[0][YY]=15;
+  coord[1][XX]=40; coord[1][YY]=25;
+  coord[2][XX]=25; coord[2][YY]=30;
+  std::vector<CArray::Row> coordvec;
+  coordvec.reserve(3);
+  coordvec.push_back(coord[0]);
+  coordvec.push_back(coord[1]);
+  coordvec.push_back(coord[2]);
+  BOOST_CHECK_EQUAL(comp->get_elementType()->computeVolume(coordvec), 137.5);
   
 }
 
@@ -344,21 +344,28 @@ BOOST_AUTO_TEST_CASE( CElementsTriag2DTest )
 BOOST_AUTO_TEST_CASE( CElementsQuad2DTest )
 {
   // Create a CElements component
-  boost::shared_ptr<CElements> comp (new CElements("comp")) ;
+  CElements::Ptr comp (new CElements("comp")) ;
 
   // The element is automatically triangle for now
-  comp->set_elementType("Mesh::P1::Quad2D");
+  comp->set_elementType("P1-Quad2D");
   BOOST_CHECK_EQUAL(comp->get_elementType()->getShapeName(), "Quad");
   BOOST_CHECK_EQUAL(comp->get_elementType()->getNbFaces(), (Uint) 4);
 
   // Check volume calculation
-  RealVector A(2), B(2), C(2), D(2);
-  std::vector<RealVector*> coord(4);
-  A[XX]=15; A[YY]=15;   coord[0] = &A;
-  B[XX]=40; B[YY]=25;   coord[1] = &B;
-  C[XX]=25; C[YY]=30;   coord[2] = &C;
-  D[XX]=30; D[YY]=40;   coord[3] = &D;
-  BOOST_CHECK_EQUAL(comp->get_elementType()->computeVolume(coord), 150);
+  CArray::Array coord(boost::extents[4][2]);
+  coord[0][XX]=15; coord[0][YY]=15;
+  coord[1][XX]=40; coord[1][YY]=25;
+  coord[2][XX]=25; coord[2][YY]=30;
+  coord[3][XX]=30; coord[3][YY]=40;
+  std::vector<CArray::Row> coordvec;
+  coordvec.reserve(4);
+  coordvec.push_back(coord[0]);
+  coordvec.push_back(coord[1]);
+  coordvec.push_back(coord[2]);
+  coordvec.push_back(coord[3]);
+
+
+  BOOST_CHECK_EQUAL(comp->get_elementType()->computeVolume(coordvec), 150);
   
 }
 

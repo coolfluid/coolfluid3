@@ -11,6 +11,7 @@
 #include "Common/ConcreteProvider.hpp"
 
 #include "Mesh/MeshAPI.hpp"
+#include "CTable.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -20,6 +21,7 @@ namespace Mesh {
   using namespace Common;
 
   class CMesh;
+  class CRegion;
   
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -41,9 +43,7 @@ public: // functions
 
 public: // accessors
 
-  void set_mesh(const boost::shared_ptr<CMesh>& mesh) { m_mesh = mesh; }
-
-  void read(boost::filesystem::path& fp, const boost::shared_ptr<CMesh>& mesh)
+  virtual void read(boost::filesystem::path& fp, const boost::shared_ptr<CMesh>& mesh)
   {    
     set_mesh(mesh);    
         
@@ -63,10 +63,22 @@ public: // accessors
     file.close();
   }
   
-  virtual void read_impl(std::fstream& file) = 0;
+  virtual void read_impl(std::fstream& file)
+  {
+    throw Common::ShouldNotBeHere(FromHere(),"Child instance of MeshReader should be created.");
+  }
 
-  
-protected: // data
+
+protected:
+
+  void set_mesh(const boost::shared_ptr<CMesh>& mesh) { m_mesh = mesh; }
+
+  std::map<std::string,boost::shared_ptr<CTable::Buffer> >
+      create_buffermap_for_elementConnectivity(boost::shared_ptr<CRegion>& parent_region,
+                                               std::vector<std::string>& etypes);
+
+  void remove_empty_leaf_regions(boost::shared_ptr<CRegion>& parent_region);
+
 
   boost::shared_ptr<CMesh> m_mesh;
   

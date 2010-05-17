@@ -26,8 +26,8 @@ Reader::Reader()
 : MeshReader()
 {
   m_supported_types.reserve(2);
-  m_supported_types.push_back("Mesh::P1::Quad2D");
-  m_supported_types.push_back("Mesh::P1::Triag2D");
+  m_supported_types.push_back("P1-Quad2D");
+  m_supported_types.push_back("P1-Triag2D");
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -64,7 +64,7 @@ void Reader::read_coordinates(std::fstream& file)
   // Create the coordinates array
   m_mesh->create_array("coordinates");
   // create pointers to the coordinates array
-  boost::shared_ptr<CArray> coordinates = m_mesh->get_component<CArray>("coordinates");
+  CArray::Ptr coordinates = m_mesh->get_component<CArray>("coordinates");
   // set dimension
   coordinates->initialize(m_headerData.NDFCD);
   // create a buffer to interact with coordinates
@@ -98,50 +98,24 @@ void Reader::read_coordinates(std::fstream& file)
 void Reader::read_connectivity(std::fstream& file)
 {
   // make temporary regions for each element type possible
-  m_mesh->create_region("tmp");
-  boost::shared_ptr<CRegion> tmp = m_mesh->get_component<CRegion>("tmp");
-  boost::shared_ptr<CTable::Buffer> buffer;
-  Uint* elementCounter;
-  boost::shared_ptr<CRegion> region;
+  CRegion::Ptr tmp = m_mesh->create_region("tmp");
 
-  // quadrilateral
-  tmp->create_leaf_region("Mesh::P1::Quad2D");
-  boost::shared_ptr<CTable::Buffer> quad2D_buffer 
-      (new CTable::Buffer(tmp->get_component<CRegion>("P1Quad2D")->get_component<CTable>("table")->create_buffer()));
-  Uint quad2D_elementCounter(0);
-  boost::shared_ptr<CRegion> quad2D_region = tmp->get_component<CRegion>("P1Quad2D");
+  std::map<std::string,boost::shared_ptr<CTable::Buffer> > buffer =
+      create_buffermap_for_elementConnectivity(tmp,m_supported_types);
 
-  // triangle
-  tmp->create_leaf_region("Mesh::P1::Triag2D");
-  boost::shared_ptr<CTable::Buffer> triag2D_buffer 
-      (new CTable::Buffer(tmp->get_component<CRegion>("P1Triag2D")->get_component<CTable>("table")->create_buffer()));
-  Uint triag2D_elementCounter(0);
-  boost::shared_ptr<CRegion> triag2D_region = tmp->get_component<CRegion>("P1Triag2D");
-
-  
-  
   // skip next line
   std::string line;
   getline(file,line);
     
   // read every line and store the connectivity in the correct region through the buffer
+  std::string etype_CF;
   for (Uint i=0; i<m_headerData.NELEM; ++i) {
     // element description
     Uint elementNumber, elementType, nbElementNodes;
     file >> elementNumber >> elementType >> nbElementNodes;
     elementNumber--;
-    if      (elementType==2 && nbElementNodes==4) // quadrilateral
-    {
-      buffer         = quad2D_buffer; 
-      region         = quad2D_region;
-      elementCounter = &quad2D_elementCounter;
-    }
-    else if (elementType==3 && nbElementNodes==3) // triangle
-    {
-      buffer         = triag2D_buffer; 
-      region         = triag2D_region;
-      elementCounter = &triag2D_elementCounter;
-    }
+    if      (elementType==2 && nbElementNodes==4) etype_CF = "P1-Quad2D";  // quadrilateral
+    else if (elementType==3 && nbElementNodes==3) etype_CF = "P1-Triag2D"; // triangle
     /// @todo to be implemented
     // else if (elementType==4 && nbElementNodes==8) ;// brick
     // else if (elementType==5 && nbElementNodes==6) ;// wedge (prism)
@@ -159,20 +133,15 @@ void Reader::read_connectivity(std::fstream& file)
       file >> rowVector[j];
       rowVector[j]--;
     }
-    buffer->add_row(rowVector);
-    m_global_to_tmp.push_back(Region_TableIndex_pair(region,(*elementCounter)++));
+    Uint table_idx = buffer[etype_CF]->get_total_nbRows();
+    buffer[etype_CF]->add_row(rowVector);
+    m_global_to_tmp.push_back(Region_TableIndex_pair(tmp->get_component<CRegion>(etype_CF),table_idx));
     
     // finish the line
     getline(file,line);
   }
   getline(file,line);  // ENDOFSECTION
   cf_assert(line.compare("ENDOFSECTION"));
-  
-  
-  // flush all buffers
-  quad2D_buffer->flush();
-  triag2D_buffer->flush();
-
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -182,8 +151,7 @@ void Reader::read_groups(std::fstream& file)
   std::string line;
   int dummy;
   
-  m_mesh->create_region("regions");
-  boost::shared_ptr<CRegion> regions = m_mesh->get_component<CRegion>("regions");
+  CRegion::Ptr regions = m_mesh->create_region("regions");
   
   std::vector<GroupData> groups(m_headerData.NGRPS);
   for (Uint g=0; g<m_headerData.NGRPS; ++g) {    
@@ -226,33 +194,23 @@ void Reader::read_groups(std::fstream& file)
     // Create Region for each group
     BOOST_FOREACH(GroupData& group, groups)
     {
-      regions->create_region(group.ELMMAT);
-      boost::shared_ptr<CRegion> region = regions->get_component<CRegion>(group.ELMMAT);
+      CRegion::Ptr region = regions->create_region(group.ELMMAT);
 
       // Create regions for each element type in each group-region
-      std::map<std::string,boost::shared_ptr<CTable::Buffer> > buffer;
-      BOOST_FOREACH(std::string& type, m_supported_types)
-      {
-        region->create_leaf_region(type);
-        std::string region_name(type);
-        boost::erase_all(region_name, "Mesh::");
-        boost::erase_all(region_name, "::");
-        CFinfo << "region_name = " << region_name << "\n" << CFendl;
-        buffer[region_name]=boost::shared_ptr<CTable::Buffer>
-          (new CTable::Buffer(region->get_component<CRegion>(region_name)->get_component<CTable>("table")->create_buffer()));
-      }
+      std::map<std::string,boost::shared_ptr<CTable::Buffer> > buffer =
+          create_buffermap_for_elementConnectivity(region,m_supported_types);
 
       // Copy elements from tmp_region in the correct region
       BOOST_FOREACH(Uint global_element, group.ELEM)
       {
-        boost::shared_ptr<CRegion> tmp_region = m_global_to_tmp[global_element].first;
+        CRegion::Ptr tmp_region = m_global_to_tmp[global_element].first;
         Uint local_element = m_global_to_tmp[global_element].second;
         buffer[tmp_region->name()]->add_row(tmp_region->get_component<CTable>("table")->get_table()[local_element]);
       }
     }
     
     // Remove tmp region from component
-    boost::shared_ptr<Component> tmp = m_mesh->remove_component("tmp");
+    Component::Ptr tmp = m_mesh->remove_component("tmp");
     
     /// @todo check if the following really deletes it from memory
     tmp.reset();
@@ -262,17 +220,8 @@ void Reader::read_groups(std::fstream& file)
   // truely deallocate this vector
   std::vector<Region_TableIndex_pair>().swap (m_global_to_tmp);
   
-  // // Remove regions with empty connectivity tables
-  // for (CRegion::Iterator region=regions->begin(); region!=regions->end(); region++)
-  // {
-  //   if (!region->has_subregions())
-  //   {
-  //     if (region->get_component<CTable>("table")->get_table().size() == 0)
-  //     {
-  //       
-  //     }
-  //   }
-  // }  
+  // Remove regions with empty connectivity tables
+  remove_empty_leaf_regions(regions);
 }
 
 //////////////////////////////////////////////////////////////////////////////

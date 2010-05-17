@@ -76,14 +76,14 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   
   
   // Create root and mesh component
-  boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
+  CRoot::Ptr root = CRoot::create ( "root" );
 
-  boost::shared_ptr<Component> mesh ( new CMesh  ( "mesh" ) );
+  Component::Ptr mesh ( new CMesh  ( "mesh" ) );
 
   root->add_component( mesh );
   
   // create a mesh pointer
-  boost::shared_ptr<CMesh> p_mesh = boost::dynamic_pointer_cast<CMesh>(mesh);
+  CMesh::Ptr p_mesh = boost::dynamic_pointer_cast<CMesh>(mesh);
 
   // create regions
   p_mesh->create_region("superRegion");
@@ -91,11 +91,11 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   p_mesh->get_component<CRegion>("superRegion")->create_region("triags");
   
   // create a pointer to the quads and triag region
-  boost::shared_ptr<CRegion> superRegion =
+  CRegion::Ptr superRegion =
     p_mesh->get_component<CRegion>("superRegion"); 
-  boost::shared_ptr<CRegion> quadRegion =
+  CRegion::Ptr quadRegion =
     superRegion->get_component<CRegion>("quads"); 
-  boost::shared_ptr<CRegion> triagRegion =
+  CRegion::Ptr triagRegion =
     superRegion->get_component<CRegion>("triags"); 
 
   // create connectivity table and element type in the quads and triags region
@@ -105,16 +105,16 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   triagRegion->create_elementType("type");
   
   // set the element types
-  quadRegion->get_component<CElements>("type")->set_elementType("Mesh::P1::Quad2D");
-  triagRegion->get_component<CElements>("type")->set_elementType("Mesh::P1::Triag2D");
+  quadRegion->get_component<CElements>("type")->set_elementType("P1-Quad2D");
+  triagRegion->get_component<CElements>("type")->set_elementType("P1-Triag2D");
 
   // create a coordinates array in the mesh component
   p_mesh->create_array("coordinates");
   
   // create pointers to the coordinates array and connectivity table
-  boost::shared_ptr<CArray> coordinates = p_mesh->get_component<CArray>("coordinates");
-  boost::shared_ptr<CTable> qTable = quadRegion->get_component<CTable>("table");
-  boost::shared_ptr<CTable> tTable = triagRegion->get_component<CTable>("table");
+  CArray::Ptr coordinates = p_mesh->get_component<CArray>("coordinates");
+  CTable::Ptr qTable = quadRegion->get_component<CTable>("table");
+  CTable::Ptr tTable = triagRegion->get_component<CTable>("table");
 
   // initialize the coordinates array and connectivity tables
   const Uint dim=2;
@@ -186,7 +186,7 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
  // calculate all volumes of a region
   for (CRegion::iterator region = superRegion->begin(); region!=superRegion->end(); region++)
   {
-   boost::shared_ptr<CElements>  elementType = region->get_component<CElements>("type");
+   CElements::Ptr  elementType = region->get_component<CElements>("type");
    boost::shared_ptr<CTable>     connTable   = region->get_component<CTable>("table");
    //CFinfo << "type = " << elementType->getShapeName() << "\n" << CFendl;
    const Uint nbRows = connTable->get_table().size();

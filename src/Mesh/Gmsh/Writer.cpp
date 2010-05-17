@@ -25,8 +25,10 @@ aGmshWriter_Provider ( "Mesh::Gmsh::Writer" );
 Writer::Writer()
 : MeshWriter()
 {
+  // gmsh types: http://www.geuz.org/gmsh/doc/texinfo/gmsh.html#MSH-ASCII-file-format
   m_elementTypes[GeoShape::TRIAG]=2;
   m_elementTypes[GeoShape::QUAD]=3;
+  m_elementTypes[GeoShape::HEXA]=5;
 }
 /////////////////////////////////////////////////////////////////////////////
 
@@ -43,10 +45,10 @@ void Writer::write_header(std::fstream& file)
   
   
   // physical names
-  boost::shared_ptr<CArray> coordinates = m_mesh->get_component<CArray>("coordinates");
+  CArray::Ptr coordinates = m_mesh->get_component<CArray>("coordinates");
   const Uint dimension(coordinates->get_array().shape()[1]);
   Uint phys_name_counter(0);
-  boost::shared_ptr<CRegion> regions = m_mesh->get_component<CRegion>("regions");
+  CRegion::Ptr regions = m_mesh->get_component<CRegion>("regions");
   for (CRegion::iterator region = regions->begin(); region != regions->end(); region++)
   {
     if (region->has_subregions())
@@ -72,7 +74,7 @@ void Writer::write_coordinates(std::fstream& file)
   // set precision for Real
   Uint prec = file.precision();
   file.precision(8);
-  boost::shared_ptr<CArray> coordinates = m_mesh->get_component<CArray>("coordinates");
+  CArray::Ptr coordinates = m_mesh->get_component<CArray>("coordinates");
 
   const Uint coord_dim = coordinates->get_array().shape()[1];
   file << "$Nodes\n";
@@ -105,7 +107,7 @@ void Writer::write_connectivity(std::fstream& file)
   // file << "number-of-elements                                                      \n";
   // file << "elm-number elm-type number-of-tags < tag > ... node-number-list ...     \n";
   // file << "$EndElements\n";
-  boost::shared_ptr<CRegion> regions = m_mesh->get_component<CRegion>("regions");
+  CRegion::Ptr regions = m_mesh->get_component<CRegion>("regions");
   Uint nbElems = 0;
   for (CRegion::Iterator region=regions->begin(); region!=regions->end(); region++)
   {
