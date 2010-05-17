@@ -23,6 +23,7 @@ class Mesh_API CMesh : public Common::Component {
 
 public:
 
+  typedef boost::shared_ptr<CMesh> Ptr;
   /// Contructor
   /// @param name of the component
   CMesh ( const CName& name );
@@ -38,12 +39,12 @@ public:
 
   /// create a region
   /// @param name of the region
-  void create_region ( const CName& name );
+  boost::shared_ptr<CRegion> create_region ( const CName& name );
   
   /// create an array
   /// @param name of the array
   /// @todo allow templates
-  void create_array ( const CName& name );
+  boost::shared_ptr<CArray> create_array ( const CName& name );
 
 private:
 

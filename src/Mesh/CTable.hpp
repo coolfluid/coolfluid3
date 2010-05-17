@@ -26,7 +26,7 @@ namespace Mesh {
 class Mesh_API CTable : public Common::Component {
 
 public:
-  
+  typedef boost::shared_ptr<CTable> Ptr;
   typedef boost::multi_array<Uint,2> ConnectivityTable;
   typedef ConnectivityTable::subarray<1>::type Row;
   typedef BufferT<Uint> Buffer;

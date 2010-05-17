@@ -25,12 +25,14 @@ class CRegion_iterator;
 class Mesh_API CRegion : public Common::Component {
 
 public:
-    
-    typedef CRegion_iterator                       Iterator;
 
-    // required for boost_foreach
-    typedef Iterator                                iterator;
-    typedef const iterator                          const_iterator;
+  typedef boost::shared_ptr<CRegion> Ptr;
+
+  typedef CRegion_iterator                       Iterator;
+
+  // required for boost_foreach
+  typedef Iterator                                iterator;
+  typedef const iterator                          const_iterator;
     
     
   /// Contructor
@@ -47,19 +49,19 @@ public:
 
   /// create a CRegion component
   /// @param name of the region
-  void create_region ( const CName& name );
+  CRegion::Ptr create_region ( const CName& name );
   
   /// create a CTable component
   /// @param name of the region
-  void create_connectivityTable ( const CName& name = "table");
+  boost::shared_ptr<CTable> create_connectivityTable ( const CName& name = "table");
   
   /// create a CElements component
   /// @param name of the region
-  void create_elementType ( const CName& name = "type");
+  boost::shared_ptr<CElements> create_elementType ( const CName& name = "type");
   
   /// a shortcut command to avoid boilerplate code
   /// @param [in] etype_name create a region with connectivity table and element info
-  void create_leaf_region (const std::string& etype_name );
+  CRegion::Ptr create_leaf_region (const std::string& etype_name );
   
   /// copy a CArray entry from a given CArray into a given row
   /// templated with row vector type
@@ -78,13 +80,13 @@ public:
     }
   }
   
-  CArray::Row get_row(const Uint iElem, const Uint iNode, boost::shared_ptr<CArray>& cArray)
+  CArray::Row get_row(const Uint iElem, const Uint iNode, CArray::Ptr& cArray)
   {
     const Uint row_in_array = m_connTable->get_table()[iElem][iNode];
     return cArray->get_array()[row_in_array];
   }
   
-  void put_subregions(std::vector<boost::shared_ptr<CRegion> >& vec);  
+  void put_subregions(std::vector<CRegion::Ptr >& vec);
   
   Iterator begin();
 
@@ -94,7 +96,7 @@ public:
   
 private:
   
-  std::vector< boost::shared_ptr<CRegion> > m_subregions;
+  std::vector< CRegion::Ptr > m_subregions;
   boost::shared_ptr<CTable> m_connTable;
   
   boost::shared_ptr<CElements> m_elementType;
@@ -114,11 +116,16 @@ public:
   CRegion_iterator()
   {}
 
+  CRegion::Ptr& get_ptr()
+  {
+    return m_region;
+  }
+
 private:
   friend class boost::iterator_core_access;
   friend class CRegion;
 
-  explicit CRegion_iterator(std::vector<boost::shared_ptr<CRegion> >& vec)
+  explicit CRegion_iterator(std::vector<CRegion::Ptr >& vec)
           : m_vec(vec), m_vecIt(m_vec.begin())
   {
     if (m_vec.size()) {
@@ -133,23 +140,23 @@ private:
       m_region = (*m_vecIt);
     }
     else {
-      m_region = boost::shared_ptr<CRegion>();
+      m_region = CRegion::Ptr();
     }
   }
 
   bool equal(CRegion_iterator const& other) const
   {
-          return m_region == other.m_region;
+    return m_region == other.m_region;
   }
 
   CRegion& dereference() const
   {
-          return *m_region;
+    return *m_region;
   }
 
-  boost::shared_ptr<CRegion> m_region;
-  std::vector<boost::shared_ptr<CRegion> > m_vec;
-  std::vector<boost::shared_ptr<CRegion> >::iterator m_vecIt;
+  CRegion::Ptr m_region;
+  std::vector<CRegion::Ptr > m_vec;
+  std::vector<CRegion::Ptr >::iterator m_vecIt;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

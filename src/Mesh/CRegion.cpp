@@ -23,36 +23,39 @@ CRegion::~CRegion()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CRegion::create_region( const CName& name )
+CRegion::Ptr CRegion::create_region( const CName& name )
 {
-  boost::shared_ptr<CRegion> new_region ( new CRegion(name) );
+  CRegion::Ptr new_region ( new CRegion(name) );
   m_subregions.push_back(new_region);
   add_component ( new_region );
+  return get_component<CRegion>(name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CRegion::create_connectivityTable( const CName& name )
+CTable::Ptr CRegion::create_connectivityTable( const CName& name )
 {
-  boost::shared_ptr<CTable> new_connTable ( new CTable(name) );
+  CTable::Ptr new_connTable ( new CTable(name) );
   m_connTable = new_connTable;
   add_component ( m_connTable );
+  return get_component<CTable>(name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CRegion::create_elementType( const CName& name )
+CElements::Ptr CRegion::create_elementType( const CName& name )
 {
-  boost::shared_ptr<CElements> new_elementType ( new CElements(name) );
+  CElements::Ptr new_elementType ( new CElements(name) );
   m_elementType = new_elementType;
   add_component ( m_elementType );
+  return get_component<CElements>(name);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CRegion::put_subregions(std::vector<boost::shared_ptr<CRegion> >& vec)
+void CRegion::put_subregions(std::vector<CRegion::Ptr >& vec)
 {  
-  BOOST_FOREACH(boost::shared_ptr<CRegion> subregion, m_subregions)
+  BOOST_FOREACH(CRegion::Ptr subregion, m_subregions)
   {
     vec.push_back(subregion);
     subregion->put_subregions(vec);
@@ -61,31 +64,31 @@ void CRegion::put_subregions(std::vector<boost::shared_ptr<CRegion> >& vec)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CRegion::create_leaf_region (const std::string& etype_name )
+CRegion::Ptr CRegion::create_leaf_region (const std::string& etype_name )
 {
   std::string region_name(etype_name);
-  boost::erase_all(region_name, "Mesh::");
-  boost::erase_all(region_name, "::");
   create_region(region_name);
-  boost::shared_ptr<CRegion> region = get_component<CRegion>(region_name);
+  CRegion::Ptr region = get_component<CRegion>(region_name);
   region->create_connectivityTable();
   region->create_elementType();
   region->get_component<CElements>("type")->set_elementType(etype_name);
   Uint nbNodes = region->get_component<CElements>("type")->get_elementType()->getNbNodes();
   region->get_component<CTable>("table")->initialize(nbNodes);
+  return region;
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 
 CRegion::Iterator CRegion::begin()
 {
-  std::vector<boost::shared_ptr<CRegion> > vec;
+  std::vector<CRegion::Ptr > vec;
   put_subregions(vec);
   return Iterator(vec);
 }
 
 CRegion::Iterator CRegion::end()
 {
- std::vector<boost::shared_ptr<CRegion> > vec;
+ std::vector<CRegion::Ptr > vec;
  return Iterator(vec);
 }
 

@@ -16,8 +16,10 @@ namespace Common {
 
   public:
 
+    typedef boost::shared_ptr<CRoot> Ptr;
+
     /// Get the class name
-    static boost::shared_ptr<CRoot> create ( const CName& name );
+    static CRoot::Ptr create ( const CName& name );
 
     /// Virtual destructor
     virtual ~CRoot();
@@ -29,17 +31,17 @@ namespace Common {
 
     /// Access the component described by the path
     /// The path should be absolute
-    boost::shared_ptr<Component> access_component ( const CPath& path );
+    Component::Ptr access_component ( const CPath& path );
 
     /// define the component path
-    void define_component_path ( const CPath& path, boost::shared_ptr<Component> );
+    void define_component_path ( const CPath& path, Component::Ptr );
 
     /// remove a component path
     void remove_component_path ( const CPath& path );
 
   private: // functions
 
-    typedef std::map< std::string , boost::shared_ptr<Component> > CompStorage_t;
+    typedef std::map< std::string , Component::Ptr > CompStorage_t;
 
     /// Private constructor forces creation via the create() funtion
     /// @param name of the component

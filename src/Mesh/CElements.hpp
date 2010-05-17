@@ -22,6 +22,8 @@ class Mesh_API CElements : public Common::Component {
 
 public:
 
+  typedef boost::shared_ptr<CElements> Ptr;
+
   /// Contructor
   /// @param name of the component
   CElements ( const CName& name );
