@@ -2,7 +2,7 @@ IF (CF_HAVE_CGNS)
 
 LIST ( APPEND CGNS3_files
   CGNSAPI.hpp
-  Common.hpp 
+  Common.hpp
   Common.cpp
   Reader.hpp
   Reader.cpp

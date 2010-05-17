@@ -92,223 +92,335 @@ BOOST_AUTO_TEST_CASE( Constructors )
 BOOST_AUTO_TEST_CASE( TestCGNSLib )
 {
  int maxelemi = 20*16*8;
- int maxelemj = 1216;
-
-  double x[21*17*9],y[21*17*9]; //,z[21*17*9];
-  int isize[3][1],ielem[maxelemi][4],jelem[maxelemj][4];
-  int ni,nj,nk,iset,i,j,k,index_file,icelldim,iphysdim;
-  int index_base,index_zone,index_coord,ielem_no,nelem_start;
-  int ifirstnode,nelem_end,nbdyelem,index_section;
-  char basename[33],zonename[33];
+ double x[21*17*9],y[21*17*9],z[21*17*9];
+ int isize[3][1],ielem[maxelemi][8];
+ int ni,nj,nk,iset,i,j,k,index_file,icelldim,iphysdim;
+ int index_base,index_zone,index_coord,ielem_no,nelem_start;
+ int ifirstnode,nelem_end,nbdyelem,index_section;
+ char basename[33],zonename[33];
 
 /* create gridpoints for simple example: */
-  ni=21;
-  nj=17;
-  iset=0;
-    for (j=1; j <=nj; j++)
-    {
-      for (i=1; i <= ni; i++)
-      {
-        x[iset]=(float)i-1.;
-        y[iset]=(float)j-1.;
-        iset=iset+1;
-      }
-    }
-  printf("\ncreated simple 2-D grid points\n");
+ ni=21;
+ nj=17;
+ nk=9;
+ iset=0;
+ for (k=1; k <= nk; k++)
+ {
+   for (j=1; j <=nj; j++)
+   {
+     for (i=1; i <= ni; i++)
+     {
+       x[iset]=(float)i-1.;
+       y[iset]=(float)j-1.;
+       z[iset]=(float)k-1.;
+       iset=iset+1;
+     }
+   }
+ }
+ printf("\ncreated simple 3-D grid points\n");
 
 /* WRITE X, Y, Z GRID POINTS TO CGNS FILE */
 /* open CGNS file for write */
-  cg_open("grid_c.cgns",CG_MODE_WRITE,&index_file);
+ cg_open("grid_c.cgns",CG_MODE_WRITE,&index_file);
 /* create base (user can give any name) */
-  strcpy(basename,"Base");
-  icelldim=2;
-  iphysdim=2;
-  cg_base_write(index_file,basename,icelldim,iphysdim,&index_base);
+ strcpy(basename,"Base");
+ icelldim=3;
+ iphysdim=3;
+ cg_base_write(index_file,basename,icelldim,iphysdim,&index_base);
 /* define zone name (user can give any name) */
-  strcpy(zonename,"Zone  1");
+ strcpy(zonename,"Zone  1");
 /* vertex size */
-  isize[0][0]=ni*nj;
+ isize[0][0]=ni*nj*nk;
 /* cell size */
-  isize[1][0]=(ni-1)*(nj-1);
+ isize[1][0]=(ni-1)*(nj-1)*(nk-1);
 /* boundary vertex size (zero if elements not sorted) */
-  isize[2][0]=0;
+ isize[2][0]=0;
 /* create zone */
-  cg_zone_write(index_file,index_base,zonename,isize[0],Unstructured,&index_zone);
+ cg_zone_write(index_file,index_base,zonename,isize[0],Unstructured,&index_zone);
 /* write grid coordinates (user must use SIDS-standard names here) */
-  cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateX",x,&index_coord);
-  cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateY",y,&index_coord);
-  //cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateZ",z,&index_coord);
+ cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateX",x,&index_coord);
+ cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateY",y,&index_coord);
+ cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateZ",z,&index_coord);
 /* set element connectivity: */
 /* ---------------------------------------------------------- */
 /* do all the HEXA_8 elements (this part is mandatory): */
 /* maintain SIDS-standard ordering */
-  ielem_no=0;
+ ielem_no=0;
 /* index no of first element */
-  nelem_start=1;
-
-    for (j=1; j < nj; j++)
-    {
-      for (i=1; i < ni; i++)
-      {
+ nelem_start=1;
+ for (k=1; k < nk; k++)
+ {
+   for (j=1; j < nj; j++)
+   {
+     for (i=1; i < ni; i++)
+     {
 /*
 in this example, due to the order in the node numbering, the
 hexahedral elements can be reconstructed using the following
 relationships:
 */
-        ifirstnode=i+(j-1)*ni;
-        ielem[ielem_no][0]=ifirstnode;
-        ielem[ielem_no][1]=ifirstnode+1;
-        ielem[ielem_no][2]=ifirstnode+1+ni;
-        ielem[ielem_no][3]=ifirstnode+ni;
-        ielem_no=ielem_no+1;
-      }
-    }
+       ifirstnode=i+(j-1)*ni+(k-1)*ni*nj;
+       ielem[ielem_no][0]=ifirstnode;
+       ielem[ielem_no][1]=ifirstnode+1;
+       ielem[ielem_no][2]=ifirstnode+1+ni;
+       ielem[ielem_no][3]=ifirstnode+ni;
+       ielem[ielem_no][4]=ifirstnode+ni*nj;
+       ielem[ielem_no][5]=ifirstnode+ni*nj+1;
+       ielem[ielem_no][6]=ifirstnode+ni*nj+1+ni;
+       ielem[ielem_no][7]=ifirstnode+ni*nj+ni;
+       ielem_no=ielem_no+1;
+     }
+   }
+ }
 /* index no of last element (=2560) */
-  nelem_end=ielem_no;
-  if (nelem_end > maxelemi)
-  {
-    printf("\nError, must increase maxelemi to at least %d\n",nelem_end);
-    exit(0);
-  }
+ nelem_end=ielem_no;
+ if (nelem_end > maxelemi)
+ {
+   printf("\nError, must increase maxelemi to at least %d\n",nelem_end);
+   exit(0);
+ }
 /* unsorted boundary elements */
-  nbdyelem=0;
+ nbdyelem=0;
 /* write HEXA_8 element connectivity (user can give any name) */
-  cg_section_write(index_file,index_base,index_zone,"Elem",QUAD_4,nelem_start,  \
-                   nelem_end,nbdyelem,ielem[0],&index_section);
+ cg_section_write(index_file,index_base,index_zone,"Elem",HEXA_8,nelem_start,  \
+                  nelem_end,nbdyelem,ielem[0],&index_section);
+/* ---------------------------------------------------------- */
+int maxelemj = 1216;
+int jelem[maxelemj][4];
+/*
+do boundary (QUAD) elements (this part is optional,
+but you must do it if you eventually want to define BCs
+at element faces rather than at nodes):
+maintain SIDS-standard ordering
+*/
+/* INFLOW: */
+ ielem_no=0;
+/* index no of first element */
+ nelem_start=nelem_end+1;
+ i=1;
+ for (k=1; k < nk; k++)
+ {
+   for (j=1; j < nj; j++)
+   {
+     ifirstnode=i+(j-1)*ni+(k-1)*ni*nj;
+     jelem[ielem_no][0]=ifirstnode;
+     jelem[ielem_no][1]=ifirstnode+ni*nj;
+     jelem[ielem_no][2]=ifirstnode+ni*nj+ni;
+     jelem[ielem_no][3]=ifirstnode+ni;
+     ielem_no=ielem_no+1;
+   }
+ }
+/* index no of last element */
+ nelem_end=nelem_start+ielem_no-1;
+ if (ielem_no > maxelemj)
+ {
+   printf("\nError, must increase maxelemj to at least %d\n",ielem_no);
+   exit(0);
+ }
+/* write QUAD element connectivity for inflow face (user can give any name) */
+ cg_section_write(index_file,index_base,index_zone,"InflowElem",QUAD_4,nelem_start,  \
+                  nelem_end,nbdyelem,jelem[0],&index_section);
+/* OUTFLOW: */
+ ielem_no=0;
+/* index no of first element */
+ nelem_start=nelem_end+1;
+ i=ni-1;
+ for (k=1; k < nk; k++)
+ {
+   for (j=1; j < nj; j++)
+   {
+     ifirstnode=i+(j-1)*ni+(k-1)*ni*nj;
+     jelem[ielem_no][0]=ifirstnode+1;
+     jelem[ielem_no][1]=ifirstnode+1+ni;
+     jelem[ielem_no][2]=ifirstnode+ni*nj+1+ni;
+     jelem[ielem_no][3]=ifirstnode+ni*nj+1;
+     ielem_no=ielem_no+1;
+   }
+ }
+/* index no of last element */
+ nelem_end=nelem_start+ielem_no-1;
+ if (ielem_no > maxelemj)
+ {
+   printf("\nError, must increase maxelemj to at least %d\n",ielem_no);
+   exit(0);
+ }
+/* write QUAD element connectivity for outflow face (user can give any name) */
+ cg_section_write(index_file,index_base,index_zone,"OutflowElem",QUAD_4,nelem_start,  \
+                  nelem_end,nbdyelem,jelem[0],&index_section);
+/* SIDEWALLS: */
+ ielem_no=0;
+/* index no of first element */
+ nelem_start=nelem_end+1;
+ j=1;
+ for (k=1; k < nk; k++)
+ {
+   for (i=1; i < ni; i++)
+   {
+     ifirstnode=i+(j-1)*ni+(k-1)*ni*nj;
+     jelem[ielem_no][0]=ifirstnode;
+     jelem[ielem_no][1]=ifirstnode+ni*nj;
+     jelem[ielem_no][2]=ifirstnode+ni*nj+1;
+     jelem[ielem_no][3]=ifirstnode+1;
+     ielem_no=ielem_no+1;
+   }
+ }
+ j=nj-1;
+ for (k=1; k < nk; k++)
+ {
+   for (i=1; i < ni; i++)
+   {
+     ifirstnode=i+(j-1)*ni+(k-1)*ni*nj;
+     jelem[ielem_no][0]=ifirstnode+1+ni;
+     jelem[ielem_no][1]=ifirstnode+ni;
+     jelem[ielem_no][2]=ifirstnode+ni*nj+ni;
+     jelem[ielem_no][3]=ifirstnode+ni*nj+1+ni;
+     ielem_no=ielem_no+1;
+   }
+ }
+ k=1;
+ for (j=1; j < nj; j++)
+ {
+   for (i=1; i < ni; i++)
+   {
+     ifirstnode=i+(j-1)*ni+(k-1)*ni*nj;
+     jelem[ielem_no][0]=ifirstnode;
+     jelem[ielem_no][1]=ifirstnode+1;
+     jelem[ielem_no][2]=ifirstnode+1+ni;
+     jelem[ielem_no][3]=ifirstnode+ni;
+     ielem_no=ielem_no+1;
+   }
+ }
+ k=nk-1;
+ for (j=1; j < nj; j++)
+ {
+   for (i=1; i < ni; i++)
+   {
+     ifirstnode=i+(j-1)*ni+(k-1)*ni*nj;
+     jelem[ielem_no][0]=ifirstnode+ni*nj;
+     jelem[ielem_no][1]=ifirstnode+ni*nj+ni;
+     jelem[ielem_no][2]=ifirstnode+ni*nj+1+ni;
+     jelem[ielem_no][3]=ifirstnode+ni*nj+1;
+     ielem_no=ielem_no+1;
+   }
+ }
+/* index no of last element */
+ nelem_end=nelem_start+ielem_no-1;
+ if (ielem_no > maxelemj)
+ {
+   printf("\nError, must increase maxelemj to at least %d\n",ielem_no);
+   exit(0);
+ }
+/* write QUAD element connectivity for sidewall face (user can give any name) */
+ cg_section_write(index_file,index_base,index_zone,"SidewallElem",QUAD_4,nelem_start,  \
+                  nelem_end,nbdyelem,jelem[0],&index_section);
 /* ---------------------------------------------------------- */
 
-/*
- do boundary (QUAD) elements (this part is optional,
- but you must do it if you eventually want to define BCs
- at element faces rather than at nodes):
- maintain SIDS-standard ordering
- */
- /* INFLOW: */
-     ielem_no=0;
- /* index no of first element */
-     nelem_start=nelem_end+1;
-     i=1;
-     for (k=1; k < nk; k++)
-     {
-       for (j=1; j < nj; j++)
-       {
-         ifirstnode=i+(j-1)*ni+(k-1)*ni*nj;
-         jelem[ielem_no][0]=ifirstnode;
-         jelem[ielem_no][1]=ifirstnode+ni*nj;
-         jelem[ielem_no][2]=ifirstnode+ni*nj+ni;
-         jelem[ielem_no][3]=ifirstnode+ni;
-         ielem_no=ielem_no+1;
-       }
-     }
- /* index no of last element */
-     nelem_end=nelem_start+ielem_no-1;
-     if (ielem_no > maxelemj)
-     {
-       printf("\nError, must increase maxelemj to at least %d\n",ielem_no);
-       exit(0);
-     }
- /* write QUAD element connectivity for inflow face (user can give any name) */
-     cg_section_write(index_file,index_base,index_zone,"InflowElem",QUAD_4,nelem_start,  \
-                      nelem_end,nbdyelem,jelem[0],&index_section);
- /* OUTFLOW: */
-     ielem_no=0;
- /* index no of first element */
-     nelem_start=nelem_end+1;
-     i=ni-1;
-     for (k=1; k < nk; k++)
-     {
-       for (j=1; j < nj; j++)
-       {
-         ifirstnode=i+(j-1)*ni+(k-1)*ni*nj;
-         jelem[ielem_no][0]=ifirstnode+1;
-         jelem[ielem_no][1]=ifirstnode+1+ni;
-         jelem[ielem_no][2]=ifirstnode+ni*nj+1+ni;
-         jelem[ielem_no][3]=ifirstnode+ni*nj+1;
-         ielem_no=ielem_no+1;
-       }
-     }
- /* index no of last element */
-     nelem_end=nelem_start+ielem_no-1;
-     if (ielem_no > maxelemj)
-     {
-       printf("\nError, must increase maxelemj to at least %d\n",ielem_no);
-       exit(0);
-     }
- /* write QUAD element connectivity for outflow face (user can give any name) */
-     cg_section_write(index_file,index_base,index_zone,"OutflowElem",QUAD_4,nelem_start,  \
-                      nelem_end,nbdyelem,jelem[0],&index_section);
- /* SIDEWALLS: */
-     ielem_no=0;
- /* index no of first element */
-     nelem_start=nelem_end+1;
-     j=1;
-     for (k=1; k < nk; k++)
-     {
-       for (i=1; i < ni; i++)
-       {
-         ifirstnode=i+(j-1)*ni+(k-1)*ni*nj;
-         jelem[ielem_no][0]=ifirstnode;
-         jelem[ielem_no][1]=ifirstnode+ni*nj;
-         jelem[ielem_no][2]=ifirstnode+ni*nj+1;
-         jelem[ielem_no][3]=ifirstnode+1;
-         ielem_no=ielem_no+1;
-       }
-     }
-     j=nj-1;
-     for (k=1; k < nk; k++)
-     {
-       for (i=1; i < ni; i++)
-       {
-         ifirstnode=i+(j-1)*ni+(k-1)*ni*nj;
-         jelem[ielem_no][0]=ifirstnode+1+ni;
-         jelem[ielem_no][1]=ifirstnode+ni;
-         jelem[ielem_no][2]=ifirstnode+ni*nj+ni;
-         jelem[ielem_no][3]=ifirstnode+ni*nj+1+ni;
-         ielem_no=ielem_no+1;
-       }
-     }
-     k=1;
-     for (j=1; j < nj; j++)
-     {
-       for (i=1; i < ni; i++)
-       {
-         ifirstnode=i+(j-1)*ni+(k-1)*ni*nj;
-         jelem[ielem_no][0]=ifirstnode;
-         jelem[ielem_no][1]=ifirstnode+1;
-         jelem[ielem_no][2]=ifirstnode+1+ni;
-         jelem[ielem_no][3]=ifirstnode+ni;
-         ielem_no=ielem_no+1;
-       }
-     }
-     k=nk-1;
-     for (j=1; j < nj; j++)
-     {
-       for (i=1; i < ni; i++)
-       {
-         ifirstnode=i+(j-1)*ni+(k-1)*ni*nj;
-         jelem[ielem_no][0]=ifirstnode+ni*nj;
-         jelem[ielem_no][1]=ifirstnode+ni*nj+ni;
-         jelem[ielem_no][2]=ifirstnode+ni*nj+1+ni;
-         jelem[ielem_no][3]=ifirstnode+ni*nj+1;
-         ielem_no=ielem_no+1;
-       }
-     }
- /* index no of last element */
-     nelem_end=nelem_start+ielem_no-1;
-     if (ielem_no > maxelemj)
-     {
-       printf("\nError, must increase maxelemj to at least %d\n",ielem_no);
-       exit(0);
-     }
- /* write QUAD element connectivity for sidewall face (user can give any name) */
-     cg_section_write(index_file,index_base,index_zone,"SidewallElem",QUAD_4,nelem_start,  \
-                      nelem_end,nbdyelem,jelem[0],&index_section);
- /* ---------------------------------------------------------- */
+ // part 2: add boundary conditions
+ int icount, n, index_bc;
+ int maxcount(960);
+ int ipnts[maxcount];
+ // BC inflow
+ nelem_start=2561;
+ nelem_end=2688;
+ icount=0;
+ for (n=nelem_start; n <= nelem_end; n++)
+ {
+   ipnts[icount]=n;
+   icount=icount+1;
+ }
+ if (icount > maxcount)
+ {
+   printf("\nError. Need to increase maxcount to at least %i\n",icount);
+   exit(0);
+ }
+/* write boundary conditions for ilo face */
+ cg_boco_write(index_file,index_base,index_zone,"Ilo",BCTunnelInflow,ElementList, \
+               icount,ipnts,&index_bc);
+
+ // BC outflow
+ /* we know that for the unstructured zone, the following face elements */
+ /* have been defined as outflow (real working code would check!): */
+ nelem_start=2689;
+ nelem_end=2816;
+ icount=0;
+ for (n=nelem_start; n <= nelem_end; n++)
+ {
+   ipnts[icount]=n;
+   icount=icount+1;
+ }
+ if (icount > maxcount)
+ {
+   printf("\nError. Need to increase maxcount to at least %i\n",icount);
+   exit(0);
+ }
+ /* write boundary conditions for ihi face */
+ cg_boco_write(index_file,index_base,index_zone,"Ihi",BCExtrapolate,ElementList,icount,ipnts,&index_bc);
+
+
+/* we know that for the unstructured zone, the following face elements */
+/* have been defined as walls (real working code would check!): */
+ nelem_start=2817;
+ nelem_end=3776;
+ icount=0;
+ for (n=nelem_start; n <= nelem_end; n++)
+ {
+   ipnts[icount]=n;
+   icount=icount+1;
+ }
+ if (icount > maxcount)
+ {
+   printf("\nError. Need to increase maxcount to at least %i\n",icount);
+   exit(0);
+ }
+/* write boundary conditions for wall faces */
+ cg_boco_write(index_file,index_base,index_zone,"Walls",BCWallInviscid,ElementList,icount,ipnts,&index_bc);
+
+
+/* ---------------------------------------------------------- */
+
+
 /* close CGNS file */
-  cg_close(index_file);
-  printf("\nSuccessfully wrote unstructured grid to file grid_c.cgns\n");
+ cg_close(index_file);
+ printf("\nSuccessfully wrote unstructured grid to file grid_c.cgns\n");
+
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( ReadCGNS )
+{
+
+  boost::shared_ptr<CMeshReader> meshreader ( new CMeshReader  ( "meshreader" ) );
+  meshreader->set_reader("Mesh::CGNS::Reader");
+
+  // the file to read from
+  boost::filesystem::path fp_in ("grid_c.cgns");
+  //boost::filesystem::path fp_in ("/Users/willem/workspace/coolfluid3/builds/qt/src/Mesh/uTests/tut21.cgns");
+  //boost::filesystem::path fp_in ("/Users/willem/workspace/coolfluid3/builds/qt/src/Mesh/uTests/oversetnasa2.cgns");
+  //boost::filesystem::path fp_in ("/Users/willem/workspace/testcases/square_2D_Re10000_FVM_LES/cases/refined.neu");
+
+  // the mesh to store in
+  CMesh::Ptr mesh ( new CMesh  ( "mesh" ) );
+
+  meshreader->get_reader()->read(fp_in,mesh);
+
+  // Output data structure
+  XMLNode mesh_node = XMLNode::createXMLTopNode("xml", TRUE);
+  mesh_node.addAttribute("version","1.0");
+  mesh_node.addAttribute("encoding","UTF-8");
+  mesh_node.addAttribute("standalone","yes");
+  mesh->xml_tree( mesh_node );
+  XMLSTR xml_str = mesh_node.createXMLString();
+  CFinfo << "xml_str\n" << xml_str << CFendl;
+  freeXMLString(xml_str);
+
+  boost::filesystem::path fp_out ("grid_c.msh");
+  boost::shared_ptr<CMeshWriter> meshwriter ( new CMeshWriter  ( "meshwriter" ) );
+  meshwriter->set_writer("Mesh::Gmsh::Writer");
+  meshwriter->get_writer()->write(mesh,fp_out);
+
+
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

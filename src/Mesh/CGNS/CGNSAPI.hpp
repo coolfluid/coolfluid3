@@ -3,7 +3,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "cgnslib.h"
+#include "Common/ModuleRegister.hpp"
 #include "Common/ExportAPI.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -20,18 +20,16 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////////////////////////
-
 namespace CF {
 namespace Mesh {
 namespace CGNS {
 
 ////////////////////////////////////////////////////////////////////////////////
     
-/// Class defines the CGNStral mesh format operations
+/// Class defines the CGNS mesh format operations
 /// @author Willem Deconinck
 class CGNS_API CGNSLib :
-    public Common::ModuleRegister<CGNSLib>
+    public CF::Common::ModuleRegister<CGNSLib>
 {
 public:
 
@@ -45,7 +43,7 @@ public:
   /// @return descripton of the module
   static std::string getModuleDescription()
   {
-    return "This library implements the CGNStral mesh format operations.";
+    return "This library implements the CGNS mesh format operations.";
   }
 
   /// Gets the Class name

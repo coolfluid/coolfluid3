@@ -1,11 +1,4 @@
-#include <boost/foreach.hpp>
-
-#include "Common/ObjectProvider.hpp"
 #include "Mesh/CGNS/Common.hpp"
-
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CArray.hpp"
-#include "Mesh/CRegion.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -17,7 +10,21 @@ namespace CGNS {
 
 Common::Common()
 {
+  m_supported_element_types.reserve(4);
+  m_supported_element_types.push_back("P1-Triag2D");
+  m_supported_element_types.push_back("P1-Quad2D");
+//  m_supported_element_types.push_back("P1-Tetra3D");
+  m_supported_element_types.push_back("P1-Hexa3D");
 
+  m_elemtype_CGNS_to_CF[TRI_3  ] = "P1-Triag2D";
+  m_elemtype_CGNS_to_CF[QUAD_4 ] = "P1-Quad2D";
+  m_elemtype_CGNS_to_CF[TETRA_4] = "P1-Tetra3D";
+  m_elemtype_CGNS_to_CF[HEXA_8 ] = "P1-Hexa3D";
+
+  m_elemtype_CF_to_CGNS["P1-Triag2D"] = TRI_3;
+  m_elemtype_CF_to_CGNS["P1-Quad2D" ] = QUAD_4;
+  m_elemtype_CF_to_CGNS["P1-Tetra3D"] = TETRA_4;
+  m_elemtype_CF_to_CGNS["P1-Hexa3D" ] = HEXA_8;
 }
 
 //////////////////////////////////////////////////////////////////////////////
