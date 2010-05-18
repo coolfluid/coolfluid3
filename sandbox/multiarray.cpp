@@ -1,13 +1,19 @@
 #define BOOST_DISABLE_ASSERTS
 
 #include <boost/multi_array.hpp>
+//#include <boost/multi_array/storage_order.hpp>
 #include <boost/timer.hpp>
 #include <boost/program_options.hpp>
 
 #include <iostream>
 
+// #define STATIC_SIZES
+
 int main(int argc, char * argv[])
 {
+
+#ifndef STATIC_SIZES
+
   // Declare the supported options.
   boost::program_options::options_description desc("allowed options");
   desc.add_options()
@@ -49,58 +55,101 @@ int main(int argc, char * argv[])
     std::cout << "NB ITER " << iter << ".\n";
   }
 
-    //------------------Measure boost creation ----------------------------------------------
+#else
 
-    boost::timer boost_ctimer;
+  const int nbrows = 500000;
+  const int nbcols = 20;
+  const int iter = 500;
 
-    // Create the boost array
-    typedef boost::multi_array<double, 2> Array_t;
-    Array_t boost_mat(boost::extents[nbrows][nbcols]);
+#endif
 
-    printf("[Boost]  Creation time: %6.3f seconds\n", boost_ctimer.elapsed() );
+  //------------------Measure boost creation ----------------------------------------------
 
-    //------------------Measure boost creation ----------------------------------------------
+  boost::timer boost_ctimer;
 
-    boost::timer native_ctimer;
+  // Create the boost array
+  typedef boost::multi_array<double, 2> Array_t;
+  Array_t boost_mat( boost::extents[nbrows][nbcols]  );
+//  Array_t boost_mat( boost::extents[nbrows][nbcols] , boost::fortran_storage_order() );
 
-    // Create the native array
-    double *native_mat = new double [nbrows * nbcols];
+  printf("[Boost]  Creation time: %6.3f seconds\n", boost_ctimer.elapsed() );
 
-    printf("[Native] Creation time: %6.3f seconds\n", native_ctimer.elapsed() );
+  //------------------Measure boost creation ----------------------------------------------
 
-    //------------------Measure boost----------------------------------------------
+  boost::timer native_ctimer;
 
-    boost::timer boost_timer;
+  // Create the native array
+  double *native_mat = new double [nbrows * nbcols];
 
-    for (int i = 0; i < iter; ++i)
+  printf("[Native] Creation time: %6.3f seconds\n", native_ctimer.elapsed() );
+
+  //------------------Measure boost----------------------------------------------
+
+  boost::timer boost_timer;
+
+  int p1 = 0;
+  for (int i = 0; i < iter; ++i)
+  {
+    for (int x = 0; x < nbrows; ++x)
     {
-      for (int x = 0; x < nbrows; ++x)
+      for (int y = 0; y < nbcols; ++y)
       {
-        for (int y = 0; y < nbcols; ++y)
-              {
-                boost_mat[x][y] = 2.345;
-            }
-        }
-    }
-
-    printf("[Boost]  Elapsed time: %6.3f seconds\n", boost_timer.elapsed() );
-
-    //------------------Measure native-----------------------------------------------
-
-    boost::timer native_timer;
-
-    for (int i = 0; i < iter; ++i)
-    {
-      for (int x = 0; x < nbrows; ++x)
-      {
-        for (int y = 0; y < nbcols; ++y)
-        {
-          native_mat[x + (y * nbrows)] = 2.345;
-        }
+        boost_mat[x][y] = ++p1 ;
       }
     }
+  }
 
-    printf("[Native] Elapsed time: %6.3f seconds\n", native_timer.elapsed() );
+  printf("[Boost]  Elapsed time: %6.3f seconds\n", boost_timer.elapsed() );
 
-    return 0;
+  double * bmat = boost_mat.data();
+
+  for ( int i = 0; i < nbcols * nbrows ; ++i)
+  {
+    std::cout << bmat[i] << std::endl;
+  }
+
+  //------------------Measure boost----------------------------------------------
+
+
+  boost::timer hboost_timer;
+
+  int p2 = 0;
+  for (int i = 0; i < iter; ++i)
+  {
+    for (int x = 0; x < nbrows; ++x)
+    {
+      for (int y = 0; y < nbcols; ++y)
+      {
+        bmat[y + (x * nbcols)] = ++p2 ;
+      }
+    }
+  }
+
+  printf("[BoostH]  Elapsed time: %6.3f seconds\n", hboost_timer.elapsed() );
+
+    for ( int i = 0; i < nbcols * nbrows ; ++i)
+    {
+      std::cout << bmat[i] << std::endl;
+    }
+
+
+  //------------------Measure native-----------------------------------------------
+
+  boost::timer native_timer;
+
+  int p3 = 0;
+  for (int i = 0; i < iter; ++i)
+  {
+    for (int x = 0; x < nbrows; ++x)
+    {
+      for (int y = 0; y < nbcols; ++y)
+      {
+        native_mat[x + (y * nbrows)] =  ++p3 ;
+      }
+    }
+  }
+
+  printf("[Native] Elapsed time: %6.3f seconds\n", native_timer.elapsed() );
+
+  return 0;
 }
