@@ -50,10 +50,14 @@ class MyC : public ConfigObject
   {
     addConfigOptionsTo(this);
 
-    option("OptBool")->attach_processor( boost::bind ( &MyC::config_bool,  this ) );
-    option("OptInt")->attach_processor ( boost::bind ( &MyC::config_int,   this ) );
-    option("OptStr")->attach_processor ( boost::bind ( &MyC::config_str,   this ) );
-    option("VecInt")->attach_processor ( boost::bind ( &MyC::config_vecint,this ) );
+//    option("OptInt").set_value(10);
+
+//    option("OptInt").link_to ( &i ); // setParameter ( "OptInt", &i );
+
+//    option("OptBool")->attach_processor( boost::bind ( &MyC::config_bool,  this ) );
+//    option("OptInt")->attach_processor ( boost::bind ( &MyC::config_int,   this ) );
+//    option("OptStr")->attach_processor ( boost::bind ( &MyC::config_str,   this ) );
+//    option("VecInt")->attach_processor ( boost::bind ( &MyC::config_vecint,this ) );
 
     std::vector<int> vi = option("VecInt")->value< std::vector<int> >();
     for (Uint i = 0; i < vi.size(); ++i)
