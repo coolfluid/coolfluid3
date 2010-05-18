@@ -87,7 +87,6 @@
 #define __INCLUDE_XML_NODE__
 
 #include <stdlib.h>
-#include <sstream>
 
 #include "Common/CommonAPI.hpp"
 
@@ -335,20 +334,8 @@ typedef struct XMLDLLENTRY XMLNode
     XMLCSTR      getAttributeValue(int i=0) const;                 ///< return ith attribute value
     char  isAttributeSet(XMLCSTR name) const;                      ///< test if an attribute with a specific name is given
     XMLCSTR getAttribute(XMLCSTR name, int i) const;               ///< return ith attribute content with specific name (return a NULL if failing)
-    XMLCSTR getAttribute(XMLCSTR name, int *i=NULL) const;         ///< return next attribute content with specific name (return a NULL if failing)
-///< return next attribute content with specific name (template version) and default value (return default if failing)
-template< class GIVENTYPE >
-GIVENTYPE getAttribute(XMLCSTR name, GIVENTYPE init=GIVENTYPE(), int *i=NULL) const
-{
-  GIVENTYPE v2(init);
-  XMLCSTR v1 = getAttribute(name,i);
-  if (v1!=NULL) {
-    std::istringstream iss(v1);
-    iss >> v2;
-  }
-  return v2;
-}
-    int nAttribute() const;                                        ///< nbr of attribute
+    XMLCSTR getAttribute(XMLCSTR name, int *i=NULL) const;         ///< return next attribute content with specific name (return a NULL if failing
+    int nAttribute() const;                                         ///< nbr of attribute
     XMLClear getClear(int i=0) const;                              ///< return ith clear field (comments)
     int nClear() const;                                            ///< nbr of clear field
     XMLNodeContents enumContents(XMLElementPosition i) const;      ///< enumerate all the different contents (attribute,child,text, clear) of the current XMLNode. The order is reflecting the order of the original file/string. NOTE: 0 <= i < nElement();
