@@ -1,3 +1,5 @@
+#include <boost/algorithm/string/trim.hpp>
+
 #include "Common/OptionComponent.hpp"
 
 namespace CF {
@@ -18,19 +20,23 @@ OptionComponent::OptionComponent ( const std::string& name, const std::string& d
 
 void OptionComponent::change_value ( rapidxml::xml_node<> *node )
 {
-  std::string keyname = node->value();
+  std::string keyname = node->value();       // get the value from the xml
+  boost::algorithm::trim( keyname );         // remove trail and lead spaces
+
   m_value = keyname;
 
-  m_component.reset(); // delete previous pointee
+  m_component.reset();                       // delete previous pointee
 
-  //    Common::SafePtr< Component::PROVIDER > prov =
-  //        Factory< Component >::getInstance().getProvider( keyname );
+  // assign new pointer
+  Common::SafePtr< Component::PROVIDER > prov =
+     Factory< Component >::getInstance().getProvider( keyname );
 
-  //    m_component = prov->create( keyname );
-  // for the moment we repeat the keyname for the actual component name
-  // later we will create subnodes in the xml,
-  //  * one for the concrete type
-  //  * one for the name
+  m_component = prov->create( keyname );
+
+  /// @todo for the moment we repeat the keyname for the actual component name
+  ///       later we will create subnodes in the xml,
+  ///         * one for the concrete type
+  ///         * one for the name
 
 }
 
