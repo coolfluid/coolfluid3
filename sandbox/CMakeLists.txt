@@ -21,6 +21,13 @@ list ( APPEND lambda_files lambda.cpp )
 CF_ADD_APP ( lambda )
 
 ###############################################################################
+### test for boost::bind
+
+list ( APPEND boost_bind_libs ${Boost_LIBRARIES} )
+list ( APPEND boost_bind_files boost_bind.cpp )
+CF_ADD_APP ( boost_bind )
+
+###############################################################################
 ### test for boost::multi_array
 
 add_definitions ( -DNDEBUG )
