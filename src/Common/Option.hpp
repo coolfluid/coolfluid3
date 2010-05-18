@@ -31,6 +31,8 @@ namespace Common {
   ///   * break into files
   ///       - Configurable ( Configurable, OptionList )
   ///       - Option ( Option, OptionT )
+  ///   * configuration sets [inlet conditions)
+  ///       - use of configuration signature
   ///
   /// How to:
   ///   * how to define processors statically?
