@@ -1,34 +1,15 @@
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
-
-
-#include <boost/assign/list_inserter.hpp> // for 'push_back()'
-#include <boost/assign/list_of.hpp>       // for 'list_of()' and 'ref_list_of()'
-
-
 #include "Common/Log.hpp"
+#include "Common/CoreEnv.hpp"
 
-int g( int x ) { return x*x; }
-
-struct A {
-  int f ( int x ) { return x*x*x; }
-};
+using namespace CF::Common;
 
 int main(int argc, char * argv[])
 {
-
   CFinfo << "Welcome to the COOLFLUID K3 solver!\n" << CFendl;
 
-  A a;
+  CoreEnv::getInstance().initiate(argc, argv);
 
-  // bind free function
-  std::cout << boost::bind( g, 3 )() << std::endl;
+  CoreEnv::getInstance().terminate();
 
-  // bind member function
-  std::cout << boost::bind( &A::f, a, 2)() << std::endl;
-
-  // bind used with boost::function to create a functor
-  boost::function<int()> fix = boost::bind( &A::f, a,  4 );
-  std::cout << fix() << std::endl;
-
+  return 0;
 }
