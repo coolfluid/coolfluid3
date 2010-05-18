@@ -1,7 +1,8 @@
 #ifndef CF_Common_PEInterface_hpp
 #define CF_Common_PEInterface_hpp
 
-#include "boost/mpi.hpp"
+#include <boost/mpi.hpp>
+
 #include "Common/WorkerStatus.hpp"
 #include "Common/CF.hpp"
 
@@ -11,15 +12,16 @@
 /// The whole interface depends on boost.mpi, it is basically an encapsulation of mpi::environment mpi::world and WorkerStatus
 /// @author Tamas Banyai to blame
 
-using namespace boost;
-
 namespace CF {
 namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Base class for the PEInterface
-class Common_API PEInterface : public boost::noncopyable, public mpi::communicator {
+class Common_API PEInterface :
+    public boost::noncopyable,
+    public boost::mpi::communicator {
+
 public:
 
   /// public constructor
@@ -53,8 +55,8 @@ public:
   WorkerStatus::Type status();
 
   /// Operator to boost.mpi environment, environment is noncopyable
-  operator mpi::environment&() { return *m_environment; };
-  operator mpi::environment*() { return m_environment; };
+  operator boost::mpi::environment&() { return *m_environment; }
+  operator boost::mpi::environment*() { return m_environment; }
 
 private:
 
@@ -66,7 +68,7 @@ private:
   WorkerStatus::Type m_current_status;
 
   /// mpi environment
-  mpi::environment *m_environment;
+  boost::mpi::environment *m_environment;
 
 }; // PEInterface
 

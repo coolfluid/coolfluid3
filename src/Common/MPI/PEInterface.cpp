@@ -1,5 +1,7 @@
 #include "Common/MPI/PEInterface.hpp"
 
+using namespace boost;
+
 namespace CF {
   namespace Common  {
 

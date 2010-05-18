@@ -1,7 +1,11 @@
+#include <boost/lambda/lambda.hpp>
+
 #include "Common/MPI/PEInterface.hpp"
 #include "Common/MPI/PECommPattern.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
+
+using namespace boost::lambda;
 
 namespace CF {
   namespace Common  {
@@ -56,36 +60,41 @@ void PECommPattern::setup(std::vector<Uint> gid, std::vector<Uint> rank){
       m_sendMap.push_back(*j);
 
   // fill receive count
-  mpi::all_to_all(PEInterface::getInstance(),m_sendCount,m_receiveCount);
+  boost::mpi::all_to_all(PEInterface::getInstance(),m_sendCount,m_receiveCount);
 
   // fill receive map
   Uint total_m_receiveCount=0;
-  for(Uint i=0; i<nproc; i++) total_m_receiveCount+=m_receiveCount[i];
+  for(Uint i=0; i<nproc; i++)
+    total_m_receiveCount+=m_receiveCount[i];
+
   m_receiveMap.resize(total_m_receiveCount);
-  std::vector<Uint> rcvdisp(nproc,0);
-  for(Uint i=1; i<nproc; i++) rcvdisp[i]=rcvdisp[i-1]+m_receiveCount[i-1];
-  for(Uint i=0; i<nproc; i++) MPI_Gatherv(&(sendmap[i])[0],sendmap[i].size(),MPI_INT,&m_receiveMap[0],&m_receiveCount[0],&rcvdisp[0],MPI_INT,i,PEInterface::getInstance());
+  std::vector< int > rcvdisp(nproc,0);
 
-std::cout << "m_updatable: ";
-for(std::vector<bool>::iterator i=m_updatable.begin(); i < m_updatable.end(); i++) std::cout << *i << " ";
-std::cout << "\n" << std::flush;
+  for(Uint i=1; i<nproc; i++)
+    rcvdisp[i]=rcvdisp[i-1]+m_receiveCount[i-1];
 
-std::cout << "m_sendCount: ";
-for(std::vector<Uint>::iterator i=m_sendCount.begin(); i < m_sendCount.end(); i++) std::cout << *i << " ";
-std::cout << "\n" << std::flush;
+  for(Uint i=0; i<nproc; i++)
+    MPI_Gatherv(&(sendmap[i])[0], sendmap[i].size(), MPI_INT, &m_receiveMap[0], &m_receiveCount[0], &rcvdisp[0], MPI_INT, i, PEInterface::getInstance());
 
-std::cout << "m_sendMap: ";
-for(std::vector<Uint>::iterator i=m_sendMap.begin(); i < m_sendMap.end(); i++) std::cout << *i << " ";
-std::cout << "\n" << std::flush;
+  std::cout << "m_updatable: ";
+  std::for_each(m_updatable.begin(), m_updatable.end(), std::cout << _1 << ' ');
+  std::cout << "\n" << std::flush;
 
-std::cout << "m_receiveCount: ";
-for(std::vector<Uint>::iterator i=m_receiveCount.begin(); i < m_receiveCount.end(); i++) std::cout << *i << " ";
-std::cout << "\n" << std::flush;
+  std::cout << "m_sendCount: ";
+  std::for_each(m_sendCount.begin(), m_sendCount.end(), std::cout << _1 << ' ');
+  std::cout << "\n" << std::flush;
 
-std::cout << "m_receiveMap: ";
-for(std::vector<Uint>::iterator i=m_receiveMap.begin(); i < m_receiveMap.end(); i++) std::cout << *i << " ";
-std::cout << "\n" << std::flush;
+  std::cout << "m_sendMap: ";
+  std::for_each(m_sendMap.begin(), m_sendMap.end(), std::cout << _1 << ' ');
+  std::cout << "\n" << std::flush;
 
+  std::cout << "m_receiveCount: ";
+  std::for_each(m_receiveCount.begin(), m_receiveCount.end(), std::cout << _1 << ' ');
+  std::cout << "\n" << std::flush;
+
+  std::cout << "m_receiveMap: ";
+  std::for_each(m_receiveMap.begin(), m_receiveMap.end(), std::cout << _1 << ' ');
+  std::cout << "\n" << std::flush;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

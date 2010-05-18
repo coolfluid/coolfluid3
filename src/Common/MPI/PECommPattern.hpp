@@ -7,6 +7,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <boost/multi_array.hpp>
+
 #include "Common/CF.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -48,16 +49,16 @@ private:
   std::vector<bool> m_updatable;
 
   /// this is the process-wise counter of sending communication pattern
-  std::vector<Uint> m_sendCount;
+  std::vector< int > m_sendCount;
 
   /// this is the map of sending communication pattern
-  std::vector<Uint> m_sendMap;
+  std::vector< int > m_sendMap;
 
   /// this is the process-wise counter of receiveing communication pattern
-  std::vector<Uint> m_receiveCount;
+  std::vector< int > m_receiveCount;
 
   /// this is the map of receiveing communication pattern
-  std::vector<Uint> m_receiveMap;
+  std::vector< int > m_receiveMap;
 
   /// flag telling if communication pattern is up-to-date
   bool m_isCommPatternPrepared;
