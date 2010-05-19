@@ -96,16 +96,15 @@ BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh )
 {
   boost::shared_ptr<CMeshReader> meshreader = CMeshReader::create_concrete("Neu","meshreader");
 
-#if 0
   // UNCOMMENT ALL THIS AND CHANGE THE FILEPATH "fp" TO A VALID PATH
   
   // the file to read from
-  boost::filesystem::path fp_in ("/Users/willem/workspace/coolfluid3/Kernel/src/Mesh/uTests/quadtriag.neu");
-  // boost::filesystem::path fp_in ("/Users/willem/workspace/testcases/square_2D_Re10000_FVM_LES/cases/refined.neu");
+  boost::filesystem::path fp_in ("quadtriag.neu");
+
   // the mesh to store in
   boost::shared_ptr<CMesh> mesh ( new CMesh  ( "mesh" ) );
   
-  meshreader->get_reader()->read(fp_in,mesh);
+  meshreader->read_from_to(fp_in,mesh);
   
   // Output data structure
   XMLNode mesh_node = XMLNode::createXMLTopNode("xml", TRUE);
@@ -134,12 +133,10 @@ BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh )
   CFinfo << "There are " << mesh->get_component<CArray>("coordinates")->get_array().size() << " coordinates. \n" << CFendl;
  
  
-  boost::filesystem::path fp_out ("/Users/willem/workspace/coolfluid3/Kernel/src/Mesh/uTests/quadtriag.msh");
-  // boost::filesystem::path fp_out ("/Users/willem/workspace/testcases/square_2D_Re10000_FVM_LES/cases/refined.msh");
+  boost::filesystem::path fp_out ("quadtriag.msh");
   boost::shared_ptr<CMeshWriter> meshwriter ( new CMeshWriter  ( "meshwriter" ) );
   meshwriter->set_writer("Mesh::Gmsh::Writer");
   meshwriter->get_writer()->write(mesh,fp_out);
-#endif
  
 }
 

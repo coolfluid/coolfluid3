@@ -7,6 +7,8 @@ LIST ( APPEND uTestMesh_files
   TestMeshConstruction.cpp 
   TestMeshReading.cpp
 )
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/quadtriag.neu
+    ${CMAKE_CURRENT_BINARY_DIR}/quadtriag.neu COPYONLY)
 
 IF ( CF_HAVE_CGNS )
   LIST ( APPEND uTestMesh_files  TestCGNS.cpp )
