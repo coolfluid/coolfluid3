@@ -3,10 +3,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#define BOOST_MULTI_ARRAY_NO_GENERATORS false
-#include "boost/multi_array.hpp" 
-#undef BOOST_MULTI_ARRAY_NO_GENERATORS
-
+#include "Common/BoostArray.hpp"
 #include "Common/Component.hpp"
 #include "Mesh/MeshAPI.hpp"
 #include "Mesh/BufferT.hpp"

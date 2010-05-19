@@ -3,10 +3,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#define BOOST_MULTI_ARRAY_NO_GENERATORS false
-#include "boost/multi_array.hpp" 
-#undef BOOST_MULTI_ARRAY_NO_GENERATORS
-
+#include "Common/BoostArray.hpp"
 #include "Mesh/MeshAPI.hpp"
 
 /// @todo remove following header
@@ -50,7 +47,7 @@ class Mesh_API BufferT {
 public:
   
   typedef boost::multi_array<T,2> Array_t;
-  
+
   /// Contructor
   /// @param array The table that will be interfaced with
   /// @param nbRows The size the buffer will be allocated with
