@@ -6,7 +6,7 @@
 #include "Common/CF.hpp"
 #include "Common/NonInstantiable.hpp"
 
-#include "Math/BoostHeaders.hpp"
+#include "Math/BoostMath.hpp"
 #include "Math/MathConsts.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////

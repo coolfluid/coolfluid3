@@ -1,7 +1,7 @@
 CF_FIND_ORPHAN_FILES()
 
 LIST ( APPEND Math_files
-BoostHeaders.hpp
+BoostMath.hpp
 FindMinimum.hpp
 MatrixInverter.cpp
 MatrixEigenSolver.hpp

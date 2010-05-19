@@ -110,9 +110,8 @@ namespace Common {
     /// lists the options of this component
     void list_options ( XMLNode xml );
 
-//    // SIGNALS
-//
-//    XMLNode create_component ( XMLNode );
+   // SIGNALS
+   XMLNode create_component ( XMLNode& );
         
   private:
 

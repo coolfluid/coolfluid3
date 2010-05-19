@@ -254,6 +254,14 @@ Component::Ptr Component::look_component ( const CPath& path )
 /////////////////////////////////////////////////////////////////////////////////////
 
 
+XMLNode Component::create_component ( XMLNode& node  )
+{
+  return node;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+
 void Component::xml_tree(XMLNode parent)
 {
   XMLNode this_node = parent.addChild( name().c_str() );

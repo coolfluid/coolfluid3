@@ -15,7 +15,7 @@ void print_xmlnode( XMLNode node )
   for ( int i = 0; i < node.nAttribute(); ++i)
   {
     XMLAttribute attr = node.getAttribute(i);
-    std::cout << "++ attribute [" << attr.lpszName << "] ";
+    std::cout << "  + attribute [" << attr.lpszName << "] ";
     std::cout << "with value [" << attr.lpszValue << "]\n";
   }
 
