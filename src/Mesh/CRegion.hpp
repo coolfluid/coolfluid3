@@ -92,8 +92,11 @@ public:
 
   Iterator end();
 
-  bool has_subregions() {return m_subregions.size(); }
-  
+  bool has_subregions();
+
+  /// @todo temporary until search by type is in place
+  virtual std::string type() const{ return "CRegion"; }
+
 private:
   
   std::vector< CRegion::Ptr > m_subregions;
