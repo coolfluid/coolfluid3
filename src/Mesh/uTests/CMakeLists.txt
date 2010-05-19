@@ -6,7 +6,13 @@ LIST ( APPEND uTestMesh_files
   TestMeshComponents.cpp
   TestMeshConstruction.cpp 
   TestMeshReading.cpp
-  TestCGNS.cpp )
+)
+
+IF ( CF_HAVE_CGNS )
+  LIST ( APPEND uTestMesh_files  TestCGNS.cpp )
+ELSE()
+  CF_MARK_NOT_ORPHAN ( TestCGNS.cpp )
+ENDIF()
 
 CF_ADD_UNITTEST ( uTestMesh )
 
