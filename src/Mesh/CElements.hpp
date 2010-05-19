@@ -54,6 +54,9 @@ public:
   /// @return m_order
   Uint getOrder() const { return m_elementType->getOrder(); }
 
+  /// @return m_dimensionality
+  Uint getDimensionality() const { return m_elementType->getDimensionality(); }
+
   /// @return faces connectivity
   /// faces[iFace][iNode]
   std::vector< std::vector< Uint > >& getFacesConnectivity() { return m_elementType->getFacesConnectivity(); }
