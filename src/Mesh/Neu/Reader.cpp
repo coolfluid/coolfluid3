@@ -15,15 +15,16 @@ namespace Neu {
   
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ObjectProvider < Reader,
-                         Mesh::MeshReader,
-                         NeuLib >
-aNeuReader_Provider ( "Mesh::Neu::Reader" );
+CF::Common::ObjectProvider < Mesh::Neu::CReader,
+                             Mesh::CMeshReader,
+                             Mesh::Neu::NeuLib,
+                             1 >
+aNeuReader_Provider ( "Neu" );
 
 //////////////////////////////////////////////////////////////////////////////
 
-Reader::Reader()
-: MeshReader()
+CReader::CReader( const CName& name )
+: CMeshReader(name)
 {
   m_supported_types.reserve(2);
   m_supported_types.push_back("P1-Quad2D");
@@ -32,7 +33,7 @@ Reader::Reader()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Reader::read_headerData(std::fstream& file)
+void CReader::read_headerData(std::fstream& file)
 {
   Uint NUMNP, NELEM, NGRPS, NBSETS, NDFCD, NDFVL;
   std::string line;
@@ -59,7 +60,7 @@ void Reader::read_headerData(std::fstream& file)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Reader::read_coordinates(std::fstream& file)
+void CReader::read_coordinates(std::fstream& file)
 {
   // Create the coordinates array
   m_mesh->create_array("coordinates");
@@ -95,13 +96,13 @@ void Reader::read_coordinates(std::fstream& file)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Reader::read_connectivity(std::fstream& file)
+void CReader::read_connectivity(std::fstream& file)
 {
   // make temporary regions for each element type possible
   CRegion::Ptr tmp = m_mesh->create_region("tmp");
 
   std::map<std::string,boost::shared_ptr<CTable::Buffer> > buffer =
-      create_buffermap_for_elementConnectivity(tmp,m_supported_types);
+      create_leaf_regions_with_buffermap(tmp,m_supported_types);
 
   // skip next line
   std::string line;
@@ -146,7 +147,7 @@ void Reader::read_connectivity(std::fstream& file)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Reader::read_groups(std::fstream& file)
+void CReader::read_groups(std::fstream& file)
 {
   std::string line;
   int dummy;
@@ -198,7 +199,7 @@ void Reader::read_groups(std::fstream& file)
 
       // Create regions for each element type in each group-region
       std::map<std::string,boost::shared_ptr<CTable::Buffer> > buffer =
-          create_buffermap_for_elementConnectivity(region,m_supported_types);
+          create_leaf_regions_with_buffermap(region,m_supported_types);
 
       // Copy elements from tmp_region in the correct region
       BOOST_FOREACH(Uint global_element, group.ELEM)

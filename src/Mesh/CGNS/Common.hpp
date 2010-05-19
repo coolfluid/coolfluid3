@@ -40,6 +40,7 @@ protected:
 
 private:
   std::vector<std::string> m_supported_element_types;
+
 }; // end Common
 
 

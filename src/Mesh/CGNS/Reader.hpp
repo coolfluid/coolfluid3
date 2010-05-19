@@ -1,9 +1,9 @@
-#ifndef CF_Mesh_CGNS_Reader_hpp
-#define CF_Mesh_CGNS_Reader_hpp
+#ifndef CF_Mesh_CGNS_CReader_hpp
+#define CF_Mesh_CGNS_CReader_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Mesh/MeshReader.hpp"
+#include "Mesh/CMeshReader.hpp"
 #include "Mesh/CGNS/CGNSAPI.hpp"
 #include "Mesh/CGNS/Common.hpp"
 
@@ -18,17 +18,22 @@ namespace CGNS {
 
 /// This class defines CGNS mesh format reader
 /// @author Willem Deconinck
-  class CGNS_API Reader : public MeshReader, public CGNS::Common
+  class CGNS_API CReader : public CMeshReader, public CGNS::Common
 {
 public:
   
-  /// constructor
-  Reader();
-  
+  /// Contructor
+  /// @param name of the component
+  CReader ( const CName& name );
+
   /// Gets the Class name
-  static std::string getClassName() { return "Reader"; }
+  static std::string getClassName() { return "CReader"; }
   
-  virtual void read(boost::filesystem::path& fp, const boost::shared_ptr<CMesh>& mesh);
+  virtual void read_from_to(boost::filesystem::path& fp, const boost::shared_ptr<CMesh>& mesh);
+
+  virtual std::string get_format() { return "CGNS"; }
+
+  static void defineConfigOptions ( CF::Common::OptionList& options );
 
 private:
   
@@ -36,8 +41,9 @@ private:
   void read_zone(CRegion::Ptr& parent_region);
   void read_coordinates();
   void read_section(CRegion::Ptr& parent_region);
-  void read_boco(CRegion::Ptr& parent_region);
+  void read_boco();
 
+  Uint get_total_nbElements();
 
   struct CGNS_Indexes
   {
@@ -53,8 +59,79 @@ private:
   } m_size;
 
   bool m_isCoordinatesCreated;
+  bool m_uniqueBase;
 
-}; // end Reader
+  struct CGNS_File
+  {
+    int idx;
+    int nbBases;
+  } m_file;
+
+  struct CGNS_Base
+  {
+    int idx;
+    int cell_dim;
+    int phys_dim;
+    std::string name;
+    bool unique;
+    int nbZones;
+  } m_base;
+
+  struct CGNS_Zone
+  {
+    int idx;
+    bool unique;
+    std::string name;
+    ZoneType_t type;
+    int nbVertices;
+    int nbElements;
+    int nbBdryVertices;
+    int coord_dim;
+    int nbGrids;
+    int nbSols;
+    int nbSections;
+    int nbBocos;
+    Uint total_nbElements;
+  } m_zone;
+
+  struct CGNS_Section
+  {
+    int idx;
+    bool unique;
+    std::string name;
+    ElementType_t type;
+    int eBegin;
+    int eEnd;
+    int nbBdry;
+    int parentFlag;
+    int elemNodeCount;
+    int elemDataSize;
+    int parentData;
+  } m_section;
+
+  struct CGNS_Boco
+  {
+    int idx;
+    bool unique;
+    std::string name;
+    BCType_t boco_type;  // e.g. BCDirichlet, BCSubsonicInflow, ...
+    PointSetType_t ptset_type; // PointList / PointRange / ElementList / ElementRange
+    int nBC_elem;
+    int normalIndex;
+    int normalListFlag;
+    DataType_t normalDataType;
+    int nDataSet;
+  } m_boco;
+
+  typedef std::pair<boost::shared_ptr<CRegion>,Uint> Region_TableIndex_pair;
+  std::vector<Region_TableIndex_pair> m_global_to_region;
+
+
+private:
+
+  boost::shared_ptr<CMesh> m_mesh;
+
+}; // end CReader
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -65,4 +142,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CGNS_Reader_hpp
+#endif // CF_Mesh_CGNS_CReader_hpp

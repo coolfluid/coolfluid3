@@ -51,10 +51,10 @@ void Writer::write_header(std::fstream& file)
   CRegion::Ptr regions = m_mesh->get_component<CRegion>("regions");
   for (CRegion::iterator region = regions->begin(); region != regions->end(); region++)
   {
-    if (region->has_subregions())
+    if (!region->has_subregions())
     {
       ++phys_name_counter;
-      PhysicalGroup group (dimension,phys_name_counter,region->name());
+      PhysicalGroup group (dimension,phys_name_counter,region->get_parent()->name());
       m_groups.insert(PhysicalGroupMap::value_type(group.name,group));
     }
   }

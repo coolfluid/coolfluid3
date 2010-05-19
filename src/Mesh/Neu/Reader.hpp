@@ -1,10 +1,11 @@
-#ifndef CF_Mesh_Neu_Reader_hpp
-#define CF_Mesh_Neu_Reader_hpp
+#ifndef CF_Mesh_Neu_CReader_hpp
+#define CF_Mesh_Neu_CReader_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <boost/filesystem/fstream.hpp>
 #include "Mesh/Neu/NeuAPI.hpp"
-#include "Mesh/MeshReader.hpp"
+#include "Mesh/CMeshReader.hpp"
 
 #include "Mesh/CTable.hpp"
 
@@ -19,15 +20,15 @@ namespace Neu {
 
 /// This class defines Neutral mesh format reader
 /// @author Willem Deconinck
-class Neu_API Reader : public MeshReader
+class Neu_API CReader : public CMeshReader
 {
 public:
   
   /// constructor
-  Reader();
+  CReader( const CName& name );
   
   /// Gets the Class name
-  static std::string getClassName() { return "Reader"; }
+  static std::string getClassName() { return "CReader"; }
   
 private:
   
@@ -63,13 +64,34 @@ private:
   
   void read_groups(std::fstream& file);
   
-  virtual void read_impl(std::fstream& file)
+  virtual std::string get_format() { return "Neu"; }
+
+  virtual void read_from_to(boost::filesystem::path& fp, const boost::shared_ptr<CMesh>& mesh)
   {    
+
+    // if the file is present open it
+    boost::filesystem::fstream file;
+    if( boost::filesystem::exists(fp) )
+    {
+      CFLog(VERBOSE, "Opening file " <<  fp.string() << "\n");
+      file.open(fp,std::ios_base::in); // exists so open it
+    }
+    else // doesnt exist so throw exception
+    {
+       throw boost::filesystem::filesystem_error( fp.string() + " does not exist",
+                                                  boost::system::error_code() );
+    }
+
+    // set the internal mesh pointer
+    m_mesh = mesh;
+
     // must be in correct order!
     read_headerData(file);
     read_coordinates(file);
     read_connectivity(file);
     read_groups(file);
+
+    file.close();
   }
   
   // map< global index , pair< temporary table, index in temporary table > >
@@ -78,8 +100,10 @@ private:
   
   // supported types from coolfluid. Neutral can support more.
   std::vector<std::string> m_supported_types;
+
+  boost::shared_ptr<CMesh> m_mesh;
   
-}; // end Reader
+}; // end CReader
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -90,4 +114,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_Neu_Reader_hpp
+#endif // CF_Mesh_Neu_CReader_hpp

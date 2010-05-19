@@ -3,15 +3,17 @@
 #include <boost/foreach.hpp>
 #include <boost/filesystem/path.hpp>
 
+#include "Common/ConfigObject.hpp"
+#include "Common/OptionT.hpp"
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
+
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CArray.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
-#include "Mesh/MeshReader.hpp"
 #include "Mesh/MeshWriter.hpp"
 
 using namespace std;
@@ -77,13 +79,14 @@ BOOST_FIXTURE_TEST_SUITE( MeshReading_TestSuite, MeshReading_Fixture )
 
 BOOST_AUTO_TEST_CASE( Constructors )
 {
-  
-  boost::shared_ptr<CMeshReader> meshreader ( new CMeshReader  ( "meshreader" ) );
-  meshreader->set_reader("Mesh::Neu::Reader");
-  
+  boost::shared_ptr<CMeshReader> meshreader = CMeshReader::create_concrete("Neu","meshreader");
+  BOOST_CHECK_EQUAL(meshreader->name(),"meshreader");
+  BOOST_CHECK_EQUAL(meshreader->get_format(),"Neu");
+
+
   boost::shared_ptr<CMeshWriter> meshwriter ( new CMeshWriter  ( "meshwriter" ) );
   meshwriter->set_writer("Mesh::Gmsh::Writer");
-  
+
  
 }
 
@@ -91,10 +94,8 @@ BOOST_AUTO_TEST_CASE( Constructors )
 
 BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh )
 {
-  
-  boost::shared_ptr<CMeshReader> meshreader ( new CMeshReader  ( "meshreader" ) );
-  meshreader->set_reader("Mesh::Neu::Reader");
-  
+  boost::shared_ptr<CMeshReader> meshreader = CMeshReader::create_concrete("Neu","meshreader");
+
 #if 0
   // UNCOMMENT ALL THIS AND CHANGE THE FILEPATH "fp" TO A VALID PATH
   

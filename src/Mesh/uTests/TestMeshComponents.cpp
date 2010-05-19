@@ -380,6 +380,36 @@ BOOST_AUTO_TEST_CASE( CArrayTemplates )
   
 }
 
+BOOST_AUTO_TEST_CASE( moving_mesh_components_around )
+{
+  CRoot::Ptr root = CRoot::create ( "root" );
+  CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
+  CRegion::Ptr regions = mesh->create_region("regions");
+
+  CRegion::Ptr subregion1 = regions->create_region("subregion1");
+  BOOST_CHECK_EQUAL(subregion1->has_subregions(),false);
+
+  subregion1->create_connectivityTable("table");
+  BOOST_CHECK_EQUAL(subregion1->has_subregions(),false);
+
+  // create subregion2 in the wrong place
+  CRegion::Ptr subregion2 = subregion1->create_region("subregion2");
+  BOOST_CHECK_EQUAL(subregion1->has_subregions(),true);
+  BOOST_CHECK_EQUAL(regions->get_components_of_type<CRegion>(regions->type()).size(), (Uint) 1);
+
+
+  // move subregion 2 to the right place
+  // subregion2->change_parent(regions);
+  // BOOST_CHECK_EQUAL(subregion1->has_subregions(),false);
+  subregion1->remove_component(subregion2->name());
+  regions->add_component(subregion2);
+  BOOST_CHECK_EQUAL(subregion1->has_subregions(),false);
+
+  BOOST_CHECK_EQUAL(regions->get_components_of_type<CRegion>(regions->type()).size(), (Uint) 2);
+
+
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()

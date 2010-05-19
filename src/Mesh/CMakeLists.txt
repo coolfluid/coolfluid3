@@ -27,8 +27,6 @@ LIST ( APPEND Mesh_files
   ElementType.cpp
   GeoShape.hpp
   GeoShape.cpp
-  MeshReader.hpp
-  MeshReader.cpp
   MeshWriter.hpp
   MeshWriter.cpp
   RCM.hpp

@@ -15,7 +15,6 @@
 #include "Mesh/CArray.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
-#include "Mesh/MeshReader.hpp"
 #include "Mesh/MeshWriter.hpp"
 
 using namespace std;
@@ -71,6 +70,16 @@ struct TestCGNS_Fixture
   
   /// common values accessed by all tests goes here
 
+  std::string xml_config;
+  rapidxml::xml_document<> doc;    // character type defaults to char
+  char* ctext;
+
+  rapidxml::xml_node<>* parsed_config()
+  {
+    ctext = doc.allocate_string(xml_config.c_str());
+    doc.parse< rapidxml::parse_no_data_nodes >(ctext);
+    return doc.first_node();
+  }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -81,10 +90,9 @@ BOOST_FIXTURE_TEST_SUITE( TestCGNS_TestSuite, TestCGNS_Fixture )
 
 BOOST_AUTO_TEST_CASE( Constructors )
 {
-  
-  boost::shared_ptr<CMeshReader> meshreader ( new CMeshReader  ( "meshreader" ) );
-  meshreader->set_reader("Mesh::CGNS::Reader");
- 
+  boost::shared_ptr<CMeshReader> meshreader = CMeshReader::create_concrete("CGNS","meshreader");
+  BOOST_CHECK_EQUAL(meshreader->name(),"meshreader");
+  BOOST_CHECK_EQUAL(meshreader->get_format(),"CGNS");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -334,7 +342,7 @@ maintain SIDS-standard ordering
    exit(0);
  }
 /* write boundary conditions for ilo face */
- cg_boco_write(index_file,index_base,index_zone,"Ilo",BCTunnelInflow,ElementList, \
+ cg_boco_write(index_file,index_base,index_zone,"inflow",BCTunnelInflow,ElementList, \
                icount,ipnts,&index_bc);
 
  // BC outflow
@@ -354,7 +362,7 @@ maintain SIDS-standard ordering
    exit(0);
  }
  /* write boundary conditions for ihi face */
- cg_boco_write(index_file,index_base,index_zone,"Ihi",BCExtrapolate,ElementList,icount,ipnts,&index_bc);
+ cg_boco_write(index_file,index_base,index_zone,"outflow",BCExtrapolate,ElementList,icount,ipnts,&index_bc);
 
 
 /* we know that for the unstructured zone, the following face elements */
@@ -390,19 +398,17 @@ maintain SIDS-standard ordering
 BOOST_AUTO_TEST_CASE( ReadCGNS )
 {
 
-  boost::shared_ptr<CMeshReader> meshreader ( new CMeshReader  ( "meshreader" ) );
-  meshreader->set_reader("Mesh::CGNS::Reader");
+  boost::shared_ptr<CMeshReader> meshreader = CMeshReader::create_concrete("CGNS","meshreader");
 
   // the file to read from
   boost::filesystem::path fp_in ("grid_c.cgns");
+  //boost::filesystem::path fp_in ("kw_mark.cgns");
   //boost::filesystem::path fp_in ("/Users/willem/workspace/coolfluid3/builds/qt/src/Mesh/uTests/tut21.cgns");
   //boost::filesystem::path fp_in ("/Users/willem/workspace/coolfluid3/builds/qt/src/Mesh/uTests/oversetnasa2.cgns");
   //boost::filesystem::path fp_in ("/Users/willem/workspace/testcases/square_2D_Re10000_FVM_LES/cases/refined.neu");
 
   // the mesh to store in
-  CMesh::Ptr mesh ( new CMesh  ( "mesh" ) );
-
-  meshreader->get_reader()->read(fp_in,mesh);
+  CMesh::Ptr mesh = meshreader->create_mesh_from(fp_in);
 
   // Output data structure
   XMLNode mesh_node = XMLNode::createXMLTopNode("xml", TRUE);
@@ -415,6 +421,8 @@ BOOST_AUTO_TEST_CASE( ReadCGNS )
   freeXMLString(xml_str);
 
   boost::filesystem::path fp_out ("grid_c.msh");
+//  boost::filesystem::path fp_out ("kw_mark.msh");
+
   boost::shared_ptr<CMeshWriter> meshwriter ( new CMeshWriter  ( "meshwriter" ) );
   meshwriter->set_writer("Mesh::Gmsh::Writer");
   meshwriter->get_writer()->write(mesh,fp_out);
