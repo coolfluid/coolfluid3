@@ -39,6 +39,8 @@ IF(UNIX)
       CF_ADD_CXX_FLAGS("-Wno-unused-parameter")
       CF_ADD_CXX_FLAGS("-Wno-missing-field-initializers")
 
+      # Don't warn when using functors in boost::bind
+      CF_ADD_CXX_FLAGS("-Wno-strict-aliasing")
       # this is temporary until we all move to using openmpi
       # must turn off non-virtual-dtor because many mpi implementations use it
       # KDE uses -Wnon-virtual-dtor
