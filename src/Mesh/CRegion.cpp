@@ -57,8 +57,11 @@ void CRegion::put_subregions(std::vector<CRegion::Ptr >& vec)
 {  
   BOOST_FOREACH(CRegion::Ptr subregion, m_subregions)
   {
-    vec.push_back(subregion);
-    subregion->put_subregions(vec);
+    if (check_component(subregion->name()))
+    {
+      vec.push_back(subregion);
+      subregion->put_subregions(vec);
+    }
   }
 }
 
