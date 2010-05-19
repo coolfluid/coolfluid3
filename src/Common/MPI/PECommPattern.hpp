@@ -6,7 +6,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <boost/multi_array.hpp>
+#include "Common/BoostArray.hpp"
 
 #include "Common/CF.hpp"
 
