@@ -83,6 +83,10 @@ namespace Common {
     /// @param name the component
     Component::Ptr get_component ( const CName& name );
 
+    /// Check if a (sub)component of this component exists
+    /// @param name the component
+    bool check_component ( const CName& name );
+
     /// Get a (sub)component of this component automatically cast to the specified type
     /// @param name the component
     template < typename TYPE >

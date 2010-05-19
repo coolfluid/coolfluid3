@@ -124,6 +124,19 @@ Component::Ptr Component::get_component ( const CName& name )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
+bool Component::check_component ( const CName& name )
+{
+  // find the component exists
+  Component::CompStorage_t::iterator itr = m_components.find(name);
+
+  if ( itr != m_components.end() )     // if exists
+    return true;
+  else                                 // if does not exist
+    return false;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
 
 void Component::list_options (XMLNode xml)
 {
