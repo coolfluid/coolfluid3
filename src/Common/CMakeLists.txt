@@ -8,6 +8,7 @@ LIST ( APPEND Common_files
     BasicExceptions.hpp
     BigAllocator.hpp
     BoostIostreams.hpp
+    BoostArray.hpp
     BuilderParser.cpp
     BuilderParser.hpp
     BuilderParserFrameInfo.cpp
