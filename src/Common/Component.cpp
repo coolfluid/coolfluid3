@@ -138,6 +138,16 @@ bool Component::check_component ( const CName& name )
 /////////////////////////////////////////////////////////////////////////////////////
 
 
+Component::Ptr Component::create_component ( const CName& name )
+{
+  Component::Ptr new_component (new Component(name));
+  add_component(new_component);
+  return new_component;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+
 void Component::list_options (XMLNode xml)
 {
   /// @todo implement this

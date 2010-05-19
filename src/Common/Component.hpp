@@ -58,6 +58,22 @@ namespace Common {
     /// checks if this component is in fact a link to another component
     bool is_link () const { return m_is_link; }
 
+    /// @todo this is temporary until search by typeid is in place
+    virtual std::string type () const { return "undefined"; }
+
+    /// @todo this is temporary until search by typeid is in place
+    template <typename T>
+    std::vector<boost::shared_ptr<T> > get_components_of_type (const std::string type)
+    {
+      std::vector<boost::shared_ptr<T> > vec;
+      for(CompStorage_t::iterator it=m_components.begin(); it!=m_components.end(); ++it)
+      {
+        if (it->second->type() == type)
+          vec.push_back(boost::dynamic_pointer_cast<T>(it->second));
+      }
+      return vec;
+    }
+
     /// Access the name of the component
     CName name () const { return m_name.string(); }
 
@@ -72,6 +88,13 @@ namespace Common {
 
     /// Construct the full path
     CPath full_path () const { return m_path / m_name; }
+
+    /// Create a (sub)component of this component
+    Component::Ptr create_component ( const CName& name );
+
+    /// Create a (sub)component of this component automatically cast to the specified type
+    template < typename TYPE >
+        boost::shared_ptr<TYPE> create_component ( const CName& name );
 
     /// Add a (sub)component of this component
     void add_component ( boost::shared_ptr<Component> subcomp );
@@ -145,6 +168,16 @@ template < typename TYPE >
 inline boost::shared_ptr<TYPE> Component::get_component ( const CName& name )
 {
   return boost::dynamic_pointer_cast<TYPE>( get_component(name) );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+template < typename TYPE >
+inline boost::shared_ptr<TYPE> Component::create_component ( const CName& name )
+{
+  boost::shared_ptr<TYPE> new_component (new TYPE(name));
+  add_component(new_component);
+  return new_component;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
