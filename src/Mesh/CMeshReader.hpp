@@ -4,8 +4,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <boost/filesystem/path.hpp>
+
 #include "Common/Component.hpp"
 #include "Common/ConcreteProvider.hpp"
+
 #include "Mesh/MeshAPI.hpp"
 #include "Mesh/CTable.hpp"
 
@@ -49,7 +51,7 @@ public:
 
   // --------- Signals ---------
 
-  XMLNode read( XMLNode& node  );
+  void read( Common::XmlNode& node  );
 
   // --------- Direct access ---------
 

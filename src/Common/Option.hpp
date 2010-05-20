@@ -51,7 +51,7 @@ namespace Common {
   public:
 
     typedef boost::shared_ptr<Option>     Ptr;
-    typedef boost::function< void()>      Processor_t;
+    typedef boost::function< void() >     Processor_t;
     typedef std::vector< Processor_t >    ProcStorage_t;
 
     /// Constructor
@@ -102,6 +102,14 @@ namespace Common {
     template < typename TYPE >
         void put_def( TYPE& def ) const { def = boost::any_cast<TYPE>(m_default); }
 
+    /// Link the state of this option to the passed parameter
+    template < typename TYPE >
+        void link_to ( TYPE* par )
+    {
+      cf_assert ( DEMANGLED_TYPEID(TYPE) == m_type );
+      m_other_params.push_back(par);
+    }
+
   protected:
 
     /// storage of the value of the option
@@ -116,6 +124,8 @@ namespace Common {
     std::string m_description;
     /// list of processors that will process the option
     ProcStorage_t m_processors;
+    /// parameters that also get updated when option is changed
+    std::vector< void* > m_other_params;
 
   }; // Option
 

@@ -6,7 +6,6 @@
 #include "Common/CF.hpp"
 #include "Common/Log.hpp"
 
-
 #include "Common/ModuleRegister.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -15,10 +14,6 @@ namespace CF {
 namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
-
-  /// Operator to delete the contents of the boost::shared_ptr
-  template < typename BASE >
-      struct deleter { void operator()( BASE * p ) { delete_ptr<BASE>(p); } };
 
 /// This class represents a concrete templated provider to create
 /// whatever kind of polymorphic objects. By default it takes two
@@ -48,7 +43,7 @@ public:
   /// @return boost::shared_ptr olding the created object
   boost::shared_ptr<BASE> create()
   {
-    return boost::shared_ptr<BASE>(new CONCRETE(), deleter<BASE>() );
+    return boost::shared_ptr<BASE>(new CONCRETE(), Deleter<BASE>() );
   }
 
 }; // end of class ObjectProvider
@@ -83,7 +78,7 @@ public:
   /// @return boost::shared_ptr olding the created object
   boost::shared_ptr<BASE> create(typename BASE::ARG1 arg)
   {
-    return boost::shared_ptr<BASE>(new CONCRETE(arg), deleter<BASE>());
+    return boost::shared_ptr<BASE>(new CONCRETE(arg), Deleter<BASE>());
   }
 
 }; // end of class ObjectProvider
@@ -122,7 +117,7 @@ public:
   boost::shared_ptr<BASE> create(typename BASE::ARG1 arg1,
                                  typename BASE::ARG2 arg2)
   {
-    return boost::shared_ptr<BASE>(new CONCRETE(arg1, arg2), deleter<BASE>());
+    return boost::shared_ptr<BASE>(new CONCRETE(arg1, arg2), Deleter<BASE>());
   }
 
   /// Polymorphic function to create objects of dynamical type BASE

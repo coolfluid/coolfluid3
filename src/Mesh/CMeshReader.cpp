@@ -37,7 +37,7 @@ void CMeshReader::defineConfigOptions(Common::OptionList& options)
 
 //////////////////////////////////////////////////////////////////////////////
 
-XMLNode CMeshReader::read( XMLNode& node  )
+void CMeshReader::read( XmlNode& node  )
 {
   // Get the mesh component in the tree
   /// @todo[1]: wait for Tiago for functionality
@@ -48,7 +48,7 @@ XMLNode CMeshReader::read( XMLNode& node  )
   // Call implementation
   /// @todo wait for todo[1]
   // read_from_to(file,mesh);
-  return node;
+
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -4,6 +4,7 @@
 
 #include "Common/ObjectProvider.hpp"
 #include "Common/OptionT.hpp"
+
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CGNS/Reader.hpp"
@@ -355,8 +356,7 @@ void CReader::read_section(CRegion::Ptr& parent_region)
       }
     if (is_bc_region)
     {
-      this_region->get_parent()->remove_component(this_region->name());
-      m_mesh->get_component("regions")->get_component("bc-regions")->add_component(this_region);
+      this_region->move_component( m_mesh->get_component("regions")->get_component("bc-regions") );
     }
   }
 }

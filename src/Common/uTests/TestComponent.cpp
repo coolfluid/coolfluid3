@@ -82,27 +82,27 @@ BOOST_AUTO_TEST_CASE( add_component )
 
 BOOST_AUTO_TEST_CASE( xml_tree )
 {
-  boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
-
-  boost::shared_ptr<Component> dir1 ( new CGroup ( "dir1" ) );
-  boost::shared_ptr<Component> dir2 ( new CGroup ( "dir2" ) );
-
-  root->add_component( dir1 );
-  dir1->add_component( dir2 );
-
-  XMLNode root_node = XMLNode::createXMLTopNode("xml", TRUE);
-
-  root_node.addAttribute("version","1.0");
-  root_node.addAttribute("encoding","UTF-8");
-  root_node.addAttribute("standalone","yes");
-
-  root->xml_tree( root_node );
-
-  XMLSTR xml_str = root_node.createXMLString();
-
-//  CFinfo << "xml_str\n" << xml_str << CFendl;
-
-  freeXMLString(xml_str);
+//  boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
+//
+//  boost::shared_ptr<Component> dir1 ( new CGroup ( "dir1" ) );
+//  boost::shared_ptr<Component> dir2 ( new CGroup ( "dir2" ) );
+//
+//  root->add_component( dir1 );
+//  dir1->add_component( dir2 );
+//
+//  XMLNode root_node = XMLNode::createXMLTopNode("xml", TRUE);
+//
+//  root_node.addAttribute("version","1.0");
+//  root_node.addAttribute("encoding","UTF-8");
+//  root_node.addAttribute("standalone","yes");
+//
+//  root->xml_tree( root_node );
+//
+//  XMLSTR xml_str = root_node.createXMLString();
+//
+////  CFinfo << "xml_str\n" << xml_str << CFendl;
+//
+//  freeXMLString(xml_str);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

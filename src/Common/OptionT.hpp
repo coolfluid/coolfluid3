@@ -4,6 +4,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <boost/tokenizer.hpp>
+#include <boost/foreach.hpp>
 
 #include "Common/Option.hpp"
 #include "Common/StringOps.hpp"
@@ -72,6 +73,12 @@ namespace Common {
     {
       TYPE vt = ConvertValue<TYPE>::convert( node->value() );
       m_value = vt;
+
+      BOOST_FOREACH ( void* v, m_other_params )
+      {
+        TYPE* cv = static_cast<TYPE*>(v);
+        *cv = vt;
+      }
     }
 
   };

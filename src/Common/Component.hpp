@@ -10,7 +10,7 @@
 #include "Common/CPath.hpp"
 #include "Common/ConcreteProvider.hpp"
 
-#include "Common/xmlParser.h"  // move to stand-alone function
+#include "Common/XML.hpp"
 
 namespace CF {
 namespace Common {
@@ -28,7 +28,7 @@ namespace Common {
       public ConfigObject,
       public DynamicObject {
 
-  public:
+  public: // typedef
 
     /// typedef of pointers to components
     typedef boost::shared_ptr<Component> Ptr;
@@ -39,7 +39,12 @@ namespace Common {
     /// type of first argument of constructor
     typedef const CName& ARG1;
 
-  public:
+  private: // typedef
+
+    /// type for storing the sub components
+    typedef std::map < CName , Component::Ptr > CompStorage_t;
+
+  public: // functions
 
     /// Get the class name
     static std::string getClassName () { return "Component"; }
@@ -66,8 +71,9 @@ namespace Common {
 
     /// @todo this is temporary until search by typeid is in place
     template <typename T>
-    std::vector<boost::shared_ptr<T> > get_components_of_type (const std::string type)
+    std::vector<boost::shared_ptr<T> > get_components_of_type ()
     {
+      std::string type = DEMANGLED_TYPEID(T);
       std::vector<boost::shared_ptr<T> > vec;
       for(CompStorage_t::iterator it=m_components.begin(); it!=m_components.end(); ++it)
       {
@@ -92,18 +98,19 @@ namespace Common {
     /// Construct the full path
     CPath full_path () const { return m_path / m_name; }
 
-    /// Create a (sub)component of this component
-    Component::Ptr create_component ( const CName& name );
-
     /// Create a (sub)component of this component automatically cast to the specified type
     template < typename TYPE >
         boost::shared_ptr<TYPE> create_component ( const CName& name );
 
     /// Add a (sub)component of this component
-    void add_component ( boost::shared_ptr<Component> subcomp );
+    void add_component ( Component::Ptr subcomp );
 
     /// Remove a (sub)component of this component
     Component::Ptr remove_component ( const CName& name );
+
+    /// Move this component to within another one
+    /// @param new_parent will be the new parent of this component
+    void move_component ( Component::Ptr new_parent );
 
     /// Get a (sub)component of this component
     /// @param name the component
@@ -134,42 +141,39 @@ namespace Common {
     /// @post path statisfies CPath::is_absolute()
     void complete_path ( CPath& path );
 
-    /// lists the sub components and puts them on the xml_tree
-    void xml_tree ( XMLNode xml );
-
-    /// lists the options of this component
-    void list_options ( XMLNode xml );
-
     /// add tag to this component
     void add_tag(const std::string& tag);
 
     /// @return raw tags
     const std::string& get_raw_tags() const { return m_tags; }
 
-   // SIGNALS
-   XMLNode create_component ( XMLNode& );
+    /// @name SIGNALS 
+    //@{
+   
+    /// creates a component from this component
+    void create_component ( XmlNode& xml );
 
-  // protected functions
-  protected:
+    /// lists the sub components and puts them on the xml_tree
+    void list_tree ( XmlNode& xml );
+
+    /// lists the options of this component
+    void list_options ( XmlNode& xml );
+
+    //@} END SIGNALS 
+  
+  protected: // functions
 
     /// Must be called in constructor of each derived class
    template <typename TYPE>
     void build_component(TYPE* meself);
 
-  // private functions
-  private:
+  private: // helper functions
 
+   /// tags this class with the classname
     template <typename TYPE>
         void tag_classname ();
 
-  // private data
-  private:
-
-    /// type for storing the sub components
-    typedef std::map < CName , Component::Ptr > CompStorage_t;
-
-  // protected data
-  protected:
+  protected: // data
 
     /// component name (stored as path to ensure validity)
     CPath m_name;
@@ -186,7 +190,7 @@ namespace Common {
     /// tags merged as one string e.g. ":Component:CRoot:"
     std::string m_tags;
 
-  };
+  }; // Component
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -216,7 +220,7 @@ inline boost::shared_ptr<TYPE> Component::get_component ( const CName& name )
 template < typename TYPE >
 inline boost::shared_ptr<TYPE> Component::create_component ( const CName& name )
 {
-  boost::shared_ptr<TYPE> new_component (new TYPE(name));
+  boost::shared_ptr<TYPE> new_component ( new TYPE(name), Deleter<TYPE>() );
   add_component(new_component);
   return new_component;
 }

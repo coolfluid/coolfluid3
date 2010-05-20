@@ -1,5 +1,5 @@
 /****************************************************************************/
-/*! OCXMLParser library
+/*! \mainpage XMLParser library
  * \section intro_sec Introduction
  *
  * This is a basic XML parser written in ANSI C++ for portability.
@@ -9,10 +9,40 @@
  * @version     V2.41
  * @author      Frank Vanden Berghen
  *
+ * The following license terms apply to projects that are in some way related to
+ * the "COOLFluiD project", including applications
+ * using "COOLFluiD project" and tools developed
+ * for enhancing "COOLFluiD project". All other projects
+ * (not related to "COOLFluiD project") have to use this
+ * code under the Aladdin Free Public License (AFPL)
+ * See the file "AFPL-license.txt" for more informations about the AFPL license.
+ * (see http://www.artifex.com/downloads/doc/Public.htm for detailed AFPL terms)
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of Frank Vanden Berghen nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY Business-Insight ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL Business-Insight BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
  * Copyright (c) 2002, Business-Insight
  * <a href="http://www.Business-Insight.com">Business-Insight</a>
  * All rights reserved.
- * See the file <a href="../../AFPL-license.txt">AFPL-license.txt</a> about the licensing terms
  *
  * \section tutorial First Tutorial
  * You can follow a simple <a href="../../xmlParser.html">Tutorial</a> to know the basics...
@@ -87,7 +117,6 @@
 #define __INCLUDE_XML_NODE__
 
 #include <stdlib.h>
-#include <sstream>
 
 #ifdef _UNICODE
 // If you comment the next "define" line then the library will never "switch to" _UNICODE (wchar_t*) mode (16/32 bits per characters).
@@ -127,7 +156,7 @@
 #ifdef _XMLWINDOWS
 #include <tchar.h>
 #else
-// #define XMLDLLENTRY
+#define XMLDLLENTRY
 #ifndef XML_NO_WIDE_CHAR
 #include <wchar.h> // to have 'wcsrtombs' for ANSI version
                    // to have 'mbsrtowcs' for WIDECHAR version
@@ -214,6 +243,8 @@ typedef int XMLElementPosition;
 
 struct XMLNodeContents;
 
+/** @defgroup XMLParserGeneral The XML parser */
+
 /// Main Class representing a XML node
 /**
  * All operations are performed using this class.
@@ -238,7 +269,8 @@ typedef struct XMLDLLENTRY XMLNode
   public:
     static XMLCSTR getVersion();///< Return the XMLParser library version number
 
-    /** Parsing XML files/strings to an XMLNode structure and Rendering XMLNode's to files/string.
+    /** @defgroup conversions Parsing XML files/strings to an XMLNode structure and Rendering XMLNode's to files/string.
+     * @ingroup XMLParserGeneral
      * @{ */
 
     /// Parse an XML string and return the root of a XMLNode tree representing the string.
@@ -306,7 +338,8 @@ typedef struct XMLDLLENTRY XMLNode
      * If no "encoding" parameter is given the "ISO-8859-1" encoding is used. */
     /** @} */
 
-    /** Navigate the XMLNode structure
+    /** @defgroup navigate Navigate the XMLNode structure
+     * @ingroup XMLParserGeneral
      * @{ */
     XMLCSTR getName() const;                                       ///< name of the node
     XMLCSTR getText(int i=0) const;                                ///< return ith text field
@@ -332,18 +365,6 @@ typedef struct XMLDLLENTRY XMLNode
     char  isAttributeSet(XMLCSTR name) const;                      ///< test if an attribute with a specific name is given
     XMLCSTR getAttribute(XMLCSTR name, int i) const;               ///< return ith attribute content with specific name (return a NULL if failing)
     XMLCSTR getAttribute(XMLCSTR name, int *i=NULL) const;         ///< return next attribute content with specific name (return a NULL if failing)
-///< return next attribute content with specific name (template version) and default value (return default if failing)
-template< class GIVENTYPE >
-GIVENTYPE getAttribute(XMLCSTR name, GIVENTYPE init=GIVENTYPE(), int *i=NULL) const
-{
-  GIVENTYPE v2(init);
-  XMLCSTR v1 = getAttribute(name,i);
-  if (v1!=NULL) {
-    std::istringstream iss(v1);
-    iss >> v2;
-  }
-  return v2;
-}
     int nAttribute() const;                                        ///< nbr of attribute
     XMLClear getClear(int i=0) const;                              ///< return ith clear field (comments)
     int nClear() const;                                            ///< nbr of clear field
@@ -364,7 +385,8 @@ GIVENTYPE getAttribute(XMLCSTR name, GIVENTYPE init=GIVENTYPE(), int *i=NULL) co
     static XMLClear emptyXMLClear;
     static XMLAttribute emptyXMLAttribute;
 
-    /** Create or Update the XMLNode structure
+    /** @defgroup xmlModify Create or Update the XMLNode structure
+     * @ingroup XMLParserGeneral
      *  The functions in this group allows you to create from scratch (or update) a XMLNode structure. Start by creating your top
      *  node with the "createXMLTopNode" function and then add new nodes with the "addChild" function. The parameter 'pos' gives
      *  the position where the childNode, the text or the XMLClearTag will be inserted. The default value (pos=-1) inserts at the
@@ -373,7 +395,8 @@ GIVENTYPE getAttribute(XMLCSTR name, GIVENTYPE init=GIVENTYPE(), int *i=NULL) co
      *  REMARK: 0 <= pos < nChild()+nText()+nClear() <br>
      */
 
-    /** Creating from scratch a XMLNode structure
+    /** @defgroup creation Creating from scratch a XMLNode structure
+     * @ingroup xmlModify
      * @{ */
     static XMLNode createXMLTopNode(XMLCSTR lpszName, char isDeclaration=FALSE);                    ///< Create the top node of an XMLNode structure
     XMLNode        addChild(XMLCSTR lpszName, char isDeclaration=FALSE, XMLElementPosition pos=-1); ///< Add a new child node
@@ -387,7 +410,8 @@ GIVENTYPE getAttribute(XMLCSTR name, GIVENTYPE init=GIVENTYPE(), int *i=NULL) co
      */
     /** @} */
 
-    /** Updating Nodes
+    /** @defgroup xmlUpdate Updating Nodes
+     * @ingroup xmlModify
      * Some update functions:
      * @{
      */
@@ -402,7 +426,8 @@ GIVENTYPE getAttribute(XMLCSTR name, GIVENTYPE init=GIVENTYPE(), int *i=NULL) co
     XMLClear     *updateClear(XMLCSTR lpszNewValue, XMLCSTR lpszOldValue);                       ///< if the clearTag to update is missing, a new one will be added
     /** @} */
 
-    /** Deleting Nodes or Attributes
+    /** @defgroup xmlDelete Deleting Nodes or Attributes
+     * @ingroup xmlModify
      * Some deletion functions:
      * @{
      */
@@ -419,8 +444,8 @@ GIVENTYPE getAttribute(XMLCSTR name, GIVENTYPE init=GIVENTYPE(), int *i=NULL) co
     void deleteClear(XMLClear *p);                   ///< Delete the clear tag "p" inside the current XMLNode (direct "pointer-to-pointer" comparison on the lpszName of the clear tag is used to find the clear tag)
     /** @} */
 
-    /** ???_WOSD functions.
-     * 
+    /** @defgroup xmlWOSD ???_WOSD functions.
+     * @ingroup xmlModify
      *  The strings given as parameters for the "add" and "update" methods that have a name with
      *  the postfix "_WOSD" (that means "WithOut String Duplication")(for example "addText_WOSD")
      *  will be free'd by the XMLNode class. For example, it means that this is incorrect:
@@ -465,8 +490,8 @@ GIVENTYPE getAttribute(XMLCSTR name, GIVENTYPE init=GIVENTYPE(), int *i=NULL) co
     XMLClear      *updateClear_WOSD(XMLSTR lpszNewValue, XMLCSTR lpszOldValue);                       ///< if the clearTag to update is missing, a new one will be added
     /** @} */
 
-    /** Position helper functions (use in conjunction with the update&add functions
-     * 
+    /** @defgroup xmlPosition Position helper functions (use in conjunction with the update&add functions
+     * @ingroup xmlModify
      * These are some useful functions when you want to insert a childNode, a text or a XMLClearTag in the
      * middle (at a specified position) of a XMLNode tree already constructed. The value returned by these
      * methods is to be used as last parameter (parameter 'pos') of addChild, addText or addClear.
@@ -493,7 +518,7 @@ GIVENTYPE getAttribute(XMLCSTR name, GIVENTYPE init=GIVENTYPE(), int *i=NULL) co
         char_encoding_GBK=6     // this is actually the same as Big5
     } XMLCharEncoding;
 
-    /** 
+    /** \addtogroup conversions
      * @{ */
 
     /// Sets the global options for the conversions
@@ -615,8 +640,8 @@ typedef struct XMLNodeContents
 
 } XMLNodeContents;
 
-/** String Allocation/Free functions
- * 
+/** @defgroup StringAlloc String Allocation/Free functions
+ * @ingroup xmlModify
  * @{ */
 /// Duplicate (copy in a new allocated buffer) the source string.
 XMLDLLENTRY XMLSTR stringDup(XMLCSTR source, int cbData=-1);
@@ -629,7 +654,8 @@ XMLDLLENTRY XMLSTR stringDup(XMLCSTR source, int cbData=-1);
 XMLDLLENTRY void freeXMLString(XMLSTR t); // {free(t);}
 /** @} */
 
-/** ato? like functions
+/** @defgroup atoX ato? like functions
+ * @ingroup XMLParserGeneral
  * The "xmlto?" functions are equivalents to the atoi, atol, atof functions.
  * The only difference is: If the variable "xmlString" is NULL, than the return value
  * is "defautValue". These 6 functions are only here as "convenience" functions for the
@@ -645,7 +671,8 @@ XMLDLLENTRY XMLCSTR xmltoa(XMLCSTR xmlString,XMLCSTR defautValue=_CXML(""));
 XMLDLLENTRY XMLCHAR xmltoc(XMLCSTR xmlString,const XMLCHAR defautValue=_CXML('\0'));
 /** @} */
 
-/** Helper class to create XML files using "printf", "fprintf", "cout",... functions.
+/** @defgroup ToXMLStringTool Helper class to create XML files using "printf", "fprintf", "cout",... functions.
+ * @ingroup XMLParserGeneral
  * @{ */
 /// Helper class to create XML files using "printf", "fprintf", "cout",... functions.
 /** The ToXMLStringTool class helps you creating XML files using "printf", "fprintf", "cout",... functions.
@@ -678,7 +705,8 @@ private:
 } ToXMLStringTool;
 /** @} */
 
-/** Helper class to include binary data inside XML strings using "Base64 encoding".
+/** @defgroup XMLParserBase64Tool Helper class to include binary data inside XML strings using "Base64 encoding".
+ * @ingroup XMLParserGeneral
  * @{ */
 /// Helper class to include binary data inside XML strings using "Base64 encoding".
 /** The "XMLParserBase64Tool" class allows you to include any binary data (images, sounds,...)

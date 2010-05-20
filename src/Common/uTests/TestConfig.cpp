@@ -25,9 +25,14 @@ using namespace CF::Common;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class MyC : public ConfigObject
-{
-  public:
+class MyC : public ConfigObject {
+
+  private: // data
+
+    std::string m_str;
+    int m_i;
+
+  public: // functions
 
   static void defineConfigOptions ( OptionList& options )
   {
@@ -52,7 +57,9 @@ class MyC : public ConfigObject
 
 //    option("OptInt").set_value(10);
 
-//    option("OptInt").link_to ( &i ); // setParameter ( "OptInt", &i );
+    option("OptInt")->link_to( &m_i );
+
+    link_to_parameter ( "OptStr", &m_str );
 
 //    option("OptBool")->attach_processor( boost::bind ( &MyC::config_bool,  this ) );
 //    option("OptInt")->attach_processor ( boost::bind ( &MyC::config_int,   this ) );

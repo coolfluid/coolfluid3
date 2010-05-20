@@ -56,7 +56,7 @@ CElements::Ptr CRegion::create_elementType( const CName& name )
 
 void CRegion::put_subregions(std::vector<CRegion::Ptr >& vec)
 {
-  BOOST_FOREACH(CRegion::Ptr subregion, get_components_of_type<CRegion>(type()))
+  BOOST_FOREACH(CRegion::Ptr subregion, get_components_of_type<CRegion>())
   {
     vec.push_back(subregion);
     subregion->put_subregions(vec);
@@ -67,7 +67,7 @@ void CRegion::put_subregions(std::vector<CRegion::Ptr >& vec)
 
 bool CRegion::has_subregions()
 {
-  return get_components_of_type<CRegion>(type()).size() ? true : false ;
+  return get_components_of_type<CRegion>().size() ? true : false ;
 }
 
 //////////////////////////////////////////////////////////////////////////////

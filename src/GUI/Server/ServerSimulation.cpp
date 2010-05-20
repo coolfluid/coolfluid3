@@ -296,9 +296,14 @@ void ServerSimulation::configureSimulator(const QDomDocument & document)
 
 QString ServerSimulation::getTreeXML() const
 {
-  XMLNode parent = XMLNode::createXMLTopNode("XCFcase");
-  m_rootComponent->xml_tree(parent);
-  return parent.createXMLString();
+//  XMLNode parent = XMLNode::createXMLTopNode("XCFcase");
+//
+//  m_rootComponent->list_tree(parent);
+//
+//  return parent.createXMLString();
+
+  return "";
+
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

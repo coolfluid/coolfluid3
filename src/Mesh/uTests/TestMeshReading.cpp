@@ -107,14 +107,14 @@ BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh )
   meshreader->read_from_to(fp_in,mesh);
   
   // Output data structure
-  XMLNode mesh_node = XMLNode::createXMLTopNode("xml", TRUE);
-  mesh_node.addAttribute("version","1.0");
-  mesh_node.addAttribute("encoding","UTF-8");
-  mesh_node.addAttribute("standalone","yes");
-  mesh->xml_tree( mesh_node );
-  XMLSTR xml_str = mesh_node.createXMLString();
-  CFinfo << "xml_str\n" << xml_str << CFendl;
-  freeXMLString(xml_str);
+//  XMLNode mesh_node = XMLNode::createXMLTopNode("xml", TRUE);
+//  mesh_node.addAttribute("version","1.0");
+//  mesh_node.addAttribute("encoding","UTF-8");
+//  mesh_node.addAttribute("standalone","yes");
+//  mesh->xml_tree( mesh_node );
+//  XMLSTR xml_str = mesh_node.createXMLString();
+//  CFinfo << "xml_str\n" << xml_str << CFendl;
+//  freeXMLString(xml_str);
   
   CRegion::Ptr tmp_region = mesh->get_component<CRegion>("regions");
   for (CRegion::iterator region = tmp_region->begin(); region != tmp_region->end(); region++)

@@ -131,38 +131,6 @@ Component::Ptr Component::get_component ( const CName& name )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-bool Component::check_component ( const CName& name )
-{
-  // find the component exists
-  Component::CompStorage_t::iterator itr = m_components.find(name);
-
-  if ( itr != m_components.end() )     // if exists
-    return true;
-  else                                 // if does not exist
-    return false;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
-
-
-Component::Ptr Component::create_component ( const CName& name )
-{
-  Component::Ptr new_component (new Component(name));
-  add_component(new_component);
-  return new_component;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
-
-
-void Component::list_options (XMLNode xml)
-{
-  /// @todo implement this
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
-
-
 void Component::complete_path ( CPath& path )
 {
   using namespace boost::algorithm;
@@ -265,10 +233,17 @@ void Component::change_parent ( Component::Ptr new_parent )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
+void Component::move_component ( Component::Ptr new_parent )
+{
+  m_parent.lock()->remove_component( this->name() );
+  new_parent->add_component( shared_from_this() );
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
 
 Component::Ptr Component::look_component ( const CPath& path )
 {
-  cf_assert ( ! m_root.expired() );
+  cf_assert ( !m_root.expired() );
 
   CPath lpath = path;
 
@@ -284,26 +259,30 @@ Component::Ptr Component::look_component ( const CPath& path )
 /////////////////////////////////////////////////////////////////////////////////////
 
 
-XMLNode Component::create_component ( XMLNode& node  )
+void Component::create_component ( XmlNode& node  )
 {
-  return node;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-
-void Component::xml_tree(XMLNode parent)
+void Component::list_tree( XmlNode& node )
 {
-  XMLNode this_node = parent.addChild( name().c_str() );
+  //  XMLNode this_node = parent.addChild( name().c_str() );
 
-  BOOST_FOREACH( CompStorage_t::value_type c, m_components )
-  {
-    c.second->xml_tree( this_node );
-  }
+//  BOOST_FOREACH( CompStorage_t::value_type c, m_components )
+//  {
+//    c.second->list_tree( this_node );
+//  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
+void Component::list_options ( XmlNode& node )
+{
+  throw NotImplemented( FromHere(), "" );
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
 
 } // Common
 } // CF

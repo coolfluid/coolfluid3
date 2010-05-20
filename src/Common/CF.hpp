@@ -100,6 +100,10 @@ template <class TYPE>
   }
 }
 
+/// functor for deleting objects by calling the safer delete_ptr function
+template < typename BASE >
+    struct Deleter { void operator()( BASE * p ) { delete_ptr<BASE>(p); } };
+
 ////////////////////////////////////////////////////////////////////////////////
 
 } // namespace CF

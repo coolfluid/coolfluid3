@@ -115,8 +115,10 @@ LIST ( APPEND Common_files
     VarRegistry.cpp
     WorkerStatus.cpp
     WorkerStatus.hpp
-    xmlParser.cpp
+    XML.hpp
+    XML.cpp
     xmlParser.h
+    xmlParser.cpp
 )
 
 LIST(APPEND Common_libs ${Boost_LIBRARIES})

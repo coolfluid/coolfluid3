@@ -62,6 +62,10 @@ namespace Common {
     /// configures all the options on this class
     void configure ( rapidxml::xml_node<> *node );
 
+    /// sets a link to the option
+    template < typename TYPE >
+        void link_to_parameter ( const std::string& optname, TYPE* par ) { option(optname)->link_to(par); }
+
   protected:
 
     /// get the pointer to the option
