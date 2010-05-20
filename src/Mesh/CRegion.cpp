@@ -54,20 +54,13 @@ CElements::Ptr CRegion::create_elementType( const CName& name )
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CRegion::put_subregions(std::vector<CRegion::Ptr >& vec)
+void CRegion::filter_subregions(std::vector<CRegion::Ptr >& vec)
 {
   BOOST_FOREACH(CRegion::Ptr subregion, get_components_by_tag<CRegion>(getClassName()))
   {
     vec.push_back(subregion);
-    subregion->put_subregions(vec);
+    subregion->filter_subregions(vec);
   }
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-bool CRegion::has_subregions()
-{
-  return get_components_by_tag<CRegion>(getClassName()).size() ? true : false ;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -90,7 +83,7 @@ CRegion::Ptr CRegion::create_leaf_region (const std::string& etype_name )
 CRegion::Iterator CRegion::begin()
 {
   std::vector<CRegion::Ptr > vec;
-  put_subregions(vec);
+  filter_subregions(vec);
   return Iterator(vec);
 }
 

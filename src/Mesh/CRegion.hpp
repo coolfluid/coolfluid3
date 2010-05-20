@@ -90,13 +90,11 @@ public:
     return cArray->get_array()[row_in_array];
   }
   
-  void put_subregions(std::vector<CRegion::Ptr >& vec);
+  void filter_subregions(std::vector<CRegion::Ptr >& vec);
   
   Iterator begin();
 
   Iterator end();
-
-  bool has_subregions();
 
   /// @todo temporary until search by type is in place
   virtual std::string type() const{ return "CRegion"; }

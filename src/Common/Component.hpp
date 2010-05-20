@@ -80,6 +80,13 @@ namespace Common {
     /// Check if this component has a given tag assigned
     bool has_tag(const std::string& tag);
 
+    /// Check if this component has a (sub)components of a given type
+    template <typename T>
+        bool has_component_of_type();
+
+    /// Check if this component has a (sub)components with a given tag
+    bool has_component_with_tag(const std::string& tag);
+
     /// Access the name of the component
     CName name () const { return m_name.string(); }
 
@@ -244,6 +251,14 @@ inline boost::shared_ptr<TYPE> Component::create_component ( const CName& name )
   boost::shared_ptr<TYPE> new_component ( new TYPE(name), Deleter<TYPE>() );
   add_component(new_component);
   return new_component;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+template <typename T>
+    bool Component::has_component_of_type()
+{
+  return has_component_with_tag(T::getClassName());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

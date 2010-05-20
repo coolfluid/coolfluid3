@@ -51,7 +51,7 @@ void Writer::write_header(std::fstream& file)
   Uint phys_name_counter(0);
   CRegion::Ptr regions = m_mesh->get_component<CRegion>("regions");
   for (CRegion::iterator region = regions->begin(); region != regions->end(); region++)
-    if (!region->has_subregions())
+    if (!region->has_component_of_type<CRegion>())
   {
     bool exists = false;
     for(PhysicalGroupMap::iterator it=m_groups.begin(); it!=m_groups.end(); ++it)
@@ -119,7 +119,7 @@ void Writer::write_connectivity(std::fstream& file)
   Uint nbElems = 0;
   for (CRegion::Iterator region=regions->begin(); region!=regions->end(); region++)
   {
-    if (!region->has_subregions())
+    if (!region->has_component_of_type<CRegion>())
     {
       nbElems += region->get_component<CTable>("table")->get_table().size();
     }
@@ -133,7 +133,7 @@ void Writer::write_connectivity(std::fstream& file)
   Uint number_of_tags=2;
   for (CRegion::Iterator region=regions->begin(); region!=regions->end(); region++)
   {
-    if (region->has_subregions())
+    if (region->has_component_of_type<CRegion>())
     {
       group_name = region->name();
       group_number = m_groups[group_name].number;

@@ -387,24 +387,24 @@ BOOST_AUTO_TEST_CASE( moving_mesh_components_around )
   CRegion::Ptr regions = mesh->create_region("regions");
 
   CRegion::Ptr subregion1 = regions->create_region("subregion1");
-  BOOST_CHECK_EQUAL(subregion1->has_subregions(),false);
+  BOOST_CHECK_EQUAL(subregion1->has_component_of_type<CRegion>(),false);
 
   subregion1->create_connectivityTable("table");
-  BOOST_CHECK_EQUAL(subregion1->has_subregions(),false);
+  BOOST_CHECK_EQUAL(subregion1->has_component_of_type<CRegion>(),false);
 
   std::string type = DEMANGLED_TYPEID(CRegion);
   CFinfo << "type = " << type << "\n" << CFendl;
   CFinfo << "has_tag = " << subregion1->has_tag(CRegion::getClassName()) << "\n" << CFendl;
   // create subregion2 in the wrong place
   CRegion::Ptr subregion2 = subregion1->create_region("subregion2");
-  BOOST_CHECK_EQUAL(subregion1->has_subregions(),true);
+  BOOST_CHECK_EQUAL(subregion1->has_component_of_type<CRegion>(),true);
   BOOST_CHECK_EQUAL(regions->get_components_by_tag<CRegion>(CRegion::getClassName()).size(), (Uint) 1);
 
 
   // move subregion 2 to the right place
   subregion1->remove_component(subregion2->name());
   regions->add_component(subregion2);
-  BOOST_CHECK_EQUAL(subregion1->has_subregions(),false);
+  BOOST_CHECK_EQUAL(subregion1->has_component_of_type<CRegion>(),false);
 
   BOOST_CHECK_EQUAL(regions->get_components_by_tag<CRegion>(CRegion::getClassName()).size(), (Uint) 2);
 

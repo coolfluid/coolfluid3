@@ -104,6 +104,17 @@ bool Component::has_tag(const std::string& tag)
 
 /////////////////////////////////////////////////////////////////////////////////////
 
+bool Component::has_component_with_tag(const std::string& tag)
+{
+  for(CompStorage_t::iterator it=m_components.begin(); it!=m_components.end(); ++it)
+    if (it->second->has_tag(tag))
+      return true;
+
+  return false;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
 void Component::add_component ( Component::Ptr subcomp )
 {
   // check that no other component with such name exists

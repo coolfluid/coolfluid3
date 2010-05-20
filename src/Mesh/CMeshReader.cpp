@@ -90,7 +90,7 @@ void CMeshReader::remove_empty_leaf_regions(CRegion::Ptr& parent_region)
   // Find the empty regions
   for (CRegion::Iterator region=parent_region->begin(); region!=parent_region->end(); ++region)
   {
-    if (!region->has_subregions())
+    if (!region->has_component_of_type<CRegion>())
     {
       if (region->get_component<CTable>("table")->get_table().size() == 0)
       {

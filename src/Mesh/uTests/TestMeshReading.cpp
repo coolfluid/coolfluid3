@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh )
   CRegion::Ptr tmp_region = mesh->get_component<CRegion>("regions");
   for (CRegion::iterator region = tmp_region->begin(); region != tmp_region->end(); region++)
   {
-    if (region->has_subregions())
+    if (region->has_component_of_type<CRegion>())
     {
       CFinfo << "\n" << region->name() << " \n" << CFendl; 
     }

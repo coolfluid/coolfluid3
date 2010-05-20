@@ -71,7 +71,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   }
 
   // remove bc_regions component if there are no bc's defined
-  if (!bc_regions->has_subregions())
+  if (!bc_regions->has_component_of_type<CRegion>())
   {
     regions->remove_component(bc_regions->name());
     bc_regions.reset();
@@ -187,7 +187,7 @@ void CReader::read_zone(CRegion::Ptr& parent_region)
 
     // Remove regions flagged as bc
     for(CRegion::Iterator region_it=this_region->begin(); region_it!=this_region->end(); ++region_it)
-      if(!region_it->has_subregions())
+      if(!region_it->has_component_of_type<CRegion>())
         if (region_it->get_component<CElements>("type")->getDimensionality() < static_cast<Uint>(m_base.cell_dim))
     {
       Component::Ptr region_to_rm = region_it.get_ptr()->get_parent();
@@ -347,7 +347,7 @@ void CReader::read_section(CRegion::Ptr& parent_region)
   {
     bool is_bc_region = false;
     for(CRegion::Iterator region_it=this_region->begin(); region_it!=this_region->end(); ++region_it)
-      if(!region_it->has_subregions())
+      if(!region_it->has_component_of_type<CRegion>())
       {
         if (region_it->get_component<CElements>("type")->getDimensionality() < static_cast<Uint>(m_base.cell_dim))
         {
