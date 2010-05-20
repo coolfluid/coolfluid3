@@ -420,7 +420,10 @@ BOOST_AUTO_TEST_CASE( tags )
   CRegion::Ptr regions = mesh->create_region("regions");
 
   mesh->add_tag("lolo");
-  BOOST_CHECK_EQUAL(mesh->get_raw_tags(),":Component:CMesh:lolo:");
+  std::vector<std::string> tags = mesh->get_tags();
+  BOOST_CHECK_EQUAL(tags[0],"Component");
+  BOOST_CHECK_EQUAL(tags[1],"CMesh");
+  BOOST_CHECK_EQUAL(tags[2],"lolo");
 
 }
 

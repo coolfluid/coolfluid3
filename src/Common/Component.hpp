@@ -144,8 +144,8 @@ namespace Common {
     /// add tag to this component
     void add_tag(const std::string& tag);
 
-    /// @return raw tags
-    const std::string& get_raw_tags() const { return m_tags; }
+    /// @return tags in a vector
+    std::vector<std::string> get_tags();
 
     /// @name SIGNALS 
     //@{

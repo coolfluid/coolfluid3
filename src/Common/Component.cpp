@@ -73,6 +73,22 @@ void Component::add_tag(const std::string& tag)
 
 /////////////////////////////////////////////////////////////////////////////////////
 
+std::vector<std::string> Component::get_tags()
+{
+  std::vector<std::string> vec;
+
+  typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
+  boost::char_separator<char> sep(":");
+  Tokenizer tokens(m_tags, sep);
+
+  for (Tokenizer::iterator tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter)
+    vec.push_back(*tok_iter);
+
+  return vec;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
 void Component::add_component ( Component::Ptr subcomp )
 {
   // check that no other component with such name exists
