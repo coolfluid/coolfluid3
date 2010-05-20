@@ -26,6 +26,9 @@ namespace Common {
     /// Get the class name
     static std::string getClassName () { return "CLink"; }
 
+    /// Configuration Options
+    static void defineConfigOptions ( Common::OptionList& options ) {}
+
     /// get the componment throught the links to the actual components
     virtual Component::Ptr get ();
 

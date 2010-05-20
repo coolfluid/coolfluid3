@@ -38,6 +38,9 @@ public:
   /// Get the class name
   static std::string getClassName () { return "CTable"; }
 
+  /// Configuration Options
+  static void defineConfigOptions ( Common::OptionList& options ) {}
+
   // functions specific to the CTable component
     
   /// Initialize the connectivity array with a fixed column size

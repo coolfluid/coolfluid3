@@ -13,6 +13,7 @@ using namespace Common;
 CRegion::CRegion ( const CName& name  ) :
   Component ( name )
 {
+  build_component(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -16,6 +16,7 @@ CField_Provider ( CField::getClassName() );
 CField::CField ( const CName& name  ) :
   Component ( name )
 {
+  build_component(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

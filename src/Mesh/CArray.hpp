@@ -37,6 +37,9 @@ public:
   /// Get the class name
   static std::string getClassName () { return "CArray"; }
 
+  /// Configuration Options
+  static void defineConfigOptions ( Common::OptionList& options ) {}
+
   // functions specific to the CArray component
 
   /// Initialize the array with a fixed column size

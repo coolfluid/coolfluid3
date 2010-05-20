@@ -26,6 +26,9 @@ namespace Common {
     /// Get the class name
     static std::string getClassName () { return "CGroup"; }
 
+    /// Configuration Options
+    static void defineConfigOptions ( Common::OptionList& options ) {}
+
   private:
 
   };

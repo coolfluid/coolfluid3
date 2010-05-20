@@ -31,6 +31,9 @@ public:
   /// Get the class name
   static std::string getClassName () { return "CMeshWriter"; }
 
+  /// Configuration Options
+  static void defineConfigOptions ( Common::OptionList& options ) {}
+
   // functions specific to the CMeshWriter component
   
   /// set the mesh writer

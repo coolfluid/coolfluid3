@@ -16,15 +16,16 @@ namespace Common {
 Component::Component ( const CName& name ) :
     m_name (),
     m_path (),
-    m_is_link (false)
+    m_is_link (false),
+    m_tags(":") // empty tags
 {
+  build_component(this);
   if (!CPath::is_valid_element( name ))
     throw InvalidPath(FromHere(), "Component name ["+name+"] is invalid");
   m_name = name;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
-
 
 Component::~Component()
 {
@@ -65,6 +66,12 @@ void Component::rename ( const CName& name )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
+void Component::add_tag(const std::string& tag)
+{
+  m_tags += tag + ":";
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
 
 void Component::add_component ( Component::Ptr subcomp )
 {

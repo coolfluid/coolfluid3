@@ -18,7 +18,7 @@ using namespace Common;
 CMeshReader::CMeshReader ( const CName& name  ) :
   Component ( name )
 {
- addConfigOptionsTo(this);
+  build_component(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

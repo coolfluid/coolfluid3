@@ -22,6 +22,7 @@ namespace Common {
 
   CRoot::CRoot ( const CName& name ) : Component ( name )
   {
+    build_component(this);
     m_path = "/";
   }
 

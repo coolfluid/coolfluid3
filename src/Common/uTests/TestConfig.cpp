@@ -48,7 +48,7 @@ class MyC : public ConfigObject
 
   MyC ()
   {
-    addConfigOptionsTo(this);
+    addConfigOptionsTo<MyC>();
 
 //    option("OptInt").set_value(10);
 

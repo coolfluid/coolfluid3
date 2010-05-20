@@ -399,14 +399,28 @@ BOOST_AUTO_TEST_CASE( moving_mesh_components_around )
 
 
   // move subregion 2 to the right place
-  // subregion2->change_parent(regions);
-  // BOOST_CHECK_EQUAL(subregion1->has_subregions(),false);
+  subregion2->change_parent(regions);
+  BOOST_CHECK_EQUAL(subregion1->has_subregions(),false);
+
   subregion1->remove_component(subregion2->name());
   regions->add_component(subregion2);
   BOOST_CHECK_EQUAL(subregion1->has_subregions(),false);
 
   BOOST_CHECK_EQUAL(regions->get_components_of_type<CRegion>(regions->type()).size(), (Uint) 2);
 
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( tags )
+{
+  CRoot::Ptr root = CRoot::create ( "root" );
+  CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
+  CRegion::Ptr regions = mesh->create_region("regions");
+
+  mesh->add_tag("lolo");
+  BOOST_CHECK_EQUAL(mesh->get_raw_tags(),":Component:CMesh:lolo:");
 
 }
 

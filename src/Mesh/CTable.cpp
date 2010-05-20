@@ -17,6 +17,7 @@ CTable::CTable ( const CName& name  ) :
   Component ( name ),
   m_table(boost::extents[0][0])
 {
+  build_component(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

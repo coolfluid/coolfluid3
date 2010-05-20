@@ -45,6 +45,9 @@ public:
   /// Get the class name
   static std::string getClassName () { return "CRegion"; }
 
+  /// Configuration Options
+  static void defineConfigOptions ( Common::OptionList& options ) {}
+
   // functions specific to the CRegion component
 
   /// create a CRegion component

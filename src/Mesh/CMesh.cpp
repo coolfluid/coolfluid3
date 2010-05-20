@@ -19,6 +19,7 @@ CMesh_Provider ( CMesh::getClassName() );
 CMesh::CMesh ( const CName& name  ) :
   Component ( name )
 {
+  build_component(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -27,6 +27,9 @@ namespace Common {
     /// Get the class name
     static std::string getClassName () { return "CRoot"; }
 
+    /// Configuration Options
+    static void defineConfigOptions ( Common::OptionList& options ) {}
+
     // functions specific to the CRoot component
 
     /// Access the component described by the path

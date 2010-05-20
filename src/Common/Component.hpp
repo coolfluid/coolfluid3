@@ -44,6 +44,9 @@ namespace Common {
     /// Get the class name
     static std::string getClassName () { return "Component"; }
 
+    /// Configuration Options
+    static void defineConfigOptions ( Common::OptionList& options ) {}
+
     /// Contructor
     /// @param name of the component
     /// @param parent path where this component will be placed
@@ -137,14 +140,35 @@ namespace Common {
     /// lists the options of this component
     void list_options ( XMLNode xml );
 
+    /// add tag to this component
+    void add_tag(const std::string& tag);
+
+    /// @return raw tags
+    const std::string& get_raw_tags() const { return m_tags; }
+
    // SIGNALS
    XMLNode create_component ( XMLNode& );
-        
+
+  // protected functions
+  protected:
+
+    /// Must be called in constructor of each derived class
+   template <typename TYPE>
+    void build_component(TYPE* meself);
+
+  // private functions
+  private:
+
+    template <typename TYPE>
+        void tag_classname ();
+
+  // private data
   private:
 
     /// type for storing the sub components
     typedef std::map < CName , Component::Ptr > CompStorage_t;
 
+  // protected data
   protected:
 
     /// component name (stored as path to ensure validity)
@@ -159,8 +183,25 @@ namespace Common {
     boost::weak_ptr<Component> m_parent;
     /// is this a link component
     bool m_is_link;
+    /// tags merged as one string e.g. ":Component:CRoot:"
+    std::string m_tags;
 
   };
+
+////////////////////////////////////////////////////////////////////////////////
+
+template <typename TYPE>
+inline void Component::build_component(TYPE* meself)
+{
+  addConfigOptionsTo<TYPE>();
+  tag_classname<TYPE>();
+}
+
+template <typename TYPE>
+inline void Component::tag_classname ()
+{
+  add_tag(TYPE::getClassName());
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

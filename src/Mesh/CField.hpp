@@ -29,6 +29,9 @@ public:
   /// Get the class name
   static std::string getClassName () { return "CField"; }
 
+  /// Configuration Options
+  static void defineConfigOptions ( Common::OptionList& options ) {}
+
   // functions specific to the CField component
   
 private:

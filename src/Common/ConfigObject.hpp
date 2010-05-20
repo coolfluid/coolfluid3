@@ -54,7 +54,7 @@ namespace Common {
     /// This will add nested names to the options as opposed to addOptionsTo
     /// @param prt should be passed with the this pointer to help identify callee the CLASS type
     template <typename CLASS>
-        void addConfigOptionsTo(const CLASS* ptr)
+        void addConfigOptionsTo()
     {
       CLASS::defineConfigOptions(m_option_list);
     }

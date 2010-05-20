@@ -34,6 +34,9 @@ public:
   /// Get the class name
   static std::string getClassName () { return "CElements"; }
 
+  /// Configuration Options
+  static void defineConfigOptions ( Common::OptionList& options ) {}
+
   // functions specific to the CElements component
 
   /// @return m_nameShape
