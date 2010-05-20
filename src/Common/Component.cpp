@@ -89,6 +89,21 @@ std::vector<std::string> Component::get_tags()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
+bool Component::has_tag(const std::string& tag)
+{
+  typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
+  boost::char_separator<char> sep(":");
+  Tokenizer tokens(m_tags, sep);
+
+  for (Tokenizer::iterator tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter)
+    if (*tok_iter == tag)
+      return true;
+
+  return false;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
 void Component::add_component ( Component::Ptr subcomp )
 {
   // check that no other component with such name exists
@@ -143,6 +158,19 @@ Component::Ptr Component::get_component ( const CName& name )
                         + name + "' does not exist in component '"
                         + this->name() + "' with path ["
                         + m_path.string() + "]");
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+std::vector<Component::Ptr> Component::get_components_by_tag(const std::string& tag)
+{
+  std::vector<Component::Ptr> vec;
+  for(CompStorage_t::iterator it=m_components.begin(); it!=m_components.end(); ++it)
+  {
+    if (it->second->has_tag(tag))
+      vec.push_back(it->second);
+  }
+  return vec;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
