@@ -49,7 +49,7 @@ public:
 
   // --------- Signals ---------
 
-  void read();
+  XMLNode read( XMLNode& node  );
 
   // --------- Direct access ---------
 

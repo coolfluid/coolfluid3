@@ -400,6 +400,15 @@ BOOST_AUTO_TEST_CASE( ReadCGNS )
 
   boost::shared_ptr<CMeshReader> meshreader = CMeshReader::create_concrete("CGNS","meshreader");
 
+  XMLNode options_node = XMLNode::createXMLTopNode("xml", TRUE);
+  options_node.addAttribute("version","1.0");
+  options_node.addAttribute("encoding","UTF-8");
+  options_node.addAttribute("standalone","yes");
+  meshreader->list_options ( options_node );
+  XMLSTR options_xml_str = options_node.createXMLString();
+  CFinfo << "\noptions_xml_str\n" << options_xml_str << CFendl;
+  freeXMLString(options_xml_str);
+
   // the file to read from
   boost::filesystem::path fp_in ("grid_c.cgns");
   //boost::filesystem::path fp_in ("kw_mark.cgns");

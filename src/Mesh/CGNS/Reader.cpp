@@ -28,7 +28,7 @@ CReader::CReader(const CName& name)
 : CMeshReader(name),
   m_isCoordinatesCreated(false)
 {
-
+  addConfigOptionsTo(this);
 }
 
 //////////////////////////////////////////////////////////////////////////////

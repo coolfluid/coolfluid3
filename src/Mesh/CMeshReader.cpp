@@ -37,10 +37,10 @@ void CMeshReader::defineConfigOptions(Common::OptionList& options)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CMeshReader::read()
+XMLNode CMeshReader::read( XMLNode& node  )
 {
   // Get the mesh component in the tree
-  /// @todo wait for Tiago for functionality [1]
+  /// @todo[1]: wait for Tiago for functionality
 
   // Get the file path
   boost::filesystem::path file = option("File")->value<std::string>();
@@ -48,6 +48,7 @@ void CMeshReader::read()
   // Call implementation
   /// @todo wait for todo[1]
   // read_from_to(file,mesh);
+  return node;
 }
 
 //////////////////////////////////////////////////////////////////////////////
