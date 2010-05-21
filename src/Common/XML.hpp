@@ -4,6 +4,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <boost/property_tree/detail/rapidxml.hpp>
+#include <boost/filesystem/path.hpp>
 
 #include "Common/CF.hpp"
 #include "Common/NonInstantiable.hpp"
@@ -11,13 +12,16 @@
 namespace CF {
 namespace Common {
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////  
 
   /// typedef for the XmlNode
   typedef rapidxml::xml_node<> XmlNode;
-
   /// typedef for the XmlDoc
-  typedef rapidxml::xml_node<> XmlDoc;
+  typedef rapidxml::xml_document<> XmlDoc;
+  /// typedef for the XmlAttribute
+  typedef rapidxml::xml_attribute<> XmlAttr;
+  /// typedef for the XmlMemPool
+  typedef rapidxml::memory_pool<> XmlMemPool;
 
   /// Generic operations on the rapidxml structure
   /// @author Tiago Quintino
@@ -37,16 +41,39 @@ namespace Common {
 
   }; // XmlOps
 
-
   /// Helper class that extracts parameters from a XmlNode
-  class Common_API XmlParams
+  struct Common_API XmlParser
   {
+    /// Constructor
+    /// @param str string with the xml contents
+    XmlParser ( const std::string& str );
 
     /// Constructor
-    /// @param node the node where the parameters will be extracted from
-    XmlParams ( XmlNode& node ) : xml(node) {}
+    /// @param fpath path to file with xml contents
+    XmlParser ( const boost::filesystem::path& path );
 
+    /// @retuns the parsed Xml
+    XmlNode& getXml ();
+
+    /// storage of the xmldoc object
+    boost::shared_ptr<XmlDoc> xmldoc;
+
+  }; // XmlParams
+
+
+  /// Helper class that extracts parameters from a XmlNode
+  struct Common_API XmlParams
+  {
+    /// Constructor
+    /// @param node the node where the parameters will be extracted from
+    /// @throw XmlError when the Params node is not found
+    XmlParams ( XmlNode& node );
+
+    /// storage of the XmlNode to retrieve params from
     XmlNode& xml;
+
+    /// pointer to the params node
+    XmlNode* params;
 
   }; // XmlParams
 

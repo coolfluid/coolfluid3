@@ -184,6 +184,17 @@ struct Common_API URLError : public Common::Exception {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+///  Exception thrown when some XML code has not the correct information or format
+/// @author Tiago Quintino
+struct XmlError: public Common::Exception {
+
+  /// Constructor
+  XmlError( const Common::CodeLocation& where, const std::string& what);
+
+}; //  XmlError
+
+////////////////////////////////////////////////////////////////////////////////
+
 /// This exception is thrown by the builder parser on any error
 /// @author Quentin Gasper
 struct Common_API BuilderParserError : public Common::Exception {

@@ -1,4 +1,5 @@
 #include "Common/Log.hpp"
+#include "Common/BasicExceptions.hpp"
 #include "Common/XML.hpp"
 
 namespace CF {
@@ -6,35 +7,33 @@ namespace Common {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-  void XmlOps::print_xml_node( const rapidxml::xml_node<>& node )
+  void XmlOps::print_xml_node( const XmlNode& node )
   {
-    using namespace rapidxml;
-
     CFinfo << "Node \'" << node.name() << "\'";
     CFinfo << " w value [" << node.value() << "]\n";
 
-    for (xml_attribute<> *attr = node.first_attribute(); attr ; attr = attr->next_attribute())
+    for (XmlAttr *attr = node.first_attribute(); attr ; attr = attr->next_attribute())
     {
       CFinfo << "  + attribute \'" << attr->name() << "\'' ";
       CFinfo << "with value [" << attr->value() << "]\n";
     }
 
-    for (xml_node<> * itr = node.first_node(); itr ; itr = itr->next_sibling() )
+    for (XmlNode * itr = node.first_node(); itr ; itr = itr->next_sibling() )
     {
       print_xml_node(*itr);
     }
   }
 
-  void XmlOps::deep_copy ( const rapidxml::xml_node<>& in, rapidxml::xml_node<>& out )
+  void XmlOps::deep_copy ( const XmlNode& in, XmlNode& out )
   {
-    rapidxml::memory_pool<>& mem = *out.document();
+    XmlMemPool& mem = *out.document();
     mem.clone_node(&in,&out);
     XmlOps::deep_copy_names_values(in,out);
   }
 
-  void XmlOps::deep_copy_names_values ( const rapidxml::xml_node<>& in, rapidxml::xml_node<>& out )
+  void XmlOps::deep_copy_names_values ( const XmlNode& in, XmlNode& out )
   {
-    rapidxml::memory_pool<>& mem = *out.document();
+    XmlMemPool& mem = *out.document();
 
     char* nname  = mem.allocate_string(in.name());
     char* nvalue = mem.allocate_string(in.value());
@@ -47,8 +46,8 @@ namespace Common {
     out.value(nvalue);
 
     // copy names and values of the attributes
-    rapidxml::xml_attribute<>* iattr = in.first_attribute();
-    rapidxml::xml_attribute<>* oattr = out.first_attribute();
+    XmlAttr* iattr = in.first_attribute();
+    XmlAttr* oattr = out.first_attribute();
 
     for ( ; iattr ; iattr = iattr->next_attribute(),
                      oattr = oattr->next_attribute() )
@@ -65,14 +64,78 @@ namespace Common {
     }
 
     // copy names and values of the child nodes
-    rapidxml::xml_node<> * inode = in.first_node();
-    rapidxml::xml_node<> * onode = out.first_node();
+    XmlNode * inode = in.first_node();
+    XmlNode * onode = out.first_node();
 
     for ( ; inode ; inode = inode->next_sibling(),
                      onode = onode->next_sibling() )
     {
       XmlOps::deep_copy_names_values( *inode, *onode );
     }
+  }
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+  XmlParser::XmlParser( const std::string& str )
+  {
+    using namespace rapidxml;
+
+    xmldoc.reset( new XmlDoc() );
+
+    char* ctext = xmldoc->allocate_string(str.c_str());
+
+    // parser trims and merges whitespaces
+    xmldoc->parse< parse_no_data_nodes |
+                   parse_trim_whitespace |
+                   parse_normalize_whitespace >(ctext);
+  }
+
+  XmlParser::XmlParser( const boost::filesystem::path& path )
+  {
+    using namespace rapidxml;
+
+    xmldoc.reset( new XmlDoc() );
+
+    std::string filepath = path.string();
+    FILE *filep = fopen( filepath.c_str(), "rb" );
+    if (filep==NULL) { throw FileSystemError(FromHere(), "Unable to open file [" + filepath + "]" ); }
+
+    fseek(filep,0,SEEK_END);                  // go to end
+    Uint lenght = ftell(filep);               // get position at end (length)
+    if (!lenght) { throw FileSystemError(FromHere(), "File [" + filepath + "] is empty" ); }
+
+    fseek(filep,0,SEEK_SET);                  // go to beginning
+
+    //    char *buffer = (char *) malloc(lenght);         // allocate buffer
+    char* buffer = xmldoc->allocate_string( 0, lenght );  // allocate buffer directly inside the xmldoc
+
+    fread(buffer,lenght, 1, filep);           // read into buffer
+
+    fclose(filep);                             // close file
+
+    // parser trims and merges whitespaces
+    xmldoc->parse< parse_no_data_nodes |
+                   parse_trim_whitespace |
+                   parse_normalize_whitespace >(buffer);
+  }
+
+  XmlNode& XmlParser::getXml()
+  {
+    return *xmldoc.get();
+  }
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+  XmlParams::XmlParams( XmlNode& node ) : xml(node), params(CFNULL)
+  {
+    // descend into this node
+    XmlNode* in_node = node.first_node();
+
+    // get the first "Params" node
+    params = in_node->first_node("Params");
+
+    if ( params == 0 )
+      throw  Common::XmlError( FromHere(), "XMl Params node not found" );
   }
 
 /////////////////////////////////////////////////////////////////////////////////////

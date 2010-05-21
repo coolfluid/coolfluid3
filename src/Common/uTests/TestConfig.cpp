@@ -77,31 +77,32 @@ class MyC : public ConfigObject {
   {
     boost::any value = option("OptBool")->value();
     bool b = boost::any_cast<bool>(value);
-    CFinfo << "config bool [" << Common::StringOps::to_str(b) << "]\n" << CFendl;
+//    CFinfo << "config bool [" << Common::StringOps::to_str(b) << "]\n" << CFendl;
   }
 
   void config_int ()
   {
-    CFinfo << "config int [" << option("OptInt")->value<Uint>() << "]\n" << CFendl;
+    Uint i = option("OptInt")->value<Uint>();
+//    CFinfo << "config int [" <<  i << "]\n" << CFendl;
   }
 
   void config_str ()
   {
     std::string s; option("OptStr")->put_value(s);
-    CFinfo << "config str [" << s << "]\n" << CFendl;
+//    CFinfo << "config str [" << s << "]\n" << CFendl;
   }
 
   void config_vecint ()
   {
     std::vector<int> vi; option("VecInt")->put_value(vi);
-    BOOST_FOREACH ( int i, vi )
-        CFinfo << "config vi [" << i << "]\n" << CFendl;
+//    BOOST_FOREACH ( int i, vi )
+//        CFinfo << "config vi [" << i << "]\n" << CFendl;
   }
 
   void config_comp ()
   {
     std::string n; option("Comp")->put_value(n);
-    CFinfo << "config COMPONENT [" << n << "]\n" << CFendl;
+//    CFinfo << "config COMPONENT [" << n << "]\n" << CFendl;
   }
 
 

@@ -99,6 +99,12 @@ URLError::URLError ( const Common::CodeLocation& where, const std::string& what)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+XmlError::XmlError ( const Common::CodeLocation& where, const std::string& what)
+: Common::Exception(where, what, "XmlError")
+{}
+
+////////////////////////////////////////////////////////////////////////////////
+
 BuilderParserError::BuilderParserError(const CodeLocation& where, const string& what)
 : Exception(where, what,"BuilderParser")
 {}
