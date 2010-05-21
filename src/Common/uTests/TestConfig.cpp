@@ -67,8 +67,8 @@ class MyC : public ConfigObject {
     option("VecInt")->attach_processor ( boost::bind ( &MyC::config_vecint,this ) );
 
     std::vector<int> vi = option("VecInt")->value< std::vector<int> >();
-    for (Uint i = 0; i < vi.size(); ++i)
-      CFinfo << "vi[" << i << "] : " << vi[i] << "\n" << CFendl;
+//    for (Uint i = 0; i < vi.size(); ++i)
+//      CFinfo << "vi[" << i << "] : " << vi[i] << "\n" << CFendl;
 
     option("Comp")->attach_processor ( boost::bind ( &MyC::config_comp,this ) );
   };
