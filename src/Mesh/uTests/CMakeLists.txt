@@ -1,6 +1,6 @@
 ################################################################################
 
-LIST ( APPEND uTestMesh_cflibs P1 Neu Gmsh CGNS3)
+LIST ( APPEND uTestMesh_cflibs P1 Neu Gmsh )
 LIST ( APPEND uTestMesh_files
   uTestMesh.cpp
   TestMeshComponents.cpp
@@ -11,6 +11,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/quadtriag.neu
     ${CMAKE_CURRENT_BINARY_DIR}/quadtriag.neu COPYONLY)
 
 IF ( CF_HAVE_CGNS )
+  LIST ( APPEND uTestMesh_cflibs CGNS3 )
   LIST ( APPEND uTestMesh_files  TestCGNS.cpp )
 ELSE()
   CF_MARK_NOT_ORPHAN ( TestCGNS.cpp )
