@@ -30,7 +30,7 @@ class MyC : public ConfigObject {
   private: // data
 
     std::string m_str;
-    int m_i;
+    Uint m_i;
 
   public: // functions
 
@@ -48,7 +48,7 @@ class MyC : public ConfigObject {
     options.add< OptionT< std::vector<int> > >     ( "VecInt",  "vector ints option" , def );
 
     // option for componets
-    options.add< OptionComponent >     ( "Comp",  "component option" , "CLink" );
+     options.add< OptionComponent >     ( "Comp",  "component option" , "CLink" );
   }
 
   MyC ()
@@ -61,10 +61,10 @@ class MyC : public ConfigObject {
 
     link_to_parameter ( "OptStr", &m_str );
 
-//    option("OptBool")->attach_processor( boost::bind ( &MyC::config_bool,  this ) );
-//    option("OptInt")->attach_processor ( boost::bind ( &MyC::config_int,   this ) );
-//    option("OptStr")->attach_processor ( boost::bind ( &MyC::config_str,   this ) );
-//    option("VecInt")->attach_processor ( boost::bind ( &MyC::config_vecint,this ) );
+    option("OptBool")->attach_processor( boost::bind ( &MyC::config_bool,  this ) );
+    option("OptInt")->attach_processor ( boost::bind ( &MyC::config_int,   this ) );
+    option("OptStr")->attach_processor ( boost::bind ( &MyC::config_str,   this ) );
+    option("VecInt")->attach_processor ( boost::bind ( &MyC::config_vecint,this ) );
 
     std::vector<int> vi = option("VecInt")->value< std::vector<int> >();
     for (Uint i = 0; i < vi.size(); ++i)
