@@ -14,10 +14,12 @@ namespace Common {
   /// @author Tiago Quintino
   class Common_API CRoot : public Component {
 
-  public:
+  public: // typedefs
 
+    typedef Component_iterator<CRoot> Iterator;
     typedef boost::shared_ptr<CRoot> Ptr;
 
+  public: // functions
     /// Get the class name
     static CRoot::Ptr create ( const CName& name );
 

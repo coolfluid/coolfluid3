@@ -24,9 +24,13 @@ namespace Mesh {
 /// @author Willem Deconinck
 class Mesh_API CMeshReader : public Common::Component {
 
-public:
+public: // typedefs
 
   typedef Common::ConcreteProvider < CMeshReader,1 > PROVIDER;
+  typedef Component_iterator<CMeshReader> Iterator;
+  typedef boost::shared_ptr<CMeshReader> Ptr;
+
+public: // static functions
 
   static boost::shared_ptr<CMeshReader> create_concrete(const std::string& provider_name, const CName& name)
   {
@@ -34,6 +38,8 @@ public:
         Common::Factory<CMeshReader>::getInstance().getProvider(provider_name);
     return boost::dynamic_pointer_cast<CMeshReader>(prov->create(name));
   }
+
+public: // functions
 
   /// Contructor
   /// @param name of the component
@@ -61,8 +67,7 @@ public:
 
   boost::shared_ptr<CMesh> create_mesh_from(boost::filesystem::path& path);
 
-// Helper functions
-protected:
+protected: // functions
 
   /// Map type from string to a CTable::Buffer
   typedef std::map<std::string,boost::shared_ptr<CTable::Buffer> > BufferMap;
@@ -80,8 +85,7 @@ protected:
   void remove_empty_leaf_regions(boost::shared_ptr<CRegion>& parent_region);
 
 
-// Data
-private:
+private: // data
 
 
 };

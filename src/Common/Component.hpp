@@ -15,6 +15,9 @@
 namespace CF {
 namespace Common {
 
+  template<typename CType>
+  class Component_iterator;
+
 ////////////////////////////////////////////////////////////////////////////////
 
   /// Base class for defining CF components
@@ -38,6 +41,8 @@ namespace Common {
     typedef Common::ConcreteProvider < Component, NB_ARGS_1 > PROVIDER;
     /// type of first argument of constructor
     typedef const CName& ARG1;
+    /// typedef of the iterator
+    typedef Component_iterator<Component> Iterator;
 
   private: // typedef
 
@@ -62,6 +67,27 @@ namespace Common {
 
     /// Get the componment throught the links to the actual components
     virtual Component::Ptr  get ();
+
+    template <typename CType>
+        Component_iterator<CType> begin()
+    {
+      std::vector<boost::shared_ptr<CType> > vec;
+      filter_components<CType>(vec);
+      return Component_iterator<CType>(vec);
+    }
+
+    Component_iterator<Component> end();
+
+    template <typename CType>
+    void filter_components(std::vector<boost::shared_ptr<CType> >& vec)
+    {
+      std::vector<boost::shared_ptr<CType> > components = get_components_by_type<CType>();
+      for (typename std::vector<boost::shared_ptr<CType> >::iterator component=components.begin(); component!=components.end(); ++component)
+      {
+        vec.push_back((*component));
+        (*component)->filter_components<CType>(vec);
+      }
+    }
 
     /// checks if this component is in fact a link to another component
     bool is_link () const { return m_is_link; }
@@ -195,6 +221,69 @@ namespace Common {
     std::string m_tags;
 
   }; // Component
+
+////////////////////////////////////////////////////////////////////////////////
+
+  template<class CType>
+  class Common_API Component_iterator
+          : public boost::iterator_facade<Component_iterator<CType>,
+                                          CType,
+                                          boost::forward_traversal_tag>
+  {
+  public:
+    typedef boost::shared_ptr<CType> CTypePtr;
+    Component_iterator()
+    {}
+
+    explicit Component_iterator(std::vector<CTypePtr>& vec)
+            : m_vec(vec), m_vecIt(m_vec.begin())
+    {
+      if (m_vec.size()) {
+        m_component = vec[0];
+      }
+    }
+
+    template <class CType2>
+    Component_iterator(Component_iterator<CType2> const& other)
+      : m_component(other.m_component) {}
+
+    CTypePtr& get_ptr()
+    {
+      return m_component;
+    }
+
+  private:
+    friend class boost::iterator_core_access;
+    template <class> friend class Component_iterator;
+
+    void increment()
+    {
+      m_vecIt++;
+      if (m_vecIt != m_vec.end()) {
+        m_component = (*m_vecIt);
+      }
+      else {
+        m_component = CTypePtr();
+      }
+    }
+
+    template <typename CType2>
+    bool equal(Component_iterator<CType2> const& other) const
+    {
+      return (m_component == other.m_component);
+    }
+
+  public:
+    CType& dereference() const
+    {
+      return *m_component;
+    }
+
+  private:
+    CTypePtr m_component;
+    std::vector<CTypePtr> m_vec;
+    typename std::vector<CTypePtr>::iterator m_vecIt;
+  };
 
 ////////////////////////////////////////////////////////////////////////////////
 

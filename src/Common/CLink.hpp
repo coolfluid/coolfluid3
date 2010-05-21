@@ -14,7 +14,12 @@ namespace Common {
   /// @author Tiago Quintino
   class Common_API CLink : public Component {
 
-  public:
+  public: //typedefs
+
+    typedef Component_iterator<CLink> Iterator;
+    typedef boost::shared_ptr<CLink> Ptr;
+
+  public: // functions
 
     /// Contructor
     /// @param name of the component
@@ -37,7 +42,7 @@ namespace Common {
     /// link to component
     void link_to ( Component::Ptr lnkto );
 
-  private:
+  private: // data
 
     /// this is a link to the component
     /// using weak_prt meand it might become invalid so we should test for expire()

@@ -21,9 +21,13 @@ namespace Mesh {
 /// @author Tiago Quintino, Willem Deconinck
 class Mesh_API CMesh : public Common::Component {
 
-public:
+public: // typedefs
 
   typedef boost::shared_ptr<CMesh> Ptr;
+  typedef Component_iterator<CMesh> Iterator;
+
+public: // functions
+
   /// Contructor
   /// @param name of the component
   CMesh ( const CName& name );

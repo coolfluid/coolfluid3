@@ -14,7 +14,11 @@ namespace Common {
   /// @author Tiago Quintino
   class Common_API CGroup : public Component {
 
-  public:
+  public: // typedefs
+
+    typedef Component_iterator<CGroup> Iterator;
+
+  public: // functions
 
     /// Contructor
     /// @param name of the component

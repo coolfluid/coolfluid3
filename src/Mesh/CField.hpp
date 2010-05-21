@@ -17,7 +17,12 @@ namespace Mesh {
 /// @author Willem Deconinck, Tiago Quintino
 class Mesh_API CField : public Common::Component {
 
-public:
+public: // typedefs
+
+  typedef boost::shared_ptr<CField> Ptr;
+  typedef Component_iterator<CField> Iterator;
+
+public: // functions
 
   /// Contructor
   /// @param name of the component

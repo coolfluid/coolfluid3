@@ -20,9 +20,12 @@ namespace Mesh {
 /// @author Willem Deconinck, Tiago Quintino
 class Mesh_API CElements : public Common::Component {
 
-public:
+public: // typedefs
 
   typedef boost::shared_ptr<CElements> Ptr;
+  typedef Component_iterator<CElements> Iterator;
+
+public: // functions
 
   /// Contructor
   /// @param name of the component
@@ -77,7 +80,7 @@ public:
   /// return the elementType
   boost::shared_ptr<ElementType>& get_elementType() { return m_elementType; }
   
-private:
+private: // data
   
   boost::shared_ptr<ElementType> m_elementType;
   

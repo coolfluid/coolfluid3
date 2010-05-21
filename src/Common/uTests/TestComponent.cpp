@@ -265,6 +265,60 @@ BOOST_AUTO_TEST_CASE( problem )
 
 ////////////////////////////////////////////////////////////////////////////////
 
+BOOST_AUTO_TEST_CASE( create_subcomponents )
+{
+  CRoot::Ptr root = CRoot::create ( "root" );
+  Component::Ptr comp1 = root->create_component<Component>("comp1");
+  comp1->create_component<Component>("comp1_1");
+  comp1->create_component<Component>("comp1_2");
+
+  BOOST_CHECK_EQUAL(root->get_component("comp1")->name(),"comp1");
+  BOOST_CHECK_EQUAL(comp1->get_component("comp1_1")->name(),"comp1_1");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( test_iterator )
+{
+  Uint counter(0);
+  std::map<Uint,std::string> check_with_map;
+  CRoot::Ptr root = CRoot::create ( "root" );
+
+  Component::Ptr comp1 = root->create_component<Component>("comp1");
+  check_with_map[counter++]=comp1->name();
+  Component::Ptr comp1_1 = comp1->create_component<Component>("comp1_1");
+  check_with_map[counter++]=comp1_1->name();
+  Component::Ptr comp1_2 = comp1->create_component<Component>("comp1_2");
+  check_with_map[counter++]=comp1_2->name();
+  Component::Ptr comp2   = root->create_component<Component>("comp2");
+  check_with_map[counter++]=comp2->name();
+  Component::Ptr comp2_1 = comp2->create_component<Component>("comp2_1");
+  check_with_map[counter++]=comp2_1->name();
+  Component::Ptr comp2_2 = comp2->create_component<Component>("comp2_2");
+  check_with_map[counter++]=comp2_2->name();
+  CGroup::Ptr group1 = root->create_component<CGroup>("group1");
+  check_with_map[counter++]=group1->name();
+  CGroup::Ptr group2 = root->create_component<CGroup>("group2");
+  check_with_map[counter++]=group2->name();
+
+  counter = 0;
+  typedef Component_iterator<Component> Citerator;
+  for (Citerator it = root->begin<Component>(); it!=root->end(); ++it )
+  {
+    BOOST_CHECK_EQUAL(it->name(),check_with_map[counter++]);
+  }
+
+  counter = 6;
+  typedef Component_iterator<CGroup> CGiterator;
+  for (CGiterator it = root->begin<CGroup>(); it!=root->end(); ++it )
+  {
+    BOOST_CHECK_EQUAL(it->name(),check_with_map[counter++]);
+  }
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 BOOST_AUTO_TEST_SUITE_END()
 
 ////////////////////////////////////////////////////////////////////////////////
