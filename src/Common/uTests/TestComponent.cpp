@@ -302,15 +302,13 @@ BOOST_AUTO_TEST_CASE( test_iterator )
   check_with_map[counter++]=group2->name();
 
   counter = 0;
-  typedef Component_iterator<Component> Citerator;
-  for (Citerator it = root->begin<Component>(); it!=root->end(); ++it )
+  for (Component::Iterator it = root->begin<Component>(); it!=root->end(); ++it )
   {
     BOOST_CHECK_EQUAL(it->name(),check_with_map[counter++]);
   }
 
   counter = 6;
-  typedef Component_iterator<CGroup> CGiterator;
-  for (CGiterator it = root->begin<CGroup>(); it!=root->end(); ++it )
+  for (CGroup::Iterator it = root->begin<CGroup>(); it!=root->end(); ++it )
   {
     BOOST_CHECK_EQUAL(it->name(),check_with_map[counter++]);
   }
