@@ -141,11 +141,11 @@ BOOST_AUTO_TEST_CASE( addConfigOptionsTo )
   boost::gregorian::date today = boost::gregorian::day_clock::local_day();
   boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
 
-  CFinfo << "starting [" << today << "] [" << now << "]\n" << CFendl;
+//  CFinfo << "starting [" << today << "] [" << now << "]\n" << CFendl;
 
   boost::shared_ptr<MyC> pm ( new MyC );
 
-  CFinfo << "ending\n" << CFendl;
+//  CFinfo << "ending\n" << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -155,13 +155,13 @@ BOOST_AUTO_TEST_CASE( defineConfigOptions )
   boost::gregorian::date today = boost::gregorian::day_clock::local_day();
   boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
 
-  CFinfo << "starting [" << today << "] [" << now << "]\n" << CFendl;
+//  CFinfo << "starting [" << today << "] [" << now << "]\n" << CFendl;
 
   OptionList ll;
 
   MyC::defineConfigOptions(ll);
 
-  CFinfo << "ending\n" << CFendl;
+//  CFinfo << "ending\n" << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE( configure )
   boost::gregorian::date today = boost::gregorian::day_clock::local_day();
   boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
 
-  CFinfo << "starting [" << today << "] [" << now << "]\n" << CFendl;
+//  CFinfo << "starting [" << today << "] [" << now << "]\n" << CFendl;
 
   boost::shared_ptr<MyC> pm ( new MyC );
 
@@ -194,7 +194,7 @@ BOOST_AUTO_TEST_CASE( configure )
 
   pm->configure(doc.first_node());
 
-  CFinfo << "ending\n" << CFendl;
+//  CFinfo << "ending\n" << CFendl;
 
 }
 
