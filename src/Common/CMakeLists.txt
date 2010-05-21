@@ -115,8 +115,9 @@ LIST ( APPEND Common_files
     VarRegistry.cpp
     WorkerStatus.cpp
     WorkerStatus.hpp
+    XmlHelpers.hpp
+    XmlHelpers.cpp
     XML.hpp
-    XML.cpp
     xmlParser.h
     xmlParser.cpp
 )

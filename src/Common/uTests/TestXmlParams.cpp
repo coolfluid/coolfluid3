@@ -2,7 +2,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Common/Log.hpp"
-#include "Common/XML.hpp"
+#include "Common/XmlHelpers.hpp"
 #include "Common/BasicExceptions.hpp"
 
 using namespace std;
@@ -53,11 +53,9 @@ BOOST_AUTO_TEST_CASE( constructors )
       "</MyC>"
    );
 
-  XmlParser parser ( text );
+  boost::shared_ptr<XmlDoc> doc = XmlOps::parse ( text );
 
-  boost::shared_ptr<XmlDoc> doc = parser.xmldoc;
-
-  XmlParams params ( parser.getXml() );
+  BOOST_CHECK_NO_THROW( XmlParams params ( *doc.get() ) );
 
 }
 
@@ -74,10 +72,45 @@ BOOST_AUTO_TEST_CASE( constructor_throws )
       "</MyC>"
    );
 
-  XmlParser parser ( text );
-  BOOST_CHECK_THROW( XmlParams params ( parser.getXml() ) , Common::XmlError );
+  boost::shared_ptr<XmlDoc> doc = XmlOps::parse ( text );
+  BOOST_CHECK_THROW( XmlParams params ( *doc.get() ) , Common::XmlError );
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( get_value )
+{
+  std::string text = (
+      "<Signal>"
+      " <Params>"
+      "  <OptBool>     1  </OptBool>"
+      "  <OptInt>    134  </OptInt>"
+      "  <OptStr>   lolo  </OptStr>"
+      "  <Unused>   popo  </Unused>"
+      "  <VecInt>  2 8 9  </VecInt>"
+      "  <Comp>   CGroup  </Comp>"
+      " </Params>"
+      "</Signal>"
+   );
+
+  boost::shared_ptr<XmlDoc> doc = XmlOps::parse ( text );
+
+  XmlParams params ( *doc.get() );
+
+  BOOST_REQUIRE_EQUAL ( params.get_value<bool>("OptBool") , true );
+
+  BOOST_REQUIRE_EQUAL ( params.get_value<Uint>("OptInt") , 134 );
+
+  BOOST_REQUIRE_EQUAL ( params.get_value<std::string>("OptStr") , "lolo" );
+
+//  std::vector<Uint> v;
+//  v += 2,8,9;
+//  std::vector<Uint> cv = params.get_value<Uint>("VecInt");
+//  BOOST_CHECK_EQUAL_COLLECTIONS( v.begin(), v.end(), cv.begin(), cv.end() );
+
+  BOOST_REQUIRE_EQUAL ( params.get_value<std::string>("Comp") , "CGroup" );
+
+}
 /////////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()

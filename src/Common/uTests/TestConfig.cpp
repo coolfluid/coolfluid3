@@ -190,7 +190,9 @@ BOOST_AUTO_TEST_CASE( configure )
 
   xml_document<> doc;    // character type defaults to char
   char* ctext = doc.allocate_string(text.c_str());
-  doc.parse< parse_no_data_nodes >(ctext);
+  doc.parse< parse_no_data_nodes |
+             parse_trim_whitespace |
+             parse_normalize_whitespace >(ctext);
 
   pm->configure(doc.first_node());
 

@@ -1,6 +1,5 @@
+#include "Common/XmlHelpers.hpp"
 #include "Common/Log.hpp"
-#include "Common/BasicExceptions.hpp"
-#include "Common/XML.hpp"
 
 namespace CF {
 namespace Common {
@@ -74,13 +73,11 @@ namespace Common {
     }
   }
 
-/////////////////////////////////////////////////////////////////////////////////////
-
-  XmlParser::XmlParser( const std::string& str )
+  boost::shared_ptr<XmlDoc> XmlOps::parse ( const std::string& str )
   {
     using namespace rapidxml;
 
-    xmldoc.reset( new XmlDoc() );
+    boost::shared_ptr<XmlDoc> xmldoc ( new XmlDoc() );
 
     char* ctext = xmldoc->allocate_string(str.c_str());
 
@@ -88,13 +85,15 @@ namespace Common {
     xmldoc->parse< parse_no_data_nodes |
                    parse_trim_whitespace |
                    parse_normalize_whitespace >(ctext);
+
+    return xmldoc;
   }
 
-  XmlParser::XmlParser( const boost::filesystem::path& path )
+  boost::shared_ptr<XmlDoc> XmlOps::parse ( const boost::filesystem::path& path )
   {
     using namespace rapidxml;
 
-    xmldoc.reset( new XmlDoc() );
+    boost::shared_ptr<XmlDoc> xmldoc ( new XmlDoc() );
 
     std::string filepath = path.string();
     FILE *filep = fopen( filepath.c_str(), "rb" );
@@ -117,11 +116,8 @@ namespace Common {
     xmldoc->parse< parse_no_data_nodes |
                    parse_trim_whitespace |
                    parse_normalize_whitespace >(buffer);
-  }
 
-  XmlNode& XmlParser::getXml()
-  {
-    return *xmldoc.get();
+    return xmldoc;
   }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -135,7 +131,7 @@ namespace Common {
     params = in_node->first_node("Params");
 
     if ( params == 0 )
-      throw  Common::XmlError( FromHere(), "XMl Params node not found" );
+      throw  Common::XmlError( FromHere(), "XML Params node not found" );
   }
 
 /////////////////////////////////////////////////////////////////////////////////////
