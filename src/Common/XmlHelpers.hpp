@@ -42,6 +42,10 @@ namespace Common {
   }; // XmlOps
 
   /// Helper class that extracts parameters from a XmlNode
+  /// @author Tiago Quintino
+  /// @todo add_param function
+  /// @todo implement params converted to std::vector
+
   struct Common_API XmlParams
   {
     /// Constructor
