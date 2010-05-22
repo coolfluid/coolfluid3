@@ -15,17 +15,17 @@
 namespace CF {
 namespace Common {
 
-  template<typename CType>
-  class Component_iterator;
+  template <typename CType> class Component_iterator;
 
 ////////////////////////////////////////////////////////////////////////////////
 
   /// Base class for defining CF components
+  ///
   /// @author Tiago Quintino
-  /// @todo remove XMLNode and use RapidXML
+  /// @author Willem Deconinck
+  ///
   /// @todo add ownership of (sub) components
-  /// @todo add dumping of the (sub)tree to a string
-  /// @todo add registration into CTree
+  ///
   class Common_API Component :
       public boost::enable_shared_from_this<Component>,
       public ConfigObject,
