@@ -8,9 +8,7 @@
 #include <boost/function.hpp>
 #include <boost/any.hpp>
 
-#include <boost/property_tree/detail/rapidxml.hpp>
-
-#include "Common/CF.hpp"
+#include "Common/XML.hpp"
 
 namespace CF {
 namespace Common {
@@ -20,19 +18,19 @@ namespace Common {
   /// Class defines options to be used in the ConfigObject class
   /// @author Tiago Quintino
   /// @todo
-  ///   * provide function to return value and def as string
+  ///   * provide function to return value and def as string?
   ///   * option of pointer to base class init from self regist
   ///   * option for pointer to Component
   ///   * vector of components
-  ///   * modify DynamicObject class - signals with XML
+  ///   * modify DynamicObject class - signals with XML, rename SignalHandler
   ///   * option sets with own processors
   ///   * option for paths ( file and dirs )
   ///   * option for component path
-  ///   * break into files
-  ///       - Configurable ( Configurable, OptionList )
-  ///       - Option ( Option, OptionT )
   ///   * configuration sets [inlet conditions)
   ///       - use of configuration signature
+  ///   * list_signals signal in Component
+  ///   * signals should have tags like advanced, etc
+  ///
   ///
   /// How to:
   ///   * how to define processors statically?
@@ -46,6 +44,10 @@ namespace Common {
   ///   * option of vector of T
   ///   * configure values from XMLNode
   ///   * access configured values
+  ///   * break into files
+  ///       - ConfigObject ( ConfigObject, OptionList )
+  ///       - Option
+  ///       - OptionT
   class Option
   {
   public:
