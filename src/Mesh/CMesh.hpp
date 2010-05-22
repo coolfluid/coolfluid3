@@ -18,13 +18,14 @@ namespace Mesh {
 /// Mesh now stores:
 ///   - regions which subdivide in subregions
 ///   - arrays containing coordinates, variables, ...
-/// @author Tiago Quintino, Willem Deconinck
+/// @author Tiago Quintino
+/// @author Willem Deconinck
 class Mesh_API CMesh : public Common::Component {
 
 public: // typedefs
 
   typedef boost::shared_ptr<CMesh> Ptr;
-  typedef Component_iterator<CMesh> Iterator;
+  typedef Common::Component_iterator<CMesh> Iterator;
 
 public: // functions
 

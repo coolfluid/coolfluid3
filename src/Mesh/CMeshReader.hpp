@@ -26,9 +26,11 @@ class Mesh_API CMeshReader : public Common::Component {
 
 public: // typedefs
 
-  typedef Common::ConcreteProvider < CMeshReader,1 > PROVIDER;
-  typedef Component_iterator<CMeshReader> Iterator;
+  /// pointer to this component type
   typedef boost::shared_ptr<CMeshReader> Ptr;
+  /// provider of this component type
+  typedef Common::ConcreteProvider < CMeshReader,1 > PROVIDER;
+  typedef Common::Component_iterator<CMeshReader> Iterator;
 
 public: // static functions
 

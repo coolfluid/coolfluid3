@@ -21,7 +21,7 @@ class Mesh_API CArray : public Common::Component {
 
 public: // typedefs
 
-  typedef Component_iterator<CArray> Iterator;
+  typedef Common::Component_iterator<CArray> Iterator;
   typedef boost::shared_ptr<CArray> Ptr;
   typedef boost::multi_array<Real,2> Array;
   typedef Array::subarray<1>::type Row;  
