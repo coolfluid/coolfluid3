@@ -93,5 +93,92 @@ CRegion::Iterator CRegion::end()
  return Iterator(vec);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+struct CRegion::ElementNodeVector::Data : boost::noncopyable
+{
+  Data(const Uint iElem, const Uint nNodes, CArray& coordinatesArray, const CTable& connectivityTable) :
+      elem(iElem),
+      nbNodes(nNodes),
+      coordinates(coordinatesArray),
+      connectivity(connectivityTable)
+  {}
+
+  const Uint elem;
+  const Uint nbNodes;
+  CArray& coordinates;
+  const CTable& connectivity;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+CRegion::ElementNodeVector::ElementNodeVector(const Uint iElem, const Uint nbNodes, CArray& coordinates, const CTable& connectivity) :
+    m_data(new Data(iElem, nbNodes, coordinates, connectivity))
+{}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Uint CRegion::ElementNodeVector::size() const {
+  return m_data->nbNodes;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CArray::ConstRow CRegion::ElementNodeVector::operator[](const Uint idx) const {
+  cf_assert(idx < size());
+  return m_data->coordinates.get_array()[m_data->connectivity.get_table()[m_data->elem][idx]];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CArray::Row CRegion::ElementNodeVector::operator[](const Uint idx) {
+  cf_assert(idx < size());
+  return m_data->coordinates.get_array()[m_data->connectivity.get_table()[m_data->elem][idx]];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+struct CRegion::ConstElementNodeVector::Data : boost::noncopyable
+{
+  Data(const Uint iElem, const Uint nNodes, const CArray& coordinatesArray, const CTable& connectivityTable) :
+      elem(iElem),
+      nbNodes(nNodes),
+      coordinates(coordinatesArray),
+      connectivity(connectivityTable)
+  {}
+
+  const Uint elem;
+  const Uint nbNodes;
+  const CArray& coordinates;
+  const CTable& connectivity;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+CRegion::ConstElementNodeVector::ConstElementNodeVector(const Uint iElem, const Uint nbNodes, const CArray& coordinates, const CTable& connectivity) :
+    m_data(new Data(iElem, nbNodes, coordinates, connectivity))
+{}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CRegion::ConstElementNodeVector::ConstElementNodeVector(const CRegion::ElementNodeVector& elementNodeVector) :
+    m_data(new Data(elementNodeVector.m_data->elem, elementNodeVector.m_data->nbNodes, elementNodeVector.m_data->coordinates, elementNodeVector.m_data->connectivity))
+{}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Uint CRegion::ConstElementNodeVector::size() const {
+  return m_data->nbNodes;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CArray::ConstRow CRegion::ConstElementNodeVector::operator[](const Uint idx) const {
+  cf_assert(idx < size());
+  return m_data->coordinates.get_array()[m_data->connectivity.get_table()[m_data->elem][idx]];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // Mesh
 } // CF

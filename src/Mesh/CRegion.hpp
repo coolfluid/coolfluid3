@@ -84,20 +84,85 @@ public:
     }
   }
   
+  /// Returns a mutable row view corresponding to node iNode in element iElem
   CArray::Row get_row(const Uint iElem, const Uint iNode, CArray::Ptr& cArray)
   {
     const Uint row_in_array = m_connTable->get_table()[iElem][iNode];
     return cArray->get_array()[row_in_array];
   }
   
+  /// Returns a constant row view corresponding to node iNode in element iElem
+  CArray::ConstRow get_row(const Uint iElem, const Uint iNode, const CArray& cArray) const
+  {
+    const Uint row_in_array = m_connTable->get_table()[iElem][iNode];
+    return cArray.get_array()[row_in_array];
+  }
+
   void filter_subregions(std::vector<CRegion::Ptr >& vec);
   
+  /// Return the element type for this region
+  /// Precondition: Region must have elements
+  const ElementType& getElementType() const
+  {
+    cf_assert(getNbElements());
+    return *(m_elementType->get_elementType());
+  }
+
+  /// Return the number of elements stored in this region, excluding any subregions
+  Uint getNbElements() const
+  {
+    return m_connTable.get() ? m_connTable->get_table().size() : 0;
+  }
+
   Iterator begin();
 
   Iterator end();
 
   /// @todo temporary until search by type is in place
   virtual std::string type() const{ return "CRegion"; }
+
+  struct ConstElementNodeVector;
+
+  /// Provide a mutable view of the nodes of a single element, offering operator[] and size() functions
+  /// Copying this creates a shallow copy and modifying a copy modifies the original coordinate data
+  struct ElementNodeVector
+  {
+    ElementNodeVector() {}
+    ElementNodeVector(const Uint iElem, const Uint nbNodes, CArray& coordinates, const CTable& connectivity);
+    Uint size() const;
+    CArray::ConstRow operator[](const Uint idx) const;
+    CArray::Row operator[](const Uint idx);
+  private:
+    friend class ConstElementNodeVector; // Allows construction of the const version from the mutable version
+    struct Data;
+    boost::shared_ptr<Data> m_data;
+  };
+
+  /// Provide a read-only view of the nodes of a single element, offering operator[] and size() functions
+  /// Copying this creates a shallow copy that refers to the original coordinate data
+  struct ConstElementNodeVector
+  {
+    ConstElementNodeVector() {}
+    ConstElementNodeVector(const Uint iElem, const Uint nbNodes, const CArray& coordinates, const CTable& connectivity);
+    ConstElementNodeVector(const ElementNodeVector& elementNodeVector);
+    Uint size() const;
+    CArray::ConstRow operator[](const Uint idx) const;
+  private:
+    struct Data;
+    boost::shared_ptr<Data> m_data;
+  };
+
+  /// Return a mutable view of the nodes for the given element.
+  ElementNodeVector getNodes(const Uint iElem, CArray& coordinates)
+  {
+    return ElementNodeVector(iElem, getElementType().getNbNodes(), coordinates, *m_connTable);
+  }
+
+  /// Return a read-only view of the nodes for the given element.
+  ConstElementNodeVector getNodes(const Uint iElem, const CArray& coordinates) const
+  {
+    return ConstElementNodeVector(iElem, getElementType().getNbNodes(), coordinates, *m_connTable);
+  }
 
 private:
   
