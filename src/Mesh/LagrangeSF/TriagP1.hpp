@@ -4,7 +4,6 @@
 #include "Common/AssertionManager.hpp"
 #include "Math/RealMatrix.hpp"
 #include "Mesh/GeoShape.hpp"
-#include "Mesh/LagrangeSF/LagrangeSF.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -20,7 +19,12 @@ namespace LagrangeSF {
 class TriagP1 {
 public:
 
+/// Shape represented by this shape function
 static const GeoShape::Type shape = GeoShape::TRIAG;
+/// Order of the shape function
+static const Uint order = 1;
+/// Dimensionality of the shape function
+static const Uint dimensions = 2;
 
 /// Compute the shape functions corresponding to the given
 /// mapped coordinates
@@ -38,6 +42,7 @@ static void computeShapeFunction(const RealVector& mappedCoord, RealVector& shap
 /// @param coord contains the coordinates to be mapped
 /// @param nodes contains the nodes
 /// @param mappedCoord Store the output mapped coordinates
+template<typename NodesT>
 static void computeMappedCoordinates(const RealVector& coord, const NodesT& nodes, RealVector& mappedCoord) {
   cf_assert(coord.size() == 2);
   cf_assert(mappedCoord.size() == 2);
@@ -64,6 +69,7 @@ static void computeMappedGradient(const RealVector& mappedCoord, RealMatrix& res
 }
 
 /// Compute the jacobian determinant at the given mapped coordinates
+template<typename NodesT>
 inline static Real computeJacobianDeterminant(const RealVector& mappedCoord, const NodesT& nodes) {
   return   (nodes[1][XX] - nodes[0][XX]) * (nodes[2][YY] - nodes[0][YY])
          - (nodes[2][XX] - nodes[0][XX]) * (nodes[1][YY] - nodes[0][YY]);
@@ -72,6 +78,7 @@ inline static Real computeJacobianDeterminant(const RealVector& mappedCoord, con
 /// Compute the Jacobian matrix
 /// @param mappedCoord The mapped coordinates where the Jacobian should be calculated
 /// @param result Storage for the resulting Jacobian matrix
+template<typename NodesT>
 static void computeJacobian(const RealVector& mappedCoord, const NodesT& nodes, RealMatrix& result) {
   cf_assert(result.nbRows() == 2);
   cf_assert(result.isSquare());
@@ -84,6 +91,7 @@ static void computeJacobian(const RealVector& mappedCoord, const NodesT& nodes, 
 /// Compute the adjoint of Jacobian matrix
 /// @param mappedCoord The mapped coordinates where the Jacobian should be calculated
 /// @param result Storage for the resulting adjoint
+template<typename NodesT>
 static void computeJacobianAdjoint(const RealVector& mappedCoord, const NodesT& nodes, RealMatrix& result) {
   cf_assert(result.nbRows() == 2);
   cf_assert(result.isSquare());
@@ -92,13 +100,6 @@ static void computeJacobianAdjoint(const RealVector& mappedCoord, const NodesT& 
   result(ETA,XX) = nodes[0][XX] - nodes[2][XX];
   result(KSI,XX) = nodes[2][YY] - nodes[0][YY];
 }
-
-private:
-/// Cannot be instantiated
-TriagP1() {}
-
-/// Cannot be destroyed
-~TriagP1() {}
 
 };
 
