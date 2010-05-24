@@ -96,12 +96,20 @@ namespace Common {
     template <typename T>
         std::vector<boost::shared_ptr<T> > get_components_by_type ();
 
+    /// @return vector of const (sub)components with a given type automatically cast to the specified type
+    template <typename T>
+        std::vector<const T*> get_components_by_type () const;
+
     /// @return vector of (sub)components with a given tag
     std::vector<Component::Ptr> get_components_by_tag(const std::string& tag);
 
     /// @return vector of (sub)components with a given tag automatically cast to the specified type
     template <typename T>
         std::vector<boost::shared_ptr<T> > get_components_by_tag(const std::string& tag);
+
+    /// @return vector of const (sub)components with a given tag automatically cast to the specified type
+    template <typename T>
+        std::vector<const T*> get_components_by_tag(const std::string& tag) const;
 
     /// Check if this component has a given tag assigned
     bool has_tag(const std::string& tag);
@@ -319,7 +327,29 @@ template <typename T>
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename T>
+    std::vector<const T*> Component::get_components_by_tag(const std::string& tag) const
+{
+  std::vector<const T*> vec;
+  for(CompStorage_t::const_iterator it=m_components.begin(); it!=m_components.end(); ++it)
+  {
+    if (it->second->has_tag(tag))
+      vec.push_back(dynamic_cast<const T*>(it->second.get()));
+  }
+  return vec;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+template <typename T>
 inline std::vector<boost::shared_ptr<T> > Component::get_components_by_type ()
+{
+  return get_components_by_tag<T>(T::getClassName());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+template <typename T>
+inline std::vector<const T*> Component::get_components_by_type () const
 {
   return get_components_by_tag<T>(T::getClassName());
 }

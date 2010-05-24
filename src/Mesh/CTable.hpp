@@ -46,9 +46,12 @@ public:
   /// Initialize the connectivity array with a fixed column size
   void initialize(const Uint nbCols);
   
-  /// @return A reference to the connectivity table data
+  /// @return A mutable reference to the connectivity table data
   ConnectivityTable& get_table() { return m_table; }
   
+  /// @return A const reference to the connectivity table data
+  const ConnectivityTable& get_table() const { return m_table; }
+
   /// @return A Buffer object that can fill this Connectivity Table
   Buffer create_buffer(const size_t buffersize=1024);
   

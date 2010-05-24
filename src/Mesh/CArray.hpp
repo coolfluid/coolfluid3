@@ -25,6 +25,7 @@ public: // typedefs
   typedef boost::shared_ptr<CArray> Ptr;
   typedef boost::multi_array<Real,2> Array;
   typedef Array::subarray<1>::type Row;  
+  typedef Array::const_subarray<1>::type ConstRow;
   typedef BufferT<Real> Buffer;
 
 public: // functions
@@ -49,6 +50,9 @@ public: // functions
 
   /// @return A reference to the array data
   Array& get_array() { return m_array; }
+
+  /// @return A const reference to the array data
+  const Array& get_array() const { return m_array; }
 
   /// @return A Buffer object that can fill this Array
   Buffer create_buffer(const size_t buffersize=1024);
