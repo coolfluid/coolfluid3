@@ -74,7 +74,7 @@ template<GeoShape::Type GeometryShape, GeoShape::Type SolutionShape, Uint Order>
 class GaussImplementation
 {
 public:
-  template<typename FunctorT, typename ResultT>
+  template<typename GeoShapeF, typename SolShapeF, typename FunctorT, typename ResultT>
   static void integrate(FunctorT& functor, ResultT& Result)
   {
     BOOST_STATIC_ASSERT(sizeof(ResultT) == 0); // Break compilation on non-specialized instantiation
@@ -85,13 +85,13 @@ template<>
 class GaussImplementation<GeoShape::TRIAG, GeoShape::TRIAG, 1>
 {
 public:
-  template<typename FunctorT, typename ResultT>
+  template<typename GeoShapeF, typename SolShapeF, typename FunctorT, typename ResultT>
   static void integrate(FunctorT& functor, ResultT& Result)
   {
     static const double mu = 0.3333333333333333333333333;
     static const double w = 0.5;
     static const RealVector mapped_coords = boost::assign::list_of(mu)(mu);
-    Result = w * functor(mapped_coords);
+    Result += w * functor.template valTimesDetJacobian<GeoShapeF, SolShapeF>(mapped_coords);
   }
 };
 
@@ -99,13 +99,13 @@ template<>
 class GaussImplementation<GeoShape::QUAD, GeoShape::QUAD, 1>
 {
 public:
-  template<typename FunctorT, typename ResultT>
+  template<typename GeoShapeF, typename SolShapeF, typename FunctorT, typename ResultT>
   static void integrate(FunctorT& functor, ResultT& Result)
   {
     static const double mu = 0.;
     static const double w = 4.;
     static const RealVector mapped_coords = boost::assign::list_of(mu)(mu);
-    Result = w * functor(mapped_coords);
+    Result += w * functor.template valTimesDetJacobian<GeoShapeF, SolShapeF>(mapped_coords);
   }
 };
 
@@ -113,7 +113,7 @@ template<Uint Order>
 class GaussImplementation<GeoShape::QUAD, GeoShape::QUAD, Order>
 {
 public:
-  template<typename FunctorT, typename ResultT>
+  template<typename GeoShapeF, typename SolShapeF, typename FunctorT, typename ResultT>
   static void integrate(FunctorT& functor, ResultT& result)
   {
     const static Uint npoints = Order/2;
@@ -123,7 +123,7 @@ public:
         const RealVector b = boost::assign::list_of(-GaussPoints<Order>::x[i])( GaussPoints<Order>::x[j]);
         const RealVector c = boost::assign::list_of( GaussPoints<Order>::x[i])(-GaussPoints<Order>::x[j]);
         const RealVector d = boost::assign::list_of(-GaussPoints<Order>::x[i])(-GaussPoints<Order>::x[j]);
-        result += ((GaussPoints<Order>::w[i] * GaussPoints<Order>::w[j]) * (functor(a) + functor(b) + functor(c) + functor(d)));
+        result += ((GaussPoints<Order>::w[i] * GaussPoints<Order>::w[j]) * (functor.template valTimesDetJacobian<GeoShapeF, SolShapeF>(a) + functor.template valTimesDetJacobian<GeoShapeF, SolShapeF>(b) + functor.template valTimesDetJacobian<GeoShapeF, SolShapeF>(c) + functor.template valTimesDetJacobian<GeoShapeF, SolShapeF>(d)));
       }
     }
   }

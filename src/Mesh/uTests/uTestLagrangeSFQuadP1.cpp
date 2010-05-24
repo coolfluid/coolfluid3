@@ -6,12 +6,17 @@
 
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
+
+#include "Mesh/CArray.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/LagrangeSF/QuadP1.hpp"
 #include "Mesh/P1/Quad2D.hpp"
+
 #include "Tools/Difference/Difference.hpp"
 
 using namespace boost::assign;
+using namespace CF;
+using namespace CF::Mesh;
 using namespace CF::Mesh::Integrators;
 using namespace CF::Mesh::LagrangeSF;
 using namespace CF::Mesh::P1;
@@ -20,14 +25,18 @@ using namespace CF::Mesh::P1;
 
 struct LagrangeSFQuadP1_Fixture
 {
+  typedef std::vector<RealVector> NodesT;
   /// common setup for each test case
-  LagrangeSFQuadP1_Fixture() : mapped_coords(init_mapped_coords()), nodes(init_nodes()), nodes_ptr(init_nodes_ptr())
+  LagrangeSFQuadP1_Fixture() : mapped_coords(init_mapped_coords()), nodes(init_nodes()), coord(boost::extents[4][2])
   {
      // uncomment if you want to use arguments to the test executable
      //int*    argc = &boost::unit_test::framework::master_test_suite().argc;
      //char*** argv = &boost::unit_test::framework::master_test_suite().argv;
 
-    //mapped_coords += 0.1, 0.8;
+    coord[0][XX]=nodes[0][XX]; coord[0][YY]=nodes[0][YY];
+    coord[1][XX]=nodes[1][XX]; coord[1][YY]=nodes[1][YY];
+    coord[2][XX]=nodes[2][XX]; coord[2][YY]=nodes[2][YY];
+    coord[3][XX]=nodes[3][XX]; coord[3][YY]=nodes[3][YY];
   }
 
   /// common tear-down for each test case
@@ -38,15 +47,15 @@ struct LagrangeSFQuadP1_Fixture
 
   const CF::RealVector mapped_coords;
   const NodesT nodes;
-  const std::vector<CF::RealVector*> nodes_ptr;
+  CArray::Array coord;
 
-  template<typename ShapeF>
   struct const_functor
   {
     const_functor(const NodesT& node_list) : m_nodes(node_list) {}
-    CF::Real operator()(const CF::RealVector& mappedCoords)
+    template<typename GeoShapeF, typename SolShapeF>
+    CF::Real valTimesDetJacobian(const CF::RealVector& mappedCoords)
     {
-      return ShapeF::computeJacobianDeterminant(mappedCoords, m_nodes);
+      return GeoShapeF::computeJacobianDeterminant(mappedCoords, m_nodes);
     }
   private:
     const NodesT& m_nodes;
@@ -68,13 +77,6 @@ private:
     const CF::RealVector c3 = list_of(0.8)(2.1);
     return list_of(c0)(c1)(c2)(c3);
   }
-
-  /// Workaround for boost:assign ambiguity
-  std::vector<CF::RealVector*> init_nodes_ptr()
-  {
-    return list_of(&nodes[0])(&nodes[1])(&nodes[2])(&nodes[3]);
-  }
-
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -126,7 +128,9 @@ BOOST_AUTO_TEST_CASE( computeJacobianDeterminant )
 {
   // Shapefunction determinant at center should be a quarter of the cell volume
   const CF::RealVector center_coords = list_of(0.)(0.);
-  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Difference::test(4.*QuadP1::computeJacobianDeterminant(center_coords, nodes), CF::Mesh::VolumeComputer<Quad2D>::computeVolume(nodes_ptr)).ulps), 1);
+  const std::vector<CArray::Row> noderows = boost::assign::list_of(coord[0])(coord[1])(coord[2])(coord[3]);
+  const Real vol = CF::Mesh::VolumeComputer<Quad2D>::computeVolume(noderows);
+  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Difference::test(4.*QuadP1::computeJacobianDeterminant(center_coords, nodes), vol).ulps), 1);
 }
 
 BOOST_AUTO_TEST_CASE( computeJacobian )
@@ -160,8 +164,9 @@ BOOST_AUTO_TEST_CASE( computeJacobianAdjoint )
 BOOST_AUTO_TEST_CASE( integrateConst )
 {
   // Shapefunction determinant should be double the volume for triangles
-  const_functor<QuadP1> ftor(nodes);
-  const CF::Real vol = CF::Mesh::VolumeComputer<Quad2D>::computeVolume(nodes_ptr);
+  const_functor ftor(nodes);
+  const std::vector<CArray::Row> noderows = boost::assign::list_of(coord[0])(coord[1])(coord[2])(coord[3]);
+  const Real vol = CF::Mesh::VolumeComputer<Quad2D>::computeVolume(noderows);
 
   CF::Real result1 = 0.0;
   CF::Real result2 = 0.0;
@@ -170,12 +175,12 @@ BOOST_AUTO_TEST_CASE( integrateConst )
   CF::Real result16 = 0.0;
   CF::Real result32 = 0.0;
 
-  Gauss<QuadP1>::integrate(ftor, result1);
-  Gauss<QuadP1, QuadP1, 2>::integrate(ftor, result2);
-  Gauss<QuadP1, QuadP1, 4>::integrate(ftor, result4);
-  Gauss<QuadP1, QuadP1, 8>::integrate(ftor, result8);
-  Gauss<QuadP1, QuadP1, 16>::integrate(ftor, result16);
-  Gauss<QuadP1, QuadP1, 32>::integrate(ftor, result32);
+  Gauss<QuadP1>::integrateElement(ftor, result1);
+  Gauss<QuadP1, QuadP1, 2>::integrateElement(ftor, result2);
+  Gauss<QuadP1, QuadP1, 4>::integrateElement(ftor, result4);
+  Gauss<QuadP1, QuadP1, 8>::integrateElement(ftor, result8);
+  Gauss<QuadP1, QuadP1, 16>::integrateElement(ftor, result16);
+  Gauss<QuadP1, QuadP1, 32>::integrateElement(ftor, result32);
 
   BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Difference::test(result1, vol).ulps), 1);
   BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Difference::test(result2, vol).ulps), 5);

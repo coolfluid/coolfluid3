@@ -6,12 +6,17 @@
 
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
+
+#include "Mesh/CArray.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/LagrangeSF/TriagP1.hpp"
 #include "Mesh/P1/Triag2D.hpp"
+
 #include "Tools/Difference/Difference.hpp"
 
 using namespace boost::assign;
+using namespace CF;
+using namespace CF::Mesh;
 using namespace CF::Mesh::Integrators;
 using namespace CF::Mesh::LagrangeSF;
 using namespace CF::Mesh::P1;
@@ -20,14 +25,17 @@ using namespace CF::Mesh::P1;
 
 struct LagrangeSFTriagP1_Fixture
 {
+  typedef std::vector<RealVector> NodesT;
   /// common setup for each test case
-  LagrangeSFTriagP1_Fixture() : mapped_coords(init_mapped_coords()), nodes(init_nodes()), nodes_ptr(init_nodes_ptr())
+  LagrangeSFTriagP1_Fixture() : mapped_coords(init_mapped_coords()), nodes(init_nodes()), coord(boost::extents[3][2])
   {
      // uncomment if you want to use arguments to the test executable
      //int*    argc = &boost::unit_test::framework::master_test_suite().argc;
      //char*** argv = &boost::unit_test::framework::master_test_suite().argv;
 
-    //mapped_coords += 0.1, 0.8;
+    coord[0][XX]=nodes[0][XX]; coord[0][YY]=nodes[0][YY];
+    coord[1][XX]=nodes[1][XX]; coord[1][YY]=nodes[1][YY];
+    coord[2][XX]=nodes[2][XX]; coord[2][YY]=nodes[2][YY];
   }
 
   /// common tear-down for each test case
@@ -38,15 +46,15 @@ struct LagrangeSFTriagP1_Fixture
 
   const CF::RealVector mapped_coords;
   const NodesT nodes;
-  const std::vector<CF::RealVector*> nodes_ptr;
+  CArray::Array coord;
 
-  template<typename ShapeF>
   struct const_functor
   {
     const_functor(const NodesT& node_list) : m_nodes(node_list) {}
-    CF::Real operator()(const CF::RealVector& mappedCoords)
+    template<typename GeoShapeF, typename SolShapeF>
+    CF::Real valTimesDetJacobian(const CF::RealVector& mappedCoords)
     {
-      return ShapeF::computeJacobianDeterminant(mappedCoords, m_nodes);
+      return GeoShapeF::computeJacobianDeterminant(mappedCoords, m_nodes);
     }
   private:
     const NodesT& m_nodes;
@@ -67,13 +75,6 @@ private:
     const CF::RealVector c2 = list_of(0.8)(2.1);
     return list_of(c0)(c1)(c2);
   }
-
-  /// Workaround for boost:assign ambiguity
-  std::vector<CF::RealVector*> init_nodes_ptr()
-  {
-    return list_of(&nodes[0])(&nodes[1])(&nodes[2]);
-  }
-
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -105,10 +106,12 @@ BOOST_AUTO_TEST_CASE( computeMappedCoordinates )
 
 BOOST_AUTO_TEST_CASE( integrateConst )
 {
-  const_functor<TriagP1> ftor(nodes);
+  const_functor ftor(nodes);
   CF::Real result = 0.0;
-  Gauss<TriagP1>::integrate(ftor, result);
-  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Difference::test(result, CF::Mesh::VolumeComputer<Triag2D>::computeVolume(nodes_ptr)).ulps), 1);
+  Gauss<TriagP1>::integrateElement(ftor, result);
+  const std::vector<CArray::Row> noderows = boost::assign::list_of(coord[0])(coord[1])(coord[2]);
+  const Real vol = CF::Mesh::VolumeComputer<Triag2D>::computeVolume(noderows);
+  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Difference::test(result, vol).ulps), 1);
 }
 
 BOOST_AUTO_TEST_CASE( computeMappedGradient )
@@ -130,7 +133,9 @@ BOOST_AUTO_TEST_CASE( computeMappedGradient )
 BOOST_AUTO_TEST_CASE( computeJacobianDeterminant )
 {
   // Shapefunction determinant should be double the volume for triangles
-  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Difference::test(0.5*TriagP1::computeJacobianDeterminant(mapped_coords, nodes), CF::Mesh::VolumeComputer<Triag2D>::computeVolume(nodes_ptr)).ulps), 1);
+  const std::vector<CArray::Row> noderows = boost::assign::list_of(coord[0])(coord[1])(coord[2]);
+  const Real vol = CF::Mesh::VolumeComputer<Triag2D>::computeVolume(noderows);
+  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Difference::test(0.5*TriagP1::computeJacobianDeterminant(mapped_coords, nodes), vol).ulps), 5);
 }
 
 BOOST_AUTO_TEST_CASE( computeJacobian )
