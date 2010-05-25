@@ -2,7 +2,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/foreach.hpp>
 #include <boost/range/iterator_range.hpp>
-#include <boost/range/adaptor/filtered.hpp>
+// #include <boost/range/adaptor/filtered.hpp>
 #include <boost/iterator.hpp>
 
 #include "Common/Log.hpp"
@@ -400,7 +400,7 @@ BOOST_AUTO_TEST_CASE( test_filter_iterator )
   BOOST_FOREACH(Component& comp, make_component_range_of_type<CGroup>(all))
     BOOST_CHECK(comp.name() == "group1" || comp.name() == "group2");
 
-  // 5) Example
+  // 6) Example
   //BOOST_FOREACH(Component& comp, make_component_range_of_type<CGroup>(all))
   //  BOOST_CHECK(comp.name() == "group1" || comp.name() == "group2");
 

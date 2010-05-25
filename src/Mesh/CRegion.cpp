@@ -54,17 +54,6 @@ CElements::Ptr CRegion::create_elementType( const CName& name )
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CRegion::filter_subregions(std::vector<CRegion::Ptr >& vec)
-{
-  BOOST_FOREACH(CRegion::Ptr subregion, get_components_by_tag<CRegion>(getClassName()))
-  {
-    vec.push_back(subregion);
-    subregion->filter_subregions(vec);
-  }
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
 CRegion::Ptr CRegion::create_leaf_region (const std::string& etype_name )
 {
   std::string region_name(etype_name);
@@ -76,21 +65,6 @@ CRegion::Ptr CRegion::create_leaf_region (const std::string& etype_name )
   Uint nbNodes = region->get_component<CElements>("type")->get_elementType()->getNbNodes();
   region->get_component<CTable>("table")->initialize(nbNodes);
   return region;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-CRegion::Iterator CRegion::begin()
-{
-  std::vector<CRegion::Ptr > vec;
-  filter_subregions(vec);
-  return Iterator(vec);
-}
-
-CRegion::Iterator CRegion::end()
-{
- std::vector<CRegion::Ptr > vec;
- return Iterator(vec);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

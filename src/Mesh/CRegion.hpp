@@ -13,8 +13,6 @@ namespace Mesh {
   
 ////////////////////////////////////////////////////////////////////////////////
 
-class CRegion_iterator;
-
 /// Region component class
 /// This class stores
 ///   - subregions (same class)
@@ -26,14 +24,9 @@ class Mesh_API CRegion : public Common::Component {
 public:
 
   typedef boost::shared_ptr<CRegion> Ptr;
+  typedef Common::Component_iterator<CRegion> iterator;
+  typedef Common::Component_iterator<CRegion const> const_iterator;
 
-  typedef CRegion_iterator                       Iterator;
-
-  // required for boost_foreach
-  typedef Iterator                                iterator;
-  typedef const iterator                          const_iterator;
-    
-    
   /// Contructor
   /// @param name of the component
   CRegion ( const CName& name );
@@ -95,8 +88,6 @@ public:
     const Uint row_in_array = m_connTable->get_table()[iElem][iNode];
     return cArray.get_array()[row_in_array];
   }
-
-  void filter_subregions(std::vector<CRegion::Ptr >& vec);
   
   /// Return the element type for this region
   /// Precondition: Region must have elements
@@ -111,10 +102,6 @@ public:
   {
     return m_connTable.get() ? m_connTable->get_table().size() : 0;
   }
-
-  Iterator begin();
-
-  Iterator end();
 
   /// @todo temporary until search by type is in place
   virtual std::string type() const{ return "CRegion"; }
@@ -168,64 +155,8 @@ private:
   boost::shared_ptr<CTable> m_connTable;
   
   boost::shared_ptr<CElements> m_elementType;
-};
 
-
-//////////////////////////////////////////////////////////////////////////////
-
-
-class CRegion;
-class Mesh_API CRegion_iterator
-        : public boost::iterator_facade<CRegion_iterator,
-                                        CRegion,
-                                        boost::forward_traversal_tag>
-{
-public:
-  CRegion_iterator()
-  {}
-
-  CRegion::Ptr& get_ptr()
-  {
-    return m_region;
-  }
-
-private:
-  friend class boost::iterator_core_access;
-  friend class CRegion;
-
-  explicit CRegion_iterator(std::vector<CRegion::Ptr >& vec)
-          : m_vec(vec), m_vecIt(m_vec.begin())
-  {
-    if (m_vec.size()) {
-      m_region = vec[0];
-    }
-  }
-
-  void increment()
-  {
-    m_vecIt++;
-    if (m_vecIt != m_vec.end()) {
-      m_region = (*m_vecIt);
-    }
-    else {
-      m_region = CRegion::Ptr();
-    }
-  }
-
-  bool equal(CRegion_iterator const& other) const
-  {
-    return m_region == other.m_region;
-  }
-
-  CRegion& dereference() const
-  {
-    return *m_region;
-  }
-
-  CRegion::Ptr m_region;
-  std::vector<CRegion::Ptr > m_vec;
-  std::vector<CRegion::Ptr >::iterator m_vecIt;
-};
+}; // CRegion
 
 ////////////////////////////////////////////////////////////////////////////////
 

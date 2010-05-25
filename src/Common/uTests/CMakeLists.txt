@@ -3,7 +3,7 @@
 
 LIST ( APPEND uTestCommon_libs Common )
 LIST ( APPEND uTestCommon_files
-  UTestCommon.cpp
+  uTestCommon.cpp
   TestCPath.cpp
   TestComponent.cpp
   TestConfig.cpp

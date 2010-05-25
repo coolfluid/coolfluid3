@@ -317,12 +317,15 @@ Component::Ptr Component::look_component ( const CPath& path )
 
 void Component::create_component ( XmlNode& node  )
 {
+  throw NotImplemented( FromHere(), "" );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 void Component::list_tree( XmlNode& node )
 {
+  throw NotImplemented( FromHere(), "" );
+
   //  XMLNode this_node = parent.addChild( name().c_str() );
 
 //  BOOST_FOREACH( CompStorage_t::value_type c, m_components )

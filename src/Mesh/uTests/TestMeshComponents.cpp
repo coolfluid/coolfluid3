@@ -86,19 +86,12 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
   subregion->create_elementType("elementType");
   BOOST_CHECK_EQUAL ( subregion->get_component("elementType")->full_path().string() , "//root/mesh/region2/subregion2/elementType" );
   
-  
   // Create an array of coordinates inside mesh
   p_mesh->create_array("coordinates");
   BOOST_CHECK_EQUAL ( p_mesh->get_component("coordinates")->full_path().string() , "//root/mesh/coordinates" );
   
   region2->get_component<CRegion>("subregion1")->create_region("subsubregion1");
   region2->get_component<CRegion>("subregion1")->create_region("subsubregion2");
-
-  CRegion::iterator it = region2->begin();
-  for ( ; it != region2->end() ; ++it) {
-    //CFinfo << "path = " << it->full_path().string() << " \n" << CFendl;
-  }
-  
 }
 
 //////////////////////////////////////////////////////////////////////////////

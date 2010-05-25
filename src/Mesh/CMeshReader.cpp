@@ -3,6 +3,7 @@
 #include "Common/Log.hpp"
 #include "Common/Factory.hpp"
 #include "Common/OptionT.hpp"
+#include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMesh.hpp"
@@ -31,7 +32,7 @@ CMeshReader::~CMeshReader()
 
 void CMeshReader::defineConfigOptions(Common::OptionList& options)
 {
-  options.add< Common::OptionT<std::string> >  ( "File",  "File to read" , "" );
+  options.add< OptionT<std::string> >  ( "File",  "File to read" , "" );
   //options.add< Common::OptionT<std::string> >  ( "Mesh",  "Mesh to construct" , "" );
 }
 
@@ -87,19 +88,17 @@ CMeshReader::create_leaf_regions_with_buffermap (CRegion::Ptr& parent_region,
 
 void CMeshReader::remove_empty_leaf_regions(CRegion::Ptr& parent_region)
 {
-  // Find the empty regions
-  for (CRegion::Iterator region=parent_region->begin(); region!=parent_region->end(); ++region)
+  // loop over regions
+  BOOST_FOREACH(CRegion& region, make_component_range_of_type<CRegion>(parent_region))
   {
-    if (!region->has_component_of_type<CRegion>())
-    {
-      if (region->get_component<CTable>("table")->get_table().size() == 0)
+    // find the empty regions
+    if ( !region.has_component_of_type<CRegion>() &&
+          region.get_component<CTable>("table")->get_table().size() == 0 )
       {
         // no elements in connectivity table --> remove this region
-        CFinfo << "remove: " << region->full_path().string() << "\n" << CFendl;
-        region->get_parent()->remove_component(region->name());
-        region.get_ptr().reset();
+        CFinfo << "remove: " << region.full_path().string() << "\n" << CFendl;
+        region.get_parent()->remove_component(region.name());
       }
-    }
   }
 }
 

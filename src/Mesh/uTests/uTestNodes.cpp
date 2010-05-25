@@ -6,6 +6,7 @@
 
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
+#include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -23,6 +24,7 @@ using namespace CF;
 using namespace CF::Mesh;
 using namespace CF::Mesh::Integrators;
 using namespace CF::Common;
+
 //////////////////////////////////////////////////////////////////////////////
 
 struct Nodes_Fixture
@@ -51,20 +53,23 @@ struct Nodes_Fixture
   /// common values accessed by all tests goes here
   boost::shared_ptr<CMesh> mesh2d;
 
-  CRegion& getFirstRegion() {
+  CRegion& getFirstRegion()
+  {
     std::vector<boost::shared_ptr<CRegion> > regions = mesh2d->get_components_by_type<CRegion>();
     const Uint regions_begin = 0;
     const Uint regions_end = regions.size();
     // for all regions
+
     for(Uint reg = regions_begin; reg != regions_end; ++reg)
     {
       if(regions[reg]->getNbElements())
         return *regions[reg];
+
       // for all subregions
-      for(CRegion::iterator region = regions[reg]->begin(); region != regions[reg]->end(); ++region)
+      BOOST_FOREACH(CRegion& region, make_component_range_of_type<CRegion>(regions[reg]))
       {
-        if(region->getNbElements())
-          return *region;
+        if(region.getNbElements())
+          return region;
       }
     }
   }

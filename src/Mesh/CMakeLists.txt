@@ -1,4 +1,4 @@
-#CF_FIND_ORPHAN_FILES()
+CF_FIND_ORPHAN_FILES()
 
 LIST ( APPEND Mesh_files
   MeshAPI.hpp
@@ -31,6 +31,14 @@ LIST ( APPEND Mesh_files
   MeshWriter.cpp
   RCM.hpp
   RCM.cpp
+
+# directories with headers only can have their contents appended to base dir
+  LagrangeSF/TriagP1.hpp
+  LagrangeSF/QuadP1.hpp
+  LagrangeSF/LagrangeSFTypes.hpp
+  Integrators/Gauss.hpp
+  Integrators/GaussImplementation.hpp
+  Integrators/IntegrationFunctorBase.hpp
 )
 
 LIST ( APPEND Mesh_cflibs Common )
@@ -39,12 +47,12 @@ SET  ( Mesh_kernellib TRUE )
 
 CF_ADD_LIBRARY ( Mesh )
 
-ADD_SUBDIRECTORY ( P1 )        # implementation of P1 elements
-ADD_SUBDIRECTORY ( CFmesh )    # CFmesh file IO
-ADD_SUBDIRECTORY ( LagrangeSF ) 
-ADD_SUBDIRECTORY ( Neu )       # Neutral file IO
-ADD_SUBDIRECTORY ( OpenFOAM )  # OpenFOAM IO
-ADD_SUBDIRECTORY ( Gmsh )      # Gmsh file IO
-ADD_SUBDIRECTORY ( CGNS )       # CGNS file IO
-ADD_SUBDIRECTORY ( uTests )    # unit tests for Mesh
+ADD_SUBDIRECTORY ( P1 )            # implementation of P1 elements
+
+ADD_SUBDIRECTORY ( Neu )           # Neutral file IO
+ADD_SUBDIRECTORY ( OpenFOAM )      # OpenFOAM IO
+ADD_SUBDIRECTORY ( Gmsh )          # Gmsh file IO
+ADD_SUBDIRECTORY ( CGNS )          # CGNS file IO
+
+ADD_SUBDIRECTORY ( uTests )        # unit tests for Mesh
 

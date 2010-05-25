@@ -99,6 +99,7 @@ BOOST_AUTO_TEST_CASE( Constructors )
 
 BOOST_AUTO_TEST_CASE( TestCGNSLib )
 {
+
  int maxelemi = 20*16*8;
  double x[21*17*9],y[21*17*9],z[21*17*9];
  int isize[3][1],ielem[maxelemi][8];

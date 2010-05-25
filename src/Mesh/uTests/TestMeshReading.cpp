@@ -7,6 +7,7 @@
 #include "Common/OptionT.hpp"
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
+#include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -117,16 +118,16 @@ BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh )
 //  freeXMLString(xml_str);
   
   CRegion::Ptr tmp_region = mesh->get_component<CRegion>("regions");
-  for (CRegion::iterator region = tmp_region->begin(); region != tmp_region->end(); region++)
+  BOOST_FOREACH(CRegion& region, make_component_range_of_type<CRegion>(tmp_region))
   {
-    if (region->has_component_of_type<CRegion>())
+    if (region.has_component_of_type<CRegion>())
     {
-      CFinfo << "\n" << region->name() << " \n" << CFendl; 
+      CFinfo << "\n" << region.name() << " \n" << CFendl;
     }
-    else if (region->get_component<CTable>("table")->get_table().size())
+    else if (region.get_component<CTable>("table")->get_table().size())
     {
-      CFinfo << "    " << region->name() << " \t --> elements: " 
-             << region->get_component<CTable>("table")->get_table().size() << "\n" << CFendl; 
+      CFinfo << "    " << region.name() << " \t --> elements: "
+             << region.get_component<CTable>("table")->get_table().size() << "\n" << CFendl;
     }
   }
   

@@ -2,9 +2,11 @@
 #define CF_Mesh_Integrators_Gauss_hpp
 
 #include <boost/mpl/for_each.hpp>
+#include <boost/foreach.hpp>
 
 #include "Common/AssertionManager.hpp"
 #include "Common/BasicExceptions.hpp"
+#include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -107,10 +109,10 @@ void gaussIntegrate(const CRegion& region, FunctorT& functor, ResultT& result)
 /// setRegion function. See IntegrationFunctorBase for a base class that provides a boilerplate implementation of non-functor-specific
 /// functionality.
 template<typename FunctorT, typename ResultT>
-void gaussIntegrate(const CMesh& mesh, FunctorT& functor, ResultT& result)
+void gaussIntegrate( CMesh& mesh, FunctorT& functor, ResultT& result)
 {
   // Get all the top regions in the mesh
-  std::vector<const CRegion*> regions = mesh.get_components_by_type<CRegion>();
+  std::vector< CRegion::Ptr > regions = mesh.get_components_by_type<CRegion>();
   const Uint regions_begin = 0;
   const Uint regions_end = regions.size();
   // for all regions
@@ -118,11 +120,15 @@ void gaussIntegrate(const CMesh& mesh, FunctorT& functor, ResultT& result)
   {
     functor.setRegion(*regions[reg]); // initialize region-specific functor data
     gaussIntegrate(*regions[reg], functor, result);
+
+
     // for all subregions
-    for(CRegion::const_iterator region = regions[reg]->begin(); region != regions[reg]->end(); ++region)
+
+//    for(CRegion::const_iterator region = regions[reg]->begin(); region != regions[reg]->end(); ++region)
+    BOOST_FOREACH( CRegion& region, make_component_range_of_type<CRegion>(regions[reg]) )
     {
-      functor.setRegion(*region); // initialize region-specific functor data
-      gaussIntegrate(*region, functor, result);
+      functor.setRegion(region); // initialize region-specific functor data
+      gaussIntegrate(region, functor, result);
     }
   }
 }

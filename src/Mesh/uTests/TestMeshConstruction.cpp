@@ -4,6 +4,8 @@
 
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
+#include "Common/ComponentPredicates.hpp"
+
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
@@ -184,22 +186,25 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   BOOST_CHECK_EQUAL(coordRef[1],1.0);
 
  // calculate all volumes of a region
-  for (CRegion::iterator region = superRegion->begin(); region!=superRegion->end(); region++)
+  BOOST_FOREACH(CRegion& region, make_component_range_of_type<CRegion>(superRegion))
   {
-   CElements::Ptr  elementType = region->get_component<CElements>("type");
-   boost::shared_ptr<CTable>     connTable   = region->get_component<CTable>("table");
+   CElements::Ptr  elementType = region.get_component<CElements>("type");
+   boost::shared_ptr<CTable>     connTable   = region.get_component<CTable>("table");
    //CFinfo << "type = " << elementType->getShapeName() << "\n" << CFendl;
    const Uint nbRows = connTable->get_table().size();
    std::vector<Real> volumes(nbRows);
    
    // the loop
-   for (Uint iElem=0; iElem<nbRows; ++iElem) {
+   for (Uint iElem=0; iElem<nbRows; ++iElem)
+   {
      std::vector<CArray::Row > elementCoordinates;
-     for (Uint iNode=0; iNode<elementType->getNbNodes(); iNode++) {
-       elementCoordinates.push_back(region->get_row(iElem,iNode,coordinates));
+     for (Uint iNode=0; iNode<elementType->getNbNodes(); iNode++)
+     {
+       elementCoordinates.push_back(region.get_row(iElem,iNode,coordinates));
      }
+
      volumes[iElem]=elementType->computeVolume(elementCoordinates);
-     //CFinfo << "\t volume["<<iElem<<"] =" << volumes[iElem] << "\n" << CFendl;
+     CFinfo << "\t volume["<<iElem<<"] =" << volumes[iElem] << "\n" << CFendl;
 
      // check
      if(elementType->getShapeName()=="Quad")
@@ -209,7 +214,7 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
    }
  }
     
-  
+
 //  BOOST_FOREACH(CArray::Row node , elementCoordinates)
 //  {
 //    CFinfo << "node = ";

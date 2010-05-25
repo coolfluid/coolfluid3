@@ -4,6 +4,7 @@
 
 #include "Common/ObjectProvider.hpp"
 #include "Common/OptionT.hpp"
+#include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -186,14 +187,18 @@ void CReader::read_zone(CRegion::Ptr& parent_region)
       read_boco();
 
     // Remove regions flagged as bc
-    for(CRegion::Iterator region_it=this_region->begin(); region_it!=this_region->end(); ++region_it)
-      if(!region_it->has_component_of_type<CRegion>())
-        if (region_it->get_component<CElements>("type")->getDimensionality() < static_cast<Uint>(m_base.cell_dim))
+    BOOST_FOREACH(CRegion& region, make_component_range_of_type<CRegion>(this_region))
     {
-      Component::Ptr region_to_rm = region_it.get_ptr()->get_parent();
-      CFinfo << "Removing region flagged as bc : " << region_to_rm->name() << "\n" << CFendl;
-      region_to_rm->get_parent()->remove_component(region_to_rm->name());
-      region_to_rm.reset();
+      if(!region.has_component_of_type<CRegion>())
+      {
+        if (region.get_component<CElements>("type")->getDimensionality() < static_cast<Uint>(m_base.cell_dim))
+        {
+          Component::Ptr region_to_rm = region.get_parent();
+          CFinfo << "Removing region flagged as bc : " << region_to_rm->name() << "\n" << CFendl;
+          region_to_rm->get_parent()->remove_component(region_to_rm->name());
+          region_to_rm.reset();
+        }
+      }
     }
   }
 
@@ -346,14 +351,17 @@ void CReader::read_section(CRegion::Ptr& parent_region)
   if (true)
   {
     bool is_bc_region = false;
-    for(CRegion::Iterator region_it=this_region->begin(); region_it!=this_region->end(); ++region_it)
-      if(!region_it->has_component_of_type<CRegion>())
+    BOOST_FOREACH(CRegion& region, make_component_range_of_type<CRegion>(this_region))
+    {
+      if(!region.has_component_of_type<CRegion>())
       {
-        if (region_it->get_component<CElements>("type")->getDimensionality() < static_cast<Uint>(m_base.cell_dim))
+        if (region.get_component<CElements>("type")->getDimensionality() < static_cast<Uint>(m_base.cell_dim))
         {
           is_bc_region = is_bc_region || true;
         }
       }
+    }
+
     if (is_bc_region)
     {
       this_region->move_component( m_mesh->get_component("regions")->get_component("bc-regions") );
