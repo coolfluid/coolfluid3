@@ -16,7 +16,8 @@ namespace Common {
 
   public: // typedefs
 
-    typedef Component_iterator<CRoot> Iterator;
+    typedef Common::Component_iterator<CRoot> iterator;
+    typedef Common::Component_iterator<CRoot const> const_iterator;
     typedef boost::shared_ptr<CRoot> Ptr;
 
   public: // functions

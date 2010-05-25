@@ -23,6 +23,8 @@ LIST ( APPEND Common_files
     CommonLib.hpp
     Component.hpp
     Component.cpp
+    ComponentIterator.hpp
+    ComponentPredicates.hpp
     CPath.hpp
     CPath.cpp
     CRoot.hpp

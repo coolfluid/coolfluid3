@@ -20,7 +20,8 @@ class Mesh_API CField : public Common::Component {
 public: // typedefs
 
   typedef boost::shared_ptr<CField> Ptr;
-  typedef Common::Component_iterator<CField> Iterator;
+  typedef Common::Component_iterator<CField> iterator;
+  typedef Common::Component_iterator<CField const> const_iterator;
 
 public: // functions
 

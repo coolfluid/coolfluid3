@@ -25,7 +25,8 @@ class Mesh_API CMesh : public Common::Component {
 public: // typedefs
 
   typedef boost::shared_ptr<CMesh> Ptr;
-  typedef Common::Component_iterator<CMesh> Iterator;
+  typedef Common::Component_iterator<CMesh> iterator;
+  typedef Common::Component_iterator<CMesh const> const_iterator;
 
 public: // functions
 

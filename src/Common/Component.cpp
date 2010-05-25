@@ -7,6 +7,7 @@
 #include "Common/BasicExceptions.hpp"
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
+#include "Common/ComponentIterator.hpp"
 
 namespace CF {
 namespace Common {
@@ -176,7 +177,7 @@ Component::Ptr Component::get_component ( const CName& name )
 std::vector<Component::Ptr> Component::get_components_by_tag(const std::string& tag)
 {
   std::vector<Component::Ptr> vec;
-  for(CompStorage_t::iterator it=m_components.begin(); it!=m_components.end(); ++it)
+  for(CompStorage_t::const_iterator it=m_components.begin(); it!=m_components.end(); ++it)
   {
     if (it->second->has_tag(tag))
       vec.push_back(it->second);
@@ -339,10 +340,18 @@ void Component::list_options ( XmlNode& node )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
+Component_iterator<Component> Component::begin()
+{
+  std::vector<Component::Ptr > vec;
+  put_components(vec);
+  return Component_iterator<Component>(vec,shared_from_this());
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
 Component_iterator<Component> Component::end()
 {
-  std::vector<boost::shared_ptr<Component> > vec;
-  return Component_iterator<Component>(vec);
+  return Component_iterator<Component>(shared_from_this());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

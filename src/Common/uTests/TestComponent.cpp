@@ -1,11 +1,17 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
+#include <boost/foreach.hpp>
+#include <boost/range/iterator_range.hpp>
+#include <boost/range/adaptor/filtered.hpp>
+#include <boost/iterator.hpp>
 
 #include "Common/Log.hpp"
 #include "Common/Component.hpp"
+#include "Common/ComponentPredicates.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/CGroup.hpp"
 #include "Common/CLink.hpp"
+#include "Common/DemangledTypeID.hpp"
 
 using namespace std;
 using namespace boost;
@@ -302,16 +308,101 @@ BOOST_AUTO_TEST_CASE( test_iterator )
   check_with_map[counter++]=group2->name();
 
   counter = 0;
-  for (Component::Iterator it = root->begin<Component>(); it!=root->end(); ++it )
-  {
+  for (Component::iterator it = root->begin(); it!=root->end(); ++it )
     BOOST_CHECK_EQUAL(it->name(),check_with_map[counter++]);
-  }
 
-  counter = 6;
-  for (CGroup::Iterator it = root->begin<CGroup>(); it!=root->end(); ++it )
-  {
-    BOOST_CHECK_EQUAL(it->name(),check_with_map[counter++]);
-  }
+//  counter = 0;
+//  BOOST_FOREACH(Component& comp, (*root))
+//    BOOST_CHECK_EQUAL(comp.name(),check_with_map[counter++]);
+
+  counter = 4;
+  BOOST_FOREACH(Component& comp, (*comp2))
+    BOOST_CHECK_EQUAL(comp.name(),check_with_map[counter++]);
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( test_filter_iterator )
+{
+  Uint counter(0);
+  std::map<Uint,std::string> check_with_map;
+  CRoot::Ptr root = CRoot::create ( "root" );
+
+  Component::Ptr comp1 = root->create_component<Component>("comp1");
+  check_with_map[counter++]=comp1->name();
+  Component::Ptr comp1_1 = comp1->create_component<Component>("comp1_1");
+  check_with_map[counter++]=comp1_1->name();
+  Component::Ptr comp1_2 = comp1->create_component<Component>("comp1_2");
+  check_with_map[counter++]=comp1_2->name();
+  Component::Ptr comp2   = root->create_component<Component>("comp2");
+  check_with_map[counter++]=comp2->name();
+  Component::Ptr comp2_1 = comp2->create_component<Component>("comp2_1");
+  check_with_map[counter++]=comp2_1->name();
+  Component::Ptr comp2_2 = comp2->create_component<Component>("comp2_2");
+  check_with_map[counter++]=comp2_2->name();
+  CGroup::Ptr group1 = root->create_component<CGroup>("group1");
+  check_with_map[counter++]=group1->name();
+  CGroup::Ptr group2 = root->create_component<CGroup>("group2");
+  check_with_map[counter++]=group2->name();
+
+  Component::Ptr all = root;
+  counter = 0;
+
+  // Check predicates:
+  IsComponentName name_is_equal("group1");
+  BOOST_CHECK_EQUAL(name_is_equal(group1),true);
+  BOOST_CHECK_EQUAL(name_is_equal(group2),false);
+
+  IsComponentTag  tag_is_equal("CGroup");
+  BOOST_CHECK_EQUAL(tag_is_equal(comp1),false);
+  BOOST_CHECK_EQUAL(tag_is_equal(group1),true);
+  BOOST_CHECK_EQUAL(tag_is_equal(group2),true);
+
+
+  // Iterator tests:
+  // ---------------
+  // Several ways are available to iterate using a filter or predicate.
+  // They are listed from most difficult to use (showing how to do it yourself -> BOILER-PLATE-CODE)
+  // to most easy to use (wrappers that make users life easy)
+
+  // 1) Example creating the filter_iterator yourself
+
+  typedef boost::filter_iterator< IsComponentName , Component::iterator > FilterIterator;
+  FilterIterator filterIterator(name_is_equal, all->begin(), all->end());
+  FilterIterator last_filterIterator(name_is_equal, all->end(), all->end());
+
+  for (; filterIterator != last_filterIterator; ++filterIterator)
+    BOOST_CHECK_EQUAL(filterIterator->name(),"group1");
+
+  // 2) Example using BOOST_FOREACH and boost::make_iterator_range
+  BOOST_FOREACH(Component& comp,
+                boost::make_iterator_range(boost::filter_iterator<IsComponentTag, Component::iterator >(IsComponentTag("CGroup"),all->begin(),all->end()),
+                                           boost::filter_iterator<IsComponentTag, Component::iterator >(IsComponentTag("CGroup"),all->end(),all->end())))
+    BOOST_CHECK(comp.name() == "group1" || comp.name() == "group2");
+
+  // 3) Example using BOOST_FOREACH and make_component_range
+  BOOST_FOREACH(Component& comp, make_component_range(all->begin(), all->end(),IsComponentTag("CGroup")))
+    BOOST_CHECK(comp.name() == "group1" || comp.name() == "group2");
+
+  // 4) Example using BOOST_FOREACH and make_component_range
+  BOOST_FOREACH(Component& comp, make_component_range(all,IsComponentTag("CGroup")))
+    BOOST_CHECK(comp.name() == "group1" || comp.name() == "group2");
+
+  // 5) Example using BOOST_FOREACH and make_component_range using default predicate IsComponentTrue
+  counter=0;
+  BOOST_FOREACH(Component& comp, make_component_range(all))
+    BOOST_CHECK_EQUAL(comp.name(),check_with_map[counter++]);
+
+
+  // 5) Example using BOOST_FOREACH and Component::make_component_range_of_type
+  //    This will use a predefined predicate
+  BOOST_FOREACH(Component& comp, make_component_range_of_type<CGroup>(all))
+    BOOST_CHECK(comp.name() == "group1" || comp.name() == "group2");
+
+  // 5) Example
+  //BOOST_FOREACH(Component& comp, make_component_range_of_type<CGroup>(all))
+  //  BOOST_CHECK(comp.name() == "group1" || comp.name() == "group2");
 
 }
 
