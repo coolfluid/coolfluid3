@@ -401,8 +401,8 @@ BOOST_AUTO_TEST_CASE( test_filter_iterator )
     BOOST_CHECK(comp.name() == "group1" || comp.name() == "group2");
 
   // 6) Example
-  //BOOST_FOREACH(Component& comp, make_component_range_of_type<CGroup>(all))
-  //  BOOST_CHECK(comp.name() == "group1" || comp.name() == "group2");
+  BOOST_FOREACH(CGroup& group, make_component_range_of_type<CGroup>(all))
+    BOOST_CHECK(group.name() == "group1" || group.name() == "group2");
 
 }
 

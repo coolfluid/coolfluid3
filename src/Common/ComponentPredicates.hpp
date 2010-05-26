@@ -100,7 +100,7 @@ make_component_range(const boost::shared_ptr<CType>& parent)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename CReturnType, typename CType>
-inline boost::iterator_range<boost::filter_iterator<IsComponentTag, Component_iterator<CType> > >
+inline boost::iterator_range<boost::filter_iterator<IsComponentTag, Component_iterator<CReturnType> > >
 make_component_range_of_type(const boost::shared_ptr<CType>& parent)
 {
   return make_component_range(parent,IsComponentTag(CReturnType::getClassName()));
