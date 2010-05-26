@@ -23,8 +23,6 @@ class Mesh_API CElements : public Common::Component {
 public: // typedefs
 
   typedef boost::shared_ptr<CElements> Ptr;
-  typedef Common::Component_iterator<CElements> iterator;
-  typedef Common::Component_iterator<CElements const> const_iterator;
 
 public: // functions
 

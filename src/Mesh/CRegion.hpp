@@ -24,8 +24,6 @@ class Mesh_API CRegion : public Common::Component {
 public:
 
   typedef boost::shared_ptr<CRegion> Ptr;
-  typedef Common::Component_iterator<CRegion> iterator;
-  typedef Common::Component_iterator<CRegion const> const_iterator;
 
   /// Contructor
   /// @param name of the component

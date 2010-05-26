@@ -16,7 +16,6 @@ namespace Common {
 
   public: //typedefs
 
-    typedef Component_iterator<CLink> Iterator;
     typedef boost::shared_ptr<CLink> Ptr;
 
   public: // functions

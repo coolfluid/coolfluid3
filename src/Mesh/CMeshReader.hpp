@@ -29,10 +29,6 @@ public: // typedefs
   /// provider
   typedef Common::ConcreteProvider < CMeshReader,1 > PROVIDER;
 
-  /// iterator
-  typedef Common::Component_iterator<CMeshReader> iterator;
-  typedef Common::Component_iterator<CMeshReader const> const_iterator;
-
   /// pointer to this type
   typedef boost::shared_ptr<CMeshReader> Ptr;
 
