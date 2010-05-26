@@ -187,13 +187,13 @@ void CReader::read_zone(CRegion::Ptr& parent_region)
       read_boco();
 
     // Remove regions flagged as bc
-    BOOST_FOREACH(CRegion& region, make_component_range_of_type<CRegion>(this_region))
+    BOOST_FOREACH(const CRegion::Ptr& region, iterate_recursive_by_type<CRegion>(this_region))
     {
-      if(!region.has_component_of_type<CRegion>())
+      if(!region->has_component_of_type<CRegion>())
       {
-        if (region.get_component<CElements>("type")->getDimensionality() < static_cast<Uint>(m_base.cell_dim))
+        if (region->get_component<CElements>("type")->getDimensionality() < static_cast<Uint>(m_base.cell_dim))
         {
-          Component::Ptr region_to_rm = region.get_parent();
+          Component::Ptr region_to_rm = region->get_parent();
           CFinfo << "Removing region flagged as bc : " << region_to_rm->name() << "\n" << CFendl;
           region_to_rm->get_parent()->remove_component(region_to_rm->name());
           region_to_rm.reset();
@@ -351,11 +351,11 @@ void CReader::read_section(CRegion::Ptr& parent_region)
   if (true)
   {
     bool is_bc_region = false;
-    BOOST_FOREACH(CRegion& region, make_component_range_of_type<CRegion>(this_region))
+    BOOST_FOREACH(const CRegion::Ptr& region, iterate_recursive_by_type<CRegion>(this_region))
     {
-      if(!region.has_component_of_type<CRegion>())
+      if(!region->has_component_of_type<CRegion>())
       {
-        if (region.get_component<CElements>("type")->getDimensionality() < static_cast<Uint>(m_base.cell_dim))
+        if (region->get_component<CElements>("type")->getDimensionality() < static_cast<Uint>(m_base.cell_dim))
         {
           is_bc_region = is_bc_region || true;
         }

@@ -53,19 +53,19 @@ void Writer::write_header(std::fstream& file)
   Uint phys_name_counter(0);
 
   CRegion::Ptr regions = m_mesh->get_component<CRegion>("regions");
-  BOOST_FOREACH(CRegion& region, make_component_range_of_type<CRegion>(regions))
+  BOOST_FOREACH(const CRegion::Ptr& region, iterate_recursive_by_type<CRegion>(regions))
   {
-    if (!region.has_component_of_type<CRegion>())
+    if (!region->has_component_of_type<CRegion>())
     {
       bool exists = false;
       for(PhysicalGroupMap::iterator it=m_groups.begin(); it!=m_groups.end(); ++it)
-        if (it->first == region.get_parent()->name())
+        if (it->first == region->get_parent()->name())
         { exists = true; break; }
 
       if (!exists)
       {
         ++phys_name_counter;
-        PhysicalGroup group (dimension,phys_name_counter,region.get_parent()->name());
+        PhysicalGroup group (dimension,phys_name_counter,region->get_parent()->name());
         m_groups.insert(PhysicalGroupMap::value_type(group.name,group));
         CFinfo << phys_name_counter << ": " << group.name << "\n" << CFendl;
       }
@@ -122,11 +122,11 @@ void Writer::write_connectivity(std::fstream& file)
   CRegion::Ptr regions = m_mesh->get_component<CRegion>("regions");
   Uint nbElems = 0;
 
-  BOOST_FOREACH(CRegion& region, make_component_range_of_type<CRegion>(regions))
+  BOOST_FOREACH(const CRegion::Ptr& region, iterate_recursive_by_type<CRegion>(regions))
   {
-    if (!region.has_component_of_type<CRegion>())
+    if (!region->has_component_of_type<CRegion>())
     {
-      nbElems += region.get_component<CTable>("table")->get_table().size();
+      nbElems += region->get_component<CTable>("table")->get_table().size();
     }
   }
   file << "$Elements\n";
@@ -137,18 +137,18 @@ void Writer::write_connectivity(std::fstream& file)
   Uint elm_type;
   Uint number_of_tags=2;
 
-  BOOST_FOREACH(CRegion& region, make_component_range_of_type<CRegion>(regions))
+  BOOST_FOREACH(const CRegion::Ptr& region, iterate_recursive_by_type<CRegion>(regions))
   {
-    if (region.has_component_of_type<CRegion>())
+    if (region->has_component_of_type<CRegion>())
     {
-      group_name = region.name();
+      group_name = region->name();
       group_number = m_groups[group_name].number;
     }
     else
     {
       cf_assert(group_name != "");
-      elm_type = m_elementTypes[region.get_component<CElements>("type")->get_elementType()->getShape()];
-      BOOST_FOREACH(CTable::Row row, region.get_component<CTable>("table")->get_table())
+      elm_type = m_elementTypes[region->get_component<CElements>("type")->get_elementType()->getShape()];
+      BOOST_FOREACH(CTable::Row row, region->get_component<CTable>("table")->get_table())
       {
         elm_number++;
         file << elm_number << " " << elm_type << " " << number_of_tags << " " << group_number << " " << group_number;

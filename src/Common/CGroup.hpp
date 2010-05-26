@@ -16,7 +16,7 @@ namespace Common {
 
   public: // typedefs
 
-    typedef Component_iterator<CGroup> Iterator;
+    typedef boost::shared_ptr<CGroup> Ptr;
 
   public: // functions
 

@@ -309,15 +309,15 @@ BOOST_AUTO_TEST_CASE( test_iterator )
 
   counter = 0;
   for (Component::iterator it = root->begin(); it!=root->end(); ++it )
-    BOOST_CHECK_EQUAL(it->name(),check_with_map[counter++]);
+    BOOST_CHECK_EQUAL((*it)->name(),check_with_map[counter++]);
 
-//  counter = 0;
-//  BOOST_FOREACH(Component& comp, (*root))
-//    BOOST_CHECK_EQUAL(comp.name(),check_with_map[counter++]);
+  counter = 0;
+  BOOST_FOREACH(const Component::Ptr& comp, (*boost::dynamic_pointer_cast<Component>(root)))
+    BOOST_CHECK_EQUAL(comp->name(),check_with_map[counter++]);
 
   counter = 4;
-  BOOST_FOREACH(Component& comp, (*comp2))
-    BOOST_CHECK_EQUAL(comp.name(),check_with_map[counter++]);
+  BOOST_FOREACH(const Component::Ptr& comp, (*comp2))
+    BOOST_CHECK_EQUAL(comp->name(),check_with_map[counter++]);
 
 }
 
@@ -373,36 +373,63 @@ BOOST_AUTO_TEST_CASE( test_filter_iterator )
   FilterIterator last_filterIterator(name_is_equal, all->end(), all->end());
 
   for (; filterIterator != last_filterIterator; ++filterIterator)
-    BOOST_CHECK_EQUAL(filterIterator->name(),"group1");
+    BOOST_CHECK_EQUAL((*filterIterator)->name(),"group1");
 
   // 2) Example using BOOST_FOREACH and boost::make_iterator_range
-  BOOST_FOREACH(Component& comp,
+  counter = 6;
+  BOOST_FOREACH(const Component::Ptr& comp,
                 boost::make_iterator_range(boost::filter_iterator<IsComponentTag, Component::iterator >(IsComponentTag("CGroup"),all->begin(),all->end()),
                                            boost::filter_iterator<IsComponentTag, Component::iterator >(IsComponentTag("CGroup"),all->end(),all->end())))
-    BOOST_CHECK(comp.name() == "group1" || comp.name() == "group2");
+    BOOST_CHECK_EQUAL(comp->name(), check_with_map[counter++]);
+  BOOST_CHECK_EQUAL(counter,(Uint) 8);
 
   // 3) Example using BOOST_FOREACH and make_component_range
-  BOOST_FOREACH(Component& comp, make_component_range(all->begin(), all->end(),IsComponentTag("CGroup")))
-    BOOST_CHECK(comp.name() == "group1" || comp.name() == "group2");
+  counter = 6;
+  BOOST_FOREACH(const Component::Ptr& comp, iterate_recursive(all->begin(), all->end(),IsComponentTag("CGroup")))
+    BOOST_CHECK_EQUAL(comp->name(), check_with_map[counter++]);
+  BOOST_CHECK_EQUAL(counter,(Uint) 8);
 
   // 4) Example using BOOST_FOREACH and make_component_range
-  BOOST_FOREACH(Component& comp, make_component_range(all,IsComponentTag("CGroup")))
-    BOOST_CHECK(comp.name() == "group1" || comp.name() == "group2");
+  counter = 6;
+  BOOST_FOREACH(const Component::Ptr& comp, iterate_recursive(all,IsComponentTag("CGroup")))
+    BOOST_CHECK_EQUAL(comp->name(), check_with_map[counter++]);
+  BOOST_CHECK_EQUAL(counter,(Uint) 8);
 
   // 5) Example using BOOST_FOREACH and make_component_range using default predicate IsComponentTrue
   counter=0;
-  BOOST_FOREACH(Component& comp, make_component_range(all))
-    BOOST_CHECK_EQUAL(comp.name(),check_with_map[counter++]);
-
+  BOOST_FOREACH(const Component::Ptr& comp, iterate_recursive(all))
+    BOOST_CHECK_EQUAL(comp->name(),check_with_map[counter++]);
+  BOOST_CHECK_EQUAL(counter,(Uint) 8);
 
   // 5) Example using BOOST_FOREACH and Component::make_component_range_of_type
   //    This will use a predefined predicate
-  BOOST_FOREACH(Component& comp, make_component_range_of_type<CGroup>(all))
-    BOOST_CHECK(comp.name() == "group1" || comp.name() == "group2");
+  counter = 6;
+  BOOST_FOREACH(const CGroup::Ptr& comp, iterate_recursive_by_type<CGroup>(all))
+    BOOST_CHECK_EQUAL(comp->name(), check_with_map[counter++]);
 
+  BOOST_CHECK_EQUAL(counter,(Uint) 8);
   // 6) Example
-  BOOST_FOREACH(CGroup& group, make_component_range_of_type<CGroup>(all))
-    BOOST_CHECK(group.name() == "group1" || group.name() == "group2");
+
+
+    typedef boost::iterator_range<boost::filter_iterator<IsComponentTag, Component::iterator > > Component_iterator_range;
+    typedef boost::iterator_range<boost::filter_iterator<IsComponentTag, CGroup::iterator    > > Group_iterator_range;
+
+//  counter = 6;
+//  BOOST_FOREACH(CGroup& group, make_component_range_of_type<CGroup>(all))
+//    BOOST_CHECK_EQUAL(group.name(), check_with_map[counter++]);
+//  BOOST_CHECK_EQUAL(counter,(Uint) 8);
+
+  CGroup::Ptr groups(new CGroup("groups"));
+  groups->create_component<CGroup>("group1");
+  groups->create_component<CGroup>("group2");
+
+//  BOOST_FOREACH(CGroup& group, make_component_range_of_type<CGroup>(groups))
+//      std::cout<< group.name() << std::endl;
+
+
+//  check_with_map[counter++]=group1->name();
+//  CGroup::Ptr group2 = root->create_component<CGroup>("group2");
+//  check_with_map[counter++]=group2->name();
 
 }
 

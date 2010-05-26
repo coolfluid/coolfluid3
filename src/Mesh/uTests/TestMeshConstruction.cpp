@@ -186,10 +186,10 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   BOOST_CHECK_EQUAL(coordRef[1],1.0);
 
  // calculate all volumes of a region
-  BOOST_FOREACH(CRegion& region, make_component_range_of_type<CRegion>(superRegion))
+  BOOST_FOREACH(const CRegion::Ptr& region, iterate_recursive_by_type<CRegion>(superRegion))
   {
-   CElements::Ptr  elementType = region.get_component<CElements>("type");
-   boost::shared_ptr<CTable>     connTable   = region.get_component<CTable>("table");
+   CElements::Ptr  elementType = region->get_component<CElements>("type");
+   boost::shared_ptr<CTable>     connTable   = region->get_component<CTable>("table");
    //CFinfo << "type = " << elementType->getShapeName() << "\n" << CFendl;
    const Uint nbRows = connTable->get_table().size();
    std::vector<Real> volumes(nbRows);
@@ -200,7 +200,7 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
      std::vector<CArray::Row > elementCoordinates;
      for (Uint iNode=0; iNode<elementType->getNbNodes(); iNode++)
      {
-       elementCoordinates.push_back(region.get_row(iElem,iNode,coordinates));
+       elementCoordinates.push_back(region->get_row(iElem,iNode,coordinates));
      }
 
      volumes[iElem]=elementType->computeVolume(elementCoordinates);

@@ -10,13 +10,10 @@
 #include "Common/CPath.hpp"
 #include "Common/ConcreteProvider.hpp"
 #include "Common/ComponentIterator.hpp"
-
 #include "Common/XML.hpp"
 
 namespace CF {
 namespace Common {
-
-  template <typename CType> class Component_iterator;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -70,30 +67,28 @@ public: // functions
   virtual Component::Ptr  get ();
 
   /// The begin iterator
-  Component_iterator<Component> begin();
+  iterator begin();
 
   /// The end iterator
-  Component_iterator<Component> end();
+  iterator end();
 
   /// Recursively put all subcomponents in a given vector
   /// @param [out] vec  A vector of all (recursive) subcomponents
-  template <typename CType>
-      void put_components(std::vector<boost::shared_ptr<CType> >& vec);
+  void put_components(std::vector<Ptr>& vec);
 
   /// checks if this component is in fact a link to another component
   bool is_link () const { return m_is_link; }
 
   /// @return vector of (sub)components with a given type automatically cast to the specified type
   template <typename T>
-      std::vector<boost::shared_ptr<T> > get_components_by_type ();
+      std::vector<typename T::Ptr> get_components_by_type ();
 
   /// @return vector of (sub)components with a given tag
   std::vector<Component::Ptr> get_components_by_tag(const std::string& tag);
 
   /// @return vector of (sub)components with a given tag automatically cast to the specified type
   template <typename T>
-      //std::vector<boost::shared_ptr<T> > get_components_by_tag(const std::string& tag);
-  std::vector<boost::shared_ptr<T> > get_components_by_tag(const std::string& tag);
+      std::vector<typename T::Ptr> get_components_by_tag(const std::string& tag);
 
   /// Check if this component has a given tag assigned
   bool has_tag(const std::string& tag);
@@ -115,24 +110,24 @@ public: // functions
   const CPath& path () const { return m_path; }
 
   /// Modify the parent of this component
-  void change_parent ( boost::shared_ptr<Component> new_parent );
+  void change_parent ( Ptr new_parent );
 
   /// Construct the full path
   CPath full_path () const { return m_path / m_name; }
 
   /// Create a (sub)component of this component automatically cast to the specified type
-  template < typename TYPE >
-      boost::shared_ptr<TYPE> create_component ( const CName& name );
+  template < typename T >
+      typename T::Ptr create_component ( const CName& name );
 
   /// Add a (sub)component of this component
-  void add_component ( Component::Ptr subcomp );
+  void add_component ( Ptr subcomp );
 
   /// Remove a (sub)component of this component
   Component::Ptr remove_component ( const CName& name );
 
   /// Move this component to within another one
   /// @param new_parent will be the new parent of this component
-  void move_component ( Component::Ptr new_parent );
+  void move_component ( Ptr new_parent );
 
   /// Get a (sub)component of this component
   /// @param name the component
@@ -144,16 +139,16 @@ public: // functions
 
   /// Get a (sub)component of this component automatically cast to the specified type
   /// @param name the component
-  template < typename TYPE >
-      boost::shared_ptr<TYPE> get_component ( const CName& name );
+  template < typename T >
+      typename T::Ptr get_component ( const CName& name );
 
   /// Return the parent component
-  Component::Ptr get_parent() { return m_parent.lock(); }
+  Ptr get_parent() { return m_parent.lock(); }
 
   /// Looks for a component via its path
   /// (wdeconinck: relative path doesn't work if no root is available)
   /// @param path to the component
-  Component::Ptr look_component ( const CPath& path );
+  Ptr look_component ( const CPath& path );
 
   /// Resolves relative elements within a path to complete it.
   /// The path may be relative to this component or absolute.
@@ -234,9 +229,9 @@ inline void Component::tag_classname ()
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename T>
-inline std::vector<boost::shared_ptr<T> > Component::get_components_by_tag(const std::string& tag)
+inline std::vector<typename T::Ptr> Component::get_components_by_tag(const std::string& tag)
 {
-  std::vector<boost::shared_ptr<T> > vec;
+  std::vector<typename T::Ptr > vec;
   for(CompStorage_t::iterator it=m_components.begin(); it!=m_components.end(); ++it)
   {
     if (it->second->has_tag(tag))
@@ -248,25 +243,25 @@ inline std::vector<boost::shared_ptr<T> > Component::get_components_by_tag(const
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename T>
-    inline std::vector<boost::shared_ptr<T> > Component::get_components_by_type ()
+inline std::vector<typename T::Ptr> Component::get_components_by_type ()
 {
   return get_components_by_tag<T>(T::getClassName());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-template < typename TYPE >
-inline boost::shared_ptr<TYPE> Component::get_component ( const CName& name )
+template < typename T >
+inline typename T::Ptr Component::get_component ( const CName& name )
 {
-  return boost::dynamic_pointer_cast<TYPE>( get_component(name) );
+  return boost::dynamic_pointer_cast<T>( get_component(name) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-template < typename TYPE >
-inline boost::shared_ptr<TYPE> Component::create_component ( const CName& name )
+template < typename T >
+inline typename T::Ptr Component::create_component ( const CName& name )
 {
-  boost::shared_ptr<TYPE> new_component ( new TYPE(name), Deleter<TYPE>() );
+  typename T::Ptr new_component ( new T(name), Deleter<T>() );
   add_component(new_component);
   return new_component;
 }
@@ -281,8 +276,7 @@ inline bool Component::has_component_of_type()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-template <typename CType>
-void Component::put_components(std::vector<boost::shared_ptr<CType> >& vec)
+inline void Component::put_components(std::vector<Component::Ptr >& vec)
 {
   for(CompStorage_t::iterator it=m_components.begin(); it!=m_components.end(); ++it)
   {
@@ -291,10 +285,26 @@ void Component::put_components(std::vector<boost::shared_ptr<CType> >& vec)
   }
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+
+inline Component::iterator Component::begin()
+{
+  std::vector<Component::Ptr > vec;
+  put_components(vec);
+  return Component::iterator(vec,shared_from_this());
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+inline Component::iterator Component::end()
+{
+  return Component::iterator(shared_from_this());
+}
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Common
 } // CF
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

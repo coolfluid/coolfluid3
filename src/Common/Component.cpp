@@ -343,19 +343,6 @@ void Component::list_options ( XmlNode& node )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-Component_iterator<Component> Component::begin()
-{
-  std::vector<Component::Ptr > vec;
-  put_components(vec);
-  return Component_iterator<Component>(vec,shared_from_this());
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
-
-Component_iterator<Component> Component::end()
-{
-  return Component_iterator<Component>(shared_from_this());
-}
 
 /////////////////////////////////////////////////////////////////////////////////////
 

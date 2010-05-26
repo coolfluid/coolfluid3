@@ -8,25 +8,28 @@
 namespace CF {
 namespace Common {
 
+  class Component;
+
 ////////////////////////////////////////////////////////////////////////////////
 
-template<class CType>
+template<class T>
 class Component_iterator
-        : public boost::iterator_facade<Component_iterator<CType>,
-                                        CType,
-                                        boost::forward_traversal_tag>
+        : public boost::iterator_facade<Component_iterator<T>,        // iterator
+                                        T,                            // Value
+                                        boost::forward_traversal_tag, // search direction
+                                        boost::shared_ptr<T>          // return type of dereference (NOTE IT IS A POINTER)
+                                       >
 {
 public:
-  typedef boost::shared_ptr<CType> CTypePtr;
 
-  explicit Component_iterator(const CTypePtr& parent)
-    : m_component(parent) , m_parent(parent), m_counter(0)
+  explicit Component_iterator(const boost::shared_ptr<T>& parent)
+    : m_parent(parent), m_component(parent) , m_counter(0)
   {
     m_vec.push_back(m_parent);
   }
 
-  explicit Component_iterator(std::vector<CTypePtr> vec, const CTypePtr& parent)
-          : m_component(parent) , m_parent(parent) , m_vec(vec), m_counter(0)
+  explicit Component_iterator(std::vector<boost::shared_ptr<T> > vec, const boost::shared_ptr<Component>& parent)
+          : m_parent(parent), m_component(parent) , m_vec(vec), m_counter(0)
   {
     if (!m_vec.size())
       m_vec.push_back(parent);
@@ -34,15 +37,13 @@ public:
     m_component = vec[0];
   }
 
-  template <class CType2>
-  Component_iterator(Component_iterator<CType2> const& other)
-    : m_component(boost::dynamic_pointer_cast<CType>(other.m_component))
+  template <class T2>
+  Component_iterator(Component_iterator<T2> const& other)
+   :  m_parent(other.m_parent),
+      m_component(other.m_component),
+      m_vec(other.m_vec),
+      m_counter(other.m_counter)
   {
-  }
-
-  CTypePtr& get_ptr()
-  {
-    return m_component;
   }
 
 private:
@@ -57,22 +58,22 @@ private:
       m_component = m_parent;
   }
 
-  template <typename CType2>
-  bool equal(Component_iterator<CType2> const& other) const
+  template <typename T2>
+  bool equal(Component_iterator<T2> const& other) const
   {
     return (m_component == other.m_component);
   }
 
 public:
-  CType& dereference() const
+  boost::shared_ptr<T> dereference() const
   {
-    return *m_component;
+    return (m_component);
   }
 
 private:
-  CTypePtr m_component;
-  CTypePtr m_parent;
-  std::vector<CTypePtr> m_vec;
+  boost::shared_ptr<T> m_parent;
+  boost::shared_ptr<T> m_component;
+  std::vector<boost::shared_ptr<T> > m_vec;
   Uint m_counter;
 };
 
