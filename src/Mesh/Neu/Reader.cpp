@@ -123,7 +123,7 @@ void CReader::read_connectivity(std::fstream& file)
     // else if (elementType==6 && nbElementNodes==4) ;// tetrahedron
     // else if (elementType==7 && nbElementNodes==5) ;// pyramid
     else {
-      CFerr << "error: no support for element type/nodes " << elementType << "/" << nbElementNodes << CFendl;
+      CFerr << "error: no support for element type/nodes " << elementType << "/" << nbElementNodes << CFflush;
     }
     
     // get element nodes

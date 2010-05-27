@@ -15,7 +15,7 @@ OptionComponent::OptionComponent ( const std::string& name, const std::string& d
 //      << m_name << "] of type ["
 //      << m_type << "] w default ["
 //      << def_name << "] desc ["
-//      << m_description << "]\n" << CFendl;
+//      << m_description << "]\n" << CFflush;
 }
 
 void OptionComponent::change_value ( rapidxml::xml_node<> *node )

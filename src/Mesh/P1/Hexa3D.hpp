@@ -108,7 +108,7 @@ Real VolumeComputer<P1::Hexa3D>::computeVolume(const std::vector<CArray::Row>& c
   volume += det.determ3();
 
   if (volume < 0.0) {
-    CFinfo << "VolumeComputer<P1::Hexa3D> => volume < 0 => " <<  volume/12. << "\n" << CFendl;
+    CFinfo << "VolumeComputer<P1::Hexa3D> => volume < 0 => " <<  volume/12. << "\n" << CFflush;
   }
 
   return volume/12.;

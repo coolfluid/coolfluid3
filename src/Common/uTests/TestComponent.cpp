@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE( xml_tree )
 //
 //  XMLSTR xml_str = root_node.createXMLString();
 //
-////  CFinfo << "xml_str\n" << xml_str << CFendl;
+////  CFinfo << "xml_str\n" << xml_str << CFflush;
 //
 //  freeXMLString(xml_str);
 }

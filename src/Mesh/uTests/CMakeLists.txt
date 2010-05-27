@@ -4,7 +4,7 @@ LIST ( APPEND uTestMesh_cflibs P1 Neu Gmsh )
 LIST ( APPEND uTestMesh_files
   uTestMesh.cpp
   TestMeshComponents.cpp
-  TestMeshConstruction.cpp 
+  TestMeshConstruction.cpp
   TestMeshReading.cpp
 )
 

@@ -53,7 +53,7 @@ BOOST_FIXTURE_TEST_SUITE( MeshComponent_TestSuite, MeshComponent_Fixture )
 
 BOOST_AUTO_TEST_CASE( MeshComponentTest )
 {
-  // CFinfo << "testing MeshComponents \n" << CFendl;
+  // CFinfo << "testing MeshComponents \n" << CFflush;
 
   // Create root and mesh component
   boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
@@ -216,7 +216,7 @@ BOOST_AUTO_TEST_CASE( FlushTest )
 
 BOOST_AUTO_TEST_CASE( CTableTest )
 {
-  // CFinfo << "testing CTable \n" << CFendl;
+  // CFinfo << "testing CTable \n" << CFflush;
   Logger::getInstance().getStream(Logger::DEBUG).setLogLevel(SILENT);
   // Create mesh component
   boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
@@ -366,7 +366,7 @@ BOOST_AUTO_TEST_CASE( CArrayTemplates )
 {
   CArray vectorArray("vector");
   vectorArray.initialize(3);
-  //CFinfo << "numdim = " << CArray<VECTOR>::Array::NumDims() << "\n" << CFendl;
+  //CFinfo << "numdim = " << CArray<VECTOR>::Array::NumDims() << "\n" << CFflush;
 
   // CArray<SCALAR> scalarArray("scalar");
   // scalarArray.initialize(3);
@@ -386,8 +386,8 @@ BOOST_AUTO_TEST_CASE( moving_mesh_components_around )
   BOOST_CHECK_EQUAL(subregion1->has_component_of_type<CRegion>(),false);
 
   std::string type = DEMANGLED_TYPEID(CRegion);
-  CFinfo << "type = " << type << "\n" << CFendl;
-  CFinfo << "has_tag = " << subregion1->has_tag(CRegion::getClassName()) << "\n" << CFendl;
+  CFinfo << "type = " << type << "\n" << CFflush;
+  CFinfo << "has_tag = " << subregion1->has_tag(CRegion::getClassName()) << "\n" << CFflush;
   // create subregion2 in the wrong place
   CRegion::Ptr subregion2 = subregion1->create_region("subregion2");
   BOOST_CHECK_EQUAL(subregion1->has_component_of_type<CRegion>(),true);

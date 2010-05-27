@@ -95,18 +95,18 @@ CoreEnv::CoreEnv() :
 //{
 //  ConfigObject::configure(args);
 //
-//  CFinfo << "Configuring OSystem signal handlers ... " << CFendl;
+//  CFinfo << "Configuring OSystem signal handlers ... " << CFflush;
 //  if ( m_env_vars->RegistSignalHandlers )
 //  {
 //    OSystem::getInstance().getSignalHandler()->registSignalHandlers();
-//    CFinfo << "OK\n" << CFendl;
+//    CFinfo << "OK\n" << CFflush;
 //  }
 //  else
-//    CFinfo << "skipping\n" << CFendl;
+//    CFinfo << "skipping\n" << CFflush;
 //
-//  CFinfo << "Configuring Logging ... " << CFendl;
+//  CFinfo << "Configuring Logging ... " << CFflush;
 //  initLoggers();
-//  CFinfo << "OK\n" << CFendl;
+//  CFinfo << "OK\n" << CFflush;
 //
 //  // clean the config.log file
 //  boost::filesystem::path fileconfig =
@@ -260,11 +260,11 @@ void CoreEnv::initiate ( int argc, char** argv )
 {
   // Initiate the Parallel environment
   // This modifies argc and argv!
-  CFinfo << "-------------------------------------------------------------\n" << CFendl;
-  CFinfo << "CF Environment\n" << CFendl;
-  CFinfo << "-------------------------------------------------------------\n" << CFendl;
+  CFinfo << "-------------------------------------------------------------\n" << CFflush;
+  CFinfo << "CF Environment\n" << CFflush;
+  CFinfo << "-------------------------------------------------------------\n" << CFflush;
 
-  CFinfo << "Initializing Parallel Environment : " << CFendl;
+  CFinfo << "Initializing Parallel Environment : " << CFflush;
   PEInterface::getInstance().init(argc,argv);
 
   CFinfo << "CF version    : " << getVersionString () << "\n";
@@ -275,10 +275,10 @@ void CoreEnv::initiate ( int argc, char** argv )
   m_env_vars->InitArgs.first  = argc;
   m_env_vars->InitArgs.second = argv;
 
-  CFinfo << "Initializing Hook Modules ...\n" << CFendl;
+  CFinfo << "Initializing Hook Modules ...\n" << CFflush;
   initiateModules();
 
-  CFinfo << "-------------------------------------------------------------\n" << CFendl;
+  CFinfo << "-------------------------------------------------------------\n" << CFflush;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -305,17 +305,17 @@ void CoreEnv::terminateModules()
 
 void CoreEnv::terminate()
 {
-  CFinfo << "-------------------------------------------------------------\n" << CFendl;
-  CFinfo << "CF Environment Terminating\n" << CFendl;
+  CFinfo << "-------------------------------------------------------------\n" << CFflush;
+  CFinfo << "CF Environment Terminating\n" << CFflush;
 
-  CFinfo << "Terminating Hook Modules ...\n" << CFendl;
+  CFinfo << "Terminating Hook Modules ...\n" << CFflush;
   terminateModules();
 
   PEInterface::getInstance().finalize();
 
-  CFinfo << "-------------------------------------------------------------\n" << CFendl;
+  CFinfo << "-------------------------------------------------------------\n" << CFflush;
   CFinfo << "CF Environment Terminated\n";
-  CFinfo << "-------------------------------------------------------------\n" << CFendl;
+  CFinfo << "-------------------------------------------------------------\n" << CFflush;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

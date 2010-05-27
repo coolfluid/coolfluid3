@@ -68,7 +68,7 @@ class MyC : public ConfigObject {
 
     std::vector<int> vi = option("VecInt")->value< std::vector<int> >();
 //    for (Uint i = 0; i < vi.size(); ++i)
-//      CFinfo << "vi[" << i << "] : " << vi[i] << "\n" << CFendl;
+//      CFinfo << "vi[" << i << "] : " << vi[i] << "\n" << CFflush;
 
     option("Comp")->attach_processor ( boost::bind ( &MyC::config_comp,this ) );
   };
@@ -77,32 +77,32 @@ class MyC : public ConfigObject {
   {
     boost::any value = option("OptBool")->value();
     bool b = boost::any_cast<bool>(value);
-//    CFinfo << "config bool [" << Common::StringOps::to_str(b) << "]\n" << CFendl;
+//    CFinfo << "config bool [" << Common::StringOps::to_str(b) << "]\n" << CFflush;
   }
 
   void config_int ()
   {
     Uint i = option("OptInt")->value<Uint>();
-//    CFinfo << "config int [" <<  i << "]\n" << CFendl;
+//    CFinfo << "config int [" <<  i << "]\n" << CFflush;
   }
 
   void config_str ()
   {
     std::string s; option("OptStr")->put_value(s);
-//    CFinfo << "config str [" << s << "]\n" << CFendl;
+//    CFinfo << "config str [" << s << "]\n" << CFflush;
   }
 
   void config_vecint ()
   {
     std::vector<int> vi; option("VecInt")->put_value(vi);
 //    BOOST_FOREACH ( int i, vi )
-//        CFinfo << "config vi [" << i << "]\n" << CFendl;
+//        CFinfo << "config vi [" << i << "]\n" << CFflush;
   }
 
   void config_comp ()
   {
     std::string n; option("Comp")->put_value(n);
-//    CFinfo << "config COMPONENT [" << n << "]\n" << CFendl;
+//    CFinfo << "config COMPONENT [" << n << "]\n" << CFflush;
   }
 
 
@@ -141,11 +141,11 @@ BOOST_AUTO_TEST_CASE( addConfigOptionsTo )
   boost::gregorian::date today = boost::gregorian::day_clock::local_day();
   boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
 
-//  CFinfo << "starting [" << today << "] [" << now << "]\n" << CFendl;
+//  CFinfo << "starting [" << today << "] [" << now << "]\n" << CFflush;
 
   boost::shared_ptr<MyC> pm ( new MyC );
 
-//  CFinfo << "ending\n" << CFendl;
+//  CFinfo << "ending\n" << CFflush;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -155,13 +155,13 @@ BOOST_AUTO_TEST_CASE( defineConfigOptions )
   boost::gregorian::date today = boost::gregorian::day_clock::local_day();
   boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
 
-//  CFinfo << "starting [" << today << "] [" << now << "]\n" << CFendl;
+//  CFinfo << "starting [" << today << "] [" << now << "]\n" << CFflush;
 
   OptionList ll;
 
   MyC::defineConfigOptions(ll);
 
-//  CFinfo << "ending\n" << CFendl;
+//  CFinfo << "ending\n" << CFflush;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE( configure )
   boost::gregorian::date today = boost::gregorian::day_clock::local_day();
   boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
 
-//  CFinfo << "starting [" << today << "] [" << now << "]\n" << CFendl;
+//  CFinfo << "starting [" << today << "] [" << now << "]\n" << CFflush;
 
   boost::shared_ptr<MyC> pm ( new MyC );
 
@@ -196,7 +196,7 @@ BOOST_AUTO_TEST_CASE( configure )
 
   pm->configure(doc.first_node());
 
-//  CFinfo << "ending\n" << CFendl;
+//  CFinfo << "ending\n" << CFflush;
 
 }
 

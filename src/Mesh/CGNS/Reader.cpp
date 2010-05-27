@@ -62,12 +62,12 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 
   // check how many bases we have
   cg_nbases(m_file.idx,&m_file.nbBases);
-  CFinfo << "nb bases : " << m_file.nbBases << "\n" << CFendl;
+  CFinfo << "nb bases : " << m_file.nbBases << "\n" << CFflush;
 
   m_base.unique = m_file.nbBases==1 ? true : false;
   for (m_base.idx = 1; m_base.idx<=m_file.nbBases; ++m_base.idx)
   {
-    CFinfo << "m_base.idx = " << m_base.idx << "\n" << CFendl;
+    CFinfo << "m_base.idx = " << m_base.idx << "\n" << CFflush;
     read_base(volume_regions);
   }
 
@@ -76,7 +76,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   {
     regions->remove_component(bc_regions->name());
     bc_regions.reset();
-    CFinfo << "No boundary conditions were found! \n" << CFendl;
+    CFinfo << "No boundary conditions were found! \n" << CFflush;
   }
 
   // close the CGNS file
@@ -94,13 +94,13 @@ void CReader::read_base(CRegion::Ptr& parent_region)
   m_base.name=base_name_char;
   boost::algorithm::replace_all(m_base.name," ","_");
 
-  CFinfo << "base name     : " << m_base.name  << "\n" << CFendl;
-  CFinfo << "base cell dim : " << m_base.cell_dim  << "\n" << CFendl;
-  CFinfo << "base phys dim : " << m_base.phys_dim  << "\n" << CFendl;
+  CFinfo << "base name     : " << m_base.name  << "\n" << CFflush;
+  CFinfo << "base cell dim : " << m_base.cell_dim  << "\n" << CFflush;
+  CFinfo << "base phys dim : " << m_base.phys_dim  << "\n" << CFflush;
 
   // check how many zones we have
   cg_nzones(m_file.idx,m_base.idx,&m_base.nbZones);
-  CFinfo << "number of zones     : " << m_base.nbZones  << "\n" << CFendl;
+  CFinfo << "number of zones     : " << m_base.nbZones  << "\n" << CFflush;
 
   // create region for the base in mesh
   CRegion::Ptr base_region = parent_region;
@@ -109,7 +109,7 @@ void CReader::read_base(CRegion::Ptr& parent_region)
 
   for (m_zone.idx = 1; m_zone.idx<=m_base.nbZones; ++m_zone.idx)
   {
-    CFinfo << "m_zone.idx = " << m_zone.idx << "\n" << CFendl;
+    CFinfo << "m_zone.idx = " << m_zone.idx << "\n" << CFflush;
     read_zone(base_region);
   }
 }
@@ -130,17 +130,17 @@ void CReader::read_zone(CRegion::Ptr& parent_region)
   cg_zone_read(m_file.idx,m_base.idx,m_zone.idx,zone_name_char,size);
     m_zone.name = zone_name_char;
     boost::algorithm::replace_all(m_zone.name," ","_");
-  CFinfo << "\nzone name   : " << m_zone.name << "\n" << CFendl;
+  CFinfo << "\nzone name   : " << m_zone.name << "\n" << CFflush;
     m_zone.nbVertices = size[CGNS_VERT_IDX];
     m_zone.nbElements = size[CGNS_CELL_IDX];
     m_zone.nbBdryVertices = size[CGNS_BVRT_IDX];
-  CFinfo << "zone type: " << CFendl;
+  CFinfo << "zone type: " << CFflush;
   if (m_zone.type == Structured)
-    CFinfo << "Structured \n" << CFendl;
+    CFinfo << "Structured \n" << CFflush;
   else if (m_zone.type == Unstructured)
-    CFinfo << "Unstructured \n" << CFendl;
+    CFinfo << "Unstructured \n" << CFflush;
   else
-    CFinfo << "Unknown zone_type \n" << CFendl;
+    CFinfo << "Unknown zone_type \n" << CFflush;
   // get the number of grids
   cg_ngrids(m_file.idx,m_base.idx,m_zone.idx,&m_zone.nbGrids);
   // nb coord dims
@@ -155,16 +155,16 @@ void CReader::read_zone(CRegion::Ptr& parent_region)
   m_zone.total_nbElements = get_total_nbElements();
 
   // Print zone info
-  CFinfo << "coord dim   : " << m_zone.coord_dim << "\n" << CFendl;
-  CFinfo << "nb nodes    : " << m_zone.nbVertices << "\n" << CFendl;
-  CFinfo << "nb elems    : " << m_zone.nbElements << "\n" << CFendl;
-  CFinfo << "nb bnodes   : " << m_zone.nbBdryVertices << "\n" << CFendl;
-  CFinfo << "nb grids    : " << m_zone.nbGrids << "\n" << CFendl;
-  CFinfo << "nb sols     : " << m_zone.nbSols << "\n" << CFendl;
-  CFinfo << "nb sections : " << m_zone.nbSections << "\n" << CFendl;
-  CFinfo << "nb bcs      : " << m_zone.nbBocos << "\n" << CFendl;
+  CFinfo << "coord dim   : " << m_zone.coord_dim << "\n" << CFflush;
+  CFinfo << "nb nodes    : " << m_zone.nbVertices << "\n" << CFflush;
+  CFinfo << "nb elems    : " << m_zone.nbElements << "\n" << CFflush;
+  CFinfo << "nb bnodes   : " << m_zone.nbBdryVertices << "\n" << CFflush;
+  CFinfo << "nb grids    : " << m_zone.nbGrids << "\n" << CFflush;
+  CFinfo << "nb sols     : " << m_zone.nbSols << "\n" << CFflush;
+  CFinfo << "nb sections : " << m_zone.nbSections << "\n" << CFflush;
+  CFinfo << "nb bcs      : " << m_zone.nbBocos << "\n" << CFflush;
 
-  CFinfo << "total nb elems : " << m_zone.total_nbElements << "\n" << CFendl;
+  CFinfo << "total nb elems : " << m_zone.total_nbElements << "\n" << CFflush;
 
   // Create a region for this zone
   parent_region->create_region(m_zone.name);
@@ -194,7 +194,7 @@ void CReader::read_zone(CRegion::Ptr& parent_region)
         if (region->get_component<CElements>("type")->getDimensionality() < static_cast<Uint>(m_base.cell_dim))
         {
           Component::Ptr region_to_rm = region->get_parent();
-          CFinfo << "Removing region flagged as bc : " << region_to_rm->name() << "\n" << CFendl;
+          CFinfo << "Removing region flagged as bc : " << region_to_rm->name() << "\n" << CFflush;
           region_to_rm->get_parent()->remove_component(region_to_rm->name());
           region_to_rm.reset();
         }
@@ -279,14 +279,14 @@ void CReader::read_section(CRegion::Ptr& parent_region)
   m_section.name=section_name_char;
   boost::algorithm::replace_all(m_section.name," ","_");
 
-  CFinfo << "\nsection: " << m_section.name << "\n" << CFendl;
+  CFinfo << "\nsection: " << m_section.name << "\n" << CFflush;
   CRegion::Ptr this_region = parent_region->create_region(m_section.name);
 
-  //CFinfo << "eRange: " << m_section.eBegin << " - " << m_section.eEnd << "\n" << CFendl;
+  //CFinfo << "eRange: " << m_section.eBegin << " - " << m_section.eEnd << "\n" << CFflush;
 
   if (m_section.type == MIXED)
   {
-    CFinfo << "etype: MIXED --> create subregions for each element type \n" << CFendl;
+    CFinfo << "etype: MIXED --> create subregions for each element type \n" << CFflush;
     BufferMap buffer = create_leaf_regions_with_buffermap(this_region,get_supported_element_types());
     for (int elem=m_section.eBegin;elem<=m_section.eEnd;++elem)
     {
@@ -310,16 +310,16 @@ void CReader::read_section(CRegion::Ptr& parent_region)
   } // if mixed
   else
   {
-    CFinfo << "etype: " << cg_ElementTypeName(m_section.type) << "\n" << CFendl;
+    CFinfo << "etype: " << cg_ElementTypeName(m_section.type) << "\n" << CFflush;
 
     cg_npe(m_section.type,&m_section.elemNodeCount);
-    //CFinfo << "elemNodeCount = " << m_section.elemNodeCount << "\n" << CFendl;
+    //CFinfo << "elemNodeCount = " << m_section.elemNodeCount << "\n" << CFflush;
 
     cg_ElementDataSize(m_file.idx,m_base.idx,m_zone.idx,m_section.idx,&m_section.elemDataSize	);
-    //CFinfo << "elementDataSize = " << m_section.elemDataSize << "\n" << CFendl;
+    //CFinfo << "elementDataSize = " << m_section.elemDataSize << "\n" << CFflush;
 
     int nbElems = m_section.elemDataSize/m_section.elemNodeCount;
-    CFinfo << "nbElems = " << nbElems << "\n" << CFendl;
+    CFinfo << "nbElems = " << nbElems << "\n" << CFflush;
 
     const std::string& etype_CF = m_elemtype_CGNS_to_CF[m_section.type];
     CRegion::Ptr leaf_region = this_region->create_leaf_region(etype_CF);
@@ -378,16 +378,16 @@ void CReader::read_boco()
   cg_boco_info(m_file.idx, m_base.idx, m_zone.idx, m_boco.idx, boco_name_char, &m_boco.boco_type, &m_boco.ptset_type,
                &m_boco.nBC_elem, &m_boco.normalIndex, &m_boco.normalListFlag, &m_boco.normalDataType, &m_boco.nDataSet);
   m_boco.name = boco_name_char;
-  CFinfo << "BC name:       " << m_boco.name << "\n" << CFendl;
+  CFinfo << "BC name:       " << m_boco.name << "\n" << CFflush;
   switch (m_boco.ptset_type)
   {
-    case ElementRange : CFinfo << "BC boco_type: ElementRange \n" << CFendl; break;
-    case ElementList : CFinfo << "BC boco_type: ElementList \n" << CFendl; break;
-    case PointRange : CFinfo << "BC boco_type: PointRange \n" << CFendl; break;
-    case PointList : CFinfo << "BC boco_type: PointList \n" << CFendl; break;
-    default : CFinfo << "BC boco_type : NOT SUPPORTED \n" << CFendl; break;
+    case ElementRange : CFinfo << "BC boco_type: ElementRange \n" << CFflush; break;
+    case ElementList : CFinfo << "BC boco_type: ElementList \n" << CFflush; break;
+    case PointRange : CFinfo << "BC boco_type: PointRange \n" << CFflush; break;
+    case PointList : CFinfo << "BC boco_type: PointList \n" << CFflush; break;
+    default : CFinfo << "BC boco_type : NOT SUPPORTED \n" << CFflush; break;
   }
-  CFinfo << "BC nBC_elem :  " << m_boco.nBC_elem << "\n" << CFendl;
+  CFinfo << "BC nBC_elem :  " << m_boco.nBC_elem << "\n" << CFflush;
 
   // Read the element ID's
   int* boco_elems = new int [m_boco.nBC_elem];
@@ -417,7 +417,7 @@ void CReader::read_boco()
         Uint global_element = boco_elems[i]-1;
         CRegion::Ptr region = m_global_to_region[global_element].first;
         Uint local_element = m_global_to_region[global_element].second;
-        //CFinfo << "    " << global_element << " :  " << region->get_parent()->name() << "  -> " << local_element << "\n" << CFendl;
+        //CFinfo << "    " << global_element << " :  " << region->get_parent()->name() << "  -> " << local_element << "\n" << CFflush;
         buffer[region->name()]->add_row(region->get_component<CTable>("table")->get_table()[local_element]);
       }
       break;
@@ -426,7 +426,7 @@ void CReader::read_boco()
     case PointList :
 
     default :
-        CFinfo << "EXCEPTION: NOT SUPPORTED \n" << CFendl;
+        CFinfo << "EXCEPTION: NOT SUPPORTED \n" << CFflush;
   }
 
   // Flush all buffers and remove empty leaf regions

@@ -191,7 +191,7 @@ void Component::complete_path ( CPath& path )
 {
   using namespace boost::algorithm;
 
-//  CFinfo << "PATH [" << path.string() << "]\n" << CFendl;
+//  CFinfo << "PATH [" << path.string() << "]\n" << CFflush;
 
   if (m_parent.expired()) 
     throw  InvalidPath(FromHere(), "Component \'" + name() + "\' has no parent");
@@ -241,7 +241,7 @@ void Component::complete_path ( CPath& path )
       path /= *el;
   }
 
-//  CFinfo << "FINAL PATH: [" << path.string() << "]\n" << CFendl;
+//  CFinfo << "FINAL PATH: [" << path.string() << "]\n" << CFflush;
 
   cf_assert ( path.is_complete() );
 }

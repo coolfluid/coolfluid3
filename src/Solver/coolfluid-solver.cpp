@@ -5,7 +5,7 @@ using namespace CF::Common;
 
 int main(int argc, char * argv[])
 {
-  CFinfo << "Welcome to the COOLFLUID K3 solver!\n" << CFendl;
+  CFinfo << "Welcome to the COOLFLUID K3 solver!\n" << CFflush;
 
   CoreEnv::getInstance().initiate(argc, argv);
 

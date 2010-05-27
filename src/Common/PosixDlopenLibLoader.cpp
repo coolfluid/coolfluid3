@@ -68,9 +68,9 @@ libname += ".so";
 
   for (; itr != m_search_paths.end() ; ++itr)
   {
-//    CFout << "searching in [" << *itr << "]\n" << CFendl;
+//    CFout << "searching in [" << *itr << "]\n" << CFflush;
     path fullqname = *itr / path(libname);
-//    CFout << "fullqname [" << fullqname.string() << "]\n" << CFendl;
+//    CFout << "fullqname [" << fullqname.string() << "]\n" << CFflush;
     hdl = dlopen (fullqname.string().c_str(), RTLD_LAZY|RTLD_GLOBAL);
     if( hdl != NULL ) break;
   }

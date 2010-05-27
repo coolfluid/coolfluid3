@@ -407,7 +407,7 @@ BOOST_AUTO_TEST_CASE( ReadCGNS )
 //  options_node.addAttribute("standalone","yes");
 //  meshreader->list_options ( options_node );
 //  XMLSTR options_xml_str = options_node.createXMLString();
-//  CFinfo << "\noptions_xml_str\n" << options_xml_str << CFendl;
+//  CFinfo << "\noptions_xml_str\n" << options_xml_str << CFflush;
 //  freeXMLString(options_xml_str);
 
   // the file to read from
@@ -427,7 +427,7 @@ BOOST_AUTO_TEST_CASE( ReadCGNS )
 //  mesh_node.addAttribute("standalone","yes");
 //  mesh->xml_tree( mesh_node );
 //  XMLSTR xml_str = mesh_node.createXMLString();
-//  CFinfo << "xml_str\n" << xml_str << CFendl;
+//  CFinfo << "xml_str\n" << xml_str << CFflush;
 //  freeXMLString(xml_str);
 
   boost::filesystem::path fp_out ("grid_c.msh");

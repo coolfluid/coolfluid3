@@ -47,7 +47,7 @@ void Writer::write_header(std::fstream& file)
   
   
   // physical names
-  CFinfo << "\n\nWriting physical names \n" << CFendl;
+  CFinfo << "\n\nWriting physical names \n" << CFflush;
   CArray::Ptr coordinates = m_mesh->get_component<CArray>("coordinates");
   const Uint dimension(coordinates->get_array().shape()[1]);
   Uint phys_name_counter(0);
@@ -67,7 +67,7 @@ void Writer::write_header(std::fstream& file)
         ++phys_name_counter;
         PhysicalGroup group (dimension,phys_name_counter,region->get_parent()->name());
         m_groups.insert(PhysicalGroupMap::value_type(group.name,group));
-        CFinfo << phys_name_counter << ": " << group.name << "\n" << CFendl;
+        CFinfo << phys_name_counter << ": " << group.name << "\n" << CFflush;
       }
     }
   }

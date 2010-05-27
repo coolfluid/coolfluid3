@@ -42,7 +42,7 @@ BOOST_FIXTURE_TEST_SUITE( MatrixInverter_TestSuite, MatrixInverter_Fixture )
 
 BOOST_AUTO_TEST_CASE( SVDInverterTest )
 {
-  //CFinfo << "testing SVDMatrixInverter " << CFendl;
+  //CFinfo << "testing SVDMatrixInverter " << CFflush;
   // Exact solution is taken from http://www.mathematics-online.org/inhalt/beispiel/beispiel565/
   // System Matrix
   RealMatrix A(4,3,0.0);

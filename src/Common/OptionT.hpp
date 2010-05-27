@@ -20,7 +20,7 @@ namespace Common {
   {
     static TYPE convert ( char * str )
     {
-//      CFinfo << "converting string to POD\n" << CFendl;
+//      CFinfo << "converting string to POD\n" << CFflush;
       std::string ss (str);
       return StringOps::from_str< TYPE >(ss);
     }
@@ -32,7 +32,7 @@ namespace Common {
   {
     static std::vector<TYPE> convert ( char * str )
     {
-//      CFinfo << "converting string to vector\n" << CFendl;
+//      CFinfo << "converting string to vector\n" << CFflush;
 
       std::vector < TYPE > vvalues; // start with clean vector
 
@@ -66,7 +66,7 @@ namespace Common {
 //          << m_name << "] of type ["
 //          << m_type << "] w default ["
 ////          << StringOps::to_str( def<TYPE>() ) << "] desc ["
-//          << m_description << "]\n" << CFendl;
+//          << m_description << "]\n" << CFflush;
     }
 
     virtual void change_value ( rapidxml::xml_node<> *node )

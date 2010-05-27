@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   {
    CElements::Ptr  elementType = region->get_component<CElements>("type");
    boost::shared_ptr<CTable>     connTable   = region->get_component<CTable>("table");
-   //CFinfo << "type = " << elementType->getShapeName() << "\n" << CFendl;
+   //CFinfo << "type = " << elementType->getShapeName() << "\n" << CFflush;
    const Uint nbRows = connTable->get_table().size();
    std::vector<Real> volumes(nbRows);
    
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
      }
 
      volumes[iElem]=elementType->computeVolume(elementCoordinates);
-     CFinfo << "\t volume["<<iElem<<"] =" << volumes[iElem] << "\n" << CFendl;
+     CFinfo << "\t volume["<<iElem<<"] =" << volumes[iElem] << "\n" << CFflush;
 
      // check
      if(elementType->getShapeName()=="Quad")
@@ -221,7 +221,7 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
 //    for (Uint j=0; j<node.size(); j++) {
 //      CFinfo << node[j] << " ";
 //    }
-//    CFinfo << "\n" << CFendl;
+//    CFinfo << "\n" << CFflush;
 //  }
       
 }

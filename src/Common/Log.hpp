@@ -119,12 +119,13 @@ class Common_API Logger : public boost::noncopyable
 #define CFwarn   CF::Common::Logger::getInstance().Warn (FromHere())
 #define CFdebug  CF::Common::Logger::getInstance().Debug(FromHere())
 #define CFtrace  CF::Common::Logger::getInstance().Trace(FromHere())
-#define CFendl   CF::Common::LogStream::ENDLINE
+#define CFflush  CF::Common::LogStream::ENDLINE
+#define CFendl   '\n' << CFflush
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #ifndef CF_NO_LOG
-#define CFLog(n,x) CFinfo << n << x << CFendl;
+#define CFLog(n,x) CFinfo << n << x << CFflush;
 #else
 #define CFLog(n,x)
 #endif
@@ -133,8 +134,8 @@ class Common_API Logger : public boost::noncopyable
 
 #ifndef CF_NO_DEBUG_LOG
 
-#define CFLogDebug(x)        CFdebug << x << CFendl;
-#define CFLogDebugVerbose(x) CFdebug << VERBOSE << x << CFendl;
+#define CFLogDebug(x)        CFdebug << x << CFflush;
+#define CFLogDebugVerbose(x) CFdebug << VERBOSE << x << CFflush;
 
 #else // CF_NO_DEBUG_LOG
 
@@ -143,9 +144,9 @@ class Common_API Logger : public boost::noncopyable
 
 #endif // CF_NO_DEBUG_LOG
 
-#define CFLogInfo(x)   CFinfo << x << CFendl;
-#define CFLogWarn(x)   CFwarn << x << CFendl;
-#define CFLogError(x)  CFerr  << x << CFendl;
+#define CFLogInfo(x)   CFinfo << x << CFflush;
+#define CFLogWarn(x)   CFwarn << x << CFflush;
+#define CFLogError(x)  CFerr  << x << CFflush;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Tracing macros
@@ -160,13 +161,13 @@ class Common_API AutoTracer {
     /// constructor
   AutoTracer (const char * Function, const char * File, int Line) : m_Function(Function), m_File(File), m_Line(Line)
   {
-    CFtrace << "### BEGIN ### " << m_Function << " : " << m_File << " : " << m_Line << "\n" << CFendl; /*CFtrace.flush();*/
+    CFtrace << "### BEGIN ### " << m_Function << " : " << m_File << " : " << m_Line << "\n" << CFflush; /*CFtrace.flush();*/
   }
 
     /// destructor
   ~AutoTracer()
   {
-    CFtrace << "### END   ### " << m_Function << " : " << m_File << " : " << m_Line << "\n" << CFendl; /*CFtrace.flush();*/
+    CFtrace << "### END   ### " << m_Function << " : " << m_File << " : " << m_Line << "\n" << CFflush; /*CFtrace.flush();*/
   }
 
   protected: // data
@@ -183,8 +184,8 @@ class Common_API AutoTracer {
 #define CFAUTOTRACE_PASTE(a,b) CFAUTOTRACE_PASTE_(a,b)
 #define CFAUTOTRACE ::CF::Common::AutoTracer CFAUTOTRACE_PASTE(AutoTrace_Uniq,__LINE__) (__FUNCTION__,__FILE__,__LINE__)
 
-#define CFTRACEBEGIN CFtrace << "### BEGIN ### " << __FUNCTION__ << " : " << __FILE__ << " : " << __LINE__ << "\n" << CFendl; //CFtrace.flush();
-#define CFTRACEEND   CFtrace << "### END ##### " << __FUNCTION__ << " : " << __FILE__ << " : " << __LINE__ << "\n" << CFendl;/* CFtrace.flush();*/
+#define CFTRACEBEGIN CFtrace << "### BEGIN ### " << __FUNCTION__ << " : " << __FILE__ << " : " << __LINE__ << "\n" << CFflush; //CFtrace.flush();
+#define CFTRACEEND   CFtrace << "### END ##### " << __FUNCTION__ << " : " << __FILE__ << " : " << __LINE__ << "\n" << CFflush;/* CFtrace.flush();*/
 
 #else // CF_NO_TRACE
 
