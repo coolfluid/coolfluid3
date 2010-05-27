@@ -91,6 +91,7 @@ LIST ( APPEND Common_files
     Option.hpp
     Option.cpp
     OptionT.hpp
+    OptionT.cpp
     OptionComponent.hpp
     OptionComponent.cpp
     ConfigObject.hpp

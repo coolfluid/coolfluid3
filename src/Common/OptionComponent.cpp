@@ -18,9 +18,9 @@ OptionComponent::OptionComponent ( const std::string& name, const std::string& d
 //      << m_description << "]\n" << CFflush;
 }
 
-void OptionComponent::change_value ( rapidxml::xml_node<> *node )
+void OptionComponent::change_value ( XmlNode& node )
 {
-  std::string keyname = node->value();       // get the value from the xml
+  std::string keyname = node.value();       // get the value from the xml
   boost::algorithm::trim( keyname );         // remove trail and lead spaces
 
   m_value = keyname;

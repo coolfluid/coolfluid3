@@ -30,7 +30,7 @@ class MyC : public ConfigObject {
   private: // data
 
     std::string m_str;
-    Uint m_i;
+    int m_i;
 
   public: // functions
 
@@ -39,7 +39,8 @@ class MyC : public ConfigObject {
 
     // POD's (plain old data)
     options.add< OptionT<bool> >            ( "OptBool", "bool option"   , false  );
-    options.add< OptionT<Uint> >            ( "OptInt",  "int option"    , 10     );
+    options.add< OptionT<int> >             ( "OptInt",  "int option"    , -5     );
+    options.add< OptionT<Uint> >            ( "OptUInt", "int option"    , 10     );
     options.add< OptionT<std::string> >     ( "OptStr",  "string option" , "LOLO" );
 
     // vector of POD's
@@ -82,7 +83,7 @@ class MyC : public ConfigObject {
 
   void config_int ()
   {
-    Uint i = option("OptInt")->value<Uint>();
+    Uint i = option("OptInt")->value<int>();
 //    CFinfo << "config int [" <<  i << "]\n" << CFflush;
   }
 
@@ -179,12 +180,39 @@ BOOST_AUTO_TEST_CASE( configure )
 
   std::string text = (
       "<MyC>"
-      "<OptBool>     1  </OptBool>"
-      "<OptInt>    134  </OptInt>"
-      "<OptStr>   lolo  </OptStr>"
-      "<Unused>   popo  </Unused>"
-      "<VecInt>  2 8 9  </VecInt>"
-      "<Comp>   CGroup  </Comp>"
+      ""
+      "<bool       key=\"OptBool\">    1 </bool>"
+      "<integer    key=\"OptInt\" > -156 </integer>"
+      "<integer    key=\"OptUint\" > 134 </integer>"
+      "<real       key=\"OptReal\" > 6.4564E+5 </real>"
+      "<string     key=\"OptStr\" > lolo </bool>"
+      ""
+      "<ignore>   popo  </ignore>"
+      ""
+      "<path      key=\"OptPath\"> /opt/path </path>"
+      ""
+      "<date      key=\"OptDate\"> 2010-05-24 </date>"
+      ""
+      "<data    key=\"OptData\"  > PEKBpYGlmYFCPA== </data>"
+      ""
+      "<Params key=\"OptList\" desc=\"sub set\" mode=\"advanced\" >"
+      "     <integer  key=\"mi\">     2 </integer>"
+      "     <real     key=\"mr\">     8 </real>"
+      "     <bool     key=\"mb\">     1 </bool>"
+      "</Params>"
+      ""
+      "<vector key=\"OptVec\" type=\"integer\" size=\"3\" >"
+      "  <e> 2 </e>"
+      "  <e> 8 </e>"
+      "  <e> 9 </e>"
+      "</vector>"
+      ""
+      "<component key=\"OptComp\" >"
+      "  <string key=\"name\"> MyNewton </string>"
+      "  <string key=\"atype\"> CIterativeMethod </string>"
+      "  <string key=\"ctype\"> Newton </string>"
+      "</component>"
+      ""
       "</MyC>"
    );
 

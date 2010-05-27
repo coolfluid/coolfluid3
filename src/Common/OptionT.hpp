@@ -3,53 +3,20 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <boost/tokenizer.hpp>
-#include <boost/foreach.hpp>
-
 #include "Common/Option.hpp"
-#include "Common/StringOps.hpp"
 
 namespace CF {
 namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  /// generic conversion from string to POD
-  template < typename TYPE >
-  struct ConvertValue
-  {
-    static TYPE convert ( char * str )
-    {
-//      CFinfo << "converting string to POD\n" << CFflush;
-      std::string ss (str);
-      return StringOps::from_str< TYPE >(ss);
-    }
-  };
-
-  /// specialization to handle vector conversions
-  template < typename TYPE >
-  struct ConvertValue< std::vector<TYPE> >
-  {
-    static std::vector<TYPE> convert ( char * str )
-    {
-//      CFinfo << "converting string to vector\n" << CFflush;
-
-      std::vector < TYPE > vvalues; // start with clean vector
-
-      std::string ss (str);
-      boost::tokenizer<> tok (ss);
-      for(boost::tokenizer<>::iterator elem = tok.begin(); elem != tok.end(); ++elem)
-      {
-        vvalues.push_back( StringOps::from_str< TYPE >(*elem) );
-      }
-
-      return vvalues; // assign to m_value (replaces old values)
-    }
-  };
-
-////////////////////////////////////////////////////////////////////////////////
-
   /// Class defines options to be used in the ConfigObject class
+  /// This class supports the following types:
+  ///   - bool
+  ///   - int
+  ///   - CF:Uint
+  ///   - CF::Real
+  ///   - std::string
   /// @author Tiago Quintino
   template < typename TYPE >
       class OptionT : public Option  {
@@ -69,19 +36,50 @@ namespace Common {
 //          << m_description << "]\n" << CFflush;
     }
 
-    virtual void change_value ( rapidxml::xml_node<> *node )
-    {
-      TYPE vt = ConvertValue<TYPE>::convert( node->value() );
-      m_value = vt;
+    /// updates the option value using the xml configuration
+    /// @param node XML node with data for this option
+    virtual void change_value ( XmlNode& node );
 
-      BOOST_FOREACH ( void* v, m_other_params )
-      {
-        TYPE* cv = static_cast<TYPE*>(v);
-        *cv = vt;
-      }
-    }
+    /// @returns the xml tag for this option
+    virtual const char * tag() const;
 
-  };
+  private:
+
+    void xmlvalue_convert ( TYPE& val, XmlNode& node );
+
+    void copy_to_linked_params ( const TYPE& val );
+
+  }; // OptionT
+
+  template<>
+  const char * OptionT<bool>::tag() const { return "bool"; }
+
+  template<>
+  const char * OptionT<int>::tag() const { return "integer"; };
+
+  template<>
+  const char * OptionT<CF::Uint>::tag() const { return "integer"; }
+
+  template<>
+  const char * OptionT<CF::Real>::tag() const { return "real"; }
+
+  template<>
+  const char * OptionT<std::string>::tag() const { return "string"; }
+
+  template<>
+  const char * OptionT< std::vector< bool > >::tag() const { return "vector"; }
+
+  template<>
+  const char * OptionT< std::vector< int > >::tag() const { return "vector"; }
+
+  template<>
+  const char * OptionT< std::vector< CF::Uint > >::tag() const { return "vector"; }
+
+  template<>
+  const char * OptionT< std::vector< CF::Real > >::tag() const { return "vector"; }
+
+  template<>
+  const char * OptionT< std::vector< std::string > >::tag() const { return "vector"; }
 
 /////////////////////////////////////////////////////////////////////////////////////
 

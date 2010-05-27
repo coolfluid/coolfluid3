@@ -16,6 +16,7 @@ namespace Common {
 ////////////////////////////////////////////////////////////////////////////////
 
   /// Class defines options to be used in the ConfigObject class
+  ///
   /// @author Tiago Quintino
   /// @todo
   ///   * provide function to return value and def as string?
@@ -66,10 +67,14 @@ namespace Common {
     virtual ~Option ();
 
     /// updates the option value using the xml configuration
-    virtual void change_value ( rapidxml::xml_node<> *node ) = 0;
+    /// @param node XML node with data for this option
+    virtual void change_value ( XmlNode& node ) = 0;
+
+    /// @returns the xml tag for this option
+    virtual const char * tag() const = 0;
 
     /// configure this option using the passed xml node
-    void configure_option ( rapidxml::xml_node<> *node );
+    void configure_option ( XmlNode& node );
 
     void attach_processor ( Processor_t proc ) { m_processors.push_back(proc); }
 
@@ -109,7 +114,7 @@ namespace Common {
         void link_to ( TYPE* par )
     {
       cf_assert ( DEMANGLED_TYPEID(TYPE) == m_type );
-      m_other_params.push_back(par);
+      m_linked_params.push_back(par);
     }
 
   protected:
@@ -127,7 +132,7 @@ namespace Common {
     /// list of processors that will process the option
     ProcStorage_t m_processors;
     /// parameters that also get updated when option is changed
-    std::vector< void* > m_other_params;
+    std::vector< void* > m_linked_params;
 
   }; // Option
 

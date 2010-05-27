@@ -23,7 +23,11 @@ namespace Common {
     OptionComponent ( const std::string& name, const std::string& desc, const std::string& def_name );
 
     /// updates the option value using the xml configuration
-    virtual void change_value ( rapidxml::xml_node<> *node );
+    /// @param node XML node with data for this option
+    virtual void change_value ( XmlNode& node );
+
+    /// @returns the xml tag for this option
+    virtual const char * tag() const { return "component"; }
 
   protected:
 

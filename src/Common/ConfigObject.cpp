@@ -25,7 +25,7 @@ namespace Common {
     {
       OptionList::OptionStorage_t::iterator opt = options.find( itr->name() );
       if (opt != options.end())
-        opt->second->configure_option(itr);
+        opt->second->configure_option(*itr);
     }
   }
 

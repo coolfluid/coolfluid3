@@ -409,8 +409,7 @@ BOOST_AUTO_TEST_CASE( test_filter_iterator )
 
   BOOST_CHECK_EQUAL(counter,(Uint) 8);
   // 6) Example
-
-
+<<<<<<< Updated upstream
     typedef boost::iterator_range<boost::filter_iterator<IsComponentTag, Component::iterator > > Component_iterator_range;
     typedef boost::iterator_range<boost::filter_iterator<IsComponentTag, CGroup::iterator    > > Group_iterator_range;
 
@@ -426,11 +425,14 @@ BOOST_AUTO_TEST_CASE( test_filter_iterator )
 //  BOOST_FOREACH(CGroup& group, make_component_range_of_type<CGroup>(groups))
 //      std::cout<< group.name() << std::endl;
 
+=======
+  // BOOST_FOREACH(CRegion& comp, make_component_range_of_type<CRegion>(all))
+  //  BOOST_CHECK(comp.name() == "group1" || comp.name() == "group2");
+>>>>>>> Stashed changes
 
 //  check_with_map[counter++]=group1->name();
 //  CGroup::Ptr group2 = root->create_component<CGroup>("group2");
 //  check_with_map[counter++]=group2->name();
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -22,7 +22,7 @@ namespace Common {
   {
   }
 
-  void Option::configure_option ( rapidxml::xml_node<> *node )
+  void Option::configure_option ( XmlNode& node )
   {
     this->change_value(node); // update the value
 
