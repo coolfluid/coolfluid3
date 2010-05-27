@@ -3,6 +3,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <boost/foreach.hpp>
+
 #include "Common/Option.hpp"
 
 namespace CF {
@@ -10,7 +12,7 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  /// Class defines options to be used in the ConfigObject class
+  /// Class defines one option to be used by the ConfigObject class
   /// This class supports the following types:
   ///   - bool
   ///   - int
@@ -25,16 +27,10 @@ namespace Common {
 
     typedef TYPE value_type;
 
-    OptionT ( const std::string& name, const std::string& desc, value_type def ) :
-        Option(name,DEMANGLED_TYPEID(value_type), desc, def)
-    {
-//      CFinfo
-//          << " creating option ["
-//          << m_name << "] of type ["
-//          << m_type << "] w default ["
-////          << StringOps::to_str( def<TYPE>() ) << "] desc ["
-//          << m_description << "]\n" << CFflush;
-    }
+    OptionT ( const std::string& name, const std::string& desc, value_type def );
+
+    /// @name VIRTUAL FUNCTIONS
+    //@{
 
     /// updates the option value using the xml configuration
     /// @param node XML node with data for this option
@@ -43,45 +39,55 @@ namespace Common {
     /// @returns the xml tag for this option
     virtual const char * tag() const;
 
-  private:
+    /// @returns the value as a sd::string
+    virtual std::string value_str () const { return value_to_xmlstr ( value<TYPE>() ); }
 
-    void xmlvalue_convert ( TYPE& val, XmlNode& node );
+    /// @returns the default value as a sd::string
+    virtual std::string def_str () const  { return value_to_xmlstr ( def<TYPE>() ); }
 
+    //@} END VIRTUAL FUNCTIONS
+
+  private: // helper functions
+
+    /// copy the configured update value to all linked parameters
     void copy_to_linked_params ( const TYPE& val );
 
   }; // OptionT
 
-  template<>
-  const char * OptionT<bool>::tag() const { return "bool"; }
+////////////////////////////////////////////////////////////////////////////////
 
-  template<>
-  const char * OptionT<int>::tag() const { return "integer"; };
+  template < typename TYPE>
+  OptionT<TYPE>::OptionT ( const std::string& name, const std::string& desc, value_type def ) :
+      Option(name,DEMANGLED_TYPEID(value_type), desc, def)
+  {
+    CFinfo
+        << " creating OptionT [" << m_name << "]"
+        << " of type [" << m_type << "]"
+        << " w default [" << def_str() << "]"
+        << " w desc [" << m_description << "]\n"
+        << CFendl;
+  }
 
-  template<>
-  const char * OptionT<CF::Uint>::tag() const { return "integer"; }
+  template < typename TYPE>
+  void OptionT<TYPE>::change_value ( XmlNode& node )
+  {
+    TYPE val;
+    xmlstr_to_value(node,val);
+    m_value = val;
+    copy_to_linked_params(val);
+  }
 
-  template<>
-  const char * OptionT<CF::Real>::tag() const { return "real"; }
+  template < typename TYPE >
+  void OptionT<TYPE>::copy_to_linked_params ( const TYPE& val )
+  {
+    BOOST_FOREACH ( void* v, this->m_linked_params )
+    {
+      TYPE* cv = static_cast<TYPE*>(v);
+      *cv = val;
+    }
+  }
 
-  template<>
-  const char * OptionT<std::string>::tag() const { return "string"; }
-
-  template<>
-  const char * OptionT< std::vector< bool > >::tag() const { return "vector"; }
-
-  template<>
-  const char * OptionT< std::vector< int > >::tag() const { return "vector"; }
-
-  template<>
-  const char * OptionT< std::vector< CF::Uint > >::tag() const { return "vector"; }
-
-  template<>
-  const char * OptionT< std::vector< CF::Real > >::tag() const { return "vector"; }
-
-  template<>
-  const char * OptionT< std::vector< std::string > >::tag() const { return "vector"; }
-
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 } // Common
 } // CF

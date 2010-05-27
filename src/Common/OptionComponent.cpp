@@ -10,12 +10,12 @@ namespace Common {
 OptionComponent::OptionComponent ( const std::string& name, const std::string& desc, const std::string& def_name ) :
     Option(name, Component::getClassName(), desc, def_name )
 {
-//  CFinfo
-//      << " creating option ["
-//      << m_name << "] of type ["
-//      << m_type << "] w default ["
-//      << def_name << "] desc ["
-//      << m_description << "]\n" << CFflush;
+  CFinfo
+      << " creating OptionComponent [" << m_name << "]"
+      << " of type [" << m_type << "]"
+      << " w default [" << def_str() << "]"
+      << " w desc [" << m_description << "]"
+      << CFendl;
 }
 
 void OptionComponent::change_value ( XmlNode& node )

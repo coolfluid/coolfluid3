@@ -8,6 +8,7 @@
 #include <boost/function.hpp>
 #include <boost/any.hpp>
 
+#include "Common/Log.hpp"
 #include "Common/XML.hpp"
 
 namespace CF {
@@ -66,12 +67,23 @@ namespace Common {
     /// Virtual destructor
     virtual ~Option ();
 
+    /// @name VIRTUAL FUNCTIONS
+    //@{
+
     /// updates the option value using the xml configuration
     /// @param node XML node with data for this option
     virtual void change_value ( XmlNode& node ) = 0;
 
     /// @returns the xml tag for this option
     virtual const char * tag() const = 0;
+
+    /// @returns the value as a sd::string
+    virtual std::string value_str () const = 0;
+
+    /// @returns the default value as a sd::string
+    virtual std::string def_str () const = 0;
+
+    //@} END VIRTUAL FUNCTIONS
 
     /// configure this option using the passed xml node
     void configure_option ( XmlNode& node );

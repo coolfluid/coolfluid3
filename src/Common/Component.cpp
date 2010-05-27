@@ -63,7 +63,7 @@ void Component::rename ( const CName& name )
     boost::shared_ptr<CRoot> root =
         boost::dynamic_pointer_cast<CRoot>( m_root.lock() );
 
-    root->define_component_path( new_full_path , shared_from_this() );
+    root->change_component_path( new_full_path , shared_from_this() );
   }
 
   // rename object make be after modificatio of path in root
@@ -273,7 +273,7 @@ void Component::change_parent ( Component::Ptr new_parent )
     {
       boost::shared_ptr<CRoot> root =
           boost::dynamic_pointer_cast<CRoot>( m_root.lock() );
-      root->define_component_path( full_path() , shared_from_this() );
+      root->change_component_path( full_path() , shared_from_this() );
     }
   }
   else // new parent is invalid

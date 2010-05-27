@@ -92,6 +92,7 @@ LIST ( APPEND Common_files
     Option.cpp
     OptionT.hpp
     OptionT.cpp
+    OptionArray.hpp
     OptionComponent.hpp
     OptionComponent.cpp
     ConfigObject.hpp
@@ -121,6 +122,7 @@ LIST ( APPEND Common_files
     XmlHelpers.hpp
     XmlHelpers.cpp
     XML.hpp
+    XML.cpp
     xmlParser.h
     xmlParser.cpp
 )

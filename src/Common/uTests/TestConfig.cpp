@@ -11,6 +11,7 @@
 
 #include "Common/ConfigObject.hpp"
 #include "Common/OptionT.hpp"
+#include "Common/OptionArray.hpp"
 #include "Common/OptionComponent.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/Log.hpp"
@@ -46,7 +47,12 @@ class MyC : public ConfigObject {
     // vector of POD's
     std::vector<int> def;
     def += 1,2,3,4,5,6,7,8,9; /* uses boost::assign */
-    options.add< OptionT< std::vector<int> > >     ( "VecInt",  "vector ints option" , def );
+    options.add< OptionArray< int >  >  ( "VecInt",  "vector ints option" , def );
+
+    // vector of POD's
+    std::vector< std::string > defs;
+    defs += "lolo","koko";     /* uses boost::assign */
+    options.add< OptionArray< std::string >  >   ( "VecStr",  "vector strs option" , defs );
 
     // option for componets
      options.add< OptionComponent >     ( "Comp",  "component option" , "CLink" );
@@ -201,11 +207,16 @@ BOOST_AUTO_TEST_CASE( configure )
       "     <bool     key=\"mb\">     1 </bool>"
       "</Params>"
       ""
-      "<vector key=\"OptVec\" type=\"integer\" size=\"3\" >"
+      "<array key=\"VecInt\" type=\"integer\" size=\"3\" >"
       "  <e> 2 </e>"
       "  <e> 8 </e>"
       "  <e> 9 </e>"
-      "</vector>"
+      "</array>"
+      ""
+      "<array key=\"VecStr\" type=\"string\" size=\"2\" >"
+      "  <e> aabbcc </e>"
+      "  <e> ddeeff </e>"
+      "</array>"
       ""
       "<component key=\"OptComp\" >"
       "  <string key=\"name\"> MyNewton </string>"

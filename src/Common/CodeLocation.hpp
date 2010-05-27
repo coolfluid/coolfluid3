@@ -26,10 +26,10 @@ public:
 
 private:
   /// from which file the exception was thrown
-  std::string m_file;
+  const char * m_file;
   /// from which function the exception was thrown
   /// @note will be empty if the compiler does not support it
-  std::string m_function;
+  const char * m_function;
   /// from which line the exception was thrown
   int      m_line;
 

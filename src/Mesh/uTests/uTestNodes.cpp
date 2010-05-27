@@ -14,7 +14,6 @@
 #include "Mesh/CArray.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
-#include "Mesh/MeshWriter.hpp"
 
 #include "Mesh/Integrators/Gauss.hpp"
 

@@ -16,7 +16,8 @@ namespace Common {
   m_name(name),
   m_type(type),
   m_description(desc)
-  {}
+  {
+  }
 
   Option::~Option()
   {

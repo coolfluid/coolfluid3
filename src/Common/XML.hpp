@@ -21,6 +21,14 @@ namespace Common {
   /// typedef for the XmlMemPool
   typedef rapidxml::memory_pool<> XmlMemPool;
 
+  /// converts the value inside the xml node to the type
+  template < typename TYPE>
+    void xmlstr_to_value ( XmlNode& node, TYPE& val );
+
+  /// converts the value inside the xml node to the type
+  template < typename TYPE>
+    std::string value_to_xmlstr ( const TYPE& val );
+
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Common

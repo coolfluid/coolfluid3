@@ -45,7 +45,7 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  void CRoot::define_component_path( const CPath& path , boost::shared_ptr<Component> comp )
+  void CRoot::change_component_path( const CPath& path , boost::shared_ptr<Component> comp )
   {
     remove_component_path( comp->full_path().string() );
 
