@@ -1,7 +1,7 @@
 #include <boost/foreach.hpp>
 #include <boost/algorithm/string/erase.hpp>
 #include "Common/ObjectProvider.hpp"
-#include "Mesh/Neu/Reader.hpp"
+#include "Mesh/Neu/CReader.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CArray.hpp"

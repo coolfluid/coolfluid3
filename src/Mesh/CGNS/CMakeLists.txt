@@ -4,8 +4,8 @@ if (CF_HAVE_CGNS)
     CGNSAPI.hpp
     Common.hpp
     Common.cpp
-    Reader.hpp
-    Reader.cpp
+    CReader.hpp
+    CReader.cpp
   )
 
   LIST ( APPEND CGNS3_includedirs ${CGNS_INCLUDE_DIR} )
@@ -22,7 +22,7 @@ else()
     CGNSAPI.hpp
     Common.hpp
     Common.cpp
-    Reader.hpp
-    Reader.cpp )
+    CReader.hpp
+    CReader.cpp )
 
 endif()

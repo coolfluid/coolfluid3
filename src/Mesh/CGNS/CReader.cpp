@@ -8,7 +8,7 @@
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CGNS/Reader.hpp"
+#include "Mesh/CGNS/CReader.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -179,8 +179,8 @@ void CReader::read_zone(CRegion::Ptr& parent_region)
   for (m_section.idx=1; m_section.idx<=m_zone.nbSections; ++m_section.idx)
     read_section(this_region);
 
-/// @todo  if (!option("SectionsAreBCs")->value<bool>())
-  if (false)
+  // Only read boco's if sections are not defined as BC's
+  if (!option("SectionsAreBCs")->value<bool>())
   {
     // read boundaryconditions (or subregions) in this zone
     for (m_boco.idx=1; m_boco.idx<=m_zone.nbBocos; ++m_boco.idx)
@@ -347,8 +347,8 @@ void CReader::read_section(CRegion::Ptr& parent_region)
 
   remove_empty_leaf_regions(this_region);
 
-  /// @todo  if (option("SectionsAreBCs")->value<bool>())
-  if (true)
+  // Move components that are BC's in the "bc-regions" region
+  if (option("SectionsAreBCs")->value<bool>())
   {
     bool is_bc_region = false;
     BOOST_FOREACH(const CRegion::Ptr& region, iterate_recursive_by_type<CRegion>(this_region))

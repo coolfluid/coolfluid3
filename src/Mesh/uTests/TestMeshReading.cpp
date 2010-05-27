@@ -122,12 +122,12 @@ BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh )
   {
     if (region->has_component_of_type<CRegion>())
     {
-      CFinfo << "\n" << region.name() << " \n" << CFflush;
+      CFinfo << "\n" << region->name() << " \n" << CFflush;
     }
     else if (region->get_component<CTable>("table")->get_table().size())
     {
-      CFinfo << "    " << region.name() << " \t --> elements: "
-             << region.get_component<CTable>("table")->get_table().size() << "\n" << CFflush;
+      CFinfo << "    " << region->name() << " \t --> elements: "
+             << region->get_component<CTable>("table")->get_table().size() << "\n" << CFflush;
     }
   }
   
