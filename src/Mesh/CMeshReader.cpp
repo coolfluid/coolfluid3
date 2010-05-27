@@ -96,8 +96,8 @@ void CMeshReader::remove_empty_leaf_regions(CRegion::Ptr& parent_region)
           region->get_component<CTable>("table")->get_table().size() == 0 )
       {
         // no elements in connectivity table --> remove this region
-        CFinfo << "remove: " << region.full_path().string() << "\n" << CFflush;
-        region.get_parent()->remove_component(region.name());
+        CFinfo << "remove: " << region->full_path().string() << "\n" << CFflush;
+        region->get_parent()->remove_component(region->name());
       }
   }
 }
