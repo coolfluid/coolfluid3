@@ -1,12 +1,10 @@
 #include <boost/foreach.hpp>
 
 #include "Common/Log.hpp"
-#include "Common/Factory.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/CMeshReader.hpp"
-#include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 
 namespace CF {

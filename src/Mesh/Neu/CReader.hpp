@@ -30,6 +30,8 @@ public:
   /// Gets the Class name
   static std::string getClassName() { return "CReader"; }
   
+  static void defineConfigOptions ( CF::Common::OptionList& options ) {}
+
 private:
   
   void read_headerData(std::fstream& file);
@@ -66,33 +68,7 @@ private:
   
   virtual std::string get_format() { return "Neu"; }
 
-  virtual void read_from_to(boost::filesystem::path& fp, const boost::shared_ptr<CMesh>& mesh)
-  {    
-
-    // if the file is present open it
-    boost::filesystem::fstream file;
-    if( boost::filesystem::exists(fp) )
-    {
-      CFLog(VERBOSE, "Opening file " <<  fp.string() << "\n");
-      file.open(fp,std::ios_base::in); // exists so open it
-    }
-    else // doesnt exist so throw exception
-    {
-       throw boost::filesystem::filesystem_error( fp.string() + " does not exist",
-                                                  boost::system::error_code() );
-    }
-
-    // set the internal mesh pointer
-    m_mesh = mesh;
-
-    // must be in correct order!
-    read_headerData(file);
-    read_coordinates(file);
-    read_connectivity(file);
-    read_groups(file);
-
-    file.close();
-  }
+  virtual void read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh);
   
   // map< global index , pair< temporary table, index in temporary table > >
   typedef std::pair<boost::shared_ptr<CRegion>,Uint> Region_TableIndex_pair;
@@ -101,7 +77,7 @@ private:
   // supported types from coolfluid. Neutral can support more.
   std::vector<std::string> m_supported_types;
 
-  boost::shared_ptr<CMesh> m_mesh;
+  CMesh::Ptr m_mesh;
   
 }; // end CReader
 

@@ -1,9 +1,10 @@
 #include <boost/foreach.hpp>
+#include <boost/filesystem/fstream.hpp>
 
 #include "Common/ObjectProvider.hpp"
 #include "Common/ComponentPredicates.hpp"
 
-#include "Mesh/Gmsh/Writer.hpp"
+#include "Mesh/Gmsh/CWriter.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CArray.hpp"
@@ -17,16 +18,19 @@ namespace Gmsh {
   
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ObjectProvider < Writer,
-                         Mesh::MeshWriter,
-                         GmshLib >
-aGmshWriter_Provider ( "Mesh::Gmsh::Writer" );
+Common::ObjectProvider < Mesh::Gmsh::CWriter,
+                         Mesh::CMeshWriter,
+                         Mesh::Gmsh::GmshLib,
+                         1 >
+aGmshWriter_Provider ( "Gmsh" );
 
 //////////////////////////////////////////////////////////////////////////////
 
-Writer::Writer()
-: MeshWriter()
+CWriter::CWriter( const CName& name )
+: CMeshWriter(name)
 {
+  build_component(this);
+
   // gmsh types: http://www.geuz.org/gmsh/doc/texinfo/gmsh.html#MSH-ASCII-file-format
   m_elementTypes[GeoShape::TRIAG]=2;
   m_elementTypes[GeoShape::QUAD]=3;
@@ -34,7 +38,33 @@ Writer::Writer()
 }
 /////////////////////////////////////////////////////////////////////////////
 
-void Writer::write_header(std::fstream& file)
+void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& path)
+{
+
+  m_mesh = mesh;
+
+  // if the file is present open it
+  boost::filesystem::fstream file;
+  CFLog(VERBOSE, "Opening file " <<  path.string() << "\n");
+  file.open(path,std::ios_base::out);
+  if (!file) // didn't open so throw exception
+  {
+     throw boost::filesystem::filesystem_error( path.string() + " failed to open",
+                                                boost::system::error_code() );
+  }
+
+
+  // must be in correct order!
+  write_header(file);
+  write_coordinates(file);
+  write_connectivity(file);
+
+  file.close();
+
+}
+/////////////////////////////////////////////////////////////////////////////
+
+void CWriter::write_header(std::fstream& file)
 {
   std::string version = "2";
   Uint file_type = 0; // ASCII
@@ -81,7 +111,7 @@ void Writer::write_header(std::fstream& file)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Writer::write_coordinates(std::fstream& file)
+void CWriter::write_coordinates(std::fstream& file)
 {
   // set precision for Real
   Uint prec = file.precision();
@@ -113,7 +143,7 @@ void Writer::write_coordinates(std::fstream& file)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Writer::write_connectivity(std::fstream& file)
+void CWriter::write_connectivity(std::fstream& file)
 {
   // file << "$Elements                                                               \n";
   // file << "number-of-elements                                                      \n";

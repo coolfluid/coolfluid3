@@ -9,6 +9,7 @@
 #include "Common/ConcreteProvider.hpp"
 
 #include "Mesh/MeshAPI.hpp"
+#include "Mesh/CMesh.hpp"
 #include "Mesh/CTable.hpp"
 
 namespace CF {
@@ -34,7 +35,7 @@ public: // typedefs
 
 public: // static functions
 
-  static boost::shared_ptr<CMeshReader> create_concrete(const std::string& provider_name, const CName& name)
+  static CMeshReader::Ptr create_concrete(const std::string& provider_name, const CName& name)
   {
     Common::SafePtr< CMeshReader::PROVIDER > prov =
         Common::Factory<CMeshReader>::getInstance().getProvider(provider_name);
@@ -65,9 +66,9 @@ public: // functions
 
   virtual std::string get_format() = 0;
 
-  virtual void read_from_to(boost::filesystem::path& path, const boost::shared_ptr<CMesh>& mesh) = 0;
+  virtual void read_from_to(boost::filesystem::path& path, const CMesh::Ptr& mesh) = 0;
 
-  boost::shared_ptr<CMesh> create_mesh_from(boost::filesystem::path& path);
+  CMesh::Ptr create_mesh_from(boost::filesystem::path& path);
 
 protected: // functions
 

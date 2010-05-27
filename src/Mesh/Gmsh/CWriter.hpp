@@ -1,10 +1,10 @@
-#ifndef CF_Mesh_Gmsh_Writer_hpp
-#define CF_Mesh_Gmsh_Writer_hpp
+#ifndef CF_Mesh_Gmsh_CWriter_hpp
+#define CF_Mesh_Gmsh_CWriter_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Mesh/Gmsh/GmshAPI.hpp"
-#include "Mesh/MeshWriter.hpp"
+#include "Mesh/CMeshWriter.hpp"
 #include "Mesh/GeoShape.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -15,18 +15,24 @@ namespace Gmsh {
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// This class defines Gmshtral mesh format writer
+/// This class defines Gmsh mesh format writer
 /// @author Willem Deconinck
-class Gmsh_API Writer : public MeshWriter
+class Gmsh_API CWriter : public CMeshWriter
 {
 public:
   
   /// constructor
-  Writer();
+  CWriter( const CName& name );
   
   /// Gets the Class name
-  static std::string getClassName() { return "Writer"; }
-  
+  static std::string getClassName() { return "CWriter"; }
+
+  static void defineConfigOptions ( CF::Common::OptionList& options ) {}
+
+  virtual void write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& path);
+
+  virtual std::string get_format() { return "Gmsh"; }
+
 private:
   
   void write_header(std::fstream& file);
@@ -48,17 +54,11 @@ private:
   
   void write_connectivity(std::fstream& file);
   
-  virtual void write_impl(std::fstream& file)
-  {    
-    // must be in correct order!
-    write_header(file);
-    write_coordinates(file);
-    write_connectivity(file);
-  }
-  
   std::map<GeoShape::Type,Uint> m_elementTypes;
   
-}; // end Writer
+  CMesh::Ptr m_mesh;
+
+}; // end CWriter
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -69,4 +69,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_Gmsh_Writer_hpp
+#endif // CF_Mesh_Gmsh_CWriter_hpp

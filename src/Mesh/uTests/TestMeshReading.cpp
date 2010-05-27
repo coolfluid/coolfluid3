@@ -15,7 +15,6 @@
 #include "Mesh/CArray.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
-#include "Mesh/MeshWriter.hpp"
 
 using namespace std;
 using namespace boost;
@@ -84,9 +83,9 @@ BOOST_AUTO_TEST_CASE( Constructors )
   BOOST_CHECK_EQUAL(meshreader->name(),"meshreader");
   BOOST_CHECK_EQUAL(meshreader->get_format(),"Neu");
 
-
-  boost::shared_ptr<CMeshWriter> meshwriter ( new CMeshWriter  ( "meshwriter" ) );
-  meshwriter->set_writer("Mesh::Gmsh::Writer");
+  CMeshWriter::Ptr meshwriter = CMeshWriter::create_concrete("Gmsh","meshwriter");
+  BOOST_CHECK_EQUAL(meshwriter->name(),"meshwriter");
+  BOOST_CHECK_EQUAL(meshwriter->get_format(),"Gmsh");
 
  
 }
@@ -135,9 +134,9 @@ BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh )
  
  
   boost::filesystem::path fp_out ("quadtriag.msh");
-  boost::shared_ptr<CMeshWriter> meshwriter ( new CMeshWriter  ( "meshwriter" ) );
-  meshwriter->set_writer("Mesh::Gmsh::Writer");
-  meshwriter->get_writer()->write(mesh,fp_out);
+  CMeshWriter::Ptr meshwriter = CMeshWriter::create_concrete("Gmsh","meshwriter");
+  meshwriter->write_from_to(mesh,fp_out);
+
  
 }
 

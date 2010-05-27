@@ -26,9 +26,41 @@ aNeuReader_Provider ( "Neu" );
 CReader::CReader( const CName& name )
 : CMeshReader(name)
 {
+  build_component(this);
+
   m_supported_types.reserve(2);
   m_supported_types.push_back("P1-Quad2D");
   m_supported_types.push_back("P1-Triag2D");
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
+{
+
+  // if the file is present open it
+  boost::filesystem::fstream file;
+  if( boost::filesystem::exists(fp) )
+  {
+    CFLog(VERBOSE, "Opening file " <<  fp.string() << "\n");
+    file.open(fp,std::ios_base::in); // exists so open it
+  }
+  else // doesnt exist so throw exception
+  {
+     throw boost::filesystem::filesystem_error( fp.string() + " does not exist",
+                                                boost::system::error_code() );
+  }
+
+  // set the internal mesh pointer
+  m_mesh = mesh;
+
+  // must be in correct order!
+  read_headerData(file);
+  read_coordinates(file);
+  read_connectivity(file);
+  read_groups(file);
+
+  file.close();
 }
 
 //////////////////////////////////////////////////////////////////////////////
