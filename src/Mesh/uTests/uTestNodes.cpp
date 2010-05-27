@@ -66,10 +66,10 @@ struct Nodes_Fixture
         return *regions[reg];
 
       // for all subregions
-      BOOST_FOREACH(CRegion& region, make_component_range_of_type<CRegion>(regions[reg]))
+      BOOST_FOREACH(const CRegion::Ptr& region, iterate_recursive_by_type<CRegion>(regions[reg]))
       {
-        if(region.getNbElements())
-          return region;
+        if(region->getNbElements())
+          return (*region);
       }
     }
   }

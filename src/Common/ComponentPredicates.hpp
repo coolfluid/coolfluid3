@@ -4,6 +4,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <boost/iterator/filter_iterator.hpp>
+#include <boost/foreach.hpp>
 
 #include "Common/ComponentIterator.hpp"
 #include "Common/Component.hpp"

@@ -125,10 +125,10 @@ void gaussIntegrate( CMesh& mesh, FunctorT& functor, ResultT& result)
     // for all subregions
 
 //    for(CRegion::const_iterator region = regions[reg]->begin(); region != regions[reg]->end(); ++region)
-    BOOST_FOREACH( CRegion& region, make_component_range_of_type<CRegion>(regions[reg]) )
+    BOOST_FOREACH(const CRegion::Ptr& region, iterate_recursive_by_type<CRegion>(regions[reg]) )
     {
-      functor.setRegion(region); // initialize region-specific functor data
-      gaussIntegrate(region, functor, result);
+      functor.setRegion(*region); // initialize region-specific functor data
+      gaussIntegrate((*region), functor, result);
     }
   }
 }
