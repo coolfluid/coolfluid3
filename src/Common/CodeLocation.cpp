@@ -32,7 +32,7 @@ std::string CodeLocation::str () const
   std::string place (m_file);
   place += ":";
   place += line;
-  if ( std::strlen(m_function) ) // skip if compiler does not set function
+  if ( strlen(m_function) ) // skip if compiler does not set function
   {
     place += ":";
     place += m_function;
@@ -70,7 +70,7 @@ std::string CodeLocation::short_str() const
 
   place += ":";
   place += line;
-  if ( std::strlen(m_function) ) // skip if compiler doees not set function
+  if ( strlen(m_function) ) // skip if compiler doees not set function
   {
     place += ":";
     place += m_function;
