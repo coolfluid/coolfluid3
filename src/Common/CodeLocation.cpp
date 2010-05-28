@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <cstring>
 #include <list>
 
 #include <boost/filesystem.hpp>
@@ -9,6 +10,7 @@
 
 #include "Common/CodeLocation.hpp"
 
+using namespace std;
 using namespace boost;
 
 ////////////////////////////////////////////////////////////////////////////////
