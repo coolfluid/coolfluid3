@@ -7,6 +7,7 @@
 #include "Math/MathFunctions.hpp"
 #include "Math/ExprOp.hpp"
 #include "Math/VectorSliceT.hpp"
+#include "Common/BoostArray.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -43,6 +44,8 @@ namespace CF {
 template < typename T >
 class VectorT : public Expr < VectorT<T>, T > {
 public:
+
+  typedef boost::detail::multi_array::sub_array<T,1> BoostRow;
 
   /// Constructor taking size, also works as empty constructor with default size to zero
   /// @param size number of elements in the vector
@@ -92,6 +95,20 @@ public:
         m_data[i++] = *it;
       }
     }
+
+  VectorT(const BoostRow& row) :
+      Expr<VectorT<T>,T>(*this),
+        m_owner (true),
+        m_size  ( row.size() ),
+        m_data  (CFNULL)
+      {
+        alloc_mem();
+        size_t i = 0;
+        for (typename BoostRow::const_iterator it = row.begin(); it != row.end(); ++it) {
+          m_data[i++] = *it;
+        }
+      }
+
 
   /// Destructor
   ~VectorT ();
