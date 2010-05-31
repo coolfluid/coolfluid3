@@ -49,6 +49,8 @@ namespace Client {
 
   public:
 
+    typedef boost::shared_ptr<CNode> Ptr;
+
     /// @brief Constructor.
 
     /// @param name Component name.
