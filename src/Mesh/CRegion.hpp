@@ -101,9 +101,6 @@ public:
     return m_connTable.get() ? m_connTable->get_table().size() : 0;
   }
 
-  /// @todo temporary until search by type is in place
-  virtual std::string type() const{ return "CRegion"; }
-
   struct ConstElementNodeVector;
 
   /// Provide a mutable view of the nodes of a single element, offering operator[] and size() functions

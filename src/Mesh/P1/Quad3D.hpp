@@ -1,5 +1,5 @@
-#ifndef CF_Mesh_P1_Quad2D_hpp
-#define CF_Mesh_P1_Quad2D_hpp
+#ifndef CF_Mesh_P1_Quad3D_hpp
+#define CF_Mesh_P1_Quad3D_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -12,13 +12,13 @@
 namespace CF {
 namespace Mesh {
 namespace P1 {
-    class Quad2D;
+    class Quad3D;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
   
 template<>
-class Mesh_API VolumeComputer<P1::Quad2D> 
+class Mesh_API VolumeComputer<P1::Quad3D>
 {
 public:
   static Real computeVolume(const std::vector<CArray::Row>& coord); 
@@ -31,20 +31,20 @@ namespace P1 {
   
 /// This class defines a 2D Quad mesh element
 /// @author Willem Deconinck
-class P1_API Quad2D : public ElementType
+class P1_API Quad3D : public ElementType
 {
 public:
   
-  typedef VolumeComputer<Quad2D> VolumeComputerType;
+  typedef VolumeComputer<Quad3D> VolumeComputerType;
   
   /// constructor
-  Quad2D();
+  Quad3D();
   
   /// Gets the Class name
-  static std::string getClassName() { return "Quad2D"; }
+  static std::string getClassName() { return "Quad3D"; }
 
   /// Get the full name defining this element type uniquely
-  static std::string getFullName() { return "P1-Quad2D"; }
+  static std::string getFullName() { return "P1-Quad3D"; }
   
   Real computeVolume(const std::vector<CArray::Row>& coord) 
   { 
@@ -53,19 +53,19 @@ public:
 
 private:
   
-}; // end Quad2D
+}; // end Quad3D
   
 } // namespace P1
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Real VolumeComputer<P1::Quad2D>::computeVolume(const std::vector<CArray::Row>& coord) 
+Real VolumeComputer<P1::Quad3D>::computeVolume(const std::vector<CArray::Row>& coord)
 {
-  const Real diagonalsProd =
-  (coord[2][XX] - coord[0][XX]) * (coord[3][YY] - coord[1][YY]) -
-  (coord[2][YY] - coord[0][YY]) * (coord[3][XX] - coord[1][XX]);
-  
-  return 0.5*diagonalsProd;
+  RealVector V1 = RealVector(coord[2]) - RealVector(coord[0]);
+  RealVector V2 = RealVector(coord[3]) - RealVector(coord[1]);
+  RealVector cross(3);
+  Math::MathFunctions::crossProd(V1,V2,cross);
+  return 0.5*cross.norm2();
 }
   
 ////////////////////////////////////////////////////////////////////////////////
@@ -75,4 +75,4 @@ Real VolumeComputer<P1::Quad2D>::computeVolume(const std::vector<CArray::Row>& c
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_P1_Quad2D_hpp
+#endif // CF_Mesh_P1_Quad3D_hpp

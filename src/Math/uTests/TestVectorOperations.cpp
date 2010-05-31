@@ -51,6 +51,7 @@ BOOST_AUTO_TEST_CASE( Constructors )
   RealVector vec(array[0]);
   RealVector vec2(3);
   vec2 = RealVector(array[0]);
+
   // check if the vector has the correct content
   BOOST_CHECK_EQUAL(vec[0] , 1);
   BOOST_CHECK_EQUAL(vec[1] , 2);

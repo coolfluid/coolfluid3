@@ -1,10 +1,20 @@
 LIST ( APPEND P1_files
   P1API.hpp
   P1API.cpp
+  Line1D.hpp
+  Line1D.cpp
+  Line2D.hpp
+  Line2D.cpp
+  Line3D.hpp
+  Line3D.cpp
   Triag2D.hpp
   Triag2D.cpp
+  Triag3D.hpp
+  Triag3D.cpp
   Quad2D.hpp
   Quad2D.cpp
+  Quad3D.hpp
+  Quad3D.cpp
   Hexa3D.hpp
   Hexa3D.cpp
 )

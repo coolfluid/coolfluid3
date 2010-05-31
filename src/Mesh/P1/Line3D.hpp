@@ -1,5 +1,5 @@
-#ifndef CF_Mesh_P1_Quad2D_hpp
-#define CF_Mesh_P1_Quad2D_hpp
+#ifndef CF_Mesh_P1_Line3D_hpp
+#define CF_Mesh_P1_Line3D_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -12,39 +12,38 @@
 namespace CF {
 namespace Mesh {
 namespace P1 {
-    class Quad2D;
+    class Line3D;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
   
 template<>
-class Mesh_API VolumeComputer<P1::Quad2D> 
+class Mesh_API VolumeComputer<P1::Line3D>
 {
 public:
   static Real computeVolume(const std::vector<CArray::Row>& coord); 
-
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace P1 {
   
-/// This class defines a 2D Quad mesh element
+/// This class defines a 2D Triangle mesh element
 /// @author Willem Deconinck
-class P1_API Quad2D : public ElementType
+class P1_API Line3D : public ElementType
 {
 public:
   
-  typedef VolumeComputer<Quad2D> VolumeComputerType;
+  typedef VolumeComputer<Line3D> VolumeComputerType;
   
   /// constructor
-  Quad2D();
+  Line3D();
   
   /// Gets the Class name
-  static std::string getClassName() { return "Quad2D"; }
+  static std::string getClassName() { return "Line3D"; }
 
   /// Get the full name defining this element type uniquely
-  static std::string getFullName() { return "P1-Quad2D"; }
+  static std::string getFullName() { return "P1-Line3D"; }
   
   Real computeVolume(const std::vector<CArray::Row>& coord) 
   { 
@@ -53,19 +52,18 @@ public:
 
 private:
   
-}; // end Quad2D
+}; // end Line3D
   
 } // namespace P1
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Real VolumeComputer<P1::Quad2D>::computeVolume(const std::vector<CArray::Row>& coord) 
+Real VolumeComputer<P1::Line3D>::computeVolume(const std::vector<CArray::Row>& coord)
 {
-  const Real diagonalsProd =
-  (coord[2][XX] - coord[0][XX]) * (coord[3][YY] - coord[1][YY]) -
-  (coord[2][YY] - coord[0][YY]) * (coord[3][XX] - coord[1][XX]);
-  
-  return 0.5*diagonalsProd;
+  // return the distance between the 2 nodes
+  return std::sqrt(std::pow(coord[1][XX]-coord[0][XX],2)+
+                   std::pow(coord[1][YY]-coord[0][YY],2)+
+                   std::pow(coord[1][ZZ]-coord[0][ZZ],2));
 }
   
 ////////////////////////////////////////////////////////////////////////////////
@@ -75,4 +73,4 @@ Real VolumeComputer<P1::Quad2D>::computeVolume(const std::vector<CArray::Row>& c
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_P1_Quad2D_hpp
+#endif // CF_Mesh_P1_Line3D_hpp
