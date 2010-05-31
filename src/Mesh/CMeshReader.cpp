@@ -87,7 +87,7 @@ CMeshReader::create_leaf_regions_with_buffermap (CRegion::Ptr& parent_region,
 void CMeshReader::remove_empty_leaf_regions(CRegion::Ptr& parent_region)
 {
   // loop over regions
-  BOOST_FOREACH(const CRegion::Ptr& region, iterate_recursive_by_type<CRegion>(parent_region))
+  BOOST_FOREACH(const CRegion::Ptr& region, iterate_recursive_by_type<CRegion>(*parent_region))
   {
     // find the empty regions
     if ( !region->has_component_of_type<CRegion>() &&

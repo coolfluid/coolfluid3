@@ -23,10 +23,8 @@ class IsComponentTrue
 {
 public:
 
-  bool operator()(const Component::Ptr& component)
-  { return true; }
-
-  bool operator()(Component& component)
+  template<typename T>
+  bool operator()(const T& component)
   { return true; }
 
 };
@@ -85,16 +83,17 @@ public:
 // Wrappers to make iterating easy
 ////////////////////////////////////////////////////////////////////////////////
 
-template <typename Predicate>
-inline boost::iterator_range<boost::filter_iterator<Predicate, Component::iterator> >
-iterate_recursive(const Component::iterator& from, const Component::iterator& to , const Predicate& pred, Uint level=0)
+template <typename Predicate, typename IteratorT>
+inline boost::iterator_range<boost::filter_iterator<Predicate, IteratorT> >
+iterate_recursive(const IteratorT& from, const IteratorT& to , const Predicate& pred, Uint level=0)
 {
-  return boost::make_iterator_range(boost::filter_iterator<Predicate, Component::iterator >(pred,from,to),
-                                    boost::filter_iterator<Predicate, Component::iterator >(pred,to,to));
+  return boost::make_iterator_range(boost::filter_iterator<Predicate, IteratorT >(pred,from,to),
+                                    boost::filter_iterator<Predicate, IteratorT >(pred,to,to));
 }
 
-inline boost::iterator_range<boost::filter_iterator<IsComponentTrue, Component::iterator > >
-iterate_recursive(const Component::iterator& from, const Component::iterator& to, Uint level=0)
+template <typename IteratorT>
+inline boost::iterator_range<boost::filter_iterator<IsComponentTrue, IteratorT > >
+iterate_recursive(const IteratorT& from, const IteratorT& to, Uint level=0)
 {
   return iterate_recursive(from,to,IsComponentTrue(),level);
 }
@@ -105,7 +104,7 @@ template <typename CType, typename Predicate>
 inline boost::iterator_range<boost::filter_iterator<Predicate, Component::iterator > >
 iterate_recursive(const boost::shared_ptr<CType>& parent, const Predicate& pred, Uint level=0)
 {
-  return iterate_recursive(parent->begin(),parent->end(),pred,level);
+  return iterate_recursive(parent->template begin<Component>(),parent->template end<Component>(),pred,level);
 }
 
 template <typename CType>
@@ -117,37 +116,41 @@ iterate_recursive(const boost::shared_ptr<CType>& parent, Uint level=0)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// Recursive range over all contained components (including self if CType == CReturnType) of type CReturnType
+/// and complying to the supplied predicate
 template <typename CReturnType, typename CType, typename Predicate>
-inline std::vector<typename CReturnType::Ptr >
-iterate_recursive_by_type(const boost::shared_ptr<CType>& parent, const Predicate& pred, Uint level=0)
+inline boost::iterator_range<boost::filter_iterator<Predicate, Component_iterator<CReturnType> > >
+iterate_recursive_by_type(CType& parent, const Predicate& pred, Uint level=0)
 {
-  std::vector<boost::shared_ptr<CReturnType> > vec;
-  BOOST_FOREACH(const Component::Ptr& component, iterate_recursive(parent,IsComponentType<CReturnType,Predicate>(pred),level) )
-    vec.push_back(boost::dynamic_pointer_cast<CReturnType>(component));
-
-  return vec;
+  return iterate_recursive(parent.template begin<CReturnType>(),parent.template end<CReturnType>(),pred,level);
 }
 
+/// Recursive range over all contained components (including self if CType == CReturnType) of type CReturnType
 template <typename CReturnType, typename CType>
-inline std::vector<typename CReturnType::Ptr >
-iterate_recursive_by_type(const boost::shared_ptr<CType>& parent, Uint level=0)
+inline boost::iterator_range<boost::filter_iterator<IsComponentTrue, Component_iterator<CReturnType> > >
+iterate_recursive_by_type(CType& parent, Uint level=0)
 {
-  std::vector<boost::shared_ptr<CReturnType> > vec;
-  BOOST_FOREACH(const Component::Ptr& component, iterate_recursive(parent,IsComponentType<CReturnType>(),level) )
-    vec.push_back(boost::dynamic_pointer_cast<CReturnType>(component));
-
-  return vec;
+  return iterate_recursive_by_type<CReturnType>(parent,IsComponentTrue(),level);
 }
 
-////////////////////////////////////////////////////////////////////////////////
+/// Recursive range over all contained components (including self if CType == CReturnType) of type CReturnType
+/// and complying to the supplied predicate
+/// Const version
+template <typename CReturnType, typename CType, typename Predicate>
+inline boost::iterator_range<boost::filter_iterator<Predicate, Component_iterator<CReturnType const> > >
+iterate_recursive_by_type(const CType& parent, const Predicate& pred, Uint level=0)
+{
+  return iterate_recursive(parent.template begin<CReturnType>(),parent.template end<CReturnType>(),pred,level);
+}
 
-//original
-//    template <typename CReturnType, typename CType>
-//    inline boost::iterator_range<boost::filter_iterator<IsComponentTag, Component_iterator<CType> > >
-//    make_component_range_of_type(const boost::shared_ptr<CType>& parent)
-//    {
-//      return make_component_range(parent,IsComponentTag(CReturnType::getClassName()));
-//    }
+/// Recursive range over all contained components (including self if CType == CReturnType) of type CReturnType
+/// Const version
+template <typename CReturnType, typename CType>
+inline boost::iterator_range<boost::filter_iterator<IsComponentTrue, Component_iterator<CReturnType const> > >
+iterate_recursive_by_type(const CType& parent, Uint level=0)
+{
+  return iterate_recursive_by_type<CReturnType>(parent,IsComponentTrue(),level);
+}
 
 } // Common
 } // CF

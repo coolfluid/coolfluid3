@@ -404,7 +404,7 @@ BOOST_AUTO_TEST_CASE( test_filter_iterator )
   // 5) Example using BOOST_FOREACH and Component::make_component_range_of_type
   //    This will use a predefined predicate
   counter = 6;
-  BOOST_FOREACH(const CGroup::Ptr& comp, iterate_recursive_by_type<CGroup>(all))
+  BOOST_FOREACH(const CGroup::Ptr& comp, iterate_recursive_by_type<CGroup>(*all))
     BOOST_CHECK_EQUAL(comp->name(), check_with_map[counter++]);
 
   BOOST_CHECK_EQUAL(counter,(Uint) 8);

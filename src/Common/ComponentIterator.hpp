@@ -8,8 +8,6 @@
 namespace CF {
 namespace Common {
 
-  class Component;
-
 ////////////////////////////////////////////////////////////////////////////////
 
 template<class T>
@@ -28,7 +26,7 @@ public:
     m_vec.push_back(m_parent);
   }
 
-  explicit Component_iterator(std::vector<boost::shared_ptr<T> > vec, const boost::shared_ptr<Component>& parent)
+  explicit Component_iterator(std::vector<boost::shared_ptr<T> > vec, const boost::shared_ptr<T>& parent)
           : m_parent(parent), m_component(parent) , m_vec(vec), m_counter(0)
   {
     if (!m_vec.size())
@@ -76,7 +74,6 @@ private:
   std::vector<boost::shared_ptr<T> > m_vec;
   Uint m_counter;
 };
-
 
 ////////////////////////////////////////////////////////////////////////////////
 

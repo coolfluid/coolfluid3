@@ -83,7 +83,7 @@ void CWriter::write_header(std::fstream& file)
   Uint phys_name_counter(0);
 
   CRegion::Ptr regions = m_mesh->get_component<CRegion>("regions");
-  BOOST_FOREACH(const CRegion::Ptr& region, iterate_recursive_by_type<CRegion>(regions))
+  BOOST_FOREACH(const CRegion::Ptr& region, iterate_recursive_by_type<CRegion>(*regions))
   {
     if (!region->has_component_of_type<CRegion>())
     {
@@ -152,7 +152,7 @@ void CWriter::write_connectivity(std::fstream& file)
   CRegion::Ptr regions = m_mesh->get_component<CRegion>("regions");
   Uint nbElems = 0;
 
-  BOOST_FOREACH(const CRegion::Ptr& region, iterate_recursive_by_type<CRegion>(regions))
+  BOOST_FOREACH(const CRegion::Ptr& region, iterate_recursive_by_type<CRegion>(*regions))
   {
     if (!region->has_component_of_type<CRegion>())
     {
@@ -167,7 +167,7 @@ void CWriter::write_connectivity(std::fstream& file)
   Uint elm_type;
   Uint number_of_tags=2;
 
-  BOOST_FOREACH(const CRegion::Ptr& region, iterate_recursive_by_type<CRegion>(regions))
+  BOOST_FOREACH(const CRegion::Ptr& region, iterate_recursive_by_type<CRegion>(*regions))
   {
     if (region->has_component_of_type<CRegion>())
     {

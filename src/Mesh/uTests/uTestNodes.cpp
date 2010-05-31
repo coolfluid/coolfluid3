@@ -54,23 +54,12 @@ struct Nodes_Fixture
 
   CRegion& getFirstRegion()
   {
-    std::vector<boost::shared_ptr<CRegion> > regions = mesh2d->get_components_by_type<CRegion>();
-    const Uint regions_begin = 0;
-    const Uint regions_end = regions.size();
-    // for all regions
-
-    for(Uint reg = regions_begin; reg != regions_end; ++reg)
+    BOOST_FOREACH(const CRegion::Ptr& region, iterate_recursive_by_type<CRegion>(*mesh2d))
     {
-      if(regions[reg]->getNbElements())
-        return *regions[reg];
-
-      // for all subregions
-      BOOST_FOREACH(const CRegion::Ptr& region, iterate_recursive_by_type<CRegion>(regions[reg]))
-      {
-        if(region->getNbElements())
-          return (*region);
-      }
+      if(region->getNbElements())
+        return (*region);
     }
+    throw ShouldNotBeHere(FromHere(), "");
   }
 
   CArray::Ptr coordinatesPtr() {

@@ -72,15 +72,41 @@ public: // functions
   /// Get the componment throught the links to the actual components
   virtual Component::Ptr  get ();
 
-  /// The begin iterator
-  iterator begin();
+  /// The begin iterator for a recursive range containing only components of the specified type
+  template<typename ComponentT>
+  Component_iterator<ComponentT> begin();
 
-  /// The end iterator
-  iterator end();
+  /// The begin iterator for a recursive range containing Components
+  Component::iterator begin();
+
+  /// The end iterator for a recursive range containing only components of the specified type
+  template<typename ComponentT>
+  Component_iterator<ComponentT> end();
+
+  /// The end iterator for a recursive range containing Components
+  Component::iterator end();
+
+  /// The begin iterator for a recursive range containing only components of the specified type (const version)
+  template<typename ComponentT>
+  Component_iterator<ComponentT const> begin() const;
+
+  /// The begin iterator for a recursive range containing Components (const version)
+  Component::const_iterator begin() const;
+
+  /// The end iterator for a recursive range containing only components of the specified type (const version)
+  template<typename ComponentT>
+  Component_iterator<ComponentT const> end() const;
+
+  /// The end iterator for a recursive range containing Components (const version)
+  Component::const_iterator end() const;
 
   /// Recursively put all subcomponents in a given vector
   /// @param [out] vec  A vector of all (recursive) subcomponents
-  void put_components(std::vector<Ptr>& vec);
+  template<typename ComponentT>
+  void put_components(std::vector<typename ComponentT::Ptr>& vec);
+
+  template<typename ComponentT>
+  void put_components(std::vector<boost::shared_ptr<ComponentT const> >& vec) const;
 
   /// checks if this component is in fact a link to another component
   bool is_link () const { return m_is_link; }
@@ -296,30 +322,117 @@ inline bool Component::has_component_of_type()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-inline void Component::put_components(std::vector<Component::Ptr >& vec)
+template<typename ComponentT>
+inline void Component::put_components(std::vector<typename ComponentT::Ptr >& vec)
+{
+  for(CompStorage_t::iterator it=m_components.begin(); it!=m_components.end(); ++it)
+  {
+    if(typename ComponentT::Ptr componentPtr = boost::dynamic_pointer_cast<ComponentT>(it->second))
+    {
+      vec.push_back(componentPtr);
+    }
+    it->second->put_components<ComponentT>(vec);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+template<typename ComponentT>
+void Component::put_components(std::vector<boost::shared_ptr<ComponentT const> >& vec) const
+{
+  for(CompStorage_t::const_iterator it=m_components.begin(); it!=m_components.end(); ++it)
+  {
+    if(boost::shared_ptr<ComponentT const> componentPtr = boost::dynamic_pointer_cast<ComponentT const>(it->second))
+    {
+      vec.push_back(componentPtr);
+    }
+    it->second->put_components<ComponentT>(vec);
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+// specialization avoiding the dynamic cast
+template<>
+inline void Component::put_components<Component>(std::vector<Component::Ptr>& vec)
 {
   for(CompStorage_t::iterator it=m_components.begin(); it!=m_components.end(); ++it)
   {
     vec.push_back(it->second);
-    it->second->put_components(vec);
+    it->second->put_components<Component>(vec);
+  }
+}
+
+template<>
+inline void Component::put_components<Component>(std::vector<boost::shared_ptr<Component const> >& vec) const
+{
+  for(CompStorage_t::const_iterator it=m_components.begin(); it!=m_components.end(); ++it)
+  {
+    vec.push_back(it->second);
+    it->second->put_components<Component>(vec);
   }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
+template<typename ComponentT>
+inline Component_iterator<ComponentT> Component::begin()
+{
+  std::vector<typename ComponentT::Ptr > vec;
+  put_components<ComponentT>(vec);
+  return Component_iterator<ComponentT>(vec,boost::dynamic_pointer_cast<ComponentT>(shared_from_this()));
+}
+
 inline Component::iterator Component::begin()
 {
   std::vector<Component::Ptr > vec;
-  put_components(vec);
+  put_components<Component>(vec);
   return Component::iterator(vec,shared_from_this());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
+template<typename ComponentT>
+inline Component_iterator<ComponentT> Component::end()
+{
+  return Component_iterator<ComponentT>(boost::dynamic_pointer_cast<ComponentT>(shared_from_this()));
+}
+
 inline Component::iterator Component::end()
 {
   return Component::iterator(shared_from_this());
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+template<typename ComponentT>
+inline Component_iterator<ComponentT const> Component::begin() const
+{
+  std::vector<boost::shared_ptr<ComponentT const> > vec;
+  put_components<ComponentT>(vec);
+  return Component_iterator<ComponentT const>(vec,boost::dynamic_pointer_cast<ComponentT const>(shared_from_this()));
+}
+
+inline Component::const_iterator Component::begin() const
+{
+  std::vector<boost::shared_ptr<Component const> > vec;
+  put_components<Component>(vec);
+  return Component::const_iterator(vec,shared_from_this());
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+template<typename ComponentT>
+inline Component_iterator<ComponentT const> Component::end() const
+{
+  return Component_iterator<ComponentT const>(boost::dynamic_pointer_cast<ComponentT const>(shared_from_this()));
+}
+
+inline Component::const_iterator Component::end() const
+{
+  return Component::const_iterator(shared_from_this());
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Common
