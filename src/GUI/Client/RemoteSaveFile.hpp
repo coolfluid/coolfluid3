@@ -37,8 +37,8 @@ namespace Client {
 
     /// @brief Constructor
 
-    /// @param parent Parent window. May be @c NULL.
-    RemoteSaveFile(const QModelIndex & index, QMainWindow * parent = NULL);
+    /// @param parent Parent window. May be @c CFNULL.
+    RemoteSaveFile(QMainWindow * parent = CFNULL);
 
     /// @brief Destructor
 

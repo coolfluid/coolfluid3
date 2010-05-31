@@ -24,7 +24,7 @@ namespace Client {
 
     public:
 
-    ShutdownConfirmationPanel(QDialog * parent = NULL);
+    ShutdownConfirmationPanel(QDialog * parent = CFNULL);
 
     ~ShutdownConfirmationPanel();
 

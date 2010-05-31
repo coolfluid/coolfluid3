@@ -5,6 +5,8 @@
 
 #include <QDialog>
 
+#include "Common/CF.hpp"
+
 class QDialogButtonBox;
 class QDomDocument;
 class QLabel;
@@ -18,9 +20,9 @@ class QVBoxLayout;
 namespace CF {
 namespace GUI {
 namespace Client {
-  
+
   ////////////////////////////////////////////////////////////////////////////
-  
+
   class TreeModel;
 
   /// @brief Allows the user to create a link component.
@@ -33,10 +35,10 @@ namespace Client {
 
       /// @brief Constructor.
 
-      /// The tree model is set to @c NULL.
+      /// The tree model is set to @c CFNULL.
       /// @param parent Parent widget. May be null.
 
-      AddLinkDialog(QWidget * parent = NULL);
+      AddLinkDialog(QWidget * parent = CFNULL);
 
       /// @brief Destructor.
 
@@ -96,11 +98,11 @@ namespace Client {
       QVBoxLayout * m_mainLayout;
 
       bool m_okCLicked;
-    
+
   }; // class AddLinkDialog
-  
+
   ////////////////////////////////////////////////////////////////////////////
-  
+
 } // namespace Client
 } // namespace GUI
 } // namespace CF

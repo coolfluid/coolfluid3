@@ -13,56 +13,27 @@
 #include "Common/BuilderParser.hpp"
 #include "Common/BuilderParserFrameInfo.hpp"
 
+#include "GUI/Network/ComponentNames.hpp"
+#include "GUI/Network/LogMessage.hpp"
 #include "GUI/Network/NetworkException.hpp"
+#include "GUI/Network/SignalInfo.hpp"
 
 #include "GUI/Server/UnknownClientIdException.hpp"
-#include "GUI/Server/ServerSimulation.hpp"
+#include "GUI/Server/CSimulator.hpp"
+#include "GUI/Server/ServerRoot.hpp"
 
 #include "GUI/Server/ServerNetworkComm.hpp"
 
 using namespace std;
 using namespace CF::Common;
-//using namespace CF::Config;
 using namespace CF::GUI::Network;
 using namespace CF::GUI::Server;
 
-ServerNetworkComm::ServerNetworkComm(QString hostAddress, quint16 port)
+ServerNetworkComm::ServerNetworkComm()
+  : m_server(CFNULL),
+    m_localSocket(CFNULL),
+    m_lastClientId(0)
 {
-  bool local = hostAddress == "127.0.0.1";
-
-  m_server = new QTcpServer(this);
-
-  if(!local)
-    m_localSocket = new QTcpServer(this);
-  else
-    m_localSocket = NULL;
-
-  if(!m_server->listen(QHostAddress(hostAddress), port))
-  {
-    QString message = QString("Cannot listen %1 on port %2 : %3")
-    .arg(hostAddress)
-    .arg(port)
-    .arg(m_server->errorString());
-    throw NetworkException(FromHere(), message.toStdString());
-  }
-
-  if(!local && !m_localSocket->listen(QHostAddress("127.0.0.1"), port))
-  {
-    QString message = QString("Cannot listen 127.0.0.1 on port %2 : %3")
-    .arg(port)
-    .arg(m_server->errorString());
-    throw NetworkException(FromHere(), message.toStdString());
-  }
-
-  m_lastClientId = 0;
-
-  connect(m_server, SIGNAL(newConnection()), this, SLOT(newClient()));
-
-  if(!local)
-    connect(m_localSocket, SIGNAL(newConnection()), this,
-            SLOT(newClient()));
-
-  m_server->setMaxPendingConnections (1);
   m_blockSize = 0;
   m_bytesRecieved = 0;
   m_bytesSent = 0;
@@ -81,7 +52,63 @@ ServerNetworkComm::~ServerNetworkComm()
     it++;
   }
 
+  m_clients.clear();
+
   m_server->close();
+  delete m_server;
+
+  if(m_localSocket != CFNULL)
+  {
+    m_localSocket->close();
+    delete m_localSocket;
+  }
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+bool ServerNetworkComm::openPort(const QString & hostAddress, quint16 port)
+{
+  bool success = false;
+  bool local = hostAddress == "127.0.0.1" || hostAddress == "localhost";
+
+  if(m_server == CFNULL)
+  {
+    m_server = new QTcpServer(this);
+
+    if(!local)
+      m_localSocket = new QTcpServer(this);
+
+    if(!m_server->listen(QHostAddress(hostAddress), port))
+    {
+      QString message = QString("Cannot listen %1 on port %2 : %3")
+                        .arg(hostAddress)
+                        .arg(port)
+                        .arg(m_server->errorString());
+      throw NetworkException(FromHere(), message.toStdString());
+    }
+
+    if(!local && !m_localSocket->listen(QHostAddress("127.0.0.1"), port))
+    {
+      QString message = QString("Cannot listen 127.0.0.1 on port %2 : %3")
+                        .arg(port)
+                        .arg(m_server->errorString());
+      throw NetworkException(FromHere(), message.toStdString());
+    }
+
+    connect(m_server, SIGNAL(newConnection()), this, SLOT(newClient()));
+    m_server->setMaxPendingConnections(1);
+
+    if(!local)
+    {
+      connect(m_localSocket, SIGNAL(newConnection()), this, SLOT(newClient()));
+      m_localSocket->setMaxPendingConnections(1);
+    }
+
+    success = true;
+  }
+
+  return success;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -117,7 +144,7 @@ int ServerNetworkComm::send(QTcpSocket * client, const QString & frame)
   out.device()->seek(0); // go back to the beginning of the frame
   out << (quint32)(block.size() - sizeof(quint32)); // store the data size
 
-  if(client == NULL)
+  if(client == CFNULL)
   {
     QHash<QTcpSocket *, QDomNode>::iterator it = m_clients.begin();
 
@@ -433,12 +460,22 @@ void ServerNetworkComm::sendSubSystemList(int clientId,
 
 bool ServerNetworkComm::sendMessage(QTcpSocket * client, const QString & message)
 {
-  BuilderParserFrameInfo fi;
+//   BuilderParserFrameInfo fi;
+//
+//   fi.setFrameType(NETWORK_MESSAGE);
+//   fi.frameAttributes["value"] = message.toStdString();
 
-  fi.setFrameType(NETWORK_MESSAGE);
-  fi.frameAttributes["value"] = message.toStdString();
+  SignalInfo si("message", SERVER_ROOT_PATH, CLIENT_LOG_PATH, true);
+  QString str;
 
-  return this->buildAndSend(client, fi);
+  si.setParam("type", LogMessage::Convert::to_str(LogMessage::INFO));
+  si.setParam("text", message.toStdString());
+
+  str = si.getString();
+
+  this->send(client, str);
+
+  return true;//this->buildAndSend(client, fi);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -492,7 +529,7 @@ void ServerNetworkComm::sendAck(QTcpSocket * client, bool success, NetworkFrameT
 
 QTcpSocket * ServerNetworkComm::getSocket(int clientId) const
 {
-  QTcpSocket * socket = NULL;
+  QTcpSocket * socket = CFNULL;
 
   if(clientId != -1)
   {
@@ -519,7 +556,7 @@ void ServerNetworkComm::newClient()
 
   socket = m_server->nextPendingConnection();
 
-  if(socket == NULL)
+  if(socket == CFNULL)
     socket = m_localSocket->nextPendingConnection();
 
   // connect useful signals to slots
@@ -574,162 +611,171 @@ void ServerNetworkComm::newData()
 
     m_bytesRecieved += m_blockSize + (int)sizeof(quint32);
 
-    // if parse() returns false, the document is not valid
-    if(!BuilderParser::parseFrame(frame.toStdString(), m_networkProtocol, fi))
-    {
-      std::string error = BuilderParser::getErrorString();
+    QDomDocument doc;
 
-      // if error is empty, the document is not a well-formed XML document
-      if(error.empty())
-        error = "not well-formed document.";
+    doc.setContent(frame);
 
-      this->sendError(socket, QString("XML parsing error : %1\non string \"%2\"")
-                      .arg(error.c_str())
-                      .arg(frame));
+    qDebug() << frame;
 
-    }
-
-    else
-    {
-      int clientId = m_clientIds.key(socket);
-
-      switch(fi.frameType)
-      {
-        case NETWORK_READ_DIR:
-        {
-          QString exts = fi.frameAttributes["extensions"].c_str();
-
-          emit openDirectory(clientId, fi.frameAttributes["dirPath"].c_str(),
-                             exts.split("*", QString::SkipEmptyParts),
-                             fi.frameAttributes["includeFiles"] == "yes",
-                             fi.frameAttributes["includeNoExtension"] == "yes");
-          break;
-        }
-
-          // if the client wants to open a file
-        case NETWORK_OPEN_FILE :
-          emit openFile(clientId, fi.frameAttributes["filename"].c_str());
-          break;
-
-          // if the client wants the tree
-        case NETWORK_GET_TREE :
-          emit getTree(clientId);
-          break;
-
-          // if the client wants to run the simulation
-        case NETWORK_RUN_SIMULATION :
-          emit runSimulation(clientId);
-          break;
-
-          // if the client wants to activate the simulation
-        case NETWORK_ACTIVATE_SIMULATION :
-        {
-          unsigned int nbProcs;
-          nbProcs = StringOps::from_str<unsigned int>(fi.frameAttributes["nbProcs"]);
-          emit activateSimulation(clientId, nbProcs, fi.frameAttributes["hosts"].c_str());
-        }
-          break;
-
-          // if the client wants to deactivate the simulation
-        case NETWORK_DEACTIVATE_SIMULATION :
-          emit deactivateSimulation(clientId);
-          break;
+    ServerRoot::processSignal(doc);
 
 
-          // if the client wants to configure the simulator
-        case NETWORK_CONFIGURE :
-        {
-          QDomDocument doc;
-          doc.setContent((QString) fi.frameData.createXMLString());
-          emit configureSimulator(clientId, doc);
-          break;
-        }
-
-          // if the client wants to create a new directory
-        case NETWORK_CREATE_DIR:
-          emit createDirectory(clientId, fi.frameAttributes["path"].c_str(),
-                               fi.frameAttributes["dirName"].c_str());
-          break;
-
-          // if the client wants to shut the server down
-        case NETWORK_SHUTDOWN_SERVER :
-          emit shutdownServer(clientId);
-          break;
-
-          // if the client wants to close the file
-        case NETWORK_CLOSE_FILE :
-          emit closeFile(clientId);
-          break;
-
-          // if the client wants the abstract types
-        case NETWORK_GET_ABSTRACT_TYPES :
-          emit getAbstractTypes(clientId, fi.frameAttributes["typeName"].c_str());
-          break;
-
-          // if the client wants the concrete types
-        case NETWORK_GET_CONCRETE_TYPES :
-          emit getConcreteTypes(clientId, fi.frameAttributes["typeName"].c_str());
-          break;
-
-          // if the client wants to save a configuration on server side
-        case NETWORK_SAVE_CONFIG:
-        {
-          QDomDocument doc;
-          doc.setContent((QString) fi.frameData.createXMLString());
-
-          emit saveConfiguration(clientId, fi.frameAttributes["filename"].c_str(), doc);
-          break;
-        }
-
-
-          // if the client requests to add a node
-        case NETWORK_ADD_NODE :
-          emit addNode(clientId, fi.frameAttributes["path"].c_str(),
-                       fi.frameAttributes["nodeName"].c_str(),
-                       fi.frameAttributes["type"].c_str(),
-                       fi.frameAttributes["absType"].c_str());
-          break;
-
-          // if the client requests to rename a node
-        case NETWORK_RENAME_NODE :
-          emit renameNode(clientId, fi.frameAttributes["path"].c_str(),
-                          fi.frameAttributes["newName"].c_str());
-          break;
-
-          // if the client requests to delete a node
-        case NETWORK_DELETE_NODE :
-          emit deleteNode(clientId, fi.frameAttributes["path"].c_str());
-          break;
-
-          // if the client requests to modify a node
-        case NETWORK_MODIFY_NODE :
-        {
-          QDomDocument doc;
-          doc.setContent((QString) fi.frameData.createXMLString());
-          emit modifyNode(clientId, doc);
-          break;
-        }
-
-        case NETWORK_GET_HOST_LIST :
-          emit getHostList(clientId);
-          break;
-
-        case NETWORK_GET_SUBSYSTEM_LIST:
-          emit getSubSysList(clientId);
-          break;
-
-        case NETWORK_ADD_COMPONENT:
-        {
-          string path = fi.frameAttributes["parentPath"];
-          string name = fi.frameAttributes["name"];
-          ComponentType::Type type;
-          type = ComponentType::Convert::to_enum(fi.frameAttributes["type"]);
-          
-          emit addComponent(path.c_str(), type, name.c_str());
-          break;
-        }
-      }
-    }
+//    // if parse() returns false, the document is not valid
+//    if(!BuilderParser::parseFrame(frame.toStdString(), m_networkProtocol, fi))
+//    {
+//      std::string error = BuilderParser::getErrorString();
+//
+//      // if error is empty, the document is not a well-formed XML document
+//      if(error.empty())
+//        error = "not well-formed document.";
+//
+//      this->sendError(socket, QString("XML parsing error : %1\non string \"%2\"")
+//                      .arg(error.c_str())
+//                      .arg(frame));
+//
+//    }
+//
+//    else
+//    {
+//      int clientId = m_clientIds.key(socket);
+//
+//      switch(fi.frameType)
+//      {
+//        case NETWORK_READ_DIR:
+//        {
+//          QString exts = fi.frameAttributes["extensions"].c_str();
+//
+//          emit openDirectory(clientId, fi.frameAttributes["dirPath"].c_str(),
+//                             exts.split("*", QString::SkipEmptyParts),
+//                             fi.frameAttributes["includeFiles"] == "yes",
+//                             fi.frameAttributes["includeNoExtension"] == "yes");
+//          break;
+//        }
+//
+//          // if the client wants to open a file
+//        case NETWORK_OPEN_FILE :
+//          emit openFile(clientId, fi.frameAttributes["filename"].c_str());
+//          break;
+//
+//          // if the client wants the tree
+//        case NETWORK_GET_TREE :
+//          emit getTree(clientId);
+//          break;
+//
+//          // if the client wants to run the simulation
+//        case NETWORK_RUN_SIMULATION :
+//          emit runSimulation(clientId);
+//          break;
+//
+//          // if the client wants to activate the simulation
+//        case NETWORK_ACTIVATE_SIMULATION :
+//        {
+//          unsigned int nbProcs;
+//          nbProcs = StringOps::from_str<unsigned int>(fi.frameAttributes["nbProcs"]);
+//          emit activateSimulation(clientId, nbProcs, fi.frameAttributes["hosts"].c_str());
+//        }
+//          break;
+//
+//          // if the client wants to deactivate the simulation
+//        case NETWORK_DEACTIVATE_SIMULATION :
+//          emit deactivateSimulation(clientId);
+//          break;
+//
+//
+//          // if the client wants to configure the simulator
+//        case NETWORK_CONFIGURE :
+//        {
+//          QDomDocument doc;
+//          doc.setContent((QString) fi.frameData.createXMLString());
+//          emit configureSimulator(clientId, doc);
+//          break;
+//        }
+//
+//          // if the client wants to create a new directory
+//        case NETWORK_CREATE_DIR:
+//          emit createDirectory(clientId, fi.frameAttributes["path"].c_str(),
+//                               fi.frameAttributes["dirName"].c_str());
+//          break;
+//
+//          // if the client wants to shut the server down
+//        case NETWORK_SHUTDOWN_SERVER :
+//          emit shutdownServer(clientId);
+//          break;
+//
+//          // if the client wants to close the file
+//        case NETWORK_CLOSE_FILE :
+//          emit closeFile(clientId);
+//          break;
+//
+//          // if the client wants the abstract types
+//        case NETWORK_GET_ABSTRACT_TYPES :
+//          emit getAbstractTypes(clientId, fi.frameAttributes["typeName"].c_str());
+//          break;
+//
+//          // if the client wants the concrete types
+//        case NETWORK_GET_CONCRETE_TYPES :
+//          emit getConcreteTypes(clientId, fi.frameAttributes["typeName"].c_str());
+//          break;
+//
+//          // if the client wants to save a configuration on server side
+//        case NETWORK_SAVE_CONFIG:
+//        {
+//          QDomDocument doc;
+//          doc.setContent((QString) fi.frameData.createXMLString());
+//
+//          emit saveConfiguration(clientId, fi.frameAttributes["filename"].c_str(), doc);
+//          break;
+//        }
+//
+//
+//          // if the client requests to add a node
+//        case NETWORK_ADD_NODE :
+//          emit addNode(clientId, fi.frameAttributes["path"].c_str(),
+//                       fi.frameAttributes["nodeName"].c_str(),
+//                       fi.frameAttributes["type"].c_str(),
+//                       fi.frameAttributes["absType"].c_str());
+//          break;
+//
+//          // if the client requests to rename a node
+//        case NETWORK_RENAME_NODE :
+//          emit renameNode(clientId, fi.frameAttributes["path"].c_str(),
+//                          fi.frameAttributes["newName"].c_str());
+//          break;
+//
+//          // if the client requests to delete a node
+//        case NETWORK_DELETE_NODE :
+//          emit deleteNode(clientId, fi.frameAttributes["path"].c_str());
+//          break;
+//
+//          // if the client requests to modify a node
+//        case NETWORK_MODIFY_NODE :
+//        {
+//          QDomDocument doc;
+//          doc.setContent((QString) fi.frameData.createXMLString());
+//          emit modifyNode(clientId, doc);
+//          break;
+//        }
+//
+//        case NETWORK_GET_HOST_LIST :
+//          emit getHostList(clientId);
+//          break;
+//
+//        case NETWORK_GET_SUBSYSTEM_LIST:
+//          emit getSubSysList(clientId);
+//          break;
+//
+//        case NETWORK_ADD_COMPONENT:
+//        {
+//          string path = fi.frameAttributes["parentPath"];
+//          string name = fi.frameAttributes["name"];
+//          ComponentType::Type type;
+//          type = ComponentType::Convert::to_enum(fi.frameAttributes["type"]);
+//
+//          emit addComponent(path.c_str(), type, name.c_str());
+//          break;
+//        }
+//      }
+//    }
 
     m_blockSize = 0;
   }
@@ -743,7 +789,7 @@ void ServerNetworkComm::clientDisconnected()
   // which client has been disconnected ?
   QTcpSocket * socket = qobject_cast<QTcpSocket *>(sender());
 
-  if(socket != NULL)
+  if(socket != CFNULL)
   {
     int clientId = m_clientIds.key(socket);
     m_clientIds.remove(clientId);

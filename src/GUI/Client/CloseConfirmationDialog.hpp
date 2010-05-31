@@ -84,7 +84,7 @@ namespace Client {
 
     /// @brief Constructor
 
-    /// @param parent Parent window. May be @c NULL.
+    /// @param parent Parent window. May be @c CFNULL.
     CloseConfirmationDialog(QMainWindow * parent = 0);
 
     /// @brief Destructor
@@ -154,7 +154,7 @@ namespace Client {
     /// @brief List of available m_panels.
 
     /// The key is the type of the panel, the value is either a pointer to
-    /// the object (if the panel has been set) or @c NULL (if the panel has not
+    /// the object (if the panel has been set) or @c CFNULL (if the panel has not
     /// been set).
     QHash<CloseConfirmationType, CloseConfirmationPanel *> m_panels;
 

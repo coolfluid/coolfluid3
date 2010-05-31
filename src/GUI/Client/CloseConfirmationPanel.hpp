@@ -39,7 +39,7 @@ namespace Client {
     /// @brief Constructor
 
     /// @param title Panel title
-    /// @param parent Parent dialog. May be @c NULL.
+    /// @param parent Parent dialog. May be @c CFNULL.
     CloseConfirmationPanel(const QString title, QDialog * parent = 0);
 
     /// @brief Destructor

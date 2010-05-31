@@ -5,8 +5,8 @@
 
 using namespace CF::GUI::Client;
 
-RemoteOpenFile::RemoteOpenFile(const QModelIndex & index, QMainWindow * parent)
-: RemoteFSBrowser(index, parent)
+RemoteOpenFile::RemoteOpenFile(QMainWindow * parent)
+: RemoteFSBrowser(parent)
 {
   this->setIncludeFiles(true);
   this->setIncludeNoExtension(true);

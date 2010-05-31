@@ -7,8 +7,9 @@
 # List of classes to "moc"
 SET(coolfluid-client_moc_classes
   AddLinkDialog.hpp
-  ClientKernel.hpp
+  ClientCore.hpp
   ClientNetworkComm.hpp
+  CLog.hpp
   CloseConfirmationDialog.hpp
   CloseConfirmationPanel.hpp
   CommitConfirmationPanel.hpp
@@ -16,7 +17,6 @@ SET(coolfluid-client_moc_classes
   ConfirmCommitDialog.hpp
   ConnectionDialog.hpp
   FilesPanel.hpp
-  GlobalLog.hpp
   LoggingList.hpp
   MainWindow.hpp
   OptionPanel.hpp
@@ -28,7 +28,7 @@ SET(coolfluid-client_moc_classes
   StatusPanel.hpp
   TreeModel.hpp
   TreeView.hpp
-TypeAndNameDialog.hpp)
+  TypeAndNameDialog.hpp)
 
 # Create the moc files
 QT4_WRAP_CPP(coolfluid-client_moc_files ${coolfluid-client_moc_classes})
@@ -39,10 +39,16 @@ LIST ( APPEND coolfluid-client_files
   AboutCFDialog.hpp
   AddLinkDialog.cpp
   AddLinkDialog.hpp
-  ClientKernel.cpp
-  ClientKernel.hpp
+  CBrowser.cpp
+  CBrowser.hpp
+  ClientCore.cpp
+  ClientCore.hpp
   ClientNetworkComm.cpp
   ClientNetworkComm.hpp
+  ClientRoot.cpp
+  ClientRoot.hpp
+  CLog.cpp
+  CLog.hpp
   CloseConfirmationDialog.cpp
   CloseConfirmationDialog.hpp
   CloseConfirmationInfos.hpp
@@ -60,12 +66,12 @@ LIST ( APPEND coolfluid-client_files
   ConfirmCommitDialog.hpp
   ConnectionDialog.cpp
   ConnectionDialog.hpp
+  CTree.cpp
+  CTree.hpp
   FilesListItem.cpp
   FilesListItem.hpp
   FilesPanel.cpp
   FilesPanel.hpp
-  GlobalLog.cpp
-  GlobalLog.hpp
   GraphicalOption.cpp
   GraphicalOption.hpp
   HostListPanel.cpp

@@ -1,11 +1,15 @@
 #ifndef CF_GUI_Client_CommitConfirmationPanel_h
 #define CF_GUI_Client_CommitConfirmationPanel_h
 
+/////////////////////////////////////////////////////////////////////////////
+
+#include "Common/CF.hpp"
+
 #include "GUI/Client/CloseConfirmationPanel.hpp"
 
 class QComboBox;
 
-////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace GUI {
@@ -13,7 +17,7 @@ namespace Client {
 
     struct CloseConfirmationInfos;
 
-////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
 
     class CommitConfirmationPanel : public CloseConfirmationPanel
     {
@@ -21,7 +25,7 @@ namespace Client {
 
     public:
 
-      CommitConfirmationPanel(QDialog * parent = NULL);
+      CommitConfirmationPanel(QDialog * parent = CFNULL);
 
       ~CommitConfirmationPanel();
 

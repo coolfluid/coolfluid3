@@ -6,6 +6,8 @@
 #include <QWidget>
 #include <QHash>
 
+#include "Common/CF.hpp"
+
 class QComboBox;
 class QGridLayout;
 class QHBoxLayout;
@@ -63,9 +65,9 @@ namespace Client {
     /// @param includeNoExtension If @c true, files without extension are
     /// requested too. The parameter has no effect if @c includeFiles is
     /// @c false.
-    /// @param parent Parent widget. May be @c NULL.
+    /// @param parent Parent widget. May be @c CFNULL.
     FilesPanel(bool includeFiles, const QStringList & extensions,
-               bool includeNoExtension, QWidget * parent = NULL);
+               bool includeNoExtension, QWidget * parent = CFNULL);
 
     /// @brief Destructor
 

@@ -1,5 +1,7 @@
 #include <QtCore>
 
+#include "Common/CF.hpp"
+
 #include "GUI/Client/CommitDetailsItem.hpp"
 #include "GUI/Client/CommitDetails.hpp"
 
@@ -133,7 +135,7 @@ QModelIndex CommitDetails::parent(const QModelIndex &index) const
 
   CommitDetailsItem * item = static_cast<CommitDetailsItem *> (index.internalPointer());
 
-  if (item == NULL)
+  if (item == CFNULL)
     return QModelIndex();
 
   return QModelIndex();
@@ -280,14 +282,14 @@ bool CommitDetails::contains(const QString & optionName,
 
   contains = m_options.contains(optionName);
 
-  if(contains && isNewOption != NULL)
+  if(contains && isNewOption != CFNULL)
     *isNewOption = false;
 
   else
   {
     contains = m_newOptions.contains(optionName);
 
-    if(contains && isNewOption != NULL)
+    if(contains && isNewOption != CFNULL)
       *isNewOption = true;
   }
 

@@ -38,7 +38,7 @@ namespace Client {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  class ClientKernel;
+  class ClientCore;
   class ConnectionDialog;
   class LoggingList;
   class OptionPanel;
@@ -115,6 +115,8 @@ namespace Client {
     void openSimulation(const QModelIndex & index);
 
     void showHelp();
+    
+    void newException(const QString &);
 
     private:
 
@@ -140,8 +142,6 @@ namespace Client {
     StatusPanel * m_statusPanel;
 
     StatusModel * m_statusModel;
-
-    ClientKernel * m_clientKernel;
 
     AboutCFDialog * m_aboutCFDialog;
 

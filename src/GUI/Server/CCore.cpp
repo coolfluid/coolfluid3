@@ -10,135 +10,69 @@
 
 #include "Common/ConfigArgs.hpp"
 #include "Common/ConverterTools.hpp"
-//#include "Common/ConfigFileReader.hpp"
+
+#include "GUI/Network/ComponentNames.hpp"
+#include "GUI/Network/HostInfos.hpp"
+#include "GUI/Network/SignalInfo.hpp"
 
 #include "GUI/Server/ServerNetworkComm.hpp"
-#include "GUI/Server/ServerSimulation.hpp"
+#include "GUI/Server/CSimulator.hpp"
 #include "GUI/Server/SimulationManager.hpp"
 #include "GUI/Server/TypesNotFoundException.hpp"
 
-#include "GUI/Server/ServerKernel.hpp"
+#include "GUI/Server/CCore.hpp"
 
 using namespace CF::Common;
-//using namespace CF::Config;
 using namespace CF::GUI::Network;
 using namespace CF::GUI::Server;
 
-ServerKernel::ServerKernel(const QString & hostname, quint16 portNumber,
-                           const QList<HostInfos> & hostList)
-: DEFAULT_PATH(".")
+CCore::CCore()
+  : Component(SERVER_CORE),
+    DEFAULT_PATH("."),
+    m_fileOpen(false),
+    m_simRunning(false),
+    m_active(false)
 {
-  m_commServer = new ServerNetworkComm(hostname, portNumber);
-
-  m_fileOpen = false;
-  m_simRunning = false;
-  m_active = false;
-
-  m_hostList = hostList;
-
-  // load available types from XML file
-  QFile typesFile("./TypesList.xml"); // list of available types
-
-  if (typesFile.open(QIODevice::ReadOnly) && m_types.setContent(&typesFile))
-    typesFile.close();
-
-  else
-  {
-    QString message = QString("Unable to load type list from '%1': %2")
-    .arg(typesFile.fileName())
-    .arg(typesFile.errorString());
-
-    throw TypesNotFoundException(FromHere(), message.toStdString());
-  }
-
+  m_commServer = new ServerNetworkComm();
   this->createSimulator("Simulator");
 
-  qRegisterMetaType<XMLNode>("XMLNode");
+  connect(m_commServer, SIGNAL(newClient(int)),
+          this,  SLOT(newClient(int)));
 
-  // connect useful signals to slots
-  connect(&m_simulationManager, SIGNAL(message(const QString &)),
-          this, SLOT(message(const QString &)));
+  regist_signal("readDir", "Read directory content")->connect(boost::bind(&CCore::readDir, this, _1));
+}
 
-  connect(&m_simulationManager,
-          SIGNAL(simulationStatus(const QString &, int, const QString &)), 
-          this, SLOT(simulationStatus(const QString &, int, const QString &)));
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-  connect(&m_simulationManager, SIGNAL(simulationTree(const XMLNode &)),
-          this, SLOT(simulationTree(const XMLNode &)));
-
-  connect(&m_simulationManager, SIGNAL(simulationFinished()),
-          this, SLOT(simulationFinished()));
-
-  connect(&m_simulationManager, SIGNAL(spawned()), this, SLOT(spawned()));
-  
-  connSig(SIGNAL(newClient(int)),
-          SLOT(newClient(int)));
-
-  connSig(SIGNAL(getTree(int)),
-          SLOT(getTree(int)));
-
-  connSig(SIGNAL(configureSimulator(int, const QDomDocument&)),
-          SLOT(configureSimulator(int, const QDomDocument&)));
-
-  connSig(SIGNAL(modifyNode(int, const QDomDocument&)),
-          SLOT(modifyNode(int, const QDomDocument&)));
-
-  connSig(SIGNAL(deleteNode(int, const QString&)),
-          SLOT(deleteNode(int, const QString&)));
-
-  connSig(SIGNAL(addNode(int, const QString&, const QString&, const QString&, const QString&)),
-          SLOT(addNode(int, const QString&, const QString&, const QString&, const QString&)));
-
-  connSig(SIGNAL(renameNode(int, const QString&, const QString&)),
-          SLOT(renameNode(int, const QString&, const QString&)));
-
-  connSig(SIGNAL(getAbstractTypes(int, const QString&)),
-          SLOT(getAbstractTypes(int, const QString&)));
-
-  connSig(SIGNAL(getConcreteTypes(int, const QString&)),
-          SLOT(getConcreteTypes(int, const QString&)));
-
-  connSig(SIGNAL(createDirectory(int, const QString&, const QString&)),
-          SLOT(createDirectory(int, const QString&, const QString&)));
-
-  connSig(SIGNAL(openDirectory(int, const QString&, const QStringList&, bool, bool)),
-          SLOT(openDirectory(int, const QString&, const QStringList&, bool, bool)));
-
-  connSig(SIGNAL(saveConfiguration(int, const QString&, const QDomDocument&)),
-          SLOT(saveConfiguration(int, const QString&, const QDomDocument&)));
-
-  connSig(SIGNAL(openFile(int, const QString&)),
-          SLOT(openFile(int, const QString&)));
-
-  connSig(SIGNAL(closeFile(int)),
-          SLOT(closeFile(int)));
-
-  connSig(SIGNAL(runSimulation(int)),
-          SLOT(runSimulation(int)));
-
-  connSig(SIGNAL(activateSimulation(int, unsigned int, const QString &)),
-          SLOT(activateSimulation(int, unsigned int, const QString &)));
-
-  connSig(SIGNAL(deactivateSimulation(int)),
-          SLOT(deactivateSimulation(int)));
-
-  connSig(SIGNAL(shutdownServer(int)),
-          SLOT(shutdownServer(int)));
-
-  connSig(SIGNAL(getHostList(int)),
-          SLOT(getHostList(int)));
-
-  connSig(SIGNAL(getSubSysList(int)),
-          SLOT(getSubSysList(int)));
+CCore::~CCore()
+{
+  delete m_commServer;
+  delete m_srvSimulation;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-ServerKernel::~ServerKernel()
+bool CCore::listenToNetwork(const QString & hostname, quint16 portNumber)
 {
-  delete m_commServer;
-  delete m_srvSimulation;
+  return m_commServer->openPort(hostname, portNumber);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void CCore::setHostList(const QList<HostInfos> & hostList)
+{
+  m_hostList = hostList;
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+QList<HostInfos> CCore::getHostList() const
+{
+  return m_hostList;
 }
 
 /***************************************************************************
@@ -147,9 +81,9 @@ PRIVATE METHODS
 
 ***************************************************************************/
 
-void ServerKernel::createSimulator(const QString & name)
+void CCore::createSimulator(const QString & name)
 {
-  m_srvSimulation = new ServerSimulation(name);
+  m_srvSimulation = new CSimulator(name);
 
   connect(m_srvSimulation, SIGNAL(message(const QString&)), this,
           SLOT(message(const QString&)));
@@ -159,8 +93,8 @@ void ServerKernel::createSimulator(const QString & name)
 
   connect(m_srvSimulation, SIGNAL(finished()),
           this, SLOT(simulationFinished()));
-  
-  connect(m_commServer, 
+
+  connect(m_commServer,
           SIGNAL(addComponent(const QString &,
                               CF::GUI::Network::ComponentType::Type,
                               const QString &)),
@@ -176,15 +110,7 @@ void ServerKernel::createSimulator(const QString & name)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool ServerKernel::connSig(const char * signal, const char * slot)
-{
-  return connect(m_commServer, signal, this, slot);
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void ServerKernel::setStatus(WorkerStatus::Type status)
+void CCore::setStatus(WorkerStatus::Type status)
 {
   PEInterface::getInstance().change_status(status);
   //  this->commServer->sendStatus(-1, PE::getStatusString(status).c_str());
@@ -193,12 +119,12 @@ void ServerKernel::setStatus(WorkerStatus::Type status)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool ServerKernel::getDirContent(const QString & directory,
-                                 const QStringList & extensions,
-                                 bool includeFiles,
-                                 bool includeNoExtension,
-                                 QStringList & dirsList,
-                                 QStringList & filesList) const
+bool CCore::getDirContent(const QString & directory,
+                          const QStringList & extensions,
+                          bool includeFiles,
+                          bool includeNoExtension,
+                          QStringList & dirsList,
+                          QStringList & filesList) const
 {
   QStringList list;
   QDir dir(directory);
@@ -249,13 +175,130 @@ bool ServerKernel::getDirContent(const QString & directory,
   return true;
 }
 
-/******************************************************************************
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-SLOTS
+                               BOOST SLOTS
 
-******************************************************************************/
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-void ServerKernel::treeUpdated()
+Signal::return_t CCore::readDir(Signal::arg_t & node)
+{
+  XMLParams p(node);
+  QStringList dirList;
+  QStringList fileList;
+  QStringList extensions;
+  QString frame;
+  QString directory;
+
+  /*
+
+  QStringList directories;
+  QStringList files;
+  // bool dotDot;
+
+  QString directory;
+
+  QDomDocument filesList;
+
+  if(dirPath.isEmpty())
+    directory = this->DEFAULT_PATH;
+  else
+    directory = dirPath;
+
+  directory = QDir(directory).absolutePath();
+  directory = QDir::cleanPath(directory);
+
+  if(directory != "/")
+    directories << "..";
+
+  if(!this->getDirContent(directory, extensions, includeFiles,
+                          includeNoExtension, directories, files))
+  {
+    m_commServer->sendError(clientId, QString("'%1' is not an existing directory")
+                                  .arg(directory));
+    return;
+  }
+
+  m_commServer->sendDirContents(clientId, directory, directories, files);*/
+
+
+  QString dirPath = p.value<std::string>("dirPath").c_str();
+  bool includeFiles = p.value<bool>("includeFiles");
+  bool includeNoExtension = p.value<bool>("includeNoExtension");
+
+  if(dirPath.isEmpty())
+    directory = this->DEFAULT_PATH;
+  else
+    directory = dirPath;
+
+  directory = QDir(directory).absolutePath();
+  directory = QDir::cleanPath(directory);
+
+  // if the directory is not the root
+  /// @todo test this on Windows
+  if(directory != "/")
+    dirList << "..";
+
+  SignalInfo::convertToStringList(p.array<std::string>("extensions"), extensions);
+
+  if(!this->getDirContent(dirPath, extensions, includeFiles,
+                          includeNoExtension, dirList, fileList))
+  {
+    m_commServer->sendError(-1, dirPath + ": no such direcrory");
+  }
+  else
+  {
+    // the reciever becomes the sender and vice versa
+    SignalInfo si("readDir", p.getReceiver(), p.getSender(), false);
+    QList<std::string> dirList2;
+    QList<std::string> fileList2;
+
+    SignalInfo::convertToStdString(dirList, dirList2);
+    SignalInfo::convertToStdString(fileList, fileList2);
+
+    // Build the reply
+
+    si.setParam("dirPath", directory.toStdString());
+    si.setArray("dirs", dirList2);
+    si.setArray("files", fileList2);
+
+    frame = si.getString();
+
+    m_commServer->send(-1, frame);
+  }
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Signal::return_t CCore::createDir(Signal::arg_t & node)
+{
+
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Signal::return_t CCore::shutdown(Signal::arg_t & node)
+{
+
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Signal::return_t CCore::saveConfig(Signal::arg_t & node)
+{
+
+}
+
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+                                 SLOTS
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+void CCore::treeUpdated()
 {
   this->getTree(-1);
 }
@@ -263,7 +306,7 @@ void ServerKernel::treeUpdated()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerKernel::newClient(int clientId)
+void CCore::newClient(int clientId)
 {
   if(m_fileOpen)
     m_commServer->sendAck(clientId, true, NETWORK_OPEN_FILE);
@@ -276,14 +319,14 @@ void ServerKernel::newClient(int clientId)
 
   // send a welcome message to the new client
   m_commServer->sendMessage(clientId, "Welcome to the Client-Server project!");
-  
+
   this->getTree(clientId);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerKernel::getTree(int clientId)
+void CCore::getTree(int clientId)
 {
   QDomDocument d;
   d.setContent(m_srvSimulation->getTreeXML());
@@ -293,7 +336,7 @@ void ServerKernel::getTree(int clientId)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerKernel::configureSimulator(int clientId, const QDomDocument & config)
+void CCore::configureSimulator(int clientId, const QDomDocument & config)
 {
   m_simTree = ConverterTools::xmlToXCFcase(config.toString().toStdString());
   //  ConfigArgs args = ConverterTools::xmlToConfigArgs(config.toString().toStdString());
@@ -318,7 +361,7 @@ void ServerKernel::configureSimulator(int clientId, const QDomDocument & config)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerKernel::modifyNode(int clientId, const QDomDocument & data)
+void CCore::modifyNode(int clientId, const QDomDocument & data)
 {
   if(!m_fileOpen)
     m_commServer->sendError(clientId, "No case file loaded !");
@@ -330,7 +373,7 @@ void ServerKernel::modifyNode(int clientId, const QDomDocument & data)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerKernel::deleteNode(int clientId, const QString & nodePath)
+void CCore::deleteNode(int clientId, const QString & nodePath)
 {
   if(!m_fileOpen)
     m_commServer->sendError(clientId, "No case file loaded !");
@@ -346,7 +389,7 @@ void ServerKernel::deleteNode(int clientId, const QString & nodePath)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerKernel::addNode(int clientId, const QString & parentPath,
+void CCore::addNode(int clientId, const QString & parentPath,
                            const QString & name, const QString & type,
                            const QString & absType)
 {
@@ -363,7 +406,7 @@ void ServerKernel::addNode(int clientId, const QString & parentPath,
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerKernel::renameNode(int clientId, const QString & nodePath,
+void CCore::renameNode(int clientId, const QString & nodePath,
                               const QString & newName)
 {
   if(!m_fileOpen)
@@ -379,7 +422,7 @@ void ServerKernel::renameNode(int clientId, const QString & nodePath,
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerKernel::getAbstractTypes(int clientId, const QString & typeName)
+void CCore::getAbstractTypes(int clientId, const QString & typeName)
 {
   QDomNode node = m_types.namedItem(typeName);
   QDomDocument document;
@@ -421,7 +464,7 @@ void ServerKernel::getAbstractTypes(int clientId, const QString & typeName)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerKernel::getConcreteTypes(int clientId, const QString & typeName)
+void CCore::getConcreteTypes(int clientId, const QString & typeName)
 {
   QStringList typeList = m_srvSimulation->getConcreteTypes(typeName);
   m_commServer->sendConcreteTypes(clientId, typeName, typeList);
@@ -430,7 +473,7 @@ void ServerKernel::getConcreteTypes(int clientId, const QString & typeName)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerKernel::createDirectory(int clientId, const QString & dirPath,
+void CCore::createDirectory(int clientId, const QString & dirPath,
                                    const QString & name)
 {
   /// @todo check if absolute
@@ -460,7 +503,7 @@ void ServerKernel::createDirectory(int clientId, const QString & dirPath,
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerKernel::openDirectory(int clientId, const QString & dirPath,
+void CCore::openDirectory(int clientId, const QString & dirPath,
                                  const QStringList & extensions,
                                  bool includeFiles, bool includeNoExtension)
 {
@@ -497,7 +540,7 @@ void ServerKernel::openDirectory(int clientId, const QString & dirPath,
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerKernel::saveConfiguration(int clientId, const QString & filename,
+void CCore::saveConfiguration(int clientId, const QString & filename,
                                      const QDomDocument & config)
 {
   bool cfcase = false;
@@ -540,7 +583,7 @@ void ServerKernel::saveConfiguration(int clientId, const QString & filename,
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerKernel::openFile(int clientId, const QString & filename)
+void CCore::openFile(int clientId, const QString & filename)
 {
   if(m_fileOpen)
     this->closeFile(clientId);
@@ -565,7 +608,7 @@ void ServerKernel::openFile(int clientId, const QString & filename)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerKernel::closeFile(int clientId)
+void CCore::closeFile(int clientId)
 {
   QString error;
 
@@ -589,7 +632,7 @@ void ServerKernel::closeFile(int clientId)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerKernel::runSimulation(int clientId)
+void CCore::runSimulation(int clientId)
 {
   QString error;
 
@@ -620,7 +663,7 @@ void ServerKernel::runSimulation(int clientId)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerKernel::shutdownServer(int clientId)
+void CCore::shutdownServer(int clientId)
 {
   qApp->exit(0); // exit the Qt event loop
 }
@@ -628,7 +671,7 @@ void ServerKernel::shutdownServer(int clientId)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerKernel::message(const QString & message)
+void CCore::message(const QString & message)
 {
   m_commServer->sendMessage(-1, message);
 }
@@ -636,7 +679,7 @@ void ServerKernel::message(const QString & message)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerKernel::error(const QString & message)
+void CCore::error(const QString & message)
 {
   m_commServer->sendError(-1, message);
 }
@@ -644,7 +687,7 @@ void ServerKernel::error(const QString & message)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerKernel::simulationFinished()
+void CCore::simulationFinished()
 {
   m_simRunning = false;
   m_commServer->sendAck(-1, true, NETWORK_RUN_SIMULATION);
@@ -653,7 +696,7 @@ void ServerKernel::simulationFinished()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerKernel::getHostList(int clientId)
+void CCore::getHostList(int clientId)
 {
   m_commServer->sendHostList(clientId, m_hostList);
 }
@@ -661,7 +704,7 @@ void ServerKernel::getHostList(int clientId)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerKernel::activateSimulation(int clientId, unsigned int nbProcs,
+void CCore::activateSimulation(int clientId, unsigned int nbProcs,
                                       const QString & hosts)
 {
   QString error;
@@ -691,7 +734,7 @@ void ServerKernel::activateSimulation(int clientId, unsigned int nbProcs,
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerKernel::deactivateSimulation(int clientId)
+void CCore::deactivateSimulation(int clientId)
 {
   QString error;
 
@@ -703,7 +746,7 @@ void ServerKernel::deactivateSimulation(int clientId)
     m_commServer->sendMessage(-1, "Exiting workers.");
     m_simulationManager.exitWorkers();
     m_commServer->sendAck(-1, true, NETWORK_DEACTIVATE_SIMULATION);
-    CFinfo << "Simulation has been deativated.\n" << CFendl;
+    CFinfo << "Simulation has been deativated.\n" << CFflush;
     m_active = false;
     this->setStatus(WorkerStatus::NOT_RUNNING);
   }
@@ -712,7 +755,7 @@ void ServerKernel::deactivateSimulation(int clientId)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerKernel::simulationStatus(const QString & subSysName, int rank,
+void CCore::simulationStatus(const QString & subSysName, int rank,
                                     const QString & status)
 {
   m_commServer->sendStatus(-1, subSysName, rank, status);
@@ -721,7 +764,7 @@ void ServerKernel::simulationStatus(const QString & subSysName, int rank,
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerKernel::getSubSysList(int clientId)
+void CCore::getSubSysList(int clientId)
 {
   QStringList list;
 
@@ -736,7 +779,7 @@ void ServerKernel::getSubSysList(int clientId)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerKernel::simulationTree(const XMLNode & tree)
+void CCore::simulationTree(const XMLNode & tree)
 {
   m_commServer->sendTree(-1, tree);
 }
@@ -744,7 +787,7 @@ void ServerKernel::simulationTree(const XMLNode & tree)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerKernel::spawned()
+void CCore::spawned()
 {
   m_commServer->sendAck(-1, true, NETWORK_ACTIVATE_SIMULATION);
   m_commServer->sendMessage(-1, "Simulation has been activated.");

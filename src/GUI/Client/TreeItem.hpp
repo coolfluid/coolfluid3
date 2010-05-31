@@ -5,6 +5,8 @@
 
 #include <QList>
 
+#include "Common/CF.hpp"
+
 class QDomNode;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -43,7 +45,7 @@ namespace Client {
     /// @param node The node this item represents.
     /// @param parent A pointer to the parent. May be null of this item
     /// is the root of the tree.
-    TreeItem(QDomNode & node, TreeItem * m_parent = NULL);
+    TreeItem(QDomNode & node, TreeItem * m_parent = CFNULL);
 
     /// @brief Destructor.
 

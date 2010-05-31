@@ -6,6 +6,7 @@
 #include "Common/CF.hpp"
 #include "Common/Exception.hpp"
 
+#include "GUI/Client/ClientCore.hpp"
 #include "GUI/Client/CommitDetails.hpp"
 #include "GUI/Client/OptionPanel.hpp"
 #include "GUI/Client/CommitDetailsDialog.hpp"
@@ -17,9 +18,10 @@
 #include "GUI/Client/TSshInformation.hpp"
 #include "GUI/Client/ConfirmCommitDialog.hpp"
 #include "GUI/Client/AddLinkDialog.hpp"
-#include "GUI/Client/GlobalLog.hpp"
+#include "GUI/Client/ClientRoot.hpp"
 
 #include "GUI/Network/ComponentType.hpp"
+#include "GUI/Network/ComponentNames.hpp"
 
 #include "GUI/Client/TreeView.hpp"
 
@@ -32,11 +34,11 @@ TreeView::TreeView(OptionPanel * optionsPanel, QMainWindow * parent)
 {
   MenuActionInfo config;
 
-  if(optionsPanel == NULL)
-    throw std::invalid_argument("Options panel is a null pointer");
+  if(optionsPanel == CFNULL)
+    throw std::invalid_argument("Options panel is a CFNULL pointer");
 
   // instantiate class attributes
-  m_treeModel = NULL;
+  m_treeModel = CFNULL;
   m_modelFilter = new QSortFilterProxyModel();
   m_mnuNewOption = new QMenu("Add an option");
 
@@ -152,7 +154,7 @@ void TreeView::addNode()
 {
   QAction * action = static_cast<QAction *>(sender());
 
-  if(action != NULL && m_abstractTypesActions.contains(action) &&
+  if(action != CFNULL && m_abstractTypesActions.contains(action) &&
     this->confirmChangeOptions(m_treeModel->getCurrentIndex(), true))
     emit addNode(action->text());
 }
@@ -235,31 +237,31 @@ void TreeView::keyPressEvent(QKeyEvent * event)
 void TreeView::buildComponentMenu()
 {
   MenuActionInfo actionInfo;
-  
+
   // context menu init
   QStringList typesList = OptionTypes::getTypesList();
   QStringList::iterator it = typesList.begin();
 
   m_mnuComponents = new QMenu("New component");
-  
+
   //----------------------------------------------------
   //----------------------------------------------------
-  
+
   actionInfo.m_menu = m_mnuComponents;
   actionInfo.m_slot = SLOT(addComponent());
-  
+
   //--------------------------------------------
-  
+
   actionInfo.m_text = ComponentType::Convert::to_str(ComponentType::LINK).c_str();
   actionInfo.buildAction(this);
-  
+
   //--------------------------------------------
 
   actionInfo.m_text = ComponentType::Convert::to_str(ComponentType::GROUP).c_str();
   actionInfo.buildAction(this);
-  
+
   //--------------------------------------------
-  
+
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -295,11 +297,11 @@ void TreeView::buildObjectMenu()
   m_objectMenu->addMenu(m_mnuNewOption);
 
   //--------------------------------------------
-  
+
   m_objectMenu->addSeparator();
-  
+
   //--------------------------------------------
-  
+
   m_objectMenu->addMenu(m_mnuComponents);
 
   //--------------------------------------------
@@ -348,11 +350,11 @@ void TreeView::buildSimulationMenu()
 {
   MenuActionInfo config;
   m_simulationMenu = new QMenu("Simulation");
-    
+
   //--------------------------------------------
-  
+
   m_simulationMenu->addSeparator();
-  
+
   //--------------------------------------------
 
   config.initDefaults();
@@ -469,11 +471,11 @@ void TreeView::addComponent()
   QModelIndex index = m_treeModel->getCurrentIndex();
   ComponentType::Type type;
   QString name;
-  
+
   cf_assert(mnuItem != CFNULL);
-  
+
   type = ComponentType::Convert::to_enum(mnuItem->text().toStdString());
-      
+
   if(type == ComponentType::LINK)
   {
     AddLinkDialog * ald = new AddLinkDialog(this);
@@ -496,11 +498,11 @@ void TreeView::addComponent()
   else
   {
     name = QInputDialog::getText(this, tr("New ") + mnuItem->text(),
-                               tr("New component name:"), QLineEdit::Normal, 
+                               tr("New component name:"), QLineEdit::Normal,
                                "");
     if(!name.isEmpty())
       emit addComponent(index, type, name);
-  }  
+  }
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -754,6 +756,9 @@ void TreeView::newSimulation()
   QString simName;
   bool stop = false;
 
+  for(int i = 0 ; i < 1 ; i++)
+    ClientRoot::getLog()->addMessage("Hello\nworld\n!");
+
   do
   {
     simName = QInputDialog::getText(NULL, "New simulation", "Please "
@@ -828,9 +833,9 @@ void TreeView::disconnectSimulation()
   if(this->confirmChangeOptions(index, false))
   {
     QMessageBox discBox(this);
-    QPushButton * btDisc = NULL;
-    QPushButton * btCancel = NULL;
-    QPushButton * btShutServer = NULL;
+    QPushButton * btDisc = CFNULL;
+    QPushButton * btCancel = CFNULL;
+    QPushButton * btShutServer = CFNULL;
 
     btDisc = discBox.addButton("Disconnect", QMessageBox::NoRole);
     btCancel = discBox.addButton(QMessageBox::Cancel);
@@ -861,7 +866,8 @@ void TreeView::disconnectSimulation()
 
 void TreeView::updateTree()
 {
-  emit updateTree(m_treeModel->getCurrentSimulation());
+//  ClientCore::getInstance().buildAndSendSignal("getTree", CLIENT_TREE_PATH);
+  //emit updateTree(m_treeModel->getCurrentSimulation());
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -920,9 +926,9 @@ void TreeView::currentIndexChanged(const QModelIndex & index)
 
 QAction * TreeView::addSimToMenu(QMenu * menu)
 {
-  QAction * action = NULL;
+  QAction * action = CFNULL;
 
-  if(menu != NULL)
+  if(menu != CFNULL)
     action = menu->addMenu(m_simulationMenu);
 
   return action;
@@ -933,9 +939,9 @@ QAction * TreeView::addSimToMenu(QMenu * menu)
 
 QAction * TreeView::addSimToMenuBar(QMenuBar * menuBar)
 {
-  QAction * action = NULL;
+  QAction * action = CFNULL;
 
-  if(menuBar != NULL)
+  if(menuBar != CFNULL)
     action = menuBar->addMenu(m_simulationMenu);
 
   return action;
@@ -967,14 +973,14 @@ void TreeView::enableDisableOptions(const QModelIndex & index)
 
 void TreeView::setTreeModel(TreeModel * treeModel)
 {
-  if(m_treeModel != NULL)
+  if(m_treeModel != CFNULL)
     m_treeModel->disconnect();
 
   m_treeModel = treeModel;
 
   m_modelFilter->setSourceModel(m_treeModel);
 
-  if(m_treeModel != NULL)
+  if(m_treeModel != CFNULL)
   {
     connect(m_treeModel, SIGNAL(currentIndexChanged(const QModelIndex &)),
             this, SLOT(currentIndexChanged(const QModelIndex &)));

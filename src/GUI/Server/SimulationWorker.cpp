@@ -16,7 +16,7 @@
 #include "Common/ManagerWorkerFrameType.hpp"
 
 #include "GUI/Server/RemoteClientAppender.hpp"
-#include "GUI/Server/ServerSimulation.hpp"
+#include "GUI/Server/CSimulator.hpp"
 
 #include "GUI/Server/SimulationWorker.hpp"
 
@@ -30,9 +30,9 @@ SimulationWorker::SimulationWorker()
 {
   m_managerComm = COMM_WORLD.Get_parent();
   m_rank = COMM_WORLD.Get_rank();
-  m_srvSimulation = NULL; // = new ServerSimulation("Simulator");
+  m_srvSimulation = CFNULL; // = new CSimulator("Simulator");
 
-  //  this->srvSimulation = new ServerSimulation("Simulator");
+  //  this->srvSimulation = new CSimulator("Simulator");
 
   //  connect(this->srvSimulation, SIGNAL(message(const QString &)),
   //          this, SLOT(sendToParent(const QString &)));
@@ -181,7 +181,7 @@ void SimulationWorker::newFrame(const Intercomm & senderComm,
       m_subSystemType = frameInfo.frameAttributes.find("type")->second.c_str();
       CFinfo << "Assigned to solve \"" << m_subSystemName.toStdString()
       << "\" subsystem on " << QHostInfo::localHostName().toStdString() << " "
-      << "(PID = " << getpid() << ").\n" << CFendl;
+      << "(PID = " << getpid() << ").\n" << CFflush;
       this->ack(MGR_WKR_SET_SUBSYS);
       this->setBarrier(m_managerComm, WorkerStatus::IDLE);
       break;
@@ -353,7 +353,7 @@ void SimulationWorker::setBarrier(Intercomm comm, WorkerStatus::Type newStatus)
 void SimulationWorker::createSimulator()
 {
   delete m_srvSimulation;
-  m_srvSimulation = new ServerSimulation("Simulator");
+  m_srvSimulation = new CSimulator("Simulator");
 
   connect(m_srvSimulation, SIGNAL(message(const QString &)),
           this, SLOT(sendToParent(const QString &)));

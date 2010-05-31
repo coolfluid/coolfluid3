@@ -6,6 +6,8 @@
 #include <QHash>
 #include <QAbstractItemModel>
 
+#include "Common/CF.hpp"
+
 #include "GUI/Client/OptionTypes.hpp"
 
 class QStringList;
@@ -24,7 +26,7 @@ namespace Client {
 
     public:
 
-      CommitDetails(QObject * parent = NULL, const QString & nodePath = QString());
+      CommitDetails(QObject * parent = CFNULL, const QString & nodePath = QString());
 
       QVariant data(const QModelIndex &index, int role) const;
 
@@ -67,7 +69,7 @@ namespace Client {
 
       void setNodePath(const QString & nodePath);
 
-      bool contains(const QString & optionName, bool * isNewOption = NULL) const;
+      bool contains(const QString & optionName, bool * isNewOption = CFNULL) const;
 
       bool isEmpty() const;
 

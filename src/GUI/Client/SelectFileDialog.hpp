@@ -6,6 +6,8 @@
 #include <QFileDialog>
 #include <QHash>
 
+#include "Common/CF.hpp"
+
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -97,7 +99,7 @@ namespace Client {
     /// @brief Constructor.
 
     /// @param parent Parent widget.
-    SelectFileDialog(QWidget * parent = NULL);
+    SelectFileDialog(QWidget * parent = CFNULL);
 
     /// @brief Destructor.
 

@@ -5,6 +5,8 @@
 
 #include "GUI/Client/CloseConfirmationPanel.hpp"
 
+#include "Common/CF.hpp"
+
 class QCheckBox;
 class QComboBox;
 class QHBoxLayout;
@@ -30,7 +32,7 @@ namespace Client {
 
     public:
 
-    SaveConfirmationPanel(QDialog * parent = NULL, bool becauseCommit = false);
+    SaveConfirmationPanel(QDialog * parent = CFNULL, bool becauseCommit = false);
 
     ~SaveConfirmationPanel();
 

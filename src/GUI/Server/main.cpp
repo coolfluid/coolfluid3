@@ -10,7 +10,7 @@
 
 #include "GUI/Network/NetworkException.hpp"
 #include "GUI/Network/HostInfos.hpp"
-#include "GUI/Server/ServerKernel.hpp"
+#include "GUI/Server/ServerRoot.hpp"
 #include "GUI/Server/SimulationWorker.hpp"
 
 #include "Common/CoreEnv.hpp"
@@ -111,9 +111,11 @@ int main(int argc, char *argv[])
       else
       {
         QHostInfo hostInfo = QHostInfo::fromName(QHostInfo::localHostName());
-        ServerKernel sk(hostInfo.addresses().at(0).toString(), port, list);
-
+        CCore::Ptr sk = ServerRoot::getCore();
         QString message("Server successfully launched on machine %1 (%2) on port %3!");
+
+        sk->listenToNetwork(hostInfo.addresses().at(0).toString(), port);
+        sk->setHostList(list);
 
         message = message.arg(hostInfo.addresses().at(0).toString())
         .arg(QHostInfo::localHostName())

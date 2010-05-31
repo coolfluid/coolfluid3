@@ -5,6 +5,8 @@
 
 #include <QHash>
 
+#include "Common/CF.hpp"
+
 #include "GUI/Client/CommitDetails.hpp"
 
 class QString;

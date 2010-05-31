@@ -50,8 +50,8 @@ namespace Client {
 
     /// Builds an @c OptionPanel with no m_options. The panel is neither in
     /// read-only mode nor advanced mode.
-    /// @param parent The parent widget. Default value is @c NULL
-    OptionPanel(QWidget * parent = NULL);
+    /// @param parent The parent widget. Default value is @c CFNULL
+    OptionPanel(QWidget * parent = CFNULL);
 
     /// @brief Destructor.
 
@@ -319,20 +319,20 @@ namespace Client {
     /// @param graphicalOptions Graphical components corresponding the option
     /// nodes.
     /// @param m_options String list where modified option names will be stored.
-    /// @param oldValues If not @c NULL, this hash map is used to store old
-    /// value of an option. If @c NULL, this parameter is not used. The key
-    /// is the option name as stored in @c m_options string list. The value is
+    /// @param oldValues If not @c CFNULL, this hash map is used to store old
+    /// value of an option. If @c CFNULL, this parameter is not used. The key
+    /// is the option name as stored in @c options string list. The value is
     /// the old value.
-    /// @param newValues If not @c NULL, this hash map is used to store new
-    /// value of an option. If @c NULL, this parameter is not used. The key
-    /// is the option name as stored in @c m_options string list. The value is
+    /// @param newValues If not @c CFNULL, this hash map is used to store new
+    /// value of an option. If @c CFNULL, this parameter is not used. The key
+    /// is the option name as stored in @c options string list. The value is
     /// the new value.
     void getModifiedOptions(const QDomDocument & nodes,
                             const QList<GraphicalOption *> & graphicalOptions,
                             CommitDetails & commitDetails,
                             bool newOptions) const;
 
-    /// @brief Checks if m_options has been modified.
+    /// @brief Checks if options has been modified.
 
     /// @param graphicalOptions Options to check
     /// @return Returns @c true if at least one option has been modified;
@@ -342,7 +342,7 @@ namespace Client {
     /// @brief Assigns new node m_options to the panel.
 
     /// Old m_options and m_options components are deleted.
-    /// @param m_options List of new m_options.
+    /// @param m_options List of new options.
     /// @throw UnknownType If an option has an unknown type.
     void setOptions(const QDomNodeList & options);
 

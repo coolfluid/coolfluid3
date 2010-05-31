@@ -7,6 +7,8 @@
 #include <QHash>
 #include <QDialogButtonBox>
 
+#include "Common/CF.hpp"
+
 class QPushButton;
 class QLabel;
 class QVBoxLayout;
@@ -46,7 +48,7 @@ class CommitDetails;
 
     public:
 
-    ConfirmCommitDialog(QWidget * parent = NULL);
+    ConfirmCommitDialog(QWidget * parent = CFNULL);
 
     ~ConfirmCommitDialog();
 
@@ -82,6 +84,6 @@ class CommitDetails;
 } // namespace GUI
 } // namespace CF
 
-////////////////////////////////////////////////////////////////////////////// 
+//////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_GUI_Client_ConfirmCommitDialog_h

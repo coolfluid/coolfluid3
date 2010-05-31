@@ -30,8 +30,8 @@ namespace Client {
 
     /// @brief Constructor
 
-    /// @param parent Parent window. May be @c NULL
-    RemoteOpenFile(const QModelIndex & index, QMainWindow * parent = NULL);
+    /// @param parent Parent window. May be @c CFNULL
+    RemoteOpenFile(QMainWindow * parent = CFNULL);
 
     /// @brief Destructor
 

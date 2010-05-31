@@ -1,14 +1,18 @@
-#ifndef CF_GUI_Client_CommitDetailsDialog_h
-#define CF_GUI_Client_CommitDetailsDialog_h
+#ifndef CF_GUI_Client_CommitDetailsDialog_hpp
+#define CF_GUI_Client_CommitDetailsDialog_hpp
+
+/////////////////////////////////////////////////////////////////////////////
 
 #include <QDialog>
+
+#include "Common/CF.hpp"
 
 class QPushButton;
 class QDialogButtonBox;
 class QVBoxLayout;
 class QTableView;
 
-////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace GUI {
@@ -16,37 +20,37 @@ namespace Client {
 
 class CommitDetails;
 
-////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
 
     class CommitDetailsDialog : public QDialog
     {
       Q_OBJECT
 
-    public:
+      public:
 
-      CommitDetailsDialog(QWidget * parent = NULL);
+        CommitDetailsDialog(QWidget * parent = CFNULL);
 
-      ~CommitDetailsDialog();
+        ~CommitDetailsDialog();
 
-      void setCommitDetails(CommitDetails * details);
+        void setCommitDetails(CommitDetails * details);
 
-      void show(CommitDetails & details);
+        void show(CommitDetails & details);
 
       public slots:
 
-      void show();
+        void show();
 
-    private:
+      private:
 
-      QPushButton * m_btOk;
+        QPushButton * m_btOk;
 
-      QTableView * m_view;
+        QTableView * m_view;
 
-      QDialogButtonBox * m_buttonBox;
+        QDialogButtonBox * m_buttonBox;
 
-      QVBoxLayout * m_mainLayout;
+        QVBoxLayout * m_mainLayout;
 
-      CommitDetails * m_commitDetails;
+        CommitDetails * m_commitDetails;
 
     }; // class CommitDetailsDialog
 
@@ -58,4 +62,4 @@ class CommitDetails;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Client_CommitDetailsDialog_h
+#endif // CF_GUI_Client_CommitDetailsDialog_hpp

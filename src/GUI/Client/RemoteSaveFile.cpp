@@ -1,13 +1,13 @@
 #include <QtGui>
 
-#include "GUI/Client/ClientKernel.hpp"
+#include "GUI/Client/ClientCore.hpp"
 #include "GUI/Client/TypeAndNameDialog.hpp"
 #include "GUI/Client/RemoteSaveFile.hpp"
 
 using namespace CF::GUI::Client;
 
-RemoteSaveFile::RemoteSaveFile(const QModelIndex & index, QMainWindow * parent)
-: RemoteFSBrowser(index, parent)
+RemoteSaveFile::RemoteSaveFile(QMainWindow * parent)
+  : RemoteFSBrowser(parent)
 {
   this->setIncludeFiles(true);
   this->setIncludeNoExtension(false);
@@ -16,11 +16,9 @@ RemoteSaveFile::RemoteSaveFile(const QModelIndex & index, QMainWindow * parent)
 
   this->allowMultipleSelect = false;
 
-  m_btFileName = this->addButton("Set file name",
-                                       QDialogButtonBox::ActionRole);
+  m_btFileName = this->addButton("Set file name", QDialogButtonBox::ActionRole);
 
-  m_btNewDirectory = this->addButton("New directory",
-                                           QDialogButtonBox::ActionRole);
+  m_btNewDirectory = this->addButton("New directory", QDialogButtonBox::ActionRole);
 
   m_fileNameDialog = new TypeAndNameDialog("File name", "File extension",
                                                  (QWidget *) this);
@@ -98,8 +96,8 @@ void RemoteSaveFile::btNewDirectoryClicked()
 
   if(ok)
   {
-    if(!dirName.isEmpty())
-      this->clientKernel->createDir(this->index, this->getCurrentPath(), dirName);
+//    if(!dirName.isEmpty())
+//      m_clientCore->createDir(this->index, this->getCurrentPath(), dirName);
   }
 }
 
@@ -126,9 +124,11 @@ ValidationPolicy RemoteSaveFile::isAcceptable(const QString & name, bool isDir)
 
   else if(!isDir)
   {
-    int answer = QMessageBox::question(this, "Confirmation", QString("The file "
-                                                                     "'%1' already exists. Are you sure you want to overwrite this "
-                                                                     "file?").arg(name), QMessageBox::Yes | QMessageBox::No);
+    int answer = QMessageBox::question(this, "Confirmation",
+                                       QString("The file '%1' already exists. "
+                                       "Are you sure you want to overwrite this "
+                                       "file?").arg(name),
+                                       QMessageBox::Yes | QMessageBox::No);
 
     if(answer == QMessageBox::Yes)
     {

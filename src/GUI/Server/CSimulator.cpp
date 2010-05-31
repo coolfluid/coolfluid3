@@ -32,7 +32,7 @@
 #include "GUI/Network/ComponentType.hpp"
 
 #include "GUI/Server/RemoteClientAppender.hpp"
-#include "GUI/Server/ServerSimulation.hpp"
+#include "GUI/Server/CSimulator.hpp"
 
 using namespace MPI;
 using namespace CF::Common;
@@ -43,7 +43,7 @@ using namespace CF::GUI::Server;
 using namespace CF::GUI::Network;
 using namespace std;
 
-ServerSimulation::ServerSimulation(const QString & simulatorName)
+CSimulator::CSimulator(const QString & simulatorName)
 //: Maestro(simulatorName.toStdString()), QThread()
 {
  // logcpp::PatternLayout * f_layout;
@@ -65,12 +65,12 @@ ServerSimulation::ServerSimulation(const QString & simulatorName)
 
   m_configured = false;
   m_lastSubsystemConfigured = -1;
-  
+
   RemoteClientAppender * rca = new RemoteClientAppender();
 
   Logger::getInstance().getStream(Logger::ERROR).addStringForwarder(rca);
   Logger::getInstance().getStream(Logger::INFO).addStringForwarder(rca);
-  
+
   connect(rca, SIGNAL(newData(const QString &)),
           this, SLOT(newData(const QString &)));
 }
@@ -78,7 +78,7 @@ ServerSimulation::ServerSimulation(const QString & simulatorName)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-ServerSimulation::~ServerSimulation()
+CSimulator::~CSimulator()
 {
 
 }
@@ -86,7 +86,7 @@ ServerSimulation::~ServerSimulation()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerSimulation::run()
+void CSimulator::run()
 {
   if(m_lastSubsystemConfigured == -1)
     emit error("No subsystem configured");
@@ -150,7 +150,7 @@ void ServerSimulation::run()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool ServerSimulation::loadCaseFile(const QString & filename)
+bool CSimulator::loadCaseFile(const QString & filename)
 {
   try
   {
@@ -184,13 +184,13 @@ bool ServerSimulation::loadCaseFile(const QString & filename)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerSimulation::addComponent(const QString & path, 
-                                    ComponentType::Type type, 
+void CSimulator::addComponent(const QString & path,
+                                    ComponentType::Type type,
                                     const QString & name)
 {
   boost::shared_ptr<Component> compo;
-  
-  try 
+
+  try
   {
     compo = m_rootComponent->look_component(path.toStdString())->get();
 
@@ -202,25 +202,25 @@ void ServerSimulation::addComponent(const QString & path,
         compo->add_component(newCompo);
         break;
       }
-        
+
       case ComponentType::LINK :
       {
         boost::shared_ptr<CLink> newCompo(new CLink(name.toStdString()));
         compo->add_component(newCompo);
         break;
       }
-        
+
       default:
         throw ShouldNotBeHere(FromHere(), "Can not use this type");
-        break;        
+        break;
     }
-    
+
     emit message(QString("Added a new component named \"%1\" of type \"%2\" to '%3'")
                  .arg(name).arg(ComponentType::Convert::to_str(type).c_str()).arg(path));
     emit treeUpdated();
-    
+
   }
-  catch (CF::Common::Exception e) 
+  catch (CF::Common::Exception e)
   {
     emit error(e.what());
   }
@@ -229,7 +229,7 @@ void ServerSimulation::addComponent(const QString & path,
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerSimulation::newData(const QString & data)
+void CSimulator::newData(const QString & data)
 {
   emit message(data);
 }
@@ -237,7 +237,7 @@ void ServerSimulation::newData(const QString & data)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QStringList ServerSimulation::getConcreteTypes(const QString & abstractType)
+QStringList CSimulator::getConcreteTypes(const QString & abstractType)
 const
 {
   QStringList typesList;
@@ -257,7 +257,7 @@ const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerSimulation::configureSimulator(const QDomDocument & document)
+void CSimulator::configureSimulator(const QDomDocument & document)
 {
   QString filename;
   QTemporaryFile tempFile;
@@ -294,22 +294,18 @@ void ServerSimulation::configureSimulator(const QDomDocument & document)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString ServerSimulation::getTreeXML() const
+QString CSimulator::getTreeXML() const
 {
 //  XMLNode parent = XMLNode::createXMLTopNode("XCFcase");
-//
-//  m_rootComponent->list_tree(parent);
-//
+//  m_rootComponent->xml_tree(parent);
 //  return parent.createXMLString();
-
   return "";
-
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-int ServerSimulation::getSubsystemsCount() const
+int CSimulator::getSubsystemsCount() const
 {
   return m_subsystemNames.size();
 }
@@ -317,7 +313,7 @@ int ServerSimulation::getSubsystemsCount() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool ServerSimulation::runConfigPhase(int subsystem)
+bool CSimulator::runConfigPhase(int subsystem)
 {
   bool configured = false;
 
@@ -336,10 +332,10 @@ bool ServerSimulation::runConfigPhase(int subsystem)
       //this->manage(m_simulator);
 
       CFinfo << "+++++++++++++++++++++++++++++++ CONFIGURING with " << __FUNCTION__
-      << " ++++++++++++++++++++++++++++++++\n" << CFendl;
+      << " ++++++++++++++++++++++++++++++++\n" << CFflush;
 
       CFinfo << "#\n###### STARTING SUBSYSTEM : " << subSysName << " ######\n#\n";
-      CFinfo << "in " << __FUNCTION__ << " at line " << __LINE__ << "\n" << CFendl;
+      CFinfo << "in " << __FUNCTION__ << " at line " << __LINE__ << "\n" << CFflush;
       event_handler->call_signal("CF_ON_MAESTRO_BUILDSUBSYSTEM", subSys);
 
       //    COMM_WORLD.Barrier();
@@ -383,7 +379,7 @@ bool ServerSimulation::runConfigPhase(int subsystem)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool ServerSimulation::runUnconfigPhase()
+bool CSimulator::runUnconfigPhase()
 {
   bool unconfigured = false;
 
@@ -433,7 +429,7 @@ bool ServerSimulation::runUnconfigPhase()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-int ServerSimulation::readSubSystems()
+int CSimulator::readSubSystems()
 {
   // which subsystems will be controlled by meastro
   std::vector<std::string> subsysnames;// = m_simulator->getSubSystemNames();
@@ -463,7 +459,7 @@ int ServerSimulation::readSubSystems()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString ServerSimulation::getSubSystem(int subSystem) const
+QString CSimulator::getSubSystem(int subSystem) const
 {
   return m_subsystemNames.at(subSystem) + " " + m_subsystemTypes.at(subSystem);
 }
@@ -471,16 +467,16 @@ QString ServerSimulation::getSubSystem(int subSystem) const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerSimulation::createSimulator()
+void CSimulator::createSimulator()
 {
   //  CPath p;
   // @todo delete the old tree
   m_rootComponent = CRoot::create("Simulator");
-  
-  
+
+
   //m_rootComponent->complete_path(p);
-  
-  //qDebug() << m_rootComponent->full_path().string().c_str();  
+
+  //qDebug() << m_rootComponent->full_path().string().c_str();
   //  m_rootComponent->access_component(CPath("/Root"));
   //  if(this->simulator.isNotNull())
   //   this->simulator.release();

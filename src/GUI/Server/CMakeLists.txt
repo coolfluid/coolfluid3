@@ -1,5 +1,5 @@
 #
-# Compile Qt classes (with slots/signals) 
+# Compile Qt classes (with slots/signals)
 #
 # source : http://wiki.qtcentre.org/index.php?title=Compiling_Qt4_apps_with_CMake
 #
@@ -7,18 +7,18 @@
 # List of classes to "moc"
 SET ( coolfluid-server_moc_classes
   ServerNetworkComm.hpp
-  ServerSimulation.hpp
+  CSimulator.hpp
   RemoteClientAppender.hpp
-  ServerKernel.hpp
+  CCore.hpp
   SimulationWorker.hpp
   SimulationManager.hpp
   MPIListener.hpp)
-  
+
 # Create the moc files
 QT4_WRAP_CPP(coolfluid-server_moc_files ${coolfluid-server_moc_classes})
 
 # Add the project files (including the moc files)
-LIST ( APPEND coolfluid-server_files 
+LIST ( APPEND coolfluid-server_files
   MPIListener.cpp
   MPIListener.hpp
   MPIListeningInfo.cpp
@@ -27,12 +27,14 @@ LIST ( APPEND coolfluid-server_files
   MPIReceiver.hpp
   RemoteClientAppender.cpp
   RemoteClientAppender.hpp
-  ServerKernel.cpp
-  ServerKernel.hpp
+  CCore.cpp
+  CCore.hpp
   ServerNetworkComm.cpp
   ServerNetworkComm.hpp
-  ServerSimulation.cpp
-  ServerSimulation.hpp
+  ServerRoot.cpp
+  ServerRoot.hpp
+  CSimulator.cpp
+  CSimulator.hpp
   SimulationManager.cpp
   SimulationManager.hpp
   SimulationWorker.cpp
@@ -62,4 +64,4 @@ CONFIGURE_FILE ( fsm_advect_wave.CFcase ${CMAKE_CURRENT_BINARY_DIR}/fsm_advect_w
 CONFIGURE_FILE ( advect_wave.thor ${CMAKE_CURRENT_BINARY_DIR}/advect_wave.thor @ONLY )
 CONFIGURE_FILE ( advect_wave.SP ${CMAKE_CURRENT_BINARY_DIR}/advect_wave.SP @ONLY )
 
-
+CF_MARK_NOT_ORPHAN(ServerSimulation.cpp)

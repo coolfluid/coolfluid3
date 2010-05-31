@@ -6,6 +6,8 @@
 #include <QDialog>
 #include <QObject>
 
+#include "Common/CF.hpp"
+
 class QComboBox;
 class QFormLayout;
 class QLabel;
@@ -71,10 +73,9 @@ namespace Client {
 
     /// @param fieldLabelText Text to set on the buddy label of the text field.
     /// @param dropListText Text to set on the buddy label of the drop down list.
-    /// @param parent Dialog parent. May be null.
+    /// @param parent Dialog parent. May be CFNULL.
     TypeAndNameDialog(const QString & fieldLabelText,
-    const QString & dropListText,
-    QWidget * parent = NULL);
+                      const QString & dropListText, QWidget * parent = CFNULL);
 
     /// @brief Destructor.
 
@@ -123,7 +124,7 @@ namespace Client {
 
     /// @brief The parent window.
 
-    /// Can be null.
+    /// Can be CFNULL.
     QMainWindow * m_parent;
 
     /// @brief Label for the line edit

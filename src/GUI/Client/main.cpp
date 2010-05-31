@@ -3,8 +3,13 @@
 #include <QtCore>
 #include <QApplication>
 
+#include <boost/any.hpp>
+
 #include "Common/CF.hpp"
 #include "Common/Exception.hpp"
+
+#include "Common/CRoot.hpp"
+#include "Common/CLink.hpp"
 
 #include "GUI/Client/MainWindow.hpp"
 
@@ -16,6 +21,11 @@ int main(int argc, char *argv[])
   QApplication app(argc, argv);
   int returnValue;
   CF::AssertionManager::getInstance().AssertionThrows = true;
+
+//  CRoot::Ptr root = CRoot::create("MyRoot");
+//  //CGroup::Ptr link(new CLink("//here", "//there"));
+//
+//  boost::dynamic_pointer_cast< CRoot::Ptr >(root->access_component("//MyRoot"));
 
   try
   {
@@ -30,5 +40,5 @@ int main(int argc, char *argv[])
     returnValue = -1;
   }
 
-  return returnValue ;
+  return returnValue;
 }

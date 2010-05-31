@@ -56,8 +56,6 @@ bool AddLinkDialog::show(const QModelIndex & root, QModelIndex & index,
   cf_assert(m_treeModel != CFNULL);
   cf_assert(root.isValid());
 
-  qDebug() << static_cast<TreeItem*>(root.internalPointer())->getDomNode().nodeName();
-
   //m_treeView->setRootIndex(root);
  // m_treeView->setVisible(true);
 

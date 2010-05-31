@@ -6,29 +6,40 @@
 
 #include <QDomDocument>
 
+#include "GUI/Client/CBrowser.hpp"
 #include "GUI/Client/TreeModel.hpp"
-#include "GUI/Client/ClientKernel.hpp"
-#include "GUI/Client/GlobalLog.hpp"
+#include "GUI/Client/ClientCore.hpp"
+#include "GUI/Client/CLog.hpp"
 #include "GUI/Client/ClientNetworkComm.hpp"
 #include "GUI/Client/FilesListItem.hpp"
+#include "GUI/Client/ClientRoot.hpp"
+
+#include "GUI/Network/ComponentNames.hpp"
+#include "GUI/Network/SignalInfo.hpp"
 
 #include "GUI/Client/RemoteFSBrowser.hpp"
 
+using namespace CF::Common;
 using namespace CF::GUI::Client;
 using namespace CF::GUI::Network;
 
+RemoteFSBrowser::RemoteFSBrowser(QMainWindow * parent)
+  : QDialog(parent),
+    Component("a")
 
-RemoteFSBrowser::RemoteFSBrowser(const QModelIndex & index, QMainWindow * parent)
-: QDialog(parent)
 {
+  this->rename(ClientRoot::getBrowser()->generateName().toStdString());
+  ClientRoot::getBrowser()->add_component(boost::shared_ptr<RemoteFSBrowser>(this));
+  regist_signal("readDir", "Directory content")->connect(boost::bind(&RemoteFSBrowser::readDir, this, _1));
+
+
   this->setWindowTitle("Open file");
-  
-  this->clientKernel = ClientKernel::getInstance();
-  this->index = index;
-  
+
+  m_clientCore = &ClientCore::getInstance();
+
   /* if(!communication->isConnected())
    throw std::invalid_argument("Not connected to the server");*/
-  
+
   // create the components
   m_labFilter = new QLabel("Filter (wildcards allowed) :", this);
   m_labFilesList = new QLabel("Files in", this);
@@ -40,88 +51,85 @@ RemoteFSBrowser::RemoteFSBrowser(const QModelIndex & index, QMainWindow * parent
   m_filterModel = new QSortFilterProxyModel();
   m_completerModel = new QStandardItemModel();
   m_pathCompleter = new QCompleter(m_completerModel, this);
-  
+
   m_parentWindow = parent;
-  
+
   m_layout = new QVBoxLayout(this);
   m_pathLayout = new QHBoxLayout();
   m_bottomLayout = new QHBoxLayout();
-  
-  // create 2 m_buttons : "Ok" and "Cancel"
+
+  // create 2 buttons : "Ok" and "Cancel"
   m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok
                                    | QDialogButtonBox::Cancel);
-  
+
   m_okClicked = false;
   m_multipleSelectAllowed = false;
   m_updatingCompleter = false;
-  
+
   m_pathSep = "/";
-  
+
   this->setModal(true);
-  
+
   m_filterModel->setDynamicSortFilter(true);
-  
+
   m_filterModel->setSourceModel(m_viewModel);
   m_listView->setModel(m_filterModel);
-  
+
   m_listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
   m_listView->setAlternatingRowColors(true);
-  
+
   m_editPath->setCompleter(m_pathCompleter);
-  
+
   m_labFilter->setBuddy(m_editFilter);
   m_labFilesList->setBuddy(m_editPath);
-  
+
   // add the components to the layouts
   m_pathLayout->addWidget(m_labFilesList);
   m_pathLayout->addWidget(m_editPath);
-  
+
   m_bottomLayout->addWidget(m_labFilter);
   m_bottomLayout->addWidget(m_editFilter);
   m_bottomLayout->addWidget(m_buttons);
-  
+
   m_layout->addLayout(m_pathLayout);
   m_layout->addWidget(m_listView);
   m_layout->addWidget(m_labStatus);
   m_layout->addLayout(m_bottomLayout);
-  
+
   // set "Ok" button as default when user presses enter
   m_buttons->button(QDialogButtonBox::Ok)->setDefault(true);
   m_buttons->button(QDialogButtonBox::Cancel)->setAutoDefault(false);
-  
+
   // connect useful signals to slots
   connect(m_buttons, SIGNAL(accepted()), this, SLOT(btOkClicked()));
   connect(m_buttons, SIGNAL(rejected()), this, SLOT(btCancelClicked()));
-  
+
   connect(m_editFilter, SIGNAL(textEdited(const QString &)),
           this, SLOT(filterUpdated(const QString &)));
-  
+
   connect(m_editPath, SIGNAL(textEdited(const QString &)),
           this, SLOT(pathUpdated(const QString &)));
-  
+
   connect(m_listView, SIGNAL(doubleClicked(const QModelIndex &)),
           this, SLOT(doubleClick(const QModelIndex &)));
-  
-  connect(this->clientKernel, SIGNAL(dirContents(const QString &,
-                                                 const QStringList &, const QStringList &)), this,
-          SLOT(dirContents(const QString &, const QStringList &,
-                           const QStringList &)));
-  
-  connect(GlobalLog::getInstance(), SIGNAL(sigError(const QString &, bool)),
-          this, SLOT(error(const QString &, bool)));
-  
-  connect(this->clientKernel, SIGNAL(acked(CF::GUI::Network::NetworkFrameType)), 
+
+//  connect(m_clientCore, SIGNAL(dirContents(const QString &,
+//                                                 const QStringList &, const QStringList &)), this,
+//          SLOT(dirContents(const QString &, const QStringList &,
+//                           const QStringList &)));
+
+  connect(m_clientCore, SIGNAL(acked(CF::GUI::Network::NetworkFrameType)),
           this, SLOT(ack(CF::GUI::Network::NetworkFrameType)));
-  
+
   connect(m_pathCompleter, SIGNAL(activated(const QString &)),
           this, SLOT(completerActivated(const QString &)));
-  
+
   m_includeFiles = true;
   m_includeNoExtension = true;
   this->allowModifyBools = true;
   this->allowSingleSelect = true;
   this->allowMultipleSelect = true;
-  
+
 #ifndef Q_WS_MAC
   /// @todo why does not this line work on MacOSX ???
   this->setFixedSize(this->height() * 2, this->height());
@@ -147,7 +155,7 @@ RemoteFSBrowser::~RemoteFSBrowser()
   delete m_pathCompleter;
   delete m_viewModel;
   delete m_completerModel;
-  
+
   // disconnecting the signals connected by the constructor
   // (normally, this is automatically done when the object is destroyed,
   // but the documentation is not clear on this point)
@@ -164,30 +172,33 @@ QString RemoteFSBrowser::show(const QString & startingDir)
     this->showError("This dialog can not be used to select a single file");
     return QString();
   }
-  
+
   if(startingDir.isEmpty())
     this->openDir(m_currentPath);
-  
+
   else
     this->openDir(startingDir);
-  
+
   m_multipleSelectAllowed = false;
   m_currentFile = "";
   m_currentFilesList.clear();
-  
+
   m_listView->setSelectionMode(QAbstractItemView::SingleSelection);
   m_listView->clearSelection();
-  
+
+  connect(ClientRoot::getLog().get(), SIGNAL(newMessage(const QString &, bool)),
+          this, SLOT(error(const QString &, bool)));
+
   this->reinitValues();
-  
+
   this->exec();
-  
+
   if(m_okClicked)
     return this->getSelectedFile();
-  
+
   // restore mouse cursor
   QApplication::restoreOverrideCursor();
-  
+
   return QString();
 }
 
@@ -201,30 +212,33 @@ QStringList RemoteFSBrowser::showMultipleSelect(const QString & startingDir)
     this->showError("This dialog can not be used to select multiple files");
     return QStringList();
   }
-  
+
   if(startingDir.isEmpty())
     this->openDir(m_currentPath);
-  
+
   else
     this->openDir(startingDir);
-  
+
   m_multipleSelectAllowed = true;
   m_currentFile = "";
   m_currentFilesList.clear();
-  
+
   m_listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
   m_listView->clearSelection();
-  
+
+  connect(ClientRoot::getLog().get(), SIGNAL(newMessage(const QString &, bool)),
+          this, SLOT(error(const QString &, bool)));
+
   this->reinitValues();
-  
+
   this->exec();
-  
+
   if(m_okClicked)
     return this->getSelectedFileList();
-  
+
   // restore mouse cursor
   QApplication::restoreOverrideCursor();
-  
+
   return QStringList();
 }
 
@@ -276,13 +290,13 @@ bool RemoteFSBrowser::itemExists(const QString & name) const
 {
   QList<FilesListItem *>::const_iterator it = m_items.begin();
   bool found = false;
-  
+
   while(it != m_items.end() && !found)
   {
     found = (*it)->text() == name;
     it++;
   }
-  
+
   return found;
 }
 
@@ -293,17 +307,17 @@ bool RemoteFSBrowser::isDirectory(const QString & name) const
 {
   QList<FilesListItem *>::const_iterator it = m_items.begin();
   bool found = false;
-  
+
   while(it != m_items.end() && !found)
   {
     FilesListItem * item = *it;
     QString path = m_currentPath;
     this->assemblePath(path, item->text());
-    
+
     found = item->getType() == DIRECTORY && name == path;
     it++;
   }
-  
+
   return found;
 }
 
@@ -314,21 +328,21 @@ bool RemoteFSBrowser::isFile(const QString & name) const
 {
   QList<FilesListItem *>::const_iterator it = m_items.begin();
   bool found = false;
-  
+
   while(it != m_items.end() && !found)
   {
     FilesListItem * item = *it;
     found = item->getType() == FILE && item->text() == name;
     it++;
   }
-  
+
   return found;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-ValidationPolicy RemoteFSBrowser::isAcceptable(const QString & name, bool isDir) 
+ValidationPolicy RemoteFSBrowser::isAcceptable(const QString & name, bool isDir)
 {
   return POLICY_VALID;
 }
@@ -366,15 +380,15 @@ void RemoteFSBrowser::assemblePath(QString & part1, const QString & part2) const
   // we can append part2 to part1
   if(part1.endsWith(m_pathSep) ^ part2.startsWith(m_pathSep))
     part1.append(part2);
-  
+
   // if part1 ends with pathSep AND part2 starts with pathSep,
   // we can append part2 to part1 from which the tailing pathSep has been removed
   else if(part1.endsWith(m_pathSep) && part2.startsWith(m_pathSep))
     part1.remove(0, part1.length() - m_pathSep.length() - 1).append(part2);
-  
+
   else
     part1.append(m_pathSep).append(part2);
-  
+
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -383,24 +397,24 @@ void RemoteFSBrowser::assemblePath(QString & part1, const QString & part2) const
 QStringList RemoteFSBrowser::getSelectedFileList() const
 {
   QStringList fileList;
-  
+
   QModelIndexList selectedItems = m_listView->selectionModel()->selectedIndexes();
   QModelIndexList::iterator it = selectedItems.begin();
-  
+
   while(it != selectedItems.end())
   {
     QModelIndex index = *it;
     QModelIndex indexInModel = m_filterModel->mapToSource(index);
-    
+
     FilesListItem * item;
     item = static_cast<FilesListItem *>(m_viewModel->itemFromIndex(indexInModel));
-    
-    if(item != NULL)
+
+    if(item != CFNULL)
       fileList << m_currentPath + item->text();
-    
+
     it++;
-  } 
-  
+  }
+
   return fileList;
 }
 
@@ -421,27 +435,27 @@ void RemoteFSBrowser::btOkClicked()
   QModelIndexList indexes = m_listView->selectionModel()->selectedIndexes();
   QString name = m_currentPath;
   ValidationPolicy validation;
-  
+
   if(!m_multipleSelectAllowed) // if show() was called
   {
     bool isDir = true;
-    
+
     if(!indexes.isEmpty())
     {
       QModelIndex indexInModel = m_filterModel->mapToSource(indexes.at(0));
       FilesListItem * item;
-      
+
       item = static_cast<FilesListItem *>(m_viewModel->itemFromIndex(indexInModel));
-      
-      if(item != NULL) // if an item is selected
+
+      if(item != CFNULL) // if an item is selected
       {
         this->assemblePath(name, item->text());
         isDir = item->getType() == DIRECTORY;
       }
     }
-    
+
     validation = this->isAcceptable(name, isDir);
-    
+
     if(validation == POLICY_VALID)
     {
       m_okClicked = true;
@@ -449,18 +463,20 @@ void RemoteFSBrowser::btOkClicked()
     }
     else if(validation == POLICY_ENTER_DIRECTORY && isDir)
       this->openDir(name);
-    
+
   } // for "if(!this->multipleSelectAllowed)"
   else // if showMultipleSelect() was called
   {
     validation = this->isAcceptableList(RemoteFSBrowser::getSelectedFileList());
-    
+
     if(validation == POLICY_VALID)
     {
+      disconnect(ClientRoot::getLog().get());
+
       m_okClicked = true;
       this->setVisible(false);
     }
-    
+
   }
 }
 
@@ -469,6 +485,8 @@ void RemoteFSBrowser::btOkClicked()
 
 void RemoteFSBrowser::btCancelClicked()
 {
+  disconnect(ClientRoot::getLog().get());
+
   m_okClicked = false;
   this->setVisible(false);
 }
@@ -490,17 +508,17 @@ void RemoteFSBrowser::pathUpdated(const QString & text)
   static QString oldText;
   QString path;
   bool send = false;
-  
+
   // if user just typed a '/', the path to explore is the current path in the field
   if(text.endsWith(m_pathSep))
   {
     send = true;
     path = text;
   }
-  
-  // if user just deleted a '/' or lengths of texts differ of more than one 
-  // character (this may happen if user pasted a path or delete more than 
-  // one character at a time), the path to explore is the parent directory of 
+
+  // if user just deleted a '/' or lengths of texts differ of more than one
+  // character (this may happen if user pasted a path or delete more than
+  // one character at a time), the path to explore is the parent directory of
   // the path in the field
   else if(oldText.endsWith(m_pathSep) || std::abs(oldText.length() - text.length()) > 1)
   {
@@ -508,44 +526,44 @@ void RemoteFSBrowser::pathUpdated(const QString & text)
     send = true;
     path = QFileInfo(text).path();
   }
-  
+
   if(send)
     this->openDir(path);
-  
+
   oldText = text;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void RemoteFSBrowser::dirContents(const QString & path, 
-                                  const QStringList & dirs,
-                                  const QStringList & files)
-{
-  QStringList list;
-  
-  m_currentPath = path;
-  
-  // add an ending '/' if the string does not have any
-  if(!m_currentPath.endsWith(m_pathSep))
-    m_currentPath += m_pathSep;
-  
-  // clear the filter
-  m_editFilter->setText("");
-  this->filterUpdated("");
-  
-  if(!m_updatingCompleter)
-    m_editPath->setText(m_currentPath); 
-  else
-    m_updatingCompleter = false;
-  
-  this->updateModel(m_viewModel, "", dirs, files, m_items);
-  this->updateModel(m_completerModel, m_currentPath, dirs, 
-                    QStringList(), m_itemsCompleter);
-  
-  // restore mouse cursor
-  QApplication::restoreOverrideCursor();
-}
+//void RemoteFSBrowser::dirContents(const QString & path,
+//                                  const QStringList & dirs,
+//                                  const QStringList & files)
+//{
+//  QStringList list;
+//
+//  m_currentPath = path;
+//
+//  // add an ending '/' if the string does not have any
+//  if(!m_currentPath.endsWith(m_pathSep))
+//    m_currentPath += m_pathSep;
+//
+//  // clear the filter
+//  m_editFilter->setText("");
+//  this->filterUpdated("");
+//
+//  if(!m_updatingCompleter)
+//    m_editPath->setText(m_currentPath);
+//  else
+//    m_updatingCompleter = false;
+//
+//  this->updateModel(m_viewModel, "", dirs, files, m_items);
+//  this->updateModel(m_completerModel, m_currentPath, dirs,
+//                    QStringList(), m_itemsCompleter);
+//
+//  // restore mouse cursor
+//  QApplication::restoreOverrideCursor();
+//}
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -554,7 +572,7 @@ void RemoteFSBrowser::error(const QString & error, bool fromServer)
 {
   // restore mouse cursor
   QApplication::restoreOverrideCursor();
-  
+
   QMessageBox::critical(this, "Error", error);
 }
 
@@ -566,13 +584,13 @@ void RemoteFSBrowser::doubleClick(const QModelIndex & index)
   QModelIndex indexInModel = m_filterModel->mapToSource(index);
   FilesListItem * item;
   item = static_cast<FilesListItem *>(m_viewModel->itemFromIndex(indexInModel));
-  
-  if(item == NULL)
+
+  if(item == CFNULL)
     return;
-  
+
   if(item->getType() == DIRECTORY)
     this->openDir(m_currentPath + item->text());
-  
+
   else
     this->btOkClicked();
 }
@@ -591,12 +609,12 @@ void RemoteFSBrowser::completerActivated(const QString & text)
 void RemoteFSBrowser::keyPressEvent(QKeyEvent * event)
 {
   // key code for the pressed key
-  int pressedKey = event->key(); 
+  int pressedKey = event->key();
   // modifiers keys pressed (ctrl, shift, alt, etc...)
   Qt::KeyboardModifiers modifiers = event->modifiers();
-  
+
   QDialog::keyPressEvent(event);
-  
+
   // if the path line edit has the focus
   if(m_editPath->hasFocus())
   {
@@ -604,11 +622,11 @@ void RemoteFSBrowser::keyPressEvent(QKeyEvent * event)
     // Qt::Key_Return : return key
     if(pressedKey == Qt::Key_Enter || pressedKey == Qt::Key_Return)
       m_editPath->setText(m_editPath->text());
-    
+
     return;
   }
-  
-  // if user pressed Enter key, it similar to clicking on a button 
+
+  // if user pressed Enter key, it similar to clicking on a button
   // (if any has focus). Note: if none has the focus the default one ("Ok") is
   // taken (this is managed by QDialogButtonBox class)
   // Qt::Key_Enter : enter key located on the keypad
@@ -617,20 +635,21 @@ void RemoteFSBrowser::keyPressEvent(QKeyEvent * event)
   {
     if(m_buttons->button(QDialogButtonBox::Ok)->hasFocus())
       this->btOkClicked();
-    
+
     else if(m_buttons->button(QDialogButtonBox::Cancel)->hasFocus())
       this->btCancelClicked();
   }
-  
+
   else if(pressedKey == Qt::Key_Backspace)
     this->openDir(m_currentPath + ".."); // back to the parent directory
-  
-  // if user pressed either no modifier key or Shift key *and* another key
-  else if(modifiers == Qt::NoModifier || 
+
+  // if user pressed either no modifier key or Shift key *and* another key,
+  // the filter line edit takes the focus
+  else if(modifiers == Qt::NoModifier ||
           (modifiers == Qt::ShiftModifier && !event->text().isEmpty()))
   {
     m_listView->clearFocus();
-    
+
     m_editFilter->setText(m_editFilter->text() + event->text());
     this->filterUpdated(m_editFilter->text());
     m_editFilter->setFocus(Qt::NoFocusReason);
@@ -650,7 +669,7 @@ bool RemoteFSBrowser::focusNextPrevChild(bool next)
     m_pathCompleter->popup()->setCurrentIndex(m_pathCompleter->currentIndex());
     return true;
   }
-  
+
   else
     return QDialog::focusNextPrevChild(next);
 }
@@ -659,13 +678,13 @@ bool RemoteFSBrowser::focusNextPrevChild(bool next)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QPushButton * RemoteFSBrowser::addButton(const QString & text, 
+QPushButton * RemoteFSBrowser::addButton(const QString & text,
                                          QDialogButtonBox::ButtonRole role)
 {
   if(!text.isEmpty())
     return m_buttons->addButton(text, role);
-  
-  return NULL;
+
+  return CFNULL;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -687,48 +706,48 @@ QString RemoteFSBrowser::getCurrentPath() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void RemoteFSBrowser::updateModel(QStandardItemModel * model, 
-                                  const QString & path, 
-                                  const QStringList & dirs, 
+void RemoteFSBrowser::updateModel(QStandardItemModel * model,
+                                  const QString & path,
+                                  const QStringList & dirs,
                                   const QStringList & files,
                                   QList<FilesListItem *> & modelItems)
 {
   QIcon dirIcon = QFileIconProvider().icon(QFileIconProvider::Folder);
   QIcon fileIcon = QFileIconProvider().icon(QFileIconProvider::File);
-  
+
   QStringList::const_iterator itDirs = dirs.begin();
   QStringList::const_iterator itFiles = files.begin();
   QList<FilesListItem *>::iterator itItems;
   FilesListItem * item;
   QStringList tmp;
-  
+
   // delete m_items
   itItems = modelItems.begin();
-  
+
   while(itItems != modelItems.end())
   {
     delete *itItems;
     itItems++;
   }
-  
+
   // clear the list and model
   modelItems.clear();
   model->clear();
-  
+
   // add directories to the list
   while(itDirs != dirs.end())
   {
     QString name = *itDirs;
-    
+
     if(!path.isEmpty() && name != "..")
       name.prepend(path + (path.endsWith(m_pathSep) ? "" : m_pathSep));
-    
+
     item = new FilesListItem(dirIcon, name + m_pathSep, DIRECTORY);
     modelItems.append(item);
     model->appendRow(item);
     itDirs++;
   }
-  
+
   // add files to the list
   while(itFiles != files.end())
   {
@@ -744,11 +763,66 @@ void RemoteFSBrowser::updateModel(QStandardItemModel * model,
 
 void RemoteFSBrowser::openDir(const QString & path)
 {
-  this->clientKernel->readDir(this->index, path, m_includeFiles, 
-                              m_extensions, m_includeNoExtension);
-  
+//  m_clientCore->readDir(this->index, path, m_includeFiles,
+//                              m_extensions, m_includeNoExtension);
+  QList<std::string> exts;
+  QString frame;
+  QStringList::iterator it = m_extensions.begin();
+  SignalInfo si("readDir", this->full_path(), SERVER_CORE_PATH, true);
+
   // change mouse cursor to a wait cursor (usually a hourglass)
   QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+
+  while(it != m_extensions.end())
+  {
+    exts.append(it->toStdString());
+    it++;
+  }
+
+  si.setParam("dirPath", path.toStdString());
+  si.setParam("includeFiles", m_includeFiles);
+  si.setParam("includeNoExtension", m_includeNoExtension);
+  si.setArray("extensions", exts);
+
+  m_clientCore->sendSignal(si);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Signal::return_t RemoteFSBrowser::readDir(const Signal::arg_t & node)
+{
+  XMLParams p(node);
+  QStringList dirs;
+  QStringList files;
+
+  cf_assert(!p.isSignal());
+
+  m_currentPath = p.value<std::string>("dirPath").c_str();
+
+  // add an ending '/' if the string does not have any
+  if(!m_currentPath.endsWith(m_pathSep))
+    m_currentPath += m_pathSep;
+
+  // clear the filter
+  m_editFilter->setText("");
+  this->filterUpdated("");
+
+  if(!m_updatingCompleter)
+    m_editPath->setText(m_currentPath);
+  else
+    m_updatingCompleter = false;
+
+  SignalInfo::convertToStringList(p.array<std::string>("dirs"), dirs);
+  SignalInfo::convertToStringList(p.array<std::string>("files"), files);
+
+  this->updateModel(m_viewModel, "", dirs, files, m_items);
+  this->updateModel(m_completerModel, m_currentPath, dirs,
+                    QStringList(), m_itemsCompleter);
+
+  // restore mouse cursor
+  QApplication::restoreOverrideCursor();
+
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -759,12 +833,12 @@ QString RemoteFSBrowser::getSelectedFile() const
   QModelIndex index = m_listView->currentIndex();
   QModelIndex indexInModel = m_filterModel->mapToSource(index);
   FilesListItem * item;
-  
+
   item = static_cast<FilesListItem *>(m_viewModel->itemFromIndex(indexInModel));
-  
-  if(item != NULL && item->getType() == FILE)
+
+  if(item != CFNULL && item->getType() == FILE)
     return m_currentPath + item->text();
-  
+
   return QString();
 }
 
@@ -778,9 +852,9 @@ void RemoteFSBrowser::ack(NetworkFrameType type)
     case NETWORK_CREATE_DIR:
       this->openDir(m_currentPath);
       break;
-      
+
     default:
-      GlobalLog::message("Unexpected ACK recieved");
+      ClientRoot::getLog()->addMessage("Unexpected ACK recieved");
       break;
   }
 }

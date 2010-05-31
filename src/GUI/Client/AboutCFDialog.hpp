@@ -35,7 +35,7 @@ namespace Client {
 
   public:
 
-    AboutCFDialog(QWidget * parent = NULL);
+    AboutCFDialog(QWidget * parent = CFNULL);
 
     ~AboutCFDialog();
 

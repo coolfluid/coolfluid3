@@ -8,6 +8,8 @@
 #include <QList>
 #include <QStringList>
 
+#include "Common/CF.hpp"
+
 #include "GUI/Client/TreeItem.hpp"
 
 class QModelIndex;
@@ -43,7 +45,7 @@ namespace Client {
 
     /// @param document XML document on which this model is based.
     /// @param parent Parent of this model.
-    StatusModel(QDomDocument document, QObject * parent = NULL);
+    StatusModel(QDomDocument document, QObject * parent = CFNULL);
 
     /// @brief Destructor.
     ~StatusModel();

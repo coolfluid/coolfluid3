@@ -11,7 +11,7 @@
 
 #include "Common/ConfigArgs.hpp"
 
-#include "GUI/Client/GlobalLog.hpp"
+#include "GUI/Client/CLog.hpp"
 #include "GUI/Client/StatusModel.hpp"
 
 using namespace CF::Common;
@@ -41,7 +41,7 @@ StatusModel::StatusModel(QDomDocument document, QObject * parent)
   }
 
   QDomNode node = m_domDocument.firstChild();
-  m_rootItem = new TreeItem(node, NULL);
+  m_rootItem = new TreeItem(node, CFNULL);
 
   m_columns << "Workers" << "Status";
 }
@@ -174,7 +174,7 @@ void StatusModel::clear()
   QModelIndex index = this->index(0, 0, QModelIndex());
   TreeItem * item = static_cast<TreeItem*>(index.internalPointer());
 
-  if(index.isValid() && item != NULL)
+  if(index.isValid() && item != CFNULL)
   {
     QDomNode node = item->getDomNode().parentNode();
     QDomNodeList childNodes = node.childNodes();
@@ -202,7 +202,7 @@ QVariant StatusModel::data(const QModelIndex & index, int role) const
 
   item = static_cast<TreeItem*>(index.internalPointer());
 
-  if(item == NULL)
+  if(item == CFNULL)
     return QVariant();
 
   node = item->getDomNode();
@@ -247,7 +247,7 @@ QModelIndex StatusModel::index(int row, int column,
 
   childItem = parentItem->getChild(row);
 
-  if(childItem != NULL)
+  if(childItem != CFNULL)
     index = createIndex(row, column, childItem);
   else
     index = QModelIndex();
@@ -266,7 +266,7 @@ QModelIndex StatusModel::parent(const QModelIndex & child) const
   TreeItem * childItem = static_cast<TreeItem*>(child.internalPointer());
   TreeItem * parentItem = childItem->getParentItem();
 
-  if (parentItem == NULL || parentItem == m_rootItem)
+  if (parentItem == CFNULL || parentItem == m_rootItem)
     return QModelIndex();
 
   return createIndex(parentItem->getRowNumber(), 0, parentItem);

@@ -1,5 +1,7 @@
 #include <QtGui>
 
+#include "Common/CF.hpp"
+
 #include "GUI/Client/StatusModel.hpp"
 
 #include "GUI/Client/StatusPanel.hpp"

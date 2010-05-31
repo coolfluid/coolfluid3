@@ -23,8 +23,8 @@ namespace Client {
     public:
     /// @brief Constructor
 
-    /// @param parent Parent widget. May be @c NULL.
-    LibrariesPanel(QWidget * parent = NULL);
+    /// @param parent Parent widget. May be @c CFNULL.
+    LibrariesPanel(QWidget * parent = CFNULL);
 
     /// @brief Destructor
 

@@ -1,6 +1,7 @@
 #include <QtXml>
 #include <QDomNamedNodeMap>
 
+#include "Common/CF.hpp"
 #include "GUI/Client/TreeItem.hpp"
 
 using namespace CF::GUI::Client;
@@ -9,7 +10,7 @@ TreeItem::TreeItem(QDomNode & node, TreeItem * parent)
 {
   this->domNode = node;
   this->parentItem = parent;
-  
+
   this->addChildren(node.childNodes().count());
 }
 
@@ -19,14 +20,14 @@ TreeItem::TreeItem(QDomNode & node, TreeItem * parent)
 TreeItem::~TreeItem()
 {
   /* QHash<int,TreeItem *>::iterator it = this->childItems.begin();
-   
+
    while(it != this->childItems.end())
    {
    delete it.value();
    it++;
    }*/
-  
-  if(this->parentItem != NULL)
+
+  if(this->parentItem != CFNULL)
     this->parentItem->removeChild(this);
 }
 
@@ -51,32 +52,32 @@ TreeItem * TreeItem::getParentItem() const
 
 TreeItem * TreeItem::getChild(int i)
 {
-  TreeItem * item = NULL;
+  TreeItem * item = CFNULL;
   // if the TreeItem corresponding to this child has already been created,
   // it is returned...
   if (i>= 0 && i < this->childItems.size())
     item = childItems.at(i);
-  
+
   // ...otherwise, if the index is valid, it is created and returned...
-  if(item == NULL && i>= 0 && i < this->childItems.size())
+  if(item == CFNULL && i>= 0 && i < this->childItems.size())
   {
     QDomNode childNode = this->domNode.childNodes().item(i);
     item = new TreeItem(childNode, this);
     this->childItems.replace(i, item);
   }
-  
-  // ...if the index is not valid, return a NULL pointer
+
+  // ...if the index is not valid, return a CFNULL pointer
   return item;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-int TreeItem::getRowNumber() 
+int TreeItem::getRowNumber()
 {
-  if(this->parentItem == NULL)
+  if(this->parentItem == CFNULL)
     return 0;
-  
+
   return this->parentItem->getChildNumber(this);
 }
 
@@ -88,17 +89,17 @@ void TreeItem::deleteChild(int row, bool remove)
   if(row >= 0 && row < childItems.size())
   {
     TreeItem * item = this->childItems.at(row);
-    
+
     if(remove)
     {
       QDomNode node = item->getDomNode();
-      
+
       this->childItems.removeAt(row);
       node.parentNode().removeChild(node);
     }
     else
-      this->childItems.replace(row, NULL); // replace by a NULL pointer
-    
+      this->childItems.replace(row, CFNULL); // replace by a CFNULL pointer
+
     delete item;
   }
 }
@@ -109,21 +110,21 @@ void TreeItem::deleteChild(int row, bool remove)
 bool TreeItem::deleteChildren(int row, int count, bool remove)
 {
   bool success = false;
-  
+
   if(row >= 0 && row + count <= this->childItems.size())
   {
     QDomNodeList childNodes = this->domNode.childNodes();
-    
+
     for(int i = 0 ; i < count ; i++)
     {
       this->deleteChild(row, remove);
       //    delete this->childItems.at(row);
-      // //    this->childItems.replace(row, NULL);
+      // //    this->childItems.replace(row, CFNULL);
     }
-    
+
     success = true;
   }
-  
+
   return success;
 }
 
@@ -133,10 +134,10 @@ bool TreeItem::deleteChildren(int row, int count, bool remove)
 bool TreeItem::addChild(QDomNode & node)
 {
   bool success = !node.isNull();
-  
+
   if(success)
     this->childItems << new TreeItem(node, this);
-  
+
   return success;
 }
 
@@ -154,8 +155,8 @@ bool TreeItem::removeChild(TreeItem * child)
 bool TreeItem::addChildren(int count)
 {
   for(int i = 0 ; i < count ; i++)
-    this->childItems << NULL;
-  
+    this->childItems << CFNULL;
+
   return true;
 }
 
@@ -167,10 +168,10 @@ int TreeItem::getChildCount() const
   return this->childItems.count();
 }
 
- 
+
  // PRIVATE METHODS
 
-int TreeItem::getChildNumber(TreeItem * child) 
+int TreeItem::getChildNumber(TreeItem * child)
 {
-  return this->childItems.indexOf(child); 
+  return this->childItems.indexOf(child);
 }

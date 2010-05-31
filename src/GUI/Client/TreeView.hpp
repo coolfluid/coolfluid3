@@ -68,9 +68,9 @@ namespace Client {
     /// @brief Constructor.
 
     /// @param optionsPanel Panel m_options of the selected node will be displayed.
-    /// @param parent Parent window. May be @c NULL.
-    /// @throws std::invalid_argument if @c optionsPanel is @c NULL.
-    TreeView(OptionPanel * optionsPanel, QMainWindow * parent = NULL);
+    /// @param parent Parent window. May be @c CFNULL.
+    /// @throws std::invalid_argument if @c optionsPanel is @c CFNULL.
+    TreeView(OptionPanel * optionsPanel, QMainWindow * parent = CFNULL);
 
     /// @brief Destructor.
 
@@ -131,7 +131,7 @@ namespace Client {
     virtual void keyPressEvent(QKeyEvent * event);
 
     private slots:
-    
+
     void addComponent();
 
     /// @brief Slot called when user wants to add a node.
@@ -201,8 +201,8 @@ namespace Client {
     void nodeActivated(const QModelIndex & index);
 
     signals:
-    
-    void addComponent(const QModelIndex & index, 
+
+    void addComponent(const QModelIndex & index,
                       CF::GUI::Network::ComponentType::Type type,
                       const QString & name);
 
@@ -308,7 +308,7 @@ namespace Client {
 
     /// @brief "Add a child node" sub-menu.
     QMenu * m_mnuNewOption;
-    
+
     QMenu * m_mnuComponents;
 
     /// @brief Panel used to display and modify m_options for a selected
@@ -340,7 +340,7 @@ namespace Client {
 
     /// @brief Builds the simulation menu
     void buildSimulationMenu();
-    
+
     void buildComponentMenu();
 
     /// @brief Asks user to commit or rollback before changing m_options in

@@ -14,7 +14,7 @@
 #include "Common/ManagerWorkerFrameType.hpp"
 
 #include "GUI/Server/MPIListener.hpp"
-#include "GUI/Server/ServerSimulation.hpp"
+#include "GUI/Server/CSimulator.hpp"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -24,7 +24,7 @@ namespace Server {
       
 ////////////////////////////////////////////////////////////////////////////
       
-  class ServerSimulation;
+  class CSimulator;
   class MPIListener;
   
   /// @brief Simulation worker
@@ -73,7 +73,7 @@ namespace Server {
     MPIListener m_listener;
     
     /// @brief Server simulation
-    ServerSimulation * m_srvSimulation;
+    CSimulator * m_srvSimulation;
     
     /// @brief Subsystem name
     QString m_subSystemName;

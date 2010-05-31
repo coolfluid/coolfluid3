@@ -9,6 +9,8 @@
 #include <QHash>
 #include <QStringList>
 
+#include "Common/CF.hpp"
+
 class QModelIndex;
 class QVariant;
 
@@ -58,15 +60,15 @@ namespace Client {
     /// @brief Recursive method that builds a @c QStingList with
     /// all parent nodes names of a given node.
 
-    /// The first string is the root of the tree. 
+    /// The first string is the root of the tree.
     /// @param list String list to which the names will be written. This list is
     /// not cleared.
     /// @param node Node from which the parents are returned
-    /// @param inSim If @ true, the loop will stop at the simulation root. 
-    /// If @c inSim is @c true but the given node is not a part of the 
+    /// @param inSim If @ true, the loop will stop at the simulation root.
+    /// If @c inSim is @c true but the given node is not a part of the
     /// simulation tree, the loop stops and the list is cleared.
     void getParentNodeNames(QStringList & list, const QDomNode & node) const;
-    
+
     void getParentNodeNamesInSim(QStringList & list, const QDomNode & node) const;
 
     bool isSimulationNode(const QDomNode & node) const;
@@ -120,7 +122,7 @@ namespace Client {
 
     /// @param document XML document on which this model is based.
     /// @param parent Parent of this model.
-    TreeModel(QDomDocument document, QObject * m_parent = NULL);
+    TreeModel(QDomDocument document, QObject * m_parent = CFNULL);
 
     /// Destructor.
     ~TreeModel();
@@ -147,7 +149,7 @@ namespace Client {
     /// @param row Item row from the parent.
     /// @param column Item column.
     /// @param parent Item parent.
-    /// @return Returns the requested index, or a null index if
+    /// @return Returns the requested index, or a CFNULL index if
     /// <code>hasIndex(row, column, parent)</code> returns @c false.
     virtual QModelIndex index(int row, int column,
                               const QModelIndex & m_parent = QModelIndex()) const;
@@ -155,7 +157,7 @@ namespace Client {
     /// @brief Implementation of @c QAbstractItemModel::parent().
 
     /// @param child Item index of which we would like to know the parent.
-    /// @return Returns the parent index of the given child or a null
+    /// @return Returns the parent index of the given child or a CFNULL
     /// index if the child is not a valid index.
     virtual QModelIndex parent(const QModelIndex &child) const;
 
@@ -205,7 +207,7 @@ namespace Client {
     /// @brief Gives the node associated to the given index.
 
     /// @param index Index.
-    /// @return Returns the node associated, or a null node if the given
+    /// @return Returns the node associated, or a CFNULL node if the given
     /// index is not valid.
     QDomNode indexToNode(const QModelIndex & index) const;
 
@@ -264,18 +266,18 @@ namespace Client {
 
     /// Path is structured like a UNIX path. For example : /path/to/node
     /// @param index Index for which the path has to be built.
-    /// @return Returns the built path, or a null string (built with @c QString
+    /// @return Returns the built path, or a CFNULL string (built with @c QString
     /// default constructor) if @c index.isValid() returns @c false.
     QString getNodePath(const QModelIndex & index) const;
 
     /// @brief Builds a string representing the path from the simulation root
     /// node to the node pointed by @c index.
-    
+
     /// Path is structured like a UNIX path. For example : /path/to/node
     /// @param index Index for which the path has to be built.
-    /// @return Returns the built path, or a null string (built with @c QString
+    /// @return Returns the built path, or a CFNULL string (built with @c QString
     /// default constructor) if @c index.isValid() returns @c false.
-    QString getNodePathInSim(const QModelIndex & index, bool * ok = NULL) const;
+    QString getNodePathInSim(const QModelIndex & index, bool * ok = CFNULL) const;
 
     /// @brief Gives the index of the node found at the given path.
 
