@@ -113,11 +113,6 @@ RemoteFSBrowser::RemoteFSBrowser(QMainWindow * parent)
   connect(m_listView, SIGNAL(doubleClicked(const QModelIndex &)),
           this, SLOT(doubleClick(const QModelIndex &)));
 
-//  connect(m_clientCore, SIGNAL(dirContents(const QString &,
-//                                                 const QStringList &, const QStringList &)), this,
-//          SLOT(dirContents(const QString &, const QStringList &,
-//                           const QStringList &)));
-
   connect(m_clientCore, SIGNAL(acked(CF::GUI::Network::NetworkFrameType)),
           this, SLOT(ack(CF::GUI::Network::NetworkFrameType)));
 
@@ -536,38 +531,6 @@ void RemoteFSBrowser::pathUpdated(const QString & text)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-//void RemoteFSBrowser::dirContents(const QString & path,
-//                                  const QStringList & dirs,
-//                                  const QStringList & files)
-//{
-//  QStringList list;
-//
-//  m_currentPath = path;
-//
-//  // add an ending '/' if the string does not have any
-//  if(!m_currentPath.endsWith(m_pathSep))
-//    m_currentPath += m_pathSep;
-//
-//  // clear the filter
-//  m_editFilter->setText("");
-//  this->filterUpdated("");
-//
-//  if(!m_updatingCompleter)
-//    m_editPath->setText(m_currentPath);
-//  else
-//    m_updatingCompleter = false;
-//
-//  this->updateModel(m_viewModel, "", dirs, files, m_items);
-//  this->updateModel(m_completerModel, m_currentPath, dirs,
-//                    QStringList(), m_itemsCompleter);
-//
-//  // restore mouse cursor
-//  QApplication::restoreOverrideCursor();
-//}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 void RemoteFSBrowser::error(const QString & error, bool fromServer)
 {
   // restore mouse cursor
@@ -763,8 +726,6 @@ void RemoteFSBrowser::updateModel(QStandardItemModel * model,
 
 void RemoteFSBrowser::openDir(const QString & path)
 {
-//  m_clientCore->readDir(this->index, path, m_includeFiles,
-//                              m_extensions, m_includeNoExtension);
   QList<std::string> exts;
   QString frame;
   QStringList::iterator it = m_extensions.begin();

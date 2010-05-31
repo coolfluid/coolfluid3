@@ -190,38 +190,6 @@ Signal::return_t CCore::readDir(Signal::arg_t & node)
   QString frame;
   QString directory;
 
-  /*
-
-  QStringList directories;
-  QStringList files;
-  // bool dotDot;
-
-  QString directory;
-
-  QDomDocument filesList;
-
-  if(dirPath.isEmpty())
-    directory = this->DEFAULT_PATH;
-  else
-    directory = dirPath;
-
-  directory = QDir(directory).absolutePath();
-  directory = QDir::cleanPath(directory);
-
-  if(directory != "/")
-    directories << "..";
-
-  if(!this->getDirContent(directory, extensions, includeFiles,
-                          includeNoExtension, directories, files))
-  {
-    m_commServer->sendError(clientId, QString("'%1' is not an existing directory")
-                                  .arg(directory));
-    return;
-  }
-
-  m_commServer->sendDirContents(clientId, directory, directories, files);*/
-
-
   QString dirPath = p.value<std::string>("dirPath").c_str();
   bool includeFiles = p.value<bool>("includeFiles");
   bool includeNoExtension = p.value<bool>("includeNoExtension");
@@ -266,6 +234,8 @@ Signal::return_t CCore::readDir(Signal::arg_t & node)
 
     m_commServer->send(-1, frame);
   }
+
+  /// @todo return something...
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -273,7 +243,7 @@ Signal::return_t CCore::readDir(Signal::arg_t & node)
 
 Signal::return_t CCore::createDir(Signal::arg_t & node)
 {
-
+  m_commServer->sendError(-1, "Cannot create a directory");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -281,7 +251,7 @@ Signal::return_t CCore::createDir(Signal::arg_t & node)
 
 Signal::return_t CCore::shutdown(Signal::arg_t & node)
 {
-
+  m_commServer->sendError(-1, "Cannot shudown");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -289,7 +259,7 @@ Signal::return_t CCore::shutdown(Signal::arg_t & node)
 
 Signal::return_t CCore::saveConfig(Signal::arg_t & node)
 {
-
+  m_commServer->sendError(-1, "Cannot save the configuration");
 }
 
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -452,13 +422,6 @@ void CCore::getAbstractTypes(int clientId, const QString & typeName)
     typeList << childNodes.at(i).nodeName();
 
   m_commServer->sendAbstractTypes(clientId, typeName, typeList);
-  /*
-  document = FrameBuilder::buildTypesList(TYPE_ABSTRACT_TYPES, typeName, typesList);
-
-  this->commServer->send(clientId, document.toString());*/
-
-  // remember that this client works on this node
-  //  this->clients[client] = node;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

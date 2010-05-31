@@ -431,13 +431,6 @@ namespace Client {
     /// @brief Slot called when the server sends the contents of a directory
     /// to the client.
 
-//    /// The model is updated and the line edit is cleared.
-//    /// @param path Absolute path of the directoy of which contents belong to.
-//    /// @param dirs Directories list. Each element is a directory.
-//    /// @param files Files list. Each element is a file.
-//    void dirContents(const QString & path, const QStringList & dirs,
-//                     const QStringList & files);
-
     /// @brief Slot called when an error comes from the network level.
 
     /// @param error

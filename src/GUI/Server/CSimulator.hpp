@@ -139,7 +139,6 @@ namespace Server {
 
   private:
     /// @brief The simulator
-    //CF::Common::SharedPtr<CF::Framework::Simulator> m_simulator;
     CF::Common::CRoot::Ptr m_rootComponent;
 
     /// @brief If not empty, the name of the case file currently open.

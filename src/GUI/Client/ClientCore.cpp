@@ -27,6 +27,8 @@ ClientCore::ClientCore()
   m_timer = new QTimer(this);
   m_networkComm = new ClientNetworkComm();
   m_process = new QProcess(this);
+
+  connect (m_networkComm, SIGNAL(connected()), this, SLOT(connected()));
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -198,61 +200,18 @@ void ClientCore::launchServer(const QModelIndex & simIndex)
 
  ****************************************************************************/
 
-//void ClientCore::newTree(const QDomDocument & domDocument)
-//{
-//  QModelIndex simulation = this->getSimIndex(sender());
-//
-//  if(m_treeModel != CFNULL && simulation.isValid())
-//  {
-//    m_treeModel->setSimulationTree(domDocument, simulation);
-//    ClientRoot::getLog()->addMessage("Treeview updated.");
-//  }
-//}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 void ClientCore::connected()
 {
-//  ClientNetworkComm * comm = static_cast<ClientNetworkComm*>(sender());
-//  QModelIndex simulation = this->getSimIndex(this->sender());
-//  TSshInformation sshInfo = m_commsSshInfo[simulation];
-//  QString msg = "Now connected to server '%1' on port %2.";
-//
-//  if(m_timers[simulation]->isActive())
-//  {
-//    // stop the process (send SIGKILL signal)
-//    m_launchServerProcs[simulation]->kill();
-//    m_timers[simulation]->stop();
-//    ClientRoot::getLog()->addMessage("Server started!");
-//  }
-//
-//  m_treeModel->setSimConnectedStatus(simulation, true);
-//  ClientRoot::getLog()->addMessage(msg.arg(sshInfo.m_hostname).arg(sshInfo.port));
-//  comm->sendGetHostList();
+  QString msg = "Now connected to server '%1' on port %2.";
+  ClientRoot::getLog()->addMessage(msg.arg(m_commSshInfo.m_hostname).arg(m_commSshInfo.port));
 }
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//void ClientCore::abstractTypes(const QStringList & types)
-//{
-//
-//}
-//
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
-//void ClientCore::concreteTypes(const QStringList & types)
-//{
-//
-//}
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 void ClientCore::tryToConnect()
 {
+  throw NotImplemented(FromHere(), "ClientCore::tryToConnect");
 //  QModelIndex index = m_timers.key(static_cast<QTimer*>(sender()));
 //
 //  if(index.isValid())
@@ -265,70 +224,9 @@ void ClientCore::tryToConnect()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-//void ClientCore::hostList(const QList<HostInfos> & infos)
-//{
-//  QDomDocument doc;
-//  QDomElement root = doc.createElement("hosts");
-//  QList<HostInfos>::const_iterator it = infos.begin();
-//  QModelIndex index = this->getSimIndex(sender());
-//
-//  while(it != infos.end())
-//  {
-//    QDomElement elem = doc.createElement("item");
-//    QString text = "%1 (%2 slot(s))";
-//
-//    elem.setAttribute("name", it->m_hostname);
-//    elem.setAttribute("selected", "false");
-//
-//    elem.appendChild(doc.createTextNode(text.arg(it->m_hostname).arg(it->m_nbSlots)));
-//
-//    root.appendChild(elem);
-//
-//    it++;
-//  }
-//
-//  doc.appendChild(root);
-//
-//  m_treeModel->setSimulationHostList(index, doc);
-//  ClientRoot::getLog()->addMessage(QString("Host list updated for simulation '%1'")
-//                     .arg(m_treeModel->getNodePath(index)));
-//}
-//
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
-//void ClientCore::subsystemList(const QStringList & subSystems)
-//{
-//  QStringList::const_iterator it = subSystems.begin();
-//  QModelIndex index = this->getSimIndex(sender());
-//  int nbProcs;
-//  QStringList hosts;
-//
-//  m_treeModel->getWorkersInfo(index, nbProcs, hosts);
-//
-//  while(it != subSystems.end())
-//  {
-//    m_statusModel->addSubSystem(*it, nbProcs);
-//    it++;
-//  }
-//
-//  m_networkComms[index]->sendActivateSimulation(nbProcs, hosts.join(","));
-//}
-//
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
-//void ClientCore::simulationStatus(const QString & subSysName, int rank,
-//                                    const QString & status)
-//{
-//  m_statusModel->setWorkerStatus(subSysName, rank, status);
-//}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 void ClientCore::sshError()
 {
+  throw NotImplemented(FromHere(), "ClientCore::sshError");
 //  QProcess * process = static_cast<QProcess *>(sender());
 //  QModelIndex index = m_launchServerProcs.key(process);
 //
@@ -362,245 +260,11 @@ void ClientCore::sshError()
 void ClientCore::connectSimulation(const QModelIndex & index,
                                      const TSshInformation & info)
 {
-//  if(m_networkComms.contains(index) && m_networkComms.value(index) != CFNULL
-//     && m_networkComms[index]->isConnected())
   if(m_networkComm != CFNULL && m_networkComm->isConnected())
     ClientRoot::getLog()->addError("This simulation is already connected.");
   else
   {
-    //ClientNetworkComm * comm = new ClientNetworkComm();
-    //QTimer * timer = new QTimer(this);
-    //QProcess * launchProcess = new QProcess(this);
-
-    // forward some signals from the network layer to the upper level
-//    connect(comm, SIGNAL(dirContents(const QString &, const QStringList &, const QStringList &)),
-//            this, SIGNAL(dirContents(const QString &, const QStringList &, const QStringList &)));
-
-    // connectSig is a macro defined at the top of this file
-//    connectSig(comm, newTree(const QDomDocument &));
-//    connectSig(comm, disconnectFromServer());
-//    connectSig(comm, connected());
-//    connectSig(comm, ack(CF::GUI::Network::NetworkFrameType));
-//    connectSig(comm, nack(CF::GUI::Network::NetworkFrameType));
-//    connectSig(comm, abstractTypes(const QStringList &));
-//    connectSig(comm, concreteTypes(const QStringList &));
-//    connectSig(comm, ack(CF::GUI::Network::NetworkFrameType));
-//    connectSig(comm, nack(CF::GUI::Network::NetworkFrameType));
-//    connectSig(comm, hostList(const QList<CF::GUI::Network::HostInfos> &));
-//    connectSig(comm, simulationStatus(const QString &, int, const QString &));
-//    connectSig(comm, subsystemList(const QStringList &));
-
-//    if(m_networkComms.contains(index))
-//      delete m_networkComms.value(index);
-//
-//    if(m_timers.contains(index))
-//      delete m_timers.value(index);
-//
-//    if(m_launchServerProcs.contains(index))
-//      delete m_launchServerProcs.value(index);
-
-    //m_networkComms[index] = comm;
-
-    //m_timers[index] = timer;
-    //m_launchServerProcs[index] = launchProcess;
-    //m_commsSshInfo[index] = info;
-
-//    connect(timer, SIGNAL(timeout()), this, SLOT(tryToConnect()));
-//    connect(launchProcess, SIGNAL(readyReadStandardError()), this, SLOT(sshError()));
-
     m_commSshInfo = info;
     this->connectToServer(index);
   }
 }
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//void ClientCore::disconnectSimulation(const QModelIndex & index, bool shutServer)
-//{
-//  if(!m_networkComms.contains(index) || m_networkComms.value(index) == CFNULL
-//     || !m_networkComms[index]->isConnected())
-//    ClientRoot::getLog()->addError("This simulation is not connected.");
-//  else
-//    m_networkComms[index]->disconnectFromServer(shutServer);
-//}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//void ClientCore::runSimulation(const QModelIndex & index)
-//{
-//  m_networkComms[index]->sendRunSimulation();
-//}
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
-//void ClientCore::stopSimulation(const QModelIndex & index)
-//{
-//
-//}
-//
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
-//void ClientCore::activateSimulation(const QModelIndex & index)
-//{
-//  if(!m_networkComms.contains(index) || m_networkComms.value(index) == CFNULL
-//     || !m_networkComms[index]->isConnected())
-//    ClientRoot::getLog()->addError("This simulation is not connected.");
-//  else
-//    m_networkComms[index]->sendGetSubSystemList();
-//}
-//
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
-//void ClientCore::deactivateSimulation(const QModelIndex & index)
-//{
-//  if(!m_networkComms.contains(index) || m_networkComms.value(index) == CFNULL
-//     || !m_networkComms[index]->isConnected())
-//    ClientRoot::getLog()->addError("This simulation is not connected.");
-//  else
-//    m_networkComms[index]->sendDeactivateSimulation();
-//}
-//
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
-//void ClientCore::disconnectFromServer()
-//{
-//  QModelIndex index = this->getSimIndex(sender());
-//
-//  if(index.isValid())
-//  {
-//    // ClientRoot::getLog()->addMessage("Disconnected from the server.");
-//    m_treeModel->setSimConnectedStatus(index, false);
-//  }
-//
-//}
-//
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
-//void ClientCore::ack(NetworkFrameType type)
-//{
-//  QModelIndex index = this->getSimIndex(sender());
-//
-//  switch(type)
-//  {
-//    case NETWORK_OPEN_FILE:
-//      m_networkComms[index]->sendGetTree();
-//      break;
-//
-//    case NETWORK_ACTIVATE_SIMULATION:
-//      m_treeModel->setSimActiveState(index, true);
-//      break;
-//
-//    case NETWORK_DEACTIVATE_SIMULATION:
-//      m_treeModel->setSimActiveState(index, false);
-//      m_statusModel->clear();
-//      break;
-//
-//    case NETWORK_SIMULATION_RUNNING:
-//      m_treeModel->setSimReadOnly(index, true);
-//      break;
-//
-//    case NETWORK_RUN_SIMULATION:
-//      m_treeModel->setSimReadOnly(index, false);
-//      break;
-//
-//    default:
-//      emit acked(type);
-//  }
-//}
-//
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
-//void ClientCore::nack(NetworkFrameType type)
-//{
-//  switch(type)
-//  {
-//    case NETWORK_ACTIVATE_SIMULATION:
-//      m_statusModel->clear();
-//      break;
-//
-//    default:
-//      // ClientRoot::getLog()->addMessage("Unexpected NACK received");
-//      break;
-//  }
-//}
-//
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
-//void ClientCore::addComponent(const QModelIndex & index,
-//                                ComponentType::Type type, const QString & name)
-//{
-//  cf_assert(type != ComponentType::INVALID && type != ComponentType::ROOT);
-//
-//  QString path = m_treeModel->getNodePathInSim(index);
-//  ClientNetworkComm * comm = m_networkComms[m_treeModel->getParentSimIndex(index)];
-//
-//  path.prepend("/");
-//
-//  comm->sendAddComponent(path, type, name);
-//}
-//
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
-//void ClientCore::addLink(const QModelIndex & index, const QString & name,
-//                           const QModelIndex & target)
-//{
-//  ClientNetworkComm * comm = m_networkComms[m_treeModel->getParentSimIndex(index)];
-//
-//  cf_assert(comm != CFNULL);
-//
-//  QString path = m_treeModel->getNodePathInSim(index);
-//  QString targetPath = m_treeModel->getNodePathInSim(target);
-//
-//  comm->sendAddLink(path, name, targetPath);
-//}
-//
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
-//void ClientCore::addNode(const QString & abstractType)
-//{
-//
-//}
-//
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
-//void ClientCore::renameNode(const QDomNode & node, const QString & newName)
-//{
-//
-//}
-//
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
-//void ClientCore::deleteNode(const QDomNode & node)
-//{
-//
-//}
-//
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
-//void ClientCore::commitChanges(const QDomDocument & doc)
-//{
-//  ClientNetworkComm * comm = m_networkComms[m_treeModel->getCurrentSimulation()];
-//  comm->sendModifyNode(doc);
-//}
-//
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-////+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//
-//void ClientCore::updateTree(const QModelIndex & index)
-//{
-//  ClientNetworkComm * comm = m_networkComms[m_treeModel->getCurrentSimulation()];
-//  comm->sendGetTree();
-//}

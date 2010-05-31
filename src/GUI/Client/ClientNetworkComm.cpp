@@ -436,8 +436,6 @@ bool ClientNetworkComm::send(const SignalInfo & signal)
 
      str = signal.getString();
 
-     qDebug() << "here" << __FUNCTION__ << __LINE__;
-
      out.setVersion(QDataStream::Qt_4_5); // QDataStream version
      out << (quint32)0;    // reserve 32 bits for the frame data size
      out << str;
@@ -563,7 +561,6 @@ void ClientNetworkComm::newData()
 
     in >> frame;
 
-    qDebug() << frame;
     try
     {
       ClientRoot::processSignalString(frame);
@@ -573,111 +570,6 @@ void ClientNetworkComm::newData()
       ClientRoot::getLog()->addException(se.what());
     }
 
-//    if(!BuilderParser::parseFrame(frame.toStdString(), m_protocol, fi))
-//      ClientRoot::getLog()->addError(BuilderParser::getErrorString().c_str());
-//    else
-//    {
-//      switch(fi.frameType)
-//      {
-//        case NETWORK_MESSAGE:
-//          // ClientRoot::getLog()->addMessage(fi.frameAttributes["value"].c_str());
-//          break;
-//
-//        case NETWORK_ERROR:
-//          ClientRoot::getLog()->addError(fi.frameAttributes["value"].c_str());
-//          break;
-//
-//          // if the server sends directory contents
-//        case NETWORK_DIR_CONTENTS:
-//        {
-//          QString strDirs = fi.frameAttributes["dirs"].c_str();
-//          QString strFiles = fi.frameAttributes["files"].c_str();
-//          QStringList dirs = strDirs.split("*", QString::SkipEmptyParts);
-//          QStringList files = strFiles.split("*", QString::SkipEmptyParts);
-//
-//          emit dirContents(fi.frameAttributes["dirPath"].c_str(), dirs, files);
-//          break;
-//        }
-//
-//          // if the server sends the tree
-//        case NETWORK_TREE :
-//        {
-//          QDomDocument doc;
-//
-//          doc.setContent((QString) ConverterTools::xCFcaseToXml(fi.frameData).c_str());
-//          emit newTree(doc);
-//          break;
-//        }
-//
-//          // if the server sends an ACK
-//        case NETWORK_ACK:
-//          emit ack(m_protocol.convertToType(fi.frameAttributes["type"].c_str()));
-//          break;
-//
-//          // if the server sends an NACK
-//        case NETWORK_NACK:
-//          emit nack(m_protocol.convertToType(fi.frameAttributes["type"].c_str()));
-//          break;
-//
-//          // if the server sends the abstract types list
-//        case NETWORK_ABSTRACT_TYPES :
-//        {
-//          QString types = fi.frameAttributes["typeList"].c_str();
-//          emit abstractTypes(types.split(", "));
-//          break;
-//        }
-//
-//          // if the server sends the concrete types list
-//        case NETWORK_CONCRETE_TYPES :
-//        {
-//          QString types = fi.frameAttributes["typeList"].c_str();
-//          emit concreteTypes(types.split(", "));
-//          break;
-//        }
-//
-//          // if the server sends the host list
-//        case NETWORK_HOST_LIST :
-//        {
-//          QList<HostInfos> list;
-//          QDomDocument doc;
-//          QDomNodeList childNodes;
-//          QString err;
-//          XMLNode & data = fi.frameData;
-//
-//          childNodes = doc.childNodes();
-//
-//          for(int i = 0 ; i < data.nChildNode() ; i++)
-//          {
-//            HostInfos hi;
-//            XMLNode child = data.getChildNode(i);
-//
-//            hi.m_hostname = child.getAttribute("name");
-//
-//            hi.m_nbSlots = QVariant(child.getAttribute("nbSlots")).toInt();
-//            hi.m_maxSlots = QVariant(child.getAttribute("maxSlots")).toInt();
-//
-//            list.append(hi);
-//          }
-//
-//          emit hostList(list);
-//        }
-//          break;
-//
-//        case NETWORK_SIMULATION_STATUS:
-//        {
-//          QString subSysName = fi.frameAttributes["subSysName"].c_str();
-//          QString status = fi.frameAttributes["value"].c_str();
-//          int rank = StringOps::from_str<int>(fi.frameAttributes["workerRank"]);
-//
-//          emit simulationStatus(subSysName, rank, status);
-//        }
-//          break;
-//
-//        case NETWORK_SUBSYSTEM_LIST:
-//          emit subsystemList(QString(fi.frameAttributes["subSystems"].c_str()).split(" "));
-//          break;
-//      }
-//    }
     m_blockSize = 0;
   }
 }

@@ -414,7 +414,6 @@ TreeModel * OptionPanel::getTreeModel() const
   return m_treeModel;
 }
 
-
  // PRIVATE METHOD
 
 QString OptionPanel::getNodePath(QDomNode & node)

@@ -518,11 +518,6 @@ void TreeView::deleteNode()
   QDomNode node = m_treeModel->indexToNode(indexInModel);
 
   emit deleteNode(node);
-
-  // if the m_options in the m_options panel belong to the deleted node,
-  // we delete them
-  //  if(index == m_treeModel->getCurrentIndex())
-  //   this->optionsPanel->setOptions(QDomNodeList());
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -866,8 +861,7 @@ void TreeView::disconnectSimulation()
 
 void TreeView::updateTree()
 {
-//  ClientCore::getInstance().buildAndSendSignal("getTree", CLIENT_TREE_PATH);
-  //emit updateTree(m_treeModel->getCurrentSimulation());
+  throw NotImplemented(FromHere(), "TreeView::updateTree()");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

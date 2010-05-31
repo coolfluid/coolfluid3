@@ -66,7 +66,6 @@ void ClientRoot::processSignalString(const QString & signal)
 CLog::Ptr ClientRoot::getLog()
 {
   return getRoot()->access_component< CLog >(CLIENT_LOG_PATH);
-  //return boost::dynamic_pointer_cast< CLog >(getRoot()->access_component(CLIENT_LOG_PATH));
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
