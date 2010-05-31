@@ -42,7 +42,7 @@ QIcon CNode::getIcon() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString getClassName() const
+QString CNode::getClassName() const
 {
   return "CNode";
 }

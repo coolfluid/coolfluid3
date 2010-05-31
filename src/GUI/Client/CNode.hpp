@@ -42,8 +42,8 @@ namespace Client {
   /// @brief Base component adapted to fit the client needs.
 
   class CNode :
-      public CF::Common::Component,
-      public QObject
+      public QObject,
+      public CF::Common::Component
   {
     Q_OBJECT
 
