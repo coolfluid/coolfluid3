@@ -87,6 +87,9 @@ BOOST_AUTO_TEST_CASE( Constructors )
   BOOST_CHECK_EQUAL(meshwriter->name(),"meshwriter");
   BOOST_CHECK_EQUAL(meshwriter->get_format(),"Gmsh");
 
+  CMeshWriter::Ptr neu_writer = CMeshWriter::create_concrete("Neu","meshwriter");
+  BOOST_CHECK_EQUAL(neu_writer->name(),"meshwriter");
+  BOOST_CHECK_EQUAL(neu_writer->get_format(),"Neu");
  
 }
 
@@ -105,43 +108,43 @@ BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh )
   boost::shared_ptr<CMesh> mesh ( new CMesh  ( "mesh" ) );
   
   meshreader->read_from_to(fp_in,mesh);
-  
-  // Output data structure
-//  XMLNode mesh_node = XMLNode::createXMLTopNode("xml", TRUE);
-//  mesh_node.addAttribute("version","1.0");
-//  mesh_node.addAttribute("encoding","UTF-8");
-//  mesh_node.addAttribute("standalone","yes");
-//  mesh->xml_tree( mesh_node );
-//  XMLSTR xml_str = mesh_node.createXMLString();
-//  CFinfo << "xml_str\n" << xml_str << CFflush;
-//  freeXMLString(xml_str);
-  
-  CRegion::Ptr tmp_region = mesh->get_component<CRegion>("regions");
-  BOOST_FOREACH(const CRegion::Ptr& region, iterate_recursive_by_type<CRegion>(tmp_region))
-  {
-    if (region->has_component_of_type<CRegion>())
-    {
-      CFinfo << "\n" << region->name() << " \n" << CFflush;
-    }
-    else if (region->get_component<CTable>("table")->get_table().size())
-    {
-      CFinfo << "    " << region->name() << " \t --> elements: "
-             << region->get_component<CTable>("table")->get_table().size() << "\n" << CFflush;
-    }
-  }
-  
-  CFinfo << "There are " << mesh->get_component<CArray>("coordinates")->get_array().size() << " coordinates. \n" << CFflush;
- 
- 
-  boost::filesystem::path fp_out ("quadtriag.msh");
-  CMeshWriter::Ptr meshwriter = CMeshWriter::create_concrete("Gmsh","meshwriter");
-  meshwriter->write_from_to(mesh,fp_out);
+
+  mesh->print_tree();
 
  
+//  boost::filesystem::path fp_out ("quadtriag.msh");
+//  CMeshWriter::Ptr gmsh_writer = CMeshWriter::create_concrete("Gmsh","meshwriter");
+//  gmsh_writer->write_from_to(mesh,fp_out);
+
+  boost::filesystem::path fp_out_neu ("quadtriag_write.neu");
+  CMeshWriter::Ptr neu_writer = CMeshWriter::create_concrete("Neu","meshwriter");
+  neu_writer->write_from_to(mesh,fp_out_neu);
+
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh2 )
+{
+  CMeshReader::Ptr meshreader = CMeshReader::create_concrete("Neu","meshreader");
+  CMeshWriter::Ptr meshwriter = CMeshWriter::create_concrete("Gmsh","meshwriter");
+
+  // the file to read from and to
+  boost::filesystem::path fp_in ("quadtriag_write.neu");
+  boost::filesystem::path fp_out("quadtriag_write.msh");
+
+  // the mesh to store in
+  boost::shared_ptr<CMesh> mesh ( new CMesh  ( "mesh" ) );
+
+  CFinfo << "ready to read" << CFendl;
+  meshreader->read_from_to(fp_in,mesh);
+
+  mesh->print_tree();
+
+  CFinfo << "ready to write" << CFendl;
+  meshwriter->write_from_to(mesh,fp_out);
+
+}
 
 BOOST_AUTO_TEST_SUITE_END()
 

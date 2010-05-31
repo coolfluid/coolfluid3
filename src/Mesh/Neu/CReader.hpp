@@ -45,6 +45,10 @@ private:
     // NDFCD    Number of coordinate directions (2 or 3)
     // NDFVL    Number of velocity components (2 or 3)
     Uint NUMNP, NELEM, NGRPS, NBSETS, NDFCD, NDFVL;
+    void print()
+    {
+      CFinfo << NUMNP << " " << NELEM << " " << NGRPS << " " << NBSETS << " " << NDFCD << " " << NDFVL << CFendl;
+    }
   } m_headerData;
   
   void read_coordinates(std::fstream& file);
@@ -62,6 +66,10 @@ private:
     Uint NGP, NELGP, MTYP, NFLAGS;
     std::string ELMMAT;
     std::vector<Uint> ELEM;
+    void print ()
+    {
+      CFinfo << NGP << " " << NELGP << " " << MTYP << " " << NFLAGS << " " << ELMMAT << CFendl;
+    }
   };
   
   void read_groups(std::fstream& file);

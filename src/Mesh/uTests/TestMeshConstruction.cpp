@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
      }
 
      volumes[iElem]=elementType->computeVolume(elementCoordinates);
-     CFinfo << "\t volume["<<iElem<<"] =" << volumes[iElem] << "\n" << CFflush;
+     //CFinfo << "\t volume["<<iElem<<"] =" << volumes[iElem] << "\n" << CFflush;
 
      // check
      if(elementType->getShapeName()=="Quad")

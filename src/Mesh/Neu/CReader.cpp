@@ -31,6 +31,7 @@ CReader::CReader( const CName& name )
   m_supported_types.reserve(2);
   m_supported_types.push_back("P1-Quad2D");
   m_supported_types.push_back("P1-Triag2D");
+  m_supported_types.push_back("P1-Hexa3D");
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -67,6 +68,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 
 void CReader::read_headerData(std::fstream& file)
 {
+  CFAUTOTRACE;
   Uint NUMNP, NELEM, NGRPS, NBSETS, NDFCD, NDFVL;
   std::string line;
 
@@ -85,15 +87,16 @@ void CReader::read_headerData(std::fstream& file)
   m_headerData.NBSETS = NBSETS;
   m_headerData.NDFCD  = NDFCD;
   m_headerData.NDFVL  = NDFVL;
+  m_headerData.print();
   
   getline(file,line);
-  cf_assert(line.compare("ENDOFSECTION"));
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 void CReader::read_coordinates(std::fstream& file)
 {
+  CFAUTOTRACE;
   // Create the coordinates array
   m_mesh->create_array("coordinates");
   // create pointers to the coordinates array
@@ -123,13 +126,13 @@ void CReader::read_coordinates(std::fstream& file)
   buffer.flush();
   
   getline(file,line);
-  cf_assert(line.compare("ENDOFSECTION"));
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 void CReader::read_connectivity(std::fstream& file)
 {
+  CFAUTOTRACE;
   // make temporary regions for each element type possible
   CRegion::Ptr tmp = m_mesh->create_region("tmp");
 
@@ -149,8 +152,8 @@ void CReader::read_connectivity(std::fstream& file)
     elementNumber--;
     if      (elementType==2 && nbElementNodes==4) etype_CF = "P1-Quad2D";  // quadrilateral
     else if (elementType==3 && nbElementNodes==3) etype_CF = "P1-Triag2D"; // triangle
+    else if (elementType==4 && nbElementNodes==8) etype_CF = "P1-Hexa3D";  // brick
     /// @todo to be implemented
-    // else if (elementType==4 && nbElementNodes==8) ;// brick
     // else if (elementType==5 && nbElementNodes==6) ;// wedge (prism)
     // else if (elementType==6 && nbElementNodes==4) ;// tetrahedron
     // else if (elementType==7 && nbElementNodes==5) ;// pyramid
@@ -174,13 +177,13 @@ void CReader::read_connectivity(std::fstream& file)
     getline(file,line);
   }
   getline(file,line);  // ENDOFSECTION
-  cf_assert(line.compare("ENDOFSECTION"));
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 void CReader::read_groups(std::fstream& file)
 {
+  CFAUTOTRACE;
   std::string line;
   int dummy;
   
@@ -191,12 +194,14 @@ void CReader::read_groups(std::fstream& file)
     std::string ELMMAT;
     Uint NGP, NELGP, MTYP, NFLAGS, I;
     getline(file,line);  // ELEMENT GROUP...
+    CFinfo << "line = " << line << CFendl;
     file >> line >> NGP >> line >> NELGP >> line >> MTYP >> line >> NFLAGS >> ELMMAT;
     groups[g].NGP    = NGP;
     groups[g].NELGP  = NELGP;
     groups[g].MTYP   = MTYP;
     groups[g].NFLAGS = NFLAGS;
     groups[g].ELMMAT = ELMMAT;
+    groups[g].print();
     
     for (Uint i=0; i<NFLAGS; ++i)
       file >> dummy;
@@ -216,8 +221,9 @@ void CReader::read_groups(std::fstream& file)
   //    and put in the filesystem as subcomponent of "mesh/regions"
   if (m_headerData.NGRPS == 1)
   {
-    m_mesh->get_component("tmp")->change_parent(regions);
-    regions->get_component("tmp")->rename(groups[0].ELMMAT);
+    Component::Ptr tmp = m_mesh->remove_component("tmp");
+    tmp->rename(groups[0].ELMMAT);
+    regions->add_component(tmp);
   }
   // 2) there are multiple groups --> New regions have to be created
   //    and the elements from the tmp region have to be distributed among
@@ -227,6 +233,7 @@ void CReader::read_groups(std::fstream& file)
     // Create Region for each group
     BOOST_FOREACH(GroupData& group, groups)
     {
+
       CRegion::Ptr region = regions->create_region(group.ELMMAT);
 
       // Create regions for each element type in each group-region

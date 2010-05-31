@@ -5,11 +5,14 @@
 
 #include <boost/filesystem/path.hpp>
 
-#include "Common/Component.hpp"
+#include "Common/ComponentPredicates.hpp"
 #include "Common/ConcreteProvider.hpp"
 
 #include "Mesh/MeshAPI.hpp"
 #include "Mesh/CMesh.hpp"
+#include "Mesh/CTable.hpp"
+#include "Mesh/CElements.hpp"
+#include "Mesh/CRegion.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -68,6 +71,38 @@ public: // functions
   virtual void write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& path) = 0;
 
   boost::filesystem::path write_from(const CMesh::Ptr& mesh);
+
+protected: // classes
+
+  class IsLeafRegion
+  {
+   public:
+      IsLeafRegion () {}
+
+      bool operator()(const Component::Ptr& component)
+      {
+        return component->has_component_of_type<CTable>() && component->has_component_of_type<CElements>();
+      }
+
+  };
+
+  class IsGroup
+  {
+   private:
+     IsLeafRegion m_isLeaf;
+   public:
+     IsGroup () {}
+
+     bool operator()(const Component::Ptr& component)
+     {
+       BOOST_FOREACH(const CRegion::Ptr& region, component->get_components_by_type<CRegion>())
+       {
+         if (m_isLeaf(region))
+           return true;
+       }
+       return false;
+     }
+  };
 
 };
 

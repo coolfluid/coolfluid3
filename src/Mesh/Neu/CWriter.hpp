@@ -35,27 +35,23 @@ public:
 
 private:
   
-  void write_header(std::fstream& file);
-  
-  struct PhysicalGroup
-  {
-    PhysicalGroup() {}
-    PhysicalGroup(Uint phys_dim, Uint phys_number, std::string phys_name)
-     : dimension(phys_dim), number(phys_number), name(phys_name) {}
-    Uint dimension;
-    Uint number;
-    std::string name;
-  };
-  
-  typedef std::map<std::string,PhysicalGroup> PhysicalGroupMap;
-  PhysicalGroupMap m_groups;
-  
+  void write_headerData(std::fstream& file);
+
   void write_coordinates(std::fstream& file);
-  
+
   void write_connectivity(std::fstream& file);
+
+  void write_groups(std::fstream& file);
+
+  void write_boundaries(std::fstream& file);
+
+  // supported types from coolfluid. Neutral can support more.
+  std::vector<std::string> m_supported_types;
   
-  std::map<GeoShape::Type,Uint> m_elementTypes;
-  
+  std::map<GeoShape::Type,Uint> m_CFelement_to_NeuElement;
+
+  std::map<CRegion::Ptr,Uint> m_global_start_idx;
+
   CMesh::Ptr m_mesh;
 
 }; // end CWriter
