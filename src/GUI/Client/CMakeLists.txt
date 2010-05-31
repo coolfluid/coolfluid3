@@ -12,6 +12,7 @@ SET(coolfluid-client_moc_classes
   CLog.hpp
   CloseConfirmationDialog.hpp
   CloseConfirmationPanel.hpp
+  CNode.hpp
   CommitConfirmationPanel.hpp
   CommitDetailsDialog.hpp
   ConfirmCommitDialog.hpp
@@ -54,6 +55,8 @@ LIST ( APPEND coolfluid-client_files
   CloseConfirmationInfos.hpp
   CloseConfirmationPanel.cpp
   CloseConfirmationPanel.hpp
+  CNode.cpp
+  CNode.hpp
   CommitConfirmationPanel.cpp
   CommitConfirmationPanel.hpp
   CommitDetails.cpp
