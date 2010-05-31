@@ -342,6 +342,20 @@ void Component::list_tree( XmlNode& node )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
+void Component::print_tree(Uint level)
+{
+  for (Uint i=0; i<level; i++)
+    CFinfo << "\t";
+  CFinfo << name() << CFendl;
+
+  BOOST_FOREACH( CompStorage_t::value_type c, m_components )
+  {
+    c.second->print_tree( level+1 );
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
 void Component::list_options ( XmlNode& node )
 {
   throw NotImplemented( FromHere(), "" );

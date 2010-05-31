@@ -63,6 +63,24 @@ public:
 
 };
 
+template<class CType, class Predicate=IsComponentTrue>
+class IsComponentType
+{
+private:
+  std::string m_type;
+  Predicate m_pred;
+public:
+  IsComponentType (Predicate pred) : m_type(CType::getClassName()), m_pred(pred) {}
+  IsComponentType () : m_type(CType::getClassName()), m_pred() {}
+
+  bool operator()(const Component::Ptr& component)
+  { return boost::bind( &Component::has_tag , _1 , m_type )(component) && m_pred(component); }
+
+  bool operator()(Component& component)
+  { return boost::bind( &Component::has_tag , _1 , m_type )(component) && m_pred(component); }
+
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 // Wrappers to make iterating easy
 ////////////////////////////////////////////////////////////////////////////////
@@ -99,12 +117,23 @@ iterate_recursive(const boost::shared_ptr<CType>& parent, Uint level=0)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+template <typename CReturnType, typename CType, typename Predicate>
+inline std::vector<typename CReturnType::Ptr >
+iterate_recursive_by_type(const boost::shared_ptr<CType>& parent, const Predicate& pred, Uint level=0)
+{
+  std::vector<boost::shared_ptr<CReturnType> > vec;
+  BOOST_FOREACH(const Component::Ptr& component, iterate_recursive(parent,IsComponentType<CReturnType,Predicate>(pred),level) )
+    vec.push_back(boost::dynamic_pointer_cast<CReturnType>(component));
+
+  return vec;
+}
+
 template <typename CReturnType, typename CType>
 inline std::vector<typename CReturnType::Ptr >
 iterate_recursive_by_type(const boost::shared_ptr<CType>& parent, Uint level=0)
 {
   std::vector<boost::shared_ptr<CReturnType> > vec;
-  BOOST_FOREACH(const Component::Ptr& component, iterate_recursive(parent,IsComponentTag(CReturnType::getClassName()),level) )
+  BOOST_FOREACH(const Component::Ptr& component, iterate_recursive(parent,IsComponentType<CReturnType>(),level) )
     vec.push_back(boost::dynamic_pointer_cast<CReturnType>(component));
 
   return vec;

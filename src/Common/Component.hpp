@@ -89,6 +89,9 @@ public: // functions
   template <typename T>
       std::vector<typename T::Ptr> get_components_by_type ();
 
+  template <typename T>
+      typename T::Ptr get_unique_component_by_type ();
+
   /// @return vector of (sub)components with a given tag
   std::vector<Component::Ptr> get_components_by_tag(const std::string& tag);
 
@@ -169,6 +172,8 @@ public: // functions
 
   /// @return tags in a vector
   std::vector<std::string> get_tags();
+
+  void print_tree(Uint level=0);
 
   /// @name SIGNALS
   //@{
@@ -252,6 +257,15 @@ template <typename T>
 inline std::vector<typename T::Ptr> Component::get_components_by_type ()
 {
   return get_components_by_tag<T>(T::getClassName());
+}
+
+template <typename T>
+inline typename T::Ptr Component::get_unique_component_by_type ()
+{
+  std::vector<typename T::Ptr> vec = get_components_by_type<T>();
+  if (vec.size() != 1)
+    ; // exception
+  return vec[0];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
