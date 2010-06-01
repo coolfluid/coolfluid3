@@ -31,7 +31,8 @@ namespace Common {
 class Common_API Component :
     public boost::enable_shared_from_this<Component>,
     public ConfigObject,
-    public DynamicObject {
+    public DynamicObject,
+    boost::noncopyable {
 
 public: // typedef
 
@@ -126,14 +127,14 @@ public: // functions
       std::vector<typename T::Ptr> get_components_by_tag(const std::string& tag);
 
   /// Check if this component has a given tag assigned
-  bool has_tag(const std::string& tag);
+  bool has_tag(const std::string& tag) const;
 
   /// Check if this component has a (sub)components of a given type
   template <typename T>
-      bool has_component_of_type();
+      bool has_component_of_type() const;
 
   /// Check if this component has a (sub)components with a given tag
-  bool has_component_with_tag(const std::string& tag);
+  bool has_component_with_tag(const std::string& tag) const;
 
   /// Access the name of the component
   CName name () const { return m_name.string(); }
@@ -315,7 +316,7 @@ inline typename T::Ptr Component::create_component ( const CName& name )
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename T>
-inline bool Component::has_component_of_type()
+inline bool Component::has_component_of_type() const
 {
   return has_component_with_tag(T::getClassName());
 }
@@ -380,14 +381,14 @@ inline Component_iterator<ComponentT> Component::begin()
 {
   std::vector<typename ComponentT::Ptr > vec;
   put_components<ComponentT>(vec);
-  return Component_iterator<ComponentT>(vec,boost::dynamic_pointer_cast<ComponentT>(shared_from_this()));
+  return Component_iterator<ComponentT>(vec, 0);
 }
 
 inline Component::iterator Component::begin()
 {
   std::vector<Component::Ptr > vec;
   put_components<Component>(vec);
-  return Component::iterator(vec,shared_from_this());
+  return Component::iterator(vec, 0);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -395,12 +396,16 @@ inline Component::iterator Component::begin()
 template<typename ComponentT>
 inline Component_iterator<ComponentT> Component::end()
 {
-  return Component_iterator<ComponentT>(boost::dynamic_pointer_cast<ComponentT>(shared_from_this()));
+  std::vector<typename ComponentT::Ptr > vec;
+  put_components<ComponentT>(vec);
+  return Component_iterator<ComponentT>(vec, vec.size());
 }
 
 inline Component::iterator Component::end()
 {
-  return Component::iterator(shared_from_this());
+  std::vector<Component::Ptr > vec;
+  put_components<Component>(vec);
+  return Component::iterator(vec, vec.size());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -410,14 +415,14 @@ inline Component_iterator<ComponentT const> Component::begin() const
 {
   std::vector<boost::shared_ptr<ComponentT const> > vec;
   put_components<ComponentT>(vec);
-  return Component_iterator<ComponentT const>(vec,boost::dynamic_pointer_cast<ComponentT const>(shared_from_this()));
+  return Component_iterator<ComponentT const>(vec, 0);
 }
 
 inline Component::const_iterator Component::begin() const
 {
   std::vector<boost::shared_ptr<Component const> > vec;
   put_components<Component>(vec);
-  return Component::const_iterator(vec,shared_from_this());
+  return Component::const_iterator(vec, 0);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -425,12 +430,16 @@ inline Component::const_iterator Component::begin() const
 template<typename ComponentT>
 inline Component_iterator<ComponentT const> Component::end() const
 {
-  return Component_iterator<ComponentT const>(boost::dynamic_pointer_cast<ComponentT const>(shared_from_this()));
+  std::vector<boost::shared_ptr<ComponentT const> > vec;
+  put_components<ComponentT>(vec);
+  return Component_iterator<ComponentT const>(vec, vec.size());
 }
 
 inline Component::const_iterator Component::end() const
 {
-  return Component::const_iterator(shared_from_this());
+  std::vector<boost::shared_ptr<Component const> > vec;
+  put_components<Component>(vec);
+  return Component::const_iterator(vec, vec.size());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

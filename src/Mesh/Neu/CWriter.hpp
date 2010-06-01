@@ -50,7 +50,8 @@ private:
   
   std::map<GeoShape::Type,Uint> m_CFelement_to_NeuElement;
 
-  std::map<CRegion::Ptr,Uint> m_global_start_idx;
+  /// implementation detail, raw pointers are safe as keys
+  std::map<CRegion const*,Uint> m_global_start_idx;
 
   CMesh::Ptr m_mesh;
 

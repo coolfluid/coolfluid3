@@ -79,9 +79,9 @@ protected: // classes
    public:
       IsLeafRegion () {}
 
-      bool operator()(const Component::Ptr& component)
+      bool operator()(const Component& component)
       {
-        return component->has_component_of_type<CTable>() && component->has_component_of_type<CElements>();
+        return component.has_component_of_type<CTable>() && component.has_component_of_type<CElements>();
       }
 
   };
@@ -93,11 +93,11 @@ protected: // classes
    public:
      IsGroup () {}
 
-     bool operator()(const Component::Ptr& component)
+     bool operator()(const Component& component)
      {
-       BOOST_FOREACH(const CRegion::Ptr& region, component->get_components_by_type<CRegion>())
+       BOOST_FOREACH(const CRegion::Ptr& region, component.get_components_by_type<CRegion>())
        {
-         if (m_isLeaf(region))
+         if (m_isLeaf(*region))
            return true;
        }
        return false;

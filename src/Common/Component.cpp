@@ -96,7 +96,7 @@ std::vector<std::string> Component::get_tags()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-bool Component::has_tag(const std::string& tag)
+bool Component::has_tag(const std::string& tag) const
 {
   typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
   boost::char_separator<char> sep(":");
@@ -111,9 +111,9 @@ bool Component::has_tag(const std::string& tag)
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-bool Component::has_component_with_tag(const std::string& tag)
+bool Component::has_component_with_tag(const std::string& tag) const
 {
-  for(CompStorage_t::iterator it=m_components.begin(); it!=m_components.end(); ++it)
+  for(CompStorage_t::const_iterator it=m_components.begin(); it!=m_components.end(); ++it)
     if (it->second->has_tag(tag))
       return true;
 

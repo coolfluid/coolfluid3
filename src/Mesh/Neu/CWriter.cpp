@@ -83,7 +83,7 @@ void CWriter::write_headerData(std::fstream& file)
 
 //  CFinfo << "removing empty regions" << CFendl;
 //  // loop over regions
-//  BOOST_FOREACH(const Component::Ptr& region, iterate_recursive(m_mesh,IsLeafRegion()))
+//  BOOST_FOREACH(const Component::Ptr& region, iterate_recursive(*m_mesh,IsLeafRegion()))
 //  {
 //    CFinfo << region->full_path().string() << " size : " << region->get_component<CTable>("table")->get_table().size() << CFendl;
 //    // find the empty regions
@@ -101,18 +101,15 @@ void CWriter::write_headerData(std::fstream& file)
   Uint node_counter = m_mesh->get_component<CArray>("coordinates")->get_array().shape()[0];
   Uint coord_dim    = m_mesh->get_component<CArray>("coordinates")->get_array().shape()[1];
 
-  BOOST_FOREACH(const CRegion::Ptr& group, iterate_recursive_by_type<CRegion>(*m_mesh,IsGroup()))
+
+
+  group_counter = count(iterate_recursive_by_type<CRegion>(*m_mesh,IsGroup()));
+
+  BOOST_FOREACH(const CRegion& leafregion, iterate_recursive_by_type<CRegion>(*m_mesh,IsLeafRegion()))
   {
-    group_counter++;
+    element_counter += leafregion.getNbElements();
   }
-  BOOST_FOREACH(const CRegion::Ptr& leafregion, iterate_recursive_by_type<CRegion>(*m_mesh,IsLeafRegion()))
-  {
-    element_counter += leafregion->getNbElements();
-  }
-  BOOST_FOREACH(const Component::Ptr& bc_region, iterate_recursive(m_mesh,IsComponentTag("bc")))
-  {
-    bc_counter++;
-  }
+  bc_counter = count(iterate_recursive(*m_mesh,IsComponentTag("bc")));
 
   file.setf(std::ios::right);
   CFinfo << "group_counter = " << group_counter << CFendl;
@@ -167,17 +164,18 @@ void CWriter::write_connectivity(std::fstream& file)
   Uint elm_number=0;
 
   // loop over all leaf regions
-  BOOST_FOREACH(const CRegion::Ptr& leafregion, iterate_recursive_by_type<CRegion>(*m_mesh,IsLeafRegion()))
+  // TODO not const-correct
+  BOOST_FOREACH(CRegion& leafregion, iterate_recursive_by_type<CRegion>(*m_mesh,IsLeafRegion()))
   {
     // information of this region with one unique element type
     Uint elm_type;
     Uint nb_nodes;
-    elm_type = m_CFelement_to_NeuElement[leafregion->get_unique_component_by_type<CElements>()->getShape()];
-    nb_nodes = leafregion->get_unique_component_by_type<CElements>()->getNbNodes();
-    m_global_start_idx[leafregion]=elm_number;
+    elm_type = m_CFelement_to_NeuElement[leafregion.get_unique_component_by_type<CElements>()->getShape()];
+    nb_nodes = leafregion.get_unique_component_by_type<CElements>()->getNbNodes();
+    m_global_start_idx[&leafregion]=elm_number;
 
     // write the nodes for each element of this region
-    BOOST_FOREACH(CTable::Row row, leafregion->get_unique_component_by_type<CTable>()->get_table())
+    BOOST_FOREACH(CTable::Row row, leafregion.get_unique_component_by_type<CTable>()->get_table())
     {
       file << std::setw(8) << ++elm_number << std::setw(3) << elm_type << std::setw(3) << nb_nodes;
       BOOST_FOREACH(Uint node, row)
@@ -193,21 +191,21 @@ void CWriter::write_connectivity(std::fstream& file)
 void CWriter::write_groups(std::fstream& file)
 {
   Uint group_counter(0);
-  BOOST_FOREACH(const CRegion::Ptr& group, iterate_recursive_by_type<CRegion>(*m_mesh,IsGroup()))
+  BOOST_FOREACH(const CRegion& group, iterate_recursive_by_type<CRegion>(*m_mesh,IsGroup()))
   {
     Uint element_counter(0);
-    BOOST_FOREACH(const CRegion::Ptr& leafregion, iterate_recursive_by_type<CRegion>(*group,IsLeafRegion()))
+    BOOST_FOREACH(const CRegion& leafregion, iterate_recursive_by_type<CRegion>(group,IsLeafRegion()))
     {
-      element_counter += leafregion->getNbElements();
+      element_counter += leafregion.getNbElements();
     }
     file << "       ELEMENT GROUP 2.3.16\n";
     file << "GROUP:        " << ++group_counter << "  ELEMENTS:         " << element_counter << "  MATERIAL:          2" << " NFLAGS:         1\n";
-    file << std::setw(32) << group->name() << std::endl << std::setw(8) << 0 << std::endl;
+    file << std::setw(32) << group.name() << std::endl << std::setw(8) << 0 << std::endl;
     Uint line_counter=0;
-    BOOST_FOREACH(const CRegion::Ptr& leafregion, iterate_recursive_by_type<CRegion>(*group,IsLeafRegion()))
+    BOOST_FOREACH(const CRegion& leafregion, iterate_recursive_by_type<CRegion>(group,IsLeafRegion()))
     {
-      Uint elm_global_start_idx = m_global_start_idx[leafregion]+1;
-      Uint elm_global_end_idx = leafregion->getNbElements() + elm_global_start_idx;
+      Uint elm_global_start_idx = m_global_start_idx[&leafregion]+1;
+      Uint elm_global_end_idx = leafregion.getNbElements() + elm_global_start_idx;
 
       for (Uint elm=elm_global_start_idx; elm<elm_global_end_idx; elm++, line_counter++)
       {
@@ -229,16 +227,15 @@ void CWriter::write_groups(std::fstream& file)
 
 void CWriter::write_boundaries(std::fstream& file)
 {
-  Uint group_counter(0);
-  BOOST_FOREACH(const CRegion::Ptr& group, iterate_recursive_by_type<CRegion>(*m_mesh,IsComponentTag("bc")))
+  BOOST_FOREACH(const CRegion& group, iterate_recursive_by_type<CRegion>(*m_mesh,IsComponentTag("bc")))
   {
     Uint element_counter(0);
-    BOOST_FOREACH(const CRegion::Ptr& leafregion, iterate_recursive_by_type<CRegion>(*group,IsLeafRegion()))
+    BOOST_FOREACH(const CRegion& leafregion, iterate_recursive_by_type<CRegion>(group,IsLeafRegion()))
     {
-      element_counter += leafregion->getNbElements();
+      element_counter += leafregion.getNbElements();
     }
     file << " BOUNDARY CONDITIONS 2.3.16\n";
-    file << std::setw(32) << group->name() << std::setw(10) << 1 << std::setw(10) << element_counter << std::setw(10) << 0 << std::setw(10) << 6 << std::endl;
+    file << std::setw(32) << group.name() << std::setw(10) << 1 << std::setw(10) << element_counter << std::setw(10) << 0 << std::setw(10) << 6 << std::endl;
 //    Uint line_counter=0;
 //    BOOST_FOREACH(const CRegion::Ptr& leafregion, iterate_recursive_by_type<CRegion>(group,IsLeafRegion()))
 //    {

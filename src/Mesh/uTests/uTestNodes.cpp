@@ -54,10 +54,10 @@ struct Nodes_Fixture
 
   CRegion& getFirstRegion()
   {
-    BOOST_FOREACH(const CRegion::Ptr& region, iterate_recursive_by_type<CRegion>(*mesh2d))
+    BOOST_FOREACH(CRegion& region, iterate_recursive_by_type<CRegion>(*mesh2d))
     {
-      if(region->getNbElements())
-        return (*region);
+      if(region.getNbElements())
+        return (region);
     }
     throw ShouldNotBeHere(FromHere(), "");
   }

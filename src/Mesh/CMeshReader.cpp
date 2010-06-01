@@ -87,15 +87,15 @@ CMeshReader::create_leaf_regions_with_buffermap (CRegion::Ptr& parent_region,
 void CMeshReader::remove_empty_leaf_regions(CRegion::Ptr& parent_region)
 {
   // loop over regions
-  BOOST_FOREACH(const CRegion::Ptr& region, iterate_recursive_by_type<CRegion>(*parent_region))
+  BOOST_FOREACH(CRegion& region, iterate_recursive_by_type<CRegion>(*parent_region))
   {
     // find the empty regions
-    if ( !region->has_component_of_type<CRegion>() &&
-          region->get_component<CTable>("table")->get_table().size() == 0 )
+    if ( !region.has_component_of_type<CRegion>() &&
+          region.get_component<CTable>("table")->get_table().size() == 0 )
       {
         // no elements in connectivity table --> remove this region
-        CFinfo << "remove: " << region->full_path().string() << "\n" << CFflush;
-        region->get_parent()->remove_component(region->name());
+        CFinfo << "remove: " << region.full_path().string() << "\n" << CFflush;
+        region.get_parent()->remove_component(region.name());
       }
   }
 }
