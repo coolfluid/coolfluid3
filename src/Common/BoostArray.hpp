@@ -1,7 +1,7 @@
 #ifndef CF_Common_BOOSTARRAY_hpp
 #define CF_Common_BOOSTARRAY_hpp
 
-#define BOOST_MULTI_ARRAY_NO_GENERATORS false
+#define BOOST_MULTI_ARRAY_NO_GENERATORS 0
 #include <boost/multi_array.hpp> 
 #undef BOOST_MULTI_ARRAY_NO_GENERATORS
 
