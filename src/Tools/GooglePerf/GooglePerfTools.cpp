@@ -10,29 +10,30 @@ namespace CF {
 namespace Tools {
 namespace GooglePerf {
 
-Common::ObjectProvider < GooglePerfToolsModule,
-                         GooglePerfToolsModule,
-                         GooglePerfToolsModule >
-aCPUProfiler_Provider ( "GooglePerfTools" );
-
 GooglePerfToolsModule::GooglePerfToolsModule()
 {
   m_init = false;
+  m_path = Common::DirPaths::getInstance().getResultsDir() / boost::filesystem::path("perftools-profile.pprof");
 }
 
 void GooglePerfToolsModule::initiate() {
   if(!isInitialized()) {
     m_init = true;
-    boost::filesystem::path prof_path = Common::DirPaths::getInstance().getResultsDir() / boost::filesystem::path("perftools-profile.pprof");
-    CFinfo <<  getModuleName() << ": Saving profile data to: "  << prof_path.native_file_string() << "\n";
-    ProfilerStart(prof_path.native_file_string().c_str());
+    CFinfo <<  getModuleName() << ": Saving profile data to: "  << m_path.native_file_string() << "\n";
+    ProfilerStart(m_path.native_file_string().c_str());
+  } else {
+    CFwarn << getModuleName() << "Was already profiling!\n";
   }
 }
 
-void GooglePerfToolsModule::terminate()
-{
+void GooglePerfToolsModule::terminate() {
   CFinfo << getModuleName() << ": Stopping profiling\n";
   ProfilerStop();
+  m_init = false;
+}
+
+void GooglePerfToolsModule::setFilePath(const boost::filesystem::path& path) {
+  m_path = path;
 }
 
 } // GooglePerfTools

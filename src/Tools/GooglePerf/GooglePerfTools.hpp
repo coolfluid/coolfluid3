@@ -3,6 +3,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <boost/filesystem.hpp>
+
 #include "Common/OwnedObject.hpp"
 #include "Common/ConcreteProvider.hpp"
 #include "Common/ModuleRegister.hpp"
@@ -26,13 +28,9 @@ namespace GooglePerf {
 /// More examples are given on the google perftools website:
 /// http://google-perftools.googlecode.com/svn/trunk/doc/cpuprofile.html
 /// @author Bart Janssens
-class GooglePerfToolsModule : public Common::ModuleRegister<GooglePerfToolsModule>,
-                              public Common::OwnedObject
+class GooglePerfToolsModule : public Common::ModuleRegister<GooglePerfToolsModule>
 {
 public:
-
-  typedef Common::ConcreteProvider<GooglePerfToolsModule> PROVIDER;
-
   /// Default constructor constructs as uninited
   GooglePerfToolsModule();
 
@@ -60,6 +58,12 @@ public:
 
   /// Stop profiling
   virtual void terminate();
+
+  /// Set the path to the profiling file
+  void setFilePath(const boost::filesystem::path& path);
+
+private:
+  boost::filesystem::path m_path;
 
 }; // end GooglePerfToolsModule
 

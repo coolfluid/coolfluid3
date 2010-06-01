@@ -18,6 +18,7 @@
 #include "Mesh/Integrators/IntegrationFunctorBase.hpp"
 
 #include "Tools/Difference/Difference.hpp"
+#include "Tools/GooglePerf/ProfiledTestFixture.hpp"
 
 using namespace CF;
 using namespace CF::Mesh;
@@ -25,7 +26,7 @@ using namespace CF::Mesh::Integrators;
 using namespace CF::Common;
 //////////////////////////////////////////////////////////////////////////////
 
-struct Integration_Fixture
+struct Integration_Fixture : public CF::Tools::GooglePerf::ProfiledTestFixture
 {
   /// common setup for each test case
   Integration_Fixture() : mesh2Dneu(new CMesh  ( "mesh2Dneu" )), meshUnitSquare(new CMesh  ( "meshUnitSquare" ))
@@ -119,10 +120,13 @@ BOOST_AUTO_TEST_CASE( computeVolume2D )
   gaussIntegrate(*mesh2Dneu, ftor2Dneu, volume2Dneu);
   BOOST_CHECK_CLOSE(volume2Dneu, 24., 1e-12);
 
+  startProfiling("UnitSquare");
   DetJacobianFunctor ftor2Dbig(*(meshUnitSquare->get_component<CArray>("coordinates")));
   Real volume2Dbig = 0.0;
   gaussIntegrate(*meshUnitSquare, ftor2Dbig, volume2Dbig);
   BOOST_CHECK_CLOSE(volume2Dbig, 1., 1e-8);
+  stopProfiling();
+  procesProfilingFile();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

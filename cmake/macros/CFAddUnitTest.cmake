@@ -78,7 +78,7 @@ MACRO( CF_ADD_UNITTEST UTESTNAME )
       TARGET_LINK_LIBRARIES ( ${UTESTNAME} ${CF_KERNEL_LIBS} ${CF_KERNEL_STATIC_LIBS} ${Boost_LIBRARIES} )
     ENDIF(CF_ENABLE_INTERNAL_DEPS)
 
-  ADD_TEST( ${UTESTNAME} ${UTESTNAME} )
+  ADD_TEST( ${UTESTNAME} ${UTESTNAME} ${${UTESTNAME}_args} )
 
   ENDIF(${UTESTNAME}_will_compile)
 
@@ -97,4 +97,16 @@ MACRO( CF_ADD_UNITTEST UTESTNAME )
 
 
 ENDMACRO( CF_ADD_UNITTEST )
+
+##############################################################################
+# macro for adding a testing application in the project, profiled with perftools
+##############################################################################
+MACRO( CF_ADD_PROFILED_UNITTEST UTESTNAME )
+  IF(CF_BUILD_GooglePerfTools)
+    LIST ( APPEND ${UTESTNAME}_libs GooglePerfTools )
+  ENDIF()
+  CF_ADD_UNITTEST( ${UTESTNAME} )
+ENDMACRO( CF_ADD_PROFILED_UNITTEST )
+
+
 ##############################################################################

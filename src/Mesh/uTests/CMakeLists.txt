@@ -43,7 +43,7 @@ LIST ( APPEND uTestIntegration_libs Common P1 Neu )
 LIST ( APPEND uTestIntegration_files
   uTestIntegration.cpp )
 
-CF_ADD_UNITTEST ( uTestIntegration )
+CF_ADD_PROFILED_UNITTEST ( uTestIntegration )
 
 ################################################################################
 

@@ -11,6 +11,9 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/coolfluid_config.h.in ${coolfluid_BIN
 # create the header with the svn version
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/coolfluid_svnversion.h.in ${coolfluid_BINARY_DIR}/coolfluid_svnversion.h)
 
+# coolfluid_profiling_config.h
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/coolfluid_profiling_config.h.in ${coolfluid_BINARY_DIR}/coolfluid_profiling_config.h)
+
 # install global configuration headers
 install ( FILES ${coolfluid_BINARY_DIR}/coolfluid_config.h
                 ${coolfluid_BINARY_DIR}/coolfluid_svnversion.h

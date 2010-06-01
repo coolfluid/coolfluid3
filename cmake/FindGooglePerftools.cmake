@@ -30,6 +30,11 @@ IF ( NOT CF_SKIP_GOOGLE_PERFTOOLS )
   else()
     SET ( CF_HAVE_GOOGLE_PERFTOOLS 0 CACHE BOOL "Not fount google-perftools" )
   endif()
+  
+  #tools used for profiling post-processing
+  find_program(CF_PPROF_COMMAND pprof)
+  find_program(CF_DOT_COMMAND dot)
+  
 
 ELSE()
 
@@ -43,7 +48,9 @@ MARK_AS_ADVANCED ( GOOGLE_PERFTOOLS_INCLUDE_DIR
                    GOOGLE_PERFTOOLS_LIBS
                    GOOGLE_PERFTOOLS_PROFILER_LIB
                    GOOGLE_PERFTOOLS_TCMALLOC_LIB
-                   CF_HAVE_GOOGLE_PERFTOOLS )
+                   CF_HAVE_GOOGLE_PERFTOOLS
+                   CF_PPROF_COMMAND
+                   CF_DOT_COMMAND )
 
 LOG ( "CF_HAVE_GOOGLE_PERFTOOLS: [${CF_HAVE_GOOGLE_PERFTOOLS}]" )
 LOGFILE ( "  GOOGLE_PERFTOOLS_INCLUDE_DIR:  [${GOOGLE_PERFTOOLS_INCLUDE_DIR}]" )
