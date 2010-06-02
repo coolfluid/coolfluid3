@@ -1,5 +1,5 @@
-#ifndef CF_Mesh_uTests_difference_hpp
-#define CF_Mesh_uTests_difference_hpp
+#ifndef CF_Tools_Tests_Difference_hpp
+#define CF_Tools_Tests_Difference_hpp
 
 // Adapted from K-3D by Bart Janssens
 // Copyright (c) 1995-2010, Timothy M. Shead
@@ -35,7 +35,7 @@
 
 namespace CF {
 namespace Tools {
-namespace Difference {
+namespace Tests {
 
 /// Stores the results of the difference::test() function.
 class Accumulator
@@ -119,9 +119,9 @@ void vector_test(const VectorT& A, const VectorT& B, Accumulator& Result)
   Result.exact(sizeA == sizeB);
 };
 
-} // namespace Difference
+} // namespace Tests
 } // namespace Tools
 } // namespace CF
 
-#endif // !CF_Mesh_uTests_difference_hpp
+#endif // !CF_Tools_Tests_Difference_hpp
 

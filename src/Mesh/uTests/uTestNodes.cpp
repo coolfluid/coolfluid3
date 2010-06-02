@@ -17,7 +17,7 @@
 
 #include "Mesh/Integrators/Gauss.hpp"
 
-#include "Tools/Difference/Difference.hpp"
+#include "Tools/Tests/Difference.hpp"
 
 using namespace CF;
 using namespace CF::Mesh;

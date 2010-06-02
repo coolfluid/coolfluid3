@@ -12,7 +12,7 @@
 #include "Mesh/LagrangeSF/TriagP1.hpp"
 #include "Mesh/P1/Triag2D.hpp"
 
-#include "Tools/Difference/Difference.hpp"
+#include "Tools/Tests/Difference.hpp"
 
 using namespace boost::assign;
 using namespace CF;
@@ -88,8 +88,8 @@ BOOST_AUTO_TEST_CASE( computeShapeFunction )
   const CF::RealVector reference_result = list_of(0.1)(0.1)(0.8);
   CF::RealVector result(3);
   TriagP1::computeShapeFunction(mapped_coords, result);
-  CF::Tools::Difference::Accumulator accumulator;
-  CF::Tools::Difference::vector_test(result, reference_result, accumulator);
+  CF::Tools::Tests::Accumulator accumulator;
+  CF::Tools::Tests::vector_test(result, reference_result, accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 10); // Maximal difference can't be greater than 10 times the least representable unit
 }
 
@@ -99,8 +99,8 @@ BOOST_AUTO_TEST_CASE( computeMappedCoordinates )
   const CF::RealVector reference_result = list_of(1./3.)(1./3.);
   CF::RealVector result(2);
   TriagP1::computeMappedCoordinates(test_coords, nodes, result);
-  CF::Tools::Difference::Accumulator accumulator;
-  CF::Tools::Difference::vector_test(result, reference_result, accumulator);
+  CF::Tools::Tests::Accumulator accumulator;
+  CF::Tools::Tests::vector_test(result, reference_result, accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 10); // Maximal difference can't be greater than 10 times the least representable unit
 }
 
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE( integrateConst )
   Gauss<TriagP1>::integrateElement(ftor, result);
   const std::vector<CArray::Row> noderows = boost::assign::list_of(coord[0])(coord[1])(coord[2]);
   const Real vol = CF::Mesh::VolumeComputer<Triag2D>::computeVolume(noderows);
-  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Difference::test(result, vol).ulps), 1);
+  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Tests::test(result, vol).ulps), 1);
 }
 
 BOOST_AUTO_TEST_CASE( computeMappedGradient )
@@ -125,8 +125,8 @@ BOOST_AUTO_TEST_CASE( computeMappedGradient )
   expected(2,1) = 1.;
   CF::RealMatrix result(3, 2);
   TriagP1::computeMappedGradient(mapped_coords, result);
-  CF::Tools::Difference::Accumulator accumulator;
-  CF::Tools::Difference::vector_test(result, expected, accumulator);
+  CF::Tools::Tests::Accumulator accumulator;
+  CF::Tools::Tests::vector_test(result, expected, accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 2);
 }
 
@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE( computeJacobianDeterminant )
   // Shapefunction determinant should be double the volume for triangles
   const std::vector<CArray::Row> noderows = boost::assign::list_of(coord[0])(coord[1])(coord[2]);
   const Real vol = CF::Mesh::VolumeComputer<Triag2D>::computeVolume(noderows);
-  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Difference::test(0.5*TriagP1::computeJacobianDeterminant(mapped_coords, nodes), vol).ulps), 5);
+  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Tests::test(0.5*TriagP1::computeJacobianDeterminant(mapped_coords, nodes), vol).ulps), 5);
 }
 
 BOOST_AUTO_TEST_CASE( computeJacobian )
@@ -147,8 +147,8 @@ BOOST_AUTO_TEST_CASE( computeJacobian )
   expected(1,1) = 1.8;
   CF::RealMatrix result(2, 2);
   TriagP1::computeJacobian(mapped_coords, nodes, result);
-  CF::Tools::Difference::Accumulator accumulator;
-  CF::Tools::Difference::vector_test(result, expected, accumulator);
+  CF::Tools::Tests::Accumulator accumulator;
+  CF::Tools::Tests::vector_test(result, expected, accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 2);
 }
 
@@ -161,8 +161,8 @@ BOOST_AUTO_TEST_CASE( computeJacobianAdjoint )
   expected(1,1) = 0.6;
   CF::RealMatrix result(2, 2);
   TriagP1::computeJacobianAdjoint(mapped_coords, nodes, result);
-  CF::Tools::Difference::Accumulator accumulator;
-  CF::Tools::Difference::vector_test(result, expected, accumulator);
+  CF::Tools::Tests::Accumulator accumulator;
+  CF::Tools::Tests::vector_test(result, expected, accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 2);
 }
 

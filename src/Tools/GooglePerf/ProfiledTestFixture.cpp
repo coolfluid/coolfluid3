@@ -1,5 +1,12 @@
+#include <fstream>
+
+#define BOOST_TEST_DYN_LINK
+#include <boost/test/unit_test.hpp>
+
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string.hpp>
+
+#include "Common/OSystem.hpp"
 
 #include "Tools/GooglePerf/ProfiledTestFixture.hpp"
 #include "Tools/GooglePerf/GooglePerfTools.hpp"
@@ -52,14 +59,28 @@ void ProfiledTestFixture::stopProfiling() {
 void ProfiledTestFixture::procesProfilingFile() {
   cf_assert(boost::algorithm::ends_with(m_current_filename, ".pprof"));
   boost::filesystem::path infile(m_profile_dir / m_current_filename);
-  boost::filesystem::path outfile(m_profile_dir / boost::algorithm::erase_last_copy(m_current_filename, ".pprof"));
+  std::string basename = boost::algorithm::erase_last_copy(m_current_filename, ".pprof");
+  boost::filesystem::path outfile(m_profile_dir / basename);
   std::string pprof_command(CF_PPROF_COMMAND);
-  if(pprof_command.size()) {
+  if(pprof_command.size()) { // process the profile file, if the command exists
     try {
-      std::string pprof_line(pprof_command + " --dot " + m_command + " " + infile.file_string() + " > " + outfile.file_string() + ".dot");
-      std::string dot_line(std::string(CF_DOT_COMMAND) + " -Tsvg " + outfile.file_string() + ".dot > " + outfile.file_string() + ".svg");
+      // note: graph output is too heavy for the dashboard
+      //std::string pprof_line(pprof_command + " --dot " + m_command + " " + infile.file_string() + " > " + outfile.file_string() + ".dot");
+      //std::string dot_line(std::string(CF_DOT_COMMAND) + " -Tpng " + outfile.file_string() + ".dot > " + outfile.file_string() + ".png");
+      std::string pprof_line(pprof_command + " --text " + m_command + " " + infile.file_string() + " | head -n 10 > " + outfile.file_string() + ".txt");
       OSystem::getInstance().executeCommand(pprof_line);
-      OSystem::getInstance().executeCommand(dot_line);
+      //OSystem::getInstance().executeCommand(dot_line);
+
+      // Read the output text file for dasboard output
+      std::string profile; // We will read the contents here.
+      std::fstream file((outfile.file_string() + ".txt").c_str());
+      file.unsetf(std::ios::skipws); // No white space skipping!
+      std::copy(
+        std::istream_iterator<char>(file),
+        std::istream_iterator<char>(),
+        std::back_inserter(profile));
+      // Output a CDash reference to the generated profiling graph
+      CFinfo << "<DartMeasurement name=\""<< basename << " profile data\" type=\"text/plain\"><![CDATA[<html><body><pre>" + profile + "</pre></body></html>]]></DartMeasurement>\n";
     } catch(OSystemError& E) {
       // Fail softly and inform the user, since a profiling error is not fatal.
       CFwarn << "Error processing profile file: " << E.what() << "\n";

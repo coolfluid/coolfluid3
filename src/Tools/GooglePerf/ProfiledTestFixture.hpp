@@ -1,13 +1,9 @@
 #ifndef CF_GooglePerfTools_ProfiledTestFixture_hpp
 #define CF_GooglePerfTools_ProfiledTestFixture_hpp
 
-#define BOOST_TEST_DYN_LINK
-#include <boost/test/unit_test.hpp>
+#include <boost/filesystem.hpp>
 
 #include <coolfluid_profiling_config.h>
-
-#include "Common/LibLoader.hpp"
-#include "Common/OSystem.hpp"
 
 using namespace CF;
 using namespace CF::Common;
