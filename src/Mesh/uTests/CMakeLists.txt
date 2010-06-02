@@ -39,7 +39,7 @@ CF_ADD_UNITTEST ( uTestLagrangeSFQuadP1 )
 
 ################################################################################
 
-LIST ( APPEND uTestIntegration_libs Common P1 Neu )
+LIST ( APPEND uTestIntegration_libs Common P1 Neu Testing )
 LIST ( APPEND uTestIntegration_files
   uTestIntegration.cpp )
 

@@ -12,7 +12,7 @@
 #include "Mesh/LagrangeSF/QuadP1.hpp"
 #include "Mesh/P1/Quad2D.hpp"
 
-#include "Tools/Tests/Difference.hpp"
+#include "Tools/Testing/Difference.hpp"
 
 using namespace boost::assign;
 using namespace CF;
@@ -90,8 +90,8 @@ BOOST_AUTO_TEST_CASE( computeShapeFunction )
   const CF::RealVector reference_result = list_of(0.045)(0.055)(0.495)(0.405);
   CF::RealVector result(4);
   QuadP1::computeShapeFunction(mapped_coords, result);
-  CF::Tools::Tests::Accumulator accumulator;
-  CF::Tools::Tests::vector_test(result, reference_result, accumulator);
+  CF::Tools::Testing::Accumulator accumulator;
+  CF::Tools::Testing::vector_test(result, reference_result, accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 10); // Maximal difference can't be greater than 10 times the least representable unit
 }
 
@@ -119,8 +119,8 @@ BOOST_AUTO_TEST_CASE( computeMappedGradient )
   expected(3, 1) = 0.25 * ( 1 - ksi);
   CF::RealMatrix result(4, 2);
   QuadP1::computeMappedGradient(mapped_coords, result);
-  CF::Tools::Tests::Accumulator accumulator;
-  CF::Tools::Tests::vector_test(result, expected, accumulator);
+  CF::Tools::Testing::Accumulator accumulator;
+  CF::Tools::Testing::vector_test(result, expected, accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 2);
 }
 
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE( computeJacobianDeterminant )
   const CF::RealVector center_coords = list_of(0.)(0.);
   const std::vector<CArray::Row> noderows = boost::assign::list_of(coord[0])(coord[1])(coord[2])(coord[3]);
   const Real vol = CF::Mesh::VolumeComputer<Quad2D>::computeVolume(noderows);
-  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Tests::test(4.*QuadP1::computeJacobianDeterminant(center_coords, nodes), vol).ulps), 1);
+  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Testing::test(4.*QuadP1::computeJacobianDeterminant(center_coords, nodes), vol).ulps), 1);
 }
 
 BOOST_AUTO_TEST_CASE( computeJacobian )
@@ -142,8 +142,8 @@ BOOST_AUTO_TEST_CASE( computeJacobian )
   expected(1,1) = 0.5975;
   CF::RealMatrix result(2, 2);
   QuadP1::computeJacobian(mapped_coords, nodes, result);
-  CF::Tools::Tests::Accumulator accumulator;
-  CF::Tools::Tests::vector_test(result, expected, accumulator);
+  CF::Tools::Testing::Accumulator accumulator;
+  CF::Tools::Testing::vector_test(result, expected, accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 15);
 }
 
@@ -156,8 +156,8 @@ BOOST_AUTO_TEST_CASE( computeJacobianAdjoint )
   expected(1,1) = 0.2775;
   CF::RealMatrix result(2, 2);
   QuadP1::computeJacobianAdjoint(mapped_coords, nodes, result);
-  CF::Tools::Tests::Accumulator accumulator;
-  CF::Tools::Tests::vector_test(result, expected, accumulator);
+  CF::Tools::Testing::Accumulator accumulator;
+  CF::Tools::Testing::vector_test(result, expected, accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 15);
 }
 
@@ -182,12 +182,12 @@ BOOST_AUTO_TEST_CASE( integrateConst )
   Gauss<QuadP1, QuadP1, 16>::integrateElement(ftor, result16);
   Gauss<QuadP1, QuadP1, 32>::integrateElement(ftor, result32);
 
-  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Tests::test(result1, vol).ulps), 1);
-  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Tests::test(result2, vol).ulps), 5);
-  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Tests::test(result4, vol).ulps), 5);
-  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Tests::test(result8, vol).ulps), 5);
-  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Tests::test(result16, vol).ulps), 5);
-  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Tests::test(result32, vol).ulps), 5);
+  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Testing::test(result1, vol).ulps), 1);
+  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Testing::test(result2, vol).ulps), 5);
+  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Testing::test(result4, vol).ulps), 5);
+  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Testing::test(result8, vol).ulps), 5);
+  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Testing::test(result16, vol).ulps), 5);
+  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Testing::test(result32, vol).ulps), 5);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

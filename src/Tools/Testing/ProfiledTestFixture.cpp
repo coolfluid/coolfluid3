@@ -8,55 +8,52 @@
 
 #include "Common/OSystem.hpp"
 
-#include "Tools/GooglePerf/ProfiledTestFixture.hpp"
 #include "Tools/GooglePerf/GooglePerfTools.hpp"
+#include "Tools/Testing/ProfiledTestFixture.hpp"
 
+using namespace CF::Tools::GooglePerf;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace Tools {
-namespace GooglePerf {
+namespace Testing {
 
 #ifdef CF_BUILD_GooglePerfTools
 
 ////////////////////////////////////////////////////////////////////////////////
 
 ProfiledTestFixture::ProfiledTestFixture() : m_profiler(ModuleRegister<GooglePerfToolsModule>::getInstance()) {
-  int argc = boost::unit_test::framework::master_test_suite().argc;
   char** argv = boost::unit_test::framework::master_test_suite().argv;
 
-  if(argc == 2) {
-    m_profiler.setFilePath(boost::filesystem::path(argv[1]));
-  } else {
-    boost::filesystem::path commandPath(argv[0]);
-    boost::char_separator<char> separator(".");
-    boost::tokenizer<boost::char_separator<char> > tokenizer(commandPath.leaf(), separator);
-    m_prefix = *tokenizer.begin();
-    m_profile_dir = commandPath.parent_path();
-    m_command = std::string(argv[0]);
-  }
+  boost::filesystem::path commandPath(argv[0]);
+  boost::char_separator<char> separator(".");
+  boost::tokenizer<boost::char_separator<char> > tokenizer(commandPath.leaf(), separator);
+  m_prefix = *tokenizer.begin();
+  m_profile_dir = commandPath.parent_path();
+  m_command = std::string(argv[0]);
+
+  test_unit_start(boost::unit_test::framework::current_test_case());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ProfiledTestFixture::startProfiling(const std::string& ProfileName) {
-  m_current_filename = m_prefix + (ProfileName.size() ? "-" : "") + ProfileName + ".pprof";
+ProfiledTestFixture::~ProfiledTestFixture() {
+  test_unit_finish(boost::unit_test::framework::current_test_case());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void ProfiledTestFixture::test_unit_start( boost::unit_test::test_unit const& unit ) {
+  m_current_filename = m_prefix + "-" + unit.p_name.get() + ".pprof";
   m_profiler.setFilePath(boost::filesystem::path(m_profile_dir / m_current_filename));
   m_profiler.initiate();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ProfiledTestFixture::stopProfiling() {
+void ProfiledTestFixture::test_unit_finish( boost::unit_test::test_unit const& unit ) {
   m_profiler.terminate();
-}
-
-#endif
-
-////////////////////////////////////////////////////////////////////////////////
-
-void ProfiledTestFixture::procesProfilingFile() {
   cf_assert(boost::algorithm::ends_with(m_current_filename, ".pprof"));
   boost::filesystem::path infile(m_profile_dir / m_current_filename);
   std::string basename = boost::algorithm::erase_last_copy(m_current_filename, ".pprof");
@@ -80,7 +77,8 @@ void ProfiledTestFixture::procesProfilingFile() {
         std::istream_iterator<char>(),
         std::back_inserter(profile));
       // Output a CDash reference to the generated profiling graph
-      CFinfo << "<DartMeasurement name=\""<< basename << " profile data\" type=\"text/plain\"><![CDATA[<html><body><pre>" + profile + "</pre></body></html>]]></DartMeasurement>\n";
+      CFinfo << "<DartMeasurement name=\""<< unit.p_name.get() << " profile data\" type=\"text/plain\"><![CDATA[<html><body><pre>" + profile + "</pre></body></html>]]></DartMeasurement>\n";
+      //CFinfo << "<DartMeasurementFile name=\""<< basename << " profile graph\" type=\"image/png\">" + outfile.file_string() + ".png</DartMeasurementFile>\n";
     } catch(OSystemError& E) {
       // Fail softly and inform the user, since a profiling error is not fatal.
       CFwarn << "Error processing profile file: " << E.what() << "\n";
@@ -90,6 +88,13 @@ void ProfiledTestFixture::procesProfilingFile() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // GooglePerf
+#else
+
+ProfiledTestFixture::ProfiledTestFixture() {}
+
+#endif
+
+} // Testing
 } // Tools
 } // CF
+

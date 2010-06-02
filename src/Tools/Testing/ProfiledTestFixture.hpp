@@ -2,6 +2,7 @@
 #define CF_GooglePerfTools_ProfiledTestFixture_hpp
 
 #include <boost/filesystem.hpp>
+#include <boost/test/test_observer.hpp>
 
 #include <coolfluid_profiling_config.h>
 
@@ -12,38 +13,29 @@ using namespace CF::Common;
 
 namespace CF {
 namespace Tools {
-
-/// The classes related to Google perftools
-namespace GooglePerf {
-
-class GooglePerfToolsModule;
+namespace GooglePerf { class GooglePerfToolsModule; }
+namespace Testing {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Provides a boilerplate implementation for a test that is profiled using GooglePerfTools
-/// The test takes one optional runtime argument specifying the directory in which to save the profiling results
-/// By default, the name of the test command is used as the first part of the profile output name
+
 #ifdef CF_BUILD_GooglePerfTools
+/// Any test using this fixture (or a derivative) will be profiled
 class ProfiledTestFixture {
 public:
-  /// On construction, the GooglePerfTools dynamic plugin is loaded from the build dir
+
   ProfiledTestFixture();
+  ~ProfiledTestFixture();
 
+  /// Start profiling when a test starts
+  void test_unit_start( boost::unit_test::test_unit const& );
 
-  /// Start profiling. If ProfileName is provided, this is appended to the current prefix.
-  /// Full profile name will be <prefix>-<ProfileName>.pprof
-  void startProfiling(const std::string& ProfileName = "");
-
-  /// Stop profiling
-  void stopProfiling();
-
-  /// Process the last profiling file, storing the result as a .svg file with the same
-  /// base name as the profile file
-  void procesProfilingFile();
+  /// Stop profiling when a test ends and process the file
+  void test_unit_finish( boost::unit_test::test_unit const& );
 
 protected:
   /// The profiling module that is used
-  GooglePerfToolsModule& m_profiler;
+  CF::Tools::GooglePerf::GooglePerfToolsModule& m_profiler;
   /// Start of the profile output name
   std::string m_prefix;
   /// Directory to store the profile data in
@@ -57,17 +49,14 @@ private:
 #else
 
 class ProfiledTestFixture {
-public:
-  void startProfiling() {}
-
-  void stopProfiling() {}
+  ProfiledTestFixture();
 };
 
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // GooglePerf
+} // Testing
 } // Tools
 } // CF
 

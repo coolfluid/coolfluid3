@@ -3,8 +3,6 @@
   LIST ( APPEND GooglePerfTools_files
     GooglePerfTools.cpp
     GooglePerfTools.hpp
-    ProfiledTestFixture.cpp
-    ProfiledTestFixture.hpp
   )
 
   LIST ( APPEND GooglePerfTools_includedirs ${GOOGLE_PERFTOOLS_INCLUDE_DIR} )

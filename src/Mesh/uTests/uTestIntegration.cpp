@@ -1,5 +1,5 @@
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Mesh::LagrangeSF"
+#define BOOST_TEST_MODULE "Test module for integration methods"
 
 #include <boost/assign/list_of.hpp>
 #include <boost/test/unit_test.hpp>
@@ -17,35 +17,23 @@
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/Integrators/IntegrationFunctorBase.hpp"
 
-#include "Tools/GooglePerf/ProfiledTestFixture.hpp"
-#include "Tools/Tests/Difference.hpp"
-#include "Tools/Tests/Timer.hpp"
+#include "Tools/Testing/ProfiledTestFixture.hpp"
+#include "Tools/Testing/Difference.hpp"
+#include "Tools/Testing/TimedTestFixture.hpp"
 
 using namespace CF;
 using namespace CF::Mesh;
 using namespace CF::Mesh::Integrators;
 using namespace CF::Common;
 using namespace CF::Tools;
+using namespace CF::Tools::Testing;
+
 //////////////////////////////////////////////////////////////////////////////
 
-struct Integration_Fixture : public CF::Tools::GooglePerf::ProfiledTestFixture
+struct IntegrationFixture :
+  public ProfiledTestFixture, // NOTE: Inheritance order matters, this way the timing is profiled,
+  public TimedTestFixture // but the profiling is not timed. Important since especially profile processing takes time.
 {
-  /// common setup for each test case
-  Integration_Fixture() : mesh2Dneu(new CMesh  ( "mesh2Dneu" ))
-  {
-    // Read the a .neu mesh as 2D mixed mesh
-    boost::shared_ptr<CMeshReader> meshreader = CMeshReader::create_concrete("Neu","meshreader");
-    boost::filesystem::path fp_in ("quadtriag.neu");
-    meshreader->read_from_to(fp_in,mesh2Dneu);
-  }
-
-  /// common tear-down for each test case
-  ~Integration_Fixture()
-  {
-  }
-  /// common values accessed by all tests goes here
-  boost::shared_ptr<CMesh> mesh2Dneu;
-
   /// Create a rectangular, 2D, quad-only mesh. Uses a buffer for insertion
   void create_rectangle_buffered(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments) {
     const Uint dim = 2;
@@ -123,74 +111,60 @@ struct Integration_Fixture : public CF::Tools::GooglePerf::ProfiledTestFixture
       }
     }
   }
+};
 
+/// Returns the determinant of the jacobian, i.e. integrating this over the entire mesh
+/// should yield the volume of the mesh
+struct DetJacobianFunctor : public IntegrationFunctorBase
+{
+  DetJacobianFunctor(const CArray& coordinates) : IntegrationFunctorBase(coordinates) {}
 
-  /// Returns the determinant of the jacobian, i.e. integrating this over the entire mesh
-  /// should yield the volume of the mesh
-  struct DetJacobianFunctor : public IntegrationFunctorBase
+  template<typename GeoShapeF, typename SolShapeF>
+  CF::Real valTimesDetJacobian(const CF::RealVector& mappedCoords)
   {
-    DetJacobianFunctor(const CArray& coordinates) : IntegrationFunctorBase(coordinates) {}
-
-    template<typename GeoShapeF, typename SolShapeF>
-    CF::Real valTimesDetJacobian(const CF::RealVector& mappedCoords)
-    {
-      return GeoShapeF::computeJacobianDeterminant(mappedCoords, m_nodes);
-    }
-  };
-
+    return GeoShapeF::computeJacobianDeterminant(mappedCoords, m_nodes);
+  }
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_SUITE( Integration, Integration_Fixture )
+BOOST_AUTO_TEST_SUITE( Integration )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( CreateMeshBuffered )
+BOOST_AUTO_TEST_CASE( ComputeVolume2DNeu ) // not timed
 {
-  boost::shared_ptr<CMesh> mesh(new CMesh("mesh"));
-  Tests::Timer timer;
-  startProfiling("CreateMeshBuffered");
-  create_rectangle_buffered(*mesh, 1., 1., 1000, 1000);
-  stopProfiling();
-  timer.measure_time("CreateMeshBuffered");
-  procesProfilingFile();
-}
-
-BOOST_AUTO_TEST_CASE( CreateMeshRaw )
-{
-  boost::shared_ptr<CMesh> mesh(new CMesh("mesh"));
-  Tests::Timer timer;
-  startProfiling("CreateMeshRaw");
-  create_rectangle(*mesh, 1., 1., 1000, 1000);
-  stopProfiling();
-  timer.measure_time("CreateMeshRaw");
-  procesProfilingFile();
-}
-
-BOOST_AUTO_TEST_CASE( ComputeVolume2DNeu )
-{
-  // Compute the volume of the mesh, by integrating a functor
+  // Read the a .neu mesh as 2D mixed mesh
+  boost::shared_ptr<CMeshReader> meshreader = CMeshReader::create_concrete("Neu","meshreader");
+  boost::filesystem::path fp_in ("quadtriag.neu");
+  boost::shared_ptr<CMesh> mesh2Dneu(new CMesh("mesh2Dneu"));
+  meshreader->read_from_to(fp_in,mesh2Dneu);
   DetJacobianFunctor ftor2Dneu(*(mesh2Dneu->get_component<CArray>("coordinates")));
   Real volume2Dneu = 0.0;
   gaussIntegrate(*mesh2Dneu, ftor2Dneu, volume2Dneu);
   BOOST_CHECK_CLOSE(volume2Dneu, 24., 1e-12);
 }
 
-BOOST_AUTO_TEST_CASE( ComputeVolume2DUnitSquare )
+BOOST_FIXTURE_TEST_CASE( CreateMeshBuffered, IntegrationFixture ) // timed and profiled
+{
+  boost::shared_ptr<CMesh> mesh(new CMesh("mesh"));
+  create_rectangle_buffered(*mesh, 1., 1., 1000, 1000);
+}
+
+BOOST_FIXTURE_TEST_CASE( CreateMeshRaw, IntegrationFixture ) // timed and profiled
 {
   boost::shared_ptr<CMesh> mesh(new CMesh("mesh"));
   create_rectangle(*mesh, 1., 1., 1000, 1000);
+}
 
-  Tests::Timer timer;
-  startProfiling("ComputeVolume2DUnitSquare");
+BOOST_FIXTURE_TEST_CASE( ComputeVolume2DUnitSquare, IntegrationFixture ) // timed and profiled
+{
+  boost::shared_ptr<CMesh> mesh(new CMesh("mesh"));
+  create_rectangle(*mesh, 1., 1., 1000, 1000);
   DetJacobianFunctor ftor2Dbig(*(mesh->get_component<CArray>("coordinates")));
   Real volume2Dbig = 0.0;
   gaussIntegrate(*mesh, ftor2Dbig, volume2Dbig);
   BOOST_CHECK_CLOSE(volume2Dbig, 1., 1e-8);
-  stopProfiling();
-  timer.measure_time("ComputeVolume2DUnitSquare");
-  procesProfilingFile();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -35,7 +35,7 @@
 
 namespace CF {
 namespace Tools {
-namespace Tests {
+namespace Testing {
 
 /// Stores the results of the difference::test() function.
 class Accumulator
@@ -119,7 +119,7 @@ void vector_test(const VectorT& A, const VectorT& B, Accumulator& Result)
   Result.exact(sizeA == sizeB);
 };
 
-} // namespace Tests
+} // namespace Testing
 } // namespace Tools
 } // namespace CF
 
