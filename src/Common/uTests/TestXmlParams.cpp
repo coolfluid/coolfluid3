@@ -41,76 +41,114 @@ BOOST_FIXTURE_TEST_SUITE( XmlParams_TestSuite, XmlParams_Fixture )
 BOOST_AUTO_TEST_CASE( constructors )
 {
   std::string text = (
-      "<MyC>"
-      " <Params>"
-      "  <OptBool>     1  </OptBool>"
-      "  <OptInt>    134  </OptInt>"
-      "  <OptStr>   lolo  </OptStr>"
-      "  <Unused>   popo  </Unused>"
-      "  <VecInt>  2 8 9  </VecInt>"
-      "  <Comp>   CGroup  </Comp>"
-      " </Params>"
-      "</MyC>"
+      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+      "<cfxml version=\"1.0\">"
+      "<signal>"
+      " <params>"
+      "  <bool       key=\"OptBool\">  true </bool>"
+      "  <integer    key=\"OptInt\" > -156 </integer>"
+      "  <integer    key=\"OptUint\" > 134 </integer>"
+      "  <real       key=\"OptReal\" > 6.4564E+5 </real>"
+      "  <string     key=\"OptStr\" > lolo </bool>"
+      "  <component  key=\"OptComp\" >"
+      "   <string    key=\"name\"> MyNewton </string>"
+      "   <string    key=\"atype\"> CIterativeMethod </string>"
+      "   <string    key=\"ctype\"> Newton </string>"
+      "  </component>"
+      " </params>"
+      "</signal>"
+      "</cfxml>"
    );
 
-  boost::shared_ptr<XmlDoc> doc = XmlOps::parse ( text );
+  boost::shared_ptr<XmlDoc> xmldoc = XmlOps::parse ( text );
 
-  BOOST_CHECK_NO_THROW( XmlParams params ( *doc.get() ) );
+  XmlNode* docnode = XmlOps::goto_doc_node(*xmldoc.get());
+  BOOST_CHECK_NO_THROW( XmlParams params ( *docnode->first_node() ) );
 
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( constructor_throws )
+BOOST_AUTO_TEST_CASE( goto_doc_node )
 {
   std::string text = (
-      "<MyC>"
-      " <Lolo>"
-      " </Lolo>"
-      " <Polo>"
-      " </Polo>"
-      "</MyC>"
+      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
    );
 
-  boost::shared_ptr<XmlDoc> doc = XmlOps::parse ( text );
-  BOOST_CHECK_THROW( XmlParams params ( *doc.get() ) , Common::XmlError );
+  boost::shared_ptr<XmlDoc> xmldoc = XmlOps::parse ( text );
+  BOOST_CHECK_THROW(  XmlOps::goto_doc_node(*xmldoc.get()) , Common::XmlError );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( get_value )
+BOOST_AUTO_TEST_CASE( throw_get_param )
 {
   std::string text = (
-      "<Signal>"
-      " <Params>"
-      "  <OptBool>     1  </OptBool>"
-      "  <OptInt>    134  </OptInt>"
-      "  <OptStr>   lolo  </OptStr>"
-      "  <Unused>   popo  </Unused>"
-      "  <VecInt>  2 8 9  </VecInt>"
-      "  <Comp>   CGroup  </Comp>"
-      " </Params>"
-      "</Signal>"
+      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+      "<cfxml version=\"1.0\">"
+      "</cfxml>"
    );
 
-  boost::shared_ptr<XmlDoc> doc = XmlOps::parse ( text );
+  boost::shared_ptr<XmlDoc> xmldoc = XmlOps::parse ( text );
+  XmlNode& nodedoc = *XmlOps::goto_doc_node(*xmldoc.get());
+  XmlParams params ( nodedoc );
 
-  XmlParams params ( *doc.get() );
+  BOOST_CHECK_THROW( params.get_param<int>("noint")  , Common::XmlError );
+}
 
-  BOOST_REQUIRE_EQUAL ( params.get_value<bool>("OptBool") , true );
+/////////////////////////////////////////////////////////////////////////////////////
 
-  BOOST_REQUIRE_EQUAL ( params.get_value<Uint>("OptInt") , 134 );
+BOOST_AUTO_TEST_CASE( get_param )
+{
+  std::string text = (
+      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+      "<cfxml version=\"1.0\">"
+      "<signal>"
+      ""
+      " <params>"
+      ""
+      "  <bool       key=\"OptBool\">  true </bool>"
+      "  <integer    key=\"OptInt\" > -156 </integer>"
+      "  <integer    key=\"OptUint\" > 134 </integer>"
+      "  <real       key=\"OptReal\" > 6.4564E+5 </real>"
+      "  <string     key=\"OptStr\" > lolo </bool>"
+      ""
+      "  <params     key=\"OptComp\" >"
+      "   <string    key=\"name\"> MyNewton </string>"
+      "   <string    key=\"atype\"> CIterativeMethod </string>"
+      "   <string    key=\"ctype\"> Newton </string>"
+      "  </params>"
+      ""
+      " </params>"
+      "</signal>"
+      "</cfxml>"
+   );
 
-  BOOST_REQUIRE_EQUAL ( params.get_value<std::string>("OptStr") , "lolo" );
+  boost::shared_ptr<XmlDoc> xmldoc = XmlOps::parse ( text );
+
+  XmlNode& nodedoc = *XmlOps::goto_doc_node(*xmldoc.get());
+
+  XmlParams params ( *nodedoc.first_node() );
+
+//  XmlOps::print_xml_node(*doc.get());
+
+  BOOST_REQUIRE_EQUAL ( params.get_param<bool>("OptBool") , true );
+
+  BOOST_REQUIRE_EQUAL ( params.get_param<int>("OptInt"), -156 );
+
+  BOOST_REQUIRE_EQUAL ( params.get_param<std::string>("OptStr") , "lolo" );
 
 //  std::vector<Uint> v;
 //  v += 2,8,9;
-//  std::vector<Uint> cv = params.get_value<Uint>("VecInt");
+//  std::vector<Uint> cv = params.get_param<Uint>("VecInt");
 //  BOOST_CHECK_EQUAL_COLLECTIONS( v.begin(), v.end(), cv.begin(), cv.end() );
 
-  BOOST_REQUIRE_EQUAL ( params.get_value<std::string>("Comp") , "CGroup" );
+  /// @todo how to access the nexted params?
+
+//  BOOST_REQUIRE_EQUAL ( params.get_param<std::string>("OptComp") , "CGroup" );
 
 }
+
 /////////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()

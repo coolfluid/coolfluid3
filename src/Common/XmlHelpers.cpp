@@ -1,3 +1,7 @@
+#include <fstream>
+
+#include <rapidxml/rapidxml_print.hpp>
+
 #include "Common/XmlHelpers.hpp"
 #include "Common/Log.hpp"
 
@@ -6,22 +10,55 @@ namespace Common {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-  void XmlOps::print_xml_node( const XmlNode& node )
+  XmlParams::XmlParams( XmlNode& node ) :
+      xmlnode(node),
+      xmldoc(*node.document()),
+      params( node.first_node( tag_params() ) ) // might be NULL
   {
-    CFinfo << "Node \'" << node.name() << "\'";
-    CFinfo << " w value [" << node.value() << "]\n";
+  }
+
+////////////////////////////////////////////////////////////////////////////////
+
+  const char * XmlParams::tag_doc()    { return "cfxml"; }
+
+  const char * XmlParams::tag_params() { return "params"; }
+
+  const char * XmlParams::key()        { return "key"; }
+
+////////////////////////////////////////////////////////////////////////////////
+
+  void XmlOps::write_xml_node ( const XmlNode& node, const boost::filesystem::path& fpath )
+  {
+    std::ofstream fout ( fpath.string().c_str() );
+
+    std::string xml_as_string;
+    //    rapidxml::print(std::back_inserter(xml_as_string), node, rapidxml::print_no_indenting);
+    rapidxml::print(std::back_inserter(xml_as_string), node);
+
+    fout << xml_as_string << std::endl;
+  }
+
+////////////////////////////////////////////////////////////////////////////////
+
+  void XmlOps::print_xml_node( const XmlNode& node, Uint nesting )
+  {
+    std::string nest_str (nesting, '+');
+    CFinfo << nest_str
+        << " Node \'" << node.name() << "\' [" << node.value() << "]\n";
 
     for (XmlAttr *attr = node.first_attribute(); attr ; attr = attr->next_attribute())
     {
-      CFinfo << "  + attribute \'" << attr->name() << "\'' ";
-      CFinfo << "with value [" << attr->value() << "]\n";
+      CFinfo << nest_str
+          << " - attribute \'" << attr->name() << "\' [" << attr->value() << "]\n";
     }
 
     for (XmlNode * itr = node.first_node(); itr ; itr = itr->next_sibling() )
     {
-      print_xml_node(*itr);
+      print_xml_node( *itr, nesting+1 );
     }
   }
+
+////////////////////////////////////////////////////////////////////////////////
 
   void XmlOps::deep_copy ( const XmlNode& in, XmlNode& out )
   {
@@ -73,6 +110,48 @@ namespace Common {
     }
   }
 
+  XmlNode* XmlOps::add_node_to ( XmlNode& node, const std::string& nname,  const std::string& nvalue )
+  {
+    XmlDoc& doc = *node.document();
+    XmlNode* nnode = doc.allocate_node( rapidxml::node_element, doc.allocate_string( nname.c_str()), doc.allocate_string(nvalue.c_str()) );
+    node.append_node(nnode);
+    return nnode;
+  }
+
+  XmlAttr* XmlOps::add_attribute_to ( XmlNode& node, const std::string& atname,  const std::string& atvalue )
+  {
+    XmlDoc& doc = *node.document();
+    XmlAttr* nattr = doc.allocate_attribute( doc.allocate_string(atname.c_str()), doc.allocate_string(atvalue.c_str()) );
+    node.append_attribute(nattr);
+    return nattr;
+  }
+
+////////////////////////////////////////////////////////////////////////////////
+
+  boost::shared_ptr<XmlDoc> XmlOps::create_doc ()
+  {
+    using namespace rapidxml;
+
+    boost::shared_ptr<XmlDoc> xmldoc ( new XmlDoc() );
+    XmlDoc& doc = *xmldoc.get();
+
+    // add declaration node
+    XmlNode& dnode = *doc.allocate_node ( node_declaration );
+    doc.append_node(&dnode);
+    XmlOps::add_attribute_to(dnode, "version",    "1.0");
+    XmlOps::add_attribute_to(dnode, "encoding",   "UTF-8");
+//  XmlOps::add_attribute(*dnode, "standalone",   "yes");
+
+    // add root node
+    XmlNode& root = *XmlOps::add_node_to ( doc, "cfxml" );
+    XmlOps::add_attribute_to ( root, "version", "1.0");
+    XmlOps::add_attribute_to ( root, "type", "message");
+
+    return xmldoc;
+  }
+
+////////////////////////////////////////////////////////////////////////////////
+
   boost::shared_ptr<XmlDoc> XmlOps::parse ( const std::string& str )
   {
     using namespace rapidxml;
@@ -88,6 +167,8 @@ namespace Common {
 
     return xmldoc;
   }
+
+////////////////////////////////////////////////////////////////////////////////
 
   boost::shared_ptr<XmlDoc> XmlOps::parse ( const boost::filesystem::path& path )
   {
@@ -120,21 +201,38 @@ namespace Common {
     return xmldoc;
   }
 
-/////////////////////////////////////////////////////////////////////////////////////
 
-  XmlParams::XmlParams( XmlNode& node ) : xml(node), params(CFNULL)
+  XmlNode* XmlOps::goto_doc_node ( XmlNode& node )
   {
-    // descend into this node
-    XmlNode* in_node = node.first_node();
+    using namespace rapidxml;
 
-    // get the first "Params" node
-    params = in_node->first_node("Params");
+    XmlNode* fnode = &node;
 
-    if ( params == 0 )
-      throw  Common::XmlError( FromHere(), "XML Params node not found" );
+    if ( fnode->type() == node_document )
+    {
+      fnode = fnode->first_node();
+      if ( !fnode )
+        throw  Common::XmlError( FromHere(), "XML document is empty" );
+    }
+
+    if ( fnode->type() == node_declaration )
+    {
+      fnode = fnode->next_sibling();
+      if ( !fnode )
+        throw  Common::XmlError( FromHere(), "No xml nodes after declaration" );
+    }
+
+    // find the first doc node
+    if ( strcmp(fnode->name() , XmlParams::tag_doc()) ) /* are not equal */
+      fnode = fnode->next_sibling( XmlParams::tag_doc() );
+
+    if ( !fnode )
+      throw  Common::XmlError( FromHere(), "No xml doc found" );
+
+    return fnode;
   }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 } // Common
 } // CF

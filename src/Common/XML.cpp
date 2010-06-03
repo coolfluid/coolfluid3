@@ -9,6 +9,23 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+  template<>
+  const char * XmlTag<bool>::str() { return "bool"; }
+
+  template<>
+  const char * XmlTag<int>::str() { return "integer"; };
+
+  template<>
+  const char * XmlTag<CF::Uint>::str() { return "integer"; }
+
+  template<>
+  const char * XmlTag<CF::Real>::str() { return "real"; }
+
+  template<>
+  const char * XmlTag<std::string>::str() { return "string"; }
+
+////////////////////////////////////////////////////////////////////////////////
+
 template <>
     void xmlstr_to_value ( XmlNode& node, bool& val )
 {

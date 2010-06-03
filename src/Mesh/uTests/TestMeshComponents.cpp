@@ -376,7 +376,7 @@ BOOST_AUTO_TEST_CASE( CArrayTemplates )
 BOOST_AUTO_TEST_CASE( moving_mesh_components_around )
 {
   CRoot::Ptr root = CRoot::create ( "root" );
-  CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
+  CMesh::Ptr mesh = root->create_component_type<CMesh>("mesh");
   CRegion::Ptr regions = mesh->create_region("regions");
 
   CRegion::Ptr subregion1 = regions->create_region("subregion1");
@@ -409,7 +409,7 @@ BOOST_AUTO_TEST_CASE( moving_mesh_components_around )
 BOOST_AUTO_TEST_CASE( tags )
 {
   CRoot::Ptr root = CRoot::create ( "root" );
-  CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
+  CMesh::Ptr mesh = root->create_component_type<CMesh>("mesh");
   CRegion::Ptr regions = mesh->create_region("regions");
 
   mesh->add_tag("lolo");

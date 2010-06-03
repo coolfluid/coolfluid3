@@ -148,6 +148,10 @@ add_definitions     ( -DCF_HAVE_CONFIG_H )
 include_directories ( ${coolfluid_BINARY_DIR} )
 add_subdirectory ( config )
 
+# add dir with external kernel dependencies but locally included
+include_directories ( ${coolfluid_SOURCE_DIR}/include )
+add_subdirectory ( include )
+
 # add dir with kernel sources
 include_directories ( ${coolfluid_SOURCE_DIR}/src )
 add_subdirectory ( src )

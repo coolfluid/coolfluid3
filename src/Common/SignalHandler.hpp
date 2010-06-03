@@ -73,13 +73,6 @@ class Common_API SignalHandler
     /// Regist signal
     Signal::Ptr regist_signal ( const Signal::id_t& sname,  const Signal::desc_t& desc );
 
-    /// Adds a dynamic function slot to a signal in itself
-    template < typename FTYPE >
-    Signal::Ptr add_dynamic_function ( const Signal::id_t& sname, FTYPE* pfunc, const Signal::desc_t& desc = "" )
-    {
-        return regist_signal ( sname , desc )->connect ( boost::bind ( pfunc, this, _1 ) );
-    }
-
   protected: // functions
 
     /// Get a signal by providing its name
@@ -94,6 +87,9 @@ class Common_API SignalHandler
     sigmap_t  m_signals;
 
 }; // class SignalHandler
+
+//#define ADD_SIGNAL_SLOT_TO_COMPONENT ( )
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -16,6 +16,10 @@
 #include "Common/BasicExceptions.hpp"
 #include "Common/Log.hpp"
 #include "Common/Component.hpp"
+#include "Common/XmlHelpers.hpp"
+
+#include "Mesh/CMeshReader.hpp"
+
 
 using namespace std;
 using namespace boost;
@@ -55,7 +59,7 @@ class MyC : public ConfigObject {
     options.add< OptionArray< std::string >  >   ( "VecStr",  "vector strs option" , defs );
 
     // option for componets
-     options.add< OptionComponent >     ( "Comp",  "component option" , "CLink" );
+    options.add< OptionComponent<Mesh::CMeshReader> >  ( "Reader",  "mesh reader option" , "CGNS" );
   }
 
   MyC ()
@@ -77,7 +81,7 @@ class MyC : public ConfigObject {
 //    for (Uint i = 0; i < vi.size(); ++i)
 //      CFinfo << "vi[" << i << "] : " << vi[i] << "\n" << CFflush;
 
-    option("Comp")->attach_processor ( boost::bind ( &MyC::config_comp,this ) );
+    option("Reader")->attach_processor ( boost::bind ( &MyC::config_comp,this ) );
   };
 
   void config_bool ()
@@ -108,7 +112,7 @@ class MyC : public ConfigObject {
 
   void config_comp ()
   {
-    std::string n; option("Comp")->put_value(n);
+    std::string n; option("Reader")->put_value(n);
 //    CFinfo << "config COMPONENT [" << n << "]\n" << CFflush;
   }
 
@@ -185,7 +189,10 @@ BOOST_AUTO_TEST_CASE( configure )
   boost::shared_ptr<MyC> pm ( new MyC );
 
   std::string text = (
-      "<MyC>"
+      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+      "<cfxml version=\"1.0\">"
+      "<signal>"
+      " <params>"
       ""
       "<bool       key=\"OptBool\">    1 </bool>"
       "<integer    key=\"OptInt\" > -156 </integer>"
@@ -201,11 +208,11 @@ BOOST_AUTO_TEST_CASE( configure )
       ""
       "<data    key=\"OptData\"  > PEKBpYGlmYFCPA== </data>"
       ""
-      "<Params key=\"OptList\" desc=\"sub set\" mode=\"advanced\" >"
+      "<params key=\"OptList\" desc=\"sub set\" mode=\"advanced\" >"
       "     <integer  key=\"mi\">     2 </integer>"
       "     <real     key=\"mr\">     8 </real>"
       "     <bool     key=\"mb\">     1 </bool>"
-      "</Params>"
+      "</params>"
       ""
       "<array key=\"VecInt\" type=\"integer\" size=\"3\" >"
       "  <e> 2 </e>"
@@ -218,22 +225,22 @@ BOOST_AUTO_TEST_CASE( configure )
       "  <e> ddeeff </e>"
       "</array>"
       ""
-      "<component key=\"OptComp\" >"
+      "<params key=\"OptComp\" >"
       "  <string key=\"name\"> MyNewton </string>"
       "  <string key=\"atype\"> CIterativeMethod </string>"
       "  <string key=\"ctype\"> Newton </string>"
-      "</component>"
+      "</params>"
       ""
-      "</MyC>"
+      " </params>"
+      "</signal>"
+      "</cfxml>"
    );
 
-  xml_document<> doc;    // character type defaults to char
-  char* ctext = doc.allocate_string(text.c_str());
-  doc.parse< parse_no_data_nodes |
-             parse_trim_whitespace |
-             parse_normalize_whitespace >(ctext);
+  boost::shared_ptr<XmlDoc> doc = XmlOps::parse(text);
 
-  pm->configure(*doc.first_node());
+  XmlNode& node = *XmlOps::goto_doc_node(*doc.get());
+
+  pm->configure( node );
 
 //  CFinfo << "ending\n" << CFflush;
 

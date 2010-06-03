@@ -60,12 +60,12 @@ namespace Common {
   OptionT<TYPE>::OptionT ( const std::string& name, const std::string& desc, value_type def ) :
       Option(name,DEMANGLED_TYPEID(value_type), desc, def)
   {
-    CFinfo
-        << " creating OptionT [" << m_name << "]"
-        << " of type [" << m_type << "]"
-        << " w default [" << def_str() << "]"
-        << " w desc [" << m_description << "]\n"
-        << CFendl;
+//    CFinfo
+//        << " creating OptionT [" << m_name << "]"
+//        << " of type [" << m_type << "]"
+//        << " w default [" << def_str() << "]"
+//        << " w desc [" << m_description << "]\n"
+//        << CFendl;
   }
 
   template < typename TYPE>
@@ -85,6 +85,12 @@ namespace Common {
       TYPE* cv = static_cast<TYPE*>(v);
       *cv = val;
     }
+  }
+
+  template < typename TYPE >
+  const char* OptionT<TYPE>::tag () const
+  {
+    return XmlTag<TYPE>::str();
   }
 
 ////////////////////////////////////////////////////////////////////////////////

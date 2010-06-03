@@ -19,11 +19,29 @@ namespace Common {
   /// @author Tiago Quintino
   struct Common_API XmlOps : public NonInstantiable<XmlOps>
   {
+
     /// prints the xml node to screen
-    static void print_xml_node( const XmlNode& node );
+    static void write_xml_node ( const XmlNode& node, const boost::filesystem::path& fpath );
+
+    /// prints the xml node to screen
+    static void print_xml_node ( const XmlNode& node, Uint nesting = 0 );
 
     /// deep copies a node into another with all the memory allocated in the second
     static void deep_copy ( const XmlNode& in, XmlNode& out );
+
+    /// adds a node to the xml node with strings belonging to the xml document
+    static XmlNode* add_node_to ( XmlNode& node, const std::string& nname,  const std::string& nvalue = std::string() );
+
+    /// @returns the first node not part of the xml declaration
+    static XmlNode* goto_doc_node ( XmlNode& node );
+
+    /// adds an attribute to the xml node with strinss belonging to the xml document
+    static XmlAttr* add_attribute_to ( XmlNode& node, const std::string& atname,  const std::string& atvalue );
+
+    /// creates a new XmlDoc
+    /// and initializes the document with Signal and Params nodes
+    /// @param str string with the xml contents
+    static boost::shared_ptr<XmlDoc> create_doc ();
 
     /// parses a xml string
     /// @param str string with the xml contents
@@ -48,6 +66,13 @@ namespace Common {
 
   struct Common_API XmlParams
   {
+    /// the xml tag used for the cfdocument node
+    static const char * tag_doc ();
+    /// the xml tag used for the params node
+    static const char * tag_params ();
+    /// the xml attribute name used for the key
+    static const char * key ();
+
     /// Constructor
     /// @param node the node where the parameters will be extracted from
     /// @throw XmlError when the Params node is not found
@@ -55,24 +80,86 @@ namespace Common {
 
     /// access to the value of one parameter
     template < typename TYPE >
-        TYPE get_value ( const std::string& pname ) const;
+        TYPE get_param ( const std::string& pname ) const;
 
-    /// storage of the XmlNode to retrieve params from
-    XmlNode& xml;
+    /// add a key-value node to the parameters
+    template < typename TYPE >
+        void add_param ( const std::string& key, const TYPE& value );
 
+    /// reference to the XmlNode to retrieve params from
+    XmlNode& xmlnode;
+    /// reference to the XmlDoc to which the node belongs
+    XmlDoc& xmldoc;
     /// pointer to the params node
     XmlNode* params;
 
   }; // XmlParams
 
-  template < typename TYPE >
-      TYPE XmlParams::get_value ( const std::string& pname ) const
-  {
-    XmlNode* node = params->first_node( pname.c_str() );
-    if ( !node )
-      throw  Common::XmlError( FromHere(), "Did not find parameter [" + pname + "]" );
+////////////////////////////////////////////////////////////////////////////////
 
-    return StringOps::from_str< TYPE >( node->value() );
+  template < typename TYPE >
+      TYPE XmlParams::get_param ( const std::string& pname ) const
+  {
+    if ( params == 0 )
+      throw  Common::XmlError( FromHere(), "XML node \'" + std::string(tag_params()) + "\' not found" );
+
+    XmlNode* found_node = 0;
+    const char * nodetype = XmlTag<TYPE>::str();
+
+    // search for the node with correct type
+    XmlNode* node = params->first_node( nodetype );
+    for ( ; node; node = node->next_sibling( nodetype ) )
+    {
+      // search for the attribute with key
+      XmlAttr* att = node->first_attribute( key() );
+      if ( att && !pname.compare(att->value()) )
+      {
+        found_node = node;
+        break;
+      }
+    }
+
+    if ( !found_node )
+      throw  Common::XmlError( FromHere(),
+                               "Did not find node of type [" + std::string(nodetype) + "]"
+                               " with \'key\' attribute  [" + pname + "]" );
+
+    // convert xml value to TYPE
+    TYPE value;
+    xmlstr_to_value (*found_node, value);
+
+    return value;
+  }
+
+////////////////////////////////////////////////////////////////////////////////
+
+  template < typename TYPE >
+      void XmlParams::add_param ( const std::string& key, const TYPE& value )
+  {
+    using namespace rapidxml;
+
+    if ( params == 0 )
+    {
+      params = XmlOps::add_node_to ( xmlnode, XmlParams::tag_params() );
+    }
+
+    // convert TYPE to node name
+    const char* node_name = xmldoc.allocate_string( XmlTag<TYPE>::str() );
+
+    // convert value to string
+    const char* value_str = xmldoc.allocate_string( value_to_xmlstr(value).c_str() );
+
+    // creates the node
+    XmlNode* node = xmldoc.allocate_node ( node_element, node_name, value_str );
+    params->append_node(node);
+
+    // convert key to xml atribute string
+    const char* key_str = xmldoc.allocate_string( "key" );
+    const char* keyvalue_str = xmldoc.allocate_string( key.c_str() );
+
+    // creates the attribute
+    XmlAttr* attr = xmldoc.allocate_attribute( key_str, keyvalue_str );
+    node->append_attribute(attr);
   }
 
 ////////////////////////////////////////////////////////////////////////////////

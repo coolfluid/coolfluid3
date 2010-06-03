@@ -154,7 +154,7 @@ public: // functions
 
   /// Create a (sub)component of this component automatically cast to the specified type
   template < typename T >
-      typename T::Ptr create_component ( const CName& name );
+      typename T::Ptr create_component_type ( const CName& name );
 
   /// Add a (sub)component of this component
   void add_component ( Ptr subcomp );
@@ -225,7 +225,10 @@ protected: // functions
 
 private: // helper functions
 
- /// tags this class with the classname
+  /// regists all the signals declared in this class
+  static void regist_signals ( Component* self );
+
+  /// tags this class with the classname
   template <typename TYPE>
       void tag_classname ();
 
@@ -255,6 +258,7 @@ inline void Component::build_component(TYPE* meself)
 {
   addConfigOptionsTo<TYPE>();
   tag_classname<TYPE>();
+  TYPE::regist_signals(meself);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -307,7 +311,7 @@ inline typename T::Ptr Component::get_component ( const CName& name )
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename T >
-inline typename T::Ptr Component::create_component ( const CName& name )
+inline typename T::Ptr Component::create_component_type ( const CName& name )
 {
   typename T::Ptr new_component ( new T(name), Deleter<T>() );
   add_component(new_component);

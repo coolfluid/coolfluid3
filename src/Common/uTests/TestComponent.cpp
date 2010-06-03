@@ -12,6 +12,7 @@
 #include "Common/CGroup.hpp"
 #include "Common/CLink.hpp"
 #include "Common/DemangledTypeID.hpp"
+#include "Common/XmlHelpers.hpp"
 
 using namespace std;
 using namespace boost;
@@ -274,9 +275,9 @@ BOOST_AUTO_TEST_CASE( problem )
 BOOST_AUTO_TEST_CASE( create_subcomponents )
 {
   CRoot::Ptr root = CRoot::create ( "root" );
-  Component::Ptr comp1 = root->create_component<Component>("comp1");
-  comp1->create_component<Component>("comp1_1");
-  comp1->create_component<Component>("comp1_2");
+  Component::Ptr comp1 = root->create_component_type<Component>("comp1");
+  comp1->create_component_type<Component>("comp1_1");
+  comp1->create_component_type<Component>("comp1_2");
 
   BOOST_CHECK_EQUAL(root->get_component("comp1")->name(),"comp1");
   BOOST_CHECK_EQUAL(comp1->get_component("comp1_1")->name(),"comp1_1");
@@ -290,23 +291,21 @@ BOOST_AUTO_TEST_CASE( test_iterator )
   std::map<Uint,std::string> check_with_map;
   CRoot::Ptr root = CRoot::create ( "root" );
 
-  BOOST_CHECK_EQUAL(root->begin() == root->end(), true);
-
-  Component::Ptr comp1 = root->create_component<Component>("comp1");
+  Component::Ptr comp1 = root->create_component_type<Component>("comp1");
   check_with_map[counter++]=comp1->name();
-  Component::Ptr comp1_1 = comp1->create_component<Component>("comp1_1");
+  Component::Ptr comp1_1 = comp1->create_component_type<Component>("comp1_1");
   check_with_map[counter++]=comp1_1->name();
-  Component::Ptr comp1_2 = comp1->create_component<Component>("comp1_2");
+  Component::Ptr comp1_2 = comp1->create_component_type<Component>("comp1_2");
   check_with_map[counter++]=comp1_2->name();
-  Component::Ptr comp2   = root->create_component<Component>("comp2");
+  Component::Ptr comp2   = root->create_component_type<Component>("comp2");
   check_with_map[counter++]=comp2->name();
-  Component::Ptr comp2_1 = comp2->create_component<Component>("comp2_1");
+  Component::Ptr comp2_1 = comp2->create_component_type<Component>("comp2_1");
   check_with_map[counter++]=comp2_1->name();
-  Component::Ptr comp2_2 = comp2->create_component<Component>("comp2_2");
+  Component::Ptr comp2_2 = comp2->create_component_type<Component>("comp2_2");
   check_with_map[counter++]=comp2_2->name();
-  CGroup::Ptr group1 = root->create_component<CGroup>("group1");
+  CGroup::Ptr group1 = root->create_component_type<CGroup>("group1");
   check_with_map[counter++]=group1->name();
-  CGroup::Ptr group2 = root->create_component<CGroup>("group2");
+  CGroup::Ptr group2 = root->create_component_type<CGroup>("group2");
   check_with_map[counter++]=group2->name();
 
   counter = 0;
@@ -339,21 +338,21 @@ BOOST_AUTO_TEST_CASE( test_filter_iterator )
   std::map<Uint,std::string> check_with_map;
   CRoot::Ptr root = CRoot::create ( "root" );
 
-  Component::Ptr comp1 = root->create_component<Component>("comp1");
+  Component::Ptr comp1 = root->create_component_type<Component>("comp1");
   check_with_map[counter++]=comp1->name();
-  Component::Ptr comp1_1 = comp1->create_component<Component>("comp1_1");
+  Component::Ptr comp1_1 = comp1->create_component_type<Component>("comp1_1");
   check_with_map[counter++]=comp1_1->name();
-  Component::Ptr comp1_2 = comp1->create_component<Component>("comp1_2");
+  Component::Ptr comp1_2 = comp1->create_component_type<Component>("comp1_2");
   check_with_map[counter++]=comp1_2->name();
-  Component::Ptr comp2   = root->create_component<Component>("comp2");
+  Component::Ptr comp2   = root->create_component_type<Component>("comp2");
   check_with_map[counter++]=comp2->name();
-  Component::Ptr comp2_1 = comp2->create_component<Component>("comp2_1");
+  Component::Ptr comp2_1 = comp2->create_component_type<Component>("comp2_1");
   check_with_map[counter++]=comp2_1->name();
-  Component::Ptr comp2_2 = comp2->create_component<Component>("comp2_2");
+  Component::Ptr comp2_2 = comp2->create_component_type<Component>("comp2_2");
   check_with_map[counter++]=comp2_2->name();
-  CGroup::Ptr group1 = root->create_component<CGroup>("group1");
+  CGroup::Ptr group1 = root->create_component_type<CGroup>("group1");
   check_with_map[counter++]=group1->name();
-  CGroup::Ptr group2 = root->create_component<CGroup>("group2");
+  CGroup::Ptr group2 = root->create_component_type<CGroup>("group2");
   check_with_map[counter++]=group2->name();
 
   Component::Ptr all = root;
@@ -428,19 +427,41 @@ BOOST_AUTO_TEST_CASE( test_filter_iterator )
 //  BOOST_CHECK_EQUAL(counter,(Uint) 8);
 
   CGroup::Ptr groups(new CGroup("groups"));
-  groups->create_component<CGroup>("group1");
-  groups->create_component<CGroup>("group2");
+  groups->create_component_type<CGroup>("group1");
+  groups->create_component_type<CGroup>("group2");
 
 //  BOOST_FOREACH(CGroup& group, make_component_range_of_type<CGroup>(groups))
 //      std::cout<< group.name() << std::endl;
 
 //  check_with_map[counter++]=group1->name();
-//  CGroup::Ptr group2 = root->create_component<CGroup>("group2");
+//  CGroup::Ptr group2 = root->create_component_type<CGroup>("group2");
 //  check_with_map[counter++]=group2->name();
 
   // Check that the end iterator matches that of the recursive helper
   Component_iterator<CGroup> all_it = all->end<CGroup>();
   BOOST_CHECK_EQUAL(iterate_recursive_by_type<CGroup>(*all).end() == all_it, true); // no << for iterators
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( create_component_signal )
+{
+  CRoot::Ptr root = CRoot::create ( "croot" );
+
+  boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc ();
+
+
+  XmlNode& node = *XmlOps::goto_doc_node( *doc.get() );
+
+  XmlParams params ( node );
+
+  params.add_param<std::string>( "name",  "MyMesh" );
+  params.add_param<std::string>( "atype", "CMeshReader" );
+  params.add_param<std::string>( "ctype", "CGNS" );
+
+//  XmlOps::print_xml_node( *doc.get() );
+//  XmlOps::write_xml_node( *doc.get(),  "test.xml" );
 
 }
 

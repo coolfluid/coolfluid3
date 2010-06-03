@@ -107,6 +107,7 @@ Factory<BASE>::Factory()
 template <class BASE>
 Factory<BASE>::~Factory()
 {
+//  Common::CoreEnv::getInstance().getFactoryRegistry()->unregist( getTypeName() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -121,7 +122,6 @@ void Factory<BASE>::regist(Provider<BASE>* provider)
       "] a provider with the name [" + provider->getName() +
       "] was found when trying to regist it" );
   }
-  CFtrace << "Registering provider [" << provider->getName() << "] in factory of [" << BASE::getClassName() << "]\n" << CFflush;
   getProviderMap()[provider->getName()] = provider;
 }
 

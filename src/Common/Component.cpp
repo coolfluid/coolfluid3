@@ -27,8 +27,10 @@ Component::Component ( const CName& name ) :
     m_tags(":") // empty tags
 {
   build_component(this);
+
   if (!CPath::is_valid_element( name ))
     throw InvalidPath(FromHere(), "Component name ["+name+"] is invalid");
+
   m_name = name;
 }
 
@@ -316,6 +318,17 @@ Component::Ptr Component::look_component ( const CPath& path )
       boost::dynamic_pointer_cast<CRoot>( m_root.lock() );
 
   return root->access_component(lpath);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+void Component::regist_signals ( Component* self  )
+{
+  self->regist_signal ( "create_component" , "creates a component" )->connect ( boost::bind ( &Component::create_component, self, _1 ) );
+
+  self->regist_signal ( "list_tree" , "lists the component tree inside this component" )->connect ( boost::bind ( &Component::list_tree, self, _1 ) );
+
+  self->regist_signal ( "list_options" , "lists the options of this component" )->connect ( boost::bind ( &Component::list_options, self, _1 ) );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

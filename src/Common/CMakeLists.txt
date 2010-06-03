@@ -84,10 +84,8 @@ LIST ( APPEND Common_files
     Option.hpp
     Option.cpp
     OptionT.hpp
-    OptionT.cpp
     OptionArray.hpp
     OptionComponent.hpp
-    OptionComponent.cpp
     ConfigObject.hpp
     ConfigObject.cpp
     OSystem.cpp

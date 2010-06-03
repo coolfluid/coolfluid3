@@ -3,7 +3,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <boost/property_tree/detail/rapidxml.hpp>
+#include <rapidxml/rapidxml.hpp>
 
 #include "Common/CF.hpp"
 
@@ -28,6 +28,13 @@ namespace Common {
   /// converts the value inside the xml node to the type
   template < typename TYPE>
     std::string value_to_xmlstr ( const TYPE& val );
+
+  /// Converts a type to an Xml tag
+  template < typename TYPE > struct XmlTag
+  {
+    /// returns a string with the xmltag corresponding to this type
+    static const char* str ();
+  };
 
 ////////////////////////////////////////////////////////////////////////////////
 
