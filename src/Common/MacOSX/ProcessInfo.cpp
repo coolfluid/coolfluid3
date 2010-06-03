@@ -1,3 +1,8 @@
+#include <cstdio>        // for printf()
+#include <cstdlib>       // for free() and abort()
+#include <csignal>       // POSIX signal(), SIGFPE and SIGSEGV
+#include <fenv.h>        // floating environment access
+#include <sstream>       // streamstring
 #include <execinfo.h>    // for backtrace() from glibc
 #include <sys/types.h>   // for getting the PID of the process
 
@@ -5,8 +10,9 @@
 #include <mach/mach_init.h>
 #include <mach/task.h>
 
-#include "Common/MacOSX/ProcessInfo.hpp"
+#include "Common/BasicExceptions.hpp"
 #include "Common/CommonAPI.hpp"
+#include "Common/MacOSX/ProcessInfo.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -18,19 +24,19 @@ namespace CF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ProcessInfo::ProcessInfo()
+OSystemLayer::OSystemLayer()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ProcessInfo::~ProcessInfo()
+OSystemLayer::~OSystemLayer()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string ProcessInfo::getBackTrace () const
+std::string OSystemLayer::getBackTrace () const
 {
   printf ("getBackTrace ...\n");
   return dumpBackTrace ();
@@ -38,7 +44,7 @@ std::string ProcessInfo::getBackTrace () const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string ProcessInfo::dumpBackTrace ()
+std::string OSystemLayer::dumpBackTrace ()
 {
   #define BUFFER_SIZE 500
 
@@ -71,7 +77,7 @@ std::string ProcessInfo::dumpBackTrace ()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Uint ProcessInfo::getPID() const
+Uint OSystemLayer::getPID() const
 {
   pid_t pid = getpid();
   return static_cast<Uint> ( pid );
@@ -79,7 +85,7 @@ Uint ProcessInfo::getPID() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-double ProcessInfo::memoryUsageBytes() const
+double OSystemLayer::memoryUsageBytes() const
 {
 
   struct task_basic_info t_info;
@@ -95,6 +101,93 @@ double ProcessInfo::memoryUsageBytes() const
   // virtual size is in t_info.virtual_size;
 
   return static_cast<double>(t_info.resident_size);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+/// Following functions are required since they are not available for Mac OSX
+/// This only works for intel architecture
+/// http://www-personal.umich.edu/~williams/archive/computation/fe-handling-example.c
+
+#if 0 // not used for the moment
+static int
+fegetexcept (void)
+{
+  static fenv_t fenv;
+
+  return fegetenv (&fenv) ? -1 : (fenv.__control & FE_ALL_EXCEPT);
+}
+#endif
+
+static int
+feenableexcept (unsigned int excepts)
+{
+  static fenv_t fenv;
+  unsigned int new_excepts = excepts & FE_ALL_EXCEPT,
+               old_excepts;  // previous masks
+
+  if ( fegetenv (&fenv) ) return -1;
+  old_excepts = fenv.__control & FE_ALL_EXCEPT;
+
+  // unmask
+  fenv.__control &= ~new_excepts;
+  fenv.__mxcsr   &= ~(new_excepts << 7);
+
+  return ( fesetenv (&fenv) ? -1 : old_excepts );
+}
+
+#if 0 // not used for the moment
+static int
+fedisableexcept (unsigned int excepts)
+{
+  static fenv_t fenv;
+  unsigned int new_excepts = excepts & FE_ALL_EXCEPT,
+               old_excepts;  // all previous masks
+
+  if ( fegetenv (&fenv) ) return -1;
+  old_excepts = fenv.__control & FE_ALL_EXCEPT;
+
+  // mask
+  fenv.__control |= new_excepts;
+  fenv.__mxcsr   |= new_excepts << 7;
+
+  return ( fesetenv (&fenv) ? -1 : old_excepts );
+}
+#endif
+
+////////////////////////////////////////////////////////////////////////////////
+
+void OSystemLayer::registOSystemLayers()
+{
+  // register handler functions for the signals
+  signal(SIGFPE,    (sighandler_t) MacOSX::OSystemLayer::handleSIGFPE);
+  signal(SIGSEGV,   (sighandler_t) MacOSX::OSystemLayer::handleSIGSEGV);
+
+  // enable the exceptions that will raise the SIGFPE signal
+  feenableexcept ( FE_DIVBYZERO );
+  feenableexcept ( FE_INVALID   );
+  feenableexcept ( FE_OVERFLOW  );
+  feenableexcept ( FE_UNDERFLOW );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+int OSystemLayer::handleSIGFPE (int signal)
+{
+  printf("\nreceived signal SIGFPE [%d] - 'Floating Point Exception'\n",signal);
+  static std::string dump = MacOSX::ProcessInfo::dumpBackTrace();
+  printf( "%s\n", dump.c_str() );
+  throw Common::FloatingPointError (FromHere(), "Some floating point operation has given an invalid result");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+int OSystemLayer::handleSIGSEGV(int signal)
+{
+  printf("\nreceived signal SIGSEGV [%d] - 'Segmentation violation'\n",signal);
+  static std::string dump = MacOSX::ProcessInfo::dumpBackTrace();
+  printf( "%s\n", dump.c_str() );
+  abort();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

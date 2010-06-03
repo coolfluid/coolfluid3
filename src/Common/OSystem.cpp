@@ -42,7 +42,7 @@ OSystemError::OSystemError ( const Common::CodeLocation& where, const std::strin
 ////////////////////////////////////////////////////////////////////////////////
 
 OSystem::OSystem() :
-  m_process_info (CFNULL),
+  m_system_layer (CFNULL),
   m_sig_handler(CFNULL),
   m_lib_loader(CFNULL)
 {
@@ -52,16 +52,13 @@ OSystem::OSystem() :
 #endif
 
 #ifdef CF_OS_LINUX
-    if ( m_process_info == CFNULL ) m_process_info = new Linux::ProcessInfo();
-    if ( m_sig_handler == CFNULL )  m_sig_handler  = new Linux::SignalHandler();
+    if ( m_system_layer == CFNULL ) m_system_layer = new Linux::ProcessInfo();
 #else
 #ifdef CF_OS_MACOSX
-    if ( m_process_info == CFNULL ) m_process_info = new MacOSX::ProcessInfo();
-    if ( m_sig_handler == CFNULL )  m_sig_handler  = new MacOSX::SignalHandler();
+    if ( m_system_layer == CFNULL ) m_system_layer = new MacOSX::ProcessInfo();
 #else
 #ifdef CF_OS_WINDOWS
-    if ( m_process_info == CFNULL ) m_process_info = new Win32::ProcessInfo();
-    if ( m_sig_handler == CFNULL )  m_sig_handler  = new Win32::SignalHandler();
+    if ( m_system_layer == CFNULL ) m_system_layer = new Win32::ProcessInfo();
     if ( m_lib_loader == CFNULL )   m_lib_loader   = new Win32::LibLoader();
 #else
   #error "Unkown operating system: not Windows, MacOSX or Linux"
@@ -69,7 +66,7 @@ OSystem::OSystem() :
 #endif
 #endif
 
-    cf_assert ( m_process_info != CFNULL);
+    cf_assert ( m_system_layer != CFNULL);
     cf_assert ( m_sig_handler  != CFNULL);
     cf_assert ( m_lib_loader   != CFNULL);
 
@@ -79,8 +76,7 @@ OSystem::OSystem() :
 
 OSystem::~OSystem()
 {
-  delete_ptr (m_process_info);
-  delete_ptr (m_sig_handler);
+  delete_ptr (m_system_layer);
   delete_ptr (m_lib_loader);
 }
 
@@ -88,27 +84,20 @@ OSystem::~OSystem()
 
 OSystem& OSystem::getInstance()
 {
-  static OSystem osystem;
-  return osystem;
+  static OSystem osys;
+  return osys;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SafePtr<ProcessInfo> OSystem::getProcessInfo()
+SafePtr<OSystemLayer> OSystem::OSystemLayer()
 {
-  return m_process_info;
+  return m_system_layer;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SafePtr<SignalHandler> OSystem::getSignalHandler()
-{
-  return m_sig_handler;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-SafePtr<LibLoader> OSystem::getLibLoader()
+SafePtr<LibLoader> OSystem::LibLoader()
 {
   return m_lib_loader;
 }

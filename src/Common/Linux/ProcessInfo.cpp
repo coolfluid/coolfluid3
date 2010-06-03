@@ -1,17 +1,18 @@
-#include <execinfo.h>    // for backtrace() from glibc
-#include <sys/types.h>   // for getting the PID of the process
-
 #ifdef CF_HAVE_UNISTD_H
   #include <unistd.h>
 #endif
 
+#include <cstdio>        // for printf()
+#include <cstdlib>       // for free() and abort()
+#include <csignal>       // POSIX signal(), SIGFPE and SIGSEGV
+#include <fenv.h>        // floating Common access
+#include <sstream>       // streamstring
+#include <execinfo.h>    // for backtrace() from glibc
+#include <sys/types.h>   // for getting the PID of the process
 #include <malloc.h>      //  for mallinfo
 
-#include <cstdio>
-#include <sstream>       // streamstring
-#include <cstdlib>       // for free() and abort()
-
-#include "Common/Linux/ProcessInfo.hpp"
+#include "Common/BasicExceptions.hpp"
+#include "Common/Linux/OSystemLayer.hpp"
 #include "Common/Log.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -24,26 +25,26 @@ namespace Linux {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ProcessInfo::ProcessInfo()
+OSystemLayer::OSystemLayer()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ProcessInfo::~ProcessInfo()
+OSystemLayer::~OSystemLayer()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string ProcessInfo::getBackTrace () const
+std::string OSystemLayer::getBackTrace () const
 {
   return dumpBacktrace ();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string ProcessInfo::dumpBacktrace ()
+std::string OSystemLayer::dumpBacktrace ()
 {
 #define CF_BUFFER_SIZE 256
 
@@ -71,7 +72,7 @@ std::string ProcessInfo::dumpBacktrace ()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Uint ProcessInfo::getPID() const
+Uint OSystemLayer::getPID() const
 {
   pid_t pid = getpid();
   return static_cast<Uint> ( pid );
@@ -79,7 +80,7 @@ Uint ProcessInfo::getPID() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-double ProcessInfo::memoryUsageBytes() const
+double OSystemLayer::memoryUsageBytes() const
 {
   struct mallinfo info;
 
@@ -126,6 +127,41 @@ double ProcessInfo::memoryUsageBytes() const
 
   return static_cast<double>(info.arena) +
          static_cast<double>(info.hblkhd);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void OSystemLayer::registOSystemLayers()
+{
+  // register handler functions for the signals
+  signal(SIGFPE,    (sighandler_t) Linux::OSystemLayer::handleSIGFPE);
+  signal(SIGSEGV,   (sighandler_t) Linux::OSystemLayer::handleSIGSEGV);
+
+  // enable the exceptions that will raise the SIGFPE signal
+  feenableexcept ( FE_DIVBYZERO );
+  feenableexcept ( FE_INVALID   );
+  feenableexcept ( FE_OVERFLOW  );
+  feenableexcept ( FE_UNDERFLOW );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+int OSystemLayer::handleSIGFPE (int signal)
+{
+  printf("\nreceived signal SIGFPE [%d] - 'Floating Point Exception'\n",signal);
+  static std::string dump = Linux::OSystemLayer::dumpBacktrace();
+  printf( "%s\n", dump.c_str() );
+  throw Common::FloatingPointError (FromHere(), "Some floating point operation has given an invalid result");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+int OSystemLayer::handleSIGSEGV(int signal)
+{
+  printf("\nreceived signal SIGSEGV [%d] - 'Segmentation violation'\n",signal);
+  static std::string dump = Linux::OSystemLayer::dumpBacktrace();
+  printf( "%s\n", dump.c_str() );
+  abort();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

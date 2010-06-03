@@ -15,15 +15,18 @@ namespace CF {
 
 /// This class represents the current information on the memory usage.
 /// @author Tiago Quintino
-class Common_API ProcessInfo : public boost::noncopyable {
+class Common_API OSystemLayer : public boost::noncopyable {
 
 public: // functions
 
+  /// signal function type
+  typedef void (*sighandler_t)(int);
+
   /// Constructor without arguments
-  ProcessInfo();
+  OSystemLayer();
 
   /// Destructor
-  virtual ~ProcessInfo();
+  virtual ~OSystemLayer();
 
   /// @returns string with platform name
   virtual std::string getPlatformName () const = 0;
@@ -37,6 +40,9 @@ public: // functions
   /// @return a integer witht he current process ID
   virtual CF::Uint getPID () const = 0;
 
+  /// Regists the signal handlers that will be handled by this class
+  virtual void registSignalHandlers() = 0;
+
   /// Gets the memory usage
   /// @return a double with the memory usage in bytes
   virtual CF::Real memoryUsageBytes () const = 0;
@@ -48,7 +54,7 @@ public: // functions
   std::string memoryUsage () const;
 
   /// Gets the Class name
-  static std::string getClassName() { return "ProcessInfo"; }
+  static std::string getClassName() { return "OSystemLayer"; }
 
 }; // end of class ProcessInfo
 

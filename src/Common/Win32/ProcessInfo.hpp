@@ -1,14 +1,14 @@
-#ifndef CF_Common_Win32_ProcessInfo_hpp
-#define CF_Common_Win32_ProcessInfo_hpp
+#ifndef CF_Common_Win32_OSystemLayer_hpp
+#define CF_Common_Win32_OSystemLayer_hpp
 
-/////////////////////////////////ProcessInfo/////////////////////////////////////////////
+/////////////////////////////////OSystemLayer///////////////////////////////////
 
-#include "Common/ProcessInfo.hpp"
+#include "Common/OSystemLayer.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-  namespace Common {
+namespace Common {
 namespace Win32 {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -16,15 +16,15 @@ namespace Win32 {
 /// This class represents the current information on the memory usage.
 /// Is is an implementation for the Win32 operating system
 /// @author Tiago Quintino
-class Common_API ProcessInfo : public Common::ProcessInfo {
+class Common_API OSystemLayer : public Common::OSystemLayer {
 
 public:
 
   /// Constructor without arguments
-  ProcessInfo();
+  OSystemLayer();
 
   /// Destructor
-  virtual ~ProcessInfo();
+  virtual ~OSystemLayer();
 
   /// @returns string with platform name
   virtual std::string getPlatformName () const { return "Win32"; };
@@ -41,7 +41,10 @@ public:
   /// @return a double with the memory usage
   virtual double memoryUsageBytes() const;
 
-}; // end of class ProcessInfo
+  /// Regists the signal handlers that will be handled by this class
+  virtual void registSignalHandlers();
+
+}; // end of class OSystemLayer
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -51,4 +54,4 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_Win32_ProcessInfo_hpp
+#endif // CF_Common_Win32_OSystemLayer_hpp

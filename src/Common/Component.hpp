@@ -12,7 +12,7 @@
 #include <boost/enable_shared_from_this.hpp>
 
 #include "Common/ConfigObject.hpp"
-#include "Common/DynamicObject.hpp"
+#include "Common/SignalHandler.hpp"
 #include "Common/CPath.hpp"
 #include "Common/ConcreteProvider.hpp"
 #include "Common/ComponentIterator.hpp"
@@ -28,11 +28,12 @@ namespace Common {
 /// @author Willem Deconinck
 /// @todo add ownership of (sub) components
 
-class Common_API Component :
-    public boost::enable_shared_from_this<Component>,
-    public ConfigObject,
-    public DynamicObject,
-    boost::noncopyable {
+class Common_API Component
+  :
+  public boost::enable_shared_from_this<Component>,
+  public ConfigObject,
+  public SignalHandler,
+  public boost::noncopyable {
 
 public: // typedef
 

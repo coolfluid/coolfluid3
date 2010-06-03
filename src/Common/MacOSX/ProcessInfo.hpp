@@ -16,7 +16,7 @@ namespace CF {
 /// This class represents the current information on the memory usage.
 /// Is is an implementation for the MacOSX operating system
 /// @author Tiago Quintino
-class Common_API ProcessInfo : public Common::ProcessInfo {
+class Common_API ProcessInfo : public Common::OSystemLayer {
 
 public:
 
@@ -27,7 +27,7 @@ public:
   virtual ~ProcessInfo();
 
   /// @returns string with platform name
-  virtual std::string getPlatformName () const { return "MacOSX"; };
+  virtual std::string getPlatformName () const { return "MacOSX"; }
 
   /// Dump backtrace
   static std::string dumpBackTrace ();
@@ -42,6 +42,17 @@ public:
   /// Gets the memory usage
   /// @return a double with the memory usage
   virtual double memoryUsageBytes() const;
+
+  /// Regists the signal handlers that will be handled by this class
+  virtual void registSignalHandlers();
+
+protected:
+
+  /// SIGFPE signal handler
+  static int handleSIGFPE(int signal);
+
+  /// SIGSEGV signal handler
+  static int handleSIGSEGV(int signal);
 
 }; // end of class ProcessInfo
 

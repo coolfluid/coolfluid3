@@ -10,16 +10,13 @@
 namespace CF {
   namespace Common {
 
-  class ProcessInfo;
-  class SignalHandler;
+  class OSystemLayer;
   class LibLoader;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 class Common_API OSystemError : public Common::Exception {
-
 public:
-
   /// Constructor
   OSystemError ( const Common::CodeLocation& where, const std::string& what);
 }; // end class OSystem
@@ -36,13 +33,10 @@ public: // methods
   static OSystem& getInstance();
 
   /// @return ProcessInfo object
-  Common::SafePtr<Common::ProcessInfo> getProcessInfo();
-
-  /// @return SignalHandler object
-  Common::SafePtr<Common::SignalHandler> getSignalHandler();
+  Common::SafePtr<Common::OSystemLayer> OSystemLayer();
 
   /// @return LibLoader object
-  Common::SafePtr<Common::LibLoader> getLibLoader();
+  Common::SafePtr<Common::LibLoader> LibLoader();
 
   /// Executes the command passed in the string
   /// @todo should return the output of the command but not yet implemented.
@@ -58,9 +52,7 @@ private: // functions
 private: // data
 
   /// memory usage object
-  Common::ProcessInfo * m_process_info;
-  /// signal handler object
-  Common::SignalHandler * m_sig_handler;
+  Common::OSystemLayer * m_system_layer;
   /// libloader object
   Common::LibLoader * m_lib_loader;
 

@@ -1,9 +1,9 @@
-#ifndef CF_Common_Linux_ProcessInfo_hpp
-#define CF_Common_Linux_ProcessInfo_hpp
+#ifndef CF_Common_Linux_OSystemLayer_hpp
+#define CF_Common_Linux_OSystemLayer_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/ProcessInfo.hpp"
+#include "Common/OSystemLayer.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,15 +16,15 @@ namespace Linux {
 /// This class represents the current information on the memory usage.
 /// Is is an implementation for the Linux operating system
 /// @author Tiago Quintino
-class Common_API ProcessInfo :  public Common::ProcessInfo {
+class Common_API OSystemLayer :  public Common::OSystemLayer {
 
 public:
 
   /// Constructor without arguments
-  ProcessInfo();
+  OSystemLayer();
 
   /// Destructor
-  virtual ~ProcessInfo();
+  virtual ~OSystemLayer();
 
   /// @returns string with platform name
   virtual std::string getPlatformName () const { return "Linux"; };
@@ -44,7 +44,18 @@ public:
   /// @return a double with the memory usage
   virtual double memoryUsageBytes() const;
 
-}; // end of class ProcessInfo
+  /// Regists the signal handlers that will be handled by this class
+  virtual void registSignalHandlers();
+
+protected: // methods
+
+  /// SIGFPE signal handler
+  static int handleSIGFPE(int signal);
+
+  /// SIGSEGV signal handler
+  static int handleSIGSEGV(int signal);
+
+}; // end of class OSystemLayer
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -54,4 +65,4 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_Linux_ProcessInfo_hpp
+#endif // CF_Common_Linux_OSystemLayer_hpp

@@ -100,8 +100,8 @@ LIST ( APPEND Common_files
     OSystem.cpp
     OSystem.hpp
     OwnedObject.hpp
-    ProcessInfo.cpp
-    ProcessInfo.hpp
+    OSystemLayer.cpp
+    OSystemLayer.hpp
     Provider.hpp
     ProviderBase.cpp
     ProviderBase.hpp
@@ -161,13 +161,11 @@ IF (UNIX)
   ENDIF()
 
   IF    ( CF_OS_MACOSX )
-    LIST ( APPEND Common_files MacOSX/SignalHandler.hpp MacOSX/SignalHandler.cpp )
-    LIST ( APPEND Common_files MacOSX/ProcessInfo.hpp   MacOSX/ProcessInfo.cpp )
+    LIST ( APPEND Common_files MacOSX/OSystemLayer.hpp   MacOSX/OSystemLayer.cpp )
   ENDIF ()
 
   IF    ( CF_OS_LINUX )
-    LIST ( APPEND Common_files Linux/ProcessInfo.hpp   Linux/ProcessInfo.cpp )
-    LIST ( APPEND Common_files Linux/SignalHandler.hpp Linux/SignalHandler.cpp )
+    LIST ( APPEND Common_files Linux/OSystemLayer.hpp   Linux/OSystemLayer.cpp )
   ENDIF ()
 
 ENDIF(UNIX)
@@ -175,13 +173,12 @@ ENDIF(UNIX)
 ### WINDOWS ####
 IF (WIN32)
 
-  LIST ( APPEND Common_files Win32/ProcessInfo.hpp   Win32/ProcessInfo.cpp )
-  LIST ( APPEND Common_files Win32/SignalHandler.hpp Win32/SignalHandler.cpp )
+  LIST ( APPEND Common_files Win32/OSystemLayer.hpp   Win32/OSystemLayer.cpp )
 
   # should search explicitly for dbghelp.dll
   # should search for psapi.dll if not in windows 7 (already in kernel32.dll)
 
-  # libraries for ProcessInfoWin32
+  # libraries for OSystemLayerWin32
   LIST ( APPEND Common_libs dbghelp psapi )
 
   IF ( CF_HAVE_WINDOWSH )
@@ -198,10 +195,10 @@ ENDIF()
 CF_MARK_NOT_ORPHAN (
 PosixDlopenLibLoader.hpp PosixDlopenLibLoader.cpp
 MacOSX/SignalHandler.hpp MacOSX/SignalHandler.cpp
-MacOSX/ProcessInfo.hpp   MacOSX/ProcessInfo.cpp
-Linux/ProcessInfo.hpp    Linux/ProcessInfo.cpp
+MacOSX/OSystemLayer.hpp   MacOSX/OSystemLayer.cpp
+Linux/OSystemLayer.hpp    Linux/OSystemLayer.cpp
 Linux/SignalHandler.hpp  Linux/SignalHandler.cpp
-Win32/ProcessInfo.hpp    Win32/ProcessInfo.cpp
+Win32/OSystemLayer.hpp    Win32/OSystemLayer.cpp
 Win32/SignalHandler.hpp  Win32/SignalHandler.cpp
 Win32/LibLoader.hpp      Win32/LibLoader.cpp
 MemoryAllocatorMMap.hpp  MemoryAllocatorMMap.cpp

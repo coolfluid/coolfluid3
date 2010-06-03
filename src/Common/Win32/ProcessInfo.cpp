@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "Common/Win32/ProcessInfo.hpp"
+#include "Common/Win32/OSystemLayer.hpp"
 #include "Common/CommonAPI.hpp"
 
 #include <windows.h> // for CaptureStackBacktrace
@@ -242,19 +242,19 @@ namespace Win32 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ProcessInfo::ProcessInfo()
+OSystemLayer::OSystemLayer()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ProcessInfo::~ProcessInfo()
+OSystemLayer::~OSystemLayer()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string ProcessInfo::getBackTrace () const
+std::string OSystemLayer::getBackTrace () const
 {
   printf ("\n\nWin32 dumping backtrace ...\n");
 
@@ -311,14 +311,14 @@ void *array[max_callers];
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Uint ProcessInfo::getPID () const
+Uint OSystemLayer::getPID () const
 {
   return (Uint) GetCurrentProcessId();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-double ProcessInfo::memoryUsageBytes () const
+double OSystemLayer::memoryUsageBytes () const
 {
   double return_value = 0.;
 
@@ -352,7 +352,14 @@ double ProcessInfo::memoryUsageBytes () const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+void OSystemLayer::registOSystemLayers()
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // Win32
-  } // namespace Common
+} // namespace Common
 } // namespace CF
 
