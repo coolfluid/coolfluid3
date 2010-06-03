@@ -195,6 +195,17 @@ struct XmlError: public Common::Exception {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+///  Exception thrown when the components are structured in an invalid way
+/// @author Tiago Quintino
+struct InvalidStructure: public Common::Exception {
+
+  /// Constructor
+  InvalidStructure( const Common::CodeLocation& where, const std::string& what);
+
+}; //  InvalidStructure
+
+////////////////////////////////////////////////////////////////////////////////
+
 /// This exception is thrown by the builder parser on any error
 /// @author Quentin Gasper
 struct Common_API BuilderParserError : public Common::Exception {

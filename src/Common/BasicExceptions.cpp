@@ -105,6 +105,12 @@ XmlError::XmlError ( const Common::CodeLocation& where, const std::string& what)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+InvalidStructure::InvalidStructure ( const Common::CodeLocation& where, const std::string& what)
+: Common::Exception(where, what, "InvalidStructure")
+{}
+
+////////////////////////////////////////////////////////////////////////////////
+
 BuilderParserError::BuilderParserError(const CodeLocation& where, const string& what)
 : Exception(where, what,"BuilderParser")
 {}

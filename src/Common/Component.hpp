@@ -152,6 +152,12 @@ public: // functions
   /// Construct the full path
   CPath full_path () const { return m_path / m_name; }
 
+  /// Create a (sub)component of a given abstract type specified type
+  /// @param provider_name the registry string of the provider of the concrete type
+  /// @name name to give to the created omponent
+  template < typename ATYPE >
+      typename ATYPE::Ptr create_concrete_abstract_type ( const std::string& provider_name, const CName& name );
+
   /// Create a (sub)component of this component automatically cast to the specified type
   template < typename T >
       typename T::Ptr create_component_type ( const CName& name );
@@ -285,18 +291,36 @@ inline std::vector<typename T::Ptr> Component::get_components_by_tag(const std::
 
 ////////////////////////////////////////////////////////////////////////////////
 
+template <typename ATYPE>
+inline typename ATYPE::Ptr
+Component::create_concrete_abstract_type ( const std::string& provider_name, const CName& name )
+{
+  Common::SafePtr< typename ATYPE::PROVIDER > prov =
+      Common::Factory<ATYPE>::getInstance().getProvider( provider_name );
+  return boost::dynamic_pointer_cast<ATYPE>( prov->create(name) );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 template <typename T>
 inline std::vector<typename T::Ptr> Component::get_components_by_type ()
 {
   return get_components_by_tag<T>(T::getClassName());
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
 template <typename T>
 inline typename T::Ptr Component::get_unique_component_by_type ()
 {
   std::vector<typename T::Ptr> vec = get_components_by_type<T>();
-  if (vec.size() != 1)
-    ; // exception
+
+  if ( vec.empty() )
+    throw InvalidStructure( FromHere(), "Component [" + name() + "] has no subcomponents of type [" + T::getClassName() + "]" );
+
+  if ( vec.size() > 1 )
+    throw InvalidStructure( FromHere(), "Component [" + name() + "] has multiple subcomponents of type [" + T::getClassName() + "]" );
+
   return vec[0];
 }
 

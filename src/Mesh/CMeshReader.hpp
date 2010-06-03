@@ -33,15 +33,6 @@ public: // typedefs
   /// pointer to this type
   typedef boost::shared_ptr<CMeshReader> Ptr;
 
-public: // static functions
-
-  static CMeshReader::Ptr create_concrete(const std::string& provider_name, const CName& name)
-  {
-    Common::SafePtr< CMeshReader::PROVIDER > prov =
-        Common::Factory<CMeshReader>::getInstance().getProvider(provider_name);
-    return boost::dynamic_pointer_cast<CMeshReader>(prov->create(name));
-  }
-
 public: // functions
 
   /// Contructor

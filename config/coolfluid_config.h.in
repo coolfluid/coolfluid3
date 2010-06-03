@@ -78,7 +78,6 @@
 
 // User options
 #cmakedefine CF_ENABLE_STDASSERT
-#cmakedefine CF_ENABLE_GROWARRAY
 
 #define CF_REAL_TYPE ${CF_REAL_TYPE}
 
