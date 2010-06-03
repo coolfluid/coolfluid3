@@ -1,4 +1,4 @@
-#include "Common/DynamicObject.hpp"
+#include "Common/SignalHandler.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,7 +13,7 @@ SignalError::SignalError ( const Common::CodeLocation& where, const std::string&
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::vector < std::pair < Signal::id_t, Signal::desc_t > > DynamicObject::list_signals () const
+std::vector < std::pair < Signal::id_t, Signal::desc_t > > SignalHandler::list_signals () const
 {
   std::vector < std::pair < Signal::id_t, Signal::desc_t > > result;
   for ( sigmap_t::const_iterator itr = m_signals.begin() ; itr != m_signals.end() ; ++itr )
@@ -23,14 +23,14 @@ std::vector < std::pair < Signal::id_t, Signal::desc_t > > DynamicObject::list_s
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Signal::return_t DynamicObject::call_signal ( const Signal::id_t& sname, const Signal::arg_t& sinput )
+Signal::return_t SignalHandler::call_signal ( const Signal::id_t& sname, Signal::arg_t& sinput )
 {
   return ( *get_signal ( sname ) ) ( sinput );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::shared_ptr<DynamicObject::signal_t> DynamicObject::get_signal ( const Signal::id_t& sname )
+Signal::Ptr SignalHandler::get_signal ( const Signal::id_t& sname )
 {
   sigmap_t::iterator itr = m_signals.find(sname);
   if ( itr != m_signals.end() )
@@ -41,12 +41,12 @@ boost::shared_ptr<DynamicObject::signal_t> DynamicObject::get_signal ( const Sig
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::shared_ptr<DynamicObject::signal_t> DynamicObject::create_signal ( const Signal::id_t& sname,  const Signal::desc_t& desc )
+Signal::Ptr SignalHandler::create_signal ( const Signal::id_t& sname,  const Signal::desc_t& desc )
 {
   sigmap_t::iterator itr = m_signals.find (sname);
   if ( itr == m_signals.end() )
   {
-    boost::shared_ptr < signal_t > ptr ( new signal_t() );
+    Signal::Ptr ptr ( new Signal::type() );
     m_signals.insert ( make_pair ( sname , make_pair ( ptr , desc ) )  );
     return ptr;
   }
@@ -56,12 +56,12 @@ boost::shared_ptr<DynamicObject::signal_t> DynamicObject::create_signal ( const 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::shared_ptr<DynamicObject::signal_t> DynamicObject::regist_signal ( const Signal::id_t& sname,  const Signal::desc_t& desc )
+Signal::Ptr SignalHandler::regist_signal ( const Signal::id_t& sname,  const Signal::desc_t& desc )
 {
   sigmap_t::iterator itr = m_signals.find (sname);
   if ( itr == m_signals.end() )
   {
-    boost::shared_ptr < signal_t > ptr ( new signal_t() );
+    Signal::Ptr ptr ( new Signal::type() );
     m_signals.insert ( make_pair ( sname , make_pair ( ptr , desc ) )  );
     return ptr;
   }
@@ -73,6 +73,3 @@ boost::shared_ptr<DynamicObject::signal_t> DynamicObject::regist_signal ( const 
 
 } // namespace Common
 } // namespace CF
-
-////////////////////////////////////////////////////////////////////////////////
-

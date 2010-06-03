@@ -15,13 +15,12 @@ namespace Common {
       throw ValueNotFound(FromHere(), "Option with name [" + optname + "] not found" );
   }
 
-  void ConfigObject::configure ( rapidxml::xml_node<> *node )
+  void ConfigObject::configure ( XmlNode& node )
   {
-    using namespace rapidxml;
     OptionList::OptionStorage_t& options = m_option_list.m_options;
 
     // loop on the child nodes which should be option configurations
-    for (xml_node<>* itr = node->first_node(); itr; itr = itr->next_sibling() )
+    for (XmlNode* itr = node.first_node(); itr; itr = itr->next_sibling() )
     {
       OptionList::OptionStorage_t::iterator opt = options.find( itr->name() );
       if (opt != options.end())

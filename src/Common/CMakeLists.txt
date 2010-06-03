@@ -1,7 +1,6 @@
 CF_FIND_ORPHAN_FILES()
 
 LIST ( APPEND Common_files
-    ArrayAllocator.hpp
     AssertionManager.cpp
     AssertionManager.hpp
     BasicExceptions.cpp
@@ -45,8 +44,6 @@ LIST ( APPEND Common_files
     DemangledTypeID.hpp
     DirPaths.cpp
     DirPaths.hpp
-    DynamicObject.hpp
-    DynamicObject.cpp
     EnumT.hpp
     EventHandler.hpp
     EventHandler.cpp
@@ -107,6 +104,8 @@ LIST ( APPEND Common_files
     SetupObject.cpp
     Stopwatch.hpp
     StringOps.hpp
+    SignalHandler.hpp
+    SignalHandler.cpp
     TimePolicies.cpp
     TimePolicies.hpp
     VarRegistry.hpp

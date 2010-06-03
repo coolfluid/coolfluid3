@@ -323,44 +323,44 @@ bool CSimulator::runConfigPhase(int subsystem)
   {
     try
     {
-      std::string subSysName = m_subsystemNames.at(subsystem).toStdString();
-      std::string subSysType = m_subsystemTypes.at(subsystem).toStdString();
-      std::string subSys = subSysName + '\n' + subSysType + '\n';
-      Common::SafePtr<EventHandler> event_handler = Common::CoreEnv::getInstance().getEventHandler();
-
-      // we manage the simulator
-      //this->manage(m_simulator);
-
-      CFinfo << "+++++++++++++++++++++++++++++++ CONFIGURING with " << __FUNCTION__
-      << " ++++++++++++++++++++++++++++++++\n" << CFflush;
-
-      CFinfo << "#\n###### STARTING SUBSYSTEM : " << subSysName << " ######\n#\n";
-      CFinfo << "in " << __FUNCTION__ << " at line " << __LINE__ << "\n" << CFflush;
-      event_handler->call_signal("CF_ON_MAESTRO_BUILDSUBSYSTEM", subSys);
-
-      //    COMM_WORLD.Barrier();
-
-      CFinfo << "#\n###### CONFIG PHASE #################\n#\n";
-      event_handler->call_signal("CF_ON_MAESTRO_CONFIGSUBSYSTEM", subSys);
-
-      //    COMM_WORLD.Barrier();
-
-      CFinfo << "#\n###### SOCKETS PLUG PHASE ###########\n#\n";
-      event_handler->call_signal("CF_ON_MAESTRO_PLUGSOCKETS", subSys);
-
-      //    COMM_WORLD.Barrier();
-
-      CFinfo << "#\n###### BUILD PHASE ##################\n#\n";
-      event_handler->call_signal("CF_ON_MAESTRO_BUILDMESHDATA", subSys);
-
-      //    COMM_WORLD.Barrier();
-
-      CFinfo << "#\n###### SETUP PHASE ##################\n#\n";
-      event_handler->call_signal("CF_ON_MAESTRO_SETUP", subSys);
+//      std::string subSysName = m_subsystemNames.at(subsystem).toStdString();
+//      std::string subSysType = m_subsystemTypes.at(subsystem).toStdString();
+//      std::string subSys = subSysName + '\n' + subSysType + '\n';
+//      Common::SafePtr<EventHandler> event_handler = Common::CoreEnv::getInstance().getEventHandler();
+//
+//      // we manage the simulator
+//      //this->manage(m_simulator);
+//
+//      CFinfo << "+++++++++++++++++++++++++++++++ CONFIGURING with " << __FUNCTION__
+//      << " ++++++++++++++++++++++++++++++++\n" << CFendl;
+//
+//      CFinfo << "#\n###### STARTING SUBSYSTEM : " << subSysName << " ######\n#\n";
+//      CFinfo << "in " << __FUNCTION__ << " at line " << __LINE__ << "\n" << CFendl;
+//      event_handler->call_signal("CF_ON_MAESTRO_BUILDSUBSYSTEM", subSys);
+//
+//      //    COMM_WORLD.Barrier();
+//
+//      CFinfo << "#\n###### CONFIG PHASE #################\n#\n";
+//      event_handler->call_signal("CF_ON_MAESTRO_CONFIGSUBSYSTEM", subSys);
+//
+//      //    COMM_WORLD.Barrier();
+//
+//      CFinfo << "#\n###### SOCKETS PLUG PHASE ###########\n#\n";
+//      event_handler->call_signal("CF_ON_MAESTRO_PLUGSOCKETS", subSys);
+//
+//      //    COMM_WORLD.Barrier();
+//
+//      CFinfo << "#\n###### BUILD PHASE ##################\n#\n";
+//      event_handler->call_signal("CF_ON_MAESTRO_BUILDMESHDATA", subSys);
+//
+//      //    COMM_WORLD.Barrier();
+//
+//      CFinfo << "#\n###### SETUP PHASE ##################\n#\n";
+//      event_handler->call_signal("CF_ON_MAESTRO_SETUP", subSys);
 
       COMM_WORLD.Barrier();
 
-      m_lastSubsystemConfigured = subsystem;
+//      m_lastSubsystemConfigured = subsystem;
 
       configured = true;
     }
@@ -389,27 +389,27 @@ bool CSimulator::runUnconfigPhase()
   {
     try
     {
-      std::string subSysName = m_subsystemNames.at(m_lastSubsystemConfigured).toStdString();
-      std::string subSysType = m_subsystemTypes.at(m_lastSubsystemConfigured).toStdString();
-      std::string subSys = subSysName + '\n' + subSysType + '\n';
-      Common::SafePtr<EventHandler> event_handler = Common::CoreEnv::getInstance().getEventHandler();
-
-      CFinfo << "#\n###### UNSETUP PHASE ################\n#\n";
-      event_handler->call_signal ( "CF_ON_MAESTRO_UNSETUP", subSys );
-
+//      std::string subSysName = m_subsystemNames.at(m_lastSubsystemConfigured).toStdString();
+//      std::string subSysType = m_subsystemTypes.at(m_lastSubsystemConfigured).toStdString();
+//      std::string subSys = subSysName + '\n' + subSysType + '\n';
+//      Common::SafePtr<EventHandler> event_handler = Common::CoreEnv::getInstance().getEventHandler();
+//
+//      CFinfo << "#\n###### UNSETUP PHASE ################\n#\n";
+//      event_handler->call_signal ( "CF_ON_MAESTRO_UNSETUP", subSys );
+//
       //    COMM_WORLD.Barrier();
-
-      CFinfo << "#\n###### SOCKETS UNPLUG PHASE #########\n#\n";
-      event_handler->call_signal ( "CF_ON_MAESTRO_UNPLUGSOCKETS", subSys );
-
+//
+//      CFinfo << "#\n###### SOCKETS UNPLUG PHASE #########\n#\n";
+//      event_handler->call_signal ( "CF_ON_MAESTRO_UNPLUGSOCKETS", subSys );
+//
       //    COMM_WORLD.Barrier();
-
-      CFinfo << "#\n###### DESTRUCTION SUBSYSTEM PHASE #########\n#\n";
-      event_handler->call_signal ( "CF_ON_MAESTRO_DESTROYSUBSYSTEM", subSys );
-
+//
+//      CFinfo << "#\n###### DESTRUCTION SUBSYSTEM PHASE #########\n#\n";
+//      event_handler->call_signal ( "CF_ON_MAESTRO_DESTROYSUBSYSTEM", subSys );
+//
       COMM_WORLD.Barrier();
-
-      m_lastSubsystemConfigured = -1;
+//
+//      m_lastSubsystemConfigured = -1;
 
       unconfigured = true;
     }

@@ -1,5 +1,5 @@
-#ifndef CF_Common_DynamicObject_hpp
-#define CF_Common_DynamicObject_hpp
+#ifndef CF_Common_SignalHandler_hpp
+#define CF_Common_SignalHandler_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -8,6 +8,7 @@
 
 #include "Common/Exception.hpp"
 #include "Common/NonInstantiable.hpp"
+#include "Common/XML.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,7 +17,7 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Exception thrown when errors detected while handling signals in DynamicObject
+/// Exception thrown when errors detected while handling signals in SignalHandler
 /// @author Tiago Quintino
 class Common_API SignalError : public Common::Exception {
 public:
@@ -28,7 +29,7 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Class that harbours the types handled by the DynamicObject
+/// Class that harbours the types handled by the SignalHandler
 /// @author Tiago Quintino
 struct Signal : public NonInstantiable<Signal>
 {
@@ -37,45 +38,29 @@ struct Signal : public NonInstantiable<Signal>
     /// signal description
     typedef std::string desc_t;
     /// signal return type
-    typedef std::string return_t;
+    typedef void return_t;
     /// signal argument
-    typedef std::string arg_t;
+    typedef XmlNode arg_t;
+    /// signal type
+    typedef boost::signals2::signal< Signal::return_t ( Signal::arg_t& ) >  type;
+    /// signal pointer
+    typedef boost::shared_ptr<type> Ptr;
 };
 
-/// DynamicObject executes calls received as string by issuing singals to the slots
+/// SignalHandler executes calls received as string by issuing singals to the slots
 /// Slots may be:
 ///  * its own derived classes that regist  member functions to be called dynamically
 ///  * other classes that regist themselves to be notified when a signal is issued
 ///
 /// @author Tiago Quintino
-class Common_API DynamicObject
+class Common_API SignalHandler
 {
 
-  public:
-
-  /// combiner which returns the combined result of all slots
-  template <typename T> struct result_xml
-  {
-    typedef T result_type;
-    template<typename InputIterator>
-    T operator()(InputIterator first, InputIterator last) const
-    {
-      // If there are no slots to call, just return the default-constructed value
-      if (first == last ) return T();
-      T result = *first++;
-      while (first != last)
-      {
-        result += *first;
-        ++first;
-      }
-      return result;
-    }
-  };
 
   public:
 
-    typedef boost::signals2::signal< Signal::return_t ( Signal::arg_t ) , result_xml < Signal::return_t > >  signal_t;
-    typedef std::map < Signal::id_t , std::pair< boost::shared_ptr< signal_t > , Signal::desc_t > >  sigmap_t;
+    /// storage type for signals
+    typedef std::map < Signal::id_t , std::pair< Signal::Ptr , Signal::desc_t > >  sigmap_t;
 
   public:
 
@@ -83,14 +68,14 @@ class Common_API DynamicObject
     std::vector < std::pair < Signal::id_t, Signal::desc_t > > list_signals () const;
 
     /// Calls the signal by providing its name and input
-    Signal::return_t call_signal ( const Signal::id_t& sname, const Signal::arg_t& sinput );
+    Signal::return_t call_signal ( const Signal::id_t& sname, Signal::arg_t& sinput );
 
     /// Regist signal
-    boost::shared_ptr<signal_t> regist_signal ( const Signal::id_t& sname,  const Signal::desc_t& desc );
+    Signal::Ptr regist_signal ( const Signal::id_t& sname,  const Signal::desc_t& desc );
 
     /// Adds a dynamic function slot to a signal in itself
     template < typename FTYPE >
-    boost::shared_ptr<signal_t> add_dynamic_function ( const Signal::id_t& sname, FTYPE* pfunc, const Signal::desc_t& desc = "" )
+    Signal::Ptr add_dynamic_function ( const Signal::id_t& sname, FTYPE* pfunc, const Signal::desc_t& desc = "" )
     {
         return regist_signal ( sname , desc )->connect ( boost::bind ( pfunc, this, _1 ) );
     }
@@ -98,17 +83,17 @@ class Common_API DynamicObject
   protected: // functions
 
     /// Get a signal by providing its name
-    boost::shared_ptr<signal_t> get_signal ( const Signal::id_t& sname );
+    Signal::Ptr get_signal ( const Signal::id_t& sname );
 
     /// Create a signal
-    boost::shared_ptr<signal_t> create_signal ( const Signal::id_t& sname,  const Signal::desc_t& desc );
+    Signal::Ptr create_signal ( const Signal::id_t& sname,  const Signal::desc_t& desc );
 
   protected: // data
 
     /// storage of the signals
     sigmap_t  m_signals;
 
-}; // class DynamicObject
+}; // class SignalHandler
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -117,4 +102,4 @@ class Common_API DynamicObject
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_DynamicObject_hpp
+#endif // CF_Common_SignalHandler_hpp

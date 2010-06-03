@@ -60,7 +60,7 @@ namespace Common {
     }
 
     /// configures all the options on this class
-    void configure ( rapidxml::xml_node<> *node );
+    void configure ( XmlNode& node );
 
     /// sets a link to the option
     template < typename TYPE >

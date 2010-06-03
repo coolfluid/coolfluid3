@@ -233,7 +233,7 @@ BOOST_AUTO_TEST_CASE( configure )
              parse_trim_whitespace |
              parse_normalize_whitespace >(ctext);
 
-  pm->configure(doc.first_node());
+  pm->configure(*doc.first_node());
 
 //  CFinfo << "ending\n" << CFflush;
 

@@ -3,7 +3,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/DynamicObject.hpp"
+#include "Common/SignalHandler.hpp"
 #include "Common/OwnedObject.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -17,7 +17,7 @@ namespace Common {
 /// @author Tiago Quintino
 class Common_API EventHandler :
     public Common::OwnedObject,
-    public Common::DynamicObject,
+    public Common::SignalHandler,
     public boost::noncopyable
 {
 public: // methods
