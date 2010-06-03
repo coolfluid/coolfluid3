@@ -4,7 +4,7 @@
 #include "Common/CommonAPI.hpp"
 #include "Common/AssertionManager.hpp"
 #include "Common/BasicExceptions.hpp"
-#include "Common/ProcessInfo.hpp"
+#include "Common/OSystemLayer.hpp"
 
 #include "Common/OSystem.hpp"
 
@@ -53,7 +53,7 @@ void AssertionManager::do_assert ( bool condition,
       out << " [function " << func << "]";
 
     if ( AssertionManager::getInstance().AssertionDumps )
-      out << "\n" << OSystem::getInstance().getProcessInfo()->getBackTrace();
+      out << "\n" << OSystem::getInstance().OSystemLayer()->getBackTrace();
 
     if ( AssertionManager::getInstance().AssertionThrows )
     {

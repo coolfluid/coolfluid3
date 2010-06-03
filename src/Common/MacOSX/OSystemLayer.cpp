@@ -12,7 +12,7 @@
 
 #include "Common/BasicExceptions.hpp"
 #include "Common/CommonAPI.hpp"
-#include "Common/MacOSX/ProcessInfo.hpp"
+#include "Common/MacOSX/OSystemLayer.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -157,7 +157,7 @@ fedisableexcept (unsigned int excepts)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void OSystemLayer::registOSystemLayers()
+void OSystemLayer::registSignalHandlers()
 {
   // register handler functions for the signals
   signal(SIGFPE,    (sighandler_t) MacOSX::OSystemLayer::handleSIGFPE);
@@ -175,7 +175,7 @@ void OSystemLayer::registOSystemLayers()
 int OSystemLayer::handleSIGFPE (int signal)
 {
   printf("\nreceived signal SIGFPE [%d] - 'Floating Point Exception'\n",signal);
-  static std::string dump = MacOSX::ProcessInfo::dumpBackTrace();
+  static std::string dump = MacOSX::OSystemLayer::dumpBackTrace();
   printf( "%s\n", dump.c_str() );
   throw Common::FloatingPointError (FromHere(), "Some floating point operation has given an invalid result");
 }
@@ -185,7 +185,7 @@ int OSystemLayer::handleSIGFPE (int signal)
 int OSystemLayer::handleSIGSEGV(int signal)
 {
   printf("\nreceived signal SIGSEGV [%d] - 'Segmentation violation'\n",signal);
-  static std::string dump = MacOSX::ProcessInfo::dumpBackTrace();
+  static std::string dump = MacOSX::OSystemLayer::dumpBackTrace();
   printf( "%s\n", dump.c_str() );
   abort();
 }

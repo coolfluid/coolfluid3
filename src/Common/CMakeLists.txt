@@ -6,7 +6,6 @@ LIST ( APPEND Common_files
     AssertionManager.hpp
     BasicExceptions.cpp
     BasicExceptions.hpp
-    BigAllocator.hpp
     BoostIostreams.hpp
     BoostArray.hpp
     BuilderParser.cpp
@@ -81,9 +80,6 @@ LIST ( APPEND Common_files
     ModuleRegistry.cpp
     ModuleRegister.hpp
     ModuleRegisterBase.cpp
-    MemoryAllocator.hpp
-    MemoryAllocatorNormal.cpp
-    MemoryAllocatorNormal.hpp
     NamedObject.hpp
     NamedObject.cpp
     NonInstantiable.hpp
@@ -109,8 +105,6 @@ LIST ( APPEND Common_files
     SharedPtr.hpp
     SetupObject.hpp
     SetupObject.cpp
-    SignalHandler.cpp
-    SignalHandler.hpp
     Stopwatch.hpp
     StringOps.hpp
     TimePolicies.cpp
@@ -137,7 +131,6 @@ LIST(APPEND Common_files
       MPI/PEInterface.cpp
       MPI/PECommPattern.hpp
       MPI/PECommPattern.cpp
-      MPI/ParVectorMPI.hpp
 )
 ENDIF()
 
@@ -194,12 +187,9 @@ ENDIF()
 
 CF_MARK_NOT_ORPHAN (
 PosixDlopenLibLoader.hpp PosixDlopenLibLoader.cpp
-MacOSX/SignalHandler.hpp MacOSX/SignalHandler.cpp
 MacOSX/OSystemLayer.hpp   MacOSX/OSystemLayer.cpp
 Linux/OSystemLayer.hpp    Linux/OSystemLayer.cpp
-Linux/SignalHandler.hpp  Linux/SignalHandler.cpp
 Win32/OSystemLayer.hpp    Win32/OSystemLayer.cpp
-Win32/SignalHandler.hpp  Win32/SignalHandler.cpp
 Win32/LibLoader.hpp      Win32/LibLoader.cpp
 MemoryAllocatorMMap.hpp  MemoryAllocatorMMap.cpp
 )

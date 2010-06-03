@@ -1,9 +1,9 @@
-#ifndef CF_Common_MacOSX_ProcessInfo_hpp
-#define CF_Common_MacOSX_ProcessInfo_hpp
+#ifndef CF_Common_MacOSX_OSystemLayer_hpp
+#define CF_Common_MacOSX_OSystemLayer_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/ProcessInfo.hpp"
+#include "Common/OSystemLayer.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,15 +16,15 @@ namespace CF {
 /// This class represents the current information on the memory usage.
 /// Is is an implementation for the MacOSX operating system
 /// @author Tiago Quintino
-class Common_API ProcessInfo : public Common::OSystemLayer {
+class Common_API OSystemLayer : public Common::OSystemLayer {
 
 public:
 
   /// Constructor without arguments
-  ProcessInfo();
+  OSystemLayer();
 
   /// Destructor
-  virtual ~ProcessInfo();
+  virtual ~OSystemLayer();
 
   /// @returns string with platform name
   virtual std::string getPlatformName () const { return "MacOSX"; }
@@ -54,7 +54,7 @@ protected:
   /// SIGSEGV signal handler
   static int handleSIGSEGV(int signal);
 
-}; // end of class ProcessInfo
+}; // end of class OSystemLayer
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -64,4 +64,4 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_MacOSX_ProcessInfo_hpp
+#endif // CF_Common_MacOSX_OSystemLayer_hpp

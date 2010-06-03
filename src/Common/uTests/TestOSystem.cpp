@@ -29,17 +29,17 @@ BOOST_FIXTURE_TEST_SUITE( OSystem_TestSuite, OSystem_Fixture )
 
 BOOST_AUTO_TEST_CASE( getProcessInfo )
 {
-  BOOST_CHECK( OSystem::getInstance().getProcessInfo().isNotNull() );
+  BOOST_CHECK( OSystem::getInstance().OSystemLayer().isNotNull() );
 }
 
 BOOST_AUTO_TEST_CASE( getSignalHandler )
 {
-  BOOST_CHECK( OSystem::getInstance().getSignalHandler().isNotNull() );
+  BOOST_CHECK( OSystem::getInstance().OSystemLayer().isNotNull() );
 }
 
 BOOST_AUTO_TEST_CASE( getLibLoader )
 {
-  BOOST_CHECK( OSystem::getInstance().getLibLoader().isNotNull() );
+  BOOST_CHECK( OSystem::getInstance().LibLoader().isNotNull() );
 }
 
 BOOST_AUTO_TEST_CASE( executeCommand )

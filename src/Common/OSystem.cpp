@@ -1,7 +1,6 @@
 #include <cstdlib>  // provides system call
 
-#include "Common/ProcessInfo.hpp"
-#include "Common/SignalHandler.hpp"
+#include "Common/OSystemLayer.hpp"
 #include "Common/StringOps.hpp"
 
 #ifdef CF_HAVE_DLOPEN
@@ -9,18 +8,15 @@
 #endif
 
 #ifdef CF_OS_LINUX
-  #include "Common/Linux/ProcessInfo.hpp"
-  #include "Common/Linux/SignalHandler.hpp"
+  #include "Common/Linux/OSystemLayer.hpp"
 #endif
 
 #ifdef CF_OS_MACOSX
-  #include "Common/MacOSX/ProcessInfo.hpp"
-  #include "Common/MacOSX/SignalHandler.hpp"
+  #include "Common/MacOSX/OSystemLayer.hpp"
 #endif
 
 #ifdef CF_OS_WINDOWS
-  #include "Common/Win32/ProcessInfo.hpp"
-  #include "Common/Win32/SignalHandler.hpp"
+  #include "Common/Win32/OSystemLayer.hpp"
   #include "Common/Win32/LibLoader.hpp"
 #endif
 
@@ -43,7 +39,6 @@ OSystemError::OSystemError ( const Common::CodeLocation& where, const std::strin
 
 OSystem::OSystem() :
   m_system_layer (CFNULL),
-  m_sig_handler(CFNULL),
   m_lib_loader(CFNULL)
 {
 
@@ -52,13 +47,13 @@ OSystem::OSystem() :
 #endif
 
 #ifdef CF_OS_LINUX
-    if ( m_system_layer == CFNULL ) m_system_layer = new Linux::ProcessInfo();
+    if ( m_system_layer == CFNULL ) m_system_layer = new Linux::OSystemLayer();
 #else
 #ifdef CF_OS_MACOSX
-    if ( m_system_layer == CFNULL ) m_system_layer = new MacOSX::ProcessInfo();
+    if ( m_system_layer == CFNULL ) m_system_layer = new MacOSX::OSystemLayer();
 #else
 #ifdef CF_OS_WINDOWS
-    if ( m_system_layer == CFNULL ) m_system_layer = new Win32::ProcessInfo();
+    if ( m_system_layer == CFNULL ) m_system_layer = new Win32::OSystemLayer();
     if ( m_lib_loader == CFNULL )   m_lib_loader   = new Win32::LibLoader();
 #else
   #error "Unkown operating system: not Windows, MacOSX or Linux"
@@ -67,7 +62,6 @@ OSystem::OSystem() :
 #endif
 
     cf_assert ( m_system_layer != CFNULL);
-    cf_assert ( m_sig_handler  != CFNULL);
     cf_assert ( m_lib_loader   != CFNULL);
 
 }

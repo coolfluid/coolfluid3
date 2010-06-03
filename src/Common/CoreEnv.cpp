@@ -11,7 +11,6 @@
 #include "Common/EventHandler.hpp"
 #include "Common/VarRegistry.hpp"
 #include "Common/Log.hpp"
-#include "Common/SignalHandler.hpp"
 #include "Common/OSystem.hpp"
 
 //#include "Common/SingleBehaviorFactory.hpp"
