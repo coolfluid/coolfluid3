@@ -4,12 +4,13 @@
 
 #include <boost/filesystem/path.hpp>
 
+#include "Common/BasicExceptions.hpp"
 #include "Common/xmlParser.h"
 #include "Common/MPI/PEInterface.hpp"
 #include "Common/Log.hpp"
-
 #include "Common/ConfigArgs.hpp"
 #include "Common/ConverterTools.hpp"
+#include "Common/XmlHelpers.hpp"
 
 #include "GUI/Network/ComponentNames.hpp"
 #include "GUI/Network/HostInfos.hpp"
@@ -183,57 +184,59 @@ bool CCore::getDirContent(const QString & directory,
 
 Signal::return_t CCore::readDir(Signal::arg_t & node)
 {
-  XMLParams p(node);
-  QStringList dirList;
-  QStringList fileList;
-  QStringList extensions;
-  QString frame;
-  QString directory;
+  XmlParams p(node);
 
-  QString dirPath = p.value<std::string>("dirPath").c_str();
-  bool includeFiles = p.value<bool>("includeFiles");
-  bool includeNoExtension = p.value<bool>("includeNoExtension");
-
-  if(dirPath.isEmpty())
-    directory = this->DEFAULT_PATH;
-  else
-    directory = dirPath;
-
-  directory = QDir(directory).absolutePath();
-  directory = QDir::cleanPath(directory);
-
-  // if the directory is not the root
-  /// @todo test this on Windows
-  if(directory != "/")
-    dirList << "..";
-
-  SignalInfo::convertToStringList(p.array<std::string>("extensions"), extensions);
-
-  if(!this->getDirContent(dirPath, extensions, includeFiles,
-                          includeNoExtension, dirList, fileList))
-  {
-    m_commServer->sendError(-1, dirPath + ": no such direcrory");
-  }
-  else
-  {
-    // the reciever becomes the sender and vice versa
-    SignalInfo si("readDir", p.getReceiver(), p.getSender(), false);
-    QList<std::string> dirList2;
-    QList<std::string> fileList2;
-
-    SignalInfo::convertToStdString(dirList, dirList2);
-    SignalInfo::convertToStdString(fileList, fileList2);
-
-    // Build the reply
-
-    si.setParam("dirPath", directory.toStdString());
-    si.setArray("dirs", dirList2);
-    si.setArray("files", fileList2);
-
-    frame = si.getString();
-
-    m_commServer->send(-1, frame);
-  }
+  throw NotImplemented(FromHere(), "CCore::readDir");
+//  QStringList dirList;
+//  QStringList fileList;
+//  QStringList extensions;
+//  QString frame;
+//  QString directory;
+//
+//  QString dirPath = p.value<std::string>("dirPath").c_str();
+//  bool includeFiles = p.value<bool>("includeFiles");
+//  bool includeNoExtension = p.value<bool>("includeNoExtension");
+//
+//  if(dirPath.isEmpty())
+//    directory = this->DEFAULT_PATH;
+//  else
+//    directory = dirPath;
+//
+//  directory = QDir(directory).absolutePath();
+//  directory = QDir::cleanPath(directory);
+//
+//  // if the directory is not the root
+//  /// @todo test this on Windows
+//  if(directory != "/")
+//    dirList << "..";
+//
+//  SignalInfo::convertToStringList(p.array<std::string>("extensions"), extensions);
+//
+//  if(!this->getDirContent(dirPath, extensions, includeFiles,
+//                          includeNoExtension, dirList, fileList))
+//  {
+//    m_commServer->sendError(-1, dirPath + ": no such direcrory");
+//  }
+//  else
+//  {
+//    // the reciever becomes the sender and vice versa
+//    SignalInfo si("readDir", p.getReceiver(), p.getSender(), false);
+//    QList<std::string> dirList2;
+//    QList<std::string> fileList2;
+//
+//    SignalInfo::convertToStdString(dirList, dirList2);
+//    SignalInfo::convertToStdString(fileList, fileList2);
+//
+//    // Build the reply
+//
+//    si.setParam("dirPath", directory.toStdString());
+//    si.setArray("dirs", dirList2);
+//    si.setArray("files", fileList2);
+//
+//    frame = si.getString();
+//
+//    m_commServer->send(-1, frame);
+//  }
 
   /// @todo return something...
 }

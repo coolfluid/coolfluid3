@@ -3,6 +3,7 @@
 #include <string>
 
 #include "Common/CF.hpp"
+#include "Common/XmlHelpers.hpp"
 
 #include "GUI/Client/ClientRoot.hpp"
 #include "GUI/Network/ComponentNames.hpp"
@@ -90,13 +91,13 @@ void CLog::appendToLog(LogMessage::Type type, bool fromServer,
 
 Signal::return_t CLog::message(Signal::arg_t & node)
 {
-  XMLParams p(node);
-  std::string typeStr = p.value<std::string>("type");
-  std::string message = p.value<std::string>("text");
-  LogMessage::Type type = LogMessage::Convert::to_enum(typeStr);
-
-  cf_assert(type != LogMessage::INVALID);
-
-  this->appendToLog(type, true, message.c_str());
+  XmlParams p(node);
+//  std::string typeStr = p.value<std::string>("type");
+//  std::string message = p.value<std::string>("text");
+//  LogMessage::Type type = LogMessage::Convert::to_enum(typeStr);
+//
+//  cf_assert(type != LogMessage::INVALID);
+//
+//  this->appendToLog(type, true, message.c_str());
  //return XMLNode::createTopXMLNode();
 }

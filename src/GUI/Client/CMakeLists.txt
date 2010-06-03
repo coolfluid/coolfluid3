@@ -124,6 +124,8 @@ LIST ( APPEND coolfluid-client_files
   TreeItem.hpp
   TreeModel.cpp
   TreeModel.hpp
+  TreeNode.cpp
+  TreeNode.hpp
   TreeView.cpp
   TreeView.hpp
   TSshInformation.hpp

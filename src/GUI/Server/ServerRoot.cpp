@@ -1,6 +1,7 @@
 #include "GUI/Network/ComponentNames.hpp"
 
 #include "Common/CRoot.hpp"
+#include "Common/XmlHelpers.hpp"
 
 #include "GUI/Server/ServerRoot.hpp"
 
@@ -35,7 +36,11 @@ void ServerRoot::processSignal(const QDomDocument & signal)
    std::string type = elt.attribute("key").toStdString();
    std::string receiver = elt.attribute("receiver").toStdString();
 
-   getRoot()->access_component(receiver)->call_signal(type, signal.toString().toStdString());
+   boost::shared_ptr<XmlDoc> xmldoc = XmlOps::parse ( signal.toString().toStdString() );
+
+   XmlNode& nodedoc = *XmlOps::goto_doc_node(*xmldoc.get());
+
+   getRoot()->access_component(receiver)->call_signal( type, *nodedoc.first_node() );
  }
 }
 

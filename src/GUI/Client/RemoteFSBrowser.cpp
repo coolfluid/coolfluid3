@@ -6,6 +6,8 @@
 
 #include <QDomDocument>
 
+#include "Common/XmlHelpers.hpp"
+
 #include "GUI/Client/CBrowser.hpp"
 #include "GUI/Client/TreeModel.hpp"
 #include "GUI/Client/ClientCore.hpp"
@@ -753,36 +755,39 @@ void RemoteFSBrowser::openDir(const QString & path)
 
 Signal::return_t RemoteFSBrowser::readDir(const Signal::arg_t & node)
 {
-  XMLParams p(node);
-  QStringList dirs;
-  QStringList files;
+  //XmlParams p(node);
 
-  cf_assert(!p.isSignal());
+  throw NotImplemented(FromHere(), "RemoteFSBrowser::readDir");
 
-  m_currentPath = p.value<std::string>("dirPath").c_str();
-
-  // add an ending '/' if the string does not have any
-  if(!m_currentPath.endsWith(m_pathSep))
-    m_currentPath += m_pathSep;
-
-  // clear the filter
-  m_editFilter->setText("");
-  this->filterUpdated("");
-
-  if(!m_updatingCompleter)
-    m_editPath->setText(m_currentPath);
-  else
-    m_updatingCompleter = false;
-
-  SignalInfo::convertToStringList(p.array<std::string>("dirs"), dirs);
-  SignalInfo::convertToStringList(p.array<std::string>("files"), files);
-
-  this->updateModel(m_viewModel, "", dirs, files, m_items);
-  this->updateModel(m_completerModel, m_currentPath, dirs,
-                    QStringList(), m_itemsCompleter);
-
-  // restore mouse cursor
-  QApplication::restoreOverrideCursor();
+//  QStringList dirs;
+//  QStringList files;
+//
+//  cf_assert(!p.isSignal());
+//
+//  m_currentPath = p.value<std::string>("dirPath").c_str();
+//
+//  // add an ending '/' if the string does not have any
+//  if(!m_currentPath.endsWith(m_pathSep))
+//    m_currentPath += m_pathSep;
+//
+//  // clear the filter
+//  m_editFilter->setText("");
+//  this->filterUpdated("");
+//
+//  if(!m_updatingCompleter)
+//    m_editPath->setText(m_currentPath);
+//  else
+//    m_updatingCompleter = false;
+//
+//  SignalInfo::convertToStringList(p.array<std::string>("dirs"), dirs);
+//  SignalInfo::convertToStringList(p.array<std::string>("files"), files);
+//
+//  this->updateModel(m_viewModel, "", dirs, files, m_items);
+//  this->updateModel(m_completerModel, m_currentPath, dirs,
+//                    QStringList(), m_itemsCompleter);
+//
+//  // restore mouse cursor
+//  QApplication::restoreOverrideCursor();
 
 }
 

@@ -3,12 +3,14 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
+#include <QDomDocument>
 #include <QList>
 #include <QObject>
 
 #include "Common/Component.hpp"
 
 class QIcon;
+class QDomNode;
 class QString;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -37,6 +39,19 @@ namespace Client {
 
   }; // struct NodeAction
 
+  struct NodeParams
+  {
+    QString m_paramName;
+
+    QString m_paramType;
+
+    QString m_paramValue;
+
+    QString m_paramDescr;
+
+    bool m_paramAdv;
+  }; // struct NodeParams
+
   ////////////////////////////////////////////////////////////////////////////
 
   /// @brief Base component adapted to fit the client needs.
@@ -62,6 +77,10 @@ namespace Client {
     /// @return Returns the corresponding component type name
     QString getComponentType() const;
 
+    /// @brief Gives of child nodes
+    /// @return Returns the number of child nodes this node has.
+    int getNodeCount() const;
+
     /// @brief Gives a list of action the node can execute
     /// @return Returns a list of action the node can execute
     /// @note This method should be reimplemented by all subclasses.
@@ -79,10 +98,20 @@ namespace Client {
     /// @note This method should be reimplemented by all subclasses.
     virtual QString getClassName() const;
 
+    virtual void setParams(const QDomNodeList & list);
+
+    static CNode::Ptr createFromXml(const QDomDocument & doc);
+
+  protected:
+
+    QList<NodeParams> m_params;
+
   private:
 
     /// @brief Component type name.
     QString m_componentType;
+
+    static CNode::Ptr toTreeNode(const QDomElement & node);
 
   }; // class CNode
 
