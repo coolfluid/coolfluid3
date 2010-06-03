@@ -6,6 +6,8 @@
 
 #include "GUI/Client/ClientRoot.hpp"
 
+#include "Common/XmlHelpers.hpp"
+
 using namespace CF::Common;
 using namespace CF::GUI::Client;
 using namespace CF::GUI::Network;
@@ -45,7 +47,11 @@ void ClientRoot::processSignal(const QDomDocument & signal)
     std::string type = elt.attribute("key").toStdString();
     std::string receiver = elt.attribute("receiver").toStdString();
 
-    getRoot()->access_component(receiver)->call_signal(type, signal.toString().toStdString());
+    boost::shared_ptr<XmlDoc> xmldoc = XmlOps::parse ( signal.toString().toStdString() );
+
+    XmlNode& nodedoc = *XmlOps::goto_doc_node(*xmldoc.get());
+
+    getRoot()->access_component(receiver)->call_signal( type, *nodedoc.first_node() );
   }
 }
 
