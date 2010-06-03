@@ -131,7 +131,7 @@ double OSystemLayer::memoryUsageBytes() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void OSystemLayer::registOSystemLayers()
+void OSystemLayer::registSignalHandlers()
 {
   // register handler functions for the signals
   signal(SIGFPE,    (sighandler_t) Linux::OSystemLayer::handleSIGFPE);

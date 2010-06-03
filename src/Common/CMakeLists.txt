@@ -132,13 +132,6 @@ LIST(APPEND Common_files
 ENDIF()
 
 ###############################################################################
-# MMap allocation
-LIST ( APPEND OPTIONAL_dirfiles MemoryAllocatorMMap.hpp MemoryAllocatorMMap.cpp )
-IF(CF_HAVE_ALLOC_MMAP AND CF_HAVE_UNISTD_H )
-  LIST(APPEND Common_files MemoryAllocatorMMap.hpp MemoryAllocatorMMap.cpp )
-ENDIF()
-
-###############################################################################
 # Operating System dependent files
 
 ### UNIXES ####
@@ -188,7 +181,6 @@ MacOSX/OSystemLayer.hpp   MacOSX/OSystemLayer.cpp
 Linux/OSystemLayer.hpp    Linux/OSystemLayer.cpp
 Win32/OSystemLayer.hpp    Win32/OSystemLayer.cpp
 Win32/LibLoader.hpp      Win32/LibLoader.cpp
-MemoryAllocatorMMap.hpp  MemoryAllocatorMMap.cpp
 )
 
 SET  ( Common_kernellib TRUE )

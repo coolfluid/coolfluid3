@@ -353,7 +353,7 @@ double OSystemLayer::memoryUsageBytes () const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void OSystemLayer::registOSystemLayers()
+void OSystemLayer::registSignalHandlers()
 {
 }
 
