@@ -1,6 +1,7 @@
 ##############################################################################
 # macro for adding a testing application in the project
 ##############################################################################
+
 MACRO( CF_ADD_UNITTEST UTESTNAME )
 
   # option to build it or not
@@ -101,12 +102,12 @@ ENDMACRO( CF_ADD_UNITTEST )
 ##############################################################################
 # macro for adding a testing application in the project, profiled with perftools
 ##############################################################################
+
 MACRO( CF_ADD_PROFILED_UNITTEST UTESTNAME )
   IF(CF_BUILD_GooglePerfTools)
-    LIST ( APPEND ${UTESTNAME}_libs GooglePerfTools )
+    LIST ( APPEND ${UTESTNAME}_cflibs GooglePerfTools )
   ENDIF()
   CF_ADD_UNITTEST( ${UTESTNAME} )
 ENDMACRO( CF_ADD_PROFILED_UNITTEST )
-
 
 ##############################################################################
