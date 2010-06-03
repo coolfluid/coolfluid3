@@ -33,15 +33,6 @@ public: // typedefs
   /// pointer to this type
   typedef boost::shared_ptr<CMeshWriter> Ptr;
 
-public: // static functions
-
-  static CMeshWriter::Ptr create_concrete(const std::string& provider_name, const CName& name)
-  {
-    Common::SafePtr< CMeshWriter::PROVIDER > prov =
-        Common::Factory<CMeshWriter>::getInstance().getProvider(provider_name);
-    return boost::dynamic_pointer_cast<CMeshWriter>(prov->create(name));
-  }
-
 public: // functions
 
   /// Contructor
@@ -84,25 +75,28 @@ protected: // classes
         return component.has_component_of_type<CTable>() && component.has_component_of_type<CElements>();
       }
 
-  };
+  }; // IsLeafRegion
 
   class IsGroup
   {
-   private:
-     IsLeafRegion m_isLeaf;
    public:
      IsGroup () {}
 
      bool operator()(const Component& component)
      {
-       BOOST_FOREACH(const CRegion::Ptr& region, component.get_components_by_type<CRegion>())
+       std::vector< CRegion::Ptr > v = component.get_components_by_type<CRegion>();
+//       BOOST_FOREACH(const CRegion::Ptr& region, component.get_components_by_type<CRegion>())
+       for ( int i = 0; i < v.size(); ++i )
        {
-         if (m_isLeaf(*region))
+         if ( m_isLeaf( *v[i] ) )
            return true;
        }
        return false;
      }
-  };
+
+   private:
+     IsLeafRegion m_isLeaf;
+  }; // IsGroup
 
 };
 

@@ -10,19 +10,19 @@ namespace Common {
 ////////////////////////////////////////////////////////////////////////////////
 
   template<>
-  const char * XmlTag<bool>::str() { return "bool"; }
+  const char * XmlTag<bool>::type() { return "bool"; }
 
   template<>
-  const char * XmlTag<int>::str() { return "integer"; };
+  const char * XmlTag<int>::type() { return "integer"; };
 
   template<>
-  const char * XmlTag<CF::Uint>::str() { return "integer"; }
+  const char * XmlTag<CF::Uint>::type() { return "integer"; }
 
   template<>
-  const char * XmlTag<CF::Real>::str() { return "real"; }
+  const char * XmlTag<CF::Real>::type() { return "real"; }
 
   template<>
-  const char * XmlTag<std::string>::str() { return "string"; }
+  const char * XmlTag<std::string>::type() { return "string"; }
 
 ////////////////////////////////////////////////////////////////////////////////
 

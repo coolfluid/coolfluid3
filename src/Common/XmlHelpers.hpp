@@ -71,7 +71,7 @@ namespace Common {
     /// the xml tag used for the params node
     static const char * tag_params ();
     /// the xml attribute name used for the key
-    static const char * key ();
+    static const char * tag_key ();
 
     /// Constructor
     /// @param node the node where the parameters will be extracted from
@@ -81,6 +81,10 @@ namespace Common {
     /// access to the value of one parameter
     template < typename TYPE >
         TYPE get_param ( const std::string& pname ) const;
+
+    /// access to the value of an array
+    template < typename TYPE >
+        std::vector<TYPE> get_array ( const std::string& pname ) const;
 
     /// add a key-value node to the parameters
     template < typename TYPE >
@@ -95,43 +99,85 @@ namespace Common {
 
   }; // XmlParams
 
-////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
 
-  template < typename TYPE >
-      TYPE XmlParams::get_param ( const std::string& pname ) const
-  {
-    if ( params == 0 )
-      throw  Common::XmlError( FromHere(), "XML node \'" + std::string(tag_params()) + "\' not found" );
-
-    XmlNode* found_node = 0;
-    const char * nodetype = XmlTag<TYPE>::str();
-
-    // search for the node with correct type
-    XmlNode* node = params->first_node( nodetype );
-    for ( ; node; node = node->next_sibling( nodetype ) )
+    template < typename TYPE >
+        TYPE XmlParams::get_param ( const std::string& pname ) const
     {
-      // search for the attribute with key
-      XmlAttr* att = node->first_attribute( key() );
-      if ( att && !pname.compare(att->value()) )
+      if ( params == 0 )
+        throw  Common::XmlError( FromHere(), "XML node \'" + std::string(tag_params()) + "\' not found" );
+
+      XmlNode* found_node = 0;
+      const char * nodetype = XmlTag<TYPE>::type();
+
+      // search for the node with correct type
+      XmlNode* node = params->first_node( nodetype );
+      for ( ; node; node = node->next_sibling( nodetype ) )
       {
-        found_node = node;
-        break;
+        // search for the attribute with key
+        XmlAttr* att = node->first_attribute( tag_key() );
+        if ( att && !pname.compare(att->value()) )
+        {
+          found_node = node;
+          break;
+        }
       }
+
+      if ( !found_node )
+        throw  Common::XmlError( FromHere(),
+                                 "Did not find node of type [" + std::string(nodetype) + "]"
+                                 " with \'key\' attribute  [" + pname + "]" );
+
+      // convert xml value to TYPE
+      TYPE value;
+      xmlstr_to_value (*found_node, value);
+
+      return value;
     }
 
-    if ( !found_node )
-      throw  Common::XmlError( FromHere(),
-                               "Did not find node of type [" + std::string(nodetype) + "]"
-                               " with \'key\' attribute  [" + pname + "]" );
-
-    // convert xml value to TYPE
-    TYPE value;
-    xmlstr_to_value (*found_node, value);
-
-    return value;
-  }
-
 ////////////////////////////////////////////////////////////////////////////////
+
+    template < typename TYPE >
+        std::vector<TYPE> XmlParams::get_array ( const std::string& pname ) const
+    {
+      if ( params == 0 )
+        throw  Common::XmlError( FromHere(), "XML node \'" + std::string(tag_params()) + "\' not found" );
+
+      XmlNode* found_node = 0;
+      const char * nodetype = XmlTag<TYPE>::array();
+
+      // search for the node with correct type
+      XmlNode* node = params->first_node( nodetype );
+      for ( ; node; node = node->next_sibling( nodetype ) )
+      {
+        // search for the attribute with key
+        XmlAttr* att = node->first_attribute( XmlTag<TYPE>::array() );
+        if ( att && !pname.compare(att->value()) )
+        {
+          found_node = node;
+          break;
+        }
+      }
+
+      if ( !found_node )
+        throw  Common::XmlError( FromHere(),
+                                 "Did not find node of type [" + std::string(nodetype) + "]"
+                                 " with \'key\' attribute  [" + pname + "]" );
+
+      // convert xml value to TYPE
+      std::vector<TYPE> result;
+      TYPE tmp_value;
+      XmlNode* elemnode = found_node->first_node();
+      for ( ; elemnode ; elemnode = elemnode->next_sibling() )
+      {
+        xmlstr_to_value (*elemnode, tmp_value);
+        result.push_back(tmp_value);
+      }
+
+      return result;
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
 
   template < typename TYPE >
       void XmlParams::add_param ( const std::string& key, const TYPE& value )
@@ -144,7 +190,7 @@ namespace Common {
     }
 
     // convert TYPE to node name
-    const char* node_name = xmldoc.allocate_string( XmlTag<TYPE>::str() );
+    const char* node_name = xmldoc.allocate_string( XmlTag<TYPE>::type() );
 
     // convert value to string
     const char* value_str = xmldoc.allocate_string( value_to_xmlstr(value).c_str() );

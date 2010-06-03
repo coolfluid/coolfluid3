@@ -152,12 +152,6 @@ public: // functions
   /// Construct the full path
   CPath full_path () const { return m_path / m_name; }
 
-  /// Create a (sub)component of a given abstract type specified type
-  /// @param provider_name the registry string of the provider of the concrete type
-  /// @name name to give to the created omponent
-  template < typename ATYPE >
-      typename ATYPE::Ptr create_concrete_abstract_type ( const std::string& provider_name, const CName& name );
-
   /// Create a (sub)component of this component automatically cast to the specified type
   template < typename T >
       typename T::Ptr create_component_type ( const CName& name );
@@ -259,6 +253,19 @@ protected: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// Create a (sub)component of a given abstract type specified type
+/// @param provider_name the registry string of the provider of the concrete type
+/// @name name to give to the created omponent
+template < typename ATYPE >
+    typename ATYPE::Ptr create_concrete_abstract_type ( const std::string& provider_name, const Component::CName& name )
+{
+  Common::SafePtr< typename ATYPE::PROVIDER > prov =
+      Common::Factory<ATYPE>::getInstance().getProvider( provider_name );
+  return boost::dynamic_pointer_cast<ATYPE>( prov->create(name) );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 template <typename TYPE>
 inline void Component::build_component(TYPE* meself)
 {
@@ -287,17 +294,6 @@ inline std::vector<typename T::Ptr> Component::get_components_by_tag(const std::
       vec.push_back(boost::dynamic_pointer_cast<T>(it->second));
   }
   return vec;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-template <typename ATYPE>
-inline typename ATYPE::Ptr
-Component::create_concrete_abstract_type ( const std::string& provider_name, const CName& name )
-{
-  Common::SafePtr< typename ATYPE::PROVIDER > prov =
-      Common::Factory<ATYPE>::getInstance().getProvider( provider_name );
-  return boost::dynamic_pointer_cast<ATYPE>( prov->create(name) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

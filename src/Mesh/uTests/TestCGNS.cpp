@@ -89,7 +89,7 @@ BOOST_FIXTURE_TEST_SUITE( TestCGNS_TestSuite, TestCGNS_Fixture )
 
 BOOST_AUTO_TEST_CASE( Constructors )
 {
-  boost::shared_ptr<CMeshReader> meshreader = CMeshReader::create_concrete("CGNS","meshreader");
+  CMeshReader::Ptr meshreader = create_concrete_abstract_type<CMeshReader>("CGNS","meshreader");
   BOOST_CHECK_EQUAL(meshreader->name(),"meshreader");
   BOOST_CHECK_EQUAL(meshreader->get_format(),"CGNS");
 }

@@ -90,7 +90,7 @@ namespace Common {
   template < typename TYPE >
   const char* OptionT<TYPE>::tag () const
   {
-    return XmlTag<TYPE>::str();
+    return XmlTag<TYPE>::type();
   }
 
 ////////////////////////////////////////////////////////////////////////////////

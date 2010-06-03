@@ -23,7 +23,7 @@ namespace Common {
 
   const char * XmlParams::tag_params() { return "params"; }
 
-  const char * XmlParams::key()        { return "key"; }
+  const char * XmlParams::tag_key()        { return "key"; }
 
 ////////////////////////////////////////////////////////////////////////////////
 

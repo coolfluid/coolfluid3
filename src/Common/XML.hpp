@@ -32,9 +32,13 @@ namespace Common {
   /// Converts a type to an Xml tag
   template < typename TYPE > struct XmlTag
   {
+    /// xml tag for arrays
+    static const char* array () { return "array"; }
+
     /// returns a string with the xmltag corresponding to this type
-    static const char* str ();
+    static const char* type ();
   };
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
