@@ -165,11 +165,10 @@ Component::Ptr Component::remove_component ( const CName& name )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-
-Component::Ptr Component::get_component ( const CName& name )
+Component::Ptr Component::get_component ( const CName& name ) const
 {
   // find the component exists
-  Component::CompStorage_t::iterator itr = m_components.find(name);
+  Component::CompStorage_t::const_iterator itr = m_components.find(name);
 
   if ( itr != m_components.end() )     // if exists
     return itr->second;                  // return it
@@ -195,7 +194,7 @@ std::vector<Component::Ptr> Component::get_components_by_tag(const std::string& 
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::complete_path ( CPath& path )
+void Component::complete_path ( CPath& path ) const
 {
   using namespace boost::algorithm;
 
@@ -305,7 +304,7 @@ void Component::move_component ( Component::Ptr new_parent )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr Component::look_component ( const CPath& path )
+Component::Ptr Component::look_component ( const CPath& path ) const
 {
   cf_assert ( !m_root.expired() );
 

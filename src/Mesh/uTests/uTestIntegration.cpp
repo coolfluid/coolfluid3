@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_SUITE( Integration )
 BOOST_AUTO_TEST_CASE( ComputeVolume2DNeu ) // not timed
 {
   // Read the a .neu mesh as 2D mixed mesh
-  boost::shared_ptr<CMeshReader> meshreader = CMeshReader::create_concrete("Neu","meshreader");
+  boost::shared_ptr<CMeshReader> meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
   boost::filesystem::path fp_in ("quadtriag.neu");
   boost::shared_ptr<CMesh> mesh2Dneu(new CMesh("mesh2Dneu"));
   meshreader->read_from_to(fp_in,mesh2Dneu);

@@ -36,7 +36,7 @@ struct Nodes_Fixture
      //char*** argv = &boost::unit_test::framework::master_test_suite().argv;
 
     // Read the a .neu mesh as 2D mixed mesh
-    boost::shared_ptr<CMeshReader> meshreader = CMeshReader::create_concrete("Neu","meshreader");
+    boost::shared_ptr<CMeshReader> meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
 
     // the file to read from
     boost::filesystem::path fp_in ("quadtriag.neu");
@@ -78,14 +78,14 @@ BOOST_FIXTURE_TEST_SUITE( Nodes, Nodes_Fixture )
 BOOST_AUTO_TEST_CASE( writeNodes )
 {
   CRegion& firstRegion = getFirstRegion();
-  CArray::Ptr coords = coordinatesPtr();
+  CArray& coords = *coordinatesPtr().get();
   CArray::Row firstCoord = firstRegion.get_row(0, 0, coords);
   firstCoord[XX] = 1.;
   firstCoord[YY] = 1.;
   CArray::Row modCoord = firstRegion.get_row(0, 0, coords);
   BOOST_CHECK_EQUAL(modCoord[XX], 1.);
   BOOST_CHECK_EQUAL(modCoord[YY], 1.);
-  CRegion::ElementNodeVector nodes = firstRegion.getNodes(0, *coords);
+  CRegion::ElementNodeVector nodes = firstRegion.getNodes(0, coords);
   nodes[0][XX] = 2.;
   nodes[0][YY] = 2.;
   BOOST_CHECK_EQUAL(modCoord[XX], 2.);

@@ -114,18 +114,18 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   p_mesh->create_array("coordinates");
   
   // create pointers to the coordinates array and connectivity table
-  CArray::Ptr coordinates = p_mesh->get_component<CArray>("coordinates");
-  CTable::Ptr qTable = quadRegion->get_component<CTable>("table");
-  CTable::Ptr tTable = triagRegion->get_component<CTable>("table");
+  CArray& coordinates = *p_mesh->get_component<CArray>("coordinates");
+  CTable::Ptr qTable  = quadRegion->get_component<CTable>("table");
+  CTable::Ptr tTable  = triagRegion->get_component<CTable>("table");
 
   // initialize the coordinates array and connectivity tables
   const Uint dim=2;
-  coordinates->initialize(dim);
+  coordinates.initialize(dim);
   qTable->initialize(4);
   tTable->initialize(3);
   CTable::Buffer qTableBuffer = qTable->create_buffer();
   CTable::Buffer tTableBuffer = tTable->create_buffer();
-  CArray::Buffer coordinatesBuffer = coordinates->create_buffer();
+  CArray::Buffer coordinatesBuffer = coordinates.create_buffer();
   
   //  Mesh of quads and triangles with node and element numbering:
   //
@@ -186,7 +186,7 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   BOOST_CHECK_EQUAL(coordRef[1],1.0);
 
  // calculate all volumes of a region
-  BOOST_FOREACH(const CRegion& region, iterate_recursive_by_type<CRegion>(*superRegion))
+  BOOST_FOREACH( CRegion& region, iterate_recursive_by_type<CRegion>(*superRegion))
   {
    CElements::Ptr  elementType = region.get_component<CElements>("type");
    boost::shared_ptr<CTable>     connTable   = region.get_component<CTable>("table");
@@ -197,13 +197,13 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
    // the loop
    for (Uint iElem=0; iElem<nbRows; ++iElem)
    {
-     std::vector<CArray::Row > elementCoordinates;
+     std::vector< CArray::Row > elem_coord;
      for (Uint iNode=0; iNode<elementType->getNbNodes(); iNode++)
      {
-       elementCoordinates.push_back(region.get_row(iElem,iNode,coordinates));
+       elem_coord.push_back( region.get_row(iElem,iNode,coordinates) );
      }
 
-     volumes[iElem]=elementType->computeVolume(elementCoordinates);
+     volumes[iElem]=elementType->computeVolume(elem_coord);
      //CFinfo << "\t volume["<<iElem<<"] =" << volumes[iElem] << "\n" << CFflush;
 
      // check
@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
  }
     
 
-//  BOOST_FOREACH(CArray::Row node , elementCoordinates)
+//  BOOST_FOREACH(CArray::Row node , elem_coord)
 //  {
 //    CFinfo << "node = ";
 //    for (Uint j=0; j<node.size(); j++) {

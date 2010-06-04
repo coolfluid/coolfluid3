@@ -63,21 +63,21 @@ public:
   /// @param iNode    in    the columnindex in the connectivity table
   /// @param cArray   in    the CArray which data will be copied from
   template<typename vectorType>
-  void set_row(vectorType& row, const Uint iElem, const Uint iNode, boost::shared_ptr<CArray>& cArray)
+  void set_row(vectorType& row, const Uint iElem, const Uint iNode, CArray& cArray)
   { 
-    const Uint nbCols = cArray->get_array().shape()[1];
+    const Uint nbCols = cArray.get_array().shape()[1];
     for (Uint j=0; j<nbCols; ++j) 
     {
       const Uint row_in_array = m_connTable->get_table()[iElem][iNode];
-      row[j] = cArray->get_array()[row_in_array][j];
+      row[j] = cArray.get_array()[row_in_array][j];
     }
   }
   
   /// Returns a mutable row view corresponding to node iNode in element iElem
-  CArray::Row get_row(const Uint iElem, const Uint iNode, CArray::Ptr& cArray)
+  CArray::Row get_row(const Uint iElem, const Uint iNode, CArray& cArray)
   {
     const Uint row_in_array = m_connTable->get_table()[iElem][iNode];
-    return cArray->get_array()[row_in_array];
+    return cArray.get_array()[row_in_array];
   }
   
   /// Returns a constant row view corresponding to node iNode in element iElem

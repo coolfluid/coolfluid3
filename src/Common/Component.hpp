@@ -166,26 +166,27 @@ public: // functions
   /// @param new_parent will be the new parent of this component
   void move_component ( Ptr new_parent );
 
-  /// Get a (sub)component of this component
-  /// @param name the component
-  Component::Ptr get_component ( const CName& name );
-
   /// Check if a (sub)component of this component exists
   /// @param name the component
-  bool check_component ( const CName& name );
+  bool exists_component ( const CName& name ) const;
+
+  /// Get a (sub)component of this component
+  /// @param name the component
+  Component::Ptr get_component ( const CName& name ) const;
 
   /// Get a (sub)component of this component automatically cast to the specified type
   /// @param name the component
   template < typename T >
-      typename T::Ptr get_component ( const CName& name );
+      typename T::Ptr get_component ( const CName& name ) const;
 
   /// Return the parent component
-  Ptr get_parent() { return m_parent.lock(); }
+  Ptr get_parent() const { return m_parent.lock(); }
 
   /// Looks for a component via its path
-  /// (wdeconinck: relative path doesn't work if no root is available)
   /// @param path to the component
-  Ptr look_component ( const CPath& path );
+  ///
+  /// @todo wdeconinck: relative path doesn't work if no root is available)
+  Ptr look_component ( const CPath& path ) const;
 
   /// Resolves relative elements within a path to complete it.
   /// The path may be relative to this component or absolute.
@@ -193,7 +194,7 @@ public: // functions
   /// @param path to a component
   /// @post path statisfies CPath::is_complete()
   /// @post path statisfies CPath::is_absolute()
-  void complete_path ( CPath& path );
+  void complete_path ( CPath& path ) const;
 
   /// add tag to this component
   void add_tag(const std::string& tag);
@@ -257,7 +258,7 @@ protected: // data
 /// @param provider_name the registry string of the provider of the concrete type
 /// @name name to give to the created omponent
 template < typename ATYPE >
-    typename ATYPE::Ptr create_concrete_abstract_type ( const std::string& provider_name, const Component::CName& name )
+    typename ATYPE::Ptr create_component_abstract_type ( const std::string& provider_name, const Component::CName& name )
 {
   Common::SafePtr< typename ATYPE::PROVIDER > prov =
       Common::Factory<ATYPE>::getInstance().getProvider( provider_name );
@@ -323,7 +324,7 @@ inline typename T::Ptr Component::get_unique_component_by_type ()
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename T >
-inline typename T::Ptr Component::get_component ( const CName& name )
+inline typename T::Ptr Component::get_component ( const CName& name ) const
 {
   return boost::dynamic_pointer_cast<T>( get_component(name) );
 }

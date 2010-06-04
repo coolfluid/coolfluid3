@@ -89,7 +89,7 @@ BOOST_FIXTURE_TEST_SUITE( TestCGNS_TestSuite, TestCGNS_Fixture )
 
 BOOST_AUTO_TEST_CASE( Constructors )
 {
-  CMeshReader::Ptr meshreader = create_concrete_abstract_type<CMeshReader>("CGNS","meshreader");
+  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CGNS","meshreader");
   BOOST_CHECK_EQUAL(meshreader->name(),"meshreader");
   BOOST_CHECK_EQUAL(meshreader->get_format(),"CGNS");
 }
@@ -398,7 +398,7 @@ maintain SIDS-standard ordering
 BOOST_AUTO_TEST_CASE( ReadCGNS )
 {
 
-  boost::shared_ptr<CMeshReader> meshreader = CMeshReader::create_concrete("CGNS","meshreader");
+  boost::shared_ptr<CMeshReader> meshreader = create_component_abstract_type<CMeshReader>("CGNS","meshreader");
 
 //  XMLNode options_node = XMLNode::createXMLTopNode("xml", TRUE);
 //  options_node.addAttribute("version","1.0");
@@ -432,7 +432,7 @@ BOOST_AUTO_TEST_CASE( ReadCGNS )
   boost::filesystem::path fp_out ("grid_c.msh");
 //  boost::filesystem::path fp_out ("kw_mark.msh");
 
-  CMeshWriter::Ptr meshwriter = CMeshWriter::create_concrete("Gmsh","meshwriter");
+  CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
   meshwriter->write_from_to(mesh,fp_out);
 
 

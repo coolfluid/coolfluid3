@@ -84,13 +84,13 @@ protected: // classes
 
      bool operator()(const Component& component)
      {
-       std::vector< CRegion::Ptr > v = component.get_components_by_type<CRegion>();
-//       BOOST_FOREACH(const CRegion::Ptr& region, component.get_components_by_type<CRegion>())
-       for ( int i = 0; i < v.size(); ++i )
-       {
-         if ( m_isLeaf( *v[i] ) )
-           return true;
-       }
+//       std::vector< CRegion::Ptr > v = component.get_components_by_type<CRegion>();
+////       BOOST_FOREACH(const CRegion::Ptr& region, component.get_components_by_type<CRegion>())
+//       for ( int i = 0; i < v.size(); ++i )
+//       {
+//         if ( m_isLeaf( *v[i] ) )
+//           return true;
+//       }
        return false;
      }
 

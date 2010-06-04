@@ -79,15 +79,15 @@ BOOST_FIXTURE_TEST_SUITE( MeshReading_TestSuite, MeshReading_Fixture )
 
 BOOST_AUTO_TEST_CASE( Constructors )
 {
-  boost::shared_ptr<CMeshReader> meshreader = CMeshReader::create_concrete("Neu","meshreader");
+  boost::shared_ptr<CMeshReader> meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
   BOOST_CHECK_EQUAL(meshreader->name(),"meshreader");
   BOOST_CHECK_EQUAL(meshreader->get_format(),"Neu");
 
-  CMeshWriter::Ptr meshwriter = CMeshWriter::create_concrete("Gmsh","meshwriter");
+  CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
   BOOST_CHECK_EQUAL(meshwriter->name(),"meshwriter");
   BOOST_CHECK_EQUAL(meshwriter->get_format(),"Gmsh");
 
-  CMeshWriter::Ptr neu_writer = CMeshWriter::create_concrete("Neu","meshwriter");
+  CMeshWriter::Ptr neu_writer = create_component_abstract_type<CMeshWriter>("Neu","meshwriter");
   BOOST_CHECK_EQUAL(neu_writer->name(),"meshwriter");
   BOOST_CHECK_EQUAL(neu_writer->get_format(),"Neu");
  
@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE( Constructors )
 
 BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh )
 {
-  boost::shared_ptr<CMeshReader> meshreader = CMeshReader::create_concrete("Neu","meshreader");
+  boost::shared_ptr<CMeshReader> meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
 
   // UNCOMMENT ALL THIS AND CHANGE THE FILEPATH "fp" TO A VALID PATH
   
@@ -112,11 +112,11 @@ BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh )
   mesh->print_tree();
 
 //  boost::filesystem::path fp_out ("quadtriag.msh");
-//  CMeshWriter::Ptr gmsh_writer = CMeshWriter::create_concrete("Gmsh","meshwriter");
+//  CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
 //  gmsh_writer->write_from_to(mesh,fp_out);
 
   boost::filesystem::path fp_out_neu ("quadtriag_write.neu");
-  CMeshWriter::Ptr neu_writer = CMeshWriter::create_concrete("Neu","meshwriter");
+  CMeshWriter::Ptr neu_writer = create_component_abstract_type<CMeshWriter>("Neu","meshwriter");
   neu_writer->write_from_to(mesh,fp_out_neu);
 
 }
@@ -125,8 +125,8 @@ BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh )
 
 BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh2 )
 {
-  CMeshReader::Ptr meshreader = CMeshReader::create_concrete("Neu","meshreader");
-  CMeshWriter::Ptr meshwriter = CMeshWriter::create_concrete("Gmsh","meshwriter");
+  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
+  CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
 
   // the file to read from and to
   boost::filesystem::path fp_in ("quadtriag_write.neu");
