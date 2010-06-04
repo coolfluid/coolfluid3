@@ -247,9 +247,32 @@ namespace Common {
     return fnode;
   }
 
-  XmlNode* XmlParams::add_reply_frame()
+  XmlNode* XmlOps::add_signal_frame( XmlNode& xmlnode )
   {
-    return XmlOps::add_node_to( *xmlnode.parent(), XmlParams::tag_node_frame() );
+    XmlNode* signalnode = XmlOps::add_node_to( xmlnode, XmlParams::tag_node_frame() );
+
+    XmlOps::add_attribute_to( *signalnode, "type", "signal" );
+
+    return signalnode;
+  }
+
+  XmlNode* XmlOps::add_reply_frame( XmlNode& xmlnode )
+  {
+    XmlNode* replynode = XmlOps::add_node_to( *xmlnode.parent(), XmlParams::tag_node_frame() );
+
+    XmlOps::add_attribute_to( *replynode, "type", "reply" );
+
+    // reply with same target
+    XmlAttr* target_att = xmlnode.first_attribute("target");
+    std::string target = target_att ? target_att->value() : "";
+    XmlOps::add_attribute_to( *replynode, "target", target );
+
+    // reply with same target
+    XmlAttr* sender_att = xmlnode.first_attribute("sender");
+    std::string receiver = sender_att ? sender_att->value() : "";
+    XmlOps::add_attribute_to( *replynode, "receiver", receiver );
+
+    return replynode;
   }
 
 ////////////////////////////////////////////////////////////////////////////////

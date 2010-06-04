@@ -34,11 +34,20 @@ namespace Common {
     /// adds a node to the xml node with strings belonging to the xml document
     static XmlNode* add_node_to ( XmlNode& node, const std::string& nname,  const std::string& nvalue = std::string() );
 
+    /// adds an attribute to the xml node with strinss belonging to the xml document
+    static XmlAttr* add_attribute_to ( XmlNode& node, const std::string& atname,  const std::string& atvalue );
+
     /// @returns the first node not part of the xml declaration
     static XmlNode* goto_doc_node ( XmlNode& node );
 
-    /// adds an attribute to the xml node with strinss belonging to the xml document
-    static XmlAttr* add_attribute_to ( XmlNode& node, const std::string& atname,  const std::string& atvalue );
+    /// Adds a signal frame within the XmlNode passed ( typically a doc ).
+    /// It will set automatically the type attribute.
+    static XmlNode* add_signal_frame( XmlNode& node );
+
+    /// adds a reply frame parallel to the XmlNode passed.
+    /// It will set automatically the type attrribute.
+    /// It will try to set the receiver and the target from the signal to which is answering
+    static XmlNode* add_reply_frame( XmlNode& node );
 
     /// creates a new XmlDoc
     /// and initializes the document with Signal and Params nodes
@@ -97,9 +106,6 @@ namespace Common {
     /// add an array node to the parameters
     template < typename TYPE >
         void add_array ( const std::string& key, const std::vector<TYPE>& vect);
-
-    /// adds a reply frame parallel to the XmlNode passed
-    XmlNode* add_reply_frame();
 
     /// reference to the XmlNode to retrieve params from
     XmlNode& xmlnode;

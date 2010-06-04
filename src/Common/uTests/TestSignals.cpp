@@ -48,7 +48,7 @@ public: // functions
 
     XmlNode& docnode = *XmlOps::goto_doc_node(*xmlroot.get());
 
-    XmlNode& signal_frame = *XmlOps::add_node_to(docnode, XmlParams::tag_node_frame() );
+    XmlNode& signal_frame = *XmlOps::add_signal_frame(docnode);
 
     XmlParams p ( signal_frame );
 
@@ -63,14 +63,15 @@ public: // functions
 
     XmlNode& docnode = *XmlOps::goto_doc_node(*xmlroot.get());
 
-    XmlNode& signal_frame = *XmlOps::add_node_to(docnode, XmlParams::tag_node_frame() );
+    XmlNode& signal_frame = *XmlOps::add_signal_frame(docnode);
 
-    CF_DEBUG_POINT;
+//    std::vector < std::pair < Signal::id_t, Signal::desc_t > > lists = receiver.list_signals();
+//    for ( int i = 0; i < lists.size(); i++)
+//    {
+//      CFinfo << "signal [" << lists[i].first << "] desc [" << lists[i].second << "]" << CFendl;
+//    }
 
     receiver.call_signal( "list_tree", signal_frame );
-
-    CF_DEBUG_POINT;
-
   }
 
   /// @name SIGNALS

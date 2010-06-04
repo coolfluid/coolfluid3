@@ -356,19 +356,9 @@ void Component::write_xml_tree( XmlNode& node )
 
 void Component::list_tree( XmlNode& xml )
 {
-  XmlParams p (xml);
+  CF_DEBUG_POINT;
 
-  // create the reply xml frame
-  XmlNode& reply = *p.add_reply_frame();
-
-  // reply with same target
-  XmlOps::add_attribute_to(reply, "target", xml.first_attribute("target")->value() );
-
-  // sender is me
-  XmlOps::add_attribute_to(reply, "sender", full_path().string() );
-
-  // receiver is sender of signal
-  XmlOps::add_attribute_to(reply, "receiver", xml.first_attribute("sender")->value() );
+  XmlNode& reply = *XmlOps::add_reply_frame( xml );
 
   write_xml_tree(reply);
 }
