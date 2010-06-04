@@ -26,6 +26,8 @@ namespace Common {
     /// prints the xml node to screen
     static void print_xml_node ( const XmlNode& node, Uint nesting = 0 );
 
+    static void xml_to_string ( const XmlNode& node, std::string& str );
+
     /// deep copies a node into another with all the memory allocated in the second
     static void deep_copy ( const XmlNode& in, XmlNode& out );
 
@@ -91,6 +93,10 @@ namespace Common {
     /// add a key-value node to the parameters
     template < typename TYPE >
         void add_param ( const std::string& key, const TYPE& value );
+
+    /// add an array node to the parameters
+    template < typename TYPE >
+        void add_array ( const std::string& key, const std::vector<TYPE>& vect);
 
     /// adds a reply frame parallel to the XmlNode passed
     XmlNode* add_reply_frame();
@@ -211,6 +217,51 @@ namespace Common {
     // creates the attribute
     XmlAttr* attr = xmldoc.allocate_attribute( key_str, keyvalue_str );
     node->append_attribute(attr);
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////
+
+  template < typename TYPE >
+      void XmlParams::add_array ( const std::string& key, const std::vector<TYPE>& vect)
+  {
+    using namespace rapidxml;
+
+    if ( params == 0 )
+    {
+      params = XmlOps::add_node_to ( xmlnode, XmlParams::tag_node_params() );
+    }
+
+    // convert TYPE to node name
+    const char* node_name = xmldoc.allocate_string( XmlTag<TYPE>::type() );
+
+    // convert value to string
+
+
+    // creates the node
+    XmlNode* node = xmldoc.allocate_node ( node_element, node_name, "" );
+    params->append_node(node);
+
+    // convert key to xml atribute string
+    const char* key_str = xmldoc.allocate_string( "key" );
+    const char* keyvalue_str = xmldoc.allocate_string( key.c_str() );
+
+    // create the size attribute
+    const char* size_str = xmldoc.allocate_string( "size" );
+    const char* sizevalue_str = xmldoc.allocate_string( StringOps::to_str(vect.size()).c_str() );
+
+    // creates the attribute
+    XmlAttr* attr = xmldoc.allocate_attribute( key_str, keyvalue_str );
+    node->append_attribute(attr);
+
+    attr = xmldoc.allocate_attribute( size_str, sizevalue_str );
+    node->append_attribute(attr);
+
+    for(int i = 0 ; i < vect.size() ; i++)
+    {
+      const char* value_str = xmldoc.allocate_string( value_to_xmlstr(vect[i]).c_str() );
+      XmlNode * itemNode = xmldoc.allocate_node ( node_element, "e", value_str );
+      node->append_node(itemNode);
+    }
   }
 
 ////////////////////////////////////////////////////////////////////////////////

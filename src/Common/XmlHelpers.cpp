@@ -34,10 +34,18 @@ namespace Common {
     std::ofstream fout ( fpath.string().c_str() );
 
     std::string xml_as_string;
-    //    rapidxml::print(std::back_inserter(xml_as_string), node, rapidxml::print_no_indenting);
-    rapidxml::print(std::back_inserter(xml_as_string), node);
+
+    XmlOps::xml_to_string ( node, xml_as_string );
 
     fout << xml_as_string << std::endl;
+  }
+
+////////////////////////////////////////////////////////////////////////////////
+
+  void XmlOps::xml_to_string ( const XmlNode& node, std::string& str )
+  {
+    //    rapidxml::print(std::back_inserter(xml_as_string), node, rapidxml::print_no_indenting);
+    rapidxml::print(std::back_inserter(str), node);
   }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -224,9 +232,14 @@ namespace Common {
         throw  Common::XmlError( FromHere(), "No xml nodes after declaration" );
     }
 
+    CFinfo << "node name :" << fnode->name() << " " << strcmp(fnode->name() , XmlParams::tag_node_doc()) << CFendl;
+
     // find the first doc node
     if ( strcmp(fnode->name() , XmlParams::tag_node_doc()) ) /* are not equal */
       fnode = fnode->next_sibling( XmlParams::tag_node_doc() );
+
+    CFinfo << fnode << CFendl;
+
 
     if ( !fnode )
       throw  Common::XmlError( FromHere(), "No xml doc found" );

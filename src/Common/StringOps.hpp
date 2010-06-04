@@ -35,7 +35,7 @@ public:
   /// @param str string to convert from
   /// @return converter type
   template <class T>
-  static std::string to_str (T v)
+  static std::string to_str (const T & v)
   {
     std::ostringstream oss;
     oss << v;
