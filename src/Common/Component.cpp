@@ -356,8 +356,6 @@ void Component::write_xml_tree( XmlNode& node )
 
 void Component::list_tree( XmlNode& xml )
 {
-  CF_DEBUG_POINT;
-
   XmlNode& reply = *XmlOps::add_reply_frame( xml );
 
   write_xml_tree(reply);
