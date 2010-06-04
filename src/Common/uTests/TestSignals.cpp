@@ -65,6 +65,10 @@ public: // functions
 
     XmlNode& signal_frame = *XmlOps::add_signal_frame(docnode);
 
+    XmlOps::add_attribute_to( signal_frame, "sender",   full_path().string() );
+    XmlOps::add_attribute_to( signal_frame, "target",   "list_tree" );
+    XmlOps::add_attribute_to( signal_frame, "receiver", receiver.full_path().string() );
+
 //    std::vector < std::pair < Signal::id_t, Signal::desc_t > > lists = receiver.list_signals();
 //    for ( int i = 0; i < lists.size(); i++)
 //    {
@@ -72,6 +76,8 @@ public: // functions
 //    }
 
     receiver.call_signal( "list_tree", signal_frame );
+
+//    XmlOps::print_xml_node( *signal_frame.document() );
   }
 
   /// @name SIGNALS
@@ -132,9 +138,12 @@ BOOST_AUTO_TEST_CASE( simple_signal )
   CSmall::Ptr small_1  ( new CSmall ( "small-1" ) );
   CSmall::Ptr small_2  ( new CSmall ( "small-2" ) );
 
+  root->add_component(small_1);
+  small_1->add_component(small_2);
+
   small_1->trigger_signal_print_message ( *small_2.get() );
 
-  small_2->trigger_signal_list_tree ( *small_1.get() );
+  small_2->trigger_signal_list_tree ( *root.get() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

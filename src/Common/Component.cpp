@@ -358,6 +358,8 @@ void Component::list_tree( XmlNode& xml )
 {
   XmlNode& reply = *XmlOps::add_reply_frame( xml );
 
+  XmlOps::add_attribute_to( reply, "sender", full_path().string() );
+
   write_xml_tree(reply);
 }
 
