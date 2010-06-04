@@ -314,16 +314,16 @@ BOOST_AUTO_TEST_CASE( test_iterator )
   counter = 0;
   for (Component::iterator it = root->begin(); it!=root->end(); ++it )
   {
-    CFinfo << "component " << counter << ": " << it->name() << "\n";
+//    CFinfo << "component " << counter << ": " << it->name() << "\n";
     BOOST_CHECK_EQUAL(it->name(),check_with_map[counter++]);
   }
 
-  CFinfo << "loop ended\n";
+//  CFinfo << "loop ended\n";
 
   counter = 0;
   BOOST_FOREACH(const Component& comp, (*boost::dynamic_pointer_cast<Component>(root)))
   {
-    CFinfo << "component " << counter << ": " << comp.name() << "\n";
+//    CFinfo << "component " << counter << ": " << comp.name() << "\n";
     BOOST_CHECK_EQUAL(comp.name(),check_with_map[counter++]);
   }
 
