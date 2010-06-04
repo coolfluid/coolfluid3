@@ -14,6 +14,7 @@
 
 namespace CF {
 namespace Mesh {
+
   class CMesh;
   class CRegion;
   
@@ -29,7 +30,6 @@ public: // typedefs
 
   /// provider
   typedef Common::ConcreteProvider < CMeshReader,1 > PROVIDER;
-
   /// pointer to this type
   typedef boost::shared_ptr<CMeshReader> Ptr;
 
@@ -79,8 +79,10 @@ protected: // functions
   void remove_empty_leaf_regions(boost::shared_ptr<CRegion>& parent_region);
 
 
-private: // data
+private: // helper functions
 
+  /// regists all the signals declared in this class
+  static void regist_signals ( Component* self ) {}
 
 };
 

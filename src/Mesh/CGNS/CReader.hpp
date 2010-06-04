@@ -127,6 +127,11 @@ private:
   std::vector<Region_TableIndex_pair> m_global_to_region;
 
 
+private: // helper functions
+
+  /// regists all the signals declared in this class
+  static void regist_signals ( Component* self ) {}
+
 private:
 
   boost::shared_ptr<CMesh> m_mesh;

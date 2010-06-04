@@ -15,7 +15,7 @@ using namespace Common;
 CElements::CElements ( const CName& name  ) :
   Component ( name )
 {
-  build_component(this);
+  BUILD_COMPONENT;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

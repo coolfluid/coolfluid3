@@ -14,7 +14,7 @@ CGroup_Provider ( CGroup::getClassName() );
 
 CGroup::CGroup ( const CName& name ) : Component ( name )
 {
-  build_component(this);
+  BUILD_COMPONENT;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

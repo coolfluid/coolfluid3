@@ -4,9 +4,6 @@
 LIST ( APPEND uTestCommon_libs Common )
 LIST ( APPEND uTestCommon_files
   uTestCommon.cpp
-  TestCPath.cpp
-  TestComponent.cpp
-  TestConfig.cpp
   TestOSystem.cpp
   TestStringOps.cpp
   TestHourMinSec.cpp
@@ -14,11 +11,24 @@ LIST ( APPEND uTestCommon_files
   TestLogLevelFilter.cpp
   TestLogStampFilter.cpp
   TestLogStream.cpp
+)
+
+CF_ADD_UNITTEST ( uTestCommon )
+
+################################################################################
+# Test Component
+
+LIST ( APPEND uTestComponent_libs Common )
+LIST ( APPEND uTestComponent_files
+  uTestComponent.cpp
+  TestCPath.cpp
+  TestComponent.cpp
+  TestConfig.cpp
   TestSignals.cpp
   TestXmlParams.cpp
 )
 
-CF_ADD_UNITTEST ( uTestCommon )
+CF_ADD_UNITTEST ( uTestComponent )
 
 ################################################################################
 # Test PE

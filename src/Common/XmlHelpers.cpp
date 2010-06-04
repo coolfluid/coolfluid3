@@ -13,17 +13,19 @@ namespace Common {
   XmlParams::XmlParams( XmlNode& node ) :
       xmlnode(node),
       xmldoc(*node.document()),
-      params( node.first_node( tag_params() ) ) // might be NULL
+      params( node.first_node( tag_node_params() ) ) // might be NULL
   {
   }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  const char * XmlParams::tag_doc()    { return "cfxml"; }
+  const char * XmlParams::tag_node_doc()    { return "cfxml"; }
 
-  const char * XmlParams::tag_params() { return "params"; }
+  const char * XmlParams::tag_node_params() { return "params"; }
 
-  const char * XmlParams::tag_key()        { return "key"; }
+  const char * XmlParams::tag_node_frame()  { return "frame"; }
+
+  const char * XmlParams::tag_attr_key()    { return "key"; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -223,13 +225,18 @@ namespace Common {
     }
 
     // find the first doc node
-    if ( strcmp(fnode->name() , XmlParams::tag_doc()) ) /* are not equal */
-      fnode = fnode->next_sibling( XmlParams::tag_doc() );
+    if ( strcmp(fnode->name() , XmlParams::tag_node_doc()) ) /* are not equal */
+      fnode = fnode->next_sibling( XmlParams::tag_node_doc() );
 
     if ( !fnode )
       throw  Common::XmlError( FromHere(), "No xml doc found" );
 
     return fnode;
+  }
+
+  XmlNode* XmlParams::add_reply_frame()
+  {
+    return XmlOps::add_node_to( *xmlnode.parent(), XmlParams::tag_node_frame() );
   }
 
 ////////////////////////////////////////////////////////////////////////////////

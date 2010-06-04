@@ -144,6 +144,11 @@ public:
     return ConstElementNodeVector(iElem, getElementType().getNbNodes(), coordinates, *m_connTable);
   }
 
+private: // helper functions
+
+  /// regists all the signals declared in this class
+  static void regist_signals ( Component* self ) {}
+
 private:
   
   std::vector< CRegion::Ptr > m_subregions;

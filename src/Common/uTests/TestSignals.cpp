@@ -1,12 +1,100 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
+#include "Common/CRoot.hpp"
 #include "Common/Log.hpp"
+#include "Common/XmlHelpers.hpp"
 
 using namespace std;
 using namespace boost;
 using namespace CF;
 using namespace CF::Common;
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+/// Mini component class for tesng
+/// @author Tiago Quintino
+class Common_API CSmall : public Component {
+
+public: // typedefs
+
+  /// provider
+  typedef Common::ConcreteProvider < CSmall,1 > PROVIDER;
+  /// pointer to this type
+  typedef boost::shared_ptr<CSmall> Ptr;
+
+public: // functions
+
+  /// Contructor
+  /// @param name of the component
+  CSmall ( const CName& name ) : Component ( name )
+  {
+    BUILD_COMPONENT;
+  }
+
+  /// Virtual destructor
+  virtual ~CSmall() {}
+
+  /// Get the class name
+  static std::string getClassName () { return "CSmall"; }
+
+  /// Configuration Options
+  static void defineConfigOptions ( Common::OptionList& options ) {}
+
+  void trigger_signal_print_message ( Component& receiver )
+  {
+    boost::shared_ptr<XmlDoc> xmlroot = XmlOps::create_doc();
+
+    XmlNode& docnode = *XmlOps::goto_doc_node(*xmlroot.get());
+
+    XmlNode& signal_frame = *XmlOps::add_node_to(docnode, XmlParams::tag_node_frame() );
+
+    XmlParams p ( signal_frame );
+
+    p.add_param<int>( "Counter", 10 );
+
+    receiver.call_signal( "print_message", signal_frame );
+  }
+
+  void trigger_signal_list_tree ( Component& receiver )
+  {
+    boost::shared_ptr<XmlDoc> xmlroot = XmlOps::create_doc();
+
+    XmlNode& docnode = *XmlOps::goto_doc_node(*xmlroot.get());
+
+    XmlNode& signal_frame = *XmlOps::add_node_to(docnode, XmlParams::tag_node_frame() );
+
+    CF_DEBUG_POINT;
+
+    receiver.call_signal( "list_tree", signal_frame );
+
+    CF_DEBUG_POINT;
+
+  }
+
+  /// @name SIGNALS
+  //@{
+
+  /// creates a component from this component
+  void print_message ( XmlNode& xml )
+  {
+    XmlParams p (xml);
+
+    CFinfo << "Component [" << name() << "] received counter [" << p.get_param<int>("Counter") << "]" << CFendl;
+  }
+
+  //@} END SIGNALS
+
+private: // helper functions
+
+  /// regists all the signals declared in this class
+  static void regist_signals ( CSmall* self )
+  {
+    self->regist_signal ( "print_message" , "prints" )->connect ( boost::bind ( &CSmall::print_message, self, _1 ) );
+  }
+
+}; // CSmall
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -36,8 +124,16 @@ BOOST_FIXTURE_TEST_SUITE( TestSignals_TestSuite, TestSignals_Fixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( constructors )
+BOOST_AUTO_TEST_CASE( simple_signal )
 {
+  CRoot::Ptr root = CRoot::create ( "root" );
+
+  CSmall::Ptr small_1  ( new CSmall ( "small-1" ) );
+  CSmall::Ptr small_2  ( new CSmall ( "small-2" ) );
+
+  small_1->trigger_signal_print_message ( *small_2.get() );
+
+  small_2->trigger_signal_list_tree ( *small_1.get() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

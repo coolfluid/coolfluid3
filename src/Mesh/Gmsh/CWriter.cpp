@@ -29,7 +29,7 @@ aGmshWriter_Provider ( "Gmsh" );
 CWriter::CWriter( const CName& name )
 : CMeshWriter(name)
 {
-  build_component(this);
+  BUILD_COMPONENT;
 
   // gmsh types: http://www.geuz.org/gmsh/doc/texinfo/gmsh.html#MSH-ASCII-file-format
   m_elementTypes[GeoShape::TRIAG]=2;

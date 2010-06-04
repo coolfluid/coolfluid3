@@ -16,7 +16,7 @@ CLink_Provider ( CLink::getClassName() );
 
 CLink::CLink ( const CName& name, const CPath& parent_path ) : Component ( name )
 {
-  build_component(this);
+  BUILD_COMPONENT;
   m_is_link = true;
 }
 

@@ -56,9 +56,12 @@ namespace Common {
     /// @param path to the component
     void remove_component_path ( const CPath& path );
 
-  private: // functions
+  private: // helper functions
 
     typedef std::map< std::string , Component::Ptr > CompStorage_t;
+
+    /// regists all the signals declared in this class
+    static void regist_signals ( Component* self ) {}
 
     /// Private constructor forces creation via the create() funtion
     /// @param name of the component

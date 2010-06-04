@@ -41,13 +41,18 @@ namespace Common {
     /// link to component
     void link_to ( Component::Ptr lnkto );
 
+  private: // helper functions
+
+    /// regists all the signals declared in this class
+    static void regist_signals ( Component* self ) {}
+
   private: // data
 
     /// this is a link to the component
     /// using weak_prt meand it might become invalid so we should test for expire()
     boost::weak_ptr<Component> m_link_component;
 
-  };
+  }; // CLink
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -56,6 +56,11 @@ public: // functions
   /// @return A Buffer object that can fill this Array
   Buffer create_buffer(const size_t buffersize=1024);
 
+private: // helper functions
+
+  /// regists all the signals declared in this class
+  static void regist_signals ( Component* self ) {}
+
 private: // data
 
   /// storage of the array

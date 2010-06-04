@@ -16,6 +16,9 @@ namespace Common {
 
   public: // typedefs
 
+    /// provider
+    typedef Common::ConcreteProvider < CGroup,1 > PROVIDER;
+    /// pointer to this type
     typedef boost::shared_ptr<CGroup> Ptr;
 
   public: // functions
@@ -33,7 +36,10 @@ namespace Common {
     /// Configuration Options
     static void defineConfigOptions ( Common::OptionList& options ) {}
 
-  private:
+  private: // helper functions
+
+    /// regists all the signals declared in this class
+    static void regist_signals ( Component* self ) {}
 
   };
 

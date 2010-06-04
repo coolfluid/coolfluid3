@@ -26,7 +26,7 @@ aNeuReader_Provider ( "Neu" );
 CReader::CReader( const CName& name )
 : CMeshReader(name)
 {
-  build_component(this);
+  BUILD_COMPONENT;
 
   m_supported_types.reserve(2);
   m_supported_types.push_back("P1-Quad2D");

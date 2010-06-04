@@ -9,6 +9,7 @@
 #include <boost/tokenizer.hpp>
 
 #include "Common/Component.hpp"
+#include "Common/XmlHelpers.hpp"
 #include "Common/StringOps.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/Log.hpp"
@@ -26,7 +27,7 @@ Component::Component ( const CName& name ) :
     m_is_link (false),
     m_tags(":") // empty tags
 {
-  build_component(this);
+  BUILD_COMPONENT;
 
   if (!CPath::is_valid_element( name ))
     throw InvalidPath(FromHere(), "Component name ["+name+"] is invalid");
@@ -340,16 +341,36 @@ void Component::create_component ( XmlNode& node  )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::list_tree( XmlNode& node )
+void Component::write_xml_tree( XmlNode& node )
 {
-  throw NotImplemented( FromHere(), "" );
+   XmlNode& this_node = *XmlOps::add_node_to(node, "CGroup");
+   XmlOps::add_attribute_to( this_node, "name", name() );
 
-  //  XMLNode this_node = parent.addChild( name().c_str() );
+   BOOST_FOREACH( CompStorage_t::value_type c, m_components )
+   {
+     c.second->write_xml_tree( this_node );
+   }
+}
 
-//  BOOST_FOREACH( CompStorage_t::value_type c, m_components )
-//  {
-//    c.second->list_tree( this_node );
-//  }
+/////////////////////////////////////////////////////////////////////////////////////
+
+void Component::list_tree( XmlNode& xml )
+{
+  XmlParams p (xml);
+
+  // create the reply xml frame
+  XmlNode& reply = *p.add_reply_frame();
+
+  // reply with same target
+  XmlOps::add_attribute_to(reply, "target", xml.first_attribute("target")->value() );
+
+  // sender is me
+  XmlOps::add_attribute_to(reply, "sender", full_path().string() );
+
+  // receiver is sender of signal
+  XmlOps::add_attribute_to(reply, "receiver", xml.first_attribute("sender")->value() );
+
+  write_xml_tree(reply);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

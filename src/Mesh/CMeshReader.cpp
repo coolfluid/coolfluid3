@@ -17,7 +17,7 @@ using namespace Common;
 CMeshReader::CMeshReader ( const CName& name  ) :
   Component ( name )
 {
-  build_component(this);
+  BUILD_COMPONENT;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

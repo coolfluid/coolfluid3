@@ -32,7 +32,7 @@ namespace Common {
     virtual void change_value ( XmlNode& node );
 
     /// @returns the xml tag for this option
-    virtual const char * tag() const { return XmlParams::tag_params(); }
+    virtual const char * tag() const { return XmlParams::tag_node_params(); }
 
     /// @returns the value as a sd::string
     virtual std::string value_str () const { return value<std::string>(); }

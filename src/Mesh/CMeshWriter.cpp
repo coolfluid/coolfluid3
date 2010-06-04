@@ -12,7 +12,7 @@ using namespace Common;
 CMeshWriter::CMeshWriter ( const CName& name  ) :
   Component ( name )
 {
-  build_component(this);
+  BUILD_COMPONENT;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

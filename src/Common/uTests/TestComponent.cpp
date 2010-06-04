@@ -50,19 +50,22 @@ BOOST_FIXTURE_TEST_SUITE( Component_TestSuite, Component_Fixture )
 BOOST_AUTO_TEST_CASE( constructors )
 {
   // constructor with passed path
-  boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
+  CRoot::Ptr root = CRoot::create ( "root" );
+
   BOOST_CHECK_EQUAL ( root->name() , "root" );
   BOOST_CHECK_EQUAL ( root->path().string() , "/" );
   BOOST_CHECK_EQUAL ( root->full_path().string() , "//root" );
 
   // constructor with empty path
   CGroup dir1 ( "dir1" );
+
   BOOST_CHECK_EQUAL ( dir1.name() , "dir1" );
   BOOST_CHECK_EQUAL ( dir1.path().string() , "" );
   BOOST_CHECK_EQUAL ( dir1.full_path().string() , "dir1" );
 
   // constructor with passed path
   CLink lnk ( "lnk" );
+
   BOOST_CHECK_EQUAL ( lnk.name() , "lnk" );
   BOOST_CHECK_EQUAL ( lnk.path().string() , "" );
   BOOST_CHECK_EQUAL ( lnk.full_path().string() , "lnk" );
@@ -72,10 +75,10 @@ BOOST_AUTO_TEST_CASE( constructors )
 
 BOOST_AUTO_TEST_CASE( add_component )
 {
-  boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
+  CRoot::Ptr root = CRoot::create ( "root" );
 
-  boost::shared_ptr<Component> dir1 ( new CGroup ( "dir1" ) );
-  boost::shared_ptr<Component> dir2 ( new CGroup ( "dir2" ) );
+  Component::Ptr dir1 ( new CGroup ( "dir1" ) );
+  Component::Ptr dir2 ( new CGroup ( "dir2" ) );
 
   root->add_component( dir1 );
   dir1->add_component( dir2 );
@@ -89,10 +92,10 @@ BOOST_AUTO_TEST_CASE( add_component )
 
 BOOST_AUTO_TEST_CASE( xml_tree )
 {
-//  boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
+//  CRoot::Ptr root = CRoot::create ( "root" );
 //
-//  boost::shared_ptr<Component> dir1 ( new CGroup ( "dir1" ) );
-//  boost::shared_ptr<Component> dir2 ( new CGroup ( "dir2" ) );
+//  Component::Ptr dir1 ( new CGroup ( "dir1" ) );
+//  Component::Ptr dir2 ( new CGroup ( "dir2" ) );
 //
 //  root->add_component( dir1 );
 //  dir1->add_component( dir2 );
@@ -116,9 +119,9 @@ BOOST_AUTO_TEST_CASE( xml_tree )
 
 BOOST_AUTO_TEST_CASE( is_link )
 {
-  boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
+  CRoot::Ptr root = CRoot::create ( "root" );
 
-  boost::shared_ptr<Component> dir1 ( new CGroup ( "dir1" ) );
+  Component::Ptr dir1 ( new CGroup ( "dir1" ) );
 
   root->add_component( dir1 );
 
@@ -130,10 +133,10 @@ BOOST_AUTO_TEST_CASE( is_link )
 
 BOOST_AUTO_TEST_CASE( get )
 {
-  boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
+  CRoot::Ptr root = CRoot::create ( "root" );
 
-  boost::shared_ptr<Component> dir1 ( new CGroup ( "dir1" ) );
-  boost::shared_ptr<Component> lnk1 ( new CLink  ( "lnk1" ) );
+  Component::Ptr dir1 ( new CGroup ( "dir1" ) );
+  Component::Ptr lnk1 ( new CLink  ( "lnk1" ) );
 
   // add child components to root
   root->add_component( dir1 );
@@ -161,11 +164,11 @@ BOOST_AUTO_TEST_CASE( get )
 
 BOOST_AUTO_TEST_CASE( complete_path )
 {
-  boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
+  CRoot::Ptr root = CRoot::create ( "root" );
 
-  boost::shared_ptr<Component> dir1 ( new CGroup ( "dir1" ) );
-  boost::shared_ptr<Component> dir2 ( new CGroup ( "dir2" ) );
-  boost::shared_ptr<Component> dir3 ( new CGroup ( "dir3" ) );
+  Component::Ptr dir1 ( new CGroup ( "dir1" ) );
+  Component::Ptr dir2 ( new CGroup ( "dir2" ) );
+  Component::Ptr dir3 ( new CGroup ( "dir3" ) );
 
   // add child components to root
   root->add_component( dir1 );
@@ -213,12 +216,12 @@ BOOST_AUTO_TEST_CASE( complete_path )
 
 BOOST_AUTO_TEST_CASE( look_component )
 {
-  boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
+  CRoot::Ptr root = CRoot::create ( "root" );
 
-  boost::shared_ptr<Component> dir1  ( new CGroup ( "dir1" ) );
-  boost::shared_ptr<Component> dir2  ( new CGroup ( "dir2" ) );
-  boost::shared_ptr<Component> dir21 ( new CGroup ( "dir21" ) );
-  boost::shared_ptr<Component> dir22 ( new CGroup ( "dir22" ) );
+  Component::Ptr dir1  ( new CGroup ( "dir1" ) );
+  Component::Ptr dir2  ( new CGroup ( "dir2" ) );
+  Component::Ptr dir21 ( new CGroup ( "dir21" ) );
+  Component::Ptr dir22 ( new CGroup ( "dir22" ) );
 
   // add child components to root
   root->add_component( dir1 );
@@ -228,12 +231,12 @@ BOOST_AUTO_TEST_CASE( look_component )
 
   // test relative & complete path
   CPath p0 ( "../dir21" );
-  boost::shared_ptr<Component> cp0 = dir22->look_component( p0 );
+  Component::Ptr cp0 = dir22->look_component( p0 );
   BOOST_CHECK_EQUAL ( cp0->full_path().string(), "//root/dir1/dir2/dir21" );
 
   // test relative & complete path
   CPath p1 ( "//root/dir1" );
-  boost::shared_ptr<Component> cp1 = dir22->look_component( p1 );
+  Component::Ptr cp1 = dir22->look_component( p1 );
   BOOST_CHECK_EQUAL ( cp1->full_path().string(), "//root/dir1" );
 }
 
@@ -241,10 +244,10 @@ BOOST_AUTO_TEST_CASE( look_component )
 
 BOOST_AUTO_TEST_CASE( change_parent )
 {
-  boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
+  CRoot::Ptr root = CRoot::create ( "root" );
 
-  boost::shared_ptr<Component> dir1  ( new CGroup ( "dir1" ) );
-  boost::shared_ptr<Component> dir2  ( new CGroup ( "dir2" ) );
+  Component::Ptr dir1  ( new CGroup ( "dir1" ) );
+  Component::Ptr dir2  ( new CGroup ( "dir2" ) );
 
   // add child components to root
   root->add_component( dir1 );
@@ -262,9 +265,9 @@ BOOST_AUTO_TEST_CASE( change_parent )
 
 BOOST_AUTO_TEST_CASE( problem )
 {
-  boost::shared_ptr<CRoot> root = CRoot::create ( "Simulator" );
+  CRoot::Ptr root = CRoot::create ( "Simulator" );
 
-  boost::shared_ptr<Component> proot = root->look_component("//Simulator");
+  Component::Ptr proot = root->look_component("//Simulator");
 
   BOOST_CHECK_EQUAL ( proot->full_path().string(), "//Simulator" );
 

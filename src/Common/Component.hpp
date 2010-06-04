@@ -221,17 +221,15 @@ public: // functions
 protected: // functions
 
   /// Must be called in constructor of each derived class
- template <typename TYPE>
-  void build_component(TYPE* meself);
+ template <typename TYPE> void partial_build_component (TYPE* meself);
 
 private: // helper functions
 
+  /// writes the underlying component tree to the xml node
+  void write_xml_tree( XmlNode& node );
+
   /// regists all the signals declared in this class
   static void regist_signals ( Component* self );
-
-  /// tags this class with the classname
-  template <typename TYPE>
-      void tag_classname ();
 
 protected: // data
 
@@ -267,24 +265,6 @@ template < typename ATYPE >
 
 ////////////////////////////////////////////////////////////////////////////////
 
-template <typename TYPE>
-inline void Component::build_component(TYPE* meself)
-{
-  addConfigOptionsTo<TYPE>();
-  tag_classname<TYPE>();
-  TYPE::regist_signals(meself);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-template <typename TYPE>
-inline void Component::tag_classname ()
-{
-  add_tag(TYPE::getClassName());
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 template <typename T>
 inline std::vector<typename T::Ptr> Component::get_components_by_tag(const std::string& tag)
 {
@@ -297,15 +277,11 @@ inline std::vector<typename T::Ptr> Component::get_components_by_tag(const std::
   return vec;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
 template <typename T>
 inline std::vector<typename T::Ptr> Component::get_components_by_type ()
 {
   return get_components_by_tag<T>(T::getClassName());
 }
-
-////////////////////////////////////////////////////////////////////////////////
 
 template <typename T>
 inline typename T::Ptr Component::get_unique_component_by_type ()
@@ -321,7 +297,6 @@ inline typename T::Ptr Component::get_unique_component_by_type ()
   return vec[0];
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 template < typename T >
 inline typename T::Ptr Component::get_component ( const CName& name ) const
@@ -451,7 +426,7 @@ inline Component::const_iterator Component::begin() const
   return Component::const_iterator(vec, 0);
 }
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 template<typename ComponentT>
 inline Component_iterator<ComponentT const> Component::end() const
@@ -470,10 +445,20 @@ inline Component::const_iterator Component::end() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+template <typename TYPE>
+inline void Component::partial_build_component(TYPE* meself)
+{
+  addConfigOptionsTo<TYPE>();
+  add_tag( TYPE::getClassName() );
+}
 
+#define BUILD_COMPONENT             \
+    partial_build_component(this);  \
+    regist_signals(this)
 
 ////////////////////////////////////////////////////////////////////////////////
+
+} // Common
+} // CF
 
 #endif // CF_Common_Component_hpp

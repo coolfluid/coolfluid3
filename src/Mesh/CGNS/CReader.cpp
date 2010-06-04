@@ -30,7 +30,7 @@ CReader::CReader(const CName& name)
 : CMeshReader(name),
   m_isCoordinatesCreated(false)
 {
-  build_component(this);
+  BUILD_COMPONENT;
 }
 
 //////////////////////////////////////////////////////////////////////////////

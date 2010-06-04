@@ -38,7 +38,11 @@ public: // functions
 
   // functions specific to the CField component
   
-private:
+private: // helper functions
+
+  /// regists all the signals declared in this class
+  static void regist_signals ( Component* self ) {}
+
 
 };
 

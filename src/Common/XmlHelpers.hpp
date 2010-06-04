@@ -67,11 +67,13 @@ namespace Common {
   struct Common_API XmlParams
   {
     /// the xml tag used for the cfdocument node
-    static const char * tag_doc ();
+    static const char * tag_node_doc ();
     /// the xml tag used for the params node
-    static const char * tag_params ();
+    static const char * tag_node_params ();
+    /// the xml tag used for the signal frame node
+    static const char * tag_node_frame ();
     /// the xml attribute name used for the key
-    static const char * tag_key ();
+    static const char * tag_attr_key ();
 
     /// Constructor
     /// @param node the node where the parameters will be extracted from
@@ -90,6 +92,9 @@ namespace Common {
     template < typename TYPE >
         void add_param ( const std::string& key, const TYPE& value );
 
+    /// adds a reply frame parallel to the XmlNode passed
+    XmlNode* add_reply_frame();
+
     /// reference to the XmlNode to retrieve params from
     XmlNode& xmlnode;
     /// reference to the XmlDoc to which the node belongs
@@ -105,7 +110,7 @@ namespace Common {
         TYPE XmlParams::get_param ( const std::string& pname ) const
     {
       if ( params == 0 )
-        throw  Common::XmlError( FromHere(), "XML node \'" + std::string(tag_params()) + "\' not found" );
+        throw  Common::XmlError( FromHere(), "XML node \'" + std::string(tag_node_params()) + "\' not found" );
 
       XmlNode* found_node = 0;
       const char * nodetype = XmlTag<TYPE>::type();
@@ -115,7 +120,7 @@ namespace Common {
       for ( ; node; node = node->next_sibling( nodetype ) )
       {
         // search for the attribute with key
-        XmlAttr* att = node->first_attribute( tag_key() );
+        XmlAttr* att = node->first_attribute( tag_attr_key() );
         if ( att && !pname.compare(att->value()) )
         {
           found_node = node;
@@ -141,7 +146,7 @@ namespace Common {
         std::vector<TYPE> XmlParams::get_array ( const std::string& pname ) const
     {
       if ( params == 0 )
-        throw  Common::XmlError( FromHere(), "XML node \'" + std::string(tag_params()) + "\' not found" );
+        throw  Common::XmlError( FromHere(), "XML node \'" + std::string(tag_node_params()) + "\' not found" );
 
       XmlNode* found_node = 0;
       const char * nodetype = XmlTag<TYPE>::array();
@@ -186,7 +191,7 @@ namespace Common {
 
     if ( params == 0 )
     {
-      params = XmlOps::add_node_to ( xmlnode, XmlParams::tag_params() );
+      params = XmlOps::add_node_to ( xmlnode, XmlParams::tag_node_params() );
     }
 
     // convert TYPE to node name

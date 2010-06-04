@@ -17,7 +17,7 @@ CArray::CArray ( const CName& name  ) :
   Component ( name ),
   m_array(boost::extents[0][0])
 {
-  build_component(this);
+  BUILD_COMPONENT;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -55,8 +55,13 @@ public:
   /// @return A Buffer object that can fill this Connectivity Table
   Buffer create_buffer(const size_t buffersize=1024);
   
-/// private data
-private:
+
+private: // helper functions
+
+  /// regists all the signals declared in this class
+  static void regist_signals ( Component* self ) {}
+
+private: // data
   
   ConnectivityTable m_table;  
 

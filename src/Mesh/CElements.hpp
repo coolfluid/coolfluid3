@@ -79,6 +79,11 @@ public: // functions
   /// return the elementType
   boost::shared_ptr<ElementType>& get_elementType() { return m_elementType; }
   
+private: // helper functions
+
+  /// regists all the signals declared in this class
+  static void regist_signals ( Component* self ) {}
+
 private: // data
   
   boost::shared_ptr<ElementType> m_elementType;

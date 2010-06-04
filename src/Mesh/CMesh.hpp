@@ -43,7 +43,6 @@ public: // functions
 
   // functions specific to the CMesh component
 
-
   /// create a region
   /// @param name of the region
   boost::shared_ptr<CRegion> create_region ( const CName& name );
@@ -52,6 +51,11 @@ public: // functions
   /// @param name of the array
   /// @todo allow templates
   boost::shared_ptr<CArray> create_array ( const CName& name );
+
+private: // helper functions
+
+  /// regists all the signals declared in this class
+  static void regist_signals ( Component* self ) {}
 
 private:
 
