@@ -7,6 +7,7 @@
 
 #include "Common/xmlParser.h"
 #include "Common/StringOps.hpp"
+#include "Common/XmlHelpers.hpp"
 
 #include "Common/ConfigArgs.hpp"
 #include "Common/ConverterTools.hpp"
@@ -132,6 +133,7 @@ bool ServerNetworkComm::buildAndSend(QTcpSocket * client, const BuilderParserFra
 
 int ServerNetworkComm::send(QTcpSocket * client, const QString & frame)
 {
+  return 0;
   QByteArray block;
   QDataStream out(&block, QIODevice::WriteOnly);
   int count = 0; // total bytes sent
@@ -143,6 +145,8 @@ int ServerNetworkComm::send(QTcpSocket * client, const QString & frame)
   out << frame;
   out.device()->seek(0); // go back to the beginning of the frame
   out << (quint32)(block.size() - sizeof(quint32)); // store the data size
+
+  qDebug() << "to send:" << frame;
 
   if(client == CFNULL)
   {
@@ -325,33 +329,53 @@ void ServerNetworkComm::sendTree(int clientId, const QDomDocument & tree)
 
 void ServerNetworkComm::sendTree(int clientId, const XMLNode & tree)
 {
-  try
-  {
-    QTcpSocket * socket = this->getSocket(clientId);
-    BuilderParserFrameInfo fi;
+//  try
+//  {
+//    QTcpSocket * socket = this->getSocket(clientId);
+//    BuilderParserFrameInfo fi;
 
-    fi.setFrameType(NETWORK_TREE);
-    fi.frameData = tree;
+//    fi.setFrameType(NETWORK_TREE);
+//    fi.frameData = tree;
 
-    this->buildAndSend(socket, fi);
+//    this->buildAndSend(socket, fi);
 
-  }
-  catch(UnknownClientIdException e)
-  {
-    qDebug() << e.what();
-  }
+//  }
+//  catch(UnknownClientIdException e)
+//  {
+//    qDebug() << e.what();
+//  }
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerNetworkComm::send(int clientId, const QString & frame)
+//void ServerNetworkComm::send(int clientId, const QString & frame)
+//{
+//  try
+//  {
+//    QTcpSocket * socket = this->getSocket(clientId);
+
+//    this->send(socket, frame);
+//  }
+//  catch(UnknownClientIdException e)
+//  {
+//    qDebug() << e.what();
+//  }
+//}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void ServerNetworkComm::send(int clientId, const XmlNode & signal)
 {
   try
   {
     QTcpSocket * socket = this->getSocket(clientId);
+    std::string str;
 
-    this->send(socket, frame);
+    XmlOps::xml_to_string(signal, str);
+
+    this->send(socket, str.c_str());
   }
   catch(UnknownClientIdException e)
   {
@@ -615,7 +639,16 @@ void ServerNetworkComm::newData()
 
     doc.setContent(frame);
 
-    ServerRoot::processSignal(doc);
+    qDebug() << frame << m_blockSize;
+
+    try
+    {
+      ServerRoot::processSignal(doc);
+    }
+    catch(XmlError xe)
+    {
+      CFerr << xe.what() << CFendl;
+    }
 
     m_blockSize = 0;
   }

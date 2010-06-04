@@ -90,26 +90,26 @@ MainWindow::MainWindow()
   this->buildMenus();
 
   // connect useful signals to slots
-  connectKernel(addNode(const QString &));
-  connectKernel(renameNode(const QDomNode &, const QString &));
-  connectKernel(deleteNode(const QDomNode &));
-  connectKernel(commitChanges(const QDomDocument &));
+//  connectKernel(addNode(const QString &));
+//  connectKernel(renameNode(const QDomNode &, const QString &));
+//  connectKernel(deleteNode(const QDomNode &));
+//  connectKernel(commitChanges(const QDomDocument &));
   connectKernel(connectSimulation(const QModelIndex &,
                                   const TSshInformation &));
-  connectKernel(disconnectSimulation(const QModelIndex &, bool));
-  connectKernel(runSimulation(const QModelIndex &));
-  connectKernel(stopSimulation(const QModelIndex &));
-  connectKernel(activateSimulation(const QModelIndex &));
-  connectKernel(deactivateSimulation(const QModelIndex &));
-  connectKernel(updateTree(const QModelIndex &));
-  connectKernel(addComponent(const QModelIndex &,
-                             CF::GUI::Network::ComponentType::Type,
-                             const QString &));
+//  connectKernel(disconnectSimulation(const QModelIndex &, bool));
+//  connectKernel(runSimulation(const QModelIndex &));
+//  connectKernel(stopSimulation(const QModelIndex &));
+//  connectKernel(activateSimulation(const QModelIndex &));
+//  connectKernel(deactivateSimulation(const QModelIndex &));
+//  connectKernel(updateTree(const QModelIndex &));
+//  connectKernel(addComponent(const QModelIndex &,
+//                             CF::GUI::Network::ComponentType::Type,
+//                             const QString &));
 
-  connectKernel(addLink(const QModelIndex &, const QString &,
-                        const QModelIndex &));
+//  connectKernel(addLink(const QModelIndex &, const QString &,
+//                        const QModelIndex &));
 
-  connectSig(m_treeView, openSimulation(const QModelIndex &));
+//  connectSig(m_treeView, openSimulation(const QModelIndex &));
 
   connect(ClientRoot::getLog().get(), SIGNAL(newException(const QString &)),
           this, SLOT(newException(const QString &)));

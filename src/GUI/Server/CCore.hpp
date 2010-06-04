@@ -61,6 +61,8 @@ namespace Server {
 
      QList<CF::GUI::Network::HostInfos> getHostList() const;
 
+     void sendSignal(const CF::Common::XmlDoc & signal);
+
   private slots:
 
     void treeUpdated();
@@ -319,6 +321,8 @@ namespace Server {
     CF::Common::Signal::return_t shutdown(CF::Common::Signal::arg_t & node);
 
     CF::Common::Signal::return_t saveConfig(CF::Common::Signal::arg_t & node);
+
+    CF::Common::Signal::return_t list_tree(CF::Common::Signal::arg_t & node);
   };
 
 ////////////////////////////////////////////////////////////////////////////

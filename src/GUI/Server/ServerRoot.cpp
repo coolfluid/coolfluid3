@@ -29,19 +29,34 @@ CRoot::Ptr & ServerRoot::getRoot()
 
 void ServerRoot::processSignal(const QDomDocument & signal)
 {
- QDomElement elt = signal.firstChildElement("Signal");
+// QDomElement elt = signal.firstChildElement("Signal");
 
- if(!elt.isNull())
- {
-   std::string type = elt.attribute("key").toStdString();
-   std::string receiver = elt.attribute("receiver").toStdString();
+// if(!elt.isNull())
+// {
+//   std::string type = elt.attribute("key").toStdString();
+//   std::string receiver = elt.attribute("receiver").toStdString();
 
-   boost::shared_ptr<XmlDoc> xmldoc = XmlOps::parse ( signal.toString().toStdString() );
+//   boost::shared_ptr<XmlDoc> xmldoc = XmlOps::parse ( signal.toString().toStdString() );
 
-   XmlNode& nodedoc = *XmlOps::goto_doc_node(*xmldoc.get());
+//   XmlNode& nodedoc = *XmlOps::goto_doc_node(*xmldoc.get());
 
-   getRoot()->access_component(receiver)->call_signal( type, *nodedoc.first_node() );
- }
+//   getRoot()->access_component(receiver)->call_signal( type, *nodedoc.first_node() );
+// }
+
+  boost::shared_ptr<XmlDoc> xmldoc = XmlOps::parse ( signal.toString().toStdString() );
+
+  XmlNode& nodedoc = *XmlOps::goto_doc_node(*xmldoc.get());
+
+  std::string type = nodedoc.first_node()->first_attribute("target")->value();
+  std::string receiver = nodedoc.first_node()->first_attribute("receiver")->value();
+
+  getRoot()->access_component(receiver)->call_signal( type, *nodedoc.first_node() );
+
+  std::string str;
+  XmlOps::xml_to_string(*xmldoc.get(), str);
+  CFinfo << "Sending back " <<  str << CFendl;
+
+  getCore()->sendSignal(*xmldoc.get());
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

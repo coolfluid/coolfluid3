@@ -1,7 +1,10 @@
 
 #include <QtCore>
 
+#include "rapidxml/rapidxml_print.hpp"
+
 #include "Common/BasicExceptions.hpp"
+#include "Common/XmlHelpers.hpp"
 
 #include "GUI/Network/ComponentType.hpp"
 #include "GUI/Network/NetworkFrameType.hpp"
@@ -127,7 +130,7 @@ void ClientCore::buildAndSendSignal(const QString & type, const CPath & sender,
 
 void ClientCore::connectToServer(const QModelIndex & simIndex)
 {
-    m_networkComm->connectToServer(m_commSshInfo.m_hostname, m_commSshInfo.port, m_timer->isActive());
+  m_networkComm->connectToServer(m_commSshInfo.m_hostname, m_commSshInfo.port, m_timer->isActive());
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -204,6 +207,31 @@ void ClientCore::connected()
 {
   QString msg = "Now connected to server '%1' on port %2.";
   ClientRoot::getLog()->addMessage(msg.arg(m_commSshInfo.m_hostname).arg(m_commSshInfo.port));
+
+  boost::shared_ptr<XmlDoc> root = XmlOps::create_doc();
+
+  XmlNode * docNode = XmlOps::goto_doc_node(*root.get());
+
+  XmlNode * frameNode = XmlOps::add_node_to ( *docNode, "frame" );
+  XmlAttr * attrType = XmlOps::add_attribute_to(*frameNode, "type", "signal");
+  XmlAttr * attrSender = XmlOps::add_attribute_to(*frameNode, "sender", CLIENT_LOG_PATH);
+  XmlAttr * attrReceiver = XmlOps::add_attribute_to(*frameNode, "receiver", SERVER_ROOT_PATH);
+  XmlAttr * attrTarget = XmlOps::add_attribute_to(*frameNode, "target", "list_tree");
+
+//  XmlParams p(*frameNode);
+
+//  p.add_param<std::string>("test", "hello world!");
+
+//  qDebug() << "BEFORE";
+//  std::string s;
+//  XmlOps::xml_to_string(*root.get(), s);
+//  qDebug() << s.c_str();
+//  qDebug() << "AFTER";
+
+  m_networkComm->send(*root.get());
+
+//  SignalInfo si("list_signal", CLIENT_LOG_PATH, SERVER_CORE_PATH, true);
+//  m_networkComm->send(si);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

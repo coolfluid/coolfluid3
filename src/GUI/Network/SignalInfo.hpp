@@ -7,7 +7,6 @@
 #include <QHash>
 #include <QList>
 #include <QVariant>
-#include <boost/any.hpp>
 
 #include "Common/BasicExceptions.hpp"
 #include "Common/CPath.hpp"

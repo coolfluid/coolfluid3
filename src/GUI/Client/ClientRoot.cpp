@@ -1,12 +1,12 @@
 #include <QtCore>
 #include <string>
 
+#include "Common/XmlHelpers.hpp"
+
 #include "GUI/Network/ComponentNames.hpp"
 #include "GUI/Network/SignalInfo.hpp"
 
 #include "GUI/Client/ClientRoot.hpp"
-
-#include "Common/XmlHelpers.hpp"
 
 using namespace CF::Common;
 using namespace CF::GUI::Client;
@@ -37,22 +37,44 @@ CRoot::Ptr ClientRoot::getRoot()
 
 void ClientRoot::processSignal(const QDomDocument & signal)
 {
-  QDomElement elt = signal.firstChildElement("Signal");
+//  QDomElement elt = signal.firstChildElement("Signal");
 
-  if(elt.isNull())
-    elt = signal.firstChildElement("Reply");
+//  if(elt.isNull())
+//    elt = signal.firstChildElement("Reply");
 
-  if(!elt.isNull())
+//  if(!elt.isNull())
+//  {
+//  std::string type = elt.attribute("key").toStdString();
+//  std::string receiver = elt.attribute("receiver").toStdString();
+
+//  std::string type = elt.attribute("key").toStdString();
+//  std::string receiver = elt.attribute("receiver").toStdString();
+
+  boost::shared_ptr<XmlDoc> xmldoc = XmlOps::parse ( signal.toString().toStdString() );
+
+  XmlNode& nodedoc = *XmlOps::goto_doc_node(*xmldoc.get());
+  XmlNode * nodeToProcess = nodedoc.first_node(XmlParams::tag_node_frame());
+
+  if(nodeToProcess != CFNULL)
   {
-    std::string type = elt.attribute("key").toStdString();
-    std::string receiver = elt.attribute("receiver").toStdString();
+    XmlNode * tmpNode = nodeToProcess->next_sibling();
 
-    boost::shared_ptr<XmlDoc> xmldoc = XmlOps::parse ( signal.toString().toStdString() );
-
-    XmlNode& nodedoc = *XmlOps::goto_doc_node(*xmldoc.get());
-
-    getRoot()->access_component(receiver)->call_signal( type, *nodedoc.first_node() );
+    if(tmpNode != CFNULL && tmpNode->first_attribute("type")->value() == "reply")
+      nodeToProcess = tmpNode;
   }
+
+  if(nodeToProcess != NULL)
+  {
+    std::string type = nodeToProcess->first_attribute("target")->value();
+    std::string receiver = nodeToProcess->first_attribute("receiver")->value();
+
+    getLog()->addMessage(signal.toString());
+
+    getRoot()->access_component(receiver)->call_signal( type, *nodeToProcess );
+  }
+  else
+    getLog()->addException(signal.toString());
+//  }
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

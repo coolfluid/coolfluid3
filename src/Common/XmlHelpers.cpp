@@ -232,12 +232,9 @@ namespace Common {
         throw  Common::XmlError( FromHere(), "No xml nodes after declaration" );
     }
 
-//    CFinfo << "node name :" << fnode->name() << " " << strcmp(fnode->name() , XmlParams::tag_node_doc()) << CFendl;
-
     // find the first doc node
     if ( strcmp(fnode->name() , XmlParams::tag_node_doc()) ) /* are not equal */
       fnode = fnode->next_sibling( XmlParams::tag_node_doc() );
-
 
     if ( !fnode )
       throw  Common::XmlError( FromHere(), "No xml doc found" );

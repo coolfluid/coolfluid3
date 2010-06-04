@@ -22,7 +22,10 @@ class QString;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+#include "Common/XmlHelpers.hpp"
+
 namespace CF {
+
 namespace GUI {
 
 namespace Network
@@ -148,7 +151,7 @@ namespace Server {
     /// @param clientId Client id, or -1 to send to all clients.
     /// @param frame Frame to send
     /// @throw UnknownClientIdException if Client id is unknown.
-    void send(int clientId, const QString & frame) ;
+//    void send(int clientId, const QString & frame) ;
 
     /// @brief Sends an error message to a client
 
@@ -170,6 +173,8 @@ namespace Server {
     void sendSubSystemList(int clientId, const QStringList & subSystemList);
 
     void send(int clientId, const CF::GUI::Network::SignalInfo & signal);
+
+    void send(int clientId, const CF::Common::XmlNode & signal);
 
     private slots :
 

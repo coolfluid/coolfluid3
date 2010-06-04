@@ -10,6 +10,7 @@
 #include "Common/ConverterTools.hpp"
 #include "Common/BuilderParser.hpp"
 #include "Common/BuilderParserFrameInfo.hpp"
+#include "Common/StringOps.hpp"
 
 #include "GUI/Client/CLog.hpp"
 #include "GUI/Client/ClientRoot.hpp"
@@ -454,6 +455,48 @@ bool ClientNetworkComm::send(const SignalInfo & signal)
  }
 
  return success;
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+bool ClientNetworkComm::send(const XmlDoc & signal)
+{
+  bool success = false;
+  std::string str;
+
+  if(this->checkConnected())
+  {
+    XmlOps::xml_to_string(signal, str);
+
+    this->send(str.c_str());
+
+//    try
+//    {
+//      QByteArray block;
+//      QDataStream out(&block, QIODevice::WriteOnly);
+
+//      XmlOps::xml_to_string(signal, str);
+
+//      out.setVersion(QDataStream::Qt_4_5); // QDataStream version
+//      out << (quint32)0;    // reserve 32 bits for the frame data size
+//      out << str.c_str();
+//      out.device()->seek(0);  // go back to the beginning of the frame
+//      out << (quint32)(block.size() - sizeof(quint32)); // write the frame data size
+
+//      qDebug() << "The frame:" << str.c_str() << m_socket->write(block);
+
+//      m_socket->flush();
+
+//      success = true;
+//    }
+//    catch(FailedAssertion & ae)
+//    {
+//      ClientRoot::getLog()->addException(ae.what());
+//    }
+  }
+
+  return success;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

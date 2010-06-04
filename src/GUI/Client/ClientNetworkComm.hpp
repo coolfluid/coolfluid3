@@ -8,6 +8,7 @@
 #include <QStringList>
 
 #include "Common/BuilderParserFrameInfo.hpp"
+#include "Common/XmlHelpers.hpp"
 
 #include "GUI/Network/ComponentType.hpp"
 #include "GUI/Network/HostInfos.hpp"
@@ -232,6 +233,8 @@ namespace Client {
                      const QString & target);
 
     bool send(const CF::GUI::Network::SignalInfo & signal);
+
+    bool send(const CF::Common::XmlDoc & signal);
 
     bool buildAndSend(const QString & type, const CF::Common::CPath & sender);
 

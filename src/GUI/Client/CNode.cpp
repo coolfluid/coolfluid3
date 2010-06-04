@@ -1,6 +1,8 @@
 #include <QtCore>
 #include <QtGui>
 
+#include "Common/CF.hpp"
+
 #include "GUI/Client/ClientRoot.hpp"
 #include "GUI/Client/NLink.hpp"
 
@@ -82,16 +84,16 @@ void CNode::setParams(const QDomNodeList & list)
 
 CNode::Ptr CNode::createFromXml(const QDomDocument & doc)
 {
-//  QDomElement elt = doc.firstChildElement();
-//
-//  cf_assert(!elt.isNull());
-//  cf_assert(elt.nodeName() == "CRoot");
-//
-//  QString name = elt.attribute("name");
-//
-//  CNode::Ptr rootNode(new CNode(name, ""));
-//
-//  return rootNode;
+  QDomElement elt = doc.firstChildElement();
+
+  cf_assert(!elt.isNull());
+  cf_assert(elt.nodeName() == "CRoot");
+
+  QString name = elt.attribute("name");
+
+  CNode::Ptr rootNode(new CNode(name, ""));
+
+  return rootNode;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -100,7 +102,5 @@ CNode::Ptr CNode::createFromXml(const QDomDocument & doc)
 CNode::Ptr CNode::toTreeNode(const QDomElement & node)
 {
   QDomNodeList childNodes = node.childNodes();
-
-
 
 }

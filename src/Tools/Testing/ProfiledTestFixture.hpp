@@ -49,6 +49,7 @@ private:
 #else
 
 class ProfiledTestFixture {
+public:
   ProfiledTestFixture();
 };
 

@@ -41,6 +41,7 @@ CCore::CCore()
           this,  SLOT(newClient(int)));
 
   regist_signal("readDir", "Read directory content")->connect(boost::bind(&CCore::readDir, this, _1));
+  regist_signal("list_tree", "test")->connect(boost::bind(&CCore::list_tree, this, _1));
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -74,6 +75,14 @@ void CCore::setHostList(const QList<HostInfos> & hostList)
 QList<HostInfos> CCore::getHostList() const
 {
   return m_hostList;
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void CCore::sendSignal(const CF::Common::XmlDoc & signal)
+{
+  m_commServer->send(CFNULL, signal);
 }
 
 /***************************************************************************
@@ -263,6 +272,11 @@ Signal::return_t CCore::shutdown(Signal::arg_t & node)
 Signal::return_t CCore::saveConfig(Signal::arg_t & node)
 {
   m_commServer->sendError(-1, "Cannot save the configuration");
+}
+
+Signal::return_t CCore::list_tree(Signal::arg_t & node)
+{
+  CFinfo << "Received signal!" << CFendl;
 }
 
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

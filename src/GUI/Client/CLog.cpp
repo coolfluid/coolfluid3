@@ -24,6 +24,7 @@ CLog::CLog()
  m_typeNames[ LogMessage::WARNING ]   = " Warning ";
 
  regist_signal("message", "Log message")->connect(boost::bind(&CLog::message, this, _1));
+ regist_signal("list_tree", "Log message")->connect(boost::bind(&CLog::list_tree, this, _1));
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -100,4 +101,16 @@ Signal::return_t CLog::message(Signal::arg_t & node)
 //
 //  this->appendToLog(type, true, message.c_str());
  //return XMLNode::createTopXMLNode();
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Signal::return_t CLog::list_tree(Signal::arg_t & node)
+{
+  std::string str;
+
+  XmlOps::xml_to_string(node, str);
+
+  this->appendToLog(LogMessage::INFO, true, str.c_str());
 }

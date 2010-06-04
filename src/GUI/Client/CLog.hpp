@@ -53,6 +53,8 @@ namespace Client {
 
     CF::Common::Signal::return_t message(CF::Common::Signal::arg_t & node);
 
+    CF::Common::Signal::return_t list_tree(CF::Common::Signal::arg_t & node);
+
     void appendToLog(CF::GUI::Network::LogMessage::Type type, bool fromServer,
                      const QString & message);
 
