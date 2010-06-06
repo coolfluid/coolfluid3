@@ -7,6 +7,7 @@
 #include "Mesh/CArray.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CMesh.hpp"
+#include "Mesh/ElementNodes.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -26,13 +27,13 @@ struct IntegrationFunctorBase {
   }
   /// Sets up the functor to use the specified element (relative to the currently set region)
   void setElement(const Uint element) {
-    m_nodes = m_region->getNodes(element, m_coordinates);
+    m_nodes = ConstElementNodeView(m_coordinates, m_region->get_row(element));
   }
 
 protected:
   const CRegion* m_region;
   const CArray& m_coordinates;
-  CRegion::ConstElementNodeVector m_nodes;
+  ConstElementNodeView m_nodes;
 };
 
 } // namespace Integrators

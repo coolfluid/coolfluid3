@@ -10,6 +10,7 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CArray.hpp"
+#include "Mesh/ElementNodes.hpp"
 #include "Mesh/ElementType.hpp"
 
 using namespace std;
@@ -181,7 +182,8 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   BOOST_CHECK_EQUAL(stlcoord[0],1.0);
   BOOST_CHECK_EQUAL(stlcoord[1],1.0);
   
-  CArray::Row coordRef = triagRegion->get_row(elem,node,coordinates);
+  CTable::ConstRow nodesRef = triagRegion->get_row(elem);
+  CArray::Row coordRef = coordinates[nodesRef[node]];
   BOOST_CHECK_EQUAL(coordRef[0],1.0);
   BOOST_CHECK_EQUAL(coordRef[1],1.0);
 
@@ -197,13 +199,10 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
    // the loop
    for (Uint iElem=0; iElem<nbRows; ++iElem)
    {
-     std::vector< CArray::Row > elem_coord;
-     for (Uint iNode=0; iNode<elementType->getNbNodes(); iNode++)
-     {
-       elem_coord.push_back( region.get_row(iElem,iNode,coordinates) );
-     }
+     ElementNodeVector elementCoordinates;
+     fill_node_list(std::inserter(elementCoordinates, elementCoordinates.begin()), coordinates, region, iElem);
 
-     volumes[iElem]=elementType->computeVolume(elem_coord);
+     volumes[iElem]=elementType->computeVolume(elementCoordinates);
      //CFinfo << "\t volume["<<iElem<<"] =" << volumes[iElem] << "\n" << CFflush;
 
      // check

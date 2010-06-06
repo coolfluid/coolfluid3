@@ -294,6 +294,8 @@ BOOST_AUTO_TEST_CASE( test_iterator )
   std::map<Uint,std::string> check_with_map;
   CRoot::Ptr root = CRoot::create ( "root" );
 
+  BOOST_CHECK_EQUAL(root->recursive_begin() == root->recursive_end(), true);
+
   Component::Ptr comp1 = root->create_component_type<Component>("comp1");
   check_with_map[counter++]=comp1->name();
   Component::Ptr comp1_1 = comp1->create_component_type<Component>("comp1_1");
@@ -312,7 +314,7 @@ BOOST_AUTO_TEST_CASE( test_iterator )
   check_with_map[counter++]=group2->name();
 
   counter = 0;
-  for (Component::iterator it = root->begin(); it!=root->end(); ++it )
+  for (Component::iterator it = root->recursive_begin(); it!=root->recursive_end(); ++it )
   {
 //    CFinfo << "component " << counter << ": " << it->name() << "\n";
     BOOST_CHECK_EQUAL(it->name(),check_with_map[counter++]);
@@ -321,15 +323,16 @@ BOOST_AUTO_TEST_CASE( test_iterator )
 //  CFinfo << "loop ended\n";
 
   counter = 0;
-  BOOST_FOREACH(const Component& comp, (*boost::dynamic_pointer_cast<Component>(root)))
-  {
+  // These cases will be restored when begin() and end() are back. It will be non-recursive then
+//  BOOST_FOREACH(const Component& comp, (*boost::dynamic_pointer_cast<Component>(root)))
+//  {
 //    CFinfo << "component " << counter << ": " << comp.name() << "\n";
-    BOOST_CHECK_EQUAL(comp.name(),check_with_map[counter++]);
-  }
-
-  counter = 4;
-  BOOST_FOREACH(const Component& comp, (*comp2))
-    BOOST_CHECK_EQUAL(comp.name(),check_with_map[counter++]);
+//    BOOST_CHECK_EQUAL(comp.name(),check_with_map[counter++]);
+//  }
+//
+//  counter = 4;
+//  BOOST_FOREACH(const Component& comp, (*comp2))
+//    BOOST_CHECK_EQUAL(comp.name(),check_with_map[counter++]);
 
 }
 
@@ -381,8 +384,8 @@ BOOST_AUTO_TEST_CASE( test_filter_iterator )
   // 1) Example creating the filter_iterator yourself
 
   typedef boost::filter_iterator< IsComponentName , Component::iterator > FilterIterator;
-  FilterIterator filterIterator(name_is_equal, all->begin(), all->end());
-  FilterIterator last_filterIterator(name_is_equal, all->end(), all->end());
+  FilterIterator filterIterator(name_is_equal, all->recursive_begin(), all->recursive_end());
+  FilterIterator last_filterIterator(name_is_equal, all->recursive_end(), all->recursive_end());
 
   for (; filterIterator != last_filterIterator; ++filterIterator)
     BOOST_CHECK_EQUAL(filterIterator->name(),"group1");
@@ -390,14 +393,14 @@ BOOST_AUTO_TEST_CASE( test_filter_iterator )
   // 2) Example using BOOST_FOREACH and boost::make_iterator_range
   counter = 6;
   BOOST_FOREACH(const Component& comp,
-                boost::make_iterator_range(boost::filter_iterator<IsComponentTag, Component::iterator >(IsComponentTag("CGroup"),all->begin(),all->end()),
-                                           boost::filter_iterator<IsComponentTag, Component::iterator >(IsComponentTag("CGroup"),all->end(),all->end())))
+                boost::make_iterator_range(boost::filter_iterator<IsComponentTag, Component::iterator >(IsComponentTag("CGroup"),all->recursive_begin(),all->recursive_end()),
+                                           boost::filter_iterator<IsComponentTag, Component::iterator >(IsComponentTag("CGroup"),all->recursive_end(),all->recursive_end())))
     BOOST_CHECK_EQUAL(comp.name(), check_with_map[counter++]);
   BOOST_CHECK_EQUAL(counter,(Uint) 8);
 
   // 3) Example using BOOST_FOREACH and make_component_range
   counter = 6;
-  BOOST_FOREACH(const Component& comp, iterate_recursive(all->begin(), all->end(),IsComponentTag("CGroup")))
+  BOOST_FOREACH(const Component& comp, iterate_recursive(all->recursive_begin(), all->recursive_end(),IsComponentTag("CGroup")))
     BOOST_CHECK_EQUAL(comp.name(), check_with_map[counter++]);
   BOOST_CHECK_EQUAL(counter,(Uint) 8);
 
@@ -441,7 +444,7 @@ BOOST_AUTO_TEST_CASE( test_filter_iterator )
 //  check_with_map[counter++]=group2->name();
 
   // Check that the end iterator matches that of the recursive helper
-  Component_iterator<CGroup> all_it = all->end<CGroup>();
+  Component_iterator<CGroup> all_it = all->recursive_end<CGroup>();
   BOOST_CHECK_EQUAL(iterate_recursive_by_type<CGroup>(*all).end() == all_it, true); // no << for iterators
 
 }

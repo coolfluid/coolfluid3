@@ -26,6 +26,7 @@ public:
   typedef boost::shared_ptr<CTable> Ptr;
   typedef boost::multi_array<Uint,2> ConnectivityTable;
   typedef ConnectivityTable::subarray<1>::type Row;
+  typedef ConnectivityTable::const_subarray<1>::type ConstRow;
   typedef BufferT<Uint> Buffer;
   
   /// Contructor
@@ -54,6 +55,12 @@ public:
 
   /// @return A Buffer object that can fill this Connectivity Table
   Buffer create_buffer(const size_t buffersize=1024);
+
+  /// @return A mutable row of the underlying array
+  inline Row operator[](const Uint idx) { return m_table[idx]; }
+
+  /// @return A const row of the underlying array
+  inline ConstRow operator[](const Uint idx) const { return m_table[idx]; }
   
 
 private: // helper functions

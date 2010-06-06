@@ -56,6 +56,12 @@ public: // functions
   /// @return A Buffer object that can fill this Array
   Buffer create_buffer(const size_t buffersize=1024);
 
+  /// @return A mutable row of the underlying array
+  inline Row operator[](const Uint idx) { return m_array[idx]; }
+
+  /// @return A const row of the underlying array
+  inline ConstRow operator[](const Uint idx) const { return m_array[idx]; }
+
 private: // helper functions
 
   /// regists all the signals declared in this class

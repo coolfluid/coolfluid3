@@ -107,7 +107,7 @@ void CWriter::write_headerData(std::fstream& file)
 
   BOOST_FOREACH(const CRegion& leafregion, iterate_recursive_by_type<CRegion>(*m_mesh,IsLeafRegion()))
   {
-    element_counter += leafregion.getNbElements();
+    element_counter += leafregion.elements_count();
   }
   bc_counter = count(iterate_recursive(*m_mesh,IsComponentTag("bc")));
 
@@ -196,7 +196,7 @@ void CWriter::write_groups(std::fstream& file)
     Uint element_counter(0);
     BOOST_FOREACH(const CRegion& leafregion, iterate_recursive_by_type<CRegion>(group,IsLeafRegion()))
     {
-      element_counter += leafregion.getNbElements();
+      element_counter += leafregion.elements_count();
     }
     file << "       ELEMENT GROUP 2.3.16\n";
     file << "GROUP:        " << ++group_counter << "  ELEMENTS:         " << element_counter << "  MATERIAL:          2" << " NFLAGS:         1\n";
@@ -205,7 +205,7 @@ void CWriter::write_groups(std::fstream& file)
     BOOST_FOREACH(const CRegion& leafregion, iterate_recursive_by_type<CRegion>(group,IsLeafRegion()))
     {
       Uint elm_global_start_idx = m_global_start_idx[&leafregion]+1;
-      Uint elm_global_end_idx = leafregion.getNbElements() + elm_global_start_idx;
+      Uint elm_global_end_idx = leafregion.elements_count() + elm_global_start_idx;
 
       for (Uint elm=elm_global_start_idx; elm<elm_global_end_idx; elm++, line_counter++)
       {
@@ -232,7 +232,7 @@ void CWriter::write_boundaries(std::fstream& file)
     Uint element_counter(0);
     BOOST_FOREACH(const CRegion& leafregion, iterate_recursive_by_type<CRegion>(group,IsLeafRegion()))
     {
-      element_counter += leafregion.getNbElements();
+      element_counter += leafregion.elements_count();
     }
     file << " BOUNDARY CONDITIONS 2.3.16\n";
     file << std::setw(32) << group.name() << std::setw(10) << 1 << std::setw(10) << element_counter << std::setw(10) << 0 << std::setw(10) << 6 << std::endl;
@@ -240,7 +240,7 @@ void CWriter::write_boundaries(std::fstream& file)
 //    BOOST_FOREACH(const CRegion::Ptr& leafregion, iterate_recursive_by_type<CRegion>(group,IsLeafRegion()))
 //    {
 //      Uint elm_global_start_idx = m_global_start_idx[leafregion]+1;
-//      Uint elm_global_end_idx = leafregion->getNbElements() + elm_global_start_idx;
+//      Uint elm_global_end_idx = leafregion->elements_count() + elm_global_start_idx;
 
 //      for (Uint elm=elm_global_start_idx; elm<elm_global_end_idx; elm++, line_counter++)
 //      {

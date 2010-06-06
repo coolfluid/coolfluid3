@@ -76,39 +76,31 @@ public: // functions
 
   /// The begin iterator for a recursive range containing only components of the specified type
   template<typename ComponentT>
-  Component_iterator<ComponentT> begin();
+  Component_iterator<ComponentT> recursive_begin();
 
   /// The begin iterator for a recursive range containing Components
-  Component::iterator begin();
+  Component::iterator recursive_begin();
 
   /// The end iterator for a recursive range containing only components of the specified type
   template<typename ComponentT>
-  Component_iterator<ComponentT> end();
+  Component_iterator<ComponentT> recursive_end();
 
   /// The end iterator for a recursive range containing Components
-  Component::iterator end();
+  Component::iterator recursive_end();
 
   /// The begin iterator for a recursive range containing only components of the specified type (const version)
   template<typename ComponentT>
-  Component_iterator<ComponentT const> begin() const;
+  Component_iterator<ComponentT const> recursive_begin() const;
 
   /// The begin iterator for a recursive range containing Components (const version)
-  Component::const_iterator begin() const;
+  Component::const_iterator recursive_begin() const;
 
   /// The end iterator for a recursive range containing only components of the specified type (const version)
   template<typename ComponentT>
-  Component_iterator<ComponentT const> end() const;
+  Component_iterator<ComponentT const> recursive_end() const;
 
   /// The end iterator for a recursive range containing Components (const version)
-  Component::const_iterator end() const;
-
-  /// Recursively put all subcomponents in a given vector
-  /// @param [out] vec  A vector of all (recursive) subcomponents
-  template<typename ComponentT>
-  void put_components(std::vector<typename ComponentT::Ptr>& vec);
-
-  template<typename ComponentT>
-  void put_components(std::vector<boost::shared_ptr<ComponentT const> >& vec) const;
+  Component::const_iterator recursive_end() const;
 
   /// checks if this component is in fact a link to another component
   bool is_link () const { return m_is_link; }
@@ -222,6 +214,14 @@ protected: // functions
 
   /// Must be called in constructor of each derived class
  template <typename TYPE> void partial_build_component (TYPE* meself);
+
+ /// Recursively put all subcomponents in a given vector
+ /// @param [out] vec  A vector of all (recursive) subcomponents
+ template<typename ComponentT>
+ void put_components(std::vector<typename ComponentT::Ptr>& vec);
+
+ template<typename ComponentT>
+ void put_components(std::vector<boost::shared_ptr<ComponentT const> >& vec) const;
 
 private: // helper functions
 
@@ -378,14 +378,14 @@ inline void Component::put_components<Component>(std::vector<boost::shared_ptr<C
 /////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ComponentT>
-inline Component_iterator<ComponentT> Component::begin()
+inline Component_iterator<ComponentT> Component::recursive_begin()
 {
   std::vector<typename ComponentT::Ptr > vec;
   put_components<ComponentT>(vec);
   return Component_iterator<ComponentT>(vec, 0);
 }
 
-inline Component::iterator Component::begin()
+inline Component::iterator Component::recursive_begin()
 {
   std::vector<Component::Ptr > vec;
   put_components<Component>(vec);
@@ -395,14 +395,14 @@ inline Component::iterator Component::begin()
 /////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ComponentT>
-inline Component_iterator<ComponentT> Component::end()
+inline Component_iterator<ComponentT> Component::recursive_end()
 {
   std::vector<typename ComponentT::Ptr > vec;
   put_components<ComponentT>(vec);
   return Component_iterator<ComponentT>(vec, vec.size());
 }
 
-inline Component::iterator Component::end()
+inline Component::iterator Component::recursive_end()
 {
   std::vector<Component::Ptr > vec;
   put_components<Component>(vec);
@@ -412,14 +412,14 @@ inline Component::iterator Component::end()
 ////////////////////////////////////////////////////////////////////////////////
 
 template<typename ComponentT>
-inline Component_iterator<ComponentT const> Component::begin() const
+inline Component_iterator<ComponentT const> Component::recursive_begin() const
 {
   std::vector<boost::shared_ptr<ComponentT const> > vec;
   put_components<ComponentT>(vec);
   return Component_iterator<ComponentT const>(vec, 0);
 }
 
-inline Component::const_iterator Component::begin() const
+inline Component::const_iterator Component::recursive_begin() const
 {
   std::vector<boost::shared_ptr<Component const> > vec;
   put_components<Component>(vec);
@@ -429,14 +429,14 @@ inline Component::const_iterator Component::begin() const
 ////////////////////////////////////////////////////////////////////////////////
 
 template<typename ComponentT>
-inline Component_iterator<ComponentT const> Component::end() const
+inline Component_iterator<ComponentT const> Component::recursive_end() const
 {
   std::vector<boost::shared_ptr<ComponentT const> > vec;
   put_components<ComponentT>(vec);
   return Component_iterator<ComponentT const>(vec, vec.size());
 }
 
-inline Component::const_iterator Component::end() const
+inline Component::const_iterator Component::recursive_end() const
 {
   std::vector<boost::shared_ptr<Component const> > vec;
   put_components<Component>(vec);

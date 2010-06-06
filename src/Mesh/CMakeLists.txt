@@ -23,6 +23,8 @@ LIST ( APPEND Mesh_files
   BufferT.hpp
   BufferT.cpp
   ConnectivityTableCF2.hpp
+  ElementNodes.hpp
+  ElementNodes.cpp
   ElementType.hpp
   ElementType.cpp
   GeoShape.hpp

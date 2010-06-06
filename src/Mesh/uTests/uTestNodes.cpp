@@ -14,6 +14,7 @@
 #include "Mesh/CArray.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
+#include "Mesh/ElementNodes.hpp"
 
 #include "Mesh/Integrators/Gauss.hpp"
 
@@ -56,7 +57,7 @@ struct Nodes_Fixture
   {
     BOOST_FOREACH(CRegion& region, iterate_recursive_by_type<CRegion>(*mesh2d))
     {
-      if(region.getNbElements())
+      if(region.elements_count())
         return (region);
     }
     throw ShouldNotBeHere(FromHere(), "");
@@ -74,22 +75,15 @@ BOOST_FIXTURE_TEST_SUITE( Nodes, Nodes_Fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// Test two methods for writing to nodes
+/// Test node modification
 BOOST_AUTO_TEST_CASE( writeNodes )
 {
   CRegion& firstRegion = getFirstRegion();
-  CArray& coords = *coordinatesPtr().get();
-  CArray::Row firstCoord = firstRegion.get_row(0, 0, coords);
-  firstCoord[XX] = 1.;
-  firstCoord[YY] = 1.;
-  CArray::Row modCoord = firstRegion.get_row(0, 0, coords);
-  BOOST_CHECK_EQUAL(modCoord[XX], 1.);
-  BOOST_CHECK_EQUAL(modCoord[YY], 1.);
-  CRegion::ElementNodeVector nodes = firstRegion.getNodes(0, coords);
-  nodes[0][XX] = 2.;
-  nodes[0][YY] = 2.;
-  BOOST_CHECK_EQUAL(modCoord[XX], 2.);
-  BOOST_CHECK_EQUAL(modCoord[YY], 2.);
+  CArray::Ptr coords = coordinatesPtr();
+  ElementNodeView nodes(*coords, firstRegion.get_row(0));
+  nodes[0][0] = 1.;
+  const ConstElementNodeView const_nodes(*coords, firstRegion.get_row(0));
+  BOOST_CHECK_EQUAL(nodes[0][0], const_nodes[0][0]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -104,7 +104,7 @@ template <typename CType, typename Predicate>
 inline boost::iterator_range<boost::filter_iterator<Predicate, Component::iterator > >
 iterate_recursive(CType& parent, const Predicate& pred, Uint level=0)
 {
-  return iterate_recursive(parent.template begin<Component>(),parent.template end<Component>(),pred,level);
+  return iterate_recursive(parent.template recursive_begin<Component>(),parent.template recursive_end<Component>(),pred,level);
 }
 
 template <typename CType>
@@ -122,7 +122,7 @@ template <typename CReturnType, typename CType, typename Predicate>
 inline boost::iterator_range<boost::filter_iterator<Predicate, Component_iterator<CReturnType> > >
 iterate_recursive_by_type(CType& parent, const Predicate& pred, Uint level=0)
 {
-  return iterate_recursive(parent.template begin<CReturnType>(),parent.template end<CReturnType>(),pred,level);
+  return iterate_recursive(parent.template recursive_begin<CReturnType>(),parent.template recursive_end<CReturnType>(),pred,level);
 }
 
 /// Recursive range over all contained components of type CReturnType
@@ -130,7 +130,7 @@ template <typename CReturnType, typename CType>
 inline boost::iterator_range<Component_iterator<CReturnType> >
 iterate_recursive_by_type(CType& parent, Uint level=0)
 {
-  return boost::make_iterator_range(parent.template begin<CReturnType>(), parent.template end<CReturnType>());
+  return boost::make_iterator_range(parent.template recursive_begin<CReturnType>(), parent.template recursive_end<CReturnType>());
 }
 
 /// Recursive range over all contained components of type CReturnType
@@ -140,7 +140,7 @@ template <typename CReturnType, typename CType, typename Predicate>
 inline boost::iterator_range<boost::filter_iterator<Predicate, Component_iterator<CReturnType const> > >
 iterate_recursive_by_type(const CType& parent, const Predicate& pred, Uint level=0)
 {
-  return iterate_recursive(parent.template begin<CReturnType>(),parent.template end<CReturnType>(),pred,level);
+  return iterate_recursive(parent.template recursive_begin<CReturnType>(),parent.template recursive_end<CReturnType>(),pred,level);
 }
 
 /// Recursive range over all contained components of type CReturnType
@@ -149,7 +149,7 @@ template <typename CReturnType, typename CType>
 inline boost::iterator_range<Component_iterator<CReturnType const> >
 iterate_recursive_by_type(const CType& parent, Uint level=0)
 {
-  return boost::make_iterator_range(parent.template begin<CReturnType>(), parent.template end<CReturnType>());
+  return boost::make_iterator_range(parent.template recursive_begin<CReturnType>(), parent.template recursive_end<CReturnType>());
 }
 
 /// Count the elements in a range

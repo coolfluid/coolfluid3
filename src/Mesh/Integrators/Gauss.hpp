@@ -49,7 +49,7 @@ public:
   static void integrateRegion(const CRegion& region, FunctorT& functor, ResultT& result)
   {
     const Uint elem_begin = 0;
-    const Uint elem_end = region.getNbElements();
+    const Uint elem_end = region.elements_count();
     for(Uint elem = elem_begin; elem != elem_end; ++elem)
     {
       functor.setElement(elem); // initialize element-specific functor data
@@ -72,9 +72,9 @@ struct RegionIntegrator
 
   template<typename ShapeFunctionT> void operator()(ShapeFunctionT T)
   {
-    if(ShapeFunctionT::shape == m_region.getElementType().getShape() &&
-       ShapeFunctionT::order == m_region.getElementType().getOrder() &&
-       ShapeFunctionT::dimensions == m_region.getElementType().getDimensionality())
+    if(ShapeFunctionT::shape == m_region.elements_type().getShape() &&
+       ShapeFunctionT::order == m_region.elements_type().getOrder() &&
+       ShapeFunctionT::dimensions == m_region.elements_type().getDimensionality())
     {
       found = true;
       Gauss<ShapeFunctionT, ShapeFunctionT, IntegrationOrder>::integrateRegion(m_region, m_functor, m_result);
@@ -93,7 +93,7 @@ private:
 template<typename FunctorT, typename ResultT>
 void gaussIntegrate(const CRegion& region, FunctorT& functor, ResultT& result)
 {
-  if(region.getNbElements())
+  if(region.elements_count())
   {
     bool integrator_found = false;
     boost::mpl::for_each<LagrangeSF::LagrangeSFTypes>(RegionIntegrator<FunctorT, ResultT>(region, functor, result, integrator_found));
@@ -113,7 +113,7 @@ void gaussIntegrate(const CMesh& mesh, FunctorT& functor, ResultT& result)
 {
   BOOST_FOREACH(const CRegion& region, iterate_recursive_by_type<CRegion>(mesh))
   {
-    CFdebug << "integrating region " << region.name() << " with " << region.getNbElements() << " elements\n";
+    CFdebug << "integrating region " << region.name() << " with " << region.elements_count() << " elements\n";
     functor.setRegion(region); // initialize region-specific functor data
     gaussIntegrate((region), functor, result);
   }
