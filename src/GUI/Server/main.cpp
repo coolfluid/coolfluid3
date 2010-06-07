@@ -114,7 +114,10 @@ int main(int argc, char *argv[])
         CCore::Ptr sk = ServerRoot::getCore();
         QString message("Server successfully launched on machine %1 (%2) on port %3!");
 
-        sk->listenToNetwork(hostInfo.addresses().at(0).toString(), port);
+        qDebug() << hostInfo.addresses();
+
+//        sk->listenToNetwork(hostInfo.addresses().at(0).toString(), port);
+        sk->listenToNetwork(hostInfo.addresses().last().toString(), port);
         sk->setHostList(list);
 
         message = message.arg(hostInfo.addresses().at(0).toString())

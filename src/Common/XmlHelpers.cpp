@@ -2,8 +2,10 @@
 
 #include <rapidxml/rapidxml_print.hpp>
 
-#include "Common/XmlHelpers.hpp"
+#include "Common/CPath.hpp"
 #include "Common/Log.hpp"
+
+#include "Common/XmlHelpers.hpp"
 
 namespace CF {
 namespace Common {
@@ -242,11 +244,18 @@ namespace Common {
     return fnode;
   }
 
-  XmlNode* XmlOps::add_signal_frame( XmlNode& xmlnode )
+
+  XmlNode* XmlOps::add_signal_frame( XmlNode& xmlnode,
+                                     const std::string & target,
+                                     const CPath & sender,
+                                     const CPath & receiver)
   {
     XmlNode* signalnode = XmlOps::add_node_to( xmlnode, XmlParams::tag_node_frame() );
 
     XmlOps::add_attribute_to( *signalnode, "type", "signal" );
+    XmlOps::add_attribute_to( *signalnode, "target", target );
+    XmlOps::add_attribute_to( *signalnode, "sender", sender.string() );
+    XmlOps::add_attribute_to( *signalnode, "receiver", receiver.string() );
 
     return signalnode;
   }

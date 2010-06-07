@@ -133,7 +133,6 @@ bool ServerNetworkComm::buildAndSend(QTcpSocket * client, const BuilderParserFra
 
 int ServerNetworkComm::send(QTcpSocket * client, const QString & frame)
 {
-  return 0;
   QByteArray block;
   QDataStream out(&block, QIODevice::WriteOnly);
   int count = 0; // total bytes sent
@@ -145,8 +144,6 @@ int ServerNetworkComm::send(QTcpSocket * client, const QString & frame)
   out << frame;
   out.device()->seek(0); // go back to the beginning of the frame
   out << (quint32)(block.size() - sizeof(quint32)); // store the data size
-
-  qDebug() << "to send:" << frame;
 
   if(client == CFNULL)
   {
@@ -484,22 +481,19 @@ void ServerNetworkComm::sendSubSystemList(int clientId,
 
 bool ServerNetworkComm::sendMessage(QTcpSocket * client, const QString & message)
 {
-//   BuilderParserFrameInfo fi;
-//
-//   fi.setFrameType(NETWORK_MESSAGE);
-//   fi.frameAttributes["value"] = message.toStdString();
+  boost::shared_ptr<XmlNode> doc = XmlOps::create_doc();
+  XmlNode * signal = XmlOps::add_signal_frame(*XmlOps::goto_doc_node(*doc.get()), "message", SERVER_CORE_PATH, CLIENT_LOG_PATH);
+  XmlParams p(*signal);
 
-  SignalInfo si("message", SERVER_ROOT_PATH, CLIENT_LOG_PATH, true);
-  QString str;
+  p.add_param("type", LogMessage::Convert::to_str(LogMessage::INFO));
+  p.add_param("text", message.toStdString());
 
-  si.setParam("type", LogMessage::Convert::to_str(LogMessage::INFO));
-  si.setParam("text", message.toStdString());
 
-  str = si.getString();
+  std::string str;
 
-  this->send(client, str);
+  XmlOps::xml_to_string(p.xmldoc, str);
 
-  return true;//this->buildAndSend(client, fi);
+  return this->send(client, str.c_str()) != 0;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -555,15 +549,15 @@ QTcpSocket * ServerNetworkComm::getSocket(int clientId) const
 {
   QTcpSocket * socket = CFNULL;
 
-  if(clientId != -1)
-  {
-    if(m_clientIds.contains(clientId))
-      socket = m_clientIds[clientId];
+//  if(clientId != -1)
+//  {
+//    if(m_clientIds.contains(clientId))
+//      socket = m_clientIds[clientId];
 
-    else
-      throw UnknownClientIdException(FromHere(), QString("Unknown client id: %1")
-                                     .arg(clientId).toStdString());
-  }
+//    else
+//      throw UnknownClientIdException(FromHere(), QString("Unknown client id: %1")
+//                                     .arg(clientId).toStdString());
+//  }
 
   return socket;
 }
@@ -639,7 +633,7 @@ void ServerNetworkComm::newData()
 
     doc.setContent(frame);
 
-    qDebug() << frame << m_blockSize;
+   // qDebug() << frame << m_blockSize;
 
     try
     {

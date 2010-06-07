@@ -1,5 +1,6 @@
 #include <QtCore>
 #include <string>
+#include <cstring>
 
 #include "Common/XmlHelpers.hpp"
 
@@ -37,44 +38,24 @@ CRoot::Ptr ClientRoot::getRoot()
 
 void ClientRoot::processSignal(const QDomDocument & signal)
 {
-//  QDomElement elt = signal.firstChildElement("Signal");
-
-//  if(elt.isNull())
-//    elt = signal.firstChildElement("Reply");
-
-//  if(!elt.isNull())
-//  {
-//  std::string type = elt.attribute("key").toStdString();
-//  std::string receiver = elt.attribute("receiver").toStdString();
-
-//  std::string type = elt.attribute("key").toStdString();
-//  std::string receiver = elt.attribute("receiver").toStdString();
-
   boost::shared_ptr<XmlDoc> xmldoc = XmlOps::parse ( signal.toString().toStdString() );
 
   XmlNode& nodedoc = *XmlOps::goto_doc_node(*xmldoc.get());
   XmlNode * nodeToProcess = nodedoc.first_node(XmlParams::tag_node_frame());
 
+
   if(nodeToProcess != CFNULL)
   {
     XmlNode * tmpNode = nodeToProcess->next_sibling();
 
-    if(tmpNode != CFNULL && tmpNode->first_attribute("type")->value() == "reply")
+    if(tmpNode != CFNULL && std::strcmp(tmpNode->first_attribute("type")->value(), "reply") == 0)
       nodeToProcess = tmpNode;
-  }
 
-  if(nodeToProcess != NULL)
-  {
     std::string type = nodeToProcess->first_attribute("target")->value();
     std::string receiver = nodeToProcess->first_attribute("receiver")->value();
 
-    getLog()->addMessage(signal.toString());
-
     getRoot()->access_component(receiver)->call_signal( type, *nodeToProcess );
   }
-  else
-    getLog()->addException(signal.toString());
-//  }
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -48,7 +48,7 @@ public: // functions
 
     XmlNode& docnode = *XmlOps::goto_doc_node(*xmlroot.get());
 
-    XmlNode& signal_frame = *XmlOps::add_signal_frame(docnode);
+    XmlNode& signal_frame = *XmlOps::add_signal_frame(docnode, "", "", "");
 
     XmlParams p ( signal_frame );
 
@@ -63,11 +63,7 @@ public: // functions
 
     XmlNode& docnode = *XmlOps::goto_doc_node(*xmlroot.get());
 
-    XmlNode& signal_frame = *XmlOps::add_signal_frame(docnode);
-
-    XmlOps::add_attribute_to( signal_frame, "sender",   full_path().string() );
-    XmlOps::add_attribute_to( signal_frame, "target",   "list_tree" );
-    XmlOps::add_attribute_to( signal_frame, "receiver", receiver.full_path().string() );
+    XmlNode& signal_frame = *XmlOps::add_signal_frame(docnode, "list_tree", full_path(), receiver.full_path());
 
 //    std::vector < std::pair < Signal::id_t, Signal::desc_t > > lists = receiver.list_signals();
 //    for ( int i = 0; i < lists.size(); i++)

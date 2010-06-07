@@ -29,20 +29,6 @@ CRoot::Ptr & ServerRoot::getRoot()
 
 void ServerRoot::processSignal(const QDomDocument & signal)
 {
-// QDomElement elt = signal.firstChildElement("Signal");
-
-// if(!elt.isNull())
-// {
-//   std::string type = elt.attribute("key").toStdString();
-//   std::string receiver = elt.attribute("receiver").toStdString();
-
-//   boost::shared_ptr<XmlDoc> xmldoc = XmlOps::parse ( signal.toString().toStdString() );
-
-//   XmlNode& nodedoc = *XmlOps::goto_doc_node(*xmldoc.get());
-
-//   getRoot()->access_component(receiver)->call_signal( type, *nodedoc.first_node() );
-// }
-
   boost::shared_ptr<XmlDoc> xmldoc = XmlOps::parse ( signal.toString().toStdString() );
 
   XmlNode& nodedoc = *XmlOps::goto_doc_node(*xmldoc.get());
@@ -54,7 +40,7 @@ void ServerRoot::processSignal(const QDomDocument & signal)
 
   std::string str;
   XmlOps::xml_to_string(*xmldoc.get(), str);
-  CFinfo << "Sending back " <<  str << CFendl;
+  //CFinfo << "Sending back " <<  str << CFendl;
 
   getCore()->sendSignal(*xmldoc.get());
 }

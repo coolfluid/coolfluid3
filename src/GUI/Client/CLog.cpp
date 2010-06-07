@@ -93,14 +93,14 @@ void CLog::appendToLog(LogMessage::Type type, bool fromServer,
 Signal::return_t CLog::message(Signal::arg_t & node)
 {
   XmlParams p(node);
-//  std::string typeStr = p.value<std::string>("type");
-//  std::string message = p.value<std::string>("text");
-//  LogMessage::Type type = LogMessage::Convert::to_enum(typeStr);
-//
-//  cf_assert(type != LogMessage::INVALID);
-//
-//  this->appendToLog(type, true, message.c_str());
- //return XMLNode::createTopXMLNode();
+
+  std::string typeStr = p.get_param<std::string>("type");
+  std::string message = p.get_param<std::string>("text");
+  LogMessage::Type type = LogMessage::Convert::to_enum(typeStr);
+
+  cf_assert(type != LogMessage::INVALID);
+
+  this->appendToLog(type, true, message.c_str());
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -110,7 +110,7 @@ Signal::return_t CLog::list_tree(Signal::arg_t & node)
 {
   std::string str;
 
-  XmlOps::xml_to_string(node, str);
+  XmlOps::xml_to_string(*node.first_node(), str);
 
   this->appendToLog(LogMessage::INFO, true, str.c_str());
 }

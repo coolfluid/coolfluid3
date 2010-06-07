@@ -212,26 +212,9 @@ void ClientCore::connected()
 
   XmlNode * docNode = XmlOps::goto_doc_node(*root.get());
 
-  XmlNode * frameNode = XmlOps::add_node_to ( *docNode, "frame" );
-  XmlAttr * attrType = XmlOps::add_attribute_to(*frameNode, "type", "signal");
-  XmlAttr * attrSender = XmlOps::add_attribute_to(*frameNode, "sender", CLIENT_LOG_PATH);
-  XmlAttr * attrReceiver = XmlOps::add_attribute_to(*frameNode, "receiver", SERVER_ROOT_PATH);
-  XmlAttr * attrTarget = XmlOps::add_attribute_to(*frameNode, "target", "list_tree");
-
-//  XmlParams p(*frameNode);
-
-//  p.add_param<std::string>("test", "hello world!");
-
-//  qDebug() << "BEFORE";
-//  std::string s;
-//  XmlOps::xml_to_string(*root.get(), s);
-//  qDebug() << s.c_str();
-//  qDebug() << "AFTER";
+  XmlOps::add_signal_frame(*docNode, "list_tree", CLIENT_LOG_PATH, SERVER_ROOT_PATH);
 
   m_networkComm->send(*root.get());
-
-//  SignalInfo si("list_signal", CLIENT_LOG_PATH, SERVER_CORE_PATH, true);
-//  m_networkComm->send(si);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
