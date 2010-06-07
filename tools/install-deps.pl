@@ -40,6 +40,7 @@ my $opt_sources       = 0;
 my $opt_compile       = 0;
 my $opt_fetchonly     = 0;
 my $opt_many_mpi      = 0;
+my $opt_no_fortran    = 0;
 my $opt_install_dir   = "$home/local/$arch";
 my $opt_install_mpi_dir = "";
 my $opt_cmake_dir     = "";
@@ -78,8 +79,8 @@ my %packages = (  #  version   default install priority      function
     "binutils"   => [ "2.16.1", 'off',  'off', $priority++,  sub { install_gnu("binutils") } ],
     "m4"         => [ "1.4.4",  'off',  'off', $priority++,  sub { install_gnu("m4") } ],
     "tar"        => [ "1.15",   'off',  'off', $priority++,  sub { install_gnu("tar") } ],
-    "gcc4"       => [ "4.1.1",  'off',  'off', $priority++,  \&install_gcc4 ],
-    "gcc3"       => [ "3.4.5",  'off',  'off', $priority++,  \&install_gcc3 ],
+    "gcc4"       => [ "4.2.4",  'off',  'off', $priority++,  \&install_gcc4 ],
+    "gcc3"       => [ "3.4.6",  'off',  'off', $priority++,  \&install_gcc3 ],
     "autoconf"   => [ "2.59",   'off',  'off', $priority++,  sub { install_gnu("autoconf") } ],
     "automake"   => [ "1.9.5",  'off',  'off', $priority++,  sub { install_gnu("automake") } ],
     "libtool"    => [ "1.5.14", 'off',  'off', $priority++,  sub { install_gnu("libtool") } ],
@@ -126,6 +127,7 @@ sub parse_commandline() # Parse command line
         'genconf'               => \$opt_genconf,
         'debug'                 => \$opt_debug,
         'nompi'                 => \$opt_nompi,
+        'no-fortran'             => \$opt_no_fortran,
         'many-mpi'              => \$opt_many_mpi,
         'mpi=s'                 => \$opt_mpi,
         'mpi-dir=s'             => \$opt_mpi_dir,
@@ -159,6 +161,7 @@ options:
 
         --genconf         Generate a coolfluid.conf based on the installed dependencies
 
+	--no-fortran      Dont compile any fortran bindings (on mpi, etc...)
         --nompi           Don't compile with mpi support. This is only active for some packages.
         --mpi=            MPI compiler to use for compilations
                             Default: $opt_mpi.
@@ -674,9 +677,17 @@ sub install_gcc4() {
     untar_src($lib,$version);
     safe_chdir("$opt_tmp_dir/$lib-$version/");
 
+    my $langs = "";
+    if ( $opt_no_fortran )
+    {
+	    $langs = "c,c++" ;
+    } else  {
+	    $langs = "c,c++,fortran";
+    } 
+
     mkpath $objdir;
     safe_chdir($objdir);
-    run_command_or_die("$opt_tmp_dir/$lib-$version/configure --prefix=$opt_install_dir --enable-languages=c,c++,fortran");
+    run_command_or_die("$opt_tmp_dir/$lib-$version/configure --prefix=$opt_install_dir --enable-languages=$langs");
     run_command_or_die("make $opt_makeopts");
     run_command_or_die("make install");
   }
@@ -698,10 +709,18 @@ sub install_gcc3() {
     rmtree "$objdir";
     untar_src($lib,$version);
     safe_chdir("$opt_tmp_dir/$lib-$version/");
+    
+    my $langs = "";
+    if ( $opt_no_fortran )
+    {
+	    $langs = "c,c++" ;
+    } else  {
+	    $langs = "c,c++,f77";
+    } 
 
     mkpath $objdir;
     safe_chdir($objdir);
-    run_command_or_die("$opt_tmp_dir/$lib-$version/configure --prefix=$opt_install_dir --enable-languages=c,c++,f77");
+    run_command_or_die("$opt_tmp_dir/$lib-$version/configure  --prefix=$opt_install_dir --enable-languages=$langs");
     run_command_or_die("make $opt_makeopts");
     run_command_or_die("make install");
   }
@@ -879,12 +898,24 @@ sub install_openmpi() {
 
   safe_chdir($opt_tmp_dir);
   download_src($lib,$version);
+
+  my $fortran_opts = "";
+  if ( $opt_no_fortran )
+  {
+	$fortran_opts = "--disable-mpi-f77 --disable-mpi-f90" ;
+  }
+  else
+  {
+	# support fortran but not f90
+	$fortran_opts = "--disable-mpi-f90";
+  } 
+
   unless ($opt_fetchonly)
   {
     rmtree "$opt_tmp_dir/$lib-$version";
     untar_src($lib,$version);
     safe_chdir("$opt_tmp_dir/$lib-$version/");
-    run_command_or_die("./configure --enable-shared --enable-static --with-threads=posix --disable-mpi-f90  --prefix=$opt_mpi_dir");
+    run_command_or_die("./configure --enable-shared --enable-static --with-threads=posix $fortran_opts --prefix=$opt_mpi_dir");
     run_command_or_die("make $opt_makeopts");
     run_command_or_die("make install");
   }
