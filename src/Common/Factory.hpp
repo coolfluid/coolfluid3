@@ -31,7 +31,11 @@ namespace Common {
     virtual std::string getTypeName() const = 0;
 
     /// @return all the providers in this Factory in a std::vector
-    virtual std::vector<Common::ProviderBase*> getAllProviders() = 0;
+    virtual std::vector<Common::ProviderBase*> getAllProviders() const = 0;
+
+    /// Get a given Provider
+    /// @throw Common::ValueNotFound if the Provider is not registered
+    virtual ProviderBase* getProviderBase (const std::string& name) const = 0;
 
   }; // end class FactoryBase
 
@@ -41,6 +45,7 @@ namespace Common {
 /// @author Tiago Quintino
 template <class BASE>
 class Factory : public FactoryBase {
+
 public: // methods
 
   /// @return the instance of this singleton
@@ -48,7 +53,7 @@ public: // methods
 
   /// Checks if a provider is registered
   /// @param name name of the provider
-  bool exists(const std::string& name);
+  bool exists(const std::string& name) const;
 
   /// Registers a provider
   /// @param provider pointer to the provider to be registered
@@ -59,16 +64,20 @@ public: // methods
   void unregist(const std::string& providerName);
 
   /// @return the name of the BASE of this factory
-  std::string getTypeName() const { return BASE::getClassName(); }
+  virtual std::string getTypeName() const { return BASE::getClassName(); }
 
   /// @return all the providers in this Factory
-  std::vector<Common::ProviderBase*> getAllProviders();
+  virtual std::vector<Common::ProviderBase*> getAllProviders() const;
 
   /// Get a given Provider
   /// @throw Common::ValueNotFound if the Provider is not registered
-  Common::SafePtr< typename BASE::PROVIDER > getProvider(const std::string& providerName);
+  virtual Common::SafePtr< typename BASE::PROVIDER > getProvider(const std::string& name) const;
 
-protected: // helper function
+  /// Get a given Provider, cast as a ProviderBase
+  /// @throw Common::ValueNotFound if the Provider is not registered
+  virtual  ProviderBase* getProviderBase(const std::string& name) const;
+
+protected: // helper functions
 
   /// Constructor is protected because this is a Singleton.
   Factory();
@@ -76,12 +85,15 @@ protected: // helper function
   ~Factory();
 
   /// providers database
-  std::map<std::string, Common::Provider<BASE>*>& getProviderMap() { return m_map; }
+  std::map<std::string, Common::Provider<BASE>*>& getProviderMap() { return m_providers; }
+
+  /// providers database
+  const std::map<std::string, Common::Provider<BASE>*>& getProviderMap() const { return m_providers; }
 
 private: // data
 
   /// providers database
-  std::map<std::string, Provider<BASE>*> m_map;
+  std::map<std::string, Provider<BASE>*> m_providers;
 
 }; // end of class Factory
 
@@ -128,7 +140,7 @@ void Factory<BASE>::regist(Provider<BASE>* provider)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class BASE>
-bool Factory<BASE>::exists(const std::string& name)
+bool Factory<BASE>::exists(const std::string& name) const
 {
   return (getProviderMap().count(name) > 0);
 }
@@ -151,8 +163,24 @@ void Factory<BASE>::unregist(const std::string& providerName)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class BASE>
+ProviderBase* Factory<BASE>::getProviderBase(const std::string& name) const
+{
+  if (!exists(name))
+  {
+    throw Common::ValueNotFound (FromHere(),
+      "In factory of [" + getTypeName() +
+      "] a provider with the name [" + name +
+      "] was not found while trying to get the provider" );
+  }
+
+  return getProviderMap().find(name)->second;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+template <class BASE>
 Common::SafePtr< typename BASE::PROVIDER >
-Factory<BASE>::getProvider(const std::string& providerName)
+Factory<BASE>::getProvider(const std::string& providerName) const
 {
   if (!exists(providerName))
   {
@@ -169,10 +197,10 @@ Factory<BASE>::getProvider(const std::string& providerName)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class BASE>
-std::vector<Common::ProviderBase*> Factory<BASE>::getAllProviders()
+std::vector<Common::ProviderBase*> Factory<BASE>::getAllProviders() const
 {
   std::vector<Common::ProviderBase*> result;
-  typename std::map<std::string,Provider<BASE>*>::iterator itr;
+  typename std::map<std::string,Provider<BASE>*>::const_iterator itr;
   itr = getProviderMap().begin();
   for (; itr != getProviderMap().end(); ++itr) {
     result.push_back(itr->second);
@@ -182,7 +210,7 @@ std::vector<Common::ProviderBase*> Factory<BASE>::getAllProviders()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  } // namespace Common
+} // namespace Common
 } // namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////

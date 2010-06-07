@@ -74,6 +74,9 @@ public: // functions
   /// Get the componment throught the links to the actual components
   virtual Component::Ptr  get ();
 
+  /// @name ITERATORS
+  //@{
+
   /// The begin iterator for a recursive range containing only components of the specified type
   template<typename ComponentT>
   Component_iterator<ComponentT> recursive_begin();
@@ -101,6 +104,8 @@ public: // functions
 
   /// The end iterator for a recursive range containing Components (const version)
   Component::const_iterator recursive_end() const;
+
+  //@} END SIGNALS
 
   /// checks if this component is in fact a link to another component
   bool is_link () const { return m_is_link; }

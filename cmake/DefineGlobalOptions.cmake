@@ -25,6 +25,10 @@ option ( CF_ENABLE_WARNINGS           "Enable lots of warnings while compiling" 
 option ( CF_ENABLE_STDASSERT          "Enable standard assert() functions "            OFF )
 option ( CF_ENABLE_SANDBOX            "Enable build of sandbox projects"               OFF   )
 
+# option to do code coverage
+# note that it runs off optimization
+option ( CF_ENABLE_CODECOVERAGE              "Enable code coverage"     OFF )
+
 # user option to add system depedent profiling
 option ( CF_ENABLE_PROFILING    "Enable code profiling"                 OFF )
 

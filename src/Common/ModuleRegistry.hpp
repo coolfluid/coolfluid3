@@ -11,10 +11,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
+namespace Common {
 
-  namespace Common {
-
-    class CoreEnv;
     class ModuleRegisterBase;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -24,8 +22,6 @@ namespace CF {
 /// The only instance of this object is held by the CFEnv.
 /// @author Tiago Quintino
 class Common_API ModuleRegistry : public boost::noncopyable {
-
-  friend class Common::CoreEnv;
 
 public:
 
@@ -50,24 +46,15 @@ public:
   /// @return a vector with all the modules
   std::vector< Common::SafePtr<Common::ModuleRegisterBase> > getAllModules();
 
-private: // methods
-
-  /// Constructor is private to allow only the friend classes to build it
-  ModuleRegistry();
-
-  /// Default destructor is private to allow only the friend classes to destroy it
-  ~ModuleRegistry();
-
 private: // data
 
   Common::GeneralStorage<Common::ModuleRegisterBase> m_store;
 
-}; // end of class ModuleRegistry
+}; // ModuleRegistry
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  } // namespace Common
-
+} // namespace Common
 } // namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////

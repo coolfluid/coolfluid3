@@ -11,21 +11,18 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
+namespace Common {
 
-  namespace Common {
-
-    class FactoryBase;
-    class CoreEnv;
+  class FactoryBase;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// This class is a singleton object which serves as registry for all the
-/// Factory objects that are created
-/// The only instance of this object is held by the CoreEnv.
+/// Registry for all the factory objects that are created.
+/// Typically this object is held by the CoreEnv singleton,
+/// therefore only one of these registries exists.
+/// @see Factory
 /// @author Tiago Quintino
 class Common_API FactoryRegistry : public boost::noncopyable {
-
-  friend class Common::CoreEnv;
 
 public:
 
@@ -42,24 +39,15 @@ public:
   /// @return a pointer to a FactoryBase if found or a null pointer if not found
   Common::SafePtr<Common::FactoryBase> getFactory(const std::string& name);
 
-private: // methods
-
-  /// Constructor is private to allow only the friend classes to build it
-  FactoryRegistry();
-
-  /// Default destructor is private to allow only the friend classes to destroy it
-  ~FactoryRegistry();
-
 private: // data
 
   Common::GeneralStorage<Common::FactoryBase> m_store;
 
-}; // end of class FactoryRegistry
+}; // FactoryRegistry
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  } // namespace Common
-
+} // namespace Common
 } // namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////

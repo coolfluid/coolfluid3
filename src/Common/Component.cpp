@@ -39,7 +39,6 @@ Component::Component ( const CName& name ) :
 
 Component::~Component()
 {
-  /// @todo implement
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -336,6 +335,22 @@ void Component::regist_signals ( Component* self  )
 
 void Component::create_component ( XmlNode& node  )
 {
+  XmlParams p ( node );
+
+  std::string name  = p.get_param<std::string>("name");
+  std::string atype = p.get_param<std::string>("atype");
+  std::string ctype = p.get_param<std::string>("ctype");
+
+
+  SafePtr< FactoryBase > factory =
+      CoreEnv::getInstance().getFactoryRegistry()->getFactory(atype);
+
+  SafePtr< ProviderBase > prov = factory->getProviderBase(ctype);
+
+  /// @todo finish implementation of create_component:
+  ///      * how to create a Component without specifying the type?
+  ///      * how to pass the constructor parameters?
+
   throw NotImplemented( FromHere(), "" );
 }
 

@@ -11,7 +11,7 @@ IF(UNIX)
   IF( CMAKE_COMPILER_IS_GNUCC )
 
     # use pipe for faster compilation
-    CF_ADD_C_FLAGS  ("-pipe")
+    CF_ADD_C_FLAGS("-pipe")
     CF_ADD_CXX_FLAGS("-pipe")
     
     # respect c 89 standard (same as -std=c89)
@@ -21,7 +21,7 @@ IF(UNIX)
     # dont allow gnu extensions
     CF_ADD_CXX_FLAGS("-fno-gnu-keywords")
     
-    # dont defined common variables
+    # dont define common variables
     CF_ADD_C_FLAGS("-fno-common")
     CF_ADD_CXX_FLAGS("-fno-common")
 
@@ -50,11 +50,23 @@ IF(UNIX)
       # be pedantic but issue warnings instead of errors
       # CF_ADD_CXX_FLAGS("-pedantic") # Disabled for now, see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=33305
       CF_ADD_CXX_FLAGS("-fpermissive")
-      CF_ADD_CXX_FLAGS("-Wno-empty-body") # Problem in boost
+
+      CF_ADD_CXX_FLAGS("-Wno-empty-body")    # Problem in boost
       CF_ADD_CXX_FLAGS("-Wno-uninitialized") # Problem with boost accumulators 
 
       # could add even these
       #-Wcast-align -Wchar-subscripts -Wpointer-arith -Wformat-security
+    endif()
+
+    if ( CF_ENABLE_CODECOVERAGE )
+
+      find_program(CTEST_COVERAGE_COMMAND gcov)
+
+      if ( CTEST_COVERAGE_COMMAND )
+        CF_ADD_C_FLAGS("-fprofile-arcs -ftest-coverage")
+        CF_ADD_CXX_FLAGS("-fprofile-arcs -ftest-coverage")
+        list ( APPEND LINK_FLAGS "-fprofile-arcs -ftest-coverage" )
+      endif()
     endif()
 
   ENDIF()

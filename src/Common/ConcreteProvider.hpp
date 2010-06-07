@@ -14,13 +14,13 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  /// number of arguments in the constructor
-  enum  { NB_ARGS_0 = 0, NB_ARGS_1 = 1, NB_ARGS_2 = 2 };
+/// number of arguments in the constructor
+enum NB_ARGS { NB_ARGS_0 = 0, NB_ARGS_1 = 1, NB_ARGS_2 = 2 };
 
 /// @brief Concrete provider class for all types which the constructor takes zero arguments
 /// @author Andrea Lani
 /// @author Tiago Quintino
-template <class BASE, int NBARG = 0>
+template <class BASE, int = NB_ARGS_0 >
 class ConcreteProvider : public Common::Provider<BASE> {
 public:
 
