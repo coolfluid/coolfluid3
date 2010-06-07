@@ -231,6 +231,7 @@ IF( NOT CF_SKIP_FORTRAN )
 LOG ( " Fortran compiler      : [${CMAKE_Fortran_COMPILER}]" )
 LOG ( " Fortran flags         : [${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_${CMAKE_BUILD_TYPE}}]" )
 ENDIF()
+LOG ( " Common Linker flags   : [${LINK_FLAGS}]" )
 LOG ( " Shared Linker flags   : [${CMAKE_SHARED_LINKER_FLAGS}]" )
 
 LOG ( "---------------------------------------------------------" )
