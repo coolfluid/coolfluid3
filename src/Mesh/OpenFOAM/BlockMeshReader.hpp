@@ -41,6 +41,9 @@ struct BlockData
   typedef std::vector<Real> PointT;
   /// Storage for a grading corresponding to a single block
   typedef std::vector<Real> GradingT;
+  /// Storage for true/false flags
+  typedef std::vector<bool> BooleansT;
+
 
   Real scalingFactor;
 
@@ -58,10 +61,19 @@ struct BlockData
   std::vector<std::string> patchTypes;
   /// Name for each patch
   std::vector<std::string> patchNames;
+  /// Point indices for each patch (grouped per 4)
+  std::vector<IndicesT> patchPoints;
 };
 
 /// Populate structured grid info from a BlockMeshDict file
 void readBlockMeshFile(std::fstream& file, BlockData& blockData);
+
+/// Determine the number of dimensions (TODO, always returns 3 now)
+/// Note: All OpenFOAM meshes are 3D, but 2D meshes are only 1 cell thick.
+/// Based on this, the real mesh dimensionality can be determined
+Uint computeDimensionality(const BlockData& blockData) { return 3; }
+
+void buildMesh(const BlockData& blockData, CMesh& mesh);
 
 ////////////////////////////////////////////////////////////////////////////////
 
