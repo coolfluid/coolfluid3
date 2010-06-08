@@ -170,7 +170,7 @@ namespace Common {
       for ( ; node; node = node->next_sibling( nodetype ) )
       {
         // search for the attribute with key
-        XmlAttr* att = node->first_attribute( XmlTag<TYPE>::array() );
+        XmlAttr* att = node->first_attribute( XmlParams::tag_attr_key() );
         if ( att && !pname.compare(att->value()) )
         {
           found_node = node;
