@@ -60,7 +60,7 @@ include ( CTest )                   # include testing support
 
 include ( DefineInstallPaths )      # define where to install the files after building
 
-include ( ResetVariables )          # reset variables used for the build
+include ( ResetVariables )          # reset variables used for the build and set DEPS_ROOT if needed
 
 ##############################################################################
 # configuration options
