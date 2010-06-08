@@ -469,6 +469,8 @@ bool ClientNetworkComm::send(const XmlDoc & signal)
   {
     XmlOps::xml_to_string(signal, str);
 
+    qDebug() << str.c_str();
+
     this->send(str.c_str());
 
 //    try
@@ -603,6 +605,8 @@ void ClientNetworkComm::newData()
       return;
 
     in >> frame;
+
+    qDebug() << frame;
 
     try
     {

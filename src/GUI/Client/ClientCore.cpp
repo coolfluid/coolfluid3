@@ -4,7 +4,6 @@
 #include "rapidxml/rapidxml_print.hpp"
 
 #include "Common/BasicExceptions.hpp"
-#include "Common/XmlHelpers.hpp"
 
 #include "GUI/Network/ComponentType.hpp"
 #include "GUI/Network/NetworkFrameType.hpp"
@@ -122,9 +121,18 @@ void ClientCore::buildAndSendSignal(const QString & type, const CPath & sender,
   this->sendSignal(si);
 }
 
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void ClientCore::sendSignal(const CF::Common::XmlDoc & signal)
+{
+  m_networkComm->send(signal);
+}
+
+
 /****************************************************************************
 
- PRIVATE METHODS
+                               PRIVATE METHODS
 
  ****************************************************************************/
 

@@ -32,7 +32,7 @@ RemoteFSBrowser::RemoteFSBrowser(QMainWindow * parent)
 {
   this->rename(ClientRoot::getBrowser()->generateName().toStdString());
   ClientRoot::getBrowser()->add_component(boost::shared_ptr<RemoteFSBrowser>(this));
-  regist_signal("readDir", "Directory content")->connect(boost::bind(&RemoteFSBrowser::readDir, this, _1));
+  regist_signal("read_dir", "Directory content")->connect(boost::bind(&RemoteFSBrowser::read_dir, this, _1));
 
 
   this->setWindowTitle("Open file");
@@ -673,18 +673,17 @@ QString RemoteFSBrowser::getCurrentPath() const
 
 void RemoteFSBrowser::updateModel(QStandardItemModel * model,
                                   const QString & path,
-                                  const QStringList & dirs,
-                                  const QStringList & files,
+                                  const std::vector<std::string> & dirs,
+                                  const std::vector<std::string> & files,
                                   QList<FilesListItem *> & modelItems)
 {
   QIcon dirIcon = QFileIconProvider().icon(QFileIconProvider::Folder);
   QIcon fileIcon = QFileIconProvider().icon(QFileIconProvider::File);
 
-  QStringList::const_iterator itDirs = dirs.begin();
-  QStringList::const_iterator itFiles = files.begin();
+  std::vector<std::string>::const_iterator itDirs = dirs.begin();
+  std::vector<std::string>::const_iterator itFiles = files.begin();
   QList<FilesListItem *>::iterator itItems;
   FilesListItem * item;
-  QStringList tmp;
 
   // delete m_items
   itItems = modelItems.begin();
@@ -702,7 +701,7 @@ void RemoteFSBrowser::updateModel(QStandardItemModel * model,
   // add directories to the list
   while(itDirs != dirs.end())
   {
-    QString name = *itDirs;
+    QString name = itDirs->c_str();
 
     if(!path.isEmpty() && name != "..")
       name.prepend(path + (path.endsWith(m_pathSep) ? "" : m_pathSep));
@@ -716,7 +715,7 @@ void RemoteFSBrowser::updateModel(QStandardItemModel * model,
   // add files to the list
   while(itFiles != files.end())
   {
-    item = new FilesListItem(fileIcon, *itFiles, FILE);
+    item = new FilesListItem(fileIcon, itFiles->c_str(), FILE);
     modelItems.append(item);
     model->appendRow(item);
     itFiles++;
@@ -728,66 +727,62 @@ void RemoteFSBrowser::updateModel(QStandardItemModel * model,
 
 void RemoteFSBrowser::openDir(const QString & path)
 {
-  QList<std::string> exts;
-  QString frame;
+  boost::shared_ptr<XmlDoc> docnode = XmlOps::create_doc();
+  XmlNode * rootNode = XmlOps::goto_doc_node(*docnode.get());
+  XmlNode * signalNode = XmlOps::add_signal_frame(*rootNode, "read_dir", full_path(), SERVER_CORE_PATH);
+  XmlParams p(*signalNode);
+  std::vector<std::string> vect;
   QStringList::iterator it = m_extensions.begin();
-  SignalInfo si("readDir", this->full_path(), SERVER_CORE_PATH, true);
-
-  // change mouse cursor to a wait cursor (usually a hourglass)
-  QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
   while(it != m_extensions.end())
   {
-    exts.append(it->toStdString());
+    vect.push_back(it->toStdString());
     it++;
   }
 
-  si.setParam("dirPath", path.toStdString());
-  si.setParam("includeFiles", m_includeFiles);
-  si.setParam("includeNoExtension", m_includeNoExtension);
-  si.setArray("extensions", exts);
+  p.add_param("dirPath", path.toStdString());
+  p.add_param("includeFiles", m_includeFiles);
+  p.add_param("includeNoExtensions", m_includeNoExtension);
+  p.add_array("extensions", vect);
 
-  m_clientCore->sendSignal(si);
+  m_clientCore->sendSignal(*docnode.get());
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Signal::return_t RemoteFSBrowser::readDir(const Signal::arg_t & node)
+Signal::return_t RemoteFSBrowser::read_dir(Signal::arg_t & node)
 {
-  //XmlParams p(node);
+  XmlParams p(node);
 
-  throw NotImplemented(FromHere(), "RemoteFSBrowser::readDir");
+  std::vector<std::string> dirs;
+  std::vector<std::string> files;
 
-//  QStringList dirs;
-//  QStringList files;
-//
-//  cf_assert(!p.isSignal());
-//
-//  m_currentPath = p.value<std::string>("dirPath").c_str();
-//
-//  // add an ending '/' if the string does not have any
-//  if(!m_currentPath.endsWith(m_pathSep))
-//    m_currentPath += m_pathSep;
-//
-//  // clear the filter
-//  m_editFilter->setText("");
-//  this->filterUpdated("");
-//
-//  if(!m_updatingCompleter)
-//    m_editPath->setText(m_currentPath);
-//  else
-//    m_updatingCompleter = false;
-//
-//  SignalInfo::convertToStringList(p.array<std::string>("dirs"), dirs);
-//  SignalInfo::convertToStringList(p.array<std::string>("files"), files);
-//
-//  this->updateModel(m_viewModel, "", dirs, files, m_items);
-//  this->updateModel(m_completerModel, m_currentPath, dirs,
-//                    QStringList(), m_itemsCompleter);
-//
-//  // restore mouse cursor
-//  QApplication::restoreOverrideCursor();
+
+  m_currentPath = p.get_param<std::string>("dirPath").c_str();
+
+  // add an ending '/' if the string does not have any
+  if(!m_currentPath.endsWith(m_pathSep))
+    m_currentPath += m_pathSep;
+
+  // clear the filter
+  m_editFilter->setText("");
+  this->filterUpdated("");
+
+  if(!m_updatingCompleter)
+    m_editPath->setText(m_currentPath);
+  else
+    m_updatingCompleter = false;
+
+  dirs = p.get_array<std::string>("dirs");
+  files = p.get_array<std::string>("files");
+
+  this->updateModel(m_viewModel, "", dirs, files, m_items);
+  this->updateModel(m_completerModel, m_currentPath, dirs,
+                    std::vector<std::string>(), m_itemsCompleter);
+
+  // restore mouse cursor
+  QApplication::restoreOverrideCursor();
 
 }
 

@@ -40,8 +40,7 @@ CCore::CCore()
   connect(m_commServer, SIGNAL(newClient(int)),
           this,  SLOT(newClient(int)));
 
-  regist_signal("readDir", "Read directory content")->connect(boost::bind(&CCore::readDir, this, _1));
-  regist_signal("list_tree", "test")->connect(boost::bind(&CCore::list_tree, this, _1));
+  regist_signal("read_dir", "Read directory content")->connect(boost::bind(&CCore::read_dir, this, _1));
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -130,59 +129,76 @@ void CCore::setStatus(WorkerStatus::Type status)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 bool CCore::getDirContent(const QString & directory,
-                          const QStringList & extensions,
+                          const std::vector<std::string> & extensions,
                           bool includeFiles,
                           bool includeNoExtension,
-                          QStringList & dirsList,
-                          QStringList & filesList) const
+                          std::vector<std::string> & dirsList,
+                          std::vector<std::string> & filesList) const
 {
   QStringList list;
   QDir dir(directory);
+  bool dirExists = dir.exists();
 
   dir.setFilter(QDir::Files | QDir::Dirs | QDir::Hidden);
   dir.setSorting(QDir::DirsFirst | QDir::Name);
 
-  if(!dir.exists())
-    return false;
-
-  QFileInfoList files = dir.entryInfoList();
-  QFileInfoList::iterator it = files.begin();
-
-  QRegExp regex("", Qt::CaseSensitive, QRegExp::RegExp);
-
-  if(!extensions.isEmpty())
+  if(dirExists)
   {
-    /* build the regex pattern string.
+    QFileInfoList files = dir.entryInfoList();
+    QFileInfoList::iterator it = files.begin();
+
+    QRegExp regex("", Qt::CaseSensitive, QRegExp::RegExp);
+
+    if(!extensions.empty())
+    {
+      /* build the regex pattern string.
     For example, if the QStringList contains "xml" and "CFcase" extensions,
     the resulting string will be : "^.+\\.((xml)|(CFcase))$" */
 
-    QString regexPattern = extensions.join(")|(");
-    regexPattern.prepend("^.+\\.((").append("))$");
-    regex.setPattern(regexPattern);
-  }
-  else
-    regex.setPattern("^.+\\..+$");
+      /// @todo try to use QString::resize() or QString::reserve()
+      QString regexPattern;
+      std::vector<std::string>::const_iterator it = extensions.begin();
 
-  while(it != files.end())
-  {
-    QFileInfo fileInfo = *it;
-    QString filename = fileInfo.fileName();
+      while(it != extensions.end())
+      {
+        if(!regexPattern.isEmpty())
+          regexPattern.append(")|(");
 
-    if (filename != "." && filename != "..")
-    {
-      if(fileInfo.isDir())
-        dirsList << filename;
+        regexPattern.append(it->c_str());
 
-      else if(includeFiles && regex.exactMatch(filename))
-        filesList << filename;
+        it++;
+      }
 
-      else if(includeFiles && includeNoExtension && !filename.contains('.'))
-        filesList << filename;
+//      QString regexPattern = extensions.join(")|(");
+      regexPattern.prepend("^.+\\.((").append("))$");
+      regex.setPattern(regexPattern);
     }
-    it++;
+    else
+      regex.setPattern("^.+\\..+$");
+
+    while(it != files.end())
+    {
+      QFileInfo fileInfo = *it;
+      QString filename = fileInfo.fileName();
+
+      if (filename != "." && filename != "..")
+      {
+        if(fileInfo.isDir())
+          dirsList.push_back(filename.toStdString());
+        else if(includeFiles)
+        {
+          if(regex.exactMatch(filename))
+            filesList.push_back(filename.toStdString());
+          else if(includeNoExtension && !filename.contains('.'))
+            filesList.push_back(filename.toStdString());
+        }
+      }
+
+      it++;
+    }
   }
 
-  return true;
+  return dirExists;
 }
 
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -191,63 +207,54 @@ bool CCore::getDirContent(const QString & directory,
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-Signal::return_t CCore::readDir(Signal::arg_t & node)
+Signal::return_t CCore::read_dir(Signal::arg_t & node)
 {
   XmlParams p(node);
+  std::vector<std::string> dirList;
+  std::vector<std::string> fileList;
+  QString directory;
 
-  throw NotImplemented(FromHere(), "CCore::readDir");
-//  QStringList dirList;
-//  QStringList fileList;
-//  QStringList extensions;
-//  QString frame;
-//  QString directory;
-//
-//  QString dirPath = p.value<std::string>("dirPath").c_str();
-//  bool includeFiles = p.value<bool>("includeFiles");
-//  bool includeNoExtension = p.value<bool>("includeNoExtension");
-//
-//  if(dirPath.isEmpty())
-//    directory = this->DEFAULT_PATH;
-//  else
-//    directory = dirPath;
-//
-//  directory = QDir(directory).absolutePath();
-//  directory = QDir::cleanPath(directory);
-//
-//  // if the directory is not the root
-//  /// @todo test this on Windows
-//  if(directory != "/")
-//    dirList << "..";
-//
-//  SignalInfo::convertToStringList(p.array<std::string>("extensions"), extensions);
-//
-//  if(!this->getDirContent(dirPath, extensions, includeFiles,
-//                          includeNoExtension, dirList, fileList))
-//  {
-//    m_commServer->sendError(-1, dirPath + ": no such direcrory");
-//  }
-//  else
-//  {
-//    // the reciever becomes the sender and vice versa
-//    SignalInfo si("readDir", p.getReceiver(), p.getSender(), false);
-//    QList<std::string> dirList2;
-//    QList<std::string> fileList2;
-//
-//    SignalInfo::convertToStdString(dirList, dirList2);
-//    SignalInfo::convertToStdString(fileList, fileList2);
-//
-//    // Build the reply
-//
-//    si.setParam("dirPath", directory.toStdString());
-//    si.setArray("dirs", dirList2);
-//    si.setArray("files", fileList2);
-//
-//    frame = si.getString();
-//
-//    m_commServer->send(-1, frame);
-//  }
+  try
+  {
+    QString dirPath = p.get_param<std::string>("dirPath").c_str();
+    bool includeFiles = p.get_param<bool>("includeFiles");
+    bool includeNoExtension = p.get_param<bool>("includeNoExtensions");
+    std::vector<std::string> extensions = p.get_array<std::string>("extensions");
 
-  /// @todo return something...
+    if(dirPath.isEmpty())
+      directory = this->DEFAULT_PATH;
+    else
+      directory = dirPath;
+
+    directory = QDir(directory).absolutePath();
+    directory = QDir::cleanPath(directory);
+
+    // if the directory is not the root
+    /// @todo test this on Windows
+    if(directory != "/")
+      dirList.push_back("..");
+
+    if(!this->getDirContent(directory, extensions, includeFiles,
+                            includeNoExtension, dirList, fileList))
+    {
+      m_commServer->sendError(-1, dirPath + ": no such direcrory");
+    }
+    else
+    {
+      // Build the reply
+      XmlNode * replyNode = XmlOps::add_reply_frame(node);
+      XmlParams reply(*replyNode);
+
+      reply.add_param("dirPath", directory.toStdString());
+      reply.add_array("dirs", dirList);
+      reply.add_array("files", fileList);
+    }
+  }
+  catch(Exception e)
+  {
+    CFerr << e.what() << CFflush;
+  }
+
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -272,11 +279,6 @@ Signal::return_t CCore::shutdown(Signal::arg_t & node)
 Signal::return_t CCore::saveConfig(Signal::arg_t & node)
 {
   m_commServer->sendError(-1, "Cannot save the configuration");
-}
-
-Signal::return_t CCore::list_tree(Signal::arg_t & node)
-{
-  CFinfo << "Received signal!" << CFendl;
 }
 
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -478,43 +480,6 @@ void CCore::createDirectory(int clientId, const QString & dirPath,
 
   else
     m_commServer->sendAck(clientId, true, NETWORK_CREATE_DIR);
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void CCore::openDirectory(int clientId, const QString & dirPath,
-                                 const QStringList & extensions,
-                                 bool includeFiles, bool includeNoExtension)
-{
-  QStringList directories;
-  QStringList files;
-  // bool dotDot;
-
-  QString directory;
-
-  QDomDocument filesList;
-
-  if(dirPath.isEmpty())
-    directory = this->DEFAULT_PATH;
-  else
-    directory = dirPath;
-
-  directory = QDir(directory).absolutePath();
-  directory = QDir::cleanPath(directory);
-
-  if(directory != "/")
-    directories << "..";
-
-  if(!this->getDirContent(directory, extensions, includeFiles,
-                          includeNoExtension, directories, files))
-  {
-    m_commServer->sendError(clientId, QString("'%1' is not an existing directory")
-                                  .arg(directory));
-    return;
-  }
-
-  m_commServer->sendDirContents(clientId, directory, directories, files);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

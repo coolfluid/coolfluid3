@@ -570,7 +570,8 @@ namespace Client {
     /// @param modelItems List where new m_items will be stored. This list
     /// is cleared before usage.
     void updateModel(QStandardItemModel * model, const QString & path,
-                     const QStringList & dirs, const QStringList & files,
+                     const std::vector<std::string> & dirs,
+                     const std::vector<std::string> & files,
                      QList<FilesListItem *> & modelItems);
 
     /// @brief Sends a request to the server to open a directory
@@ -580,7 +581,7 @@ namespace Client {
     /// @param path Directory path to open
     void openDir(const QString & path);
 
-    CF::Common::Signal::return_t readDir(const CF::Common::Signal::arg_t & node);
+    CF::Common::Signal::return_t read_dir(CF::Common::Signal::arg_t & node);
 
   }; // class RemoteFSBrowser
 

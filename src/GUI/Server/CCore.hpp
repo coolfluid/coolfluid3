@@ -8,6 +8,8 @@
 #include <QList>
 #include <QDomDocument>
 #include <mpi.h>
+#include <vector>
+#include <string>
 
 #include "Common/Component.hpp"
 #include "Common/MPI/PEInterface.hpp"
@@ -148,21 +150,6 @@ namespace Server {
     /// @param name Directory name
     void createDirectory(int clientId, const QString & dirPath,
                          const QString & name);
-
-    /// @brief Reads a directory contents.
-
-    /// @param clientId Client id, or -1 to send notifactions to all clients.
-
-    /// @param dirPath Path to the directory to read.
-    /// @param extensions List of wanted extensions. According to the network
-    /// protocol, this list may be empty.
-    /// @param includeFiles If @c true, sub-directories and files returned.
-    /// If @c false, only sub-directories will be returned.
-    /// @param includeNoExtension If @c true, files without any extension will
-    /// be returned. If @c false, they will not.
-    void openDirectory(int clientId, const QString & dirPath,
-                       const QStringList & extensions, bool includeFiles,
-                       bool includeNoExtension);
 
     /// @brief Saves a configuration to a file
 
@@ -306,15 +293,15 @@ namespace Server {
     /// Otherwise, returns @c false (@c dirsList and @c filesList are not
     /// modified in this case).
     bool getDirContent(const QString & directory,
-                       const QStringList & extensions,
+                       const std::vector<std::string> & extensions,
                        bool includeFiles,
                        bool includeNoExtension,
-                       QStringList & dirsList,
-                       QStringList & filesList) const;
+                       std::vector<std::string> & dirsList,
+                       std::vector<std::string> & filesList) const;
 
     void setStatus(CF::Common::WorkerStatus::Type status);
 
-    CF::Common::Signal::return_t readDir(CF::Common::Signal::arg_t & node);
+    CF::Common::Signal::return_t read_dir(CF::Common::Signal::arg_t & node);
 
     CF::Common::Signal::return_t createDir(CF::Common::Signal::arg_t & node);
 

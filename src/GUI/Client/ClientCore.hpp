@@ -6,6 +6,8 @@
 #include <QMap>
 #include <QObject>
 
+#include "Common/XmlHelpers.hpp"
+
 #include "GUI/Client/TreeModel.hpp"
 #include "GUI/Client/TSshInformation.hpp"
 
@@ -56,7 +58,7 @@ namespace Client {
                             const CF::Common::CPath & sender,
                             const CF::Common::CPath & receiver);
 
-    void sendSignal(const QDomDocument & signal);
+    void sendSignal(const CF::Common::XmlDoc & signal);
 
   private slots:
 
