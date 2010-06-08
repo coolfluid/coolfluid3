@@ -29,7 +29,7 @@ namespace Common {
 template <>
     void xmlstr_to_value ( XmlNode& node, bool& val )
 {
-  bool error = true;
+  bool match = false;
   std::string vt ( node.value() );
 
   boost::algorithm::is_equal test_equal;
@@ -39,19 +39,19 @@ template <>
        test_equal(vt,"1")     )
   {
     val   = true;
-    error = false;
+    match = true;
   }
 
-  if ( !error && (
+  if ( !match && (
        test_equal(vt,"false") ||
        test_equal(vt,"off")   ||
        test_equal(vt,"0")     ))
   {
       val   = false;
-      error = false;
+      match = true;
   }
 
-  if (error)
+  if (!match)
     throw ParsingFailed (FromHere(), "Incorrect option conversion to bool of string [" + vt + "]" );
 }
 

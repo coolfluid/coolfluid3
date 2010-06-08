@@ -240,7 +240,7 @@ namespace Common {
     }
 
     // convert TYPE to node name
-    const char* node_name = xmldoc.allocate_string( XmlTag<TYPE>::type() );
+    const char* node_name = xmldoc.allocate_string( XmlTag<TYPE>::array() );
 
     // convert value to string
 
@@ -258,13 +258,16 @@ namespace Common {
     const char* sizevalue_str = xmldoc.allocate_string( StringOps::to_str(vect.size()).c_str() );
 
     // creates the attribute
-    XmlAttr* attr = xmldoc.allocate_attribute( key_str, keyvalue_str );
+    XmlAttr* attr = xmldoc.allocate_attribute("type", XmlTag<TYPE>::type());
+    node->append_attribute(attr);
+
+    attr = xmldoc.allocate_attribute( key_str, keyvalue_str );
     node->append_attribute(attr);
 
     attr = xmldoc.allocate_attribute( size_str, sizevalue_str );
     node->append_attribute(attr);
 
-    for(int i = 0 ; i < vect.size() ; i++)
+    for(size_t i = 0 ; i < vect.size() ; i++)
     {
       const char* value_str = xmldoc.allocate_string( value_to_xmlstr(vect[i]).c_str() );
       XmlNode * itemNode = xmldoc.allocate_node ( node_element, "e", value_str );
