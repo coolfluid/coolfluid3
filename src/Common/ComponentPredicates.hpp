@@ -5,13 +5,14 @@
 
 #include <boost/iterator/filter_iterator.hpp>
 #include <boost/foreach.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/type_traits/is_const.hpp>
 
 #include "Common/ComponentIterator.hpp"
 #include "Common/Component.hpp"
 
 namespace CF {
 namespace Common {
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // Filter iterator classes and functions
@@ -80,77 +81,81 @@ public:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+// Range type shorthands and automatic const deduction
+////////////////////////////////////////////////////////////////////////////////
+
+/// Shorthand for a range of two filtered iterators
+template<typename IteratorT, typename Predicate=IsComponentTrue>
+struct FilteredIteratorRange {
+  typedef boost::iterator_range<boost::filter_iterator<Predicate, IteratorT> > type;
+};
+
+/// Specialization without the predicate and no filter
+template<typename IteratorT>
+struct FilteredIteratorRange<IteratorT, IsComponentTrue> {
+  typedef boost::iterator_range<IteratorT> type;
+};
+
+/// Derive the correct range type based on the constness of ParentT, which should be the type of the parent component
+template<typename ParentT, typename ComponentT=Component, typename Predicate=IsComponentTrue>
+struct ComponentIteratorRange {
+  typedef typename FilteredIteratorRange<typename boost::mpl::if_c<boost::is_const<ParentT>::value, // if ParentT is const
+                                                                    Component_iterator<ComponentT const>, // use a const component iterator
+                                                                    Component_iterator<ComponentT> >::type, // or the mutable one otherwise
+                                          Predicate>::type type;
+};
+
+////////////////////////////////////////////////////////////////////////////////
 // Wrappers to make iterating easy
 ////////////////////////////////////////////////////////////////////////////////
 
+/// Given two iterators delimiting a component range, return a range that conforms to the
+/// given predicate. The unfiltered version is not provided, since boost::make_iterator_range(from, to) is equivalent.
 template <typename Predicate, typename IteratorT>
-inline boost::iterator_range<boost::filter_iterator<Predicate, IteratorT> >
-iterate_recursive(const IteratorT& from, const IteratorT& to , const Predicate& pred, Uint level=0)
+inline typename FilteredIteratorRange<IteratorT, Predicate>::type
+make_filtered_range(const IteratorT& from, const IteratorT& to , const Predicate& pred)
 {
-  return boost::make_iterator_range(boost::filter_iterator<Predicate, IteratorT >(pred,from,to),
-                                    boost::filter_iterator<Predicate, IteratorT >(pred,to,to));
+  return boost::make_iterator_range(boost::filter_iterator<Predicate, IteratorT>(pred,from,to),
+                                    boost::filter_iterator<Predicate, IteratorT>(pred,to,to));
 }
 
-template <typename IteratorT>
-inline boost::iterator_range<boost::filter_iterator<IsComponentTrue, IteratorT > >
-iterate_recursive(const IteratorT& from, const IteratorT& to, Uint level=0)
+
+/// Creates a range containing all components of type ComponentT from the whole tree under parent, filtered by the predicate
+/// Note: ParentT is a template argument instead of base class Component to allow const and non-const versions in one go
+template <typename ComponentT, typename ParentT, typename Predicate>
+inline typename ComponentIteratorRange<ParentT, ComponentT, Predicate>::type
+recursive_filtered_range_typed(ParentT& parent, const Predicate& pred)
 {
-  return iterate_recursive(from,to,IsComponentTrue(),level);
+  return make_filtered_range(parent.template recursive_begin<ComponentT>(),parent.template recursive_end<ComponentT>(),pred);
+}
+
+/// Filtered range of all subcomponentes
+template <typename ParentT, typename Predicate>
+inline typename ComponentIteratorRange<ParentT, Component, Predicate>::type
+recursive_filtered_range(ParentT& parent, const Predicate& pred)
+{
+  return recursive_filtered_range_typed<Component>(parent, pred);
+}
+
+/// Creates a range containing all components of ComponentT from the whole tree under parent
+/// Note: ParentT is a template argument instead of base class Component to allow const and non-const versions in one go
+template <typename ComponentT, typename ParentT>
+inline typename ComponentIteratorRange<ParentT, ComponentT>::type
+recursive_range_typed(ParentT& parent)
+{
+  return boost::make_iterator_range(parent.template recursive_begin<ComponentT>(),parent.template recursive_end<ComponentT>());
+}
+
+template <typename ParentT>
+inline typename ComponentIteratorRange<ParentT, Component>::type
+recursive_range(ParentT& parent)
+{
+  return recursive_range_typed<Component>(parent);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-template <typename CType, typename Predicate>
-inline boost::iterator_range<boost::filter_iterator<Predicate, Component::iterator > >
-iterate_recursive(CType& parent, const Predicate& pred, Uint level=0)
-{
-  return iterate_recursive(parent.template recursive_begin<Component>(),parent.template recursive_end<Component>(),pred,level);
-}
-
-template <typename CType>
-inline boost::iterator_range<boost::filter_iterator<IsComponentTrue, Component::iterator> >
-iterate_recursive(CType& parent, Uint level=0)
-{
-  return iterate_recursive(parent,IsComponentTrue(),level);
-}
-
+// Utility functions
 ////////////////////////////////////////////////////////////////////////////////
-
-/// Recursive range over all contained components of type CReturnType
-/// and complying to the supplied predicate
-template <typename CReturnType, typename CType, typename Predicate>
-inline boost::iterator_range<boost::filter_iterator<Predicate, Component_iterator<CReturnType> > >
-iterate_recursive_by_type(CType& parent, const Predicate& pred, Uint level=0)
-{
-  return iterate_recursive(parent.template recursive_begin<CReturnType>(),parent.template recursive_end<CReturnType>(),pred,level);
-}
-
-/// Recursive range over all contained components of type CReturnType
-template <typename CReturnType, typename CType>
-inline boost::iterator_range<Component_iterator<CReturnType> >
-iterate_recursive_by_type(CType& parent, Uint level=0)
-{
-  return boost::make_iterator_range(parent.template recursive_begin<CReturnType>(), parent.template recursive_end<CReturnType>());
-}
-
-/// Recursive range over all contained components of type CReturnType
-/// and complying to the supplied predicate
-/// Const version
-template <typename CReturnType, typename CType, typename Predicate>
-inline boost::iterator_range<boost::filter_iterator<Predicate, Component_iterator<CReturnType const> > >
-iterate_recursive_by_type(const CType& parent, const Predicate& pred, Uint level=0)
-{
-  return iterate_recursive(parent.template recursive_begin<CReturnType>(),parent.template recursive_end<CReturnType>(),pred,level);
-}
-
-/// Recursive range over all contained components of type CReturnType
-/// Const version
-template <typename CReturnType, typename CType>
-inline boost::iterator_range<Component_iterator<CReturnType const> >
-iterate_recursive_by_type(const CType& parent, Uint level=0)
-{
-  return boost::make_iterator_range(parent.template recursive_begin<CReturnType>(), parent.template recursive_end<CReturnType>());
-}
 
 /// Count the elements in a range
 template<typename RangeT>

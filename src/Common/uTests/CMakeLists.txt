@@ -31,6 +31,16 @@ LIST ( APPEND uTestComponent_files
 CF_ADD_UNITTEST ( uTestComponent )
 
 ################################################################################
+# Test Component iterators
+
+LIST ( APPEND uTestComponentIteration_libs Common )
+LIST ( APPEND uTestComponentIteration_files
+  uTestComponentIteration.cpp
+)
+
+CF_ADD_UNITTEST ( uTestComponentIteration )
+
+################################################################################
 # Test PE
 
 LIST ( APPEND uTestPE_libs Common )

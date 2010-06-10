@@ -111,7 +111,7 @@ void gaussIntegrate(const CRegion& region, FunctorT& functor, ResultT& result)
 template<typename FunctorT, typename ResultT>
 void gaussIntegrate(const CMesh& mesh, FunctorT& functor, ResultT& result)
 {
-  BOOST_FOREACH(const CRegion& region, iterate_recursive_by_type<CRegion>(mesh))
+  BOOST_FOREACH(const CRegion& region, recursive_range_typed<CRegion>(mesh))
   {
     CFdebug << "integrating region " << region.name() << " with " << region.elements_count() << " elements\n";
     functor.setRegion(region); // initialize region-specific functor data

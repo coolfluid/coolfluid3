@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   BOOST_CHECK_EQUAL(coordRef[1],1.0);
 
  // calculate all volumes of a region
-  BOOST_FOREACH( CRegion& region, iterate_recursive_by_type<CRegion>(*superRegion))
+  BOOST_FOREACH( CRegion& region, recursive_range_typed<CRegion>(*superRegion))
   {
    CElements::Ptr  elementType = region.get_component<CElements>("type");
    boost::shared_ptr<CTable>     connTable   = region.get_component<CTable>("table");

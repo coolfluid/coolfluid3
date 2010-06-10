@@ -187,7 +187,7 @@ void CReader::read_zone(CRegion::Ptr& parent_region)
       read_boco();
 
     // Remove regions flagged as bc
-    BOOST_FOREACH(const CRegion& region, iterate_recursive_by_type<CRegion>(*this_region))
+    BOOST_FOREACH(const CRegion& region, recursive_range_typed<CRegion>(*this_region))
     {
       if(!region.has_component_of_type<CRegion>())
       {
@@ -351,7 +351,7 @@ void CReader::read_section(CRegion::Ptr& parent_region)
   if (option("SectionsAreBCs")->value<bool>())
   {
     bool is_bc_region = false;
-    BOOST_FOREACH(const CRegion& region, iterate_recursive_by_type<CRegion>(*this_region))
+    BOOST_FOREACH(const CRegion& region, recursive_range_typed<CRegion>(*this_region))
     {
       if(!region.has_component_of_type<CRegion>())
       {

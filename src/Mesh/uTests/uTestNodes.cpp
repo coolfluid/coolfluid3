@@ -55,7 +55,7 @@ struct Nodes_Fixture
 
   CRegion& getFirstRegion()
   {
-    BOOST_FOREACH(CRegion& region, iterate_recursive_by_type<CRegion>(*mesh2d))
+    BOOST_FOREACH(CRegion& region, recursive_range_typed<CRegion>(*mesh2d))
     {
       if(region.elements_count())
         return (region);
