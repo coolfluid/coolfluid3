@@ -64,9 +64,9 @@ IF(UNIX)
 
       if ( CTEST_COVERAGE_COMMAND )
         # ("-fprofile-arcs -ftest-coverage")
-        SET ( CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage")
-        SET ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage"")
-        LIST ( APPEND LINK_FLAGS "-fprofile-arcs -ftest-coverage"" )
+        LIST ( APPEND CMAKE_C_FLAGS     " -fprofile-arcs -ftest-coverage" )
+        LIST ( APPEND CMAKE_CXX_FLAGS   " -fprofile-arcs -ftest-coverage" )
+        LIST ( APPEND LINK_FLAGS        " -fprofile-arcs -ftest-coverage" )
       endif()
     endif()
 
