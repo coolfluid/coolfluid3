@@ -89,35 +89,18 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   CMesh::Ptr p_mesh = boost::dynamic_pointer_cast<CMesh>(mesh);
 
   // create regions
-  p_mesh->create_region("superRegion");
-  p_mesh->get_component<CRegion>("superRegion")->create_region("quads");
-  p_mesh->get_component<CRegion>("superRegion")->create_region("triags");
-  
-  // create a pointer to the quads and triag region
-  CRegion::Ptr superRegion =
-    p_mesh->get_component<CRegion>("superRegion"); 
-  CRegion::Ptr quadRegion =
-    superRegion->get_component<CRegion>("quads"); 
-  CRegion::Ptr triagRegion =
-    superRegion->get_component<CRegion>("triags"); 
+  CRegion& superRegion = *p_mesh->create_region("superRegion");
+  CRegion& quadRegion = *superRegion.create_region("quads");
+  CRegion& triagRegion = *superRegion.create_region("triags");
 
   // create connectivity table and element type in the quads and triags region
-  quadRegion->create_connectivityTable("table");
-  quadRegion->create_elementType("type");
-  triagRegion->create_connectivityTable("table");
-  triagRegion->create_elementType("type");
-  
-  // set the element types
-  quadRegion->get_component<CElements>("type")->set_elementType("P1-Quad2D");
-  triagRegion->get_component<CElements>("type")->set_elementType("P1-Triag2D");
+  CTable::Ptr qTable = quadRegion.create_connectivityTable("table");
+  quadRegion.create_elementType("type")->set_elementType("P1-Quad2D");
+  CTable::Ptr tTable = triagRegion.create_connectivityTable("table");
+  triagRegion.create_elementType("type")->set_elementType("P1-Triag2D");
 
   // create a coordinates array in the mesh component
-  p_mesh->create_array("coordinates");
-  
-  // create pointers to the coordinates array and connectivity table
-  CArray& coordinates = *p_mesh->get_component<CArray>("coordinates");
-  CTable::Ptr qTable  = quadRegion->get_component<CTable>("table");
-  CTable::Ptr tTable  = triagRegion->get_component<CTable>("table");
+  CArray& coordinates = *p_mesh->create_array("coordinates");
 
   // initialize the coordinates array and connectivity tables
   const Uint dim=2;
@@ -173,27 +156,27 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   Uint elem=1;
   Uint node=2;
   boost::array<Real,2> coord;
-  quadRegion->set_row(coord,elem,node,coordinates);
+  quadRegion.set_row(coord,elem,node,coordinates);
   BOOST_CHECK_EQUAL(coord[0],1.0);
   BOOST_CHECK_EQUAL(coord[1],2.0);
   
   std::vector<Real> stlcoord(2);
-  triagRegion->set_row(stlcoord,elem,node,coordinates);
+  triagRegion.set_row(stlcoord,elem,node,coordinates);
   BOOST_CHECK_EQUAL(stlcoord[0],1.0);
   BOOST_CHECK_EQUAL(stlcoord[1],1.0);
   
-  CTable::ConstRow nodesRef = triagRegion->get_row(elem);
+  CTable::ConstRow nodesRef = triagRegion.get_row(elem);
   CArray::Row coordRef = coordinates[nodesRef[node]];
   BOOST_CHECK_EQUAL(coordRef[0],1.0);
   BOOST_CHECK_EQUAL(coordRef[1],1.0);
 
  // calculate all volumes of a region
-  BOOST_FOREACH( CRegion& region, recursive_range_typed<CRegion>(*superRegion))
+  BOOST_FOREACH( CRegion& region, recursive_range_typed<CRegion>(superRegion))
   {
-   CElements::Ptr  elementType = region.get_component<CElements>("type");
-   boost::shared_ptr<CTable>     connTable   = region.get_component<CTable>("table");
+   CElements& elementType = get_named_component_typed<CElements>(region, "type");
+   CTable& connTable = get_named_component_typed<CTable>(region, "table");
    //CFinfo << "type = " << elementType->getShapeName() << "\n" << CFflush;
-   const Uint nbRows = connTable->get_table().size();
+   const Uint nbRows = connTable.get_table().size();
    std::vector<Real> volumes(nbRows);
    
    // the loop
@@ -202,13 +185,13 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
      ElementNodeVector elementCoordinates;
      fill_node_list(std::inserter(elementCoordinates, elementCoordinates.begin()), coordinates, region, iElem);
 
-     volumes[iElem]=elementType->computeVolume(elementCoordinates);
+     volumes[iElem]=elementType.computeVolume(elementCoordinates);
      //CFinfo << "\t volume["<<iElem<<"] =" << volumes[iElem] << "\n" << CFflush;
 
      // check
-     if(elementType->getShapeName()=="Quad")
+     if(elementType.getShapeName()=="Quad")
        BOOST_CHECK_EQUAL(volumes[iElem],1.0);
-     if(elementType->getShapeName()=="Triag")
+     if(elementType.getShapeName()=="Triag")
        BOOST_CHECK_EQUAL(volumes[iElem],0.5);
    }
  }

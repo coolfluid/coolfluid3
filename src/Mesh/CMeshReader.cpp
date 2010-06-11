@@ -77,7 +77,7 @@ CMeshReader::create_leaf_regions_with_buffermap (CRegion::Ptr& parent_region,
     CRegion::Ptr etype_region = parent_region->create_leaf_region(etype);
     CFinfo << "create: " << etype_region->full_path().string() << "\n" << CFflush;
     buffermap[etype]=boost::shared_ptr<CTable::Buffer>
-      (new CTable::Buffer(etype_region->get_component<CTable>("table")->create_buffer()));
+      (new CTable::Buffer(get_named_component_typed<CTable>(*etype_region, "table").create_buffer()));
   }
   return buffermap;
 }
@@ -90,8 +90,8 @@ void CMeshReader::remove_empty_leaf_regions(CRegion::Ptr& parent_region)
   BOOST_FOREACH(CRegion& region, recursive_range_typed<CRegion>(*parent_region))
   {
     // find the empty regions
-    if ( !region.has_component_of_type<CRegion>() &&
-          region.get_component<CTable>("table")->get_table().size() == 0 )
+    if ( range_typed<CRegion>(region).empty() &&
+        get_named_component_typed<CTable>(region, "table").get_table().size() == 0 )
       {
         // no elements in connectivity table --> remove this region
         CFinfo << "remove: " << region.full_path().string() << "\n" << CFflush;

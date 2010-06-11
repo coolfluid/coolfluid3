@@ -1,12 +1,11 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 #include <boost/foreach.hpp>
-#include <boost/range/iterator_range.hpp>
-// #include <boost/range/adaptor/filtered.hpp>
 #include <boost/iterator.hpp>
 
 #include "Common/Log.hpp"
 #include "Common/Component.hpp"
+#include "Common/ComponentPredicates.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/CGroup.hpp"
 #include "Common/CLink.hpp"
@@ -280,9 +279,8 @@ BOOST_AUTO_TEST_CASE( create_subcomponents )
   Component::Ptr comp1 = root->create_component_type<Component>("comp1");
   comp1->create_component_type<Component>("comp1_1");
   comp1->create_component_type<Component>("comp1_2");
-
-  BOOST_CHECK_EQUAL(root->get_component("comp1")->name(),"comp1");
-  BOOST_CHECK_EQUAL(comp1->get_component("comp1_1")->name(),"comp1_1");
+  BOOST_CHECK_EQUAL(get_named_component(*root, "comp1").name(),"comp1");
+  BOOST_CHECK_EQUAL(recursive_get_named_component(*root, "comp1_1").name(),"comp1_1");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

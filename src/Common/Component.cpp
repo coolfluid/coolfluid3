@@ -44,7 +44,12 @@ Component::~Component()
 /////////////////////////////////////////////////////////////////////////////////////
 
 
-Component::Ptr Component::get ()
+Component::Ptr Component::get()
+{
+  return shared_from_this();
+}
+
+Component::ConstPtr Component::get() const
 {
   return shared_from_this();
 }
@@ -113,17 +118,6 @@ bool Component::has_tag(const std::string& tag) const
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-bool Component::has_component_with_tag(const std::string& tag) const
-{
-  for(CompStorage_t::const_iterator it=m_components.begin(); it!=m_components.end(); ++it)
-    if (it->second->has_tag(tag))
-      return true;
-
-  return false;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
-
 void Component::add_component ( Component::Ptr subcomp )
 {
   // check that no other component with such name exists
@@ -161,35 +155,6 @@ Component::Ptr Component::remove_component ( const CName& name )
                         + m_path.string() + "]");
   }
 
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
-
-Component::Ptr Component::get_component ( const CName& name ) const
-{
-  // find the component exists
-  Component::CompStorage_t::const_iterator itr = m_components.find(name);
-
-  if ( itr != m_components.end() )     // if exists
-    return itr->second;                  // return it
-  else                                   // if does not exist
-    throw ValueNotFound(FromHere(), "Component with name '"
-                        + name + "' does not exist in component '"
-                        + this->name() + "' with path ["
-                        + m_path.string() + "]");
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
-
-std::vector<Component::Ptr> Component::get_components_by_tag(const std::string& tag)
-{
-  std::vector<Component::Ptr> vec;
-  for(CompStorage_t::const_iterator it=m_components.begin(); it!=m_components.end(); ++it)
-  {
-    if (it->second->has_tag(tag))
-      vec.push_back(it->second);
-  }
-  return vec;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -255,6 +220,23 @@ void Component::complete_path ( CPath& path ) const
 
 /////////////////////////////////////////////////////////////////////////////////////
 
+Component::Ptr Component::get_child(const CName& name)
+{
+  const CompStorage_t::iterator found = m_components.find(name);
+  if(found != m_components.end())
+    return found->second;
+  return Ptr();
+}
+
+Component::ConstPtr Component::get_child(const CName& name) const
+{
+  const CompStorage_t::const_iterator found = m_components.find(name);
+  if(found != m_components.end())
+    return found->second;
+  return Ptr();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
 
 void Component::change_parent ( Component::Ptr new_parent )
 {

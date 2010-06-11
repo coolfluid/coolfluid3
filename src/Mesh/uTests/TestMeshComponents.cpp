@@ -4,6 +4,7 @@
 
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
+#include "Common/ComponentPredicates.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
@@ -80,18 +81,18 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
 
   // Create a connectivity table inside a subregion
   subregion->create_connectivityTable("connTable");
-  BOOST_CHECK_EQUAL ( subregion->get_component("connTable")->full_path().string() , "//root/mesh/region2/subregion2/connTable" );
+  BOOST_CHECK_EQUAL ( get_named_component(*subregion, "connTable").full_path().string() , "//root/mesh/region2/subregion2/connTable" );
   
   // Create a elementsType component inside a subregion
   subregion->create_elementType("elementType");
-  BOOST_CHECK_EQUAL ( subregion->get_component("elementType")->full_path().string() , "//root/mesh/region2/subregion2/elementType" );
+  BOOST_CHECK_EQUAL ( get_named_component(*subregion, "elementType").full_path().string() , "//root/mesh/region2/subregion2/elementType" );
   
   // Create an array of coordinates inside mesh
   p_mesh->create_array("coordinates");
-  BOOST_CHECK_EQUAL ( p_mesh->get_component("coordinates")->full_path().string() , "//root/mesh/coordinates" );
+  BOOST_CHECK_EQUAL ( get_named_component(*p_mesh, "coordinates").full_path().string() , "//root/mesh/coordinates" );
   
-  region2->get_component<CRegion>("subregion1")->create_region("subsubregion1");
-  region2->get_component<CRegion>("subregion1")->create_region("subsubregion2");
+  get_named_component_typed<CRegion>(*region2, "subregion1").create_region("subsubregion1");
+  get_named_component_typed<CRegion>(*region2, "subregion1").create_region("subsubregion2");
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -232,7 +233,7 @@ BOOST_AUTO_TEST_CASE( CTableTest )
 
   // Create connectivity table inside the region
   region->create_connectivityTable("connTable");
-  CTable::Ptr connTable = region->get_component<CTable>("connTable");
+  CTable::Ptr connTable = get_named_component_typed_ptr<CTable>(*region, "connTable");
   
   // check constructor
   BOOST_CHECK_EQUAL(connTable->get_table().size(),(Uint) 0);
@@ -380,26 +381,26 @@ BOOST_AUTO_TEST_CASE( moving_mesh_components_around )
   CRegion::Ptr regions = mesh->create_region("regions");
 
   CRegion::Ptr subregion1 = regions->create_region("subregion1");
-  BOOST_CHECK_EQUAL(subregion1->has_component_of_type<CRegion>(),false);
+  BOOST_CHECK_EQUAL(range_typed<CRegion>(*subregion1).empty(),true);
 
   subregion1->create_connectivityTable("table");
-  BOOST_CHECK_EQUAL(subregion1->has_component_of_type<CRegion>(),false);
+  BOOST_CHECK_EQUAL(range_typed<CRegion>(*subregion1).empty(),true);
 
   std::string type = DEMANGLED_TYPEID(CRegion);
   CFinfo << "type = " << type << "\n" << CFflush;
   CFinfo << "has_tag = " << subregion1->has_tag(CRegion::getClassName()) << "\n" << CFflush;
   // create subregion2 in the wrong place
   CRegion::Ptr subregion2 = subregion1->create_region("subregion2");
-  BOOST_CHECK_EQUAL(subregion1->has_component_of_type<CRegion>(),true);
-  BOOST_CHECK_EQUAL(regions->get_components_by_tag<CRegion>(CRegion::getClassName()).size(), (Uint) 1);
+  BOOST_CHECK_EQUAL(range_typed<CRegion>(*subregion1).empty(),false);
+  BOOST_CHECK_EQUAL(range_typed<CRegion>(*regions).size(), (Uint) 1);
 
 
   // move subregion 2 to the right place
   subregion1->remove_component(subregion2->name());
   regions->add_component(subregion2);
-  BOOST_CHECK_EQUAL(subregion1->has_component_of_type<CRegion>(),false);
+  BOOST_CHECK_EQUAL(range_typed<CRegion>(*subregion1).empty(),true);
 
-  BOOST_CHECK_EQUAL(regions->get_components_by_tag<CRegion>(CRegion::getClassName()).size(), (Uint) 2);
+  BOOST_CHECK_EQUAL(range_typed<CRegion>(*regions).size(), (Uint) 2);
 
 
 }

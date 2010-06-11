@@ -33,8 +33,9 @@ namespace Common {
     /// Configuration Options
     static void defineConfigOptions ( Common::OptionList& options ) {}
 
-    /// get the componment throught the links to the actual components
+    /// get the component through the links to the actual components
     virtual Component::Ptr get ();
+    virtual Component::ConstPtr  get() const;
 
     // functions specific to the CLink component
 

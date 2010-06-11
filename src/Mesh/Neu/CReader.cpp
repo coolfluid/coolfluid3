@@ -1,6 +1,7 @@
 #include <boost/foreach.hpp>
 #include <boost/algorithm/string/erase.hpp>
 #include "Common/ObjectProvider.hpp"
+#include "Common/ComponentPredicates.hpp"
 #include "Mesh/Neu/CReader.hpp"
 
 #include "Mesh/CMesh.hpp"
@@ -100,7 +101,7 @@ void CReader::read_coordinates(std::fstream& file)
   // Create the coordinates array
   m_mesh->create_array("coordinates");
   // create pointers to the coordinates array
-  CArray::Ptr coordinates = m_mesh->get_component<CArray>("coordinates");
+  CArray::Ptr coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
   // set dimension
   coordinates->initialize(m_headerData.NDFCD);
   // create a buffer to interact with coordinates
@@ -171,7 +172,7 @@ void CReader::read_connectivity(std::fstream& file)
     }
     Uint table_idx = buffer[etype_CF]->get_total_nbRows();
     buffer[etype_CF]->add_row(rowVector);
-    m_global_to_tmp.push_back(Region_TableIndex_pair(tmp->get_component<CRegion>(etype_CF),table_idx));
+    m_global_to_tmp.push_back(Region_TableIndex_pair(get_named_component_typed_ptr<CRegion>(*tmp, etype_CF),table_idx));
     
     // finish the line
     getline(file,line);
@@ -245,7 +246,7 @@ void CReader::read_groups(std::fstream& file)
       {
         CRegion::Ptr tmp_region = m_global_to_tmp[global_element].first;
         Uint local_element = m_global_to_tmp[global_element].second;
-        buffer[tmp_region->name()]->add_row(tmp_region->get_component<CTable>("table")->get_table()[local_element]);
+        buffer[tmp_region->name()]->add_row(get_named_component_typed<CTable>(*tmp_region, "table").get_table()[local_element]);
       }
     }
     

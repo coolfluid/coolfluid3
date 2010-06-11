@@ -29,7 +29,7 @@ CRegion::Ptr CRegion::create_region( const CName& name )
   CRegion::Ptr new_region ( new CRegion(name) );
   m_subregions.push_back(new_region);
   add_component ( new_region );
-  return get_component<CRegion>(name);
+  return new_region;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ CTable::Ptr CRegion::create_connectivityTable( const CName& name )
   CTable::Ptr new_connTable ( new CTable(name) );
   m_connTable = new_connTable;
   add_component ( m_connTable );
-  return get_component<CTable>(name);
+  return new_connTable;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -49,7 +49,7 @@ CElements::Ptr CRegion::create_elementType( const CName& name )
   CElements::Ptr new_elementType ( new CElements(name) );
   m_elementType = new_elementType;
   add_component ( m_elementType );
-  return get_component<CElements>(name);
+  return new_elementType;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -57,13 +57,11 @@ CElements::Ptr CRegion::create_elementType( const CName& name )
 CRegion::Ptr CRegion::create_leaf_region (const std::string& etype_name )
 {
   std::string region_name(etype_name);
-  create_region(region_name);
-  CRegion::Ptr region = get_component<CRegion>(region_name);
-  region->create_connectivityTable();
-  region->create_elementType();
-  region->get_component<CElements>("type")->set_elementType(etype_name);
-  Uint nbNodes = region->get_component<CElements>("type")->get_elementType()->getNbNodes();
-  region->get_component<CTable>("table")->initialize(nbNodes);
+  CRegion::Ptr region = create_region(region_name);
+  CElements& elements = *region->create_elementType();
+  elements.set_elementType(etype_name);
+  Uint nbNodes = elements.get_elementType()->getNbNodes();
+  region->create_connectivityTable()->initialize(nbNodes);
   return region;
 }
 

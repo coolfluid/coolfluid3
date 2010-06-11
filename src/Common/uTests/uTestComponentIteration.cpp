@@ -22,19 +22,23 @@ struct ComponentIterationFixture
   {
     m_root = CRoot::create ( "root" );
     Component::Ptr comp1 = m_root->create_component_type<Component>("comp1");
+    top_component_names.push_back(comp1->name());
     component_names.push_back(comp1->name());
     Component::Ptr comp1_1 = comp1->create_component_type<Component>("comp1_1");
     component_names.push_back(comp1_1->name());
     Component::Ptr comp1_2 = comp1->create_component_type<Component>("comp1_2");
     component_names.push_back(comp1_2->name());
     Component::Ptr comp2   = m_root->create_component_type<Component>("comp2");
+    top_component_names.push_back(comp2->name());
     component_names.push_back(comp2->name());
     Component::Ptr comp2_1 = comp2->create_component_type<Component>("comp2_1");
     component_names.push_back(comp2_1->name());
     Component::Ptr comp2_2 = comp2->create_component_type<Component>("comp2_2");
     component_names.push_back(comp2_2->name());
     CGroup::Ptr group1 = m_root->create_component_type<CGroup>("group1");
+    top_component_names.push_back(group1->name());
     component_names.push_back(group1->name());
+    top_group_names.push_back(group1->name());
     group_names.push_back(group1->name());
     CGroup::Ptr group1_1 = group1->create_component_type<CGroup>("group1_1");
     component_names.push_back(group1_1->name());
@@ -43,7 +47,9 @@ struct ComponentIterationFixture
     component_names.push_back(group1_2->name());
     group_names.push_back(group1_2->name());
     CGroup::Ptr group2 = m_root->create_component_type<CGroup>("group2");
+    top_component_names.push_back(group2->name());
     component_names.push_back(group2->name());
+    top_group_names.push_back(group2->name());
     group_names.push_back(group2->name());
   }
 
@@ -58,8 +64,12 @@ struct ComponentIterationFixture
   /// const root
   const Component& const_root() { return *m_root; }
 
+  /// list of all component names on the first level
+  std::vector<std::string> top_component_names;
   /// list of all component names
   std::vector<std::string> component_names;
+  /// list of all group names at the top level
+  std::vector<std::string> top_group_names;
   /// list of all group names
   std::vector<std::string> group_names;
 
@@ -84,17 +94,50 @@ BOOST_FIXTURE_TEST_SUITE( ComponentIteration, ComponentIterationFixture )
 // Non-recursive tests
 //////////////////////////////////////////////////////////////////////////////
 
-// These cases will be restored when begin() and end() are back. It will be non-recursive then
-//  BOOST_FOREACH(const Component& comp, (*boost::dynamic_pointer_cast<Component>(root)))
-//  {
-//    CFinfo << "component " << counter << ": " << comp.name() << "\n";
-//    BOOST_CHECK_EQUAL(comp.name(),check_with_map[counter++]);
-//  }
-//
-//  counter = 4;
-//  BOOST_FOREACH(const Component& comp, (*comp2))
-//    BOOST_CHECK_EQUAL(comp.name(),check_with_map[counter++]);
+/// Component defines begin() and end(), so BOOST_FOREACH can iterate directly
+BOOST_AUTO_TEST_CASE( Iterator )
+{
+  Uint counter = 0;
+  BOOST_FOREACH(Component& comp, root())
+    BOOST_CHECK_EQUAL(comp.name(), top_component_names[counter++]);
 
+}
+
+BOOST_AUTO_TEST_CASE( IteratorConst )
+{
+  Uint counter = 0;
+  BOOST_FOREACH(const Component& comp, const_root())
+    BOOST_CHECK_EQUAL(comp.name(), top_component_names[counter++]);
+}
+
+/// Use a range to get all children of a certain type
+BOOST_AUTO_TEST_CASE( RangeTyped )
+{
+  Uint counter = 0;
+  BOOST_FOREACH(const Component& comp, range_typed<CGroup>(const_root()))
+    BOOST_CHECK_EQUAL(comp.name(), top_group_names[counter++]);
+}
+
+/// Filtered range with type
+BOOST_AUTO_TEST_CASE( RangeFilteredTyped )
+{
+  BOOST_FOREACH(const Component& comp, filtered_range_typed<CGroup>(const_root(), IsComponentName("group1")))
+    BOOST_CHECK_EQUAL(comp.name(), "group1");
+}
+
+/// Get a named component by reference or by pointer
+BOOST_AUTO_TEST_CASE( GetByName )
+{
+  BOOST_CHECK_THROW(get_named_component(root(), "blah"), ValueNotFound);
+  BOOST_CHECK_THROW(get_named_component(root(), "group1_1"), ValueNotFound);
+  BOOST_CHECK_THROW(get_named_component_typed<CGroup>(root(), "comp1"), ValueNotFound);
+
+  BOOST_CHECK_EQUAL(get_named_component_typed<CGroup>(root(), "group1").name(), "group1");
+  BOOST_CHECK_EQUAL(get_named_component_typed_ptr<CGroup>(root(), "comp1"), CGroup::Ptr());
+  BOOST_CHECK_EQUAL(get_named_component_typed_ptr<CGroup>(root(), "group1")->name(), "group1");
+  BOOST_CHECK_EQUAL(get_named_component_ptr(root(), "group1")->name(), "group1");
+  BOOST_CHECK_EQUAL(get_named_component_ptr(root(), "group1"), root().get_child("group1"));
+}
 
 //////////////////////////////////////////////////////////////////////////////
 // Recursive tests
@@ -120,7 +163,7 @@ BOOST_AUTO_TEST_CASE( ConstRecursiveIterator )
 BOOST_AUTO_TEST_CASE( RecursiveIteratorTyped )
 {
   Uint counter = 0;
-  for(Component_iterator<CGroup> it = root().recursive_begin<CGroup>(); it != root().recursive_end<CGroup>(); ++it)
+  for(ComponentIterator<CGroup> it = root().recursive_begin<CGroup>(); it != root().recursive_end<CGroup>(); ++it)
     BOOST_CHECK_EQUAL(it->name(), group_names[counter++]);
 }
 
@@ -128,7 +171,7 @@ BOOST_AUTO_TEST_CASE( RecursiveIteratorTyped )
 BOOST_AUTO_TEST_CASE( RecursiveIteratorTypedConst )
 {
   Uint counter = 0;
-  for(Component_iterator<CGroup const> it = const_root().recursive_begin<CGroup>(); it != const_root().recursive_end<CGroup>(); ++it) {
+  for(ComponentIterator<CGroup const> it = const_root().recursive_begin<CGroup>(); it != const_root().recursive_end<CGroup>(); ++it) {
     BOOST_CHECK_EQUAL(it->name(), group_names[counter++]);
   }
 }
@@ -192,6 +235,19 @@ BOOST_AUTO_TEST_CASE( RecursiveRangeEmpty )
   ComponentIteratorRange<Component const, CGroup, IsComponentName>::type range = recursive_filtered_range_typed<CGroup>(const_root(), IsComponentName("comp1"));
   BOOST_CHECK_EQUAL(range.begin() == range.end(), true);
 }
+
+/// Get a named component by reference or by pointer
+BOOST_AUTO_TEST_CASE( GetByNameRecursive )
+{
+  BOOST_CHECK_THROW(recursive_get_named_component(root(), "blah"), ValueNotFound);
+  BOOST_CHECK_EQUAL(recursive_get_named_component(root(), "group1_1").name(), "group1_1");
+  BOOST_CHECK_THROW(recursive_get_named_component_typed<CGroup>(root(), "comp1"), ValueNotFound);
+  BOOST_CHECK_EQUAL(recursive_get_named_component_typed<CGroup>(root(), "group1").name(), "group1");
+  BOOST_CHECK_EQUAL(recursive_get_named_component_typed_ptr<CGroup>(root(), "comp1"), CGroup::Ptr());
+  BOOST_CHECK_EQUAL(recursive_get_named_component_typed_ptr<CGroup>(root(), "group1")->name(), "group1");
+  BOOST_CHECK_EQUAL(recursive_get_named_component_ptr(root(), "group1")->name(), "group1");
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()

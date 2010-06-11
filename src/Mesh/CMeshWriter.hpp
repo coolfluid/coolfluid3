@@ -72,7 +72,7 @@ protected: // classes
 
       bool operator()(const Component& component)
       {
-        return component.has_component_of_type<CTable>() && component.has_component_of_type<CElements>();
+        return !range_typed<CTable>(component).empty() && !range_typed<CElements>(component).empty();
       }
 
   }; // IsLeafRegion

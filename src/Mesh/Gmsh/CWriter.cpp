@@ -78,14 +78,14 @@ void CWriter::write_header(std::fstream& file)
   
   // physical names
   CFinfo << "\n\nWriting physical names \n" << CFflush;
-  CArray::Ptr coordinates = m_mesh->get_component<CArray>("coordinates");
+  CArray::Ptr coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
   const Uint dimension(coordinates->get_array().shape()[1]);
   Uint phys_name_counter(0);
 
-  CRegion::Ptr regions = m_mesh->get_component<CRegion>("regions");
+  CRegion::Ptr regions = get_named_component_typed_ptr<CRegion>(*m_mesh, "regions");
   BOOST_FOREACH(const CRegion& region, recursive_range_typed<CRegion>(*regions))
   {
-    if (!region.has_component_of_type<CRegion>())
+    if (range_typed<CRegion>(*m_mesh).empty())
     {
       bool exists = false;
       for(PhysicalGroupMap::iterator it=m_groups.begin(); it!=m_groups.end(); ++it)
@@ -116,7 +116,7 @@ void CWriter::write_coordinates(std::fstream& file)
   // set precision for Real
   Uint prec = file.precision();
   file.precision(8);
-  CArray::Ptr coordinates = m_mesh->get_component<CArray>("coordinates");
+  CArray::Ptr coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
 
   const Uint coord_dim = coordinates->get_array().shape()[1];
   file << "$Nodes\n";
@@ -149,14 +149,14 @@ void CWriter::write_connectivity(std::fstream& file)
   // file << "number-of-elements                                                      \n";
   // file << "elm-number elm-type number-of-tags < tag > ... node-number-list ...     \n";
   // file << "$EndElements\n";
-  CRegion::Ptr regions = m_mesh->get_component<CRegion>("regions");
+  CRegion::Ptr regions = get_named_component_typed_ptr<CRegion>(*m_mesh, "regions");
   Uint nbElems = 0;
 
   BOOST_FOREACH(const CRegion& region, recursive_range_typed<CRegion>(*regions))
   {
-    if (!region.has_component_of_type<CRegion>())
+    if (range_typed<CRegion>(region).empty())
     {
-      nbElems += region.get_component<CTable>("table")->get_table().size();
+      nbElems += get_named_component_typed<CTable>(region, "table").get_table().size();
     }
   }
   file << "$Elements\n";
@@ -167,9 +167,9 @@ void CWriter::write_connectivity(std::fstream& file)
   Uint elm_type;
   Uint number_of_tags=2;
 
-  BOOST_FOREACH(const CRegion& region, recursive_range_typed<CRegion>(*regions))
+  BOOST_FOREACH(CRegion& region, recursive_range_typed<CRegion>(*regions))
   {
-    if (region.has_component_of_type<CRegion>())
+    if (!range_typed<CRegion>(region).empty())
     {
       group_name = region.name();
       group_number = m_groups[group_name].number;
@@ -177,8 +177,8 @@ void CWriter::write_connectivity(std::fstream& file)
     else
     {
       cf_assert(group_name != "");
-      elm_type = m_elementTypes[region.get_component<CElements>("type")->get_elementType()->getShape()];
-      BOOST_FOREACH(CTable::Row row, region.get_component<CTable>("table")->get_table())
+      elm_type = m_elementTypes[get_named_component_typed<CElements>(region, "type").get_elementType()->getShape()];
+      BOOST_FOREACH(CTable::Row row, get_named_component_typed<CTable>(region, "table").get_table())
       {
         elm_number++;
         file << elm_number << " " << elm_type << " " << number_of_tags << " " << group_number << " " << group_number;

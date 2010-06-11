@@ -37,7 +37,7 @@ CRegion::Ptr CMesh::create_region( const CName& name )
   m_regions.push_back(new_region);
 
   add_component ( new_region );
-  return get_component<CRegion>(name);
+  return new_region;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -49,7 +49,7 @@ CArray::Ptr CMesh::create_array( const CName& name )
   m_arrays.push_back(new_array);
 
   add_component ( new_array );
-  return get_component<CArray>(name);
+  return new_array;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

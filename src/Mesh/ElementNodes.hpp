@@ -59,6 +59,8 @@ typedef std::vector<CArray::Row> ElementNodeVector;
 /// Const version
 typedef std::vector<CArray::ConstRow> ConstElementNodeVector;
 
+typedef std::vector<RealVector> ElementNodeVectorCopy;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Starting at the given iterator, fill its sequence with the node coordinates

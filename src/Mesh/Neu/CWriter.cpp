@@ -98,8 +98,8 @@ void CWriter::write_headerData(std::fstream& file)
   Uint group_counter(0);
   Uint element_counter(0);
   Uint bc_counter(0);
-  Uint node_counter = m_mesh->get_component<CArray>("coordinates")->get_array().shape()[0];
-  Uint coord_dim    = m_mesh->get_component<CArray>("coordinates")->get_array().shape()[1];
+  Uint node_counter = get_named_component_typed<CArray>(*m_mesh, "coordinates").get_array().shape()[0];
+  Uint coord_dim    = get_named_component_typed<CArray>(*m_mesh, "coordinates").get_array().shape()[1];
 
 
 
@@ -134,7 +134,7 @@ void CWriter::write_coordinates(std::fstream& file)
   // set precision for Real
   Uint prec = file.precision();
   file.precision(11);
-  CArray::Ptr coordinates = m_mesh->get_component<CArray>("coordinates");
+  CArray::Ptr coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
 
   const Uint coord_dim = coordinates->get_array().shape()[1];
 
@@ -170,12 +170,12 @@ void CWriter::write_connectivity(std::fstream& file)
     // information of this region with one unique element type
     Uint elm_type;
     Uint nb_nodes;
-    elm_type = m_CFelement_to_NeuElement[leafregion.get_unique_component_by_type<CElements>()->getShape()];
-    nb_nodes = leafregion.get_unique_component_by_type<CElements>()->getNbNodes();
+    elm_type = m_CFelement_to_NeuElement[get_component_typed<CElements>(leafregion, IsComponentTrue()).getShape()];
+    nb_nodes = get_component_typed<CElements>(leafregion, IsComponentTrue()).getNbNodes();
     m_global_start_idx[&leafregion]=elm_number;
 
     // write the nodes for each element of this region
-    BOOST_FOREACH(CTable::Row row, leafregion.get_unique_component_by_type<CTable>()->get_table())
+    BOOST_FOREACH(CTable::Row row, get_component_typed<CTable>(leafregion, IsComponentTrue()).get_table())
     {
       file << std::setw(8) << ++elm_number << std::setw(3) << elm_type << std::setw(3) << nb_nodes;
       BOOST_FOREACH(Uint node, row)

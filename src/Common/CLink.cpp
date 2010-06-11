@@ -33,6 +33,11 @@ Component::Ptr CLink::get ()
   return m_link_component.lock();
 }
 
+Component::ConstPtr CLink::get () const
+{
+  return m_link_component.lock();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void CLink::link_to ( Component::Ptr lnkto )
