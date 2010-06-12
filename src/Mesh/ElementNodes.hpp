@@ -50,16 +50,8 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Vector of rows, where each row represents the coordinate of a node
-typedef std::vector<CArray::Row> ElementNodeVector;
-
-////////////////////////////////////////////////////////////////////////////////
-
-/// Vector of rows, where each row represents the coordinate of a node
-/// Const version
-typedef std::vector<CArray::ConstRow> ConstElementNodeVector;
-
-typedef std::vector<RealVector> ElementNodeVectorCopy;
+/// Copy of the node coordinates
+typedef std::vector<RealVector> ElementNodeVector;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -68,7 +60,7 @@ template<typename IteratorT, typename ArrayT>
 void fill_node_list(IteratorT iterator, ArrayT& coordinates, const CRegion& region, const Uint element) {
   const CTable::ConstRow row = region.get_row(element);
   BOOST_FOREACH(const Uint point_idx, row) {
-    *(++iterator) = coordinates[point_idx];
+    *(iterator++) = coordinates[point_idx];
   }
 }
 

@@ -127,19 +127,29 @@ private:
 /// Store Jacobian coefficients calculated from the node positions
 struct JacobianCoefficients
 {
-  const Real ax, bx, cx, dx;
-  const Real ay, by, cy, dy;
+  Real ax, bx, cx, dx;
+  Real ay, by, cy, dy;
   template<typename NodesT>
-  JacobianCoefficients(const NodesT& nodes) :
-    ax(0.25*( nodes[0][XX] + nodes[1][XX] + nodes[2][XX] + nodes[3][XX])),
-    bx(0.25*(-nodes[0][XX] + nodes[1][XX] + nodes[2][XX] - nodes[3][XX])),
-    cx(0.25*(-nodes[0][XX] - nodes[1][XX] + nodes[2][XX] + nodes[3][XX])),
-    dx(0.25*( nodes[0][XX] - nodes[1][XX] + nodes[2][XX] - nodes[3][XX])),
-    ay(0.25*( nodes[0][YY] + nodes[1][YY] + nodes[2][YY] + nodes[3][YY])),
-    by(0.25*(-nodes[0][YY] + nodes[1][YY] + nodes[2][YY] - nodes[3][YY])),
-    cy(0.25*(-nodes[0][YY] - nodes[1][YY] + nodes[2][YY] + nodes[3][YY])),
-    dy(0.25*( nodes[0][YY] - nodes[1][YY] + nodes[2][YY] - nodes[3][YY]))
-  {}
+  JacobianCoefficients(const NodesT& nodes)
+  {
+    const Real x0 = nodes[0][XX];
+    const Real y0 = nodes[0][YY];
+    const Real x1 = nodes[1][XX];
+    const Real y1 = nodes[1][YY];
+    const Real x2 = nodes[2][XX];
+    const Real y2 = nodes[2][YY];
+    const Real x3 = nodes[3][XX];
+    const Real y3 = nodes[3][YY];
+
+    ax = 0.25*( x0 + x1 + x2 + x3);
+    bx = 0.25*(-x0 + x1 + x2 - x3);
+    cx = 0.25*(-x0 - x1 + x2 + x3);
+    dx = 0.25*( x0 - x1 + x2 - x3);
+    ay = 0.25*( y0 + y1 + y2 + y3);
+    by = 0.25*(-y0 + y1 + y2 - y3);
+    cy = 0.25*(-y0 - y1 + y2 + y3);
+    dy = 0.25*( y0 - y1 + y2 - y3);
+  }
 };
 
 };

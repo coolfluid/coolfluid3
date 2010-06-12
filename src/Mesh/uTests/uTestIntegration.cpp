@@ -127,33 +127,30 @@ struct DetJacobianFunctor : public IntegrationFunctorBase
 };
 
 /// Use a vector for node storage
-//struct DetJacobianFunctorNodesVector {
-//  /// Sets up a functor for the given mesh
-//  DetJacobianFunctorNodesVector(const CArray& coordinates) : m_coordinates(coordinates) {}
-//  /// Sets up the functor to use the specified region
-//  void setRegion(const CRegion& region) {
-//    m_region = &region;
-//  }
-//  /// Sets up the functor to use the specified element (relative to the currently set region)
-//  void setElement(const Uint element) {
-//    m_nodes.clear();
-//    const CTable::ConstRow row = m_region->get_row(element);
-//    BOOST_FOREACH(const Uint point_idx, row) {
-//      m_nodes.push_back(m_coordinates[point_idx]);
-//    }
-//  }
-//
-//  template<typename GeoShapeF, typename SolShapeF>
-//  CF::Real valTimesDetJacobian(const CF::RealVector& mappedCoords)
-//  {
-//    return GeoShapeF::computeJacobianDeterminant(mappedCoords, m_nodes);
-//  }
-//
-//protected:
-//  const CRegion* m_region;
-//  const CArray& m_coordinates;
-//  ConstElementNodeVector m_nodes;
-//};
+struct DetJacobianFunctorNodesVector {
+  /// Sets up a functor for the given mesh
+  DetJacobianFunctorNodesVector(const CArray& coordinates) : m_coordinates(coordinates) {}
+  /// Sets up the functor to use the specified region
+  void setRegion(const CRegion& region) {
+    m_region = &region;
+    m_nodes.resize(m_region->elements_type().getNbNodes(), RealVector(m_region->elements_type().getDimensionality()));
+  }
+  /// Sets up the functor to use the specified element (relative to the currently set region)
+  void setElement(const Uint element) {
+    fill_node_list(m_nodes.begin(), m_coordinates, *m_region, element);
+  }
+
+  template<typename GeoShapeF, typename SolShapeF>
+  CF::Real valTimesDetJacobian(const CF::RealVector& mappedCoords)
+  {
+    return GeoShapeF::computeJacobianDeterminant(mappedCoords, m_nodes);
+  }
+
+protected:
+  const CRegion* m_region;
+  const CArray& m_coordinates;
+  ElementNodeVector m_nodes;
+};
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -196,15 +193,15 @@ BOOST_FIXTURE_TEST_CASE( ComputeVolume2DUnitSquare, IntegrationFixture ) // time
   BOOST_CHECK_CLOSE(volume2Dbig, 1., 1e-8);
 }
 
-//BOOST_FIXTURE_TEST_CASE( ComputeVolume2DUnitSquareNodeVector, IntegrationFixture ) // timed and profiled
-//{
-//  boost::shared_ptr<CMesh> mesh(new CMesh("mesh"));
-//  create_rectangle(*mesh, 1., 1., 1000, 1000);
-//  DetJacobianFunctorNodesVector ftor2Dbig(get_named_component_typed<CArray>(*mesh, "coordinates"));
-//  Real volume2Dbig = 0.0;
-//  gaussIntegrate(*mesh, ftor2Dbig, volume2Dbig);
-//  BOOST_CHECK_CLOSE(volume2Dbig, 1., 1e-8);
-//}
+BOOST_FIXTURE_TEST_CASE( ComputeVolume2DUnitSquareNodeVector, IntegrationFixture ) // timed and profiled
+{
+  boost::shared_ptr<CMesh> mesh(new CMesh("mesh"));
+  create_rectangle(*mesh, 1., 1., 1000, 1000);
+  DetJacobianFunctorNodesVector ftor2Dbig(get_named_component_typed<CArray>(*mesh, "coordinates"));
+  Real volume2Dbig = 0.0;
+  gaussIntegrate(*mesh, ftor2Dbig, volume2Dbig);
+  BOOST_CHECK_CLOSE(volume2Dbig, 1., 1e-8);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

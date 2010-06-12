@@ -46,6 +46,7 @@ class VectorT : public Expr < VectorT<T>, T > {
 public:
 
   typedef boost::detail::multi_array::sub_array<T,1> BoostRow;
+  typedef boost::detail::multi_array::const_sub_array<T,1> ConstBoostRow;
 
   /// Constructor taking size, also works as empty constructor with default size to zero
   /// @param size number of elements in the vector
@@ -105,6 +106,19 @@ public:
         alloc_mem();
         size_t i = 0;
         for (typename BoostRow::const_iterator it = row.begin(); it != row.end(); ++it) {
+          m_data[i++] = *it;
+        }
+      }
+
+  VectorT(const ConstBoostRow& row) :
+      Expr<VectorT<T>,T>(*this),
+        m_owner (true),
+        m_size  ( row.size() ),
+        m_data  (CFNULL)
+      {
+        alloc_mem();
+        size_t i = 0;
+        for (typename ConstBoostRow::const_iterator it = row.begin(); it != row.end(); ++it) {
           m_data[i++] = *it;
         }
       }
