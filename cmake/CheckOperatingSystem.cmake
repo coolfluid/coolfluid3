@@ -21,10 +21,10 @@ ENDIF()
 ###############################################################################
 ### Check for Windows
 IF ( WIN32 )
-  IF ( MSVC )
+  IF ( MSVC OR MINGW )
     SET ( CF_OS_WINDOWS 1 )
   ELSE()
-    SET ( CF_OS_UNRECOGNIZED_REASON "Unrecognized WINDOWS type : coolfluid has only been tested with Win32 and MSVC compiler.")
+    SET ( CF_OS_UNRECOGNIZED_REASON "Unrecognized WINDOWS type : coolfluid has only been tested with Win32 and MSVC or MingGW compiler.")
   ENDIF()
 ENDIF()
 
