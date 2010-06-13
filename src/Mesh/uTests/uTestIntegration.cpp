@@ -18,7 +18,6 @@
 #include "Mesh/Integrators/IntegrationFunctorBase.hpp"
 
 #include "Tools/Testing/ProfiledTestFixture.hpp"
-#include "Tools/Testing/Difference.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"
 
 using namespace CF;
