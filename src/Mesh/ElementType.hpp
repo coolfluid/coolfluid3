@@ -73,7 +73,7 @@ public: // accessors
   std::vector< std::vector< Uint > >& getEdgesConnectivity() { return m_edges; }
   
   /// compute volume given coordinates
-  virtual Real computeVolume(const std::vector<CArray::Row>& coord) =0; 
+  virtual Real computeVolume(const std::vector<CArray::Row>& coord) const =0; 
 
 protected: // data
 

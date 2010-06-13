@@ -21,7 +21,7 @@ template<>
 class Mesh_API VolumeComputer<P1::Hexa3D> 
 {
 public:
-  static Real computeVolume(const std::vector<CArray::Row>& coord); 
+  static Real computeVolume(const std::vector<CArray::Row>& coord) ; 
 
 };
 
@@ -46,7 +46,7 @@ public:
   /// Get the full name defining this element type uniquely
   static std::string getFullName() { return "P1-Hexa3D"; }
   
-  Real computeVolume(const std::vector<CArray::Row>& coord) 
+  Real computeVolume(const std::vector<CArray::Row>& coord) const 
   { 
     return VolumeComputerType::computeVolume(coord); 
   }
@@ -59,7 +59,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Real VolumeComputer<P1::Hexa3D>::computeVolume(const std::vector<CArray::Row>& coord) 
+Real VolumeComputer<P1::Hexa3D>::computeVolume(const std::vector<CArray::Row>& coord)
 {
   const Real diagonalsProd =
   (coord[2][0] - coord[0][0]) * (coord[3][1] - coord[1][1]) -

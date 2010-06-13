@@ -21,7 +21,7 @@ template<>
 class Mesh_API VolumeComputer<P1::Triag2D> 
 {
 public:
-  static Real computeVolume(const std::vector<CArray::Row>& coord); 
+  static Real computeVolume(const std::vector<CArray::Row>& coord) ; 
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ public:
   /// Get the full name defining this element type uniquely
   static std::string getFullName() { return "P1-Triag2D"; }
   
-  Real computeVolume(const std::vector<CArray::Row>& coord) 
+  Real computeVolume(const std::vector<CArray::Row>& coord) const 
   { 
     return VolumeComputerType::computeVolume(coord); 
   }
@@ -58,7 +58,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Real VolumeComputer<P1::Triag2D>::computeVolume(const std::vector<CArray::Row>& coord) 
+Real VolumeComputer<P1::Triag2D>::computeVolume(const std::vector<CArray::Row>& coord)
 {
   return 0.5*((coord[1][XX]-coord[0][XX])*(coord[2][YY]-coord[0][YY])
                 -(coord[2][XX]-coord[0][XX])*(coord[1][YY]-coord[0][YY]));

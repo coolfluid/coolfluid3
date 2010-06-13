@@ -21,7 +21,7 @@ template<>
 class Mesh_API VolumeComputer<P1::Quad3D>
 {
 public:
-  static Real computeVolume(const std::vector<CArray::Row>& coord); 
+  static Real computeVolume(const std::vector<CArray::Row>& coord) ; 
 
 };
 
@@ -46,7 +46,7 @@ public:
   /// Get the full name defining this element type uniquely
   static std::string getFullName() { return "P1-Quad3D"; }
   
-  Real computeVolume(const std::vector<CArray::Row>& coord) 
+  Real computeVolume(const std::vector<CArray::Row>& coord) const 
   { 
     return VolumeComputerType::computeVolume(coord); 
   }
