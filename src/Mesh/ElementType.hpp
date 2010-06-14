@@ -41,7 +41,17 @@ public: // functions
 
   static std::string getClassName() { return "ElementType"; }
 
+  virtual std::string getElementTypeName() = 0;
+
 public: // accessors
+
+  struct Face
+  {
+    Face(const boost::shared_ptr<ElementType>& t, const std::vector<Uint>& n)
+      : faceType(t), nodes(n) {}
+    boost::shared_ptr<ElementType> faceType;
+    std::vector<Uint> nodes;
+  };
 
   /// @return m_nameShape
   std::string getShapeName() const { return m_shapeName; }
@@ -50,7 +60,7 @@ public: // accessors
   GeoShape::Type getShape() const  {  return m_shape; }
 
   /// @return number of faces
-  Uint getNbFaces() const  {  return m_nbFaces;  }
+  Uint getNbFaces() const  {  return m_faces.size();  }
 
   /// @return number of edges
   Uint getNbEdges() const  {  return m_nbEdges;  }
@@ -66,11 +76,7 @@ public: // accessors
 
   /// @return faces connectivity
   /// faces[iFace][iNode]
-  std::vector< std::vector< Uint > >& getFacesConnectivity() { return m_faces; }
-
-  /// @return edges connectivity
-  /// edges[iEdge][iNode]
-  std::vector< std::vector< Uint > >& getEdgesConnectivity() { return m_edges; }
+  const std::vector<Face>& getFaces() const { return m_faces; }
   
   /// compute volume given coordinates
   virtual Real computeVolume(const std::vector<CArray::Row>& coord) const =0; 
@@ -87,14 +93,11 @@ protected: // data
   Uint m_order;
   /// the dimensionality of the element
   Uint m_dimensionality;
-  /// number of faces
-  Uint m_nbFaces;
   /// number of edges
   Uint m_nbEdges;
-  
-  std::vector< std::vector< Uint > > m_edges;
-  std::vector< std::vector< Uint > > m_faces;
 
+  /// vector of faces
+  std::vector<Face> m_faces;
 
 }; // end of class ElementType
   

@@ -2,6 +2,7 @@
 
 #include "Common/ObjectProvider.hpp"
 #include "Mesh/P1/Quad2D.hpp"
+#include "Mesh/P1/Line2D.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -14,7 +15,7 @@ namespace P1 {
 Common::ObjectProvider < Quad2D,
                          ElementType,
                          P1Lib >
-aP1Quad2D_Provider ( Quad2D::getFullName() );
+aP1Quad2D_Provider ( "P1-"+Quad2D::getClassName() );
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -25,19 +26,17 @@ Quad2D::Quad2D()
   m_order=1;
   m_nbNodes=4;
   m_dimensionality=2;
-  m_nbFaces=4;
   m_nbEdges=0;
   
-  // set size of connectivity order
-  m_faces.resize(4);
-  BOOST_FOREACH( std::vector<Uint>& face, m_faces )
-    face.resize(2);
-  // Note: edges must not set as they coincide with nodes
+  // set faces
+  m_faces.reserve(4);
+  boost::shared_ptr<ElementType> line(new Line2D);
+  std::vector<Uint> nodes(2);
 
-  m_faces[0][0]=0;    m_faces[0][1]=1;
-  m_faces[1][0]=1;    m_faces[1][1]=2;
-  m_faces[2][0]=2;    m_faces[2][1]=3;
-  m_faces[3][0]=3;    m_faces[3][1]=0;
+  nodes[0]=0;   nodes[1]=1;   m_faces.push_back( Face(line,nodes));
+  nodes[0]=1;   nodes[1]=2;   m_faces.push_back( Face(line,nodes));
+  nodes[0]=2;   nodes[1]=3;   m_faces.push_back( Face(line,nodes));
+  nodes[0]=3;   nodes[1]=0;   m_faces.push_back( Face(line,nodes));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

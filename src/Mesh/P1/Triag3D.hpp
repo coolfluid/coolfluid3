@@ -43,7 +43,7 @@ public:
   static std::string getClassName() { return "Triag3D"; }
 
   /// Get the full name defining this element type uniquely
-  static std::string getFullName() { return "P1-Triag3D"; }
+  virtual std::string getElementTypeName() { return "P1-Triag3D"; }
   
   Real computeVolume(const std::vector<CArray::Row>& coord) const 
   { 
@@ -58,7 +58,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Real VolumeComputer<P1::Triag3D>::computeVolume(const std::vector<CArray::Row>& coord)
+inline Real VolumeComputer<P1::Triag3D>::computeVolume(const std::vector<CArray::Row>& coord)
 {
   RealVector V1(3), V2(3), cross(3);
   V1[XX] = coord[1][XX]-coord[0][XX];

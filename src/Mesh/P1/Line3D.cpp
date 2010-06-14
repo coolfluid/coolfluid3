@@ -14,7 +14,7 @@ namespace P1 {
 Common::ObjectProvider < Line3D,
                          ElementType,
                          P1Lib >
-aP1Line3D_Provider ( Line3D::getFullName() );
+aP1Line3D_Provider ( "P1-"+Line3D::getClassName() );
 
 
 Line3D::Line3D()
@@ -24,18 +24,8 @@ Line3D::Line3D()
   m_order=1;
   m_nbNodes=2;
   m_dimensionality=1;
-  m_nbFaces=2;
   m_nbEdges=0;
-  
-  // set size of connectivity order
-  m_faces.resize(2);
-  BOOST_FOREACH( std::vector<Uint>& face, m_faces )
-    face.resize(2);
-  // Note: edges must not set as they coincide with nodes
 
-  
-  m_faces[0][0]=0;
-  m_faces[1][0]=1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

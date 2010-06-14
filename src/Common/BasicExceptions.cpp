@@ -69,6 +69,12 @@ NotImplemented::NotImplemented(const Common::CodeLocation& where, const std::str
 
 ////////////////////////////////////////////////////////////////////////////////
 
+NotSupported::NotSupported(const Common::CodeLocation& where, const std::string& what)
+: Exception(where, what,"NotSupported")
+{}
+
+////////////////////////////////////////////////////////////////////////////////
+
 ParallelError::ParallelError(const Common::CodeLocation& where, const std::string& what)
 : Exception(where, what,"ParallelError")
 {}

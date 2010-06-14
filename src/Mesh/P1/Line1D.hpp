@@ -43,7 +43,7 @@ public:
   static std::string getClassName() { return "Line1D"; }
 
   /// Get the full name defining this element type uniquely
-  static std::string getFullName() { return "P1-Line1D"; }
+  virtual std::string getElementTypeName() { return "P1-Line1D"; }
   
   Real computeVolume(const std::vector<CArray::Row>& coord) const 
   { 
@@ -58,7 +58,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Real VolumeComputer<P1::Line1D>::computeVolume(const std::vector<CArray::Row>& coord)
+inline Real VolumeComputer<P1::Line1D>::computeVolume(const std::vector<CArray::Row>& coord)
 {
   // return the distance between the 2 nodes
   return std::abs(coord[1][XX]-coord[0][XX]);

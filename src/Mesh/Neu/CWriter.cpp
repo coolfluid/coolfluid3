@@ -34,14 +34,22 @@ CWriter::CWriter( const CName& name )
 {
   BUILD_COMPONENT;
 
-  m_supported_types.reserve(2);
+
+  m_supported_types.reserve(8);
+  m_supported_types.push_back("P1-Line1D");
+  m_supported_types.push_back("P1-Line2D");
+  m_supported_types.push_back("P1-Line3D");
   m_supported_types.push_back("P1-Quad2D");
+  m_supported_types.push_back("P1-Quad3D");
   m_supported_types.push_back("P1-Triag2D");
+  m_supported_types.push_back("P1-Triag3D");
   m_supported_types.push_back("P1-Hexa3D");
 
-  m_CFelement_to_NeuElement[GeoShape::QUAD]=2;
+
+  m_CFelement_to_NeuElement[GeoShape::LINE ]=1;
+  m_CFelement_to_NeuElement[GeoShape::QUAD ]=2;
   m_CFelement_to_NeuElement[GeoShape::TRIAG]=3;
-  m_CFelement_to_NeuElement[GeoShape::HEXA]=4;
+  m_CFelement_to_NeuElement[GeoShape::HEXA ]=4;
 }
 /////////////////////////////////////////////////////////////////////////////
 

@@ -126,6 +126,18 @@ struct Common_API  NotImplemented: public Common::Exception {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+///  Exception thrown when certain functionality is not supported by
+///  for instance an third party format or library
+/// @author Willem Deconinck
+struct Common_API  NotSupported: public Common::Exception {
+
+  /// Constructor
+  /// @see CF::Exception()
+  NotSupported(const Common::CodeLocation& where, const std::string& what);
+}; //  NotSupported
+
+////////////////////////////////////////////////////////////////////////////////
+
 /// Exception thrown when an error related occurs on the parallel communication
 /// @author Tiago Quintino
 struct Common_API ParallelError: public Common::Exception {

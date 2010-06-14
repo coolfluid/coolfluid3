@@ -64,12 +64,8 @@ public: // functions
 
   /// @return faces connectivity
   /// faces[iFace][iNode]
-  std::vector< std::vector< Uint > >& getFacesConnectivity() { return m_elementType->getFacesConnectivity(); }
+  const std::vector<ElementType::Face>& getFaces() { return m_elementType->getFaces(); }
 
-  /// @return edges connectivity
-  /// edges[iEdge][iNode]
-  std::vector< std::vector< Uint > >& getEdgesConnectivity() { return m_elementType->getEdgesConnectivity(); }
-    
   /// compute volume of the element given by its coordinates
   virtual Real computeVolume(const std::vector<CArray::Row>& coord) const { return m_elementType->computeVolume(coord); } 
 

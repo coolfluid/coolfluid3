@@ -2,6 +2,7 @@
 
 #include "Common/ObjectProvider.hpp"
 #include "Mesh/P1/Triag3D.hpp"
+#include "Mesh/P1/Line3D.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -14,7 +15,7 @@ namespace P1 {
 Common::ObjectProvider < Triag3D,
                          ElementType,
                          P1Lib >
-aP1Triag3D_Provider ( Triag3D::getFullName() );
+aP1Triag3D_Provider ( "P1-"+Triag3D::getClassName() );
 
 
 Triag3D::Triag3D()
@@ -24,19 +25,17 @@ Triag3D::Triag3D()
   m_order=1;
   m_nbNodes=3;
   m_dimensionality=2;
-  m_nbFaces=3;
   m_nbEdges=0;
   
-  // set size of connectivity order
-  m_faces.resize(3);
-  BOOST_FOREACH( std::vector<Uint>& face, m_faces )
-    face.resize(2);
-  // Note: edges must not set as they coincide with nodes
+  // set faces
+  m_faces.reserve(3);
 
-  
-  m_faces[0][0]=0;    m_faces[0][1]=1;
-  m_faces[1][0]=1;    m_faces[1][1]=2;
-  m_faces[2][0]=2;    m_faces[2][1]=0;
+  boost::shared_ptr<ElementType> line(new Line3D);
+  std::vector<Uint> nodes(2);
+
+  nodes[0]=0;   nodes[1]=1;   m_faces.push_back( Face(line,nodes));
+  nodes[0]=1;   nodes[1]=2;   m_faces.push_back( Face(line,nodes));
+  nodes[0]=2;   nodes[1]=0;   m_faces.push_back( Face(line,nodes));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

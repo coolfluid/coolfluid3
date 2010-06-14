@@ -103,6 +103,10 @@ private:
   std::vector<std::string> m_supported_types;
 
   CMesh::Ptr m_mesh;
+
+  std::vector<std::vector<Uint> > m_faces_cf_to_neu;
+  std::vector<std::vector<Uint> > m_faces_neu_to_cf;
+
   
 private: // helper functions
 

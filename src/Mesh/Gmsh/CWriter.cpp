@@ -32,6 +32,7 @@ CWriter::CWriter( const CName& name )
   BUILD_COMPONENT;
 
   // gmsh types: http://www.geuz.org/gmsh/doc/texinfo/gmsh.html#MSH-ASCII-file-format
+  m_elementTypes[GeoShape::LINE]=1;
   m_elementTypes[GeoShape::TRIAG]=2;
   m_elementTypes[GeoShape::QUAD]=3;
   m_elementTypes[GeoShape::HEXA]=5;

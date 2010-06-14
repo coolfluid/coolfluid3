@@ -75,9 +75,9 @@ CMeshReader::create_leaf_regions_with_buffermap (CRegion::Ptr& parent_region,
   BOOST_FOREACH(std::string& etype, etypes)
   {
     CRegion::Ptr etype_region = parent_region->create_leaf_region(etype);
-    //CFinfo << "create: " << etype_region->full_path().string() << "\n" << CFflush;
+    // CFinfo << "create: " << etype_region->full_path().string() << "\n" << CFflush;
     buffermap[etype]=boost::shared_ptr<CTable::Buffer>
-      (new CTable::Buffer(get_named_component_typed<CTable>(*etype_region, "table").create_buffer()));
+      (new CTable::Buffer(get_named_component_typed<CTable>(*etype_region, "table").create_buffer(8192)));
   }
   return buffermap;
 }

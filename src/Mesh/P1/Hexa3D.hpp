@@ -44,7 +44,7 @@ public:
   static std::string getClassName() { return "Hexa3D"; }
 
   /// Get the full name defining this element type uniquely
-  static std::string getFullName() { return "P1-Hexa3D"; }
+  virtual std::string getElementTypeName() { return "P1-Hexa3D"; }
   
   Real computeVolume(const std::vector<CArray::Row>& coord) const 
   { 

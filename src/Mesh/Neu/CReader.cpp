@@ -25,11 +25,13 @@ aNeuReader_Provider ( "Neu" );
 //////////////////////////////////////////////////////////////////////////////
 
 CReader::CReader( const CName& name )
-: CMeshReader(name)
+: CMeshReader(name),
+  m_faces_cf_to_neu(10),
+  m_faces_neu_to_cf(10)
 {
   BUILD_COMPONENT;
 
-  m_supported_types.reserve(2);
+  m_supported_types.reserve(8);
   m_supported_types.push_back("P1-Line1D");
   m_supported_types.push_back("P1-Line2D");
   m_supported_types.push_back("P1-Line3D");
@@ -38,6 +40,54 @@ CReader::CReader( const CName& name )
   m_supported_types.push_back("P1-Triag2D");
   m_supported_types.push_back("P1-Triag3D");
   m_supported_types.push_back("P1-Hexa3D");
+
+
+  // face translation
+  enum NeuFace {LINE=1,QUAD=2,TRIAG=3,HEXA=4};
+
+  // line
+  m_faces_cf_to_neu[LINE].resize(2);
+
+  // quad
+  m_faces_cf_to_neu[QUAD].resize(4);
+  m_faces_cf_to_neu[QUAD][0]=1;
+  m_faces_cf_to_neu[QUAD][1]=2;
+  m_faces_cf_to_neu[QUAD][2]=3;
+  m_faces_cf_to_neu[QUAD][3]=4;
+
+  m_faces_neu_to_cf[QUAD].resize(5);
+  m_faces_neu_to_cf[QUAD][1]=0;
+  m_faces_neu_to_cf[QUAD][2]=1;
+  m_faces_neu_to_cf[QUAD][3]=2;
+  m_faces_neu_to_cf[QUAD][4]=3;
+
+  // triag
+  m_faces_cf_to_neu[TRIAG].resize(3);
+  m_faces_cf_to_neu[TRIAG][0]=1;
+  m_faces_cf_to_neu[TRIAG][1]=2;
+  m_faces_cf_to_neu[TRIAG][2]=3;
+
+  m_faces_neu_to_cf[TRIAG].resize(4);
+  m_faces_neu_to_cf[TRIAG][1]=0;
+  m_faces_neu_to_cf[TRIAG][2]=1;
+  m_faces_neu_to_cf[TRIAG][3]=2;
+
+  // hexa
+  m_faces_cf_to_neu[HEXA].resize(6);
+  m_faces_cf_to_neu[HEXA][0]=1;
+  m_faces_cf_to_neu[HEXA][1]=3;
+  m_faces_cf_to_neu[HEXA][2]=6;
+  m_faces_cf_to_neu[HEXA][3]=2;
+  m_faces_cf_to_neu[HEXA][4]=5;
+  m_faces_cf_to_neu[HEXA][5]=4;
+
+  m_faces_neu_to_cf[HEXA].resize(7);
+  m_faces_neu_to_cf[HEXA][1]=0;
+  m_faces_neu_to_cf[HEXA][2]=3;
+  m_faces_neu_to_cf[HEXA][3]=1;
+  m_faces_neu_to_cf[HEXA][4]=5;
+  m_faces_neu_to_cf[HEXA][5]=4;
+  m_faces_neu_to_cf[HEXA][6]=2;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -108,7 +158,7 @@ void CReader::read_coordinates(std::fstream& file)
   // set dimension
   coordinates->initialize(m_headerData.NDFCD);
   // create a buffer to interact with coordinates
-  CArray::Buffer buffer = coordinates->create_buffer(m_headerData.NUMNP);
+  CArray::Buffer buffer = coordinates->create_buffer(m_headerData.NUMNP/10);
   
   std::string line;
   // skip one line
@@ -159,11 +209,16 @@ void CReader::read_connectivity(std::fstream& file)
     else if (elementType==3 && nbElementNodes==3) etype_CF = "P1-Triag"; // triangle
     else if (elementType==4 && nbElementNodes==8) etype_CF = "P1-Hexa";  // brick
     /// @todo to be implemented
-    // else if (elementType==5 && nbElementNodes==6) ;// wedge (prism)
-    // else if (elementType==6 && nbElementNodes==4) ;// tetrahedron
-    // else if (elementType==7 && nbElementNodes==5) ;// pyramid
+    else if (elementType==5 && nbElementNodes==6) // wedge (prism)
+      throw Common::NotImplemented(FromHere(),"wedge or prism element not able to convert to COOLFluiD yet.");
+    else if (elementType==6 && nbElementNodes==4) // tetrahedron
+      throw Common::NotImplemented(FromHere(),"tetrahedron element not able to convert to COOLFluiD yet.");
+    else if (elementType==7 && nbElementNodes==5) // pyramid
+      throw Common::NotImplemented(FromHere(),"pyramid element not able to convert to COOLFluiD yet.");
     else {
-      CFerr << "error: no support for element type/nodes " << elementType << "/" << nbElementNodes << CFflush;
+      throw Common::NotSupported(FromHere(),"no support for element type/nodes "
+                                 + StringOps::to_str<int>(elementType) + "/" + StringOps::to_str<int>(nbElementNodes) +
+           " in Gambit Neutral format");
     }
     // append dimension to the element type (1D, 2D, 3D)
     etype_CF += StringOps::to_str<int>(m_headerData.NDFCD)+"D";
@@ -253,20 +308,7 @@ void CReader::read_groups(std::fstream& file)
         buffer[tmp_region->name()]->add_row(get_named_component_typed<CTable>(*tmp_region, "table").get_table()[local_element]);
       }
     }
-    
-    // Remove tmp region from component
-    Component::Ptr tmp = m_mesh->remove_component("tmp");
-    
-    /// @todo check if the following really deletes it from memory
-    tmp.reset();
-    
   }
-
-  // truely deallocate this vector
-  std::vector<Region_TableIndex_pair>().swap (m_global_to_tmp);
-  
-  // Remove regions with empty connectivity tables
-  remove_empty_leaf_regions(regions);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -274,7 +316,7 @@ void CReader::read_groups(std::fstream& file)
 void CReader::read_boundaries(std::fstream& file)
 {
   std::string line;
-
+  CRegion::Ptr regions=get_named_component_typed_ptr<CRegion>(*m_mesh,"regions");
   for (Uint t=0; t<m_headerData.NBSETS; ++t) {
 
     std::string NAME;
@@ -286,132 +328,63 @@ void CReader::read_boundaries(std::fstream& file)
     std::stringstream ss(line);
     ss >> NAME >> ITYPE >> NENTRY >> NVALUES >> IBCODE1 >> IBCODE2 >> IBCODE3 >> IBCODE4 >> IBCODE5;
     if (ITYPE!=1) {
-      CFerr << "error: supports only boundary condition data 1 (element/cell): page C-11 of user's guide" << CFendl;
-      throw 42;
+      throw Common::NotSupported(FromHere(),"error: supports only boundary condition data 1 (element/cell): page C-11 of user's guide");
     }
     if (IBCODE1!=6) {
-      CFerr << "error: supports only IBCODE1 6 (ELEMENT_SIDE)" << CFendl;
-      throw 42;
+      throw Common::NotSupported(FromHere(),"error: supports only IBCODE1 6 (ELEMENT_SIDE)");
     }
 
     // boundary connectivity here
     //vector< GElement > e2n(NENTRY);
 
+    CRegion::Ptr bc_region = regions->create_component_type<CRegion>(NAME);
+
+    // create all kind of element type regions
+    BufferMap buffer = create_leaf_regions_with_buffermap (bc_region,m_supported_types);
+
     // read boundary elements connectivity
-    // vector< unsigned > nbelems(PYRAMID4+1,0); // nb. elements per type
     for (int i=0; i<NENTRY; ++i) {
       int ELEM, ETYPE, FACE;
       file >> ELEM >> ETYPE >> FACE;
-      /*
-      // element nodes and face nodes/type
-      const vector< unsigned >& en = vgelems[ ELEM-1 ].n;
-      vector< unsigned >& fn = e2n[i].n;
-      mtype&              ft = e2n[i].t;
-      if      (ETYPE==2 && en.size()==4)  ft = FELINESEG;        // quadrilateral faces
-      else if (ETYPE==3 && en.size()==3)  ft = FELINESEG;        // triangle faces
-      else if (ETYPE==4 && en.size()==8)  ft = FEQUADRILATERAL;  // brick faces
-      else if (ETYPE==5 && en.size()==6)  ft = (FACE<4? FEQUADRILATERAL : FETRIANGLE);  // wedge (prism) faces
-      else if (ETYPE==6 && en.size()==4)  ft = FETRIANGLE;       // tetrahedron faces
-      else if (ETYPE==7 && en.size()==5)  ft = (FACE<2? FEQUADRILATERAL : FETRIANGLE);  // pyramid faces
-      else {
-        cerr << "error: reference for an unexpected volume element" << endl;
-        throw 42;
-      }
-      ++nbelems[(unsigned) ft];  // add a face element of this type
-      fn.assign(ft==FELINESEG?       2:
-               (ft==FEQUADRILATERAL? 4:
-               (ft==FETRIANGLE?      3:
-                                     1 )), 0);
 
-      if (ETYPE==2) { // quadrilateral faces
-        switch (FACE) {
-          case 1: fn[0] = en[0]; fn[1] = en[1]; break;
-          case 2: fn[0] = en[1]; fn[1] = en[2]; break;
-          case 3: fn[0] = en[2]; fn[1] = en[3]; break;
-          case 4: fn[0] = en[3]; fn[1] = en[0]; break;
-        }
-      }
-      else if (ETYPE==3) { // triangle faces
-        switch (FACE) {
-          case 1: fn[0] = en[0]; fn[1] = en[1]; break;
-          case 2: fn[0] = en[1]; fn[1] = en[2]; break;
-          case 3: fn[0] = en[2]; fn[1] = en[0]; break;
-        }
-      }
-      else if (ETYPE==4) { // brick faces
-        switch (FACE) {
-          case 1: fn[0] = en[0]; fn[1] = en[1]; fn[2] = en[5]; fn[3] = en[4]; break;
-          case 2: fn[0] = en[1]; fn[1] = en[3]; fn[2] = en[7]; fn[3] = en[5]; break;
-          case 3: fn[0] = en[3]; fn[1] = en[2]; fn[2] = en[6]; fn[3] = en[7]; break;
-          case 4: fn[0] = en[2]; fn[1] = en[0]; fn[2] = en[4]; fn[3] = en[6]; break;
-          case 5: fn[0] = en[1]; fn[1] = en[0]; fn[2] = en[2]; fn[3] = en[3]; break;
-          case 6: fn[0] = en[4]; fn[1] = en[5]; fn[2] = en[7]; fn[3] = en[6]; break;
-        }
-      }
-      else if (ETYPE==5) { // wedge (prism) faces
-        switch (FACE) {
-          case 1: fn[0] = en[0]; fn[1] = en[1]; fn[2] = en[4]; fn[3] = en[3]; break;
-          case 2: fn[0] = en[1]; fn[1] = en[2]; fn[2] = en[5]; fn[3] = en[4]; break;
-          case 3: fn[0] = en[2]; fn[1] = en[0]; fn[2] = en[3]; fn[3] = en[5]; break;
-          case 4: fn[0] = en[0]; fn[1] = en[2]; fn[2] = en[1]; break;
-          case 5: fn[0] = en[3]; fn[1] = en[4]; fn[2] = en[5]; break;
-        }
-      }
-      else if (ETYPE==6) { // tetrahedron faces
-        switch (FACE) {
-          case 1: fn[0] = en[1]; fn[1] = en[0]; fn[2] = en[2]; break;
-          case 2: fn[0] = en[0]; fn[1] = en[1]; fn[2] = en[3]; break;
-          case 3: fn[0] = en[1]; fn[1] = en[2]; fn[2] = en[3]; break;
-          case 4: fn[0] = en[2]; fn[1] = en[0]; fn[2] = en[3]; break;
-        }
-      }
-      else if (ETYPE==7) { // pyramid faces
-        switch (FACE) {
-          case 1: fn[0] = en[0]; fn[1] = en[2]; fn[2] = en[3]; fn[3] = en[1]; break;
-          case 2: fn[0] = en[0]; fn[1] = en[1]; fn[2] = en[4]; break;
-          case 3: fn[0] = en[1]; fn[1] = en[3]; fn[2] = en[4]; break;
-          case 4: fn[0] = en[3]; fn[1] = en[2]; fn[2] = en[4]; break;
-          case 5: fn[0] = en[2]; fn[1] = en[0]; fn[2] = en[4]; break;
-        }
-      }
-      */
+      Uint global_element = ELEM-1;
+      Uint elementType = ETYPE;
+      Uint faceIdx = FACE;
+
+      CRegion::Ptr tmp_region = m_global_to_tmp[global_element].first;
+      Uint local_element = m_global_to_tmp[global_element].second;
+
+      // translate the Neu face to a CF face
+      const ElementType::Face& face = get_component_typed<CElements>(*tmp_region,IsComponentTrue()).getFaces()[m_faces_neu_to_cf[elementType][faceIdx]];
+
+      // make a row of nodes
+      const CTable::Row& elem_nodes = get_component_typed<CTable>(*tmp_region,IsComponentTrue()).get_table()[local_element];
+      std::vector<Uint> row;
+      row.reserve(face.nodes.size());
+      BOOST_FOREACH(const Uint& node, face.nodes)
+        row.push_back(elem_nodes[node]);
+
+      // add the row to the buffer of the face region
+      buffer[face.faceType->getElementTypeName()]->add_row(row);
+
       getline(file,line);  // finish the line (read new line)
     }
     getline(file,line);  // ENDOFSECTION
 
-/*
-    // add a new zone, splitting according to type (if necessary)
-    // count element types
-    vector< mtype    > felemstypes;
-    vector< unsigned > felemsnb;
-    for (unsigned t=0; t<nbelems.size(); ++t)
-      if (nbelems[t]>0) {
-        felemstypes.push_back((mtype) t);
-        felemsnb.push_back(nbelems[t]);
-      }
-
-    // set new zones, distinguishing different element types
-    for (unsigned i=0; i<felemstypes.size(); ++i) {
-      m.vz.push_back(mzone());
-      mzone& z = m.vz.back();
-
-      // set name, dimensionality, type and connectivity
-      ostringstream name;
-      name << NAME;
-      if (felemstypes.size()>1)
-        name << "_t" << felemstypes[i];
-      z.n = name.str();
-      z.t = felemstypes[i];
-
-      // set new zone element-node connectivity
-      z.e2n.resize(felemsnb[i]);
-      for (unsigned j=0, k=0; j<e2n.size(); ++j)
-        if (e2n[j].t==felemstypes[i])
-          z.e2n[k++].n = e2n[j].n;
-    }
-*/
-
   }
+
+  // Remove tmp region from component
+  if (m_headerData.NGRPS != 1)
+  {
+    Component::Ptr tmp = m_mesh->remove_component("tmp");
+    tmp.reset();
+  }
+
+  // truely deallocate this vector
+  std::vector<Region_TableIndex_pair>().swap (m_global_to_tmp);
+
+  // Remove regions with empty connectivity tables
+  remove_empty_leaf_regions(regions);
 
 }
 
