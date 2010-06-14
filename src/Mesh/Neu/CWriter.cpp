@@ -68,7 +68,7 @@ CWriter::CWriter( const CName& name )
   m_faces_cf_to_neu[QUAD][2]=3;
   m_faces_cf_to_neu[QUAD][3]=4;
 
-  m_faces_neu_to_cf[QUAD].resize(4);
+  m_faces_neu_to_cf[QUAD].resize(5);
   m_faces_neu_to_cf[QUAD][1]=0;
   m_faces_neu_to_cf[QUAD][2]=1;
   m_faces_neu_to_cf[QUAD][3]=2;
@@ -80,7 +80,7 @@ CWriter::CWriter( const CName& name )
   m_faces_cf_to_neu[TRIAG][1]=2;
   m_faces_cf_to_neu[TRIAG][2]=3;
 
-  m_faces_neu_to_cf[TRIAG].resize(3);
+  m_faces_neu_to_cf[TRIAG].resize(4);
   m_faces_neu_to_cf[TRIAG][1]=0;
   m_faces_neu_to_cf[TRIAG][2]=1;
   m_faces_neu_to_cf[TRIAG][3]=2;
@@ -94,7 +94,7 @@ CWriter::CWriter( const CName& name )
   m_faces_cf_to_neu[HEXA][4]=5;
   m_faces_cf_to_neu[HEXA][5]=4;
 
-  m_faces_neu_to_cf[HEXA].resize(6);
+  m_faces_neu_to_cf[HEXA].resize(7);
   m_faces_neu_to_cf[HEXA][1]=0;
   m_faces_neu_to_cf[HEXA][2]=3;
   m_faces_neu_to_cf[HEXA][3]=1;

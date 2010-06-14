@@ -81,15 +81,12 @@ void CWriter::write_header(std::fstream& file)
   CArray::Ptr coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
   const Uint dimension(coordinates->get_array().shape()[1]);
   Uint phys_name_counter(0);
-  CFinfo << "searching physical regions" << CFendl;
   BOOST_FOREACH(const CRegion& groupRegion, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
   {
     ++phys_name_counter;
     PhysicalGroup group (dimension,phys_name_counter,groupRegion.name());
     m_groups.insert(PhysicalGroupMap::value_type(group.name,group));
-    CFinfo << "   " << groupRegion.name() << CFendl;
   }
-  CFinfo << "found: " << phys_name_counter <<CFendl;
   
   file << "$PhysicalNames\n";
   file << phys_name_counter << "\n";

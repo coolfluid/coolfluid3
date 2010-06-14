@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh )
   boost::shared_ptr<CMesh> mesh ( new CMesh  ( "mesh" ) );
   
   meshreader->read_from_to(fp_in,mesh);
-  mesh->print_tree();
+  //mesh->print_tree();
 
   boost::filesystem::path fp_out ("quadtriag.msh");
   CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
