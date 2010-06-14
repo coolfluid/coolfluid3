@@ -3,6 +3,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "Common/ComponentPredicates.hpp"
+
 #include "Mesh/MeshAPI.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CElements.hpp"
@@ -11,6 +13,8 @@
 namespace CF {
 namespace Mesh {
   
+  using namespace Common;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Region component class
@@ -52,19 +56,33 @@ public:
   /// @param name of the region
   boost::shared_ptr<CElements> create_elementType ( const CName& name = "type");
   
-//  CTable::Ptr get_connectivityTable( const CName& name = "table" ) const
-//  {
-//    if (has_component_of_type<CTable>())
-//      return get_component<CTable>(name);
-//    return CTable::Ptr();
-//  }
+  CTable::ConstPtr get_connectivityTable( const CName& name = "table" ) const
+  {
+    if (count(filtered_range(*this,IsComponentName(name))))
+      return boost::dynamic_pointer_cast<CTable const>(get_child(name));
+    return CTable::ConstPtr();
+  }
 
-//  CElements::Ptr get_elementType( const CName& name = "type" ) const
-//  {
-//    if (has_component_of_type<CElements>())
-//      return get_component<CElements>(name);
-//    return CElements::Ptr();
-//  }
+  CTable::Ptr get_connectivityTable( const CName& name = "table" )
+  {
+    if (count(filtered_range(*this,IsComponentName(name))))
+      return boost::dynamic_pointer_cast<CTable>(get_child(name));
+    return CTable::Ptr();
+  }
+
+  CElements::ConstPtr get_elementType( const CName& name = "type" ) const
+  {
+    if (count(filtered_range(*this,IsComponentName(name))))
+      return boost::dynamic_pointer_cast<CElements const>(get_child(name));
+    return CElements::ConstPtr();
+  }
+
+  CElements::Ptr get_elementType( const CName& name = "type" )
+  {
+    if (count(filtered_range(*this,IsComponentName(name))))
+      return boost::dynamic_pointer_cast<CElements>(get_child(name));
+    return CElements::Ptr();
+  }
 
   /// a shortcut command to avoid boilerplate code
   /// @param [in] etype_name create a region with connectivity table and element info
@@ -82,19 +100,19 @@ public:
     const Uint nbCols = cArray.get_array().shape()[1];
     for (Uint j=0; j<nbCols; ++j) 
     {
-      const Uint row_in_array = m_connTable->get_table()[iElem][iNode];
+      const Uint row_in_array = get_connectivityTable()->get_table()[iElem][iNode];
       row[j] = cArray.get_array()[row_in_array][j];
     }
   }
   
   /// @return a mutable row from the connectivity table, i.e. the node indices of a single element
   CTable::Row get_row(const Uint element) {
-    return (*m_connTable)[element];
+    return (*get_connectivityTable())[element];
   }
 
   /// @return a row from the connectivity table, i.e. the node indices of a single element
   CTable::ConstRow get_row(const Uint element) const {
-    return (*m_connTable)[element];
+    return (*get_connectivityTable())[element];
   }
 
   /// @return the type of the elements in this region
@@ -102,13 +120,15 @@ public:
   const ElementType& elements_type() const
   {
     cf_assert(elements_count());
-    return *(m_elementType->get_elementType());
+    CElements::ConstPtr eType = get_elementType();
+    return *(eType->get_elementType());
   }
 
   /// @return the number of elements stored in this region, excluding any subregions
   Uint elements_count() const
   {
-    return m_connTable.get() ? m_connTable->get_table().size() : 0;
+    CTable::ConstPtr connTable = get_connectivityTable();
+    return connTable.get() ? connTable->get_table().size() : 0;
   }
 
 private: // helper functions
@@ -116,12 +136,12 @@ private: // helper functions
   /// regists all the signals declared in this class
   static void regist_signals ( Component* self ) {}
 
-private:
-  
-  std::vector< CRegion::Ptr > m_subregions;
-  boost::shared_ptr<CTable> m_connTable;
-  
-  boost::shared_ptr<CElements> m_elementType;
+private: // data
+
+//  std::vector< CRegion::Ptr > m_subregions;
+//  boost::shared_ptr<CTable> m_connTable;
+
+//  boost::shared_ptr<CElements> m_elementType;
 
 }; // CRegion
 

@@ -3,7 +3,10 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <boost/shared_ptr.hpp>
 #include <boost/iterator/iterator_facade.hpp>
+
+#include "Common/CF.hpp"
 
 namespace CF {
 namespace Common {

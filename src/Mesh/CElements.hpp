@@ -23,6 +23,7 @@ class Mesh_API CElements : public Common::Component {
 public: // typedefs
 
   typedef boost::shared_ptr<CElements> Ptr;
+  typedef boost::shared_ptr<CElements const> ConstPtr;
 
 public: // functions
 
@@ -73,7 +74,8 @@ public: // functions
   void set_elementType(const std::string& etype_name);
 
   /// return the elementType
-  boost::shared_ptr<ElementType>& get_elementType() { return m_elementType; }
+  boost::shared_ptr<ElementType> get_elementType() { return m_elementType; }
+  boost::shared_ptr<ElementType const> get_elementType() const { return m_elementType; }
   
 private: // helper functions
 
