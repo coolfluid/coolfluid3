@@ -125,7 +125,6 @@ BOOST_AUTO_TEST_CASE( TestCGNSLib )
      }
    }
  }
- //printf("\ncreated simple 3-D grid points\n");
 
 /* WRITE X, Y, Z GRID POINTS TO CGNS FILE */
 /* open CGNS file for write */

@@ -3,6 +3,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <boost/tuple/tuple.hpp>
 #include "Mesh/Neu/NeuAPI.hpp"
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/GeoShape.hpp"
@@ -45,6 +46,8 @@ private:
 
   void write_boundaries(std::fstream& file);
 
+  void create_nodes_to_element_connectivity();
+
   // supported types from coolfluid. Neutral can support more.
   std::vector<std::string> m_supported_types;
   
@@ -52,6 +55,13 @@ private:
 
   /// implementation detail, raw pointers are safe as keys
   std::map<CRegion const*,Uint> m_global_start_idx;
+
+  std::vector<std::vector<Uint> > m_faces_cf_to_neu;
+  std::vector<std::vector<Uint> > m_faces_neu_to_cf;
+
+  std::map<Uint,std::vector<std::pair<CRegion*,Uint> > > m_n2e;
+
+  boost::tuple<CRegion* const,Uint,Uint> find_element_for_face(const CElements& face, const CTable::ConstRow& nodes, const Component& parent);
 
   CMesh::Ptr m_mesh;
 

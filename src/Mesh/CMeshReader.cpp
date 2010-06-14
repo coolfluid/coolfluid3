@@ -84,7 +84,7 @@ CMeshReader::create_leaf_regions_with_buffermap (CRegion::Ptr& parent_region,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMeshReader::remove_empty_leaf_regions(CRegion::Ptr& parent_region)
+void CMeshReader::remove_empty_leaf_regions(const CRegion::Ptr& parent_region)
 {
   // loop over regions
   BOOST_FOREACH(CRegion& region, recursive_range_typed<CRegion>(*parent_region))
@@ -94,13 +94,12 @@ void CMeshReader::remove_empty_leaf_regions(CRegion::Ptr& parent_region)
         get_named_component_typed<CTable>(region, "table").get_table().size() == 0 )
       {
         // no elements in connectivity table --> remove this region
-        // CFinfo << "remove: " << region.full_path().string() << "\n" << CFflush;
-        region.get_parent()->remove_component(region.name());
+        //CFinfo << "remove: " << region->full_path().string() << "\n" << CFflush;
+        CRegion::Ptr removed = boost::dynamic_pointer_cast<CRegion>(region.get_parent()->remove_component(region.name()));
+        removed.reset();
       }
   }
 }
-
-////////////////////////////////////////////////////////////////////////////////
 
 
 } // Mesh

@@ -88,6 +88,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 
 void CReader::read_base(CRegion::Ptr& parent_region)
 {
+
   // get the name, dimension and physical dimension from the base
   char base_name_char[CGNS_CHAR_MAX];
   cg_base_read(m_file.idx,m_base.idx,base_name_char,&m_base.cell_dim,&m_base.phys_dim);
@@ -305,7 +306,7 @@ void CReader::read_section(CRegion::Ptr& parent_region)
       row.reserve(m_section.elemNodeCount);
       for (int n=1;n<=m_section.elemNodeCount;++n)  // n=0 is the cell type
         row.push_back(elemNodes[0][n]-1); // -1 because cgns has index-base 1 instead of 0
-      const std::string& etype_CF = m_elemtype_CGNS_to_CF[etype];
+      const std::string& etype_CF = m_elemtype_CGNS_to_CF[etype]+StringOps::to_str<int>(m_base.phys_dim)+"D";
       Uint table_idx = buffer[etype_CF]->get_total_nbRows();
       buffer[etype_CF]->add_row(row);
       m_global_to_region.push_back(Region_TableIndex_pair(get_named_component_typed_ptr<CRegion>(*this_region, etype_CF),table_idx));
@@ -324,7 +325,7 @@ void CReader::read_section(CRegion::Ptr& parent_region)
     int nbElems = m_section.elemDataSize/m_section.elemNodeCount;
     // CFinfo << "nbElems = " << nbElems << "\n" << CFflush;
 
-    const std::string& etype_CF = m_elemtype_CGNS_to_CF[m_section.type];
+    const std::string& etype_CF = m_elemtype_CGNS_to_CF[m_section.type]+StringOps::to_str<int>(m_base.phys_dim)+"D";
     CRegion::Ptr leaf_region = this_region->create_leaf_region(etype_CF);
     CTable::Buffer buffer = get_named_component_typed<CTable>(*leaf_region, "table").create_buffer(std::max(1024,nbElems/10));
 
@@ -376,6 +377,7 @@ void CReader::read_section(CRegion::Ptr& parent_region)
 
 void CReader::read_boco()
 {
+
   // Read the info for this boundary condition.
   char boco_name_char[CGNS_CHAR_MAX];
   cg_boco_info(m_file.idx, m_base.idx, m_zone.idx, m_boco.idx, boco_name_char, &m_boco.boco_type, &m_boco.ptset_type,

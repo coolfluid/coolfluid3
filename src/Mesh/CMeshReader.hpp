@@ -76,8 +76,7 @@ protected: // functions
 
   /// remove all regions with empty connectivity tables inside a given region
   /// @param [in] parent_region  Region in which the removal will take place
-  void remove_empty_leaf_regions(boost::shared_ptr<CRegion>& parent_region);
-
+  void remove_empty_leaf_regions(const boost::shared_ptr<CRegion>& parent_region);
 
 private: // helper functions
 

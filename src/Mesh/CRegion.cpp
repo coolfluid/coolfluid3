@@ -20,6 +20,10 @@ CRegion::CRegion ( const CName& name  ) :
 
 CRegion::~CRegion()
 {
+  BOOST_FOREACH(CRegion::Ptr subregion, m_subregions)
+    subregion.reset();
+  m_elementType.reset();
+  m_connTable.reset();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

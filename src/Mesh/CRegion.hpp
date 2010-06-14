@@ -52,6 +52,20 @@ public:
   /// @param name of the region
   boost::shared_ptr<CElements> create_elementType ( const CName& name = "type");
   
+//  CTable::Ptr get_connectivityTable( const CName& name = "table" ) const
+//  {
+//    if (has_component_of_type<CTable>())
+//      return get_component<CTable>(name);
+//    return CTable::Ptr();
+//  }
+
+//  CElements::Ptr get_elementType( const CName& name = "type" ) const
+//  {
+//    if (has_component_of_type<CElements>())
+//      return get_component<CElements>(name);
+//    return CElements::Ptr();
+//  }
+
   /// a shortcut command to avoid boilerplate code
   /// @param [in] etype_name create a region with connectivity table and element info
   CRegion::Ptr create_leaf_region (const std::string& etype_name );

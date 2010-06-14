@@ -120,31 +120,6 @@ BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh )
 
 }
 
-/*BOOST_AUTO_TEST_CASE( convertForWillem )
-{
-  boost::shared_ptr<CMeshReader> meshreader = CMeshReader::create_concrete("Neu","meshreader");
-
-  // UNCOMMENT ALL THIS AND CHANGE THE FILEPATH "fp" TO A VALID PATH
-
-  // the file to read from
-  boost::filesystem::path fp_in ("kw_mark.neu");
-
-  // the mesh to store in
-  boost::shared_ptr<CMesh> mesh ( new CMesh  ( "mesh" ) );
-
-  meshreader->read_from_to(fp_in,mesh);
-
-  mesh->print_tree();
-  boost::filesystem::path fp_out ("kw_mark_from_neu.msh");
-  CMeshWriter::Ptr gmsh_writer = CMeshWriter::create_concrete("Gmsh","meshwriter");
-  gmsh_writer->write_from_to(mesh,fp_out);
-
-  //boost::filesystem::path fp_out_neu ("kw_mark_from_neu.neu");
-  //CMeshWriter::Ptr neu_writer = CMeshWriter::create_concrete("Neu","meshwriter");
-  //neu_writer->write_from_to(mesh,fp_out_neu);
-
-}*/
-
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh2 )
