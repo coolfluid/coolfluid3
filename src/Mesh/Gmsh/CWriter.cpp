@@ -77,30 +77,16 @@ void CWriter::write_header(std::fstream& file)
   
   
   // physical names
-  CFinfo << "\n\nWriting physical names \n" << CFflush;
   CArray::Ptr coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
   const Uint dimension(coordinates->get_array().shape()[1]);
   Uint phys_name_counter(0);
-
-  CRegion::Ptr regions = get_named_component_typed_ptr<CRegion>(*m_mesh, "regions");
-  BOOST_FOREACH(const CRegion& region, recursive_range_typed<CRegion>(*regions))
+  BOOST_FOREACH(const CRegion& groupRegion, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
   {
-    if (range_typed<CRegion>(*m_mesh).empty())
-    {
-      bool exists = false;
-      for(PhysicalGroupMap::iterator it=m_groups.begin(); it!=m_groups.end(); ++it)
-        if (it->first == region.get_parent()->name())
-        { exists = true; break; }
-
-      if (!exists)
-      {
-        ++phys_name_counter;
-        PhysicalGroup group (dimension,phys_name_counter,region.get_parent()->name());
-        m_groups.insert(PhysicalGroupMap::value_type(group.name,group));
-        CFinfo << phys_name_counter << ": " << group.name << "\n" << CFflush;
-      }
-    }
+    ++phys_name_counter;
+    PhysicalGroup group (dimension,phys_name_counter,groupRegion.name());
+    m_groups.insert(PhysicalGroupMap::value_type(group.name,group));
   }
+
   
   file << "$PhysicalNames\n";
   file << phys_name_counter << "\n";

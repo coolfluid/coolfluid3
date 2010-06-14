@@ -52,9 +52,9 @@ private:
   } m_headerData;
   
   void read_coordinates(std::fstream& file);
-  
+
   void read_connectivity(std::fstream& file);
-  
+
   struct GroupData
   {
     // NGP      Element group number
@@ -74,6 +74,23 @@ private:
   
   void read_groups(std::fstream& file);
   
+  struct BCData
+  {
+    // NAME     Name of boundary-condition set
+    // ITYPE    Data type (0 = node; 1 = element/cell)
+    // NENTRY   Number of data records in boundary-condition set
+    // NVALUES  Number of values for each data record
+    // IBCODE1  (Optional) Boundary condition code 1
+    std::string NAME;
+    Uint ITYPE, NENTRY, NVALUES, IBCODE1;
+    void print ()
+    {
+      CFinfo << NAME << " " << ITYPE << " " << NENTRY << " " << NVALUES << " " << IBCODE1 << CFendl;
+    }
+  };
+
+  void read_boundaries(std::fstream& file);
+
   virtual std::string get_format() { return "Neu"; }
 
   virtual void read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh);

@@ -84,7 +84,6 @@ BOOST_FIXTURE_TEST_SUITE( P1Elements_TestSuite, P1Elements_Fixture )
 
 BOOST_AUTO_TEST_CASE( VolumeTest )
 {
-  std::cout << "VolumeTest" << std::endl;
   typedef boost::multi_array<Real,2> Array;
   typedef Array::subarray<1>::type Row;
   CElements::Ptr etype ( new CElements("element-type"));

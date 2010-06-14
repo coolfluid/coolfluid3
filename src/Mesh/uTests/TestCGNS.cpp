@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE( TestCGNSLib )
      }
    }
  }
- printf("\ncreated simple 3-D grid points\n");
+ //printf("\ncreated simple 3-D grid points\n");
 
 /* WRITE X, Y, Z GRID POINTS TO CGNS FILE */
 /* open CGNS file for write */
@@ -389,7 +389,7 @@ maintain SIDS-standard ordering
 
 /* close CGNS file */
  cg_close(index_file);
- printf("\nSuccessfully wrote unstructured grid to file grid_c.cgns\n");
+ //printf("\nSuccessfully wrote unstructured grid to file grid_c.cgns\n");
 
 }
 

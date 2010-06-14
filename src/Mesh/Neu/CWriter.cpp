@@ -81,20 +81,6 @@ void CWriter::write_headerData(std::fstream& file)
   boost::gregorian::date today = boost::gregorian::day_clock::local_day();
   boost::gregorian::date::ymd_type today_ymd = today.year_month_day();
 
-//  CFinfo << "removing empty regions" << CFendl;
-//  // loop over regions
-//  BOOST_FOREACH(const Component::Ptr& region, iterate_recursive(*m_mesh,IsLeafRegion()))
-//  {
-//    CFinfo << region->full_path().string() << " size : " << region->get_component<CTable>("table")->get_table().size() << CFendl;
-//    // find the empty regions
-//    if ( region->get_unique_component_by_type<CTable>()->get_table().size() == 0 )
-//      {
-//        // no elements in connectivity table --> remove this region
-//        CFinfo << "remove: " << region->full_path().string() << "\n" << CFflush;
-//        region->get_parent()->remove_component(region->name());
-//      }
-//  }
-
   Uint group_counter(0);
   Uint element_counter(0);
   Uint bc_counter(0);
@@ -112,9 +98,9 @@ void CWriter::write_headerData(std::fstream& file)
   bc_counter = count(recursive_filtered_range(*m_mesh,IsComponentTag("bc")));
 
   file.setf(std::ios::right);
-  CFinfo << "group_counter = " << group_counter << CFendl;
-  CFinfo << "element_counter = " << element_counter << CFendl;
-  CFinfo << "node_counter = " << node_counter << CFendl;
+  //CFinfo << "group_counter = " << group_counter << CFendl;
+  //CFinfo << "element_counter = " << element_counter << CFendl;
+  //CFinfo << "node_counter = " << node_counter << CFendl;
   file << "        CONTROL INFO 2.3.16\n";
   file << "** GAMBIT NEUTRAL FILE\n";
   file << filename << "\n";

@@ -30,8 +30,13 @@ CReader::CReader( const CName& name )
   BUILD_COMPONENT;
 
   m_supported_types.reserve(2);
+  m_supported_types.push_back("P1-Line1D");
+  m_supported_types.push_back("P1-Line2D");
+  m_supported_types.push_back("P1-Line3D");
   m_supported_types.push_back("P1-Quad2D");
+  m_supported_types.push_back("P1-Quad3D");
   m_supported_types.push_back("P1-Triag2D");
+  m_supported_types.push_back("P1-Triag3D");
   m_supported_types.push_back("P1-Hexa3D");
 }
 
@@ -61,7 +66,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   read_coordinates(file);
   read_connectivity(file);
   read_groups(file);
-
+  read_boundaries(file);
   file.close();
 }
 
@@ -69,7 +74,6 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 
 void CReader::read_headerData(std::fstream& file)
 {
-  CFAUTOTRACE;
   Uint NUMNP, NELEM, NGRPS, NBSETS, NDFCD, NDFVL;
   std::string line;
 
@@ -88,7 +92,7 @@ void CReader::read_headerData(std::fstream& file)
   m_headerData.NBSETS = NBSETS;
   m_headerData.NDFCD  = NDFCD;
   m_headerData.NDFVL  = NDFVL;
-  m_headerData.print();
+  //m_headerData.print();
   
   getline(file,line);
 }
@@ -97,7 +101,6 @@ void CReader::read_headerData(std::fstream& file)
 
 void CReader::read_coordinates(std::fstream& file)
 {
-  CFAUTOTRACE;
   // Create the coordinates array
   m_mesh->create_array("coordinates");
   // create pointers to the coordinates array
@@ -133,7 +136,6 @@ void CReader::read_coordinates(std::fstream& file)
 
 void CReader::read_connectivity(std::fstream& file)
 {
-  CFAUTOTRACE;
   // make temporary regions for each element type possible
   CRegion::Ptr tmp = m_mesh->create_region("tmp");
 
@@ -151,9 +153,11 @@ void CReader::read_connectivity(std::fstream& file)
     Uint elementNumber, elementType, nbElementNodes;
     file >> elementNumber >> elementType >> nbElementNodes;
     elementNumber--;
-    if      (elementType==2 && nbElementNodes==4) etype_CF = "P1-Quad2D";  // quadrilateral
-    else if (elementType==3 && nbElementNodes==3) etype_CF = "P1-Triag2D"; // triangle
-    else if (elementType==4 && nbElementNodes==8) etype_CF = "P1-Hexa3D";  // brick
+    // find the element type
+    if      (elementType==1 && nbElementNodes==2) etype_CF = "P1-Line";  // quadrilateral
+    else if (elementType==2 && nbElementNodes==4) etype_CF = "P1-Quad";  // quadrilateral
+    else if (elementType==3 && nbElementNodes==3) etype_CF = "P1-Triag"; // triangle
+    else if (elementType==4 && nbElementNodes==8) etype_CF = "P1-Hexa";  // brick
     /// @todo to be implemented
     // else if (elementType==5 && nbElementNodes==6) ;// wedge (prism)
     // else if (elementType==6 && nbElementNodes==4) ;// tetrahedron
@@ -161,6 +165,8 @@ void CReader::read_connectivity(std::fstream& file)
     else {
       CFerr << "error: no support for element type/nodes " << elementType << "/" << nbElementNodes << CFflush;
     }
+    // append dimension to the element type (1D, 2D, 3D)
+    etype_CF += StringOps::to_str<int>(m_headerData.NDFCD)+"D";
     
     // get element nodes
     std::vector<Uint> rowVector(nbElementNodes);
@@ -184,7 +190,6 @@ void CReader::read_connectivity(std::fstream& file)
 
 void CReader::read_groups(std::fstream& file)
 {
-  CFAUTOTRACE;
   std::string line;
   int dummy;
   
@@ -195,14 +200,13 @@ void CReader::read_groups(std::fstream& file)
     std::string ELMMAT;
     Uint NGP, NELGP, MTYP, NFLAGS, I;
     getline(file,line);  // ELEMENT GROUP...
-    CFinfo << "line = " << line << CFendl;
     file >> line >> NGP >> line >> NELGP >> line >> MTYP >> line >> NFLAGS >> ELMMAT;
     groups[g].NGP    = NGP;
     groups[g].NELGP  = NELGP;
     groups[g].MTYP   = MTYP;
     groups[g].NFLAGS = NFLAGS;
     groups[g].ELMMAT = ELMMAT;
-    groups[g].print();
+    //groups[g].print();
     
     for (Uint i=0; i<NFLAGS; ++i)
       file >> dummy;
@@ -263,6 +267,152 @@ void CReader::read_groups(std::fstream& file)
   
   // Remove regions with empty connectivity tables
   remove_empty_leaf_regions(regions);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void CReader::read_boundaries(std::fstream& file)
+{
+  std::string line;
+
+  for (Uint t=0; t<m_headerData.NBSETS; ++t) {
+
+    std::string NAME;
+    int ITYPE, NENTRY, NVALUES, IBCODE1, IBCODE2, IBCODE3, IBCODE4, IBCODE5;
+
+    // read header
+    getline(file,line);  // BOUNDARY CONDITIONS...
+    getline(file,line);  // header
+    std::stringstream ss(line);
+    ss >> NAME >> ITYPE >> NENTRY >> NVALUES >> IBCODE1 >> IBCODE2 >> IBCODE3 >> IBCODE4 >> IBCODE5;
+    if (ITYPE!=1) {
+      CFerr << "error: supports only boundary condition data 1 (element/cell): page C-11 of user's guide" << CFendl;
+      throw 42;
+    }
+    if (IBCODE1!=6) {
+      CFerr << "error: supports only IBCODE1 6 (ELEMENT_SIDE)" << CFendl;
+      throw 42;
+    }
+
+    // boundary connectivity here
+    //vector< GElement > e2n(NENTRY);
+
+    // read boundary elements connectivity
+    // vector< unsigned > nbelems(PYRAMID4+1,0); // nb. elements per type
+    for (int i=0; i<NENTRY; ++i) {
+      int ELEM, ETYPE, FACE;
+      file >> ELEM >> ETYPE >> FACE;
+      /*
+      // element nodes and face nodes/type
+      const vector< unsigned >& en = vgelems[ ELEM-1 ].n;
+      vector< unsigned >& fn = e2n[i].n;
+      mtype&              ft = e2n[i].t;
+      if      (ETYPE==2 && en.size()==4)  ft = FELINESEG;        // quadrilateral faces
+      else if (ETYPE==3 && en.size()==3)  ft = FELINESEG;        // triangle faces
+      else if (ETYPE==4 && en.size()==8)  ft = FEQUADRILATERAL;  // brick faces
+      else if (ETYPE==5 && en.size()==6)  ft = (FACE<4? FEQUADRILATERAL : FETRIANGLE);  // wedge (prism) faces
+      else if (ETYPE==6 && en.size()==4)  ft = FETRIANGLE;       // tetrahedron faces
+      else if (ETYPE==7 && en.size()==5)  ft = (FACE<2? FEQUADRILATERAL : FETRIANGLE);  // pyramid faces
+      else {
+        cerr << "error: reference for an unexpected volume element" << endl;
+        throw 42;
+      }
+      ++nbelems[(unsigned) ft];  // add a face element of this type
+      fn.assign(ft==FELINESEG?       2:
+               (ft==FEQUADRILATERAL? 4:
+               (ft==FETRIANGLE?      3:
+                                     1 )), 0);
+
+      if (ETYPE==2) { // quadrilateral faces
+        switch (FACE) {
+          case 1: fn[0] = en[0]; fn[1] = en[1]; break;
+          case 2: fn[0] = en[1]; fn[1] = en[2]; break;
+          case 3: fn[0] = en[2]; fn[1] = en[3]; break;
+          case 4: fn[0] = en[3]; fn[1] = en[0]; break;
+        }
+      }
+      else if (ETYPE==3) { // triangle faces
+        switch (FACE) {
+          case 1: fn[0] = en[0]; fn[1] = en[1]; break;
+          case 2: fn[0] = en[1]; fn[1] = en[2]; break;
+          case 3: fn[0] = en[2]; fn[1] = en[0]; break;
+        }
+      }
+      else if (ETYPE==4) { // brick faces
+        switch (FACE) {
+          case 1: fn[0] = en[0]; fn[1] = en[1]; fn[2] = en[5]; fn[3] = en[4]; break;
+          case 2: fn[0] = en[1]; fn[1] = en[3]; fn[2] = en[7]; fn[3] = en[5]; break;
+          case 3: fn[0] = en[3]; fn[1] = en[2]; fn[2] = en[6]; fn[3] = en[7]; break;
+          case 4: fn[0] = en[2]; fn[1] = en[0]; fn[2] = en[4]; fn[3] = en[6]; break;
+          case 5: fn[0] = en[1]; fn[1] = en[0]; fn[2] = en[2]; fn[3] = en[3]; break;
+          case 6: fn[0] = en[4]; fn[1] = en[5]; fn[2] = en[7]; fn[3] = en[6]; break;
+        }
+      }
+      else if (ETYPE==5) { // wedge (prism) faces
+        switch (FACE) {
+          case 1: fn[0] = en[0]; fn[1] = en[1]; fn[2] = en[4]; fn[3] = en[3]; break;
+          case 2: fn[0] = en[1]; fn[1] = en[2]; fn[2] = en[5]; fn[3] = en[4]; break;
+          case 3: fn[0] = en[2]; fn[1] = en[0]; fn[2] = en[3]; fn[3] = en[5]; break;
+          case 4: fn[0] = en[0]; fn[1] = en[2]; fn[2] = en[1]; break;
+          case 5: fn[0] = en[3]; fn[1] = en[4]; fn[2] = en[5]; break;
+        }
+      }
+      else if (ETYPE==6) { // tetrahedron faces
+        switch (FACE) {
+          case 1: fn[0] = en[1]; fn[1] = en[0]; fn[2] = en[2]; break;
+          case 2: fn[0] = en[0]; fn[1] = en[1]; fn[2] = en[3]; break;
+          case 3: fn[0] = en[1]; fn[1] = en[2]; fn[2] = en[3]; break;
+          case 4: fn[0] = en[2]; fn[1] = en[0]; fn[2] = en[3]; break;
+        }
+      }
+      else if (ETYPE==7) { // pyramid faces
+        switch (FACE) {
+          case 1: fn[0] = en[0]; fn[1] = en[2]; fn[2] = en[3]; fn[3] = en[1]; break;
+          case 2: fn[0] = en[0]; fn[1] = en[1]; fn[2] = en[4]; break;
+          case 3: fn[0] = en[1]; fn[1] = en[3]; fn[2] = en[4]; break;
+          case 4: fn[0] = en[3]; fn[1] = en[2]; fn[2] = en[4]; break;
+          case 5: fn[0] = en[2]; fn[1] = en[0]; fn[2] = en[4]; break;
+        }
+      }
+      */
+      getline(file,line);  // finish the line (read new line)
+    }
+    getline(file,line);  // ENDOFSECTION
+
+/*
+    // add a new zone, splitting according to type (if necessary)
+    // count element types
+    vector< mtype    > felemstypes;
+    vector< unsigned > felemsnb;
+    for (unsigned t=0; t<nbelems.size(); ++t)
+      if (nbelems[t]>0) {
+        felemstypes.push_back((mtype) t);
+        felemsnb.push_back(nbelems[t]);
+      }
+
+    // set new zones, distinguishing different element types
+    for (unsigned i=0; i<felemstypes.size(); ++i) {
+      m.vz.push_back(mzone());
+      mzone& z = m.vz.back();
+
+      // set name, dimensionality, type and connectivity
+      ostringstream name;
+      name << NAME;
+      if (felemstypes.size()>1)
+        name << "_t" << felemstypes[i];
+      z.n = name.str();
+      z.t = felemstypes[i];
+
+      // set new zone element-node connectivity
+      z.e2n.resize(felemsnb[i]);
+      for (unsigned j=0, k=0; j<e2n.size(); ++j)
+        if (e2n[j].t==felemstypes[i])
+          z.e2n[k++].n = e2n[j].n;
+    }
+*/
+
+  }
+
 }
 
 //////////////////////////////////////////////////////////////////////////////
