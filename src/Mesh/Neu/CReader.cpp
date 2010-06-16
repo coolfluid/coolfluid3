@@ -178,7 +178,7 @@ void CReader::read_coordinates(std::fstream& file)
   coordinates->initialize(m_headerData.NDFCD);
   // create a buffer to interact with coordinates
   CArray::Buffer buffer = coordinates->create_buffer();
-  
+  buffer.increase_array_size(m_headerData.NUMNP);
   std::string line;
   // skip one line
   getline(file,line);
@@ -194,7 +194,7 @@ void CReader::read_coordinates(std::fstream& file)
     nodeNumber--;
     for (Uint dim=0; dim<m_headerData.NDFCD; ++dim)
       ss >> rowVector[dim];
-    buffer.add_row(rowVector);
+    buffer.add_row_directly(rowVector);
   }
   buffer.flush();
   

@@ -59,14 +59,17 @@ public: // functions
   /// flush the buffer in the connectivity Buffer
   void flush();
   // 
-  /// Add a row to the table if it has empty rows.
-  /// It is then added instead of the last removed row.
-  /// If it doesn't have empty rows, it is added
-  /// to the buffer.
-  /// @param [in] row Row to be added to buffer or array
+  /// Add a row to the buffer.
+  /// @param [in] row Row to be added to buffer
   /// @return the index in the array+buffers
   template<typename vectorType>
   Uint add_row(const vectorType& row);
+  
+  /// Add a row directly to the array
+  /// @param [in] row Row to be added to buffer or array
+  /// @return the index in the array+buffers
+  template<typename vectorType>
+  Uint add_row_directly(const vectorType& row);  
   
   /// copy a given row into the array or buffer, depending on the given index
   /// @param [in] array_idx the index of the row that will be set (both in array and buffers)
@@ -89,6 +92,9 @@ public: // functions
   
   /// @return the number of buffers that are created
   Uint buffers_count() const { return m_buffers.size(); }
+  
+  /// increase the size of the array, only to be used when going to write directly in array
+  void increase_array_size(const size_t increase);
   
 private: // functions
 
@@ -129,6 +135,9 @@ private: // data
   
   /// storage of removed array rows
   std::deque<Uint> m_emptyArrayRows;
+  
+  /// storage of array rows where rows can be added directly using add_row_directly
+  std::deque<Uint> m_newArrayRows;
   
   /// storage of removed buffer rows
   std::deque<Uint> m_emptyBufferRows;
@@ -285,6 +294,21 @@ inline typename BufferT<T>::SubArray_t BufferT<T>::get_row(const Uint idx)
 //////////////////////////////////////////////////////////////////////
 
 template<typename T>
+inline void BufferT<T>::increase_array_size(const size_t increase)
+{
+  Uint old_size = m_array.size();
+  Uint new_size = old_size+increase;
+  m_array.resize(boost::extents[new_size][m_nbCols]);
+  for (Uint i_new=old_size; i_new<new_size; ++i_new)
+  {
+    set_empty(m_array[i_new]);
+    m_newArrayRows.push_back(i_new);
+  }
+}
+  
+//////////////////////////////////////////////////////////////////////
+
+template<typename T>
 inline void BufferT<T>::add_buffer()
 {
   Uint idx = total_allocated();
@@ -310,6 +334,19 @@ inline Uint BufferT<T>::add_row(const vectorType& row)
   m_newBufferRows.pop_front();
   return idx;
 }
+  
+//////////////////////////////////////////////////////////////////////////////
+
+template<typename T>
+template<typename vectorType>
+inline Uint BufferT<T>::add_row_directly(const vectorType& row)
+{ 
+  cf_assert(!m_newArrayRows.empty());
+  Uint idx = m_newArrayRows.front();
+  set_row(idx,row);
+  m_newArrayRows.pop_front();
+  return idx;
+}  
   
 //////////////////////////////////////////////////////////////////////
 

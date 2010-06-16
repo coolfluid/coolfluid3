@@ -5,6 +5,8 @@
 #include "Common/ObjectProvider.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/ComponentPredicates.hpp"
+#include "Common/StringOps.hpp"
+#include "Common/BasicExceptions.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -250,7 +252,7 @@ void CReader::read_coordinates()
   }
 
   CArray::Buffer buffer = coordinates->create_buffer();
-
+  buffer.increase_array_size(m_zone.nbVertices);
   std::vector<Real> row(m_zone.coord_dim);
   for (int i=0; i<m_zone.nbVertices; ++i)
   {
@@ -263,7 +265,7 @@ void CReader::read_coordinates()
        case 1:
         row[0] = xCoord[i];
      }
-    buffer.add_row(row);
+    buffer.add_row_directly(row);
   }
 
   delete_ptr(xCoord);
@@ -334,7 +336,7 @@ void CReader::read_section(CRegion::Ptr& parent_region)
 
 
     // fill connectivity table
-    //boost::progress_display progress(nbElems);
+    buffer.increase_array_size(nbElems);  // we can use increase_array_size + add_row_directly because we know apriori the change
     for (int elem=0; elem<nbElems; ++elem) //, ++progress)
     {
       std::vector<Uint> row;
@@ -342,7 +344,7 @@ void CReader::read_section(CRegion::Ptr& parent_region)
       for (int node=0;node<m_section.elemNodeCount;++node)
         row.push_back(elemNodes[node+elem*m_section.elemNodeCount]-1); // -1 because cgns has index-base 1 instead of 0
 
-      buffer.add_row(row);
+      buffer.add_row_directly(row);
       m_global_to_region.push_back(Region_TableIndex_pair(leaf_region,elem));
     } // for elem
     delete_ptr(elemNodes);
@@ -430,7 +432,7 @@ void CReader::read_boco()
     case PointList :
 
     default :
-        CFinfo << "EXCEPTION: NOT SUPPORTED \n" << CFflush;
+      throw CF::Common::NotImplemented(FromHere(),"CGNS: no boundary with pointset_type " + CF::Common::StringOps::to_str<int>(m_boco.ptset_type) + " supported in CF yet"); 
   }
 
   // Flush all buffers and remove empty leaf regions
