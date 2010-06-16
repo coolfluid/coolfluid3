@@ -177,7 +177,7 @@ void CReader::read_coordinates(std::fstream& file)
   // set dimension
   coordinates->initialize(m_headerData.NDFCD);
   // create a buffer to interact with coordinates
-  CArray::Buffer buffer = coordinates->create_buffer(m_headerData.NUMNP/10);
+  CArray::Buffer buffer = coordinates->create_buffer();
   
   std::string line;
   // skip one line
@@ -250,8 +250,7 @@ void CReader::read_connectivity(std::fstream& file)
       file >> rowVector[j];
       rowVector[j]--;
     }
-    Uint table_idx = buffer[etype_CF]->get_total_nbRows();
-    buffer[etype_CF]->add_row(rowVector);
+    Uint table_idx = buffer[etype_CF]->add_row(rowVector);
     m_global_to_tmp.push_back(Region_TableIndex_pair(get_named_component_typed_ptr<CRegion>(*tmp, etype_CF),table_idx));
     
     // finish the line

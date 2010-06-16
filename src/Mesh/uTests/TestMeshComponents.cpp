@@ -142,15 +142,12 @@ BOOST_AUTO_TEST_CASE( AddRemoveTest )
   buffer.add_row(row);
   buffer.rm_row(0);
   buffer.rm_row(1);
+  BOOST_CHECK_EQUAL(table->get_table().size(),(Uint) 2);
+
   
   buffer.flush();
-  BOOST_CHECK_EQUAL(table->get_table().size(),(Uint) 2);
-  BOOST_CHECK_EQUAL(table->get_table()[1][0], (Uint) 4);
-  
-  // table row 0 should be unmodified but also marked as empty
-  BOOST_CHECK_EQUAL(table->get_table()[0][0], (Uint) 1);
-  BOOST_CHECK_EQUAL(buffer.m_nbEmptyArrayRows, (Uint) 1);
-  BOOST_CHECK_EQUAL(buffer.m_emptyArrayRows[0], (Uint) 0);
+  BOOST_CHECK_EQUAL(table->get_table().size(),(Uint) 1);
+  BOOST_CHECK_EQUAL(table->get_table()[0][0], (Uint) 4);
     
 }
 
@@ -176,38 +173,46 @@ BOOST_AUTO_TEST_CASE( FlushTest )
   buffer.add_row(row);
   for(Uint i=0; i<nbCols; i++) row[i] = 2;
   buffer.add_row(row);
-  
-  // buffer should automatically flush as its size is 3
-  BOOST_CHECK_EQUAL(table->get_table().size(),(Uint) 3);
+  BOOST_CHECK_EQUAL(buffer.total_allocated(), (Uint) 3);
+  for(Uint i=0; i<nbCols; i++) row[i] = 3;
+  buffer.add_row(row);
+  // adding that last row allocated a new buffer of size 3
+  BOOST_CHECK_EQUAL(buffer.total_allocated(), (Uint) 6);
+  buffer.flush();
+  // the flush copied everything in the table, and removed the buffers
+  BOOST_CHECK_EQUAL(buffer.total_allocated(), (Uint) 4);
+  BOOST_CHECK_EQUAL(table->get_table().size(),(Uint) 4);
   
   // buffer is now empty.
   // add a row to buffer, remove that same row, and add another row.
   for(Uint i=0; i<nbCols; i++) row[i] = 4;
   buffer.add_row(row);
-  buffer.rm_row(3);
-  for(Uint i=0; i<nbCols; i++) row[i] = 3;
+  buffer.rm_row(4);
+  for(Uint i=0; i<nbCols; i++) row[i] = 5;
   buffer.add_row(row);
-  
-  // the buffer should have one filled in value. flush it
+  BOOST_CHECK_EQUAL(buffer.total_allocated(), (Uint) 7);
+
   buffer.flush();
-  
   // the table should have grown with 1 as the buffer with 1 item was flushed
-  BOOST_CHECK_EQUAL(table->get_table().size(),(Uint) 4);
-  BOOST_CHECK_EQUAL(table->get_table()[3][0],(Uint) 3);
+  BOOST_CHECK_EQUAL(buffer.total_allocated(), (Uint) 5);
+  BOOST_CHECK_EQUAL(table->get_table().size(),(Uint) 5);
+  BOOST_CHECK_EQUAL(table->get_table()[4][0],(Uint) 5);
   
   // remove row 0, 1, 2
   buffer.rm_row(0);
   buffer.rm_row(1);
   buffer.rm_row(2);
   
-  // table still has 4 rows, but first 3 rows are marked as disabled
-  BOOST_CHECK_EQUAL(table->get_table().size(),(Uint) 4);
+  // table still has 5 rows, but first 3 rows are marked as disabled
+  BOOST_CHECK_EQUAL(table->get_table().size(),(Uint) 5);
   
-  buffer.compact();
-  // now the table should only have 1 row, as the 3 disabled rows should be removed
+  buffer.flush();
+  // now the table should only have 2 row, as the 3 disabled rows should be removed
   
-  BOOST_CHECK_EQUAL(table->get_table().size(),(Uint) 1);
+  BOOST_CHECK_EQUAL(table->get_table().size(),(Uint) 2);
   BOOST_CHECK_EQUAL(table->get_table()[0][0],(Uint) 3);
+  BOOST_CHECK_EQUAL(table->get_table()[1][0],(Uint) 5);
+
   
   
 
@@ -269,6 +274,7 @@ BOOST_AUTO_TEST_CASE( CTableTest )
   BOOST_CHECK_EQUAL(connTable->get_table().num_elements(),(Uint) 5); 
   
   tableBuffer.add_row(row);
+  tableBuffer.flush();
   BOOST_CHECK_EQUAL(connTable->get_table().size(),(Uint) 1025);
   BOOST_CHECK_EQUAL(connTable->get_table().shape()[1],(Uint) 5);
   BOOST_CHECK_EQUAL(connTable->get_table().num_elements(),(Uint) 5*1025); 
