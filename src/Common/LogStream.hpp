@@ -106,7 +106,7 @@ class Common_API LogStream
 
     for(it = m_destinations.begin() ; it != m_destinations.end() ; it++)
     {
-      if(this->isDestinationUsed(it->first()))
+      if(this->isDestinationUsed(it->first))
       {
         // if the rank is zero or if the filter if disabled
         if(it->first != SYNC_SCREEN &&
@@ -127,7 +127,7 @@ class Common_API LogStream
               m_flushed = false;
             }
           }
-        } // end of "else if (PEInterface::getInstance().isInit())
+        } // end of "else if (PEInterface::getInstance().isInit())"
       } // end of "if(this->isDestinationUsed(it->first()))"
     }
 
