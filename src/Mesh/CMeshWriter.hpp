@@ -59,6 +59,8 @@ public: // functions
 
   virtual std::string get_format() = 0;
 
+  virtual std::vector<std::string> get_extensions() = 0;
+
   virtual void write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& path) = 0;
 
   boost::filesystem::path write_from(const CMesh::Ptr& mesh);

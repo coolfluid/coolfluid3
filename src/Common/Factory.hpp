@@ -69,6 +69,8 @@ public: // methods
   /// @return all the providers in this Factory
   virtual std::vector<Common::ProviderBase*> getAllProviders() const;
 
+  virtual std::vector<typename BASE::PROVIDER* > getAllConcreteProviders()const;
+
   /// Get a given Provider
   /// @throw Common::ValueNotFound if the Provider is not registered
   virtual Common::SafePtr< typename BASE::PROVIDER > getProvider(const std::string& name) const;
@@ -204,6 +206,20 @@ std::vector<Common::ProviderBase*> Factory<BASE>::getAllProviders() const
   itr = getProviderMap().begin();
   for (; itr != getProviderMap().end(); ++itr) {
     result.push_back(itr->second);
+  }
+  return result;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+template <class BASE>
+std::vector<typename BASE::PROVIDER*> Factory<BASE>::getAllConcreteProviders() const
+{
+  std::vector<typename BASE::PROVIDER*> result;
+  typename std::map<std::string,Provider<BASE>*>::const_iterator itr;
+  itr = getProviderMap().begin();
+  for (; itr != getProviderMap().end(); ++itr) {
+    result.push_back(dynamic_cast<typename BASE::PROVIDER*>(itr->second));
   }
   return result;
 }

@@ -32,6 +32,10 @@ public:
   
   static void defineConfigOptions ( CF::Common::OptionList& options ) {}
 
+  virtual std::string get_format() { return "Neu"; }
+
+  virtual std::vector<std::string> get_extensions();
+
 private:
   
   void read_headerData(std::fstream& file);
@@ -90,8 +94,6 @@ private:
   };
 
   void read_boundaries(std::fstream& file);
-
-  virtual std::string get_format() { return "Neu"; }
 
   virtual void read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh);
   

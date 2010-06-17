@@ -102,6 +102,16 @@ CWriter::CWriter( const CName& name )
   m_faces_neu_to_cf[HEXA][5]=4;
   m_faces_neu_to_cf[HEXA][6]=2;
 }
+
+/////////////////////////////////////////////////////////////////////////////
+
+std::vector<std::string> CWriter::get_extensions()
+{
+  std::vector<std::string> extensions;
+  extensions.push_back(".neu");
+  return extensions;
+}
+
 /////////////////////////////////////////////////////////////////////////////
 
 void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& path)

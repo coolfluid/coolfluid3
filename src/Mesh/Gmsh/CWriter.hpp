@@ -33,6 +33,8 @@ public:
 
   virtual std::string get_format() { return "Gmsh"; }
 
+  virtual std::vector<std::string> get_extensions();
+
 private:
   
   void write_header(std::fstream& file);

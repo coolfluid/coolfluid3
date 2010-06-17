@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh )
   boost::shared_ptr<CMesh> mesh ( new CMesh  ( "mesh" ) );
   
   meshreader->read_from_to(fp_in,mesh);
-  //mesh->print_tree();
+  mesh->print_tree();
 
   boost::filesystem::path fp_out ("quadtriag.msh");
   CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
@@ -127,8 +127,8 @@ BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh2 )
   CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
 
   // the file to read from and to
-  boost::filesystem::path fp_in ("quadtriag_write.neu");
-  boost::filesystem::path fp_out("quadtriag_write.msh");
+  boost::filesystem::path fp_in ("simplified.neu");
+  boost::filesystem::path fp_out("simplified.msh");
 
   // the mesh to store in
   boost::shared_ptr<CMesh> mesh ( new CMesh  ( "mesh" ) );

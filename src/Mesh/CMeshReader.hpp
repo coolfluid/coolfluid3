@@ -57,6 +57,8 @@ public: // functions
 
   virtual std::string get_format() = 0;
 
+  virtual std::vector<std::string> get_extensions() = 0;
+
   virtual void read_from_to(boost::filesystem::path& path, const CMesh::Ptr& mesh) = 0;
 
   CMesh::Ptr create_mesh_from(boost::filesystem::path& path);

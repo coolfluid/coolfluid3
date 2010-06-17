@@ -94,6 +94,15 @@ CReader::CReader( const CName& name )
 
 //////////////////////////////////////////////////////////////////////////////
 
+std::vector<std::string> CReader::get_extensions()
+{
+  std::vector<std::string> extensions;
+  extensions.push_back(".neu");
+  return extensions;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 {
 

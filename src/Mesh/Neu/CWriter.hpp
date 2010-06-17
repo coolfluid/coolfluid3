@@ -34,6 +34,8 @@ public:
 
   virtual std::string get_format() { return "Neu"; }
 
+  virtual std::vector<std::string> get_extensions();
+
 private:
   
   void write_headerData(std::fstream& file);

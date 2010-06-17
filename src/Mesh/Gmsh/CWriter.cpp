@@ -37,6 +37,17 @@ CWriter::CWriter( const CName& name )
   m_elementTypes[GeoShape::QUAD]=3;
   m_elementTypes[GeoShape::HEXA]=5;
 }
+
+/////////////////////////////////////////////////////////////////////////////
+
+std::vector<std::string> CWriter::get_extensions()
+{
+  std::vector<std::string> extensions;
+  extensions.push_back(".msh");
+  extensions.push_back(".gmsh");
+  return extensions;
+}
+
 /////////////////////////////////////////////////////////////////////////////
 
 void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& path)

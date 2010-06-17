@@ -33,6 +33,8 @@ public:
 
   virtual std::string get_format() { return "CGNS"; }
 
+  virtual std::vector<std::string> get_extensions();
+
   static void defineConfigOptions ( CF::Common::OptionList& options );
 
 private:

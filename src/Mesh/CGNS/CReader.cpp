@@ -37,6 +37,15 @@ CReader::CReader(const CName& name)
 
 //////////////////////////////////////////////////////////////////////////////
 
+std::vector<std::string> CReader::get_extensions()
+{
+  std::vector<std::string> extensions;
+  extensions.push_back(".cgns");
+  return extensions;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 void CReader::defineConfigOptions ( CF::Common::OptionList& options )
 {
   options.add< CF::Common::OptionT<bool> >
