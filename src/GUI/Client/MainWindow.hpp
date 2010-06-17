@@ -14,7 +14,6 @@
 #include "GUI/Network/HostInfos.hpp"
 #include "GUI/Client/CloseConfirmationInfos.hpp"
 #include "GUI/Client/TSshInformation.hpp"
-#include "GUI/Client/TreeModel.hpp"
 #include "GUI/Network/NetworkFrameType.hpp"
 
 class QDockWidget;
@@ -44,7 +43,6 @@ namespace Client {
   class StatusPanel;
   class TreeView;
   class AboutCFDialog;
-  class TreeModel;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -143,8 +141,6 @@ namespace Client {
     StatusModel * m_statusModel;
 
     AboutCFDialog * m_aboutCFDialog;
-
-    TreeModel * m_treeModel;
 
     /// @brief Panel used to display and modify m_options for a selected
     /// object.

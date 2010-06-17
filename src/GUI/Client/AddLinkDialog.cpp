@@ -3,16 +3,12 @@
 
 #include "Common/CF.hpp"
 
-#include "GUI/Client/TreeItem.hpp"
-#include "GUI/Client/TreeModel.hpp"
-
 #include "GUI/Client/AddLinkDialog.hpp"
 
 using namespace CF::GUI::Client;
 
 AddLinkDialog::AddLinkDialog(QWidget * parent)
   : QDialog(parent),
-  m_treeModel(NULL),
   m_okCLicked(false)
 {
   m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok
@@ -53,7 +49,7 @@ AddLinkDialog::~AddLinkDialog()
 bool AddLinkDialog::show(const QModelIndex & root, QModelIndex & index,
                          QString & name)
 {
-  cf_assert(m_treeModel != CFNULL);
+//  cf_assert(m_treeModel != CFNULL);
   cf_assert(root.isValid());
 
   //m_treeView->setRootIndex(root);
@@ -73,17 +69,17 @@ bool AddLinkDialog::show(const QModelIndex & root, QModelIndex & index,
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void AddLinkDialog::setTreeModel(const QDomDocument & tree/*TreeModel * treeModel*/)
+void AddLinkDialog::setTreeModel(const QDomDocument & tree)
 {
   cf_assert(!tree.firstChild().isNull()); // the tree can not be empty
 
   //if(m_treeModel != treeModel)
   {
-    m_treeView->setModel(NULL);
-    delete m_treeModel;
+//    m_treeView->setModel(NULL);
+//    delete m_treeModel;
 
-    m_treeModel = new TreeModel(tree);
-    m_treeView->setModel(m_treeModel);
+//    m_treeModel = new TreeModel(tree);
+//    m_treeView->setModel(m_treeModel);
   }
 }
 

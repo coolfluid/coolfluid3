@@ -25,7 +25,6 @@
 #include "GUI/Client/TreeView.hpp"
 #include "GUI/Client/CLog.hpp"
 #include "GUI/Client/AboutCFDialog.hpp"
-#include "GUI/Client/TreeModel.hpp"
 #include "GUI/Client/CLog.hpp"
 #include "GUI/Client/ClientRoot.hpp"
 
@@ -47,11 +46,6 @@ using namespace CF::Common;
 
 MainWindow::MainWindow()
 {
-  QFile configFile(WORKSPACE_FILE);
-  QString error;
-  int errorLine;
-  int errorColumn;
-
   this->setWindowTitle("COOLFluiD client");
 
   // create the components
@@ -64,7 +58,6 @@ MainWindow::MainWindow()
   m_statusPanel = new StatusPanel(m_statusModel, this);
   m_logList = new LoggingList(m_logWindow);
   m_splitter = new QSplitter(this);
-  m_treeModel = new TreeModel(QDomDocument(), this);
 
   m_aboutCFDialog = new AboutCFDialog(this);
 
@@ -96,8 +89,6 @@ MainWindow::MainWindow()
 //  connectKernel(renameNode(const QDomNode &, const QString &));
 //  connectKernel(deleteNode(const QDomNode &));
 //  connectKernel(commitChanges(const QDomDocument &));
-  connectKernel(connectSimulation(const QModelIndex &,
-                                  const TSshInformation &));
 //  connectKernel(disconnectSimulation(const QModelIndex &, bool));
 //  connectKernel(runSimulation(const QModelIndex &));
 //  connectKernel(stopSimulation(const QModelIndex &));
@@ -117,39 +108,6 @@ MainWindow::MainWindow()
           this, SLOT(newException(const QString &)));
 
   ClientRoot::getLog()->addMessage("Client successfully launched.");
-
-  // load the saved workspace
-
-  if(configFile.exists())
-  {
-    QDomDocument doc;
-    if(configFile.open(QIODevice::ReadOnly) &&
-       doc.setContent(&configFile, &error, &errorLine, &errorColumn))
-    {
-      configFile.close();
-
-      delete m_treeModel;
-      m_treeModel = new TreeModel(doc, this);
-      ClientRoot::getLog()->addMessage("Successfully loaded workspace from \"" + WORKSPACE_FILE + "\".");
-    }
-    else
-    {
-      ClientRoot::getLog()->addError("Could not load workspace from \"" +  WORKSPACE_FILE + "\".");
-
-      if(!error.isEmpty())
-      {
-        QString errMsg = "XML parsing error (line %1, column %2): %3";
-
-        ClientRoot::getLog()->addError(errMsg.arg(errorLine).arg(errorColumn).arg(error));
-      }
-    }
-  }
-  else
-    ClientRoot::getLog()->addMessage("No workspace to load.");
-
-  ClientCore::getInstance().setTreeModel(m_treeModel);
- // m_treeView->setTreeModel(m_treeModel);
-  //m_optionPanel->setTreeModel(m_treeModel);
 
   ClientCore::getInstance().setStatusModel(m_statusModel);
 }
@@ -366,39 +324,39 @@ bool MainWindow::saveToFileLocally(const QString & filename)
 
   try
   {
-    QFile file(filename);
-    QTextStream out;
-    QString tree = m_treeModel->getDocument().toString();
-    XMLNode xmlNode = ConverterTools::xmlToXCFcase(tree.toStdString());
+//    QFile file(filename);
+//    QTextStream out;
+//    QString tree = m_treeModel->getDocument().toString();
+//    XMLNode xmlNode = ConverterTools::xmlToXCFcase(tree.toStdString());
 
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-    {
-      QString error = "Could not open file '%1' for write access: %2";
-      ClientRoot::getLog()->addError(error.arg(filename).arg(file.errorString()));
-    }
-    else
-    {
-      out.setDevice(&file);
+//    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+//    {
+//      QString error = "Could not open file '%1' for write access: %2";
+//      ClientRoot::getLog()->addError(error.arg(filename).arg(file.errorString()));
+//    }
+//    else
+//    {
+//      out.setDevice(&file);
 
-      if(filename.endsWith(".CFcase"))
-      {
-        ConfigArgs args = ConverterTools::xCFcaseToConfigArgs(xmlNode);
-        out << ConverterTools::configArgsToCFcase(args).c_str();
-      }
+//      if(filename.endsWith(".CFcase"))
+//      {
+//        ConfigArgs args = ConverterTools::xCFcaseToConfigArgs(xmlNode);
+//        out << ConverterTools::configArgsToCFcase(args).c_str();
+//      }
 
-      else
-        out << xmlNode.createXMLString();
+//      else
+//        out << xmlNode.createXMLString();
 
-      file.close();
+//      file.close();
 
-      ClientRoot::getLog()->addMessage(QString("The configuration has been successfully "
-                                 "written to '%1'.").arg(filename));
-      retValue = true;
-    }
+//      ClientRoot::getLog()->addMessage(QString("The configuration has been successfully "
+//                                 "written to '%1'.").arg(filename));
+//      retValue = true;
+//    }
   }
   catch(Exception & e)
   {
-    ClientRoot::getLog()->addError(e.what());
+    ClientRoot::getLog()->addException(e.what());
   }
 
   return retValue;
@@ -411,9 +369,9 @@ bool MainWindow::saveToFileRemotely(const QString & filename)
 {
   if(!filename.isEmpty())
   {
-    QDomDocument doc = m_treeModel->getDocument();
-    XMLNode node = ConverterTools::xmlToXCFcase(doc.toString().toStdString());
-    doc.setContent(QString(node.createXMLString()));
+//    QDomDocument doc = m_treeModel->getDocument();
+//    XMLNode node = ConverterTools::xmlToXCFcase(doc.toString().toStdString());
+//    doc.setContent(QString(node.createXMLString()));
 
     return true;
   }
@@ -457,17 +415,17 @@ void MainWindow::closeEvent(QCloseEvent * event)
   // if the event is accepted, we write the current workspace to the disk
   if(event->isAccepted())
   {
-    QDomDocument doc = m_treeModel->getDocument();
-    QFile configFile(WORKSPACE_FILE);
+//    QDomDocument doc = m_treeModel->getDocument();
+//    QFile configFile(WORKSPACE_FILE);
 
-    if(configFile.open(QIODevice::WriteOnly))
-    {
-      QTextStream out(&configFile);
-      out << doc.toString();
-      configFile.close();
-    }
-    else
-      QMessageBox::critical(this, "Error", "Could not save current workspace to disk.");
+//    if(configFile.open(QIODevice::WriteOnly))
+//    {
+//      QTextStream out(&configFile);
+//      out << doc.toString();
+//      configFile.close();
+//    }
+//    else
+//      QMessageBox::critical(this, "Error", "Could not save current workspace to disk.");
   }
 
   return;

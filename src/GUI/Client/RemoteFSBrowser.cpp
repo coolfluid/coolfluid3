@@ -9,7 +9,6 @@
 #include "Common/XmlHelpers.hpp"
 
 #include "GUI/Client/CBrowser.hpp"
-#include "GUI/Client/TreeModel.hpp"
 #include "GUI/Client/ClientCore.hpp"
 #include "GUI/Client/CLog.hpp"
 #include "GUI/Client/ClientNetworkComm.hpp"

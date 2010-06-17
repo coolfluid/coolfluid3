@@ -10,7 +10,6 @@
 #include "Common/SignalHandler.hpp"
 #include "Common/XmlHelpers.hpp"
 
-#include "GUI/Client/TreeModel.hpp"
 #include "GUI/Client/TSshInformation.hpp"
 
 #include "GUI/Network/ComponentType.hpp"
@@ -20,6 +19,7 @@
 
 #include "GUI/Network/SignalInfo.hpp"
 
+class QModelIndex;
 class QProcess;
 class QString;
 class QTimer;
@@ -48,11 +48,7 @@ namespace Client {
 
     static ClientCore & getInstance();
 
-    void setTreeModel(TreeModel * treeModel);
-
     void setStatusModel(StatusModel * statusModel);
-
-    TreeModel * getTreeModel() const;
 
     StatusModel * getStatusModel() const;
 
@@ -78,17 +74,7 @@ namespace Client {
 
     void sshError();
 
-  public slots:
-
-    /// @brief Slot called when user wants to connect a simulation to its server.
-
-    /// @param index Simulation index
-    /// @param info Connection information
-    /// @todo Replace QModelIndex by QPersistentModelIndex
-    void connectSimulation(const QModelIndex & index,
-                           const TSshInformation & info);
-
-    signals:
+  signals:
 
     /// @brief Signal emitted when the server sends a directory contents.
 
@@ -100,7 +86,7 @@ namespace Client {
 
     void acked(CF::GUI::Network::NetworkFrameType type);
 
-    private: // methods
+  private: // methods
 
     ClientCore();
 
@@ -112,7 +98,6 @@ namespace Client {
 
   private: // data
 
-    TreeModel * m_treeModel;
 
     StatusModel * m_statusModel;
 

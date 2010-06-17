@@ -32,7 +32,6 @@ SET(coolfluid-client_moc_classes
   SelectFileDialog.hpp
   StatusModel.hpp
   StatusPanel.hpp
-  TreeModel.hpp
   TreeView.hpp
   TypeAndNameDialog.hpp)
 
@@ -124,10 +123,6 @@ LIST ( APPEND coolfluid-client_files
   StatusPanel.cpp
   StatusPanel.hpp
   TObjectProperties.hpp
-  TreeItem.cpp
-  TreeItem.hpp
-  TreeModel.cpp
-  TreeModel.hpp
   TreeNode.cpp
   TreeNode.hpp
   TreeView.cpp

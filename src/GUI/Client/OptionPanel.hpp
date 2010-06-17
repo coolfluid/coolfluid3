@@ -11,16 +11,16 @@
 #include <QWidget>
 
 #include "GUI/Client/OptionType.hpp"
-#include "GUI/Client/TreeModel.hpp"
 
 class QDomNodeList;
 class QFormLayout;
 class QGridLayout;
 class QGroupBox;
+class QHBoxLayout;
+class QModelIndex;
 class QPushButton;
 class QScrollArea;
 class QSplitter;
-class QHBoxLayout;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -212,8 +212,6 @@ namespace Client {
     QString m_currentPath;
 
     QSplitter * m_splitter;
-
-    TreeModel * m_treeModele;
 
     /// @brief Builds a Unix-like path string to the given node.
 

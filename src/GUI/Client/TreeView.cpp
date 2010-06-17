@@ -13,8 +13,6 @@
 #include "GUI/Client/MenuActionInfo.hpp"
 #include "GUI/Client/UnknownTypeException.hpp"
 #include "GUI/Client/TObjectProperties.hpp"
-#include "GUI/Client/TreeModel.hpp"
-#include "GUI/Client/TreeItem.hpp"
 #include "GUI/Client/TSshInformation.hpp"
 #include "GUI/Client/ConfirmCommitDialog.hpp"
 #include "GUI/Client/AddLinkDialog.hpp"

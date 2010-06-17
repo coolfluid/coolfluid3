@@ -10,8 +10,6 @@
 
 #include "Common/CF.hpp"
 
-#include "GUI/Client/TreeItem.hpp"
-
 class QModelIndex;
 class QVariant;
 
@@ -40,7 +38,7 @@ namespace Client {
   {
     Q_OBJECT
 
-    public:
+  public:
     /// @brief Constructor.
 
     /// @param document XML document on which this model is based.
@@ -118,18 +116,15 @@ namespace Client {
 
     void clear();
 
-    signals:
+  signals:
 
     void subSystemAdded(const QModelIndex & index);
 
-    private:
+  private:
     /// @brief The tree
     QDomDocument m_domDocument;
 
     QStringList m_columns;
-
-    /// @brief Root of the tree (used to display the tree in a m_view)
-    TreeItem * m_rootItem;
 
     QHash<QString, QHash<int, QString> *> m_modelData;
 

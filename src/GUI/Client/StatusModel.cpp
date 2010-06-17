@@ -41,7 +41,6 @@ StatusModel::StatusModel(QDomDocument document, QObject * parent)
   }
 
   QDomNode node = m_domDocument.firstChild();
-  m_rootItem = new TreeItem(node, CFNULL);
 
   m_columns << "Workers" << "Status";
 }
@@ -51,7 +50,7 @@ StatusModel::StatusModel(QDomDocument document, QObject * parent)
 
 StatusModel::~StatusModel()
 {
-  delete m_rootItem;
+
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -128,34 +127,34 @@ void StatusModel::setWorkerStatus(const QString & subSysName, int rank,
 
 void StatusModel::addSubSystem(const QString & subSysName, unsigned int size)
 {
-  QDomElement node = m_domDocument.firstChild().firstChild().namedItem(subSysName).toElement();
+//  QDomElement node = m_domDocument.firstChild().firstChild().namedItem(subSysName).toElement();
 
-  if(!node.isNull() || size == 0)
-    return;
-  else
-  {
-    int rowNumber = m_domDocument.firstChild().firstChild().childNodes().count();
-    QModelIndex index = this->index(0, 0, QModelIndex());
+//  if(!node.isNull() || size == 0)
+//    return;
+//  else
+//  {
+//    int rowNumber = m_domDocument.firstChild().firstChild().childNodes().count();
+//    QModelIndex index = this->index(0, 0, QModelIndex());
 
-    node = m_domDocument.createElement(subSysName);
+//    node = m_domDocument.createElement(subSysName);
 
-    for(unsigned int i = 0 ; i < size ; i++)
-    {
-      QDomElement workerNode = m_domDocument.createElement("worker");
+//    for(unsigned int i = 0 ; i < size ; i++)
+//    {
+//      QDomElement workerNode = m_domDocument.createElement("worker");
 
-      workerNode.setAttribute("rank", i);
-      workerNode.setAttribute("status", WorkerStatus::Convert::to_str(WorkerStatus::NOT_RUNNING).c_str());
-      node.appendChild(workerNode);
-    }
+//      workerNode.setAttribute("rank", i);
+//      workerNode.setAttribute("status", WorkerStatus::Convert::to_str(WorkerStatus::NOT_RUNNING).c_str());
+//      node.appendChild(workerNode);
+//    }
 
-    this->beginInsertRows(index, rowNumber, rowNumber);
-    ((TreeItem*)index.internalPointer())->addChildren(1);
-    m_domDocument.firstChild().firstChild().appendChild(node);
-    this->endInsertRows();
+//    this->beginInsertRows(index, rowNumber, rowNumber);
+//    ((TreeItem*)index.internalPointer())->addChildren(1);
+//    m_domDocument.firstChild().firstChild().appendChild(node);
+//    this->endInsertRows();
 
-    index = this->index(rowNumber, 0, index);
-    emit subSystemAdded(index);
-  }
+//    index = this->index(rowNumber, 0, index);
+//    emit subSystemAdded(index);
+//  }
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -171,22 +170,22 @@ void StatusModel::removeSubSystem(const QString & subSysName)
 
 void StatusModel::clear()
 {
-  QModelIndex index = this->index(0, 0, QModelIndex());
-  TreeItem * item = static_cast<TreeItem*>(index.internalPointer());
+//  QModelIndex index = this->index(0, 0, QModelIndex());
+//  TreeItem * item = static_cast<TreeItem*>(index.internalPointer());
 
-  if(index.isValid() && item != CFNULL)
-  {
-    QDomNode node = item->getDomNode().parentNode();
-    QDomNodeList childNodes = node.childNodes();
-    int rowCount = this->rowCount(QModelIndex());
+//  if(index.isValid() && item != CFNULL)
+//  {
+//    QDomNode node = item->getDomNode().parentNode();
+//    QDomNodeList childNodes = node.childNodes();
+//    int rowCount = this->rowCount(QModelIndex());
 
-    this->beginRemoveRows(QModelIndex(), 0, rowCount - 1);
+//    this->beginRemoveRows(QModelIndex(), 0, rowCount - 1);
 
-    for(int i = 0 ; i < rowCount ; i++)
-      node.removeChild(childNodes.at(i));
+//    for(int i = 0 ; i < rowCount ; i++)
+//      node.removeChild(childNodes.at(i));
 
-    this->endRemoveRows();
-  }
+//    this->endRemoveRows();
+//  }
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -194,37 +193,37 @@ void StatusModel::clear()
 
 QVariant StatusModel::data(const QModelIndex & index, int role) const
 {
-  TreeItem *item;
-  QDomNode node;
+//  TreeItem *item;
+//  QDomNode node;
 
-  if (!index.isValid() || role != Qt::DisplayRole)
-    return QVariant();
+//  if (!index.isValid() || role != Qt::DisplayRole)
+//    return QVariant();
 
-  item = static_cast<TreeItem*>(index.internalPointer());
+//  item = static_cast<TreeItem*>(index.internalPointer());
 
-  if(item == CFNULL)
-    return QVariant();
+//  if(item == CFNULL)
+//    return QVariant();
 
-  node = item->getDomNode();
+//  node = item->getDomNode();
 
-  QDomNamedNodeMap attributes = node.attributes();
+//  QDomNamedNodeMap attributes = node.attributes();
 
-  if(index.column() == 0)
-  {
-    if(attributes.isEmpty())
-      return node.nodeName();
-    else
-      return QString("Worker[%1]").arg(attributes.namedItem("rank").nodeValue());
-  }
-  else if(index.column() == 1)
-  {
-    if(attributes.isEmpty())
-      return QVariant();
-    else
-      return attributes.namedItem("status").nodeValue();
-  }
-  else
-    return QVariant();
+//  if(index.column() == 0)
+//  {
+//    if(attributes.isEmpty())
+//      return node.nodeName();
+//    else
+//      return QString("Worker[%1]").arg(attributes.namedItem("rank").nodeValue());
+//  }
+//  else if(index.column() == 1)
+//  {
+//    if(attributes.isEmpty())
+//      return QVariant();
+//    else
+//      return attributes.namedItem("status").nodeValue();
+//  }
+//  else
+//    return QVariant();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -233,26 +232,26 @@ QVariant StatusModel::data(const QModelIndex & index, int role) const
 QModelIndex StatusModel::index(int row, int column,
                                const QModelIndex &parent) const
 {
-  TreeItem * childItem;
-  TreeItem * parentItem;
-  QModelIndex index;
+//  TreeItem * childItem;
+//  TreeItem * parentItem;
+//  QModelIndex index;
 
-  if(!this->hasIndex(row, column, parent))
-    return QModelIndex();
+//  if(!this->hasIndex(row, column, parent))
+//    return QModelIndex();
 
-  if(!parent.isValid())
-    parentItem = m_rootItem;
-  else
-    parentItem = static_cast<TreeItem*>(parent.internalPointer());
+//  if(!parent.isValid())
+//    parentItem = m_rootItem;
+//  else
+//    parentItem = static_cast<TreeItem*>(parent.internalPointer());
 
-  childItem = parentItem->getChild(row);
+//  childItem = parentItem->getChild(row);
 
-  if(childItem != CFNULL)
-    index = createIndex(row, column, childItem);
-  else
-    index = QModelIndex();
+//  if(childItem != CFNULL)
+//    index = createIndex(row, column, childItem);
+//  else
+//    index = QModelIndex();
 
-  return index;
+//  return index;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -260,16 +259,16 @@ QModelIndex StatusModel::index(int row, int column,
 
 QModelIndex StatusModel::parent(const QModelIndex & child) const
 {
-  if(!child.isValid())
-    return QModelIndex();
+//  if(!child.isValid())
+//    return QModelIndex();
 
-  TreeItem * childItem = static_cast<TreeItem*>(child.internalPointer());
-  TreeItem * parentItem = childItem->getParentItem();
+//  TreeItem * childItem = static_cast<TreeItem*>(child.internalPointer());
+//  TreeItem * parentItem = childItem->getParentItem();
 
-  if (parentItem == CFNULL || parentItem == m_rootItem)
-    return QModelIndex();
+//  if (parentItem == CFNULL || parentItem == m_rootItem)
+//    return QModelIndex();
 
-  return createIndex(parentItem->getRowNumber(), 0, parentItem);
+//  return createIndex(parentItem->getRowNumber(), 0, parentItem);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -277,15 +276,15 @@ QModelIndex StatusModel::parent(const QModelIndex & child) const
 
 int StatusModel::rowCount(const QModelIndex &parent) const
 {
-  TreeItem *parentItem;
+//  TreeItem *parentItem;
 
-  if (parent.column() > 0)
-    return 0;
+//  if (parent.column() > 0)
+//    return 0;
 
-  if (!parent.isValid())
-    parentItem = m_rootItem;
-  else
-    parentItem = static_cast<TreeItem*>(parent.internalPointer());
+//  if (!parent.isValid())
+//    parentItem = m_rootItem;
+//  else
+//    parentItem = static_cast<TreeItem*>(parent.internalPointer());
 
-  return parentItem->getDomNode().childNodes().count();
+//  return parentItem->getDomNode().childNodes().count();
 }

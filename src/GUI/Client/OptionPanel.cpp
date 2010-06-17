@@ -54,7 +54,6 @@ OptionPanel::OptionPanel(QWidget * parent) : QWidget(parent)
   m_mainLayout->addLayout(m_buttonsLayout, 1, 0);
 
   m_readOnly = false;
-  m_treeModele = CFNULL;
   m_scrollBasicOptions->setVisible(false);
   this->buttonsSetVisible(false);
 

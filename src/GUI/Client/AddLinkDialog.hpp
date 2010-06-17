@@ -23,8 +23,6 @@ namespace Client {
 
   ////////////////////////////////////////////////////////////////////////////
 
-  class TreeModel;
-
   /// @brief Allows the user to create a link component.
 
   class AddLinkDialog : public QDialog
@@ -76,9 +74,6 @@ namespace Client {
       void btCancelClicked();
 
     private :
-
-      /// Tree model
-      TreeModel * m_treeModel;
 
       /// Label for the name
       QLabel * m_labName;

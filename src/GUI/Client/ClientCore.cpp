@@ -24,7 +24,6 @@ using namespace CF::GUI::Network;
 
 ClientCore::ClientCore()
   : Component(CLIENT_CORE),
-    m_treeModel(CFNULL),
     m_statusModel(CFNULL)
 {
   m_timer = new QTimer(this);
@@ -56,24 +55,6 @@ ClientCore & ClientCore::getInstance()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ClientCore::setTreeModel(TreeModel * treeModel)
-{
-  if(m_treeModel != CFNULL)
-    m_treeModel->disconnect(this);
-    disconnect(m_treeModel);
-
-  m_treeModel = treeModel;
-
-  if(m_treeModel != CFNULL)
-  {
-    /// @todo connect signals (if any)
-  }
-}
-
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 void ClientCore::setStatusModel(StatusModel * statusModel)
 {
   if(m_statusModel != CFNULL)
@@ -85,14 +66,6 @@ void ClientCore::setStatusModel(StatusModel * statusModel)
   {
     /// @todo connect signals (if any)
   }
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-TreeModel * ClientCore::getTreeModel() const
-{
-  return m_treeModel;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -271,20 +244,3 @@ void ClientCore::sshError()
 //  }
 }
 
-/****************************************************************************
-
- PUBLIC SLOTS
-
- ****************************************************************************/
-
-void ClientCore::connectSimulation(const QModelIndex & index,
-                                     const TSshInformation & info)
-{
-  if(m_networkComm != CFNULL && m_networkComm->isConnected())
-    ClientRoot::getLog()->addError("This simulation is already connected.");
-  else
-  {
-    m_commSshInfo = info;
-    this->connectToServer(index);
-  }
-}

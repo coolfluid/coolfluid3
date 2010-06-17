@@ -38,7 +38,6 @@ namespace Client {
 
   class ClientCore;
   class FilesListItem;
-  class TreeModel;
 
   /// @brief This enum defines a validation protocol between @c RemoteFSBrowser
   /// and its subclasses.
