@@ -40,6 +40,46 @@ int CNode::getNodeCount() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+void CNode::setTextData(const QString & text)
+{
+  m_textData = text;
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void CNode::setParams(const QDomNodeList & list)
+{
+  for(int i = 0 ; i < list.size() ; i++)
+  {
+    QDomElement elt = list.at(i).toElement();
+
+    if(!elt.isNull())
+    {
+      NodeParams np;
+
+      np.m_paramAdv = elt.attribute("mode") != "basic";
+      np.m_paramType = OptionType::Convert::to_enum(elt.nodeName().toStdString());
+      np.m_paramName = elt.attribute("key");
+      np.m_paramDescr = elt.attribute("desc");
+      np.m_paramValue = elt.firstChild().toText().nodeValue();
+
+      m_params.append(np);
+    }
+  }
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void CNode::getParams(QList<NodeParams> & params) const
+{
+  params = m_params;
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 //QList<NodeAction> CNode::getNodeActions() const
 //{
 //  static QList<NodeAction> list;
@@ -112,7 +152,7 @@ CNode::Ptr CNode::createFromXml(const QDomElement & element)
 {
   QString type = element.nodeName();
   QString name = element.attribute("name");
-  QDomElement child = element.firstChildElement();
+  QDomNode child = element.firstChild();
 
   cf_assert(!name.isEmpty());
 
@@ -131,12 +171,17 @@ CNode::Ptr CNode::createFromXml(const QDomElement & element)
 
   while(!child.isNull())
   {
-    if(child.nodeName() == "params")
-      node->setParams(child.childNodes());
-    else
-      node->add_component( createFromXml(child) );
+    if(child.nodeType() == QDomNode::ElementNode)
+    {
+      if(child.nodeName() == "params")
+        node->setParams(child.childNodes());
+      else
+        node->add_component( createFromXml(child.toElement()) );
+    }
+    else if(child.nodeType() == QDomNode::TextNode)
+      node->setTextData(child.nodeValue());
 
-    child = child.nextSiblingElement();
+    child = child.nextSibling();
   }
 
   return node;

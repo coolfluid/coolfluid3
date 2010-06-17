@@ -20,7 +20,8 @@ using namespace CF::Common;
 using namespace CF::GUI::Client;
 
 CTree::CTree(CNode::Ptr rootNode)
-  : Component(CLIENT_TREE)
+  : Component(CLIENT_TREE),
+    m_advancedMode(false)
 {
 //  cf_assert(rootNode.get() != CFNULL);
 
@@ -40,7 +41,16 @@ CTree::CTree(CNode::Ptr rootNode)
         "  <CMethod name=\"Petsc\" > <!-- petsc here --> </CMethod>"
         " </CGroup>"
         " <CGroup name=\"MG\">"
-        "  <CMesh name=\"Mesh1\" > <!-- mesh2 here --> </CMesh>"
+        "  <params>"
+        "   <bool key=\"myBool\" mode=\"basic\" desc=\"a boolean option\" >true</bool>"
+        "   <string key=\"someOtherName\" mode=\"adv\" >Lolo</string>"
+        "  </params>"
+        "  <CMesh name=\"Mesh1\" >"
+        "   <params>"
+        "    <bool key=\"myOtherBool\" mode=\"basic\" desc=\"another boolean option\" >false</bool>"
+        "    <string key=\"yetAnotherName\" mode=\"adv\" >Lolo</string>"
+        "   </params>"
+        "  </CMesh>"
         "  <CMesh name=\"Mesh2\" > <!-- mesh1 here --> </CMesh>"
         " </CGroup>"
         " <CGroup name=\"Solid\">"
@@ -84,6 +94,84 @@ void CTree::setRoot(CNode::Ptr rootNode)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+void CTree::setCurrentIndex(const QModelIndex & newIndex)
+{
+  if(!this->areFromSameNode(m_currentIndex, newIndex))
+  {
+    m_currentIndex = newIndex;
+    emit currentIndexChanged(newIndex);
+  }
+
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+QModelIndex CTree::getCurrentIndex() const
+{
+  return m_currentIndex;
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void CTree::getNodeParams(const QModelIndex & index, QList<NodeParams> & params,
+                          bool * ok) const
+{
+  TreeNode * node = this->indexToTreeNode(index);
+
+  if(ok != CFNULL)
+    *ok = node != CFNULL;
+
+  params.clear();
+
+  if(node != CFNULL)
+    node->getNode()->getParams(params);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+QString CTree::getNodePath(const QModelIndex & index) const
+{
+  QString path;
+
+  this->getNodePathRec(index, path);
+
+  return path;
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void CTree::setAdvancedMode(bool advanceMode)
+{
+  if(m_advancedMode != advanceMode)
+  {
+    m_advancedMode = advanceMode;
+    emit advancedModeChanged(m_advancedMode);
+  }
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+bool CTree::isAdvancedMode() const
+{
+  return m_advancedMode;
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+bool CTree::areFromSameNode(const QModelIndex & left, const QModelIndex & right) const
+{
+  return left.isValid() && left.internalPointer() == right.internalPointer();
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 QVariant CTree::data(const QModelIndex & index, int role) const
 {
   QVariant data;
@@ -112,6 +200,9 @@ QVariant CTree::data(const QModelIndex & index, int role) const
     {
       if(role == Qt::DecorationRole && index.column() == 0)
         data = node->getIcon();
+
+      if(role == Qt::ToolTipRole)
+        data = node->getToolTip();
     }
   }
 
@@ -244,3 +335,16 @@ inline CNode::Ptr CTree::indexToNode(const QModelIndex & index) const
   return this->indexToTreeNode(index)->getNode();
 }
 
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void CTree::getNodePathRec(const QModelIndex & index, QString & path) const
+{
+  TreeNode * node = this->indexToTreeNode(index);
+
+  if(node != CFNULL)
+  {
+    path.prepend('/').prepend(node->getName());
+    this->getNodePathRec(index.parent(), path);
+  }
+}

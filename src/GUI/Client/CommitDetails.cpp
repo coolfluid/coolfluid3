@@ -3,6 +3,7 @@
 #include "Common/CF.hpp"
 
 #include "GUI/Client/CommitDetailsItem.hpp"
+#include "GUI/Client/OptionType.hpp"
 #include "GUI/Client/CommitDetails.hpp"
 
 using namespace CF::GUI::Client;
@@ -171,7 +172,7 @@ void CommitDetails::setOption(const QString & optionName,
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 void CommitDetails::setNewOption(const QString & optionName,
-                                 const QString & value, TOptionTypes type)
+                                 const QString & value, OptionType::Type type)
 {
   m_items << new CommitDetailsItem(optionName, value);
 }
@@ -369,12 +370,12 @@ int CommitDetails::getNewOptionCount() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-TOptionTypes CommitDetails::getNewOptionType(const QString & optionName) const
+OptionType::Type CommitDetails::getNewOptionType(const QString & optionName) const
 {
   if(m_newOptions.contains(optionName))
     return m_newOptionsTypes[optionName];
 
-  return NO_TYPE;
+  return OptionType::INVALID;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

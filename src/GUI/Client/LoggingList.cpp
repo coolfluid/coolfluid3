@@ -1,3 +1,4 @@
+#include <QtCore>
 #include <QtGui>
 
 #include "Common/OptionT.hpp"

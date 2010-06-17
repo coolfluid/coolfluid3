@@ -10,7 +10,7 @@
 #include <QObject>
 #include <QWidget>
 
-#include "GUI/Client/OptionTypes.hpp"
+#include "GUI/Client/OptionType.hpp"
 #include "GUI/Client/TreeModel.hpp"
 
 class QDomNodeList;
@@ -33,6 +33,7 @@ namespace Client {
   class CommitDetails;
   class GraphicalOption;
   struct CloseConfirmationInfos;
+  struct NodeParams;
 
   /// @brief Panel to m_view and modify m_options of an object.
 
@@ -45,7 +46,7 @@ namespace Client {
   {
     Q_OBJECT
 
-    public:
+  public:
     /// @brief Constructor.
 
     /// Builds an @c OptionPanel with no m_options. The panel is neither in
@@ -61,15 +62,14 @@ namespace Client {
     /// @brief Creates a new option.
 
     /// @param optionType New option type. This value must be one of those
-    /// defined by @c OptionTypes class. If the type is not valid (if
-    /// @c OptionTypes::isValid(optionType) returns @c false ), this method
+    /// defined by @c OptionType class. If the type is not valid, this method
     /// returns directly without create any option.
     /// @param name New option name.
     /// @param basic If @c true, a new basic option will be created. Otherwise,
     /// a new advanced option is created.
     /// @param dynamic If @c true, a new dynamic option will be created.
     /// Otherwise, a new static option is created.
-    void addOption(TOptionTypes optionType, const QString & name,
+    void addOption(OptionType::Type optionType, const QString & name,
                    bool basic = true, bool dynamic = false);
 
     /// @brief Indicates wether at least on option has been modified.
@@ -111,11 +111,11 @@ namespace Client {
     /// @return Returns the current path.
     QString getCurrentPath() const;
 
-    void setTreeModel(TreeModel * treeModel);
+    //    void setTreeModel(TreeModel * treeModel);
 
-    TreeModel * getTreeModel() const;
+    //    TreeModel * getTreeModel() const;
 
-    public slots:
+  public slots:
 
     /// @brief Slot called when user clicks on "Commit changes" button.
 
@@ -123,11 +123,11 @@ namespace Client {
     /// emitted.
     void commitChanges() const;
 
-    private slots:
+  private slots:
 
     void currentIndexChanged(const QModelIndex & index);
 
-    void currentSimulationChanged(const QModelIndex & index);
+//    void currentSimulationChanged(const QModelIndex & index);
 
     void advancedModeChanged(bool advanced);
 
@@ -135,13 +135,13 @@ namespace Client {
 
     void readOnlyModeChanged(const QModelIndex & index, bool readOnly);
 
-    void simulationRemoved(const QModelIndex & index);
+//    void simulationRemoved(const QModelIndex & index);
 
     void checkOptions();
 
     void resetChanges();
 
-    signals:
+  signals:
 
     /// @brief Signal emitted when user clicks on "Commit changes" button if
     /// at least one option has been modified.
@@ -153,7 +153,7 @@ namespace Client {
     void changesMade(const QDomDocument & modOptions,
                      const QDomDocument & m_newOptions) const;
 
-    private:
+  private:
 
     /// @brief Scroll area for basic m_options
     QScrollArea * m_scrollBasicOptions;
@@ -185,22 +185,22 @@ namespace Client {
     /// @brief XML document containing basic m_options nodes.
 
     /// This document does not contain newly created m_options.
-    QDomDocument m_basicOptionsNodes;
+//    QDomDocument m_basicOptionsNodes;
 
     /// @brief XML document containing advanced m_options nodes.
 
     /// This document does not contain newly created m_options.
-    QDomDocument m_advancedOptionsNodes;
+//    QDomDocument m_advancedOptionsNodes;
 
     /// @brief XML document containing new basic m_options nodes.
 
     /// This document does not contain already existing m_options.
-    QDomDocument m_newBasicOptionsNodes;
+//    QDomDocument m_newBasicOptionsNodes;
 
     /// @brief XML document containing new advanced m_options nodes.
 
     /// This document does not contain already existing m_options.
-    QDomDocument m_newAdvancedOptionsNodes;
+//    QDomDocument m_newAdvancedOptionsNodes;
 
     /// @brief Layout used to display basic m_options components.
     QFormLayout * m_basicOptionsLayout;
@@ -241,7 +241,7 @@ namespace Client {
 
     QSplitter * m_splitter;
 
-    TreeModel * m_treeModel;
+    TreeModel * m_treeModele;
 
     /// @brief Builds a Unix-like path string to the given node.
 
@@ -315,7 +315,6 @@ namespace Client {
     /// elements
     /// @li all hash map keys can be found in the string list
     /// @li each string list item has a corresponding key in both hash maps.
-    /// @param nodes Option nodes.
     /// @param graphicalOptions Graphical components corresponding the option
     /// nodes.
     /// @param m_options String list where modified option names will be stored.
@@ -327,8 +326,7 @@ namespace Client {
     /// value of an option. If @c CFNULL, this parameter is not used. The key
     /// is the option name as stored in @c options string list. The value is
     /// the new value.
-    void getModifiedOptions(const QDomDocument & nodes,
-                            const QList<GraphicalOption *> & graphicalOptions,
+    void getModifiedOptions(const QList<GraphicalOption *> & graphicalOptions,
                             CommitDetails & commitDetails,
                             bool newOptions) const;
 
@@ -339,12 +337,14 @@ namespace Client {
     /// otherwise, returns @c false.
     bool isModified(const QList<GraphicalOption *> & graphicalOptions) const;
 
-    /// @brief Assigns new node m_options to the panel.
+//    /// @brief Assigns new node m_options to the panel.
 
-    /// Old m_options and m_options components are deleted.
-    /// @param m_options List of new options.
-    /// @throw UnknownType If an option has an unknown type.
-    void setOptions(const QDomNodeList & options);
+//    /// Old m_options and m_options components are deleted.
+//    /// @param m_options List of new options.
+//    /// @throw UnknownType If an option has an unknown type.
+//    void setOptions(const QDomNodeList & options);
+
+    void setOptions(const QList<NodeParams> & list);
 
     void buttonsSetVisible(bool visible);
 

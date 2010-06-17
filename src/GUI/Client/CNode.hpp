@@ -9,6 +9,8 @@
 
 #include "Common/Component.hpp"
 
+#include "GUI/Client/OptionType.hpp"
+
 class QIcon;
 class QDomNode;
 class QString;
@@ -43,7 +45,7 @@ namespace Client {
   {
     QString m_paramName;
 
-    QString m_paramType;
+    OptionType::Type m_paramType;
 
     QString m_paramValue;
 
@@ -93,6 +95,8 @@ namespace Client {
     /// @note This method should be reimplemented by all subclasses.
     virtual QIcon getIcon() const = 0;
 
+    virtual QString getToolTip() const = 0;
+
     /// @brief Gives a string with the class name.
     /// This implementation always returns "CNode". Subclass implementations
     /// should returns their own class name.
@@ -100,7 +104,11 @@ namespace Client {
     /// @note This method should be reimplemented by all subclasses.
     virtual QString getClassName() const = 0;
 
-    virtual void setParams(const QDomNodeList & list) = 0;
+    void setTextData(const QString & text);
+
+    void setParams(const QDomNodeList & list);
+
+    void getParams(QList<NodeParams> & params) const;
 
     /// @brief Creates an object tree from a given node
 
@@ -114,6 +122,8 @@ namespace Client {
   protected:
 
     QList<NodeParams> m_params;
+
+    QString m_textData;
 
   private:
 

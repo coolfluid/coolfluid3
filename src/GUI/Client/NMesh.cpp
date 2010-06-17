@@ -32,18 +32,18 @@ QIcon NMesh::getIcon() const
   return QFileIconProvider().icon(QFileIconProvider::Drive);
 }
 
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+QString NMesh::getToolTip() const
+{
+  return this->getComponentType();
+}
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QString NMesh::getClassName() const
 {
   return "NMesh";
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void NMesh::setParams(const QDomNodeList & list)
-{
-  throw NotImplemented(FromHere(), "NMesh::setParams");
 }

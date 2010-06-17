@@ -3,13 +3,15 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "GUI/Client/OptionTypes.hpp"
+#include "GUI/Client/OptionType.hpp"
 
 class QFormLayout;
 class QHBoxLayout;
 class QLabel;
 class QLineEdit;
 class QWidget;
+class QString;
+class QVariant;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -32,7 +34,7 @@ namespace Client {
 
     /// @param type Option type. Must be one of those defined by TOptionTypes
     /// enum.
-    GraphicalOption(TOptionTypes type);
+    GraphicalOption(OptionType::Type type);
 
     /// @brief Destructor.
 
@@ -66,7 +68,7 @@ namespace Client {
     /// this method returnes a string with files separated by a white space.
     QString getValueString() const;
 
-    TOptionTypes getType() const;
+    OptionType::Type getType() const;
 
     /// @brief Adds this option to the provided m_layout.
 
@@ -145,7 +147,7 @@ namespace Client {
 
     /// @brief Type of the option, according to the type ids defined by
     /// OptionTypes class.
-    TOptionTypes m_type;
+    OptionType::Type m_type;
 
     /// @brief Indicates wether the value component is enabled (allows
     /// modification) or not.

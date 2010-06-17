@@ -7,8 +7,7 @@
 #include <QAbstractItemModel>
 
 #include "Common/CF.hpp"
-
-#include "GUI/Client/OptionTypes.hpp"
+#include "GUI/Client/OptionType.hpp"
 
 class QStringList;
 class QString;
@@ -46,7 +45,7 @@ namespace Client {
                      const QString & currentValue);
 
       void setNewOption(const QString & optionName, const QString & value,
-                        TOptionTypes type = NO_TYPE);
+                        OptionType::Type type = OptionType::INVALID);
 
       bool setOptionNewValue(const QString & optionName, const QString & value);
 
@@ -63,7 +62,7 @@ namespace Client {
 
       bool getNewOption(const QString & optionName, QString & value) const;
 
-      TOptionTypes getNewOptionType(const QString & optionName) const;
+      OptionType::Type getNewOptionType(const QString & optionName) const;
 
       QString getNodePath() const;
 
@@ -104,7 +103,7 @@ namespace Client {
 
       QHash<QString, QString> m_newOptionsValues;
 
-      QHash<QString, TOptionTypes> m_newOptionsTypes;
+      QHash<QString, CF::GUI::Client::OptionType::Type> m_newOptionsTypes;
 
       QList<CommitDetailsItem *> m_items;
 

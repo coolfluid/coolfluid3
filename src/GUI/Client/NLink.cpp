@@ -32,18 +32,19 @@ QIcon NLink::getIcon() const
   return QFileIconProvider().icon(QFileIconProvider::Network);
 }
 
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+QString NLink::getToolTip() const
+{
+  return QString("Target: %1").arg(m_textData);
+}
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QString NLink::getClassName() const
 {
   return "NLink";
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void NLink::setParams(const QDomNodeList & list)
-{
-  throw NotImplemented(FromHere(), "NLink::setParams");
 }

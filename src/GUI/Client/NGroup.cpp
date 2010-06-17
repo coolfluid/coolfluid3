@@ -38,15 +38,18 @@ QIcon NGroup::getIcon() const
   return QFileIconProvider().icon(QFileIconProvider::Folder);
 }
 
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+QString NGroup::getToolTip() const
+{
+  return this->getComponentType();
+}
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QString NGroup::getClassName() const
 {
   return "NGroup";
-}
-
-void NGroup::setParams(const QDomNodeList & list)
-{
-
 }

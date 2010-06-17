@@ -8,7 +8,9 @@
 #include "GUI/Client/CommitDetailsDialog.hpp"
 #include "GUI/Client/GraphicalOption.hpp"
 #include "GUI/Client/UnknownTypeException.hpp"
-#include "GUI/Client/OptionTypes.hpp"
+#include "GUI/Client/OptionType.hpp"
+#include "GUI/Client/ClientRoot.hpp"
+#include "GUI/Client/CNode.hpp"
 
 #include "GUI/Client/OptionPanel.hpp"
 
@@ -52,13 +54,19 @@ OptionPanel::OptionPanel(QWidget * parent) : QWidget(parent)
   m_mainLayout->addLayout(m_buttonsLayout, 1, 0);
 
   m_readOnly = false;
-  m_treeModel = CFNULL;
+  m_treeModele = CFNULL;
   m_scrollBasicOptions->setVisible(false);
   this->buttonsSetVisible(false);
 
   connect(m_btCommitChanges, SIGNAL(clicked()), this, SLOT(commitChanges()));
   connect(m_btCheckChanges, SIGNAL(clicked()), this, SLOT(checkOptions()));
   connect(m_btResetOptions, SIGNAL(clicked()), this, SLOT(resetChanges()));
+
+  connect(ClientRoot::getTree().get(), SIGNAL(currentIndexChanged(const QModelIndex &)),
+          this, SLOT(currentIndexChanged(const QModelIndex &)));
+
+  connect(ClientRoot::getTree().get(), SIGNAL(advancedModeChanged(bool)),
+          this, SLOT(advancedModeChanged(bool)));
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -102,46 +110,46 @@ void OptionPanel::setEnabled(const QDomDocument & optionsNodes,
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void OptionPanel::addOption(TOptionTypes optionType, const QString & name,
+void OptionPanel::addOption(OptionType::Type optionType, const QString & name,
                             bool basic, bool dynamic)
 {
-  QDomElement node = m_newBasicOptionsNodes.createElement(name);
-  GraphicalOption * newOption;
-  QString mode = basic ? "basic" : "advanced";
-  QString dynamicStr = QVariant(dynamic).toString();
+//  QDomElement node = m_newBasicOptionsNodes.createElement(name);
+//  GraphicalOption * newOption;
+//  QString mode = basic ? "basic" : "advanced";
+//  QString dynamicStr = QVariant(dynamic).toString();
 
-  if(node.isNull() || name.isNull() || name.isEmpty())
-    return;
+//  if(node.isNull() || name.isNull() || name.isEmpty())
+//    return;
 
-  QString typeString = OptionTypes::getTypeString(optionType);
+//  QString typeString = OptionType::Convert::to_str(optionType).c_str();
 
-  if(typeString.isEmpty())
-    throw UnknownTypeException(FromHere(), "Unknown type");
+//  if(typeString.isEmpty())
+//    throw UnknownTypeException(FromHere(), "Unknown type");
 
-  node.setAttribute("tree", "option");
-  node.setAttribute("type", typeString);
-  node.setAttribute("mode", mode);
-  node.setAttribute("dynamic", dynamicStr);
+//  node.setAttribute("tree", "option");
+//  node.setAttribute("type", typeString);
+//  node.setAttribute("mode", mode);
+//  node.setAttribute("dynamic", dynamicStr);
 
-  newOption = new GraphicalOption(optionType);
-  newOption->setName(name + QString(":"));
+//  newOption = new GraphicalOption(optionType);
+//  newOption->setName(name + QString(":"));
 
-  // if the option is basic...
-  if(basic)
-  {
-    newOption->addToLayout(m_basicOptionsLayout);
-    m_newBasicOptionsNodes.appendChild(node);
-    m_newBasicOptions.append(newOption);
-  }
-  else // ...or advanced
-  {
-    newOption->addToLayout(m_advancedOptionsLayout);
-    m_newAdvancedOptionsNodes.appendChild(node);
-    m_newAdvancedOptions.append(newOption);
-  }
+//  // if the option is basic...
+//  if(basic)
+//  {
+//    newOption->addToLayout(m_basicOptionsLayout);
+//    m_newBasicOptionsNodes.appendChild(node);
+//    m_newBasicOptions.append(newOption);
+//  }
+//  else // ...or advanced
+//  {
+//    newOption->addToLayout(m_advancedOptionsLayout);
+//    m_newAdvancedOptionsNodes.appendChild(node);
+//    m_newAdvancedOptions.append(newOption);
+//  }
 
-  this->advancedModeChanged(m_advancedMode);
-  this->buttonsSetVisible(true);
+//  this->advancedModeChanged(m_advancedMode);
+//  this->buttonsSetVisible(true);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -151,8 +159,8 @@ QDomDocument OptionPanel::getOptions() const
 {
   QDomDocument doc;
 
-  this->buildOptions(m_basicOptionsNodes, m_basicOptions, doc);
-  this->buildOptions(m_advancedOptionsNodes, m_advancedOptions, doc);
+//  this->buildOptions(m_basicOptionsNodes, m_basicOptions, doc);
+//  this->buildOptions(m_advancedOptionsNodes, m_advancedOptions, doc);
 
   return doc;
 }
@@ -192,8 +200,8 @@ QDomDocument OptionPanel::getNewOptions() const
 {
   QDomDocument doc;
 
-  this->buildOptions(m_newBasicOptionsNodes, m_newBasicOptions, doc);
-  this->buildOptions(m_newAdvancedOptionsNodes, m_newAdvancedOptions, doc);
+//  this->buildOptions(m_newBasicOptionsNodes, m_newBasicOptions, doc);
+//  this->buildOptions(m_newAdvancedOptionsNodes, m_newAdvancedOptions, doc);
 
   return doc;
 }
@@ -217,33 +225,145 @@ void OptionPanel::clearList(QList<GraphicalOption *> & list)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void OptionPanel::setOptions(const QDomNodeList & options)
+//void OptionPanel::setOptions(const QDomNodeList & options)
+//{
+//  CTree::Ptr & tree = ClientRoot::getTree();
+
+//  // delete old widgets
+//  this->clearList(m_basicOptions);
+//  this->clearList(m_advancedOptions);
+//  this->clearList(m_newBasicOptions);
+//  this->clearList(m_newAdvancedOptions);
+
+//  m_basicOptionsNodes.clear();
+//  m_advancedOptionsNodes.clear();
+//  m_newBasicOptionsNodes.clear();
+//  m_newAdvancedOptionsNodes.clear();
+
+//  // set the new widgets
+//  if(!options.isEmpty())
+//  {
+//    // get a UNIX-like path for the node
+//    //   QDomNode parentNode = m_options.at(0).parentNode();
+//    QString parentPath = tree->getNodePath(tree->getCurrentIndex());
+
+//    m_gbBasicOptions->setTitle(QString("Basic options of %1").arg(parentPath));
+//    m_gbAdvancedOptions->setTitle(QString("Advanced options of %1").arg(parentPath));
+//    m_currentPath = parentPath;
+
+//    // To avoid confusion, basic options panel is always showed if there is at
+//    // least one option for the selected object, even if all options are advanced.
+//    // Doing so, we ensure that the advanced options panel is *always* the
+//    // middle one (if visible) and never the top one.
+//    m_scrollBasicOptions->setVisible(true);
+
+//    this->buttonsSetVisible(true);
+//  }
+//  else
+//  {
+//    m_scrollBasicOptions->setVisible(false);
+//    m_scrollAdvancedOptions->setVisible(false);
+//    this->buttonsSetVisible(false);
+//  }
+
+//  for(int i = 0 ; i < options.count() ; i++)
+//  {
+//    QDomNode option = options.at(i);
+//    QDomNode treeOption = option.attributes().namedItem("tree");
+
+//    // if the option "tree" attribute value is "option"
+//    if(treeOption.nodeValue() == "option")
+//    {
+//      GraphicalOption * graphicalOption;
+//      QString description;
+
+//      QString typeString = option.attributes().namedItem("type").nodeValue();
+//      OptionType::Type type = OptionType::Convert::to_enum(typeString.toStdString());
+
+//      // if the type does not exist
+//      if(type == OptionType::INVALID)
+//      {
+//        QString message = QString("Unknown \"%1\" type for \"%2\" option")
+//        .arg(typeString)
+//        .arg(option.nodeName());
+
+//        throw UnknownTypeException(FromHere(), message.toStdString());
+//      }
+
+//      // create the graphical component
+//      graphicalOption = new GraphicalOption(type);
+//      graphicalOption->setName(option.nodeName() + QString(":"));
+//      graphicalOption->setValue(option.toElement().text().trimmed());
+
+//      description = option.attributes().namedItem("description").nodeValue();
+//      graphicalOption->setToolTip(description);
+
+//      // if this is a basic option...
+//      if(option.attributes().namedItem("mode").nodeValue() == "basic")
+//      {
+//        QDomNode newNode = m_basicOptionsNodes.importNode(option, true);
+
+//        m_basicOptions.append(graphicalOption);
+//        graphicalOption->addToLayout(m_basicOptionsLayout);
+//        m_basicOptionsNodes.appendChild(newNode);
+//      }
+
+//      // ...or an advanced option
+//      else if(option.attributes().namedItem("mode").nodeValue() == "advanced")
+//      {
+//        QDomNode newNode = m_advancedOptionsNodes.importNode(option, true);
+
+//        m_advancedOptions.append(graphicalOption);
+//        graphicalOption->addToLayout(m_advancedOptionsLayout);
+//        m_advancedOptionsNodes.appendChild(newNode);
+//      }
+//    } // "if(!childNodes.isEmpty() && treeOption.nodeValue() == "option")"
+//  } // "for(int i = 0 ; i < m_options.count() ; i++)"
+
+//  // change row stretch and panel visibilities
+//  this->advancedModeChanged(tree->isAdvancedMode());
+//  //  this->setAdvancedMode(this->advancedMode);
+
+//  // set m_options to enabled or disabled (depending on their mode)
+//  this->setEnabled(m_basicOptionsNodes, m_basicOptions);
+//  this->setEnabled(m_advancedOptionsNodes, m_advancedOptions);
+//}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void OptionPanel::setOptions(const QList<NodeParams> & list)
 {
+  QList<NodeParams>::const_iterator it = list.begin();
+  const CTree::Ptr & tree = ClientRoot::getTree();
+
   // delete old widgets
   this->clearList(m_basicOptions);
   this->clearList(m_advancedOptions);
   this->clearList(m_newBasicOptions);
   this->clearList(m_newAdvancedOptions);
 
-  m_basicOptionsNodes.clear();
-  m_advancedOptionsNodes.clear();
-  m_newBasicOptionsNodes.clear();
-  m_newAdvancedOptionsNodes.clear();
+//  m_basicOptionsNodes.clear();
+//  m_advancedOptionsNodes.clear();
+//  m_newBasicOptionsNodes.clear();
+//  m_newAdvancedOptionsNodes.clear();
+
+  ClientRoot::getLog()->addMessage(QString("%1").arg(list.count()));
 
   // set the new widgets
-  if(!options.isEmpty())
+  if(!list.isEmpty())
   {
     // get a UNIX-like path for the node
     //   QDomNode parentNode = m_options.at(0).parentNode();
-    QString parentPath = m_treeModel->getCurrentPath();
+    QString parentPath = tree->getNodePath(tree->getCurrentIndex());
 
     m_gbBasicOptions->setTitle(QString("Basic options of %1").arg(parentPath));
     m_gbAdvancedOptions->setTitle(QString("Advanced options of %1").arg(parentPath));
     m_currentPath = parentPath;
 
-    // To avoid confusion, basic m_options panel is always showed if there is at
-    // least one option for the selected object, even if all m_options are advanced.
-    // Doing so, we ensure that the advanced m_options panel is *always* the
+    // To avoid confusion, basic options panel is always showed if there is at
+    // least one option for the selected object, even if all options are advanced.
+    // Doing so, we ensure that the advanced options panel is *always* the
     // middle one (if visible) and never the top one.
     m_scrollBasicOptions->setVisible(true);
 
@@ -256,69 +376,58 @@ void OptionPanel::setOptions(const QDomNodeList & options)
     this->buttonsSetVisible(false);
   }
 
-  for(int i = 0 ; i < options.count() ; i++)
+  while(it != list.end())
   {
-    QDomNode option = options.at(i);
-    QDomNode data;
-    QDomNodeList childNodes = option.childNodes();
-    QDomNode treeOption = option.attributes().namedItem("tree");
+    GraphicalOption * graphicalOption;
 
-    // if the option "tree" attribute value is "option"
-    if(treeOption.nodeValue() == "option")
+    NodeParams param = *it;
+    OptionType::Type type = param.m_paramType;
+    bool advanced = param.m_paramAdv;
+
+    // create the graphical component
+    try
     {
-      GraphicalOption * graphicalOption;
-      QString description;
-
-      QString typeString = option.attributes().namedItem("type").nodeValue();
-      TOptionTypes type = OptionTypes::getTypeId(typeString);
-
-      // if the type does not exist
-      if(type == NO_TYPE)
-      {
-        QString message = QString("Unknown \"%1\" type for \"%2\" option")
-        .arg(typeString)
-        .arg(option.nodeName());
-
-        throw UnknownTypeException(FromHere(), message.toStdString());
-      }
-
-      // create the graphical component
       graphicalOption = new GraphicalOption(type);
-      graphicalOption->setName(option.nodeName() + QString(":"));
-      graphicalOption->setValue(option.toElement().text().trimmed());
+      graphicalOption->setName(param.m_paramName + ':');
+      graphicalOption->setValue(param.m_paramValue.trimmed());
 
-      description = option.attributes().namedItem("description").nodeValue();
-      graphicalOption->setToolTip(description);
+      graphicalOption->setToolTip(param.m_paramDescr);
 
       // if this is a basic option...
-      if(option.attributes().namedItem("mode").nodeValue() == "basic")
+      if(!advanced)
       {
-        QDomNode newNode = m_basicOptionsNodes.importNode(option, true);
+        //      QDomNode newNode = m_basicOptionsNodes.importNode(param, true);
 
         m_basicOptions.append(graphicalOption);
         graphicalOption->addToLayout(m_basicOptionsLayout);
-        m_basicOptionsNodes.appendChild(newNode);
+        //      m_basicOptionsNodes.appendChild(newNode);
       }
-
-      // ...or an advanced option
-      else if(option.attributes().namedItem("mode").nodeValue() == "advanced")
+      else     // ...or an advanced option
       {
-        QDomNode newNode = m_advancedOptionsNodes.importNode(option, true);
+        //      QDomNode newNode = m_advancedOptionsNodes.importNode(param, true);
 
         m_advancedOptions.append(graphicalOption);
         graphicalOption->addToLayout(m_advancedOptionsLayout);
-        m_advancedOptionsNodes.appendChild(newNode);
+        //      m_advancedOptionsNodes.appendChild(newNode);
       }
-    } // "if(!childNodes.isEmpty() && treeOption.nodeValue() == "option")"
-  } // "for(int i = 0 ; i < m_options.count() ; i++)"
+
+    }
+    catch(UnknownTypeException ute)
+    {
+      ClientRoot::getLog()->addException(ute.what());
+    }
+
+    it++;
+
+  } // end of "while()"
 
   // change row stretch and panel visibilities
-  this->advancedModeChanged(m_treeModel->isAdvancedMode());
+  this->advancedModeChanged(tree->isAdvancedMode());
   //  this->setAdvancedMode(this->advancedMode);
 
-  // set m_options to enabled or disabled (depending on their mode)
-  this->setEnabled(m_basicOptionsNodes, m_basicOptions);
-  this->setEnabled(m_advancedOptionsNodes, m_advancedOptions);
+  // set options to enabled or disabled (depending on their mode)
+//  this->setEnabled(m_basicOptionsNodes, m_basicOptions);
+//  this->setEnabled(m_advancedOptionsNodes, m_advancedOptions);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -344,20 +453,16 @@ void OptionPanel::getModifiedOptions(CommitDetails & commitDetails) const
   commitDetails.setNodePath(m_currentPath);
 
   // basic m_options
-  this->getModifiedOptions(m_basicOptionsNodes, m_basicOptions,
-                           commitDetails, false);
+  this->getModifiedOptions(m_basicOptions, commitDetails, false);
 
   // advanced m_options
-  this->getModifiedOptions(m_advancedOptionsNodes, m_advancedOptions,
-                           commitDetails, false);
+  this->getModifiedOptions(m_advancedOptions, commitDetails, false);
 
   // new basic m_options
-  this->getModifiedOptions(m_newBasicOptionsNodes, m_newBasicOptions,
-                           commitDetails, true);
+  this->getModifiedOptions(m_newBasicOptions, commitDetails, true);
 
   // new advanced m_options
-  this->getModifiedOptions(m_newAdvancedOptionsNodes, m_newAdvancedOptions,
-                           commitDetails, true);
+  this->getModifiedOptions(m_newAdvancedOptions, commitDetails, true);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -371,48 +476,48 @@ QString OptionPanel::getCurrentPath() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void OptionPanel::setTreeModel(TreeModel * treeModel)
-{
-  if(treeModel != m_treeModel)
-  {
-    QModelIndex index;
+//void OptionPanel::setTreeModel(TreeModel * treeModel)
+//{
+//  if(treeModel != ClientRoot::getTree())
+//  {
+//    QModelIndex index;
 
-    if(m_treeModel != CFNULL)
-      m_treeModel->disconnect(); // disconnect all signals
+//    if(ClientRoot::getTree() != CFNULL)
+//      ClientRoot::getTree()->disconnect(); // disconnect all signals
 
-    m_treeModel = treeModel;
-    index = treeModel->getCurrentSimulation();
+//    ClientRoot::getTree() = treeModel;
+//    index = treeModel->getCurrentSimulation();
 
-    this->advancedModeChanged(treeModel->isAdvancedMode());
-    this->readOnlyModeChanged(index, treeModel->isSimReadOnly(index));
+//    this->advancedModeChanged(treeModel->isAdvancedMode());
+//    this->readOnlyModeChanged(index, treeModel->isSimReadOnly(index));
 
-    if(m_treeModel != CFNULL)
-    {
-      connect(m_treeModel, SIGNAL(currentIndexChanged(const QModelIndex &)),
-              this, SLOT(currentIndexChanged(const QModelIndex &)));
-      connect(m_treeModel, SIGNAL(currentSimulationChanged(const QModelIndex &)),
-              this, SLOT(currentSimulationChanged(const QModelIndex &)));
-      connect(m_treeModel, SIGNAL(readOnlyModeChanged(const QModelIndex &, bool)),
-              this, SLOT(readOnlyModeChanged(const QModelIndex &, bool)));
-      connect(m_treeModel, SIGNAL(advancedModeChanged(bool)),
-              this, SLOT(advancedModeChanged(bool)));
-      connect(m_treeModel, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)),
-              this, SLOT(dataChanged(const QModelIndex &, const QModelIndex &)));
-      connect(m_treeModel, SIGNAL(simulationRemoved(const QModelIndex &)),
-              this, SLOT(simulationRemoved(const QModelIndex &)));
+//    if(ClientRoot::getTree() != CFNULL)
+//    {
+//      connect(ClientRoot::getTree(), SIGNAL(currentIndexChanged(const QModelIndex &)),
+//              this, SLOT(currentIndexChanged(const QModelIndex &)));
+//      connect(ClientRoot::getTree(), SIGNAL(currentSimulationChanged(const QModelIndex &)),
+//              this, SLOT(currentSimulationChanged(const QModelIndex &)));
+//      connect(ClientRoot::getTree(), SIGNAL(readOnlyModeChanged(const QModelIndex &, bool)),
+//              this, SLOT(readOnlyModeChanged(const QModelIndex &, bool)));
+//      connect(ClientRoot::getTree(), SIGNAL(advancedModeChanged(bool)),
+//              this, SLOT(advancedModeChanged(bool)));
+//      connect(ClientRoot::getTree(), SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)),
+//              this, SLOT(dataChanged(const QModelIndex &, const QModelIndex &)));
+//      connect(ClientRoot::getTree(), SIGNAL(simulationRemoved(const QModelIndex &)),
+//              this, SLOT(simulationRemoved(const QModelIndex &)));
 
-      this->currentIndexChanged(m_treeModel->getCurrentIndex());
-    }
-  }
-}
+//      this->currentIndexChanged(ClientRoot::getTree()->getCurrentIndex());
+//    }
+//  }
+//}
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-TreeModel * OptionPanel::getTreeModel() const
-{
-  return m_treeModel;
-}
+//TreeModel * OptionPanel::getTreeModel() const
+//{
+//  return ClientRoot::getTree();
+//}
 
  // PRIVATE METHOD
 
@@ -430,18 +535,16 @@ QString OptionPanel::getNodePath(QDomNode & node)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void OptionPanel::getModifiedOptions(const QDomDocument & nodes,
-                                     const QList<GraphicalOption *> & graphicalOptions,
+void OptionPanel::getModifiedOptions(const QList<GraphicalOption *> & graphicalOptions,
                                      CommitDetails & commitDetails,
                                      bool newOptions) const
 {
-  QDomNodeList childNodes = nodes.childNodes();
+  QList<GraphicalOption *>::const_iterator it = graphicalOptions.begin();
 
-  for(int i = 0 ; i < childNodes.count() ; i++)
+  while(it != graphicalOptions.end())
   {
-    QDomElement node = childNodes.at(i).toElement();
-    QString nodeName = node.nodeName();
-    GraphicalOption * graphicalOption = graphicalOptions.at(i);
+
+    GraphicalOption * graphicalOption = *it;
 
     if(graphicalOption->isModified())
     {
@@ -449,11 +552,13 @@ void OptionPanel::getModifiedOptions(const QDomDocument & nodes,
       QString newValue = graphicalOption->getValueString();
 
       if(newOptions)
-        commitDetails.setNewOption(nodeName, newValue, graphicalOption->getType());
+        commitDetails.setNewOption(graphicalOption->getName(), newValue, graphicalOption->getType());
 
       else
-        commitDetails.setOption(nodeName, oldValue, newValue);
+        commitDetails.setOption(graphicalOption->getName(), oldValue, newValue);
     }
+
+    it++;
   }
 }
 
@@ -500,11 +605,11 @@ void OptionPanel::commitChanges() const
   // if there is at least one option that has been modified
   if(modOptions.hasChildNodes() || newOptions.hasChildNodes())
   {
-    QModelIndex currentIndex = m_treeModel->getCurrentIndex();
+    QModelIndex currentIndex = ClientRoot::getTree()->getCurrentIndex();
 
-    if(m_treeModel->isSimulationNode(currentIndex))
-      m_treeModel->setSimConnectionInfos(modOptions, currentIndex);
-    else
+//    if(ClientRoot::getTree()->isSimulationNode(currentIndex))
+//      ClientRoot::getTree()->setSimConnectionInfos(modOptions, currentIndex);
+//    else
       emit changesMade(modOptions, newOptions);
   }
 
@@ -530,16 +635,25 @@ void OptionPanel::commitChanges() const
 
 void OptionPanel::currentIndexChanged(const QModelIndex & index)
 {
-  this->setOptions(m_treeModel->getOptions(index));
+  QList<NodeParams> params;
+  bool ok;
+
+  ClientRoot::getTree()->getNodeParams(index, params, &ok);
+
+  if(ok)
+    this->setOptions(params);
+  else
+    ClientRoot::getLog()->addError("Invalid index!");
+//  this->setOptions(ClientRoot::getTree()->getOptions(index));
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void OptionPanel::currentSimulationChanged(const QModelIndex & index)
-{
-  this->setOptions(QDomNodeList());
-}
+//void OptionPanel::currentSimulationChanged(const QModelIndex & index)
+//{
+//  this->setOptions();
+//}
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -554,7 +668,7 @@ void OptionPanel::advancedModeChanged(bool advanced)
 
 void OptionPanel::dataChanged(const QModelIndex & first, const QModelIndex & last)
 {
-  QModelIndex currIndex = m_treeModel->getCurrentIndex();
+  QModelIndex currIndex = ClientRoot::getTree()->getCurrentIndex();
 
   if(first == last && first.row() == currIndex.row() && first.parent() == currIndex.parent())
     this->currentIndexChanged(first);
@@ -566,24 +680,24 @@ void OptionPanel::dataChanged(const QModelIndex & first, const QModelIndex & las
 void OptionPanel::readOnlyModeChanged(const QModelIndex & index, bool readOnly)
 {
   // if the parameter and the attribute are different...
-  if(m_readOnly ^ readOnly && m_treeModel->isCurrentSimIndex(index))
+  if(m_readOnly ^ readOnly /*&& ClientRoot::getTree()->isCurrentSimIndex(index)*/)
   {
     m_readOnly = readOnly;
 
     // ...we change the editors readOnly property
-    this->setEnabled(m_basicOptionsNodes, m_basicOptions);
-    this->setEnabled(m_advancedOptionsNodes, m_advancedOptions);
+//    this->setEnabled(m_basicOptionsNodes, m_basicOptions);
+//    this->setEnabled(m_advancedOptionsNodes, m_advancedOptions);
   }
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void OptionPanel::simulationRemoved(const QModelIndex & index)
-{
-  if(index == m_treeModel->getCurrentSimulation())
-    this->setOptions(QDomNodeList());
-}
+//void OptionPanel::simulationRemoved(const QModelIndex & index)
+//{
+//  if(index == ClientRoot::getTree()->getCurrentSimulation())
+//    this->setOptions(QDomNodeList());
+//}
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -602,5 +716,5 @@ void OptionPanel::checkOptions()
 
 void OptionPanel::resetChanges()
 {
-  this->currentIndexChanged(m_treeModel->getCurrentIndex());
+  this->currentIndexChanged(ClientRoot::getTree()->getCurrentIndex());
 }

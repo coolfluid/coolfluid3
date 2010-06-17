@@ -28,7 +28,6 @@ namespace Client {
 ////////////////////////////////////////////////////////////////////////////////
 
   class OptionPanel;
-  class TreeModel;
   struct TSshInformation;
 
   /////////////////////////////////////////////////////////////////////////////
@@ -106,13 +105,9 @@ namespace Client {
     /// Otherwise, returns @c false.
     bool isReadOnly() const;
 
-    QAction * addSimToMenu(QMenu * menu);
+//    QAction * addSimToMenu(QMenu * menu);
 
-    QAction * addSimToMenuBar(QMenuBar * menuBar);
-
-    void setTreeModel(TreeModel * treeModel);
-
-    TreeModel * getTreeModel() const;
+//    QAction * addSimToMenuBar(QMenuBar * menuBar);
 
     protected:
 
@@ -146,10 +141,10 @@ namespace Client {
     /// empty and it is different to the old one.
     void renameNode();
 
-    /// @brief Slot called when the user wants to see an object properties.
+//    /// @brief Slot called when the user wants to see an object properties.
 
-    /// Properties are displayed in a message box.
-    void showProperties();
+//    /// Properties are displayed in a message box.
+//    void showProperties();
 
     /// @brief Slot called when user wants to add an option to the currently
     /// selected object.
@@ -165,36 +160,36 @@ namespace Client {
     void changesMade(const QDomDocument & modOptions,
                      const QDomDocument & newOptions);
 
-    /// @brief Slot called when user wants to create a new simulation.
-    void newSimulation();
+//    /// @brief Slot called when user wants to create a new simulation.
+//    void newSimulation();
 
     /// @brief Slot called when user wants to load a case file.
     void openSimulation();
 
-    /// @brief Slot called when user wants to delete a simulation.
-    void endSimulation();
+//    /// @brief Slot called when user wants to delete a simulation.
+//    void endSimulation();
 
-    /// @brief Slot called when user wants to connect a simulation to its server.
-    void connectSimulation();
+//    /// @brief Slot called when user wants to connect a simulation to its server.
+//    void connectSimulation();
 
-    /// @brief Slot called when user wants to disconnect a simulation from
-    /// its server.
-    void disconnectSimulation();
+//    /// @brief Slot called when user wants to disconnect a simulation from
+//    /// its server.
+//    void disconnectSimulation();
 
     /// @brief Slot called when user wants to update a simulation tree.
     void updateTree();
 
-    /// @brief Slot called when user wants to run a simulation.
-    void runSimulation();
+//    /// @brief Slot called when user wants to run a simulation.
+//    void runSimulation();
 
-    /// @brief Slot called when user wants to stop a running simulation.
-    void stopSimulation();
+//    /// @brief Slot called when user wants to stop a running simulation.
+//    void stopSimulation();
 
-    /// @brief Slot called when user wants to activate a simulation.
-    void activateSimulation();
+//    /// @brief Slot called when user wants to activate a simulation.
+//    void activateSimulation();
 
-    /// @brief Slot called when user wants to deactivate simulation.
-    void deactivateSimulation();
+//    /// @brief Slot called when user wants to deactivate simulation.
+//    void deactivateSimulation();
 
     void currentIndexChanged(const QModelIndex & index);
 
@@ -318,9 +313,6 @@ namespace Client {
     /// @brief List of abstract types
     QStringList m_abstractTypes;
 
-    /// @brief The model to display.
-    TreeModel * m_treeModel;
-
     /// @brief Filter for the Client.
 
     /// Allows to switch between basic/advanced mode. The filter is used as the
@@ -335,13 +327,13 @@ namespace Client {
     /// disabled.
     bool m_readOnly;
 
-    /// @brief Buillds object menu
-    void buildObjectMenu();
+//    /// @brief Buillds object menu
+//    void buildObjectMenu();
 
-    /// @brief Builds the simulation menu
-    void buildSimulationMenu();
+//    /// @brief Builds the simulation menu
+//    void buildSimulationMenu();
 
-    void buildComponentMenu();
+//    void buildComponentMenu();
 
     /// @brief Asks user to commit or rollback before changing m_options in
     /// m_options panel.
@@ -396,7 +388,7 @@ namespace Client {
                       bool expandIfNew, const QModelIndex & index,
                       QList<QString> & list);
 
-    void enableDisableOptions(const QModelIndex & index);
+//    void enableDisableOptions(const QModelIndex & index);
 
 
   }; // class TreeView

@@ -32,6 +32,8 @@ namespace Client {
 
     int getChildCount() const;
 
+    QString getName() const;
+
   private:
 
     CNode::Ptr m_node;

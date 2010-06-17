@@ -17,6 +17,7 @@ SET(coolfluid-client_moc_classes
   CommitDetailsDialog.hpp
   ConfirmCommitDialog.hpp
   ConnectionDialog.hpp
+  CTree.hpp
   FilesPanel.hpp
   LoggingList.hpp
   MainWindow.hpp
@@ -104,8 +105,8 @@ LIST ( APPEND coolfluid-client_files
   NMethod.hpp
   OptionPanel.cpp
   OptionPanel.hpp
-  OptionTypes.cpp
-  OptionTypes.hpp
+  OptionType.cpp
+  OptionType.hpp
   RemoteFSBrowser.cpp
   RemoteFSBrowser.hpp
   RemoteOpenFile.cpp

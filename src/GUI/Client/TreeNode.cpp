@@ -80,3 +80,11 @@ int TreeNode::getChildCount() const
 {
   return m_node->getNodeCount();
 }
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+QString TreeNode::getName() const
+{
+  return m_node->name().c_str();
+}

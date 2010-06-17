@@ -4,11 +4,13 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include <QAbstractItemModel>
+#include <QStringList> /// @todo does not compile without that...but why ???
 
 #include "Common/Component.hpp"
 #include "GUI/Client/CNode.hpp"
 
 class QDomElement;
+class QModelIndex;
 
 namespace CF {
 namespace GUI {
@@ -25,13 +27,52 @@ namespace Client {
       public QAbstractItemModel,
       public CF::Common::Component
   {
+    Q_OBJECT
   public:
 
     typedef boost::shared_ptr<CTree> Ptr;
 
+    /// @brief Constructor.
+
+    /// @param rootNode The root node. May be @c CFNULL.
     CTree(CF::GUI::Client::CNode::Ptr rootNode = CF::GUI::Client::CNode::Ptr());
 
+    /// @brief Replaces the current component tree.
+
+    /// The old tree is destroyed (regarding to @c boost::shared_ptr delete
+    /// rules).
+    /// @param node The new root. May be @c CFNULL.
     void setRoot(CNode::Ptr node);
+
+    /// @brief Sets the current index.
+
+    /// If @c newIndex is valid and different from the current index, the
+    /// current index is changed and #currentIndexChanged signal is emitted.
+    /// If @c newIndex is either not valid or the same as the current index,
+    /// nothing is done.
+    /// @param newIndex The new index.
+    /// @see getCurrentIndex
+    /// @see currentIndexChanged
+    void setCurrentIndex(const QModelIndex & newIndex);
+
+    /// @brief Gives the current index
+
+    /// The current index may not be valid if @c #changeCurrentIndex was
+    /// never called.
+    /// @return Returns the current index.
+    /// @see setCurrentIndex.
+    QModelIndex getCurrentIndex() const;
+
+    void getNodeParams(const QModelIndex & index,
+                       QList<NodeParams> & params, bool * ok = CFNULL) const;
+
+    QString getNodePath(const QModelIndex & index) const;
+
+    void setAdvancedMode(bool advanceMode);
+
+    bool isAdvancedMode() const;
+
+    bool areFromSameNode(const QModelIndex & left, const QModelIndex & right) const;
 
     /// @brief Implementation of @c QAbstractItemModel::data().
 
@@ -86,16 +127,31 @@ namespace Client {
     /// @return Returns the data or an empty @c QVariant on error.
     virtual QVariant headerData(int section, Qt::Orientation orientation,
                                 int role = Qt::DisplayRole) const;
+
+  signals:
+
+    /// @brief Signal emitted when the current index has changed.
+
+    /// @param newIndex The new current index
+    void currentIndexChanged(const QModelIndex & newIndex);
+
+    void advancedModeChanged(bool advanced);
+
   private:
+
+    QStringList m_columns;
 
     TreeNode * m_rootNode;
 
-    QStringList m_columns;
+    QModelIndex m_currentIndex;
+
+    bool m_advancedMode;
 
     inline TreeNode * indexToTreeNode(const QModelIndex & index) const;
 
     inline CNode::Ptr indexToNode(const QModelIndex & index) const;
 
+    void getNodePathRec(const QModelIndex & index, QString & path) const;
 
   private: // boost signals
 

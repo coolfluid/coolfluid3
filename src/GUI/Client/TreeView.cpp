@@ -19,6 +19,7 @@
 #include "GUI/Client/ConfirmCommitDialog.hpp"
 #include "GUI/Client/AddLinkDialog.hpp"
 #include "GUI/Client/ClientRoot.hpp"
+#include "GUI/Client/TreeNode.hpp"
 
 #include "GUI/Network/ComponentType.hpp"
 #include "GUI/Network/ComponentNames.hpp"
@@ -38,7 +39,6 @@ TreeView::TreeView(OptionPanel * optionsPanel, QMainWindow * parent)
     throw std::invalid_argument("Options panel is a CFNULL pointer");
 
   // instantiate class attributes
-  m_treeModel = CFNULL;
   m_modelFilter = new QSortFilterProxyModel(this);
   m_mnuNewOption = new QMenu("Add an option");
 
@@ -51,9 +51,9 @@ TreeView::TreeView(OptionPanel * optionsPanel, QMainWindow * parent)
   m_modelFilter->setFilterRegExp(reg);
 
   this->setModel(m_modelFilter);
-  this->buildComponentMenu();
-  this->buildSimulationMenu();
-  this->buildObjectMenu();
+//  this->buildComponentMenu();
+//  this->buildSimulationMenu();
+//  this->buildObjectMenu();
 
   this->setReadOnly(false);
 
@@ -77,7 +77,6 @@ TreeView::~TreeView()
   delete m_objectMenu;
   delete m_mnuAbstractTypes;
   delete m_modelFilter;
-  delete m_treeModel;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -121,8 +120,8 @@ void TreeView::setAbstractTypesList(const QStringList & abstractTypes)
 
 QDomNode TreeView::newChildNode(const QString & newNode, QDomDocument & doc) const
 {
-  QModelIndex index = m_modelFilter->mapToSource(m_treeModel->getCurrentIndex());
-  return m_treeModel->newChildToNode(index, newNode, doc);
+//  QModelIndex index = m_modelFilter->mapToSource(m_treeModel->getCurrentIndex());
+//  return m_treeModel->newChildToNode(index, newNode, doc);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -131,11 +130,11 @@ QDomNode TreeView::newChildNode(const QString & newNode, QDomDocument & doc) con
 void TreeView::setReadOnly(bool readOnly)
 {
   m_readOnly = readOnly;
-  m_mnuAbstractTypes->setEnabled(!readOnly);
-  m_mnuNewOption->setEnabled(!readOnly);
+//  m_mnuAbstractTypes->setEnabled(!readOnly);
+//  m_mnuNewOption->setEnabled(!readOnly);
 
-  m_actions[ ACTION_OBJECT_DELETE ]->setEnabled(!readOnly);
-  m_actions[ ACTION_OBJECT_RENAME_NODE ]->setEnabled(!readOnly);
+//  m_actions[ ACTION_OBJECT_DELETE ]->setEnabled(!readOnly);
+//  m_actions[ ACTION_OBJECT_RENAME_NODE ]->setEnabled(!readOnly);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -151,11 +150,11 @@ bool TreeView::isReadOnly() const
 
 void TreeView::addNode()
 {
-  QAction * action = static_cast<QAction *>(sender());
+//  QAction * action = static_cast<QAction *>(sender());
 
-  if(action != CFNULL && m_abstractTypesActions.contains(action) &&
-    this->confirmChangeOptions(m_treeModel->getCurrentIndex(), true))
-    emit addNode(action->text());
+//  if(action != CFNULL && m_abstractTypesActions.contains(action) &&
+//    this->confirmChangeOptions(m_treeModel->getCurrentIndex(), true))
+//    emit addNode(action->text());
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -164,22 +163,22 @@ void TreeView::addNode()
 void TreeView::mousePressEvent(QMouseEvent * event)
 {
   QTreeView::mousePressEvent(event);
-//  QPoint mousePosition(event->x() + this->x(), event->y() + this->y());
-//  QModelIndex index = this->indexAt(mousePosition);
+  QPoint mousePosition(event->x() + this->x(), event->y() + this->y());
+  QModelIndex index = this->indexAt(mousePosition);
 
 //  QModelIndex indexInModel = m_modelFilter->mapToSource(index);
-//  Qt::MouseButton button = event->button();
+  Qt::MouseButton button = event->button();
 
 //  this->enableDisableOptions(m_treeModel->getParentSimIndex(indexInModel));
 
-//  if(event->type() == QEvent::MouseButtonDblClick && button == Qt::LeftButton
-//    && index.isValid())
-//  {
-//    if(this->isExpanded(index))
-//      this->collapse(index);
-//    else
-//      this->expand(index);
-//  }
+  if(event->type() == QEvent::MouseButtonDblClick && button == Qt::LeftButton
+    && index.isValid())
+  {
+    if(this->isExpanded(index))
+      this->collapse(index);
+    else
+      this->expand(index);
+  }
 //  else if(button == Qt::RightButton)
 //  {
 //    if(!m_treeModel->getCurrentIndex().isValid())
@@ -191,11 +190,11 @@ void TreeView::mousePressEvent(QMouseEvent * event)
 //    else // we display the objects context menu
 //      m_objectMenu->exec(QCursor::pos());
 //  }
-//  else if(!m_treeModel->areEqual(indexInModel, m_treeModel->getCurrentIndex()))
-//  {
+  else //if(!ClientRoot::getTree()->areEqual(indexInModel, ClientRoot::getTree()->getCurrentIndex()))
+  {
 //    if(index != m_treeModel->getCurrentIndex() && this->confirmChangeOptions(index))
-//      m_treeModel->setCurrentIndex(indexInModel);
-//  }
+      ClientRoot::getTree()->setCurrentIndex(index);
+  }
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -203,264 +202,264 @@ void TreeView::mousePressEvent(QMouseEvent * event)
 
 void TreeView::keyPressEvent(QKeyEvent * event)
 {
-  if(event->key() == Qt::Key_Up)
-  {
-    QModelIndex index = m_treeModel->getCurrentIndex();
+//  if(event->key() == Qt::Key_Up)
+//  {
+//    QModelIndex index = m_treeModel->getCurrentIndex();
 
-    if(this->confirmChangeOptions(index, true))
-    {
-      QModelIndex above = this->indexAbove(m_modelFilter->mapFromSource(index));
+//    if(this->confirmChangeOptions(index, true))
+//    {
+//      QModelIndex above = this->indexAbove(m_modelFilter->mapFromSource(index));
 
-      if(above.isValid())
-        m_treeModel->setCurrentIndex(m_modelFilter->mapToSource(above));
-    }
-  }
-  else if(event->key() == Qt::Key_Down)
-  {
-    QModelIndex index = m_treeModel->getCurrentIndex();
+//      if(above.isValid())
+//        m_treeModel->setCurrentIndex(m_modelFilter->mapToSource(above));
+//    }
+//  }
+//  else if(event->key() == Qt::Key_Down)
+//  {
+//    QModelIndex index = m_treeModel->getCurrentIndex();
 
-    if(this->confirmChangeOptions(index, true))
-    {
-      QModelIndex below = this->indexBelow(m_modelFilter->mapFromSource(index));
+//    if(this->confirmChangeOptions(index, true))
+//    {
+//      QModelIndex below = this->indexBelow(m_modelFilter->mapFromSource(index));
 
-      if(below.isValid())
-        m_treeModel->setCurrentIndex(m_modelFilter->mapToSource(below));
-    }
-  }
-  else
-    QTreeView::keyPressEvent(event);
+//      if(below.isValid())
+//        m_treeModel->setCurrentIndex(m_modelFilter->mapToSource(below));
+//    }
+//  }
+//  else
+//    QTreeView::keyPressEvent(event);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void TreeView::buildComponentMenu()
-{
-  MenuActionInfo actionInfo;
+//void TreeView::buildComponentMenu()
+//{
+//  MenuActionInfo actionInfo;
 
-  // context menu init
-  QStringList typesList = OptionTypes::getTypesList();
-  QStringList::iterator it = typesList.begin();
+//  // context menu init
+//  QStringList typesList = OptionTypes::getTypesList();
+//  QStringList::iterator it = typesList.begin();
 
-  m_mnuComponents = new QMenu("New component");
+//  m_mnuComponents = new QMenu("New component");
 
-  //----------------------------------------------------
-  //----------------------------------------------------
+//  //----------------------------------------------------
+//  //----------------------------------------------------
 
-  actionInfo.m_menu = m_mnuComponents;
-  actionInfo.m_slot = SLOT(addComponent());
+//  actionInfo.m_menu = m_mnuComponents;
+//  actionInfo.m_slot = SLOT(addComponent());
 
-  //--------------------------------------------
+//  //--------------------------------------------
 
-  actionInfo.m_text = ComponentType::Convert::to_str(ComponentType::LINK).c_str();
-  actionInfo.buildAction(this);
+//  actionInfo.m_text = ComponentType::Convert::to_str(ComponentType::LINK).c_str();
+//  actionInfo.buildAction(this);
 
-  //--------------------------------------------
+//  //--------------------------------------------
 
-  actionInfo.m_text = ComponentType::Convert::to_str(ComponentType::GROUP).c_str();
-  actionInfo.buildAction(this);
+//  actionInfo.m_text = ComponentType::Convert::to_str(ComponentType::GROUP).c_str();
+//  actionInfo.buildAction(this);
 
-  //--------------------------------------------
+//  //--------------------------------------------
 
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void TreeView::buildObjectMenu()
-{
-  MenuActionInfo actionInfo;
-
-  // context menu init
-  QStringList typesList = OptionTypes::getTypesList();
-  QStringList::iterator it = typesList.begin();
-
-  // build menu items
-  actionInfo.m_slot = SLOT(addOption());
-  actionInfo.m_menu = m_mnuNewOption;
-
-  while(it != typesList.end())
-  {
-    actionInfo.m_text = *it;
-    actionInfo.buildAction(this);
-    it++;
-  }
-
-  //----------------------------------------------------
-  //----------------------------------------------------
-
-  m_mnuAbstractTypes = new QMenu("Add a child node");
-  m_objectMenu = new QMenu("Context menu");
-
-  m_objectMenu->addMenu(m_simulationMenu);
-  m_objectMenu->addMenu(m_mnuAbstractTypes);
-  m_objectMenu->addMenu(m_mnuNewOption);
-
-  //--------------------------------------------
-
-  m_objectMenu->addSeparator();
-
-  //--------------------------------------------
-
-  m_objectMenu->addMenu(m_mnuComponents);
-
-  //--------------------------------------------
-
-  m_objectMenu->addSeparator();
-
-  //--------------------------------------------
-
-  actionInfo.m_menu = m_objectMenu;
-  actionInfo.m_text = "Rename";
-  actionInfo.m_slot = SLOT(renameNode());
-
-  m_actions[ACTION_OBJECT_RENAME_NODE] = actionInfo.buildAction(this);
-
-  //--------------------------------------------
-
-  m_objectMenu->addSeparator();
-
-  //--------------------------------------------
-
-  actionInfo.initDefaults();
-  actionInfo.m_menu = m_objectMenu;
-  actionInfo.m_text = "Delete";
-  actionInfo.m_slot = SLOT(deleteNode());
-
-  m_actions[ACTION_OBJECT_DELETE] = actionInfo.buildAction(this);
-
-  //--------------------------------------------
-
-  m_objectMenu->addSeparator();
-
-  //--------------------------------------------
-
-  actionInfo.initDefaults();
-  actionInfo.m_menu = m_objectMenu;
-  actionInfo.m_text = "Properties";
-  actionInfo.m_slot = SLOT(showProperties());
-
-  m_actions[ACTION_OBJECT_DELETE] = actionInfo.buildAction(this);
-}
+//}
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void TreeView::buildSimulationMenu()
-{
-  MenuActionInfo config;
-  m_simulationMenu = new QMenu("Simulation");
+//void TreeView::buildObjectMenu()
+//{
+//  MenuActionInfo actionInfo;
 
-  //--------------------------------------------
+//  // context menu init
+//  QStringList typesList = OptionTypes::getTypesList();
+//  QStringList::iterator it = typesList.begin();
 
-  m_simulationMenu->addSeparator();
+//  // build menu items
+//  actionInfo.m_slot = SLOT(addOption());
+//  actionInfo.m_menu = m_mnuNewOption;
 
-  //--------------------------------------------
+//  while(it != typesList.end())
+//  {
+//    actionInfo.m_text = *it;
+//    actionInfo.buildAction(this);
+//    it++;
+//  }
 
-  config.initDefaults();
-  config.m_menu = m_simulationMenu;
-  config.m_text = "New simulation";
-  config.m_slot = SLOT(newSimulation());
+//  //----------------------------------------------------
+//  //----------------------------------------------------
 
-  m_actions[ACTION_SIM_NEW_SIMULATION] = config.buildAction(this);
+//  m_mnuAbstractTypes = new QMenu("Add a child node");
+//  m_objectMenu = new QMenu("Context menu");
 
-  //--------------------------------------------
+//  m_objectMenu->addMenu(m_simulationMenu);
+//  m_objectMenu->addMenu(m_mnuAbstractTypes);
+//  m_objectMenu->addMenu(m_mnuNewOption);
 
-  config.initDefaults();
-  config.m_menu = m_simulationMenu;
-  config.m_text = "Open simulation";
-  config.m_slot = SLOT(openSimulation());
+//  //--------------------------------------------
 
-  m_actions[ACTION_SIM_OPEN_SIMULATION] = config.buildAction(this);
+//  m_objectMenu->addSeparator();
 
-  //--------------------------------------------
+//  //--------------------------------------------
 
-  config.initDefaults();
-  config.m_menu = m_simulationMenu;
-  config.m_text = "Close simulation";
-  config.m_slot = SLOT(endSimulation());
+//  m_objectMenu->addMenu(m_mnuComponents);
 
-  m_actions[ACTION_SIM_END_SIMULATION] = config.buildAction(this);
+//  //--------------------------------------------
 
-  //--------------------------------------------
+//  m_objectMenu->addSeparator();
 
-  m_simulationMenu->addSeparator();
+//  //--------------------------------------------
 
-  //--------------------------------------------
+//  actionInfo.m_menu = m_objectMenu;
+//  actionInfo.m_text = "Rename";
+//  actionInfo.m_slot = SLOT(renameNode());
 
-  config.initDefaults();
-  config.m_menu = m_simulationMenu;
-  config.m_text = "Connect";
-  config.m_slot = SLOT(connectSimulation());
+//  m_actions[ACTION_OBJECT_RENAME_NODE] = actionInfo.buildAction(this);
 
-  m_actions[ACTION_SIM_CONNECT] = config.buildAction(this);
+//  //--------------------------------------------
 
-  //--------------------------------------------
+//  m_objectMenu->addSeparator();
 
-  config.initDefaults();
-  config.m_menu = m_simulationMenu;
-  config.m_text = "Disconnect";
-  config.m_slot = SLOT(disconnectSimulation());
+//  //--------------------------------------------
 
-  m_actions[ACTION_SIM_DISCONNECT] = config.buildAction(this);
+//  actionInfo.initDefaults();
+//  actionInfo.m_menu = m_objectMenu;
+//  actionInfo.m_text = "Delete";
+//  actionInfo.m_slot = SLOT(deleteNode());
 
-  //--------------------------------------------
+//  m_actions[ACTION_OBJECT_DELETE] = actionInfo.buildAction(this);
 
-  m_simulationMenu->addSeparator();
+//  //--------------------------------------------
 
-  //--------------------------------------------
+//  m_objectMenu->addSeparator();
 
-  config.initDefaults();
-  config.m_menu = m_simulationMenu;
-  config.m_text = "Update tree";
-  config.m_slot = SLOT(updateTree());
+//  //--------------------------------------------
 
-  m_actions[ACTION_SIM_UPDATE_TREE] = config.buildAction(this);
+//  actionInfo.initDefaults();
+//  actionInfo.m_menu = m_objectMenu;
+//  actionInfo.m_text = "Properties";
+//  actionInfo.m_slot = SLOT(showProperties());
 
-  //--------------------------------------------
+//  m_actions[ACTION_OBJECT_DELETE] = actionInfo.buildAction(this);
+//}
 
-  m_simulationMenu->addSeparator();
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-  //--------------------------------------------
+//void TreeView::buildSimulationMenu()
+//{
+//  MenuActionInfo config;
+//  m_simulationMenu = new QMenu("Simulation");
 
-  config.initDefaults();
-  config.m_menu = m_simulationMenu;
-  config.m_text = "Run simulation";
-  config.m_slot = SLOT(runSimulation());
+//  //--------------------------------------------
 
-  m_actions[ACTION_SIM_RUN_SIMULATION] = config.buildAction(this);
+//  m_simulationMenu->addSeparator();
 
-  //--------------------------------------------
+//  //--------------------------------------------
 
-  config.initDefaults();
-  config.m_menu = m_simulationMenu;
-  config.m_text = "Stop simulation";
-  config.m_slot = SLOT(stopSimulation());
+//  config.initDefaults();
+//  config.m_menu = m_simulationMenu;
+//  config.m_text = "New simulation";
+//  config.m_slot = SLOT(newSimulation());
 
-  m_actions[ACTION_SIM_STOP_SIMULATION] = config.buildAction(this);
+//  m_actions[ACTION_SIM_NEW_SIMULATION] = config.buildAction(this);
 
-  //--------------------------------------------
+//  //--------------------------------------------
 
-  m_simulationMenu->addSeparator();
+//  config.initDefaults();
+//  config.m_menu = m_simulationMenu;
+//  config.m_text = "Open simulation";
+//  config.m_slot = SLOT(openSimulation());
 
-  //--------------------------------------------
+//  m_actions[ACTION_SIM_OPEN_SIMULATION] = config.buildAction(this);
 
-  config.initDefaults();
-  config.m_menu = m_simulationMenu;
-  config.m_text = "Activate simulation";
-  config.m_slot = SLOT(activateSimulation());
+//  //--------------------------------------------
 
-  m_actions[ACTION_SIM_ACTIVATE_SIM] = config.buildAction(this);
+//  config.initDefaults();
+//  config.m_menu = m_simulationMenu;
+//  config.m_text = "Close simulation";
+//  config.m_slot = SLOT(endSimulation());
 
-  //--------------------------------------------
+//  m_actions[ACTION_SIM_END_SIMULATION] = config.buildAction(this);
 
-  config.initDefaults();
-  config.m_menu = m_simulationMenu;
-  config.m_text = "Deactivate simulation";
-  config.m_slot = SLOT(deactivateSimulation());
+//  //--------------------------------------------
 
-  m_actions[ACTION_SIM_DEACTIVATE_SIM] = config.buildAction(this);
-}
+//  m_simulationMenu->addSeparator();
+
+//  //--------------------------------------------
+
+//  config.initDefaults();
+//  config.m_menu = m_simulationMenu;
+//  config.m_text = "Connect";
+//  config.m_slot = SLOT(connectSimulation());
+
+//  m_actions[ACTION_SIM_CONNECT] = config.buildAction(this);
+
+//  //--------------------------------------------
+
+//  config.initDefaults();
+//  config.m_menu = m_simulationMenu;
+//  config.m_text = "Disconnect";
+//  config.m_slot = SLOT(disconnectSimulation());
+
+//  m_actions[ACTION_SIM_DISCONNECT] = config.buildAction(this);
+
+//  //--------------------------------------------
+
+//  m_simulationMenu->addSeparator();
+
+//  //--------------------------------------------
+
+//  config.initDefaults();
+//  config.m_menu = m_simulationMenu;
+//  config.m_text = "Update tree";
+//  config.m_slot = SLOT(updateTree());
+
+//  m_actions[ACTION_SIM_UPDATE_TREE] = config.buildAction(this);
+
+//  //--------------------------------------------
+
+//  m_simulationMenu->addSeparator();
+
+//  //--------------------------------------------
+
+//  config.initDefaults();
+//  config.m_menu = m_simulationMenu;
+//  config.m_text = "Run simulation";
+//  config.m_slot = SLOT(runSimulation());
+
+//  m_actions[ACTION_SIM_RUN_SIMULATION] = config.buildAction(this);
+
+//  //--------------------------------------------
+
+//  config.initDefaults();
+//  config.m_menu = m_simulationMenu;
+//  config.m_text = "Stop simulation";
+//  config.m_slot = SLOT(stopSimulation());
+
+//  m_actions[ACTION_SIM_STOP_SIMULATION] = config.buildAction(this);
+
+//  //--------------------------------------------
+
+//  m_simulationMenu->addSeparator();
+
+//  //--------------------------------------------
+
+//  config.initDefaults();
+//  config.m_menu = m_simulationMenu;
+//  config.m_text = "Activate simulation";
+//  config.m_slot = SLOT(activateSimulation());
+
+//  m_actions[ACTION_SIM_ACTIVATE_SIM] = config.buildAction(this);
+
+//  //--------------------------------------------
+
+//  config.initDefaults();
+//  config.m_menu = m_simulationMenu;
+//  config.m_text = "Deactivate simulation";
+//  config.m_slot = SLOT(deactivateSimulation());
+
+//  m_actions[ACTION_SIM_DEACTIVATE_SIM] = config.buildAction(this);
+//}
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -468,7 +467,7 @@ void TreeView::buildSimulationMenu()
 void TreeView::addComponent()
 {
   QAction * mnuItem = static_cast<QAction *> (this->sender());
-  QModelIndex index = m_treeModel->getCurrentIndex();
+//  QModelIndex index = m_treeModel->getCurrentIndex();
   ComponentType::Type type;
   QString name;
 
@@ -500,8 +499,8 @@ void TreeView::addComponent()
     name = QInputDialog::getText(this, tr("New ") + mnuItem->text(),
                                tr("New component name:"), QLineEdit::Normal,
                                "");
-    if(!name.isEmpty())
-      emit addComponent(index, type, name);
+//    if(!name.isEmpty())
+//      emit addComponent(index, type, name);
   }
 }
 
@@ -510,14 +509,14 @@ void TreeView::addComponent()
 
 void TreeView::deleteNode()
 {
-  // get the index in the filter
-  QModelIndex index = this->currentIndex();
+//  // get the index in the filter
+//  QModelIndex index = this->currentIndex();
 
-  // get the corresponding index in the model
-  QModelIndex indexInModel = m_modelFilter->mapToSource(index);
-  QDomNode node = m_treeModel->indexToNode(indexInModel);
+//  // get the corresponding index in the model
+//  QModelIndex indexInModel = m_modelFilter->mapToSource(index);
+//  QDomNode node = m_treeModel->indexToNode(indexInModel);
 
-  emit deleteNode(node);
+//  emit deleteNode(node);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -525,99 +524,99 @@ void TreeView::deleteNode()
 
 void TreeView::renameNode()
 {
-  QModelIndex index = this->currentIndex();
-  QModelIndex indexInModel = m_modelFilter->mapToSource(index);
-  QDomNode node = m_treeModel->indexToNode(indexInModel);
+//  QModelIndex index = this->currentIndex();
+//  QModelIndex indexInModel = m_modelFilter->mapToSource(index);
+//  QDomNode node = m_treeModel->indexToNode(indexInModel);
 
-  if(!node.isNull())
-  {
-    QString name = QInputDialog::getText(this, "Rename node",
-                                         "New name of the new node:",
-                                         QLineEdit::Normal, node.nodeName());
+//  if(!node.isNull())
+//  {
+//    QString name = QInputDialog::getText(this, "Rename node",
+//                                         "New name of the new node:",
+//                                         QLineEdit::Normal, node.nodeName());
 
-    // remove starting and ending spaces
-    name = name.trimmed();
-    // replace spaces by underscores
-    name = name.replace(" ", "_");
+//    // remove starting and ending spaces
+//    name = name.trimmed();
+//    // replace spaces by underscores
+//    name = name.replace(" ", "_");
 
-    if(!name.isNull() && !name.isEmpty() && name != node.nodeName())
-    {
-      QDomDocument doc;
-      QDomNode node2 = m_treeModel->renameToNode(indexInModel, name, doc);
-      emit renameNode(node2, name);
-    }
-  }
+//    if(!name.isNull() && !name.isEmpty() && name != node.nodeName())
+//    {
+//      QDomDocument doc;
+//      QDomNode node2 = m_treeModel->renameToNode(indexInModel, name, doc);
+//      emit renameNode(node2, name);
+//    }
+//  }
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void TreeView::showProperties()
-{
-  bool ok;
+//void TreeView::showProperties()
+//{
+//  bool ok;
 
-  // get the index in the filter
-  QModelIndex index = this->currentIndex();
+//  // get the index in the filter
+//  QModelIndex index = this->currentIndex();
 
-  // get the corresponding index in the model
-  QModelIndex indexInModel = m_modelFilter->mapToSource(index);
+//  // get the corresponding index in the model
+//  QModelIndex indexInModel = m_modelFilter->mapToSource(index);
 
-  TObjectProperties properties = m_treeModel->getProperties(indexInModel, ok);
+//  TObjectProperties properties = m_treeModel->getProperties(indexInModel, ok);
 
-  QString message = QString("Abstract type: %1\n").arg(properties.absType);
-  message += QString("Type: %1\n").arg(properties.m_type);
-  message += QString("Mode: %1\n").arg(properties.basic ? "basic" : "advanced");
-  message += QString("Dynamic: %1\n").arg(properties.dynamic ? "yes" : "no");
+//  QString message = QString("Abstract type: %1\n").arg(properties.absType);
+//  message += QString("Type: %1\n").arg(properties.m_type);
+//  message += QString("Mode: %1\n").arg(properties.basic ? "basic" : "advanced");
+//  message += QString("Dynamic: %1\n").arg(properties.dynamic ? "yes" : "no");
 
-  QMessageBox::information(this, "Properties", message);
-}
+//  QMessageBox::information(this, "Properties", message);
+//}
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 void TreeView::addOption()
 {
-  // action (menu item) on which user clicked
-  QAction * action = qobject_cast<QAction *>(sender());
+//  // action (menu item) on which user clicked
+//  QAction * action = qobject_cast<QAction *>(sender());
 
-  QModelIndex index = m_treeModel->getCurrentIndex();
-  QModelIndex oldIndex = m_treeModel->getCurrentIndex();
-  TOptionTypes type = OptionTypes::getTypeId(action->text());
+//  QModelIndex index = m_treeModel->getCurrentIndex();
+//  QModelIndex oldIndex = m_treeModel->getCurrentIndex();
+//  TOptionTypes type = OptionTypes::getTypeId(action->text());
 
-  if(this->confirmChangeOptions(index))
-  {
-    QString name;
+//  if(this->confirmChangeOptions(index))
+//  {
+//    QString name;
 
-    // change m_options if another node is selected
-    if(index != m_treeModel->getCurrentIndex())
-    {
-      QModelIndex indexInModel = m_modelFilter->mapToSource(index);
-      QDomNodeList options = m_treeModel->getOptions(indexInModel);
+//    // change m_options if another node is selected
+//    if(index != m_treeModel->getCurrentIndex())
+//    {
+//      QModelIndex indexInModel = m_modelFilter->mapToSource(index);
+//      QDomNodeList options = m_treeModel->getOptions(indexInModel);
 
-      m_treeModel->getCurrentIndex() = index;
-      this->setCurrentIndex(index);
-    }
+//      m_treeModel->getCurrentIndex() = index;
+//      this->setCurrentIndex(index);
+//    }
 
-    name = QInputDialog::getText(this->parentWidget(), "New option",
-                                 "Enter the name of the new option:");
+//    name = QInputDialog::getText(this->parentWidget(), "New option",
+//                                 "Enter the name of the new option:");
 
 
-    if(!name.isNull() && !name.isEmpty())
-      m_optionsPanel->addOption(type, name);
+//    if(!name.isNull() && !name.isEmpty())
+//      m_optionsPanel->addOption(type, name);
 
-    // restore old m_options if user cancels
-    else
-    {
-      QModelIndex indexInModel = m_modelFilter->mapToSource(oldIndex);
-      QDomNodeList options = m_treeModel->getOptions(indexInModel);
+//    // restore old m_options if user cancels
+//    else
+//    {
+//      QModelIndex indexInModel = m_modelFilter->mapToSource(oldIndex);
+//      QDomNodeList options = m_treeModel->getOptions(indexInModel);
 
-      m_treeModel->getCurrentIndex() = oldIndex;
-      this->setCurrentIndex(oldIndex);
-    }
-  } // "if(this->confirmChangeOptions(index))"
+//      m_treeModel->getCurrentIndex() = oldIndex;
+//      this->setCurrentIndex(oldIndex);
+//    }
+//  } // "if(this->confirmChangeOptions(index))"
 
-  else
-    this->setCurrentIndex(m_treeModel->getCurrentIndex());
+//  else
+//    this->setCurrentIndex(m_treeModel->getCurrentIndex());
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -625,29 +624,29 @@ void TreeView::addOption()
 
 bool TreeView::confirmChangeOptions(const QModelIndex & index, bool okIfSameIndex)
 {
-  bool confirmed = true;
-  QMessageBox question(this);
+//  bool confirmed = true;
+//  QMessageBox question(this);
 
-  if(!okIfSameIndex && m_treeModel->areEqual(m_treeModel->getCurrentIndex(), index))
-    return confirmed;
+//  if(!okIfSameIndex && m_treeModel->areEqual(m_treeModel->getCurrentIndex(), index))
+//    return confirmed;
 
-  if(m_optionsPanel->isModified())
-  {
-    CommitDetails commitDetails;
+//  if(m_optionsPanel->isModified())
+//  {
+//    CommitDetails commitDetails;
 
-    ConfirmCommitDialog dlg;
+//    ConfirmCommitDialog dlg;
 
-    m_optionsPanel->getModifiedOptions(commitDetails);
+//    m_optionsPanel->getModifiedOptions(commitDetails);
 
-    ConfirmCommitDialog::CommitConfirmation answer = dlg.show(commitDetails);
+//    ConfirmCommitDialog::CommitConfirmation answer = dlg.show(commitDetails);
 
-    if(answer == ConfirmCommitDialog::COMMIT)
-      m_optionsPanel->commitChanges();
+//    if(answer == ConfirmCommitDialog::COMMIT)
+//      m_optionsPanel->commitChanges();
 
-    confirmed = answer != ConfirmCommitDialog::CANCEL;
-  }
+//    confirmed = answer != ConfirmCommitDialog::CANCEL;
+//  }
 
-  return confirmed;
+//  return confirmed;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -656,22 +655,22 @@ bool TreeView::confirmChangeOptions(const QModelIndex & index, bool okIfSameInde
 void TreeView::changesMade(const QDomDocument & modOptions,
                            const QDomDocument & newOptions)
 {
-  QDomDocument doc;
+//  QDomDocument doc;
 
-  // get the index in the filter
-  QModelIndex index = m_treeModel->getCurrentIndex();
+//  // get the index in the filter
+//  QModelIndex index = m_treeModel->getCurrentIndex();
 
-  // get the corresponding index in the model
-  QModelIndex indexInModel = m_modelFilter->mapToSource(index);
+//  // get the corresponding index in the model
+//  QModelIndex indexInModel = m_modelFilter->mapToSource(index);
 
-  if(m_treeModel->isSimulationNode(indexInModel))
-    m_treeModel->setSimConnectionInfos(modOptions, indexInModel);
-  else
-  {
-    doc = m_treeModel->modifyToDocument(indexInModel, modOptions,
-                                              newOptions);
-    emit commitChanges(doc);
-  }
+//  if(m_treeModel->isSimulationNode(indexInModel))
+//    m_treeModel->setSimConnectionInfos(modOptions, indexInModel);
+//  else
+//  {
+//    doc = m_treeModel->modifyToDocument(indexInModel, modOptions,
+//                                              newOptions);
+//    emit commitChanges(doc);
+//  }
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -680,26 +679,26 @@ void TreeView::changesMade(const QDomDocument & modOptions,
 void TreeView::getChildrenNodesState(const QModelIndex & index,
                                      QHash<QString, bool> & map)
 {
-  if(!index.isValid())
-    return;
+//  if(!index.isValid())
+//    return;
 
-  QModelIndex childIndex = index.child(0, 0);
-  QModelIndex indexInModel = m_modelFilter->mapToSource(index);
-  QString nodePath = m_treeModel->getNodePath(indexInModel);
+//  QModelIndex childIndex = index.child(0, 0);
+//  QModelIndex indexInModel = m_modelFilter->mapToSource(index);
+//  QString nodePath = m_treeModel->getNodePath(indexInModel);
 
-  // if the path already exists in the map, nothing to do
-  if(map.contains(nodePath))
-    return;
+//  // if the path already exists in the map, nothing to do
+//  if(map.contains(nodePath))
+//    return;
 
-  map[nodePath] = this->isExpanded(index);
+//  map[nodePath] = this->isExpanded(index);
 
-  while(childIndex.isValid())
-  {
-    this->getChildrenNodesState(childIndex, map);
-    childIndex = this->indexBelow(childIndex);
-  }
+//  while(childIndex.isValid())
+//  {
+//    this->getChildrenNodesState(childIndex, map);
+//    childIndex = this->indexBelow(childIndex);
+//  }
 
-  this->getChildrenNodesState(this->indexBelow(index), map);
+//  this->getChildrenNodesState(this->indexBelow(index), map);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -709,152 +708,152 @@ void TreeView::setNodeState(const QHash<QString, bool> & nodeState,
                             bool expandIfNew, const QModelIndex & index,
                             QList<QString> & list)
 {
-  if(!index.isValid())
-    return;
+//  if(!index.isValid())
+//    return;
 
-  bool expand;
-  QModelIndex childIndex = index.child(0, 0);
-  QModelIndex indexInModel = m_modelFilter->mapToSource(index);
-  QString nodePath = m_treeModel->getNodePath(indexInModel);
+//  bool expand;
+//  QModelIndex childIndex = index.child(0, 0);
+//  QModelIndex indexInModel = m_modelFilter->mapToSource(index);
+//  QString nodePath = m_treeModel->getNodePath(indexInModel);
 
-  // bug fixing (endless loop): if the path already exists in the
-  // list, nothing to do
-  if(list.contains(nodePath))
-    return;
+//  // bug fixing (endless loop): if the path already exists in the
+//  // list, nothing to do
+//  if(list.contains(nodePath))
+//    return;
 
-  list.append(nodePath);
+//  list.append(nodePath);
 
-  if(nodeState.contains(nodePath))
-    expand = nodeState[nodePath];
-  else
-    expand = expandIfNew;
+//  if(nodeState.contains(nodePath))
+//    expand = nodeState[nodePath];
+//  else
+//    expand = expandIfNew;
 
-  if(expand)
-    this->expand(index);
-  else
-    this->collapse(index);
+//  if(expand)
+//    this->expand(index);
+//  else
+//    this->collapse(index);
 
-  while(childIndex.isValid())
-  {
-    this->setNodeState(nodeState, expandIfNew, childIndex, list);
-    childIndex = this->indexBelow(childIndex);
-  }
+//  while(childIndex.isValid())
+//  {
+//    this->setNodeState(nodeState, expandIfNew, childIndex, list);
+//    childIndex = this->indexBelow(childIndex);
+//  }
 
-  this->setNodeState(nodeState, expandIfNew, this->indexBelow(index), list);
+//  this->setNodeState(nodeState, expandIfNew, this->indexBelow(index), list);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void TreeView::newSimulation()
-{
-  QString simName;
-  bool stop = false;
+//void TreeView::newSimulation()
+//{
+//  QString simName;
+//  bool stop = false;
 
-  for(int i = 0 ; i < 1 ; i++)
-    ClientRoot::getLog()->addMessage("Hello\nworld\n!");
+//  for(int i = 0 ; i < 1 ; i++)
+//    ClientRoot::getLog()->addMessage("Hello\nworld\n!");
 
-  do
-  {
-    simName = QInputDialog::getText(NULL, "New simulation", "Please "
-                                    "enter the name of the new simulation.");
+//  do
+//  {
+//    simName = QInputDialog::getText(NULL, "New simulation", "Please "
+//                                    "enter the name of the new simulation.");
 
-    stop = simName.isEmpty();
+//    stop = simName.isEmpty();
 
-    if(!stop)
-    {
-      stop = m_treeModel->createSimulation(simName);
+//    if(!stop)
+//    {
+//      stop = m_treeModel->createSimulation(simName);
 
-      if(!stop)
-        QMessageBox::critical(NULL, "Error", "A simulation named \"" + simName +
-                              "\" already exists.");
-    }
-  } while(!stop);
-}
+//      if(!stop)
+//        QMessageBox::critical(NULL, "Error", "A simulation named \"" + simName +
+//                              "\" already exists.");
+//    }
+//  } while(!stop);
+//}
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 void TreeView::openSimulation()
 {
-  emit openSimulation(m_treeModel->getCurrentSimulation());
+  //emit openSimulation(m_treeModel->getCurrentSimulation());
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void TreeView::endSimulation()
-{
-  QMessageBox msgBox(this->parentWidget());
-  QModelIndex index = m_treeModel->getCurrentSimulation();
-  QString text = "This will remove the simulation \"%1\".";
-  QString infoText = "Are you sure to continue?";
+//void TreeView::endSimulation()
+//{
+//  QMessageBox msgBox(this->parentWidget());
+//  QModelIndex index = m_treeModel->getCurrentSimulation();
+//  QString text = "This will remove the simulation \"%1\".";
+//  QString infoText = "Are you sure to continue?";
 
-  msgBox.setWindowTitle("Close simulation");
-  msgBox.setIcon(QMessageBox::Warning);
-  msgBox.setText(text.arg(m_treeModel->getSimulationName(index)));
-  msgBox.setInformativeText(infoText);
-  msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+//  msgBox.setWindowTitle("Close simulation");
+//  msgBox.setIcon(QMessageBox::Warning);
+//  msgBox.setText(text.arg(m_treeModel->getSimulationName(index)));
+//  msgBox.setInformativeText(infoText);
+//  msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
 
-  if(msgBox.exec() == QMessageBox::Yes)
-    m_treeModel->removeSimulation(index);
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void TreeView::connectSimulation()
-{
-  QModelIndex index = m_treeModel->getCurrentIndex();
-
-  if(this->confirmChangeOptions(index, false))
-  {
-    TSshInformation info;
-    m_treeModel->getConnectionInfos(index, info);
-    emit connectSimulation(m_treeModel->getCurrentSimulation(), info);
-  }
-}
+//  if(msgBox.exec() == QMessageBox::Yes)
+//    m_treeModel->removeSimulation(index);
+//}
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void TreeView::disconnectSimulation()
-{
-  QModelIndex index = m_treeModel->getCurrentIndex();
-  bool shutdown;
-  bool disc;
+//void TreeView::connectSimulation()
+//{
+//  QModelIndex index = m_treeModel->getCurrentIndex();
+
+//  if(this->confirmChangeOptions(index, false))
+//  {
+//    TSshInformation info;
+//    m_treeModel->getConnectionInfos(index, info);
+//    emit connectSimulation(m_treeModel->getCurrentSimulation(), info);
+//  }
+//}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+//void TreeView::disconnectSimulation()
+//{
+//  QModelIndex index = m_treeModel->getCurrentIndex();
+//  bool shutdown;
+//  bool disc;
 
 
-  if(this->confirmChangeOptions(index, false))
-  {
-    QMessageBox discBox(this);
-    QPushButton * btDisc = CFNULL;
-    QPushButton * btCancel = CFNULL;
-    QPushButton * btShutServer = CFNULL;
+//  if(this->confirmChangeOptions(index, false))
+//  {
+//    QMessageBox discBox(this);
+//    QPushButton * btDisc = CFNULL;
+//    QPushButton * btCancel = CFNULL;
+//    QPushButton * btShutServer = CFNULL;
 
-    btDisc = discBox.addButton("Disconnect", QMessageBox::NoRole);
-    btCancel = discBox.addButton(QMessageBox::Cancel);
-    btShutServer = discBox.addButton("Shutdown server", QMessageBox::YesRole);
+//    btDisc = discBox.addButton("Disconnect", QMessageBox::NoRole);
+//    btCancel = discBox.addButton(QMessageBox::Cancel);
+//    btShutServer = discBox.addButton("Shutdown server", QMessageBox::YesRole);
 
-    discBox.setIcon(QMessageBox::Question);
-    discBox.setWindowTitle("Confirmation");
-    discBox.setText("You are about to disconnect from the server.");
-    discBox.setInformativeText("What do you want to do?");
+//    discBox.setIcon(QMessageBox::Question);
+//    discBox.setWindowTitle("Confirmation");
+//    discBox.setText("You are about to disconnect from the server.");
+//    discBox.setInformativeText("What do you want to do?");
 
-    // show the message box
-    discBox.exec();
+//    // show the message box
+//    discBox.exec();
 
-    disc = discBox.clickedButton() != btCancel;
-    shutdown = discBox.clickedButton() == btShutServer;
+//    disc = discBox.clickedButton() != btCancel;
+//    shutdown = discBox.clickedButton() == btShutServer;
 
-    delete btDisc;
-    delete btCancel;
-    delete btShutServer;
+//    delete btDisc;
+//    delete btCancel;
+//    delete btShutServer;
 
-    if(disc)
-      emit disconnectSimulation(m_treeModel->getCurrentSimulation(), shutdown);
-  }
-}
+//    if(disc)
+//      emit disconnectSimulation(m_treeModel->getCurrentSimulation(), shutdown);
+//  }
+//}
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -867,106 +866,106 @@ void TreeView::updateTree()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void TreeView::runSimulation()
-{
-  QModelIndex index = m_treeModel->getCurrentIndex();
+//void TreeView::runSimulation()
+//{
+//  QModelIndex index = m_treeModel->getCurrentIndex();
 
-  if(this->confirmChangeOptions(index, false))
-    emit runSimulation(m_treeModel->getCurrentSimulation());
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void TreeView::stopSimulation()
-{
-  emit stopSimulation(m_treeModel->getCurrentSimulation());
-}
+//  if(this->confirmChangeOptions(index, false))
+//    emit runSimulation(m_treeModel->getCurrentSimulation());
+//}
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void TreeView::activateSimulation()
-{
-  QModelIndex index = m_treeModel->getCurrentSimulation();
-
-  if(this->confirmChangeOptions(index, false))
-    emit activateSimulation(m_treeModel->getCurrentSimulation());
-}
+//void TreeView::stopSimulation()
+//{
+//  emit stopSimulation(m_treeModel->getCurrentSimulation());
+//}
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void TreeView::deactivateSimulation()
-{
-  emit deactivateSimulation(m_treeModel->getCurrentSimulation());
-}
+//void TreeView::activateSimulation()
+//{
+//  QModelIndex index = m_treeModel->getCurrentSimulation();
+
+//  if(this->confirmChangeOptions(index, false))
+//    emit activateSimulation(m_treeModel->getCurrentSimulation());
+//}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+//void TreeView::deactivateSimulation()
+//{
+//  emit deactivateSimulation(m_treeModel->getCurrentSimulation());
+//}
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 void TreeView::currentIndexChanged(const QModelIndex & index)
 {
-  QItemSelectionModel::SelectionFlags flags = QItemSelectionModel::Select | QItemSelectionModel::Rows;
-  QModelIndex indexInFilter = m_modelFilter->mapFromSource(index);
+//  QItemSelectionModel::SelectionFlags flags = QItemSelectionModel::Select | QItemSelectionModel::Rows;
+//  QModelIndex indexInFilter = m_modelFilter->mapFromSource(index);
 
-  this->selectionModel()->clearSelection();
-  this->selectionModel()->select(indexInFilter, flags);
-  this->selectionModel()->setCurrentIndex(indexInFilter, flags);
+//  this->selectionModel()->clearSelection();
+//  this->selectionModel()->select(indexInFilter, flags);
+//  this->selectionModel()->setCurrentIndex(indexInFilter, flags);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QAction * TreeView::addSimToMenu(QMenu * menu)
-{
-  QAction * action = CFNULL;
+//QAction * TreeView::addSimToMenu(QMenu * menu)
+//{
+//  QAction * action = CFNULL;
 
-  if(menu != CFNULL)
-    action = menu->addMenu(m_simulationMenu);
+//  if(menu != CFNULL)
+//    action = menu->addMenu(m_simulationMenu);
 
-  return action;
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-QAction * TreeView::addSimToMenuBar(QMenuBar * menuBar)
-{
-  QAction * action = CFNULL;
-
-  if(menuBar != CFNULL)
-    action = menuBar->addMenu(m_simulationMenu);
-
-  return action;
-}
+//  return action;
+//}
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void TreeView::enableDisableOptions(const QModelIndex & index)
-{
-  bool connected = m_treeModel->isSimulationConnected(index);
-  bool active = m_treeModel->isSimulationActive(index);
+//QAction * TreeView::addSimToMenuBar(QMenuBar * menuBar)
+//{
+//  QAction * action = CFNULL;
 
-  m_actions[ ACTION_SIM_OPEN_SIMULATION ]->setEnabled(m_treeModel->isSimulationNode(index));
-  m_actions[ ACTION_SIM_END_SIMULATION ]->setEnabled(index.isValid() && !connected);
-  m_actions[ ACTION_SIM_RUN_SIMULATION ]->setEnabled(connected);
-  m_actions[ ACTION_SIM_STOP_SIMULATION ]->setEnabled(connected);
+//  if(menuBar != CFNULL)
+//    action = menuBar->addMenu(m_simulationMenu);
 
-  m_actions[ ACTION_SIM_CONNECT ]->setEnabled(index.isValid() && !connected);
-  m_actions[ ACTION_SIM_DISCONNECT ]->setEnabled(connected);
-  m_actions[ ACTION_SIM_UPDATE_TREE ]->setEnabled(connected);
-
-  m_actions[ ACTION_SIM_ACTIVATE_SIM ]->setEnabled(connected && !active);
-  m_actions[ ACTION_SIM_DEACTIVATE_SIM ]->setEnabled(connected && active);
-}
+//  return action;
+//}
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void TreeView::setTreeModel(TreeModel * treeModel)
-{
+//void TreeView::enableDisableOptions(const QModelIndex & index)
+//{
+//  bool connected = m_treeModel->isSimulationConnected(index);
+//  bool active = m_treeModel->isSimulationActive(index);
+
+//  m_actions[ ACTION_SIM_OPEN_SIMULATION ]->setEnabled(m_treeModel->isSimulationNode(index));
+//  m_actions[ ACTION_SIM_END_SIMULATION ]->setEnabled(index.isValid() && !connected);
+//  m_actions[ ACTION_SIM_RUN_SIMULATION ]->setEnabled(connected);
+//  m_actions[ ACTION_SIM_STOP_SIMULATION ]->setEnabled(connected);
+
+//  m_actions[ ACTION_SIM_CONNECT ]->setEnabled(index.isValid() && !connected);
+//  m_actions[ ACTION_SIM_DISCONNECT ]->setEnabled(connected);
+//  m_actions[ ACTION_SIM_UPDATE_TREE ]->setEnabled(connected);
+
+//  m_actions[ ACTION_SIM_ACTIVATE_SIM ]->setEnabled(connected && !active);
+//  m_actions[ ACTION_SIM_DEACTIVATE_SIM ]->setEnabled(connected && active);
+//}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+//void TreeView::setTreeModel(TreeModel * treeModel)
+//{
 //  if(m_treeModel != CFNULL)
 //    m_treeModel->disconnect();
 
@@ -982,15 +981,15 @@ void TreeView::setTreeModel(TreeModel * treeModel)
 //    // enable/disable menu m_options
 //    this->enableDisableOptions(m_treeModel->getCurrentIndex());
 //  }
-}
+//}
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-TreeModel * TreeView::getTreeModel() const
-{
-  return m_treeModel;
-}
+//TreeModel * TreeView::getTreeModel() const
+//{
+//  return m_treeModel;
+//}
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

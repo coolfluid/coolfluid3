@@ -13,7 +13,7 @@
 #include "GUI/Client/ConnectionDialog.hpp"
 #include "GUI/Client/LoggingList.hpp"
 #include "GUI/Client/OptionPanel.hpp"
-#include "GUI/Client/OptionTypes.hpp"
+#include "GUI/Client/OptionType.hpp"
 #include "GUI/Client/RemoteFSBrowser.hpp"
 #include "GUI/Client/RemoteSaveFile.hpp"
 #include "GUI/Client/RemoteOpenFile.hpp"
@@ -149,7 +149,7 @@ MainWindow::MainWindow()
 
   ClientCore::getInstance().setTreeModel(m_treeModel);
  // m_treeView->setTreeModel(m_treeModel);
-  m_optionPanel->setTreeModel(m_treeModel);
+  //m_optionPanel->setTreeModel(m_treeModel);
 
   ClientCore::getInstance().setStatusModel(m_statusModel);
 }
@@ -559,7 +559,8 @@ void MainWindow::getTree()
 void MainWindow::toggleAdvanced()
 {
   bool advanced = m_actions[ ACTION_TOGGLE_ADVANCED_MODE ]->isChecked();
-  m_treeModel->setAdvancedMode(advanced);
+  ClientRoot::getTree()->setAdvancedMode(advanced);
+//  m_treeModel->setAdvancedMode(advanced);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
