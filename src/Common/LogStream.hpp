@@ -106,29 +106,31 @@ class Common_API LogStream
 
     for(it = m_destinations.begin() ; it != m_destinations.end() ; it++)
     {
-    if(it->first != SYNC_SCREEN && this->isDestinationUsed(it->first) &&
-         (PEInterface::getInstance().rank() == 0 || !m_filterRankZero[it->first]))
-    {
-      *(it->second) << t;
-      m_flushed = false;
-    }
-    else if(it->first != SYNC_SCREEN && PEInterface::getInstance()  .is_init()
-        && this->isDestinationUsed(it->first))
-    {
-      for( Uint i = 0 ; i < (Uint)(PEInterface::getInstance().size()); ++i )
+      if(this->isDestinationUsed(it->first()))
       {
-        PEInterface::getInstance().barrier();
-
-        if(i == (Uint)PEInterface::getInstance().rank())
+        // if the rank is zero or if the filter if disabled
+        if(it->first != SYNC_SCREEN &&
+           (PEInterface::getInstance().rank() == 0 || !m_filterRankZero[it->first]))
         {
-         *(it->second) << t;
-         m_flushed = false;
+          *(it->second) << t;
+          m_flushed = false;
         }
-      }
+        else if(it->first == SYNC_SCREEN && PEInterface::getInstance().is_init())
+        {
+          for( Uint i = 0 ; i < (Uint)(PEInterface::getInstance().size()); ++i )
+          {
+            PEInterface::getInstance().barrier();
 
+            if(i == (Uint)PEInterface::getInstance().rank())
+            {
+              *(it->second) << t;
+              m_flushed = false;
+            }
+          }
+        } // end of "else if (PEInterface::getInstance().isInit())
+      } // end of "if(this->isDestinationUsed(it->first()))"
     }
 
-    }
     return *this;
   }
 
