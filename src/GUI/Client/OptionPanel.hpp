@@ -111,10 +111,6 @@ namespace Client {
     /// @return Returns the current path.
     QString getCurrentPath() const;
 
-    //    void setTreeModel(TreeModel * treeModel);
-
-    //    TreeModel * getTreeModel() const;
-
   public slots:
 
     /// @brief Slot called when user clicks on "Commit changes" button.
@@ -127,15 +123,11 @@ namespace Client {
 
     void currentIndexChanged(const QModelIndex & index);
 
-//    void currentSimulationChanged(const QModelIndex & index);
-
     void advancedModeChanged(bool advanced);
 
     void dataChanged(const QModelIndex & first, const QModelIndex & last);
 
     void readOnlyModeChanged(const QModelIndex & index, bool readOnly);
-
-//    void simulationRemoved(const QModelIndex & index);
 
     void checkOptions();
 
@@ -181,26 +173,6 @@ namespace Client {
     QPushButton * m_btCheckChanges;
 
     QHBoxLayout * m_buttonsLayout;
-
-    /// @brief XML document containing basic m_options nodes.
-
-    /// This document does not contain newly created m_options.
-//    QDomDocument m_basicOptionsNodes;
-
-    /// @brief XML document containing advanced m_options nodes.
-
-    /// This document does not contain newly created m_options.
-//    QDomDocument m_advancedOptionsNodes;
-
-    /// @brief XML document containing new basic m_options nodes.
-
-    /// This document does not contain already existing m_options.
-//    QDomDocument m_newBasicOptionsNodes;
-
-    /// @brief XML document containing new advanced m_options nodes.
-
-    /// This document does not contain already existing m_options.
-//    QDomDocument m_newAdvancedOptionsNodes;
 
     /// @brief Layout used to display basic m_options components.
     QFormLayout * m_basicOptionsLayout;
