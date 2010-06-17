@@ -26,7 +26,6 @@ ENDIF()
 
 # add boost include path
 INCLUDE_DIRECTORIES ( ${Boost_INCLUDE_DIR} )
-ADD_DEFINITIONS ( -DBOOST_STRICT_CONFIG )
 
 #######################################################################################
 
