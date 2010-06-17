@@ -32,29 +32,6 @@ namespace Client {
 
   /////////////////////////////////////////////////////////////////////////////
 
-  enum TreeViewMenuActionType
-  {
-    ACTION_SIM_NEW_SIMULATION,
-    ACTION_SIM_OPEN_SIMULATION,
-    ACTION_SIM_END_SIMULATION,
-    ACTION_SIM_CONNECT,
-    ACTION_SIM_DISCONNECT,
-    ACTION_SIM_UPDATE_TREE,
-    ACTION_SIM_RUN_SIMULATION,
-    ACTION_SIM_STOP_SIMULATION,
-    ACTION_SIM_ACTIVATE_SIM,
-    ACTION_SIM_DEACTIVATE_SIM,
-    ACTION_OBJECT_ADD_NODE,
-    ACTION_OBJECT_RENAME_NODE,
-    ACTION_OBJECT_DELETE,
-    ACTION_OBJECT_PROPERTIES,
-    ACTION_COMP_ADD_CMESH,
-    ACTION_COMP_ADD_CLINK,
-    ACTION_COMP_ADD_CPATH
-  };
-
-  /////////////////////////////////////////////////////////////////////////////
-
   /// @brief This class manages the tree m_view.
 
   /// @author Gasper Quentin
@@ -63,7 +40,7 @@ namespace Client {
   {
     Q_OBJECT
 
-    public:
+  public:
     /// @brief Constructor.
 
     /// @param optionsPanel Panel m_options of the selected node will be displayed.
@@ -105,11 +82,7 @@ namespace Client {
     /// Otherwise, returns @c false.
     bool isReadOnly() const;
 
-//    QAction * addSimToMenu(QMenu * menu);
-
-//    QAction * addSimToMenuBar(QMenuBar * menuBar);
-
-    protected:
+  protected:
 
     /// @brief Method called when a mouse button is pressed in the Client.
 
@@ -125,77 +98,18 @@ namespace Client {
 
     virtual void keyPressEvent(QKeyEvent * event);
 
-    private slots:
+  private slots:
 
     void addComponent();
 
-    /// @brief Slot called when user wants to add a node.
-    void addNode();
-
-    /// @brief Slot called when user wants to delete a node.
-    void deleteNode();
-
-    /// @brief Slot called when the user wants to rename an object.
-
-    /// A request is sent to the server if and only if the new name is not
-    /// empty and it is different to the old one.
-    void renameNode();
-
-//    /// @brief Slot called when the user wants to see an object properties.
-
-//    /// Properties are displayed in a message box.
-//    void showProperties();
-
-    /// @brief Slot called when user wants to add an option to the currently
-    /// selected object.
-
-    /// It is called when user clicks on any type in "Add an option" sub-menu of
-    /// the context menu.
-    void addOption();
-
-    /// @brief Slot called user wants to commit modified m_options
-
-    /// @param modOptions Modified m_options
-    /// @param m_newOptions Newly added m_options
-    void changesMade(const QDomDocument & modOptions,
-                     const QDomDocument & newOptions);
-
-//    /// @brief Slot called when user wants to create a new simulation.
-//    void newSimulation();
-
-    /// @brief Slot called when user wants to load a case file.
-    void openSimulation();
-
-//    /// @brief Slot called when user wants to delete a simulation.
-//    void endSimulation();
-
-//    /// @brief Slot called when user wants to connect a simulation to its server.
-//    void connectSimulation();
-
-//    /// @brief Slot called when user wants to disconnect a simulation from
-//    /// its server.
-//    void disconnectSimulation();
-
     /// @brief Slot called when user wants to update a simulation tree.
     void updateTree();
-
-//    /// @brief Slot called when user wants to run a simulation.
-//    void runSimulation();
-
-//    /// @brief Slot called when user wants to stop a running simulation.
-//    void stopSimulation();
-
-//    /// @brief Slot called when user wants to activate a simulation.
-//    void activateSimulation();
-
-//    /// @brief Slot called when user wants to deactivate simulation.
-//    void deactivateSimulation();
 
     void currentIndexChanged(const QModelIndex & index);
 
     void nodeActivated(const QModelIndex & index);
 
-    signals:
+  signals:
 
     void addComponent(const QModelIndex & index,
                       CF::GUI::Network::ComponentType::Type type,
@@ -274,7 +188,7 @@ namespace Client {
 
     void updateTree(const QModelIndex & index);
 
-    private:
+  private:
 
     /// @brief Hashmap containing all available actions for menu m_items.
 
@@ -326,14 +240,6 @@ namespace Client {
     /// "Delete", "Rename", "Add a child node" and "Add an option" m_items are then
     /// disabled.
     bool m_readOnly;
-
-//    /// @brief Buillds object menu
-//    void buildObjectMenu();
-
-//    /// @brief Builds the simulation menu
-//    void buildSimulationMenu();
-
-//    void buildComponentMenu();
 
     /// @brief Asks user to commit or rollback before changing m_options in
     /// m_options panel.
@@ -387,9 +293,6 @@ namespace Client {
     void setNodeState(const QHash<QString, bool> & nodeState,
                       bool expandIfNew, const QModelIndex & index,
                       QList<QString> & list);
-
-//    void enableDisableOptions(const QModelIndex & index);
-
 
   }; // class TreeView
 

@@ -117,8 +117,6 @@ namespace Client {
     /// @throw XmlError If the tree could not be built.
     static CNode::Ptr createFromXml(const QDomElement & node);
 
-//    static CNode::Ptr createFromXml(const QDomDocument & doc);
-
   protected:
 
     QList<NodeParams> m_params;
