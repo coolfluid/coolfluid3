@@ -261,7 +261,7 @@ void MainWindow::buildMenus()
   //----------------------------------------------------
   //----------------------------------------------------
 
-  m_treeView->addSimToMenuBar(this->menuBar());
+//  m_treeView->addSimToMenuBar(this->menuBar());
   this->menuBar()->addMenu(m_mnuView);
   this->menuBar()->addMenu(m_mnuHelp);
 }

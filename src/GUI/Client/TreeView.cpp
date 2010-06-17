@@ -44,12 +44,13 @@ TreeView::TreeView(OptionPanel * optionsPanel, QMainWindow * parent)
 
   m_optionsPanel = optionsPanel;
 
-  this->setModel(ClientRoot::getTree().get());//m_modelFilter);
-  m_modelFilter->setDynamicSortFilter(false);
+  m_modelFilter->setSourceModel(ClientRoot::getTree().get());
+  m_modelFilter->setDynamicSortFilter(true);
 
   QRegExp reg(QRegExp(".+", Qt::CaseInsensitive, QRegExp::RegExp));
   m_modelFilter->setFilterRegExp(reg);
 
+  this->setModel(m_modelFilter);
   this->buildComponentMenu();
   this->buildSimulationMenu();
   this->buildObjectMenu();
@@ -60,10 +61,8 @@ TreeView::TreeView(OptionPanel * optionsPanel, QMainWindow * parent)
   // a "Context menu event" must be generated
   this->setContextMenuPolicy(Qt::CustomContextMenu);
 
-  this->setHeaderHidden(false);
-
   this->header()->setResizeMode(QHeaderView::ResizeToContents);
-  this->header()->setStretchLastSection(false);
+  this->header()->setStretchLastSection(true);
 
   connect(this, SIGNAL(activated(const QModelIndex &)),
           this, SLOT(nodeActivated(const QModelIndex &)));

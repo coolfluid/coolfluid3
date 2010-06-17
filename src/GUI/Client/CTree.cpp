@@ -60,6 +60,8 @@ CTree::CTree(CNode::Ptr rootNode)
   else
     m_rootNode = new TreeNode(rootNode, CFNULL, 0);
 
+  m_columns << "Name" << "Type";
+
   regist_signal("list_tree", "Log message")->connect(boost::bind(&CTree::list_tree, this, _1));
 }
 
@@ -185,7 +187,7 @@ int CTree::rowCount(const QModelIndex & parent) const
 
 int CTree::columnCount(const QModelIndex & parent) const
 {
-  return 2;
+  return m_columns.count();
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -194,10 +196,11 @@ int CTree::columnCount(const QModelIndex & parent) const
 QVariant CTree::headerData(int section, Qt::Orientation orientation,
                            int role) const
 {
-  if(section == 1)
-    return "Name";
-  else
-    return "Type";
+  if(role == Qt::DisplayRole && orientation == Qt::Horizontal && section >= 0
+     && section < m_columns.size())
+    return m_columns.at(section);
+
+  return QVariant();
 }
 
 /*============================================================================

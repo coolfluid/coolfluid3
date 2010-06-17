@@ -90,6 +90,8 @@ namespace Client {
 
     TreeNode * m_rootNode;
 
+    QStringList m_columns;
+
     inline TreeNode * indexToTreeNode(const QModelIndex & index) const;
 
     inline CNode::Ptr indexToNode(const QModelIndex & index) const;
