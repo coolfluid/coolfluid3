@@ -1,3 +1,5 @@
+#include <QtCore>
+
 #include "GUI/Client/TreeNode.hpp"
 
 using namespace CF::GUI::Client;
@@ -24,9 +26,27 @@ bool TreeNode::hasParent() const
 
 TreeNode * TreeNode::getChild(int index)
 {
-  cf_assert(index < m_childNodes.size());
+  TreeNode * child = CFNULL;
+  // if the TreeNode corresponding to this child has already been created,
+  // it is returned...
+  if (index >= 0 && index < m_childNodes.size())
+    child = m_childNodes.at(index);
 
-  return m_childNodes.at(index);
+  // ...otherwise, if the index is valid, it is created and returned...
+  if(child == CFNULL && index>= 0 && index < m_childNodes.size())
+  {
+    CNode::Ptr childNode = m_node->getNode(index);
+    child = new TreeNode(childNode, this, index);
+    m_childNodes.replace(index, child);
+
+  }
+
+  // ...if the index is not valid, return a CFNULL pointer
+  return child;
+
+//  cf_assert(index < m_childNodes.size());
+
+//  return m_childNodes.at(index);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -51,4 +71,12 @@ TreeNode * TreeNode::getParent() const
 int TreeNode::getRowNumber() const
 {
   return m_rowNumber;
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+int TreeNode::getChildCount() const
+{
+  return m_node->getNodeCount();
 }

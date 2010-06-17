@@ -5,7 +5,10 @@
 
 #include <QAbstractItemModel>
 
+#include "Common/Component.hpp"
 #include "GUI/Client/CNode.hpp"
+
+class QDomElement;
 
 namespace CF {
 namespace GUI {
@@ -18,11 +21,17 @@ namespace Client {
 
   /// @brief Tree model
 
-  class CTree : public QAbstractItemModel
+  class CTree :
+      public QAbstractItemModel,
+      public CF::Common::Component
   {
   public:
 
-    CTree(CNode::Ptr rootNode);
+    typedef boost::shared_ptr<CTree> Ptr;
+
+    CTree(CF::GUI::Client::CNode::Ptr rootNode = CF::GUI::Client::CNode::Ptr());
+
+    void setRoot(CNode::Ptr node);
 
     /// @brief Implementation of @c QAbstractItemModel::data().
 
@@ -80,6 +89,20 @@ namespace Client {
   private:
 
     TreeNode * m_rootNode;
+
+    inline TreeNode * indexToTreeNode(const QModelIndex & index) const;
+
+    inline CNode::Ptr indexToNode(const QModelIndex & index) const;
+
+
+  private: // boost signals
+
+    /// @name Signals
+    /// @{
+
+    CF::Common::Signal::return_t updateTree(CF::Common::Signal::arg_t & node);
+
+    /// @} END Signals
 
 
   }; // class CTree

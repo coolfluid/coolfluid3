@@ -19,13 +19,14 @@ CRoot::Ptr ClientRoot::getRoot()
   static CRoot::Ptr root = CRoot::create(CLIENT_ROOT);
   static CLog::Ptr log(new CLog());
   static CBrowser::Ptr browser(new CBrowser());
-
+  static CTree::Ptr tree(new CTree());
 
   // if the function is called for the first time, we add the components
   if(!rootCreated)
   {
     root->add_component(log);
     root->add_component(browser);
+    root->add_component(tree);
 
     rootCreated = true;
   }
@@ -83,4 +84,12 @@ CLog::Ptr ClientRoot::getLog()
 CBrowser::Ptr ClientRoot::getBrowser()
 {
   return boost::dynamic_pointer_cast< CBrowser >(getRoot()->access_component(CLIENT_BROWSERS_PATH));
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+CTree::Ptr ClientRoot::getTree()
+{
+  return getRoot()->access_component< CTree >(CLIENT_TREE_PATH);
 }

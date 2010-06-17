@@ -6,6 +6,8 @@
 #include <QMap>
 #include <QObject>
 
+#include "Common/Component.hpp"
+#include "Common/SignalHandler.hpp"
 #include "Common/XmlHelpers.hpp"
 
 #include "GUI/Client/TreeModel.hpp"
@@ -36,7 +38,9 @@ namespace Client {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  class ClientCore : public QObject
+  class ClientCore :
+      public QObject,
+      public CF::Common::Component
   {
     Q_OBJECT
 

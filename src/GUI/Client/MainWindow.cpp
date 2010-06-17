@@ -68,6 +68,8 @@ MainWindow::MainWindow()
 
   m_aboutCFDialog = new AboutCFDialog(this);
 
+  m_treeView->setModel(ClientRoot::getTree().get());
+
   // configure components
   m_logWindow->setWidget(m_logList);
   m_logWindow->setFeatures(QDockWidget::NoDockWidgetFeatures |
@@ -146,7 +148,7 @@ MainWindow::MainWindow()
     ClientRoot::getLog()->addMessage("No workspace to load.");
 
   ClientCore::getInstance().setTreeModel(m_treeModel);
-  m_treeView->setTreeModel(m_treeModel);
+ // m_treeView->setTreeModel(m_treeModel);
   m_optionPanel->setTreeModel(m_treeModel);
 
   ClientCore::getInstance().setStatusModel(m_statusModel);

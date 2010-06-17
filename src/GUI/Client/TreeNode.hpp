@@ -30,6 +30,8 @@ namespace Client {
 
     int getRowNumber() const;
 
+    int getChildCount() const;
+
   private:
 
     CNode::Ptr m_node;

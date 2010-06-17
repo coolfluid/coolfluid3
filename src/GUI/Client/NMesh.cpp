@@ -1,8 +1,11 @@
 #include <QtCore>
 #include <QtGui>
 
+#include "Common/CF.hpp"
+
 #include "GUI/Client/NMesh.hpp"
 
+using namespace CF::Common;
 using namespace CF::GUI::Client;
 
 NMesh::NMesh(const QString & name)
@@ -26,7 +29,7 @@ QList<NodeAction> NMesh::getNodeActions() const
 
 QIcon NMesh::getIcon() const
 {
-  return QIcon();
+  return QFileIconProvider().icon(QFileIconProvider::Drive);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -35,4 +38,12 @@ QIcon NMesh::getIcon() const
 QString NMesh::getClassName() const
 {
   return "NMesh";
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void NMesh::setParams(const QDomNodeList & list)
+{
+  throw NotImplemented(FromHere(), "NMesh::setParams");
 }

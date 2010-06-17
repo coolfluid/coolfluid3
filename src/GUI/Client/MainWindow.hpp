@@ -27,7 +27,6 @@ class StatusModel;
 class QTextEdit;
 class QTimer;
 class QScrollBar;
-class QTreeView;
 class QSplitter;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -115,7 +114,7 @@ namespace Client {
     void openSimulation(const QModelIndex & index);
 
     void showHelp();
-    
+
     void newException(const QString &);
 
     private:

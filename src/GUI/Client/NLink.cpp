@@ -1,8 +1,11 @@
 #include <QtCore>
 #include <QtGui>
 
+#include "Common/CF.hpp"
+
 #include "GUI/Client/NLink.hpp"
 
+using namespace CF::Common;
 using namespace CF::GUI::Client;
 
 NLink::NLink(const QString & name)
@@ -26,7 +29,7 @@ QList<NodeAction> NLink::getNodeActions() const
 
 QIcon NLink::getIcon() const
 {
-  return QIcon();
+  return QFileIconProvider().icon(QFileIconProvider::Network);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -35,4 +38,12 @@ QIcon NLink::getIcon() const
 QString NLink::getClassName() const
 {
   return "NLink";
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void NLink::setParams(const QDomNodeList & list)
+{
+  throw NotImplemented(FromHere(), "NLink::setParams");
 }

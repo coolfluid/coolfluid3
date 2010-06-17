@@ -20,6 +20,7 @@ SET(coolfluid-client_moc_classes
   FilesPanel.hpp
   LoggingList.hpp
   MainWindow.hpp
+  NGroup.hpp
   NLink.hpp
   NMesh.hpp
   NMethod.hpp
@@ -93,6 +94,8 @@ LIST ( APPEND coolfluid-client_files
   MainWindow.hpp
   MenuActionInfo.cpp
   MenuActionInfo.hpp
+  NGroup.cpp
+  NGroup.hpp
   NLink.cpp
   NLink.hpp
   NMesh.cpp

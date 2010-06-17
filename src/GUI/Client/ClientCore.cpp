@@ -23,14 +23,15 @@ using namespace CF::GUI::Client;
 using namespace CF::GUI::Network;
 
 ClientCore::ClientCore()
-  : m_treeModel(CFNULL),
+  : Component(CLIENT_CORE),
+    m_treeModel(CFNULL),
     m_statusModel(CFNULL)
 {
   m_timer = new QTimer(this);
   m_networkComm = new ClientNetworkComm();
   m_process = new QProcess(this);
 
-  connect (m_networkComm, SIGNAL(connected()), this, SLOT(connected()));
+  connect(m_networkComm, SIGNAL(connected()), this, SLOT(connected()));
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -220,7 +221,7 @@ void ClientCore::connected()
 
   XmlNode * docNode = XmlOps::goto_doc_node(*root.get());
 
-  XmlOps::add_signal_frame(*docNode, "list_tree", CLIENT_LOG_PATH, SERVER_ROOT_PATH);
+  XmlOps::add_signal_frame(*docNode, "list_tree", CLIENT_TREE_PATH, SERVER_ROOT_PATH);
 
   m_networkComm->send(*root.get());
 }

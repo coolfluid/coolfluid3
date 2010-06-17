@@ -81,26 +81,35 @@ namespace Client {
     /// @return Returns the number of child nodes this node has.
     int getNodeCount() const;
 
+    CNode::Ptr getNode(CF::Uint index);
+
     /// @brief Gives a list of action the node can execute
     /// @return Returns a list of action the node can execute
     /// @note This method should be reimplemented by all subclasses.
-    virtual QList<NodeAction> getNodeActions() const;
+    virtual QList<NodeAction> getNodeActions() const = 0;
 
     /// @brief Gives the icon associated to this node
     /// @return Returns the icon associated to this node
     /// @note This method should be reimplemented by all subclasses.
-    virtual QIcon getIcon() const;
+    virtual QIcon getIcon() const = 0;
 
     /// @brief Gives a string with the class name.
     /// This implementation always returns "CNode". Subclass implementations
     /// should returns their own class name.
     /// @return Returns the class name.
     /// @note This method should be reimplemented by all subclasses.
-    virtual QString getClassName() const;
+    virtual QString getClassName() const = 0;
 
-    virtual void setParams(const QDomNodeList & list);
+    virtual void setParams(const QDomNodeList & list) = 0;
 
-    static CNode::Ptr createFromXml(const QDomDocument & doc);
+    /// @brief Creates an object tree from a given node
+
+    /// @param node Node to convert
+    /// @return Retuns a shared pointer to the created node.
+    /// @throw XmlError If the tree could not be built.
+    static CNode::Ptr createFromXml(const QDomElement & node);
+
+//    static CNode::Ptr createFromXml(const QDomDocument & doc);
 
   protected:
 
@@ -110,8 +119,6 @@ namespace Client {
 
     /// @brief Component type name.
     QString m_componentType;
-
-    static CNode::Ptr toTreeNode(const QDomElement & node);
 
   }; // class CNode
 

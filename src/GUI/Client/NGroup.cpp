@@ -1,12 +1,21 @@
 #include <QtCore>
 #include <QtGui>
 
-#include "GUI/Client/NMethod.hpp"
+#include "GUI/Client/NGroup.hpp"
 
 using namespace CF::GUI::Client;
 
-NMethod::NMethod(const QString & name)
-  : CNode(name, "CMethod")
+NGroup::NGroup(const QString & name) :
+    CNode(name, "CGroup")
+{
+
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+NGroup::NGroup(const QDomElement & node) :
+    CNode(node.attribute("name"), "CGroup")
 {
 
 }
@@ -14,7 +23,7 @@ NMethod::NMethod(const QString & name)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QList<NodeAction> NMethod::getNodeActions() const
+QList<NodeAction> NGroup::getNodeActions() const
 {
   static QList<NodeAction> list;
 
@@ -24,23 +33,20 @@ QList<NodeAction> NMethod::getNodeActions() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QIcon NMethod::getIcon() const
+QIcon NGroup::getIcon() const
 {
-  return QFileIconProvider().icon(QFileIconProvider::File);
+  return QFileIconProvider().icon(QFileIconProvider::Folder);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString NMethod::getClassName() const
+QString NGroup::getClassName() const
 {
-  return "NMethod";
+  return "NGroup";
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void NMethod::setParams(const QDomNodeList & list)
+void NGroup::setParams(const QDomNodeList & list)
 {
 
 }

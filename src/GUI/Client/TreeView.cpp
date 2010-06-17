@@ -39,13 +39,13 @@ TreeView::TreeView(OptionPanel * optionsPanel, QMainWindow * parent)
 
   // instantiate class attributes
   m_treeModel = CFNULL;
-  m_modelFilter = new QSortFilterProxyModel();
+  m_modelFilter = new QSortFilterProxyModel(this);
   m_mnuNewOption = new QMenu("Add an option");
 
   m_optionsPanel = optionsPanel;
 
-  this->setModel(m_modelFilter);
-  m_modelFilter->setDynamicSortFilter(true);
+  this->setModel(ClientRoot::getTree().get());//m_modelFilter);
+  m_modelFilter->setDynamicSortFilter(false);
 
   QRegExp reg(QRegExp(".+", Qt::CaseInsensitive, QRegExp::RegExp));
   m_modelFilter->setFilterRegExp(reg);
@@ -164,38 +164,39 @@ void TreeView::addNode()
 
 void TreeView::mousePressEvent(QMouseEvent * event)
 {
-  QPoint mousePosition(event->x() + this->x(), event->y() + this->y());
-  QModelIndex index = this->indexAt(mousePosition);
+  QTreeView::mousePressEvent(event);
+//  QPoint mousePosition(event->x() + this->x(), event->y() + this->y());
+//  QModelIndex index = this->indexAt(mousePosition);
 
-  QModelIndex indexInModel = m_modelFilter->mapToSource(index);
-  Qt::MouseButton button = event->button();
+//  QModelIndex indexInModel = m_modelFilter->mapToSource(index);
+//  Qt::MouseButton button = event->button();
 
-  this->enableDisableOptions(m_treeModel->getParentSimIndex(indexInModel));
+//  this->enableDisableOptions(m_treeModel->getParentSimIndex(indexInModel));
 
-  if(event->type() == QEvent::MouseButtonDblClick && button == Qt::LeftButton
-    && index.isValid())
-  {
-    if(this->isExpanded(index))
-      this->collapse(index);
-    else
-      this->expand(index);
-  }
-  else if(button == Qt::RightButton)
-  {
-    if(!m_treeModel->getCurrentIndex().isValid())
-      m_treeModel->setCurrentIndex(indexInModel);
+//  if(event->type() == QEvent::MouseButtonDblClick && button == Qt::LeftButton
+//    && index.isValid())
+//  {
+//    if(this->isExpanded(index))
+//      this->collapse(index);
+//    else
+//      this->expand(index);
+//  }
+//  else if(button == Qt::RightButton)
+//  {
+//    if(!m_treeModel->getCurrentIndex().isValid())
+//      m_treeModel->setCurrentIndex(indexInModel);
 
-    // if this is a simulation node, we display the simulation context menu
-    if(m_treeModel->isSimulationNode(indexInModel) || !indexInModel.isValid())
-      m_simulationMenu->exec(QCursor::pos());
-    else // we display the objects context menu
-      m_objectMenu->exec(QCursor::pos());
-  }
-  else if(!m_treeModel->areEqual(indexInModel, m_treeModel->getCurrentIndex()))
-  {
-    if(index != m_treeModel->getCurrentIndex() && this->confirmChangeOptions(index))
-      m_treeModel->setCurrentIndex(indexInModel);
-  }
+//    // if this is a simulation node, we display the simulation context menu
+//    if(m_treeModel->isSimulationNode(indexInModel) || !indexInModel.isValid())
+//      m_simulationMenu->exec(QCursor::pos());
+//    else // we display the objects context menu
+//      m_objectMenu->exec(QCursor::pos());
+//  }
+//  else if(!m_treeModel->areEqual(indexInModel, m_treeModel->getCurrentIndex()))
+//  {
+//    if(index != m_treeModel->getCurrentIndex() && this->confirmChangeOptions(index))
+//      m_treeModel->setCurrentIndex(indexInModel);
+//  }
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -967,21 +968,21 @@ void TreeView::enableDisableOptions(const QModelIndex & index)
 
 void TreeView::setTreeModel(TreeModel * treeModel)
 {
-  if(m_treeModel != CFNULL)
-    m_treeModel->disconnect();
+//  if(m_treeModel != CFNULL)
+//    m_treeModel->disconnect();
 
-  m_treeModel = treeModel;
+//  m_treeModel = treeModel;
 
-  m_modelFilter->setSourceModel(m_treeModel);
+//  m_modelFilter->setSourceModel(m_treeModel);
 
-  if(m_treeModel != CFNULL)
-  {
-    connect(m_treeModel, SIGNAL(currentIndexChanged(const QModelIndex &)),
-            this, SLOT(currentIndexChanged(const QModelIndex &)));
+//  if(m_treeModel != CFNULL)
+//  {
+//    connect(m_treeModel, SIGNAL(currentIndexChanged(const QModelIndex &)),
+//            this, SLOT(currentIndexChanged(const QModelIndex &)));
 
-    // enable/disable menu m_options
-    this->enableDisableOptions(m_treeModel->getCurrentIndex());
-  }
+//    // enable/disable menu m_options
+//    this->enableDisableOptions(m_treeModel->getCurrentIndex());
+//  }
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

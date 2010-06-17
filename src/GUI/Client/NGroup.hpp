@@ -1,30 +1,23 @@
-#ifndef CF_GUI_Client_NLink_hpp
-#define CF_GUI_Client_NLink_hpp
-
-//////////////////////////////////////////////////////////////////////////////
+#ifndef CF_GUI_Client_NGroup_hpp
+#define CF_GUI_Client_NGroup_hpp
 
 #include "GUI/Client/CNode.hpp"
 
-//////////////////////////////////////////////////////////////////////////////
+class QDomElement;
 
 namespace CF {
 namespace GUI {
 namespace Client {
 
-  ////////////////////////////////////////////////////////////////////////////
-
-  class NLink :
+  class NGroup :
       public CNode
   {
     Q_OBJECT
 
   public:
+    NGroup(const QString & name);
 
-    typedef boost::shared_ptr<NLink> Ptr;
-
-    /// @brief Constructor
-    /// @param name Node name
-    NLink(const QString & name);
+    NGroup(const QDomElement & element);
 
     /// @brief Gives a list of action the node can execute
     /// @return Returns a list of action the node can execute
@@ -45,14 +38,11 @@ namespace Client {
 
     void setParams(const QDomNodeList & list);
 
-  }; // class NLink
+  };
 
-//////////////////////////////////////////////////////////////////////////////
+}
+}
+}
 
-} // namespace Client
-} // namespace GUI
-} // namespace CF
 
-//////////////////////////////////////////////////////////////////////////////
-
-#endif // CF_GUI_Client_NLink_hpp
+#endif // CF_GUI_Client_NGroup_hpp
