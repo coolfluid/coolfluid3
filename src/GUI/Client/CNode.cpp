@@ -124,19 +124,12 @@ CNode::Ptr CNode::createFromXml(const QDomElement & element)
 
 CNode::Ptr CNode::getNode(CF::Uint index)
 {
-  Component_iterator<CNode> it = this->recursive_begin<CNode>();
-  CF::Uint i = 0;
+  ComponentIterator<CNode> it = this->begin<CNode>();
 
   cf_assert(index < m_components.size());
 
-  while(i < index)
-  {
+  for(CF::Uint i = 0 ; i < index ; i++)
     it++;
-
-    if(it->get_parent().get() == this)
-      i++;
-  }
-
 
   return boost::shared_ptr<CNode>(&(*it));
 }
