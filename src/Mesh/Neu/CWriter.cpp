@@ -419,7 +419,7 @@ void CWriter::create_nodes_to_element_connectivity()
 }
 //////////////////////////////////////////////////////////////////////////////
 
-boost::tuple<CRegion* const,Uint,Uint> CWriter::find_element_for_face(const CElements& face, const CTable::ConstRow& nodes, const Component& parent)
+boost::tuple<CRegion const* const,Uint,Uint> CWriter::find_element_for_face(const CElements& face, const CTable::ConstRow& nodes, const Component& parent)
 {
 
   std::vector<Uint> sorted_nodes;
@@ -432,7 +432,7 @@ boost::tuple<CRegion* const,Uint,Uint> CWriter::find_element_for_face(const CEle
 //  CFinfo << CFendl;
 
   std::vector<Uint> sorted_face_row(sorted_nodes.size());
-  typedef std::pair<CRegion* const,Uint> elem_t;
+  typedef std::pair<CRegion const* const,Uint> elem_t;
   BOOST_FOREACH(elem_t elem, m_n2e[sorted_nodes[0]])
   {
     Uint face_idx=0;

@@ -21,7 +21,7 @@ option ( CF_ENABLE_EXPLICIT_TEMPLATES "Enable explicit template instantiation"  
 option ( CF_ENABLE_INTERNAL_DEPS      "Enable internal dependencies between libraries" ON  )
 option ( CF_ENABLE_TESTCASES          "Enable checking testcases from CMake system"    OFF )
 option ( CF_ENABLE_UNITTESTS          "Enable creation of unit tests"                  ON  )
-option ( CF_ENABLE_WARNINGS           "Enable lots of warnings while compiling"        ON  )
+option ( CF_ENABLE_WARNINGS           "Enable lots of warnings while compiling"        OFF  )
 option ( CF_ENABLE_STDASSERT          "Enable standard assert() functions "            OFF )
 option ( CF_ENABLE_SANDBOX            "Enable build of sandbox projects"               OFF   )
 

@@ -59,9 +59,9 @@ private:
   std::vector<std::vector<Uint> > m_faces_cf_to_neu;
   std::vector<std::vector<Uint> > m_faces_neu_to_cf;
 
-  std::map<Uint,std::vector<std::pair<CRegion*,Uint> > > m_n2e;
+  std::map<Uint,std::vector<std::pair<CRegion const*,Uint> > > m_n2e;
 
-  boost::tuple<CRegion* const,Uint,Uint> find_element_for_face(const CElements& face, const CTable::ConstRow& nodes, const Component& parent);
+  boost::tuple<CRegion const* const,Uint,Uint> find_element_for_face(const CElements& face, const CTable::ConstRow& nodes, const Component& parent);
 
   CMesh::Ptr m_mesh;
 

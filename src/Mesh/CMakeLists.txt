@@ -33,12 +33,14 @@ LIST ( APPEND Mesh_files
   RCM.cpp
 
 # directories with headers only can have their contents appended to base dir
-  LagrangeSF/TriagP1.hpp
-  LagrangeSF/QuadP1.hpp
-  LagrangeSF/LagrangeSFTypes.hpp
   Integrators/Gauss.hpp
   Integrators/GaussImplementation.hpp
   Integrators/IntegrationFunctorBase.hpp
+  
+  LagrangeSF/LagrangeSFTypes.hpp
+  LagrangeSF/QuadP1.hpp
+  LagrangeSF/TetraP1.hpp
+  LagrangeSF/TriagP1.hpp
 )
 
 LIST ( APPEND Mesh_cflibs Common )
