@@ -11,6 +11,7 @@
 #include "Mesh/CMeshWriter.hpp"
 
 using namespace boost;
+using namespace CF;
 using namespace CF::Common;
 using namespace CF::Mesh;
 
@@ -27,14 +28,14 @@ int main(int argc, char * argv[])
   typedef std::pair<std::string,std::vector<CMeshWriter::Ptr> > extensions_to_writers_pair_t;
   std::map<std::string,std::vector<CMeshReader::Ptr> > extensions_to_readers;
   std::map<std::string,std::vector<CMeshWriter::Ptr> > extensions_to_writers;
-  std::vector<std::string> input_formats;
-  std::vector<std::string> output_formats;
+  std::vector<CMeshReader::Ptr> readers;
+  std::vector<CMeshWriter::Ptr> writers;
 
   std::vector<CMeshReader::PROVIDER*> allmeshreaders = Factory<CMeshReader>::getInstance().getAllConcreteProviders();
   BOOST_FOREACH(CMeshReader::PROVIDER* prov, allmeshreaders)
   {
     CMeshReader::Ptr reader = dynamic_pointer_cast<CMeshReader>(prov->create("reader"));
-    input_formats.push_back(reader->get_format());
+    readers.push_back(reader);
     BOOST_FOREACH(const std::string& extension, reader->get_extensions())
       extensions_to_readers[extension].push_back(reader);
   }
@@ -43,7 +44,7 @@ int main(int argc, char * argv[])
   BOOST_FOREACH(CMeshWriter::PROVIDER* prov, allmeshwriters)
   {
     CMeshWriter::Ptr writer = dynamic_pointer_cast<CMeshWriter>(prov->create("writer"));
-    output_formats.push_back(writer->get_format());
+    writers.push_back(writer);
     BOOST_FOREACH(const std::string& extension, writer->get_extensions())
       extensions_to_writers[extension].push_back(writer);
   }
@@ -64,17 +65,27 @@ int main(int argc, char * argv[])
      vk.push_back("  -f [ --format ] arg  ");  vt.push_back("format of the file specified in previous arg");
      vk.push_back("  -t[...]  ");             vt.push_back("transformations");
      vk.push_back("  -v [ --version ]  ");        vt.push_back("display version");
+     vk.push_back("  -d [ --dryrun ]  ");        vt.push_back("dry run");
      vk.push_back("");                      vt.push_back("");
      vk.push_back("Input formats:");        vt.push_back("");
-     BOOST_FOREACH(const extensions_to_readers_pair_t& p, extensions_to_readers)
-     BOOST_FOREACH(const CMeshReader::Ptr& reader, p.second)
-     { vk.push_back("  "+p.first);   vt.push_back(reader->get_format());}
+     BOOST_FOREACH(const CMeshReader::Ptr& reader, readers)
+     {
+       vk.push_back("  " + reader->get_format());
+       std::string extensions;
+       BOOST_FOREACH(const std::string& ext, reader->get_extensions())
+         extensions += ext + " ";
+       vt.push_back(extensions);
+     }
      vk.push_back("");                      vt.push_back("");
      vk.push_back("Output formats:");       vt.push_back("");
-     BOOST_FOREACH(const extensions_to_writers_pair_t& p, extensions_to_writers)
-     BOOST_FOREACH(const CMeshWriter::Ptr& writer, p.second)
-     { vk.push_back("  "+p.first);   vt.push_back(writer->get_format());}
-     vk.push_back("");                      vt.push_back("");
+     BOOST_FOREACH(const CMeshWriter::Ptr& writer, writers)
+     {
+       vk.push_back("  " + writer->get_format());
+       std::string extensions;
+       BOOST_FOREACH(const std::string& ext, writer->get_extensions())
+         extensions += ext + " ";
+       vt.push_back(extensions);
+     }     vk.push_back("");                      vt.push_back("");
      vk.push_back("Transformations:");      vt.push_back("");
      //ft->getkeys(vk);                     ft->gettxts(vt);
 
@@ -130,6 +141,13 @@ int main(int argc, char * argv[])
 
    }
 
+   bool dryrun = false;
+   if (o.search(2,"-d","--dryrun"))
+   {
+     dryrun = true;
+     CFinfo << "\nThis is what would happen without the dryrun option:" << CFendl << CFendl;
+   }
+
    // create mesh object
   CRoot::Ptr root = CRoot::create("root");
   CMesh::Ptr mesh = root->create_component_type<CMesh>("mesh");
@@ -143,11 +161,36 @@ int main(int argc, char * argv[])
 
        // multiple input merges another mesh into current
        filesystem::path inputfile (val);
-       const std::string key = inputfile.extension();
-       CMeshReader& reader = (*extensions_to_readers[key][0]);
-       CFinfo << "Reading file with " << reader.get_format() << CFendl;
+       const std::string ext = inputfile.extension();
+       CMeshReader::Ptr reader;
+       if (extensions_to_readers.find(ext)==extensions_to_readers.end())
+       {
+         Uint selection = 0;
+         CFinfo << inputfile << " has ambiguous extension " << ext << CFendl;
+         BOOST_FOREACH(const CMeshReader::Ptr selectreader , readers)
+           CFinfo << "  [" << selection++ +1 << "]  " << selectreader->get_format() << CFendl;
+         CFinfo << "Select the correct reader: " << CFflush;
+         std::cin >> selection;
+         reader = readers[--selection];
+       }
+       else
+       {
+         Uint selection = 0;
+         if (extensions_to_readers[ext].size()>1)
+         {
+           CFinfo << inputfile << " with extension " << ext << " has multiple readers: " << CFendl;
+           BOOST_FOREACH(const CMeshReader::Ptr selectreader , extensions_to_readers[ext])
+             CFinfo << "  [" << selection++ +1 << "]  " << selectreader->get_format() << CFendl;
+           CFinfo << "Select the correct reader: " << CFflush;
+           std::cin >> selection;
+           --selection;
+         }
+         reader = extensions_to_readers[ext][selection];
+       }
 
-       reader.read_from_to(inputfile,mesh);
+       CFinfo << "Reading file with " << reader->get_format() << CFendl;
+
+       if (!dryrun) reader->read_from_to(inputfile,mesh);
 //       if (fi->search(key.c_str())) {
 //         CFinfo << "::read \"" << val << "\"..." << CFendl;
 //         mfinput* p = fi->Create(key);
@@ -186,12 +229,37 @@ int main(int argc, char * argv[])
 
        // write current mesh
        filesystem::path outputfile (val);
-       const std::string key = outputfile.extension();
+       const std::string ext = outputfile.extension();
 
-       CMeshWriter& writer = (*extensions_to_writers[key][0]);
-       CFinfo << "Writing file with " << writer.get_format() << CFendl;
+       CMeshWriter::Ptr writer;
+       if (extensions_to_writers.find(ext)==extensions_to_writers.end())
+       {
+         Uint selection = 0;
+         CFinfo << outputfile << " has ambiguous extension " << ext << CFendl;
+         BOOST_FOREACH(const CMeshWriter::Ptr selectwriter , writers)
+           CFinfo << "  [" << selection++ +1 << "]  " << selectwriter->get_format() << CFendl;
+         CFinfo << "Select the correct writer: " << CFflush;
+         std::cin >> selection;
+         writer = writers[--selection];
+       }
+       else
+       {
+         Uint selection = 0;
+         if (extensions_to_writers[ext].size()>1)
+         {
+           CFinfo << outputfile << " with extension " << ext << " has multiple writers: " << CFendl;
+           BOOST_FOREACH(const CMeshWriter::Ptr selectwriter , extensions_to_writers[ext])
+             CFinfo << "  [" << selection++ +1 << "]  " << selectwriter->get_format() << CFendl;
+           CFinfo << "Select the correct writer: " << CFflush;
+           std::cin >> selection;
+           --selection;
+         }
+         writer = extensions_to_writers[ext][selection];
+       }
 
-       writer.write_from_to(mesh,outputfile);
+       CFinfo << "Writing file with " << writer->get_format() << CFendl;
+
+       if (!dryrun) writer->write_from_to(mesh,outputfile);
 
        //       if (fo->search(key.c_str())) {
 //         CFinfo << "::write \"" << val << "\"..." << CFendl;
