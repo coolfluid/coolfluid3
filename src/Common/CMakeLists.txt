@@ -54,7 +54,6 @@ LIST ( APPEND Common_files
     FactoryRegistry.hpp
     FactoryRegistry.cpp
     GeneralStorage.hpp
-    GetPot.hpp
     HourMinSec.cpp
     HourMinSec.hpp
     LibLoader.cpp
