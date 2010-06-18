@@ -2,6 +2,9 @@ CF_FIND_ORPHAN_FILES()
 
 LIST ( APPEND coolfluid-mesh-transformer_files coolfluid-mesh-transformer.cpp )
 
-LIST ( APPEND coolfluid-mesh-transformer_libs Mesh Neu Gmsh CGNS3 P1)
+LIST ( APPEND coolfluid-mesh-transformer_libs Mesh Neu Gmsh P1)
+if (CF_HAVE_CGNS)
+  LIST ( APPEND coolfluid-mesh-transformer_libs CGNS3)
+endif()
 
 CF_ADD_APP (coolfluid-mesh-transformer)
