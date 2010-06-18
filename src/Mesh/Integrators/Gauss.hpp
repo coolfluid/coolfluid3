@@ -99,7 +99,7 @@ void gaussIntegrate(const CRegion& region, FunctorT& functor, ResultT& result)
     boost::mpl::for_each<LagrangeSF::LagrangeSFTypes>(RegionIntegrator<FunctorT, ResultT>(region, functor, result, integrator_found));
     if(!integrator_found)
     {
-      CFwarn << "no integrator found for region " << region.name() << "\n";
+      CFwarn << "no integrator found for region " << region.name() << CFendl;
     }
   }
 }
@@ -113,7 +113,7 @@ void gaussIntegrate(const CMesh& mesh, FunctorT& functor, ResultT& result)
 {
   BOOST_FOREACH(const CRegion& region, recursive_range_typed<CRegion>(mesh))
   {
-    CFdebug << "integrating region " << region.name() << " with " << region.elements_count() << " elements\n";
+    CFdebug << "integrating region " << region.name() << " with " << region.elements_count() << " elements" << CFendl;
     functor.setRegion(region); // initialize region-specific functor data
     gaussIntegrate((region), functor, result);
   }

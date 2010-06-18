@@ -77,11 +77,11 @@ void ProfiledTestFixture::test_unit_finish( boost::unit_test::test_unit const& u
         std::istream_iterator<char>(),
         std::back_inserter(profile));
       // Output a CDash reference to the generated profiling graph
-      CFinfo << "<DartMeasurement name=\""<< unit.p_name.get() << " profile data\" type=\"text/plain\"><![CDATA[<html><body><pre>" + profile + "</pre></body></html>]]></DartMeasurement>\n";
+      CFinfo << "<DartMeasurement name=\""<< unit.p_name.get() << " profile data\" type=\"text/plain\"><![CDATA[<html><body><pre>" + profile + "</pre></body></html>]]></DartMeasurement>" << CFendl;
       //CFinfo << "<DartMeasurementFile name=\""<< basename << " profile graph\" type=\"image/png\">" + outfile.file_string() + ".png</DartMeasurementFile>\n";
     } catch(OSystemError& E) {
       // Fail softly and inform the user, since a profiling error is not fatal.
-      CFwarn << "Error processing profile file: " << E.what() << "\n";
+      CFwarn << "Error processing profile file: " << E.what() << CFendl;
     }
   }
 }

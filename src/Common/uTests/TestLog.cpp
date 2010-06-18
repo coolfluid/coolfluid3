@@ -57,6 +57,20 @@ BOOST_AUTO_TEST_CASE( openFiles )
   }
 }
 
+/// Demonstrate the need to flush after writing an atomic log message
+BOOST_AUTO_TEST_CASE( FlushBuffer )
+{
+  // Output order is not what we expect
+  CFinfo << "1. this is unflused CFlog line 1" << "\n";
+  std::cout << "2. This is flused std::cout" << std::endl;
+  CFinfo << "3. this is flushed CFlog line 2" << CFendl;
+  CFinfo << "---------------------------------" << CFendl;
+  // Output order is correct
+  CFinfo << "1. this is flused CFlog line 1" << CFendl;
+  std::cout << "2. This is flused std::cout" << std::endl;
+  CFinfo << "3. this is flushed CFlog line 2" << CFendl;
+}
+
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 

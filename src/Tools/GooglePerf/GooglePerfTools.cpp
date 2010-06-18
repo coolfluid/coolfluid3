@@ -19,15 +19,15 @@ GooglePerfToolsModule::GooglePerfToolsModule()
 void GooglePerfToolsModule::initiate() {
   if(!isInitialized()) {
     m_init = true;
-    CFinfo <<  getModuleName() << ": Saving profile data to: "  << m_path.native_file_string() << "\n";
+    CFinfo <<  getModuleName() << ": Saving profile data to: "  << m_path.native_file_string() << CFendl;
     ProfilerStart(m_path.native_file_string().c_str());
   } else {
-    CFwarn << getModuleName() << "Was already profiling!\n";
+    CFwarn << getModuleName() << "Was already profiling!" << CFendl;
   }
 }
 
 void GooglePerfToolsModule::terminate() {
-  CFinfo << getModuleName() << ": Stopping profiling\n";
+  CFinfo << getModuleName() << ": Stopping profiling" << CFendl;
   ProfilerStop();
   m_init = false;
 }

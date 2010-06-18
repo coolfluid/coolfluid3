@@ -37,7 +37,7 @@ public:
   /// Stop timing when a test ends
   void test_unit_finish( boost::unit_test::test_unit const& unit ) {
     // TODO: Provide more generic support for output in CDash format
-    CFinfo << "<DartMeasurement name=\"" << unit.p_name.get() << " time\" type=\"numeric/double\">" << m_timer.elapsed() << "</DartMeasurement>\n";
+    CFinfo << "<DartMeasurement name=\"" << unit.p_name.get() << " time\" type=\"numeric/double\">" << m_timer.elapsed() << "</DartMeasurement>" << CFendl;
   }
 private:
   boost::timer m_timer;

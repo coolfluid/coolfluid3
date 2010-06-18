@@ -70,7 +70,7 @@ void create_rectangle_buffered(CMesh& mesh, const Real x_len, const Real y_len, 
 
 /// Create a rectangular, 2D, quad-only mesh. No buffer for creation
 void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments) {
-  CFinfo << "Creating 2D rectangular grid\n";
+  CFinfo << "Creating 2D rectangular grid" << CFendl;
   const Uint dim = 2;
   CArray& coordinates = *mesh.create_array("coordinates");
   coordinates.initialize(dim);
@@ -118,7 +118,7 @@ struct GlobalFixture {
   GlobalFixture() {
     if(!grid2D) {
       grid2D.reset(new CMesh("grid2D"));
-      detail::create_rectangle(*grid2D, 1., 1., 1000, 1000);
+      detail::create_rectangle(*grid2D, 1., 1., 500, 500);
     }
   }
 
@@ -233,7 +233,7 @@ BOOST_FIXTURE_TEST_CASE( ComputeVolume2DUnitSquare, IntegrationFixture ) // time
         volume += element_type.computeVolume(nodes);
       }
     } else {
-      CFwarn << "Region " << region.name() << " has no elements\n";
+      CFwarn << "Region " << region.name() << " has no elements" << CFendl;
     }
   }
   BOOST_CHECK_CLOSE(volume, 1., 1e-8);
