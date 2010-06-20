@@ -132,20 +132,4 @@ CNode::Ptr CNode::getNode(CF::Uint index)
     it++;
 
   return it.get();
-
-//  Component_iterator<CNode> it = this->recursive_begin<CNode>();
-//  CF::Uint i = 0;
-
-//  cf_assert(index < m_components.size());
-
-//  while(i < index)
-//  {
-//    it++;
-
-//    if(it->get_parent().get() == this)
-//      i++;
-//  }
-
-
-//  return boost::shared_ptr<CNode>(&(*it));
 }
