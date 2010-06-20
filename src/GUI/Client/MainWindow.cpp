@@ -46,12 +46,10 @@ using namespace CF::Common;
 
 MainWindow::MainWindow()
 {
-//  this->setWindowTitle("COOLFluiD client");
+  this->setWindowTitle("COOLFluiD client");
 
 //  // create the components
-//  m_centralWidget = new QWidget(this);
   m_optionPanel = new OptionPanel(this);
-//  m_widgetsLayout = new QGridLayout();
   m_logWindow = new QDockWidget("Log Window", this);
   m_treeView = new TreeView(m_optionPanel);
   m_statusModel = new StatusModel(QDomDocument(), this);
@@ -63,21 +61,17 @@ MainWindow::MainWindow()
 
   m_treeView->setModel(ClientRoot::getTree().get());
 
-//  // configure components
+  // configure components
   m_logWindow->setWidget(m_logList);
   m_logWindow->setFeatures(QDockWidget::NoDockWidgetFeatures |
                            QDockWidget::DockWidgetClosable);
 
-//  // add the components to the splitter
+  // add the components to the splitter
   m_splitter->addWidget(m_treeView);
 
   m_splitter->addWidget(m_optionPanel);
   m_splitter->addWidget(m_statusPanel);
   m_splitter->setStretchFactor(1, 10);
-
-  //m_widgetsLayout->addWidget(m_splitter);
-
-//  m_centralWidget->setLayout(m_widgetsLayout);
 
   this->setCentralWidget(m_splitter);
   this->addDockWidget(Qt::BottomDockWidgetArea, m_logWindow);
@@ -125,8 +119,6 @@ MainWindow::~MainWindow()
   delete m_treeView;
   delete m_optionPanel;
   delete m_statusPanel;
-  delete m_widgetsLayout;
-  delete m_centralWidget;
 
   delete m_logList;
   delete m_logWindow;

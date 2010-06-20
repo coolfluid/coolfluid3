@@ -147,12 +147,6 @@ namespace Client {
     /// object.
     OptionPanel * m_optionPanel;
 
-    /// @brief Layout used to display widgets. Layout of @c #centralWidget.
-    QGridLayout * m_widgetsLayout;
-
-    /// @brief Main widget used to display widgets.
-    QWidget * m_centralWidget;
-
     /// @brief Hashmap containing all available actions for menu m_items.
 
     /// The key is a number defined by one of the constant integer attributes
