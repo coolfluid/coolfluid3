@@ -9,6 +9,7 @@ LIST ( APPEND uTestMesh_files
   TestMeshReading.cpp
 )
 
+# Only add TestCGNS.cpp if the CGNS library is available
 IF ( CF_HAVE_CGNS )
   LIST ( APPEND uTestMesh_cflibs CGNS3 )
   LIST ( APPEND uTestMesh_files  TestCGNS.cpp )
@@ -17,9 +18,16 @@ ELSE()
   CF_MARK_NOT_ORPHAN ( TestCGNS.cpp )
 ENDIF()
 
-configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/quadtriag.neu COPYONLY)
-
+# Add the target
 CF_ADD_UNITTEST ( uTestMesh )
+
+# Custom post-build rule (must be defined after adding target):
+# Copy the file quadtriag.neu from source dir to binary dir.
+# this must happen after building, as some IDE like Xcode define their
+# build types internally, in which the binary dir exists
+add_custom_command(TARGET uTestMesh
+                     POST_BUILD
+                     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR})
 
 ################################################################################
 
