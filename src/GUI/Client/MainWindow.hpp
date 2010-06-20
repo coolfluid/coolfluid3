@@ -25,6 +25,7 @@ class QModelIndex;
 class StatusModel;
 class QTextEdit;
 class QTimer;
+class QTreeView;
 class QScrollBar;
 class QSplitter;
 
