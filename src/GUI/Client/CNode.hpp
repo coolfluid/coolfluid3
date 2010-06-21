@@ -8,7 +8,6 @@
 #include <QObject>
 
 #include "Common/Component.hpp"
-
 #include "GUI/Client/OptionType.hpp"
 
 class QIcon;
@@ -108,7 +107,7 @@ namespace Client {
 
     void setParams(const QDomNodeList & list);
 
-    void getParams(QList<NodeParams> & params) const;
+    virtual void getParams(QList<NodeParams> & params) const = 0;
 
     /// @brief Creates an object tree from a given node
 

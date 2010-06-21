@@ -7,17 +7,12 @@
 #include <QObject>
 
 #include "Common/Component.hpp"
-#include "Common/SignalHandler.hpp"
 #include "Common/XmlHelpers.hpp"
+#include "Common/SignalHandler.hpp"
 
 #include "GUI/Client/TSshInformation.hpp"
 
-#include "GUI/Network/ComponentType.hpp"
-#include "GUI/Network/ComponentNames.hpp"
 #include "GUI/Network/NetworkFrameType.hpp"
-#include "GUI/Network/HostInfos.hpp"
-
-#include "GUI/Network/SignalInfo.hpp"
 
 class QModelIndex;
 class QProcess;
@@ -28,6 +23,13 @@ class QTimer;
 
 namespace CF {
 namespace GUI {
+
+namespace Network {
+  class ComponenentType;
+  struct HostInfos;
+  class SignalInfo;
+}
+
 namespace Client {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -44,7 +46,7 @@ namespace Client {
   {
     Q_OBJECT
 
-    public:
+  public:
 
     static ClientCore & instance();
 

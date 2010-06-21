@@ -50,3 +50,12 @@ QString NLink::getClassName() const
 {
   return "NLink";
 }
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void NLink::getParams(QList<NodeParams> & params) const
+{
+//  CNode::Ptr target = Client
+  params = m_params;
+}

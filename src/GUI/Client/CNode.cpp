@@ -72,26 +72,21 @@ void CNode::setParams(const QDomNodeList & list)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CNode::getParams(QList<NodeParams> & params) const
-{
-  params = m_params;
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 CNode::Ptr CNode::createFromXml(const QDomElement & element)
 {
   QString type = element.nodeName();
   QString name = element.attribute("name");
-  QDomNode child = element.firstChild();
+  QDomElement child = element.firstChildElement();
 
   cf_assert(!name.isEmpty());
 
   CNode::Ptr node;
 
   if(type == "CLink")
-    node = boost::shared_ptr<NLink>(new NLink(name));
+  {
+    QDomText targetPath = element.firstChild().toText();
+    node = boost::shared_ptr<NLink>(new NLink(name, targetPath.nodeValue().toStdString()));
+  }
   else if(type == "CMesh")
     node = boost::shared_ptr<NMesh>(new NMesh(name));
   else if(type == "CMethod")
@@ -103,17 +98,12 @@ CNode::Ptr CNode::createFromXml(const QDomElement & element)
 
   while(!child.isNull())
   {
-    if(child.nodeType() == QDomNode::ElementNode)
-    {
-      if(child.nodeName() == "params")
-        node->setParams(child.childNodes());
-      else
-        node->add_component( createFromXml(child.toElement()) );
-    }
-    else if(child.nodeType() == QDomNode::TextNode)
-      node->setTextData(child.nodeValue());
+    if(child.nodeName() == "params")
+      node->setParams(child.childNodes());
+    else
+      node->add_component( createFromXml(child) );
 
-    child = child.nextSibling();
+    child = child.nextSiblingElement();
   }
 
   return node;
@@ -132,4 +122,20 @@ CNode::Ptr CNode::getNode(CF::Uint index)
     it++;
 
   return it.get();
+
+//  Component_iterator<CNode> it = this->recursive_begin<CNode>();
+//  CF::Uint i = 0;
+
+//  cf_assert(index < m_components.size());
+
+//  while(i < index)
+//  {
+//    it++;
+
+//    if(it->get_parent().get() == this)
+//      i++;
+//  }
+
+
+//  return boost::shared_ptr<CNode>(&(*it));
 }

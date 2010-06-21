@@ -1,6 +1,8 @@
 #ifndef CF_GUI_Client_RemoteOpenFile_h
 #define CF_GUI_Client_RemoteOpenFile_h
 
+////////////////////////////////////////////////////////////////////////////
+
 #include "GUI/Client/RemoteFSBrowser.hpp"
 
 class QModelIndex;

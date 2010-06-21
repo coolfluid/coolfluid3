@@ -30,7 +30,7 @@ namespace Client {
   {
     Q_OBJECT
 
-    public:
+  public:
 
     SaveConfirmationPanel(QDialog * parent = CFNULL, bool becauseCommit = false);
 
@@ -42,15 +42,15 @@ namespace Client {
 
     virtual void setData(const CloseConfirmationInfos & infos);
 
-    protected:
+  protected:
 
     virtual void hideComponents(bool hide);
 
-    private slots:
+  private slots:
 
     void currentIndexChanged(int index);
 
-    private:
+  private:
 
     QComboBox * m_comboBox;
 
@@ -74,7 +74,7 @@ namespace Client {
 
     QString saveRemotely();
 
-  };
+  }; // class SaveConfirmationPanel
 
   /////////////////////////////////////////////////////////////////////////////
 

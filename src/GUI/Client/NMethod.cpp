@@ -44,3 +44,11 @@ QString NMethod::getClassName() const
 {
   return "NMethod";
 }
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void NMethod::getParams(QList<NodeParams> & params) const
+{
+  params = m_params;
+}

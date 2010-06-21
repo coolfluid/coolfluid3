@@ -5,8 +5,6 @@
 
 #include <QDialog>
 
-#include "GUI/Client/TSshInformation.hpp"
-
 class QCheckBox;
 class QDialogButtonBox;
 class QFormLayout;
@@ -24,7 +22,7 @@ namespace Client {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  //   struct TSshInformation;
+  struct TSshInformation;
 
   /// @brief Dialog used to gather information to connect to a server.
 

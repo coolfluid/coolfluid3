@@ -9,7 +9,7 @@
 
 namespace CF {
 
-  namespace Common { class CPath; }
+namespace Common { class CPath; }
 
 namespace GUI {
 namespace Client {
@@ -47,6 +47,8 @@ namespace Client {
     /// @return Returns the class name.
     /// @note This method should be reimplemented by all subclasses.
     virtual QString getClassName() const;
+
+    virtual void getParams(QList<NodeParams> & params) const;
 
   private :
 

@@ -22,11 +22,6 @@ int main(int argc, char *argv[])
   int returnValue;
   CF::AssertionManager::instance().AssertionThrows = true;
 
-//  CRoot::Ptr root = CRoot::create("MyRoot");
-//  //CGroup::Ptr link(new CLink("//here", "//there"));
-//
-//  boost::dynamic_pointer_cast< CRoot::Ptr >(root->access_component("//MyRoot"));
-
   try
   {
    MainWindow window;

@@ -28,6 +28,10 @@
 #include "GUI/Client/CLog.hpp"
 #include "GUI/Client/ClientRoot.hpp"
 
+#include "GUI/Network/HostInfos.hpp"
+//#include "GUI/Client/CloseConfirmationInfos.hpp"
+
+
 #include "GUI/Network/ComponentNames.hpp"
 #include "GUI/Network/SignalInfo.hpp"
 

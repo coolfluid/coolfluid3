@@ -5,14 +5,15 @@
 
 #include "Common/BasicExceptions.hpp"
 
-#include "GUI/Network/ComponentType.hpp"
-#include "GUI/Network/NetworkFrameType.hpp"
-
 #include "GUI/Client/ClientNetworkComm.hpp"
 #include "GUI/Client/CLog.hpp"
 #include "GUI/Client/StatusModel.hpp"
 #include "GUI/Client/TSshInformation.hpp"
 #include "GUI/Client/ClientRoot.hpp"
+
+#include "GUI/Network/ComponentType.hpp"
+#include "GUI/Network/ComponentNames.hpp"
+#include "GUI/Network/SignalInfo.hpp"
 
 #include "GUI/Client/ClientCore.hpp"
 

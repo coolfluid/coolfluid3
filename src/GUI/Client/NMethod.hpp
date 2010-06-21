@@ -45,6 +45,8 @@ namespace Client {
     /// @note This method should be reimplemented by all subclasses.
     virtual QString getClassName() const;
 
+    virtual void getParams(QList<NodeParams> & params) const;
+
   }; // class NMethod
 
 //////////////////////////////////////////////////////////////////////////////

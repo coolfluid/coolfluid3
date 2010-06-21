@@ -1,13 +1,19 @@
 #ifndef CF_GUI_Client_NGroup_hpp
 #define CF_GUI_Client_NGroup_hpp
 
+////////////////////////////////////////////////////////////////////////////
+
 #include "GUI/Client/CNode.hpp"
 
 class QDomElement;
 
+////////////////////////////////////////////////////////////////////////////
+
 namespace CF {
 namespace GUI {
 namespace Client {
+
+  //////////////////////////////////////////////////////////////////////////
 
   class NGroup :
       public CNode
@@ -38,11 +44,16 @@ namespace Client {
     /// @note This method should be reimplemented by all subclasses.
     virtual QString getClassName() const;
 
-  };
+    virtual void getParams(QList<NodeParams> & params) const;
 
-}
-}
-}
+  }; // class NGroup
 
+  //////////////////////////////////////////////////////////////////////////
+
+} // namespace Client
+} // namespace GUI
+} // namespace CF
+
+////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_GUI_Client_NGroup_hpp

@@ -1,6 +1,10 @@
 #ifndef CF_GUI_Client_TSshInformation_h
 #define CF_GUI_Client_TSshInformation_h
 
+////////////////////////////////////////////////////////////////////////////
+
+class QString;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -42,9 +46,9 @@ namespace Client {
     /// @param username Username to use to authenticate to the remote
     /// machine.
     TSshInformation(const QString & m_hostname = QString("hostname"),
-    quint16 port = 62784,
-    bool launchServer = false,
-    const QString & username = QString())
+                    quint16 port = 62784,
+                    bool launchServer = false,
+                    const QString & username = QString())
     {
       this->m_hostname = m_hostname;
       this->username = username;

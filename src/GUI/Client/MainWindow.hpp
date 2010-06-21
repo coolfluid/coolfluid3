@@ -7,14 +7,12 @@
 #include <QMap>
 #include <QList>
 #include <QMenu>
-#include <QToolBar>
-#include <QProcess>
 #include <QModelIndex>
 
-#include "GUI/Network/HostInfos.hpp"
-#include "GUI/Client/CloseConfirmationInfos.hpp"
-#include "GUI/Client/TSshInformation.hpp"
 #include "GUI/Network/NetworkFrameType.hpp"
+
+#include "GUI/Client/TSshInformation.hpp"
+#include "GUI/Client/CloseConfirmationInfos.hpp"
 
 class QDockWidget;
 class QDomDocument;
@@ -22,7 +20,6 @@ class QDomNode;
 class QGridLayout;
 class QLabel;
 class QModelIndex;
-class StatusModel;
 class QTextEdit;
 class QTimer;
 class QTreeView;
@@ -37,6 +34,7 @@ namespace Client {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+  class StatusModel;
   class ClientCore;
   class ConnectionDialog;
   class LoggingList;
@@ -44,6 +42,7 @@ namespace Client {
   class StatusPanel;
   class TreeView;
   class AboutCFDialog;
+  struct HostInfos;
 
 ////////////////////////////////////////////////////////////////////////////////
 

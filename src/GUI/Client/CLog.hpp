@@ -7,7 +7,6 @@
 #include <QHash>
 
 #include "Common/Component.hpp"
-#include "Common/CPath.hpp"
 
 #include "GUI/Network/LogMessage.hpp"
 
@@ -16,6 +15,7 @@ class QString;
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
+
 namespace GUI {
 namespace Client {
 

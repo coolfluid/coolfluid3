@@ -47,3 +47,11 @@ QString NMesh::getClassName() const
 {
   return "NMesh";
 }
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void NMesh::getParams(QList<NodeParams> & params) const
+{
+  params = m_params;
+}

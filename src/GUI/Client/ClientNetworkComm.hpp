@@ -10,11 +10,10 @@
 #include "Common/BuilderParserFrameInfo.hpp"
 #include "Common/XmlHelpers.hpp"
 
-#include "GUI/Network/ComponentType.hpp"
-#include "GUI/Network/HostInfos.hpp"
-#include "GUI/Network/NetworkException.hpp"
 #include "GUI/Network/NetworkProtocol.hpp"
-#include "GUI/Network/SignalInfo.hpp"
+
+#include "GUI/Network/ComponentType.hpp"
+#include "GUI/Network/NetworkFrameType.hpp"
 
 class QDomDocument;
 class QDomNode;
@@ -27,7 +26,12 @@ class QTcpSocket;
 namespace CF {
 namespace GUI {
 
-namespace Network { class ComponentType; }
+namespace Network {
+  class SignalInfo;
+  class NetworkProtocol;
+  class NetworkException;
+  struct HostInfos;
+}
 
 namespace Client {
 
@@ -36,7 +40,7 @@ namespace Client {
   /// @brief This class represents the client network level.
 
   /// It operates mainly using Qt slots/signals system. Each time a frame
-  /// arrives through the m_socket, the appropriate signal is thrown. Frames
+  /// arrives through the socket, the appropriate signal is thrown. Frames
   /// to send are built using the BuilderParser system.
 
   /// @author Quentin Gasper.
@@ -49,7 +53,7 @@ namespace Client {
 
     /// @brief Constructor.
 
-    /// The m_socket @c #commClient is set to @c CFNULL.
+    /// The socket @c #commClient is set to @c CFNULL.
     ClientNetworkComm();
 
     /// @brief Destructor.

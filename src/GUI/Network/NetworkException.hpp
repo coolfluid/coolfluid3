@@ -6,13 +6,15 @@
 #include <QString>
 
 #include "Common/Exception.hpp"
-#include "Common/CodeLocation.hpp"
 
 #include "GUI/Network/NetworkAPI.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
+
+namespace Common { class CodeLocation; }
+
 namespace GUI {
 namespace Network {
 

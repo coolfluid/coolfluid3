@@ -39,7 +39,7 @@ namespace Client {
 
   class HostListPanel : public QListView
   {
-    public:
+  public:
 
     /// @brief Constructor
     HostListPanel();
@@ -68,7 +68,7 @@ namespace Client {
     /// otherwise returns @c false.
     bool isModified() const;
 
-    private:
+  private:
 
     /// @brief Model.
     QStandardItemModel * m_viewModel;
@@ -81,8 +81,6 @@ namespace Client {
 
     /// @brief Clears model and deletes m_items.
     void clear();
-
-
 
   }; // class HostListPanel
 

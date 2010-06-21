@@ -65,7 +65,7 @@ namespace Client {
 
       /// The old model, if any, is not destroyed.
       /// @param treeModel The new model. May be null.
-      void setTreeModel(const QDomDocument & tree/*TreeModel * treeModel*/);
+      void setTreeModel(const QDomDocument & tree);
 
     private slots :
 

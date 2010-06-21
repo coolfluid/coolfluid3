@@ -53,3 +53,12 @@ QString NGroup::getClassName() const
 {
   return "NGroup";
 }
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void NGroup::getParams(QList<NodeParams> & params) const
+{
+  params = m_params;
+}
+

@@ -28,7 +28,6 @@ namespace Server {
 
   class ServerNetworkComm;
   class CSimulator;
-  class SimulationManager;
 
   /// @brief Manages everything that is not related to the network layer
   /// or the simulation management.
