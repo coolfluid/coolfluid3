@@ -19,7 +19,6 @@
 #include "Common/EventHandler.hpp"
 #include "Common/SharedPtr.hpp"
 #include "Common/BasicExceptions.hpp"
-#include "Common/ConverterTools.hpp"
 //#include "Common/ConfigFileReader.hpp"
 
 #include "Common/CoreEnv.hpp"
@@ -259,36 +258,37 @@ const
 
 void CSimulator::configureSimulator(const QDomDocument & document)
 {
-  QString filename;
-  QTemporaryFile tempFile;
-  QTextStream out;
-  std::string tree;
-  ConfigArgs args;
-  QDomDocument doc = document;
+  throw NotImplemented(FromHere(), "ServerNetworkComm::configureSimulator");
+//  QString filename;
+//  QTemporaryFile tempFile;
+//  QTextStream out;
+//  std::string tree;
+//  ConfigArgs args;
+//  QDomDocument doc = document;
 
-  //  this->createSimulator();
+//  //  this->createSimulator();
 
-  if(doc.firstChild().nodeName() != "XCFcase")
-  {
-    QDomElement elem = doc.createElement("XCFcase");
+//  if(doc.firstChild().nodeName() != "XCFcase")
+//  {
+//    QDomElement elem = doc.createElement("XCFcase");
 
-    elem.appendChild(doc.firstChild());
-    doc.appendChild(elem);
-  }
+//    elem.appendChild(doc.firstChild());
+//    doc.appendChild(elem);
+//  }
 
-  tree = doc.toString().toStdString();
-  args = ConverterTools::xmlToConfigArgs(tree);
+//  tree = doc.toString().toStdString();
+//  args = ConverterTools::xmlToConfigArgs(tree);
 
-  tempFile.open();
-  filename = tempFile.fileName();
+//  tempFile.open();
+//  filename = tempFile.fileName();
 
-  out.setDevice(&tempFile);
+//  out.setDevice(&tempFile);
 
-  out << ConverterTools::xmlToCFcase(tree).c_str();
+//  out << ConverterTools::xmlToCFcase(tree).c_str();
 
-  tempFile.close();
+//  tempFile.close();
 
-  this->loadCaseFile(filename);
+//  this->loadCaseFile(filename);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

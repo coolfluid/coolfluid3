@@ -11,9 +11,6 @@ LIST ( APPEND Network_files
   NetworkAPI.hpp
   NetworkException.cpp
   NetworkException.hpp
-  NetworkFrameType.hpp
-  NetworkProtocol.cpp
-  NetworkProtocol.hpp
   SignalInfo.cpp
   SignalInfo.hpp)
 

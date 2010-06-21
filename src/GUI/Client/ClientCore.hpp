@@ -12,8 +12,6 @@
 
 #include "GUI/Client/TSshInformation.hpp"
 
-#include "GUI/Network/NetworkFrameType.hpp"
-
 class QModelIndex;
 class QProcess;
 class QString;
@@ -85,8 +83,6 @@ namespace Client {
     /// @param files Files list. Each element is a file.
     void dirContents(const QString & path, const QStringList & dirs,
                      const QStringList & files);
-
-    void acked(CF::GUI::Network::NetworkFrameType type);
 
   private: // methods
 

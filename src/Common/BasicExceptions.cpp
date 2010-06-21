@@ -117,12 +117,6 @@ InvalidStructure::InvalidStructure ( const Common::CodeLocation& where, const st
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BuilderParserError::BuilderParserError(const CodeLocation& where, const string& what)
-: Exception(where, what,"BuilderParser")
-{}
-
-////////////////////////////////////////////////////////////////////////////////
-
   } // namespace Common
 } // namespace CF
 

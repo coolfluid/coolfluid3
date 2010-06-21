@@ -224,7 +224,7 @@ namespace Server {
 
     void getSubSysList(int clientId);
 
-    void simulationTree(const XMLNode & tree);
+//    void simulationTree(const XMLNode & tree);
 
     void spawned();
 
@@ -263,7 +263,7 @@ namespace Server {
 
     /// @brief Simulation tree
     /// @todo this attribute should be removed
-    XMLNode m_simTree;
+//    XMLNode m_simTree;
 
     /// @brief Host list
     QList<CF::GUI::Network::HostInfos> m_hostList;

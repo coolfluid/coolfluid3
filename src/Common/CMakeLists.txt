@@ -7,13 +7,6 @@ list( APPEND Common_files
     BasicExceptions.hpp
     BoostIostreams.hpp
     BoostArray.hpp
-    BuilderParser.cpp
-    BuilderParser.hpp
-    BuilderParserFrameInfo.cpp
-    BuilderParserFrameInfo.hpp
-    BuilderParserMandType.hpp
-    BuilderParserRules.cpp
-    BuilderParserRules.hpp
     CF.hpp
     CodeLocation.cpp
     CodeLocation.hpp
@@ -34,8 +27,6 @@ list( APPEND Common_files
     ConcreteProvider.hpp
     ConfigArgs.cpp
     ConfigArgs.hpp
-    ConverterTools.cpp
-    ConverterTools.hpp
     CoreEnv.hpp
     CoreEnv.cpp
     CoreVars.hpp
@@ -69,9 +60,6 @@ list( APPEND Common_files
     LogStream.hpp
     LogStringForwarder.hpp
     LogStringForwarder.cpp
-    ManagerWorkerFrameType.hpp
-    ManagerWorkerProtocol.cpp
-    ManagerWorkerProtocol.hpp
     ModuleRegistry.hpp
     ModuleRegisterBase.hpp
     ModuleRegistry.cpp
@@ -114,8 +102,6 @@ list( APPEND Common_files
     XmlHelpers.cpp
     XML.hpp
     XML.cpp
-    xmlParser.h
-    xmlParser.cpp
 )
 
 ###############################################################################

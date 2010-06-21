@@ -3,9 +3,6 @@
 #include <QtXml>
 
 #include "Common/Exception.hpp"
-#include "Common/xmlParser.h"
-
-#include "Common/ConverterTools.hpp"
 #include "Common/ConfigArgs.hpp"
 
 #include "GUI/Client/TypeAndNameDialog.hpp"
@@ -29,9 +26,6 @@
 #include "GUI/Client/ClientRoot.hpp"
 
 #include "GUI/Network/HostInfos.hpp"
-//#include "GUI/Client/CloseConfirmationInfos.hpp"
-
-
 #include "GUI/Network/ComponentNames.hpp"
 #include "GUI/Network/SignalInfo.hpp"
 

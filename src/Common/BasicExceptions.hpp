@@ -218,16 +218,6 @@ struct InvalidStructure: public Common::Exception {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// This exception is thrown by the builder parser on any error
-/// @author Quentin Gasper
-struct Common_API BuilderParserError : public Common::Exception {
-
-  /// Constructor
-  BuilderParserError(const Common::CodeLocation& where, const std::string& what);
-
-}; // class BuilderParser
-
-////////////////////////////////////////////////////////////////////////////////
   } // namespace Common
 } // namespace CF
 

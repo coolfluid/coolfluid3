@@ -805,16 +805,16 @@ QString RemoteFSBrowser::getSelectedFile() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void RemoteFSBrowser::ack(NetworkFrameType type)
-{
-  switch(type)
-  {
-    case NETWORK_CREATE_DIR:
-      this->openDir(m_currentPath);
-      break;
+//void RemoteFSBrowser::ack(NetworkFrameType type)
+//{
+//  switch(type)
+//  {
+//    case NETWORK_CREATE_DIR:
+//      this->openDir(m_currentPath);
+//      break;
 
-    default:
-      ClientRoot::getLog()->addMessage("Unexpected ACK recieved");
-      break;
-  }
-}
+//    default:
+//      ClientRoot::getLog()->addMessage("Unexpected ACK recieved");
+//      break;
+//  }
+//}

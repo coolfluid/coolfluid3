@@ -9,9 +9,6 @@
 #include <QThread>
 #include <mpi.h>
 
-#include "Common/BuilderParserFrameInfo.hpp"
-#include "Common/ManagerWorkerProtocol.hpp"
-#include "Common/ManagerWorkerFrameType.hpp"
 #include "GUI/Server/MPIListeningInfo.hpp"
 
 class QTimer;
@@ -25,50 +22,50 @@ namespace Server {
 ////////////////////////////////////////////////////////////////////////////
 
   /// @brief Listener for MPI messages.
-  
+
   /// @c MPIListener is a thread that continuously listens to one or more
   /// MPI intercommunicators. If there are more than one intercommunicator,
   /// all communicators are listened simultanuously.
-  
+
   /// @author Quentin Gasper
-  
+
   class MPIListener : public QThread
   {
     Q_OBJECT
-    
+
   public:
-    
+
     enum WaitingAckResult
     {
       SUCCESS,
-      
+
       FAILURE_ON_NACK,
-      
+
       FAILURE_ON_TIMEOUT,
-      
+
       FAILURE_ALREADY_WAITING,
-      
+
       FAILURE_UNKNOWN_COMM,
-      
+
       FAILURE_NULL_COMM
     };
-    
+
     /// @brief Constructor.
     MPIListener(unsigned int waitingTime = 100);
-    
+
     /// @brief Adds a communicator to listen to.
-    
+
     /// This method can be called during the listening.
     /// @param comm Communicator to add.
     void addComm(const MPI::Intercomm & comm);
-    
+
     /// @brief Stops the listening.
-    
+
     /// Calling this method will exit the thread execution if it is running.
     void stopListening();
-    
+
     /// @brief Reimplements QThread::run() method.
-    
+
     /// If there is at least one communicator to listen to, the process has three
     /// main steps:
     /// @li call IRecv (non-blocking receive) on ready communicator (new ones
@@ -80,59 +77,54 @@ namespace Server {
     /// If a new communicator is added, it will be taken in account on the next
     /// iteration.
     void run();
-    
-    WaitingAckResult waitForAcks(const MPI::Intercomm & comm,
-                                 const CF::Common::ManagerWorkerFrameType & ackType,
-                                 unsigned int timeout = 1000);
-    
+
+//    WaitingAckResult waitForAcks(const MPI::Intercomm & comm,
+//                                 const CF::Common::ManagerWorkerFrameType & ackType,
+//                                 unsigned int timeout = 1000);
+
     private slots:
-    
+
     void check();
-    
+
   signals:
-    
+
     /// @brief Signal emitted when new data have been received.
-    
+
     /// @param senderComm Communicator from which the data came.
     /// @param frameInfo Parse frame information
-    void newFrame(const MPI::Intercomm & senderComm,
-                  const CF::Common::BuilderParserFrameInfo & frameInfo);
-    
+//    void newFrame(const MPI::Intercomm & senderComm,
+//                  const CF::Common::BuilderParserFrameInfo & frameInfo);
+
     void ackArrived();
-    
+
   private:
-    
-    /// @brief Protocol rules
-    CF::Common::ManagerWorkerProtocol m_rules;
-    
+
     /// @brief Communicators
-    
+
     /// The key is the communicator. The value holds information relative to
     /// the communicator.
     QMap<MPI::Intercomm, MPIListeningInfo> m_comms;
-    
+
     /// @brief Indicates whether the thread is listening.
-    
+
     /// If @c true, the thread is listening, otherwise it is not.
     bool m_listening;
-    
+
     unsigned int m_waitingTime;
-    
+
     QVector<bool> m_receivedAcks;
-    
+
     MPI::Intercomm m_receivingAcksComm;
-    
+
     QMutex * m_receivingAcksMutex;
-    
-    CF::Common::ManagerWorkerFrameType m_ackType;
-    
+
     QTimer * m_timer;
-    
+
     void init();
-    
-    
+
+
   }; // class MPIReceiver
-  
+
 ////////////////////////////////////////////////////////////////////////////
 
 } // namespace Server

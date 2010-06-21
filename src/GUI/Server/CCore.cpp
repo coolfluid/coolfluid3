@@ -5,11 +5,9 @@
 #include <boost/filesystem/path.hpp>
 
 #include "Common/BasicExceptions.hpp"
-#include "Common/xmlParser.h"
 #include "Common/MPI/PEInterface.hpp"
 #include "Common/Log.hpp"
 #include "Common/ConfigArgs.hpp"
-#include "Common/ConverterTools.hpp"
 #include "Common/XmlHelpers.hpp"
 
 #include "GUI/Network/ComponentNames.hpp"
@@ -297,14 +295,7 @@ void CCore::treeUpdated()
 
 void CCore::newClient(int clientId)
 {
-  if(m_fileOpen)
-    m_commServer->sendAck(clientId, true, NETWORK_OPEN_FILE);
-
-  if(m_simRunning)
-    m_commServer->sendAck(clientId, true, NETWORK_SIMULATION_RUNNING);
-
-  if(m_active)
-    m_commServer->sendAck(clientId, true, NETWORK_ACTIVATE_SIMULATION);
+  throw NotImplemented(FromHere(), "CCore::newClient");
 
   // send a welcome message to the new client
   m_commServer->sendMessage(clientId, "Welcome to the Client-Server project!");
@@ -327,24 +318,7 @@ void CCore::getTree(int clientId)
 
 void CCore::configureSimulator(int clientId, const QDomDocument & config)
 {
-  m_simTree = ConverterTools::xmlToXCFcase(config.toString().toStdString());
-  //  ConfigArgs args = ConverterTools::xmlToConfigArgs(config.toString().toStdString());
-  QString tree = m_simTree.createXMLString();
-  QDomDocument document;
-
-  document.setContent(tree);
-
-  if(m_fileOpen)
-    this->closeFile(clientId);
-
-  m_srvSimulation->configureSimulator(document);
-
-  m_fileOpen = true;
-  m_commServer->sendAck(clientId, true, NETWORK_OPEN_FILE);
-
-  // send the new tree to all client
-  document.setContent(m_srvSimulation->getTreeXML());
-  m_commServer->sendTree(-1, document);
+  throw NotImplemented(FromHere(), "CCore::newClient");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -458,28 +432,7 @@ void CCore::getConcreteTypes(int clientId, const QString & typeName)
 void CCore::createDirectory(int clientId, const QString & dirPath,
                                    const QString & name)
 {
-  /// @todo check if absolute
-  /// @todo check if OS compatible
-  QDir dir(dirPath + "/" + name);
-  QString message = QString("Could not create '%1': ").arg(dir.absolutePath());
-
-  // if a file or directory with that name already exists
-  if(dir.exists())
-  {
-    message.append("a file or a directory with that name already exists");
-    m_commServer->sendError(clientId, message);
-  }
-
-  // if directory creation failed
-  else if(!dir.mkpath(dir.absolutePath()))
-  {
-    message.append("please check that you have the permission to create a "
-                   "directory there.");
-    m_commServer->sendError(clientId, message);
-  }
-
-  else
-    m_commServer->sendAck(clientId, true, NETWORK_CREATE_DIR);
+  throw NotImplemented(FromHere(), "CCore::createDirectory");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -488,41 +441,7 @@ void CCore::createDirectory(int clientId, const QString & dirPath,
 void CCore::saveConfiguration(int clientId, const QString & filename,
                                      const QDomDocument & config)
 {
-  bool cfcase = false;
-  QFile file(filename);
-  QString configStr = config.toString();
-
-  if(filename.endsWith(".CFcase"))
-    cfcase = true;
-
-  if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-  {
-    QString error = QString("Could open file '%1' for write access: %2")
-    .arg(filename)
-    .arg(file.errorString());
-
-    m_commServer->sendError(clientId, error);
-    m_commServer->sendAck(clientId, false, NETWORK_SAVE_CONFIG);
-  }
-
-  else
-  {
-    QTextStream out;
-
-    out.setDevice(&file);
-
-    if(cfcase)
-    {
-      std::string data = ConverterTools::xmlToCFcase(configStr.toStdString());
-      out << data.c_str();
-    }
-
-    else
-      out << configStr;
-
-    file.close();
-    m_commServer->sendAck(clientId, true, NETWORK_SAVE_CONFIG);
-  }
+  throw NotImplemented(FromHere(), "CCore::saveConfiguration");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -530,24 +449,7 @@ void CCore::saveConfiguration(int clientId, const QString & filename,
 
 void CCore::openFile(int clientId, const QString & filename)
 {
-  if(m_fileOpen)
-    this->closeFile(clientId);
-
-  QDomDocument document;
-  boost::filesystem::path file(filename.toStdString());
-
-  //  ConfigFileReader configFile;
-  ConfigArgs args;
-  //configFile.parse(filename.toStdString(), args);
-
-  m_simTree = XMLNode::parseString(ConverterTools::configArgsToXml(args).c_str());
-
-  if(m_srvSimulation->loadCaseFile(filename))
-  {
-    // Notify all clients that a case file has been loaded
-    m_commServer->sendAck(-1, true, NETWORK_OPEN_FILE);
-    m_fileOpen = true;
-  }
+  throw NotImplemented(FromHere(), "CCore::openFile");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -555,23 +457,7 @@ void CCore::openFile(int clientId, const QString & filename)
 
 void CCore::closeFile(int clientId)
 {
-  QString error;
-
-  if(m_simRunning)
-    error = "A simulation is running. You cannot close the file for now";
-  else if(!m_fileOpen)
-    error = "No file open.";
-  if(!error.isEmpty())
-    m_commServer->sendError(clientId, error);
-  else
-  {
-    delete m_srvSimulation;
-    this->createSimulator("Simulator");
-    m_commServer->sendMessage(-1, "File closed");
-    m_commServer->sendAck(-1, true, NETWORK_CLOSE_FILE);
-    m_fileOpen = false;
-  }
-
+  throw NotImplemented(FromHere(), "CCore::closeFile");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -579,30 +465,7 @@ void CCore::closeFile(int clientId)
 
 void CCore::runSimulation(int clientId)
 {
-  QString error;
-
-  if(!m_fileOpen)
-    error = "Please open a case file or configure the simulator before running "
-    "a simulation.";
-  else if(m_simRunning)
-    error = "The simulation is already running. You cannot run it twice at the "
-    "same time.";
-  else if(!m_active)
-    error = "The simulation is not active.";
-
-  if(!error.isEmpty())
-    m_commServer->sendError(clientId, error);
-  else
-  {
-    m_simulationManager.configure(m_simTree);
-
-    //   this->simulationManager.start();
-
-    m_simRunning = true;
-
-    // Notify all clients that the simulation has started
-    m_commServer->sendAck(-1, true, NETWORK_SIMULATION_RUNNING);
-  }
+  throw NotImplemented(FromHere(), "CCore::runSimulation");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -634,8 +497,7 @@ void CCore::error(const QString & message)
 
 void CCore::simulationFinished()
 {
-  m_simRunning = false;
-  m_commServer->sendAck(-1, true, NETWORK_RUN_SIMULATION);
+  throw NotImplemented(FromHere(), "CCore::simulationFinished");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -652,28 +514,30 @@ void CCore::getHostList(int clientId)
 void CCore::activateSimulation(int clientId, unsigned int nbProcs,
                                       const QString & hosts)
 {
-  QString error;
+  throw NotImplemented(FromHere(), "CCore::activateSimulation");
 
-  if(!m_fileOpen)
-    error = "Please open a case file or configure the simulator before activating "
-    "the simulation.";
-  else if(m_simRunning)
-    error = "The simulation is already running.";
-  else if(m_active)
-    error = "The simulation is active.";
+//  QString error;
 
-  if(!error.isEmpty())
-  {
-    m_commServer->sendError(clientId, error);
-    m_commServer->sendAck(clientId, false, NETWORK_ACTIVATE_SIMULATION);
-  }
-  else
-  {
-    this->setStatus(WorkerStatus::STARTING);
-    m_simulationManager.spawn("SubSystem", "SubSystem", nbProcs, hosts);
-    m_active = true;
-    m_simulationManager.run();
-  }
+//  if(!m_fileOpen)
+//    error = "Please open a case file or configure the simulator before activating "
+//    "the simulation.";
+//  else if(m_simRunning)
+//    error = "The simulation is already running.";
+//  else if(m_active)
+//    error = "The simulation is active.";
+
+//  if(!error.isEmpty())
+//  {
+//    m_commServer->sendError(clientId, error);
+//    m_commServer->sendAck(clientId, false, NETWORK_ACTIVATE_SIMULATION);
+//  }
+//  else
+//  {
+//    this->setStatus(WorkerStatus::STARTING);
+//    m_simulationManager.spawn("SubSystem", "SubSystem", nbProcs, hosts);
+//    m_active = true;
+//    m_simulationManager.run();
+//  }
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -681,20 +545,22 @@ void CCore::activateSimulation(int clientId, unsigned int nbProcs,
 
 void CCore::deactivateSimulation(int clientId)
 {
-  QString error;
+  throw NotImplemented(FromHere(), "CCore::deactivateSimulation");
 
-  if(!m_active)
-    m_commServer->sendError(clientId, "The simulation is not active.");
-  else
-  {
-    this->setStatus(WorkerStatus::EXITING);
-    m_commServer->sendMessage(-1, "Exiting workers.");
-    m_simulationManager.exitWorkers();
-    m_commServer->sendAck(-1, true, NETWORK_DEACTIVATE_SIMULATION);
-    CFinfo << "Simulation has been deativated.\n" << CFflush;
-    m_active = false;
-    this->setStatus(WorkerStatus::NOT_RUNNING);
-  }
+//  QString error;
+
+//  if(!m_active)
+//    m_commServer->sendError(clientId, "The simulation is not active.");
+//  else
+//  {
+//    this->setStatus(WorkerStatus::EXITING);
+//    m_commServer->sendMessage(-1, "Exiting workers.");
+//    m_simulationManager.exitWorkers();
+//    m_commServer->sendAck(-1, true, NETWORK_DEACTIVATE_SIMULATION);
+//    CFinfo << "Simulation has been deativated.\n" << CFflush;
+//    m_active = false;
+//    this->setStatus(WorkerStatus::NOT_RUNNING);
+//  }
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -711,29 +577,21 @@ void CCore::simulationStatus(const QString & subSysName, int rank,
 
 void CCore::getSubSysList(int clientId)
 {
-  QStringList list;
-
-  int size = m_srvSimulation->readSubSystems();
-
-  for(int i = 0 ; i < size ; i++)
-    list << m_srvSimulation->getSubSystem(i).split(" ").at(0);
-
-  m_commServer->sendSubSystemList(clientId, list);
+  throw NotImplemented(FromHere(), "CCore::getSubSysList");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CCore::simulationTree(const XMLNode & tree)
-{
-  m_commServer->sendTree(-1, tree);
-}
+//void CCore::simulationTree(const XMLNode & tree)
+//{
+//  m_commServer->sendTree(-1, tree);
+//}
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 void CCore::spawned()
 {
-  m_commServer->sendAck(-1, true, NETWORK_ACTIVATE_SIMULATION);
-  m_commServer->sendMessage(-1, "Simulation has been activated.");
+  throw NotImplemented(FromHere(), "CCore::spawned");
 }

@@ -7,13 +7,9 @@
 #include <QAbstractSocket>
 #include <QStringList>
 
-#include "Common/BuilderParserFrameInfo.hpp"
 #include "Common/XmlHelpers.hpp"
 
-#include "GUI/Network/NetworkProtocol.hpp"
-
 #include "GUI/Network/ComponentType.hpp"
-#include "GUI/Network/NetworkFrameType.hpp"
 
 class QDomDocument;
 class QDomNode;
@@ -260,13 +256,13 @@ namespace Client {
 
   signals:
 
-    /// @brief Signal emitted when the server sends the tree.
+//    /// @brief Signal emitted when the server sends the tree.
 
-    /// @param document The tree.
-    void newTree(const QDomDocument & document);
+//    /// @param document The tree.
+//    void newTree(const QDomDocument & document);
 
-    /// @brief Signal emitted when the m_socket has been closed due to a
-    /// network error.
+//    /// @brief Signal emitted when the m_socket has been closed due to a
+//    /// network error.
 
     /// The signal is not emitted if the user resquested a disconnection (if
     /// @c #m_requestDisc is @c true ).
@@ -279,46 +275,46 @@ namespace Client {
     /// recieved from the server.
     void connected();
 
-    /// @brief Signal emitted when the server sends an abstract types list
-    /// of a concrete type.
+//    /// @brief Signal emitted when the server sends an abstract types list
+//    /// of a concrete type.
 
-    /// @param types Abstract types list. Each element is a type.
-    void abstractTypes(const QStringList & types);
+//    /// @param types Abstract types list. Each element is a type.
+//    void abstractTypes(const QStringList & types);
 
-    /// @brief Signal emitted when the server sends an concrete types list.
+//    /// @brief Signal emitted when the server sends an concrete types list.
 
-    /// @param types Concrete types list. Each element is a type.
-    void concreteTypes(const QStringList & types);
+//    /// @param types Concrete types list. Each element is a type.
+//    void concreteTypes(const QStringList & types);
 
-    /// @brief Signal emitted when the server sends an ACK (acknowledgement)
-    /// for a specified type of frame.
+//    /// @brief Signal emitted when the server sends an ACK (acknowledgement)
+//    /// for a specified type of frame.
 
-    /// @param type Type of the acknowledged frame.
-    void ack(CF::GUI::Network::NetworkFrameType type);
+//    /// @param type Type of the acknowledged frame.
+//    void ack(CF::GUI::Network::NetworkFrameType type);
 
-    /// @brief Signal emitted when the server sends an NACK
-    /// (non-acknowledgement) for a specified type of frame.
+//    /// @brief Signal emitted when the server sends an NACK
+//    /// (non-acknowledgement) for a specified type of frame.
 
-    /// @param type Type of the non-acknowledged frame.
-    void nack(CF::GUI::Network::NetworkFrameType type);
+//    /// @param type Type of the non-acknowledged frame.
+//    void nack(CF::GUI::Network::NetworkFrameType type);
 
-    /// @brief Signal emitted when the server sends a directory contents.
+//    /// @brief Signal emitted when the server sends a directory contents.
 
-    /// @param path Absolute path of the directoy of which contents belong to.
-    /// @param dirs Directories list. Each element is a directory.
-    /// @param files Files list. Each element is a file.
-    void dirContents(const QString & path, const QStringList & dirs,
-                     const QStringList & files);
+//    /// @param path Absolute path of the directoy of which contents belong to.
+//    /// @param dirs Directories list. Each element is a directory.
+//    /// @param files Files list. Each element is a file.
+//    void dirContents(const QString & path, const QStringList & dirs,
+//                     const QStringList & files);
 
-    /// @brief Signal emitted when the server sends the host list.
+//    /// @brief Signal emitted when the server sends the host list.
 
-    /// @param infos List of hosts.
-    void hostList(const QList<CF::GUI::Network::HostInfos> & infos);
+//    /// @param infos List of hosts.
+//    void hostList(const QList<CF::GUI::Network::HostInfos> & infos);
 
-    void simulationStatus(const QString & subSysName, int rank,
-                          const QString & status);
+//    void simulationStatus(const QString & subSysName, int rank,
+//                          const QString & status);
 
-    void subsystemList(const QStringList & subSystems);
+//    void subsystemList(const QStringList & subSystems);
 
   private: // methods
 
@@ -336,7 +332,7 @@ namespace Client {
     /// @param frameInfos Frame information
     /// @return Return @c true if the frame was successfully built and sent;
     /// otherwise returns @c false.
-    bool buildAndSend(const CF::Common::BuilderParserFrameInfo & frameInfos);
+//    bool buildAndSend(const CF::Common::BuilderParserFrameInfo & frameInfos);
 
     /// @brief Builds and sends a frame to the server.
 
@@ -345,7 +341,7 @@ namespace Client {
     /// @param type Frame type.
     /// @return Return @c true if the frame was successfully built and sent;
     /// otherwise returns @c false.
-    bool buildAndSend(CF::GUI::Network::NetworkFrameType type);
+//    bool buildAndSend(CF::GUI::Network::NetworkFrameType type);
 
     /// @brief Recursive method that builds a @c QString with
     /// all parent nodes names of a given node.
@@ -353,7 +349,7 @@ namespace Client {
     /// The path is UNIX path-like formatted.
     /// @param node Node from which the parents are returned
     /// @return Returns the built string
-    QString getNodePath(const QDomNode & node) const;
+//    QString getNodePath(const QDomNode & node) const;
 
     bool checkConnected();
 
@@ -379,9 +375,6 @@ namespace Client {
     /// If @c true when a "Connection refused" error occurs, it is
     /// skipped and this attribute is set to @c false.
     bool m_skipRefused;
-
-    /// @brief Network protocol rules
-    CF::GUI::Network::NetworkProtocol m_protocol;
 
   }; // class ClientNetworkComm
 

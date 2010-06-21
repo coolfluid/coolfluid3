@@ -5,12 +5,8 @@
 
 #include "Common/CF.hpp"
 #include "Common/CPath.hpp"
-#include "Common/xmlParser.h"
 #include "Common/StringOps.hpp"
-#include "Common/ConverterTools.hpp"
-#include "Common/BuilderParser.hpp"
-#include "Common/BuilderParserFrameInfo.hpp"
-#include "Common/StringOps.hpp"
+#include "Common/BasicExceptions.hpp"
 
 #include "GUI/Client/CLog.hpp"
 #include "GUI/Client/ClientRoot.hpp"
@@ -18,7 +14,6 @@
 #include "GUI/Network/ComponentNames.hpp"
 #include "GUI/Network/HostInfos.hpp"
 #include "GUI/Network/NetworkException.hpp"
-#include "GUI/Network/NetworkProtocol.hpp"
 #include "GUI/Network/SignalInfo.hpp"
 
 
@@ -59,10 +54,7 @@ ClientNetworkComm::~ClientNetworkComm()
 
 bool ClientNetworkComm::sendCloseFile()
 {
-  if(!this->checkConnected())
-    return false;
-
-  return this->buildAndSend(NETWORK_CLOSE_FILE);
+  throw NotImplemented(FromHere(), "ClientNetworkComm::sendCloseFile");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -70,30 +62,15 @@ bool ClientNetworkComm::sendCloseFile()
 
 bool ClientNetworkComm::sendGetAbstractTypes(const QString & typeName)
 {
-  BuilderParserFrameInfo fi;
-
-  if(!this->checkConnected())
-    return false;
-
-  fi.setFrameType(NETWORK_GET_ABSTRACT_TYPES);
-  fi.frameAttributes["typeName"] = typeName.toStdString();
-  return this->buildAndSend(fi);
+  throw NotImplemented(FromHere(), "ClientNetworkComm::sendGetAbstractType");
 }
-
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 bool ClientNetworkComm::sendGetConcreteTypes(const QString & typeName)
 {
-  BuilderParserFrameInfo fi;
-
-  if(!this->checkConnected())
-    return false;
-
-  fi.setFrameType(NETWORK_GET_CONCRETE_TYPES);
-  fi.frameAttributes["typeName"] = typeName.toStdString();
-  return this->buildAndSend(fi);
+  throw NotImplemented(FromHere(), "ClientNetworkComm::sendGetConcreteType");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -103,17 +80,7 @@ bool ClientNetworkComm::sendAddNode(const QDomNode & node,
                                     const QString & type,
                                     const QString & absType)
 {
-  BuilderParserFrameInfo fi;
-
-  if(!this->checkConnected())
-    return false ;
-
-  fi.setFrameType(NETWORK_ADD_NODE);
-  fi.frameAttributes["path"] = this->getNodePath(node).toStdString();
-  fi.frameAttributes["type"] = type.toStdString();
-  fi.frameAttributes["absType"] = absType.toStdString();
-
-  return this->buildAndSend(fi);
+  throw NotImplemented(FromHere(), "ClientNetworkComm::sendAddNode");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -122,16 +89,7 @@ bool ClientNetworkComm::sendAddNode(const QDomNode & node,
 bool ClientNetworkComm::sendRenameNode(const QDomNode & node,
                                        const QString & newName)
 {
-  BuilderParserFrameInfo fi;
-
-  if(!this->checkConnected())
-    return false;
-
-  fi.setFrameType(NETWORK_RENAME_NODE);
-  fi.frameAttributes["path"] = this->getNodePath(node).toStdString();
-  fi.frameAttributes["newName"] = newName.toStdString();
-
-  return this->buildAndSend(fi);
+  throw NotImplemented(FromHere(), "ClientNetworkComm::sendRenameNode");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -139,15 +97,7 @@ bool ClientNetworkComm::sendRenameNode(const QDomNode & node,
 
 bool ClientNetworkComm::sendDeleteNode(const QDomNode & node)
 {
-  BuilderParserFrameInfo fi;
-
-  if(!this->checkConnected())
-    return false;
-
-  fi.setFrameType(NETWORK_DELETE_NODE);
-  fi.frameAttributes["path"] = this->getNodePath(node).toStdString();
-
-  return this->buildAndSend(fi);
+  throw NotImplemented(FromHere(), "ClientNetworkComm::sendDeleteNode");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -155,15 +105,7 @@ bool ClientNetworkComm::sendDeleteNode(const QDomNode & node)
 
 bool ClientNetworkComm::sendModifyNode(const QDomDocument & data)
 {
-  BuilderParserFrameInfo fi;
-
-  if(!this->checkConnected())
-    return false;
-
-  fi.setFrameType(NETWORK_MODIFY_NODE);
-  fi.frameData = XMLNode::parseString(data.toString().toStdString().c_str());
-
-  return this->buildAndSend(fi);
+  throw NotImplemented(FromHere(), "ClientNetworkComm::sendModifyNode");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -181,8 +123,8 @@ void ClientNetworkComm::connectToServer(const QString & hostAddress, quint16 por
 
 void ClientNetworkComm::disconnectFromServer(bool shutServer)
 {
-  if(shutServer)
-    this->buildAndSend(NETWORK_SHUTDOWN_SERVER);
+//  if(shutServer)
+//    this->buildAndSend(NETWORK_SHUTDOWN_SERVER);
 
   m_requestDisc = true;
   m_connectedToServer = false;
@@ -197,15 +139,7 @@ void ClientNetworkComm::disconnectFromServer(bool shutServer)
 
 bool ClientNetworkComm::sendOpenFile(const QString & filename)
 {
-  BuilderParserFrameInfo fi;
-
-  if(!this->checkConnected())
-    return false;
-
-  fi.setFrameType(NETWORK_OPEN_FILE);
-  fi.frameAttributes["filename"] = filename.toStdString();
-
-  return this->buildAndSend(fi);
+  throw NotImplemented(FromHere(), "ClientNetworkComm::sendOpenFile");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -216,19 +150,7 @@ bool ClientNetworkComm::sendOpenDir(const QString & dirname,
                                     const QStringList & extensions,
                                     bool includeNoExtension)
 {
-  BuilderParserFrameInfo fi;
-
-  if(!this->checkConnected())
-    return false;
-
-  fi.setFrameType(NETWORK_READ_DIR);
-
-  fi.frameAttributes["dirPath"] = dirname.toStdString();
-  fi.frameAttributes["includeFiles"] = includeFiles ? "yes" : "no";
-  fi.frameAttributes["extensions"] = extensions.join("*").toStdString();
-  fi.frameAttributes["includeNoExtension"] = includeNoExtension ? "yes" : "no";
-
-  return this->buildAndSend(fi);
+  throw NotImplemented(FromHere(), "ClientNetworkComm::sendOpenDir");
 }
 
 
@@ -237,10 +159,7 @@ bool ClientNetworkComm::sendOpenDir(const QString & dirname,
 
 bool ClientNetworkComm::sendGetTree()
 {
-  if(!this->checkConnected())
-    return false;
-
-  return this->buildAndSend("getTree", CLIENT_ROOT_PATH);
+  throw NotImplemented(FromHere(), "ClientNetworkComm::sendGetTree");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -248,10 +167,7 @@ bool ClientNetworkComm::sendGetTree()
 
 bool ClientNetworkComm::sendGetHostList()
 {
-  if(!this->checkConnected())
-    return false;
-
-  return this->buildAndSend(NETWORK_GET_HOST_LIST);
+  throw NotImplemented(FromHere(), "ClientNetworkComm::sendGetHostList");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -267,14 +183,7 @@ bool ClientNetworkComm::isConnected() const
 
 bool ClientNetworkComm::sendConfig(const QDomDocument & config)
 {
-  BuilderParserFrameInfo fi;
-
-  if(!this->checkConnected())
-    return false;
-
-  fi.setFrameType(NETWORK_CONFIGURE);
-  fi.frameData = XMLNode::parseString(config.toString().toStdString().c_str());
-  return this->buildAndSend(fi);
+  throw NotImplemented(FromHere(), "ClientNetworkComm::sendConfig");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -282,15 +191,7 @@ bool ClientNetworkComm::sendConfig(const QDomDocument & config)
 
 bool ClientNetworkComm::sendCreateDir(const QString & path, const QString & name)
 {
-  BuilderParserFrameInfo fi;
-
-  if(!this->checkConnected())
-    return false;
-
-  fi.setFrameType(NETWORK_CREATE_DIR);
-  fi.frameAttributes["path"] = path.toStdString();
-  fi.frameAttributes["dirName"] = name.toStdString();
-  return this->buildAndSend(fi);
+  throw NotImplemented(FromHere(), "ClientNetworkComm::sendCreateDir");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -298,19 +199,7 @@ bool ClientNetworkComm::sendCreateDir(const QString & path, const QString & name
 
 bool ClientNetworkComm::sendSaveConfig(const QString & path, const QDomDocument & config)
 {
-  BuilderParserFrameInfo fi;
-  QDomDocument toSend = config;
-
-  if(!this->checkConnected())
-    return false ;
-
-  if(toSend.firstChild().nodeType() == QDomNode::ProcessingInstructionNode)
-    toSend.replaceChild(toSend.childNodes().at(1), toSend.firstChild());
-
-  fi.setFrameType(NETWORK_SAVE_CONFIG);
-  fi.frameAttributes["filename"] = path.toStdString();
-  fi.frameData = XMLNode::parseString(toSend.toString().toStdString().c_str());
-  return this->buildAndSend(fi);
+  throw NotImplemented(FromHere(), "ClientNetworkComm::sendSaveConfig");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -318,10 +207,7 @@ bool ClientNetworkComm::sendSaveConfig(const QString & path, const QDomDocument 
 
 bool ClientNetworkComm::sendRunSimulation()
 {
-  if(!this->checkConnected())
-    return false;
-
-  return this->buildAndSend(NETWORK_RUN_SIMULATION);
+  throw NotImplemented(FromHere(), "ClientNetworkComm::sendRunSimulation");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -329,16 +215,7 @@ bool ClientNetworkComm::sendRunSimulation()
 
 bool ClientNetworkComm::sendActivateSimulation(int nbProcs, const QString & hosts)
 {
-  BuilderParserFrameInfo fi;
-
-  if(!this->checkConnected())
-    return false;
-
-  fi.setFrameType(NETWORK_ACTIVATE_SIMULATION);
-  fi.frameAttributes["nbProcs"] = QString::number(nbProcs).toStdString();
-  fi.frameAttributes["hosts"] = hosts.toStdString();
-
-  return this->buildAndSend(fi);
+  throw NotImplemented(FromHere(), "ClientNetworkComm::sendActivateSimulation");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -346,10 +223,8 @@ bool ClientNetworkComm::sendActivateSimulation(int nbProcs, const QString & host
 
 bool ClientNetworkComm::sendDeactivateSimulation()
 {
-  if(!this->checkConnected())
-    return false;
+  throw NotImplemented(FromHere(), "ClientNetworkComm::sendDeactivateSimulation");
 
-  return this->buildAndSend(NETWORK_DEACTIVATE_SIMULATION);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -357,10 +232,7 @@ bool ClientNetworkComm::sendDeactivateSimulation()
 
 bool ClientNetworkComm::sendGetSubSystemList()
 {
-  if(!this->checkConnected())
-    return false;
-
-  return this->buildAndSend(NETWORK_GET_SUBSYSTEM_LIST);
+  throw NotImplemented(FromHere(), "ClientNetworkComm::sendGetSubSystemList");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -392,17 +264,7 @@ bool ClientNetworkComm::sendAddComponent(const QString & path,
                                          ComponentType::Type type,
                                          const QString & name)
 {
-  BuilderParserFrameInfo fi;
-
-  if(!this->checkConnected())
-    return false;
-
-  fi.setFrameType(NETWORK_ADD_COMPONENT);
-  fi.frameAttributes["parentPath"] = path.toStdString();
-  fi.frameAttributes["type"] = ComponentType::Convert::to_str(type);
-  fi.frameAttributes["name"] = name.toStdString();
-
-  return this->buildAndSend(fi);
+  throw NotImplemented(FromHere(), "ClientNetworkComm::sendAddComponent");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -412,17 +274,7 @@ bool ClientNetworkComm::sendAddLink(const QString & path,
                                     const QString & name,
                                     const QString & target)
 {
-  BuilderParserFrameInfo fi;
-
-  if(!this->checkConnected())
-    return false;
-
-  fi.setFrameType(NETWORK_ADD_LINK);
-  fi.frameAttributes["parentPath"] = path.toStdString();
-  fi.frameAttributes["name"] = name.toStdString();
-  fi.frameAttributes["target"] = target.toStdString();
-
-  return this->buildAndSend(fi);
+  throw NotImplemented(FromHere(), "ClientNetworkComm::sendAddLink");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -474,8 +326,6 @@ bool ClientNetworkComm::send(const XmlDoc & signal)
   {
     XmlOps::xml_to_string(signal, str);
 
-    qDebug() << str.c_str();
-
     this->send(str.c_str());
 
 //    try
@@ -509,61 +359,59 @@ bool ClientNetworkComm::send(const XmlDoc & signal)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool ClientNetworkComm::buildAndSend(const BuilderParserFrameInfo & frameInfos)
-{
-  bool success = false;
-  std::string frame;
+//bool ClientNetworkComm::buildAndSend(const BuilderParserFrameInfo & frameInfos)
+//{
+//  bool success = false;
+//  std::string frame;
 
-  try
-  {
-    if(!BuilderParser::buildFrame(frameInfos, m_protocol, frame))
-      ClientRoot::getLog()->addError(BuilderParser::getErrorString().c_str());
-    else
-      success = this->send(frame.c_str()) != 0;
-  }
-  catch(std::string str)
-  {
-    ClientRoot::getLog()->addError(str.c_str());
-  }
-  return success;
-}
+//  try
+//  {
+//    if(!BuilderParser::buildFrame(frameInfos, m_protocol, frame))
+//      ClientRoot::getLog()->addError(BuilderParser::getErrorString().c_str());
+//    else
+//      success = this->send(frame.c_str()) != 0;
+//  }
+//  catch(std::string str)
+//  {
+//    ClientRoot::getLog()->addError(str.c_str());
+//  }
+//  return success;
+//}
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool ClientNetworkComm::buildAndSend(NetworkFrameType type)
-{
-  BuilderParserFrameInfo fi;
-  fi.setFrameType(type);
-  return this->buildAndSend(fi);
-}
+//bool ClientNetworkComm::buildAndSend(NetworkFrameType type)
+//{
+//  BuilderParserFrameInfo fi;
+//  fi.setFrameType(type);
+//  return this->buildAndSend(fi);
+//}
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 bool ClientNetworkComm::buildAndSend(const QString & type, const CPath & sender)
 {
-  SignalInfo si(type, sender, SERVER_ROOT_PATH, true);
-
-  return this->send(si);
+  throw NotImplemented(FromHere(), "ClientNetworkComm::buildAndSend");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString ClientNetworkComm::getNodePath(const QDomNode & node) const
-{
-  QDomNode parentNode = node.parentNode();
-  QString path;
+//QString ClientNetworkComm::getNodePath(const QDomNode & node) const
+//{
+//  QDomNode parentNode = node.parentNode();
+//  QString path;
 
-  if(parentNode.isNull()) // if the node has no parent
-    return QString();
-  else
-  {
-    path = this->getNodePath(parentNode);
-    return path + '/' + node.nodeName();
-  }
-}
+//  if(parentNode.isNull()) // if the node has no parent
+//    return QString();
+//  else
+//  {
+//    path = this->getNodePath(parentNode);
+//    return path + '/' + node.nodeName();
+//  }
+//}
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -584,10 +432,8 @@ bool ClientNetworkComm::checkConnected()
 
 void ClientNetworkComm::newData()
 {
-  BuilderParserFrameInfo fi;
   QString frame;
   QDataStream in(m_socket);
-
   in.setVersion(QDataStream::Qt_4_5); // QDataStream version
 
   // if the server sends two messages very close in time, it is possible that
@@ -610,8 +456,6 @@ void ClientNetworkComm::newData()
       return;
 
     in >> frame;
-
-    qDebug() << frame;
 
     try
     {

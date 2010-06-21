@@ -1,6 +1,5 @@
 #include <QtCore>
 
-#include "Common/BuilderParser.hpp"
 #include "Common/StringOps.hpp"
 
 #include "GUI/Server/MPIListener.hpp"
@@ -11,8 +10,8 @@ using namespace CF::Common;
 using namespace CF::GUI::Server;
 
 MPIListener::MPIListener(unsigned int waitingTime)
-: QThread(),
-m_waitingTime(waitingTime)
+  : QThread(),
+    m_waitingTime(waitingTime)
 {
   m_listening = false;
   m_receivingAcksComm = COMM_NULL;
@@ -25,7 +24,6 @@ m_waitingTime(waitingTime)
   // register classes to Qt. This will allow to throw a signal with objects
   // of these classes.
   qRegisterMetaType<MPI::Intercomm>("MPI::Intercomm");
-  qRegisterMetaType<CF::Common::BuilderParserFrameInfo>("CF::Common::BuilderParserFrameInfo");
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -50,7 +48,6 @@ void MPIListener::stopListening()
 void MPIListener::run()
 {
   QMap<Intercomm, MPIListeningInfo>::iterator it;
-  BuilderParserFrameInfo frameInfo;
 
   if(!m_comms.isEmpty())
   {
@@ -65,36 +62,36 @@ void MPIListener::run()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-MPIListener::WaitingAckResult MPIListener::waitForAcks(const Intercomm & comm,
-                                                       const ManagerWorkerFrameType & ackType,
-                                                       unsigned int timeout)
-{
-  WaitingAckResult result;
+//MPIListener::WaitingAckResult MPIListener::waitForAcks(const Intercomm & comm,
+//                                                       const ManagerWorkerFrameType & ackType,
+//                                                       unsigned int timeout)
+//{
+//  WaitingAckResult result;
 
-  if(m_receivingAcksComm == COMM_NULL && comm != COMM_NULL
-    && m_comms.contains(comm))
-  {
-    int remoteSize = comm.Get_remote_size();
+//  if(m_receivingAcksComm == COMM_NULL && comm != COMM_NULL
+//    && m_comms.contains(comm))
+//  {
+//    int remoteSize = comm.Get_remote_size();
 
-    m_ackType = ackType;
+//    m_ackType = ackType;
 
-    m_receivingAcksComm = comm;
-    result = SUCCESS;
+//    m_receivingAcksComm = comm;
+//    result = SUCCESS;
 
-    // fill the vector
-    for(int i = 0 ; i < remoteSize ; i++)
-      m_receivedAcks.push_back(false);
-  }
-  else if(comm == COMM_NULL)
-    result = FAILURE_NULL_COMM;
-  else if(!m_comms.contains(comm))
-    result = FAILURE_UNKNOWN_COMM;
-  else
-    result = FAILURE_ALREADY_WAITING;
+//    // fill the vector
+//    for(int i = 0 ; i < remoteSize ; i++)
+//      m_receivedAcks.push_back(false);
+//  }
+//  else if(comm == COMM_NULL)
+//    result = FAILURE_NULL_COMM;
+//  else if(!m_comms.contains(comm))
+//    result = FAILURE_UNKNOWN_COMM;
+//  else
+//    result = FAILURE_ALREADY_WAITING;
 
-  return result;
+//  return result;
 
-}
+//}
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -124,70 +121,70 @@ void MPIListener::init()
 
 void MPIListener::check()
 {
-  QMap<Intercomm, MPIListeningInfo>::iterator it = m_comms.begin();
-  BuilderParserFrameInfo frameInfo;
+//  QMap<Intercomm, MPIListeningInfo>::iterator it = m_comms.begin();
+//  BuilderParserFrameInfo frameInfo;
 
-  // check all communicators for some new data
-  while(it != m_comms.end() && m_listening)
-  {
-    MPIListeningInfo & info = it.value();
+//  // check all communicators for some new data
+//  while(it != m_comms.end() && m_listening)
+//  {
+//    MPIListeningInfo & info = it.value();
 
-    // if data arrived
-    if(!info.m_finished && !info.m_ready && info.m_request.Test())
-    {
-      // parse frame
-      if(!BuilderParser::parseFrame(info.m_data, m_rules, frameInfo))
-      {
-        std::cerr << BuilderParser::getErrorString() << std::endl;
-        m_listening = false;
-      }
-      else
-      {
-        QMutexLocker lock(m_receivingAcksMutex);
+//    // if data arrived
+//    if(!info.m_finished && !info.m_ready && info.m_request.Test())
+//    {
+//      // parse frame
+//      if(!BuilderParser::parseFrame(info.m_data, m_rules, frameInfo))
+//      {
+//        std::cerr << BuilderParser::getErrorString() << std::endl;
+//        m_listening = false;
+//      }
+//      else
+//      {
+//        QMutexLocker lock(m_receivingAcksMutex);
 
-        // if we are waiting for acks for ackType frame from this comm
-        if(/*info.comm == this->receivingAcksComm &&*/ frameInfo.frameType == MGR_WKR_ACK
-           && frameInfo.frameAttributes["type"] == m_rules.getTypeName(m_ackType))
-        {
-          int wkrRank = StringOps::from_str<int>(frameInfo.frameAttributes["workerRank"]);
-          QVector<bool>::iterator it = m_receivedAcks.begin();
+//        // if we are waiting for acks for ackType frame from this comm
+//        if(/*info.comm == this->receivingAcksComm &&*/ frameInfo.frameType == MGR_WKR_ACK
+//           && frameInfo.frameAttributes["type"] == m_rules.getTypeName(m_ackType))
+//        {
+//          int wkrRank = StringOps::from_str<int>(frameInfo.frameAttributes["workerRank"]);
+//          QVector<bool>::iterator it = m_receivedAcks.begin();
 
-          m_receivedAcks[wkrRank] = true;
+//          m_receivedAcks[wkrRank] = true;
 
-          bool waitingFinished = true;
+//          bool waitingFinished = true;
 
-          while(it != this-> m_receivedAcks.end() && waitingFinished)
-            waitingFinished = *(it++);
+//          while(it != this-> m_receivedAcks.end() && waitingFinished)
+//            waitingFinished = *(it++);
 
-          if(waitingFinished)
-          {
-            m_receivingAcksComm = COMM_NULL;
-            m_ackType = MGR_WKR_NO_TYPE;
-            emit ackArrived();
-          }
-        }
-        else
-          emit newFrame(it.key(), frameInfo);
+//          if(waitingFinished)
+//          {
+//            m_receivingAcksComm = COMM_NULL;
+//            m_ackType = MGR_WKR_NO_TYPE;
+//            emit ackArrived();
+//          }
+//        }
+//        else
+//          emit newFrame(it.key(), frameInfo);
 
-        it.value().m_ready = true; // ready to do another non-blocking receive
-      }
-    }
+//        it.value().m_ready = true; // ready to do another non-blocking receive
+//      }
+//    }
 
-    it++;
-  }
+//    it++;
+//  }
 
-  if(!m_listening)
-  {
-    // reinitialize info structures
-    it = m_comms.begin();
-    while(it != m_comms.end() && m_listening)
-    {
-      it.value() = MPIListeningInfo();
-      it++;
-    }
-    m_timer->stop();
-    this->exit(0);
-  }
-  else
-    this->init();
+//  if(!m_listening)
+//  {
+//    // reinitialize info structures
+//    it = m_comms.begin();
+//    while(it != m_comms.end() && m_listening)
+//    {
+//      it.value() = MPIListeningInfo();
+//      it++;
+//    }
+//    m_timer->stop();
+//    this->exit(0);
+//  }
+//  else
+//    this->init();
 }

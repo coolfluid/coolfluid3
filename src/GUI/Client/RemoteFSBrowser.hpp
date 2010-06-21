@@ -11,8 +11,6 @@
 
 #include "Common/Component.hpp"
 
-#include "GUI/Network/NetworkFrameType.hpp"
-
 class QCompleter;
 class QDialogButtonBox;
 class QDomDocument;
@@ -455,7 +453,7 @@ namespace Client {
 
     /// Only "create directory" ACK is taken in account. Others are ignored.
     /// @param type Type of the ACK
-    void ack(CF::GUI::Network::NetworkFrameType type);
+//    void ack(CF::GUI::Network::NetworkFrameType type);
 
   private:
 

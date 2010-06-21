@@ -9,8 +9,6 @@
 #include <QMenu>
 #include <QModelIndex>
 
-#include "GUI/Network/NetworkFrameType.hpp"
-
 #include "GUI/Client/TSshInformation.hpp"
 #include "GUI/Client/CloseConfirmationInfos.hpp"
 

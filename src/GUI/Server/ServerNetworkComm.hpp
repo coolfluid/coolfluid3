@@ -9,8 +9,6 @@
 #include <QList>
 #include <QMutex>
 
-#include "Common/BuilderParserFrameInfo.hpp"
-#include "GUI/Network/NetworkProtocol.hpp"
 #include "GUI/Network/HostInfos.hpp"
 #include "GUI/Network/ComponentType.hpp"
 #include "GUI/Network/SignalInfo.hpp"
@@ -135,7 +133,7 @@ namespace Server {
     /// @param tree The tree.
     /// @throws InvalidValue If @c clientId does not exist.
     /// @throw UnknownClientIdException if Client id is unknown.
-    void sendTree(int clientId, const XMLNode & tree);
+//    void sendTree(int clientId, const XMLNode & tree);
 
     /// @brief Sends an ACK/NACK.
 
@@ -144,7 +142,7 @@ namespace Server {
     /// frame is built.
     /// @param type Type of the frame to ACK/NACK.
     /// @throw UnknownClientIdException if Client id is unknown.
-    void sendAck(int clientId, bool success, CF::GUI::Network::NetworkFrameType type);
+//    void sendAck(int clientId, bool success, CF::GUI::Network::NetworkFrameType type);
 
     /// @brief Sends an already built frame.
 
@@ -396,7 +394,7 @@ namespace Server {
     QHash<int, QTcpSocket *> m_clientIds;
 
     /// @brief Network m_protocol rules
-    CF::GUI::Network::NetworkProtocol m_networkProtocol;
+//    CF::GUI::Network::NetworkProtocol m_networkProtocol;
 
     /// @brief Builds and sends a frame to a client
 
@@ -405,8 +403,8 @@ namespace Server {
     /// @param frameInfos Frame information
     /// @return Returns @c true if the frame was built and sent successfully;
     /// otherwise returns @c false.
-    bool buildAndSend(QTcpSocket * client,
-                      const CF::Common::BuilderParserFrameInfo & frameInfos);
+//    bool buildAndSend(QTcpSocket * client,
+//                      const CF::Common::BuilderParserFrameInfo & frameInfos);
 
     /// @brief Sends a message to a client.
 
@@ -439,7 +437,7 @@ namespace Server {
     /// @param success If @c true an "ACK" frame is built. Otherwise, a "NACK"
     /// frame is built.
     /// @param type Type of the frame to ACK/NACK.
-    void sendAck(QTcpSocket * client, bool success, CF::GUI::Network::NetworkFrameType type);
+//    void sendAck(QTcpSocket * client, bool success, CF::GUI::Network::NetworkFrameType type);
 
     /// @brief Retrieves a client m_socket from its id.
 

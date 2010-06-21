@@ -23,8 +23,6 @@ LIST ( APPEND coolfluid-server_files
   MPIListener.hpp
   MPIListeningInfo.cpp
   MPIListeningInfo.hpp
-  MPIReceiver.cpp
-  MPIReceiver.hpp
   RemoteClientAppender.cpp
   RemoteClientAppender.hpp
   CCore.cpp
@@ -46,8 +44,6 @@ LIST ( APPEND coolfluid-server_files
   main.cpp)
 
 # Use Qt Libraries
-# TARGET_LINK_LIBRARIES( app_server network ${QT_LIBRARIES} ${CF_KERNEL_LIBS} ${CF_KERNEL_STATIC_LIBS} ${MPI_LIBRARIES} ${CF_Boost_LIBRARIES} )
-
 LIST( APPEND coolfluid-server_libs Network ${QT_LIBRARIES})
 
 CF_ADD_APP(coolfluid-server)
