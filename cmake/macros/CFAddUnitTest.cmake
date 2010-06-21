@@ -85,11 +85,6 @@ MACRO( CF_ADD_UNITTEST UTESTNAME )
         TARGET_LINK_LIBRARIES ( ${UTESTNAME} ${${UTESTNAME}_cflibs} )
     endif()
 
-    # faster allocation and memory porfiling
-    if( CF_HAVE_GOOGLE_PERFTOOLS )
-      TARGET_LINK_LIBRARIES ( ${UTESTNAME} ${GOOGLE_PERFTOOLS_TCMALLOC_LIB} )
-    endif()
-
   # add to the test database
   ADD_TEST( ${UTESTNAME} ${UTESTNAME} ${${UTESTNAME}_args} )
 

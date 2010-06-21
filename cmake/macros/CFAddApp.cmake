@@ -82,11 +82,6 @@ MACRO( CF_ADD_APP APPNAME )
         TARGET_LINK_LIBRARIES ( ${APPNAME} ${${APPNAME}_cflibs} )
     ENDIF()
 
-    # faster allocation and memory porfiling
-    if( CF_HAVE_GOOGLE_PERFTOOLS )
-      TARGET_LINK_LIBRARIES ( ${APPNAME} ${GOOGLE_PERFTOOLS_TCMALLOC_LIB} )
-    endif()
-
   ENDIF()
 
   GET_TARGET_PROPERTY ( ${APPNAME}_P_SOURCES        ${APPNAME} SOURCES )

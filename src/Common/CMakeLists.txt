@@ -1,6 +1,6 @@
 CF_FIND_ORPHAN_FILES()
 
-LIST ( APPEND Common_files
+list( APPEND Common_files
     AssertionManager.cpp
     AssertionManager.hpp
     BasicExceptions.cpp
@@ -118,62 +118,62 @@ LIST ( APPEND Common_files
     xmlParser.cpp
 )
 
-LIST(APPEND Common_libs ${Boost_LIBRARIES})
-
 ###############################################################################
 # MPI Files
-IF(CF_HAVE_MPI)
-LIST(APPEND Common_files
+if(CF_HAVE_MPI)
+list( APPEND Common_files
       MPI/PEInterface.hpp
       MPI/PEInterface.cpp
       MPI/PECommPattern.hpp
       MPI/PECommPattern.cpp
 )
-ENDIF()
+endif()
 
 ###############################################################################
 # Operating System dependent files
 
 ### UNIXES ####
-IF (UNIX)
+if(UNIX)
 
-  IF ( CF_HAVE_DLOPEN )
-    LIST ( APPEND Common_files PosixDlopenLibLoader.hpp PosixDlopenLibLoader.cpp )
-    LIST ( APPEND Common_libs  dl )
-    SET ( CF_HAVE_LIBLOADER ON )
-  ENDIF()
+  if( CF_HAVE_DLOPEN )
+    list( APPEND Common_files PosixDlopenLibLoader.hpp PosixDlopenLibLoader.cpp )
+    list( APPEND Common_libs  dl )
+    set( CF_HAVE_LIBLOADER ON )
+  endif()
 
-  IF    ( CF_OS_MACOSX )
-    LIST ( APPEND Common_files MacOSX/OSystemLayer.hpp   MacOSX/OSystemLayer.cpp )
-  ENDIF ()
+  if( CF_OS_MACOSX )
+    list( APPEND Common_files MacOSX/OSystemLayer.hpp   MacOSX/OSystemLayer.cpp )
+  endif()
 
-  IF    ( CF_OS_LINUX )
-    LIST ( APPEND Common_files Linux/OSystemLayer.hpp   Linux/OSystemLayer.cpp )
-  ENDIF ()
+  if( CF_OS_LINUX )
+    list( APPEND Common_files Linux/OSystemLayer.hpp   Linux/OSystemLayer.cpp )
+  endif()
 
-ENDIF(UNIX)
+endif()
 
 ### WINDOWS ####
-IF (WIN32)
+if(WIN32)
 
-  LIST ( APPEND Common_files Win32/OSystemLayer.hpp   Win32/OSystemLayer.cpp )
+  list( APPEND Common_files Win32/OSystemLayer.hpp   Win32/OSystemLayer.cpp )
 
   # should search explicitly for dbghelp.dll
   # should search for psapi.dll if not in windows 7 (already in kernel32.dll)
 
   # libraries for OSystemLayerWin32
-  LIST ( APPEND Common_libs dbghelp psapi )
+  list( APPEND Common_libs dbghelp psapi )
 
-  IF ( CF_HAVE_WINDOWSH )
-    LIST ( APPEND Common_files Win32/LibLoader.hpp     Win32/LibLoader.cpp )
-    SET ( CF_HAVE_LIBLOADER ON )
-  ENDIF()
+  if( CF_HAVE_WINDOWSH )
+    list( APPEND Common_files Win32/LibLoader.hpp     Win32/LibLoader.cpp )
+    set( CF_HAVE_LIBLOADER ON )
+  endif()
 
-ENDIF()
+endif()
 
-IF    ( NOT CF_HAVE_LIBLOADER )
+###############################################################################
+
+if( NOT CF_HAVE_LIBLOADER )
   MESSAGE ( FATAL_ERROR "No dynamic library loader was found!")
-ENDIF()
+endif()
 
 CF_MARK_NOT_ORPHAN (
 PosixDlopenLibLoader.hpp PosixDlopenLibLoader.cpp
@@ -183,13 +183,23 @@ Win32/OSystemLayer.hpp    Win32/OSystemLayer.cpp
 Win32/LibLoader.hpp      Win32/LibLoader.cpp
 )
 
-SET  ( Common_kernellib TRUE )
 
-CF_ADD_LIBRARY ( Common )
+###############################################################################
 
-ADD_SUBDIRECTORY ( MacOSX )   # support for Mac OSX
-ADD_SUBDIRECTORY ( Linux  )   # support for Linux
-ADD_SUBDIRECTORY ( Win32  )   # support for Win32
+list( APPEND Common_libs ${Boost_LIBRARIES})
 
-ADD_SUBDIRECTORY ( uTests )    # unit tests for Common
+# faster allocation and memory porfiling
+if( CF_HAVE_GOOGLE_PERFTOOLS )
+  list(APPEND Common_libs ${GOOGLE_PERFTOOLS_TCMALLOC_LIB} )
+endif()
+
+set( Common_kernellib TRUE )
+
+CF_ADD_LIBRARY( Common )
+
+add_subdirectory( MacOSX )   # support for Mac OSX
+add_subdirectory( Linux  )   # support for Linux
+add_subdirectory( Win32  )   # support for Win32
+
+add_subdirectory( uTests )    # unit tests for Common
 
