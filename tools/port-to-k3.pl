@@ -219,8 +219,11 @@ sub process ($)
       s/CFSliceVector/VectorSliceT/g;
 
       # class and members change
-      s/PE::getInstance()\.get_rank()/PEInterface::getInstance()\.rank()/g;
-      s/PE::getInstance()\.get_processor_count()/PEInterface::getInstance()\.size()/g;
+      s/PE::getInstance()\.get_rank()/PEInterface::instance()\.rank()/g;
+      s/PE::getInstance()\.get_processor_count()/PEInterface::instance()\.size()/g;
+
+      # getInstance is now instance
+      s/getInstance()/instance()/g;
 
       # modified headers
       s/Environment\.hpp/CommonAPI\.hpp/;

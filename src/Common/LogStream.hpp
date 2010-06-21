@@ -124,19 +124,19 @@ class Common_API LogStream
           *(it->second) << t;
           m_flushed = false;
         }
-        else if(it->first == SYNC_SCREEN && PEInterface::getInstance().is_init())
+        else if(it->first == SYNC_SCREEN && PEInterface::instance().is_init())
         {
-          for( Uint i = 0 ; i < (Uint)(PEInterface::getInstance().size()); ++i )
+          for( Uint i = 0 ; i < (Uint)(PEInterface::instance().size()); ++i )
           {
-            PEInterface::getInstance().barrier();
+            PEInterface::instance().barrier();
 
-            if(i == (Uint)PEInterface::getInstance().rank())
+            if(i == (Uint)PEInterface::instance().rank())
             {
               *(it->second) << t;
               m_flushed = false;
             }
           }
-        } // end of "else if (PEInterface::getInstance().isInit())"
+        } // end of "else if (PEInterface::instance().isInit())"
       } // end of "if(this->isDestinationUsed(it->first()))"
     }
 

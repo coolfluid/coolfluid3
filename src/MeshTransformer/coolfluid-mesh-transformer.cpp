@@ -20,7 +20,7 @@ int main(int argc, char * argv[])
 {
   CFinfo << "Welcome to the COOLFLUID K3 mesh transformer!\n" << CFflush;
 
-  //CoreEnv::getInstance().initiate(argc, argv);
+  //CoreEnv::instance().initiate(argc, argv);
 
 
   // map file extensions to readers and writers
@@ -32,7 +32,7 @@ int main(int argc, char * argv[])
   std::vector<CMeshReader::Ptr> readers;
   std::vector<CMeshWriter::Ptr> writers;
 
-  std::vector<CMeshReader::PROVIDER*> allmeshreaders = Factory<CMeshReader>::getInstance().getAllConcreteProviders();
+  std::vector<CMeshReader::PROVIDER*> allmeshreaders = Factory<CMeshReader>::instance().getAllConcreteProviders();
   BOOST_FOREACH(CMeshReader::PROVIDER* prov, allmeshreaders)
   {
     CMeshReader::Ptr reader = dynamic_pointer_cast<CMeshReader>(prov->create("reader"));
@@ -41,7 +41,7 @@ int main(int argc, char * argv[])
       extensions_to_readers[extension].push_back(reader);
   }
 
-  std::vector<CMeshWriter::PROVIDER*> allmeshwriters = Factory<CMeshWriter>::getInstance().getAllConcreteProviders();
+  std::vector<CMeshWriter::PROVIDER*> allmeshwriters = Factory<CMeshWriter>::instance().getAllConcreteProviders();
   BOOST_FOREACH(CMeshWriter::PROVIDER* prov, allmeshwriters)
   {
     CMeshWriter::Ptr writer = dynamic_pointer_cast<CMeshWriter>(prov->create("writer"));
@@ -211,6 +211,6 @@ int main(int argc, char * argv[])
 
   }
 
-  //CoreEnv::getInstance().terminate();
+  //CoreEnv::instance().terminate();
 
 }
