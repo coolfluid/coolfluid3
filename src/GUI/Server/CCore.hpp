@@ -66,124 +66,11 @@ namespace Server {
 
   private slots:
 
-    void treeUpdated();
-
     /// @brief Slot called when a new client connects
 
     /// Sends server status (file open, simulation running) to the new client.
     /// @param clientId New client id.
     void newClient(int clientId);
-
-    /// @brief Sends the tree to a client.
-
-    /// @param clientId Client id, or -1 to send notifactions to all clients.
-    /// @param tree The tree.
-    void getTree(int clientId);
-
-    /// @brief Configures the simulator
-
-    /// @param clientId Client id, or -1 to send notifactions to all clients.
-    /// @param config The configuration to give to the simulator
-    void configureSimulator(int clientId, const QDomDocument & config);
-
-    /// @brief Requests the simulator to modify a node
-
-    /// The simulator must have been configured.
-    /// @param clientId Client id, or -1 to send notifactions to all clients.
-    /// @param data Data about the modification
-    void modifyNode(int clientId, const QDomDocument & data);
-
-    /// @brief Requests the simulator to delete a node
-
-    /// The simulator must have been configured and a simulation can not be
-    /// running.
-    /// @param clientId Client id, or -1 to send notifactions to all clients.
-    /// @param data Data about the modification
-    void deleteNode(int clientId, const QString & nodePath);
-
-    /// @brief Requests the simulator to add a node
-
-    /// The simulator must have been configured and a simulation can not be
-    /// running.
-    /// @param clientId Client id, or -1 to send notifactions to all clients.
-    /// @param parentPath Path of the new node parent
-    /// @param name Name of the new node
-    /// @param type Node type
-    /// @param absType Node abstract type
-    void addNode(int clientId, const QString & parentPath,
-                 const QString & name, const QString & type,
-                 const QString & absType);
-
-    /// @brief Requests the simulator to rename a node
-
-    /// The simulator must have been configured and a simulation can not be
-    /// running.
-    /// @param clientId Client id, or -1 to send notifactions to all clients.
-    /// @param m_nodePath Node path
-    /// @param newName Node new name
-    void renameNode(int clientId, const QString & nodePath,
-                    const QString & newName);
-
-    /// @brief Sends the abstract types list.
-
-    /// @param clientId Client id, or -1 to send notifactions to all clients.
-
-    /// @param typeName Type name of which the abstract types are requested.
-    void getAbstractTypes(int clientId, const QString & typeName);
-
-    /// @brief Sends the concrete types list.
-
-    /// @param clientId Client id, or -1 to send notifactions to all clients.
-
-    /// @param typeName Abstract type name of which the abstract types are
-    /// requested.
-    /// @param typesList Concrete types list.
-    void getConcreteTypes(int clientId, const QString & typeName);
-
-    /// @brief Creates a new directory
-
-    /// Creates all the parent that does not exist.
-    /// @param clientId Client id, or -1 to send notifactions to all clients.
-
-    /// @param dirPath Directory path
-    /// @param name Directory name
-    void createDirectory(int clientId, const QString & dirPath,
-                         const QString & name);
-
-    /// @brief Saves a configuration to a file
-
-    /// @param clientId Client id, or -1 to send notifactions to all clients.
-
-    /// @param filename File to write
-    /// @param config Configuration
-    /// @note If the file already exists, it is overwritten.
-    void saveConfiguration(int clientId, const QString & filename,
-                           const QDomDocument & config);
-
-    /// @brief Requests to the simulator to open a file.
-
-    /// This method returns when the file is successfully opened or when an
-    /// error has occured.
-    /// @param clientId Client id, or -1 to send notifactions to all clients.
-
-    /// @param filename Name of the file to open.
-    void openFile(int clientId, const QString & filename);
-
-    /// @brief Closes the file
-
-    /// This destroys the simulator and create a new one.
-    /// @param clientId Client id, or -1 to send notifactions to all clients.
-    void closeFile(int clientId);
-
-    /// @brief Requests to the simulator to run the simulation.
-
-    /// Starts the simulator thread and returns immediately.
-    /// @param client Client that requested the simulation to be run. All
-    /// errors message will be sent to this client. If the simulation has been
-    /// successfully started, an ack for network frame type
-    /// @c TYPE_RUN_SIMULATION is sent to all clients. This parameter may
-    /// be @c CFNULL.
-    void runSimulation(int clientId);
 
     /// @brief Shuts the server down
 
@@ -202,11 +89,6 @@ namespace Server {
     /// @brief Slot called when the simulation is done.
     void simulationFinished();
 
-    /// @brief Slot called when the client wants the host list
-
-    /// @param clientId Client ID.
-    void getHostList(int clientId);
-
     /// @brief Slot called when the client wants to activate the simulation
 
     /// @param clientId Client ID.
@@ -218,13 +100,6 @@ namespace Server {
     /// @brief Slot called when the client wants to deactivate the simulation
     /// @param clientId Client ID.
     void deactivateSimulation(int clientId);
-
-    void simulationStatus(const QString & subSysName, int rank,
-                          const QString & status);
-
-    void getSubSysList(int clientId);
-
-//    void simulationTree(const XMLNode & tree);
 
     void spawned();
 
@@ -260,10 +135,6 @@ namespace Server {
 
     /// @brief Simulation manager
     SimulationManager m_simulationManager;
-
-    /// @brief Simulation tree
-    /// @todo this attribute should be removed
-//    XMLNode m_simTree;
 
     /// @brief Host list
     QList<CF::GUI::Network::HostInfos> m_hostList;

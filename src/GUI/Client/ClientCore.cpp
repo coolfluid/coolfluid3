@@ -82,7 +82,7 @@ StatusModel * ClientCore::getStatusModel() const
 
 void ClientCore::sendSignal(const SignalInfo & signal)
 {
-  m_networkComm->send(signal);
+//  m_networkComm->send(signal);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

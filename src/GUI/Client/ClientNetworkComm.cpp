@@ -52,65 +52,6 @@ ClientNetworkComm::~ClientNetworkComm()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool ClientNetworkComm::sendCloseFile()
-{
-  throw NotImplemented(FromHere(), "ClientNetworkComm::sendCloseFile");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool ClientNetworkComm::sendGetAbstractTypes(const QString & typeName)
-{
-  throw NotImplemented(FromHere(), "ClientNetworkComm::sendGetAbstractType");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool ClientNetworkComm::sendGetConcreteTypes(const QString & typeName)
-{
-  throw NotImplemented(FromHere(), "ClientNetworkComm::sendGetConcreteType");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool ClientNetworkComm::sendAddNode(const QDomNode & node,
-                                    const QString & type,
-                                    const QString & absType)
-{
-  throw NotImplemented(FromHere(), "ClientNetworkComm::sendAddNode");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool ClientNetworkComm::sendRenameNode(const QDomNode & node,
-                                       const QString & newName)
-{
-  throw NotImplemented(FromHere(), "ClientNetworkComm::sendRenameNode");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool ClientNetworkComm::sendDeleteNode(const QDomNode & node)
-{
-  throw NotImplemented(FromHere(), "ClientNetworkComm::sendDeleteNode");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool ClientNetworkComm::sendModifyNode(const QDomDocument & data)
-{
-  throw NotImplemented(FromHere(), "ClientNetworkComm::sendModifyNode");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 void ClientNetworkComm::connectToServer(const QString & hostAddress, quint16 port,
                                         bool skipRefused)
 {
@@ -137,106 +78,13 @@ void ClientNetworkComm::disconnectFromServer(bool shutServer)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool ClientNetworkComm::sendOpenFile(const QString & filename)
-{
-  throw NotImplemented(FromHere(), "ClientNetworkComm::sendOpenFile");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool ClientNetworkComm::sendOpenDir(const QString & dirname,
-                                    bool includeFiles,
-                                    const QStringList & extensions,
-                                    bool includeNoExtension)
-{
-  throw NotImplemented(FromHere(), "ClientNetworkComm::sendOpenDir");
-}
-
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool ClientNetworkComm::sendGetTree()
-{
-  throw NotImplemented(FromHere(), "ClientNetworkComm::sendGetTree");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool ClientNetworkComm::sendGetHostList()
-{
-  throw NotImplemented(FromHere(), "ClientNetworkComm::sendGetHostList");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 bool ClientNetworkComm::isConnected() const
 {
   return m_connectedToServer;
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool ClientNetworkComm::sendConfig(const QDomDocument & config)
-{
-  throw NotImplemented(FromHere(), "ClientNetworkComm::sendConfig");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool ClientNetworkComm::sendCreateDir(const QString & path, const QString & name)
-{
-  throw NotImplemented(FromHere(), "ClientNetworkComm::sendCreateDir");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool ClientNetworkComm::sendSaveConfig(const QString & path, const QDomDocument & config)
-{
-  throw NotImplemented(FromHere(), "ClientNetworkComm::sendSaveConfig");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool ClientNetworkComm::sendRunSimulation()
-{
-  throw NotImplemented(FromHere(), "ClientNetworkComm::sendRunSimulation");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool ClientNetworkComm::sendActivateSimulation(int nbProcs, const QString & hosts)
-{
-  throw NotImplemented(FromHere(), "ClientNetworkComm::sendActivateSimulation");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool ClientNetworkComm::sendDeactivateSimulation()
-{
-  throw NotImplemented(FromHere(), "ClientNetworkComm::sendDeactivateSimulation");
-
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool ClientNetworkComm::sendGetSubSystemList()
-{
-  throw NotImplemented(FromHere(), "ClientNetworkComm::sendGetSubSystemList");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 int ClientNetworkComm::send(const QString & frame) const
 {
@@ -255,63 +103,6 @@ int ClientNetworkComm::send(const QString & frame) const
   m_socket->flush();
 
   return charsWritten;
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool ClientNetworkComm::sendAddComponent(const QString & path,
-                                         ComponentType::Type type,
-                                         const QString & name)
-{
-  throw NotImplemented(FromHere(), "ClientNetworkComm::sendAddComponent");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool ClientNetworkComm::sendAddLink(const QString & path,
-                                    const QString & name,
-                                    const QString & target)
-{
-  throw NotImplemented(FromHere(), "ClientNetworkComm::sendAddLink");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool ClientNetworkComm::send(const SignalInfo & signal)
-{
-  bool success = false;
- QString str;
-
- if(this->checkConnected())
- {
-   try
-   {
-     QByteArray block;
-     QDataStream out(&block, QIODevice::WriteOnly);
-
-     str = signal.getString();
-
-     out.setVersion(QDataStream::Qt_4_5); // QDataStream version
-     out << (quint32)0;    // reserve 32 bits for the frame data size
-     out << str;
-     out.device()->seek(0);  // go back to the beginning of the frame
-     out << (quint32)(block.size() - sizeof(quint32)); // write the frame data size
-
-     m_socket->write(block);
-     m_socket->flush();
-
-     success = true;
-   }
-   catch(FailedAssertion & ae)
-   {
-     ClientRoot::getLog()->addException(ae.what());
-   }
- }
-
- return success;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -355,63 +146,6 @@ bool ClientNetworkComm::send(const XmlDoc & signal)
 
   return success;
 }
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//bool ClientNetworkComm::buildAndSend(const BuilderParserFrameInfo & frameInfos)
-//{
-//  bool success = false;
-//  std::string frame;
-
-//  try
-//  {
-//    if(!BuilderParser::buildFrame(frameInfos, m_protocol, frame))
-//      ClientRoot::getLog()->addError(BuilderParser::getErrorString().c_str());
-//    else
-//      success = this->send(frame.c_str()) != 0;
-//  }
-//  catch(std::string str)
-//  {
-//    ClientRoot::getLog()->addError(str.c_str());
-//  }
-//  return success;
-//}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//bool ClientNetworkComm::buildAndSend(NetworkFrameType type)
-//{
-//  BuilderParserFrameInfo fi;
-//  fi.setFrameType(type);
-//  return this->buildAndSend(fi);
-//}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool ClientNetworkComm::buildAndSend(const QString & type, const CPath & sender)
-{
-  throw NotImplemented(FromHere(), "ClientNetworkComm::buildAndSend");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//QString ClientNetworkComm::getNodePath(const QDomNode & node) const
-//{
-//  QDomNode parentNode = node.parentNode();
-//  QString path;
-
-//  if(parentNode.isNull()) // if the node has no parent
-//    return QString();
-//  else
-//  {
-//    path = this->getNodePath(parentNode);
-//    return path + '/' + node.nodeName();
-//  }
-//}
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -100,18 +100,6 @@ void CCore::createSimulator(const QString & name)
 
   connect(m_srvSimulation, SIGNAL(finished()),
           this, SLOT(simulationFinished()));
-
-  connect(m_commServer,
-          SIGNAL(addComponent(const QString &,
-                              CF::GUI::Network::ComponentType::Type,
-                              const QString &)),
-          m_srvSimulation,
-          SLOT(addComponent(const QString &,
-                            CF::GUI::Network::ComponentType::Type,
-                            const QString &)));
-
-  connect(m_srvSimulation, SIGNAL(treeUpdated()), this, SLOT(treeUpdated()));
-
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -285,187 +273,12 @@ Signal::return_t CCore::saveConfig(Signal::arg_t & node)
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-void CCore::treeUpdated()
-{
-  this->getTree(-1);
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 void CCore::newClient(int clientId)
 {
   throw NotImplemented(FromHere(), "CCore::newClient");
 
   // send a welcome message to the new client
   m_commServer->sendMessage(clientId, "Welcome to the Client-Server project!");
-
-  this->getTree(clientId);
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void CCore::getTree(int clientId)
-{
-  QDomDocument d;
-  d.setContent(m_srvSimulation->getTreeXML());
-  m_commServer->sendTree(clientId, d);
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void CCore::configureSimulator(int clientId, const QDomDocument & config)
-{
-  throw NotImplemented(FromHere(), "CCore::newClient");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void CCore::modifyNode(int clientId, const QDomDocument & data)
-{
-  if(!m_fileOpen)
-    m_commServer->sendError(clientId, "No case file loaded !");
-
-  else
-    ; /// @todo forward to the simulator
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void CCore::deleteNode(int clientId, const QString & nodePath)
-{
-  if(!m_fileOpen)
-    m_commServer->sendError(clientId, "No case file loaded !");
-
-  else if(m_simRunning)
-    m_commServer->sendError(clientId, "A simulation is running.");\
-
-  else
-    ; /// @todo forward to the simulator
-
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void CCore::addNode(int clientId, const QString & parentPath,
-                           const QString & name, const QString & type,
-                           const QString & absType)
-{
-  if(!m_fileOpen)
-    m_commServer->sendError(clientId, "No case file loaded !");
-
-  else if(m_simRunning)
-    m_commServer->sendError(clientId, "A simulation is running.");
-
-  else
-    ; /// @todo forward to the simulator
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void CCore::renameNode(int clientId, const QString & nodePath,
-                              const QString & newName)
-{
-  if(!m_fileOpen)
-    m_commServer->sendError(clientId, "No case file loaded !");
-
-  else if(m_simRunning)
-    m_commServer->sendError(clientId, "A simulation is running.");
-
-  else
-    ; /// @todo forward to the simulator
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void CCore::getAbstractTypes(int clientId, const QString & typeName)
-{
-  QDomNode node = m_types.namedItem(typeName);
-  QDomDocument document;
-  QDomNodeList childNodes;
-  QStringList typeList;
-
-  // if the node is null, typeName is not a existing type man
-  if(node.isNull())
-  {
-    m_commServer->sendError(clientId, QString("Type '%1' does not exist.")
-                                  .arg(typeName));
-    return;
-  }
-
-  childNodes = node.childNodes();
-
-  // if no child, no types to send
-  if(childNodes.isEmpty())
-  {
-    m_commServer->sendError(clientId, QString("No abstract type for type '%1'")
-                                  .arg(typeName));
-    return;
-  }
-
-  // building the types list
-  for(int i = 0 ; i < childNodes.count() ; i++)
-    typeList << childNodes.at(i).nodeName();
-
-  m_commServer->sendAbstractTypes(clientId, typeName, typeList);
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void CCore::getConcreteTypes(int clientId, const QString & typeName)
-{
-  QStringList typeList = m_srvSimulation->getConcreteTypes(typeName);
-  m_commServer->sendConcreteTypes(clientId, typeName, typeList);
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void CCore::createDirectory(int clientId, const QString & dirPath,
-                                   const QString & name)
-{
-  throw NotImplemented(FromHere(), "CCore::createDirectory");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void CCore::saveConfiguration(int clientId, const QString & filename,
-                                     const QDomDocument & config)
-{
-  throw NotImplemented(FromHere(), "CCore::saveConfiguration");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void CCore::openFile(int clientId, const QString & filename)
-{
-  throw NotImplemented(FromHere(), "CCore::openFile");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void CCore::closeFile(int clientId)
-{
-  throw NotImplemented(FromHere(), "CCore::closeFile");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void CCore::runSimulation(int clientId)
-{
-  throw NotImplemented(FromHere(), "CCore::runSimulation");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -498,14 +311,6 @@ void CCore::error(const QString & message)
 void CCore::simulationFinished()
 {
   throw NotImplemented(FromHere(), "CCore::simulationFinished");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void CCore::getHostList(int clientId)
-{
-  m_commServer->sendHostList(clientId, m_hostList);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -562,31 +367,6 @@ void CCore::deactivateSimulation(int clientId)
 //    this->setStatus(WorkerStatus::NOT_RUNNING);
 //  }
 }
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void CCore::simulationStatus(const QString & subSysName, int rank,
-                                    const QString & status)
-{
-  m_commServer->sendStatus(-1, subSysName, rank, status);
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void CCore::getSubSysList(int clientId)
-{
-  throw NotImplemented(FromHere(), "CCore::getSubSysList");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//void CCore::simulationTree(const XMLNode & tree)
-//{
-//  m_commServer->sendTree(-1, tree);
-//}
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

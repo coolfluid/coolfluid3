@@ -111,22 +111,6 @@ bool ServerNetworkComm::openPort(const QString & hostAddress, quint16 port)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-//bool ServerNetworkComm::buildAndSend(QTcpSocket * client, const BuilderParserFrameInfo & frameInfos)
-//{
-//  bool success = false;
-//  std::string frame;
-
-//  if(!BuilderParser::buildFrame(frameInfos, m_networkProtocol, frame))
-//    std::cerr << "Could not build the frame: " << BuilderParser::getErrorString() << frameInfos.frameType << std::endl;
-//  else
-//    success = this->send(client, frame.c_str()) != 0;
-
-//  return success;
-//}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 int ServerNetworkComm::send(QTcpSocket * client, const QString & frame)
 {
   QByteArray block;
@@ -169,107 +153,6 @@ int ServerNetworkComm::send(QTcpSocket * client, const QString & frame)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool ServerNetworkComm::sendDirContents(int clientId, const QString & path,
-                                        const QStringList & dirs,
-                                        const QStringList & files)
-{
-  throw NotImplemented(FromHere(), "ServerNetworkComm::sendDirContents");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool ServerNetworkComm::sendAbstractTypes(int clientId, const QString & typeName,
-                                          const QStringList & typeList)
-{
-  throw NotImplemented(FromHere(), "ServerNetworkComm::sendAbstractTypes");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool ServerNetworkComm::sendConcreteTypes(int clientId, const QString & typeName,
-                                          const QStringList & typeList)
-{
-  throw NotImplemented(FromHere(), "ServerNetworkComm::sendConcreteTypes");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool ServerNetworkComm::sendHostList(int clientId,
-                                     const QList<CF::GUI::Network::HostInfos> & hosts)
-{
-  throw NotImplemented(FromHere(), "ServerNetworkComm::sendHostList");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void ServerNetworkComm::sendTree(int clientId, const QDomDocument & tree)
-{
-  throw NotImplemented(FromHere(), "ServerNetworkComm::sendTree");
-//  this->sendTree(clientId, XMLNode::parseString(tree.toString().toStdString().c_str()));
-  //  try
-  //  {
-  //   QTcpSocket * m_socket = this->getSocket(clientId);
-  //   BuilderParserFrameInfo fi;
-  //
-  //   fi.setFrameType(NETWORK_TREE);
-  //   fi.frameData = XMLNode::parseString(tree.toString().toStdString().c_str());;
-  //
-  //   this->buildAndSend(m_socket, fi);
-  //
-  //  }
-  //  catch(UnknownClientIdException e)
-  //  {
-  //   qDebug() << e.what();
-  //  }
-}
-
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//void ServerNetworkComm::sendTree(int clientId, const XMLNode & tree)
-//{
-//  try
-//  {
-//    QTcpSocket * socket = this->getSocket(clientId);
-//    BuilderParserFrameInfo fi;
-
-//    fi.setFrameType(NETWORK_TREE);
-//    fi.frameData = tree;
-
-//    this->buildAndSend(socket, fi);
-
-//  }
-//  catch(UnknownClientIdException e)
-//  {
-//    qDebug() << e.what();
-//  }
-//}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//void ServerNetworkComm::send(int clientId, const QString & frame)
-//{
-//  try
-//  {
-//    QTcpSocket * socket = this->getSocket(clientId);
-
-//    this->send(socket, frame);
-//  }
-//  catch(UnknownClientIdException e)
-//  {
-//    qDebug() << e.what();
-//  }
-//}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 void ServerNetworkComm::send(int clientId, const XmlNode & signal)
 {
   try
@@ -307,22 +190,6 @@ void ServerNetworkComm::sendError(int clientId, const QString & message)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-//void ServerNetworkComm::sendAck(int clientId, bool success, NetworkFrameType type)
-//{
-//  try
-//  {
-//    QTcpSocket * socket = this->getSocket(clientId);
-//    this->sendAck(socket, success, type);
-//  }
-//  catch(UnknownClientIdException e)
-//  {
-//    qDebug() << e.what();
-//  }
-//}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 void ServerNetworkComm::sendMessage(int clientId, const QString & message)
 {
   try
@@ -335,41 +202,6 @@ void ServerNetworkComm::sendMessage(int clientId, const QString & message)
   {
     qDebug() << e.what();
   }
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void ServerNetworkComm::sendStatus(int clientId,const QString & subSysName,
-                                   int rank, const QString & status)
-{
-  throw NotImplemented(FromHere(), "ServerNetworkComm::sendStatus");
-
-//  try
-//  {
-//    QTcpSocket * socket = this->getSocket(clientId);
-//    BuilderParserFrameInfo fi;
-
-//    fi.setFrameType(NETWORK_SIMULATION_STATUS);
-//    fi.frameAttributes["subSysName"] = subSysName.toStdString();
-//    fi.frameAttributes["workerRank"] = StringOps::to_str<int>(rank);
-//    fi.frameAttributes["value"] = status.toStdString();
-
-//    this->buildAndSend(socket, fi);
-//  }
-//  catch(UnknownClientIdException e)
-//  {
-//    qDebug() << e.what();
-//  }
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void ServerNetworkComm::sendSubSystemList(int clientId,
-                                          const QStringList & subSystemList)
-{
-  throw NotImplemented(FromHere(), "ServerNetworkComm::sendSubSystemList");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -415,23 +247,6 @@ void ServerNetworkComm::sendError(QTcpSocket * client, const QString & message)
 {
   throw NotImplemented(FromHere(), "ServerNetworkComm::sendMessage");
 }
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-//void ServerNetworkComm::sendAck(QTcpSocket * client, bool success, NetworkFrameType type)
-//{
-//  BuilderParserFrameInfo fi;
-
-//  if(success)
-//    fi.setFrameType(NETWORK_ACK);
-//  else
-//    fi.setFrameType(NETWORK_NACK);
-
-//  fi.frameAttributes["type"] = m_networkProtocol.getTypeName(type);
-
-//  this->buildAndSend(client, fi);
-//}
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -522,8 +337,6 @@ void ServerNetworkComm::newData()
     QDomDocument doc;
 
     doc.setContent(frame);
-
-   // qDebug() << frame << m_blockSize;
 
     try
     {
