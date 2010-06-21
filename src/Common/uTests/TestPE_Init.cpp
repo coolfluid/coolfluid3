@@ -37,33 +37,33 @@ BOOST_FIXTURE_TEST_SUITE( PE_Init_TestSuite, PE_Init_Fixture )
 
 BOOST_AUTO_TEST_CASE( isinit_preinit )
 {
-  BOOST_CHECK_EQUAL( PEInterface::getInstance().is_init() , false );
+  BOOST_CHECK_EQUAL( PEInterface::instance().is_init() , false );
 }
 
 BOOST_AUTO_TEST_CASE( allrankzero_preinit )
 {
-  BOOST_CHECK_EQUAL( PEInterface::getInstance().rank() , (Uint)0 );
+  BOOST_CHECK_EQUAL( PEInterface::instance().rank() , (Uint)0 );
 }
 
 BOOST_AUTO_TEST_CASE( init )
 {
-  PEInterface::getInstance().init(m_argc,m_argv);
-  BOOST_CHECK_EQUAL( PEInterface::getInstance().is_init() , true );
+  PEInterface::instance().init(m_argc,m_argv);
+  BOOST_CHECK_EQUAL( PEInterface::instance().is_init() , true );
 }
 
 BOOST_AUTO_TEST_CASE( rank_and_size )
 {
-  BOOST_CHECK_LT( (Uint)PEInterface::getInstance().rank() , (Uint)PEInterface::getInstance().size() );
+  BOOST_CHECK_LT( (Uint)PEInterface::instance().rank() , (Uint)PEInterface::instance().size() );
 }
 
 BOOST_AUTO_TEST_CASE( collective_op )
 {
   Uint rank_based_sum=0,size_based_sum=0;
-  std::vector<Uint> ranklist(PEInterface::getInstance().size(),0);
-  mpi::all_gather(PEInterface::getInstance(),PEInterface::getInstance().rank(),ranklist);
-  for(Uint i=0; i<(Uint)PEInterface::getInstance().size(); i++) {
+  std::vector<Uint> ranklist(PEInterface::instance().size(),0);
+  mpi::all_gather(PEInterface::instance(),PEInterface::instance().rank(),ranklist);
+  for(Uint i=0; i<(Uint)PEInterface::instance().size(); i++) {
     rank_based_sum+=ranklist[i];
-    size_based_sum+=(Uint)PEInterface::getInstance().size()-(i+1);
+    size_based_sum+=(Uint)PEInterface::instance().size()-(i+1);
   }
   BOOST_CHECK_EQUAL( rank_based_sum , size_based_sum );
 }

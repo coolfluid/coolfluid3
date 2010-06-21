@@ -29,7 +29,7 @@ CElements::~CElements()
 void CElements::set_elementType(const std::string& etype_name)
 {
   Common::SafePtr< ElementType::PROVIDER > prov =
-      Factory<ElementType>::getInstance().getProvider( etype_name );
+      Factory<ElementType>::instance().getProvider( etype_name );
 
   m_elementType = prov->create();
 }

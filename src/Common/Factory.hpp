@@ -49,7 +49,7 @@ class Factory : public FactoryBase {
 public: // methods
 
   /// @return the instance of this singleton
-  static Common::Factory<BASE>& getInstance();
+  static Common::Factory<BASE>& instance();
 
   /// Checks if a provider is registered
   /// @param name name of the provider
@@ -102,7 +102,7 @@ private: // data
 ////////////////////////////////////////////////////////////////////////////////
 
 template <class BASE>
-Factory<BASE>& Factory<BASE>::getInstance()
+Factory<BASE>& Factory<BASE>::instance()
 {
   static Common::Factory<BASE> obj;
   return obj;
@@ -113,7 +113,7 @@ Factory<BASE>& Factory<BASE>::getInstance()
 template <class BASE>
 Factory<BASE>::Factory()
 {
-  Common::CoreEnv::getInstance().getFactoryRegistry()->regist(this);
+  Common::CoreEnv::instance().getFactoryRegistry()->regist(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -121,7 +121,7 @@ Factory<BASE>::Factory()
 template <class BASE>
 Factory<BASE>::~Factory()
 {
-//  Common::CoreEnv::getInstance().getFactoryRegistry()->unregist( getTypeName() );
+//  Common::CoreEnv::instance().getFactoryRegistry()->unregist( getTypeName() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -30,7 +30,7 @@ class Common_API OSystem : public boost::noncopyable {
 public: // methods
 
   /// @return the single object that represents the operating system
-  static OSystem& getInstance();
+  static OSystem& instance();
 
   /// @return ProcessInfo object
   Common::SafePtr<Common::OSystemLayer> OSystemLayer();

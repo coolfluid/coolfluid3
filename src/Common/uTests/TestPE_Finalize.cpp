@@ -33,8 +33,8 @@ BOOST_FIXTURE_TEST_SUITE( PE_Finalize_TestSuite, PE_Finalize_Fixture )
 
 BOOST_AUTO_TEST_CASE( finalize )
 {
-  PEInterface::getInstance().finalize();
-  BOOST_CHECK_EQUAL( PEInterface::getInstance().is_init() , false );
+  PEInterface::instance().finalize();
+  BOOST_CHECK_EQUAL( PEInterface::instance().is_init() , false );
 }
 
 BOOST_AUTO_TEST_SUITE_END()

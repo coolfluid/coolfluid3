@@ -23,7 +23,7 @@ public:
   AssertionManager();
 
   /// Gets the instance of the manager
-  static AssertionManager& getInstance ();
+  static AssertionManager& instance ();
 
   /// If AssertionManager is not handling assertions and those are
   /// passed to the standard assert function

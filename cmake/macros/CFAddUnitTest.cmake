@@ -5,10 +5,10 @@
 MACRO( CF_ADD_UNITTEST UTESTNAME )
 
   # option to build it or not
-  OPTION ( CF_BUILD_${UTESTNAME} "Build the ${UTESTNAME} testing application" ON )
+  OPTION( CF_BUILD_${UTESTNAME} "Build the ${UTESTNAME} testing application" ON )
 
   # add to list of local apps
-  LIST ( APPEND CF_LOCAL_UTESTNAMES ${UTESTNAME} )
+  LIST( APPEND CF_LOCAL_UTESTNAMES ${UTESTNAME} )
 
 #   CF_DEBUG_VAR(CF_MODULES_LIST)
 
@@ -19,10 +19,10 @@ MACRO( CF_ADD_UNITTEST UTESTNAME )
     IF ( ${pos} EQUAL -1 )
       SET ( ${UTESTNAME}_all_mods_pres OFF )
       IF ( CF_BUILD_${UTESTNAME} )
-          LOGVERBOSE ( "     \# testing app [${UTESTNAME}] requires module [${reqmod}] which is not present")
+          LOGVERBOSE ( "     \# utest [${UTESTNAME}] requires module [${reqmod}] which is not present")
       ENDIF()
     ENDIF()
-  ENDFOREACH ( reqmod ${${UTESTNAME}_requires_mods} )
+  ENDFOREACH()
 
   SET ( ${UTESTNAME}_dir ${CMAKE_CURRENT_SOURCE_DIR} )
 
@@ -43,12 +43,12 @@ MACRO( CF_ADD_UNITTEST UTESTNAME )
 
     CF_SEPARATE_SOURCES("${${UTESTNAME}_files}" ${UTESTNAME})
 
-    SOURCE_GROUP ( Headers FILES ${${UTESTNAME}_headers} )
-    SOURCE_GROUP ( Sources FILES ${${UTESTNAME}_sources} )
+    SOURCE_GROUP( Headers FILES ${${UTESTNAME}_headers} )
+    SOURCE_GROUP( Sources FILES ${${UTESTNAME}_sources} )
 
     LOG ( " +++ TEST [${UTESTNAME}]" )
 
-    ADD_EXECUTABLE ( ${UTESTNAME} ${${UTESTNAME}_sources} ${${UTESTNAME}_headers} )
+    ADD_EXECUTABLE( ${UTESTNAME} ${${UTESTNAME}_sources} ${${UTESTNAME}_headers} )
 
     IF(CF_INSTALL_TESTS)
       # add installation paths
@@ -60,30 +60,44 @@ MACRO( CF_ADD_UNITTEST UTESTNAME )
     ENDIF(CF_INSTALL_TESTS)
 
     # if mpi was found add it to the libraries
-    IF   (CF_HAVE_MPI AND NOT CF_HAVE_MPI_COMPILER)
+    IF(CF_HAVE_MPI AND NOT CF_HAVE_MPI_COMPILER)
 #           MESSAGE ( STATUS "${UTESTNAME} links to ${MPI_LIBRARIES}" )
           TARGET_LINK_LIBRARIES ( ${UTESTNAME} ${MPI_LIBRARIES} )
-    ENDIF(CF_HAVE_MPI AND NOT CF_HAVE_MPI_COMPILER)
+    ENDIF()
 
     # add external dependency libraries if defined
     IF( DEFINED ${UTESTNAME}_libs )
       TARGET_LINK_LIBRARIES ( ${UTESTNAME} ${${UTESTNAME}_libs} )
     ENDIF(DEFINED ${UTESTNAME}_libs)
 
-    # internal dependencies
-    IF ( CF_ENABLE_INTERNAL_DEPS )
-      IF( DEFINED ${UTESTNAME}_cflibs )
-        TARGET_LINK_LIBRARIES ( ${UTESTNAME} ${${UTESTNAME}_cflibs} )
-      ENDIF(DEFINED ${UTESTNAME}_cflibs)
-    ELSE()
-      TARGET_LINK_LIBRARIES ( ${UTESTNAME} ${CF_KERNEL_LIBS} ${CF_KERNEL_STATIC_LIBS} ${Boost_LIBRARIES} )
-    ENDIF(CF_ENABLE_INTERNAL_DEPS)
+    # profiling gloabally selected
+    if( CF_ENABLE_PROFILING AND CF_PROFILER_IS_GOOGLE AND CF_BUILD_GooglePerfTools )
+      LIST ( APPEND ${UTESTNAME}_cflibs GooglePerfTools )
+    endif()
 
+    # profiling selected for specific target
+    if( ${UTESTNAME}_profile AND CF_BUILD_GooglePerfTools )
+      LIST ( APPEND ${UTESTNAME}_cflibs GooglePerfTools )
+    endif()
+
+    # internal dependencies
+    if( DEFINED ${UTESTNAME}_cflibs )
+        TARGET_LINK_LIBRARIES ( ${UTESTNAME} ${${UTESTNAME}_cflibs} )
+    endif()
+
+    # faster allocation and memory porfiling
+    if( CF_HAVE_GOOGLE_PERFTOOLS )
+      TARGET_LINK_LIBRARIES ( ${UTESTNAME} ${GOOGLE_PERFTOOLS_TCMALLOC_LIB} )
+    endif()
+
+  # add to the test database
   ADD_TEST( ${UTESTNAME} ${UTESTNAME} ${${UTESTNAME}_args} )
 
-  ENDIF(${UTESTNAME}_will_compile)
+  ENDIF()
 
-  GET_TARGET_PROPERTY ( ${UTESTNAME}_LINK_LIBRARIES  ${UTESTNAME} LINK_LIBRARIES )
+  GET_TARGET_PROPERTY ( ${UTESTNAME}_P_SOURCES   ${UTESTNAME} SOURCES )
+  GET_TARGET_PROPERTY ( ${UTESTNAME}_LINK_FLAGS       ${UTESTNAME} LINK_FLAGS )
+  GET_TARGET_PROPERTY ( ${UTESTNAME}_TYPE             ${UTESTNAME} TYPE )
 
   # log some info about the app
   LOGFILE("${UTESTNAME} : [${CF_BUILD_${UTESTNAME}}]")
@@ -91,10 +105,12 @@ MACRO( CF_ADD_UNITTEST UTESTNAME )
   LOGFILE("${UTESTNAME}_dir             : [${${UTESTNAME}_dir}]")
   LOGFILE("${UTESTNAME}_includedirs     : [${${UTESTNAME}_includedirs}]")
   LOGFILE("${UTESTNAME}_libs            : [${${UTESTNAME}_libs}]")
+  LOGFILE("${UTESTNAME}_cflibs          : [${${UTESTNAME}_cflibs}]")
   LOGFILE("${UTESTNAME}_all_mods_pres   : [${${UTESTNAME}_all_mods_pres}]")
   LOGFILE("${UTESTNAME}_requires_mods   : [${${UTESTNAME}_requires_mods}]")
-  LOGFILE("${UTESTNAME}_sources         : [${${UTESTNAME}_sources}]")
-  LOGFILE("${UTESTNAME}_LINK_LIBRARIES  : [${${UTESTNAME}_LINK_LIBRARIES}]")
+  LOGFILE("${UTESTNAME}_P_SOURCES       : [${${UTESTNAME}_P_SOURCES}]")
+  LOGFILE("${UTESTNAME}_LINK_FLAGS      : [${${UTESTNAME}_LINK_FLAGS}]")
+  LOGFILE("${UTESTNAME}_TYPE            : [${${UTESTNAME}_TYPE}]")
 
 
 ENDMACRO( CF_ADD_UNITTEST )
@@ -104,10 +120,7 @@ ENDMACRO( CF_ADD_UNITTEST )
 ##############################################################################
 
 MACRO( CF_ADD_PROFILED_UNITTEST UTESTNAME )
-  IF(CF_BUILD_GooglePerfTools)
-    LIST ( APPEND ${UTESTNAME}_cflibs GooglePerfTools )
-  ENDIF()
-  CF_ADD_UNITTEST( ${UTESTNAME} )
+
 ENDMACRO( CF_ADD_PROFILED_UNITTEST )
 
 ##############################################################################

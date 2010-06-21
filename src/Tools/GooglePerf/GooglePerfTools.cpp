@@ -13,7 +13,7 @@ namespace GooglePerf {
 GooglePerfToolsModule::GooglePerfToolsModule()
 {
   m_init = false;
-  m_path = Common::DirPaths::getInstance().getResultsDir() / boost::filesystem::path("perftools-profile.pprof");
+  m_path = Common::DirPaths::instance().getResultsDir() / boost::filesystem::path("perftools-profile.pprof");
 }
 
 void GooglePerfToolsModule::initiate() {

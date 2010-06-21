@@ -32,7 +32,7 @@ namespace CF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CoreEnv& CoreEnv::getInstance()
+CoreEnv& CoreEnv::instance()
 {
   static CoreEnv env;
   return env;
@@ -70,13 +70,13 @@ CoreEnv::CoreEnv() :
 {
 //  addConfigOptionsTo(this);
 //
-//  setParameter("DoAssertions",          &(AssertionManager::getInstance().DoAssertions));
-//  setParameter("AssertionDumps",        &(AssertionManager::getInstance().AssertionDumps));
-//  setParameter("AssertionThrows",       &(AssertionManager::getInstance().AssertionThrows));
+//  setParameter("DoAssertions",          &(AssertionManager::instance().DoAssertions));
+//  setParameter("AssertionDumps",        &(AssertionManager::instance().AssertionDumps));
+//  setParameter("AssertionThrows",       &(AssertionManager::instance().AssertionThrows));
 //
-//  setParameter("ExceptionOutputs",      &(ExceptionManager::getInstance().ExceptionOutputs));
-//  setParameter("ExceptionDumps",        &(ExceptionManager::getInstance().ExceptionDumps));
-//  setParameter("ExceptionAborts",       &(ExceptionManager::getInstance().ExceptionAborts));
+//  setParameter("ExceptionOutputs",      &(ExceptionManager::instance().ExceptionOutputs));
+//  setParameter("ExceptionDumps",        &(ExceptionManager::instance().ExceptionDumps));
+//  setParameter("ExceptionAborts",       &(ExceptionManager::instance().ExceptionAborts));
 //
 //  setParameter("OnlyCPU0Writes",        &(m_env_vars->OnlyCPU0Writes));
 //  setParameter("RegistSignalHandlers",  &(m_env_vars->RegistSignalHandlers));
@@ -97,7 +97,7 @@ CoreEnv::CoreEnv() :
 //  CFinfo << "Configuring OSystem signal handlers ... " << CFflush;
 //  if ( m_env_vars->RegistSignalHandlers )
 //  {
-//    OSystem::getInstance().getSignalHandler()->registSignalHandlers();
+//    OSystem::instance().getSignalHandler()->registSignalHandlers();
 //    CFinfo << "OK\n" << CFflush;
 //  }
 //  else
@@ -109,9 +109,9 @@ CoreEnv::CoreEnv() :
 //
 //  // clean the config.log file
 //  boost::filesystem::path fileconfig =
-//    Common::DirPaths::getInstance().getResultsDir() / boost::filesystem::path("config.log");
+//    Common::DirPaths::instance().getResultsDir() / boost::filesystem::path("config.log");
 //
-////  SelfRegistPtr<Common::FileHandlerOutput> fhandle = Common::SingleBehaviorFactory<Common::FileHandlerOutput>::getInstance().create();
+////  SelfRegistPtr<Common::FileHandlerOutput> fhandle = Common::SingleBehaviorFactory<Common::FileHandlerOutput>::instance().create();
 ////  std::ofstream& fout = fhandle->open(fileconfig,std::ios_base::trunc);
 ////
 ////  fout << "CONFIG LOG:" << "\n";
@@ -126,8 +126,8 @@ void CoreEnv::setup()
 
   // these are the default values
 /// @todo port these into k3
-//  SingleBehaviorFactory<Common::FileHandlerInput>::getInstance().setDefaultBehavior("CurlAccessRepository");
-//  SingleBehaviorFactory<Common::FileHandlerOutput>::getInstance().setDefaultBehavior("DirectFileWrite");
+//  SingleBehaviorFactory<Common::FileHandlerInput>::instance().setDefaultBehavior("CurlAccessRepository");
+//  SingleBehaviorFactory<Common::FileHandlerOutput>::instance().setDefaultBehavior("DirectFileWrite");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -264,7 +264,7 @@ void CoreEnv::initiate ( int argc, char** argv )
   CFinfo << "-------------------------------------------------------------\n" << CFflush;
 
   CFinfo << "Initializing Parallel Environment : " << CFflush;
-  PEInterface::getInstance().init(argc,argv);
+  PEInterface::instance().init(argc,argv);
 
   CFinfo << "CF version    : " << getVersionString () << "\n";
   CFinfo << "Build system         : " << getBuildSystem() << "\n";
@@ -310,7 +310,7 @@ void CoreEnv::terminate()
   CFinfo << "Terminating Hook Modules ...\n" << CFflush;
   terminateModules();
 
-  PEInterface::getInstance().finalize();
+  PEInterface::instance().finalize();
 
   CFinfo << "-------------------------------------------------------------\n" << CFflush;
   CFinfo << "CF Environment Terminated\n";

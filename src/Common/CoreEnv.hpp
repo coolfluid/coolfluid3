@@ -37,7 +37,7 @@ class Common_API  CoreEnv :
 public: // methods
 
   /// @return the instance of this singleton
-  static CoreEnv& getInstance();
+  static CoreEnv& instance();
 
   /// Defines the Config Option's of this class
   /// @param options a OptionList where to add the Option's

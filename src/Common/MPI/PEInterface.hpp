@@ -31,7 +31,7 @@ public:
   ~PEInterface();
 
   /// Return a reference to the current PE
-  static PEInterface& getInstance();
+  static PEInterface& instance();
 
   /// Initialise the PE
   void init(int argc, char** args);

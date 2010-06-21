@@ -28,7 +28,7 @@ PEInterface::~PEInterface () {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PEInterface& PEInterface::getInstance() {
+PEInterface& PEInterface::instance() {
   static PEInterface pe_instance;
   return pe_instance;
 }

@@ -24,7 +24,7 @@ AssertionManager::AssertionManager() :
 
 ////////////////////////////////////////////////////////////////////////////////
 
-AssertionManager& AssertionManager::getInstance()
+AssertionManager& AssertionManager::instance()
 {
   static AssertionManager assertion_manager;
   return assertion_manager;
@@ -39,7 +39,7 @@ void AssertionManager::do_assert ( bool condition,
                                    const char * func,
                                    const char * desc )
 {
-  if ( (!condition) && AssertionManager::getInstance().DoAssertions )
+  if ( (!condition) && AssertionManager::instance().DoAssertions )
   {
     std::ostringstream out;
     out << "Assertion failed: [" << cond_str << "] ";
@@ -52,10 +52,10 @@ void AssertionManager::do_assert ( bool condition,
     if (func)
       out << " [function " << func << "]";
 
-    if ( AssertionManager::getInstance().AssertionDumps )
-      out << "\n" << OSystem::getInstance().OSystemLayer()->getBackTrace();
+    if ( AssertionManager::instance().AssertionDumps )
+      out << "\n" << OSystem::instance().OSystemLayer()->getBackTrace();
 
-    if ( AssertionManager::getInstance().AssertionThrows )
+    if ( AssertionManager::instance().AssertionThrows )
     {
       throw FailedAssertion (FromHere(),out.str());
     }

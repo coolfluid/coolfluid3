@@ -46,7 +46,7 @@ namespace Client {
 
     public:
 
-    static ClientCore & getInstance();
+    static ClientCore & instance();
 
     void setStatusModel(StatusModel * statusModel);
 

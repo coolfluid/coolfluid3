@@ -19,7 +19,7 @@ ExceptionManager::ExceptionManager() :
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ExceptionManager& ExceptionManager::getInstance()
+ExceptionManager& ExceptionManager::instance()
 {
   static ExceptionManager exception_manager;
   return exception_manager;
@@ -32,22 +32,22 @@ Exception::Exception(CodeLocation where, std::string msg, std::string className)
 {
   m_what = full_description();
 
-  if ( ExceptionManager::getInstance().ExceptionOutputs )
+  if ( ExceptionManager::instance().ExceptionOutputs )
   {
     std::cout << "+++ Exception thrown +++++++++++++++++" << std::endl;
     std::cout << m_what << std::endl;
     std::cout << "++++++++++++++++++++++++++++++++++++++" << std::endl;
   }
 
-  if ( ExceptionManager::getInstance().ExceptionDumps )
+  if ( ExceptionManager::instance().ExceptionDumps )
   {
-    std::string backtrace = OSystem::getInstance().OSystemLayer()->getBackTrace();
+    std::string backtrace = OSystem::instance().OSystemLayer()->getBackTrace();
     std::cout << "+++ Exception backtrace ++++++++++++++" << std::endl;
     std::cout << backtrace << std::endl;
     std::cout << "++++++++++++++++++++++++++++++++++++++" << std::endl;
   }
 
-  if ( ExceptionManager::getInstance().ExceptionAborts )
+  if ( ExceptionManager::instance().ExceptionAborts )
   {
     std::cout << "+++ Exception aborting ... " << std::endl;
     abort();

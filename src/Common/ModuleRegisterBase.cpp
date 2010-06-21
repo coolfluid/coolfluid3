@@ -18,7 +18,7 @@ NamedObject(name),
 m_init(false)
 {
 //  std::cout << "Registering module [" << name << "]" << std::endl;
-//  Common::CoreEnv::getInstance().getModuleRegistry()->regist(this);
+//  Common::CoreEnv::instance().getModuleRegistry()->regist(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

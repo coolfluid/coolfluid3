@@ -76,7 +76,7 @@ OSystem::~OSystem()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-OSystem& OSystem::getInstance()
+OSystem& OSystem::instance()
 {
   static OSystem osys;
   return osys;

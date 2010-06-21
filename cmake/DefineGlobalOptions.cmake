@@ -14,11 +14,8 @@ option ( CF_ENABLE_LOGALL 	          "Enable logging via CFLog facility"       O
 option ( CF_ENABLE_LOGDEBUG           "Enable debug logging via CFLog facility" ON )
 option ( CF_ENABLE_DEBUG_MACROS       "Enable debug macros"                     ON )
 
-option ( CF_ENABLE_MPI                "Enable MPI compilation"                  ON   )
-option ( CF_ENABLE_GUI                "Enable GUI compilation"                  ON   )
 option ( CF_ENABLE_DOCS               "Enable build of documentation"           ON   )
 option ( CF_ENABLE_EXPLICIT_TEMPLATES "Enable explicit template instantiation"  ON   )
-option ( CF_ENABLE_INTERNAL_DEPS      "Enable internal dependencies between libraries" ON  )
 option ( CF_ENABLE_TESTCASES          "Enable checking testcases from CMake system"    OFF )
 option ( CF_ENABLE_UNITTESTS          "Enable creation of unit tests"                  ON  )
 option ( CF_ENABLE_WARNINGS           "Enable lots of warnings while compiling"        OFF  )

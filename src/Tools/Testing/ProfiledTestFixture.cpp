@@ -23,7 +23,7 @@ namespace Testing {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ProfiledTestFixture::ProfiledTestFixture() : m_profiler(ModuleRegister<GooglePerfToolsModule>::getInstance()) {
+ProfiledTestFixture::ProfiledTestFixture() : m_profiler(ModuleRegister<GooglePerfToolsModule>::instance()) {
   char** argv = boost::unit_test::framework::master_test_suite().argv;
 
   boost::filesystem::path commandPath(argv[0]);
@@ -65,8 +65,8 @@ void ProfiledTestFixture::test_unit_finish( boost::unit_test::test_unit const& u
       //std::string pprof_line(pprof_command + " --dot " + m_command + " " + infile.file_string() + " > " + outfile.file_string() + ".dot");
       //std::string dot_line(std::string(CF_DOT_COMMAND) + " -Tpng " + outfile.file_string() + ".dot > " + outfile.file_string() + ".png");
       std::string pprof_line(pprof_command + " --text " + m_command + " " + infile.file_string() + " | head -n 10 > " + outfile.file_string() + ".txt");
-      OSystem::getInstance().executeCommand(pprof_line);
-      //OSystem::getInstance().executeCommand(dot_line);
+      OSystem::instance().executeCommand(pprof_line);
+      //OSystem::instance().executeCommand(dot_line);
 
       // Read the output text file for dasboard output
       std::string profile; // We will read the contents here.

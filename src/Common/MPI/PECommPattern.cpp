@@ -14,9 +14,9 @@ namespace CF {
 
 PECommPattern::PECommPattern(){
   m_isCommPatternPrepared=false;
-  m_sendCount.resize(PEInterface::getInstance().size(),0);
+  m_sendCount.resize(PEInterface::instance().size(),0);
   m_sendMap.resize(0);
-  m_receiveCount.resize(PEInterface::getInstance().size(),0);
+  m_receiveCount.resize(PEInterface::instance().size(),0);
   m_receiveMap.resize(0);
   m_updatable.resize(0);
 }
@@ -37,8 +37,8 @@ PECommPattern::~PECommPattern(){
 
 void PECommPattern::setup(std::vector<Uint> gid, std::vector<Uint> rank){
 
-  const Uint irank=PEInterface::getInstance().rank();
-  const Uint nproc=(Uint)PEInterface::getInstance().size();
+  const Uint irank=PEInterface::instance().rank();
+  const Uint nproc=(Uint)PEInterface::instance().size();
 
   assert(gid.size()==rank.size());
 
@@ -60,7 +60,7 @@ void PECommPattern::setup(std::vector<Uint> gid, std::vector<Uint> rank){
       m_sendMap.push_back(*j);
 
   // fill receive count
-  boost::mpi::all_to_all(PEInterface::getInstance(),m_sendCount,m_receiveCount);
+  boost::mpi::all_to_all(PEInterface::instance(),m_sendCount,m_receiveCount);
 
   // fill receive map
   Uint total_m_receiveCount=0;
@@ -74,7 +74,7 @@ void PECommPattern::setup(std::vector<Uint> gid, std::vector<Uint> rank){
     rcvdisp[i]=rcvdisp[i-1]+m_receiveCount[i-1];
 
   for(Uint i=0; i<nproc; i++)
-    MPI_Gatherv(&(sendmap[i])[0], sendmap[i].size(), MPI_INT, &m_receiveMap[0], &m_receiveCount[0], &rcvdisp[0], MPI_INT, i, PEInterface::getInstance());
+    MPI_Gatherv(&(sendmap[i])[0], sendmap[i].size(), MPI_INT, &m_receiveMap[0], &m_receiveCount[0], &rcvdisp[0], MPI_INT, i, PEInterface::instance());
 
   std::cout << "m_updatable: ";
   std::for_each(m_updatable.begin(), m_updatable.end(), std::cout << _1 << ' ');

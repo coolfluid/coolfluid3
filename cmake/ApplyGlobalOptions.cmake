@@ -47,17 +47,17 @@ mark_as_advanced ( CF_REAL_TYPE )
 ###############################################################################
 # explicit template support
 
-if ( CF_ENABLE_EXPLICIT_TEMPLATES AND CF_CXX_SUPPORTS_EXPLICIT_TEMPLATES )
-  set ( CF_HAVE_CXX_EXPLICIT_TEMPLATES ON CACHE BOOL "Support for Explicit templates activated" )
+if( CF_ENABLE_EXPLICIT_TEMPLATES AND CF_CXX_SUPPORTS_EXPLICIT_TEMPLATES )
+  set( CF_HAVE_CXX_EXPLICIT_TEMPLATES ON CACHE BOOL "Support for Explicit templates activated" )
 else()
-  set ( CF_HAVE_CXX_EXPLICIT_TEMPLATES OFF CACHE BOOL "Support for Explicit templates deactivated" )
+  set( CF_HAVE_CXX_EXPLICIT_TEMPLATES OFF CACHE BOOL "Support for Explicit templates deactivated" )
 endif()
 
 # Apple linker with GCC does not support explicit templates so force them OFF
-if ( APPLE AND CMAKE_COMPILER_IS_GNUCC )
-  set ( CF_HAVE_CXX_EXPLICIT_TEMPLATES OFF CACHE BOOL "Support for explicit templates deactivated -- Apple with GCC don't support it" FORCE )
-  if ( CF_ENABLE_EXPLICIT_TEMPLATES )
-    LOG  ( "Explicit templates requested but not supported on Mac OS X" )
+if( APPLE AND CMAKE_COMPILER_IS_GNUCC )
+  set( CF_HAVE_CXX_EXPLICIT_TEMPLATES OFF CACHE BOOL "Support for explicit templates deactivated -- Apple with GCC don't support it" FORCE )
+  if( CF_ENABLE_EXPLICIT_TEMPLATES )
+    LOG( "Explicit templates requested but not supported on Mac OS X" )
   endif()
 endif()
 
@@ -78,13 +78,18 @@ endif ()
 
 IF(CF_ENABLE_PROFILING)
 
+  # by default the profiler is google
+  if( NOT DEFINED CF_PROFILER_TOOL )
+    set( CF_PROFILER_TOOL google-perftools )
+  endif()
+
   ###########################
   # GNU gprof
   IF(CF_PROFILER_TOOL MATCHES gprof)
     IF(UNIX AND CMAKE_COMPILER_IS_GNUCC)
       SET(CMAKE_C_FLAGS     "${CMAKE_C_FLAGS} -pg" )
       SET(CMAKE_CXX_FLAGS   "${CMAKE_CXX_FLAGS} -pg" )
-    ELSE(UNIX AND CMAKE_COMPILER_IS_GNUCC)
+    ELSE()
       LOG("User selected profiler [gprof] must be used with GCC compiler")
       SET( CF_PROFILER_TOOL     NOTFOUND )
     ENDIF()
@@ -94,14 +99,15 @@ IF(CF_ENABLE_PROFILING)
   # google-perftools
   IF(CF_PROFILER_TOOL MATCHES google-perftools)
 
-    FIND_PACKAGE(GooglePerftools)
-
-    IF(CF_HAVE_GOOGLE_PERFTOOLS)
-      LINK_LIBRARIES(${GOOGLE_PERFTOOLS_LIBRARIES})
-    ELSE(CF_HAVE_GOOGLE_PERFTOOLS)
-      LOG("User selected profiler [google-pertools] could not be found")
-      SET( CF_PROFILER_TOOL     NOTFOUND )
-    ENDIF()
+    # a link library will be added to each executable target
+    if( CF_HAVE_GOOGLE_PERFTOOLS )
+      set( CF_PROFILER_IS_GOOGLE  ON )
+    else()
+      log("User selected profiler [google-pertools] could not be found")
+      set( CF_PROFILER_GOOGLE  OFF )
+      set( CF_PROFILER_IS_GOOGLE    NOTFOUND )
+    endif()
+    mark_advanced(CF_PROFILER_IS_GOOGLE)
 
   ENDIF()
 

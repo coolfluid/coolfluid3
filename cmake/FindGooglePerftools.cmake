@@ -31,7 +31,7 @@ IF ( NOT CF_SKIP_GOOGLE_PERFTOOLS )
     SET ( CF_HAVE_GOOGLE_PERFTOOLS 0 CACHE BOOL "Not fount google-perftools" )
   endif()
   
-  #tools used for profiling post-processing
+  # tools used for profiling post-processing
   find_program(CF_PPROF_COMMAND pprof)
   find_program(CF_DOT_COMMAND dot)
   

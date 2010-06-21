@@ -63,7 +63,7 @@ public: // methods
 public: // methods for singleton
 
   /// @return the instance of this singleton
-  static DirPaths& getInstance();
+  static DirPaths& instance();
 
 protected: // methods
 

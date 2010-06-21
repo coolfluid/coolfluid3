@@ -4,10 +4,10 @@
 MACRO( CF_ADD_APP APPNAME )
 
   # option to build it or not
-  OPTION ( CF_BUILD_${APPNAME} "Build the ${APPNAME} application" ON )
+  OPTION( CF_BUILD_${APPNAME} "Build the ${APPNAME} application" ON )
 
   # add to list of local apps
-  LIST ( APPEND CF_LOCAL_APPNAMES ${APPNAME} )
+  LIST( APPEND CF_LOCAL_APPNAMES ${APPNAME} )
 
 #   CF_DEBUG_VAR(CF_MODULES_LIST)
 
@@ -21,7 +21,7 @@ MACRO( CF_ADD_APP APPNAME )
           LOGVERBOSE ( "     \# app [${APPNAME}] requires module [${reqmod}] which is not present")
       ENDIF()
     ENDIF()
-  ENDFOREACH ( reqmod ${${APPNAME}_requires_mods} )
+  ENDFOREACH()
 
   SET ( ${APPNAME}_dir ${CMAKE_CURRENT_SOURCE_DIR} )
 
@@ -42,12 +42,12 @@ MACRO( CF_ADD_APP APPNAME )
 
     CF_SEPARATE_SOURCES("${${APPNAME}_files}" ${APPNAME})
 
-    SOURCE_GROUP ( Headers FILES ${${APPNAME}_headers} )
-    SOURCE_GROUP ( Sources FILES ${${APPNAME}_sources} )
+    SOURCE_GROUP( Headers FILES ${${APPNAME}_headers} )
+    SOURCE_GROUP( Sources FILES ${${APPNAME}_sources} )
 
     LOG ( " +++ APP [${APPNAME}]" )
 
-    ADD_EXECUTABLE ( ${APPNAME} ${${APPNAME}_sources} ${${APPNAME}_headers} ${${APPNAME}_moc_files})
+    ADD_EXECUTABLE( ${APPNAME} ${${APPNAME}_sources} ${${APPNAME}_headers} ${${APPNAME}_moc_files})
 
     # add installation paths
     INSTALL( TARGETS ${APPNAME}
@@ -57,7 +57,7 @@ MACRO( CF_ADD_APP APPNAME )
       )
 
     # if mpi was found add it to the libraries
-    IF   (CF_HAVE_MPI AND NOT CF_HAVE_MPI_COMPILER)
+    IF(CF_HAVE_MPI AND NOT CF_HAVE_MPI_COMPILER)
 #           MESSAGE ( STATUS "${APPNAME} links to ${MPI_LIBRARIES}" )
           TARGET_LINK_LIBRARIES ( ${APPNAME} ${MPI_LIBRARIES} )
     ENDIF()
@@ -67,18 +67,31 @@ MACRO( CF_ADD_APP APPNAME )
       TARGET_LINK_LIBRARIES ( ${APPNAME} ${${APPNAME}_libs} )
     ENDIF()
 
+    # profiling gloabally selected
+    if( CF_ENABLE_PROFILING AND CF_PROFILER_IS_GOOGLE AND CF_BUILD_GooglePerfTools )
+      LIST ( APPEND ${APPNAME}_cflibs GooglePerfTools )
+    endif()
+
+    # profiling selected for specific target
+    if( ${APPNAME}_profile AND CF_BUILD_GooglePerfTools )
+      LIST ( APPEND ${APPNAME}_cflibs GooglePerfTools )
+    endif()
+
     # internal dependencies
-    IF ( CF_ENABLE_INTERNAL_DEPS )
-      IF( DEFINED ${APPNAME}_cflibs )
+    IF( DEFINED ${APPNAME}_cflibs )
         TARGET_LINK_LIBRARIES ( ${APPNAME} ${${APPNAME}_cflibs} )
-      ENDIF()
-    ELSE()
-      TARGET_LINK_LIBRARIES ( ${APPNAME} ${CF_KERNEL_LIBS} ${CF_KERNEL_STATIC_LIBS} ${Boost_LIBRARIES} )
     ENDIF()
+
+    # faster allocation and memory porfiling
+    if( CF_HAVE_GOOGLE_PERFTOOLS )
+      TARGET_LINK_LIBRARIES ( ${APPNAME} ${GOOGLE_PERFTOOLS_TCMALLOC_LIB} )
+    endif()
 
   ENDIF()
 
-  GET_TARGET_PROPERTY ( ${APPNAME}_LINK_LIBRARIES  ${APPNAME} LINK_LIBRARIES )
+  GET_TARGET_PROPERTY ( ${APPNAME}_P_SOURCES        ${APPNAME} SOURCES )
+  GET_TARGET_PROPERTY ( ${APPNAME}_LINK_FLAGS       ${APPNAME} LINK_FLAGS )
+  GET_TARGET_PROPERTY ( ${APPNAME}_TYPE             ${APPNAME} TYPE )
 
   # log some info about the app
   LOGFILE("${APPNAME} : [${CF_BUILD_${APPNAME}}]")
@@ -86,10 +99,12 @@ MACRO( CF_ADD_APP APPNAME )
   LOGFILE("${APPNAME}_dir             : [${${APPNAME}_dir}]")
   LOGFILE("${APPNAME}_includedirs     : [${${APPNAME}_includedirs}]")
   LOGFILE("${APPNAME}_libs            : [${${APPNAME}_libs}]")
+  LOGFILE("${APPNAME}_cflibs          : [${${APPNAME}_cflibs}]")
   LOGFILE("${APPNAME}_all_mods_pres   : [${${APPNAME}_all_mods_pres}]")
   LOGFILE("${APPNAME}_requires_mods   : [${${APPNAME}_requires_mods}]")
-  LOGFILE("${APPNAME}_sources         : [${${APPNAME}_sources}]")
-  LOGFILE("${APPNAME}_LINK_LIBRARIES  : [${${APPNAME}_LINK_LIBRARIES}]")
+  LOGFILE("${APPNAME}_P_SOURCES       : [${${APPNAME}_P_SOURCES}]")
+  LOGFILE("${APPNAME}_LINK_FLAGS      : [${${APPNAME}_LINK_FLAGS}]")
+  LOGFILE("${APPNAME}_TYPE            : [${${APPNAME}_TYPE}]")
 
 
 ENDMACRO( CF_ADD_APP )

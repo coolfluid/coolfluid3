@@ -57,15 +57,11 @@ LOGFILE ( "  CF_MPIRUN_PROGRAM : [${CF_MPIRUN_PROGRAM}]" )
 
 ###############################################################################
 # if user disables MPI we overwrite the CF_HAVE_MPI variable
-IF ( CF_ENABLE_MPI )
-  IF ( CF_MPI_AVAILABLE )
-    SET ( CF_HAVE_MPI 1 CACHE BOOL "User enabled MPI [FOUND]" )
-  ELSE()
-    SET ( CF_HAVE_MPI 0 CACHE BOOL "User enabled MPI [NOT-FOUND]" )
-  ENDIF()
+IF( CF_MPI_AVAILABLE )
+    SET( CF_HAVE_MPI 1 CACHE BOOL "User enabled MPI [FOUND]" )
 ELSE()
-  SET ( CF_HAVE_MPI 0 CACHE BOOL "User disabled MPI" )
-ENDIF ()
+    SET( CF_HAVE_MPI 0 CACHE BOOL "User enabled MPI [NOT-FOUND]" )
+ENDIF()
 
 MARK_AS_ADVANCED ( CF_HAVE_MPI )
 

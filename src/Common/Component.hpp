@@ -275,7 +275,7 @@ template < typename ATYPE >
     typename ATYPE::Ptr create_component_abstract_type ( const std::string& provider_name, const Component::CName& name )
 {
   Common::SafePtr< typename ATYPE::PROVIDER > prov =
-      Common::Factory<ATYPE>::getInstance().getProvider( provider_name );
+      Common::Factory<ATYPE>::instance().getProvider( provider_name );
   return boost::dynamic_pointer_cast<ATYPE>( prov->create(name) );
 }
 

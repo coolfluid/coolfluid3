@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
 
   try
   {
-    CoreEnv& cf_env = CoreEnv::getInstance();  // build the environment
+    CoreEnv& cf_env = CoreEnv::instance();  // build the environment
     cf_env.initiate ( argc, argv );        // initiate the environemnt
     ConfigArgs args;
     //cf_env.configure(args);
@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
 
     moduleDirs.push_back("../../../dso/");
 
-    DirPaths::getInstance().addModuleDirs(moduleDirs);
+    DirPaths::instance().addModuleDirs(moduleDirs);
 
     if(COMM_WORLD.Get_parent() != COMM_NULL)
     {

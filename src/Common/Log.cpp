@@ -45,7 +45,7 @@ Logger::~Logger()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Logger & Logger::getInstance()
+Logger & Logger::instance()
 {
   static Logger log;
   return log;
@@ -104,7 +104,7 @@ LogStream & Logger::getStream(Logger::StreamType type)
 
 void Logger::openFiles()
 {
-  if(PEInterface::getInstance().is_init())
+  if(PEInterface::instance().is_init())
   {
     std::ostringstream logFile;
     std::ostringstream traceFile;
@@ -112,7 +112,7 @@ void Logger::openFiles()
     iostreams::file_descriptor_sink fdLogFile;
     iostreams::file_descriptor_sink fdTraceFile;
 
-    int rank = PEInterface::getInstance().rank();
+    int rank = PEInterface::instance().rank();
 
     filesystem::remove(logFile.str());
     filesystem::remove(traceFile.str());

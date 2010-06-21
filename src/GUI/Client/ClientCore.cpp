@@ -46,7 +46,7 @@ ClientCore::~ClientCore()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-ClientCore & ClientCore::getInstance()
+ClientCore & ClientCore::instance()
 {
   static ClientCore instance;
   return instance;

@@ -29,14 +29,14 @@ public:
   explicit ObjectProvider(const std::string& name) : BASE::PROVIDER(name)
   {
     CFLogDebugVerbose (  "Creating provider \'" << name << "\' of type \'" << BASE::getClassName() << "\'\n" );
-    //Common::ModuleRegister<MODULE>::getInstance().getSelfRegistry().regist(this);
+    //Common::ModuleRegister<MODULE>::instance().getSelfRegistry().regist(this);
   }
 
   /// Destructor
   /// @todo unregistration is currently not working
   ~ObjectProvider()
   {
-    // Common::ModuleRegister<MODULE>::getInstance().getSelfRegistry().unregist(this);
+    // Common::ModuleRegister<MODULE>::instance().getSelfRegistry().unregist(this);
   }
 
   /// Polymorphic function to create objects of dynamical type BASE
@@ -64,14 +64,14 @@ public:
   explicit ObjectProvider(const std::string& name) : BASE::PROVIDER(name)
   {
     CFLogDebugVerbose (  "Creating provider \'" << name << "\' of type \'" << BASE::getClassName() << "\'\n" );
-//    MODULE::getInstance().getSelfRegistry().regist(this);
+//    MODULE::instance().getSelfRegistry().regist(this);
   }
 
   /// Destructor
   /// @todo unregistration is currently not working
   ~ObjectProvider()
   {
-    // Common::ModuleRegister<MODULE>::getInstance().getSelfRegistry().unregist(this);
+    // Common::ModuleRegister<MODULE>::instance().getSelfRegistry().unregist(this);
   }
 
   /// Polymorphic function to create objects of dynamical type BASE
@@ -100,14 +100,14 @@ public:
     BASE::PROVIDER(name)
   {
     CFLogDebugVerbose (  "Creating provider \'" << name << "\' of type \'" << BASE::getClassName() << "\'\n" );
-//    MODULE::getInstance().getSelfRegistry().regist(this);
+//    MODULE::instance().getSelfRegistry().regist(this);
   }
 
   /// Destructor
   /// @todo unregistration is currently not working
   ~ObjectProvider()
   {
-    // Common::ModuleRegister<MODULE>::getInstance().getSelfRegistry().unregist(this);
+    // Common::ModuleRegister<MODULE>::instance().getSelfRegistry().unregist(this);
   }
 
   /// Polymorphic function to create objects of dynamical type BASE

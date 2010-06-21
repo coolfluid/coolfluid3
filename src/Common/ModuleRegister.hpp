@@ -20,7 +20,7 @@ class ModuleRegister : public Common::ModuleRegisterBase {
 public: // methods
 
     /// Acessor to the singleton
-  static MODULE& getInstance();
+  static MODULE& instance();
 
   /// Returns the description of the module.
   /// Must be implemented by the ModuleRegister
@@ -40,7 +40,7 @@ protected: // methods
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename MODULE >
-MODULE& ModuleRegister<MODULE>::getInstance()
+MODULE& ModuleRegister<MODULE>::instance()
 {
   static MODULE instance;
   return instance;

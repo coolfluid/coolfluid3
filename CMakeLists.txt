@@ -10,7 +10,6 @@
 # TODO
 #  * test packaging with the build system
 #  * try using precompiled headers and add a check to their support
-#  * consider removing CF_ENABLE_INTERNAL_DEPS
 ##############################################################################
 
 ##############################################################################
@@ -90,53 +89,7 @@ add_subdirectory ( cmake )         # dir with macros to be installed
 
 add_subdirectory ( doc )           # dir with documentation to be installed
 
-##############################################################################
-# finding MPI (essential) must be after the GlobalOptions
-
-LOG ( "\n +++ Searching for MPI ..." )
-include ( DetectMPI )
-
-##############################################################################
-# finding boost (essential)
-
-LOG ( "\n +++ Searching for Boost ..." )
-include ( DetectBoost )
-
-##############################################################################
-# Find Qt - defines QT_USE_FILE and QT_LIBRARIES used below
-find_package( Qt4 4.5.0 COMPONENTS QtCore QtGui QtXml QtNetwork )
-
-##############################################################################
-# find non essential packages
-
-# using our find macros
-LOG ( "" )
-find_package(BlasLapack)      # search for Blas Lapack support
-find_package(Metis)           # serial domain decomposition
-find_package(Parmetis)        # parallel domain decomposition
-find_package(Curl)            # curl downloads files on the fly
-find_package(Valgrind)        # valgrind for profiling and memmory leak detection
-find_package(GooglePerftools) # dynamic profiler and memory checker
-find_package(CGNS)            # CGNS library
-# using cmake find macros
-
-find_package(ZLIB)          # file compression support
-LOG ( "ZLIB_FOUND: [${ZLIB_FOUND}]" )
-IF ( ZLIB_FOUND )
-LOG ( "  ZLIB_INCLUDE_DIRS: [${ZLIB_INCLUDE_DIRS}]" )
-LOG ( "  ZLIB_LIBRARIES:    [${ZLIB_LIBRARIES}]" )
-ENDIF()
-
-find_package (BZip2)        # file compression support
-LOG ( "BZIP2_FOUND: [${BZIP2_FOUND}]" )
-IF ( BZIP2_FOUND )
-LOG ( "  BZIP2_INCLUDE_DIR:  [${BZIP2_INCLUDE_DIR}]" )
-LOG ( "  BZIP2_LIBRARIES:    [${BZIP2_LIBRARIES}]" )
-LOG ( "  BZIP2_DEFINITIONS:  [${BZIP2_DEFINITIONS}]" )
-LOG ( "  BZIP2_NEED_PREFIX:  [${BZIP2_NEED_PREFIX}]" )
-ENDIF()
-
-include ( CheckSvnVersion ) # check for subversion support
+include ( DetectSoftware )         # find sofwtare dependencies
 
 LOG ( "" )
 ##############################################################################
@@ -159,6 +112,7 @@ add_subdirectory ( include )
 include_directories ( ${coolfluid_SOURCE_DIR}/src )
 add_subdirectory ( src )
 
+# sandbox is where we play around before putting stuff in the released code, off by default
 if ( CF_ENABLE_SANDBOX )
   add_subdirectory ( sandbox )
 endif()
@@ -234,8 +188,9 @@ IF( NOT CF_SKIP_FORTRAN )
 LOG ( " Fortran compiler      : [${CMAKE_Fortran_COMPILER}]" )
 LOG ( " Fortran flags         : [${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_${CMAKE_BUILD_TYPE}}]" )
 ENDIF()
-LOG ( " Common Linker flags   : [${LINK_FLAGS}]" )
-LOG ( " Shared Linker flags   : [${CMAKE_SHARED_LINKER_FLAGS}]" )
+LOG ( " common linker flags   : [${LINK_FLAGS}]" )
+LOG ( " shared linker flags   : [${CMAKE_SHARED_LINKER_FLAGS}]" )
+LOG ( " link libraries        : [${LINK_LIBRARIES}]" )
 
 LOG ( "---------------------------------------------------------" )
 LOG ( " MPI                   : [${CF_HAVE_MPI}]" )
@@ -245,7 +200,6 @@ LOG ( "    MPI_INCLUDE_PATH   : [${MPI_INCLUDE_PATH}]")
 LOG ( "    MPI_LIBRARIES      : [${MPI_LIBRARIES}]")
 ENDIF()
 LOG ( "---------------------------------------------------------" )
-LOG ( " Check internal deps   : [${CF_ENABLE_INTERNAL_DEPS}]")
 LOG ( " Log all               : [${CF_ENABLE_LOGALL}]")
 LOG ( " Log debug             : [${CF_ENABLE_LOGDEBUG}]")
 LOG ( " Assertions            : [${CF_ENABLE_ASSERTIONS}]")

@@ -35,7 +35,7 @@
 
 #define connectSig(comm,slotSig) connect(comm, SIGNAL(slotSig), this, SLOT(slotSig));
 #define connectKernel(slotSig) connect(m_treeView, SIGNAL(slotSig), \
-&ClientCore::getInstance(), SLOT(slotSig));
+&ClientCore::instance(), SLOT(slotSig));
 #define WORKSPACE_FILE QDir::homePath() + "/CF_workspace.xml"
 
 using namespace CF::GUI::Client;
@@ -108,7 +108,40 @@ MainWindow::MainWindow()
 
   ClientRoot::getLog()->addMessage("Client successfully launched.");
 
-  ClientCore::getInstance().setStatusModel(m_statusModel);
+  // load the saved workspace
+
+  if(configFile.exists())
+  {
+    QDomDocument doc;
+    if(configFile.open(QIODevice::ReadOnly) &&
+       doc.setContent(&configFile, &error, &errorLine, &errorColumn))
+    {
+      configFile.close();
+
+      delete m_treeModel;
+      m_treeModel = new TreeModel(doc, this);
+      ClientRoot::getLog()->addMessage("Successfully loaded workspace from \"" + WORKSPACE_FILE + "\".");
+    }
+    else
+    {
+      ClientRoot::getLog()->addError("Could not load workspace from \"" +  WORKSPACE_FILE + "\".");
+
+      if(!error.isEmpty())
+      {
+        QString errMsg = "XML parsing error (line %1, column %2): %3";
+
+        ClientRoot::getLog()->addError(errMsg.arg(errorLine).arg(errorColumn).arg(error));
+      }
+    }
+  }
+  else
+    ClientRoot::getLog()->addMessage("No workspace to load.");
+
+  ClientCore::instance().setTreeModel(m_treeModel);
+  m_treeView->setTreeModel(m_treeModel);
+  m_optionPanel->setTreeModel(m_treeModel);
+
+  ClientCore::instance().setStatusModel(m_statusModel);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -681,7 +714,7 @@ void MainWindow::openSimulation(const QModelIndex & index)
       ClientRoot::getLog()->addException("Cannot open a file for now!");
 
 //    if(!file.isEmpty())
-//      ClientCore::getInstance().openFile(index, file);
+//      ClientCore::instance().openFile(index, file);
   }
 }
 

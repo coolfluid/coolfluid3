@@ -121,7 +121,7 @@ void CCore::createSimulator(const QString & name)
 
 void CCore::setStatus(WorkerStatus::Type status)
 {
-  PEInterface::getInstance().change_status(status);
+  PEInterface::instance().change_status(status);
   //  this->commServer->sendStatus(-1, PE::getStatusString(status).c_str());
 }
 

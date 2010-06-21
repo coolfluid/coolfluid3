@@ -223,7 +223,7 @@ BOOST_AUTO_TEST_CASE( FlushTest )
 BOOST_AUTO_TEST_CASE( CTableTest )
 {
   // CFinfo << "testing CTable \n" << CFflush;
-  Logger::getInstance().getStream(Logger::DEBUG).setLogLevel(SILENT);
+  Logger::instance().getStream(Logger::DEBUG).setLogLevel(SILENT);
   // Create mesh component
   boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
 

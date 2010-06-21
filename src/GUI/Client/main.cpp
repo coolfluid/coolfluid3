@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
 {
   QApplication app(argc, argv);
   int returnValue;
-  CF::AssertionManager::getInstance().AssertionThrows = true;
+  CF::AssertionManager::instance().AssertionThrows = true;
 
 //  CRoot::Ptr root = CRoot::create("MyRoot");
 //  //CGroup::Ptr link(new CLink("//here", "//there"));

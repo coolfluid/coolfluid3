@@ -36,7 +36,7 @@ RemoteFSBrowser::RemoteFSBrowser(QMainWindow * parent)
 
   this->setWindowTitle("Open file");
 
-  m_clientCore = &ClientCore::getInstance();
+  m_clientCore = &ClientCore::instance();
 
   /* if(!communication->isConnected())
    throw std::invalid_argument("Not connected to the server");*/

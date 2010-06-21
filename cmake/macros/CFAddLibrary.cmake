@@ -103,10 +103,8 @@ MACRO( CF_ADD_LIBRARY LIBNAME )
 
     # add coolfluid internal dependency libraries if defined
     IF( DEFINED ${LIBNAME}_cflibs )
-		  IF ( CF_ENABLE_INTERNAL_DEPS )
 				# MESSAGE ( STATUS "${LIBNAME} has ${${LIBNAME}_cflibs}}" )
 				TARGET_LINK_LIBRARIES ( ${LIBNAME} ${${LIBNAME}_cflibs} )
-		  ENDIF()
     ENDIF()
 
     # add external dependency libraries if defined

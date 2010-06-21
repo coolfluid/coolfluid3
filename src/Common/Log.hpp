@@ -56,7 +56,7 @@ class Common_API Logger : public boost::noncopyable
 
   /// If no instance exists, a new one is created.
   /// @return Returns the current instance.
-  static Logger & getInstance();
+  static Logger & instance();
 
   /// @brief Gives the info stream.
 
@@ -114,11 +114,11 @@ class Common_API Logger : public boost::noncopyable
 
 /// these are always defined
 
-#define CFinfo   CF::Common::Logger::getInstance().Info (FromHere())
-#define CFerr    CF::Common::Logger::getInstance().Error(FromHere())
-#define CFwarn   CF::Common::Logger::getInstance().Warn (FromHere())
-#define CFdebug  CF::Common::Logger::getInstance().Debug(FromHere())
-#define CFtrace  CF::Common::Logger::getInstance().Trace(FromHere())
+#define CFinfo   CF::Common::Logger::instance().Info (FromHere())
+#define CFerr    CF::Common::Logger::instance().Error(FromHere())
+#define CFwarn   CF::Common::Logger::instance().Warn (FromHere())
+#define CFdebug  CF::Common::Logger::instance().Debug(FromHere())
+#define CFtrace  CF::Common::Logger::instance().Trace(FromHere())
 #define CFflush  CF::Common::LogStream::ENDLINE
 #define CFendl   '\n' << CFflush
 

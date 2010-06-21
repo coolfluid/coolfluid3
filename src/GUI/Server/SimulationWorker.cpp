@@ -314,7 +314,7 @@ void SimulationWorker::setStatus(WorkerStatus::Type status)
   {
     BuilderParserFrameInfo fi;
 
-    PEInterface::getInstance().change_status(status);
+    PEInterface::instance().change_status(status);
     fi.setFrameType(MGR_WKR_STATUS);
 
     fi.frameAttributes["subSysName"] = m_subSystemName.toStdString();
@@ -330,7 +330,7 @@ void SimulationWorker::setStatus(WorkerStatus::Type status)
 
 void SimulationWorker::setBarrier(Intercomm comm)
 {
-  WorkerStatus::Type oldStatus = PEInterface::getInstance().status();
+  WorkerStatus::Type oldStatus = PEInterface::instance().status();
 
   this->setStatus(WorkerStatus::WAITING);
   comm.Barrier();

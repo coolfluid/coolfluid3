@@ -61,15 +61,15 @@ CSimulator::CSimulator(const QString & simulatorName)
   //f_layout->setConversionPattern( "%m" );//%p
   //remote_appender->setLayout(f_layout);
 
-  //CFLogger::getInstance().getMainLogger().addAppender(remote_appender);
+  //CFLogger::instance().getMainLogger().addAppender(remote_appender);
 
   m_configured = false;
   m_lastSubsystemConfigured = -1;
 
   RemoteClientAppender * rca = new RemoteClientAppender();
 
-  Logger::getInstance().getStream(Logger::ERROR).addStringForwarder(rca);
-  Logger::getInstance().getStream(Logger::INFO).addStringForwarder(rca);
+  Logger::instance().getStream(Logger::ERROR).addStringForwarder(rca);
+  Logger::instance().getStream(Logger::INFO).addStringForwarder(rca);
 
   connect(rca, SIGNAL(newData(const QString &)),
           this, SLOT(newData(const QString &)));
@@ -102,9 +102,9 @@ void CSimulator::run()
       std::string subSys;
       std::vector<std::string> subsysnames;
       QStringList::iterator it = m_subsystemNames.begin();
-      Common::SafePtr<EventHandler> event_handler = Common::CoreEnv::getInstance().getEventHandler();
+      Common::SafePtr<EventHandler> event_handler = Common::CoreEnv::instance().getEventHandler();
 
-      //      SimulationStatus& simStatus = SimulationStatus::getInstance();
+      //      SimulationStatus& simStatus = SimulationStatus::instance();
 
       subSysName = m_subsystemNames.at(m_lastSubsystemConfigured).toStdString();
       subSysType = m_subsystemTypes.at(m_lastSubsystemConfigured).toStdString();
@@ -245,7 +245,7 @@ const
   /// @bug what if the abstract type does not exist ????
 
   std::vector< ProviderBase* > registered_providers =
-  CoreEnv::getInstance().getFactoryRegistry()->
+  CoreEnv::instance().getFactoryRegistry()->
   getFactory(abstractType.toStdString())->getAllProviders();
 
 //  for(size_t i = 0; i < registered_providers.size(); ++i)
@@ -326,7 +326,7 @@ bool CSimulator::runConfigPhase(int subsystem)
 //      std::string subSysName = m_subsystemNames.at(subsystem).toStdString();
 //      std::string subSysType = m_subsystemTypes.at(subsystem).toStdString();
 //      std::string subSys = subSysName + '\n' + subSysType + '\n';
-//      Common::SafePtr<EventHandler> event_handler = Common::CoreEnv::getInstance().getEventHandler();
+//      Common::SafePtr<EventHandler> event_handler = Common::CoreEnv::instance().getEventHandler();
 //
 //      // we manage the simulator
 //      //this->manage(m_simulator);
@@ -392,7 +392,7 @@ bool CSimulator::runUnconfigPhase()
 //      std::string subSysName = m_subsystemNames.at(m_lastSubsystemConfigured).toStdString();
 //      std::string subSysType = m_subsystemTypes.at(m_lastSubsystemConfigured).toStdString();
 //      std::string subSys = subSysName + '\n' + subSysType + '\n';
-//      Common::SafePtr<EventHandler> event_handler = Common::CoreEnv::getInstance().getEventHandler();
+//      Common::SafePtr<EventHandler> event_handler = Common::CoreEnv::instance().getEventHandler();
 //
 //      CFinfo << "#\n###### UNSETUP PHASE ################\n#\n";
 //      event_handler->call_signal ( "CF_ON_MAESTRO_UNSETUP", subSys );

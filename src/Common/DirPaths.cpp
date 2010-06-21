@@ -32,7 +32,7 @@ DirPaths::~DirPaths()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-DirPaths& DirPaths::getInstance()
+DirPaths& DirPaths::instance()
 {
   static DirPaths dirPaths;
   return dirPaths;

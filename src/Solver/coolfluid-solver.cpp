@@ -7,9 +7,9 @@ int main(int argc, char * argv[])
 {
   CFinfo << "Welcome to the COOLFLUID K3 solver!\n" << CFflush;
 
-  CoreEnv::getInstance().initiate(argc, argv);
+  CoreEnv::instance().initiate(argc, argv);
 
-  CoreEnv::getInstance().terminate();
+  CoreEnv::instance().terminate();
 
   return 0;
 }

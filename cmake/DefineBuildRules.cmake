@@ -35,6 +35,11 @@ IF(UNIX)
       CF_ADD_CXX_FLAGS("-Wformat")
       # Warn if an undefined identifier is evaluated in an #if directive.
       CF_ADD_CXX_FLAGS("-Wundef" )
+      #  Warn about anything that depends on the "size of" a function type or of "void"
+      CF_ADD_CXX_FLAGS("-Wpointer-arith")
+      #  warn about uses of format functions that represent possible security problems
+      CF_ADD_CXX_FLAGS("-Wformat-security")
+
       # accept functions that dont use all parameters, due to virtual functions may not need all
       CF_ADD_CXX_FLAGS("-Wno-unused-parameter")
       CF_ADD_CXX_FLAGS("-Wno-missing-field-initializers")
@@ -51,11 +56,12 @@ IF(UNIX)
       # CF_ADD_CXX_FLAGS("-pedantic") # Disabled for now, see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=33305
       CF_ADD_CXX_FLAGS("-fpermissive")
 
+
       CF_ADD_CXX_FLAGS("-Wno-empty-body")    # Problem in boost
       CF_ADD_CXX_FLAGS("-Wno-uninitialized") # Problem with boost accumulators 
 
       # could add even these
-      #-Wcast-align -Wchar-subscripts -Wpointer-arith -Wformat-security
+      #
     endif()
 
     if ( CF_ENABLE_CODECOVERAGE )
@@ -63,7 +69,6 @@ IF(UNIX)
       find_program(CTEST_COVERAGE_COMMAND gcov)
 
       if ( CTEST_COVERAGE_COMMAND )
-        # ("-fprofile-arcs -ftest-coverage")
         SET ( CMAKE_C_FLAGS     "${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage" )
         SET ( CMAKE_CXX_FLAGS   "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage" )
         SET ( LINK_FLAGS        "${LINK_FLAGS} -fprofile-arcs -ftest-coverage" )
@@ -99,11 +104,6 @@ IF(WIN32)
   # add exception handling
   CF_ADD_C_FLAGS   ( "/EHsc" )
   CF_ADD_CXX_FLAGS ( "/EHsc" )
-
-  # under windows internal deps must be used so force them
-  IF( NOT CF_ENABLE_INTERNAL_DEPS )
-    SET ( CF_ENABLE_INTERNAL_DEPS ON CACHE BOOL "Use of internal deps is forced" FORCE )
-  ENDIF()
 
   # linker flags:
   #   /OPT:NOREF keeps functions and data that are never referenced ( needed for static libs )

@@ -36,12 +36,12 @@ BOOST_FIXTURE_TEST_SUITE( PECommPattern_TestSuite, PECommPattern_Fixture )
 
 BOOST_AUTO_TEST_CASE( check_initialized )
 {
-  BOOST_CHECK_EQUAL( PEInterface::getInstance().is_init() , true );
+  BOOST_CHECK_EQUAL( PEInterface::instance().is_init() , true );
 }
 
 BOOST_AUTO_TEST_CASE( setup )
 {
-  BOOST_CHECK_EQUAL( PEInterface::getInstance().is_init() , true );
+  BOOST_CHECK_EQUAL( PEInterface::instance().is_init() , true );
 }
 
 BOOST_AUTO_TEST_SUITE_END()

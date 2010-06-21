@@ -33,7 +33,7 @@ public: // methods
     Common::NamedObject(name),
     Common::ProviderBase()
   {
-    Common::Factory<BASE>::getInstance().regist(this);
+    Common::Factory<BASE>::instance().regist(this);
   }
 
   /// Virtual destructor

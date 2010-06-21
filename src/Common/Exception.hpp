@@ -20,7 +20,7 @@ public:
   ExceptionManager();
 
   /// Gets the instance of the manager
-  static ExceptionManager& getInstance ();
+  static ExceptionManager& instance ();
 
   /// if exception contructor should output
   bool ExceptionOutputs;

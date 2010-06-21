@@ -36,24 +36,24 @@ BOOST_FIXTURE_TEST_SUITE(LogTestSuite, LogFixture)
 
 BOOST_AUTO_TEST_CASE( openFiles )
 {
-  Logger::getInstance().openFiles();
+  Logger::instance().openFiles();
   
   // files are not created if PE is not initializaed
-  if(PEInterface::getInstance().is_init()) 
+  if(PEInterface::instance().is_init()) 
   {
-    BOOST_CHECK(Logger::getInstance().getStream(Logger::INFO).isFileOpen());
-    BOOST_CHECK(Logger::getInstance().getStream(Logger::ERROR).isFileOpen());
-    BOOST_CHECK(Logger::getInstance().getStream(Logger::WARN).isFileOpen());
-    BOOST_CHECK(Logger::getInstance().getStream(Logger::DEBUG).isFileOpen());
-    BOOST_CHECK(Logger::getInstance().getStream(Logger::TRACE).isFileOpen());
+    BOOST_CHECK(Logger::instance().getStream(Logger::INFO).isFileOpen());
+    BOOST_CHECK(Logger::instance().getStream(Logger::ERROR).isFileOpen());
+    BOOST_CHECK(Logger::instance().getStream(Logger::WARN).isFileOpen());
+    BOOST_CHECK(Logger::instance().getStream(Logger::DEBUG).isFileOpen());
+    BOOST_CHECK(Logger::instance().getStream(Logger::TRACE).isFileOpen());
   }
   else   
   {
-    BOOST_CHECK(!Logger::getInstance().getStream(Logger::INFO).isFileOpen());
-    BOOST_CHECK(!Logger::getInstance().getStream(Logger::ERROR).isFileOpen());
-    BOOST_CHECK(!Logger::getInstance().getStream(Logger::WARN).isFileOpen());
-    BOOST_CHECK(!Logger::getInstance().getStream(Logger::DEBUG).isFileOpen());
-    BOOST_CHECK(!Logger::getInstance().getStream(Logger::TRACE).isFileOpen());
+    BOOST_CHECK(!Logger::instance().getStream(Logger::INFO).isFileOpen());
+    BOOST_CHECK(!Logger::instance().getStream(Logger::ERROR).isFileOpen());
+    BOOST_CHECK(!Logger::instance().getStream(Logger::WARN).isFileOpen());
+    BOOST_CHECK(!Logger::instance().getStream(Logger::DEBUG).isFileOpen());
+    BOOST_CHECK(!Logger::instance().getStream(Logger::TRACE).isFileOpen());
   }
 }
 

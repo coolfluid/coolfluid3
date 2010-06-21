@@ -81,7 +81,7 @@ namespace Common {
 
     // assign new pointer
     Common::SafePtr< typename BASETYPE::PROVIDER > prov =
-       Factory< BASETYPE >::getInstance().getProvider( ctype );
+       Factory< BASETYPE >::instance().getProvider( ctype );
 
     m_component = prov->create( name );
 

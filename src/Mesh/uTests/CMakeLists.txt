@@ -51,7 +51,8 @@ LIST ( APPEND uTestIntegration_libs Common P1 Neu Testing )
 LIST ( APPEND uTestIntegration_files
   uTestIntegration.cpp )
 
-CF_ADD_PROFILED_UNITTEST ( uTestIntegration )
+SET ( uTestIntegration_profile ON )
+CF_ADD_UNITTEST ( uTestIntegration )
 
 ################################################################################
 
