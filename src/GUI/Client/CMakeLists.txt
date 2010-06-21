@@ -10,10 +10,7 @@ SET(coolfluid-client_moc_classes
   ClientCore.hpp
   ClientNetworkComm.hpp
   CLog.hpp
-  CloseConfirmationDialog.hpp
-  CloseConfirmationPanel.hpp
   CNode.hpp
-  CommitConfirmationPanel.hpp
   CommitDetailsDialog.hpp
   ConfirmCommitDialog.hpp
   ConnectionDialog.hpp
@@ -28,7 +25,6 @@ SET(coolfluid-client_moc_classes
   OptionPanel.hpp
   RemoteFSBrowser.hpp
   RemoteSaveFile.hpp
-  SaveConfirmationPanel.hpp
   SelectFileDialog.hpp
   StatusModel.hpp
   StatusPanel.hpp
@@ -54,15 +50,8 @@ LIST ( APPEND coolfluid-client_files
   ClientRoot.hpp
   CLog.cpp
   CLog.hpp
-  CloseConfirmationDialog.cpp
-  CloseConfirmationDialog.hpp
-  CloseConfirmationInfos.hpp
-  CloseConfirmationPanel.cpp
-  CloseConfirmationPanel.hpp
   CNode.cpp
   CNode.hpp
-  CommitConfirmationPanel.cpp
-  CommitConfirmationPanel.hpp
   CommitDetails.cpp
   CommitDetails.hpp
   CommitDetailsDialog.cpp
@@ -112,12 +101,8 @@ LIST ( APPEND coolfluid-client_files
   RemoteOpenFile.hpp
   RemoteSaveFile.cpp
   RemoteSaveFile.hpp
-  SaveConfirmationPanel.cpp
-  SaveConfirmationPanel.hpp
   SelectFileDialog.cpp
   SelectFileDialog.hpp
-  ShutdownConfirmationPanel.cpp
-  ShutdownConfirmationPanel.hpp
   StatusModel.cpp
   StatusModel.hpp
   StatusPanel.cpp

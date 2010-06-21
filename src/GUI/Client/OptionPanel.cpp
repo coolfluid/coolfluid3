@@ -3,7 +3,6 @@
 #include <QtCore>
 #include <QtGui>
 
-#include "GUI/Client/CloseConfirmationInfos.hpp"
 #include "GUI/Client/CommitDetails.hpp"
 #include "GUI/Client/CommitDetailsDialog.hpp"
 #include "GUI/Client/GraphicalOption.hpp"

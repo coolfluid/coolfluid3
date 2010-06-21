@@ -10,7 +10,6 @@
 #include <QModelIndex>
 
 #include "GUI/Client/TSshInformation.hpp"
-#include "GUI/Client/CloseConfirmationInfos.hpp"
 
 class QDockWidget;
 class QDomDocument;
@@ -169,9 +168,6 @@ namespace Client {
 
     /// @brief Text area displaying the log messages.
     LoggingList * m_logList;
-
-    /// @brief Information relative to the close confirmation process.
-    CloseConfirmationInfos m_infos;
 
     /// @brief Splitter used to allow user to resize the Client.
     QSplitter * m_splitter;

@@ -6,7 +6,6 @@
 #include "Common/ConfigArgs.hpp"
 
 #include "GUI/Client/TypeAndNameDialog.hpp"
-#include "GUI/Client/CloseConfirmationDialog.hpp"
 #include "GUI/Client/ConnectionDialog.hpp"
 #include "GUI/Client/LoggingList.hpp"
 #include "GUI/Client/OptionPanel.hpp"
@@ -285,24 +284,24 @@ bool MainWindow::saveFromInfos()
 {
   bool ok = false;
   // if the file has to be saved
-  if(!m_infos.filename.isEmpty())
-  {
-    // if user wants to save it locally...
-    if(m_infos.saveLocally)
-    {
-      if(!this->saveToFileLocally(m_infos.filename))
-      {
-        this->showError(QString("Configuration could not be saved to %1")
-                        .arg(m_infos.filename));
-      }
+//  if(!m_infos.filename.isEmpty())
+//  {
+//    // if user wants to save it locally...
+//    if(m_infos.saveLocally)
+//    {
+//      if(!this->saveToFileLocally(m_infos.filename))
+//      {
+//        this->showError(QString("Configuration could not be saved to %1")
+//                        .arg(m_infos.filename));
+//      }
 
-      else
-        ok = true;
-    }
-    // ... or remotely
-    else
-      ok = this->saveToFileRemotely(m_infos.filename);
-  } // for "if(!this->infos.filename.isEmpty())"
+//      else
+//        ok = true;
+//    }
+//    // ... or remotely
+//    else
+//      ok = this->saveToFileRemotely(m_infos.filename);
+//  } // for "if(!this->infos.filename.isEmpty())"
 
   return ok;
 }
@@ -535,127 +534,127 @@ void MainWindow::errorCommitOnExit()
   //   this->saveFromInfos();
 
   //  else //if(this->infos.filename.isEmpty())
-  {
-    int answer;
-    QMessageBox errorBox(this);
-    QString message = "Modifications could not be committed. To ensure that "
-    "data will not be lost, you can choose to save these modifications to a "
-    "text file, and redo them manually later.\nClick on \"<i>Show "
-    "Details...</i>\" for further information.";
+//  {
+//    int answer;
+//    QMessageBox errorBox(this);
+//    QString message = "Modifications could not be committed. To ensure that "
+//    "data will not be lost, you can choose to save these modifications to a "
+//    "text file, and redo them manually later.\nClick on \"<i>Show "
+//    "Details...</i>\" for further information.";
 
-    QString details = "Click on \"Yes\" to selet a file, on \"No\" to not "
-    "save the modifications (they will be lost) or on \"Cancel\" to cancel "
-    "the application closing.\nNotes: \n- clicking on \"Yes\" and then "
-    "cancel the file selection is like directly clicking on \"No\"\n- if "
-    "the file cannot be saved, you will be asked to select another file; "
-    "repeatedly until the file is successfuly saved or you cancel\n- clicking "
-    "on \"Yes\" or \"No\" will close the application";
+//    QString details = "Click on \"Yes\" to selet a file, on \"No\" to not "
+//    "save the modifications (they will be lost) or on \"Cancel\" to cancel "
+//    "the application closing.\nNotes: \n- clicking on \"Yes\" and then "
+//    "cancel the file selection is like directly clicking on \"No\"\n- if "
+//    "the file cannot be saved, you will be asked to select another file; "
+//    "repeatedly until the file is successfuly saved or you cancel\n- clicking "
+//    "on \"Yes\" or \"No\" will close the application";
 
-    errorBox.setTextFormat(Qt::RichText);
-    errorBox.setWindowTitle("Error");
-    errorBox.setText(message);
-    errorBox.setDetailedText(details);
-    errorBox.setInformativeText("Do you want to save modifications?");
-    errorBox.setIcon(QMessageBox::Critical);
+//    errorBox.setTextFormat(Qt::RichText);
+//    errorBox.setWindowTitle("Error");
+//    errorBox.setText(message);
+//    errorBox.setDetailedText(details);
+//    errorBox.setInformativeText("Do you want to save modifications?");
+//    errorBox.setIcon(QMessageBox::Critical);
 
-    errorBox.addButton(QMessageBox::Yes);
-    errorBox.addButton(QMessageBox::No);
-    errorBox.addButton(QMessageBox::Cancel);
+//    errorBox.addButton(QMessageBox::Yes);
+//    errorBox.addButton(QMessageBox::No);
+//    errorBox.addButton(QMessageBox::Cancel);
 
-    answer = errorBox.exec();
+//    answer = errorBox.exec();
 
-    switch(answer)
-    {
-      case QMessageBox::Yes:
-      {
-        SelectFileDialog sfd(this);
-        QString filename;
-        bool ok = false;
-        sfd.addFileType("Text", "txt");
+//    switch(answer)
+//    {
+//      case QMessageBox::Yes:
+//      {
+//        SelectFileDialog sfd(this);
+//        QString filename;
+//        bool ok = false;
+//        sfd.addFileType("Text", "txt");
 
-        while(!ok)
-        {
-          filename = sfd.show(QFileDialog::AcceptSave);
+//        while(!ok)
+//        {
+//          filename = sfd.show(QFileDialog::AcceptSave);
 
-          if(filename.isEmpty())
-            this->quit();
+//          if(filename.isEmpty())
+//            this->quit();
 
-          else
-          {
-            QFile file(filename);
-            QTextStream out;
-            //      bool saved = false;
-            QString username;
-            QRegExp regex("^USER=");
-            QStringList environment = QProcess::systemEnvironment().filter(regex);
+//          else
+//          {
+//            QFile file(filename);
+//            QTextStream out;
+//            //      bool saved = false;
+//            QString username;
+//            QRegExp regex("^USER=");
+//            QStringList environment = QProcess::systemEnvironment().filter(regex);
 
-            if(environment.size() == 1)
-            {
-              username = environment.at(0);
-              username.remove(regex);
-            }
+//            if(environment.size() == 1)
+//            {
+//              username = environment.at(0);
+//              username.remove(regex);
+//            }
 
-            if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-            {
-              QString error = "Could open file '%1' for write access: %2";
-              this->showError(error.arg(filename).arg(file.errorString()));
-            }
+//            if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+//            {
+//              QString error = "Could open file '%1' for write access: %2";
+//              this->showError(error.arg(filename).arg(file.errorString()));
+//            }
 
-            else
-            {
-              QString date = QDate::currentDate().toString("MM/dd/yyyy");
-              QString time = QTime::currentTime().toString("hh:mm:ss");
-              QString dateTime = QString("%1 at %2").arg(date).arg(time);
-              QString separator = QString("\n").rightJustified(30, '+');
+//            else
+//            {
+//              QString date = QDate::currentDate().toString("MM/dd/yyyy");
+//              QString time = QTime::currentTime().toString("hh:mm:ss");
+//              QString dateTime = QString("%1 at %2").arg(date).arg(time);
+//              QString separator = QString("\n").rightJustified(30, '+');
 
-              out.setDevice(&file);
+//              out.setDevice(&file);
 
-              out << "### CF -- GUI Module\n";
-              out << "### This file contains modifications details that could "
-              "not be comitted on Client application exit.\n";
-              out << "### Written by '" << username << "' on " << dateTime << "\n";
-              out << "### Working node path: " << m_optionPanel->getCurrentPath();
-              out << "\n\n";
+//              out << "### CF -- GUI Module\n";
+//              out << "### This file contains modifications details that could "
+//              "not be comitted on Client application exit.\n";
+//              out << "### Written by '" << username << "' on " << dateTime << "\n";
+//              out << "### Working node path: " << m_optionPanel->getCurrentPath();
+//              out << "\n\n";
 
-              out << m_infos.commitDetails.toString();
+//              out << m_infos.commitDetails.toString();
 
-              file.close();
+//              file.close();
 
-              this->showMessage(QString("Modification were successfully written to "
-                                        "'%1'").arg(filename));
-              //        this->configModified = false;
-              ok = true;
-            }
+//              this->showMessage(QString("Modification were successfully written to "
+//                                        "'%1'").arg(filename));
+//              //        this->configModified = false;
+//              ok = true;
+//            }
 
-            if(!ok)
-            {
-              int ret;
-              message = "Saving file failed. Do you want select another file ? "
-              "(clicking on \"No\" will directly close the application)";
+//            if(!ok)
+//            {
+//              int ret;
+//              message = "Saving file failed. Do you want select another file ? "
+//              "(clicking on \"No\" will directly close the application)";
 
-              errorBox.setText(message);
-              errorBox.setDetailedText("");
-              errorBox.setIcon(QMessageBox::Critical);
-              errorBox.addButton(QMessageBox::Yes);
-              errorBox.addButton(QMessageBox::No);
-              ret = errorBox.exec();
+//              errorBox.setText(message);
+//              errorBox.setDetailedText("");
+//              errorBox.setIcon(QMessageBox::Critical);
+//              errorBox.addButton(QMessageBox::Yes);
+//              errorBox.addButton(QMessageBox::No);
+//              ret = errorBox.exec();
 
-              if(ret == QMessageBox::No && !m_infos.filename.isEmpty())
-                this->quit();
-            }
-          }
-        }
+//              if(ret == QMessageBox::No && !m_infos.filename.isEmpty())
+//                this->quit();
+//            }
+//          }
+//        }
 
-        if(m_infos.filename.isEmpty())
-          this->quit();
-        break;
-      }
+//        if(m_infos.filename.isEmpty())
+//          this->quit();
+//        break;
+//      }
 
-      case QMessageBox::Cancel:
-        //     this->waitingToExit = false;
-        break;
-    }
-  }
+//      case QMessageBox::Cancel:
+//        //     this->waitingToExit = false;
+//        break;
+//    }
+//  }
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
