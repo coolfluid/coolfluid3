@@ -14,7 +14,6 @@
 #include "Common/MPI/PEInterface.hpp"
 
 namespace CF {
-
 namespace Common {
 
 class LogToStream;
@@ -106,38 +105,39 @@ class Common_API LogStream
 
     for(it = m_destinations.begin() ; it != m_destinations.end() ; it++)
     {
-    if(it->first != SYNC_SCREEN && this->isDestinationUsed(it->first) &&
+      if(it->first != SYNC_SCREEN && this->isDestinationUsed(it->first) &&
          (PEInterface::instance().rank() == 0 || !m_filterRankZero[it->first]))
-    {
-      *(it->second) << t;
-      m_flushed = false;
-    }
-    else if(it->first != SYNC_SCREEN && PEInterface::instance()  .is_init()
-        && this->isDestinationUsed(it->first))
-    {
-      for( Uint i = 0 ; i < (Uint)(PEInterface::instance().size()); ++i )
       {
-        PEInterface::instance().barrier();
+        *(it->second) << t;
+        m_flushed = false;
+      }
+      else if(it->first != SYNC_SCREEN && PEInterface::instance().is_init()
+        && this->isDestinationUsed(it->first))
+        {
+        for( Uint i = 0 ; i < (Uint)(PEInterface::instance().size()); ++i )
+        {
+          PEInterface::instance().barrier();
 
-        if(i == (Uint)PEInterface::instance().rank())
-        {
-          *(it->second) << t;
-          m_flushed = false;
-        }
-        else if(it->first == SYNC_SCREEN && PEInterface::instance().is_init())
-        {
-          for( Uint i = 0 ; i < (Uint)(PEInterface::instance().size()); ++i )
+          if(i == (Uint)PEInterface::instance().rank())
           {
-            PEInterface::instance().barrier();
-
-            if(i == (Uint)PEInterface::instance().rank())
-            {
-              *(it->second) << t;
-              m_flushed = false;
-            }
+            *(it->second) << t;
+            m_flushed = false;
           }
-        } // end of "else if (PEInterface::instance().isInit())"
-      } // end of "if(this->isDestinationUsed(it->first()))"
+          else if(it->first == SYNC_SCREEN && PEInterface::instance().is_init())
+          {
+            for( Uint i = 0 ; i < (Uint)(PEInterface::instance().size()); ++i )
+            {
+              PEInterface::instance().barrier();
+
+              if(i == (Uint)PEInterface::instance().rank())
+              {
+                *(it->second) << t;
+                m_flushed = false;
+              }
+            }
+          } // end of "else if (PEInterface::instance().isInit())"
+        } // end of "if(this->isDestinationUsed(it->first()))"
+      }
     }
 
     return *this;
@@ -321,12 +321,12 @@ class Common_API LogStream
   /// @return Returns the stamp filter
   LogStampFilter & getStampFilter(LogDestination dest) const;
 
+
 }; // class LogStream
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // namespace Common
-
 } // namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////
