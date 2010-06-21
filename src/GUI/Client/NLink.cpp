@@ -2,14 +2,16 @@
 #include <QtGui>
 
 #include "Common/CF.hpp"
+#include "Common/CPath.hpp"
 
 #include "GUI/Client/NLink.hpp"
 
 using namespace CF::Common;
 using namespace CF::GUI::Client;
 
-NLink::NLink(const QString & name)
-  : CNode(name, "CLink")
+NLink::NLink(const QString & name, const CPath & targetPath)
+  : CNode(name, "CLink"),
+    m_targetPath(targetPath)
 {
 
 }
@@ -38,7 +40,7 @@ QIcon NLink::getIcon() const
 
 QString NLink::getToolTip() const
 {
-  return QString("Target: %1").arg(m_textData);
+  return QString("Target: %1").arg(m_targetPath.string().c_str());
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

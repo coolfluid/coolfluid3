@@ -8,6 +8,9 @@
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
+
+  namespace Common { class CPath; }
+
 namespace GUI {
 namespace Client {
 
@@ -24,7 +27,7 @@ namespace Client {
 
     /// @brief Constructor
     /// @param name Node name
-    NLink(const QString & name);
+    NLink(const QString & name, const CF::Common::CPath & targetPath);
 
     /// @brief Gives a list of action the node can execute
     /// @return Returns a list of action the node can execute
@@ -44,6 +47,10 @@ namespace Client {
     /// @return Returns the class name.
     /// @note This method should be reimplemented by all subclasses.
     virtual QString getClassName() const;
+
+  private :
+
+      CF::Common::CPath m_targetPath;
 
   }; // class NLink
 
