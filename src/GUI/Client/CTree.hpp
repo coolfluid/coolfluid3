@@ -13,6 +13,9 @@ class QDomElement;
 class QModelIndex;
 
 namespace CF {
+
+namespace Common { class CPath; }
+
 namespace GUI {
 namespace Client {
 
@@ -63,7 +66,7 @@ namespace Client {
     QModelIndex getCurrentIndex() const;
 
     void getNodeParams(const QModelIndex & index,
-                       QList<NodeParams> & params, bool * ok = CFNULL) const;
+                       QList<NodeOption> & params, bool * ok = CFNULL) const;
 
     QString getNodePath(const QModelIndex & index) const;
 
@@ -72,6 +75,8 @@ namespace Client {
     bool isAdvancedMode() const;
 
     bool areFromSameNode(const QModelIndex & left, const QModelIndex & right) const;
+
+    CNode::Ptr getNodeByPath(const CF::Common::CPath & path) const;
 
     /// @brief Implementation of @c QAbstractItemModel::data().
 
@@ -140,7 +145,7 @@ namespace Client {
 
     QStringList m_columns;
 
-    TreeNode * m_rootNode;
+    TreeNode * m_rootItem;
 
     QModelIndex m_currentIndex;
 

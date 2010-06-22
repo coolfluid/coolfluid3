@@ -51,7 +51,7 @@ QString NMesh::getClassName() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NMesh::getParams(QList<NodeParams> & params) const
+void NMesh::getOptions(QList<NodeOption> & params) const
 {
-  params = m_params;
+  params = m_options;
 }

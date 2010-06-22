@@ -48,7 +48,7 @@ QString NMethod::getClassName() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NMethod::getParams(QList<NodeParams> & params) const
+void NMethod::getOptions(QList<NodeOption> & params) const
 {
-  params = m_params;
+  params = m_options;
 }

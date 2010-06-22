@@ -56,7 +56,7 @@ CTree::CTree(CNode::Ptr rootNode)
         " <CGroup name=\"Solid\">"
         "  <CMesh name=\"Mesh3\" > <!-- mesh2 here --> </CMesh>"
         "  <CMesh name=\"Mesh4\" > <!-- mesh1 here --> </CMesh>"
-        "  <CLink name=\"PestcLink\">//Simulation/Flow/Pestc</CLink>"
+        "  <CLink name=\"PetscLink\">//Simulation/Flow/Petsc</CLink>"
         " </CGroup>"
         "</CRoot>";
     QDomDocument doc;
@@ -65,10 +65,10 @@ CTree::CTree(CNode::Ptr rootNode)
 
     CNode::Ptr nodePtr = CNode::createFromXml(doc.firstChildElement());
 
-    m_rootNode = new TreeNode(nodePtr, CFNULL, 0);
+    m_rootItem = new TreeNode(nodePtr, CFNULL, 0);
   }
   else
-    m_rootNode = new TreeNode(rootNode, CFNULL, 0);
+    m_rootItem = new TreeNode(rootNode, CFNULL, 0);
 
   m_columns << "Name" << "Type";
 
@@ -83,11 +83,11 @@ void CTree::setRoot(CNode::Ptr rootNode)
   cf_assert(rootNode.get() != CFNULL);
 
   // initiate the removing process
-  this->beginRemoveRows(QModelIndex(), 0, m_rootNode->getChildCount() - 1);
-  delete m_rootNode;
+  this->beginRemoveRows(QModelIndex(), 0, m_rootItem->getChildCount() - 1);
+  delete m_rootItem;
   this->endRemoveRows(); // end the removing process
 
-  m_rootNode = new TreeNode(rootNode, CFNULL, 0);
+  m_rootItem = new TreeNode(rootNode, CFNULL, 0);
 
 }
 
@@ -115,7 +115,7 @@ QModelIndex CTree::getCurrentIndex() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CTree::getNodeParams(const QModelIndex & index, QList<NodeParams> & params,
+void CTree::getNodeParams(const QModelIndex & index, QList<NodeOption> & params,
                           bool * ok) const
 {
   TreeNode * node = this->indexToTreeNode(index);
@@ -126,7 +126,7 @@ void CTree::getNodeParams(const QModelIndex & index, QList<NodeParams> & params,
   params.clear();
 
   if(node != CFNULL)
-    node->getNode()->getParams(params);
+    node->getNode()->getOptions(params);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -167,6 +167,30 @@ bool CTree::isAdvancedMode() const
 bool CTree::areFromSameNode(const QModelIndex & left, const QModelIndex & right) const
 {
   return left.isValid() && left.internalPointer() == right.internalPointer();
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+CNode::Ptr CTree::getNodeByPath(const CPath & path) const
+{
+  QString pathStr = path.string().c_str();
+  QStringList comps;
+  QStringList::iterator it;
+  CNode::Ptr node = m_rootItem->getNode();
+
+  if(!path.is_absolute())
+    ClientRoot::getLog()->addError(QString("\"%1\" is not an absolute path").arg(pathStr));
+
+  comps = pathStr.split(CPath::separator().c_str(), QString::SkipEmptyParts);
+
+  if(comps.first() == m_rootItem->getName())
+    comps.removeFirst();
+
+  for(it = comps.begin() ; it != comps.end() && node.get() != CFNULL ; it++)
+    node = boost::dynamic_pointer_cast<CNode>(node->get_child(it->toStdString()));
+
+  return node;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -221,7 +245,7 @@ QModelIndex CTree::index(int row, int column, const QModelIndex & parent) const
   if(this->hasIndex(row, column, parent))
   {
     if(!parent.isValid())
-      parentNode = m_rootNode;
+      parentNode = m_rootItem;
     else
       parentNode = this->indexToTreeNode(parent);
 
@@ -248,7 +272,7 @@ QModelIndex CTree::parent(const QModelIndex &child) const
     TreeNode * childNode = this->indexToTreeNode(child);
     TreeNode * parentNode = childNode->getParent();
 
-    if (parentNode != CFNULL && parentNode != m_rootNode)
+    if (parentNode != CFNULL && parentNode != m_rootItem)
       index = createIndex(parentNode->getRowNumber(), 0, parentNode);
   }
 
@@ -266,7 +290,7 @@ int CTree::rowCount(const QModelIndex & parent) const
     return 0;
 
   if (!parent.isValid())
-    parentItem = m_rootNode;
+    parentItem = m_rootItem;
   else
     parentItem = this->indexToTreeNode(parent);
 
@@ -311,7 +335,7 @@ Signal::return_t CTree::updateTree(Signal::arg_t & node)
 
   try
   {
-    m_rootNode = new TreeNode(CNode::createFromXml(doc.firstChildElement()), CFNULL, 0);
+    m_rootItem = new TreeNode(CNode::createFromXml(doc.firstChildElement()), CFNULL, 0);
   }
   catch(XmlError xe)
   {

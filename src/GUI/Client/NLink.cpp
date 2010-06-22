@@ -4,6 +4,7 @@
 #include "Common/CF.hpp"
 #include "Common/CPath.hpp"
 
+#include "GUI/Client/ClientRoot.hpp"
 #include "GUI/Client/NLink.hpp"
 
 using namespace CF::Common;
@@ -54,8 +55,12 @@ QString NLink::getClassName() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NLink::getParams(QList<NodeParams> & params) const
+void NLink::getOptions(QList<NodeOption> & params) const
 {
-//  CNode::Ptr target = Client
-  params = m_params;
+  CNode::Ptr target = ClientRoot::getTree()->getNodeByPath(m_targetPath);
+
+  if(target.get() != CFNULL)
+    target->getOptions(params);
+  else
+    ClientRoot::getLog()->addError(QString("%1: path does not exist").arg(m_targetPath.string().c_str()));
 }

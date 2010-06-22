@@ -48,7 +48,7 @@ void CNode::setTextData(const QString & text)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CNode::setParams(const QDomNodeList & list)
+void CNode::setOptions(const QDomNodeList & list)
 {
   for(int i = 0 ; i < list.size() ; i++)
   {
@@ -56,7 +56,7 @@ void CNode::setParams(const QDomNodeList & list)
 
     if(!elt.isNull())
     {
-      NodeParams np;
+      NodeOption np;
 
       np.m_paramAdv = elt.attribute("mode") != "basic";
       np.m_paramType = OptionType::Convert::to_enum(elt.nodeName().toStdString());
@@ -64,7 +64,7 @@ void CNode::setParams(const QDomNodeList & list)
       np.m_paramDescr = elt.attribute("desc");
       np.m_paramValue = elt.firstChild().toText().nodeValue();
 
-      m_params.append(np);
+      m_options.append(np);
     }
   }
 }
@@ -80,33 +80,33 @@ CNode::Ptr CNode::createFromXml(const QDomElement & element)
 
   cf_assert(!name.isEmpty());
 
-  CNode::Ptr node;
+  CNode::Ptr rootNode;
 
   if(type == "CLink")
   {
     QDomText targetPath = element.firstChild().toText();
-    node = boost::shared_ptr<NLink>(new NLink(name, targetPath.nodeValue().toStdString()));
+    rootNode = boost::shared_ptr<NLink>(new NLink(name, targetPath.nodeValue().toStdString()));
   }
   else if(type == "CMesh")
-    node = boost::shared_ptr<NMesh>(new NMesh(name));
+    rootNode = boost::shared_ptr<NMesh>(new NMesh(name));
   else if(type == "CMethod")
-    node = boost::shared_ptr<NMethod>(new NMethod(name));
+    rootNode = boost::shared_ptr<NMethod>(new NMethod(name));
   else if(type == "CGroup" || type == "CRoot")
-    node = boost::shared_ptr<NGroup>(new NGroup(name));
+    rootNode = boost::shared_ptr<NGroup>(new NGroup(name));
   else
     throw ShouldNotBeHere(FromHere(), QString("%1: Unknown type").arg(type).toStdString().c_str());
 
   while(!child.isNull())
   {
     if(child.nodeName() == "params")
-      node->setParams(child.childNodes());
+      rootNode->setOptions(child.childNodes());
     else
-      node->add_component( createFromXml(child) );
+      rootNode->add_component( createFromXml(child) );
 
     child = child.nextSiblingElement();
   }
 
-  return node;
+  return rootNode;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -122,20 +122,4 @@ CNode::Ptr CNode::getNode(CF::Uint index)
     it++;
 
   return it.get();
-
-//  Component_iterator<CNode> it = this->recursive_begin<CNode>();
-//  CF::Uint i = 0;
-
-//  cf_assert(index < m_components.size());
-
-//  while(i < index)
-//  {
-//    it++;
-
-//    if(it->get_parent().get() == this)
-//      i++;
-//  }
-
-
-//  return boost::shared_ptr<CNode>(&(*it));
 }

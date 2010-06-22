@@ -8,6 +8,7 @@
 #include <QObject>
 
 #include "Common/Component.hpp"
+
 #include "GUI/Client/OptionType.hpp"
 
 class QIcon;
@@ -40,7 +41,7 @@ namespace Client {
 
   }; // struct NodeAction
 
-  struct NodeParams
+  struct NodeOption
   {
     QString m_paramName;
 
@@ -105,9 +106,9 @@ namespace Client {
 
     void setTextData(const QString & text);
 
-    void setParams(const QDomNodeList & list);
+    void setOptions(const QDomNodeList & list);
 
-    virtual void getParams(QList<NodeParams> & params) const = 0;
+    virtual void getOptions(QList<NodeOption> & params) const = 0;
 
     /// @brief Creates an object tree from a given node
 
@@ -118,7 +119,7 @@ namespace Client {
 
   protected:
 
-    QList<NodeParams> m_params;
+    QList<NodeOption> m_options;
 
     QString m_textData;
 
@@ -126,7 +127,6 @@ namespace Client {
 
     /// @brief Component type name.
     QString m_componentType;
-
   }; // class CNode
 
   ////////////////////////////////////////////////////////////////////////////

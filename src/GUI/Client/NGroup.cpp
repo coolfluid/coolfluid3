@@ -57,8 +57,8 @@ QString NGroup::getClassName() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NGroup::getParams(QList<NodeParams> & params) const
+void NGroup::getOptions(QList<NodeOption> & params) const
 {
-  params = m_params;
+  params = m_options;
 }
 

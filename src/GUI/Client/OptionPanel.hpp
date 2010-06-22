@@ -33,7 +33,7 @@ namespace Client {
   class CommitDetails;
   class GraphicalOption;
   struct CloseConfirmationInfos;
-  struct NodeParams;
+  struct NodeOption;
 
   /// @brief Panel to m_view and modify m_options of an object.
 
@@ -314,7 +314,7 @@ namespace Client {
 //    /// @throw UnknownType If an option has an unknown type.
 //    void setOptions(const QDomNodeList & options);
 
-    void setOptions(const QList<NodeParams> & list);
+    void setOptions(const QList<NodeOption> & list);
 
     void buttonsSetVisible(bool visible);
 
