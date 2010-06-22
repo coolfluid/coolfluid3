@@ -187,7 +187,7 @@ int main(int argc, char * argv[])
 
   // loop for all volume regions
   // loop on element types
-  BOOST_FOREACH(CRegion& region, recursive_filtered_range_typed<CRegion>(*mesh,IsLeafWithDimensionality(volume_dim)))
+  BOOST_FOREACH(CRegion& region, recursive_filtered_range_typed<CRegion>(*mesh,IsElementRegionWithDimensionality(volume_dim)))
   {
     // create an array to store the volumes
     CArray::Ptr volumes = region.create_component_type<CArray>("volumes");
