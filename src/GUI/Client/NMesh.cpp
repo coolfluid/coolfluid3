@@ -9,7 +9,7 @@ using namespace CF::Common;
 using namespace CF::GUI::Client;
 
 NMesh::NMesh(const QString & name)
-  : CNode(name, "CLink")
+  : CNode(name, "CMesh")
 {
 
 }
