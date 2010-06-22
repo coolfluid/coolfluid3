@@ -74,6 +74,9 @@ public: // accessors
   /// @return m_dimensionality
   Uint getDimensionality() const { return m_dimensionality; }
 
+  /// @return m_dimension
+  Uint getDimension() const { return m_dimension; }
+
   /// @return faces connectivity
   /// faces[iFace][iNode]
   const std::vector<Face>& getFaces() const { return m_faces; }
@@ -91,6 +94,8 @@ protected: // data
   Uint m_nbNodes;
   /// the  geometric order of this element
   Uint m_order;
+  /// the dimension of the coordinates of this elements
+  Uint m_dimension;
   /// the dimensionality of the element
   Uint m_dimensionality;
   /// number of edges

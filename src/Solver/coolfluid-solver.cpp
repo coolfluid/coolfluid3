@@ -1,9 +1,14 @@
+#include <boost/mpl/vector.hpp>
+#include <boost/mpl/for_each.hpp>
+
 #include "Common/Log.hpp"
 #include "Common/CoreEnv.hpp"
 #include "Common/ComponentPredicates.hpp"
 #include "Common/CRoot.hpp"
 
 #include "Mesh/CMeshReader.hpp"
+#include "Mesh/ElementNodes.hpp"
+#include "Mesh/P1/ElemTypes.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CArray.hpp"
 #include "Mesh/CTable.hpp"
@@ -55,6 +60,52 @@ namespace CF
   }
 }
 
+//------------------------------------------------------------------
+
+//template < typename Algo >
+struct LoopElems
+{
+
+  LoopElems( CRegion& aregion, CArray& acoords, CArray& avolumes )
+    : region(aregion),
+      coords(acoords),
+      volumes(avolumes)
+  {}
+
+  template < typename EType >
+      void operator() ( EType T )
+  {
+
+    if( T.getShape()          != region.elements_type().getShape()         ||
+        T.getOrder()          != region.elements_type().getOrder()         ||
+        T.getDimension()      != region.elements_type().getDimension()     ||
+        T.getDimensionality() != region.elements_type().getDimensionality() )
+    return;
+
+    CFinfo << "Looping on " << T.getClassName() << CFendl;
+
+    Uint e = 0;
+    // loop on elements
+    BOOST_FOREACH(const CTable::ConstRow& elem, region.get_connectivityTable()->get_table())
+    {
+      std::vector<CArray::Row> nodes;
+
+      fill_node_list( std::inserter(nodes, nodes.begin()), coords, region, e );
+
+      volumes.get_array()[e][0] = VolumeComputer< EType >::computeVolume( nodes );
+
+      ++e;
+    }
+  }
+
+  CRegion& region;
+  CArray&  coords;
+  CArray&  volumes;
+
+};
+
+
+void run_loop();
 
 int main(int argc, char * argv[])
 {
@@ -100,7 +151,7 @@ int main(int argc, char * argv[])
       // compute centre
       RealVector centre(0.0,volume_dim);
       BOOST_FOREACH(const Uint node, elem)
-      centre += RealVector( coordinates.get_array()[node] );
+          centre += RealVector( coordinates.get_array()[node] );
       buffer.add_row_directly(centre);
     }
   }
@@ -127,11 +178,72 @@ int main(int argc, char * argv[])
       buffer.add_row_directly(centre);
     }
   }
-  
+
+
   root->print_tree();
-  
-  
+
+
+//--------------------------------------------------------------------------
+
+  // loop for all volume regions
+  // loop on element types
+  BOOST_FOREACH(CRegion& region, recursive_filtered_range_typed<CRegion>(*mesh,IsLeafWithDimensionality(volume_dim)))
+  {
+    // create an array to store the volumes
+    CArray::Ptr volumes = region.create_component_type<CArray>("volumes");
+    CArray::Array& vols = volumes->get_array();
+    vols.resize( boost::extents[region.elements_count()][1]);
+
+    boost::mpl::for_each<P1::ElemTypes>( LoopElems ( region, coordinates, *volumes ) );
+
+  }
+
+
+  //--------------------------------------------------------------------------
+
+	run_loop();
+
+  //--------------------------------------------------------------------------
+
   CoreEnv::instance().terminate();
 
   return 0;
 }
+
+
+///////////////////////////////////////////////////////////////////////////////
+
+struct ET {};
+
+struct Triag : public ET
+{
+  void flux() { CFinfo << "Triag::flux()" << CFendl; }
+};
+
+struct Quad : public ET
+{
+  void flux() { CFinfo << "Quad::flux()" << CFendl; }
+};
+
+typedef boost::mpl::vector< Triag, Quad > ElemTypes;
+
+///////////////////////////////////////////////////////////////////////////////
+
+struct TermCollector
+{
+  template< typename T > void operator()( T aT )
+  {
+    aT.flux();
+  }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+void run_loop()
+{
+  TermCollector tc;
+
+  boost::mpl::for_each<ElemTypes>( tc );
+}
+
+

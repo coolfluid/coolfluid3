@@ -23,6 +23,7 @@ Line1D::Line1D()
   m_shapeName=GeoShape::Convert::to_str(m_shape);
   m_order=1;
   m_nbNodes=2;
+  m_dimension=1;
   m_dimensionality=1;
   m_nbEdges=0;
   

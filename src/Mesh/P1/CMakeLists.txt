@@ -1,6 +1,7 @@
 LIST ( APPEND P1_files
   P1API.hpp
   P1API.cpp
+  ElemTypes.hpp
   Line1D.hpp
   Line1D.cpp
   Line2D.hpp

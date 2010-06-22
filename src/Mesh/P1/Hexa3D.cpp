@@ -25,6 +25,7 @@ Hexa3D::Hexa3D()
   m_shapeName=GeoShape::Convert::to_str(m_shape);
   m_order=1;
   m_nbNodes=8;
+  m_dimension=3;
   m_dimensionality=3;
   m_nbEdges=8;
   

@@ -23,6 +23,7 @@ Line3D::Line3D()
   m_shapeName=GeoShape::Convert::to_str(m_shape);
   m_order=1;
   m_nbNodes=2;
+  m_dimension=3;
   m_dimensionality=1;
   m_nbEdges=0;
 

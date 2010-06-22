@@ -61,6 +61,9 @@ public: // functions
   Uint getOrder() const { return m_elementType->getOrder(); }
 
   /// @return m_dimensionality
+  Uint getDimension() const { return m_elementType->getDimensionality(); }
+
+  /// @return m_dimensionality
   Uint getDimensionality() const { return m_elementType->getDimensionality(); }
 
   /// @return faces connectivity

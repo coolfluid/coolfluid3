@@ -25,6 +25,7 @@ Quad3D::Quad3D()
   m_shapeName=GeoShape::Convert::to_str(m_shape);
   m_order=1;
   m_nbNodes=4;
+  m_dimension=3;
   m_dimensionality=2;
   m_nbEdges=0;
   
