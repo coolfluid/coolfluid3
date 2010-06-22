@@ -160,17 +160,17 @@ void CWriter::write_headerData(std::fstream& file)
   BOOST_FOREACH(const CRegion& group, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
   {
     bool isGroupBC(false);
-    BOOST_FOREACH(const CRegion& leafregion, recursive_filtered_range_typed<CRegion>(group,IsLeafRegion()))
+    BOOST_FOREACH(const CRegion& elementregion, recursive_filtered_range_typed<CRegion>(group,IsElementRegion()))
     {
-      bool isLeafBC(false);
-      Uint dimensionality = get_component_typed<CElements>(leafregion,IsComponentTrue()).getDimensionality();
+      bool isElementBC(false);
+      Uint dimensionality = get_component_typed<CElements>(elementregion,IsComponentTrue()).getDimensionality();
       if (dimensionality < coord_dim) // is bc
       {
-        isLeafBC = true;
+        isElementBC = true;
         isGroupBC = true;
       }
-      if (!isLeafBC)
-        element_counter += leafregion.elements_count();
+      if (!isElementBC)
+        element_counter += elementregion.elements_count();
     }
     if (!isGroupBC)
     {
@@ -238,30 +238,30 @@ void CWriter::write_connectivity(std::fstream& file)
   // global element number
   Uint elm_number=0;
 
-  // loop over all leaf regions
+  // loop over all element regions
   const CArray& coordinates = get_named_component_typed<CArray>(*m_mesh,"coordinates");
   const Uint coord_dim = coordinates.get_array().shape()[1];
-  BOOST_FOREACH(const CRegion& leafregion,recursive_filtered_range_typed<CRegion>(*m_mesh,IsLeafRegion()))
+  BOOST_FOREACH(const CRegion& elementregion,recursive_filtered_range_typed<CRegion>(*m_mesh,IsElementRegion()))
   {
     bool isBC = false;
-    Uint dimensionality = get_component_typed<CElements>(leafregion,IsComponentTrue()).getDimensionality();
+    Uint dimensionality = get_component_typed<CElements>(elementregion,IsComponentTrue()).getDimensionality();
     if (dimensionality < coord_dim) // is bc
     {
       isBC = true;
-      //CFinfo << "skip bc region " << leafregion->full_path().string() << CFendl;
+      //CFinfo << "skip bc region " << elementregion->full_path().string() << CFendl;
     }
     if (!isBC)
     {
-      //CFinfo << "elements from region: " << leafregion->full_path().string() << CFendl;
+      //CFinfo << "elements from region: " << elementregion->full_path().string() << CFendl;
       // information of this region with one unique element type
       Uint elm_type;
       Uint nb_nodes;
-      elm_type = m_CFelement_to_NeuElement[get_component_typed<CElements>(leafregion,IsComponentTrue()).getShape()];
-      nb_nodes = get_component_typed<CElements>(leafregion,IsComponentTrue()).getNbNodes();
-      m_global_start_idx[&leafregion]=elm_number;
+      elm_type = m_CFelement_to_NeuElement[get_component_typed<CElements>(elementregion,IsComponentTrue()).getShape()];
+      nb_nodes = get_component_typed<CElements>(elementregion,IsComponentTrue()).getNbNodes();
+      m_global_start_idx[&elementregion]=elm_number;
 
       // write the nodes for each element of this region
-      BOOST_FOREACH(const CTable::ConstRow& row,get_component_typed<CTable>(leafregion,IsComponentTrue()).get_table())
+      BOOST_FOREACH(const CTable::ConstRow& row,get_component_typed<CTable>(elementregion,IsComponentTrue()).get_table())
       {
         file << std::setw(8) << ++elm_number << std::setw(3) << elm_type << std::setw(3) << nb_nodes << " ";
         BOOST_FOREACH(Uint node, row)
@@ -283,9 +283,9 @@ void CWriter::write_groups(std::fstream& file)
   BOOST_FOREACH(const CRegion& group, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
   {
     bool isBC(false);
-    BOOST_FOREACH(const CRegion& leafregion, recursive_filtered_range_typed <CRegion>(group,IsLeafRegion()))
+    BOOST_FOREACH(const CRegion& elementregion, recursive_filtered_range_typed <CRegion>(group,IsElementRegion()))
     {
-      Uint dimensionality = get_component_typed<CElements>(leafregion,IsComponentTrue()).getDimensionality();
+      Uint dimensionality = get_component_typed<CElements>(elementregion,IsComponentTrue()).getDimensionality();
       if (dimensionality < coord_dim) // is bc
       {
         isBC = true;
@@ -294,18 +294,18 @@ void CWriter::write_groups(std::fstream& file)
     if (!isBC)
     {
       Uint element_counter(0);
-      BOOST_FOREACH(const CRegion& leafregion, recursive_filtered_range_typed<CRegion>(group,IsLeafRegion()))
+      BOOST_FOREACH(const CRegion& elementregion, recursive_filtered_range_typed<CRegion>(group,IsElementRegion()))
       {
-        element_counter += leafregion.elements_count();
+        element_counter += elementregion.elements_count();
       }
       file << "       ELEMENT GROUP 2.3.16\n";
       file << "GROUP:" << std::setw(11) << ++group_counter << " ELEMENTS:" << std::setw(11) << element_counter << " MATERIAL:" << std::setw(11) << 2 << " NFLAGS:" << std::setw(11) << 1 << std::endl;
       file << std::setw(32) << group.name() << std::endl << std::setw(8) << 0 << std::endl;
       Uint line_counter=0;
-      BOOST_FOREACH(const CRegion& leafregion, recursive_filtered_range_typed <CRegion>(group,IsLeafRegion()))
+      BOOST_FOREACH(const CRegion& elementregion, recursive_filtered_range_typed <CRegion>(group,IsElementRegion()))
       {
-        Uint elm_global_start_idx = m_global_start_idx[&leafregion]+1;
-        Uint elm_global_end_idx = leafregion.elements_count() + elm_global_start_idx;
+        Uint elm_global_start_idx = m_global_start_idx[&elementregion]+1;
+        Uint elm_global_end_idx = elementregion.elements_count() + elm_global_start_idx;
 
         for (Uint elm=elm_global_start_idx; elm<elm_global_end_idx; elm++, line_counter++)
         {
@@ -337,12 +337,12 @@ void CWriter::write_boundaries(std::fstream& file)
   Uint total_nbElements=0;
   BOOST_FOREACH(const CRegion& group, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
   {
-    BOOST_FOREACH(const CRegion& leafregion, recursive_filtered_range_typed<CRegion>(group,IsLeafRegion()))
+    BOOST_FOREACH(const CRegion& elementregion, recursive_filtered_range_typed<CRegion>(group,IsElementRegion()))
     {
-      Uint dimensionality = get_component_typed<CElements>(leafregion,IsComponentTrue()).getDimensionality();
+      Uint dimensionality = get_component_typed<CElements>(elementregion,IsComponentTrue()).getDimensionality();
       if (dimensionality < coord_dim) // is bc
       {
-        total_nbElements += leafregion.elements_count();
+        total_nbElements += elementregion.elements_count();
       }
     }
   }
@@ -353,9 +353,9 @@ void CWriter::write_boundaries(std::fstream& file)
   BOOST_FOREACH(const CRegion& group, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
   {
     bool isBC(false);
-    BOOST_FOREACH(const CRegion& leafregion, recursive_filtered_range_typed<CRegion>(group,IsLeafRegion()))
+    BOOST_FOREACH(const CRegion& elementregion, recursive_filtered_range_typed<CRegion>(group,IsElementRegion()))
     {
-      Uint dimensionality = get_component_typed<CElements>(leafregion,IsComponentTrue()).getDimensionality();
+      Uint dimensionality = get_component_typed<CElements>(elementregion,IsComponentTrue()).getDimensionality();
       if (dimensionality < coord_dim) // is bc
       {
         isBC = true;
@@ -364,17 +364,17 @@ void CWriter::write_boundaries(std::fstream& file)
     if (isBC)
     {
       Uint element_counter=0;
-      BOOST_FOREACH(const CRegion& leafregion, recursive_filtered_range_typed<CRegion>(group,IsLeafRegion()))
+      BOOST_FOREACH(const CRegion& elementregion, recursive_filtered_range_typed<CRegion>(group,IsElementRegion()))
       {
-        element_counter += leafregion.elements_count();
+        element_counter += elementregion.elements_count();
       }
       file << " BOUNDARY CONDITIONS 2.3.16\n";
       file << std::setw(32) << group.name() << std::setw(8) << 1 << std::setw(8) << element_counter << std::setw(8) << 0 << std::setw(8) << 6 << std::endl;
 
-      BOOST_FOREACH(const CRegion& leafregion, recursive_filtered_range_typed<CRegion>(group,IsLeafRegion()))
+      BOOST_FOREACH(const CRegion& elementregion, recursive_filtered_range_typed<CRegion>(group,IsElementRegion()))
       {
-        const CElements& faceType = get_component_typed<CElements>(leafregion,IsComponentTrue());
-        const CTable& table = get_component_typed<CTable>(leafregion,IsComponentTrue());
+        const CElements& faceType = get_component_typed<CElements>(elementregion,IsComponentTrue());
+        const CTable& table = get_component_typed<CTable>(elementregion,IsComponentTrue());
         BOOST_FOREACH(CTable::ConstRow face_nodes, table.get_table())
         {
           const CRegion* elm_region;
@@ -382,8 +382,8 @@ void CWriter::write_boundaries(std::fstream& file)
           Uint elm_face_idx;
           boost::tie(elm_region,elm_local_idx,elm_face_idx) =
               find_element_for_face(faceType,face_nodes,*m_mesh);
-          Uint leafregion_start_idx = m_global_start_idx[elm_region];
-          Uint elm_global_idx = leafregion_start_idx + elm_local_idx;
+          Uint elementregion_start_idx = m_global_start_idx[elm_region];
+          Uint elm_global_idx = elementregion_start_idx + elm_local_idx;
           Uint neu_elm_type = m_CFelement_to_NeuElement[get_component_typed<CElements>(*elm_region,IsComponentTrue()).getShape()];
           Uint neu_elm_face_idx = m_faces_cf_to_neu[neu_elm_type][elm_face_idx];
 
@@ -401,15 +401,15 @@ void CWriter::write_boundaries(std::fstream& file)
 
 void CWriter::create_nodes_to_element_connectivity()
 {
-  BOOST_FOREACH(const CRegion& leafregion, recursive_filtered_range_typed<CRegion>(*m_mesh,IsLeafRegion()))
+  BOOST_FOREACH(const CRegion& elementregion, recursive_filtered_range_typed<CRegion>(*m_mesh,IsElementRegion()))
   {
-    const CTable& elements = get_component_typed<CTable>(leafregion,IsComponentTrue());
+    const CTable& elements = get_component_typed<CTable>(elementregion,IsComponentTrue());
     Uint elem_idx=0;
     BOOST_FOREACH(const CTable::ConstRow& elem, elements.get_table())
     {
       BOOST_FOREACH(const Uint node, elem)
       {
-        m_n2e[node].push_back(std::make_pair(&leafregion,elem_idx));
+        m_n2e[node].push_back(std::make_pair(&elementregion,elem_idx));
       }
       ++elem_idx;
     }
@@ -479,7 +479,7 @@ boost::tuple<CRegion const* const,Uint,Uint> CWriter::find_element_for_face(cons
             ++counter;
             if (counter == sorted_nodes.size())
             {
-              //CFinfo << " FOUND!!! in " << leafregion->full_path().string()
+              //CFinfo << " FOUND!!! in " << elementregion->full_path().string()
               //       << " element " << row_idx
               //       << " face " << face_idx << CFendl;
               return boost::make_tuple(elem.first,elem.second,face_idx);

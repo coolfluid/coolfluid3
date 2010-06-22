@@ -67,14 +67,14 @@ CMesh::Ptr CMeshReader::create_mesh_from(boost::filesystem::path& file)
 //////////////////////////////////////////////////////////////////////////////
 
 CMeshReader::BufferMap
-CMeshReader::create_leaf_regions_with_buffermap (CRegion::Ptr& parent_region,
+CMeshReader::create_element_regions_with_buffermap (CRegion::Ptr& parent_region,
                                                  std::vector<std::string>& etypes)
 {
   // Create regions for each element type
   BufferMap buffermap;
   BOOST_FOREACH(std::string& etype, etypes)
   {
-    CRegion::Ptr etype_region = parent_region->create_leaf_region(etype);
+    CRegion::Ptr etype_region = parent_region->create_element_region(etype);
     // CFinfo << "create: " << etype_region->full_path().string() << "\n" << CFflush;
     buffermap[etype]=boost::shared_ptr<CTable::Buffer>
       (new CTable::Buffer(get_named_component_typed<CTable>(*etype_region, "table").create_buffer()));
@@ -84,7 +84,7 @@ CMeshReader::create_leaf_regions_with_buffermap (CRegion::Ptr& parent_region,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMeshReader::remove_empty_leaf_regions(const CRegion::Ptr& parent_region)
+void CMeshReader::remove_empty_element_regions(const CRegion::Ptr& parent_region)
 {
   // loop over regions
   BOOST_FOREACH(CRegion& region, recursive_range_typed<CRegion>(*parent_region))

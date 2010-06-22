@@ -302,7 +302,7 @@ void CReader::read_section(CRegion::Ptr& parent_region)
   if (m_section.type == MIXED)
   {
     // CFinfo << "etype: MIXED --> create subregions for each element type \n" << CFflush;
-    BufferMap buffer = create_leaf_regions_with_buffermap(this_region,get_supported_element_types());
+    BufferMap buffer = create_element_regions_with_buffermap(this_region,get_supported_element_types());
     for (int elem=m_section.eBegin;elem<=m_section.eEnd;++elem)
     {
       // Read one line of connectivity at a time
@@ -336,8 +336,8 @@ void CReader::read_section(CRegion::Ptr& parent_region)
     // CFinfo << "nbElems = " << nbElems << "\n" << CFflush;
 
     const std::string& etype_CF = m_elemtype_CGNS_to_CF[m_section.type]+StringOps::to_str<int>(m_base.phys_dim)+"D";
-    CRegion::Ptr leaf_region = this_region->create_leaf_region(etype_CF);
-    CTable::Buffer buffer = get_named_component_typed<CTable>(*leaf_region, "table").create_buffer();
+    CRegion::Ptr element_region = this_region->create_element_region(etype_CF);
+    CTable::Buffer buffer = get_named_component_typed<CTable>(*element_region, "table").create_buffer();
 
 
     int* elemNodes = new int [m_section.elemDataSize];
@@ -354,12 +354,12 @@ void CReader::read_section(CRegion::Ptr& parent_region)
         row.push_back(elemNodes[node+elem*m_section.elemNodeCount]-1); // -1 because cgns has index-base 1 instead of 0
 
       buffer.add_row_directly(row);
-      m_global_to_region.push_back(Region_TableIndex_pair(leaf_region,elem));
+      m_global_to_region.push_back(Region_TableIndex_pair(element_region,elem));
     } // for elem
     delete_ptr(elemNodes);
   } // else not mixed
 
-  remove_empty_leaf_regions(this_region);
+  remove_empty_element_regions(this_region);
 
   // Move components that are BC's in the "bc-regions" region
   if (option("SectionsAreBCs")->value<bool>())
@@ -411,7 +411,7 @@ void CReader::read_boco()
 
 
   CRegion::Ptr bc_region = get_named_component_typed<CRegion>(get_named_component(*m_mesh, "regions"), "bc-regions").create_region(m_boco.name);
-  BufferMap buffer = create_leaf_regions_with_buffermap(bc_region,get_supported_element_types());
+  BufferMap buffer = create_element_regions_with_buffermap(bc_region,get_supported_element_types());
 
   switch (m_boco.ptset_type)
   {
@@ -444,11 +444,11 @@ void CReader::read_boco()
       throw CF::Common::NotImplemented(FromHere(),"CGNS: no boundary with pointset_type " + CF::Common::StringOps::to_str<int>(m_boco.ptset_type) + " supported in CF yet"); 
   }
 
-  // Flush all buffers and remove empty leaf regions
+  // Flush all buffers and remove empty element regions
   for (BufferMap::iterator it=buffer.begin(); it!=buffer.end(); ++it)
     it->second->flush();
 
-  remove_empty_leaf_regions(bc_region);
+  remove_empty_element_regions(bc_region);
 
 }
 

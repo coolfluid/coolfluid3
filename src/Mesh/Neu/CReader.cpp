@@ -131,7 +131,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 
 
   // Remove regions with empty connectivity tables
-  remove_empty_leaf_regions(get_named_component_typed_ptr<CRegion>(*m_mesh,"regions"));
+  remove_empty_element_regions(get_named_component_typed_ptr<CRegion>(*m_mesh,"regions"));
 
   // Remove tmp region from component
   if (m_headerData.NGRPS != 1)
@@ -218,7 +218,7 @@ void CReader::read_connectivity(std::fstream& file)
   CRegion::Ptr tmp = m_mesh->create_region("tmp");
 
   std::map<std::string,boost::shared_ptr<CTable::Buffer> > buffer =
-      create_leaf_regions_with_buffermap(tmp,m_supported_types);
+      create_element_regions_with_buffermap(tmp,m_supported_types);
 
   // skip next line
   std::string line;
@@ -326,7 +326,7 @@ void CReader::read_groups(std::fstream& file)
 
       // Create regions for each element type in each group-region
       std::map<std::string,boost::shared_ptr<CTable::Buffer> > buffer =
-          create_leaf_regions_with_buffermap(region,m_supported_types);
+          create_element_regions_with_buffermap(region,m_supported_types);
 
       // Copy elements from tmp_region in the correct region
       BOOST_FOREACH(Uint global_element, group.ELEM)
@@ -368,7 +368,7 @@ void CReader::read_boundaries(std::fstream& file)
     CRegion::Ptr bc_region = regions->create_component_type<CRegion>(NAME);
 
     // create all kind of element type regions
-    BufferMap buffer = create_leaf_regions_with_buffermap (bc_region,m_supported_types);
+    BufferMap buffer = create_element_regions_with_buffermap (bc_region,m_supported_types);
 
     // read boundary elements connectivity
     for (int i=0; i<NENTRY; ++i) {

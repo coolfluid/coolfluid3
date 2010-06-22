@@ -61,7 +61,7 @@ CElements::Ptr CRegion::create_elementType( const CName& name )
 
 //////////////////////////////////////////////////////////////////////////////
 
-CRegion::Ptr CRegion::create_leaf_region (const std::string& etype_name )
+CRegion::Ptr CRegion::create_element_region (const std::string& etype_name )
 {
   std::string region_name(etype_name);
   CRegion::Ptr region = create_region(region_name);

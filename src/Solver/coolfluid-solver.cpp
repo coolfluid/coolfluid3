@@ -18,26 +18,26 @@ namespace CF
 {
   namespace Mesh
   {
-    class IsLeaf
+    class IsElementRegion
     {
     public:
-      IsLeaf () {}
+      IsElementRegion () {}
       
       bool operator()(const Component& component)
       {
         return !range_typed<CTable>(component).empty() && !range_typed<CElements>(component).empty();
       }
       
-    }; // IsLeaf
+    }; // IsElementRegion
     
-    class IsLeafWithDimensionality
+    class IsElementRegionWithDimensionality
     {
     public:
-      IsLeafWithDimensionality (Uint dim) : m_dim(dim) {}
+      IsElementRegionWithDimensionality (Uint dim) : m_dim(dim) {}
       
       bool operator()(const Component& component)
       {
-        if (m_isLeaf(component))
+        if (m_isElementRegion(component))
         {
           return (m_dim == dynamic_cast<const CRegion*>(&component)->get_elementType()->getDimensionality());
         }
@@ -48,10 +48,10 @@ namespace CF
       }
       
     private:
-      IsLeaf m_isLeaf;
+      IsElementRegion m_isElementRegion;
       Uint m_dim;
       
-    }; // IsLeaf
+    }; // IsElementRegion
   }
 }
 
@@ -86,7 +86,7 @@ int main(int argc, char * argv[])
   
   // loop for all volume regions
   // loop on element types
-  BOOST_FOREACH(CRegion& region, recursive_filtered_range_typed<CRegion>(*mesh,IsLeafWithDimensionality(volume_dim)))
+  BOOST_FOREACH(CRegion& region, recursive_filtered_range_typed<CRegion>(*mesh,IsElementRegionWithDimensionality(volume_dim)))
   {
     CArray::Ptr centres = region.create_component_type<CArray>("centres");
     centres->initialize(volume_dim);
@@ -109,7 +109,7 @@ int main(int argc, char * argv[])
   
   // loop for all surface regions
   // loop on element types
-  BOOST_FOREACH(CRegion& region, recursive_filtered_range_typed<CRegion>(*mesh,IsLeafWithDimensionality(surface_dim)))
+  BOOST_FOREACH(CRegion& region, recursive_filtered_range_typed<CRegion>(*mesh,IsElementRegionWithDimensionality(surface_dim)))
   {
     CArray::Ptr centres = region.create_component_type<CArray>("centres");
     centres->initialize(volume_dim);

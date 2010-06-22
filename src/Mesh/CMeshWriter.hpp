@@ -67,17 +67,17 @@ public: // functions
 
 protected: // classes
 
-  class IsLeafRegion
+  class IsElementRegion
   {
    public:
-      IsLeafRegion () {}
+      IsElementRegion () {}
 
       bool operator()(const Component& component)
       {
         return !range_typed<CTable>(component).empty() && !range_typed<CElements>(component).empty();
       }
 
-  }; // IsLeafRegion
+  }; // IsElementRegion
 
   class IsGroup
   {
@@ -86,11 +86,11 @@ protected: // classes
 
      bool operator()(const Component& component)
      {
-       return count(filtered_range_typed<CRegion>(component,m_isLeaf));
+       return count(filtered_range_typed<CRegion>(component,m_isElement));
      }
 
    private:
-     IsLeafRegion m_isLeaf;
+     IsElementRegion m_isElement;
   }; // IsGroup
 
 
