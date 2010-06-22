@@ -58,11 +58,10 @@ public:
   Buffer create_buffer(const size_t buffersize=1024);
 
   /// @return A mutable row of the underlying array
-  inline Row operator[](const Uint idx) { return m_table[idx]; }
+  Row operator[](const Uint idx) { return m_table[idx]; }
 
   /// @return A const row of the underlying array
-  inline ConstRow operator[](const Uint idx) const { return m_table[idx]; }
-  
+  ConstRow operator[](const Uint idx) const { return m_table[idx]; }
 
 private: // helper functions
 
@@ -72,7 +71,7 @@ private: // helper functions
 private: // data
   
   ConnectivityTable m_table;  
-
+  
 };
 
 ////////////////////////////////////////////////////////////////////////////////

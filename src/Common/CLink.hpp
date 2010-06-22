@@ -22,7 +22,7 @@ namespace Common {
 
     /// Contructor
     /// @param name of the component
-    CLink ( const CName& name, const CPath& parent_path = CPath() );
+    CLink ( const CName& name );
 
     /// Virtual destructor
     virtual ~CLink();
