@@ -12,7 +12,7 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/GeoShape.hpp"
 #include "Mesh/Integrators/GaussImplementation.hpp"
-#include "Mesh/LagrangeSF/LagrangeSFTypes.hpp"
+#include "Mesh/LagrangeSF/SFTypes.hpp"
 
 #include "Math/RealVector.hpp"
 
@@ -33,7 +33,9 @@ template<typename GeoShapeF, typename SolShapeF=GeoShapeF, Uint Order=1>
 class Gauss
 {
 public:
-  /// Integration over a single element. The functor should be 'primed' before calling this
+
+  /// Integration over a single element.
+  /// The functor should be 'primed' before calling this
   /// so it is aware of the element that is used
   template<typename FunctorT, typename ResultT>
   static void integrateElement(FunctorT& functor, ResultT& result)
@@ -72,9 +74,9 @@ struct RegionIntegrator
 
   template<typename ShapeFunctionT> void operator()(ShapeFunctionT T)
   {
-    if(ShapeFunctionT::shape == m_region.elements_type().getShape() &&
-       ShapeFunctionT::order == m_region.elements_type().getOrder() &&
-       ShapeFunctionT::dimensions == m_region.elements_type().getDimensionality())
+    if( ShapeFunctionT::shape      == m_region.elements_type().getShape() &&
+        ShapeFunctionT::order      == m_region.elements_type().getOrder() &&
+        ShapeFunctionT::dimensions == m_region.elements_type().getDimensionality())
     {
       found = true;
       Gauss<ShapeFunctionT, ShapeFunctionT, IntegrationOrder>::integrateRegion(m_region, m_functor, m_result);
@@ -96,7 +98,7 @@ void gaussIntegrate(const CRegion& region, FunctorT& functor, ResultT& result)
   if(region.elements_count())
   {
     bool integrator_found = false;
-    boost::mpl::for_each<LagrangeSF::LagrangeSFTypes>(RegionIntegrator<FunctorT, ResultT>(region, functor, result, integrator_found));
+    boost::mpl::for_each<LagrangeSF::SFTypes>(RegionIntegrator<FunctorT, ResultT>(region, functor, result, integrator_found));
     if(!integrator_found)
     {
       CFwarn << "no integrator found for region " << region.name() << CFendl;

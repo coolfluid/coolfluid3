@@ -1,5 +1,5 @@
-#ifndef CF_Mesh_LagrangeSF_LagrangeSFTypes_hpp
-#define CF_Mesh_LagrangeSF_LagrangeSFTypes_hpp
+#ifndef CF_Mesh_LagrangeSF_SFTypes_hpp
+#define CF_Mesh_LagrangeSF_SFTypes_hpp
 
 #include <boost/mpl/vector.hpp>
 
@@ -11,10 +11,10 @@ namespace Mesh {
 namespace LagrangeSF {
 
 /// List of all supported shapefunctions
-typedef boost::mpl::vector<TriagP1,QuadP1> LagrangeSFTypes;
+typedef boost::mpl::vector< TriagP1, QuadP1 > SFTypes;
 
 } // namespace LagrangeSF
 } // namespace Mesh
 } // namespace CF
 
-#endif /* CF_Mesh_LagrangeSF_LagrangeSF */
+#endif // CF_Mesh_LagrangeSF_SFTypes_hpp

@@ -37,7 +37,7 @@ LIST ( APPEND Mesh_files
   Integrators/GaussImplementation.hpp
   Integrators/IntegrationFunctorBase.hpp
   
-  LagrangeSF/LagrangeSFTypes.hpp
+  LagrangeSF/SFTypes.hpp
   LagrangeSF/QuadP1.hpp
   LagrangeSF/TetraP1.hpp
   LagrangeSF/TriagP1.hpp
