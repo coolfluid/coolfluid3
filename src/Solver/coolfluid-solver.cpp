@@ -94,7 +94,7 @@ struct LoopRegionComputeVolumes
 
     CFinfo << "Looping on " << EType::getClassName() << " ... ";
 
-    if ( IsElemType<EType>()( region.elements_type().get_elementType() ) );
+    if ( IsElemType<EType>()( region.elements_type() ) );
     {
 
       CFinfo << "X" << CFendl;
