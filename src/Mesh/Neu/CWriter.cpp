@@ -153,8 +153,8 @@ void CWriter::write_headerData(std::fstream& file)
   Uint group_counter(0);
   Uint element_counter(0);
   Uint bc_counter(0);
-  Uint node_counter = get_named_component_typed<CArray>(*m_mesh, "coordinates").get_array().shape()[0];
-  Uint coord_dim    = get_named_component_typed<CArray>(*m_mesh, "coordinates").get_array().shape()[1];
+  Uint node_counter = get_named_component_typed<CArray>(*m_mesh, "coordinates").array().shape()[0];
+  Uint coord_dim    = get_named_component_typed<CArray>(*m_mesh, "coordinates").array().shape()[1];
 
 
   BOOST_FOREACH(const CRegion& group, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
@@ -208,12 +208,12 @@ void CWriter::write_coordinates(std::fstream& file)
   file.precision(11);
   CArray::Ptr coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
 
-  const Uint coord_dim = coordinates->get_array().shape()[1];
+  const Uint coord_dim = coordinates->array().shape()[1];
 
   file << "   NODAL COORDINATES 2.3.16" << std::endl;
   file.setf(std::ios::fixed);
   Uint node_number = 0;
-  BOOST_FOREACH(const CArray::ConstRow& row, coordinates->get_array())
+  BOOST_FOREACH(const CArray::ConstRow& row, coordinates->array())
   {
     ++node_number;
     file << std::setw(10) << node_number;
@@ -240,7 +240,7 @@ void CWriter::write_connectivity(std::fstream& file)
 
   // loop over all element regions
   const CArray& coordinates = get_named_component_typed<CArray>(*m_mesh,"coordinates");
-  const Uint coord_dim = coordinates.get_array().shape()[1];
+  const Uint coord_dim = coordinates.array().shape()[1];
   BOOST_FOREACH(const CRegion& elementregion,recursive_filtered_range_typed<CRegion>(*m_mesh,IsElementRegion()))
   {
     bool isBC = false;
@@ -261,7 +261,7 @@ void CWriter::write_connectivity(std::fstream& file)
       m_global_start_idx[&elementregion]=elm_number;
 
       // write the nodes for each element of this region
-      BOOST_FOREACH(const CTable::ConstRow& row,get_component_typed<CTable>(elementregion,IsComponentTrue()).get_table())
+      BOOST_FOREACH(const CTable::ConstRow& row,get_component_typed<CTable>(elementregion,IsComponentTrue()).table())
       {
         file << std::setw(8) << ++elm_number << std::setw(3) << elm_type << std::setw(3) << nb_nodes << " ";
         BOOST_FOREACH(Uint node, row)
@@ -279,7 +279,7 @@ void CWriter::write_groups(std::fstream& file)
 {
   Uint group_counter(0);
   const CArray& coordinates = get_named_component_typed<CArray>(*m_mesh,"coordinates");
-  const Uint coord_dim = coordinates.get_array().shape()[1];
+  const Uint coord_dim = coordinates.array().shape()[1];
   BOOST_FOREACH(const CRegion& group, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
   {
     bool isBC(false);
@@ -329,7 +329,7 @@ void CWriter::write_groups(std::fstream& file)
 void CWriter::write_boundaries(std::fstream& file)
 {
   const CArray& coordinates = get_named_component_typed<CArray>(*m_mesh,"coordinates");
-  const Uint coord_dim = coordinates.get_array().shape()[1];
+  const Uint coord_dim = coordinates.array().shape()[1];
 
   create_nodes_to_element_connectivity();
 
@@ -375,7 +375,7 @@ void CWriter::write_boundaries(std::fstream& file)
       {
         const CElements& faceType = get_component_typed<CElements>(elementregion,IsComponentTrue());
         const CTable& table = get_component_typed<CTable>(elementregion,IsComponentTrue());
-        BOOST_FOREACH(CTable::ConstRow face_nodes, table.get_table())
+        BOOST_FOREACH(CTable::ConstRow face_nodes, table.table())
         {
           const CRegion* elm_region;
           Uint elm_local_idx;
@@ -405,7 +405,7 @@ void CWriter::create_nodes_to_element_connectivity()
   {
     const CTable& elements = get_component_typed<CTable>(elementregion,IsComponentTrue());
     Uint elem_idx=0;
-    BOOST_FOREACH(const CTable::ConstRow& elem, elements.get_table())
+    BOOST_FOREACH(const CTable::ConstRow& elem, elements.table())
     {
       BOOST_FOREACH(const Uint node, elem)
       {
@@ -455,7 +455,7 @@ boost::tuple<CRegion const* const,Uint,Uint> CWriter::find_element_for_face(cons
       if (look_face.faceType->getShape() == face.getShape() &&
           look_face.faceType->getNbNodes() == face.getNbNodes())
       {
-        const CTable::ConstRow& elemNodes = get_component_typed<CTable>((*elem.first),IsComponentTrue()).get_table()[elem.second];
+        const CTable::ConstRow& elemNodes = get_component_typed<CTable>((*elem.first),IsComponentTrue()).table()[elem.second];
 
 //        CFinfo << "  idx " << CFflush;
 //        BOOST_FOREACH(Uint idx, look_face.nodes)

@@ -90,7 +90,7 @@ void CWriter::write_header(std::fstream& file)
   
   // physical names
   CArray::Ptr coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
-  const Uint dimension(coordinates->get_array().shape()[1]);
+  const Uint dimension(coordinates->array().shape()[1]);
   Uint phys_name_counter(0);
   BOOST_FOREACH(const CRegion& groupRegion, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
   {
@@ -115,12 +115,12 @@ void CWriter::write_coordinates(std::fstream& file)
   file.precision(8);
   CArray::Ptr coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
 
-  const Uint coord_dim = coordinates->get_array().shape()[1];
+  const Uint coord_dim = coordinates->array().shape()[1];
   file << "$Nodes\n";
-  file << coordinates->get_array().size() << "\n";
+  file << coordinates->array().size() << "\n";
   
   Uint node_number = 0;
-  BOOST_FOREACH(CArray::Row row, coordinates->get_array())
+  BOOST_FOREACH(CArray::Row row, coordinates->array())
   {
     node_number++;
     file << node_number << " ";
@@ -153,7 +153,7 @@ void CWriter::write_connectivity(std::fstream& file)
   {
     if (range_typed<CRegion>(region).empty())
     {
-      nbElems += get_named_component_typed<CTable>(region, "table").get_table().size();
+      nbElems += get_named_component_typed<CTable>(region, "table").table().size();
     }
   }
   file << "$Elements\n";
@@ -175,7 +175,7 @@ void CWriter::write_connectivity(std::fstream& file)
     {
       cf_assert(group_name != "");
       elm_type = m_elementTypes[get_named_component_typed<CElements>(region, "type").get_elementType()->getShape()];
-      BOOST_FOREACH(CTable::Row row, get_named_component_typed<CTable>(region, "table").get_table())
+      BOOST_FOREACH(CTable::Row row, get_named_component_typed<CTable>(region, "table").table())
       {
         elm_number++;
         file << elm_number << " " << elm_type << " " << number_of_tags << " " << group_number << " " << group_number;

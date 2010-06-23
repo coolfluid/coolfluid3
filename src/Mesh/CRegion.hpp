@@ -97,11 +97,11 @@ public:
   template<typename vectorType>
   void set_row(vectorType& row, const Uint iElem, const Uint iNode, CArray& cArray)
   { 
-    const Uint nbCols = cArray.get_array().shape()[1];
+    const Uint nbCols = cArray.array().shape()[1];
     for (Uint j=0; j<nbCols; ++j) 
     {
-      const Uint row_in_array = get_connectivityTable()->get_table()[iElem][iNode];
-      row[j] = cArray.get_array()[row_in_array][j];
+      const Uint row_in_array = get_connectivityTable()->table()[iElem][iNode];
+      row[j] = cArray.array()[row_in_array][j];
     }
   }
   
@@ -128,7 +128,7 @@ public:
   Uint elements_count() const
   {
     CTable::ConstPtr connTable = get_connectivityTable();
-    return connTable.get() ? connTable->get_table().size() : 0;
+    return connTable.get() ? connTable->table().size() : 0;
   }
 
 private: // helper functions

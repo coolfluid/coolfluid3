@@ -91,7 +91,7 @@ void CMeshReader::remove_empty_element_regions(const CRegion::Ptr& parent_region
   {
     // find the empty regions
     if ( range_typed<CRegion>(region).empty() &&
-        get_named_component_typed<CTable>(region, "table").get_table().size() == 0 )
+        get_named_component_typed<CTable>(region, "table").table().size() == 0 )
       {
         // no elements in connectivity table --> remove this region
         //CFinfo << "remove: " << region->full_path().string() << "\n" << CFflush;

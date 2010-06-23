@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
    CElements& elementType = get_named_component_typed<CElements>(region, "type");
    CTable& connTable = get_named_component_typed<CTable>(region, "table");
    //CFinfo << "type = " << elementType->getShapeName() << "\n" << CFflush;
-   const Uint nbRows = connTable.get_table().size();
+   const Uint nbRows = connTable.table().size();
    std::vector<Real> volumes(nbRows);
    
    // the loop

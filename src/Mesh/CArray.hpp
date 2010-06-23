@@ -48,10 +48,10 @@ public: // functions
   void initialize(const Uint nbCols);
 
   /// @return A reference to the array data
-  Array& get_array() { return m_array; }
+  Array& array() { return m_array; }
 
   /// @return A const reference to the array data
-  const Array& get_array() const { return m_array; }
+  const Array& array() const { return m_array; }
 
   /// @return A Buffer object that can fill this Array
   Buffer create_buffer(const size_t buffersize=1024);

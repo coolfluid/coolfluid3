@@ -125,15 +125,15 @@ BOOST_AUTO_TEST_CASE( AddRemoveTest )
   buffer.rm_row(2);
   
   // table should still be empty as the buffer is not flushed
-  BOOST_CHECK_EQUAL(table->get_table().size(),(Uint) 0);
+  BOOST_CHECK_EQUAL(table->table().size(),(Uint) 0);
 
 
   buffer.flush();
   
   // table should have 2 elements as the buffer is flushed
-  BOOST_CHECK_EQUAL(table->get_table().size(),(Uint) 2);
-  BOOST_CHECK_EQUAL(table->get_table()[0][0], (Uint) 1);
-  BOOST_CHECK_EQUAL(table->get_table()[1][0], (Uint) 3);
+  BOOST_CHECK_EQUAL(table->table().size(),(Uint) 2);
+  BOOST_CHECK_EQUAL(table->table()[0][0], (Uint) 1);
+  BOOST_CHECK_EQUAL(table->table()[1][0], (Uint) 3);
         
   
   // Test now if 2 rows can be deleted and only 1 added
@@ -142,12 +142,12 @@ BOOST_AUTO_TEST_CASE( AddRemoveTest )
   buffer.add_row(row);
   buffer.rm_row(0);
   buffer.rm_row(1);
-  BOOST_CHECK_EQUAL(table->get_table().size(),(Uint) 2);
+  BOOST_CHECK_EQUAL(table->table().size(),(Uint) 2);
 
   
   buffer.flush();
-  BOOST_CHECK_EQUAL(table->get_table().size(),(Uint) 1);
-  BOOST_CHECK_EQUAL(table->get_table()[0][0], (Uint) 4);
+  BOOST_CHECK_EQUAL(table->table().size(),(Uint) 1);
+  BOOST_CHECK_EQUAL(table->table()[0][0], (Uint) 4);
     
 }
 
@@ -181,7 +181,7 @@ BOOST_AUTO_TEST_CASE( FlushTest )
   buffer.flush();
   // the flush copied everything in the table, and removed the buffers
   BOOST_CHECK_EQUAL(buffer.total_allocated(), (Uint) 4);
-  BOOST_CHECK_EQUAL(table->get_table().size(),(Uint) 4);
+  BOOST_CHECK_EQUAL(table->table().size(),(Uint) 4);
   
   // buffer is now empty.
   // add a row to buffer, remove that same row, and add another row.
@@ -195,8 +195,8 @@ BOOST_AUTO_TEST_CASE( FlushTest )
   buffer.flush();
   // the table should have grown with 1 as the buffer with 1 item was flushed
   BOOST_CHECK_EQUAL(buffer.total_allocated(), (Uint) 5);
-  BOOST_CHECK_EQUAL(table->get_table().size(),(Uint) 5);
-  BOOST_CHECK_EQUAL(table->get_table()[4][0],(Uint) 5);
+  BOOST_CHECK_EQUAL(table->table().size(),(Uint) 5);
+  BOOST_CHECK_EQUAL(table->table()[4][0],(Uint) 5);
   
   // remove row 0, 1, 2
   buffer.rm_row(0);
@@ -204,14 +204,14 @@ BOOST_AUTO_TEST_CASE( FlushTest )
   buffer.rm_row(2);
   
   // table still has 5 rows, but first 3 rows are marked as disabled
-  BOOST_CHECK_EQUAL(table->get_table().size(),(Uint) 5);
+  BOOST_CHECK_EQUAL(table->table().size(),(Uint) 5);
   
   buffer.flush();
   // now the table should only have 2 row, as the 3 disabled rows should be removed
   
-  BOOST_CHECK_EQUAL(table->get_table().size(),(Uint) 2);
-  BOOST_CHECK_EQUAL(table->get_table()[0][0],(Uint) 3);
-  BOOST_CHECK_EQUAL(table->get_table()[1][0],(Uint) 5);
+  BOOST_CHECK_EQUAL(table->table().size(),(Uint) 2);
+  BOOST_CHECK_EQUAL(table->table()[0][0],(Uint) 3);
+  BOOST_CHECK_EQUAL(table->table()[1][0],(Uint) 5);
 
   
   
@@ -241,18 +241,18 @@ BOOST_AUTO_TEST_CASE( CTableTest )
   CTable::Ptr connTable = get_named_component_typed_ptr<CTable>(*region, "connTable");
   
   // check constructor
-  BOOST_CHECK_EQUAL(connTable->get_table().size(),(Uint) 0);
-  BOOST_CHECK_EQUAL(connTable->get_table().shape()[1],(Uint) 0);
-  BOOST_CHECK_EQUAL(connTable->get_table().num_elements(),(Uint) 0);
+  BOOST_CHECK_EQUAL(connTable->table().size(),(Uint) 0);
+  BOOST_CHECK_EQUAL(connTable->table().shape()[1],(Uint) 0);
+  BOOST_CHECK_EQUAL(connTable->table().num_elements(),(Uint) 0);
   
   // check initalization
   Uint nbCols = 5;
   connTable->initialize(nbCols);
   CTable::Buffer tableBuffer = connTable->create_buffer();
   
-  BOOST_CHECK_EQUAL(connTable->get_table().size(),(Uint) 0);
-  BOOST_CHECK_EQUAL(connTable->get_table().shape()[1],(Uint) 5);
-  BOOST_CHECK_EQUAL(connTable->get_table().num_elements(),(Uint) 0);  
+  BOOST_CHECK_EQUAL(connTable->table().size(),(Uint) 0);
+  BOOST_CHECK_EQUAL(connTable->table().shape()[1],(Uint) 5);
+  BOOST_CHECK_EQUAL(connTable->table().num_elements(),(Uint) 0);  
   
   // check for adding rows to table
   std::vector<Uint> row(nbCols);
@@ -261,31 +261,31 @@ BOOST_AUTO_TEST_CASE( CTableTest )
     
   tableBuffer.add_row(row);
   tableBuffer.flush();
-  BOOST_CHECK_EQUAL(connTable->get_table().size(),(Uint) 1);
-  BOOST_CHECK_EQUAL(connTable->get_table().shape()[1],(Uint) 5);
-  BOOST_CHECK_EQUAL(connTable->get_table().num_elements(),(Uint) 5);  
+  BOOST_CHECK_EQUAL(connTable->table().size(),(Uint) 1);
+  BOOST_CHECK_EQUAL(connTable->table().shape()[1],(Uint) 5);
+  BOOST_CHECK_EQUAL(connTable->table().num_elements(),(Uint) 5);  
   
   
   // check if buffer flushes without calling flush by the user
   for (Uint i=0; i<1023; ++i)
     tableBuffer.add_row(row);
-  BOOST_CHECK_EQUAL(connTable->get_table().size(),(Uint) 1);
-  BOOST_CHECK_EQUAL(connTable->get_table().shape()[1],(Uint) 5);
-  BOOST_CHECK_EQUAL(connTable->get_table().num_elements(),(Uint) 5); 
+  BOOST_CHECK_EQUAL(connTable->table().size(),(Uint) 1);
+  BOOST_CHECK_EQUAL(connTable->table().shape()[1],(Uint) 5);
+  BOOST_CHECK_EQUAL(connTable->table().num_elements(),(Uint) 5); 
   
   tableBuffer.add_row(row);
   tableBuffer.flush();
-  BOOST_CHECK_EQUAL(connTable->get_table().size(),(Uint) 1025);
-  BOOST_CHECK_EQUAL(connTable->get_table().shape()[1],(Uint) 5);
-  BOOST_CHECK_EQUAL(connTable->get_table().num_elements(),(Uint) 5*1025); 
+  BOOST_CHECK_EQUAL(connTable->table().size(),(Uint) 1025);
+  BOOST_CHECK_EQUAL(connTable->table().shape()[1],(Uint) 5);
+  BOOST_CHECK_EQUAL(connTable->table().num_elements(),(Uint) 5*1025); 
       
   // check if accessor / mutator works
-  BOOST_CHECK_EQUAL(connTable->get_table()[0][0], (Uint) 0);
-  BOOST_CHECK_EQUAL(connTable->get_table()[1][1], (Uint) 1);
-  BOOST_CHECK_EQUAL(connTable->get_table()[2][2], (Uint) 2);
+  BOOST_CHECK_EQUAL(connTable->table()[0][0], (Uint) 0);
+  BOOST_CHECK_EQUAL(connTable->table()[1][1], (Uint) 1);
+  BOOST_CHECK_EQUAL(connTable->table()[2][2], (Uint) 2);
   
   // check if a row can be accessed
-  CTable::Row rowRef = connTable->get_table()[35];
+  CTable::Row rowRef = connTable->table()[35];
   for (Uint i=0; i<nbCols; ++i)
     BOOST_CHECK_EQUAL(rowRef[i], i);
   
@@ -310,7 +310,7 @@ BOOST_AUTO_TEST_CASE( CArrayTest )
   coordinatesBuffer.add_row(create_coord( 0.0 , 1.0 ));
   coordinatesBuffer.flush();
   
-  BOOST_CHECK_EQUAL(coordinates->get_array()[2][1], 1.0);  
+  BOOST_CHECK_EQUAL(coordinates->array()[2][1], 1.0);  
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -333,7 +333,7 @@ void CReader::read_groups(std::fstream& file)
       {
         CRegion::Ptr tmp_region = m_global_to_tmp[global_element].first;
         Uint local_element = m_global_to_tmp[global_element].second;
-        buffer[tmp_region->name()]->add_row(get_named_component_typed<CTable>(*tmp_region, "table").get_table()[local_element]);
+        buffer[tmp_region->name()]->add_row(get_named_component_typed<CTable>(*tmp_region, "table").table()[local_element]);
       }
     }
   }
@@ -386,7 +386,7 @@ void CReader::read_boundaries(std::fstream& file)
       const ElementType::Face& face = get_component_typed<CElements>(*tmp_region,IsComponentTrue()).getFaces()[m_faces_neu_to_cf[elementType][faceIdx]];
 
       // make a row of nodes
-      const CTable::Row& elem_nodes = get_component_typed<CTable>(*tmp_region,IsComponentTrue()).get_table()[local_element];
+      const CTable::Row& elem_nodes = get_component_typed<CTable>(*tmp_region,IsComponentTrue()).table()[local_element];
       std::vector<Uint> row;
       row.reserve(face.nodes.size());
       BOOST_FOREACH(const Uint& node, face.nodes)

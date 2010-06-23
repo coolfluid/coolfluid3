@@ -106,6 +106,23 @@ protected: // data
 
 }; // end of class ElementType
   
+
+////////////////////////////////////////////////////////////////////////////////
+
+template <typename ETYPE>
+struct IsElemType
+{
+  bool operator()(const ElementType& etype)
+  {
+    ETYPE thistype;
+    return
+        ( etype.getShape()          == thistype.getShape()         &&
+          etype.getOrder()          == thistype.getOrder()         &&
+          etype.getDimension()      == thistype.getDimension()     &&
+          etype.getDimensionality() == thistype.getDimensionality() );
+  }
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 
 } // namespace Mesh

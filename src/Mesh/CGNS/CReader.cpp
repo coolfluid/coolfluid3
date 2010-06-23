@@ -421,7 +421,7 @@ void CReader::read_boco()
       {
         CRegion::Ptr region = m_global_to_region[global_element].first;
         Uint local_element = m_global_to_region[global_element].second;
-        buffer[region->name()]->add_row(get_named_component_typed<CTable>(*region, "table").get_table()[local_element]);
+        buffer[region->name()]->add_row(get_named_component_typed<CTable>(*region, "table").table()[local_element]);
       }
       break;
     }
@@ -433,7 +433,7 @@ void CReader::read_boco()
         CRegion::Ptr region = m_global_to_region[global_element].first;
         Uint local_element = m_global_to_region[global_element].second;
         //CFinfo << "    " << global_element << " :  " << region->get_parent()->name() << "  -> " << local_element << "\n" << CFflush;
-        buffer[region->name()]->add_row(get_named_component_typed<CTable>(*region, "table").get_table()[local_element]);
+        buffer[region->name()]->add_row(get_named_component_typed<CTable>(*region, "table").table()[local_element]);
       }
       break;
     }
