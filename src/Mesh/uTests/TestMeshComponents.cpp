@@ -10,6 +10,7 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CArray.hpp"
 #include "Mesh/ElementType.hpp"
+#include "Mesh/P1/Triag2D.hpp"
 
 using namespace std;
 using namespace boost;
@@ -421,6 +422,26 @@ BOOST_AUTO_TEST_CASE( tags )
   BOOST_CHECK_EQUAL(tags[1],"CMesh");
   BOOST_CHECK_EQUAL(tags[2],"lolo");
 
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( static_element_properties )
+{
+
+  CFinfo << " static elements test" << CFendl;
+  BOOST_CHECK_EQUAL(P1::Triag2D::shapeName, "Triag");
+  BOOST_CHECK_EQUAL(P1::Triag2D::dimensionality, (Uint) 2);
+  BOOST_CHECK_EQUAL(P1::Triag2D::dimension, (Uint) 2);
+  BOOST_CHECK_EQUAL(P1::Triag2D::order, (Uint) 1);
+  BOOST_CHECK_EQUAL(P1::Triag2D::faces.size(), (Uint) 3);
+
+  for (Uint i=0; i<P1::Triag2D::nbFaces; ++i)
+  {
+    BOOST_CHECK_EQUAL(P1::Triag2D::faces[i].type->getShapeName(),"Line");
+    BOOST_CHECK_EQUAL(P1::Triag2D::faces[i].type->getNbNodes(), (Uint) 2);
+  }
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////

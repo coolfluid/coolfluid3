@@ -45,6 +45,8 @@ public: // functions
 
 public: // accessors
 
+  typedef std::pair<const ElementType*, const Uint*> FacePair;
+  
   struct Face
   {
     Face(const boost::shared_ptr<ElementType>& t, const std::vector<Uint>& n)
@@ -52,6 +54,16 @@ public: // accessors
     boost::shared_ptr<ElementType> faceType;
     std::vector<Uint> nodes;
   };
+  
+  struct FaceStruct
+  {
+    FaceStruct(const ElementType* t, const Uint* n)
+    : type(t), nodes(n) {}
+    const ElementType* type;
+    const Uint* nodes;
+  };
+  
+  
 
   /// @return m_nameShape
   std::string getShapeName() const { return m_shapeName; }
@@ -84,6 +96,38 @@ public: // accessors
   /// compute volume given coordinates
   virtual Real computeVolume(const std::vector<CArray::Row>& coord) const =0; 
 
+  /////////////////////////////////////////////
+  // static functions
+  
+  /// @return m_nameShape
+  static std::string static_get_shapeName();
+  
+  /// @return m_geoShape
+  static GeoShape::Type static_get_shape();
+  
+  /// @return number of faces
+  static Uint static_get_nbFaces();
+  
+  /// @return number of edges
+  static Uint static_get_nbEdges();
+  
+  /// @return m_nbNodes
+  static Uint static_get_nbNodes();
+
+  /// @return m_order
+  static Uint static_get_Order();
+  
+  /// @return m_dimensionality
+  static Uint static_get_dimensionality();
+  
+  /// @return m_dimension
+  static Uint static_get_dimension();
+  
+  /// @return faces connectivity
+  /// faces[iFace][iNode]
+  static const std::vector<Face>& static_get_faces();
+  
+  
 protected: // data
 
   /// the string identifying the shape of this type

@@ -3,9 +3,14 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Mesh/P1/P1API.hpp"
-#include "Mesh/ElementType.hpp"
+#include <boost/assign/list_of.hpp>
+
 #include "Math/RealMatrix.hpp"
+
+#include "Mesh/ElementType.hpp"
+
+#include "Mesh/P1/P1API.hpp"
+#include "Mesh/P1/Line2D.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -50,8 +55,44 @@ public:
     return VolumeComputerType::computeVolume(coord); 
   }
 
-private:
+public:
+    
+  /// @return m_geoShape
+  static const GeoShape::Type shape;
   
+  /// @return m_nameShape
+  static const std::string shapeName;
+
+  /// @return number of faces
+  static const Uint nbFaces;
+  
+  /// @return number of edges
+  static const Uint nbEdges;
+  
+  /// @return m_nbNodes
+  static const Uint nbNodes;
+  
+  /// @return m_order
+  static const Uint order;
+  
+  /// @return m_dimensionality
+  static const Uint dimensionality;
+  
+  /// @return m_dimension
+  static const Uint dimension;
+  
+  /// @return faces connectivity
+  /// faces[iFace][iNode]
+  
+  static const Uint face1_nodes[];
+  static const Uint face2_nodes[];
+  static const Uint face3_nodes[];
+  static const std::vector<FaceStruct> faces;
+  
+private: // dummy static data
+  
+  static const Line2D* line;
+  static const FaceStruct dummy_faces[];
 }; // end Triag2D
   
 } // namespace P1
