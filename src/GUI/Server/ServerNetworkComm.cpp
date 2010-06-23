@@ -344,7 +344,7 @@ void ServerNetworkComm::newData()
     }
     catch(XmlError xe)
     {
-      CFerr << xe.what() << CFendl;
+      CFerror << xe.what() << CFendl;
     }
 
     m_blockSize = 0;

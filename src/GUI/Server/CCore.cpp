@@ -238,7 +238,7 @@ Signal::return_t CCore::read_dir(Signal::arg_t & node)
   }
   catch(Exception e)
   {
-    CFerr << e.what() << CFflush;
+    CFerror << e.what() << CFflush;
   }
 
 }

@@ -115,7 +115,7 @@ class Common_API Logger : public boost::noncopyable
 /// these are always defined
 
 #define CFinfo   CF::Common::Logger::instance().Info (FromHere())
-#define CFerr    CF::Common::Logger::instance().Error(FromHere())
+#define CFerror  CF::Common::Logger::instance().Error(FromHere())
 #define CFwarn   CF::Common::Logger::instance().Warn (FromHere())
 #define CFdebug  CF::Common::Logger::instance().Debug(FromHere())
 #define CFtrace  CF::Common::Logger::instance().Trace(FromHere())
@@ -144,9 +144,9 @@ class Common_API Logger : public boost::noncopyable
 
 #endif // CF_NO_DEBUG_LOG
 
-#define CFLogInfo(x)   CFinfo << x << CFflush;
-#define CFLogWarn(x)   CFwarn << x << CFflush;
-#define CFLogError(x)  CFerr  << x << CFflush;
+#define CFLogInfo(x)   CFinfo  << x << CFflush;
+#define CFLogWarn(x)   CFwarn  << x << CFflush;
+#define CFLogError(x)  CFerror << x << CFflush;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Tracing macros
