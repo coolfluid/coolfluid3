@@ -57,10 +57,11 @@ public: // accessors
   
   struct FaceStruct
   {
-    FaceStruct(const ElementType* t, const Uint* n)
-    : type(t), nodes(n) {}
-    const ElementType* type;
-    const Uint* nodes;
+    FaceStruct(const ElementType& _type, const Uint* _nodes, const ElementType& _parent)
+        : type(_type), nodes(_nodes), parent(_parent) {}
+    const ElementType& type;   // the type of this face
+    const Uint* nodes;         // node indices in the parent element
+    const ElementType& parent; // which element this face belongs to
   };
   
   

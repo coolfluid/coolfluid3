@@ -50,6 +50,8 @@ public:
     return VolumeComputerType::computeVolume(coord); 
   }
 
+  static const Line2D& instance();
+
 private:
   
 }; // Line2D
@@ -61,8 +63,8 @@ private:
 inline Real VolumeComputer<P1::Line2D>::computeVolume(const std::vector<CArray::Row>& coord)
 {
   // return the distance between the 2 nodes
-  const Real dx = (coord[1][XX]-coord[0][XX],2);
-  const Real dy = (coord[1][YY]-coord[0][YY],2);
+  const Real dx = (coord[1][XX]-coord[0][XX]);
+  const Real dy = (coord[1][YY]-coord[0][YY]);
   return std::sqrt(dx*dx + dy*dy);
 }
   

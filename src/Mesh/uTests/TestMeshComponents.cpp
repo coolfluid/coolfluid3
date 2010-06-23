@@ -438,8 +438,10 @@ BOOST_AUTO_TEST_CASE( static_element_properties )
 
   for (Uint i=0; i<P1::Triag2D::nbFaces; ++i)
   {
-    BOOST_CHECK_EQUAL(P1::Triag2D::faces[i].type->getShapeName(),"Line");
-    BOOST_CHECK_EQUAL(P1::Triag2D::faces[i].type->getNbNodes(), (Uint) 2);
+    BOOST_CHECK_EQUAL(P1::Triag2D::faces[i].type.getShapeName(),"Line");
+    BOOST_CHECK_EQUAL(P1::Triag2D::faces[i].type.getNbNodes(), (Uint) 2);
+    BOOST_CHECK_EQUAL(P1::Triag2D::faces[i].parent.getShapeName(), "Triag");
+    BOOST_CHECK_EQUAL(P1::Triag2D::faces[i].parent.getNbNodes(), (Uint) 3);
   }
   
 }

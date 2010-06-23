@@ -56,6 +56,8 @@ public:
   }
 
 public:
+  
+  static const Triag2D& instance();
     
   /// @return m_geoShape
   static const GeoShape::Type shape;
@@ -81,16 +83,14 @@ public:
   /// @return m_dimension
   static const Uint dimension;
   
-  /// @return faces connectivity
-  /// faces[iFace][iNode]
-  
-  static const Uint face1_nodes[];
-  static const Uint face2_nodes[];
-  static const Uint face3_nodes[];
+  /// @return faces
   static const std::vector<FaceStruct> faces;
   
 private: // dummy static data
   
+  static const Uint face1_nodes[];
+  static const Uint face2_nodes[];
+  static const Uint face3_nodes[];  
   static const Line2D* line;
   static const FaceStruct dummy_faces[];
 }; // end Triag2D

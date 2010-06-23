@@ -40,33 +40,27 @@ Triag2D::Triag2D()
   
 //////////////////////////////////////////////////////////////////////
   
-const std::string                     Triag2D::shapeName = "Triag";
-
-const GeoShape::Type Triag2D::shape = GeoShape::TRIAG;
-    
-const Uint Triag2D::nbFaces = 3;
-  
-const Uint Triag2D::nbEdges = 3;
-  
-const Uint Triag2D::nbNodes = 3;
-  
-const Uint Triag2D::order = 1;
-  
-const Uint Triag2D::dimensionality = 2;
-  
-const Uint Triag2D::dimension = 2; 
-  
-const Uint                            Triag2D::face1_nodes[dimension] = { 0, 1};
-const Uint                            Triag2D::face2_nodes[dimension] = { 1, 2};
-const Uint                            Triag2D::face3_nodes[dimension] = { 2, 0};
-
-const Line2D*                         Triag2D::line = new Line2D();
-
-const Triag2D::FaceStruct             Triag2D::dummy_faces[nbFaces] = { FaceStruct(line,face1_nodes) , 
-                                                                        FaceStruct(line,face2_nodes) , 
-                                                                        FaceStruct(line,face3_nodes) };
-const std::vector<ElementType::FaceStruct>  Triag2D::faces = std::vector<FaceStruct>(dummy_faces,dummy_faces+nbFaces);
-  
+const Triag2D& Triag2D::instance() {
+   static Triag2D obj;
+   return obj;
+}
+const std::string           Triag2D::shapeName = "Triag";
+const GeoShape::Type        Triag2D::shape = GeoShape::TRIAG;
+const Uint                  Triag2D::nbFaces = 3;
+const Uint                  Triag2D::nbEdges = 3;
+const Uint                  Triag2D::nbNodes = 3;
+const Uint                  Triag2D::order = 1;
+const Uint                  Triag2D::dimensionality = 2;
+const Uint                  Triag2D::dimension = 2; 
+const Uint                  Triag2D::face1_nodes[dimension] = { 0, 1};
+const Uint                  Triag2D::face2_nodes[dimension] = { 1, 2};
+const Uint                  Triag2D::face3_nodes[dimension] = { 2, 0};
+const Line2D*               Triag2D::line = new Line2D();
+  const Triag2D::FaceStruct   Triag2D::dummy_faces[nbFaces] = { FaceStruct(Line2D::instance(),face1_nodes,instance()) , 
+                                                                FaceStruct(Line2D::instance(),face2_nodes,instance()) , 
+                                                                FaceStruct(Line2D::instance(),face3_nodes,instance()) };
+const std::vector<ElementType::FaceStruct>  
+                            Triag2D::faces = std::vector<FaceStruct>(dummy_faces,dummy_faces+nbFaces);
   
 } // P1
 } // Mesh
