@@ -22,15 +22,12 @@ LIST ( APPEND Mesh_files
   CTable.cpp
   BufferT.hpp
   BufferT.cpp
-  ConnectivityTableCF2.hpp
   ElementNodes.hpp
   ElementNodes.cpp
   ElementType.hpp
   ElementType.cpp
   GeoShape.hpp
   GeoShape.cpp
-  RCM.hpp
-  RCM.cpp
 
 # directories with headers only can have their contents appended to base dir
   Integrators/Gauss.hpp
