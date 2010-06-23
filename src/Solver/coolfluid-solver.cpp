@@ -94,10 +94,7 @@ struct LoopRegionComputeVolumes
 
     CFinfo << "Looping on " << EType::getClassName() << " ... ";
 
-    if( T.getShape()          != region.elements_type().getShape()         ||
-        T.getOrder()          != region.elements_type().getOrder()         ||
-        T.getDimension()      != region.elements_type().getDimension()     ||
-        T.getDimensionality() != region.elements_type().getDimensionality() )
+    if ( IsElemType<EType>()( region.elements_type().get_elementType() ) );
     {
 
       CFinfo << "X" << CFendl;
