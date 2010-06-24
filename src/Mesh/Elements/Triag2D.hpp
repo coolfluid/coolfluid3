@@ -14,8 +14,6 @@
 namespace CF {
 namespace Mesh {
 
-  class Triag2D;
-
 ////////////////////////////////////////////////////////////////////////////////
   
 /// This class defines a 2D Triangle mesh element

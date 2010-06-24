@@ -3,12 +3,15 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <boost/noncopyable.hpp>
+
 #include "Common/StringOps.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/ConcreteProvider.hpp"
 
+#include "Math/RealVector.hpp"
+
 #include "Mesh/GeoShape.hpp"
-#include "Mesh/CArray.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -25,17 +28,19 @@ template <typename T> class VolumeComputer;
 
 /// This class represents the the data related to an ElementTypeBase
 /// @author Tiago Quintino, Willem Deconinck
-class Mesh_API ElementTypeBase {
+class Mesh_API ElementTypeBase : public boost::noncopyable {
 
 public: // functions
 
   typedef Common::ConcreteProvider < ElementTypeBase > PROVIDER;
+  /// Type used to pass node coordinates of an element
+  typedef std::vector<RealVector> NodesT;
 
   /// Default constructor without arguments
   ElementTypeBase();
 
   /// Default destructor
-  ~ElementTypeBase();
+  virtual ~ElementTypeBase();
 
   static std::string getClassName() { return "ElementTypeBase"; }
   
@@ -67,7 +72,7 @@ public: // functions
   virtual std::string getElementTypeName() const = 0;
 
   /// compute volume given coordinates
-  virtual Real computeVolume(const std::vector<CArray::Row>& coord) const = 0;
+  virtual Real computeVolume(const NodesT& coord) const = 0;
   
 protected: // data
 

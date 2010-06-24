@@ -65,3 +65,4 @@ ADD_SUBDIRECTORY( CGAL )
 
 ADD_SUBDIRECTORY( uTests )        # unit tests for Mesh
 
+ADD_SUBDIRECTORY( Elements/SF )
