@@ -6,6 +6,6 @@ LIST ( APPEND uTestTetraSF_files
 
 CF_ADD_UNITTEST ( uTestTetraSF )
 SET_SOURCE_FILES_PROPERTIES(uTestTetraSF.cpp 
-    PROPERTIES COMPILE_FLAGS "-DCGAL_CFG_NO_TR1_ARRAY -DCGAL_CFG_NO_TR1_TUPLE")
+    PROPERTIES COMPILE_FLAGS "-frounding-math -DCGAL_CFG_NO_TR1_ARRAY -DCGAL_CFG_NO_TR1_TUPLE")
 
 ################################################################################

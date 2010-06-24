@@ -16,7 +16,7 @@ SET( CGAL_kernellib TRUE )
 CF_ADD_LIBRARY( CGAL )
 #avoid a conflict between boost and CGAL
 SET_SOURCE_FILES_PROPERTIES(ImplicitFunctionMesh.cpp 
-    PROPERTIES COMPILE_FLAGS "-DCGAL_CFG_NO_TR1_ARRAY -DCGAL_CFG_NO_TR1_TUPLE")
+    PROPERTIES COMPILE_FLAGS "-frounding-math -DCGAL_CFG_NO_TR1_ARRAY -DCGAL_CFG_NO_TR1_TUPLE")
 add_subdirectory( uTests )
 
 ELSE()

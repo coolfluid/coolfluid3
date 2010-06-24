@@ -61,7 +61,7 @@ template<typename FunctorT>
 struct LoopElems
 {
 
-  LoopElems( const CRegion& aregion, const CArray& acoords, FunctorT& afunctor )
+  LoopElems( const CRegion& aregion, const CArray& acoords, FunctorT afunctor )
     : region(aregion),
       coords(acoords),
       functor(afunctor)
@@ -93,7 +93,7 @@ struct LoopElems
 
   const CRegion& region;
   const CArray&  coords;
-  FunctorT& functor;
+  FunctorT functor;
 };
 
 /// Looping over all elements in a range of regions
