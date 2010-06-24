@@ -31,6 +31,14 @@ add_custom_command(TARGET uTestMesh
 
 ################################################################################
 
+LIST ( APPEND uTestLagrangeSFTetraP1_libs Common P1 )
+LIST ( APPEND uTestLagrangeSFTetraP1_files
+  uTestLagrangeSFTetraP1.cpp )
+
+CF_ADD_UNITTEST ( uTestLagrangeSFTetraP1 )
+
+################################################################################
+
 LIST ( APPEND uTestLagrangeSFTriagP1_libs Common P1 )
 LIST ( APPEND uTestLagrangeSFTriagP1_files
   uTestLagrangeSFTriagP1.cpp )

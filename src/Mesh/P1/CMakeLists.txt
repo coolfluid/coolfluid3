@@ -8,6 +8,8 @@ LIST ( APPEND P1_files
   Line2D.cpp
   Line3D.hpp
   Line3D.cpp
+  Tetra3D.hpp
+  Tetra3D.cpp
   Triag2D.hpp
   Triag2D.cpp
   Triag3D.hpp

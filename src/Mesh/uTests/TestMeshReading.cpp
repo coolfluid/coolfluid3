@@ -9,6 +9,8 @@
 #include "Common/CRoot.hpp"
 #include "Common/ComponentPredicates.hpp"
 
+#include "Math/RealVector.hpp"
+
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"

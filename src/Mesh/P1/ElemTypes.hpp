@@ -18,6 +18,7 @@
 #include "Mesh/P1/Quad3D.hpp"
 
 #include "Mesh/P1/Hexa3D.hpp"
+#include "Mesh/P1/Tetra3D.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -32,7 +33,8 @@ namespace P1 {
                               Triag3D,
                               Quad2D,
                               Quad3D,
-                              Hexa3D > ElemTypes;
+                              Hexa3D,
+                              Tetra3D> ElemTypes;
 
 } // P1
 } // Mesh

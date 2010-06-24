@@ -3,7 +3,7 @@
 
 #include "Common/AssertionManager.hpp"
 
-#include "Math/MatrixInverter.hpp"
+#include "Math/MatrixInverterT.hpp"
 #include "Math/RealMatrix.hpp"
 
 #include "Mesh/GeoShape.hpp"
@@ -52,10 +52,10 @@ static void computeMappedCoordinates(const RealVector& coord, const NodesT& node
   cf_assert(mappedCoord.size() == 3);
   cf_assert(nodes.size() == 4);
 
-  RealVector& xA = nodes[0];
-  RealVector& xB = nodes[1];
-  RealVector& xC = nodes[2];
-  RealVector& xD = nodes[3];
+  const RealVector& xA = nodes[0];
+  const RealVector& xB = nodes[1];
+  const RealVector& xC = nodes[2];
+  const RealVector& xD = nodes[3];
 
   RealVector vec1 = xB-xA;
   RealVector vec2 = xC-xA;
@@ -106,21 +106,21 @@ static void computeMappedGradient(const RealVector& mappedCoord, RealMatrix& res
 /// Compute the jacobian determinant at the given mapped coordinates
 template<typename NodesT>
 inline static Real computeJacobianDeterminant(const RealVector& mappedCoord, const NodesT& nodes) {
-  const CFreal x0 = nodes[0][XX];
-  const CFreal y0 = nodes[0][YY];
-  const CFreal z0 = nodes[0][ZZ];
+  const Real x0 = nodes[0][XX];
+  const Real y0 = nodes[0][YY];
+  const Real z0 = nodes[0][ZZ];
 
-  const CFreal x1 = nodes[1][XX];
-  const CFreal y1 = nodes[1][YY];
-  const CFreal z1 = nodes[1][ZZ];
+  const Real x1 = nodes[1][XX];
+  const Real y1 = nodes[1][YY];
+  const Real z1 = nodes[1][ZZ];
 
-  const CFreal x2 = nodes[2][XX];
-  const CFreal y2 = nodes[2][YY];
-  const CFreal z2 = nodes[2][ZZ];
+  const Real x2 = nodes[2][XX];
+  const Real y2 = nodes[2][YY];
+  const Real z2 = nodes[2][ZZ];
 
-  const CFreal x3 = nodes[3][XX];
-  const CFreal y3 = nodes[3][YY];
-  const CFreal z3 = nodes[3][ZZ];
+  const Real x3 = nodes[3][XX];
+  const Real y3 = nodes[3][YY];
+  const Real z3 = nodes[3][ZZ];
 
   return
       x2*y1*z0 - x3*y1*z0 - x1*y2*z0 + x3*y2*z0 + x1*y3*z0 -
@@ -138,33 +138,33 @@ static void computeJacobian(const RealVector& mappedCoord, const NodesT& nodes, 
   cf_assert(result.nbRows() == 3);
   cf_assert(result.isSquare());
 
-  const CFreal x0 = nodes[0][XX];
-  const CFreal y0 = nodes[0][YY];
-  const CFreal z0 = nodes[0][ZZ];
+  const Real x0 = nodes[0][XX];
+  const Real y0 = nodes[0][YY];
+  const Real z0 = nodes[0][ZZ];
 
-  const CFreal x1 = nodes[1][XX];
-  const CFreal y1 = nodes[1][YY];
-  const CFreal z1 = nodes[1][ZZ];
+  const Real x1 = nodes[1][XX];
+  const Real y1 = nodes[1][YY];
+  const Real z1 = nodes[1][ZZ];
 
-  const CFreal x2 = nodes[2][XX];
-  const CFreal y2 = nodes[2][YY];
-  const CFreal z2 = nodes[2][ZZ];
+  const Real x2 = nodes[2][XX];
+  const Real y2 = nodes[2][YY];
+  const Real z2 = nodes[2][ZZ];
 
-  const CFreal x3 = nodes[3][XX];
-  const CFreal y3 = nodes[3][YY];
-  const CFreal z3 = nodes[3][ZZ];
+  const Real x3 = nodes[3][XX];
+  const Real y3 = nodes[3][YY];
+  const Real z3 = nodes[3][ZZ];
 
-  const CFreal dxdksi = -x0 + x1;
-  const CFreal dydksi = -y0 + y1;
-  const CFreal dzdksi = -z0 + z1;
+  const Real dxdksi = -x0 + x1;
+  const Real dydksi = -y0 + y1;
+  const Real dzdksi = -z0 + z1;
 
-  const CFreal dxdeta = -x0 + x2;
-  const CFreal dydeta = -y0 + y2;
-  const CFreal dzdeta = -z0 + z2;
+  const Real dxdeta = -x0 + x2;
+  const Real dydeta = -y0 + y2;
+  const Real dzdeta = -z0 + z2;
 
-  const CFreal dxdzta = -x0 + x3;
-  const CFreal dydzta = -y0 + y3;
-  const CFreal dzdzta = -z0 + z3;
+  const Real dxdzta = -x0 + x3;
+  const Real dydzta = -y0 + y3;
+  const Real dzdzta = -z0 + z3;
 
   // Derivatives of shape functions are constant
   // hence Jacobians are independent of the mappedCoord
@@ -186,7 +186,7 @@ static void computeJacobian(const RealVector& mappedCoord, const NodesT& nodes, 
 /// @param result Storage for the resulting adjoint
 template<typename NodesT>
 static void computeJacobianAdjoint(const RealVector& mappedCoord, const NodesT& nodes, RealMatrix& result) {
-  cf_assert(result.nbRows() == 2);
+  cf_assert(result.nbRows() == 3);
   cf_assert(result.isSquare());
   RealMatrix jacobian(3,3);
   computeJacobian(mappedCoord, nodes, jacobian);

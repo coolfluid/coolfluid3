@@ -1,12 +1,11 @@
 ################################################################################
 
-LIST ( APPEND uTestBlockMeshReader_libs Common OpenFOAM )
-LIST ( APPEND uTestBlockMeshReader_files
-  uTestBlockMeshReader.cpp )
+LIST ( APPEND uTestTetraSF_libs Common Mesh P1 CGAL )
+LIST ( APPEND uTestTetraSF_files
+  uTestTetraSF.cpp )
 
-SET_SOURCE_FILES_PROPERTIES(uTestBlockMeshReader.cpp 
-    PROPERTIES COMPILE_FLAGS -DTESTFILE_PATH=\\\"${CMAKE_CURRENT_SOURCE_DIR}\\\")
-
-CF_ADD_UNITTEST ( uTestBlockMeshReader )
+CF_ADD_UNITTEST ( uTestTetraSF )
+SET_SOURCE_FILES_PROPERTIES(uTestTetraSF.cpp 
+    PROPERTIES COMPILE_FLAGS "-DCGAL_CFG_NO_TR1_ARRAY -DCGAL_CFG_NO_TR1_TUPLE")
 
 ################################################################################

@@ -7,8 +7,6 @@
 #include "Common/BasicExceptions.hpp"
 #include "Common/ConcreteProvider.hpp"
 
-#include "Math/RealVector.hpp"
-
 #include "Mesh/GeoShape.hpp"
 #include "Mesh/CArray.hpp"
 

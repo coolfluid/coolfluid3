@@ -53,6 +53,6 @@ ADD_SUBDIRECTORY ( Neu )           # Neutral file IO
 CF_MARK_NOT_ORPHAN ( OpenFOAM/BlockMeshReader.cpp OpenFOAM/uTests/uTestBlockMeshReader.cpp OpenFOAM/BlockMeshReader.hpp )
 ADD_SUBDIRECTORY ( Gmsh )          # Gmsh file IO
 ADD_SUBDIRECTORY ( CGNS )          # CGNS file IO
-
+ADD_SUBDIRECTORY(CGAL)
 ADD_SUBDIRECTORY ( uTests )        # unit tests for Mesh
 

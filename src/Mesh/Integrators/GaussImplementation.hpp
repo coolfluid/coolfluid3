@@ -96,6 +96,20 @@ public:
 };
 
 template<>
+class GaussImplementation<GeoShape::TETRA, GeoShape::TETRA, 1>
+{
+public:
+  template<typename GeoShapeF, typename SolShapeF, typename FunctorT, typename ResultT>
+  static void integrate(FunctorT& functor, ResultT& Result)
+  {
+    static const double mu = 0.25;
+    static const double w = 0.1666666666666666666666667;
+    static const RealVector mapped_coords = boost::assign::list_of(mu)(mu)(mu);
+    Result += w * functor.template valTimesDetJacobian<GeoShapeF, SolShapeF>(mapped_coords);
+  }
+};
+
+template<>
 class GaussImplementation<GeoShape::QUAD, GeoShape::QUAD, 1>
 {
 public:

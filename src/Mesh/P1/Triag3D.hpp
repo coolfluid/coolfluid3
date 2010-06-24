@@ -6,6 +6,7 @@
 #include "Mesh/P1/P1API.hpp"
 #include "Mesh/ElementType.hpp"
 #include "Math/RealMatrix.hpp"
+#include "Math/RealVector.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 

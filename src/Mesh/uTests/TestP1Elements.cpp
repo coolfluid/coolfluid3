@@ -12,6 +12,8 @@
 #include "Mesh/CArray.hpp"
 #include "Mesh/ElementType.hpp"
 
+#include "Math/RealVector.hpp"
+
 using namespace std;
 using namespace boost;
 using namespace CF;
