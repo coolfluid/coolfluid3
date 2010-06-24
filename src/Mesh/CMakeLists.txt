@@ -50,8 +50,7 @@ ADD_SUBDIRECTORY( P1 )            # implementation of P1 elements
 
 ADD_SUBDIRECTORY( Neu )           # Neutral file IO
 
-ADD_SUBDIRECTORY( OpenFOAM )      # OpenFOAM IO (Disabled until completed and compile errors are fixed - bart)
-#CF_MARK_NOT_ORPHAN ( OpenFOAM/BlockMeshReader.cpp OpenFOAM/uTests/uTestBlockMeshReader.cpp OpenFOAM/BlockMeshReader.hpp OpenFOAM/uTests/uTestTetraSF.cpp  )
+ADD_SUBDIRECTORY( OpenFOAM )      # OpenFOAM IO
 
 ADD_SUBDIRECTORY( Gmsh )          # Gmsh file IO
 
