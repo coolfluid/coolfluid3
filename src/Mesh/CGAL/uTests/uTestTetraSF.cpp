@@ -35,8 +35,6 @@ struct GlobalFixture {
     if(!sphere) {
       sphere.reset(new CMesh("sphere"));
       MeshParameters params;
-      params.cell_size = 0.25;
-      params.facet_distance = 0.05;
       create_mesh(SphereFunction(1.), *sphere, params);
     }
   }

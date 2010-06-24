@@ -6,11 +6,9 @@ LIST( APPEND CGAL_files
   ImplicitFunctionMesh.hpp
 )
 
-LIST( APPEND CGAL_includedirs ${CF_CGAL_INCLUDE_DIR} )
+LIST( APPEND CGAL_includedirs ${CGAL_INCLUDE_DIR} )
 LIST( APPEND CGAL_libs
-                ${CF_CGAL_LIBRARY}
-                ${CF_MPFR_LIBRARY}
-                ${CF_GMP_LIBRARY}
+                ${CGAL_LIBRARY}
                 ${Boost_THREAD_LIBRARY} )
 LIST( APPEND CGAL_cflibs Mesh )
 SET( CGAL_kernellib TRUE )
