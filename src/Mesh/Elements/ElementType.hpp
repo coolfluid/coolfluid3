@@ -97,15 +97,16 @@ protected: // data
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename ETYPE>
-struct IsElemType
+struct IsElementType
 {
+  /// Return true if etype is of concrete type ETYPE
   bool operator()(const ElementTypeBase& etype)
   {
     return
-        ( etype.shape()          == ETYPE::shape()         &&
-          etype.order()          == ETYPE::order()         &&
-          etype.dimension()      == ETYPE::dimension()     &&
-          etype.dimensionality() == ETYPE::dimensionality() );
+        ( etype.shape()          == ETYPE::shape         &&
+          etype.order()          == ETYPE::order         &&
+          etype.dimension()      == ETYPE::dimension     &&
+          etype.dimensionality() == ETYPE::dimensionality );
   }
 };
 

@@ -45,7 +45,7 @@ static void mapped_coordinates(const RealVector& coord, const NodesT& nodes, Rea
   cf_assert(mappedCoord.size() == 2);
   cf_assert(nodes.size() == 3);
 
-  const Real invDet = 1. / computeJacobianDeterminant(mappedCoord, nodes);
+  const Real invDet = 1. / jacobian_determinant(nodes);
 
   mappedCoord[KSI] = invDet * ((nodes[2][YY] - nodes[0][YY])*coord[XX] + (nodes[0][XX] - nodes[2][XX])*coord[YY] - nodes[0][XX]*nodes[2][YY] + nodes[2][XX]*nodes[0][YY]);
   mappedCoord[ETA] = invDet * ((nodes[0][YY] - nodes[1][YY])*coord[XX] + (nodes[1][XX] - nodes[0][XX])*coord[YY] + nodes[0][XX]*nodes[1][YY] - nodes[1][XX]*nodes[0][YY]);

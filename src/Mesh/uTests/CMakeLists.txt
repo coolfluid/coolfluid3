@@ -39,7 +39,7 @@ CF_ADD_UNITTEST ( uTestLagrangeSFTetraP1 )
 
 ################################################################################
 
-LIST ( APPEND uTestLagrangeSFTriagP1_libs Common P1 )
+LIST ( APPEND uTestLagrangeSFTriagP1_libs Common Mesh SF )
 LIST ( APPEND uTestLagrangeSFTriagP1_files
   uTestLagrangeSFTriagP1.cpp )
 
