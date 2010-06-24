@@ -26,6 +26,7 @@ ELSE()
   CF_MARK_NOT_ORPHAN (
     CGALAPI.hpp
     ImplicitFunctionMesh.cpp
-    ImplicitFunctionMesh.hpp )
+    ImplicitFunctionMesh.hpp
+    uTests/uTestTetraSF.cpp  )
 
 ENDIF()

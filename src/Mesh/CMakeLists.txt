@@ -29,6 +29,9 @@ LIST( APPEND Mesh_files
   GeoShape.hpp
   GeoShape.cpp
 
+  Elements/ElementType.hpp
+  Elements/ElementType.cpp
+
 # directories with headers only can have their contents appended to base dir
   Integrators/Gauss.hpp
   Integrators/GaussImplementation.hpp
