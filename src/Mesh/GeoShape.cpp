@@ -11,25 +11,25 @@ namespace Mesh {
 
 GeoShape::Convert::FwdMap_t GeoShape::Convert::all_fwd = boost::assign::map_list_of
     ( GeoShape::INVALID, "Invalid" )
-    ( GeoShape::POINT,   "Point")
-    ( GeoShape::LINE,    "Line")
-    ( GeoShape::TRIAG,   "Triag")
-    ( GeoShape::QUAD,    "Quad")
-    ( GeoShape::TETRA,   "Tetra")
-    ( GeoShape::PYRAM,   "Pyram")
-    ( GeoShape::PRISM,   "Prism")
-    ( GeoShape::HEXA,    "Hexa");
+    ( GeoShape::POINT,   "Point"   )
+    ( GeoShape::LINE,    "Line"    )
+    ( GeoShape::TRIAG,   "Triag"   )
+    ( GeoShape::QUAD,    "Quad"    )
+    ( GeoShape::TETRA,   "Tetra"   )
+    ( GeoShape::PYRAM,   "Pyram"   )
+    ( GeoShape::PRISM,   "Prism"   )
+    ( GeoShape::HEXA,    "Hexa"    );
 
 GeoShape::Convert::BwdMap_t GeoShape::Convert::all_rev = boost::assign::map_list_of
-    ("Invalid",  GeoShape::INVALID)
-    ("Point",    GeoShape::POINT)
-    ("Line",     GeoShape::LINE)
-    ("Triag",    GeoShape::TRIAG)
-    ("Quad",     GeoShape::QUAD)
-    ("Tetra",    GeoShape::TETRA)
-    ("Pyram",    GeoShape::PYRAM)
-    ("Prism",    GeoShape::PRISM)
-    ("Hexa",     GeoShape::HEXA);
+    ("Invalid",  GeoShape::INVALID )
+    ("Point",    GeoShape::POINT   )
+    ("Line",     GeoShape::LINE    )
+    ("Triag",    GeoShape::TRIAG   )
+    ("Quad",     GeoShape::QUAD    )
+    ("Tetra",    GeoShape::TETRA   )
+    ("Pyram",    GeoShape::PYRAM   )
+    ("Prism",    GeoShape::PRISM   )
+    ("Hexa",     GeoShape::HEXA    );
 
 ////////////////////////////////////////////////////////////////////////////////
 
