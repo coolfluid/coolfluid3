@@ -216,15 +216,24 @@ recursive_range(ParentT& parent)
 /// Throws if there is not exactly one match
 template<typename ComponentT, typename ParentT, typename Predicate>
 typename ComponentReference<ParentT, ComponentT>::type
-get_component_typed(ParentT& parent, const Predicate& pred)
+get_component_typed(ParentT& parent, const Predicate& pred )
 {
   typename ComponentIteratorRange<ParentT, ComponentT, Predicate>::type range = filtered_range_typed<ComponentT>(parent, pred);
   if(range.begin() == range.end())
     throw ValueNotFound(FromHere(), "Component not found: 0 matches");
   else if(count(range) > 1)
-    throw ValueNotFound(FromHere(), "Component not found: More than 1 match");
+    throw ValueNotFound(FromHere(), "Component not found: more than 1 match");
   else
     return *range.begin();
+}
+
+/// Gets a reference to the unique component of the given type that satisfies the given predicate.
+/// Throws if there is not exactly one match
+template<typename ComponentT, typename ParentT >
+typename ComponentReference<ParentT, ComponentT>::type
+get_component_typed(ParentT& parent )
+{
+  return get_component_typed<ComponentT> ( parent, IsComponentTrue() );
 }
 
 /// Gets a reference to the unique component that satisfies the given predicate.

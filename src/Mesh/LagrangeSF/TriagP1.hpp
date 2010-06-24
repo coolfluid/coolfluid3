@@ -30,9 +30,11 @@ static const Uint dimensions = 2;
 /// mapped coordinates
 /// @param mappedCoord The mapped coordinates
 /// @param shapeFunc Vector storing the result
-static void computeShapeFunction(const RealVector& mappedCoord, RealVector& shapeFunc) {
+static void computeShapeFunction(const RealVector& mappedCoord, RealVector& shapeFunc)
+{
   cf_assert(shapeFunc.size() == 3);
   cf_assert(mappedCoord.size() == 2);
+
   shapeFunc[0] = 1.0 - mappedCoord[0] - mappedCoord[1];
   shapeFunc[1] = mappedCoord[0];
   shapeFunc[2] = mappedCoord[1];
@@ -43,11 +45,14 @@ static void computeShapeFunction(const RealVector& mappedCoord, RealVector& shap
 /// @param nodes contains the nodes
 /// @param mappedCoord Store the output mapped coordinates
 template<typename NodesT>
-static void computeMappedCoordinates(const RealVector& coord, const NodesT& nodes, RealVector& mappedCoord) {
+static void computeMappedCoordinates(const RealVector& coord, const NodesT& nodes, RealVector& mappedCoord)
+{
   cf_assert(coord.size() == 2);
   cf_assert(mappedCoord.size() == 2);
   cf_assert(nodes.size() == 3);
+
   const Real invDet = 1. / computeJacobianDeterminant(mappedCoord, nodes);
+
   mappedCoord[KSI] = invDet * ((nodes[2][YY] - nodes[0][YY])*coord[XX] + (nodes[0][XX] - nodes[2][XX])*coord[YY] - nodes[0][XX]*nodes[2][YY] + nodes[2][XX]*nodes[0][YY]);
   mappedCoord[ETA] = invDet * ((nodes[0][YY] - nodes[1][YY])*coord[XX] + (nodes[1][XX] - nodes[0][XX])*coord[YY] + nodes[0][XX]*nodes[1][YY] - nodes[1][XX]*nodes[0][YY]);
 }
@@ -57,7 +62,8 @@ static void computeMappedCoordinates(const RealVector& coord, const NodesT& node
 /// coordinates.
 /// @param mappedCoord The mapped coordinates where the gradient should be calculated
 /// @param result Storage for the resulting gradient matrix
-static void computeMappedGradient(const RealVector& mappedCoord, RealMatrix& result) {
+static void computeMappedGradient(const RealVector& mappedCoord, RealMatrix& result)
+{
   cf_assert(result.nbRows() == 3);
   cf_assert(result.nbCols() == 2);
   result(0, XX) = -1.;

@@ -60,7 +60,7 @@ namespace Mesh {
       if( !range_typed<CTable>(component).empty() &&
           !range_typed<CElements>(component).empty() )
       {
-        const CElements& elemtype = get_component_typed<CElements>(component,IsComponentTrue());
+        const CElements& elemtype = get_component_typed<CElements>(component);
         return IsElemType<TYPE>()( *elemtype.get_elementType() );
       }
       else
@@ -139,7 +139,7 @@ struct LoopRegionTypeComputeVolumes
     {
       CFinfo << "Region [" << region.name() << "] of EType [" << EType::getClassName() << "]" << CFendl;
 
-      const CElements& elemtype = get_component_typed<CElements>(region,IsComponentTrue());
+      const CElements& elemtype = get_component_typed<CElements>(region);
 
       cf_assert ( IsElemType<EType>()( *elemtype.get_elementType() ) );
 
