@@ -112,6 +112,7 @@ my %packages = (  #  version   default install priority      function
     "cgns"       => [ "3.0.8",  'off',   'off', $priority++,  \&install_cgns ],
     "cgnstools"  => [ "2-5-4",  'off',  'off', $priority++,  \&install_cgnstools ],
     "google-perftools" => [ "1.5",'off','off', $priority++, \&install_google_perftools ],
+    "cgal"       => [ "3.6",  'off',   'off', $priority++,  \&install_cgal ],
 );
 
 #==========================================================================
@@ -959,6 +960,29 @@ sub install_cgns() {
     mkpath("build",1);
     safe_chdir("build");
     run_command_or_die("cmake ../ -DHDF5_LIBRARY_DIR=$opt_mpi_dir/lib -DHDF5_INCLUDE_DIR=$opt_mpi_dir/include -DHDF5_NEED_MPI=ON -DHDF5_NEED_ZLIB=ON -DHDF5_NEED_SZIP=OFF -DMPI_INCLUDE_DIR=$opt_mpi_dir/include -DMPI_LIBRARY_DIR=$opt_mpi_dir/lib -DCMAKE_INSTALL_PREFIX=$opt_mpi_dir");
+    run_command_or_die("make $opt_makeopts");
+    run_command_or_die("make install");
+  }
+}
+
+#==========================================================================
+
+sub install_cgal() {
+  my $lib = "cgal";
+  my $version = $packages{$lib}[$vrs];
+  print my_colored("Installing $lib-$version\n",$HEADINGCOLOR);
+
+  safe_chdir($opt_tmp_dir);
+  download_src($lib,$version);
+  unless ($opt_fetchonly)
+  {
+    rmtree "$opt_tmp_dir/$lib-$version";
+    untar_src($lib,$version);
+    safe_chdir("$opt_tmp_dir/$lib-$version/");
+    
+    mkpath("build",1);
+    safe_chdir("build");
+    run_command_or_die("cmake ../ -DBOOST_ROOT=$opt_install_dir -DCMAKE_INSTALL_PREFIX=$opt_install_dir");
     run_command_or_die("make $opt_makeopts");
     run_command_or_die("make install");
   }
