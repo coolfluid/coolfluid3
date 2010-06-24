@@ -31,6 +31,8 @@ LIST( APPEND Mesh_files
 
   Elements/ElementType.hpp
   Elements/ElementType.cpp
+  Elements/Triag2D.hpp
+  Elements/Triag2D.cpp
 
 # directories with headers only can have their contents appended to base dir
   Integrators/Gauss.hpp

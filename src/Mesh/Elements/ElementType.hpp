@@ -38,8 +38,6 @@ public: // functions
   ~ElementTypeBase();
 
   static std::string getClassName() { return "ElementTypeBase"; }
-
-  virtual std::string getElementTypeName() = 0;
   
   /// @return m_nameShape
   std::string shape_name() const { return EnumT<GeoShape>::to_str( m_shape ); }
@@ -65,8 +63,11 @@ public: // functions
   /// @return m_dimension
   Uint dimension() const { return m_dimension; }
 
+  /// get a string with the element type name
+  virtual std::string getElementTypeName() const = 0;
+
   /// compute volume given coordinates
-  virtual Real computeVolume(const std::vector<CArray::Row>& coord) const =0; 
+  virtual Real computeVolume(const std::vector<CArray::Row>& coord) const = 0;
   
 protected: // data
 
