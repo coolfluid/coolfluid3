@@ -41,23 +41,23 @@ void AssertionManager::do_assert ( bool condition,
 {
   if ( (!condition) && AssertionManager::instance().DoAssertions )
   {
+
+    CodeLocation code_position (file,line,func);
+
     std::ostringstream out;
     out << "Assertion failed: [" << cond_str << "] ";
 
     if (desc)
       out << "'" << desc << "' ";
 
-    out << "in " << file << ":" << line;
-
-    if (func)
-      out << " [function " << func << "]";
+    out << "at " << code_position.str();
 
     if ( AssertionManager::instance().AssertionDumps )
       out << "\n" << OSystem::instance().OSystemLayer()->getBackTrace();
 
     if ( AssertionManager::instance().AssertionThrows )
     {
-      throw FailedAssertion (FromHere(),out.str());
+      throw FailedAssertion ( code_position, out.str());
     }
     else
     {
