@@ -1,0 +1,27 @@
+#include <boost/foreach.hpp>
+
+#include "Common/ObjectProvider.hpp"
+#include "Mesh/P1/Triag2D.hpp"
+
+//////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace Mesh {
+namespace P1 {
+  
+////////////////////////////////////////////////////////////////////////////////
+
+Triag2D::Triag2D() 
+{
+  m_shape = shape;
+  m_dimension = dimension;
+  m_dimensionality = dimensionality;
+  m_nb_faces = nb_faces;
+  m_nb_edges = nb_edges;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+} // P1
+} // Mesh
+} // CF
