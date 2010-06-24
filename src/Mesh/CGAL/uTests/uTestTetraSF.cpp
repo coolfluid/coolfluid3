@@ -63,7 +63,7 @@ template<typename FunctorT>
 struct LoopElems
 {
 
-  LoopElems( const CRegion& aregion, const CArray& acoords, FunctorT afunctor )
+  LoopElems( const CRegion& aregion, const CArray& acoords, FunctorT& afunctor )
     : region(aregion),
       coords(acoords),
       functor(afunctor)
@@ -87,10 +87,8 @@ struct LoopElems
     // loop on elements
     BOOST_FOREACH(const CTable::ConstRow& elem, conn_table)
     {
-      CFinfo << "Visiting element " << elem.origin() << CFendl;
       ElementNodeVector nodes;
       fill_node_list( std::inserter(nodes, nodes.begin()), coords, elem );
-      CFinfo << "filled node list " << elem.origin() << CFendl;
       functor(nodes, T);
     }
   }
@@ -114,8 +112,7 @@ struct VolumeFunctor {
   template<typename NodesT, typename ElementT>
   void operator()(const NodesT& nodes, const ElementT& element) {
     const RealVector mapped_coords = boost::assign::list_of(0.)(0.)(0.);
-    CFinfo << "computed volume: " <<
-      LagrangeSF::TetraP1::computeJacobianDeterminant(mapped_coords, nodes)/6. << CFendl;
+    volume += LagrangeSF::TetraP1::computeJacobianDeterminant(mapped_coords, nodes)/6.;
   }
   Real& volume;
 };
