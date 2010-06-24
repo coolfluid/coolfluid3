@@ -1,21 +1,21 @@
 IF(CF_HAVE_CGAL)
 
-LIST ( APPEND CGAL_files
+LIST( APPEND CGAL_files
   CGALAPI.hpp
   ImplicitFunctionMesh.cpp
   ImplicitFunctionMesh.hpp
 )
 
-LIST ( APPEND CGAL_includedirs ${CF_CGAL_INCLUDE_DIR} )
-LIST ( APPEND CGAL_libs 
+LIST( APPEND CGAL_includedirs ${CF_CGAL_INCLUDE_DIR} )
+LIST( APPEND CGAL_libs
                 ${CF_CGAL_LIBRARY}
                 ${CF_MPFR_LIBRARY}
                 ${CF_GMP_LIBRARY}
                 ${Boost_THREAD_LIBRARY} )
-LIST ( APPEND CGAL_cflibs Mesh )
-SET  ( CGAL_kernellib TRUE )
+LIST( APPEND CGAL_cflibs Mesh )
+SET( CGAL_kernellib TRUE )
 
-CF_ADD_LIBRARY ( CGAL )
+CF_ADD_LIBRARY( CGAL )
 #avoid a conflict between boost and CGAL
 SET_SOURCE_FILES_PROPERTIES(ImplicitFunctionMesh.cpp 
     PROPERTIES COMPILE_FLAGS "-DCGAL_CFG_NO_TR1_ARRAY -DCGAL_CFG_NO_TR1_TUPLE")

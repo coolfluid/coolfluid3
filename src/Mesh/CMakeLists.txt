@@ -1,6 +1,6 @@
 CF_FIND_ORPHAN_FILES()
 
-LIST ( APPEND Mesh_files
+LIST( APPEND Mesh_files
   MeshAPI.hpp
   MeshAPI.cpp
   CMesh.cpp
@@ -40,19 +40,24 @@ LIST ( APPEND Mesh_files
   LagrangeSF/TriagP1.hpp
 )
 
-LIST ( APPEND Mesh_cflibs Common )
+LIST( APPEND Mesh_cflibs Common )
 
-SET  ( Mesh_kernellib TRUE )
+SET( Mesh_kernellib TRUE )
 
-CF_ADD_LIBRARY ( Mesh )
+CF_ADD_LIBRARY( Mesh )
 
-ADD_SUBDIRECTORY ( P1 )            # implementation of P1 elements
+ADD_SUBDIRECTORY( P1 )            # implementation of P1 elements
 
-ADD_SUBDIRECTORY ( Neu )           # Neutral file IO
-#ADD_SUBDIRECTORY ( OpenFOAM )      # OpenFOAM IO (Disabled until completed and compile errors are fixed - bart)
-CF_MARK_NOT_ORPHAN ( OpenFOAM/BlockMeshReader.cpp OpenFOAM/uTests/uTestBlockMeshReader.cpp OpenFOAM/BlockMeshReader.hpp )
-ADD_SUBDIRECTORY ( Gmsh )          # Gmsh file IO
-ADD_SUBDIRECTORY ( CGNS )          # CGNS file IO
-ADD_SUBDIRECTORY(CGAL)
-ADD_SUBDIRECTORY ( uTests )        # unit tests for Mesh
+ADD_SUBDIRECTORY( Neu )           # Neutral file IO
+
+ADD_SUBDIRECTORY( OpenFOAM )      # OpenFOAM IO (Disabled until completed and compile errors are fixed - bart)
+#CF_MARK_NOT_ORPHAN ( OpenFOAM/BlockMeshReader.cpp OpenFOAM/uTests/uTestBlockMeshReader.cpp OpenFOAM/BlockMeshReader.hpp OpenFOAM/uTests/uTestTetraSF.cpp  )
+
+ADD_SUBDIRECTORY( Gmsh )          # Gmsh file IO
+
+ADD_SUBDIRECTORY( CGNS )          # CGNS file IO
+
+ADD_SUBDIRECTORY( CGAL )
+
+ADD_SUBDIRECTORY( uTests )        # unit tests for Mesh
 
