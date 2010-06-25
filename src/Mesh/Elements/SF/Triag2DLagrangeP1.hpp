@@ -70,7 +70,7 @@ static void mapped_gradient(const RealVector& mappedCoord, RealMatrix& result)
 
 /// Compute the jacobian determinant at the given mapped coordinates
 template<typename NodesT>
-inline static Real jacobian_determinant(const RealVector& mappedCoord, const NodesT& nodes) {
+static Real jacobian_determinant(const RealVector& mappedCoord, const NodesT& nodes) {
   return jacobian_determinant(nodes);
 }
 
@@ -102,7 +102,7 @@ static void jacobian_adjoint(const RealVector& mappedCoord, const NodesT& nodes,
 
 /// Volume of the cell
 template<typename NodesT>
-inline static Real volume(const NodesT& nodes) {
+static Real volume(const NodesT& nodes) {
   return 0.5 * jacobian_determinant(nodes);
 }
 
@@ -120,7 +120,7 @@ private:
 
 /// Helper function for reuse in volume() and jacobian_determinant()
 template<typename NodesT>
-inline static Real jacobian_determinant(const NodesT& nodes) {
+static Real jacobian_determinant(const NodesT& nodes) {
   const Real x0 = nodes[0][XX];
   const Real x1 = nodes[1][XX];
   const Real x2 = nodes[2][XX];
