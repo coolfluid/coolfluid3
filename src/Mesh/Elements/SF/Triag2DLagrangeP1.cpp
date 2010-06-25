@@ -6,8 +6,8 @@ namespace SF {
 
 Triag2DLagrangeP1::Triag2DLagrangeP1()
 {
-    m_nb_nodes = nb_nodes;
-    m_order = order;
+  m_nb_nodes = nb_nodes;
+  m_order = order;
 }
 
 std::string Triag2DLagrangeP1::getElementTypeName() const

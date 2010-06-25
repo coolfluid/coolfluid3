@@ -81,7 +81,7 @@ BOOST_FIXTURE_TEST_SUITE( Triag2DLagrangeP1Suite, Triag2DLagrangeP1Fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( computeShapeFunction )
+BOOST_AUTO_TEST_CASE( ShapeFunction )
 {
   const CF::RealVector reference_result = list_of(0.1)(0.1)(0.8);
   CF::RealVector result(3);
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE( computeShapeFunction )
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 10); // Maximal difference can't be greater than 10 times the least representable unit
 }
 
-BOOST_AUTO_TEST_CASE( computeMappedCoordinates )
+BOOST_AUTO_TEST_CASE( MappedCoordinates )
 {
   const CF::RealVector test_coords = list_of(0.8)(1.2);
   const CF::RealVector reference_result = list_of(1./3.)(1./3.);
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE( computeMappedCoordinates )
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 10); // Maximal difference can't be greater than 10 times the least representable unit
 }
 
-BOOST_AUTO_TEST_CASE( integrateConst )
+BOOST_AUTO_TEST_CASE( IntegrateConst )
 {
   const_functor ftor(nodes);
   CF::Real result = 0.0;
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE( integrateConst )
   BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Testing::test(result, Triag2DLagrangeP1::volume(nodes)).ulps), 1);
 }
 
-BOOST_AUTO_TEST_CASE( computeMappedGradient )
+BOOST_AUTO_TEST_CASE( MappedGradient )
 {
   CF::RealMatrix expected(3, 2);
   expected(0,0) = -1.;
@@ -126,13 +126,13 @@ BOOST_AUTO_TEST_CASE( computeMappedGradient )
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 2);
 }
 
-BOOST_AUTO_TEST_CASE( computeJacobianDeterminant )
+BOOST_AUTO_TEST_CASE( JacobianDeterminant )
 {
   // Shapefunction determinant should be double the volume for triangles
   BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Testing::test(0.5*Triag2DLagrangeP1::jacobian_determinant(mapped_coords, nodes), Triag2DLagrangeP1::volume(nodes)).ulps), 5);
 }
 
-BOOST_AUTO_TEST_CASE( computeJacobian )
+BOOST_AUTO_TEST_CASE( Jacobian )
 {
   CF::RealMatrix expected(2, 2);
   expected(0,0) = 0.6;
@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE( computeJacobian )
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 2);
 }
 
-BOOST_AUTO_TEST_CASE( computeJacobianAdjoint )
+BOOST_AUTO_TEST_CASE( JacobianAdjoint )
 {
   CF::RealMatrix expected(2, 2);
   expected(0,0) = 1.8;
