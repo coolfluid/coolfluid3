@@ -19,9 +19,20 @@ namespace Common {
   {
   }
 
+  XmlNode& XmlParams::get_params_node() const
+  {
+    if ( params == 0 )
+      throw  Common::XmlError( FromHere(), "XML node \'" + std::string(tag_node_params()) + "\' not found" );
+    return *params;
+  }
+
 ////////////////////////////////////////////////////////////////////////////////
 
   const char * XmlParams::tag_node_doc()    { return "cfxml"; }
+
+  const char * XmlParams::tag_node_signal() { return "signal"; }
+
+  const char * XmlParams::tag_node_reply()  { return "reply"; }
 
   const char * XmlParams::tag_node_params() { return "params"; }
 
@@ -214,6 +225,17 @@ namespace Common {
     return xmldoc;
   }
 
+  XmlNode* XmlOps::first_frame_node ( XmlNode& node )
+  {
+    using namespace rapidxml;
+
+    for ( XmlNode* itr = node.first_node(); itr; itr = itr->next_sibling() )
+    {
+      const char * name = itr->name();
+      if ( !strcmp (name, XmlParams::tag_node_signal()) || !strcmp (name,XmlParams::tag_node_reply()) )
+        return itr;
+    }
+  }
 
   XmlNode* XmlOps::goto_doc_node ( XmlNode& node )
   {
@@ -253,7 +275,7 @@ namespace Common {
   {
     XmlNode* signalnode = XmlOps::add_node_to( xmlnode, XmlParams::tag_node_frame() );
 
-    XmlOps::add_attribute_to( *signalnode, "type", "signal" );
+    XmlOps::add_attribute_to( *signalnode, "type", XmlParams::tag_node_signal() );
     XmlOps::add_attribute_to( *signalnode, "target", target );
     XmlOps::add_attribute_to( *signalnode, "sender", sender.string() );
     XmlOps::add_attribute_to( *signalnode, "receiver", receiver.string() );
@@ -265,7 +287,7 @@ namespace Common {
   {
     XmlNode* replynode = XmlOps::add_node_to( *xmlnode.parent(), XmlParams::tag_node_frame() );
 
-    XmlOps::add_attribute_to( *replynode, "type", "reply" );
+    XmlOps::add_attribute_to( *replynode, "type", XmlParams::tag_node_reply() );
 
     // reply with same target
     XmlAttr* target_att = xmlnode.first_attribute("target");

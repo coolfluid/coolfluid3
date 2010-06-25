@@ -27,7 +27,7 @@ namespace Common {
 ////////////////////////////////////////////////////////////////////////////////
 
 template <>
-    void xmlstr_to_value ( XmlNode& node, bool& val )
+    void xmlstr_to_value ( XmlBase& node, bool& val )
 {
   bool match = false;
   std::string vt ( node.value() );
@@ -56,25 +56,25 @@ template <>
 }
 
 template <>
-    void xmlstr_to_value ( XmlNode& node, int& val )
+    void xmlstr_to_value ( XmlBase& node, int& val )
 {
    val = boost::lexical_cast<int> ( node.value() );
 }
 
 template <>
-    void xmlstr_to_value ( XmlNode& node, CF::Uint& val )
+    void xmlstr_to_value ( XmlBase& node, CF::Uint& val )
 {
   val = boost::lexical_cast<CF::Uint> ( node.value() );
 }
 
 template <>
-    void xmlstr_to_value ( XmlNode& node, CF::Real& val )
+    void xmlstr_to_value ( XmlBase& node, CF::Real& val )
 {
   val = boost::lexical_cast<CF::Real> ( node.value() );
 }
 
 template <>
-    void xmlstr_to_value ( XmlNode& node, std::string& val )
+    void xmlstr_to_value ( XmlBase& node, std::string& val )
 {
    val = node.value();
 }

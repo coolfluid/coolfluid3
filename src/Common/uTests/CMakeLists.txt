@@ -1,8 +1,8 @@
 ################################################################################
 # Test Common
 
-LIST ( APPEND uTestCommon_libs Common )
-LIST ( APPEND uTestCommon_files
+LIST( APPEND uTestCommon_libs Common )
+LIST( APPEND uTestCommon_files
   uTestCommon.cpp
   TestOSystem.cpp
   TestStringOps.cpp
@@ -13,13 +13,13 @@ LIST ( APPEND uTestCommon_files
   TestLogStream.cpp
 )
 
-CF_ADD_UNITTEST ( uTestCommon )
+CF_ADD_UNITTEST( uTestCommon )
 
 ################################################################################
 # Test Component
 
-LIST ( APPEND uTestComponent_libs Common )
-LIST ( APPEND uTestComponent_files
+LIST( APPEND uTestComponent_libs Common )
+LIST( APPEND uTestComponent_files
   uTestComponent.cpp
   TestCPath.cpp
   TestComponent.cpp
@@ -28,36 +28,31 @@ LIST ( APPEND uTestComponent_files
   TestXmlParams.cpp
 )
 
-CF_ADD_UNITTEST ( uTestComponent )
+CF_ADD_UNITTEST( uTestComponent )
 
 ################################################################################
 # Test Component iterators
 
-LIST ( APPEND uTestComponentIteration_libs Common )
-LIST ( APPEND uTestComponentIteration_files
+LIST( APPEND uTestComponentIteration_libs Common )
+LIST( APPEND uTestComponentIteration_files
   uTestComponentIteration.cpp
 )
 
-CF_ADD_UNITTEST ( uTestComponentIteration )
+CF_ADD_UNITTEST( uTestComponentIteration )
 
 ################################################################################
 # Test PE
 
-LIST ( APPEND uTestPE_libs Common )
-LIST ( APPEND uTestPE_files
+LIST( APPEND uTestPE_libs Common )
+LIST( APPEND uTestPE_files
   uTestPE.cpp
   TestPE_Finalize.cpp
   TestPECommPattern.cpp
   TestPE_Init.cpp
 )
 
-CF_ADD_UNITTEST ( uTestPE )
+CF_ADD_UNITTEST( uTestPE )
 
-
-CF_MARK_NOT_ORPHAN (
-  TestPE.cpp
-)
-
-
+CF_MARK_NOT_ORPHAN( TestPE.cpp )
 
 ################################################################################

@@ -46,6 +46,7 @@ class MyC : public ConfigObject {
     options.add< OptionT<bool> >            ( "OptBool", "bool option"   , false  );
     options.add< OptionT<int> >             ( "OptInt",  "int option"    , -5     );
     options.add< OptionT<Uint> >            ( "OptUInt", "int option"    , 10     );
+    options.add< OptionT<Real> >            ( "OptReal", "real option"    , 0.0   );
     options.add< OptionT<std::string> >     ( "OptStr",  "string option" , "LOLO" );
 
     // vector of POD's
@@ -79,7 +80,7 @@ class MyC : public ConfigObject {
 
     std::vector<int> vi = option("VecInt")->value< std::vector<int> >();
 //    for (Uint i = 0; i < vi.size(); ++i)
-//      CFinfo << "vi[" << i << "] : " << vi[i] << "\n" << CFflush;
+//      CFinfo << "vi[" << i << "] : " << vi[i] << "\n" << CFendl;
 
     option("Reader")->attach_processor ( boost::bind ( &MyC::config_comp,this ) );
   };
@@ -88,32 +89,32 @@ class MyC : public ConfigObject {
   {
     boost::any value = option("OptBool")->value();
     bool b = boost::any_cast<bool>(value);
-//    CFinfo << "config bool [" << Common::StringOps::to_str(b) << "]\n" << CFflush;
+//    CFinfo << "config bool [" << Common::StringOps::to_str(b) << "]\n" << CFendl;
   }
 
   void config_int ()
   {
     Uint i = option("OptInt")->value<int>();
-//    CFinfo << "config int [" <<  i << "]\n" << CFflush;
+//    CFinfo << "config int [" <<  i << "]\n" << CFendl;
   }
 
   void config_str ()
   {
     std::string s; option("OptStr")->put_value(s);
-//    CFinfo << "config str [" << s << "]\n" << CFflush;
+//    CFinfo << "config str [" << s << "]\n" << CFendl;
   }
 
   void config_vecint ()
   {
     std::vector<int> vi; option("VecInt")->put_value(vi);
 //    BOOST_FOREACH ( int i, vi )
-//        CFinfo << "config vi [" << i << "]\n" << CFflush;
+//        CFinfo << "config vi [" << i << "]\n" << CFendl;
   }
 
   void config_comp ()
   {
     std::string n; option("Reader")->put_value(n);
-//    CFinfo << "config COMPONENT [" << n << "]\n" << CFflush;
+//    CFinfo << "config COMPONENT [" << n << "]\n" << CFendl;
   }
 
 
@@ -152,11 +153,11 @@ BOOST_AUTO_TEST_CASE( addConfigOptionsTo )
   boost::gregorian::date today = boost::gregorian::day_clock::local_day();
   boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
 
-//  CFinfo << "starting [" << today << "] [" << now << "]\n" << CFflush;
+//  CFinfo << "starting [" << today << "] [" << now << "]\n" << CFendl;
 
   boost::shared_ptr<MyC> pm ( new MyC );
 
-//  CFinfo << "ending\n" << CFflush;
+//  CFinfo << "ending\n" << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -166,13 +167,13 @@ BOOST_AUTO_TEST_CASE( defineConfigOptions )
   boost::gregorian::date today = boost::gregorian::day_clock::local_day();
   boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
 
-//  CFinfo << "starting [" << today << "] [" << now << "]\n" << CFflush;
+//  CFinfo << "starting [" << today << "] [" << now << "]\n" << CFendl;
 
   OptionList ll;
 
   MyC::defineConfigOptions(ll);
 
-//  CFinfo << "ending\n" << CFflush;
+//  CFinfo << "ending\n" << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -184,7 +185,7 @@ BOOST_AUTO_TEST_CASE( configure )
   boost::gregorian::date today = boost::gregorian::day_clock::local_day();
   boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
 
-//  CFinfo << "starting [" << today << "] [" << now << "]\n" << CFflush;
+    CFinfo << "starting [" << today << "] [" << now << "]" << CFendl;
 
   boost::shared_ptr<MyC> pm ( new MyC );
 
@@ -196,7 +197,7 @@ BOOST_AUTO_TEST_CASE( configure )
       ""
       "<bool       key=\"OptBool\">    1 </bool>"
       "<integer    key=\"OptInt\" > -156 </integer>"
-      "<integer    key=\"OptUint\" > 134 </integer>"
+      "<integer    key=\"OptUInt\" > 134 </integer>"
       "<real       key=\"OptReal\" > 6.4564E+5 </real>"
       "<string     key=\"OptStr\" > lolo </bool>"
       ""
@@ -236,13 +237,31 @@ BOOST_AUTO_TEST_CASE( configure )
       "</cfxml>"
    );
 
-  boost::shared_ptr<XmlDoc> doc = XmlOps::parse(text);
+  boost::shared_ptr<XmlDoc> xml = XmlOps::parse(text);
 
-  XmlNode& node = *XmlOps::goto_doc_node(*doc.get());
+  XmlNode& doc   = *XmlOps::goto_doc_node(*xml.get());
+  XmlNode& frame = *XmlOps::first_frame_node( doc );
 
-  pm->configure( node );
+  CFinfo << "FRAME [" << frame.name() << "]" << CFendl;
 
-//  CFinfo << "ending\n" << CFflush;
+  pm->configure( frame );
+
+  BOOST_CHECK_EQUAL ( pm->option("OptBool")->value<bool>(), true  );
+  BOOST_CHECK_EQUAL ( pm->option("OptBool")->value_str() , "true" );
+
+  BOOST_CHECK_EQUAL ( pm->option("OptInt")->value<int>(),   -156  );
+  BOOST_CHECK_EQUAL ( pm->option("OptInt")->value_str() ,  "-156" );
+
+  BOOST_CHECK_EQUAL ( pm->option("OptUInt")->value<Uint>(),   134  );
+  BOOST_CHECK_EQUAL ( pm->option("OptUInt")->value_str()  ,  "134" );
+
+  BOOST_CHECK_EQUAL ( pm->option("OptReal")->value<Real>(),   6.4564E+5  );
+//  BOOST_CHECK_EQUAL ( pm->option("OptReal")->value_str()  ,  "6.4564E+5" );
+
+  BOOST_CHECK_EQUAL ( pm->option("OptStr")->value<std::string>(), "lolo" );
+  BOOST_CHECK_EQUAL ( pm->option("OptStr")->value_str(),          "lolo" );
+
+  CFinfo << "ending" << CFendl;
 
 }
 

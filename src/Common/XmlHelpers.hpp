@@ -42,6 +42,9 @@ namespace Common {
     /// @returns the first node not part of the xml declaration
     static XmlNode* goto_doc_node ( XmlNode& node );
 
+    /// @returns the first frame node inside a doc node
+    static XmlNode* first_frame_node ( XmlNode& node );
+
     /// Adds a signal frame within the XmlNode passed ( typically a doc ).
     /// It will set automatically the type attribute.
     static XmlNode* add_signal_frame( XmlNode& node, const std::string & target, const CPath & sender,  const CPath & receiver);
@@ -81,6 +84,10 @@ namespace Common {
   {
     /// the xml tag used for the cfdocument node
     static const char * tag_node_doc ();
+    /// the xml tag used for the signal node
+    static const char * tag_node_signal ();
+    /// the xml tag used for the reply node
+    static const char * tag_node_reply ();
     /// the xml tag used for the params node
     static const char * tag_node_params ();
     /// the xml tag used for the signal frame node
@@ -92,6 +99,10 @@ namespace Common {
     /// @param node the node where the parameters will be extracted from
     /// @throw XmlError when the Params node is not found
     XmlParams ( XmlNode& node );
+
+    /// returns the params node as reference
+    /// @throw XmlError if the params node was not found
+    XmlNode& get_params_node() const;
 
     /// access to the value of one parameter
     template < typename TYPE >

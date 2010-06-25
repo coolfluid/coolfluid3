@@ -70,8 +70,6 @@ namespace Common {
         option(optname)->link_to(par);
     }
 
-  protected:
-
     /// get the pointer to the option
     Option::Ptr option( const std::string& optname );
 

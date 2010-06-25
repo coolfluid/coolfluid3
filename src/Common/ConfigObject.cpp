@@ -18,18 +18,26 @@ namespace Common {
 
   void ConfigObject::configure ( XmlNode& node )
   {
-    XmlParams params ( node );
+    XmlParams pn ( node );
 
-    // loop on the parameters and pass them to the options
 
+    if ( pn.params == 0 )
+      throw  Common::XmlError( FromHere(), "ConfigObject received  XML without a \'" + std::string(XmlParams::tag_node_params()) + "\' node" );
+
+    // get the list of options
     OptionList::OptionStorage_t& options = m_option_list.m_options;
 
-    // loop on the child nodes which should be option configurations
-    for (XmlNode* itr = node.first_node(); itr; itr = itr->next_sibling() )
+    // loop on the param nodes
+    for (XmlNode* itr =  pn.params->first_node(); itr; itr = itr->next_sibling() )
     {
-      OptionList::OptionStorage_t::iterator opt = options.find( itr->name() );
-      if (opt != options.end())
-        opt->second->configure_option(*itr);
+      // search for the attribute with key
+      XmlAttr* att = itr->first_attribute( XmlParams::tag_attr_key() );
+      if ( att )
+      {
+        OptionList::OptionStorage_t::iterator opt = options.find( att->value() );
+        if (opt != options.end())
+          opt->second->configure_option(*itr);
+      }
     }
   }
 

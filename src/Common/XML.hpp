@@ -12,10 +12,12 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////  
 
-  /// typedef for the XmlNode
-  typedef rapidxml::xml_node<> XmlNode;
+  /// typedef for the XmlBase
+  typedef rapidxml::xml_base<> XmlBase;
   /// typedef for the XmlDoc
   typedef rapidxml::xml_document<> XmlDoc;
+  /// typedef for the XmlNode
+  typedef rapidxml::xml_node<> XmlNode;
   /// typedef for the XmlAttribute
   typedef rapidxml::xml_attribute<> XmlAttr;
   /// typedef for the XmlMemPool
@@ -23,7 +25,7 @@ namespace Common {
 
   /// converts the value inside the xml node to the type
   template < typename TYPE>
-    void xmlstr_to_value ( XmlNode& node, TYPE& val );
+    void xmlstr_to_value ( XmlBase& node, TYPE& val );
 
   /// converts the value inside the xml node to the type
   template < typename TYPE>

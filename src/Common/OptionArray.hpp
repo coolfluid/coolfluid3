@@ -93,8 +93,14 @@ namespace Common {
   {
     XmlAttr *attr = node.first_attribute( "type" );
 
-    if ( !attr || attr->value() != type_tag() )
-      throw ParsingFailed (FromHere(), "OptionArray has bad tag \'type\'" );
+    if ( !attr )
+      throw ParsingFailed (FromHere(), "OptionArray does not have \'type\' attribute" );
+
+    if ( strcmp(attr->value(),type_tag()) )
+      throw ParsingFailed (FromHere(), "OptionArray expected \'type\' attribute \'"
+                                       +  std::string(attr->value())
+                                       + "\' but got \'"
+                                       +  std::string(type_tag()) + "\'"  );
 
     std::vector<TYPE> val; // empty vector
 
@@ -104,6 +110,15 @@ namespace Common {
       xmlstr_to_value(*itr,vi);
       val.push_back(vi);
     }
+
+    XmlAttr *size_attr = node.first_attribute( "size" );
+    if ( !size_attr )
+      throw ParsingFailed (FromHere(), "OptionArray does not have \'size\' attribute" );
+
+    Uint expected_size = 0;
+    xmlstr_to_value(*size_attr,expected_size);
+    if ( expected_size != val.size() )
+      throw ParsingFailed (FromHere(), "OptionArray \'size\' did not match number of entries" );
 
     m_value = val;
     copy_to_linked_params(val);
