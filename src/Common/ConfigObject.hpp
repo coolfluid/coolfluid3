@@ -25,7 +25,8 @@ namespace Common {
     template < typename OPTION_TYPE >
     Option::Ptr add (const std::string& name, const std::string& description, const typename OPTION_TYPE::value_type& def )
     {
-      cf_assert_desc ( "Class has already option with same name", this->m_options.find(name) == m_options.end() );
+      cf_assert_desc ( "Class has already option with same name",
+                       this->m_options.find(name) == m_options.end() );
       Option::Ptr opt ( new OPTION_TYPE(name, description, def ) );
       m_options.insert( std::make_pair(name, opt ) );
       return opt;
@@ -52,7 +53,7 @@ namespace Common {
 
     /// Sets the config options by calling the defineConfigOptions
     /// This will add nested names to the options as opposed to addOptionsTo
-    /// @param prt should be passed with the this pointer to help identify callee the CLASS type
+    /// @param prt pass the this pointer to help identify callee CLASS type
     template <typename CLASS>
         void addConfigOptionsTo()
     {
@@ -64,7 +65,10 @@ namespace Common {
 
     /// sets a link to the option
     template < typename TYPE >
-        void link_to_parameter ( const std::string& optname, TYPE* par ) { option(optname)->link_to(par); }
+        void link_to_parameter ( const std::string& optname, TYPE* par )
+    {
+        option(optname)->link_to(par);
+    }
 
   protected:
 
