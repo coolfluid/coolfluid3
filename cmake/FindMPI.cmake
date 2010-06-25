@@ -3,7 +3,7 @@
 # Sets:
 # MPI_INCLUDE_DIR  = where MPI headers can be found
 # MPI_LIBRARY      = the library to link against
-# CF_MPI_AVAILABLE = set to true after finding the library
+# CF_MPI_LIBS_FOUND = set to true after finding the library
 #
 
 SET_TRIAL_INCLUDE_PATH ("") # clear include search path
@@ -57,7 +57,10 @@ FIND_LIBRARY(MPICXX_LIBRARY
 FIND_LIBRARY(MPICXX_LIBRARY
              NAMES mpi++ mpi_cxx
              PATH_SUFFIXES mpi/lib
-             PATHS ${TRIAL_LIBRARY_PATHS} )
+             PATHS /usr/lib /usr/local/lib
+             "$ENV{ProgramFiles}/MPICH/SDK/Lib"
+             "$ENV{ProgramFiles}/MPICH2/Lib"
+             "C:/Program Files/MPICH/SDK/Lib" )
 
 IF ( MPICXX_LIBRARY )
   LIST ( APPEND MPI_LIBRARIES ${MPICXX_LIBRARY} )
@@ -103,9 +106,9 @@ IF ( DEFINED MPI_EXTRA_LIBRARY_NAMES )
 ENDIF()
 
 IF ( MPI_INCLUDE_PATH AND MPI_LIBRARY )
-  SET(CF_MPI_AVAILABLE 1 CACHE BOOL "Found MPI library")
+  SET(CF_MPI_LIBS_FOUND 1 CACHE BOOL "Found MPI libraries")
 ELSE()
-  SET(CF_MPI_AVAILABLE 0 CACHE BOOL "Not fount MPI library")
+  SET(CF_MPI_LIBS_FOUND 0 CACHE BOOL "Did not find MPI libraries")
 ENDIF()
 
 MARK_AS_ADVANCED(
@@ -113,21 +116,5 @@ MARK_AS_ADVANCED(
   MPI_LIBRARY
   MPICXX_LIBRARY
   MPI_LIBRARIES
-  CF_MPI_AVAILABLE
+  CF_MPI_LIBS_FOUND
 )
-
-LOG ( "CF_MPI_AVAILABLE: [${CF_MPI_AVAILABLE}]" )
-IF( CF_HAVE_MPI )
-LOG ( "  MPI_INCLUDE_PATH   : [${MPI_INCLUDE_PATH}]" )
-LOG ( "  MPI_LIBRARY        : [${MPI_LIBRARY}]" )
-LOG ( "  MPICXX_LIBRARY     : [${MPICXX_LIBRARY}]" )
-LOG ( "  MPI_EXTRA_LIBS     : [${MPI_EXTRA_LIBS}]" )
-LOG ( "  MPI_LIBRARIES      : [${MPI_LIBRARIES}]" )
-ELSE()
-LOGFILE ( "  MPI_INCLUDE_PATH   : [${MPI_INCLUDE_PATH}]" )
-LOGFILE ( "  MPI_LIBRARY        : [${MPI_LIBRARY}]" )
-LOGFILE ( "  MPICXX_LIBRARY     : [${MPICXX_LIBRARY}]" )
-LOGFILE ( "  MPI_EXTRA_LIBS     : [${MPI_EXTRA_LIBS}]" )
-LOGFILE ( "  MPI_LIBRARIES      : [${MPI_LIBRARIES}]" )
-ENDIF()
-

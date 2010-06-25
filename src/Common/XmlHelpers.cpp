@@ -201,7 +201,8 @@ namespace Common {
     //    char *buffer = (char *) malloc(lenght);         // allocate buffer
     char* buffer = xmldoc->allocate_string( 0, lenght );  // allocate buffer directly inside the xmldoc
 
-    fread(buffer,lenght, 1, filep);           // read into buffer
+    size_t rs = fread(buffer,lenght, 1, filep);           // read into buffer
+    if (!rs) { throw FileSystemError(FromHere(), "Error while reading file [" + filepath + "]" ); }
 
     fclose(filep);                             // close file
 

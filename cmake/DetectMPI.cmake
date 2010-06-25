@@ -2,7 +2,7 @@
 # find MPI compiler or libraries
 
 # try to compile an mpi program to check if compiler is already mpi
-CHECK_CXX_SOURCE_COMPILES (
+CHECK_CXX_SOURCE_COMPILES(
   "#include <mpi.h>
    #include <iostream>
    int main(int argc, char* argv[])
@@ -12,52 +12,52 @@ CHECK_CXX_SOURCE_COMPILES (
    }"
    CF_MPI_COMPILER_AVAILABLE )
 
-IF ( CF_MPI_COMPILER_AVAILABLE )
+IF( CF_MPI_COMPILER_AVAILABLE )
 
-  LOG ( "Already using MPI C++ compiler, no need to search for MPI libraries" )
-  SET ( CF_MPI_AVAILABLE 1 CACHE BOOL "Found MPI library" )
+  LOG( "MPI: Already using MPI C++ compiler, no need to search for MPI libraries" )
+  SET( CF_HAVE_MPI 1 CACHE BOOL "Found MPI compiler" )
 
-ELSE  ()
+  LOG( "     MPI CXX COMPILER   : [${CMAKE_CXX_COMPILER}]")
 
-  LOG ( "No MPI C++ compiler was set. Searching for MPI libraries..." )
+ELSE()
+
+  LOG( "MPI: No MPI C++ compiler was set. Searching for MPI libraries..." )
 
   FIND_PACKAGE(MPI)
-  
-  IF ( NOT CF_MPI_AVAILABLE )
-    LOG ( "No MPI libraries found." )
-    LOG ( "WARNING: user asked for MPI but MPI is deactivated" )
-  ENDIF ( NOT CF_MPI_AVAILABLE )
 
-ENDIF ()
+  IF( NOT CF_MPI_LIBS_FOUND )
+      MESSAGE( FATAL_ERROR "MPI: No MPI compiler or libraries were found.\n     MPI is required to compile coolfluid." )
+  ENDIF()
 
-MARK_AS_ADVANCED ( CF_MPI_AVAILABLE )
+  LOG( "     MPI_INCLUDE_PATH   : [${MPI_INCLUDE_PATH}]")
+  LOG( "     MPI_LIBRARIES      : [${MPI_LIBRARIES}]")
 
-LOGFILE ( "  CF_MPI_AVAILABLE: [${CF_MPI_AVAILABLE}]" )
+ENDIF()
+
 
 #######################################################################
 # find mpirun
 
-FIND_PROGRAM ( CF_MPIRUN_PROGRAM mpirun
-               PATHS ${MPI_HOME}/bin $ENV{MPI_HOME}/bin
-               PATH_SUFFIXES mpi/bin
-               DOC "mpirun program"
-               NO_DEFAULT_PATH )
+FIND_PROGRAM( CF_MPIRUN_PROGRAM mpirun
+              PATHS ${MPI_HOME}/bin $ENV{MPI_HOME}/bin
+              PATH_SUFFIXES mpi/bin
+              DOC "mpirun program"
+              NO_DEFAULT_PATH )
 
-FIND_PROGRAM ( CF_MPIRUN_PROGRAM mpirun
-               PATH_SUFFIXES mpi/bin
-               DOC "mpirun program" )
+FIND_PROGRAM( CF_MPIRUN_PROGRAM mpirun
+              PATH_SUFFIXES mpi/bin
+              DOC "mpirun program" )
 
-IF ( NOT CF_MPIRUN_PROGRAM)
-  SET (CF_MPIRUN_PROGRAM mpirun CACHE STRING "mpirun program set by default")
-ENDIF ()
+# IF( NOT CF_MPIRUN_PROGRAM)
+#  SET(CF_MPIRUN_PROGRAM mpirun CACHE STRING "mpirun program set by default")
+# ENDIF()
 
-MARK_AS_ADVANCED ( CF_MPIRUN_PROGRAM )
+MARK_AS_ADVANCED( CF_MPIRUN_PROGRAM )
 
-LOGFILE ( "  CF_MPIRUN_PROGRAM : [${CF_MPIRUN_PROGRAM}]" )
+LOGFILE( "     CF_MPIRUN_PROGRAM : [${CF_MPIRUN_PROGRAM}]" )
 
 ###############################################################################
-# if user disables MPI we overwrite the CF_HAVE_MPI variable
-IF( CF_MPI_AVAILABLE )
+IF( CF_MPI_LIBS_FOUND )
     SET( CF_HAVE_MPI 1 CACHE BOOL "User enabled MPI [FOUND]" )
 ELSE()
     SET( CF_HAVE_MPI 0 CACHE BOOL "User enabled MPI [NOT-FOUND]" )
@@ -72,5 +72,3 @@ MARK_AS_ADVANCED ( CF_HAVE_MPI )
 if ( CF_HAVE_MPI AND NOT CF_HAVE_MPI_COMPILER )
         include_directories   ( ${MPI_INCLUDE_PATH} )
 endif ()
-
-
