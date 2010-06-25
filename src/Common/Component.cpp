@@ -310,6 +310,8 @@ void Component::regist_signals ( Component* self  )
   self->regist_signal ( "list_tree" , "lists the component tree inside this component" )->connect ( boost::bind ( &Component::list_tree, self, _1 ) );
 
   self->regist_signal ( "list_options" , "lists the options of this component" )->connect ( boost::bind ( &Component::list_options, self, _1 ) );
+
+  self->regist_signal ( "configure" , "configures this component" )->connect ( boost::bind ( &Component::configure, self, _1 ) );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
