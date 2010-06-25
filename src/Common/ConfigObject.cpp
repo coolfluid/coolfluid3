@@ -1,5 +1,6 @@
 #include "Common/BasicExceptions.hpp"
 #include "Common/ConfigObject.hpp"
+#include "Common/XmlHelpers.hpp"
 
 namespace CF {
 namespace Common {
@@ -17,6 +18,10 @@ namespace Common {
 
   void ConfigObject::configure ( XmlNode& node )
   {
+    XmlParams params ( node );
+
+    // loop on the parameters and pass them to the options
+
     OptionList::OptionStorage_t& options = m_option_list.m_options;
 
     // loop on the child nodes which should be option configurations
