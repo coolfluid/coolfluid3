@@ -36,7 +36,7 @@ struct Common_API BadValue: public Common::Exception {
 
 ///  Exception thrown when a dynamic cast of a pointer fails.
 /// @author Tiago Quintino
-struct CastingFailed: public Common::Exception {
+struct Common_API CastingFailed: public Common::Exception {
 
   /// Constructor
   CastingFailed( const Common::CodeLocation& where, const std::string& what);
@@ -47,7 +47,7 @@ struct CastingFailed: public Common::Exception {
 
 /// Exception thrown when a file is wrongly formated
 /// @author Tiago Quintino
-struct FileFormatError: public Common::Exception {
+struct Common_API FileFormatError: public Common::Exception {
 
   /// Constructor
   FileFormatError(const Common::CodeLocation& where, const std::string& what);
@@ -59,7 +59,7 @@ struct FileFormatError: public Common::Exception {
 /// Exception throw if an error occurs when accessing the filesystem.
 /// It is preferable to using directly the boost::filesystem_error exception.
 /// These boost exceptions should be intercepted and recast into this.
-struct FileSystemError: public Common::Exception {
+struct Common_API FileSystemError: public Common::Exception {
 
   /// Constructor
   /// @see Exception()
@@ -198,7 +198,7 @@ struct Common_API URLError : public Common::Exception {
 
 ///  Exception thrown when some XML code has not the correct information or format
 /// @author Tiago Quintino
-struct XmlError: public Common::Exception {
+struct Common_API XmlError: public Common::Exception {
 
   /// Constructor
   XmlError( const Common::CodeLocation& where, const std::string& what);
@@ -209,7 +209,7 @@ struct XmlError: public Common::Exception {
 
 ///  Exception thrown when the components are structured in an invalid way
 /// @author Tiago Quintino
-struct InvalidStructure: public Common::Exception {
+struct Common_API InvalidStructure: public Common::Exception {
 
   /// Constructor
   InvalidStructure( const Common::CodeLocation& where, const std::string& what);
