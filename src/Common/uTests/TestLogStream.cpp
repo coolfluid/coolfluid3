@@ -4,6 +4,7 @@
 
 #include <iostream>
 
+#include <boost/progress.hpp>
 #include "Common/Log.hpp"
 
 using namespace std;
@@ -253,6 +254,17 @@ BOOST_AUTO_TEST_CASE( operators )
     BOOST_CHECK_EQUAL(forwarder->m_str, std::string("Hello world!"));
   else
     BOOST_CHECK_EQUAL(forwarder->m_str, std::string(""));
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+BOOST_AUTO_TEST_CASE( progress )
+{
+//  progress_display progress(10, CFinfo   , "     Testing Progress display\n     ", "prog ", "     " );
+  progress_display progress(10, std::cout, "     Testing Progress display\n     ", "prog ", "     " );
+  for(Uint i=0; i<10; ++i)
+    ++progress;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
