@@ -114,7 +114,11 @@ int main(int argc, char * argv[])
 
    if (vm.count("version"))
    {
-     CFinfo << "Version: " << 1 << CFendl;
+     CFinfo << "CF version           : " << CoreEnv::instance().getVersionString () << "\n";
+     CFinfo << "Build system         : " << CoreEnv::instance().getBuildSystem() << "\n";
+     CFinfo << "Build OS             : " << CoreEnv::instance().getLongSystemName() << " [" << CoreEnv::instance().getSystemBits() << "bits]\n";
+     CFinfo << "Build processor      : " << CoreEnv::instance().getBuildProcessor() << "\n";
+     
    }
 
    // create mesh object
