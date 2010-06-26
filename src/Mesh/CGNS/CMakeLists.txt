@@ -6,6 +6,7 @@ if (CF_HAVE_CGNS)
     Common.cpp
     CReader.hpp
     CReader.cpp
+    CGNSExceptions.hpp
   )
 
   LIST ( APPEND CGNS3_includedirs ${CGNS_INCLUDE_DIR} )

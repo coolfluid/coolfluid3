@@ -69,10 +69,10 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   CRegion::Ptr bc_regions     = regions->create_region("bc-regions");
 
   // open file in read mode
-  cg_open(fp.string().c_str(),CG_MODE_READ,&m_file.idx);
+  CALL_CGNS(cg_open(fp.string().c_str(),CG_MODE_READ,&m_file.idx));
 
   // check how many bases we have
-  cg_nbases(m_file.idx,&m_file.nbBases);
+  CALL_CGNS(cg_nbases(m_file.idx,&m_file.nbBases));
     // CFinfo << "nb bases : " << m_file.nbBases << "\n" << CFflush;
 
   m_base.unique = m_file.nbBases==1 ? true : false;
@@ -91,7 +91,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   }
 
   // close the CGNS file
-  cg_close(m_file.idx);
+  CALL_CGNS(cg_close(m_file.idx));
 
 }
 
@@ -102,7 +102,7 @@ void CReader::read_base(CRegion::Ptr& parent_region)
 
   // get the name, dimension and physical dimension from the base
   char base_name_char[CGNS_CHAR_MAX];
-  cg_base_read(m_file.idx,m_base.idx,base_name_char,&m_base.cell_dim,&m_base.phys_dim);
+  CALL_CGNS(cg_base_read(m_file.idx,m_base.idx,base_name_char,&m_base.cell_dim,&m_base.phys_dim));
   m_base.name=base_name_char;
   boost::algorithm::replace_all(m_base.name," ","_");
 
@@ -111,7 +111,7 @@ void CReader::read_base(CRegion::Ptr& parent_region)
   // CFinfo << "base phys dim : " << m_base.phys_dim  << "\n" << CFflush;
 
   // check how many zones we have
-  cg_nzones(m_file.idx,m_base.idx,&m_base.nbZones);
+  CALL_CGNS(cg_nzones(m_file.idx,m_base.idx,&m_base.nbZones));
   // CFinfo << "number of zones     : " << m_base.nbZones  << "\n" << CFflush;
 
   // create region for the base in mesh
@@ -133,13 +133,13 @@ void CReader::read_zone(CRegion::Ptr& parent_region)
 
 
   // get zone type
-  cg_zone_type(m_file.idx,m_base.idx,m_zone.idx,&m_zone.type);
+  CALL_CGNS(cg_zone_type(m_file.idx,m_base.idx,m_zone.idx,&m_zone.type));
   //if (zone_type == Structured) throw CGNSException (FromHere(),"Cannot handle structured meshes.");
 
   // get zone size and name
   char zone_name_char[CGNS_CHAR_MAX];
   int size[3];
-  cg_zone_read(m_file.idx,m_base.idx,m_zone.idx,zone_name_char,size);
+  CALL_CGNS(cg_zone_read(m_file.idx,m_base.idx,m_zone.idx,zone_name_char,size));
     m_zone.name = zone_name_char;
     boost::algorithm::replace_all(m_zone.name," ","_");
   // CFinfo << "\nzone name   : " << m_zone.name << "\n" << CFflush;
@@ -157,15 +157,15 @@ void CReader::read_zone(CRegion::Ptr& parent_region)
     // CFinfo << "Unknown zone_type \n" << CFflush;
     ;
   // get the number of grids
-  cg_ngrids(m_file.idx,m_base.idx,m_zone.idx,&m_zone.nbGrids);
+  CALL_CGNS(cg_ngrids(m_file.idx,m_base.idx,m_zone.idx,&m_zone.nbGrids));
   // nb coord dims
-  cg_ncoords(m_file.idx,m_base.idx,m_zone.idx, &m_zone.coord_dim);
+  CALL_CGNS(cg_ncoords(m_file.idx,m_base.idx,m_zone.idx, &m_zone.coord_dim));
   // find out number of solutions
-  cg_nsols(m_file.idx,m_base.idx,m_zone.idx,&m_zone.nbSols);
+  CALL_CGNS(cg_nsols(m_file.idx,m_base.idx,m_zone.idx,&m_zone.nbSols));
   // find out how many sections
-  cg_nsections(m_file.idx,m_base.idx,m_zone.idx,&m_zone.nbSections);
+  CALL_CGNS(cg_nsections(m_file.idx,m_base.idx,m_zone.idx,&m_zone.nbSections));
   // find out number of BCs that exist under this zone
-  cg_nbocos(m_file.idx,m_base.idx,m_zone.idx,&m_zone.nbBocos);
+  CALL_CGNS(cg_nbocos(m_file.idx,m_base.idx,m_zone.idx,&m_zone.nbBocos));
   // Add up all the nb elements from all sections
   m_zone.total_nbElements = get_total_nbElements();
 
@@ -251,13 +251,13 @@ void CReader::read_coordinates()
   {
     case 3:
       zCoord = new Real[m_zone.nbVertices];
-      cg_coord_read(m_file.idx,m_base.idx,m_zone.idx, "CoordinateZ", RealDouble, &one, &m_zone.nbVertices, zCoord);
+      CALL_CGNS(cg_coord_read(m_file.idx,m_base.idx,m_zone.idx, "CoordinateZ", RealDouble, &one, &m_zone.nbVertices, zCoord));
     case 2:
       yCoord = new Real[m_zone.nbVertices];
-      cg_coord_read(m_file.idx,m_base.idx,m_zone.idx, "CoordinateY", RealDouble, &one, &m_zone.nbVertices, yCoord);
+      CALL_CGNS(cg_coord_read(m_file.idx,m_base.idx,m_zone.idx, "CoordinateY", RealDouble, &one, &m_zone.nbVertices, yCoord));
     case 1:
       xCoord = new Real[m_zone.nbVertices];
-      cg_coord_read(m_file.idx,m_base.idx,m_zone.idx, "CoordinateX", RealDouble, &one, &m_zone.nbVertices, xCoord);
+      CALL_CGNS(cg_coord_read(m_file.idx,m_base.idx,m_zone.idx, "CoordinateX", RealDouble, &one, &m_zone.nbVertices, xCoord));
   }
 
   CArray::Buffer buffer = coordinates->create_buffer();
@@ -306,9 +306,9 @@ void CReader::read_section(CRegion::Ptr& parent_region)
     for (int elem=m_section.eBegin;elem<=m_section.eEnd;++elem)
     {
       // Read one line of connectivity at a time
-      cg_ElementPartialSize(m_file.idx,m_base.idx,m_zone.idx,m_section.idx,elem,elem,&m_section.elemNodeCount);
+      CALL_CGNS(cg_ElementPartialSize(m_file.idx,m_base.idx,m_zone.idx,m_section.idx,elem,elem,&m_section.elemNodeCount));
       int elemNodes[1][m_section.elemNodeCount];
-      cg_elements_partial_read(m_file.idx,m_base.idx,m_zone.idx,m_section.idx,elem,elem,*elemNodes,&m_section.parentData);
+      CALL_CGNS(cg_elements_partial_read(m_file.idx,m_base.idx,m_zone.idx,m_section.idx,elem,elem,*elemNodes,&m_section.parentData));
       m_section.elemNodeCount--; // subtract 1 as there is one index too many storing the cell type
       ElementType_t etype = static_cast<ElementType_t>(elemNodes[0][0]);
 
@@ -326,10 +326,10 @@ void CReader::read_section(CRegion::Ptr& parent_region)
   {
     // CFinfo << "etype: " << cg_ElementTypeName(m_section.type) << "\n" << CFflush;
 
-    cg_npe(m_section.type,&m_section.elemNodeCount);
+    CALL_CGNS(cg_npe(m_section.type,&m_section.elemNodeCount));
     //// CFinfo << "elemNodeCount = " << m_section.elemNodeCount << "\n" << CFflush;
 
-    cg_ElementDataSize(m_file.idx,m_base.idx,m_zone.idx,m_section.idx,&m_section.elemDataSize	);
+    CALL_CGNS(cg_ElementDataSize(m_file.idx,m_base.idx,m_zone.idx,m_section.idx,&m_section.elemDataSize	));
     //// CFinfo << "elementDataSize = " << m_section.elemDataSize << "\n" << CFflush;
 
     int nbElems = m_section.elemDataSize/m_section.elemNodeCount;
@@ -407,7 +407,7 @@ void CReader::read_boco()
   // Read the element ID's
   int* boco_elems = new int [m_boco.nBC_elem];
   void* NormalList(NULL);
-  cg_boco_read(m_file.idx, m_base.idx, m_zone.idx, m_boco.idx, boco_elems, NormalList);
+  CALL_CGNS(cg_boco_read(m_file.idx, m_base.idx, m_zone.idx, m_boco.idx, boco_elems, NormalList));
 
 
   CRegion::Ptr bc_region = get_named_component_typed<CRegion>(get_named_component(*m_mesh, "regions"), "bc-regions").create_region(m_boco.name);
@@ -461,8 +461,8 @@ Uint CReader::get_total_nbElements()
   for (m_section.idx=1; m_section.idx<=m_zone.nbSections; ++m_section.idx)
   {
     char section_name_char[CGNS_CHAR_MAX];
-    cg_section_read(m_file.idx, m_base.idx, m_zone.idx, m_section.idx, section_name_char, &m_section.type,
-                            &m_section.eBegin, &m_section.eEnd, &m_section.nbBdry, &m_section.parentFlag);
+    CALL_CGNS(cg_section_read(m_file.idx, m_base.idx, m_zone.idx, m_section.idx, section_name_char, &m_section.type,
+                            &m_section.eBegin, &m_section.eEnd, &m_section.nbBdry, &m_section.parentFlag));
     nbElements += m_section.eEnd - m_section.eBegin + 1;
   }
   return nbElements;

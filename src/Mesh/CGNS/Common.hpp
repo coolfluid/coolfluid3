@@ -3,8 +3,11 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+
+#include <cgnslib.h>
+
 #include "Mesh/CGNS/CGNSAPI.hpp"
-#include "cgnslib.h"
+#include "Mesh/CGNS/CGNSExceptions.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -12,6 +15,15 @@ namespace CF {
 namespace Mesh {
 namespace CGNS {
 
+#define CALL_CGNS(cgns_func) {                                                 \
+                               const Uint ierr = cgns_func;                    \
+                               if (ierr)                                       \
+                               {                                               \
+                                 const char * error_msg = cg_get_error();      \
+                                 throw CGNSException (FromHere(),error_msg);   \
+                               }                                               \
+                             }
+  
 #define CGNS_CHAR_MAX 1024
 #define CGNS_VERT_IDX 0
 #define CGNS_CELL_IDX 1

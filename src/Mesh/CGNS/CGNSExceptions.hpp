@@ -1,0 +1,35 @@
+#ifndef CF_Mesh_CGNS_CGNSException_hpp
+#define CF_Mesh_CGNS_CGNSException_hpp
+
+////////////////////////////////////////////////////////////////////////////////
+
+#include "Common/Exception.hpp"
+
+////////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace Mesh {
+namespace CGNS {
+
+////////////////////////////////////////////////////////////////////////////////
+
+/// Exception thrown when CGNS throws an exception.
+/// @author Willem Deconinck
+struct CGNS_API CGNSException : public Common::Exception {
+
+ /// Constructor
+ CGNSException (const Common::CodeLocation& where, const std::string& what)
+   : Common::Exception(where, what, "CGNSException") {}
+
+}; // end CGNSException
+
+////////////////////////////////////////////////////////////////////////////////
+
+} // namespace CGNS
+} // namespace Mesh
+} // namespace CF
+
+////////////////////////////////////////////////////////////////////////////////
+
+#endif // CF_Mesh_CGNS_CGNSException_hpp
+
