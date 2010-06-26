@@ -247,8 +247,8 @@ void buildMesh(const BlockData& blockData, CMesh& mesh)
   const Uint blocks_end = blockData.blockPoints.size();
   for(Uint block = blocks_begin; block != blocks_end; ++block)
   {
-    const Uint x_segments = blockData.blockSubdivisions[block][XX];
-    const Uint y_segments = blockData.blockSubdivisions[block][YY];
+    //const Uint x_segments = blockData.blockSubdivisions[block][XX];
+    //const Uint y_segments = blockData.blockSubdivisions[block][YY];
     const Uint z_segments = blockData.blockSubdivisions[block][ZZ];
     for(Uint k = 0; k != z_segments; ++k)
     {

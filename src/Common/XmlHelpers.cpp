@@ -235,6 +235,9 @@ namespace Common {
       if ( !strcmp (name, XmlParams::tag_node_signal()) || !strcmp (name,XmlParams::tag_node_reply()) )
         return itr;
     }
+    
+    throw ShouldNotBeHere(FromHere(),"Control reaches end of non-void function");
+    return node.first_node();
   }
 
   XmlNode* XmlOps::goto_doc_node ( XmlNode& node )

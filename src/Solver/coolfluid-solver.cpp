@@ -103,9 +103,8 @@ struct LoopRegionComputeVolumes
 
     CFinfo << "GO GO GO!" << CFendl;
 
-    Uint e = 0;
     // loop on elements
-    BOOST_FOREACH(const CTable::ConstRow& elem, region.get_connectivityTable()->table())
+    for (Uint e=0; e<region.elements_count(); ++e)
     {
       std::vector<CArray::Row> nodes;
 
@@ -113,7 +112,6 @@ struct LoopRegionComputeVolumes
 
       volumes.array()[e][0] = VolumeComputer< EType >::computeVolume( nodes );
 
-      ++e;
     }
   }
 }; // LoopRegionComputeVolumes
@@ -151,9 +149,8 @@ struct LoopRegionTypeComputeVolumes
       CArray::Array& volumes = volumes_ptr->array();
       volumes.resize( boost::extents[region.elements_count()][1]);
 
-      Uint e = 0;
       // loop on elements
-      BOOST_FOREACH(const CTable::ConstRow& elem, region.get_connectivityTable()->table())
+      for (Uint e=0; e<region.elements_count(); ++e)
       {
         std::vector<CArray::Row> nodes;
 

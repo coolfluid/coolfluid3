@@ -88,14 +88,14 @@ class MyC : public ConfigObject {
   void config_bool ()
   {
     boost::any value = option("OptBool")->value();
-    bool b = boost::any_cast<bool>(value);
-//    CFinfo << "config bool [" << Common::StringOps::to_str(b) << "]\n" << CFendl;
+    // bool b = boost::any_cast<bool>(value);
+    // CFinfo << "config bool [" << Common::StringOps::to_str(b) << "]\n" << CFendl;
   }
 
   void config_int ()
   {
-    Uint i = option("OptInt")->value<int>();
-//    CFinfo << "config int [" <<  i << "]\n" << CFendl;
+    // Uint i = option("OptInt")->value<int>();
+    // CFinfo << "config int [" <<  i << "]\n" << CFendl;
   }
 
   void config_str ()
@@ -252,7 +252,7 @@ BOOST_AUTO_TEST_CASE( configure )
   BOOST_CHECK_EQUAL ( pm->option("OptInt")->value<int>(),   -156  );
   BOOST_CHECK_EQUAL ( pm->option("OptInt")->value_str() ,  "-156" );
 
-  BOOST_CHECK_EQUAL ( pm->option("OptUInt")->value<Uint>(),   134  );
+  BOOST_CHECK_EQUAL ( pm->option("OptUInt")->value<Uint>(), (Uint)  134  );
   BOOST_CHECK_EQUAL ( pm->option("OptUInt")->value_str()  ,  "134" );
 
   BOOST_CHECK_EQUAL ( pm->option("OptReal")->value<Real>(),   6.4564E+5  );

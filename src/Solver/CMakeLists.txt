@@ -2,7 +2,7 @@ CF_FIND_ORPHAN_FILES()
 
 LIST ( APPEND coolfluid-solver_files coolfluid-solver.cpp )
 
-LIST (APPEND coolfluid-solver_libs Common Neu P1)
+LIST (APPEND coolfluid-solver_libs Neu P1)
 
 CF_ADD_APP (coolfluid-solver)
 
