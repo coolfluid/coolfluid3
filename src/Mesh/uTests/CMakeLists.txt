@@ -39,19 +39,26 @@ CF_ADD_UNITTEST ( uTestLagrangeSFTetraP1 )
 
 ################################################################################
 
-LIST ( APPEND uTestLagrangeSFTriagP1_libs Common Mesh SF )
-LIST ( APPEND uTestLagrangeSFTriagP1_files
-  uTestLagrangeSFTriagP1.cpp )
+LIST ( APPEND uTestLine1DLagrangeP1_libs Common P1 )
+LIST ( APPEND uTestLine1DLagrangeP1_files
+  uTestLine1DLagrangeP1.cpp )
 
-CF_ADD_UNITTEST ( uTestLagrangeSFTriagP1 )
+CF_ADD_UNITTEST ( uTestLine1DLagrangeP1 )
+
+################################################################################
+LIST ( APPEND uTestTriag2DLagrangeP1_libs Common Mesh SF )
+LIST ( APPEND uTestTriag2DLagrangeP1_files
+  uTestTriag2DLagrangeP1.cpp )
+
+CF_ADD_UNITTEST ( uTestTriag2DLagrangeP1 )
 
 ################################################################################
 
-LIST ( APPEND uTestLagrangeSFQuadP1_libs Common P1 )
-LIST ( APPEND uTestLagrangeSFQuadP1_files
-  uTestLagrangeSFQuadP1.cpp )
+LIST ( APPEND uTestQuad2DLagrangeP1_libs Common P1 )
+LIST ( APPEND uTestQuad2DLagrangeP1_files
+  uTestQuad2DLagrangeP1.cpp )
 
-CF_ADD_UNITTEST ( uTestLagrangeSFQuadP1 )
+CF_ADD_UNITTEST ( uTestQuad2DLagrangeP1 )
 
 ################################################################################
 

@@ -110,6 +110,37 @@ public:
 };
 
 template<>
+class GaussImplementation<GeoShape::LINE, GeoShape::LINE, 1>
+{
+public:
+  template<typename GeoShapeF, typename SolShapeF, typename FunctorT, typename ResultT>
+  static void integrate(FunctorT& functor, ResultT& Result)
+  {
+    static const double mu = 0.;
+    static const double w = 2.;
+    static const RealVector mapped_coords = boost::assign::list_of(mu)(mu);
+    Result += w * functor.template valTimesDetJacobian<GeoShapeF, SolShapeF>(mapped_coords);
+  }
+};
+
+template<Uint Order>
+class GaussImplementation<GeoShape::LINE, GeoShape::LINE, Order>
+{
+public:
+  template<typename GeoShapeF, typename SolShapeF, typename FunctorT, typename ResultT>
+  static void integrate(FunctorT& functor, ResultT& result)
+  {
+    const static Uint npoints = Order/2;
+    for(Uint i = 0; i != npoints; ++i)
+    {
+      const RealVector a = boost::assign::list_of( GaussPoints<Order>::x[i]);
+      const RealVector b = boost::assign::list_of(-GaussPoints<Order>::x[i]);
+      result += GaussPoints<Order>::w[i] * (functor.template valTimesDetJacobian<GeoShapeF, SolShapeF>(a) + functor.template valTimesDetJacobian<GeoShapeF, SolShapeF>(b));
+    }
+  }
+};
+
+template<>
 class GaussImplementation<GeoShape::QUAD, GeoShape::QUAD, 1>
 {
 public:

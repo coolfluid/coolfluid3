@@ -25,15 +25,8 @@ struct Triag2DLagrangeP1Fixture
 {
   typedef std::vector<RealVector> NodesT;
   /// common setup for each test case
-  Triag2DLagrangeP1Fixture() : mapped_coords(init_mapped_coords()), nodes(init_nodes()), coord(boost::extents[3][2])
+  Triag2DLagrangeP1Fixture() : mapped_coords(init_mapped_coords()), nodes(init_nodes())
   {
-     // uncomment if you want to use arguments to the test executable
-     //int*    argc = &boost::unit_test::framework::master_test_suite().argc;
-     //char*** argv = &boost::unit_test::framework::master_test_suite().argv;
-
-    coord[0][XX]=nodes[0][XX]; coord[0][YY]=nodes[0][YY];
-    coord[1][XX]=nodes[1][XX]; coord[1][YY]=nodes[1][YY];
-    coord[2][XX]=nodes[2][XX]; coord[2][YY]=nodes[2][YY];
   }
 
   /// common tear-down for each test case
@@ -44,7 +37,6 @@ struct Triag2DLagrangeP1Fixture
 
   const CF::RealVector mapped_coords;
   const NodesT nodes;
-  CArray::Array coord;
 
   struct const_functor
   {
