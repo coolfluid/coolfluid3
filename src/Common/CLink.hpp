@@ -16,7 +16,7 @@ namespace Common {
 
   public: //typedefs
 
-    typedef boost::shared_ptr<CLink> Ptr;
+    typedef boost::shared_ptr<CLink const> ConstPtr;
 
   public: // functions
 

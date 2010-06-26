@@ -33,6 +33,7 @@ namespace Client {
   public:
 
     typedef boost::shared_ptr<CTree> Ptr;
+    typedef boost::shared_ptr<CTree const> ConstPtr;
 
     /// @brief Constructor.
 

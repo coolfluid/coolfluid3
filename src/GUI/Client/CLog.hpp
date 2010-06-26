@@ -30,6 +30,7 @@ namespace Client {
   public:
 
     typedef boost::shared_ptr<CLog> Ptr;
+    typedef boost::shared_ptr<CLog const> ConstPtr;
 
     CLog();
 

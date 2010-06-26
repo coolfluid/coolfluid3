@@ -43,6 +43,7 @@ namespace Server {
   public:
 
     typedef boost::shared_ptr<CCore> Ptr;
+    typedef boost::shared_ptr<CCore const> ConstPtr;
 
     /// @brief Constructor
 

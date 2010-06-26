@@ -20,6 +20,7 @@ namespace Client {
   public:
 
     typedef boost::shared_ptr<CBrowser> Ptr;
+    typedef boost::shared_ptr<CBrowser const> ConstPtr;
 
     CBrowser();
 

@@ -17,6 +17,7 @@ namespace Common {
   public: // typedefs
 
     typedef boost::shared_ptr<CRoot> Ptr;
+    typedef boost::shared_ptr<CRoot const> ConstPtr;
 
   public: // functions
 

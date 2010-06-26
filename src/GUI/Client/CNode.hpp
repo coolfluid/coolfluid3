@@ -67,6 +67,7 @@ namespace Client {
   public:
 
     typedef boost::shared_ptr<CNode> Ptr;
+    typedef boost::shared_ptr<CNode const> ConstPtr;
 
     /// @brief Constructor.
 
