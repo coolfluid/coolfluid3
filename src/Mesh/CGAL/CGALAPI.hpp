@@ -27,7 +27,7 @@ namespace CGAL {
 ////////////////////////////////////////////////////////////////////////////////
     
 /// Class defines the CGAL mesh format operations
-/// @author Willem Deconinck
+/// @author Bart Janssens
 class CGAL_API CGALLib :
     public CF::Common::ModuleRegister<CGALLib>
 {
