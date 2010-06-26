@@ -20,7 +20,13 @@ namespace Neu {
 /// @author Willem Deconinck
 class Neu_API CWriter : public CMeshWriter
 {
-public:
+
+public: // typedefs
+
+  typedef boost::shared_ptr<CWriter> Ptr;
+  typedef boost::shared_ptr<CWriter const> ConstPtr;
+  
+public: // functions
   
   /// constructor
   CWriter( const CName& name );
@@ -36,7 +42,7 @@ public:
 
   virtual std::vector<std::string> get_extensions();
 
-private:
+private: // functions
   
   void write_headerData(std::fstream& file);
 
@@ -50,6 +56,13 @@ private:
 
   void create_nodes_to_element_connectivity();
 
+private: // helper functions
+
+  /// regists all the signals declared in this class
+  static void regist_signals ( Component* self ) {}
+
+private: // data
+  
   // supported types from coolfluid. Neutral can support more.
   std::vector<std::string> m_supported_types;
   
@@ -66,12 +79,7 @@ private:
   boost::tuple<CRegion const* const,Uint,Uint> find_element_for_face(const CElements& face, const CTable::ConstRow& nodes, const Component& parent);
 
   CMesh::Ptr m_mesh;
-
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  static void regist_signals ( Component* self ) {}
-
+  
 }; // end CWriter
 
 

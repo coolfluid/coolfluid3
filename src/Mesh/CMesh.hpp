@@ -25,6 +25,7 @@ class Mesh_API CMesh : public Common::Component {
 public: // typedefs
 
   typedef boost::shared_ptr<CMesh> Ptr;
+  typedef boost::shared_ptr<CMesh const> ConstPtr;
 
 public: // functions
 

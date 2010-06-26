@@ -22,6 +22,7 @@ class Mesh_API CArray : public Common::Component {
 public: // typedefs
 
   typedef boost::shared_ptr<CArray> Ptr;
+  typedef boost::shared_ptr<CArray const> ConstPtr;
   typedef boost::multi_array<Real,2> Array;
   typedef Array::subarray<1>::type Row;  
   typedef Array::const_subarray<1>::type ConstRow;

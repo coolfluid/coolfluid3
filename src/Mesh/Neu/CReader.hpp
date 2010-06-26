@@ -22,8 +22,16 @@ namespace Neu {
 /// @author Willem Deconinck
 class Neu_API CReader : public CMeshReader
 {
-public:
-  
+public: // typedefs
+
+  typedef boost::shared_ptr<CReader> Ptr;
+  typedef boost::shared_ptr<CReader const> ConstPtr;
+
+private: // typedefs
+
+  typedef std::pair<boost::shared_ptr<CRegion>,Uint> Region_TableIndex_pair;
+
+public: // functions  
   /// constructor
   CReader( const CName& name );
   
@@ -36,9 +44,37 @@ public:
 
   virtual std::vector<std::string> get_extensions();
 
-private:
+private: // functions
   
   void read_headerData(std::fstream& file);
+  
+  void read_coordinates(std::fstream& file);
+
+  void read_connectivity(std::fstream& file);
+
+  void read_groups(std::fstream& file);
+
+  void read_boundaries(std::fstream& file);
+
+  virtual void read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh);
+  
+private: // helper functions
+
+  /// regists all the signals declared in this class
+  static void regist_signals ( Component* self ) {}
+
+private: // data
+
+  // map< global index , pair< temporary table, index in temporary table > >
+  std::vector<Region_TableIndex_pair> m_global_to_tmp;
+  
+  // supported types from coolfluid. Neutral can support more.
+  std::vector<std::string> m_supported_types;
+
+  CMesh::Ptr m_mesh;
+
+  std::vector<std::vector<Uint> > m_faces_cf_to_neu;
+  std::vector<std::vector<Uint> > m_faces_neu_to_cf;
   
   struct HeaderData
   {
@@ -55,10 +91,6 @@ private:
     }
   } m_headerData;
   
-  void read_coordinates(std::fstream& file);
-
-  void read_connectivity(std::fstream& file);
-
   struct GroupData
   {
     // NGP      Element group number
@@ -76,8 +108,6 @@ private:
     }
   };
   
-  void read_groups(std::fstream& file);
-  
   struct BCData
   {
     // NAME     Name of boundary-condition set
@@ -92,29 +122,6 @@ private:
       CFinfo << NAME << " " << ITYPE << " " << NENTRY << " " << NVALUES << " " << IBCODE1 << CFendl;
     }
   };
-
-  void read_boundaries(std::fstream& file);
-
-  virtual void read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh);
-  
-
-  // map< global index , pair< temporary table, index in temporary table > >
-  typedef std::pair<boost::shared_ptr<CRegion>,Uint> Region_TableIndex_pair;
-  std::vector<Region_TableIndex_pair> m_global_to_tmp;
-  
-  // supported types from coolfluid. Neutral can support more.
-  std::vector<std::string> m_supported_types;
-
-  CMesh::Ptr m_mesh;
-
-  std::vector<std::vector<Uint> > m_faces_cf_to_neu;
-  std::vector<std::vector<Uint> > m_faces_neu_to_cf;
-
-  
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  static void regist_signals ( Component* self ) {}
 
 }; // end CReader
 

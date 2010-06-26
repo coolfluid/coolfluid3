@@ -19,7 +19,26 @@ namespace Gmsh {
 /// @author Willem Deconinck
 class Gmsh_API CWriter : public CMeshWriter
 {
-public:
+public: // typedefs
+
+    typedef boost::shared_ptr<CWriter> Ptr;
+    typedef boost::shared_ptr<CWriter const> ConstPtr;
+
+private: // typedefs
+  
+  struct PhysicalGroup
+  {
+    PhysicalGroup() {}
+    PhysicalGroup(Uint phys_dim, Uint phys_number, std::string phys_name)
+     : dimension(phys_dim), number(phys_number), name(phys_name) {}
+    Uint dimension;
+    Uint number;
+    std::string name;
+  };
+  
+  typedef std::map<std::string,PhysicalGroup> PhysicalGroupMap;
+  
+public: // functions
   
   /// constructor
   CWriter( const CName& name );
@@ -35,36 +54,28 @@ public:
 
   virtual std::vector<std::string> get_extensions();
 
-private:
+private: // functions
   
   void write_header(std::fstream& file);
-  
-  struct PhysicalGroup
-  {
-    PhysicalGroup() {}
-    PhysicalGroup(Uint phys_dim, Uint phys_number, std::string phys_name)
-     : dimension(phys_dim), number(phys_number), name(phys_name) {}
-    Uint dimension;
-    Uint number;
-    std::string name;
-  };
-  
-  typedef std::map<std::string,PhysicalGroup> PhysicalGroupMap;
-  PhysicalGroupMap m_groups;
   
   void write_coordinates(std::fstream& file);
   
   void write_connectivity(std::fstream& file);
   
-  std::map<GeoShape::Type,Uint> m_elementTypes;
-  
-  CMesh::Ptr m_mesh;
-
 private: // helper functions
 
   /// regists all the signals declared in this class
   static void regist_signals ( Component* self ) {}
 
+private: // data
+
+  PhysicalGroupMap m_groups;
+  
+  std::map<GeoShape::Type,Uint> m_elementTypes;
+  
+  CMesh::Ptr m_mesh;
+  
+  
 }; // end CWriter
 
 

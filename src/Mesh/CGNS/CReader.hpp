@@ -20,7 +20,16 @@ namespace CGNS {
 /// @author Willem Deconinck
   class CGNS_API CReader : public CMeshReader, public CGNS::Common
 {
-public:
+public: // typedefs
+  
+  typedef boost::shared_ptr<CReader> Ptr;
+  typedef boost::shared_ptr<CReader const> ConstPtr;
+  
+private: // typedefs
+
+  typedef std::pair<boost::shared_ptr<CRegion>,Uint> Region_TableIndex_pair;
+
+public: // functions
   
   /// Contructor
   /// @param name of the component
@@ -37,15 +46,24 @@ public:
 
   static void defineConfigOptions ( CF::Common::OptionList& options );
 
-private:
+private: // functions
   
   void read_base(CRegion::Ptr& parent_region);
   void read_zone(CRegion::Ptr& parent_region);
   void read_coordinates();
   void read_section(CRegion::Ptr& parent_region);
   void read_boco();
-
   Uint get_total_nbElements();
+
+private: // helper functions
+
+  /// regists all the signals declared in this class
+  static void regist_signals ( Component* self ) {}
+
+private: // data
+
+  std::vector<Region_TableIndex_pair> m_global_to_region;
+  boost::shared_ptr<CMesh> m_mesh;
 
   struct CGNS_Indexes
   {
@@ -124,19 +142,6 @@ private:
     DataType_t normalDataType;
     int nDataSet;
   } m_boco;
-
-  typedef std::pair<boost::shared_ptr<CRegion>,Uint> Region_TableIndex_pair;
-  std::vector<Region_TableIndex_pair> m_global_to_region;
-
-
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  static void regist_signals ( Component* self ) {}
-
-private:
-
-  boost::shared_ptr<CMesh> m_mesh;
 
 }; // end CReader
 

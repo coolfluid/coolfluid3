@@ -32,6 +32,7 @@ public: // typedefs
   typedef Common::ConcreteProvider < CMeshReader,1 > PROVIDER;
   /// pointer to this type
   typedef boost::shared_ptr<CMeshReader> Ptr;
+  typedef boost::shared_ptr<CMeshReader const> ConstPtr;
 
 public: // functions
 

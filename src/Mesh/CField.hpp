@@ -20,6 +20,7 @@ class Mesh_API CField : public Common::Component {
 public: // typedefs
 
   typedef boost::shared_ptr<CField> Ptr;
+  typedef boost::shared_ptr<CField const> ConstPtr;
 
 public: // functions
 

@@ -32,6 +32,7 @@ public: // typedefs
 
   /// pointer to this type
   typedef boost::shared_ptr<CMeshWriter> Ptr;
+  typedef boost::shared_ptr<CMeshWriter const> ConstPtr;
 
 public: // functions
 
