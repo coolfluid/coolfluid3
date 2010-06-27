@@ -1,4 +1,4 @@
-#include "Mesh/CGNS/Common.hpp"
+#include "Mesh/CGNS/Shared.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -8,7 +8,7 @@ namespace CGNS {
   
 //////////////////////////////////////////////////////////////////////////////
 
-Common::Common()
+Shared::Shared()
 {
   m_supported_element_types.reserve(4);
   m_supported_element_types.push_back("P1-Line1D");

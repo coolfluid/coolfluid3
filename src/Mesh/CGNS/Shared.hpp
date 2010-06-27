@@ -1,5 +1,5 @@
-#ifndef CF_Mesh_CGNS_Common_hpp
-#define CF_Mesh_CGNS_Common_hpp
+#ifndef CF_Mesh_CGNS_Shared_hpp
+#define CF_Mesh_CGNS_Shared_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -31,17 +31,17 @@ namespace CGNS {
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// This class defines CGNStral mesh format Common
+/// This class defines CGNS mesh format common functionality
 /// @author Willem Deconinck
-class CGNS_API Common
+class CGNS_API Shared
 {
 public:
   
   /// constructor
-  Common();
+  Shared();
   
   /// Gets the Class name
-  static std::string getClassName() { return "Common"; }
+  static std::string getClassName() { return "Shared"; }
   
   std::vector<std::string>& get_supported_element_types() { return m_supported_element_types; }
 
@@ -53,7 +53,7 @@ protected:
 private:
   std::vector<std::string> m_supported_element_types;
 
-}; // end Common
+}; // end Shared
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -64,4 +64,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CGNS_Common_hpp
+#endif // CF_Mesh_CGNS_Shared_hpp

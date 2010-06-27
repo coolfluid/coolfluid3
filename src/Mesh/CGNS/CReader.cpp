@@ -18,18 +18,20 @@ namespace CF {
 namespace Mesh {
 namespace CGNS {
   
+using namespace Common;
+  
 ////////////////////////////////////////////////////////////////////////////////
 
-CF::Common::ObjectProvider < Mesh::CGNS::CReader,
-                             Mesh::CMeshReader,
-                             Mesh::CGNS::CGNSLib,
-                             1 >
+ObjectProvider < CReader,
+                 CMeshReader,
+                 CGNSLib,
+                 1 >
 aCGNSReader_Provider ( "CGNS" );
 
 //////////////////////////////////////////////////////////////////////////////
 
 CReader::CReader(const CName& name)
-: CMeshReader(name),
+: CMeshReader(name), Shared(),
   m_isCoordinatesCreated(false)
 {
   BUILD_COMPONENT;
@@ -46,9 +48,9 @@ std::vector<std::string> CReader::get_extensions()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CReader::defineConfigOptions ( CF::Common::OptionList& options )
+void CReader::defineConfigOptions ( OptionList& options )
 {
-  options.add< CF::Common::OptionT<bool> >
+  options.add< OptionT<bool> >
       ( "SectionsAreBCs",
         ("Treat Sections of lower dimensionality as BC. "
         "This means no BCs from cgns will be read"),
@@ -441,7 +443,7 @@ void CReader::read_boco()
     case PointList :
 
     default :
-      throw CF::Common::NotImplemented(FromHere(),"CGNS: no boundary with pointset_type " + CF::Common::StringOps::to_str<int>(m_boco.ptset_type) + " supported in CF yet"); 
+      throw NotImplemented(FromHere(),"CGNS: no boundary with pointset_type " + StringOps::to_str<int>(m_boco.ptset_type) + " supported in CF yet"); 
   }
 
   // Flush all buffers and remove empty element regions

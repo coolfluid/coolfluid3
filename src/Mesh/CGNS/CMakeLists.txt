@@ -2,8 +2,8 @@ if (CF_HAVE_CGNS)
 
   LIST ( APPEND CGNS3_files
     CGNSAPI.hpp
-    Common.hpp
-    Common.cpp
+    Shared.hpp
+    Shared.cpp
     CReader.hpp
     CReader.cpp
     CGNSExceptions.hpp
@@ -21,8 +21,8 @@ else()
 
   CF_MARK_NOT_ORPHAN (
     CGNSAPI.hpp
-    Common.hpp
-    Common.cpp
+    Shared.hpp
+    Shared.cpp
     CReader.hpp
     CReader.cpp )
 

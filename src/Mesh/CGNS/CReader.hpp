@@ -5,7 +5,7 @@
 
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CGNS/CGNSAPI.hpp"
-#include "Mesh/CGNS/Common.hpp"
+#include "Mesh/CGNS/Shared.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -18,7 +18,7 @@ namespace CGNS {
 
 /// This class defines CGNS mesh format reader
 /// @author Willem Deconinck
-  class CGNS_API CReader : public CMeshReader, public CGNS::Common
+  class CGNS_API CReader : public CMeshReader, public CGNS::Shared
 {
 public: // typedefs
   
