@@ -24,6 +24,8 @@ else()
     Shared.hpp
     Shared.cpp
     CReader.hpp
-    CReader.cpp )
+    CReader.cpp
+    CGNSExceptions.hpp
+  )
 
 endif()
