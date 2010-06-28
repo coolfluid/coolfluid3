@@ -17,6 +17,7 @@
 #include "Mesh/CArray.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
+#include "Mesh/CMeshTransformer.hpp"
 
 using namespace std;
 using namespace boost;
@@ -178,6 +179,9 @@ BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh2 )
   //CFinfo << "ready to write" << CFendl;
   meshwriter->write_from_to(mesh,fp_out);
   BOOST_CHECK_EQUAL(1,1);
+
+  CMeshTransformer::Ptr meshinfo = create_component_abstract_type<CMeshTransformer>("Info","meshinfo");
+  meshinfo->transform(mesh);
 
 }
 

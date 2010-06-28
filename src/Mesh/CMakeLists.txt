@@ -12,8 +12,12 @@ LIST( APPEND Mesh_files
   CField.cpp
   CMesh.hpp
   CMesh.cpp
+  CMeshInfo.hpp
+  CMeshInfo.cpp
   CMeshReader.hpp
   CMeshReader.cpp
+  CMeshTransformer.hpp
+  CMeshTransformer.cpp
   CMeshWriter.hpp
   CMeshWriter.cpp
   CRegion.hpp

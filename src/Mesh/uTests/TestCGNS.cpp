@@ -3,13 +3,13 @@
 #include <boost/foreach.hpp>
 #include <boost/filesystem/path.hpp>
 
-#include "cgnslib.h"
-
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/OSystem.hpp"
 #include "Common/LibLoader.hpp"
+
 #include "Math/RealVector.hpp"
+
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
@@ -17,11 +17,15 @@
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
 
+#include "Mesh/CGNS/Shared.hpp"
+
+
 using namespace std;
 using namespace boost;
 using namespace CF;
-using namespace CF::Mesh;
 using namespace CF::Common;
+using namespace CF::Mesh;
+using namespace CF::Mesh::CGNS;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -129,12 +133,12 @@ BOOST_AUTO_TEST_CASE( TestCGNSLib )
 
 /* WRITE X, Y, Z GRID POINTS TO CGNS FILE */
 /* open CGNS file for write */
- cg_open("grid_c.cgns",CG_MODE_WRITE,&index_file);
+ CALL_CGNS(cg_open("grid_c.cgns",CG_MODE_WRITE,&index_file));
 /* create base (user can give any name) */
  strcpy(basename,"Base");
  icelldim=3;
  iphysdim=3;
- cg_base_write(index_file,basename,icelldim,iphysdim,&index_base);
+ CALL_CGNS(cg_base_write(index_file,basename,icelldim,iphysdim,&index_base));
 /* define zone name (user can give any name) */
  strcpy(zonename,"Zone  1");
 /* vertex size */
@@ -144,11 +148,11 @@ BOOST_AUTO_TEST_CASE( TestCGNSLib )
 /* boundary vertex size (zero if elements not sorted) */
  isize[2][0]=0;
 /* create zone */
- cg_zone_write(index_file,index_base,zonename,isize[0],Unstructured,&index_zone);
+ CALL_CGNS(cg_zone_write(index_file,index_base,zonename,isize[0],Unstructured,&index_zone));
 /* write grid coordinates (user must use SIDS-standard names here) */
- cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateX",x,&index_coord);
- cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateY",y,&index_coord);
- cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateZ",z,&index_coord);
+ CALL_CGNS(cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateX",x,&index_coord));
+ CALL_CGNS(cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateY",y,&index_coord));
+ CALL_CGNS(cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateZ",z,&index_coord));
 /* set element connectivity: */
 /* ---------------------------------------------------------- */
 /* do all the HEXA_8 elements (this part is mandatory): */
@@ -190,8 +194,8 @@ relationships:
 /* unsorted boundary elements */
  nbdyelem=0;
 /* write HEXA_8 element connectivity (user can give any name) */
- cg_section_write(index_file,index_base,index_zone,"Elem",HEXA_8,nelem_start,  \
-                  nelem_end,nbdyelem,ielem[0],&index_section);
+ CALL_CGNS(cg_section_write(index_file,index_base,index_zone,"Elem",HEXA_8,nelem_start,  \
+                  nelem_end,nbdyelem,ielem[0],&index_section));
 /* ---------------------------------------------------------- */
 int maxelemj = 1216;
 int jelem[maxelemj][4];
@@ -226,8 +230,8 @@ maintain SIDS-standard ordering
    exit(0);
  }
 /* write QUAD element connectivity for inflow face (user can give any name) */
- cg_section_write(index_file,index_base,index_zone,"InflowElem",QUAD_4,nelem_start,  \
-                  nelem_end,nbdyelem,jelem[0],&index_section);
+ CALL_CGNS(cg_section_write(index_file,index_base,index_zone,"InflowElem",QUAD_4,nelem_start,  \
+                  nelem_end,nbdyelem,jelem[0],&index_section));
 /* OUTFLOW: */
  ielem_no=0;
 /* index no of first element */
@@ -253,8 +257,8 @@ maintain SIDS-standard ordering
    exit(0);
  }
 /* write QUAD element connectivity for outflow face (user can give any name) */
- cg_section_write(index_file,index_base,index_zone,"OutflowElem",QUAD_4,nelem_start,  \
-                  nelem_end,nbdyelem,jelem[0],&index_section);
+ CALL_CGNS(cg_section_write(index_file,index_base,index_zone,"OutflowElem",QUAD_4,nelem_start,  \
+                  nelem_end,nbdyelem,jelem[0],&index_section));
 /* SIDEWALLS: */
  ielem_no=0;
 /* index no of first element */
@@ -319,8 +323,8 @@ maintain SIDS-standard ordering
    exit(0);
  }
 /* write QUAD element connectivity for sidewall face (user can give any name) */
- cg_section_write(index_file,index_base,index_zone,"SidewallElem",QUAD_4,nelem_start,  \
-                  nelem_end,nbdyelem,jelem[0],&index_section);
+ CALL_CGNS(cg_section_write(index_file,index_base,index_zone,"SidewallElem",QUAD_4,nelem_start,  \
+                  nelem_end,nbdyelem,jelem[0],&index_section));
 /* ---------------------------------------------------------- */
 
  // part 2: add boundary conditions
@@ -342,8 +346,8 @@ maintain SIDS-standard ordering
    exit(0);
  }
 /* write boundary conditions for ilo face */
- cg_boco_write(index_file,index_base,index_zone,"inflow",BCTunnelInflow,ElementList, \
-               icount,ipnts,&index_bc);
+ CALL_CGNS(cg_boco_write(index_file,index_base,index_zone,"inflow",BCTunnelInflow,ElementList, \
+               icount,ipnts,&index_bc));
 
  // BC outflow
  /* we know that for the unstructured zone, the following face elements */
@@ -362,7 +366,7 @@ maintain SIDS-standard ordering
    exit(0);
  }
  /* write boundary conditions for ihi face */
- cg_boco_write(index_file,index_base,index_zone,"outflow",BCExtrapolate,ElementList,icount,ipnts,&index_bc);
+ CALL_CGNS(cg_boco_write(index_file,index_base,index_zone,"outflow",BCExtrapolate,ElementList,icount,ipnts,&index_bc));
 
 
 /* we know that for the unstructured zone, the following face elements */
@@ -381,14 +385,14 @@ maintain SIDS-standard ordering
    exit(0);
  }
 /* write boundary conditions for wall faces */
- cg_boco_write(index_file,index_base,index_zone,"Walls",BCWallInviscid,ElementList,icount,ipnts,&index_bc);
+ CALL_CGNS(cg_boco_write(index_file,index_base,index_zone,"Walls",BCWallInviscid,ElementList,icount,ipnts,&index_bc));
 
 
 /* ---------------------------------------------------------- */
 
 
 /* close CGNS file */
- cg_close(index_file);
+ CALL_CGNS(cg_close(index_file));
  //printf("\nSuccessfully wrote unstructured grid to file grid_c.cgns\n");
 
 }
@@ -398,43 +402,36 @@ maintain SIDS-standard ordering
 BOOST_AUTO_TEST_CASE( ReadCGNS )
 {
 
-  boost::shared_ptr<CMeshReader> meshreader = create_component_abstract_type<CMeshReader>("CGNS","meshreader");
-
-//  XMLNode options_node = XMLNode::createXMLTopNode("xml", TRUE);
-//  options_node.addAttribute("version","1.0");
-//  options_node.addAttribute("encoding","UTF-8");
-//  options_node.addAttribute("standalone","yes");
-//  meshreader->list_options ( options_node );
-//  XMLSTR options_xml_str = options_node.createXMLString();
-//  CFinfo << "\noptions_xml_str\n" << options_xml_str << CFflush;
-//  freeXMLString(options_xml_str);
+  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CGNS","meshreader");
 
   // the file to read from
   boost::filesystem::path fp_in ("grid_c.cgns");
-  //boost::filesystem::path fp_in ("kw_mark.cgns");
-  //boost::filesystem::path fp_in ("/Users/willem/workspace/coolfluid3/builds/qt/src/Mesh/uTests/tut21.cgns");
-  //boost::filesystem::path fp_in ("/Users/willem/workspace/coolfluid3/builds/qt/src/Mesh/uTests/oversetnasa2.cgns");
-  //boost::filesystem::path fp_in ("/Users/willem/workspace/testcases/square_2D_Re10000_FVM_LES/cases/refined.neu");
 
   // the mesh to store in
   CMesh::Ptr mesh = meshreader->create_mesh_from(fp_in);
 
-//  // Output data structure
-//  XMLNode mesh_node = XMLNode::createXMLTopNode("xml", TRUE);
-//  mesh_node.addAttribute("version","1.0");
-//  mesh_node.addAttribute("encoding","UTF-8");
-//  mesh_node.addAttribute("standalone","yes");
-//  mesh->xml_tree( mesh_node );
-//  XMLSTR xml_str = mesh_node.createXMLString();
-//  CFinfo << "xml_str\n" << xml_str << CFflush;
-//  freeXMLString(xml_str);
+  CFinfo << mesh->tree() << CFendl;
 
+  // Write to Gmsh
   boost::filesystem::path fp_out ("grid_c.msh");
-//  boost::filesystem::path fp_out ("kw_mark.msh");
+  CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
+  gmsh_writer->write_from_to(mesh,fp_out);
 
-  CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
-  meshwriter->write_from_to(mesh,fp_out);
+  // Write to Neu
+  boost::filesystem::path neu_out ("grid_c.neu");
+  CMeshWriter::Ptr neu_writer = create_component_abstract_type<CMeshWriter>("Neu","meshwriter");
+  neu_writer->write_from_to(mesh,neu_out);
 
+  // Read from Neu
+  CMeshReader::Ptr neu_reader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
+  CMesh::Ptr mesh_from_neu = neu_reader->create_mesh_from(neu_out);
+
+  // Write to Gmsh
+  boost::filesystem::path gmsh_out ("cgns2neu2gmsh.msh");
+  gmsh_writer->write_from_to(mesh_from_neu,gmsh_out);
+  
+  
+  CFinfo << mesh_from_neu->tree() << CFendl;
 
 }
 

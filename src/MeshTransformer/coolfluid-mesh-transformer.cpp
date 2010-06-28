@@ -9,6 +9,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
+#include "Mesh/CMeshTransformer.hpp"
 
 using namespace boost;
 using namespace boost::program_options;
@@ -31,6 +32,7 @@ int main(int argc, char * argv[])
   std::map<std::string,std::vector<CMeshWriter::Ptr> > extensions_to_writers;
   std::vector<CMeshReader::Ptr> readers;
   std::vector<CMeshWriter::Ptr> writers;
+  std::vector<std::string> transformers;
 
   std::vector<CMeshReader::PROVIDER*> allmeshreaders = Factory<CMeshReader>::instance().getAllConcreteProviders();
   BOOST_FOREACH(CMeshReader::PROVIDER* prov, allmeshreaders)
@@ -50,11 +52,19 @@ int main(int argc, char * argv[])
       extensions_to_writers[extension].push_back(writer);
   }
 
+  std::vector<CMeshTransformer::PROVIDER*> allmeshtransformers = Factory<CMeshTransformer>::instance().getAllConcreteProviders();
+  BOOST_FOREACH(CMeshTransformer::PROVIDER* prov, allmeshtransformers)
+  {
+//    CMeshTransformer::Ptr transformer = dynamic_pointer_cast<CMeshTransformer>(prov->create("transformer"));
+    transformers.push_back(prov->getProviderName());
+  }
+  
   options_description desc("General Options");
    desc.add_options()
        ("help,h", "this help")
        ("input,i" , value<std::vector<std::string> >()->multitoken(), "input file(s)")
        ("output,o", value<std::vector<std::string> >()->multitoken(), "output file(s)")
+       ("transform,t", value<std::vector<std::string> >()->multitoken(), "transformations")
        ("dryrun,d", "dry run")
        ("version,v", "show version")
        ;
@@ -88,9 +98,14 @@ int main(int argc, char * argv[])
        BOOST_FOREACH(const std::string& ext, writer->get_extensions())
          extensions += ext + " ";
        vt.push_back(extensions);
-     }     vk.push_back("");                      vt.push_back("");
+     }     
+     vk.push_back("");                      vt.push_back("");
      vk.push_back("Transformations:");      vt.push_back("");
-     vk.push_back("  no transformations implemented");    vt.push_back("");
+     BOOST_FOREACH(const std::string& transformer_name, transformers)
+     {
+       vk.push_back("  " + transformer_name);     vt.push_back("");
+     }
+     vk.push_back("");                      vt.push_back("");
 
      // output with keys strings adjusted to the same length
      unsigned l = 0;
@@ -170,49 +185,59 @@ int main(int argc, char * argv[])
          if (!dryrun) reader->read_from_to(inputfile,mesh);
        }
      }
-     else if (option.string_key=="t")
+     else if (option.string_key=="transform")
      {
-
-     }
-  else if (option.string_key=="output")
-  {
-    BOOST_FOREACH(OptionValue value, option.value)
-    {
-     filesystem::path outputfile (value);
-     const std::string ext = outputfile.extension();
-
-     CMeshWriter::Ptr writer;
-     if (!extensions_to_writers.count(ext))
-     {
-       Uint selection = 0;
-       CFinfo << outputfile << " has ambiguous extension " << ext << CFendl;
-       BOOST_FOREACH(const CMeshWriter::Ptr selectwriter , writers)
-         CFinfo << "  [" << selection++ +1 << "]  " << selectwriter->get_format() << CFendl;
-       CFinfo << "Select the correct writer: " << CFflush;
-       std::cin >> selection;
-       writer = writers[--selection];
-     }
-     else
-     {
-       Uint selection = 0;
-       if (extensions_to_writers[ext].size()>1)
+       BOOST_FOREACH(OptionValue value, option.value)
        {
-         CFinfo << outputfile << " with extension " << ext << " has multiple writers: " << CFendl;
-         BOOST_FOREACH(const CMeshWriter::Ptr selectwriter , extensions_to_writers[ext])
-           CFinfo << "  [" << selection++ +1 << "]  " << selectwriter->get_format() << CFendl;
-         CFinfo << "Select the correct writer: " << CFflush;
-         std::cin >> selection;
-         --selection;
+         
+         const std::string transformer_name(value);
+         
+         CMeshTransformer::Ptr transformer = create_component_abstract_type<CMeshTransformer>(transformer_name,"transformer");
+                  
+         CFinfo << "Transforming mesh with " << transformer_name << CFendl;
+         
+         if (!dryrun) transformer->transform(mesh);
        }
-       writer = extensions_to_writers[ext][selection];
+       
      }
+     else if (option.string_key=="output")
+     {
+       BOOST_FOREACH(OptionValue value, option.value)
+       {
+        filesystem::path outputfile (value);
+        const std::string ext = outputfile.extension();
 
-     CFinfo << "Writing " << outputfile << " with " << writer->get_format() << CFendl;
+        CMeshWriter::Ptr writer;
+        if (!extensions_to_writers.count(ext))
+        {
+          Uint selection = 0;
+          CFinfo << outputfile << " has ambiguous extension " << ext << CFendl;
+          BOOST_FOREACH(const CMeshWriter::Ptr selectwriter , writers)
+            CFinfo << "  [" << selection++ +1 << "]  " << selectwriter->get_format() << CFendl;
+          CFinfo << "Select the correct writer: " << CFflush;
+          std::cin >> selection;
+          writer = writers[--selection];
+        }
+        else
+        {
+          Uint selection = 0;
+          if (extensions_to_writers[ext].size()>1)
+          {
+            CFinfo << outputfile << " with extension " << ext << " has multiple writers: " << CFendl;
+            BOOST_FOREACH(const CMeshWriter::Ptr selectwriter , extensions_to_writers[ext])
+              CFinfo << "  [" << selection++ +1 << "]  " << selectwriter->get_format() << CFendl;
+            CFinfo << "Select the correct writer: " << CFflush;
+            std::cin >> selection;
+            --selection;
+          }
+          writer = extensions_to_writers[ext][selection];
+        }
 
-     if (!dryrun) writer->write_from_to(mesh,outputfile);
+        CFinfo << "Writing " << outputfile << " with " << writer->get_format() << CFendl;
+
+        if (!dryrun) writer->write_from_to(mesh,outputfile);
+      }
     }
-  }
-
   }
 
   //CoreEnv::instance().terminate();

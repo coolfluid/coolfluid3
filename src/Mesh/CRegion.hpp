@@ -131,6 +131,17 @@ public:
     CTable::ConstPtr connTable = get_connectivityTable();
     return connTable.get() ? connTable->table().size() : 0;
   }
+  
+  /// @return the number of elements stored in this region, excluding any subregions
+  Uint recursive_elements_count() const
+  {
+    Uint elem_count = elements_count();
+    BOOST_FOREACH(const CRegion& region, recursive_filtered_range_typed<CRegion>(*this,IsComponentTrue()))
+    {
+      elem_count += region.elements_count();
+    }
+    return elem_count;
+  }
 
 private: // helper functions
 
