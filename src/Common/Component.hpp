@@ -200,7 +200,7 @@ public: // functions
   /// @param new_parent will be the new parent of this component
   void move_component ( Ptr new_parent );
 
-  void print_tree(Uint level=0);
+  std::string tree(Uint level=0);
 
   /// @name SIGNALS
   //@{

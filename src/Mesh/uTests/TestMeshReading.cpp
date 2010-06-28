@@ -43,32 +43,7 @@ struct MeshReading_Fixture
 
   /// possibly common functions used on the tests below
   
-  /// These are handy functions that should maybe be implemented somewhere easily accessible.
-  
-  /// create a Real vector with 2 coordinates
-  RealVector create_coord(const Real& x, const Real& y) {
-    RealVector coordVec(2);
-    coordVec[XX]=x;
-    coordVec[YY]=y;
-    return coordVec;
-  }
-  
-  /// create a Uint vector with 4 node ID's
-  std::vector<Uint> create_quad(const Uint& A, const Uint& B, const Uint& C, const Uint& D) {
-    Uint quad[] = {A,B,C,D};
-    std::vector<Uint> quadVec;
-    quadVec.assign(quad,quad+4);
-    return quadVec;
-  }
-  
-  /// create a Uint vector with 3 node ID's
-  std::vector<Uint> create_triag(const Uint& A, const Uint& B, const Uint& C) {
-    Uint triag[] = {A,B,C};
-    std::vector<Uint> triagVec;
-    triagVec.assign(triag,triag+3);
-    return triagVec;
-  }
-  
+
   /// common values accessed by all tests goes here
 
 };
@@ -81,7 +56,7 @@ BOOST_FIXTURE_TEST_SUITE( MeshReading_TestSuite, MeshReading_Fixture )
 
 BOOST_AUTO_TEST_CASE( Constructors )
 {
-  boost::shared_ptr<CMeshReader> meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
+  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
   BOOST_CHECK_EQUAL(meshreader->name(),"meshreader");
   BOOST_CHECK_EQUAL(meshreader->get_format(),"Neu");
 
@@ -99,7 +74,7 @@ BOOST_AUTO_TEST_CASE( Constructors )
 
 BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh )
 {
-  boost::shared_ptr<CMeshReader> meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
+  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
 
   // UNCOMMENT ALL THIS AND CHANGE THE FILEPATH "fp" TO A VALID PATH
   
@@ -107,10 +82,40 @@ BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh )
   boost::filesystem::path fp_in ("quadtriag.neu");
 
   // the mesh to store in
-  boost::shared_ptr<CMesh> mesh ( new CMesh  ( "mesh" ) );
+  CMesh::Ptr mesh ( new CMesh  ( "mesh" ) );
   
   meshreader->read_from_to(fp_in,mesh);
-  //mesh->print_tree();
+  
+  std::string text = (
+                      "mesh\n"
+                      "  coordinates\n"
+                      "  regions\n"
+                      "    gas\n"
+                      "      P1-Quad2D\n"
+                      "        table\n"
+                      "        type\n"			
+                      "      P1-Triag2D\n"
+                      "        table\n"
+                      "        type\n"
+                      "    inlet\n"
+                      "      P1-Line2D\n"
+                      "        table\n"
+                      "        type\n"
+                      "    liquid\n"
+                      "      P1-Triag2D\n"
+                      "        table\n"
+                      "        type\n"
+                      "    outlet\n"
+                      "      P1-Line2D\n"
+                      "        table\n"
+                      "        type\n"
+                      "    wall\n"
+                      "      P1-Line2D\n"
+                      "        table\n"
+                      "        type\n"
+                      );
+  // test if tree matches
+  BOOST_CHECK_EQUAL(text,mesh->tree());
 
   boost::filesystem::path fp_out ("quadtriag.msh");
   CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
@@ -133,13 +138,43 @@ BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh2 )
   boost::filesystem::path fp_out("quadtriag_write.msh");
 
   // the mesh to store in
-  boost::shared_ptr<CMesh> mesh ( new CMesh  ( "mesh" ) );
+  CMesh::Ptr mesh ( new CMesh  ( "mesh" ) );
 
   //CFinfo << "ready to read" << CFendl;
   meshreader->read_from_to(fp_in,mesh);
 
-  //mesh->print_tree();
-
+  std::string text = (
+                      "mesh\n"
+                      "  coordinates\n"
+                      "  regions\n"
+                      "    gas\n"
+                      "      P1-Quad2D\n"
+                      "        table\n"
+                      "        type\n"			
+                      "      P1-Triag2D\n"
+                      "        table\n"
+                      "        type\n"
+                      "    inlet\n"
+                      "      P1-Line2D\n"
+                      "        table\n"
+                      "        type\n"
+                      "    liquid\n"
+                      "      P1-Triag2D\n"
+                      "        table\n"
+                      "        type\n"
+                      "    outlet\n"
+                      "      P1-Line2D\n"
+                      "        table\n"
+                      "        type\n"
+                      "    wall\n"
+                      "      P1-Line2D\n"
+                      "        table\n"
+                      "        type\n"
+                      );
+  // test if tree matches
+  BOOST_CHECK_EQUAL(text,mesh->tree());
+  
+  
   //CFinfo << "ready to write" << CFendl;
   meshwriter->write_from_to(mesh,fp_out);
   BOOST_CHECK_EQUAL(1,1);

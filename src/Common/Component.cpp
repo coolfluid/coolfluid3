@@ -364,16 +364,18 @@ void Component::list_tree( XmlNode& xml )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::print_tree(Uint level)
+std::string Component::tree(Uint level)
 {
+  std::string tree;
   for (Uint i=0; i<level; i++)
-    CFinfo << "\t";
-  CFinfo << name() << CFendl;
+    tree += "  ";
+  tree += name() + "\n";
 
   BOOST_FOREACH( CompStorage_t::value_type c, m_components )
   {
-    c.second->print_tree( level+1 );
+    tree += c.second->tree(level+1);
   }
+  return tree;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
