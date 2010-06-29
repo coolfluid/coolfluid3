@@ -58,13 +58,34 @@ CMeshInfo::CMeshInfo( const CName& name )
 
 /////////////////////////////////////////////////////////////////////////////
 
+std::string CMeshInfo::brief_description() const
+{
+  return "Print information of the mesh";
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+  
+std::string CMeshInfo::help() const
+{
+  std::stringstream out;
+ 
+  out << "  " << brief_description() << "\n";
+  out << "  Usage: Info \n\n";
+  out << "          Information given: internal mesh hierarchy,\n";
+  out << "      element distribution for each region, and element type"; 
+  
+  return out.str();
+}  
+  
+/////////////////////////////////////////////////////////////////////////////
+
 void CMeshInfo::transform(const CMesh::Ptr& mesh, const std::vector<std::string>& args)
 {
 
   m_mesh = mesh;
 
   CFinfo << "Element distribution:" << CFendl;
-  CFinfo << "---------------------" << CFendl;
   BOOST_FOREACH( const CRegion& region, filtered_range_typed<CRegion>(*m_mesh,IsComponentTrue()))
   {
     CFinfo << print_region_tree(region) << CFflush;
@@ -79,7 +100,7 @@ std::string CMeshInfo::print_region_tree(const CRegion& region, Uint level)
   std::string tree;
   
   for (Uint i=0; i<level; i++)
-    tree += "  ";
+    tree += "    ";
   tree += region.name() + " (" + StringOps::to_str<Uint>(region.recursive_elements_count()) +  ")\n";
   
   BOOST_FOREACH( const CRegion& subregion, filtered_range_typed<CRegion>(region,IsComponentTrue()))

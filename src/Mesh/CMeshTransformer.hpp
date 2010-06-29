@@ -56,6 +56,12 @@ public: // functions
   // --------- Direct access ---------
 
   virtual void transform(const CMesh::Ptr& mesh, const std::vector<std::string>& args = std::vector<std::string>())= 0;
+  
+  /// brief description, typically one line
+  virtual std::string brief_description() const = 0;
+
+  /// extended help that user can query
+  virtual std::string help() const = 0;
 
 protected: // functions
 

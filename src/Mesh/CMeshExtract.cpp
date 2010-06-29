@@ -58,15 +58,36 @@ CMeshExtract::CMeshExtract( const CName& name )
 }
 
 /////////////////////////////////////////////////////////////////////////////
+  
+std::string CMeshExtract::brief_description() const
+{
+  return "Extract given regions from the mesh";
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+std::string CMeshExtract::help() const
+{
+  std::stringstream out;
+  out << "  " << brief_description() << "\n";
+  out << "  Usage: Extract [region_name1 region_name2 ...]\n\n";
+  out << "          Special cases: \"surfaces\", \"volumes\" as region_name.\n";
+  out << "      These take precedence over real region_names."; 
+  
+  return out.str();
+}
+  
+/////////////////////////////////////////////////////////////////////////////
 
 void CMeshExtract::transform(const CMesh::Ptr& mesh, const std::vector<std::string>& args)
 {
 
   m_mesh = mesh;
 
+  
+  // special cases "volumes" and "surfaces" as arg
   BOOST_FOREACH(const std::string region_name, args)
   {
-    // special cases:
     if (region_name == "surfaces")
     {
       Uint dimensionality = 0;
@@ -118,39 +139,21 @@ void CMeshExtract::transform(const CMesh::Ptr& mesh, const std::vector<std::stri
           region.get_parent()->remove_component(region.name());
         }
       }
-    }
-    else
-    {
-      BOOST_FOREACH( CRegion& region, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
-      {
-        if (region.name() != region_name)
-        {
-          // delete this region
-          region.get_parent()->remove_component(region.name());          
-        }
-      }
-    }
-
-    
+    }    
   }
   
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-std::string CMeshExtract::print_region_tree(const CRegion& region, Uint level)
-{
-  std::string tree;
   
-  for (Uint i=0; i<level; i++)
-    tree += "  ";
-  tree += region.name() + " (" + StringOps::to_str<Uint>(region.recursive_elements_count()) +  ")\n";
-  
-  BOOST_FOREACH( const CRegion& subregion, filtered_range_typed<CRegion>(region,IsComponentTrue()))
+  BOOST_FOREACH( CRegion& region, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
   {
-    tree += print_region_tree(subregion,level+1);
+    // see if this region has to be deleted.
+    bool found = (std::find(args.begin(),args.end(),region.name()) != args.end());
+    if (!found)
+      region.get_parent()->remove_component(region.name());          
   }
-  return tree;    
+  
+  
+  
+  
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -32,8 +32,9 @@ int main(int argc, char * argv[])
   std::map<std::string,std::vector<CMeshWriter::Ptr> > extensions_to_writers;
   std::vector<CMeshReader::Ptr> readers;
   std::vector<CMeshWriter::Ptr> writers;
-  std::vector<std::string> transformers;
-  
+  typedef std::pair<std::string,std::string> transformers_description_t;
+  std::map<std::string,std::string> transformers_description;
+    
   std::vector<CMeshReader::PROVIDER*> allmeshreaders = Factory<CMeshReader>::instance().getAllConcreteProviders();
   BOOST_FOREACH(CMeshReader::PROVIDER* prov, allmeshreaders)
   {
@@ -55,13 +56,13 @@ int main(int argc, char * argv[])
   std::vector<CMeshTransformer::PROVIDER*> allmeshtransformers = Factory<CMeshTransformer>::instance().getAllConcreteProviders();
   BOOST_FOREACH(CMeshTransformer::PROVIDER* prov, allmeshtransformers)
   {
-    //    CMeshTransformer::Ptr transformer = dynamic_pointer_cast<CMeshTransformer>(prov->create("transformer"));
-    transformers.push_back(prov->getProviderName());
+    CMeshTransformer::Ptr transformer = dynamic_pointer_cast<CMeshTransformer>(prov->create("transformer"));
+    transformers_description[prov->getProviderName()] = transformer->brief_description();
   }
   
   options_description desc("General Options");
   desc.add_options()
-  ("help,h", "this help")
+  ("help,h", value<std::string>()->implicit_value(std::string()) , "this help if no arg, or more detailed help of submodule")
   ("input,i" , value<std::vector<std::string> >()->multitoken(), "input file(s)")
   ("output,o", value<std::vector<std::string> >()->multitoken(), "output file(s)")
   ("transform,t", value<std::vector<std::string> >()->multitoken(), "transformations")
@@ -77,46 +78,62 @@ int main(int argc, char * argv[])
   
   if (vm.count("help") || vm.size()==0)
   {
-    CFinfo << CFendl << "Usage: " << argv[0] << " [options]" << CFendl << CFendl;
-    CFinfo << desc << CFendl;
-    std::vector< std::string > vk, vt;
-    vk.push_back("Input formats:");        vt.push_back("");
-    BOOST_FOREACH(const CMeshReader::Ptr& reader, readers)
+    std::string submodule = std::string();
+    if (vm.size() != 0)
+      submodule = vm["help"].as<std::string>();
+
+    if (submodule == std::string())
     {
-      vk.push_back("  " + reader->get_format());
-      std::string extensions;
-      BOOST_FOREACH(const std::string& ext, reader->get_extensions())
-      extensions += ext + " ";
-      vt.push_back(extensions);
+      // Default help
+      CFinfo << CFendl << "Usage: " << argv[0] << " [options]" << CFendl << CFendl;
+      CFinfo << desc << CFendl;
+      std::vector< std::string > vk, vt;
+      vk.push_back("Input formats:");        vt.push_back("");
+      BOOST_FOREACH(const CMeshReader::Ptr& reader, readers)
+      {
+        vk.push_back("  " + reader->get_format());
+        std::string extensions;
+        BOOST_FOREACH(const std::string& ext, reader->get_extensions())
+        extensions += ext + " ";
+        vt.push_back(extensions);
+      }
+      vk.push_back("");                      vt.push_back("");
+      vk.push_back("Output formats:");       vt.push_back("");
+      BOOST_FOREACH(const CMeshWriter::Ptr& writer, writers)
+      {
+        vk.push_back("  " + writer->get_format());
+        std::string extensions;
+        BOOST_FOREACH(const std::string& ext, writer->get_extensions())
+        extensions += ext + " ";
+        vt.push_back(extensions);
+      }     
+      vk.push_back("");                      vt.push_back("");
+      vk.push_back("Transformations:");      vt.push_back("(use --help 'transformation' for more info)");
+      BOOST_FOREACH(transformers_description_t transformer, transformers_description)
+      {
+        vk.push_back("  " + transformer.first);     vt.push_back(transformer.second);
+      }
+      vk.push_back("");                      vt.push_back("");
+      
+      // output with keys strings adjusted to the same length
+      unsigned l = 0;
+      for (unsigned i=0; i<vk.size(); ++i)
+        l = (l>vk[i].length()? l:vk[i].length());
+      l+=2;
+      for (unsigned i=0; i<vk.size(); ++i)
+        vk[i].insert(vk[i].end(),l-vk[i].length(),' ');
+      
+      for (unsigned i=0; i<vk.size(); ++i)
+        CFinfo << vk[i] << vt[i] << CFendl;
     }
-    vk.push_back("");                      vt.push_back("");
-    vk.push_back("Output formats:");       vt.push_back("");
-    BOOST_FOREACH(const CMeshWriter::Ptr& writer, writers)
+    else
     {
-      vk.push_back("  " + writer->get_format());
-      std::string extensions;
-      BOOST_FOREACH(const std::string& ext, writer->get_extensions())
-      extensions += ext + " ";
-      vt.push_back(extensions);
-    }     
-    vk.push_back("");                      vt.push_back("");
-    vk.push_back("Transformations:");      vt.push_back("");
-    BOOST_FOREACH(const std::string& transformer_name, transformers)
-    {
-      vk.push_back("  " + transformer_name);     vt.push_back("");
+      CFinfo << "\n" << submodule << ":" << CFendl;
+      CMeshTransformer::Ptr transformer = create_component_abstract_type<CMeshTransformer>(submodule,"transformer");
+      CFinfo << transformer->help() << CFendl;
     }
-    vk.push_back("");                      vt.push_back("");
-    
-    // output with keys strings adjusted to the same length
-    unsigned l = 0;
-    for (unsigned i=0; i<vk.size(); ++i)
-      l = (l>vk[i].length()? l:vk[i].length());
-    l+=2;
-    for (unsigned i=0; i<vk.size(); ++i)
-      vk[i].insert(vk[i].end(),l-vk[i].length(),' ');
-    
-    for (unsigned i=0; i<vk.size(); ++i)
-      CFinfo << vk[i] << vt[i] << CFendl;
+
+
     exit(0);
   }
   
@@ -180,7 +197,7 @@ int main(int argc, char * argv[])
           reader = extensions_to_readers[ext][selection];
         }
         
-        CFinfo << "Reading " << inputfile << " with " << reader->get_format() << CFendl;
+        CFinfo << "\nReading " << inputfile << " with " << reader->get_format() << CFendl;
         
         if (!dryrun) reader->read_from_to(inputfile,mesh);
       }
@@ -198,7 +215,7 @@ int main(int argc, char * argv[])
           transformer_args += " ";
       }
       CMeshTransformer::Ptr transformer = create_component_abstract_type<CMeshTransformer>(transformer_name,"transformer");
-      CFinfo << "Transforming mesh with " << transformer_name << " [" << transformer_args << "]" << CFendl;
+      CFinfo << "\nTransforming mesh with " << transformer_name << " [" << transformer_args << "]" << CFendl;
       if (!dryrun) transformer->transform(mesh, parsed_transformer_args);       
     }
     else if (option.string_key=="output")
@@ -234,7 +251,7 @@ int main(int argc, char * argv[])
           writer = extensions_to_writers[ext][selection];
         }
         
-        CFinfo << "Writing " << outputfile << " with " << writer->get_format() << CFendl;
+        CFinfo << "\nWriting " << outputfile << " with " << writer->get_format() << CFendl;
         
         if (!dryrun) writer->write_from_to(mesh,outputfile);
       }

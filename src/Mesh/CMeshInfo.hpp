@@ -35,7 +35,13 @@ public: // functions
   static void defineConfigOptions ( CF::Common::OptionList& options ) {}
 
   virtual void transform(const CMesh::Ptr& mesh, const std::vector<std::string>& args);
-
+  
+  /// brief description, typically one line
+  virtual std::string brief_description() const;
+  
+  /// extended help that user can query
+  virtual std::string help() const;
+  
 private: // functions
  
   std::string print_region_tree(const CRegion& region, Uint level=0);
