@@ -153,6 +153,16 @@ void CMeshExtract::transform(const CMesh::Ptr& mesh, const std::vector<std::stri
   
   
   
+  // remove regions that have no elements
+  BOOST_FOREACH( CRegion& region, recursive_filtered_range_typed<CRegion>(*m_mesh,IsComponentTrue()))
+  {
+    if (region.recursive_elements_count() == 0)
+    {
+      region.get_parent()->remove_component(region.name());
+    }
+  }
+
+  
   
 }
 

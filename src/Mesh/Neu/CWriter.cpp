@@ -153,9 +153,14 @@ void CWriter::write_headerData(std::fstream& file)
   Uint group_counter(0);
   Uint element_counter(0);
   Uint bc_counter(0);
+  CArray::Ptr coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
+  const Uint coord_dim = coordinates->array().shape()[1];
   Uint node_counter = get_named_component_typed<CArray>(*m_mesh, "coordinates").array().shape()[0];
-  Uint coord_dim    = get_named_component_typed<CArray>(*m_mesh, "coordinates").array().shape()[1];
-
+  Uint max_dimensionality = 0;
+  // Find maximal dimensionality of the whole mesh
+  BOOST_FOREACH( const CRegion& region, recursive_filtered_range_typed<CRegion>(*m_mesh,IsElementRegion()))
+    max_dimensionality = std::max(region.elements_type().getDimensionality() , max_dimensionality);
+  
 
   BOOST_FOREACH(const CRegion& group, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
   {
@@ -164,7 +169,7 @@ void CWriter::write_headerData(std::fstream& file)
     {
       bool isElementBC(false);
       Uint dimensionality = get_component_typed<CElements>(elementregion,IsComponentTrue()).getDimensionality();
-      if (dimensionality < coord_dim) // is bc
+      if (dimensionality < max_dimensionality) // is bc
       {
         isElementBC = true;
         isGroupBC = true;
@@ -278,15 +283,17 @@ void CWriter::write_connectivity(std::fstream& file)
 void CWriter::write_groups(std::fstream& file)
 {
   Uint group_counter(0);
-  const CArray& coordinates = get_named_component_typed<CArray>(*m_mesh,"coordinates");
-  const Uint coord_dim = coordinates.array().shape()[1];
+  Uint max_dimensionality = 0;
+  // Find maximal dimensionality of the whole mesh
+  BOOST_FOREACH( const CRegion& region, recursive_filtered_range_typed<CRegion>(*m_mesh,IsElementRegion()))
+    max_dimensionality = std::max(region.elements_type().getDimensionality() , max_dimensionality);
   BOOST_FOREACH(const CRegion& group, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
   {
     bool isBC(false);
     BOOST_FOREACH(const CRegion& elementregion, recursive_filtered_range_typed <CRegion>(group,IsElementRegion()))
     {
       Uint dimensionality = get_component_typed<CElements>(elementregion,IsComponentTrue()).getDimensionality();
-      if (dimensionality < coord_dim) // is bc
+      if (dimensionality < max_dimensionality) // is bc
       {
         isBC = true;
       }
@@ -328,9 +335,11 @@ void CWriter::write_groups(std::fstream& file)
 
 void CWriter::write_boundaries(std::fstream& file)
 {
-  const CArray& coordinates = get_named_component_typed<CArray>(*m_mesh,"coordinates");
-  const Uint coord_dim = coordinates.array().shape()[1];
-
+  Uint max_dimensionality = 0;
+  // Find maximal dimensionality of the whole mesh
+  BOOST_FOREACH( const CRegion& region, recursive_filtered_range_typed<CRegion>(*m_mesh,IsElementRegion()))
+    max_dimensionality = std::max(region.elements_type().getDimensionality() , max_dimensionality);
+  
   create_nodes_to_element_connectivity();
 
   // Find total number of boundary elements
@@ -340,7 +349,7 @@ void CWriter::write_boundaries(std::fstream& file)
     BOOST_FOREACH(const CRegion& elementregion, recursive_filtered_range_typed<CRegion>(group,IsElementRegion()))
     {
       Uint dimensionality = get_component_typed<CElements>(elementregion,IsComponentTrue()).getDimensionality();
-      if (dimensionality < coord_dim) // is bc
+      if (dimensionality < max_dimensionality) // is bc
       {
         total_nbElements += elementregion.elements_count();
       }
@@ -356,7 +365,7 @@ void CWriter::write_boundaries(std::fstream& file)
     BOOST_FOREACH(const CRegion& elementregion, recursive_filtered_range_typed<CRegion>(group,IsElementRegion()))
     {
       Uint dimensionality = get_component_typed<CElements>(elementregion,IsComponentTrue()).getDimensionality();
-      if (dimensionality < coord_dim) // is bc
+      if (dimensionality < max_dimensionality) // is bc
       {
         isBC = true;
       }
