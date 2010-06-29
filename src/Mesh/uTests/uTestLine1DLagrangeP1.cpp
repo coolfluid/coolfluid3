@@ -38,7 +38,6 @@ struct LagrangeSFLine1DLagrangeP1Fixture
 
   const CF::RealVector mapped_coords;
   const NodesT nodes;
-  CArray::Array coord;
 
   struct const_functor
   {

@@ -39,11 +39,19 @@ CF_ADD_UNITTEST ( uTestLagrangeSFTetraP1 )
 
 ################################################################################
 
-LIST ( APPEND uTestLine1DLagrangeP1_libs P1 )
+LIST ( APPEND uTestLine1DLagrangeP1_libs SF )
 LIST ( APPEND uTestLine1DLagrangeP1_files
   uTestLine1DLagrangeP1.cpp )
 
 CF_ADD_UNITTEST ( uTestLine1DLagrangeP1 )
+
+################################################################################
+
+LIST ( APPEND uTestLine2DLagrangeP1_libs SF )
+LIST ( APPEND uTestLine2DLagrangeP1_files
+  uTestLine2DLagrangeP1.cpp )
+
+CF_ADD_UNITTEST ( uTestLine2DLagrangeP1 )
 
 ################################################################################
 LIST ( APPEND uTestTriag2DLagrangeP1_libs SF )
@@ -54,7 +62,7 @@ CF_ADD_UNITTEST ( uTestTriag2DLagrangeP1 )
 
 ################################################################################
 
-LIST ( APPEND uTestQuad2DLagrangeP1_libs  P1 )
+LIST ( APPEND uTestQuad2DLagrangeP1_libs  SF )
 LIST ( APPEND uTestQuad2DLagrangeP1_files
   uTestQuad2DLagrangeP1.cpp )
 

@@ -1,6 +1,8 @@
 LIST ( APPEND SF_files
   Line1DLagrangeP1.cpp
   Line1DLagrangeP1.hpp
+  Line2DLagrangeP1.cpp
+  Line2DLagrangeP1.hpp
   Quad2DLagrangeP1.cpp
   Quad2DLagrangeP1.hpp
   Triag2DLagrangeP1.cpp
