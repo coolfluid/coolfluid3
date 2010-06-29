@@ -14,6 +14,8 @@ LIST( APPEND Mesh_files
   CMesh.cpp
   CMeshInfo.hpp
   CMeshInfo.cpp
+  CMeshExtract.hpp
+  CMeshExtract.cpp
   CMeshReader.hpp
   CMeshReader.cpp
   CMeshTransformer.hpp

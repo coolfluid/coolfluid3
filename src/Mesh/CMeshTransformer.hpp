@@ -55,7 +55,7 @@ public: // functions
 
   // --------- Direct access ---------
 
-  virtual void transform(const CMesh::Ptr& mesh) = 0;
+  virtual void transform(const CMesh::Ptr& mesh, const std::vector<std::string>& args = std::vector<std::string>())= 0;
 
 protected: // functions
 

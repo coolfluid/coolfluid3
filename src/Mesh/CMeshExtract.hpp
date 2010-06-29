@@ -1,5 +1,5 @@
-#ifndef CF_Mesh_CMeshInfo_hpp
-#define CF_Mesh_CMeshInfo_hpp
+#ifndef CF_Mesh_CMeshExtract_hpp
+#define CF_Mesh_CMeshExtract_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -15,22 +15,22 @@ namespace Mesh {
 /// This class defines a mesh transformer
 /// that returns information about the mesh
 /// @author Willem Deconinck
-class Mesh_API CMeshInfo : public CMeshTransformer
+class Mesh_API CMeshExtract : public CMeshTransformer
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<CMeshInfo> Ptr;
-    typedef boost::shared_ptr<CMeshInfo const> ConstPtr;
+    typedef boost::shared_ptr<CMeshExtract> Ptr;
+    typedef boost::shared_ptr<CMeshExtract const> ConstPtr;
 
 private: // typedefs
   
 public: // functions
   
   /// constructor
-  CMeshInfo( const CName& name );
+  CMeshExtract( const CName& name );
   
   /// Gets the Class name
-  static std::string getClassName() { return "CMeshInfo"; }
+  static std::string getClassName() { return "CMeshExtract"; }
 
   static void defineConfigOptions ( CF::Common::OptionList& options ) {}
 
@@ -49,7 +49,7 @@ private: // data
 
   CMesh::Ptr m_mesh;
   
-}; // end CMeshInfo
+}; // end CMeshExtract
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -59,4 +59,4 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CMeshInfo_hpp
+#endif // CF_Mesh_CMeshExtract_hpp

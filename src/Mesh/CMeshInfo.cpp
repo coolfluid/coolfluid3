@@ -58,7 +58,7 @@ CMeshInfo::CMeshInfo( const CName& name )
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CMeshInfo::transform(const CMesh::Ptr& mesh)
+void CMeshInfo::transform(const CMesh::Ptr& mesh, const std::vector<std::string>& args)
 {
 
   m_mesh = mesh;
