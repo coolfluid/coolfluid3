@@ -3,6 +3,7 @@
 
 #include <boost/foreach.hpp>
 #include <boost/filesystem/fstream.hpp>
+#include <boost/filesystem/convenience.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/progress.hpp>
 
@@ -221,6 +222,7 @@ void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& pat
      throw boost::filesystem::filesystem_error( path.string() + " failed to open",
                                                 boost::system::error_code() );
   }
+  m_fileBasename = boost::filesystem::basename(path);
 
 
   // must be in correct order!
@@ -238,8 +240,6 @@ void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& pat
 
 void CWriter::write_headerData(std::fstream& file)
 {
-  std::string filename="quadtriag"; //without extention
-
   // get the day of today
   boost::gregorian::date today = boost::gregorian::day_clock::local_day();
   boost::gregorian::date::ymd_type today_ymd = today.year_month_day();
@@ -288,9 +288,9 @@ void CWriter::write_headerData(std::fstream& file)
   //CFinfo << "node_counter = " << node_counter << CFendl;
   file << "        CONTROL INFO 2.3.16\n";
   file << "** GAMBIT NEUTRAL FILE\n";
-  file << filename << "\n";
+  file << m_fileBasename << "\n";
   file << "PROGRAM:                Gambit     VERSION:  2.3.16\n";
-  file << today_ymd.month.as_long_string() << " " << today_ymd.year << "\n";
+  file << std::setw(4)  << std::string(today_ymd.month.as_long_string()).substr(0,3) << " " << today_ymd.year << "\n";
   file << std::setw(10) << "NUMNP" << std::setw(10) << "NELEM" << std::setw(10) << "NGRPS"
        << std::setw(10) << "NBSETS" << std::setw(10) << "NDFCD" << std::setw(10) << "NDFVL" << std::endl;
   file << std::setw(10) << node_counter << std::setw(10) << element_counter << std::setw(10) << group_counter
@@ -370,8 +370,17 @@ void CWriter::write_connectivity(std::fstream& file)
           Uint neu_idx = m_nodes_cf_to_neu[elm_type][j];
           neu_element[neu_idx] = cf_element[j]+1;
         }
+        Uint eol_counter=0;
         BOOST_FOREACH(Uint neu_node, neu_element)
-            file << std::setw(8) << neu_node;
+        {
+          if (eol_counter == 7)
+          {
+            file << std::endl << std::setw(15) << " ";
+            eol_counter = 0;
+          }
+          file << std::setw(8) << neu_node;
+          ++eol_counter;
+        }
         file << std::endl;
       }
     }
@@ -457,52 +466,55 @@ void CWriter::write_boundaries(std::fstream& file)
     }
   }
 
-  /// @todo pass a CFLogStream to progress_display instead of std::cout
-  boost::progress_display progress(total_nbElements,std::cout,"writing boundary conditions\n");
-
-  BOOST_FOREACH(const CRegion& group, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
+  if (total_nbElements > 0)
   {
-    bool isBC(false);
-    BOOST_FOREACH(const CRegion& elementregion, recursive_filtered_range_typed<CRegion>(group,IsElementRegion()))
+    /// @todo pass a CFLogStream to progress_display instead of std::cout
+    boost::progress_display progress(total_nbElements,std::cout,"writing boundary conditions\n");
+    
+    BOOST_FOREACH(const CRegion& group, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
     {
-      Uint dimensionality = get_component_typed<CElements>(elementregion,IsComponentTrue()).getDimensionality();
-      if (dimensionality < max_dimensionality) // is bc
-      {
-        isBC = true;
-      }
-    }
-    if (isBC)
-    {
-      Uint element_counter=0;
+      bool isBC(false);
       BOOST_FOREACH(const CRegion& elementregion, recursive_filtered_range_typed<CRegion>(group,IsElementRegion()))
       {
-        element_counter += elementregion.elements_count();
-      }
-      file << " BOUNDARY CONDITIONS 2.3.16\n";
-      file << std::setw(32) << group.name() << std::setw(8) << 1 << std::setw(8) << element_counter << std::setw(8) << 0 << std::setw(8) << 6 << std::endl;
-
-      BOOST_FOREACH(const CRegion& elementregion, recursive_filtered_range_typed<CRegion>(group,IsElementRegion()))
-      {
-        const CElements& faceType = get_component_typed<CElements>(elementregion,IsComponentTrue());
-        const CTable& table = get_component_typed<CTable>(elementregion,IsComponentTrue());
-        BOOST_FOREACH(CTable::ConstRow face_nodes, table.table())
+        Uint dimensionality = get_component_typed<CElements>(elementregion,IsComponentTrue()).getDimensionality();
+        if (dimensionality < max_dimensionality) // is bc
         {
-          const CRegion* elm_region;
-          Uint elm_local_idx;
-          Uint elm_face_idx;
-          boost::tie(elm_region,elm_local_idx,elm_face_idx) =
-              find_element_for_face(faceType,face_nodes,*m_mesh);
-          Uint elementregion_start_idx = m_global_start_idx[elm_region];
-          Uint elm_global_idx = elementregion_start_idx + elm_local_idx;
-          Uint neu_elm_type = m_CFelement_to_NeuElement[get_component_typed<CElements>(*elm_region,IsComponentTrue()).getShape()];
-          Uint neu_elm_face_idx = m_faces_cf_to_neu[neu_elm_type][elm_face_idx];
-
-          file << std::setw(10) << elm_global_idx+1 << std::setw(5) << neu_elm_type << std::setw(5) << neu_elm_face_idx << std::endl;
-          ++progress;
+          isBC = true;
         }
       }
-      file << "ENDOFSECTION" << std::endl;
-    }
+      if (isBC)
+      {
+        Uint element_counter=0;
+        BOOST_FOREACH(const CRegion& elementregion, recursive_filtered_range_typed<CRegion>(group,IsElementRegion()))
+        {
+          element_counter += elementregion.elements_count();
+        }
+        file << " BOUNDARY CONDITIONS 2.3.16\n";
+        file << std::setw(32) << group.name() << std::setw(8) << 1 << std::setw(8) << element_counter << std::setw(8) << 0 << std::setw(8) << 6 << std::endl;
+        
+        BOOST_FOREACH(const CRegion& elementregion, recursive_filtered_range_typed<CRegion>(group,IsElementRegion()))
+        {
+          const CElements& faceType = get_component_typed<CElements>(elementregion,IsComponentTrue());
+          const CTable& table = get_component_typed<CTable>(elementregion,IsComponentTrue());
+          BOOST_FOREACH(CTable::ConstRow face_nodes, table.table())
+          {
+            const CRegion* elm_region;
+            Uint elm_local_idx;
+            Uint elm_face_idx;
+            boost::tie(elm_region,elm_local_idx,elm_face_idx) =
+            find_element_for_face(faceType,face_nodes,*m_mesh);
+            Uint elementregion_start_idx = m_global_start_idx[elm_region];
+            Uint elm_global_idx = elementregion_start_idx + elm_local_idx;
+            Uint neu_elm_type = m_CFelement_to_NeuElement[get_component_typed<CElements>(*elm_region,IsComponentTrue()).getShape()];
+            Uint neu_elm_face_idx = m_faces_cf_to_neu[neu_elm_type][elm_face_idx];
+            
+            file << std::setw(10) << elm_global_idx+1 << std::setw(5) << neu_elm_type << std::setw(5) << neu_elm_face_idx << std::endl;
+            ++progress;
+          }
+        }
+        file << "ENDOFSECTION" << std::endl;
+      }
+    } 
   }
 }
 

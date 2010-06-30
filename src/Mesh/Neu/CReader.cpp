@@ -401,7 +401,6 @@ void CReader::read_groups(std::fstream& file)
   //    and put in the filesystem as subcomponent of "mesh/regions"
   if (m_headerData.NGRPS == 1)
   {
-    CFinfo << "renaming tmp to " << groups[0].ELMMAT <<CFendl;
     Component::Ptr tmp = m_mesh->remove_component("tmp");
     tmp->rename(groups[0].ELMMAT);
     regions->add_component(tmp);
