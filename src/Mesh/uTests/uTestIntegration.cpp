@@ -132,7 +132,7 @@ CMesh::Ptr GlobalFixture::grid2D = CMesh::Ptr();
 /// Profile and time tests using this fixture
 struct IntegrationFixture :
   public ProfiledTestFixture, // NOTE: Inheritance order matters, this way the timing is profiled,
-  public TimedTestFixture // but the profiling is not timed. Important since especially profile processing takes time.
+  public TimedTestFixture     //       but the profiling is not timed. Important since especially profile processing takes time.
 {
   IntegrationFixture() : grid2D(*GlobalFixture::grid2D) {}
 
