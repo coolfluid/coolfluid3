@@ -1,41 +1,36 @@
-#ifndef CF_Mesh_LagrangeSF_TetraP1_hpp
-#define CF_Mesh_LagrangeSF_TetraP1_hpp
+#ifndef CF_Mesh_SF_Tetra3DLagrangeP1_hpp
+#define CF_Mesh_SF_Tetra3DLagrangeP1_hpp
 
-#include "Common/AssertionManager.hpp"
-
-#include "Math/MatrixInverterT.hpp"
+#include "Common/CF.hpp"
 #include "Math/RealMatrix.hpp"
-
+#include "Math/MatrixInverterT.hpp"
 #include "Mesh/GeoShape.hpp"
+
+#include "Mesh/Elements/Tetra3D.hpp"
 
 namespace CF {
 namespace Mesh {
-namespace LagrangeSF {
+namespace SF {
 
 /// This class provides the lagrangian shape function describing the
 /// representation of the solution and/or the geometry in a P1 (linear)
-/// tetrahedral element.
+/// triangular element.
 /// @author Andrea Lani
 /// @author Geoffrey Deliege
 /// @author Tiago Quintino
 /// @author Bart Janssens
-class TetraP1 {
-public:
-
-/// Shape represented by this shape function
-static const GeoShape::Type shape = GeoShape::TETRA;
-/// Order of the shape function
-static const Uint order = 1;
-/// Dimensionality of the shape function
-static const Uint dimensions = 3;
+struct Tetra3DLagrangeP1  : public Tetra3D
+{
 
 /// Compute the shape functions corresponding to the given
 /// mapped coordinates
 /// @param mappedCoord The mapped coordinates
 /// @param shapeFunc Vector storing the result
-static void computeShapeFunction(const RealVector& mappedCoord, RealVector& shapeFunc) {
-  cf_assert(shapeFunc.size() == 4);
-  cf_assert(mappedCoord.size() == 3);
+static void shape_function(const RealVector& mappedCoord, RealVector& shapeFunc)
+{
+  cf_assert(shapeFunc.size() == nb_nodes);
+  cf_assert(mappedCoord.size() == dimension);
+
   shapeFunc[0] = 1.0 - mappedCoord[0] - mappedCoord[1] - mappedCoord[2];
   shapeFunc[1] = mappedCoord[0];
   shapeFunc[2] = mappedCoord[1];
@@ -47,10 +42,11 @@ static void computeShapeFunction(const RealVector& mappedCoord, RealVector& shap
 /// @param nodes contains the nodes
 /// @param mappedCoord Store the output mapped coordinates
 template<typename NodesT>
-static void computeMappedCoordinates(const RealVector& coord, const NodesT& nodes, RealVector& mappedCoord) {
-  cf_assert(coord.size() == 3);
-  cf_assert(mappedCoord.size() == 3);
-  cf_assert(nodes.size() == 4);
+static void mapped_coordinates(const RealVector& coord, const NodesT& nodes, RealVector& mappedCoord)
+{
+  cf_assert(coord.size() == dimension);
+  cf_assert(mappedCoord.size() == dimension);
+  cf_assert(nodes.size() == nb_nodes);
 
   const RealVector& xA = nodes[0];
   const RealVector& xB = nodes[1];
@@ -86,9 +82,10 @@ static void computeMappedCoordinates(const RealVector& coord, const NodesT& node
 /// coordinates.
 /// @param mappedCoord The mapped coordinates where the gradient should be calculated
 /// @param result Storage for the resulting gradient matrix
-static void computeMappedGradient(const RealVector& mappedCoord, RealMatrix& result) {
-  cf_assert(result.nbRows() == 4);
-  cf_assert(result.nbCols() == 3);
+static void mapped_gradient(const RealVector& mappedCoord, RealMatrix& result)
+{
+  cf_assert(result.nbRows() == nb_nodes);
+  cf_assert(result.nbCols() == dimension);
   result(0, XX) = -1.;
   result(0, YY) = -1.;
   result(0, ZZ) = -1.;
@@ -105,39 +102,18 @@ static void computeMappedGradient(const RealVector& mappedCoord, RealMatrix& res
 
 /// Compute the jacobian determinant at the given mapped coordinates
 template<typename NodesT>
-inline static Real computeJacobianDeterminant(const RealVector& mappedCoord, const NodesT& nodes) {
-  const Real x0 = nodes[0][XX];
-  const Real y0 = nodes[0][YY];
-  const Real z0 = nodes[0][ZZ];
-
-  const Real x1 = nodes[1][XX];
-  const Real y1 = nodes[1][YY];
-  const Real z1 = nodes[1][ZZ];
-
-  const Real x2 = nodes[2][XX];
-  const Real y2 = nodes[2][YY];
-  const Real z2 = nodes[2][ZZ];
-
-  const Real x3 = nodes[3][XX];
-  const Real y3 = nodes[3][YY];
-  const Real z3 = nodes[3][ZZ];
-
-  return
-      x2*y1*z0 - x3*y1*z0 - x1*y2*z0 + x3*y2*z0 + x1*y3*z0 -
-      x2*y3*z0 - x2*y0*z1 + x3*y0*z1 + x0*y2*z1 - x3*y2*z1 -
-      x0*y3*z1 + x2*y3*z1 + x1*y0*z2 - x3*y0*z2 - x0*y1*z2 +
-      x3*y1*z2 + x0*y3*z2 - x1*y3*z2 - x1*y0*z3 + x2*y0*z3 +
-      x0*y1*z3 - x2*y1*z3 - x0*y2*z3 + x1*y2*z3;
+static Real jacobian_determinant(const RealVector& mappedCoord, const NodesT& nodes)
+{
+  return jacobian_determinant(nodes);
 }
 
 /// Compute the Jacobian matrix
 /// @param mappedCoord The mapped coordinates where the Jacobian should be calculated
 /// @param result Storage for the resulting Jacobian matrix
 template<typename NodesT>
-static void computeJacobian(const RealVector& mappedCoord, const NodesT& nodes, RealMatrix& result) {
-  cf_assert(result.nbRows() == 3);
-  cf_assert(result.isSquare());
-
+static void jacobian(const RealVector& mappedCoord, const NodesT& nodes, RealMatrix& result) {
+  cf_assert(result.nbRows() == dimensionality);
+  cf_assert(result.nbCols() == dimension);
   const Real x0 = nodes[0][XX];
   const Real y0 = nodes[0][YY];
   const Real z0 = nodes[0][ZZ];
@@ -185,27 +161,72 @@ static void computeJacobian(const RealVector& mappedCoord, const NodesT& nodes, 
 /// @param mappedCoord The mapped coordinates where the Jacobian should be calculated
 /// @param result Storage for the resulting adjoint
 template<typename NodesT>
-static void computeJacobianAdjoint(const RealVector& mappedCoord, const NodesT& nodes, RealMatrix& result) {
-  cf_assert(result.nbRows() == 3);
-  cf_assert(result.isSquare());
-  RealMatrix jacobian(3,3);
-  computeJacobian(mappedCoord, nodes, jacobian);
+static void jacobian_adjoint(const RealVector& mappedCoord, const NodesT& nodes, RealMatrix& result) {
+  cf_assert(result.nbRows() == dimensionality);
+  cf_assert(result.nbCols() == dimension);
+  RealMatrix jac(dimensionality,dimension);
+  jacobian(mappedCoord, nodes, jac);
 
-  result[0] =  (jacobian[4]*jacobian[8] - jacobian[5]*jacobian[7]);
-  result[1] = -(jacobian[1]*jacobian[8] - jacobian[2]*jacobian[7]);
-  result[2] =  (jacobian[1]*jacobian[5] - jacobian[4]*jacobian[2]);
-  result[3] = -(jacobian[3]*jacobian[8] - jacobian[5]*jacobian[6]);
-  result[4] =  (jacobian[0]*jacobian[8] - jacobian[2]*jacobian[6]);
-  result[5] = -(jacobian[0]*jacobian[5] - jacobian[2]*jacobian[3]);
-  result[6] =  (jacobian[3]*jacobian[7] - jacobian[4]*jacobian[6]);
-  result[7] = -(jacobian[0]*jacobian[7] - jacobian[1]*jacobian[6]);
-  result[8] =  (jacobian[0]*jacobian[4] - jacobian[1]*jacobian[3]);
+  result[0] =  (jac[4]*jac[8] - jac[5]*jac[7]);
+  result[1] = -(jac[1]*jac[8] - jac[2]*jac[7]);
+  result[2] =  (jac[1]*jac[5] - jac[4]*jac[2]);
+  result[3] = -(jac[3]*jac[8] - jac[5]*jac[6]);
+  result[4] =  (jac[0]*jac[8] - jac[2]*jac[6]);
+  result[5] = -(jac[0]*jac[5] - jac[2]*jac[3]);
+  result[6] =  (jac[3]*jac[7] - jac[4]*jac[6]);
+  result[7] = -(jac[0]*jac[7] - jac[1]*jac[6]);
+  result[8] =  (jac[0]*jac[4] - jac[1]*jac[3]);
+}
+
+/// Volume of the cell
+template<typename NodesT>
+static Real volume(const NodesT& nodes) {
+  return jacobian_determinant(nodes) / 6.;
+}
+
+/// Number of nodes
+static const Uint nb_nodes = 4;
+
+/// Order of the shape function
+static const Uint order = 1;
+
+Tetra3DLagrangeP1();
+virtual std::string getElementTypeName() const;
+virtual Real computeVolume(const NodesT& coord) const;
+
+private:
+
+/// Helper function for reuse in volume() and jacobian_determinant()
+template<typename NodesT>
+static Real jacobian_determinant(const NodesT& nodes) {
+  const Real x0 = nodes[0][XX];
+  const Real y0 = nodes[0][YY];
+  const Real z0 = nodes[0][ZZ];
+
+  const Real x1 = nodes[1][XX];
+  const Real y1 = nodes[1][YY];
+  const Real z1 = nodes[1][ZZ];
+
+  const Real x2 = nodes[2][XX];
+  const Real y2 = nodes[2][YY];
+  const Real z2 = nodes[2][ZZ];
+
+  const Real x3 = nodes[3][XX];
+  const Real y3 = nodes[3][YY];
+  const Real z3 = nodes[3][ZZ];
+
+  return
+      x2*y1*z0 - x3*y1*z0 - x1*y2*z0 + x3*y2*z0 + x1*y3*z0 -
+      x2*y3*z0 - x2*y0*z1 + x3*y0*z1 + x0*y2*z1 - x3*y2*z1 -
+      x0*y3*z1 + x2*y3*z1 + x1*y0*z2 - x3*y0*z2 - x0*y1*z2 +
+      x3*y1*z2 + x0*y3*z2 - x1*y3*z2 - x1*y0*z3 + x2*y0*z3 +
+      x0*y1*z3 - x2*y1*z3 - x0*y2*z3 + x1*y2*z3;
 }
 
 };
 
-} // namespace LagrangeSF
+} // namespace SF
 } // namespace Mesh
 } // namespace CF
 
-#endif /* CF_Mesh_LagrangeSF_TetraP1 */
+#endif /* CF_Mesh_SF_Tetra3DLagrangeP1 */

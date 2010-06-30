@@ -15,9 +15,8 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/ElementNodes.hpp"
 
-#include "Mesh/LagrangeSF/TetraP1.hpp"
-
-#include "Mesh/P1/ElemTypes.hpp"
+#include "Mesh/Elements/SF/Tetra3DLagrangeP1.hpp"
+#include "Mesh/Elements/SF/Types.hpp"
 
 #include "Mesh/CGAL/ImplicitFunctionMesh.hpp"
 
@@ -71,10 +70,10 @@ struct LoopElems
       void operator() ( EType& T )
   {
 
-    if( T.getShape()          != region.elements_type().getShape()         ||
-        T.getOrder()          != region.elements_type().getOrder()         ||
-        T.getDimension()      != region.elements_type().getDimension()     ||
-        T.getDimensionality() != region.elements_type().getDimensionality() )
+    if( EType::shape          != region.elements_type().getShape()         ||
+        EType::order          != region.elements_type().getOrder()         ||
+        EType::dimension      != region.elements_type().getDimension()     ||
+        EType::dimensionality != region.elements_type().getDimensionality() )
     return;
 
     CFinfo << "Looping on " << T.getClassName() << CFendl;
@@ -100,7 +99,7 @@ struct LoopElems
 template<typename RangeT, typename ArrayT, typename FunctorT>
 void loop_over_regions(const RangeT& range, ArrayT& coordinates, FunctorT functor) {
   BOOST_FOREACH(const CRegion& region, range) {
-    boost::mpl::for_each<P1::ElemTypes>( LoopElems<FunctorT> ( region, coordinates, functor ) );
+    boost::mpl::for_each<SF::Types>( LoopElems<FunctorT> ( region, coordinates, functor ) );
   }
 }
 
@@ -109,8 +108,7 @@ struct VolumeFunctor {
   VolumeFunctor(Real& avolume) : volume(avolume) {}
   template<typename NodesT, typename ElementT>
   void operator()(const NodesT& nodes, const ElementT& element) {
-    const RealVector mapped_coords = boost::assign::list_of(0.)(0.)(0.);
-    volume += LagrangeSF::TetraP1::computeJacobianDeterminant(mapped_coords, nodes)/6.;
+    volume += SF::Tetra3DLagrangeP1::volume(nodes);
   }
   Real& volume;
 };

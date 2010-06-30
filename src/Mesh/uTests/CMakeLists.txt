@@ -31,11 +31,11 @@ add_custom_command(TARGET uTestMesh
 
 ################################################################################
 
-LIST ( APPEND uTestLagrangeSFTetraP1_libs P1 )
-LIST ( APPEND uTestLagrangeSFTetraP1_files
-  uTestLagrangeSFTetraP1.cpp )
+LIST ( APPEND uTestTetra3DLagrangeP1_libs SF )
+LIST ( APPEND uTestTetra3DLagrangeP1_files
+  uTestTetra3DLagrangeP1.cpp )
 
-CF_ADD_UNITTEST ( uTestLagrangeSFTetraP1 )
+CF_ADD_UNITTEST ( uTestTetra3DLagrangeP1 )
 
 ################################################################################
 
@@ -70,7 +70,7 @@ CF_ADD_UNITTEST ( uTestQuad2DLagrangeP1 )
 
 ################################################################################
 
-LIST ( APPEND uTestIntegration_libs  P1 Neu Testing )
+LIST ( APPEND uTestIntegration_libs  P1 Neu Testing SF )
 LIST ( APPEND uTestIntegration_files
   uTestIntegration.cpp )
 

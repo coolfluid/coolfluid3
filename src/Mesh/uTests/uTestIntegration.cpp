@@ -145,7 +145,7 @@ struct IntegrationFixture :
     template<typename GeoShapeF, typename SolShapeF>
     CF::Real valTimesDetJacobian(const CF::RealVector& mappedCoords)
     {
-      return GeoShapeF::computeJacobianDeterminant(mappedCoords, m_nodes);
+      return GeoShapeF::jacobian_determinant(mappedCoords, m_nodes);
     }
   };
 
@@ -167,7 +167,7 @@ struct IntegrationFixture :
     template<typename GeoShapeF, typename SolShapeF>
     CF::Real valTimesDetJacobian(const CF::RealVector& mappedCoords)
     {
-      return GeoShapeF::computeJacobianDeterminant(mappedCoords, m_nodes);
+      return GeoShapeF::jacobian_determinant(mappedCoords, m_nodes);
     }
 
   protected:

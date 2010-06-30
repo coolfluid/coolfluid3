@@ -12,7 +12,7 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/GeoShape.hpp"
 #include "Mesh/Integrators/GaussImplementation.hpp"
-#include "Mesh/LagrangeSF/SFTypes.hpp"
+#include "Mesh/Elements/SF/Types.hpp"
 
 #include "Math/RealVector.hpp"
 
@@ -72,11 +72,11 @@ struct RegionIntegrator
       m_result(result)
   {}
 
-  template<typename ShapeFunctionT> void operator()(ShapeFunctionT T)
+  template<typename ShapeFunctionT> void operator()(const ShapeFunctionT& T)
   {
     if( ShapeFunctionT::shape      == m_region.elements_type().getShape() &&
         ShapeFunctionT::order      == m_region.elements_type().getOrder() &&
-        ShapeFunctionT::dimensions == m_region.elements_type().getDimensionality())
+        ShapeFunctionT::dimension == m_region.elements_type().getDimensionality())
     {
       found = true;
       Gauss<ShapeFunctionT, ShapeFunctionT, IntegrationOrder>::integrateRegion(m_region, m_functor, m_result);
@@ -98,7 +98,7 @@ void gaussIntegrate(const CRegion& region, FunctorT& functor, ResultT& result)
   if(region.elements_count())
   {
     bool integrator_found = false;
-    boost::mpl::for_each<LagrangeSF::SFTypes>(RegionIntegrator<FunctorT, ResultT>(region, functor, result, integrator_found));
+    boost::mpl::for_each<SF::Types>(RegionIntegrator<FunctorT, ResultT>(region, functor, result, integrator_found));
     if(!integrator_found)
     {
       CFwarn << "no integrator found for region " << region.name() << CFendl;

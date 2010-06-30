@@ -43,6 +43,8 @@ LIST( APPEND Mesh_files
   Elements/Line2D.cpp
   Elements/Quad2D.hpp
   Elements/Quad2D.cpp
+  Elements/Tetra3D.hpp
+  Elements/Tetra3D.cpp
   Elements/Triag2D.hpp
   Elements/Triag2D.cpp
 
@@ -50,11 +52,6 @@ LIST( APPEND Mesh_files
   Integrators/Gauss.hpp
   Integrators/GaussImplementation.hpp
   Integrators/IntegrationFunctorBase.hpp
-  
-  LagrangeSF/SFTypes.hpp
-  LagrangeSF/QuadP1.hpp
-  LagrangeSF/TetraP1.hpp
-  LagrangeSF/TriagP1.hpp
 )
 
 LIST( APPEND Mesh_cflibs Common )
