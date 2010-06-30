@@ -410,7 +410,7 @@ BOOST_AUTO_TEST_CASE( ReadCGNS )
   // the mesh to store in
   CMesh::Ptr mesh = meshreader->create_mesh_from(fp_in);
 
-  CFinfo << mesh->tree() << CFendl;
+  // CFinfo << mesh->tree() << CFendl;
 
   // Write to Gmsh
   boost::filesystem::path fp_out ("grid_c.msh");
@@ -431,7 +431,7 @@ BOOST_AUTO_TEST_CASE( ReadCGNS )
   gmsh_writer->write_from_to(mesh_from_neu,gmsh_out);
   
   
-  CFinfo << mesh_from_neu->tree() << CFendl;
+//  CFinfo << mesh_from_neu->tree() << CFendl;
 
 }
 

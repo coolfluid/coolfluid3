@@ -33,7 +33,9 @@ aNeuWriter_Provider ( "Neu" );
 CWriter::CWriter( const CName& name )
 : CMeshWriter(name),
   m_faces_cf_to_neu(10),
-  m_faces_neu_to_cf(10)
+  m_faces_neu_to_cf(10),
+  m_nodes_cf_to_neu(10),
+  m_nodes_neu_to_cf(10)
 {
   BUILD_COMPONENT;
 
@@ -50,43 +52,47 @@ CWriter::CWriter( const CName& name )
   m_supported_types.push_back("P1-Tetra3D");
 
 
-  m_CFelement_to_NeuElement[GeoShape::LINE ]=1;
-  m_CFelement_to_NeuElement[GeoShape::QUAD ]=2;
-  m_CFelement_to_NeuElement[GeoShape::TRIAG]=3;
-  m_CFelement_to_NeuElement[GeoShape::HEXA ]=4;
-  m_CFelement_to_NeuElement[GeoShape::TETRA]=5;
+  m_CFelement_to_NeuElement[GeoShape::LINE ]=LINE;
+  m_CFelement_to_NeuElement[GeoShape::QUAD ]=QUAD;
+  m_CFelement_to_NeuElement[GeoShape::TRIAG]=TRIAG;
+  m_CFelement_to_NeuElement[GeoShape::HEXA ]=HEXA;
+  m_CFelement_to_NeuElement[GeoShape::TETRA]=TETRA;
 
 
-  // face translation
-  enum NeuFace {LINE=1,QUAD=2,TRIAG=3,HEXA=4,TETRA=5};
-
+  // ------------------------------------------------------- FACES
   // line
   m_faces_cf_to_neu[LINE].resize(2);
-
+  m_faces_cf_to_neu[LINE][0]=1;
+  m_faces_cf_to_neu[LINE][1]=2;
+  
+  m_faces_neu_to_cf[LINE].resize(2);
+  m_faces_neu_to_cf[LINE][1]=0;
+  m_faces_neu_to_cf[LINE][2]=1;
+  
   // quad
   m_faces_cf_to_neu[QUAD].resize(4);
   m_faces_cf_to_neu[QUAD][0]=1;
   m_faces_cf_to_neu[QUAD][1]=2;
   m_faces_cf_to_neu[QUAD][2]=3;
   m_faces_cf_to_neu[QUAD][3]=4;
-
+  
   m_faces_neu_to_cf[QUAD].resize(5);
   m_faces_neu_to_cf[QUAD][1]=0;
   m_faces_neu_to_cf[QUAD][2]=1;
   m_faces_neu_to_cf[QUAD][3]=2;
   m_faces_neu_to_cf[QUAD][4]=3;
-
+  
   // triag
   m_faces_cf_to_neu[TRIAG].resize(3);
   m_faces_cf_to_neu[TRIAG][0]=1;
   m_faces_cf_to_neu[TRIAG][1]=2;
   m_faces_cf_to_neu[TRIAG][2]=3;
-
+  
   m_faces_neu_to_cf[TRIAG].resize(4);
   m_faces_neu_to_cf[TRIAG][1]=0;
   m_faces_neu_to_cf[TRIAG][2]=1;
   m_faces_neu_to_cf[TRIAG][3]=2;
-
+  
   // hexa
   m_faces_cf_to_neu[HEXA].resize(6);
   m_faces_cf_to_neu[HEXA][0]=1;
@@ -95,7 +101,7 @@ CWriter::CWriter( const CName& name )
   m_faces_cf_to_neu[HEXA][3]=2;
   m_faces_cf_to_neu[HEXA][4]=5;
   m_faces_cf_to_neu[HEXA][5]=4;
-
+  
   m_faces_neu_to_cf[HEXA].resize(7);
   m_faces_neu_to_cf[HEXA][1]=0;
   m_faces_neu_to_cf[HEXA][2]=3;
@@ -116,6 +122,79 @@ CWriter::CWriter( const CName& name )
   m_faces_neu_to_cf[TETRA][2]=1;
   m_faces_neu_to_cf[TETRA][3]=2;
   m_faces_neu_to_cf[TETRA][4]=3;
+  
+  
+  // --------------------------------------------------- NODES
+  
+  // line
+  m_nodes_cf_to_neu[LINE].resize(2);
+  m_nodes_cf_to_neu[LINE][0]=0;
+  m_nodes_cf_to_neu[LINE][1]=1;
+  
+  m_nodes_neu_to_cf[LINE].resize(2);
+  m_nodes_neu_to_cf[LINE][0]=0;
+  m_nodes_neu_to_cf[LINE][1]=1;
+  
+  // quad
+  m_nodes_cf_to_neu[QUAD].resize(4);
+  m_nodes_cf_to_neu[QUAD][0]=0;
+  m_nodes_cf_to_neu[QUAD][1]=1;
+  m_nodes_cf_to_neu[QUAD][2]=2;
+  m_nodes_cf_to_neu[QUAD][3]=3;
+  
+  m_nodes_neu_to_cf[QUAD].resize(4);
+  m_nodes_neu_to_cf[QUAD][0]=0;
+  m_nodes_neu_to_cf[QUAD][1]=1;
+  m_nodes_neu_to_cf[QUAD][2]=2;
+  m_nodes_neu_to_cf[QUAD][3]=3;
+  
+  // triag
+  m_nodes_cf_to_neu[TRIAG].resize(3);
+  m_nodes_cf_to_neu[TRIAG][0]=0;
+  m_nodes_cf_to_neu[TRIAG][1]=1;
+  m_nodes_cf_to_neu[TRIAG][2]=2;
+  
+  m_nodes_neu_to_cf[TRIAG].resize(3);
+  m_nodes_neu_to_cf[TRIAG][0]=0;
+  m_nodes_neu_to_cf[TRIAG][1]=1;
+  m_nodes_neu_to_cf[TRIAG][2]=2;
+  
+  
+  // tetra
+  m_nodes_cf_to_neu[TETRA].resize(4);
+  m_nodes_cf_to_neu[TETRA][0]=0;
+  m_nodes_cf_to_neu[TETRA][1]=1;
+  m_nodes_cf_to_neu[TETRA][2]=2;
+  m_nodes_cf_to_neu[TETRA][3]=3;
+  
+  m_nodes_neu_to_cf[TETRA].resize(4);
+  m_nodes_neu_to_cf[TETRA][0]=0;
+  m_nodes_neu_to_cf[TETRA][1]=1;
+  m_nodes_neu_to_cf[TETRA][2]=2;
+  m_nodes_neu_to_cf[TETRA][3]=3;
+  
+  
+  // hexa
+  m_nodes_cf_to_neu[HEXA].resize(8);
+  m_nodes_cf_to_neu[HEXA][0]=4;
+  m_nodes_cf_to_neu[HEXA][1]=5;
+  m_nodes_cf_to_neu[HEXA][2]=1;
+  m_nodes_cf_to_neu[HEXA][3]=0;
+  m_nodes_cf_to_neu[HEXA][4]=6;
+  m_nodes_cf_to_neu[HEXA][5]=7;
+  m_nodes_cf_to_neu[HEXA][6]=3;
+  m_nodes_cf_to_neu[HEXA][7]=2;
+  
+  m_nodes_neu_to_cf[HEXA].resize(8);
+  m_nodes_neu_to_cf[HEXA][0]=3;
+  m_nodes_neu_to_cf[HEXA][1]=2;
+  m_nodes_neu_to_cf[HEXA][2]=7;
+  m_nodes_neu_to_cf[HEXA][3]=6;
+  m_nodes_neu_to_cf[HEXA][4]=0;
+  m_nodes_neu_to_cf[HEXA][5]=1;
+  m_nodes_neu_to_cf[HEXA][6]=4;
+  m_nodes_neu_to_cf[HEXA][7]=5;
+
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -281,11 +360,18 @@ void CWriter::write_connectivity(std::fstream& file)
       m_global_start_idx[&elementregion]=elm_number;
 
       // write the nodes for each element of this region
-      BOOST_FOREACH(const CTable::ConstRow& row,get_component_typed<CTable>(elementregion,IsComponentTrue()).table())
+      BOOST_FOREACH(const CTable::ConstRow& cf_element ,get_component_typed<CTable>(elementregion,IsComponentTrue()).table())
       {
         file << std::setw(8) << ++elm_number << std::setw(3) << elm_type << std::setw(3) << nb_nodes << " ";
-        BOOST_FOREACH(Uint node, row)
-            file << std::setw(8) << node+1;
+        std::vector<Uint> neu_element(nb_nodes);
+        
+        for (Uint j=0; j<nb_nodes; ++j)
+        {
+          Uint neu_idx = m_nodes_cf_to_neu[elm_type][j];
+          neu_element[neu_idx] = cf_element[j]+1;
+        }
+        BOOST_FOREACH(Uint neu_node, neu_element)
+            file << std::setw(8) << neu_node;
         file << std::endl;
       }
     }

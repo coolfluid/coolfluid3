@@ -35,6 +35,7 @@ CWriter::CWriter( const CName& name )
   m_elementTypes[GeoShape::LINE]=1;
   m_elementTypes[GeoShape::TRIAG]=2;
   m_elementTypes[GeoShape::QUAD]=3;
+  m_elementTypes[GeoShape::TETRA]=4;
   m_elementTypes[GeoShape::HEXA]=5;
 }
 

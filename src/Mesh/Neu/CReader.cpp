@@ -29,7 +29,9 @@ aNeuReader_Provider ( "Neu" );
 CReader::CReader( const CName& name )
 : CMeshReader(name),
   m_faces_cf_to_neu(10),
-  m_faces_neu_to_cf(10)
+  m_faces_neu_to_cf(10),
+  m_nodes_cf_to_neu(10),
+  m_nodes_neu_to_cf(10)
 {
   BUILD_COMPONENT;
 
@@ -44,12 +46,16 @@ CReader::CReader( const CName& name )
   m_supported_types.push_back("P1-Hexa3D");
   m_supported_types.push_back("P1-Tetra3D");
 
-
-  // face translation
-  enum NeuFace {LINE=1,QUAD=2,TRIAG=3,HEXA=4,TETRA=5};
-
+  
+  // ------------------------------------------------------- FACES
   // line
   m_faces_cf_to_neu[LINE].resize(2);
+  m_faces_cf_to_neu[LINE][0]=1;
+  m_faces_cf_to_neu[LINE][1]=2;
+
+  m_faces_neu_to_cf[LINE].resize(2);
+  m_faces_neu_to_cf[LINE][1]=0;
+  m_faces_neu_to_cf[LINE][2]=1;
 
   // quad
   m_faces_cf_to_neu[QUAD].resize(4);
@@ -105,6 +111,78 @@ CReader::CReader( const CName& name )
   m_faces_neu_to_cf[TETRA][3]=2;
   m_faces_neu_to_cf[TETRA][4]=3;
 
+  
+  // --------------------------------------------------- NODES
+  
+  // line
+  m_nodes_cf_to_neu[LINE].resize(2);
+  m_nodes_cf_to_neu[LINE][0]=0;
+  m_nodes_cf_to_neu[LINE][1]=1;
+
+  m_nodes_neu_to_cf[LINE].resize(2);
+  m_nodes_neu_to_cf[LINE][0]=0;
+  m_nodes_neu_to_cf[LINE][1]=1;
+  
+  // quad
+  m_nodes_cf_to_neu[QUAD].resize(4);
+  m_nodes_cf_to_neu[QUAD][0]=0;
+  m_nodes_cf_to_neu[QUAD][1]=1;
+  m_nodes_cf_to_neu[QUAD][2]=2;
+  m_nodes_cf_to_neu[QUAD][3]=3;
+  
+  m_nodes_neu_to_cf[QUAD].resize(4);
+  m_nodes_neu_to_cf[QUAD][0]=0;
+  m_nodes_neu_to_cf[QUAD][1]=1;
+  m_nodes_neu_to_cf[QUAD][2]=2;
+  m_nodes_neu_to_cf[QUAD][3]=3;
+  
+  // triag
+  m_nodes_cf_to_neu[TRIAG].resize(3);
+  m_nodes_cf_to_neu[TRIAG][0]=0;
+  m_nodes_cf_to_neu[TRIAG][1]=1;
+  m_nodes_cf_to_neu[TRIAG][2]=2;
+  
+  m_nodes_neu_to_cf[TRIAG].resize(3);
+  m_nodes_neu_to_cf[TRIAG][0]=0;
+  m_nodes_neu_to_cf[TRIAG][1]=1;
+  m_nodes_neu_to_cf[TRIAG][2]=2;
+  
+  
+  // tetra
+  m_nodes_cf_to_neu[TETRA].resize(4);
+  m_nodes_cf_to_neu[TETRA][0]=0;
+  m_nodes_cf_to_neu[TETRA][1]=1;
+  m_nodes_cf_to_neu[TETRA][2]=2;
+  m_nodes_cf_to_neu[TETRA][3]=3;
+  
+  m_nodes_neu_to_cf[TETRA].resize(4);
+  m_nodes_neu_to_cf[TETRA][0]=0;
+  m_nodes_neu_to_cf[TETRA][1]=1;
+  m_nodes_neu_to_cf[TETRA][2]=2;
+  m_nodes_neu_to_cf[TETRA][3]=3;
+  
+  
+  // hexa
+  m_nodes_cf_to_neu[HEXA].resize(8);
+  m_nodes_cf_to_neu[HEXA][0]=4;
+  m_nodes_cf_to_neu[HEXA][1]=5;
+  m_nodes_cf_to_neu[HEXA][2]=1;
+  m_nodes_cf_to_neu[HEXA][3]=0;
+  m_nodes_cf_to_neu[HEXA][4]=6;
+  m_nodes_cf_to_neu[HEXA][5]=7;
+  m_nodes_cf_to_neu[HEXA][6]=3;
+  m_nodes_cf_to_neu[HEXA][7]=2;
+  
+  m_nodes_neu_to_cf[HEXA].resize(8);
+  m_nodes_neu_to_cf[HEXA][0]=3;
+  m_nodes_neu_to_cf[HEXA][1]=2;
+  m_nodes_neu_to_cf[HEXA][2]=7;
+  m_nodes_neu_to_cf[HEXA][3]=6;
+  m_nodes_neu_to_cf[HEXA][4]=0;
+  m_nodes_neu_to_cf[HEXA][5]=1;
+  m_nodes_neu_to_cf[HEXA][6]=4;
+  m_nodes_neu_to_cf[HEXA][7]=5;
+  
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -247,11 +325,11 @@ void CReader::read_connectivity(std::fstream& file)
     file >> elementNumber >> elementType >> nbElementNodes;
     elementNumber--;
     // find the element type
-    if      (elementType==1 && nbElementNodes==2) etype_CF = "P1-Line";  // quadrilateral
-    else if (elementType==2 && nbElementNodes==4) etype_CF = "P1-Quad";  // quadrilateral
-    else if (elementType==3 && nbElementNodes==3) etype_CF = "P1-Triag"; // triangle
-    else if (elementType==4 && nbElementNodes==8) etype_CF = "P1-Hexa";  // brick
-    else if (elementType==6 && nbElementNodes==4) etype_CF = "P1-Tetra";
+    if      (elementType==LINE  && nbElementNodes==2) etype_CF = "P1-Line";  // quadrilateral
+    else if (elementType==QUAD  && nbElementNodes==4) etype_CF = "P1-Quad";  // quadrilateral
+    else if (elementType==TRIAG && nbElementNodes==3) etype_CF = "P1-Triag"; // triangle
+    else if (elementType==HEXA  && nbElementNodes==8) etype_CF = "P1-Hexa";  // brick
+    else if (elementType==TETRA && nbElementNodes==4) etype_CF = "P1-Tetra";
     /// @todo to be implemented
     else if (elementType==5 && nbElementNodes==6) // wedge (prism)
       throw Common::NotImplemented(FromHere(),"wedge or prism element not able to convert to COOLFluiD yet.");
@@ -266,14 +344,15 @@ void CReader::read_connectivity(std::fstream& file)
     etype_CF += StringOps::to_str<int>(m_headerData.NDFCD)+"D";
     
     // get element nodes
-    std::vector<Uint> rowVector(nbElementNodes);
+    std::vector<Uint> cf_element(nbElementNodes);
     
     for (Uint j=0; j<nbElementNodes; ++j)
     {
-      file >> rowVector[j];
-      rowVector[j]--;
+      Uint cf_idx = m_nodes_neu_to_cf[elementType][j];
+      file >> cf_element[cf_idx];
+      cf_element[cf_idx]--;
     }
-    Uint table_idx = buffer[etype_CF]->add_row(rowVector);
+    Uint table_idx = buffer[etype_CF]->add_row(cf_element);
     m_global_to_tmp.push_back(Region_TableIndex_pair(get_named_component_typed_ptr<CRegion>(*tmp, etype_CF),table_idx));
     
     // finish the line

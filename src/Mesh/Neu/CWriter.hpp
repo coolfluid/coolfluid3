@@ -26,6 +26,10 @@ public: // typedefs
   typedef boost::shared_ptr<CWriter> Ptr;
   typedef boost::shared_ptr<CWriter const> ConstPtr;
   
+private : // typedefs
+  
+  enum NeuElement {LINE=1,QUAD=2,TRIAG=3,HEXA=4,TETRA=6};
+
 public: // functions
   
   /// constructor
@@ -73,6 +77,8 @@ private: // data
 
   std::vector<std::vector<Uint> > m_faces_cf_to_neu;
   std::vector<std::vector<Uint> > m_faces_neu_to_cf;
+  std::vector<std::vector<Uint> > m_nodes_cf_to_neu;
+  std::vector<std::vector<Uint> > m_nodes_neu_to_cf;
 
   std::map<Uint,std::vector<std::pair<CRegion const*,Uint> > > m_n2e;
 

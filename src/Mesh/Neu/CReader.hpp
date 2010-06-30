@@ -30,6 +30,7 @@ public: // typedefs
 private: // typedefs
 
   typedef std::pair<boost::shared_ptr<CRegion>,Uint> Region_TableIndex_pair;
+  enum NeuElement {LINE=1,QUAD=2,TRIAG=3,HEXA=4,TETRA=6};
 
 public: // functions  
   /// constructor
@@ -75,6 +76,8 @@ private: // data
 
   std::vector<std::vector<Uint> > m_faces_cf_to_neu;
   std::vector<std::vector<Uint> > m_faces_neu_to_cf;
+  std::vector<std::vector<Uint> > m_nodes_cf_to_neu;
+  std::vector<std::vector<Uint> > m_nodes_neu_to_cf;
   
   struct HeaderData
   {

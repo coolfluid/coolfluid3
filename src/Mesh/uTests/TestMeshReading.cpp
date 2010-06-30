@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE( Constructors )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh )
+BOOST_AUTO_TEST_CASE( quadtriag_readNeu_writeGmsh_writeNeu )
 {
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
 
@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh2 )
+BOOST_AUTO_TEST_CASE( quadtriag_read_NewNeu_writeGmsh )
 {
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
   CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
@@ -180,10 +180,126 @@ BOOST_AUTO_TEST_CASE( ConvertFromNeuToGmsh2 )
   meshwriter->write_from_to(mesh,fp_out);
   BOOST_CHECK_EQUAL(1,1);
 
-  CMeshTransformer::Ptr meshinfo = create_component_abstract_type<CMeshTransformer>("Info","meshinfo");
-  meshinfo->transform(mesh);
+//  CMeshTransformer::Ptr meshinfo = create_component_abstract_type<CMeshTransformer>("Info","meshinfo");
+//  meshinfo->transform(mesh);
 
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( hextet_readNeu_writeGmsh_writeNeu )
+{
+  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
+  
+  // UNCOMMENT ALL THIS AND CHANGE THE FILEPATH "fp" TO A VALID PATH
+  
+  // the file to read from
+  boost::filesystem::path fp_in ("hextet.neu");
+  
+  // the mesh to store in
+  CMesh::Ptr mesh ( new CMesh  ( "mesh" ) );
+  
+  meshreader->read_from_to(fp_in,mesh);
+    
+  std::string text = (
+                      "mesh\n"
+                      "  coordinates\n"
+                      "  regions\n"
+                      "    fluid\n"
+                      "      P1-Hexa3D\n"
+                      "        table\n"
+                      "        type\n"			
+                      "      P1-Tetra3D\n"
+                      "        table\n"
+                      "        type\n"
+                      "    inlet\n"
+                      "      P1-Quad3D\n"
+                      "        table\n"
+                      "        type\n"
+                      "    outlet\n"
+                      "      P1-Triag3D\n"
+                      "        table\n"
+                      "        type\n"
+                      "    wall\n"
+                      "      P1-Quad3D\n"
+                      "        table\n"
+                      "        type\n"
+                      "      P1-Triag3D\n"
+                      "        table\n"
+                      "        type\n"
+                      );
+  // test if tree matches
+  BOOST_CHECK_EQUAL(text,mesh->tree());
+  
+  
+  
+  boost::filesystem::path fp_out ("hextet.msh");
+  CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
+  gmsh_writer->write_from_to(mesh,fp_out);
+  boost::filesystem::path fp_out_neu ("hextet_write.neu");
+  CMeshWriter::Ptr neu_writer = create_component_abstract_type<CMeshWriter>("Neu","meshwriter");
+  neu_writer->write_from_to(mesh,fp_out_neu);
+  BOOST_CHECK_EQUAL(1,1);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( hextet_read_NewNeu_writeGmsh )
+{
+  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
+  CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
+  
+  // the file to read from and to
+  boost::filesystem::path fp_in ("hextet_write.neu");
+  boost::filesystem::path fp_out("hextet_write.msh");
+  
+  // the mesh to store in
+  CMesh::Ptr mesh ( new CMesh  ( "mesh" ) );
+  
+  //CFinfo << "ready to read" << CFendl;
+  meshreader->read_from_to(fp_in,mesh);
+  
+  std::string text = (
+                      "mesh\n"
+                      "  coordinates\n"
+                      "  regions\n"
+                      "    fluid\n"
+                      "      P1-Hexa3D\n"
+                      "        table\n"
+                      "        type\n"			
+                      "      P1-Tetra3D\n"
+                      "        table\n"
+                      "        type\n"
+                      "    inlet\n"
+                      "      P1-Quad3D\n"
+                      "        table\n"
+                      "        type\n"
+                      "    outlet\n"
+                      "      P1-Triag3D\n"
+                      "        table\n"
+                      "        type\n"
+                      "    wall\n"
+                      "      P1-Quad3D\n"
+                      "        table\n"
+                      "        type\n"
+                      "      P1-Triag3D\n"
+                      "        table\n"
+                      "        type\n"
+                      );
+  // test if tree matches
+  BOOST_CHECK_EQUAL(text,mesh->tree());
+  
+  
+  //CFinfo << "ready to write" << CFendl;
+  meshwriter->write_from_to(mesh,fp_out);
+  BOOST_CHECK_EQUAL(1,1);
+  
+//  CMeshTransformer::Ptr meshinfo = create_component_abstract_type<CMeshTransformer>("Info","meshinfo");
+//  meshinfo->transform(mesh);
+  
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()
 
