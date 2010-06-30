@@ -12,6 +12,7 @@ set ( CF_USER_PRECISION "DOUBLE" CACHE STRING "Precision for floating point numb
 option ( CF_ENABLE_TRACE              "Enable tracing code"                     ON )
 option ( CF_ENABLE_LOGALL 	          "Enable logging via CFLog facility"       ON )
 option ( CF_ENABLE_LOGDEBUG           "Enable debug logging via CFLog facility" ON )
+option ( CF_ENABLE_STDDEBUG           "Enable debug of STL code"                OFF )
 option ( CF_ENABLE_DEBUG_MACROS       "Enable debug macros"                     ON )
 
 option ( CF_ENABLE_DOCS               "Enable build of documentation"           ON   )
