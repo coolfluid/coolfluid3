@@ -84,35 +84,32 @@ public: // methods
   /// Gets the CoreVars
   Common::SafePtr<Common::CoreVars> getVars();
 
-  /// Initializes the loggers
-  void initLoggers();
-
   /// Calls initiate() on all registered modules.
   /// Mind that some modules might already have been initiated.
   /// It is up to the modules to track if they have or not been initiated.
   /// @see ModuleRegisterBase
-  void initiateModules();
+  void initiate_modules();
 
   /// Calls terminate() on all registered modules
   /// Mind that some modules might already have been terminated.
   /// It is up to the modules to track if they have or not been terminated.
   /// @see ModuleRegisterBase
-  void terminateModules();
+  void terminate_modules();
 
-  /// Return the version string of this build
-  std::string getVersionString () const;
   /// Return the subversion version string of this build
-  std::string getSvnVersion () const;
+  std::string getVersionHeader() const;
+  /// Return the subversion version string of this build
+  std::string getSvnVersion() const;
   /// Return the CF version string
-  std::string getCFVersion () const;
+  std::string getReleaseVersion() const;
   /// Return the CF Kernel version string
-  std::string getKernelVersion () const;
+  std::string getKernelVersion() const;
   /// Return the CF build type
-  std::string getBuildType () const;
+  std::string getBuildType() const;
   /// Return the CMake version
-  std::string getBuildSystem () const;
+  std::string getBuildSystem() const;
   /// Return the build processor
-  std::string getBuildProcessor () const;
+  std::string getBuildProcessor() const;
   /// OS short name. Examples: "Linux" or "Windows"
   /// @return string with short OS name
   std::string getSystemName() const;

@@ -104,7 +104,6 @@ CoreEnv::CoreEnv() :
 //    CFinfo << "skipping\n" << CFflush;
 //
 //  CFinfo << "Configuring Logging ... " << CFflush;
-//  initLoggers();
 //  CFinfo << "OK\n" << CFflush;
 //
 //  // clean the config.log file
@@ -146,17 +145,6 @@ Common::SafePtr<VarRegistry> CoreEnv::getVarRegistry()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string CoreEnv::getVersionString () const
-{
-  std::string ret;
-  ret += getCFVersion() + " ";
-  ret += "Kernel " + getKernelVersion() + " ";
-  ret += "( r" + getSvnVersion() + ", " + getBuildType() + " )";
-  return ret;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 std::string CoreEnv::getBuildType () const
 {
   return CF_BUILD_TYPE;
@@ -171,7 +159,7 @@ std::string CoreEnv::getSvnVersion () const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string CoreEnv::getCFVersion () const
+std::string CoreEnv::getReleaseVersion () const
 {
   return CF_VERSION_STR;
 }
@@ -233,6 +221,22 @@ std::string CoreEnv::getSystemBits() const
 }
 ////////////////////////////////////////////////////////////////////////////////
 
+std::string CoreEnv::getVersionHeader() const
+{
+  std::ostringstream out;
+
+  out << "Release      : " << getReleaseVersion() << "\n";
+  out << "Kernel       : " << getKernelVersion()  << "\n";
+  out << "Build System : " << getBuildSystem()    << "\n";
+  out << "Build Type   : " << getBuildType()      << "\n";
+  out << "Build OS     : " << getLongSystemName() << " [" << getSystemBits() << "bits]\n";
+  out << "Build CPU    : " << getBuildProcessor() << "\n";
+
+  return out.str();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 CoreEnv::~CoreEnv()
 {
   delete_ptr ( m_var_registry );
@@ -249,40 +253,33 @@ CoreEnv::~CoreEnv()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CoreEnv::initLoggers()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 void CoreEnv::initiate ( int argc, char** argv )
 {
-  // Initiate the Parallel environment
-  // This modifies argc and argv!
-  CFinfo << "-------------------------------------------------------------\n" << CFflush;
-  CFinfo << "CF Environment\n" << CFflush;
-  CFinfo << "-------------------------------------------------------------\n" << CFflush;
+//  CFinfo << "-------------------------------------------------------------\n" << CFflush;
+//  CFinfo << "CF Core Environment\n" << CFflush;
+//  CFinfo << "-------------------------------------------------------------\n" << CFflush;
 
-  CFinfo << "Initializing Parallel Environment : " << CFflush;
-  PEInterface::instance().init(argc,argv);
+//  CFinfo << getVersionHeader() << CFflush;
 
-  CFinfo << "CF version    : " << getVersionString () << "\n";
-  CFinfo << "Build system         : " << getBuildSystem() << "\n";
-  CFinfo << "Build OS             : " << getLongSystemName() << " [" << getSystemBits() << "bits]\n";
-  CFinfo << "Build processor      : " << getBuildProcessor() << "\n";
+//  CFinfo << "-------------------------------------------------------------\n" << CFflush;
+
+//  CFinfo << "Initializing Parallel Environment ..." << CFendl;
+
+  PEInterface::instance().init(argc,argv); // this might modify argc and argv
 
   m_env_vars->InitArgs.first  = argc;
   m_env_vars->InitArgs.second = argv;
 
-  CFinfo << "Initializing Hook Modules ...\n" << CFflush;
-  initiateModules();
+//  CFinfo << "Initializing Hook Modules ..." << CFendl;
 
-  CFinfo << "-------------------------------------------------------------\n" << CFflush;
+  initiate_modules();
+
+//  CFinfo << "-------------------------------------------------------------\n" << CFflush;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CoreEnv::initiateModules()
+void CoreEnv::initiate_modules()
 {
   std::vector< SafePtr<ModuleRegisterBase> > mod = m_module_registry->getAllModules();
   std::for_each(mod.begin(),
@@ -292,7 +289,7 @@ void CoreEnv::initiateModules()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CoreEnv::terminateModules()
+void CoreEnv::terminate_modules()
 {
   std::vector< SafePtr<ModuleRegisterBase> > mod = m_module_registry->getAllModules();
   std::for_each(mod.begin(),
@@ -304,17 +301,17 @@ void CoreEnv::terminateModules()
 
 void CoreEnv::terminate()
 {
-  CFinfo << "-------------------------------------------------------------\n" << CFflush;
-  CFinfo << "CF Environment Terminating\n" << CFflush;
+//  CFinfo << "-------------------------------------------------------------\n" << CFflush;
+//  CFinfo << "CF Environment Terminating\n" << CFflush;
 
-  CFinfo << "Terminating Hook Modules ...\n" << CFflush;
-  terminateModules();
+//  CFinfo << "Terminating Hook Modules ...\n" << CFflush;
+  terminate_modules();
 
   PEInterface::instance().finalize();
 
-  CFinfo << "-------------------------------------------------------------\n" << CFflush;
-  CFinfo << "CF Environment Terminated\n";
-  CFinfo << "-------------------------------------------------------------\n" << CFflush;
+//  CFinfo << "-------------------------------------------------------------\n" << CFflush;
+//  CFinfo << "CF Environment Terminated\n";
+//  CFinfo << "-------------------------------------------------------------\n" << CFflush;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -351,6 +348,5 @@ Common::SafePtr<Common::EventHandler> CoreEnv::getEventHandler()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  } // namespace Common
-
-} // namespace CF
+} // Common
+} // CF
