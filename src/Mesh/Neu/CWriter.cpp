@@ -38,7 +38,7 @@ CWriter::CWriter( const CName& name )
   BUILD_COMPONENT;
 
 
-  m_supported_types.reserve(8);
+  m_supported_types.reserve(9);
   m_supported_types.push_back("P1-Line1D");
   m_supported_types.push_back("P1-Line2D");
   m_supported_types.push_back("P1-Line3D");
@@ -47,16 +47,18 @@ CWriter::CWriter( const CName& name )
   m_supported_types.push_back("P1-Triag2D");
   m_supported_types.push_back("P1-Triag3D");
   m_supported_types.push_back("P1-Hexa3D");
+  m_supported_types.push_back("P1-Tetra3D");
 
 
   m_CFelement_to_NeuElement[GeoShape::LINE ]=1;
   m_CFelement_to_NeuElement[GeoShape::QUAD ]=2;
   m_CFelement_to_NeuElement[GeoShape::TRIAG]=3;
   m_CFelement_to_NeuElement[GeoShape::HEXA ]=4;
+  m_CFelement_to_NeuElement[GeoShape::TETRA]=5;
 
 
   // face translation
-  enum NeuFace {LINE=1,QUAD=2,TRIAG=3,HEXA=4};
+  enum NeuFace {LINE=1,QUAD=2,TRIAG=3,HEXA=4,TETRA=5};
 
   // line
   m_faces_cf_to_neu[LINE].resize(2);
@@ -101,6 +103,19 @@ CWriter::CWriter( const CName& name )
   m_faces_neu_to_cf[HEXA][4]=5;
   m_faces_neu_to_cf[HEXA][5]=4;
   m_faces_neu_to_cf[HEXA][6]=2;
+  
+  // tetra
+  m_faces_cf_to_neu[TETRA].resize(4);
+  m_faces_cf_to_neu[TETRA][0]=1;
+  m_faces_cf_to_neu[TETRA][1]=2;
+  m_faces_cf_to_neu[TETRA][2]=3;
+  m_faces_cf_to_neu[TETRA][3]=4;
+  
+  m_faces_neu_to_cf[TETRA].resize(5);
+  m_faces_neu_to_cf[TETRA][1]=0;
+  m_faces_neu_to_cf[TETRA][2]=1;
+  m_faces_neu_to_cf[TETRA][3]=2;
+  m_faces_neu_to_cf[TETRA][4]=3;
 }
 
 /////////////////////////////////////////////////////////////////////////////
