@@ -19,10 +19,10 @@ using namespace CF::Mesh;
 
 int main(int argc, char * argv[])
 {
-  CFinfo << "COOLFLUID K3 Mesh Tranformer" << CFendl;
-
+  CFinfo << "COOLFLUID K3 Mesh Transformer\n" << CFflush;
+  
   CoreEnv::instance().initiate(argc, argv);
-
+  
   // map file extensions to readers and writers
   
   typedef std::pair<std::string,std::vector<CMeshReader::Ptr> > extensions_to_readers_pair_t;
@@ -133,64 +133,22 @@ int main(int argc, char * argv[])
     }
 
 
-   if (vm.count("help") || vm.size()==0)
-   {
-     CFinfo << CFendl << "Usage: " << argv[0] << " [options]" << CFendl << CFendl;
-     CFinfo << desc << CFendl;
-     std::vector< std::string > vk, vt;
-     vk.push_back("Input formats:");        vt.push_back("");
-     BOOST_FOREACH(const CMeshReader::Ptr& reader, readers)
-     {
-       vk.push_back("  " + reader->get_format());
-       std::string extensions;
-       BOOST_FOREACH(const std::string& ext, reader->get_extensions())
-         extensions += ext + " ";
-       vt.push_back(extensions);
-     }
-     vk.push_back("");                      vt.push_back("");
-     vk.push_back("Output formats:");       vt.push_back("");
-     BOOST_FOREACH(const CMeshWriter::Ptr& writer, writers)
-     {
-       vk.push_back("  " + writer->get_format());
-       std::string extensions;
-       BOOST_FOREACH(const std::string& ext, writer->get_extensions())
-         extensions += ext + " ";
-       vt.push_back(extensions);
-     }     
-     vk.push_back("");                      vt.push_back("");
-     vk.push_back("Transformations:");      vt.push_back("");
-     BOOST_FOREACH(const std::string& transformer_name, transformers)
-     {
-       vk.push_back("  " + transformer_name);     vt.push_back("");
-     }
-     vk.push_back("");                      vt.push_back("");
-
-     // output with keys strings adjusted to the same length
-     unsigned l = 0;
-     for (unsigned i=0; i<vk.size(); ++i)
-       l = (l>vk[i].length()? l:vk[i].length());
-     l+=2;
-     for (unsigned i=0; i<vk.size(); ++i)
-       vk[i].insert(vk[i].end(),l-vk[i].length(),' ');
-
-     for (unsigned i=0; i<vk.size(); ++i)
-       CFinfo << vk[i] << vt[i] << CFendl;
-     exit(0);
-   }
-
-   bool dryrun=false;
-   if (vm.count("dryrun"))
-   {
-     CFinfo << "\nThis is what would happen without the dryrun option:" << CFendl << CFendl;
-     dryrun=true;
-   }
-
-   if (vm.count("version"))
-   {
-     CFinfo << CoreEnv::instance().getVersionHeader () << "\n";
-   }
-
-   // create mesh object
+    exit(0);
+  }
+  
+  bool dryrun=false;
+  if (vm.count("dryrun"))
+  {
+    CFinfo << "\nThis is what would happen without the dryrun option:" << CFendl << CFendl;
+    dryrun=true;
+  }
+  
+  if (vm.count("version"))
+  {
+    CFinfo << CoreEnv::instance().getVersionHeader () << "\n"; 
+  }
+  
+  // create mesh object
   CRoot::Ptr root = CRoot::create("root");
   CMesh::Ptr mesh = root->create_component_type<CMesh>("mesh");
   
@@ -294,7 +252,6 @@ int main(int argc, char * argv[])
       }
     }
   }
-
+  
   CoreEnv::instance().terminate();
-
 }
