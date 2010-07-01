@@ -259,8 +259,6 @@ void TreeView::currentIndexChanged(const QModelIndex & newIndex, const QModelInd
 {
   QItemSelectionModel::SelectionFlags flags = QItemSelectionModel::Select | QItemSelectionModel::Rows;
 
-  qDebug() << ClientRoot::getTree()->getNodePath(newIndex);
-
   this->selectionModel()->clearSelection();
   this->selectionModel()->select(newIndex, flags);
   this->selectionModel()->setCurrentIndex(newIndex, flags);

@@ -97,8 +97,6 @@ CNode::Ptr CNode::createFromXml(const QDomElement & element)
   QString name = element.attribute("name");
   QDomElement child = element.firstChildElement();
 
-  qDebug() << name;
-
   cf_assert(!name.isEmpty());
 
   CNode::Ptr rootNode;

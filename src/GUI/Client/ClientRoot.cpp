@@ -55,7 +55,14 @@ void ClientRoot::processSignal(const QDomDocument & signal)
     std::string type = nodeToProcess->first_attribute("target")->value();
     std::string receiver = nodeToProcess->first_attribute("receiver")->value();
 
-    getRoot()->access_component(receiver)->call_signal( type, *nodeToProcess );
+    try
+    {
+      getRoot()->access_component(receiver)->call_signal(type, *nodeToProcess);
+    }
+    catch(InvalidPath ip)
+    {
+      getLog()->addException(ip.what());
+    }
   }
 }
 

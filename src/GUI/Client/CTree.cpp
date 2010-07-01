@@ -73,18 +73,9 @@ CTree::CTree(CNode::Ptr rootNode)
 
     CNode::Ptr nodePtr = CNode::createFromXml(doc.firstChildElement());
 
-    if(nodePtr->checkType(CNode::ROOT_NODE))
-    {
-      /// @todo save children to easily remove them on delete
-
-   //   ClientRoot::getRoot()->rename(nodePtr->name());
-    }
-
-
     m_rootItem = new TreeNode(nodePtr, CFNULL, 0);
   }
-  else
-    m_rootItem = new TreeNode(rootNode, CFNULL, 0);
+   // m_rootItem = new TreeNode(rootNode, CFNULL, 0);
 
   m_columns << "Name" << "Type";
 
@@ -453,4 +444,6 @@ void CTree::getNodePathRec(const QModelIndex & index, QString & path) const
     path.prepend('/').prepend(node->getName());
     this->getNodePathRec(index.parent(), path);
   }
+  else
+    path.prepend("//");
 }
