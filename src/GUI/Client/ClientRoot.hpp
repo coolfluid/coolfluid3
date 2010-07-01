@@ -8,6 +8,7 @@
 #include "Common/CRoot.hpp"
 #include "Common/NonInstantiable.hpp"
 
+#include "GUI/Network/ComponentNames.hpp"
 #include "GUI/Client/CBrowser.hpp"
 #include "GUI/Client/CLog.hpp"
 #include "GUI/Client/CTree.hpp"
@@ -51,19 +52,28 @@ namespace Client {
 
     /// If the node does not exist yet, it is created.
     /// @return Returns the log node.
-    static CLog::Ptr getLog();
+    inline static CLog::Ptr getLog()
+    {
+      return getRoot()->access_component< CLog >(CLIENT_LOG_PATH);
+    }
 
     /// @brief Gives the browser node.
 
     /// If the node does not exist yet, it is created.
     /// @return Returns the browser node
-    static CBrowser::Ptr getBrowser();
+    inline static CBrowser::Ptr getBrowser()
+    {
+      return getRoot()->access_component< CBrowser >(CLIENT_BROWSERS_PATH);
+    }
 
     /// @brief Gives the tree node.
 
     /// If the node does not exist yet, it is created.
     /// @return Returns the tree node.
-    static CTree::Ptr getTree();
+    inline static CTree::Ptr getTree()
+    {
+      return getRoot()->access_component< CTree >(CLIENT_TREE_PATH);
+    }
 
   }; // class ClientRoot
 

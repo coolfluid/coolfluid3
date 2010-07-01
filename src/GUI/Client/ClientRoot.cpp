@@ -77,26 +77,3 @@ void ClientRoot::processSignalString(const QString & signal)
   processSignal(doc);
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-CLog::Ptr ClientRoot::getLog()
-{
-  return getRoot()->access_component< CLog >(CLIENT_LOG_PATH);
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-CBrowser::Ptr ClientRoot::getBrowser()
-{
-  return boost::dynamic_pointer_cast< CBrowser >(getRoot()->access_component(CLIENT_BROWSERS_PATH));
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-CTree::Ptr ClientRoot::getTree()
-{
-  return getRoot()->access_component< CTree >(CLIENT_TREE_PATH);
-}

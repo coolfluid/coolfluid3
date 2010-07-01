@@ -7,7 +7,9 @@
 #include <QStringList> /// @todo does not compile without that...but why ???
 
 #include "Common/Component.hpp"
+#include "GUI/Client/TreeNode.hpp"
 #include "GUI/Client/CNode.hpp"
+
 
 class QDomElement;
 class QModelIndex;
@@ -160,9 +162,15 @@ namespace Client {
 
     bool m_advancedMode;
 
-    inline TreeNode * indexToTreeNode(const QModelIndex & index) const;
+    inline TreeNode * indexToTreeNode(const QModelIndex & index) const
+    {
+      return static_cast<TreeNode *>(index.internalPointer());
+    }
 
-    inline CNode::Ptr indexToNode(const QModelIndex & index) const;
+    inline CNode::Ptr indexToNode(const QModelIndex & index) const
+    {
+      return this->indexToTreeNode(index)->getNode();
+    }
 
     void getNodePathRec(const QModelIndex & index, QString & path) const;
 

@@ -419,22 +419,6 @@ Signal::return_t CTree::updateTree(Signal::arg_t & node)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-inline TreeNode * CTree::indexToTreeNode(const QModelIndex & index) const
-{
-  return static_cast<TreeNode *>(index.internalPointer());
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-inline CNode::Ptr CTree::indexToNode(const QModelIndex & index) const
-{
-  return this->indexToTreeNode(index)->getNode();
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 void CTree::getNodePathRec(const QModelIndex & index, QString & path) const
 {
   TreeNode * node = this->indexToTreeNode(index);
