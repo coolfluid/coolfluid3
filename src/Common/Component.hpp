@@ -202,6 +202,9 @@ public: // functions
 
   std::string tree(Uint level=0);
 
+  /// @return Returns the number of children this component has.
+  int get_child_count() const;
+
   /// @name SIGNALS
   //@{
 

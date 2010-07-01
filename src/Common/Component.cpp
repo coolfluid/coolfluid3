@@ -165,19 +165,19 @@ void Component::complete_path ( CPath& path ) const
 
 //  CFinfo << "PATH [" << path.string() << "]\n" << CFflush;
 
-  if (m_parent.expired()) 
+  if (m_parent.expired())
     throw  InvalidPath(FromHere(), "Component \'" + name() + "\' has no parent");
-  
-  if (m_root.expired()) 
+
+  if (m_root.expired())
     throw  InvalidPath(FromHere(), "Component \'" + name() + "\' has no root");
-  
+
   boost::shared_ptr<Component> parent = m_parent.lock();
   boost::shared_ptr<Component> root   = m_root.lock();
 
   std::string sp = path.string();
 
   if ( path.is_relative() ) // transform it to absolute
-  {    
+  {
     if ( starts_with(sp,"/") ) // remove leading "/" if any
       boost::algorithm::replace_first(sp, "/", "" );
 
@@ -248,10 +248,10 @@ void Component::change_parent ( Component::Ptr new_parent )
   }
 
   if( new_parent ) // valid ?
-	{    
-		m_path = new_parent->full_path(); // modify the path
+  {
+    m_path = new_parent->full_path(); // modify the path
     m_root = new_parent->m_root;      // modify the root
-    
+
     if( !m_root.expired() )   // get the root and set the new path
     {
       boost::shared_ptr<CRoot> root =
@@ -376,6 +376,13 @@ std::string Component::tree(Uint level)
     tree += c.second->tree(level+1);
   }
   return tree;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+int Component::get_child_count() const
+{
+  return m_components.size();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
