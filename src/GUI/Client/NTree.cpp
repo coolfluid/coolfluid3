@@ -12,22 +12,93 @@
 
 #include "GUI/Network/ComponentNames.hpp"
 
-#include "GUI/Client/CTree.hpp"
-
-//#define TO_CNODE_PTR(a) boost::dynamic_pointer_cast<CNode>(a).get()
-//#define this->indexToTreeNode(a) static_cast<TreeNode *>(a.internalPointer())
-//#define this->indexToNode(a) this->indexToTreeNode(a)->getNode()
+#include "GUI/Client/NTree.hpp"
 
 using namespace CF::Common;
 using namespace CF::GUI::Client;
 
-CTree::CTree(CNode::Ptr rootNode)
-  : Component(CLIENT_TREE),
+NTree::NTree(CNode::Ptr rootNode)
+  : CNode(CLIENT_TREE, "NTree", CNode::TREE_NODE),
     m_advancedMode(false)
 {
+  //BUILD_COMPONENT;
+
 //  cf_assert(rootNode.get() != CFNULL);
 
   if(rootNode.get() == CFNULL)
+  {
+//    QString data =
+//        "<CRoot name=\"Simulation\" >"
+//        " <CGroup name=\"Flow\" >"
+//        "  <CLink name=\"Mesh\">//Simulation/MG/Mesh1</CLink>"
+//        "  <CMethod name=\"FVM\" >"
+//        "   <params>"
+//        "    <int key=\"iter\" mode=\"basic\" desc=\"nb iterations\" >5</int>"
+//        "    <string key=\"somename\" mode=\"adv\" >Lolo</string>"
+//        "    <path   key=\"region\">./</path>"
+//        "   </params>"
+//        "  </CMethod>"
+//        "  <CMethod name=\"Petsc\" >"
+//        "    <params>"
+//        "     <int key=\"iter2\" mode=\"basic\" desc=\"nb iterations\" >5</int>"
+//        "     <string key=\"somename2\" mode=\"adv\" >Lolo</string>"
+//        "     <path   key=\"region2\">./</path>"
+//        "    </params>"
+//        "  </CMethod>"
+//        " </CGroup>"
+//        " <CGroup name=\"MG\">"
+//        "  <params>"
+//        "   <bool key=\"myBool\" mode=\"basic\" desc=\"a boolean option\" >true</bool>"
+//        "   <string key=\"someOtherName\" mode=\"adv\" >Lolo</string>"
+//        "  </params>"
+//        "  <CMesh name=\"Mesh1\" >"
+//        "   <params>"
+//        "    <bool key=\"myOtherBool\" mode=\"basic\" desc=\"another boolean option\" >false</bool>"
+//        "    <string key=\"yetAnotherName\" mode=\"adv\" >Lolo</string>"
+//        "   </params>"
+//        "  </CMesh>"
+//        "  <CMesh name=\"Mesh2\" > <!-- mesh1 here --> </CMesh>"
+//        " </CGroup>"
+//        " <CGroup name=\"Solid\">"
+//        "  <CMesh name=\"Mesh3\" > <!-- mesh2 here --> </CMesh>"
+//        "  <CMesh name=\"Mesh4\" > <!-- mesh1 here --> </CMesh>"
+//        "  <CLink name=\"PetscLink\">//Simulation/Flow/Petsc</CLink>"
+//        " </CGroup>"
+//        "</CRoot>";
+//    QDomDocument doc;
+
+//    doc.setContent(data);
+
+//    CNode::Ptr nodePtr = CNode::createFromXml(doc.firstChildElement());
+
+    m_rootNode = new TreeNode(ClientRoot::getRoot(), CFNULL, 0);
+  }
+
+//  m_rootNode = CFNULL;
+
+  m_rootNode = new TreeNode(rootNode, CFNULL, 0);
+
+  m_columns << "Name" << "Type";
+
+  regist_signal("list_tree", "Log message")->connect(boost::bind(&NTree::list_tree, this, _1));
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void NTree::setRoot(NRoot::Ptr rootNode)
+{
+//  cf_assert(rootNode.get() != CFNULL);
+
+  // initiate the removing process
+  emit layoutAboutToBeChanged();
+//  this->beginRemoveRows(QModelIndex(), 0, m_rootNode->getChildCount() - 1);
+  delete m_rootNode;
+//  this->endRemoveRows(); // end the removing process
+
+  m_rootNode = CFNULL;
+
+  if(rootNode.get() != CFNULL)
   {
     QString data =
         "<CRoot name=\"Simulation\" >"
@@ -73,35 +144,28 @@ CTree::CTree(CNode::Ptr rootNode)
 
     CNode::Ptr nodePtr = CNode::createFromXml(doc.firstChildElement());
 
-    m_rootItem = new TreeNode(nodePtr, CFNULL, 0);
+    ComponentIterator<CNode> it = nodePtr->begin<CNode>();
+
+    rootNode->rename(nodePtr->name());
+    rootNode->root()->rename(nodePtr->name());
+
+    while(it != nodePtr->end<CNode>())
+    {
+      rootNode->root()->add_component(it.get());
+      it++;
+    }
+
+    m_rootNode = new TreeNode(rootNode, CFNULL, 0);
+
+    emit layoutChanged();
   }
-   // m_rootItem = new TreeNode(rootNode, CFNULL, 0);
-
-  m_columns << "Name" << "Type";
-
-  regist_signal("list_tree", "Log message")->connect(boost::bind(&CTree::list_tree, this, _1));
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void CTree::setRoot(CNode::Ptr rootNode)
-{
-  cf_assert(rootNode.get() != CFNULL);
-
-  // initiate the removing process
-  this->beginRemoveRows(QModelIndex(), 0, m_rootItem->getChildCount() - 1);
-  delete m_rootItem;
-  this->endRemoveRows(); // end the removing process
-
-  m_rootItem = new TreeNode(rootNode, CFNULL, 0);
 
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CTree::setCurrentIndex(const QModelIndex & newIndex)
+void NTree::setCurrentIndex(const QModelIndex & newIndex)
 {
   if(!this->areFromSameNode(m_currentIndex, newIndex))
   {
@@ -109,13 +173,12 @@ void CTree::setCurrentIndex(const QModelIndex & newIndex)
     m_currentIndex = newIndex;
     emit currentIndexChanged(newIndex, oldIndex);
   }
-
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QModelIndex CTree::getCurrentIndex() const
+QModelIndex NTree::getCurrentIndex() const
 {
   return m_currentIndex;
 }
@@ -123,7 +186,7 @@ QModelIndex CTree::getCurrentIndex() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CTree::getNodeParams(const QModelIndex & index, QList<NodeOption> & params,
+void NTree::getNodeParams(const QModelIndex & index, QList<NodeOption> & params,
                           bool * ok) const
 {
   TreeNode * node = this->indexToTreeNode(index);
@@ -140,7 +203,7 @@ void CTree::getNodeParams(const QModelIndex & index, QList<NodeOption> & params,
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString CTree::getNodePath(const QModelIndex & index) const
+QString NTree::getNodePath(const QModelIndex & index) const
 {
   QString path;
 
@@ -152,7 +215,7 @@ QString CTree::getNodePath(const QModelIndex & index) const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CTree::setAdvancedMode(bool advanceMode)
+void NTree::setAdvancedMode(bool advanceMode)
 {
   if(m_advancedMode != advanceMode)
   {
@@ -164,7 +227,7 @@ void CTree::setAdvancedMode(bool advanceMode)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool CTree::isAdvancedMode() const
+bool NTree::isAdvancedMode() const
 {
   return m_advancedMode;
 }
@@ -172,7 +235,7 @@ bool CTree::isAdvancedMode() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool CTree::areFromSameNode(const QModelIndex & left, const QModelIndex & right) const
+bool NTree::areFromSameNode(const QModelIndex & left, const QModelIndex & right) const
 {
   return left.isValid() && left.internalPointer() == right.internalPointer();
 }
@@ -180,7 +243,7 @@ bool CTree::areFromSameNode(const QModelIndex & left, const QModelIndex & right)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool CTree::haveSameData(const QModelIndex & left, const QModelIndex & right) const
+bool NTree::haveSameData(const QModelIndex & left, const QModelIndex & right) const
 {
   bool sameData = false;
   TreeNode * leftTreeNode = this->indexToTreeNode(left);
@@ -193,11 +256,11 @@ bool CTree::haveSameData(const QModelIndex & left, const QModelIndex & right) co
 
     if(leftNode->checkType(CNode::LINK_NODE))
     {
-      sameData = boost::dynamic_pointer_cast<NLink>(leftNode)->getTargetPath().string() == QString("//%1").arg(rightNode->full_path().string().c_str()).toStdString();
+      sameData = CNode::convertTo<NLink>(leftNode)->getTargetPath().string() == QString("//%1").arg(rightNode->full_path().string().c_str()).toStdString();
     }
     else if(rightNode->checkType(CNode::LINK_NODE))
     {
-      sameData = boost::dynamic_pointer_cast<NLink>(rightNode)->getTargetPath().string() == QString("//%1").arg(leftNode->full_path().string().c_str()).toStdString();
+      sameData = CNode::convertTo<NLink>(rightNode)->getTargetPath().string() == QString("//%1").arg(leftNode->full_path().string().c_str()).toStdString();
     }
   }
 
@@ -207,12 +270,12 @@ bool CTree::haveSameData(const QModelIndex & left, const QModelIndex & right) co
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CNode::Ptr CTree::getNodeByPath(const CPath & path) const
+CNode::Ptr NTree::getNodeByPath(const CPath & path) const
 {
   QString pathStr = path.string().c_str();
   QStringList comps;
   QStringList::iterator it;
-  CNode::Ptr node = m_rootItem->getNode();
+  CNode::Ptr node = m_rootNode->getNode();
 
   if(!path.is_absolute())
     ClientRoot::getLog()->addError(QString("\"%1\" is not an absolute path").arg(pathStr));
@@ -224,7 +287,12 @@ CNode::Ptr CTree::getNodeByPath(const CPath & path) const
       comps.removeFirst();
 
     for(it = comps.begin() ; it != comps.end() && node.get() != CFNULL ; it++)
-      node = boost::dynamic_pointer_cast<CNode>(node->get_child(it->toStdString()));
+    {
+      if(node->checkType(CNode::ROOT_NODE))
+        node = boost::dynamic_pointer_cast<CNode>(CNode::convertTo<NRoot>(node)->root()->get_child(it->toStdString()));
+      else
+        node = boost::dynamic_pointer_cast<CNode>(node->get_child(it->toStdString()));
+    }
   }
 
   return node;
@@ -233,13 +301,13 @@ CNode::Ptr CTree::getNodeByPath(const CPath & path) const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QModelIndex CTree::getIndexByPath(const CPath & path) const
+QModelIndex NTree::getIndexByPath(const CPath & path) const
 {
   QModelIndex index;
   QString pathStr = path.string().c_str();
   QStringList comps;
   QStringList::iterator it;
-  TreeNode * treeNode = m_rootItem;
+  TreeNode * treeNode = m_rootNode;
 
   cf_assert(treeNode != CFNULL);
 
@@ -267,7 +335,7 @@ QModelIndex CTree::getIndexByPath(const CPath & path) const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QVariant CTree::data(const QModelIndex & index, int role) const
+QVariant NTree::data(const QModelIndex & index, int role) const
 {
   QVariant data;
 
@@ -303,7 +371,7 @@ QVariant CTree::data(const QModelIndex & index, int role) const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QModelIndex CTree::index(int row, int column, const QModelIndex & parent) const
+QModelIndex NTree::index(int row, int column, const QModelIndex & parent) const
 {
   TreeNode * childNode;
   TreeNode * parentNode;
@@ -312,7 +380,7 @@ QModelIndex CTree::index(int row, int column, const QModelIndex & parent) const
   if(this->hasIndex(row, column, parent))
   {
     if( !parent.isValid())
-      childNode = m_rootItem;
+      childNode = m_rootNode;
     else
       childNode = this->indexToTreeNode(parent)->getChild(row);
 
@@ -326,7 +394,7 @@ QModelIndex CTree::index(int row, int column, const QModelIndex & parent) const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QModelIndex CTree::parent(const QModelIndex &child) const
+QModelIndex NTree::parent(const QModelIndex &child) const
 {
   QModelIndex index;
 
@@ -345,7 +413,7 @@ QModelIndex CTree::parent(const QModelIndex &child) const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-int CTree::rowCount(const QModelIndex & parent) const
+int NTree::rowCount(const QModelIndex & parent) const
 {
   if (parent.column() > 0)
     return 0;
@@ -354,13 +422,13 @@ int CTree::rowCount(const QModelIndex & parent) const
   if (!parent.isValid())
     return 1;
 
-  return this->indexToTreeNode(parent)->getNode()->getNodeCount();
+  return this->indexToTreeNode(parent)->getChildCount();
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-int CTree::columnCount(const QModelIndex & parent) const
+int NTree::columnCount(const QModelIndex & parent) const
 {
   return m_columns.count();
 }
@@ -368,7 +436,7 @@ int CTree::columnCount(const QModelIndex & parent) const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QVariant CTree::headerData(int section, Qt::Orientation orientation,
+QVariant NTree::headerData(int section, Qt::Orientation orientation,
                            int role) const
 {
   if(role == Qt::DisplayRole && orientation == Qt::Horizontal && section >= 0
@@ -381,7 +449,7 @@ QVariant CTree::headerData(int section, Qt::Orientation orientation,
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CTree::showNodeMenu(const QModelIndex & index, const QPoint & pos) const
+void NTree::showNodeMenu(const QModelIndex & index, const QPoint & pos) const
 {
   TreeNode * treeNode = indexToTreeNode(index);
 
@@ -397,7 +465,7 @@ void CTree::showNodeMenu(const QModelIndex & index, const QPoint & pos) const
 
 ============================================================================*/
 
-Signal::return_t CTree::updateTree(Signal::arg_t & node)
+Signal::return_t NTree::updateTree(Signal::arg_t & node)
 {
   std::string str;
   QDomDocument doc;
@@ -408,7 +476,7 @@ Signal::return_t CTree::updateTree(Signal::arg_t & node)
 
   try
   {
-    m_rootItem = new TreeNode(CNode::createFromXml(doc.firstChildElement()), CFNULL, 0);
+    m_rootNode = new TreeNode(CNode::createFromXml(doc.firstChildElement()), CFNULL, 0);
   }
   catch(XmlError xe)
   {
@@ -419,7 +487,7 @@ Signal::return_t CTree::updateTree(Signal::arg_t & node)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CTree::getNodePathRec(const QModelIndex & index, QString & path) const
+void NTree::getNodePathRec(const QModelIndex & index, QString & path) const
 {
   TreeNode * node = this->indexToTreeNode(index);
 
@@ -430,4 +498,28 @@ void CTree::getNodePathRec(const QModelIndex & index, QString & path) const
   }
   else
     path.prepend("//");
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+QIcon NTree::getIcon() const
+{
+  return QFileIconProvider().icon(QFileIconProvider::Folder);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+QString NTree::getToolTip() const
+{
+  return this->getComponentType();
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void NTree::getOptions(QList<NodeOption> & params) const
+{
+  params = m_options;
 }

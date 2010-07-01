@@ -1,16 +1,18 @@
-#ifndef CF_GUI_Client_CLog_hpp
-#define CF_GUI_Client_CLog_hpp
+#ifndef CF_GUI_Client_NLog_hpp
+#define CF_GUI_Client_NLog_hpp
 
 //////////////////////////////////////////////////////////////////////////////
 
 #include <QObject>
 #include <QHash>
+#include <QList>
 
-#include "Common/Component.hpp"
+#include "GUI/Client/CNode.hpp"
 
 #include "GUI/Network/LogMessage.hpp"
 
 class QString;
+class QIcon;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -21,20 +23,19 @@ namespace Client {
 
 /////////////////////////////////////////////////////////////////////////////
 
-  class CLog :
+  class NLog :
       public QObject,
-      public CF::Common::Component
+      public CNode
   {
     Q_OBJECT
 
   public:
 
-    typedef boost::shared_ptr<CLog> Ptr;
-    typedef boost::shared_ptr<CLog const> ConstPtr;
+    typedef boost::shared_ptr<NLog> Ptr;
 
-    CLog();
+    NLog();
 
-    ~CLog();
+    ~NLog();
 
     /// @brief Adds a message to the log.
 
@@ -45,6 +46,15 @@ namespace Client {
     void addError(const QString & message);
 
     void addException(const QString & message);
+
+    /// @brief Gives the icon associated to this node
+    /// @return Returns the icon associated to this node
+    /// @note This method should be reimplemented by all subclasses.
+    virtual QIcon getIcon() const;
+
+    virtual QString getToolTip() const;
+
+    virtual void getOptions(QList<NodeOption> & params) const;
 
   signals:
 
@@ -63,7 +73,7 @@ namespace Client {
     void appendToLog(CF::GUI::Network::LogMessage::Type type, bool fromServer,
                      const QString & message);
 
-  }; // class CLog
+  }; // class NLog
 
   ///////////////////////////////////////////////////////////////////////////
 
@@ -73,4 +83,4 @@ namespace Client {
 
 /////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Client_CLog_hpp
+#endif // CF_GUI_Client_NLog_hpp

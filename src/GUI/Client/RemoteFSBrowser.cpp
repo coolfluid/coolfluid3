@@ -8,9 +8,9 @@
 
 #include "Common/XmlHelpers.hpp"
 
-#include "GUI/Client/CBrowser.hpp"
+#include "GUI/Client/NBrowser.hpp"
 #include "GUI/Client/ClientCore.hpp"
-#include "GUI/Client/CLog.hpp"
+#include "GUI/Client/NLog.hpp"
 #include "GUI/Client/ClientNetworkComm.hpp"
 #include "GUI/Client/FilesListItem.hpp"
 #include "GUI/Client/ClientRoot.hpp"

@@ -1,5 +1,7 @@
 #include <QtCore>
 
+#include "GUI/Client/NRoot.hpp"
+
 #include "GUI/Client/TreeNode.hpp"
 
 using namespace CF::GUI::Client;
@@ -12,7 +14,14 @@ TreeNode::TreeNode(CNode::Ptr node, TreeNode * parent, int rowNumber)
   cf_assert(node.get() != CFNULL);
   cf_assert(rowNumber >= 0);
 
-  for(int i = 0 ; i < m_node->getNodeCount() ; i++)
+  int childCount;
+
+  if(m_node->checkType(CNode::ROOT_NODE))
+    childCount = CNode::convertTo<NRoot>(m_node)->root()->get_child_count();
+  else
+    childCount = m_node->get_child_count();
+
+  for(int i = 0 ; i < childCount ; i++)
     m_childNodes << CFNULL;
 }
 
@@ -38,7 +47,13 @@ TreeNode * TreeNode::getChild(int rowNumber)
   // ...otherwise, if the index is valid, it is created and returned...
   if(child == CFNULL && rowNumber>= 0 && rowNumber < m_childNodes.size())
   {
-    CNode::Ptr childNode = m_node->getNode(rowNumber);
+    CNode::Ptr childNode;
+
+    if(m_node->checkType(CNode::ROOT_NODE))
+      childNode = CNode::convertTo<NRoot>(m_node)->getNodeFromRoot(rowNumber);
+    else
+      childNode = m_node->getNode(rowNumber);
+
     child = new TreeNode(childNode, this, rowNumber);
     m_childNodes.replace(rowNumber, child);
 
@@ -81,7 +96,10 @@ int TreeNode::getRowNumber() const
 
 int TreeNode::getChildCount() const
 {
-  return m_node->getNodeCount();
+  if(m_node->checkType(CNode::ROOT_NODE))
+    return CNode::convertTo<NRoot>(m_node)->root()->get_child_count();
+
+  return m_node->get_child_count();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

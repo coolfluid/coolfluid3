@@ -17,11 +17,13 @@
 
 //===========================================================================
 
-#define SERVER_ROOT  "Simulator"
+#define SERVER_ROOT  "Server"
 #define SERVER_CORE  "Core"
+#define SERVER_SIM   "Simulation"
 
 #define SERVER_ROOT_PATH  "//" SERVER_ROOT
 #define SERVER_CORE_PATH  SERVER_ROOT_PATH "/" SERVER_CORE
+#define SERVER_SIM_PATH   SERVER_ROOT_PATH "/" SERVER_SIM
 
 /////////////////////////////////////////////////////////////////////////////
 

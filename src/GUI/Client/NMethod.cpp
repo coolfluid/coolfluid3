@@ -8,7 +8,7 @@ using namespace CF::GUI::Client;
 NMethod::NMethod(const QString & name)
   : CNode(name, "CMethod", METHOD_NODE)
 {
-
+  //BUILD_COMPONENT;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

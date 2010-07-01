@@ -11,7 +11,7 @@
 
 #include "Common/ConfigArgs.hpp"
 
-#include "GUI/Client/CLog.hpp"
+#include "GUI/Client/NLog.hpp"
 #include "GUI/Client/StatusModel.hpp"
 
 using namespace CF::Common;

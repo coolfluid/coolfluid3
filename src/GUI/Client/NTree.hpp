@@ -1,14 +1,14 @@
-#ifndef CF_GUI_Client_CTree_hpp
-#define CF_GUI_Client_CTree_hpp
+#ifndef CF_GUI_Client_NTree_hpp
+#define CF_GUI_Client_NTree_hpp
 
 //////////////////////////////////////////////////////////////////////////////
 
 #include <QAbstractItemModel>
 #include <QStringList> /// @todo does not compile without that...but why ???
 
-#include "Common/Component.hpp"
-#include "GUI/Client/TreeNode.hpp"
 #include "GUI/Client/CNode.hpp"
+#include "GUI/Client/TreeNode.hpp"
+#include "GUI/Client/NRoot.hpp"
 
 
 class QDomElement;
@@ -27,27 +27,26 @@ namespace Client {
 
   /// @brief Tree model
 
-  class CTree :
+  class NTree :
       public QAbstractItemModel,
-      public CF::Common::Component
+      public CNode
   {
     Q_OBJECT
   public:
 
-    typedef boost::shared_ptr<CTree> Ptr;
-    typedef boost::shared_ptr<CTree const> ConstPtr;
+    typedef boost::shared_ptr<NTree> Ptr;
 
     /// @brief Constructor.
 
     /// @param rootNode The root node. May be @c CFNULL.
-    CTree(CF::GUI::Client::CNode::Ptr rootNode = CF::GUI::Client::CNode::Ptr());
+    NTree(CF::GUI::Client::CNode::Ptr rootNode = CF::GUI::Client::CNode::Ptr());
 
     /// @brief Replaces the current component tree.
 
     /// The old tree is destroyed (regarding to @c boost::shared_ptr delete
     /// rules).
     /// @param node The new root. May be @c CFNULL.
-    void setRoot(CNode::Ptr node);
+    void setRoot(NRoot::Ptr node);
 
     /// @brief Sets the current index.
 
@@ -143,6 +142,15 @@ namespace Client {
 
     void showNodeMenu(const QModelIndex & index, const QPoint & pos) const;
 
+    /// @brief Gives the icon associated to this node
+    /// @return Returns the icon associated to this node
+    /// @note This method should be reimplemented by all subclasses.
+    virtual QIcon getIcon() const;
+
+    virtual QString getToolTip() const;
+
+    virtual void getOptions(QList<NodeOption> & params) const;
+
   signals:
 
     /// @brief Signal emitted when the current index has changed.
@@ -156,7 +164,7 @@ namespace Client {
 
     QStringList m_columns;
 
-    TreeNode * m_rootItem;
+    TreeNode * m_rootNode;
 
     QModelIndex m_currentIndex;
 
@@ -184,7 +192,7 @@ namespace Client {
     /// @} END Signals
 
 
-  }; // class CTree
+  }; // class NTree
 
   ///////////////////////////////////////////////////////////////////////////
 
@@ -194,4 +202,4 @@ namespace Client {
 
 /////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Client_CTree_hpp
+#endif // CF_GUI_Client_NTree_hpp

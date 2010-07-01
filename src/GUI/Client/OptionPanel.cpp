@@ -181,7 +181,7 @@ void OptionPanel::clearList(QList<GraphicalOption *> & list)
 void OptionPanel::setOptions(const QList<NodeOption> & list)
 {
   QList<NodeOption>::const_iterator it = list.begin();
-  const CTree::Ptr & tree = ClientRoot::getTree();
+  const NTree::Ptr & tree = ClientRoot::getTree();
 
   // delete old widgets
   this->clearList(m_basicOptions);

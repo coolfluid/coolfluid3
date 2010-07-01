@@ -1,4 +1,5 @@
 #include <QtCore>
+#include <QtGui>
 
 #include <string>
 
@@ -9,28 +10,30 @@
 #include "GUI/Network/ComponentNames.hpp"
 #include "GUI/Network/SignalInfo.hpp"
 
-#include "GUI/Client/CLog.hpp"
+#include "GUI/Client/NLog.hpp"
 
 using namespace CF::Common;
 using namespace CF::GUI::Network;
 using namespace CF::GUI::Client;
 
-CLog::CLog()
-  : Component(CLIENT_LOG)
+NLog::NLog()
+  : CNode(CLIENT_LOG, "NLog", CNode::LOG_NODE)
 {
- m_typeNames[ LogMessage::INFO ]      = "  Info   ";
- m_typeNames[ LogMessage::EXCEPTION ] = "Exception";
- m_typeNames[ LogMessage::ERROR ]     = "  Error  ";
- m_typeNames[ LogMessage::WARNING ]   = " Warning ";
+ // BUILD_COMPONENT;
 
- regist_signal("message", "Log message")->connect(boost::bind(&CLog::message, this, _1));
- regist_signal("list_tree", "Log message")->connect(boost::bind(&CLog::list_tree, this, _1));
+  m_typeNames[ LogMessage::INFO ]      = "  Info   ";
+  m_typeNames[ LogMessage::EXCEPTION ] = "Exception";
+  m_typeNames[ LogMessage::ERROR ]     = "  Error  ";
+  m_typeNames[ LogMessage::WARNING ]   = " Warning ";
+
+  regist_signal("message", "Log message")->connect(boost::bind(&NLog::message, this, _1));
+  regist_signal("list_tree", "Log message")->connect(boost::bind(&NLog::list_tree, this, _1));
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CLog::~CLog()
+NLog::~NLog()
 {
 
 }
@@ -38,7 +41,7 @@ CLog::~CLog()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CLog::addMessage(const QString & message)
+void NLog::addMessage(const QString & message)
 {
   cf_assert(!message.isEmpty());
 
@@ -48,7 +51,7 @@ void CLog::addMessage(const QString & message)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CLog::addError(const QString & message)
+void NLog::addError(const QString & message)
 {
   cf_assert(!message.isEmpty());
 
@@ -58,7 +61,7 @@ void CLog::addError(const QString & message)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CLog::addException(const QString & message)
+void NLog::addException(const QString & message)
 {
   cf_assert(!message.isEmpty());
 
@@ -68,7 +71,7 @@ void CLog::addException(const QString & message)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CLog::appendToLog(LogMessage::Type type, bool fromServer,
+void NLog::appendToLog(LogMessage::Type type, bool fromServer,
                        const QString & message)
 {
   QString header = "[ %1 ][ %2 ][ %3 ] ";
@@ -90,7 +93,7 @@ void CLog::appendToLog(LogMessage::Type type, bool fromServer,
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Signal::return_t CLog::message(Signal::arg_t & node)
+Signal::return_t NLog::message(Signal::arg_t & node)
 {
   XmlParams p(node);
 
@@ -106,7 +109,7 @@ Signal::return_t CLog::message(Signal::arg_t & node)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Signal::return_t CLog::list_tree(Signal::arg_t & node)
+Signal::return_t NLog::list_tree(Signal::arg_t & node)
 {
   std::string str;
 
@@ -114,3 +117,28 @@ Signal::return_t CLog::list_tree(Signal::arg_t & node)
 
   this->appendToLog(LogMessage::INFO, true, str.c_str());
 }
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+QIcon NLog::getIcon() const
+{
+  return QFileIconProvider().icon(QFileIconProvider::Folder);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+QString NLog::getToolTip() const
+{
+  return this->getComponentType();
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void NLog::getOptions(QList<NodeOption> & params) const
+{
+  params = m_options;
+}
+

@@ -1,9 +1,14 @@
-#ifndef CF_GUI_Client_NMethod_hpp
-#define CF_GUI_Client_NMethod_hpp
+#ifndef CF_GUI_Client_NBrowser_hpp
+#define CF_GUI_Client_NBrowser_hpp
 
 //////////////////////////////////////////////////////////////////////////////
 
+#include <QList>
+
 #include "GUI/Client/CNode.hpp"
+
+class QString;
+class QIcon;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -13,16 +18,15 @@ namespace Client {
 
   ////////////////////////////////////////////////////////////////////////////
 
-  class NMethod :
-      public CNode
+  class NBrowser : public CNode
   {
   public:
 
-    typedef boost::shared_ptr<NMethod> Ptr;
+    typedef boost::shared_ptr<NBrowser> Ptr;
 
-    /// @brief Constructor
-    /// @param name Node name
-    NMethod(const QString & name);
+    NBrowser();
+
+    QString generateName();
 
     /// @brief Gives the icon associated to this node
     /// @return Returns the icon associated to this node
@@ -33,14 +37,16 @@ namespace Client {
 
     virtual void getOptions(QList<NodeOption> & params) const;
 
-  }; // class NMethod
+  private:
 
-//////////////////////////////////////////////////////////////////////////////
+      CF::Uint m_counter;
+
+  }; // class NBrowser
+
+  ////////////////////////////////////////////////////////////////////////////
 
 } // namespace Client
 } // namespace GUI
 } // namespace CF
 
-//////////////////////////////////////////////////////////////////////////////
-
-#endif // CF_GUI_Client_NMethod_hpp
+#endif // NBrowser_HPP

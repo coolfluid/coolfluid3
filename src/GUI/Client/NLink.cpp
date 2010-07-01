@@ -14,6 +14,8 @@ NLink::NLink(const QString & name, const CPath & targetPath)
   : CNode(name, "CLink", LINK_NODE),
     m_targetPath(targetPath)
 {
+  //BUILD_COMPONENT;
+
   QAction * action;
 
   action = new QAction("Go to target node", m_contextMenu);

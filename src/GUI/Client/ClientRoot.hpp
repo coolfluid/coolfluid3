@@ -5,13 +5,13 @@
 
 #include <QDomDocument>
 
-#include "Common/CRoot.hpp"
 #include "Common/NonInstantiable.hpp"
 
 #include "GUI/Network/ComponentNames.hpp"
-#include "GUI/Client/CBrowser.hpp"
-#include "GUI/Client/CLog.hpp"
-#include "GUI/Client/CTree.hpp"
+#include "GUI/Client/NBrowser.hpp"
+#include "GUI/Client/NLog.hpp"
+#include "GUI/Client/NRoot.hpp"
+#include "GUI/Client/NTree.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +34,7 @@ namespace Client {
     /// @brief Gives the root node.
 
     /// @return Returns the root node.
-    static CF::Common::CRoot::Ptr getRoot();
+    static NRoot::Ptr getRoot();
 
     /// @brief Processes a signal from an Xml document
 
@@ -52,27 +52,27 @@ namespace Client {
 
     /// If the node does not exist yet, it is created.
     /// @return Returns the log node.
-    inline static CLog::Ptr getLog()
+    inline static NLog::Ptr getLog()
     {
-      return getRoot()->access_component< CLog >(CLIENT_LOG_PATH);
+      return getRoot()->root()->access_component< NLog >(CLIENT_LOG_PATH);
     }
 
     /// @brief Gives the browser node.
 
     /// If the node does not exist yet, it is created.
     /// @return Returns the browser node
-    inline static CBrowser::Ptr getBrowser()
+    inline static NBrowser::Ptr getBrowser()
     {
-      return getRoot()->access_component< CBrowser >(CLIENT_BROWSERS_PATH);
+      return getRoot()->root()->access_component< NBrowser >(CLIENT_BROWSERS_PATH);
     }
 
     /// @brief Gives the tree node.
 
     /// If the node does not exist yet, it is created.
     /// @return Returns the tree node.
-    inline static CTree::Ptr getTree()
+    inline static NTree::Ptr getTree()
     {
-      return getRoot()->access_component< CTree >(CLIENT_TREE_PATH);
+      return getRoot()->root()->access_component< NTree >(CLIENT_TREE_PATH);
     }
 
   }; // class ClientRoot

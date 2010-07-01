@@ -8,7 +8,7 @@
 #include "Common/StringOps.hpp"
 #include "Common/BasicExceptions.hpp"
 
-#include "GUI/Client/CLog.hpp"
+#include "GUI/Client/NLog.hpp"
 #include "GUI/Client/ClientRoot.hpp"
 
 #include "GUI/Network/ComponentNames.hpp"
@@ -232,7 +232,7 @@ void ClientNetworkComm::disconnected()
 
 void ClientNetworkComm::socketError(QAbstractSocket::SocketError err)
 {
-  CLog::Ptr log = ClientRoot::getLog();
+  NLog::Ptr log = ClientRoot::getLog();
 
   if(m_requestDisc)
     return;

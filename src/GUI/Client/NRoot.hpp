@@ -3,6 +3,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
+#include "Common/CRoot.hpp"
+
 #include "GUI/Client/CNode.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -19,8 +21,6 @@ namespace Client {
   class NRoot :
       public CNode
   {
-    Q_OBJECT
-
   public:
 
     typedef boost::shared_ptr<NRoot> Ptr;
@@ -37,6 +37,17 @@ namespace Client {
     virtual QString getToolTip() const;
 
     virtual void getOptions(QList<NodeOption> & params) const;
+
+    inline CF::Common::CRoot::Ptr root() const
+    {
+      return m_root;
+    }
+
+    CNode::Ptr getNodeFromRoot(int number) const;
+
+  private :
+
+      CF::Common::CRoot::Ptr m_root;
 
   }; // class NRoot
 

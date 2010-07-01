@@ -13,22 +13,24 @@ using namespace CF::Common;
 using namespace CF::GUI::Client;
 using namespace CF::GUI::Network;
 
-CRoot::Ptr ClientRoot::getRoot()
+NRoot::Ptr ClientRoot::getRoot()
 {
   static bool rootCreated = false;
-  static CRoot::Ptr root = CRoot::create(CLIENT_ROOT);
-  static CLog::Ptr log(new CLog());
-  static CBrowser::Ptr browser(new CBrowser());
-  static CTree::Ptr tree(new CTree());
+  static NRoot::Ptr root(new NRoot(CLIENT_ROOT));
+
+  static NLog::Ptr log(new NLog());
+  static NBrowser::Ptr browser(new NBrowser());
+  static NTree::Ptr tree(new NTree(root));
 
   // if the function is called for the first time, we add the components
   if(!rootCreated)
   {
-    root->add_component(log);
-    root->add_component(browser);
-    root->add_component(tree);
-
+    root->root()->add_component(log);
+    root->root()->add_component(browser);
+    root->root()->add_component(tree);
     rootCreated = true;
+
+    tree->setRoot(root);
   }
 
   return root;
@@ -57,7 +59,7 @@ void ClientRoot::processSignal(const QDomDocument & signal)
 
     try
     {
-      getRoot()->access_component(receiver)->call_signal(type, *nodeToProcess);
+      getRoot()->root()->access_component(receiver)->call_signal(type, *nodeToProcess);
     }
     catch(InvalidPath ip)
     {

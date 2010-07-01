@@ -9,20 +9,18 @@ SET(coolfluid-client_moc_classes
   AddLinkDialog.hpp
   ClientCore.hpp
   ClientNetworkComm.hpp
-  CLog.hpp
-  CNode.hpp
   CommitDetailsDialog.hpp
   ConfirmCommitDialog.hpp
   ConnectionDialog.hpp
-  CTree.hpp
   FilesPanel.hpp
   LoggingList.hpp
   MainWindow.hpp
   NGroup.hpp
   NLink.hpp
+  NLog.hpp
   NMesh.hpp
   NMethod.hpp
-  NRoot.hpp
+  NTree.hpp
   OptionPanel.hpp
   RemoteFSBrowser.hpp
   RemoteSaveFile.hpp
@@ -41,16 +39,12 @@ LIST ( APPEND coolfluid-client_files
   AboutCFDialog.hpp
   AddLinkDialog.cpp
   AddLinkDialog.hpp
-  CBrowser.cpp
-  CBrowser.hpp
   ClientCore.cpp
   ClientCore.hpp
   ClientNetworkComm.cpp
   ClientNetworkComm.hpp
   ClientRoot.cpp
   ClientRoot.hpp
-  CLog.cpp
-  CLog.hpp
   CNode.cpp
   CNode.hpp
   CommitDetails.cpp
@@ -63,8 +57,6 @@ LIST ( APPEND coolfluid-client_files
   ConfirmCommitDialog.hpp
   ConnectionDialog.cpp
   ConnectionDialog.hpp
-  CTree.cpp
-  CTree.hpp
   FilesListItem.cpp
   FilesListItem.hpp
   FilesPanel.cpp
@@ -84,16 +76,22 @@ LIST ( APPEND coolfluid-client_files
   MainWindow.hpp
   MenuActionInfo.cpp
   MenuActionInfo.hpp
+  NBrowser.cpp
+  NBrowser.hpp
   NGroup.cpp
   NGroup.hpp
   NLink.cpp
   NLink.hpp
+  NLog.cpp
+  NLog.hpp
   NMesh.cpp
   NMesh.hpp
   NMethod.cpp
   NMethod.hpp
   NRoot.cpp
   NRoot.hpp
+  NTree.cpp
+  NTree.hpp
   OptionPanel.cpp
   OptionPanel.hpp
   OptionType.cpp

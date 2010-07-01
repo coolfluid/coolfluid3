@@ -5,7 +5,6 @@
 
 #include <QDomDocument>
 #include <QList>
-#include <QObject>
 
 #include "Common/Component.hpp"
 
@@ -44,11 +43,8 @@ namespace Client {
   /// @brief Base component adapted to fit the client needs.
 
   class CNode :
-      public QObject,
       public CF::Common::Component
   {
-    Q_OBJECT
-
   public:
 
     ////////////////////////////////////////////
@@ -66,7 +62,13 @@ namespace Client {
 
       MESH_NODE,
 
-      METHOD_NODE
+      METHOD_NODE,
+
+      LOG_NODE,
+
+      TREE_NODE,
+
+      BROWSER_NODE
     }; // enum Type
 
     ////////////////////////////////////////////
@@ -98,7 +100,10 @@ namespace Client {
 
     CNode::Type getType() const;
 
-    bool checkType(CNode::Type type) const;
+    inline bool checkType(CNode::Type type) const
+    {
+      return m_type == type;
+    }
 
     void setTextData(const QString & text);
 

@@ -19,9 +19,9 @@
 #include "GUI/Client/ClientCore.hpp"
 #include "GUI/Client/MenuActionInfo.hpp"
 #include "GUI/Client/TreeView.hpp"
-#include "GUI/Client/CLog.hpp"
+#include "GUI/Client/NLog.hpp"
 #include "GUI/Client/AboutCFDialog.hpp"
-#include "GUI/Client/CLog.hpp"
+#include "GUI/Client/NLog.hpp"
 #include "GUI/Client/ClientRoot.hpp"
 
 #include "GUI/Network/HostInfos.hpp"
