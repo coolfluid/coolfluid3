@@ -14,17 +14,11 @@ NLink::NLink(const QString & name, const CPath & targetPath)
   : CNode(name, "CLink"),
     m_targetPath(targetPath)
 {
+  QAction * action;
 
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-QList<NodeAction> NLink::getNodeActions() const
-{
-  static QList<NodeAction> list;
-
-  return list;
+  action = new QAction("Go to target node", m_contextMenu);
+  connect(action, SIGNAL(triggered()), this, SLOT(goToTarget()));
+  m_contextMenu->addAction(action);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -61,6 +55,19 @@ void NLink::getOptions(QList<NodeOption> & params) const
 
   if(target.get() != CFNULL)
     target->getOptions(params);
+  else
+    ClientRoot::getLog()->addError(QString("%1: path does not exist").arg(m_targetPath.string().c_str()));
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void NLink::goToTarget()
+{
+  QModelIndex index = ClientRoot::getTree()->getIndexByPath(m_targetPath);
+
+  if(index.isValid())
+    ClientRoot::getTree()->setCurrentIndex(index);
   else
     ClientRoot::getLog()->addError(QString("%1: path does not exist").arg(m_targetPath.string().c_str()));
 }

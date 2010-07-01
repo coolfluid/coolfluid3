@@ -79,6 +79,10 @@ namespace Client {
 
     CNode::Ptr getNodeByPath(const CF::Common::CPath & path) const;
 
+    QModelIndex getIndexByPath(const CF::Common::CPath & path) const;
+
+    QModelIndex nodeToIndex(const CNode::Ptr & node) const;
+
     /// @brief Implementation of @c QAbstractItemModel::data().
 
     /// Only the role @c Qt::DisplayRole and @c Qt::DecorationRole are accepted.
@@ -132,6 +136,8 @@ namespace Client {
     /// @return Returns the data or an empty @c QVariant on error.
     virtual QVariant headerData(int section, Qt::Orientation orientation,
                                 int role = Qt::DisplayRole) const;
+
+    void showNodeMenu(const QModelIndex & index, const QPoint & pos) const;
 
   signals:
 

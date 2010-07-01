@@ -16,7 +16,8 @@ using namespace CF::GUI::Client;
 
 CNode::CNode(const QString & name, const QString & componentType)
   : Component(name.toStdString()),
-    m_componentType(componentType)
+    m_componentType(componentType),
+    m_contextMenu(new QMenu("Node"))
 {
 
 }
@@ -78,6 +79,8 @@ CNode::Ptr CNode::createFromXml(const QDomElement & element)
   QString name = element.attribute("name");
   QDomElement child = element.firstChildElement();
 
+  qDebug() << name;
+
   cf_assert(!name.isEmpty());
 
   CNode::Ptr rootNode;
@@ -122,4 +125,20 @@ CNode::Ptr CNode::getNode(CF::Uint index)
     it++;
 
   return it.get();
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+QMenu * CNode::getContextMenu() const
+{
+  return m_contextMenu;
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void CNode::showContextMenu(const QPoint & pos) const
+{
+  m_contextMenu->exec(pos);
 }

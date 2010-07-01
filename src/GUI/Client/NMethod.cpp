@@ -14,16 +14,6 @@ NMethod::NMethod(const QString & name)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QList<NodeAction> NMethod::getNodeActions() const
-{
-  static QList<NodeAction> list;
-
-  return list;
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 QIcon NMethod::getIcon() const
 {
   return QFileIconProvider().icon(QFileIconProvider::File);

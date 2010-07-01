@@ -26,11 +26,6 @@ namespace Client {
     /// @param name Node name
     NMesh(const QString & name);
 
-    /// @brief Gives a list of action the node can execute
-    /// @return Returns a list of action the node can execute
-    /// @note This method should be reimplemented by all subclasses.
-    virtual QList<NodeAction> getNodeActions() const;
-
     /// @brief Gives the icon associated to this node
     /// @return Returns the icon associated to this node
     /// @note This method should be reimplemented by all subclasses.

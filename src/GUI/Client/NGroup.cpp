@@ -23,16 +23,6 @@ NGroup::NGroup(const QDomElement & node) :
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QList<NodeAction> NGroup::getNodeActions() const
-{
-  static QList<NodeAction> list;
-
-  return list;
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 QIcon NGroup::getIcon() const
 {
   return QFileIconProvider().icon(QFileIconProvider::Folder);

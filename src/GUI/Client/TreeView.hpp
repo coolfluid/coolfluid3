@@ -28,6 +28,7 @@ namespace Client {
 ////////////////////////////////////////////////////////////////////////////////
 
   class OptionPanel;
+  class NodeAction;
   struct TSshInformation;
 
   /////////////////////////////////////////////////////////////////////////////
@@ -53,11 +54,6 @@ namespace Client {
     /// Frees all allocated memory. Neither the m_options panel nor the parent
     /// are destroyed.
     ~TreeView();
-
-    /// @brief Sets abstract types list.
-
-    /// @param abstractTypes Abstract types list.
-    void setAbstractTypesList(const QStringList & abstractTypes);
 
     /// @brief Builds a new node.
 
@@ -190,36 +186,6 @@ namespace Client {
 
   private:
 
-    /// @brief Hashmap containing all available actions for menu m_items.
-
-    /// The key is a number defined by one of the constant integer attributes
-    /// of this class. The value is the action corresponding to this number.
-    QHash<int, QAction *> m_actions;
-
-    /// @brief List containing all actions for abstract types displayed in
-    /// the context menu.
-
-    /// These actions are not stored in @c #actions because they are not
-    /// identified by an integer and the list may be cleared several times
-    /// during application runtime.
-    QList<QAction *> m_abstractTypesActions;
-
-    /// @brief Simulation menu
-    QMenu * m_simulationMenu;
-
-    /// @brief Object menu
-    QMenu * m_objectMenu;
-
-    /// @brief Abstract types menu.
-
-    /// This is a sub-menu of the context menu.
-    QMenu * m_mnuAbstractTypes;
-
-    /// @brief "Add a child node" sub-menu.
-    QMenu * m_mnuNewOption;
-
-    QMenu * m_mnuComponents;
-
     /// @brief Panel used to display and modify m_options for a selected
     /// object.
     OptionPanel * m_optionsPanel;
@@ -255,44 +221,6 @@ namespace Client {
     /// @return Returns @c false if the user clicked on "Cancel" ; otherwise
     /// returns @c true.
     bool confirmChangeOptions(const QModelIndex & index, bool okIfSameIndex = false);
-
-    /// @brief Saves the expanded or collapsed state of each node in a hash map.
-
-    /// This is a recursive method. It calls itself on each child of the node
-    /// pointed by @c index. The key of the map is a string representing the
-    /// path of the node pointed by a model index as returned by
-    /// @c TreeModel::getNodePath(). The value of the map is a bool: @c true
-    /// if the node is expanded or @c false if it is collapsed.
-    /// @param index Node the save. All its children are saved too.
-    /// @param map The map where the states will be saved to.
-    /// @warning When calling the method for the first in the recursivity loop
-    /// make sure that the map is empty to avoid map data inconsistency.
-    void getChildrenNodesState(const QModelIndex & index,
-                               QHash<QString, bool> & map);
-
-    /// @brief Sets the expanded or collapsed state of each node in a hash map.
-
-    /// This is a recursive method. It calls itself on each child of the node
-    /// pointed by @c index. The key of the map is a string representing the
-    /// path of the node pointed by a model index as returned by
-    /// @c TreeModel::getNodePath(). The value of the map is a bool: @c true
-    /// if the node is expanded or @c false if it is collapsed.
-    /// nodeState
-    /// @param nodeState The hash map where the new states will are stored.
-    /// @param expandIfNew Gives the state to set if @c index path is not
-    /// found in the map. If @c true the node is expanded. If @c false the node
-    /// is collapsed.
-    /// @param index Node the modify. All its children states are modified too.
-    /// @param list List where all node paths the recursivity has treated are
-    /// stored.
-    /// @note The @c list parameter has been added to fix an endless loop bug.
-    /// It @b should be removed as soon as possible if an alternative is found.
-    /// @warning When calling the method for the first in the recursivity loop
-    /// make sure that the list is empty to avoid incomplete read of the index
-    /// and its children.
-    void setNodeState(const QHash<QString, bool> & nodeState,
-                      bool expandIfNew, const QModelIndex & index,
-                      QList<QString> & list);
 
   }; // class TreeView
 

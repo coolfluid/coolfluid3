@@ -17,16 +17,6 @@ NMesh::NMesh(const QString & name)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QList<NodeAction> NMesh::getNodeActions() const
-{
-  static QList<NodeAction> list;
-
-  return list;
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 QIcon NMesh::getIcon() const
 {
   return QFileIconProvider().icon(QFileIconProvider::Drive);

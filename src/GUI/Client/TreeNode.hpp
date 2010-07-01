@@ -34,6 +34,8 @@ namespace Client {
 
     QString getName() const;
 
+    TreeNode * getChildByName(const QString & name);
+
   private:
 
     CNode::Ptr m_node;

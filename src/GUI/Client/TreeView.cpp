@@ -38,7 +38,6 @@ TreeView::TreeView(OptionPanel * optionsPanel, QMainWindow * parent)
 
   // instantiate class attributes
   m_modelFilter = new QSortFilterProxyModel(this);
-  m_mnuNewOption = new QMenu("Add an option");
 
   m_optionsPanel = optionsPanel;
 
@@ -61,6 +60,9 @@ TreeView::TreeView(OptionPanel * optionsPanel, QMainWindow * parent)
 
   connect(this, SIGNAL(activated(const QModelIndex &)),
           this, SLOT(nodeActivated(const QModelIndex &)));
+
+  connect(ClientRoot::getTree().get(), SIGNAL(currentIndexChanged(const QModelIndex &)),
+          this, SLOT(currentIndexChanged(const QModelIndex &)));
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -68,50 +70,12 @@ TreeView::TreeView(OptionPanel * optionsPanel, QMainWindow * parent)
 
 TreeView::~TreeView()
 {
-  delete m_simulationMenu;
-  delete m_objectMenu;
-  delete m_mnuAbstractTypes;
   delete m_modelFilter;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void TreeView::setAbstractTypesList(const QStringList & abstractTypes)
-{
-  QStringList::const_iterator it = abstractTypes.begin();
-
-  // if the menu is not enabled, it can not be modified, even by code.
-  m_mnuAbstractTypes->setEnabled(true);
-
-  m_abstractTypesActions.clear();
-
-  // clearing the menu will destroy all its actions (the ones that are not
-  // linked to another menu, toolbar, etc...)...so no additional delete is
-  // needed
-  m_mnuAbstractTypes->clear();
-
-  // create menu m_items for each abstract type
-  while(it != abstractTypes.end())
-  {
-    MenuActionInfo actionInfo;
-    QAction * action;
-
-    actionInfo.m_text = *it;
-    actionInfo.m_slot = SLOT(addNode());
-    actionInfo.m_menu = m_mnuAbstractTypes;
-
-    action = actionInfo.buildAction(this);
-    m_abstractTypesActions.append(action);
-    it++;
-  }
-
-  // if there is at least one abstract type, the sub-menu can be enabled
-  m_mnuAbstractTypes->setEnabled(!m_abstractTypesActions.isEmpty());
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QDomNode TreeView::newChildNode(const QString & newNode, QDomDocument & doc) const
 {
@@ -159,17 +123,15 @@ void TreeView::mousePressEvent(QMouseEvent * event)
     else
       this->expand(index);
   }
-//  else if(button == Qt::RightButton)
-//  {
-//    if(!m_treeModel->getCurrentIndex().isValid())
-//      m_treeModel->setCurrentIndex(indexInModel);
+  else if(button == Qt::RightButton)
+  {
+    CTree::Ptr tree = ClientRoot::getTree();
 
-//    // if this is a simulation node, we display the simulation context menu
-//    if(m_treeModel->isSimulationNode(indexInModel) || !indexInModel.isValid())
-//      m_simulationMenu->exec(QCursor::pos());
-//    else // we display the objects context menu
-//      m_objectMenu->exec(QCursor::pos());
-//  }
+    if(!tree->getCurrentIndex().isValid())
+      tree->setCurrentIndex(index);
+
+    tree->showNodeMenu(index, QCursor::pos());
+  }
   else //if(!ClientRoot::getTree()->areEqual(indexInModel, ClientRoot::getTree()->getCurrentIndex()))
   {
 //    if(index != m_treeModel->getCurrentIndex() && this->confirmChangeOptions(index))
@@ -296,12 +258,13 @@ void TreeView::updateTree()
 
 void TreeView::currentIndexChanged(const QModelIndex & index)
 {
-//  QItemSelectionModel::SelectionFlags flags = QItemSelectionModel::Select | QItemSelectionModel::Rows;
-//  QModelIndex indexInFilter = m_modelFilter->mapFromSource(index);
+  QItemSelectionModel::SelectionFlags flags = QItemSelectionModel::Select | QItemSelectionModel::Rows;
 
-//  this->selectionModel()->clearSelection();
-//  this->selectionModel()->select(indexInFilter, flags);
-//  this->selectionModel()->setCurrentIndex(indexInFilter, flags);
+  qDebug() << ClientRoot::getTree()->getNodePath(index);
+
+  this->selectionModel()->clearSelection();
+  this->selectionModel()->select(index, flags);
+  this->selectionModel()->setCurrentIndex(index, flags);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

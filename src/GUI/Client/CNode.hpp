@@ -14,6 +14,9 @@
 class QIcon;
 class QDomNode;
 class QString;
+class QAction;
+class QMenu;
+class QPoint;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -29,12 +32,8 @@ namespace Client {
   {
   public:
 
-    /// @brief Action name
-    QString m_action;
-
-    /// @brief Qt slot to used to execute this action. Use the SLOT() macro
-    /// to assign the value.
-    const char * m_slot;
+    /// @brief Action
+    QAction * m_action;
 
     /// @brief Sub-actions
     QList<NodeAction> m_subActions;
@@ -86,11 +85,6 @@ namespace Client {
 
     CNode::Ptr getNode(CF::Uint index);
 
-    /// @brief Gives a list of action the node can execute
-    /// @return Returns a list of action the node can execute
-    /// @note This method should be reimplemented by all subclasses.
-    virtual QList<NodeAction> getNodeActions() const = 0;
-
     /// @brief Gives the icon associated to this node
     /// @return Returns the icon associated to this node
     /// @note This method should be reimplemented by all subclasses.
@@ -118,11 +112,17 @@ namespace Client {
     /// @throw XmlError If the tree could not be built.
     static CNode::Ptr createFromXml(const QDomElement & node);
 
+    QMenu * getContextMenu() const;
+
+    void showContextMenu(const QPoint & pos) const;
+
   protected:
 
     QList<NodeOption> m_options;
 
     QString m_textData;
+
+    QMenu * m_contextMenu;
 
   private:
 

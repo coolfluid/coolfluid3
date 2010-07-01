@@ -88,3 +88,21 @@ QString TreeNode::getName() const
 {
   return m_node->name().c_str();
 }
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+TreeNode * TreeNode::getChildByName(const QString & name)
+{
+  TreeNode * treeNode = CFNULL;
+  bool found = false;
+
+  /// @todo find a better algorithm !!!
+  for(int i = 0 ; i < m_childNodes.count() && !found ; i++)
+  {
+    treeNode = this->getChild(i);
+    found = treeNode->getName() == name;
+  }
+
+  return treeNode;
+}

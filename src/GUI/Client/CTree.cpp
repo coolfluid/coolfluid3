@@ -38,7 +38,13 @@ CTree::CTree(CNode::Ptr rootNode)
         "    <path   key=\"region\">./</path>"
         "   </params>"
         "  </CMethod>"
-        "  <CMethod name=\"Petsc\" > <!-- petsc here --> </CMethod>"
+        "  <CMethod name=\"Petsc\" >"
+        "    <params>"
+        "     <int key=\"iter2\" mode=\"basic\" desc=\"nb iterations\" >5</int>"
+        "     <string key=\"somename2\" mode=\"adv\" >Lolo</string>"
+        "     <path   key=\"region2\">./</path>"
+        "    </params>"
+        "  </CMethod>"
         " </CGroup>"
         " <CGroup name=\"MG\">"
         "  <params>"
@@ -181,16 +187,52 @@ CNode::Ptr CTree::getNodeByPath(const CPath & path) const
 
   if(!path.is_absolute())
     ClientRoot::getLog()->addError(QString("\"%1\" is not an absolute path").arg(pathStr));
+  else
+  {
+    comps = pathStr.split(CPath::separator().c_str(), QString::SkipEmptyParts);
 
-  comps = pathStr.split(CPath::separator().c_str(), QString::SkipEmptyParts);
+    if(comps.first().toStdString() == node->name())
+      comps.removeFirst();
 
-  if(comps.first() == m_rootItem->getName())
-    comps.removeFirst();
-
-  for(it = comps.begin() ; it != comps.end() && node.get() != CFNULL ; it++)
-    node = boost::dynamic_pointer_cast<CNode>(node->get_child(it->toStdString()));
+    for(it = comps.begin() ; it != comps.end() && node.get() != CFNULL ; it++)
+      node = boost::dynamic_pointer_cast<CNode>(node->get_child(it->toStdString()));
+  }
 
   return node;
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+QModelIndex CTree::getIndexByPath(const CPath & path) const
+{
+  QModelIndex index;
+  QString pathStr = path.string().c_str();
+  QStringList comps;
+  QStringList::iterator it;
+  TreeNode * treeNode = m_rootItem;
+
+  cf_assert(treeNode != CFNULL);
+
+  /// @todo find a better algorithm !!!
+  if(!path.is_absolute())
+    ClientRoot::getLog()->addError(QString("\"%1\" is not an absolute path").arg(pathStr));
+  else
+  {
+    comps = pathStr.split(CPath::separator().c_str(), QString::SkipEmptyParts);
+
+    if(comps.first() == treeNode->getName())
+      comps.removeFirst();
+
+    for(it = comps.begin() ; it != comps.end() && treeNode != CFNULL ; it++)
+    {
+      treeNode = treeNode->getChildByName(*it);
+      index = this->index(treeNode->getRowNumber(), 0, index);
+    }
+
+  }
+
+  return index;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -253,8 +295,6 @@ QModelIndex CTree::index(int row, int column, const QModelIndex & parent) const
 
     if(childNode != CFNULL)
       index = createIndex(row, column, childNode);
-    else
-      index = QModelIndex();
   }
 
   return index;
@@ -316,6 +356,19 @@ QVariant CTree::headerData(int section, Qt::Orientation orientation,
     return m_columns.at(section);
 
   return QVariant();
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void CTree::showNodeMenu(const QModelIndex & index, const QPoint & pos) const
+{
+  TreeNode * treeNode = indexToTreeNode(index);
+
+  cf_assert(treeNode != CFNULL);
+
+  if(treeNode != CFNULL)
+    treeNode->getNode()->showContextMenu(pos);
 }
 
 /*============================================================================
