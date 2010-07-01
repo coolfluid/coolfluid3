@@ -74,7 +74,7 @@ $priority = 0;
 my %packages = (  #  version   default install priority      function
     "coreutils"  => [ "6.7",    'off',  'off', $priority++,  sub { install_gnu("coreutils") } ],
     "make"       => [ "3.81",   'off',  'off', $priority++,  sub { install_gnu("make") } ],
-    "cmake"      => [ "2.8.1",  'on' ,  'off', $priority++,  \&install_cmake ],
+    "cmake"      => [ "2.8.2",  'on' ,  'off', $priority++,  \&install_cmake ],
     "wget"       => [ "1.11.4", 'off',  'off', $priority++,  \&install_wgetprog],
     "binutils"   => [ "2.16.1", 'off',  'off', $priority++,  sub { install_gnu("binutils") } ],
     "m4"         => [ "1.4.4",  'off',  'off', $priority++,  sub { install_gnu("m4") } ],
@@ -112,7 +112,7 @@ my %packages = (  #  version   default install priority      function
     "cgns"       => [ "3.0.8",  'off',   'off', $priority++,  \&install_cgns ],
     "cgnstools"  => [ "2-5-4",  'off',  'off', $priority++,  \&install_cgnstools ],
     "google-perftools" => [ "1.5",'off','off', $priority++, \&install_google_perftools ],
-    "cgal"       => [ "3.6",  'off',   'off', $priority++,  \&install_cgal ],
+    "cgal"       => [ "3.6.1",  'off',   'off', $priority++,  \&install_cgal ],
 );
 
 #==========================================================================
