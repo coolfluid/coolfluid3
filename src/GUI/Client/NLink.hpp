@@ -27,6 +27,7 @@ namespace Client {
   public:
 
     typedef boost::shared_ptr<NLink> Ptr;
+    typedef boost::shared_ptr<NLink const> ConstPtr;
 
     /// @brief Constructor
     /// @param name Node name

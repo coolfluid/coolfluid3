@@ -26,6 +26,7 @@ namespace Client {
   public:
 
     typedef boost::shared_ptr<NGroup> Ptr;
+    typedef boost::shared_ptr<NGroup const> ConstPtr;
 
     NGroup(const QString & name);
 

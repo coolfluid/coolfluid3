@@ -1,7 +1,10 @@
+
 #ifndef CF_GUI_Client_NMethod_hpp
 #define CF_GUI_Client_NMethod_hpp
 
 //////////////////////////////////////////////////////////////////////////////
+
+#include <QObject>
 
 #include "GUI/Client/CNode.hpp"
 
@@ -14,11 +17,15 @@ namespace Client {
   ////////////////////////////////////////////////////////////////////////////
 
   class NMethod :
+      public QObject,
       public CNode
   {
+    Q_OBJECT
+
   public:
 
     typedef boost::shared_ptr<NMethod> Ptr;
+    typedef boost::shared_ptr<NMethod const> ConstPtr;
 
     /// @brief Constructor
     /// @param name Node name

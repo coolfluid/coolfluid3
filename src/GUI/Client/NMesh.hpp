@@ -24,6 +24,7 @@ namespace Client {
   public:
 
     typedef boost::shared_ptr<NMesh> Ptr;
+    typedef boost::shared_ptr<NMesh const> ConstPtr;
 
     /// @brief Constructor
     /// @param name Node name

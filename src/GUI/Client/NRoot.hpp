@@ -24,6 +24,7 @@ namespace Client {
   public:
 
     typedef boost::shared_ptr<NRoot> Ptr;
+    typedef boost::shared_ptr<NRoot const> ConstPtr;
 
     /// @brief Constructor
     /// @param name Node name
