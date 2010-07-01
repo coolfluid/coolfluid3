@@ -21,9 +21,10 @@ namespace Client {
     Q_OBJECT
 
   public:
-    NGroup(const QString & name);
 
-    NGroup(const QDomElement & element);
+    typedef boost::shared_ptr<NGroup> Ptr;
+
+    NGroup(const QString & name);
 
     /// @brief Gives the icon associated to this node
     /// @return Returns the icon associated to this node
@@ -31,13 +32,6 @@ namespace Client {
     virtual QIcon getIcon() const;
 
     virtual QString getToolTip() const;
-
-    /// @brief Gives a string with the class name.
-    /// This implementation always returns "CNode". Subclass implementations
-    /// should returns their own class name.
-    /// @return Returns the class name.
-    /// @note This method should be reimplemented by all subclasses.
-    virtual QString getClassName() const;
 
     virtual void getOptions(QList<NodeOption> & params) const;
 

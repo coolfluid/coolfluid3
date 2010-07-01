@@ -61,8 +61,8 @@ TreeView::TreeView(OptionPanel * optionsPanel, QMainWindow * parent)
   connect(this, SIGNAL(activated(const QModelIndex &)),
           this, SLOT(nodeActivated(const QModelIndex &)));
 
-  connect(ClientRoot::getTree().get(), SIGNAL(currentIndexChanged(const QModelIndex &)),
-          this, SLOT(currentIndexChanged(const QModelIndex &)));
+  connect(ClientRoot::getTree().get(), SIGNAL(currentIndexChanged(const QModelIndex &, const QModelIndex &)),
+          this, SLOT(currentIndexChanged(const QModelIndex &, const QModelIndex &)));
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -89,7 +89,7 @@ QDomNode TreeView::newChildNode(const QString & newNode, QDomDocument & doc) con
 void TreeView::setReadOnly(bool readOnly)
 {
   m_readOnly = readOnly;
-//  m_mnuAbstractTypes->setEnabled(!readOnly);
+  //  m_mnuAbstractTypes->setEnabled(!readOnly);
 //  m_mnuNewOption->setEnabled(!readOnly);
 }
 
@@ -109,6 +109,7 @@ void TreeView::mousePressEvent(QMouseEvent * event)
   QTreeView::mousePressEvent(event);
   QPoint mousePosition(event->x() + this->x(), event->y() + this->y());
   QModelIndex index = this->indexAt(mousePosition);
+  CTree::Ptr tree = ClientRoot::getTree();
 
 //  QModelIndex indexInModel = m_modelFilter->mapToSource(index);
   Qt::MouseButton button = event->button();
@@ -125,17 +126,15 @@ void TreeView::mousePressEvent(QMouseEvent * event)
   }
   else if(button == Qt::RightButton)
   {
-    CTree::Ptr tree = ClientRoot::getTree();
-
     if(!tree->getCurrentIndex().isValid())
       tree->setCurrentIndex(index);
 
     tree->showNodeMenu(index, QCursor::pos());
   }
-  else //if(!ClientRoot::getTree()->areEqual(indexInModel, ClientRoot::getTree()->getCurrentIndex()))
+  else if(!tree->areFromSameNode(index, ClientRoot::getTree()->getCurrentIndex()))
   {
 //    if(index != m_treeModel->getCurrentIndex() && this->confirmChangeOptions(index))
-      ClientRoot::getTree()->setCurrentIndex(index);
+    tree->setCurrentIndex(index);
   }
 }
 
@@ -256,15 +255,15 @@ void TreeView::updateTree()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void TreeView::currentIndexChanged(const QModelIndex & index)
+void TreeView::currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex)
 {
   QItemSelectionModel::SelectionFlags flags = QItemSelectionModel::Select | QItemSelectionModel::Rows;
 
-  qDebug() << ClientRoot::getTree()->getNodePath(index);
+  qDebug() << ClientRoot::getTree()->getNodePath(newIndex);
 
   this->selectionModel()->clearSelection();
-  this->selectionModel()->select(index, flags);
-  this->selectionModel()->setCurrentIndex(index, flags);
+  this->selectionModel()->select(newIndex, flags);
+  this->selectionModel()->setCurrentIndex(newIndex, flags);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

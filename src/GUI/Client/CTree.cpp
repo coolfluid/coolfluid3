@@ -7,6 +7,7 @@
 #include "GUI/Client/ClientRoot.hpp"
 #include "GUI/Client/CNode.hpp"
 #include "GUI/Client/TreeNode.hpp"
+#include "GUI/Client/NLink.hpp"
 
 #include "GUI/Network/ComponentNames.hpp"
 
@@ -104,8 +105,9 @@ void CTree::setCurrentIndex(const QModelIndex & newIndex)
 {
   if(!this->areFromSameNode(m_currentIndex, newIndex))
   {
+    QModelIndex oldIndex = m_currentIndex;
     m_currentIndex = newIndex;
-    emit currentIndexChanged(newIndex);
+    emit currentIndexChanged(newIndex, oldIndex);
   }
 
 }
@@ -173,6 +175,33 @@ bool CTree::isAdvancedMode() const
 bool CTree::areFromSameNode(const QModelIndex & left, const QModelIndex & right) const
 {
   return left.isValid() && left.internalPointer() == right.internalPointer();
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+bool CTree::haveSameData(const QModelIndex & left, const QModelIndex & right) const
+{
+  bool sameData = false;
+  TreeNode * leftTreeNode = this->indexToTreeNode(left);
+  TreeNode * rightTreeNode = this->indexToTreeNode(right);
+
+  if(leftTreeNode != CFNULL && rightTreeNode != CFNULL)
+  {
+    CNode::Ptr leftNode = leftTreeNode->getNode();
+    CNode::Ptr rightNode = rightTreeNode->getNode();
+
+    if(leftNode->checkType(CNode::LINK_NODE))
+    {
+      sameData = boost::dynamic_pointer_cast<NLink>(leftNode)->getTargetPath().string() == QString("//%1").arg(rightNode->full_path().string().c_str()).toStdString();
+    }
+    else if(rightNode->checkType(CNode::LINK_NODE))
+    {
+      sameData = boost::dynamic_pointer_cast<NLink>(rightNode)->getTargetPath().string() == QString("//%1").arg(leftNode->full_path().string().c_str()).toStdString();
+    }
+  }
+
+  return sameData;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

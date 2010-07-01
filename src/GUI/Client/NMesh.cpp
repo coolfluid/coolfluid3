@@ -9,7 +9,7 @@ using namespace CF::Common;
 using namespace CF::GUI::Client;
 
 NMesh::NMesh(const QString & name)
-  : CNode(name, "CMesh")
+  : CNode(name, "CMesh", MESH_NODE)
 {
 
 }
@@ -28,14 +28,6 @@ QIcon NMesh::getIcon() const
 QString NMesh::getToolTip() const
 {
   return this->getComponentType();
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-QString NMesh::getClassName() const
-{
-  return "NMesh";
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

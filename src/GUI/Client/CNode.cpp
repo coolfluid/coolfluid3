@@ -14,10 +14,11 @@
 using namespace CF::Common;
 using namespace CF::GUI::Client;
 
-CNode::CNode(const QString & name, const QString & componentType)
+CNode::CNode(const QString & name, const QString & componentType, CNode::Type type)
   : Component(name.toStdString()),
     m_componentType(componentType),
-    m_contextMenu(new QMenu("Node"))
+    m_contextMenu(new QMenu("Node")),
+    m_type(type)
 {
 
 }
@@ -36,6 +37,22 @@ QString CNode::getComponentType() const
 int CNode::getNodeCount() const
 {
   return m_components.size();
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+CNode::Type CNode::getType() const
+{
+  return m_type;
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+bool CNode::checkType(CNode::Type type) const
+{
+  return m_type == type;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

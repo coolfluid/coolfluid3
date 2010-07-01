@@ -77,6 +77,8 @@ namespace Client {
 
     bool areFromSameNode(const QModelIndex & left, const QModelIndex & right) const;
 
+    bool haveSameData(const QModelIndex & left, const QModelIndex & right) const;
+
     CNode::Ptr getNodeByPath(const CF::Common::CPath & path) const;
 
     QModelIndex getIndexByPath(const CF::Common::CPath & path) const;
@@ -144,7 +146,7 @@ namespace Client {
     /// @brief Signal emitted when the current index has changed.
 
     /// @param newIndex The new current index
-    void currentIndexChanged(const QModelIndex & newIndex);
+    void currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex);
 
     void advancedModeChanged(bool advanced);
 

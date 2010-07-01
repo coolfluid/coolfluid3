@@ -65,15 +65,31 @@ namespace Client {
 
   public:
 
+    ////////////////////////////////////////////
+
     typedef boost::shared_ptr<CNode> Ptr;
     typedef boost::shared_ptr<CNode const> ConstPtr;
+
+    enum Type
+    {
+      GROUP_NODE,
+
+      LINK_NODE,
+
+      MESH_NODE,
+
+      METHOD_NODE
+    }; // enum Type
+
+    ////////////////////////////////////////////
 
     /// @brief Constructor.
 
     /// @param name Component name.
     /// @param componentType Corresponding component type name
     /// (on the simulator side)
-    CNode(const QString & name, const QString & componentType);
+    /// @param type Node type.
+    CNode(const QString & name, const QString & componentType, CNode::Type type);
 
     /// @brief Gives the corresponding component type name
     /// @return Returns the corresponding component type name
@@ -92,12 +108,9 @@ namespace Client {
 
     virtual QString getToolTip() const = 0;
 
-    /// @brief Gives a string with the class name.
-    /// This implementation always returns "CNode". Subclass implementations
-    /// should returns their own class name.
-    /// @return Returns the class name.
-    /// @note This method should be reimplemented by all subclasses.
-    virtual QString getClassName() const = 0;
+    CNode::Type getType() const;
+
+    bool checkType(CNode::Type type) const;
 
     void setTextData(const QString & text);
 
@@ -116,6 +129,12 @@ namespace Client {
 
     void showContextMenu(const QPoint & pos) const;
 
+    template<class TYPE>
+    static boost::shared_ptr<TYPE> convertTo(CNode::Ptr node)
+    {
+      return boost::dynamic_pointer_cast<TYPE>(node);
+    }
+
   protected:
 
     QList<NodeOption> m_options;
@@ -123,6 +142,8 @@ namespace Client {
     QString m_textData;
 
     QMenu * m_contextMenu;
+
+    CNode::Type m_type;
 
   private:
 

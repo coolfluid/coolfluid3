@@ -6,16 +6,7 @@
 using namespace CF::GUI::Client;
 
 NGroup::NGroup(const QString & name) :
-    CNode(name, "CGroup")
-{
-
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-NGroup::NGroup(const QDomElement & node) :
-    CNode(node.attribute("name"), "CGroup")
+    CNode(name, "CGroup", GROUP_NODE)
 {
 
 }
@@ -34,14 +25,6 @@ QIcon NGroup::getIcon() const
 QString NGroup::getToolTip() const
 {
   return this->getComponentType();
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-QString NGroup::getClassName() const
-{
-  return "NGroup";
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

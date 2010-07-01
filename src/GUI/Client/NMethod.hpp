@@ -33,13 +33,6 @@ namespace Client {
 
     virtual QString getToolTip() const;
 
-    /// @brief Gives a string with the class name.
-    /// This implementation always returns "CNode". Subclass implementations
-    /// should returns their own class name.
-    /// @return Returns the class name.
-    /// @note This method should be reimplemented by all subclasses.
-    virtual QString getClassName() const;
-
     virtual void getOptions(QList<NodeOption> & params) const;
 
   }; // class NMethod

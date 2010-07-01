@@ -60,8 +60,8 @@ OptionPanel::OptionPanel(QWidget * parent) : QWidget(parent)
   connect(m_btCheckChanges, SIGNAL(clicked()), this, SLOT(checkOptions()));
   connect(m_btResetOptions, SIGNAL(clicked()), this, SLOT(resetChanges()));
 
-  connect(ClientRoot::getTree().get(), SIGNAL(currentIndexChanged(const QModelIndex &)),
-          this, SLOT(currentIndexChanged(const QModelIndex &)));
+  connect(ClientRoot::getTree().get(), SIGNAL(currentIndexChanged(const QModelIndex &, const QModelIndex &)),
+          this, SLOT(currentIndexChanged(const QModelIndex &, const QModelIndex &)));
 
   connect(ClientRoot::getTree().get(), SIGNAL(advancedModeChanged(bool)),
           this, SLOT(advancedModeChanged(bool)));
@@ -342,7 +342,6 @@ void OptionPanel::getModifiedOptions(const QList<GraphicalOption *> & graphicalO
 
       if(newOptions)
         commitDetails.setNewOption(graphicalOption->getName(), newValue, graphicalOption->getType());
-
       else
         commitDetails.setOption(graphicalOption->getName(), oldValue, newValue);
     }
@@ -419,14 +418,16 @@ void OptionPanel::commitChanges() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void OptionPanel::currentIndexChanged(const QModelIndex & index)
+void OptionPanel::currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex)
 {
   QList<NodeOption> params;
   bool ok;
 
-  ClientRoot::getTree()->getNodeParams(index, params, &ok);
-
-  this->setOptions(params);
+  if(!ClientRoot::getTree()->haveSameData(newIndex, oldIndex))
+  {
+    ClientRoot::getTree()->getNodeParams(newIndex, params, &ok);
+    this->setOptions(params);
+  }
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -442,10 +443,10 @@ void OptionPanel::advancedModeChanged(bool advanced)
 
 void OptionPanel::dataChanged(const QModelIndex & first, const QModelIndex & last)
 {
-  QModelIndex currIndex = ClientRoot::getTree()->getCurrentIndex();
+//  QModelIndex currIndex = ClientRoot::getTree()->getCurrentIndex();
 
-  if(first == last && first.row() == currIndex.row() && first.parent() == currIndex.parent())
-    this->currentIndexChanged(first);
+//  if(first == last && first.row() == currIndex.row() && first.parent() == currIndex.parent())
+//    this->currentIndexChanged(first);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -481,5 +482,5 @@ void OptionPanel::checkOptions()
 
 void OptionPanel::resetChanges()
 {
-  this->currentIndexChanged(ClientRoot::getTree()->getCurrentIndex());
+  this->currentIndexChanged(ClientRoot::getTree()->getCurrentIndex(), QModelIndex());
 }

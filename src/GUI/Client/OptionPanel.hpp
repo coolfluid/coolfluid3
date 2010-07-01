@@ -121,7 +121,7 @@ namespace Client {
 
   private slots:
 
-    void currentIndexChanged(const QModelIndex & index);
+    void currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex);
 
     void advancedModeChanged(bool advanced);
 

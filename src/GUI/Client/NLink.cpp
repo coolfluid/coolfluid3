@@ -11,7 +11,7 @@ using namespace CF::Common;
 using namespace CF::GUI::Client;
 
 NLink::NLink(const QString & name, const CPath & targetPath)
-  : CNode(name, "CLink"),
+  : CNode(name, "CLink", LINK_NODE),
     m_targetPath(targetPath)
 {
   QAction * action;
@@ -41,14 +41,6 @@ QString NLink::getToolTip() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString NLink::getClassName() const
-{
-  return "NLink";
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 void NLink::getOptions(QList<NodeOption> & params) const
 {
   CNode::Ptr target = ClientRoot::getTree()->getNodeByPath(m_targetPath);
@@ -57,6 +49,14 @@ void NLink::getOptions(QList<NodeOption> & params) const
     target->getOptions(params);
   else
     ClientRoot::getLog()->addError(QString("%1: path does not exist").arg(m_targetPath.string().c_str()));
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+CF::Common::CPath NLink::getTargetPath() const
+{
+  return m_targetPath;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

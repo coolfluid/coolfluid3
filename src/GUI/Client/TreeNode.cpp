@@ -9,6 +9,9 @@ TreeNode::TreeNode(CNode::Ptr node, TreeNode * parent, int rowNumber)
     m_parent(parent),
     m_rowNumber(rowNumber)
 {
+  cf_assert(node.get() != CFNULL);
+  cf_assert(rowNumber >= 0);
+
   for(int i = 0 ; i < m_node->getNodeCount() ; i++)
     m_childNodes << CFNULL;
 }
@@ -24,20 +27,20 @@ bool TreeNode::hasParent() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-TreeNode * TreeNode::getChild(int index)
+TreeNode * TreeNode::getChild(int rowNumber)
 {
   TreeNode * child = CFNULL;
   // if the TreeNode corresponding to this child has already been created,
   // it is returned...
-  if (index >= 0 && index < m_childNodes.size())
-    child = m_childNodes.at(index);
+  if (rowNumber >= 0 && rowNumber < m_childNodes.size())
+    child = m_childNodes.at(rowNumber);
 
   // ...otherwise, if the index is valid, it is created and returned...
-  if(child == CFNULL && index>= 0 && index < m_childNodes.size())
+  if(child == CFNULL && rowNumber>= 0 && rowNumber < m_childNodes.size())
   {
-    CNode::Ptr childNode = m_node->getNode(index);
-    child = new TreeNode(childNode, this, index);
-    m_childNodes.replace(index, child);
+    CNode::Ptr childNode = m_node->getNode(rowNumber);
+    child = new TreeNode(childNode, this, rowNumber);
+    m_childNodes.replace(rowNumber, child);
 
   }
 
@@ -79,14 +82,6 @@ int TreeNode::getRowNumber() const
 int TreeNode::getChildCount() const
 {
   return m_node->getNodeCount();
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-QString TreeNode::getName() const
-{
-  return m_node->name().c_str();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

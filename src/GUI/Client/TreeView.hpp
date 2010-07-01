@@ -101,7 +101,7 @@ namespace Client {
     /// @brief Slot called when user wants to update a simulation tree.
     void updateTree();
 
-    void currentIndexChanged(const QModelIndex & index);
+    void currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex);
 
     void nodeActivated(const QModelIndex & index);
 
