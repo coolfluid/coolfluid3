@@ -26,20 +26,6 @@ namespace Client {
 
   ////////////////////////////////////////////////////////////////////////////
 
-  /// @brief Holds node actions
-
-  struct NodeAction
-  {
-  public:
-
-    /// @brief Action
-    QAction * m_action;
-
-    /// @brief Sub-actions
-    QList<NodeAction> m_subActions;
-
-  }; // struct NodeAction
-
   struct NodeOption
   {
     QString m_paramName;
@@ -72,6 +58,8 @@ namespace Client {
 
     enum Type
     {
+      ROOT_NODE,
+
       GROUP_NODE,
 
       LINK_NODE,

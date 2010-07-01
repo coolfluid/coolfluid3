@@ -22,6 +22,7 @@ SET(coolfluid-client_moc_classes
   NLink.hpp
   NMesh.hpp
   NMethod.hpp
+  NRoot.hpp
   OptionPanel.hpp
   RemoteFSBrowser.hpp
   RemoteSaveFile.hpp
@@ -91,6 +92,8 @@ LIST ( APPEND coolfluid-client_files
   NMesh.hpp
   NMethod.cpp
   NMethod.hpp
+  NRoot.cpp
+  NRoot.hpp
   OptionPanel.cpp
   OptionPanel.hpp
   OptionType.cpp

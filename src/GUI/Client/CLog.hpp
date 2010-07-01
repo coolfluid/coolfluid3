@@ -36,6 +36,10 @@ namespace Client {
 
     ~CLog();
 
+    /// @brief Adds a message to the log.
+
+    /// If the message is
+    /// @param message The message to add.
     void addMessage(const QString & message);
 
     void addError(const QString & message);

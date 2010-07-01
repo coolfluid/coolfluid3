@@ -8,6 +8,7 @@
 #include "GUI/Client/NLink.hpp"
 #include "GUI/Client/NMesh.hpp"
 #include "GUI/Client/NMethod.hpp"
+#include "GUI/Client/NRoot.hpp"
 
 #include "GUI/Client/CNode.hpp"
 
@@ -111,8 +112,10 @@ CNode::Ptr CNode::createFromXml(const QDomElement & element)
     rootNode = boost::shared_ptr<NMesh>(new NMesh(name));
   else if(type == "CMethod")
     rootNode = boost::shared_ptr<NMethod>(new NMethod(name));
-  else if(type == "CGroup" || type == "CRoot")
+  else if(type == "CGroup")
     rootNode = boost::shared_ptr<NGroup>(new NGroup(name));
+  else if(type == "CRoot")
+    rootNode = boost::shared_ptr<NRoot>(new NRoot(name));
   else
     throw ShouldNotBeHere(FromHere(), QString("%1: Unknown type").arg(type).toStdString().c_str());
 

@@ -6,6 +6,7 @@
 
 #include "GUI/Client/ClientRoot.hpp"
 #include "GUI/Client/CNode.hpp"
+#include "GUI/Client/NRoot.hpp"
 #include "GUI/Client/TreeNode.hpp"
 #include "GUI/Client/NLink.hpp"
 
@@ -71,6 +72,14 @@ CTree::CTree(CNode::Ptr rootNode)
     doc.setContent(data);
 
     CNode::Ptr nodePtr = CNode::createFromXml(doc.firstChildElement());
+
+    if(nodePtr->checkType(CNode::ROOT_NODE))
+    {
+      /// @todo save children to easily remove them on delete
+
+   //   ClientRoot::getRoot()->rename(nodePtr->name());
+    }
+
 
     m_rootItem = new TreeNode(nodePtr, CFNULL, 0);
   }
@@ -274,10 +283,6 @@ QVariant CTree::data(const QModelIndex & index, int role) const
   if(index.isValid())
   {
     CNode::Ptr node = this->indexToNode(index);
-    QString parent;
-
-    if(index.parent().isValid())
-      parent = this->indexToNode(index.parent())->name().c_str();
 
     if(role == Qt::DisplayRole)
     {
@@ -315,12 +320,10 @@ QModelIndex CTree::index(int row, int column, const QModelIndex & parent) const
 
   if(this->hasIndex(row, column, parent))
   {
-    if(!parent.isValid())
-      parentNode = m_rootItem;
+    if( !parent.isValid())
+      childNode = m_rootItem;
     else
-      parentNode = this->indexToTreeNode(parent);
-
-    childNode = parentNode->getChild(row);
+      childNode = this->indexToTreeNode(parent)->getChild(row);
 
     if(childNode != CFNULL)
       index = createIndex(row, column, childNode);
@@ -341,7 +344,7 @@ QModelIndex CTree::parent(const QModelIndex &child) const
     TreeNode * childNode = this->indexToTreeNode(child);
     TreeNode * parentNode = childNode->getParent();
 
-    if (parentNode != CFNULL && parentNode != m_rootItem)
+    if (parentNode != CFNULL)
       index = createIndex(parentNode->getRowNumber(), 0, parentNode);
   }
 
@@ -353,17 +356,14 @@ QModelIndex CTree::parent(const QModelIndex &child) const
 
 int CTree::rowCount(const QModelIndex & parent) const
 {
-  TreeNode * parentItem;
-
   if (parent.column() > 0)
     return 0;
 
+  // if the parent is not valid, we have one child: the root
   if (!parent.isValid())
-    parentItem = m_rootItem;
-  else
-    parentItem = this->indexToTreeNode(parent);
+    return 1;
 
-  return parentItem->getNode()->getNodeCount();
+  return this->indexToTreeNode(parent)->getNode()->getNodeCount();
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
