@@ -1,5 +1,7 @@
 IF(CF_HAVE_CGAL)
 
+option(CF_STRIP_CGAL_COMPILE_FLAGS "Strip optimization and compile flags for CGAL, to avoid the long compilation" ON)
+
 LIST( APPEND CGAL_files
   CGALAPI.hpp
   ImplicitFunctionMesh.cpp
@@ -15,8 +17,13 @@ SET( CGAL_kernellib TRUE )
 
 CF_ADD_LIBRARY( CGAL )
 #avoid a conflict between boost and CGAL
+SET(CGAL_COMPILE_FLAGS "-frounding-math -DCGAL_CFG_NO_TR1_ARRAY -DCGAL_CFG_NO_TR1_TUPLE")
+IF(CF_STRIP_CGAL_COMPILE_FLAGS)
+  SET(CGAL_COMPILE_FLAGS "${CGAL_COMPILE_FLAGS} -g0 -O0")
+ENDIF()
+
 SET_SOURCE_FILES_PROPERTIES(ImplicitFunctionMesh.cpp 
-    PROPERTIES COMPILE_FLAGS "-frounding-math -DCGAL_CFG_NO_TR1_ARRAY -DCGAL_CFG_NO_TR1_TUPLE")
+    PROPERTIES COMPILE_FLAGS ${CGAL_COMPILE_FLAGS})
 add_subdirectory( uTests )
 
 ELSE()
