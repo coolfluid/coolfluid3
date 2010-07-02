@@ -7,10 +7,10 @@
 # CF_HAVE_PARMETIS        = set to true after finding the library
 #
 
-OPTION ( CF_SKIP_PARMETIS "Skip search for Parmetis library" OFF )
+OPTION( CF_SKIP_PARMETIS "Skip search for Parmetis library" OFF )
 
 # dont search for parmetis without MPI
-IF ( NOT CF_SKIP_PARMETIS OR NOT CF_HAVE_MPI )
+IF( NOT CF_SKIP_PARMETIS OR NOT CF_HAVE_MPI )
 
   SET_TRIAL_INCLUDE_PATH ("") # clear include search path
   SET_TRIAL_LIBRARY_PATH ("") # clear library search path
@@ -50,8 +50,8 @@ MARK_AS_ADVANCED(
   CF_HAVE_PARMETIS
 )
 
-LOG ( "CF_HAVE_PARMETIS: [${CF_HAVE_PARMETIS}]" )
+LOG( "CF_HAVE_PARMETIS: [${CF_HAVE_PARMETIS}]" )
 IF(CF_HAVE_PARMETIS)
-  LOG ( "  PARMETIS_INCLUDE_DIR: [${PARMETIS_INCLUDE_DIR}]" )
-  LOG ( "  PARMETIS_LIBRARIES:   [${PARMETIS_LIBRARIES}]" )
+  LOG( "  PARMETIS_INCLUDE_DIR: [${PARMETIS_INCLUDE_DIR}]" )
+  LOG( "  PARMETIS_LIBRARIES:   [${PARMETIS_LIBRARIES}]" )
 ENDIF(CF_HAVE_PARMETIS)
