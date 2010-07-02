@@ -10,14 +10,14 @@ namespace Mesh {
   
 ////////////////////////////////////////////////////////////////////////////////
 
-Line2D::Line2D()
-{
-  m_shape = shape;
-  m_dimension = dimension;
-  m_dimensionality = dimensionality;
-  m_nb_faces = nb_faces;
-  m_nb_edges = nb_edges;
-}
+  Line2D::Line2D() : ElementTypeBase()
+  {
+    m_shape = shape;
+    m_dimension = dimension;
+    m_dimensionality = dimensionality;
+    m_nb_faces = nb_faces;
+    m_nb_edges = nb_edges;
+  }
 
 ////////////////////////////////////////////////////////////////////////////////
 

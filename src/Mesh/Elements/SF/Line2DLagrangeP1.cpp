@@ -4,7 +4,7 @@ namespace CF {
 namespace Mesh {
 namespace SF {
 
-Line2DLagrangeP1::Line2DLagrangeP1()
+Line2DLagrangeP1::Line2DLagrangeP1() : Line2D()
 {
   m_nb_nodes = nb_nodes;
   m_order = order;

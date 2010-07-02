@@ -295,15 +295,17 @@ BOOST_AUTO_TEST_CASE( SurfaceIntegral )
   CTable connectivity("connectivity");
   create_circle_2d(coordinates, connectivity, 1., 100);
 
+  Line2DLagrangeP1 aSF; /* temporary solution, on Mac it tries to use copy-constructor */
+
   // Check the length, using the line integral of one times the norm of the tangent vector
   Real length = 0.;
-  integrate_region(length, NormalVectorNorm(), coordinates, connectivity, Line2DLagrangeP1());
+  integrate_region(length, NormalVectorNorm(), coordinates, connectivity, aSF);
   BOOST_CHECK_CLOSE(length, 2.*MathConsts::RealPi(), 0.1);
 
   // Flux from a constant vector field through a closed surface should be 0
   Real zero_flux = 0.;
   const RealVector field_vector = boost::assign::list_of(0.35)(1.25);
-  integrate_region(zero_flux, ConstVectorField(field_vector), coordinates, connectivity, Line2DLagrangeP1());
+  integrate_region(zero_flux, ConstVectorField(field_vector), coordinates, connectivity, aSF);
   BOOST_CHECK_SMALL(zero_flux, 1e-14);
 }
 
@@ -315,7 +317,8 @@ BOOST_AUTO_TEST_CASE( ArcIntegral )
   create_circle_2d(arc_coordinates, arc_connectivity, 1., 100, 0., MathConsts::RealPi());
   Real arc_flux = 0.;
   const RealVector y_vector = boost::assign::list_of(0.)(1.);
-  integrate_region(arc_flux, ConstVectorField(y_vector), arc_coordinates, arc_connectivity, Line2DLagrangeP1());
+  Line2DLagrangeP1 aSF; /* temporary solution, on Mac it tries to use copy-constructor */
+  integrate_region(arc_flux, ConstVectorField(y_vector), arc_coordinates, arc_connectivity, aSF);
   BOOST_CHECK_CLOSE(arc_flux, 2., 0.01);
 }
 
@@ -335,7 +338,8 @@ BOOST_AUTO_TEST_CASE( RotatingCylinder )
   const Real u = 300.;
   const Real circulation = 975.;
   RealVector force(0.,2);
-  integrate_region(force, RotatingCylinderPressure(radius, circulation, u), coordinates, connectivity, Line2DLagrangeP1());
+  Line2DLagrangeP1 aSF; /* temporary solution, on Mac it tries to use copy-constructor */
+  integrate_region(force, RotatingCylinderPressure(radius, circulation, u), coordinates, connectivity, aSF);
   BOOST_CHECK_CLOSE(force[YY], 1.225*u*circulation, 0.001); // lift according to theory
   BOOST_CHECK_SMALL(force[XX], 1e-8); // Drag should be zero
 }
