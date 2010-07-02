@@ -70,8 +70,12 @@ struct LoopElems
       void operator() ( EType& T )
   {
 
-    if( ! IsElemType<EType>(region.elements_type()) )
-      return;
+    // TODO: Replace this with IsElementType when the conversion of elements is complete
+    if( EType::shape          != region.elements_type().getShape()         ||
+        EType::order          != region.elements_type().getOrder()         ||
+        EType::dimension      != region.elements_type().getDimension()     ||
+        EType::dimensionality != region.elements_type().getDimensionality() )
+    return;
 
     CFinfo << "Looping on " << T.getClassName() << CFendl;
 
