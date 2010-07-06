@@ -114,6 +114,7 @@ add_subdirectory( src )
 
 # sandbox is where we play around before putting stuff in the released code, off by default
 if( CF_ENABLE_SANDBOX )
+  include_directories( ${coolfluid_SOURCE_DIR}/sandbox )
   add_subdirectory( sandbox )
 endif()
 
