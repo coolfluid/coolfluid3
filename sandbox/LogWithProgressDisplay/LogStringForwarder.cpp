@@ -1,4 +1,4 @@
-#include "Common/LogStringForwarder.hpp"
+#include "LogWithProgressDisplay/LogStringForwarder.hpp"
 
 namespace CF{
 namespace Common{

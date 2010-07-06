@@ -2,8 +2,8 @@
 #define CF_Common_Log_hpp
 
 #include "Common/CommonAPI.hpp"
-#include "Common/LogLevel.hpp"
-#include "Common/LogStream.hpp"
+#include "LogWithProgressDisplay/LogLevel.hpp"
+#include "LogWithProgressDisplay/LogStream.hpp"
 #include "Common/CodeLocation.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////

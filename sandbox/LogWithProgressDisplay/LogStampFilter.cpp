@@ -1,4 +1,4 @@
-#include "Common/LogStampFilter.hpp"
+#include "LogWithProgressDisplay/LogStampFilter.hpp"
 
 using namespace CF::Common;
 

@@ -1,5 +1,5 @@
-#include "Common/LogLevel.hpp"
-#include "Common/LogLevelFilter.hpp"
+#include "LogWithProgressDisplay/LogLevel.hpp"
+#include "LogWithProgressDisplay/LogLevelFilter.hpp"
 
 using namespace CF;
 using namespace CF::Common;

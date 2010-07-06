@@ -1,8 +1,5 @@
 CF_FIND_ORPHAN_FILES()
 
-###############################################################################
-### test for rapidxml
-
 LIST ( APPEND logWithProgress_files
    Log.cpp
    Log.hpp

@@ -9,7 +9,7 @@
 #include "Common/BoostIostreams.hpp"
 
 #include "Common/CF.hpp"
-#include "Common/LogStringForwarder.hpp"
+#include "LogWithProgressDisplay/LogStringForwarder.hpp"
 #include "Common/CodeLocation.hpp"
 #include "Common/StringOps.hpp"
 #include "Common/MPI/PEInterface.hpp"
@@ -28,7 +28,7 @@ class PE;
 /// @brief Manages a log stream.
 
 /// @author Quentin Gasper
-class Common_API LogStream : public std::ostringstream
+class Common_API LogStream : public boost::iostreams::filtering_ostream
 {
   public:
 
@@ -91,8 +91,8 @@ class Common_API LogStream : public std::ostringstream
 
   /// @brief Overrides operator &lt;&lt; for @c #LogLevel type.
 
-  /// Sets @c #codeLoction as current code location for all destinations.
-  /// @return Returns a reference to this object.
+  /// Sets @c #coReturnsdeLoction as current code location for all destinations.
+  /// @return  a reference to this object.
   LogStream & operator << (const CodeLocation & codeLoction);
 
   /// @brief Overrides operator &lt;&lt; for any type.
@@ -103,6 +103,8 @@ class Common_API LogStream : public std::ostringstream
   template <typename T> LogStream & operator << (const T & t)
   {
     std::map<LogDestination, boost::iostreams::filtering_ostream *>::iterator it;
+
+    std::cout << "printing -> \"" << t << "\"" << std::endl;
 
     for(it = m_destinations.begin() ; it != m_destinations.end() ; it++)
     {
@@ -256,7 +258,7 @@ class Common_API LogStream : public std::ostringstream
   /// @return Returns the number of string forwarders.
   unsigned int getStringForwarderCount() const;
 
-private:
+public:
 
   /// @brief Destinations.
 

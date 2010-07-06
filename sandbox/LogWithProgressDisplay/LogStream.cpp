@@ -1,10 +1,10 @@
 #include <iostream>
 
 #include "Common/MPI/PEInterface.hpp"
-#include "Common/Log.hpp"
-#include "Common/LogStream.hpp"
-#include "Common/LogLevelFilter.hpp"
-#include "Common/LogStampFilter.hpp"
+#include "LogWithProgressDisplay/Log.hpp"
+#include "LogWithProgressDisplay/LogStream.hpp"
+#include "LogWithProgressDisplay/LogLevelFilter.hpp"
+#include "LogWithProgressDisplay/LogStampFilter.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -18,6 +18,8 @@ m_flushed(true)
 {
   iostreams::filtering_ostream * stream;
   LogLevelFilter levelFilter(level);
+
+//  this->push(std::cout);
 
   // SCREEN
   stream = new iostreams::filtering_ostream();
