@@ -14,7 +14,7 @@ NLink::NLink(const QString & name, const CPath & targetPath)
   : CNode(name, "CLink", LINK_NODE),
     m_targetPath(targetPath)
 {
-  //BUILD_COMPONENT;
+  BUILD_COMPONENT;
 
   QAction * action;
 

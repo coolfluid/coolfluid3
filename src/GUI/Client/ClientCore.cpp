@@ -24,8 +24,7 @@ using namespace CF::GUI::Client;
 using namespace CF::GUI::Network;
 
 ClientCore::ClientCore()
-  : Component(CLIENT_CORE),
-    m_statusModel(CFNULL)
+  : m_statusModel(CFNULL)
 {
   m_timer = new QTimer(this);
   m_networkComm = new ClientNetworkComm();
@@ -104,6 +103,13 @@ void ClientCore::sendSignal(const CF::Common::XmlDoc & signal)
   m_networkComm->send(signal);
 }
 
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void ClientCore::connectToServer(const TSshInformation & sshInfo)
+{
+  m_networkComm->connectToServer(sshInfo.m_hostname, sshInfo.port, false);
+}
 
 /****************************************************************************
 

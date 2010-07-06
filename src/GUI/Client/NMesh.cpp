@@ -11,7 +11,7 @@ using namespace CF::GUI::Client;
 NMesh::NMesh(const QString & name)
   : CNode(name, "CMesh", MESH_NODE)
 {
-  //BUILD_COMPONENT;
+  BUILD_COMPONENT;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

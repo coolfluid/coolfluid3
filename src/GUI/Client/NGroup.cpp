@@ -8,7 +8,7 @@ using namespace CF::GUI::Client;
 NGroup::NGroup(const QString & name) :
     CNode(name, "CGroup", GROUP_NODE)
 {
-  //BUILD_COMPONENT;
+  BUILD_COMPONENT;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

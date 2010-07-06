@@ -21,7 +21,7 @@ NTree::NTree(CNode::Ptr rootNode)
   : CNode(CLIENT_TREE, "NTree", CNode::TREE_NODE),
     m_advancedMode(false)
 {
-  //BUILD_COMPONENT;
+  BUILD_COMPONENT;
 
 //  cf_assert(rootNode.get() != CFNULL);
 
@@ -80,7 +80,7 @@ NTree::NTree(CNode::Ptr rootNode)
 
   m_columns << "Name" << "Type";
 
-  regist_signal("list_tree", "Log message")->connect(boost::bind(&NTree::list_tree, this, _1));
+  regist_signal("list_tree", "New tree")->connect(boost::bind(&NTree::list_tree, this, _1));
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -100,60 +100,60 @@ void NTree::setRoot(NRoot::Ptr rootNode)
 
   if(rootNode.get() != CFNULL)
   {
-    QString data =
-        "<CRoot name=\"Simulation\" >"
-        " <CGroup name=\"Flow\" >"
-        "  <CLink name=\"Mesh\">//Simulation/MG/Mesh1</CLink>"
-        "  <CMethod name=\"FVM\" >"
-        "   <params>"
-        "    <int key=\"iter\" mode=\"basic\" desc=\"nb iterations\" >5</int>"
-        "    <string key=\"somename\" mode=\"adv\" >Lolo</string>"
-        "    <path   key=\"region\">./</path>"
-        "   </params>"
-        "  </CMethod>"
-        "  <CMethod name=\"Petsc\" >"
-        "    <params>"
-        "     <int key=\"iter2\" mode=\"basic\" desc=\"nb iterations\" >5</int>"
-        "     <string key=\"somename2\" mode=\"adv\" >Lolo</string>"
-        "     <path   key=\"region2\">./</path>"
-        "    </params>"
-        "  </CMethod>"
-        " </CGroup>"
-        " <CGroup name=\"MG\">"
-        "  <params>"
-        "   <bool key=\"myBool\" mode=\"basic\" desc=\"a boolean option\" >true</bool>"
-        "   <string key=\"someOtherName\" mode=\"adv\" >Lolo</string>"
-        "  </params>"
-        "  <CMesh name=\"Mesh1\" >"
-        "   <params>"
-        "    <bool key=\"myOtherBool\" mode=\"basic\" desc=\"another boolean option\" >false</bool>"
-        "    <string key=\"yetAnotherName\" mode=\"adv\" >Lolo</string>"
-        "   </params>"
-        "  </CMesh>"
-        "  <CMesh name=\"Mesh2\" > <!-- mesh1 here --> </CMesh>"
-        " </CGroup>"
-        " <CGroup name=\"Solid\">"
-        "  <CMesh name=\"Mesh3\" > <!-- mesh2 here --> </CMesh>"
-        "  <CMesh name=\"Mesh4\" > <!-- mesh1 here --> </CMesh>"
-        "  <CLink name=\"PetscLink\">//Simulation/Flow/Petsc</CLink>"
-        " </CGroup>"
-        "</CRoot>";
-    QDomDocument doc;
+//    QString data =
+//        "<CRoot name=\"Simulation\" >"
+//        " <CGroup name=\"Flow\" >"
+//        "  <CLink name=\"Mesh\">//Simulation/MG/Mesh1</CLink>"
+//        "  <CMethod name=\"FVM\" >"
+//        "   <params>"
+//        "    <int key=\"iter\" mode=\"basic\" desc=\"nb iterations\" >5</int>"
+//        "    <string key=\"somename\" mode=\"adv\" >Lolo</string>"
+//        "    <path   key=\"region\">./</path>"
+//        "   </params>"
+//        "  </CMethod>"
+//        "  <CMethod name=\"Petsc\" >"
+//        "    <params>"
+//        "     <int key=\"iter2\" mode=\"basic\" desc=\"nb iterations\" >5</int>"
+//        "     <string key=\"somename2\" mode=\"adv\" >Lolo</string>"
+//        "     <path   key=\"region2\">./</path>"
+//        "    </params>"
+//        "  </CMethod>"
+//        " </CGroup>"
+//        " <CGroup name=\"MG\">"
+//        "  <params>"
+//        "   <bool key=\"myBool\" mode=\"basic\" desc=\"a boolean option\" >true</bool>"
+//        "   <string key=\"someOtherName\" mode=\"adv\" >Lolo</string>"
+//        "  </params>"
+//        "  <CMesh name=\"Mesh1\" >"
+//        "   <params>"
+//        "    <bool key=\"myOtherBool\" mode=\"basic\" desc=\"another boolean option\" >false</bool>"
+//        "    <string key=\"yetAnotherName\" mode=\"adv\" >Lolo</string>"
+//        "   </params>"
+//        "  </CMesh>"
+//        "  <CMesh name=\"Mesh2\" > <!-- mesh1 here --> </CMesh>"
+//        " </CGroup>"
+//        " <CGroup name=\"Solid\">"
+//        "  <CMesh name=\"Mesh3\" > <!-- mesh2 here --> </CMesh>"
+//        "  <CMesh name=\"Mesh4\" > <!-- mesh1 here --> </CMesh>"
+//        "  <CLink name=\"PetscLink\">//Simulation/Flow/Petsc</CLink>"
+//        " </CGroup>"
+//        "</CRoot>";
+//    QDomDocument doc;
 
-    doc.setContent(data);
+//    doc.setContent(data);
 
-    CNode::Ptr nodePtr = CNode::createFromXml(doc.firstChildElement());
+//    CNode::Ptr nodePtr = CNode::createFromXml(doc.firstChildElement());
 
-    ComponentIterator<CNode> it = nodePtr->begin<CNode>();
+//    ComponentIterator<CNode> it = rootNode->begin<CNode>();
 
-    rootNode->rename(nodePtr->name());
-    rootNode->root()->rename(nodePtr->name());
+//    rootNode->rename(nodePtr->name());
+//    rootNode->root()->rename(nodePtr->name());
 
-    while(it != nodePtr->end<CNode>())
-    {
-      rootNode->root()->add_component(it.get());
-      it++;
-    }
+//    while(it != nodePtr->end<CNode>())
+//    {
+//      rootNode->root()->add_component(it.get());
+//      it++;
+//    }
 
     m_rootNode = new TreeNode(rootNode, CFNULL, 0);
 
@@ -457,6 +457,23 @@ void NTree::showNodeMenu(const QModelIndex & index, const QPoint & pos) const
 
   if(treeNode != CFNULL)
     treeNode->getNode()->showContextMenu(pos);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+CF::Common::Signal::return_t NTree::list_tree(CF::Common::Signal::arg_t & node)
+{
+//  ComponentIterator<CNode> it = rootNode->begin<CNode>();
+
+//  rootNode->rename(nodePtr->name());
+//  rootNode->root()->rename(nodePtr->name());
+
+//  while(it != nodePtr->end<CNode>())
+//  {
+//    rootNode->root()->add_component(it.get());
+//    it++;
+//  }
 }
 
 /*============================================================================

@@ -52,6 +52,8 @@ namespace Client {
 
     enum MainWinActions
     {
+      ACTION_CONNECT_TO_SERVER,
+
       ACTION_TOGGLE_ADVANCED_MODE,
 
       ACTION_SHOW_HIDE_STATUS_PANEL,
@@ -111,6 +113,8 @@ namespace Client {
     void showHelp();
 
     void newException(const QString &);
+
+    void connectToServer();
 
     private:
 

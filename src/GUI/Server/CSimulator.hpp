@@ -8,6 +8,8 @@
 //#include "Framework/Maestro.hpp"
 
 #include "Common/CRoot.hpp"
+#include "Common/Component.hpp"
+
 #include "GUI/Network/ComponentType.hpp"
 
 #include <QObject>
@@ -30,11 +32,15 @@ namespace Server {
 
   /// @author Quentin Gasper.
 
-  class CSimulator : public QThread//, public CF::Framework::Maestro
+  class CSimulator : public QThread, public CF::Common::Component //, public CF::Framework::Maestro
   {
     Q_OBJECT
 
   public:
+
+    typedef boost::shared_ptr<CSimulator> Ptr;
+    typedef boost::shared_ptr<CSimulator const> ConstPtr;
+
     /// @brief Constructor.
 
     /// @param simulatorName Simulator name.
@@ -112,6 +118,10 @@ namespace Server {
     /// or an empty string if the subsystem does not exit
     QString getSubSystem(int subSystem) const;
 
+    CF::Common::CRoot::Ptr root() const;
+
+    void createSimulator();
+
     public slots:
 
     void addComponent(const QString & path,
@@ -123,6 +133,8 @@ namespace Server {
 
     /// @param data The message
     void newData(const QString & m_data);
+
+    static std::string type_name() { return "CSimulator"; }
 
   signals:
     /// @brief Signal used to send a message.
@@ -138,7 +150,7 @@ namespace Server {
     void treeUpdated();
 
   private:
-    /// @brief The simulator
+    /// @brief Thr root of the simulation tree
     CF::Common::CRoot::Ptr m_rootComponent;
 
     /// @brief If not empty, the name of the case file currently open.
@@ -148,6 +160,8 @@ namespace Server {
 
     /// If @c true, the simulator is configured.
     bool m_configured;
+
+    CF::Common::CRoot::Ptr m_root;
 
     /// @brief List of subsystem names
 
@@ -169,7 +183,8 @@ namespace Server {
 
     MPIListener * m_listener;
 
-    void createSimulator();
+    /// regists all the signals declared in this class
+    static void regist_signals ( Component* self ) {}
 
   };
 

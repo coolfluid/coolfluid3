@@ -3,8 +3,6 @@
 #include <QtCore>
 #include <QApplication>
 
-#include <boost/any.hpp>
-
 #include "Common/CF.hpp"
 #include "Common/Exception.hpp"
 

@@ -142,6 +142,9 @@ namespace Client {
 
     /// @brief Component type name.
     QString m_componentType;
+
+    /// regists all the signals declared in this class
+    static void regist_signals ( Component* self ) {}
   }; // class CNode
 
   ////////////////////////////////////////////////////////////////////////////

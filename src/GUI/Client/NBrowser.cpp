@@ -11,7 +11,7 @@ NBrowser::NBrowser()
   : CNode(CLIENT_BROWSERS, "NBrowser", CNode::BROWSER_NODE),
     m_counter(0)
 {
-  //BUILD_COMPONENT;
+  BUILD_COMPONENT;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

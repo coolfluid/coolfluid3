@@ -32,6 +32,10 @@ CCore::CCore()
     m_simRunning(false),
     m_active(false)
 {
+  BUILD_COMPONENT;
+
+  TypeInfo::instance().regist<CCore>( type_name() );
+
   m_commServer = new ServerNetworkComm();
   this->createSimulator("Simulator");
 
@@ -275,8 +279,6 @@ Signal::return_t CCore::saveConfig(Signal::arg_t & node)
 
 void CCore::newClient(int clientId)
 {
-  throw NotImplemented(FromHere(), "CCore::newClient");
-
   // send a welcome message to the new client
   m_commServer->sendMessage(clientId, "Welcome to the Client-Server project!");
 }

@@ -19,7 +19,7 @@ using namespace CF::GUI::Client;
 NLog::NLog()
   : CNode(CLIENT_LOG, "NLog", CNode::LOG_NODE)
 {
- // BUILD_COMPONENT;
+  BUILD_COMPONENT;
 
   m_typeNames[ LogMessage::INFO ]      = "  Info   ";
   m_typeNames[ LogMessage::EXCEPTION ] = "Exception";
@@ -27,7 +27,6 @@ NLog::NLog()
   m_typeNames[ LogMessage::WARNING ]   = " Warning ";
 
   regist_signal("message", "Log message")->connect(boost::bind(&NLog::message, this, _1));
-  regist_signal("list_tree", "Log message")->connect(boost::bind(&NLog::list_tree, this, _1));
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

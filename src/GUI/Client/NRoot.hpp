@@ -50,6 +50,10 @@ namespace Client {
 
       CF::Common::CRoot::Ptr m_root;
 
+  /// regists all the signals declared in this class
+  static void regist_signals ( Component* self ) {}
+
+
   }; // class NRoot
 
 //////////////////////////////////////////////////////////////////////////////

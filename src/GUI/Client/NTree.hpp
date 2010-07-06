@@ -10,7 +10,6 @@
 #include "GUI/Client/TreeNode.hpp"
 #include "GUI/Client/NRoot.hpp"
 
-
 class QDomElement;
 class QModelIndex;
 
@@ -152,6 +151,15 @@ namespace Client {
 
     virtual void getOptions(QList<NodeOption> & params) const;
 
+    CF::Common::Signal::return_t list_tree(CF::Common::Signal::arg_t & node);
+
+    /// @name Signals
+    /// @{
+
+    CF::Common::Signal::return_t updateTree(CF::Common::Signal::arg_t & node);
+
+    /// @} END Signals
+
   signals:
 
     /// @brief Signal emitted when the current index has changed.
@@ -160,6 +168,7 @@ namespace Client {
     void currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex);
 
     void advancedModeChanged(bool advanced);
+
 
   private:
 
@@ -183,14 +192,9 @@ namespace Client {
 
     void getNodePathRec(const QModelIndex & index, QString & path) const;
 
-  private: // boost signals
 
-    /// @name Signals
-    /// @{
-
-    CF::Common::Signal::return_t updateTree(CF::Common::Signal::arg_t & node);
-
-    /// @} END Signals
+    /// regists all the signals declared in this class
+    static void regist_signals ( Component* self ) {}
 
 
   }; // class NTree

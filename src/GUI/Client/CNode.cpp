@@ -21,7 +21,7 @@ CNode::CNode(const QString & name, const QString & componentType, CNode::Type ty
     m_contextMenu(new QMenu("Node")),
     m_type(type)
 {
-
+  BUILD_COMPONENT;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

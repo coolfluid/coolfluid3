@@ -120,6 +120,8 @@ MainWindow::~MainWindow()
   delete m_logList;
   delete m_logWindow;
   delete m_mnuView;
+  delete m_mnuFile;
+  delete m_mnuHelp;
   delete m_aboutCFDialog;
 }
 
@@ -130,6 +132,7 @@ void MainWindow::buildMenus()
   MenuActionInfo actionInfo;
   QAction * tmpAtion;
 
+  m_mnuFile = new QMenu("&File", this);
   m_mnuView = new QMenu("&View", this);
   m_mnuHelp = new QMenu("&Help", this);
 
@@ -138,6 +141,16 @@ void MainWindow::buildMenus()
   actionInfo.m_text = "&Clear log messages";
 
   tmpAtion = actionInfo.buildAction(this);
+
+  actionInfo.initDefaults();
+  actionInfo.m_menu = m_mnuFile;
+  actionInfo.m_text = "&Connect to server";
+  actionInfo.m_slot = SLOT(connectToServer());
+
+  m_actions[MainWindow::ACTION_TOGGLE_ADVANCED_MODE] = actionInfo.buildAction(this);
+
+  //-----------------------------------------------
+
 
   m_actions[MainWindow::ACTION_CLEAR_LOG] = tmpAtion;
   //  connect(tmpAtion, SIGNAL(triggered()), this->logList, SLOT(clearLog()));
@@ -214,6 +227,7 @@ void MainWindow::buildMenus()
   //----------------------------------------------------
 
 //  m_treeView->addSimToMenuBar(this->menuBar());
+  this->menuBar()->addMenu(m_mnuFile);
   this->menuBar()->addMenu(m_mnuView);
   this->menuBar()->addMenu(m_mnuHelp);
 }
@@ -696,4 +710,18 @@ void MainWindow::showHelp()
 void MainWindow::newException(const QString & msg)
 {
   this->showError(msg);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void MainWindow::connectToServer()
+{
+  ConnectionDialog dlg(this);
+  TSshInformation sshInfo;
+
+  if(dlg.show(false, sshInfo))
+  {
+    ClientCore::instance().connectToServer(sshInfo);
+  }
 }

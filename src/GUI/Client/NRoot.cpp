@@ -13,7 +13,7 @@ using namespace CF::GUI::Client;
 NRoot::NRoot(const QString & name)
   : CNode(name, "CRoot", ROOT_NODE)
 {
-  //BUILD_COMPONENT;
+  BUILD_COMPONENT;
 
   m_root = CRoot::create(name.toStdString());
 }

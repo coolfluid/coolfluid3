@@ -65,6 +65,8 @@ namespace Server {
 
      void sendSignal(const CF::Common::XmlDoc & signal);
 
+     static std::string type_name() { return "CCore"; }
+
   private slots:
 
     /// @brief Slot called when a new client connects
@@ -171,6 +173,9 @@ namespace Server {
                        std::vector<std::string> & filesList) const;
 
     void setStatus(CF::Common::WorkerStatus::Type status);
+
+    /// regists all the signals declared in this class
+    static void regist_signals ( Component* self ) {}
 
     CF::Common::Signal::return_t read_dir(CF::Common::Signal::arg_t & node);
 

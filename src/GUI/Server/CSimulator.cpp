@@ -9,12 +9,11 @@
 
 #include <boost/algorithm/string.hpp>
 
-//#include "logcpp/PatternLayout.hpp"
-
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/CLink.hpp"
 #include "Common/CGroup.hpp"
+#include "Common/CMethod.hpp"
 #include "Common/CPath.hpp"
 #include "Common/EventHandler.hpp"
 #include "Common/SharedPtr.hpp"
@@ -23,6 +22,9 @@
 
 #include "Common/CoreEnv.hpp"
 #include "Common/FactoryRegistry.hpp"
+#include "Common/XmlHelpers.hpp"
+
+#include "Mesh/CMesh.hpp"
 
 //#include "Framework/GlobalStopCriteria.hpp"
 //#include "Framework/Simulator.hpp"
@@ -32,9 +34,11 @@
 
 #include "GUI/Server/RemoteClientAppender.hpp"
 #include "GUI/Server/CSimulator.hpp"
+#include "GUI/Server/ServerRoot.hpp"
 
 using namespace MPI;
 using namespace CF::Common;
+using namespace CF::Mesh;
 //using namespace CF::Config;
 //using namespace CF::Environment;
 //using namespace CF::Framework;
@@ -43,24 +47,12 @@ using namespace CF::GUI::Network;
 using namespace std;
 
 CSimulator::CSimulator(const QString & simulatorName)
+  : Component(simulatorName.toStdString())
 //: Maestro(simulatorName.toStdString()), QThread()
 {
- // logcpp::PatternLayout * f_layout;
-//  logcpp::Appender * remote_appender;
+  BUILD_COMPONENT;
 
-  this->createSimulator();
-
-  // m_simulator = /*NULL;//*/new Simulator(simulatorName.toStdString());
-
-  //  this->createSimulator();
-
-  //f_layout = new logcpp::PatternLayout();
-  //remote_appender = new RemoteClientAppender("RemoteClientAppender" );
-
-  //f_layout->setConversionPattern( "%m" );//%p
-  //remote_appender->setLayout(f_layout);
-
-  //CFLogger::instance().getMainLogger().addAppender(remote_appender);
+  TypeInfo::instance().regist<CSimulator>( type_name() );
 
   m_configured = false;
   m_lastSubsystemConfigured = -1;
@@ -467,12 +459,64 @@ QString CSimulator::getSubSystem(int subSystem) const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+CF::Common::CRoot::Ptr CSimulator::root() const
+{
+  return m_root;
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 void CSimulator::createSimulator()
 {
   //  CPath p;
-  // @todo delete the old tree
-  m_rootComponent = CRoot::create("Simulator");
+  /// @todo delete the old tree
 
+  CRoot::Ptr root = ServerRoot::getRoot();
+
+  CGroup::Ptr flowGroup = root->create_component_type<CGroup>("Flow");//(new CGroup("Flow"));
+  CGroup::Ptr mgGroup = root->create_component_type<CGroup>("MG");//(Gnew CGroup("MG"));
+  CGroup::Ptr solidGroup = root->create_component_type<CGroup>("Solid");//(new CGroup("Solid"));
+
+  // Flow subcomponents
+  CLink::Ptr meshLnk = flowGroup->create_component_type<CLink>("Mesh");
+  CMethod::Ptr fvm = flowGroup->create_component_type<CMethod>("FVM");//(new CMethod("FVM"));
+  CMethod::Ptr petsc = flowGroup->create_component_type<CMethod>("Flow");//(new CMethod("Petsc"));
+
+  // MG subcomponents
+  CMesh::Ptr mesh1 = mgGroup->create_component_type<CMesh>("Mesh1");//(new CMesh("mesh1"));
+  CMesh::Ptr mesh2 = mgGroup->create_component_type<CMesh>("Mesh2");//(new CMesh("mesh2"));
+
+  // Solid subcomponents
+  CMesh::Ptr mesh3 = solidGroup->create_component_type<CMesh>("Mesh3");//(new CMesh("mesh1"));
+  CMesh::Ptr mesh4 = solidGroup->create_component_type<CMesh>("Mesh4");//(new CMesh("mesh2"));
+  CLink::Ptr petscLnk = solidGroup->create_component_type<CLink>("PestcLnk");
+
+//  CMesh::Ptr mesh1(new CMesh("mesh1"));
+//  CMesh::Ptr mesh2(new CMesh("mesh2"));
+//  CMesh::Ptr mesh3(new CMesh("mesh3"));
+//  CMesh::Ptr mesh4(new CMesh("mesh4"));
+
+//  CLink::Ptr meshLnk(new CLink("Mesh"));
+//  CLink::Ptr petscLnk(new CLink("PetscLink"));
+
+  meshLnk->link_to(mesh1);
+  petscLnk->link_to(petsc);
+
+//  flowGroup->add_component(meshLnk);
+//  flowGroup->add_component(fvm);
+//  flowGroup->add_component(petsc);
+
+//  mgGroup->add_component(mesh1);
+//  mgGroup->add_component(mesh2);
+
+//  solidGroup->add_component(mesh3);
+//  solidGroup->add_component(mesh4);
+//  solidGroup->add_component(petscLnk);
+
+//  this->add_component(flowGroup);
+//  this->add_component(mgGroup);
+//  this->add_component(solidGroup);
 
   //m_rootComponent->complete_path(p);
 

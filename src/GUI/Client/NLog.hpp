@@ -74,6 +74,10 @@ namespace Client {
     void appendToLog(CF::GUI::Network::LogMessage::Type type, bool fromServer,
                      const QString & message);
 
+    /// regists all the signals declared in this class
+    static void regist_signals ( Component* self ) {}
+
+
   }; // class NLog
 
   ///////////////////////////////////////////////////////////////////////////

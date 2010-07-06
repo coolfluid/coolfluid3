@@ -6,7 +6,6 @@
 #include <QMap>
 #include <QObject>
 
-#include "Common/Component.hpp"
 #include "Common/XmlHelpers.hpp"
 #include "Common/SignalHandler.hpp"
 
@@ -39,8 +38,7 @@ namespace Client {
 ////////////////////////////////////////////////////////////////////////////////
 
   class ClientCore :
-      public QObject,
-      public CF::Common::Component
+      public QObject
   {
     Q_OBJECT
 
@@ -59,6 +57,8 @@ namespace Client {
                             const CF::Common::CPath & receiver);
 
     void sendSignal(const CF::Common::XmlDoc & signal);
+
+    void connectToServer(const TSshInformation & sshInfo);
 
   private slots:
 

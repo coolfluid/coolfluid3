@@ -52,6 +52,10 @@ namespace Client {
 
     CF::Common::CPath m_targetPath;
 
+  /// regists all the signals declared in this class
+  static void regist_signals ( Component* self ) {}
+
+
   }; // class NLink
 
 //////////////////////////////////////////////////////////////////////////////

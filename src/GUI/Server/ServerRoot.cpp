@@ -4,6 +4,7 @@
 #include "Common/XmlHelpers.hpp"
 
 #include "GUI/Server/ServerRoot.hpp"
+#include "GUI/Server/CSimulator.hpp"
 
 using namespace CF::Common;
 using namespace CF::GUI::Server;
@@ -13,12 +14,16 @@ CRoot::Ptr & ServerRoot::getRoot()
   static bool rootCreated = false;
   static CRoot::Ptr root = CRoot::create(SERVER_ROOT);
   static CCore::Ptr core(new CCore());
+  static CSimulator::Ptr simulator(new CSimulator());
 
   if(!rootCreated)
   {
     root->add_component(core);
+    root->add_component(simulator);
 
     rootCreated = true;
+
+    simulator->createSimulator();
   }
 
   return root;
@@ -40,7 +45,7 @@ void ServerRoot::processSignal(const QDomDocument & signal)
 
   std::string str;
   XmlOps::xml_to_string(*xmldoc.get(), str);
-  //CFinfo << "Sending back " <<  str << CFendl;
+  CFinfo << "Sending back " <<  str << CFendl;
 
   getCore()->sendSignal(*xmldoc.get());
 }
