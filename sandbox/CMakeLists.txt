@@ -34,3 +34,7 @@ add_definitions ( -DNDEBUG )
 list ( APPEND multiarray_libs ${Boost_LIBRARIES} )
 list ( APPEND multiarray_files multiarray.cpp )
 CF_ADD_APP ( multiarray )
+
+###############################################################################
+### test for using boost::progress_display with LogStream
+ADD_SUBDIRECTORY( LogWithProgressDisplay )
