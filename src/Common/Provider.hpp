@@ -43,7 +43,7 @@ public: // methods
   virtual std::string getProviderName () const { return getName(); }
 
   /// @return the BASE of this provider
-  virtual std::string getProviderType () const { return BASE::getClassName(); }
+  virtual std::string getProviderType () const { return BASE::type_name(); }
 
 }; // end of class Provider
 

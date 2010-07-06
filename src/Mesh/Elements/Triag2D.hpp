@@ -25,7 +25,7 @@ struct Mesh_API Triag2D : public ElementTypeBase
   Triag2D();
   
   /// Gets the Class name
-  static std::string getClassName() { return "Triag2D"; }
+  static std::string type_name() { return "Triag2D"; }
 
   /// @return m_geoShape
   static const GeoShape::Type shape = GeoShape::TRIAG;

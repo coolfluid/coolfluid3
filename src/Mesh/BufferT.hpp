@@ -49,7 +49,7 @@ public: // functions
   virtual ~BufferT();
 
   /// Get the class name
-  static std::string getClassName () { return "Buffer"; }
+  static std::string type_name () { return "Buffer"; }
 
   // functions specific to the Buffer component
   

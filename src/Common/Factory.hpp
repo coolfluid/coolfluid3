@@ -64,7 +64,7 @@ public: // methods
   void unregist(const std::string& providerName);
 
   /// @return the name of the BASE of this factory
-  virtual std::string getTypeName() const { return BASE::getClassName(); }
+  virtual std::string getTypeName() const { return BASE::type_name(); }
 
   /// @return all the providers in this Factory
   virtual std::vector<Common::ProviderBase*> getAllProviders() const;
@@ -132,7 +132,7 @@ void Factory<BASE>::regist(Provider<BASE>* provider)
   if (exists(provider->getName()))
   {
     throw Common::ValueExists (FromHere(),
-      "In factory of [" + BASE::getClassName() +
+      "In factory of [" + BASE::type_name() +
       "] a provider with the name [" + provider->getName() +
       "] was found when trying to regist it" );
   }
@@ -155,7 +155,7 @@ void Factory<BASE>::unregist(const std::string& providerName)
   if (!exists(providerName))
   {
     throw Common::ValueNotFound (FromHere(),
-      "In factory of [" + BASE::getClassName() +
+      "In factory of [" + BASE::type_name() +
       "] a provider with the name [" + providerName +
       "] was not found while trying to unregist it" );
   }
@@ -187,7 +187,7 @@ Factory<BASE>::getProvider(const std::string& providerName) const
   if (!exists(providerName))
   {
     throw Common::ValueNotFound (FromHere(),
-      "In factory of [" + BASE::getClassName() +
+      "In factory of [" + BASE::type_name() +
       "] a provider with the name [" + providerName +
       "] was not found while trying to get the provider" );
   }

@@ -28,7 +28,8 @@ public:
   /// Constructor
   explicit ObjectProvider(const std::string& name) : BASE::PROVIDER(name)
   {
-    CFLogDebugVerbose (  "Creating provider \'" << name << "\' of type \'" << BASE::getClassName() << "\'\n" );
+    CFLogDebugVerbose (  "Creating provider \'" << name << "\' of type \'" << BASE::type_name() << "\'\n" );
+    CF::TypeInfo::instance().regist<CONCRETE>( CONCRETE::type_name() );
     //Common::ModuleRegister<MODULE>::instance().getSelfRegistry().regist(this);
   }
 
@@ -63,7 +64,8 @@ public:
   /// Constructor
   explicit ObjectProvider(const std::string& name) : BASE::PROVIDER(name)
   {
-    CFLogDebugVerbose (  "Creating provider \'" << name << "\' of type \'" << BASE::getClassName() << "\'\n" );
+    CFLogDebugVerbose (  "Creating provider \'" << name << "\' of type \'" << BASE::type_name() << "\'\n" );
+    CF::TypeInfo::instance().regist<CONCRETE>( CONCRETE::type_name() );
 //    MODULE::instance().getSelfRegistry().regist(this);
   }
 
@@ -99,7 +101,8 @@ public:
   explicit ObjectProvider(const std::string& name) :
     BASE::PROVIDER(name)
   {
-    CFLogDebugVerbose (  "Creating provider \'" << name << "\' of type \'" << BASE::getClassName() << "\'\n" );
+    CFLogDebugVerbose (  "Creating provider \'" << name << "\' of type \'" << BASE::type_name() << "\'\n" );
+    CF::TypeInfo::instance().regist<CONCRETE>( CONCRETE::type_name() );
 //    MODULE::instance().getSelfRegistry().regist(this);
   }
 

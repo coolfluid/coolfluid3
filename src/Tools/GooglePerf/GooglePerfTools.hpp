@@ -51,7 +51,7 @@ public:
   }
 
   /// Gets the Class name
-  static std::string getClassName() { return "GooglePerfToolsModule"; }
+  static std::string type_name() { return "GooglePerfToolsModule"; }
 
   /// Start profiling
   virtual void initiate();

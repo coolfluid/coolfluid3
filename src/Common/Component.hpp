@@ -59,7 +59,7 @@ private: // typedef
 public: // functions
 
   /// Get the class name
-  static std::string getClassName () { return "Component"; }
+  static std::string type_name () { return "Component"; }
 
   /// Configuration Options
   static void defineConfigOptions ( Common::OptionList& options ) {}
@@ -204,6 +204,13 @@ public: // functions
 
   /// @return Returns the number of children this component has.
   int get_child_count() const;
+
+  /// @return Returns the type name of the subclass, according to
+  /// @c CF::TypeInfo
+  virtual std::string derived_type_name() const
+  {
+    return CF::TypeInfo::instance().portable_types[ typeid(*this).name() ];
+  }
 
   /// @name SIGNALS
   //@{
@@ -477,7 +484,7 @@ template <typename TYPE>
 inline void Component::partial_build_component(TYPE* meself)
 {
   addConfigOptionsTo<TYPE>();
-  add_tag( TYPE::getClassName() );
+  add_tag( TYPE::type_name() );
 }
 
 #define BUILD_COMPONENT             \

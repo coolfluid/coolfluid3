@@ -29,7 +29,7 @@ namespace Common {
     virtual ~CLink();
 
     /// Get the class name
-    static std::string getClassName () { return "CLink"; }
+    static std::string type_name () { return "CLink"; }
 
     /// Configuration Options
     static void defineConfigOptions ( Common::OptionList& options ) {}

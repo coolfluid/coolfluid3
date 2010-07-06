@@ -53,7 +53,7 @@ public: // functions
   std::string memoryUsage () const;
 
   /// Gets the Class name
-  static std::string getClassName() { return "OSystemLayer"; }
+  static std::string type_name() { return "OSystemLayer"; }
 
 }; // end of class OSystemLayer
 

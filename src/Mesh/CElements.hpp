@@ -35,7 +35,7 @@ public: // functions
   virtual ~CElements();
 
   /// Get the class name
-  static std::string getClassName () { return "CElements"; }
+  static std::string type_name () { return "CElements"; }
 
   /// Configuration Options
   static void defineConfigOptions ( Common::OptionList& options ) {}

@@ -38,7 +38,7 @@ public:
   virtual ~CRegion();
 
   /// Get the class name
-  static std::string getClassName () { return "CRegion"; }
+  static std::string type_name () { return "CRegion"; }
 
   /// Configuration Options
   static void defineConfigOptions ( Common::OptionList& options ) {}

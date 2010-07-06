@@ -47,7 +47,7 @@ namespace P1 {
     }
 
     /// Gets the Class name
-    static std::string getClassName() { return "P1Lib"; }
+    static std::string type_name() { return "P1Lib"; }
 
   }; // end P1Lib
 

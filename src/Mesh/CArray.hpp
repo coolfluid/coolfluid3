@@ -38,7 +38,7 @@ public: // functions
   virtual ~CArray();
 
   /// Get the class name
-  static std::string getClassName () { return "CArray"; }
+  static std::string type_name () { return "CArray"; }
 
   /// Configuration Options
   static void defineConfigOptions ( Common::OptionList& options ) {}

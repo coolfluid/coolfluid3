@@ -14,7 +14,7 @@ namespace P1 {
 Common::ObjectProvider < Line1D,
                          ElementType,
                          P1Lib >
-aP1Line1D_Provider ( "P1-"+Line1D::getClassName() );
+aP1Line1D_Provider ( "P1-"+Line1D::type_name() );
 
 
 Line1D::Line1D()

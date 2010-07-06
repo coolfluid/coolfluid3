@@ -36,7 +36,7 @@ public: // functions
   CReader ( const CName& name );
 
   /// Gets the Class name
-  static std::string getClassName() { return "CReader"; }
+  static std::string type_name() { return "CReader"; }
   
   virtual void read_from_to(boost::filesystem::path& fp, const boost::shared_ptr<CMesh>& mesh);
 

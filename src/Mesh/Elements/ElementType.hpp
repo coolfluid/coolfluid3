@@ -42,7 +42,7 @@ public: // functions
   /// Default destructor
   virtual ~ElementTypeBase();
 
-  static std::string getClassName() { return "ElementTypeBase"; }
+  static std::string type_name() { return "ElementTypeBase"; }
   
   /// @return m_nameShape
   std::string shape_name() const { return EnumT<GeoShape>::to_str( m_shape ); }

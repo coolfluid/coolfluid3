@@ -69,8 +69,8 @@ private:
   std::string m_type;
   Predicate m_pred;
 public:
-  IsComponentType (Predicate pred) : m_type(CType::getClassName()), m_pred(pred) {}
-  IsComponentType () : m_type(CType::getClassName()), m_pred() {}
+  IsComponentType (Predicate pred) : m_type(CType::type_name()), m_pred(pred) {}
+  IsComponentType () : m_type(CType::type_name()), m_pred() {}
 
   bool operator()(const Component::Ptr& component)
   { return boost::bind( &Component::has_tag , _1 , m_type )(component) && m_pred(component); }

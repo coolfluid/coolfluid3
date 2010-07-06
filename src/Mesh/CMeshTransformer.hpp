@@ -43,7 +43,7 @@ public: // functions
   virtual ~CMeshTransformer();
 
   /// Get the class name
-  static std::string getClassName () { return "CMeshTransformer"; }
+  static std::string type_name () { return "CMeshTransformer"; }
   
   // --------- Configuration ---------
 

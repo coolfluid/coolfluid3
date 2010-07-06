@@ -1,4 +1,5 @@
 #include "Common/BasicExceptions.hpp"
+#include "Common/CF.hpp"
 
 #include "Common/CRoot.hpp"
 
@@ -23,6 +24,11 @@ namespace Common {
   CRoot::CRoot ( const CName& name ) : Component ( name )
   {
     BUILD_COMPONENT;
+
+    // we need to manually register the type name since CRoot cannot be
+    // put into ObjectProvider (because the constructor is private)
+    TypeInfo::instance().regist<CRoot>( type_name() );
+
     m_path = "/";
   }
 

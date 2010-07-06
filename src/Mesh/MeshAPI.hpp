@@ -48,7 +48,7 @@ namespace CF {
     }
 
     /// Gets the Class name
-    static std::string getClassName() { return "MeshLib"; }
+    static std::string type_name() { return "MeshLib"; }
 
     /// Start profiling
     virtual void initiate();

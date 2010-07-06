@@ -44,7 +44,7 @@ public: // functions
   virtual ~CMeshReader();
 
   /// Get the class name
-  static std::string getClassName () { return "CMeshReader"; }
+  static std::string type_name () { return "CMeshReader"; }
   
   // --------- Configuration ---------
 

@@ -38,7 +38,7 @@ public:
   virtual ~CTable();
 
   /// Get the class name
-  static std::string getClassName () { return "CTable"; }
+  static std::string type_name () { return "CTable"; }
 
   /// Configuration Options
   static void defineConfigOptions ( Common::OptionList& options ) {}

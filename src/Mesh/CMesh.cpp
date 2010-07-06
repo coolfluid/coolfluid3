@@ -12,7 +12,7 @@ namespace Mesh {
 using namespace Common;
 
 Common::ObjectProvider < CMesh, Component, MeshLib, NB_ARGS_1 >
-CMesh_Provider ( CMesh::getClassName() );
+CMesh_Provider ( CMesh::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////
 

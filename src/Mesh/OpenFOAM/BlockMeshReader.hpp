@@ -20,7 +20,7 @@ public:
   BlockMeshReader();
 
   /// Gets the Class name
-  static std::string getClassName() { return "BlockMeshReader"; }
+  static std::string type_name() { return "BlockMeshReader"; }
 
 private:
 

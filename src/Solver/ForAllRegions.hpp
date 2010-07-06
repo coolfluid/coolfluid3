@@ -44,7 +44,7 @@ struct ForAllRegions
 
     BOOST_FOREACH(CRegion& region, recursive_filtered_range_typed<CRegion>(mesh,IsElementRegionType<EType>()))
     {
-      CFinfo << "Region [" << region.name() << "] of EType [" << EType::getClassName() << "]" << CFendl;
+      CFinfo << "Region [" << region.name() << "] of EType [" << EType::type_name() << "]" << CFendl;
 
       Operation op ( region );
 

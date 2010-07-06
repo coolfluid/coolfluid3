@@ -15,7 +15,7 @@ namespace P1 {
 Common::ObjectProvider < Triag2D,
                          ElementType,
                          P1Lib >
-aP1Triag2D_Provider ( "P1-"+Triag2D::getClassName() );
+aP1Triag2D_Provider ( "P1-"+Triag2D::type_name() );
 
 
 Triag2D::Triag2D() 

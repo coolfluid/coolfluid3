@@ -42,7 +42,7 @@ public:
   Quad3D();
   
   /// Gets the Class name
-  static std::string getClassName() { return "Quad3D"; }
+  static std::string type_name() { return "Quad3D"; }
 
   /// Get the full name defining this element type uniquely
   virtual std::string getElementTypeName() { return "P1-Quad3D"; }

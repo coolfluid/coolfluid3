@@ -42,7 +42,7 @@ public:
   Hexa3D();
   
   /// Gets the Class name
-  static std::string getClassName() { return "Hexa3D"; }
+  static std::string type_name() { return "Hexa3D"; }
 
   /// Get the full name defining this element type uniquely
   virtual std::string getElementTypeName() { return "P1-Hexa3D"; }

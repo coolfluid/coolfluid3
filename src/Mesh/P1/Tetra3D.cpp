@@ -15,7 +15,7 @@ namespace P1 {
 Common::ObjectProvider < Tetra3D,
                          ElementType,
                          P1Lib >
-aP1Tetra3D_Provider ( "P1-"+Tetra3D::getClassName() );
+aP1Tetra3D_Provider ( "P1-"+Tetra3D::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////
 

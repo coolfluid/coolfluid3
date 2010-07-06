@@ -37,7 +37,7 @@ public: // functions
   virtual ~CSmall() {}
 
   /// Get the class name
-  static std::string getClassName () { return "CSmall"; }
+  static std::string type_name () { return "CSmall"; }
 
   /// Configuration Options
   static void defineConfigOptions ( Common::OptionList& options ) {}

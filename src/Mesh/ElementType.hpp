@@ -37,7 +37,7 @@ public: // functions
   /// Default destructor
   ~ElementType();
 
-  static std::string getClassName() { return "ElementType"; }
+  static std::string type_name() { return "ElementType"; }
 
   virtual std::string getElementTypeName() = 0;
 

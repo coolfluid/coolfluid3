@@ -31,7 +31,7 @@ namespace Common {
     virtual ~CMethod();
 
     /// Get the class name
-    static std::string getClassName () { return "CMethod"; }
+    static std::string type_name () { return "CMethod"; }
 
     /// Configuration Options
     static void defineConfigOptions ( Common::OptionList& options ) {}

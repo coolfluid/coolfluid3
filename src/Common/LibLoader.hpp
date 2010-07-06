@@ -54,7 +54,7 @@ public: // methods
   virtual void set_search_paths(std::vector< boost::filesystem::path >& paths) = 0;
 
   /// Gets the Class name
-  static std::string getClassName() { return "LibLoader"; }
+  static std::string type_name() { return "LibLoader"; }
 
 }; // class FileHandlerOutput
 

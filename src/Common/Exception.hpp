@@ -76,7 +76,7 @@ public: // functions
   void append (const std::string& add) throw ();
 
   /// @returns the Exception name
-  std::string getClassName () const throw () { return m_class_name; }
+  std::string type_name () const throw () { return m_class_name; }
 
 protected: // functions
 

@@ -25,7 +25,7 @@ struct Mesh_API Quad2D : public ElementTypeBase
   Quad2D();
   
   /// Gets the Class name
-  static std::string getClassName() { return "Quad2D"; }
+  static std::string type_name() { return "Quad2D"; }
 
   /// @return m_geoShape
   static const GeoShape::Type shape = GeoShape::QUAD;

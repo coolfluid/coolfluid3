@@ -40,7 +40,7 @@ public:
   Line1D();
   
   /// Gets the Class name
-  static std::string getClassName() { return "Line1D"; }
+  static std::string type_name() { return "Line1D"; }
 
   /// Get the full name defining this element type uniquely
   virtual std::string getElementTypeName() { return "P1-Line1D"; }

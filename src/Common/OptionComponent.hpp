@@ -53,7 +53,7 @@ namespace Common {
 
   template < typename BASETYPE >
   OptionComponent<BASETYPE>::OptionComponent ( const std::string& name, const std::string& desc, const std::string& def_name ) :
-      Option(name, BASETYPE::getClassName(), desc, def_name )
+      Option(name, BASETYPE::type_name(), desc, def_name )
   {
   //  CFinfo
   //      << " creating OptionComponent [" << m_name << "]"

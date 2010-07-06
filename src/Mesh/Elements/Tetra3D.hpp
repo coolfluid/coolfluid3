@@ -25,7 +25,7 @@ struct Mesh_API Tetra3D : public ElementTypeBase
   Tetra3D();
   
   /// Gets the Class name
-  static std::string getClassName() { return "Tetra3D"; }
+  static std::string type_name() { return "Tetra3D"; }
 
   /// @return m_geoShape
   static const GeoShape::Type shape = GeoShape::TETRA;

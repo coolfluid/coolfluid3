@@ -9,7 +9,7 @@ namespace Mesh {
 using namespace Common;
 
 Common::ObjectProvider < CField, Component, MeshLib, NB_ARGS_1 >
-CField_Provider ( CField::getClassName() );
+CField_Provider ( CField::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////
 

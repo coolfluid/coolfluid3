@@ -42,7 +42,7 @@ public:
   Tetra3D();
   
   /// Gets the Class name
-  static std::string getClassName() { return "Tetra3D"; }
+  static std::string type_name() { return "Tetra3D"; }
 
   /// Get the full name defining this element type uniquely
   virtual std::string getElementTypeName() { return "P1-Tetra3D"; }

@@ -48,7 +48,7 @@ public:
   }
 
   /// Gets the Class name
-  static std::string getClassName() { return "NeuLib"; }
+  static std::string type_name() { return "NeuLib"; }
 
 }; // end NeuLib
 

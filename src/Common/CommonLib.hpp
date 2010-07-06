@@ -31,7 +31,7 @@ public:
   }
 
   /// Gets the Class name
-  static std::string getClassName() { return "CommonLib"; }
+  static std::string type_name() { return "CommonLib"; }
 
   /// Start profiling
   virtual void initiate();

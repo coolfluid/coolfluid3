@@ -32,7 +32,7 @@ namespace Common {
     virtual ~CGroup();
 
     /// Get the class name
-    static std::string getClassName () { return "CGroup"; }
+    static std::string type_name () { return "CGroup"; }
 
     /// Configuration Options
     static void defineConfigOptions ( Common::OptionList& options ) {}

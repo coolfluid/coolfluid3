@@ -15,7 +15,7 @@ namespace P1 {
 Common::ObjectProvider < Quad2D,
                          ElementType,
                          P1Lib >
-aP1Quad2D_Provider ( "P1-"+Quad2D::getClassName() );
+aP1Quad2D_Provider ( "P1-"+Quad2D::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////
 

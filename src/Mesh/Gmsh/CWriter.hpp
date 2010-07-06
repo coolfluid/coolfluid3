@@ -44,7 +44,7 @@ public: // functions
   CWriter( const CName& name );
   
   /// Gets the Class name
-  static std::string getClassName() { return "CWriter"; }
+  static std::string type_name() { return "CWriter"; }
 
   static void defineConfigOptions ( CF::Common::OptionList& options ) {}
 

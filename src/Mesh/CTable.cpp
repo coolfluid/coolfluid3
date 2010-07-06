@@ -9,7 +9,7 @@ namespace Mesh {
 using namespace Common;
 
 Common::ObjectProvider < CTable, Component, MeshLib, NB_ARGS_1 >
-CTable_Provider ( CTable::getClassName() );
+CTable_Provider ( CTable::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////
 

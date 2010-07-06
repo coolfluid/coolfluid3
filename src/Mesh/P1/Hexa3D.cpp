@@ -15,7 +15,7 @@ namespace P1 {
 Common::ObjectProvider < Hexa3D,
                          ElementType,
                          P1Lib >
-aP1Hexa3D_Provider ( "P1-"+Hexa3D::getClassName() );
+aP1Hexa3D_Provider ( "P1-"+Hexa3D::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////
 

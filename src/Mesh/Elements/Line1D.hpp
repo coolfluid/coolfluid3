@@ -25,7 +25,7 @@ struct Mesh_API Line1D : public ElementTypeBase
   Line1D();
   
   /// Gets the Class name
-  static std::string getClassName() { return "Line1D"; }
+  static std::string type_name() { return "Line1D"; }
 
   /// @return m_geoShape
   static const GeoShape::Type shape = GeoShape::LINE;

@@ -41,7 +41,7 @@ public:
   Triag3D();
   
   /// Gets the Class name
-  static std::string getClassName() { return "Triag3D"; }
+  static std::string type_name() { return "Triag3D"; }
 
   /// Get the full name defining this element type uniquely
   virtual std::string getElementTypeName() { return "P1-Triag3D"; }

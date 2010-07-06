@@ -342,7 +342,7 @@ void Component::create_component ( XmlNode& node  )
 
 void Component::write_xml_tree( XmlNode& node )
 {
-   XmlNode& this_node = *XmlOps::add_node_to(node, "CGroup");
+   XmlNode& this_node = *XmlOps::add_node_to(node, derived_type_name());
    XmlOps::add_attribute_to( this_node, "name", name() );
 
    BOOST_FOREACH( CompStorage_t::value_type c, m_components )

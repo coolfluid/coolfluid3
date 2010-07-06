@@ -44,7 +44,7 @@ public: // functions
   virtual ~CMeshWriter();
 
   /// Get the class name
-  static std::string getClassName () { return "CMeshWriter"; }
+  static std::string type_name () { return "CMeshWriter"; }
 
   /// Configuration Options
 

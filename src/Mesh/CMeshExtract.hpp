@@ -30,7 +30,7 @@ public: // functions
   CMeshExtract( const CName& name );
   
   /// Gets the Class name
-  static std::string getClassName() { return "CMeshExtract"; }
+  static std::string type_name() { return "CMeshExtract"; }
 
   static void defineConfigOptions ( CF::Common::OptionList& options ) {}
 

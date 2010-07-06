@@ -41,7 +41,7 @@ public:
   Shared();
   
   /// Gets the Class name
-  static std::string getClassName() { return "Shared"; }
+  static std::string type_name() { return "Shared"; }
   
   std::vector<std::string>& get_supported_element_types() { return m_supported_element_types; }
 

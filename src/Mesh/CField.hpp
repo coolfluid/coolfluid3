@@ -32,7 +32,7 @@ public: // functions
   virtual ~CField();
 
   /// Get the class name
-  static std::string getClassName () { return "CField"; }
+  static std::string type_name () { return "CField"; }
 
   /// Configuration Options
   static void defineConfigOptions ( Common::OptionList& options ) {}
