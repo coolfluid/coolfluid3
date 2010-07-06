@@ -29,7 +29,6 @@ struct BlockMeshReader_Fixture
   ~BlockMeshReader_Fixture()
   {
   }
-  /// common values accessed by all tests goes here
 
 };
 
@@ -42,8 +41,11 @@ BOOST_FIXTURE_TEST_SUITE( BlockMeshReader, BlockMeshReader_Fixture )
 BOOST_AUTO_TEST_CASE( ReadFile )
 {
   BlockData blockData;
+
   boost::filesystem::fstream file;
-  boost::filesystem::path fp = boost::filesystem::path(TESTFILE_PATH) / boost::filesystem::path("blockMeshDict");
+
+  // file should be in current working directory
+  boost::filesystem::path fp = boost::filesystem::path("blockMeshDict");
   if( boost::filesystem::exists(fp) )
   {
      file.open(fp,std::ios_base::in);
@@ -53,7 +55,9 @@ BOOST_AUTO_TEST_CASE( ReadFile )
      throw boost::filesystem::filesystem_error( fp.string() + " does not exist",
                                                 boost::system::error_code() );
   }
+
   readBlockMeshFile(file, blockData);
+
   BOOST_CHECK_EQUAL(blockData.scalingFactor, 1);
 }
 

@@ -28,7 +28,7 @@ add_subdirectory( uTests )
 
 ELSE()
 
-  CF_MARK_NOT_ORPHAN (
+  CF_MARK_NOT_ORPHAN(
     CGALAPI.hpp
     ImplicitFunctionMesh.cpp
     ImplicitFunctionMesh.hpp

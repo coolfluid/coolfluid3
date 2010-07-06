@@ -1,12 +1,21 @@
 ################################################################################
 
-LIST ( APPEND uTestBlockMeshReader_libs OpenFOAM )
-LIST ( APPEND uTestBlockMeshReader_files
+LIST( APPEND uTestBlockMeshReader_libs OpenFOAM )
+LIST( APPEND uTestBlockMeshReader_files
   uTestBlockMeshReader.cpp )
 
-SET_SOURCE_FILES_PROPERTIES(uTestBlockMeshReader.cpp 
-    PROPERTIES COMPILE_FLAGS -DTESTFILE_PATH='\"${CMAKE_CURRENT_SOURCE_DIR}\"')
+# note this is not cross-platform
+# because compilation flags are compiler dependent
 
-CF_ADD_UNITTEST ( uTestBlockMeshReader )
+SET_SOURCE_FILES_PROPERTIES( uTestBlockMeshReader.cpp
+    PROPERTIES COMPILE_FLAGS "-g0 -O0" )
+
+CF_ADD_UNITTEST( uTestBlockMeshReader )
+
+add_custom_command(TARGET uTestBlockMeshReader
+                   POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/blockMeshDict ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+)
+
 
 ################################################################################
