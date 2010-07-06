@@ -492,38 +492,6 @@ void CSimulator::createSimulator()
   CMesh::Ptr mesh4 = solidGroup->create_component_type<CMesh>("Mesh4");//(new CMesh("mesh2"));
   CLink::Ptr petscLnk = solidGroup->create_component_type<CLink>("PestcLnk");
 
-//  CMesh::Ptr mesh1(new CMesh("mesh1"));
-//  CMesh::Ptr mesh2(new CMesh("mesh2"));
-//  CMesh::Ptr mesh3(new CMesh("mesh3"));
-//  CMesh::Ptr mesh4(new CMesh("mesh4"));
-
-//  CLink::Ptr meshLnk(new CLink("Mesh"));
-//  CLink::Ptr petscLnk(new CLink("PetscLink"));
-
   meshLnk->link_to(mesh1);
   petscLnk->link_to(petsc);
-
-//  flowGroup->add_component(meshLnk);
-//  flowGroup->add_component(fvm);
-//  flowGroup->add_component(petsc);
-
-//  mgGroup->add_component(mesh1);
-//  mgGroup->add_component(mesh2);
-
-//  solidGroup->add_component(mesh3);
-//  solidGroup->add_component(mesh4);
-//  solidGroup->add_component(petscLnk);
-
-//  this->add_component(flowGroup);
-//  this->add_component(mgGroup);
-//  this->add_component(solidGroup);
-
-  //m_rootComponent->complete_path(p);
-
-  //qDebug() << m_rootComponent->full_path().string().c_str();
-  //  m_rootComponent->access_component(CPath("/Root"));
-  //  if(this->simulator.isNotNull())
-  //   this->simulator.release();
-  //
-  //m_simulator = new Simulator("Simulator");
 }
