@@ -14,15 +14,17 @@ TreeNode::TreeNode(CNode::Ptr node, TreeNode * parent, int rowNumber)
   cf_assert(node.get() != CFNULL);
   cf_assert(rowNumber >= 0);
 
-  int childCount;
+  this->updateChildList();
 
-  if(m_node->checkType(CNode::ROOT_NODE))
-    childCount = CNode::convertTo<NRoot>(m_node)->root()->get_child_count();
-  else
-    childCount = m_node->get_child_count();
+//  int childCount;
 
-  for(int i = 0 ; i < childCount ; i++)
-    m_childNodes << CFNULL;
+//  if(m_node->checkType(CNode::ROOT_NODE))
+//    childCount = CNode::convertTo<NRoot>(m_node)->root()->get_child_count();
+//  else
+//    childCount = m_node->get_child_count();
+
+//  for(int i = 0 ; i < childCount ; i++)
+//    m_childNodes << CFNULL;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -56,7 +58,6 @@ TreeNode * TreeNode::getChild(int rowNumber)
 
     child = new TreeNode(childNode, this, rowNumber);
     m_childNodes.replace(rowNumber, child);
-
   }
 
   // ...if the index is not valid, return a CFNULL pointer
@@ -119,3 +120,25 @@ TreeNode * TreeNode::getChildByName(const QString & name)
 
   return treeNode;
 }
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void TreeNode::updateChildList()
+{
+  int childCount;
+
+  while(!m_childNodes.isEmpty())
+    delete m_childNodes.takeFirst();
+
+  m_childNodes.clear();
+
+  if(m_node->checkType(CNode::ROOT_NODE))
+    childCount = CNode::convertTo<NRoot>(m_node)->root()->get_child_count();
+  else
+    childCount = m_node->get_child_count();
+
+  for(int i = 0 ; i < childCount ; i++)
+    m_childNodes << CFNULL;
+}
+

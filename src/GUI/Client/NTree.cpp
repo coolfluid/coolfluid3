@@ -348,10 +348,10 @@ QVariant NTree::data(const QModelIndex & index, int role) const
       switch(index.column())
       {
       case 0:
-        data = QString("%1").arg(node->name().c_str());
+        data = QString(node->name().c_str());
         break;
       case 1:
-        data = QString("%1").arg(node->getComponentType());
+        data = QString(node->getComponentType());
         break;
       }
     }
@@ -464,16 +464,42 @@ void NTree::showNodeMenu(const QModelIndex & index, const QPoint & pos) const
 
 CF::Common::Signal::return_t NTree::list_tree(CF::Common::Signal::arg_t & node)
 {
-//  ComponentIterator<CNode> it = rootNode->begin<CNode>();
+  NRoot::Ptr treeRoot = ClientRoot::getRoot();
+  CNode::Ptr rootNode = CNode::createFromXml(*node.first_node());
+  ComponentIterator<CNode> it = rootNode->begin<CNode>();
 
-//  rootNode->rename(nodePtr->name());
-//  rootNode->root()->rename(nodePtr->name());
+  /// @todo delete old nodes
 
-//  while(it != nodePtr->end<CNode>())
-//  {
-//    rootNode->root()->add_component(it.get());
-//    it++;
-//  }
+  //
+  // rename the root
+  //
+  QModelIndex rootIndex = index(0, 0);
+  ClientRoot::getRoot()->rename(rootNode->name());
+  ClientRoot::getRoot()->root()->rename(rootNode->name());
+  emit dataChanged(rootIndex, rootIndex); // tell the view to update the node
+
+  //
+  // add the new nodes
+  //
+  int currentCount = treeRoot->root()->get_child_count();
+  int newCount = treeRoot->root()->get_child_count();
+
+  // tell the view that some nodes are about to be added (how many and where)
+  emit beginInsertRows(rootIndex, currentCount, currentCount + newCount - 1);
+
+  // add the nodes
+  while(it != rootNode->end<CNode>())
+  {
+    treeRoot->root()->add_component(it.get());
+    it++;
+  }
+
+  // child count has changed, ask the root TreeNode to update its internal data
+  m_rootNode->updateChildList();
+
+  // tell the view to update
+  emit endInsertRows();
+
 }
 
 /*============================================================================
@@ -481,28 +507,6 @@ CF::Common::Signal::return_t NTree::list_tree(CF::Common::Signal::arg_t & node)
                              PRIVATE METHODS
 
 ============================================================================*/
-
-Signal::return_t NTree::updateTree(Signal::arg_t & node)
-{
-  std::string str;
-  QDomDocument doc;
-
-  XmlOps::xml_to_string(node, str);
-
-  doc.setContent(QString(str.c_str()));
-
-  try
-  {
-    m_rootNode = new TreeNode(CNode::createFromXml(doc.firstChildElement()), CFNULL, 0);
-  }
-  catch(XmlError xe)
-  {
-    ClientRoot::getLog()->addException(xe.what());
-  }
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 void NTree::getNodePathRec(const QModelIndex & index, QString & path) const
 {

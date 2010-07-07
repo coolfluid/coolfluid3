@@ -151,12 +151,10 @@ namespace Client {
 
     virtual void getOptions(QList<NodeOption> & params) const;
 
-    CF::Common::Signal::return_t list_tree(CF::Common::Signal::arg_t & node);
-
     /// @name Signals
     /// @{
 
-    CF::Common::Signal::return_t updateTree(CF::Common::Signal::arg_t & node);
+    CF::Common::Signal::return_t list_tree(CF::Common::Signal::arg_t & node);
 
     /// @} END Signals
 

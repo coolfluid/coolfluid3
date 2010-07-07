@@ -3,7 +3,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-#define CLIENT_ROOT      "Client"
+#define CLIENT_ROOT      "Simulator"
 #define CLIENT_LOG       "Log"
 #define CLIENT_TREE      "Tree"
 #define CLIENT_CORE      "Core"
@@ -17,7 +17,7 @@
 
 //===========================================================================
 
-#define SERVER_ROOT  "Server"
+#define SERVER_ROOT  CLIENT_ROOT
 #define SERVER_CORE  "Core"
 #define SERVER_SIM   "Simulation"
 

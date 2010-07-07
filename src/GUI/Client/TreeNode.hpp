@@ -79,6 +79,16 @@ namespace Client {
     /// as such name.
     TreeNode * getChildByName(const QString & name);
 
+    /// @brief Updates the child internal list.
+    /// The method must be called whenever children are added or removed
+    /// from the corresponding node.
+    /// @warning To avoid consistency issues, the existing list is
+    /// cleared and its items are destroyed. This is because the position
+    /// of existing elements may have changed. This means that all items
+    /// created by @c getChild will have to be recreated again. Thus,
+    /// calling this method too often may lead to performance problems.
+    void updateChildList();
+
   private:
 
     /// @brief Handled node.
@@ -95,7 +105,6 @@ namespace Client {
     /// This list is initialized at the right size in the constructor with
     /// @c CFNULL pointers (one pointer for each child). Each pointer is
     /// replaced when the corresponding child is built by @c getChild method.
-    /// The size of this list is never modified.
     QList<TreeNode *> m_childNodes;
 
   }; // class MyTreeItem

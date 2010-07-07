@@ -481,7 +481,7 @@ void CSimulator::createSimulator()
   // Flow subcomponents
   CLink::Ptr meshLnk = flowGroup->create_component_type<CLink>("Mesh");
   CMethod::Ptr fvm = flowGroup->create_component_type<CMethod>("FVM");//(new CMethod("FVM"));
-  CMethod::Ptr petsc = flowGroup->create_component_type<CMethod>("Flow");//(new CMethod("Petsc"));
+  CMethod::Ptr petsc = flowGroup->create_component_type<CMethod>("Petsc");//(new CMethod("Petsc"));
 
   // MG subcomponents
   CMesh::Ptr mesh1 = mgGroup->create_component_type<CMesh>("Mesh1");//(new CMesh("mesh1"));

@@ -1,6 +1,8 @@
 #include <QtCore>
 #include <QtGui>
 
+#include <cstring>
+
 #include "Common/CF.hpp"
 
 #include "GUI/Client/ClientRoot.hpp"
@@ -72,43 +74,49 @@ void CNode::setOptions(const QDomNodeList & list)
   }
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CNode::Ptr CNode::createFromXml(const QDomElement & element)
+CNode::Ptr CNode::createFromXml(CF::Common::XmlNode & node)
 {
-  QString type = element.nodeName();
-  QString name = element.attribute("name");
-  QDomElement child = element.firstChildElement();
+  char * nodeType = node.name();
+  char * nodeName = node.first_attribute("name")->value();
+  XmlNode * child = node.first_node();
 
-  cf_assert(!name.isEmpty());
+  cf_assert(nodeType != CFNULL);
+  cf_assert(nodeName != CFNULL);
 
   CNode::Ptr rootNode;
 
-  if(type == "CLink")
+  if(std::strcmp(nodeType, "CCore") == 0 || std::strcmp(nodeType, "CSimulator") == 0)
+    return rootNode;
+  if(std::strcmp(nodeType, "CLink") == 0)
   {
-    QDomText targetPath = element.firstChild().toText();
-    rootNode = boost::shared_ptr<NLink>(new NLink(name, targetPath.nodeValue().toStdString()));
+//    QDomText targetPath = element.firstChild().toText();
+    rootNode = boost::shared_ptr<NLink>(new NLink(nodeName, "" /*targetPath*/));
   }
-  else if(type == "CMesh")
-    rootNode = boost::shared_ptr<NMesh>(new NMesh(name));
-  else if(type == "CMethod")
-    rootNode = boost::shared_ptr<NMethod>(new NMethod(name));
-  else if(type == "CGroup")
-    rootNode = boost::shared_ptr<NGroup>(new NGroup(name));
-  else if(type == "CRoot")
-    rootNode = boost::shared_ptr<NRoot>(new NRoot(name));
+  else if(std::strcmp(nodeType, "CMesh") == 0)
+    rootNode = boost::shared_ptr<NMesh>(new NMesh(nodeName));
+  else if(std::strcmp(nodeType, "CMethod") == 0)
+    rootNode = boost::shared_ptr<NMethod>(new NMethod(nodeName));
+  else if(std::strcmp(nodeType, "CGroup") == 0)
+    rootNode = boost::shared_ptr<NGroup>(new NGroup(nodeName));
+  else if(std::strcmp(nodeType, "CRoot") == 0)
+    rootNode = boost::shared_ptr<NRoot>(new NRoot(nodeName));
   else
-    throw ShouldNotBeHere(FromHere(), QString("%1: Unknown type").arg(type).toStdString().c_str());
+    throw XmlError(FromHere(), QString("%1: Unknown type").arg(nodeType).toStdString().c_str());
 
-  while(!child.isNull())
+  while(child != CFNULL)
   {
-    if(child.nodeName() == "params")
-      rootNode->setOptions(child.childNodes());
-    else
-      rootNode->add_component( createFromXml(child) );
+//    if(child.nodeName() == "params")
+//      rootNode->setOptions(child.childNodes());
+//    else
+    CNode::Ptr node = createFromXml(*child);
 
-    child = child.nextSiblingElement();
+    if(node.get() != CFNULL)
+      rootNode->add_component(node);
+
+    child = child->next_sibling();
   }
 
   return rootNode;
@@ -120,10 +128,10 @@ CNode::Ptr CNode::createFromXml(const QDomElement & element)
 CNode::Ptr CNode::getNode(CF::Uint index)
 {
   ComponentIterator<CNode> it = this->begin<CNode>();
-
+CF::Uint i;
   cf_assert(index < m_components.size());
 
-  for(CF::Uint i = 0 ; i < index ; i++)
+  for(i = 0 ; i < index ; i++)
     it++;
 
   return it.get();

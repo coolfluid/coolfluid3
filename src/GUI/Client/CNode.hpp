@@ -85,10 +85,6 @@ namespace Client {
     /// @return Returns the corresponding component type name
     QString getComponentType() const;
 
-    /// @brief Gives of child nodes
-    /// @return Returns the number of child nodes this node has.
-    int getNodeCount() const;
-
     CNode::Ptr getNode(CF::Uint index);
 
     /// @brief Gives the icon associated to this node
@@ -116,7 +112,7 @@ namespace Client {
     /// @param node Node to convert
     /// @return Retuns a shared pointer to the created node.
     /// @throw XmlError If the tree could not be built.
-    static CNode::Ptr createFromXml(const QDomElement & node);
+    static CNode::Ptr createFromXml(CF::Common::XmlNode & node);
 
     QMenu * getContextMenu() const;
 

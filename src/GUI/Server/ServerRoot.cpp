@@ -43,9 +43,9 @@ void ServerRoot::processSignal(const QDomDocument & signal)
 
   getRoot()->access_component(receiver)->call_signal( type, *nodedoc.first_node() );
 
-  std::string str;
-  XmlOps::xml_to_string(*xmldoc.get(), str);
-  CFinfo << "Sending back " <<  str << CFendl;
+//  std::string str;
+//  XmlOps::xml_to_string(*xmldoc.get(), str);
+  //CFinfo << "Sending back " <<  str << CFendl;
 
   getCore()->sendSignal(*xmldoc.get());
 }
