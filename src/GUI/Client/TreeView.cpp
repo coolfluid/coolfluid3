@@ -47,6 +47,7 @@ TreeView::TreeView(OptionPanel * optionsPanel, QMainWindow * parent)
   QRegExp reg(QRegExp(".+", Qt::CaseInsensitive, QRegExp::RegExp));
   m_modelFilter->setFilterRegExp(reg);
 
+//  this->setModel(ClientRoot::getTree().get());
   this->setModel(m_modelFilter);
 
   this->setReadOnly(false);
@@ -111,13 +112,14 @@ void TreeView::mousePressEvent(QMouseEvent * event)
   QModelIndex index = this->indexAt(mousePosition);
   NTree::Ptr tree = ClientRoot::getTree();
 
-//  QModelIndex indexInModel = m_modelFilter->mapToSource(index);
+  QModelIndex indexInModel = m_modelFilter->mapToSource(index);
+
   Qt::MouseButton button = event->button();
 
 //  this->enableDisableOptions(m_treeModel->getParentSimIndex(indexInModel));
 
   if(event->type() == QEvent::MouseButtonDblClick && button == Qt::LeftButton
-    && index.isValid())
+    && indexInModel.isValid())
   {
     if(this->isExpanded(index))
       this->collapse(index);
@@ -127,14 +129,14 @@ void TreeView::mousePressEvent(QMouseEvent * event)
   else if(button == Qt::RightButton)
   {
     if(!tree->getCurrentIndex().isValid())
-      tree->setCurrentIndex(index);
+      tree->setCurrentIndex(indexInModel);
 
-    tree->showNodeMenu(index, QCursor::pos());
+    tree->showNodeMenu(indexInModel, QCursor::pos());
   }
-  else if(!tree->areFromSameNode(index, ClientRoot::getTree()->getCurrentIndex()))
+  else if(!tree->areFromSameNode(indexInModel, tree->getCurrentIndex()))
   {
 //    if(index != m_treeModel->getCurrentIndex() && this->confirmChangeOptions(index))
-    tree->setCurrentIndex(index);
+    tree->setCurrentIndex(indexInModel);
   }
 }
 
@@ -258,10 +260,11 @@ void TreeView::updateTree()
 void TreeView::currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex)
 {
   QItemSelectionModel::SelectionFlags flags = QItemSelectionModel::Select | QItemSelectionModel::Rows;
+  QModelIndex indexInFilter = m_modelFilter->mapFromSource(newIndex);
 
   this->selectionModel()->clearSelection();
-  this->selectionModel()->select(newIndex, flags);
-  this->selectionModel()->setCurrentIndex(newIndex, flags);
+  this->selectionModel()->select(indexInFilter, flags);
+  this->selectionModel()->setCurrentIndex(indexInFilter, flags);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

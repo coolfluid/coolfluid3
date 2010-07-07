@@ -56,7 +56,7 @@ MainWindow::MainWindow()
 
   m_aboutCFDialog = new AboutCFDialog(this);
 
-  m_treeView->setModel(ClientRoot::getTree().get());
+//  m_treeView->setModel(ClientRoot::getTree().get());
 
   // configure components
   m_logWindow->setWidget(m_logList);
@@ -167,12 +167,23 @@ void MainWindow::buildMenus()
 
   actionInfo.initDefaults();
   actionInfo.m_menu = m_mnuView;
-  actionInfo.m_text = "&Toggle &advanced mode";
+  actionInfo.m_text = "Toggle &advanced mode";
   actionInfo.m_slot = SLOT(toggleAdvanced());
   actionInfo.m_shortcut = tr("ctrl+X");
   actionInfo.m_checkable = true;
 
   m_actions[MainWindow::ACTION_TOGGLE_ADVANCED_MODE] = actionInfo.buildAction(this);
+
+  //-----------------------------------------------
+
+  actionInfo.initDefaults();
+  actionInfo.m_menu = m_mnuView;
+  actionInfo.m_text = "Toggle &debug mode";
+  actionInfo.m_slot = SLOT(toggleDebugMode());
+  actionInfo.m_shortcut = tr("ctrl+D");
+  actionInfo.m_checkable = true;
+
+  m_actions[MainWindow::ACTION_TOGGLE_DEBUG_MODE] = actionInfo.buildAction(this);
 
   //-----------------------------------------------
 
@@ -527,6 +538,15 @@ void MainWindow::toggleAdvanced()
   bool advanced = m_actions[ ACTION_TOGGLE_ADVANCED_MODE ]->isChecked();
   ClientRoot::getTree()->setAdvancedMode(advanced);
 //  m_treeModel->setAdvancedMode(advanced);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void MainWindow::toggleDebugMode()
+{
+  bool debug = m_actions[ ACTION_TOGGLE_DEBUG_MODE ]->isChecked();
+  ClientRoot::getTree()->setDebugModeEnabled(debug);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

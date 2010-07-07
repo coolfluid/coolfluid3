@@ -38,6 +38,8 @@ namespace Client {
 
     virtual void getOptions(QList<NodeOption> & params) const;
 
+    virtual bool forDebugMode() const { return true; }
+
   private:
 
       CF::Uint m_counter;

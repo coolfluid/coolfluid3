@@ -151,6 +151,12 @@ namespace Client {
 
     virtual void getOptions(QList<NodeOption> & params) const;
 
+    virtual bool forDebugMode() const { return true; }
+
+    void setDebugModeEnabled(bool debugMode);
+
+    bool isDebugModeEnabled() const;
+
     /// @name Signals
     /// @{
 
@@ -177,6 +183,8 @@ namespace Client {
     QModelIndex m_currentIndex;
 
     bool m_advancedMode;
+
+    bool m_debugModeEnabled;
 
     inline TreeNode * indexToTreeNode(const QModelIndex & index) const
     {

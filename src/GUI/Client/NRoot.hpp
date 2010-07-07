@@ -46,6 +46,8 @@ namespace Client {
 
     CNode::Ptr getNodeFromRoot(int number) const;
 
+    virtual bool forDebugMode() const { return false; }
+
   private :
 
       CF::Common::CRoot::Ptr m_root;

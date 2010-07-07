@@ -54,6 +54,8 @@ namespace Client {
     {
       ACTION_CONNECT_TO_SERVER,
 
+      ACTION_TOGGLE_DEBUG_MODE,
+
       ACTION_TOGGLE_ADVANCED_MODE,
 
       ACTION_SHOW_HIDE_STATUS_PANEL,
@@ -95,12 +97,14 @@ namespace Client {
     /// The client disconnects form the server and exits immediately.
     void quit();
 
-    /// @brief Slot called when the user want to get/update the tree.
+    /// @brief Slot called when the user wants to get/update the tree.
     void getTree();
 
-    /// @brief Slot called when the user want to to toggle
+    /// @brief Slot called when the user wants to to toggle
     /// basic/advanced mode.
     void toggleAdvanced();
+
+    void toggleDebugMode();
 
     void showHideStatus();
 

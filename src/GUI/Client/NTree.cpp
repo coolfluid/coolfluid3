@@ -19,64 +19,15 @@ using namespace CF::GUI::Client;
 
 NTree::NTree(CNode::Ptr rootNode)
   : CNode(CLIENT_TREE, "NTree", CNode::TREE_NODE),
-    m_advancedMode(false)
+    m_advancedMode(false),
+    m_debugModeEnabled(false)
 {
   BUILD_COMPONENT;
 
-//  cf_assert(rootNode.get() != CFNULL);
-
   if(rootNode.get() == CFNULL)
-  {
-//    QString data =
-//        "<CRoot name=\"Simulation\" >"
-//        " <CGroup name=\"Flow\" >"
-//        "  <CLink name=\"Mesh\">//Simulation/MG/Mesh1</CLink>"
-//        "  <CMethod name=\"FVM\" >"
-//        "   <params>"
-//        "    <int key=\"iter\" mode=\"basic\" desc=\"nb iterations\" >5</int>"
-//        "    <string key=\"somename\" mode=\"adv\" >Lolo</string>"
-//        "    <path   key=\"region\">./</path>"
-//        "   </params>"
-//        "  </CMethod>"
-//        "  <CMethod name=\"Petsc\" >"
-//        "    <params>"
-//        "     <int key=\"iter2\" mode=\"basic\" desc=\"nb iterations\" >5</int>"
-//        "     <string key=\"somename2\" mode=\"adv\" >Lolo</string>"
-//        "     <path   key=\"region2\">./</path>"
-//        "    </params>"
-//        "  </CMethod>"
-//        " </CGroup>"
-//        " <CGroup name=\"MG\">"
-//        "  <params>"
-//        "   <bool key=\"myBool\" mode=\"basic\" desc=\"a boolean option\" >true</bool>"
-//        "   <string key=\"someOtherName\" mode=\"adv\" >Lolo</string>"
-//        "  </params>"
-//        "  <CMesh name=\"Mesh1\" >"
-//        "   <params>"
-//        "    <bool key=\"myOtherBool\" mode=\"basic\" desc=\"another boolean option\" >false</bool>"
-//        "    <string key=\"yetAnotherName\" mode=\"adv\" >Lolo</string>"
-//        "   </params>"
-//        "  </CMesh>"
-//        "  <CMesh name=\"Mesh2\" > <!-- mesh1 here --> </CMesh>"
-//        " </CGroup>"
-//        " <CGroup name=\"Solid\">"
-//        "  <CMesh name=\"Mesh3\" > <!-- mesh2 here --> </CMesh>"
-//        "  <CMesh name=\"Mesh4\" > <!-- mesh1 here --> </CMesh>"
-//        "  <CLink name=\"PetscLink\">//Simulation/Flow/Petsc</CLink>"
-//        " </CGroup>"
-//        "</CRoot>";
-//    QDomDocument doc;
-
-//    doc.setContent(data);
-
-//    CNode::Ptr nodePtr = CNode::createFromXml(doc.firstChildElement());
-
     m_rootNode = new TreeNode(ClientRoot::getRoot(), CFNULL, 0);
-  }
-
-//  m_rootNode = CFNULL;
-
-  m_rootNode = new TreeNode(rootNode, CFNULL, 0);
+  else
+    m_rootNode = new TreeNode(rootNode, CFNULL, 0);
 
   m_columns << "Name" << "Type";
 
@@ -88,78 +39,16 @@ NTree::NTree(CNode::Ptr rootNode)
 
 void NTree::setRoot(NRoot::Ptr rootNode)
 {
-//  cf_assert(rootNode.get() != CFNULL);
-
   // initiate the removing process
   emit layoutAboutToBeChanged();
-//  this->beginRemoveRows(QModelIndex(), 0, m_rootNode->getChildCount() - 1);
   delete m_rootNode;
-//  this->endRemoveRows(); // end the removing process
 
   m_rootNode = CFNULL;
 
   if(rootNode.get() != CFNULL)
-  {
-//    QString data =
-//        "<CRoot name=\"Simulation\" >"
-//        " <CGroup name=\"Flow\" >"
-//        "  <CLink name=\"Mesh\">//Simulation/MG/Mesh1</CLink>"
-//        "  <CMethod name=\"FVM\" >"
-//        "   <params>"
-//        "    <int key=\"iter\" mode=\"basic\" desc=\"nb iterations\" >5</int>"
-//        "    <string key=\"somename\" mode=\"adv\" >Lolo</string>"
-//        "    <path   key=\"region\">./</path>"
-//        "   </params>"
-//        "  </CMethod>"
-//        "  <CMethod name=\"Petsc\" >"
-//        "    <params>"
-//        "     <int key=\"iter2\" mode=\"basic\" desc=\"nb iterations\" >5</int>"
-//        "     <string key=\"somename2\" mode=\"adv\" >Lolo</string>"
-//        "     <path   key=\"region2\">./</path>"
-//        "    </params>"
-//        "  </CMethod>"
-//        " </CGroup>"
-//        " <CGroup name=\"MG\">"
-//        "  <params>"
-//        "   <bool key=\"myBool\" mode=\"basic\" desc=\"a boolean option\" >true</bool>"
-//        "   <string key=\"someOtherName\" mode=\"adv\" >Lolo</string>"
-//        "  </params>"
-//        "  <CMesh name=\"Mesh1\" >"
-//        "   <params>"
-//        "    <bool key=\"myOtherBool\" mode=\"basic\" desc=\"another boolean option\" >false</bool>"
-//        "    <string key=\"yetAnotherName\" mode=\"adv\" >Lolo</string>"
-//        "   </params>"
-//        "  </CMesh>"
-//        "  <CMesh name=\"Mesh2\" > <!-- mesh1 here --> </CMesh>"
-//        " </CGroup>"
-//        " <CGroup name=\"Solid\">"
-//        "  <CMesh name=\"Mesh3\" > <!-- mesh2 here --> </CMesh>"
-//        "  <CMesh name=\"Mesh4\" > <!-- mesh1 here --> </CMesh>"
-//        "  <CLink name=\"PetscLink\">//Simulation/Flow/Petsc</CLink>"
-//        " </CGroup>"
-//        "</CRoot>";
-//    QDomDocument doc;
-
-//    doc.setContent(data);
-
-//    CNode::Ptr nodePtr = CNode::createFromXml(doc.firstChildElement());
-
-//    ComponentIterator<CNode> it = rootNode->begin<CNode>();
-
-//    rootNode->rename(nodePtr->name());
-//    rootNode->root()->rename(nodePtr->name());
-
-//    while(it != nodePtr->end<CNode>())
-//    {
-//      rootNode->root()->add_component(it.get());
-//      it++;
-//    }
-
     m_rootNode = new TreeNode(rootNode, CFNULL, 0);
 
-    emit layoutChanged();
-  }
-
+  emit layoutChanged();
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -196,7 +85,7 @@ void NTree::getNodeParams(const QModelIndex & index, QList<NodeOption> & params,
 
   params.clear();
 
-  if(node != CFNULL)
+  if(node != CFNULL && node->getNode().get() != CFNULL)
     node->getNode()->getOptions(params);
 }
 
@@ -335,6 +224,27 @@ QModelIndex NTree::getIndexByPath(const CPath & path) const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+void NTree::setDebugModeEnabled(bool debugMode)
+{
+  if(m_debugModeEnabled ^ debugMode)
+  {
+    emit layoutAboutToBeChanged();
+    m_debugModeEnabled = debugMode;
+    emit layoutChanged();
+  }
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+bool NTree::isDebugModeEnabled() const
+{
+  return m_debugModeEnabled;
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 QVariant NTree::data(const QModelIndex & index, int role) const
 {
   QVariant data;
@@ -343,28 +253,30 @@ QVariant NTree::data(const QModelIndex & index, int role) const
   {
     CNode::Ptr node = this->indexToNode(index);
 
-    if(role == Qt::DisplayRole)
+    if(m_debugModeEnabled || !node->forDebugMode())
     {
-      switch(index.column())
+      if(role == Qt::DisplayRole)
       {
-      case 0:
-        data = QString(node->name().c_str());
-        break;
-      case 1:
-        data = QString(node->getComponentType());
-        break;
+        switch(index.column())
+        {
+        case 0:
+          data = QString(node->name().c_str());
+          break;
+        case 1:
+          data = QString(node->getComponentType());
+          break;
+        }
+      }
+      else
+      {
+        if(role == Qt::DecorationRole && index.column() == 0)
+          data = node->getIcon();
+
+        if(role == Qt::ToolTipRole)
+          data = node->getToolTip();
       }
     }
-    else
-    {
-      if(role == Qt::DecorationRole && index.column() == 0)
-        data = node->getIcon();
-
-      if(role == Qt::ToolTipRole)
-        data = node->getToolTip();
-    }
   }
-
   return data;
 }
 
@@ -400,8 +312,7 @@ QModelIndex NTree::parent(const QModelIndex &child) const
 
   if(child.isValid())
   {
-    TreeNode * childNode = this->indexToTreeNode(child);
-    TreeNode * parentNode = childNode->getParent();
+    TreeNode * parentNode = this->indexToTreeNode(child)->getParent();
 
     if (parentNode != CFNULL)
       index = createIndex(parentNode->getRowNumber(), 0, parentNode);

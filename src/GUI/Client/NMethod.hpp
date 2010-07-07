@@ -40,6 +40,8 @@ namespace Client {
 
     virtual void getOptions(QList<NodeOption> & params) const;
 
+    virtual bool forDebugMode() const { return false; }
+
   private:
     /// regists all the signals declared in this class
     static void regist_signals ( Component* self ) {}

@@ -94,6 +94,8 @@ namespace Client {
 
     virtual QString getToolTip() const = 0;
 
+    virtual bool forDebugMode() const = 0;
+
     CNode::Type getType() const;
 
     inline bool checkType(CNode::Type type) const

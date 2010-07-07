@@ -15,16 +15,6 @@ TreeNode::TreeNode(CNode::Ptr node, TreeNode * parent, int rowNumber)
   cf_assert(rowNumber >= 0);
 
   this->updateChildList();
-
-//  int childCount;
-
-//  if(m_node->checkType(CNode::ROOT_NODE))
-//    childCount = CNode::convertTo<NRoot>(m_node)->root()->get_child_count();
-//  else
-//    childCount = m_node->get_child_count();
-
-//  for(int i = 0 ; i < childCount ; i++)
-//    m_childNodes << CFNULL;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -57,6 +57,8 @@ namespace Client {
 
     virtual void getOptions(QList<NodeOption> & params) const;
 
+    virtual bool forDebugMode() const { return true; }
+
   signals:
 
     void newMessage(const QString & message, bool isError);
