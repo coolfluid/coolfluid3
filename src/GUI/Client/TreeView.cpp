@@ -145,32 +145,31 @@ void TreeView::mousePressEvent(QMouseEvent * event)
 
 void TreeView::keyPressEvent(QKeyEvent * event)
 {
-//  if(event->key() == Qt::Key_Up)
-//  {
-//    QModelIndex index = m_treeModel->getCurrentIndex();
+  NTree::Ptr tree= ClientRoot::getTree();
+  QModelIndex currentIndex = m_modelFilter->mapFromSource(tree->getCurrentIndex());
 
-//    if(this->confirmChangeOptions(index, true))
-//    {
-//      QModelIndex above = this->indexAbove(m_modelFilter->mapFromSource(index));
+  if(event->key() == Qt::Key_Up)
+  {
+    if(this->confirmChangeOptions(currentIndex, true))
+    {
+      QModelIndex above = this->indexAbove(currentIndex);
 
-//      if(above.isValid())
-//        m_treeModel->setCurrentIndex(m_modelFilter->mapToSource(above));
-//    }
-//  }
-//  else if(event->key() == Qt::Key_Down)
-//  {
-//    QModelIndex index = m_treeModel->getCurrentIndex();
+      if(above.isValid())
+        tree->setCurrentIndex(m_modelFilter->mapToSource(above));
+    }
+  }
+  else if(event->key() == Qt::Key_Down)
+  {
+    if(this->confirmChangeOptions(currentIndex, true))
+    {
+      QModelIndex below = this->indexBelow(currentIndex);
 
-//    if(this->confirmChangeOptions(index, true))
-//    {
-//      QModelIndex below = this->indexBelow(m_modelFilter->mapFromSource(index));
-
-//      if(below.isValid())
-//        m_treeModel->setCurrentIndex(m_modelFilter->mapToSource(below));
-//    }
-//  }
-//  else
-//    QTreeView::keyPressEvent(event);
+      if(below.isValid())
+        tree->setCurrentIndex(m_modelFilter->mapToSource(below));
+    }
+  }
+  else
+    QTreeView::keyPressEvent(event);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -178,7 +177,7 @@ void TreeView::keyPressEvent(QKeyEvent * event)
 
 bool TreeView::confirmChangeOptions(const QModelIndex & index, bool okIfSameIndex)
 {
-//  bool confirmed = true;
+  bool confirmed = true;
 //  QMessageBox question(this);
 
 //  if(!okIfSameIndex && m_treeModel->areEqual(m_treeModel->getCurrentIndex(), index))
@@ -200,7 +199,7 @@ bool TreeView::confirmChangeOptions(const QModelIndex & index, bool okIfSameInde
 //    confirmed = answer != ConfirmCommitDialog::CANCEL;
 //  }
 
-//  return confirmed;
+  return confirmed;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
