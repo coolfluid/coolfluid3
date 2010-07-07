@@ -12,6 +12,8 @@ LIST( APPEND Mesh_files
   CField.cpp
   CMesh.hpp
   CMesh.cpp
+  CMeshCatenate.hpp
+  CMeshCatenate.cpp
   CMeshInfo.hpp
   CMeshInfo.cpp
   CMeshExtract.hpp
@@ -22,6 +24,8 @@ LIST( APPEND Mesh_files
   CMeshTransformer.cpp
   CMeshWriter.hpp
   CMeshWriter.cpp
+  CMeshRemove.hpp
+  CMeshRemove.cpp
   CRegion.hpp
   CRegion.cpp
   CTable.hpp
