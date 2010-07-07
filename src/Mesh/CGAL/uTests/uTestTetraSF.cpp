@@ -77,8 +77,6 @@ struct LoopElems
         EType::dimensionality != region.elements_type().getDimensionality() )
     return;
 
-    CFinfo << "Looping on " << T.getClassName() << CFendl;
-
     const Uint elem_count = region.elements_count();
     cf_assert(elem_count);
     typename CTable::ConnectivityTable const& conn_table = region.get_connectivityTable()->table();

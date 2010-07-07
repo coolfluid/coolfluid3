@@ -1,5 +1,5 @@
-#ifndef CF_Mesh_Line2D_hpp
-#define CF_Mesh_Line2D_hpp
+#ifndef CF_Mesh_Hexa3D_hpp
+#define CF_Mesh_Hexa3D_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -18,31 +18,31 @@ namespace Mesh {
   
 /// This class defines a 2D Triangle mesh element
 /// @author Willem Deconinck
-struct Mesh_API Line2D : public ElementTypeBase
+struct Mesh_API Hexa3D : public ElementTypeBase
 {
 
   /// constructor
-  Line2D();
+  Hexa3D();
   
   /// Gets the Class name
-  static std::string type_name() { return "Line2D"; }
+  static std::string getClassName() { return "Hexa3D"; }
 
   /// @return m_geoShape
-  static const GeoShape::Type shape = GeoShape::LINE;
+  static const GeoShape::Type shape = GeoShape::HEXA;
   
   /// @return number of faces
-  static const Uint nb_faces = 0;
+  static const Uint nb_faces = 6;
   
   /// @return number of edges
-  static const Uint nb_edges = 1;
+  static const Uint nb_edges = 12;
   
   /// @return m_dimensionality
-  static const Uint dimensionality = DIM_1D;
+  static const Uint dimensionality = DIM_3D;
   
   /// @return m_dimension
-  static const Uint dimension = DIM_2D;
+  static const Uint dimension = DIM_3D;
 
-}; // end Line2D
+}; // end Hexa3D
   
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -51,4 +51,4 @@ struct Mesh_API Line2D : public ElementTypeBase
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_Line2D_hpp
+#endif // CF_Mesh_Hexa3D_hpp

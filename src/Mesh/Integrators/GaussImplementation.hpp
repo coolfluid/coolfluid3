@@ -174,6 +174,57 @@ public:
   }
 };
 
+template<>
+class GaussImplementation<GeoShape::HEXA, GeoShape::HEXA, 1>
+{
+public:
+  template<typename GeoShapeF, typename SolShapeF, typename FunctorT, typename ResultT>
+  static void integrate(FunctorT& functor, ResultT& Result)
+  {
+    static const double mu = 0.;
+    static const double w = 8.;
+    static const RealVector mapped_coords = boost::assign::list_of(mu)(mu)(mu);
+    Result += w * functor.template valTimesDetJacobian<GeoShapeF, SolShapeF>(mapped_coords);
+  }
+};
+
+template<Uint Order>
+class GaussImplementation<GeoShape::HEXA, GeoShape::HEXA, Order>
+{
+public:
+  template<typename GeoShapeF, typename SolShapeF, typename FunctorT, typename ResultT>
+  static void integrate(FunctorT& functor, ResultT& result)
+  {
+    const static Uint npoints = Order/2;
+    for(Uint i = 0; i != npoints; ++i)
+    {
+      for(Uint j = 0; j != npoints; ++j)
+      {
+        for(Uint k = 0; k != npoints; ++k)
+        {
+          const RealVector p0 = boost::assign::list_of(-GaussPoints<Order>::x[i])(-GaussPoints<Order>::x[j])(-GaussPoints<Order>::x[k]);
+          const RealVector p1 = boost::assign::list_of( GaussPoints<Order>::x[i])(-GaussPoints<Order>::x[j])(-GaussPoints<Order>::x[k]);
+          const RealVector p2 = boost::assign::list_of( GaussPoints<Order>::x[i])( GaussPoints<Order>::x[j])(-GaussPoints<Order>::x[k]);
+          const RealVector p3 = boost::assign::list_of(-GaussPoints<Order>::x[i])( GaussPoints<Order>::x[j])(-GaussPoints<Order>::x[k]);
+          const RealVector p4 = boost::assign::list_of(-GaussPoints<Order>::x[i])(-GaussPoints<Order>::x[j])( GaussPoints<Order>::x[k]);
+          const RealVector p5 = boost::assign::list_of( GaussPoints<Order>::x[i])(-GaussPoints<Order>::x[j])( GaussPoints<Order>::x[k]);
+          const RealVector p6 = boost::assign::list_of( GaussPoints<Order>::x[i])( GaussPoints<Order>::x[j])( GaussPoints<Order>::x[k]);
+          const RealVector p7 = boost::assign::list_of(-GaussPoints<Order>::x[i])( GaussPoints<Order>::x[j])( GaussPoints<Order>::x[k]);
+          result += ((GaussPoints<Order>::w[i] * GaussPoints<Order>::w[j] * GaussPoints<Order>::w[k]) *
+              (functor.template valTimesDetJacobian<GeoShapeF, SolShapeF>(p0) +
+               functor.template valTimesDetJacobian<GeoShapeF, SolShapeF>(p1) +
+               functor.template valTimesDetJacobian<GeoShapeF, SolShapeF>(p2) +
+               functor.template valTimesDetJacobian<GeoShapeF, SolShapeF>(p3) +
+               functor.template valTimesDetJacobian<GeoShapeF, SolShapeF>(p4) +
+               functor.template valTimesDetJacobian<GeoShapeF, SolShapeF>(p5) +
+               functor.template valTimesDetJacobian<GeoShapeF, SolShapeF>(p6) +
+               functor.template valTimesDetJacobian<GeoShapeF, SolShapeF>(p7)));
+        }
+      }
+    }
+  }
+};
+
 } // namespace Gauss
 } // namespace Mesh
 } // namespace CF

@@ -1,4 +1,6 @@
 LIST ( APPEND SF_files
+  Hexa3DLagrangeP1.cpp
+  Hexa3DLagrangeP1.hpp
   Line1DLagrangeP1.cpp
   Line1DLagrangeP1.hpp
   Line2DLagrangeP1.cpp

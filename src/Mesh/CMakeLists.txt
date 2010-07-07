@@ -37,6 +37,8 @@ LIST( APPEND Mesh_files
 
   Elements/ElementType.hpp
   Elements/ElementType.cpp
+  Elements/Hexa3D.hpp
+  Elements/Hexa3D.cpp
   Elements/Line1D.hpp
   Elements/Line1D.cpp
   Elements/Line2D.hpp
