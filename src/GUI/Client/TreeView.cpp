@@ -176,49 +176,6 @@ void TreeView::keyPressEvent(QKeyEvent * event)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void TreeView::addComponent()
-{
-  QAction * mnuItem = static_cast<QAction *> (this->sender());
-//  QModelIndex index = m_treeModel->getCurrentIndex();
-  ComponentType::Type type;
-  QString name;
-
-  cf_assert(mnuItem != CFNULL);
-
-  type = ComponentType::Convert::to_enum(mnuItem->text().toStdString());
-
-  if(type == ComponentType::LINK)
-  {
-    AddLinkDialog * ald = new AddLinkDialog(this);
-
-    QMessageBox::critical(NULL, "Error", "This feature is not available for now");
-//    QString name;
-//    QModelIndex target;
-//    QDomDocument tree;
-//
-//    m_treeModel->getSimulationTree(m_treeModel->getParentSimIndex(index), tree);
-//
-//    ald->setTreeModel(tree);
-//
-//    if(ald->show(m_treeModel->getParentSimIndex(index), target, name))
-//      emit addLink(index, name, target);
-
-    delete ald;
-
-  }
-  else
-  {
-    name = QInputDialog::getText(this, tr("New ") + mnuItem->text(),
-                               tr("New component name:"), QLineEdit::Normal,
-                               "");
-//    if(!name.isEmpty())
-//      emit addComponent(index, type, name);
-  }
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 bool TreeView::confirmChangeOptions(const QModelIndex & index, bool okIfSameIndex)
 {
 //  bool confirmed = true;

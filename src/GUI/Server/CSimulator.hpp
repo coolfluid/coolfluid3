@@ -124,10 +124,6 @@ namespace Server {
 
     public slots:
 
-    void addComponent(const QString & path,
-                      CF::GUI::Network::ComponentType::Type type,
-                      const QString & name);
-
     /// @brief Slot called when a message has been forwarded from the
     /// simulator.
 

@@ -96,8 +96,6 @@ namespace Client {
 
   private slots:
 
-    void addComponent();
-
     /// @brief Slot called when user wants to update a simulation tree.
     void updateTree();
 
@@ -106,10 +104,6 @@ namespace Client {
     void nodeActivated(const QModelIndex & index);
 
   signals:
-
-    void addComponent(const QModelIndex & index,
-                      CF::GUI::Network::ComponentType::Type type,
-                      const QString & name);
 
     void addLink(const QModelIndex & index, const QString & name,
                  const QModelIndex & target);

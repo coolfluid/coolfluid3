@@ -175,51 +175,6 @@ bool CSimulator::loadCaseFile(const QString & filename)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CSimulator::addComponent(const QString & path,
-                                    ComponentType::Type type,
-                                    const QString & name)
-{
-  boost::shared_ptr<Component> compo;
-
-  try
-  {
-    compo = m_rootComponent->look_component(path.toStdString())->get();
-
-    switch(type)
-    {
-      case ComponentType::GROUP :
-      {
-        boost::shared_ptr<Component> newCompo(new CGroup(name.toStdString()));
-        compo->add_component(newCompo);
-        break;
-      }
-
-      case ComponentType::LINK :
-      {
-        boost::shared_ptr<CLink> newCompo(new CLink(name.toStdString()));
-        compo->add_component(newCompo);
-        break;
-      }
-
-      default:
-        throw ShouldNotBeHere(FromHere(), "Can not use this type");
-        break;
-    }
-
-    emit message(QString("Added a new component named \"%1\" of type \"%2\" to '%3'")
-                 .arg(name).arg(ComponentType::Convert::to_str(type).c_str()).arg(path));
-    emit treeUpdated();
-
-  }
-  catch (CF::Common::Exception e)
-  {
-    emit error(e.what());
-  }
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 void CSimulator::newData(const QString & data)
 {
   emit message(data);
