@@ -47,7 +47,6 @@ TreeView::TreeView(OptionPanel * optionsPanel, QMainWindow * parent)
   QRegExp reg(QRegExp(".+", Qt::CaseInsensitive, QRegExp::RegExp));
   m_modelFilter->setFilterRegExp(reg);
 
-//  this->setModel(ClientRoot::getTree().get());
   this->setModel(m_modelFilter);
 
   this->setReadOnly(false);
@@ -77,21 +76,9 @@ TreeView::~TreeView()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-
-QDomNode TreeView::newChildNode(const QString & newNode, QDomDocument & doc) const
-{
-//  QModelIndex index = m_modelFilter->mapToSource(m_treeModel->getCurrentIndex());
-//  return m_treeModel->newChildToNode(index, newNode, doc);
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 void TreeView::setReadOnly(bool readOnly)
 {
   m_readOnly = readOnly;
-  //  m_mnuAbstractTypes->setEnabled(!readOnly);
-//  m_mnuNewOption->setEnabled(!readOnly);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -205,14 +192,6 @@ bool TreeView::confirmChangeOptions(const QModelIndex & index, bool okIfSameInde
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void TreeView::updateTree()
-{
-  throw NotImplemented(FromHere(), "TreeView::updateTree()");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 void TreeView::currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex)
 {
   QItemSelectionModel::SelectionFlags flags = QItemSelectionModel::Select | QItemSelectionModel::Rows;
@@ -221,12 +200,4 @@ void TreeView::currentIndexChanged(const QModelIndex & newIndex, const QModelInd
   this->selectionModel()->clearSelection();
   this->selectionModel()->select(indexInFilter, flags);
   this->selectionModel()->setCurrentIndex(indexInFilter, flags);
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void TreeView::nodeActivated(const QModelIndex & index)
-{
-
 }
