@@ -75,6 +75,17 @@ namespace Client {
       return getRoot()->root()->access_component< NTree >(CLIENT_TREE_PATH);
     }
 
+    /// @brief Checks whether a path is specific or not.
+
+    /// Specific paths are server special component paths (such as Core,
+    /// Simulator,...) that are not part of the simulation tree. Those
+    /// paths are defined is @c Network/ComponentNames.hpp.
+    /// @c SERVER_ROOT_PATH is not considered as a specific path.
+    /// @param path The path to check.
+    /// @return Returns @c true if the provided path has been recognized
+    /// specific; otherwise, returns @c false.
+    static bool isSpecificPath(const QString & path);
+
   }; // class ClientRoot
 
   ////////////////////////////////////////////////////////////////////////////

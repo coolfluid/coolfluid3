@@ -116,6 +116,8 @@ namespace Client {
     /// @throw XmlError If the tree could not be built.
     static CNode::Ptr createFromXml(CF::Common::XmlNode & node);
 
+    static CNode::Ptr createFromXml(const CF::Common::XmlNode & node);
+
     QMenu * getContextMenu() const;
 
     void showContextMenu(const QPoint & pos) const;

@@ -410,7 +410,6 @@ CF::Common::Signal::return_t NTree::list_tree(CF::Common::Signal::arg_t & node)
 
   // tell the view to update
   emit endInsertRows();
-
 }
 
 /*============================================================================
