@@ -343,7 +343,11 @@ void Component::create_component ( XmlNode& node  )
 void Component::write_xml_tree( XmlNode& node )
 {
    XmlNode& this_node = *XmlOps::add_node_to(node, derived_type_name());
+   XmlNode& options = *XmlOps::add_node_to( this_node, XmlParams::tag_node_valuemap());
    XmlOps::add_attribute_to( this_node, "name", name() );
+
+   // add options
+   list_options(options);
 
    BOOST_FOREACH( CompStorage_t::value_type c, m_components )
    {
@@ -389,7 +393,21 @@ int Component::get_child_count() const
 
 void Component::list_options ( XmlNode& node )
 {
-  throw NotImplemented( FromHere(), "" );
+  OptionList::OptionStorage_t::iterator it = m_option_list.m_options.begin();
+
+  for( ; it != m_option_list.m_options.end() ; it++)
+  {
+    // it->second type is Option::Ptr
+
+    XmlNode& value_node = *XmlOps::add_node_to(node, "value");
+    XmlNode& type_node = *XmlOps::add_node_to(value_node, it->second->type());
+
+    // set the key attribute (option name)
+    XmlOps::add_attribute_to(value_node, XmlParams::tag_attr_key(), it->first);
+
+    // set option value
+    type_node.value(it->second->type().c_str());
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
