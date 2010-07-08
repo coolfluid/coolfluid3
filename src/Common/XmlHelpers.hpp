@@ -89,7 +89,7 @@ namespace Common {
     /// the xml tag used for the reply node
     static const char * tag_node_reply ();
     /// the xml tag used for the params node
-    static const char * tag_node_params ();
+    static const char * tag_node_valuemap ();
     /// the xml tag used for the signal frame node
     static const char * tag_node_frame ();
     /// the xml attribute name used for the key
@@ -135,21 +135,26 @@ namespace Common {
         TYPE XmlParams::get_param ( const std::string& pname ) const
     {
       if ( params == 0 )
-        throw  Common::XmlError( FromHere(), "XML node \'" + std::string(tag_node_params()) + "\' not found" );
+        throw  Common::XmlError( FromHere(), "XML node \'" + std::string(tag_node_valuemap()) + "\' not found" );
 
       XmlNode* found_node = 0;
       const char * nodetype = XmlTag<TYPE>::type();
 
       // search for the node with correct type
-      XmlNode* node = params->first_node( nodetype );
-      for ( ; node; node = node->next_sibling( nodetype ) )
+      XmlNode* node = params->first_node( "value" );
+      for ( ; node; node = node->next_sibling( "value" ) )
       {
         // search for the attribute with key
         XmlAttr* att = node->first_attribute( tag_attr_key() );
         if ( att && !pname.compare(att->value()) )
         {
-          found_node = node;
-          break;
+          XmlNode* type_node = node->first_node( XmlTag<TYPE>::type() );
+
+          if( type_node )
+          {
+            found_node = type_node;
+            break;
+          }
         }
       }
 
@@ -171,7 +176,7 @@ namespace Common {
         std::vector<TYPE> XmlParams::get_array ( const std::string& pname ) const
     {
       if ( params == 0 )
-        throw  Common::XmlError( FromHere(), "XML node \'" + std::string(tag_node_params()) + "\' not found" );
+        throw  Common::XmlError( FromHere(), "XML node \'" + std::string(tag_node_valuemap()) + "\' not found" );
 
       XmlNode* found_node = 0;
       const char * nodetype = XmlTag<TYPE>::array();
@@ -216,18 +221,23 @@ namespace Common {
 
     if ( params == 0 )
     {
-      params = XmlOps::add_node_to ( xmlnode, XmlParams::tag_node_params() );
+      params = XmlOps::add_node_to ( xmlnode, XmlParams::tag_node_valuemap() );
     }
 
     // convert TYPE to node name
-    const char* node_name = xmldoc.allocate_string( XmlTag<TYPE>::type() );
+    const char* type_name = xmldoc.allocate_string( XmlTag<TYPE>::type() );
 
     // convert value to string
     const char* value_str = xmldoc.allocate_string( value_to_xmlstr(value).c_str() );
 
     // creates the node
-    XmlNode* node = xmldoc.allocate_node ( node_element, node_name, value_str );
+    //XmlNode* node = xmldoc.allocate_node ( node_element, node_name, value_str );
+    XmlNode* node = xmldoc.allocate_node ( node_element, "value");
     params->append_node(node);
+
+    // create the type node
+    XmlNode* type_node = xmldoc.allocate_node ( node_element, type_name, value_str );
+    node->append_node(type_node);
 
     // convert key to xml atribute string
     const char* key_str = xmldoc.allocate_string( "key" );
@@ -247,7 +257,7 @@ namespace Common {
 
     if ( params == 0 )
     {
-      params = XmlOps::add_node_to ( xmlnode, XmlParams::tag_node_params() );
+      params = XmlOps::add_node_to ( xmlnode, XmlParams::tag_node_valuemap() );
     }
 
     // convert TYPE to node name

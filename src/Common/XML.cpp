@@ -16,7 +16,7 @@ namespace Common {
   const char * XmlTag<int>::type() { return "integer"; };
 
   template<>
-  const char * XmlTag<CF::Uint>::type() { return "integer"; }
+  const char * XmlTag<CF::Uint>::type() { return "unsigned"; }
 
   template<>
   const char * XmlTag<CF::Real>::type() { return "real"; }

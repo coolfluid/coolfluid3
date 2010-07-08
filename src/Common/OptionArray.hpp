@@ -107,7 +107,7 @@ namespace Common {
     for (XmlNode * itr = node.first_node(); itr ; itr = itr->next_sibling() )
     {
       TYPE vi;
-      xmlstr_to_value(*itr,vi);
+      xmlstr_to_value(*itr->first_node(),vi);
       val.push_back(vi);
     }
 

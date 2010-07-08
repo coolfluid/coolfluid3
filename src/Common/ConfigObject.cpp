@@ -22,7 +22,7 @@ namespace Common {
 
 
     if ( pn.params == 0 )
-      throw  Common::XmlError( FromHere(), "ConfigObject received  XML without a \'" + std::string(XmlParams::tag_node_params()) + "\' node" );
+      throw  Common::XmlError( FromHere(), "ConfigObject received  XML without a \'" + std::string(XmlParams::tag_node_valuemap()) + "\' node" );
 
     // get the list of options
     OptionList::OptionStorage_t& options = m_option_list.m_options;

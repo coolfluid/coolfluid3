@@ -7,6 +7,8 @@
 
 #include "Common/Option.hpp"
 
+#include "Common/BasicExceptions.hpp"
+
 namespace CF {
 namespace Common {
 
@@ -72,7 +74,17 @@ namespace Common {
   void OptionT<TYPE>::change_value ( XmlNode& node )
   {
     TYPE val;
-    xmlstr_to_value(node,val);
+    const char * type_str = XmlTag<TYPE>::type();
+    XmlNode * type_node = node.first_node(type_str);
+
+    if(type_node != CFNULL)
+      xmlstr_to_value(*type_node,val);
+    else
+    {
+      std::string str;
+      throw XmlError(FromHere(), std::string("Could not find a value of this type [")
+                     + type_str + "].");
+    }
     m_value = val;
     copy_to_linked_params(val);
   }

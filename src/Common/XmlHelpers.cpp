@@ -15,14 +15,14 @@ namespace Common {
   XmlParams::XmlParams( XmlNode& node ) :
       xmlnode(node),
       xmldoc(*node.document()),
-      params( node.first_node( tag_node_params() ) ) // might be NULL
+      params( node.first_node( tag_node_valuemap() ) ) // might be NULL
   {
   }
 
   XmlNode& XmlParams::get_params_node() const
   {
     if ( params == 0 )
-      throw  Common::XmlError( FromHere(), "XML node \'" + std::string(tag_node_params()) + "\' not found" );
+      throw  Common::XmlError( FromHere(), "XML node \'" + std::string(tag_node_valuemap()) + "\' not found" );
     return *params;
   }
 
@@ -34,7 +34,7 @@ namespace Common {
 
   const char * XmlParams::tag_node_reply()  { return "reply"; }
 
-  const char * XmlParams::tag_node_params() { return "params"; }
+  const char * XmlParams::tag_node_valuemap() { return "valuemap"; }
 
   const char * XmlParams::tag_node_frame()  { return "frame"; }
 
@@ -235,7 +235,7 @@ namespace Common {
       if ( !strcmp (name, XmlParams::tag_node_signal()) || !strcmp (name,XmlParams::tag_node_reply()) )
         return itr;
     }
-    
+
     throw ShouldNotBeHere(FromHere(),"Control reaches end of non-void function");
     return node.first_node();
   }
