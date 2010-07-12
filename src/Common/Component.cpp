@@ -342,17 +342,23 @@ void Component::create_component ( XmlNode& node  )
 
 void Component::write_xml_tree( XmlNode& node )
 {
-   XmlNode& this_node = *XmlOps::add_node_to(node, derived_type_name());
-   XmlNode& options = *XmlOps::add_node_to( this_node, XmlParams::tag_node_valuemap());
-   XmlOps::add_attribute_to( this_node, "name", name() );
+  XmlNode& this_node = *XmlOps::add_node_to(node, derived_type_name());
+  XmlOps::add_attribute_to( this_node, "name", name() );
 
-   // add options
-   list_options(options);
+  if( m_is_link ) // if it is a link, we put the target path as value
+    this_node.value( this_node.document()->allocate_string( get()->full_path().string().c_str() ));
+  else
+  {
+    XmlNode& options = *XmlOps::add_node_to( this_node, XmlParams::tag_node_valuemap());
 
-   BOOST_FOREACH( CompStorage_t::value_type c, m_components )
-   {
-     c.second->write_xml_tree( this_node );
-   }
+    // add options
+    list_options(options);
+
+    BOOST_FOREACH( CompStorage_t::value_type c, m_components )
+    {
+      c.second->write_xml_tree( this_node );
+    }
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
