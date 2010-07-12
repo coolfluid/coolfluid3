@@ -21,6 +21,10 @@ NLink::NLink(const QString & name, const CPath & targetPath)
   action = new QAction("Go to target node", m_contextMenu);
   connect(action, SIGNAL(triggered()), this, SLOT(goToTarget()));
   m_contextMenu->addAction(action);
+
+  action = new QAction("Change target path", m_contextMenu);
+  connect(action, SIGNAL(triggered()), this, SLOT(changeTargetPath()));
+  m_contextMenu->addAction(action);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -72,4 +76,36 @@ void NLink::goToTarget()
     ClientRoot::getTree()->setCurrentIndex(index);
   else
     ClientRoot::getLog()->addError(QString("%1: path does not exist").arg(m_targetPath.string().c_str()));
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void NLink::changeTargetPath()
+{
+  QInputDialog dlg;
+  bool selected = false;
+
+  dlg.setLabelText("Enter the new target path:");
+  dlg.setTextValue(m_targetPath.string().c_str());
+
+  while(!selected)
+  {
+    try
+    {
+      if(dlg.exec())
+      {
+        Component::Ptr node = ClientRoot::getRoot()->root()->access_component(dlg.textValue().toStdString());
+
+        if(node->type_name() == type_name())
+          throw InvalidPath(FromHere(), "Can not target another link");
+      }
+
+      selected = true;
+    }
+    catch(InvalidPath ip)
+    {
+      QMessageBox::critical(CFNULL, "Error", ip.msg().c_str());
+    }
+  }
 }

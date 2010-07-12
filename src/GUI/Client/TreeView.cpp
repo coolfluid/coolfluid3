@@ -58,9 +58,6 @@ TreeView::TreeView(OptionPanel * optionsPanel, QMainWindow * parent)
   this->header()->setResizeMode(QHeaderView::ResizeToContents);
   this->header()->setStretchLastSection(true);
 
-  connect(this, SIGNAL(activated(const QModelIndex &)),
-          this, SLOT(nodeActivated(const QModelIndex &)));
-
   connect(ClientRoot::getTree().get(), SIGNAL(currentIndexChanged(const QModelIndex &, const QModelIndex &)),
           this, SLOT(currentIndexChanged(const QModelIndex &, const QModelIndex &)));
 }

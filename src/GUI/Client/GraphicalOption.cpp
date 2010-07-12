@@ -37,7 +37,7 @@ GraphicalOption::GraphicalOption(OptionType::Type type)
     break;
 
     // if type valueWidget is a double
-  case OptionType::TYPE_REAL:
+  case OptionType::TYPE_DOUBLE:
     m_valueWidget = new QLineEdit();
     //    this->valueWidget = new QDoubleSpinBox();
     //    ((QDoubleSpinBox *) this->valueWidget)->setDecimals(4);
@@ -143,7 +143,7 @@ QVariant GraphicalOption::getValue() const
     break;
 
     // if type valueWidget is a double
-  case OptionType::TYPE_REAL:
+  case OptionType::TYPE_DOUBLE:
     value = ((QLineEdit *) m_valueWidget)->text();
     //    value = ((QDoubleSpinBox *) this->valueWidget)->value();
     break;
@@ -255,7 +255,7 @@ void GraphicalOption::setValue(const QVariant & newValue)
     }
 
     // if the valueWidget if a double
-  case OptionType::TYPE_REAL:
+  case OptionType::TYPE_DOUBLE:
     {
       ((QLineEdit *) m_valueWidget)->setText(newValue.toString());
       //    double val = 0.0;

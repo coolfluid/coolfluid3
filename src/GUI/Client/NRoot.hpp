@@ -46,6 +46,8 @@ namespace Client {
 
     CNode::Ptr getNodeFromRoot(int number) const;
 
+    bool pathExists() const;
+
     virtual bool forDebugMode() const { return false; }
 
   private :

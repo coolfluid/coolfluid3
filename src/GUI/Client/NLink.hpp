@@ -50,6 +50,8 @@ namespace Client {
 
     void goToTarget();
 
+    void changeTargetPath();
+
   private :
 
     CF::Common::CPath m_targetPath;

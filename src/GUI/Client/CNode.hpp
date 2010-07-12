@@ -105,7 +105,7 @@ namespace Client {
 
     void setTextData(const QString & text);
 
-    void setOptions(const QDomNodeList & list);
+    void setOptions(const CF::Common::XmlNode & node);
 
     virtual void getOptions(QList<NodeOption> & params) const = 0;
 

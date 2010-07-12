@@ -32,7 +32,7 @@ namespace Client {
       TYPE_UNSIGNED_INT = 2,
 
       /// @brief Real type.
-      TYPE_REAL = 3,
+      TYPE_DOUBLE = 3,
 
       /// @brief String type.
       TYPE_STRING = 4,

@@ -53,25 +53,63 @@ void CNode::setTextData(const QString & text)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CNode::setOptions(const QDomNodeList & list)
+void CNode::setOptions(const XmlNode & node)
 {
-  for(int i = 0 ; i < list.size() ; i++)
+  XmlNode * option = node.first_node("value");
+
+  qDebug() << __LINE__ << option;
+
+  while(option != CFNULL)
   {
-    QDomElement elt = list.at(i).toElement();
+    XmlNode * type = option->first_node();
 
-    if(!elt.isNull())
+
+    qDebug() << __LINE__ << option->name() << type;
+
+    if(type != CFNULL && type->value() != CFNULL)
     {
-      NodeOption np;
+      char * name = option->first_attribute("key")->value();
 
-      np.m_paramAdv = elt.attribute("mode") != "basic";
-      np.m_paramType = OptionType::Convert::to_enum(elt.firstChildElement().nodeName().toStdString());
-      np.m_paramName = elt.attribute("key");
-      np.m_paramDescr = elt.attribute("desc");
-      np.m_paramValue = elt.firstChildElement().firstChild().toText().nodeValue();
+      if(name != CFNULL && std::strlen(name) > 0)
+      {
+        NodeOption np;
+        char * modeStr = option->first_attribute("mode")->value();
 
-      m_options.append(np);
+        qDebug() << __LINE__ << option->name() << name;
+
+//        np.m_paramAdv = !((modeStr != CFNULL) && (std::strcmp(modeStr, "basic") == 0));
+        np.m_paramType = OptionType::Convert::to_enum(type->name());
+        np.m_paramName = name;
+        //np.m_paramDescr = elt.attribute("desc");
+        np.m_paramValue = type->value();
+
+        qDebug() << type->name() << np.m_paramType << type->name();
+
+        m_options.append(np);
+      }
     }
+
+    option = option->next_sibling("value");
   }
+
+
+//  for(int i = 0 ; i < list.size() ; i++)
+//  {
+//    QDomElement elt = list.at(i).toElement();
+
+//    if(!elt.isNull())
+//    {
+//      NodeOption np;
+
+//      np.m_paramAdv = elt.attribute("mode") != "basic";
+//      np.m_paramType = OptionType::Convert::to_enum(elt.firstChildElement().nodeName().toStdString());
+//      np.m_paramName = elt.attribute("key");
+//      np.m_paramDescr = elt.attribute("desc");
+//      np.m_paramValue = elt.firstChildElement().firstChild().toText().nodeValue();
+
+//      m_options.append(np);
+//    }
+//  }
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -107,7 +145,7 @@ CNode::Ptr CNode::createFromXml(CF::Common::XmlNode & node)
   while(child != CFNULL)
   {
     if(std::strcmp(child->name(), "valuemap") == 0)
-      ;//rootNode->setOptions(child.childNodes());
+      rootNode->setOptions(*child);
     else
     {
       CNode::Ptr node = createFromXml(*child);

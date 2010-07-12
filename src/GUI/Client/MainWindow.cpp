@@ -95,7 +95,7 @@ MainWindow::MainWindow()
 
   ////////////////////////////////////////////////////////////////////////
 
-  connectSig(m_treeView, openSimulation(const QModelIndex &));
+//  connectSig(m_treeView, openSimulation(const QModelIndex &));
 
   connect(ClientRoot::getLog().get(), SIGNAL(newException(const QString &)),
           this, SLOT(newException(const QString &)));

@@ -33,7 +33,7 @@ namespace Client {
 
   /////////////////////////////////////////////////////////////////////////////
 
-  /// @brief This class manages the tree m_view.
+  /// @brief This class manages the tree view.
 
   /// @author Gasper Quentin
 
