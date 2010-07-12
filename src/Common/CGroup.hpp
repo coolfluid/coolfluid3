@@ -39,9 +39,7 @@ namespace Common {
     /// Configuration Options
     static void defineConfigOptions ( Common::OptionList& options )
     {
-      options.add< OptionT<CF::Uint> >("myUIntGroup", "An unsigned integer value in a CMethod", 789);
       options.add< OptionT<CF::Real> >("pi", "Pi in a CGroup", 3.141592);
-      options.add< OptionT<std::string> >("nameMeth", "Name of a CMethod", "The CMethod name");
     }
 
   private: // helper functions

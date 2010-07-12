@@ -41,7 +41,6 @@ namespace Common {
       options.add< OptionT<bool> >("myBoolMeth", "A boolean value in a CMethod", true);
       options.add< OptionT<int> >("fourtyTwo", "An integer value in a CMethod", 42);
       options.add< OptionT<CF::Real> >("euler", "Euler number in a CMethod", 2.71);
-      options.add< OptionT<std::string> >("nameMeth", "Name of a CMethod", "The CMethod name");
     }
 
   private: // helper functions
