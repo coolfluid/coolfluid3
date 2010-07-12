@@ -95,7 +95,7 @@ namespace Common {
     /// @returns the name of the option
     std::string name() const { return m_name; }
     /// @returns the type of the option as a string
-    std::string type() const { return m_name; }
+    std::string type() const { return m_type; }
     /// @returns the description of the option
     std::string description() const { return m_description; }
 
