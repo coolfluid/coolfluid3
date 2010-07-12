@@ -78,6 +78,8 @@ public: // functions
   /// @returns the Exception name
   std::string type_name () const throw () { return m_class_name; }
 
+  std::string msg() const throw () { return m_msg; }
+
 protected: // functions
 
   /// The constructor is protected to force the developers to create subclasses.
