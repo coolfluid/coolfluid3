@@ -5,6 +5,8 @@
 
 #include "Common/Component.hpp"
 
+#include "Common/OptionT.hpp"
+
 namespace CF {
 namespace Common {
 
@@ -35,7 +37,12 @@ namespace Common {
     static std::string type_name () { return "CGroup"; }
 
     /// Configuration Options
-    static void defineConfigOptions ( Common::OptionList& options ) {}
+    static void defineConfigOptions ( Common::OptionList& options )
+    {
+      options.add< OptionT<CF::Uint> >("myUIntGroup", "An unsigned integer value in a CMethod", 789);
+      options.add< OptionT<CF::Real> >("pi", "Pi in a CGroup", 3.141592);
+      options.add< OptionT<std::string> >("nameMeth", "Name of a CMethod", "The CMethod name");
+    }
 
   private: // helper functions
 
