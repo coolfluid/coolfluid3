@@ -64,10 +64,10 @@ void CNode::setOptions(const QDomNodeList & list)
       NodeOption np;
 
       np.m_paramAdv = elt.attribute("mode") != "basic";
-      np.m_paramType = OptionType::Convert::to_enum(elt.nodeName().toStdString());
+      np.m_paramType = OptionType::Convert::to_enum(elt.firstChildElement().nodeName().toStdString());
       np.m_paramName = elt.attribute("key");
       np.m_paramDescr = elt.attribute("desc");
-      np.m_paramValue = elt.firstChild().toText().nodeValue();
+      np.m_paramValue = elt.firstChildElement().firstChild().toText().nodeValue();
 
       m_options.append(np);
     }
@@ -90,11 +90,9 @@ CNode::Ptr CNode::createFromXml(CF::Common::XmlNode & node)
 
   if(std::strcmp(nodeType, "CCore") == 0 || std::strcmp(nodeType, "CSimulator") == 0)
     return rootNode;
+
   if(std::strcmp(nodeType, "CLink") == 0)
-  {
-//    QDomText targetPath = element.firstChild().toText();
-    rootNode = boost::shared_ptr<NLink>(new NLink(nodeName, "" /*targetPath*/));
-  }
+    rootNode = boost::shared_ptr<NLink>(new NLink(nodeName, node.value()));
   else if(std::strcmp(nodeType, "CMesh") == 0)
     rootNode = boost::shared_ptr<NMesh>(new NMesh(nodeName));
   else if(std::strcmp(nodeType, "CMethod") == 0)
@@ -108,14 +106,15 @@ CNode::Ptr CNode::createFromXml(CF::Common::XmlNode & node)
 
   while(child != CFNULL)
   {
-//    if(child.nodeName() == "params")
-//      rootNode->setOptions(child.childNodes());
-//    else
-    CNode::Ptr node = createFromXml(*child);
+    if(std::strcmp(child->name(), "valuemap") == 0)
+      ;//rootNode->setOptions(child.childNodes());
+    else
+    {
+      CNode::Ptr node = createFromXml(*child);
 
-    if(node.get() != CFNULL)
-      rootNode->add_component(node);
-
+      if(node.get() != CFNULL)
+        rootNode->add_component(node);
+    }
     child = child->next_sibling();
   }
 

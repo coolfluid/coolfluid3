@@ -192,7 +192,7 @@ CNode::Ptr NTree::getNodeByPath(const CPath & path) const
 
 QModelIndex NTree::getIndexByPath(const CPath & path) const
 {
-  QModelIndex index;
+  QModelIndex index = this->index(0,0);
   QString pathStr = path.string().c_str();
   QStringList comps;
   QStringList::iterator it;
@@ -213,9 +213,12 @@ QModelIndex NTree::getIndexByPath(const CPath & path) const
     for(it = comps.begin() ; it != comps.end() && treeNode != CFNULL ; it++)
     {
       treeNode = treeNode->getChildByName(*it);
-      index = this->index(treeNode->getRowNumber(), 0, index);
-    }
 
+      if(treeNode != CFNULL)
+        index = this->index(treeNode->getRowNumber(), 0, index);
+      else
+        ClientRoot::getLog()->addError("index not found");
+    }
   }
 
   return index;
@@ -286,7 +289,6 @@ QVariant NTree::data(const QModelIndex & index, int role) const
 QModelIndex NTree::index(int row, int column, const QModelIndex & parent) const
 {
   TreeNode * childNode;
-  TreeNode * parentNode;
   QModelIndex index;
 
   if(this->hasIndex(row, column, parent))

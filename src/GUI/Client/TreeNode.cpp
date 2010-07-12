@@ -108,6 +108,9 @@ TreeNode * TreeNode::getChildByName(const QString & name)
     found = treeNode->getName() == name;
   }
 
+  if(!found)
+    treeNode = CFNULL;
+
   return treeNode;
 }
 
