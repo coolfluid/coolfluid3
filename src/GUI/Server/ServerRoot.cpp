@@ -41,6 +41,10 @@ void ServerRoot::processSignal(const QDomDocument & signal)
   std::string type = nodedoc.first_node()->first_attribute("target")->value();
   std::string receiver = nodedoc.first_node()->first_attribute("receiver")->value();
 
+  try
+  {
+
+		CFinfo << "calling " << receiver << "::" << type << CFendl;
   getRoot()->access_component(receiver)->call_signal( type, *nodedoc.first_node() );
 
   std::string str;
@@ -48,6 +52,11 @@ void ServerRoot::processSignal(const QDomDocument & signal)
   CFinfo << "Sending back " <<  str << CFendl;
 
   getCore()->sendSignal(*xmldoc.get());
+}
+  catch(Exception e)
+  {
+    CFerror << e.what() << CFendl;
+  }
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

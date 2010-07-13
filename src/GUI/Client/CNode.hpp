@@ -5,6 +5,7 @@
 
 #include <QDomDocument>
 #include <QList>
+#include <QHash>
 
 #include "Common/Component.hpp"
 
@@ -94,7 +95,7 @@ namespace Client {
 
     virtual QString getToolTip() const = 0;
 
-    virtual bool forDebugMode() const = 0;
+    virtual bool isClientComponent() const = 0;
 
     CNode::Type getType() const;
 
@@ -106,6 +107,8 @@ namespace Client {
     void setTextData(const QString & text);
 
     void setOptions(const CF::Common::XmlNode & node);
+
+    void modifyOptions(const QHash<QString, QString> options);
 
     virtual void getOptions(QList<NodeOption> & params) const = 0;
 
@@ -130,7 +133,7 @@ namespace Client {
 
   protected:
 
-    QList<NodeOption> m_options;
+    QHash<QString, NodeOption> m_options;
 
     QString m_textData;
 

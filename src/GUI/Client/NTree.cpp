@@ -248,6 +248,19 @@ bool NTree::isDebugModeEnabled() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+void NTree::modifyOptions(const QModelIndex & index, QHash<QString, QString> & options)
+{
+	TreeNode * node = this->indexToTreeNode(index);
+	
+	if(node != CFNULL)
+		node->getNode()->modifyOptions(options);
+	else
+		ClientRoot::getLog()->addError("Could not modify options! Invalid node.");
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 QVariant NTree::data(const QModelIndex & index, int role) const
 {
   QVariant data;
@@ -256,7 +269,7 @@ QVariant NTree::data(const QModelIndex & index, int role) const
   {
     CNode::Ptr node = this->indexToNode(index);
 
-    if(m_debugModeEnabled || !node->forDebugMode())
+    if(m_debugModeEnabled || !node->isClientComponent())
     {
       if(role == Qt::DisplayRole)
       {
@@ -454,5 +467,10 @@ QString NTree::getToolTip() const
 
 void NTree::getOptions(QList<NodeOption> & params) const
 {
-  params = m_options;
+  QHash<QString, NodeOption>::const_iterator it = m_options.begin();
+
+  params.clear();
+
+  for( ; it != m_options.end() ; it++)
+    params.append(it.value());
 }

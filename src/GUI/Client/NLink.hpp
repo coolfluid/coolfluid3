@@ -44,7 +44,7 @@ namespace Client {
 
     CF::Common::CPath getTargetPath() const;
 
-    virtual bool forDebugMode() const { return false; }
+    virtual bool isClientComponent() const { return false; }
 
   private slots:
 

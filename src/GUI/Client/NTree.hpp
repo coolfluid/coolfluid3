@@ -4,6 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include <QAbstractItemModel>
+#include <QHash>
 #include <QStringList> /// @todo does not compile without that...but why ???
 
 #include "GUI/Client/CNode.hpp"
@@ -85,6 +86,8 @@ namespace Client {
     QModelIndex getIndexByPath(const CF::Common::CPath & path) const;
 
     QModelIndex nodeToIndex(const CNode::Ptr & node) const;
+		
+		void modifyOptions(const QModelIndex & index, QHash<QString, QString> & options);
 
     /// @brief Implementation of @c QAbstractItemModel::data().
 
@@ -151,7 +154,7 @@ namespace Client {
 
     virtual void getOptions(QList<NodeOption> & params) const;
 
-    virtual bool forDebugMode() const { return true; }
+    virtual bool isClientComponent() const { return true; }
 
     void setDebugModeEnabled(bool debugMode);
 

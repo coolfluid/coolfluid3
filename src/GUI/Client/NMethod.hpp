@@ -40,7 +40,7 @@ namespace Client {
 
     virtual void getOptions(QList<NodeOption> & params) const;
 
-    virtual bool forDebugMode() const { return false; }
+    virtual bool isClientComponent() const { return false; }
 
   private:
     /// regists all the signals declared in this class

@@ -56,7 +56,7 @@ OptionPanel::OptionPanel(QWidget * parent) : QWidget(parent)
   m_scrollBasicOptions->setVisible(false);
   this->buttonsSetVisible(false);
 
-  connect(m_btCommitChanges, SIGNAL(clicked()), this, SLOT(commitChanges()));
+	connect(m_btCommitChanges, SIGNAL(clicked()), this, SLOT(commitChanges()));
   connect(m_btCheckChanges, SIGNAL(clicked()), this, SLOT(checkOptions()));
   connect(m_btResetOptions, SIGNAL(clicked()), this, SLOT(resetChanges()));
 
@@ -106,42 +106,49 @@ void OptionPanel::setEnabled(const QDomDocument & optionsNodes,
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QDomDocument OptionPanel::getOptions() const
+void OptionPanel::getOptions(QHash<QString, QString> & options) const
 {
-  QDomDocument doc;
-
-//  this->buildOptions(m_basicOptionsNodes, m_basicOptions, doc);
-//  this->buildOptions(m_advancedOptionsNodes, m_advancedOptions, doc);
-
-  return doc;
+	options.clear();
+	
+  this->buildOptions(m_basicOptions, options);
+	this->buildOptions(m_advancedOptions, options);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void OptionPanel::buildOptions(const QDomDocument & nodes,
-                               const QList<GraphicalOption *> & options,
-                               QDomDocument & document) const
+void OptionPanel::buildOptions(const QList<GraphicalOption *> & graphOptions,
+                               QHash<QString, QString> & options) const
 {
-  QDomNodeList childNodes = nodes.childNodes();
-
-  for(int i = 0 ; i < childNodes.count() ; i++)
-  {
-    GraphicalOption * gOption = options.at(i);
-
-    // if the option has been modified, we can add it to the tree
-    if(gOption->isModified())
-    {
-      QDomText nodeValue = document.createTextNode(gOption->getValueString());
-      QDomElement newNode;
-
-      // import the node with its XML attributes
-      newNode = document.importNode(childNodes.at(i), false).toElement();
-
-      newNode.appendChild(nodeValue);
-      document.appendChild(newNode);
-    }
-  }
+	QList<GraphicalOption *>::const_iterator it = graphOptions.begin();
+	
+	for( ; it != graphOptions.end() ; it++)
+	{
+		GraphicalOption * gOption = *it;
+		
+		if(gOption->isModified())
+			options[ gOption->getName() ] = gOption->getValueString();
+	}
+	
+//  QDomNodeList childNodes = nodes.childNodes();
+//
+//  for(int i = 0 ; i < childNodes.count() ; i++)
+//  {
+//    GraphicalOption * gOption = options.at(i);
+//
+//    // if the option has been modified, we can add it to the tree
+//    if(gOption->isModified())
+//    {
+//      QDomText nodeValue = document.createTextNode(gOption->getValueString());
+//      QDomElement newNode;
+//
+//      // import the node with its XML attributes
+//      newNode = document.importNode(childNodes.at(i), false).toElement();
+//
+//      newNode.appendChild(nodeValue);
+//      document.appendChild(newNode);
+//    }
+//  }
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -210,7 +217,7 @@ void OptionPanel::setOptions(const QList<NodeOption> & list)
     try
     {
       graphicalOption = new GraphicalOption(type);
-      graphicalOption->setName(param.m_paramName + ':');
+      graphicalOption->setName(param.m_paramName);
       graphicalOption->setValue(param.m_paramValue.trimmed());
 
       graphicalOption->setToolTip(param.m_paramDescr);
@@ -355,17 +362,20 @@ void OptionPanel::buttonsSetVisible(bool visible)
 
  ****************************************************************************/
 
-void OptionPanel::commitChanges() const
+void OptionPanel::commitChanges()
 {
-  QDomDocument modOptions = this->getOptions();
+	QHash<QString, QString> options;
+  this->getOptions(options);
 //  QList<GraphicalOption *>::const_iterator it;
 
   // if there is at least one option that has been modified
-  if(modOptions.hasChildNodes())
+  if(!options.isEmpty())
   {
     QModelIndex currentIndex = ClientRoot::getTree()->getCurrentIndex();
 
-//    emit changesMade(modOptions, newOptions);
+		ClientRoot::getTree()->modifyOptions(currentIndex, options);
+
+		//    emit changesMade(modOptions, newOptions);
   }
 
 //  it = m_basicOptions.begin();

@@ -48,7 +48,7 @@ namespace Client {
 
     bool pathExists() const;
 
-    virtual bool forDebugMode() const { return false; }
+    virtual bool isClientComponent() const { return false; }
 
   private :
 

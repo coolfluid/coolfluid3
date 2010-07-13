@@ -104,7 +104,7 @@ namespace Client {
 
     /// If at least one option has been modified, @c changesMade signal is
     /// emitted.
-    void commitChanges() const;
+    void commitChanges();
 
   private slots:
 
@@ -203,11 +203,13 @@ namespace Client {
     /// @return Returns the built strings.
     QString getNodePath(QDomNode & node);
 
-    /// @brief Builds an XML document containing all modified m_options.
+    /// @brief Puts all modified options in a provided hashmap.
 
-    /// First the basic m_options and then the advanced ones.
-    /// @return Returns the built XML document.
-    QDomDocument getOptions() const;
+    /// Only modified options will be set, meaning that the hashmap may be empty
+		/// if no option has been modified. The map is cleared before first use.
+		/// @param options A hashmap were modified options will be written. The
+		/// key is the option name and the value is the option new value. 
+    void getOptions(QHash<QString, QString> & options) const;
 
     /// @brief Clears the given list by deleting the @c TOption
     /// objects its elements point to.
@@ -226,13 +228,11 @@ namespace Client {
     /// are appended to the document, which means that the document may be
     /// empty (if no option has been modified).
     /// @param nodes Original m_options nodes.
-    /// @param m_options Options components.
-    /// @param document Document where built nodes will be stored. The
-    /// presence of this parameter is due to the fact that a node can not
-    /// exist if it does not belong to a document.
-    void buildOptions(const QDomDocument & nodes,
-                      const QList<GraphicalOption *> & options,
-                      QDomDocument & document) const;
+    /// @param graphOptions Options components.
+		/// @param options A hashmap were modified options will be written. The
+		/// key is the option name and the value is the option new value. 
+    void buildOptions(const QList<GraphicalOption *> & graphOptions,
+                      QHash<QString, QString> & options) const;
 
     /// @brief Applies the basic/advanced modes to the panel.
 

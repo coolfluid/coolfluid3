@@ -38,7 +38,7 @@ namespace Client {
 
     virtual void getOptions(QList<NodeOption> & params) const;
 
-    virtual bool forDebugMode() const { return true; }
+    virtual bool isClientComponent() const { return true; }
 
   private:
 

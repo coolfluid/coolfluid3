@@ -4,7 +4,9 @@
 #include <cstring>
 
 #include "Common/CF.hpp"
+#include "Common/XmlHelpers.hpp"
 
+#include "GUI/Client/ClientCore.hpp"
 #include "GUI/Client/ClientRoot.hpp"
 #include "GUI/Client/NGroup.hpp"
 #include "GUI/Client/NLink.hpp"
@@ -57,9 +59,7 @@ void CNode::setOptions(const XmlNode & node)
 {
   XmlNode * option = node.first_node("value");
 
-  qDebug() << __LINE__ << option;
-
-  while(option != CFNULL)
+  while(option != CFNULL )
   {
     XmlNode * type = option->first_node();
 
@@ -72,18 +72,76 @@ void CNode::setOptions(const XmlNode & node)
         NodeOption np;
         char * modeStr = option->first_attribute("mode")->value();
 
-//        np.m_paramAdv = !((modeStr != CFNULL) && (std::strcmp(modeStr, "basic") == 0));
+        //np.m_paramAdv = !((modeStr != CFNULL) && (std::strcmp(modeStr, "basic") == 0));
         np.m_paramType = OptionType::Convert::to_enum(type->name());
         np.m_paramName = name;
         //np.m_paramDescr = elt.attribute("desc");
         np.m_paramValue = type->value();
 
-        m_options.append(np);
+        m_options[name] = np;
       }
     }
 
     option = option->next_sibling("value");
   }
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void CNode::modifyOptions(const QHash<QString, QString> options)
+{
+	QHash<QString, QString>::const_iterator it = options.begin();
+	
+	if(isClientComponent())
+	{
+		for ( ; it != options.end() ; it++) 
+		{
+			if(m_options.contains(it.key()))
+				m_options[it.key()].m_paramValue = it.value();
+		}		
+	}
+	else 
+	{
+		boost::shared_ptr<XmlDoc> docnode = XmlOps::create_doc();
+		XmlNode * rootNode = XmlOps::goto_doc_node(*docnode.get());
+		XmlNode * signalNode = XmlOps::add_signal_frame(*rootNode, "configure", full_path(), full_path());
+		XmlParams p(*signalNode);
+		bool valid = true;
+		
+		for ( ; it != options.end() ; it++) 
+		{
+			if(m_options.contains(it.key()))
+			{
+				switch (m_options[it.key()].m_paramType) 
+				{
+					case OptionType::TYPE_BOOL:
+						p.add_param(it.key().toStdString(), QVariant(it.value()).toBool());
+						break;
+					case OptionType::TYPE_INT:
+						p.add_param(it.key().toStdString(), QVariant(it.value()).toInt());
+						break;
+					case OptionType::TYPE_UNSIGNED_INT:
+						p.add_param(it.key().toStdString(), QVariant(it.value()).toUInt());
+						break;
+					case OptionType::TYPE_DOUBLE:
+						p.add_param(it.key().toStdString(), QVariant(it.value()).toDouble());
+						break;
+					case OptionType::TYPE_STRING:
+						p.add_param(it.key().toStdString(), it.value().toStdString());
+						break;
+						
+					default:
+						ClientRoot::getLog()->addError(QString("%1: Unknown type id").arg(m_options[it.value()].m_paramType));
+						valid = false;
+						break;
+				}				
+			}
+		}
+		
+		if(valid)
+			ClientCore::instance().sendSignal(*docnode.get());		
+	}
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -139,10 +197,9 @@ CNode::Ptr CNode::createFromXml(CF::Common::XmlNode & node)
 CNode::Ptr CNode::getNode(CF::Uint index)
 {
   ComponentIterator<CNode> it = this->begin<CNode>();
-CF::Uint i;
   cf_assert(index < m_components.size());
 
-  for(i = 0 ; i < index ; i++)
+  for(CF::Uint i = 0 ; i < index ; i++)
     it++;
 
   return it.get();
