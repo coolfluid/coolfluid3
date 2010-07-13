@@ -59,19 +59,6 @@ namespace Client {
     /// Frees the allocated memory.  Parent is not destroyed.
     ~OptionPanel();
 
-    /// @brief Creates a new option.
-
-    /// @param optionType New option type. This value must be one of those
-    /// defined by @c OptionType class. If the type is not valid, this method
-    /// returns directly without create any option.
-    /// @param name New option name.
-    /// @param basic If @c true, a new basic option will be created. Otherwise,
-    /// a new advanced option is created.
-    /// @param dynamic If @c true, a new dynamic option will be created.
-    /// Otherwise, a new static option is created.
-    void addOption(OptionType::Type optionType, const QString & name,
-                   bool basic = true, bool dynamic = false);
-
     /// @brief Indicates wether at least on option has been modified.
 
     /// @return Returns @c true if at least one option has been modified.
@@ -153,17 +140,11 @@ namespace Client {
     /// @brief Scroll area for advanced m_options
     QScrollArea * m_scrollAdvancedOptions;
 
-    /// @brief List containing new basic m_options components.
-    QList<GraphicalOption *> m_newBasicOptions;
-
     /// @brief List containing basic m_options components.
     QList<GraphicalOption *> m_basicOptions;
 
     /// @brief List containing advanced m_options components.
     QList<GraphicalOption *> m_advancedOptions;
-
-    /// @brief List containing new advanced m_options components.
-    QList<GraphicalOption *> m_newAdvancedOptions;
 
     /// @brief Button used to commit changes made.
     QPushButton * m_btCommitChanges;
@@ -227,12 +208,6 @@ namespace Client {
     /// First the basic m_options and then the advanced ones.
     /// @return Returns the built XML document.
     QDomDocument getOptions() const;
-
-    /// @brief Builds an XML document containing all new m_options.
-
-    /// First the basic m_options and then the advanced ones.
-    /// @return Returns the built XML document.
-    QDomDocument getNewOptions() const;
 
     /// @brief Clears the given list by deleting the @c TOption
     /// objects its elements point to.
@@ -306,13 +281,6 @@ namespace Client {
     /// @return Returns @c true if at least one option has been modified;
     /// otherwise, returns @c false.
     bool isModified(const QList<GraphicalOption *> & graphicalOptions) const;
-
-//    /// @brief Assigns new node m_options to the panel.
-
-//    /// Old m_options and m_options components are deleted.
-//    /// @param m_options List of new options.
-//    /// @throw UnknownType If an option has an unknown type.
-//    void setOptions(const QDomNodeList & options);
 
     void setOptions(const QList<NodeOption> & list);
 

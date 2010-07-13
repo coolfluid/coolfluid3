@@ -74,8 +74,6 @@ OptionPanel::~OptionPanel()
 {
   this->clearList(m_basicOptions);
   this->clearList(m_advancedOptions);
-  this->clearList(m_newBasicOptions);
-  this->clearList(m_newAdvancedOptions);
 
   delete m_btCommitChanges;
   delete m_gbBasicOptions;
@@ -149,19 +147,6 @@ void OptionPanel::buildOptions(const QDomDocument & nodes,
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QDomDocument OptionPanel::getNewOptions() const
-{
-  QDomDocument doc;
-
-//  this->buildOptions(m_newBasicOptionsNodes, m_newBasicOptions, doc);
-//  this->buildOptions(m_newAdvancedOptionsNodes, m_newAdvancedOptions, doc);
-
-  return doc;
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 void OptionPanel::clearList(QList<GraphicalOption *> & list)
 {
   QList<GraphicalOption *>::iterator it = list.begin();
@@ -186,8 +171,6 @@ void OptionPanel::setOptions(const QList<NodeOption> & list)
   // delete old widgets
   this->clearList(m_basicOptions);
   this->clearList(m_advancedOptions);
-  this->clearList(m_newBasicOptions);
-  this->clearList(m_newAdvancedOptions);
 
  // set the new widgets
   if(!list.isEmpty())
@@ -267,13 +250,7 @@ void OptionPanel::setOptions(const QList<NodeOption> & list)
 
 bool OptionPanel::isModified() const
 {
-  bool modified = this->isModified(m_basicOptions);
-
-  modified |= this->isModified(m_advancedOptions);
-  modified |= !m_newBasicOptions.isEmpty();
-  modified |= !m_newAdvancedOptions.isEmpty();
-
-  return modified;
+  return this->isModified(m_basicOptions) || this->isModified(m_advancedOptions);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -289,12 +266,6 @@ void OptionPanel::getModifiedOptions(CommitDetails & commitDetails) const
 
   // advanced m_options
   this->getModifiedOptions(m_advancedOptions, commitDetails, false);
-
-  // new basic m_options
-  this->getModifiedOptions(m_newBasicOptions, commitDetails, true);
-
-  // new advanced m_options
-  this->getModifiedOptions(m_newAdvancedOptions, commitDetails, true);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -387,32 +358,31 @@ void OptionPanel::buttonsSetVisible(bool visible)
 void OptionPanel::commitChanges() const
 {
   QDomDocument modOptions = this->getOptions();
-  QDomDocument newOptions = this->getNewOptions();
-  QList<GraphicalOption *>::const_iterator it;
+//  QList<GraphicalOption *>::const_iterator it;
 
   // if there is at least one option that has been modified
-  if(modOptions.hasChildNodes() || newOptions.hasChildNodes())
+  if(modOptions.hasChildNodes())
   {
     QModelIndex currentIndex = ClientRoot::getTree()->getCurrentIndex();
 
-    emit changesMade(modOptions, newOptions);
+//    emit changesMade(modOptions, newOptions);
   }
 
-  it = m_basicOptions.begin();
-
-  while(it != m_basicOptions.end())
-  {
-    (*it)->commit();
-    it++;
-  }
-
-  it = m_advancedOptions.begin();
-
-  while(it != m_advancedOptions.end())
-  {
-    (*it)->commit();
-    it++;
-  }
+//  it = m_basicOptions.begin();
+//
+//  while(it != m_basicOptions.end())
+//  {
+//    (*it)->commit();
+//    it++;
+//  }
+//
+//  it = m_advancedOptions.begin();
+//
+//  while(it != m_advancedOptions.end())
+//  {
+//    (*it)->commit();
+//    it++;
+//  }
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
