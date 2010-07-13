@@ -406,10 +406,11 @@ void Component::list_options ( XmlNode& node )
     // it->second type is Option::Ptr
 
     XmlNode& value_node = *XmlOps::add_node_to(node, "value");
-    XmlNode& type_node = *XmlOps::add_node_to(value_node, it->second->type(), it->second->value_str());
 
     // set the key attribute (option name)
     XmlOps::add_attribute_to(value_node, XmlParams::tag_attr_key(), it->first);
+	  
+	XmlOps::add_node_to(value_node, it->second->type(), it->second->value_str());
   }
 }
 
