@@ -21,9 +21,9 @@ using namespace CF::GUI::Client;
 
 CNode::CNode(const QString & name, const QString & componentType, CNode::Type type)
   : Component(name.toStdString()),
-    m_componentType(componentType),
     m_contextMenu(new QMenu("Node")),
-    m_type(type)
+    m_type(type),
+    m_componentType(componentType)
 {
   BUILD_COMPONENT;
 }
