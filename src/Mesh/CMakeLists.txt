@@ -43,6 +43,8 @@ LIST( APPEND Mesh_files
   Elements/Line1D.cpp
   Elements/Line2D.hpp
   Elements/Line2D.cpp
+  Elements/Line3D.hpp
+  Elements/Line3D.cpp
   Elements/Quad2D.hpp
   Elements/Quad2D.cpp
   Elements/Tetra3D.hpp

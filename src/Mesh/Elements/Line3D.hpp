@@ -1,5 +1,5 @@
-#ifndef CF_Mesh_Line2D_hpp
-#define CF_Mesh_Line2D_hpp
+#ifndef CF_Mesh_Line3D_hpp
+#define CF_Mesh_Line3D_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,16 +16,16 @@ namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
   
-/// This class defines a 2D line mesh element
+/// This class defines a 3D line mesh element
 /// @author Willem Deconinck
-struct Mesh_API Line2D : public ElementTypeBase
+struct Mesh_API Line3D : public ElementTypeBase
 {
 
   /// constructor
-  Line2D();
+  Line3D();
   
   /// Gets the Class name
-  static std::string type_name() { return "Line2D"; }
+  static std::string type_name() { return "Line3D"; }
 
   /// @return m_geoShape
   static const GeoShape::Type shape = GeoShape::LINE;
@@ -40,9 +40,9 @@ struct Mesh_API Line2D : public ElementTypeBase
   static const Uint dimensionality = DIM_1D;
   
   /// @return m_dimension
-  static const Uint dimension = DIM_2D;
+  static const Uint dimension = DIM_3D;
 
-}; // end Line2D
+}; // end Line3D
   
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -51,4 +51,4 @@ struct Mesh_API Line2D : public ElementTypeBase
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_Line2D_hpp
+#endif // CF_Mesh_Line3D_hpp
