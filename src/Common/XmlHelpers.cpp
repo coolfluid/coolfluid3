@@ -40,6 +40,8 @@ namespace Common {
 
   const char * XmlParams::tag_attr_key()    { return "key"; }
 
+	const char * XmlParams::tag_attr_descr()    { return "descr"; }
+
 ////////////////////////////////////////////////////////////////////////////////
 
   void XmlOps::write_xml_node ( const XmlNode& node, const boost::filesystem::path& fpath )

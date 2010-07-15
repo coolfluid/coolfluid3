@@ -94,6 +94,8 @@ namespace Common {
     static const char * tag_node_frame ();
     /// the xml attribute name used for the key
     static const char * tag_attr_key ();
+    /// the xml attribute name used for the description
+    static const char * tag_attr_descr ();
 
     /// Constructor
     /// @param node the node where the parameters will be extracted from

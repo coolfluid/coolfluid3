@@ -409,6 +409,7 @@ void Component::list_options ( XmlNode& node )
 
     // set the key attribute (option name)
     XmlOps::add_attribute_to(value_node, XmlParams::tag_attr_key(), it->first);
+    XmlOps::add_attribute_to(value_node, XmlParams::tag_attr_descr(), it->second->description());
 	  
 	XmlOps::add_node_to(value_node, it->second->type(), it->second->value_str());
   }
