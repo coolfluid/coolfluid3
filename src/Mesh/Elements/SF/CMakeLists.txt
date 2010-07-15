@@ -15,6 +15,8 @@ LIST ( APPEND SF_files
   Tetra3DLagrangeP1.hpp
   Triag2DLagrangeP1.cpp
   Triag2DLagrangeP1.hpp
+  Triag3DLagrangeP1.cpp
+  Triag3DLagrangeP1.hpp
   Types.hpp
 )
 

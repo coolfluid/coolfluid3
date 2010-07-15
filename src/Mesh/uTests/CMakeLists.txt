@@ -72,11 +72,20 @@ LIST( APPEND uTestLine3DLagrangeP1_files
 CF_ADD_UNITTEST( uTestLine3DLagrangeP1 )
 
 ################################################################################
+
 LIST( APPEND uTestTriag2DLagrangeP1_libs SF )
 LIST( APPEND uTestTriag2DLagrangeP1_files
   uTestTriag2DLagrangeP1.cpp )
 
 CF_ADD_UNITTEST( uTestTriag2DLagrangeP1 )
+
+################################################################################
+
+LIST( APPEND uTestTriag3DLagrangeP1_libs SF )
+LIST( APPEND uTestTriag3DLagrangeP1_files
+  uTestTriag3DLagrangeP1.cpp )
+
+CF_ADD_UNITTEST( uTestTriag3DLagrangeP1 )
 
 ################################################################################
 

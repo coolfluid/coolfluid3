@@ -53,6 +53,8 @@ LIST( APPEND Mesh_files
   Elements/Tetra3D.cpp
   Elements/Triag2D.hpp
   Elements/Triag2D.cpp
+  Elements/Triag3D.hpp
+  Elements/Triag3D.cpp
 
 # directories with headers only can have their contents appended to base dir
   Integrators/Gauss.hpp
