@@ -3,6 +3,8 @@
 #include <QtCore>
 #include <QtGui>
 
+#include "Common/CF.hpp"
+
 #include "GUI/Client/CommitDetails.hpp"
 #include "GUI/Client/CommitDetailsDialog.hpp"
 #include "GUI/Client/GraphicalOption.hpp"
@@ -13,6 +15,7 @@
 
 #include "GUI/Client/OptionPanel.hpp"
 
+using namespace CF::Common;
 using namespace CF::GUI::Client;
 
 
@@ -366,33 +369,21 @@ void OptionPanel::commitChanges()
 {
 	QHash<QString, QString> options;
   this->getOptions(options);
-//  QList<GraphicalOption *>::const_iterator it;
 
   // if there is at least one option that has been modified
   if(!options.isEmpty())
   {
     QModelIndex currentIndex = ClientRoot::getTree()->getCurrentIndex();
 
-		ClientRoot::getTree()->modifyOptions(currentIndex, options);
-
-		//    emit changesMade(modOptions, newOptions);
-  }
-
-//  it = m_basicOptions.begin();
-//
-//  while(it != m_basicOptions.end())
-//  {
-//    (*it)->commit();
-//    it++;
-//  }
-//
-//  it = m_advancedOptions.begin();
-//
-//  while(it != m_advancedOptions.end())
-//  {
-//    (*it)->commit();
-//    it++;
-//  }
+		try 
+		{
+			ClientRoot::getTree()->modifyOptions(currentIndex, options);
+		}
+		catch (ValueNotFound & vnf) 
+		{
+			ClientRoot::getLog()->addException(vnf.msg().c_str());
+		}
+	}
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

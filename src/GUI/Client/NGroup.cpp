@@ -32,11 +32,6 @@ QString NGroup::getToolTip() const
 
 void NGroup::getOptions(QList<NodeOption> & params) const
 {
-  QHash<QString, NodeOption>::const_iterator it = m_options.begin();
-
-  params.clear();
-
-  for( ; it != m_options.end() ; it++)
-    params.append(it.value());
+	buildOptionList(params);
 }
 

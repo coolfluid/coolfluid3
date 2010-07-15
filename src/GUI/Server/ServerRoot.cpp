@@ -1,3 +1,5 @@
+#include <QtCore>
+
 #include "GUI/Network/ComponentNames.hpp"
 
 #include "Common/CRoot.hpp"
@@ -43,16 +45,14 @@ void ServerRoot::processSignal(const QDomDocument & signal)
 
   try
   {
-
-		CFinfo << "calling " << receiver << "::" << type << CFendl;
-  getRoot()->access_component(receiver)->call_signal( type, *nodedoc.first_node() );
-
-  std::string str;
-  XmlOps::xml_to_string(*xmldoc.get(), str);
-  CFinfo << "Sending back " <<  str << CFendl;
-
-  getCore()->sendSignal(*xmldoc.get());
-}
+		getRoot()->access_component(receiver)->call_signal( type, *nodedoc.first_node() );
+		
+		std::string str;
+		XmlOps::xml_to_string(*xmldoc.get(), str);
+		qDebug() << "Sending back " <<  str.c_str() << CFendl;
+		
+		getCore()->sendSignal(*xmldoc.get());
+	}
   catch(Exception e)
   {
     CFerror << e.what() << CFendl;

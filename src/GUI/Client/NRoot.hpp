@@ -44,7 +44,7 @@ namespace Client {
       return m_root;
     }
 
-    CNode::Ptr getNodeFromRoot(int number) const;
+    CNode::Ptr getNodeFromRoot(CF::Uint number) const;
 
     bool pathExists() const;
 

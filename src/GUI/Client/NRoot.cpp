@@ -40,18 +40,13 @@ QString NRoot::getToolTip() const
 
 void NRoot::getOptions(QList<NodeOption> & params) const
 {
-  QHash<QString, NodeOption>::const_iterator it = m_options.begin();
-
-  params.clear();
-
-  for( ; it != m_options.end() ; it++)
-    params.append(it.value());
+	buildOptionList(params);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CNode::Ptr NRoot::getNodeFromRoot(int number) const
+CNode::Ptr NRoot::getNodeFromRoot(CF::Uint number) const
 {
   ComponentIterator<CNode> it = m_root->begin<CNode>();
   CF::Uint i;

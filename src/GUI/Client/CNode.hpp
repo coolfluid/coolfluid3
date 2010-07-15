@@ -8,6 +8,8 @@
 #include <QHash>
 
 #include "Common/Component.hpp"
+#include "Common/OptionT.hpp"
+#include "Common/XML.hpp"
 
 #include "GUI/Client/OptionType.hpp"
 
@@ -110,7 +112,7 @@ namespace Client {
 
     void modifyOptions(const QHash<QString, QString> options);
 
-    virtual void getOptions(QList<NodeOption> & params) const = 0;
+    virtual void getOptions(QList<NodeOption> & options) const = 0;
 
     /// @brief Creates an object tree from a given node
 
@@ -133,13 +135,15 @@ namespace Client {
 
   protected:
 
-    QHash<QString, NodeOption> m_options;
-
     QString m_textData;
 
     QMenu * m_contextMenu;
 
     CNode::Type m_type;
+		
+		void buildOptionList(QList<NodeOption> & options) const;
+		
+		void configure(CF::Common::XmlNode & node);
 
   private:
 
@@ -148,6 +152,16 @@ namespace Client {
 
     /// regists all the signals declared in this class
     static void regist_signals ( Component* self ) {}
+		
+		template < typename TYPE >
+		void addOption ( const std::string & name, const std::string & descr,
+										 CF::Common::XmlNode & node )
+		{
+			TYPE value;
+			CF::Common::xmlstr_to_value(node, value);
+			m_option_list.add< CF::Common::OptionT<TYPE> >(name, descr, value);
+		}
+		
   }; // class CNode
 
   ////////////////////////////////////////////////////////////////////////////

@@ -26,6 +26,8 @@ CNode::CNode(const QString & name, const QString & componentType, CNode::Type ty
     m_componentType(componentType)
 {
   BUILD_COMPONENT;
+	
+	regist_signal("configure", "Update component options")->connect(boost::bind(&CNode::configure, this, _1));
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -55,35 +57,40 @@ void CNode::setTextData(const QString & text)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CNode::setOptions(const XmlNode & node)
-{
-  XmlNode * option = node.first_node("value");
+void CNode::setOptions(const XmlNode & options)
+{	
+	// iterate through options
+	XmlNode* node = options.first_node( "value" );
+	for ( ; node != CFNULL ; node = node->next_sibling( "value" ) )
+	{	
+		XmlAttr * keyAttr= node->first_attribute( XmlParams::tag_attr_key() );
+		XmlAttr * descrAttr = node->first_attribute( XmlParams::tag_attr_descr() );
+		
+		if ( keyAttr != CFNULL )
+		{
+			XmlNode * type_node = node->first_node();
+			
+			if( type_node != CFNULL)
+			{
+				const char * descrVal = (descrAttr != CFNULL) ? descrAttr->value() : "";
+				const char * keyVal = keyAttr->value(); // option name
+			  const char * typeVal = type_node->name(); // type name
 
-  while(option != CFNULL )
-  {
-    XmlNode * type = option->first_node();
-
-    if(type != CFNULL && type->value() != CFNULL)
-    {
-      char * name = option->first_attribute("key")->value();
-
-      if(name != CFNULL && std::strlen(name) > 0)
-      {
-        NodeOption np;
-        char * modeStr = option->first_attribute("mode")->value();
-
-        //np.m_paramAdv = !((modeStr != CFNULL) && (std::strcmp(modeStr, "basic") == 0));
-        np.m_paramType = OptionType::Convert::to_enum(type->name());
-        np.m_paramName = name;
-        //np.m_paramDescr = elt.attribute("desc");
-        np.m_paramValue = type->value();
-
-        m_options[name] = np;
-      }
-    }
-
-    option = option->next_sibling("value");
-  }
+				if(std::strcmp(typeVal, "bool") == 0)
+					addOption<bool>(keyVal, descrVal, *type_node);
+				else if(std::strcmp(typeVal, "int") == 0)
+					addOption<int>(keyVal, descrVal, *type_node);
+				else if(std::strcmp(typeVal, "unsigned") == 0)
+					addOption<CF::Uint>(keyVal, descrVal, *type_node);
+				else if(std::strcmp(typeVal, "double") == 0)
+					addOption<CF::Real>(keyVal, descrVal, *type_node);
+				else if(std::strcmp(typeVal, "string") == 0)
+					addOption<std::string>(keyVal, descrVal, *type_node);
+				else 
+					throw ShouldNotBeHere(FromHere(), std::string(typeVal) + ": Unknown type");
+			}			
+		}
+	}
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -97,8 +104,8 @@ void CNode::modifyOptions(const QHash<QString, QString> options)
 	{
 		for ( ; it != options.end() ; it++) 
 		{
-			if(m_options.contains(it.key()))
-				m_options[it.key()].m_paramValue = it.value();
+//			if(m_options.contains(it.key()))
+//				m_options[it.key()].m_paramValue = it.value();
 		}		
 	}
 	else 
@@ -111,32 +118,20 @@ void CNode::modifyOptions(const QHash<QString, QString> options)
 		
 		for ( ; it != options.end() ; it++) 
 		{
-			if(m_options.contains(it.key()))
-			{
-				switch (m_options[it.key()].m_paramType) 
-				{
-					case OptionType::TYPE_BOOL:
-						p.add_param(it.key().toStdString(), QVariant(it.value()).toBool());
-						break;
-					case OptionType::TYPE_INT:
-						p.add_param(it.key().toStdString(), QVariant(it.value()).toInt());
-						break;
-					case OptionType::TYPE_UNSIGNED_INT:
-						p.add_param(it.key().toStdString(), QVariant(it.value()).toUInt());
-						break;
-					case OptionType::TYPE_DOUBLE:
-						p.add_param(it.key().toStdString(), QVariant(it.value()).toDouble());
-						break;
-					case OptionType::TYPE_STRING:
-						p.add_param(it.key().toStdString(), it.value().toStdString());
-						break;
-						
-					default:
-						ClientRoot::getLog()->addError(QString("%1: Unknown type id").arg(m_options[it.value()].m_paramType));
-						valid = false;
-						break;
-				}				
-			}
+			Option::Ptr option = m_option_list.getOption(it.key().toStdString());
+			
+			if(option->type() == "bool")
+				p.add_param(it.key().toStdString(), QVariant(it.value()).toBool());
+			else if(option->type() == "int")
+				p.add_param(it.key().toStdString(), QVariant(it.value()).toInt());
+			else if(option->type() == "unsigned")
+				p.add_param(it.key().toStdString(), QVariant(it.value()).toUInt());
+			else if(option->type() == "double")
+				p.add_param(it.key().toStdString(), QVariant(it.value()).toDouble());
+			else if(option->type() == "string")
+				p.add_param(it.key().toStdString(), it.value().toStdString());
+			else
+				throw ValueNotFound(FromHere(), std::string(option->type()) + ": Unknown type id");
 		}
 		
 		if(valid)
@@ -176,16 +171,23 @@ CNode::Ptr CNode::createFromXml(CF::Common::XmlNode & node)
 
   while(child != CFNULL)
   {
-    if(std::strcmp(child->name(), "valuemap") == 0)
-      rootNode->setOptions(*child);
-    else
-    {
-      CNode::Ptr node = createFromXml(*child);
-
-      if(node.get() != CFNULL)
-        rootNode->add_component(node);
-    }
-    child = child->next_sibling();
+		try 
+		{
+			if(std::strcmp(child->name(), XmlParams::tag_node_valuemap()) == 0)
+				rootNode->setOptions(*child);
+			else
+			{
+				CNode::Ptr node = createFromXml(*child);
+				
+				if(node.get() != CFNULL)
+					rootNode->add_component(node);
+			}
+		}
+		catch (ShouldNotBeHere & snbh) 
+		{
+			ClientRoot::getLog()->addException(snbh.msg().c_str());
+		}
+        child = child->next_sibling();
   }
 
   return rootNode;
@@ -219,4 +221,35 @@ QMenu * CNode::getContextMenu() const
 void CNode::showContextMenu(const QPoint & pos) const
 {
   m_contextMenu->exec(pos);
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void CNode::buildOptionList(QList<NodeOption> & options) const
+{
+	OptionList::OptionStorage_t::const_iterator it = m_option_list.m_options.begin();
+	
+	options.clear();
+	
+  for( ; it != m_option_list.m_options.end() ; it++)
+  {
+		NodeOption nodeOpt;
+		
+		nodeOpt.m_paramName = it->first.c_str();
+		nodeOpt.m_paramValue = it->second->value_str().c_str();
+		nodeOpt.m_paramDescr = it->second->description().c_str();
+		nodeOpt.m_paramType = OptionType::Convert::to_enum(it->second->type());
+		
+		options.append(nodeOpt);
+  }	
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void CNode::configure(CF::Common::XmlNode & node)
+{
+	ConfigObject::configure(node);
+	ClientRoot::getLog()->addMessage(QString("Node \"%1\" options updated.").arg(full_path().string().c_str()));
 }
