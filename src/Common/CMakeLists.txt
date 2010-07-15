@@ -177,7 +177,7 @@ Win32/LibLoader.hpp      Win32/LibLoader.cpp
 list( APPEND Common_libs ${Boost_LIBRARIES})
 
 # faster allocation and memory porfiling
-if( CF_HAVE_GOOGLE_PERFTOOLS )
+if( CF_USE_TCMALLOC )
   list(APPEND Common_libs ${GOOGLE_PERFTOOLS_TCMALLOC_LIB} )
 endif()
 

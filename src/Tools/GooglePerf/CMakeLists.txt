@@ -7,7 +7,7 @@
 
   LIST ( APPEND GooglePerfTools_includedirs ${GOOGLE_PERFTOOLS_INCLUDE_DIR} )
   LIST ( APPEND GooglePerfTools_cflibs Common )
-  LIST ( APPEND GooglePerfTools_libs ${GOOGLE_PERFTOOLS_LIBS} )
+  LIST ( APPEND GooglePerfTools_libs ${GOOGLE_PERFTOOLS_PROFILER_LIB} )
 
   CF_ADD_LIBRARY ( GooglePerfTools )
 

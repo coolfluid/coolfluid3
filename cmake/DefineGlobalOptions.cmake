@@ -29,6 +29,7 @@ option ( CF_ENABLE_CODECOVERAGE              "Enable code coverage"     OFF )
 
 # user option to add system depedent profiling
 option ( CF_ENABLE_PROFILING    "Enable code profiling"                 OFF )
+option ( CF_USE_TCMALLOC    "Use google perftools tcmalloc (can be faster, but buggy)"                 OFF )
 
 # user option to static build
 option ( CF_ENABLE_STATIC       "Enable static building"                OFF)
