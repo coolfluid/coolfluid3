@@ -47,6 +47,8 @@ LIST( APPEND Mesh_files
   Elements/Line3D.cpp
   Elements/Quad2D.hpp
   Elements/Quad2D.cpp
+  Elements/Quad3D.hpp
+  Elements/Quad3D.cpp
   Elements/Tetra3D.hpp
   Elements/Tetra3D.cpp
   Elements/Triag2D.hpp

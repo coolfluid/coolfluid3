@@ -9,6 +9,8 @@ LIST ( APPEND SF_files
   Line3DLagrangeP1.hpp
   Quad2DLagrangeP1.cpp
   Quad2DLagrangeP1.hpp
+  Quad3DLagrangeP1.cpp
+  Quad3DLagrangeP1.hpp
   Tetra3DLagrangeP1.cpp
   Tetra3DLagrangeP1.hpp
   Triag2DLagrangeP1.cpp

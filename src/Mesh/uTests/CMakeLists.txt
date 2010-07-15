@@ -88,6 +88,14 @@ CF_ADD_UNITTEST( uTestQuad2DLagrangeP1 )
 
 ################################################################################
 
+LIST( APPEND uTestQuad3DLagrangeP1_libs  SF )
+LIST( APPEND uTestQuad3DLagrangeP1_files
+  uTestQuad3DLagrangeP1.cpp )
+
+CF_ADD_UNITTEST( uTestQuad3DLagrangeP1 )
+
+################################################################################
+
 LIST( APPEND uTestIntegration_libs  P1 Neu Testing SF )
 LIST( APPEND uTestIntegration_files
   uTestIntegration.cpp )
