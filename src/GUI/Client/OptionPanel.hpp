@@ -206,9 +206,9 @@ namespace Client {
     /// @brief Puts all modified options in a provided hashmap.
 
     /// Only modified options will be set, meaning that the hashmap may be empty
-		/// if no option has been modified. The map is cleared before first use.
-		/// @param options A hashmap were modified options will be written. The
-		/// key is the option name and the value is the option new value. 
+    /// if no option has been modified. The map is cleared before first use.
+    /// @param options A hashmap were modified options will be written. The
+    /// key is the option name and the value is the option new value.
     void getOptions(QHash<QString, QString> & options) const;
 
     /// @brief Clears the given list by deleting the @c TOption
@@ -229,8 +229,8 @@ namespace Client {
     /// empty (if no option has been modified).
     /// @param nodes Original m_options nodes.
     /// @param graphOptions Options components.
-		/// @param options A hashmap were modified options will be written. The
-		/// key is the option name and the value is the option new value. 
+    /// @param options A hashmap were modified options will be written. The
+    /// key is the option name and the value is the option new value.
     void buildOptions(const QList<GraphicalOption *> & graphOptions,
                       QHash<QString, QString> & options) const;
 
@@ -245,35 +245,19 @@ namespace Client {
     void setEnabled(const QDomDocument & optionsNodes,
                     const QList<GraphicalOption *> & options);
 
-    /// @brief Build containers with modified m_options.
+    /// @brief Build containers with modified options.
 
     /// This method allows to get old and new values of each modified option.
     /// The old value is the original one, that the option had on calling
     /// @c setOptions. The new value is the current option value. All
     /// intermediate values (i.e. : if user modified several times the same
-    /// option) are ignored. These values are stored in @c oldValues and
-    /// @c newValues respectively, if they are provided. Each modified
-    /// option name is stored in the provides string list. Hash map keys have
-    /// one of these names. @n @n
-    /// The method garantees that:
-    /// @li string list and hash map will have exactly the same number of
-    /// elements
-    /// @li all hash map keys can be found in the string list
-    /// @li each string list item has a corresponding key in both hash maps.
+    /// option) are ignored.
     /// @param graphicalOptions Graphical components corresponding the option
     /// nodes.
-    /// @param m_options String list where modified option names will be stored.
-    /// @param oldValues If not @c CFNULL, this hash map is used to store old
-    /// value of an option. If @c CFNULL, this parameter is not used. The key
-    /// is the option name as stored in @c options string list. The value is
-    /// the old value.
-    /// @param newValues If not @c CFNULL, this hash map is used to store new
-    /// value of an option. If @c CFNULL, this parameter is not used. The key
-    /// is the option name as stored in @c options string list. The value is
-    /// the new value.
+    /// @param commitDetails Reference to where meodified options will be stored.
+    /// @b Not cleared before first use.
     void getModifiedOptions(const QList<GraphicalOption *> & graphicalOptions,
-                            CommitDetails & commitDetails,
-                            bool newOptions) const;
+                            CommitDetails & commitDetails) const;
 
     /// @brief Checks if options has been modified.
 

@@ -38,17 +38,13 @@ QVariant CommitDetails::data(const QModelIndex &index, int role) const
           break;
 
         case 1:
-          returnValue = item->isNewOption() ? "Added" : "Modified";
-          break;
-
-        case 2:
         {
           QString oldValue = item->getOldValue();
           returnValue = oldValue.isEmpty() ? "--" : QString("\"%1\"").arg(oldValue);
           break;
         }
 
-        case 3:
+        case 2:
         {
           QString value = item->getCurrentValue();
           returnValue = value.isEmpty() ? "--" : QString("\"%1\"").arg(value);
@@ -85,14 +81,10 @@ QVariant CommitDetails::headerData(int section, Qt::Orientation orientation,
           break;
 
         case 1:
-          returnValue = "Status";
-          break;
-
-        case 2:
           returnValue = "Old Value";
           break;
 
-        case 3:
+        case 2:
           returnValue = "New value";
           break;
       }
@@ -155,7 +147,7 @@ int CommitDetails::rowCount(const QModelIndex &parent) const
 
 int CommitDetails::columnCount(const QModelIndex &parent) const
 {
-  return 4;
+  return 3;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -171,154 +163,9 @@ void CommitDetails::setOption(const QString & optionName,
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CommitDetails::setNewOption(const QString & optionName,
-                                 const QString & value, OptionType::Type type)
-{
-  m_items << new CommitDetailsItem(optionName, value);
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool CommitDetails::setOptionNewValue(const QString & optionName,
-                                      const QString & value)
-{
-  if(!m_options.contains(optionName))
-    return false;
-
-  m_optionsNewValues[optionName] = value;
-  return true;
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool CommitDetails::setOptionOldValue(const QString & optionName,
-                                      const QString & value)
-{
-  if(!m_options.contains(optionName))
-    return false;
-
-  m_optionsOldValues[optionName] = value;
-  return true;
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool CommitDetails::setNewOptionValue(const QString & optionName,
-                                      const QString & value)
-{
-  if(!m_newOptions.contains(optionName))
-    return false;
-
-  m_newOptionsValues[optionName] = value;
-  return true;
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool CommitDetails::removeOption(const QString & optionName)
-{
-  if(!m_options.contains(optionName))
-    return false;
-
-  m_options.removeOne(optionName);
-  m_optionsOldValues.remove(optionName);
-  m_optionsNewValues.remove(optionName);
-
-  return true;
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool CommitDetails::removeNewOption(const QString & optionName)
-{
-  if(!m_newOptions.contains(optionName))
-    return false;
-
-  m_newOptions.removeOne(optionName);
-  m_newOptionsValues.remove(optionName);
-  m_newOptionsTypes.remove(optionName);
-
-  return true;
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool CommitDetails::getOption(const QString & optionName, QString & oldValue,
-                              QString & newValue) const
-{
-  if(!m_options.contains(optionName))
-    return false;
-
-  oldValue = m_optionsOldValues[optionName];
-  newValue = m_optionsNewValues[optionName];
-  return true;
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool CommitDetails::getNewOption(const QString & optionName,
-                                 QString & value) const
-{
-  if(!m_newOptions.contains(optionName))
-    return false;
-
-  value = m_newOptionsValues[optionName];
-  return true;
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool CommitDetails::contains(const QString & optionName,
-                             bool * isNewOption) const
-{
-  bool contains;
-
-  contains = m_options.contains(optionName);
-
-  if(contains && isNewOption != CFNULL)
-    *isNewOption = false;
-
-  else
-  {
-    contains = m_newOptions.contains(optionName);
-
-    if(contains && isNewOption != CFNULL)
-      *isNewOption = true;
-  }
-
-  return contains;
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool CommitDetails::isEmpty() const
-{
-  return m_options.isEmpty() && m_newOptions.isEmpty();
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 bool CommitDetails::hasOptions() const
 {
-  return m_options.isEmpty();
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool CommitDetails::hasNewOptions() const
-{
-  return m_newOptions.isEmpty();
+  return !m_items.isEmpty();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -326,56 +173,8 @@ bool CommitDetails::hasNewOptions() const
 
 void CommitDetails::clear()
 {
-  this->clearOptions();
-  this->clearNewOptions();
+  m_items.clear();
   m_nodePath.clear();
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void CommitDetails::clearOptions()
-{
-  m_options.clear();
-  m_optionsNewValues.clear();
-  m_optionsOldValues.clear();
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void CommitDetails::clearNewOptions()
-{
-  m_newOptions.clear();
-  m_newOptionsValues.clear();
-  m_newOptionsTypes.clear();
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-int CommitDetails::getOptionCount() const
-{
-  return m_options.count();
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-int CommitDetails::getNewOptionCount() const
-{
-  return m_newOptions.count();
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-OptionType::Type CommitDetails::getNewOptionType(const QString & optionName) const
-{
-  if(m_newOptions.contains(optionName))
-    return m_newOptionsTypes[optionName];
-
-  return OptionType::INVALID;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -392,52 +191,4 @@ QString CommitDetails::getNodePath() const
 void CommitDetails::setNodePath(const QString & nodePath)
 {
   m_nodePath = nodePath;
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-QString CommitDetails::toString() const
-{
-  QString details;
-  QString oldValue;
-  QString newValue;
-  QString separator = QString("\n").rightJustified(30, '+');
-  QString spaces = "   ";
-
-  if(!m_options.isEmpty())
-  {
-    QStringList::const_iterator it = m_options.begin();
-
-    details.append("Modified option(s):\n------------------------\n");
-
-    while(it != m_options.end())
-    {
-      QString name = *it;
-
-      oldValue = QString("Old value: \"%1\"\n").arg(m_optionsOldValues[name]);
-      newValue = QString("New value: \"%1\"\n").arg(m_optionsNewValues[name]);
-
-      details.append(QString("Option name: %1\n").arg(name));
-      details.append(spaces + oldValue);
-      details.append(spaces + newValue);
-
-      it++;
-
-      if(it != m_options.end())
-        details.append(separator);
-    }
-  }
-
-  if(!m_newOptions.isEmpty())
-  {
-    if(!details.isEmpty())
-      details.append(separator + separator);
-
-    details.append("New option(s):\n-------------------\n");
-
-    details.append(m_newOptions.join("\n" + spaces).prepend(spaces));
-  }
-
-  return details;
 }

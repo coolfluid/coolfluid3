@@ -59,7 +59,7 @@ OptionPanel::OptionPanel(QWidget * parent) : QWidget(parent)
   m_scrollBasicOptions->setVisible(false);
   this->buttonsSetVisible(false);
 
-	connect(m_btCommitChanges, SIGNAL(clicked()), this, SLOT(commitChanges()));
+  connect(m_btCommitChanges, SIGNAL(clicked()), this, SLOT(commitChanges()));
   connect(m_btCheckChanges, SIGNAL(clicked()), this, SLOT(checkOptions()));
   connect(m_btResetOptions, SIGNAL(clicked()), this, SLOT(resetChanges()));
 
@@ -111,10 +111,10 @@ void OptionPanel::setEnabled(const QDomDocument & optionsNodes,
 
 void OptionPanel::getOptions(QHash<QString, QString> & options) const
 {
-	options.clear();
-	
+  options.clear();
+
   this->buildOptions(m_basicOptions, options);
-	this->buildOptions(m_advancedOptions, options);
+  this->buildOptions(m_advancedOptions, options);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -123,16 +123,16 @@ void OptionPanel::getOptions(QHash<QString, QString> & options) const
 void OptionPanel::buildOptions(const QList<GraphicalOption *> & graphOptions,
                                QHash<QString, QString> & options) const
 {
-	QList<GraphicalOption *>::const_iterator it = graphOptions.begin();
-	
-	for( ; it != graphOptions.end() ; it++)
-	{
-		GraphicalOption * gOption = *it;
-		
-		if(gOption->isModified())
-			options[ gOption->getName() ] = gOption->getValueString();
-	}
-	
+  QList<GraphicalOption *>::const_iterator it = graphOptions.begin();
+
+  for( ; it != graphOptions.end() ; it++)
+  {
+    GraphicalOption * gOption = *it;
+
+    if(gOption->isModified())
+      options[ gOption->getName() ] = gOption->getValueString();
+  }
+
 //  QDomNodeList childNodes = nodes.childNodes();
 //
 //  for(int i = 0 ; i < childNodes.count() ; i++)
@@ -272,10 +272,10 @@ void OptionPanel::getModifiedOptions(CommitDetails & commitDetails) const
   commitDetails.setNodePath(m_currentPath);
 
   // basic m_options
-  this->getModifiedOptions(m_basicOptions, commitDetails, false);
+  this->getModifiedOptions(m_basicOptions, commitDetails);
 
   // advanced m_options
-  this->getModifiedOptions(m_advancedOptions, commitDetails, false);
+  this->getModifiedOptions(m_advancedOptions, commitDetails);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -306,8 +306,7 @@ QString OptionPanel::getNodePath(QDomNode & node)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 void OptionPanel::getModifiedOptions(const QList<GraphicalOption *> & graphicalOptions,
-                                     CommitDetails & commitDetails,
-                                     bool newOptions) const
+                                     CommitDetails & commitDetails) const
 {
   QList<GraphicalOption *>::const_iterator it = graphicalOptions.begin();
 
@@ -321,10 +320,7 @@ void OptionPanel::getModifiedOptions(const QList<GraphicalOption *> & graphicalO
       QString oldValue = graphicalOption->getOrginalValueString();
       QString newValue = graphicalOption->getValueString();
 
-      if(newOptions)
-        commitDetails.setNewOption(graphicalOption->getName(), newValue, graphicalOption->getType());
-      else
-        commitDetails.setOption(graphicalOption->getName(), oldValue, newValue);
+      commitDetails.setOption(graphicalOption->getName(), oldValue, newValue);
     }
 
     it++;
@@ -367,7 +363,7 @@ void OptionPanel::buttonsSetVisible(bool visible)
 
 void OptionPanel::commitChanges()
 {
-	QHash<QString, QString> options;
+  QHash<QString, QString> options;
   this->getOptions(options);
 
   // if there is at least one option that has been modified
@@ -375,15 +371,15 @@ void OptionPanel::commitChanges()
   {
     QModelIndex currentIndex = ClientRoot::getTree()->getCurrentIndex();
 
-		try 
-		{
-			ClientRoot::getTree()->modifyOptions(currentIndex, options);
-		}
-		catch (ValueNotFound & vnf) 
-		{
-			ClientRoot::getLog()->addException(vnf.msg().c_str());
-		}
-	}
+    try
+    {
+      ClientRoot::getTree()->modifyOptions(currentIndex, options);
+    }
+    catch (ValueNotFound & vnf)
+    {
+      ClientRoot::getLog()->addException(vnf.msg().c_str());
+    }
+  }
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
