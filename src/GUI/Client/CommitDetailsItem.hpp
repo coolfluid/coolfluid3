@@ -11,40 +11,50 @@ namespace CF {
 namespace GUI {
 namespace Client {
 
-////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
 
-    class CommitDetailsItem
-    {
+  /// @brief Basic item used by CommitDetails class.
 
-    public:
+  class CommitDetailsItem
+  {
 
-      CommitDetailsItem(const QString & optionName, const QString & oldValue,
-                        const QString & currentValue);
+  public:
 
-      CommitDetailsItem(const QString & oldValue, const QString & currentValue);
+    /// @brief Constructor
 
-      bool isNewOption() const;
+    /// @param optionName Option name.
+    /// @param oldValue Old value. May be empty.
+    /// @param currentValue Current value. May be empty.
+    CommitDetailsItem(const QString & optionName, const QString & oldValue,
+                      const QString & currentValue);
 
-      QString getCurrentValue() const;
+    /// @brief Gives the current value.
+    /// @return Returns the current value.
+    QString getCurrentValue() const;
 
-      QString getOldValue() const;
+    /// @brief Give the old value.
+    /// @return Returns the old value
+    QString getOldValue() const;
 
-      QString getOptionName() const;
+    /// @brief Gives the option name
+    /// @return Returns the option name
+    QString getOptionName() const;
 
-    private:
+  private:
 
-      QString m_optionName;
+    /// @brief Option name
+    QString m_optionName;
 
-      QString m_oldValue;
+    /// @brief Old value
+    QString m_oldValue;
 
-      QString m_currentValue;
+    /// @brief Current value
+    QString m_currentValue;
 
-      bool m_newOption;
 
+  }; // class CommitDetailsItem
 
-    }; // class CommitDetailsItem
-
-////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
 
 } // namespace Client
 } // namespace GUI
