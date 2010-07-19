@@ -79,19 +79,4 @@ void ClientRoot::processSignalString(const QString & signal)
   processSignal(doc);
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool ClientRoot::isSpecificPath(const QString & path)
-{
-  static QStringList paths;
-
-  if(paths.isEmpty())
-  {
-    paths << SERVER_CORE_PATH;
-    paths << SERVER_SIM_PATH;
-  }
-
-  return paths.contains(path);
-}
 
