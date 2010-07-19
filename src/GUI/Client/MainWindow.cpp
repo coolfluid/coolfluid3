@@ -26,7 +26,6 @@
 
 #include "GUI/Network/HostInfos.hpp"
 #include "GUI/Network/ComponentNames.hpp"
-#include "GUI/Network/SignalInfo.hpp"
 
 #include "GUI/Client/MainWindow.hpp"
 
@@ -49,8 +48,7 @@ MainWindow::MainWindow()
   m_optionPanel = new OptionPanel(this);
   m_logWindow = new QDockWidget("Log Window", this);
   m_treeView = new TreeView(m_optionPanel);
-  m_statusModel = new StatusModel(QDomDocument(), this);
-  m_statusPanel = new StatusPanel(m_statusModel, this);
+//  m_statusPanel = new StatusPanel(m_statusModel, this);
   m_logList = new LoggingList(m_logWindow);
   m_splitter = new QSplitter(this);
 
@@ -67,7 +65,7 @@ MainWindow::MainWindow()
   m_splitter->addWidget(m_treeView);
 
   m_splitter->addWidget(m_optionPanel);
-  m_splitter->addWidget(m_statusPanel);
+//  m_splitter->addWidget(m_statusPanel);
   m_splitter->setStretchFactor(1, 10);
 
   this->setCentralWidget(m_splitter);
@@ -101,8 +99,6 @@ MainWindow::MainWindow()
           this, SLOT(newException(const QString &)));
 
   ClientRoot::getLog()->addMessage("Client successfully launched.");
-
-  ClientCore::instance().setStatusModel(m_statusModel);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

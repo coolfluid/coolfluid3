@@ -10,9 +10,7 @@ LIST ( APPEND Network_files
   LogMessage.hpp
   NetworkAPI.hpp
   NetworkException.cpp
-  NetworkException.hpp
-  SignalInfo.cpp
-  SignalInfo.hpp)
+  NetworkException.hpp)
 
 # Use Qt Libraries
 LIST( APPEND Network_libs Common ${QT_LIBRARIES} )

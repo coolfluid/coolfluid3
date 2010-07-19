@@ -143,8 +143,6 @@ namespace Client {
 
     StatusPanel * m_statusPanel;
 
-    StatusModel * m_statusModel;
-
     AboutCFDialog * m_aboutCFDialog;
 
     /// @brief Panel used to display and modify m_options for a selected
