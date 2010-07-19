@@ -5,7 +5,6 @@
 #include "Common/XmlHelpers.hpp"
 
 #include "GUI/Network/ComponentNames.hpp"
-#include "GUI/Network/SignalInfo.hpp"
 
 #include "GUI/Client/ClientRoot.hpp"
 
