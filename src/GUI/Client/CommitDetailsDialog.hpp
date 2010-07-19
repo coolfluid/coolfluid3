@@ -15,49 +15,52 @@ class QTableView;
 /////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace GUI {
-namespace Client {
+  namespace GUI {
+    namespace Client {
 
-class CommitDetails;
+      class CommitDetails;
 
-/////////////////////////////////////////////////////////////////////////////
+      /////////////////////////////////////////////////////////////////////////////
 
-    class CommitDetailsDialog : public QDialog
-    {
-      Q_OBJECT
+      /// @brief Dialog that shows commit details.
+      class CommitDetailsDialog : public QDialog
+      {
+        Q_OBJECT
 
       public:
 
+        /// @brief Constructor
+        /// @param parent Parent widget. May be @c CFNULL.
         CommitDetailsDialog(QWidget * parent = CFNULL);
 
+        /// @brief Desctructor
+        /// Frees all allocated memory. Parent is not destroyed.
         ~CommitDetailsDialog();
 
-        void setCommitDetails(CommitDetails * details);
-
+        /// @brief Shows the dialog with provided details.
+        /// @param details Details to use
         void show(CommitDetails & details);
-
-      public slots:
-
-        void show();
 
       private:
 
-        QPushButton * m_btOk;
-
+        /// @brief Table view
         QTableView * m_view;
 
+        /// @brief Button box
         QDialogButtonBox * m_buttonBox;
 
+        /// @brief Main layout
         QVBoxLayout * m_mainLayout;
 
-        CommitDetails * m_commitDetails;
+        /// @brief "OK" button
+        QPushButton * m_btOk;
 
-    }; // class CommitDetailsDialog
+      }; // class CommitDetailsDialog
 
-////////////////////////////////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace Client
-} // namespace GUI
+    } // namespace Client
+  } // namespace GUI
 } // namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////

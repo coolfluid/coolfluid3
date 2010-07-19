@@ -11,14 +11,10 @@ CommitDetailsDialog::CommitDetailsDialog(QWidget * parent)
 {
   //CommitDetails details;
   m_mainLayout = new QVBoxLayout(this);
-  m_btOk = new QPushButton("Ok", this);
   m_buttonBox = new QDialogButtonBox(this);
   m_view = new QTableView(this);
-  m_commitDetails = new CommitDetails();
 
-  //m_view->setModel(&details);
-
-  m_buttonBox->addButton(m_btOk, QDialogButtonBox::AcceptRole);
+  m_buttonBox->addButton(QDialogButtonBox::Ok);
 
   m_view->resizeRowsToContents();
   //this->resize(this->width() * 2, this->height());
@@ -34,15 +30,9 @@ CommitDetailsDialog::CommitDetailsDialog(QWidget * parent)
 
 CommitDetailsDialog::~CommitDetailsDialog()
 {
-
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void CommitDetailsDialog::setCommitDetails(CommitDetails * details)
-{
-  m_commitDetails = details;
+ delete m_mainLayout;
+ delete m_buttonBox;
+ delete m_view;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -55,12 +45,4 @@ void CommitDetailsDialog::show(CommitDetails & details)
     m_view->setModel(&details);
     this->exec();
   }
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void CommitDetailsDialog::show()
-{
-  this->show(*m_commitDetails);
 }
