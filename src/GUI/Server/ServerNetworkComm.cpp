@@ -13,7 +13,6 @@
 #include "GUI/Network/ComponentNames.hpp"
 #include "GUI/Network/LogMessage.hpp"
 #include "GUI/Network/NetworkException.hpp"
-#include "GUI/Network/SignalInfo.hpp"
 
 #include "GUI/Server/UnknownClientIdException.hpp"
 #include "GUI/Server/CSimulator.hpp"

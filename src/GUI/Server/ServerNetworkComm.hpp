@@ -11,7 +11,6 @@
 
 #include "GUI/Network/HostInfos.hpp"
 #include "GUI/Network/ComponentType.hpp"
-#include "GUI/Network/SignalInfo.hpp"
 
 class QHostAdress;
 class QTcpServer;

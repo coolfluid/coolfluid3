@@ -12,7 +12,6 @@
 
 #include "GUI/Network/ComponentNames.hpp"
 #include "GUI/Network/HostInfos.hpp"
-#include "GUI/Network/SignalInfo.hpp"
 
 #include "GUI/Server/ServerNetworkComm.hpp"
 #include "GUI/Server/CSimulator.hpp"
