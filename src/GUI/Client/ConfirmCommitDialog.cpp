@@ -46,7 +46,7 @@ ConfirmCommitDialog::CommitConfirmation ConfirmCommitDialog::show(CommitDetails 
 {
   m_answer = CANCEL;
 
-  if(commitDetails.isEmpty())
+  if(commitDetails.hasOptions())
   {
     m_detailsView->setModel(&commitDetails);
     this->exec();
