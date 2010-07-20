@@ -2,7 +2,7 @@
 
 #include "Common/CodeLocation.hpp"
 
-#include "GUI/Client/InvalidValueException.hpp"
+#include "GUI/Client/InvalidValue.hpp"
 
 using namespace CF::Common;
 using namespace CF::GUI::Client;

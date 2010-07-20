@@ -18,6 +18,7 @@ namespace Client {
 
   ////////////////////////////////////////////////////////////////////////////
 
+  /// @brief Client corresponding component for @c CF::Common::CLink.
   class NLink :
       public QObject,
       public CNode
@@ -30,7 +31,8 @@ namespace Client {
     typedef boost::shared_ptr<NLink const> ConstPtr;
 
     /// @brief Constructor
-    /// @param name Node name
+    /// @param name Link name
+    /// @param targetPath Target path
     NLink(const QString & name, const CF::Common::CPath & targetPath);
 
     /// @brief Gives the icon associated to this node
@@ -38,27 +40,40 @@ namespace Client {
     /// @note This method should be reimplemented by all subclasses.
     virtual QIcon getIcon() const;
 
+    /// @brief Gives the text to put on a tool tip
+    /// @return The name of the class.
     virtual QString getToolTip() const;
 
+    /// @brief Gives node options.
+    /// @param params Reference to a list where options will be put. The
+    /// list is cleared before first use.
     virtual void getOptions(QList<NodeOption> & params) const;
 
+    /// @brief Gives the target path
+    /// @return Returns the target path.
     CF::Common::CPath getTargetPath() const;
 
+    /// @brief Indicates whether this class is a client component or not
+    /// @return Always returns @c false.
     virtual bool isClientComponent() const { return false; }
 
   private slots:
 
+    /// @brief Slot called when user wants to switch to the target
     void goToTarget();
 
+  public slots:
+
+    /// @brief Slot called when user wants to change the target path
     void changeTargetPath();
 
   private :
 
+    /// @brief Target path
     CF::Common::CPath m_targetPath;
 
-  /// regists all the signals declared in this class
-  static void regist_signals ( Component* self ) {}
-
+    /// regists all the signals declared in this class
+    static void regist_signals ( Component* self ) {}
 
   }; // class NLink
 

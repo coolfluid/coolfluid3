@@ -15,6 +15,7 @@ namespace Client {
 
   ////////////////////////////////////////////////////////////////////////////
 
+  /// @brief Client corresponding component for @c CF::Common::CMesh.
   class NMesh :
       public QObject,
       public CNode
@@ -35,10 +36,17 @@ namespace Client {
     /// @note This method should be reimplemented by all subclasses.
     virtual QIcon getIcon() const;
 
+    /// @brief Gives the text to put on a tool tip
+    /// @return The name of the class.
     virtual QString getToolTip() const;
 
+    /// @brief Gives node options.
+    /// @param params Reference to a list where options will be put. The
+    /// list is cleared before first use.
     virtual void getOptions(QList<NodeOption> & params) const;
 
+    /// @brief Indicates whether this class is a client component or not
+    /// @return Always returns @c false.
     virtual bool isClientComponent() const { return false; }
 
   private:

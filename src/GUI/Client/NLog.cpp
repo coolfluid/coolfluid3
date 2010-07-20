@@ -91,7 +91,7 @@ void NLog::appendToLog(LogMessage::Type type, bool fromServer,
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Signal::return_t NLog::message(Signal::arg_t & node)
+void NLog::message(XmlNode & node)
 {
   XmlParams p(node);
 
@@ -106,18 +106,6 @@ Signal::return_t NLog::message(Signal::arg_t & node)
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-Signal::return_t NLog::list_tree(Signal::arg_t & node)
-{
-  std::string str;
-
-  XmlOps::xml_to_string(*node.first_node(), str);
-
-  this->appendToLog(LogMessage::INFO, true, str.c_str());
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QIcon NLog::getIcon() const
 {
@@ -137,6 +125,6 @@ QString NLog::getToolTip() const
 
 void NLog::getOptions(QList<NodeOption> & params) const
 {
-	buildOptionList(params);
+  buildOptionList(params);
 }
 

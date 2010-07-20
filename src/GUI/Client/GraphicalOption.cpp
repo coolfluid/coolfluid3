@@ -9,7 +9,7 @@
 
 #include "GUI/Client/FilesPanel.hpp"
 #include "GUI/Client/LibrariesPanel.hpp"
-#include "GUI/Client/InvalidValueException.hpp"
+#include "GUI/Client/InvalidValue.hpp"
 #include "GUI/Client/HostListPanel.hpp"
 #include "GUI/Client/UnknownTypeException.hpp"
 
@@ -229,7 +229,7 @@ void GraphicalOption::setValue(const QVariant & newValue)
         val = newValue.toInt(&ok);
 
         if(!ok) // if ok is false, the conversion failed
-          throw InvalidValueException(FromHere(), "Failed to convert to an integer");
+          throw InvalidValue(FromHere(), "Failed to convert to an integer");
       }
 
       ((QSpinBox *) m_valueWidget)->setValue(val);
@@ -246,7 +246,7 @@ void GraphicalOption::setValue(const QVariant & newValue)
         val = newValue.toUInt(&ok);
 
         if(!ok) // if ok is false, the conversion failed
-          throw InvalidValueException(FromHere(), "Failed to convert to an unsigned "
+          throw InvalidValue(FromHere(), "Failed to convert to an unsigned "
                                       "integer");
       }
 
