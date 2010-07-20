@@ -36,7 +36,17 @@ ConfirmCommitDialog::ConfirmCommitDialog(QWidget * parent)
 
 ConfirmCommitDialog::~ConfirmCommitDialog()
 {
+  QHash<CommitConfirmation, QPushButton *>::iterator it = m_buttons.begin();
 
+  for( ; it != m_buttons.end() ; )
+    delete it.value();
+
+  m_buttons.clear();
+
+  delete m_mainLayout;
+  delete m_buttonBox;
+  delete m_detailsView;
+  delete m_mainLayout;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

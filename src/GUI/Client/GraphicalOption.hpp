@@ -32,8 +32,8 @@ namespace Client {
 
     /// @brief Constructor.
 
-    /// @param type Option type. Must be one of those defined by TOptionTypes
-    /// enum.
+    /// @param type Option type. Must be one of those defined by
+    /// <code>OptionType::Type</code> enum.
     GraphicalOption(OptionType::Type type);
 
     /// @brief Destructor.
@@ -54,23 +54,24 @@ namespace Client {
     /// @brief Gives the option value.
 
     /// @return Returns the option value.
-    /// @note If the type of the option is @c OptionTypes::TYPE_FILES,
+    /// @note If the type of the option is @c OptionType::TYPE_FILES,
     /// the variant object returned is a @c QStringList.
     QVariant getValue() const;
 
     /// @brief Gives the option value in string format.
 
-    /// This is an overloaded method, provided for convinience. This method
-    /// calls @c getValue() and converts the returned variant object
-    /// to a @c QString.
+    /// This method calls @c getValue() and converts the returned variant
+    /// object to a @c QString.
     /// @return Returns the value in a string.
-    /// @note If the type of the option is @c OptionTypes::TYPE_FILES,
+    /// @note If the type of the option is @c OptionType::TYPE_FILES,
     /// this method returnes a string with files separated by a white space.
     QString getValueString() const;
 
+    /// @brief Gives option type
+    /// @return Returns option type.
     OptionType::Type getType() const;
 
-    /// @brief Adds this option to the provided m_layout.
+    /// @brief Adds this option to the provided layout.
 
     /// @param m_layout Layout to which the m_options has to be added.
     void addToLayout(QFormLayout * layout);
@@ -82,8 +83,8 @@ namespace Client {
     /// class documentation.
     /// @throw InvalidValue If the value could not be converted to
     /// the option type.
-    /// @note If the type of the option is @c OptionTypes::TYPE_FILES or
-    /// @c OptionTypes::TYPE_LIBRAIRIES, the value is a @c QStringList.
+    /// @note If the type of the option is @c OptionType::TYPE_FILES or
+    /// @c OptionType::TYPE_LIBRAIRIES, the value is a @c QStringList.
     /// Neither files existence nor paths rightness are checked. The list
     /// may be empty.
     void setValue(const QVariant & value);
@@ -95,7 +96,7 @@ namespace Client {
     /// Otherwise it is disabled.
     void setEnabled(bool enabled);
 
-    /// @brief Indicates wether the value component is enabled or not.
+    /// @brief Indicates whether the value component is enabled or not.
 
     /// @return Returns @c true if the component is enabled.
     bool isEnabled() const;
@@ -105,7 +106,7 @@ namespace Client {
     /// @param toolTip Tool tip to set.
     void setToolTip(const QString & toolTip);
 
-    /// @brief Indicates wether the value has been modified.
+    /// @brief Indicates whether the value has been modified.
 
     /// The value is considered to have been modified if it is different from
     /// the last value assigned using @c setValue.
@@ -122,12 +123,11 @@ namespace Client {
 
     /// @brief Gives the option value in string format.
 
-    /// This is an overloaded method, provided for convinience. This method
-    /// calls @c getOrginalValue() and converts the returned variant object
-    /// to a @c QString.
+    /// This method calls @c getOrginalValue() and converts the returned
+    /// variant object to a @c QString.
     /// @return Returns the value in a string.
-    /// @note If the type of the option is @c OptionTypes::TYPE_FILES or
-    /// @c OptionTypes::TYPE_LIBRAIRIES, this method returnes a string with
+    /// @note If the type of the option is @c OptionType::TYPE_FILES or
+    /// @c OptionType::TYPE_LIBRAIRIES, this method returnss a string with
     /// files separated by a white space.
     QString getOrginalValueString() const;
 
@@ -153,6 +153,7 @@ namespace Client {
     /// modification) or not.
     bool m_enabled;
 
+    /// @brief Original value
     QVariant m_originalValue;
 
 
