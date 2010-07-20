@@ -248,14 +248,15 @@ bool NTree::isDebugModeEnabled() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NTree::modifyOptions(const QModelIndex & index, QHash<QString, QString> & options)
+void NTree::modifyOptions(const QModelIndex & index,
+                          const QHash<QString, QString> & options)
 {
-	TreeNode * node = this->indexToTreeNode(index);
-	
-	if(node != CFNULL)
-		node->getNode()->modifyOptions(options);
-	else
-		ClientRoot::getLog()->addError("Could not modify options! Invalid node.");
+  TreeNode * node = this->indexToTreeNode(index);
+
+  if(node != CFNULL)
+    node->getNode()->modifyOptions(options);
+  else
+    ClientRoot::getLog()->addError("Could not modify options! Invalid node.");
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -388,7 +389,7 @@ void NTree::showNodeMenu(const QModelIndex & index, const QPoint & pos) const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CF::Common::Signal::return_t NTree::list_tree(CF::Common::Signal::arg_t & node)
+void NTree::list_tree(XmlNode & node)
 {
   NRoot::Ptr treeRoot = ClientRoot::getRoot();
   CNode::Ptr rootNode = CNode::createFromXml(*node.first_node());
@@ -467,5 +468,5 @@ QString NTree::getToolTip() const
 
 void NTree::getOptions(QList<NodeOption> & params) const
 {
-	buildOptionList(params);
+  buildOptionList(params);
 }

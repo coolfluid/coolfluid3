@@ -68,26 +68,82 @@ namespace Client {
     /// @see setCurrentIndex.
     QModelIndex getCurrentIndex() const;
 
+    /// @brief Gets node options
+
+    /// @param index Node index
+    /// @param params List where options will be stored
+    /// @param ok If not @c CFNULL, used to strore whether the option
+    /// gathering succeded or not.
     void getNodeParams(const QModelIndex & index,
                        QList<NodeOption> & params, bool * ok = CFNULL) const;
 
+    /// @brief Retrieves a node path.
+
+    /// @param index Node index
+    /// @return Returns the node path
     QString getNodePath(const QModelIndex & index) const;
 
+    /// @brief Set advanced mode
+
+    /// @param advancedMode If @c true, advanced mode is activated.
     void setAdvancedMode(bool advanceMode);
 
+    /// @brief Indicates whether advanced mode is activated or not.
+
+    /// @return Returns @c true if advanced mode is activated, otherwise,
+    /// returns @c false.
     bool isAdvancedMode() const;
 
+    /// @brief Checks whether two indexes point to the same node.
+
+    /// If indexes point to a null node, they are considered as not
+    /// pointing to the same node.
+    /// @param left Left node
+    /// @param right Right node
+    /// @return Returns @c true if both indexes point to the same node.
+    /// Otherwise returns @c false.
     bool areFromSameNode(const QModelIndex & left, const QModelIndex & right) const;
 
+    /// @brief Checks whether two indexes have the same data.
+
+    /// This method can be used to check if one link node has the other
+    /// one as target.
+    /// @param left Left index.
+    /// @param right Right index.
+    /// @return Returns @c true if both node have the same data. Otherwise,
+    /// returns @c false.
     bool haveSameData(const QModelIndex & left, const QModelIndex & right) const;
 
+    /// @brief Retrieves a node from its path.
+
+    /// @param path The node path
+    /// @return Returns the found node, or a null shared pointer if
+    /// the node does not exist.
     CNode::Ptr getNodeByPath(const CF::Common::CPath & path) const;
 
+    /// @brief Retrieves a node index from its path.
+
+    /// @param path The node index path
+    /// @return Returns the found node index, or a invalid index if
+    /// it does not exist.
     QModelIndex getIndexByPath(const CF::Common::CPath & path) const;
 
+    /// @brief Retrieves an index frome a node
+
+    /// @param node The node
+    /// @return Returns the found index, or a invalid index if
+    /// it does not exist.
     QModelIndex nodeToIndex(const CNode::Ptr & node) const;
-		
-		void modifyOptions(const QModelIndex & index, QHash<QString, QString> & options);
+
+    /// @brief Modifies options of a node
+
+    /// This method calls @c CNode::modifyOptions() of the corresponding
+    /// node
+    /// @param index Node index
+    /// @param options Options to modify. The key is the option name and
+    /// the value is the option value to set.
+    void modifyOptions(const QModelIndex & index,
+                       const QHash<QString, QString> & options);
 
     /// @brief Implementation of @c QAbstractItemModel::data().
 
@@ -143,6 +199,10 @@ namespace Client {
     virtual QVariant headerData(int section, Qt::Orientation orientation,
                                 int role = Qt::DisplayRole) const;
 
+    /// @brief Shows the context menu
+
+    /// @param index Node index
+    /// @param pos Position of the top-left corner of the menu.
     void showNodeMenu(const QModelIndex & index, const QPoint & pos) const;
 
     /// @brief Gives the icon associated to this node
@@ -150,20 +210,39 @@ namespace Client {
     /// @note This method should be reimplemented by all subclasses.
     virtual QIcon getIcon() const;
 
+    /// @brief Gives the tool tip text
+    /// @return Returns The class name
     virtual QString getToolTip() const;
 
+    /// @brief Gives node options.
+    /// @param params Reference to a list where options will be put. The
+    /// list is cleared before first use.
     virtual void getOptions(QList<NodeOption> & params) const;
 
+    /// @brief Indicates whether this class is a client component or not
+    /// @return Always returns @c true.
     virtual bool isClientComponent() const { return true; }
 
+    /// @brief Set the debug mode
+
+    /// In debug mode, client components are showed.
+    /// @param debugMode If @c true, the debug mode is activated. Otherwise,
+    /// it is deactivated.
     void setDebugModeEnabled(bool debugMode);
 
+    /// @brief Indicates whether the debug mode is activated or not.
+
+    /// @return Returns @c true if the debug mode is activated; otherwise,
+    /// returns @c false.
     bool isDebugModeEnabled() const;
 
     /// @name Signals
     /// @{
 
-    CF::Common::Signal::return_t list_tree(CF::Common::Signal::arg_t & node);
+    /// @brief Signal called when the tree needs to be updated
+
+    /// @param node New tree
+    void list_tree(XmlNode & node);
 
     /// @} END Signals
 
@@ -172,33 +251,58 @@ namespace Client {
     /// @brief Signal emitted when the current index has changed.
 
     /// @param newIndex The new current index
+    /// @param oldIndex The old current index
+    /// @see setCurrentIndex
     void currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex);
 
-    void advancedModeChanged(bool advanced);
+    /// @brief Signal emitted when advanced mode changed
 
+    /// @param advanced New advanced mode status
+    /// @see setAdvancedMode
+    void advancedModeChanged(bool advanced);
 
   private:
 
+    /// @brief Column titles
     QStringList m_columns;
 
+    /// @brief The root node
     TreeNode * m_rootNode;
 
+    /// @brief Current index
     QModelIndex m_currentIndex;
 
+    /// @brief Indicates whether we are in advanced mode or not
     bool m_advancedMode;
 
+    /// @brief Indicates whether we are in debug mode or not
     bool m_debugModeEnabled;
 
+    /// @brief Converts an index to a tree node
+
+    /// @param index Node index to convert
+    /// @return Returns the tree node, or @c CFNULL if the index could
+    /// not be converted (i.e. index is invalid)
     inline TreeNode * indexToTreeNode(const QModelIndex & index) const
     {
       return static_cast<TreeNode *>(index.internalPointer());
     }
 
+    /// @brief Converts an index to a node
+
+    /// @param index Node index to convert
+    /// @return Returns the node, or a null shared pointer if the index could
+    /// not be converted (i.e. index is invalid)
     inline CNode::Ptr indexToNode(const QModelIndex & index) const
     {
       return this->indexToTreeNode(index)->getNode();
     }
 
+    /// @brief Retrieves a node path from its index.
+
+    /// This is a recursive method.
+    /// @param index Node index.
+    /// @param path Intermediate retrieved path
     void getNodePathRec(const QModelIndex & index, QString & path) const;
 
 
