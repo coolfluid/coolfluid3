@@ -69,10 +69,6 @@ namespace Client {
     /// @c false
     bool pathExists() const;
 
-    /// @brief Indicates whether this class is a client component or not
-    /// @return Always returns @c false.
-    virtual bool isClientComponent() const { return false; }
-
   private :
 
     /// @brief The internal CRoot component

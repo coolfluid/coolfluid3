@@ -219,10 +219,6 @@ namespace Client {
     /// list is cleared before first use.
     virtual void getOptions(QList<NodeOption> & params) const;
 
-    /// @brief Indicates whether this class is a client component or not
-    /// @return Always returns @c true.
-    virtual bool isClientComponent() const { return true; }
-
     /// @brief Set the debug mode
 
     /// In debug mode, client components are showed.
@@ -242,7 +238,7 @@ namespace Client {
     /// @brief Signal called when the tree needs to be updated
 
     /// @param node New tree
-    void list_tree(XmlNode & node);
+    void list_tree(CF::Common::XmlNode & node);
 
     /// @} END Signals
 

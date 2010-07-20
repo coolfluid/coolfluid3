@@ -45,10 +45,6 @@ namespace Client {
     /// list is cleared before first use.
     virtual void getOptions(QList<NodeOption> & params) const;
 
-    /// @brief Indicates whether this class is a client component or not
-    /// @return Always returns @c false.
-    virtual bool isClientComponent() const { return false; }
-
   private:
 
     /// regists all the signals declared in this class

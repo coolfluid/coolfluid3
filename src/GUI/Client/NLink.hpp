@@ -53,10 +53,6 @@ namespace Client {
     /// @return Returns the target path.
     CF::Common::CPath getTargetPath() const;
 
-    /// @brief Indicates whether this class is a client component or not
-    /// @return Always returns @c false.
-    virtual bool isClientComponent() const { return false; }
-
   private slots:
 
     /// @brief Slot called when user wants to switch to the target
