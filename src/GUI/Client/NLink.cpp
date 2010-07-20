@@ -10,21 +10,29 @@
 using namespace CF::Common;
 using namespace CF::GUI::Client;
 
+QMenu * NLink::m_menu = CFNULL;
+
 NLink::NLink(const QString & name, const CPath & targetPath)
   : CNode(name, "CLink", LINK_NODE),
     m_targetPath(targetPath)
 {
   BUILD_COMPONENT;
 
-  QAction * action;
+  if(m_menu != CFNULL)
+  {
+    QAction * action;
+    m_menu = new QMenu();
 
-  action = new QAction("Go to target node", m_contextMenu);
-  connect(action, SIGNAL(triggered()), this, SLOT(goToTarget()));
-  m_contextMenu->addAction(action);
+    action = new QAction("Go to target node", m_contextMenu);
+    connect(action, SIGNAL(triggered()), this, SLOT(goToTarget()));
+    m_menu->addAction(action);
 
-  action = new QAction("Change target path", m_contextMenu);
-  connect(action, SIGNAL(triggered()), this, SLOT(changeTargetPath()));
-  m_contextMenu->addAction(action);
+    action = new QAction("Change target path", m_contextMenu);
+    connect(action, SIGNAL(triggered()), this, SLOT(changeTargetPath()));
+    m_menu->addAction(action);
+  }
+
+  m_contextMenu = m_menu;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

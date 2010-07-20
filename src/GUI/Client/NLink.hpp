@@ -7,6 +7,8 @@
 
 #include "GUI/Client/CNode.hpp"
 
+class QMenu;
+
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -67,6 +69,9 @@ namespace Client {
 
     /// @brief Target path
     CF::Common::CPath m_targetPath;
+
+    /// @brief Context menu
+    static QMenu * m_menu;
 
     /// regists all the signals declared in this class
     static void regist_signals ( Component* self ) {}
