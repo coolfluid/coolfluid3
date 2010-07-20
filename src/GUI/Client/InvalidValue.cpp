@@ -7,7 +7,7 @@
 using namespace CF::Common;
 using namespace CF::GUI::Client;
 
-InvalidValueException::InvalidValueException(const CodeLocation& where,
+InvalidValue::InvalidValue(const CodeLocation& where,
                                              const std::string& what)
 : Exception(where, what, "InvalidValue")
 {
@@ -17,7 +17,7 @@ InvalidValueException::InvalidValueException(const CodeLocation& where,
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-InvalidValueException::InvalidValueException(const InvalidValueException& e) throw()
+InvalidValue::InvalidValue(const InvalidValue& e) throw()
 : Exception(e)
 {
 

@@ -19,16 +19,16 @@ namespace Client {
 
   /// @author Quentin Gasper.
 
-  class InvalidValueException : public CF::Common::Exception
+  class InvalidValue : public CF::Common::Exception
   {
     public:
 
     /// Constructor
-    InvalidValueException(const CF::Common::CodeLocation& where,
+    InvalidValue(const CF::Common::CodeLocation& where,
     const std::string& what);
 
     /// Copy constructor
-    InvalidValueException(const InvalidValueException& e) throw ();
+    InvalidValue(const InvalidValue& e) throw ();
 
   }; // class InvalidValue
 

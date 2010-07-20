@@ -65,8 +65,8 @@ LIST ( APPEND coolfluid-client_files
   GraphicalOption.hpp
   HostListPanel.cpp
   HostListPanel.hpp
-  InvalidValueException.cpp
-  InvalidValueException.hpp
+  InvalidValue.cpp
+  InvalidValue.hpp
   LibrariesPanel.cpp
   LibrariesPanel.hpp
   LoggingList.cpp
