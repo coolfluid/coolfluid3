@@ -67,19 +67,7 @@ public: // functions
   boost::filesystem::path write_from(const CMesh::Ptr& mesh);
 
 protected: // classes
-
-  class IsElementRegion
-  {
-   public:
-      IsElementRegion () {}
-
-      bool operator()(const Component& component)
-      {
-        return !range_typed<CTable>(component).empty() && !range_typed<CElements>(component).empty();
-      }
-
-  }; // IsElementRegion
-
+  
   class IsGroup
   {
    public:
@@ -87,11 +75,9 @@ protected: // classes
 
      bool operator()(const Component& component)
      {
-       return count(filtered_range_typed<CRegion>(component,m_isElement));
+       return count(range_typed<CElements>(component));
      }
-
-   private:
-     IsElementRegion m_isElement;
+     
   }; // IsGroup
 
 

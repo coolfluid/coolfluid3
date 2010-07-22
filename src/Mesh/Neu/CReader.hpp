@@ -13,6 +13,7 @@
 
 namespace CF {
 namespace Mesh {
+  class CElements;
   class CRegion;
 namespace Neu {
 
@@ -29,7 +30,7 @@ public: // typedefs
 
 private: // typedefs
 
-  typedef std::pair<boost::shared_ptr<CRegion>,Uint> Region_TableIndex_pair;
+  typedef std::pair<boost::shared_ptr<CElements>,Uint> Region_TableIndex_pair;
   enum NeuElement {LINE=1,QUAD=2,TRIAG=3,HEXA=4,TETRA=6};
 
 public: // functions  

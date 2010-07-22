@@ -5,7 +5,7 @@
 #include "Common/CRoot.hpp"
 
 #include "Mesh/CMeshReader.hpp"
-#include "Mesh/P1/ElemTypes.hpp"
+#include "Mesh/SF/Types.hpp"
 #include "Mesh/CTable.hpp"
 
 #include "ComputeVolumes.hpp"
@@ -38,7 +38,7 @@ int main(int argc, char * argv[])
     root->add_component(mesh);
     
     
-    boost::mpl::for_each< P1::ElemTypes >( ForAllRegions< ComputeVolumes > ( *mesh ) );
+    boost::mpl::for_each< SF::Types >( ForAllRegions< ComputeVolumes > ( *mesh ) );
 
     //  boost::mpl::for_each< P1::ElemTypes >( ForAllVolumes<  OperationMerge< ComputeVolumes, ComputeWallDistance > > ( *mesh ) );
 

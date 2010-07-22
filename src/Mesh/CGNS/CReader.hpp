@@ -8,6 +8,7 @@
 #include "Mesh/CGNS/Shared.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
+#include "Mesh/CElements.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -27,7 +28,7 @@ public: // typedefs
   
 private: // typedefs
 
-  typedef std::pair<boost::shared_ptr<CRegion>,Uint> Region_TableIndex_pair;
+  typedef std::pair<boost::shared_ptr<CElements>,Uint> Region_TableIndex_pair;
 
 public: // functions
   
@@ -48,10 +49,10 @@ public: // functions
 
 private: // functions
   
-  void read_base(CRegion::Ptr& parent_region);
-  void read_zone(CRegion::Ptr& parent_region);
+  void read_base(CRegion& parent_region);
+  void read_zone(CRegion& parent_region);
   void read_coordinates();
-  void read_section(CRegion::Ptr& parent_region);
+  void read_section(CRegion& parent_region);
   void read_boco();
   Uint get_total_nbElements();
 

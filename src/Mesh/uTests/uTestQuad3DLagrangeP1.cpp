@@ -13,7 +13,7 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/ElementNodes.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
-#include "Mesh/Elements/SF/Quad3DLagrangeP1.hpp"
+#include "Mesh/SF/Quad3DLagrangeP1.hpp"
 
 
 
@@ -260,6 +260,16 @@ void integrate_element(ResultT& result, FunctorT functor, const NodesT& nodes, c
 BOOST_FIXTURE_TEST_SUITE( Quad3DLagrangeP1Suite, Quad3DLagrangeP1Fixture )
 
 //////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( Area )
+{
+  boost::multi_array<Real,2> nodes_quad3D (boost::extents[4][3]);
+  nodes_quad3D[0][XX] = 0.0;     nodes_quad3D[0][YY] = 0.0;     nodes_quad3D[0][ZZ] = 0.0;
+  nodes_quad3D[1][XX] = 1.0;     nodes_quad3D[1][YY] = 0.0;     nodes_quad3D[1][ZZ] = 1.0;
+  nodes_quad3D[2][XX] = 1.0;     nodes_quad3D[2][YY] = 1.0;     nodes_quad3D[2][ZZ] = 1.0;
+  nodes_quad3D[3][XX] = 0.0;     nodes_quad3D[3][YY] = 1.0;     nodes_quad3D[3][ZZ] = 0.0;
+  BOOST_CHECK_EQUAL(Quad3DLagrangeP1::area(nodes_quad3D), std::sqrt(2.));
+}
 
 BOOST_AUTO_TEST_CASE( ShapeFunction )
 {

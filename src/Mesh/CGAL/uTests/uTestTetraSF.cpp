@@ -15,8 +15,8 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/ElementNodes.hpp"
 
-#include "Mesh/Elements/SF/Tetra3DLagrangeP1.hpp"
-#include "Mesh/Elements/SF/Types.hpp"
+#include "Mesh/SF/Tetra3DLagrangeP1.hpp"
+#include "Mesh/SF/Types.hpp"
 
 #include "Mesh/CGAL/ImplicitFunctionMesh.hpp"
 
@@ -60,7 +60,7 @@ template<typename FunctorT>
 struct LoopElems
 {
 
-  LoopElems( const CRegion& aregion, const CArray& acoords, FunctorT afunctor )
+  LoopElems( const CElements& aregion, const CArray& acoords, FunctorT afunctor )
     : region(aregion),
       coords(acoords),
       functor(afunctor)
@@ -71,25 +71,20 @@ struct LoopElems
   {
 
     // TODO: Replace this with IsElementType when the conversion of elements is complete
-    if( EType::shape          != region.elements_type().getShape()         ||
-        EType::order          != region.elements_type().getOrder()         ||
-        EType::dimension      != region.elements_type().getDimension()     ||
-        EType::dimensionality != region.elements_type().getDimensionality() )
+    if( !IsElementType<EType>()(region.element_type()) )
     return;
 
-    const Uint elem_count = region.elements_count();
-    cf_assert(elem_count);
-    typename CTable::ConnectivityTable const& conn_table = region.get_connectivityTable()->table();
+    typename CTable::ConnectivityTable const& conn_table = region.connectivity_table().table();
     // loop on elements
     BOOST_FOREACH(const CTable::ConstRow& elem, conn_table)
     {
       ElementNodeVector nodes;
-      fill_node_list( std::inserter(nodes, nodes.begin()), coords, elem );
+      fill_node_list( std::inserter(nodes, nodes.begin()), coords.array(), elem );
       functor(nodes, T);
     }
   }
 
-  const CRegion& region;
+  const CElements& region;
   const CArray&  coords;
   FunctorT functor;
 };
@@ -97,7 +92,7 @@ struct LoopElems
 /// Looping over all elements in a range of regions
 template<typename RangeT, typename ArrayT, typename FunctorT>
 void loop_over_regions(const RangeT& range, ArrayT& coordinates, FunctorT functor) {
-  BOOST_FOREACH(const CRegion& region, range) {
+  BOOST_FOREACH(const CElements& region, range) {
     boost::mpl::for_each<SF::Types>( LoopElems<FunctorT> ( region, coordinates, functor ) );
   }
 }
@@ -126,7 +121,7 @@ BOOST_FIXTURE_TEST_SUITE( TetraSF, TetraSFFixture )
 BOOST_AUTO_TEST_CASE( MeshStats )
 {
   Real volume = 0.;
-  loop_over_regions(range_typed<CRegion>(sphere), get_named_component_typed<CArray>(sphere, "coordinates"), VolumeFunctor(volume));
+  loop_over_regions(range_typed<CElements>(sphere), get_named_component_typed<CArray>(sphere, "coordinates"), VolumeFunctor(volume));
   CFinfo << "calculated volume: " << volume << CFendl;
 }
 

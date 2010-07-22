@@ -58,18 +58,17 @@ typedef std::vector<RealVector> ElementNodeVector;
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Starting at the given iterator, fill its sequence with the node coordinates
-template<typename IteratorT, typename ArrayT, typename RowT>
-void fill_node_list(IteratorT iterator, ArrayT& coordinates, RowT& element_row) {
+template<typename IteratorT, typename RowT>
+void fill_node_list(IteratorT iterator, const CArray::Array& coordinates, const RowT& element_row) {
   BOOST_FOREACH(const Uint point_idx, element_row) {
     *(iterator++) = coordinates[point_idx];
   }
 }
 
 /// Starting at the given iterator, fill its sequence with the node coordinates
-template<typename IteratorT, typename ArrayT>
-inline void fill_node_list(IteratorT iterator, ArrayT& coordinates, const CRegion& region, const Uint element) {
-  const CTable::ConstRow row = region.get_row(element);
-  fill_node_list(iterator, coordinates, row);
+template<typename IteratorT>
+inline void fill_node_list(IteratorT iterator, const CArray::Array& coordinates, const CTable::ConnectivityTable& connectivity, const Uint element) {
+  fill_node_list(iterator, coordinates, connectivity[element]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

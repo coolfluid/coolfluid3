@@ -4,6 +4,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/Component.hpp"
+
+#include "Mesh/CTable.hpp"
 #include "Mesh/MeshAPI.hpp"
 #include "Mesh/ElementType.hpp"
 
@@ -15,9 +17,8 @@ namespace Mesh {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// CElements component class
-/// This class stores information about elements 
-/// to regions (CRegion)
-/// @author Willem Deconinck, Tiago Quintino
+/// This class stores information about a set of elements of the same type
+/// @author Willem Deconinck, Tiago Quintino, Bart Janssens
 class Mesh_API CElements : public Common::Component {
 
 public: // typedefs
@@ -30,6 +31,9 @@ public: // functions
   /// Contructor
   /// @param name of the component
   CElements ( const CName& name );
+  
+  /// Initialize the CElements using the given type
+  void initialize(const std::string& element_type_name);
 
   /// Virtual destructor
   virtual ~CElements();
@@ -40,46 +44,22 @@ public: // functions
   /// Configuration Options
   static void defineConfigOptions ( Common::OptionList& options ) {}
 
-  // functions specific to the CElements component
-
-  /// @return m_nameShape
-  std::string getShapeName() const { return m_elementType->getShapeName(); }
-
-  /// @return m_geoShape
-  GeoShape::Type getShape() const  {  return m_elementType->getShape(); }
-
-  /// @return number of faces
-  Uint getNbFaces() const  {  return m_elementType->getNbFaces();  }
-
-  /// @return number of edges
-  Uint getNbEdges() const  {  return m_elementType->getNbEdges();  }
-
-  /// @return m_nbNodes
-  Uint getNbNodes() const  { return m_elementType->getNbNodes(); }
-
-  /// @return m_order
-  Uint getOrder() const { return m_elementType->getOrder(); }
-
-  /// @return m_dimensionality
-  Uint getDimension() const { return m_elementType->getDimensionality(); }
-
-  /// @return m_dimensionality
-  Uint getDimensionality() const { return m_elementType->getDimensionality(); }
-
-  /// @return faces connectivity
-  /// faces[iFace][iNode]
-  const std::vector<ElementType::Face>& getFaces() const { return m_elementType->getFaces(); }
-
-  /// compute volume of the element given by its coordinates
-  virtual Real computeVolume(const std::vector<CArray::Row>& coord) const { return m_elementType->computeVolume(coord); } 
-
   /// set the element type
-  void set_elementType(const std::string& etype_name);
+  void set_element_type(const std::string& etype_name);
 
   /// return the elementType
-  boost::shared_ptr<ElementType> get_elementType() { return m_elementType; }
-  boost::shared_ptr<ElementType const> get_elementType() const { return m_elementType; }
+  const ElementType& element_type() const { return *m_element_type; }
   
+  /// create a CTable component and add it to the list of subcomponents
+  /// @param name of the region
+  CTable& create_connectivity_table ( const CName& name = "connectivity_table");
+  
+  /// Mutable access to the connectivity table
+  CTable& connectivity_table();
+  
+  /// Const access to the connectivity table
+  const CTable& connectivity_table() const;
+
 private: // helper functions
 
   /// regists all the signals declared in this class
@@ -87,7 +67,7 @@ private: // helper functions
 
 private: // data
   
-  boost::shared_ptr<ElementType> m_elementType;
+  boost::shared_ptr<ElementType> m_element_type;
   
 };
 

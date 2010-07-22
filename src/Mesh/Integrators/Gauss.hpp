@@ -12,7 +12,7 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/GeoShape.hpp"
 #include "Mesh/Integrators/GaussImplementation.hpp"
-#include "Mesh/Elements/SF/Types.hpp"
+#include "Mesh/SF/Types.hpp"
 
 #include "Math/RealVector.hpp"
 
@@ -48,10 +48,10 @@ public:
   /// This function requires an additional function to be defined for the functor, in order to prime the functor for each element:
   /// void setElement(const Uint element)
   template<typename FunctorT, typename ResultT>
-  static void integrateRegion(const CRegion& region, FunctorT& functor, ResultT& result)
+  static void integrateRegion(const CElements& region, FunctorT& functor, ResultT& result)
   {
     const Uint elem_begin = 0;
-    const Uint elem_end = region.elements_count();
+    const Uint elem_end = region.connectivity_table().table().size();
     for(Uint elem = elem_begin; elem != elem_end; ++elem)
     {
       functor.setElement(elem); // initialize element-specific functor data
@@ -65,7 +65,7 @@ public:
 template<typename FunctorT, typename ResultT, Uint IntegrationOrder=1>
 struct RegionIntegrator
 {
-  RegionIntegrator(const CRegion& region, FunctorT& functor, ResultT& result, bool& integratorFound)
+  RegionIntegrator(const CElements& region, FunctorT& functor, ResultT& result, bool& integratorFound)
     : found(integratorFound),
       m_region(region),
       m_functor(functor),
@@ -74,9 +74,9 @@ struct RegionIntegrator
 
   template<typename ShapeFunctionT> void operator()(const ShapeFunctionT& T)
   {
-    if( ShapeFunctionT::shape      == m_region.elements_type().getShape() &&
-        ShapeFunctionT::order      == m_region.elements_type().getOrder() &&
-        ShapeFunctionT::dimension == m_region.elements_type().getDimensionality())
+    if( ShapeFunctionT::shape      == m_region.element_type().shape() &&
+        ShapeFunctionT::order      == m_region.element_type().order() &&
+        ShapeFunctionT::dimension == m_region.element_type().dimension())
     {
       found = true;
       Gauss<ShapeFunctionT, ShapeFunctionT, IntegrationOrder>::integrateRegion(m_region, m_functor, m_result);
@@ -86,23 +86,20 @@ struct RegionIntegrator
   /// True if a matching integrator was found
   bool& found;
 private:
-  const CRegion& m_region;
+  const CElements& m_region;
   FunctorT& m_functor;
   ResultT& m_result;
 };
 
 /// Gauss integration over a region
 template<typename FunctorT, typename ResultT>
-void gaussIntegrate(const CRegion& region, FunctorT& functor, ResultT& result)
+void gaussIntegrate(const CElements& region, FunctorT& functor, ResultT& result)
 {
-  if(region.elements_count())
+  bool integrator_found = false;
+  boost::mpl::for_each<SF::Types>(RegionIntegrator<FunctorT, ResultT>(region, functor, result, integrator_found));
+  if(!integrator_found)
   {
-    bool integrator_found = false;
-    boost::mpl::for_each<SF::Types>(RegionIntegrator<FunctorT, ResultT>(region, functor, result, integrator_found));
-    if(!integrator_found)
-    {
-      CFwarn << "no integrator found for region " << region.name() << CFendl;
-    }
+    CFwarn << "no integrator found for region " << region.name() << CFendl;
   }
 }
 
@@ -113,9 +110,9 @@ void gaussIntegrate(const CRegion& region, FunctorT& functor, ResultT& result)
 template<typename FunctorT, typename ResultT>
 void gaussIntegrate(const CMesh& mesh, FunctorT& functor, ResultT& result)
 {
-  BOOST_FOREACH(const CRegion& region, recursive_range_typed<CRegion>(mesh))
+  BOOST_FOREACH(const CElements& region, recursive_range_typed<CElements>(mesh))
   {
-    CFdebug << "integrating region " << region.name() << " with " << region.elements_count() << " elements" << CFendl;
+    CFdebug << "integrating region " << region.name() << " with " << region.connectivity_table().table().size() << " elements" << CFendl;
     functor.setRegion(region); // initialize region-specific functor data
     gaussIntegrate((region), functor, result);
   }

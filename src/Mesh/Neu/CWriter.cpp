@@ -42,15 +42,15 @@ CWriter::CWriter( const CName& name )
 
 
   m_supported_types.reserve(9);
-  m_supported_types.push_back("P1-Line1D");
-  m_supported_types.push_back("P1-Line2D");
-  m_supported_types.push_back("P1-Line3D");
-  m_supported_types.push_back("P1-Quad2D");
-  m_supported_types.push_back("P1-Quad3D");
-  m_supported_types.push_back("P1-Triag2D");
-  m_supported_types.push_back("P1-Triag3D");
-  m_supported_types.push_back("P1-Hexa3D");
-  m_supported_types.push_back("P1-Tetra3D");
+  m_supported_types.push_back("Line1DLagrangeP1");
+  m_supported_types.push_back("Line2DLagrangeP1");
+  m_supported_types.push_back("Line3DLagrangeP1");
+  m_supported_types.push_back("Quad2DLagrangeP1");
+  m_supported_types.push_back("Quad3DLagrangeP1");
+  m_supported_types.push_back("Triag2DLagrangeP1");
+  m_supported_types.push_back("Triag3DLagrangeP1");
+  m_supported_types.push_back("Hexa3DLagrangeP1");
+  m_supported_types.push_back("Tetra3DLagrangeP1");
 
 
   m_CFelement_to_NeuElement[GeoShape::LINE ]=LINE;
@@ -252,24 +252,24 @@ void CWriter::write_headerData(std::fstream& file)
   Uint node_counter = get_named_component_typed<CArray>(*m_mesh, "coordinates").array().shape()[0];
   Uint max_dimensionality = 0;
   // Find maximal dimensionality of the whole mesh
-  BOOST_FOREACH( const CRegion& region, recursive_filtered_range_typed<CRegion>(*m_mesh,IsElementRegion()))
-    max_dimensionality = std::max(region.elements_type().getDimensionality() , max_dimensionality);
+  BOOST_FOREACH( const CElements& elements, recursive_range_typed<CElements>(*m_mesh))
+    max_dimensionality = std::max(elements.element_type().dimensionality() , max_dimensionality);
   
 
   BOOST_FOREACH(const CRegion& group, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
   {
     bool isGroupBC(false);
-    BOOST_FOREACH(const CRegion& elementregion, recursive_filtered_range_typed<CRegion>(group,IsElementRegion()))
+    BOOST_FOREACH(const CElements& elementregion, recursive_range_typed<CElements>(group))
     {
       bool isElementBC(false);
-      Uint dimensionality = get_component_typed<CElements>(elementregion,IsComponentTrue()).getDimensionality();
+      Uint dimensionality = elementregion.element_type().dimensionality();
       if (dimensionality < max_dimensionality) // is bc
       {
         isElementBC = true;
         isGroupBC = true;
       }
       if (!isElementBC)
-        element_counter += elementregion.elements_count();
+        element_counter += elementregion.connectivity_table().table().size();
     }
     if (!isGroupBC)
     {
@@ -340,10 +340,10 @@ void CWriter::write_connectivity(std::fstream& file)
   // loop over all element regions
   const CArray& coordinates = get_named_component_typed<CArray>(*m_mesh,"coordinates");
   const Uint coord_dim = coordinates.array().shape()[1];
-  BOOST_FOREACH(const CRegion& elementregion,recursive_filtered_range_typed<CRegion>(*m_mesh,IsElementRegion()))
+  BOOST_FOREACH(const CElements& elementregion,recursive_range_typed<CElements>(*m_mesh))
   {
     bool isBC = false;
-    Uint dimensionality = get_component_typed<CElements>(elementregion,IsComponentTrue()).getDimensionality();
+    Uint dimensionality = elementregion.element_type().dimensionality();
     if (dimensionality < coord_dim) // is bc
     {
       isBC = true;
@@ -355,8 +355,8 @@ void CWriter::write_connectivity(std::fstream& file)
       // information of this region with one unique element type
       Uint elm_type;
       Uint nb_nodes;
-      elm_type = m_CFelement_to_NeuElement[get_component_typed<CElements>(elementregion,IsComponentTrue()).getShape()];
-      nb_nodes = get_component_typed<CElements>(elementregion,IsComponentTrue()).getNbNodes();
+      elm_type = m_CFelement_to_NeuElement[elementregion.element_type().shape()];
+      nb_nodes = elementregion.element_type().nb_nodes();
       m_global_start_idx[&elementregion]=elm_number;
 
       // write the nodes for each element of this region
@@ -395,14 +395,14 @@ void CWriter::write_groups(std::fstream& file)
   Uint group_counter(0);
   Uint max_dimensionality = 0;
   // Find maximal dimensionality of the whole mesh
-  BOOST_FOREACH( const CRegion& region, recursive_filtered_range_typed<CRegion>(*m_mesh,IsElementRegion()))
-    max_dimensionality = std::max(region.elements_type().getDimensionality() , max_dimensionality);
+  BOOST_FOREACH( const CElements& region, recursive_range_typed<CElements>(*m_mesh))
+    max_dimensionality = std::max(region.element_type().dimensionality() , max_dimensionality);
   BOOST_FOREACH(const CRegion& group, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
   {
     bool isBC(false);
-    BOOST_FOREACH(const CRegion& elementregion, recursive_filtered_range_typed <CRegion>(group,IsElementRegion()))
+    BOOST_FOREACH(const CElements& elementregion, recursive_range_typed <CElements>(group))
     {
-      Uint dimensionality = get_component_typed<CElements>(elementregion,IsComponentTrue()).getDimensionality();
+      Uint dimensionality = elementregion.element_type().dimensionality();
       if (dimensionality < max_dimensionality) // is bc
       {
         isBC = true;
@@ -411,18 +411,18 @@ void CWriter::write_groups(std::fstream& file)
     if (!isBC)
     {
       Uint element_counter(0);
-      BOOST_FOREACH(const CRegion& elementregion, recursive_filtered_range_typed<CRegion>(group,IsElementRegion()))
+      BOOST_FOREACH(const CElements& elementregion, recursive_range_typed<CElements>(group))
       {
-        element_counter += elementregion.elements_count();
+        element_counter += elementregion.connectivity_table().table().size();
       }
       file << "       ELEMENT GROUP 2.3.16\n";
       file << "GROUP:" << std::setw(11) << ++group_counter << " ELEMENTS:" << std::setw(11) << element_counter << " MATERIAL:" << std::setw(11) << 2 << " NFLAGS:" << std::setw(11) << 1 << std::endl;
       file << std::setw(32) << group.name() << std::endl << std::setw(8) << 0 << std::endl;
       Uint line_counter=0;
-      BOOST_FOREACH(const CRegion& elementregion, recursive_filtered_range_typed <CRegion>(group,IsElementRegion()))
+      BOOST_FOREACH(const CElements& elementregion, recursive_range_typed <CElements>(group))
       {
         Uint elm_global_start_idx = m_global_start_idx[&elementregion]+1;
-        Uint elm_global_end_idx = elementregion.elements_count() + elm_global_start_idx;
+        Uint elm_global_end_idx = elementregion.connectivity_table().table().size() + elm_global_start_idx;
 
         for (Uint elm=elm_global_start_idx; elm<elm_global_end_idx; elm++, line_counter++)
         {
@@ -447,8 +447,8 @@ void CWriter::write_boundaries(std::fstream& file)
 {
   Uint max_dimensionality = 0;
   // Find maximal dimensionality of the whole mesh
-  BOOST_FOREACH( const CRegion& region, recursive_filtered_range_typed<CRegion>(*m_mesh,IsElementRegion()))
-    max_dimensionality = std::max(region.elements_type().getDimensionality() , max_dimensionality);
+  BOOST_FOREACH( const CElements& region, recursive_range_typed<CElements>(*m_mesh))
+    max_dimensionality = std::max(region.element_type().dimensionality() , max_dimensionality);
   
   create_nodes_to_element_connectivity();
 
@@ -456,12 +456,12 @@ void CWriter::write_boundaries(std::fstream& file)
   Uint total_nbElements=0;
   BOOST_FOREACH(const CRegion& group, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
   {
-    BOOST_FOREACH(const CRegion& elementregion, recursive_filtered_range_typed<CRegion>(group,IsElementRegion()))
+    BOOST_FOREACH(const CElements& elementregion, recursive_range_typed<CElements>(group))
     {
-      Uint dimensionality = get_component_typed<CElements>(elementregion,IsComponentTrue()).getDimensionality();
+      Uint dimensionality = elementregion.element_type().dimensionality();
       if (dimensionality < max_dimensionality) // is bc
       {
-        total_nbElements += elementregion.elements_count();
+        total_nbElements += elementregion.connectivity_table().table().size();
       }
     }
   }
@@ -474,9 +474,9 @@ void CWriter::write_boundaries(std::fstream& file)
     BOOST_FOREACH(const CRegion& group, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
     {
       bool isBC(false);
-      BOOST_FOREACH(const CRegion& elementregion, recursive_filtered_range_typed<CRegion>(group,IsElementRegion()))
+      BOOST_FOREACH(const CElements& elementregion, recursive_range_typed<CElements>(group))
       {
-        Uint dimensionality = get_component_typed<CElements>(elementregion,IsComponentTrue()).getDimensionality();
+        Uint dimensionality = elementregion.element_type().dimensionality();
         if (dimensionality < max_dimensionality) // is bc
         {
           isBC = true;
@@ -485,27 +485,26 @@ void CWriter::write_boundaries(std::fstream& file)
       if (isBC)
       {
         Uint element_counter=0;
-        BOOST_FOREACH(const CRegion& elementregion, recursive_filtered_range_typed<CRegion>(group,IsElementRegion()))
+        BOOST_FOREACH(const CElements& elementregion, recursive_range_typed<CElements>(group))
         {
-          element_counter += elementregion.elements_count();
+          element_counter += elementregion.connectivity_table().table().size();
         }
         file << " BOUNDARY CONDITIONS 2.3.16\n";
         file << std::setw(32) << group.name() << std::setw(8) << 1 << std::setw(8) << element_counter << std::setw(8) << 0 << std::setw(8) << 6 << std::endl;
         
-        BOOST_FOREACH(const CRegion& elementregion, recursive_filtered_range_typed<CRegion>(group,IsElementRegion()))
+        BOOST_FOREACH(const CElements& elementregion, recursive_range_typed<CElements>(group))
         {
-          const CElements& faceType = get_component_typed<CElements>(elementregion,IsComponentTrue());
-          const CTable& table = get_component_typed<CTable>(elementregion,IsComponentTrue());
+          const CTable& table = elementregion.connectivity_table();
           BOOST_FOREACH(CTable::ConstRow face_nodes, table.table())
           {
-            const CRegion* elm_region;
+            const CElements* elm_region;
             Uint elm_local_idx;
             Uint elm_face_idx;
             boost::tie(elm_region,elm_local_idx,elm_face_idx) =
-            find_element_for_face(faceType,face_nodes,*m_mesh);
+            find_element_for_face(elementregion,face_nodes,*m_mesh);
             Uint elementregion_start_idx = m_global_start_idx[elm_region];
             Uint elm_global_idx = elementregion_start_idx + elm_local_idx;
-            Uint neu_elm_type = m_CFelement_to_NeuElement[get_component_typed<CElements>(*elm_region,IsComponentTrue()).getShape()];
+            Uint neu_elm_type = m_CFelement_to_NeuElement[elm_region->element_type().shape()];
             Uint neu_elm_face_idx = m_faces_cf_to_neu[neu_elm_type][elm_face_idx];
             
             file << std::setw(10) << elm_global_idx+1 << std::setw(5) << neu_elm_type << std::setw(5) << neu_elm_face_idx << std::endl;
@@ -523,9 +522,9 @@ void CWriter::write_boundaries(std::fstream& file)
 
 void CWriter::create_nodes_to_element_connectivity()
 {
-  BOOST_FOREACH(const CRegion& elementregion, recursive_filtered_range_typed<CRegion>(*m_mesh,IsElementRegion()))
+  BOOST_FOREACH(const CElements& elementregion, recursive_range_typed<CElements>(*m_mesh))
   {
-    const CTable& elements = get_component_typed<CTable>(elementregion,IsComponentTrue());
+    const CTable& elements = elementregion.connectivity_table();
     Uint elem_idx=0;
     BOOST_FOREACH(const CTable::ConstRow& elem, elements.table())
     {
@@ -551,7 +550,7 @@ void CWriter::create_nodes_to_element_connectivity()
 }
 //////////////////////////////////////////////////////////////////////////////
 
-boost::tuple<CRegion const* const,Uint,Uint> CWriter::find_element_for_face(const CElements& face, const CTable::ConstRow& nodes, const Component& parent)
+boost::tuple<CElements const* const,Uint,Uint> CWriter::find_element_for_face(const CElements& face, const CTable::ConstRow& nodes, const Component& parent)
 {
 
   std::vector<Uint> sorted_nodes;
@@ -564,20 +563,26 @@ boost::tuple<CRegion const* const,Uint,Uint> CWriter::find_element_for_face(cons
 //  CFinfo << CFendl;
 
   std::vector<Uint> sorted_face_row(sorted_nodes.size());
-  typedef std::pair<CRegion const* const,Uint> elem_t;
+  typedef std::pair<CElements const* const,Uint> elem_t;
   BOOST_FOREACH(elem_t elem, m_n2e[sorted_nodes[0]])
   {
-    Uint face_idx=0;
-    BOOST_FOREACH(const ElementType::Face& look_face, get_component_typed<CElements>((*elem.first),IsComponentTrue()).getFaces())
+    const CElements* elements = elem.first;
+    const ElementType::FaceConnectivity& face_connectivity = elements->element_type().face_connectivity();
+    const Uint face_count = elements->element_type().nb_faces();
+    if(face_count < 2)
+      continue;
+    for(Uint face_idx = 0; face_idx != face_count; ++face_idx)
     {
 //      CFinfo << "    check " << elem.first->full_path().string() << "   row " << elem.second << CFflush;
 //      CFinfo << "   face " << face_idx << "  " << CFflush;
 
+      const ElementType& look_face = elements->element_type().face_type(face_idx);
+
       // first check if the face type matches
-      if (look_face.faceType->getShape() == face.getShape() &&
-          look_face.faceType->getNbNodes() == face.getNbNodes())
+      if (look_face.shape() == face.element_type().shape() &&
+          look_face.nb_nodes() == face.element_type().nb_nodes())
       {
-        const CTable::ConstRow& elemNodes = get_component_typed<CTable>((*elem.first),IsComponentTrue()).table()[elem.second];
+        const CTable::ConstRow& elemNodes = elements->connectivity_table().table()[elem.second];
 
 //        CFinfo << "  idx " << CFflush;
 //        BOOST_FOREACH(Uint idx, look_face.nodes)
@@ -588,7 +593,7 @@ boost::tuple<CRegion const* const,Uint,Uint> CWriter::find_element_for_face(cons
 //        CFinfo << CFendl;
 
         for (Uint i=0; i<sorted_nodes.size(); ++i)
-          sorted_face_row[i]=elemNodes[look_face.nodes[i]];
+          sorted_face_row[i]=elemNodes[face_connectivity.face_node_range(face_idx)[i]];
         std::sort(sorted_face_row.begin(), sorted_face_row.end());
         //BOOST_FOREACH(Uint sorted_node, sorted_face_row)
         //  CFinfo << sorted_node << " ";
@@ -611,11 +616,10 @@ boost::tuple<CRegion const* const,Uint,Uint> CWriter::find_element_for_face(cons
             break;
         }
       }
-      ++face_idx;
     }
   }
   throw Common::ShouldNotBeHere(FromHere(),"no element found for node");
-  CRegion* nullptr(NULL);
+  CElements* nullptr(NULL);
   return boost::make_tuple(nullptr ,0,0);
 }
 

@@ -9,7 +9,7 @@
 
 #include "Mesh/CArray.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
-#include "Mesh/Elements/SF/Tetra3DLagrangeP1.hpp"
+#include "Mesh/SF/Tetra3DLagrangeP1.hpp"
 
 #include "Tools/Testing/Difference.hpp"
 

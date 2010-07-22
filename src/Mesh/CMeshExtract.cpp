@@ -14,18 +14,6 @@ namespace Mesh {
   
   using namespace Common;
   
-  class IsElementRegion
-  {
-  public:
-    IsElementRegion () {}
-    
-    bool operator()(const Component& component)
-    {
-      return !range_typed<CTable>(component).empty() && !range_typed<CElements>(component).empty();
-    }
-    
-  }; // IsElementRegion
-  
   class IsGroup
   {
   public:
@@ -33,11 +21,8 @@ namespace Mesh {
     
     bool operator()(const Component& component)
     {
-      return count(filtered_range_typed<CRegion>(component,m_isElement));
+      return count(range_typed<CElements>(component));
     }
-    
-  private:
-    IsElementRegion m_isElement;
   }; // IsGroup
   
   
@@ -92,16 +77,18 @@ void CMeshExtract::transform(const CMesh::Ptr& mesh, const std::vector<std::stri
     {
       Uint dimensionality = 0;
       // Find maximal dimensionality of the whole mesh
-      BOOST_FOREACH( const CRegion& region, recursive_filtered_range_typed<CRegion>(*m_mesh,IsElementRegion()))
-      dimensionality = std::max(region.elements_type().getDimensionality() , dimensionality);
+      BOOST_FOREACH( const CElements& elements, recursive_range_typed<CElements>(*m_mesh))
+      {
+	dimensionality = std::max(elements.element_type().dimensionality() , dimensionality);
+      }
       
       // delete volume regions
       BOOST_FOREACH( CRegion& region, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
       {
         bool is_volume = false;
-        BOOST_FOREACH( const CRegion& element_region, filtered_range_typed<CRegion>(region,IsComponentTrue()))
+        BOOST_FOREACH( const CElements& elements, range_typed<CElements>(region))
         {
-          if(element_region.elements_type().getDimensionality() == dimensionality)
+          if(elements.element_type().dimensionality() == dimensionality)
           {
             is_volume = true; 
             break;
@@ -118,16 +105,18 @@ void CMeshExtract::transform(const CMesh::Ptr& mesh, const std::vector<std::stri
     {
       Uint dimensionality = 0;
       // Find maximal dimensionality of the whole mesh
-      BOOST_FOREACH( const CRegion& region, recursive_filtered_range_typed<CRegion>(*m_mesh,IsElementRegion()))
-      dimensionality = std::max(region.elements_type().getDimensionality() , dimensionality);
+      BOOST_FOREACH( const CElements& elements, recursive_range_typed<CElements>(*m_mesh))
+      {
+        dimensionality = std::max(elements.element_type().dimensionality() , dimensionality);
+      }
       
       // delete volume regions
       BOOST_FOREACH( CRegion& region, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
       {
         bool is_volume = true;
-        BOOST_FOREACH( const CRegion& element_region, filtered_range_typed<CRegion>(region,IsComponentTrue()))
+        BOOST_FOREACH( const CElements& elements, range_typed<CElements>(region))
         {
-          if(element_region.elements_type().getDimensionality() < dimensionality)
+          if(elements.element_type().dimensionality() < dimensionality)
           {
             is_volume = false; 
             break;

@@ -9,7 +9,7 @@
 
 #include "Mesh/CArray.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
-#include "Mesh/Elements/SF/Hexa3DLagrangeP1.hpp"
+#include "Mesh/SF/Hexa3DLagrangeP1.hpp"
 
 #include "Tools/Testing/Difference.hpp"
 
@@ -100,6 +100,17 @@ BOOST_AUTO_TEST_CASE( Volume )
 {
   BOOST_CHECK_CLOSE(Hexa3DLagrangeP1::volume(unit_nodes), 1., 0.0001);
   BOOST_CHECK_CLOSE(Hexa3DLagrangeP1::volume(skewed_nodes), 1., 0.0001);
+  
+  boost::multi_array<Real,2> nodes_hexa3D (boost::extents[8][3]);
+  nodes_hexa3D[0][XX] = 0.0;     nodes_hexa3D[0][YY] = 0.0;     nodes_hexa3D[0][ZZ] = 0.0;
+  nodes_hexa3D[1][XX] = 1.0;     nodes_hexa3D[1][YY] = 0.0;     nodes_hexa3D[1][ZZ] = 0.0;
+  nodes_hexa3D[2][XX] = 1.0;     nodes_hexa3D[2][YY] = 1.0;     nodes_hexa3D[2][ZZ] = 0.0;
+  nodes_hexa3D[3][XX] = 0.0;     nodes_hexa3D[3][YY] = 1.0;     nodes_hexa3D[3][ZZ] = 0.0;
+  nodes_hexa3D[4][XX] = 0.0;     nodes_hexa3D[4][YY] = 0.0;     nodes_hexa3D[4][ZZ] = 1.0;
+  nodes_hexa3D[5][XX] = 1.0;     nodes_hexa3D[5][YY] = 0.0;     nodes_hexa3D[5][ZZ] = 1.0;
+  nodes_hexa3D[6][XX] = 1.0;     nodes_hexa3D[6][YY] = 1.0;     nodes_hexa3D[6][ZZ] = 1.0;
+  nodes_hexa3D[7][XX] = 0.0;     nodes_hexa3D[7][YY] = 1.0;     nodes_hexa3D[7][ZZ] = 1.0;
+  BOOST_CHECK_EQUAL(Hexa3DLagrangeP1::volume(nodes_hexa3D), 1.);
 }
 
 BOOST_AUTO_TEST_CASE( ShapeFunction )

@@ -13,7 +13,7 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/ElementNodes.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
-#include "Mesh/Elements/SF/Line3DLagrangeP1.hpp"
+#include "Mesh/SF/Line3DLagrangeP1.hpp"
 
 
 
@@ -161,6 +161,14 @@ void integrate_element(ResultT& result, FunctorT functor, const NodesT& nodes, c
 BOOST_FIXTURE_TEST_SUITE( Line3DLagrangeP1Suite, LagrangeSFLine3DLagrangeP1Fixture )
 
 //////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( Length )
+{
+  boost::multi_array<Real,2> nodes_line3D (boost::extents[2][3]);
+  nodes_line3D[0][XX] = 2.0;     nodes_line3D[0][YY] = 2.0;     nodes_line3D[0][ZZ] = 2.0;
+  nodes_line3D[1][XX] = 1.0;     nodes_line3D[1][YY] = 1.0;     nodes_line3D[1][ZZ] = 1.0;
+  BOOST_CHECK_EQUAL(Line3DLagrangeP1::length(nodes_line3D),std::sqrt(3.));
+}
 
 BOOST_AUTO_TEST_CASE( ShapeFunction )
 {

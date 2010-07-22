@@ -6,7 +6,7 @@ LIST( APPEND coolfluid-solver_files
   ComputeVolumes.hpp
 )
 
-LIST (APPEND coolfluid-solver_libs Neu P1)
+LIST (APPEND coolfluid-solver_libs Neu SF)
 
 CF_ADD_APP (coolfluid-solver)
 

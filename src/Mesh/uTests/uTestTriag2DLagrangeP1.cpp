@@ -9,7 +9,7 @@
 
 #include "Mesh/CArray.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
-#include "Mesh/Elements/SF/Triag2DLagrangeP1.hpp"
+#include "Mesh/SF/Triag2DLagrangeP1.hpp"
 
 #include "Tools/Testing/Difference.hpp"
 
@@ -72,6 +72,38 @@ private:
 BOOST_FIXTURE_TEST_SUITE( Triag2DLagrangeP1Suite, Triag2DLagrangeP1Fixture )
 
 //////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( Volume )
+{
+  boost::multi_array<Real,2> nodes_triag2D (boost::extents[3][2]);
+  nodes_triag2D[0][XX] = 0.0;     nodes_triag2D[0][YY] = 0.0;
+  nodes_triag2D[1][XX] = 1.0;     nodes_triag2D[1][YY] = 0.0;
+  nodes_triag2D[2][XX] = 1.0;     nodes_triag2D[2][YY] = 1.0;
+  BOOST_CHECK_EQUAL(Triag2DLagrangeP1::volume(nodes_triag2D), 0.5);
+}
+
+BOOST_AUTO_TEST_CASE( Element )
+{
+  // Create a CElements component
+  CElements::Ptr comp (new CElements("comp")) ;
+
+  // The element is automatically triangle for now
+  comp->initialize("Triag2DLagrangeP1");
+  BOOST_CHECK_EQUAL(comp->element_type().shape(), GeoShape::TRIAG);
+  BOOST_CHECK_EQUAL(comp->element_type().nb_nodes(), (Uint) 3);
+
+  // Check volume calculation
+  CArray::Array coord(boost::extents[3][2]);
+  coord[0][XX]=15; coord[0][YY]=15;
+  coord[1][XX]=40; coord[1][YY]=25;
+  coord[2][XX]=25; coord[2][YY]=30;
+  std::vector<CArray::Row> coordvec;
+  coordvec.reserve(3);
+  coordvec.push_back(coord[0]);
+  coordvec.push_back(coord[1]);
+  coordvec.push_back(coord[2]);
+  BOOST_CHECK_EQUAL(Triag2DLagrangeP1::volume(coordvec), 137.5);
+}
 
 BOOST_AUTO_TEST_CASE( ShapeFunction )
 {

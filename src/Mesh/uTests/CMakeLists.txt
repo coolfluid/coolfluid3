@@ -1,10 +1,9 @@
 ################################################################################
 
-LIST( APPEND uTestMesh_cflibs P1 Neu Gmsh )
+LIST( APPEND uTestMesh_cflibs Neu Gmsh SF )
 LIST( APPEND uTestMesh_files
   uTestMesh.cpp
   TestMeshComponents.cpp
-  TestP1Elements.cpp
   TestMeshConstruction.cpp
   TestMeshReading.cpp
 )
@@ -105,7 +104,7 @@ CF_ADD_UNITTEST( uTestQuad3DLagrangeP1 )
 
 ################################################################################
 
-LIST( APPEND uTestIntegration_libs  P1 Neu Testing SF )
+LIST( APPEND uTestIntegration_libs Neu Testing SF )
 LIST( APPEND uTestIntegration_files
   uTestIntegration.cpp )
 
@@ -114,7 +113,7 @@ CF_ADD_UNITTEST( uTestIntegration )
 
 ################################################################################
 
-LIST( APPEND uTestNodes_libs P1 Neu )
+LIST( APPEND uTestNodes_libs Neu SF )
 LIST( APPEND uTestNodes_files
   uTestNodes.cpp )
 

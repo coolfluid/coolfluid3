@@ -20,57 +20,25 @@ CRegion::CRegion ( const CName& name  ) :
 
 CRegion::~CRegion()
 {
-//  BOOST_FOREACH(CRegion::Ptr subregion, m_subregions)
-//    subregion.reset();
-//  m_elementType.reset();
-//  m_connTable.reset();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CRegion::Ptr CRegion::create_region( const CName& name )
+CRegion& CRegion::create_region( const CName& name )
 {
-//  CRegion::Ptr new_region ( new CRegion(name) );
-//  m_subregions.push_back(new_region);
-//  add_component ( new_region );
-//  return new_region;
-  return create_component_type<CRegion>(name);
+  return *create_component_type<CRegion>(name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CTable::Ptr CRegion::create_connectivityTable( const CName& name )
+CElements& CRegion::create_elements(const std::string& element_type_name )
 {
-//  CTable::Ptr new_connTable ( new CTable(name) );
-//  m_connTable = new_connTable;
-//  add_component ( m_connTable );
-//  return new_connTable;
-  return create_component_type<CTable>(name);
+  std::string name = "elements_" + element_type_name;
+  CElements::Ptr elements = create_component_type<CElements>(name);
+  elements->initialize(element_type_name);
+  return *elements;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-CElements::Ptr CRegion::create_elementType( const CName& name )
-{
-//  CElements::Ptr new_elementType ( new CElements(name) );
-//  m_elementType = new_elementType;
-//  add_component ( m_elementType );
-//  return new_elementType;
-  return create_component_type<CElements>(name);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-CRegion::Ptr CRegion::create_element_region (const std::string& etype_name )
-{
-  std::string region_name(etype_name);
-  CRegion::Ptr region = create_region(region_name);
-  CElements& elements = *region->create_elementType();
-  elements.set_elementType(etype_name);
-  Uint nbNodes = elements.get_elementType()->getNbNodes();
-  region->create_connectivityTable()->initialize(nbNodes);
-  return region;
-}
 
 //////////////////////////////////////////////////////////////////////////////
 

@@ -11,11 +11,11 @@ namespace Mesh {
 
 struct ComputeVolumes
 {
-  CRegion& region;
+  CElements& region;
   CArray::Ptr ptr_volumes;
   CArray::Array* volumes;
 
-  ComputeVolumes ( CRegion& aregion ) : region(aregion)
+  ComputeVolumes ( CElements& aregion ) : region(aregion)
   {
     // create an array to store the volumes
     CArray::Ptr ptr_volumes = region.get_child("volumes") ?
@@ -23,13 +23,13 @@ struct ComputeVolumes
                               region.create_component_type<CArray>("volumes");
 
     volumes = &ptr_volumes->array();
-    volumes->resize( boost::extents[region.elements_count()][1]);
+    volumes->resize( boost::extents[region.connectivity_table().table().size()][1]);
   }
 
   template < typename EType >
-  void execute (  Uint elem, std::vector<CArray::Row>& nodes )
+  void execute (  Uint elem, std::vector<RealVector>& nodes )
   {
-    (*volumes)[elem][0] = VolumeComputer< EType >::computeVolume( nodes );
+    (*volumes)[elem][0] = EType::volume( nodes );
   }
 
 };

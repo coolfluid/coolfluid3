@@ -53,11 +53,10 @@ struct Nodes_Fixture
   /// common values accessed by all tests goes here
   boost::shared_ptr<CMesh> mesh2d;
 
-  CRegion& get_first_region()
+  CElements& get_first_region()
   {
-    BOOST_FOREACH(CRegion& region, recursive_range_typed<CRegion>(*mesh2d))
+    BOOST_FOREACH(CElements& region, recursive_range_typed<CElements>(*mesh2d))
     {
-      if(region.elements_count())
         return (region);
     }
     throw ShouldNotBeHere(FromHere(), "");
@@ -78,11 +77,11 @@ BOOST_FIXTURE_TEST_SUITE( Nodes, Nodes_Fixture )
 /// Test node modification
 BOOST_AUTO_TEST_CASE( writeNodes )
 {
-  CRegion& firstRegion = get_first_region();
+  CElements& firstRegion = get_first_region();
   CArray& coords = coordinates();
-  ElementNodeView nodes(coords, firstRegion.get_row(0));
+  ElementNodeView nodes(coords, firstRegion.connectivity_table().table()[0]);
   nodes[0][0] = 1.;
-  const ConstElementNodeView const_nodes(coords, firstRegion.get_row(0));
+  const ConstElementNodeView const_nodes(coords, firstRegion.connectivity_table().table()[0]);
   BOOST_CHECK_EQUAL(nodes[0][0], const_nodes[0][0]);
 }
 

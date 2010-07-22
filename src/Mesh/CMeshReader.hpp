@@ -74,12 +74,12 @@ protected: // functions
   /// @param [in] etypes          List of element type names that will be used
   /// @return a BufferMap with key an etype name and value a buffer for the region
   ///         with name of the etype
-  BufferMap create_element_regions_with_buffermap(boost::shared_ptr<CRegion>& parent_region,
-                                              std::vector<std::string>& etypes);
+  BufferMap create_element_regions_with_buffermap(CRegion& parent_region,
+                                              const std::vector<std::string>& etypes);
 
   /// remove all regions with empty connectivity tables inside a given region
   /// @param [in] parent_region  Region in which the removal will take place
-  void remove_empty_element_regions(const boost::shared_ptr<CRegion>& parent_region);
+  void remove_empty_element_regions(CRegion& parent_region);
 
 private: // helper functions
 

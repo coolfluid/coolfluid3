@@ -13,6 +13,7 @@
 #include "Mesh/CArray.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
+#include "Mesh/ElementNodes.hpp"
 
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/Integrators/IntegrationFunctorBase.hpp"
@@ -48,10 +49,7 @@ void create_rectangle_buffered(CMesh& mesh, const Real x_len, const Real y_len, 
     }
   }
   CRegion& region = *mesh.create_region("region");
-  CTable& connTable = *region.create_connectivityTable("table");
-  connTable.initialize(4); // 4 nodes per element
-  region.create_elementType("type")->set_elementType("P1-Quad2D");
-  CTable::Buffer connBuffer = connTable.create_buffer( x_segments*y_segments );
+  CTable::Buffer connBuffer = region.create_elements("Quad2DLagrangeP1").connectivity_table().create_buffer( x_segments*y_segments );
   std::vector<Uint> nodes(4);
   for(Uint j = 0; j < y_segments; ++j)
   {
@@ -90,10 +88,7 @@ void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uin
     }
   }
   CRegion& region = *mesh.create_region("region");
-  CTable& connTable = *region.create_connectivityTable("table");
-  connTable.initialize(4); // 4 nodes per element
-  region.create_elementType("type")->set_elementType("P1-Quad2D");
-  CTable::ConnectivityTable& connArray = connTable.table();
+  CTable::ConnectivityTable& connArray = region.create_elements("Quad2DLagrangeP1").connectivity_table().table();
   connArray.resize(boost::extents[(x_segments)*(y_segments)][4]);
   for(Uint j = 0; j < y_segments; ++j)
   {
@@ -154,14 +149,18 @@ struct IntegrationFixture :
     /// Sets up a functor for the given mesh
     DetJacobianFunctorNodesVector(const CArray& coordinates) : m_coordinates(coordinates) {}
     /// Sets up the functor to use the specified region
-    void setRegion(const CRegion& region) {
+    void setRegion(const CElements& region) {
       m_region = &region;
-      if(m_region->elements_count())
-        m_nodes.resize(m_region->elements_type().getNbNodes(), RealVector(m_region->elements_type().getDimensionality()));
+      m_nodes.resize(region.element_type().nb_nodes(), RealVector(region.element_type().dimension()));
     }
     /// Sets up the functor to use the specified element (relative to the currently set region)
     void setElement(const Uint element) {
-      fill_node_list(m_nodes.begin(), m_coordinates, *m_region, element);
+      const CTable::ConnectivityTable& ctbl = m_region->connectivity_table().table();
+      Uint i = 0;
+      BOOST_FOREACH(const Uint idx, ctbl[element])
+      {
+        m_nodes[i++] = RealVector(m_coordinates[idx]);
+      }
     }
 
     template<typename GeoShapeF, typename SolShapeF>
@@ -171,7 +170,7 @@ struct IntegrationFixture :
     }
 
   protected:
-    const CRegion* m_region;
+    const CElements* m_region;
     const CArray& m_coordinates;
     ElementNodeVector m_nodes;
   };
@@ -223,17 +222,19 @@ BOOST_FIXTURE_TEST_CASE( ComputeVolume2DUnitSquare, IntegrationFixture ) // time
 {
   CArray& coords = get_named_component_typed<CArray>(grid2D, "coordinates");
   Real volume = 0.0;
-  BOOST_FOREACH(CRegion& region, range_typed<CRegion>(grid2D)) {
-    const Uint element_count = region.elements_count();
-    if(element_count) {
-      const ElementType& element_type = region.elements_type();
-      for(Uint element = 0; element != element_count; ++element) {
-        std::vector<CArray::Row> nodes;
-        fill_node_list(std::inserter(nodes, nodes.begin()), coords, region, element);
-        volume += element_type.computeVolume(nodes);
+  BOOST_FOREACH(CElements& region, recursive_range_typed<CElements>(grid2D))
+  {
+    const CTable::ConnectivityTable& ctbl = region.connectivity_table().table();
+    const Uint element_count = ctbl.size();
+    const ElementType& element_type = region.element_type();
+    for(Uint element = 0; element != element_count; ++element)
+    {
+      ElementType::NodesT nodes;
+      BOOST_FOREACH(const Uint idx, ctbl[element])
+      {
+        nodes.push_back(RealVector(coords[idx]));
       }
-    } else {
-      CFwarn << "Region " << region.name() << " has no elements" << CFendl;
+      volume += element_type.computeVolume(nodes);
     }
   }
   BOOST_CHECK_CLOSE(volume, 1., 1e-8);
@@ -244,11 +245,18 @@ BOOST_FIXTURE_TEST_CASE( ComputeVolume2DUnitSquareDirect, IntegrationFixture ) /
 {
   CArray& coords = get_named_component_typed<CArray>(grid2D, "coordinates");
   Real volume = 0.0;
-  BOOST_FOREACH(CRegion& region, range_typed<CRegion>(grid2D)) {
-    const Uint element_count = region.elements_count();
-    for(Uint element = 0; element != element_count; ++element) {
-      std::vector<CArray::Row> nodes;
-      fill_node_list(std::inserter(nodes, nodes.begin()), coords, region, element);
+  BOOST_FOREACH(CElements& region, recursive_range_typed<CElements>(grid2D))
+  {
+    const CTable::ConnectivityTable& ctbl = region.connectivity_table().table();
+    const Uint element_count = ctbl.size();
+    const ElementType& element_type = region.element_type();
+    for(Uint element = 0; element != element_count; ++element)
+    {
+      ElementType::NodesT nodes;
+      BOOST_FOREACH(const Uint idx, ctbl[element])
+      {
+        nodes.push_back(RealVector(coords[idx]));
+      }
       volume += (nodes[2][XX] - nodes[0][XX]) * (nodes[3][YY] - nodes[1][YY]) -
           (nodes[2][YY] - nodes[0][YY]) * (nodes[3][XX] - nodes[1][XX]);
     }

@@ -73,16 +73,16 @@ private: // data
   std::map<GeoShape::Type,Uint> m_CFelement_to_NeuElement;
 
   /// implementation detail, raw pointers are safe as keys
-  std::map<CRegion const*,Uint> m_global_start_idx;
+  std::map<CElements const*,Uint> m_global_start_idx;
 
   std::vector<std::vector<Uint> > m_faces_cf_to_neu;
   std::vector<std::vector<Uint> > m_faces_neu_to_cf;
   std::vector<std::vector<Uint> > m_nodes_cf_to_neu;
   std::vector<std::vector<Uint> > m_nodes_neu_to_cf;
 
-  std::map<Uint,std::vector<std::pair<CRegion const*,Uint> > > m_n2e;
+  std::map<Uint,std::vector<std::pair<CElements const*,Uint> > > m_n2e;
 
-  boost::tuple<CRegion const* const,Uint,Uint> find_element_for_face(const CElements& face, const CTable::ConstRow& nodes, const Component& parent);
+  boost::tuple<CElements const* const,Uint,Uint> find_element_for_face(const CElements& face, const CTable::ConstRow& nodes, const Component& parent);
 
   std::string m_fileBasename;
   

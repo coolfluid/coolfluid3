@@ -13,7 +13,7 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/ElementNodes.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
-#include "Mesh/Elements/SF/Line2DLagrangeP1.hpp"
+#include "Mesh/SF/Line2DLagrangeP1.hpp"
 
 
 
@@ -218,6 +218,14 @@ void integrate_element(ResultT& result, FunctorT functor, const NodesT& nodes, c
 BOOST_FIXTURE_TEST_SUITE( Line2DLagrangeP1Suite, LagrangeSFLine2DLagrangeP1Fixture )
 
 //////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( Area )
+{
+  ElementType::NodesT nodes_line2D(2, RealVector(2));
+  nodes_line2D[0][XX] = 2.0;     nodes_line2D[0][YY] = 2.0;
+  nodes_line2D[1][XX] = 1.0;     nodes_line2D[1][YY] = 1.0;
+  BOOST_CHECK_EQUAL(Line2DLagrangeP1::area(nodes_line2D),std::sqrt(2.));
+}
 
 BOOST_AUTO_TEST_CASE( ShapeFunction )
 {

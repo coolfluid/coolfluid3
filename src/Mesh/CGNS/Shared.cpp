@@ -11,27 +11,27 @@ namespace CGNS {
 Shared::Shared()
 {
   m_supported_element_types.reserve(4);
-  m_supported_element_types.push_back("P1-Line1D");
-  m_supported_element_types.push_back("P1-Line2D");
-  m_supported_element_types.push_back("P1-Line3D");
-  m_supported_element_types.push_back("P1-Triag2D");
-  m_supported_element_types.push_back("P1-Triag3D");
-  m_supported_element_types.push_back("P1-Quad2D");
-  m_supported_element_types.push_back("P1-Quad3D");
-//  m_supported_element_types.push_back("P1-Tetra3D");
-  m_supported_element_types.push_back("P1-Hexa3D");
+  m_supported_element_types.push_back("Line1DLagrangeP1");
+  m_supported_element_types.push_back("Line2DLagrangeP1");
+  m_supported_element_types.push_back("Line3DLagrangeP1");
+  m_supported_element_types.push_back("Triag2DLagrangeP1");
+  m_supported_element_types.push_back("Triag3DLagrangeP1");
+  m_supported_element_types.push_back("Quad2DLagrangeP1");
+  m_supported_element_types.push_back("Quad3DLagrangeP1");
+//  m_supported_element_types.push_back("Tetra3DLagrangeP1");
+  m_supported_element_types.push_back("Hexa3DLagrangeP1");
 
-  m_elemtype_CGNS_to_CF[TRI_3  ] = "P1-Triag";
-  m_elemtype_CGNS_to_CF[QUAD_4 ] = "P1-Quad";
-  m_elemtype_CGNS_to_CF[TETRA_4] = "P1-Tetra";
-  m_elemtype_CGNS_to_CF[HEXA_8 ] = "P1-Hexa";
+  m_elemtype_CGNS_to_CF[TRI_3  ] = "Triag";
+  m_elemtype_CGNS_to_CF[QUAD_4 ] = "Quad";
+  m_elemtype_CGNS_to_CF[TETRA_4] = "Tetra";
+  m_elemtype_CGNS_to_CF[HEXA_8 ] = "Hexa";
 
-  m_elemtype_CF_to_CGNS["P1-Triag2D"] = TRI_3;
-  m_elemtype_CF_to_CGNS["P1-Triag3D"] = TRI_3;
-  m_elemtype_CF_to_CGNS["P1-Quad2D" ] = QUAD_4;
-  m_elemtype_CF_to_CGNS["P1-Quad3D" ] = QUAD_4;
-  m_elemtype_CF_to_CGNS["P1-Tetra3D"] = TETRA_4;
-  m_elemtype_CF_to_CGNS["P1-Hexa3D" ] = HEXA_8;
+  m_elemtype_CF_to_CGNS["Triag2DLagrangeP1"] = TRI_3;
+  m_elemtype_CF_to_CGNS["Triag3DLagrangeP1"] = TRI_3;
+  m_elemtype_CF_to_CGNS["Quad2DLagrangeP1" ] = QUAD_4;
+  m_elemtype_CF_to_CGNS["Quad3DLagrangeP1" ] = QUAD_4;
+  m_elemtype_CF_to_CGNS["Tetra3DLagrangeP1"] = TETRA_4;
+  m_elemtype_CF_to_CGNS["Hexa3DLagrangeP1" ] = HEXA_8;
 }
 
 //////////////////////////////////////////////////////////////////////////////

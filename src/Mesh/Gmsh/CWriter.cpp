@@ -150,12 +150,9 @@ void CWriter::write_connectivity(std::fstream& file)
   CRegion::Ptr regions = get_named_component_typed_ptr<CRegion>(*m_mesh, "regions");
   Uint nbElems = 0;
 
-  BOOST_FOREACH(const CRegion& region, recursive_range_typed<CRegion>(*regions))
+  BOOST_FOREACH(const CElements& region, recursive_range_typed<CElements>(*regions))
   {
-    if (range_typed<CRegion>(region).empty())
-    {
-      nbElems += get_named_component_typed<CTable>(region, "table").table().size();
-    }
+    nbElems += region.connectivity_table().table().size();
   }
   file << "$Elements\n";
   file << nbElems << "\n";
@@ -167,23 +164,20 @@ void CWriter::write_connectivity(std::fstream& file)
 
   BOOST_FOREACH(CRegion& region, recursive_range_typed<CRegion>(*regions))
   {
-    if (!range_typed<CRegion>(region).empty())
-    {
       group_name = region.name();
       group_number = m_groups[group_name].number;
-    }
-    else
+  }
+  
+  BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*regions))
+  {
+    elm_type = m_elementTypes[elements.element_type().shape()];
+    BOOST_FOREACH(CTable::Row row, elements.connectivity_table().table())
     {
-      cf_assert(group_name != "");
-      elm_type = m_elementTypes[get_named_component_typed<CElements>(region, "type").get_elementType()->getShape()];
-      BOOST_FOREACH(CTable::Row row, get_named_component_typed<CTable>(region, "table").table())
-      {
-        elm_number++;
-        file << elm_number << " " << elm_type << " " << number_of_tags << " " << group_number << " " << group_number;
-        BOOST_FOREACH(Uint node, row)
-          file << " " << node+1;
-        file << "\n";
-      }
+      elm_number++;
+      file << elm_number << " " << elm_type << " " << number_of_tags << " " << group_number << " " << group_number;
+      BOOST_FOREACH(Uint node, row)
+        file << " " << node+1;
+      file << "\n";
     }
   }
   file << "$EndElements\n";

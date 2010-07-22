@@ -36,15 +36,15 @@ CReader::CReader( const CName& name )
   BUILD_COMPONENT;
 
   m_supported_types.reserve(9);
-  m_supported_types.push_back("P1-Line1D");
-  m_supported_types.push_back("P1-Line2D");
-  m_supported_types.push_back("P1-Line3D");
-  m_supported_types.push_back("P1-Quad2D");
-  m_supported_types.push_back("P1-Quad3D");
-  m_supported_types.push_back("P1-Triag2D");
-  m_supported_types.push_back("P1-Triag3D");
-  m_supported_types.push_back("P1-Hexa3D");
-  m_supported_types.push_back("P1-Tetra3D");
+  m_supported_types.push_back("Line1DLagrangeP1");
+  m_supported_types.push_back("Line2DLagrangeP1");
+  m_supported_types.push_back("Line3DLagrangeP1");
+  m_supported_types.push_back("Quad2DLagrangeP1");
+  m_supported_types.push_back("Quad3DLagrangeP1");
+  m_supported_types.push_back("Triag2DLagrangeP1");
+  m_supported_types.push_back("Triag3DLagrangeP1");
+  m_supported_types.push_back("Hexa3DLagrangeP1");
+  m_supported_types.push_back("Tetra3DLagrangeP1");
 
   
   // ------------------------------------------------------- FACES
@@ -224,7 +224,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 
 
   // Remove regions with empty connectivity tables
-  remove_empty_element_regions(get_named_component_typed_ptr<CRegion>(*m_mesh,"regions"));
+  remove_empty_element_regions(get_named_component_typed<CRegion>(*m_mesh,"regions"));
 
   // Remove tmp region from component
   if (m_headerData.NGRPS != 1)
@@ -311,7 +311,7 @@ void CReader::read_connectivity(std::fstream& file)
   CRegion::Ptr tmp = m_mesh->create_region("tmp");
 
   std::map<std::string,boost::shared_ptr<CTable::Buffer> > buffer =
-      create_element_regions_with_buffermap(tmp,m_supported_types);
+      create_element_regions_with_buffermap(*tmp,m_supported_types);
 
   // skip next line
   std::string line;
@@ -325,11 +325,11 @@ void CReader::read_connectivity(std::fstream& file)
     file >> elementNumber >> elementType >> nbElementNodes;
     elementNumber--;
     // find the element type
-    if      (elementType==LINE  && nbElementNodes==2) etype_CF = "P1-Line";  // quadrilateral
-    else if (elementType==QUAD  && nbElementNodes==4) etype_CF = "P1-Quad";  // quadrilateral
-    else if (elementType==TRIAG && nbElementNodes==3) etype_CF = "P1-Triag"; // triangle
-    else if (elementType==HEXA  && nbElementNodes==8) etype_CF = "P1-Hexa";  // brick
-    else if (elementType==TETRA && nbElementNodes==4) etype_CF = "P1-Tetra";
+    if      (elementType==LINE  && nbElementNodes==2) etype_CF = "Line";  // quadrilateral
+    else if (elementType==QUAD  && nbElementNodes==4) etype_CF = "Quad";  // quadrilateral
+    else if (elementType==TRIAG && nbElementNodes==3) etype_CF = "Triag"; // triangle
+    else if (elementType==HEXA  && nbElementNodes==8) etype_CF = "Hexa";  // brick
+    else if (elementType==TETRA && nbElementNodes==4) etype_CF = "Tetra";
     /// @todo to be implemented
     else if (elementType==5 && nbElementNodes==6) // wedge (prism)
       throw Common::NotImplemented(FromHere(),"wedge or prism element not able to convert to COOLFluiD yet.");
@@ -341,7 +341,7 @@ void CReader::read_connectivity(std::fstream& file)
            " in Gambit Neutral format");
     }
     // append dimension to the element type (1D, 2D, 3D)
-    etype_CF += StringOps::to_str<int>(m_headerData.NDFCD)+"D";
+    etype_CF += StringOps::to_str<int>(m_headerData.NDFCD)+"DLagrangeP1";
     
     // get element nodes
     std::vector<Uint> cf_element(nbElementNodes);
@@ -353,7 +353,9 @@ void CReader::read_connectivity(std::fstream& file)
       cf_element[cf_idx]--;
     }
     Uint table_idx = buffer[etype_CF]->add_row(cf_element);
-    m_global_to_tmp.push_back(Region_TableIndex_pair(get_named_component_typed_ptr<CRegion>(*tmp, etype_CF),table_idx));
+    CElements::Ptr tmp_elements = get_named_component_typed_ptr<CElements>(*tmp, "elements_" + etype_CF);
+    cf_assert(tmp_elements);
+    m_global_to_tmp.push_back(Region_TableIndex_pair(tmp_elements,table_idx));
     
     // finish the line
     getline(file,line);
@@ -414,7 +416,7 @@ void CReader::read_groups(std::fstream& file)
     BOOST_FOREACH(GroupData& group, groups)
     {
 
-      CRegion::Ptr region = regions->create_region(group.ELMMAT);
+      CRegion& region = regions->create_region(group.ELMMAT);
 
       // Create regions for each element type in each group-region
       std::map<std::string,boost::shared_ptr<CTable::Buffer> > buffer =
@@ -423,9 +425,11 @@ void CReader::read_groups(std::fstream& file)
       // Copy elements from tmp_region in the correct region
       BOOST_FOREACH(Uint global_element, group.ELEM)
       {
-        CRegion::Ptr tmp_region = m_global_to_tmp[global_element].first;
+        CElements::Ptr tmp_region = m_global_to_tmp[global_element].first;
         Uint local_element = m_global_to_tmp[global_element].second;
-        buffer[tmp_region->name()]->add_row(get_named_component_typed<CTable>(*tmp_region, "table").table()[local_element]);
+        boost::shared_ptr<CTable::Buffer> buf = buffer[tmp_region->element_type().getElementTypeName()];
+        cf_assert(buf);
+        buf->add_row(tmp_region->connectivity_table().table()[local_element]);
       }
     }
   }
@@ -457,7 +461,7 @@ void CReader::read_boundaries(std::fstream& file)
     // boundary connectivity here
     //vector< GElement > e2n(NENTRY);
 
-    CRegion::Ptr bc_region = regions->create_component_type<CRegion>(NAME);
+    CRegion& bc_region = regions->create_region(NAME);
 
     // create all kind of element type regions
     BufferMap buffer = create_element_regions_with_buffermap (bc_region,m_supported_types);
@@ -469,23 +473,23 @@ void CReader::read_boundaries(std::fstream& file)
 
       Uint global_element = ELEM-1;
       Uint elementType = ETYPE;
-      Uint faceIdx = FACE;
+      Uint faceIdx = FACE-1;
 
-      CRegion::Ptr tmp_region = m_global_to_tmp[global_element].first;
+      CElements::Ptr tmp_region = m_global_to_tmp[global_element].first;
       Uint local_element = m_global_to_tmp[global_element].second;
 
-      // translate the Neu face to a CF face
-      const ElementType::Face& face = get_component_typed<CElements>(*tmp_region,IsComponentTrue()).getFaces()[m_faces_neu_to_cf[elementType][faceIdx]];
-
+      const ElementType& etype = tmp_region->element_type();
+      const ElementType::FaceConnectivity& face_connectivity = etype.face_connectivity();
+      
       // make a row of nodes
-      const CTable::Row& elem_nodes = get_component_typed<CTable>(*tmp_region,IsComponentTrue()).table()[local_element];
+      const CTable::Row& elem_nodes = tmp_region->connectivity_table().table()[local_element];
       std::vector<Uint> row;
-      row.reserve(face.nodes.size());
-      BOOST_FOREACH(const Uint& node, face.nodes)
+      row.reserve(face_connectivity.face_node_counts[faceIdx]);
+      BOOST_FOREACH(const Uint& node, face_connectivity.face_node_range(faceIdx))
         row.push_back(elem_nodes[node]);
 
       // add the row to the buffer of the face region
-      buffer[face.faceType->getElementTypeName()]->add_row(row);
+      buffer[etype.face_type(faceIdx).getElementTypeName()]->add_row(row);
 
       getline(file,line);  // finish the line (read new line)
     }

@@ -67,31 +67,42 @@ CMesh::Ptr CMeshReader::create_mesh_from(boost::filesystem::path& file)
 //////////////////////////////////////////////////////////////////////////////
 
 CMeshReader::BufferMap
-CMeshReader::create_element_regions_with_buffermap (CRegion::Ptr& parent_region,
-                                                 std::vector<std::string>& etypes)
+CMeshReader::create_element_regions_with_buffermap (CRegion& parent_region,
+                                                 const std::vector<std::string>& etypes)
 {
   // Create regions for each element type
   BufferMap buffermap;
-  BOOST_FOREACH(std::string& etype, etypes)
+  BOOST_FOREACH(const std::string& etype, etypes)
   {
-    CRegion::Ptr etype_region = parent_region->create_element_region(etype);
+    CElements& etype_region = parent_region.create_elements(etype);
     // CFinfo << "create: " << etype_region->full_path().string() << "\n" << CFflush;
     buffermap[etype]=boost::shared_ptr<CTable::Buffer>
-      (new CTable::Buffer(get_named_component_typed<CTable>(*etype_region, "table").create_buffer()));
+      (new CTable::Buffer(etype_region.connectivity_table().create_buffer()));
   }
   return buffermap;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMeshReader::remove_empty_element_regions(const CRegion::Ptr& parent_region)
+void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
 {
-  // loop over regions
-  BOOST_FOREACH(CRegion& region, recursive_range_typed<CRegion>(*parent_region))
+  BOOST_FOREACH(CElements& region, recursive_range_typed<CElements>(parent_region))
   {
     // find the empty regions
-    if ( range_typed<CRegion>(region).empty() &&
-        get_named_component_typed<CTable>(region, "table").table().size() == 0 )
+    if ( region.connectivity_table().table().empty() )
+      {
+        // no elements in connectivity table --> remove this region
+        //CFinfo << "remove: " << region->full_path().string() << "\n" << CFflush;
+        CElements::Ptr removed = boost::dynamic_pointer_cast<CElements>(region.get_parent()->remove_component(region.name()));
+        removed.reset();
+      }
+  }
+  
+  // loop over regions
+  BOOST_FOREACH(CRegion& region, recursive_range_typed<CRegion>(parent_region))
+  {
+    // find the empty regions
+    if ( range_typed<CRegion>(region).empty() && range_typed<CElements>(region).empty() )
       {
         // no elements in connectivity table --> remove this region
         //CFinfo << "remove: " << region->full_path().string() << "\n" << CFflush;

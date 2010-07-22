@@ -10,7 +10,6 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CArray.hpp"
 #include "Mesh/ElementType.hpp"
-#include "Mesh/P1/Triag2D.hpp"
 
 using namespace std;
 using namespace boost;
@@ -77,16 +76,16 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
   // Create second region inside mesh, with 2 subregions inside
   CRegion::Ptr region2 = p_mesh->create_region("region2");
   region2->create_region("subregion1");
-  CRegion::Ptr subregion = region2->create_region("subregion2");
-  BOOST_CHECK_EQUAL ( subregion->full_path().string() , "//root/mesh/region2/subregion2" );
+  CRegion& subregion = region2->create_region("subregion2");
+  BOOST_CHECK_EQUAL ( subregion.full_path().string() , "//root/mesh/region2/subregion2" );
 
   // Create a connectivity table inside a subregion
-  subregion->create_connectivityTable("connTable");
-  BOOST_CHECK_EQUAL ( get_named_component(*subregion, "connTable").full_path().string() , "//root/mesh/region2/subregion2/connTable" );
+  subregion.create_component_type<CTable>("connTable");
+  BOOST_CHECK_EQUAL ( get_named_component(subregion, "connTable").full_path().string() , "//root/mesh/region2/subregion2/connTable" );
   
   // Create a elementsType component inside a subregion
-  subregion->create_elementType("elementType");
-  BOOST_CHECK_EQUAL ( get_named_component(*subregion, "elementType").full_path().string() , "//root/mesh/region2/subregion2/elementType" );
+  subregion.create_component_type<CElements>("elementType");
+  BOOST_CHECK_EQUAL ( get_named_component(subregion, "elementType").full_path().string() , "//root/mesh/region2/subregion2/elementType" );
   
   // Create an array of coordinates inside mesh
   p_mesh->create_array("coordinates");
@@ -238,7 +237,7 @@ BOOST_AUTO_TEST_CASE( CTableTest )
   CRegion::Ptr region = p_mesh->create_region("region");
 
   // Create connectivity table inside the region
-  region->create_connectivityTable("connTable");
+  region->create_component_type<CTable>("connTable");
   CTable::Ptr connTable = get_named_component_typed_ptr<CTable>(*region, "connTable");
   
   // check constructor
@@ -316,59 +315,7 @@ BOOST_AUTO_TEST_CASE( CArrayTest )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( CElementsTriag2DTest )
-{
-  // Create a CElements component
-  CElements::Ptr comp (new CElements("comp")) ;
 
-  // The element is automatically triangle for now
-  comp->set_elementType("P1-Triag2D");
-  BOOST_CHECK_EQUAL(comp->get_elementType()->getShapeName(), "Triag");
-  BOOST_CHECK_EQUAL(comp->get_elementType()->getNbFaces(), (Uint) 3);
-
-  // Check volume calculation
-  CArray::Array coord(boost::extents[3][2]);
-  coord[0][XX]=15; coord[0][YY]=15;
-  coord[1][XX]=40; coord[1][YY]=25;
-  coord[2][XX]=25; coord[2][YY]=30;
-  std::vector<CArray::Row> coordvec;
-  coordvec.reserve(3);
-  coordvec.push_back(coord[0]);
-  coordvec.push_back(coord[1]);
-  coordvec.push_back(coord[2]);
-  BOOST_CHECK_EQUAL(comp->get_elementType()->computeVolume(coordvec), 137.5);
-  
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-BOOST_AUTO_TEST_CASE( CElementsQuad2DTest )
-{
-  // Create a CElements component
-  CElements::Ptr comp (new CElements("comp")) ;
-
-  // The element is automatically triangle for now
-  comp->set_elementType("P1-Quad2D");
-  BOOST_CHECK_EQUAL(comp->get_elementType()->getShapeName(), "Quad");
-  BOOST_CHECK_EQUAL(comp->get_elementType()->getNbFaces(), (Uint) 4);
-
-  // Check volume calculation
-  CArray::Array coord(boost::extents[4][2]);
-  coord[0][XX]=15; coord[0][YY]=15;
-  coord[1][XX]=40; coord[1][YY]=25;
-  coord[2][XX]=25; coord[2][YY]=30;
-  coord[3][XX]=30; coord[3][YY]=40;
-  std::vector<CArray::Row> coordvec;
-  coordvec.reserve(4);
-  coordvec.push_back(coord[0]);
-  coordvec.push_back(coord[1]);
-  coordvec.push_back(coord[2]);
-  coordvec.push_back(coord[3]);
-
-
-  BOOST_CHECK_EQUAL(comp->get_elementType()->computeVolume(coordvec), 150);
-  
-}
 
 BOOST_AUTO_TEST_CASE( CArrayTemplates )
 {
@@ -387,22 +334,22 @@ BOOST_AUTO_TEST_CASE( moving_mesh_components_around )
   CMesh::Ptr mesh = root->create_component_type<CMesh>("mesh");
   CRegion::Ptr regions = mesh->create_region("regions");
 
-  CRegion::Ptr subregion1 = regions->create_region("subregion1");
-  BOOST_CHECK_EQUAL(range_typed<CRegion>(*subregion1).empty(),true);
+  CRegion& subregion1 = regions->create_region("subregion1");
+  BOOST_CHECK_EQUAL(range_typed<CRegion>(subregion1).empty(),true);
 
-  subregion1->create_connectivityTable("table");
-  BOOST_CHECK_EQUAL(range_typed<CRegion>(*subregion1).empty(),true);
+  subregion1.create_component_type<CTable>("table");
+  BOOST_CHECK_EQUAL(range_typed<CRegion>(subregion1).empty(),true);
 
   // create subregion2 in the wrong place
-  CRegion::Ptr subregion2 = subregion1->create_region("subregion2");
-  BOOST_CHECK_EQUAL(range_typed<CRegion>(*subregion1).empty(),false);
+  CRegion& subregion2 = subregion1.create_region("subregion2");
+  BOOST_CHECK_EQUAL(range_typed<CRegion>(subregion1).empty(),false);
   BOOST_CHECK_EQUAL(count(range_typed<CRegion>(*regions)), (Uint) 1);
 
 
   // move subregion 2 to the right place
-  subregion1->remove_component(subregion2->name());
-  regions->add_component(subregion2);
-  BOOST_CHECK_EQUAL(range_typed<CRegion>(*subregion1).empty(),true);
+  Component::Ptr subregion2_ptr = subregion1.remove_component(subregion2.name());
+  regions->add_component(subregion2_ptr);
+  BOOST_CHECK_EQUAL(range_typed<CRegion>(subregion1).empty(),true);
   BOOST_CHECK_EQUAL(count(range_typed<CRegion>(*regions)), (Uint) 2);
 
 
@@ -422,28 +369,6 @@ BOOST_AUTO_TEST_CASE( tags )
   BOOST_CHECK_EQUAL(tags[1],"CMesh");
   BOOST_CHECK_EQUAL(tags[2],"lolo");
 
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-BOOST_AUTO_TEST_CASE( static_element_properties )
-{
-
-  CFinfo << " static elements test" << CFendl;
-  BOOST_CHECK_EQUAL(P1::Triag2D::shapeName, "Triag");
-  BOOST_CHECK_EQUAL(P1::Triag2D::dimensionality, (Uint) 2);
-  BOOST_CHECK_EQUAL(P1::Triag2D::dimension, (Uint) 2);
-  BOOST_CHECK_EQUAL(P1::Triag2D::order, (Uint) 1);
-  BOOST_CHECK_EQUAL(P1::Triag2D::faces.size(), (Uint) 3);
-
-  for (Uint i=0; i<P1::Triag2D::nbFaces; ++i)
-  {
-    BOOST_CHECK_EQUAL(P1::Triag2D::faces[i].type.getShapeName(),"Line");
-    BOOST_CHECK_EQUAL(P1::Triag2D::faces[i].type.getNbNodes(), (Uint) 2);
-    BOOST_CHECK_EQUAL(P1::Triag2D::faces[i].parent.getShapeName(), "Triag");
-    BOOST_CHECK_EQUAL(P1::Triag2D::faces[i].parent.getNbNodes(), (Uint) 3);
-  }
-  
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -67,8 +67,8 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 
   // Create basic region structure
   CRegion::Ptr regions        = m_mesh->create_region("regions");
-  CRegion::Ptr volume_regions = regions->create_region("volume-regions");
-  CRegion::Ptr bc_regions     = regions->create_region("bc-regions");
+  CRegion& volume_regions = regions->create_region("volume-regions");
+  CRegion& bc_regions     = regions->create_region("bc-regions");
 
   // open file in read mode
   CALL_CGNS(cg_open(fp.string().c_str(),CG_MODE_READ,&m_file.idx));
@@ -85,10 +85,9 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   }
 
   // remove bc_regions component if there are no bc's defined
-  if (range_typed<CRegion>(*bc_regions).empty())
+  if (range_typed<CRegion>(bc_regions).empty())
   {
-    regions->remove_component(bc_regions->name());
-    bc_regions.reset();
+    regions->remove_component(bc_regions.name());
     // CFinfo << "No boundary conditions were found! \n" << CFflush;
   }
 
@@ -99,7 +98,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CReader::read_base(CRegion::Ptr& parent_region)
+void CReader::read_base(CRegion& parent_region)
 {
 
   // get the name, dimension and physical dimension from the base
@@ -117,9 +116,7 @@ void CReader::read_base(CRegion::Ptr& parent_region)
   // CFinfo << "number of zones     : " << m_base.nbZones  << "\n" << CFflush;
 
   // create region for the base in mesh
-  CRegion::Ptr base_region = parent_region;
-  if (!m_base.unique)
-    base_region = parent_region->create_region(m_base.name);
+  CRegion& base_region = m_base.unique ? parent_region : parent_region.create_region(m_base.name);
 
   for (m_zone.idx = 1; m_zone.idx<=m_base.nbZones; ++m_zone.idx)
   {
@@ -130,10 +127,8 @@ void CReader::read_base(CRegion::Ptr& parent_region)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CReader::read_zone(CRegion::Ptr& parent_region)
+void CReader::read_zone(CRegion& parent_region)
 {
-
-
   // get zone type
   CALL_CGNS(cg_zone_type(m_file.idx,m_base.idx,m_zone.idx,&m_zone.type));
   //if (zone_type == Structured) throw CGNSException (FromHere(),"Cannot handle structured meshes.");
@@ -184,8 +179,7 @@ void CReader::read_zone(CRegion::Ptr& parent_region)
   // CFinfo << "total nb elems : " << m_zone.total_nbElements << "\n" << CFflush;
 
   // Create a region for this zone
-  parent_region->create_region(m_zone.name);
-  CRegion::Ptr this_region = get_named_component_typed_ptr<CRegion>(*parent_region, m_zone.name);
+  CRegion& this_region = parent_region.create_region(m_zone.name);
 
   // read coordinates in this zone
   for (int i=1; i<=m_zone.nbGrids; ++i)
@@ -204,11 +198,11 @@ void CReader::read_zone(CRegion::Ptr& parent_region)
       read_boco();
 
     // Remove regions flagged as bc
-    BOOST_FOREACH(CRegion& region, recursive_range_typed<CRegion>(*this_region))
+    BOOST_FOREACH(CRegion& region, recursive_range_typed<CRegion>(this_region))
     {
       if(range_typed<CRegion>(region).empty())
       {
-        if (get_named_component_typed<CElements>(region, "type").getDimensionality() < static_cast<Uint>(m_base.cell_dim))
+        if (get_named_component_typed<CElements>(region, "type").element_type().dimensionality() < static_cast<Uint>(m_base.cell_dim))
         {
           Component::Ptr region_to_rm = region.get_parent();
           // CFinfo << "Removing region flagged as bc : " << region_to_rm->name() << "\n" << CFflush;
@@ -286,7 +280,7 @@ void CReader::read_coordinates()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CReader::read_section(CRegion::Ptr& parent_region)
+void CReader::read_section(CRegion& parent_region)
 {
 
 
@@ -297,7 +291,7 @@ void CReader::read_section(CRegion::Ptr& parent_region)
   boost::algorithm::replace_all(m_section.name," ","_");
 
   // CFinfo << "\nsection: " << m_section.name << "\n" << CFflush;
-  CRegion::Ptr this_region = parent_region->create_region(m_section.name);
+  CRegion& this_region = parent_region.create_region(m_section.name);
 
   //// CFinfo << "eRange: " << m_section.eBegin << " - " << m_section.eEnd << "\n" << CFflush;
 
@@ -319,9 +313,9 @@ void CReader::read_section(CRegion::Ptr& parent_region)
       row.reserve(m_section.elemNodeCount);
       for (int n=1;n<=m_section.elemNodeCount;++n)  // n=0 is the cell type
         row.push_back(elemNodes[0][n]-1); // -1 because cgns has index-base 1 instead of 0
-      const std::string& etype_CF = m_elemtype_CGNS_to_CF[etype]+StringOps::to_str<int>(m_base.phys_dim)+"D";
+      const std::string& etype_CF = m_elemtype_CGNS_to_CF[etype]+StringOps::to_str<int>(m_base.phys_dim)+"DLagrangeP1";
       Uint table_idx = buffer[etype_CF]->add_row(row);
-      m_global_to_region.push_back(Region_TableIndex_pair(get_named_component_typed_ptr<CRegion>(*this_region, etype_CF),table_idx));
+      m_global_to_region.push_back(Region_TableIndex_pair(get_named_component_typed_ptr<CElements>(this_region, etype_CF),table_idx));
     } // for elem
   } // if mixed
   else
@@ -337,9 +331,9 @@ void CReader::read_section(CRegion::Ptr& parent_region)
     int nbElems = m_section.elemDataSize/m_section.elemNodeCount;
     // CFinfo << "nbElems = " << nbElems << "\n" << CFflush;
 
-    const std::string& etype_CF = m_elemtype_CGNS_to_CF[m_section.type]+StringOps::to_str<int>(m_base.phys_dim)+"D";
-    CRegion::Ptr element_region = this_region->create_element_region(etype_CF);
-    CTable::Buffer buffer = get_named_component_typed<CTable>(*element_region, "table").create_buffer();
+    const std::string& etype_CF = m_elemtype_CGNS_to_CF[m_section.type]+StringOps::to_str<int>(m_base.phys_dim)+"DLagrangeP1";
+    CElements& element_region = this_region.create_elements(etype_CF);
+    CTable::Buffer buffer = element_region.connectivity_table().create_buffer();
 
 
     int* elemNodes = new int [m_section.elemDataSize];
@@ -356,7 +350,7 @@ void CReader::read_section(CRegion::Ptr& parent_region)
         row.push_back(elemNodes[node+elem*m_section.elemNodeCount]-1); // -1 because cgns has index-base 1 instead of 0
 
       buffer.add_row_directly(row);
-      m_global_to_region.push_back(Region_TableIndex_pair(element_region,elem));
+      m_global_to_region.push_back(Region_TableIndex_pair(boost::dynamic_pointer_cast<CElements>(element_region.shared_from_this()),elem));
     } // for elem
     delete_ptr(elemNodes);
   } // else not mixed
@@ -367,11 +361,11 @@ void CReader::read_section(CRegion::Ptr& parent_region)
   if (option("SectionsAreBCs")->value<bool>())
   {
     bool is_bc_region = false;
-    BOOST_FOREACH(const CRegion& region, recursive_range_typed<CRegion>(*this_region))
+    BOOST_FOREACH(const CRegion& region, recursive_range_typed<CRegion>(this_region))
     {
       if(range_typed<CRegion>(region).empty())
       {
-        if (get_named_component_typed<CElements>(region, "type").getDimensionality() < static_cast<Uint>(m_base.cell_dim))
+        if (get_component_typed<CElements>(region).element_type().dimensionality() < static_cast<Uint>(m_base.cell_dim))
         {
           is_bc_region = is_bc_region || true;
         }
@@ -380,7 +374,7 @@ void CReader::read_section(CRegion::Ptr& parent_region)
 
     if (is_bc_region)
     {
-      this_region->move_component( get_named_component_ptr( get_named_component(*m_mesh, "regions"), "bc-regions") );
+      this_region.move_component( get_named_component_ptr( get_named_component(*m_mesh, "regions"), "bc-regions") );
     }
   }
 }
@@ -412,7 +406,7 @@ void CReader::read_boco()
   CALL_CGNS(cg_boco_read(m_file.idx, m_base.idx, m_zone.idx, m_boco.idx, boco_elems, NormalList));
 
 
-  CRegion::Ptr bc_region = get_named_component_typed<CRegion>(get_named_component(*m_mesh, "regions"), "bc-regions").create_region(m_boco.name);
+  CRegion& bc_region = get_named_component_typed<CRegion>(get_named_component(*m_mesh, "regions"), "bc-regions").create_region(m_boco.name);
   BufferMap buffer = create_element_regions_with_buffermap(bc_region,get_supported_element_types());
 
   switch (m_boco.ptset_type)
@@ -421,7 +415,7 @@ void CReader::read_boco()
     {
       for (int global_element=boco_elems[0]-1;global_element<boco_elems[1];++global_element)
       {
-        CRegion::Ptr region = m_global_to_region[global_element].first;
+        CElements::Ptr region = m_global_to_region[global_element].first;
         Uint local_element = m_global_to_region[global_element].second;
         buffer[region->name()]->add_row(get_named_component_typed<CTable>(*region, "table").table()[local_element]);
       }
@@ -432,7 +426,7 @@ void CReader::read_boco()
       for (int i=0; i<m_boco.nBC_elem; ++i)
       {
         Uint global_element = boco_elems[i]-1;
-        CRegion::Ptr region = m_global_to_region[global_element].first;
+        CElements::Ptr region = m_global_to_region[global_element].first;
         Uint local_element = m_global_to_region[global_element].second;
         //CFinfo << "    " << global_element << " :  " << region->get_parent()->name() << "  -> " << local_element << "\n" << CFflush;
         buffer[region->name()]->add_row(get_named_component_typed<CTable>(*region, "table").table()[local_element]);

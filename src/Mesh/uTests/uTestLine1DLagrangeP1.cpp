@@ -9,7 +9,7 @@
 
 #include "Mesh/CArray.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
-#include "Mesh/Elements/SF/Line1DLagrangeP1.hpp"
+#include "Mesh/SF/Line1DLagrangeP1.hpp"
 
 #include "Tools/Testing/Difference.hpp"
 
@@ -72,6 +72,15 @@ private:
 BOOST_FIXTURE_TEST_SUITE( Line1DLagrangeP1Suite, LagrangeSFLine1DLagrangeP1Fixture )
 
 //////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( Volume )
+{
+  ElementType::NodesT nodes_line1D(2, RealVector(1));
+  nodes_line1D[0][XX] = 2.0;
+  nodes_line1D[1][XX] = 1.0;
+  Line1DLagrangeP1 line;
+  BOOST_CHECK_EQUAL(line.computeVolume(nodes_line1D),1.);
+}
 
 BOOST_AUTO_TEST_CASE( ShapeFunction )
 {
