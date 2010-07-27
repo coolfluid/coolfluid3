@@ -18,7 +18,7 @@ Shared::Shared()
   m_supported_element_types.push_back("Triag3DLagrangeP1");
   m_supported_element_types.push_back("Quad2DLagrangeP1");
   m_supported_element_types.push_back("Quad3DLagrangeP1");
-//  m_supported_element_types.push_back("Tetra3DLagrangeP1");
+  m_supported_element_types.push_back("Tetra3DLagrangeP1");
   m_supported_element_types.push_back("Hexa3DLagrangeP1");
 
   m_elemtype_CGNS_to_CF[TRI_3  ] = "Triag";

@@ -390,14 +390,7 @@ void CReader::read_boco()
                &m_boco.nBC_elem, &m_boco.normalIndex, &m_boco.normalListFlag, &m_boco.normalDataType, &m_boco.nDataSet);
   m_boco.name = boco_name_char;
   // CFinfo << "BC name:       " << m_boco.name << "\n" << CFflush;
-  switch (m_boco.ptset_type)
-  {
-    case ElementRange : // CFinfo << "BC boco_type: ElementRange \n" << CFflush; break;
-    case ElementList : // CFinfo << "BC boco_type: ElementList \n" << CFflush; break;
-    case PointRange : // CFinfo << "BC boco_type: PointRange \n" << CFflush; break;
-    case PointList : // CFinfo << "BC boco_type: PointList \n" << CFflush; break;
-    default : CFinfo << "BC boco_type : NOT SUPPORTED \n" << CFflush; break;
-  }
+
   // CFinfo << "BC nBC_elem :  " << m_boco.nBC_elem << "\n" << CFflush;
 
   // Read the element ID's

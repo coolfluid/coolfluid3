@@ -61,7 +61,7 @@ public: // functions
     RangeT face_node_range(const Uint face) const
     {
       if(face_first_nodes.empty())
-	return boost::make_iterator_range(face_nodes.begin(), face_nodes.end());
+        return boost::make_iterator_range(face_nodes.begin(), face_nodes.end());
       IndicesT::const_iterator begin = face_nodes.begin() + face_first_nodes[face];
       return boost::make_iterator_range(begin, begin + face_node_counts[face]);
     }
