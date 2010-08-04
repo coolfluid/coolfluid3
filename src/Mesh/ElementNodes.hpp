@@ -59,7 +59,7 @@ typedef std::vector<RealVector> ElementNodeVector;
 
 /// Starting at the given iterator, fill its sequence with the node coordinates
 template<typename IteratorT, typename RowT>
-void fill_node_list(IteratorT iterator, const CArray::Array& coordinates, const RowT& element_row) {
+inline void fill_node_list(IteratorT iterator, const CArray& coordinates, const RowT& element_row) {
   BOOST_FOREACH(const Uint point_idx, element_row) {
     *(iterator++) = coordinates[point_idx];
   }
@@ -67,7 +67,7 @@ void fill_node_list(IteratorT iterator, const CArray::Array& coordinates, const 
 
 /// Starting at the given iterator, fill its sequence with the node coordinates
 template<typename IteratorT>
-inline void fill_node_list(IteratorT iterator, const CArray::Array& coordinates, const CTable::ConnectivityTable& connectivity, const Uint element) {
+inline void fill_node_list(IteratorT iterator, const CArray& coordinates, const CTable& connectivity, const Uint element) {
   fill_node_list(iterator, coordinates, connectivity[element]);
 }
 

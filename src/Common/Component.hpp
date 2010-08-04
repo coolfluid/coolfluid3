@@ -183,6 +183,14 @@ public: // functions
   Ptr get_child(const CName& name);
   ConstPtr get_child(const CName& name) const;
 
+  /// Get the named child from the direct subcomponents automatically cast to the specified type
+  template < typename T >
+      typename T::Ptr get_child_type ( const CName& name );
+
+  /// Get the named child from the direct subcomponents automatically cast to the specified type
+  template < typename T >
+      typename T::ConstPtr get_child_type ( const CName& name ) const ;
+    
   /// Modify the parent of this component
   void change_parent ( Ptr new_parent );
 
@@ -299,6 +307,28 @@ inline typename T::Ptr Component::create_component_type ( const CName& name )
   return new_component;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+template < typename T >
+inline typename T::Ptr Component::get_child_type(const CName& name)
+{
+  const CompStorage_t::iterator found = m_components.find(name);
+  if(found != m_components.end())
+    return found->second;
+  return boost::dynamic_pointer_cast<T>(Ptr());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+template < typename T >
+inline typename T::ConstPtr Component::get_child_type(const CName& name) const
+{
+  const CompStorage_t::const_iterator found = m_components.find(name);
+  if(found != m_components.end())
+    return found->second;
+  return boost::dynamic_pointer_cast<T const>(ConstPtr());
+}
+  
 ////////////////////////////////////////////////////////////////////////////////
 
 template<typename ComponentT>

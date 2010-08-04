@@ -34,7 +34,7 @@ public: // functions
   CElements ( const CName& name );
   
   /// Initialize the CElements using the given type
-  void initialize(const std::string& element_type_name, const CArray::ConstPtr coordinates);
+  void initialize(const std::string& element_type_name, const CArray::Ptr coordinates);
 
   /// Virtual destructor
   virtual ~CElements();
@@ -60,6 +60,12 @@ public: // functions
   
   /// Const access to the connectivity table
   const CTable& connectivity_table() const;
+  
+  /// Mutable access to the coordinates
+  CArray& coordinates();
+  
+  /// Const access to the coordinates
+  const CArray& coordinates() const;
 
 private: // helper functions
 

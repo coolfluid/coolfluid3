@@ -266,7 +266,7 @@ void CReader::read_section(CRegion& parent_region)
 
   // Create a new region for this section
   CRegion& this_region = parent_region.create_region(m_section.name);
-  CArray::ConstPtr coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
+  CArray::Ptr coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
 
   if (m_section.type == MIXED)
   {
@@ -394,7 +394,7 @@ void CReader::read_boco()
 
   // Create a region inside mesh/regions/bc-regions with the name of the cgns boco.
   CRegion& bc_region = get_named_component_typed<CRegion>(get_named_component(*m_mesh, "regions"), "bc-regions").create_region(m_boco.name);
-  CArray::ConstPtr coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
+  CArray::Ptr coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
   
   // Create CElements components for every possible element type supported.
   BufferMap buffer = create_element_regions_with_buffermap(bc_region,coordinates,get_supported_element_types());

@@ -88,14 +88,12 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   // create a mesh pointer
   CMesh::Ptr p_mesh = boost::dynamic_pointer_cast<CMesh>(mesh);
 
-  // create a coordinates array in the mesh component
-  CArray& coordinates = *p_mesh->create_array("coordinates");
-  CArray::ConstPtr coordinates_const = get_named_component_typed_ptr<CArray>(*mesh, "coordinates");
-
   // create regions
   CRegion& superRegion = *p_mesh->create_region("superRegion");
-  CElements& quadRegion = superRegion.create_elements("Quad2DLagrangeP1",coordinates_const);
-  CElements& triagRegion = superRegion.create_elements("Triag2DLagrangeP1",coordinates_const);
+  CArray::Ptr coordinates_comp = superRegion.create_component_type<CArray>("coordinates");
+  CArray& coordinates = *coordinates_comp;
+  CElements& quadRegion = superRegion.create_elements("Quad2DLagrangeP1",coordinates_comp);
+  CElements& triagRegion = superRegion.create_elements("Triag2DLagrangeP1",coordinates_comp);
 
   // initialize the coordinates array and connectivity tables
   const Uint dim=2;
@@ -149,36 +147,36 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   Uint elem=1;
   Uint node=2;
   
-  CTable::ConstRow nodesRef = triagRegion.connectivity_table().table()[elem];
-  CArray::Row coordRef = coordinates[nodesRef[node]];
+  CTable::ConstRow nodesRef = triagRegion.connectivity_table()[elem];
+  CArray::Row coordRef = triagRegion.coordinates()[nodesRef[node]];
   BOOST_CHECK_EQUAL(coordRef[0],1.0);
   BOOST_CHECK_EQUAL(coordRef[1],1.0);
 
- // calculate all volumes of a region
+  // calculate all volumes of a region
   BOOST_FOREACH( CElements& region, recursive_range_typed<CElements>(superRegion))
   {
-   const ElementType& elementType = region.element_type();
-   const CTable::ConnectivityTable& connTable = region.connectivity_table().table();
-   //CFinfo << "type = " << elementType->getShapeName() << "\n" << CFflush;
-   const Uint nbRows = connTable.size();
-   std::vector<Real> volumes(nbRows);
-   
-   // the loop
-   for (Uint iElem=0; iElem<nbRows; ++iElem)
-   {
-     std::vector<RealVector> elementCoordinates;
-     fill_node_list(std::inserter(elementCoordinates, elementCoordinates.begin()), coordinates.array(), connTable, iElem);
+    const ElementType& elementType = region.element_type();
+    //const CTable::Connecti//vityTable& connTable = region.connectivity_table().table();
+    //CFinfo << "type = " << elementType->getShapeName() << "\n" << CFflush;
+    const Uint nbRows = region.connectivity_table().size();
+    std::vector<Real> volumes(nbRows);
+    const CArray& region_coordinates = region.coordinates();
+    const CTable& region_connTable = region.connectivity_table();
+    // the loop
+    for (Uint iElem=0; iElem<nbRows; ++iElem)
+    {
+      std::vector<RealVector> elementCoordinates;
+      fill_node_list(std::inserter(elementCoordinates, elementCoordinates.begin()), region_coordinates, region_connTable, iElem);
 
-     volumes[iElem]=elementType.computeVolume(elementCoordinates);
-     //CFinfo << "\t volume["<<iElem<<"] =" << volumes[iElem] << "\n" << CFflush;
+      volumes[iElem]=elementType.computeVolume(elementCoordinates);
 
-     // check
-     if(elementType.shape() == GeoShape::QUAD)
-       BOOST_CHECK_EQUAL(volumes[iElem],1.0);
-     if(elementType.shape() == GeoShape::TRIAG)
-       BOOST_CHECK_EQUAL(volumes[iElem],0.5);
-   }
- }
+      // check
+      if(elementType.shape() == GeoShape::QUAD)
+        BOOST_CHECK_EQUAL(volumes[iElem],1.0);
+      if(elementType.shape() == GeoShape::TRIAG)
+        BOOST_CHECK_EQUAL(volumes[iElem],0.5);
+    }
+  }
     
 
 //  BOOST_FOREACH(CArray::Row node , elem_coord)

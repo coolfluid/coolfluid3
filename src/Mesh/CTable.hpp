@@ -62,6 +62,9 @@ public:
 
   /// @return A const row of the underlying array
   ConstRow operator[](const Uint idx) const { return m_table[idx]; }
+  
+  /// @return The number of lines in the table
+  Uint size() const { return m_table.size(); }
 
 private: // helper functions
 

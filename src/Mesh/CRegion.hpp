@@ -51,7 +51,7 @@ public:
   /// create a CElements component, initialized to take connectivity data for the given type
   /// @param name of the region
   /// @param element_type_name type of the elements
-  CElements& create_elements (const std::string& element_type_name, const CArray::ConstPtr coordinates);
+  CElements& create_elements (const std::string& element_type_name, const CArray::Ptr coordinates);
   
   /// @return the number of elements stored in this region, including any subregions
   Uint recursive_elements_count() const
