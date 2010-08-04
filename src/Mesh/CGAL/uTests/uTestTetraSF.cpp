@@ -65,9 +65,8 @@ template<typename FunctorT>
 struct LoopElems
 {
 
-  LoopElems( const CElements& aregion, const CArray& acoords, FunctorT afunctor )
+  LoopElems( const CElements& aregion, FunctorT afunctor )
     : region(aregion),
-      coords(acoords),
       functor(afunctor)
   {}
 
@@ -75,11 +74,12 @@ struct LoopElems
       void operator() ( EType& T )
   {
 
-    // TODO: Replace this with IsElementType when the conversion of elements is complete
+    /// @todo: Replace this with IsElementType when the conversion of elements is complete
     if( !IsElementType<EType>()(region.element_type()) )
-    return;
+      return;
 
     typename CTable::ConnectivityTable const& conn_table = region.connectivity_table().table();
+    const CArray& coords = region.coordinates();
     // loop on elements
     BOOST_FOREACH(const CTable::ConstRow& elem, conn_table)
     {
@@ -90,15 +90,14 @@ struct LoopElems
   }
 
   const CElements& region;
-  const CArray&  coords;
   FunctorT functor;
 };
 
 /// Looping over all elements in a range of regions
-template<typename RangeT, typename ArrayT, typename FunctorT>
-void loop_over_regions(const RangeT& range, ArrayT& coordinates, FunctorT functor) {
+template<typename RangeT, typename FunctorT>
+void loop_over_regions(const RangeT& range, FunctorT functor) {
   BOOST_FOREACH(const CElements& region, range) {
-    boost::mpl::for_each<SF::Types>( LoopElems<FunctorT> ( region, coordinates, functor ) );
+    boost::mpl::for_each<SF::Types>( LoopElems<FunctorT> ( region, functor ) );
   }
 }
 
@@ -107,7 +106,7 @@ struct VolumeFunctor {
   VolumeFunctor(Real& avolume) : volume(avolume) {}
   template<typename NodesT, typename ElementT>
   void operator()(const NodesT& nodes, const ElementT& element) {
-    volume += SF::Tetra3DLagrangeP1::volume(nodes);
+    volume += ElementT::volume(nodes);
   }
   Real& volume;
 };
@@ -126,7 +125,7 @@ BOOST_FIXTURE_TEST_SUITE( TetraSF, TetraSFFixture )
 BOOST_AUTO_TEST_CASE( MeshStats )
 {
   Real volume = 0.;
-  loop_over_regions(range_typed<CElements>(sphere), get_named_component_typed<CArray>(sphere, "coordinates"), VolumeFunctor(volume));
+  loop_over_regions(recursive_range_typed<CElements>(sphere), VolumeFunctor(volume));
   CFinfo << "calculated volume: " << volume << CFendl;
 }
 

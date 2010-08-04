@@ -39,16 +39,18 @@ void cgal_to_coolfluid(const TriangulationComplexT& complex, CMesh& mesh) {
   typedef ::CGAL::Unique_hash_map<typename TriangulationComplexT::Vertex_handle,Uint,::CGAL::Handle_hash_function> VertexMapT;
   VertexMapT vertex_map(0, complex.number_of_cells()); // estimate the number of vertices equal to the cell count
 
+
+  CRegion& region = *mesh.create_region("region");
+  
   // coordinate storage
-  CArray& coordinates = *mesh.create_array("coordinates");
-  coordinates.initialize(3);
-  CArray::Buffer coordinatesBuffer = coordinates.create_buffer(complex.number_of_cells());
+  CArray::Ptr coordinates = region.create_component_type<CArray>("coordinates");
+  coordinates->initialize(3);
+  CArray::Buffer coordinatesBuffer = coordinates->create_buffer(complex.number_of_cells());
   std::vector<Real> coords_row(3);
   Uint coord_row_count = 0;
-
+  
   // connectivity storage
-  CRegion& region = *mesh.create_region("region");
-  CElements& elements = region.create_elements("Tetra3DLagrangeP1",boost::dynamic_pointer_cast<CArray>(coordinates.shared_from_this()));
+  CElements& elements = region.create_elements("Tetra3DLagrangeP1",coordinates);
   CTable::Buffer connBuffer = elements.connectivity_table().create_buffer(complex.number_of_cells());
   std::vector<Uint> cell_row(4);
 
