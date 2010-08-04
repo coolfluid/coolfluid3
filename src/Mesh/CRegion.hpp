@@ -53,7 +53,7 @@ public:
   /// @param element_type_name type of the elements
   CElements& create_elements (const std::string& element_type_name);
   
-  /// @return the number of elements stored in this region, excluding any subregions
+  /// @return the number of elements stored in this region, including any subregions
   Uint recursive_elements_count() const
   {
     Uint elem_count = 0;
