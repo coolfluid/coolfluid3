@@ -215,6 +215,9 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   // set the internal mesh pointer
   m_mesh = mesh;
 
+  // create a regions component inside the mesh
+  CRegion::Ptr regions = m_mesh->create_region("regions");
+
   // must be in correct order!
   read_headerData(file);
   read_coordinates(file);
@@ -273,9 +276,8 @@ void CReader::read_headerData(std::fstream& file)
 void CReader::read_coordinates(std::fstream& file)
 {
   // Create the coordinates array
-  m_mesh->create_array("coordinates");
-  // create pointers to the coordinates array
-  CArray::Ptr coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
+  CArray::Ptr coordinates = m_mesh->get_child("regions")->create_component_type<CArray>("coordinates");
+
   // set dimension
   coordinates->initialize(m_headerData.NDFCD);
   // create a buffer to interact with coordinates
@@ -310,7 +312,7 @@ void CReader::read_connectivity(std::fstream& file)
   // make temporary regions for each element type possible
   CRegion::Ptr tmp = m_mesh->create_region("tmp");
 
-  CArray::Ptr coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
+  CArray::Ptr coordinates = m_mesh->get_child("regions")->get_child_type<CArray>("coordinates");
   
   std::map<std::string,boost::shared_ptr<CTable::Buffer> > buffer =
       create_element_regions_with_buffermap(*tmp,coordinates,m_supported_types);
@@ -372,8 +374,8 @@ void CReader::read_groups(std::fstream& file)
   std::string line;
   int dummy;
   
-  CRegion::Ptr regions = m_mesh->create_region("regions");
-  CArray::Ptr coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
+  CRegion::Ptr regions = m_mesh->get_child_type<CRegion>("regions");
+  CArray::Ptr coordinates = regions->get_child_type<CArray>("coordinates");
 
   std::vector<GroupData> groups(m_headerData.NGRPS);
   for (Uint g=0; g<m_headerData.NGRPS; ++g) {    
@@ -442,10 +444,10 @@ void CReader::read_groups(std::fstream& file)
 
 void CReader::read_boundaries(std::fstream& file)
 {
-  CArray::Ptr coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
+  CRegion::Ptr regions = m_mesh->get_child_type<CRegion>("regions");
+  CArray::Ptr coordinates = regions->get_child_type<CArray>("coordinates");
   
   std::string line;
-  CRegion::Ptr regions=get_named_component_typed_ptr<CRegion>(*m_mesh,"regions");
   for (Uint t=0; t<m_headerData.NBSETS; ++t) {
 
     std::string NAME;

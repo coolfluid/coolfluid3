@@ -89,8 +89,8 @@ BOOST_AUTO_TEST_CASE( quadtriag_readNeu_writeGmsh_writeNeu )
   
   std::string text = (
                       "mesh\n"
-                      "  coordinates\n"
                       "  regions\n"
+                      "    coordinates\n"
                       "    gas\n"
                       "      elements_Quad2DLagrangeP1\n"
                       "        connectivity_table\n"
@@ -146,8 +146,8 @@ BOOST_AUTO_TEST_CASE( quadtriag_read_NewNeu_writeGmsh )
 
   std::string text = (
                       "mesh\n"
-                      "  coordinates\n"
                       "  regions\n"
+                      "    coordinates\n"
                       "    gas\n"
                       "      elements_Quad2DLagrangeP1\n"
                       "        connectivity_table\n"
@@ -203,8 +203,8 @@ BOOST_AUTO_TEST_CASE( hextet_readNeu_writeGmsh_writeNeu )
     
   std::string text = (
                       "mesh\n"
-                      "  coordinates\n"
                       "  regions\n"
+                      "    coordinates\n"
                       "    fluid\n"
                       "      elements_Hexa3DLagrangeP1\n"
                       "        connectivity_table\n"
@@ -261,8 +261,8 @@ BOOST_AUTO_TEST_CASE( hextet_read_NewNeu_writeGmsh )
   
   std::string text = (
                       "mesh\n"
-                      "  coordinates\n"
                       "  regions\n"
+                      "    coordinates\n"
                       "    fluid\n"
                       "      elements_Hexa3DLagrangeP1\n"
                       "        connectivity_table\n"
