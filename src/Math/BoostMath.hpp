@@ -4,7 +4,9 @@
 #include "Common/CF.hpp"
 
 #if (defined(macintosh) || defined(__APPLE__) || defined(__APPLE_CC__))
-#  define LDBL_MANT_DIG -1 // avoid anoying warning in boost 1.42 on APPLE
+#  ifndef LDBL_MANT_DIG
+#    define LDBL_MANT_DIG -1 // avoid anoying warning in boost 1.42 on APPLE
+#  endif
 #endif
 
 // for finite() isnan() isinf()

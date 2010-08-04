@@ -14,11 +14,13 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/ElementNodes.hpp"
+#include "Mesh/CMeshWriter.hpp"
 
 #include "Mesh/SF/Tetra3DLagrangeP1.hpp"
 #include "Mesh/SF/Types.hpp"
 
 #include "Mesh/CGAL/ImplicitFunctionMesh.hpp"
+
 
 using namespace CF;
 using namespace CF::Common;
@@ -35,6 +37,9 @@ struct GlobalFixture {
       sphere.reset(new CMesh("sphere"));
       MeshParameters params;
       create_mesh(SphereFunction(1.), *sphere, params);
+      CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
+      boost::filesystem::path file_out("sphere.msh");
+      meshwriter->write_from_to(sphere,file_out);
     }
   }
 
@@ -79,7 +84,7 @@ struct LoopElems
     BOOST_FOREACH(const CTable::ConstRow& elem, conn_table)
     {
       ElementNodeVector nodes;
-      fill_node_list( std::inserter(nodes, nodes.begin()), coords.array(), elem );
+      fill_node_list( std::inserter(nodes, nodes.begin()), coords, elem );
       functor(nodes, T);
     }
   }

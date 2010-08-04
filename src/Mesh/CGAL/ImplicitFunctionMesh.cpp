@@ -48,7 +48,7 @@ void cgal_to_coolfluid(const TriangulationComplexT& complex, CMesh& mesh) {
 
   // connectivity storage
   CRegion& region = *mesh.create_region("region");
-  CElements& elements = region.create_elements("Tetra3DLagrangeP1");
+  CElements& elements = region.create_elements("Tetra3DLagrangeP1",boost::dynamic_pointer_cast<CArray>(coordinates.shared_from_this()));
   CTable::Buffer connBuffer = elements.connectivity_table().create_buffer(complex.number_of_cells());
   std::vector<Uint> cell_row(4);
 
@@ -73,6 +73,8 @@ void cgal_to_coolfluid(const TriangulationComplexT& complex, CMesh& mesh) {
   coordinatesBuffer.flush();
   connBuffer.flush();
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 // Implementation is heavily based on the CGAL example
 void create_mesh(const ImplicitFunction& function, CMesh& mesh, const MeshParameters parameters) {

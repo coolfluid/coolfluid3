@@ -1,6 +1,6 @@
 ################################################################################
 
-LIST ( APPEND uTestTetraSF_cflibs Common Mesh SF CGAL )
+LIST ( APPEND uTestTetraSF_cflibs SF CGAL_CF Gmsh )
 LIST ( APPEND uTestTetraSF_files
   uTestTetraSF.cpp )
 

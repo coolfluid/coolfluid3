@@ -982,7 +982,7 @@ sub install_cgal() {
     
     mkpath("build",1);
     safe_chdir("build");
-    run_command_or_die("cmake ../ -DBOOST_ROOT=$opt_install_dir -DCMAKE_INSTALL_PREFIX=$opt_install_dir");
+    run_command_or_die("cmake ../ -DBOOST_ROOT=$opt_install_dir -DCMAKE_INSTALL_PREFIX=$opt_install_dir -DCMAKE_BUILD_TYPE=Release -DWITH_GMP=false" );
     run_command_or_die("make $opt_makeopts");
     run_command_or_die("make install");
   }
