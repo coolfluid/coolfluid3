@@ -124,7 +124,7 @@ void CReader::read_zone(CRegion& parent_region)
   CALL_CGNS(cg_zone_type(m_file.idx,m_base.idx,m_zone.idx,&m_zone.type));
   
   // For now only Unstructured zone types are supported
-  if (zone_type == Structured) throw NotImplemented (FromHere(),"For now only Unstructured zone types are supported");
+  if (m_zone.type == Structured) throw NotImplemented (FromHere(),"For now only Unstructured zone types are supported");
 
   // Read zone size and name
   char zone_name_char[CGNS_CHAR_MAX];
@@ -266,12 +266,12 @@ void CReader::read_section(CRegion& parent_region)
 
   // Create a new region for this section
   CRegion& this_region = parent_region.create_region(m_section.name);
-
+  CArray::ConstPtr coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
 
   if (m_section.type == MIXED)
   {
     // Create CElements component for each element type.
-    BufferMap buffer = create_element_regions_with_buffermap(this_region,get_supported_element_types());
+    BufferMap buffer = create_element_regions_with_buffermap(this_region,coordinates,get_supported_element_types());
     
     // Handle each element of this section separately to see in which CElements component it will be written
     for (int elem=m_section.eBegin;elem<=m_section.eEnd;++elem)
@@ -320,7 +320,7 @@ void CReader::read_section(CRegion& parent_region)
     const std::string& etype_CF = m_elemtype_CGNS_to_CF[m_section.type]+StringOps::to_str<int>(m_base.phys_dim)+"DLagrangeP1";
 
     // Create element component in this region for this CF element type
-    CElements& element_region = this_region.create_elements(etype_CF);
+    CElements& element_region = this_region.create_elements(etype_CF,coordinates);
 
     // Create a buffer for this element component, to start filling in the elements we will read.
     CTable::Buffer buffer = element_region.connectivity_table().create_buffer();
@@ -394,10 +394,10 @@ void CReader::read_boco()
 
   // Create a region inside mesh/regions/bc-regions with the name of the cgns boco.
   CRegion& bc_region = get_named_component_typed<CRegion>(get_named_component(*m_mesh, "regions"), "bc-regions").create_region(m_boco.name);
-
+  CArray::ConstPtr coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
   
   // Create CElements components for every possible element type supported.
-  BufferMap buffer = create_element_regions_with_buffermap(bc_region,get_supported_element_types());
+  BufferMap buffer = create_element_regions_with_buffermap(bc_region,coordinates,get_supported_element_types());
 
   /// @todo The following code, only adds the full (volume) element as a bc element. Shouldn't this 
   /// be a Face element?

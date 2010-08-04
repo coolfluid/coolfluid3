@@ -8,6 +8,7 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/MeshAPI.hpp"
 #include "Mesh/ElementType.hpp"
+#include "Mesh/CArray.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -33,7 +34,7 @@ public: // functions
   CElements ( const CName& name );
   
   /// Initialize the CElements using the given type
-  void initialize(const std::string& element_type_name);
+  void initialize(const std::string& element_type_name, const CArray::ConstPtr coordinates);
 
   /// Virtual destructor
   virtual ~CElements();

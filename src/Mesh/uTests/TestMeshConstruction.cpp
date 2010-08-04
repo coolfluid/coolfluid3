@@ -88,13 +88,14 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   // create a mesh pointer
   CMesh::Ptr p_mesh = boost::dynamic_pointer_cast<CMesh>(mesh);
 
-  // create regions
-  CRegion& superRegion = *p_mesh->create_region("superRegion");
-  CElements& quadRegion = superRegion.create_elements("Quad2DLagrangeP1");
-  CElements& triagRegion = superRegion.create_elements("Triag2DLagrangeP1");
-
   // create a coordinates array in the mesh component
   CArray& coordinates = *p_mesh->create_array("coordinates");
+  CArray::ConstPtr coordinates_const = get_named_component_typed_ptr<CArray>(*mesh, "coordinates");
+
+  // create regions
+  CRegion& superRegion = *p_mesh->create_region("superRegion");
+  CElements& quadRegion = superRegion.create_elements("Quad2DLagrangeP1",coordinates_const);
+  CElements& triagRegion = superRegion.create_elements("Triag2DLagrangeP1",coordinates_const);
 
   // initialize the coordinates array and connectivity tables
   const Uint dim=2;

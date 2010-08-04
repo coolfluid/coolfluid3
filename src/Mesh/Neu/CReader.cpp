@@ -310,8 +310,10 @@ void CReader::read_connectivity(std::fstream& file)
   // make temporary regions for each element type possible
   CRegion::Ptr tmp = m_mesh->create_region("tmp");
 
+  CArray::ConstPtr coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
+  
   std::map<std::string,boost::shared_ptr<CTable::Buffer> > buffer =
-      create_element_regions_with_buffermap(*tmp,m_supported_types);
+      create_element_regions_with_buffermap(*tmp,coordinates,m_supported_types);
 
   // skip next line
   std::string line;
@@ -371,7 +373,8 @@ void CReader::read_groups(std::fstream& file)
   int dummy;
   
   CRegion::Ptr regions = m_mesh->create_region("regions");
-  
+  CArray::ConstPtr coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
+
   std::vector<GroupData> groups(m_headerData.NGRPS);
   for (Uint g=0; g<m_headerData.NGRPS; ++g) {    
     std::string ELMMAT;
@@ -420,7 +423,7 @@ void CReader::read_groups(std::fstream& file)
 
       // Create regions for each element type in each group-region
       std::map<std::string,boost::shared_ptr<CTable::Buffer> > buffer =
-          create_element_regions_with_buffermap(region,m_supported_types);
+          create_element_regions_with_buffermap(region,coordinates,m_supported_types);
 
       // Copy elements from tmp_region in the correct region
       BOOST_FOREACH(Uint global_element, group.ELEM)
@@ -439,6 +442,8 @@ void CReader::read_groups(std::fstream& file)
 
 void CReader::read_boundaries(std::fstream& file)
 {
+  CArray::ConstPtr coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
+  
   std::string line;
   CRegion::Ptr regions=get_named_component_typed_ptr<CRegion>(*m_mesh,"regions");
   for (Uint t=0; t<m_headerData.NBSETS; ++t) {
@@ -464,7 +469,7 @@ void CReader::read_boundaries(std::fstream& file)
     CRegion& bc_region = regions->create_region(NAME);
 
     // create all kind of element type regions
-    BufferMap buffer = create_element_regions_with_buffermap (bc_region,m_supported_types);
+    BufferMap buffer = create_element_regions_with_buffermap (bc_region,coordinates,m_supported_types);
 
     // read boundary elements connectivity
     for (int i=0; i<NENTRY; ++i) {
@@ -472,7 +477,7 @@ void CReader::read_boundaries(std::fstream& file)
       file >> ELEM >> ETYPE >> FACE;
 
       Uint global_element = ELEM-1;
-      Uint elementType = ETYPE;
+      //Uint elementType = ETYPE;
       Uint faceIdx = FACE-1;
 
       CElements::Ptr tmp_region = m_global_to_tmp[global_element].first;

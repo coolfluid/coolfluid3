@@ -26,7 +26,7 @@ CElements::~CElements()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CElements::initialize(const std::string& element_type_name)
+void CElements::initialize(const std::string& element_type_name, const CArray::ConstPtr coordinates)
 {
   set_element_type(element_type_name);
   cf_assert(m_element_type);
