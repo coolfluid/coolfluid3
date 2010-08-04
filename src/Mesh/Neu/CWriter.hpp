@@ -85,9 +85,7 @@ private: // data
   boost::tuple<CElements const* const,Uint,Uint> find_element_for_face(const CElements& face, const CTable::ConstRow& nodes, const Component& parent);
 
   std::string m_fileBasename;
-  
-  CMesh::Ptr m_mesh;
-  
+    
 }; // end CWriter
 
 

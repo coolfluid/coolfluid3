@@ -10,7 +10,7 @@ using namespace Common;
 ////////////////////////////////////////////////////////////////////////////////
 
 CMeshWriter::CMeshWriter ( const CName& name  ) :
-  Component ( name )
+  Component ( name ), m_coord_dim(0), m_max_dimensionality(0)
 {
   BUILD_COMPONENT;
 }
@@ -61,6 +61,24 @@ boost::filesystem::path CMeshWriter::write_from(const CMesh::Ptr& mesh)
 }
 
 //////////////////////////////////////////////////////////////////////////////
+  
+void CMeshWriter::compute_mesh_specifics()
+{
+  // - Assemble the map that gives a list of elementregions for each coordinate component
+  // - Find maximal dimensionality of the whole mesh
+  m_all_coordinates.clear();
+  m_max_dimensionality = 0;
+  m_coord_dim = 0;
+  BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*m_mesh))
+  { 
+    m_all_coordinates[&elements.coordinates()].push_back(&elements);
+    m_max_dimensionality = std::max(elements.element_type().dimensionality() , m_max_dimensionality);
+    m_coord_dim = std::max((Uint) elements.coordinates().array().shape()[1] , m_coord_dim);
+  }  
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 
 } // Mesh
 } // CF

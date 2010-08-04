@@ -80,6 +80,16 @@ protected: // classes
      
   }; // IsGroup
 
+protected:
+  
+  CMesh::Ptr m_mesh;
+  
+  typedef std::map<CArray*,std::list<CElements*> > CoordinatesElementsMap;
+  CoordinatesElementsMap m_all_coordinates;
+  Uint m_coord_dim;
+  Uint m_max_dimensionality;
+  
+  void compute_mesh_specifics();
 
 private: // helper functions
 

@@ -54,12 +54,12 @@ void CReader::defineConfigOptions ( OptionList& options )
       ( "SectionsAreBCs",
         ("Treat Sections of lower dimensionality as BC. "
         "This means no BCs from cgns will be read"),
-        true );
+        false );
   options.add< OptionT<bool> >
-  ( "UniqueCoordinatePool",
+  ( "SharedCoordinates",
    ("Store all the coordinates in 1 table. "
     "This means that there will be no coordinates per region"),
-   false );
+   true );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -71,9 +71,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   m_mesh = mesh;
 
   // Create basic region structure
-  CRegion::Ptr regions        = m_mesh->create_region("regions");
-  CRegion& volume_regions = regions->create_region("volume-regions");
-  CRegion& bc_regions     = regions->create_region("bc-regions");
+  CRegion::Ptr regions = m_mesh->create_region("regions");
 
   // open file in read mode
   CALL_CGNS(cg_open(fp.string().c_str(),CG_MODE_READ,&m_file.idx));
@@ -86,11 +84,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   
   // Read every base (usually there is only 1)
   for (m_base.idx = 1; m_base.idx<=m_file.nbBases; ++m_base.idx)
-    read_base(volume_regions);
-
-  // remove bc_regions component if there are no bc's defined
-  if (range_typed<CRegion>(bc_regions).empty())
-    regions->remove_component(bc_regions.name());
+    read_base(*regions);
 
   // close the CGNS file
   CALL_CGNS(cg_close(m_file.idx));
@@ -111,6 +105,7 @@ void CReader::read_base(CRegion& parent_region)
 
   // check how many zones we have
   CALL_CGNS(cg_nzones(m_file.idx,m_base.idx,&m_base.nbZones));
+  m_zone.unique = m_base.nbZones == 1 ? true : false;
 
   // create region for the base in mesh
   CRegion& base_region = m_base.unique ? parent_region : parent_region.create_region(m_base.name);
@@ -149,18 +144,20 @@ void CReader::read_zone(CRegion& parent_region)
   CALL_CGNS(cg_nsols(m_file.idx,m_base.idx,m_zone.idx,&m_zone.nbSols));
   // find out how many sections
   CALL_CGNS(cg_nsections(m_file.idx,m_base.idx,m_zone.idx,&m_zone.nbSections));
+  m_section.unique = m_zone.nbSections == 1 ? true : false;
   // find out number of BCs that exist under this zone
   CALL_CGNS(cg_nbocos(m_file.idx,m_base.idx,m_zone.idx,&m_zone.nbBocos));
+  m_boco.unique = m_zone.nbBocos == 1 ? true : false;
   // Add up all the nb elements from all sections
   m_zone.total_nbElements = get_total_nbElements();
 
 
-  // Create a region for this zone
-  CRegion& this_region = parent_region.create_region(m_zone.name);
+  // Create a region for this zone if there is more than one
+  CRegion& this_region = m_zone.unique? parent_region : parent_region.create_region(m_zone.name);
 
   // read coordinates in this zone
   for (int i=1; i<=m_zone.nbGrids; ++i)
-    read_coordinates();
+    read_coordinates(this_region);
 
   // read sections (or subregions) in this zone
   m_global_to_region.reserve(m_zone.total_nbElements);
@@ -172,21 +169,12 @@ void CReader::read_zone(CRegion& parent_region)
   {
     // read boundaryconditions (or subregions) in this zone
     for (m_boco.idx=1; m_boco.idx<=m_zone.nbBocos; ++m_boco.idx)
-      read_boco();
+      read_boco(this_region);
 
     // Remove regions flagged as bc
-    BOOST_FOREACH(CRegion& region, recursive_range_typed<CRegion>(this_region))
+    BOOST_FOREACH(CRegion& region, recursive_filtered_range_typed<CRegion>(this_region,IsComponentTag("remove_this_tmp_component")))
     {
-      if(range_typed<CRegion>(region).empty())
-      {
-        if (get_named_component_typed<CElements>(region, "type").element_type().dimensionality() < static_cast<Uint>(m_base.cell_dim))
-        {
-          Component::Ptr region_to_rm = region.get_parent();
-          // CFinfo << "Removing region flagged as bc : " << region_to_rm->name() << "\n" << CFflush;
-          region_to_rm->get_parent()->remove_component(region_to_rm->name());
-          region_to_rm.reset();
-        }
-      }
+      region.get_parent()->remove_component(region.name());
     }
   }
 
@@ -201,19 +189,10 @@ void CReader::read_zone(CRegion& parent_region)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CReader::read_coordinates()
+void CReader::read_coordinates(CRegion& parent_region)
 {
 
-
-  // create coordinates component  mesh/coordinates
-  if (!m_isCoordinatesCreated)
-  {
-    m_mesh->create_array("coordinates");
-    get_named_component_typed<CArray>(*m_mesh, "coordinates").initialize(m_zone.coord_dim);
-    m_isCoordinatesCreated = true;
-  }
-
-  CArray::Ptr coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
+  CArray& coordinates = parent_region.create_coordinates(m_zone.coord_dim);
 
   // read coordinates
   int one = 1;
@@ -233,7 +212,7 @@ void CReader::read_coordinates()
       CALL_CGNS(cg_coord_read(m_file.idx,m_base.idx,m_zone.idx, "CoordinateX", RealDouble, &one, &m_zone.nbVertices, xCoord));
   }
 
-  CArray::Buffer buffer = coordinates->create_buffer();
+  CArray::Buffer buffer = coordinates.create_buffer();
   buffer.increase_array_size(m_zone.nbVertices);
   std::vector<Real> row(m_zone.coord_dim);
   for (int i=0; i<m_zone.nbVertices; ++i)
@@ -271,13 +250,13 @@ void CReader::read_section(CRegion& parent_region)
 
   // Create a new region for this section
   CRegion& this_region = parent_region.create_region(m_section.name);
-  CArray::Ptr all_coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
+  CArray::Ptr all_coordinates = parent_region.get_child_type<CArray>("coordinates");
 
   if (m_section.type == MIXED)
   {
     // Create CElements component for each element type.
     BufferMap buffer = create_element_regions_with_buffermap(this_region,
-                                                             get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates"),
+                                                             all_coordinates,
                                                              get_supported_element_types());
     
     // Handle each element of this section separately to see in which CElements component it will be written
@@ -328,7 +307,7 @@ void CReader::read_section(CRegion& parent_region)
 
     
     // Create element component in this region for this CF element type, automatically creates connectivity_table
-    if (option("UniqueCoordinatePool")->value<bool>())
+    if (option("SharedCoordinates")->value<bool>())
       this_region.create_elements(etype_CF,all_coordinates);
     else
     {
@@ -360,7 +339,7 @@ void CReader::read_section(CRegion& parent_region)
       for (int node=0;node<m_section.elemNodeCount;++node) 
       {
         global_coord_idx = elemNodes[node+elem*m_section.elemNodeCount]-1;  // -1 because cgns has index-base 1 instead of 0
-        if (option("UniqueCoordinatePool")->value<bool>())
+        if (option("SharedCoordinates")->value<bool>())
         {
           row[node] = global_coord_idx;
         }
@@ -389,31 +368,23 @@ void CReader::read_section(CRegion& parent_region)
 
   remove_empty_element_regions(this_region);
 
-  // Move components that are BC's in the "bc-regions" region
-  if (option("SectionsAreBCs")->value<bool>())
+  // Mark BC regions as temporary if option SectionsAreBCs is false
+  if (!option("SectionsAreBCs")->value<bool>() && option("SharedCoordinates")->value<bool>())
   {
     bool is_bc_region = false;
-    BOOST_FOREACH(const CRegion& region, recursive_range_typed<CRegion>(this_region))
+    BOOST_FOREACH(const CElements& element_region, range_typed<CElements>(this_region))
     {
-      if(range_typed<CRegion>(region).empty())  // if no other regions inside this region
-      {
-        if (get_component_typed<CElements>(region).element_type().dimensionality() < static_cast<Uint>(m_base.cell_dim))
-        {
-          is_bc_region = is_bc_region || true;
-        }
-      }
+      if (element_region.element_type().dimensionality() < static_cast<Uint>(m_base.cell_dim))
+        is_bc_region = is_bc_region || true;
     }
-
     if (is_bc_region)
-    {
-      this_region.move_component( get_named_component_ptr( get_named_component(*m_mesh, "regions"), "bc-regions") );
-    }
+      this_region.add_tag("remove_this_tmp_component");
   }
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CReader::read_boco()
+void CReader::read_boco(CRegion& parent_region)
 {
 
   // Read the info for this boundary condition.
@@ -431,14 +402,12 @@ void CReader::read_boco()
   CALL_CGNS(cg_boco_read(m_file.idx, m_base.idx, m_zone.idx, m_boco.idx, boco_elems, NormalList));
 
   // Create a region inside mesh/regions/bc-regions with the name of the cgns boco.
-  CRegion& bc_region = get_named_component_typed<CRegion>(get_named_component(*m_mesh, "regions"), "bc-regions").create_region(m_boco.name);
-  CArray::Ptr coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
+  CRegion& bc_region = parent_region.create_region(m_boco.name);
+  CArray::Ptr coordinates = parent_region.get_child_type<CArray>("coordinates");
   
   // Create CElements components for every possible element type supported.
   BufferMap buffer = create_element_regions_with_buffermap(bc_region,coordinates,get_supported_element_types());
 
-  /// @todo The following code, only adds the full (volume) element as a bc element. Shouldn't this 
-  /// be a Face element?
   switch (m_boco.ptset_type)
   {
     case ElementRange : // all bc elements are within a range given by 2 global element numbers
@@ -446,13 +415,13 @@ void CReader::read_boco()
       for (int global_element=boco_elems[0]-1;global_element<boco_elems[1];++global_element)
       {
         // Check which region this global_element belongs to
-        CElements::Ptr region = m_global_to_region[global_element].first;
+        CElements::Ptr element_region = m_global_to_region[global_element].first;
         
         // Check the local element number in this region
         Uint local_element = m_global_to_region[global_element].second;
         
         // Add the local element to the correct CElements component through its buffer
-        buffer[region->name()]->add_row(region->connectivity_table().table()[local_element]);
+        buffer[element_region->element_type().getElementTypeName()]->add_row(element_region->connectivity_table()[local_element]);
       }
       break;
     }
@@ -463,9 +432,13 @@ void CReader::read_boco()
         Uint global_element = boco_elems[i]-1;
         
         // Check which region this global_element belongs to
-        CElements::Ptr region = m_global_to_region[global_element].first;
+        CElements::Ptr element_region = m_global_to_region[global_element].first;
+        
+        // Check the local element number in this region
         Uint local_element = m_global_to_region[global_element].second;
-        buffer[region->name()]->add_row(region->connectivity_table().table()[local_element]);
+        
+        // Add the local element to the correct CElements component through its buffer
+        buffer[element_region->element_type().getElementTypeName()]->add_row(element_region->connectivity_table()[local_element]);
       }
       break;
     }
@@ -479,8 +452,10 @@ void CReader::read_boco()
   for (BufferMap::iterator it=buffer.begin(); it!=buffer.end(); ++it)
     it->second->flush();
 
+  buffer.clear();
   remove_empty_element_regions(bc_region);
 
+  
 }
 
 //////////////////////////////////////////////////////////////////////////////

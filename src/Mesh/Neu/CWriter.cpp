@@ -225,7 +225,8 @@ void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& pat
   }
   m_fileBasename = boost::filesystem::basename(path);
 
-
+  compute_mesh_specifics();
+  
   // must be in correct order!
   write_headerData(file);
   write_coordinates(file);
@@ -249,30 +250,12 @@ void CWriter::write_headerData(std::fstream& file)
   Uint element_counter(0);
   Uint bc_counter(0);
 
-  Uint coord_dim(0);
   Uint node_counter(0);
-  
-  typedef std::map<CArray*,std::list<CElements*> > coordinates_map_t;
-  coordinates_map_t all_coordinates;
-  
-  
-  BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*m_mesh))
-  {
-    all_coordinates[&elements.coordinates()].push_back(&elements);
-  }
-  
-  BOOST_FOREACH(const coordinates_map_t::value_type& coord_array, all_coordinates)
-  {
-    if (coord_dim == 0)
-      coord_dim = coord_array.first->array().shape()[1];
     
-    node_counter += coord_array.first->size();
-  }
   
-  Uint max_dimensionality = 0;
-  // Find maximal dimensionality of the whole mesh
-  BOOST_FOREACH( const CElements& elements, recursive_range_typed<CElements>(*m_mesh))
-    max_dimensionality = std::max(elements.element_type().dimensionality() , max_dimensionality);
+  
+  BOOST_FOREACH(const CoordinatesElementsMap::value_type& coord_array, m_all_coordinates)
+    node_counter += coord_array.first->size();
   
 
   BOOST_FOREACH(const CRegion& group, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
@@ -282,7 +265,7 @@ void CWriter::write_headerData(std::fstream& file)
     {
       bool isElementBC(false);
       Uint dimensionality = elementregion.element_type().dimensionality();
-      if (dimensionality < max_dimensionality) // is bc
+      if (dimensionality < m_max_dimensionality) // is bc
       {
         isElementBC = true;
         isGroupBC = true;
@@ -313,7 +296,7 @@ void CWriter::write_headerData(std::fstream& file)
   file << std::setw(10) << "NUMNP" << std::setw(10) << "NELEM" << std::setw(10) << "NGRPS"
        << std::setw(10) << "NBSETS" << std::setw(10) << "NDFCD" << std::setw(10) << "NDFVL" << std::endl;
   file << std::setw(10) << node_counter << std::setw(10) << element_counter << std::setw(10) << group_counter
-       << std::setw(10) << bc_counter << std::setw(10) << coord_dim << std::setw(10) << coord_dim << std::endl;
+       << std::setw(10) << bc_counter << std::setw(10) << m_coord_dim << std::setw(10) << m_coord_dim << std::endl;
   file << "ENDOFSECTION" << std::endl ;
 }
 
@@ -325,31 +308,17 @@ void CWriter::write_coordinates(std::fstream& file)
   Uint prec = file.precision();
   file.precision(11);
   
-  typedef std::map<CArray*,std::list<CElements*> > coordinates_map_t;
-  coordinates_map_t all_coordinates;
-  
-  Uint coord_dim(0);
 
-  BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*m_mesh))
-  {
-    all_coordinates[&elements.coordinates()].push_back(&elements);
-  }
-  BOOST_FOREACH(const coordinates_map_t::value_type& coord_array, all_coordinates)
-  {
-    if (coord_dim == 0)
-      coord_dim = coord_array.first->array().shape()[1];
-  }
- 
   file << "   NODAL COORDINATES 2.3.16" << std::endl;
   file.setf(std::ios::fixed);
   Uint node_number = 0;
-  BOOST_FOREACH(const coordinates_map_t::value_type& coord_array, all_coordinates)
+  BOOST_FOREACH(const CoordinatesElementsMap::value_type& coord_array, m_all_coordinates)
   {
       BOOST_FOREACH(CArray::ConstRow row, coord_array.first->array())
       {
         ++node_number;
         file << std::setw(10) << node_number;
-        for (Uint d=0; d<coord_dim; ++d)
+        for (Uint d=0; d<m_coord_dim; ++d)
           file << std::setw(20) << std::scientific << row[d];
         file << std::endl;
       }
@@ -369,27 +338,15 @@ void CWriter::write_connectivity(std::fstream& file)
   // global element number
   Uint elm_number=0;
 
-  // Find maximal dimensionality of the whole mesh
-  Uint max_dimensionality = 0;
-  BOOST_FOREACH( const CElements& region, recursive_range_typed<CElements>(*m_mesh))
-    max_dimensionality = std::max(region.element_type().dimensionality() , max_dimensionality);
-  
-
   // loop over all element regions
-  typedef std::map<CArray*,std::list<CElements*> > coordinates_map_t;
-  coordinates_map_t all_coordinates;
-  BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*m_mesh))
-  {
-    all_coordinates[&elements.coordinates()].push_back(&elements);
-  }
   Uint global_node_idx=0;
-  BOOST_FOREACH(const coordinates_map_t::value_type& coord_array, all_coordinates)
+  BOOST_FOREACH(const CoordinatesElementsMap::value_type& coord_array, m_all_coordinates)
   {
     BOOST_FOREACH(const CElements* elementregion, coord_array.second)
     {
       bool isBC = false;
       Uint dimensionality = elementregion->element_type().dimensionality();
-      if (dimensionality < max_dimensionality) // is bc
+      if (dimensionality < m_max_dimensionality) // is bc
       {
         isBC = true;
       }
@@ -443,17 +400,14 @@ void CWriter::write_connectivity(std::fstream& file)
 void CWriter::write_groups(std::fstream& file)
 {
   Uint group_counter(0);
-  Uint max_dimensionality = 0;
-  // Find maximal dimensionality of the whole mesh
-  BOOST_FOREACH( const CElements& region, recursive_range_typed<CElements>(*m_mesh))
-    max_dimensionality = std::max(region.element_type().dimensionality() , max_dimensionality);
+  
   BOOST_FOREACH(const CRegion& group, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
   {
     bool isBC(false);
     BOOST_FOREACH(const CElements& elementregion, recursive_range_typed <CElements>(group))
     {
       Uint dimensionality = elementregion.element_type().dimensionality();
-      if (dimensionality < max_dimensionality) // is bc
+      if (dimensionality < m_max_dimensionality) // is bc
       {
         isBC = true;
       }
@@ -495,11 +449,7 @@ void CWriter::write_groups(std::fstream& file)
 
 void CWriter::write_boundaries(std::fstream& file)
 {
-  Uint max_dimensionality = 0;
-  // Find maximal dimensionality of the whole mesh
-  BOOST_FOREACH( const CElements& region, recursive_range_typed<CElements>(*m_mesh))
-    max_dimensionality = std::max(region.element_type().dimensionality() , max_dimensionality);
-  
+
   create_nodes_to_element_connectivity();
 
   // Find total number of boundary elements
@@ -509,7 +459,7 @@ void CWriter::write_boundaries(std::fstream& file)
     BOOST_FOREACH(const CElements& elementregion, recursive_range_typed<CElements>(group))
     {
       Uint dimensionality = elementregion.element_type().dimensionality();
-      if (dimensionality < max_dimensionality) // is bc
+      if (dimensionality < m_max_dimensionality) // is bc
       {
         total_nbElements += elementregion.connectivity_table().table().size();
       }
@@ -527,7 +477,7 @@ void CWriter::write_boundaries(std::fstream& file)
       BOOST_FOREACH(const CElements& elementregion, recursive_range_typed<CElements>(group))
       {
         Uint dimensionality = elementregion.element_type().dimensionality();
-        if (dimensionality < max_dimensionality) // is bc
+        if (dimensionality < m_max_dimensionality) // is bc
         {
           isBC = true;
         }

@@ -73,9 +73,6 @@ private: // data
   
   std::map<GeoShape::Type,Uint> m_elementTypes;
   
-  CMesh::Ptr m_mesh;
-  
-  
 }; // end CWriter
 
 

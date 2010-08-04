@@ -67,6 +67,8 @@ void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& pat
   }
 
 
+  compute_mesh_specifics();
+  
   // must be in correct order!
   write_header(file);
   write_coordinates(file);
@@ -90,13 +92,11 @@ void CWriter::write_header(std::fstream& file)
   
   
   // physical names
-  CArray::Ptr coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
-  const Uint dimension(coordinates->array().shape()[1]);
   Uint phys_name_counter(0);
   BOOST_FOREACH(const CRegion& groupRegion, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
   {
     ++phys_name_counter;
-    PhysicalGroup group (dimension,phys_name_counter,groupRegion.name());
+    PhysicalGroup group (m_coord_dim,phys_name_counter,groupRegion.name());
     m_groups.insert(PhysicalGroupMap::value_type(group.name,group));
   }
   
@@ -115,14 +115,10 @@ void CWriter::write_coordinates(std::fstream& file)
   Uint prec = file.precision();
   file.precision(8);
 
-  Uint coord_dim(0);
   Uint nb_nodes(0);
-  BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*m_mesh))
+  BOOST_FOREACH(CoordinatesElementsMap::value_type& coord, m_all_coordinates)
   {
-    if (coord_dim == 0)
-      coord_dim = elements.coordinates().array().shape()[1];
-
-    nb_nodes += elements.coordinates().size();
+    nb_nodes += coord.first->size();
   }    
   
   
@@ -130,22 +126,23 @@ void CWriter::write_coordinates(std::fstream& file)
   file << nb_nodes << "\n";
   
   Uint node_number = 0;
-  BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*m_mesh))
+
+  BOOST_FOREACH(CoordinatesElementsMap::value_type& coord, m_all_coordinates)
   {
-    BOOST_FOREACH(CArray::ConstRow row, elements.coordinates().array())
+    BOOST_FOREACH(CArray::ConstRow row, coord.first->array()) 
     {
-      node_number++;
+      ++node_number;
       file << node_number << " ";
       for (Uint d=0; d<3; d++)
       {
-        if (d<coord_dim)
+        if (d<m_coord_dim)
           file << row[d] << " ";
         else
           file << 0 << " ";
       }
-      file << "\n";      
+      file << "\n";
     }
-  }
+  }   
 
   file << "$EndNodes\n";
   // restore precision
@@ -180,21 +177,24 @@ void CWriter::write_connectivity(std::fstream& file)
   }
   
   Uint global_node_idx = 0;
-  BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*m_mesh))
+  BOOST_FOREACH(const CoordinatesElementsMap::value_type& coord, m_all_coordinates)
   {
-    //file << "// Region " << elements.full_path().string() << "\n";
-    elm_type = m_elementTypes[elements.element_type().shape()];
-    BOOST_FOREACH(CTable::Row row, elements.connectivity_table().table())
+    BOOST_FOREACH(const CElements* elements, coord.second)
     {
-      elm_number++;
-      file << elm_number << " " << elm_type << " " << number_of_tags << " " << group_number << " " << group_number;
-      BOOST_FOREACH(Uint local_node_idx, row)
+      //file << "// Region " << elements.full_path().string() << "\n";
+      elm_type = m_elementTypes[elements->element_type().shape()];
+      BOOST_FOREACH(const CTable::ConstRow& row, elements->connectivity_table().table())
       {
-        file << " " << global_node_idx+local_node_idx+1;
+        elm_number++;
+        file << elm_number << " " << elm_type << " " << number_of_tags << " " << group_number << " " << group_number;
+        BOOST_FOREACH(const Uint local_node_idx, row)
+        {
+          file << " " << global_node_idx+local_node_idx+1;
+        }
+        file << "\n";
       }
-      file << "\n";
     }
-    global_node_idx += elements.coordinates().size();
+    global_node_idx += coord.first->size();
   }
   file << "$EndElements\n";
 }

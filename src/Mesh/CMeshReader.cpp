@@ -76,8 +76,8 @@ CMeshReader::BufferMap
   {
     CElements& etype_region = parent_region.create_elements(etype,coordinates);
     // CFinfo << "create: " << etype_region->full_path().string() << "\n" << CFflush;
-    buffermap[etype]=boost::shared_ptr<CTable::Buffer>
-      (new CTable::Buffer(etype_region.connectivity_table().create_buffer()));
+    
+    buffermap[etype] = boost::shared_ptr<CTable::Buffer> (new CTable::Buffer(etype_region.connectivity_table().create_buffer()));
   }
   return buffermap;
 }
@@ -86,6 +86,7 @@ CMeshReader::BufferMap
 
 void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
 {
+  
   BOOST_FOREACH(CElements& region, recursive_range_typed<CElements>(parent_region))
   {
     // find the empty regions

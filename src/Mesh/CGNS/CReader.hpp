@@ -51,9 +51,9 @@ private: // functions
   
   void read_base(CRegion& parent_region);
   void read_zone(CRegion& parent_region);
-  void read_coordinates();
+  void read_coordinates(CRegion& parent_region);
   void read_section(CRegion& parent_region);
-  void read_boco();
+  void read_boco(CRegion& parent_region);
   Uint get_total_nbElements();
 
 private: // helper functions
