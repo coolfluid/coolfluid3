@@ -88,8 +88,8 @@ BOOST_AUTO_TEST_CASE( Element )
 {
   // Create a CElements component
   CElements::Ptr comp (new CElements("comp")) ;
-
-  comp->initialize("Quad2DLagrangeP1");
+  CArray::Ptr coordinates (new CArray("coordinates"));
+  comp->initialize("Quad2DLagrangeP1",coordinates);
   BOOST_CHECK_EQUAL(comp->element_type().shape(), GeoShape::QUAD);
   BOOST_CHECK_EQUAL(comp->element_type().nb_faces(), (Uint) 4);
 

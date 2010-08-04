@@ -84,11 +84,12 @@ BOOST_AUTO_TEST_CASE( Volume )
 
 BOOST_AUTO_TEST_CASE( Element )
 {
+  CArray::Ptr coordinates (new CArray("coordinates"));
   // Create a CElements component
   CElements::Ptr comp (new CElements("comp")) ;
 
   // The element is automatically triangle for now
-  comp->initialize("Triag2DLagrangeP1");
+  comp->initialize("Triag2DLagrangeP1",coordinates);
   BOOST_CHECK_EQUAL(comp->element_type().shape(), GeoShape::TRIAG);
   BOOST_CHECK_EQUAL(comp->element_type().nb_nodes(), (Uint) 3);
 

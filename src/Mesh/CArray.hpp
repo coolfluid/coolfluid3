@@ -58,10 +58,13 @@ public: // functions
   Buffer create_buffer(const size_t buffersize=1024);
 
   /// @return A mutable row of the underlying array
-  inline Row operator[](const Uint idx) { return m_array[idx]; }
+  Row operator[](const Uint idx) { return m_array[idx]; }
 
   /// @return A const row of the underlying array
-  inline ConstRow operator[](const Uint idx) const { return m_array[idx]; }
+  ConstRow operator[](const Uint idx) const { return m_array[idx]; }
+  
+  /// @return The size of the array
+  Uint size() const { return m_array.size(); }
 
 private: // helper functions
 

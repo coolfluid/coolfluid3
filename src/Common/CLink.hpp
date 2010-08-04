@@ -51,7 +51,7 @@ namespace Common {
   private: // data
 
     /// this is a link to the component
-    /// using weak_prt meand it might become invalid so we should test for expire()
+    /// using weak_ptr means it might become invalid so we should test for expire()
     boost::weak_ptr<Component> m_link_component;
 
   }; // CLink

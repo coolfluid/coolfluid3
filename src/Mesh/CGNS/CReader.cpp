@@ -55,6 +55,11 @@ void CReader::defineConfigOptions ( OptionList& options )
         ("Treat Sections of lower dimensionality as BC. "
         "This means no BCs from cgns will be read"),
         true );
+  options.add< OptionT<bool> >
+  ( "UniqueCoordinatePool",
+   ("Store all the coordinates in 1 table. "
+    "This means that there will be no coordinates per region"),
+   false );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -266,12 +271,14 @@ void CReader::read_section(CRegion& parent_region)
 
   // Create a new region for this section
   CRegion& this_region = parent_region.create_region(m_section.name);
-  CArray::Ptr coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
+  CArray::Ptr all_coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
 
   if (m_section.type == MIXED)
   {
     // Create CElements component for each element type.
-    BufferMap buffer = create_element_regions_with_buffermap(this_region,coordinates,get_supported_element_types());
+    BufferMap buffer = create_element_regions_with_buffermap(this_region,
+                                                             get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates"),
+                                                             get_supported_element_types());
     
     // Handle each element of this section separately to see in which CElements component it will be written
     for (int elem=m_section.eBegin;elem<=m_section.eEnd;++elem)
@@ -319,27 +326,58 @@ void CReader::read_section(CRegion& parent_region)
     // Convert the CGNS element type to the CF element type
     const std::string& etype_CF = m_elemtype_CGNS_to_CF[m_section.type]+StringOps::to_str<int>(m_base.phys_dim)+"DLagrangeP1";
 
-    // Create element component in this region for this CF element type
-    CElements& element_region = this_region.create_elements(etype_CF,coordinates);
+    
+    // Create element component in this region for this CF element type, automatically creates connectivity_table
+    if (option("UniqueCoordinatePool")->value<bool>())
+      this_region.create_elements(etype_CF,all_coordinates);
+    else
+    {
+      // Create coordinates component in this region for this CF element type
+      this_region.create_coordinates(m_zone.coord_dim);
+      this_region.create_elements(etype_CF); // no second argument defaults to the coordinates in this_region
+    }
+
+    CElements& element_region= *this_region.get_child_type<CElements>("elements_"+etype_CF);
 
     // Create a buffer for this element component, to start filling in the elements we will read.
-    CTable::Buffer buffer = element_region.connectivity_table().create_buffer();
+    CTable::Buffer element_buffer = element_region.connectivity_table().create_buffer();
+    CArray::Buffer coord_buffer   = element_region.coordinates().create_buffer();
 
     // Create storage for element nodes
     int* elemNodes = new int [m_section.elemDataSize];
     
     // Read in the element nodes
     cg_elements_read	(m_file.idx,m_base.idx,m_zone.idx,m_section.idx, elemNodes,&m_section.parentData);
-
+    
     // --------------------------------------------- Fill connectivity table
+    std::vector<Uint> coords_added;
     std::vector<Uint> row(m_section.elemNodeCount);
-    buffer.increase_array_size(nbElems);  // we can use increase_array_size + add_row_directly because we know apriori the change
+    element_buffer.increase_array_size(nbElems);  // we can use increase_array_size + add_row_directly because we know apriori the change
+    Uint global_coord_idx;
+    Uint local_coord_idx;
     for (int elem=0; elem<nbElems; ++elem) //, ++progress)
     {
-      for (int node=0;node<m_section.elemNodeCount;++node)
-        row[node] = elemNodes[node+elem*m_section.elemNodeCount]-1; // -1 because cgns has index-base 1 instead of 0
-
-      buffer.add_row_directly(row);
+      for (int node=0;node<m_section.elemNodeCount;++node) 
+      {
+        global_coord_idx = elemNodes[node+elem*m_section.elemNodeCount]-1;  // -1 because cgns has index-base 1 instead of 0
+        if (option("UniqueCoordinatePool")->value<bool>())
+        {
+          row[node] = global_coord_idx;
+        }
+        else
+        {
+          // check if this node was already added
+          local_coord_idx = std::find(coords_added.begin(),coords_added.end(),global_coord_idx)-coords_added.begin();
+          // if not found in coords_added, it has to be added to the buffer
+          if (local_coord_idx >= coords_added.size())
+          {
+            local_coord_idx = coord_buffer.add_row((*all_coordinates)[global_coord_idx]);
+            coords_added.push_back(global_coord_idx);
+          }
+          row[node] = local_coord_idx;
+        }
+      }
+      element_buffer.add_row_directly(row);
       
       // Store the global element number to a pair of (region , local element number)
       m_global_to_region.push_back(Region_TableIndex_pair(boost::dynamic_pointer_cast<CElements>(element_region.shared_from_this()),elem));

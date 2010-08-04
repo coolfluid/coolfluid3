@@ -10,6 +10,8 @@ LIST( APPEND Mesh_files
   CElements.cpp
   CField.hpp
   CField.cpp
+  CFlexTable.hpp
+  CFlexTable.cpp
   CMesh.hpp
   CMesh.cpp
   CMeshInfo.hpp
@@ -70,6 +72,7 @@ CF_ADD_LIBRARY( Mesh )
 
 ADD_SUBDIRECTORY( Neu )           # Neutral file IO
 
+SET (src_Mesh_OpenFOAM_enabled TRUE)
 ADD_SUBDIRECTORY( OpenFOAM )      # OpenFOAM IO
 
 ADD_SUBDIRECTORY( Gmsh )          # Gmsh file IO

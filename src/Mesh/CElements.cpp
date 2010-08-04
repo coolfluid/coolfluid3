@@ -27,7 +27,7 @@ CElements::~CElements()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CElements::initialize(const std::string& element_type_name, const CArray::Ptr coordinates)
+void CElements::initialize(const std::string& element_type_name, CArray::Ptr coordinates)
 {
   set_element_type(element_type_name);
   cf_assert(m_element_type);
@@ -92,7 +92,7 @@ CArray& CElements::coordinates()
 
 const CArray& CElements::coordinates() const
 {
-  Component::ConstPtr ptr = get_child("connectivity_table")->get();
+  Component::ConstPtr ptr = get_child("coordinates")->get();
   cf_assert(ptr);
   const CArray* coords = dynamic_cast<const CArray*>(ptr.get());
   cf_assert(coords);

@@ -77,7 +77,8 @@ BOOST_FIXTURE_TEST_SUITE( MeshConstruction_TestSuite, MeshConstruction_Fixture )
 BOOST_AUTO_TEST_CASE( MeshConstruction )
 {
   
-  
+  const Uint dim=2;
+
   // Create root and mesh component
   CRoot::Ptr root = CRoot::create ( "root" );
 
@@ -90,14 +91,10 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
 
   // create regions
   CRegion& superRegion = *p_mesh->create_region("superRegion");
-  CArray::Ptr coordinates_comp = superRegion.create_component_type<CArray>("coordinates");
-  CArray& coordinates = *coordinates_comp;
-  CElements& quadRegion = superRegion.create_elements("Quad2DLagrangeP1",coordinates_comp);
-  CElements& triagRegion = superRegion.create_elements("Triag2DLagrangeP1",coordinates_comp);
+  CArray& coordinates = superRegion.create_coordinates(dim);
+  CElements& quadRegion = superRegion.create_elements("Quad2DLagrangeP1");
+  CElements& triagRegion = superRegion.create_elements("Triag2DLagrangeP1");
 
-  // initialize the coordinates array and connectivity tables
-  const Uint dim=2;
-  coordinates.initialize(dim);
   CTable::Buffer qTableBuffer = quadRegion.connectivity_table().create_buffer();
   CTable::Buffer tTableBuffer = triagRegion.connectivity_table().create_buffer();
   CArray::Buffer coordinatesBuffer = coordinates.create_buffer();
@@ -156,8 +153,6 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   BOOST_FOREACH( CElements& region, recursive_range_typed<CElements>(superRegion))
   {
     const ElementType& elementType = region.element_type();
-    //const CTable::Connecti//vityTable& connTable = region.connectivity_table().table();
-    //CFinfo << "type = " << elementType->getShapeName() << "\n" << CFflush;
     const Uint nbRows = region.connectivity_table().size();
     std::vector<Real> volumes(nbRows);
     const CArray& region_coordinates = region.coordinates();
@@ -178,7 +173,6 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
     }
   }
     
-
 //  BOOST_FOREACH(CArray::Row node , elem_coord)
 //  {
 //    CFinfo << "node = ";

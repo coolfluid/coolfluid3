@@ -41,8 +41,8 @@ struct ForAllRegions
 
       Operation op ( region );
 
-      const CArray::Array& coordinates = get_named_component_typed<CArray>(mesh, "coordinates").array();
-      const CTable::ConnectivityTable& ctable = region.connectivity_table().table();
+      const CArray& coordinates = region.coordinates();
+      const CTable& ctable = region.connectivity_table();
 
       // loop on elements
       const Uint elem_count = ctable.size();

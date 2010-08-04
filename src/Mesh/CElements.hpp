@@ -34,7 +34,7 @@ public: // functions
   CElements ( const CName& name );
   
   /// Initialize the CElements using the given type
-  void initialize(const std::string& element_type_name, const CArray::Ptr coordinates);
+  void initialize(const std::string& element_type_name, CArray::Ptr coordinates);
 
   /// Virtual destructor
   virtual ~CElements();

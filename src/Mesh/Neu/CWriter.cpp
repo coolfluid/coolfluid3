@@ -14,6 +14,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CArray.hpp"
 #include "Mesh/CRegion.hpp"
+#include "Mesh/CFlexTable.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -247,9 +248,27 @@ void CWriter::write_headerData(std::fstream& file)
   Uint group_counter(0);
   Uint element_counter(0);
   Uint bc_counter(0);
-  CArray::Ptr coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
-  const Uint coord_dim = coordinates->array().shape()[1];
-  Uint node_counter = get_named_component_typed<CArray>(*m_mesh, "coordinates").array().shape()[0];
+
+  Uint coord_dim(0);
+  Uint node_counter(0);
+  
+  typedef std::map<CArray*,std::list<CElements*> > coordinates_map_t;
+  coordinates_map_t all_coordinates;
+  
+  
+  BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*m_mesh))
+  {
+    all_coordinates[&elements.coordinates()].push_back(&elements);
+  }
+  
+  BOOST_FOREACH(const coordinates_map_t::value_type& coord_array, all_coordinates)
+  {
+    if (coord_dim == 0)
+      coord_dim = coord_array.first->array().shape()[1];
+    
+    node_counter += coord_array.first->size();
+  }
+  
   Uint max_dimensionality = 0;
   // Find maximal dimensionality of the whole mesh
   BOOST_FOREACH( const CElements& elements, recursive_range_typed<CElements>(*m_mesh))
@@ -269,7 +288,7 @@ void CWriter::write_headerData(std::fstream& file)
         isGroupBC = true;
       }
       if (!isElementBC)
-        element_counter += elementregion.connectivity_table().table().size();
+        element_counter += elementregion.connectivity_table().size();
     }
     if (!isGroupBC)
     {
@@ -305,23 +324,35 @@ void CWriter::write_coordinates(std::fstream& file)
   // set precision for Real
   Uint prec = file.precision();
   file.precision(11);
-  CArray::Ptr coordinates = get_named_component_typed_ptr<CArray>(*m_mesh, "coordinates");
+  
+  typedef std::map<CArray*,std::list<CElements*> > coordinates_map_t;
+  coordinates_map_t all_coordinates;
+  
+  Uint coord_dim(0);
 
-  const Uint coord_dim = coordinates->array().shape()[1];
-
+  BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*m_mesh))
+  {
+    all_coordinates[&elements.coordinates()].push_back(&elements);
+  }
+  BOOST_FOREACH(const coordinates_map_t::value_type& coord_array, all_coordinates)
+  {
+    if (coord_dim == 0)
+      coord_dim = coord_array.first->array().shape()[1];
+  }
+ 
   file << "   NODAL COORDINATES 2.3.16" << std::endl;
   file.setf(std::ios::fixed);
   Uint node_number = 0;
-  BOOST_FOREACH(const CArray::ConstRow& row, coordinates->array())
+  BOOST_FOREACH(const coordinates_map_t::value_type& coord_array, all_coordinates)
   {
-    ++node_number;
-    file << std::setw(10) << node_number;
-    for (Uint d=0; d<coord_dim; ++d)
-    {
-      //CFinfo << node_number << "(" << d << ") \t " << CFflush;
-      file << std::setw(20) << std::scientific << row[d];
-    }
-    file << std::endl;
+      BOOST_FOREACH(CArray::ConstRow row, coord_array.first->array())
+      {
+        ++node_number;
+        file << std::setw(10) << node_number;
+        for (Uint d=0; d<coord_dim; ++d)
+          file << std::setw(20) << std::scientific << row[d];
+        file << std::endl;
+      }
   }
   file << "ENDOFSECTION" << std::endl;
   // restore precision
@@ -333,57 +364,76 @@ void CWriter::write_coordinates(std::fstream& file)
 void CWriter::write_connectivity(std::fstream& file)
 {
   file << "      ELEMENTS/CELLS 2.3.16" << std::endl;
+  /// @todo //////////////////////////
 
   // global element number
   Uint elm_number=0;
 
-  // loop over all element regions
-  const CArray& coordinates = get_named_component_typed<CArray>(*m_mesh,"coordinates");
-  const Uint coord_dim = coordinates.array().shape()[1];
-  BOOST_FOREACH(const CElements& elementregion,recursive_range_typed<CElements>(*m_mesh))
-  {
-    bool isBC = false;
-    Uint dimensionality = elementregion.element_type().dimensionality();
-    if (dimensionality < coord_dim) // is bc
-    {
-      isBC = true;
-      //CFinfo << "skip bc region " << elementregion->full_path().string() << CFendl;
-    }
-    if (!isBC)
-    {
-      //CFinfo << "elements from region: " << elementregion->full_path().string() << CFendl;
-      // information of this region with one unique element type
-      Uint elm_type;
-      Uint nb_nodes;
-      elm_type = m_CFelement_to_NeuElement[elementregion.element_type().shape()];
-      nb_nodes = elementregion.element_type().nb_nodes();
-      m_global_start_idx[&elementregion]=elm_number;
+  // Find maximal dimensionality of the whole mesh
+  Uint max_dimensionality = 0;
+  BOOST_FOREACH( const CElements& region, recursive_range_typed<CElements>(*m_mesh))
+    max_dimensionality = std::max(region.element_type().dimensionality() , max_dimensionality);
+  
 
-      // write the nodes for each element of this region
-      BOOST_FOREACH(const CTable::ConstRow& cf_element ,get_component_typed<CTable>(elementregion,IsComponentTrue()).table())
+  // loop over all element regions
+  typedef std::map<CArray*,std::list<CElements*> > coordinates_map_t;
+  coordinates_map_t all_coordinates;
+  BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*m_mesh))
+  {
+    all_coordinates[&elements.coordinates()].push_back(&elements);
+  }
+  Uint global_node_idx=0;
+  BOOST_FOREACH(const coordinates_map_t::value_type& coord_array, all_coordinates)
+  {
+    BOOST_FOREACH(const CElements* elementregion, coord_array.second)
+    {
+      bool isBC = false;
+      Uint dimensionality = elementregion->element_type().dimensionality();
+      if (dimensionality < max_dimensionality) // is bc
       {
-        file << std::setw(8) << ++elm_number << std::setw(3) << elm_type << std::setw(3) << nb_nodes << " ";
-        std::vector<Uint> neu_element(nb_nodes);
-        
-        for (Uint j=0; j<nb_nodes; ++j)
+        isBC = true;
+      }
+      if (!isBC)
+      {
+        //CFinfo << "elements from region: " << elementregion->full_path().string() << CFendl;
+        // information of this region with one unique element type
+        Uint elm_type;
+        Uint nb_nodes;
+        elm_type = m_CFelement_to_NeuElement[elementregion->element_type().shape()];
+        nb_nodes = elementregion->element_type().nb_nodes();
+        m_global_start_idx[elementregion]=elm_number;
+
+        // write the nodes for each element of this region
+        BOOST_FOREACH(const CTable::ConstRow& cf_element , elementregion->connectivity_table().table())
         {
-          Uint neu_idx = m_nodes_cf_to_neu[elm_type][j];
-          neu_element[neu_idx] = cf_element[j]+1;
-        }
-        Uint eol_counter=0;
-        BOOST_FOREACH(Uint neu_node, neu_element)
-        {
-          if (eol_counter == 7)
+          file << std::setw(8) << ++elm_number << std::setw(3) << elm_type << std::setw(3) << nb_nodes << " ";
+          std::vector<Uint> neu_element(nb_nodes);
+          
+          // fill the neu_element (connectivity)
+          for (Uint j=0; j<nb_nodes; ++j)
           {
-            file << std::endl << std::setw(15) << " ";
-            eol_counter = 0;
+            // index within a neu element (because of different node numbering)
+            Uint neu_idx = m_nodes_cf_to_neu[elm_type][j];
+            // put the global element number inside the row
+            neu_element[neu_idx] = global_node_idx+cf_element[j]+1;
           }
-          file << std::setw(8) << neu_node;
-          ++eol_counter;
+          
+          Uint eol_counter=0;
+          BOOST_FOREACH(Uint neu_node, neu_element)
+          {
+            if (eol_counter == 7)
+            {
+              file << std::endl << std::setw(15) << " ";
+              eol_counter = 0;
+            }
+            file << std::setw(8) << neu_node;
+            ++eol_counter;
+          }
+          file << std::endl;
         }
-        file << std::endl;
       }
     }
+    global_node_idx += coord_array.first->size();
   }
   file << "ENDOFSECTION" << std::endl;
 }
@@ -413,7 +463,7 @@ void CWriter::write_groups(std::fstream& file)
       Uint element_counter(0);
       BOOST_FOREACH(const CElements& elementregion, recursive_range_typed<CElements>(group))
       {
-        element_counter += elementregion.connectivity_table().table().size();
+        element_counter += elementregion.connectivity_table().size();
       }
       file << "       ELEMENT GROUP 2.3.16\n";
       file << "GROUP:" << std::setw(11) << ++group_counter << " ELEMENTS:" << std::setw(11) << element_counter << " MATERIAL:" << std::setw(11) << 2 << " NFLAGS:" << std::setw(11) << 1 << std::endl;
@@ -422,7 +472,7 @@ void CWriter::write_groups(std::fstream& file)
       BOOST_FOREACH(const CElements& elementregion, recursive_range_typed <CElements>(group))
       {
         Uint elm_global_start_idx = m_global_start_idx[&elementregion]+1;
-        Uint elm_global_end_idx = elementregion.connectivity_table().table().size() + elm_global_start_idx;
+        Uint elm_global_end_idx = elementregion.connectivity_table().size() + elm_global_start_idx;
 
         for (Uint elm=elm_global_start_idx; elm<elm_global_end_idx; elm++, line_counter++)
         {
@@ -522,6 +572,7 @@ void CWriter::write_boundaries(std::fstream& file)
 
 void CWriter::create_nodes_to_element_connectivity()
 {
+
   BOOST_FOREACH(const CElements& elementregion, recursive_range_typed<CElements>(*m_mesh))
   {
     const CTable& elements = elementregion.connectivity_table();
@@ -535,6 +586,58 @@ void CWriter::create_nodes_to_element_connectivity()
       ++elem_idx;
     }
   }
+  
+  //  BOOST_FOREACH(CElements& elementregion, recursive_range_typed<CElements>(*m_mesh))
+//  {
+//    Uint elem_idx=0;
+//    
+//    // create in each elementregion a "nodes_to_elements" flexible connectivity table
+//    CFlexTable& nodes2elem = (*elementregion.create_component_type<CFlexTable>("nodes_to_elements"));
+//    BOOST_FOREACH(const CTable::ConstRow& elem, elementregion.connectivity_table().table())
+//    {
+//      BOOST_FOREACH(const Uint node, elem)
+//      {
+//        nodes2elem[node].push_back(CFlexTable::InterRegionConnectivity(&elementregion,elem_idx));
+//      }
+//      ++elem_idx;
+//    }
+//  }
+//  
+//  // find duplicate coordinates
+//  BOOST_FOREACH(CElements& elementregion, recursive_range_typed<CElements>(*m_mesh))
+//  {
+//    BOOST_FOREACH(const CArray::ConstRow& coord, elementregion.coordinates().array())
+//    {
+//      RealVector coordvec(coord);
+//      
+//      BOOST_FOREACH(CElements& look_elementregion, recursive_range_typed<CElements>(*m_mesh))
+//      {
+//        if (&look_elementregion != &elementregion)
+//        {
+//          BOOST_FOREACH(const CArray::ConstRow& coord, elementregion.coordinates().array())
+//          {
+//            if (<#condition#>)
+//            {
+//              <#statements#>
+//            }
+//          }
+//        }
+//      }
+//    }
+//    RealVector coordvec = 
+//    Uint elem_idx=0;
+//    
+//    // create in each elementregion a "nodes_to_elements" flexible connectivity table
+//    CFlexTable& nodes2elem = (*elementregion.create_component_type<CFlexTable>("nodes_to_elements"));
+//    BOOST_FOREACH(const CTable::ConstRow& elem, elementregion.connectivity_table().table())
+//    {
+//      BOOST_FOREACH(const Uint node, elem)
+//      {
+//        nodes2elem[node].push_back(CFlexTable::InterRegionConnectivity(&elementregion,elem_idx));
+//      }
+//      ++elem_idx;
+//    }
+//  }
 
 //  typedef std::map<Uint,std::vector<std::pair<CRegion::Ptr,Uint> > >::value_type node_t;
 //  typedef std::pair<CRegion::Ptr,Uint> elem_t;
@@ -548,11 +651,45 @@ void CWriter::create_nodes_to_element_connectivity()
 //    CFinfo << CFendl;
 //  }
 }
+  
+//////////////////////////////////////////////////////////////////////////////
+
+//void CWriter::create_face_to_element_connectivity()
+//{
+//  BOOST_FOREACH(CElements& elementregion, recursive_range_typed<CElements>(*m_mesh))
+//  {
+//    Uint elem_idx=0;
+//    
+//    // create in each elementregion a "nodes_to_elements" flexible connectivity table
+//    CFlexTable& nodes2elem = (*elementregion.create_component_type<CFlexTable>("nodes_to_elements"));
+//    BOOST_FOREACH(const CTable::ConstRow& elem, elementregion.connectivity_table().table())
+//    {
+//      BOOST_FOREACH(const Uint node, elem)
+//      {
+//        nodes2elem[node].push_back(CFlexTable::InterRegionConnectivity(&elementregion,node);
+//      }
+//      ++elem_idx;
+//    }
+//  }
+//  
+//  //  typedef std::map<Uint,std::vector<std::pair<CRegion::Ptr,Uint> > >::value_type node_t;
+//  //  typedef std::pair<CRegion::Ptr,Uint> elem_t;
+//  //  BOOST_FOREACH(node_t node, m_n2e)
+//  //  {
+//  //    CFinfo << std::setw(8) << node.first << " --> ";
+//  //    BOOST_FOREACH(elem_t elem, node.second)
+//  //    {
+//  //      CFinfo << std::setw(12) << elem.first->get_parent()->name() << "(" <<elem.second<<") ";
+//  //    }
+//  //    CFinfo << CFendl;
+//  //  }
+//}
 //////////////////////////////////////////////////////////////////////////////
 
 boost::tuple<CElements const* const,Uint,Uint> CWriter::find_element_for_face(const CElements& face, const CTable::ConstRow& nodes, const Component& parent)
 {
 
+  // Sort the given nodes in a vector "sorted_nodes"
   std::vector<Uint> sorted_nodes;
   BOOST_FOREACH(Uint node,nodes)
     sorted_nodes.push_back(node);
@@ -564,6 +701,35 @@ boost::tuple<CElements const* const,Uint,Uint> CWriter::find_element_for_face(co
 
   std::vector<Uint> sorted_face_row(sorted_nodes.size());
   typedef std::pair<CElements const* const,Uint> elem_t;
+  
+  ////////////////////////////////////////
+  
+//  // loop over all element regions within the given parent component
+//  BOOST_FOREACH(const CElements& elementregion, recursive_range_typed<CElements>(parent))
+//  {
+//    const ElementType::FaceConnectivity& face_connectivity = elements->element_type().face_connectivity();
+//    const Uint face_count = elements->element_type().nb_faces();
+//    if(face_count < 2)
+//      continue;
+//    
+//    for(Uint face_idx = 0; face_idx != face_count; ++face_idx)
+//    {
+//      const ElementType& look_face = elements->element_type().face_type(face_idx);
+//      
+//      // first check if the face type matches
+//      if (look_face.shape() == face.element_type().shape() &&
+//          look_face.nb_nodes() == face.element_type().nb_nodes())
+//      {  
+//        BOOST_FOREACH(const CFlexTable::ConnectivityTable::value_type& idx_nodes_pair, elementregion.get_child_type<CFlexTable>("nodes_to_elements")->table())
+//        {
+//          CFlexTable::Row nodes = idx_nodes_pair.second;
+//          
+//        }
+//      }       
+//    }
+//  }
+  
+  ////////////////////////////////
   BOOST_FOREACH(elem_t elem, m_n2e[sorted_nodes[0]])
   {
     const CElements* elements = elem.first;
