@@ -48,7 +48,11 @@ MACRO( CF_ADD_UNITTEST UTESTNAME )
 
     LOG ( " +++ TEST [${UTESTNAME}]" )
 
-    ADD_EXECUTABLE( ${UTESTNAME} ${${UTESTNAME}_sources} ${${UTESTNAME}_headers} )
+    IF( DEFINED ${${UTESTNAME}_moc_files} )
+      ADD_EXECUTABLE( ${UTESTNAME} ${${UTESTNAME}_sources} ${${UTESTNAME}_headers}  ${${UTESTNAME}_moc_files})
+    ELSE()
+      ADD_EXECUTABLE( ${UTESTNAME} ${${UTESTNAME}_sources} ${${UTESTNAME}_headers})
+    ENDIF()
 
     IF(CF_INSTALL_TESTS)
       # add installation paths
@@ -86,7 +90,7 @@ MACRO( CF_ADD_UNITTEST UTESTNAME )
     endif()
 
   # add to the test database
-  ADD_TEST( ${UTESTNAME} ${UTESTNAME} ${${UTESTNAME}_args} )
+  ADD_TEST( ${UTESTNAME} ${UTESTNAME} ${${UTESTNAME}_args})
 
   ENDIF()
 
