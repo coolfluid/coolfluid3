@@ -93,8 +93,8 @@ void NTreeTest::test_setRoot()
   // newRoot must be the tree root now
   QCOMPARE(t.getRoot(), newRoot);
 
-  // the tree root should have 2 children now
-  QCOMPARE(t.getRoot()->root()->get_child_count(), 2);
+  // the tree root should have 3 children now
+  QCOMPARE(t.getRoot()->root()->get_child_count(), 3);
 }
 
 ////////////////////////////////////////////////////////////////////////////

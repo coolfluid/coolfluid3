@@ -1,58 +1,58 @@
 <CRoot name="Simulator">
-	<valuemap/>
-	<CCore name="Core">
-		<valuemap/>
-	</CCore>
-	<CGroup name="Flow">
-		<valuemap>
-			<value key="pi" descr="Pi in a CGroup">
-				<double>3.1415920000000002</double>
-			</value>
-		</valuemap>
-		<CMethod name="FVM">
-			<valuemap>
-				<value key="euler" descr="Euler number in a CMethod">
-					<double>2.71</double>
-				</value>
-				<value key="fourtyTwo" descr="An integer value in a CMethod">
-					<int>42</int>
-				</value>
-				<value key="myBoolMeth" descr="A boolean value in a CMethod">
-					<bool>true</bool>
-				</value>
-			</valuemap>
-		</CMethod>
-		<CLink name="Mesh">//Simulator/MG/Mesh1</CLink>
-		<CMethod name="Petsc">
-			<valuemap>
-				<value key="euler" descr="Euler number in a CMethod">
-					<double>2.71</double>
-				</value>
-				<value key="fourtyTwo" descr="An integer value in a CMethod">
-					<int>42</int>
-				</value>
-				<value key="myBoolMeth" descr="A boolean value in a CMethod">
-					<bool>true</bool>
-				</value>
-			</valuemap>
-		</CMethod>
-	</CGroup>
-	<CGroup name="MG">
-		<valuemap>
-			<value key="pi" descr="Pi in a CGroup">
-				<double>3.1415920000000002</double>
-			</value>
-		</valuemap>
-		<CMesh name="Mesh1">
-			<valuemap/>
-		</CMesh>
-		<CMesh name="Mesh2">
-			<valuemap/>
-		</CMesh>
-	</CGroup>
-	<CSimulator name="Simulator">
-		<valuemap/>
-	</CSimulator>
+  <valuemap/>
+  <CCore name="Core">
+    <valuemap/>
+  </CCore>
+  <CGroup name="Flow">
+    <valuemap>
+      <value key="pi" descr="Pi in a CGroup">
+        <double>3.1415920000000002</double>
+      </value>
+    </valuemap>
+    <CMethod name="FVM">
+      <valuemap>
+        <value key="euler" descr="Euler number in a CMethod">
+          <double>2.71</double>
+        </value>
+        <value key="fourtyTwo" descr="An integer value in a CMethod">
+          <int>42</int>
+        </value>
+        <value key="myBoolMeth" descr="A boolean value in a CMethod">
+          <bool>true</bool>
+        </value>
+      </valuemap>
+    </CMethod>
+    <CLink name="Mesh">//Simulator/MG/Mesh1</CLink>
+    <CMethod name="Petsc">
+      <valuemap>
+        <value key="euler" descr="Euler number in a CMethod">
+          <double>2.71</double>
+        </value>
+        <value key="fourtyTwo" descr="An integer value in a CMethod">
+          <int>42</int>
+        </value>
+        <value key="myBoolMeth" descr="A boolean value in a CMethod">
+          <bool>true</bool>
+        </value>
+      </valuemap>
+    </CMethod>
+  </CGroup>
+  <CGroup name="MG">
+    <valuemap>
+      <value key="pi" descr="Pi in a CGroup">
+        <double>3.1415920000000002</double>
+      </value>
+    </valuemap>
+    <CMesh name="Mesh1">
+      <valuemap/>
+    </CMesh>
+    <CMesh name="Mesh2">
+      <valuemap/>
+    </CMesh>
+  </CGroup>
+  <CSimulator name="Simulator">
+    <valuemap/>
+  </CSimulator>
 	<CGroup name="Solid">
 		<valuemap>
 			<value key="pi" descr="Pi in a CGroup">
