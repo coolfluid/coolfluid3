@@ -48,7 +48,7 @@ MACRO( CF_ADD_UNITTEST UTESTNAME )
 
     LOG ( " +++ TEST [${UTESTNAME}]" )
 
-    IF( DEFINED ${${UTESTNAME}_moc_files} )
+    IF( DEFINED ${UTESTNAME}_moc_files )
       ADD_EXECUTABLE( ${UTESTNAME} ${${UTESTNAME}_sources} ${${UTESTNAME}_headers}  ${${UTESTNAME}_moc_files})
     ELSE()
       ADD_EXECUTABLE( ${UTESTNAME} ${${UTESTNAME}_sources} ${${UTESTNAME}_headers})
