@@ -1,6 +1,5 @@
 #include <QtCore>
 #include <QtTest>
-#include <QtGui>
 
 #include <iostream>
 
@@ -9,10 +8,11 @@
 #include "GUI/Client/ClientRoot.hpp"
 #include "GUI/Client/NRoot.hpp"
 #include "GUI/Client/NTree.hpp"
-
 #include "GUI/Client/UnknownTypeException.hpp"
 
 #include "GUI/Client/uTests/ExceptionThrowHandler.hpp"
+#include "GUI/Client/uTests/MyNode.hpp"
+
 #include "GUI/Client/uTests/NTreeTest.hpp"
 
 using namespace CF::Common;
@@ -20,28 +20,6 @@ using namespace CF::GUI::Client;
 using namespace CF::GUI::ClientTest;
 
 Q_DECLARE_METATYPE(QModelIndex);
-
-////////////////////////////////////////////////////////////////////////////
-
-MyNode::MyNode(const QString & name)
-  : CNode(name, "CGroupe", CNode::GROUP_NODE)
-{
-  BUILD_COMPONENT;
-}
-
-////////////////////////////////////////////////////////////////////////////
-
-QIcon MyNode::getIcon() const
-{
-  return QFileIconProvider().icon(QFileIconProvider::File);
-}
-
-////////////////////////////////////////////////////////////////////////////
-
-QString MyNode::getToolTip() const
-{
-  return this->getComponentType();
-}
 
 ////////////////////////////////////////////////////////////////////////////
 

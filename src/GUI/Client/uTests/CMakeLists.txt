@@ -49,6 +49,8 @@ LIST( APPEND uTestClient_files
   NTreeTest.cpp
   CNodeTest.hpp
   CNodeTest.cpp
+  MyNode.cpp
+  MyNode.hpp
 
   # include files from the client
 
