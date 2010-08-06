@@ -62,10 +62,6 @@ struct Nodes_Fixture
     throw ShouldNotBeHere(FromHere(), "");
   }
 
-  CArray& coordinates() {
-    return get_named_component_typed<CArray>(*mesh2d, "coordinates");
-  }
-
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -78,10 +74,9 @@ BOOST_FIXTURE_TEST_SUITE( Nodes, Nodes_Fixture )
 BOOST_AUTO_TEST_CASE( writeNodes )
 {
   CElements& firstRegion = get_first_region();
-  CArray& coords = coordinates();
-  ElementNodeView nodes(coords, firstRegion.connectivity_table().table()[0]);
+  ElementNodeView nodes(firstRegion.coordinates(), firstRegion.connectivity_table().table()[0]);
   nodes[0][0] = 1.;
-  const ConstElementNodeView const_nodes(coords, firstRegion.connectivity_table().table()[0]);
+  const ConstElementNodeView const_nodes(firstRegion.coordinates(), firstRegion.connectivity_table().table()[0]);
   BOOST_CHECK_EQUAL(nodes[0][0], const_nodes[0][0]);
 }
 

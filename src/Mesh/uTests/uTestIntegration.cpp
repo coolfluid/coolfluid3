@@ -49,7 +49,7 @@ void create_rectangle_buffered(CMesh& mesh, const Real x_len, const Real y_len, 
     }
   }
   CRegion& region = *mesh.create_region("region");
-  CTable::Buffer connBuffer = region.create_elements("Quad2DLagrangeP1").connectivity_table().create_buffer( x_segments*y_segments );
+  CTable::Buffer connBuffer = region.create_elements("Quad2DLagrangeP1",boost::dynamic_pointer_cast<CArray>(coordinates.shared_from_this())).connectivity_table().create_buffer( x_segments*y_segments );
   std::vector<Uint> nodes(4);
   for(Uint j = 0; j < y_segments; ++j)
   {
@@ -88,7 +88,7 @@ void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uin
     }
   }
   CRegion& region = *mesh.create_region("region");
-  CTable::ConnectivityTable& connArray = region.create_elements("Quad2DLagrangeP1").connectivity_table().table();
+  CTable::ConnectivityTable& connArray = region.create_elements("Quad2DLagrangeP1",boost::dynamic_pointer_cast<CArray>(coordinates.shared_from_this())).connectivity_table().table();
   connArray.resize(boost::extents[(x_segments)*(y_segments)][4]);
   for(Uint j = 0; j < y_segments; ++j)
   {
@@ -135,7 +135,7 @@ struct IntegrationFixture :
   /// should yield the volume of the mesh
   struct DetJacobianFunctor : public IntegrationFunctorBase
   {
-    DetJacobianFunctor(const CArray& coordinates) : IntegrationFunctorBase(coordinates) {}
+    DetJacobianFunctor() : IntegrationFunctorBase() {}
 
     template<typename GeoShapeF, typename SolShapeF>
     CF::Real valTimesDetJacobian(const CF::RealVector& mappedCoords)
@@ -147,10 +147,11 @@ struct IntegrationFixture :
   /// Use a vector for node storage
   struct DetJacobianFunctorNodesVector {
     /// Sets up a functor for the given mesh
-    DetJacobianFunctorNodesVector(const CArray& coordinates) : m_coordinates(coordinates) {}
+    DetJacobianFunctorNodesVector() {}
     /// Sets up the functor to use the specified region
     void setRegion(const CElements& region) {
       m_region = &region;
+      m_coordinates = &region.coordinates();
       m_nodes.resize(region.element_type().nb_nodes(), RealVector(region.element_type().dimension()));
     }
     /// Sets up the functor to use the specified element (relative to the currently set region)
@@ -159,7 +160,7 @@ struct IntegrationFixture :
       Uint i = 0;
       BOOST_FOREACH(const Uint idx, ctbl[element])
       {
-        m_nodes[i++] = RealVector(m_coordinates[idx]);
+        m_nodes[i++] = RealVector((*m_coordinates)[idx]);
       }
     }
 
@@ -171,7 +172,7 @@ struct IntegrationFixture :
 
   protected:
     const CElements* m_region;
-    const CArray& m_coordinates;
+    const CArray* m_coordinates;
     ElementNodeVector m_nodes;
   };
 
@@ -211,7 +212,7 @@ BOOST_AUTO_TEST_CASE( ComputeVolume2DNeu ) // not timed
   boost::filesystem::path fp_in ("quadtriag.neu");
   boost::shared_ptr<CMesh> mesh2Dneu(new CMesh("mesh2Dneu"));
   meshreader->read_from_to(fp_in,mesh2Dneu);
-  IntegrationFixture::DetJacobianFunctor ftor2Dneu(get_named_component_typed<CArray>(*mesh2Dneu, "coordinates"));
+  IntegrationFixture::DetJacobianFunctor ftor2Dneu;
   Real volume2Dneu = 0.0;
   gaussIntegrate(*mesh2Dneu, ftor2Dneu, volume2Dneu);
   BOOST_CHECK_CLOSE(volume2Dneu, 24., 1e-12);
@@ -268,7 +269,7 @@ BOOST_FIXTURE_TEST_CASE( ComputeVolume2DUnitSquareDirect, IntegrationFixture ) /
 /// Compute the volume by integrating a functor, using a view of the nodes
 BOOST_FIXTURE_TEST_CASE( IntegrateVolume2DUnitSquareNodeView, IntegrationFixture ) // timed and profiled
 {
-  DetJacobianFunctor ftor2Dbig(get_named_component_typed<CArray>(grid2D, "coordinates"));
+  DetJacobianFunctor ftor2Dbig;
   Real volume2Dbig = 0.0;
   gaussIntegrate(grid2D, ftor2Dbig, volume2Dbig);
   BOOST_CHECK_CLOSE(volume2Dbig, 1., 1e-8);
@@ -277,7 +278,7 @@ BOOST_FIXTURE_TEST_CASE( IntegrateVolume2DUnitSquareNodeView, IntegrationFixture
 /// Compute the volume by integrating a functor, using a copy of the nodes
 BOOST_FIXTURE_TEST_CASE( IntegrateVolume2DUnitSquareNodeVector, IntegrationFixture ) // timed and profiled
 {
-  DetJacobianFunctorNodesVector ftor2Dbig(get_named_component_typed<CArray>(grid2D, "coordinates"));
+  DetJacobianFunctorNodesVector ftor2Dbig;
   Real volume2Dbig = 0.0;
   gaussIntegrate(grid2D, ftor2Dbig, volume2Dbig);
   BOOST_CHECK_CLOSE(volume2Dbig, 1., 1e-8);
