@@ -6,7 +6,7 @@
 using namespace CF::GUI::ClientTest;
 
 MyNode::MyNode(const QString & name)
-  : CNode(name, "CGroup", CNode::GROUP_NODE)
+  : CNode(name, "MyNode", CNode::GROUP_NODE)
 {
   BUILD_COMPONENT;
 }

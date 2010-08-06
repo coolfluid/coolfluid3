@@ -9,10 +9,10 @@ using namespace CF::GUI::ClientTest;
 int main(int argc, char * argv[])
 {
   QApplication app(argc, argv);
-  bool passed = true;
+  int passed = 0;
 
-  passed &= QTest::qExec(new NTreeTest(), argc, argv);
-  passed &= QTest::qExec(new CNodeTest(), argc, argv);
+  passed += QTest::qExec(new NTreeTest(), argc, argv);
+  passed += QTest::qExec(new CNodeTest(), argc, argv);
 
   return passed;
 }

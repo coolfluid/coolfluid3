@@ -68,6 +68,8 @@ namespace Client {
     /// @brief If @c true, the option is advanced. Otherwise, it is not.
     bool m_paramAdv;
 
+    bool operator == (const NodeOption & option);
+
   }; // struct NodeParams
 
   ////////////////////////////////////////////////////////////////////////////
@@ -205,6 +207,8 @@ namespace Client {
     /// @c CF::Common::ValueExists exception thrown by
     /// @c Component::add_component()
     void addNode(CNode::Ptr node);
+
+    CNodeNotifier * getNotifier() const;
 
   protected:
 

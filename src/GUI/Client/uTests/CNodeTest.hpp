@@ -19,8 +19,6 @@ namespace ClientTest {
 
   private slots:
 
-      void test_constructor();
-
       void test_getComponentType();
 
       void test_isClientComponent();
@@ -34,8 +32,6 @@ namespace ClientTest {
       void test_getOptions();
 
       void test_createFromXml();
-
-      void test_convertTo();
 
       void test_addNode();
 

@@ -19,6 +19,18 @@
 using namespace CF::Common;
 using namespace CF::GUI::Client;
 
+bool NodeOption::operator==(const NodeOption & option)
+{
+  return m_paramAdv ^ option.m_paramAdv
+      && m_paramName == option.m_paramName
+      && m_paramType == option.m_paramType
+      && m_paramValue == option.m_paramValue
+      && m_paramDescr == option.m_paramDescr;
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 CNodeNotifier::CNodeNotifier(QObject * parent)
   : QObject(parent)
 { }
@@ -248,6 +260,14 @@ void CNode::connectNotifier(QObject * reciever, const char * signal, const char 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+CNodeNotifier * CNode::getNotifier() const
+{
+  return m_notifier;
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 void CNode::addNode(CNode::Ptr node)
 {
   try
@@ -289,7 +309,7 @@ void CNode::getOptions(QList<NodeOption> & options) const
     if(target.get() != CFNULL)
       target->getOptions(options);
     else
-      ClientRoot::getLog()->addError(QString("%1: path does not exist").arg(path.string().c_str()));
+      throw InvalidPath(FromHere(), path.string() + ": path does not exist");
   }
   else
   {
