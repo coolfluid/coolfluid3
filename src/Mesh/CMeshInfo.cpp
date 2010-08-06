@@ -45,7 +45,7 @@ namespace Mesh {
 Common::ObjectProvider < Mesh::CMeshInfo,
                          Mesh::CMeshTransformer,
                          Mesh::MeshLib,
-                         1 >
+                         NB_ARGS_1 >
 CMeshInfo_Provider ( "Info" );
 
 //////////////////////////////////////////////////////////////////////////////
@@ -98,16 +98,33 @@ void CMeshInfo::transform(const CMesh::Ptr& mesh, const std::vector<std::string>
 std::string CMeshInfo::print_region_tree(const CRegion& region, Uint level)
 {
   std::string tree;
-  
+    
   for (Uint i=0; i<level; i++)
     tree += "    ";
   tree += region.name() + " (" + StringOps::to_str<Uint>(region.recursive_elements_count()) +  ")\n";
+  
+  tree += print_elements(region,level+1);
   
   BOOST_FOREACH( const CRegion& subregion, filtered_range_typed<CRegion>(region,IsComponentTrue()))
   {
     tree += print_region_tree(subregion,level+1);
   }
   return tree;    
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+std::string CMeshInfo::print_elements(const CRegion& region, Uint level)
+{
+  std::string tree;
+  BOOST_FOREACH( const CElements& elements_region, range_typed<CElements>(region))
+  {
+    for (Uint i=0; i<level; i++)
+      tree += "    ";
+    std::string dimensionality = IsElementsVolume()(elements_region) ? "volume" : "surface";
+    tree += elements_region.name() + " -- " + dimensionality + "  (" + StringOps::to_str<Uint>(elements_region.elements_count()) +  ")\n";
+  }
+  return tree;
 }
 
 //////////////////////////////////////////////////////////////////////////////
