@@ -51,6 +51,9 @@ public: // functions
   /// return the elementType
   const ElementType& element_type() const { return *m_element_type; }
   
+  /// return the number of elements
+  Uint elements_count() const { return connectivity_table().size(); }
+  
   /// create a CTable component and add it to the list of subcomponents
   /// @param name of the region
   CTable& create_connectivity_table ( const CName& name = "connectivity_table");
@@ -78,6 +81,32 @@ private: // data
   
 };
 
+////////////////////////////////////////////////////////////////////////////////
+
+class IsElementsVolume
+{
+public:
+  IsElementsVolume () {}
+  
+  bool operator()(const CElements::Ptr& component)
+  { return component->element_type().dimension() == component->element_type().dimensionality(); }
+  
+  bool operator()(const CElements& component)
+  { return component.element_type().dimension() == component.element_type().dimensionality(); }
+};
+
+class IsElementsSurface
+{
+public:
+  IsElementsSurface () {}
+  
+  bool operator()(const CElements::Ptr& component)
+  { return component->element_type().dimension() == component->element_type().dimensionality() + 1; }
+  
+  bool operator()(const CElements& component)
+  { return component.element_type().dimension() == component.element_type().dimensionality() + 1; }
+};
+  
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh

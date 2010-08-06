@@ -65,7 +65,7 @@ public:
     Uint elem_count = 0;
     BOOST_FOREACH(const CElements& elements, recursive_range_typed<CElements>(*this))
     {
-      elem_count += elements.connectivity_table().table().size();
+      elem_count += elements.elements_count();
     }
     return elem_count;
   }
