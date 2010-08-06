@@ -12,6 +12,10 @@ LIST( APPEND Mesh_files
   CField.cpp
   CFlexTable.hpp
   CFlexTable.cpp
+  CHoneycombInterpolator.hpp
+  CHoneycombInterpolator.cpp
+  CInterpolator.hpp
+  CInterpolator.cpp
   CMesh.hpp
   CMesh.cpp
   CMeshInfo.hpp
