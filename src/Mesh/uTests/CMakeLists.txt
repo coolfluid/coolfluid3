@@ -6,8 +6,9 @@ LIST( APPEND uTestMesh_files
   TestMeshComponents.cpp
   TestMeshConstruction.cpp
   TestMeshReading.cpp
+  TestMeshInterpolation.cpp
 )
-
+  
 # Only add TestCGNS.cpp if the CGNS library is available
 IF( CF_HAVE_CGNS )
   LIST( APPEND uTestMesh_cflibs CGNS3 )
