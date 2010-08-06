@@ -55,19 +55,6 @@ QString NLink::getToolTip() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NLink::getOptions(QList<NodeOption> & params) const
-{
-  CNode::Ptr target = ClientRoot::getTree()->getNodeByPath(m_targetPath);
-
-  if(target.get() != CFNULL)
-    target->getOptions(params);
-  else
-    ClientRoot::getLog()->addError(QString("%1: path does not exist").arg(m_targetPath.string().c_str()));
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 CF::Common::CPath NLink::getTargetPath() const
 {
   return m_targetPath;

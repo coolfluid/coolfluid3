@@ -153,7 +153,7 @@ namespace Client {
     /// @brief Gives options
     /// @param options Reference to a list where options will be put. The list
     /// cleared before first use.
-    virtual void getOptions(QList<NodeOption> & options) const = 0;
+    void getOptions(QList<NodeOption> & options) const;
 
     /// @brief Creates an object tree from a given node
 
@@ -177,8 +177,6 @@ namespace Client {
     QMenu * m_contextMenu;
 
     CNode::Type m_type;
-
-    void buildOptionList(QList<NodeOption> & options) const;
 
     void configure(CF::Common::XmlNode & node);
 

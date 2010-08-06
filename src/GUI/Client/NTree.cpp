@@ -462,11 +462,3 @@ QString NTree::getToolTip() const
 {
   return this->getComponentType();
 }
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void NTree::getOptions(QList<NodeOption> & params) const
-{
-  buildOptionList(params);
-}

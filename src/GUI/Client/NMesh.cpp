@@ -29,11 +29,3 @@ QString NMesh::getToolTip() const
 {
   return this->getComponentType();
 }
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void NMesh::getOptions(QList<NodeOption> & params) const
-{
-	buildOptionList(params);
-}

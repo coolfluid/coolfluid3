@@ -71,11 +71,6 @@ namespace Client {
     /// @return The name of the class.
     virtual QString getToolTip() const;
 
-    /// @brief Gives node options.
-    /// @param params Reference to a list where options will be put. The
-    /// list is cleared before first use.
-    virtual void getOptions(QList<NodeOption> & params) const;
-
   signals:
 
     /// @brief Signal emitted when a new message arrives.

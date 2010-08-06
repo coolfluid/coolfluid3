@@ -38,10 +38,3 @@ QString NBrowser::getToolTip() const
   return this->getComponentType();
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void NBrowser::getOptions(QList<NodeOption> & params) const
-{
-	buildOptionList(params);
-}

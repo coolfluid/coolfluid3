@@ -26,11 +26,3 @@ QString NMethod::getToolTip() const
 {
   return this->getComponentType();
 }
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void NMethod::getOptions(QList<NodeOption> & params) const
-{
-	buildOptionList(params);
-}

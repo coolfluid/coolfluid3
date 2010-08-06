@@ -119,12 +119,3 @@ QString NLog::getToolTip() const
 {
   return this->getComponentType();
 }
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void NLog::getOptions(QList<NodeOption> & params) const
-{
-  buildOptionList(params);
-}
-

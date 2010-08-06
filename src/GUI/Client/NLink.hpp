@@ -20,7 +20,7 @@ namespace Client {
 
   ////////////////////////////////////////////////////////////////////////////
 
-  /// @brief Client corresponding component for @c CF::Common::CLink.
+  /// @brief Client corresponding component for @c CF::Common::CLink.get
   class NLink :
       public QObject,
       public CNode
@@ -45,11 +45,6 @@ namespace Client {
     /// @brief Gives the text to put on a tool tip
     /// @return The name of the class.
     virtual QString getToolTip() const;
-
-    /// @brief Gives node options.
-    /// @param params Reference to a list where options will be put. The
-    /// list is cleared before first use.
-    virtual void getOptions(QList<NodeOption> & params) const;
 
     /// @brief Gives the target path
     /// @return Returns the target path.
