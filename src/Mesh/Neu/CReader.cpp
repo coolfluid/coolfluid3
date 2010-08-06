@@ -480,7 +480,7 @@ void CReader::read_boundaries(std::fstream& file)
 
       Uint global_element = ELEM-1;
       //Uint elementType = ETYPE;
-      Uint faceIdx = FACE-1;
+      Uint faceIdx = m_faces_neu_to_cf[ETYPE][FACE];
 
       CElements::Ptr tmp_region = m_global_to_tmp[global_element].first;
       Uint local_element = m_global_to_tmp[global_element].second;
