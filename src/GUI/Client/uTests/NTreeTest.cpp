@@ -13,7 +13,7 @@
 #include "GUI/Client/UnknownTypeException.hpp"
 
 #include "GUI/Client/uTests/ExceptionThrowHandler.hpp"
-#include "GUI/Client/uTests/TestNTree.hpp"
+#include "GUI/Client/uTests/NTreeTest.hpp"
 
 using namespace CF::Common;
 using namespace CF::GUI::Client;

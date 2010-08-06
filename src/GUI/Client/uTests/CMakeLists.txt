@@ -5,7 +5,7 @@ IF( QT_QTTEST_FOUND )
 
 SET(uTestClient_moc_classes
 
-  TestNTree.hpp
+  NTreeTest.hpp
 
   # include files to moc from the client
 
@@ -44,8 +44,8 @@ LIST( APPEND uTestClient_libs Common Network ${QT_LIBRARIES})
 LIST( APPEND uTestClient_files
   uTestClient.cpp
   ExceptionThrowHandler.hpp
-  TestNTree.hpp
-  TestNTree.cpp
+  NTreeTest.hpp
+  NTreeTest.cpp
 
   # include files from the client
 

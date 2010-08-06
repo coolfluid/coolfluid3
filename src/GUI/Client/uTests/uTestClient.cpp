@@ -1,7 +1,7 @@
 #include <QtCore>
 #include <QtTest>
 
-#include "GUI/Client/uTests/TestNTree.hpp"
+#include "GUI/Client/uTests/NTreeTest.hpp"
 
 using namespace CF::GUI::ClientTest;
 

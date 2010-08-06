@@ -1,4 +1,4 @@
- #
+#
 # Compile Qt classes (with slots/signals)
 #
 # source : http://wiki.qtcentre.org/index.php?title=Compiling_Qt4_apps_with_CMake
