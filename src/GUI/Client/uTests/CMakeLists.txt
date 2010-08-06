@@ -12,6 +12,7 @@ SET(uTestClient_moc_classes
 #  ../AddLinkDialog.hpp
   ../ClientCore.hpp
   ../ClientNetworkComm.hpp
+  ../CNode.hpp
 #  ../CommitDetailsDialog.hpp
 #  ../ConfirmCommitDialog.hpp
 #  ../ConnectionDialog.hpp
@@ -24,6 +25,7 @@ SET(uTestClient_moc_classes
   ../NMesh.hpp
   ../NMethod.hpp
   ../NTree.hpp
+  ../TreeNode.hpp
 #  ../OptionPanel.hpp
 #  ../RemoteFSBrowser.hpp
 #  ../RemoteSaveFile.hpp

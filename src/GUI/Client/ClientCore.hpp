@@ -37,36 +37,36 @@ namespace Client {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-	/// @brief Core of the client application.
-	
-	/// This class is a singleton and a reference to the unique instance can be 
-	/// obtained by calling @c #instance() function. This class is non-copyable. @n
-	/// This class is an interface between the client network layer and the rest
-	/// of the application. Because it is a singleton, the network layer is 
-	/// accessible from everywhere.
-	
+  /// @brief Core of the client application.
+
+  /// This class is a singleton and a reference to the unique instance can be
+  /// obtained by calling @c #instance() function. This class is non-copyable. @n
+  /// This class is an interface between the client network layer and the rest
+  /// of the application. Because it is a singleton, the network layer is
+  /// accessible from everywhere.
+
   class ClientCore :
       public QObject,
-	    public boost::noncopyable
+      public boost::noncopyable
   {
     Q_OBJECT
 
   public:
 
-		/// @brief Builds and gives the unique instance.
-		
-		/// @return Returns a reference to the unique object.
+    /// @brief Builds and gives the unique instance.
+
+    /// @return Returns a reference to the unique object.
     static ClientCore & instance();
 
-		/// @brief Sends a signal to the network layer
-		
-		/// @param signal The signal to send. Build the signal using @c #XmlOps and
-		/// @c #XmlParams classes.
+    /// @brief Sends a signal to the network layer
+
+    /// @param signal The signal to send. Build the signal using @c #XmlOps and
+    /// @c #XmlParams classes.
     void sendSignal(const CF::Common::XmlDoc & signal);
 
-		/// @brief Attempts to connect to a server.
-		
-		/// @param sshInfo Connection information
+    /// @brief Attempts to connect to a server.
+
+    /// @param sshInfo Connection information
     void connectToServer(const TSshInformation & sshInfo);
 
   private slots:
@@ -81,34 +81,34 @@ namespace Client {
     /// @c #timer and tries to connect to the server.
     void tryToConnect();
 
-		/// @brief Slot called whenever an error occurs during the server launching.
-		
-		/// Any error or warning is considered as critical and stops the launching
-		/// process immediately.
+    /// @brief Slot called whenever an error occurs during the server launching.
+
+    /// Any error or warning is considered as critical and stops the launching
+    /// process immediately.
     void sshError();
 
   private: // methods
 
-		/// @brief Constructor
+    /// @brief Constructor
     ClientCore();
 
-		/// @brief Destructor
+    /// @brief Destructor
     ~ClientCore();
 
   private: // data
 
-		/// @brief The network layer
+    /// @brief The network layer
     ClientNetworkComm * m_networkComm;
 
-		/// @brief Timer used on server launchin process.
-		
-		/// On timeout, the client attemps to connect to the server.
+    /// @brief Timer used on server launchin process.
+
+    /// On timeout, the client attemps to connect to the server.
     QTimer * m_timer;
 
-		/// @brief The launching process.
+    /// @brief The launching process.
     QProcess * m_process;
 
-		/// @brief The current connection information.
+    /// @brief The current connection information.
     TSshInformation m_commSshInfo;
 
   }; // class ClientCore

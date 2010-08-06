@@ -51,3 +51,11 @@ CNode::Ptr NRoot::getNodeFromRoot(CF::Uint number) const
 
   return it.get();
 }
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+bool NRoot::pathExists() const
+{
+  return false;
+}

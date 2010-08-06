@@ -24,10 +24,10 @@ NRoot::Ptr ClientRoot::getRoot()
   // if the function is called for the first time, we add the components
   if(!rootCreated)
   {
+    rootCreated = true;
     root->root()->add_component(log);
     root->root()->add_component(browser);
     root->root()->add_component(tree);
-    rootCreated = true;
 
     tree->setRoot(root);
   }

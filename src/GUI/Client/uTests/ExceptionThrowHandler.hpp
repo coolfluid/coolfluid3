@@ -10,9 +10,15 @@
 } \
 catch ( the_exception & e ) \
 { } \
-catch ( CF::Common::Exception & e) \
+catch ( CF::Common::Exception ex) \
 { \
-  QFAIL(#the_exception " expected but another CF exception was thrown.\n" e.what()); \
+  QFAIL(QString(#the_exception " expected but another CF exception was "\
+                "thrown.\n%1").arg(ex.what()).toStdString().c_str()); \
+} \
+catch ( std::exception stde) \
+{ \
+  QFAIL(QString(#the_exception " expected but a std exception was "\
+                "thrown.\n%1").arg(stde.what()).toStdString().c_str()); \
 } \
 catch ( ... ) \
 { \
@@ -25,9 +31,15 @@ catch ( ... ) \
 { \
   instr; \
 } \
-catch ( CF::Common::Exception & e) \
+catch ( CF::Common::Exception ex) \
 { \
-  QFAIL( " expected but another CF exception was thrown.\n" e.what()); \
+  QFAIL(QString("No exception expected but a CF exception was "\
+                "thrown.\n%1").arg(ex.what()).toStdString().c_str()); \
+} \
+catch ( std::exception stde) \
+{ \
+  QFAIL(QString("No exception expected but a std exception was "\
+                "thrown.\n%1").arg(stde.what()).toStdString().c_str()); \
 } \
 catch ( ... ) \
 { \

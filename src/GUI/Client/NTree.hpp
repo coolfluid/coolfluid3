@@ -32,6 +32,7 @@ namespace Client {
       public CNode
   {
     Q_OBJECT
+
   public:
 
     typedef boost::shared_ptr<NTree> Ptr;
@@ -232,6 +233,8 @@ namespace Client {
     /// returns @c false.
     bool isDebugModeEnabled() const;
 
+    void updateRootChildren();
+
     /// @name Signals
     /// @{
 
@@ -301,10 +304,8 @@ namespace Client {
     /// @param path Intermediate retrieved path
     void getNodePathRec(const QModelIndex & index, QString & path) const;
 
-
     /// regists all the signals declared in this class
     static void regist_signals ( Component* self ) {}
-
 
   }; // class NTree
 

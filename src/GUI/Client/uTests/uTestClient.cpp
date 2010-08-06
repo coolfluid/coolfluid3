@@ -12,5 +12,5 @@ int main(int argc, char * argv[])
 
   passed &= QTest::qExec(new NTreeTest(), argc, argv);
 
-  return passed ? 0 : 1;
+  return !passed;
 }

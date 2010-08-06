@@ -4,8 +4,9 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include <QDomDocument>
-#include <QList>
 #include <QHash>
+#include <QList>
+#include <QObject>
 
 #include "Common/Component.hpp"
 #include "Common/OptionT.hpp"
@@ -25,6 +26,25 @@ class QPoint;
 namespace CF {
 namespace GUI {
 namespace Client {
+
+  /////////////////////////////////////////////////////////////////////////
+
+  class CNodeNotifier
+    : public QObject
+  {
+    Q_OBJECT
+
+  public:
+
+    CNodeNotifier(QObject * parent = CFNULL);
+
+    void notifyChildCountChanged();
+
+  signals:
+
+    void childCountChanged();
+
+  }; // class CNodeNotifier
 
   ////////////////////////////////////////////////////////////////////////////
 
@@ -172,11 +192,27 @@ namespace Client {
       return boost::dynamic_pointer_cast<TYPE>(node);
     }
 
+    void connectNotifier(QObject * reciever, const char * signal, const char * slot);
+
+    /// @brief Adds a sub-node.
+
+    /// This method is a wrapper for @c Component::add_component(). It calls
+    /// the parent method, but emits calls
+    /// @c CNodeNotifier::notifyChildCountChanged() on success.@c
+    /// It is recommended to add child nodes using this method.
+    /// @param node Node to add.
+    /// @throw CF::Common::ValueExists Forwards to the upper level any
+    /// @c CF::Common::ValueExists exception thrown by
+    /// @c Component::add_component()
+    void addNode(CNode::Ptr node);
+
   protected:
 
     QMenu * m_contextMenu;
 
     CNode::Type m_type;
+
+    CNodeNotifier * m_notifier;
 
     void configure(CF::Common::XmlNode & node);
 

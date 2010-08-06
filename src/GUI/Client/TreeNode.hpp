@@ -3,6 +3,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
+#include <QObject>
+
 #include "Common/CF.hpp"
 #include "GUI/Client/CNode.hpp"
 
@@ -16,8 +18,11 @@ namespace Client {
 
   /// @brief Handles a CNode component in the tree.
 
-  class TreeNode
+  class TreeNode :
+      public QObject
   {
+    Q_OBJECT
+
   public:
 
     /// @brief Constructor.
@@ -78,6 +83,8 @@ namespace Client {
     /// @return Returns the child, or a @c CFNULL pointer if no child
     /// as such name.
     TreeNode * getChildByName(const QString & name);
+
+  public slots:
 
     /// @brief Updates the child internal list.
     /// The method must be called whenever children are added or removed

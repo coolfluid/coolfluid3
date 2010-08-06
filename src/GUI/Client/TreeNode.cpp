@@ -14,6 +14,8 @@ TreeNode::TreeNode(CNode::Ptr node, TreeNode * parent, int rowNumber)
   cf_assert(node.get() != CFNULL);
   cf_assert(rowNumber >= 0);
 
+  m_node->connectNotifier(this, SIGNAL(childCountChanged()), SLOT(updateChildList()));
+
   this->updateChildList();
 }
 
@@ -123,8 +125,6 @@ void TreeNode::updateChildList()
 
   while(!m_childNodes.isEmpty())
     delete m_childNodes.takeFirst();
-
-  m_childNodes.clear();
 
   if(m_node->checkType(CNode::ROOT_NODE))
     childCount = CNode::convertTo<NRoot>(m_node)->root()->get_child_count();

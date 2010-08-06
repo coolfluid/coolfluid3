@@ -19,9 +19,25 @@
 using namespace CF::Common;
 using namespace CF::GUI::Client;
 
+CNodeNotifier::CNodeNotifier(QObject * parent)
+  : QObject(parent)
+{ }
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void CNodeNotifier::notifyChildCountChanged()
+{
+  emit childCountChanged();
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 CNode::CNode(const QString & name, const QString & componentType, CNode::Type type)
   : Component(name.toStdString()),
     m_contextMenu(new QMenu("Node")),
+    m_notifier(new CNodeNotifier()),
     m_type(type),
     m_componentType(componentType)
 {
@@ -172,14 +188,20 @@ CNode::Ptr CNode::createFromXml(CF::Common::XmlNode & node)
         CNode::Ptr node = createFromXml(*child);
 
         if(node.get() != CFNULL)
-          rootNode->add_component(node);
+        {
+          if(rootNode->checkType(ROOT_NODE))
+            convertTo<NRoot>(rootNode)->root()->add_component(node);
+          else
+            rootNode->add_component(node);
+        }
       }
     }
     catch (ShouldNotBeHere & snbh)
     {
       ClientRoot::getLog()->addException(snbh.msg().c_str());
     }
-        child = child->next_sibling();
+
+    child = child->next_sibling();
   }
 
   return rootNode;
@@ -213,6 +235,35 @@ QMenu * CNode::getContextMenu() const
 void CNode::showContextMenu(const QPoint & pos) const
 {
   m_contextMenu->exec(pos);
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void CNode::connectNotifier(QObject * reciever, const char * signal, const char * slot)
+{
+  QObject::connect(m_notifier, signal, reciever, slot);
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void CNode::addNode(CNode::Ptr node)
+{
+  try
+  {
+    if(checkType(ROOT_NODE))
+      ((NRoot *)this)->root()->add_component(node);
+    else
+      this->add_component(node);
+
+    m_notifier->notifyChildCountChanged();
+  }
+  catch(CF::Common::ValueExists & ve)
+  {
+    throw;
+  }
+
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

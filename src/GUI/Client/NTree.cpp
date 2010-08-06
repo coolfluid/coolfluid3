@@ -220,12 +220,18 @@ QModelIndex NTree::getIndexByPath(const CPath & path) const
 
     for(it = comps.begin() ; it != comps.end() && treeNode != CFNULL ; it++)
     {
+      treeNode->updateChildList(); /// @todo this is ugly
+
       treeNode = treeNode->getChildByName(*it);
 
       if(treeNode != CFNULL)
         index = this->index(treeNode->getRowNumber(), 0, index);
       else
+      {
+        index = QModelIndex();
+        qDebug() << *it << "not found !!!";
         ClientRoot::getLog()->addError("index not found");
+      }
     }
   }
 
@@ -256,6 +262,16 @@ bool NTree::isDebugModeEnabled() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+void NTree::updateRootChildren()
+{
+  emit layoutAboutToBeChanged();
+  m_rootNode->updateChildList();
+  emit layoutChanged();
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 void NTree::modifyOptions(const QModelIndex & index,
                           const QHash<QString, QString> & options)
 {
@@ -270,7 +286,7 @@ void NTree::modifyOptions(const QModelIndex & index,
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QVariant NTree::data(const QModelIndex & index, int role) const
+QVariant  NTree::data(const QModelIndex & index, int role) const
 {
   QVariant data;
 
@@ -302,6 +318,7 @@ QVariant NTree::data(const QModelIndex & index, int role) const
       }
     }
   }
+
   return data;
 }
 
@@ -399,9 +416,9 @@ void NTree::showNodeMenu(const QModelIndex & index, const QPoint & pos) const
 
 void NTree::list_tree(XmlNode & node)
 {
-  NRoot::Ptr treeRoot = ClientRoot::getRoot();
-  CNode::Ptr rootNode = CNode::createFromXml(*node.first_node());
-  ComponentIterator<CNode> it = rootNode->begin<CNode>();
+  NRoot::Ptr treeRoot = CNode::convertTo<NRoot>(m_rootNode->getNode());
+  NRoot::Ptr rootNode = CNode::convertTo<NRoot>(CNode::createFromXml(*node.first_node()));
+  ComponentIterator<CNode> it = rootNode->root()->begin<CNode>();
 
   /// @todo delete old nodes
 
@@ -409,8 +426,8 @@ void NTree::list_tree(XmlNode & node)
   // rename the root
   //
   QModelIndex rootIndex = index(0, 0);
-  ClientRoot::getRoot()->rename(rootNode->name());
-  ClientRoot::getRoot()->root()->rename(rootNode->name());
+  treeRoot->rename(rootNode->root()->name());
+  treeRoot->root()->rename(rootNode->root()->name());
   emit dataChanged(rootIndex, rootIndex); // tell the view to update the node
 
   //
@@ -423,9 +440,10 @@ void NTree::list_tree(XmlNode & node)
   emit beginInsertRows(rootIndex, currentCount, currentCount + newCount - 1);
 
   // add the nodes
-  while(it != rootNode->end<CNode>())
+  while(it != rootNode->root()->end<CNode>())
   {
     treeRoot->root()->add_component(it.get());
+    ClientRoot::getLog()->addMessage(QString("Adding : %1").arg(it->name().c_str()));
     it++;
   }
 

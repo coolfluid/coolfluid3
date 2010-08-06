@@ -1,5 +1,6 @@
 #include <QtCore>
 #include <QtTest>
+#include <QtGui>
 
 #include <iostream>
 
@@ -22,10 +23,43 @@ Q_DECLARE_METATYPE(QModelIndex);
 
 ////////////////////////////////////////////////////////////////////////////
 
+MyNode::MyNode(const QString & name)
+  : CNode(name, "CGroupe", CNode::GROUP_NODE)
+{
+  BUILD_COMPONENT;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+QIcon MyNode::getIcon() const
+{
+  return QFileIconProvider().icon(QFileIconProvider::File);
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+QString MyNode::getToolTip() const
+{
+  return this->getComponentType();
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 NRoot::Ptr NTreeTest::makeTreeFromFile()
 {
-  boost::shared_ptr<XmlDoc> doc = XmlOps::parse(boost::filesystem::path("./tree.xml"));
-  return CNode::convertTo<NRoot>(CNode::createFromXml(*doc->first_node()));
+    static boost::shared_ptr<XmlDoc> doc = XmlOps::parse(boost::filesystem::path("./tree.xml"));
+
+    static NRoot::Ptr root = CNode::convertTo<NRoot>(CNode::createFromXml(*doc->first_node()));
+    return root;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void NTreeTest::initTestCase()
+{
+  // this is mainly to check whether the file is found (an exception is
+  // thrown if not)
+  GUI_CHECK_NO_THROW(makeTreeFromFile());
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -36,11 +70,11 @@ void NTreeTest::test_constructor()
   NTree t2(makeTreeFromFile());
 
   // the root must be the same as the client root
-  QVERIFY(t.getRoot().get() == ClientRoot::getRoot().get());
+  QCOMPARE(t.getRoot().get(), ClientRoot::getRoot().get());
+  QCOMPARE(makeTreeFromFile().get(), t2.getRoot().get());
 
-  // the root must be different from CFNULL and from the client root
+  // the root must be different from CFNULL
   QVERIFY(t2.getRoot().get() != CFNULL);
-  QVERIFY(t2.getRoot().get() != ClientRoot::getRoot().get());
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -53,12 +87,14 @@ void NTreeTest::test_setRoot()
 
   t.setRoot(newRoot);
 
-  // the root must be different from CFNULL and equal to the new root
-  QVERIFY(t.getRoot().get() != CFNULL);
-  QVERIFY(t.getRoot().get() == newRoot.get());
-
   // the tree must have emitted a layoutChanged signal exactly once
   QCOMPARE(spy.count(), 1);
+
+  // newRoot must be the tree root now
+  QCOMPARE(t.getRoot(), newRoot);
+
+  // the tree root should have 2 children now
+  QCOMPARE(t.getRoot()->root()->get_child_count(), 2);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -93,7 +129,23 @@ void NTreeTest::test_setCurrentIndex()
 
 void NTreeTest::test_getNodeParams()
 {
-  // find something
+  NTree t;
+  MyNode::Ptr node(new MyNode("UselessNode"));
+  QModelIndex index;
+  QList<NodeOption> options;
+  bool ok = false;
+
+  t.getRoot()->addNode(node);
+  index = t.getIndexByPath(node->full_path());
+
+  QVERIFY(index.isValid());
+
+  t.getNodeParams(index, options, &ok);
+
+  QVERIFY(ok);
+  QCOMPARE(options.count(), 2);
+
+  t.getRoot()->root()->remove_component(node->name());
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -148,7 +200,7 @@ void NTreeTest::test_getNodeByPath()
 
   logNode = t.getNodeByPath(CLIENT_LOG_PATH);
 
-  QVERIFY(logNode.get() != CFNULL);
+  QCOMPARE(logNode.get(), ClientRoot::getLog().get());
 
   // no risk of segfault if the test has failed (null pointer)
   QCOMPARE(logNode->full_path().string(), std::string(CLIENT_LOG_PATH));

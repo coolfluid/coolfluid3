@@ -1,8 +1,6 @@
 
 #include <QtCore>
 
-#include "rapidxml/rapidxml_print.hpp"
-
 #include "Common/BasicExceptions.hpp"
 
 #include "GUI/Client/ClientNetworkComm.hpp"

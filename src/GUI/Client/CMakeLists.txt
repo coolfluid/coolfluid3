@@ -5,10 +5,11 @@
 #
 
 # List of classes to "moc"
-SET(coolfluid-client_moc_classes
+LIST( APPEND coolfluid-client_moc_classes
   AddLinkDialog.hpp
   ClientCore.hpp
   ClientNetworkComm.hpp
+  CNode.hpp
   CommitDetailsDialog.hpp
   ConfirmCommitDialog.hpp
   ConnectionDialog.hpp
@@ -27,6 +28,7 @@ SET(coolfluid-client_moc_classes
   SelectFileDialog.hpp
   StatusModel.hpp
   StatusPanel.hpp
+  TreeNode.hpp
   TreeView.hpp
   TypeAndNameDialog.hpp)
 
@@ -34,7 +36,7 @@ SET(coolfluid-client_moc_classes
 QT4_WRAP_CPP(coolfluid-client_moc_files ${coolfluid-client_moc_classes})
 
 # Add the project files (including the moc files)
-LIST ( APPEND coolfluid-client_files
+LIST( APPEND coolfluid-client_files
   AboutCFDialog.cpp
   AboutCFDialog.hpp
   AddLinkDialog.cpp

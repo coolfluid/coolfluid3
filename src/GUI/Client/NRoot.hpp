@@ -64,6 +64,8 @@ namespace Client {
     /// @c false
     bool pathExists() const;
 
+    void addNodeToRoot(CNode::Ptr node);
+
   private :
 
     /// @brief The internal CRoot component
