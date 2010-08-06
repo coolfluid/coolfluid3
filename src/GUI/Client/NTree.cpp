@@ -17,7 +17,7 @@
 using namespace CF::Common;
 using namespace CF::GUI::Client;
 
-NTree::NTree(CNode::Ptr rootNode)
+NTree::NTree(NRoot::Ptr rootNode)
   : CNode(CLIENT_TREE, "NTree", CNode::TREE_NODE),
     m_advancedMode(false),
     m_debugModeEnabled(false)

@@ -1,5 +1,16 @@
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::GUI::Client"
+#include <QtCore>
+#include <QtTest>
 
-#include <boost/test/unit_test.hpp>
+#include "GUI/Client/uTests/TestNTree.hpp"
 
+using namespace CF::GUI::ClientTest;
+
+int main(int argc, char * argv[])
+{
+  QApplication app(argc, argv);
+  bool passed = true;
+
+  passed &= QTest::qExec(new NTreeTest(), argc, argv);
+
+  return passed ? 0 : 1;
+}

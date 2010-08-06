@@ -39,8 +39,9 @@ namespace Client {
 
     /// @brief Constructor.
 
+    /// If the root node is a @c CFNULL pointer
     /// @param rootNode The root node. May be @c CFNULL.
-    NTree(CF::GUI::Client::CNode::Ptr rootNode = CF::GUI::Client::CNode::Ptr());
+    NTree(CF::GUI::Client::NRoot::Ptr rootNode = CF::GUI::Client::NRoot::Ptr());
 
     /// @brief Replaces the current component tree.
 
@@ -49,6 +50,8 @@ namespace Client {
     /// @param node The new root. May be @c CFNULL.
     void setRoot(NRoot::Ptr node);
 
+    /// @brief Gives the current root
+    /// @return Returns the current root
     NRoot::Ptr getRoot() const;
 
     /// @brief Sets the current index.

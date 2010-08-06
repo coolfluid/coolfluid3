@@ -1,10 +1,13 @@
 ################################################################################
 # Test Client
 
+IF( QT_QTTEST_FOUND )
+
 SET(uTestClient_moc_classes
 
-  # include files to moc from the client
+  TestNTree.hpp
 
+  # include files to moc from the client
 
 #  ../AddLinkDialog.hpp
   ../ClientCore.hpp
@@ -33,9 +36,13 @@ SET(uTestClient_moc_classes
 
 QT4_WRAP_CPP(uTestClient_moc_files ${uTestClient_moc_classes})
 
+CONFIGURE_FILE ( tree.xml      ${CMAKE_CURRENT_BINARY_DIR}/tree.xml       @ONLY )
+
 LIST( APPEND uTestClient_libs Common Network ${QT_LIBRARIES})
 LIST( APPEND uTestClient_files
   uTestClient.cpp
+  ExceptionThrowHandler.hpp
+  TestNTree.hpp
   TestNTree.cpp
 
   # include files from the client
@@ -127,3 +134,4 @@ LIST( APPEND uTestClient_files
 
 CF_ADD_UNITTEST( uTestClient )
 
+ENDIF()
