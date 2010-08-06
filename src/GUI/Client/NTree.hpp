@@ -49,6 +49,8 @@ namespace Client {
     /// @param node The new root. May be @c CFNULL.
     void setRoot(NRoot::Ptr node);
 
+    NRoot::Ptr getRoot() const;
+
     /// @brief Sets the current index.
 
     /// If @c newIndex is valid and different from the current index, the

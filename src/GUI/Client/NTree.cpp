@@ -54,6 +54,14 @@ void NTree::setRoot(NRoot::Ptr rootNode)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+NRoot::Ptr NTree::getRoot() const
+{
+  return CNode::convertTo<NRoot>(m_rootNode->getNode());
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 void NTree::setCurrentIndex(const QModelIndex & newIndex)
 {
   if(!this->areFromSameNode(m_currentIndex, newIndex))
