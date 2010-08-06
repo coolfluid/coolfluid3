@@ -70,6 +70,18 @@ public:
     return elem_count;
   }
 
+  /// @return the number of elements stored in this region, including any subregions
+  template <typename Predicate>
+  Uint recursive_filtered_elements_count(const Predicate& pred) const
+  {
+    Uint elem_count = 0;
+    BOOST_FOREACH(const CElements& elements, recursive_filtered_range_typed<CElements>(*this,pred))
+    {
+      elem_count += elements.elements_count();
+    }
+    return elem_count;
+  }
+  
 private: // helper functions
 
   /// regists all the signals declared in this class

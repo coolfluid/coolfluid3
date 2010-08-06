@@ -73,8 +73,6 @@ BOOST_AUTO_TEST_CASE( Interpolation )
                      
   CInterpolator::Ptr interpolator = create_component_abstract_type<CInterpolator>("Honeycomb","interpolator");
   interpolator->interpolate_from_to(source,target);
-
-  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
