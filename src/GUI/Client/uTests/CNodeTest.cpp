@@ -177,11 +177,11 @@ void CNodeTest::test_createFromXml()
                   "  </SomeComponent>"
                   "</CGroup>"));
 
-  GUI_CHECK_NO_THROW(root = CNode::convertTo<NRoot>(CNode::createFromXml(*doc->first_node())));
-  GUI_CHECK_THROW(CNode::convertTo<NRoot>(CNode::createFromXml(*tree->first_node())), XmlError);
+  GUI_CHECK_NO_THROW(root = CNode::createFromXml(*doc->first_node())->convertTo<NRoot>());
+  GUI_CHECK_THROW(CNode::createFromXml(*tree->first_node())->convertTo<NRoot>(), XmlError);
 
   GUI_CHECK_NO_THROW(node = boost::dynamic_pointer_cast<CNode>(root->root()->get_child("Flow")));
-  GUI_CHECK_NO_THROW(group = CNode::convertTo<NGroup>(node));
+  GUI_CHECK_NO_THROW(group = node->convertTo<NGroup>());
 
   group->getOptions(optList);
 

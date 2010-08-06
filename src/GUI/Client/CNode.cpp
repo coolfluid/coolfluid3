@@ -202,7 +202,7 @@ CNode::Ptr CNode::createFromXml(CF::Common::XmlNode & node)
         if(node.get() != CFNULL)
         {
           if(rootNode->checkType(ROOT_NODE))
-            convertTo<NRoot>(rootNode)->root()->add_component(node);
+            rootNode->convertTo<NRoot>()->root()->add_component(node);
           else
             rootNode->add_component(node);
         }

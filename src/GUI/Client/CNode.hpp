@@ -189,9 +189,9 @@ namespace Client {
     void showContextMenu(const QPoint & pos) const;
 
     template<class TYPE>
-    static boost::shared_ptr<TYPE> convertTo(CNode::Ptr node)
+    boost::shared_ptr<TYPE> convertTo()
     {
-      return boost::dynamic_pointer_cast<TYPE>(node);
+      return boost::dynamic_pointer_cast<TYPE>(shared_from_this());
     }
 
     void connectNotifier(QObject * reciever, const char * signal, const char * slot);

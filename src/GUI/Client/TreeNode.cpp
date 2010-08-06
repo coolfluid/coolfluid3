@@ -44,7 +44,7 @@ TreeNode * TreeNode::getChild(int rowNumber)
     CNode::Ptr childNode;
 
     if(m_node->checkType(CNode::ROOT_NODE))
-      childNode = CNode::convertTo<NRoot>(m_node)->getNodeFromRoot(rowNumber);
+      childNode = m_node->convertTo<NRoot>()->getNodeFromRoot(rowNumber);
     else
       childNode = m_node->getNode(rowNumber);
 
@@ -90,7 +90,7 @@ int TreeNode::getRowNumber() const
 int TreeNode::getChildCount() const
 {
   if(m_node->checkType(CNode::ROOT_NODE))
-    return CNode::convertTo<NRoot>(m_node)->root()->get_child_count();
+    return m_node->convertTo<NRoot>()->root()->get_child_count();
 
   return m_node->get_child_count();
 }
@@ -127,7 +127,7 @@ void TreeNode::updateChildList()
     delete m_childNodes.takeFirst();
 
   if(m_node->checkType(CNode::ROOT_NODE))
-    childCount = CNode::convertTo<NRoot>(m_node)->root()->get_child_count();
+    childCount = m_node->convertTo<NRoot>()->root()->get_child_count();
   else
     childCount = m_node->get_child_count();
 

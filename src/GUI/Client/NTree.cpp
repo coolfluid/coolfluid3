@@ -56,7 +56,7 @@ void NTree::setRoot(NRoot::Ptr rootNode)
 
 NRoot::Ptr NTree::getRoot() const
 {
-  return CNode::convertTo<NRoot>(m_rootNode->getNode());
+  return m_rootNode->getNode()->convertTo<NRoot>();
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -153,11 +153,11 @@ bool NTree::haveSameData(const QModelIndex & left, const QModelIndex & right) co
 
     if(leftNode->checkType(CNode::LINK_NODE))
     {
-      sameData = CNode::convertTo<NLink>(leftNode)->getTargetPath().string() == QString("//%1").arg(rightNode->full_path().string().c_str()).toStdString();
+      sameData = leftNode->convertTo<NLink>()->getTargetPath().string() == QString("//%1").arg(rightNode->full_path().string().c_str()).toStdString();
     }
     else if(rightNode->checkType(CNode::LINK_NODE))
     {
-      sameData = CNode::convertTo<NLink>(rightNode)->getTargetPath().string() == QString("//%1").arg(leftNode->full_path().string().c_str()).toStdString();
+      sameData = rightNode->convertTo<NLink>()->getTargetPath().string() == QString("//%1").arg(leftNode->full_path().string().c_str()).toStdString();
     }
   }
 
@@ -186,7 +186,7 @@ CNode::Ptr NTree::getNodeByPath(const CPath & path) const
     for(it = comps.begin() ; it != comps.end() && node.get() != CFNULL ; it++)
     {
       if(node->checkType(CNode::ROOT_NODE))
-        node = boost::dynamic_pointer_cast<CNode>(CNode::convertTo<NRoot>(node)->root()->get_child(it->toStdString()));
+        node = boost::dynamic_pointer_cast<CNode>(node->convertTo<NRoot>()->root()->get_child(it->toStdString()));
       else
         node = boost::dynamic_pointer_cast<CNode>(node->get_child(it->toStdString()));
     }
@@ -416,8 +416,8 @@ void NTree::showNodeMenu(const QModelIndex & index, const QPoint & pos) const
 
 void NTree::list_tree(XmlNode & node)
 {
-  NRoot::Ptr treeRoot = CNode::convertTo<NRoot>(m_rootNode->getNode());
-  NRoot::Ptr rootNode = CNode::convertTo<NRoot>(CNode::createFromXml(*node.first_node()));
+  NRoot::Ptr treeRoot = m_rootNode->getNode()->convertTo<NRoot>();
+  NRoot::Ptr rootNode = CNode::createFromXml(*node.first_node())->convertTo<NRoot>();
   ComponentIterator<CNode> it = rootNode->root()->begin<CNode>();
 
   /// @todo delete old nodes
