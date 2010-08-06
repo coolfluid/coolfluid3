@@ -38,3 +38,7 @@ CF_ADD_APP ( multiarray )
 ###############################################################################
 ### test for using boost::progress_display with LogStream
 ADD_SUBDIRECTORY( LogWithProgressDisplay )
+
+###############################################################################
+### sandbox for CGAL functions
+ADD_SUBDIRECTORY( CGAL )
