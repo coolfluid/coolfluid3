@@ -6,6 +6,7 @@ IF( QT_QTTEST_FOUND )
 SET(uTestClient_moc_classes
 
   NTreeTest.hpp
+  CNodeTest.hpp
 
   # include files to moc from the client
 
@@ -46,6 +47,8 @@ LIST( APPEND uTestClient_files
   ExceptionThrowHandler.hpp
   NTreeTest.hpp
   NTreeTest.cpp
+  CNodeTest.hpp
+  CNodeTest.cpp
 
   # include files from the client
 
