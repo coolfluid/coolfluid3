@@ -1,4 +1,4 @@
-#
+ #
 # Compile Qt classes (with slots/signals)
 #
 # source : http://wiki.qtcentre.org/index.php?title=Compiling_Qt4_apps_with_CMake
@@ -123,3 +123,5 @@ LIST ( APPEND coolfluid-client_files
 LIST( APPEND coolfluid-client_libs Network ${QT_LIBRARIES})
 
 CF_ADD_APP(coolfluid-client)
+
+ADD_SUBDIRECTORY( uTests )
