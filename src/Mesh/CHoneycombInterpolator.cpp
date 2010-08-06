@@ -91,7 +91,7 @@ void CHoneycombInterpolator::create_honeycomb()
   
   
   Uint total_nb_elems=0;
-  BOOST_FOREACH(const CElements& elements, recursive_range_typed<CElements>(*m_source))
+  BOOST_FOREACH(const CElements& elements, recursive_filtered_range_typed<CElements>(*m_source,IsElementsVolume()))
   {
     const CArray& coordinates = elements.coordinates();
     Uint nb_nodes_per_element = coordinates.array().shape()[1];
@@ -121,7 +121,7 @@ void CHoneycombInterpolator::create_honeycomb()
     CFinfo << "("<<i<<","<<j<<","<<k<<") has " << m_honeycomb[i][j][k].size() << " elems" << CFendl;
     total += m_honeycomb[i][j][k].size();
   }
-  CFinfo << "total = " << total << " should be " << m_source->get_child_type<CRegion>("regions")->recursive_elements_count() << CFendl;
+  CFinfo << "total = " << total << CFendl;
 
   
 }

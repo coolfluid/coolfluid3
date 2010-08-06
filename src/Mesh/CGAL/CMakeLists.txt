@@ -1,4 +1,4 @@
-IF(CF_HAVE_CGAL)
+IF(CF_HAVE_CGAL AND src_mesh_CGAL_enabled)
 
 option(CF_STRIP_CGAL_COMPILE_FLAGS "Strip optimization and compile flags for CGAL, to avoid the long compilation" ON)
 

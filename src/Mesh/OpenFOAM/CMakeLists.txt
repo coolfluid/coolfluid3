@@ -11,13 +11,15 @@ if (src_Mesh_OpenFOAM_enabled)
 
   CF_ADD_LIBRARY( OpenFOAM )
   
+  add_subdirectory(uTests)
+  
 else()
 
   CF_MARK_NOT_ORPHAN (
     BlockMeshReader.hpp
     BlockMeshReader.cpp
+    uTests/uTestBlockMeshReader.cpp
   )
 
 endif()
 
-add_subdirectory(uTests)
