@@ -67,12 +67,12 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 {
   // build meshes
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
-  boost::filesystem::path fp_in ("quadtriag.neu");
+  boost::filesystem::path fp_in ("hextet.neu");
   CMesh::Ptr source = meshreader->create_mesh_from(fp_in);
   CMesh::Ptr target (new CMesh ("target"));
                      
   CInterpolator::Ptr interpolator = create_component_abstract_type<CInterpolator>("Honeycomb","interpolator");
-  interpolator->interpolate_from_to(source,target);
+  interpolator->construct_internal_storage(source,target);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

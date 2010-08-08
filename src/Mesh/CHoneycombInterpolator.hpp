@@ -33,11 +33,12 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "CHoneycombInterpolator"; }
   
-  static void defineConfigOptions ( CF::Common::OptionList& options ) {}
+  static void defineConfigOptions ( CF::Common::OptionList& options );
 
 private: // functions
 
-  virtual void interpolate_from_to(const CMesh::Ptr& source, const CMesh::Ptr& target);
+  virtual void construct_internal_storage(const CMesh::Ptr& source, const CMesh::Ptr& target);
+  virtual void interpolate_field_from_to(const CField::Ptr& source, const CField::Ptr& target);
   
   void create_honeycomb();
   
@@ -48,8 +49,10 @@ private: // helper functions
 
 private: // data
   
-  CMesh::Ptr m_source;
-  CMesh::Ptr m_target;
+  CMesh::Ptr m_source_mesh;
+  CMesh::Ptr m_target_mesh;
+  CField::Ptr m_source_field;
+  CField::Ptr m_target_field;
   
   Honeycomb m_honeycomb;
 

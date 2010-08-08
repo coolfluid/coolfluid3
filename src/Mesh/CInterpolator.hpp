@@ -10,6 +10,7 @@
 
 #include "Mesh/MeshAPI.hpp"
 #include "Mesh/CMesh.hpp"
+#include "Mesh/CField.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -55,7 +56,9 @@ public: // functions
 
   // --------- Direct access ---------
 
-  virtual void interpolate_from_to(const CMesh::Ptr& source, const CMesh::Ptr& target) = 0;
+  virtual void construct_internal_storage(const CMesh::Ptr& source, const CMesh::Ptr& target) = 0;
+  
+  virtual void interpolate_field_from_to(const CField::Ptr& source, const CField::Ptr& target) = 0;
 
 protected: // functions
 

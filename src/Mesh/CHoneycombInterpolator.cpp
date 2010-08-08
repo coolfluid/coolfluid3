@@ -2,8 +2,10 @@
 #include <boost/algorithm/string/erase.hpp>
 #include "Common/ObjectProvider.hpp"
 #include "Common/ComponentPredicates.hpp"
-#include "Mesh/CHoneycombInterpolator.hpp"
+#include "Common/OptionT.hpp"
 
+
+#include "Mesh/CHoneycombInterpolator.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CArray.hpp"
 #include "Mesh/CRegion.hpp"
@@ -31,15 +33,35 @@ CHoneycombInterpolator::CHoneycombInterpolator( const CName& name )
 {
   BUILD_COMPONENT;
 }
+  
+/////////////////////////////////////////////////////////////////////////////
+
+void CHoneycombInterpolator::defineConfigOptions ( CF::Common::OptionList& options )
+{
+  options.add< OptionT<Uint> >
+  ( "ApproximateNbElementsPerCell",
+    "The approximate amount of elements that are stored in a structured" ,
+    1 );   
+}  
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CHoneycombInterpolator::interpolate_from_to(const CMesh::Ptr& source, const CMesh::Ptr& target)
+void CHoneycombInterpolator::construct_internal_storage(const CMesh::Ptr& source, const CMesh::Ptr& target)
 {
-  m_source = source;
-  m_target = target;
+  if (m_source_mesh != source)
+  {
+    m_source_mesh = source;
+    create_honeycomb();
+  }
+  m_target_mesh = target;
 
-  create_honeycomb();
+}
+  
+/////////////////////////////////////////////////////////////////////////////
+  
+void CHoneycombInterpolator::interpolate_field_from_to(const CField::Ptr& source, const CField::Ptr& target)
+{
+  
 }
   
 //////////////////////////////////////////////////////////////////////
@@ -48,7 +70,7 @@ void CHoneycombInterpolator::create_honeycomb()
 {
   Uint dim = 0;
   std::set<const CArray*> all_coordinates;
-  BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*m_source))
+  BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*m_source_mesh))
   { 
     dim = std::max(elements.element_type().dimensionality() , dim);
     all_coordinates.insert(&elements.coordinates());
@@ -80,9 +102,9 @@ void CHoneycombInterpolator::create_honeycomb()
     V*=L[d];
   }
   
-  Uint nb_elems = m_source->get_child_type<CRegion>("regions")->recursive_filtered_elements_count(IsElementsVolume());
+  Uint nb_elems = m_source_mesh->get_child_type<CRegion>("regions")->recursive_filtered_elements_count(IsElementsVolume());
   Real V1 = V/nb_elems;
-  Real D1 = std::pow(V1,1./dim);
+  Real D1 = std::pow(V1,1./dim)*option("ApproximateNbElementsPerCell")->value<Uint>();
   
   
   std::vector<Uint> N(3);
@@ -106,7 +128,7 @@ void CHoneycombInterpolator::create_honeycomb()
   
   
   Uint total_nb_elems=0;
-  BOOST_FOREACH(const CElements& elements, recursive_filtered_range_typed<CElements>(*m_source,IsElementsVolume()))
+  BOOST_FOREACH(const CElements& elements, recursive_filtered_range_typed<CElements>(*m_source_mesh,IsElementsVolume()))
   {
     const CArray& coordinates = elements.coordinates();
     Uint nb_nodes_per_element = elements.connectivity_table().table().shape()[1];
@@ -128,15 +150,31 @@ void CHoneycombInterpolator::create_honeycomb()
   
   
   Uint total=0;
-  
-  for (Uint i=0; i<N[0]; ++i)
-  for (Uint j=0; j<N[1]; ++j)
-  //for (Uint k=0; k<N[2]; ++k)
+ 
+  switch (dim)
   {
-    Uint k=0;
-    CFinfo << "("<<i<<","<<j<<","<<k<<") has " << m_honeycomb[i][j][k].size() << " elems" << CFendl;
-    total += m_honeycomb[i][j][k].size();
+    case 2:
+      for (Uint i=0; i<N[0]; ++i)
+        for (Uint j=0; j<N[1]; ++j)
+        {
+          Uint k=0;
+          CFinfo << "("<<i<<","<<j<<") has " << m_honeycomb[i][j][k].size() << " elems" << CFendl;
+          total += m_honeycomb[i][j][k].size();
+        }
+      break;
+    case 3:
+      for (Uint i=0; i<N[0]; ++i)
+        for (Uint j=0; j<N[1]; ++j)
+          for (Uint k=0; k<N[2]; ++k)
+          {
+            CFinfo << "("<<i<<","<<j<<","<<k<<") has " << m_honeycomb[i][j][k].size() << " elems" << CFendl;
+            total += m_honeycomb[i][j][k].size();
+          }
+      break;
+    default:
+      break;
   }
+
   CFinfo << "total = " << total << " of " << nb_elems << CFendl;
 
   
