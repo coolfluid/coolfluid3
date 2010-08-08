@@ -24,7 +24,9 @@ public: // typedefs
 
 private: // typedefs
 
-  typedef boost::multi_array<std::vector<std::pair<const CElements*,Uint> >,3> Honeycomb;
+  typedef std::pair<const CElements*,Uint> Point;
+  typedef boost::multi_array<std::vector<Point> ,3> Honeycomb;
+  typedef std::vector<const Point*> Pointcloud;
   
 public: // functions  
   /// constructor
@@ -41,6 +43,8 @@ private: // functions
   virtual void interpolate_field_from_to(const CField::Ptr& source, const CField::Ptr& target);
   
   void create_honeycomb();
+  void find_pointcloud(const RealVector& coordinate);
+
   
 private: // helper functions
 
@@ -54,7 +58,15 @@ private: // data
   CField::Ptr m_source_field;
   CField::Ptr m_target_field;
   
+  Pointcloud m_pointcloud;
   Honeycomb m_honeycomb;
+  
+  Uint m_dim;
+  std::vector<RealVector> m_ranges;
+  std::vector<Uint> m_N;
+  std::vector<Real> m_D;
+  
+  Uint m_sufficient_nb_points;
 
 }; // end CHoneycombInterpolator
 

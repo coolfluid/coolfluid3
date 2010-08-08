@@ -29,7 +29,7 @@ aHoneyCombInterpolatorProvider ( "Honeycomb" );
 //////////////////////////////////////////////////////////////////////////////
 
 CHoneycombInterpolator::CHoneycombInterpolator( const CName& name )
-: CInterpolator(name)
+  : CInterpolator(name), m_dim(0), m_ranges(3), m_N(3), m_D(3), m_sufficient_nb_points(0)
 {
   BUILD_COMPONENT;
 }
@@ -54,6 +54,8 @@ void CHoneycombInterpolator::construct_internal_storage(const CMesh::Ptr& source
     create_honeycomb();
   }
   m_target_mesh = target;
+  
+  find_pointcloud(RealVector(5.5,3));
 
 }
   
@@ -68,19 +70,18 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField::Ptr& source
 
 void CHoneycombInterpolator::create_honeycomb()
 {
-  Uint dim = 0;
+  m_dim=0;
   std::set<const CArray*> all_coordinates;
   BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*m_source_mesh))
   { 
-    dim = std::max(elements.element_type().dimensionality() , dim);
+    m_dim = std::max(elements.element_type().dimensionality() , m_dim);
     all_coordinates.insert(&elements.coordinates());
   }
   
   std::vector<Real> L(3);
-  std::vector<RealVector> ranges(3);
-  for (Uint d=0; d<dim; ++d)
+  for (Uint d=0; d<m_dim; ++d)
   {
-    ranges[d].resize(2,0.0);
+    m_ranges[d].resize(2,0.0);
   }
       
   Real V=1;
@@ -88,43 +89,39 @@ void CHoneycombInterpolator::create_honeycomb()
   {
     BOOST_FOREACH(const CArray::ConstRow& node, coordinates->array())
     {
-      for (Uint d=0; d<dim; ++d)
+      for (Uint d=0; d<m_dim; ++d)
       {
-        ranges[d][0] = std::min(ranges[d][0],  node[d]);
-        ranges[d][1] = std::max(ranges[d][1],  node[d]);
+        m_ranges[d][0] = std::min(m_ranges[d][0],  node[d]);
+        m_ranges[d][1] = std::max(m_ranges[d][1],  node[d]);
       }
     }
   }
-  for (Uint d=0; d<dim; ++d)
+  for (Uint d=0; d<m_dim; ++d)
   {
-
-    L[d] = ranges[d][1] - ranges[d][0];
+    L[d] = m_ranges[d][1] - m_ranges[d][0];
     V*=L[d];
   }
   
   Uint nb_elems = m_source_mesh->get_child_type<CRegion>("regions")->recursive_filtered_elements_count(IsElementsVolume());
   Real V1 = V/nb_elems;
-  Real D1 = std::pow(V1,1./dim)*option("ApproximateNbElementsPerCell")->value<Uint>();
+  Real D1 = std::pow(V1,1./m_dim)*option("ApproximateNbElementsPerCell")->value<Uint>();
   
-  
-  std::vector<Uint> N(3);
-  std::vector<Real> D(3);
   std::vector<Uint> comb_idx(3);
-  for (Uint d=0; d<dim; ++d)
+  for (Uint d=0; d<m_dim; ++d)
   {
-    N[d] = std::ceil(L[d]/D1);
+    m_N[d] = std::ceil(L[d]/D1);
     //N[d] = std::ceil(ranges[d][1]-ranges[d][0])/2.;
-    D[d] = (L[d])/static_cast<Real>(N[d]);
+    m_D[d] = (L[d])/static_cast<Real>(m_N[d]);
   }
   
-  for (Uint d=0; d<dim; ++d)
+  for (Uint d=0; d<m_dim; ++d)
   {
-    CFinfo << "range["<<d<<"] :   L = " << L[d] << "    N = " << N[d] << "    D = " << D[d] << CFendl;
+    CFinfo << "range["<<d<<"] :   L = " << L[d] << "    N = " << m_N[d] << "    D = " << m_D[d] << CFendl;
   }
   CFinfo << "V = " << V << CFendl;
   
   // initialize the honeycomb
-  m_honeycomb.resize(boost::extents[std::max(Uint(1),N[0])][std::max(Uint(1),N[1])][std::max(Uint(1),N[2])]);
+  m_honeycomb.resize(boost::extents[std::max(Uint(1),m_N[0])][std::max(Uint(1),m_N[1])][std::max(Uint(1),m_N[2])]);
   
   
   Uint total_nb_elems=0;
@@ -135,13 +132,13 @@ void CHoneycombInterpolator::create_honeycomb()
     Uint elem_idx=0;
     BOOST_FOREACH(const CTable::ConstRow& elem, elements.connectivity_table().table())
     {
-      RealVector centroid(0.0,dim);
+      RealVector centroid(0.0,m_dim);
       BOOST_FOREACH(const Uint node_idx, elem)
         centroid += RealVector(coordinates[node_idx]);        
 
       centroid /= static_cast<Real>(nb_nodes_per_element);
-      for (Uint d=0; d<dim; ++d)
-        comb_idx[d]=std::min((Uint) std::floor( (centroid[d] - ranges[d][0])/D[d]), N[d]-1 );
+      for (Uint d=0; d<m_dim; ++d)
+        comb_idx[d]=std::min((Uint) std::floor( (centroid[d] - m_ranges[d][0])/m_D[d]), m_N[d]-1 );
       m_honeycomb[comb_idx[0]][comb_idx[1]][comb_idx[2]].push_back(std::make_pair<const CElements*,Uint>(&elements,elem_idx));
       elem_idx++;
     }
@@ -151,11 +148,11 @@ void CHoneycombInterpolator::create_honeycomb()
   
   Uint total=0;
  
-  switch (dim)
+  switch (m_dim)
   {
     case 2:
-      for (Uint i=0; i<N[0]; ++i)
-        for (Uint j=0; j<N[1]; ++j)
+      for (Uint i=0; i<m_N[0]; ++i)
+        for (Uint j=0; j<m_N[1]; ++j)
         {
           Uint k=0;
           CFinfo << "("<<i<<","<<j<<") has " << m_honeycomb[i][j][k].size() << " elems" << CFendl;
@@ -163,9 +160,9 @@ void CHoneycombInterpolator::create_honeycomb()
         }
       break;
     case 3:
-      for (Uint i=0; i<N[0]; ++i)
-        for (Uint j=0; j<N[1]; ++j)
-          for (Uint k=0; k<N[2]; ++k)
+      for (Uint i=0; i<m_N[0]; ++i)
+        for (Uint j=0; j<m_N[1]; ++j)
+          for (Uint k=0; k<m_N[2]; ++k)
           {
             CFinfo << "("<<i<<","<<j<<","<<k<<") has " << m_honeycomb[i][j][k].size() << " elems" << CFendl;
             total += m_honeycomb[i][j][k].size();
@@ -176,10 +173,80 @@ void CHoneycombInterpolator::create_honeycomb()
   }
 
   CFinfo << "total = " << total << " of " << nb_elems << CFendl;
-
   
+  m_sufficient_nb_points = static_cast<Uint>(std::pow(3.,(int)m_dim));
+
 }
 
+
+//////////////////////////////////////////////////////////////////////////////
+  
+void CHoneycombInterpolator::find_pointcloud(const RealVector& coordinate)
+{
+  CFinfo << "point " << coordinate << CFendl;
+  m_pointcloud.resize(0);
+  Uint r=1;
+  cf_assert(coordinate.size() == m_dim);
+  
+  std::vector<Uint> comb_idx(3);
+  std::vector<Uint> running_idx(3);
+  
+  for (Uint d=0; d<m_dim; ++d)
+    comb_idx[d] = std::min((Uint) std::floor( (coordinate[d] - m_ranges[d][0])/m_D[d]), m_N[d]-1 );
+  
+  Uint i(0), j(0), k(0);
+  
+  if (m_honeycomb[comb_idx[0]][comb_idx[1]][comb_idx[2]].size() <= m_sufficient_nb_points)
+    r=0;
+  
+  while (m_pointcloud.size() < m_sufficient_nb_points)
+  {
+    ++r;
+    switch (m_dim)
+    {
+      case 3:
+        for (i = std::max(comb_idx[0]-r,(Uint) 0); i <= std::min(comb_idx[0]+r,m_N[0]-1); ++i)
+        {
+          for (j = std::max(comb_idx[1]-r,(Uint) 0); j <= std::min(comb_idx[1]+r,m_N[1]-1); ++j)
+          {
+            for (k = std::max(comb_idx[2]-r,(Uint) 0); k <= std::min(comb_idx[2]+r,m_N[2]-1); ++k)
+            {
+              BOOST_FOREACH(const Point& point, m_honeycomb[i][j][k])
+              m_pointcloud.push_back(&point);
+              
+              CFinfo << "   ("<<i<<","<<j<<","<<k<<")" <<  CFendl;
+            }
+          }
+        }
+        break;
+      case 2:
+        for (i = std::max(comb_idx[0]-r,(Uint) 0); i <= std::min(comb_idx[0]+r,m_N[0]-1); ++i)
+        {
+          for (j = std::max(comb_idx[1]-r,(Uint) 0); j <= std::min(comb_idx[1]+r,m_N[1]-1); ++j)
+          {
+            BOOST_FOREACH(const Point& point, m_honeycomb[i][j][k])
+            m_pointcloud.push_back(&point);
+            CFinfo << "   ("<<i<<","<<j<<","<<k<<")" <<  CFendl;
+            
+          }
+        }
+        break;
+      case 1:
+        for (i = std::max(comb_idx[0]-r,(Uint) 0); i <= std::min(comb_idx[0]+r,m_N[0]-1); ++i)
+        {
+          BOOST_FOREACH(const Point& point, m_honeycomb[i][j][k])
+          m_pointcloud.push_back(&point);
+          CFinfo << "   ("<<i<<","<<j<<","<<k<<")" <<  CFendl;
+          
+        }
+        break;
+    }    
+  }
+    
+  CFinfo << m_pointcloud.size() << " points in the pointcloud " << CFendl;
+ 
+}
+  
 //////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
