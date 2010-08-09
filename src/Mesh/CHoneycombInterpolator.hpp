@@ -43,7 +43,8 @@ private: // functions
   virtual void interpolate_field_from_to(const CField::Ptr& source, const CField::Ptr& target);
   
   void create_honeycomb();
-  void find_pointcloud(const RealVector& coordinate);
+  void find_comb_idx(const RealVector& coordinate);
+  void find_pointcloud();
 
   
 private: // helper functions
@@ -65,6 +66,9 @@ private: // data
   std::vector<RealVector> m_ranges;
   std::vector<Uint> m_N;
   std::vector<Real> m_D;
+  std::vector<Uint> m_comb_idx;
+
+  Uint m_nb_elems;
   
   Uint m_sufficient_nb_points;
 

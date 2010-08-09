@@ -5,6 +5,10 @@
 
 #include "Common/ConfigObject.hpp"
 #include "Common/OptionT.hpp"
+#include "Common/OptionArray.hpp"
+#include "Common/OptionComponent.hpp"
+#include "Common/XmlHelpers.hpp"
+
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/ComponentPredicates.hpp"
@@ -72,6 +76,33 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   CMesh::Ptr target (new CMesh ("target"));
                      
   CInterpolator::Ptr interpolator = create_component_abstract_type<CInterpolator>("Honeycomb","interpolator");
+  
+  
+  std::string text = (
+                      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                      "<cfxml version=\"1.0\">"
+                      "  <signal>"
+                      "    <valuemap>"
+                      ""
+                      "      <value  key=\"ApproximateNbElementsPerCell\"> <unsigned> 2 </unsigned> </value>"
+                      ""
+                      "      <array key=\"Divisions\" type=\"unsigned\" size=\"3\" >"
+                      "        <e> 3 </e>"
+                      "        <e> 2 </e>"
+                      "        <e> 2 </e>"
+                      "      </array>"
+                      ""
+                      "    </valuemap>"
+                      "  </signal>"
+                      "</cfxml>"
+                      );
+  
+  boost::shared_ptr<XmlDoc> xml = XmlOps::parse(text);
+  XmlNode& doc   = *XmlOps::goto_doc_node(*xml.get());
+  XmlNode& frame = *XmlOps::first_frame_node( doc );
+  interpolator->configure( frame );
+  
+  
   interpolator->construct_internal_storage(source,target);
 }
 

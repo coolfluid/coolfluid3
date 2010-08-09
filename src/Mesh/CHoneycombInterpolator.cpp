@@ -3,6 +3,7 @@
 #include "Common/ObjectProvider.hpp"
 #include "Common/ComponentPredicates.hpp"
 #include "Common/OptionT.hpp"
+#include "Common/OptionArray.hpp"
 
 
 #include "Mesh/CHoneycombInterpolator.hpp"
@@ -29,7 +30,7 @@ aHoneyCombInterpolatorProvider ( "Honeycomb" );
 //////////////////////////////////////////////////////////////////////////////
 
 CHoneycombInterpolator::CHoneycombInterpolator( const CName& name )
-  : CInterpolator(name), m_dim(0), m_ranges(3), m_N(3), m_D(3), m_sufficient_nb_points(0)
+  : CInterpolator(name), m_dim(0), m_ranges(3), m_N(3), m_D(3), m_comb_idx(3), m_sufficient_nb_points(0)
 {
   BUILD_COMPONENT;
 }
@@ -41,7 +42,13 @@ void CHoneycombInterpolator::defineConfigOptions ( CF::Common::OptionList& optio
   options.add< OptionT<Uint> >
   ( "ApproximateNbElementsPerCell",
     "The approximate amount of elements that are stored in a structured" ,
-    1 );   
+    1 );
+  
+  std::vector<Uint> dummy;
+  options.add< OptionArray<Uint> >
+  ( "Divisions",
+    "The number of divisions in each direction of the comb" ,
+    dummy);   
 }  
 
 //////////////////////////////////////////////////////////////////////////////
@@ -55,7 +62,8 @@ void CHoneycombInterpolator::construct_internal_storage(const CMesh::Ptr& source
   }
   m_target_mesh = target;
   
-  find_pointcloud(RealVector(5.5,3));
+  find_comb_idx(RealVector(5.5,3));
+  find_pointcloud();
 
 }
   
@@ -86,33 +94,40 @@ void CHoneycombInterpolator::create_honeycomb()
       
   Real V=1;
   BOOST_FOREACH(const CArray* coordinates , all_coordinates)
-  {
     BOOST_FOREACH(const CArray::ConstRow& node, coordinates->array())
-    {
       for (Uint d=0; d<m_dim; ++d)
       {
         m_ranges[d][0] = std::min(m_ranges[d][0],  node[d]);
         m_ranges[d][1] = std::max(m_ranges[d][1],  node[d]);
       }
-    }
-  }
   for (Uint d=0; d<m_dim; ++d)
   {
     L[d] = m_ranges[d][1] - m_ranges[d][0];
     V*=L[d];
   }
   
-  Uint nb_elems = m_source_mesh->get_child_type<CRegion>("regions")->recursive_filtered_elements_count(IsElementsVolume());
-  Real V1 = V/nb_elems;
-  Real D1 = std::pow(V1,1./m_dim)*option("ApproximateNbElementsPerCell")->value<Uint>();
+  m_nb_elems = m_source_mesh->get_child_type<CRegion>("regions")->recursive_filtered_elements_count(IsElementsVolume());
   
-  std::vector<Uint> comb_idx(3);
-  for (Uint d=0; d<m_dim; ++d)
+  
+  if (option("Divisions")->value<std::vector<Uint> >().size() > 0)
   {
-    m_N[d] = (Uint) std::ceil(L[d]/D1);
-    //N[d] = std::ceil(ranges[d][1]-ranges[d][0])/2.;
-    m_D[d] = (L[d])/static_cast<Real>(m_N[d]);
+    m_N = option("Divisions")->value<std::vector<Uint> >();
+    for (Uint d=0; d<m_dim; ++d)
+      m_D[d] = (L[d])/static_cast<Real>(m_N[d]);
   }
+  else
+  {
+    Real V1 = V/m_nb_elems;
+    Real D1 = std::pow(V1,1./m_dim)*option("ApproximateNbElementsPerCell")->value<Uint>();
+    
+    for (Uint d=0; d<m_dim; ++d)
+    {
+      m_N[d] = (Uint) std::ceil(L[d]/D1);
+      m_D[d] = (L[d])/static_cast<Real>(m_N[d]);
+    }
+  }
+  
+
   
   for (Uint d=0; d<m_dim; ++d)
   {
@@ -138,8 +153,8 @@ void CHoneycombInterpolator::create_honeycomb()
 
       centroid /= static_cast<Real>(nb_nodes_per_element);
       for (Uint d=0; d<m_dim; ++d)
-        comb_idx[d]=std::min((Uint) std::floor( (centroid[d] - m_ranges[d][0])/m_D[d]), m_N[d]-1 );
-      m_honeycomb[comb_idx[0]][comb_idx[1]][comb_idx[2]].push_back(std::make_pair<const CElements*,Uint>(&elements,elem_idx));
+        m_comb_idx[d]=std::min((Uint) std::floor( (centroid[d] - m_ranges[d][0])/m_D[d]), m_N[d]-1 );
+      m_honeycomb[m_comb_idx[0]][m_comb_idx[1]][m_comb_idx[2]].push_back(std::make_pair<const CElements*,Uint>(&elements,elem_idx));
       elem_idx++;
     }
     total_nb_elems += elem_idx;
@@ -150,7 +165,7 @@ void CHoneycombInterpolator::create_honeycomb()
  
   switch (m_dim)
   {
-    case 2:
+    case DIM_2D:
       for (Uint i=0; i<m_N[0]; ++i)
         for (Uint j=0; j<m_N[1]; ++j)
         {
@@ -159,7 +174,7 @@ void CHoneycombInterpolator::create_honeycomb()
           total += m_honeycomb[i][j][k].size();
         }
       break;
-    case 3:
+    case DIM_3D:
       for (Uint i=0; i<m_N[0]; ++i)
         for (Uint j=0; j<m_N[1]; ++j)
           for (Uint k=0; k<m_N[2]; ++k)
@@ -172,7 +187,7 @@ void CHoneycombInterpolator::create_honeycomb()
       break;
   }
 
-  CFinfo << "total = " << total << " of " << nb_elems << CFendl;
+  CFinfo << "total = " << total << " of " << m_nb_elems << CFendl;
   
   m_sufficient_nb_points = static_cast<Uint>(std::pow(3.,(int)m_dim));
 
@@ -181,64 +196,69 @@ void CHoneycombInterpolator::create_honeycomb()
 
 //////////////////////////////////////////////////////////////////////////////
   
-void CHoneycombInterpolator::find_pointcloud(const RealVector& coordinate)
+void CHoneycombInterpolator::find_comb_idx(const RealVector& coordinate)
 {
   CFinfo << "point " << coordinate << CFflush;
-  m_pointcloud.resize(0);
-  Uint r=1;
   cf_assert(coordinate.size() == m_dim);
   
-  std::vector<Uint> comb_idx(3);
-  std::vector<Uint> running_idx(3);
-  
   for (Uint d=0; d<m_dim; ++d)
-    comb_idx[d] = std::min((Uint) std::floor( (coordinate[d] - m_ranges[d][0])/m_D[d]), m_N[d]-1 );
+    m_comb_idx[d] = std::min((Uint) std::floor( (coordinate[d] - m_ranges[d][0])/m_D[d]), m_N[d]-1 );
   
-  CFinfo << " should be in box ("<<comb_idx[0]<<","<<comb_idx[1]<<","<<comb_idx[2]<<")" << CFendl;
+  CFinfo << " should be in box ("<<m_comb_idx[0]<<","<<m_comb_idx[1]<<","<<m_comb_idx[2]<<")" << CFendl;
+
+}
+  
+//////////////////////////////////////////////////////////////////////////////
+
+void CHoneycombInterpolator::find_pointcloud()
+{
+  m_pointcloud.resize(0);
+  Uint r=1;
   int i(0), j(0), k(0);
+  int imin, jmin, kmin;
+  int imax, jmax, kmax;
   
-  if (m_honeycomb[comb_idx[0]][comb_idx[1]][comb_idx[2]].size() <= m_sufficient_nb_points)
+  if (m_honeycomb[m_comb_idx[0]][m_comb_idx[1]][m_comb_idx[2]].size() <= m_sufficient_nb_points)
     r=0;
   
-  Uint nb_elems = m_source_mesh->get_child_type<CRegion>("regions")->recursive_filtered_elements_count(IsElementsVolume());
-  CFinfo << "nb_elems = " << nb_elems << CFendl;
-  while (m_pointcloud.size() < m_sufficient_nb_points && m_pointcloud.size() < nb_elems)
+  while (m_pointcloud.size() < m_sufficient_nb_points && m_pointcloud.size() < m_nb_elems)
   {
     ++r;
-    CFinfo << "r = " << r << " prev size = " << m_pointcloud.size() <<  CFendl;
     m_pointcloud.resize(0);
 
     switch (m_dim)
     {
-      case 3:
-        for (i = std::max(int(comb_idx[0])-int(r), 0); i <= std::min(int(comb_idx[0])+int(r),int(m_N[0])-1); ++i){
-          for (j = std::max(int(comb_idx[1])-int(r), 0); j <= std::min(int(comb_idx[1])+int(r),int(m_N[1])-1); ++j){
-            for (k = std::max(int(comb_idx[2])-int(r), 0); k <= std::min(int(comb_idx[2])+int(r),int(m_N[2])-1); ++k)
+      case DIM_3D:
+        imin = std::max(int(m_comb_idx[0])-int(r), 0);  imax = std::min(int(m_comb_idx[0])+int(r),int(m_N[0])-1);
+        jmin = std::max(int(m_comb_idx[1])-int(r), 0);  jmax = std::min(int(m_comb_idx[1])+int(r),int(m_N[1])-1);
+        kmin = std::max(int(m_comb_idx[2])-int(r), 0);  kmax = std::min(int(m_comb_idx[2])+int(r),int(m_N[2])-1);
+        for (i = imin; i <= imax; ++i)
+          for (j = jmin; j <= jmax; ++j)
+            for (k = kmin; k <= kmax; ++k)
             {
               BOOST_FOREACH(const Point& point, m_honeycomb[i][j][k])
               m_pointcloud.push_back(&point);
               CFinfo << "   ("<<i<<","<<j<<","<<k<<")" <<  CFendl;
             }
-          }
-        }
         break;
-      case 2:
-        for (i = std::max(int(comb_idx[0])-int(r), 0); i <= std::min(int(comb_idx[0])+int(r),int(m_N[0])-1); ++i)
-          for (j = std::max(int(comb_idx[1])-int(r), 0); j <= std::min(int(comb_idx[1])+int(r),int(m_N[1])-1); ++j)
+      case DIM_2D:
+        imin = std::max(int(m_comb_idx[0])-int(r), 0);  imax = std::min(int(m_comb_idx[0])+int(r),int(m_N[0])-1);
+        jmin = std::max(int(m_comb_idx[1])-int(r), 0);  jmax = std::min(int(m_comb_idx[1])+int(r),int(m_N[1])-1);
+        for (i = imin; i <= imax; ++i)
+          for (j = jmin; j <= jmax; ++j)
           {
             BOOST_FOREACH(const Point& point, m_honeycomb[i][j][k])
             m_pointcloud.push_back(&point);
             CFinfo << "   ("<<i<<","<<j<<","<<k<<")" <<  CFendl;
-            
           }
         break;
-      case 1:
-        for (i = std::max(int(comb_idx[0])-int(r), 0); i <= std::min(int(comb_idx[0])+int(r),int(m_N[0])-1); ++i)
+      case DIM_1D:
+        imin = std::max(int(m_comb_idx[0])-int(r), 0);  imax = std::min(int(m_comb_idx[0])+int(r),int(m_N[0])-1);
+        for (i = imin; i <= imax; ++i)
         {
           BOOST_FOREACH(const Point& point, m_honeycomb[i][j][k])
           m_pointcloud.push_back(&point);
           CFinfo << "   ("<<i<<","<<j<<","<<k<<")" <<  CFendl;
-          
         }
         break;
     }    
