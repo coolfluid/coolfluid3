@@ -68,7 +68,7 @@ namespace Common {
   const char * OptionArray<int>::type_tag() const { return "integer"; };
 
   template<>
-  const char * OptionArray<CF::Uint>::type_tag() const { return "integer"; }
+  const char * OptionArray<CF::Uint>::type_tag() const { return "unsigned"; }
 
   template<>
   const char * OptionArray<CF::Real>::type_tag() const { return "real"; }
@@ -102,12 +102,12 @@ namespace Common {
                                        + "\' but got \'"
                                        +  std::string(type_tag()) + "\'"  );
 
-    std::vector<TYPE> val; // empty vector
+    value_type val; // empty vector
 
     for (XmlNode * itr = node.first_node(); itr ; itr = itr->next_sibling() )
     {
       TYPE vi;
-      xmlstr_to_value(*itr->first_node(),vi);
+      xmlstr_to_value(*itr,vi);
       val.push_back(vi);
     }
 

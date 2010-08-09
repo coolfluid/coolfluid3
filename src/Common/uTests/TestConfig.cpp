@@ -215,16 +215,16 @@ BOOST_AUTO_TEST_CASE( configure )
       "     <value key=\"mb\"> <bool> 1 </bool> </value>"
       "</valuemap>"
       ""
-//      "<array key=\"VecInt\" type=\"integer\" size=\"3\" >"
-//      "  <e> 2 </e>"
-//      "  <e> 8 </e>"
-//      "  <e> 9 </e>"
-//      "</array>"
-//      ""
-//      "<array key=\"VecStr\" type=\"string\" size=\"2\" >"
-//      "  <e> aabbcc </e>"
-//      "  <e> ddeeff </e>"
-//      "</array>"
+      "<array key=\"VecInt\" type=\"integer\" size=\"3\" >"
+      "  <e> 2 </e>"
+      "  <e> 8 </e>"
+      "  <e> 9 </e>"
+      "</array>"
+      ""
+      "<array key=\"VecStr\" type=\"string\" size=\"2\" >"
+      "  <e> aabbcc </e>"
+      "  <e> ddeeff </e>"
+      "</array>"
       ""
       "<valuemap key=\"OptComp\" >"
       "  <value key=\"name\"> <string> MyNewton </string> </value>"
@@ -260,6 +260,17 @@ BOOST_AUTO_TEST_CASE( configure )
 
   BOOST_CHECK_EQUAL ( pm->option("OptStr")->value<std::string>(), "lolo" );
   BOOST_CHECK_EQUAL ( pm->option("OptStr")->value_str(),          "lolo" );
+  
+  std::vector<int> vecint(3);
+  vecint[0]=2;
+  vecint[1]=8;
+  vecint[2]=9;
+  BOOST_CHECK ( pm->option("VecInt")->value<std::vector<int> >() ==  vecint);
+
+  std::vector<std::string> vecstr(2);
+  vecstr[0]="aabbcc";
+  vecstr[1]="ddeeff";
+  BOOST_CHECK ( pm->option("VecStr")->value<std::vector<std::string> >() ==  vecstr);
 
   CFinfo << "ending" << CFendl;
 
