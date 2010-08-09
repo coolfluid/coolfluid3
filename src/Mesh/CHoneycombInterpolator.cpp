@@ -109,7 +109,7 @@ void CHoneycombInterpolator::create_honeycomb()
   std::vector<Uint> comb_idx(3);
   for (Uint d=0; d<m_dim; ++d)
   {
-    m_N[d] = std::ceil(L[d]/D1);
+    m_N[d] = (Uint) std::ceil(L[d]/D1);
     //N[d] = std::ceil(ranges[d][1]-ranges[d][0])/2.;
     m_D[d] = (L[d])/static_cast<Real>(m_N[d]);
   }
