@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE( ReadFile )
   boost::filesystem::fstream file;
 
   // file should be in current working directory
-  boost::filesystem::path fp = boost::filesystem::path("blockMeshDict");
+  boost::filesystem::path fp = boost::filesystem::path("blockMesh.dict");
   if( boost::filesystem::exists(fp) )
   {
      file.open(fp,std::ios_base::in);

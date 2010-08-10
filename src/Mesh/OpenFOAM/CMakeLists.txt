@@ -1,5 +1,3 @@
-if (src_Mesh_OpenFOAM_enabled)
-
   LIST( APPEND OpenFOAM_files
     BlockMeshReader.hpp
     BlockMeshReader.cpp
@@ -11,15 +9,5 @@ if (src_Mesh_OpenFOAM_enabled)
 
   CF_ADD_LIBRARY( OpenFOAM )
   
-  add_subdirectory(uTests)
+  ADD_SUBDIRECTORY(uTests)
   
-else()
-
-  CF_MARK_NOT_ORPHAN (
-    BlockMeshReader.hpp
-    BlockMeshReader.cpp
-    uTests/uTestBlockMeshReader.cpp
-  )
-
-endif()
-

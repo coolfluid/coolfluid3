@@ -6,6 +6,8 @@ MACRO( CF_ADD_UNITTEST UTESTNAME )
 
   # option to build it or not
   OPTION( CF_BUILD_${UTESTNAME} "Build the ${UTESTNAME} testing application" ON )
+  # this option is advanced (does not appear in the cmake gui)
+  MARK_AS_ADVANCED(CF_BUILD_${UTESTNAME})
 
   # add to list of local apps
   LIST( APPEND CF_LOCAL_UTESTNAMES ${UTESTNAME} )
@@ -13,40 +15,53 @@ MACRO( CF_ADD_UNITTEST UTESTNAME )
 #   CF_DEBUG_VAR(CF_MODULES_LIST)
 
   # check if all required modules are present
-  SET ( ${UTESTNAME}_all_mods_pres ON )
-  FOREACH ( reqmod ${${UTESTNAME}_requires_mods} )
-    LIST ( FIND CF_MODULES_LIST ${reqmod} pos )
-    IF ( ${pos} EQUAL -1 )
-      SET ( ${UTESTNAME}_all_mods_pres OFF )
-      IF ( CF_BUILD_${UTESTNAME} )
+  SET( ${UTESTNAME}_all_mods_pres ON )
+  FOREACH( reqmod ${${UTESTNAME}_requires_mods} )
+    LIST( FIND CF_MODULES_LIST ${reqmod} pos )
+    IF( ${pos} EQUAL -1 )
+      SET( ${UTESTNAME}_all_mods_pres OFF )
+      IF( CF_BUILD_${UTESTNAME} )
           LOGVERBOSE ( "     \# utest [${UTESTNAME}] requires module [${reqmod}] which is not present")
       ENDIF()
     ENDIF()
   ENDFOREACH()
 
-  SET ( ${UTESTNAME}_dir ${CMAKE_CURRENT_SOURCE_DIR} )
+  # check that all CF dependencies will be compiling
+  # else skip this uTest
+  SET( ${UTESTNAME}_all_cfdeps_ok ON )
+  FOREACH( reqlib ${${UTESTNAME}_cflibs} )
+    IF( NOT ${reqlib}_will_compile )
+       SET( ${UTESTNAME}_all_cfdeps_ok OFF )
+    ENDIF()
+  ENDFOREACH()
+  MARK_AS_ADVANCED( ${UTESTNAME}_all_cfdeps_ok )
 
-  IF ( CF_BUILD_${UTESTNAME} AND ${UTESTNAME}_all_mods_pres)
-    SET ( ${UTESTNAME}_will_compile ON )
+  SET( ${UTESTNAME}_dir ${CMAKE_CURRENT_SOURCE_DIR} )
+
+  IF( CF_BUILD_${UTESTNAME} AND ${UTESTNAME}_all_cfdeps_ok AND ${UTESTNAME}_all_mods_pres)
+    SET( ${UTESTNAME}_will_compile ON )
   ELSE()
-    SET ( ${UTESTNAME}_will_compile OFF )
+    SET( ${UTESTNAME}_will_compile OFF )
   ENDIF()
 
-  LOGVERBOSE ("test_${UTESTNAME} = ${${UTESTNAME}_will_compile}")
+  LOGVERBOSE("test_${UTESTNAME} = ${${UTESTNAME}_will_compile}")
+
+  # separate the source files
+  # and remove them from the orphan list
+
+  CF_SEPARATE_SOURCES("${${UTESTNAME}_files}" ${UTESTNAME})
+
+  SOURCE_GROUP( Headers FILES ${${UTESTNAME}_headers} )
+  SOURCE_GROUP( Sources FILES ${${UTESTNAME}_sources} )
 
   # compile if selected and all required modules are present
-  IF (${UTESTNAME}_will_compile)
+  IF(${UTESTNAME}_will_compile)
 
     IF( DEFINED ${UTESTNAME}_includedirs )
       INCLUDE_DIRECTORIES(${${UTESTNAME}_includedirs})
     ENDIF()
 
-    CF_SEPARATE_SOURCES("${${UTESTNAME}_files}" ${UTESTNAME})
-
-    SOURCE_GROUP( Headers FILES ${${UTESTNAME}_headers} )
-    SOURCE_GROUP( Sources FILES ${${UTESTNAME}_sources} )
-
-    LOG ( " +++ TEST [${UTESTNAME}]" )
+    LOG( " +++ TEST [${UTESTNAME}]" )
 
     IF( DEFINED ${UTESTNAME}_moc_files )
       ADD_EXECUTABLE( ${UTESTNAME} ${${UTESTNAME}_sources} ${${UTESTNAME}_headers}  ${${UTESTNAME}_moc_files})
@@ -71,17 +86,17 @@ MACRO( CF_ADD_UNITTEST UTESTNAME )
 
     # add external dependency libraries if defined
     IF( DEFINED ${UTESTNAME}_libs )
-      TARGET_LINK_LIBRARIES ( ${UTESTNAME} ${${UTESTNAME}_libs} )
+      TARGET_LINK_LIBRARIES( ${UTESTNAME} ${${UTESTNAME}_libs} )
     ENDIF(DEFINED ${UTESTNAME}_libs)
 
     # profiling gloabally selected
     if( CF_ENABLE_PROFILING AND CF_PROFILER_IS_GOOGLE AND CF_BUILD_GooglePerfTools )
-      LIST ( APPEND ${UTESTNAME}_cflibs GooglePerfTools )
+      LIST( APPEND ${UTESTNAME}_cflibs GooglePerfTools )
     endif()
 
     # profiling selected for specific target
     if( ${UTESTNAME}_profile AND CF_BUILD_GooglePerfTools )
-      LIST ( APPEND ${UTESTNAME}_cflibs GooglePerfTools )
+      LIST( APPEND ${UTESTNAME}_cflibs GooglePerfTools )
     endif()
 
     # internal dependencies
@@ -94,9 +109,9 @@ MACRO( CF_ADD_UNITTEST UTESTNAME )
 
   ENDIF()
 
-  GET_TARGET_PROPERTY ( ${UTESTNAME}_P_SOURCES   ${UTESTNAME} SOURCES )
-  GET_TARGET_PROPERTY ( ${UTESTNAME}_LINK_FLAGS       ${UTESTNAME} LINK_FLAGS )
-  GET_TARGET_PROPERTY ( ${UTESTNAME}_TYPE             ${UTESTNAME} TYPE )
+  GET_TARGET_PROPERTY( ${UTESTNAME}_P_SOURCES   ${UTESTNAME} SOURCES )
+  GET_TARGET_PROPERTY( ${UTESTNAME}_LINK_FLAGS       ${UTESTNAME} LINK_FLAGS )
+  GET_TARGET_PROPERTY( ${UTESTNAME}_TYPE             ${UTESTNAME} TYPE )
 
   # log some info about the app
   LOGFILE("${UTESTNAME} : [${CF_BUILD_${UTESTNAME}}]")

@@ -76,14 +76,12 @@ CF_ADD_LIBRARY( Mesh )
 
 ADD_SUBDIRECTORY( Neu )           # Neutral file IO
 
-SET (src_Mesh_OpenFOAM_enabled TRUE)
 ADD_SUBDIRECTORY( OpenFOAM )      # OpenFOAM IO
 
 ADD_SUBDIRECTORY( Gmsh )          # Gmsh file IO
 
 ADD_SUBDIRECTORY( CGNS )          # CGNS file IO
 
-SET (src_Mesh_CGAL_enabled TRUE)
 ADD_SUBDIRECTORY( CGAL )
 
 ADD_SUBDIRECTORY( uTests )        # unit tests for Mesh

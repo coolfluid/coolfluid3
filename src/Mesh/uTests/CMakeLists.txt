@@ -33,11 +33,11 @@ add_custom_command(TARGET uTestMesh
 
 ################################################################################
 
-LIST ( APPEND uTestHexa3DLagrangeP1_libs SF )
-LIST ( APPEND uTestHexa3DLagrangeP1_files
+LIST( APPEND uTestHexa3DLagrangeP1_libs SF )
+LIST( APPEND uTestHexa3DLagrangeP1_files
   uTestHexa3DLagrangeP1.cpp )
 
-CF_ADD_UNITTEST ( uTestHexa3DLagrangeP1 )
+CF_ADD_UNITTEST( uTestHexa3DLagrangeP1 )
 
 ################################################################################
 
