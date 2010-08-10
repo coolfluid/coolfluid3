@@ -1,6 +1,6 @@
 ################################################################################
 
-if (src_Mesh_OpenFOAM_enabled)
+if(src_Mesh_OpenFOAM_enabled)
 
   LIST( APPEND uTestBlockMeshReader_libs OpenFOAM )
   LIST( APPEND uTestBlockMeshReader_files
@@ -22,7 +22,7 @@ if (src_Mesh_OpenFOAM_enabled)
   
 else()
 
-  CF_MARK_NOT_ORPHAN (
+  CF_MARK_NOT_ORPHAN(
     uTestBlockMeshReader.cpp
   )
 
