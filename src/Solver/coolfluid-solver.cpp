@@ -40,9 +40,9 @@ int main(int argc, char * argv[])
     
     boost::mpl::for_each< SF::Types >( ForAllRegions< ComputeVolumes > ( *mesh ) );
 
-    //  boost::mpl::for_each< P1::ElemTypes >( ForAllVolumes<  OperationMerge< ComputeVolumes, ComputeWallDistance > > ( *mesh ) );
+    boost::mpl::for_each< SF::Types >( ForAllRegions<  OperationMerge< ComputeVolumes, ComputeVolumes > > ( *mesh ) );
 
-    //  boost::mpl::for_each< P1::ElemTypes >( ForAllVolumes< ComputeWallDistance > ( *mesh ) );
+//     boost::mpl::for_each< SF::Types >( ForAllVolumes< ComputeVolumes > ( *mesh ) );
 
     //  boost::mpl::for_each< P1::ElemTypes >( ForAllSurfaces< ComputeNormals > ( *mesh ) );
 

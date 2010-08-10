@@ -34,6 +34,26 @@ struct ComputeVolumes
 
 };
 
+template < typename OP1, typename OP2 >
+struct OperationMerge
+{
+  CElements& elems;
+  OP1 m_op1;
+  OP2 m_op2;
+
+  OperationMerge( CElements& in_elems )
+    : elems(in_elems), m_op1(elems), m_op2(elems)
+  {
+  }
+
+  template < typename EType >
+  void execute (  Uint elem, std::vector<RealVector>& nodes )
+  {
+    m_op1.template execute<EType>( elem, nodes );
+    m_op2.template execute<EType>( elem, nodes );
+  }
+};
+
 } // Mesh
 } // CF
 
