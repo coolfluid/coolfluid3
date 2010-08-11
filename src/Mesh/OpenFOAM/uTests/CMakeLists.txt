@@ -1,6 +1,6 @@
 ################################################################################
 
-  LIST( APPEND uTestBlockMeshReader_libs OpenFOAM )
+  LIST( APPEND uTestBlockMeshReader_cflibs OpenFOAM )
   LIST( APPEND uTestBlockMeshReader_files
     uTestBlockMeshReader.cpp )
 
