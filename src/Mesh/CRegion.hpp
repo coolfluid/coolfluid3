@@ -89,11 +89,6 @@ private: // helper functions
 
 private: // data
 
-//  std::vector< CRegion::Ptr > m_subregions;
-//  boost::shared_ptr<CTable> m_connTable;
-
-//  boost::shared_ptr<CElements> m_elementType;
-
 }; // CRegion
 
 ////////////////////////////////////////////////////////////////////////////////
