@@ -12,7 +12,7 @@ include ( DetectBoost )
 
 ##############################################################################
 # Find Qt - defines QT_USE_FILE and QT_LIBRARIES used below
-find_package( Qt4 4.5.0 COMPONENTS QtCore QtGui QtXml QtNetwork QtTest )
+find_package( Qt4 4.6.0 COMPONENTS QtCore QtGui QtXml QtNetwork QtTest )
 
 ##############################################################################
 # find non essential packages
