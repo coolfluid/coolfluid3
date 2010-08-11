@@ -16,6 +16,7 @@
 #include "Mesh/CArray.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
+#include "Mesh/CMeshTransformer.hpp"
 
 #include "Mesh/CGNS/Shared.hpp"
 
@@ -397,9 +398,246 @@ maintain SIDS-standard ordering
 
 }
 
+//////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE ( WriteStructured )
+{
+  /*
+   dimension statements (note that tri-dimensional arrays
+   x,y,z must be dimensioned exactly as [N][17][21] (N>=9) 
+   for this particular case or else they will be written to 
+   the CGNS file incorrectly!  Other options are to use 1-D 
+   arrays, use dynamic memory, or pass index values to a 
+   subroutine and dimension exactly there):
+   */
+  double x1[2][3][5],y1[2][3][5],z1[2][3][5];
+  double x2[2][3][5],y2[2][3][5],z2[2][3][5];
+  int isize[3][3], ipnts[2][3];
+  int ni,nj,nk,i,j,k;
+  int index_file,icelldim,iphysdim,index_base;
+  int index_zone,index_coord,index_bc;
+  char basename[33],zonename[33];
+  int ilo,ihi,jlo,jhi,klo,khi;
+  
+  /* create gridpoints for simple example: */
+  ni=5;
+  nj=3;
+  nk=2;
+  for (k=0; k < nk; ++k)
+  {
+    for (j=0; j < nj; ++j)
+    {
+      for (i=0; i < ni; ++i)
+      {
+        x1[k][j][i]=i;
+        y1[k][j][i]=j;
+        z1[k][j][i]=k;
+        x2[k][j][i]=x1[k][j][i]+4.;
+        y2[k][j][i]=y1[k][j][i];
+        z2[k][j][i]=z1[k][j][i];
+      }
+    }
+  }
+  printf("\ncreated simple 3-D grid points (2 zones)");
+  
+  /*  WRITE X, Y, Z GRID POINTS TO CGNS FILE */
+  /*  open CGNS file for write */
+  cg_open("grid_str_2zones.cgns",CG_MODE_WRITE,&index_file);
+  /*  create base (user can give any name) */
+  strcpy(basename,"Base");
+  icelldim=3;
+  iphysdim=3;
+  cg_base_write(index_file,basename,icelldim,iphysdim,&index_base);
+  /*  vertex size */
+  isize[0][0]=5;
+  isize[0][1]=3;
+  isize[0][2]=2;
+  /*  cell size */
+  isize[1][0]=isize[0][0]-1;
+  isize[1][1]=isize[0][1]-1;
+  isize[1][2]=isize[0][2]-1;
+  /*  boundary vertex size (always zero for structured grids) */
+  isize[2][0]=0;
+  isize[2][1]=0;
+  isize[2][2]=0;
+  /*  define zone 1 name (user can give any name) */
+  strcpy(zonename,"Zone 1");
+  /*  create zone */
+  cg_zone_write(index_file,index_base,zonename,*isize,Structured,&index_zone);
+  /*  write grid coordinates (user must use SIDS-standard names here) */
+  cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateX",x1,&index_coord);
+  cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateY",y1,&index_coord);
+  cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateZ",z1,&index_coord);
+  
+  ilo=1;
+  ihi=isize[0][0];
+  jlo=1;
+  jhi=isize[0][1];
+  klo=1;
+  khi=isize[0][2];
+  /* write boundary conditions for ilo face, defining range first */
+  /* (user can give any name) */
+  /* lower point of range */
+  ipnts[0][0]=ilo;
+  ipnts[0][1]=jlo;
+  ipnts[0][2]=klo;
+  /* upper point of range */
+  ipnts[1][0]=ilo;
+  ipnts[1][1]=jhi;
+  ipnts[1][2]=khi;
+  cg_boco_write(index_file,index_base,index_zone,"Ilo",BCTunnelInflow,PointRange,2,ipnts[0],&index_bc);
+  /* write boundary conditions for ihi face, defining range first */
+  /* (user can give any name) */
+  /* lower point of range */
+  ipnts[0][0]=ihi;
+  ipnts[0][1]=jlo;
+  ipnts[0][2]=klo;
+  /* upper point of range */
+  ipnts[1][0]=ihi;
+  ipnts[1][1]=jhi;
+  ipnts[1][2]=khi;
+  cg_boco_write(index_file,index_base,index_zone,"Ihi",BCExtrapolate,PointRange,2,ipnts[0],&index_bc);
+  /* write boundary conditions for jlo face, defining range first */
+  /* (user can give any name) */
+  /* lower point of range */
+  ipnts[0][0]=ilo;
+  ipnts[0][1]=jlo;
+  ipnts[0][2]=klo;
+  /* upper point of range */
+  ipnts[1][0]=ihi;
+  ipnts[1][1]=jlo;
+  ipnts[1][2]=khi;
+  cg_boco_write(index_file,index_base,index_zone,"Jlo",BCWallInviscid,PointRange,2,ipnts[0],&index_bc);
+  /* write boundary conditions for jhi face, defining range first */
+  /* (user can give any name) */
+  /* lower point of range */
+  ipnts[0][0]=ilo;
+  ipnts[0][1]=jhi;
+  ipnts[0][2]=klo;
+  /* upper point of range */
+  ipnts[1][0]=ihi;
+  ipnts[1][1]=jhi;
+  ipnts[1][2]=khi;
+  cg_boco_write(index_file,index_base,index_zone,"Jhi",BCWallInviscid,PointRange,2,ipnts[0],&index_bc);
+  /* write boundary conditions for klo face, defining range first */
+  /* (user can give any name) */
+  /* lower point of range */
+  ipnts[0][0]=ilo;
+  ipnts[0][1]=jlo;
+  ipnts[0][2]=klo;
+  /* upper point of range */
+  ipnts[1][0]=ihi;
+  ipnts[1][1]=jhi;
+  ipnts[1][2]=klo;
+  cg_boco_write(index_file,index_base,index_zone,"Klo",BCWallInviscid,PointRange,2,ipnts[0],&index_bc);
+  /* write boundary conditions for khi face, defining range first */
+  /* (user can give any name) */
+  /* lower point of range */
+  ipnts[0][0]=ilo;
+  ipnts[0][1]=jlo;
+  ipnts[0][2]=khi;
+  /* upper point of range */
+  ipnts[1][0]=ihi;
+  ipnts[1][1]=jhi;
+  ipnts[1][2]=khi;
+  cg_boco_write(index_file,index_base,index_zone,"Khi",BCWallInviscid,PointRange,2,ipnts[0],&index_bc);
+  
+    
+  /*  define zone 2 name (user can give any name) */
+  strcpy(zonename,"Zone 2");
+  /*  create zone */
+  cg_zone_write(index_file,index_base,zonename,*isize,Structured,&index_zone);
+  /*  write grid coordinates (user must use SIDS-standard names here) */
+  cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateX",x2,&index_coord);
+  cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateY",y2,&index_coord);
+  cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateZ",z2,&index_coord);
+  
+  
+  ilo=1;
+  ihi=isize[0][0];
+  jlo=1;
+  jhi=isize[0][1];
+  klo=1;
+  khi=isize[0][2];
+  /* write boundary conditions for ilo face, defining range first */
+  /* (user can give any name) */
+  /* lower point of range */
+  ipnts[0][0]=ilo;
+  ipnts[0][1]=jlo;
+  ipnts[0][2]=klo;
+  /* upper point of range */
+  ipnts[1][0]=ilo;
+  ipnts[1][1]=jhi;
+  ipnts[1][2]=khi;
+  cg_boco_write(index_file,index_base,index_zone,"Ilo",BCTunnelInflow,PointRange,2,ipnts[0],&index_bc);
+  /* write boundary conditions for ihi face, defining range first */
+  /* (user can give any name) */
+  /* lower point of range */
+  ipnts[0][0]=ihi;
+  ipnts[0][1]=jlo;
+  ipnts[0][2]=klo;
+  /* upper point of range */
+  ipnts[1][0]=ihi;
+  ipnts[1][1]=jhi;
+  ipnts[1][2]=khi;
+  cg_boco_write(index_file,index_base,index_zone,"Ihi",BCExtrapolate,PointRange,2,ipnts[0],&index_bc);
+  /* write boundary conditions for jlo face, defining range first */
+  /* (user can give any name) */
+  /* lower point of range */
+  ipnts[0][0]=ilo;
+  ipnts[0][1]=jlo;
+  ipnts[0][2]=klo;
+  /* upper point of range */
+  ipnts[1][0]=ihi;
+  ipnts[1][1]=jlo;
+  ipnts[1][2]=khi;
+  cg_boco_write(index_file,index_base,index_zone,"Jlo",BCWallInviscid,PointRange,2,ipnts[0],&index_bc);
+  /* write boundary conditions for jhi face, defining range first */
+  /* (user can give any name) */
+  /* lower point of range */
+  ipnts[0][0]=ilo;
+  ipnts[0][1]=jhi;
+  ipnts[0][2]=klo;
+  /* upper point of range */
+  ipnts[1][0]=ihi;
+  ipnts[1][1]=jhi;
+  ipnts[1][2]=khi;
+  cg_boco_write(index_file,index_base,index_zone,"Jhi",BCWallInviscid,PointRange,2,ipnts[0],&index_bc);
+  /* write boundary conditions for klo face, defining range first */
+  /* (user can give any name) */
+  /* lower point of range */
+  ipnts[0][0]=ilo;
+  ipnts[0][1]=jlo;
+  ipnts[0][2]=klo;
+  /* upper point of range */
+  ipnts[1][0]=ihi;
+  ipnts[1][1]=jhi;
+  ipnts[1][2]=klo;
+  cg_boco_write(index_file,index_base,index_zone,"Klo",BCWallInviscid,PointRange,2,ipnts[0],&index_bc);
+  /* write boundary conditions for khi face, defining range first */
+  /* (user can give any name) */
+  /* lower point of range */
+  ipnts[0][0]=ilo;
+  ipnts[0][1]=jlo;
+  ipnts[0][2]=khi;
+  /* upper point of range */
+  ipnts[1][0]=ihi;
+  ipnts[1][1]=jhi;
+  ipnts[1][2]=khi;
+  cg_boco_write(index_file,index_base,index_zone,"Khi",BCWallInviscid,PointRange,2,ipnts[0],&index_bc);
+  /* close CGNS file */
+  cg_close(index_file);
+  printf("\nSuccessfully added BCs (PointRange) to file grid_c.cgns\n");
+  
+  /*  close CGNS file */
+  cg_close(index_file);
+  printf("\nSuccessfully wrote grid to file grid_str_2zones.cgns\n");
+  
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( ReadCGNS )
+BOOST_AUTO_TEST_CASE( ReadCGNS_Unstructured )
 {
 
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CGNS","meshreader");
@@ -431,8 +669,48 @@ BOOST_AUTO_TEST_CASE( ReadCGNS )
   gmsh_writer->write_from_to(mesh_from_neu,gmsh_out);
   
   
-  CFinfo << mesh_from_neu->tree() << CFendl;
+  //CFinfo << mesh_from_neu->tree() << CFendl;
 
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( ReadCGNS_Structured )
+{
+  
+  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CGNS","meshreader");
+  
+  // the file to read from
+  boost::filesystem::path fp_in ("grid_str_2zones.cgns");
+  
+  // the mesh to store in
+  CMesh::Ptr mesh = meshreader->create_mesh_from(fp_in);
+  
+  CFinfo << mesh->tree() << CFendl;
+  
+  CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("Info", "info");
+  info->transform(mesh);
+  // Write to Gmsh
+  boost::filesystem::path fp_out ("grid_str_2zones.msh");
+  CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
+  gmsh_writer->write_from_to(mesh,fp_out);
+  
+//  // Write to Neu
+//  boost::filesystem::path neu_out ("grid_str_2zones.neu");
+//  CMeshWriter::Ptr neu_writer = create_component_abstract_type<CMeshWriter>("Neu","meshwriter");
+//  neu_writer->write_from_to(mesh,neu_out);
+//  
+//  // Read from Neu
+//  CMeshReader::Ptr neu_reader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
+//  CMesh::Ptr mesh_from_neu = neu_reader->create_mesh_from(neu_out);
+//  
+//  // Write to Gmsh
+//  boost::filesystem::path gmsh_out ("cgns2neu2gmsh_str_2zondes.msh");
+//  gmsh_writer->write_from_to(mesh_from_neu,gmsh_out);
+  
+  
+  //CFinfo << mesh_from_neu->tree() << CFendl;
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////

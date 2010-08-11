@@ -51,11 +51,23 @@ private: // functions
   
   void read_base(CRegion& parent_region);
   void read_zone(CRegion& parent_region);
-  void read_coordinates(CRegion& parent_region);
+  void read_coordinates_unstructured(CRegion& parent_region);
+  void read_coordinates_structured(CRegion& parent_region);
   void read_section(CRegion& parent_region);
-  void read_boco(CRegion& parent_region);
+  void create_structured_elements(CRegion& parent_region);
+  void read_boco_unstructured(CRegion& parent_region);
+  void read_boco_structured(CRegion& parent_region);
   Uint get_total_nbElements();
 
+  Uint structured_node_idx(Uint i, Uint j, Uint k)
+  {
+    return i + j*m_zone.nbVertices[XX] + k*m_zone.nbVertices[XX]*m_zone.nbVertices[YY];
+  }
+  Uint structured_elm_idx(Uint i, Uint j, Uint k)
+  {
+    return i + j*(m_zone.nbVertices[XX]-1) + k*(m_zone.nbVertices[XX]-1)*(m_zone.nbVertices[YY]-1);
+  }  
+  
 private: // helper functions
 
   /// regists all the signals declared in this class
@@ -104,7 +116,8 @@ private: // data
     bool unique;
     std::string name;
     ZoneType_t type;
-    int nbVertices;
+    int total_nbVertices;
+    int nbVertices[3];
     int nbElements;
     int nbBdryVertices;
     int coord_dim;
@@ -113,6 +126,7 @@ private: // data
     int nbSections;
     int nbBocos;
     Uint total_nbElements;
+    //
   } m_zone;
 
   struct CGNS_Section

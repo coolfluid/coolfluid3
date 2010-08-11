@@ -10,7 +10,7 @@ namespace CGNS {
 
 Shared::Shared()
 {
-  m_supported_element_types.reserve(4);
+  m_supported_element_types.reserve(9);
   m_supported_element_types.push_back("Line1DLagrangeP1");
   m_supported_element_types.push_back("Line2DLagrangeP1");
   m_supported_element_types.push_back("Line3DLagrangeP1");
