@@ -71,7 +71,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   m_mesh = mesh;
 
   // Create basic region structure
-  CRegion::Ptr regions = m_mesh->create_region("regions");
+  CRegion& regions = m_mesh->create_region("regions");
 
   // open file in read mode
   CALL_CGNS(cg_open(fp.string().c_str(),CG_MODE_READ,&m_file.idx));
@@ -84,7 +84,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   
   // Read every base (usually there is only 1)
   for (m_base.idx = 1; m_base.idx<=m_file.nbBases; ++m_base.idx)
-    read_base(*regions);
+    read_base(regions);
 
   // close the CGNS file
   CALL_CGNS(cg_close(m_file.idx));

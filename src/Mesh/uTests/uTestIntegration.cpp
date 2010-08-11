@@ -33,7 +33,7 @@ namespace detail { // helper functions
 /// Create a rectangular, 2D, quad-only mesh. Uses a buffer for insertion
 void create_rectangle_buffered(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments) {
   const Uint dim = 2;
-  CArray& coordinates = *mesh.create_array("coordinates");
+  CArray& coordinates = *mesh.create_component_type<CArray>("coordinates");
   coordinates.initialize(dim);
   CArray::Buffer coordinatesBuffer = coordinates.create_buffer( (x_segments+1)*(y_segments+1) );
   const Real x_step = x_len / static_cast<Real>(x_segments);
@@ -48,7 +48,7 @@ void create_rectangle_buffered(CMesh& mesh, const Real x_len, const Real y_len, 
       coordinatesBuffer.add_row(coords);
     }
   }
-  CRegion& region = *mesh.create_region("region");
+  CRegion& region = mesh.create_region("region");
   CTable::Buffer connBuffer = region.create_elements("Quad2DLagrangeP1",boost::dynamic_pointer_cast<CArray>(coordinates.shared_from_this())).connectivity_table().create_buffer( x_segments*y_segments );
   std::vector<Uint> nodes(4);
   for(Uint j = 0; j < y_segments; ++j)
@@ -70,7 +70,7 @@ void create_rectangle_buffered(CMesh& mesh, const Real x_len, const Real y_len, 
 void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments) {
   CFinfo << "Creating 2D rectangular grid" << CFendl;
   const Uint dim = 2;
-  CArray& coordinates = *mesh.create_array("coordinates");
+  CArray& coordinates = *mesh.create_component_type<CArray>("coordinates");
   coordinates.initialize(dim);
   CArray::Array& coordArray = coordinates.array();
   coordArray.resize(boost::extents[(x_segments+1)*(y_segments+1)][dim]);
@@ -87,7 +87,7 @@ void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uin
       row[YY] = y;
     }
   }
-  CRegion& region = *mesh.create_region("region");
+  CRegion& region = mesh.create_region("region");
   CTable::ConnectivityTable& connArray = region.create_elements("Quad2DLagrangeP1",boost::dynamic_pointer_cast<CArray>(coordinates.shared_from_this())).connectivity_table().table();
   connArray.resize(boost::extents[(x_segments)*(y_segments)][4]);
   for(Uint j = 0; j < y_segments; ++j)

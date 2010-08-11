@@ -10,7 +10,8 @@ namespace CF {
 namespace Mesh {
 
   class CRegion;
-  class CArray;
+  class CField;
+  class ElementType;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -46,12 +47,14 @@ public: // functions
 
   /// create a region
   /// @param name of the region
-  boost::shared_ptr<CRegion> create_region ( const CName& name );
+  CRegion& create_region ( const CName& name );
   
-  /// create an array
-  /// @param name of the array
-  /// @todo allow templates
-  boost::shared_ptr<CArray> create_array ( const CName& name );
+  /// create a field
+  /// @param name of the field
+  CField& create_field( const CName& name , const CRegion& support);
+  CField& create_field_with_shapefunction( const CName& name , const CRegion& support, const ElementType& shape_function);
+  CField& create_field( const CName& name , const CField& other_field);
+  CField& create_field_with_shapefunction( const CName& name , const CField& other_field, const ElementType& shape_function);
 
 private: // helper functions
 
@@ -59,12 +62,6 @@ private: // helper functions
   static void regist_signals ( Component* self ) {}
 
 private:
-
-  /// storage of region pointers
-  std::vector< boost::shared_ptr<CRegion> > m_regions;
-  
-  /// storage of array pointers
-  std::vector< boost::shared_ptr<CArray> > m_arrays;
 
 };
 

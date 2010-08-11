@@ -42,9 +42,8 @@ CElements& CRegion::create_elements(const std::string& element_type_name, CArray
   {
     coordinates = get_child_type<CArray>("coordinates");
     if (!coordinates.get())
-      throw ValueNotFound(FromHere(), "Component with name 'coordinates' does not exist in component '"
-                                      + this->name() + "' with path ["
-                                      + m_path.string() + "]");
+      throw ValueNotFound(FromHere(), "Component with name 'coordinates' does not exist in component with path [" 
+                                      + this->full_path().string() + "]");
   }
   
   elements->initialize(element_type_name,coordinates);

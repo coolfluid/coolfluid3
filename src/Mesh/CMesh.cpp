@@ -4,7 +4,8 @@
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CArray.hpp"
+#include "Mesh/CField.hpp"
+#include "Mesh/ElementType.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -30,26 +31,41 @@ CMesh::~CMesh()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CRegion::Ptr CMesh::create_region( const CName& name )
+CRegion& CMesh::create_region( const CName& name )
 {
-  CRegion::Ptr new_region ( new CRegion(name) );
-
-  m_regions.push_back(new_region);
-
-  add_component ( new_region );
-  return new_region;
+  return *create_component_type<CRegion>(name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CArray::Ptr CMesh::create_array( const CName& name )
+CField& CMesh::create_field( const CName& name , const CRegion& support)
 {
-  CArray::Ptr new_array ( new CArray(name) );
+  CField::Ptr field = create_component_type<CField>(name);
+  return *field;
+}
 
-  m_arrays.push_back(new_array);
+////////////////////////////////////////////////////////////////////////////////
 
-  add_component ( new_array );
-  return new_array;
+CField& CMesh::create_field( const CName& name , const CField& other_field)
+{
+  CField::Ptr field = create_component_type<CField>(name);
+  return *field;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CField& CMesh::create_field_with_shapefunction( const CName& name , const CRegion& support, const ElementType& shape_function)
+{
+  CField::Ptr field = create_component_type<CField>(name);
+  return *field;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CField& CMesh::create_field_with_shapefunction( const CName& name , const CField& other_field, const ElementType& shape_function)
+{
+  CField::Ptr field = create_component_type<CField>(name);
+  return *field;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

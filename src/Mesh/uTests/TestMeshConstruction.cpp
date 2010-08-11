@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   CMesh::Ptr p_mesh = boost::dynamic_pointer_cast<CMesh>(mesh);
 
   // create regions
-  CRegion& superRegion = *p_mesh->create_region("superRegion");
+  CRegion& superRegion = p_mesh->create_region("superRegion");
   CArray& coordinates = superRegion.create_coordinates(dim);
   CElements& quadRegion = superRegion.create_elements("Quad2DLagrangeP1");
   CElements& triagRegion = superRegion.create_elements("Triag2DLagrangeP1");

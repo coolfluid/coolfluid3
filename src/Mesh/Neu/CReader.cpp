@@ -216,7 +216,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   m_mesh = mesh;
 
   // create a regions component inside the mesh
-  CRegion::Ptr regions = m_mesh->create_region("regions");
+  CRegion& regions = m_mesh->create_region("regions");
 
   // must be in correct order!
   read_headerData(file);
@@ -227,7 +227,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 
 
   // Remove regions with empty connectivity tables
-  remove_empty_element_regions(get_named_component_typed<CRegion>(*m_mesh,"regions"));
+  remove_empty_element_regions(regions);
 
   // Remove tmp region from component
   if (m_headerData.NGRPS != 1)
@@ -310,12 +310,12 @@ void CReader::read_coordinates(std::fstream& file)
 void CReader::read_connectivity(std::fstream& file)
 {
   // make temporary regions for each element type possible
-  CRegion::Ptr tmp = m_mesh->create_region("tmp");
+  CRegion& tmp = m_mesh->create_region("tmp");
 
   CArray::Ptr coordinates = m_mesh->get_child("regions")->get_child_type<CArray>("coordinates");
   
   std::map<std::string,boost::shared_ptr<CTable::Buffer> > buffer =
-      create_element_regions_with_buffermap(*tmp,coordinates,m_supported_types);
+      create_element_regions_with_buffermap(tmp,coordinates,m_supported_types);
 
   // skip next line
   std::string line;
@@ -357,7 +357,7 @@ void CReader::read_connectivity(std::fstream& file)
       cf_element[cf_idx]--;
     }
     Uint table_idx = buffer[etype_CF]->add_row(cf_element);
-    CElements::Ptr tmp_elements = get_named_component_typed_ptr<CElements>(*tmp, "elements_" + etype_CF);
+    CElements::Ptr tmp_elements = get_named_component_typed_ptr<CElements>(tmp, "elements_" + etype_CF);
     cf_assert(tmp_elements);
     m_global_to_tmp.push_back(Region_TableIndex_pair(tmp_elements,table_idx));
     
