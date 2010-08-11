@@ -21,8 +21,10 @@ using namespace CF::GUI::Client;
 
 
 OptionPanel::OptionPanel(QWidget * parent)
-  : QWidget(parent)
+  : QWidget(parent),
+    m_modelReset(false)
 {
+  NTree::Ptr tree = ClientRoot::getTree();
   // create the components
   m_scrollBasicOptions = new QScrollArea(this);
   m_scrollAdvancedOptions = new QScrollArea(this);
@@ -65,10 +67,10 @@ OptionPanel::OptionPanel(QWidget * parent)
   connect(m_btCheckChanges, SIGNAL(clicked()), this, SLOT(checkOptions()));
   connect(m_btResetOptions, SIGNAL(clicked()), this, SLOT(resetChanges()));
 
-  connect(ClientRoot::getTree().get(), SIGNAL(currentIndexChanged(const QModelIndex &, const QModelIndex &)),
+  connect(tree.get(), SIGNAL(currentIndexChanged(const QModelIndex &, const QModelIndex &)),
           this, SLOT(currentIndexChanged(const QModelIndex &, const QModelIndex &)));
 
-  connect(ClientRoot::getTree().get(), SIGNAL(advancedModeChanged(bool)),
+  connect(tree.get(), SIGNAL(advancedModeChanged(bool)),
           this, SLOT(advancedModeChanged(bool)));
 }
 

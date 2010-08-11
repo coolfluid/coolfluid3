@@ -416,17 +416,20 @@ void NTree::list_tree(XmlNode & node)
   NRoot::Ptr treeRoot = m_rootNode->getNode()->convertTo<NRoot>();
   NRoot::Ptr rootNode = CNode::createFromXml(*node.first_node())->convertTo<NRoot>();
   ComponentIterator<CNode> it = rootNode->root()->begin<CNode>();
+  CPath currentIndexPath;
 
-  emit layoutAboutToBeChanged();
+  if(m_currentIndex.isValid())
+  {
+    currentIndexPath = indexToTreeNode(m_currentIndex)->getNode()->full_path();
+  }
+
+  emit beginResetModel();
 
   //
   // rename the root
   //
-  QModelIndex rootIndex = index(0, 0);
-
   treeRoot->rename(rootNode->root()->name());
   treeRoot->root()->rename(rootNode->root()->name());
-  emit dataChanged(rootIndex, rootIndex); // tell the view to update the node
 
   //
   // remove old nodes
@@ -453,11 +456,16 @@ void NTree::list_tree(XmlNode & node)
   for( ; it != rootNode->root()->end<CNode>() ; it++)
     treeRoot->root()->add_component(it.get());
 
-  // child count has changed, ask the root TreeNode to update its internal data
+  // child count may have changed, ask the root TreeNode to update its internal data
   m_rootNode->updateChildList();
 
+  if(!currentIndexPath.string().empty())
+    m_currentIndex = this->getIndexByPath(currentIndexPath);
+
   // tell the view to update the whole thing
-  emit layoutChanged();
+  emit endResetModel();
+
+  emit currentIndexChanged(m_currentIndex, QModelIndex());
 }
 
 /*============================================================================

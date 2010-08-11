@@ -194,6 +194,8 @@ namespace Client {
 
     QSplitter * m_splitter;
 
+    bool m_modelReset;
+
     /// @brief Builds a Unix-like path string to the given node.
 
     /// The string begins with a slash followed by the root node name and
