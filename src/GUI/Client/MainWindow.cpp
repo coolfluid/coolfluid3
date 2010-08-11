@@ -124,6 +124,7 @@ void MainWindow::buildMenus()
   actionInfo.initDefaults();
   actionInfo.m_menu = m_mnuFile;
   actionInfo.m_text = "&Connect to server";
+  actionInfo.m_shortcut = tr("ctrl+C");
   actionInfo.m_slot = SLOT(connectToServer());
 
   m_actions[MainWindow::ACTION_CONNECT_TO_SERVER] = actionInfo.buildAction(this);
@@ -132,10 +133,21 @@ void MainWindow::buildMenus()
 
   actionInfo.initDefaults();
   actionInfo.m_menu = m_mnuFile;
-  actionInfo.m_text = "&Disconnect to server";
+  actionInfo.m_text = "&Disconnect from server";
+  actionInfo.m_shortcut = tr("ctrl+shift+x");
   actionInfo.m_slot = SLOT(disconnectFromServer());
 
   m_actions[MainWindow::ACTION_DISCONNECT_FROM_SERVER] = actionInfo.buildAction(this);
+
+  //-----------------------------------------------
+
+  actionInfo.initDefaults();
+  actionInfo.m_menu = m_mnuFile;
+  actionInfo.m_text = "&Shutdown the server";
+  actionInfo.m_shortcut = tr("ctrl+K");
+  actionInfo.m_slot = SLOT(disconnectFromServer());
+
+  m_actions[MainWindow::ACTION_SHUTDOWN_SERVER] = actionInfo.buildAction(this);
 
   //-----------------------------------------------
 
@@ -535,7 +547,7 @@ void MainWindow::connectToServer()
 
 void MainWindow::disconnectFromServer()
 {
-  ClientCore::instance().disconnectFromServer(false);
+  ClientCore::instance().disconnectFromServer(sender() == m_actions[ACTION_SHUTDOWN_SERVER]);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -562,4 +574,5 @@ void MainWindow::setConnectedState(bool connected)
 {
   m_actions[ACTION_CONNECT_TO_SERVER]->setEnabled(!connected);
   m_actions[ACTION_DISCONNECT_FROM_SERVER]->setEnabled(connected);
+  m_actions[ACTION_SHUTDOWN_SERVER]->setEnabled(connected);
 }

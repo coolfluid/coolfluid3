@@ -68,6 +68,7 @@ void ClientCore::connectToServer(const TSshInformation & sshInfo)
 void ClientCore::disconnectFromServer(bool shutdown)
 {
   m_networkComm->disconnectFromServer(shutdown);
+
   ClientRoot::getLog()->addMessage("Disconnected from the server.");
 
   emit disconnectedFromServer();

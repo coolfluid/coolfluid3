@@ -42,6 +42,7 @@ CCore::CCore()
           this,  SLOT(newClient(int)));
 
   regist_signal("read_dir", "Read directory content")->connect(boost::bind(&CCore::read_dir, this, _1));
+  regist_signal("shutdown", "Shutdown the server")->connect(boost::bind(&CCore::shutdown, this, _1));
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -259,7 +260,7 @@ Signal::return_t CCore::createDir(Signal::arg_t & node)
 
 Signal::return_t CCore::shutdown(Signal::arg_t & node)
 {
-  m_commServer->sendError(-1, "Cannot shudown");
+  qApp->exit(0);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

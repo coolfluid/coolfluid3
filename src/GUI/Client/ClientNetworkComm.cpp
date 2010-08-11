@@ -7,6 +7,7 @@
 #include "Common/CPath.hpp"
 #include "Common/StringOps.hpp"
 #include "Common/BasicExceptions.hpp"
+#include "Common/XmlHelpers.hpp"
 
 #include "GUI/Client/NLog.hpp"
 #include "GUI/Client/ClientRoot.hpp"
@@ -63,8 +64,16 @@ void ClientNetworkComm::connectToServer(const QString & hostAddress, quint16 por
 
 void ClientNetworkComm::disconnectFromServer(bool shutServer)
 {
-//  if(shutServer)
-//    this->buildAndSend(NETWORK_SHUTDOWN_SERVER);
+  if(shutServer)
+  {
+    boost::shared_ptr<XmlDoc> root = XmlOps::create_doc();
+
+    XmlNode * docNode = XmlOps::goto_doc_node(*root.get());
+
+    XmlOps::add_signal_frame(*docNode, "shutdown", CLIENT_CORE_PATH, SERVER_CORE_PATH);
+
+    this->send(*root.get());
+  }
 
   m_requestDisc = true;
   m_connectedToServer = false;
