@@ -38,10 +38,13 @@ GraphicalOption::GraphicalOption(OptionType::Type type)
 
     // if type valueWidget is a double
   case OptionType::TYPE_DOUBLE:
-    m_valueWidget = new QLineEdit();
-    //    this->valueWidget = new QDoubleSpinBox();
-    //    ((QDoubleSpinBox *) this->valueWidget)->setDecimals(4);
-    //    ((QDoubleSpinBox *) this->valueWidget)->setRange(-100., 100.);
+    {
+      QDoubleValidator * validator;
+      m_valueWidget = new QLineEdit();
+      validator = new QDoubleValidator(m_valueWidget);
+      validator->setNotation(QDoubleValidator::ScientificNotation);
+      ((QLineEdit *)m_valueWidget)->setValidator(validator);
+    }
     break;
 
     // if type valueWidget is an int
