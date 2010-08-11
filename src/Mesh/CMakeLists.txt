@@ -74,6 +74,8 @@ SET( Mesh_kernellib TRUE )
 
 CF_ADD_LIBRARY( Mesh )
 
+ADD_SUBDIRECTORY( SF )            # Shape functions
+
 ADD_SUBDIRECTORY( Neu )           # Neutral file IO
 
 ADD_SUBDIRECTORY( OpenFOAM )      # OpenFOAM IO
@@ -82,8 +84,10 @@ ADD_SUBDIRECTORY( Gmsh )          # Gmsh file IO
 
 ADD_SUBDIRECTORY( CGNS )          # CGNS file IO
 
-ADD_SUBDIRECTORY( CGAL )
+ADD_SUBDIRECTORY( CGAL )          # CGAL mesh generator
 
+
+# Must be after all the other subdirectories
 ADD_SUBDIRECTORY( uTests )        # unit tests for Mesh
 
-ADD_SUBDIRECTORY( SF )
+

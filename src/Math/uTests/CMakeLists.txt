@@ -1,6 +1,6 @@
 ################################################################################
 
-LIST ( APPEND uTestMath_libs Math )
+LIST ( APPEND uTestMath_cflibs Math )
 LIST ( APPEND uTestMath_files
   uTestMath.cpp
   TestVectorOperations.cpp

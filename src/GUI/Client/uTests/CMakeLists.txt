@@ -41,6 +41,7 @@ QT4_WRAP_CPP(uTestClient_moc_files ${uTestClient_moc_classes})
 
 CONFIGURE_FILE ( tree.xml      ${CMAKE_CURRENT_BINARY_DIR}/tree.xml       @ONLY )
 
+LIST( APPEND uTestClient_cflibs Common Network)
 LIST( APPEND uTestClient_libs Common Network ${QT_LIBRARIES})
 LIST( APPEND uTestClient_files
   uTestClient.cpp
