@@ -245,6 +245,10 @@ namespace Client {
 
     /// @} END Signals
 
+  public slots:
+
+    void clearTree();
+
   signals:
 
     /// @brief Signal emitted when the current index has changed.

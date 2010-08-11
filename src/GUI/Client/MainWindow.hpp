@@ -54,6 +54,8 @@ namespace Client {
     {
       ACTION_CONNECT_TO_SERVER,
 
+      ACTION_DISCONNECT_FROM_SERVER,
+
       ACTION_TOGGLE_DEBUG_MODE,
 
       ACTION_TOGGLE_ADVANCED_MODE,
@@ -69,7 +71,7 @@ namespace Client {
       ACTION_ABOUT_QT
     };
 
-    protected:
+  protected:
     /// @brief Overrides @c QWidget::closeEvent().
 
     /// This method is called when the user closes the window. If a network
@@ -77,7 +79,7 @@ namespace Client {
     /// @param event Close event to manage the window closing.
     virtual void closeEvent(QCloseEvent * event);
 
-    public:
+  public:
 
     /// @brief Constructor.
 
@@ -90,7 +92,7 @@ namespace Client {
     /// Frees the allocated memory.
     ~MainWindow();
 
-    private slots:
+  private slots:
 
     /// @brief Slot called when the user wants to quit the application.
 
@@ -98,7 +100,7 @@ namespace Client {
     void quit();
 
     /// @brief Slot called when the user wants to get/update the tree.
-    void getTree();
+    void updateTree();
 
     /// @brief Slot called when the user wants to to toggle
     /// basic/advanced mode.
@@ -120,7 +122,13 @@ namespace Client {
 
     void connectToServer();
 
-    private:
+    void disconnectFromServer();
+
+    void connectedToServer();
+
+    void disconnectedFromServer();
+
+  private:
 
     /// @brief Indicates that the user wants to disconnect from the server.
 
@@ -247,6 +255,8 @@ namespace Client {
     /// @brief Saves commit information to a file if commit failed on
     /// application exit.
     void errorCommitOnExit();
+
+    void setConnectedState(bool connected);
 
   }; // class MainWindow
 

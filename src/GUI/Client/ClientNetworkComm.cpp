@@ -92,7 +92,7 @@ int ClientNetworkComm::send(const QString & frame) const
   QByteArray block;
   QDataStream out(&block, QIODevice::WriteOnly);
 
-  out.setVersion(QDataStream::Qt_4_5); // QDataStream version
+  out.setVersion(QDataStream::Qt_4_6); // QDataStream version
   out << (quint32)0;    // reserve 32 bits for the frame data size
   out << frame;
   out.device()->seek(0);  // go back to the beginning of the frame
@@ -125,7 +125,7 @@ bool ClientNetworkComm::send(const XmlDoc & signal)
 
 //      XmlOps::xml_to_string(signal, str);
 
-//      out.setVersion(QDataStream::Qt_4_5); // QDataStream version
+//      out.setVersion(QDataStream::Qt_4_6); // QDataStream version
 //      out << (quint32)0;    // reserve 32 bits for the frame data size
 //      out << str.c_str();
 //      out.device()->seek(0);  // go back to the beginning of the frame
@@ -167,7 +167,7 @@ void ClientNetworkComm::newData()
 {
   QString frame;
   QDataStream in(m_socket);
-  in.setVersion(QDataStream::Qt_4_5); // QDataStream version
+  in.setVersion(QDataStream::Qt_4_6); // QDataStream version
 
   // if the server sends two messages very close in time, it is possible that
   // the client never gets the second one.

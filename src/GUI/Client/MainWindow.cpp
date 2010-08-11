@@ -73,30 +73,16 @@ MainWindow::MainWindow()
 
   this->buildMenus();
 
-
-  ////////////////////////////////////////////////////////////////////////
-
-  // connect useful signals to slots
-//  connectKernel(addNode(const QString &));
-//  connectKernel(renameNode(const QDomNode &, const QString &));
-//  connectKernel(deleteNode(const QDomNode &));
-//  connectKernel(commitChanges(const QDomDocument &));
-//  connectKernel(disconnectSimulation(const QModelIndex &, bool));
-//  connectKernel(runSimulation(const QModelIndex &));
-//  connectKernel(stopSimulation(const QModelIndex &));
-//  connectKernel(activateSimulation(const QModelIndex &));
-//  connectKernel(deactivateSimulation(const QModelIndex &));
-//  connectKernel(updateTree(const QModelIndex &));
-
-//  connectKernel(addLink(const QModelIndex &, const QString &,
-//                        const QModelIndex &));
-
-  ////////////////////////////////////////////////////////////////////////
-
-//  connectSig(m_treeView, openSimulation(const QModelIndex &));
-
   connect(ClientRoot::getLog().get(), SIGNAL(newException(const QString &)),
           this, SLOT(newException(const QString &)));
+
+  connect(&ClientCore::instance(), SIGNAL(connectedToServer()),
+          this, SLOT(connectedToServer()));
+
+  connect(&ClientCore::instance(), SIGNAL(disconnectedFromServer()),
+          this, SLOT(disconnectedFromServer()));
+
+  this->setConnectedState(false);
 
   ClientRoot::getLog()->addMessage("Client successfully launched.");
 }
@@ -140,10 +126,18 @@ void MainWindow::buildMenus()
   actionInfo.m_text = "&Connect to server";
   actionInfo.m_slot = SLOT(connectToServer());
 
-  m_actions[MainWindow::ACTION_TOGGLE_ADVANCED_MODE] = actionInfo.buildAction(this);
+  m_actions[MainWindow::ACTION_CONNECT_TO_SERVER] = actionInfo.buildAction(this);
 
   //-----------------------------------------------
 
+  actionInfo.initDefaults();
+  actionInfo.m_menu = m_mnuFile;
+  actionInfo.m_text = "&Disconnect to server";
+  actionInfo.m_slot = SLOT(disconnectFromServer());
+
+  m_actions[MainWindow::ACTION_DISCONNECT_FROM_SERVER] = actionInfo.buildAction(this);
+
+  //-----------------------------------------------
 
   m_actions[MainWindow::ACTION_CLEAR_LOG] = tmpAtion;
   //  connect(tmpAtion, SIGNAL(triggered()), this->logList, SLOT(clearLog()));
@@ -441,67 +435,6 @@ void MainWindow::closeEvent(QCloseEvent * event)
   }
 
   return;
-
-  /// @todo adapt the following code to work with multiple simulations
-  /*************************************************
-
-   CloseConfirmationDialog ccd(this);
-
-   infos = CloseConfirmationInfos();
-
-   this->optionPanel->getModifiedOptions(this->infos.m_commitDetails);
-
-   // if we are still connected to the server
-   if(m_connectedToServer)
-   ccd.addConfirmation(CLOSE_SHUT_DOWN);
-
-   // if the current configuration has been modified but not saved...
-   if(this->configModified)
-   ccd.addConfirmation(CLOSE_SAVE_FILE);
-
-   // if modified haven't been committed
-   if(this->optionPanel->isModified())
-   {
-   ccd.addConfirmation(CLOSE_COMMIT);
-
-   // if the configuration hasn't been modified, it will be
-   if(!this->configModified)
-   ccd.addConfirmation(CLOSE_SAVE_FILE, true);
-   }
-
-   if(ccd.show(this->infos))
-   {
-   this->askedInfos = true;
-
-   if(!this->infos.commitRequested && this->infos.filename.isEmpty())
-   {
-   //    this->communication->disconnectFromServer(this->infos.shutdownServerRequested);
-   event->accept(); // we accept the event: the window will close
-   }
-
-   else
-   {
-   event->ignore(); // we reject the event: the window will not close (for now!)
-   this->waitingToSave = !infos.filename.isEmpty();
-   this->waitingToExit = true;
-   this->shutdownServerOnExit = infos.shutdownServerRequested;
-
-   if(infos.commitRequested)
-   this->optionPanel->commit();
-
-   else
-   {
-   this->saveFromInfos();
-   //     this->communication->disconnectFromServer(this->infos.shutdownServerRequested);
-   event->accept(); // we accept the event: the window will close
-   }
-   }
-   }
-
-   else
-   event->ignore(); // we reject the event: the window will not close
-
-   *********************************************************/
 }
 
 /****************************************************************************
@@ -518,7 +451,7 @@ void MainWindow::quit()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void MainWindow::getTree()
+void MainWindow::updateTree()
 {
   //  this->communication->sendGetTree();
 }
@@ -530,7 +463,6 @@ void MainWindow::toggleAdvanced()
 {
   bool advanced = m_actions[ ACTION_TOGGLE_ADVANCED_MODE ]->isChecked();
   ClientRoot::getTree()->setAdvancedMode(advanced);
-//  m_treeModel->setAdvancedMode(advanced);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -554,159 +486,18 @@ void MainWindow::showHideStatus()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void MainWindow::errorCommitOnExit()
-{
-  /// @todo show message : "couldn't commit but saving file anyway"
-  //  if(this->configModified && !this->infos.filename.isEmpty())
-  //   this->saveFromInfos();
-
-  //  else //if(this->infos.filename.isEmpty())
-//  {
-//    int answer;
-//    QMessageBox errorBox(this);
-//    QString message = "Modifications could not be committed. To ensure that "
-//    "data will not be lost, you can choose to save these modifications to a "
-//    "text file, and redo them manually later.\nClick on \"<i>Show "
-//    "Details...</i>\" for further information.";
-
-//    QString details = "Click on \"Yes\" to selet a file, on \"No\" to not "
-//    "save the modifications (they will be lost) or on \"Cancel\" to cancel "
-//    "the application closing.\nNotes: \n- clicking on \"Yes\" and then "
-//    "cancel the file selection is like directly clicking on \"No\"\n- if "
-//    "the file cannot be saved, you will be asked to select another file; "
-//    "repeatedly until the file is successfuly saved or you cancel\n- clicking "
-//    "on \"Yes\" or \"No\" will close the application";
-
-//    errorBox.setTextFormat(Qt::RichText);
-//    errorBox.setWindowTitle("Error");
-//    errorBox.setText(message);
-//    errorBox.setDetailedText(details);
-//    errorBox.setInformativeText("Do you want to save modifications?");
-//    errorBox.setIcon(QMessageBox::Critical);
-
-//    errorBox.addButton(QMessageBox::Yes);
-//    errorBox.addButton(QMessageBox::No);
-//    errorBox.addButton(QMessageBox::Cancel);
-
-//    answer = errorBox.exec();
-
-//    switch(answer)
-//    {
-//      case QMessageBox::Yes:
-//      {
-//        SelectFileDialog sfd(this);
-//        QString filename;
-//        bool ok = false;
-//        sfd.addFileType("Text", "txt");
-
-//        while(!ok)
-//        {
-//          filename = sfd.show(QFileDialog::AcceptSave);
-
-//          if(filename.isEmpty())
-//            this->quit();
-
-//          else
-//          {
-//            QFile file(filename);
-//            QTextStream out;
-//            //      bool saved = false;
-//            QString username;
-//            QRegExp regex("^USER=");
-//            QStringList environment = QProcess::systemEnvironment().filter(regex);
-
-//            if(environment.size() == 1)
-//            {
-//              username = environment.at(0);
-//              username.remove(regex);
-//            }
-
-//            if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-//            {
-//              QString error = "Could open file '%1' for write access: %2";
-//              this->showError(error.arg(filename).arg(file.errorString()));
-//            }
-
-//            else
-//            {
-//              QString date = QDate::currentDate().toString("MM/dd/yyyy");
-//              QString time = QTime::currentTime().toString("hh:mm:ss");
-//              QString dateTime = QString("%1 at %2").arg(date).arg(time);
-//              QString separator = QString("\n").rightJustified(30, '+');
-
-//              out.setDevice(&file);
-
-//              out << "### CF -- GUI Module\n";
-//              out << "### This file contains modifications details that could "
-//              "not be comitted on Client application exit.\n";
-//              out << "### Written by '" << username << "' on " << dateTime << "\n";
-//              out << "### Working node path: " << m_optionPanel->getCurrentPath();
-//              out << "\n\n";
-
-//              out << m_infos.commitDetails.toString();
-
-//              file.close();
-
-//              this->showMessage(QString("Modification were successfully written to "
-//                                        "'%1'").arg(filename));
-//              //        this->configModified = false;
-//              ok = true;
-//            }
-
-//            if(!ok)
-//            {
-//              int ret;
-//              message = "Saving file failed. Do you want select another file ? "
-//              "(clicking on \"No\" will directly close the application)";
-
-//              errorBox.setText(message);
-//              errorBox.setDetailedText("");
-//              errorBox.setIcon(QMessageBox::Critical);
-//              errorBox.addButton(QMessageBox::Yes);
-//              errorBox.addButton(QMessageBox::No);
-//              ret = errorBox.exec();
-
-//              if(ret == QMessageBox::No && !m_infos.filename.isEmpty())
-//                this->quit();
-//            }
-//          }
-//        }
-
-//        if(m_infos.filename.isEmpty())
-//          this->quit();
-//        break;
-//      }
-
-//      case QMessageBox::Cancel:
-//        //     this->waitingToExit = false;
-//        break;
-//    }
-//  }
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 void MainWindow::openSimulation(const QModelIndex & index)
 {
-//  if(!m_treeModel->isSimulationConnected(index))
-//    ClientRoot::getLog()->addError("This simulation is not connected.");
-//  else
-  {
-    RemoteOpenFile open(this);
+  RemoteOpenFile open(this);
 
-    open.setIncludeFiles(true);
-    open.setExtensions(QStringList() << "xml" << "CFcase");
-    open.setIncludeNoExtension(false);
+  open.setIncludeFiles(true);
+  open.setExtensions(QStringList() << "xml" << "CFcase");
+  open.setIncludeNoExtension(false);
 
-    QString file = open.show("");
+  QString file = open.show("");
 
-    if(!file.isEmpty())
-      ClientRoot::getLog()->addException("Cannot open a file for now!");
-
-//    if(!file.isEmpty())
-//      ClientCore::instance().openFile(index, file);
-  }
+  if(!file.isEmpty())
+    ClientRoot::getLog()->addException("Cannot open a file for now!");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -737,4 +528,38 @@ void MainWindow::connectToServer()
   {
     ClientCore::instance().connectToServer(sshInfo);
   }
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void MainWindow::disconnectFromServer()
+{
+  ClientCore::instance().disconnectFromServer(false);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void MainWindow::connectedToServer()
+{
+  this->setConnectedState(true);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void MainWindow::disconnectedFromServer()
+{
+  this->setConnectedState(false);
+  ClientRoot::getTree()->clearTree();
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void MainWindow::setConnectedState(bool connected)
+{
+  m_actions[ACTION_CONNECT_TO_SERVER]->setEnabled(!connected);
+  m_actions[ACTION_DISCONNECT_FROM_SERVER]->setEnabled(connected);
 }

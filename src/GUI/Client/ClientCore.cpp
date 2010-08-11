@@ -62,6 +62,17 @@ void ClientCore::connectToServer(const TSshInformation & sshInfo)
   m_networkComm->connectToServer(sshInfo.m_hostname, sshInfo.port, false);
 }
 
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void ClientCore::disconnectFromServer(bool shutdown)
+{
+  m_networkComm->disconnectFromServer(shutdown);
+  ClientRoot::getLog()->addMessage("Disconnected from the server.");
+
+  emit disconnectedFromServer();
+}
+
 /****************************************************************************
 
  PRIVATE SLOTS
@@ -80,6 +91,8 @@ void ClientCore::connected()
   XmlOps::add_signal_frame(*docNode, "list_tree", CLIENT_TREE_PATH, SERVER_ROOT_PATH);
 
   m_networkComm->send(*root.get());
+
+  emit connectedToServer();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

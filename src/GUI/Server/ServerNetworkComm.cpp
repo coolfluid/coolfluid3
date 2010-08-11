@@ -116,7 +116,7 @@ int ServerNetworkComm::send(QTcpSocket * client, const QString & frame)
   QDataStream out(&block, QIODevice::WriteOnly);
   int count = 0; // total bytes sent
 
-  out.setVersion(QDataStream::Qt_4_5);
+  out.setVersion(QDataStream::Qt_4_6);
   // reserving 2 bytes to store the data size
   // (frame size without these 2 bytes)
   out << (quint32)0;
@@ -308,7 +308,7 @@ void ServerNetworkComm::newData()
 
   QString frame;
   QDataStream in(socket);
-  in.setVersion(QDataStream::Qt_4_5);
+  in.setVersion(QDataStream::Qt_4_6);
 
   // if the client sends two messages very close in time, it is possible that
   // the server never gets the second one.

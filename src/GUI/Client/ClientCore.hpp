@@ -69,6 +69,8 @@ namespace Client {
     /// @param sshInfo Connection information
     void connectToServer(const TSshInformation & sshInfo);
 
+    void disconnectFromServer(bool shutdown);
+
   private slots:
 
     /// @brief Slot called when the client is connected to the server.
@@ -86,6 +88,12 @@ namespace Client {
     /// Any error or warning is considered as critical and stops the launching
     /// process immediately.
     void sshError();
+
+  signals:
+
+    void connectedToServer();
+
+    void disconnectedFromServer();
 
   private: // methods
 

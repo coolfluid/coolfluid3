@@ -468,6 +468,35 @@ void NTree::list_tree(XmlNode & node)
   emit currentIndexChanged(m_currentIndex, QModelIndex());
 }
 
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void NTree::clearTree()
+{
+  NRoot::Ptr treeRoot = m_rootNode->getNode()->convertTo<NRoot>();
+  ComponentIterator<CNode> itRem = treeRoot->root()->begin<CNode>();
+  QMap<int, std::string> listToRemove;
+  QMutableMapIterator<int, std::string> itList(listToRemove);
+
+  for(int i = 0 ; itRem != treeRoot->root()->end<CNode>() ; itRem++, i++)
+  {
+    if(!itRem->isClientComponent())
+      listToRemove[i] = itRem->name();
+  }
+
+  itList.toBack();
+
+  for( ; itList.hasPrevious() ; )
+  {
+    itList.previous();
+
+    emit beginRemoveRows(index(0,0), itList.key(), itList.key());
+    treeRoot->root()->remove_component(itList.value());
+    m_rootNode->updateChildList();
+    emit endRemoveRows();
+  }
+}
+
 /*============================================================================
 
                              PRIVATE METHODS
