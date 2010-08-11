@@ -429,22 +429,22 @@ void CSimulator::createSimulator()
 
   CRoot::Ptr root = ServerRoot::getRoot();
 
-  CGroup::Ptr flowGroup = root->create_component_type<CGroup>("Flow");//(new CGroup("Flow"));
-  CGroup::Ptr mgGroup = root->create_component_type<CGroup>("MG");//(Gnew CGroup("MG"));
-  CGroup::Ptr solidGroup = root->create_component_type<CGroup>("Solid");//(new CGroup("Solid"));
+  CGroup::Ptr flowGroup = root->create_component_type<CGroup>("Flow");
+  CGroup::Ptr mgGroup = root->create_component_type<CGroup>("MG");
+  CGroup::Ptr solidGroup = root->create_component_type<CGroup>("Solid");
 
   // Flow subcomponents
   CLink::Ptr meshLnk = flowGroup->create_component_type<CLink>("Mesh");
-  CMethod::Ptr fvm = flowGroup->create_component_type<CMethod>("FVM");//(new CMethod("FVM"));
-  CMethod::Ptr petsc = flowGroup->create_component_type<CMethod>("Petsc");//(new CMethod("Petsc"));
+  CMethod::Ptr fvm = flowGroup->create_component_type<CMethod>("FVM");
+  CMethod::Ptr petsc = flowGroup->create_component_type<CMethod>("Petsc");
 
   // MG subcomponents
-  CMesh::Ptr mesh1 = mgGroup->create_component_type<CMesh>("Mesh1");//(new CMesh("mesh1"));
-  CMesh::Ptr mesh2 = mgGroup->create_component_type<CMesh>("Mesh2");//(new CMesh("mesh2"));
+  CMesh::Ptr mesh1 = mgGroup->create_component_type<CMesh>("Mesh1");
+  CMesh::Ptr mesh2 = mgGroup->create_component_type<CMesh>("Mesh2");
 
   // Solid subcomponents
-  CMesh::Ptr mesh3 = solidGroup->create_component_type<CMesh>("Mesh3");//(new CMesh("mesh1"));
-  CMesh::Ptr mesh4 = solidGroup->create_component_type<CMesh>("Mesh4");//(new CMesh("mesh2"));
+  CMesh::Ptr mesh3 = solidGroup->create_component_type<CMesh>("Mesh3");
+  CMesh::Ptr mesh4 = solidGroup->create_component_type<CMesh>("Mesh4");
   CLink::Ptr petscLnk = solidGroup->create_component_type<CLink>("PestcLnk");
 
   meshLnk->link_to(mesh1);

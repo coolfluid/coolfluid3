@@ -417,38 +417,47 @@ void NTree::list_tree(XmlNode & node)
   NRoot::Ptr rootNode = CNode::createFromXml(*node.first_node())->convertTo<NRoot>();
   ComponentIterator<CNode> it = rootNode->root()->begin<CNode>();
 
-  /// @todo delete old nodes
+  emit layoutAboutToBeChanged();
 
   //
   // rename the root
   //
   QModelIndex rootIndex = index(0, 0);
+
   treeRoot->rename(rootNode->root()->name());
   treeRoot->root()->rename(rootNode->root()->name());
   emit dataChanged(rootIndex, rootIndex); // tell the view to update the node
 
   //
+  // remove old nodes
+  //
+  ComponentIterator<CNode> itRem = treeRoot->root()->begin<CNode>();
+  QList<std::string> listToRemove;
+  QList<std::string>::iterator itList;
+
+  for( ; itRem != treeRoot->root()->end<CNode>() ; itRem++)
+  {
+    if(!itRem->isClientComponent())
+      listToRemove << itRem->name();
+  }
+
+  itList = listToRemove.begin();
+
+  for( ; itList != listToRemove.end() ; itList++)
+    treeRoot->root()->remove_component(*itList);
+
+  //
   // add the new nodes
   //
-  int currentCount = treeRoot->root()->get_child_count();
-  int newCount = treeRoot->root()->get_child_count();
 
-  // tell the view that some nodes are about to be added (how many and where)
-  emit beginInsertRows(rootIndex, currentCount, currentCount + newCount - 1);
-
-  // add the nodes
-  while(it != rootNode->root()->end<CNode>())
-  {
+  for( ; it != rootNode->root()->end<CNode>() ; it++)
     treeRoot->root()->add_component(it.get());
-    ClientRoot::getLog()->addMessage(QString("Adding : %1").arg(it->name().c_str()));
-    it++;
-  }
 
   // child count has changed, ask the root TreeNode to update its internal data
   m_rootNode->updateChildList();
 
-  // tell the view to update
-  emit endInsertRows();
+  // tell the view to update the whole thing
+  emit layoutChanged();
 }
 
 /*============================================================================

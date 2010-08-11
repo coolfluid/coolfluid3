@@ -371,11 +371,15 @@ void OptionPanel::commitChanges()
   // if there is at least one option that has been modified
   if(!options.isEmpty())
   {
-    QModelIndex currentIndex = ClientRoot::getTree()->getCurrentIndex();
-
     try
     {
+      QModelIndex currentIndex = ClientRoot::getTree()->getCurrentIndex();
+      QList<GraphicalOption*>::iterator it = m_advancedOptions.begin();
+
       ClientRoot::getTree()->modifyOptions(currentIndex, options);
+
+      for( ; it < m_advancedOptions.end() ; it++)
+        (*it)->commit();
     }
     catch (ValueNotFound & vnf)
     {

@@ -119,7 +119,7 @@ void TreeView::mousePressEvent(QMouseEvent * event)
   }
   else if(!tree->areFromSameNode(indexInModel, tree->getCurrentIndex()))
   {
-    if(/*index != tree->getCurrentIndex() && */this->confirmChangeOptions(index))
+    if(this->confirmChangeOptions(index))
       tree->setCurrentIndex(indexInModel);
     else
       this->currentIndexChanged(tree->getCurrentIndex(), tree->getCurrentIndex());
@@ -195,8 +195,6 @@ void TreeView::currentIndexChanged(const QModelIndex & newIndex, const QModelInd
 {
   QItemSelectionModel::SelectionFlags flags = QItemSelectionModel::Select | QItemSelectionModel::Rows;
   QModelIndex indexInFilter = m_modelFilter->mapFromSource(newIndex);
-
-  ClientRoot::getLog()->addMessage(ClientRoot::getTree()->data(newIndex, Qt::DisplayRole).toString());
 
   this->selectionModel()->clearSelection();
   this->selectionModel()->select(indexInFilter, flags);
