@@ -96,7 +96,7 @@ void CWriter::write_header(std::fstream& file)
   BOOST_FOREACH(const CRegion& groupRegion, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
   {
     ++phys_name_counter;
-    PhysicalGroup group (m_coord_dim,phys_name_counter,groupRegion.name());
+    PhysicalGroup group (m_coord_dim,phys_name_counter,groupRegion.full_path().string());
     m_groups.insert(PhysicalGroupMap::value_type(group.name,group));
   }
   
@@ -170,17 +170,20 @@ void CWriter::write_connectivity(std::fstream& file)
   Uint elm_type;
   Uint number_of_tags=2;
 
-  BOOST_FOREACH(const CRegion& region, recursive_range_typed<CRegion>(*m_mesh))
-  {
-      group_name = region.name();
-      group_number = m_groups[group_name].number;
-  }
+//  BOOST_FOREACH(const CRegion& region, recursive_range_typed<CRegion>(*m_mesh))
+//  {
+//      group_name = region.name();
+//      group_number = m_groups[group_name].number;
+//  }
   
   Uint global_node_idx = 0;
   BOOST_FOREACH(const CoordinatesElementsMap::value_type& coord, m_all_coordinates)
   {
     BOOST_FOREACH(const CElements* elements, coord.second)
     {
+      group_name = elements->get_parent()->full_path().string();
+      group_number = m_groups[group_name].number;
+
       //file << "// Region " << elements.full_path().string() << "\n";
       elm_type = m_elementTypes[elements->element_type().shape()];
       BOOST_FOREACH(const CTable::ConstRow& row, elements->connectivity_table().table())
