@@ -1,0 +1,42 @@
+#ifndef CF_GUI_Client_uTests_TreeHandler_hpp
+#define CF_GUI_Client_uTests_TreeHandler_hpp
+
+///////////////////////////////////////////////////////////////////////////
+
+#include "GUI/Client/CNode.hpp"
+
+class QStringList;
+
+///////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace GUI {
+namespace ClientTest {
+
+  /////////////////////////////////////////////////////////////////////////
+
+  class TreeHandler
+  {
+  public:
+
+    ~TreeHandler();
+
+    void add(CF::GUI::Client::CNode::Ptr node);
+
+    void addChildren(CF::GUI::Client::CNode::Ptr node);
+
+  private:
+
+    QStringList names;
+
+  }; // class TreeHandler
+
+  /////////////////////////////////////////////////////////////////////////
+
+} // namespace ClientTest
+} // namespace GUI
+} // namespace CF
+
+///////////////////////////////////////////////////////////////////////////
+
+#endif // CF_GUI_Client_uTests_TreeHandler_hpp

@@ -16,6 +16,7 @@
 
 #include "GUI/Client/uTests/ExceptionThrowHandler.hpp"
 #include "GUI/Client/uTests/MyNode.hpp"
+#include "GUI/Client/uTests/TreeHandler.hpp"
 
 #include "GUI/Client/uTests/CNodeTest.hpp"
 
@@ -120,6 +121,7 @@ void CNodeTest::test_setOptions()
 
 void CNodeTest::test_getOptions()
 {
+  TreeHandler th;
   NRoot::Ptr root = ClientRoot::getRoot();
   MyNode::Ptr node(new MyNode("Node"));
   NLink::Ptr link(new NLink("Link", "//Simulator/Node")) ;
@@ -138,9 +140,9 @@ void CNodeTest::test_getOptions()
       " </value>"
       "</valuemap>"));
 
-  root->addNode(node);
-  root->addNode(link);
-  root->addNode(badLink);
+  th.add(node);
+  th.add(link);
+  th.add(badLink);
 
   node->setOptions(*options->first_node());
 
@@ -213,4 +215,11 @@ void CNodeTest::test_addNode()
   GUI_CHECK_THROW(root->addNode(log), ValueExists); // try to add the log again
 
   QCOMPARE(spy.count(), 0);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+void CNodeTest::test_removeNode()
+{
+
 }

@@ -164,7 +164,7 @@ void NTreeTest::test_areFromSameNode()
 
 void NTreeTest::test_haveSameData()
 {
- // to test
+ /// @todo to test
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -188,7 +188,20 @@ void NTreeTest::test_getNodeByPath()
 
 void NTreeTest::test_getIndexByPath()
 {
-  // to test
+  NTree t;
+  QModelIndex rootIndex = t.index(0, 0);
+  QModelIndex index = t.index(1, 0, rootIndex);
+
+  CNode::Ptr node = static_cast<TreeNode*>(index.internalPointer())->getNode();
+
+  QModelIndex foundRootIndex = t.getIndexByPath("//Simulator");
+  QModelIndex foundIndex = t.getIndexByPath(node->full_path());
+
+  QVERIFY(foundRootIndex.isValid());
+  QVERIFY(foundIndex.isValid());
+
+  QCOMPARE(foundRootIndex, rootIndex);
+  QCOMPARE(foundIndex, index);
 }
 
 ////////////////////////////////////////////////////////////////////////////

@@ -208,6 +208,8 @@ namespace Client {
     /// @c Component::add_component()
     void addNode(CNode::Ptr node);
 
+    void removeNode(const QString & nodeName);
+
     CNodeNotifier * getNotifier() const;
 
   protected:

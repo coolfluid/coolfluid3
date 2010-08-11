@@ -1,5 +1,5 @@
-#ifndef CF_GUI_Client_uTests_CNodeTest_hpp
-#define CF_GUI_Client_uTests_CNodeTest_hpp
+#ifndef CF_GUI_Client_uTests_NBrowserTest_hpp
+#define CF_GUI_Client_uTests_NBrowserTest_hpp
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -13,31 +13,15 @@ namespace ClientTest {
 
   //////////////////////////////////////////////////////////////////////////
 
-  class CNodeTest : public QObject
+  class NBrowserTest : public QObject
   {
     Q_OBJECT
 
   private slots:
 
-      void test_getComponentType();
+    void test_generateName();
 
-      void test_isClientComponent();
-
-      void test_getType();
-
-      void test_checkType();
-
-      void test_setOptions();
-
-      void test_getOptions();
-
-      void test_createFromXml();
-
-      void test_addNode();
-
-      void test_removeNode();
-
-  }; // class CNodeTest
+  }; // class NBrowserTest
 
   //////////////////////////////////////////////////////////////////////////
 
@@ -47,4 +31,4 @@ namespace ClientTest {
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Client_uTests_CNodeTest_hpp
+#endif // CF_GUI_Client_uTests_NBrowserTest_hpp

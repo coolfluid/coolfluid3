@@ -50,15 +50,13 @@ namespace Client {
     /// @return Returns the target path.
     CF::Common::CPath getTargetPath() const;
 
-  private slots:
-
-    /// @brief Slot called when user wants to switch to the target
-    void goToTarget();
-
   public slots:
 
     /// @brief Slot called when user wants to change the target path
     void changeTargetPath();
+
+    /// @brief Slot called when user wants to switch to the target
+    void goToTarget();
 
   private :
 
@@ -66,7 +64,7 @@ namespace Client {
     CF::Common::CPath m_targetPath;
 
     /// @brief Context menu
-    static QMenu * m_menu;
+    //static QMenu * m_menu;
 
     /// regists all the signals declared in this class
     static void regist_signals ( Component* self ) {}

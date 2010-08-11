@@ -220,8 +220,6 @@ QModelIndex NTree::getIndexByPath(const CPath & path) const
 
     for(it = comps.begin() ; it != comps.end() && treeNode != CFNULL ; it++)
     {
-      treeNode->updateChildList(); /// @todo this is ugly
-
       treeNode = treeNode->getChildByName(*it);
 
       if(treeNode != CFNULL)
@@ -229,7 +227,6 @@ QModelIndex NTree::getIndexByPath(const CPath & path) const
       else
       {
         index = QModelIndex();
-        qDebug() << *it << "not found !!!";
         ClientRoot::getLog()->addError("index not found");
       }
     }

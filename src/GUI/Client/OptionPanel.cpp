@@ -7,6 +7,7 @@
 
 #include "GUI/Client/CommitDetails.hpp"
 #include "GUI/Client/CommitDetailsDialog.hpp"
+#include "GUI/Client/ConfirmCommitDialog.hpp"
 #include "GUI/Client/GraphicalOption.hpp"
 #include "GUI/Client/UnknownTypeException.hpp"
 #include "GUI/Client/OptionType.hpp"
@@ -19,7 +20,9 @@ using namespace CF::Common;
 using namespace CF::GUI::Client;
 
 
-OptionPanel::OptionPanel(QWidget * parent) : QWidget(parent)
+OptionPanel::OptionPanel(QWidget * parent)
+  : QWidget(parent),
+    m_lastIndexCanceled(false)
 {
   // create the components
   m_scrollBasicOptions = new QScrollArea(this);
@@ -355,6 +358,32 @@ void OptionPanel::buttonsSetVisible(bool visible)
   m_btResetOptions->setVisible(visible);
 }
 
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+bool OptionPanel::confirmCommit()
+{
+  bool confirmed = true;
+  CommitDetails details;
+
+  this->getModifiedOptions(details);
+
+  if(details.hasOptions())
+  {
+    ConfirmCommitDialog ccd;
+    ConfirmCommitDialog::CommitConfirmation conf;
+
+    conf = ccd.show(details);
+
+    confirmed = conf != ConfirmCommitDialog::CANCEL;
+
+    if(conf == ConfirmCommitDialog::COMMIT)
+      this->commitChanges();
+  }
+
+  return confirmed;
+}
+
 /****************************************************************************
 
  SLOTS
@@ -387,13 +416,23 @@ void OptionPanel::commitChanges()
 
 void OptionPanel::currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex)
 {
-  QList<NodeOption> params;
-  bool ok;
-
-  if(!ClientRoot::getTree()->haveSameData(newIndex, oldIndex))
+  if(m_lastIndexCanceled)
   {
-    ClientRoot::getTree()->getNodeParams(newIndex, params, &ok);
-    this->setOptions(params);
+    m_lastIndexCanceled = false;
+  }
+  else
+  {
+    if(!this->confirmCommit())
+    {
+      m_lastIndexCanceled = true;
+      ClientRoot::getTree()->setCurrentIndex(oldIndex);
+    }
+    else if(!ClientRoot::getTree()->haveSameData(newIndex, oldIndex))
+    {
+      QList<NodeOption> params;
+      ClientRoot::getTree()->getNodeParams(newIndex, params);
+      this->setOptions(params);
+    }
   }
 }
 

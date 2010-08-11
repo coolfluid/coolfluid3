@@ -283,7 +283,26 @@ void CNode::addNode(CNode::Ptr node)
   {
     throw;
   }
+}
 
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void CNode::removeNode(const QString & nodeName)
+{
+  try
+  {
+    if(checkType(ROOT_NODE))
+      ((NRoot *)this)->root()->remove_component(nodeName.toStdString());
+    else
+      this->remove_component(nodeName.toStdString());
+
+    m_notifier->notifyChildCountChanged();
+  }
+  catch(CF::Common::ValueNotFound & ve)
+  {
+    throw;
+  }
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
