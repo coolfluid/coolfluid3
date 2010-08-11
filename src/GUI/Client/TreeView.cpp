@@ -119,8 +119,10 @@ void TreeView::mousePressEvent(QMouseEvent * event)
   }
   else if(!tree->areFromSameNode(indexInModel, tree->getCurrentIndex()))
   {
-//    if(index != m_treeModel->getCurrentIndex() && this->confirmChangeOptions(index))
-    tree->setCurrentIndex(indexInModel);
+    if(/*index != tree->getCurrentIndex() && */this->confirmChangeOptions(index))
+      tree->setCurrentIndex(indexInModel);
+    else
+      this->currentIndexChanged(tree->getCurrentIndex(), tree->getCurrentIndex());
   }
 }
 
@@ -162,26 +164,26 @@ void TreeView::keyPressEvent(QKeyEvent * event)
 bool TreeView::confirmChangeOptions(const QModelIndex & index, bool okIfSameIndex)
 {
   bool confirmed = true;
-//  QMessageBox question(this);
+  NTree::Ptr tree = ClientRoot::getTree();
 
-//  if(!okIfSameIndex && m_treeModel->areEqual(m_treeModel->getCurrentIndex(), index))
-//    return confirmed;
+  if(!okIfSameIndex &&  tree->areFromSameNode(tree->getCurrentIndex(), index))
+    return confirmed;
 
-//  if(m_optionsPanel->isModified())
-//  {
-//    CommitDetails commitDetails;
+  if(m_optionsPanel->isModified())
+  {
+    CommitDetails commitDetails;
 
-//    ConfirmCommitDialog dlg;
+    ConfirmCommitDialog dlg;
 
-//    m_optionsPanel->getModifiedOptions(commitDetails);
+    m_optionsPanel->getModifiedOptions(commitDetails);
 
-//    ConfirmCommitDialog::CommitConfirmation answer = dlg.show(commitDetails);
+    ConfirmCommitDialog::CommitConfirmation answer = dlg.show(commitDetails);
 
-//    if(answer == ConfirmCommitDialog::COMMIT)
-//      m_optionsPanel->commitChanges();
+    if(answer == ConfirmCommitDialog::COMMIT)
+      m_optionsPanel->commitChanges();
 
-//    confirmed = answer != ConfirmCommitDialog::CANCEL;
-//  }
+    confirmed = answer != ConfirmCommitDialog::CANCEL;
+  }
 
   return confirmed;
 }
@@ -193,6 +195,8 @@ void TreeView::currentIndexChanged(const QModelIndex & newIndex, const QModelInd
 {
   QItemSelectionModel::SelectionFlags flags = QItemSelectionModel::Select | QItemSelectionModel::Rows;
   QModelIndex indexInFilter = m_modelFilter->mapFromSource(newIndex);
+
+  ClientRoot::getLog()->addMessage(ClientRoot::getTree()->data(newIndex, Qt::DisplayRole).toString());
 
   this->selectionModel()->clearSelection();
   this->selectionModel()->select(indexInFilter, flags);

@@ -21,8 +21,7 @@ using namespace CF::GUI::Client;
 
 
 OptionPanel::OptionPanel(QWidget * parent)
-  : QWidget(parent),
-    m_lastIndexCanceled(false)
+  : QWidget(parent)
 {
   // create the components
   m_scrollBasicOptions = new QScrollArea(this);
@@ -358,32 +357,6 @@ void OptionPanel::buttonsSetVisible(bool visible)
   m_btResetOptions->setVisible(visible);
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool OptionPanel::confirmCommit()
-{
-  bool confirmed = true;
-  CommitDetails details;
-
-  this->getModifiedOptions(details);
-
-  if(details.hasOptions())
-  {
-    ConfirmCommitDialog ccd;
-    ConfirmCommitDialog::CommitConfirmation conf;
-
-    conf = ccd.show(details);
-
-    confirmed = conf != ConfirmCommitDialog::CANCEL;
-
-    if(conf == ConfirmCommitDialog::COMMIT)
-      this->commitChanges();
-  }
-
-  return confirmed;
-}
-
 /****************************************************************************
 
  SLOTS
@@ -416,23 +389,11 @@ void OptionPanel::commitChanges()
 
 void OptionPanel::currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex)
 {
-  if(m_lastIndexCanceled)
+  if(!ClientRoot::getTree()->haveSameData(newIndex, oldIndex))
   {
-    m_lastIndexCanceled = false;
-  }
-  else
-  {
-    if(!this->confirmCommit())
-    {
-      m_lastIndexCanceled = true;
-      ClientRoot::getTree()->setCurrentIndex(oldIndex);
-    }
-    else if(!ClientRoot::getTree()->haveSameData(newIndex, oldIndex))
-    {
-      QList<NodeOption> params;
-      ClientRoot::getTree()->getNodeParams(newIndex, params);
-      this->setOptions(params);
-    }
+    QList<NodeOption> params;
+    ClientRoot::getTree()->getNodeParams(newIndex, params);
+    this->setOptions(params);
   }
 }
 

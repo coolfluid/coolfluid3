@@ -194,8 +194,6 @@ namespace Client {
 
     QSplitter * m_splitter;
 
-    bool m_lastIndexCanceled;
-
     /// @brief Builds a Unix-like path string to the given node.
 
     /// The string begins with a slash followed by the root node name and
@@ -271,8 +269,6 @@ namespace Client {
     void setOptions(const QList<NodeOption> & list);
 
     void buttonsSetVisible(bool visible);
-
-    bool confirmCommit();
 
   }; // class OptionPanel
 
