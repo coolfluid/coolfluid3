@@ -13,6 +13,7 @@ LIST ( APPEND Network_files
   NetworkException.hpp)
 
 # Use Qt Libraries
-LIST( APPEND Network_libs Common ${QT_LIBRARIES} )
+LIST( APPEND Network_libs ${QT_LIBRARIES} )
+LIST( APPEND Network_cflibs Common)
 
 CF_ADD_LIBRARY(Network)
