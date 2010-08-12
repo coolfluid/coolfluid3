@@ -13,13 +13,14 @@ LIST( APPEND CF_CGAL_libs
                 ${CGAL_LIBRARY}
                 ${Boost_THREAD_LIBRARY} )
 LIST( APPEND CF_CGAL_cflibs Mesh )
-SET( CGAL_kernellib TRUE )
+SET( CF_CGAL_kernellib TRUE )
 
-# TODO: this are compiler specific to GCC
-SET(CF_CGAL_COMPILE_FLAGS "-frounding-math -DCF_CGALG_NO_TR1_ARRAY -DCF_CGALG_NO_TR1_TUPLE")
 CF_ADD_LIBRARY( CF_CGAL )
 
 # Avoid a conflict between boost and CGAL
+# TODO: this are compiler specific to GCC
+SET(CF_CGAL_COMPILE_FLAGS "-frounding-math -DCGAL_CFG_NO_TR1_ARRAY -DCGAL_CFG_NO_TR1_TUPLE")
+
 # TODO: this are compiler specific to GCC
 IF(CF_STRIP_CGAL_COMPILE_FLAGS)
   SET(CF_CGAL_COMPILE_FLAGS "${CF_CGAL_COMPILE_FLAGS} -g0 -O0")
