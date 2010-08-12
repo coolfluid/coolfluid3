@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
   QCoreApplication app(argc, argv);
   QString errorString;
   int return_value = 0;
-  int port;
+  int port = 62784;
   char hostfile[] = "machine.txt";
 
   QList<HostInfos> list;
@@ -97,10 +97,7 @@ int main(int argc, char *argv[])
       return app.exec();
     }
 
-    if(argc != 2)
-      errorString = QString("Invalid number of arguments\nUsage : %1 <port_number>")
-      .arg(argv[0]);
-    else
+    if(argc == 2)
     {
       std::istringstream iss(argv[1]);
 
@@ -108,27 +105,29 @@ int main(int argc, char *argv[])
         errorString = "Port number is not a valid integer\n";
       else if(port < 49153 || port > 65535)
         errorString = "Port number must be an integer between 49153 and 65535\n";
-      else
-      {
-        QHostInfo hostInfo = QHostInfo::fromName(QHostInfo::localHostName());
-        CCore::Ptr sk = ServerRoot::getCore();
-        QString message("Server successfully launched on machine %1 (%2) on port %3!");
-
-        ServerRoot::getRoot();
-
-//        sk->listenToNetwork(hostInfo.addresses().at(0).toString(), port);
-        sk->listenToNetwork(hostInfo.addresses().last().toString(), port);
-        sk->setHostList(list);
-
-        message = message.arg(hostInfo.addresses().at(0).toString())
-        .arg(QHostInfo::localHostName())
-        .arg(port);
-
-        std::cout << message.toStdString() << std::endl;
-
-        return_value = app.exec();
-      }
     }
+
+    if(errorString.isEmpty())
+    {
+      QHostInfo hostInfo = QHostInfo::fromName(QHostInfo::localHostName());
+      CCore::Ptr sk = ServerRoot::getCore();
+      QString message("Server successfully launched on machine %1 (%2) on port %3!");
+
+      ServerRoot::getRoot();
+
+      //        sk->listenToNetwork(hostInfo.addresses().at(0).toString(), port);
+      sk->listenToNetwork(hostInfo.addresses().last().toString(), port);
+      sk->setHostList(list);
+
+      message = message.arg(hostInfo.addresses().at(0).toString())
+                .arg(QHostInfo::localHostName())
+                .arg(port);
+
+      std::cout << message.toStdString() << std::endl;
+
+      return_value = app.exec();
+    }
+
 
     // unsetup the runtime environment
     cf_env.unsetup();
