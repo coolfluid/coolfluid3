@@ -215,7 +215,7 @@ namespace Client {
   protected:
 
     /// @brief Client kernel.
-    ClientCore * m_clientCore;
+    boost::shared_ptr<ClientCore> m_clientCore;
 
     QModelIndex index;
 

@@ -155,7 +155,7 @@ void CNode::modifyOptions(const QHash<QString, QString> options)
     }
 
     if(valid)
-      ClientCore::instance().sendSignal(*docnode.get());
+      ClientRoot::getCore()->sendSignal(*docnode.get());
   }
 }
 

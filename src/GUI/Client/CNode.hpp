@@ -110,6 +110,9 @@ namespace Client {
       /// @brief Tree node
       TREE_NODE,
 
+      /// @brief Core node
+      CORE_NODE,
+
       /// @brief Browser node
       BROWSER_NODE
 
@@ -142,7 +145,8 @@ namespace Client {
     /// @return Returns @c true if this node is a client component.
     bool isClientComponent() const
     {
-      return m_type == LOG_NODE | m_type == TREE_NODE | m_type == BROWSER_NODE;
+      return m_type == LOG_NODE | m_type == TREE_NODE |
+          m_type == BROWSER_NODE | m_type == CORE_NODE;
     }
 
     /// @brief Gives the node type

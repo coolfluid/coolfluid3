@@ -4,6 +4,8 @@
 
 #include "Common/XmlHelpers.hpp"
 
+#include "GUI/Client/ClientCore.hpp"
+
 #include "GUI/Network/ComponentNames.hpp"
 
 #include "GUI/Client/ClientRoot.hpp"
@@ -20,11 +22,13 @@ NRoot::Ptr ClientRoot::getRoot()
   static NLog::Ptr log(new NLog());
   static NBrowser::Ptr browser(new NBrowser());
   static NTree::Ptr tree(new NTree(root));
+  static ClientCore::Ptr core(new ClientCore());
 
   // if the function is called for the first time, we add the components
   if(!rootCreated)
   {
     rootCreated = true;
+    root->root()->add_component(core);
     root->root()->add_component(log);
     root->root()->add_component(browser);
     root->root()->add_component(tree);

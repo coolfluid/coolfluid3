@@ -1,5 +1,5 @@
-
 #include <QtCore>
+#include <QtGui>
 
 #include "Common/BasicExceptions.hpp"
 
@@ -19,6 +19,7 @@ using namespace CF::GUI::Client;
 using namespace CF::GUI::Network;
 
 ClientCore::ClientCore()
+  : CNode(CLIENT_CORE, "NCore", CNode::CORE_NODE)
 {
   m_timer = new QTimer(this);
   m_networkComm = new ClientNetworkComm();
@@ -39,15 +40,6 @@ ClientCore::~ClientCore()
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-ClientCore & ClientCore::instance()
-{
-  static ClientCore instance;
-  return instance;
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 void ClientCore::sendSignal(XmlDoc & signal)
 {
@@ -73,6 +65,23 @@ void ClientCore::disconnectFromServer(bool shutdown)
 
   emit disconnectedFromServer();
 }
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+QIcon ClientCore::getIcon() const
+{
+  return QFileIconProvider().icon(QFileIconProvider::Folder);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+QString ClientCore::getToolTip() const
+{
+  return this->getComponentType();
+}
+
 
 /****************************************************************************
 

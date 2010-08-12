@@ -9,6 +9,7 @@
 #include "Common/XmlHelpers.hpp"
 #include "Common/SignalHandler.hpp"
 
+#include "GUI/Client/CNode.hpp"
 #include "GUI/Client/TSshInformation.hpp"
 
 class QModelIndex;
@@ -47,16 +48,19 @@ namespace Client {
 
   class ClientCore :
       public QObject,
-      public boost::noncopyable
+      public CNode
   {
     Q_OBJECT
 
   public:
 
-    /// @brief Builds and gives the unique instance.
+    typedef boost::shared_ptr<ClientCore> Ptr;
 
-    /// @return Returns a reference to the unique object.
-    static ClientCore & instance();
+    /// @brief Constructor
+    ClientCore();
+
+    /// @brief Destructor
+    ~ClientCore();
 
     /// @brief Sends a signal to the network layer
 
@@ -70,6 +74,15 @@ namespace Client {
     void connectToServer(const TSshInformation & sshInfo);
 
     void disconnectFromServer(bool shutdown);
+
+    /// @brief Gives the icon associated to this node
+    /// @return Returns the icon associated to this node
+    /// @note This method should be reimplemented by all subclasses.
+    virtual QIcon getIcon() const;
+
+    /// @brief Gives the text to put on a tool tip
+    /// @return The name of the class.
+    virtual QString getToolTip() const;
 
   private slots:
 
@@ -95,14 +108,6 @@ namespace Client {
 
     void disconnectedFromServer();
 
-  private: // methods
-
-    /// @brief Constructor
-    ClientCore();
-
-    /// @brief Destructor
-    ~ClientCore();
-
   private: // data
 
     /// @brief The network layer
@@ -118,6 +123,10 @@ namespace Client {
 
     /// @brief The current connection information.
     TSshInformation m_commSshInfo;
+
+    /// regists all the signals declared in this class
+    static void regist_signals ( Component* self ) {}
+
 
   }; // class ClientCore
 

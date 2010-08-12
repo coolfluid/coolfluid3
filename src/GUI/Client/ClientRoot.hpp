@@ -12,6 +12,7 @@
 #include "GUI/Client/NLog.hpp"
 #include "GUI/Client/NRoot.hpp"
 #include "GUI/Client/NTree.hpp"
+#include "GUI/Client/ClientCore.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -75,6 +76,17 @@ namespace Client {
       return getRoot()->root()->access_component< NTree >(CLIENT_TREE_PATH);
     }
 
+    /// @brief Gives the core node.
+
+    /// If the node does not exist yet, it is created.
+    /// @return Returns the tree node.
+    inline static ClientCore::Ptr getCore()
+    {
+      return getRoot()->root()->access_component< ClientCore >(CLIENT_CORE_PATH);
+    }
+
+    /// @brief Gives the root UUID.
+    /// @return Returns the root UUID.
     inline static std::string getUUID()
     {
       return getRoot()->getUUID();

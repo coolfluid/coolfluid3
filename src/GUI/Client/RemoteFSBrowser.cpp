@@ -35,7 +35,7 @@ RemoteFSBrowser::RemoteFSBrowser(QMainWindow * parent)
 
   this->setWindowTitle("Open file");
 
-  m_clientCore = &ClientCore::instance();
+  m_clientCore = ClientRoot::getCore();
 
   /* if(!communication->isConnected())
    throw std::invalid_argument("Not connected to the server");*/
@@ -113,8 +113,8 @@ RemoteFSBrowser::RemoteFSBrowser(QMainWindow * parent)
   connect(m_listView, SIGNAL(doubleClicked(const QModelIndex &)),
           this, SLOT(doubleClick(const QModelIndex &)));
 
-  connect(m_clientCore, SIGNAL(acked(CF::GUI::Network::NetworkFrameType)),
-          this, SLOT(ack(CF::GUI::Network::NetworkFrameType)));
+//  connect(m_clientCore.get(), SIGNAL(acked(CF::GUI::Network::NetworkFrameType)),
+//          this, SLOT(ack(CF::GUI::Network::NetworkFrameType)));
 
   connect(m_pathCompleter, SIGNAL(activated(const QString &)),
           this, SLOT(completerActivated(const QString &)));

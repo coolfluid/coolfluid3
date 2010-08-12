@@ -76,10 +76,10 @@ MainWindow::MainWindow()
   connect(ClientRoot::getLog().get(), SIGNAL(newException(const QString &)),
           this, SLOT(newException(const QString &)));
 
-  connect(&ClientCore::instance(), SIGNAL(connectedToServer()),
+  connect(ClientRoot::getCore().get(), SIGNAL(connectedToServer()),
           this, SLOT(connectedToServer()));
 
-  connect(&ClientCore::instance(), SIGNAL(disconnectedFromServer()),
+  connect(ClientRoot::getCore().get(), SIGNAL(disconnectedFromServer()),
           this, SLOT(disconnectedFromServer()));
 
   this->setConnectedState(false);
@@ -538,7 +538,7 @@ void MainWindow::connectToServer()
 
   if(dlg.show(false, sshInfo))
   {
-    ClientCore::instance().connectToServer(sshInfo);
+//    ClientRoot::getCore()->connectToServer(sshInfo);
   }
 }
 
@@ -547,7 +547,7 @@ void MainWindow::connectToServer()
 
 void MainWindow::disconnectFromServer()
 {
-  ClientCore::instance().disconnectFromServer(sender() == m_actions[ACTION_SHUTDOWN_SERVER]);
+//  ClientRoot::getCore()->disconnectFromServer(sender() == m_actions[ACTION_SHUTDOWN_SERVER]);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
