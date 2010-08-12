@@ -6,7 +6,7 @@
 #include "Common/CF.hpp"
 #include "Common/Exception.hpp"
 
-#include "GUI/Client/ClientCore.hpp"
+#include "GUI/Client/NCore.hpp"
 #include "GUI/Client/CommitDetails.hpp"
 #include "GUI/Client/OptionPanel.hpp"
 #include "GUI/Client/CommitDetailsDialog.hpp"

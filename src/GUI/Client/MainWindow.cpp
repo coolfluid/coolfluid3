@@ -16,7 +16,7 @@
 #include "GUI/Client/SelectFileDialog.hpp"
 #include "GUI/Client/StatusModel.hpp"
 #include "GUI/Client/StatusPanel.hpp"
-#include "GUI/Client/ClientCore.hpp"
+#include "GUI/Client/NCore.hpp"
 #include "GUI/Client/MenuActionInfo.hpp"
 #include "GUI/Client/TreeView.hpp"
 #include "GUI/Client/NLog.hpp"

@@ -32,7 +32,7 @@ namespace Client {
 ////////////////////////////////////////////////////////////////////////////////
 
   class StatusModel;
-  class ClientCore;
+  class NCore;
   class ConnectionDialog;
   class LoggingList;
   class OptionPanel;

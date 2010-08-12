@@ -46,7 +46,7 @@ namespace Client {
   /// of the application. Because it is a singleton, the network layer is
   /// accessible from everywhere.
 
-  class ClientCore :
+  class NCore :
       public QObject,
       public CNode
   {
@@ -54,13 +54,13 @@ namespace Client {
 
   public:
 
-    typedef boost::shared_ptr<ClientCore> Ptr;
+    typedef boost::shared_ptr<NCore> Ptr;
 
     /// @brief Constructor
-    ClientCore();
+    NCore();
 
     /// @brief Destructor
-    ~ClientCore();
+    ~NCore();
 
     /// @brief Sends a signal to the network layer
 

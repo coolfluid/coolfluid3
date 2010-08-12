@@ -7,7 +7,7 @@
 # List of classes to "moc"
 LIST( APPEND coolfluid-client_moc_classes
   AddLinkDialog.hpp
-  ClientCore.hpp
+  NCore.hpp
   ClientNetworkComm.hpp
   CNode.hpp
   CommitDetailsDialog.hpp
@@ -41,8 +41,6 @@ LIST( APPEND coolfluid-client_files
   AboutCFDialog.hpp
   AddLinkDialog.cpp
   AddLinkDialog.hpp
-  ClientCore.cpp
-  ClientCore.hpp
   ClientNetworkComm.cpp
   ClientNetworkComm.hpp
   ClientRoot.cpp
@@ -80,6 +78,8 @@ LIST( APPEND coolfluid-client_files
   MenuActionInfo.hpp
   NBrowser.cpp
   NBrowser.hpp
+  NCore.cpp
+  NCore.hpp
   NGroup.cpp
   NGroup.hpp
   NLink.cpp

@@ -12,7 +12,7 @@ SET(uTestClient_moc_classes
 
   # include files to moc from the client
 
-  ../ClientCore.hpp
+  ../NCore.hpp
   ../ClientNetworkComm.hpp
   ../CNode.hpp
   ../NGroup.hpp
@@ -48,8 +48,6 @@ LIST( APPEND uTestClient_files
 
   # include files from the client
 
-  ../ClientCore.cpp
-  ../ClientCore.hpp
   ../ClientNetworkComm.cpp
   ../ClientNetworkComm.hpp
   ../ClientRoot.cpp
@@ -60,6 +58,8 @@ LIST( APPEND uTestClient_files
   ../InvalidValue.hpp
   ../NBrowser.cpp
   ../NBrowser.hpp
+  ../NCore.cpp
+  ../NCore.hpp
   ../NGroup.cpp
   ../NGroup.hpp
   ../NLink.cpp

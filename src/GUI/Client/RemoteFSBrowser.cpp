@@ -9,7 +9,7 @@
 #include "Common/XmlHelpers.hpp"
 
 #include "GUI/Client/NBrowser.hpp"
-#include "GUI/Client/ClientCore.hpp"
+#include "GUI/Client/NCore.hpp"
 #include "GUI/Client/NLog.hpp"
 #include "GUI/Client/ClientNetworkComm.hpp"
 #include "GUI/Client/FilesListItem.hpp"

@@ -34,7 +34,7 @@ namespace Client {
 
   ////////////////////////////////////////////////////////////////////////////////
 
-  class ClientCore;
+  class NCore;
   class FilesListItem;
 
   /// @brief This enum defines a validation protocol between @c RemoteFSBrowser
@@ -215,7 +215,7 @@ namespace Client {
   protected:
 
     /// @brief Client kernel.
-    boost::shared_ptr<ClientCore> m_clientCore;
+    boost::shared_ptr<NCore> m_clientCore;
 
     QModelIndex index;
 

@@ -12,13 +12,13 @@
 #include "GUI/Network/ComponentType.hpp"
 #include "GUI/Network/ComponentNames.hpp"
 
-#include "GUI/Client/ClientCore.hpp"
+#include "GUI/Client/NCore.hpp"
 
 using namespace CF::Common;
 using namespace CF::GUI::Client;
 using namespace CF::GUI::Network;
 
-ClientCore::ClientCore()
+NCore::NCore()
   : CNode(CLIENT_CORE, "NCore", CNode::CORE_NODE)
 {
   m_timer = new QTimer(this);
@@ -31,7 +31,7 @@ ClientCore::ClientCore()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-ClientCore::~ClientCore()
+NCore::~NCore()
 {
   delete m_timer;
   delete m_networkComm;
@@ -41,7 +41,7 @@ ClientCore::~ClientCore()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ClientCore::sendSignal(XmlDoc & signal)
+void NCore::sendSignal(XmlDoc & signal)
 {
   m_networkComm->send(signal);
 }
@@ -49,7 +49,7 @@ void ClientCore::sendSignal(XmlDoc & signal)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ClientCore::connectToServer(const TSshInformation & sshInfo)
+void NCore::connectToServer(const TSshInformation & sshInfo)
 {
   m_networkComm->connectToServer(sshInfo.m_hostname, sshInfo.port, false);
 }
@@ -57,7 +57,7 @@ void ClientCore::connectToServer(const TSshInformation & sshInfo)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ClientCore::disconnectFromServer(bool shutdown)
+void NCore::disconnectFromServer(bool shutdown)
 {
   m_networkComm->disconnectFromServer(shutdown);
 
@@ -69,7 +69,7 @@ void ClientCore::disconnectFromServer(bool shutdown)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QIcon ClientCore::getIcon() const
+QIcon NCore::getIcon() const
 {
   return QFileIconProvider().icon(QFileIconProvider::Folder);
 }
@@ -77,7 +77,7 @@ QIcon ClientCore::getIcon() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString ClientCore::getToolTip() const
+QString NCore::getToolTip() const
 {
   return this->getComponentType();
 }
@@ -89,7 +89,7 @@ QString ClientCore::getToolTip() const
 
  ****************************************************************************/
 
-void ClientCore::connected()
+void NCore::connected()
 {
   QString msg = "Now connected to server '%1' on port %2.";
   ClientRoot::getLog()->addMessage(msg.arg(m_commSshInfo.m_hostname).arg(m_commSshInfo.port));
@@ -108,7 +108,7 @@ void ClientCore::connected()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ClientCore::tryToConnect()
+void NCore::tryToConnect()
 {
   throw NotImplemented(FromHere(), "ClientCore::tryToConnect");
 //  QModelIndex index = m_timers.key(static_cast<QTimer*>(sender()));
@@ -123,7 +123,7 @@ void ClientCore::tryToConnect()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ClientCore::sshError()
+void NCore::sshError()
 {
   throw NotImplemented(FromHere(), "ClientCore::sshError");
 //  QProcess * process = static_cast<QProcess *>(sender());

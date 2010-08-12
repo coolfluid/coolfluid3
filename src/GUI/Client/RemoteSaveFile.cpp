@@ -1,6 +1,6 @@
 #include <QtGui>
 
-#include "GUI/Client/ClientCore.hpp"
+#include "GUI/Client/NCore.hpp"
 #include "GUI/Client/TypeAndNameDialog.hpp"
 #include "GUI/Client/RemoteSaveFile.hpp"
 

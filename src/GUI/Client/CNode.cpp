@@ -6,7 +6,7 @@
 #include "Common/CF.hpp"
 #include "Common/XmlHelpers.hpp"
 
-#include "GUI/Client/ClientCore.hpp"
+#include "GUI/Client/NCore.hpp"
 #include "GUI/Client/ClientRoot.hpp"
 #include "GUI/Client/NGroup.hpp"
 #include "GUI/Client/NLink.hpp"
