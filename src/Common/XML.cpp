@@ -102,7 +102,9 @@ template <>
 template <>
     std::string value_to_xmlstr<CF::Real> ( const CF::Real& val )
 {
-  return boost::lexical_cast<std::string> ( val );
+  std::stringstream ss;
+  ss << val;
+  return ss.str();
 }
 
 template <>
