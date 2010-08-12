@@ -127,6 +127,7 @@ namespace Client {
     /// regists all the signals declared in this class
     static void regist_signals ( Component* self ) {}
 
+    void shutdown(CF::Common::XmlNode & node);
 
   }; // class ClientCore
 

@@ -21,11 +21,15 @@ using namespace CF::GUI::Network;
 NCore::NCore()
   : CNode(CLIENT_CORE, "NCore", CNode::CORE_NODE)
 {
+  BUILD_COMPONENT;
+
   m_timer = new QTimer(this);
   m_networkComm = new ClientNetworkComm();
   m_process = new QProcess(this);
 
   connect(m_networkComm, SIGNAL(connected()), this, SLOT(connected()));
+
+  regist_signal("shutdown", "Server shutdown")->connect(boost::bind(&NCore::shutdown, this, _1));
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -150,3 +154,11 @@ void NCore::sshError()
 //  }
 }
 
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void NCore::shutdown(CF::Common::XmlNode & node)
+{
+  ClientRoot::getLog()->addMessage("The server is shutting down. Disconnecting...");
+  this->disconnectFromServer(false);
+}

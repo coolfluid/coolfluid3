@@ -538,7 +538,7 @@ void MainWindow::connectToServer()
 
   if(dlg.show(false, sshInfo))
   {
-//    ClientRoot::getCore()->connectToServer(sshInfo);
+    ClientRoot::getCore()->connectToServer(sshInfo);
   }
 }
 
@@ -547,7 +547,7 @@ void MainWindow::connectToServer()
 
 void MainWindow::disconnectFromServer()
 {
-//  ClientRoot::getCore()->disconnectFromServer(sender() == m_actions[ACTION_SHUTDOWN_SERVER]);
+  ClientRoot::getCore()->disconnectFromServer(sender() == m_actions[ACTION_SHUTDOWN_SERVER]);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

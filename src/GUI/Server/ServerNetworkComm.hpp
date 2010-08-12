@@ -94,6 +94,8 @@ namespace Server {
 
     void send(int clientId, const CF::Common::XmlNode & signal);
 
+    void disconnectAll();
+
   private slots :
 
     /// @brief Slot called when a new client tries to connect.
@@ -142,8 +144,8 @@ namespace Server {
 
     /// @brief The client sockets.
 
-    /// The key is pointer to the m_socket. ...
-    QHash<QTcpSocket *, QDomNode> m_clients;
+    /// The key is pointer to the m_socket. The value is the client UUID.
+    QHash<QTcpSocket *, std::string> m_clients;
 
     /// @brief Number of bytes recieved.
     int m_bytesRecieved;

@@ -2,7 +2,6 @@
 #include <string>
 
 #include <QtNetwork>
-#include <QtXml>
 #include <QtCore>
 
 #include "Common/StringOps.hpp"
@@ -40,7 +39,7 @@ ServerNetworkComm::ServerNetworkComm()
 
 ServerNetworkComm::~ServerNetworkComm()
 {
-  QHash<QTcpSocket*, QDomNode>::iterator it = m_clients.begin();
+  QHash<QTcpSocket*, std::string>::iterator it = m_clients.begin();
 
   while(it != m_clients.end())
   {
@@ -126,7 +125,7 @@ int ServerNetworkComm::send(QTcpSocket * client, const QString & frame)
 
   if(client == CFNULL)
   {
-    QHash<QTcpSocket *, QDomNode>::iterator it = m_clients.begin();
+    QHash<QTcpSocket *, std::string>::iterator it = m_clients.begin();
 
     while(it != m_clients.end())
     {
@@ -167,6 +166,14 @@ void ServerNetworkComm::send(int clientId, const XmlNode & signal)
   {
     qDebug() << e.what();
   }
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void ServerNetworkComm::disconnectAll()
+{
+
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -214,7 +221,6 @@ bool ServerNetworkComm::sendMessage(QTcpSocket * client, const QString & message
 
   p.add_param("type", LogMessage::Convert::to_str(LogMessage::INFO));
   p.add_param("text", message.toStdString());
-
 
   std::string str;
 
@@ -288,7 +294,7 @@ void ServerNetworkComm::newClient()
 
   std::cout << "A new client is connected" << std::endl;
 
-  m_clients[socket] = QDomNode();
+  m_clients[socket] = std::string();
   m_clientIds[m_lastClientId] = socket;
 
   emit newClient(m_lastClientId);

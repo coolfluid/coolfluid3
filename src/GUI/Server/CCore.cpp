@@ -260,6 +260,7 @@ Signal::return_t CCore::createDir(Signal::arg_t & node)
 
 Signal::return_t CCore::shutdown(Signal::arg_t & node)
 {
+  XmlOps::add_reply_frame(node);
   qApp->exit(0);
 }
 
