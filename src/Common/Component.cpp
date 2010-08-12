@@ -233,7 +233,7 @@ Component::ConstPtr Component::get_child(const CName& name) const
   const CompStorage_t::const_iterator found = m_components.find(name);
   if(found != m_components.end())
     return found->second;
-  return Ptr();
+  return ConstPtr();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

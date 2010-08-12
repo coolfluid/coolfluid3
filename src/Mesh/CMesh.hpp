@@ -51,10 +51,10 @@ public: // functions
   
   /// create a field
   /// @param name of the field
-  CField& create_field( const CName& name , const CRegion& support);
-  CField& create_field_with_shapefunction( const CName& name , const CRegion& support, const ElementType& shape_function);
-  CField& create_field( const CName& name , const CField& other_field);
-  CField& create_field_with_shapefunction( const CName& name , const CField& other_field, const ElementType& shape_function);
+  CField& create_field( const CName& name , const Uint dim, CRegion& support);
+//  CField& create_field_with_shapefunction( const CName& name , const CRegion& support, const ElementType& shape_function);
+//  CField& create_field( const CName& name , const CField& other_field);
+//  CField& create_field_with_shapefunction( const CName& name , const CField& other_field, const ElementType& shape_function);
 
 private: // helper functions
 

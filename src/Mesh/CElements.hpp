@@ -34,7 +34,9 @@ public: // functions
   CElements ( const CName& name );
   
   /// Initialize the CElements using the given type
-  void initialize(const std::string& element_type_name, CArray::Ptr coordinates);
+  void initialize(const std::string& element_type_name, CArray::Ptr data);
+  
+  void initialize_linked(CElements& element_in, CArray& data);
 
   /// Virtual destructor
   virtual ~CElements();
@@ -64,12 +66,18 @@ public: // functions
   /// Const access to the connectivity table
   const CTable& connectivity_table() const;
   
+  /// Mutable access to the data or coordinates;
+  CArray& data();
+  
+  /// Const access to the data or coordinates
+  const CArray& data() const;
+
   /// Mutable access to the coordinates
-  CArray& coordinates();
+  CArray& coordinates() { return data(); }
   
   /// Const access to the coordinates
-  const CArray& coordinates() const;
-
+  const CArray& coordinates() const {return data(); }
+  
 private: // helper functions
 
   /// regists all the signals declared in this class
@@ -78,6 +86,8 @@ private: // helper functions
 private: // data
   
   boost::shared_ptr<ElementType> m_element_type;
+  
+  std::string m_data_name;
   
 };
 

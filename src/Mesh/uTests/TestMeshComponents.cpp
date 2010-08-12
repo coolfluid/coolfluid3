@@ -356,21 +356,6 @@ BOOST_AUTO_TEST_CASE( moving_mesh_components_around )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( tags )
-{
-  CRoot::Ptr root = CRoot::create ( "root" );
-  CMesh::Ptr mesh = root->create_component_type<CMesh>("mesh");
-
-  mesh->add_tag("lolo");
-  std::vector<std::string> tags = mesh->get_tags();
-  BOOST_CHECK_EQUAL(tags[0],"Component");
-  BOOST_CHECK_EQUAL(tags[1],"CMesh");
-  BOOST_CHECK_EQUAL(tags[2],"lolo");
-
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 BOOST_AUTO_TEST_SUITE_END()
 
 ////////////////////////////////////////////////////////////////////////////////

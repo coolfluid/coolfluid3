@@ -6,6 +6,7 @@ LIST( APPEND uTestMesh_files
   TestMeshComponents.cpp
   TestMeshConstruction.cpp
   TestMeshReading.cpp
+  TestMeshData.cpp
   TestMeshInterpolation.cpp
 )
   

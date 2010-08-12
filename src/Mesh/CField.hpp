@@ -13,7 +13,13 @@
 
 
 namespace CF {
+namespace Common 
+{
+  class CLink;
+}
 namespace Mesh {
+  
+  class CRegion;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -47,7 +53,7 @@ public: // functions
   
   /// create a Cfield component
   /// @param name of the field
-  CField& create_field ( const CName& name );
+  CField& create_field (CRegion& support, const Uint dim, std::map<CArray*,CArray*>& data_for_coordinates);
   
   /// create a CElements component, initialized to take connectivity data for the given type
   /// @param name of the field
@@ -59,6 +65,7 @@ public: // functions
   /// @param element_type_name type of the elements  
   CArray& create_data(const Uint& dim);
   
+  const CRegion& support() const;
   
   /// @return the number of elements stored in this field, including any subfields
   Uint recursive_elements_count() const
