@@ -26,6 +26,28 @@ namespace Common {
     return *params;
   }
 
+  void XmlParams::set_uuid(const std::string & uuid)
+  {
+    XmlAttr * attr = xmlnode.first_attribute(tag_attr_senderid());
+
+    if(attr == CFNULL)
+      XmlOps::add_attribute_to(xmlnode, tag_attr_senderid(), uuid);
+    else
+      attr->value(uuid.c_str());
+  }
+
+  std::string XmlParams::get_uuid() const
+  {
+    std::string uuid;
+    XmlAttr * attr = xmlnode.first_attribute(tag_attr_senderid());
+
+    if(attr != CFNULL)
+      uuid = attr->value();
+
+    return uuid;
+  }
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
   const char * XmlParams::tag_node_doc()    { return "cfxml"; }
@@ -40,7 +62,9 @@ namespace Common {
 
   const char * XmlParams::tag_attr_key()    { return "key"; }
 
-	const char * XmlParams::tag_attr_descr()    { return "descr"; }
+  const char * XmlParams::tag_attr_descr()    { return "descr"; }
+
+  const char * XmlParams::tag_attr_senderid()    { return "senderid"; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -303,6 +327,12 @@ namespace Common {
     XmlAttr* sender_att = xmlnode.first_attribute("sender");
     std::string receiver = sender_att ? sender_att->value() : "";
     XmlOps::add_attribute_to( *replynode, "receiver", receiver );
+
+    // copy uuid, if any
+    XmlAttr* uuid_att = xmlnode.first_attribute(XmlParams::tag_attr_senderid());
+
+    if(uuid_att != CFNULL)
+      XmlOps::add_attribute_to( *replynode, XmlParams::tag_attr_senderid(), uuid_att->value() );
 
     return replynode;
   }

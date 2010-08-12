@@ -96,6 +96,8 @@ namespace Common {
     static const char * tag_attr_key ();
     /// the xml attribute name used for the description
     static const char * tag_attr_descr ();
+    /// the xml attribute name used for the sender UUID
+    static const char * tag_attr_senderid();
 
     /// Constructor
     /// @param node the node where the parameters will be extracted from
@@ -121,6 +123,18 @@ namespace Common {
     /// add an array node to the parameters
     template < typename TYPE >
         void add_array ( const std::string& key, const std::vector<TYPE>& vect);
+
+    /// Sets UUID attribute to the first frame found
+    /// If the attribute does not exists, it is created; otherwise its value
+    /// is replaced.
+    /// @param uuid UUID to set
+    /// @throw XmlError if no frame was found
+    void set_uuid(const std::string & uuid);
+
+    /// Gets UUID attribute of the first frame found
+    /// @return The UUID, or an empty string if not found.
+    /// @throw XmlError if no frame was found
+    std::string get_uuid() const;
 
     /// reference to the XmlNode to retrieve params from
     XmlNode& xmlnode;
