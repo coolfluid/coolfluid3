@@ -34,7 +34,7 @@ public: // functions
   CElements ( const CName& name );
   
   /// Initialize the CElements using the given type
-  void initialize(const std::string& element_type_name, CArray::Ptr data);
+  void initialize(const std::string& element_type_name, CArray& data);
   
   void initialize_linked(CElements& element_in, CArray& data);
 

@@ -82,6 +82,7 @@ BOOST_AUTO_TEST_CASE( FieldTest )
   BOOST_CHECK_EQUAL(mesh.get_child("Volume")->get_child("gas")->get_child_type<CElements>("elements_Quad2DLagrangeP1")->connectivity_table().size(), (Uint) 2);
   BOOST_CHECK_EQUAL(&mesh.get_child("Volume")->get_child("gas")->get_child_type<CElements>("elements_Quad2DLagrangeP1")->connectivity_table(),
                     &mesh.get_child("regions")->get_child("gas")->get_child_type<CElements>("elements_Quad2DLagrangeP1")->connectivity_table());
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////

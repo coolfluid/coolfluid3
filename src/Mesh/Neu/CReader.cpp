@@ -312,7 +312,7 @@ void CReader::read_connectivity(std::fstream& file)
   // make temporary regions for each element type possible
   CRegion& tmp = m_mesh->create_region("tmp");
 
-  CArray::Ptr coordinates = m_mesh->get_child("regions")->get_child_type<CArray>("coordinates");
+  CArray& coordinates = *m_mesh->get_child("regions")->get_child_type<CArray>("coordinates");
   
   std::map<std::string,boost::shared_ptr<CTable::Buffer> > buffer =
       create_element_regions_with_buffermap(tmp,coordinates,m_supported_types);
@@ -375,7 +375,7 @@ void CReader::read_groups(std::fstream& file)
   int dummy;
   
   CRegion::Ptr regions = m_mesh->get_child_type<CRegion>("regions");
-  CArray::Ptr coordinates = regions->get_child_type<CArray>("coordinates");
+  CArray& coordinates = *regions->get_child_type<CArray>("coordinates");
 
   std::vector<GroupData> groups(m_headerData.NGRPS);
   for (Uint g=0; g<m_headerData.NGRPS; ++g) {    
@@ -445,7 +445,7 @@ void CReader::read_groups(std::fstream& file)
 void CReader::read_boundaries(std::fstream& file)
 {
   CRegion::Ptr regions = m_mesh->get_child_type<CRegion>("regions");
-  CArray::Ptr coordinates = regions->get_child_type<CArray>("coordinates");
+  CArray& coordinates = *regions->get_child_type<CArray>("coordinates");
   
   std::string line;
   for (Uint t=0; t<m_headerData.NBSETS; ++t) {

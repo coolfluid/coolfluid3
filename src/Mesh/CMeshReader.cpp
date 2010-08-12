@@ -67,7 +67,7 @@ CMesh::Ptr CMeshReader::create_mesh_from(boost::filesystem::path& file)
 //////////////////////////////////////////////////////////////////////////////
 
 CMeshReader::BufferMap
-  CMeshReader::create_element_regions_with_buffermap (CRegion& parent_region, CArray::Ptr coordinates,
+  CMeshReader::create_element_regions_with_buffermap (CRegion& parent_region, CArray& coordinates,
                                                     const std::vector<std::string>& etypes)
 {
   // Create regions for each element type

@@ -49,7 +49,7 @@ void create_rectangle_buffered(CMesh& mesh, const Real x_len, const Real y_len, 
     }
   }
   CRegion& region = mesh.create_region("region");
-  CTable::Buffer connBuffer = region.create_elements("Quad2DLagrangeP1",boost::dynamic_pointer_cast<CArray>(coordinates.shared_from_this())).connectivity_table().create_buffer( x_segments*y_segments );
+  CTable::Buffer connBuffer = region.create_elements("Quad2DLagrangeP1",coordinates).connectivity_table().create_buffer( x_segments*y_segments );
   std::vector<Uint> nodes(4);
   for(Uint j = 0; j < y_segments; ++j)
   {
@@ -88,7 +88,7 @@ void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uin
     }
   }
   CRegion& region = mesh.create_region("region");
-  CTable::ConnectivityTable& connArray = region.create_elements("Quad2DLagrangeP1",boost::dynamic_pointer_cast<CArray>(coordinates.shared_from_this())).connectivity_table().table();
+  CTable::ConnectivityTable& connArray = region.create_elements("Quad2DLagrangeP1",coordinates).connectivity_table().table();
   connArray.resize(boost::extents[(x_segments)*(y_segments)][4]);
   for(Uint j = 0; j < y_segments; ++j)
   {

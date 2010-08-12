@@ -239,7 +239,7 @@ void readBlockMeshFile(std::fstream& file, BlockData& blockData)
 void buildMesh(const BlockData& blockData, CMesh& mesh)
 {
   // Create the coordinate table
-  CArray& coordinates = *mesh.create_array("coordinates");
+  CArray& coordinates = *mesh.create_component_type<CArray>("coordinates");
   const Uint dim = computeDimensionality(blockData);
   coordinates.initialize(dim);
   CArray::Buffer coordinatesBuffer = coordinates.create_buffer();

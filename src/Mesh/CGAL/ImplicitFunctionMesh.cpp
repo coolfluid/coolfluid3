@@ -40,12 +40,12 @@ void cgal_to_coolfluid(const TriangulationComplexT& complex, CMesh& mesh) {
   VertexMapT vertex_map(0, complex.number_of_cells()); // estimate the number of vertices equal to the cell count
 
 
-  CRegion& region = *mesh.create_region("region");
+  CRegion& region = mesh.create_region("region");
   
   // coordinate storage
-  CArray::Ptr coordinates = region.create_component_type<CArray>("coordinates");
-  coordinates->initialize(3);
-  CArray::Buffer coordinatesBuffer = coordinates->create_buffer(complex.number_of_cells());
+  CArray& coordinates = *region.create_component_type<CArray>("coordinates");
+  coordinates.initialize(3);
+  CArray::Buffer coordinatesBuffer = coordinates.create_buffer(complex.number_of_cells());
   std::vector<Real> coords_row(3);
   Uint coord_row_count = 0;
   

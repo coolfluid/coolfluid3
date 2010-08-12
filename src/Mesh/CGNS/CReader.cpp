@@ -387,7 +387,7 @@ void CReader::read_section(CRegion& parent_region)
 
   // Create a new region for this section
   CRegion& this_region = parent_region.create_region(m_section.name);
-  CArray::Ptr all_coordinates = parent_region.get_child_type<CArray>("coordinates");
+  CArray& all_coordinates = *parent_region.get_child_type<CArray>("coordinates");
 
   if (m_section.type == MIXED)
   {
@@ -449,8 +449,8 @@ void CReader::read_section(CRegion& parent_region)
     else
     {
       // Create coordinates component in this region for this CF element type
-      this_region.create_coordinates(m_zone.coord_dim);
-      this_region.create_elements(etype_CF); // no second argument defaults to the coordinates in this_region
+      CArray& section_coordinates = this_region.create_coordinates(m_zone.coord_dim);
+      this_region.create_elements(etype_CF,section_coordinates); // no second argument defaults to the coordinates in this_region
     }
 
     CElements& element_region= *this_region.get_child_type<CElements>("elements_"+etype_CF);
@@ -487,7 +487,7 @@ void CReader::read_section(CRegion& parent_region)
           // if not found in coords_added, it has to be added to the buffer
           if (local_coord_idx >= coords_added.size())
           {
-            local_coord_idx = coord_buffer.add_row((*all_coordinates)[global_coord_idx]);
+            local_coord_idx = coord_buffer.add_row(all_coordinates[global_coord_idx]);
             coords_added.push_back(global_coord_idx);
           }
           row[node] = local_coord_idx;
@@ -524,7 +524,7 @@ void CReader::read_section(CRegion& parent_region)
 void CReader::create_structured_elements(CRegion& parent_region)
 {
     
-  CArray::Ptr coordinates = parent_region.get_child_type<CArray>("coordinates");
+  CArray& coordinates = *parent_region.get_child_type<CArray>("coordinates");
       
   std::string etype_CF;
   switch (m_base.cell_dim)
@@ -624,7 +624,7 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
 
   // Create a region inside mesh/regions/bc-regions with the name of the cgns boco.
   CRegion& this_region = parent_region.create_region(m_boco.name);
-  CArray::Ptr coordinates = parent_region.get_child_type<CArray>("coordinates");
+  CArray& coordinates = *parent_region.get_child_type<CArray>("coordinates");
   
   // Read the element ID's
   int* boco_elems = new int [m_boco.nBC_elem];
@@ -711,7 +711,7 @@ void CReader::read_boco_structured(CRegion& parent_region)
   
   // Create a region inside mesh/regions/bc-regions with the name of the cgns boco.
   CRegion& this_region = parent_region.create_region(m_boco.name);
-  CArray::Ptr coordinates = parent_region.get_child_type<CArray>("coordinates");
+  CArray& coordinates = *parent_region.get_child_type<CArray>("coordinates");
   
   // Which BC_element type will we need?
   std::string etype_CF;

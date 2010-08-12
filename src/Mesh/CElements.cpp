@@ -27,15 +27,14 @@ CElements::~CElements()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CElements::initialize(const std::string& element_type_name, CArray::Ptr data)
+void CElements::initialize(const std::string& element_type_name, CArray& data)
 {
   set_element_type(element_type_name);
   cf_assert(m_element_type);
   const Uint nb_nodes = m_element_type->nb_nodes();
   create_connectivity_table("connectivity_table").initialize(nb_nodes);
-  m_data_name = data->name();
-  CLink::Ptr data_link = create_component_type<CLink>(m_data_name);
-  data_link->link_to(data);
+  m_data_name = data.name();
+  create_component_type<CLink>(m_data_name)->link_to(data.get());
 }
   
 ////////////////////////////////////////////////////////////////////////////////
