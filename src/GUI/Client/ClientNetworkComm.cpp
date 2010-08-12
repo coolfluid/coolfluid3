@@ -116,40 +116,22 @@ int ClientNetworkComm::send(const QString & frame) const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool ClientNetworkComm::send(const XmlDoc & signal)
+bool ClientNetworkComm::send(XmlDoc & signal)
 {
   bool success = false;
   std::string str;
 
   if(this->checkConnected())
   {
+    XmlNode& nodedoc = *XmlOps::goto_doc_node(signal);
+    XmlNode * node = nodedoc.first_node(XmlParams::tag_node_frame());
+    XmlParams p(*node);
+
+    p.set_uuid(ClientRoot::getUUID());
+
     XmlOps::xml_to_string(signal, str);
 
-    this->send(str.c_str());
-
-//    try
-//    {
-//      QByteArray block;
-//      QDataStream out(&block, QIODevice::WriteOnly);
-
-//      XmlOps::xml_to_string(signal, str);
-
-//      out.setVersion(QDataStream::Qt_4_6); // QDataStream version
-//      out << (quint32)0;    // reserve 32 bits for the frame data size
-//      out << str.c_str();
-//      out.device()->seek(0);  // go back to the beginning of the frame
-//      out << (quint32)(block.size() - sizeof(quint32)); // write the frame data size
-
-//      qDebug() << "The frame:" << str.c_str() << m_socket->write(block);
-
-//      m_socket->flush();
-
-//      success = true;
-//    }
-//    catch(FailedAssertion & ae)
-//    {
-//      ClientRoot::getLog()->addException(ae.what());
-//    }
+    success = this->send(str.c_str()) > 0;
   }
 
   return success;

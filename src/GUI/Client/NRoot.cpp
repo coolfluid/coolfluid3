@@ -1,6 +1,9 @@
 #include <QtCore>
 #include <QtGui>
 
+#include <boost/uuid/random_generator.hpp>
+#include <boost/uuid/uuid_io.hpp>
+
 #include "Common/CF.hpp"
 #include "Common/CPath.hpp"
 
@@ -11,7 +14,8 @@ using namespace CF::Common;
 using namespace CF::GUI::Client;
 
 NRoot::NRoot(const QString & name)
-  : CNode(name, "CRoot", ROOT_NODE)
+  : CNode(name, "CRoot", ROOT_NODE),
+    m_uuid(boost::uuids::random_generator()())
 {
   BUILD_COMPONENT;
 
@@ -58,4 +62,14 @@ CNode::Ptr NRoot::getNodeFromRoot(CF::Uint number) const
 bool NRoot::pathExists() const
 {
   return false;
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+std::string NRoot::getUUID() const
+{
+  std::stringstream ss;
+  ss << m_uuid;
+  return ss.str();
 }

@@ -81,7 +81,7 @@ namespace Client {
     /// otherwise, returns @c false.
     bool isConnected() const;
 
-    bool send(const CF::Common::XmlDoc & signal);
+    bool send(CF::Common::XmlDoc & signal);
 
   private slots :
 

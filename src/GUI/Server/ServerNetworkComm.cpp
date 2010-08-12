@@ -304,8 +304,6 @@ void ServerNetworkComm::newData()
   // which client has sent data ?
   QTcpSocket * socket = qobject_cast<QTcpSocket *>(sender());
 
-  // unused // int clientId;
-
   QString frame;
   QDataStream in(socket);
   in.setVersion(QDataStream::Qt_4_6);

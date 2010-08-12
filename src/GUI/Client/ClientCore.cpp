@@ -49,7 +49,7 @@ ClientCore & ClientCore::instance()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ClientCore::sendSignal(const CF::Common::XmlDoc & signal)
+void ClientCore::sendSignal(XmlDoc & signal)
 {
   m_networkComm->send(signal);
 }

@@ -62,7 +62,7 @@ namespace Client {
 
     /// @param signal The signal to send. Build the signal using @c #XmlOps and
     /// @c #XmlParams classes.
-    void sendSignal(const CF::Common::XmlDoc & signal);
+    void sendSignal(CF::Common::XmlDoc & signal);
 
     /// @brief Attempts to connect to a server.
 

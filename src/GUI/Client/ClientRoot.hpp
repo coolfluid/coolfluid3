@@ -75,6 +75,11 @@ namespace Client {
       return getRoot()->root()->access_component< NTree >(CLIENT_TREE_PATH);
     }
 
+    inline static std::string getUUID()
+    {
+      return getRoot()->getUUID();
+    }
+
   }; // class ClientRoot
 
   ////////////////////////////////////////////////////////////////////////////

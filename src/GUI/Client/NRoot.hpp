@@ -3,6 +3,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
+#include <boost/uuid/uuid.hpp>
+
 #include "Common/CRoot.hpp"
 
 #include "GUI/Client/CNode.hpp"
@@ -64,10 +66,14 @@ namespace Client {
     /// @c false
     bool pathExists() const;
 
+    std::string getUUID() const;
+
   private :
 
     /// @brief The internal CRoot component
     CF::Common::CRoot::Ptr m_root;
+
+    boost::uuids::uuid m_uuid;
 
     /// regists all the signals declared in this class
     static void regist_signals ( Component* self ) {}
