@@ -45,7 +45,7 @@ CField& CMesh::create_field( const CName& name , const Uint dim, CRegion& suppor
 {
   CField& field = *create_component_type<CField>(name);
   std::map<CArray*,CArray*> data_for_coordinates;
-  field.create_field(support,dim,data_for_coordinates);
+  field.create_field(name, support,dim,data_for_coordinates);
 
   CFinfo << "data_for_coordinates.size() = " << data_for_coordinates.size() << CFendl;
   return field;

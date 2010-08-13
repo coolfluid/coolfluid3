@@ -30,8 +30,10 @@ CField::~CField()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CField& CField::create_field(CRegion& support, const Uint dim, std::map<CArray*,CArray*>& data_for_coordinates)
+CField& CField::create_field(const std::string& field_name, CRegion& support, const Uint dim, std::map<CArray*,CArray*>& data_for_coordinates)
 {  
+  m_field_name = field_name;
+  support.add_field_link(*this);
   create_component_type<CLink>("support")->link_to(support.get()); 
   if (! range_typed<CArray>(support).empty()) // if coordinates in this support_region
     data_for_coordinates[&get_component_typed<CArray>(support)] = &create_data(dim);
@@ -49,7 +51,7 @@ CField& CField::create_field(CRegion& support, const Uint dim, std::map<CArray*,
   BOOST_FOREACH(CRegion& support_level_down, range_typed<CRegion>(support))
   {
     CField& field = *create_component_type<CField>(support_level_down.name());
-    field.create_field(support_level_down,dim,data_for_coordinates);
+    field.create_field(m_field_name,support_level_down,dim,data_for_coordinates);
   }
   return *this;
 }
@@ -60,16 +62,6 @@ CElements& CField::create_elements(const std::string& element_type_name, CArray:
 {
   std::string name = "elements_" + element_type_name;
   CElements::Ptr elements = create_component_type<CElements>(name);
-  
-  // if no argument is passed for coordinates, take the coordinates defined in this field.
-  // throws error if not found.
-  if (!data.get())
-  {
-    data = get_child_type<CArray>("data");
-    if (!data.get())
-      throw ValueNotFound(FromHere(), "Component with name \"data\" does not exist in component with path [" 
-                          + this->full_path().string() + "]");
-  }
   
   elements->initialize_linked(*elements,*data);
   return *elements;

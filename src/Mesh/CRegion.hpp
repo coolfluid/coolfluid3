@@ -6,12 +6,15 @@
 #include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/MeshAPI.hpp"
-#include "Mesh/CTable.hpp"
+
 #include "Mesh/CElements.hpp"
-#include "Mesh/CArray.hpp"
 
 namespace CF {
 namespace Mesh {
+  
+  class CField; 
+  class CTable;
+  class CArray;
   
   using namespace Common;
 
@@ -57,30 +60,17 @@ public:
   /// @param name of the region
   /// @param element_type_name type of the elements  
   CArray& create_coordinates(const Uint& dim);
-
   
+  void add_field_link(CField& field);
+
   /// @return the number of elements stored in this region, including any subregions
-  Uint recursive_elements_count() const
-  {
-    Uint elem_count = 0;
-    BOOST_FOREACH(const CElements& elements, recursive_range_typed<CElements>(*this))
-    {
-      elem_count += elements.elements_count();
-    }
-    return elem_count;
-  }
+  Uint recursive_elements_count() const;
 
   /// @return the number of elements stored in this region, including any subregions
   template <typename Predicate>
-  Uint recursive_filtered_elements_count(const Predicate& pred) const
-  {
-    Uint elem_count = 0;
-    BOOST_FOREACH(const CElements& elements, recursive_filtered_range_typed<CElements>(*this,pred))
-    {
-      elem_count += elements.elements_count();
-    }
-    return elem_count;
-  }
+    Uint recursive_filtered_elements_count(const Predicate& pred) const;
+  
+  CField& get_field(const CName& field_name);
   
 private: // helper functions
 
@@ -93,6 +83,16 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
+template <typename Predicate>
+inline Uint CRegion::recursive_filtered_elements_count(const Predicate& pred) const
+{
+  Uint elem_count = 0;
+  BOOST_FOREACH(const CElements& elements, recursive_filtered_range_typed<CElements>(*this,pred))
+    elem_count += elements.elements_count();
+
+  return elem_count;
+}
+  
 } // Mesh
 } // CF
 

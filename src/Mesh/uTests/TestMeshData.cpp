@@ -65,10 +65,10 @@ BOOST_AUTO_TEST_CASE( FieldTest )
   CMesh& mesh = *meshreader->create_mesh_from(fp_in);
   
   mesh.create_field("Volume",1,get_component_typed<CRegion>(mesh));
+  mesh.create_field("Solution",5,get_component_typed<CRegion>(mesh));
   BOOST_CHECK_EQUAL(mesh.get_child("Volume")->full_path().string(),"mesh/Volume");
-  
-  CFinfo << mesh.tree() << CFendl;
-  
+  BOOST_CHECK_EQUAL(mesh.get_child("Solution")->full_path().string(),"mesh/Solution");
+    
   // Check if support is filled in correctly
   BOOST_CHECK_EQUAL(mesh.get_child_type<CField>("Volume")->support().name(), "regions");
   BOOST_CHECK_EQUAL(mesh.get_child_type<CField>("Volume")->support().recursive_filtered_elements_count(IsElementsVolume()), (Uint) 16);
@@ -83,6 +83,12 @@ BOOST_AUTO_TEST_CASE( FieldTest )
   BOOST_CHECK_EQUAL(&mesh.get_child("Volume")->get_child("gas")->get_child_type<CElements>("elements_Quad2DLagrangeP1")->connectivity_table(),
                     &mesh.get_child("regions")->get_child("gas")->get_child_type<CElements>("elements_Quad2DLagrangeP1")->connectivity_table());
   
+  //  CFinfo << mesh.tree() << CFendl;
+  
+  // test the CRegion::get_field function, to return the matching field
+  BOOST_CHECK_EQUAL(mesh.get_child_type<CRegion>("regions")->get_field("Volume").full_path().string(),"mesh/Volume");
+  BOOST_CHECK_EQUAL(mesh.get_child("regions")->get_child_type<CRegion>("gas")->get_field("Volume").full_path().string(),"mesh/Volume/gas");
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

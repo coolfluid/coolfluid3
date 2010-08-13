@@ -53,12 +53,12 @@ public: // functions
   
   /// create a Cfield component
   /// @param name of the field
-  CField& create_field (CRegion& support, const Uint dim, std::map<CArray*,CArray*>& data_for_coordinates);
+  CField& create_field (const std::string& field_name, CRegion& support, const Uint dim, std::map<CArray*,CArray*>& data_for_coordinates);
   
   /// create a CElements component, initialized to take connectivity data for the given type
   /// @param name of the field
   /// @param element_type_name type of the elements
-  CElements& create_elements (const std::string& element_type_name, CArray::Ptr data = CArray::Ptr());
+  CElements& create_elements (const std::string& element_type_name, CArray::Ptr data);
   
   /// create a coordinates component, initialized with the coordinate dimension
   /// @param name of the field
@@ -90,6 +90,7 @@ public: // functions
     return elem_count;
   }
   
+  std::string field_name() const { return m_field_name; }
   
   
 private: // helper functions
@@ -97,6 +98,9 @@ private: // helper functions
   /// regists all the signals declared in this class
   static void regist_signals ( Component* self ) {}
 
+private:
+  
+  std::string m_field_name;
 
 };
 
