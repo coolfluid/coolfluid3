@@ -35,6 +35,14 @@ struct MeshData_Fixture
      // uncomment if you want to use arguments to the test executable
      //int*    argc = &boost::unit_test::framework::master_test_suite().argc;
      //char*** argv = &boost::unit_test::framework::master_test_suite().argv;
+    
+    CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
+    
+    // the file to read from
+    boost::filesystem::path fp_in ("quadtriag.neu");
+    // the mesh to store in
+    m_mesh = meshreader->create_mesh_from(fp_in);
+    
   }
 
   /// common tear-down for each test case
@@ -47,6 +55,7 @@ struct MeshData_Fixture
 
   /// common values accessed by all tests goes here
 
+  CMesh::Ptr m_mesh;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -57,12 +66,7 @@ BOOST_FIXTURE_TEST_SUITE( MeshData_TestSuite, MeshData_Fixture )
 
 BOOST_AUTO_TEST_CASE( FieldTest )
 {
-  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
-  
-  // the file to read from
-  boost::filesystem::path fp_in ("quadtriag.neu");
-  // the mesh to store in
-  CMesh& mesh = *meshreader->create_mesh_from(fp_in);
+  CMesh& mesh = *m_mesh;
   
   mesh.create_field("Volume",1,get_component_typed<CRegion>(mesh));
   mesh.create_field("Solution",5,get_component_typed<CRegion>(mesh));
@@ -88,12 +92,8 @@ BOOST_AUTO_TEST_CASE( FieldTest )
   // test the CRegion::get_field function, to return the matching field
   BOOST_CHECK_EQUAL(mesh.get_child_type<CRegion>("regions")->get_field("Volume").full_path().string(),"mesh/Volume");
   BOOST_CHECK_EQUAL(mesh.get_child("regions")->get_child_type<CRegion>("gas")->get_field("Volume").full_path().string(),"mesh/Volume/gas");
-
+  
 }
-
-////////////////////////////////////////////////////////////////////////////////
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 
