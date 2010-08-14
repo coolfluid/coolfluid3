@@ -171,9 +171,21 @@ public: // functions
 
   /// Looks for a component via its path
   /// @param path to the component
-  ///
-  /// @todo wdeconinck: relative path doesn't work if no root is available)
-  Ptr look_component ( const CPath& path ) const;
+  ConstPtr look_component ( const CPath& path ) const;
+
+  Ptr look_component ( const CPath& path );
+
+  template < typename T >
+    typename T::ConstPtr look_component_type ( const CPath& path ) const 
+  {
+    return boost::dynamic_pointer_cast<T const>(look_component(path));
+  }
+    
+  template < typename T >
+  typename T::Ptr look_component_type ( const CPath& path ) 
+  {
+    return boost::dynamic_pointer_cast<T>(look_component(path));
+  }
 
   /// Return the parent component
   Ptr get_parent() { return m_parent.lock(); }

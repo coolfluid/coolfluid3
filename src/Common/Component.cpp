@@ -286,19 +286,96 @@ void Component::move_component ( Component::Ptr new_parent )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr Component::look_component ( const CPath& path ) const
+Component::ConstPtr Component::look_component ( const CPath& path ) const
 {
-  cf_assert ( !m_root.expired() );
+  if (!m_root.expired())  // root is available. This is a faster method.
+  {
+    CPath lpath = path;
+    
+    complete_path(lpath); // ensure the path is complete
+    
+    // get the root
+    boost::shared_ptr<CRoot> root =
+    boost::dynamic_pointer_cast<CRoot>( m_root.lock() );
+    
+    return root->access_component(lpath);
+  }
+  else // we are in the case with no root. Hence the path must be relative
+  {
+    using namespace boost::algorithm;
 
-  CPath lpath = path;
+    std::string sp = path.string();
 
-  complete_path(lpath); // ensure the path is complete
+    // break path in tokens and loop on them, while concatenaitng to a new path
+    boost::char_separator<char> sep("/");
+    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+    tokenizer tok (sp,sep);
+    
+    Component::ConstPtr look_comp = get() ;
+    std::string last;
+    for(tokenizer::const_iterator el=tok.begin(); el!=tok.end(); ++el)
+    {
+      if ( equals (*el, ".") ) continue;     // substitute any "/./" for nothing
+      
+      if ( equals (*el, "..") )              // substitute any "../" for base path
+        look_comp = look_comp->get_parent();
+      else
+      {
+        Component::ConstPtr parent = look_comp;
+        look_comp = look_comp->get_child(*el);
+        if(!look_comp.get())
+          throw ValueNotFound (FromHere(), "Component with name " + *el + " was not found in " + parent->full_path().string());
+      }
+    }
+    return look_comp;
+  }
+}
+  
+/////////////////////////////////////////////////////////////////////////////////////
 
-  // get the root
-  boost::shared_ptr<CRoot> root =
-      boost::dynamic_pointer_cast<CRoot>( m_root.lock() );
-
-  return root->access_component(lpath);
+Component::Ptr Component::look_component ( const CPath& path )
+{
+  if (!m_root.expired())  // root is available. This is a faster method.
+  {
+    CPath lpath = path;
+    
+    complete_path(lpath); // ensure the path is complete
+    
+    // get the root
+    boost::shared_ptr<CRoot> root =
+    boost::dynamic_pointer_cast<CRoot>( m_root.lock() );
+    
+    return root->access_component(lpath);
+  }
+  else // we are in the case with no root. Hence the path must be relative
+  {
+    using namespace boost::algorithm;
+    
+    std::string sp = path.string();
+    
+    // break path in tokens and loop on them, while concatenaitng to a new path
+    boost::char_separator<char> sep("/");
+    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
+    tokenizer tok (sp,sep);
+    
+    Component::Ptr look_comp = get() ;
+    std::string last;
+    for(tokenizer::iterator el=tok.begin(); el!=tok.end(); ++el)
+    {
+      if ( equals (*el, ".") ) continue;     // substitute any "/./" for nothing
+      
+      if ( equals (*el, "..") )              // substitute any "../" for base path
+        look_comp = look_comp->get_parent();
+      else
+      {
+        Component::Ptr parent = look_comp;
+        look_comp = look_comp->get_child(*el);
+        if(!look_comp.get())
+          throw ValueNotFound (FromHere(), "Component with name " + *el + " was not found in " + parent->full_path().string());
+      }
+    }
+    return look_comp;
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

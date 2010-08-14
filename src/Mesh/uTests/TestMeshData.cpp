@@ -92,6 +92,11 @@ BOOST_AUTO_TEST_CASE( FieldTest )
   // test the CRegion::get_field function, to return the matching field
   BOOST_CHECK_EQUAL(mesh.get_child_type<CRegion>("regions")->get_field("Volume").full_path().string(),"mesh/Volume");
   BOOST_CHECK_EQUAL(mesh.get_child("regions")->get_child_type<CRegion>("gas")->get_field("Volume").full_path().string(),"mesh/Volume/gas");
+    
+  BOOST_CHECK_EQUAL(mesh.look_component("regions/gas")->full_path().string(),"mesh/regions/gas");
+  BOOST_CHECK_EQUAL(mesh.look_component("regions/gas/../liquid")->full_path().string(),"mesh/regions/liquid");
+  BOOST_CHECK_EQUAL(mesh.look_component_type<CRegion>("regions/gas/../liquid")->get_field("Volume").full_path().string(),"mesh/Volume/liquid");
+
   
 }
 
