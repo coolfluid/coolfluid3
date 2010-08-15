@@ -6,11 +6,14 @@ LIST( APPEND uTestTetraSF_files
 
 CF_ADD_UNITTEST( uTestTetraSF )
 
-SET_SOURCE_FILES_PROPERTIES(uTestTetraSF.cpp 
-    PROPERTIES COMPILE_FLAGS "-frounding-math -DCGAL_CFG_NO_TR1_ARRAY -DCGAL_CFG_NO_TR1_TUPLE")
+if( DEFINED CF_CGAL_COMPILE_FLAGS )
 
-IF(CF_STRIP_CGAL_COMPILE_FLAGS)
-  SET(uTestTetraSF_COMPILE_FLAGS "${uTestTetraSF_COMPILE_FLAGS} -g0 -O0")
-ENDIF()
+  SET_SOURCE_FILES_PROPERTIES(uTestTetraSF.cpp PROPERTIES COMPILE_FLAGS ${CF_CGAL_COMPILE_FLAGS})
+
+  if(CF_STRIP_CGAL_COMPILE_FLAGS)
+    set(uTestTetraSF_COMPILE_FLAGS "${uTestTetraSF_COMPILE_FLAGS} ${CF_CGAL_COMPILE_FLAGS}")
+  endif()
+
+endif()
 
 ################################################################################
