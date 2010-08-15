@@ -1,37 +1,44 @@
-IF( CF_HAVE_CGAL )
+if( CF_HAVE_CGAL )
 
-option(CF_STRIP_CGAL_COMPILE_FLAGS "Strip optimization and compile flags for CGAL, to avoid the long compilation" ON)
+  option(CF_STRIP_CGAL_COMPILE_FLAGS "Strip optimization and compile flags for CGAL, to avoid the long compilation" ON)
 
-LIST( APPEND CF_CGAL_files
-  CGALAPI.hpp
-  ImplicitFunctionMesh.cpp
-  ImplicitFunctionMesh.hpp
-)
+  list( APPEND CF_CGAL_files
+    CGALAPI.hpp
+    ImplicitFunctionMesh.cpp
+    ImplicitFunctionMesh.hpp
+  )
 
-LIST( APPEND CF_CGAL_includedirs ${CGAL_INCLUDE_DIR} )
-LIST( APPEND CF_CGAL_libs
+  list( APPEND CF_CGAL_includedirs ${CGAL_INCLUDE_DIR} )
+  list( APPEND CF_CGAL_libs
                 ${CGAL_LIBRARY}
                 ${Boost_THREAD_LIBRARY} )
-LIST( APPEND CF_CGAL_cflibs Mesh )
-SET( CF_CGAL_kernellib TRUE )
+  list( APPEND CF_CGAL_cflibs Mesh )
+  set( CF_CGAL_kernellib TRUE )
 
-CF_ADD_LIBRARY( CF_CGAL )
 
-# Avoid a conflict between boost and CGAL
-# TODO: this are compiler specific to GCC
-SET(CF_CGAL_COMPILE_FLAGS "-frounding-math -DCGAL_CFG_NO_TR1_ARRAY -DCGAL_CFG_NO_TR1_TUPLE")
+  CF_ADD_LIBRARY( CF_CGAL )
 
-# TODO: this are compiler specific to GCC
-IF(CF_STRIP_CGAL_COMPILE_FLAGS)
-  SET(CF_CGAL_COMPILE_FLAGS "${CF_CGAL_COMPILE_FLAGS} -g0 -O0")
-ENDIF()
+  # avoid a conflict between boost and CGAL
+  ADD_DEFINITIONS(-DCF_CGALG_NO_TR1_ARRAY -DCF_CGALG_NO_TR1_TUPLE)
 
-SET_SOURCE_FILES_PROPERTIES(ImplicitFunctionMesh.cpp 
-    PROPERTIES COMPILE_FLAGS ${CF_CGAL_COMPILE_FLAGS})
+  set( CF_CGAL_COMPILE_FLAGS "" )
+  if( CMAKE_COMPILER_IS_GNUCC )
+
+    set(CF_CGAL_COMPILE_FLAGS "${CF_CGAL_COMPILE_FLAGS} -frounding-math")
+
+    # just for this library, disable optimizations
+    # to avoid enormous compilation times and memory usage
+    if(CF_STRIP_CGAL_COMPILE_FLAGS)
+      set(CF_CGAL_COMPILE_FLAGS "${CF_CGAL_COMPILE_FLAGS} -g0 -O0")
+    endif()
+
+   endif()
+
+  SET_SOURCE_FILES_PROPERTIES(ImplicitFunctionMesh.cpp PROPERTIES COMPILE_FLAGS ${CF_CGAL_COMPILE_FLAGS})
 
 add_subdirectory( uTests )
 
-ELSE()
+else()
 
   CF_MARK_NOT_ORPHAN(
     CGALAPI.hpp
@@ -39,4 +46,4 @@ ELSE()
     ImplicitFunctionMesh.hpp
     uTests/uTestTetraSF.cpp  )
 
-ENDIF()
+endif()
