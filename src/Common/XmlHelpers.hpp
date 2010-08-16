@@ -98,6 +98,8 @@ namespace Common {
     static const char * tag_attr_descr ();
     /// the xml attribute name used for the sender UUID
     static const char * tag_attr_senderid();
+    /// the xml attribute name used for the frame UUID
+    static const char * tag_attr_frameid();
 
     /// Constructor
     /// @param node the node where the parameters will be extracted from
@@ -129,12 +131,14 @@ namespace Common {
     /// is replaced.
     /// @param uuid UUID to set
     /// @throw XmlError if no frame was found
-    void set_uuid(const std::string & uuid);
+    void set_senderid(const std::string & uuid);
 
     /// Gets UUID attribute of the first frame found
     /// @return The UUID, or an empty string if not found.
     /// @throw XmlError if no frame was found
-    std::string get_uuid() const;
+    std::string get_senderid() const;
+
+    std::string get_frameid() const;
 
     /// reference to the XmlNode to retrieve params from
     XmlNode& xmlnode;

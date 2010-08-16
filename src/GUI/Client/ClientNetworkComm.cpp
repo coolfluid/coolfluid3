@@ -127,7 +127,7 @@ bool ClientNetworkComm::send(XmlDoc & signal)
     XmlNode * node = nodedoc.first_node(XmlParams::tag_node_frame());
     XmlParams p(*node);
 
-    p.set_uuid(ClientRoot::getUUID());
+    p.set_senderid(ClientRoot::getUUID());
 
     XmlOps::xml_to_string(signal, str);
 

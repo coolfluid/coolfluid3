@@ -1,5 +1,8 @@
 #include <fstream>
 
+#include <boost/uuid/random_generator.hpp>
+#include <boost/uuid/uuid_io.hpp>
+
 #include <rapidxml/rapidxml_print.hpp>
 
 #include "Common/CPath.hpp"
@@ -26,7 +29,7 @@ namespace Common {
     return *params;
   }
 
-  void XmlParams::set_uuid(const std::string & uuid)
+  void XmlParams::set_senderid(const std::string & uuid)
   {
     XmlAttr * attr = xmlnode.first_attribute(tag_attr_senderid());
 
@@ -36,10 +39,21 @@ namespace Common {
       attr->value(uuid.c_str());
   }
 
-  std::string XmlParams::get_uuid() const
+  std::string XmlParams::get_senderid() const
   {
     std::string uuid;
     XmlAttr * attr = xmlnode.first_attribute(tag_attr_senderid());
+
+    if(attr != CFNULL)
+      uuid = attr->value();
+
+    return uuid;
+  }
+
+  std::string XmlParams::get_frameid() const
+  {
+    std::string uuid;
+    XmlAttr * attr = xmlnode.first_attribute(tag_attr_frameid());
 
     if(attr != CFNULL)
       uuid = attr->value();
@@ -65,6 +79,8 @@ namespace Common {
   const char * XmlParams::tag_attr_descr()    { return "descr"; }
 
   const char * XmlParams::tag_attr_senderid()    { return "senderid"; }
+
+  const char * XmlParams::tag_attr_frameid()    { return "frameid"; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -303,13 +319,18 @@ namespace Common {
                                      const CPath & receiver,
                                      bool userTrans)
   {
+    std::stringstream ss;
+
     XmlNode* signalnode = XmlOps::add_node_to( xmlnode, XmlParams::tag_node_frame() );
+
+    ss << boost::uuids::random_generator()();
 
     XmlOps::add_attribute_to( *signalnode, "type", XmlParams::tag_node_signal() );
     XmlOps::add_attribute_to( *signalnode, "target", target );
     XmlOps::add_attribute_to( *signalnode, "sender", sender.string() );
     XmlOps::add_attribute_to( *signalnode, "receiver", receiver.string() );
     XmlOps::add_attribute_to( *signalnode, "transaction", userTrans ? "user" : "auto" );
+    XmlOps::add_attribute_to( *signalnode, "frameid", ss.str() );
 
     return signalnode;
   }
@@ -330,11 +351,21 @@ namespace Common {
     std::string receiver = sender_att ? sender_att->value() : "";
     XmlOps::add_attribute_to( *replynode, "receiver", receiver );
 
-    // copy uuid, if any
+    // same transaction type
+    XmlAttr* trans_att = xmlnode.first_attribute("transaction");
+    std::string trans = trans_att ? trans_att->value() : "auto";
+    XmlOps::add_attribute_to( *replynode, "transaction", trans );
+
+    // copy uuids, if any
     XmlAttr* uuid_att = xmlnode.first_attribute(XmlParams::tag_attr_senderid());
 
     if(uuid_att != CFNULL)
       XmlOps::add_attribute_to( *replynode, XmlParams::tag_attr_senderid(), uuid_att->value() );
+
+    uuid_att = xmlnode.first_attribute(XmlParams::tag_attr_frameid());
+
+    if(uuid_att != CFNULL)
+      XmlOps::add_attribute_to( *replynode, XmlParams::tag_attr_frameid(), uuid_att->value() );
 
     return replynode;
   }
