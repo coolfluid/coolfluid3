@@ -86,6 +86,19 @@ QString NCore::getToolTip() const
   return this->getComponentType();
 }
 
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void NCore::updateTree()
+{
+  boost::shared_ptr<XmlDoc> root = XmlOps::create_doc();
+
+  XmlNode * docNode = XmlOps::goto_doc_node(*root.get());
+
+  XmlOps::add_signal_frame(*docNode, "list_tree", CLIENT_TREE_PATH, SERVER_ROOT_PATH);
+
+  m_networkComm->send(*root.get());
+}
 
 /****************************************************************************
 
@@ -98,13 +111,7 @@ void NCore::connected()
   QString msg = "Now connected to server '%1' on port %2.";
   ClientRoot::getLog()->addMessage(msg.arg(m_commSshInfo.m_hostname).arg(m_commSshInfo.port));
 
-  boost::shared_ptr<XmlDoc> root = XmlOps::create_doc();
-
-  XmlNode * docNode = XmlOps::goto_doc_node(*root.get());
-
-  XmlOps::add_signal_frame(*docNode, "list_tree", CLIENT_TREE_PATH, SERVER_ROOT_PATH);
-
-  m_networkComm->send(*root.get());
+  this->updateTree();
 
   emit connectedToServer();
 }

@@ -466,6 +466,8 @@ void NTree::list_tree(XmlNode & node)
   emit endResetModel();
 
   emit currentIndexChanged(m_currentIndex, QModelIndex());
+
+  ClientRoot::getLog()->addMessage("Tree updated.");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -324,7 +324,10 @@ void GraphicalOption::setValue(const QVariant & newValue)
 void GraphicalOption::addToLayout(QFormLayout * layout)
 {
   if(layout != CFNULL)
+  {
     layout->addRow(m_name, m_valueWidget);
+    m_valueWidget->showMaximized();
+  }
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

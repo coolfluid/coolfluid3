@@ -58,6 +58,8 @@ namespace Client {
 
       ACTION_SHUTDOWN_SERVER,
 
+      ACTION_UPDATE_TREE,
+
       ACTION_TOGGLE_DEBUG_MODE,
 
       ACTION_TOGGLE_ADVANCED_MODE,
@@ -100,9 +102,6 @@ namespace Client {
 
     /// The client disconnects form the server and exits immediately.
     void quit();
-
-    /// @brief Slot called when the user wants to get/update the tree.
-    void updateTree();
 
     /// @brief Slot called when the user wants to to toggle
     /// basic/advanced mode.

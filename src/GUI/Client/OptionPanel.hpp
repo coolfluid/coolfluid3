@@ -155,15 +155,15 @@ namespace Client {
 
     QHBoxLayout * m_buttonsLayout;
 
-    /// @brief Layout used to display basic m_options components.
+    /// @brief Layout used to display basic options components.
     QFormLayout * m_basicOptionsLayout;
 
-    /// @brief Layout used to display advanced m_options components.
+    /// @brief Layout used to display advanced options components.
     QFormLayout * m_advancedOptionsLayout;
 
-    /// @brief Main m_layout containing all widgets.
+    /// @brief Main layout containing all widgets.
 
-    /// This m_layout is composed of two lines and one column.
+    /// This layout is composed of two lines and one column.
     QGridLayout * m_mainLayout;
 
     /// @brief Groupbox used to display basic m_options components

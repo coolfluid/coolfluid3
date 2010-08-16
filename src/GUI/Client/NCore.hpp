@@ -84,6 +84,10 @@ namespace Client {
     /// @return The name of the class.
     virtual QString getToolTip() const;
 
+  public slots:
+
+    void updateTree();
+
   private slots:
 
     /// @brief Slot called when the client is connected to the server.

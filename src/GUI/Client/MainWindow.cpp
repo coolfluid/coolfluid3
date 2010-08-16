@@ -44,7 +44,7 @@ MainWindow::MainWindow()
 {
   this->setWindowTitle("COOLFluiD client");
 
-//  // create the components
+  // create the components
   m_optionPanel = new OptionPanel(this);
   m_logWindow = new QDockWidget("Log Window", this);
   m_treeView = new TreeView(m_optionPanel);
@@ -53,8 +53,6 @@ MainWindow::MainWindow()
   m_splitter = new QSplitter(this);
 
   m_aboutCFDialog = new AboutCFDialog(this);
-
-//  m_treeView->setModel(ClientRoot::getTree().get());
 
   // configure components
   m_logWindow->setWidget(m_logList);
@@ -109,7 +107,7 @@ MainWindow::~MainWindow()
 void MainWindow::buildMenus()
 {
   MenuActionInfo actionInfo;
-  QAction * tmpAtion;
+  QAction * tmpAction;
 
   m_mnuFile = new QMenu("&File", this);
   m_mnuView = new QMenu("&View", this);
@@ -119,7 +117,7 @@ void MainWindow::buildMenus()
   actionInfo.m_menu = m_mnuView;
   actionInfo.m_text = "&Clear log messages";
 
-  tmpAtion = actionInfo.buildAction(this);
+  tmpAction = actionInfo.buildAction(this);
 
   actionInfo.initDefaults();
   actionInfo.m_menu = m_mnuFile;
@@ -151,7 +149,23 @@ void MainWindow::buildMenus()
 
   //-----------------------------------------------
 
-  m_actions[MainWindow::ACTION_CLEAR_LOG] = tmpAtion;
+  m_mnuFile->addSeparator();
+
+  //-----------------------------------------------
+
+  actionInfo.initDefaults();
+  actionInfo.m_menu = m_mnuFile;
+  actionInfo.m_text = "&Update tree";
+  actionInfo.m_shortcut = tr("ctrl+U");
+
+  tmpAction = actionInfo.buildAction(this);
+  connect(tmpAction, SIGNAL(triggered()), ClientRoot::getCore().get(), SLOT(updateTree()));
+  m_actions[MainWindow::ACTION_UPDATE_TREE] = tmpAction;
+
+
+  //-----------------------------------------------
+
+  m_actions[MainWindow::ACTION_CLEAR_LOG] = tmpAction;
   //  connect(tmpAtion, SIGNAL(triggered()), this->logList, SLOT(clearLog()));
 
   //-----------------------------------------------
@@ -216,10 +230,10 @@ void MainWindow::buildMenus()
   actionInfo.m_menu = m_mnuHelp;
   actionInfo.m_text = "&About CF";
 
-  tmpAtion = actionInfo.buildAction(this);
+  tmpAction = actionInfo.buildAction(this);
 
-  m_actions[MainWindow::ACTION_ABOUT_COOLFLUID] = tmpAtion;
-  connect(tmpAtion, SIGNAL(triggered()), m_aboutCFDialog, SLOT(exec()));
+  m_actions[MainWindow::ACTION_ABOUT_COOLFLUID] = tmpAction;
+  connect(tmpAction, SIGNAL(triggered()), m_aboutCFDialog, SLOT(exec()));
 
   //-----------------------------------------------
 
@@ -228,10 +242,10 @@ void MainWindow::buildMenus()
   actionInfo.m_menu = m_mnuHelp;
   actionInfo.m_text = "&About Qt";
 
-  tmpAtion = actionInfo.buildAction(this);
+  tmpAction = actionInfo.buildAction(this);
 
-  m_actions[MainWindow::ACTION_ABOUT_COOLFLUID] = tmpAtion;
-  connect(tmpAtion, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+  m_actions[MainWindow::ACTION_ABOUT_COOLFLUID] = tmpAction;
+  connect(tmpAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 
   //----------------------------------------------------
   //----------------------------------------------------
@@ -457,15 +471,8 @@ void MainWindow::closeEvent(QCloseEvent * event)
 
 void MainWindow::quit()
 {
-  QApplication::exit(0);
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void MainWindow::updateTree()
-{
-  //  this->communication->sendGetTree();
+  ClientRoot::getCore()->disconnectFromServer(false);
+  qApp->exit(0);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
