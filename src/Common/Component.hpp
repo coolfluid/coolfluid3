@@ -16,6 +16,7 @@
 #include "Common/CPath.hpp"
 #include "Common/ConcreteProvider.hpp"
 #include "Common/ComponentIterator.hpp"
+#include "Common/PropertyList.hpp"
 #include "Common/XML.hpp"
 
 namespace CF {
@@ -136,6 +137,12 @@ public: // functions
   Component::const_iterator recursive_end() const;
 
   //@} END ITERATORS
+
+  /// access to the meta information of this component
+  PropertyList& properties() { return m_properties; }
+
+  /// access to the meta information of this component
+  const PropertyList& properties() const { return m_properties; }
 
   /// checks if this component is in fact a link to another component
   bool is_link () const { return m_is_link; }
@@ -283,6 +290,8 @@ protected: // data
   CPath m_name;
   /// component current path
   CPath m_path;
+  /// properties of this component
+  PropertyList m_properties;
   /// list of children
   CompStorage_t m_components;
   /// pointer to the root of this tree

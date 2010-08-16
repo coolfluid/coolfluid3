@@ -14,9 +14,13 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-///
+/// Class that represents a list of properties.
+/// Properties can be of any type and are internally stored as boost::any.
+/// A property name is associated to each property, and both are stored in a map,
+/// for quick search by name.
 /// @author Tiago Quintino
-class Common_API PropertyList : public boost::noncopyable {
+class Common_API PropertyList : public boost::noncopyable,
+                                public std::map< std::string, boost::any > {
 
 public: // types
 
@@ -34,33 +38,18 @@ public: // functions
   /// @see PropertyList::check
   /// @param prop_name the property name
   template < typename Type >
-      Type get ( const std::string& prop_name )
+      Type value ( const std::string& prop_name )
   {
     cf_assert ( check(prop_name) );
-    return boost::any_cast<Type>( list[prop_name] );
-  }
-
-  /// Removes a property from the list.
-  /// Does nothing if property does not exist.
-  /// @param prop_name the property name
-  void remove ( const std::string& prop_name )
-  {
-    iterator itr = list.find(prop_name);
-    if (itr != list.end())
-      list.erase(itr);
+    return boost::any_cast<Type>( operator[](prop_name) );
   }
 
   /// check that a property with the name exists
   /// @param prop_name the property name
-  bool check ( const std::string& prop_name )
+  bool check ( const std::string& prop_name ) const
   {
-    return list.find(prop_name) != list.end();
+    return find(prop_name) != this->end();
   }
-
-public: // data
-
-  /// storage of the metainfo entries
-  std::map< std::string, boost::any > list;
 
 }; // end of class PropertyList
 

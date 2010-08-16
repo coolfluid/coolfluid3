@@ -24,6 +24,7 @@ namespace Common {
 Component::Component ( const CName& name ) :
     m_name (),
     m_path (),
+    m_properties(),
     m_is_link (false),
     m_tags(":") // empty tags
 {
@@ -33,6 +34,9 @@ Component::Component ( const CName& name ) :
     throw InvalidPath(FromHere(), "Component name ["+name+"] is invalid");
 
   m_name = name;
+
+  m_properties["brief"] = std::string( "No brief description available" );
+  m_properties["description"] = std::string( "This component has not a long description" );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
