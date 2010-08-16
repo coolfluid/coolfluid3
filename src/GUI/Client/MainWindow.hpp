@@ -7,6 +7,7 @@
 #include <QMap>
 #include <QList>
 #include <QMenu>
+#include <QTextStream>
 #include <QModelIndex>
 
 #include "GUI/Client/TSshInformation.hpp"
@@ -145,6 +146,8 @@ namespace Client {
 
     void openFileRemotely();
 
+    void newLogMessage(const QString & message, bool isError);
+
   private:
 
     /// @brief Indicates that the user wants to disconnect from the server.
@@ -202,6 +205,8 @@ namespace Client {
 
     /// @brief Splitter used to allow user to resize the Client.
     QSplitter * m_splitter;
+
+    QTextStream m_logFile;
 
     /// @brief Creates actions and menus
     void buildMenus();

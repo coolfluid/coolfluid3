@@ -38,17 +38,20 @@ using namespace CF::GUI::Client;
 using namespace CF::GUI::Network;
 
 using namespace CF::Common;
-using namespace CF::Common;
 
 MainWindow::MainWindow()
+  : m_logFile(new QFile(QString("coolfluid_client-") +
+            QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss") + ".log"))
 {
   this->setWindowTitle("COOLFluiD client");
+
+  m_logFile.device()->open(QIODevice::WriteOnly);
 
   // create the components
   m_optionPanel = new OptionPanel(this);
   m_logWindow = new QDockWidget("Log Window", this);
   m_treeView = new TreeView(m_optionPanel);
-//  m_statusPanel = new StatusPanel(m_statusModel, this);
+  m_statusPanel = CFNULL;//new StatusPanel(m_statusModel, this);
   m_logList = new LoggingList(m_logWindow);
   m_splitter = new QSplitter(this);
 
@@ -74,6 +77,9 @@ MainWindow::MainWindow()
   connect(ClientRoot::getLog().get(), SIGNAL(newException(const QString &)),
           this, SLOT(newException(const QString &)));
 
+  connect(ClientRoot::getLog().get(), SIGNAL(newMessage(const QString &,bool)),
+          this, SLOT(newLogMessage(QString,bool)));
+
   connect(ClientRoot::getCore().get(), SIGNAL(connectedToServer()),
           this, SLOT(connectedToServer()));
 
@@ -90,6 +96,8 @@ MainWindow::MainWindow()
 
 MainWindow::~MainWindow()
 {
+  m_logFile.flush();
+
   delete m_treeView;
   delete m_optionPanel;
   delete m_statusPanel;
@@ -100,6 +108,8 @@ MainWindow::~MainWindow()
   delete m_mnuFile;
   delete m_mnuHelp;
   delete m_aboutCFDialog;
+
+//  m_logFile.close();
 }
 
  // PRIVATE METHODS
@@ -672,4 +682,12 @@ void MainWindow::openFileRemotely()
   RemoteOpenFile flg;
 
   flg.show();
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void MainWindow::newLogMessage(const QString & message, bool isError)
+{
+  m_logFile << message << '\n';
 }
