@@ -269,6 +269,19 @@ void NTree::updateRootChildren()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+void NTree::optionsChanged(const CPath & path)
+{
+  QModelIndex index = this->getIndexByPath(path);
+
+  if(index.isValid())
+  {
+    emit dataChanged(index, index);
+  }
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 void NTree::modifyOptions(const QModelIndex & index,
                           const QHash<QString, QString> & options)
 {

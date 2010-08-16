@@ -235,6 +235,8 @@ namespace Client {
 
     void updateRootChildren();
 
+    void optionsChanged(const CF::Common::CPath & path);
+
     /// @name Signals
     /// @{
 

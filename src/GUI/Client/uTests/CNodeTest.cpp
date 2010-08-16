@@ -40,7 +40,7 @@ void CNodeTest::test_isClientComponent()
   MyNode node("Node");
   NBrowser browser;
   NGroup group("Group");
-  NLink link("Link", "//Path/to/target");
+  NLink link("Link");
   NLog log;
   NMesh mesh("Mesh");
   NMethod method("Method");
@@ -124,12 +124,10 @@ void CNodeTest::test_getOptions()
   TreeHandler th;
   NRoot::Ptr root = ClientRoot::getRoot();
   MyNode::Ptr node(new MyNode("Node"));
-  NLink::Ptr link(new NLink("Link", "//Simulator/Node")) ;
-  NLink::Ptr badLink(new NLink("BadLink", "//Invalid/Path"));
+  NLink::Ptr link(new NLink("Link")) ;
 
   QList<NodeOption> nodeOptList;
   QList<NodeOption> linkOptList;
-  QList<NodeOption> badLinkOptList;
 
   boost::shared_ptr<XmlDoc> options = XmlOps::parse(std::string("<valuemap>"
       "	<value key=\"pi\" descr=\"Pi value\">"
@@ -142,13 +140,13 @@ void CNodeTest::test_getOptions()
 
   th.add(node);
   th.add(link);
-  th.add(badLink);
+
+  link->setTargetNode(node);
 
   node->setOptions(*options->first_node());
 
   GUI_CHECK_NO_THROW(node->getOptions(nodeOptList));
   GUI_CHECK_NO_THROW(link->getOptions(linkOptList));
-  GUI_CHECK_THROW(badLink->getOptions(badLinkOptList), InvalidPath);
 
   // there were already 2 options in MyNode + 2 new options => 4 options
   QCOMPARE(nodeOptList.count(), 4);
@@ -163,7 +161,7 @@ void CNodeTest::test_getOptions()
 void CNodeTest::test_createFromXml()
 {
   CNode::Ptr node;
-  boost::shared_ptr<XmlDoc> doc = XmlOps::parse(boost::filesystem::path("./tree.xml"));
+  boost::shared_ptr<XmlDoc> doc;
   NRoot::Ptr root;
   NGroup::Ptr group;
   QList<NodeOption> optList;
@@ -179,13 +177,14 @@ void CNodeTest::test_createFromXml()
                   "  </SomeComponent>"
                   "</CGroup>"));
 
+  GUI_CHECK_NO_THROW(doc = XmlOps::parse(boost::filesystem::path("./tree.xml")));
   GUI_CHECK_NO_THROW(root = CNode::createFromXml(*doc->first_node())->convertTo<NRoot>());
   GUI_CHECK_THROW(CNode::createFromXml(*tree->first_node())->convertTo<NRoot>(), XmlError);
 
   GUI_CHECK_NO_THROW(node = boost::dynamic_pointer_cast<CNode>(root->root()->get_child("Flow")));
   GUI_CHECK_NO_THROW(group = node->convertTo<NGroup>());
 
-  group->getOptions(optList);
+  GUI_CHECK_NO_THROW(group->getOptions(optList));
 
   QCOMPARE(optList.count(), 1);
 
@@ -194,7 +193,7 @@ void CNodeTest::test_createFromXml()
   QCOMPARE(option.m_paramAdv, true);
   QCOMPARE(option.m_paramName, QString("pi"));
   QCOMPARE(option.m_paramDescr, QString("Pi in a CGroup"));
-  QCOMPARE(option.m_paramValue, QString("3.1415920000000002"));
+  QCOMPARE(option.m_paramValue, QString("3.14159"));
   QCOMPARE(option.m_paramType, OptionType::TYPE_DOUBLE);
 }
 

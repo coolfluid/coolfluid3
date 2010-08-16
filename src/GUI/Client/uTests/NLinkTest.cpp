@@ -6,6 +6,7 @@
 
 #include "GUI/Client/ClientRoot.hpp"
 #include "GUI/Client/NLink.hpp"
+#include "GUI/Client/NGroup.hpp"
 #include "GUI/Client/NTree.hpp"
 
 #include "GUI/Client/uTests/TreeHandler.hpp"
@@ -21,11 +22,19 @@ Q_DECLARE_METATYPE(QModelIndex);
 
 void NLinkTest::test_getTootip()
 {
-  NLink l1("Link1", "");
-  NLink l2("Link2", "//Root/Target1");
+  NRoot::Ptr root(new NRoot("Root"));
+  NGroup::Ptr target(new NGroup("Target"));
 
-  QCOMPARE(l1.getToolTip(), QString("Target: "));
-  QCOMPARE(l2.getToolTip(), QString("Target: //Root/Target1"));
+  NLink::Ptr l1(new NLink("Link1"));
+  NLink::Ptr l2(new NLink("Link2"));
+
+  root->addNode(target);
+  root->addNode(l1);
+
+  l1->setTargetPath("//Root/Target");
+
+  QCOMPARE(l1->getToolTip(), QString("Target: //Root/Target"));
+  QCOMPARE(l2->getToolTip(), QString("Target: <No target>"));
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -33,11 +42,19 @@ void NLinkTest::test_getTootip()
 
 void NLinkTest::test_getTargetPath()
 {
-  NLink l1("Link1", "");
-  NLink l2("Link2", "//Root/Target1");
+  NRoot::Ptr root(new NRoot("Root"));
+  NGroup::Ptr target(new NGroup("Target"));
 
-  QCOMPARE(QString(l1.getTargetPath().string().c_str()), QString(""));
-  QCOMPARE(QString(l2.getTargetPath().string().c_str()), QString("//Root/Target1"));
+  NLink::Ptr l1(new NLink("Link1"));
+  NLink::Ptr l2(new NLink("Link2"));
+
+  root->addNode(target);
+  root->addNode(l1);
+
+  l1->setTargetPath("//Root/Target");
+
+  QCOMPARE(QString(l1->getTargetPath().string().c_str()), QString("//Root/Target"));
+  QCOMPARE(QString(l2->getTargetPath().string().c_str()), QString(""));
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -46,7 +63,7 @@ void NLinkTest::test_getTargetPath()
 void NLinkTest::test_goToTarget()
 {
   // QModelIndex needs to be registered. See QSignalSpy class doc.
-  qRegisterMetaType<QModelIndex>("QModelIndex");
+ qRegisterMetaType<QModelIndex>("QModelIndex");
 
   TreeHandler th;
   NTree::Ptr t = ClientRoot::getTree();
@@ -57,7 +74,7 @@ void NLinkTest::test_goToTarget()
   NLink::Ptr link;
   ComponentIterator<CNode> it = t->getRoot()->root()->begin<CNode>();
 
-  doc = XmlOps::parse(boost::filesystem::path("./tree.xml"));
+   GUI_CHECK_NO_THROW(doc = XmlOps::parse(boost::filesystem::path("./tree.xml")));
   th.addChildren(CNode::createFromXml(*doc->first_node()));
   link = boost::dynamic_pointer_cast<NLink>(t->getRoot()->root()->access_component("//Simulator/Flow/Mesh"));
 
@@ -70,7 +87,6 @@ void NLinkTest::test_goToTarget()
   // 2 signals should have been thrown, one by setCurrentIndex() and one by
   // goToTarget()
   QCOMPARE(spy.count(), 2);
-
 
   QCOMPARE(qvariant_cast<QModelIndex>(spy.at(1).at(0)), index);
 }

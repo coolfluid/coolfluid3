@@ -175,57 +175,16 @@ void CNode::modifyOptions(const QHash<QString, QString> options)
 
 CNode::Ptr CNode::createFromXml(CF::Common::XmlNode & node)
 {
-  char * nodeType = node.name();
-  char * nodeName = node.first_attribute("name")->value();
-  XmlNode * child = node.first_node();
-
-  cf_assert(nodeType != CFNULL);
-  cf_assert(nodeName != CFNULL);
-
+  QMap<NLink::Ptr, CPath> linkTargets;
+  QMap<NLink::Ptr, CPath>::iterator it;
   CNode::Ptr rootNode;
 
-  if(std::strcmp(nodeType, "CCore") == 0 || std::strcmp(nodeType, "CSimulator") == 0)
-    return rootNode;
+  rootNode = createFromXmlRec(node, linkTargets);
 
-  if(std::strcmp(nodeType, "CLink") == 0)
-    rootNode = boost::shared_ptr<NLink>(new NLink(nodeName, node.value()));
-  else if(std::strcmp(nodeType, "CMesh") == 0)
-    rootNode = boost::shared_ptr<NMesh>(new NMesh(nodeName));
-  else if(std::strcmp(nodeType, "CMethod") == 0)
-    rootNode = boost::shared_ptr<NMethod>(new NMethod(nodeName));
-  else if(std::strcmp(nodeType, "CGroup") == 0)
-    rootNode = boost::shared_ptr<NGroup>(new NGroup(nodeName));
-  else if(std::strcmp(nodeType, "CRoot") == 0)
-    rootNode = boost::shared_ptr<NRoot>(new NRoot(nodeName));
-  else
-    throw XmlError(FromHere(), QString("%1: Unknown type").arg(nodeType).toStdString().c_str());
+  it = linkTargets.begin();
 
-  while(child != CFNULL)
-  {
-    try
-    {
-      if(std::strcmp(child->name(), XmlParams::tag_node_valuemap()) == 0)
-        rootNode->setOptions(*child);
-      else
-      {
-        CNode::Ptr node = createFromXml(*child);
-
-        if(node.get() != CFNULL)
-        {
-          if(rootNode->checkType(ROOT_NODE))
-            rootNode->convertTo<NRoot>()->root()->add_component(node);
-          else
-            rootNode->add_component(node);
-        }
-      }
-    }
-    catch (ShouldNotBeHere & snbh)
-    {
-      ClientRoot::getLog()->addException(snbh.msg().c_str());
-    }
-
-    child = child->next_sibling();
-  }
+  for( ; it != linkTargets.end() ; it++)
+    it.key()->setTargetPath(it.value());
 
   return rootNode;
 }
@@ -322,6 +281,7 @@ void CNode::removeNode(const QString & nodeName)
 void CNode::configure(CF::Common::XmlNode & node)
 {
   ConfigObject::configure(node);
+  ClientRoot::getTree()->optionsChanged(this->full_path());
   ClientRoot::getLog()->addMessage(QString("Node \"%1\" options updated.").arg(full_path().string().c_str()));
 }
 
@@ -359,4 +319,68 @@ void CNode::getOptions(QList<NodeOption> & options) const
       options.append(nodeOpt);
     }
   }
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, CPath> & linkTargets)
+{
+  char * nodeType = node.name();
+  char * nodeName = node.first_attribute("name")->value();
+  XmlNode * child = node.first_node();
+
+  cf_assert(nodeType != CFNULL);
+  cf_assert(nodeName != CFNULL);
+
+  CNode::Ptr rootNode;
+
+  if(std::strcmp(nodeType, "CCore") == 0 || std::strcmp(nodeType, "CSimulator") == 0)
+    return rootNode;
+
+  if(std::strcmp(nodeType, "CLink") == 0)
+  {
+    NLink::Ptr link = boost::shared_ptr<NLink>(new NLink(nodeName));
+    rootNode = link;
+    linkTargets[link] = node.value();
+  }
+  else if(std::strcmp(nodeType, "CMesh") == 0)
+    rootNode = boost::shared_ptr<NMesh>(new NMesh(nodeName));
+  else if(std::strcmp(nodeType, "CMethod") == 0)
+    rootNode = boost::shared_ptr<NMethod>(new NMethod(nodeName));
+  else if(std::strcmp(nodeType, "CGroup") == 0)
+    rootNode = boost::shared_ptr<NGroup>(new NGroup(nodeName));
+  else if(std::strcmp(nodeType, "CRoot") == 0)
+    rootNode = boost::shared_ptr<NRoot>(new NRoot(nodeName));
+  else
+    throw XmlError(FromHere(), QString("%1: Unknown type").arg(nodeType).toStdString().c_str());
+
+  while(child != CFNULL)
+  {
+    try
+    {
+      if(std::strcmp(child->name(), XmlParams::tag_node_valuemap()) == 0)
+        rootNode->setOptions(*child);
+      else
+      {
+        CNode::Ptr node = createFromXmlRec(*child, linkTargets);
+
+        if(node.get() != CFNULL)
+        {
+          if(rootNode->checkType(ROOT_NODE))
+            rootNode->convertTo<NRoot>()->root()->add_component(node);
+          else
+            rootNode->add_component(node);
+        }
+      }
+    }
+    catch (ShouldNotBeHere & snbh)
+    {
+      ClientRoot::getLog()->addException(snbh.msg().c_str());
+    }
+
+    child = child->next_sibling();
+  }
+
+  return rootNode;
 }

@@ -12,9 +12,8 @@ using namespace CF::GUI::Client;
 
 //QMenu * NLink::m_menu = CFNULL;
 
-NLink::NLink(const QString & name, const CPath & targetPath)
-  : CNode(name, "CLink", LINK_NODE),
-    m_targetPath(targetPath)
+NLink::NLink(const QString & name)
+  : CNode(name, "CLink", LINK_NODE)
 {
   BUILD_COMPONENT;
 
@@ -28,7 +27,7 @@ NLink::NLink(const QString & name, const CPath & targetPath)
     m_contextMenu->addAction(action);
 
     action = new QAction("Change target path", m_contextMenu);
-    connect(action, SIGNAL(triggered()), this, SLOT(changeTargetPath()));
+    connect(action, SIGNAL(triggered()), this, SLOT(changeTarget()));
     m_contextMenu->addAction(action);
   }
 
@@ -49,15 +48,43 @@ QIcon NLink::getIcon() const
 
 QString NLink::getToolTip() const
 {
-  return QString("Target: %1").arg(m_targetPath.string().c_str());
+  QString path = "<No target>";
+
+  if(m_target.get() != CFNULL)
+    path = m_target->full_path().string().c_str();
+
+  return QString("Target: %1").arg(path);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CF::Common::CPath NLink::getTargetPath() const
+CPath NLink::getTargetPath() const
 {
-  return m_targetPath;
+  if(m_target.get() == CFNULL)
+    return CPath();
+
+  return m_target->full_path();
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void NLink::setTargetPath(const CPath & path)
+{
+  CNode::Ptr target = boost::dynamic_pointer_cast<CRoot>(m_root.lock())->access_component<CNode>(path);
+  this->setTargetNode(target);
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void NLink::setTargetNode(const CNode::Ptr & node)
+{
+  if(node.get() == CFNULL)
+    ClientRoot::getLog()->addError("Target is null");
+  else
+    m_target = node;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -65,24 +92,25 @@ CF::Common::CPath NLink::getTargetPath() const
 
 void NLink::goToTarget()
 {
-  QModelIndex index = ClientRoot::getTree()->getIndexByPath(m_targetPath);
+  QModelIndex index = ClientRoot::getTree()->getIndexByPath(m_target->full_path());
 
   if(index.isValid())
     ClientRoot::getTree()->setCurrentIndex(index);
   else
-    ClientRoot::getLog()->addError(QString("%1: path does not exist").arg(m_targetPath.string().c_str()));
+    ClientRoot::getLog()->addError(QString("%1: path does not exist")
+                                   .arg(m_target->full_path().string().c_str()));
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NLink::changeTargetPath()
+void NLink::changeTarget()
 {
   QInputDialog dlg;
   bool selected = false;
 
   dlg.setLabelText("Enter the new target path:");
-  dlg.setTextValue(m_targetPath.string().c_str());
+  dlg.setTextValue(m_target->full_path().string().c_str());
 
   while(!selected)
   {
@@ -90,9 +118,9 @@ void NLink::changeTargetPath()
     {
       if(dlg.exec())
       {
-        Component::Ptr node = ClientRoot::getRoot()->root()->access_component(dlg.textValue().toStdString());
+        CNode::Ptr node = ClientRoot::getRoot()->root()->access_component<CNode>(dlg.textValue().toStdString());
 
-        if(node->type_name() == type_name())
+        if(node->checkType(CNode::LINK_NODE))
           throw InvalidPath(FromHere(), "Can not target another link");
       }
 

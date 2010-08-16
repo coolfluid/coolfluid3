@@ -27,6 +27,8 @@ namespace CF {
 namespace GUI {
 namespace Client {
 
+  class NLink;
+
   /////////////////////////////////////////////////////////////////////////
 
   class CNodeNotifier
@@ -242,6 +244,9 @@ namespace Client {
       CF::Common::xmlstr_to_value(node, value);
       m_option_list.add< CF::Common::OptionT<TYPE> >(name, descr, value);
     }
+
+    static CNode::Ptr createFromXmlRec(CF::Common::XmlNode & node,
+                                       QMap<boost::shared_ptr<NLink>, CF::Common::CPath> & linkTargets);
 
   }; // class CNode
 

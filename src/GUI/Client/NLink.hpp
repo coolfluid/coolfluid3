@@ -35,7 +35,7 @@ namespace Client {
     /// @brief Constructor
     /// @param name Link name
     /// @param targetPath Target path
-    NLink(const QString & name, const CF::Common::CPath & targetPath);
+    NLink(const QString & name);
 
     /// @brief Gives the icon associated to this node
     /// @return Returns the icon associated to this node
@@ -50,10 +50,14 @@ namespace Client {
     /// @return Returns the target path.
     CF::Common::CPath getTargetPath() const;
 
+    void setTargetPath(const CF::Common::CPath & path);
+
+    void setTargetNode(const CNode::Ptr & node);
+
   public slots:
 
     /// @brief Slot called when user wants to change the target path
-    void changeTargetPath();
+    void changeTarget();
 
     /// @brief Slot called when user wants to switch to the target
     void goToTarget();
@@ -61,10 +65,7 @@ namespace Client {
   private :
 
     /// @brief Target path
-    CF::Common::CPath m_targetPath;
-
-    /// @brief Context menu
-    //static QMenu * m_menu;
+    CNode::Ptr m_target;
 
     /// regists all the signals declared in this class
     static void regist_signals ( Component* self ) {}

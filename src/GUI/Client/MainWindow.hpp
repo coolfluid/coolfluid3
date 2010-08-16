@@ -60,6 +60,14 @@ namespace Client {
 
       ACTION_UPDATE_TREE,
 
+      ACTION_OPEN_REMOTELY,
+
+      ACTION_OPEN_LOCALLY,
+
+      ACTION_SAVE_REMOTELY,
+
+      ACTION_SAVE_LOCALLY,
+
       ACTION_TOGGLE_DEBUG_MODE,
 
       ACTION_TOGGLE_ADVANCED_MODE,
@@ -128,6 +136,14 @@ namespace Client {
     void connectedToServer();
 
     void disconnectedFromServer();
+
+    void saveFileLocally();
+
+    void saveFileRemotely();
+
+    void openFileLocally();
+
+    void openFileRemotely();
 
   private:
 

@@ -53,18 +53,18 @@
   <CSimulator name="Simulator">
     <valuemap/>
   </CSimulator>
-	<CGroup name="Solid">
-		<valuemap>
-			<value key="pi" descr="Pi in a CGroup">
-				<double>3.1415920000000002</double>
-			</value>
-		</valuemap>
-		<CMesh name="Mesh3">
-			<valuemap/>
-		</CMesh>
-		<CMesh name="Mesh4">
-			<valuemap/>
-		</CMesh>
-		<CLink name="PestcLnk">//Simulator/Flow/Petsc</CLink>
-	</CGroup>
+  <CGroup name="Solid">
+    <valuemap>
+      <value key="pi" descr="Pi in a CGroup">
+        <double>3.1415920000000002</double>
+      </value>
+    </valuemap>
+    <CMesh name="Mesh3">
+      <valuemap/>
+    </CMesh>
+    <CMesh name="Mesh4">
+      <valuemap/>
+    </CMesh>
+    <CLink name="PestcLnk">//Simulator/Flow/Petsc</CLink>
+  </CGroup>
 </CRoot>

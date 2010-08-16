@@ -107,7 +107,6 @@ TreeNode * TreeNode::getChildByName(const QString & name)
   for(int i = 0 ; i < m_childNodes.count() && !found ; i++)
   {
     treeNode = this->getChild(i);
-    qDebug() << treeNode->getName();
     found = treeNode->getName() == name;
   }
 

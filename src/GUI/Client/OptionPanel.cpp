@@ -70,6 +70,9 @@ OptionPanel::OptionPanel(QWidget * parent)
   connect(tree.get(), SIGNAL(currentIndexChanged(const QModelIndex &, const QModelIndex &)),
           this, SLOT(currentIndexChanged(const QModelIndex &, const QModelIndex &)));
 
+  connect(tree.get(), SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)),
+          this, SLOT(dataChanged(const QModelIndex &, const QModelIndex &)));
+
   connect(tree.get(), SIGNAL(advancedModeChanged(bool)),
           this, SLOT(advancedModeChanged(bool)));
 }
@@ -416,10 +419,10 @@ void OptionPanel::advancedModeChanged(bool advanced)
 
 void OptionPanel::dataChanged(const QModelIndex & first, const QModelIndex & last)
 {
-//  QModelIndex currIndex = ClientRoot::getTree()->getCurrentIndex();
+  QModelIndex currIndex = ClientRoot::getTree()->getCurrentIndex();
 
-//  if(first == last && first.row() == currIndex.row() && first.parent() == currIndex.parent())
-//    this->currentIndexChanged(first);
+  if(first == last && first.row() == currIndex.row() && first.parent() == currIndex.parent())
+    this->currentIndexChanged(first, QModelIndex());
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

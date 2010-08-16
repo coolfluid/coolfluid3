@@ -110,14 +110,10 @@ void MainWindow::buildMenus()
   QAction * tmpAction;
 
   m_mnuFile = new QMenu("&File", this);
+  m_mnuOpenFile = new QMenu("&Open file", this);
+  m_mnuSaveFile = new QMenu("&Save file", this);
   m_mnuView = new QMenu("&View", this);
   m_mnuHelp = new QMenu("&Help", this);
-
-  actionInfo.initDefaults();
-  actionInfo.m_menu = m_mnuView;
-  actionInfo.m_text = "&Clear log messages";
-
-  tmpAction = actionInfo.buildAction(this);
 
   actionInfo.initDefaults();
   actionInfo.m_menu = m_mnuFile;
@@ -154,6 +150,52 @@ void MainWindow::buildMenus()
   //-----------------------------------------------
 
   actionInfo.initDefaults();
+  actionInfo.m_menu = m_mnuOpenFile;
+  actionInfo.m_text = "&Locally";
+  actionInfo.m_shortcut = tr("ctrl+O");
+  actionInfo.m_slot = SLOT(openFileLocally());
+
+  m_actions[MainWindow::ACTION_OPEN_LOCALLY] = actionInfo.buildAction(this);
+
+  //-----------------------------------------------
+
+  actionInfo.initDefaults();
+  actionInfo.m_menu = m_mnuOpenFile;
+  actionInfo.m_text = "&Remotely";
+  actionInfo.m_shortcut = tr("ctrl+shift+O");
+  actionInfo.m_slot = SLOT(openFileRemotely());
+
+  m_actions[MainWindow::ACTION_OPEN_REMOTELY] = actionInfo.buildAction(this);
+
+  //-----------------------------------------------
+
+  actionInfo.initDefaults();
+  actionInfo.m_menu = m_mnuSaveFile;
+  actionInfo.m_text = "&Locally";
+  actionInfo.m_shortcut = tr("ctrl+S");
+  actionInfo.m_slot = SLOT(saveFileLocally());
+
+  m_actions[MainWindow::ACTION_SAVE_LOCALLY] = actionInfo.buildAction(this);
+
+  //-----------------------------------------------
+
+  actionInfo.initDefaults();
+  actionInfo.m_menu = m_mnuSaveFile;
+  actionInfo.m_text = "&Remotely";
+  actionInfo.m_shortcut = tr("ctrl+shift+S");
+  actionInfo.m_slot = SLOT(saveFileRemotely());
+
+  m_actions[MainWindow::ACTION_SAVE_REMOTELY] = actionInfo.buildAction(this);
+
+  //-----------------------------------------------
+
+  m_mnuFile->addMenu(m_mnuOpenFile);
+  m_mnuFile->addMenu(m_mnuSaveFile);
+  m_mnuFile->addSeparator();
+
+  //-----------------------------------------------
+
+  actionInfo.initDefaults();
   actionInfo.m_menu = m_mnuFile;
   actionInfo.m_text = "&Update tree";
   actionInfo.m_shortcut = tr("ctrl+U");
@@ -165,8 +207,14 @@ void MainWindow::buildMenus()
 
   //-----------------------------------------------
 
+  actionInfo.initDefaults();
+  actionInfo.m_menu = m_mnuView;
+  actionInfo.m_text = "&Clear log messages";
+
+  tmpAction = actionInfo.buildAction(this);
+
   m_actions[MainWindow::ACTION_CLEAR_LOG] = tmpAction;
-  //  connect(tmpAtion, SIGNAL(triggered()), this->logList, SLOT(clearLog()));
+  connect(tmpAction, SIGNAL(triggered()), this->m_logList , SLOT(clearLog()));
 
   //-----------------------------------------------
 
@@ -498,8 +546,8 @@ void MainWindow::toggleDebugMode()
 
 void MainWindow::showHideStatus()
 {
-  bool show = m_actions[ ACTION_SHOW_HIDE_STATUS_PANEL ]->isChecked();
-  m_statusPanel->setVisible(show);
+//  bool show = m_actions[ ACTION_SHOW_HIDE_STATUS_PANEL ]->isChecked();
+//  m_statusPanel->setVisible(show);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -582,4 +630,46 @@ void MainWindow::setConnectedState(bool connected)
   m_actions[ACTION_CONNECT_TO_SERVER]->setEnabled(!connected);
   m_actions[ACTION_DISCONNECT_FROM_SERVER]->setEnabled(connected);
   m_actions[ACTION_SHUTDOWN_SERVER]->setEnabled(connected);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void MainWindow::saveFileLocally()
+{
+  QFileDialog dlg;
+
+  dlg.setAcceptMode(QFileDialog::AcceptSave);
+  dlg.exec();
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void MainWindow::saveFileRemotely()
+{
+  RemoteSaveFile flg;
+
+  flg.show();
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void MainWindow::openFileLocally()
+{
+  QFileDialog dlg;
+
+  dlg.setAcceptMode(QFileDialog::AcceptOpen);
+  dlg.exec();
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void MainWindow::openFileRemotely()
+{
+  RemoteOpenFile flg;
+
+  flg.show();
 }
