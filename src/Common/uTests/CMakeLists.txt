@@ -24,6 +24,8 @@ LIST( APPEND uTestComponent_files
   TestCPath.cpp
   TestComponent.cpp
   TestConfig.cpp
+  TestProperties.cpp
+  TestVariables.cpp
   TestSignals.cpp
   TestXmlParams.cpp
 )

@@ -62,6 +62,8 @@ list( APPEND Common_files
     LogStream.hpp
     LogStringForwarder.hpp
     LogStringForwarder.cpp
+    PropertyList.hpp
+    PropertyList.cpp
     ModuleRegistry.hpp
     ModuleRegisterBase.hpp
     ModuleRegistry.cpp
@@ -96,8 +98,6 @@ list( APPEND Common_files
     SignalHandler.cpp
     TimePolicies.cpp
     TimePolicies.hpp
-    VarRegistry.hpp
-    VarRegistry.cpp
     WorkerStatus.cpp
     WorkerStatus.hpp
     XmlHelpers.hpp

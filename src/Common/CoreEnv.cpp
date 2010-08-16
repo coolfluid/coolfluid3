@@ -9,7 +9,7 @@
 #include "Common/MPI/PEInterface.hpp"
 
 #include "Common/EventHandler.hpp"
-#include "Common/VarRegistry.hpp"
+//#include "Common/VarRegistry.hpp"
 #include "Common/Log.hpp"
 #include "Common/OSystem.hpp"
 
@@ -62,11 +62,11 @@ CoreEnv& CoreEnv::instance()
 
 CoreEnv::CoreEnv() :
 // Common::ConfigObject("CoreEnv"),
+//  m_var_registry ( new VarRegistry() )
   m_event_handler(new Common::EventHandler()),
   m_module_registry(new Common::ModuleRegistry()),
   m_factory_registry(new Common::FactoryRegistry()),
-  m_env_vars (new CoreVars()),
-  m_var_registry ( new VarRegistry() )
+  m_env_vars (new CoreVars())
 {
 //  addConfigOptionsTo(this);
 //
@@ -134,13 +134,6 @@ void CoreEnv::setup()
 void CoreEnv::unsetup()
 {
   SetupObject::unsetup();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-Common::SafePtr<VarRegistry> CoreEnv::getVarRegistry()
-{
-  return m_var_registry;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -239,7 +232,7 @@ std::string CoreEnv::getVersionHeader() const
 
 CoreEnv::~CoreEnv()
 {
-  delete_ptr ( m_var_registry );
+  // delete_ptr ( m_var_registry );
   delete_ptr ( m_env_vars );
 
   delete m_module_registry;     m_module_registry = CFNULL;

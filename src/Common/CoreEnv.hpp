@@ -18,7 +18,6 @@
 namespace CF {
 namespace Common {
 
-  class VarRegistry;
   class EventHandler;
   class ModuleRegistry;
   class FactoryRegistry;
@@ -65,9 +64,6 @@ public: // methods
   /// @post Must not call any CF runtime functions after,
   ///       only destruction procedures ar allowed afterwards.
   void terminate();
-
-  /// Gets the variable registry
-  Common::SafePtr<Common::VarRegistry> getVarRegistry ();
 
   /// Gets the ModuleRegistry
   /// @note Does not need to be initialized before
@@ -145,9 +141,6 @@ private: // data
   /// @brief Static environment variables
   /// pointer to a struct of variables that always exist
   CoreVars * m_env_vars;
-
-  /// registry for dynamic created variables
-  Common::VarRegistry * m_var_registry;
 
 }; // end of class CoreEnv
 
