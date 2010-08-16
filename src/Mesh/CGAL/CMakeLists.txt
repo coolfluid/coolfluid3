@@ -15,11 +15,10 @@ if( CF_HAVE_CGAL )
   list( APPEND CF_CGAL_cflibs Mesh )
   set( CF_CGAL_kernellib TRUE )
 
+  # avoid a conflict between boost and CGAL
+  ADD_DEFINITIONS(-DCGAL_CFG_NO_TR1_ARRAY -DCGAL_CFG_NO_TR1_TUPLE)
 
   CF_ADD_LIBRARY( CF_CGAL )
-
-  # avoid a conflict between boost and CGAL
-  ADD_DEFINITIONS(-DCF_CGALG_NO_TR1_ARRAY -DCF_CGALG_NO_TR1_TUPLE)
 
   set( CF_CGAL_COMPILE_FLAGS "" )
   if( CMAKE_COMPILER_IS_GNUCC )
