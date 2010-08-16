@@ -143,7 +143,7 @@ void CNode::modifyOptions(const QHash<QString, QString> options)
   {
     boost::shared_ptr<XmlDoc> docnode = XmlOps::create_doc();
     XmlNode * rootNode = XmlOps::goto_doc_node(*docnode.get());
-    XmlNode * signalNode = XmlOps::add_signal_frame(*rootNode, "configure", full_path(), full_path());
+    XmlNode * signalNode = XmlOps::add_signal_frame(*rootNode, "configure", full_path(), full_path(), true);
     XmlParams p(*signalNode);
     bool valid = true;
 

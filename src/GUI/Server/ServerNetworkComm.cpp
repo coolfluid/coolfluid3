@@ -216,7 +216,9 @@ void ServerNetworkComm::sendMessage(int clientId, const QString & message)
 bool ServerNetworkComm::sendMessage(QTcpSocket * client, const QString & message)
 {
   boost::shared_ptr<XmlNode> doc = XmlOps::create_doc();
-  XmlNode * signal = XmlOps::add_signal_frame(*XmlOps::goto_doc_node(*doc.get()), "message", SERVER_CORE_PATH, CLIENT_LOG_PATH);
+  XmlNode * signal = XmlOps::add_signal_frame(*XmlOps::goto_doc_node(*doc.get()),
+                                              "message", SERVER_CORE_PATH,
+                                              CLIENT_LOG_PATH, false);
   XmlParams p(*signal);
 
   p.add_param("type", LogMessage::Convert::to_str(LogMessage::INFO));

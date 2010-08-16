@@ -727,7 +727,7 @@ void RemoteFSBrowser::openDir(const QString & path)
 {
   boost::shared_ptr<XmlDoc> docnode = XmlOps::create_doc();
   XmlNode * rootNode = XmlOps::goto_doc_node(*docnode.get());
-  XmlNode * signalNode = XmlOps::add_signal_frame(*rootNode, "read_dir", full_path(), SERVER_CORE_PATH);
+  XmlNode * signalNode = XmlOps::add_signal_frame(*rootNode, "read_dir", full_path(), SERVER_CORE_PATH, true);
   XmlParams p(*signalNode);
   std::vector<std::string> vect;
   QStringList::iterator it = m_extensions.begin();

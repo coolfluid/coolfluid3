@@ -70,7 +70,7 @@ void ClientNetworkComm::disconnectFromServer(bool shutServer)
 
     XmlNode * docNode = XmlOps::goto_doc_node(*root.get());
 
-    XmlOps::add_signal_frame(*docNode, "shutdown", CLIENT_CORE_PATH, SERVER_CORE_PATH);
+    XmlOps::add_signal_frame(*docNode, "shutdown", CLIENT_CORE_PATH, SERVER_CORE_PATH, true);
 
     this->send(*root.get());
   }

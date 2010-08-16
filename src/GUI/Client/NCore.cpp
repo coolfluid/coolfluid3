@@ -95,7 +95,7 @@ void NCore::updateTree()
 
   XmlNode * docNode = XmlOps::goto_doc_node(*root.get());
 
-  XmlOps::add_signal_frame(*docNode, "list_tree", CLIENT_TREE_PATH, SERVER_ROOT_PATH);
+  XmlOps::add_signal_frame(*docNode, "list_tree", CLIENT_TREE_PATH, SERVER_ROOT_PATH, true);
 
   m_networkComm->send(*root.get());
 }

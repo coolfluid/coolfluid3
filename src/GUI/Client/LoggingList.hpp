@@ -22,7 +22,7 @@ namespace Client {
   {
     Q_OBJECT
 
-    public:
+  public:
 
     /// @brief Constructor
 
@@ -54,7 +54,7 @@ namespace Client {
     /// @return Returns the number of lines the log contains.
     unsigned int getLogLinesCounter() const;
 
-    public slots:
+  public slots:
 
     /// @brief Clears the log
 
@@ -62,11 +62,11 @@ namespace Client {
     /// that the line counter is reset.
     void clearLog();
 
-    private slots:
+  private slots:
 
       void newMessage(const QString & message, bool isError);
 
-    private:
+  private:
 
     /// @brief Number of lines in the log.
     unsigned int m_logLinesCounter;

@@ -300,7 +300,8 @@ namespace Common {
   XmlNode* XmlOps::add_signal_frame( XmlNode& xmlnode,
                                      const std::string & target,
                                      const CPath & sender,
-                                     const CPath & receiver)
+                                     const CPath & receiver,
+                                     bool userTrans)
   {
     XmlNode* signalnode = XmlOps::add_node_to( xmlnode, XmlParams::tag_node_frame() );
 
@@ -308,6 +309,7 @@ namespace Common {
     XmlOps::add_attribute_to( *signalnode, "target", target );
     XmlOps::add_attribute_to( *signalnode, "sender", sender.string() );
     XmlOps::add_attribute_to( *signalnode, "receiver", receiver.string() );
+    XmlOps::add_attribute_to( *signalnode, "transaction", userTrans ? "user" : "auto" );
 
     return signalnode;
   }

@@ -47,7 +47,7 @@ namespace Common {
 
     /// Adds a signal frame within the XmlNode passed ( typically a doc ).
     /// It will set automatically the type attribute.
-    static XmlNode* add_signal_frame( XmlNode& node, const std::string & target, const CPath & sender,  const CPath & receiver);
+    static XmlNode* add_signal_frame( XmlNode& node, const std::string & target, const CPath & sender,  const CPath & receiver, bool userTrans);
 
     /// adds a reply frame parallel to the XmlNode passed.
     /// It will set automatically the type attrribute.
