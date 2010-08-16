@@ -63,7 +63,6 @@ list( APPEND Common_files
     LogStringForwarder.hpp
     LogStringForwarder.cpp
     PropertyList.hpp
-    PropertyList.cpp
     ModuleRegistry.hpp
     ModuleRegisterBase.hpp
     ModuleRegistry.cpp
