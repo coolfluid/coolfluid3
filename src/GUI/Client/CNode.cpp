@@ -128,6 +128,17 @@ void CNode::modifyOptions(const QHash<QString, QString> options)
 //				m_options[it.key()].m_paramValue = it.value();
     }
   }
+  else if(m_type == LINK_NODE)
+  {
+    CPath path = ((NLink*)this)->getTargetPath();
+
+    CNode::Ptr target = ClientRoot::getTree()->getNodeByPath(path);
+
+    if(target.get() != CFNULL)
+      target->modifyOptions(options);
+    else
+      throw InvalidPath(FromHere(), path.string() + ": path does not exist");
+  }
   else
   {
     boost::shared_ptr<XmlDoc> docnode = XmlOps::create_doc();
