@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE( remove )
   props["surname"] = std::string( "doe" );
   props["size"]    = int ( 99 );
 
-  BOOST_CHECK_EQUAL ( props.size(), 4 );
+  BOOST_CHECK_EQUAL ( props.size(), (Uint) 4 );
 
   BOOST_CHECK_EQUAL ( props.check( "count" ),   true );
   BOOST_CHECK_EQUAL ( props.check( "name" ),    true );
@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE( remove )
   props.erase("count");
   props.erase("surname");
 
-  BOOST_CHECK_EQUAL ( props.size(), 2 );
+  BOOST_CHECK_EQUAL ( props.size(), (Uint) 2 );
 
   BOOST_CHECK_EQUAL ( props.check( "count" ),   false );
   BOOST_CHECK_EQUAL ( props.check( "surname" ), false );
@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE( remove )
   props.erase("age");
   BOOST_CHECK_EQUAL ( props.check( "age" ),     false );
 
-  BOOST_CHECK_EQUAL ( props.size(), 2 );
+  BOOST_CHECK_EQUAL ( props.size(), (Uint) 2 );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

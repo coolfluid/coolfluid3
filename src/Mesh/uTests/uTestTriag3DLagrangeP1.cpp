@@ -76,7 +76,7 @@ struct Triag3DLagrangeP1Fixture
 
       for(Uint v = 0; v != v_segments; ++v)
       {
-        const Real z_coord = v_step * static_cast<Real>(v);
+        //const Real z_coord = v_step * static_cast<Real>(v);
         for(Uint u = 0; u != u_segments; ++u)
         {
           const Uint node0 = v*(u_segments+1) + u;
@@ -115,7 +115,7 @@ struct Triag3DLagrangeP1Fixture
 
       for(Uint v = 0; v != v_segments; ++v)
       {
-        const Real z_coord = v_step * static_cast<Real>(v);
+        //const Real z_coord = v_step * static_cast<Real>(v);
         for(Uint u = 0; u != u_segments; ++u)
         {
           const Uint node0 = v*u_segments + u;
@@ -260,7 +260,7 @@ void integrate_region(ResultT& result, FunctorT functor, const CArray& coordinat
   const Uint nb_elems = connectivity.table().size();
   for(Uint elem_idx = 0; elem_idx != nb_elems; ++ elem_idx)
   {
-    const CTable::ConstRow& r = connectivity.table()[elem_idx];
+    //const CTable::ConstRow& r = connectivity.table()[elem_idx];
     const ConstElementNodeView nodes(coordinates, connectivity.table()[elem_idx]);
     integrate_element(result, functor, nodes, geo_sf);
   }

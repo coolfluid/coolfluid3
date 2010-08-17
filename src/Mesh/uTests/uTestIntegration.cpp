@@ -250,7 +250,7 @@ BOOST_FIXTURE_TEST_CASE( ComputeVolume2DUnitSquareDirect, IntegrationFixture ) /
   {
     const CTable::ConnectivityTable& ctbl = region.connectivity_table().table();
     const Uint element_count = ctbl.size();
-    const ElementType& element_type = region.element_type();
+    //const ElementType& element_type = region.element_type();
     for(Uint element = 0; element != element_count; ++element)
     {
       ElementType::NodesT nodes;

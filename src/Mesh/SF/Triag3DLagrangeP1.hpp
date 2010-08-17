@@ -52,8 +52,8 @@ struct Triag3DLagrangeP1  : public Triag3D
     cf_assert(result.nbRows() == dimensionality);
     cf_assert(result.nbCols() == dimension);
 
-    const Real xi = mapped_coord[KSI];
-    const Real eta = mapped_coord[ETA];
+    //const Real xi = mapped_coord[KSI];
+    //const Real eta = mapped_coord[ETA];
 
     const Real x0 = nodes[0][XX];
     const Real x1 = nodes[1][XX];

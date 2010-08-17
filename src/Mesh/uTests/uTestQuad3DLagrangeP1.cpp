@@ -76,7 +76,7 @@ struct Quad3DLagrangeP1Fixture
 
       for(Uint v = 0; v != v_segments; ++v)
       {
-        const Real z_coord = v_step * static_cast<Real>(v);
+        // const Real z_coord = v_step * static_cast<Real>(v);
         for(Uint u = 0; u != u_segments; ++u)
         {
           CTable::Row nodes = conn_array[v*u_segments + u];
@@ -105,7 +105,7 @@ struct Quad3DLagrangeP1Fixture
 
       for(Uint v = 0; v != v_segments; ++v)
       {
-        const Real z_coord = v_step * static_cast<Real>(v);
+        //const Real z_coord = v_step * static_cast<Real>(v);
         for(Uint u = 0; u != u_segments; ++u)
         {
           CTable::Row nodes = conn_array[v*u_segments + u];

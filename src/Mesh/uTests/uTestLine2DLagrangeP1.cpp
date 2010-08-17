@@ -295,8 +295,8 @@ BOOST_AUTO_TEST_CASE( IntegrateConst )
 BOOST_AUTO_TEST_CASE( SurfaceIntegral )
 {
   // Create an approximation of a circle
-  const Real radius = 1.;
-  const Uint segments = 100;
+  //const Real radius = 1.;
+  //const Uint segments = 100;
 
   // complete circle
   CArray coordinates("coordinates");
