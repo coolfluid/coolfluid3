@@ -30,7 +30,7 @@ CField::~CField()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CField& CField::create_field(const std::string& field_name, CRegion& support, const Uint dim, std::map<CArray*,CArray*>& data_for_coordinates)
+CField& CField::create_field(const std::string& field_name, CRegion& support, const Uint dim, std::map<const CArray*,CArray*>& data_for_coordinates)
 {  
   m_field_name = field_name;
   support.add_field_link(*this);
@@ -41,11 +41,10 @@ CField& CField::create_field(const std::string& field_name, CRegion& support, co
   BOOST_FOREACH(CElements& elements, range_typed<CElements>(support))
   {
     CFinfo << "creating elements " << elements.name() << CFendl;
-    CArray* coordinates = &elements.coordinates();
-    CArray& data = *data_for_coordinates[coordinates];
-
     CElements& field_elements = *create_component_type<CElements>(elements.name());
-    field_elements.initialize_linked(elements,data);
+    field_elements.add_tag("FieldElements");
+    field_elements.initialize_linked(elements,*data_for_coordinates[&elements.coordinates()]);
+    elements.add_field_elements_link(field_elements);
   }
 
   BOOST_FOREACH(CRegion& support_level_down, range_typed<CRegion>(support))
@@ -58,13 +57,9 @@ CField& CField::create_field(const std::string& field_name, CRegion& support, co
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CElements& CField::create_elements(const std::string& element_type_name, CArray::Ptr data)
+CElements& CField::create_elements(const std::string& element_type_name, CArray& data)
 {
-  std::string name = "elements_" + element_type_name;
-  CElements::Ptr elements = create_component_type<CElements>(name);
-  
-  elements->initialize_linked(*elements,*data);
-  return *elements;
+  throw NotImplemented (FromHere(), "this function is not implemented yet");
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -80,7 +75,14 @@ CArray& CField::create_data(const Uint& dim)
 
 const CRegion& CField::support() const
 {
-  return *boost::dynamic_pointer_cast<CRegion const>(get_child("support")->get());  // get() because it is a link
+  return *get_child("support")->get_type<CRegion const>();  // get() because it is a link
+}
+  
+//////////////////////////////////////////////////////////////////////////////
+
+CRegion& CField::support()
+{
+  return *get_child("support")->get_type<CRegion>();  // get() because it is a link
 }
   
 //////////////////////////////////////////////////////////////////////////////

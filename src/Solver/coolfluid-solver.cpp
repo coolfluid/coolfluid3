@@ -5,6 +5,7 @@
 #include "Common/CRoot.hpp"
 
 #include "Mesh/CMeshReader.hpp"
+#include "Mesh/CMeshTransformer.hpp"
 #include "Mesh/SF/Types.hpp"
 #include "Mesh/CTable.hpp"
 
@@ -37,20 +38,39 @@ int main(int argc, char * argv[])
     CMesh::Ptr mesh = meshreader->create_mesh_from(inputfile);
     root->add_component(mesh);
     
+    CField& volumes = mesh->create_field("volumes",0,get_component_typed<CRegion>(*mesh));
+
+
+#define Loop boost::mpl::for_each< SF::Types >
     
-    boost::mpl::for_each< SF::Types >( ForAllRegions< ComputeVolumes > ( *mesh ) );
+    //Loop( ForAllRegions< ComputeVolumes > ( volumes ) );
 
-    boost::mpl::for_each< SF::Types >( ForAllRegions<  OperationMerge< ComputeVolumes, ComputeVolumes > > ( *mesh ) );
+    CForAllElements<ComputeVolumes> volume_computer ("volume_computer");
+    CForAllElements<OutputVolumes> volume_outputer ("volume_outputer");
 
-//     boost::mpl::for_each< SF::Types >( ForAllVolumes< ComputeVolumes > ( *mesh ) );
+    volume_computer.loop(volumes);
+    volume_outputer.loop(volumes);
+    
+    CFinfo << "\n\nMerged operation:" <<CFendl;
+    CForAllElements<OperationMerge<ComputeVolumes,OutputVolumes> > volume_all_in_1 ("volume_all_in_1");
+    volume_all_in_1.loop(volumes);
+    //Loop( ForAllRegions< OperationMerge< ComputeVolumes, ComputeVolumes > > ( *mesh ) );
+    
+    
+    CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("Info","transformer");
+    info->transform(mesh);
+    
+    //Loop( ForAllVolumes< ComputeVolumes > ( volumes ) );
+
+    //  boost::mpl::for_each< SF::Types >( ForAllVolumes< ComputeVolumes > ( *mesh ) );
 
     //  boost::mpl::for_each< P1::ElemTypes >( ForAllSurfaces< ComputeNormals > ( *mesh ) );
 
-    //--------------------------------------------------------------------------
+    //  --------------------------------------------------------------------------
 
     CFinfo << root->tree() << CFendl;
 
-    //--------------------------------------------------------------------------
+    //  --------------------------------------------------------------------------
 
   }
   catch ( std::exception& ex )

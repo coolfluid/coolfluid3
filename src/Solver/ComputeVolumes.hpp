@@ -3,56 +3,93 @@
 
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CArray.hpp"
+#include "Mesh/CField.hpp"
+#include "Mesh/CElements.hpp"
+#include "Mesh/ElementNodes.hpp"
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace Mesh {
 
+/////////////////////////////////////////////////////////////////////////////////////
+
 struct ComputeVolumes
 {
-  CElements& region;
-  CArray::Ptr ptr_volumes;
-  CArray::Array* volumes;
+  CArray::Ptr volumes;
+  CArray::Ptr coordinates;
+  CTable::Ptr connectivity_table;
 
-  ComputeVolumes ( CElements& aregion ) : region(aregion)
+  ComputeVolumes () { }
+  
+  void setup (CElements& field_elements )
   {
-    // create an array to store the volumes
-    CArray::Ptr ptr_volumes = region.get_child("volumes") ?
-                              boost::dynamic_pointer_cast<CArray>(region.get_child("volumes")) :
-                              region.create_component_type<CArray>("volumes");
-
-    volumes = &ptr_volumes->array();
-    volumes->resize( boost::extents[region.connectivity_table().table().size()][1]);
+    volumes = field_elements.elemental_data().get_type<CArray>();
+    volumes->array().resize(boost::extents[field_elements.elements_count()][1]);
+    
+    coordinates = field_elements.get_geometry_elements().coordinates().get_type<CArray>();
+    connectivity_table = field_elements.get_geometry_elements().connectivity_table().get_type<CTable>();
+    
   }
-
-  template < typename EType >
-  void execute (  Uint elem, std::vector<RealVector>& nodes )
+  
+  template < typename SFType >
+  void execute ( Uint elem )
   {
-    (*volumes)[elem][0] = EType::volume( nodes );
+    cf_assert(volumes.get());
+    std::vector<RealVector> nodes;
+    fill_node_list( std::inserter(nodes, nodes.begin()), *coordinates, *connectivity_table, elem );
+    volumes->array()[elem][0] = SFType::volume( nodes );
   }
 
 };
+  
+/////////////////////////////////////////////////////////////////////////////////////
+
+struct OutputVolumes
+{
+  CArray::Ptr volumes;
+
+  OutputVolumes () { }
+  
+  void setup (CElements& field_elements )
+  {
+    volumes = field_elements.elemental_data().get_type<CArray>();
+    CFinfo << field_elements.full_path().string() << CFendl;
+  }
+  
+  template < typename SFType >
+  void execute ( Uint elem )
+  {
+    cf_assert(volumes.get());
+    CFinfo << "   volume["<<elem<<"] = " << volumes->array()[elem][0] << CFendl;
+  }
+  
+};
+  
+/////////////////////////////////////////////////////////////////////////////////////
 
 template < typename OP1, typename OP2 >
 struct OperationMerge
 {
-  CElements& elems;
   OP1 m_op1;
   OP2 m_op2;
 
-  OperationMerge( CElements& in_elems )
-    : elems(in_elems), m_op1(elems), m_op2(elems)
+  void setup (CElements& field_elements )
   {
+    m_op1.setup(field_elements);
+    m_op2.setup(field_elements);
   }
-
+  
   template < typename EType >
-  void execute (  Uint elem, std::vector<RealVector>& nodes )
+  void execute (  Uint elem )
   {
-    m_op1.template execute<EType>( elem, nodes );
-    m_op2.template execute<EType>( elem, nodes );
+    m_op1.template execute<EType>( elem );
+    m_op2.template execute<EType>( elem );
   }
 };
+
+/////////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
 } // CF

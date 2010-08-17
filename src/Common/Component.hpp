@@ -210,6 +210,12 @@ public: // functions
   template < typename T >
       typename T::ConstPtr get_child_type ( const CName& name ) const ;
     
+  template < typename T >
+    typename T::Ptr get_type();
+    
+  template < typename T >
+    typename T::ConstPtr get_type() const;
+    
   /// Modify the parent of this component
   void change_parent ( Ptr new_parent );
 
@@ -346,10 +352,26 @@ inline typename T::ConstPtr Component::get_child_type(const CName& name) const
 {
   const CompStorage_t::const_iterator found = m_components.find(name);
   if(found != m_components.end())
-    return boost::dynamic_pointer_cast<T>(found->second);
+    return boost::dynamic_pointer_cast<T const>(found->second);
   return boost::dynamic_pointer_cast<T const>(ConstPtr());
 }
   
+////////////////////////////////////////////////////////////////////////////////
+
+template < typename T >
+inline typename T::Ptr Component::get_type()
+{
+  return boost::dynamic_pointer_cast<T>(get());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+template < typename T >
+inline typename T::ConstPtr Component::get_type() const
+{
+  return boost::dynamic_pointer_cast<T const>(get());
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 template<typename ComponentT>

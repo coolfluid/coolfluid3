@@ -6,6 +6,7 @@
 #include "Mesh/CMeshInfo.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
+#include "Mesh/CField.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -90,7 +91,12 @@ void CMeshInfo::transform(const CMesh::Ptr& mesh, const std::vector<std::string>
   {
     CFinfo << print_region_tree(region) << CFflush;
   }  
-  
+
+  CFinfo << "Fields:" << CFendl;
+  BOOST_FOREACH( const CField& region, filtered_range_typed<CField>(*m_mesh,IsComponentTrue()))
+  {
+    CFinfo << print_field_tree(region) << CFflush;
+  }  
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -114,7 +120,26 @@ std::string CMeshInfo::print_region_tree(const CRegion& region, Uint level)
 
 //////////////////////////////////////////////////////////////////////////////
 
-std::string CMeshInfo::print_elements(const CRegion& region, Uint level)
+std::string CMeshInfo::print_field_tree(const CField& field, Uint level)
+{
+  std::string tree;
+  
+  for (Uint i=0; i<level; i++)
+    tree += "    ";
+  tree += field.name() + " (" + StringOps::to_str<Uint>(field.recursive_elements_count()) +  ")\n";
+  
+  tree += print_elements(field,level+1);
+  
+  BOOST_FOREACH( const CField& subfield, filtered_range_typed<CField>(field,IsComponentTrue()))
+  {
+    tree += print_field_tree(subfield,level+1);
+  }
+  return tree;    
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+std::string CMeshInfo::print_elements(const Component& region, Uint level)
 {
   std::string tree;
   BOOST_FOREACH( const CElements& elements_region, range_typed<CElements>(region))

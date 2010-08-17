@@ -43,7 +43,7 @@ CElements& CRegion::create_elements(const std::string& element_type_name, CArray
 {
   std::string name = "elements_" + element_type_name;
   CElements& elements = *create_component_type<CElements>(name);
-
+  elements.add_tag("GeometryElements");
   elements.initialize(element_type_name,coordinates);
   return elements;
 }

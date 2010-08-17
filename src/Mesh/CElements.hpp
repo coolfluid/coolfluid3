@@ -66,17 +66,29 @@ public: // functions
   /// Const access to the connectivity table
   const CTable& connectivity_table() const;
   
-  /// Mutable access to the data or coordinates;
-  CArray& data();
+  /// Mutable access to the nodal data (e.g. node coordinates);
+  CArray& nodal_data();
   
-  /// Const access to the data or coordinates
-  const CArray& data() const;
+  /// Const access to the nodal data (e.g. node coordinates)
+  const CArray& nodal_data() const;
 
+  /// Mutable access to the elemental data (e.g. centroid)
+  CArray& elemental_data();
+  
+  /// Const access to the elemental data (e.g. centroid)
+  const CArray& elemental_data() const;
+  
   /// Mutable access to the coordinates
-  CArray& coordinates() { return data(); }
+  CArray& coordinates() { return nodal_data(); }
   
   /// Const access to the coordinates
-  const CArray& coordinates() const {return data(); }
+  const CArray& coordinates() const {return nodal_data(); }
+  
+  void add_field_elements_link(CElements& field_elements);
+  
+  CElements& get_field_elements(const CName& field_name);
+  
+  CElements& get_geometry_elements();
   
 private: // helper functions
 
@@ -87,7 +99,8 @@ private: // data
   
   boost::shared_ptr<ElementType> m_element_type;
   
-  std::string m_data_name;
+  std::string m_nodal_data_name;
+  std::string m_elemental_data_name;
   
 };
 

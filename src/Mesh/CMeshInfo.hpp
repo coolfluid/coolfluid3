@@ -9,6 +9,8 @@
 
 namespace CF {
 namespace Mesh {
+  
+  class CField;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -45,7 +47,8 @@ public: // functions
 private: // functions
  
   std::string print_region_tree(const CRegion& region, Uint level=0);
-  std::string print_elements(const CRegion& region, Uint level=0);
+  std::string print_field_tree(const CField& field, Uint level=0);
+  std::string print_elements(const Component& region, Uint level=0);
 
   
 private: // helper functions
