@@ -6,7 +6,6 @@ LIST( APPEND uTestMesh_files
   TestMeshComponents.cpp
   TestMeshConstruction.cpp
   TestMeshReading.cpp
-  TestMeshData.cpp
   TestMeshInterpolation.cpp
 )
   
@@ -132,3 +131,18 @@ add_custom_command(TARGET uTestNodes
 
 ################################################################################
 
+LIST( APPEND uTestField_cflibs Neu SF)
+LIST( APPEND uTestField_files
+  uTestFields.cpp )
+
+CF_ADD_UNITTEST( uTestField )
+
+################################################################################
+
+LIST( APPEND uTestGrad_cflibs Neu SF )
+LIST( APPEND uTestGrad_files
+  uTestGrad.cpp )
+
+CF_ADD_UNITTEST( uTestGrad )
+
+################################################################################

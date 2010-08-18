@@ -1,13 +1,14 @@
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE "Test module for CF::Mesh::CField"
+
 #include <boost/test/unit_test.hpp>
+
 #include <boost/foreach.hpp>
 #include <boost/filesystem/path.hpp>
 
 #include "Common/ConfigObject.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/Log.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/ComponentPredicates.hpp"
 
 #include "Math/RealVector.hpp"
 
@@ -16,8 +17,6 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CField.hpp"
 #include "Mesh/CMeshReader.hpp"
-#include "Mesh/CMeshWriter.hpp"
-#include "Mesh/CMeshTransformer.hpp"
 
 using namespace std;
 using namespace boost;
@@ -27,10 +26,10 @@ using namespace CF::Common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct MeshData_Fixture
+struct FieldTests_Fixture
 {
   /// common setup for each test case
-  MeshData_Fixture()
+  FieldTests_Fixture()
   {
      // uncomment if you want to use arguments to the test executable
      //int*    argc = &boost::unit_test::framework::master_test_suite().argc;
@@ -46,7 +45,7 @@ struct MeshData_Fixture
   }
 
   /// common tear-down for each test case
-  ~MeshData_Fixture()
+  ~FieldTests_Fixture()
   {
   }
 
@@ -60,7 +59,7 @@ struct MeshData_Fixture
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_SUITE( MeshData_TestSuite, MeshData_Fixture )
+BOOST_FIXTURE_TEST_SUITE( FieldTests_TestSuite, FieldTests_Fixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -96,7 +95,7 @@ BOOST_AUTO_TEST_CASE( FieldTest )
   BOOST_CHECK_EQUAL(mesh.look_component("regions/gas")->full_path().string(),"mesh/regions/gas");
   BOOST_CHECK_EQUAL(mesh.look_component("regions/gas/../liquid")->full_path().string(),"mesh/regions/liquid");
   BOOST_CHECK_EQUAL(mesh.look_component_type<CRegion>("regions/gas/../liquid")->get_field("Volume").full_path().string(),"mesh/Volume/liquid");
-
+  
   
 }
 
