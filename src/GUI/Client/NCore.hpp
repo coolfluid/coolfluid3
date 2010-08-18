@@ -93,19 +93,6 @@ namespace Client {
     /// @brief Slot called when the client is connected to the server.
     void connected();
 
-    /// @brief Attempts to connect to the server.
-
-    /// During the waiting for the server to launch through an SSH
-    /// connection, this slot is called at every timeout of
-    /// @c #timer and tries to connect to the server.
-    void tryToConnect();
-
-    /// @brief Slot called whenever an error occurs during the server launching.
-
-    /// Any error or warning is considered as critical and stops the launching
-    /// process immediately.
-    void sshError();
-
   signals:
 
     void connectedToServer();

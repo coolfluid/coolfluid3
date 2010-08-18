@@ -129,51 +129,6 @@ void NCore::connected()
   m_networkComm->send(*root.get());
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void NCore::tryToConnect()
-{
-  throw NotImplemented(FromHere(), "ClientCore::tryToConnect");
-//  QModelIndex index = m_timers.key(static_cast<QTimer*>(sender()));
-//
-//  if(index.isValid())
-//  {
-//    TSshInformation & sshInfo = m_commsSshInfo[index];
-//    m_networkComms[index]->connectToServer(sshInfo.m_hostname, sshInfo.port, true);
-//  }
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void NCore::sshError()
-{
-  throw NotImplemented(FromHere(), "ClientCore::sshError");
-//  QProcess * process = static_cast<QProcess *>(sender());
-//  QModelIndex index = m_launchServerProcs.key(process);
-//
-//  if(process != CFNULL && index.isValid())
-//  {
-//    m_timers[index]->stop();
-//
-//    QString errorMsg = m_launchServerProcs[index]->readAllStandardError();
-//    ClientRoot::getLog()->addError(errorMsg);
-//
-//    // stop the process (send SIGKILL-like signal)
-//    m_launchServerProcs[index]->kill();
-//  }
-//  else
-//  {
-//    QString errorMsg = "Unexpected call of ClientCore::sshError() from a "
-//    "sender of type: %1";
-//    if(sender() != CFNULL)
-//      ClientRoot::getLog()->addError(errorMsg.arg(sender()->metaObject()->className()));
-//    else
-//      ClientRoot::getLog()->addError(errorMsg.arg("<unknown type>"));
-//  }
-}
-
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -193,6 +148,7 @@ void NCore::client_registration(XmlNode & node)
   if(p.get_param<bool>("accepted"))
   {
     ClientRoot::getLog()->addMessage("Registration was successful.");
+    emit connectedToServer();
     this->updateTree();
   }
   else
