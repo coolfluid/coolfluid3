@@ -35,8 +35,6 @@ namespace Server {
 
 /////////////////////////////////////////////////////////////////////////////
 
-  class CSimulator;
-
   /// @brief This class is the server network level.
 
   /// For all signals emitted by this class, the first parameter identifies the
@@ -80,19 +78,22 @@ namespace Server {
 
     /// @brief Sends an error message to a client
 
-    /// @param clientId Client id, or -1 to send to all clients.
     /// @param message Message to send
-    /// @throw UnknownClientIdException if Client id is unknown.
-    void sendError(int clientId, const QString & message);
+    /// @param uuid Client UUID, or an empty string to send to all clients.
+    /// @throw UnknownClientIdException if Client UUID is unknown.
+    void sendErrorToClient(const QString & message, const std::string & uuid = std::string());
 
     /// @brief Sends a message to a client
 
-    /// @param clientId Client id, or -1 to send to all clients.
     /// @param message Message to send
-    /// @throw UnknownClientIdException if Client id is unknown.
-    void sendMessage(int clientId, const QString & message);
+    /// @param uuid Client UUID, or an empty string to send to all clients.
+    /// @throw UnknownClientIdException if Client UUID is unknown.
+    void sendMessageToClient(const QString & message, const std::string & uuid = std::string());
 
-    void send(int clientId, const CF::Common::XmlNode & signal);
+    //    void send(int clientId, const CF::Common::XmlNode & signal);
+
+    void sendSignalToClient(const CF::Common::XmlNode & signal,
+                      const std::string & uuid = std::string());
 
     void disconnectAll();
 
@@ -123,7 +124,7 @@ namespace Server {
 
   signals:
 
-    void newClient(int clientId);
+    void newClientConnected(const std::string & uuid);
 
   private:
 
@@ -156,14 +157,9 @@ namespace Server {
     /// @brief Last ID given to a client
     int m_lastClientId;
 
-    /// @brief Hash map that associated an ID to a client m_socket
-
-    /// The key is the client ID. The value is the client m_socket.
-    QHash<int, QTcpSocket *> m_clientIds;
-
     /// @brief Sends a message to a client.
 
-    /// @param client Client m_socket to use. If @c CFNULL, the message will be
+    /// @param client Client socket to use. If @c CFNULL, the message will be
     /// sent to all clients.
     /// @param message Message to send.
     /// @return Returns @c true if the frame was built and sent successfully;
@@ -172,26 +168,28 @@ namespace Server {
 
     /// @brief Sends an error message to a client.
 
-    /// @param client Client m_socket to use. If @c CFNULL, the error message will
+    /// @param client Client socket to use. If @c CFNULL, the error message will
     /// be sent to all clients.
     /// @param message Error message to send.
-    void sendError(QTcpSocket * client, const QString & message);
+    /// @return Returns @c true if the frame was built and sent successfully;
+    /// otherwise returns @c false.
+    bool sendError(QTcpSocket * client, const QString & message);
 
     /// @brief Sends a message to a client.
 
     /// @param client Client m_socket to use. If @c CFNULL, the frame will be sent
     /// to all clients.
-    /// @param frame Frame to send.
+    /// @param signal Signal frame to send.
     /// @return Returns the number of bytes sent.
-    int send(QTcpSocket * client, const QString & frame);
+    int send(QTcpSocket * client, const CF::Common::XmlNode & signal);
 
-    /// @brief Retrieves a client socket from its id.
+    /// @brief Retrieves a client socket from its UUID.
 
-    /// @param clientId Client id
-    /// @return Returns a pointer to the m_socket, or @c CFNULL if client id was
-    /// -1 (all clients).
+    /// @param uuid Client UUID
+    /// @return Returns a pointer to the socket, or @c CFNULL if client
+    /// UUID was -1 (all clients).
     /// @throw UnknownClientIdException if Client id is unknown.
-    QTcpSocket * getSocket(int clientId) const;
+    QTcpSocket * getSocket(const std::string & uuid) const;
 
   }; // class ServerNetworkComm
 

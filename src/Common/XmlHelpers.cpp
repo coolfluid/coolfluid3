@@ -29,20 +29,20 @@ namespace Common {
     return *params;
   }
 
-  void XmlParams::set_senderid(const std::string & uuid)
+  void XmlParams::set_clientid(const std::string & uuid)
   {
-    XmlAttr * attr = xmlnode.first_attribute(tag_attr_senderid());
+    XmlAttr * attr = xmlnode.first_attribute(tag_attr_clientid());
 
     if(attr == CFNULL)
-      XmlOps::add_attribute_to(xmlnode, tag_attr_senderid(), uuid);
+      XmlOps::add_attribute_to(xmlnode, tag_attr_clientid(), uuid);
     else
       attr->value(uuid.c_str());
   }
 
-  std::string XmlParams::get_senderid() const
+  std::string XmlParams::get_clientid() const
   {
     std::string uuid;
-    XmlAttr * attr = xmlnode.first_attribute(tag_attr_senderid());
+    XmlAttr * attr = xmlnode.first_attribute(tag_attr_clientid());
 
     if(attr != CFNULL)
       uuid = attr->value();
@@ -78,7 +78,7 @@ namespace Common {
 
   const char * XmlParams::tag_attr_descr()    { return "descr"; }
 
-  const char * XmlParams::tag_attr_senderid()    { return "senderid"; }
+  const char * XmlParams::tag_attr_clientid()    { return "clientid"; }
 
   const char * XmlParams::tag_attr_frameid()    { return "frameid"; }
 
@@ -357,10 +357,10 @@ namespace Common {
     XmlOps::add_attribute_to( *replynode, "transaction", trans );
 
     // copy uuids, if any
-    XmlAttr* uuid_att = xmlnode.first_attribute(XmlParams::tag_attr_senderid());
+    XmlAttr* uuid_att = xmlnode.first_attribute(XmlParams::tag_attr_clientid());
 
     if(uuid_att != CFNULL)
-      XmlOps::add_attribute_to( *replynode, XmlParams::tag_attr_senderid(), uuid_att->value() );
+      XmlOps::add_attribute_to( *replynode, XmlParams::tag_attr_clientid(), uuid_att->value() );
 
     uuid_att = xmlnode.first_attribute(XmlParams::tag_attr_frameid());
 

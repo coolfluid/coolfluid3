@@ -133,6 +133,8 @@ namespace Client {
 
     void shutdown(CF::Common::XmlNode & node);
 
+    void client_registration(CF::Common::XmlNode & node);
+
   }; // class ClientCore
 
 ////////////////////////////////////////////////////////////////////////////////

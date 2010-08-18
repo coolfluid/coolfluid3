@@ -28,7 +28,10 @@ namespace Server {
 
     static CF::Common::CRoot::Ptr & getRoot();
 
-    static void processSignal(const QDomDocument & signal);
+    static void processSignal(const std::string & target,
+                              const std::string & receiver,
+                              const std::string & clientid,
+                              CF::Common::XmlNode & node);
 
     static CCore::Ptr getCore();
 

@@ -1,5 +1,3 @@
-//#include "logcpp/PortabilityImpl.hpp"
-
 #include "GUI/Server/RemoteClientAppender.hpp"
 
 using namespace CF::Common;

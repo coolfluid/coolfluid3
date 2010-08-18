@@ -73,13 +73,7 @@ namespace Server {
 
     /// Sends server status (file open, simulation running) to the new client.
     /// @param clientId New client id.
-    void newClient(int clientId);
-
-    /// @brief Shuts the server down
-
-    /// Exits the Qt's event loop.
-    /// @param clientId Client id, or -1 to send notifactions to all clients.
-    void shutdownServer(int clientId);
+     void newClient(const std::string & uuid);
 
     /// @brief Forwards a message from the simulator to the network layer
     /// @param message Message to send

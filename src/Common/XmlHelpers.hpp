@@ -97,7 +97,7 @@ namespace Common {
     /// the xml attribute name used for the description
     static const char * tag_attr_descr ();
     /// the xml attribute name used for the sender UUID
-    static const char * tag_attr_senderid();
+    static const char * tag_attr_clientid();
     /// the xml attribute name used for the frame UUID
     static const char * tag_attr_frameid();
 
@@ -131,12 +131,12 @@ namespace Common {
     /// is replaced.
     /// @param uuid UUID to set
     /// @throw XmlError if no frame was found
-    void set_senderid(const std::string & uuid);
+    void set_clientid(const std::string & uuid);
 
     /// Gets UUID attribute of the first frame found
     /// @return The UUID, or an empty string if not found.
     /// @throw XmlError if no frame was found
-    std::string get_senderid() const;
+    std::string get_clientid() const;
 
     std::string get_frameid() const;
 

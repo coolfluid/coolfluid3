@@ -109,17 +109,23 @@ bool ServerNetworkComm::openPort(const QString & hostAddress, quint16 port)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-int ServerNetworkComm::send(QTcpSocket * client, const QString & frame)
+int ServerNetworkComm::send(QTcpSocket * client, const XmlNode & signal)
 {
   QByteArray block;
   QDataStream out(&block, QIODevice::WriteOnly);
   int count = 0; // total bytes sent
 
+  std::string signalStr;
+
+  XmlOps::xml_to_string(signal, signalStr);
+
   out.setVersion(QDataStream::Qt_4_6);
   // reserving 2 bytes to store the data size
   // (frame size without these 2 bytes)
   out << (quint32)0;
-  out << frame;
+  // if data is not converted to QString, the client receives q strqnge frame
+  // composed of chinese/japanese chararcters
+  out << QString(signalStr.c_str());
   out.device()->seek(0); // go back to the beginning of the frame
   out << (quint32)(block.size() - sizeof(quint32)); // store the data size
 
@@ -151,21 +157,10 @@ int ServerNetworkComm::send(QTcpSocket * client, const QString & frame)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerNetworkComm::send(int clientId, const XmlNode & signal)
+void ServerNetworkComm::sendSignalToClient(const XmlNode & signal, const string & uuid)
 {
-  try
-  {
-    QTcpSocket * socket = this->getSocket(clientId);
-    std::string str;
-
-    XmlOps::xml_to_string(signal, str);
-
-    this->send(socket, str.c_str());
-  }
-  catch(UnknownClientIdException e)
-  {
-    qDebug() << e.what();
-  }
+  QTcpSocket * socket = this->getSocket(uuid);
+  this->send(socket, signal);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -179,35 +174,19 @@ void ServerNetworkComm::disconnectAll()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerNetworkComm::sendError(int clientId, const QString & message)
+void ServerNetworkComm::sendErrorToClient(const QString & message, const string & uuid)
 {
-  try
-  {
-    QTcpSocket * socket = this->getSocket(clientId);
-    this->sendError(socket, message);
-
-  }
-  catch(UnknownClientIdException e)
-  {
-    qDebug() << e.what();
-  }
+  QTcpSocket * socket = this->getSocket(uuid);
+  this->sendError(socket, message);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerNetworkComm::sendMessage(int clientId, const QString & message)
+void ServerNetworkComm::sendMessageToClient(const QString & message, const string & uuid)
 {
-  try
-  {
-    QTcpSocket * socket = this->getSocket(clientId);
-
-    this->sendMessage(socket, message);
-  }
-  catch(UnknownClientIdException e)
-  {
-    qDebug() << e.what();
-  }
+  QTcpSocket * socket = this->getSocket(uuid);
+  this->sendMessage(socket, message);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -224,11 +203,7 @@ bool ServerNetworkComm::sendMessage(QTcpSocket * client, const QString & message
   p.add_param("type", LogMessage::Convert::to_str(LogMessage::INFO));
   p.add_param("text", message.toStdString());
 
-  std::string str;
-
-  XmlOps::xml_to_string(p.xmldoc, str);
-
-  return this->send(client, str.c_str()) != 0;
+  return this->send(client, *doc) != 0;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -250,27 +225,34 @@ int ServerNetworkComm::getBytesSent() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerNetworkComm::sendError(QTcpSocket * client, const QString & message)
+bool ServerNetworkComm::sendError(QTcpSocket * client, const QString & message)
 {
-  throw NotImplemented(FromHere(), "ServerNetworkComm::sendMessage");
+  boost::shared_ptr<XmlNode> doc = XmlOps::create_doc();
+  XmlNode * signal = XmlOps::add_signal_frame(*XmlOps::goto_doc_node(*doc.get()),
+                                              "message", SERVER_CORE_PATH,
+                                              CLIENT_LOG_PATH, false);
+  XmlParams p(*signal);
+
+  p.add_param("type", LogMessage::Convert::to_str(LogMessage::ERROR));
+  p.add_param("text", message.toStdString());
+
+  return this->send(client, *doc) != 0;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QTcpSocket * ServerNetworkComm::getSocket(int clientId) const
+QTcpSocket * ServerNetworkComm::getSocket(const string & uuid) const
 {
   QTcpSocket * socket = CFNULL;
 
-//  if(clientId != -1)
-//  {
-//    if(m_clientIds.contains(clientId))
-//      socket = m_clientIds[clientId];
+  if(!uuid.empty())
+  {
+    socket = m_clients.key(uuid, CFNULL);
 
-//    else
-//      throw UnknownClientIdException(FromHere(), QString("Unknown client id: %1")
-//                                     .arg(clientId).toStdString());
-//  }
+    if(socket == CFNULL)
+      throw UnknownClientIdException(FromHere(), "Unknown client id: " + uuid);
+  }
 
   return socket;
 }
@@ -295,13 +277,6 @@ void ServerNetworkComm::newClient()
   connect(socket, SIGNAL(readyRead()), this, SLOT(newData()));
 
   std::cout << "A new client is connected" << std::endl;
-
-  m_clients[socket] = std::string();
-  m_clientIds[m_lastClientId] = socket;
-
-  emit newClient(m_lastClientId);
-
-  m_lastClientId++;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -312,47 +287,134 @@ void ServerNetworkComm::newData()
   // which client has sent data ?
   QTcpSocket * socket = qobject_cast<QTcpSocket *>(sender());
 
-  QString frame;
-  QDataStream in(socket);
-  in.setVersion(QDataStream::Qt_4_6);
-
-  // if the client sends two messages very close in time, it is possible that
-  // the server never gets the second one.
-  // So, it is useful to explicitly read the m_socket until the end is reached.
-  while(!socket->atEnd())
+  try
   {
-    // if the data size is not known
-    if (m_blockSize == 0)
+    std::string target;
+    std::string receiver;
+    std::string clientId;
+    QString errorMsg;
+    XmlAttr * tmpNode;
+
+    QString frame;
+    QDataStream in(socket);
+    in.setVersion(QDataStream::Qt_4_6);
+
+    // if the client sends two messages very close in time, it is possible that
+    // the server never gets the second one.
+    // So, it is useful to explicitly read the m_socket until the end is reached.
+    while(!socket->atEnd())
     {
-      // if there are at least 4 bytes to read...
-      if (socket->bytesAvailable() < (int)sizeof(quint32))
+      // if the data size is not known
+      if (m_blockSize == 0)
+      {
+        // if there are at least 4 bytes to read...
+        if (socket->bytesAvailable() < (int)sizeof(quint32))
+          return;
+
+        // ...we read them
+        in >> m_blockSize;
+      }
+
+      if (socket->bytesAvailable() < m_blockSize)
         return;
 
-      // ...we read them
-      in >> m_blockSize;
+      in >> frame;
+
+       qDebug() << frame;
+
+      m_bytesRecieved += m_blockSize + (int)sizeof(quint32);
+
+      boost::shared_ptr<XmlDoc> xmldoc = XmlOps::parse( frame.toStdString() );
+
+      qDebug() << "parsed";
+
+      XmlNode& nodedoc = *XmlOps::goto_doc_node(*xmldoc.get());
+      XmlNode& frameNode = *nodedoc.first_node();
+
+      tmpNode = frameNode.first_attribute("target");
+
+      if(tmpNode == CFNULL)
+        errorMsg += "target is missing\n";
+      else
+        target = tmpNode->value();
+
+      tmpNode = frameNode.first_attribute("receiver");
+
+      if(tmpNode == CFNULL)
+        errorMsg += "reciever is missing\n";
+      else
+        receiver = tmpNode->value();
+
+      tmpNode = frameNode.first_attribute("clientid");
+
+      if(tmpNode == CFNULL)
+        errorMsg += "clientid is missing\n";
+      else
+        clientId = tmpNode->value();
+
+      if(!errorMsg.isEmpty())
+      {
+        errorMsg = QString("Illegal frame received:\n") % frame % '\n' % errorMsg;
+        this->sendError(socket, errorMsg);
+      }
+      else
+      {
+        if(target == "client_registration")
+        {
+          if(!m_clients[socket].empty())
+            this->sendError(socket, "This client has already been registered.");
+          else
+          {
+            m_clients[socket] = clientId;
+
+            // Build the reply
+            XmlNode * replyNode = XmlOps::add_reply_frame(*nodedoc.first_node());
+            XmlParams reply(*replyNode);
+
+            reply.add_param("accepted", true);
+
+            this->send(socket, *xmldoc.get());
+
+            emit newClientConnected(clientId);
+          }
+        }
+        else
+        {
+          if(m_clients[socket].empty())
+          {
+            QString msg = "The resquest has been rejected because it came "
+                          "from an unregistered client.";
+            this->sendError(socket, msg);
+          }
+          else if(m_clients[socket] != clientId)
+          {
+            QString msg = "The client id '%1' (used for registration) "
+                          "and '%2' (used for identification) do not "
+                          "match.";
+            this->sendError(socket, msg.arg(m_clients[socket].c_str()).arg(clientId.c_str()));
+          }
+          else
+            ServerRoot::processSignal(target, receiver, clientId, nodedoc);
+        }
+      }
+
+      m_blockSize = 0;
     }
-
-    if (socket->bytesAvailable() < m_blockSize)
-      return;
-
-    in >> frame;
-
-    m_bytesRecieved += m_blockSize + (int)sizeof(quint32);
-
-    QDomDocument doc;
-
-    doc.setContent(frame);
-
-    try
-    {
-      ServerRoot::processSignal(doc);
-    }
-    catch(XmlError xe)
-    {
-      CFerror << xe.what() << CFendl;
-    }
-
-    m_blockSize = 0;
+  }
+  catch(Exception & e)
+  {
+    this->sendError(socket, QString("Could not execute the request because "
+                                    "a CF exception has been caught: ") + e.what());
+  }
+  catch(std::exception & stde)
+  {
+    this->sendError(socket, QString("Could not execute the request because "
+                                    "a std exception has been caught: ") +  stde.what());
+  }
+  catch(...)
+  {
+    this->sendError(socket, "Could not execute the request because an "
+                    "unknown exception has been caught.");
   }
 }
 
@@ -366,8 +428,6 @@ void ServerNetworkComm::clientDisconnected()
 
   if(socket != CFNULL)
   {
-    int clientId = m_clientIds.key(socket);
-    m_clientIds.remove(clientId);
     m_clients.remove(socket);
 
     std::cout << "A client has gone (" << m_clients.size() << " left)\n";

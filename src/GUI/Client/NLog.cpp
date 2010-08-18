@@ -79,8 +79,9 @@ void NLog::appendToLog(LogMessage::Type type, bool fromServer,
   header = header.arg(m_typeNames[type]);
   header = header.arg(fromServer ? "Server" : "Client");
 
-  msg = header;
-  msg += message.split("\n", QString::SkipEmptyParts).join(QString("\n") + header);
+  msg = message;
+  msg.replace('\n', QString("\n%1").arg(header));
+  msg.prepend(header);
 
   emit newMessage(msg, type == LogMessage::ERROR || type == LogMessage::EXCEPTION);
 

@@ -127,7 +127,7 @@ bool ClientNetworkComm::send(XmlDoc & signal)
     XmlNode * node = nodedoc.first_node(XmlParams::tag_node_frame());
     XmlParams p(*node);
 
-    p.set_senderid(ClientRoot::getUUID());
+    p.set_clientid(ClientRoot::getUUID());
 
     XmlOps::xml_to_string(signal, str);
 
@@ -181,13 +181,15 @@ void ClientNetworkComm::newData()
 
     in >> frame;
 
+    qDebug() << frame;
+
     try
     {
       ClientRoot::processSignalString(frame);
     }
-    catch(SignalError & se)
+    catch(Exception & e)
     {
-      ClientRoot::getLog()->addException(se.what());
+      ClientRoot::getLog()->addException(e.what());
     }
 
     m_blockSize = 0;

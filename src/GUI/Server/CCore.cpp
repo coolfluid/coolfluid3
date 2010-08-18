@@ -38,8 +38,8 @@ CCore::CCore()
   m_commServer = new ServerNetworkComm();
   this->createSimulator("Simulator");
 
-  connect(m_commServer, SIGNAL(newClient(int)),
-          this,  SLOT(newClient(int)));
+  connect(m_commServer, SIGNAL(newClientConnected(const std::string &)),
+          this,  SLOT(newClient(const std::string &)));
 
   regist_signal("read_dir", "Read directory content")->connect(boost::bind(&CCore::read_dir, this, _1));
   regist_signal("shutdown", "Shutdown the server")->connect(boost::bind(&CCore::shutdown, this, _1));
@@ -83,7 +83,7 @@ QList<HostInfos> CCore::getHostList() const
 
 void CCore::sendSignal(const CF::Common::XmlDoc & signal)
 {
-  m_commServer->send(CFNULL, signal);
+  m_commServer->sendSignalToClient(signal);
 }
 
 /***************************************************************************
@@ -203,6 +203,7 @@ Signal::return_t CCore::read_dir(Signal::arg_t & node)
   std::vector<std::string> dirList;
   std::vector<std::string> fileList;
   QString directory;
+  std::string clientId = p.get_clientid();
 
   try
   {
@@ -227,7 +228,7 @@ Signal::return_t CCore::read_dir(Signal::arg_t & node)
     if(!this->getDirContent(directory, extensions, includeFiles,
                             includeNoExtension, dirList, fileList))
     {
-      m_commServer->sendError(-1, dirPath + ": no such direcrory");
+      m_commServer->sendErrorToClient(dirPath + ": no such direcrory", clientId);
     }
     else
     {
@@ -252,7 +253,9 @@ Signal::return_t CCore::read_dir(Signal::arg_t & node)
 
 Signal::return_t CCore::createDir(Signal::arg_t & node)
 {
-  m_commServer->sendError(-1, "Cannot create a directory");
+  XmlParams p(node);
+
+  m_commServer->sendErrorToClient("Cannot create a directory", p.get_clientid());
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -261,7 +264,7 @@ Signal::return_t CCore::createDir(Signal::arg_t & node)
 Signal::return_t CCore::shutdown(Signal::arg_t & node)
 {
   XmlOps::add_reply_frame(node);
-  qApp->exit(0);
+  qApp->exit(0); // exit the Qt event loop
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -269,7 +272,9 @@ Signal::return_t CCore::shutdown(Signal::arg_t & node)
 
 Signal::return_t CCore::saveConfig(Signal::arg_t & node)
 {
-  m_commServer->sendError(-1, "Cannot save the configuration");
+  XmlParams p(node);
+
+  m_commServer->sendErrorToClient("Cannot save the configuration", p.get_clientid());
 }
 
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -278,18 +283,10 @@ Signal::return_t CCore::saveConfig(Signal::arg_t & node)
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-void CCore::newClient(int clientId)
+void CCore::newClient(const std::string & clientId)
 {
   // send a welcome message to the new client
-  m_commServer->sendMessage(clientId, "Welcome to the Client-Server project!");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void CCore::shutdownServer(int clientId)
-{
-  qApp->exit(0); // exit the Qt event loop
+  m_commServer->sendMessageToClient("Welcome to the Client-Server project!", clientId);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -297,7 +294,7 @@ void CCore::shutdownServer(int clientId)
 
 void CCore::message(const QString & message)
 {
-  m_commServer->sendMessage(-1, message);
+  m_commServer->sendMessageToClient(message);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -305,7 +302,7 @@ void CCore::message(const QString & message)
 
 void CCore::error(const QString & message)
 {
-  m_commServer->sendError(-1, message);
+  m_commServer->sendErrorToClient(message);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
