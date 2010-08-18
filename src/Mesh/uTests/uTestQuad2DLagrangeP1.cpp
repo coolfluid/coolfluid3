@@ -121,11 +121,84 @@ BOOST_AUTO_TEST_CASE( computeShapeFunction )
 
 BOOST_AUTO_TEST_CASE( computeMappedCoordinates )
 {
-  const CF::RealVector test_coords = list_of(0.9375)(1.375); // center of the element
+  CF::Tools::Testing::Accumulator accumulator;
+  CF::RealVector test_coords = list_of(0.9375)(1.375); // center of the element
   CF::RealVector result(2);
   Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes, result);
   BOOST_CHECK_LT(std::abs(result[0]), 3e-15);
   BOOST_CHECK_LT(std::abs(result[1]), 3e-15);// sqrt from the expression gives too many ULPS in difference for Accumulator
+  
+  
+  test_coords = nodes[0];
+  Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes, result);  
+  CF::Tools::Testing::test(result[0],-1.0,accumulator);
+  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 50);
+  CFinfo << "result[0] = " << result[0] << CFendl;
+  CFinfo << "result[1] = " << result[1] << CFendl << CFendl;
+  
+  test_coords = nodes[1];
+  Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes, result);  
+  CF::Tools::Testing::test(result[0],1.0,accumulator);
+  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 50);
+  CFinfo << "result[0] = " << result[0] << CFendl;
+  CFinfo << "result[1] = " << result[1] << CFendl << CFendl;
+  
+  test_coords = nodes[2];
+  Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes, result);  
+  CF::Tools::Testing::test(result[0],1.0,accumulator);
+  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 50);
+  CFinfo << "result[0] = " << result[0] << CFendl;
+  CFinfo << "result[1] = " << result[1] << CFendl << CFendl;
+  
+  test_coords = nodes[3];
+  Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes, result);  
+  CF::Tools::Testing::test(result[0],-1.0,accumulator);
+  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 50);
+  CFinfo << "result[0] = " << result[0] << CFendl;
+  CFinfo << "result[1] = " << result[1] << CFendl << CFendl;
+  
+  
+  
+  
+  
+  /// @todo These mapped coordinates give NaN ... WHY?  (asks Willem)
+  const CF::RealVector c0 = list_of(1.0)(1.0);
+  const CF::RealVector c1 = list_of(2.0)(1.0);
+  const CF::RealVector c2 = list_of(2.0)(2.0);
+  const CF::RealVector c3 = list_of(1.0)(2.0);
+  NodesT nodes_2 = list_of(c0)(c1)(c2)(c3);
+  
+  
+  test_coords = nodes_2[0];
+  Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes_2, result);  
+  CF::Tools::Testing::test(result[0],-1.0,accumulator);
+  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 50);
+  CFinfo << "result[0] = " << result[0] << CFendl;
+  CFinfo << "result[1] = " << result[1] << CFendl << CFendl;
+  
+  test_coords = nodes_2[1];
+  Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes_2, result);  
+  CF::Tools::Testing::test(result[0],1.0,accumulator);
+  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 50);
+  CFinfo << "result[0] = " << result[0] << CFendl;
+  CFinfo << "result[1] = " << result[1] << CFendl << CFendl;
+  
+  test_coords = nodes_2[2];
+  Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes_2, result);  
+  CF::Tools::Testing::test(result[0],1.0,accumulator);
+  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 50);
+  CFinfo << "result[0] = " << result[0] << CFendl;
+  CFinfo << "result[1] = " << result[1] << CFendl << CFendl;
+  
+  test_coords = nodes_2[3];
+  Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes_2, result);  
+  CF::Tools::Testing::test(result[0],-1.0,accumulator);
+  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 50);
+  CFinfo << "result[0] = " << result[0] << CFendl;
+  CFinfo << "result[1] = " << result[1] << CFendl << CFendl;
+  
+  
+  
 }
 
 BOOST_AUTO_TEST_CASE( computeMappedGradient )
