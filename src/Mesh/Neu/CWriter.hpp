@@ -4,9 +4,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <boost/tuple/tuple.hpp>
-#include "Mesh/Neu/NeuAPI.hpp"
+
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/GeoShape.hpp"
+
+#include "Mesh/Neu/NeuAPI.hpp"
+#include "Mesh/Neu/Shared.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -18,7 +21,7 @@ namespace Neu {
 
 /// This class defines Neu mesh format writer
 /// @author Willem Deconinck
-class Neu_API CWriter : public CMeshWriter
+class Neu_API CWriter : public CMeshWriter, public Shared
 {
 
 public: // typedefs
@@ -28,7 +31,6 @@ public: // typedefs
   
 private : // typedefs
   
-  enum NeuElement {LINE=1,QUAD=2,TRIAG=3,HEXA=4,TETRA=6};
 
 public: // functions
   
@@ -67,18 +69,8 @@ private: // helper functions
 
 private: // data
   
-  // supported types from coolfluid. Neutral can support more.
-  std::vector<std::string> m_supported_types;
-  
-  std::map<GeoShape::Type,Uint> m_CFelement_to_NeuElement;
-
   /// implementation detail, raw pointers are safe as keys
   std::map<CElements const*,Uint> m_global_start_idx;
-
-  std::vector<std::vector<Uint> > m_faces_cf_to_neu;
-  std::vector<std::vector<Uint> > m_faces_neu_to_cf;
-  std::vector<std::vector<Uint> > m_nodes_cf_to_neu;
-  std::vector<std::vector<Uint> > m_nodes_neu_to_cf;
 
   std::map<Uint,std::vector<std::pair<CElements const*,Uint> > > m_n2e;
 

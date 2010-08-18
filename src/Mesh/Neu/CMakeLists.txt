@@ -4,6 +4,8 @@ LIST ( APPEND Neu_files
   CReader.cpp
   CWriter.hpp
   CWriter.cpp
+  Shared.hpp
+  Shared.cpp
 )
 
 LIST ( APPEND Neu_cflibs Mesh )

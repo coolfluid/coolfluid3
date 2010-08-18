@@ -4,10 +4,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <boost/filesystem/fstream.hpp>
-#include "Mesh/Neu/NeuAPI.hpp"
-#include "Mesh/CMeshReader.hpp"
 
+#include "Mesh/CMeshReader.hpp"
 #include "Mesh/CTable.hpp"
+
+#include "Mesh/Neu/NeuAPI.hpp"
+#include "Mesh/Neu/Shared.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -21,7 +23,7 @@ namespace Neu {
 
 /// This class defines Neutral mesh format reader
 /// @author Willem Deconinck
-class Neu_API CReader : public CMeshReader
+class Neu_API CReader : public CMeshReader, public Shared
 {
 public: // typedefs
 
@@ -31,7 +33,6 @@ public: // typedefs
 private: // typedefs
 
   typedef std::pair<boost::shared_ptr<CElements>,Uint> Region_TableIndex_pair;
-  enum NeuElement {LINE=1,QUAD=2,TRIAG=3,HEXA=4,TETRA=6};
 
 public: // functions  
   /// constructor
@@ -70,15 +71,7 @@ private: // data
   // map< global index , pair< temporary table, index in temporary table > >
   std::vector<Region_TableIndex_pair> m_global_to_tmp;
   
-  // supported types from coolfluid. Neutral can support more.
-  std::vector<std::string> m_supported_types;
-
   CMesh::Ptr m_mesh;
-
-  std::vector<std::vector<Uint> > m_faces_cf_to_neu;
-  std::vector<std::vector<Uint> > m_faces_neu_to_cf;
-  std::vector<std::vector<Uint> > m_nodes_cf_to_neu;
-  std::vector<std::vector<Uint> > m_nodes_neu_to_cf;
   
   struct HeaderData
   {
