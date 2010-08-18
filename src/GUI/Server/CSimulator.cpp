@@ -393,13 +393,6 @@ int CSimulator::readSubSystems()
     m_subsystemTypes << subsystypes[i].c_str();
   }
 
-  //  this->subsystemNames << "Fluid";
-  //  this->subsystemTypes << "Fluid";
-  //  this->subsystemNames << "Mesh";
-  //  this->subsystemTypes << "Mesh";
-  //  this->subsystemNames << "Solid";
-  //  this->subsystemTypes << "Solid";
-
   return m_subsystemNames.size();
 }
 
@@ -424,9 +417,6 @@ CF::Common::CRoot::Ptr CSimulator::root() const
 
 void CSimulator::createSimulator()
 {
-  //  CPath p;
-  /// @todo delete the old tree
-
   CRoot::Ptr root = ServerRoot::getRoot();
 
   CGroup::Ptr flowGroup = root->create_component_type<CGroup>("Flow");
@@ -446,6 +436,8 @@ void CSimulator::createSimulator()
   CMesh::Ptr mesh3 = solidGroup->create_component_type<CMesh>("Mesh3");
   CMesh::Ptr mesh4 = solidGroup->create_component_type<CMesh>("Mesh4");
   CLink::Ptr petscLnk = solidGroup->create_component_type<CLink>("PestcLnk");
+
+  mesh3->create_component_type<CMethod>("MyMethod");
 
   meshLnk->link_to(mesh1);
   petscLnk->link_to(petsc);

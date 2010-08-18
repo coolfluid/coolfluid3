@@ -311,6 +311,7 @@ void CNode::getOptions(QList<NodeOption> & options) const
     {
       NodeOption nodeOpt;
 
+      nodeOpt.m_paramAdv= true;
       nodeOpt.m_paramName = it->first.c_str();
       nodeOpt.m_paramValue = it->second->value_str().c_str();
       nodeOpt.m_paramDescr = it->second->description().c_str();
