@@ -54,6 +54,17 @@ static void shape_function(const RealVector& mapped_coord, RealVector& shape_fun
 
   shape_func *= 0.125;
 }
+  
+/// Compute Mapped Coordinates
+/// @param coord contains the coordinates to be mapped
+/// @param nodes contains the nodes
+/// @param mappedCoord Store the output mapped coordinates
+template<typename NodesT>
+static void mapped_coordinates(const RealVector& coord, const NodesT& nodes, RealVector& mappedCoord)
+{
+  throw NotImplemented (FromHere(), "Hexa3DLagrangeP1::mapped_coordinates is not implemented yet.");
+}
+  
 
 /// Compute the gradient with respect to mapped coordinates, i.e. parial derivatives are in terms of the
 /// mapped coordinates. The result needs to be multiplied with the inverse jacobian to get the result in real
