@@ -6,6 +6,8 @@ if (CF_HAVE_CGNS)
     Shared.cpp
     CReader.hpp
     CReader.cpp
+    CWriter.hpp
+    CWriter.cpp
     CGNSExceptions.hpp
   )
 
