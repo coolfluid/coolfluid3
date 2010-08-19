@@ -5,6 +5,7 @@
 #include "Mesh/MeshAPI.hpp"
 #include "Mesh/CField.hpp"
 #include "Mesh/CRegion.hpp"
+#include "Mesh/CFieldElements.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -41,9 +42,11 @@ CField& CField::create_field(const std::string& field_name, CRegion& support, co
   BOOST_FOREACH(CElements& elements, range_typed<CElements>(support))
   {
     CFinfo << "creating elements " << elements.name() << CFendl;
-    CElements& field_elements = *create_component_type<CElements>(elements.name());
+    CFieldElements& field_elements = *create_component_type<CFieldElements>(elements.name());
     field_elements.add_tag("FieldElements");
-    field_elements.initialize_linked(elements,*data_for_coordinates[&elements.coordinates()]);
+    field_elements.properties()["element_based"]=false;
+    field_elements.properties()["node_based"]=true;
+    field_elements.initialize_node_based(elements,*data_for_coordinates[&elements.coordinates()]);
     elements.add_field_elements_link(field_elements);
   }
 
@@ -51,6 +54,33 @@ CField& CField::create_field(const std::string& field_name, CRegion& support, co
   {
     CField& field = *create_component_type<CField>(support_level_down.name());
     field.create_field(m_field_name,support_level_down,dim,data_for_coordinates);
+  }
+  return *this;
+}
+  
+////////////////////////////////////////////////////////////////////////////////
+
+CField& CField::create_element_based_field(const std::string& field_name, CRegion& support)
+{  
+  m_field_name = field_name;
+  support.add_field_link(*this);
+  create_component_type<CLink>("support")->link_to(support.get()); 
+  
+  BOOST_FOREACH(CElements& geometry_elements, range_typed<CElements>(support))
+  {
+    CFinfo << "creating elements element_based" << geometry_elements.name() << CFendl;
+    CFieldElements& field_elements = *create_component_type<CFieldElements>(geometry_elements.name());
+    field_elements.add_tag("FieldElements");
+    field_elements.properties()["element_based"]=true;
+    field_elements.properties()["node_based"]=false;
+    field_elements.initialize_element_based(geometry_elements);
+    geometry_elements.add_field_elements_link(field_elements);
+  }
+  
+  BOOST_FOREACH(CRegion& support_level_down, range_typed<CRegion>(support))
+  {
+    CField& field = *create_component_type<CField>(support_level_down.name());
+    field.create_element_based_field(m_field_name,support_level_down);
   }
   return *this;
 }

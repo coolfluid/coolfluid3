@@ -54,7 +54,8 @@ public: // functions
   /// create a Cfield component
   /// @param name of the field
   CField& create_field (const std::string& field_name, CRegion& support, const Uint dim, std::map<const CArray*,CArray*>& data_for_coordinates);
-  
+  CField& create_element_based_field(const std::string& field_name, CRegion& support);
+
   /// create a CElements component, initialized to take connectivity data for the given type
   /// @param name of the field
   /// @param element_type_name type of the elements

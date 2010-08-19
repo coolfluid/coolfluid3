@@ -29,44 +29,16 @@ CElements::~CElements()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CElements::initialize(const std::string& element_type_name, CArray& nodal_data)
+void CElements::initialize(const std::string& element_type_name, CArray& coords_in)
 {
   set_element_type(element_type_name);
   cf_assert(m_element_type);
   const Uint nb_nodes = m_element_type->nb_nodes();
   create_connectivity_table("connectivity_table").initialize(nb_nodes);
   
-  m_nodal_data_name = "node_" + nodal_data.name();
-  create_component_type<CLink>(m_nodal_data_name)->link_to(nodal_data.get());
-  
-  // Create elemental data
-  m_elemental_data_name = "elm_" + nodal_data.name();
-  create_component_type<CArray>(m_elemental_data_name);
-
-}
-  
-////////////////////////////////////////////////////////////////////////////////
-
-void CElements::initialize_linked(CElements& element_in, CArray& nodal_data)
-{
-  // Set the shape function
-  set_element_type(element_in.element_type().getElementTypeName());
-  cf_assert(m_element_type);
-
-  // create a link to the geometry elements.
-  create_component_type<CLink>("support")->link_to(element_in.get());
-  
-  // create the connectivity table as a CLink to another one.
-  create_component_type<CLink>(element_in.connectivity_table().name())->link_to(element_in.connectivity_table().get());
-
-  // Set the nodal data
-  m_nodal_data_name = "node_" + nodal_data.name();
-  create_component_type<CLink>(m_nodal_data_name)->link_to(nodal_data.get());
-  
-  // Create elemental data
-  m_elemental_data_name = "elm_" + nodal_data.name();
-  create_component_type<CArray>(m_elemental_data_name);
-
+  CLink::Ptr coords = create_component_type<CLink>(coords_in.name());
+  coords->add_tag("coordinates");
+  coords->link_to(coords_in.get());
 }
 
 
@@ -111,46 +83,19 @@ const CTable& CElements::connectivity_table() const
 
 //////////////////////////////////////////////////////////////////////////////
 
-CArray& CElements::nodal_data()
+CArray& CElements::coordinates()
 {
-  Component::Ptr ptr = get_child(m_nodal_data_name)->get();  // get() because it is a link
-  cf_assert(ptr);
-  CArray* data = dynamic_cast<CArray*>(ptr.get());
-  cf_assert(data);
-  return *data;
+  CLink& link = get_component_typed<CLink>(*this,IsComponentTag("coordinates"));
+  return *link.get_type<CArray>();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-const CArray& CElements::nodal_data() const
+const CArray& CElements::coordinates() const
 {
-  Component::ConstPtr ptr = get_child(m_nodal_data_name)->get();
-  cf_assert(ptr);
-  const CArray* data = dynamic_cast<const CArray*>(ptr.get());
-  cf_assert(data);
-  return *data;
-}
+  const CLink& link = get_component_typed<CLink>(*this,IsComponentTag("coordinates"));
+  return *link.get_type<CArray const>();
 
-//////////////////////////////////////////////////////////////////////////////
-
-CArray& CElements::elemental_data()
-{
-  Component::Ptr ptr = get_child(m_elemental_data_name)->get();  // get() because it is a link
-  cf_assert(ptr);
-  CArray* data = dynamic_cast<CArray*>(ptr.get());
-  cf_assert(data);
-  return *data;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-const CArray& CElements::elemental_data() const
-{
-  Component::ConstPtr ptr = get_child(m_elemental_data_name)->get();
-  cf_assert(ptr);
-  const CArray* data = dynamic_cast<const CArray*>(ptr.get());
-  cf_assert(data);
-  return *data;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -175,15 +120,7 @@ CElements& CElements::get_field_elements(const CName& field_name)
   cf_assert(field.get());
   return *field->get_type<CElements>();
 }
-  
-//////////////////////////////////////////////////////////////////////////////
-  
-CElements& CElements::get_geometry_elements()
-{
-  Component::Ptr geometry_elements = get_child("support");
-  cf_assert(geometry_elements.get());
-  return *geometry_elements->get_type<CElements>();
-}
+
 //////////////////////////////////////////////////////////////////////////////
 
   

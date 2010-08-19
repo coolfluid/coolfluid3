@@ -36,8 +36,6 @@ public: // functions
   /// Initialize the CElements using the given type
   void initialize(const std::string& element_type_name, CArray& data);
   
-  void initialize_linked(CElements& element_in, CArray& data);
-
   /// Virtual destructor
   virtual ~CElements();
 
@@ -65,43 +63,26 @@ public: // functions
   
   /// Const access to the connectivity table
   const CTable& connectivity_table() const;
-  
-  /// Mutable access to the nodal data (e.g. node coordinates);
-  CArray& nodal_data();
-  
-  /// Const access to the nodal data (e.g. node coordinates)
-  const CArray& nodal_data() const;
-
-  /// Mutable access to the elemental data (e.g. centroid)
-  CArray& elemental_data();
-  
-  /// Const access to the elemental data (e.g. centroid)
-  const CArray& elemental_data() const;
-  
+    
   /// Mutable access to the coordinates
-  CArray& coordinates() { return nodal_data(); }
+  virtual CArray& coordinates();
   
   /// Const access to the coordinates
-  const CArray& coordinates() const {return nodal_data(); }
+  virtual const CArray& coordinates() const;
   
   void add_field_elements_link(CElements& field_elements);
   
   CElements& get_field_elements(const CName& field_name);
-  
-  CElements& get_geometry_elements();
-  
+    
 private: // helper functions
 
   /// regists all the signals declared in this class
   static void regist_signals ( Component* self ) {}
 
-private: // data
+protected: // data
   
   boost::shared_ptr<ElementType> m_element_type;
-  
-  std::string m_nodal_data_name;
-  std::string m_elemental_data_name;
-  
+    
 };
 
 ////////////////////////////////////////////////////////////////////////////////

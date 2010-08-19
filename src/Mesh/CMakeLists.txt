@@ -10,6 +10,8 @@ LIST( APPEND Mesh_files
   CElements.cpp
   CField.hpp
   CField.cpp
+  CFieldElements.hpp
+  CFieldElements.cpp
   CFlexTable.hpp
   CFlexTable.cpp
   CInterpolator.hpp  
