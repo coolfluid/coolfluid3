@@ -33,6 +33,8 @@ public: // typedefs
 
   typedef boost::shared_ptr<CField> Ptr;
   typedef boost::shared_ptr<CField const> ConstPtr;
+  
+  enum DataBasis { ELEMENT_BASED=0,  NODE_BASED=1};
 
 public: // functions
 
@@ -53,18 +55,19 @@ public: // functions
   
   /// create a Cfield component
   /// @param name of the field
-  CField& create_field (const std::string& field_name, CRegion& support, const Uint dim, std::map<const CArray*,CArray*>& data_for_coordinates);
-  CField& create_element_based_field(const std::string& field_name, CRegion& support);
+  CField& create_field (const std::string& field_name, CRegion& support);
+
+  void create_data_storage(const Uint dim, const DataBasis basis);
 
   /// create a CElements component, initialized to take connectivity data for the given type
   /// @param name of the field
   /// @param element_type_name type of the elements
-  CElements& create_elements (const std::string& element_type_name, CArray& data);
+  CElements& create_elements (CElements& geometry_elements);
   
   /// create a coordinates component, initialized with the coordinate dimension
   /// @param name of the field
   /// @param element_type_name type of the elements  
-  CArray& create_data(const Uint& dim);
+  CArray& create_data(const Uint dim, const Uint nb_rows);
   
   const CRegion& support() const;
   CRegion& support();

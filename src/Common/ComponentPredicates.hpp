@@ -220,9 +220,9 @@ get_component_typed(ParentT& parent, const Predicate& pred )
 {
   typename ComponentIteratorRange<ParentT, ComponentT, Predicate>::type range = filtered_range_typed<ComponentT>(parent, pred);
   if(range.begin() == range.end())
-    throw ValueNotFound(FromHere(), "Component not found: 0 matches");
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : 0 matches");
   else if(count(range) > 1)
-    throw ValueNotFound(FromHere(), "Component not found: more than 1 match");
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : more than 1 match");
   else
     return *range.begin();
 }
@@ -303,9 +303,9 @@ recursive_get_component_typed(ParentT& parent, const Predicate& pred)
 {
   typename ComponentIteratorRange<ParentT, ComponentT, Predicate>::type range = recursive_filtered_range_typed<ComponentT>(parent, pred);
   if(range.begin() == range.end())
-    throw ValueNotFound(FromHere(), "Component not found: 0 matches");
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : 0 matches");
   else if(count(range) > 1)
-    throw ValueNotFound(FromHere(), "Component not found: More than 1 match");
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : More than 1 match");
   else
     return *range.begin();
 }

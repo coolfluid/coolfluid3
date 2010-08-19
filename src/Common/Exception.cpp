@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "Common/Log.hpp"
 #include "Common/Exception.hpp"
 #include "Common/OSystem.hpp"
 #include "Common/OSystemLayer.hpp"
@@ -34,22 +35,25 @@ Exception::Exception(CodeLocation where, std::string msg, std::string className)
 
   if ( ExceptionManager::instance().ExceptionOutputs )
   {
-    std::cout << "+++ Exception thrown +++++++++++++++++" << std::endl;
-    std::cout << m_what << std::endl;
-    std::cout << "++++++++++++++++++++++++++++++++++++++" << std::endl;
+    CFinfo << CFendl << CFendl;
+    CFinfo << "+++ Exception thrown +++++++++++++++++" << CFendl;
+    CFinfo << m_what << CFendl;
+    CFinfo << "++++++++++++++++++++++++++++++++++++++" << CFendl;
   }
 
   if ( ExceptionManager::instance().ExceptionDumps )
   {
     std::string backtrace = OSystem::instance().OSystemLayer()->getBackTrace();
-    std::cout << "+++ Exception backtrace ++++++++++++++" << std::endl;
-    std::cout << backtrace << std::endl;
-    std::cout << "++++++++++++++++++++++++++++++++++++++" << std::endl;
+    CFinfo << CFendl << CFendl;
+    CFinfo << "+++ Exception backtrace ++++++++++++++" << CFendl;
+    CFinfo << backtrace << CFendl;
+    CFinfo << "++++++++++++++++++++++++++++++++++++++" << CFendl;
   }
 
   if ( ExceptionManager::instance().ExceptionAborts )
   {
-    std::cout << "+++ Exception aborting ... " << std::endl;
+    CFinfo << CFendl << CFendl;
+    CFinfo << "+++ Exception aborting ... " << CFendl;
     abort();
   }
 }
@@ -86,6 +90,7 @@ const char* Exception::what() const throw()
 std::string Exception::full_description () const throw ()
 {
   std::string desc;
+  desc += "\n\n";
   desc += "+++ Exception thrown ++++++++++++++++\n";
   desc += "From : \'";
   desc += m_where.str();

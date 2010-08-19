@@ -92,7 +92,7 @@ CArray& CElements::coordinates()
 
 const CArray& CElements::coordinates() const
 {
-  const CLink& link = get_component_typed<CLink>(*this,IsComponentTag("coordinates"));
+  const CLink& link = get_component_typed<CLink const>(*this,IsComponentTag("coordinates"));
   return *link.get_type<CArray const>();
 
 }

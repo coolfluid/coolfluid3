@@ -38,7 +38,8 @@ int main(int argc, char * argv[])
     CMesh::Ptr mesh = meshreader->create_mesh_from(inputfile);
     root->add_component(mesh);
     
-    CField& volumes = mesh->create_field("volumes",0,get_component_typed<CRegion>(*mesh));
+    CField& volumes = mesh->create_field("volumes",get_component_typed<CRegion>(*mesh));
+    volumes.create_data_storage(1, CField::ELEMENT_BASED);
 
 
 #define Loop boost::mpl::for_each< SF::Types >

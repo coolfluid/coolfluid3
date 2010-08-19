@@ -41,7 +41,7 @@ CRegion& CMesh::create_region( const CName& name )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CField& CMesh::create_field( const CName& name , const Uint dim, CRegion& support)
+CField& CMesh::create_field( const CName& name , CRegion& support)
 {
   CField& field = *create_component_type<CField>(name);
   field.properties()["element_based"]=true;
@@ -50,7 +50,7 @@ CField& CMesh::create_field( const CName& name , const Uint dim, CRegion& suppor
 //  std::map<const CArray*,CArray*> data_for_coordinates;
 //  field.create_field(name, support,dim,data_for_coordinates);
   
-  field.create_element_based_field(name, support);
+  field.create_field(name, support);
 
   //CFinfo << "data_for_coordinates.size() = " << data_for_coordinates.size() << CFendl;
   return field;

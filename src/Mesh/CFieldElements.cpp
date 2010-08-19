@@ -37,6 +37,7 @@ void CFieldElements::initialize(CElements& elements)
   // create a link to the geometry elements.
   CLink::Ptr support = create_component_type<CLink>("support");
   support->link_to(elements.get());
+  support->add_tag("support");
   
   // create the connectivity table as a CLink to another one.
   CLink::Ptr connectivity_table = create_component_type<CLink>(elements.connectivity_table().name());
