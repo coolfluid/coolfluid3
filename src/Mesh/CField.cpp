@@ -44,9 +44,8 @@ CField& CField::create_field(const std::string& field_name, CRegion& support, co
     CFinfo << "creating elements " << elements.name() << CFendl;
     CFieldElements& field_elements = *create_component_type<CFieldElements>(elements.name());
     field_elements.add_tag("FieldElements");
-    field_elements.properties()["element_based"]=false;
-    field_elements.properties()["node_based"]=true;
-    field_elements.initialize_node_based(elements,*data_for_coordinates[&elements.coordinates()]);
+    field_elements.initialize(elements);
+    field_elements.add_node_based_storage(*data_for_coordinates[&elements.coordinates()]);
     elements.add_field_elements_link(field_elements);
   }
 
@@ -71,9 +70,8 @@ CField& CField::create_element_based_field(const std::string& field_name, CRegio
     CFinfo << "creating elements element_based" << geometry_elements.name() << CFendl;
     CFieldElements& field_elements = *create_component_type<CFieldElements>(geometry_elements.name());
     field_elements.add_tag("FieldElements");
-    field_elements.properties()["element_based"]=true;
-    field_elements.properties()["node_based"]=false;
-    field_elements.initialize_element_based(geometry_elements);
+    field_elements.initialize(geometry_elements);
+    field_elements.add_element_based_storage();
     geometry_elements.add_field_elements_link(field_elements);
   }
   

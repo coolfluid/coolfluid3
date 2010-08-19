@@ -8,13 +8,16 @@
 #include "Common/BasicExceptions.hpp"
 #include "Common/ComponentPredicates.hpp"
 
+#include "Math/RealVector.hpp"
+
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/GeoShape.hpp"
+#include "Mesh/CTable.hpp"
+
 #include "Mesh/Integrators/GaussImplementation.hpp"
+
 #include "Mesh/SF/Types.hpp"
 
-#include "Math/RealVector.hpp"
 
 
 namespace CF {

@@ -1,12 +1,11 @@
-#include "Common/Log.hpp"
 #include "Common/Factory.hpp"
 #include "Common/CLink.hpp"
 #include "Common/CGroup.hpp"
 
 #include "Mesh/CElements.hpp"
-#include "Mesh/ElementType.hpp"
-#include "Mesh/GeoShape.hpp"
 #include "Mesh/CField.hpp"
+#include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -96,6 +95,13 @@ const CArray& CElements::coordinates() const
   const CLink& link = get_component_typed<CLink>(*this,IsComponentTag("coordinates"));
   return *link.get_type<CArray const>();
 
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+Uint CElements::elements_count() const
+{ 
+  return connectivity_table().size(); 
 }
 
 //////////////////////////////////////////////////////////////////////////////

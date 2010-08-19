@@ -15,6 +15,7 @@
 #include "Mesh/CArray.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CFlexTable.hpp"
+#include "Mesh/CElements.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 

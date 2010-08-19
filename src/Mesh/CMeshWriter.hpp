@@ -10,12 +10,12 @@
 
 #include "Mesh/MeshAPI.hpp"
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CTable.hpp"
 #include "Mesh/CElements.hpp"
-#include "Mesh/CRegion.hpp"
 
 namespace CF {
 namespace Mesh {
+  
+  class CArray;
   
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -9,6 +9,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CArray.hpp"
 #include "Mesh/CRegion.hpp"
+#include "Mesh/CTable.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 

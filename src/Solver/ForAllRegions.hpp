@@ -132,7 +132,7 @@ private:
     template < typename SFType >
     void operator() ( SFType& T )
     {     
-      BOOST_FOREACH(CElements& elements, recursive_filtered_range_typed<CElements>(field1,IsComponentElementType<SFType>()))
+      BOOST_FOREACH(CFieldElements& elements, recursive_filtered_range_typed<CFieldElements>(field1,IsComponentElementType<SFType>()))
       {
         this_class.operation.setup( elements );
         

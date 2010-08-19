@@ -3,15 +3,12 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/Component.hpp"
-
-#include "Mesh/MeshAPI.hpp"
 #include "Mesh/CElements.hpp"
 
 namespace CF {
 namespace Mesh {
 
-  class GeoShape;
+  class CArray;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -34,9 +31,10 @@ public: // functions
   /// Initialize the CFieldElements using the given type
   //void initialize(const std::string& element_type_name, CArray& data);
     
-  void initialize_element_based(CElements& element_in);
+  void add_element_based_storage();
+  void add_node_based_storage(CArray& nodal_data);
   
-  void initialize_node_based(CElements& element_in, CArray& nodal_data);
+  void initialize(CElements& element_in);
 
   /// Virtual destructor
   virtual ~CFieldElements();

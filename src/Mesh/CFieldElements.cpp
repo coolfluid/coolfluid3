@@ -1,12 +1,9 @@
-#include "Common/Log.hpp"
-#include "Common/Factory.hpp"
 #include "Common/CLink.hpp"
-#include "Common/CGroup.hpp"
+#include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/CFieldElements.hpp"
-#include "Mesh/ElementType.hpp"
-#include "Mesh/GeoShape.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -19,6 +16,8 @@ CFieldElements::CFieldElements ( const CName& name ) :
   CElements (name)
 {
   BUILD_COMPONENT;
+  properties()["element_based"]=false;
+  properties()["node_based"]=false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -29,7 +28,7 @@ CFieldElements::~CFieldElements()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CFieldElements::initialize_node_based(CElements& elements, CArray& nodal_data)
+void CFieldElements::initialize(CElements& elements)
 {
   // Set the shape function
   set_element_type(elements.element_type().getElementTypeName());
@@ -43,36 +42,31 @@ void CFieldElements::initialize_node_based(CElements& elements, CArray& nodal_da
   CLink::Ptr connectivity_table = create_component_type<CLink>(elements.connectivity_table().name());
   connectivity_table->link_to(elements.connectivity_table().get());
   
+}
+
+////////////////////////////////////////////////////////////////////////////////
+  
+void CFieldElements::add_node_based_storage(CArray& nodal_data)
+{
   // Set the nodal data
   m_nodal_data_name = "node_data";
   CLink::Ptr node_data = create_component_type<CLink>(m_nodal_data_name);
   node_data->add_tag(m_nodal_data_name);
   node_data->link_to(nodal_data.get());
+  properties()["node_based"]=true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CFieldElements::initialize_element_based(CElements& elements)
+void CFieldElements::add_element_based_storage()
 {
-  // Set the shape function
-  set_element_type(elements.element_type().getElementTypeName());
-  cf_assert(m_element_type);
-  
-  // create a link to the geometry elements.
-  CLink::Ptr support = create_component_type<CLink>("support");
-  support->add_tag("support");
-  support->link_to(elements.get());
-  
-  // create the connectivity table as a CLink to another one.
-  CLink::Ptr connectivity_table = create_component_type<CLink>(elements.connectivity_table().name());
-  connectivity_table->link_to(elements.connectivity_table().get());
-
   // Create elemental data
   m_elemental_data_name = "element_data";
   CArray::Ptr elm_data = create_component_type<CArray>(m_elemental_data_name);
   elm_data->add_tag(m_elemental_data_name);
+  properties()["element_based"]=true;
 }
-
+  
 //////////////////////////////////////////////////////////////////////////////
 
 CArray& CFieldElements::nodal_data()

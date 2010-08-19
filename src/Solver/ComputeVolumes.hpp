@@ -4,7 +4,7 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CArray.hpp"
 #include "Mesh/CField.hpp"
-#include "Mesh/CElements.hpp"
+#include "Mesh/CFieldElements.hpp"
 #include "Mesh/ElementNodes.hpp"
 
 
@@ -23,7 +23,7 @@ struct ComputeVolumes
 
   ComputeVolumes () { }
   
-  void setup (CElements& field_elements )
+  void setup (CFieldElements& field_elements )
   {
     volumes = field_elements.elemental_data().get_type<CArray>();
     volumes->array().resize(boost::extents[field_elements.elements_count()][1]);
@@ -52,7 +52,7 @@ struct OutputVolumes
 
   OutputVolumes () { }
   
-  void setup (CElements& field_elements )
+  void setup (CFieldElements& field_elements )
   {
     volumes = field_elements.elemental_data().get_type<CArray>();
     CFinfo << field_elements.full_path().string() << CFendl;
@@ -75,7 +75,7 @@ struct OperationMerge
   OP1 m_op1;
   OP2 m_op2;
 
-  void setup (CElements& field_elements )
+  void setup (CFieldElements& field_elements )
   {
     m_op1.setup(field_elements);
     m_op2.setup(field_elements);

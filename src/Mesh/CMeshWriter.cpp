@@ -1,6 +1,7 @@
 #include "Common/OptionT.hpp"
 
 #include "Mesh/CMeshWriter.hpp"
+#include "Mesh/CArray.hpp"
 
 namespace CF {
 namespace Mesh {

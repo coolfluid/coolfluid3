@@ -6,7 +6,7 @@
 #include <boost/tuple/tuple.hpp>
 
 #include "Mesh/CMeshWriter.hpp"
-#include "Mesh/GeoShape.hpp"
+#include "Mesh/CTable.hpp"
 
 #include "Mesh/Neu/NeuAPI.hpp"
 #include "Mesh/Neu/Shared.hpp"
@@ -15,7 +15,10 @@
 
 namespace CF {
 namespace Mesh {
+  class CElements;
+
 namespace Neu {
+  
 
 //////////////////////////////////////////////////////////////////////////////
 

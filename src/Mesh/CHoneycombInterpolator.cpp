@@ -9,6 +9,7 @@
 #include "Mesh/CHoneycombInterpolator.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
 

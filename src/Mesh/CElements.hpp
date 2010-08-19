@@ -5,15 +5,15 @@
 
 #include "Common/Component.hpp"
 
-#include "Mesh/CTable.hpp"
 #include "Mesh/MeshAPI.hpp"
 #include "Mesh/ElementType.hpp"
-#include "Mesh/CArray.hpp"
 
 namespace CF {
 namespace Mesh {
 
-  class GeoShape;
+  class CTable;
+  class CArray;
+  class ElementType;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -52,7 +52,7 @@ public: // functions
   const ElementType& element_type() const { return *m_element_type; }
   
   /// return the number of elements
-  Uint elements_count() const { return connectivity_table().size(); }
+  Uint elements_count() const;
   
   /// create a CTable component and add it to the list of subcomponents
   /// @param name of the region
