@@ -8,6 +8,7 @@
 #include "Common/CRoot.hpp"
 
 #include "Mesh/CArray.hpp"
+#include "Mesh/ElementNodes.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/SF/Quad2DLagrangeP1.hpp"
 
@@ -18,6 +19,7 @@ using namespace CF;
 using namespace CF::Mesh;
 using namespace CF::Mesh::Integrators;
 using namespace CF::Mesh::SF;
+using namespace CF::Tools::Testing;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -114,91 +116,82 @@ BOOST_AUTO_TEST_CASE( computeShapeFunction )
   const CF::RealVector reference_result = list_of(0.045)(0.055)(0.495)(0.405);
   CF::RealVector result(4);
   Quad2DLagrangeP1::shape_function(mapped_coords, result);
-  CF::Tools::Testing::Accumulator accumulator;
-  CF::Tools::Testing::vector_test(result, reference_result, accumulator);
+  Accumulator accumulator;
+  vector_test(result, reference_result, accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 10); // Maximal difference can't be greater than 10 times the least representable unit
 }
 
 BOOST_AUTO_TEST_CASE( computeMappedCoordinates )
 {
-  CF::Tools::Testing::Accumulator accumulator;
+  Accumulator accumulator;
   CF::RealVector test_coords = list_of(0.9375)(1.375); // center of the element
   CF::RealVector result(2);
   Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes, result);
-  BOOST_CHECK_LT(std::abs(result[0]), 3e-15);
-  BOOST_CHECK_LT(std::abs(result[1]), 3e-15);// sqrt from the expression gives too many ULPS in difference for Accumulator
-  
+  BOOST_CHECK_LT(std::abs(result[0]), 1e-12);
+  BOOST_CHECK_LT(std::abs(result[1]), 1e-12);// sqrt from the expression gives too many ULPS in difference for Accumulator
   
   test_coords = nodes[0];
   Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes, result);  
-  CF::Tools::Testing::test(result[0],-1.0,accumulator);
-  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 50);
+  vector_test(result,point2(-1.0, -1.0),accumulator);
+  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 600);
   CFinfo << "result[0] = " << result[0] << CFendl;
   CFinfo << "result[1] = " << result[1] << CFendl << CFendl;
   
   test_coords = nodes[1];
   Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes, result);  
-  CF::Tools::Testing::test(result[0],1.0,accumulator);
-  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 50);
+  vector_test(result,point2(1.0, -1.0),accumulator);
+  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 600);
   CFinfo << "result[0] = " << result[0] << CFendl;
   CFinfo << "result[1] = " << result[1] << CFendl << CFendl;
   
   test_coords = nodes[2];
   Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes, result);  
-  CF::Tools::Testing::test(result[0],1.0,accumulator);
-  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 50);
+  vector_test(result,point2(1.0, 1.0),accumulator);
+  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 600);
   CFinfo << "result[0] = " << result[0] << CFendl;
   CFinfo << "result[1] = " << result[1] << CFendl << CFendl;
   
   test_coords = nodes[3];
   Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes, result);  
-  CF::Tools::Testing::test(result[0],-1.0,accumulator);
-  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 50);
+  vector_test(result,point2(-1.0, 1.0),accumulator);
+  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 600);
   CFinfo << "result[0] = " << result[0] << CFendl;
   CFinfo << "result[1] = " << result[1] << CFendl << CFendl;
   
-  
-  
-  
-  
-  /// @todo These mapped coordinates give NaN ... WHY?  (asks Willem)
+  // Try another element
   const CF::RealVector c0 = list_of(1.0)(1.0);
   const CF::RealVector c1 = list_of(2.0)(1.0);
   const CF::RealVector c2 = list_of(2.0)(2.0);
   const CF::RealVector c3 = list_of(1.0)(2.0);
   NodesT nodes_2 = list_of(c0)(c1)(c2)(c3);
-  
-  
+
   test_coords = nodes_2[0];
   Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes_2, result);  
-  CF::Tools::Testing::test(result[0],-1.0,accumulator);
-  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 50);
   CFinfo << "result[0] = " << result[0] << CFendl;
   CFinfo << "result[1] = " << result[1] << CFendl << CFendl;
+  vector_test(result,point2(-1.0, -1.0),accumulator);
+  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 600);
   
   test_coords = nodes_2[1];
   Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes_2, result);  
-  CF::Tools::Testing::test(result[0],1.0,accumulator);
-  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 50);
+  vector_test(result,point2(1.0, -1.0),accumulator);
+  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 600);
   CFinfo << "result[0] = " << result[0] << CFendl;
   CFinfo << "result[1] = " << result[1] << CFendl << CFendl;
   
   test_coords = nodes_2[2];
   Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes_2, result);  
-  CF::Tools::Testing::test(result[0],1.0,accumulator);
-  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 50);
+  vector_test(result,point2(1.0, 1.0),accumulator);
+  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 600);
   CFinfo << "result[0] = " << result[0] << CFendl;
   CFinfo << "result[1] = " << result[1] << CFendl << CFendl;
   
   test_coords = nodes_2[3];
   Quad2DLagrangeP1::mapped_coordinates(test_coords, nodes_2, result);  
-  CF::Tools::Testing::test(result[0],-1.0,accumulator);
-  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 50);
+  vector_test(result,point2(-1.0, 1.0),accumulator);
+  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 600);
   CFinfo << "result[0] = " << result[0] << CFendl;
   CFinfo << "result[1] = " << result[1] << CFendl << CFendl;
-  
-  
-  
 }
 
 BOOST_AUTO_TEST_CASE( computeMappedGradient )
@@ -216,8 +209,8 @@ BOOST_AUTO_TEST_CASE( computeMappedGradient )
   expected(3, 1) = 0.25 * ( 1 - ksi);
   CF::RealMatrix result(4, 2);
   Quad2DLagrangeP1::mapped_gradient(mapped_coords, result);
-  CF::Tools::Testing::Accumulator accumulator;
-  CF::Tools::Testing::vector_test(result, expected, accumulator);
+  Accumulator accumulator;
+  vector_test(result, expected, accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 2);
 }
 
@@ -225,7 +218,7 @@ BOOST_AUTO_TEST_CASE( computeJacobianDeterminant )
 {
   // Shapefunction determinant at center should be a quarter of the cell volume
   const CF::RealVector center_coords = list_of(0.)(0.);
-  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Testing::test(4.*Quad2DLagrangeP1::jacobian_determinant(center_coords, nodes), Quad2DLagrangeP1::volume(nodes)).ulps), 1);
+  BOOST_CHECK_LT(boost::accumulators::max(test(4.*Quad2DLagrangeP1::jacobian_determinant(center_coords, nodes), Quad2DLagrangeP1::volume(nodes)).ulps), 1);
 }
 
 BOOST_AUTO_TEST_CASE( computeJacobian )
@@ -237,8 +230,8 @@ BOOST_AUTO_TEST_CASE( computeJacobian )
   expected(1,1) = 0.5975;
   CF::RealMatrix result(2, 2);
   Quad2DLagrangeP1::jacobian(mapped_coords, nodes, result);
-  CF::Tools::Testing::Accumulator accumulator;
-  CF::Tools::Testing::vector_test(result, expected, accumulator);
+  Accumulator accumulator;
+  vector_test(result, expected, accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 15);
 }
 
@@ -251,8 +244,8 @@ BOOST_AUTO_TEST_CASE( computeJacobianAdjoint )
   expected(1,1) = 0.2775;
   CF::RealMatrix result(2, 2);
   Quad2DLagrangeP1::jacobian_adjoint(mapped_coords, nodes, result);
-  CF::Tools::Testing::Accumulator accumulator;
-  CF::Tools::Testing::vector_test(result, expected, accumulator);
+  Accumulator accumulator;
+  vector_test(result, expected, accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 15);
 }
 
@@ -276,12 +269,12 @@ BOOST_AUTO_TEST_CASE( integrateConst )
   Gauss<Quad2DLagrangeP1, Quad2DLagrangeP1, 16>::integrateElement(ftor, result16);
   Gauss<Quad2DLagrangeP1, Quad2DLagrangeP1, 32>::integrateElement(ftor, result32);
 
-  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Testing::test(result1, vol).ulps), 1);
-  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Testing::test(result2, vol).ulps), 5);
-  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Testing::test(result4, vol).ulps), 5);
-  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Testing::test(result8, vol).ulps), 5);
-  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Testing::test(result16, vol).ulps), 5);
-  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Testing::test(result32, vol).ulps), 5);
+  BOOST_CHECK_LT(boost::accumulators::max(test(result1, vol).ulps), 1);
+  BOOST_CHECK_LT(boost::accumulators::max(test(result2, vol).ulps), 5);
+  BOOST_CHECK_LT(boost::accumulators::max(test(result4, vol).ulps), 5);
+  BOOST_CHECK_LT(boost::accumulators::max(test(result8, vol).ulps), 5);
+  BOOST_CHECK_LT(boost::accumulators::max(test(result16, vol).ulps), 5);
+  BOOST_CHECK_LT(boost::accumulators::max(test(result32, vol).ulps), 5);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

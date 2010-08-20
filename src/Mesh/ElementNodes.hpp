@@ -73,6 +73,27 @@ inline void fill_node_list(IteratorT iterator, const CArray& coordinates, const 
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// Convenience function to create a 2D point
+RealVector point2(const Real x, const Real y)
+{
+  RealVector result(2);
+  result[0] = x;
+  result[1] = y;
+  return result;
+}
+
+/// Convenience function to create a 3D point
+RealVector point3(const Real x, const Real y, const Real z)
+{
+  RealVector result(3);
+  result[0] = x;
+  result[1] = y;
+  result[2] = z;
+  return result;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 std::ostream& operator<<(std::ostream& output, const ElementNodeView& nodeVector);
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -51,9 +51,26 @@ static void mapped_coordinates(const RealVector& coord, const NodesT& nodes, Rea
 
   const Real x = coord[XX];
   const Real y = coord[YY];
+  
+  const Real x0 = nodes[0][XX];
+  const Real y0 = nodes[0][YY];
+  const Real x1 = nodes[1][XX];
+  const Real y1 = nodes[1][YY];
+  const Real x2 = nodes[2][XX];
+  const Real y2 = nodes[2][YY];
+  const Real x3 = nodes[3][XX];
+  const Real y3 = nodes[3][YY];
+  
   JacobianCoefficients jc(nodes);
-  mappedCoord[KSI] = (jc.ax*jc.dy + jc.bx*jc.cy + jc.dx*y - jc.ay*jc.dx - jc.by*jc.cx - jc.dy*x - sqrt(-4*jc.bx*jc.cx*jc.dy*y - 4*jc.by*jc.cy*jc.dx*x - 2*jc.ax*jc.ay*jc.dx*jc.dy - 2*jc.ax*jc.bx*jc.cy*jc.dy - 2*jc.ax*jc.by*jc.cx*jc.dy - 2*jc.ay*jc.bx*jc.cy*jc.dx - 2*jc.ay*jc.by*jc.cx*jc.dx - 2*jc.bx*jc.by*jc.cx*jc.cy - 2*jc.dx*jc.dy*x*y + 2*jc.ax*jc.dx*jc.dy*y + 2*jc.ay*jc.dx*jc.dy*x + 2*jc.bx*jc.cy*jc.dx*y + 2*jc.bx*jc.cy*jc.dy*x + 2*jc.by*jc.cx*jc.dx*y + 2*jc.by*jc.cx*jc.dy*x + 4*jc.ax*jc.by*jc.cy*jc.dx + 4*jc.ay*jc.bx*jc.cx*jc.dy + jc.ax*jc.ax*jc.dy*jc.dy + jc.ay*jc.ay*jc.dx*jc.dx + jc.bx*jc.bx*jc.cy*jc.cy + jc.by*jc.by*jc.cx*jc.cx + jc.dx*jc.dx*y*y + jc.dy*jc.dy*x*x - 2*jc.ax*x*jc.dy*jc.dy - 2*jc.ay*y*jc.dx*jc.dx))/(-2*jc.bx*jc.dy + 2*jc.by*jc.dx);
-  mappedCoord[ETA] = (x - jc.ax - jc.bx*(jc.ax*jc.dy + jc.bx*jc.cy + jc.dx*y - jc.ay*jc.dx - jc.by*jc.cx - jc.dy*x - sqrt(-4*jc.bx*jc.cx*jc.dy*y - 4*jc.by*jc.cy*jc.dx*x - 2*jc.ax*jc.ay*jc.dx*jc.dy - 2*jc.ax*jc.bx*jc.cy*jc.dy - 2*jc.ax*jc.by*jc.cx*jc.dy - 2*jc.ay*jc.bx*jc.cy*jc.dx - 2*jc.ay*jc.by*jc.cx*jc.dx - 2*jc.bx*jc.by*jc.cx*jc.cy - 2*jc.dx*jc.dy*x*y + 2*jc.ax*jc.dx*jc.dy*y + 2*jc.ay*jc.dx*jc.dy*x + 2*jc.bx*jc.cy*jc.dx*y + 2*jc.bx*jc.cy*jc.dy*x + 2*jc.by*jc.cx*jc.dx*y + 2*jc.by*jc.cx*jc.dy*x + 4*jc.ax*jc.by*jc.cy*jc.dx + 4*jc.ay*jc.bx*jc.cx*jc.dy + jc.ax*jc.ax*jc.dy*jc.dy + jc.ay*jc.ay*jc.dx*jc.dx + jc.bx*jc.bx*jc.cy*jc.cy + jc.by*jc.by*jc.cx*jc.cx + jc.dx*jc.dx*y*y + jc.dy*jc.dy*x*x - 2*jc.ax*x*jc.dy*jc.dy - 2*jc.ay*y*jc.dx*jc.dx))/(-2*jc.bx*jc.dy + 2*jc.by*jc.dx))/(jc.cx + jc.dx*(jc.ax*jc.dy + jc.bx*jc.cy + jc.dx*y - jc.ay*jc.dx - jc.by*jc.cx - jc.dy*x - sqrt(-4*jc.bx*jc.cx*jc.dy*y - 4*jc.by*jc.cy*jc.dx*x - 2*jc.ax*jc.ay*jc.dx*jc.dy - 2*jc.ax*jc.bx*jc.cy*jc.dy - 2*jc.ax*jc.by*jc.cx*jc.dy - 2*jc.ay*jc.bx*jc.cy*jc.dx - 2*jc.ay*jc.by*jc.cx*jc.dx - 2*jc.bx*jc.by*jc.cx*jc.cy - 2*jc.dx*jc.dy*x*y + 2*jc.ax*jc.dx*jc.dy*y + 2*jc.ay*jc.dx*jc.dy*x + 2*jc.bx*jc.cy*jc.dx*y + 2*jc.bx*jc.cy*jc.dy*x + 2*jc.by*jc.cx*jc.dx*y + 2*jc.by*jc.cx*jc.dy*x + 4*jc.ax*jc.by*jc.cy*jc.dx + 4*jc.ay*jc.bx*jc.cx*jc.dy + jc.ax*jc.ax*jc.dy*jc.dy + jc.ay*jc.ay*jc.dx*jc.dx + jc.bx*jc.bx*jc.cy*jc.cy + jc.by*jc.by*jc.cx*jc.cx + jc.dx*jc.dx*y*y + jc.dy*jc.dy*x*x - 2*jc.ax*x*jc.dy*jc.dy - 2*jc.ay*y*jc.dx*jc.dx))/(-2*jc.bx*jc.dy + 2*jc.by*jc.dx));
+  if(jc.bx*jc.dy != jc.by*jc.dx) // non-zero quadratic term
+  {
+    mappedCoord[KSI] = (x*(y0 + y2 - y1 - y3) + x0*y3 + x2*y1 + y*(x1 + x3 - x0 - x2) - x1*y2 - x3*y0 + sqrt(-4*x*x0*y1*y3 - 4*x*x1*y0*y2 - 4*x*x2*y1*y3 - 4*x*x3*y0*y2 - 4*x0*x2*y*y1 - 4*x0*x2*y*y3 - 4*x1*x3*y*y0 - 4*x1*x3*y*y2 - 2*x*x0*y*y0 - 2*x*x0*y*y2 - 2*x*x1*y*y1 - 2*x*x1*y*y3 - 2*x*x2*y*y0 - 2*x*x2*y*y2 - 2*x*x3*y*y1 - 2*x*x3*y*y3 - 2*x0*x1*y2*y3 - 2*x0*x2*y0*y2 - 2*x0*x3*y1*y2 - 2*x1*x2*y0*y3 - 2*x1*x3*y1*y3 - 2*x2*x3*y0*y1 + 2*x*x0*y*y1 + 2*x*x0*y*y3 + 2*x*x0*y0*y2 + 2*x*x0*y1*y2 + 2*x*x0*y2*y3 + 2*x*x1*y*y0 + 2*x*x1*y*y2 + 2*x*x1*y0*y3 + 2*x*x1*y1*y3 + 2*x*x1*y2*y3 + 2*x*x2*y*y1 + 2*x*x2*y*y3 + 2*x*x2*y0*y1 + 2*x*x2*y0*y2 + 2*x*x2*y0*y3 + 2*x*x3*y*y0 + 2*x*x3*y*y2 + 2*x*x3*y0*y1 + 2*x*x3*y1*y2 + 2*x*x3*y1*y3 + 2*x0*x1*y*y2 + 2*x0*x1*y*y3 + 2*x0*x2*y*y0 + 2*x0*x2*y*y2 + 2*x0*x3*y*y1 + 2*x0*x3*y*y2 + 2*x1*x2*y*y0 + 2*x1*x2*y*y3 + 2*x1*x3*y*y1 + 2*x1*x3*y*y3 + 2*x2*x3*y*y0 + 2*x2*x3*y*y1 + 4*x0*x2*y1*y3 + 4*x1*x3*y0*y2 + x*x*y0*y0 + x*x*y1*y1 + x*x*y2*y2 + x*x*y3*y3 + x0*x0*y*y + x0*x0*y2*y2 + x1*x1*y*y + x1*x1*y3*y3 + x2*x2*y*y + x2*x2*y0*y0 + x3*x3*y*y + x3*x3*y1*y1 - 2*x*x0*y2*y2 - 2*x*x1*y3*y3 - 2*x*x2*y0*y0 - 2*x*x3*y1*y1 - 2*x0*x1*y*y - 2*x0*x3*y*y - 2*x1*x2*y*y - 2*x2*x3*y*y - 2*y*y0*x2*x2 - 2*y*y1*x3*x3 - 2*y*y2*x0*x0 - 2*y*y3*x1*x1 - 2*y0*y1*x*x - 2*y0*y3*x*x - 2*y1*y2*x*x - 2*y2*y3*x*x + 2*x0*x2*y*y + 2*x1*x3*y*y + 2*y0*y2*x*x + 2*y1*y3*x*x))/(x0*y3 + x1*y2 + x2*y0 + x3*y1 - x0*y2 - x1*y3 - x2*y1 - x3*y0);
+  }
+  else // linear equation
+  {
+    mappedCoord[KSI] = (x2*y0 + x2*y1 + x3*y0 + x3*y1 - x0*y2 - x0*y3 - x1*y2 - x1*y3 - 2*x*y0 - 2*x*y1 - 2*x2*y - 2*x3*y + 2*x*y2 + 2*x*y3 + 2*x0*y + 2*x1*y)/(-2*x*y0 - 2*x*y2 - 2*x0*y3 - 2*x1*y - 2*x2*y1 - 2*x3*y + 2*x*y1 + 2*x*y3 + 2*x0*y + 2*x1*y2 + 2*x2*y + 2*x3*y0);
+  }
+  mappedCoord[ETA] = -jc.cx != jc.dx*mappedCoord[KSI] ? (x - jc.ax - jc.bx * mappedCoord[KSI]) / (jc.cx + jc.dx*mappedCoord[KSI]) : (y - jc.ay - jc.by * mappedCoord[KSI]) / (jc.cy + jc.dy*mappedCoord[KSI]);
 }
 
 /// Compute the gradient with respect to mapped coordinates, i.e. parial derivatives are in terms of the
