@@ -48,7 +48,7 @@ public: // functions
 
     XmlNode& docnode = *XmlOps::goto_doc_node(*xmlroot.get());
 
-    XmlNode& signal_frame = *XmlOps::add_signal_frame(docnode, "", "", "");
+    XmlNode& signal_frame = *XmlOps::add_signal_frame(docnode, "", "", "", true );
 
     XmlParams p ( signal_frame );
 
