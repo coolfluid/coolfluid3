@@ -68,9 +68,10 @@ BOOST_AUTO_TEST_CASE( FieldTest )
 {
   CMesh& mesh = *m_mesh;
   
-  CField& volume = mesh.create_field("Volume",get_component_typed<CRegion>(mesh));
-  CField& solution = mesh.create_field("Solution",get_component_typed<CRegion>(mesh));
+  mesh.create_field("Volume",get_component_typed<CRegion>(mesh));
+  mesh.create_field("Solution",get_component_typed<CRegion>(mesh));
   
+  // Check if the fields have been created inside the mesh
   BOOST_CHECK_EQUAL(mesh.get_child("Volume")->full_path().string(),"mesh/Volume");
   BOOST_CHECK_EQUAL(mesh.get_child("Solution")->full_path().string(),"mesh/Solution");
     
@@ -91,21 +92,28 @@ BOOST_AUTO_TEST_CASE( FieldTest )
   BOOST_CHECK_EQUAL(mesh.look_component("regions/gas")->full_path().string(),"mesh/regions/gas");
   BOOST_CHECK_EQUAL(mesh.look_component("regions/gas/../liquid")->full_path().string(),"mesh/regions/liquid");
   BOOST_CHECK_EQUAL(mesh.look_component_type<CRegion>("regions/gas/../liquid")->get_field("Volume").full_path().string(),"mesh/Volume/liquid");
+}
+
+//////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( FieldDataCreation )
+{
+  CMesh& mesh = *m_mesh;
+  CField& volume = mesh.create_field("Volume",get_component_typed<CRegion>(mesh));
+  CField& solution = mesh.create_field("Solution",get_component_typed<CRegion>(mesh));
   
-  
-  // Check if data is correctly created
+  // Check if element based data is correctly created
   volume.create_data_storage(1,CField::ELEMENT_BASED);
   BOOST_CHECK_EQUAL(mesh.look_component_type<CFieldElements>("Volume/gas/elements_Quad2DLagrangeP1")->elemental_data().size(), (Uint) 2);
   BOOST_CHECK_EQUAL(mesh.look_component_type<CFieldElements>("Volume/gas/elements_Quad2DLagrangeP1")->elemental_data().array().shape()[1], (Uint) 1);
-  //BOOST_CHECK_EQUAL(mesh.get_child("Volume")->get_child_type<CArray>("data")->size() , (Uint) 0);
   
+  // Check if node based data is correctly created
   solution.create_data_storage(5,CField::NODE_BASED);
-  CFinfo << mesh.tree() << CFendl;
-
-  
-  //BOOST_CHECK_EQUAL(mesh.look_component_type<CFieldElements>("Solution/gas/elements_Quad2DLagrangeP1")->nodal_data().size(), (Uint) 2);
   BOOST_CHECK_EQUAL(mesh.look_component_type<CFieldElements>("Solution/gas/elements_Quad2DLagrangeP1")->nodal_data().array().shape()[1], (Uint) 5);
-
+  
+  // Create additional element based data in the same field
+  solution.create_data_storage(5,CField::ELEMENT_BASED);
+  BOOST_CHECK_EQUAL(mesh.look_component_type<CFieldElements>("Solution/gas/elements_Quad2DLagrangeP1")->elemental_data().array().shape()[1], (Uint) 5);
   
 }
 
