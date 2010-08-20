@@ -56,6 +56,9 @@ public: // functions
 //  CField& create_field( const CName& name , const CField& other_field);
 //  CField& create_field_with_shapefunction( const CName& name , const CField& other_field, const ElementType& shape_function);
 
+  
+  void update_statistics();
+  
 private: // helper functions
 
   /// regists all the signals declared in this class

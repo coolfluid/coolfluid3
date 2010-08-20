@@ -44,42 +44,11 @@ CRegion& CMesh::create_region( const CName& name )
 CField& CMesh::create_field( const CName& name , CRegion& support)
 {
   CField& field = *create_component_type<CField>(name);
-  field.properties()["element_based"]=true;
-  field.properties()["node_based"]=true;
+  field.synchronize_with_region(support);
 
-//  std::map<const CArray*,CArray*> data_for_coordinates;
-//  field.create_field(name, support,dim,data_for_coordinates);
-  
-  field.create_field(name, support);
-
-  //CFinfo << "data_for_coordinates.size() = " << data_for_coordinates.size() << CFendl;
   return field;
 }
-//
-//
-//CField& CMesh::create_field( const CName& name , const CField& other_field)
-//{
-//  CField::Ptr field = create_component_type<CField>(name);
-//  return *field;
-//}
-//
-//
-//
-//CField& CMesh::create_field_with_shapefunction( const CName& name , const CRegion& support, const ElementType& shape_function)
-//{
-//  CField::Ptr field = create_component_type<CField>(name);
-//  return *field;
-//}
-//
-//
-//
-//CField& CMesh::create_field_with_shapefunction( const CName& name , const CField& other_field, const ElementType& shape_function)
-//{
-//  CField::Ptr field = create_component_type<CField>(name);
-//  return *field;
-//}
-//
-//
+
 
 } // Mesh
 } // CF

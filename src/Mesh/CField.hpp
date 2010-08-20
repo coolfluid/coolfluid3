@@ -55,7 +55,7 @@ public: // functions
   
   /// create a Cfield component
   /// @param name of the field
-  CField& create_field (const std::string& field_name, CRegion& support);
+  CField& synchronize_with_region(CRegion& support, const std::string& field_name = "");
 
   void create_data_storage(const Uint dim, const DataBasis basis);
 

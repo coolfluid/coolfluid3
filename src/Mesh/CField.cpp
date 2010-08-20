@@ -32,10 +32,10 @@ CField::~CField()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CField& CField::create_field(const std::string& field_name, CRegion& support)
+CField& CField::synchronize_with_region(CRegion& support, const std::string& field_name)
 { 
   // Setup this field
-  m_field_name = field_name;
+  m_field_name = (field_name == "") ? name() : field_name;
   support.add_field_link(*this);
   CLink::Ptr support_link = create_component_type<CLink>("support");
   support_link->add_tag("support");
@@ -48,8 +48,8 @@ CField& CField::create_field(const std::string& field_name, CRegion& support)
   // Go down one level in the tree
   BOOST_FOREACH(CRegion& support_level_down, range_typed<CRegion>(support))
   {
-    CField& field = *create_component_type<CField>(support_level_down.name());
-    field.create_field(m_field_name,support_level_down);
+    CField& subfield = *create_component_type<CField>(support_level_down.name());
+    subfield.synchronize_with_region(support_level_down,m_field_name);
   }
   
   return *this;
@@ -131,7 +131,6 @@ void CField::create_data_storage(const Uint dim, const DataBasis basis)
 
 CElements& CField::create_elements(CElements& geometry_elements)
 {
-  CFinfo << "creating elements " << geometry_elements.name() << CFendl;
   CFieldElements& field_elements = *create_component_type<CFieldElements>(geometry_elements.name());
   field_elements.add_tag("FieldElements");
   field_elements.initialize(geometry_elements);
