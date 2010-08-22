@@ -53,16 +53,26 @@ public: // functions
 
   // --------- Signals ---------
 
+  /// @note: This doesn't read anything from the xml node argument. 
+  ///        It just reads the config options
   void read( Common::XmlNode& node  );
 
   // --------- Direct access ---------
 
+  /// @return the name of the file format
   virtual std::string get_format() = 0;
 
+  /// @return the list of possible extensions of the file format
   virtual std::vector<std::string> get_extensions() = 0;
 
+  /// Read a given file to a given mesh
+  /// @param [in]     path  the file to read in
+  /// @param [in,out] mesh  the mesh to write to
   virtual void read_from_to(boost::filesystem::path& path, const CMesh::Ptr& mesh) = 0;
 
+  /// Read a given file and create a mesh
+  /// @param [in]   path    the file to read in
+  /// @return mesh          the created mesh
   CMesh::Ptr create_mesh_from(boost::filesystem::path& path);
 
 protected: // functions

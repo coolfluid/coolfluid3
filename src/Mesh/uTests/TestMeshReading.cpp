@@ -2,6 +2,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/foreach.hpp>
 #include <boost/filesystem/path.hpp>
+#include <boost/regex.hpp>
 
 #include "Common/ConfigObject.hpp"
 #include "Common/OptionT.hpp"
@@ -76,8 +77,6 @@ BOOST_AUTO_TEST_CASE( Constructors )
 BOOST_AUTO_TEST_CASE( quadtriag_readNeu_writeGmsh_writeNeu )
 {
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
-
-  // UNCOMMENT ALL THIS AND CHANGE THE FILEPATH "fp" TO A VALID PATH
   
   // the file to read from
   boost::filesystem::path fp_in ("quadtriag.neu");
@@ -191,8 +190,6 @@ BOOST_AUTO_TEST_CASE( hextet_readNeu_writeGmsh_writeNeu )
 {
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
   
-  // UNCOMMENT ALL THIS AND CHANGE THE FILEPATH "fp" TO A VALID PATH
-  
   // the file to read from
   boost::filesystem::path fp_in ("hextet.neu");
   
@@ -297,6 +294,35 @@ BOOST_AUTO_TEST_CASE( hextet_read_NewNeu_writeGmsh )
 //  CMeshTransformer::Ptr meshinfo = create_component_abstract_type<CMeshTransformer>("Info","meshinfo");
 //  meshinfo->transform(mesh);
   
+}
+
+BOOST_AUTO_TEST_CASE( read_multiple )
+{
+  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
+  
+  // the file to read from
+  boost::filesystem::path fp_in ("quadtriag.neu");
+  
+  // the mesh to store in
+  CMesh::Ptr mesh ( new CMesh  ( "mesh" ) );
+  
+  meshreader->read_from_to(fp_in,mesh);
+  meshreader->read_from_to(fp_in,mesh);
+  meshreader->read_from_to(fp_in,mesh);
+  meshreader->read_from_to(fp_in,mesh);
+  
+  boost::regex e("quadtriag(_[0-9]+)?");
+  Uint count = 0;
+  BOOST_FOREACH(const CRegion& region, recursive_range_typed<CRegion>(*mesh))
+  {
+    if (boost::regex_match(region.name(),e))
+    {
+      count++;
+      BOOST_CHECK_EQUAL(region.recursive_elements_count(), (Uint) 28);
+    }
+  }
+  BOOST_CHECK_EQUAL(count, (Uint) 4);
+  BOOST_CHECK_EQUAL(get_component_typed<CRegion>(*mesh).recursive_elements_count(), count*28);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

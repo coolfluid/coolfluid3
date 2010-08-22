@@ -2,6 +2,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/foreach.hpp>
 #include <boost/filesystem/path.hpp>
+#include <boost/regex.hpp>
 
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
@@ -648,8 +649,6 @@ BOOST_AUTO_TEST_CASE( ReadCGNS_Unstructured )
   // the mesh to store in
   CMesh::Ptr mesh = meshreader->create_mesh_from(fp_in);
 
-  CFinfo << mesh->tree() << CFendl;
-
   // Write to Gmsh
   boost::filesystem::path fp_out ("grid_c.msh");
   CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
@@ -685,9 +684,7 @@ BOOST_AUTO_TEST_CASE( ReadCGNS_Structured )
   
   // the mesh to store in
   CMesh::Ptr mesh = meshreader->create_mesh_from(fp_in);
-  
-  CFinfo << mesh->tree() << CFendl;
-  
+    
   CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("Info", "info");
   info->transform(mesh);
   // Write to Gmsh
@@ -710,6 +707,41 @@ BOOST_AUTO_TEST_CASE( ReadCGNS_Structured )
   
   
   //CFinfo << mesh_from_neu->tree() << CFendl;
+  
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( ReadCGNS_multiple )
+{
+  
+  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CGNS","meshreader");
+  
+  // the file to read from
+  boost::filesystem::path fp_in ("grid_c.cgns");
+  
+  // the mesh to store in
+  CMesh::Ptr mesh = meshreader->create_mesh_from(fp_in);
+  meshreader->read_from_to(fp_in,mesh);
+  meshreader->read_from_to(fp_in,mesh);
+  meshreader->read_from_to(fp_in,mesh);
+  
+  //CFinfo << mesh->tree() << CFendl;
+  
+  
+  boost::regex e("grid_c(_[0-9]+)?");
+  Uint count = 0;
+  BOOST_FOREACH(const CRegion& region, recursive_range_typed<CRegion>(*mesh))
+  {
+    if (boost::regex_match(region.name(),e))
+    {
+      count++;
+      BOOST_CHECK_EQUAL(region.recursive_elements_count(), (Uint) 3776);
+    }
+  }
+  BOOST_CHECK_EQUAL(count, (Uint) 4);
+  BOOST_CHECK_EQUAL(get_component_typed<CRegion>(*mesh).recursive_elements_count(), count*3776);
+  
   
 }
 

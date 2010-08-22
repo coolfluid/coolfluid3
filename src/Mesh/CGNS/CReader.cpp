@@ -1,6 +1,7 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/foreach.hpp>
 #include <boost/progress.hpp>
+#include <boost/filesystem/convenience.hpp>
 
 #include "Common/ObjectProvider.hpp"
 #include "Common/OptionT.hpp"
@@ -66,12 +67,11 @@ void CReader::defineConfigOptions ( OptionList& options )
 
 void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 {
-
   // Set the internal mesh pointer
   m_mesh = mesh;
 
   // Create basic region structure
-  CRegion& regions = m_mesh->create_region("regions");
+  CRegion& regions = m_mesh->create_region(boost::filesystem::basename(fp));
 
   // open file in read mode
   CALL_CGNS(cg_open(fp.string().c_str(),CG_MODE_READ,&m_file.idx));

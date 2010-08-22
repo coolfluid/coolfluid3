@@ -107,7 +107,7 @@ void CHoneycombInterpolator::create_honeycomb()
     V*=L[d];
   }
   
-  m_nb_elems = m_source_mesh->get_child_type<CRegion>("regions")->recursive_filtered_elements_count(IsElementsVolume());
+  m_nb_elems = get_component_typed<CRegion>(*m_source_mesh).recursive_filtered_elements_count(IsElementsVolume());
   
   
   if (option("Divisions")->value<std::vector<Uint> >().size() > 0)

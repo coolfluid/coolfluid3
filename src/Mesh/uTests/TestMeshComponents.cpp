@@ -77,17 +77,19 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
 
   // Create second region inside mesh, with 2 subregions inside
   CRegion& region2 = p_mesh->create_region("region2");
+  
+  CFinfo << p_mesh->tree() << CFendl;
   region2.create_region("subregion1");
   CRegion& subregion = region2.create_region("subregion2");
-  BOOST_CHECK_EQUAL ( subregion.full_path().string() , "//root/mesh/region2/subregion2" );
+  BOOST_CHECK_EQUAL ( subregion.full_path().string() , "//root/mesh/base/region2/subregion2" );
 
   // Create a connectivity table inside a subregion
   subregion.create_component_type<CTable>("connTable");
-  BOOST_CHECK_EQUAL ( get_named_component(subregion, "connTable").full_path().string() , "//root/mesh/region2/subregion2/connTable" );
+  BOOST_CHECK_EQUAL ( get_named_component(subregion, "connTable").full_path().string() , "//root/mesh/base/region2/subregion2/connTable" );
   
   // Create a elementsType component inside a subregion
   subregion.create_component_type<CElements>("elementType");
-  BOOST_CHECK_EQUAL ( get_named_component(subregion, "elementType").full_path().string() , "//root/mesh/region2/subregion2/elementType" );
+  BOOST_CHECK_EQUAL ( get_named_component(subregion, "elementType").full_path().string() , "//root/mesh/base/region2/subregion2/elementType" );
   
   // Create an array of coordinates inside mesh
   p_mesh->create_component_type<CArray>("coordinates");

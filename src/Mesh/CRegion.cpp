@@ -51,8 +51,9 @@ CElements& CRegion::create_elements(const std::string& element_type_name, CArray
 //////////////////////////////////////////////////////////////////////////////
 
 CArray& CRegion::create_coordinates(const Uint& dim)
-{
+{  
   CArray& coordinates = *create_component_type<CArray>("coordinates");
+  coordinates.add_tag("coordinates");
   coordinates.initialize(dim);
   return coordinates;
 }

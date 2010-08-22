@@ -2,6 +2,7 @@
 
 #include "Common/Log.hpp"
 #include "Common/OptionT.hpp"
+#include "Common/OptionArray.hpp"
 #include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/CMeshReader.hpp"
@@ -30,24 +31,22 @@ CMeshReader::~CMeshReader()
 
 void CMeshReader::defineConfigOptions(Common::OptionList& options)
 {
-  //options.add< OptionT<std::string> >  ( "File",  "File to read" , "" );
-  //options.add< Common::OptionT<std::string> >  ( "Mesh",  "Mesh to construct" , "" );
+  std::vector<std::string> dummy;
+  options.add< OptionArray<std::string> >  ( "Files",  "Files to read" , dummy );
+  options.add< OptionT<std::string> >  ( "Mesh",  "Mesh to construct" , "" );
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 void CMeshReader::read( XmlNode& node  )
 {
-  // Get the mesh component in the tree
-  /// @todo[1]: wait for Tiago for functionality
+  // Get the mesh
+  CMesh::Ptr mesh = look_component_type<CMesh>( option("Mesh")->value<std::string>() );
 
-  // Get the file path
-  boost::filesystem::path file = option("File")->value<std::string>();
-
-  // Call implementation
-  /// @todo wait for todo[1]
-  // read_from_to(file,mesh);
-
+  // Get the file paths
+  std::vector<boost::filesystem::path> files;
+  BOOST_FOREACH(boost::filesystem::path file, option("Files")->value<std::vector<std::string> >())
+    read_from_to(file,mesh);
 }
 
 //////////////////////////////////////////////////////////////////////////////

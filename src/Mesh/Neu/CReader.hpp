@@ -72,6 +72,9 @@ private: // data
   std::vector<Region_TableIndex_pair> m_global_to_tmp;
   
   CMesh::Ptr m_mesh;
+  CRegion::Ptr m_region;
+  CRegion::Ptr m_tmp;
+  std::string m_file_basename;
   
   struct HeaderData
   {

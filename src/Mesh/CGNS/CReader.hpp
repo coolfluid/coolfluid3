@@ -74,7 +74,7 @@ private: // helper functions
   static void regist_signals ( Component* self ) {}
 
 private: // data
-
+  
   std::vector<Region_TableIndex_pair> m_global_to_region;
   boost::shared_ptr<CMesh> m_mesh;
 

@@ -1,5 +1,6 @@
-#include "Common/ObjectProvider.hpp"
+#include <boost/regex.hpp>
 
+#include "Common/ObjectProvider.hpp"
 #include "Common/CLink.hpp"
 #include "Common/ComponentPredicates.hpp"
 
@@ -36,7 +37,59 @@ CMesh::~CMesh()
 
 CRegion& CMesh::create_region( const CName& name )
 {
-  return *create_component_type<CRegion>(name);
+  CRegion::Ptr new_region;
+  
+  if ( range_typed<CRegion>(*this).empty() )
+  {
+    new_region = create_component_type<CRegion>(name);
+    new_region->add_tag("grid_zone");
+  }
+  else
+  {
+    CRegion& existing_region = get_component_typed<CRegion>(*this);
+    if (existing_region.has_tag("grid_base"))
+    {
+      //count howmany times the name "name(_[0-9]+)?" occurs (REGEX)
+      Uint count = 0;
+      boost::regex e(name+"(_[0-9]+)?");
+      
+      BOOST_FOREACH(const CRegion& region, range_typed<CRegion>(existing_region))
+        if (boost::regex_match(region.name(), e))
+          count++;
+
+      std::string append = (count == 0) ? "" : "_"+StringOps::to_str(count);
+      new_region = existing_region.create_region(name+append).get_type<CRegion>();
+      new_region->add_tag("grid_zone");
+    }
+    else if (existing_region.has_tag("grid_zone"))
+    {
+      // Create a parent region "base" for the existing region
+      CRegion::Ptr base_region = create_component_type<CRegion>("base");
+      base_region->add_tag("grid_base");
+      existing_region.move_component(base_region);
+            
+      //count howmany times the name "name(_[0-9]+)?" occurs (REGEX)
+      Uint count = 0;
+      boost::regex e(name+"(_[0-9]+)?");
+      
+      BOOST_FOREACH(const CRegion& region, range_typed<CRegion>(*base_region))
+      if (boost::regex_match(region.name(), e))
+        count++;
+
+      std::string append = (count == 0) ? "" : "_"+StringOps::to_str(count);
+      new_region = base_region->create_region(name+append).get_type<CRegion>();
+      new_region->add_tag("grid_zone");
+    }
+    else
+    {
+      throw ValueNotFound (FromHere(), "The existing region " + existing_region.full_path().string() + " does not have a tag \"grid_zone\" or \"grid_base\"");
+    }
+
+    
+  }
+  
+  CFdebug << "Mesh created region " << new_region->full_path().string() << CFendl;
+  return *new_region;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
