@@ -10,7 +10,7 @@ LIST( APPEND uTestMesh_files
 )
   
 # Only add TestCGNS.cpp if the CGNS library is available
-IF( CF_CGNS3_will_compile )
+IF( ${CF_COMPILES_CGNS3} )
   LIST( APPEND uTestMesh_cflibs CGNS3 )
   LIST( APPEND uTestMesh_files  TestCGNS.cpp )
   LIST( APPEND uTestMesh_includedirs ${CGNS_INCLUDE_DIR} )
