@@ -1,4 +1,3 @@
-#include <boost/regex.hpp>
 #include <boost/program_options.hpp>
 
 #include "Common/Factory.hpp"
