@@ -283,18 +283,18 @@ BOOST_AUTO_TEST_CASE( ShapeFunction )
 
 BOOST_AUTO_TEST_CASE( MappedGradient )
 {
-  CF::RealMatrix expected(4, 2);
+  CF::RealMatrix expected(Quad3DLagrangeP1::dimensionality, Quad3DLagrangeP1::nb_nodes);
   const CF::Real ksi  = mapped_coords[0];
   const CF::Real eta = mapped_coords[1];
-  expected(0, 0) = 0.25 * (-1 + eta);
-  expected(0, 1) = 0.25 * (-1 + ksi);
-  expected(1, 0) = 0.25 * ( 1 - eta);
-  expected(1, 1) = 0.25 * (-1 - ksi);
-  expected(2, 0) = 0.25 * ( 1 + eta);
-  expected(2, 1) = 0.25 * ( 1 + ksi);
-  expected(3, 0) = 0.25 * (-1 - eta);
-  expected(3, 1) = 0.25 * ( 1 - ksi);
-  CF::RealMatrix result(4, 2);
+  expected(0,0) = 0.25 * (-1 + eta);
+  expected(1,0) = 0.25 * (-1 + ksi);
+  expected(0,1) = 0.25 * ( 1 - eta);
+  expected(1,1) = 0.25 * (-1 - ksi);
+  expected(0,2) = 0.25 * ( 1 + eta);
+  expected(1,2) = 0.25 * ( 1 + ksi);
+  expected(0,3) = 0.25 * (-1 - eta);
+  expected(1,3) = 0.25 * ( 1 - ksi);
+  CF::RealMatrix result(Quad3DLagrangeP1::dimensionality, Quad3DLagrangeP1::nb_nodes);
   Quad3DLagrangeP1::mapped_gradient(mapped_coords, result);
   CF::Tools::Testing::Accumulator accumulator;
   CF::Tools::Testing::vector_test(result, expected, accumulator);

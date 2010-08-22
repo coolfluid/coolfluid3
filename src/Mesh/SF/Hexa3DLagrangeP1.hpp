@@ -73,8 +73,8 @@ static void mapped_coordinates(const RealVector& coord, const NodesT& nodes, Rea
 /// @param result Storage for the resulting gradient matrix
 static void mapped_gradient(const RealVector& mapped_coord, RealMatrix& result)
 {
-  cf_assert(result.nbRows() == nb_nodes);
-  cf_assert(result.nbCols() == dimension);
+  cf_assert(result.nbCols() == nb_nodes);
+  cf_assert(result.nbRows() == dimension);
 
   const Real xi   = mapped_coord[KSI];
   const Real eta  = mapped_coord[ETA];
@@ -89,37 +89,37 @@ static void mapped_gradient(const RealVector& mapped_coord, RealMatrix& result)
   const Real c1 = (1 + zeta);
   const Real c2 = (1 - zeta);
 
-  result(0, XX) = -0.125 * b2*c2;
-  result(0, YY) = -0.125 * a2*c2;
-  result(0, ZZ) = -0.125 * a2*b2;
+  result(XX, 0) = -0.125 * b2*c2;
+  result(YY, 0) = -0.125 * a2*c2;
+  result(ZZ, 0) = -0.125 * a2*b2;
 
-  result(1, XX) =  0.125 * b2*c2;
-  result(1, YY) = -0.125 * a1*c2;
-  result(1, ZZ) = -0.125 * a1*b2;
+  result(XX, 1) =  0.125 * b2*c2;
+  result(YY, 1) = -0.125 * a1*c2;
+  result(ZZ, 1) = -0.125 * a1*b2;
 
-  result(2, XX) =  0.125 * b1*c2;
-  result(2, YY) =  0.125 * a1*c2;
-  result(2, ZZ) = -0.125 * a1*b1;
+  result(XX, 2) =  0.125 * b1*c2;
+  result(YY, 2) =  0.125 * a1*c2;
+  result(ZZ, 2) = -0.125 * a1*b1;
 
-  result(3, XX) = -0.125 * b1*c2;
-  result(3, YY) =  0.125 * a2*c2;
-  result(3, ZZ) = -0.125 * a2*b1;
+  result(XX, 3) = -0.125 * b1*c2;
+  result(YY, 3) =  0.125 * a2*c2;
+  result(ZZ, 3) = -0.125 * a2*b1;
 
-  result(4, XX) = -0.125 * b2*c1;
-  result(4, YY) = -0.125 * a2*c1;
-  result(4, ZZ) =  0.125 * a2*b2;
+  result(XX, 4) = -0.125 * b2*c1;
+  result(YY, 4) = -0.125 * a2*c1;
+  result(ZZ, 4) =  0.125 * a2*b2;
 
-  result(5, XX) =  0.125 * b2*c1;
-  result(5, YY) = -0.125 * a1*c1;
-  result(5, ZZ) =  0.125 * a1*b2;
+  result(XX, 5) =  0.125 * b2*c1;
+  result(YY, 5) = -0.125 * a1*c1;
+  result(ZZ, 5) =  0.125 * a1*b2;
 
-  result(6, XX) =  0.125 * b1*c1;
-  result(6, YY) =  0.125 * a1*c1;
-  result(6, ZZ) =  0.125 * a1*b1;
+  result(XX, 6) =  0.125 * b1*c1;
+  result(YY, 6) =  0.125 * a1*c1;
+  result(ZZ, 6) =  0.125 * a1*b1;
 
-  result(7, XX) = -0.125 * b1*c1;
-  result(7, YY) =  0.125 * a2*c1;
-  result(7, ZZ) =  0.125 * a2*b1;
+  result(XX, 7) = -0.125 * b1*c1;
+  result(YY, 7) =  0.125 * a2*c1;
+  result(ZZ, 7) =  0.125 * a2*b1;
 }
 
 /// Compute the jacobian determinant at the given mapped coordinates

@@ -239,10 +239,10 @@ BOOST_AUTO_TEST_CASE( ShapeFunction )
 
 BOOST_AUTO_TEST_CASE( MappedGradient )
 {
-  RealMatrix result(Line2DLagrangeP1::nb_nodes, Line2DLagrangeP1::dimension);
-  RealMatrix expected(Line2DLagrangeP1::nb_nodes, Line2DLagrangeP1::dimension);
+  RealMatrix result(Line2DLagrangeP1::dimension, Line2DLagrangeP1::nb_nodes);
+  RealMatrix expected(Line2DLagrangeP1::dimension, Line2DLagrangeP1::nb_nodes);
   expected(0,0) = -0.5;
-  expected(1,0) = 0.5;
+  expected(0,1) = 0.5;
   Line2DLagrangeP1::mapped_gradient(mapped_coords, result);
   Accumulator accumulator;
   vector_test(result, expected, accumulator);

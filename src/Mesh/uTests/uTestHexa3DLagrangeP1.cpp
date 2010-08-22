@@ -136,33 +136,33 @@ BOOST_AUTO_TEST_CASE( IntegrateConst )
 
 BOOST_AUTO_TEST_CASE( MappedGradient )
 {
-  RealMatrix expected(Hexa3DLagrangeP1::nb_nodes, Hexa3DLagrangeP1::dimension);
-  expected(0,KSI) = -0.06750;
-  expected(0,ETA) = -0.05625;
-  expected(0,ZTA) = -0.03750;
-  expected(1,KSI) = 0.06750;
-  expected(1,ETA) = -0.16875;
-  expected(1,ZTA) = -0.1125;
-  expected(2,KSI) = 0.1575;
-  expected(2,ETA) = 0.16875;
-  expected(2,ZTA) = -0.2625;
-  expected(3,KSI) = -0.1575;
-  expected(3,ETA) = 0.05625;
-  expected(3,ZTA) = -0.08750;
-  expected(4,KSI) = -0.08250;
-  expected(4,ETA) = -0.06875;
-  expected(4,ZTA) = 0.03750;
-  expected(5,KSI) = 0.08250;
-  expected(5,ETA) = -0.20625;
-  expected(5,ZTA) = 0.1125;
-  expected(6,KSI) = 0.1925;
-  expected(6,ETA) = 0.20625;
-  expected(6,ZTA) = 0.2625;
-  expected(7,KSI) = -0.1925;
-  expected(7,ETA) = 0.06875;
-  expected(7,ZTA) = 0.08750;
+  RealMatrix expected(Hexa3DLagrangeP1::dimension, Hexa3DLagrangeP1::nb_nodes);
+  expected(KSI, 0) = -0.06750;
+  expected(ETA, 0) = -0.05625;
+  expected(ZTA, 0) = -0.03750;
+  expected(KSI, 1) = 0.06750;
+  expected(ETA, 1) = -0.16875;
+  expected(ZTA, 1) = -0.1125;
+  expected(KSI, 2) = 0.1575;
+  expected(ETA, 2) = 0.16875;
+  expected(ZTA, 2) = -0.2625;
+  expected(KSI, 3) = -0.1575;
+  expected(ETA, 3) = 0.05625;
+  expected(ZTA, 3) = -0.08750;
+  expected(KSI, 4) = -0.08250;
+  expected(ETA, 4) = -0.06875;
+  expected(ZTA, 4) = 0.03750;
+  expected(KSI, 5) = 0.08250;
+  expected(ETA, 5) = -0.20625;
+  expected(ZTA, 5) = 0.1125;
+  expected(KSI, 6) = 0.1925;
+  expected(ETA, 6) = 0.20625;
+  expected(ZTA, 6) = 0.2625;
+  expected(KSI, 7) = -0.1925;
+  expected(ETA, 7) = 0.06875;
+  expected(ZTA, 7) = 0.08750;
 
-  RealMatrix result(Hexa3DLagrangeP1::nb_nodes, Hexa3DLagrangeP1::dimension);
+  RealMatrix result(Hexa3DLagrangeP1::dimension, Hexa3DLagrangeP1::nb_nodes);
   Hexa3DLagrangeP1::mapped_gradient(mapped_coords, result);
 
   Accumulator accumulator;

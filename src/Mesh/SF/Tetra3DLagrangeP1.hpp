@@ -84,20 +84,20 @@ static void mapped_coordinates(const RealVector& coord, const NodesT& nodes, Rea
 /// @param result Storage for the resulting gradient matrix
 static void mapped_gradient(const RealVector& mappedCoord, RealMatrix& result)
 {
-  cf_assert(result.nbRows() == nb_nodes);
-  cf_assert(result.nbCols() == dimension);
-  result(0, XX) = -1.;
-  result(0, YY) = -1.;
-  result(0, ZZ) = -1.;
-  result(1, XX) = 1.;
-  result(1, YY) = 0.;
-  result(1, ZZ) = 0.;
-  result(2, XX) = 0.;
-  result(2, YY) = 1.;
-  result(2, ZZ) = 0.;
-  result(3, XX) = 0.;
-  result(3, YY) = 0.;
-  result(3, ZZ) = 1.;
+  cf_assert(result.nbCols() == nb_nodes);
+  cf_assert(result.nbRows() == dimension);
+  result(XX, 0) = -1.;
+  result(YY, 0) = -1.;
+  result(ZZ, 0) = -1.;
+  result(XX, 1) = 1.;
+  result(YY, 1) = 0.;
+  result(ZZ, 1) = 0.;
+  result(XX, 2) = 0.;
+  result(YY, 2) = 1.;
+  result(ZZ, 2) = 0.;
+  result(XX, 3) = 0.;
+  result(YY, 3) = 0.;
+  result(ZZ, 3) = 1.;
 }
 
 /// Compute the jacobian determinant at the given mapped coordinates

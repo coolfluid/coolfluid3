@@ -103,10 +103,10 @@ BOOST_AUTO_TEST_CASE( MappedCoordinates )
 
 BOOST_AUTO_TEST_CASE( MappedGradient )
 {
-  CF::RealMatrix result(Line1DLagrangeP1::nb_nodes, Line1DLagrangeP1::dimension);
-  CF::RealMatrix expected(Line1DLagrangeP1::nb_nodes, Line1DLagrangeP1::dimension);
+  CF::RealMatrix result(Line1DLagrangeP1::dimension, Line1DLagrangeP1::nb_nodes);
+  CF::RealMatrix expected(Line1DLagrangeP1::dimension, Line1DLagrangeP1::nb_nodes);
   expected(0,0) = -0.5;
-  expected(1,0) = 0.5;
+  expected(0,1) = 0.5;
   Line1DLagrangeP1::mapped_gradient(mapped_coords, result);
   Accumulator accumulator;
   vector_test(result, expected, accumulator);

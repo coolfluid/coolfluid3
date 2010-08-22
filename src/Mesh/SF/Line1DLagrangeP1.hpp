@@ -56,10 +56,10 @@ static void mapped_coordinates(const RealVector& coord, const NodesT& nodes, Rea
 /// @param result Storage for the resulting gradient matrix
 static void mapped_gradient(const RealVector& mappedCoord, RealMatrix& result)
 {
-  cf_assert(result.nbRows() == nb_nodes);
-  cf_assert(result.nbCols() == dimension);
-  result(0, XX) = -0.5;
-  result(1, XX) = 0.5;
+  cf_assert(result.nbCols() == nb_nodes);
+  cf_assert(result.nbRows() == dimension);
+  result(XX, 0) = -0.5;
+  result(XX, 1) = 0.5;
 }
 
 /// Compute the jacobian determinant at the given mapped coordinates

@@ -107,20 +107,20 @@ BOOST_AUTO_TEST_CASE( IntegrateConst )
 
 BOOST_AUTO_TEST_CASE( MappedGradient )
 {
-  RealMatrix expected(4, 3);
-  expected(0,0) = -1.;
-  expected(0,1) = -1.;
-  expected(0,2) = -1.;
-  expected(1,0) = 1.;
-  expected(1,1) = 0.;
-  expected(1,2) = 0.;
-  expected(2,0) = 0.;
-  expected(2,1) = 1.;
-  expected(2,2) = 0.;
-  expected(3,0) = 0.;
-  expected(3,1) = 0.;
-  expected(3,2) = 1.;
-  RealMatrix result(4, 3);
+  RealMatrix expected(Tetra3DLagrangeP1::dimension, Tetra3DLagrangeP1::nb_nodes);
+  expected(XX, 0) = -1.;
+  expected(YY, 0) = -1.;
+  expected(ZZ, 0) = -1.;
+  expected(XX, 1) = 1.;
+  expected(YY, 1) = 0.;
+  expected(ZZ, 1) = 0.;
+  expected(XX, 2) = 0.;
+  expected(YY, 2) = 1.;
+  expected(ZZ, 2) = 0.;
+  expected(XX, 3) = 0.;
+  expected(YY, 3) = 0.;
+  expected(ZZ, 3) = 1.;
+  RealMatrix result(Tetra3DLagrangeP1::dimension, Tetra3DLagrangeP1::nb_nodes);
   Tetra3DLagrangeP1::mapped_gradient(mapped_coords, result);
   Accumulator accumulator;
   vector_test(result, expected, accumulator);

@@ -137,14 +137,14 @@ BOOST_AUTO_TEST_CASE( IntegrateConst )
 
 BOOST_AUTO_TEST_CASE( MappedGradient )
 {
-  CF::RealMatrix expected(3, 2);
+  CF::RealMatrix expected(Triag2DLagrangeP1::dimension, Triag2DLagrangeP1::nb_nodes);
   expected(0,0) = -1.;
-  expected(0,1) = -1.;
-  expected(1,0) = 1.;
+  expected(1,0) = -1.;
+  expected(0,1) = 1.;
   expected(1,1) = 0.;
-  expected(2,0) = 0.;
-  expected(2,1) = 1.;
-  CF::RealMatrix result(3, 2);
+  expected(0,2) = 0.;
+  expected(1,2) = 1.;
+  CF::RealMatrix result(Triag2DLagrangeP1::dimension, Triag2DLagrangeP1::nb_nodes);
   Triag2DLagrangeP1::mapped_gradient(mapped_coords, result);
   CF::Tools::Testing::Accumulator accumulator;
   CF::Tools::Testing::vector_test(result, expected, accumulator);

@@ -303,15 +303,15 @@ BOOST_AUTO_TEST_CASE( ShapeFunction )
 
 BOOST_AUTO_TEST_CASE( MappedGradient )
 {
-  CF::RealMatrix expected(3, 2);
+  CF::RealMatrix expected(Triag3DLagrangeP1::dimensionality, Triag3DLagrangeP1::nb_nodes);
   expected(0,0) = -1.;
-  expected(0,1) = -1.;
-  expected(1,0) = 1.;
+  expected(1,0) = -1.;
+  expected(0,1) = 1.;
   expected(1,1) = 0.;
-  expected(2,0) = 0.;
-  expected(2,1) = 1.;
-  CF::RealMatrix result(3, 2);
-  Triag2DLagrangeP1::mapped_gradient(mapped_coords, result);
+  expected(0,2) = 0.;
+  expected(1,2) = 1.;
+  CF::RealMatrix result(Triag3DLagrangeP1::dimensionality, Triag3DLagrangeP1::nb_nodes);
+  Triag3DLagrangeP1::mapped_gradient(mapped_coords, result);
   CF::Tools::Testing::Accumulator accumulator;
   CF::Tools::Testing::vector_test(result, expected, accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 2);

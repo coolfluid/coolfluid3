@@ -80,20 +80,20 @@ static void mapped_coordinates(const RealVector& coord, const NodesT& nodes, Rea
 /// @param result Storage for the resulting gradient matrix
 static void mapped_gradient(const RealVector& mappedCoord, RealMatrix& result)
 {
-  cf_assert(result.nbRows() == 4);
-  cf_assert(result.nbCols() == 2);
+  cf_assert(result.nbCols() == nb_nodes);
+  cf_assert(result.nbRows() == dimension);
 
   const Real ksi  = mappedCoord[0];
   const Real eta = mappedCoord[1];
 
-  result(0, XX) = 0.25 * (-1 + eta);
-  result(0, YY) = 0.25 * (-1 + ksi);
-  result(1, XX) = 0.25 * ( 1 - eta);
-  result(1, YY) = 0.25 * (-1 - ksi);
-  result(2, XX) = 0.25 * ( 1 + eta);
-  result(2, YY) = 0.25 * ( 1 + ksi);
-  result(3, XX) = 0.25 * (-1 - eta);
-  result(3, YY) = 0.25 * ( 1 - ksi);
+  result(XX, 0) = 0.25 * (-1 + eta);
+  result(YY, 0) = 0.25 * (-1 + ksi);
+  result(XX, 1) = 0.25 * ( 1 - eta);
+  result(YY, 1) = 0.25 * (-1 - ksi);
+  result(XX, 2) = 0.25 * ( 1 + eta);
+  result(YY, 2) = 0.25 * ( 1 + ksi);
+  result(XX, 3) = 0.25 * (-1 - eta);
+  result(YY, 3) = 0.25 * ( 1 - ksi);
 }
 
 /// Compute the jacobian determinant at the given mapped coordinates
@@ -103,10 +103,21 @@ inline static Real jacobian_determinant(const RealVector& mappedCoord, const Nod
   cf_assert(mappedCoord.size() == 2);
   cf_assert(nodes.size() == 4);
 
-  JacobianCoefficients jc(nodes);
+  const Real x0 = nodes[0][XX];
+  const Real y0 = nodes[0][YY];
+  const Real x1 = nodes[1][XX];
+  const Real y1 = nodes[1][YY];
+  const Real x2 = nodes[2][XX];
+  const Real y2 = nodes[2][YY];
+  const Real x3 = nodes[3][XX];
+  const Real y3 = nodes[3][YY];
+  
   const Real xi  = mappedCoord[0];
   const Real eta = mappedCoord[1];
-  return (jc.bx*jc.dy - jc.by*jc.dx)*eta + (jc.dx*jc.cy - jc.cx*jc.dy)*xi + jc.bx*jc.cy - jc.by*jc.cx;
+  return  ((x2 - x0)*(y3 - y1) + (x1 - x3)*(y2 - y0)
+         -((x3 - x0)*(y2 - y1) + (x2 - x1)*(y0 - y3)) * eta
+         -((x1 - x0)*(y3 - y2) + (x3 - x2)*(y0 - y1)) * xi)*0.125;
+         
 }
 
 /// Compute the Jacobian matrix
