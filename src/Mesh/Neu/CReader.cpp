@@ -127,11 +127,8 @@ void CReader::read_headerData(std::fstream& file)
 void CReader::read_coordinates(std::fstream& file)
 {
   // Create the coordinates array
-  CF_DEBUG_POINT;
   CArray::Array& coordinates = m_region->create_coordinates(m_headerData.NDFCD).array();
-  CF_DEBUG_POINT;
   coordinates.resize(boost::extents[m_headerData.NUMNP][m_headerData.NDFCD]);
-  CF_DEBUG_POINT;
   
   std::string line;
   // skip one line
