@@ -76,6 +76,15 @@ void Component::rename ( const CName& name )
 
     root->change_component_path( new_full_path , shared_from_this() );
   }
+  
+  // inform parent of rename
+  if (!m_parent.expired() )
+  {
+    Component::Ptr parent = get_parent();
+    Component::Ptr removed = parent->remove_component(m_name.string());
+    m_name = name;
+    parent->add_component(get());
+  }
 
   // rename object make be after modificatio of path in root
   // else root would not find the previous object
@@ -284,8 +293,8 @@ void Component::change_parent ( Component::Ptr new_parent )
 
 void Component::move_component ( Component::Ptr new_parent )
 {
-  m_parent.lock()->remove_component( this->name() );
-  new_parent->add_component( shared_from_this() );
+  Component::Ptr this_ptr = m_parent.lock()->remove_component( this->name() );
+  new_parent->add_component( this_ptr );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
