@@ -86,6 +86,17 @@ void CCore::sendSignal(const CF::Common::XmlDoc & signal)
   m_commServer->sendSignalToClient(signal);
 }
 
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void CCore::sendFrameRejected(const std::string clientid,
+                              const std::string & frameid,
+                              const CF::Common::CPath & sender,
+                              const QString & reason)
+{
+  m_commServer->sendFrameRejectedToClient(clientid, frameid, sender, reason);
+}
+
 /***************************************************************************
 
 PRIVATE METHODS

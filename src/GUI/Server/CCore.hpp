@@ -67,6 +67,11 @@ namespace Server {
 
      static std::string type_name() { return "CCore"; }
 
+     void sendFrameRejected(const std::string clientid,
+                            const std::string & frameid,
+                            const CF::Common::CPath & sender,
+                            const QString & reason);
+
   private slots:
 
     /// @brief Slot called when a new client connects

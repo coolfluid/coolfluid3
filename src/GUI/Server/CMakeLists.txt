@@ -12,7 +12,9 @@ SET ( coolfluid-server_moc_classes
   CCore.hpp
   SimulationWorker.hpp
   SimulationManager.hpp
-  MPIListener.hpp)
+  MPIListener.hpp
+  ServerRoot.hpp
+  )
 
 # Create the moc files
 QT4_WRAP_CPP(coolfluid-server_moc_files ${coolfluid-server_moc_classes})
@@ -33,6 +35,8 @@ LIST ( APPEND coolfluid-server_files
   ServerRoot.hpp
   CSimulator.cpp
   CSimulator.hpp
+  ProcessingThread.cpp
+  ProcessingThread.hpp
   SimulationManager.cpp
   SimulationManager.hpp
   SimulationWorker.cpp

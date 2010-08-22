@@ -165,6 +165,18 @@ void ServerNetworkComm::sendSignalToClient(const XmlNode & signal, const string 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+void ServerNetworkComm::sendFrameRejectedToClient(const string clientid,
+                                                  const string & frameid,
+                                                  const CPath & sender,
+                                                  const QString & reason)
+{
+  QTcpSocket * socket = this->getSocket(clientid);
+  this->sendFrameRejected(socket, frameid, sender, reason);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 void ServerNetworkComm::disconnectAll()
 {
 
@@ -403,7 +415,7 @@ void ServerNetworkComm::newData()
                                "and '%2' (used for identification) do not "
                                "match.").arg(m_clients[socket].c_str()).arg(clientId.c_str());
           else
-            ServerRoot::processSignal(target, receiver, clientId, nodedoc);
+            ServerRoot::processSignal(target, receiver, clientId, frameId, nodedoc, xmldoc);
         }
       }
 

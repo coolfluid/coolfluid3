@@ -5,11 +5,31 @@
 #include "Common/CRoot.hpp"
 #include "Common/XmlHelpers.hpp"
 
-#include "GUI/Server/ServerRoot.hpp"
+#include "GUI/Server/ProcessingThread.hpp"
 #include "GUI/Server/CSimulator.hpp"
 
+#include "GUI/Server/ServerRoot.hpp"
+
+using namespace std;
 using namespace CF::Common;
 using namespace CF::GUI::Server;
+
+ProcessingThread * ServerRoot::m_thread = CFNULL;
+QMutex ServerRoot::m_mutex;
+SignalCatcher * ServerRoot::m_catcher = new SignalCatcher();
+boost::shared_ptr<XmlDoc> ServerRoot::m_doc;
+
+void SignalCatcher::finished()
+{
+  ServerRoot::getCore()->sendSignal(*ServerRoot::m_thread->getNode().document());
+  delete ServerRoot::m_thread;
+  ServerRoot::m_thread = CFNULL;
+  ServerRoot::m_doc.reset();
+  ServerRoot::m_mutex.unlock();
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 CRoot::Ptr & ServerRoot::getRoot()
 {
@@ -20,6 +40,7 @@ CRoot::Ptr & ServerRoot::getRoot()
 
   if(!rootCreated)
   {
+    m_thread = CFNULL;
     root->add_component(core);
     root->add_component(simulator);
 
@@ -34,14 +55,24 @@ CRoot::Ptr & ServerRoot::getRoot()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerRoot::processSignal(const std::string & target,
-                               const std::string & receiver,
-                               const std::string & clientid,
-                               XmlNode & node)
+void ServerRoot::processSignal(const string & target,
+                               const CPath & receiver,
+                               const string & clientid,
+                               const string & frameid,
+                               XmlNode & node, boost::shared_ptr<XmlDoc> doc)
 {
-  getRoot()->access_component(receiver)->call_signal(target, *node.first_node() );
-
-  getCore()->sendSignal(*node.document());
+  if(m_mutex.tryLock())
+  {
+    m_doc.swap(doc);
+    Component::Ptr receivingCompo = getRoot()->access_component(receiver);
+    m_thread = new ProcessingThread(node, target, receivingCompo);
+    QObject::connect(m_thread, SIGNAL(finished()), m_catcher, SLOT(finished()));
+    m_thread->start();
+  }
+  else
+  {
+    getCore()->sendFrameRejected(clientid, frameid, SERVER_CORE_PATH, "Server is busy.");
+  }
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
