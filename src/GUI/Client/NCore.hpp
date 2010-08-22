@@ -118,9 +118,16 @@ namespace Client {
     /// regists all the signals declared in this class
     static void regist_signals ( Component* self ) {}
 
+    /// @name Signals
+    //@{
+
     void shutdown(CF::Common::XmlNode & node);
 
     void client_registration(CF::Common::XmlNode & node);
+
+    void frame_rejected(CF::Common::XmlNode & node);
+
+    //@} END Signals
 
   }; // class ClientCore
 

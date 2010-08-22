@@ -14,6 +14,7 @@
 
 #include "GUI/Client/NCore.hpp"
 
+using namespace std;
 using namespace CF::Common;
 using namespace CF::GUI::Client;
 using namespace CF::GUI::Network;
@@ -30,7 +31,8 @@ NCore::NCore()
   connect(m_networkComm, SIGNAL(connected()), this, SLOT(connected()));
 
   regist_signal("shutdown", "Server shutdown")->connect(boost::bind(&NCore::shutdown, this, _1));
-  regist_signal("client_registration", "Server shutdown")->connect(boost::bind(&NCore::client_registration, this, _1));
+  regist_signal("client_registration", "Registration confirmation")->connect(boost::bind(&NCore::client_registration, this, _1));
+  regist_signal("frame_rejected", "Frame rejected by the server")->connect(boost::bind(&NCore::frame_rejected, this, _1));
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -156,4 +158,18 @@ void NCore::client_registration(XmlNode & node)
     ClientRoot::getLog()->addError("Registration failed. Disconnecting...");
     this->disconnectFromServer(false);
   }
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void NCore::frame_rejected(CF::Common::XmlNode & node)
+{
+  XmlParams p(node);
+  string frameid = p.get_param<string>("frameid");
+  string reason = p.get_param<string>("reason");
+
+  QString msg("Action %1 has been rejected by the server: %2");
+
+  ClientRoot::getLog()->addError(msg.arg(frameid.c_str()).arg(reason.c_str()));
 }

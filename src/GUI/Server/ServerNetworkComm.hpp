@@ -89,13 +89,12 @@ namespace Server {
     /// @param uuid Client UUID, or an empty string to send to all clients.
     /// @throw UnknownClientIdException if Client UUID is unknown.
     void sendMessageToClient(const QString & message, const std::string & uuid = std::string());
-
-    //    void send(int clientId, const CF::Common::XmlNode & signal);
-
+		
     void sendSignalToClient(const CF::Common::XmlNode & signal,
                       const std::string & uuid = std::string());
 
     void disconnectAll();
+
 
   private slots :
 
@@ -182,6 +181,11 @@ namespace Server {
     /// @param signal Signal frame to send.
     /// @return Returns the number of bytes sent.
     int send(QTcpSocket * client, const CF::Common::XmlNode & signal);
+		
+		bool sendFrameRejected(QTcpSocket * client,													 
+													 const std::string & frame,
+                           const CF::Common::CPath & sender,
+                           const QString & reason);		
 
     /// @brief Retrieves a client socket from its UUID.
 
@@ -190,6 +194,10 @@ namespace Server {
     /// UUID was -1 (all clients).
     /// @throw UnknownClientIdException if Client id is unknown.
     QTcpSocket * getSocket(const std::string & uuid) const;
+		
+		std::string getAttr(const CF::Common::XmlNode & node, 
+											  const char * paramName,
+											  QString & reason);
 
   }; // class ServerNetworkComm
 

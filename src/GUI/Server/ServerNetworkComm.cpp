@@ -26,8 +26,8 @@ using namespace CF::GUI::Server;
 
 ServerNetworkComm::ServerNetworkComm()
   : m_server(CFNULL),
-    m_localSocket(CFNULL),
-    m_lastClientId(0)
+  m_localSocket(CFNULL),
+  m_lastClientId(0)
 {
   m_blockSize = 0;
   m_bytesRecieved = 0;
@@ -142,7 +142,6 @@ int ServerNetworkComm::send(QTcpSocket * client, const XmlNode & signal)
       it++;
     }
   }
-
   else
   {
     count = client->write(block);
@@ -187,6 +186,26 @@ void ServerNetworkComm::sendMessageToClient(const QString & message, const strin
 {
   QTcpSocket * socket = this->getSocket(uuid);
   this->sendMessage(socket, message);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+bool ServerNetworkComm::sendFrameRejected(QTcpSocket * clientId,
+                                          const string & frameid,
+                                          const CPath & sender,
+                                          const QString & reason)
+{
+  boost::shared_ptr<XmlNode> doc = XmlOps::create_doc();
+  XmlNode * signal = XmlOps::add_signal_frame(*XmlOps::goto_doc_node(*doc.get()),
+                                              "frame_rejected", sender,
+                                              CLIENT_CORE_PATH, false);
+  XmlParams p(*signal);
+
+  p.add_param("frameid", frameid);
+  p.add_param("reason", reason.toStdString());
+
+  return this->send(clientId, *doc) != 0;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -257,6 +276,28 @@ QTcpSocket * ServerNetworkComm::getSocket(const string & uuid) const
   return socket;
 }
 
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+string ServerNetworkComm::getAttr(const XmlNode & node, const char * paramName,
+																	QString & reason)
+{
+	string param;
+
+	if (reason.isEmpty())
+	{
+		XmlAttr * tmpAttr = node.first_attribute(paramName);
+
+		if(tmpAttr == CFNULL)
+			reason = QString("%1 is missing.").arg(paramName);
+		else
+			param = tmpAttr->value();
+	}
+
+	return param;
+}
+
+
 /****************************************************************************
 
 SLOTS
@@ -286,22 +327,22 @@ void ServerNetworkComm::newData()
 {
   // which client has sent data ?
   QTcpSocket * socket = qobject_cast<QTcpSocket *>(sender());
+  std::string target;
+  std::string receiver;
+  std::string clientId;
+  std::string frameId;
+
+  QString errorMsg;
 
   try
   {
-    std::string target;
-    std::string receiver;
-    std::string clientId;
-    QString errorMsg;
-    XmlAttr * tmpNode;
-
     QString frame;
     QDataStream in(socket);
     in.setVersion(QDataStream::Qt_4_6);
 
     // if the client sends two messages very close in time, it is possible that
     // the server never gets the second one.
-    // So, it is useful to explicitly read the m_socket until the end is reached.
+    // So, it is useful to explicitly read the socket until the end is reached.
     while(!socket->atEnd())
     {
       // if the data size is not known
@@ -320,49 +361,24 @@ void ServerNetworkComm::newData()
 
       in >> frame;
 
-       qDebug() << frame;
-
       m_bytesRecieved += m_blockSize + (int)sizeof(quint32);
 
       boost::shared_ptr<XmlDoc> xmldoc = XmlOps::parse( frame.toStdString() );
 
-      qDebug() << "parsed";
-
       XmlNode& nodedoc = *XmlOps::goto_doc_node(*xmldoc.get());
       XmlNode& frameNode = *nodedoc.first_node();
 
-      tmpNode = frameNode.first_attribute("target");
+      target = this->getAttr(frameNode, "target", errorMsg);
+      receiver = this->getAttr(frameNode, "receiver", errorMsg);
+      clientId = this->getAttr(frameNode, "clientid", errorMsg);
+      frameId = this->getAttr(frameNode, "frameid", errorMsg);
 
-      if(tmpNode == CFNULL)
-        errorMsg += "target is missing\n";
-      else
-        target = tmpNode->value();
-
-      tmpNode = frameNode.first_attribute("receiver");
-
-      if(tmpNode == CFNULL)
-        errorMsg += "reciever is missing\n";
-      else
-        receiver = tmpNode->value();
-
-      tmpNode = frameNode.first_attribute("clientid");
-
-      if(tmpNode == CFNULL)
-        errorMsg += "clientid is missing\n";
-      else
-        clientId = tmpNode->value();
-
-      if(!errorMsg.isEmpty())
-      {
-        errorMsg = QString("Illegal frame received:\n") % frame % '\n' % errorMsg;
-        this->sendError(socket, errorMsg);
-      }
-      else
+      if(errorMsg.isEmpty())
       {
         if(target == "client_registration")
         {
           if(!m_clients[socket].empty())
-            this->sendError(socket, "This client has already been registered.");
+            errorMsg = "This client has already been registered.";
           else
           {
             m_clients[socket] = clientId;
@@ -381,18 +397,11 @@ void ServerNetworkComm::newData()
         else
         {
           if(m_clients[socket].empty())
-          {
-            QString msg = "The resquest has been rejected because it came "
-                          "from an unregistered client.";
-            this->sendError(socket, msg);
-          }
+            errorMsg = "The signal came from an unregistered client.";
           else if(m_clients[socket] != clientId)
-          {
-            QString msg = "The client id '%1' (used for registration) "
-                          "and '%2' (used for identification) do not "
-                          "match.";
-            this->sendError(socket, msg.arg(m_clients[socket].c_str()).arg(clientId.c_str()));
-          }
+            errorMsg = QString("The client id '%1' (used for registration) "
+                               "and '%2' (used for identification) do not "
+                               "match.").arg(m_clients[socket].c_str()).arg(clientId.c_str());
           else
             ServerRoot::processSignal(target, receiver, clientId, nodedoc);
         }
@@ -403,19 +412,20 @@ void ServerNetworkComm::newData()
   }
   catch(Exception & e)
   {
-    this->sendError(socket, QString("Could not execute the request because "
-                                    "a CF exception has been caught: ") + e.what());
+    errorMsg = QString("A CF exception has been caught: ") + e.what();
   }
   catch(std::exception & stde)
   {
-    this->sendError(socket, QString("Could not execute the request because "
-                                    "a std exception has been caught: ") +  stde.what());
+    errorMsg = QString("A std exception has been caught: ") + stde.what();
   }
   catch(...)
   {
-    this->sendError(socket, "Could not execute the request because an "
-                    "unknown exception has been caught.");
+    errorMsg = QString("An unknown exception has been caught.");
   }
+
+	if(!errorMsg.isEmpty())
+		this->sendFrameRejected(socket, frameId, SERVER_CORE_PATH, errorMsg);
+
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
