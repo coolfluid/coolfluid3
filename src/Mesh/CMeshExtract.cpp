@@ -1,4 +1,6 @@
 #include <boost/foreach.hpp>
+#include <boost/regex.hpp>
+#include <boost/filesystem.hpp>
 
 #include "Common/ObjectProvider.hpp"
 #include "Common/ComponentPredicates.hpp"
@@ -132,21 +134,45 @@ void CMeshExtract::transform(const CMesh::Ptr& mesh, const std::vector<std::stri
   }
   
   
-  BOOST_FOREACH( CRegion& region, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
+  // For every region, see if its path matches the regex, and store it in a list
+  std::list<std::string> keep_region_paths;
+  BOOST_FOREACH( CRegion& region, recursive_range_typed<CRegion>(*m_mesh))
   {
     // see if this region has to be deleted.
-    bool found = (std::find(args.begin(),args.end(),region.name()) != args.end());
-    if (!found)
-      region.get_parent()->remove_component(region.name());          
+    bool found = false;
+    BOOST_FOREACH(const std::string& expression, args)
+    {
+      if (boost::regex_match(region.full_path().string(),boost::regex(".*"+expression+".*")))
+      {
+        found = true;
+        keep_region_paths.push_back(region.full_path().string());
+        break;
+      }
+    }
+  }
+  
+  // Parse the list into individual regions that will not be removed
+  std::set<std::string> keep_region;
+  BOOST_FOREACH(const boost::filesystem::path& region_path, keep_region_paths)
+  {
+    BOOST_FOREACH(const std::string& region_name, region_path)
+      keep_region.insert(region_name);
+  }
+
+  // Remove regions whose name doesn't appear in the parsed list "keep_region"
+  BOOST_FOREACH( CRegion& region, recursive_range_typed<CRegion>(*m_mesh))
+  {
+    bool found = (std::find(keep_region.begin(),keep_region.end(),region.name()) != keep_region.end());
+    if (!found)  region.get_parent()->remove_component(region.name());
   }
   
   
-  
   // remove regions that have no elements
-  BOOST_FOREACH( CRegion& region, recursive_filtered_range_typed<CRegion>(*m_mesh,IsComponentTrue()))
+  BOOST_FOREACH( CRegion& region, recursive_range_typed<CRegion>(*m_mesh))
   {
     if (region.recursive_elements_count() == 0)
     {
+      CFinfo << "removing empty element_region " << region.full_path().string() << CFendl;
       region.get_parent()->remove_component(region.name());
     }
   }
