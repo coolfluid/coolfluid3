@@ -76,6 +76,7 @@ list( APPEND Common_files
     Option.cpp
     OptionT.hpp
     OptionArray.hpp
+    OptionArray.cpp
     OptionComponent.hpp
     ConfigObject.hpp
     ConfigObject.cpp
