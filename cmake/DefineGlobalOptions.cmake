@@ -36,3 +36,6 @@ option( CF_INSTALL_TESTS       "Enable testing applications install"   OFF)
 
 # precision real numbers
 set( CF_USER_PRECISION "DOUBLE" CACHE STRING "Precision for floating point numbers" )
+
+option( CF_CHECK_ORPHAN_FILES  "If turned on, build system checks for files in the source tree that are not used in CMakeLists.txt files" ON)
+mark_as_advanced( CF_CHECK_ORPHAN_FILES )

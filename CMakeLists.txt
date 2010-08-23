@@ -229,7 +229,9 @@ LOG( "")
 # finalize build
 ##############################################################################
 
-include( ProcessOrphanFiles )    # processes the list of orphan files
+if(CF_CHECK_ORPHAN_FILES)
+  include( ProcessOrphanFiles )    # processes the list of orphan files
+endif(CF_CHECK_ORPHAN_FILES)
 
 include( DumpVariables )         # dump relevant variables in the log file
 
