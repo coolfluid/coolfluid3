@@ -18,6 +18,9 @@
 #include "Mesh/ElementNodes.hpp"
 
 #include "Tools/Testing/Difference.hpp"
+#include "Tools/Testing/MeshGeneration.hpp"
+#include "Tools/Testing/ProfiledTestFixture.hpp"
+#include "Tools/Testing/TimedTestFixture.hpp"
 
 using namespace CF;
 using namespace CF::Mesh;
@@ -26,10 +29,14 @@ using namespace CF::Tools::Testing;
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct ConnectivityDataFixture
+/// Define the global fixture type
+typedef MeshSourceGlobalFixture<500> MeshSource;
+
+/// Fixture providing a simple mesh read from a .neu file. Unprofiled.
+struct NeuFixture
 {
   /// common setup for each test case
-  ConnectivityDataFixture() : mesh2d(new CMesh  ( "mesh2d" ))
+  NeuFixture() : mesh2d(new CMesh  ( "mesh2d" ))
   {
     // Read the a .neu mesh as 2D mixed mesh
     boost::shared_ptr<CMeshReader> meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
@@ -42,16 +49,29 @@ struct ConnectivityDataFixture
   }
 
   boost::shared_ptr<CMesh> mesh2d;
+};
 
+/// Profile and time tests using this fixture
+struct ProfiledFixture :
+  public ProfiledTestFixture, // NOTE: Inheritance order matters, this way the timing is profiled,
+  public TimedTestFixture     //       but the profiling is not timed. Important since especially profile processing takes time.
+{
+    ProfiledFixture() : grid2D(MeshSource::grid2()) {}
+  
+  const CMesh& grid2D;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_SUITE( Nodes, ConnectivityDataFixture )
+BOOST_GLOBAL_FIXTURE( MeshSource )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( CreateElementVector )
+BOOST_AUTO_TEST_SUITE( ConnectivityDataSuite )
+
+//////////////////////////////////////////////////////////////////////////////
+
+BOOST_FIXTURE_TEST_CASE( CreateElementVector, NeuFixture )
 {
   ElementsT celements_vector;
   IndicesT celements_first_elements;
@@ -64,7 +84,7 @@ BOOST_AUTO_TEST_CASE( CreateElementVector )
   BOOST_CHECK_EQUAL(celements_vector.size(), 6);
 }
 
-BOOST_AUTO_TEST_CASE( CreateNodeElementLink )
+BOOST_FIXTURE_TEST_CASE( CreateNodeElementLink, NeuFixture )
 {
   ElementsT celements_vector;
   IndicesT celements_first_elements;
@@ -97,7 +117,7 @@ BOOST_AUTO_TEST_CASE( CreateNodeElementLink )
   BOOST_CHECK_EQUAL(boost::accumulators::min(accumulator.exact), true);
 }
 
-BOOST_AUTO_TEST_CASE( CreateFaceConnectivity )
+BOOST_FIXTURE_TEST_CASE( CreateFaceConnectivity, NeuFixture )
 {
   // Vector of the elements that are concerned
   ElementsT celements_vector;
@@ -154,6 +174,30 @@ BOOST_AUTO_TEST_CASE( CreateFaceConnectivity )
   Accumulator accumulator;
   vector_test(face_element_connectivity, reference, accumulator);
   BOOST_CHECK_EQUAL(boost::accumulators::min(accumulator.exact), true);
+}
+
+BOOST_FIXTURE_TEST_CASE( ProfileFaceConnectivity, ProfiledFixture )
+{
+  // Vector of the elements that are concerned
+  ElementsT celements_vector;
+  IndicesT celements_first_elements;
+  create_celements_vector(recursive_filtered_range_typed<CElements>(grid2D, IsElementsVolume()), celements_vector, celements_first_elements);
+  
+  // Get the coordinates array
+  const CArray& coordinates = recursive_get_named_component_typed<CArray>(grid2D, "coordinates");
+  
+  // Link nodes to the elements
+  IndicesT node_first_elements;
+  CountsT node_element_counts;
+  IndicesT node_elements;
+  create_node_element_link(coordinates.array().size(), celements_vector, celements_first_elements, node_first_elements, node_element_counts, node_elements);
+  
+  // Create the face connectivity data
+  IndicesT celements_first_faces;
+  BoolsT face_has_neighbour;
+  IndicesT face_element_connectivity;
+  IndicesT face_face_connectivity;
+  create_face_connectivity(celements_vector, celements_first_elements, node_first_elements, node_element_counts, node_elements, celements_first_faces, face_has_neighbour, face_element_connectivity, face_face_connectivity);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

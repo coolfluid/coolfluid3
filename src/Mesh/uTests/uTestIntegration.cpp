@@ -18,6 +18,7 @@
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/Integrators/IntegrationFunctorBase.hpp"
 
+#include "Tools/Testing/MeshGeneration.hpp"
 #include "Tools/Testing/ProfiledTestFixture.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"
 
@@ -66,70 +67,19 @@ void create_rectangle_buffered(CMesh& mesh, const Real x_len, const Real y_len, 
   connBuffer.flush();
 }
 
-/// Create a rectangular, 2D, quad-only mesh. No buffer for creation
-void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments) {
-  CFinfo << "Creating 2D rectangular grid" << CFendl;
-  const Uint dim = 2;
-  CArray& coordinates = *mesh.create_component_type<CArray>("coordinates");
-  coordinates.initialize(dim);
-  CArray::Array& coordArray = coordinates.array();
-  coordArray.resize(boost::extents[(x_segments+1)*(y_segments+1)][dim]);
-  const Real x_step = x_len / static_cast<Real>(x_segments);
-  const Real y_step = y_len / static_cast<Real>(y_segments);
-  Real y;
-  for(Uint j = 0; j <= y_segments; ++j)
-  {
-    y = static_cast<Real>(j) * y_step;
-    for(Uint i = 0; i <= x_segments; ++i)
-    {
-      CArray::Row row = coordArray[j*(x_segments+1)+i];
-      row[XX] = static_cast<Real>(i) * x_step;
-      row[YY] = y;
-    }
-  }
-  CRegion& region = mesh.create_region("region");
-  CTable::ConnectivityTable& connArray = region.create_elements("Quad2DLagrangeP1",coordinates).connectivity_table().table();
-  connArray.resize(boost::extents[(x_segments)*(y_segments)][4]);
-  for(Uint j = 0; j < y_segments; ++j)
-  {
-    for(Uint i = 0; i < x_segments; ++i)
-    {
-      CTable::Row nodes = connArray[j*(x_segments)+i];
-      nodes[0] = j * (x_segments+1) + i;
-      nodes[1] = nodes[0] + 1;
-      nodes[3] = (j+1) * (x_segments+1) + i;
-      nodes[2] = nodes[3] + 1;
-    }
-  }
-}
-
 } // namespace detail
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// Use a global fixture, so mesh creation happens outside of the profiling
-struct GlobalFixture {
-
-  GlobalFixture() {
-    if(!grid2D) {
-      grid2D.reset(new CMesh("grid2D"));
-      detail::create_rectangle(*grid2D, 1., 1., 500, 500);
-    }
-  }
-
-  static CMesh::Ptr grid2D;
-};
-
-CMesh::Ptr GlobalFixture::grid2D = CMesh::Ptr();
-
-//////////////////////////////////////////////////////////////////////////////
+/// Define the global fixture type
+typedef MeshSourceGlobalFixture<500> MeshSource;
 
 /// Profile and time tests using this fixture
 struct IntegrationFixture :
   public ProfiledTestFixture, // NOTE: Inheritance order matters, this way the timing is profiled,
   public TimedTestFixture     //       but the profiling is not timed. Important since especially profile processing takes time.
 {
-  IntegrationFixture() : grid2D(*GlobalFixture::grid2D) {}
+  IntegrationFixture() : grid2D(MeshSource::grid2()) {}
 
   /// Returns the determinant of the jacobian, i.e. integrating this over the entire mesh
   /// should yield the volume of the mesh
@@ -177,12 +127,12 @@ struct IntegrationFixture :
   };
 
   /// Access to a pre-generated 2D grid
-  CMesh& grid2D;
+  const CMesh& grid2D;
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_GLOBAL_FIXTURE( GlobalFixture )
+BOOST_GLOBAL_FIXTURE( MeshSource )
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -201,7 +151,7 @@ BOOST_FIXTURE_TEST_CASE( CreateMeshBuffered, IntegrationFixture ) // timed and p
 BOOST_FIXTURE_TEST_CASE( CreateMeshRaw, IntegrationFixture ) // timed and profiled
 {
   boost::shared_ptr<CMesh> mesh(new CMesh("mesh"));
-  detail::create_rectangle(*mesh, 1., 1., 1000, 1000);
+  create_rectangle(*mesh, 1., 1., 1000, 1000);
 }
 
 /// Test integration over a 2D gambit .neu mesh
@@ -221,9 +171,9 @@ BOOST_AUTO_TEST_CASE( ComputeVolume2DNeu ) // not timed
 /// Use the computeVolume virtual function to calculate the volume
 BOOST_FIXTURE_TEST_CASE( ComputeVolume2DUnitSquare, IntegrationFixture ) // timed and profiled
 {
-  CArray& coords = get_named_component_typed<CArray>(grid2D, "coordinates");
+  const CArray& coords = get_named_component_typed<CArray>(grid2D, "coordinates");
   Real volume = 0.0;
-  BOOST_FOREACH(CElements& region, recursive_range_typed<CElements>(grid2D))
+  BOOST_FOREACH(const CElements& region, recursive_range_typed<CElements>(grid2D))
   {
     const CTable::ConnectivityTable& ctbl = region.connectivity_table().table();
     const Uint element_count = ctbl.size();
@@ -244,9 +194,9 @@ BOOST_FIXTURE_TEST_CASE( ComputeVolume2DUnitSquare, IntegrationFixture ) // time
 /// Directly compute the volume using the node coordinates
 BOOST_FIXTURE_TEST_CASE( ComputeVolume2DUnitSquareDirect, IntegrationFixture ) // timed and profiled
 {
-  CArray& coords = get_named_component_typed<CArray>(grid2D, "coordinates");
+  const CArray& coords = get_named_component_typed<CArray>(grid2D, "coordinates");
   Real volume = 0.0;
-  BOOST_FOREACH(CElements& region, recursive_range_typed<CElements>(grid2D))
+  BOOST_FOREACH(const CElements& region, recursive_range_typed<CElements>(grid2D))
   {
     const CTable::ConnectivityTable& ctbl = region.connectivity_table().table();
     const Uint element_count = ctbl.size();

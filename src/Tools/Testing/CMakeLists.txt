@@ -2,6 +2,8 @@
 
   LIST ( APPEND Testing_files
     Difference.hpp
+    MeshGeneration.cpp
+    MeshGeneration.hpp
     ProfiledTestFixture.cpp
     ProfiledTestFixture.hpp
     TimedTestFixture.hpp
