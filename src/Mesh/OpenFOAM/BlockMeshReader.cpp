@@ -19,14 +19,14 @@
 
 BOOST_FUSION_ADAPT_STRUCT(
   CF::Mesh::OpenFOAM::BlockData,
-  (CF::Real, scalingFactor)
+  (CF::Real, scaling_factor)
   (std::vector<CF::Mesh::OpenFOAM::BlockData::PointT>, points)
-  (std::vector<CF::Mesh::OpenFOAM::BlockData::IndicesT>, blockPoints)
-  (std::vector<CF::Mesh::OpenFOAM::BlockData::CountsT>, blockSubdivisions)
-  (std::vector<CF::Mesh::OpenFOAM::BlockData::GradingT>, blockGradings)
-  (std::vector<std::string>, patchTypes)
-  (std::vector<std::string>, patchNames)
-  (std::vector<CF::Mesh::OpenFOAM::BlockData::IndicesT>, patchPoints)
+  (std::vector<CF::Mesh::OpenFOAM::BlockData::IndicesT>, block_points)
+  (std::vector<CF::Mesh::OpenFOAM::BlockData::CountsT>, block_subdivisions)
+  (std::vector<CF::Mesh::OpenFOAM::BlockData::GradingT>, block_gradings)
+  (std::vector<std::string>, patch_types)
+  (std::vector<std::string>, patch_names)
+  (std::vector<CF::Mesh::OpenFOAM::BlockData::IndicesT>, patch_points)
 )
 
 namespace CF {
@@ -190,48 +190,48 @@ void readBlockMeshFile(std::fstream& file, BlockData& blockData)
   if(!r)
     CFinfo << "Error parsing blockMeshDict file\n";
   else {
-    expandSimpleGradings(blockData.blockGradings);
-    CFinfo << "scaling factor: " << blockData.scalingFactor << "\n";
+    expandSimpleGradings(blockData.block_gradings);
+    CFinfo << "scaling factor: " << blockData.scaling_factor << "\n";
     CFinfo << "points: ";
     for(Uint i = 0; i != blockData.points.size(); ++i)
       CFinfo << "\n" << blockData.points[i][0] << ", " << blockData.points[i][1] << ", " << blockData.points[i][2];
     CFinfo << "\npoint indices: ";
-    for(Uint i = 0; i != blockData.blockPoints.size(); ++i)
+    for(Uint i = 0; i != blockData.block_points.size(); ++i)
     {
       CFinfo << "\n";
-      for(Uint j = 0; j != blockData.blockPoints[i].size(); ++j)
-        CFinfo << " " << blockData.blockPoints[i][j];
+      for(Uint j = 0; j != blockData.block_points[i].size(); ++j)
+        CFinfo << " " << blockData.block_points[i][j];
     }
     CFinfo << "\nblockSubdivisions: ";
-    for(Uint i = 0; i != blockData.blockSubdivisions.size(); ++i)
+    for(Uint i = 0; i != blockData.block_subdivisions.size(); ++i)
     {
       CFinfo << "\n";
-      for(Uint j = 0; j != blockData.blockSubdivisions[i].size(); ++j)
-        CFinfo << " " << blockData.blockSubdivisions[i][j];
+      for(Uint j = 0; j != blockData.block_subdivisions[i].size(); ++j)
+        CFinfo << " " << blockData.block_subdivisions[i][j];
     }
     CFinfo << "\nblockGradings: ";
-    for(Uint i = 0; i != blockData.blockGradings.size(); ++i)
+    for(Uint i = 0; i != blockData.block_gradings.size(); ++i)
     {
       CFinfo << "\n";
-      for(Uint j = 0; j != blockData.blockGradings[i].size(); ++j)
-        CFinfo << " " << blockData.blockGradings[i][j];
+      for(Uint j = 0; j != blockData.block_gradings[i].size(); ++j)
+        CFinfo << " " << blockData.block_gradings[i][j];
     }
     CFinfo << "\npatchTypes:";
-    for(Uint i = 0; i !=  blockData.patchTypes.size(); ++i)
+    for(Uint i = 0; i !=  blockData.patch_types.size(); ++i)
     {
-      CFinfo << " " << blockData.patchTypes[i];
+      CFinfo << " " << blockData.patch_types[i];
     }
     CFinfo << "\npatchNames:";
-    for(Uint i = 0; i !=  blockData.patchNames.size(); ++i)
+    for(Uint i = 0; i !=  blockData.patch_names.size(); ++i)
     {
-      CFinfo << " " << blockData.patchNames[i];
+      CFinfo << " " << blockData.patch_names[i];
     }
     CFinfo << "\npatch point indices: ";
-    for(Uint i = 0; i != blockData.patchPoints.size(); ++i)
+    for(Uint i = 0; i != blockData.patch_points.size(); ++i)
     {
       CFinfo << "\n";
-      for(Uint j = 0; j != blockData.patchPoints[i].size(); ++j)
-        CFinfo << " " << blockData.patchPoints[i][j];
+      for(Uint j = 0; j != blockData.patch_points[i].size(); ++j)
+        CFinfo << " " << blockData.patch_points[i][j];
     }
   }
 }
@@ -244,12 +244,12 @@ void buildMesh(const BlockData& blockData, CMesh& mesh)
   coordinates.initialize(dim);
   CArray::Buffer coordinatesBuffer = coordinates.create_buffer();
   const Uint blocks_begin = 0;
-  const Uint blocks_end = blockData.blockPoints.size();
+  const Uint blocks_end = blockData.block_points.size();
   for(Uint block = blocks_begin; block != blocks_end; ++block)
   {
     //const Uint x_segments = blockData.blockSubdivisions[block][XX];
     //const Uint y_segments = blockData.blockSubdivisions[block][YY];
-    const Uint z_segments = blockData.blockSubdivisions[block][ZZ];
+    const Uint z_segments = blockData.block_subdivisions[block][ZZ];
     for(Uint k = 0; k != z_segments; ++k)
     {
 

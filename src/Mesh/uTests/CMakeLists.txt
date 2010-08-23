@@ -33,6 +33,14 @@ add_custom_command(TARGET uTestMesh
 
 ################################################################################
 
+LIST( APPEND uTestConnectivityData_cflibs Neu SF )
+LIST( APPEND uTestConnectivityData_files
+  uTestConnectivityData.cpp )
+
+CF_ADD_UNITTEST( uTestConnectivityData )
+
+################################################################################
+
 LIST( APPEND uTestHexa3DLagrangeP1_cflibs SF )
 LIST( APPEND uTestHexa3DLagrangeP1_files
   uTestHexa3DLagrangeP1.cpp )
@@ -139,10 +147,10 @@ CF_ADD_UNITTEST( uTestField )
 
 ################################################################################
 
-LIST( APPEND uTestGrad_cflibs Neu SF )
-LIST( APPEND uTestGrad_files
-  uTestGrad.cpp )
+LIST( APPEND uTestVolumeSF_cflibs SF Mesh )
+LIST( APPEND uTestVolumeSF_files
+  uTestVolumeSF.cpp )
 
-CF_ADD_UNITTEST( uTestGrad )
+CF_ADD_UNITTEST( uTestVolumeSF )
 
 ################################################################################

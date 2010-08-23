@@ -94,10 +94,10 @@ template<typename NodesT>
 static void jacobian_adjoint(const RealVector& mappedCoord, const NodesT& nodes, RealMatrix& result) {
   cf_assert(result.nbRows() == 2);
   cf_assert(result.isSquare());
-  result(ETA,YY) = nodes[1][XX] - nodes[0][XX];
+  result(KSI,XX) = nodes[2][YY] - nodes[0][YY];
   result(KSI,YY) = nodes[0][YY] - nodes[1][YY];
   result(ETA,XX) = nodes[0][XX] - nodes[2][XX];
-  result(KSI,XX) = nodes[2][YY] - nodes[0][YY];
+  result(ETA,YY) = nodes[1][XX] - nodes[0][XX];
 }
 
 /// Volume of the cell

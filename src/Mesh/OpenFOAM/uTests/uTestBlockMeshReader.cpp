@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE( ReadFile )
 
   readBlockMeshFile(file, blockData);
 
-  BOOST_CHECK_EQUAL(blockData.scalingFactor, 1);
+  BOOST_CHECK_EQUAL(blockData.scaling_factor, 1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

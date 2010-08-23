@@ -21,10 +21,10 @@ class ComponentIterator
                                         T&                            // return type of dereference is a reference
                                        >
 {
-  typedef boost::iterator_facade<ComponentIterator<T>, T, boost::random_access_traversal_tag, T&> base;
+  typedef boost::iterator_facade<ComponentIterator<T>, T, boost::random_access_traversal_tag, T&> BaseT;
 public:
 
-  typedef typename base::difference_type difference_type;
+  typedef typename BaseT::difference_type difference_type;
 
   /// Construct an iterator over the given set of components. If endIterator is true, the iterator is intialized
   /// at the end of the range, otherwise at the beginning.
@@ -76,6 +76,17 @@ public:
   boost::shared_ptr<T> get() const
   {
     return m_vec[m_position];
+  }
+  
+  /// Compatibility with boost filtered_iterator interface, so base() can be used transparently on all ranges
+  ComponentIterator<T>& base()
+  {
+    return *this;
+  }
+  
+  const ComponentIterator<T>& base() const
+  {
+    return *this;
   }
 
 private:

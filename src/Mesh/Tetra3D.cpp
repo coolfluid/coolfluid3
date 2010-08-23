@@ -21,5 +21,13 @@ Tetra3D::Tetra3D()
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// Define the members so functions taking a reference to these work.
+// See http://stackoverflow.com/questions/272900/c-undefined-reference-to-static-class-member
+const GeoShape::Type Tetra3D::shape;
+const Uint Tetra3D::nb_faces;
+const Uint Tetra3D::nb_edges;
+const Uint Tetra3D::dimensionality;
+const Uint Tetra3D::dimension;
+
 } // Mesh
 } // CF

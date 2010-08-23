@@ -30,6 +30,8 @@ LIST( APPEND Mesh_files
   CMeshTransformer.cpp
   CMeshWriter.hpp
   CMeshWriter.cpp
+  ConnectivityData.cpp
+  ConnectivityData.hpp
   CRegion.hpp
   CRegion.cpp
   CTable.hpp

@@ -21,5 +21,13 @@ Hexa3D::Hexa3D()
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// Define the members so functions taking a reference to these work.
+// See http://stackoverflow.com/questions/272900/c-undefined-reference-to-static-class-member
+const GeoShape::Type Hexa3D::shape;
+const Uint Hexa3D::nb_faces;
+const Uint Hexa3D::nb_edges;
+const Uint Hexa3D::dimensionality;
+const Uint Hexa3D::dimension;
+
 } // Mesh
 } // CF

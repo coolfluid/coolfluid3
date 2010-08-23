@@ -19,6 +19,14 @@ Line1D::Line1D()
   m_nb_edges = nb_edges;
 }
 
+// Define the members so functions taking a reference to these work.
+// See http://stackoverflow.com/questions/272900/c-undefined-reference-to-static-class-member
+const GeoShape::Type Line1D::shape;
+const Uint Line1D::nb_faces;
+const Uint Line1D::nb_edges;
+const Uint Line1D::dimensionality;
+const Uint Line1D::dimension;
+
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh

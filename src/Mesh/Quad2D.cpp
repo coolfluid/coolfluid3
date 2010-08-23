@@ -21,5 +21,13 @@ Quad2D::Quad2D()
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// Define the members so functions taking a reference to these work.
+// See http://stackoverflow.com/questions/272900/c-undefined-reference-to-static-class-member
+const GeoShape::Type Quad2D::shape;
+const Uint Quad2D::nb_faces;
+const Uint Quad2D::nb_edges;
+const Uint Quad2D::dimensionality;
+const Uint Quad2D::dimension;
+
 } // Mesh
 } // CF

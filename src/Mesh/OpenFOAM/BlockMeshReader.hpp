@@ -45,24 +45,24 @@ struct BlockData
   typedef std::vector<bool> BooleansT;
 
 
-  Real scalingFactor;
+  Real scaling_factor;
 
   /// The coordinates for all the nodes
   std::vector<PointT> points;
 
   /// Points for each block, in terms of node indices
-  std::vector<IndicesT> blockPoints;
+  std::vector<IndicesT> block_points;
   /// Subdivisions for each block, along X, Y and Z
-  std::vector<CountsT> blockSubdivisions;
+  std::vector<CountsT> block_subdivisions;
   /// edgeGrading for each block
-  std::vector<GradingT> blockGradings;
+  std::vector<GradingT> block_gradings;
 
   /// Type of each patch
-  std::vector<std::string> patchTypes;
+  std::vector<std::string> patch_types;
   /// Name for each patch
-  std::vector<std::string> patchNames;
+  std::vector<std::string> patch_names;
   /// Point indices for each patch (grouped per 4)
-  std::vector<IndicesT> patchPoints;
+  std::vector<IndicesT> patch_points;
 };
 
 /// Populate structured grid info from a BlockMeshDict file

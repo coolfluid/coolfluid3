@@ -21,5 +21,13 @@ namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// Define the members so functions taking a reference to these work.
+// See http://stackoverflow.com/questions/272900/c-undefined-reference-to-static-class-member
+const GeoShape::Type Line3D::shape;
+const Uint Line3D::nb_faces;
+const Uint Line3D::nb_edges;
+const Uint Line3D::dimensionality;
+const Uint Line3D::dimension;
+
 } // Mesh
 } // CF

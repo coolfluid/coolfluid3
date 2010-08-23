@@ -27,6 +27,8 @@ else()
     Shared.cpp
     CReader.hpp
     CReader.cpp
+    CWriter.hpp
+    CWriter.cpp
     CGNSExceptions.hpp
   )
 

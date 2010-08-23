@@ -21,5 +21,13 @@ Triag3D::Triag3D()
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// Define the members so functions taking a reference to these work.
+// See http://stackoverflow.com/questions/272900/c-undefined-reference-to-static-class-member
+const GeoShape::Type Triag3D::shape;
+const Uint Triag3D::nb_faces;
+const Uint Triag3D::nb_edges;
+const Uint Triag3D::dimensionality;
+const Uint Triag3D::dimension;
+
 } // Mesh
 } // CF
