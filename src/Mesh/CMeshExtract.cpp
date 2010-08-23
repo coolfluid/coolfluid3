@@ -59,7 +59,23 @@ std::string CMeshExtract::help() const
   out << "  " << brief_description() << "\n";
   out << "  Usage: Extract [region_name1 region_name2 ...]\n\n";
   out << "          Special cases: \"surfaces\", \"volumes\" as region_name.\n";
-  out << "      These take precedence over real region_names."; 
+  out << "      A region_name can be a regular expression matched with the full path.\n"; 
+  out << "  Example:\n"; 
+  out << "          Given a mesh with data organized in the following way:\n"; 
+  out << "      mesh\n";
+  out << "            zone_1\n";
+  out << "                  region_1\n";
+  out << "                  region_2\n";
+  out << "            zone_2\n";
+  out << "                  region_1\n";
+  out << "                  region_2\n";
+  out << "\n";
+  out << "           If you want to select all regions with name \"region_1\",\n";
+  out << "       select the regex \"region_1\"\n";
+  out << "\n";
+  out << "           If you want to select only region \"mesh/zone_1/region_1\"\n";
+  out << "       select or instance the regex \"zone_1/region_1\"\n";
+  
   
   return out.str();
 }
@@ -72,70 +88,30 @@ void CMeshExtract::transform(const CMesh::Ptr& mesh, const std::vector<std::stri
   m_mesh = mesh;
 
   
+  // Storage of regions to keep
+  std::list<std::string> keep_region_paths;
+
+  
   // special cases "volumes" and "surfaces" as arg
   BOOST_FOREACH(const std::string region_name, args)
   {
-    if (region_name == "surfaces")
+    if (boost::regex_match(region_name,boost::regex("[Ss]urface(s)?")))   // Surface, Surfaces, surface, surfaces
     {
-      Uint dimensionality = 0;
-      // Find maximal dimensionality of the whole mesh
-      BOOST_FOREACH( const CElements& elements, recursive_range_typed<CElements>(*m_mesh))
+      BOOST_FOREACH( const CElements& elements, recursive_filtered_range_typed<CElements>(*m_mesh,IsElementsSurface()))
       {
-	dimensionality = std::max(elements.element_type().dimensionality() , dimensionality);
-      }
-      
-      // delete volume regions
-      BOOST_FOREACH( CRegion& region, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
-      {
-        bool is_volume = false;
-        BOOST_FOREACH( const CElements& elements, range_typed<CElements>(region))
-        {
-          if(elements.element_type().dimensionality() == dimensionality)
-          {
-            is_volume = true; 
-            break;
-          }
-        }
-        if (is_volume)
-        {
-          // delete this region
-          region.get_parent()->remove_component(region.name());
-        }
+        keep_region_paths.push_back(elements.get_parent()->full_path().string());
       }
     }
-    else if (region_name == "volumes")
+    else if (boost::regex_match(region_name,boost::regex("[Vv]olume(s)?"))) // Volume, Volumes, volume, volumes
     {
-      Uint dimensionality = 0;
-      // Find maximal dimensionality of the whole mesh
-      BOOST_FOREACH( const CElements& elements, recursive_range_typed<CElements>(*m_mesh))
+      BOOST_FOREACH( const CElements& elements, recursive_filtered_range_typed<CElements>(*m_mesh,IsElementsVolume()))
       {
-        dimensionality = std::max(elements.element_type().dimensionality() , dimensionality);
+        keep_region_paths.push_back(elements.get_parent()->full_path().string());
       }
-      
-      // delete volume regions
-      BOOST_FOREACH( CRegion& region, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
-      {
-        bool is_volume = true;
-        BOOST_FOREACH( const CElements& elements, range_typed<CElements>(region))
-        {
-          if(elements.element_type().dimensionality() < dimensionality)
-          {
-            is_volume = false; 
-            break;
-          }
-        }
-        if (!is_volume)
-        {
-          // delete this region
-          region.get_parent()->remove_component(region.name());
-        }
-      }
-    }    
+    }
   }
   
-  
   // For every region, see if its path matches the regex, and store it in a list
-  std::list<std::string> keep_region_paths;
   BOOST_FOREACH( CRegion& region, recursive_range_typed<CRegion>(*m_mesh))
   {
     // see if this region has to be deleted.
@@ -176,8 +152,6 @@ void CMeshExtract::transform(const CMesh::Ptr& mesh, const std::vector<std::stri
       region.get_parent()->remove_component(region.name());
     }
   }
-
-  
   
 }
 
