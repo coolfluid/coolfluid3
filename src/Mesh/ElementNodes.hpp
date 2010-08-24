@@ -82,7 +82,7 @@ RealVector point1(const Real x)
 }
 
 /// Convenience function to create a 2D point
-RealVector point2(const Real x, const Real y)
+inline RealVector point2(const Real x, const Real y)
 {
   RealVector result(2);
   result[0] = x;
@@ -91,7 +91,7 @@ RealVector point2(const Real x, const Real y)
 }
 
 /// Convenience function to create a 3D point
-RealVector point3(const Real x, const Real y, const Real z)
+inline RealVector point3(const Real x, const Real y, const Real z)
 {
   RealVector result(3);
   result[0] = x;

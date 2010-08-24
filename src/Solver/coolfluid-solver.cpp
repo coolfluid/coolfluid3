@@ -47,19 +47,25 @@ int main(int argc, char * argv[])
     //Loop( ForAllRegions< ComputeVolumes > ( volumes ) );
 
     CForAllElements<ComputeVolumes> volume_computer ("volume_computer");
-    CForAllElements<OutputVolumes> volume_outputer ("volume_outputer");
+    CForAllElements<OutputScalarField> scalarfield_outputer ("scalarfield_outputer");
 
     volume_computer.loop(volumes);
-    volume_outputer.loop(volumes);
+    scalarfield_outputer.loop(volumes);
     
     CFinfo << "\n\nMerged operation:" <<CFendl;
-    CForAllElements<OperationMerge<ComputeVolumes,OutputVolumes> > volume_all_in_1 ("volume_all_in_1");
-    volume_all_in_1.loop(volumes);
+    CField& xcoord = mesh->create_field("xcoord",0,get_component_typed<CRegion>(*mesh));
+    CForAllElements<OperationMerge<SetX,OutputScalarField> > xcoord_loop ("xcoord");
+    xcoord_loop.loop(xcoord);
+    
+    CField& gradx = mesh->create_field("gradx",0,get_component_typed<CRegion>(*mesh));
+    CForAllElements<OperationMerge<ComputeGradient,OutputScalarField> > gradx_computer ("gradx_computer");
+    gradx_computer.loop(gradx);
+
     //Loop( ForAllRegions< OperationMerge< ComputeVolumes, ComputeVolumes > > ( *mesh ) );
     
     
-    CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("Info","transformer");
-    info->transform(mesh);
+    //CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("Info","transformer");
+    //info->transform(mesh);
     
     //Loop( ForAllVolumes< ComputeVolumes > ( volumes ) );
 
@@ -69,7 +75,7 @@ int main(int argc, char * argv[])
 
     //  --------------------------------------------------------------------------
 
-    CFinfo << root->tree() << CFendl;
+    //CFinfo << root->tree() << CFendl;
 
     //  --------------------------------------------------------------------------
 
