@@ -76,7 +76,7 @@ void Component::rename ( const CName& name )
 
     root->change_component_path( new_full_path , shared_from_this() );
   }
-  
+
   // inform parent of rename
   if (!m_parent.expired() )
   {
@@ -304,13 +304,13 @@ Component::ConstPtr Component::look_component ( const CPath& path ) const
   if (!m_root.expired())  // root is available. This is a faster method.
   {
     CPath lpath = path;
-    
+
     complete_path(lpath); // ensure the path is complete
-    
+
     // get the root
     boost::shared_ptr<CRoot> root =
     boost::dynamic_pointer_cast<CRoot>( m_root.lock() );
-    
+
     return root->access_component(lpath);
   }
   else // we are in the case with no root. Hence the path must be relative
@@ -323,13 +323,13 @@ Component::ConstPtr Component::look_component ( const CPath& path ) const
     boost::char_separator<char> sep("/");
     typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
     tokenizer tok (sp,sep);
-    
+
     Component::ConstPtr look_comp = get() ;
     std::string last;
     for(tokenizer::const_iterator el=tok.begin(); el!=tok.end(); ++el)
     {
       if ( equals (*el, ".") ) continue;     // substitute any "/./" for nothing
-      
+
       if ( equals (*el, "..") )              // substitute any "../" for base path
         look_comp = look_comp->get_parent();
       else
@@ -343,7 +343,7 @@ Component::ConstPtr Component::look_component ( const CPath& path ) const
     return look_comp;
   }
 }
-  
+
 /////////////////////////////////////////////////////////////////////////////////////
 
 Component::Ptr Component::look_component ( const CPath& path )
@@ -351,32 +351,32 @@ Component::Ptr Component::look_component ( const CPath& path )
   if (!m_root.expired())  // root is available. This is a faster method.
   {
     CPath lpath = path;
-    
+
     complete_path(lpath); // ensure the path is complete
-    
+
     // get the root
     boost::shared_ptr<CRoot> root =
     boost::dynamic_pointer_cast<CRoot>( m_root.lock() );
-    
+
     return root->access_component(lpath);
   }
   else // we are in the case with no root. Hence the path must be relative
   {
     using namespace boost::algorithm;
-    
+
     std::string sp = path.string();
-    
+
     // break path in tokens and loop on them, while concatenaitng to a new path
     boost::char_separator<char> sep("/");
     typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
     tokenizer tok (sp,sep);
-    
+
     Component::Ptr look_comp = get() ;
     std::string last;
     for(tokenizer::iterator el=tok.begin(); el!=tok.end(); ++el)
     {
       if ( equals (*el, ".") ) continue;     // substitute any "/./" for nothing
-      
+
       if ( equals (*el, "..") )              // substitute any "../" for base path
         look_comp = look_comp->get_parent();
       else
@@ -500,8 +500,8 @@ void Component::list_options ( XmlNode& node )
     // set the key attribute (option name)
     XmlOps::add_attribute_to(value_node, XmlParams::tag_attr_key(), it->first);
     XmlOps::add_attribute_to(value_node, XmlParams::tag_attr_descr(), it->second->description());
-	  
-	XmlOps::add_node_to(value_node, it->second->type(), it->second->value_str());
+
+    XmlOps::add_node_to(value_node, it->second->type(), it->second->value_str());
   }
 }
 

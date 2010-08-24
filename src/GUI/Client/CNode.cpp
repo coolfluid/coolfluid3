@@ -239,6 +239,32 @@ CNodeNotifier * CNode::getNotifier() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+void CNode::listChildPaths(QStringList & list, bool recursive) const
+{
+  ComponentIterator<const CNode> it = this->begin<const CNode>();
+  ComponentIterator<const CNode> itEnd = this->end<const CNode>();
+
+  if(this->checkType(ROOT_NODE))
+  {
+    CRoot::ConstPtr root = this->convertTo<const NRoot>()->root();
+    it = root->begin<const CNode>();
+    itEnd = root->end<const CNode>();
+
+    list << root->full_path().string().c_str();
+  }
+
+  for( ; it != itEnd ; it++)
+  {
+    list << it->full_path().string().c_str();
+
+    if(recursive)
+      it->listChildPaths(list, recursive);
+  }
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 void CNode::addNode(CNode::Ptr node)
 {
   try

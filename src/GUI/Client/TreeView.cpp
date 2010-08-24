@@ -28,12 +28,14 @@ using namespace CF::Common;
 using namespace CF::GUI::Client;
 using namespace CF::GUI::Network;
 
-TreeView::TreeView(OptionPanel * optionsPanel, QMainWindow * parent)
-: QTreeView(parent)
+TreeView::TreeView(OptionPanel * optionsPanel, QMainWindow * parent,
+                   bool contextMenuAllowed)
+: QTreeView(parent),
+  m_contextMenuAllowed(contextMenuAllowed)
 {
   MenuActionInfo config;
 
-  if(optionsPanel == CFNULL)
+  if(m_contextMenuAllowed && optionsPanel == CFNULL)
     throw std::invalid_argument("Options panel is a CFNULL pointer");
 
   // instantiate class attributes
@@ -58,8 +60,13 @@ TreeView::TreeView(OptionPanel * optionsPanel, QMainWindow * parent)
   this->header()->setResizeMode(QHeaderView::ResizeToContents);
   this->header()->setStretchLastSection(true);
 
-  connect(ClientRoot::getTree().get(), SIGNAL(currentIndexChanged(const QModelIndex &, const QModelIndex &)),
-          this, SLOT(currentIndexChanged(const QModelIndex &, const QModelIndex &)));
+  if(m_contextMenuAllowed)
+  {
+    connect(ClientRoot::getTree().get(),
+            SIGNAL(currentIndexChanged(const QModelIndex &, const QModelIndex &)),
+            this,
+            SLOT(currentIndexChanged(const QModelIndex &, const QModelIndex &)));
+  }
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -89,6 +96,44 @@ bool TreeView::isReadOnly() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+CPath TreeView::getSelectedPath() const
+{
+  QModelIndex currentPath = this->selectionModel()->currentIndex();
+  CPath path;
+
+  if(currentPath.isValid())
+  {
+    QModelIndex indexInModel = m_modelFilter->mapToSource(currentPath);
+
+    path = ClientRoot::getTree()->getIndexPath(indexInModel);
+  }
+
+  return path;
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void TreeView::selectItem(const CPath & path)
+{
+  QModelIndex index = ClientRoot::getTree()->getIndexByPath(path);
+
+  if(index.isValid())
+  {
+    QItemSelectionModel::SelectionFlags flags;
+    QModelIndex indexInFilter = m_modelFilter->mapFromSource(index);
+
+    flags = QItemSelectionModel::Select | QItemSelectionModel::Rows;
+
+    this->selectionModel()->clearSelection();
+    this->selectionModel()->select(indexInFilter, flags);
+    this->selectionModel()->setCurrentIndex(indexInFilter, flags);
+  }
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 void TreeView::mousePressEvent(QMouseEvent * event)
 {
   QTreeView::mousePressEvent(event);
@@ -100,8 +145,6 @@ void TreeView::mousePressEvent(QMouseEvent * event)
 
   Qt::MouseButton button = event->button();
 
-//  this->enableDisableOptions(m_treeModel->getParentSimIndex(indexInModel));
-
   if(event->type() == QEvent::MouseButtonDblClick && button == Qt::LeftButton
     && indexInModel.isValid())
   {
@@ -110,19 +153,22 @@ void TreeView::mousePressEvent(QMouseEvent * event)
     else
       this->expand(index);
   }
-  else if(button == Qt::RightButton)
+  else if(m_contextMenuAllowed)
   {
-    if(!tree->getCurrentIndex().isValid())
-      tree->setCurrentIndex(indexInModel);
+    if(button == Qt::RightButton)
+    {
+      if(!tree->getCurrentIndex().isValid())
+        tree->setCurrentIndex(indexInModel);
 
-    tree->showNodeMenu(indexInModel, QCursor::pos());
-  }
-  else if(!tree->areFromSameNode(indexInModel, tree->getCurrentIndex()))
-  {
-    if(this->confirmChangeOptions(index))
-      tree->setCurrentIndex(indexInModel);
-    else
-      this->currentIndexChanged(tree->getCurrentIndex(), tree->getCurrentIndex());
+      tree->showNodeMenu(indexInModel, QCursor::pos());
+    }
+    else if(!tree->areFromSameNode(indexInModel, tree->getCurrentIndex()))
+    {
+      if(this->confirmChangeOptions(index))
+        tree->setCurrentIndex(indexInModel);
+      else
+        this->currentIndexChanged(tree->getCurrentIndex(), tree->getCurrentIndex());
+    }
   }
 }
 
@@ -134,28 +180,36 @@ void TreeView::keyPressEvent(QKeyEvent * event)
   NTree::Ptr tree= ClientRoot::getTree();
   QModelIndex currentIndex = m_modelFilter->mapFromSource(tree->getCurrentIndex());
 
-  if(event->key() == Qt::Key_Up)
+  if(m_contextMenuAllowed)
   {
-    if(this->confirmChangeOptions(currentIndex, true))
+    if(event->key() == Qt::Key_Up)
     {
-      QModelIndex above = this->indexAbove(currentIndex);
+      if(this->confirmChangeOptions(currentIndex, true))
+      {
+        QModelIndex above = this->indexAbove(currentIndex);
 
-      if(above.isValid())
-        tree->setCurrentIndex(m_modelFilter->mapToSource(above));
+        if(above.isValid())
+          tree->setCurrentIndex(m_modelFilter->mapToSource(above));
+      }
     }
-  }
-  else if(event->key() == Qt::Key_Down)
-  {
-    if(this->confirmChangeOptions(currentIndex, true))
+    else if(event->key() == Qt::Key_Down)
     {
-      QModelIndex below = this->indexBelow(currentIndex);
+      if(this->confirmChangeOptions(currentIndex, true))
+      {
+        QModelIndex below = this->indexBelow(currentIndex);
 
-      if(below.isValid())
-        tree->setCurrentIndex(m_modelFilter->mapToSource(below));
+        if(below.isValid())
+          tree->setCurrentIndex(m_modelFilter->mapToSource(below));
+      }
     }
+    else
+      QTreeView::keyPressEvent(event);
   }
   else
+  {
     QTreeView::keyPressEvent(event);
+    emit clicked(this->selectionModel()->currentIndex());
+  }
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -191,12 +245,19 @@ bool TreeView::confirmChangeOptions(const QModelIndex & index, bool okIfSameInde
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void TreeView::currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex)
+void TreeView::currentIndexChanged(const QModelIndex & newIndex,
+                                   const QModelIndex & oldIndex)
 {
-  QItemSelectionModel::SelectionFlags flags = QItemSelectionModel::Select | QItemSelectionModel::Rows;
-  QModelIndex indexInFilter = m_modelFilter->mapFromSource(newIndex);
+  if(m_contextMenuAllowed)
+  {
+    QItemSelectionModel::SelectionFlags flags;
+    QModelIndex indexInFilter = m_modelFilter->mapFromSource(newIndex);
 
-  this->selectionModel()->clearSelection();
-  this->selectionModel()->select(indexInFilter, flags);
-  this->selectionModel()->setCurrentIndex(indexInFilter, flags);
+    flags = QItemSelectionModel::Select | QItemSelectionModel::Rows;
+
+
+    this->selectionModel()->clearSelection();
+    this->selectionModel()->select(indexInFilter, flags);
+    this->selectionModel()->setCurrentIndex(indexInFilter, flags);
+  }
 }

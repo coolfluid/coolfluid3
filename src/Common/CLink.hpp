@@ -43,6 +43,8 @@ namespace Common {
     /// link to component
     void link_to ( Component::Ptr lnkto );
 
+    void change_link( XmlNode & node );
+
   private: // helper functions
 
     /// regists all the signals declared in this class

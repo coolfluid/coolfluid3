@@ -20,6 +20,7 @@ class QString;
 class QAction;
 class QMenu;
 class QPoint;
+class QStringList;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -198,6 +199,12 @@ namespace Client {
     void showContextMenu(const QPoint & pos) const;
 
     template<class TYPE>
+    boost::shared_ptr<const TYPE> convertTo() const
+    {
+      return boost::dynamic_pointer_cast<TYPE>(shared_from_this());
+    }
+
+    template<class TYPE>
     boost::shared_ptr<TYPE> convertTo()
     {
       return boost::dynamic_pointer_cast<TYPE>(shared_from_this());
@@ -220,6 +227,8 @@ namespace Client {
     void removeNode(const QString & nodeName);
 
     CNodeNotifier * getNotifier() const;
+
+    void listChildPaths(QStringList & list, bool recursive) const;
 
   protected:
 
@@ -249,7 +258,7 @@ namespace Client {
     }
 
     static CNode::Ptr createFromXmlRec(CF::Common::XmlNode & node,
-                                       QMap<boost::shared_ptr<NLink>, CF::Common::CPath> & linkTargets);
+               QMap<boost::shared_ptr<NLink>, CF::Common::CPath> & linkTargets);
 
   }; // class CNode
 

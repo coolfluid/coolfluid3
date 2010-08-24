@@ -134,6 +134,8 @@ namespace Client {
     /// it does not exist.
     QModelIndex getIndexByPath(const CF::Common::CPath & path) const;
 
+    CF::Common::CPath getIndexPath(const QModelIndex & index) const;
+
     /// @brief Retrieves an index frome a node
 
     /// @param node The node

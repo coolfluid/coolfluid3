@@ -5,33 +5,30 @@
 #include "Common/CPath.hpp"
 
 #include "GUI/Client/ClientRoot.hpp"
+#include "GUI/Client/SelectPathDialog.hpp"
+
 #include "GUI/Client/NLink.hpp"
 
 using namespace CF::Common;
 using namespace CF::GUI::Client;
-
-//QMenu * NLink::m_menu = CFNULL;
 
 NLink::NLink(const QString & name)
   : CNode(name, "CLink", LINK_NODE)
 {
   BUILD_COMPONENT;
 
-  //if(m_menu == CFNULL)
-  {
-    QAction * action;
-    //m_menu = new QMenu();
+  QAction * action;
 
-    action = new QAction("Go to target node", m_contextMenu);
-    connect(action, SIGNAL(triggered()), this, SLOT(goToTarget()));
-    m_contextMenu->addAction(action);
+  action = new QAction("Go to target node", m_contextMenu);
+  connect(action, SIGNAL(triggered()), this, SLOT(goToTarget()));
+  m_contextMenu->addAction(action);
 
-    action = new QAction("Change target path", m_contextMenu);
-    connect(action, SIGNAL(triggered()), this, SLOT(changeTarget()));
-    m_contextMenu->addAction(action);
-  }
+  action = new QAction("Change target path", m_contextMenu);
+  connect(action, SIGNAL(triggered()), this, SLOT(changeTarget()));
+  m_contextMenu->addAction(action);
 
-//  m_contextMenu = m_menu;
+  regist_signal("change_link", "Change target")->connect(boost::bind(&NLink::change_link, this, _1));
+
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -106,29 +103,41 @@ void NLink::goToTarget()
 
 void NLink::changeTarget()
 {
-  QInputDialog dlg;
-  bool selected = false;
+  SelectPathDialog spd;
 
-  dlg.setLabelText("Enter the new target path:");
-  dlg.setTextValue(m_target->full_path().string().c_str());
+  CPath path = spd.show(m_target->full_path());
 
-  while(!selected)
+  boost::shared_ptr<XmlDoc> root = XmlOps::create_doc();
+  XmlNode * docNode = XmlOps::goto_doc_node(*root.get());
+
+  XmlNode * signal = XmlOps::add_signal_frame(*docNode, "change_link", full_path(),
+                           full_path(), true);
+  XmlParams p(*signal);
+
+  p.add_param("target_path", path.string());
+
+  ClientRoot::getCore()->sendSignal(*root.get());
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void NLink::change_link(CF::Common::XmlNode & node)
+{
+  XmlParams p(node);
+
+  try
   {
-    try
-    {
-      if(dlg.exec())
-      {
-        CNode::Ptr node = ClientRoot::getRoot()->root()->access_component<CNode>(dlg.textValue().toStdString());
+    std::string path = p.get_param<std::string>("target_path");
 
-        if(node->checkType(CNode::LINK_NODE))
-          throw InvalidPath(FromHere(), "Can not target another link");
-      }
+    this->setTargetPath(p.get_param<std::string>("target_path"));
 
-      selected = true;
-    }
-    catch(InvalidPath ip)
-    {
-      QMessageBox::critical(CFNULL, "Error", ip.msg().c_str());
-    }
+    ClientRoot::getLog()->addMessage(QString("Link '%1' now points to '%2'.")
+                                     .arg(full_path().string().c_str()).arg(path.c_str()));
+
+  }
+  catch(InvalidPath & ip)
+  {
+    ClientRoot::getLog()->addError(ip.msg().c_str());
   }
 }

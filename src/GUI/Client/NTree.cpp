@@ -238,6 +238,26 @@ QModelIndex NTree::getIndexByPath(const CPath & path) const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+CPath NTree::getIndexPath(const QModelIndex & index) const
+{
+  TreeNode * treeNode = this->indexToTreeNode(index);
+  CPath path;
+
+  if(treeNode != CFNULL)
+  {
+    CNode::Ptr node = treeNode->getNode();
+
+    if(node->checkType(CNode::ROOT_NODE))
+      path = node->convertTo<NRoot>()->root()->full_path();
+    else
+      path = treeNode->getNode()->full_path();
+  }
+  return path;
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 void NTree::setDebugModeEnabled(bool debugMode)
 {
   if(m_debugModeEnabled ^ debugMode)

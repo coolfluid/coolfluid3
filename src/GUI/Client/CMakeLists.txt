@@ -29,6 +29,7 @@ LIST( APPEND coolfluid-client_moc_classes
   SelectFileDialog.hpp
   StatusModel.hpp
   StatusPanel.hpp
+  SelectPathDialog.hpp
   TreeNode.hpp
   TreeView.hpp
   TypeAndNameDialog.hpp)
@@ -109,6 +110,8 @@ LIST( APPEND coolfluid-client_files
   RemoteSaveFile.hpp
   SelectFileDialog.cpp
   SelectFileDialog.hpp
+  SelectPathDialog.cpp
+  SelectPathDialog.hpp
   StatusModel.cpp
   StatusModel.hpp
   StatusPanel.cpp

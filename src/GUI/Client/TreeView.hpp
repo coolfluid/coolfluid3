@@ -22,6 +22,9 @@ class QSortFilterProxyModel;
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
+
+  namespace Common { class CPath; }
+
 namespace GUI {
 namespace Client {
 
@@ -47,7 +50,8 @@ namespace Client {
     /// @param optionsPanel Panel m_options of the selected node will be displayed.
     /// @param parent Parent window. May be @c CFNULL.
     /// @throws std::invalid_argument if @c optionsPanel is @c CFNULL.
-    TreeView(OptionPanel * optionsPanel, QMainWindow * parent = CFNULL);
+    TreeView(OptionPanel * optionsPanel, QMainWindow * parent = CFNULL,
+             bool contextMenuAllowed = true);
 
     /// @brief Destructor.
 
@@ -77,6 +81,10 @@ namespace Client {
     /// @return Returns @c true if the tree m_view is in read-only mode.
     /// Otherwise, returns @c false.
     bool isReadOnly() const;
+
+    CF::Common::CPath getSelectedPath() const;
+
+    void selectItem(const CF::Common::CPath & path);
 
   protected:
 
@@ -120,6 +128,8 @@ namespace Client {
     /// "Delete", "Rename", "Add a child node" and "Add an option" m_items are then
     /// disabled.
     bool m_readOnly;
+
+    bool m_contextMenuAllowed;
 
     /// @brief Asks user to commit or rollback before changing m_options in
     /// m_options panel.
