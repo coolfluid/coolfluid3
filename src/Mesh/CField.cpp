@@ -161,6 +161,34 @@ CRegion& CField::support()
   return *get_child("support")->get_type<CRegion>();  // get() because it is a link
 }
   
+////////////////////////////////////////////////////////////////////////////////
+
+const CField& CField::subfield(const CName& name) const
+{
+  return get_named_component_typed<CField const>(*this,name);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CField& CField::subfield(const CName& name)
+{
+  return get_named_component_typed<CField>(*this,name);
+}
+  
+//////////////////////////////////////////////////////////////////////////////
+
+const CFieldElements& CField::elements(const CName& name) const
+{
+  return get_named_component_typed<CFieldElements const>(*this,name);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CFieldElements& CField::elements(const CName& name)
+{
+  return get_named_component_typed<CFieldElements>(*this,name);
+}
+  
 //////////////////////////////////////////////////////////////////////////////
   
 } // Mesh

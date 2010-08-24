@@ -38,7 +38,7 @@ int main(int argc, char * argv[])
     CMesh::Ptr mesh = meshreader->create_mesh_from(inputfile);
     root->add_component(mesh);
     
-    CField& volumes = mesh->create_field("volumes",get_component_typed<CRegion>(*mesh));
+    CField& volumes = mesh->create_field("volumes");
     volumes.create_data_storage(1, CField::ELEMENT_BASED);
 
     CFinfo << CFendl << CFendl;
@@ -55,7 +55,7 @@ int main(int argc, char * argv[])
     
     // Configure this operation (CForAllElements)
     // This can all be done through ConfigOptions and xml later
-    volume_computer->needs(get_component_typed<CRegion>(*mesh));
+    volume_computer->needs(mesh->geometry());
     
     // Execute this operation
     volume_computer->execute(); 
@@ -75,7 +75,7 @@ int main(int argc, char * argv[])
     
     // Configure this operation (CForAllElements)
     // This can all be done through ConfigOptions and xml later
-    scalarfield_outputer.needs(get_component_typed<CRegion>(*mesh));
+    scalarfield_outputer.needs(mesh->geometry());
 
     // Execute this operation;
     scalarfield_outputer.execute();
@@ -92,7 +92,7 @@ int main(int argc, char * argv[])
     // Configuration
     merged_operator.operation().operation1().stores(volumes);
     merged_operator.operation().operation2().needs(volumes);
-    merged_operator.needs(get_component_typed<CRegion>(*mesh));
+    merged_operator.needs(mesh->geometry());
 
     // Execution
     merged_operator.execute();
@@ -104,7 +104,7 @@ int main(int argc, char * argv[])
     CFinfo << "----------------------------------------" << CFendl;
     // Create virtual operator, and configure (can be done later through xml)
     CForAllElements::Ptr virtual_operator (new CForAllElements("virtual"), Deleter<CForAllElements>());
-      virtual_operator->needs(get_component_typed<CRegion>(*mesh));
+      virtual_operator->needs(mesh->geometry());
     
     // Create a virtual operation_1, and configure (can be done later through xml)
     COperation& volume_op = virtual_operator->create_operation("CComputeVolumes");

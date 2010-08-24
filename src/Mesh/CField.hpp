@@ -97,6 +97,18 @@ public: // functions
   
   std::string field_name() const { return m_field_name; }
   
+  /// @return the field with given name
+  const CField& subfield(const CName& name) const;
+  
+  /// @return the field with given name
+  CField& subfield(const CName& name);
+  
+  /// @return the elements with given name
+  const CFieldElements& elements (const CName& element_type_name) const;
+  
+  /// @return the elements with given name
+  CFieldElements& elements (const CName& element_type_name);
+  
   
 private: // helper functions
 

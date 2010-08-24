@@ -89,6 +89,34 @@ Uint CRegion::recursive_elements_count() const
   return elem_count;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+const CRegion& CRegion::subregion(const CName& name) const
+{
+  return get_named_component_typed<CRegion const>(*this,name);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CRegion& CRegion::subregion(const CName& name)
+{
+  return get_named_component_typed<CRegion>(*this,name);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const CElements& CRegion::elements(const CName& name) const
+{
+  return get_named_component_typed<CElements const>(*this,name);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CElements& CRegion::elements(const CName& name)
+{
+  return get_named_component_typed<CElements>(*this,name);
+}
+  
 //////////////////////////////////////////////////////////////////////////////
 
 

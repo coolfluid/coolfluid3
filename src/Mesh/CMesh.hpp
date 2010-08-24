@@ -49,13 +49,24 @@ public: // functions
   /// @param name of the region
   CRegion& create_region ( const CName& name );
   
-  /// create a field
+  /// @return the geometry
+  const CRegion& geometry() const;
+  
+  /// @return the geometry
+  CRegion& geometry();
+  
+  /// create a field with a given support
   /// @param name of the field
   CField& create_field( const CName& name , CRegion& support);
-//  CField& create_field_with_shapefunction( const CName& name , const CRegion& support, const ElementType& shape_function);
-//  CField& create_field( const CName& name , const CField& other_field);
-//  CField& create_field_with_shapefunction( const CName& name , const CField& other_field, const ElementType& shape_function);
-
+  
+  /// create a field with the default support being the full mesh geometry
+  CField& create_field( const CName& name);
+  
+  /// @return the field with given name
+  const CField& field(const CName& name) const;
+  
+  /// @return the field with given name
+  CField& field(const CName& name);
   
   void update_statistics();
   

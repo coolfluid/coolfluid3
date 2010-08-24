@@ -72,6 +72,18 @@ public:
   
   CField& get_field(const CName& field_name);
   
+  /// @return the subregion with given name
+  const CRegion& subregion(const CName& name) const;
+  
+  /// @return the subregion with given name
+  CRegion& subregion(const CName& name);
+  
+  /// @return the elements with given name
+  const CElements& elements (const CName& element_type_name) const;
+  
+  /// @return the elements with given name
+  CElements& elements (const CName& element_type_name);
+  
 private: // helper functions
 
   /// regists all the signals declared in this class
