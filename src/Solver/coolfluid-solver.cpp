@@ -111,7 +111,7 @@ int main(int argc, char * argv[])
       volume_op.stores(volumes);
     
     // Create a virtual operation_2, and configure (can be done later through xml)
-    COperation& output_op = virtual_operator->create_operation("COutputField")
+    COperation& output_op = virtual_operator->create_operation("COutputField");
       output_op.needs(volumes);
 
     // Execute all
