@@ -3,3 +3,4 @@ if ( CF_HAVE_GOOGLE_PERFTOOLS )
 endif ()
 
 add_subdirectory ( Testing )
+add_subdirectory(MeshGeneration)

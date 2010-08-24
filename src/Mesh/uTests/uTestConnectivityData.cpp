@@ -18,7 +18,7 @@
 #include "Mesh/ElementNodes.hpp"
 
 #include "Tools/Testing/Difference.hpp"
-#include "Tools/Testing/MeshGeneration.hpp"
+#include "Tools/MeshGeneration/MeshGeneration.hpp"
 #include "Tools/Testing/ProfiledTestFixture.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"
 
@@ -26,11 +26,12 @@ using namespace CF;
 using namespace CF::Mesh;
 using namespace CF::Common;
 using namespace CF::Tools::Testing;
+using namespace CF::Tools::MeshGeneration;
 
 //////////////////////////////////////////////////////////////////////////////
 
 /// Define the global fixture type
-typedef MeshSourceGlobalFixture<500> MeshSource;
+typedef MeshSourceGlobalFixture<1000> MeshSource;
 
 /// Fixture providing a simple mesh read from a .neu file. Unprofiled.
 struct NeuFixture
@@ -81,7 +82,7 @@ BOOST_FIXTURE_TEST_CASE( CreateElementVector, NeuFixture )
     CFinfo << celements_vector[i]->name() << CFendl;
   
   // Should have 6 element regions
-  BOOST_CHECK_EQUAL(celements_vector.size(), (Uint) 6);
+  BOOST_CHECK_EQUAL(celements_vector.size(), static_cast<Uint>(6));
 }
 
 BOOST_FIXTURE_TEST_CASE( CreateNodeElementLink, NeuFixture )
@@ -137,8 +138,11 @@ BOOST_FIXTURE_TEST_CASE( CreateFaceConnectivity, NeuFixture )
   IndicesT celements_first_faces;
   BoolsT face_has_neighbour;
   IndicesT face_element_connectivity;
+  create_face_element_connectivity(celements_vector, celements_first_elements, node_first_elements, node_element_counts, node_elements, celements_first_faces, face_has_neighbour, face_element_connectivity);
+  
+  // Face-face connectivity
   IndicesT face_face_connectivity;
-  create_face_connectivity(celements_vector, celements_first_elements, node_first_elements, node_element_counts, node_elements, celements_first_faces, face_has_neighbour, face_element_connectivity, face_face_connectivity);
+  create_face_face_connectivity(celements_vector, celements_first_elements, celements_first_faces, face_has_neighbour, face_element_connectivity, face_face_connectivity);
   
   // Output data
   for(Uint celement_idx = 0; celement_idx != celements_vector.size(); ++celement_idx)
@@ -196,8 +200,11 @@ BOOST_FIXTURE_TEST_CASE( ProfileFaceConnectivity, ProfiledFixture )
   IndicesT celements_first_faces;
   BoolsT face_has_neighbour;
   IndicesT face_element_connectivity;
+  create_face_element_connectivity(celements_vector, celements_first_elements, node_first_elements, node_element_counts, node_elements, celements_first_faces, face_has_neighbour, face_element_connectivity);
+  
+  // Face-face connectivity
   IndicesT face_face_connectivity;
-  create_face_connectivity(celements_vector, celements_first_elements, node_first_elements, node_element_counts, node_elements, celements_first_faces, face_has_neighbour, face_element_connectivity, face_face_connectivity);
+  create_face_face_connectivity(celements_vector, celements_first_elements, celements_first_faces, face_has_neighbour, face_element_connectivity, face_face_connectivity);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

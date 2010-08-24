@@ -67,8 +67,10 @@ void create_node_element_link( const Uint nb_nodes, const Mesh::ElementsT& eleme
 /// @param [out] face_element_connectivity For each face of each global element, store the element it is connected to. The length of this vector is the total number of elements from
 /// all the CElements in elements, multiplied with the number of faces for each element. To get the connectivity of face 3 of element j of CElements i, use:
 /// face_element_connectivity[celement_first_face[i] + nb_faces*j + 3]
-/// @param [out] face_face_connectivity For each face of each global element, store the local face it is connected to
-void create_face_connectivity( const ElementsT& celements, const IndicesT& celements_first_elements, const IndicesT& node_first_elements, const CountsT& node_element_counts, const IndicesT& node_elements, IndicesT& celements_first_faces, BoolsT& face_has_neighbour, IndicesT& face_element_connectivity, IndicesT& face_face_connectivity);
+void create_face_element_connectivity( const ElementsT& celements, const IndicesT& celements_first_elements, const IndicesT& node_first_elements, const CountsT& node_element_counts, const IndicesT& node_elements, IndicesT& celements_first_faces, BoolsT& face_has_neighbour, IndicesT& face_element_connectivity);
+
+/// Calculate the local face index in adjacent elements
+void create_face_face_connectivity( const ElementsT& celements, const IndicesT& celements_first_elements, const IndicesT& celements_first_faces, const BoolsT& face_has_neighbour, const IndicesT& face_element_connectivity, IndicesT& face_face_connectivity);
 
 ////////////////////////////////////////////////////////////////////////////////
 

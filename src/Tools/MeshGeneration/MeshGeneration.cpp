@@ -14,7 +14,7 @@ using namespace CF::Mesh;
 
 namespace CF {
 namespace Tools {
-namespace Testing {
+namespace MeshGeneration {
   
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -57,7 +57,7 @@ void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uin
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Testing
+} // MeshGeneration
 } // Tools
 } // CF
 

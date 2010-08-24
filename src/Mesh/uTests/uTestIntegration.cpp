@@ -18,7 +18,7 @@
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/Integrators/IntegrationFunctorBase.hpp"
 
-#include "Tools/Testing/MeshGeneration.hpp"
+#include "Tools/MeshGeneration/MeshGeneration.hpp"
 #include "Tools/Testing/ProfiledTestFixture.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"
 
@@ -28,6 +28,7 @@ using namespace CF::Mesh::Integrators;
 using namespace CF::Common;
 using namespace CF::Tools;
 using namespace CF::Tools::Testing;
+using namespace CF::Tools::MeshGeneration;
 
 namespace detail { // helper functions
 

@@ -33,7 +33,7 @@ add_custom_command(TARGET uTestMesh
 
 ################################################################################
 
-LIST( APPEND uTestConnectivityData_cflibs Neu Testing SF )
+LIST( APPEND uTestConnectivityData_cflibs Neu Testing MeshGeneration SF )
 LIST( APPEND uTestConnectivityData_files
   uTestConnectivityData.cpp )
 
@@ -113,7 +113,7 @@ CF_ADD_UNITTEST( uTestQuad3DLagrangeP1 )
 
 ################################################################################
 
-LIST( APPEND uTestIntegration_cflibs Neu Testing SF )
+LIST( APPEND uTestIntegration_cflibs Neu Testing MeshGeneration SF )
 LIST( APPEND uTestIntegration_files
   uTestIntegration.cpp )
 

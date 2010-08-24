@@ -1,5 +1,5 @@
-#ifndef CF_Tools_Testing_MeshGeneration_hpp
-#define CF_Tools_Testing_MeshGeneration_hpp
+#ifndef CF_Tools_MeshGeneration_Tools_hpp
+#define CF_Tools_MeshGeneration_Tools_hpp
 
 #include "Mesh/CMesh.hpp"
 
@@ -11,7 +11,7 @@ using namespace CF::Mesh;
 
 namespace CF {
 namespace Tools {
-namespace Testing {
+namespace MeshGeneration {
   
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -47,11 +47,11 @@ struct MeshSourceGlobalFixture {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Testing
+} // MeshGeneration
 } // Tools
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Tools_Testing_MeshGeneration_hpp
+#endif // CF_Tools_MeshGeneration_Tools_hpp
 

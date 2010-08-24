@@ -99,7 +99,7 @@ template<typename FunctorT, typename ResultT>
 void gaussIntegrate(const CElements& region, FunctorT& functor, ResultT& result)
 {
   bool integrator_found = false;
-  boost::mpl::for_each<SF::Types>(RegionIntegrator<FunctorT, ResultT>(region, functor, result, integrator_found));
+  boost::mpl::for_each<SF::VolumeTypes>(RegionIntegrator<FunctorT, ResultT>(region, functor, result, integrator_found));
   if(!integrator_found)
   {
     CFwarn << "no integrator found for region " << region.name() << CFendl;

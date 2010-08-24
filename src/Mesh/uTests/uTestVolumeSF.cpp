@@ -56,48 +56,46 @@ struct VolumeSFFixture
     template<typename ShapeFunctionT> void operator()(const ShapeFunctionT& T)
     {
       FunctorT functor;
-      if(ShapeFunctionT::dimension == ShapeFunctionT::dimensionality)
+      cf_assert(ShapeFunctionT::dimension == ShapeFunctionT::dimensionality);
+      CFinfo << "---------------------- Start " << T.getElementTypeName() << " test ----------------------" << CFendl;
+      const Uint segments = 5; // number of segments in each direction for the mapped coord calculation
+      const Real step = ((ShapeFunctionT::shape == GeoShape::TRIAG || ShapeFunctionT::shape == GeoShape::TETRA) ? 1. : 2.) / static_cast<Real>(segments);
+      const Real mapped_coord_min = (ShapeFunctionT::shape == GeoShape::TRIAG || ShapeFunctionT::shape == GeoShape::TETRA) ? 0. : -1.;
+      const NodesMapT::const_iterator shape_nodes_it = m_nodes.find(ShapeFunctionT::shape);
+      cf_assert(shape_nodes_it != m_nodes.end());
+      const NodesT& nodes = shape_nodes_it->second;
+      switch(ShapeFunctionT::dimension)
       {
-        CFinfo << "---------------------- Start " << T.getElementTypeName() << " test ----------------------" << CFendl;
-        const Uint segments = 5; // number of segments in each direction for the mapped coord calculation
-        const Real step = ((ShapeFunctionT::shape == GeoShape::TRIAG || ShapeFunctionT::shape == GeoShape::TETRA) ? 1. : 2.) / static_cast<Real>(segments);
-        const Real mapped_coord_min = (ShapeFunctionT::shape == GeoShape::TRIAG || ShapeFunctionT::shape == GeoShape::TETRA) ? 0. : -1.;
-        const NodesMapT::const_iterator shape_nodes_it = m_nodes.find(ShapeFunctionT::shape);
-        cf_assert(shape_nodes_it != m_nodes.end());
-        const NodesT& nodes = shape_nodes_it->second;
-        switch(ShapeFunctionT::dimension)
-        {
-          case DIM_1D:
-            for(Uint i = 0; i <= segments; ++i)
+        case DIM_1D:
+          for(Uint i = 0; i <= segments; ++i)
+          {
+            const RealVector mapped_coord = list_of(mapped_coord_min + i * step);
+            functor(T, nodes, mapped_coord);
+          }
+          break;
+        case DIM_2D:
+          for(Uint i = 0; i <= segments; ++i)
+          {
+            for(Uint j = 0; j <= segments; ++j)
             {
-              const RealVector mapped_coord = list_of(mapped_coord_min + i * step);
+              const RealVector mapped_coord = list_of(mapped_coord_min + i * step)(mapped_coord_min + j * step);
               functor(T, nodes, mapped_coord);
             }
-            break;
-          case DIM_2D:
-            for(Uint i = 0; i <= segments; ++i)
+          }
+          break;
+        case DIM_3D:
+          for(Uint i = 0; i <= segments; ++i)
+          {
+            for(Uint j = 0; j <= segments; ++j)
             {
-              for(Uint j = 0; j <= segments; ++j)
+              for(Uint k = 0; k <= segments; ++k)
               {
-                const RealVector mapped_coord = list_of(mapped_coord_min + i * step)(mapped_coord_min + j * step);
+                const RealVector mapped_coord = list_of(mapped_coord_min + i * step)(mapped_coord_min + j * step)(mapped_coord_min + k * step);
                 functor(T, nodes, mapped_coord);
               }
             }
-            break;
-          case DIM_3D:
-            for(Uint i = 0; i <= segments; ++i)
-            {
-              for(Uint j = 0; j <= segments; ++j)
-              {
-                for(Uint k = 0; k <= segments; ++k)
-                {
-                  const RealVector mapped_coord = list_of(mapped_coord_min + i * step)(mapped_coord_min + j * step)(mapped_coord_min + k * step);
-                  functor(T, nodes, mapped_coord);
-                }
-              }
-            }
-            break;
-        }
+          }
+          break;
       }
     }
     
@@ -126,7 +124,7 @@ RealVector gradient(const NodesT& nodes, const RealVector& mapped_coordinates, c
   grad = (jacobian_adj * mapped_grad) / ShapeFunctionT::jacobian_determinant(mapped_coordinates, nodes);
   
   // Apply the gradient to the function values
-  RealVector result(2);
+  RealVector result(ShapeFunctionT::dimension);
   result = grad * function_values;
   return result;
 }
@@ -212,7 +210,7 @@ BOOST_FIXTURE_TEST_SUITE( VolumeSFSuite, VolumeSFFixture )
 BOOST_AUTO_TEST_CASE( TestJacobianDeterminant )
 {
   VolumeMPLFunctor<CheckJacobianDeterminant> functor(nodes);
-  boost::mpl::for_each<Types>(functor);
+  boost::mpl::for_each<VolumeTypes>(functor);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -220,7 +218,7 @@ BOOST_AUTO_TEST_CASE( TestJacobianDeterminant )
 BOOST_AUTO_TEST_CASE( TestJacobianInverse )
 {
   VolumeMPLFunctor<CheckJacobianInverse> functor(nodes);
-  boost::mpl::for_each<Types>(functor); 
+  boost::mpl::for_each<VolumeTypes>(functor); 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -228,7 +226,7 @@ BOOST_AUTO_TEST_CASE( TestJacobianInverse )
 BOOST_AUTO_TEST_CASE( TestGradientX )
 {
   VolumeMPLFunctor<CheckGradientX> functor(nodes);
-  boost::mpl::for_each<Types>(functor); 
+  boost::mpl::for_each<VolumeTypes>(functor); 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
