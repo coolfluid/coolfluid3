@@ -81,7 +81,7 @@ BOOST_FIXTURE_TEST_CASE( CreateElementVector, NeuFixture )
     CFinfo << celements_vector[i]->name() << CFendl;
   
   // Should have 6 element regions
-  BOOST_CHECK_EQUAL(celements_vector.size(), 6);
+  BOOST_CHECK_EQUAL(celements_vector.size(), (Uint) 6);
 }
 
 BOOST_FIXTURE_TEST_CASE( CreateNodeElementLink, NeuFixture )
