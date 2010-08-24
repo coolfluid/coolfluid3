@@ -14,10 +14,10 @@ LIST( APPEND Mesh_files
   CFieldElements.cpp
   CFlexTable.hpp
   CFlexTable.cpp
-  CInterpolator.hpp  
-  CInterpolator.cpp
   CHoneycombInterpolator.hpp
   CHoneycombInterpolator.cpp
+  CInterpolator.hpp  
+  CInterpolator.cpp
   CMesh.hpp
   CMesh.cpp
   CMeshInfo.hpp
@@ -30,6 +30,8 @@ LIST( APPEND Mesh_files
   CMeshTransformer.cpp
   CMeshWriter.hpp
   CMeshWriter.cpp
+  COperation.hpp
+  COperation.cpp
   ConnectivityData.cpp
   ConnectivityData.hpp
   CRegion.hpp

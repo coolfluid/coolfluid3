@@ -1,4 +1,4 @@
-#include <boost/mpl/for_each.hpp>
+//#include <boost/mpl/for_each.hpp>
 
 #include "Common/Log.hpp"
 #include "Common/CoreEnv.hpp"
@@ -9,8 +9,8 @@
 #include "Mesh/SF/Types.hpp"
 #include "Mesh/CTable.hpp"
 
-#include "ComputeVolumes.hpp"
-#include "ForAllRegions.hpp"
+#include "Solver/CForAllElements.hpp"
+// #include "ForAllRegions.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -41,31 +41,111 @@ int main(int argc, char * argv[])
     CField& volumes = mesh->create_field("volumes",get_component_typed<CRegion>(*mesh));
     volumes.create_data_storage(1, CField::ELEMENT_BASED);
 
-
-#define Loop boost::mpl::for_each< SF::Types >
+    CFinfo << CFendl << CFendl;
     
-    //Loop( ForAllRegions< ComputeVolumes > ( volumes ) );
+    // -------------------------------------------------- Volume Computer
+    CFinfo << "Volume Computer, templated" << CFendl;
+    CFinfo << "--------------------------" << CFendl;
+    // Create volume computer, can be virtual at this level
+    COperation::Ptr volume_computer(new CForAllElementsT<CComputeVolumes>("volume_computer")); 
 
-    CForAllElements<ComputeVolumes> volume_computer ("volume_computer");
-    CForAllElements<OutputScalarField> scalarfield_outputer ("scalarfield_outputer");
-
-    volume_computer.loop(volumes);
-    scalarfield_outputer.loop(volumes);
+    // Configure the sub-operation, in this case CComputeVolumes
+    // This can all be done through ConfigOptions and xml later
+    volume_computer->operation().stores(volumes);
     
-    CFinfo << "\n\nMerged operation:" <<CFendl;
-    CField& xcoord = mesh->create_field("xcoord",0,get_component_typed<CRegion>(*mesh));
-    CForAllElements<OperationMerge<SetX,OutputScalarField> > xcoord_loop ("xcoord");
-    xcoord_loop.loop(xcoord);
+    // Configure this operation (CForAllElements)
+    // This can all be done through ConfigOptions and xml later
+    volume_computer->needs(get_component_typed<CRegion>(*mesh));
     
-    CField& gradx = mesh->create_field("gradx",0,get_component_typed<CRegion>(*mesh));
-    CForAllElements<OperationMerge<ComputeGradient,OutputScalarField> > gradx_computer ("gradx_computer");
-    gradx_computer.loop(gradx);
+    // Execute this operation
+    volume_computer->execute(); 
+    CFinfo << "... done" << CFendl;
+    
+    CFinfo << CFendl << CFendl;
 
+    // -------------------------------------------------- Output scalar field
+    CFinfo << "Output Volume, templated" << CFendl;
+    CFinfo << "------------------------" << CFendl;
+    // Create volume computer, concrete in this case
+    CForAllElementsT<COutputField> scalarfield_outputer ("scalarfield_outputer");
+
+    // Configure the sub-operation, in this case COutputField
+    // This can all be done through ConfigOptions and xml later
+    scalarfield_outputer.operation().needs(volumes);
+    
+    // Configure this operation (CForAllElements)
+    // This can all be done through ConfigOptions and xml later
+    scalarfield_outputer.needs(get_component_typed<CRegion>(*mesh));
+
+    // Execute this operation;
+    scalarfield_outputer.execute();
+    
+    CFinfo << CFendl << CFendl;
+        
+    
+    // --------------------------------------------------- Merged Operation
+    CFinfo << "Merge[Volume Computer & Output Volume], templated" << CFendl;
+    CFinfo << "-------------------------------------------------" << CFendl;
+
+    CForAllElementsT< COperationMergeT<CComputeVolumes,COutputField> > merged_operator("merged");
+    
+    // Configuration
+    merged_operator.operation().operation1().stores(volumes);
+    merged_operator.operation().operation2().needs(volumes);
+    merged_operator.needs(get_component_typed<CRegion>(*mesh));
+
+    // Execution
+    merged_operator.execute();
+    
+    CFinfo << CFendl << CFendl;
+    
+    // --------------------------------------------------- Virtual Operation
+    CFinfo << "Volume Computer & Output Volume, virtual" << CFendl;
+    CFinfo << "----------------------------------------" << CFendl;
+    CForAllElements::Ptr virtual_operator (new CForAllElements("virtual"), Deleter<CForAllElements>());
+    COperation& volume_op = virtual_operator->create_operation("CComputeVolumes");
+    volume_op.stores(volumes);
+    COperation& output_op = virtual_operator->create_operation("COutputField");
+    output_op.needs(volumes);
+    virtual_operator->needs(get_component_typed<CRegion>(*mesh));
+    virtual_operator->execute();
+    CFinfo << CFendl;
+    CFinfo << "virtual_operator = \n" << virtual_operator->tree() << CFendl;
+    
+    // Since CForAllElementsT derives from COperation, 
+    // loops can be nested both templatized as virtual
+    
+    
+    
+    
+//////////////////////////////////////////////////////////////////////////////////////////
+// work in progress
+///////////////////
+//
+//    CField& xcoord = mesh->create_field("xcoord",get_component_typed<CRegion>(*mesh));
+//    xcoord.create_data_storage(1, CField::ELEMENT_BASED);
+//    
+//    CForAllElements<OperationMerge<SetX,OutputScalarField> > xcoord_loop ("xcoord");
+//    xcoord_loop.loop(xcoord);
+//    
+//    CField& gradx = mesh->create_field("gradx",get_component_typed<CRegion>(*mesh));
+//    gradx.create_data_storage(2, CField::ELEMENT_BASED);
+//    
+//    CForAllElements<OperationMerge<ComputeGradient,OutputVectorField> > gradient_computer ("gradient_computer");
+//    gradient_computer.needs(xcoord);
+//    gradient_computer.stores(gradx);
+//    gradient_computer.execute();
+//
+//    
+//    CForAllElements<COutputField> output_field ("output_field");
+//    output_field.needs(volume);
+///////////////////////////////////////////////////////////////////////////////////////////
+    
     //Loop( ForAllRegions< OperationMerge< ComputeVolumes, ComputeVolumes > > ( *mesh ) );
     
-    
-    //CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("Info","transformer");
-    //info->transform(mesh);
+    CFinfo << CFendl << CFendl << CFendl;
+    CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("Info","transformer");
+    info->transform(mesh);
     
     //Loop( ForAllVolumes< ComputeVolumes > ( volumes ) );
 

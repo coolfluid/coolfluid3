@@ -3,7 +3,8 @@ CF_FIND_ORPHAN_FILES()
 LIST( APPEND coolfluid-solver_files
   coolfluid-solver.cpp
   ForAllRegions.hpp
-  ComputeVolumes.hpp
+  CForAllElements.hpp
+  CForAllElements.cpp
 )
 
 LIST (APPEND coolfluid-solver_libs Neu SF)
