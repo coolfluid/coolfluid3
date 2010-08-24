@@ -116,7 +116,10 @@ namespace Client {
       CORE_NODE,
 
       /// @brief Browser node
-      BROWSER_NODE
+      BROWSER_NODE,
+
+      /// @brief Mesh reader node
+      MESH_READER_NODE
 
     }; // enum Type
 

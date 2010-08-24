@@ -48,7 +48,7 @@ LIST ( APPEND coolfluid-server_files
   main.cpp)
 
 # Use Qt Libraries
-LIST( APPEND coolfluid-server_libs Mesh Network ${QT_LIBRARIES})
+LIST( APPEND coolfluid-server_libs Mesh Neu Network ${QT_LIBRARIES})
 
 CF_ADD_APP(coolfluid-server)
 

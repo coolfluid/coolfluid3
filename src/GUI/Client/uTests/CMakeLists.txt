@@ -19,8 +19,10 @@ SET(uTestClient_moc_classes
   ../NLink.hpp
   ../NLog.hpp
   ../NMesh.hpp
+  ../NMeshReader.hpp
   ../NMethod.hpp
   ../NTree.hpp
+  ../RemoteFSBrowser.hpp
   ../TreeNode.hpp
 )
 
@@ -54,6 +56,8 @@ LIST( APPEND uTestClient_files
   ../ClientRoot.hpp
   ../CNode.cpp
   ../CNode.hpp
+  ../FilesListItem.hpp
+  ../FilesListItem.cpp
   ../InvalidValue.cpp
   ../InvalidValue.hpp
   ../NBrowser.cpp
@@ -68,6 +72,8 @@ LIST( APPEND uTestClient_files
   ../NLog.hpp
   ../NMesh.cpp
   ../NMesh.hpp
+  ../NMeshReader.cpp
+  ../NMeshReader.hpp
   ../NMethod.cpp
   ../NMethod.hpp
   ../NRoot.cpp
@@ -76,6 +82,10 @@ LIST( APPEND uTestClient_files
   ../NTree.hpp
   ../OptionType.cpp
   ../OptionType.hpp
+  ../RemoteFSBrowser.cpp
+  ../RemoteFSBrowser.hpp
+  ../RemoteOpenFile.cpp
+  ../RemoteOpenFile.hpp
   ../TObjectProperties.hpp
   ../TreeNode.cpp
   ../TreeNode.hpp

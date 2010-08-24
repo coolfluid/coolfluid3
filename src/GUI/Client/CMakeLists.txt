@@ -20,6 +20,7 @@ LIST( APPEND coolfluid-client_moc_classes
   NLink.hpp
   NLog.hpp
   NMesh.hpp
+  NMeshReader.hpp
   NMethod.hpp
   NTree.hpp
   OptionPanel.hpp
@@ -88,6 +89,8 @@ LIST( APPEND coolfluid-client_files
   NLog.hpp
   NMesh.cpp
   NMesh.hpp
+  NMeshReader.cpp
+  NMeshReader.hpp
   NMethod.cpp
   NMethod.hpp
   NRoot.cpp

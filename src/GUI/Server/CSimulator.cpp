@@ -26,6 +26,9 @@
 
 #include "Mesh/CMesh.hpp"
 
+#include "Mesh/CRegion.hpp"
+#include "Mesh/Neu/CReader.hpp"
+
 //#include "Framework/GlobalStopCriteria.hpp"
 //#include "Framework/Simulator.hpp"
 //#include "Framework/SimulationStatus.hpp"
@@ -39,6 +42,7 @@
 using namespace MPI;
 using namespace CF::Common;
 using namespace CF::Mesh;
+using namespace CF::Mesh::Neu;
 //using namespace CF::Config;
 //using namespace CF::Environment;
 //using namespace CF::Framework;
@@ -437,7 +441,7 @@ void CSimulator::createSimulator()
   CMesh::Ptr mesh4 = solidGroup->create_component_type<CMesh>("Mesh4");
   CLink::Ptr petscLnk = solidGroup->create_component_type<CLink>("PestcLnk");
 
-  mesh3->create_component_type<CMethod>("MyMethod");
+  mesh4->create_component_type<CReader>("NeuMeshReader");
 
   meshLnk->link_to(mesh1);
   petscLnk->link_to(petsc);

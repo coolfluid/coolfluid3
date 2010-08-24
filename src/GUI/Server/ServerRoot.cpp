@@ -21,7 +21,12 @@ boost::shared_ptr<XmlDoc> ServerRoot::m_doc;
 
 void SignalCatcher::finished()
 {
-  ServerRoot::getCore()->sendSignal(*ServerRoot::m_thread->getNode().document());
+  XmlNode& nodedoc = *XmlOps::goto_doc_node(*ServerRoot::m_doc.get());
+  XmlNode& frameNode = *nodedoc.first_node();
+
+  if(frameNode.next_sibling() != CFNULL)
+    ServerRoot::getCore()->sendSignal(*ServerRoot::m_doc.get());
+
   delete ServerRoot::m_thread;
   ServerRoot::m_thread = CFNULL;
   ServerRoot::m_doc.reset();

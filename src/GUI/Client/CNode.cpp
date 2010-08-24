@@ -11,6 +11,7 @@
 #include "GUI/Client/NGroup.hpp"
 #include "GUI/Client/NLink.hpp"
 #include "GUI/Client/NMesh.hpp"
+#include "GUI/Client/NMeshReader.hpp"
 #include "GUI/Client/NMethod.hpp"
 #include "GUI/Client/NRoot.hpp"
 
@@ -347,6 +348,8 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, CPath> & lin
   }
   else if(std::strcmp(nodeType, "CMesh") == 0)
     rootNode = boost::shared_ptr<NMesh>(new NMesh(nodeName));
+  else if(std::strcmp(nodeType, "CReader") == 0)
+    rootNode = boost::shared_ptr<NMeshReader>(new NMeshReader(nodeName));
   else if(std::strcmp(nodeType, "CMethod") == 0)
     rootNode = boost::shared_ptr<NMethod>(new NMethod(nodeName));
   else if(std::strcmp(nodeType, "CGroup") == 0)
