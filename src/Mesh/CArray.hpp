@@ -65,7 +65,13 @@ public: // functions
   
   /// @return The size of the array
   Uint size() const { return m_array.size(); }
-
+  
+  /// copy a given row into the array or buffer, depending on the given index
+  /// @param [in] array_idx the index of the row that will be set (both in array and buffers)
+  /// @param [in] row       the row that will be copied into the buffer or array
+  template<typename vectorType>
+  void set_row(const Uint array_idx, const vectorType& row);
+  
 private: // helper functions
 
   /// regists all the signals declared in this class
@@ -77,6 +83,20 @@ private: // data
   Array m_array;
 
 };
+
+////////////////////////////////////////////////////////////////////////////////
+
+template<typename vectorType>
+inline void CArray::set_row(const Uint array_idx, const vectorType& row)
+{
+  cf_assert(row.size() == m_array.shape()[1]);
+  
+  Row row_to_set = m_array[array_idx];
+  
+  for(Uint j=0; j<row.size(); ++j)
+    row_to_set[j] = row[j];
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
