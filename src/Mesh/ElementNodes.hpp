@@ -74,7 +74,7 @@ inline void fill_node_list(IteratorT iterator, const CArray& coordinates, const 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Convenience function to create a 1D point
-RealVector point1(const Real x)
+inline RealVector point1(const Real x)
 {
   RealVector result(1);
   result[0] = x;
