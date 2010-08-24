@@ -14,6 +14,7 @@ namespace Mesh {
   class CTable;
   class CArray;
   class ElementType;
+  class CFieldElements;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -72,7 +73,7 @@ public: // functions
   
   void add_field_elements_link(CElements& field_elements);
   
-  CElements& get_field_elements(const CName& field_name);
+  CFieldElements& get_field_elements(const CName& field_name);
     
 private: // helper functions
 

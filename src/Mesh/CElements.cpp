@@ -3,6 +3,7 @@
 #include "Common/CGroup.hpp"
 
 #include "Mesh/CElements.hpp"
+#include "Mesh/CFieldElements.hpp"
 #include "Mesh/CField.hpp"
 #include "Mesh/CArray.hpp"
 #include "Mesh/CTable.hpp"
@@ -118,13 +119,13 @@ void CElements::add_field_elements_link(CElements& field_elements)
 
 //////////////////////////////////////////////////////////////////////////////
 
-CElements& CElements::get_field_elements(const CName& field_name)
+CFieldElements& CElements::get_field_elements(const CName& field_name)
 {
   Component::Ptr all_fields = get_child("fields");
   cf_assert(all_fields.get());
   Component::Ptr field = all_fields->get_child(field_name);
   cf_assert(field.get());
-  return *field->get_type<CElements>();
+  return *field->get_type<CFieldElements>();
 }
 
 //////////////////////////////////////////////////////////////////////////////
