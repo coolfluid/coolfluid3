@@ -1,5 +1,5 @@
-#include <QtCore>
-#include <QtGui>
+#include <QFileInfo>
+#include <QStringList>
 
 #include "GUI/Client/RemoteFSBrowser.hpp"
 #include "GUI/Client/LibrariesPanel.hpp"

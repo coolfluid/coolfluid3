@@ -1,5 +1,6 @@
-#include <QtCore>
-#include <QtGui>
+#include <QAction>
+#include <QFileIconProvider>
+#include <QMenu>
 
 #include "Common/XmlHelpers.hpp"
 

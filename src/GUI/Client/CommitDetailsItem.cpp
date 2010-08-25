@@ -1,4 +1,4 @@
-#include <QtCore>
+#include <QString>
 
 #include "GUI/Client/CommitDetailsItem.hpp"
 

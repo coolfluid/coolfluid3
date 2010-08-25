@@ -8,19 +8,13 @@
 #include <QList>
 #include <QMenu>
 #include <QTextStream>
-#include <QModelIndex>
 
 #include "GUI/Client/TSshInformation.hpp"
 
 class QDockWidget;
-class QDomDocument;
-class QDomNode;
 class QGridLayout;
 class QLabel;
-class QModelIndex;
 class QTextEdit;
-class QTimer;
-class QTreeView;
 class QScrollBar;
 class QSplitter;
 
@@ -119,12 +113,6 @@ namespace Client {
     void toggleDebugMode();
 
     void showHideStatus();
-
-    /// @brief Slot called when user wants to load a case file for a simulation.
-
-    /// @param index Simulation index
-    /// @todo Replace QModelIndex by QPersistentModelIndex
-    void openSimulation(const QModelIndex & index);
 
     void showHelp();
 

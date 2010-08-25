@@ -1,7 +1,9 @@
-#include <iostream>
-
-#include <QtCore>
-#include <QtGui>
+#include <QFormLayout>
+#include <QGroupBox>
+#include <QHBoxLayout>
+#include <QPushButton>
+#include <QScrollArea>
+#include <QSplitter>
 
 #include "Common/CF.hpp"
 
@@ -25,6 +27,7 @@ OptionPanel::OptionPanel(QWidget * parent)
     m_modelReset(false)
 {
   NTree::Ptr tree = ClientRoot::getTree();
+
   // create the components
   m_scrollBasicOptions = new QScrollArea(this);
   m_scrollAdvancedOptions = new QScrollArea(this);
@@ -59,7 +62,6 @@ OptionPanel::OptionPanel(QWidget * parent)
 
   m_mainLayout->addLayout(m_buttonsLayout, 1, 0);
 
-  m_readOnly = false;
   m_scrollBasicOptions->setVisible(false);
   this->buttonsSetVisible(false);
 
@@ -93,30 +95,7 @@ OptionPanel::~OptionPanel()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void OptionPanel::setEnabled(const QDomDocument & optionsNodes,
-                             const QList<GraphicalOption *> & options)
-{
-  QDomNodeList nodes = optionsNodes.childNodes();
-
-  for(int i = 0 ; i < nodes.count() ; i++)
-  {
-    QDomNode currentNode = nodes.at(i);
-    QDomNamedNodeMap attributes = currentNode.attributes();
-    bool isDynamic = attributes.namedItem("dynamic").nodeValue() == "true";
-
-    if(m_readOnly && isDynamic)
-      options.at(i)->setEnabled(true);
-    else if(!m_readOnly)
-      options.at(i)->setEnabled(true);
-    else
-      options.at(i)->setEnabled(false);
-  }
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void OptionPanel::getOptions(QHash<QString, QString> & options) const
+void OptionPanel::getOptions(QMap<QString, QString> & options) const
 {
   options.clear();
 
@@ -128,7 +107,7 @@ void OptionPanel::getOptions(QHash<QString, QString> & options) const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 void OptionPanel::buildOptions(const QList<GraphicalOption *> & graphOptions,
-                               QHash<QString, QString> & options) const
+                               QMap<QString, QString> & options) const
 {
   QList<GraphicalOption *>::const_iterator it = graphOptions.begin();
 
@@ -139,26 +118,6 @@ void OptionPanel::buildOptions(const QList<GraphicalOption *> & graphOptions,
     if(gOption->isModified())
       options[ gOption->getName() ] = gOption->getValueString();
   }
-
-//  QDomNodeList childNodes = nodes.childNodes();
-//
-//  for(int i = 0 ; i < childNodes.count() ; i++)
-//  {
-//    GraphicalOption * gOption = options.at(i);
-//
-//    // if the option has been modified, we can add it to the tree
-//    if(gOption->isModified())
-//    {
-//      QDomText nodeValue = document.createTextNode(gOption->getValueString());
-//      QDomElement newNode;
-//
-//      // import the node with its XML attributes
-//      newNode = document.importNode(childNodes.at(i), false).toElement();
-//
-//      newNode.appendChild(nodeValue);
-//      document.appendChild(newNode);
-//    }
-//  }
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -298,20 +257,6 @@ QString OptionPanel::getCurrentPath() const
 
  // PRIVATE METHOD
 
-QString OptionPanel::getNodePath(QDomNode & node)
-{
-  QDomNode parentNode = node.parentNode();
-  QString name = node.nodeName();
-
-  if(parentNode.isNull()) // if the node has no parent
-    return QString();
-
-  return this->getNodePath(parentNode) + "/" + name;
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 void OptionPanel::getModifiedOptions(const QList<GraphicalOption *> & graphicalOptions,
                                      CommitDetails & commitDetails) const
 {
@@ -370,7 +315,7 @@ void OptionPanel::buttonsSetVisible(bool visible)
 
 void OptionPanel::commitChanges()
 {
-  QHash<QString, QString> options;
+  QMap<QString, QString> options;
   this->getOptions(options);
 
   // if there is at least one option that has been modified
@@ -423,22 +368,6 @@ void OptionPanel::dataChanged(const QModelIndex & first, const QModelIndex & las
 
   if(first == last && first.row() == currIndex.row() && first.parent() == currIndex.parent())
     this->currentIndexChanged(first, QModelIndex());
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void OptionPanel::readOnlyModeChanged(const QModelIndex & index, bool readOnly)
-{
-  // if the parameter and the attribute are different...
-  if(m_readOnly ^ readOnly /*&& ClientRoot::getTree()->isCurrentSimIndex(index)*/)
-  {
-    m_readOnly = readOnly;
-
-    // ...we change the editors readOnly property
-//    this->setEnabled(m_basicOptionsNodes, m_basicOptions);
-//    this->setEnabled(m_advancedOptionsNodes, m_advancedOptions);
-  }
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

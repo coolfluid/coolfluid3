@@ -1,6 +1,10 @@
-                      #include <QtCore>
-#include <QtGui>
-#include <QtXml>
+#include <QCheckBox>
+#include <QDoubleValidator>
+#include <QFormLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QSpinBox>
+#include <QVariant>
 
 #include <stdexcept>
 #include <climits>
@@ -9,8 +13,6 @@
 
 #include "GUI/Client/FilesPanel.hpp"
 #include "GUI/Client/LibrariesPanel.hpp"
-#include "GUI/Client/InvalidValue.hpp"
-#include "GUI/Client/HostListPanel.hpp"
 #include "GUI/Client/UnknownTypeException.hpp"
 
 #include "GUI/Client/GraphicalOption.hpp"
@@ -232,7 +234,7 @@ void GraphicalOption::setValue(const QVariant & newValue)
         val = newValue.toInt(&ok);
 
         if(!ok) // if ok is false, the conversion failed
-          throw InvalidValue(FromHere(), "Failed to convert to an integer");
+          throw CastingFailed(FromHere(), "Failed to convert to an integer");
       }
 
       ((QSpinBox *) m_valueWidget)->setValue(val);
@@ -249,7 +251,7 @@ void GraphicalOption::setValue(const QVariant & newValue)
         val = newValue.toUInt(&ok);
 
         if(!ok) // if ok is false, the conversion failed
-          throw InvalidValue(FromHere(), "Failed to convert to an unsigned "
+          throw CastingFailed(FromHere(), "Failed to convert to an unsigned "
                                       "integer");
       }
 
@@ -268,7 +270,7 @@ void GraphicalOption::setValue(const QVariant & newValue)
       //     val = newValue.toDouble(&ok);
       //
       //     if(!ok) // if ok is false, the conversion failed
-      //      throw InvalidValue(FromHere(), "Failed to convert to a double");
+      //      throw CastingFailed(FromHere(), "Failed to convert to a double");
       //    }
       //
       //    ((QDoubleSpinBox *) this->valueWidget)->setValue(val);
@@ -295,7 +297,7 @@ void GraphicalOption::setValue(const QVariant & newValue)
     //      QDomNodeList childNodes;
 
     //      if(!valueString.isEmpty() && !doc.setContent(valueString, false, &errString))
-    //        throw InvalidValueException(FromHere(), errString.toStdString());
+    //        throw CastingFailed(FromHere(), errString.toStdString());
 
     //      panel->setItems(doc);
 

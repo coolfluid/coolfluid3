@@ -1,28 +1,29 @@
-#include <QtCore>
-#include <QtGui>
-#include <QtXml>
+#include <QApplication>
+#include <QCloseEvent>
+#include <QDateTime>
+#include <QDir>
+#include <QDockWidget>
+#include <QFile>
+#include <QMessageBox>
+#include <QMenuBar>
+#include <QPushButton>
+#include <QSplitter>
 
 #include "Common/Exception.hpp"
 #include "Common/ConfigArgs.hpp"
 
-#include "GUI/Client/TypeAndNameDialog.hpp"
+#include "GUI/Client/AboutCFDialog.hpp"
+#include "GUI/Client/ClientRoot.hpp"
 #include "GUI/Client/ConnectionDialog.hpp"
 #include "GUI/Client/LoggingList.hpp"
+#include "GUI/Client/MenuActionInfo.hpp"
 #include "GUI/Client/OptionPanel.hpp"
-#include "GUI/Client/OptionType.hpp"
-#include "GUI/Client/RemoteFSBrowser.hpp"
 #include "GUI/Client/RemoteSaveFile.hpp"
 #include "GUI/Client/RemoteOpenFile.hpp"
 #include "GUI/Client/SelectFileDialog.hpp"
 #include "GUI/Client/StatusModel.hpp"
 #include "GUI/Client/StatusPanel.hpp"
-#include "GUI/Client/NCore.hpp"
-#include "GUI/Client/MenuActionInfo.hpp"
 #include "GUI/Client/TreeView.hpp"
-#include "GUI/Client/NLog.hpp"
-#include "GUI/Client/AboutCFDialog.hpp"
-#include "GUI/Client/NLog.hpp"
-#include "GUI/Client/ClientRoot.hpp"
 
 #include "GUI/Network/HostInfos.hpp"
 #include "GUI/Network/ComponentNames.hpp"
@@ -558,23 +559,6 @@ void MainWindow::showHideStatus()
 {
 //  bool show = m_actions[ ACTION_SHOW_HIDE_STATUS_PANEL ]->isChecked();
 //  m_statusPanel->setVisible(show);
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void MainWindow::openSimulation(const QModelIndex & index)
-{
-  RemoteOpenFile open(this);
-
-  open.setIncludeFiles(true);
-  open.setExtensions(QStringList() << "xml" << "CFcase");
-  open.setIncludeNoExtension(false);
-
-  QString file = open.show("");
-
-  if(!file.isEmpty())
-    ClientRoot::getLog()->addException("Cannot open a file for now!");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

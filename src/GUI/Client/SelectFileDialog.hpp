@@ -223,7 +223,6 @@ namespace Client {
     /// filename.
     void fixExtensionOpen();
 
-
     /// @brief Removes from a string every word that appears more than once to
     /// only one occurence of it.
 

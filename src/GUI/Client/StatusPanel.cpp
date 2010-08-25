@@ -1,4 +1,4 @@
-#include <QtGui>
+#include <QModelIndex>
 
 #include "Common/CF.hpp"
 

@@ -114,8 +114,6 @@ namespace Client {
 
     void dataChanged(const QModelIndex & first, const QModelIndex & last);
 
-    void readOnlyModeChanged(const QModelIndex & index, bool readOnly);
-
     void checkOptions();
 
     void resetChanges();
@@ -178,13 +176,7 @@ namespace Client {
     ///  Its m_layout is @c #advancedOptionsLayout.
     QGroupBox * m_gbAdvancedOptions;
 
-    /// @brief Indicates if the line edits are in read-only mode or not.
-
-    /// If @c true, the panel is in read-only mode. Only m_options having
-    /// @c dynamic attribute set to @c true are modifiable.
-    bool m_readOnly;
-
-    /// @brief Indicates if the panel is in advanced mode or not.
+     /// @brief Indicates if the panel is in advanced mode or not.
 
     /// If @c true, the panel is in advanced mode. Advanced m_options (if any)
     /// are displayed. Otherwise, they are m_hidden.
@@ -196,22 +188,13 @@ namespace Client {
 
     bool m_modelReset;
 
-    /// @brief Builds a Unix-like path string to the given node.
-
-    /// The string begins with a slash followed by the root node name and
-    /// all given node parent nodes names, seperated by slashed (like in a
-    /// Unix path).
-    /// @param node Node from which the path will be extracted.
-    /// @return Returns the built strings.
-    QString getNodePath(QDomNode & node);
-
     /// @brief Puts all modified options in a provided hashmap.
 
     /// Only modified options will be set, meaning that the hashmap may be empty
     /// if no option has been modified. The map is cleared before first use.
     /// @param options A hashmap were modified options will be written. The
     /// key is the option name and the value is the option new value.
-    void getOptions(QHash<QString, QString> & options) const;
+    void getOptions(QMap<QString, QString> & options) const;
 
     /// @brief Clears the given list by deleting the @c TOption
     /// objects its elements point to.
@@ -234,18 +217,7 @@ namespace Client {
     /// @param options A hashmap were modified options will be written. The
     /// key is the option name and the value is the option new value.
     void buildOptions(const QList<GraphicalOption *> & graphOptions,
-                      QHash<QString, QString> & options) const;
-
-    /// @brief Applies the basic/advanced modes to the panel.
-
-    /// For each node in the given XML document, the corresponding option
-    /// components (in the given list) @c enabled property is set to @c false
-    /// if the panel is in read-only mode but the option is not dynamic. In
-    /// all other cases, the property will be set to @c true.
-    /// @param optionsNodes XML document.
-    /// @param m_options Corresponding m_options components.
-    void setEnabled(const QDomDocument & optionsNodes,
-                    const QList<GraphicalOption *> & options);
+                      QMap<QString, QString> & options) const;
 
     /// @brief Build containers with modified options.
 

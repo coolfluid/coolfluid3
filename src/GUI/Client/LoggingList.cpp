@@ -1,13 +1,10 @@
-#include <QtCore>
-#include <QtGui>
-
 #include "Common/OptionT.hpp"
 
 #include "GUI/Client/ClientRoot.hpp"
+#include "GUI/Client/NLog.hpp"
 
 #include "GUI/Client/LoggingList.hpp"
 
-using namespace CF::GUI::Network;
 using namespace CF::GUI::Client;
 
 LoggingList::LoggingList(QWidget * parent, unsigned int maxLogLines)

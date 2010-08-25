@@ -1,12 +1,10 @@
-#include <QtCore>
-#include <QtGui>
+#include <QFileIconProvider>
+#include <QTimer>
+#include <QProcess>
 
 #include "Common/BasicExceptions.hpp"
 
 #include "GUI/Client/ClientNetworkComm.hpp"
-#include "GUI/Client/NLog.hpp"
-#include "GUI/Client/StatusModel.hpp"
-#include "GUI/Client/TSshInformation.hpp"
 #include "GUI/Client/ClientRoot.hpp"
 
 #include "GUI/Network/ComponentType.hpp"

@@ -5,16 +5,12 @@
 
 #include <QObject>
 #include <QAbstractSocket>
-#include <QStringList>
 
 #include "Common/XmlHelpers.hpp"
 
 #include "GUI/Network/ComponentType.hpp"
 
-class QDomDocument;
-class QDomNode;
 class QString;
-class QTcpServer;
 class QTcpSocket;
 
 ////////////////////////////////////////////////////////////////////////////////

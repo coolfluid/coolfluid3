@@ -1,4 +1,7 @@
-#include <QtGui>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QRegExp>
+#include <QStringList>
 
 #include "Common/CF.hpp"
 #include "GUI/Client/SelectFileDialog.hpp"

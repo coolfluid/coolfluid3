@@ -4,15 +4,13 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include <QAbstractItemModel>
-#include <QHash>
+#include <QMap>
 #include <QStringList> /// @todo does not compile without that...but why ???
 
 #include "GUI/Client/CNode.hpp"
 #include "GUI/Client/TreeNode.hpp"
 #include "GUI/Client/NRoot.hpp"
 
-class QDomElement;
-class QModelIndex;
 
 namespace CF {
 
@@ -151,7 +149,7 @@ namespace Client {
     /// @param options Options to modify. The key is the option name and
     /// the value is the option value to set.
     void modifyOptions(const QModelIndex & index,
-                       const QHash<QString, QString> & options);
+                       const QMap<QString, QString> & options);
 
     /// @brief Implementation of @c QAbstractItemModel::data().
 

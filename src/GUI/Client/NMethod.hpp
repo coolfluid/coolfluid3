@@ -1,4 +1,3 @@
-
 #ifndef CF_GUI_Client_NMethod_hpp
 #define CF_GUI_Client_NMethod_hpp
 

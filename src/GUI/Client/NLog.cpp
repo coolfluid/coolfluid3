@@ -1,5 +1,5 @@
-#include <QtCore>
-#include <QtGui>
+#include <QDateTime>
+#include <QFileIconProvider>
 
 #include <string>
 

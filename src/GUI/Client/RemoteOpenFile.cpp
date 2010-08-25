@@ -1,4 +1,4 @@
-#include <QtGui>
+#include <QStringList>
 
 #include "GUI/Client/FilesListItem.hpp"
 #include "GUI/Client/RemoteOpenFile.hpp"

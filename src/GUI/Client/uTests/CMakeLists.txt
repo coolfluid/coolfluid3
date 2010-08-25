@@ -12,13 +12,11 @@ SET(uTestClient_moc_classes
 
   # include files to moc from the client
 
-  ../AddLinkDialog.hpp
   ../CNode.hpp
   ../ClientNetworkComm.hpp
   ../CommitDetailsDialog.hpp
   ../ConfirmCommitDialog.hpp
   ../ConnectionDialog.hpp
-  ../FilesListItem.hpp
   ../FilesPanel.hpp
   ../LoggingList.hpp
   ../MainWindow.hpp
@@ -32,7 +30,6 @@ SET(uTestClient_moc_classes
   ../NTree.hpp
   ../OptionPanel.hpp
   ../RemoteFSBrowser.hpp
-  ../RemoteOpenFile.hpp
   ../RemoteSaveFile.hpp
   ../SelectFileDialog.hpp
   ../SelectPathDialog.hpp
@@ -69,8 +66,6 @@ LIST( APPEND uTestClient_files
 
   ../AboutCFDialog.cpp
   ../AboutCFDialog.hpp
-  ../AddLinkDialog.cpp
-  ../AddLinkDialog.hpp
   ../CNode.cpp
   ../CNode.hpp
   ../ClientNetworkComm.cpp
@@ -93,10 +88,6 @@ LIST( APPEND uTestClient_files
   ../FilesPanel.hpp
   ../GraphicalOption.cpp
   ../GraphicalOption.hpp
-  ../HostListPanel.cpp
-  ../HostListPanel.hpp
-  ../InvalidValue.cpp
-  ../InvalidValue.hpp
   ../LibrariesPanel.cpp
   ../LibrariesPanel.hpp
   ../LoggingList.cpp
@@ -143,7 +134,6 @@ LIST( APPEND uTestClient_files
   ../StatusModel.hpp
   ../StatusPanel.cpp
   ../StatusPanel.hpp
-  ../TObjectProperties.hpp
   ../TSshInformation.hpp
   ../TreeNode.cpp
   ../TreeNode.hpp

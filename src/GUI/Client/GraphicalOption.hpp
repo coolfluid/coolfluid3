@@ -81,7 +81,7 @@ namespace Client {
     /// @param value New value. Must be in a format compatible with the option
     /// type. Compatible formats list for each type is available in QVariant
     /// class documentation.
-    /// @throw InvalidValue If the value could not be converted to
+    /// @throw CastingFailed If the value could not be converted to
     /// the option type.
     /// @note If the type of the option is @c OptionType::TYPE_FILES or
     /// @c OptionType::TYPE_LIBRAIRIES, the value is a @c QStringList.

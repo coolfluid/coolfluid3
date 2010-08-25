@@ -1,23 +1,18 @@
-#include <QtGui>
-#include <QtXml>
-#include <QtCore>
-#include <stdexcept>
+#include <QHeaderView>
+#include <QMainWindow>
+#include <QModelIndex>
+#include <QMouseEvent>
+#include <QRegExp>
+#include <QSortFilterProxyModel>
 
 #include "Common/CF.hpp"
-#include "Common/Exception.hpp"
 
-#include "GUI/Client/NCore.hpp"
-#include "GUI/Client/CommitDetails.hpp"
-#include "GUI/Client/OptionPanel.hpp"
-#include "GUI/Client/CommitDetailsDialog.hpp"
-#include "GUI/Client/MenuActionInfo.hpp"
-#include "GUI/Client/UnknownTypeException.hpp"
-#include "GUI/Client/TObjectProperties.hpp"
-#include "GUI/Client/TSshInformation.hpp"
-#include "GUI/Client/ConfirmCommitDialog.hpp"
-#include "GUI/Client/AddLinkDialog.hpp"
 #include "GUI/Client/ClientRoot.hpp"
-#include "GUI/Client/TreeNode.hpp"
+#include "GUI/Client/CommitDetails.hpp"
+#include "GUI/Client/CommitDetailsDialog.hpp"
+#include "GUI/Client/ConfirmCommitDialog.hpp"
+#include "GUI/Client/OptionPanel.hpp"
+#include "GUI/Client/UnknownTypeException.hpp"
 
 #include "GUI/Network/ComponentType.hpp"
 #include "GUI/Network/ComponentNames.hpp"
@@ -33,10 +28,8 @@ TreeView::TreeView(OptionPanel * optionsPanel, QMainWindow * parent,
 : QTreeView(parent),
   m_contextMenuAllowed(contextMenuAllowed)
 {
-  MenuActionInfo config;
-
   if(m_contextMenuAllowed && optionsPanel == CFNULL)
-    throw std::invalid_argument("Options panel is a CFNULL pointer");
+    throw BadValue(FromHere(), "Options panel is a CFNULL pointer");
 
   // instantiate class attributes
   m_modelFilter = new QSortFilterProxyModel(this);

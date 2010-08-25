@@ -1,5 +1,11 @@
-#include <QtCore>
-#include <QtGui>
+#include <QComboBox>
+#include <QHBoxLayout>
+#include <QGridLayout>
+#include <QLabel>
+#include <QListView>
+#include <QPushButton>
+#include <QStringListModel>
+#include <QVBoxLayout>
 
 #include "Common/CF.hpp"
 

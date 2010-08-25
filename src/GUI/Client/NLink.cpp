@@ -1,7 +1,10 @@
-#include <QtCore>
-#include <QtGui>
+#include <QAction>
+#include <QFileIconProvider>
+#include <QMenu>
+#include <QModelIndex>
 
 #include "Common/CF.hpp"
+#include "Common/CRoot.hpp"
 #include "Common/CPath.hpp"
 
 #include "GUI/Client/ClientRoot.hpp"

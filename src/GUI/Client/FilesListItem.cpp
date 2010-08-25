@@ -1,6 +1,3 @@
-#include <QtCore>
-#include <stdexcept>
-
 #include "GUI/Client/UnknownTypeException.hpp"
 
 #include "GUI/Client/FilesListItem.hpp"

@@ -5,7 +5,6 @@
 
 #include <QObject>
 #include <QHash>
-#include <QList>
 
 #include "GUI/Client/CNode.hpp"
 

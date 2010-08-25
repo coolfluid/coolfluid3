@@ -1,19 +1,23 @@
-#include <QtCore>
-#include <QtGui>
+#include <QMenu>
+#include <QPoint>
+#include <QStringList>
+#include <QVariant>
 
 #include <cstring>
 
 #include "Common/CF.hpp"
 #include "Common/XmlHelpers.hpp"
 
-#include "GUI/Client/NCore.hpp"
 #include "GUI/Client/ClientRoot.hpp"
+#include "GUI/Client/NCore.hpp"
 #include "GUI/Client/NGroup.hpp"
+#include "GUI/Client/NLog.hpp"
 #include "GUI/Client/NLink.hpp"
 #include "GUI/Client/NMesh.hpp"
 #include "GUI/Client/NMeshReader.hpp"
 #include "GUI/Client/NMethod.hpp"
 #include "GUI/Client/NRoot.hpp"
+#include "GUI/Client/NTree.hpp"
 
 #include "GUI/Client/CNode.hpp"
 
@@ -117,9 +121,9 @@ void CNode::setOptions(const XmlNode & options)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CNode::modifyOptions(const QHash<QString, QString> options)
+void CNode::modifyOptions(const QMap<QString, QString> options)
 {
-  QHash<QString, QString>::const_iterator it = options.begin();
+  QMap<QString, QString>::const_iterator it = options.begin();
 
   if(isClientComponent())
   {

@@ -3,16 +3,14 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <QMap>
 #include <QObject>
 
 #include "Common/XmlHelpers.hpp"
-#include "Common/SignalHandler.hpp"
 
-#include "GUI/Client/CNode.hpp"
 #include "GUI/Client/TSshInformation.hpp"
 
-class QModelIndex;
+#include "GUI/Client/CNode.hpp"
+
 class QProcess;
 class QString;
 class QTimer;
@@ -34,7 +32,6 @@ namespace Client {
 
   class ClientNetworkComm;
   class StatusModel;
-  struct TSshInformation;
 
 ////////////////////////////////////////////////////////////////////////////////
 

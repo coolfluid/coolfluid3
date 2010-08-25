@@ -1,6 +1,7 @@
-#include <QtCore>
-#include <QtNetwork>
-#include <QtXml>
+#include <QByteArray>
+#include <QDataStream>
+#include <QTcpSocket>
+
 #include <string>
 
 #include "Common/CF.hpp"

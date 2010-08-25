@@ -7,10 +7,10 @@
 
 #include "Common/CF.hpp"
 
-class QPushButton;
 class QDialogButtonBox;
-class QVBoxLayout;
+class QPushButton;
 class QTableView;
+class QVBoxLayout;
 
 /////////////////////////////////////////////////////////////////////////////
 

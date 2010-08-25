@@ -4,8 +4,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <QTreeView>
-#include <QList>
-#include <QHash>
 
 #include "GUI/Network/ComponentType.hpp"
 

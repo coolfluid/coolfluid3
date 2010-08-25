@@ -3,16 +3,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <QObject>
 #include <QDialog>
 #include <QDialogButtonBox>
-#include <QIcon>
 #include <QModelIndex>
 
 #include "Common/Component.hpp"
 
 class QCompleter;
-class QDialogButtonBox;
 class QDomDocument;
 class QEvent;
 class QHBoxLayout;

@@ -1,4 +1,6 @@
-#include <QtGui>
+#include <QDialogButtonBox>
+#include <QTableView>
+#include <QVBoxLayout>
 
 #include "GUI/Client/CommitDetails.hpp"
 

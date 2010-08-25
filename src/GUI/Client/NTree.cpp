@@ -1,5 +1,5 @@
-#include <QtCore>
-#include <QtGui>
+#include <QFileIconProvider>
+#include <QMutableMapIterator>
 
 #include "Common/CF.hpp"
 #include "Common/XmlHelpers.hpp"
@@ -303,7 +303,7 @@ void NTree::optionsChanged(const CPath & path)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 void NTree::modifyOptions(const QModelIndex & index,
-                          const QHash<QString, QString> & options)
+                          const QMap<QString, QString> & options)
 {
   TreeNode * node = this->indexToTreeNode(index);
 

@@ -1,4 +1,7 @@
-#include <QtGui>
+#include <QDialogButtonBox>
+#include <QInputDialog>
+#include <QMessageBox>
+#include <QPushButton>
 
 #include "GUI/Client/NCore.hpp"
 #include "GUI/Client/TypeAndNameDialog.hpp"

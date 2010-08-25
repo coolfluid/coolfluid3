@@ -1,5 +1,3 @@
-#include <QtCore>
-
 #include "GUI/Client/NRoot.hpp"
 
 #include "GUI/Client/TreeNode.hpp"

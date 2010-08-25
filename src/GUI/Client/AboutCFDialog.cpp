@@ -1,4 +1,8 @@
-#include <QtGui>
+#include <QFormLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QVBoxLayout>
+#include <QWidget>
 
 #include "Common/CF.hpp"
 
@@ -7,6 +11,7 @@
 using namespace CF::GUI::Client;
 
 AboutCFDialog::AboutCFDialog(QWidget * parent)
+  : QDialog(parent)
 {
   this->setWindowTitle("About CF");
 

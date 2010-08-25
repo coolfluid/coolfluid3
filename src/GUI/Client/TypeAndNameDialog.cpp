@@ -1,4 +1,9 @@
-#include <QtGui>
+#include <QComboBox>
+#include <QDialogButtonBox>
+#include <QFormLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QStringList>
 
 #include "GUI/Client/TypeAndNameDialog.hpp"
 

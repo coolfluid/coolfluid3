@@ -1,5 +1,5 @@
-#include <QtCore>
-#include <QtGui>
+#include <QMenu>
+#include <QToolBar>
 
 #include "Common/CF.hpp"
 

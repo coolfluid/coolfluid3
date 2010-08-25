@@ -1,9 +1,8 @@
-#include <iostream>
-#include <iterator>
-
-#include <QtGui>
-#include <QtXml>
-#include <QtCore>
+#include <QDomDocument>
+#include <QDomElement>
+#include <QDomNode>
+#include <QModelIndex>
+#include <QVariant>
 
 #include <boost/filesystem/path.hpp>
 

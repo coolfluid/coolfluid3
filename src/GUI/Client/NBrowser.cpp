@@ -1,5 +1,4 @@
-#include <QtCore>
-#include <QtGui>
+#include <QFileIconProvider>
 
 #include "GUI/Network/ComponentNames.hpp"
 

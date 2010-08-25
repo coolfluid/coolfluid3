@@ -1,4 +1,6 @@
-#include <QtCore>
+#include <QModelIndex>
+#include <QString>
+#include <QVariant>
 
 #include "Common/CF.hpp"
 

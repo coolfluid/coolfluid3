@@ -6,7 +6,6 @@
 
 # List of classes to "moc"
 LIST( APPEND coolfluid-client_moc_classes
-  AddLinkDialog.hpp
   NCore.hpp
   ClientNetworkComm.hpp
   CNode.hpp
@@ -41,8 +40,6 @@ QT4_WRAP_CPP(coolfluid-client_moc_files ${coolfluid-client_moc_classes})
 LIST( APPEND coolfluid-client_files
   AboutCFDialog.cpp
   AboutCFDialog.hpp
-  AddLinkDialog.cpp
-  AddLinkDialog.hpp
   ClientNetworkComm.cpp
   ClientNetworkComm.hpp
   ClientRoot.cpp
@@ -65,10 +62,6 @@ LIST( APPEND coolfluid-client_files
   FilesPanel.hpp
   GraphicalOption.cpp
   GraphicalOption.hpp
-  HostListPanel.cpp
-  HostListPanel.hpp
-  InvalidValue.cpp
-  InvalidValue.hpp
   LibrariesPanel.cpp
   LibrariesPanel.hpp
   LoggingList.cpp
@@ -116,7 +109,6 @@ LIST( APPEND coolfluid-client_files
   StatusModel.hpp
   StatusPanel.cpp
   StatusPanel.hpp
-  TObjectProperties.hpp
   TreeNode.cpp
   TreeNode.hpp
   TreeView.cpp

@@ -1,4 +1,9 @@
-#include <QtGui>
+#include <QCompleter>
+#include <QDialogButtonBox>
+#include <QLineEdit>
+#include <QModelIndex>
+#include <QStringListModel>
+#include <QVBoxLayout>
 
 #include "Common/CPath.hpp"
 

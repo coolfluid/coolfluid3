@@ -1,5 +1,4 @@
-#include <QtCore>
-#include <QtGui>
+#include <QFileIconProvider>
 
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
