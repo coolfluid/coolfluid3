@@ -32,8 +32,7 @@ aCGNSReader_Provider ( "CGNS" );
 //////////////////////////////////////////////////////////////////////////////
 
 CReader::CReader(const CName& name)
-: CMeshReader(name), Shared(),
-  m_isCoordinatesCreated(false)
+: CMeshReader(name), Shared()
 {
   BUILD_COMPONENT;
 }
@@ -172,19 +171,19 @@ void CReader::read_zone(CRegion& parent_region)
     for (m_section.idx=1; m_section.idx<=m_zone.nbSections; ++m_section.idx)
       read_section(this_region);
     
-    // Only read boco's if sections are not defined as BC's
-    if (!option("SectionsAreBCs")->value<bool>())
-    {
+//    // Only read boco's if sections are not defined as BC's
+//    if (!option("SectionsAreBCs")->value<bool>())
+//    {
       // read boundaryconditions (or subregions) in this zone
       for (m_boco.idx=1; m_boco.idx<=m_zone.nbBocos; ++m_boco.idx)
         read_boco_unstructured(this_region);
-      
-      // Remove regions flagged as bc
-      BOOST_FOREACH(CRegion& region, recursive_filtered_range_typed<CRegion>(this_region,IsComponentTag("remove_this_tmp_component")))
-      {
-        region.get_parent()->remove_component(region.name());
-      }
-    }
+//      
+//      // Remove regions flagged as bc
+//      BOOST_FOREACH(CRegion& region, recursive_filtered_range_typed<CRegion>(this_region,IsComponentTag("remove_this_tmp_component")))
+//      {
+//        region.get_parent()->remove_component(region.name());
+//      }
+//    }
     
     // Cleanup:
     
@@ -505,18 +504,18 @@ void CReader::read_section(CRegion& parent_region)
 
   remove_empty_element_regions(this_region);
 
-  // Mark BC regions as temporary if option SectionsAreBCs is false
-  if (!option("SectionsAreBCs")->value<bool>() && option("SharedCoordinates")->value<bool>())
-  {
-    bool is_bc_region = false;
-    BOOST_FOREACH(const CElements& element_region, range_typed<CElements>(this_region))
-    {
-      if (element_region.element_type().dimensionality() < static_cast<Uint>(m_base.cell_dim))
-        is_bc_region = is_bc_region || true;
-    }
-    if (is_bc_region)
-      this_region.add_tag("remove_this_tmp_component");
-  }
+//  // Mark BC regions as temporary if option SectionsAreBCs is false
+//  if (!option("SectionsAreBCs")->value<bool>() && option("SharedCoordinates")->value<bool>())
+//  {
+//    bool is_bc_region = false;
+//    BOOST_FOREACH(const CElements& element_region, range_typed<CElements>(this_region))
+//    {
+//      if (element_region.element_type().dimensionality() < static_cast<Uint>(m_base.cell_dim))
+//        is_bc_region = is_bc_region || true;
+//    }
+//    if (is_bc_region)
+//      this_region.add_tag("remove_this_tmp_component");
+//  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -621,18 +620,11 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
   // replace whitespace by underscore
   boost::algorithm::replace_all(m_boco.name," ","_");
   boost::algorithm::replace_all(m_boco.name,".","_");
-
-  // Create a region inside mesh/regions/bc-regions with the name of the cgns boco.
-  CRegion& this_region = parent_region.create_region(m_boco.name);
-  CArray& coordinates = *parent_region.get_child_type<CArray>("coordinates");
   
   // Read the element ID's
   int* boco_elems = new int [m_boco.nBC_elem];
   void* NormalList(NULL);
   CALL_CGNS(cg_boco_read(m_file.idx, m_base.idx, m_zone.idx, m_boco.idx, boco_elems, NormalList));
-  
-  // Create CElements components for every possible element type supported.
-  BufferMap buffer = create_element_regions_with_buffermap(this_region,coordinates,get_supported_element_types());
 
   switch (m_boco.ptset_type)
   {
@@ -641,6 +633,30 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
       if (m_zone.type != Unstructured)
         throw NotSupported(FromHere(),"CGNS: Boundary with pointset_type \"ElementRange\" is only supported for Unstructured grids");      
 
+      CFinfo << "ElementRange" << CFendl;
+      // First do some simple checks to see if an entire region can be taken as a BC.
+      CElements::Ptr first_elements = m_global_to_region[boco_elems[0]-1].first;
+      CElements::Ptr last_elements = m_global_to_region[boco_elems[1]-1].first;
+      if (first_elements->get_parent() == last_elements->get_parent())
+      {
+        CRegion::Ptr group_region = first_elements->get_parent()->get_type<CRegion>();
+        if (group_region->recursive_elements_count() == Uint(boco_elems[1]-boco_elems[0]+1))
+        {
+          CFinfo << "\n\n\n\n\n " << CFendl;
+          CFinfo << "This BC \"" << m_boco.name << "\" is available already as a region \"" << group_region->name() << "\"" << CFendl;
+          group_region->rename(m_boco.name);
+          break;
+        }
+      }
+      
+      
+      // Create a region inside mesh/regions/bc-regions with the name of the cgns boco.
+      CRegion& this_region = parent_region.create_region(m_boco.name);
+      CArray& coordinates = *parent_region.get_child_type<CArray>("coordinates");
+      
+      // Create CElements components for every possible element type supported.
+      BufferMap buffer = create_element_regions_with_buffermap(this_region,coordinates,get_supported_element_types());
+      
       for (int global_element=boco_elems[0]-1;global_element<boco_elems[1];++global_element)
       {
         // Check which region this global_element belongs to
@@ -652,6 +668,13 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
         // Add the local element to the correct CElements component through its buffer
         buffer[element_region->element_type().getElementTypeName()]->add_row(element_region->connectivity_table()[local_element]);
       }
+      
+      // Flush all buffers and remove empty element regions
+      for (BufferMap::iterator it=buffer.begin(); it!=buffer.end(); ++it)
+        it->second->flush();
+      buffer.clear();
+      
+      remove_empty_element_regions(this_region);
       break;
     }
     case ElementList : // all bc elements are listed as global element numbers
@@ -659,6 +682,31 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
       if (m_zone.type != Unstructured)
         throw NotSupported(FromHere(),"CGNS: Boundary with pointset_type \"ElementList\" is only supported for Unstructured grids");
 
+      CFinfo << "ElementList" << CFendl;
+
+      
+      // First do some simple checks to see if an entire region can be taken as a BC.
+      CElements::Ptr first_elements = m_global_to_region[boco_elems[0]-1].first;
+      CElements::Ptr last_elements = m_global_to_region[boco_elems[m_boco.nBC_elem-1]-1].first;
+      if (first_elements->get_parent() == last_elements->get_parent())
+      {
+        CRegion::Ptr group_region = first_elements->get_parent()->get_type<CRegion>();
+        if (group_region->recursive_elements_count() == Uint(boco_elems[m_boco.nBC_elem-1]-boco_elems[0]+1))
+        {
+          CFinfo << "\n\n\n\n\n " << CFendl;
+          CFinfo << "This BC \"" << m_boco.name << "\" is available already as a region \"" << group_region->name() << "\"" << CFendl;
+          group_region->rename(m_boco.name);
+          break;
+        }
+      }
+      
+      // Create a region inside mesh/regions/bc-regions with the name of the cgns boco.
+      CRegion& this_region = parent_region.create_region(m_boco.name);
+      CArray& coordinates = *parent_region.get_child_type<CArray>("coordinates");
+      
+      // Create CElements components for every possible element type supported.
+      BufferMap buffer = create_element_regions_with_buffermap(this_region,coordinates,get_supported_element_types());
+      
       for (int i=0; i<m_boco.nBC_elem; ++i)
       {
         Uint global_element = boco_elems[i]-1;
@@ -672,6 +720,14 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
         // Add the local element to the correct CElements component through its buffer
         buffer[element_region->element_type().getElementTypeName()]->add_row(element_region->connectivity_table()[local_element]);
       }
+      
+      // Flush all buffers and remove empty element regions
+      for (BufferMap::iterator it=buffer.begin(); it!=buffer.end(); ++it)
+        it->second->flush();
+      buffer.clear();
+      
+      remove_empty_element_regions(this_region);
+      
       break;
     }
     case PointRange : // bc elements are given by node index range
@@ -683,15 +739,6 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
   }
 
   delete_ptr(boco_elems);
-  
-  // Flush all buffers and remove empty element regions
-  for (BufferMap::iterator it=buffer.begin(); it!=buffer.end(); ++it)
-    it->second->flush();
-  buffer.clear();
-  delete_ptr(boco_elems);
-
-  remove_empty_element_regions(this_region);
-  
 }
 
 //////////////////////////////////////////////////////////////////////////////
