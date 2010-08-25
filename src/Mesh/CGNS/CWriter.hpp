@@ -12,6 +12,10 @@
 
 namespace CF {
 namespace Mesh {
+  
+  class CRegion;
+  class CElements;
+  
 namespace CGNS {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -28,6 +32,8 @@ public: // typedefs
   
 private : // typedefs
   
+  typedef std::vector<boost::shared_ptr<CElements const> > GroupedElements;
+  typedef std::map<std::string, GroupedElements > GroupsMapType;
 
 public: // functions
   
@@ -47,6 +53,13 @@ public: // functions
 
 private: // functions
   
+  void write_base();
+  
+  void write_zone(const CRegion& region);
+  
+  void write_section(const GroupedElements& grouped_elements);
+
+//  void write_boco(const GroupedElements& grouped_elements);
 
 private: // helper functions
 
