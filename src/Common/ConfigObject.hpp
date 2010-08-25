@@ -12,7 +12,7 @@ namespace Common {
 
   /// Class defines a list of options to be used in the ConfigObject class
   /// @author Tiago Quintino
-  class OptionList {
+  class Common_API OptionList {
 
   public:
 
@@ -47,7 +47,7 @@ namespace Common {
   /// Class defines a object that has options that can be dynamically
   /// configured by the end-user at run-time.
   /// @author Tiago Quintino
-  class ConfigObject  {
+  class Common_API ConfigObject  {
 
   public:
 

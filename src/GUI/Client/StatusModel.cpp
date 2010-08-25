@@ -222,7 +222,7 @@ QVariant StatusModel::data(const QModelIndex & index, int role) const
 //      return attributes.namedItem("status").nodeValue();
 //  }
 //  else
-//    return QVariant();
+    return QVariant();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -251,6 +251,7 @@ QModelIndex StatusModel::index(int row, int column,
 //    index = QModelIndex();
 
 //  return index;
+	return QModelIndex();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -268,6 +269,7 @@ QModelIndex StatusModel::parent(const QModelIndex & child) const
 //    return QModelIndex();
 
 //  return createIndex(parentItem->getRowNumber(), 0, parentItem);
+	return QModelIndex();
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -286,4 +288,5 @@ int StatusModel::rowCount(const QModelIndex &parent) const
 //    parentItem = static_cast<TreeItem*>(parent.internalPointer());
 
 //  return parentItem->getDomNode().childNodes().count();
+	return 0;
 }

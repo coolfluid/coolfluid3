@@ -15,6 +15,7 @@
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/ComponentIterator.hpp"
+#include "Common/OptionArray.hpp"
 
 namespace CF {
 namespace Common {
@@ -493,15 +494,38 @@ void Component::list_options ( XmlNode& node )
 
   for( ; it != m_option_list.m_options.end() ; it++)
   {
-    // it->second type is Option::Ptr
+    Option::Ptr opt = it->second;
 
-    XmlNode& value_node = *XmlOps::add_node_to(node, "value");
+    CFinfo << opt->value().type().name() << CFendl;
 
-    // set the key attribute (option name)
-    XmlOps::add_attribute_to(value_node, XmlParams::tag_attr_key(), it->first);
-    XmlOps::add_attribute_to(value_node, XmlParams::tag_attr_descr(), it->second->description());
+//    if(std::strcmp(opt->tag(), "array") != 0)
+    {
+      XmlNode& value_node = *XmlOps::add_node_to(node, "value");
 
-    XmlOps::add_node_to(value_node, it->second->type(), it->second->value_str());
+      // set key (option name) and descr attributes (option description)
+      XmlOps::add_attribute_to(value_node, XmlParams::tag_attr_key(), it->first);
+      XmlOps::add_attribute_to(value_node, XmlParams::tag_attr_descr(), opt->description());
+
+      // set option value
+      XmlOps::add_node_to(value_node, opt->type(), opt->value_str());
+    }
+//    else
+//    {
+//      boost::shared_ptr<OptionArray> optArray;
+////      XmlNode& array_node = *XmlOps::add_node_to(node, "array");
+
+//      optArray = boost::dynamic_pointer_cast<OptionArray>(opt);
+
+//      // set key (option name), type and size attribute (description)
+////      XmlOps::add_attribute_to(array_node, XmlParams::tag_attr_key(), it->first);
+////      XmlOps::add_attribute_to(array_node, XmlParams::tag_attr_type(), optArray->type_tag());
+////      XmlOps::add_attribute_to(array_node, XmlParams::tag_attr_size(), optArray:: >description());
+
+//      XmlParams p(node);
+
+//      p.add_array();
+
+//    }
   }
 }
 

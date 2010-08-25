@@ -26,7 +26,15 @@ namespace Common {
 
   public:
 
+    // (QG) : temporary fix, compilation fails at the FOREACH in
+    // dump_to_str() function on MSVC if TYPE is bool with message
+    // "cannot convert from 'std::_Vb_reference<_Sizet,_Difft,_MyContTy>' "
+#if defined (_MSC_VER)
+    typedef std::deque<TYPE> value_type;
+#else
     typedef std::vector<TYPE> value_type;
+#endif
+
     typedef TYPE element_type;
 
     OptionArray ( const std::string& name, const std::string& desc, const value_type& def );
@@ -66,7 +74,7 @@ namespace Common {
       Option(name,DEMANGLED_TYPEID(value_type), desc, def)
   {
 //    CFinfo
-//        << " creating OptionArray of " << type_tag() <<  "\'s [" << m_name << "]"
+//        << " creating OptionArray of " << () <<  "\'s [" << m_name << "]"
 //        << " of type [" << m_type << "]"
 //        << " w default [" << def_str() << "]"
 //        << " w desc [" << m_description << "]\n"

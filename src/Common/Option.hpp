@@ -50,7 +50,7 @@ namespace Common {
   ///       - ConfigObject ( ConfigObject, OptionList )
   ///       - Option
   ///       - OptionT
-  class Option
+  class Common_API Option
   {
   public:
 

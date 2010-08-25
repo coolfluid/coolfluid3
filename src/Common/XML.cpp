@@ -1,5 +1,6 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/compare.hpp>
+#include <boost/filesystem/path.hpp>
 
 #include "Common/BasicExceptions.hpp"
 #include "Common/XML.hpp"
@@ -10,24 +11,27 @@ namespace Common {
 ////////////////////////////////////////////////////////////////////////////////
 
   template<>
-  const char * XmlTag<bool>::type() { return "bool"; }
+  Common_API const char * XmlTag<bool>::type() { return "bool"; }
 
   template<>
-  const char * XmlTag<int>::type() { return "integer"; };
+  Common_API const char * XmlTag<int>::type() { return "integer"; };
 
   template<>
-  const char * XmlTag<CF::Uint>::type() { return "unsigned"; }
+  Common_API const char * XmlTag<CF::Uint>::type() { return "unsigned"; }
 
   template<>
-  const char * XmlTag<CF::Real>::type() { return "real"; }
+  Common_API const char * XmlTag<CF::Real>::type() { return "real"; }
 
   template<>
-  const char * XmlTag<std::string>::type() { return "string"; }
+  Common_API const char * XmlTag<std::string>::type() { return "string"; }
+
+  template<>
+  Common_API const char * XmlTag<boost::filesystem::path>::type() { return "path"; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 template <>
-    void xmlstr_to_value ( XmlBase& node, bool& val )
+    Common_API void xmlstr_to_value ( XmlBase& node, bool& val )
 {
   bool match = false;
   std::string vt ( node.value() );
@@ -56,25 +60,31 @@ template <>
 }
 
 template <>
-    void xmlstr_to_value ( XmlBase& node, int& val )
+    Common_API void xmlstr_to_value ( XmlBase& node, int& val )
 {
    val = boost::lexical_cast<int> ( node.value() );
 }
 
 template <>
-    void xmlstr_to_value ( XmlBase& node, CF::Uint& val )
+    Common_API void xmlstr_to_value ( XmlBase& node, CF::Uint& val )
 {
   val = boost::lexical_cast<CF::Uint> ( node.value() );
 }
 
 template <>
-    void xmlstr_to_value ( XmlBase& node, CF::Real& val )
+    Common_API void xmlstr_to_value ( XmlBase& node, CF::Real& val )
 {
   val = boost::lexical_cast<CF::Real> ( node.value() );
 }
 
 template <>
-    void xmlstr_to_value ( XmlBase& node, std::string& val )
+    Common_API void xmlstr_to_value ( XmlBase& node, std::string& val )
+{
+   val = node.value();
+}
+
+template <>
+    Common_API void xmlstr_to_value ( XmlBase& node, boost::filesystem::path& val )
 {
    val = node.value();
 }
@@ -82,25 +92,25 @@ template <>
 ////////////////////////////////////////////////////////////////////////////////
 
 template <>
-    std::string value_to_xmlstr<bool> ( const bool& val )
+    Common_API std::string value_to_xmlstr<bool> ( const bool& val )
 {
   return val ? "true" : "false";
 }
 
 template <>
-    std::string value_to_xmlstr<int> ( const int& val )
+    Common_API std::string value_to_xmlstr<int> ( const int& val )
 {
   return boost::lexical_cast<std::string> ( val );
 }
 
 template <>
-    std::string value_to_xmlstr<CF::Uint> ( const CF::Uint& val )
+    Common_API std::string value_to_xmlstr<CF::Uint> ( const CF::Uint& val )
 {
   return boost::lexical_cast<std::string> ( val );
 }
 
 template <>
-    std::string value_to_xmlstr<CF::Real> ( const CF::Real& val )
+    Common_API std::string value_to_xmlstr<CF::Real> ( const CF::Real& val )
 {
   std::stringstream ss;
   ss << val;
@@ -108,7 +118,7 @@ template <>
 }
 
 template <>
-    std::string value_to_xmlstr<std::string> ( const std::string& val )
+    Common_API std::string value_to_xmlstr<std::string> ( const std::string& val )
 {
    return val;
 }

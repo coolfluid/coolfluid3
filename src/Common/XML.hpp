@@ -7,6 +7,8 @@
 
 #include "Common/CF.hpp"
 
+#include "Common/CommonAPI.hpp"
+
 namespace CF {
 namespace Common {
 
@@ -25,11 +27,11 @@ namespace Common {
 
   /// converts the value inside the xml node to the type
   template < typename TYPE>
-    void xmlstr_to_value ( XmlBase& node, TYPE& val );
+    Common_API void xmlstr_to_value ( XmlBase& node, TYPE& val );
 
   /// converts the value inside the xml node to the type
   template < typename TYPE>
-    std::string value_to_xmlstr ( const TYPE& val );
+    Common_API std::string value_to_xmlstr ( const TYPE& val );
 
   /// Converts a type to an Xml tag
   template < typename TYPE > struct XmlTag

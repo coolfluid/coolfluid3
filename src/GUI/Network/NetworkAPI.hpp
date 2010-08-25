@@ -9,7 +9,7 @@
 
 /// Define the macro Network_API
 /// @note build system defines network_EXPORTS when compiling Network files
-#ifdef network_EXPORTS
+#ifdef Network_EXPORTS
 #   define Network_API CF_EXPORT_API
 #else
 #   define Network_API CF_IMPORT_API
