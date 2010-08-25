@@ -753,7 +753,7 @@ BOOST_AUTO_TEST_CASE( WriteCNGS_unstructured )
   
   // the files to read from and write to
   boost::filesystem::path fp_in ("grid_c.cgns");
-  boost::filesystem::path fp_out ("grid_c_out.cgns");
+  boost::filesystem::path fp_out ("grid_c2cgns.cgns");
   
   // the mesh to store in
   CMesh::Ptr mesh = meshreader->create_mesh_from(fp_in);
@@ -763,14 +763,43 @@ BOOST_AUTO_TEST_CASE( WriteCNGS_unstructured )
   meshwriter->write_from_to(mesh,fp_out);
   
   CMesh::Ptr mesh2 = meshreader->create_mesh_from(fp_out);
-  
-  CFinfo << "mesh2:\n" << mesh2->tree() << CFendl;
-  
+    
   CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("Info", "info");
   info->transform(mesh2);
 
   // Write to Gmsh
-  boost::filesystem::path gmsh_out ("grid_c_out.msh");
+  boost::filesystem::path gmsh_out ("grid_c2cgns2gmsh.msh");
+  CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
+  gmsh_writer->write_from_to(mesh2,gmsh_out);
+  
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( WriteCNGS_mixed )
+{
+  CMeshReader::Ptr neu_reader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
+
+  // the files to read from and write to
+  boost::filesystem::path fp_in ("quadtriag.neu");
+  boost::filesystem::path fp_out ("quadtriag2cgns.cgns");
+  
+  // the mesh to store in
+  CMesh::Ptr mesh = neu_reader->create_mesh_from(fp_in);
+  
+  CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CGNS","meshwriter");
+  
+  meshwriter->write_from_to(mesh,fp_out);
+  
+  CMeshReader::Ptr cgns_reader = create_component_abstract_type<CMeshReader>("CGNS","meshreader");
+  
+  CMesh::Ptr mesh2 = cgns_reader->create_mesh_from(fp_out);
+    
+  CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("Info", "info");
+  info->transform(mesh2);
+  
+  // Write to Gmsh
+  boost::filesystem::path gmsh_out ("quadtriag2cgns2gmsh.msh");
   CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
   gmsh_writer->write_from_to(mesh2,gmsh_out);
   

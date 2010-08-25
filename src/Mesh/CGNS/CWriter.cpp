@@ -177,15 +177,61 @@ void CWriter::write_zone(const CRegion& region)
 
 void CWriter::write_section(const GroupedElements& grouped_elements)
 {
-  m_section.name = grouped_elements[0]->get_parent()->name();
+  CRegion::ConstPtr section_region = grouped_elements[0]->get_parent()->get_type<CRegion const>();
+
+  m_section.name = section_region->name();
   m_section.type = grouped_elements.size() != 1 ? MIXED : m_elemtype_CF_to_CGNS[grouped_elements[0]->element_type().getElementTypeName()];
-  
-  
+
   switch (m_section.type)
   {
     case MIXED:
-    {
-      throw NotImplemented (FromHere(), "MIXED element type not supported to write yet");
+    { 
+      CGNS_Section mixed_section;
+      int total_nbElems = section_region->recursive_elements_count();
+      mixed_section.elemStartIdx = m_section.elemEndIdx + 1;
+      mixed_section.elemEndIdx = m_section.elemEndIdx + total_nbElems;
+      mixed_section.nbBdry = 0; // unsorted boundary
+            
+      // If this region is a surface, it must be a boundary condition.
+      // Thus create the boundary condition as an element range (no extra storage)
+      if (IsElementsSurface()(*grouped_elements[0]))
+      {
+        m_boco.name = m_section.name;
+        m_section.name = m_section.name + "_bc";
+        int range[2];
+        range[0] = m_section.elemStartIdx;
+        range[1] = m_section.elemEndIdx;
+        cg_boco_write(m_file.idx,m_base.idx,m_zone.idx,m_boco.name.c_str(),BCTypeNull,ElementRange,2,range,&m_boco.idx);        
+      }
+      
+      
+      CALL_CGNS(cg_section_partial_write(m_file.idx,m_base.idx,m_zone.idx,m_section.name.c_str(),m_section.type,mixed_section.elemStartIdx,mixed_section.elemEndIdx,mixed_section.nbBdry,&m_section.idx));
+
+      BOOST_FOREACH(CElements::ConstPtr elements, grouped_elements)
+      {
+        int nbElems = elements->elements_count();
+        m_section.elemNodeCount = elements->element_type().nb_nodes();
+        m_section.elemStartIdx = m_section.elemEndIdx + 1;
+        m_section.elemEndIdx = m_section.elemEndIdx + nbElems;
+        m_section.nbBdry = 0; // unsorted boundary
+        
+        ElementType_t type = m_elemtype_CF_to_CGNS[elements->element_type().getElementTypeName()];
+        const CTable::ConnectivityTable& connectivity_table = elements->connectivity_table().table();
+        
+        int* elemNodes = new int [nbElems*(m_section.elemNodeCount+1)];
+        for (int iElem=0; iElem<nbElems; ++iElem)
+        {
+          elemNodes[0 + iElem*(m_section.elemNodeCount+1)] = type;
+          for (int iNode=0; iNode<m_section.elemNodeCount; ++iNode)
+          {
+            elemNodes[1+iNode+ iElem*(m_section.elemNodeCount+1)] = connectivity_table[iElem][iNode]+1;
+          }
+        }
+        
+        CALL_CGNS(cg_elements_partial_write(m_file.idx,m_base.idx,m_zone.idx,m_section.idx,m_section.elemStartIdx,m_section.elemEndIdx,elemNodes));
+        
+        delete_ptr(elemNodes);
+      }
       break;
     }
     default:

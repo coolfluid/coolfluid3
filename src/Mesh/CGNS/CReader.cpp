@@ -294,9 +294,15 @@ void CReader::read_coordinates_unstructured(CRegion& parent_region)
     buffer.add_row_directly(row);
   }
 
-  delete_ptr(xCoord);
-  delete_ptr(yCoord);
-  delete_ptr(zCoord);
+  switch (m_zone.coord_dim)
+  {
+    case 3:
+      delete_ptr(zCoord);
+    case 2:
+      delete_ptr(yCoord);
+    case 1:
+      delete_ptr(xCoord);
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -633,7 +639,6 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
       if (m_zone.type != Unstructured)
         throw NotSupported(FromHere(),"CGNS: Boundary with pointset_type \"ElementRange\" is only supported for Unstructured grids");      
 
-      CFinfo << "ElementRange" << CFendl;
       // First do some simple checks to see if an entire region can be taken as a BC.
       CElements::Ptr first_elements = m_global_to_region[boco_elems[0]-1].first;
       CElements::Ptr last_elements = m_global_to_region[boco_elems[1]-1].first;
@@ -642,8 +647,6 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
         CRegion::Ptr group_region = first_elements->get_parent()->get_type<CRegion>();
         if (group_region->recursive_elements_count() == Uint(boco_elems[1]-boco_elems[0]+1))
         {
-          CFinfo << "\n\n\n\n\n " << CFendl;
-          CFinfo << "This BC \"" << m_boco.name << "\" is available already as a region \"" << group_region->name() << "\"" << CFendl;
           group_region->rename(m_boco.name);
           break;
         }
@@ -681,9 +684,6 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
     {
       if (m_zone.type != Unstructured)
         throw NotSupported(FromHere(),"CGNS: Boundary with pointset_type \"ElementList\" is only supported for Unstructured grids");
-
-      CFinfo << "ElementList" << CFendl;
-
       
       // First do some simple checks to see if an entire region can be taken as a BC.
       CElements::Ptr first_elements = m_global_to_region[boco_elems[0]-1].first;
@@ -693,8 +693,6 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
         CRegion::Ptr group_region = first_elements->get_parent()->get_type<CRegion>();
         if (group_region->recursive_elements_count() == Uint(boco_elems[m_boco.nBC_elem-1]-boco_elems[0]+1))
         {
-          CFinfo << "\n\n\n\n\n " << CFendl;
-          CFinfo << "This BC \"" << m_boco.name << "\" is available already as a region \"" << group_region->name() << "\"" << CFendl;
           group_region->rename(m_boco.name);
           break;
         }
