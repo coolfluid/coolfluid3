@@ -9,6 +9,7 @@
 #include "Common/NonInstantiable.hpp"
 #include "Common/StringOps.hpp"
 #include "Common/BasicExceptions.hpp"
+#include "Common/OptionArray.hpp"
 
 namespace CF {
 namespace Common {
@@ -94,6 +95,10 @@ namespace Common {
     static const char * tag_node_frame ();
     /// the xml attribute name used for the key
     static const char * tag_attr_key ();
+    /// the xml attribute name used for the type (array options)
+    static const char * tag_attr_type ();
+    /// the xml attribute name used for the size (array options)
+    static const char * tag_attr_size ();
     /// the xml attribute name used for the description
     static const char * tag_attr_descr ();
     /// the xml attribute name used for the sender UUID

@@ -496,9 +496,7 @@ void Component::list_options ( XmlNode& node )
   {
     Option::Ptr opt = it->second;
 
-    CFinfo << opt->value().type().name() << CFendl;
-
-//    if(std::strcmp(opt->tag(), "array") != 0)
+    if(std::strcmp(opt->tag(), "array") != 0)
     {
       XmlNode& value_node = *XmlOps::add_node_to(node, "value");
 
@@ -509,23 +507,61 @@ void Component::list_options ( XmlNode& node )
       // set option value
       XmlOps::add_node_to(value_node, opt->type(), opt->value_str());
     }
-//    else
-//    {
-//      boost::shared_ptr<OptionArray> optArray;
-////      XmlNode& array_node = *XmlOps::add_node_to(node, "array");
+    else
+    {
+      boost::shared_ptr<OptionArray> optArray;
+      XmlParams p(*node.parent());
 
-//      optArray = boost::dynamic_pointer_cast<OptionArray>(opt);
+      optArray = boost::dynamic_pointer_cast<OptionArray>(opt);
 
-//      // set key (option name), type and size attribute (description)
-////      XmlOps::add_attribute_to(array_node, XmlParams::tag_attr_key(), it->first);
-////      XmlOps::add_attribute_to(array_node, XmlParams::tag_attr_type(), optArray->type_tag());
-////      XmlOps::add_attribute_to(array_node, XmlParams::tag_attr_size(), optArray:: >description());
+      const char * elem_type = optArray->elem_type();
 
-//      XmlParams p(node);
+      if(strcmp(elem_type, "string") == 0)
+      {
+        boost::shared_ptr<OptionArrayT<std::string> > array;
+        array = boost::dynamic_pointer_cast< OptionArrayT<std::string> >(optArray);
 
-//      p.add_array();
+        std::vector<std::string> vect = array->value< std::vector<std::string> >();
+        p.add_array(it->first, vect);
+      }
+      else if(strcmp(elem_type, "bool") == 0)
+      {
+        boost::shared_ptr<OptionArrayT<bool> > array;
+        array = boost::dynamic_pointer_cast< OptionArrayT<bool> >(optArray);
 
-//    }
+        std::vector<bool> vect = array->value< std::vector<bool> >();
+        p.add_array(it->first, vect);
+      }
+      else if(strcmp(elem_type, "integer") == 0)
+      {
+        boost::shared_ptr<OptionArrayT<int> > array;
+        array = boost::dynamic_pointer_cast< OptionArrayT<int> >(optArray);
+
+        std::vector<int> vect = array->value< std::vector<int> >();
+        p.add_array(it->first, vect);
+      }
+      else if(strcmp(elem_type, "unsigned") == 0)
+      {
+        boost::shared_ptr<OptionArrayT<unsigned int> > array;
+        array = boost::dynamic_pointer_cast< OptionArrayT<unsigned int> >(optArray);
+
+        std::vector<unsigned int> vect = array->value< std::vector<unsigned int> >();
+        p.add_array(it->first, vect);
+      }
+      else if(strcmp(elem_type, "real") == 0)
+      {
+        boost::shared_ptr<OptionArrayT<CF::Real> > array;
+        array = boost::dynamic_pointer_cast< OptionArrayT<CF::Real> >(optArray);
+
+        std::vector<CF::Real> vect = array->value< std::vector<CF::Real> >();
+        p.add_array(it->first, vect);
+      }
+      else
+        throw ShouldNotBeHere(FromHere(),
+             std::string("Don't know how the manage OptionArrayT<") +
+                  elem_type + ">.");
+
+    }
   }
 }
 

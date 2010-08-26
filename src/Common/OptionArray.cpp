@@ -4,20 +4,30 @@ namespace CF {
 namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
+
+  OptionArray::OptionArray(const std::string& name, const std::string& type,
+                           const std::string& desc, const boost::any def) :
+      Option(name,type, desc, def)
+  {
+
+  }
+
+
+////////////////////////////////////////////////////////////////////////////////
   template<>
-  const char * OptionArray<bool>::type_tag() const { return "bool"; }
+  const char * OptionArrayT<bool>::elem_type() const { return "bool"; }
 
   template<>
-  const char * OptionArray<int>::type_tag() const { return "integer"; };
+  const char * OptionArrayT<int>::elem_type() const { return "integer"; };
 
   template<>
-  const char * OptionArray<CF::Uint>::type_tag() const { return "unsigned"; }
+  const char * OptionArrayT<CF::Uint>::elem_type() const { return "unsigned"; }
 
   template<>
-  const char * OptionArray<CF::Real>::type_tag() const { return "real"; }
+  const char * OptionArrayT<CF::Real>::elem_type() const { return "real"; }
 
   template<>
-  const char * OptionArray<std::string>::type_tag() const { return "string"; }
+  const char * OptionArrayT<std::string>::elem_type() const { return "string"; }
 
 ////////////////////////////////////////////////////////////////////////////////
 

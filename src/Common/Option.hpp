@@ -106,7 +106,7 @@ namespace Common {
 
     /// @returns the value of the option casted to TYPE
     template < typename TYPE >
-        TYPE value() const { return boost::any_cast<TYPE>(m_value); }
+        TYPE value() const { return boost::any_cast< TYPE >(m_value); }
     /// @returns the default value of the option casted to TYPE
     template < typename TYPE >
         TYPE def() const { return boost::any_cast<TYPE>(m_default); }
@@ -145,6 +145,9 @@ namespace Common {
     ProcStorage_t m_processors;
     /// parameters that also get updated when option is changed
     std::vector< void* > m_linked_params;
+
+    template< typename TYPE>
+    const char * type_to_str() const;
 
   }; // Option
 

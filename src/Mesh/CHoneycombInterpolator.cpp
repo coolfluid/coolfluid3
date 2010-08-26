@@ -46,7 +46,7 @@ void CHoneycombInterpolator::defineConfigOptions ( CF::Common::OptionList& optio
     1 );
   
   std::vector<Uint> dummy;
-  options.add< OptionArray<Uint> >
+  options.add< OptionArrayT<Uint> >
   ( "Divisions",
     "The number of divisions in each direction of the comb. Takes precedence over \"ApproximateNbElementsPerCell\". " ,
     dummy);   

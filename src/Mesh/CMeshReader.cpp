@@ -32,7 +32,7 @@ CMeshReader::~CMeshReader()
 void CMeshReader::defineConfigOptions(Common::OptionList& options)
 {
   std::vector<std::string> dummy;
-  options.add< OptionArray<std::string> >  ( "Files",  "Files to read" , dummy );
+  options.add< OptionArrayT<std::string> >  ( "Files",  "Files to read" , dummy );
   options.add< OptionT<std::string> >  ( "Mesh",  "Mesh to construct" , "" );
 }
 

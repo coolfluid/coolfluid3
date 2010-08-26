@@ -32,6 +32,22 @@ namespace Common {
         process();
   }
 
+  template<>
+  Common_API const char * Option::type_to_str<bool>() const { return "bool"; }
+
+  template<>
+  Common_API const char * Option::type_to_str<int>() const { return "integer"; };
+
+  template<>
+  Common_API const char * Option::type_to_str<CF::Uint>() const { return "unsigned"; }
+
+  template<>
+  Common_API const char * Option::type_to_str<CF::Real>() const { return "real"; }
+
+  template<>
+  Common_API const char * Option::type_to_str<std::string>() const { return "string"; }
+
+
 /////////////////////////////////////////////////////////////////////////////////////
 
 } // Common

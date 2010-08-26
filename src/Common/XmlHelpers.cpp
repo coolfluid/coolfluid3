@@ -76,6 +76,10 @@ namespace Common {
 
   const char * XmlParams::tag_attr_key()    { return "key"; }
 
+  const char * XmlParams::tag_attr_type()    { return "type"; }
+
+  const char * XmlParams::tag_attr_size()    { return "size"; }
+
   const char * XmlParams::tag_attr_descr()    { return "descr"; }
 
   const char * XmlParams::tag_attr_clientid()    { return "clientid"; }

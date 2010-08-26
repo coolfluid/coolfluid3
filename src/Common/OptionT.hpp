@@ -60,7 +60,7 @@ namespace Common {
 
   template < typename TYPE>
   OptionT<TYPE>::OptionT ( const std::string& name, const std::string& desc, value_type def ) :
-      Option(name,DEMANGLED_TYPEID(value_type), desc, def)
+      Option(name, type_to_str<TYPE>(), desc, def)
   {
 //    CFinfo
 //        << " creating OptionT [" << m_name << "]"

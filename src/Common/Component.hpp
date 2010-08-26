@@ -18,9 +18,12 @@
 #include "Common/ComponentIterator.hpp"
 #include "Common/PropertyList.hpp"
 #include "Common/XML.hpp"
+#include "Common/OptionArray.hpp"
 
 namespace CF {
 namespace Common {
+
+  class XmlParams;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -183,13 +186,13 @@ public: // functions
   Ptr look_component ( const CPath& path );
 
   template < typename T >
-    typename T::ConstPtr look_component_type ( const CPath& path ) const 
+    typename T::ConstPtr look_component_type ( const CPath& path ) const
   {
     return boost::dynamic_pointer_cast<T const>(look_component(path));
   }
-    
+
   template < typename T >
-  typename T::Ptr look_component_type ( const CPath& path ) 
+  typename T::Ptr look_component_type ( const CPath& path )
   {
     return boost::dynamic_pointer_cast<T>(look_component(path));
   }
@@ -209,13 +212,13 @@ public: // functions
   /// Get the named child from the direct subcomponents automatically cast to the specified type
   template < typename T >
       typename T::ConstPtr get_child_type ( const CName& name ) const ;
-    
+
   template < typename T >
     typename T::Ptr get_type();
-    
+
   template < typename T >
     typename T::ConstPtr get_type() const;
-    
+
   /// Modify the parent of this component
   void change_parent ( Ptr new_parent );
 
@@ -355,7 +358,7 @@ inline typename T::ConstPtr Component::get_child_type(const CName& name) const
     return boost::dynamic_pointer_cast<T const>(found->second);
   return boost::dynamic_pointer_cast<T const>(ConstPtr());
 }
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename T >

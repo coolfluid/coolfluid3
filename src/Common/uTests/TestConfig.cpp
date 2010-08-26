@@ -52,12 +52,12 @@ class MyC : public ConfigObject {
     // vector of POD's
     std::vector<int> def;
     def += 1,2,3,4,5,6,7,8,9; /* uses boost::assign */
-    options.add< OptionArray< int >  >  ( "VecInt",  "vector ints option" , def );
+    options.add< OptionArrayT< int >  >  ( "VecInt",  "vector ints option" , def );
 
     // vector of POD's
     std::vector< std::string > defs;
     defs += "lolo","koko";     /* uses boost::assign */
-    options.add< OptionArray< std::string >  >   ( "VecStr",  "vector strs option" , defs );
+    options.add< OptionArrayT< std::string >  >   ( "VecStr",  "vector strs option" , defs );
 
     // option for componets
     options.add< OptionComponent<Mesh::CMeshReader> >  ( "Reader",  "mesh reader option" , "CGNS" );
