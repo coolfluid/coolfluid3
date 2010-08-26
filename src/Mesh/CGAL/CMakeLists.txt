@@ -29,11 +29,11 @@ if( CF_HAVE_CGAL )
     # to avoid enormous compilation times and memory usage
     if(CF_STRIP_CGAL_COMPILE_FLAGS)
       set(CF_CGAL_COMPILE_FLAGS "${CF_CGAL_COMPILE_FLAGS} -g0 -O0")
-    endif()
+    endif(CF_STRIP_CGAL_COMPILE_FLAGS)
 
-   endif()
-
-  SET_SOURCE_FILES_PROPERTIES(ImplicitFunctionMesh.cpp PROPERTIES COMPILE_FLAGS ${CF_CGAL_COMPILE_FLAGS})
+    SET_SOURCE_FILES_PROPERTIES(ImplicitFunctionMesh.cpp PROPERTIES COMPILE_FLAGS ${CF_CGAL_COMPILE_FLAGS})
+  
+  endif( CMAKE_COMPILER_IS_GNUCC )
 
 add_subdirectory( uTests )
 
