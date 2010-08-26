@@ -62,6 +62,33 @@ struct ProfiledFixture :
   const CMesh& grid2D;
 };
 
+/// Print out the connectivity information
+void print_connectivity(const Component& root, const bool print_empty = true)
+{
+  BOOST_FOREACH(const CFaceConnectivity& face_connectivity, recursive_range_typed<CFaceConnectivity>(root))
+  {
+    CFinfo << "------------------------- Connectivity for " << face_connectivity.get_parent()->path().string() << "/" << face_connectivity.get_parent()->name() << " -------------------------" << CFendl;
+    CElements::ConstPtr celements = boost::dynamic_pointer_cast<CElements const>(face_connectivity.get_parent());
+    const Uint nb_elements = celements->connectivity_table().table().size();
+    const Uint nb_faces = celements->element_type().nb_faces();
+    for(Uint elem = 0; elem != nb_elements; ++elem)
+    {
+      for(Uint face = 0; face != nb_faces; ++face)
+      {
+        if(face_connectivity.has_adjacent_element(elem, face))
+        {
+          CFaceConnectivity::ElementReferenceT connected = face_connectivity.adjacent_element(elem, face);
+          CFinfo << "Face " << face << " of element " << elem << " is connected to face " << face_connectivity.adjacent_face(elem, face) << " of element " << connected.second << " of CElements " << connected.first->path().string() << "/" << connected.first->name() << CFendl;
+        }
+        else if(print_empty)
+        {
+          CFinfo << "Face " << face << " of element " << elem << " has no neighbour" << CFendl;
+        }
+      }
+    }
+  }
+}
+
 //////////////////////////////////////////////////////////////////////////////
 
 BOOST_GLOBAL_FIXTURE( MeshSource )
@@ -74,8 +101,8 @@ BOOST_AUTO_TEST_SUITE( ConnectivityDataSuite )
 
 BOOST_FIXTURE_TEST_CASE( CreateElementVector, NeuFixture )
 {
-  ElementsT celements_vector;
-  IndicesT celements_first_elements;
+  CFaceConnectivity::ElementsT celements_vector;
+  CFaceConnectivity::IndicesT celements_first_elements;
   create_celements_vector(recursive_range_typed<CElements>(*mesh2d), celements_vector, celements_first_elements);
   
   for(Uint i = 0; i != celements_vector.size(); ++i)
@@ -87,14 +114,14 @@ BOOST_FIXTURE_TEST_CASE( CreateElementVector, NeuFixture )
 
 BOOST_FIXTURE_TEST_CASE( CreateNodeElementLink, NeuFixture )
 {
-  ElementsT celements_vector;
-  IndicesT celements_first_elements;
+  CFaceConnectivity::ElementsT celements_vector;
+  CFaceConnectivity::IndicesT celements_first_elements;
   create_celements_vector(recursive_filtered_range_typed<CElements>(*mesh2d, IsElementsVolume()), celements_vector, celements_first_elements);
   const CArray& coordinates = recursive_get_named_component_typed<CArray>(*mesh2d, "coordinates");
-  IndicesT node_first_elements;
-  CountsT node_element_counts;
-  IndicesT node_elements;
-  create_node_element_link(coordinates.array().size(), celements_vector, celements_first_elements, node_first_elements, node_element_counts, node_elements);
+  CFaceConnectivity::IndicesT node_first_elements;
+  CFaceConnectivity::CountsT node_element_counts;
+  CFaceConnectivity::IndicesT node_elements;
+  create_node_element_connectivity(coordinates.array().size(), celements_vector, celements_first_elements, node_first_elements, node_element_counts, node_elements);
   
   for(Uint i = 0; i != node_first_elements.size(); ++i)
   {
@@ -112,7 +139,7 @@ BOOST_FIXTURE_TEST_CASE( CreateNodeElementLink, NeuFixture )
     CFinfo << "(" << node_elements[i] << ")";
   CFinfo << CFendl;
   
-  IndicesT reference = boost::assign::list_of(0)(1)(0)(1)(1)(4)(5)(0)(3)(0)(1)(2)(3)(5)(2)(3)(10)(11)(4)(6)(7)(2)(4)(5)(6)(10)(15)(11)(12)(7)(8)(12)(13)(9)(13)(14)(8)(9)(6)(7)(8)(9)(14)(15)(10)(11)(12)(13)(14)(15);
+  CFaceConnectivity::IndicesT reference = boost::assign::list_of(0)(1)(0)(1)(1)(4)(5)(0)(3)(0)(1)(2)(3)(5)(2)(3)(10)(11)(4)(6)(7)(2)(4)(5)(6)(10)(15)(11)(12)(7)(8)(12)(13)(9)(13)(14)(8)(9)(6)(7)(8)(9)(14)(15)(10)(11)(12)(13)(14)(15);
   Accumulator accumulator;
   vector_test(node_elements, reference, accumulator);
   BOOST_CHECK_EQUAL(boost::accumulators::min(accumulator.exact), true);
@@ -121,50 +148,46 @@ BOOST_FIXTURE_TEST_CASE( CreateNodeElementLink, NeuFixture )
 BOOST_FIXTURE_TEST_CASE( CreateFaceConnectivity, NeuFixture )
 {
   // Vector of the elements that are concerned
-  ElementsT celements_vector;
-  IndicesT celements_first_elements;
+  CFaceConnectivity::ElementsT celements_vector;
+  CFaceConnectivity::IndicesT celements_first_elements;
   create_celements_vector(recursive_filtered_range_typed<CElements>(*mesh2d, IsElementsVolume()), celements_vector, celements_first_elements);
   
   // Get the coordinates array
   const CArray& coordinates = recursive_get_named_component_typed<CArray>(*mesh2d, "coordinates");
   
   // Link nodes to the elements
-  IndicesT node_first_elements;
-  CountsT node_element_counts;
-  IndicesT node_elements;
-  create_node_element_link(coordinates.array().size(), celements_vector, celements_first_elements, node_first_elements, node_element_counts, node_elements);
+  CFaceConnectivity::IndicesT node_first_elements;
+  CFaceConnectivity::CountsT node_element_counts;
+  CFaceConnectivity::IndicesT node_elements;
+  create_node_element_connectivity(coordinates.array().size(), celements_vector, celements_first_elements, node_first_elements, node_element_counts, node_elements);
   
-  // Create the face connectivity data
-  IndicesT celements_first_faces;
-  BoolsT face_has_neighbour;
-  IndicesT face_element_connectivity;
-  create_face_element_connectivity(celements_vector, celements_first_elements, node_first_elements, node_element_counts, node_elements, celements_first_faces, face_has_neighbour, face_element_connectivity);
+  // Create the face connectivity data for the last CElements
+  CFaceConnectivity::BoolsT face_has_neighbour;
+  CFaceConnectivity::IndicesT face_element_connectivity;
+  create_face_element_connectivity(*celements_vector.back(), celements_vector, celements_first_elements, node_first_elements, node_element_counts, node_elements, face_has_neighbour, face_element_connectivity);
   
   // Face-face connectivity
-  IndicesT face_face_connectivity;
-  create_face_face_connectivity(celements_vector, celements_first_elements, celements_first_faces, face_has_neighbour, face_element_connectivity, face_face_connectivity);
+  CFaceConnectivity::IndicesT face_face_connectivity;
+  create_face_face_connectivity(*celements_vector.back(), celements_vector, celements_first_elements, face_has_neighbour, face_element_connectivity, face_face_connectivity);
   
   // Output data
-  for(Uint celement_idx = 0; celement_idx != celements_vector.size(); ++celement_idx)
+  const CElements& elements = *celements_vector.back();
+  for(Uint element_idx = 0; element_idx != elements.connectivity_table().table().size(); ++element_idx)
   {
-    const CElements& elements = *celements_vector[celement_idx];
-    for(Uint element_idx = 0; element_idx != elements.connectivity_table().table().size(); ++element_idx)
+    const Uint nb_faces = elements.element_type().nb_faces();
+    for(Uint face_idx = 0; face_idx != nb_faces; ++face_idx)
     {
-      const Uint nb_faces = elements.element_type().nb_faces();
-      for(Uint face_idx = 0; face_idx != nb_faces; ++face_idx)
+      const Uint global_face_idx = element_idx*nb_faces + face_idx;
+      if(face_has_neighbour[global_face_idx]) // face has a neighbour
       {
-        const Uint global_face_idx = celements_first_faces[celement_idx] + element_idx*nb_faces + face_idx;
-        if(face_has_neighbour[global_face_idx]) // face has a neighbour
-        {
-          const Uint neighbour_global_idx = face_element_connectivity[global_face_idx];
-          const Uint neighbour_celement_idx = std::upper_bound(celements_first_elements.begin(), celements_first_elements.end(), neighbour_global_idx) - 1 - celements_first_elements.begin();
-          const Uint neighbour_local_idx = neighbour_global_idx - celements_first_elements[neighbour_celement_idx];
-          CFinfo << "Face " << face_idx << " of element (" << celement_idx << ", " << element_idx << ") is connected to face " << face_face_connectivity[global_face_idx] << " of element (" << neighbour_celement_idx << ", " << neighbour_local_idx << ")" << CFendl;
-        }
-        else // no neighbour for this face
-        {
-          CFinfo << "Face " << face_idx << " of element (" << celement_idx << ", " << element_idx << ") has no neighbour" << CFendl;
-        }
+        const Uint neighbour_global_idx = face_element_connectivity[global_face_idx];
+        const Uint neighbour_celement_idx = std::upper_bound(celements_first_elements.begin(), celements_first_elements.end(), neighbour_global_idx) - 1 - celements_first_elements.begin();
+        const Uint neighbour_local_idx = neighbour_global_idx - celements_first_elements[neighbour_celement_idx];
+        CFinfo << "Face " << face_idx << " of element " << element_idx << " is connected to face " << face_face_connectivity[global_face_idx] << " of element (" << neighbour_celement_idx << ", " << neighbour_local_idx << ")" << CFendl;
+      }
+      else // no neighbour for this face
+      {
+        CFinfo << "Face " << face_idx << " of element " << element_idx << " has no neighbour" << CFendl;
       }
     }
   }
@@ -174,7 +197,7 @@ BOOST_FIXTURE_TEST_CASE( CreateFaceConnectivity, NeuFixture )
   CFinfo << CFendl;
   
   // Check result
-  IndicesT reference = boost::assign::list_of(0)(0)(1)(3)(0)(0)(0)(5)(5)(10)(3)(2)(0)(0)(0)(6)(5)(4)(2)(1)(15)(4)(7)(8)(6)(0)(9)(7)(0)(14)(8)(0)(11)(2)(15)(0)(10)(12)(0)(11)(13)(0)(12)(14)(9)(13)(15)(10)(6)(14);
+  CFaceConnectivity::IndicesT reference = boost::assign::list_of(15)(4)(7)(8)(6)(0)(9)(7)(0)(14)(8)(0)(11)(2)(15)(0)(10)(12)(0)(11)(13)(0)(12)(14)(9)(13)(15)(10)(6)(14);
   Accumulator accumulator;
   vector_test(face_element_connectivity, reference, accumulator);
   BOOST_CHECK_EQUAL(boost::accumulators::min(accumulator.exact), true);
@@ -183,28 +206,90 @@ BOOST_FIXTURE_TEST_CASE( CreateFaceConnectivity, NeuFixture )
 BOOST_FIXTURE_TEST_CASE( ProfileFaceConnectivity, ProfiledFixture )
 {
   // Vector of the elements that are concerned
-  ElementsT celements_vector;
-  IndicesT celements_first_elements;
+  CFaceConnectivity::ElementsT celements_vector;
+  CFaceConnectivity::IndicesT celements_first_elements;
   create_celements_vector(recursive_filtered_range_typed<CElements>(grid2D, IsElementsVolume()), celements_vector, celements_first_elements);
   
   // Get the coordinates array
   const CArray& coordinates = recursive_get_named_component_typed<CArray>(grid2D, "coordinates");
   
   // Link nodes to the elements
-  IndicesT node_first_elements;
-  CountsT node_element_counts;
-  IndicesT node_elements;
-  create_node_element_link(coordinates.array().size(), celements_vector, celements_first_elements, node_first_elements, node_element_counts, node_elements);
+  CFaceConnectivity::IndicesT node_first_elements;
+  CFaceConnectivity::CountsT node_element_counts;
+  CFaceConnectivity::IndicesT node_elements;
+  create_node_element_connectivity(coordinates.array().size(), celements_vector, celements_first_elements, node_first_elements, node_element_counts, node_elements);
   
   // Create the face connectivity data
-  IndicesT celements_first_faces;
-  BoolsT face_has_neighbour;
-  IndicesT face_element_connectivity;
-  create_face_element_connectivity(celements_vector, celements_first_elements, node_first_elements, node_element_counts, node_elements, celements_first_faces, face_has_neighbour, face_element_connectivity);
+  CFaceConnectivity::BoolsT face_has_neighbour;
+  CFaceConnectivity::IndicesT face_element_connectivity;
+  create_face_element_connectivity(*celements_vector.back(), celements_vector, celements_first_elements, node_first_elements, node_element_counts, node_elements, face_has_neighbour, face_element_connectivity);
   
   // Face-face connectivity
-  IndicesT face_face_connectivity;
-  create_face_face_connectivity(celements_vector, celements_first_elements, celements_first_faces, face_has_neighbour, face_element_connectivity, face_face_connectivity);
+  CFaceConnectivity::IndicesT face_face_connectivity;
+  create_face_face_connectivity(*celements_vector.back(), celements_vector, celements_first_elements, face_has_neighbour, face_element_connectivity, face_face_connectivity);
+  
+  BOOST_CHECK_EQUAL(face_has_neighbour[3], false);
+  BOOST_CHECK_EQUAL(face_has_neighbour[1], true);
+  BOOST_CHECK_EQUAL(face_element_connectivity[1], 1);
+  BOOST_CHECK_EQUAL(face_element_connectivity[7], 0);
+}
+
+/// Internal connectivity between all volume cells of the mesh
+BOOST_FIXTURE_TEST_CASE( CreateVolumeToVolumeConnectivity, NeuFixture )
+{
+  // Total number of nodes in the mesh
+  const Uint nb_nodes = recursive_get_named_component_typed<CArray>(*mesh2d, "coordinates").array().size();
+  
+  // Add node connectivity data at the mesh level
+  CNodeConnectivity::Ptr node_connectivity = mesh2d->create_component_type<CNodeConnectivity>("node_connectivity");
+  node_connectivity->initialize(nb_nodes, recursive_filtered_range_typed<CElements>(*mesh2d, IsElementsVolume()));
+  
+  // Add face connectivity data for each CElements. Note that we can choose any CElements here, we don't have to do this
+  // for the same set as used in node_connectivity
+  BOOST_FOREACH(CElements& celements, recursive_filtered_range_typed<CElements>(*mesh2d, IsElementsVolume()))
+  {
+    celements.create_component_type<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
+  }
+  
+  print_connectivity(*mesh2d);
+}
+
+/// For all surface elements, look up their adjacent volume element
+BOOST_FIXTURE_TEST_CASE( CreateSurfaceToVolumeConnectivity, NeuFixture )
+{
+  // Total number of nodes in the mesh
+  const Uint nb_nodes = recursive_get_named_component_typed<CArray>(*mesh2d, "coordinates").array().size();
+  
+  // Add node connectivity data at the mesh level
+  CNodeConnectivity::Ptr node_connectivity = mesh2d->create_component_type<CNodeConnectivity>("node_connectivity");
+  node_connectivity->initialize(nb_nodes, recursive_filtered_range_typed<CElements>(*mesh2d, IsElementsVolume()));
+  
+  // Add face connectivity data for surface elements
+  BOOST_FOREACH(CElements& celements, recursive_filtered_range_typed<CElements>(*mesh2d, IsElementsSurface()))
+  {
+    celements.create_component_type<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
+  }
+  
+  print_connectivity(*mesh2d);
+}
+
+/// For all volume elements, look up their adjacent surface element, if any
+BOOST_FIXTURE_TEST_CASE( CreateVolumeToSurfaceConnectivity, NeuFixture )
+{
+  // Total number of nodes in the mesh
+  const Uint nb_nodes = recursive_get_named_component_typed<CArray>(*mesh2d, "coordinates").array().size();
+  
+  // Add node connectivity data at the mesh level, for surface elements only
+  CNodeConnectivity::Ptr node_connectivity = mesh2d->create_component_type<CNodeConnectivity>("node_connectivity");
+  node_connectivity->initialize(nb_nodes, recursive_filtered_range_typed<CElements>(*mesh2d, IsElementsSurface()));
+  
+  // Add face connectivity data for volume elements
+  BOOST_FOREACH(CElements& celements, recursive_filtered_range_typed<CElements>(*mesh2d, IsElementsVolume()))
+  {
+    celements.create_component_type<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
+  }
+  
+  print_connectivity(*mesh2d, false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -35,6 +35,12 @@ Real Quad3DLagrangeP1::computeVolume(const NodesT& coord) const
 const ElementType::FaceConnectivity& Quad3DLagrangeP1::face_connectivity() const
 {
   static FaceConnectivity connectivity;
+  if(connectivity.face_first_nodes.empty())
+  {
+    connectivity.face_first_nodes = boost::assign::list_of(0);
+    connectivity.face_node_counts.assign(1, 4);
+    connectivity.face_nodes = boost::assign::list_of(0)(1)(2)(3);
+  }
   return connectivity;
 }
 

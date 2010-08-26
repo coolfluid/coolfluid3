@@ -35,6 +35,12 @@ Real Line2DLagrangeP1::computeVolume(const NodesT& coord) const
 const CF::Mesh::ElementType::FaceConnectivity& Line2DLagrangeP1::face_connectivity() const
 {
   static FaceConnectivity connectivity;
+  if(connectivity.face_first_nodes.empty())
+  {
+    connectivity.face_first_nodes = boost::assign::list_of(0);
+    connectivity.face_node_counts.assign(1, 2);
+    connectivity.face_nodes = boost::assign::list_of(0)(1);
+  }
   return connectivity;
 }
 

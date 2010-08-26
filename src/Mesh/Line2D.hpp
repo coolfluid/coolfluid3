@@ -31,10 +31,10 @@ struct Mesh_API Line2D : public ElementType
   static const GeoShape::Type shape = GeoShape::LINE;
   
   /// @return number of faces
-  static const Uint nb_faces = 0;
+  static const Uint nb_faces = 1;
   
   /// @return number of edges
-  static const Uint nb_edges = 1;
+  static const Uint nb_edges = 2;
   
   /// @return m_dimensionality
   static const Uint dimensionality = DIM_1D;
