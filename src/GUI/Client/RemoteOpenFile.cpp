@@ -60,7 +60,6 @@ ValidationPolicy RemoteOpenFile::isAcceptable(const QStringList & names)
     it++;
   }
 
-
   return validation;
 }
 
@@ -78,10 +77,10 @@ QString RemoteOpenFile::getSelectedFile() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QStringList RemoteOpenFile::getSelectedFileList() const
-{
-  return m_fileList;
-}
+//QStringList RemoteOpenFile::getSelectedFileList() const
+//{
+//  return m_fileList;
+//}
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

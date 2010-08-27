@@ -6,6 +6,8 @@
 #include <QSpinBox>
 #include <QVariant>
 
+#include <QDebug>
+
 #include <stdexcept>
 #include <climits>
 
@@ -20,14 +22,14 @@
 using namespace CF::Common;
 using namespace CF::GUI::Client;
 
-GraphicalOption::GraphicalOption(OptionType::Type type)
+GraphicalOption::GraphicalOption(OptionType::Type type, QWidget * parent)
 {
   switch(type)
   {
     // if type valueWidget is a bool
   case OptionType::TYPE_BOOL:
     {
-      QCheckBox * checkBox = new QCheckBox();
+      QCheckBox * checkBox = new QCheckBox(parent);
       checkBox->setCheckState(Qt::Unchecked);
       m_valueWidget = checkBox;
       break;
@@ -35,14 +37,14 @@ GraphicalOption::GraphicalOption(OptionType::Type type)
 
     // if type valueWidget is a string
   case OptionType::TYPE_STRING:
-    m_valueWidget = new QLineEdit();
+    m_valueWidget = new QLineEdit(parent);
     break;
 
     // if type valueWidget is a double
   case OptionType::TYPE_DOUBLE:
     {
       QDoubleValidator * validator;
-      m_valueWidget = new QLineEdit();
+      m_valueWidget = new QLineEdit(parent);
       validator = new QDoubleValidator(m_valueWidget);
       validator->setNotation(QDoubleValidator::ScientificNotation);
       ((QLineEdit *)m_valueWidget)->setValidator(validator);
@@ -51,30 +53,30 @@ GraphicalOption::GraphicalOption(OptionType::Type type)
 
     // if type valueWidget is an int
   case OptionType::TYPE_INT:
-    m_valueWidget = new QSpinBox();
+    m_valueWidget = new QSpinBox(parent);
     ((QSpinBox *)m_valueWidget)->setRange(INT_MIN, INT_MAX);
     break;
 
     // if type valueWidget is an unsigned int
   case OptionType::TYPE_UNSIGNED_INT:
-    m_valueWidget = new QSpinBox();
+    m_valueWidget = new QSpinBox(parent);
     // INT_MAX (not UINT_MAX) because parameter type is "int" (not "unsigned int")
     ((QSpinBox *)m_valueWidget)->setRange(0, INT_MAX);
     break;
 
     // if type valueWidget is a files list
   case OptionType::TYPE_FILES:
-    m_valueWidget = new FilesPanel(true, QStringList(), true);
+    m_valueWidget = new FilesPanel(true, QStringList(), true, parent);
     break;
 
     // if type valueWidget is a library list
   case OptionType::TYPE_LIBRARIES:
-    m_valueWidget = new LibrariesPanel();
+    m_valueWidget = new LibrariesPanel(parent);
     break;
 
     // if type valueWidget is a string
   case OptionType::TYPE_PATH:
-    m_valueWidget = new QLineEdit();
+    m_valueWidget = new QLineEdit(parent);
     break;
 
 
@@ -87,6 +89,8 @@ GraphicalOption::GraphicalOption(OptionType::Type type)
   }
 
   m_name = new QLabel();
+
+  //m_valueWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
   m_type = type;
 }
@@ -155,7 +159,7 @@ QVariant GraphicalOption::getValue() const
 
     // if type valueWidget is a files list
   case OptionType::TYPE_FILES:
-    value = ((FilesPanel *) m_valueWidget)->getFilesList();
+    value = ((FilesPanel *) m_valueWidget)->getFilesList().join(":");
     break;
 
     // if type valueWidget is a library list
@@ -167,11 +171,6 @@ QVariant GraphicalOption::getValue() const
   case OptionType::TYPE_PATH:
     value = ((QLineEdit *) m_valueWidget)->text();
     break;
-
-      // if type valueWidget is a selectable item list
-//    case OptionType::TYPE_HOST_LIST:
-//      value = ((HostListPanel *) m_valueWidget)->getDocument().toString();
-//      break;
 
   default:
       throw ShouldNotBeHere(FromHere(), "GraphicalOption::getValue()");
@@ -186,8 +185,8 @@ QVariant GraphicalOption::getValue() const
 
 QString GraphicalOption::getValueString() const
 {
-//  if(m_type == TYPE_FILES || m_type == TYPE_LIBRARIES)
-//    return this->getValue().toStringList().join(" ");
+  if(m_type == OptionType::TYPE_FILES /*|| m_type == TYPE_LIBRARIES*/)
+    return this->getValue().toStringList().join(" ");
 
   return this->getValue().toString();
 }
@@ -263,55 +262,21 @@ void GraphicalOption::setValue(const QVariant & newValue)
   case OptionType::TYPE_DOUBLE:
     {
       ((QLineEdit *) m_valueWidget)->setText(newValue.toString());
-      //    double val = 0.0;
-      //
-      //    if(!newValue.toString().isEmpty())
-      //    {
-      //     val = newValue.toDouble(&ok);
-      //
-      //     if(!ok) // if ok is false, the conversion failed
-      //      throw CastingFailed(FromHere(), "Failed to convert to a double");
-      //    }
-      //
-      //    ((QDoubleSpinBox *) this->valueWidget)->setValue(val);
       break;
     }
 
-    // if the valueWidget if a files list
-    //    case OptionType::TYPE_FILES:
-    //      ((FilesPanel *) m_valueWidget)->setFilesList(newValue.toStringList());
-    //      break;
+  // if the valueWidget if a files list
+  case OptionType::TYPE_FILES:
+      ((FilesPanel *) m_valueWidget)->setFilesList(newValue.toString().split(':'));
+      break;
 
-    // if the valueWidget if a library list
-    //    case OptionType::TYPE_LIBRARIES:
-    //      ((LibrariesPanel *) m_valueWidget)->setFilesList(newValue.toStringList());
-    //      break;
-
-    // if type valueWidget is a selectable item list
-    //    case OptionType::TYPE_HOST_LIST:
-    //    {
-    //      QDomDocument doc;
-    //      QString errString;
-    //      QString valueString = newValue.toString();
-    //      HostListPanel * panel = ((HostListPanel *) m_valueWidget);
-    //      QDomNodeList childNodes;
-
-    //      if(!valueString.isEmpty() && !doc.setContent(valueString, false, &errString))
-    //        throw CastingFailed(FromHere(), errString.toStdString());
-
-    //      panel->setItems(doc);
-
-    //      break;
-    //    }
+  // if the valueWidget is a string
+  case OptionType::TYPE_PATH:
+      ((QLineEdit *) m_valueWidget)->setText(newValue.toString());
+      break;
 
   default:
     throw ShouldNotBeHere(FromHere(), "GraphicalOption::setValue()");
-
-    // if the valueWidget is a string
-  case OptionType::TYPE_PATH:
-    ((QLineEdit *) m_valueWidget)->setText(newValue.toString());
-    break;
-
 
   }
 
@@ -326,10 +291,7 @@ void GraphicalOption::setValue(const QVariant & newValue)
 void GraphicalOption::addToLayout(QFormLayout * layout)
 {
   if(layout != CFNULL)
-  {
     layout->addRow(m_name, m_valueWidget);
-    m_valueWidget->showMaximized();
-  }
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -381,8 +343,8 @@ QVariant GraphicalOption::getOrginalValue() const
 
 QString GraphicalOption::getOrginalValueString() const
 {
-//  if(m_type == TYPE_FILES || m_type == TYPE_LIBRARIES)
-//    return this->getOrginalValue().toStringList().join(" ");
+  if(m_type == OptionType::TYPE_FILES /*|| m_type == TYPE_LIBRARIES*/)
+    return this->getOrginalValue().toStringList().join(" ");
 
   return this->getOrginalValue().toString();
 }

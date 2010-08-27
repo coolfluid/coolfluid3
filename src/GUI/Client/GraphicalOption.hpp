@@ -34,7 +34,7 @@ namespace Client {
 
     /// @param type Option type. Must be one of those defined by
     /// <code>OptionType::Type</code> enum.
-    GraphicalOption(OptionType::Type type);
+    GraphicalOption(OptionType::Type type, QWidget * parent = CFNULL);
 
     /// @brief Destructor.
 

@@ -75,7 +75,7 @@ namespace Client {
     /// @return Returns the selected files, or an empty string if the last call
     /// to <code>isAcceptable(const QStringList &)</code> did not return
     /// @c #POLICY_VALID or if this method was never called.
-    virtual QStringList getSelectedFileList() const;
+//    virtual QStringList getSelectedFileList() const;
 
     /// @brief Reinitializes internal data to their default value.
 

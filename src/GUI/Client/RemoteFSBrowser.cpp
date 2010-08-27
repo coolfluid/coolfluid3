@@ -208,6 +208,8 @@ QString RemoteFSBrowser::show(const QString & startingDir)
 
 QStringList RemoteFSBrowser::showMultipleSelect(const QString & startingDir)
 {
+  QStringList list;
+
   if(!this->allowMultipleSelect)
   {
     this->showError("This dialog can not be used to select multiple files");
@@ -235,12 +237,12 @@ QStringList RemoteFSBrowser::showMultipleSelect(const QString & startingDir)
   this->exec();
 
   if(m_okClicked)
-    return this->getSelectedFileList();
+    getSelectedFileList(list);
 
   // restore mouse cursor
   QApplication::restoreOverrideCursor();
 
-  return QStringList();
+  return list;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -395,12 +397,12 @@ void RemoteFSBrowser::assemblePath(QString & part1, const QString & part2) const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QStringList RemoteFSBrowser::getSelectedFileList() const
+void RemoteFSBrowser::getSelectedFileList(QStringList & fileList) const
 {
-  QStringList fileList;
-
   QModelIndexList selectedItems = m_listView->selectionModel()->selectedIndexes();
   QModelIndexList::iterator it = selectedItems.begin();
+
+  fileList.clear();
 
   while(it != selectedItems.end())
   {
@@ -415,8 +417,6 @@ QStringList RemoteFSBrowser::getSelectedFileList() const
 
     it++;
   }
-
-  return fileList;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -468,7 +468,11 @@ void RemoteFSBrowser::btOkClicked()
   } // for "if(!this->multipleSelectAllowed)"
   else // if showMultipleSelect() was called
   {
-    validation = this->isAcceptableList(RemoteFSBrowser::getSelectedFileList());
+    QStringList list;
+
+    RemoteFSBrowser::getSelectedFileList(list);
+
+    validation = this->isAcceptableList(list);
 
     if(validation == POLICY_VALID)
     {
@@ -761,7 +765,6 @@ Signal::return_t RemoteFSBrowser::read_dir(Signal::arg_t & node)
 
   std::vector<std::string> dirs;
   std::vector<std::string> files;
-
 
   m_currentPath = p.get_param<std::string>("dirPath").c_str();
 

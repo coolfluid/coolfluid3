@@ -21,6 +21,18 @@
 
 #include "GUI/Client/CNode.hpp"
 
+#define ADD_ARRAY_TO_XML(type) { \
+std::vector<type> data;\
+boost::shared_ptr<OptionArrayT<type> > array;\
+array = boost::dynamic_pointer_cast<OptionArrayT<type> >(array);\
+        \
+for( ; itList != list.end() ; itList++)\
+  data.push_back(itList->toStdString());\
+  \
+p.add_array(it.key().toStdString(), data);\
+}
+
+
 using namespace CF::Common;
 using namespace CF::GUI::Client;
 
@@ -85,34 +97,79 @@ CNode::Type CNode::getType() const
 void CNode::setOptions(const XmlNode & options)
 {
   // iterate through options
-  XmlNode* node = options.first_node( "value" );
-  for ( ; node != CFNULL ; node = node->next_sibling( "value" ) )
+  XmlNode* node = options.first_node();
+  for ( ; node != CFNULL ; node = node->next_sibling(  ) )
   {
     XmlAttr * keyAttr= node->first_attribute( XmlParams::tag_attr_key() );
     XmlAttr * descrAttr = node->first_attribute( XmlParams::tag_attr_descr() );
 
+    const char * keyVal = keyAttr->value(); // option name
+
     if ( keyAttr != CFNULL )
     {
-      XmlNode * type_node = node->first_node();
-
-      if( type_node != CFNULL)
+      if(std::strcmp(node->name(), "value")  == 0)
       {
-        const char * descrVal = (descrAttr != CFNULL) ? descrAttr->value() : "";
-        const char * keyVal = keyAttr->value(); // option name
-        const char * typeVal = type_node->name(); // type name
+        XmlNode * type_node = node->first_node();
 
-        if(std::strcmp(typeVal, "bool") == 0)
-          addOption<bool>(keyVal, descrVal, *type_node);
-        else if(std::strcmp(typeVal, "int") == 0)
-          addOption<int>(keyVal, descrVal, *type_node);
-        else if(std::strcmp(typeVal, "unsigned") == 0)
-          addOption<CF::Uint>(keyVal, descrVal, *type_node);
-        else if(std::strcmp(typeVal, "double") == 0)
-          addOption<CF::Real>(keyVal, descrVal, *type_node);
-        else if(std::strcmp(typeVal, "string") == 0)
-          addOption<std::string>(keyVal, descrVal, *type_node);
-        else
-          throw ShouldNotBeHere(FromHere(), std::string(typeVal) + ": Unknown type");
+        if( type_node != CFNULL)
+        {
+          const char * descrVal = (descrAttr != CFNULL) ? descrAttr->value() : "";
+          const char * typeVal = type_node->name(); // type name
+
+          if(std::strcmp(typeVal, "bool") == 0)
+            addOption<bool>(keyVal, descrVal, *type_node);
+          else if(std::strcmp(typeVal, "integer") == 0)
+            addOption<int>(keyVal, descrVal, *type_node);
+          else if(std::strcmp(typeVal, "unsigned") == 0)
+            addOption<CF::Uint>(keyVal, descrVal, *type_node);
+          else if(std::strcmp(typeVal, "real") == 0)
+            addOption<CF::Real>(keyVal, descrVal, *type_node);
+          else if(std::strcmp(typeVal, "string") == 0)
+            addOption<std::string>(keyVal, descrVal, *type_node);
+          else
+            throw ShouldNotBeHere(FromHere(), std::string(typeVal) + ": Unknown type");
+        }
+      }
+      else if(std::strcmp(node->name(), "array")  == 0)
+      {
+        XmlParams p(*options.parent());
+
+        XmlAttr * typeAttr= node->first_attribute( XmlParams::tag_attr_type() );
+
+        if( typeAttr != CFNULL)
+        {
+          const char * descrVal = (descrAttr != CFNULL) ? descrAttr->value() : "";
+          const char * typeVal = typeAttr->value(); // element type
+
+          if(std::strcmp(typeVal, "bool") == 0)
+          {
+            std::vector<bool> data = p.get_array<bool>(keyVal);
+            m_option_list.add< OptionArrayT<bool> >(keyVal, descrVal, data);
+          }
+          else if(std::strcmp(typeVal, "integer") == 0)
+          {
+            std::vector<int> data = p.get_array<int>(keyVal);
+            m_option_list.add< OptionArrayT<int> >(keyVal, descrVal, data);
+          }
+          else if(std::strcmp(typeVal, "unsigned") == 0)
+          {
+            std::vector<unsigned int> data = p.get_array<unsigned int>(keyVal);
+            m_option_list.add< OptionArrayT<unsigned int> >(keyVal, descrVal, data);
+          }
+          else if(std::strcmp(typeVal, "real") == 0)
+          {
+            std::vector<CF::Real> data = p.get_array<CF::Real>(keyVal);
+            m_option_list.add< OptionArrayT<CF::Real> >(keyVal, descrVal, data);
+          }
+          else if(std::strcmp(typeVal, "string") == 0)
+          {
+            std::vector<std::string> data = p.get_array<std::string>(keyVal);
+            m_option_list.add< OptionArrayT<std::string> >(keyVal, descrVal, data);
+          }
+          else
+            throw ShouldNotBeHere(FromHere(), std::string(typeVal) + ": Unknown array type");
+        }
+
       }
     }
   }
@@ -156,18 +213,35 @@ void CNode::modifyOptions(const QMap<QString, QString> options)
     {
       Option::Ptr option = m_option_list.getOption(it.key().toStdString());
 
-      if(option->type() == "bool")
-        p.add_param(it.key().toStdString(), QVariant(it.value()).toBool());
-      else if(option->type() == "int")
-        p.add_param(it.key().toStdString(), QVariant(it.value()).toInt());
-      else if(option->type() == "unsigned")
-        p.add_param(it.key().toStdString(), QVariant(it.value()).toUInt());
-      else if(option->type() == "double")
-        p.add_param(it.key().toStdString(), QVariant(it.value()).toDouble());
-      else if(option->type() == "string")
-        p.add_param(it.key().toStdString(), it.value().toStdString());
-      else
-        throw ValueNotFound(FromHere(), std::string(option->type()) + ": Unknown type id");
+      if(option->tag() != "array")
+      {
+        if(option->type() == "bool")
+          p.add_param(it.key().toStdString(), QVariant(it.value()).toBool());
+        else if(option->type() == "integer")
+          p.add_param(it.key().toStdString(), QVariant(it.value()).toInt());
+        else if(option->type() == "unsigned")
+          p.add_param(it.key().toStdString(), QVariant(it.value()).toUInt());
+        else if(option->type() == "real")
+          p.add_param(it.key().toStdString(), QVariant(it.value()).toDouble());
+        else if(option->type() == "string")
+          p.add_param(it.key().toStdString(), it.value().toStdString());
+        else
+          throw ValueNotFound(FromHere(), option->type() + ": Unknown type for option " + option->name() );
+      }
+      else if(option->tag() == "array")
+      {
+        boost::shared_ptr<OptionArray> optArray;
+        QStringList list = it.value().split(":");
+        QStringList::iterator itList = list.begin();
+
+        optArray = boost::dynamic_pointer_cast<OptionArray>(option);
+        const char * elemType = optArray->elem_type();
+
+        if(std::strcmp(elemType, "string") == 0)
+          ADD_ARRAY_TO_XML(std::string)
+        else
+          throw ValueNotFound(FromHere(), std::string(elemType) + ": Unknown type for option array " + option->name());
+      }
     }
 
     if(valid)
@@ -340,15 +414,34 @@ void CNode::getOptions(QList<NodeOption> & options) const
 
     for( ; it != m_option_list.m_options.end() ; it++)
     {
+      bool success = true;
       NodeOption nodeOpt;
+      OptionType::Type optionType = OptionType::Convert::to_enum(it->second->type());
 
       nodeOpt.m_paramAdv= true;
       nodeOpt.m_paramName = it->first.c_str();
       nodeOpt.m_paramValue = it->second->value_str().c_str();
       nodeOpt.m_paramDescr = it->second->description().c_str();
-      nodeOpt.m_paramType = OptionType::Convert::to_enum(it->second->type());
 
-      options.append(nodeOpt);
+      if(optionType != OptionType::INVALID)
+        nodeOpt.m_paramType = OptionType::Convert::to_enum(it->second->type());
+      else
+      {
+        boost::shared_ptr<OptionArray> optArray;
+        optArray = boost::dynamic_pointer_cast<OptionArray>(it->second);
+
+        if(std::strcmp(optArray->elem_type(), "string") == 0)
+          nodeOpt.m_paramType = OptionType::TYPE_FILES;
+        else
+        {
+          success = false;
+          ClientRoot::getLog()->addError(QString("Unable to process %1 option array")
+                                         .arg(optArray->elem_type()));
+        }
+      }
+
+      if(success)
+        options.append(nodeOpt);
     }
   }
 }
@@ -418,3 +511,5 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, CPath> & lin
 
   return rootNode;
 }
+
+#undef ADD_ARRAY_TO_XML

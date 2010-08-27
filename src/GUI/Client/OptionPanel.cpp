@@ -185,7 +185,7 @@ void OptionPanel::setOptions(const QList<NodeOption> & list)
     // create the graphical component
     try
     {
-      graphicalOption = new GraphicalOption(type);
+      graphicalOption = new GraphicalOption(type, this);
       graphicalOption->setName(param.m_paramName);
       graphicalOption->setValue(param.m_paramValue.trimmed());
 

@@ -1,5 +1,9 @@
 #include "Common/Component.hpp"
 
+#include "Common/Log.hpp"
+
+#include "GUI/Server/ServerRoot.hpp"
+
 #include "GUI/Server/ProcessingThread.hpp"
 
 using namespace CF::Common;
@@ -19,7 +23,18 @@ ProcessingThread::ProcessingThread(XmlNode & node, const std::string & target,
 
 void ProcessingThread::run()
 {
-  m_receiver->call_signal(m_target, *m_node.first_node() );
+  try
+  {
+    m_receiver->call_signal(m_target, *m_node.first_node() );
+  }
+  catch(CF::Common::Exception & cfe)
+  {
+    CFerror << cfe.what() << CFendl;
+  }
+  catch(std::exception & stde)
+  {
+    CFerror << stde.what() << CFendl;
+  }
 }
 
 XmlNode & ProcessingThread::getNode() const

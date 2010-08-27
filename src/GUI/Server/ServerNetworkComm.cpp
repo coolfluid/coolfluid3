@@ -373,6 +373,8 @@ void ServerNetworkComm::newData()
 
       in >> frame;
 
+      qDebug() << frame;
+
       m_bytesRecieved += m_blockSize + (int)sizeof(quint32);
 
       boost::shared_ptr<XmlDoc> xmldoc = XmlOps::parse( frame.toStdString() );

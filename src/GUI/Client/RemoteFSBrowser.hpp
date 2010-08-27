@@ -389,7 +389,7 @@ namespace Client {
     /// should reimplement this method.
     /// @return Return the selected file directory, or an empty string if no
     /// item is selected.
-    virtual QStringList getSelectedFileList() const;
+    virtual void getSelectedFileList(QStringList & fileList) const;
 
     /// @brief Allows a subclass to set text on the satus label.
 

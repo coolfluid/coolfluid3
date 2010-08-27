@@ -7,6 +7,8 @@
 #include <QStringListModel>
 #include <QVBoxLayout>
 
+#include <QDebug>
+
 #include "Common/CF.hpp"
 
 #include "GUI/Client/RemoteOpenFile.hpp"
@@ -18,11 +20,11 @@ FilesPanel::FilesPanel(bool includeFiles, const QStringList & extensions,
                        bool includeNoExtension, QWidget * parent)
 : QWidget(parent)
 {
-  //  this->openFileDialog = new RemoteOpenFile();
+  this->openFileDialog = new RemoteOpenFile();
 
   m_btOk = new QPushButton("Ok", this);
   m_labActions = new QLabel("Actions:", this);
-  m_filesListModel = new QStringListModel(this);
+  m_filesListModel = new QStringListModel(QStringList(), this);
   m_filesListView = new QListView(this);
   m_comboActions = new QComboBox(this);
   m_buttonsWidget = new QWidget(this);
@@ -30,9 +32,9 @@ FilesPanel::FilesPanel(bool includeFiles, const QStringList & extensions,
   m_buttonsLayout = new QHBoxLayout();
   m_mainLayout = new QGridLayout(this);
 
-  //  this->openFileDialog->setIncludeFiles(includeFiles);
-  //  this->openFileDialog->setExtensions(extensions);
-  //  this->openFileDialog->setIncludeNoExtension(includeNoExtension);
+  this->openFileDialog->setIncludeFiles(includeFiles);
+  this->openFileDialog->setExtensions(extensions);
+  this->openFileDialog->setIncludeNoExtension(includeNoExtension);
 
   m_comboActionItems[ ITEM_CLEAR_LIST ] = "Clear list";
   m_comboActionItems[ ITEM_CLEAR_SELECTION ] = "Clear selection";
@@ -80,7 +82,7 @@ FilesPanel::~FilesPanel()
   delete m_mainLayout;
   delete m_buttonsLayout;
   delete m_buttonsWidget;
-  //delete this->openFileDialog;
+  delete this->openFileDialog;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -94,27 +96,36 @@ QStringList FilesPanel::getFilesList() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void FilesPanel::setFilesList(const QStringList & filesList)
+void FilesPanel::setFilesList(const QStringList & fileList)
 {
-  m_filesListModel->setStringList(filesList);
+  QStringList files;
+  QStringList::const_iterator it = fileList.begin();
+
+  for( ; it != fileList.end() ; it++)
+    if(!it->isEmpty())
+      files << *it;
+
+  m_filesListModel->setStringList(files);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+#include "GUI/Client/ClientRoot.hpp"
+
 void FilesPanel::addFile()
 {
-  QStringList files;// = this->openFileDialog->showMultipleSelect();
+  QStringList files = this->openFileDialog->showMultipleSelect();
   QStringList currentFilesList = this->getFilesList();
 
   QStringList::iterator it = files.begin();
 
   while(it != files.end())
   {
-    QString filename = *it;
+    QString & filename = *it;
 
     // if the file is not already in the list
-    if(!currentFilesList.contains(filename))
+    if(!filename.isEmpty() && !currentFilesList.contains(filename))
       currentFilesList << filename;
 
     it++;

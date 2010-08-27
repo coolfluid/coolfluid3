@@ -11,9 +11,9 @@ using namespace CF::GUI::Client;
 OptionType::Convert::FwdMap_t OptionType::Convert::all_fwd = boost::assign::map_list_of
 ( OptionType::INVALID,           "INVALID" )
 ( OptionType::TYPE_BOOL,         "bool")
-( OptionType::TYPE_INT,          "int")
+( OptionType::TYPE_INT,          "integer")
 ( OptionType::TYPE_UNSIGNED_INT, "unsigned")
-( OptionType::TYPE_DOUBLE,       "double" )
+( OptionType::TYPE_DOUBLE,       "real" )
 ( OptionType::TYPE_STRING,       "string")
 ( OptionType::TYPE_FILES,        "files")
 ( OptionType::TYPE_LIBRARIES,    "libraries")
@@ -23,14 +23,14 @@ OptionType::Convert::FwdMap_t OptionType::Convert::all_fwd = boost::assign::map_
 OptionType::Convert::BwdMap_t OptionType::Convert::all_rev = boost::assign::map_list_of
 ( "INVALID",   OptionType::INVALID )
 ( "bool",      OptionType::TYPE_BOOL )
-( "int",       OptionType::TYPE_INT)
+( "integer",   OptionType::TYPE_INT)
 ( "unsigned",  OptionType::TYPE_UNSIGNED_INT )
-( "double",    OptionType::TYPE_DOUBLE )
+( "real",      OptionType::TYPE_DOUBLE )
 ( "string",    OptionType::TYPE_STRING )
 ( "files",     OptionType::TYPE_FILES )
 ( "libraries", OptionType::TYPE_LIBRARIES )
 ( "array",     OptionType::TYPE_ARRAY )
-( "path",    OptionType::TYPE_PATH );
+( "path",      OptionType::TYPE_PATH );
 
 ////////////////////////////////////////////////////////////////////////////////
 
