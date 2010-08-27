@@ -29,6 +29,13 @@ CMeshReader::~CMeshReader()
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void CMeshReader::regist_signals ( CMeshReader* self )
+{
+  self->regist_signal ( "read" , "reads a mesh" )->connect ( boost::bind ( &CMeshReader::read, self, _1 ) );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void CMeshReader::defineConfigOptions(Common::OptionList& options)
 {
   std::vector<std::string> dummy;
@@ -75,7 +82,7 @@ CMeshReader::BufferMap
   {
     CElements& etype_region = parent_region.create_elements(etype,coordinates);
     // CFinfo << "create: " << etype_region->full_path().string() << "\n" << CFflush;
-    
+
     buffermap[etype] = boost::shared_ptr<CTable::Buffer> (new CTable::Buffer(etype_region.connectivity_table().create_buffer()));
   }
   return buffermap;
@@ -85,7 +92,7 @@ CMeshReader::BufferMap
 
 void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
 {
-  
+
   BOOST_FOREACH(CElements& region, recursive_range_typed<CElements>(parent_region))
   {
     // find the empty regions
@@ -97,7 +104,7 @@ void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
         removed.reset();
       }
   }
-  
+
   // loop over regions
   BOOST_FOREACH(CRegion& region, recursive_range_typed<CRegion>(parent_region))
   {

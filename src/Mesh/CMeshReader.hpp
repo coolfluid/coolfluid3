@@ -18,7 +18,7 @@ namespace Mesh {
 
   class CMesh;
   class CRegion;
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /// CMeshReader component class
@@ -46,14 +46,14 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "CMeshReader"; }
-  
+
   // --------- Configuration ---------
 
   static void defineConfigOptions ( Common::OptionList& options );
 
   // --------- Signals ---------
 
-  /// @note: This doesn't read anything from the xml node argument. 
+  /// @note: This doesn't read anything from the xml node argument.
   ///        It just reads the config options
   void read( Common::XmlNode& node  );
 
@@ -95,7 +95,7 @@ protected: // functions
 private: // helper functions
 
   /// regists all the signals declared in this class
-  static void regist_signals ( Component* self ) {}
+  static void regist_signals ( CMeshReader* self );
 
 };
 

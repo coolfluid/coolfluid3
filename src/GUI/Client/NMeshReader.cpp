@@ -47,18 +47,11 @@ QString NMeshReader::getToolTip() const
 
 void NMeshReader::readMesh()
 {
-  QString fileName = m_openFile->show();
+  boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
+  XmlOps::add_signal_frame(*XmlOps::goto_doc_node(*doc.get()),
+                           "read", full_path(),
+                           full_path(), false);
 
-  if(!fileName.isEmpty())
-  {
-    boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
-    XmlNode * signal = XmlOps::add_signal_frame(*XmlOps::goto_doc_node(*doc.get()),
-                                                "read", full_path(),
-                                                full_path(), false);
-    XmlParams p(*signal);
-
-    p.add_param("File", fileName.toStdString());
-    ClientRoot::getCore()->sendSignal(*doc);
-  }
+  ClientRoot::getCore()->sendSignal(*doc);
 }
 
