@@ -15,19 +15,19 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
   template<>
-  const char * OptionArrayT<bool>::elem_type() const { return "bool"; }
+  Common_API const char * OptionArrayT<bool>::elem_type() const { return "bool"; }
 
   template<>
-  const char * OptionArrayT<int>::elem_type() const { return "integer"; };
+  Common_API const char * OptionArrayT<int>::elem_type() const { return "integer"; };
 
   template<>
-  const char * OptionArrayT<CF::Uint>::elem_type() const { return "unsigned"; }
+  Common_API const char * OptionArrayT<CF::Uint>::elem_type() const { return "unsigned"; }
 
   template<>
-  const char * OptionArrayT<CF::Real>::elem_type() const { return "real"; }
+  Common_API const char * OptionArrayT<CF::Real>::elem_type() const { return "real"; }
 
   template<>
-  const char * OptionArrayT<std::string>::elem_type() const { return "string"; }
+  Common_API const char * OptionArrayT<std::string>::elem_type() const { return "string"; }
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -155,7 +155,7 @@ const T BufferT<T>::INVALID = std::numeric_limits<T>::max();
 ////////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-BufferT<T>::BufferT (BufferT<T>::Array_t& array, size_t nbRows) :
+BufferT<T>::BufferT (typename BufferT<T>::Array_t& array, size_t nbRows) :
   m_array(array),
   m_nbCols(m_array.shape()[1]),
   m_buffersize(nbRows)

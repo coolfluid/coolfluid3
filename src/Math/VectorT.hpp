@@ -8,6 +8,7 @@
 #include "Math/ExprOp.hpp"
 #include "Math/VectorSliceT.hpp"
 #include "Common/BoostArray.hpp"
+#include "Math/Math.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -42,7 +43,7 @@ namespace CF {
 /// @author Andrea Lani
 /// @author Tiago Quintino
 template < typename T >
-class VectorT : public Expr < VectorT<T>, T > {
+class Math_API VectorT : public Expr < VectorT<T>, T > {
 public:
 
   typedef boost::detail::multi_array::sub_array<T,1> BoostRow;

@@ -25,7 +25,7 @@ Common_API std::string demangle (const char* type);
   /// This struct allows to associate a type to a string. It is a singleton.
   /// @author Tiago Quintino
   /// @author Quentin Gasper
-  struct TypeInfo : public boost::noncopyable
+  struct Common_API TypeInfo : public boost::noncopyable
   {
     /// @return Returns the instance
     static TypeInfo& instance();

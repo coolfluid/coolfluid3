@@ -89,7 +89,7 @@ namespace Common {
   }
 
   template < typename TYPE >
-      void OptionArrayT<TYPE>::change_value ( XmlNode& node )
+   void OptionArrayT<TYPE>::change_value ( XmlNode& node )
   {
     XmlAttr *attr = node.first_attribute( "type" );
 
@@ -125,7 +125,7 @@ namespace Common {
   }
 
   template < typename TYPE >
-      void OptionArrayT<TYPE>::copy_to_linked_params ( const value_type& val )
+   void OptionArrayT<TYPE>::copy_to_linked_params ( const value_type& val )
   {
     BOOST_FOREACH ( void* v, this->m_linked_params )
     {
@@ -135,7 +135,7 @@ namespace Common {
   }
 
   template < typename TYPE >
-      std::string OptionArrayT<TYPE>::value_str () const
+   std::string OptionArrayT<TYPE>::value_str () const
   {
     return dump_to_str(m_value);
   }
@@ -147,7 +147,7 @@ namespace Common {
   }
 
     template < typename TYPE >
-        std::string OptionArrayT<TYPE>::dump_to_str ( const boost::any& c ) const
+     std::string OptionArrayT<TYPE>::dump_to_str ( const boost::any& c ) const
   {
     value_type values = boost::any_cast<value_type>(c);
     std::string result;
