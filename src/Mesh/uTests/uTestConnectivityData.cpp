@@ -230,8 +230,8 @@ BOOST_FIXTURE_TEST_CASE( ProfileFaceConnectivity, ProfiledFixture )
   
   BOOST_CHECK_EQUAL(face_has_neighbour[3], false);
   BOOST_CHECK_EQUAL(face_has_neighbour[1], true);
-  BOOST_CHECK_EQUAL(face_element_connectivity[1], 1);
-  BOOST_CHECK_EQUAL(face_element_connectivity[7], 0);
+  BOOST_CHECK_EQUAL(face_element_connectivity[1], (Uint) 1);
+  BOOST_CHECK_EQUAL(face_element_connectivity[7], (Uint) 0);
 }
 
 /// Internal connectivity between all volume cells of the mesh
@@ -288,8 +288,9 @@ BOOST_FIXTURE_TEST_CASE( CreateVolumeToSurfaceConnectivity, NeuFixture )
   {
     celements.create_component_type<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
   }
-  
+
   print_connectivity(*mesh2d, false);
+  CFinfo << mesh2d->tree() << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

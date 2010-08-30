@@ -248,7 +248,7 @@ void create_face_face_connectivity(const CElements& own_celements, const CFaceCo
   const Uint nb_faces = own_celements.element_type().nb_faces();
   for(Uint element_idx = elements_begin; element_idx != elements_end; ++element_idx)
   {
-    const Uint global_element_idx = global_offset + element_idx;
+    //const Uint global_element_idx = global_offset + element_idx;
     for(Uint face_idx = 0; face_idx != nb_faces; ++face_idx)
     {
       const Uint global_face_idx = nb_faces * element_idx + face_idx;
