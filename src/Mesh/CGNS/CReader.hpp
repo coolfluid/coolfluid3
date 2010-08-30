@@ -49,7 +49,7 @@ public: // functions
 
 private: // functions
   
-  void read_base(CRegion& parent_region);
+  void read_base(CMesh& parent_region);
   void read_zone(CRegion& parent_region);
   void read_coordinates_unstructured(CRegion& parent_region);
   void read_coordinates_structured(CRegion& parent_region);
@@ -77,6 +77,7 @@ private: // data
   
   std::vector<Region_TableIndex_pair> m_global_to_region;
   boost::shared_ptr<CMesh> m_mesh;
+  Uint m_coord_start_idx;
 
 }; // end CReader
 

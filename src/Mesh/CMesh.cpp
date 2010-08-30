@@ -39,6 +39,7 @@ CRegion& CMesh::create_region( const CName& name )
 {
   CRegion::Ptr new_region;
   
+  
   if ( range_typed<CRegion>(*this).empty() )
   {
     new_region = create_component_type<CRegion>(name);
@@ -94,6 +95,21 @@ CRegion& CMesh::create_region( const CName& name )
 
 ////////////////////////////////////////////////////////////////////////////////
 
+CRegion& CMesh::create_domain( const CName& name )
+{
+  CRegion::Ptr new_region = get_child_type<CRegion>(name);
+  if (!new_region)
+  {
+    new_region = create_component_type<CRegion>(name);
+    new_region->add_tag("grid_base");
+    CFdebug << "Mesh created domain " << new_region->full_path().string() << CFendl;    
+  }
+  return *new_region;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+  
+  
 CField& CMesh::create_field( const CName& name , CRegion& support)
 {
   CField& field = *create_component_type<CField>(name);
@@ -106,19 +122,19 @@ CField& CMesh::create_field( const CName& name , CRegion& support)
 
 CField& CMesh::create_field( const CName& name )
 {
-  return create_field(name,geometry());
+  return create_field(name,domain());
 }
   
 ////////////////////////////////////////////////////////////////////////////////
 
-const CRegion& CMesh::geometry() const
+const CRegion& CMesh::domain() const
 {
   return get_component_typed<CRegion const>(*this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CRegion& CMesh::geometry()
+CRegion& CMesh::domain()
 {
   return get_component_typed<CRegion>(*this);
 }

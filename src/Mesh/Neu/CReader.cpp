@@ -68,9 +68,10 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   // set the internal mesh pointer
   m_mesh = mesh;
 
-  // create a regions component inside the mesh
-  m_region = m_mesh->create_region(m_file_basename).get_type<CRegion>();
-
+  // create a region component inside the mesh
+  CRegion& domain = m_mesh->create_domain("Base");
+  m_region = domain.create_region(m_file_basename).get_type<CRegion>();
+  
   // must be in correct order!
   read_headerData(file);
   read_coordinates(file);
@@ -80,11 +81,11 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 
 
   // Remove tmp region from component
-  if (m_headerData.NGRPS != 1)
-  {
+  //if (m_headerData.NGRPS != 1)
+  //{
     remove_component("tmp");
     m_tmp.reset();
-  }
+  //}
   
   // Remove regions with empty connectivity tables
   remove_empty_element_regions(get_component_typed<CRegion>(*m_mesh));
@@ -127,9 +128,11 @@ void CReader::read_headerData(std::fstream& file)
 void CReader::read_coordinates(std::fstream& file)
 {
   // Create the coordinates array
-  CArray::Array& coordinates = m_region->create_coordinates(m_headerData.NDFCD).array();
-  coordinates.resize(boost::extents[m_headerData.NUMNP][m_headerData.NDFCD]);
-  
+  m_coordinates = m_region->create_coordinates(m_headerData.NDFCD).get_type<CArray>();
+  CArray::Array& coordinates = m_coordinates->array();
+  Uint coord_start_idx = coordinates.size();
+  coordinates.resize(boost::extents[coordinates.size()+m_headerData.NUMNP][m_headerData.NDFCD]);
+
   std::string line;
   // skip one line
   getline(file,line);
@@ -137,7 +140,7 @@ void CReader::read_coordinates(std::fstream& file)
   // declare and allocate one coordinate row
   std::vector<Real> rowVector(m_headerData.NDFCD);
 
-  for (Uint i=0; i<m_headerData.NUMNP; ++i) 
+  for (Uint i=coord_start_idx; i<coordinates.size(); ++i) 
   {
     getline(file,line);
     std::stringstream ss(line);
@@ -158,7 +161,7 @@ void CReader::read_connectivity(std::fstream& file)
   // make temporary regions for each element type possible
   m_tmp = create_component_type<CRegion>("tmp");
 
-  CArray& coordinates = get_component_typed<CArray>(*m_region,IsComponentTag("coordinates"));
+  CArray& coordinates = *m_coordinates;
   
   std::map<std::string,boost::shared_ptr<CTable::Buffer> > buffer =
       create_element_regions_with_buffermap(*m_tmp,coordinates,m_supported_types);
@@ -220,8 +223,8 @@ void CReader::read_groups(std::fstream& file)
   std::string line;
   int dummy;
   
-  CArray& coordinates = get_component_typed<CArray>(*m_region,IsComponentTag("coordinates"));
-
+  CArray& coordinates = *m_coordinates;
+  
   std::vector<GroupData> groups(m_headerData.NGRPS);
   for (Uint g=0; g<m_headerData.NGRPS; ++g) {    
     std::string ELMMAT;
@@ -248,19 +251,19 @@ void CReader::read_groups(std::fstream& file)
     getline(file,line);  // ENDOFSECTION
   }
   
-  // 2 cases:
-  // 1) there is only one group --> The tmp region can just be renamed
-  //    and put in the filesystem as subcomponent of "mesh/regions"
-  if (m_headerData.NGRPS == 1)
-  {
-    m_tmp->rename(groups[0].ELMMAT);
-    m_tmp->move_component(m_region);
-  }
-  // 2) there are multiple groups --> New regions have to be created
-  //    and the elements from the tmp region have to be distributed among
-  //    these new regions.
-  else
-  {
+//  // 2 cases:
+//  // 1) there is only one group --> The tmp region can just be renamed
+//  //    and put in the filesystem as subcomponent of "mesh/regions"
+//  if (m_headerData.NGRPS == 1)
+//  {
+//    m_tmp->rename(groups[0].ELMMAT);
+//    m_tmp->move_component(m_region);
+//  }
+//  // 2) there are multiple groups --> New regions have to be created
+//  //    and the elements from the tmp region have to be distributed among
+//  //    these new regions.
+//  else
+//  {
     // Create Region for each group
     BOOST_FOREACH(GroupData& group, groups)
     {
@@ -281,14 +284,14 @@ void CReader::read_groups(std::fstream& file)
         buf->add_row(tmp_region->connectivity_table().table()[local_element]);
       }
     }
-  }
+//  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 void CReader::read_boundaries(std::fstream& file)
 {
-  CArray& coordinates = get_component_typed<CArray>(*m_region,IsComponentTag("coordinates"));
+  CArray& coordinates = *m_coordinates;
   
   std::string line;
   for (Uint t=0; t<m_headerData.NBSETS; ++t) {

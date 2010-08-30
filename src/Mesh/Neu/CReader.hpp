@@ -7,6 +7,7 @@
 
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CTable.hpp"
+#include "Mesh/CArray.hpp"
 
 #include "Mesh/Neu/NeuAPI.hpp"
 #include "Mesh/Neu/Shared.hpp"
@@ -73,6 +74,7 @@ private: // data
   
   CMesh::Ptr m_mesh;
   CRegion::Ptr m_region;
+  CArray::Ptr m_coordinates;
   CRegion::Ptr m_tmp;
   std::string m_file_basename;
   

@@ -305,24 +305,15 @@ BOOST_AUTO_TEST_CASE( read_multiple )
   
   // the mesh to store in
   CMesh::Ptr mesh ( new CMesh  ( "mesh" ) );
-  
-  meshreader->read_from_to(fp_in,mesh);
-  meshreader->read_from_to(fp_in,mesh);
-  meshreader->read_from_to(fp_in,mesh);
-  meshreader->read_from_to(fp_in,mesh);
-  
-  boost::regex e("quadtriag(_[0-9]+)?");
-  Uint count = 0;
-  BOOST_FOREACH(const CRegion& region, recursive_range_typed<CRegion>(*mesh))
+    
+  for (Uint count=1; count<=4; ++count)
   {
-    if (boost::regex_match(region.name(),e))
-    {
-      count++;
-      BOOST_CHECK_EQUAL(region.recursive_elements_count(), (Uint) 28);
-    }
+    meshreader->read_from_to(fp_in,mesh);
+    BOOST_CHECK_EQUAL(mesh->domain().recursive_elements_count(), count*28);
   }
-  BOOST_CHECK_EQUAL(count, (Uint) 4);
-  BOOST_CHECK_EQUAL(get_component_typed<CRegion>(*mesh).recursive_elements_count(), count*28);
+  
+  CMeshTransformer::Ptr info  = create_component_abstract_type<CMeshTransformer>("Info","info");
+  info->transform(mesh);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

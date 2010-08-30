@@ -38,8 +38,13 @@ CRegion::~CRegion()
 
 CRegion& CRegion::create_region( const CName& name )
 {
-  CRegion& region = *create_component_type<CRegion>(name);
-  return region;
+  CRegion::Ptr region = get_child_type<CRegion>(name);
+  if (!region)
+  {
+    region = create_component_type<CRegion>(name);
+  }
+  return *region;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -47,20 +52,36 @@ CRegion& CRegion::create_region( const CName& name )
 CElements& CRegion::create_elements(const std::string& element_type_name, CArray& coordinates)
 {
   std::string name = "elements_" + element_type_name;
-  CElements& elements = *create_component_type<CElements>(name);
-  elements.add_tag("GeometryElements");
-  elements.initialize(element_type_name,coordinates);
-  return elements;
+  
+  CElements::Ptr elements = get_child_type<CElements>(name);
+  if (!elements)
+  {
+    elements = create_component_type<CElements>(name);
+    elements->add_tag("GeometryElements");
+    elements->initialize(element_type_name,coordinates);
+  }
+  return *elements;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 CArray& CRegion::create_coordinates(const Uint& dim)
-{
-  CArray& coordinates = *create_component_type<CArray>("coordinates");
-  coordinates.add_tag("coordinates");
-  coordinates.initialize(dim);
-  return coordinates;
+{  
+  CArray::Ptr coordinates = get_child_type<CArray>("coordinates");
+  if (!coordinates)
+  {
+    coordinates = create_component_type<CArray>("coordinates");
+    coordinates->add_tag("coordinates");
+    coordinates->initialize(dim);
+  }
+  else if (coordinates->array().shape()[1] != dim)
+  {
+    coordinates = create_component_type<CArray>("coordinates",NUMBER);
+    coordinates->add_tag("coordinates");
+    coordinates->initialize(dim);
+    
+  }
+  return *coordinates;
 }
 
 //////////////////////////////////////////////////////////////////////////////

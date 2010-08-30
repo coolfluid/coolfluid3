@@ -13,6 +13,10 @@
 
 namespace CF {
 namespace Mesh {
+  
+  class CArray;
+  class CRegion;
+  
 namespace CGNS {
 
 #define CALL_CGNS(cgns_func) {                                                 \
@@ -93,6 +97,8 @@ protected:
     int nbSections;
     int nbBocos;
     Uint total_nbElements;
+    CArray* coords;
+    Uint coords_start_idx;
     //
   } m_zone;
   
@@ -126,6 +132,13 @@ protected:
     DataType_t normalDataType;
     int nDataSet;
   } m_boco;  
+  
+  
+  std::map<int,CRegion*> m_base_map;
+  std::map<int,CRegion*> m_zone_map;
+  std::map<int,CRegion*> m_section_map;
+  std::map<int,CArray* > m_coordinates_map;
+  std::map<int,CRegion*> m_boco_map;
   
 private:
   std::vector<std::string> m_supported_element_types;

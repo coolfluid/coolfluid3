@@ -69,9 +69,6 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   // Set the internal mesh pointer
   m_mesh = mesh;
 
-  // Create basic region structure
-  CRegion& regions = m_mesh->create_region(boost::filesystem::basename(fp));
-
   // open file in read mode
   CALL_CGNS(cg_open(fp.string().c_str(),CG_MODE_READ,&m_file.idx));
 
@@ -83,7 +80,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   
   // Read every base (usually there is only 1)
   for (m_base.idx = 1; m_base.idx<=m_file.nbBases; ++m_base.idx)
-    read_base(regions);
+    read_base(*m_mesh);
 
   // close the CGNS file
   CALL_CGNS(cg_close(m_file.idx));
@@ -92,7 +89,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CReader::read_base(CRegion& parent_region)
+void CReader::read_base(CMesh& parent_region)
 {
 
   // get the name, dimension and physical dimension from the base
@@ -102,11 +99,10 @@ void CReader::read_base(CRegion& parent_region)
   boost::algorithm::replace_all(m_base.name," ","_");
   boost::algorithm::replace_all(m_base.name,".","_");
 
+  // Create basic region structure
+  CRegion& base_region = m_mesh->create_domain(m_base.name);
+  m_base_map[m_base.idx] = &base_region;
 
-  // create region for the base in mesh
-  CRegion& base_region = m_base.unique ? parent_region : parent_region.create_region(m_base.name);
-
-  
   // check how many zones we have
   CALL_CGNS(cg_nzones(m_file.idx,m_base.idx,&m_base.nbZones));
   m_zone.unique = m_base.nbZones == 1 ? true : false;
@@ -160,7 +156,12 @@ void CReader::read_zone(CRegion& parent_region)
     
     
     // Create a region for this zone if there is more than one
-    CRegion& this_region = m_zone.unique? parent_region : parent_region.create_region(m_zone.name);
+    //CRegion& this_region = m_zone.unique? parent_region : parent_region.create_region(m_zone.name);
+    //this_region.add_tag("grid_zone");
+
+    CRegion& this_region = parent_region.create_region(m_zone.name);
+    this_region.add_tag("grid_zone");
+    m_zone_map[m_zone.idx] = &this_region;
     
     // read coordinates in this zone
     for (int i=1; i<=m_zone.nbGrids; ++i)
@@ -230,8 +231,10 @@ void CReader::read_zone(CRegion& parent_region)
     // Add up all the nb elements from all sections
     m_zone.total_nbElements = get_total_nbElements();
         
-    // Create a region for this zone if there is more than one
-    CRegion& this_region = m_zone.unique? parent_region : parent_region.create_region(m_zone.name);
+    // Create a region for this zone
+    CRegion& this_region = parent_region.create_region(m_zone.name);
+    this_region.add_tag("grid_zone");
+    m_zone_map[m_zone.idx] = &this_region;
     
     // read coordinates in this zone
     for (int i=1; i<=m_zone.nbGrids; ++i)
@@ -258,7 +261,9 @@ void CReader::read_coordinates_unstructured(CRegion& parent_region)
 
   CFinfo << "creating coordinates in " << parent_region.full_path().string() << CFendl;
   CArray& coordinates = parent_region.create_coordinates(m_zone.coord_dim);
-
+  m_zone.coords = &coordinates;
+  m_zone.coords_start_idx = coordinates.size();
+  
   // read coordinates
   int one = 1;
   Real *xCoord;
@@ -310,7 +315,9 @@ void CReader::read_coordinates_unstructured(CRegion& parent_region)
 void CReader::read_coordinates_structured(CRegion& parent_region)
 {
   CArray& coordinates = parent_region.create_coordinates(m_zone.coord_dim);
-  
+  m_zone.coords = &coordinates;
+  m_zone.coords_start_idx = coordinates.size();
+
   int one[3];
   one[0]= 1;
   one[1]= 1;
@@ -390,9 +397,27 @@ void CReader::read_section(CRegion& parent_region)
   boost::algorithm::replace_all(m_section.name,".","_");
 
 
+  BOOST_FOREACH(CRegion& existing_region, range_typed<CRegion>(parent_region)) 
+  if (existing_region.get())
+  {
+    if (existing_region.properties().check("cgns_section_name"))
+    {
+      if (existing_region.properties().value<CName>("cgns_section_name") == m_section.name)
+      {
+        existing_region.rename(existing_region.properties().value<CName>("cgns_section_name"));
+        existing_region.properties()["previous_elem_count"] = existing_region.recursive_elements_count();
+        break;        
+      }
+    }
+  }
+  
   // Create a new region for this section
   CRegion& this_region = parent_region.create_region(m_section.name);
-  CArray& all_coordinates = *parent_region.get_child_type<CArray>("coordinates");
+  
+
+  
+  CArray& all_coordinates = *m_zone.coords;
+  Uint start_idx = m_zone.coords_start_idx;
 
   if (m_section.type == MIXED)
   {
@@ -420,7 +445,7 @@ void CReader::read_section(CRegion& parent_region)
       // Put the element nodes in a vector
       std::vector<Uint> row(m_section.elemNodeCount);
       for (int n=1;n<=m_section.elemNodeCount;++n)  // n=0 is the cell type
-        row[n-1]=(elemNodes[0][n]-1); // -1 because cgns has index-base 1 instead of 0
+        row[n-1]=start_idx+(elemNodes[0][n]-1); // -1 because cgns has index-base 1 instead of 0
       
       // Convert the cgns element type to the CF element type
       const std::string& etype_CF = m_elemtype_CGNS_to_CF[etype_cgns]+StringOps::to_str<int>(m_base.phys_dim)+"DLagrangeP1";
@@ -474,35 +499,45 @@ void CReader::read_section(CRegion& parent_region)
     std::vector<Uint> coords_added;
     std::vector<Uint> row(m_section.elemNodeCount);
     element_buffer.increase_array_size(nbElems);  // we can use increase_array_size + add_row_directly because we know apriori the change
-    Uint global_coord_idx;
-    Uint local_coord_idx;
-    for (int elem=0; elem<nbElems; ++elem) //, ++progress)
+    if (option("SharedCoordinates")->value<bool>())
     {
-      for (int node=0;node<m_section.elemNodeCount;++node) 
+      for (int elem=0; elem<nbElems; ++elem) //, ++progress)
       {
-        global_coord_idx = elemNodes[node+elem*m_section.elemNodeCount]-1;  // -1 because cgns has index-base 1 instead of 0
-        if (option("SharedCoordinates")->value<bool>())
+        for (int node=0;node<m_section.elemNodeCount;++node) 
+          row[node] = start_idx + elemNodes[node+elem*m_section.elemNodeCount]-1;  // -1 because cgns has index-base 1 instead of 0;
+        element_buffer.add_row_directly(row);
+        
+        // Store the global element number to a pair of (region , local element number)
+        m_global_to_region.push_back(Region_TableIndex_pair(boost::dynamic_pointer_cast<CElements>(element_region.shared_from_this()),elem));
+      } // for elem
+    }
+    else // every elements region gets his own coordinates
+    {
+      Uint global_coord_idx;
+      Uint local_coord_idx;
+      for (int elem=0; elem<nbElems; ++elem) //, ++progress)
+      {
+        for (int node=0;node<m_section.elemNodeCount;++node) 
         {
-          row[node] = global_coord_idx;
-        }
-        else
-        {
+          global_coord_idx = start_idx + elemNodes[node+elem*m_section.elemNodeCount]-1;  // -1 because cgns has index-base 1 instead of 0
+
           // check if this node was already added
           local_coord_idx = std::find(coords_added.begin(),coords_added.end(),global_coord_idx)-coords_added.begin();
           // if not found in coords_added, it has to be added to the buffer
           if (local_coord_idx >= coords_added.size())
           {
-            local_coord_idx = coord_buffer.add_row(all_coordinates[global_coord_idx]);
+            local_coord_idx = coord_buffer.add_row_directly(all_coordinates[global_coord_idx]);
             coords_added.push_back(global_coord_idx);
           }
           row[node] = local_coord_idx;
         }
-      }
-      element_buffer.add_row_directly(row);
-      
-      // Store the global element number to a pair of (region , local element number)
-      m_global_to_region.push_back(Region_TableIndex_pair(boost::dynamic_pointer_cast<CElements>(element_region.shared_from_this()),elem));
-    } // for elem
+        element_buffer.add_row_directly(row);
+        
+        // Store the global element number to a pair of (region , local element number)
+        m_global_to_region.push_back(Region_TableIndex_pair(boost::dynamic_pointer_cast<CElements>(element_region.shared_from_this()),elem));
+      } // for elem
+    }
+    
     
     // Delete storage for element nodes
     delete_ptr(elemNodes);
@@ -529,7 +564,7 @@ void CReader::read_section(CRegion& parent_region)
 void CReader::create_structured_elements(CRegion& parent_region)
 {
     
-  CArray& coordinates = *parent_region.get_child_type<CArray>("coordinates");
+  CArray& coordinates = *m_zone.coords;
       
   std::string etype_CF;
   switch (m_base.cell_dim)
@@ -645,9 +680,11 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
       if (first_elements->get_parent() == last_elements->get_parent())
       {
         CRegion::Ptr group_region = first_elements->get_parent()->get_type<CRegion>();
-        if (group_region->recursive_elements_count() == Uint(boco_elems[1]-boco_elems[0]+1))
+        Uint prev_elm_count = group_region->properties().check("previous_elem_count") ? group_region->properties().value<Uint>("previous_elem_count") : 0;
+        if (group_region->recursive_elements_count() == prev_elm_count + Uint(boco_elems[1]-boco_elems[0]+1))
         {
-          group_region->rename(m_boco.name);
+          group_region->properties()["cgns_section_name"]=group_region->name();
+          group_region->rename(m_boco.name,NUMBER);
           break;
         }
       }
@@ -655,7 +692,7 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
       
       // Create a region inside mesh/regions/bc-regions with the name of the cgns boco.
       CRegion& this_region = parent_region.create_region(m_boco.name);
-      CArray& coordinates = *parent_region.get_child_type<CArray>("coordinates");
+      CArray& coordinates = *m_zone.coords;
       
       // Create CElements components for every possible element type supported.
       BufferMap buffer = create_element_regions_with_buffermap(this_region,coordinates,get_supported_element_types());
@@ -691,16 +728,18 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
       if (first_elements->get_parent() == last_elements->get_parent())
       {
         CRegion::Ptr group_region = first_elements->get_parent()->get_type<CRegion>();
-        if (group_region->recursive_elements_count() == Uint(boco_elems[m_boco.nBC_elem-1]-boco_elems[0]+1))
+        Uint prev_elm_count = group_region->properties().check("previous_elem_count") ? group_region->properties().value<Uint>("previous_elem_count") : 0;
+        if (group_region->recursive_elements_count() == prev_elm_count + Uint(boco_elems[m_boco.nBC_elem-1]-boco_elems[0]+1))
         {
-          group_region->rename(m_boco.name);
+          group_region->properties()["cgns_section_name"]=group_region->name();
+          group_region->rename(m_boco.name,NUMBER);
           break;
         }
       }
       
       // Create a region inside mesh/regions/bc-regions with the name of the cgns boco.
       CRegion& this_region = parent_region.create_region(m_boco.name);
-      CArray& coordinates = *parent_region.get_child_type<CArray>("coordinates");
+      CArray& coordinates = *m_zone.coords;
       
       // Create CElements components for every possible element type supported.
       BufferMap buffer = create_element_regions_with_buffermap(this_region,coordinates,get_supported_element_types());
@@ -756,7 +795,7 @@ void CReader::read_boco_structured(CRegion& parent_region)
   
   // Create a region inside mesh/regions/bc-regions with the name of the cgns boco.
   CRegion& this_region = parent_region.create_region(m_boco.name);
-  CArray& coordinates = *parent_region.get_child_type<CArray>("coordinates");
+  CArray& coordinates = *m_zone.coords;
   
   // Which BC_element type will we need?
   std::string etype_CF;

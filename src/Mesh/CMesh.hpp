@@ -48,12 +48,16 @@ public: // functions
   /// create a region
   /// @param name of the region
   CRegion& create_region ( const CName& name );
+
+  /// create a domain
+  /// @param name of the domain
+  CRegion& create_domain( const CName& name );
+
+  /// @return the geometry
+  const CRegion& domain() const;
   
   /// @return the geometry
-  const CRegion& geometry() const;
-  
-  /// @return the geometry
-  CRegion& geometry();
+  CRegion& domain();
   
   /// create a field with a given support
   /// @param name of the field
