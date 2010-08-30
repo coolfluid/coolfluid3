@@ -65,6 +65,14 @@ OptionPanel::OptionPanel(QWidget * parent)
   m_scrollBasicOptions->setVisible(false);
   this->buttonsSetVisible(false);
 
+  // on MacOSX, GUI guidelines define the default behaviour for graphical
+  // components size in a FormLayout as size hint (they don't take all
+  // the space). Since it's extremely ugly (in the client case, they take
+  // about 10% of the availbale space), we override the rule by changing
+  // the field growth policy.
+  m_basicOptionsLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+  m_advancedOptionsLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+
   connect(m_btCommitChanges, SIGNAL(clicked()), this, SLOT(commitChanges()));
   connect(m_btCheckChanges, SIGNAL(clicked()), this, SLOT(checkOptions()));
   connect(m_btResetOptions, SIGNAL(clicked()), this, SLOT(resetChanges()));
