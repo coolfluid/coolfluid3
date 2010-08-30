@@ -1,7 +1,6 @@
 #ifndef CF_Mesh_OpenFOAM_BlockMeshReader_hpp
 #define CF_Mesh_OpenFOAM_BlockMeshReader_hpp
 
-#include "Math/RealVector.hpp"
 #include "Mesh/CMeshReader.hpp"
 
 namespace CF {
@@ -17,63 +16,24 @@ class BlockMeshReader : public CMeshReader
 public:
 
   /// constructor
-  BlockMeshReader();
+  BlockMeshReader(const CName& name);
 
   /// Gets the Class name
   static std::string type_name() { return "BlockMeshReader"; }
+  
+  static void defineConfigOptions ( CF::Common::OptionList& options ) {}
 
+  virtual std::string get_format() { return "blockMeshDict"; }
+
+  virtual std::vector<std::string> get_extensions();
+  
+  virtual void read_from_to(boost::filesystem::path& path, const CMesh::Ptr& mesh);
+  
 private:
+  static void regist_signals ( BlockMeshReader* self ) {}
 
-  virtual void read_impl(std::fstream& file);
 }; // end BlockMeshReader
 
-
-////////////////////////////////////////////////////////////////////////////////
-
-/// Storage for the information about blocks for structured grid generation
-struct BlockData
-{
-  /// Type to store indices into another vector
-  typedef std::vector<Uint> IndicesT;
-  /// Data type for counts of data, i.e. number of points
-  typedef std::vector<Uint> CountsT;
-  /// Storage for a single point coordinate (STL vector for ease of use with boost::spirit)
-  typedef std::vector<Real> PointT;
-  /// Storage for a grading corresponding to a single block
-  typedef std::vector<Real> GradingT;
-  /// Storage for true/false flags
-  typedef std::vector<bool> BooleansT;
-
-
-  Real scaling_factor;
-
-  /// The coordinates for all the nodes
-  std::vector<PointT> points;
-
-  /// Points for each block, in terms of node indices
-  std::vector<IndicesT> block_points;
-  /// Subdivisions for each block, along X, Y and Z
-  std::vector<CountsT> block_subdivisions;
-  /// edgeGrading for each block
-  std::vector<GradingT> block_gradings;
-
-  /// Type of each patch
-  std::vector<std::string> patch_types;
-  /// Name for each patch
-  std::vector<std::string> patch_names;
-  /// Point indices for each patch (grouped per 4)
-  std::vector<IndicesT> patch_points;
-};
-
-/// Populate structured grid info from a BlockMeshDict file
-void readBlockMeshFile(std::fstream& file, BlockData& blockData);
-
-/// Determine the number of dimensions (TODO, always returns 3 now)
-/// Note: All OpenFOAM meshes are 3D, but 2D meshes are only 1 cell thick.
-/// Based on this, the real mesh dimensionality can be determined
-Uint computeDimensionality(const BlockData& blockData) { return 3; }
-
-void buildMesh(const BlockData& blockData, CMesh& mesh);
 
 ////////////////////////////////////////////////////////////////////////////////
 

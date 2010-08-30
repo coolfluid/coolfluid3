@@ -149,6 +149,21 @@ struct IsElementType
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// Evaluate a shape function
+template<typename ShapeFunctionT, typename NodeValuesT, typename ResultT>
+static void eval(const RealVector& mapped_coord, const NodeValuesT& values, ResultT& result)
+{
+  RealVector sf(ShapeFunctionT::nb_nodes);
+  ShapeFunctionT::shape_function(mapped_coord, sf);
+  
+  // Make sure result is zero
+  result -= result;
+  
+  // Add node contributions
+  for(Uint i = 0; i != ShapeFunctionT::nb_nodes; ++i)
+    result += (values[i] * sf[i]);
+}
+
 } // namespace Mesh
 } // namespace CF
 

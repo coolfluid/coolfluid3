@@ -293,6 +293,9 @@ static const Uint nb_nodes = 8;
 /// Order of the shape function
 static const Uint order = 1;
 
+/// Indices for the faces in each direction
+enum FaceNumbering { ZNEG, ZPOS, YNEG, XPOS, YPOS, XNEG};
+
 static const FaceConnectivity& faces();
 
 Hexa3DLagrangeP1();

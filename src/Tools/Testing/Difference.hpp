@@ -38,13 +38,15 @@ namespace Tools {
 namespace Testing {
 
 /// Stores the results of the difference::test() function.
-class Accumulator
+struct Accumulator
 {
-public:
+  Accumulator() : max_ulps(1000) {}
   /// Stores statistics for comparisons of exact (string and integer) types, including the number of tests, and the min and max test values.
   boost::accumulators::accumulator_set<bool, boost::accumulators::stats<boost::accumulators::tag::count, boost::accumulators::tag::min, boost::accumulators::tag::max> > exact;
   /// Stores statistics for comparisons of inexact (floating-point) types using Units in the Last Place (ULPS), including the number of tests, min, max, mean, median, and variance.
   boost::accumulators::accumulator_set<Real, boost::accumulators::stats<boost::accumulators::tag::min, boost::accumulators::tag::mean, boost::accumulators::tag::max, boost::accumulators::tag::median, boost::accumulators::tag::lazy_variance> > ulps;
+  /// Threshold that should not be exceeded for ulps. May be used by individual tests for error reporting
+  Uint max_ulps;
 };
 
 /// Function that tests the difference between two objects, returning separate results for exact (integer and string) and inexact (floating-point) types.

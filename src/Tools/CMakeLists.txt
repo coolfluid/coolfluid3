@@ -4,3 +4,4 @@ endif ()
 
 add_subdirectory ( Testing )
 add_subdirectory(MeshGeneration)
+add_subdirectory(MeshDiff)

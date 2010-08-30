@@ -20,13 +20,17 @@ SET(uTestClient_moc_classes
   ../FilesPanel.hpp
   ../LoggingList.hpp
   ../MainWindow.hpp
+  ../NArray.hpp
   ../NCore.hpp
+  ../NElements.hpp
   ../NGroup.hpp
   ../NLink.hpp
   ../NLog.hpp
   ../NMesh.hpp
   ../NMeshReader.hpp
   ../NMethod.hpp
+  ../NRegion.hpp
+  ../NTable.hpp
   ../NTree.hpp
   ../OptionPanel.hpp
   ../RemoteFSBrowser.hpp
@@ -96,10 +100,14 @@ LIST( APPEND uTestClient_files
   ../MainWindow.hpp
   ../MenuActionInfo.cpp
   ../MenuActionInfo.hpp
+  ../NArray.cpp
+  ../NArray.hpp
   ../NBrowser.cpp
   ../NBrowser.hpp
   ../NCore.cpp
   ../NCore.hpp
+  ../NElements.cpp
+  ../NElements.hpp
   ../NGroup.cpp
   ../NGroup.hpp
   ../NLink.cpp
@@ -112,8 +120,12 @@ LIST( APPEND uTestClient_files
   ../NMeshReader.hpp
   ../NMethod.cpp
   ../NMethod.hpp
+  ../NRegion.cpp
+  ../NRegion.hpp
   ../NRoot.cpp
   ../NRoot.hpp
+  ../NTable.cpp
+  ../NTable.hpp
   ../NTree.cpp
   ../NTree.hpp
   ../OptionPanel.cpp

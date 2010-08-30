@@ -1,6 +1,6 @@
 ################################################################################
 
-  LIST( APPEND uTestBlockMeshReader_cflibs OpenFOAM )
+  LIST( APPEND uTestBlockMeshReader_cflibs OpenFOAM Neu MeshDiff Mesh SF )
   LIST( APPEND uTestBlockMeshReader_files
     uTestBlockMeshReader.cpp )
 
@@ -12,9 +12,7 @@
 
   CF_ADD_UNITTEST( uTestBlockMeshReader )
 
-  add_custom_command(TARGET uTestBlockMeshReader
-                     POST_BUILD
-                     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/blockMesh.dict ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-  )
+  configure_file(channel3d.dict channel3d.dict COPYONLY)
+  configure_file(uTestBlockMeshReader-Channel3D-reference.neu uTestBlockMeshReader-Channel3D-reference.neu COPYONLY)
 
 ################################################################################
