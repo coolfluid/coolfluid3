@@ -294,6 +294,35 @@ inline typename ComponentPtr<ParentT>::type
 get_named_component_ptr(ParentT& parent, const Component::CName& name) {
   return get_named_component_typed_ptr<Component>(parent, name);
 }
+  
+/// Reference to the component with the given tag
+template<typename ComponentT, typename ParentT>
+inline typename ComponentReference<ParentT, ComponentT>::type
+get_tagged_component_typed(ParentT& parent, const std::string& tag) {
+  return get_component_typed<ComponentT>(parent, IsComponentTag(tag));
+}
+
+/// Reference to the component with the given tag
+template<typename ParentT>
+inline typename ComponentReference<ParentT>::type
+get_tagged_component(ParentT& parent, const std::string& tag) {
+  return get_tagged_component_typed<Component>(parent, tag);
+}
+
+/// Pointer to the component with the given tag
+template<typename ComponentT, typename ParentT>
+inline typename ComponentPtr<ParentT, ComponentT>::type
+get_tagged_component_typed_ptr(ParentT& parent, const std::string& tag) {
+  return get_component_typed_ptr<ComponentT>(parent, IsComponentTag(tag));
+}
+
+/// Pointer to the component with the given tag
+template<typename ParentT>
+inline typename ComponentPtr<ParentT>::type
+get_tagged_component_ptr(ParentT& parent, const std::string& tag) {
+  return get_tagged_component_typed_ptr<Component>(parent, tag);
+}
+  
 
 /// Gets a reference to the unique component of the given type that satisfies the given predicate.
 /// Throws if there is not exactly one match
@@ -367,6 +396,34 @@ template<typename ParentT>
 inline typename ComponentPtr<ParentT>::type
 recursive_get_named_component_ptr(ParentT& parent, const std::string& name) {
   return get_named_component_typed_ptr<Component>(parent, name);
+}
+  
+/// Reference to the component with the given name
+template<typename ComponentT, typename ParentT>
+inline typename ComponentReference<ParentT, ComponentT>::type
+recursive_get_tagged_component_typed(ParentT& parent, const std::string& tag) {
+  return recursive_get_component_typed<ComponentT>(parent, IsComponentName(tag));
+}
+
+/// Reference to the component with the given name
+template<typename ParentT>
+inline typename ComponentReference<ParentT>::type
+recursive_get_tagged_component(ParentT& parent, const std::string& tag) {
+  return recursive_get_tagged_component_typed<Component>(parent, tag);
+}
+
+/// Pointer to the component with the given name
+template<typename ComponentT, typename ParentT>
+inline typename ComponentPtr<ParentT, ComponentT>::type
+recursive_get_tagged_component_typed_ptr(ParentT& parent, const std::string& tag) {
+  return get_component_typed_ptr<ComponentT>(parent, IsComponentName(tag));
+}
+
+/// Pointer to the component with the given name
+template<typename ParentT>
+inline typename ComponentPtr<ParentT>::type
+recursive_get_tagged_component_ptr(ParentT& parent, const std::string& tag) {
+  return get_tagged_component_typed_ptr<Component>(parent, tag);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

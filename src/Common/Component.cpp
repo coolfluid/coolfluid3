@@ -7,6 +7,7 @@
 #include <boost/cast.hpp>
 #include <boost/foreach.hpp>
 #include <boost/tokenizer.hpp>
+#include <boost/regex.hpp>
 
 #include "Common/Component.hpp"
 #include "Common/XmlHelpers.hpp"
@@ -62,12 +63,13 @@ Component::ConstPtr Component::get() const
 /////////////////////////////////////////////////////////////////////////////////////
 
 
-void Component::rename ( const CName& name )
+void Component::rename ( const CName& name , AddOption add_option)
 {
-  if ( name == m_name.string() ) // skip if name does not change
+  std::string new_name = name;
+  if ( new_name == m_name.string() ) // skip if name does not change
     return;
 
-  CPath new_full_path = m_path / name;
+  CPath new_full_path = m_path / new_name;
 
   if( !m_root.expired() )
   {
@@ -83,13 +85,12 @@ void Component::rename ( const CName& name )
   {
     Component::Ptr parent = get_parent();
     Component::Ptr removed = parent->remove_component(m_name.string());
-    m_name = name;
-    parent->add_component(get());
+    m_name = new_name;
+    Component::Ptr this_component = parent->add_component(get(),add_option);
+    new_name = this_component->name();
   }
-
-  // rename object make be after modificatio of path in root
-  // else root would not find the previous object
-  m_name = name;
+  
+  m_name = new_name;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -132,18 +133,57 @@ bool Component::has_tag(const std::string& tag) const
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::add_component ( Component::Ptr subcomp )
+Component::Ptr Component::add_component ( Component::Ptr subcomp, AddOption add_option )
 {
-  // check that no other component with such name exists
-  if (m_components.find(subcomp->name()) != m_components.end() )
-    throw ValueExists(FromHere(), "Component with name '"
-                      + subcomp->name() + "' already exists in component '"
-                      + name() + "' with path ["
-                      + m_path.string() + "]");
+  switch (add_option)
+  {
+    case THROW:
+      if (m_components.find(subcomp->name()) != m_components.end() )
+      {
+        throw ValueExists(FromHere(), "Component with name '"
+                          + subcomp->name() + "' already exists in component '"
+                          + name() + "' with path ["
+                          + m_path.string() + "]");
+      }
+      break;
+    case NUMBER:
+      // check that no other component with such name exists
+    {
+      const std::string name = subcomp->name();
+      boost::regex e(name+"(_[0-9]+)?");
+      BOOST_FOREACH(CompStorage_t::value_type subcomp_pair, m_components)
+      {
+        if (boost::regex_match(subcomp_pair.first,e))
+        {
+          CFinfo << "++++ match found: " << name << " ~~ " << subcomp_pair.first << CFendl;
+          // A subcomponent with this name already exists.
+          // Instead of throwing, append a number to its name.
+          if (m_components.find(name) != m_components.end() )
+            m_components[name]->rename(name+"_0");
+          
+          Uint count = 1;
+          //count howmany times the name "name(_[0-9]+)?" occurs (REGEX)
+          while (m_components.find(name+"_"+StringOps::to_str(count)) != m_components.end())
+            count++;
+          
+          std::string new_name = name+"_"+StringOps::to_str(count);
+          
+          CFwarn << "A component \"" << subcomp->full_path().string() << "\" already existed. New component added with name \"" << new_name << "\"" << CFendl;
+          subcomp->rename(new_name);
+          break;
+        }      
+      }
+      break;
+    }
+    default:
+      throw ValueNotFound (FromHere(), "No such option exists for the function add_component");
+  }
 
   m_components[subcomp->name()] = subcomp;
 
   subcomp->change_parent( shared_from_this() );
+  
+  return subcomp;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

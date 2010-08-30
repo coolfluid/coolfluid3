@@ -54,7 +54,14 @@ public: // typedef
   typedef ComponentIterator<Component> iterator;
   typedef ComponentIterator<Component const> const_iterator;
 
-
+  
+  /// Options that can be passed to Component::add_component
+  /// This is defines when adding a component whose name already exists
+  enum AddOption {
+    THROW = 0,      ///< throw an exception
+    NUMBER = 2      ///< add the component with a different name "name_1" , "name_2" , ...
+  };
+    
 private: // typedef
 
   /// type for storing the sub components
@@ -163,7 +170,7 @@ public: // functions
   CName name () const { return m_name.string(); }
 
   /// Rename the component
-  void rename ( const CName& name );
+  void rename ( const CName& name, AddOption add_option = THROW );
 
   /// Access the path of the component
   const CPath& path () const { return m_path; }
@@ -224,13 +231,13 @@ public: // functions
 
   /// Create a (sub)component of this component automatically cast to the specified type
   template < typename T >
-      typename T::Ptr create_component_type ( const CName& name );
+      typename T::Ptr create_component_type ( const CName& name, AddOption add_opt = THROW );
 
   /// Add a (sub)component of this component
-  void add_component ( Ptr subcomp );
+  Ptr add_component ( Ptr subcomp, AddOption add_opt = THROW );
 
   /// Remove a (sub)component of this component
-  Component::Ptr remove_component ( const CName& name );
+  Ptr remove_component ( const CName& name );
 
   /// Move this component to within another one
   /// @param new_parent will be the new parent of this component
@@ -334,11 +341,10 @@ template < typename ATYPE >
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename T >
-inline typename T::Ptr Component::create_component_type ( const CName& name )
+inline typename T::Ptr Component::create_component_type ( const CName& name, AddOption add_opt )
 {
   typename T::Ptr new_component ( new T(name), Deleter<T>() );
-  add_component(new_component);
-  return new_component;
+  return boost::dynamic_pointer_cast<T>(add_component(new_component, add_opt));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
