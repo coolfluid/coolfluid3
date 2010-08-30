@@ -3,6 +3,7 @@
 
 #include "Common/CGroup.hpp"
 #include "Common/CLink.hpp"
+#include "Common/ObjectProvider.hpp"
 
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CField.hpp"
@@ -14,6 +15,10 @@ namespace CF {
 namespace Mesh {
 
 using namespace Common;
+
+Common::ObjectProvider < CRegion, Component, MeshLib, NB_ARGS_1 >
+CRegion_Provider ( CRegion::type_name() );
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -51,13 +56,13 @@ CElements& CRegion::create_elements(const std::string& element_type_name, CArray
 //////////////////////////////////////////////////////////////////////////////
 
 CArray& CRegion::create_coordinates(const Uint& dim)
-{  
+{
   CArray& coordinates = *create_component_type<CArray>("coordinates");
   coordinates.add_tag("coordinates");
   coordinates.initialize(dim);
   return coordinates;
 }
-  
+
 //////////////////////////////////////////////////////////////////////////////
 
 void CRegion::add_field_link(CField& field)
@@ -67,7 +72,7 @@ void CRegion::add_field_link(CField& field)
     field_group = create_component_type<CGroup>("fields");
   field_group->create_component_type<CLink>(field.field_name())->link_to(field.get());
 }
-  
+
 //////////////////////////////////////////////////////////////////////////////
 
 CField& CRegion::get_field(const CName& field_name)
@@ -80,7 +85,7 @@ CField& CRegion::get_field(const CName& field_name)
 }
 
 //////////////////////////////////////////////////////////////////////////////
-  
+
 Uint CRegion::recursive_elements_count() const
 {
   Uint elem_count = 0;
@@ -116,7 +121,7 @@ CElements& CRegion::elements(const CName& name)
 {
   return get_named_component_typed<CElements>(*this,name);
 }
-  
+
 //////////////////////////////////////////////////////////////////////////////
 
 

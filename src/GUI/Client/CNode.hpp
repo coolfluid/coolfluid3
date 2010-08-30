@@ -118,7 +118,19 @@ namespace Client {
       BROWSER_NODE,
 
       /// @brief Mesh reader node
-      MESH_READER_NODE
+      MESH_READER_NODE,
+
+      /// @brief Array node
+      ARRAY_NODE,
+
+      /// @brief Elements node
+      ELEMENTS_NODE,
+
+      /// @brief Region node
+      REGION_NODE,
+
+      /// @brief Table node
+      TABLE_NODE,
 
     }; // enum Type
 

@@ -9,14 +9,18 @@
 #include "Common/XmlHelpers.hpp"
 
 #include "GUI/Client/ClientRoot.hpp"
+#include "GUI/Client/NArray.hpp"
 #include "GUI/Client/NCore.hpp"
+#include "GUI/Client/NElements.hpp"
 #include "GUI/Client/NGroup.hpp"
 #include "GUI/Client/NLog.hpp"
 #include "GUI/Client/NLink.hpp"
 #include "GUI/Client/NMesh.hpp"
 #include "GUI/Client/NMeshReader.hpp"
 #include "GUI/Client/NMethod.hpp"
+#include "GUI/Client/NRegion.hpp"
 #include "GUI/Client/NRoot.hpp"
+#include "GUI/Client/NTable.hpp"
 #include "GUI/Client/NTree.hpp"
 
 #include "GUI/Client/CNode.hpp"
@@ -457,6 +461,7 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, CPath> & lin
 
   cf_assert(nodeType != CFNULL);
   cf_assert(nodeName != CFNULL);
+  cf_assert(std::strlen(nodeType) > 0);
 
   CNode::Ptr rootNode;
 
@@ -477,6 +482,14 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, CPath> & lin
     rootNode = boost::shared_ptr<NMethod>(new NMethod(nodeName));
   else if(std::strcmp(nodeType, "CGroup") == 0)
     rootNode = boost::shared_ptr<NGroup>(new NGroup(nodeName));
+  else if(std::strcmp(nodeType, "CArray") == 0)
+    rootNode = boost::shared_ptr<NArray>(new NArray(nodeName));
+  else if(std::strcmp(nodeType, "CTable") == 0)
+    rootNode = boost::shared_ptr<NTable>(new NTable(nodeName));
+  else if(std::strcmp(nodeType, "CRegion") == 0)
+    rootNode = boost::shared_ptr<NRegion>(new NRegion(nodeName));
+  else if(std::strcmp(nodeType, "CElements") == 0)
+    rootNode = boost::shared_ptr<NElements>(new NElements(nodeName));
   else if(std::strcmp(nodeType, "CRoot") == 0)
     rootNode = boost::shared_ptr<NRoot>(new NRoot(nodeName));
   else

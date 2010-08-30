@@ -17,7 +17,7 @@
 #include "Common/ConcreteProvider.hpp"
 #include "Common/ComponentIterator.hpp"
 #include "Common/PropertyList.hpp"
-#include "Common/XML.hpp"
+#include "Common/XmlHelpers.hpp"
 #include "Common/OptionArray.hpp"
 
 namespace CF {
@@ -293,6 +293,10 @@ private: // helper functions
   template<typename ComponentT>
   ComponentIterator<ComponentT const> make_iterator(const bool begin, const bool recursive) const;
 
+  template < typename TYPE>
+      void add_array_to_xml(XmlParams & params, const std::string & name,
+                            boost::shared_ptr<OptionArray> array) const;
+
 protected: // data
 
   /// component name (stored as path to ensure validity)
@@ -562,6 +566,21 @@ inline void Component::partial_build_component(TYPE* meself)
   addConfigOptionsTo<TYPE>();
   add_tag( TYPE::type_name() );
 }
+
+
+template < typename TYPE>
+    void Component::add_array_to_xml(XmlParams & params, const std::string & name,
+                                     boost::shared_ptr<OptionArray> array) const
+{
+//  boost::shared_ptr<OptionArrayT<TYPE> > optArray;
+//  optArray = boost::dynamic_pointer_cast< OptionArrayT<TYPE> >(array);
+
+//   std::vector<TYPE> vect =
+//      optArray->value< typename std::vector<TYPE> >();
+//  params.add_array(name, vect);
+
+}
+
 
 #define BUILD_COMPONENT             \
     partial_build_component(this);  \

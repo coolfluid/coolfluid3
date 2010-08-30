@@ -446,6 +446,8 @@ void NTree::showNodeMenu(const QModelIndex & index, const QPoint & pos) const
 
 void NTree::list_tree(XmlNode & node)
 {
+  try
+  {
   NRoot::Ptr treeRoot = m_rootNode->getNode()->convertTo<NRoot>();
   NRoot::Ptr rootNode = CNode::createFromXml(*node.first_node())->convertTo<NRoot>();
   ComponentIterator<CNode> it = rootNode->root()->begin<CNode>();
@@ -501,6 +503,10 @@ void NTree::list_tree(XmlNode & node)
   emit currentIndexChanged(m_currentIndex, QModelIndex());
 
   ClientRoot::getLog()->addMessage("Tree updated.");
+} catch(XmlError & xe)
+  {
+  ClientRoot::getLog()->addException(xe.what());
+}
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

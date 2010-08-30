@@ -436,18 +436,24 @@ void Component::write_xml_tree( XmlNode& node )
   XmlNode& this_node = *XmlOps::add_node_to(node, derived_type_name());
   XmlOps::add_attribute_to( this_node, "name", name() );
 
-  if( m_is_link ) // if it is a link, we put the target path as value
-    this_node.value( this_node.document()->allocate_string( get()->full_path().string().c_str() ));
+  if(derived_type_name().empty())
+    CFerror << "Unknown derived name for " << DEMANGLED_TYPEID(*this)
+        << ". Was this class added to the object provider?" << CFendl;
   else
   {
-    XmlNode& options = *XmlOps::add_node_to( this_node, XmlParams::tag_node_valuemap());
-
-    // add options
-    list_options(options);
-
-    BOOST_FOREACH( CompStorage_t::value_type c, m_components )
+    if( m_is_link ) // if it is a link, we put the target path as value
+      this_node.value( this_node.document()->allocate_string( get()->full_path().string().c_str() ));
+    else
     {
-      c.second->write_xml_tree( this_node );
+      XmlNode& options = *XmlOps::add_node_to( this_node, XmlParams::tag_node_valuemap());
+
+      // add options
+      list_options(options);
+
+      BOOST_FOREACH( CompStorage_t::value_type c, m_components )
+      {
+        c.second->write_xml_tree( this_node );
+      }
     }
   }
 }
@@ -518,6 +524,7 @@ void Component::list_options ( XmlNode& node )
 
       if(strcmp(elem_type, "string") == 0)
       {
+//        add_array_to_xml<std::string>(p, it->first, optArray);
         boost::shared_ptr<OptionArrayT<std::string> > array;
         array = boost::dynamic_pointer_cast< OptionArrayT<std::string> >(optArray);
 

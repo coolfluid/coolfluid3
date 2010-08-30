@@ -1,6 +1,7 @@
 #include "Common/Factory.hpp"
 #include "Common/CLink.hpp"
 #include "Common/CGroup.hpp"
+#include "Common/ObjectProvider.hpp"
 
 #include "Mesh/CElements.hpp"
 #include "Mesh/CFieldElements.hpp"
@@ -12,6 +13,9 @@ namespace CF {
 namespace Mesh {
 
 using namespace Common;
+
+Common::ObjectProvider < CElements, Component, MeshLib, NB_ARGS_1 >
+CElements_Provider ( CElements::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +39,7 @@ void CElements::initialize(const std::string& element_type_name, CArray& coords_
   cf_assert(m_element_type);
   const Uint nb_nodes = m_element_type->nb_nodes();
   create_connectivity_table("connectivity_table").initialize(nb_nodes);
-  
+
   CLink::Ptr coords = create_component_type<CLink>(coords_in.name());
   coords->add_tag("coordinates");
   coords->link_to(coords_in.get());
@@ -101,8 +105,8 @@ const CArray& CElements::coordinates() const
 //////////////////////////////////////////////////////////////////////////////
 
 Uint CElements::elements_count() const
-{ 
-  return connectivity_table().size(); 
+{
+  return connectivity_table().size();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -112,7 +116,7 @@ void CElements::add_field_elements_link(CElements& field_elements)
   CGroup::Ptr field_group = get_child_type<CGroup>("fields");
   if (!field_group.get())
     field_group = create_component_type<CGroup>("fields");
-  
+
   const std::string field_name = field_elements.get_parent()->get_type<CField>()->field_name();
   field_group->create_component_type<CLink>(field_name)->link_to(field_elements.get());
 }
@@ -130,6 +134,6 @@ CFieldElements& CElements::get_field_elements(const CName& field_name)
 
 //////////////////////////////////////////////////////////////////////////////
 
-  
+
 } // Mesh
 } // CF
