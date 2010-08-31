@@ -563,46 +563,15 @@ void Component::list_options ( XmlNode& node )
       const char * elem_type = optArray->elem_type();
 
       if(strcmp(elem_type, "string") == 0)
-      {
-//        add_array_to_xml<std::string>(p, it->first, optArray);
-        boost::shared_ptr<OptionArrayT<std::string> > array;
-        array = boost::dynamic_pointer_cast< OptionArrayT<std::string> >(optArray);
-
-        std::vector<std::string> vect = array->value< std::vector<std::string> >();
-        p.add_array(it->first, vect);
-      }
+        add_array_to_xml<std::string>(p, it->first, optArray);
       else if(strcmp(elem_type, "bool") == 0)
-      {
-        boost::shared_ptr<OptionArrayT<bool> > array;
-        array = boost::dynamic_pointer_cast< OptionArrayT<bool> >(optArray);
-
-        std::vector<bool> vect = array->value< std::vector<bool> >();
-        p.add_array(it->first, vect);
-      }
+        add_array_to_xml<bool>(p, it->first, optArray);
       else if(strcmp(elem_type, "integer") == 0)
-      {
-        boost::shared_ptr<OptionArrayT<int> > array;
-        array = boost::dynamic_pointer_cast< OptionArrayT<int> >(optArray);
-
-        std::vector<int> vect = array->value< std::vector<int> >();
-        p.add_array(it->first, vect);
-      }
+        add_array_to_xml<int>(p, it->first, optArray);
       else if(strcmp(elem_type, "unsigned") == 0)
-      {
-        boost::shared_ptr<OptionArrayT<unsigned int> > array;
-        array = boost::dynamic_pointer_cast< OptionArrayT<unsigned int> >(optArray);
-
-        std::vector<unsigned int> vect = array->value< std::vector<unsigned int> >();
-        p.add_array(it->first, vect);
-      }
+        add_array_to_xml<CF::Uint>(p, it->first, optArray);
       else if(strcmp(elem_type, "real") == 0)
-      {
-        boost::shared_ptr<OptionArrayT<CF::Real> > array;
-        array = boost::dynamic_pointer_cast< OptionArrayT<CF::Real> >(optArray);
-
-        std::vector<CF::Real> vect = array->value< std::vector<CF::Real> >();
-        p.add_array(it->first, vect);
-      }
+        add_array_to_xml<CF::Real>(p, it->first, optArray);
       else
         throw ShouldNotBeHere(FromHere(),
              std::string("Don't know how the manage OptionArrayT<") +

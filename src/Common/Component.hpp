@@ -300,9 +300,9 @@ private: // helper functions
   template<typename ComponentT>
   ComponentIterator<ComponentT const> make_iterator(const bool begin, const bool recursive) const;
 
-  template < typename TYPE>
+  template < class TYPE>
       void add_array_to_xml(XmlParams & params, const std::string & name,
-                            boost::shared_ptr<OptionArray> array) const;
+                            boost::shared_ptr<OptionArray> Array) const;
 
 protected: // data
 
@@ -574,17 +574,14 @@ inline void Component::partial_build_component(TYPE* meself)
 }
 
 
-template < typename TYPE>
+template < class TYPE>
     void Component::add_array_to_xml(XmlParams & params, const std::string & name,
                                      boost::shared_ptr<OptionArray> array) const
 {
-//  boost::shared_ptr<OptionArrayT<TYPE> > optArray;
-//  optArray = boost::dynamic_pointer_cast< OptionArrayT<TYPE> >(array);
+  boost::shared_ptr<OptionArrayT<TYPE> > optArray;
+  optArray = boost::dynamic_pointer_cast< OptionArrayT<TYPE> >(array);
 
-//   std::vector<TYPE> vect =
-//      optArray->value< typename std::vector<TYPE> >();
-//  params.add_array(name, vect);
-
+  params.add_array(name, boost::any_cast<std::vector<TYPE> >(optArray->value()));
 }
 
 

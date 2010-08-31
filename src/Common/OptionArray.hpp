@@ -64,6 +64,8 @@ namespace Common {
     /// @returns the default value as a sd::string
     virtual std::string def_str () const;
 
+    std::vector<TYPE> value_vect() const;
+
     //@} END VIRTUAL FUNCTIONS
 
   private: // helper functions
@@ -164,6 +166,13 @@ namespace Common {
 
     return result;
   }
+
+  template<typename TYPE>
+    std::vector<TYPE> OptionArrayT<TYPE>::value_vect() const
+  {
+    return boost::any_cast<value_type>(m_value);
+  }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
