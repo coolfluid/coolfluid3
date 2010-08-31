@@ -1,4 +1,5 @@
 #include <QDialogButtonBox>
+#include <QHeaderView>
 #include <QTableView>
 #include <QVBoxLayout>
 
@@ -18,13 +19,12 @@ CommitDetailsDialog::CommitDetailsDialog(QWidget * parent)
 
   m_buttonBox->addButton(QDialogButtonBox::Ok);
 
-  m_view->resizeRowsToContents();
-  //this->resize(this->width() * 2, this->height());
+  this->resize(this->width(), this->height());
 
   m_mainLayout->addWidget(m_view, 0);
   m_mainLayout->addWidget(m_buttonBox, 1);
 
-  this->setFixedSize(this->width(), this->height());
+  connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(close()));
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -45,6 +45,9 @@ void CommitDetailsDialog::show(CommitDetails & details)
   if (details.rowCount() > 0)
   {
     m_view->setModel(&details);
+
+    m_view->resizeColumnsToContents();
+
     this->exec();
   }
 }
