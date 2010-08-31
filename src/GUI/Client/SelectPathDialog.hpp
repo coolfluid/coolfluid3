@@ -68,6 +68,8 @@ namespace Client {
 
       QStringListModel * m_model;
 
+      bool m_nodeClicked;
+
   }; // class SelectPathDialog
 
   //////////////////////////////////////////////////////////////////////////

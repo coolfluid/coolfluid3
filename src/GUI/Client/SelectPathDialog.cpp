@@ -17,7 +17,8 @@ using namespace CF::GUI::Client;
 
 SelectPathDialog::SelectPathDialog(QWidget *parent) :
     QDialog(parent),
-    m_okClicked(false)
+    m_okClicked(false),
+    m_nodeClicked(false)
 {
   this->setWindowTitle("Change target path");
 
@@ -90,6 +91,7 @@ void SelectPathDialog::btCancelClicked()
 
 void SelectPathDialog::itemClicked(const QModelIndex & index)
 {
+  m_nodeClicked = true;
   m_editPath->setText(m_treeView->getSelectedPath().string().c_str());
 }
 
@@ -103,28 +105,34 @@ void SelectPathDialog::pathChanged(const QString & path)
   QStringList list;
   CNode::Ptr node;
 
-  try
+  if(m_nodeClicked)
+    m_nodeClicked = false;
+  else
   {
-    if(ClientRoot::getTree()->getRoot()->root()->access_component<CNode>(path.toStdString()) != CFNULL)
-      newPath = path;
-    else
-      newPath = path.left(lastSlash);
-
-    if(newPath == "/")
-      newPath = ClientRoot::getTree()->getRoot()->root()->full_path().string().c_str();
-
-    node = ClientRoot::getTree()->getRoot()->root()->access_component<CNode>(newPath.toStdString());
-
-    if(node.get() != CFNULL)
+    CRoot::Ptr root = ClientRoot::getTree()->getRoot()->root();
+    try
     {
-      node->listChildPaths(list, false);
+      if(root->access_component<CNode>(path.toStdString()) != CFNULL)
+        newPath = path;
+      else
+        newPath = path.left(lastSlash);
 
-      m_model->setStringList(list);
+      if(newPath == "/")
+        newPath = root->full_path().string().c_str();
 
-      m_treeView->collapseAll();
+      node = root->access_component<CNode>(newPath.toStdString());
 
-      m_treeView->selectItem(newPath.toStdString());
+      if(node.get() != CFNULL)
+      {
+        node->listChildPaths(list, false);
+
+        m_model->setStringList(list);
+
+        m_treeView->collapseAll();
+
+        m_treeView->selectItem(newPath.toStdString());
+      }
     }
+    catch(InvalidPath & ip) {}
   }
-  catch(InvalidPath & ip) {}
 }

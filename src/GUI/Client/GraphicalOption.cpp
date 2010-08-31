@@ -6,15 +6,13 @@
 #include <QSpinBox>
 #include <QVariant>
 
-#include <QDebug>
-
-#include <stdexcept>
 #include <climits>
 
 #include "Common/BasicExceptions.hpp"
 
 #include "GUI/Client/FilesPanel.hpp"
 #include "GUI/Client/LibrariesPanel.hpp"
+#include "GUI/Client/SelectPathPanel.hpp"
 #include "GUI/Client/UnknownTypeException.hpp"
 
 #include "GUI/Client/GraphicalOption.hpp"
@@ -37,7 +35,7 @@ GraphicalOption::GraphicalOption(OptionType::Type type, QWidget * parent)
 
     // if type valueWidget is a string
   case OptionType::TYPE_STRING:
-    m_valueWidget = new QLineEdit(parent);
+    m_valueWidget = new SelectPathPanel("", parent);
     break;
 
     // if type valueWidget is a double
@@ -138,7 +136,7 @@ QVariant GraphicalOption::getValue() const
 
     // if type valueWidget is a string
   case OptionType::TYPE_STRING:
-    value = ((QLineEdit *) m_valueWidget)->text();
+    value = ((SelectPathPanel *) m_valueWidget)->getValueString();
     break;
 
     // if type valueWidget is an int
@@ -220,7 +218,7 @@ void GraphicalOption::setValue(const QVariant & newValue)
 
     // if the valueWidget is a string
   case OptionType::TYPE_STRING:
-    ((QLineEdit *) m_valueWidget)->setText(newValue.toString());
+    ((SelectPathPanel *) m_valueWidget)->setValue(newValue.toString());
     break;
 
     // if the valueWidget is an int

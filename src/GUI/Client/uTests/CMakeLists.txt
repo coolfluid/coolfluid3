@@ -37,6 +37,7 @@ SET(uTestClient_moc_classes
   ../RemoteSaveFile.hpp
   ../SelectFileDialog.hpp
   ../SelectPathDialog.hpp
+  ../SelectPathPanel.hpp
   ../StatusModel.hpp
   ../StatusPanel.hpp
   ../TreeNode.hpp
@@ -142,6 +143,8 @@ LIST( APPEND uTestClient_files
   ../SelectFileDialog.hpp
   ../SelectPathDialog.cpp
   ../SelectPathDialog.hpp
+  ../SelectPathPanel.cpp
+  ../SelectPathPanel.hpp
   ../StatusModel.cpp
   ../StatusModel.hpp
   ../StatusPanel.cpp
