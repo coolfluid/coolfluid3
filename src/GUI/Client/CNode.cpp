@@ -3,6 +3,8 @@
 #include <QStringList>
 #include <QVariant>
 
+#include <boost/filesystem/path.hpp>
+
 #include <cstring>
 
 #include "Common/CF.hpp"
@@ -130,6 +132,8 @@ void CNode::setOptions(const XmlNode & options)
             addOption<CF::Real>(keyVal, descrVal, *type_node);
           else if(std::strcmp(typeVal, "string") == 0)
             addOption<std::string>(keyVal, descrVal, *type_node);
+          else if(std::strcmp(typeVal, "file") == 0)
+            addOption<boost::filesystem::path>(keyVal, descrVal, *type_node);
           else
             throw ShouldNotBeHere(FromHere(), std::string(typeVal) + ": Unknown type");
         }
@@ -169,6 +173,12 @@ void CNode::setOptions(const XmlNode & options)
           {
             std::vector<std::string> data = p.get_array<std::string>(keyVal);
             m_option_list.add< OptionArrayT<std::string> >(keyVal, descrVal, data);
+          }
+          else if(std::strcmp(typeVal, "file") == 0)
+          {
+            std::vector<boost::filesystem::path> data;
+            data = p.get_array<boost::filesystem::path>(keyVal);
+            m_option_list.add< OptionArrayT<boost::filesystem::path> >(keyVal, descrVal, data);
           }
           else
             throw ShouldNotBeHere(FromHere(), std::string(typeVal) + ": Unknown array type");
@@ -219,18 +229,23 @@ void CNode::modifyOptions(const QMap<QString, QString> options)
 
       if(option->tag() != "array")
       {
+        std::string name = it.key().toStdString();
+        QString value = it.value();
+
         if(option->type() == "bool")
-          p.add_param(it.key().toStdString(), QVariant(it.value()).toBool());
+          p.add_param(name, QVariant(value).toBool());
         else if(option->type() == "integer")
-          p.add_param(it.key().toStdString(), QVariant(it.value()).toInt());
+          p.add_param(name, value.toInt());
         else if(option->type() == "unsigned")
-          p.add_param(it.key().toStdString(), QVariant(it.value()).toUInt());
+          p.add_param(name, value.toUInt());
         else if(option->type() == "real")
-          p.add_param(it.key().toStdString(), QVariant(it.value()).toDouble());
+          p.add_param(name, value.toDouble());
         else if(option->type() == "string")
-          p.add_param(it.key().toStdString(), it.value().toStdString());
+          p.add_param(name, value.toStdString());
+        else if(option->type() == "file")
+          p.add_param(name, boost::filesystem::path(value.toStdString()));
         else
-          throw ValueNotFound(FromHere(), option->type() + ": Unknown type for option " + option->name() );
+          throw ValueNotFound(FromHere(), option->type() + ": Unknown type for option " + name );
       }
       else if(option->tag() == "array")
       {
@@ -241,8 +256,8 @@ void CNode::modifyOptions(const QMap<QString, QString> options)
         optArray = boost::dynamic_pointer_cast<OptionArray>(option);
         const char * elemType = optArray->elem_type();
 
-        if(std::strcmp(elemType, "string") == 0)
-          ADD_ARRAY_TO_XML(std::string)
+        if(std::strcmp(elemType, "file") == 0)
+          ADD_ARRAY_TO_XML(boost::filesystem::path)
         else
           throw ValueNotFound(FromHere(), std::string(elemType) + ": Unknown type for option array " + option->name());
       }
@@ -434,7 +449,7 @@ void CNode::getOptions(QList<NodeOption> & options) const
         boost::shared_ptr<OptionArray> optArray;
         optArray = boost::dynamic_pointer_cast<OptionArray>(it->second);
 
-        if(std::strcmp(optArray->elem_type(), "string") == 0)
+        if(std::strcmp(optArray->elem_type(), "file") == 0)
           nodeOpt.m_paramType = OptionType::TYPE_FILES;
         else
         {

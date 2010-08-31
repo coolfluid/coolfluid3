@@ -18,7 +18,7 @@ OptionType::Convert::FwdMap_t OptionType::Convert::all_fwd = boost::assign::map_
 ( OptionType::TYPE_FILES,        "files")
 ( OptionType::TYPE_LIBRARIES,    "libraries")
 ( OptionType::TYPE_ARRAY,        "array")
-( OptionType::TYPE_PATH,         "path");
+( OptionType::TYPE_PATH,         "file");
 
 OptionType::Convert::BwdMap_t OptionType::Convert::all_rev = boost::assign::map_list_of
 ( "INVALID",   OptionType::INVALID )
@@ -30,7 +30,7 @@ OptionType::Convert::BwdMap_t OptionType::Convert::all_rev = boost::assign::map_
 ( "files",     OptionType::TYPE_FILES )
 ( "libraries", OptionType::TYPE_LIBRARIES )
 ( "array",     OptionType::TYPE_ARRAY )
-( "path",      OptionType::TYPE_PATH );
+( "file",      OptionType::TYPE_PATH );
 
 ////////////////////////////////////////////////////////////////////////////////
 

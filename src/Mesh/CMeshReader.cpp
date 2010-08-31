@@ -1,4 +1,5 @@
 #include <boost/foreach.hpp>
+#include <boost/filesystem/path.hpp>
 
 #include "Common/Log.hpp"
 #include "Common/OptionT.hpp"
@@ -38,8 +39,8 @@ void CMeshReader::regist_signals ( CMeshReader* self )
 
 void CMeshReader::defineConfigOptions(Common::OptionList& options)
 {
-  std::vector<std::string> dummy;
-  options.add< OptionArrayT<std::string> >  ( "Files",  "Files to read" , dummy );
+  std::vector<boost::filesystem::path> dummy;
+  options.add< OptionArrayT<boost::filesystem::path> >  ( "Files",  "Files to read" , dummy );
   options.add< OptionT<std::string> >  ( "Mesh",  "Mesh to construct" , "" );
 }
 
@@ -52,7 +53,7 @@ void CMeshReader::read( XmlNode& node  )
 
   // Get the file paths
   std::vector<boost::filesystem::path> files;
-  BOOST_FOREACH(boost::filesystem::path file, option("Files")->value<std::vector<std::string> >())
+  BOOST_FOREACH(boost::filesystem::path file, option("Files")->value<std::vector<boost::filesystem::path> >())
     read_from_to(file,mesh);
 }
 

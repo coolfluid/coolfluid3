@@ -1,4 +1,5 @@
 #include <boost/foreach.hpp>
+#include <boost/filesystem/path.hpp>
 
 #include "Common/Option.hpp"
 
@@ -46,6 +47,9 @@ namespace Common {
 
   template<>
   Common_API const char * Option::type_to_str<std::string>() const { return "string"; }
+
+  template<>
+  Common_API const char * Option::type_to_str<boost::filesystem::path>() const { return "file"; }
 
 
 /////////////////////////////////////////////////////////////////////////////////////

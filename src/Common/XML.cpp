@@ -26,7 +26,7 @@ namespace Common {
   Common_API const char * XmlTag<std::string>::type() { return "string"; }
 
   template<>
-  Common_API const char * XmlTag<boost::filesystem::path>::type() { return "path"; }
+  Common_API const char * XmlTag<boost::filesystem::path>::type() { return "file"; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -121,6 +121,12 @@ template <>
     Common_API std::string value_to_xmlstr<std::string> ( const std::string& val )
 {
    return val;
+}
+
+template <>
+    Common_API std::string value_to_xmlstr<boost::filesystem::path> ( const boost::filesystem::path & val )
+{
+   return val.string();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

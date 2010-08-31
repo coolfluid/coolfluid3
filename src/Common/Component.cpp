@@ -572,11 +572,12 @@ void Component::list_options ( XmlNode& node )
         add_array_to_xml<CF::Uint>(p, it->first, optArray);
       else if(strcmp(elem_type, "real") == 0)
         add_array_to_xml<CF::Real>(p, it->first, optArray);
+      else if(strcmp(elem_type, "file") == 0)
+        add_array_to_xml<boost::filesystem::path>(p, it->first, optArray);
       else
         throw ShouldNotBeHere(FromHere(),
              std::string("Don't know how the manage OptionArrayT<") +
                   elem_type + ">.");
-
     }
   }
 }
