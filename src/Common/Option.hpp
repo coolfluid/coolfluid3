@@ -129,6 +129,9 @@ namespace Common {
       m_linked_params.push_back(par);
     }
 
+    /// this option is tagged as a basic option on the GUI
+    void mark_basic () {}
+
   protected:
 
     /// storage of the value of the option

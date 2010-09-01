@@ -42,6 +42,8 @@ void CMeshReader::defineConfigOptions(Common::OptionList& options)
   std::vector<boost::filesystem::path> dummy;
   options.add< OptionArrayT<boost::filesystem::path> >  ( "Files",  "Files to read" , dummy );
   options.add< OptionT<std::string> >  ( "Mesh",  "Mesh to construct" , "" );
+
+  options.getOption("Files")->mark_basic();
 }
 
 //////////////////////////////////////////////////////////////////////////////
