@@ -31,7 +31,7 @@ struct Mesh_API Quad3D : public ElementType
   static const GeoShape::Type shape = GeoShape::QUAD;
   
   /// @return number of faces
-  static const Uint nb_faces = 1;
+  static const Uint nb_faces = 4;
   
   /// @return number of edges
   static const Uint nb_edges = 4;

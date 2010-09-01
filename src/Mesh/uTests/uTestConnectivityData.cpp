@@ -37,19 +37,22 @@ typedef MeshSourceGlobalFixture<1000> MeshSource;
 struct NeuFixture
 {
   /// common setup for each test case
-  NeuFixture() : mesh2d(new CMesh  ( "mesh2d" ))
+  NeuFixture() : mesh2d(new CMesh  ( "mesh2d" )), mesh3d(new CMesh  ( "mesh3d" ))
   {
     // Read the a .neu mesh as 2D mixed mesh
     boost::shared_ptr<CMeshReader> meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
 
     // the file to read from
-    boost::filesystem::path fp_in ("quadtriag.neu");
+    boost::filesystem::path fp_in_2d ("quadtriag.neu");
+    boost::filesystem::path fp_in_3d ("hextet.neu");
 
     // Read the mesh
-    meshreader->read_from_to(fp_in,mesh2d);
+    meshreader->read_from_to(fp_in_2d,mesh2d);
+    meshreader->read_from_to(fp_in_3d,mesh3d);
   }
 
   boost::shared_ptr<CMesh> mesh2d;
+  boost::shared_ptr<CMesh> mesh3d;
 };
 
 /// Profile and time tests using this fixture
@@ -271,6 +274,8 @@ BOOST_FIXTURE_TEST_CASE( CreateSurfaceToVolumeConnectivity, NeuFixture )
   }
   
   print_connectivity(*mesh2d);
+  CFinfo << mesh2d->tree() << CFendl;
+
 }
 
 /// For all volume elements, look up their adjacent surface element, if any
@@ -290,7 +295,51 @@ BOOST_FIXTURE_TEST_CASE( CreateVolumeToSurfaceConnectivity, NeuFixture )
   }
 
   print_connectivity(*mesh2d, false);
-  CFinfo << mesh2d->tree() << CFendl;
+  //CFinfo << mesh2d->tree() << CFendl;
+}
+
+
+/// For all surface elements, look up their adjacent volume element
+BOOST_FIXTURE_TEST_CASE( CreateSurfaceToVolumeConnectivity3D, NeuFixture )
+{
+  // Total number of nodes in the mesh
+  const Uint nb_nodes = recursive_get_named_component_typed<CArray>(*mesh3d, "coordinates").array().size();
+  
+  // Add node connectivity data at the mesh level
+  CNodeConnectivity::Ptr node_connectivity = mesh3d->create_component_type<CNodeConnectivity>("node_connectivity");
+  node_connectivity->initialize(nb_nodes, recursive_filtered_range_typed<CElements>(*mesh3d, IsElementsVolume()));
+  
+  
+  for(Uint i = 0; i != node_connectivity->node_first_elements().size(); ++i)
+  {
+    CFinfo << "Node " << i << " is used by elements";
+    const Uint elements_begin = node_connectivity->node_first_elements()[i];
+    const Uint elements_end = elements_begin + node_connectivity->node_element_counts()[i];
+    for(Uint j = elements_begin; j != elements_end; ++j)
+    {
+      CFinfo << " " << node_connectivity->node_elements()[j];
+    }
+    CFinfo << CFendl;
+  }
+  CFinfo << "node_elements = ";
+  for(Uint i = 0; i != node_connectivity->node_elements().size(); ++i)
+    CFinfo << "(" << node_connectivity->node_elements()[i] << ")";
+  CFinfo << CFendl;
+  
+  CFinfo << mesh3d->tree() << CFendl;
+
+  
+  
+  // Add face connectivity data for surface elements
+  BOOST_FOREACH(CElements& celements, recursive_filtered_range_typed<CElements>(*mesh3d, IsElementsSurface()))
+  {
+    CFinfo << "surface type = " << celements.full_path().string() << CFendl;
+    celements.create_component_type<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
+  }
+  
+  print_connectivity(*mesh2d);
+  CFinfo << mesh3d->tree() << CFendl;
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////

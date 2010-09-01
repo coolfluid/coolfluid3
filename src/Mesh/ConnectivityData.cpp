@@ -92,7 +92,12 @@ Uint CFaceConnectivity::adjacent_face(const Uint element, const Uint face) const
 }
 
 
-void create_node_element_connectivity(const Uint nb_nodes, const CFaceConnectivity::ElementsT& elements, const CFaceConnectivity::IndicesT& celements_first_elements, CFaceConnectivity::IndicesT& node_first_elements, CFaceConnectivity::CountsT& node_element_counts, CFaceConnectivity::IndicesT& node_elements)
+void create_node_element_connectivity(const Uint nb_nodes,
+                                      const CFaceConnectivity::ElementsT& elements,
+                                      const CFaceConnectivity::IndicesT& celements_first_elements,
+                                      CFaceConnectivity::IndicesT& node_first_elements,
+                                      CFaceConnectivity::CountsT& node_element_counts,
+                                      CFaceConnectivity::IndicesT& node_elements)
 {
   node_first_elements.resize(nb_nodes);
   node_element_counts.resize(nb_nodes, 0);
@@ -139,7 +144,14 @@ void create_node_element_connectivity(const Uint nb_nodes, const CFaceConnectivi
   }
 }
 
-void create_face_element_connectivity(const CElements& own_celements, const CFaceConnectivity::ElementsT& celements_vector, const CFaceConnectivity::IndicesT& celements_first_elements, const CFaceConnectivity::IndicesT& node_first_elements, const CFaceConnectivity::CountsT& node_element_counts, const CFaceConnectivity::IndicesT& node_elements, CFaceConnectivity::BoolsT& face_has_neighbour, CFaceConnectivity::IndicesT& face_element_connectivity)
+void create_face_element_connectivity(const CElements& own_celements,
+                                      const CFaceConnectivity::ElementsT& celements_vector,
+                                      const CFaceConnectivity::IndicesT& celements_first_elements,
+                                      const CFaceConnectivity::IndicesT& node_first_elements,
+                                      const CFaceConnectivity::CountsT& node_element_counts,
+                                      const CFaceConnectivity::IndicesT& node_elements,
+                                      CFaceConnectivity::BoolsT& face_has_neighbour,
+                                      CFaceConnectivity::IndicesT& face_element_connectivity)
 {
   // Cache some commonly accessed data
   const CTable::ConnectivityTable& element_connectivity = own_celements.connectivity_table().table();
