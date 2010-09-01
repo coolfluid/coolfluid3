@@ -27,8 +27,7 @@ Component::Component ( const CName& name ) :
     m_name (),
     m_path (),
     m_properties(),
-    m_is_link (false),
-    m_tags(":") // empty tags
+    m_is_link (false)
 {
   BUILD_COMPONENT;
 
@@ -89,46 +88,8 @@ void Component::rename ( const CName& name , AddOption add_option)
     Component::Ptr this_component = parent->add_component(get(),add_option);
     new_name = this_component->name();
   }
-  
+
   m_name = new_name;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
-
-void Component::add_tag(const std::string& tag)
-{
-  m_tags += tag + ":";
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
-
-std::vector<std::string> Component::get_tags()
-{
-  std::vector<std::string> vec;
-
-  typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
-  boost::char_separator<char> sep(":");
-  Tokenizer tokens(m_tags, sep);
-
-  for (Tokenizer::iterator tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter)
-    vec.push_back(*tok_iter);
-
-  return vec;
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
-
-bool Component::has_tag(const std::string& tag) const
-{
-  typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
-  boost::char_separator<char> sep(":");
-  Tokenizer tokens(m_tags, sep);
-
-  for (Tokenizer::iterator tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter)
-    if (*tok_iter == tag)
-      return true;
-
-  return false;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -160,18 +121,18 @@ Component::Ptr Component::add_component ( Component::Ptr subcomp, AddOption add_
           // Instead of throwing, append a number to its name.
           if (m_components.find(name) != m_components.end() )
             m_components[name]->rename(name+"_0");
-          
+
           Uint count = 1;
           //count howmany times the name "name(_[0-9]+)?" occurs (REGEX)
           while (m_components.find(name+"_"+StringOps::to_str(count)) != m_components.end())
             count++;
-          
+
           std::string new_name = name+"_"+StringOps::to_str(count);
-          
+
           CFwarn << "A component \"" << subcomp->full_path().string() << "\" already existed. New component added with name \"" << new_name << "\"" << CFendl;
           subcomp->rename(new_name);
           break;
-        }      
+        }
       }
       break;
     }
@@ -182,7 +143,7 @@ Component::Ptr Component::add_component ( Component::Ptr subcomp, AddOption add_
   m_components[subcomp->name()] = subcomp;
 
   subcomp->change_parent( shared_from_this() );
-  
+
   return subcomp;
 }
 
@@ -549,6 +510,9 @@ void Component::list_options ( XmlNode& node )
       // set key (option name) and descr attributes (option description)
       XmlOps::add_attribute_to(value_node, XmlParams::tag_attr_key(), it->first);
       XmlOps::add_attribute_to(value_node, XmlParams::tag_attr_descr(), opt->description());
+
+      XmlOps::add_attribute_to(value_node, "mode",
+                               opt->has_tag("basic") ? "basic" : "adv" );
 
       // set option value
       XmlOps::add_node_to(value_node, opt->type(), opt->value_str());

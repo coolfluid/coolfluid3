@@ -19,6 +19,7 @@
 #include "Common/PropertyList.hpp"
 #include "Common/XmlHelpers.hpp"
 #include "Common/OptionArray.hpp"
+#include "Common/TaggedObject.hpp"
 
 namespace CF {
 namespace Common {
@@ -37,6 +38,7 @@ class Common_API Component
   public boost::enable_shared_from_this<Component>,
   public ConfigObject,
   public SignalHandler,
+  public TaggedObject,
   public boost::noncopyable {
 
 public: // typedef
@@ -54,14 +56,14 @@ public: // typedef
   typedef ComponentIterator<Component> iterator;
   typedef ComponentIterator<Component const> const_iterator;
 
-  
+
   /// Options that can be passed to Component::add_component
   /// This is defines when adding a component whose name already exists
   enum AddOption {
     THROW = 0,      ///< throw an exception
     NUMBER = 2      ///< add the component with a different name "name_1" , "name_2" , ...
   };
-    
+
 private: // typedef
 
   /// type for storing the sub components
@@ -156,15 +158,6 @@ public: // functions
 
   /// checks if this component is in fact a link to another component
   bool is_link () const { return m_is_link; }
-
-  /// Check if this component has a given tag assigned
-  bool has_tag(const std::string& tag) const;
-
-  /// add tag to this component
-  void add_tag(const std::string& tag);
-
-  /// @return tags in a vector
-  std::vector<std::string> get_tags();
 
   /// Access the name of the component
   CName name () const { return m_name.string(); }
@@ -324,8 +317,6 @@ protected: // data
   boost::weak_ptr<Component> m_parent;
   /// is this a link component
   bool m_is_link;
-  /// tags merged as one string e.g. ":Component:CRoot:"
-  std::string m_tags;
 
 }; // Component
 

@@ -52,6 +52,12 @@ namespace Common {
   Common_API const char * Option::type_to_str<boost::filesystem::path>() const { return "file"; }
 
 
+  void Option::mark_basic()
+  {
+    if(!has_tag("basic"))
+      add_tag("basic");
+  }
+
 /////////////////////////////////////////////////////////////////////////////////////
 
 } // Common

@@ -96,6 +96,8 @@ list( APPEND Common_files
     StringOps.hpp
     SignalHandler.hpp
     SignalHandler.cpp
+    TaggedObject.hpp
+    TaggedObject.cpp
     TimePolicies.cpp
     TimePolicies.hpp
     WorkerStatus.cpp

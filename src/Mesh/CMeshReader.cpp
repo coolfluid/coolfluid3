@@ -44,6 +44,7 @@ void CMeshReader::defineConfigOptions(Common::OptionList& options)
   options.add< OptionT<std::string> >  ( "Mesh",  "Mesh to construct" , "" );
 
   options.getOption("Files")->mark_basic();
+  options.getOption("Mesh")->mark_basic();
 }
 
 //////////////////////////////////////////////////////////////////////////////

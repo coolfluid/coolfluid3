@@ -9,6 +9,7 @@
 #include <boost/any.hpp>
 
 #include "Common/Log.hpp"
+#include "Common/TaggedObject.hpp"
 #include "Common/XML.hpp"
 
 namespace CF {
@@ -50,7 +51,8 @@ namespace Common {
   ///       - ConfigObject ( ConfigObject, OptionList )
   ///       - Option
   ///       - OptionT
-  class Common_API Option
+  class Common_API Option :
+      public TaggedObject
   {
   public:
 
@@ -130,7 +132,7 @@ namespace Common {
     }
 
     /// this option is tagged as a basic option on the GUI
-    void mark_basic () {}
+    void mark_basic ();
 
   protected:
 

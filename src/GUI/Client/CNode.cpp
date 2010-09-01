@@ -106,8 +106,12 @@ void CNode::setOptions(const XmlNode & options)
   XmlNode* node = options.first_node();
   for ( ; node != CFNULL ; node = node->next_sibling(  ) )
   {
+    bool advanced;
     XmlAttr * keyAttr= node->first_attribute( XmlParams::tag_attr_key() );
     XmlAttr * descrAttr = node->first_attribute( XmlParams::tag_attr_descr() );
+    XmlAttr * modeAttr = node->first_attribute( "mode" );
+
+    advanced = modeAttr != CFNULL && std::strcmp(modeAttr->value(), "adv") == 0;
 
     const char * keyVal = keyAttr->value(); // option name
 
@@ -185,6 +189,9 @@ void CNode::setOptions(const XmlNode & options)
         }
 
       }
+
+      if(!advanced)
+        m_option_list.getOption(keyVal)->mark_basic();
     }
   }
 }
@@ -446,7 +453,7 @@ void CNode::getOptions(QList<NodeOption> & options) const
       NodeOption nodeOpt;
       OptionType::Type optionType = OptionType::Convert::to_enum(it->second->type());
 
-      nodeOpt.m_paramAdv= true;
+      nodeOpt.m_paramAdv= !it->second->has_tag("basic");
       nodeOpt.m_paramName = it->first.c_str();
       nodeOpt.m_paramValue = it->second->value_str().c_str();
       nodeOpt.m_paramDescr = it->second->description().c_str();
