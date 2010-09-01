@@ -10,9 +10,15 @@
 
 #include "Common/BasicExceptions.hpp"
 
-#include "GUI/Client/FilesPanel.hpp"
-#include "GUI/Client/LibrariesPanel.hpp"
 #include "GUI/Client/SelectPathPanel.hpp"
+
+#include "GUI/Client/GraphicalBool.hpp"
+#include "GUI/Client/GraphicalDouble.hpp"
+#include "GUI/Client/GraphicalInt.hpp"
+#include "GUI/Client/GraphicalString.hpp"
+#include "GUI/Client/GraphicalUrlArray.hpp"
+#include "GUI/Client/GraphicalValue.hpp"
+
 #include "GUI/Client/UnknownTypeException.hpp"
 
 #include "GUI/Client/GraphicalOption.hpp"
@@ -26,69 +32,49 @@ GraphicalOption::GraphicalOption(OptionType::Type type, QWidget * parent)
   {
     // if type valueWidget is a bool
   case OptionType::TYPE_BOOL:
-    {
-      QCheckBox * checkBox = new QCheckBox(parent);
-      checkBox->setCheckState(Qt::Unchecked);
-      m_valueWidget = checkBox;
-      break;
-    }
+    m_valueWidget = new GraphicalBool(parent);
+    break;
 
     // if type valueWidget is a string
   case OptionType::TYPE_STRING:
-    m_valueWidget = new SelectPathPanel("", parent);
+    m_valueWidget = new GraphicalString(parent);
     break;
 
     // if type valueWidget is a double
   case OptionType::TYPE_DOUBLE:
-    {
-      QDoubleValidator * validator;
-      m_valueWidget = new QLineEdit(parent);
-      validator = new QDoubleValidator(m_valueWidget);
-      validator->setNotation(QDoubleValidator::ScientificNotation);
-      ((QLineEdit *)m_valueWidget)->setValidator(validator);
-    }
+    m_valueWidget = new GraphicalDouble(parent);
     break;
 
     // if type valueWidget is an int
   case OptionType::TYPE_INT:
-    m_valueWidget = new QSpinBox(parent);
-    ((QSpinBox *)m_valueWidget)->setRange(INT_MIN, INT_MAX);
+    m_valueWidget = new GraphicalInt(false, parent);
     break;
 
     // if type valueWidget is an unsigned int
   case OptionType::TYPE_UNSIGNED_INT:
-    m_valueWidget = new QSpinBox(parent);
-    // INT_MAX (not UINT_MAX) because parameter type is "int" (not "unsigned int")
-    ((QSpinBox *)m_valueWidget)->setRange(0, INT_MAX);
+    m_valueWidget = new GraphicalInt(true, parent);
     break;
 
     // if type valueWidget is a files list
   case OptionType::TYPE_FILES:
-    m_valueWidget = new FilesPanel(true, QStringList(), true, parent);
+    m_valueWidget = new GraphicalUrlArray(parent);
     break;
 
     // if type valueWidget is a library list
   case OptionType::TYPE_LIBRARIES:
-    m_valueWidget = new LibrariesPanel(parent);
+    m_valueWidget = new GraphicalUrlArray(parent);
     break;
 
     // if type valueWidget is a string
   case OptionType::TYPE_PATH:
-    m_valueWidget = new QLineEdit(parent);
+    m_valueWidget = new GraphicalString(parent);
     break;
-
-
-    //    case OptionType::TYPE_HOST_LIST:
-    //      m_valueWidget = new HostListPanel();
-    //      break;
 
   default:
     throw UnknownTypeException(FromHere(), "Uknowmn option type");
   }
 
   m_name = new QLabel();
-
-  //m_valueWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
   m_type = type;
 }
@@ -123,59 +109,7 @@ void GraphicalOption::setName(const QString & name)
 
 QVariant GraphicalOption::getValue() const
 {
-  QVariant value;
-
-  /// @todo TQ: handle the NO_TYPE in the switch
-
-  switch(m_type)
-  {
-    // if type valueWidget is a bool
-  case OptionType::TYPE_BOOL:
-    value = ((QCheckBox *) m_valueWidget)->checkState() == Qt::Checked;
-    break;
-
-    // if type valueWidget is a string
-  case OptionType::TYPE_STRING:
-    value = ((SelectPathPanel *) m_valueWidget)->getValueString();
-    break;
-
-    // if type valueWidget is an int
-  case OptionType::TYPE_INT:
-    value = ((QSpinBox *) m_valueWidget)->value();
-    break;
-
-    // if type valueWidget is an unsigned int
-  case OptionType::TYPE_UNSIGNED_INT:
-    value = ((QSpinBox *) m_valueWidget)->value();
-    break;
-
-    // if type valueWidget is a double
-  case OptionType::TYPE_DOUBLE:
-    value = ((QLineEdit *) m_valueWidget)->text();
-    //    value = ((QDoubleSpinBox *) this->valueWidget)->value();
-    break;
-
-    // if type valueWidget is a files list
-  case OptionType::TYPE_FILES:
-    value = ((FilesPanel *) m_valueWidget)->getFilesList().join(":");
-    break;
-
-    // if type valueWidget is a library list
-  case OptionType::TYPE_LIBRARIES:
-    value = ((LibrariesPanel *) m_valueWidget)->getFilesList();
-    break;
-
-    // if type valueWidget is a string
-  case OptionType::TYPE_PATH:
-    value = ((QLineEdit *) m_valueWidget)->text();
-    break;
-
-  default:
-      throw ShouldNotBeHere(FromHere(), "GraphicalOption::getValue()");
-
-  }
-
-  return value;
+  return m_valueWidget->getValue();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -183,10 +117,7 @@ QVariant GraphicalOption::getValue() const
 
 QString GraphicalOption::getValueString() const
 {
-  if(m_type == OptionType::TYPE_FILES /*|| m_type == TYPE_LIBRARIES*/)
-    return this->getValue().toStringList().join(" ");
-
-  return this->getValue().toString();
+  return m_valueWidget->getValueString();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -202,85 +133,7 @@ OptionType::Type GraphicalOption::getType() const
 
 void GraphicalOption::setValue(const QVariant & newValue)
 {
-  bool ok; // used to validate conversions
-
-  /// @todo TQ: handle the NO_TYPE in the switch
-
-  switch(m_type)
-  {
-    // if the valueWidget is a bool
-  case OptionType::TYPE_BOOL:
-    {
-      bool val = newValue.toBool();
-      ((QCheckBox *) m_valueWidget)->setCheckState(val ? Qt::Checked : Qt::Unchecked);
-      break;
-    }
-
-    // if the valueWidget is a string
-  case OptionType::TYPE_STRING:
-    ((SelectPathPanel *) m_valueWidget)->setValue(newValue.toString());
-    break;
-
-    // if the valueWidget is an int
-  case OptionType::TYPE_INT:
-    {
-      int val = 0;
-
-      if(!newValue.toString().isEmpty())
-      {
-        val = newValue.toInt(&ok);
-
-        if(!ok) // if ok is false, the conversion failed
-          throw CastingFailed(FromHere(), "Failed to convert to an integer");
-      }
-
-      ((QSpinBox *) m_valueWidget)->setValue(val);
-      break;
-    }
-
-    // if the valueWidget if an unsigned int
-  case OptionType::TYPE_UNSIGNED_INT:
-    {
-      unsigned int val = 0;
-
-      if(!newValue.toString().isEmpty())
-      {
-        val = newValue.toUInt(&ok);
-
-        if(!ok) // if ok is false, the conversion failed
-          throw CastingFailed(FromHere(), "Failed to convert to an unsigned "
-                                      "integer");
-      }
-
-      ((QSpinBox *) m_valueWidget)->setValue(val);
-      break;
-    }
-
-    // if the valueWidget if a double
-  case OptionType::TYPE_DOUBLE:
-    {
-      ((QLineEdit *) m_valueWidget)->setText(newValue.toString());
-      break;
-    }
-
-  // if the valueWidget if a files list
-  case OptionType::TYPE_FILES:
-      ((FilesPanel *) m_valueWidget)->setFilesList(newValue.toString().split(':'));
-      break;
-
-  // if the valueWidget is a string
-  case OptionType::TYPE_PATH:
-      ((QLineEdit *) m_valueWidget)->setText(newValue.toString());
-      break;
-
-  default:
-    throw ShouldNotBeHere(FromHere(), "GraphicalOption::setValue()");
-
-  }
-
-  // if execution arrives here => no exception were thrown
-  // => everything goes well => keep the value as original value
-  m_originalValue = newValue;
+  m_valueWidget->setValue(newValue);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -322,10 +175,7 @@ void GraphicalOption::setToolTip(const QString & toolTip)
 
 bool GraphicalOption::isModified() const
 {
-//  if(m_type == TYPE_HOST_LIST)
-//    return static_cast<HostListPanel *>(m_valueWidget)->isModified();
-
-  return m_originalValue != this->getValue();
+  return m_valueWidget->isModified();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -333,7 +183,7 @@ bool GraphicalOption::isModified() const
 
 QVariant GraphicalOption::getOrginalValue() const
 {
-  return m_originalValue;
+  return m_valueWidget->getOriginalValue();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -341,10 +191,7 @@ QVariant GraphicalOption::getOrginalValue() const
 
 QString GraphicalOption::getOrginalValueString() const
 {
-  if(m_type == OptionType::TYPE_FILES /*|| m_type == TYPE_LIBRARIES*/)
-    return this->getOrginalValue().toStringList().join(" ");
-
-  return this->getOrginalValue().toString();
+  return m_valueWidget->getOriginalString();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -352,11 +199,5 @@ QString GraphicalOption::getOrginalValueString() const
 
 void GraphicalOption::commit()
 {
-  m_originalValue = this->getValue();
-
-//  if(m_type == TYPE_HOST_LIST)
-//  {
-//    HostListPanel * panel = static_cast<HostListPanel *>(m_valueWidget);
-//    panel->setItems(panel->getDocument());
-//  }
+  m_valueWidget->commit();
 }

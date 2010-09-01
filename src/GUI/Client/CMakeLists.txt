@@ -12,7 +12,7 @@ LIST( APPEND coolfluid-client_moc_classes
   CommitDetailsDialog.hpp
   ConfirmCommitDialog.hpp
   ConnectionDialog.hpp
-  FilesPanel.hpp
+  GraphicalUrlArray.hpp
   LoggingList.hpp
   MainWindow.hpp
   NArray.hpp
@@ -63,12 +63,20 @@ LIST( APPEND coolfluid-client_files
   ConnectionDialog.hpp
   FilesListItem.cpp
   FilesListItem.hpp
-  FilesPanel.cpp
-  FilesPanel.hpp
+  GraphicalBool.hpp
+  GraphicalBool.cpp
+  GraphicalDouble.hpp
+  GraphicalDouble.cpp
+  GraphicalInt.hpp
+  GraphicalInt.cpp
   GraphicalOption.cpp
   GraphicalOption.hpp
-  LibrariesPanel.cpp
-  LibrariesPanel.hpp
+  GraphicalString.hpp
+  GraphicalString.cpp
+  GraphicalUrlArray.cpp
+  GraphicalUrlArray.hpp
+  GraphicalValue.cpp
+  GraphicalValue.hpp
   LoggingList.cpp
   LoggingList.hpp
   main.cpp

@@ -21,6 +21,8 @@ namespace Client {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+  class GraphicalValue;
+
   /// @brief Displays an option graphically.
 
   /// The value component is adapted to the type of the option.
@@ -143,7 +145,7 @@ namespace Client {
     QLabel * m_name;
 
     /// @brief Line edit for the option value.
-    QWidget * m_valueWidget;
+    GraphicalValue * m_valueWidget;
 
     /// @brief Type of the option, according to the type ids defined by
     /// OptionTypes class.

@@ -29,8 +29,8 @@ namespace Client {
   /// functionnality to its base class : the type of this item. An item can
   /// be either a file or a directory and it can be usefull to remember this,
   /// for exemple, to easily manage icons.@n @n
-  /// This class is used by @c RemoteFSBrowser to create m_items for
-  /// the list m_view.@n @n
+  /// This class is used by @c RemoteFSBrowser to create items for
+  /// the list view.@n @n
   /// @author Quentin Gasper.
 
   class FilesListItem : public QStandardItem
