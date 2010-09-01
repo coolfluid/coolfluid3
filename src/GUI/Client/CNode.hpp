@@ -238,7 +238,7 @@ namespace Client {
 
     CNodeNotifier * getNotifier() const;
 
-    void listChildPaths(QStringList & list, bool recursive) const;
+    void listChildPaths(QStringList & list, bool recursive, bool clientNode = true) const;
 
   protected:
 

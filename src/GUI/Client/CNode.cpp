@@ -336,7 +336,7 @@ CNodeNotifier * CNode::getNotifier() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CNode::listChildPaths(QStringList & list, bool recursive) const
+void CNode::listChildPaths(QStringList & list, bool recursive, bool clientNodes) const
 {
   ComponentIterator<const CNode> it = this->begin<const CNode>();
   ComponentIterator<const CNode> itEnd = this->end<const CNode>();
@@ -347,12 +347,21 @@ void CNode::listChildPaths(QStringList & list, bool recursive) const
     it = root->begin<const CNode>();
     itEnd = root->end<const CNode>();
 
-    list << root->full_path().string().c_str();
+    if(it->get_child_count() > 0)
+      list << QString(root->full_path().string().c_str()) + '/';
+    else
+      list << root->full_path().string().c_str();
   }
 
   for( ; it != itEnd ; it++)
   {
-    list << it->full_path().string().c_str();
+    if(!it->isClientComponent() || clientNodes)
+    {
+      if(it->get_child_count() > 0)
+        list << QString(it->full_path().string().c_str()) + '/';
+      else
+        list << it->full_path().string().c_str();
+    }
 
     if(recursive)
       it->listChildPaths(list, recursive);

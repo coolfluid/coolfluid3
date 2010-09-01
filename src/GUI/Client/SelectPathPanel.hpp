@@ -5,9 +5,12 @@
 
 #include <QWidget>
 
+class QCompleter;
 class QHBoxLayout;
 class QLineEdit;
 class QPushButton;
+class QString;
+class QStringListModel;
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -35,6 +38,8 @@ namespace Client {
 
     void btBrowseClicked();
 
+    void updateModel(const QString & path);
+
   private:
 
     QLineEdit * m_editPath;
@@ -42,6 +47,10 @@ namespace Client {
     QPushButton * m_btBrowse;
 
     QHBoxLayout * m_layout;
+
+    QCompleter * m_completer;
+
+    QStringListModel * m_completerModel;
 
   }; // class SelectPathPanel
 
