@@ -1,5 +1,5 @@
-SET ( CF_LIBRARY_LINK_FLAGS "" CACHE STRING "Extra link flags for libraries" FORCE )
-MARK_AS_ADVANCED ( CF_LIBRARY_LINK_FLAGS )
+SET( CF_LIBRARY_LINK_FLAGS "" CACHE STRING "Extra link flags for libraries" FORCE )
+MARK_AS_ADVANCED( CF_LIBRARY_LINK_FLAGS )
 
 ########################################################################################
 # UNIX
@@ -25,7 +25,7 @@ IF(UNIX)
     CF_ADD_C_FLAGS("-fno-common")
     CF_ADD_CXX_FLAGS("-fno-common")
 
-    if ( CF_ENABLE_WARNINGS )
+    if( CF_ENABLE_WARNINGS )
       # use many warnings
       CF_ADD_CXX_FLAGS("-Wall")
       CF_ADD_CXX_FLAGS("-W")
@@ -64,14 +64,14 @@ IF(UNIX)
       #
     endif()
 
-    if ( CF_ENABLE_CODECOVERAGE )
+    if( CF_ENABLE_CODECOVERAGE )
 
       find_program(CTEST_COVERAGE_COMMAND gcov)
 
-      if ( CTEST_COVERAGE_COMMAND )
-        SET ( CMAKE_C_FLAGS     "${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage" )
-        SET ( CMAKE_CXX_FLAGS   "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage" )
-        SET ( LINK_FLAGS        "${LINK_FLAGS} -fprofile-arcs -ftest-coverage" )
+      if( CTEST_COVERAGE_COMMAND )
+        SET( CMAKE_C_FLAGS     "${CMAKE_C_FLAGS} -fprofile-arcs -ftest-coverage" )
+        SET( CMAKE_CXX_FLAGS   "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage" )
+        SET( LINK_FLAGS        "${LINK_FLAGS} -fprofile-arcs -ftest-coverage" )
       endif()
     endif()
 
@@ -107,7 +107,7 @@ IF(WIN32)
 
   # linker flags:
   #   /OPT:NOREF keeps functions and data that are never referenced ( needed for static libs )
-  SET ( CF_LIBRARY_LINK_FLAGS "/OPT:NOREF /OPT:NOICF"  CACHE STRING "Extra link flags for libraries" FORCE )
+  SET( CF_LIBRARY_LINK_FLAGS "/OPT:NOREF /OPT:NOICF"  CACHE STRING "Extra link flags for libraries" FORCE )
 
   #   SET ( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /OPT:NOREF /OPT:NOICF" )
   #   SET ( CMAKE_CXX_CREATE_STATIC_LIBRARY  "lib ${CMAKE_CL_NOLOGO} /OPT:NOREF /OPT:NOICF <LINK_FLAGS> /out:<TARGET> <OBJECTS>" )
@@ -118,7 +118,7 @@ ENDIF(WIN32)
 # APPLE
 ########################################################################################
 
-IF ( APPLE )
+IF( APPLE )
 
 	# improve the linker compiler to avoid unresolved symbols causing errors
   # not needed anymore because all lib depencies are explicitly set
@@ -127,7 +127,7 @@ IF ( APPLE )
 
   # under Mac OS X internal deps must be used so force them
   IF( NOT CF_ENABLE_INTERNAL_DEPS )
-    SET ( CF_ENABLE_INTERNAL_DEPS ON CACHE BOOL "Use of internal deps is forced" FORCE )
+    SET( CF_ENABLE_INTERNAL_DEPS ON CACHE BOOL "Use of internal deps is forced" FORCE )
   ENDIF()
 
 ENDIF()
