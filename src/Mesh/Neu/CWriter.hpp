@@ -3,8 +3,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <boost/tuple/tuple.hpp>
-
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CTable.hpp"
 
@@ -74,10 +72,6 @@ private: // data
   
   /// implementation detail, raw pointers are safe as keys
   std::map<CElements const*,Uint> m_global_start_idx;
-
-  std::map<Uint,std::vector<std::pair<CElements const*,Uint> > > m_n2e;
-
-  boost::tuple<CElements const* const,Uint,Uint> find_element_for_face(const CElements& face, const CTable::ConstRow& nodes, const Component& parent);
 
   std::string m_fileBasename;
     
