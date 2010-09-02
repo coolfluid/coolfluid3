@@ -9,20 +9,18 @@
 #include "GUI/Client/ClientRoot.hpp"
 #include "GUI/Client/SelectPathDialog.hpp"
 
-#include "GUI/Client/SelectPathPanel.hpp"
+#include "GUI/Client/GraphicalUrl.hpp"
 
 using namespace CF::Common;
 using namespace CF::GUI::Client;
 
-SelectPathPanel::SelectPathPanel(const QString & path, QWidget *parent) :
-    QWidget(parent)
+GraphicalUrl::GraphicalUrl(QWidget *parent) :
+    GraphicalValue(parent)
 {
   m_btBrowse = new QPushButton("Browse", this);
-  m_editPath = new QLineEdit(path, this);
+  m_editPath = new QLineEdit(this);
   m_completerModel = new QStringListModel(this);
   m_completer = new QCompleter(this);
-
-  m_layout = new QHBoxLayout(this);
 
   m_editPath->setCompleter(m_completer);
   m_completer->setModel(m_completerModel);
@@ -39,18 +37,17 @@ SelectPathPanel::SelectPathPanel(const QString & path, QWidget *parent) :
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-SelectPathPanel::~SelectPathPanel()
+GraphicalUrl::~GraphicalUrl()
 {
   delete m_btBrowse;
   delete m_editPath;
   delete m_completer;
-  delete m_layout;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString SelectPathPanel::getValueString() const
+QVariant GraphicalUrl::getValue() const
 {
   return m_editPath->text();
 }
@@ -58,15 +55,17 @@ QString SelectPathPanel::getValueString() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void SelectPathPanel::setValue(const QString & path)
+bool GraphicalUrl::setValue(const QVariant & path)
 {
-  m_editPath->setText(path);
+  m_originalValue = path;
+  m_editPath->setText(path.toString());
+  return true;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void SelectPathPanel::btBrowseClicked()
+void GraphicalUrl::btBrowseClicked()
 {
   SelectPathDialog spd;
 
@@ -79,7 +78,7 @@ void SelectPathPanel::btBrowseClicked()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void SelectPathPanel::updateModel(const QString & path)
+void GraphicalUrl::updateModel(const QString & path)
 {
   int lastSlash = path.lastIndexOf(CPath::separator().c_str());
   QString newPath;

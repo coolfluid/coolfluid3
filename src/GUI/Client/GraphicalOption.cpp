@@ -10,12 +10,11 @@
 
 #include "Common/BasicExceptions.hpp"
 
-#include "GUI/Client/SelectPathPanel.hpp"
-
 #include "GUI/Client/GraphicalBool.hpp"
 #include "GUI/Client/GraphicalDouble.hpp"
 #include "GUI/Client/GraphicalInt.hpp"
 #include "GUI/Client/GraphicalString.hpp"
+#include "GUI/Client/GraphicalUrl.hpp"
 #include "GUI/Client/GraphicalUrlArray.hpp"
 #include "GUI/Client/GraphicalValue.hpp"
 
@@ -37,7 +36,8 @@ GraphicalOption::GraphicalOption(OptionType::Type type, QWidget * parent)
 
     // if type valueWidget is a string
   case OptionType::TYPE_STRING:
-    m_valueWidget = new GraphicalString(parent);
+    m_valueWidget = new GraphicalUrl(parent);
+    //m_valueWidget = new GraphicalString(parent);
     break;
 
     // if type valueWidget is a double
@@ -67,7 +67,7 @@ GraphicalOption::GraphicalOption(OptionType::Type type, QWidget * parent)
 
     // if type valueWidget is a string
   case OptionType::TYPE_PATH:
-    m_valueWidget = new GraphicalString(parent);
+    m_valueWidget = new GraphicalUrl(parent);
     break;
 
   default:

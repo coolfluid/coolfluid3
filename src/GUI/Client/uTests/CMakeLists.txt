@@ -17,6 +17,7 @@ SET(uTestClient_moc_classes
   ../CommitDetailsDialog.hpp
   ../ConfirmCommitDialog.hpp
   ../ConnectionDialog.hpp
+  ../GraphicalUrl.hpp
   ../GraphicalUrlArray.hpp
   ../LoggingList.hpp
   ../MainWindow.hpp
@@ -37,7 +38,6 @@ SET(uTestClient_moc_classes
   ../RemoteSaveFile.hpp
   ../SelectFileDialog.hpp
   ../SelectPathDialog.hpp
-  ../SelectPathPanel.hpp
   ../StatusModel.hpp
   ../StatusPanel.hpp
   ../TreeNode.hpp
@@ -99,6 +99,8 @@ LIST( APPEND uTestClient_files
   ../GraphicalOption.hpp
   ../GraphicalString.hpp
   ../GraphicalString.cpp
+  ../GraphicalUrl.cpp
+  ../GraphicalUrl.hpp
   ../GraphicalUrlArray.cpp
   ../GraphicalUrlArray.hpp
   ../GraphicalValue.cpp
@@ -151,8 +153,6 @@ LIST( APPEND uTestClient_files
   ../SelectFileDialog.hpp
   ../SelectPathDialog.cpp
   ../SelectPathDialog.hpp
-  ../SelectPathPanel.cpp
-  ../SelectPathPanel.hpp
   ../StatusModel.cpp
   ../StatusModel.hpp
   ../StatusPanel.cpp

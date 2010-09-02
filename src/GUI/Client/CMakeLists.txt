@@ -12,6 +12,7 @@ LIST( APPEND coolfluid-client_moc_classes
   CommitDetailsDialog.hpp
   ConfirmCommitDialog.hpp
   ConnectionDialog.hpp
+  GraphicalUrl.hpp
   GraphicalUrlArray.hpp
   LoggingList.hpp
   MainWindow.hpp
@@ -33,7 +34,6 @@ LIST( APPEND coolfluid-client_moc_classes
   StatusModel.hpp
   StatusPanel.hpp
   SelectPathDialog.hpp
-  SelectPathPanel.hpp
   TreeNode.hpp
   TreeView.hpp
   TypeAndNameDialog.hpp)
@@ -73,6 +73,8 @@ LIST( APPEND coolfluid-client_files
   GraphicalOption.hpp
   GraphicalString.hpp
   GraphicalString.cpp
+  GraphicalUrl.cpp
+  GraphicalUrl.hpp
   GraphicalUrlArray.cpp
   GraphicalUrlArray.hpp
   GraphicalValue.cpp
@@ -126,8 +128,6 @@ LIST( APPEND coolfluid-client_files
   SelectFileDialog.hpp
   SelectPathDialog.cpp
   SelectPathDialog.hpp
-  SelectPathPanel.cpp
-  SelectPathPanel.hpp
   StatusModel.cpp
   StatusModel.hpp
   StatusPanel.cpp

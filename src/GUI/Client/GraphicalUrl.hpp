@@ -1,12 +1,11 @@
-#ifndef CF_GUI_Client_SelectPathPanel_hpp
-#define CF_GUI_Client_SelectPathPanel_hpp
+#ifndef CF_GUI_Client_GraphicalUrl_hpp
+#define CF_GUI_Client_GraphicalUrl_hpp
 
 ////////////////////////////////////////////////////////////////////////////
 
-#include <QWidget>
+#include "GUI/Client/GraphicalValue.hpp"
 
 class QCompleter;
-class QHBoxLayout;
 class QLineEdit;
 class QPushButton;
 class QString;
@@ -20,19 +19,19 @@ namespace Client {
 
 ////////////////////////////////////////////////////////////////////////////
 
-  class SelectPathPanel : public QWidget
+  class GraphicalUrl : public GraphicalValue
   {
     Q_OBJECT
 
   public:
 
-    SelectPathPanel(const QString & path = QString(), QWidget *parent = 0);
+    GraphicalUrl(QWidget *parent = 0);
 
-    ~SelectPathPanel();
+    ~GraphicalUrl();
 
-    QString getValueString() const;
+    virtual bool setValue(const QVariant & path);
 
-    void setValue(const QString & path);
+    virtual QVariant getValue() const;
 
   private slots:
 
@@ -46,13 +45,11 @@ namespace Client {
 
     QPushButton * m_btBrowse;
 
-    QHBoxLayout * m_layout;
-
     QCompleter * m_completer;
 
     QStringListModel * m_completerModel;
 
-  }; // class SelectPathPanel
+  }; // class GraphicalUrl
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -62,4 +59,4 @@ namespace Client {
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Client_SelectPathPanel_hpp
+#endif // CF_GUI_Client_GraphicalUrl_hpp
