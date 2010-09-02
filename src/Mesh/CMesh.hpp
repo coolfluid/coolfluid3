@@ -5,12 +5,12 @@
 
 #include "Common/Component.hpp"
 #include "Mesh/MeshAPI.hpp"
+#include "Mesh/CField.hpp"
 
 namespace CF {
 namespace Mesh {
 
   class CRegion;
-  class CField;
   class ElementType;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -61,10 +61,10 @@ public: // functions
   
   /// create a field with a given support
   /// @param name of the field
-  CField& create_field( const CName& name , CRegion& support);
+  CField& create_field( const CName& name , CRegion& support, const Uint dimension, const CField::DataBasis basis);
   
   /// create a field with the default support being the full mesh geometry
-  CField& create_field( const CName& name);
+  CField& create_field( const CName& name , const Uint dimension, const CField::DataBasis basis);
   
   /// @return the field with given name
   const CField& field(const CName& name) const;

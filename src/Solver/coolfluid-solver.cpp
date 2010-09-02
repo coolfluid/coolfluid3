@@ -38,8 +38,7 @@ int main(int argc, char * argv[])
     CMesh::Ptr mesh = meshreader->create_mesh_from(inputfile);
     root->add_component(mesh);
     
-    CField& volumes = mesh->create_field("volumes");
-    volumes.create_data_storage(1, CField::ELEMENT_BASED);
+    CField& volumes = mesh->create_field("volumes",1, CField::ELEMENT_BASED);
 
     CFinfo << CFendl << CFendl;
     

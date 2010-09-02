@@ -8,7 +8,6 @@
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CField.hpp"
 #include "Mesh/ElementType.hpp"
 
 namespace CF {
@@ -110,19 +109,19 @@ CRegion& CMesh::create_domain( const CName& name )
 ////////////////////////////////////////////////////////////////////////////////
   
   
-CField& CMesh::create_field( const CName& name , CRegion& support)
+CField& CMesh::create_field( const CName& name , CRegion& support, const Uint dimension, const CField::DataBasis basis)
 {
   CField& field = *create_component_type<CField>(name);
   field.synchronize_with_region(support);
-
+  field.create_data_storage(dimension,basis);
   return field;
 }
   
 ////////////////////////////////////////////////////////////////////////////////
 
-CField& CMesh::create_field( const CName& name )
+CField& CMesh::create_field( const CName& name, const Uint dimension, const CField::DataBasis basis )
 {
-  return create_field(name,domain());
+  return create_field(name,domain(),dimension,basis);
 }
   
 ////////////////////////////////////////////////////////////////////////////////
