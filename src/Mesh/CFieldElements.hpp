@@ -46,16 +46,10 @@ public: // functions
   static void defineConfigOptions ( Common::OptionList& options ) {}
   
   /// Mutable access to the nodal data (e.g. node coordinates);
-  CArray& nodal_data();
+  CArray& data();
   
   /// Const access to the nodal data (e.g. node coordinates)
-  const CArray& nodal_data() const;
-
-  /// Mutable access to the elemental data (e.g. centroid)
-  CArray& elemental_data();
-  
-  /// Const access to the elemental data (e.g. centroid)
-  const CArray& elemental_data() const;
+  const CArray& data() const;
   
   /// Mutable access to the coordinates
   virtual CArray& coordinates() { return get_geometry_elements().coordinates(); }
@@ -73,8 +67,7 @@ private: // helper functions
 
 protected: // data
     
-  std::string m_nodal_data_name;
-  std::string m_elemental_data_name;
+  std::string m_data_name;
   
 };
   

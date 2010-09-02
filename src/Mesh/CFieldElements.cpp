@@ -50,9 +50,9 @@ void CFieldElements::initialize(CElements& elements)
 void CFieldElements::add_node_based_storage(CArray& nodal_data)
 {
   // Set the nodal data
-  m_nodal_data_name = "node_data";
-  CLink::Ptr node_data = create_component_type<CLink>(m_nodal_data_name);
-  node_data->add_tag(m_nodal_data_name);
+  m_data_name = "node_data";
+  CLink::Ptr node_data = create_component_type<CLink>(m_data_name);
+  node_data->add_tag(m_data_name);
   node_data->link_to(nodal_data.get());
   properties()["node_based"]=true;
 }
@@ -62,42 +62,28 @@ void CFieldElements::add_node_based_storage(CArray& nodal_data)
 void CFieldElements::add_element_based_storage()
 {
   // Create elemental data
-  m_elemental_data_name = "element_data";
-  CArray::Ptr elm_data = create_component_type<CArray>(m_elemental_data_name);
-  elm_data->add_tag(m_elemental_data_name);
+  m_data_name = "element_data";
+  CArray::Ptr elm_data = create_component_type<CArray>(m_data_name);
+  elm_data->add_tag(m_data_name);
   properties()["element_based"]=true;
 }
   
 //////////////////////////////////////////////////////////////////////////////
 
-CArray& CFieldElements::nodal_data()
+CArray& CFieldElements::data()
 {
-  Component& nod_data = get_component(*this,IsComponentTag(m_nodal_data_name));
-  return *nod_data.get_type<CArray>();
+  Component& data = get_component(*this,IsComponentTag(m_data_name));
+  return *data.get_type<CArray>();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-const CArray& CFieldElements::nodal_data() const
+const CArray& CFieldElements::data() const
 {
-  const Component& nod_data = get_component(*this,IsComponentTag(m_nodal_data_name));
-  return *nod_data.get_type<CArray const>();
+  const Component& data = get_component(*this,IsComponentTag(m_data_name));
+  return *data.get_type<CArray const>();
 }
 
-//////////////////////////////////////////////////////////////////////////////
-
-CArray& CFieldElements::elemental_data()
-{
-  return get_component_typed<CArray>(*this,IsComponentTag(m_elemental_data_name));
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-const CArray& CFieldElements::elemental_data() const
-{
-  return get_component_typed<CArray const>(*this,IsComponentTag(m_elemental_data_name));
-}
-  
 //////////////////////////////////////////////////////////////////////////////
   
 CElements& CFieldElements::get_geometry_elements()

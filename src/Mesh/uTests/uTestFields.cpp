@@ -102,16 +102,13 @@ BOOST_AUTO_TEST_CASE( FieldDataCreation )
   
   // Check if element based data is correctly created
   mesh.create_field("Volume").create_data_storage(1,CField::ELEMENT_BASED);
-  BOOST_CHECK_EQUAL(mesh.look_component_type<CFieldElements>("Volume/quadtriag/gas/elements_Quad2DLagrangeP1")->elemental_data().size(), (Uint) 2);
-  BOOST_CHECK_EQUAL(mesh.look_component_type<CFieldElements>("Volume/quadtriag/gas/elements_Quad2DLagrangeP1")->elemental_data().array().shape()[1], (Uint) 1);
+  BOOST_CHECK_EQUAL(mesh.look_component_type<CFieldElements>("Volume/quadtriag/gas/elements_Quad2DLagrangeP1")->data().size(), (Uint) 2);
+  BOOST_CHECK_EQUAL(mesh.look_component_type<CFieldElements>("Volume/quadtriag/gas/elements_Quad2DLagrangeP1")->data().array().shape()[1], (Uint) 1);
   
   // Check if node based data is correctly created
   mesh.create_field("Solution").create_data_storage(5,CField::NODE_BASED);
-  BOOST_CHECK_EQUAL(mesh.look_component_type<CFieldElements>("Solution/quadtriag/gas/elements_Quad2DLagrangeP1")->nodal_data().array().shape()[1], (Uint) 5);
+  BOOST_CHECK_EQUAL(mesh.look_component_type<CFieldElements>("Solution/quadtriag/gas/elements_Quad2DLagrangeP1")->data().array().shape()[1], (Uint) 5);
   
-  // Create additional element based data in the same field
-  mesh.field("Solution").create_data_storage(5,CField::ELEMENT_BASED);
-  BOOST_CHECK_EQUAL(mesh.look_component_type<CFieldElements>("Solution/quadtriag/gas/elements_Quad2DLagrangeP1")->elemental_data().array().shape()[1], (Uint) 5);
   
 }
 

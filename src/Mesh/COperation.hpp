@@ -206,7 +206,7 @@ public: // functions
   {
     CFieldElements& field_elements = geometry_elements.get_field_elements(scalar_field->field_name());
     scalar_name = scalar_field->field_name();
-    scalars = field_elements.elemental_data().get_type<CArray>();
+    scalars = field_elements.data().get_type<CArray>();
     CFinfo << field_elements.full_path().string() << CFendl;
   }
   
@@ -269,7 +269,7 @@ public: // functions
   void setup (CElements& geometry_elements )
   {
     field_elements = geometry_elements.get_field_elements(volume_field->field_name()).get_type<CFieldElements>();
-    volumes = field_elements->elemental_data().get_type<CArray>();    
+    volumes = field_elements->data().get_type<CArray>();    
     coordinates = field_elements->coordinates().get_type<CArray>();
     connectivity_table = field_elements->connectivity_table().get_type<CTable>();
   }

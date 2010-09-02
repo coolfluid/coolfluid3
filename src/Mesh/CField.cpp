@@ -65,7 +65,7 @@ void CField::create_data_storage(const Uint dim, const DataBasis basis)
       BOOST_FOREACH(CFieldElements& field_elements, recursive_range_typed<CFieldElements>(*this))
       {
         field_elements.add_element_based_storage();
-        field_elements.elemental_data().array().resize(boost::extents[field_elements.elements_count()][dim]);
+        field_elements.data().array().resize(boost::extents[field_elements.elements_count()][dim]);
       }
       break;
     case NODE_BASED:
@@ -143,6 +143,7 @@ CElements& CField::create_elements(CElements& geometry_elements)
 CArray& CField::create_data(const Uint dim, const Uint nb_rows)
 {
   CArray& data = *create_component_type<CArray>("data");
+  data.add_tag("field_data");
   data.array().resize(boost::extents[nb_rows][dim]);
   return data;
 }
