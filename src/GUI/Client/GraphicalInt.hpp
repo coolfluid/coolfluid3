@@ -17,22 +17,27 @@ namespace Client {
 
   class GraphicalInt : public GraphicalValue
   {
+    Q_OBJECT
 
   public:
 
-      GraphicalInt(bool isUint, QWidget * parent = 0);
+    GraphicalInt(bool isUint, QWidget * parent = 0);
 
-      ~GraphicalInt();
+    ~GraphicalInt();
 
-      virtual bool setValue(const QVariant & value);
+    virtual bool setValue(const QVariant & value);
 
-      virtual QVariant getValue() const;
+    virtual QVariant getValue() const;
+
+  private slots:
+
+    void integerChanged(int value);
 
   private:
 
-      QSpinBox * m_spinBox;
+    QSpinBox * m_spinBox;
 
-      bool m_isUint;
+    bool m_isUint;
 
   }; // class GraphicalInt
 

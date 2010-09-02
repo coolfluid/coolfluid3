@@ -11,6 +11,8 @@ GraphicalString::GraphicalString(QWidget * parent)
   m_lineEdit = new QLineEdit(this);
 
   m_layout->addWidget(m_lineEdit);
+
+  connect(m_lineEdit, SIGNAL(textChanged(QString)), this, SLOT(textUpdated(QString)));
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -36,4 +38,12 @@ bool GraphicalString::setValue(const QVariant & value)
 QVariant GraphicalString::getValue() const
 {
   return m_lineEdit->text();
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void GraphicalString::textUpdated(const QString & text)
+{
+  emit valueChanged();
 }

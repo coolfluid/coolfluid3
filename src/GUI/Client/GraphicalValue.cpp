@@ -53,7 +53,6 @@ bool GraphicalValue::isModified() const
 
 void GraphicalValue::commit()
 {
-  m_committing = true,
-  this->setValue(m_originalValue);
-  m_committing = false;
+  m_originalValue = getValue();
+  emit valueChanged();
 }

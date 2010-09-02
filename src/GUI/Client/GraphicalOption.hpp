@@ -3,6 +3,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <QObject>
+
 #include "GUI/Client/OptionType.hpp"
 
 class QFormLayout;
@@ -27,10 +29,11 @@ namespace Client {
 
   /// The value component is adapted to the type of the option.
 
-  class GraphicalOption
+  class GraphicalOption : public QObject
   {
+    Q_OBJECT
 
-    public:
+  public:
 
     /// @brief Constructor.
 
@@ -139,7 +142,11 @@ namespace Client {
     /// @c #getValue, as original value.
     void commit();
 
-    private:
+  signals:
+
+    void valueChanged();
+
+  private:
 
     /// @brief Label for the option name.
     QLabel * m_name;
@@ -154,11 +161,6 @@ namespace Client {
     /// @brief Indicates wether the value component is enabled (allows
     /// modification) or not.
     bool m_enabled;
-
-    /// @brief Original value
-    QVariant m_originalValue;
-
-
 
   }; // class GraphicalOption
 

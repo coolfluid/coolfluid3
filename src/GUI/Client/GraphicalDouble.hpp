@@ -18,22 +18,27 @@ namespace Client {
 
   class GraphicalDouble : public GraphicalValue
   {
+    Q_OBJECT
 
   public:
 
-      GraphicalDouble(QWidget * parent = 0);
+    GraphicalDouble(QWidget * parent = 0);
 
-      ~GraphicalDouble();
+    ~GraphicalDouble();
 
-      virtual bool setValue(const QVariant & value);
+    virtual bool setValue(const QVariant & value);
 
-      virtual QVariant getValue() const;
+    virtual QVariant getValue() const;
+
+  private slots:
+
+    void textUpdated(const QString & text);
 
   private:
 
-      QLineEdit * m_lineEdit;
+    QLineEdit * m_lineEdit;
 
-      QDoubleValidator * m_validator;
+    QDoubleValidator * m_validator;
 
   }; // class GraphicalDouble
 

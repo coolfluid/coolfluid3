@@ -119,6 +119,8 @@ namespace Client {
 
     void btForgetClicked();
 
+    void valueChanged();
+
   signals:
 
     /// @brief Signal emitted when user clicks on "Commit changes" button if
@@ -245,7 +247,9 @@ namespace Client {
 
     void setOptions(const QList<NodeOption> & list);
 
-    void buttonsSetVisible(bool visible);
+    void setButtonsVisible(bool visible);
+
+    void setButtonsEnabled(bool enabled);
 
   }; // class OptionPanel
 

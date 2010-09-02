@@ -77,6 +77,8 @@ GraphicalOption::GraphicalOption(OptionType::Type type, QWidget * parent)
   m_name = new QLabel();
 
   m_type = type;
+
+  connect(m_valueWidget, SIGNAL(valueChanged()), this, SIGNAL(valueChanged()));
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

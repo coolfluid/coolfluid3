@@ -123,4 +123,5 @@ void GraphicalUrl::updateModel(const QString & path)
   }
   catch(InvalidPath & ip) {}
 
+  emit valueChanged();
 }

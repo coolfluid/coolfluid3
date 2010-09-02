@@ -17,8 +17,14 @@ SET(uTestClient_moc_classes
   ../CommitDetailsDialog.hpp
   ../ConfirmCommitDialog.hpp
   ../ConnectionDialog.hpp
+  ../GraphicalBool.hpp
+  ../GraphicalDouble.hpp
+  ../GraphicalInt.hpp
+  ../GraphicalOption.hpp
+  ../GraphicalString.hpp
   ../GraphicalUrl.hpp
   ../GraphicalUrlArray.hpp
+  ../GraphicalValue.hpp
   ../LoggingList.hpp
   ../MainWindow.hpp
   ../NArray.hpp

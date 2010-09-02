@@ -11,6 +11,8 @@ GraphicalBool::GraphicalBool(QWidget * parent)
   m_checkBox = new QCheckBox(this);
 
   m_layout->addWidget(m_checkBox);
+
+  connect(m_checkBox, SIGNAL(stateChanged(int)), this, SLOT(stateChanged(int)));
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -42,4 +44,12 @@ bool GraphicalBool::setValue(const QVariant & value)
 QVariant GraphicalBool::getValue() const
 {
   return m_checkBox->isChecked();
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void GraphicalBool::stateChanged(int state)
+{
+  emit valueChanged();
 }

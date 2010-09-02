@@ -17,20 +17,25 @@ namespace Client {
 
   class GraphicalString : public GraphicalValue
   {
+    Q_OBJECT
 
   public:
 
-      GraphicalString(QWidget * parent = 0);
+    GraphicalString(QWidget * parent = 0);
 
-      ~GraphicalString();
+    ~GraphicalString();
 
-      virtual bool setValue(const QVariant & value);
+    virtual bool setValue(const QVariant & value);
 
-      virtual QVariant getValue() const;
+    virtual QVariant getValue() const;
+
+  private slots:
+
+    void textUpdated(const QString & text);
 
   private:
 
-      QLineEdit * m_lineEdit;
+    QLineEdit * m_lineEdit;
 
   }; // class GraphicalDouble
 

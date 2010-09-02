@@ -17,6 +17,8 @@ GraphicalDouble::GraphicalDouble(QWidget * parent)
   m_lineEdit->setValidator(m_validator);
 
   m_layout->addWidget(m_lineEdit);
+
+  connect(m_lineEdit, SIGNAL(textChanged(QString)), this, SLOT(textUpdated(QString)));
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -54,4 +56,12 @@ bool GraphicalDouble::setValue(const QVariant & value)
 QVariant GraphicalDouble::getValue() const
 {
   return m_lineEdit->text();
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void GraphicalDouble::textUpdated(const QString & text)
+{
+  emit valueChanged();
 }

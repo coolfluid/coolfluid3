@@ -14,9 +14,11 @@ GraphicalInt::GraphicalInt(bool isUint, QWidget * parent)
 {
   m_spinBox = new QSpinBox(this);
 
-  m_spinBox->setRange(m_isUint ? 0 : INT_MIN, INT_MAX);
+  m_spinBox->setRange((m_isUint ? 0 : INT_MIN), INT_MAX);
 
   m_layout->addWidget(m_spinBox);
+
+  connect(m_spinBox, SIGNAL(valueChanged(int)), this, SLOT(integerChanged(int)));
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -48,4 +50,12 @@ bool GraphicalInt::setValue(const QVariant & value)
 QVariant GraphicalInt::getValue() const
 {
   return m_spinBox->value();
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void GraphicalInt::integerChanged(int value)
+{
+  emit valueChanged();
 }

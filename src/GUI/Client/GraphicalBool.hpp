@@ -17,16 +17,20 @@ namespace Client {
 
   class GraphicalBool : public GraphicalValue
   {
-
+    Q_OBJECT
   public:
 
-      GraphicalBool(QWidget * parent = 0);
+    GraphicalBool(QWidget * parent = 0);
 
-      ~GraphicalBool();
+    ~GraphicalBool();
 
-      virtual bool setValue(const QVariant & value);
+    virtual bool setValue(const QVariant & value);
 
-      virtual QVariant getValue() const;
+    virtual QVariant getValue() const;
+
+  private slots:
+
+    void stateChanged(int state);
 
   private:
 

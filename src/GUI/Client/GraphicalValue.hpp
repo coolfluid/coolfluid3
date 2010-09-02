@@ -18,6 +18,7 @@ namespace Client {
 
   class GraphicalValue : public QWidget
   {
+    Q_OBJECT
   public:
 
     GraphicalValue(QWidget * parent = 0);
@@ -35,6 +36,10 @@ namespace Client {
     bool isModified() const;
 
     void commit();
+
+  signals:
+
+    void valueChanged();
 
   protected:
 

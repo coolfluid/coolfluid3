@@ -71,7 +71,7 @@ OptionPanel::OptionPanel(QWidget * parent)
   m_mainLayout->addLayout(m_buttonsLayout, 2, 0);
 
   m_scrollBasicOptions->setVisible(false);
-  this->buttonsSetVisible(false);
+  this->setButtonsVisible(false);
 
   // on MacOSX, GUI guidelines define the default behaviour for graphical
   // components size in a FormLayout as size hint (they don't take all
@@ -181,13 +181,13 @@ void OptionPanel::setOptions(const QList<NodeOption> & list)
     // middle one (if visible) and never the top one.
     m_scrollBasicOptions->setVisible(true);
 
-    this->buttonsSetVisible(true);
+    this->setButtonsVisible(true);
   }
   else
   {
     m_scrollBasicOptions->setVisible(false);
     m_scrollAdvancedOptions->setVisible(false);
-    this->buttonsSetVisible(false);
+    this->setButtonsVisible(false);
   }
 
   while(it != list.end())
@@ -219,6 +219,8 @@ void OptionPanel::setOptions(const QList<NodeOption> & list)
         graphicalOption->addToLayout(m_advancedOptionsLayout);
       }
 
+      connect(graphicalOption, SIGNAL(valueChanged()), this, SLOT(valueChanged()));
+
     }
     catch(UnknownTypeException ute)
     {
@@ -231,6 +233,7 @@ void OptionPanel::setOptions(const QList<NodeOption> & list)
 
   // change row stretch and panel visibilities
   this->advancedModeChanged(tree->isAdvancedMode());
+  this->setButtonsEnabled(false);
 
   // set options to enabled or disabled (depending on their mode)
 //  this->setEnabled(m_basicOptionsNodes, m_basicOptions);
@@ -316,11 +319,21 @@ bool OptionPanel::isModified(const QList<GraphicalOption *> & graphicalOptions) 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void OptionPanel::buttonsSetVisible(bool visible)
+void OptionPanel::setButtonsVisible(bool visible)
 {
   m_btApply->setVisible(visible);
   m_btSeeChanges->setVisible(visible);
   m_btForget->setVisible(visible);
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void OptionPanel::setButtonsEnabled(bool enabled)
+{
+  m_btApply->setEnabled(enabled);
+  m_btSeeChanges->setEnabled(enabled);
+  m_btForget->setEnabled(enabled);
 }
 
 /****************************************************************************
@@ -340,12 +353,16 @@ void OptionPanel::btApplyClicked()
     try
     {
       QModelIndex currentIndex = ClientRoot::getTree()->getCurrentIndex();
-      QList<GraphicalOption*>::iterator it = m_advancedOptions.begin();
+      QList<GraphicalOption*>::iterator itBasic = m_basicOptions.begin();
+      QList<GraphicalOption*>::iterator itAdv = m_advancedOptions.begin();
 
       ClientRoot::getTree()->modifyOptions(currentIndex, options);
 
-      for( ; it < m_advancedOptions.end() ; it++)
-        (*it)->commit();
+      for( ; itBasic < m_basicOptions.end() ; itBasic++)
+        (*itBasic)->commit();
+
+      for( ; itAdv < m_advancedOptions.end() ; itAdv++)
+        (*itAdv)->commit();
     }
     catch (ValueNotFound & vnf)
     {
@@ -404,4 +421,12 @@ void OptionPanel::btSeeChangesClicked()
 void OptionPanel::btForgetClicked()
 {
   this->currentIndexChanged(ClientRoot::getTree()->getCurrentIndex(), QModelIndex());
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void OptionPanel::valueChanged()
+{
+  this->setButtonsEnabled(this->isModified());
 }
