@@ -70,9 +70,8 @@ void CHoneycombInterpolator::construct_internal_storage(const CMesh::Ptr& source
   
 /////////////////////////////////////////////////////////////////////////////
   
-void CHoneycombInterpolator::interpolate_field_from_to(const CField::Ptr& source, const CField::Ptr& target)
-{
-  
+void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CField& target)
+{  
 }
   
 //////////////////////////////////////////////////////////////////////

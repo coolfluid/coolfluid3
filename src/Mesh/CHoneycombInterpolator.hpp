@@ -40,8 +40,7 @@ public: // functions
 private: // functions
 
   virtual void construct_internal_storage(const CMesh::Ptr& source, const CMesh::Ptr& target);
-  virtual void interpolate_field_from_to(const CField::Ptr& source, const CField::Ptr& target);
-  
+  virtual void interpolate_field_from_to(const CField& source, CField& target); 
   void create_honeycomb();
   void find_comb_idx(const RealVector& coordinate);
   void find_pointcloud();

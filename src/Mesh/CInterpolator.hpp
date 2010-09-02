@@ -58,7 +58,7 @@ public: // functions
 
   virtual void construct_internal_storage(const CMesh::Ptr& source, const CMesh::Ptr& target) = 0;
   
-  virtual void interpolate_field_from_to(const CField::Ptr& source, const CField::Ptr& target) = 0;
+  virtual void interpolate_field_from_to(const CField& source, CField& target) = 0;
 
 protected: // functions
 
