@@ -227,7 +227,7 @@ bool TreeView::confirmChangeOptions(const QModelIndex & index, bool okIfSameInde
     ConfirmCommitDialog::CommitConfirmation answer = dlg.show(commitDetails);
 
     if(answer == ConfirmCommitDialog::COMMIT)
-      m_optionsPanel->commitChanges();
+      m_optionsPanel->btApplyClicked();
 
     confirmed = answer != ConfirmCommitDialog::CANCEL;
   }

@@ -33,15 +33,16 @@ OptionPanel::OptionPanel(QWidget * parent)
   m_scrollAdvancedOptions = new QScrollArea(this);
   m_gbBasicOptions = new QGroupBox(m_scrollBasicOptions);
   m_gbAdvancedOptions = new QGroupBox(m_scrollAdvancedOptions);
-  m_btCommitChanges = new QPushButton("Commit changes");
-  m_btCheckChanges = new QPushButton("Check changes");
-  m_btResetOptions = new QPushButton("Reset changes");
+  m_btApply = new QPushButton("Apply");
+  m_btSeeChanges = new QPushButton("See changes");
+  m_btForget = new QPushButton("Forget");
   m_splitter = new QSplitter(this);
 
   m_mainLayout = new QGridLayout(this);
+  m_topLayout = new QGridLayout();
   m_basicOptionsLayout = new QFormLayout(m_gbBasicOptions);
   m_advancedOptionsLayout = new QFormLayout(m_gbAdvancedOptions);
-  m_buttonsLayout = new QHBoxLayout();
+  m_buttonsLayout = new QGridLayout();
 
   m_splitter->setOrientation(Qt::Vertical);
   m_scrollBasicOptions->setWidgetResizable(true);
@@ -50,17 +51,24 @@ OptionPanel::OptionPanel(QWidget * parent)
   m_scrollAdvancedOptions->setWidgetResizable(true);
   m_scrollAdvancedOptions->setWidget(m_gbAdvancedOptions);
 
-  // add the components to the m_layout
+  m_btSeeChanges->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+  m_btForget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+  m_btApply->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+
+  // add the components to the layout
   m_splitter->addWidget(m_scrollBasicOptions);
   m_splitter->addWidget(m_scrollAdvancedOptions);
 
-  m_mainLayout->addWidget(m_splitter, 0, 0);
+  m_topLayout->addWidget(new QWidget(this), 0, 0);
+  m_topLayout->addWidget(m_btSeeChanges, 0, 1);
 
-  m_buttonsLayout->addWidget(m_btCheckChanges);
-  m_buttonsLayout->addWidget(m_btCommitChanges);
-  m_buttonsLayout->addWidget(m_btResetOptions);
+  m_buttonsLayout->addWidget(m_btForget, 0, 0);
+  m_buttonsLayout->addWidget(new QWidget(), 0, 1);
+  m_buttonsLayout->addWidget(m_btApply, 0, 2);
 
-  m_mainLayout->addLayout(m_buttonsLayout, 1, 0);
+  m_mainLayout->addLayout(m_topLayout, 0, 0);
+  m_mainLayout->addWidget(m_splitter, 1, 0);
+  m_mainLayout->addLayout(m_buttonsLayout, 2, 0);
 
   m_scrollBasicOptions->setVisible(false);
   this->buttonsSetVisible(false);
@@ -73,9 +81,9 @@ OptionPanel::OptionPanel(QWidget * parent)
   m_basicOptionsLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
   m_advancedOptionsLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
-  connect(m_btCommitChanges, SIGNAL(clicked()), this, SLOT(commitChanges()));
-  connect(m_btCheckChanges, SIGNAL(clicked()), this, SLOT(checkOptions()));
-  connect(m_btResetOptions, SIGNAL(clicked()), this, SLOT(resetChanges()));
+  connect(m_btApply, SIGNAL(clicked()), this, SLOT(btApplyClicked()));
+  connect(m_btSeeChanges, SIGNAL(clicked()), this, SLOT(btSeeChangesClicked()));
+  connect(m_btForget, SIGNAL(clicked()), this, SLOT(btForgetClicked()));
 
   connect(tree.get(), SIGNAL(currentIndexChanged(const QModelIndex &, const QModelIndex &)),
           this, SLOT(currentIndexChanged(const QModelIndex &, const QModelIndex &)));
@@ -95,7 +103,7 @@ OptionPanel::~OptionPanel()
   this->clearList(m_basicOptions);
   this->clearList(m_advancedOptions);
 
-  delete m_btCommitChanges;
+  delete m_btApply;
   delete m_gbBasicOptions;
   delete m_gbAdvancedOptions;
 }
@@ -310,9 +318,9 @@ bool OptionPanel::isModified(const QList<GraphicalOption *> & graphicalOptions) 
 
 void OptionPanel::buttonsSetVisible(bool visible)
 {
-  m_btCommitChanges->setVisible(visible);
-  m_btCheckChanges->setVisible(visible);
-  m_btResetOptions->setVisible(visible);
+  m_btApply->setVisible(visible);
+  m_btSeeChanges->setVisible(visible);
+  m_btForget->setVisible(visible);
 }
 
 /****************************************************************************
@@ -321,7 +329,7 @@ void OptionPanel::buttonsSetVisible(bool visible)
 
  ****************************************************************************/
 
-void OptionPanel::commitChanges()
+void OptionPanel::btApplyClicked()
 {
   QMap<QString, QString> options;
   this->getOptions(options);
@@ -364,7 +372,7 @@ void OptionPanel::currentIndexChanged(const QModelIndex & newIndex, const QModel
 
 void OptionPanel::advancedModeChanged(bool advanced)
 {
-  m_scrollAdvancedOptions->setVisible(advanced);
+  m_scrollAdvancedOptions->setVisible(advanced && !m_advancedOptions.empty());
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -381,7 +389,7 @@ void OptionPanel::dataChanged(const QModelIndex & first, const QModelIndex & las
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void OptionPanel::checkOptions()
+void OptionPanel::btSeeChangesClicked()
 {
   CommitDetails details;
   CommitDetailsDialog dialog;
@@ -393,7 +401,7 @@ void OptionPanel::checkOptions()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void OptionPanel::resetChanges()
+void OptionPanel::btForgetClicked()
 {
   this->currentIndexChanged(ClientRoot::getTree()->getCurrentIndex(), QModelIndex());
 }

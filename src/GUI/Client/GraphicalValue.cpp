@@ -45,7 +45,7 @@ QString GraphicalValue::getOriginalString() const
 
 bool GraphicalValue::isModified() const
 {
-  return m_originalValue != this->getValue();
+  return m_originalValue.toString() != this->getValue().toString();
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

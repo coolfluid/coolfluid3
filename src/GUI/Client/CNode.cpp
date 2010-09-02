@@ -420,7 +420,6 @@ void CNode::removeNode(const QString & nodeName)
 
 void CNode::configure(CF::Common::XmlNode & node)
 {
-  ConfigObject::configure(node);
   ClientRoot::getTree()->optionsChanged(this->full_path());
   ClientRoot::getLog()->addMessage(QString("Node \"%1\" options updated.").arg(full_path().string().c_str()));
 }

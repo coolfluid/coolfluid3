@@ -29,7 +29,7 @@ bool GraphicalBool::setValue(const QVariant & value)
   if(value.type() == QVariant::Bool)
     m_checkBox->setChecked(value.toBool());
   else
-    m_checkBox->setChecked(value.toString() == "false" || value.toString() == "yes");
+    m_checkBox->setChecked(value.toString() == "true" || value.toString() == "yes");
 
   m_originalValue = value;
 

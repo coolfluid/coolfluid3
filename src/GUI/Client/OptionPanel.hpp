@@ -21,6 +21,7 @@ class QModelIndex;
 class QPushButton;
 class QScrollArea;
 class QSplitter;
+class QVBoxLayout;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -104,7 +105,7 @@ namespace Client {
 
     /// If at least one option has been modified, @c changesMade signal is
     /// emitted.
-    void commitChanges();
+    void btApplyClicked();
 
   private slots:
 
@@ -114,9 +115,9 @@ namespace Client {
 
     void dataChanged(const QModelIndex & first, const QModelIndex & last);
 
-    void checkOptions();
+    void btSeeChangesClicked();
 
-    void resetChanges();
+    void btForgetClicked();
 
   signals:
 
@@ -145,13 +146,13 @@ namespace Client {
     QList<GraphicalOption *> m_advancedOptions;
 
     /// @brief Button used to commit changes made.
-    QPushButton * m_btCommitChanges;
+    QPushButton * m_btApply;
 
-    QPushButton * m_btResetOptions;
+    QPushButton * m_btForget;
 
-    QPushButton * m_btCheckChanges;
+    QPushButton * m_btSeeChanges;
 
-    QHBoxLayout * m_buttonsLayout;
+    QGridLayout * m_buttonsLayout;
 
     /// @brief Layout used to display basic options components.
     QFormLayout * m_basicOptionsLayout;
@@ -163,6 +164,8 @@ namespace Client {
 
     /// This layout is composed of two lines and one column.
     QGridLayout * m_mainLayout;
+
+    QGridLayout * m_topLayout;
 
     /// @brief Groupbox used to display basic m_options components
     /// with a titled border.
