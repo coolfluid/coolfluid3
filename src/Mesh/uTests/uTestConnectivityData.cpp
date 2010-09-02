@@ -206,36 +206,36 @@ BOOST_FIXTURE_TEST_CASE( CreateFaceConnectivity, NeuFixture )
   BOOST_CHECK_EQUAL(boost::accumulators::min(accumulator.exact), true);
 }
 
-BOOST_FIXTURE_TEST_CASE( ProfileFaceConnectivity, ProfiledFixture )
-{
-  // Vector of the elements that are concerned
-  CFaceConnectivity::ElementsT celements_vector;
-  CFaceConnectivity::IndicesT celements_first_elements;
-  create_celements_vector(recursive_filtered_range_typed<CElements>(grid2D, IsElementsVolume()), celements_vector, celements_first_elements);
-  
-  // Get the coordinates array
-  const CArray& coordinates = recursive_get_named_component_typed<CArray>(grid2D, "coordinates");
-  
-  // Link nodes to the elements
-  CFaceConnectivity::IndicesT node_first_elements;
-  CFaceConnectivity::CountsT node_element_counts;
-  CFaceConnectivity::IndicesT node_elements;
-  create_node_element_connectivity(coordinates.array().size(), celements_vector, celements_first_elements, node_first_elements, node_element_counts, node_elements);
-  
-  // Create the face connectivity data
-  CFaceConnectivity::BoolsT face_has_neighbour;
-  CFaceConnectivity::IndicesT face_element_connectivity;
-  create_face_element_connectivity(*celements_vector.back(), celements_vector, celements_first_elements, node_first_elements, node_element_counts, node_elements, face_has_neighbour, face_element_connectivity);
-  
-  // Face-face connectivity
-  CFaceConnectivity::IndicesT face_face_connectivity;
-  create_face_face_connectivity(*celements_vector.back(), celements_vector, celements_first_elements, face_has_neighbour, face_element_connectivity, face_face_connectivity);
-  
-  BOOST_CHECK_EQUAL(face_has_neighbour[3], false);
-  BOOST_CHECK_EQUAL(face_has_neighbour[1], true);
-  BOOST_CHECK_EQUAL(face_element_connectivity[1], (Uint) 1);
-  BOOST_CHECK_EQUAL(face_element_connectivity[7], (Uint) 0);
-}
+// BOOST_FIXTURE_TEST_CASE( ProfileFaceConnectivity, ProfiledFixture )
+// {
+//   // Vector of the elements that are concerned
+//   CFaceConnectivity::ElementsT celements_vector;
+//   CFaceConnectivity::IndicesT celements_first_elements;
+//   create_celements_vector(recursive_filtered_range_typed<CElements>(grid2D, IsElementsVolume()), celements_vector, celements_first_elements);
+//   
+//   // Get the coordinates array
+//   const CArray& coordinates = recursive_get_named_component_typed<CArray>(grid2D, "coordinates");
+//   
+//   // Link nodes to the elements
+//   CFaceConnectivity::IndicesT node_first_elements;
+//   CFaceConnectivity::CountsT node_element_counts;
+//   CFaceConnectivity::IndicesT node_elements;
+//   create_node_element_connectivity(coordinates.array().size(), celements_vector, celements_first_elements, node_first_elements, node_element_counts, node_elements);
+//   
+//   // Create the face connectivity data
+//   CFaceConnectivity::BoolsT face_has_neighbour;
+//   CFaceConnectivity::IndicesT face_element_connectivity;
+//   create_face_element_connectivity(*celements_vector.back(), celements_vector, celements_first_elements, node_first_elements, node_element_counts, node_elements, face_has_neighbour, face_element_connectivity);
+//   
+//   // Face-face connectivity
+//   CFaceConnectivity::IndicesT face_face_connectivity;
+//   create_face_face_connectivity(*celements_vector.back(), celements_vector, celements_first_elements, face_has_neighbour, face_element_connectivity, face_face_connectivity);
+//   
+//   BOOST_CHECK_EQUAL(face_has_neighbour[3], false);
+//   BOOST_CHECK_EQUAL(face_has_neighbour[1], true);
+//   BOOST_CHECK_EQUAL(face_element_connectivity[1], (Uint) 1);
+//   BOOST_CHECK_EQUAL(face_element_connectivity[7], (Uint) 0);
+// }
 
 /// Internal connectivity between all volume cells of the mesh
 BOOST_FIXTURE_TEST_CASE( CreateVolumeToVolumeConnectivity, NeuFixture )
@@ -337,7 +337,7 @@ BOOST_FIXTURE_TEST_CASE( CreateSurfaceToVolumeConnectivity3D, NeuFixture )
     celements.create_component_type<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
   }
   
-  print_connectivity(*mesh2d);
+  print_connectivity(*mesh3d);
   CFinfo << mesh3d->tree() << CFendl;
   
 }
