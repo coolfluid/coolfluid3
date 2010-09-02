@@ -8,6 +8,7 @@
 #include <QMenuBar>
 #include <QPushButton>
 #include <QSplitter>
+#include <QVBoxLayout>
 
 #include "Common/Exception.hpp"
 #include "Common/ConfigArgs.hpp"
@@ -50,11 +51,13 @@ MainWindow::MainWindow()
 
   // create the components
   m_optionPanel = new OptionPanel(this);
-  m_logWindow = new QDockWidget("Log Window", this);
+  m_logWindow = new QDockWidget("Log Window", m_optionPanel);
   m_treeView = new TreeView(m_optionPanel);
   m_statusPanel = CFNULL;//new StatusPanel(m_statusModel, this);
   m_logList = new LoggingList(m_logWindow);
-  m_splitter = new QSplitter(this);
+  m_splitter = new QSplitter(Qt::Horizontal, this);
+  m_centralSplitter = new QSplitter(Qt::Vertical, this);
+  m_centralWidgetLayout = new QVBoxLayout(m_centralSplitter);
 
   m_aboutCFDialog = new AboutCFDialog(this);
 
@@ -63,15 +66,25 @@ MainWindow::MainWindow()
   m_logWindow->setFeatures(QDockWidget::NoDockWidgetFeatures |
                            QDockWidget::DockWidgetClosable);
 
+  m_centralWidgetLayout->addWidget(m_optionPanel);
+  m_centralWidgetLayout->addWidget(m_logWindow);
+
+  m_centralWidgetLayout->setContentsMargins(0, 0, 0, 0);
+
+  m_centralSplitter->setStretchFactor(0, 10);
+
   // add the components to the splitter
   m_splitter->addWidget(m_treeView);
 
-  m_splitter->addWidget(m_optionPanel);
+  m_splitter->addWidget(m_centralSplitter);
+  //m_splitter->addWidget(m_logWindow);
 //  m_splitter->addWidget(m_statusPanel);
   m_splitter->setStretchFactor(1, 10);
 
+  m_splitter->setHandleWidth(0);
+
   this->setCentralWidget(m_splitter);
-  this->addDockWidget(Qt::BottomDockWidgetArea, m_logWindow);
+//  this->addDockWidget(Qt::BottomDockWidgetArea, m_logWindow);
 
   this->buildMenus();
 

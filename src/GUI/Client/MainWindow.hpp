@@ -17,6 +17,7 @@ class QLabel;
 class QTextEdit;
 class QScrollBar;
 class QSplitter;
+class QVBoxLayout;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -195,6 +196,10 @@ namespace Client {
     QSplitter * m_splitter;
 
     QTextStream m_logFile;
+
+    QVBoxLayout * m_centralWidgetLayout;
+
+    QSplitter * m_centralSplitter;
 
     /// @brief Creates actions and menus
     void buildMenus();

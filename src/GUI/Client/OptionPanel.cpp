@@ -44,6 +44,8 @@ OptionPanel::OptionPanel(QWidget * parent)
   m_advancedOptionsLayout = new QFormLayout(m_gbAdvancedOptions);
   m_buttonsLayout = new QGridLayout();
 
+  m_mainLayout->setContentsMargins(0, 0, 0, 0);
+
   m_splitter->setOrientation(Qt::Vertical);
   m_scrollBasicOptions->setWidgetResizable(true);
   m_scrollBasicOptions->setWidget(m_gbBasicOptions);
@@ -71,6 +73,7 @@ OptionPanel::OptionPanel(QWidget * parent)
   m_mainLayout->addLayout(m_buttonsLayout, 2, 0);
 
   m_scrollBasicOptions->setVisible(false);
+  m_scrollAdvancedOptions->setVisible(false);
   this->setButtonsVisible(false);
 
   // on MacOSX, GUI guidelines define the default behaviour for graphical
