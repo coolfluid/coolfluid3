@@ -655,9 +655,9 @@ void MainWindow::saveFileLocally()
 
 void MainWindow::saveFileRemotely()
 {
-  RemoteSaveFile flg;
+  RemoteSaveFile::Ptr flg;
 
-  flg.show();
+  flg->show();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -676,9 +676,8 @@ void MainWindow::openFileLocally()
 
 void MainWindow::openFileRemotely()
 {
-  RemoteOpenFile flg;
-
-  flg.show();
+  RemoteOpenFile::Ptr rop = RemoteOpenFile::create();
+  rop->show();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

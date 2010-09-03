@@ -35,15 +35,14 @@ using namespace CF::Common;
 using namespace CF::GUI::Client;
 using namespace CF::GUI::Network;
 
-RemoteFSBrowser::RemoteFSBrowser(QMainWindow * parent)
+RemoteFSBrowser::RemoteFSBrowser(const QString & componentType, QMainWindow * parent)
   : QDialog(parent),
-    Component("a")
+    CNode("a", componentType, CNode::BROWSER_NODE)
 
 {
   this->rename(ClientRoot::getBrowser()->generateName().toStdString());
-  ClientRoot::getBrowser()->add_component(boost::shared_ptr<RemoteFSBrowser>(this));
-  regist_signal("read_dir", "Directory content")->connect(boost::bind(&RemoteFSBrowser::read_dir, this, _1));
 
+  regist_signal("read_dir", "Directory content")->connect(boost::bind(&RemoteFSBrowser::read_dir, this, _1));
 
   this->setWindowTitle("Open file");
 
@@ -131,10 +130,7 @@ RemoteFSBrowser::RemoteFSBrowser(QMainWindow * parent)
   this->allowSingleSelect = true;
   this->allowMultipleSelect = true;
 
-#ifndef Q_WS_MAC
-  /// @todo why does not this line work on MacOSX ???
-  this->setFixedSize(this->height() * 2, this->height());
-#endif
+  this->resize(this->height() * 2, this->height());
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -194,6 +190,8 @@ QString RemoteFSBrowser::show(const QString & startingDir)
 
   this->exec();
 
+  this->disconnect(ClientRoot::getLog().get());
+
   if(m_okClicked)
     return this->getSelectedFile();
 
@@ -235,6 +233,8 @@ QStringList RemoteFSBrowser::showMultipleSelect(const QString & startingDir)
   this->reinitValues();
 
   this->exec();
+
+  this->disconnect(ClientRoot::getLog().get());
 
   if(m_okClicked)
     getSelectedFileList(list);

@@ -45,7 +45,7 @@ namespace Client {
 
   private:
 
-    RemoteOpenFile * m_openFile;
+    boost::shared_ptr<RemoteOpenFile> m_openFile;
 
     /// regists all the signals declared in this class
     static void regist_signals ( Component* self ) {}

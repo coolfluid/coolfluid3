@@ -131,7 +131,6 @@ namespace Client {
 
       /// @brief Table node
       TABLE_NODE,
-
     }; // enum Type
 
     ////////////////////////////////////////////

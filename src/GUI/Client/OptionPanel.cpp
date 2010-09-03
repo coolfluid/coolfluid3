@@ -44,7 +44,7 @@ OptionPanel::OptionPanel(QWidget * parent)
   m_advancedOptionsLayout = new QFormLayout(m_gbAdvancedOptions);
   m_buttonsLayout = new QGridLayout();
 
-  m_mainLayout->setContentsMargins(0, 0, 0, 0);
+  m_mainLayout->setContentsMargins(0, 11, 0, 0);
 
   m_splitter->setOrientation(Qt::Vertical);
   m_scrollBasicOptions->setWidgetResizable(true);

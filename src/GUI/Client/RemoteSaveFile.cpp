@@ -1,17 +1,20 @@
 #include <QDialogButtonBox>
+#include <QFileIconProvider>
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QPushButton>
 
-#include "GUI/Client/NCore.hpp"
+#include "GUI/Client/ClientRoot.hpp"
 #include "GUI/Client/TypeAndNameDialog.hpp"
 #include "GUI/Client/RemoteSaveFile.hpp"
 
 using namespace CF::GUI::Client;
 
 RemoteSaveFile::RemoteSaveFile(QMainWindow * parent)
-  : RemoteFSBrowser(parent)
+  : RemoteFSBrowser("RemoteSaveFile", parent)
 {
+  BUILD_COMPONENT;
+
   this->setIncludeFiles(true);
   this->setIncludeNoExtension(false);
 
@@ -43,6 +46,34 @@ RemoteSaveFile::~RemoteSaveFile()
   delete m_fileNameDialog;
   delete m_btFileName;
   delete m_btNewDirectory;
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+QIcon RemoteSaveFile::getIcon() const
+{
+  return QFileIconProvider().icon(QFileIconProvider::File);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+RemoteSaveFile::Ptr RemoteSaveFile::create(QMainWindow * parent)
+{
+  RemoteSaveFile::Ptr rsf(new RemoteSaveFile(parent));
+
+  ClientRoot::getBrowser()->addNode(rsf);
+
+  return rsf;
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+QString RemoteSaveFile::getToolTip() const
+{
+  return this->getComponentType();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

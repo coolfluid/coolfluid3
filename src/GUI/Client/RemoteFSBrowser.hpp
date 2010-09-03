@@ -7,7 +7,7 @@
 #include <QDialogButtonBox>
 #include <QModelIndex>
 
-#include "Common/Component.hpp"
+#include "GUI/Client/CNode.hpp"
 
 class QCompleter;
 class QDomDocument;
@@ -105,7 +105,7 @@ namespace Client {
 
   class RemoteFSBrowser
     : public QDialog,
-      public CF::Common::Component
+      public CNode
   {
     Q_OBJECT
 
@@ -115,7 +115,7 @@ namespace Client {
 
     /// @param parent Parent window of the dialog. May be @c CFNULL.
     /// @throw std::invalid_argument If a connection to the server does not exist.
-    RemoteFSBrowser(QMainWindow * parent = CFNULL);
+    RemoteFSBrowser(const QString & componentType, QMainWindow * parent = CFNULL);
 
     /// @brief Destructor.
 
@@ -208,6 +208,14 @@ namespace Client {
     /// @return Returns the current path, or an empty string if the dialog
     /// does not have any current path.
     QString getCurrentPath() const;
+
+    /// @brief Gives the icon associated to this node
+    /// @return Returns the icon associated to this node
+    virtual QIcon getIcon() const = 0;
+
+    /// @brief Gives the node tooltip.
+    /// @return Returns the tooltip text.
+    virtual QString getToolTip() const = 0;
 
   protected:
 

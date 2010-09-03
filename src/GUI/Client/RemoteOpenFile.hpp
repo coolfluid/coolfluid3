@@ -25,8 +25,10 @@ namespace Client {
   /// @author Quentin Gasper
   class RemoteOpenFile : public RemoteFSBrowser
   {
+  public:
 
-    public:
+    typedef boost::shared_ptr<RemoteOpenFile> Ptr;
+    typedef boost::shared_ptr<const RemoteOpenFile> ConstPtr;
 
     /// @brief Constructor
 
@@ -38,7 +40,17 @@ namespace Client {
     /// Frees all allocated memory. Parent is not destroyed.
     ~RemoteOpenFile();
 
-    protected:
+    static RemoteOpenFile::Ptr create(QMainWindow * parent = CFNULL);
+
+    /// @brief Gives the icon associated to this node
+    /// @return Returns the icon associated to this node
+    virtual QIcon getIcon() const;
+
+    /// @brief Gives the node tooltip.
+    /// @return Returns the tooltip text.
+    virtual QString getToolTip() const;
+
+  protected:
 
     /// @brief Checks if the selection is valid.
 
@@ -82,12 +94,15 @@ namespace Client {
     /// This method overrides base class method.
     virtual void reinitValues();
 
-    private:
+  private:
 
     /// @brief Selected files list.
 
     /// Contains at most one item if the dialog is in single selection mode.
     QStringList m_fileList;
+
+    /// regists all the signals declared in this class
+    static void regist_signals ( Component* self ) {}
 
   }; // namespace RemoteOpenFile
 

@@ -3,6 +3,7 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
+#include "GUI/Client/RemoteOpenFile.hpp"
 #include "GUI/Client/GraphicalValue.hpp"
 
 class QListView;
@@ -17,8 +18,6 @@ namespace GUI {
 namespace Client {
 
   /////////////////////////////////////////////////////////////////////////
-
-  class RemoteFSBrowser;
 
   class GraphicalUrlArray : public GraphicalValue
   {
@@ -52,7 +51,7 @@ namespace Client {
 
     QVBoxLayout * m_buttonsLayout;
 
-    RemoteFSBrowser * m_browser;
+    RemoteOpenFile::Ptr m_browser;
 
   };
 

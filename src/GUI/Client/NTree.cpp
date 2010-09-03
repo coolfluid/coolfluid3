@@ -174,9 +174,7 @@ CNode::Ptr NTree::getNodeByPath(const CPath & path) const
   QStringList::iterator it;
   CNode::Ptr node = m_rootNode->getNode();
 
-  if(!path.is_absolute())
-    ClientRoot::getLog()->addError(QString("\"%1\" is not an absolute path").arg(pathStr));
-  else
+  if(path.is_absolute())
   {
     comps = pathStr.split(CPath::separator().c_str(), QString::SkipEmptyParts);
 
@@ -208,10 +206,7 @@ QModelIndex NTree::getIndexByPath(const CPath & path) const
 
   cf_assert(treeNode != CFNULL);
 
-  /// @todo find a better algorithm !!!
-  if(!path.is_absolute())
-    ClientRoot::getLog()->addError(QString("\"%1\" is not an absolute path").arg(pathStr));
-  else
+  if(path.is_absolute())
   {
     comps = pathStr.split(CPath::separator().c_str(), QString::SkipEmptyParts);
 

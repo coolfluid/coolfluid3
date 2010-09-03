@@ -33,6 +33,9 @@ namespace Client {
 
     public:
 
+    typedef boost::shared_ptr<RemoteSaveFile> Ptr;
+    typedef boost::shared_ptr<const RemoteSaveFile> ConstPtr;
+
     /// @brief Constructor
 
     /// @param parent Parent window. May be @c CFNULL.
@@ -42,6 +45,16 @@ namespace Client {
 
     /// Frees all allocated memory. Parent is not destroyed.
     ~RemoteSaveFile();
+
+    static RemoteSaveFile::Ptr create(QMainWindow * parent = CFNULL);
+
+    /// @brief Gives the icon associated to this node
+    /// @return Returns the icon associated to this node
+    virtual QIcon getIcon() const;
+
+    /// @brief Gives the node tooltip.
+    /// @return Returns the tooltip text.
+    virtual QString getToolTip() const;
 
     protected:
 
@@ -106,6 +119,9 @@ namespace Client {
 
     /// @brief Dialog used to ask the new file name
     TypeAndNameDialog * m_fileNameDialog;
+
+    /// regists all the signals declared in this class
+    static void regist_signals ( Component* self ) {}
 
   }; // class RemoteSaveFile
 

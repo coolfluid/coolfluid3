@@ -17,7 +17,9 @@ NMeshReader::NMeshReader(const QString & name)
 {
   BUILD_COMPONENT;
 
-  m_openFile = new RemoteOpenFile();
+  m_openFile = RemoteOpenFile::create();
+
+  CFinfo << ClientRoot::getBrowser()->get_child_count();
 
   QAction * action;
 

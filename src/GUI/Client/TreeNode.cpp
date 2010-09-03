@@ -41,10 +41,7 @@ TreeNode * TreeNode::getChild(int rowNumber)
   {
     CNode::Ptr childNode;
 
-    if(m_node->checkType(CNode::ROOT_NODE))
-      childNode = m_node->convertTo<NRoot>()->getNodeFromRoot(rowNumber);
-    else
-      childNode = m_node->getNode(rowNumber);
+    childNode = m_node->getNode(rowNumber);
 
     child = new TreeNode(childNode, this, rowNumber);
     m_childNodes.replace(rowNumber, child);
@@ -52,10 +49,6 @@ TreeNode * TreeNode::getChild(int rowNumber)
 
   // ...if the index is not valid, return a CFNULL pointer
   return child;
-
-//  cf_assert(index < m_childNodes.size());
-
-//  return m_childNodes.at(index);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

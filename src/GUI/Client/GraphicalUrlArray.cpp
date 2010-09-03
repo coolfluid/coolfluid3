@@ -4,7 +4,7 @@
 #include <QStringListModel>
 #include <QVBoxLayout>
 
-#include "GUI/Client/RemoteOpenFile.hpp"
+#include "GUI/Client/ClientRoot.hpp"
 
 #include "GUI/Client/GraphicalUrlArray.hpp"
 
@@ -17,7 +17,7 @@ GraphicalUrlArray::GraphicalUrlArray(QWidget * parent)
   m_listView = new QListView(this);
   m_btAdd = new QPushButton("Add", this);
   m_btRemove = new QPushButton("Remove", this);
-  m_browser = new RemoteOpenFile();
+  m_browser = RemoteOpenFile::create();
   m_buttonsLayout = new QVBoxLayout();
 
   m_listView->setModel(m_model);

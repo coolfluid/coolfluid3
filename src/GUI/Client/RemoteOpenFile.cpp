@@ -1,13 +1,17 @@
+#include <QFileIconProvider>
 #include <QStringList>
 
+#include "GUI/Client/ClientRoot.hpp"
 #include "GUI/Client/FilesListItem.hpp"
 #include "GUI/Client/RemoteOpenFile.hpp"
 
 using namespace CF::GUI::Client;
 
 RemoteOpenFile::RemoteOpenFile(QMainWindow * parent)
-: RemoteFSBrowser(parent)
+: RemoteFSBrowser("RemoteOpenFile", parent)
 {
+  BUILD_COMPONENT;
+
   this->setIncludeFiles(true);
   this->setIncludeNoExtension(true);
 }
@@ -18,6 +22,34 @@ RemoteOpenFile::RemoteOpenFile(QMainWindow * parent)
 RemoteOpenFile::~RemoteOpenFile()
 {
 
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+RemoteOpenFile::Ptr RemoteOpenFile::create(QMainWindow * parent)
+{
+  RemoteOpenFile::Ptr rop(new RemoteOpenFile(parent));
+
+  ClientRoot::getBrowser()->addNode(rop);
+
+  return rop;
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+QIcon RemoteOpenFile::getIcon() const
+{
+  return QFileIconProvider().icon(QFileIconProvider::File);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+QString RemoteOpenFile::getToolTip() const
+{
+  return this->getComponentType();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -2,6 +2,7 @@
 #include <QPoint>
 #include <QStringList>
 #include <QVariant>
+#include <QDebug>
 
 #include <boost/filesystem/path.hpp>
 
@@ -299,10 +300,17 @@ CNode::Ptr CNode::createFromXml(CF::Common::XmlNode & node)
 
 CNode::Ptr CNode::getNode(CF::Uint index)
 {
-  ComponentIterator<CNode> it = this->begin<CNode>();
-  cf_assert(index < m_components.size());
+  Component::Ptr compo = shared_from_this();
+  CF::Uint i;
 
-  for(CF::Uint i = 0 ; i < index ; i++)
+  if(checkType(CNode::ROOT_NODE))
+    compo = this->convertTo<NRoot>()->root();
+
+  ComponentIterator<CNode> it = compo->begin<CNode>();
+
+  cf_assert(index < compo->get_child_count());
+
+  for(i = 0 ; i < index ; i++)
     it++;
 
   return it.get();
