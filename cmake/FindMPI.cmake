@@ -6,8 +6,8 @@
 # CF_MPI_LIBS_FOUND = set to true after finding the library
 #
 
-SET_TRIAL_INCLUDE_PATH ("") # clear include search path
-SET_TRIAL_LIBRARY_PATH ("") # clear library search path
+SET_TRIAL_INCLUDE_PATH("") # clear include search path
+SET_TRIAL_LIBRARY_PATH("") # clear library search path
 
 # try in user defined paths first
 ADD_TRIAL_INCLUDE_PATH( ${MPI_HOME}/include )
@@ -62,14 +62,14 @@ FIND_LIBRARY(MPICXX_LIBRARY
              "$ENV{ProgramFiles}/MPICH2/Lib"
              "C:/Program Files/MPICH/SDK/Lib" )
 
-IF ( MPICXX_LIBRARY )
-  LIST ( APPEND MPI_LIBRARIES ${MPICXX_LIBRARY} )
+IF( MPICXX_LIBRARY )
+  LIST( APPEND MPI_LIBRARIES ${MPICXX_LIBRARY} )
 ENDIF()
-IF ( MPI_LIBRARY )
-  LIST ( APPEND MPI_LIBRARIES ${MPI_LIBRARY} )
+IF( MPI_LIBRARY )
+  LIST( APPEND MPI_LIBRARIES ${MPI_LIBRARY} )
 ENDIF()
 
-IF ( DEFINED MPI_EXTRA_LIBRARY_NAMES )
+IF( DEFINED MPI_EXTRA_LIBRARY_NAMES )
 
 	FOREACH( mpi_extra_lib ${MPI_EXTRA_LIBRARY_NAMES} )
 
@@ -87,25 +87,25 @@ IF ( DEFINED MPI_EXTRA_LIBRARY_NAMES )
                   "$ENV{ProgramFiles}/MPICH2/Lib"
                   "C:/Program Files/MPICH/SDK/Lib" )
 
-	  MARK_AS_ADVANCED ( MPI_EXTRA_LIBRARY_${mpi_extra_lib} )
+    MARK_AS_ADVANCED( MPI_EXTRA_LIBRARY_${mpi_extra_lib} )
 
 #    CF_DEBUG_VAR ( ${mpi_extra_lib} )
 #    CF_DEBUG_VAR ( MPI_EXTRA_LIBRARY_${mpi_extra_lib} )
 
-    IF ( NOT MPI_EXTRA_LIBRARY_${mpi_extra_lib} )
+    IF( NOT MPI_EXTRA_LIBRARY_${mpi_extra_lib} )
       MESSAGE ( FATAL_ERROR "User defined MPI extra lib \'${mpi_extra_lib}\' NOT FOUND" )
     ELSE()
-   	  LIST ( APPEND MPI_EXTRA_LIBS ${MPI_EXTRA_LIBRARY_${mpi_extra_lib}} )
+      LIST( APPEND MPI_EXTRA_LIBS ${MPI_EXTRA_LIBRARY_${mpi_extra_lib}} )
       MARK_AS_ADVANCED( MPI_EXTRA_LIBS )
     ENDIF()
 
    ENDFOREACH( mpi_extra_lib )
 
-  LIST ( APPEND MPI_LIBRARIES ${MPI_EXTRA_LIBS} )
+  LIST( APPEND MPI_LIBRARIES ${MPI_EXTRA_LIBS} )
 
 ENDIF()
 
-IF ( MPI_INCLUDE_PATH AND MPI_LIBRARY )
+IF( MPI_INCLUDE_PATH AND MPI_LIBRARY )
   SET(CF_MPI_LIBS_FOUND 1 CACHE BOOL "Found MPI libraries")
 ELSE()
   SET(CF_MPI_LIBS_FOUND 0 CACHE BOOL "Did not find MPI libraries")
