@@ -127,7 +127,7 @@ namespace Common {
     template < typename TYPE >
         void link_to ( TYPE* par )
     {
-      cf_assert ( DEMANGLED_TYPEID(TYPE) == m_type );
+      cf_assert ( type_to_str<TYPE>() == m_type );
       m_linked_params.push_back(par);
     }
 
