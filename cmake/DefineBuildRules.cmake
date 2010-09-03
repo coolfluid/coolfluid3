@@ -25,9 +25,10 @@ IF(UNIX)
     CF_ADD_C_FLAGS("-fno-common")
     CF_ADD_CXX_FLAGS("-fno-common")
 
+    CF_ADD_CXX_FLAGS("-Wall")
+    
     if( CF_ENABLE_WARNINGS )
       # use many warnings
-      CF_ADD_CXX_FLAGS("-Wall")
       CF_ADD_CXX_FLAGS("-W")
       CF_ADD_CXX_FLAGS("-Wextra")
       CF_ADD_CXX_FLAGS("-Woverloaded-virtual")
