@@ -488,7 +488,7 @@ std::string Component::tree(Uint level)
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-int Component::get_child_count() const
+size_t Component::get_child_count() const
 {
   return m_components.size();
 }

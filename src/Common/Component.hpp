@@ -239,7 +239,7 @@ public: // functions
   std::string tree(Uint level=0);
 
   /// @return Returns the number of children this component has.
-  int get_child_count() const;
+  size_t get_child_count() const;
 
   /// @return Returns the type name of the subclass, according to
   /// @c CF::TypeInfo

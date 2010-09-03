@@ -30,6 +30,7 @@ bool GraphicalString::setValue(const QVariant & value)
 {
   m_originalValue = value;
   m_lineEdit->setText(value.toString());
+  return true;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

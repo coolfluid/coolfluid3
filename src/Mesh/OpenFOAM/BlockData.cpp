@@ -26,8 +26,8 @@ namespace detail {
 /// Determine if all patches in the given direction are empty
 bool is_empty(const Uint front, const Uint back, const std::vector< std::vector<std::string> >& patches)
 {
-  return std::count(patches[front].begin(), patches[front].end(), "empty") == patches[front].size() &&
-         std::count(patches[back].begin(), patches[back].end(), "empty") == patches[back].size() &&
+  return (size_t) std::count(patches[front].begin(), patches[front].end(), "empty") == patches[front].size() &&
+         (size_t) std::count(patches[back].begin(),  patches[back].end(),  "empty") == patches[back].size()  &&
          patches[front].size() == patches[back].size();
 }
   
