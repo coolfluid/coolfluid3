@@ -6,12 +6,12 @@
 
 #include "GUI/Client/ClientRoot.hpp"
 #include "GUI/Client/TypeAndNameDialog.hpp"
-#include "GUI/Client/RemoteSaveFile.hpp"
+#include "GUI/Client/NRemoteSave.hpp"
 
 using namespace CF::GUI::Client;
 
-RemoteSaveFile::RemoteSaveFile(QMainWindow * parent)
-  : RemoteFSBrowser("RemoteSaveFile", parent)
+NRemoteSave::NRemoteSave(QMainWindow * parent)
+  : NRemoteBrowser("NRemoteSave", parent)
 {
   BUILD_COMPONENT;
 
@@ -41,7 +41,7 @@ RemoteSaveFile::RemoteSaveFile(QMainWindow * parent)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-RemoteSaveFile::~RemoteSaveFile()
+NRemoteSave::~NRemoteSave()
 {
   delete m_fileNameDialog;
   delete m_btFileName;
@@ -51,7 +51,7 @@ RemoteSaveFile::~RemoteSaveFile()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QIcon RemoteSaveFile::getIcon() const
+QIcon NRemoteSave::getIcon() const
 {
   return QFileIconProvider().icon(QFileIconProvider::File);
 }
@@ -59,9 +59,9 @@ QIcon RemoteSaveFile::getIcon() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-RemoteSaveFile::Ptr RemoteSaveFile::create(QMainWindow * parent)
+NRemoteSave::Ptr NRemoteSave::create(QMainWindow * parent)
 {
-  RemoteSaveFile::Ptr rsf(new RemoteSaveFile(parent));
+  NRemoteSave::Ptr rsf(new NRemoteSave(parent));
 
   ClientRoot::getBrowser()->addNode(rsf);
 
@@ -71,7 +71,7 @@ RemoteSaveFile::Ptr RemoteSaveFile::create(QMainWindow * parent)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString RemoteSaveFile::getToolTip() const
+QString NRemoteSave::getToolTip() const
 {
   return this->getComponentType();
 }
@@ -79,7 +79,7 @@ QString RemoteSaveFile::getToolTip() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void RemoteSaveFile::btFileNameClick()
+void NRemoteSave::btFileNameClick()
 {
   QString selectedExtension;
   QString name;
@@ -120,7 +120,7 @@ void RemoteSaveFile::btFileNameClick()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void RemoteSaveFile::btNewDirectoryClicked()
+void NRemoteSave::btNewDirectoryClicked()
 {
   QString dirName;
   bool ok;
@@ -138,7 +138,7 @@ void RemoteSaveFile::btNewDirectoryClicked()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-ValidationPolicy RemoteSaveFile::isAcceptable(const QString & name, bool isDir)
+ValidationPolicy NRemoteSave::isAcceptable(const QString & name, bool isDir)
 {
   ValidationPolicy validation = POLICY_NOT_VALID;
 
@@ -177,7 +177,7 @@ ValidationPolicy RemoteSaveFile::isAcceptable(const QString & name, bool isDir)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void RemoteSaveFile::reinitValues()
+void NRemoteSave::reinitValues()
 {
   m_selectedFile.clear();
   m_fileName.clear();
@@ -186,7 +186,7 @@ void RemoteSaveFile::reinitValues()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString RemoteSaveFile::getSelectedFile() const
+QString NRemoteSave::getSelectedFile() const
 {
   return m_selectedFile;
 }

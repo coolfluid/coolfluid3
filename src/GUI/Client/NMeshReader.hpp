@@ -17,7 +17,7 @@ namespace Client {
 
   //////////////////////////////////////////////////////////////////////////
 
-  class RemoteOpenFile;
+  class NRemoteOpen;
 
   class NMeshReader : public QObject, public CNode
   {
@@ -45,7 +45,7 @@ namespace Client {
 
   private:
 
-    boost::shared_ptr<RemoteOpenFile> m_openFile;
+    boost::shared_ptr<NRemoteOpen> m_openFile;
 
     /// regists all the signals declared in this class
     static void regist_signals ( Component* self ) {}

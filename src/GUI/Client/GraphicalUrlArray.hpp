@@ -3,7 +3,7 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
-#include "GUI/Client/RemoteOpenFile.hpp"
+#include "GUI/Client/NRemoteOpen.hpp"
 #include "GUI/Client/GraphicalValue.hpp"
 
 class QListView;
@@ -51,7 +51,7 @@ namespace Client {
 
     QVBoxLayout * m_buttonsLayout;
 
-    RemoteOpenFile::Ptr m_browser;
+    NRemoteOpen::Ptr m_browser;
 
   };
 

@@ -17,7 +17,7 @@ GraphicalUrlArray::GraphicalUrlArray(QWidget * parent)
   m_listView = new QListView(this);
   m_btAdd = new QPushButton("Add", this);
   m_btRemove = new QPushButton("Remove", this);
-  m_browser = RemoteOpenFile::create();
+  m_browser = NRemoteOpen::create();
   m_buttonsLayout = new QVBoxLayout();
 
   m_listView->setModel(m_model);

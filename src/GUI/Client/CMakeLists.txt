@@ -34,8 +34,8 @@ LIST( APPEND coolfluid-client_moc_classes
   NTable.hpp
   NTree.hpp
   OptionPanel.hpp
-  RemoteFSBrowser.hpp
-  RemoteSaveFile.hpp
+  NRemoteBrowser.hpp
+  NRemoteSave.hpp
   SelectFileDialog.hpp
   StatusModel.hpp
   StatusPanel.hpp
@@ -124,12 +124,12 @@ LIST( APPEND coolfluid-client_files
   OptionPanel.hpp
   OptionType.cpp
   OptionType.hpp
-  RemoteFSBrowser.cpp
-  RemoteFSBrowser.hpp
-  RemoteOpenFile.cpp
-  RemoteOpenFile.hpp
-  RemoteSaveFile.cpp
-  RemoteSaveFile.hpp
+  NRemoteBrowser.cpp
+  NRemoteBrowser.hpp
+  NRemoteOpen.cpp
+  NRemoteOpen.hpp
+  NRemoteSave.cpp
+  NRemoteSave.hpp
   SelectFileDialog.cpp
   SelectFileDialog.hpp
   SelectPathDialog.cpp

@@ -3,12 +3,12 @@
 
 #include "GUI/Client/ClientRoot.hpp"
 #include "GUI/Client/FilesListItem.hpp"
-#include "GUI/Client/RemoteOpenFile.hpp"
+#include "GUI/Client/NRemoteOpen.hpp"
 
 using namespace CF::GUI::Client;
 
-RemoteOpenFile::RemoteOpenFile(QMainWindow * parent)
-: RemoteFSBrowser("RemoteOpenFile", parent)
+NRemoteOpen::NRemoteOpen(QMainWindow * parent)
+: NRemoteBrowser("NRemoteOpen", parent)
 {
   BUILD_COMPONENT;
 
@@ -19,7 +19,7 @@ RemoteOpenFile::RemoteOpenFile(QMainWindow * parent)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-RemoteOpenFile::~RemoteOpenFile()
+NRemoteOpen::~NRemoteOpen()
 {
 
 }
@@ -27,9 +27,9 @@ RemoteOpenFile::~RemoteOpenFile()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-RemoteOpenFile::Ptr RemoteOpenFile::create(QMainWindow * parent)
+NRemoteOpen::Ptr NRemoteOpen::create(QMainWindow * parent)
 {
-  RemoteOpenFile::Ptr rop(new RemoteOpenFile(parent));
+  NRemoteOpen::Ptr rop(new NRemoteOpen(parent));
 
   ClientRoot::getBrowser()->addNode(rop);
 
@@ -39,7 +39,7 @@ RemoteOpenFile::Ptr RemoteOpenFile::create(QMainWindow * parent)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QIcon RemoteOpenFile::getIcon() const
+QIcon NRemoteOpen::getIcon() const
 {
   return QFileIconProvider().icon(QFileIconProvider::File);
 }
@@ -47,7 +47,7 @@ QIcon RemoteOpenFile::getIcon() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString RemoteOpenFile::getToolTip() const
+QString NRemoteOpen::getToolTip() const
 {
   return this->getComponentType();
 }
@@ -55,7 +55,7 @@ QString RemoteOpenFile::getToolTip() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-ValidationPolicy RemoteOpenFile::isAcceptable(const QString & name, bool isDir)
+ValidationPolicy NRemoteOpen::isAcceptable(const QString & name, bool isDir)
 {
   if(isDir)
     return POLICY_ENTER_DIRECTORY;
@@ -67,7 +67,7 @@ ValidationPolicy RemoteOpenFile::isAcceptable(const QString & name, bool isDir)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-ValidationPolicy RemoteOpenFile::isAcceptable(const QStringList & names)
+ValidationPolicy NRemoteOpen::isAcceptable(const QStringList & names)
 {
   QStringList::const_iterator it = names.begin();
   ValidationPolicy validation = POLICY_VALID;
@@ -98,7 +98,7 @@ ValidationPolicy RemoteOpenFile::isAcceptable(const QStringList & names)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString RemoteOpenFile::getSelectedFile() const
+QString NRemoteOpen::getSelectedFile() const
 {
   if(!m_fileList.isEmpty())
     return m_fileList.at(0);
@@ -109,7 +109,7 @@ QString RemoteOpenFile::getSelectedFile() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-//QStringList RemoteOpenFile::getSelectedFileList() const
+//QStringList NRemoteOpen::getSelectedFileList() const
 //{
 //  return m_fileList;
 //}
@@ -117,7 +117,7 @@ QString RemoteOpenFile::getSelectedFile() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void RemoteOpenFile::reinitValues()
+void NRemoteOpen::reinitValues()
 {
   m_fileList.clear();
 }

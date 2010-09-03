@@ -1,9 +1,9 @@
-#ifndef CF_GUI_Client_RemoteOpenFile_h
-#define CF_GUI_Client_RemoteOpenFile_h
+#ifndef CF_GUI_Client_NRemoteOpen_h
+#define CF_GUI_Client_NRemoteOpen_h
 
 ////////////////////////////////////////////////////////////////////////////
 
-#include "GUI/Client/RemoteFSBrowser.hpp"
+#include "GUI/Client/NRemoteBrowser.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -20,27 +20,27 @@ namespace Client {
   /// @brief This class is a dialog that allows user to select one or more
   /// files to open.
 
-  /// This class subclasses @c RemoteFSBrowser.
+  /// This class subclasses @c NRemoteBrowser.
 
   /// @author Quentin Gasper
-  class RemoteOpenFile : public RemoteFSBrowser
+  class NRemoteOpen : public NRemoteBrowser
   {
   public:
 
-    typedef boost::shared_ptr<RemoteOpenFile> Ptr;
-    typedef boost::shared_ptr<const RemoteOpenFile> ConstPtr;
+    typedef boost::shared_ptr<NRemoteOpen> Ptr;
+    typedef boost::shared_ptr<const NRemoteOpen> ConstPtr;
 
     /// @brief Constructor
 
     /// @param parent Parent window. May be @c CFNULL
-    RemoteOpenFile(QMainWindow * parent = CFNULL);
+    NRemoteOpen(QMainWindow * parent = CFNULL);
 
     /// @brief Destructor
 
     /// Frees all allocated memory. Parent is not destroyed.
-    ~RemoteOpenFile();
+    ~NRemoteOpen();
 
-    static RemoteOpenFile::Ptr create(QMainWindow * parent = CFNULL);
+    static NRemoteOpen::Ptr create(QMainWindow * parent = CFNULL);
 
     /// @brief Gives the icon associated to this node
     /// @return Returns the icon associated to this node
@@ -104,7 +104,7 @@ namespace Client {
     /// regists all the signals declared in this class
     static void regist_signals ( Component* self ) {}
 
-  }; // namespace RemoteOpenFile
+  }; // namespace NRemoteOpen
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -115,4 +115,4 @@ namespace Client {
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#endif // CF_GUI_Client_RemoteOpenFile_h
+#endif // CF_GUI_Client_NRemoteOpen_h

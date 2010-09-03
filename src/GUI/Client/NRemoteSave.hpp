@@ -1,9 +1,9 @@
-#ifndef CF_GUI_Client_RemoteSaveFile_h
-#define CF_GUI_Client_RemoteSaveFile_h
+#ifndef CF_GUI_Client_NRemoteSave_h
+#define CF_GUI_Client_NRemoteSave_h
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "GUI/Client/RemoteFSBrowser.hpp"
+#include "GUI/Client/NRemoteBrowser.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -21,32 +21,32 @@ namespace Client {
   /// @brief This class is a dialog that allows user to to select a remote
   /// place to save a file.
 
-  /// This class subclasses @c RemoteFSBrowser. User can create new directories,
+  /// This class subclasses @c NRemoteBrowser. User can create new directories,
   /// enter a name for the new file or choose to overwrite a file. This class
   /// does not allow user to call @c #setIncludeFiles, @c #setIncludeNoExtension
   /// and @c #showMultipleSelect base class methods.
 
   /// @author Quentin Gasper
-  class RemoteSaveFile : public RemoteFSBrowser
+  class NRemoteSave : public NRemoteBrowser
   {
     Q_OBJECT
 
     public:
 
-    typedef boost::shared_ptr<RemoteSaveFile> Ptr;
-    typedef boost::shared_ptr<const RemoteSaveFile> ConstPtr;
+    typedef boost::shared_ptr<NRemoteSave> Ptr;
+    typedef boost::shared_ptr<const NRemoteSave> ConstPtr;
 
     /// @brief Constructor
 
     /// @param parent Parent window. May be @c CFNULL.
-    RemoteSaveFile(QMainWindow * parent = CFNULL);
+    NRemoteSave(QMainWindow * parent = CFNULL);
 
     /// @brief Destructor
 
     /// Frees all allocated memory. Parent is not destroyed.
-    ~RemoteSaveFile();
+    ~NRemoteSave();
 
-    static RemoteSaveFile::Ptr create(QMainWindow * parent = CFNULL);
+    static NRemoteSave::Ptr create(QMainWindow * parent = CFNULL);
 
     /// @brief Gives the icon associated to this node
     /// @return Returns the icon associated to this node
@@ -123,7 +123,7 @@ namespace Client {
     /// regists all the signals declared in this class
     static void regist_signals ( Component* self ) {}
 
-  }; // class RemoteSaveFile
+  }; // class NRemoteSave
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -134,4 +134,4 @@ namespace Client {
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#endif // CF_GUI_Client_RemoteSaveFile_h
+#endif // CF_GUI_Client_NRemoteSave_h

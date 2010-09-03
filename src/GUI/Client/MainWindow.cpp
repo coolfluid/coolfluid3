@@ -19,8 +19,8 @@
 #include "GUI/Client/LoggingList.hpp"
 #include "GUI/Client/MenuActionInfo.hpp"
 #include "GUI/Client/OptionPanel.hpp"
-#include "GUI/Client/RemoteSaveFile.hpp"
-#include "GUI/Client/RemoteOpenFile.hpp"
+#include "GUI/Client/NRemoteSave.hpp"
+#include "GUI/Client/NRemoteOpen.hpp"
 #include "GUI/Client/SelectFileDialog.hpp"
 #include "GUI/Client/StatusModel.hpp"
 #include "GUI/Client/StatusPanel.hpp"
@@ -655,7 +655,7 @@ void MainWindow::saveFileLocally()
 
 void MainWindow::saveFileRemotely()
 {
-  RemoteSaveFile::Ptr flg;
+  NRemoteSave::Ptr flg;
 
   flg->show();
 }
@@ -676,7 +676,7 @@ void MainWindow::openFileLocally()
 
 void MainWindow::openFileRemotely()
 {
-  RemoteOpenFile::Ptr rop = RemoteOpenFile::create();
+  NRemoteOpen::Ptr rop = NRemoteOpen::create();
   rop->show();
 }
 

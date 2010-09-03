@@ -1,5 +1,5 @@
-#ifndef CF_GUI_Client_RemoteFSBrowser_hpp
-#define CF_GUI_Client_RemoteFSBrowser_hpp
+#ifndef CF_GUI_Client_NRemoteBrowser_hpp
+#define CF_GUI_Client_NRemoteBrowser_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -34,12 +34,12 @@ namespace Client {
   class NCore;
   class FilesListItem;
 
-  /// @brief This enum defines a validation protocol between @c RemoteFSBrowser
+  /// @brief This enum defines a validation protocol between @c NRemoteBrowser
   /// and its subclasses.
 
   /// It allows subclasses to inform the base class that the currently selected
   /// item(s) is (are) conformed to the validation policy defined by these
-  /// subclasses. See @c RemoteFSBrowser class documentation for more details.
+  /// subclasses. See @c NRemoteBrowser class documentation for more details.
   enum ValidationPolicy
   {
     /// @brief The associated selection has been validated by the subclass
@@ -92,7 +92,7 @@ namespace Client {
   /// A typical use of this class is (assuming that @c this is a
   /// @c QMainWindow object): @n @n
   /// \code
-  /// RemoteFSBrowser dialog(this);
+  /// NRemoteBrowser dialog(this);
   /// QString name = dialog.show();
   ///
   /// if(name != "")
@@ -103,7 +103,7 @@ namespace Client {
 
   /// @author Quentin Gasper.
 
-  class RemoteFSBrowser
+  class NRemoteBrowser
     : public QDialog,
       public CNode
   {
@@ -115,13 +115,13 @@ namespace Client {
 
     /// @param parent Parent window of the dialog. May be @c CFNULL.
     /// @throw std::invalid_argument If a connection to the server does not exist.
-    RemoteFSBrowser(const QString & componentType, QMainWindow * parent = CFNULL);
+    NRemoteBrowser(const QString & componentType, QMainWindow * parent = CFNULL);
 
     /// @brief Destructor.
 
     /// Frees all allocated memory. Parent window and @c communication object
     /// are not destroyed.
-    ~RemoteFSBrowser();
+    ~NRemoteBrowser();
 
     /// @brief Shows the dialog.
 
@@ -585,7 +585,7 @@ namespace Client {
 
     CF::Common::Signal::return_t read_dir(CF::Common::Signal::arg_t & node);
 
-  }; // class RemoteFSBrowser
+  }; // class NRemoteBrowser
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -595,4 +595,4 @@ namespace Client {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Client_RemoteFSBrowser_h
+#endif // CF_GUI_Client_NRemoteBrowser_h

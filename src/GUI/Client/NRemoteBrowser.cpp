@@ -29,20 +29,20 @@
 
 #include "GUI/Network/ComponentNames.hpp"
 
-#include "GUI/Client/RemoteFSBrowser.hpp"
+#include "GUI/Client/NRemoteBrowser.hpp"
 
 using namespace CF::Common;
 using namespace CF::GUI::Client;
 using namespace CF::GUI::Network;
 
-RemoteFSBrowser::RemoteFSBrowser(const QString & componentType, QMainWindow * parent)
+NRemoteBrowser::NRemoteBrowser(const QString & componentType, QMainWindow * parent)
   : QDialog(parent),
     CNode("a", componentType, CNode::BROWSER_NODE)
 
 {
   this->rename(ClientRoot::getBrowser()->generateName().toStdString());
 
-  regist_signal("read_dir", "Directory content")->connect(boost::bind(&RemoteFSBrowser::read_dir, this, _1));
+  regist_signal("read_dir", "Directory content")->connect(boost::bind(&NRemoteBrowser::read_dir, this, _1));
 
   this->setWindowTitle("Open file");
 
@@ -136,7 +136,7 @@ RemoteFSBrowser::RemoteFSBrowser(const QString & componentType, QMainWindow * pa
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-RemoteFSBrowser::~RemoteFSBrowser()
+NRemoteBrowser::~NRemoteBrowser()
 {
   delete m_buttons;
   delete m_editFilter;
@@ -162,7 +162,7 @@ RemoteFSBrowser::~RemoteFSBrowser()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString RemoteFSBrowser::show(const QString & startingDir)
+QString NRemoteBrowser::show(const QString & startingDir)
 {
   if(!this->allowSingleSelect)
   {
@@ -204,7 +204,7 @@ QString RemoteFSBrowser::show(const QString & startingDir)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QStringList RemoteFSBrowser::showMultipleSelect(const QString & startingDir)
+QStringList NRemoteBrowser::showMultipleSelect(const QString & startingDir)
 {
   QStringList list;
 
@@ -248,7 +248,7 @@ QStringList RemoteFSBrowser::showMultipleSelect(const QString & startingDir)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void RemoteFSBrowser::setIncludeFiles(bool includeFiles)
+void NRemoteBrowser::setIncludeFiles(bool includeFiles)
 {
   if(this->allowModifyBools)
     m_includeFiles = includeFiles;
@@ -257,7 +257,7 @@ void RemoteFSBrowser::setIncludeFiles(bool includeFiles)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void RemoteFSBrowser::setIncludeNoExtension(bool includeNoExtension)
+void NRemoteBrowser::setIncludeNoExtension(bool includeNoExtension)
 {
   if(this->allowModifyBools)
     m_includeNoExtension = includeNoExtension;
@@ -266,7 +266,7 @@ void RemoteFSBrowser::setIncludeNoExtension(bool includeNoExtension)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QStringList RemoteFSBrowser::getExtensions() const
+QStringList NRemoteBrowser::getExtensions() const
 {
   return m_extensions;
 }
@@ -274,7 +274,7 @@ QStringList RemoteFSBrowser::getExtensions() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool RemoteFSBrowser::getIncludeFiles() const
+bool NRemoteBrowser::getIncludeFiles() const
 {
   return m_includeFiles;
 }
@@ -282,14 +282,14 @@ bool RemoteFSBrowser::getIncludeFiles() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool RemoteFSBrowser::getIncludeNoExtension() const
+bool NRemoteBrowser::getIncludeNoExtension() const
 {
   return m_includeNoExtension;
 }
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool RemoteFSBrowser::itemExists(const QString & name) const
+bool NRemoteBrowser::itemExists(const QString & name) const
 {
   QList<FilesListItem *>::const_iterator it = m_items.begin();
   bool found = false;
@@ -306,7 +306,7 @@ bool RemoteFSBrowser::itemExists(const QString & name) const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool RemoteFSBrowser::isDirectory(const QString & name) const
+bool NRemoteBrowser::isDirectory(const QString & name) const
 {
   QList<FilesListItem *>::const_iterator it = m_items.begin();
   bool found = false;
@@ -327,7 +327,7 @@ bool RemoteFSBrowser::isDirectory(const QString & name) const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool RemoteFSBrowser::isFile(const QString & name) const
+bool NRemoteBrowser::isFile(const QString & name) const
 {
   QList<FilesListItem *>::const_iterator it = m_items.begin();
   bool found = false;
@@ -345,7 +345,7 @@ bool RemoteFSBrowser::isFile(const QString & name) const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-ValidationPolicy RemoteFSBrowser::isAcceptable(const QString & name, bool isDir)
+ValidationPolicy NRemoteBrowser::isAcceptable(const QString & name, bool isDir)
 {
   return POLICY_VALID;
 }
@@ -353,7 +353,7 @@ ValidationPolicy RemoteFSBrowser::isAcceptable(const QString & name, bool isDir)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-ValidationPolicy RemoteFSBrowser::isAcceptableList(const QStringList & names)
+ValidationPolicy NRemoteBrowser::isAcceptableList(const QStringList & names)
 {
   return POLICY_VALID;
 }
@@ -361,7 +361,7 @@ ValidationPolicy RemoteFSBrowser::isAcceptableList(const QStringList & names)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void RemoteFSBrowser::showError(const QString & message)
+void NRemoteBrowser::showError(const QString & message)
 {
   QMessageBox::critical(this, "Error", message);
 }
@@ -369,7 +369,7 @@ void RemoteFSBrowser::showError(const QString & message)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void RemoteFSBrowser::reinitValues()
+void NRemoteBrowser::reinitValues()
 {
   // do nothing (see doc)
 }
@@ -377,7 +377,7 @@ void RemoteFSBrowser::reinitValues()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void RemoteFSBrowser::assemblePath(QString & part1, const QString & part2) const
+void NRemoteBrowser::assemblePath(QString & part1, const QString & part2) const
 {
   // if part1 ends with pathSep XOR part2 starts with pathSep,
   // we can append part2 to part1
@@ -397,7 +397,7 @@ void RemoteFSBrowser::assemblePath(QString & part1, const QString & part2) const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void RemoteFSBrowser::getSelectedFileList(QStringList & fileList) const
+void NRemoteBrowser::getSelectedFileList(QStringList & fileList) const
 {
   QModelIndexList selectedItems = m_listView->selectionModel()->selectedIndexes();
   QModelIndexList::iterator it = selectedItems.begin();
@@ -422,7 +422,7 @@ void RemoteFSBrowser::getSelectedFileList(QStringList & fileList) const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void RemoteFSBrowser::setStatus(const QString & text)
+void NRemoteBrowser::setStatus(const QString & text)
 {
   m_labStatus->setText(text);
 }
@@ -431,7 +431,7 @@ void RemoteFSBrowser::setStatus(const QString & text)
 // SLOTS
 
 
-void RemoteFSBrowser::btOkClicked()
+void NRemoteBrowser::btOkClicked()
 {
   QModelIndexList indexes = m_listView->selectionModel()->selectedIndexes();
   QString name = m_currentPath;
@@ -470,7 +470,7 @@ void RemoteFSBrowser::btOkClicked()
   {
     QStringList list;
 
-    RemoteFSBrowser::getSelectedFileList(list);
+    NRemoteBrowser::getSelectedFileList(list);
 
     validation = this->isAcceptableList(list);
 
@@ -488,7 +488,7 @@ void RemoteFSBrowser::btOkClicked()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void RemoteFSBrowser::btCancelClicked()
+void NRemoteBrowser::btCancelClicked()
 {
   disconnect(ClientRoot::getLog().get());
 
@@ -499,7 +499,7 @@ void RemoteFSBrowser::btCancelClicked()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void RemoteFSBrowser::filterUpdated(const QString & text)
+void NRemoteBrowser::filterUpdated(const QString & text)
 {
   QRegExp regex(text, Qt::CaseInsensitive, QRegExp::Wildcard);
   m_filterModel->setFilterRegExp(regex);
@@ -508,7 +508,7 @@ void RemoteFSBrowser::filterUpdated(const QString & text)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void RemoteFSBrowser::pathUpdated(const QString & text)
+void NRemoteBrowser::pathUpdated(const QString & text)
 {
   static QString oldText;
   QString path;
@@ -541,7 +541,7 @@ void RemoteFSBrowser::pathUpdated(const QString & text)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void RemoteFSBrowser::error(const QString & error, bool fromServer)
+void NRemoteBrowser::error(const QString & error, bool fromServer)
 {
   // restore mouse cursor
   QApplication::restoreOverrideCursor();
@@ -552,7 +552,7 @@ void RemoteFSBrowser::error(const QString & error, bool fromServer)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void RemoteFSBrowser::doubleClick(const QModelIndex & index)
+void NRemoteBrowser::doubleClick(const QModelIndex & index)
 {
   QModelIndex indexInModel = m_filterModel->mapToSource(index);
   FilesListItem * item;
@@ -571,7 +571,7 @@ void RemoteFSBrowser::doubleClick(const QModelIndex & index)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void RemoteFSBrowser::completerActivated(const QString & text)
+void NRemoteBrowser::completerActivated(const QString & text)
 {
   this->openDir(text);
 }
@@ -579,7 +579,7 @@ void RemoteFSBrowser::completerActivated(const QString & text)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void RemoteFSBrowser::keyPressEvent(QKeyEvent * event)
+void NRemoteBrowser::keyPressEvent(QKeyEvent * event)
 {
   // key code for the pressed key
   int pressedKey = event->key();
@@ -632,7 +632,7 @@ void RemoteFSBrowser::keyPressEvent(QKeyEvent * event)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool RemoteFSBrowser::focusNextPrevChild(bool next)
+bool NRemoteBrowser::focusNextPrevChild(bool next)
 {
   if(m_editPath->hasFocus() && m_pathCompleter->popup()->isVisible())
   {
@@ -651,7 +651,7 @@ bool RemoteFSBrowser::focusNextPrevChild(bool next)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QPushButton * RemoteFSBrowser::addButton(const QString & text,
+QPushButton * NRemoteBrowser::addButton(const QString & text,
                                          QDialogButtonBox::ButtonRole role)
 {
   if(!text.isEmpty())
@@ -663,7 +663,7 @@ QPushButton * RemoteFSBrowser::addButton(const QString & text,
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void RemoteFSBrowser::setExtensions(const QStringList & newExtensions)
+void NRemoteBrowser::setExtensions(const QStringList & newExtensions)
 {
   m_extensions = newExtensions;
 }
@@ -671,7 +671,7 @@ void RemoteFSBrowser::setExtensions(const QStringList & newExtensions)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString RemoteFSBrowser::getCurrentPath() const
+QString NRemoteBrowser::getCurrentPath() const
 {
   return m_currentPath;
 }
@@ -679,7 +679,7 @@ QString RemoteFSBrowser::getCurrentPath() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void RemoteFSBrowser::updateModel(QStandardItemModel * model,
+void NRemoteBrowser::updateModel(QStandardItemModel * model,
                                   const QString & path,
                                   const std::vector<std::string> & dirs,
                                   const std::vector<std::string> & files,
@@ -733,7 +733,7 @@ void RemoteFSBrowser::updateModel(QStandardItemModel * model,
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void RemoteFSBrowser::openDir(const QString & path)
+void NRemoteBrowser::openDir(const QString & path)
 {
   boost::shared_ptr<XmlDoc> docnode = XmlOps::create_doc();
   XmlNode * rootNode = XmlOps::goto_doc_node(*docnode.get());
@@ -759,7 +759,7 @@ void RemoteFSBrowser::openDir(const QString & path)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-Signal::return_t RemoteFSBrowser::read_dir(Signal::arg_t & node)
+Signal::return_t NRemoteBrowser::read_dir(Signal::arg_t & node)
 {
   XmlParams p(node);
 
@@ -796,7 +796,7 @@ Signal::return_t RemoteFSBrowser::read_dir(Signal::arg_t & node)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString RemoteFSBrowser::getSelectedFile() const
+QString NRemoteBrowser::getSelectedFile() const
 {
   QModelIndex index = m_listView->currentIndex();
   QModelIndex indexInModel = m_filterModel->mapToSource(index);
@@ -813,7 +813,7 @@ QString RemoteFSBrowser::getSelectedFile() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-//void RemoteFSBrowser::ack(NetworkFrameType type)
+//void NRemoteBrowser::ack(NetworkFrameType type)
 //{
 //  switch(type)
 //  {
