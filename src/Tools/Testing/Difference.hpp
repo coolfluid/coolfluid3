@@ -95,7 +95,17 @@ inline void test(const Uint& A, const Uint& B, Accumulator& Result)
 /// Specialization of test that tests Real
 inline void test(const Real& A, const Real& B, Accumulator& Result)
 {
-  Result.ulps(std::fabs(boost::math::float_distance(A, B)));
+  const Real abs_A = fabs(A);
+  const Real abs_B = fabs(B);
+  const Real threshold = 10*std::numeric_limits<Real>::epsilon();
+  if(abs_A < threshold && abs_B < threshold)
+  {
+    Result.ulps(ceil(fabs(abs_B - abs_A) / threshold));
+  }
+  else
+  {
+    Result.ulps(std::fabs(boost::math::float_distance(A, B)));
+  }
 };
 
 /// Given iterators designating two sequences, calls the test() function for each pair of values,

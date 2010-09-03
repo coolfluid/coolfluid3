@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE( Cavity2D )
   ref_reader->read_from_to(ref_path, ref_mesh);
   
   // Check if they are equal
-  BOOST_CHECK(CF::Tools::MeshDiff::diff(*dict_mesh, *ref_mesh, 25000));
+  BOOST_CHECK(CF::Tools::MeshDiff::diff(*dict_mesh, *ref_mesh, 100));
 }
 
 BOOST_AUTO_TEST_CASE( PitzDaily )
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE( PitzDaily )
   ref_reader->read_from_to(ref_path, ref_mesh);
   
   // Check if they are equal
-  BOOST_CHECK(CF::Tools::MeshDiff::diff(*dict_mesh, *ref_mesh, 30000));
+  BOOST_CHECK(CF::Tools::MeshDiff::diff(*dict_mesh, *ref_mesh, 50000));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
