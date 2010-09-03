@@ -94,17 +94,13 @@ MACRO( CF_ADD_LIBRARY LIBNAME )
     # check if this library headers should be installed with the API
     if( CF_BUILD_${LIBNAME}_API )
       # replace the current directory with target
-      string  ( REPLACE ${CMAKE_BINARY_DIR} ${CF_INSTALL_INCLUDE_DIR} ${LIBNAME}_INSTALL_HEADERS ${CMAKE_CURRENT_BINARY_DIR} )
-      string  ( REPLACE coolfluid/src  coolfluid ${LIBNAME}_INSTALL_HEADERS ${${LIBNAME}_INSTALL_HEADERS} )
-      install ( FILES ${${LIBNAME}_headers} DESTINATION ${${LIBNAME}_INSTALL_HEADERS})
-      LOGFILE ("${LIBNAME}_INSTALL_HEADERS : [${${LIBNAME}_INSTALL_HEADERS}]")
-    endif()
+      string( REPLACE ${CMAKE_BINARY_DIR} ${CF_INSTALL_INCLUDE_DIR} ${LIBNAME}_INSTALL_HEADERS ${CMAKE_CURRENT_BINARY_DIR} )
+      string( REPLACE coolfluid/src  coolfluid ${LIBNAME}_INSTALL_HEADERS ${${LIBNAME}_INSTALL_HEADERS} )
 
-    # if mpi was found add it to the libraries
-    IF(CF_HAVE_MPI AND NOT CF_HAVE_MPI_COMPILER)
-    #           MESSAGE ( STATUS "${LIBNAME} links to ${MPI_LIBRARIES}" )
-        TARGET_LINK_LIBRARIES ( ${LIBNAME} ${MPI_LIBRARIES} )
-    ENDIF()
+      install( FILES ${${LIBNAME}_headers} DESTINATION ${${LIBNAME}_INSTALL_HEADERS})
+
+      LOGFILE("${LIBNAME}_INSTALL_HEADERS : [${${LIBNAME}_INSTALL_HEADERS}]")
+    endif()
 
     # add coolfluid internal dependency libraries if defined
     IF( DEFINED ${LIBNAME}_cflibs )
@@ -115,7 +111,13 @@ MACRO( CF_ADD_LIBRARY LIBNAME )
     # add external dependency libraries if defined
     IF( DEFINED ${LIBNAME}_libs )
 			#	MESSAGE ( STATUS "${LIBNAME} has ${${LIBNAME}_libs}}" )
-      TARGET_LINK_LIBRARIES ( ${LIBNAME} ${${LIBNAME}_libs} )
+      TARGET_LINK_LIBRARIES( ${LIBNAME} ${${LIBNAME}_libs} )
+    ENDIF()
+
+    # if mpi was found add it to the libraries
+    IF(CF_HAVE_MPI AND NOT CF_HAVE_MPI_COMPILER)
+    #           MESSAGE ( STATUS "${LIBNAME} links to ${MPI_LIBRARIES}" )
+        TARGET_LINK_LIBRARIES( ${LIBNAME} ${MPI_LIBRARIES} )
     ENDIF()
 
     # only add link in dso library if building shared libs
