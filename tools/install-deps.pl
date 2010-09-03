@@ -29,8 +29,6 @@ my $arch = get_arch();
 my $opt_help          = 0;
 my $opt_dryrun        = 0;
 my $opt_nocolor       = 0;
-my $opt_envars        = 0;
-my $opt_genconf       = 0;
 my $opt_debug         = 0;
 my $opt_nompi         = 0;
 my $opt_mpi           = "openmpi";
@@ -72,46 +70,24 @@ $priority = 0;
 
 # these packages are listed by priority
 my %packages = (  #  version   default install priority      function
-    "coreutils"  => [ "6.7",    'off',  'off', $priority++,  sub { install_gnu("coreutils") } ],
-    "make"       => [ "3.81",   'off',  'off', $priority++,  sub { install_gnu("make") } ],
-    "cmake"      => [ "2.8.2",  'on' ,  'off', $priority++,  \&install_cmake ],
-    "wget"       => [ "1.11.4", 'off',  'off', $priority++,  \&install_wgetprog],
-    "binutils"   => [ "2.16.1", 'off',  'off', $priority++,  sub { install_gnu("binutils") } ],
-    "m4"         => [ "1.4.4",  'off',  'off', $priority++,  sub { install_gnu("m4") } ],
-    "tar"        => [ "1.15",   'off',  'off', $priority++,  sub { install_gnu("tar") } ],
-    "gcc4"       => [ "4.2.4",  'off',  'off', $priority++,  \&install_gcc4 ],
-    "gcc3"       => [ "3.4.6",  'off',  'off', $priority++,  \&install_gcc3 ],
-    "autoconf"   => [ "2.59",   'off',  'off', $priority++,  sub { install_gnu("autoconf") } ],
-    "automake"   => [ "1.9.5",  'off',  'off', $priority++,  sub { install_gnu("automake") } ],
-    "libtool"    => [ "1.5.14", 'off',  'off', $priority++,  sub { install_gnu("libtool") } ],
-    "openssl"    => [ "0.9.7i", 'off',  'off', $priority++,  \&install_openssl ],
-    "blas"       => [ "3.0.3",  'off',  'off', $priority++,  \&install_blas ],
-    "clapack"    => [ "",       'off',  'off', $priority++,  \&install_clapack ],
-    "lapack"     => [ "3.0.3",  'off',  'off', $priority++,  \&install_lapack ],
-    "log4cpp"    => [ "0.3.4b", 'off',  'off', $priority++,  sub { install_gnu("log4cpp") } ],
-    "zlib"       => [ "1.2.3",  'off',  'off', $priority++,  sub { install_gnu("zlib") } ],
-    "cppunit"    => [ "1.10.2", 'off',  'off', $priority++,  sub { install_gnu("cppunit") } ],
-    "dateshift"  => [ "1.0",    'off',  'off', $priority++,  sub { install_gnu("dateshift") } ],
-    "curl"       => [ "7.19.7", 'off' ,  'off', $priority++,  \&install_curl ],
-    "libfaketime"=> [ "0.8",    'off',  'off', $priority++,  \&install_libfaketime ],
-    "lam"        => [ "7.1.4",  'off',  'off', $priority++,  \&install_lam ],
-    "openmpi"    => [ "1.4.2",  'off',  'off', $priority++,  \&install_openmpi ],
-    "mpich"      => [ "1.2.7p1",'off',  'off', $priority++,  \&install_mpich ],
-    "mpich2"     => [ "1.2.1",  'off',  'off', $priority++,  \&install_mpich2 ],
-    "boost"      => [ "1_43_0", 'on' ,  'off', $priority++,  \&install_boost ],
-    "parmetis"   => [ "3.1.1",  'on' ,  'off', $priority++,  \&install_parmetis ],
-    "hdf5"       => [ "1.8.5",  'off',  'off', $priority++,  \&install_hdf5 ],
-    "subversion" => [ "1.4.3",  'off',  'off', $priority++,  \&install_subversion ],
-    "trilinos"   => [ "10.2.0", 'off',  'off', $priority++,  \&install_trilinos ],
-    "petsc2"     => [ "2.2.0",  'off',  'off', $priority++,  \&install_petsc2 ],
+    "cmake"      => [ "2.8.2",  'on' ,   'off', $priority++,  \&install_cmake ],
+    "wget"       => [ "1.11.4", 'off',   'off', $priority++,  \&install_wgetprog],
+    "blas"       => [ "3.0.3",  'off',   'off', $priority++,  \&install_blas ],
+    "lapack"     => [ "3.0.3",  'off',   'off', $priority++,  \&install_lapack ],
+    "zlib"       => [ "1.2.3",  'off',   'off', $priority++,  sub { install_gnu("zlib") } ],
+    "curl"       => [ "7.19.7", 'off',   'off', $priority++,  \&install_curl ],
+    "lam"        => [ "7.1.4",  'off',   'off', $priority++,  \&install_lam ],
+    "openmpi"    => [ "1.4.2",  'off',   'off', $priority++,  \&install_openmpi ],
+    "mpich"      => [ "1.2.7p1",'off',   'off', $priority++,  \&install_mpich ],
+    "mpich2"     => [ "1.2.1",  'off',   'off', $priority++,  \&install_mpich2 ],
+    "boost"      => [ "1_43_0", 'on' ,   'off', $priority++,  \&install_boost ],
+    "parmetis"   => [ "3.1.1",  'on' ,   'off', $priority++,  \&install_parmetis ],
+    "hdf5"       => [ "1.8.5",  'off',   'off', $priority++,  \&install_hdf5 ],
+    "trilinos"   => [ "10.2.0", 'off',   'off', $priority++,  \&install_trilinos ],
     "petsc"      => [ "3.1-p2", 'off',   'off', $priority++,  \&install_petsc3 ],
-    "gmsh"       => [ "1.60.1", 'off',  'off', $priority++,  sub { install_gnu("gmsh") } ],
-    "ccache"     => [ "2.4",    'off',  'off', $priority++,  sub { install_gnu("ccache") } ],
-    "distcc"     => [ "2.18.3", 'off',  'off', $priority++,  sub { install_gnu("distcc") } ],
-    "cgnslib"    => [ "2.5-4",  'off',  'off', $priority++,  \&install_cgnslib ],
+    "gmsh"       => [ "1.60.1", 'off',   'off', $priority++,  sub { install_gnu("gmsh") } ],
     "cgns"       => [ "3.0.8",  'off',   'off', $priority++,  \&install_cgns ],
-    "cgnstools"  => [ "2-5-4",  'off',  'off', $priority++,  \&install_cgnstools ],
-    "google-perftools" => [ "1.5",'off','off', $priority++, \&install_google_perftools ],
+    "google-perftools" => [ "1.5",'off', 'off', $priority++,  \&install_google_perftools ],
     "cgal"       => [ "3.6.1",  'off',   'off', $priority++,  \&install_cgal ],
 );
 
@@ -124,8 +100,6 @@ sub parse_commandline() # Parse command line
     $opt_help=1 unless GetOptions (
         'help'                  => \$opt_help,
         'nocolor'               => \$opt_nocolor,
-        'envars'                => \$opt_envars,
-        'genconf'               => \$opt_genconf,
         'debug'                 => \$opt_debug,
         'nompi'                 => \$opt_nompi,
         'no-fortran'             => \$opt_no_fortran,
@@ -158,11 +132,8 @@ By default will install a recomended set of dependencies: cmake,curl,boost,openm
 options:
         --help            Show this help.
         --nocolor         Don't color output
-        --envars          Place enviromental variables into .bashrc
-
-        --genconf         Generate a coolfluid.conf based on the installed dependencies
-
-	--no-fortran      Dont compile any fortran bindings (on mpi, etc...)
+  
+        --no-fortran      Dont compile any fortran bindings (on mpi, etc...)
         --nompi           Don't compile with mpi support. This is only active for some packages.
         --mpi=            MPI compiler to use for compilations
                             Default: $opt_mpi.
@@ -445,70 +416,6 @@ sub prepare ()
 
 #==========================================================================
 
-sub generate_conf ()
-{
-   if (-e $opt_confile)
-   {
-	print my_colored("\nFile $opt_confile exists, not generating\n",$SECTIONCOLOR);
-   }
-   else
-   {
-   print my_colored("\nGenerating $opt_confile\n",$SECTIONCOLOR);
-
-   unless ($opt_dryrun)
-   {
-   open CONF, ">", "$opt_confile" or die ("Error creating $opt_confile!\n");
-
- print CONF  <<ZZZ;
-
-	cc     = $opt_mpi_dir/bin/mpicc
-	cxx    = $opt_mpi_dir/bin/mpic++
-	fc     = $ENV{FC}
-
-	fflags    = -O3
-	cflags    = -O3
-	cxxflags  = -O3
-
-	mpi_dir       = $opt_mpi_dir
-	boost_dir     = $opt_install_dir
-	petsc_dir     = $opt_install_mpi_dir
-	parmetis_dir  = $opt_install_mpi_dir
-
-	mods-getall = 0
-
-	mod_AnalyticalModel    = on
-	mod_CFmesh2THOR        = on
-	mod_CFmeshCellSplitter = on
-	mod_CFmeshExtruder     = on
-	mod_CFmeshFileReader   = on
-	mod_CFmeshFileWriter   = on
-	mod_CGNS2CFmesh        = on
-	mod_Gambit2CFmesh      = on
-	mod_Solver             = on
-	mod_THOR2CFmesh        = on
-	mod_TecplotWriter      = on
-	mod_Petsc              = on
-	mod_XCFcaseConverter   = on
-
-ZZZ
-   close CONF;
-   }
- }
-}
-
-#==========================================================================
-
-sub post () {
-  if ($opt_envars)
-  {
-    run_command_or_die("echo export ARCH=\\\"$arch\\\" >> $home/.bash_profile");
-    run_command_or_die("echo export PATH=\\\"$opt_install_dir/bin:\\\$PATH\\\" >> $home/.bash_profile");
-    run_command_or_die("echo export LD_LIBRARY_PATH=\\\"$opt_install_dir/lib:\\\$LD_LIBRARY_PATH\\\" >> $home/.bash_profile");
-  }
-}
-
-#==========================================================================
-
 sub download_file ($) {
   my ($url)=@_;
   return get_command_status("$opt_dwnldprog $url");
@@ -656,93 +563,6 @@ sub install_gnu ($)
     untar_src($lib,$version);
     safe_chdir("$opt_tmp_dir/$lib-$version/");
     run_command_or_die("./configure --prefix=$opt_install_dir");
-    run_command_or_die("make $opt_makeopts");
-    run_command_or_die("make install");
-  }
-}
-
-#==========================================================================
-
-sub install_gcc4() {
-  my $lib = "gcc";
-  my $version = $packages{"gcc4"}[$vrs];
-  print my_colored("Installing $lib-$version\n",$HEADINGCOLOR);
-
-  my $objdir = "$opt_tmp_dir/$lib-$version-obj";
-
-  safe_chdir($opt_tmp_dir);
-  download_src($lib,$version);
-  unless ($opt_fetchonly) {
-    rmtree "$opt_tmp_dir/$lib-$version";
-    rmtree "$objdir";
-    untar_src($lib,$version);
-    safe_chdir("$opt_tmp_dir/$lib-$version/");
-
-    my $langs = "";
-    if ( $opt_no_fortran )
-    {
-	    $langs = "c,c++" ;
-    } else  {
-	    $langs = "c,c++,fortran";
-    } 
-
-    mkpath $objdir;
-    safe_chdir($objdir);
-    run_command_or_die("$opt_tmp_dir/$lib-$version/configure --prefix=$opt_install_dir --enable-languages=$langs");
-    run_command_or_die("make $opt_makeopts");
-    run_command_or_die("make install");
-  }
-}
-
-#==========================================================================
-
-sub install_gcc3() {
-  my $lib = "gcc";
-  my $version = $packages{"gcc3"}[$vrs];
-  print my_colored("Installing $lib-$version\n",$HEADINGCOLOR);
-
-  my $objdir = "$opt_tmp_dir/$lib-$version-obj";
-
-  safe_chdir($opt_tmp_dir);
-  download_src($lib,$version);
-  unless ($opt_fetchonly) {
-    rmtree "$opt_tmp_dir/$lib-$version";
-    rmtree "$objdir";
-    untar_src($lib,$version);
-    safe_chdir("$opt_tmp_dir/$lib-$version/");
-    
-    my $langs = "";
-    if ( $opt_no_fortran )
-    {
-	    $langs = "c,c++" ;
-    } else  {
-	    $langs = "c,c++,f77";
-    } 
-
-    mkpath $objdir;
-    safe_chdir($objdir);
-    run_command_or_die("$opt_tmp_dir/$lib-$version/configure  --prefix=$opt_install_dir --enable-languages=$langs");
-    run_command_or_die("make $opt_makeopts");
-    run_command_or_die("make install");
-  }
-}
-
-#==========================================================================
-
-sub install_openssl ()
-{
-  my ($lib)= "openssl";
-  my $version = $packages{$lib}[0];
-
-  print my_colored("Installing $lib-$version\n",$HEADINGCOLOR);
-
-  safe_chdir($opt_tmp_dir);
-  download_src($lib,$version);
-  unless ($opt_fetchonly) {
-    rmtree "$opt_tmp_dir/$lib-$version";
-    untar_src($lib,$version);
-    safe_chdir("$opt_tmp_dir/$lib-$version/");
-    run_command_or_die("./config --prefix=$opt_install_dir --shared --openssldir=$opt_install_dir");
     run_command_or_die("make $opt_makeopts");
     run_command_or_die("make install");
   }
@@ -990,78 +810,6 @@ sub install_cgal() {
 
 #==========================================================================
 
-sub install_cgnslib() {
-  my $lib = "cgnslib";
-  my $version = $packages{$lib}[$vrs];
-  print my_colored("Installing $lib-$version\n",$HEADINGCOLOR);
-
-  safe_chdir($opt_tmp_dir);
-  download_src($lib,$version);
-  unless ($opt_fetchonly)
-  {
-    rmtree "$opt_tmp_dir/$lib-$version";
-    untar_src($lib,$version);
-    safe_chdir("$opt_tmp_dir/$lib-$version/");
-
-    my $loptions = "--enable-gcc --enable-lfs --without-fortran --enable-shared=all --with-zlib --prefix=$opt_install_dir";
-    if ($arch eq "x86_64" )
-    {
-        $loptions  = $loptions . " --enable-64bit";
-    }
-    run_command_or_die("./configure " . $loptions);
-    run_command_or_die("make $opt_makeopts");
-    run_command_or_die("make install");
-  }
-}
-
-#==========================================================================
-
-sub install_cgnstools() {
-
-  my $lib = "cgnstools";
-  my $version = $packages{$lib}[$vrs];
-  my $cgnslib = "cgnslib";
-  my $cgnsversion = $packages{$cgnslib}[$vrs];
-  print my_colored("Installing $lib-$version\n",$HEADINGCOLOR);
-
-  # first install a cgnlslib distribution dir
-  safe_chdir($opt_tmp_dir);
-  download_src($lib,$version);
-  unless ($opt_fetchonly)
-  {
-    run_command_or_die("tar -zxf  $cgnslib-$cgnsversion.tar.gz -C $opt_install_dir/local");
-    safe_chdir("$opt_install_dir/local/$cgnslib-$cgnsversion/");
-
-    my $loptions = "--enable-gcc --enable-lfs --without-fortran --enable-shared=all --with-zlib";
-    if ($arch eq "x86_64" )
-    {
-        $loptions  = $loptions . " --enable-64bit";
-    }
-    run_command_or_die("./configure " . $loptions);
-    run_command_or_die("make");
-  }
-
-  safe_chdir($opt_tmp_dir);
-  download_src($lib,$version);
-  unless ($opt_fetchonly)
-  {
-    rmtree "$opt_tmp_dir/$lib-$version";
-    untar_src($lib,$version);
-    safe_chdir("$opt_tmp_dir/$lib-$version/");
-
-    my $loptions = "--enable-gcc --with-cgns=$opt_install_dir/local/$cgnslib-$cgnsversion/ --prefix=$opt_install_dir";
-    if ($arch eq "x86_64" )
-    {
-        $loptions  = $loptions . " --enable-64bit";
-}
-    run_command_or_die("./configure " . $loptions);
-    run_command_or_die("make $opt_makeopts");
-    run_command_or_die("make install");
-}
-}
-
-#==========================================================================
-
 sub install_mpich() {
   my $lib = "mpich";
   my $version = $packages{$lib}[$vrs];
@@ -1203,92 +951,6 @@ sub install_petsc3 ()
 
 #==========================================================================
 
-sub install_petsc2 () {
-  my $lib = "petsc";
-  my $version = $packages{"petsc2"}[$vrs];
-  print my_colored("Installing $lib-$version\n",$HEADINGCOLOR);
-
-  safe_chdir($opt_tmp_dir);
-
-  my $mpicomp = $opt_mpi;
-  if ($opt_nompi) { $mpicomp = 'nompi'; }
-
-  if (not -e "$lib-$version-lite.tar.gz" ) { download_file("$opt_dwnldsrc/$lib-$version-lite.tar.gz") };
-  if (not -e "$lib-$version-patch_gcc-3.4.tar.gz" ) { download_file("$opt_dwnldsrc/$lib-$version-patch_gcc-3.4.tar.gz") };
-  if (not -e "$lib-$version-patch_$mpicomp.tar.gz" ) { download_file("$opt_dwnldsrc/$lib-$version-patch_$mpicomp.tar.gz") };
-
-
-  unless ($opt_fetchonly) {
-
-    run_command_or_die("tar -zxf  $lib-$version-lite.tar.gz -C $opt_install_mpi_dir/local");
-    run_command_or_die("tar -zxvf $lib-$version-patch_gcc-3.4.tar.gz -C $opt_install_mpi_dir/local");
-    run_command_or_die("tar -zxvf $lib-$version-patch_$mpicomp.tar.gz -C $opt_install_mpi_dir/local");
-
-
-    $ENV{BOPT} = "O_c++";
-    if (is_mac())
-    {
-      $ENV{PETSC_ARCH} = "darwin";
-      # $ENV{BLASLAPACK_LIB} = "\"-framework vecLib\"";
-      $ENV{BLASLAPACK_LIB} = "\"/System/Library/Frameworks/vecLib.framework/Versions/A/vecLib\"";
-    } else {
-    	$ENV{PETSC_ARCH} = "linux";
-    	$ENV{BLASLAPACK_LIB} = "-L$opt_install_dir/lib  -llapack  -lblas";
-    }
-    $ENV{PETSC_DIR} = "$opt_install_dir/local/$lib";
-
-    $ENV{MPI_HOME}    = "$opt_install_mpi_dir";
-    $ENV{MPI_LIB}     = "-L$ENV{$MPI_HOME}/lib";
-    $ENV{MPI_INCLUDE} = "-I$ENV{$MPI_HOME}/include";
-
-    if ($opt_envars)
-    {
-      run_command_or_die("echo export PETSC_ARCH=$ENV{PETSC_ARCH} >> $home/.bash_profile");
-      run_command_or_die("echo export PETSC_DIR=$ENV{PETSC_DIR}   >> $home/.bash_profile");
-      run_command_or_die("echo export BOPT=$ENV{BOPT}             >> $home/.bash_profile");
-      run_command_or_die("echo export LD_LIBRARY_PATH=\"$ENV{PETSC_DIR}/lib/lib$ENV{BOPT}/$ENV{PETSC_ARCH}:\\\$LD_LIBRARY_PATH\" >> $home/.bash_profile");
-    }
-
-    safe_chdir("$opt_install_mpi_dir/local");
-    run_command("ln -sf $lib-$version $lib");
-    safe_chdir("$opt_install_mpi_dir/local/$lib");
-
-    if (is_mac())
-    {
-      print "\n============================configuring PETSC for mac============================\n";
-      safe_chdir("$opt_mpi_dir/bin");
-      # Mac OSX hack: add alias "mpicxx"
-      run_command("ln -sf mpic++ mpicxx");
-      safe_chdir("$opt_install_dir/local/petsc/python/PETSc/packages");
-      # Mac OSX hack: change MPI.py file to set checkMPILink to success
-      my $filename = 'MPI.py';
-      safe_copy($filename,"$filename.orig");
-      open(OUT, ">$filename") or die ("Error opening config file $filename !\n");
-      open(IN,  "<$filename.orig") or die ("Error opening config file $filename.orig !\n");
-      while (<IN>) {
-      chomp;
-      s/(^\s*success\s*=\s0$)/    # success = 0 (modified for Mac OS X) \n    return 1/g;
-      #print "$_\n";
-      print OUT "$_\n";
-      }
-      print "Mac OSX hack: Modified $filename to set checkMPILink to success\n";
-      close IN;
-      close OUT;
-
-      safe_chdir("$opt_install_dir/local/$lib");
-      run_command_or_die("./config/configure.py --with-blas-lapack-lib=$ENV{BLASLAPACK_LIB} --with-mpi-dir=$ENV{MPI_HOME} --with-PETSC_DIR=$ENV{PETSC_DIR}");
-    } else {
-      if ($ENV{FC} =~ /gfortran*/) {
-        # if using any gfortran we must substitute the fortran libraries
-        run_command_or_die("perl -pi -e 's/\\-lfrtbegin(\\s+)\\-lg2c(\\s+)\\-lc(\\s+)\\-lm/\\-lgfortranbegin\\ \\-lgfortran\\ \\-lm\\ \\-lgcc_s/g' bmake/linux/variables");
-        run_command_or_die("perl -pi -e 's/\\-Wno\\-globals//g' bmake/linux/variables");
-      }
-    }
-    run_command_or_die("make BOPT=O_c++ all");
-  }
-}
-#==========================================================================
-
 sub install_trilinos() {
   my $lib = "trilinos";
   my $version = $packages{$lib}[$vrs];
@@ -1355,43 +1017,6 @@ $mpiopt \\
   }
 }
 
-#==========================================================================
-
-sub install_subversion() {
-  my $lib = "subversion";
-  my $version = $packages{$lib}[$vrs];
-  print my_colored("Installing $lib-$version\n",$HEADINGCOLOR);
-
-  safe_chdir($opt_tmp_dir);
-  download_file("$opt_dwnldsrc/$lib-$version-linux-x86.tar.gz");
-  unless ($opt_fetchonly) {
-  run_command_or_die("tar zxvf $lib-$version-linux-x86.tar.gz -C $opt_install_dir");
-  }
-}
-
-#==========================================================================
-
-sub install_libfaketime() {
-  my $lib = "libfaketime";
-  my $version = $packages{$lib}[$vrs];
-  my $pack = "$lib-$version";
-  print my_colored("Installing $pack\n",$HEADINGCOLOR);
-
-  safe_chdir($opt_tmp_dir);
-  if ( not -e "$pack.tar.gz" ) { download_file("$opt_dwnldsrc/$pack.tar.gz"); }
-
-  unless ($opt_fetchonly)
-  {
-    rmtree "$opt_tmp_dir/$pack";
-    run_command_or_die("tar zxf $pack.tar.gz");
-    safe_chdir("$opt_tmp_dir/$pack/");
-
-    run_command_or_die("make $opt_makeopts");
-
-    safe_copy("libfaketime.so.1","$opt_install_dir/lib/libfaketime.so.1") or die;
-    safe_copy("libfaketimeMT.so.1","$opt_install_dir/lib/libfaketimeMT.so.1") or die;
-  }
-}
 #==========================================================================
 
 sub install_boost()
@@ -1637,7 +1262,3 @@ parse_commandline();
 prepare();
 
 install_packages();
-
-if ($opt_genconf)      { generate_conf(); }
-
-post();
