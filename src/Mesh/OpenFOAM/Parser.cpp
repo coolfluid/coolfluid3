@@ -1,6 +1,8 @@
 #include <string>
 #include <fstream>
 
+#define FUSION_MAX_VECTOR_SIZE 12 // For edgeGrading
+
 #include <boost/assign/list_of.hpp>
 #include <boost/config/warning_disable.hpp>
 #include <boost/foreach.hpp>
@@ -94,10 +96,12 @@ struct BlockMeshGrammar : qi::grammar<Iterator, BlockData(), WhiteSpace<Iterator
           >> double_[push_back(_val, _1)] >> double_[push_back(_val, _1)] >> double_[push_back(_val, _1)] >> ')';
     edgeGrading = lit("edgeGrading") >> '('
           >> double_[push_back(_val, _1)] >> double_[push_back(_val, _1)] >> double_[push_back(_val, _1)]
+          >> double_[push_back(_val, _1)] >> double_[push_back(_val, _1)] >> double_[push_back(_val, _1)]
+          >> double_[push_back(_val, _1)] >> double_[push_back(_val, _1)] >> double_[push_back(_val, _1)]
           >> double_[push_back(_val, _1)] >> double_[push_back(_val, _1)] >> double_[push_back(_val, _1)] >> ')';
     grading %= simpleGrading | edgeGrading;
 
-    patchTypes %= lit("cyclic") | lit("wall") | lit("empty");
+    patchTypes %= lit("cyclic") | lit("wall") | lit("empty") | lit("patch") | lit("symmetryPlane") | lit("wedge") | lit("processor");
     patchNames %= +(char_ - '(');
     patchPoints = lit('(') >> +(lit('(') >> uint_[push_back(_val, _1)]
                                >> uint_[push_back(_val, _1)]

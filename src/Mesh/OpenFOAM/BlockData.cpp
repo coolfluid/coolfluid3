@@ -22,6 +22,58 @@ using namespace CF::Mesh::SF;
   
 /// Some helper functions for mesh building
 namespace detail {
+
+/// Determine if all patches in the given direction are empty
+bool is_empty(const Uint front, const Uint back, const std::vector< std::vector<std::string> >& patches)
+{
+  return std::count(patches[front].begin(), patches[front].end(), "empty") == patches[front].size() &&
+         std::count(patches[back].begin(), patches[back].end(), "empty") == patches[back].size() &&
+         patches[front].size() == patches[back].size();
+}
+  
+/// Given the connectivity the blocks and the patch types, calculate the dimensionality of the mesh
+/// @return A pair with the first element being the dimensionality of the mesh, and the second the direction
+std::pair<Uint,Uint> dimensionality(const Uint nb_elements, const CFaceConnectivity& volume_connectivity, std::map<std::string, std::string> patch_types)
+{
+  std::vector< std::vector<std::string> > patch_types_per_direction(6);
+  for(Uint elem = 0; elem != nb_elements; ++elem)
+  {
+    for(Uint face = 0; face != 6; ++face)
+    {
+      const CFaceConnectivity::ElementReferenceT adjacent_element = volume_connectivity.adjacent_element(elem, face);
+      if(adjacent_element.first->element_type().dimensionality() == DIM_2D)
+      {
+        const std::string patch_name = adjacent_element.first->get_parent()->name();
+        patch_types_per_direction[face].push_back(patch_types[patch_name]);
+      }
+    }
+  }
+  
+  bool empty_dirs[3];
+  empty_dirs[XX] = is_empty(Hexa3DLagrangeP1::XNEG, Hexa3DLagrangeP1::XPOS, patch_types_per_direction);
+  empty_dirs[YY] = is_empty(Hexa3DLagrangeP1::YNEG, Hexa3DLagrangeP1::YPOS, patch_types_per_direction);
+  empty_dirs[ZZ] = is_empty(Hexa3DLagrangeP1::ZNEG, Hexa3DLagrangeP1::ZPOS, patch_types_per_direction);
+  
+  if(empty_dirs[XX] && empty_dirs[YY])
+    return std::make_pair(DIM_1D, Hexa3DLagrangeP1::ZNEG);
+  
+  if(empty_dirs[XX] && empty_dirs[ZZ])
+    return std::make_pair(DIM_1D, Hexa3DLagrangeP1::YNEG);
+  
+  if(empty_dirs[YY] && empty_dirs[ZZ])
+    return std::make_pair(DIM_1D, Hexa3DLagrangeP1::XNEG);
+  
+  if(empty_dirs[XX])
+    return std::make_pair(DIM_2D, Hexa3DLagrangeP1::XNEG);
+  
+  if(empty_dirs[YY])
+    return std::make_pair(DIM_2D, Hexa3DLagrangeP1::YNEG);
+  
+  if(empty_dirs[ZZ])
+    return std::make_pair(DIM_2D, Hexa3DLagrangeP1::ZNEG);
+  
+  return std::make_pair(DIM_3D, 0);
+}
   
 /// looks up node indices based on structured block indices
 struct NodeIndices
@@ -98,34 +150,66 @@ struct NodeIndices
     // blocks contain their own nodes, except for XPOS, YPOS and ZPOS planes
     if(i != x_segs && j != y_segs && k != z_segs)
     {
-      return block_first_nodes[block] + i + j*x_segs + k*x_segs*y_segs;
+      const Uint retval = block_first_nodes[block] + i + j*x_segs + k*x_segs*y_segs;
+      cf_assert(retval < block_first_nodes.back());
+      return retval;
     }
     
     // XPOS plane
     if(i == x_segs && j != y_segs && k != z_segs)
     {
       if(!bounded[block][XX])
-        return block_first_nodes[m_face_connectivity.adjacent_element(block, XPOS).second] + j*x_segs + k*x_segs*y_segs;
+      {
+        const Uint adj_block = m_face_connectivity.adjacent_element(block, XPOS).second;
+        const BlockData::CountsT& adj_segs = m_block_data.block_subdivisions[adj_block];
+        const Uint retval = block_first_nodes[adj_block] + j*adj_segs[XX] + k*adj_segs[XX]*adj_segs[YY];
+        cf_assert(retval < block_first_nodes.back());
+        return retval;
+      }
       else
-        return block_first_nodes[block] + nb_internal_nodes + j + k*y_segs;
+      {
+        const Uint retval = block_first_nodes[block] + nb_internal_nodes + j + k*y_segs;
+        cf_assert(retval < block_first_nodes.back());
+        return retval;
+      }
     }
     
     // YPOS plane
     if(i != x_segs && j == y_segs && k != z_segs)
     {
       if(!bounded[block][YY])
-        return block_first_nodes[m_face_connectivity.adjacent_element(block, YPOS).second] + i + k*x_segs*y_segs;
+      {
+        const Uint adj_block = m_face_connectivity.adjacent_element(block, YPOS).second;
+        const BlockData::CountsT& adj_segs = m_block_data.block_subdivisions[adj_block];
+        const Uint retval = block_first_nodes[adj_block] + i + k*adj_segs[XX]*adj_segs[YY];
+        cf_assert(retval < block_first_nodes.back());
+        return retval;
+      }
       else
-        return block_first_nodes[block] + nb_internal_nodes + bounded[block][XX]*y_segs*z_segs + i + k*x_segs;
+      {
+        const Uint retval = block_first_nodes[block] + nb_internal_nodes + bounded[block][XX]*y_segs*z_segs + i + k*x_segs;
+        cf_assert(retval < block_first_nodes.back());
+        return retval;
+      }
     }
     
     // ZPOS plane
     if(i != x_segs && j != y_segs && k == z_segs)
     {
       if(!bounded[block][ZZ])
-        return block_first_nodes[m_face_connectivity.adjacent_element(block, ZPOS).second] + i + j*x_segs;
+      {
+        const Uint adj_block = m_face_connectivity.adjacent_element(block, ZPOS).second;
+        const BlockData::CountsT& adj_segs = m_block_data.block_subdivisions[adj_block];
+        const Uint retval = block_first_nodes[adj_block] + i + j*adj_segs[XX];
+        cf_assert(retval < block_first_nodes.back());
+        return retval;
+      }
       else
-        return block_first_nodes[block] + nb_internal_nodes + bounded[block][XX]*y_segs*z_segs + bounded[block][YY]*x_segs*z_segs + i + j*x_segs;
+      {
+        const Uint retval = block_first_nodes[block] + nb_internal_nodes + bounded[block][XX]*y_segs*z_segs + bounded[block][YY]*x_segs*z_segs + i + j*x_segs;
+        cf_assert(retval < block_first_nodes.back());
+        return retval;
+      }
     }
     
     // XPOS and YPOS intersection
@@ -136,21 +220,27 @@ struct NodeIndices
         if(!bounded[block][XX])
         {
           const Uint x_adj = m_face_connectivity.adjacent_element(block, XPOS).second;
-          return operator()(x_adj, 0, j, k);
+          const Uint retval = operator()(x_adj, 0, j, k);
+          cf_assert(retval < block_first_nodes.back());
+          return retval;
         }
         else
         {
           const Uint y_adj = m_face_connectivity.adjacent_element(block, YPOS).second;
-          return operator()(y_adj, i, 0, k);
+          const Uint retval = operator()(y_adj, i, 0, k);
+          cf_assert(retval < block_first_nodes.back());
+          return retval;
         }
       }
       else
       {
-        return block_first_nodes[block] + nb_internal_nodes +
+        const Uint retval = block_first_nodes[block] + nb_internal_nodes +
                bounded[block][XX]*y_segs*z_segs +
                bounded[block][YY]*x_segs*z_segs +
                bounded[block][ZZ]*x_segs*y_segs +
                k;
+        cf_assert(retval < block_first_nodes.back());
+        return retval;
       }
     }
     
@@ -162,22 +252,28 @@ struct NodeIndices
         if(!bounded[block][XX])
         {
           const Uint x_adj = m_face_connectivity.adjacent_element(block, XPOS).second;
-          return operator()(x_adj, 0, j, k);
+          const Uint retval = operator()(x_adj, 0, j, k);
+          cf_assert(retval < block_first_nodes.back());
+          return retval;
         }
         else
         {
           const Uint z_adj = m_face_connectivity.adjacent_element(block, ZPOS).second;
-          return operator()(z_adj, i, j, 0);
+          const Uint retval = operator()(z_adj, i, j, 0);
+          cf_assert(retval < block_first_nodes.back());
+          return retval;
         }
       }
       else
       {
-        return block_first_nodes[block] + nb_internal_nodes +
+        const Uint retval = block_first_nodes[block] + nb_internal_nodes +
                bounded[block][XX]*y_segs*z_segs +
                bounded[block][YY]*x_segs*z_segs +
                bounded[block][ZZ]*x_segs*y_segs +
                bounded[block][XY]*z_segs +
                j;
+        cf_assert(retval < block_first_nodes.back());
+        return retval;
       }
     }
     
@@ -189,23 +285,29 @@ struct NodeIndices
         if(!bounded[block][YY])
         {
           const Uint y_adj = m_face_connectivity.adjacent_element(block, YPOS).second;
-          return operator()(y_adj, i, 0, k);
+          const Uint retval = operator()(y_adj, i, 0, k);
+          cf_assert(retval < block_first_nodes.back());
+          return retval;
         }
         else
         {
           const Uint z_adj = m_face_connectivity.adjacent_element(block, ZPOS).second;
-          return operator()(z_adj, i, j, 0);
+          const Uint retval = operator()(z_adj, i, j, 0);
+          cf_assert(retval < block_first_nodes.back());
+          return retval;
         }
       }
       else
       {
-        return block_first_nodes[block] + nb_internal_nodes +
+        const Uint retval = block_first_nodes[block] + nb_internal_nodes +
                bounded[block][XX]*y_segs*z_segs +
                bounded[block][YY]*x_segs*z_segs +
                bounded[block][ZZ]*x_segs*y_segs +
                bounded[block][XY]*z_segs +
                bounded[block][XZ]*y_segs +
                i;
+        cf_assert(retval < block_first_nodes.back());
+        return retval;
       }
     }
     
@@ -217,28 +319,36 @@ struct NodeIndices
         if(!bounded[block][XX])
         {
           const Uint x_adj = m_face_connectivity.adjacent_element(block, XPOS).second;
-          return operator()(x_adj, 0, j, k);
+          const Uint retval = operator()(x_adj, 0, j, k);
+          cf_assert(retval < block_first_nodes.back());
+          return retval;
         }
         if(!bounded[block][YY])
         {
           const Uint y_adj = m_face_connectivity.adjacent_element(block, YPOS).second;
-          return operator()(y_adj, i, 0, k);
+          const Uint retval = operator()(y_adj, i, 0, k);
+          cf_assert(retval < block_first_nodes.back());
+          return retval;
         }
         if(!bounded[block][ZZ])
         {
           const Uint z_adj = m_face_connectivity.adjacent_element(block, ZPOS).second;
-          return operator()(z_adj, i, j, 0);
+          const Uint retval = operator()(z_adj, i, j, 0);
+          cf_assert(retval < block_first_nodes.back());
+          return retval;
         }
       }
       else
       {
-        return block_first_nodes[block] + nb_internal_nodes +
+        const Uint retval = block_first_nodes[block] + nb_internal_nodes +
               bounded[block][XX]*y_segs*z_segs +
               bounded[block][YY]*x_segs*z_segs +
               bounded[block][ZZ]*x_segs*y_segs +
               bounded[block][XY]*z_segs +
               bounded[block][XZ]*y_segs +
               bounded[block][YZ]*x_segs;
+        cf_assert(retval < block_first_nodes.back());
+        return retval;
       }
     }
     
@@ -330,7 +440,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh)
     CTable::ConnectivityTable& patch_connectivity = patch_elements.connectivity_table().table();
     const BlockData::IndicesT patch_points = block_data.patch_points[patch_idx];
     const Uint nb_patch_elements = patch_points.size() / 4;
-    patch_connectivity.resize(boost::extents[nb_patch_elements][8]);
+    patch_connectivity.resize(boost::extents[nb_patch_elements][4]);
     for(Uint patch_element_idx = 0; patch_element_idx != nb_patch_elements; ++patch_element_idx)
     {
       std::copy(patch_points.begin() + 4*patch_element_idx, patch_points.begin() + 4*patch_element_idx + 4, patch_connectivity[patch_element_idx].begin());
@@ -357,8 +467,15 @@ void build_mesh(const BlockData& block_data, CMesh& mesh)
   // Helper data to get the inter-block connectivity right
   detail::NodeIndices nodes(get_component_typed<CFaceConnectivity>(block_elements), block_data);
   
+  // Get the dimensionality info
+  const CFaceConnectivity& volume_to_face_connectivity = get_component_typed<CFaceConnectivity>(block_elements);
+  const std::pair<Uint,Uint> dims = detail::dimensionality(nb_blocks, volume_to_face_connectivity, patch_types);
+  
+  // 3D helper mesh in case we have a non-3D problem
+  CMesh::Ptr tmp_mesh3d(dims.first == DIM_3D ? 0 : new CMesh("tmp_mesh3d"));
+  
   // Create the node coordinates
-  CRegion& root_region = mesh.create_region("root_region");
+  CRegion& root_region = tmp_mesh3d ? tmp_mesh3d->create_region("root_region") : mesh.create_region("root_region");
   CArray& mesh_coords_comp = root_region.create_coordinates(3);
   CArray::Array& mesh_coords = mesh_coords_comp.array();
   mesh_coords.resize(boost::extents[nodes.block_first_nodes.back()][3]);
@@ -450,11 +567,14 @@ void build_mesh(const BlockData& block_data, CMesh& mesh)
   }
   
   // Create the boundary elements
+  std::map<std::string, std::vector<Uint> > patch_first_elements;
+  std::map<std::string, std::vector<Uint> > patch_elements_counts;
   BOOST_FOREACH(CElements& patch_block, recursive_filtered_range_typed<CElements>(block_mesh_region, IsElementsSurface()))
   {
     CFaceConnectivity& adjacency_data = get_component_typed<CFaceConnectivity>(patch_block);
     // Create the volume cells connectivity
-    CElements& patch_elements = root_region.create_region(patch_block.get_parent()->name()).create_elements("Quad3DLagrangeP1", mesh_coords_comp);
+    const std::string& patch_name = patch_block.get_parent()->name();
+    CElements& patch_elements = root_region.create_region(patch_name).create_elements("Quad3DLagrangeP1", mesh_coords_comp);
     CTable::ConnectivityTable& patch_connectivity = patch_elements.connectivity_table().table();
     
     const Uint nb_patches = patch_block.connectivity_table().table().size();
@@ -467,6 +587,8 @@ void build_mesh(const BlockData& block_data, CMesh& mesh)
       {
         const Uint patch_begin = patch_connectivity.size();
         const Uint patch_end = patch_begin + segments[YY]*segments[ZZ];
+        patch_first_elements[patch_name].push_back(patch_begin);
+        patch_elements_counts[patch_name].push_back(patch_end - patch_begin);
         patch_connectivity.resize(boost::extents[patch_end][4]);
         const Uint i = adjacent_face == Hexa3DLagrangeP1::XNEG ? 0 : segments[XX];
         for(Uint k = 0; k != segments[ZZ]; ++k)
@@ -485,6 +607,8 @@ void build_mesh(const BlockData& block_data, CMesh& mesh)
       {
         const Uint patch_begin = patch_connectivity.size();
         const Uint patch_end = patch_begin + segments[XX]*segments[ZZ];
+        patch_first_elements[patch_name].push_back(patch_begin);
+        patch_elements_counts[patch_name].push_back(patch_end - patch_begin);
         patch_connectivity.resize(boost::extents[patch_end][4]);
         const Uint j = adjacent_face == Hexa3DLagrangeP1::YNEG ? 0 : segments[YY];
         for(Uint k = 0; k != segments[ZZ]; ++k)
@@ -503,6 +627,8 @@ void build_mesh(const BlockData& block_data, CMesh& mesh)
       {
         const Uint patch_begin = patch_connectivity.size();
         const Uint patch_end = patch_begin + segments[XX]*segments[YY];
+        patch_first_elements[patch_name].push_back(patch_begin);
+        patch_elements_counts[patch_name].push_back(patch_end - patch_begin);
         patch_connectivity.resize(boost::extents[patch_end][4]);
         const Uint k = adjacent_face == Hexa3DLagrangeP1::ZNEG ? 0 : segments[ZZ];
         for(Uint j = 0; j != segments[YY]; ++j)
@@ -521,6 +647,207 @@ void build_mesh(const BlockData& block_data, CMesh& mesh)
       {
         throw ShouldNotBeHere(FromHere(), "Invalid patch data");
       }
+    }
+  }
+  
+  // If we had a 3d problem, we're done
+  if(!tmp_mesh3d)
+    return;
+  
+  // We skip 1D meshes for now
+  if(dims.first == DIM_1D)
+    throw NotImplemented(FromHere(), "1D meshes are not supported");
+  
+  // Create the 2D mesh
+  // Create the node coordinates
+  CRegion& root_region_2d = mesh.create_region("root_region");
+  CArray& mesh_coords_comp_2d = root_region_2d.create_coordinates(3);
+  CArray::Array& mesh_coords_2d = mesh_coords_comp_2d.array();
+  
+  // Create the volume cells connectivity
+  CElements& volume_elements_2d = root_region_2d.create_region("volume").create_elements("Quad2DLagrangeP1", mesh_coords_comp_2d);
+  CTable::ConnectivityTable& volume_connectivity_2d = volume_elements_2d.connectivity_table().table();
+  volume_connectivity_2d.resize(boost::extents[nb_elements][4]);
+  
+  // Extract 2D data from the temporary 3D mesh
+  
+  const Uint direction = dims.second == Hexa3DLagrangeP1::XNEG ? XX : (dims.second == Hexa3DLagrangeP1::YNEG ? YY : ZZ);
+  
+  // Volume data
+  Uint elements_end = 0;
+  for(Uint block = 0; block != nb_blocks; ++block)
+  {
+    const BlockData::IndicesT& segments = block_data.block_subdivisions[block];
+    cf_assert(segments[direction] == 1); // We require this, although OpenFOAM does not
+    const CFaceConnectivity::ElementReferenceT adjacent_patch = volume_to_face_connectivity.adjacent_element(block, dims.second);
+    cf_assert(adjacent_patch.first->element_type().dimensionality() == DIM_2D);
+    const std::string& adjacent_name = adjacent_patch.first->get_parent()->name();
+    const CRegion& adjacent_region = get_named_component_typed<CRegion>(root_region, adjacent_name);
+    const CElements& adjacent_celements = get_component_typed<CElements>(adjacent_region);
+    const CTable::ConnectivityTable& adj_tbl = adjacent_celements.connectivity_table().table();
+    const Uint start_idx = patch_first_elements[adjacent_name][adjacent_patch.second];
+    const Uint end_idx = start_idx + patch_elements_counts[adjacent_name][adjacent_patch.second];
+    std::copy(adj_tbl.begin() + start_idx,
+              adj_tbl.begin() + end_idx,
+              volume_connectivity_2d.begin() + elements_end);
+    elements_end += (end_idx - start_idx);
+  }
+  
+  // Boundary data
+  for(Uint patch = 0; patch != block_data.patch_names.size(); ++patch)
+  {
+    if(block_data.patch_types[patch] == "empty")
+      continue;
+    
+    const CElements& patch_celements = get_component_typed<CElements>(*block_mesh_region.get_child(block_data.patch_names[patch]));
+    const CFaceConnectivity& patch_adjacency = get_component_typed<CFaceConnectivity>(patch_celements);
+    const CTable::ConnectivityTable& subpatches = patch_celements.connectivity_table().table();
+    
+    const CRegion& patch_region_3d = get_named_component_typed<CRegion>(root_region, block_data.patch_names[patch]);
+    const CElements& patch_celements_3d = get_component_typed<CElements>(patch_region_3d);
+    
+    const CTable::ConnectivityTable& patch_connectivity_3d = patch_celements_3d.connectivity_table().table();
+    
+    CElements& patch_celements_2d = root_region_2d.create_region(block_data.patch_names[patch]).create_elements("Line2DLagrangeP1", mesh_coords_comp_2d);
+    CTable::ConnectivityTable& patch_connectivity_2d = patch_celements_2d.connectivity_table().table();
+    
+    const Uint patch_nb_subpatches = subpatches.size();
+    patch_connectivity_2d.resize(boost::extents[patch_connectivity_3d.size()][2]);
+    for(Uint subpatch_idx = 0; subpatch_idx != patch_nb_subpatches; ++subpatch_idx)
+    {
+      const Uint adjacent_face = patch_adjacency.adjacent_face(subpatch_idx, 0);
+      const Uint patch_elems_begin = patch_first_elements[block_data.patch_names[patch]][subpatch_idx];
+      const Uint patch_elems_end = patch_elems_begin + patch_elements_counts[block_data.patch_names[patch]][subpatch_idx];
+      for(Uint patch_elem_idx = patch_elems_begin; patch_elem_idx != patch_elems_end; ++patch_elem_idx)
+      {
+        CTable::ConstRow patch_element = patch_connectivity_3d[patch_elem_idx];
+        CTable::Row patch_element_2d = patch_connectivity_2d[patch_elem_idx];
+        if(dims.second == Hexa3DLagrangeP1::XNEG)
+        {
+          switch(adjacent_face)
+          {
+            case Hexa3DLagrangeP1::YNEG:
+              patch_element_2d[0] = patch_element[0];
+              patch_element_2d[1] = patch_element[3];
+              break;
+            case Hexa3DLagrangeP1::YPOS:
+              patch_element_2d[0] = patch_element[1];
+              patch_element_2d[1] = patch_element[0];
+              break;
+            case Hexa3DLagrangeP1::ZNEG:
+              patch_element_2d[0] = patch_element[0];
+              patch_element_2d[1] = patch_element[1];
+              break;
+            case Hexa3DLagrangeP1::ZPOS:
+              patch_element_2d[0] = patch_element[3];
+              patch_element_2d[1] = patch_element[0];
+              break;
+            default:
+              throw ShouldNotBeHere(FromHere(), "Invalid 2D block data");
+          }
+        }
+        else if(dims.second == Hexa3DLagrangeP1::YNEG)
+        {
+          switch(adjacent_face)
+          {
+            case Hexa3DLagrangeP1::XNEG:
+              patch_element_2d[0] = patch_element[0];
+              patch_element_2d[1] = patch_element[1];
+              break;
+            case Hexa3DLagrangeP1::XPOS:
+              patch_element_2d[0] = patch_element[3];
+              patch_element_2d[1] = patch_element[0];
+              break;
+            case Hexa3DLagrangeP1::ZNEG:
+              patch_element_2d[0] = patch_element[1];
+              patch_element_2d[1] = patch_element[0];
+              break;
+            case Hexa3DLagrangeP1::ZPOS:
+              patch_element_2d[0] = patch_element[0];
+              patch_element_2d[1] = patch_element[3];
+              break;
+            default:
+              throw ShouldNotBeHere(FromHere(), "Invalid 2D block data");
+          }
+        }
+        else if(dims.second == Hexa3DLagrangeP1::ZNEG)
+        {
+          switch(adjacent_face)
+          {
+            case Hexa3DLagrangeP1::XNEG:
+              patch_element_2d[0] = patch_element[0];
+              patch_element_2d[1] = patch_element[3];
+              break;
+            case Hexa3DLagrangeP1::XPOS:
+              patch_element_2d[0] = patch_element[1];
+              patch_element_2d[1] = patch_element[0];
+              break;
+            case Hexa3DLagrangeP1::YNEG:
+              patch_element_2d[0] = patch_element[1];
+              patch_element_2d[1] = patch_element[0];
+              break;
+            case Hexa3DLagrangeP1::YPOS:
+              patch_element_2d[0] = patch_element[0];
+              patch_element_2d[1] = patch_element[3];
+              break;
+            default:
+              throw ShouldNotBeHere(FromHere(), "Invalid 2D block data");
+          }
+        }
+      }
+    }
+  }
+  
+  // Copy only the nodes that are still needed
+  const Uint nb_nodes_3d = nodes.block_first_nodes.back();
+  CNodeConnectivity node_connectivity_2d("nodes");
+  node_connectivity_2d.initialize(nb_nodes_3d, recursive_range_typed<CElements>(root_region_2d));
+  
+  // Count 2D nodes
+  Uint nb_nodes_2d = 0;
+  for(Uint node_idx = 0; node_idx != nb_nodes_3d; ++node_idx)
+    if(node_connectivity_2d.node_element_counts()[node_idx])
+      ++nb_nodes_2d;
+    
+  mesh_coords_2d.resize(boost::extents[nb_nodes_2d][2]);
+  
+  // Mapping between old and new index
+  std::vector<Uint> node_index_map(nb_nodes_3d);
+  
+  Uint node_idx_2d = 0;
+  for(Uint node_idx = 0; node_idx != nb_nodes_3d; ++node_idx)
+  {
+    if(node_connectivity_2d.node_element_counts()[node_idx])
+    {
+      node_index_map[node_idx] = node_idx_2d;
+      if(dims.second == Hexa3DLagrangeP1::XNEG)
+      {
+        mesh_coords_2d[node_idx_2d][XX] = mesh_coords[node_idx][YY];
+        mesh_coords_2d[node_idx_2d][YY] = mesh_coords[node_idx][ZZ];
+      }
+      else if(dims.second == Hexa3DLagrangeP1::YNEG)
+      {
+        mesh_coords_2d[node_idx_2d][XX] = mesh_coords[node_idx][XX];
+        mesh_coords_2d[node_idx_2d][YY] = mesh_coords[node_idx][ZZ];
+      }
+      else if(dims.second == Hexa3DLagrangeP1::ZNEG)
+      {
+        mesh_coords_2d[node_idx_2d][XX] = mesh_coords[node_idx][XX];
+        mesh_coords_2d[node_idx_2d][YY] = mesh_coords[node_idx][YY];
+      }
+      ++node_idx_2d;
+    }
+  }
+  
+  // Adapt CElements connectivity tables
+  BOOST_FOREACH(CElements& celements, recursive_range_typed<CElements>(mesh))
+  {
+    const Uint element_nb_nodes = celements.element_type().nb_nodes();
+    CTable::ConnectivityTable& ctable = celements.connectivity_table().table();
+    BOOST_FOREACH(CTable::Row element, ctable)
+    {
+      for(Uint i = 0; i != element_nb_nodes; ++i)
+        element[i] = node_index_map[element[i]];
     }
   }
 }

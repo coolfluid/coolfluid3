@@ -49,6 +49,46 @@ BOOST_AUTO_TEST_CASE( Channel3D )
   BOOST_CHECK(CF::Tools::MeshDiff::diff(*dict_mesh, *ref_mesh, 25000));
 }
 
+BOOST_AUTO_TEST_CASE( Cavity2D )
+{
+  // files should be in current working directory
+  boost::filesystem::path dict_path = boost::filesystem::path("cavity2d.dict");
+  CMeshReader::Ptr dict_reader = create_component_abstract_type<CMeshReader>("blockMeshDict","meshreader");
+  
+  // Read the dict mesh
+  CMesh::Ptr dict_mesh(new CMesh("dict_mesh"));
+  dict_reader->read_from_to(dict_path, dict_mesh);
+  
+    // Read the reference mesh
+  boost::filesystem::path ref_path ("uTestBlockMeshReader-Cavity2D-reference.neu");
+  CMeshReader::Ptr ref_reader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
+  CMesh::Ptr ref_mesh(new CMesh("reference"));
+  ref_reader->read_from_to(ref_path, ref_mesh);
+  
+  // Check if they are equal
+  BOOST_CHECK(CF::Tools::MeshDiff::diff(*dict_mesh, *ref_mesh, 25000));
+}
+
+BOOST_AUTO_TEST_CASE( PitzDaily )
+{
+  // files should be in current working directory
+  boost::filesystem::path dict_path = boost::filesystem::path("pitzdaily.dict");
+  CMeshReader::Ptr dict_reader = create_component_abstract_type<CMeshReader>("blockMeshDict","meshreader");
+  
+  // Read the dict mesh
+  CMesh::Ptr dict_mesh(new CMesh("dict_mesh"));
+  dict_reader->read_from_to(dict_path, dict_mesh);
+  
+    // Read the reference mesh
+  boost::filesystem::path ref_path ("uTestBlockMeshReader-PitzDaily-reference.neu");
+  CMeshReader::Ptr ref_reader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
+  CMesh::Ptr ref_mesh(new CMesh("reference"));
+  ref_reader->read_from_to(ref_path, ref_mesh);
+  
+  // Check if they are equal
+  BOOST_CHECK(CF::Tools::MeshDiff::diff(*dict_mesh, *ref_mesh, 30000));
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()
