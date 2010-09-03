@@ -63,12 +63,12 @@ ELSE()
     SET( CF_HAVE_MPI 0 CACHE BOOL "User enabled MPI [NOT-FOUND]" )
 ENDIF()
 
-MARK_AS_ADVANCED ( CF_HAVE_MPI )
+MARK_AS_ADVANCED( CF_HAVE_MPI )
 
 #######################################################################
 # add MPI include path
 
 # if mpi was found add it to the include path if needed
-if ( CF_HAVE_MPI AND NOT CF_HAVE_MPI_COMPILER )
-        include_directories   ( ${MPI_INCLUDE_PATH} )
-endif ()
+if( CF_HAVE_MPI AND NOT CF_HAVE_MPI_COMPILER )
+        include_directories( ${MPI_INCLUDE_PATH} )
+endif()
