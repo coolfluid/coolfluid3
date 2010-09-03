@@ -21,6 +21,13 @@ namespace Common {
       params( node.first_node( tag_node_valuemap() ) ) // might be NULL
   {
   }
+  
+  XmlParams::XmlParams( XmlNode& node, bool is_valuemap ) :
+  xmlnode(node),
+  xmldoc(*node.document()),
+  params( &node )
+  {
+  }
 
   XmlNode& XmlParams::get_params_node() const
   {

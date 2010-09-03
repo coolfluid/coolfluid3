@@ -110,6 +110,7 @@ namespace Common {
     /// @param node the node where the parameters will be extracted from
     /// @throw XmlError when the Params node is not found
     XmlParams ( XmlNode& node );
+    XmlParams ( XmlNode& node, bool is_valuemap );
 
     /// returns the params node as reference
     /// @throw XmlError if the params node was not found

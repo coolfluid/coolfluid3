@@ -45,7 +45,7 @@ namespace Common {
   protected:
 
     /// storage of the component pointer
-    Component::Ptr m_component;
+    typename BASETYPE::Ptr m_component;
 
   }; // OptionComponent
 
@@ -55,6 +55,15 @@ namespace Common {
   OptionComponent<BASETYPE>::OptionComponent ( const std::string& name, const std::string& desc, const std::string& def_name ) :
       Option(name, BASETYPE::type_name(), desc, def_name )
   {
+    if (def_name!="")
+    {
+      Common::SafePtr< typename BASETYPE::PROVIDER > prov =
+          Common::Factory<BASETYPE>::instance().getProvider( def_name );
+      m_component = boost::dynamic_pointer_cast<BASETYPE>( prov->create(name) );
+      m_value = m_component;
+    }
+
+ 
   //  CFinfo
   //      << " creating OptionComponent [" << m_name << "]"
   //      << " of type [" << m_type << "]"
@@ -66,8 +75,9 @@ namespace Common {
   template < typename BASETYPE >
   void OptionComponent<BASETYPE>::change_value ( XmlNode& node )
   {
-    XmlParams params ( node );
-
+    XmlParams params ( node, true );
+    if ( params.params == 0 )
+      throw  Common::XmlError( FromHere(), "ConfigObject received  XML without a \'" + std::string(XmlParams::tag_node_valuemap()) + "\' node" );
     std::string name  = params.get_param<std::string>("name");
     std::string atype = params.get_param<std::string>("atype");
     std::string ctype = params.get_param<std::string>("ctype");
@@ -79,12 +89,10 @@ namespace Common {
 
     m_component.reset();                       // delete previous pointee
 
-    // assign new pointer
     Common::SafePtr< typename BASETYPE::PROVIDER > prov =
-       Factory< BASETYPE >::instance().getProvider( ctype );
-
-    m_component = prov->create( name );
-
+        Common::Factory<BASETYPE>::instance().getProvider( ctype );
+    m_component = boost::dynamic_pointer_cast<BASETYPE>( prov->create(name) );
+    m_value = m_component;
   }
 
 /////////////////////////////////////////////////////////////////////////////////////

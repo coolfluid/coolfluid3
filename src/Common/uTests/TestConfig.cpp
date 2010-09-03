@@ -9,6 +9,7 @@
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
+#include "Common/CommonLib.hpp"
 #include "Common/ConfigObject.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionArray.hpp"
@@ -17,9 +18,7 @@
 #include "Common/Log.hpp"
 #include "Common/Component.hpp"
 #include "Common/XmlHelpers.hpp"
-
-#include "Mesh/CMeshReader.hpp"
-
+#include "Common/ObjectProvider.hpp"
 
 using namespace std;
 using namespace boost;
@@ -27,6 +26,134 @@ using namespace boost::assign;
 
 using namespace CF;
 using namespace CF::Common;
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+class CAbstract : public Component
+{
+  
+public: // typedefs
+  
+  /// provider
+  typedef Common::ConcreteProvider < CAbstract,1 > PROVIDER;
+  /// pointer to this type
+  typedef boost::shared_ptr<CAbstract> Ptr;
+  typedef boost::shared_ptr<CAbstract const> ConstPtr;
+  
+public: // functions
+  
+  /// Contructor
+  /// @param name of the component
+  CAbstract ( const CName& name ) : Component(name)
+  {
+    BUILD_COMPONENT;
+  }
+  
+  /// Virtual destructor
+  virtual ~CAbstract() {}
+  
+  /// Get the class name
+  static std::string type_name () { return "CAbstract"; }
+  
+  // --------- Configuration ---------
+  
+  static void defineConfigOptions ( Common::OptionList& options ) {}
+  
+  // --------- Specific functions to this component ---------
+  
+  virtual std::string type() { return type_name(); }
+  
+private: // helper functions
+  
+  /// regists all the signals declared in this class
+  static void regist_signals ( CAbstract* self ) {}
+  
+};
+
+class CConcrete1 : public CAbstract
+{
+  
+public: // typedefs
+  
+  /// pointer to this type
+  typedef boost::shared_ptr<CConcrete1> Ptr;
+  typedef boost::shared_ptr<CConcrete1 const> ConstPtr;
+  
+public: // functions
+  
+  /// Contructor
+  /// @param name of the component
+  CConcrete1 ( const CName& name ) : CAbstract(name)
+  {
+    BUILD_COMPONENT;
+  }
+  
+  /// Virtual destructor
+  virtual ~CConcrete1() {}
+  
+  /// Get the class name
+  static std::string type_name () { return "CConcrete1"; }
+  
+  // --------- Configuration ---------
+  
+  static void defineConfigOptions ( Common::OptionList& options ) {}
+  
+  // --------- Specific functions to this component ---------
+  
+  virtual std::string type() { return type_name(); }  
+  
+private: // helper functions
+  
+  /// regists all the signals declared in this class
+  static void regist_signals ( CConcrete1* self ) {}
+  
+};
+
+class CConcrete2 : public CAbstract
+{
+  
+public: // typedefs
+  
+  /// pointer to this type
+  typedef boost::shared_ptr<CConcrete2> Ptr;
+  typedef boost::shared_ptr<CConcrete2 const> ConstPtr;
+  
+public: // functions
+  
+  /// Contructor
+  /// @param name of the component
+  CConcrete2 ( const CName& name ) : CAbstract(name)
+  {
+    BUILD_COMPONENT;
+  }
+  
+  /// Virtual destructor
+  virtual ~CConcrete2() {}
+  
+  /// Get the class name
+  static std::string type_name () { return "CConcrete2"; }
+  
+  // --------- Configuration ---------
+  
+  static void defineConfigOptions ( Common::OptionList& options ) {}
+  
+  // --------- Specific functions to this component ---------
+  
+  virtual std::string type() { return type_name(); }  
+  
+private: // helper functions
+  
+  /// regists all the signals declared in this class
+  static void regist_signals ( CConcrete2* self ) {}
+  
+};
+
+
+CF::Common::ObjectProvider < CConcrete1, CAbstract, CommonLib, NB_ARGS_1 >
+aConcrete1ComponentProvider ( "Concrete1" );
+
+CF::Common::ObjectProvider < CConcrete2, CAbstract, CommonLib, NB_ARGS_1 >
+aConcrete2ComponentProvider ( "Concrete2" );
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -60,7 +187,7 @@ class MyC : public ConfigObject {
     options.add< OptionArrayT< std::string >  >   ( "VecStr",  "vector strs option" , defs );
 
     // option for componets
-    options.add< OptionComponent<Mesh::CMeshReader> >  ( "Reader",  "mesh reader option" , "CGNS" );
+    options.add< OptionComponent<CAbstract > > ( "OptComp",  "abstract specialization" , "Concrete1" );
   }
 
   MyC ()
@@ -82,7 +209,7 @@ class MyC : public ConfigObject {
 //    for (Uint i = 0; i < vi.size(); ++i)
 //      CFinfo << "vi[" << i << "] : " << vi[i] << "\n" << CFendl;
 
-    option("Reader")->attach_processor ( boost::bind ( &MyC::config_comp,this ) );
+    option("OptComp")->attach_processor ( boost::bind ( &MyC::config_comp,this ) );
   };
 
   void config_bool ()
@@ -113,10 +240,9 @@ class MyC : public ConfigObject {
 
   void config_comp ()
   {
-    std::string n; option("Reader")->put_value(n);
-//    CFinfo << "config COMPONENT [" << n << "]\n" << CFendl;
+    CAbstract::Ptr abstract_component;
+    option("OptComp")->put_value(abstract_component);
   }
-
 
 };
 
@@ -227,9 +353,10 @@ BOOST_AUTO_TEST_CASE( configure )
       "</array>"
       ""
       "<valuemap key=\"OptComp\" >"
-      "  <value key=\"name\"> <string> MyNewton </string> </value>"
-      "  <value key=\"atype\"> <string> CIterativeMethod </string> </value>"
-      "  <value key=\"ctype\"> <string> Newton </string> </value>"
+      "  <value key=\"name\"> <string> Abstract </string> </value>"
+      "  <value key=\"atype\"> <string> CAbstract </string> </value>"
+      "  <value key=\"ctype\"> <string> Concrete2 </string> </value>"
+                      
       "</valuemap>"
       ""
       " </valuemap>"
@@ -244,6 +371,10 @@ BOOST_AUTO_TEST_CASE( configure )
 
   CFinfo << "FRAME [" << frame.name() << "]" << CFendl;
 
+  
+  // By default the OptComp is set to a Concrete1 specialization of CAbstract
+  BOOST_CHECK_EQUAL ( pm->option("OptComp")->value<CAbstract::Ptr>()->type(), "CConcrete1" );
+  
   pm->configure( frame );
 
   BOOST_CHECK_EQUAL ( pm->option("OptBool")->value<bool>(), true  );
@@ -271,6 +402,9 @@ BOOST_AUTO_TEST_CASE( configure )
   vecstr[0]="aabbcc";
   vecstr[1]="ddeeff";
   BOOST_CHECK ( pm->option("VecStr")->value<std::vector<std::string> >() ==  vecstr);
+  
+  // After configuring the OptComp is set to a Concrete2 specialization of CAbstract
+  BOOST_CHECK_EQUAL ( pm->option("OptComp")->value<CAbstract::Ptr>()->type(), "CConcrete2" );
 
   CFinfo << "ending" << CFendl;
 
