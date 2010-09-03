@@ -941,7 +941,7 @@ void CReader::read_boco_structured(CRegion& parent_region)
   
 Uint CReader::get_total_nbElements()
 {
-  Uint nbElements;
+  Uint nbElements = 0;
 
   if (m_zone.type == Unstructured)
   {

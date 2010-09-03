@@ -73,8 +73,8 @@ void CNodeNotifier::notifyChildCountChanged()
 CNode::CNode(const QString & name, const QString & componentType, CNode::Type type)
   : Component(name.toStdString()),
     m_contextMenu(new QMenu("Node")),
-    m_notifier(new CNodeNotifier()),
     m_type(type),
+    m_notifier(new CNodeNotifier()),
     m_componentType(componentType)
 {
   BUILD_COMPONENT;
@@ -235,7 +235,7 @@ void CNode::modifyOptions(const QMap<QString, QString> options)
     {
       Option::Ptr option = m_option_list.getOption(it.key().toStdString());
 
-      if(option->tag() != "array")
+      if( strcmp( option->tag() , "array" ) )
       {
         std::string name = it.key().toStdString();
         QString value = it.value();
@@ -255,7 +255,7 @@ void CNode::modifyOptions(const QMap<QString, QString> options)
         else
           throw ValueNotFound(FromHere(), option->type() + ": Unknown type for option " + name );
       }
-      else if(option->tag() == "array")
+      else if( !strcmp ( option->tag() , "array" ))
       {
         boost::shared_ptr<OptionArray> optArray;
         QStringList list = it.value().split(":");
