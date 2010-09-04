@@ -27,6 +27,9 @@ namespace Common {
 
   public: // methods
 
+    /// virutal destructor
+    virtual ~FactoryBase() {}
+
     /// @return the name of the type of this factory
     virtual std::string getTypeName() const = 0;
 
@@ -84,7 +87,7 @@ protected: // helper functions
   /// Constructor is protected because this is a Singleton.
   Factory();
   /// Destructor is protected because this is a Singleton.
-  ~Factory();
+  virtual ~Factory();
 
   /// providers database
   std::map<std::string, Common::Provider<BASE>*>& getProviderMap() { return m_providers; }

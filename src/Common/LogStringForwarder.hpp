@@ -17,6 +17,8 @@ class Common_API LogStringForwarder
   /// Empty constructor
   LogStringForwarder();
 
+  virtual ~LogStringForwarder();
+
   /// @todo missing API documentation
   virtual void message(const std::string & str) = 0;
 
