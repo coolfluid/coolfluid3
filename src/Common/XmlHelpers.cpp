@@ -18,17 +18,18 @@ namespace Common {
   XmlParams::XmlParams( XmlNode& node ) :
       xmlnode(node),
       xmldoc(*node.document()),
-      params( node.first_node( tag_node_valuemap() ) ) // might be NULL
+      params(CFNULL)
   {
+    if ( strcmp(node.name(),tag_node_valuemap()) ) // not valuemap
+    {
+      params = node.first_node( tag_node_valuemap() ); // might be NULL
+    }
+    else // node is a valuemap
+    {
+      params = &node;
+    }
   }
   
-  XmlParams::XmlParams( XmlNode& node, bool is_valuemap ) :
-  xmlnode(node),
-  xmldoc(*node.document()),
-  params( &node )
-  {
-  }
-
   XmlNode& XmlParams::get_params_node() const
   {
     if ( params == 0 )

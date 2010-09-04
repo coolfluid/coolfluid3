@@ -75,9 +75,11 @@ namespace Common {
   template < typename BASETYPE >
   void OptionComponent<BASETYPE>::change_value ( XmlNode& node )
   {
-    XmlParams params ( node, true );
+    XmlParams params ( node );
+
     if ( params.params == 0 )
       throw  Common::XmlError( FromHere(), "ConfigObject received  XML without a \'" + std::string(XmlParams::tag_node_valuemap()) + "\' node" );
+
     std::string name  = params.get_param<std::string>("name");
     std::string atype = params.get_param<std::string>("atype");
     std::string ctype = params.get_param<std::string>("ctype");

@@ -108,9 +108,9 @@ namespace Common {
 
     /// Constructor
     /// @param node the node where the parameters will be extracted from
+    ///        might be itself a valuemap in which case this will be detected
     /// @throw XmlError when the Params node is not found
     XmlParams ( XmlNode& node );
-    XmlParams ( XmlNode& node, bool is_valuemap );
 
     /// returns the params node as reference
     /// @throw XmlError if the params node was not found
