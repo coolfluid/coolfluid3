@@ -16,7 +16,7 @@ namespace Common {
   /// Class used to get element type of an OptionArray when down casting
   /// from Option.
   /// @author Quentin Gasper
-  class OptionArray : public Option
+  class Common_API OptionArray : public Option
   {
   public:
     OptionArray(const std::string& name, const std::string& type,
