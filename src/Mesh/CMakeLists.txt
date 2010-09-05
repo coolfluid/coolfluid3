@@ -74,7 +74,7 @@ LIST( APPEND Mesh_files
   Integrators/IntegrationFunctorBase.hpp
 )
 
-LIST( APPEND Mesh_cflibs Common )
+LIST( APPEND Mesh_cflibs Common Math)
 
 SET( Mesh_kernellib TRUE )
 
