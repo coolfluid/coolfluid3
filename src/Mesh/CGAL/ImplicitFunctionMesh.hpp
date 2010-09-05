@@ -27,6 +27,10 @@ typedef KernelT::Point_3 Point; // 3D point coordinates
 struct ImplicitFunction {
   /// Construct using the given radius and center for the domain bounding sphere
   ImplicitFunction(const Real X, const Real Y, const Real Z, const Real R) : x(X), y(Y), z(Z), radius(R) {}
+
+  /// virtual destructor
+  virtual ~ImplicitFunction() {}
+
   /// Negative values for the given point coordinates p are inside the domain
   virtual CGReal operator()(const Point& p) const = 0;
 
@@ -41,7 +45,10 @@ struct ImplicitFunction {
 
 /// Sphere around the origin with radius r
 struct SphereFunction : public ImplicitFunction {
+  /// constructor
   SphereFunction(const Real r) : ImplicitFunction(0., 0, 0., r*1.1), m_radius(r) {}
+  /// virtual destructor
+  virtual ~SphereFunction() {}
   virtual CGReal operator()(const Point& p) const;
 private:
   const Real m_radius;
