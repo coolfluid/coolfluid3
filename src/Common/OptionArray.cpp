@@ -1,6 +1,7 @@
 #include <boost/filesystem/path.hpp>
 
 #include "Common/OptionArray.hpp"
+#include "Common/CPath.hpp"
 
 namespace CF {
 namespace Common {
@@ -33,6 +34,9 @@ namespace Common {
 
   template<>
   Common_API const char * OptionArrayT<boost::filesystem::path>::elem_type() const { return "file"; }
+
+  template<>
+  Common_API const char * OptionArrayT<CPath>::elem_type() const { return "component"; }
 
 ////////////////////////////////////////////////////////////////////////////////
 

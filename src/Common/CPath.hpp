@@ -87,12 +87,43 @@ namespace Common {
     /// separator for path tokens
     static const std::string& separator ();
 
+    /// Overloading of the stream operator "<<" for the output.
+    /// No "\n"ine introduced.
+    /// @param [in] out the out stream 
+    /// @param [in] path the path to output
+    /// @return the out stream
+    friend std::ostream& operator<< (std::ostream& out, const CPath& path);
+    
+    /// Overloading of the stream operator ">>" for the input
+    /// @param [in] in the in stream
+    /// @param [out] path the path to read
+    /// @return the in stream
+    friend std::istream& operator>> (std::istream& in, CPath& path);
+    
   private:
 
     /// path string
     std::string m_path;
 
   }; // CPath
+
+////////////////////////////////////////////////////////////////////////////////
+
+inline std::ostream& operator<< (std::ostream& out, const CPath& path)
+{
+  out << path.string();
+  return out;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+inline std::istream& operator>> (std::istream& in, CPath& path)
+{
+  std::string path_str;
+  in >> path_str;
+  path = CPath(path_str);
+  return in;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

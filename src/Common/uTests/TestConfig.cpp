@@ -19,6 +19,7 @@
 #include "Common/Component.hpp"
 #include "Common/XmlHelpers.hpp"
 #include "Common/ObjectProvider.hpp"
+#include "Common/CRoot.hpp"
 
 using namespace std;
 using namespace boost;
@@ -96,7 +97,12 @@ public: // functions
   
   // --------- Configuration ---------
   
-  static void defineConfigOptions ( Common::OptionList& options ) {}
+  static void defineConfigOptions ( Common::OptionList& options ) 
+  {
+    CPath def_path("//");
+    options.add< OptionT<CPath> > ( "OptComponentPath", "a path to another component"   , def_path  );
+
+  }
   
   // --------- Specific functions to this component ---------
   
@@ -313,6 +319,7 @@ BOOST_AUTO_TEST_CASE( configure )
 
     CFinfo << "starting [" << today << "] [" << now << "]" << CFendl;
 
+  
   boost::shared_ptr<MyC> pm ( new MyC );
 
   std::string text = (
@@ -411,6 +418,50 @@ BOOST_AUTO_TEST_CASE( configure )
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+
+BOOST_AUTO_TEST_CASE( configure_component_path )
+{
+  using namespace rapidxml;
+  
+  boost::gregorian::date today = boost::gregorian::day_clock::local_day();
+  boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
+  
+  CFinfo << "starting [" << today << "] [" << now << "]" << CFendl;
+  
+  
+  CRoot::Ptr root = CRoot::create("root");
+  CConcrete1::Ptr component1 = root->create_component_type<CConcrete1>("component1");
+  CConcrete1::Ptr component2 = root->create_component_type<CConcrete1>("component2");
+    
+  std::string text = (
+                      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                      "<cfxml version=\"1.0\">"
+                      "<signal>"
+                      " <valuemap>"
+                      ""
+                      "<value  key=\"MyFriend\"> <component> ../component2 </component> </value>"
+                      ""
+                      " </valuemap>"
+                      "</signal>"
+                      "</cfxml>"
+                      );
+  
+  boost::shared_ptr<XmlDoc> xml = XmlOps::parse(text);
+  
+  XmlNode& doc   = *XmlOps::goto_doc_node(*xml.get());
+  XmlNode& frame = *XmlOps::first_frame_node( doc );
+    
+  component1->configure( frame );
+  
+  CPath friend_path = component1->option("MyFriend")->value<CPath>();
+  CConcrete1::Ptr myFriend = component1->look_component_type<CConcrete1>(friend_path);
+  BOOST_CHECK_EQUAL(myFriend->name(),"component2");
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 
 BOOST_AUTO_TEST_SUITE_END()
 
