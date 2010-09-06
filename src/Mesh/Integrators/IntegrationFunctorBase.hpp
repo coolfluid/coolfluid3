@@ -28,7 +28,7 @@ struct IntegrationFunctorBase {
   }
   /// Sets up the functor to use the specified element (relative to the currently set region)
   void setElement(const Uint element) {
-    m_nodes = ConstElementNodeView(*m_coordinates, m_region->connectivity_table().table()[element]);
+    m_nodes = ConstElementNodeView(*m_coordinates, m_region->connectivity_table().array()[element]);
   }
 
 protected:

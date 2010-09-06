@@ -107,7 +107,7 @@ struct IntegrationFixture :
     }
     /// Sets up the functor to use the specified element (relative to the currently set region)
     void setElement(const Uint element) {
-      const CTable::ConnectivityTable& ctbl = m_region->connectivity_table().table();
+      const CTable::ArrayT& ctbl = m_region->connectivity_table().array();
       Uint i = 0;
       BOOST_FOREACH(const Uint idx, ctbl[element])
       {
@@ -176,7 +176,7 @@ BOOST_FIXTURE_TEST_CASE( ComputeVolume2DUnitSquare, IntegrationFixture ) // time
   Real volume = 0.0;
   BOOST_FOREACH(const CElements& region, recursive_range_typed<CElements>(grid2D))
   {
-    const CTable::ConnectivityTable& ctbl = region.connectivity_table().table();
+    const CTable::ArrayT& ctbl = region.connectivity_table().array();
     const Uint element_count = ctbl.size();
     const ElementType& element_type = region.element_type();
     for(Uint element = 0; element != element_count; ++element)
@@ -199,7 +199,7 @@ BOOST_FIXTURE_TEST_CASE( ComputeVolume2DUnitSquareDirect, IntegrationFixture ) /
   Real volume = 0.0;
   BOOST_FOREACH(const CElements& region, recursive_range_typed<CElements>(grid2D))
   {
-    const CTable::ConnectivityTable& ctbl = region.connectivity_table().table();
+    const CTable::ArrayT& ctbl = region.connectivity_table().array();
     const Uint element_count = ctbl.size();
     //const ElementType& element_type = region.element_type();
     for(Uint element = 0; element != element_count; ++element)

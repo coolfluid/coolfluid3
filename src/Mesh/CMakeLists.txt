@@ -3,6 +3,7 @@ CF_FIND_ORPHAN_FILES()
 LIST( APPEND Mesh_files
   MeshAPI.hpp
   MeshAPI.cpp
+  ArrayBase.hpp
   CMesh.cpp
   CArray.hpp
   CArray.cpp

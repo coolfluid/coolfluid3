@@ -143,9 +143,9 @@ void CHoneycombInterpolator::create_honeycomb()
   BOOST_FOREACH(const CElements& elements, recursive_filtered_range_typed<CElements>(*m_source_mesh,IsElementsVolume()))
   {
     const CArray& coordinates = elements.coordinates();
-    Uint nb_nodes_per_element = elements.connectivity_table().table().shape()[1];
+    Uint nb_nodes_per_element = elements.connectivity_table().array().shape()[1];
     Uint elem_idx=0;
-    BOOST_FOREACH(const CTable::ConstRow& elem, elements.connectivity_table().table())
+    BOOST_FOREACH(const CTable::ConstRow& elem, elements.connectivity_table().array())
     {
       RealVector centroid(0.0,m_dim);
       BOOST_FOREACH(const Uint node_idx, elem)

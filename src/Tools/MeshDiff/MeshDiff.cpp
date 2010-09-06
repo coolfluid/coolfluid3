@@ -61,8 +61,8 @@ void array2d_test(const ArrayT a, const ArrayT b, Accumulator& result, const std
 /// Compares CElements
 void test(const CElements& a, const CElements& b, Accumulator& result)
 {
-  const CTable::ConnectivityTable& table_a = a.connectivity_table().table();
-  const CTable::ConnectivityTable& table_b = b.connectivity_table().table();
+  const CTable::ArrayT& table_a = a.connectivity_table().array();
+  const CTable::ArrayT& table_b = b.connectivity_table().array();
 
   array2d_test<Uint>(table_a, table_b, result, "comparing " + a.full_path().string() + " and " + b.full_path().string());
 }
@@ -70,8 +70,8 @@ void test(const CElements& a, const CElements& b, Accumulator& result)
 /// Compares Arrays
 void test(const CArray& a, const CArray& b, Accumulator& result)
 {
-  const CArray::Array& array_a = a.array();
-  const CArray::Array& array_b = b.array();
+  const CArray::ArrayT& array_a = a.array();
+  const CArray::ArrayT& array_b = b.array();
   
   array2d_test<Real>(array_a, array_b, result, "comparing " + a.full_path().string() + " and " + b.full_path().string());
 }

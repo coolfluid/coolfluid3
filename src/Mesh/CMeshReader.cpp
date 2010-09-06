@@ -100,7 +100,7 @@ void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
   BOOST_FOREACH(CElements& region, recursive_range_typed<CElements>(parent_region))
   {
     // find the empty regions
-    if ( region.connectivity_table().table().empty() )
+    if ( region.connectivity_table().array().empty() )
       {
         // no elements in connectivity table --> remove this region
         //CFinfo << "remove: " << region->full_path().string() << "\n" << CFflush;

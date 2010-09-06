@@ -74,9 +74,9 @@ BOOST_FIXTURE_TEST_SUITE( Nodes, Nodes_Fixture )
 BOOST_AUTO_TEST_CASE( writeNodes )
 {
   CElements& firstRegion = get_first_region();
-  ElementNodeView nodes(firstRegion.coordinates(), firstRegion.connectivity_table().table()[0]);
+  ElementNodeView nodes(firstRegion.coordinates(), firstRegion.connectivity_table().array()[0]);
   nodes[0][0] = 1.;
-  const ConstElementNodeView const_nodes(firstRegion.coordinates(), firstRegion.connectivity_table().table()[0]);
+  const ConstElementNodeView const_nodes(firstRegion.coordinates(), firstRegion.connectivity_table().array()[0]);
   BOOST_CHECK_EQUAL(nodes[0][0], const_nodes[0][0]);
 }
 

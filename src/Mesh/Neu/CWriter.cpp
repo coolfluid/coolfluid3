@@ -204,7 +204,7 @@ void CWriter::write_connectivity(std::fstream& file)
         m_global_start_idx[elementregion]=elm_number;
 
         // write the nodes for each element of this region
-        BOOST_FOREACH(const CTable::ConstRow& cf_element , elementregion->connectivity_table().table())
+        BOOST_FOREACH(const CTable::ConstRow& cf_element , elementregion->connectivity_table().array())
         {
           file << std::setw(8) << ++elm_number << std::setw(3) << elm_type << std::setw(3) << nb_nodes << " ";
           std::vector<Uint> neu_element(nb_nodes);

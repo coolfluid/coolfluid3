@@ -51,11 +51,11 @@ struct LagrangeSFLine3DLagrangeP1Fixture
     const Real end_angle = tours*2.*MathConsts::RealPi();
 
     coordinates.initialize(dim);
-    CArray::Array& coord_array = coordinates.array();
+    CArray::ArrayT& coord_array = coordinates.array();
     coord_array.resize(boost::extents[segments + 1][dim]);
 
     connectivity.initialize(nb_nodes);
-    CTable::ConnectivityTable& conn_array = connectivity.table();
+    CTable::ArrayT& conn_array = connectivity.array();
     conn_array.resize(boost::extents[segments][nb_nodes]);
     const Real height_step = height / segments;
     for(Uint u = 0; u != segments; ++u)
@@ -138,10 +138,10 @@ private:
 template<typename ResultT, typename FunctorT, typename GeoSF>
 void integrate_region(ResultT& result, FunctorT functor, const CArray& coordinates, const CTable& connectivity, const GeoSF& geo_sf)
 {
-  const Uint nb_elems = connectivity.table().size();
+  const Uint nb_elems = connectivity.array().size();
   for(Uint elem_idx = 0; elem_idx != nb_elems; ++ elem_idx)
   {
-    const ConstElementNodeView nodes(coordinates, connectivity.table()[elem_idx]);
+    const ConstElementNodeView nodes(coordinates, connectivity.array()[elem_idx]);
     integrate_element(result, functor, nodes, geo_sf);
   }
 }

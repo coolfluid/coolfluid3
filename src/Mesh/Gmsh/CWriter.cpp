@@ -187,7 +187,7 @@ void CWriter::write_connectivity(std::fstream& file)
 
       //file << "// Region " << elements.full_path().string() << "\n";
       elm_type = m_elementTypes[elements->element_type().shape()];
-      BOOST_FOREACH(const CTable::ConstRow& row, elements->connectivity_table().table())
+      BOOST_FOREACH(const CTable::ConstRow& row, elements->connectivity_table().array())
       {
         elm_number++;
         file << elm_number << " " << elm_type << " " << number_of_tags << " " << group_number << " " << group_number;

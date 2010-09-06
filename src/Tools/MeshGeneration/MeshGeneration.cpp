@@ -23,7 +23,7 @@ void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uin
   const Uint dim = 2;
   CArray& coordinates = *mesh.create_component_type<CArray>("coordinates");
   coordinates.initialize(dim);
-  CArray::Array& coordArray = coordinates.array();
+  CArray::ArrayT& coordArray = coordinates.array();
   coordArray.resize(boost::extents[(x_segments+1)*(y_segments+1)][dim]);
   const Real x_step = x_len / static_cast<Real>(x_segments);
   const Real y_step = y_len / static_cast<Real>(y_segments);
@@ -39,7 +39,7 @@ void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uin
     }
   }
   CRegion& region = mesh.create_region("region");
-  CTable::ConnectivityTable& connArray = region.create_elements("Quad2DLagrangeP1",coordinates).connectivity_table().table();
+  CTable::ArrayT& connArray = region.create_elements("Quad2DLagrangeP1",coordinates).connectivity_table().array();
   connArray.resize(boost::extents[(x_segments)*(y_segments)][4]);
   for(Uint j = 0; j < y_segments; ++j)
   {

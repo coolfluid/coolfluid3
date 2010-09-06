@@ -106,7 +106,7 @@ void create_node_element_connectivity(const Uint nb_nodes,
   const Uint celement_count = elements.size();
   for(Uint celement_idx = 0; celement_idx != celement_count; ++celement_idx)
   {
-    const CTable::ConnectivityTable& element_connectivity = elements[celement_idx]->connectivity_table().table();
+    const CTable::ArrayT& element_connectivity = elements[celement_idx]->connectivity_table().array();
     const Uint elem_count = element_connectivity.size();
     for(Uint elem_idx = 0; elem_idx != elem_count; ++elem_idx)
     {
@@ -130,7 +130,7 @@ void create_node_element_connectivity(const Uint nb_nodes,
   CFaceConnectivity::IndicesT last_added_element(nb_nodes, 0); // helper array to keep track of where we are in node_elements
   for(Uint celement_idx = 0; celement_idx != celement_count; ++celement_idx)
   {
-    const CTable::ConnectivityTable& element_connectivity = elements[celement_idx]->connectivity_table().table();
+    const CTable::ArrayT& element_connectivity = elements[celement_idx]->connectivity_table().array();
     const Uint elem_count = element_connectivity.size();
     for(Uint elem_idx = 0; elem_idx != elem_count; ++elem_idx)
     {
@@ -154,7 +154,7 @@ void create_face_element_connectivity(const CElements& own_celements,
                                       CFaceConnectivity::IndicesT& face_element_connectivity)
 {
   // Cache some commonly accessed data
-  const CTable::ConnectivityTable& element_connectivity = own_celements.connectivity_table().table();
+  const CTable::ArrayT& element_connectivity = own_celements.connectivity_table().array();
   const Uint elem_count = element_connectivity.size();
   const ElementType& etype = own_celements.element_type();
   const ElementType::FaceConnectivity& face_connectivity = etype.face_connectivity();
@@ -224,7 +224,7 @@ void create_face_element_connectivity(const CElements& own_celements,
 }
 
 /// Gets a sorted list of face nodes
-void sorted_face_nodes(const CElements& celements, const CTable::ConnectivityTable& connectivity_table, const Uint element_idx, const Uint face_idx, CFaceConnectivity::IndicesT& face_nodes)
+void sorted_face_nodes(const CElements& celements, const CTable::ArrayT& connectivity_table, const Uint element_idx, const Uint face_idx, CFaceConnectivity::IndicesT& face_nodes)
 {
   face_nodes.reserve(celements.element_type().face_connectivity().face_node_counts[face_idx]);
   BOOST_FOREACH(const Uint local_node, celements.element_type().face_connectivity().face_node_range(face_idx))
@@ -254,7 +254,7 @@ void create_face_face_connectivity(const CElements& own_celements, const CFaceCo
     }
   }
   
-  const CTable::ConnectivityTable& connectivity_table = own_celements.connectivity_table().table();
+  const CTable::ArrayT& connectivity_table = own_celements.connectivity_table().array();
   const Uint elements_begin = 0;
   const Uint elements_end = connectivity_table.size();
   const Uint nb_faces = own_celements.element_type().nb_faces();
@@ -293,7 +293,7 @@ void create_face_face_connectivity(const CElements& own_celements, const CFaceCo
         CFaceConnectivity::IndicesT face_nodes;
         sorted_face_nodes(own_celements, connectivity_table, element_idx, face_idx, face_nodes);
         const Uint adjacent_local_elem = adjacent_global_elem - celements_first_elements[adjacent_celements_idx];
-        const CTable::ConnectivityTable& adjacent_connectivity_table = adjacent_celements.connectivity_table().table();
+        const CTable::ArrayT& adjacent_connectivity_table = adjacent_celements.connectivity_table().array();
         for(Uint adjacent_face = 0; adjacent_face != adjacent_nb_faces; ++adjacent_face)
         {
           CFaceConnectivity::IndicesT adjacent_face_nodes;

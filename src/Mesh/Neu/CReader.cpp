@@ -129,7 +129,7 @@ void CReader::read_coordinates(std::fstream& file)
 {
   // Create the coordinates array
   m_coordinates = m_region->create_coordinates(m_headerData.NDFCD).get_type<CArray>();
-  CArray::Array& coordinates = m_coordinates->array();
+  CArray::ArrayT& coordinates = m_coordinates->array();
   Uint coord_start_idx = coordinates.size();
   coordinates.resize(boost::extents[coordinates.size()+m_headerData.NUMNP][m_headerData.NDFCD]);
 
@@ -281,7 +281,7 @@ void CReader::read_groups(std::fstream& file)
         Uint local_element = m_global_to_tmp[global_element].second;
         boost::shared_ptr<CTable::Buffer> buf = buffer[tmp_region->element_type().getElementTypeName()];
         cf_assert(buf);
-        buf->add_row(tmp_region->connectivity_table().table()[local_element]);
+        buf->add_row(tmp_region->connectivity_table().array()[local_element]);
       }
     }
 //  }
@@ -335,7 +335,7 @@ void CReader::read_boundaries(std::fstream& file)
       const ElementType::FaceConnectivity& face_connectivity = etype.face_connectivity();
       
       // make a row of nodes
-      const CTable::Row& elem_nodes = tmp_region->connectivity_table().table()[local_element];
+      const CTable::Row& elem_nodes = tmp_region->connectivity_table().array()[local_element];
       std::vector<Uint> row;
       row.reserve(face_connectivity.face_node_counts[faceIdx]);
       BOOST_FOREACH(const Uint& node, face_connectivity.face_node_range(faceIdx))

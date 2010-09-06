@@ -54,7 +54,7 @@ public:
   static void integrateRegion(const CElements& region, FunctorT& functor, ResultT& result)
   {
     const Uint elem_begin = 0;
-    const Uint elem_end = region.connectivity_table().table().size();
+    const Uint elem_end = region.connectivity_table().array().size();
     for(Uint elem = elem_begin; elem != elem_end; ++elem)
     {
       functor.setElement(elem); // initialize element-specific functor data
@@ -115,7 +115,7 @@ void gaussIntegrate(const CMesh& mesh, FunctorT& functor, ResultT& result)
 {
   BOOST_FOREACH(const CElements& region, recursive_range_typed<CElements>(mesh))
   {
-    CFdebug << "integrating region " << region.name() << " with " << region.connectivity_table().table().size() << " elements" << CFendl;
+    CFdebug << "integrating region " << region.name() << " with " << region.connectivity_table().array().size() << " elements" << CFendl;
     functor.setRegion(region); // initialize region-specific functor data
     gaussIntegrate((region), functor, result);
   }

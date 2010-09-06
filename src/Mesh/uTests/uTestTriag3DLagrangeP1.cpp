@@ -50,11 +50,11 @@ struct Triag3DLagrangeP1Fixture
     const bool closed = std::abs(std::abs(end_angle - start_angle) - 2.0*MathConsts::RealPi()) < MathConsts::RealEps();
 
     coordinates.initialize(dim);
-    CArray::Array& coord_array = coordinates.array();
+    CArray::ArrayT& coord_array = coordinates.array();
     coord_array.resize(boost::extents[(u_segments + (!closed)) * (v_segments+1)][dim]);
 
     connectivity.initialize(nb_nodes);
-    CTable::ConnectivityTable& conn_array = connectivity.table();
+    CTable::ArrayT& conn_array = connectivity.array();
     conn_array.resize(boost::extents[2 * u_segments * v_segments][nb_nodes]);
     const Real v_step = height / v_segments;
 
@@ -257,11 +257,11 @@ private:
 template<typename ResultT, typename FunctorT, typename GeoSF>
 void integrate_region(ResultT& result, FunctorT functor, const CArray& coordinates, const CTable& connectivity, const GeoSF& geo_sf)
 {
-  const Uint nb_elems = connectivity.table().size();
+  const Uint nb_elems = connectivity.array().size();
   for(Uint elem_idx = 0; elem_idx != nb_elems; ++ elem_idx)
   {
-    //const CTable::ConstRow& r = connectivity.table()[elem_idx];
-    const ConstElementNodeView nodes(coordinates, connectivity.table()[elem_idx]);
+    //const CTable::ConstRow& r = connectivity.array()[elem_idx];
+    const ConstElementNodeView nodes(coordinates, connectivity.array()[elem_idx]);
     integrate_element(result, functor, nodes, geo_sf);
   }
 }

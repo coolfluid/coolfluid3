@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE( Element )
   BOOST_CHECK_EQUAL(comp->element_type().nb_nodes(), (Uint) 3);
 
   // Check volume calculation
-  CArray::Array coord(boost::extents[3][2]);
+  CArray::ArrayT coord(boost::extents[3][2]);
   coord[0][XX]=15; coord[0][YY]=15;
   coord[1][XX]=40; coord[1][YY]=25;
   coord[2][XX]=25; coord[2][YY]=30;
