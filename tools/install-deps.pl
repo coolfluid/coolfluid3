@@ -129,7 +129,8 @@ install-deps.pl : Install software dependencies for COOLFluiD
 
 usage: install-deps.pl [options]
 
-By default will install a recomended set of dependencies: cmake,curl,boost,openmpi,parmetis,petsc
+By default will install the 'basic' set of dependencies: 
+ [cmake,boost,openmpi,parmetis]
 
 options:
         --help             Show this help.
@@ -742,7 +743,7 @@ sub install_openmpi() {
     rmtree "$opt_tmp_dir/$lib-$version";
     untar_src($lib,$version);
     safe_chdir("$opt_tmp_dir/$lib-$version/");
-    run_command_or_die("./configure --enable-shared --enable-static --with-threads=posix $fortran_opts --prefix=$opt_mpi_dir");
+    run_command_or_die("./configure --with-threads=posix $fortran_opts --prefix=$opt_mpi_dir");
     run_command_or_die("make $opt_makeopts");
     run_command_or_die("make install");
   }
