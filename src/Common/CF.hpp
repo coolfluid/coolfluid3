@@ -20,6 +20,7 @@
 #include <typeinfo>  // for typeid
 #include <complex>   // for complex numbers and complex functions
 
+#include <boost/utility.hpp>           // for boost::noncopyable
 #include <boost/checked_delete.hpp>    // for boost::checked_delete
 
 #include "Common/CommonAPI.hpp"

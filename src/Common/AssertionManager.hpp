@@ -3,8 +3,6 @@
 
 /// @note This header should be included by including CF.hpp instead.
 
-#include <boost/utility.hpp>           // for boost::noncopyable
-
 #ifndef CF_ENABLE_STDASSERT
   #include <cassert>
 #endif
