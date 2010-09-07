@@ -43,7 +43,7 @@ ENDIF(NOT CF_SKIP_FORTRAN)
 include( ${coolfluid_BINARY_DIR}/coolfluid.cmake OPTIONAL )
 
 # include other configurations
-set ( CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+set( CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 include( DefineVersions )        # define variables with coolfluid versions
 
