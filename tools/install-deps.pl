@@ -1,5 +1,8 @@
 #!/usr/bin/env perl
 
+# use warnings;
+use strict;
+
 #==========================================================================
 # Modules
 #==========================================================================
@@ -14,9 +17,8 @@ use Switch;
 #==========================================================================
 my $ERRORCOLOR="bold red";
 my $OKCOLOR="bold green";
-my $HEADINGCOLOR = "bold";
 my $DEBUGCOLOR = "yellow";
-my $WARNCOLOR = "bold yellow";
+my $HIGHLIGHTCOLOR = "bold yellow";
 
 #==========================================================================
 # Global Variables
@@ -27,6 +29,7 @@ my $user = $ENV{USER};
 my $arch = get_arch();
 
 my $opt_help          = 0;
+my $opt_verbose       = 0;
 my $opt_list          = 0;
 my $opt_dryrun        = 0;
 my $opt_nocolor       = 0;
@@ -35,8 +38,6 @@ my $opt_nompi         = 0;
 my $opt_mpi           = "openmpi";
 my $opt_mpi_dir       = "";
 my $opt_dependencies  = 0;
-my $opt_sources       = 0;
-my $opt_compile       = 0;
 my $opt_fetchonly     = 0;
 my $opt_many_mpi      = 0;
 my $opt_no_fortran    = 0;
@@ -67,7 +68,7 @@ my $ins = 2;
 my $pri = 3;
 my $fnc = 4;
 
-$priority = 0;
+my $priority = 0;
 
 # these packages are listed by priority
 my %packages = (  #  version   default install priority      function
@@ -81,7 +82,7 @@ my %packages = (  #  version   default install priority      function
     "openmpi"    => [ "1.4.2",  'off',   'off', $priority++,  \&install_openmpi ],
     "mpich"      => [ "1.2.7p1",'off',   'off', $priority++,  \&install_mpich ],
     "mpich2"     => [ "1.2.1",  'off',   'off', $priority++,  \&install_mpich2 ],
-    "boost"      => [ "1_43_0", 'on' ,   'off', $priority++,  \&install_boost ],
+    "boost"      => [ "1_44_0", 'on' ,   'off', $priority++,  \&install_boost ],
     "parmetis"   => [ "3.1.1",  'on' ,   'off', $priority++,  \&install_parmetis ],
     "hdf5"       => [ "1.8.5",  'off',   'off', $priority++,  \&install_hdf5 ],
     "trilinos"   => [ "10.2.0", 'off',   'off', $priority++,  \&install_trilinos ],
@@ -100,6 +101,7 @@ sub parse_commandline() # Parse command line
 {
     $opt_help=1 unless GetOptions (
         'help'                  => \$opt_help,
+        'verbose'               => \$opt_verbose,
         'list'                  => \$opt_list,
         'nocolor'               => \$opt_nocolor,
         'debug'                 => \$opt_debug,
@@ -115,7 +117,6 @@ sub parse_commandline() # Parse command line
         'cmake-dir=s'           => \$opt_cmake_dir,
         'tmp-dir=s'             => \$opt_tmp_dir,
         'dwnldsrc=s'            => \$opt_dwnldsrc,
-        'branch=s'              => \$opt_branch,
         'build=s'               => \$opt_build,
         'makeopts=s'            => \$opt_makeopts,
         'install=s'             => \@opt_install_list,
@@ -125,7 +126,7 @@ sub parse_commandline() # Parse command line
     if ($opt_help != 0)
     {
       print <<ZZZ;
-install-deps.pl : Install software dependencies for COOLFluiD
+install-deps.pl : Install software dependencies for coolfluid
 
 usage: install-deps.pl [options]
 
@@ -134,6 +135,7 @@ By default will install the 'basic' set of dependencies:
 
 options:
         --help             Show this help.
+        --verbose          Print every comand before executing.
         --nocolor          Don't color output
         --list             List packages that this script can install
         --fetchonly        Just download the sources. Do not install anything.
@@ -167,7 +169,7 @@ ZZZ
 	{
 		print my_colored("install-deps.pl - can install the following packages:\n",$OKCOLOR);
 		
-		foreach $pname (keys %packages) 
+		foreach my $pname (keys %packages) 
 		{
 			print "Package $pname\t[$packages{$pname}[$vrs]]\n";
 	  	}
@@ -199,7 +201,7 @@ sub rm_file ($)
 sub get_command_status($)
 {
     my ($args)=@_;
-    print my_colored("Executing   : $args\n",$OKCOLOR);
+    if ($opt_verbose) { print my_colored("Executing   : $args\n",$OKCOLOR) };
     unless ($opt_dryrun) {
         my $status = system($args);
         return $status;
@@ -212,7 +214,7 @@ sub get_command_status($)
 sub run_command_or_die($)
 {
     my ($args)=@_;
-    print my_colored("Executing   : $args\n",$OKCOLOR);
+    if ($opt_verbose) { print my_colored("Executing   : $args\n",$OKCOLOR) };
     unless ($opt_dryrun) {
         my $status = system($args);
         print my_colored("Exit Status : $status\n",$OKCOLOR);
@@ -225,6 +227,7 @@ sub run_command_or_die($)
 sub run_command($)
 {
     my ($args)=@_;
+    if ($opt_verbose)  { print my_colored("Executing   : $args\n",$OKCOLOR) };
     my $output;
     # print my_colored("Executing : $args",$OKCOLOR);
     my $command = join("",$args,"|");
@@ -233,7 +236,7 @@ sub run_command($)
        $output.=$_;
     }
     close READER;
-    # print my_colored($output,$OK_COLOR);
+    # print my_colored($output,$OKCOLOR);
     return $output;
 }
 
@@ -278,40 +281,11 @@ sub is_mac()
     my $args="uname -s";
     my $arch = run_command($args);
     chomp($arch);
-    if ($arch =~ Darwin) {
+    if ( $arch =~ m/Darwin/ ) {
         return 1;
     } else {
         return 0;
     }
-}
-
-#==========================================================================
-
-sub print_var($$) # create a recursive dir path
-{
-    my ($var,$value)=@_;
-    print my_colored($var,$OKCOLOR); print " : ";
-    print my_colored($value,$DEBUGCOLOR); print "\n";
-}
-
-#==========================================================================
-
-sub parse_config_file($) # parse the config file to get the user overiding options
-{
-    my ($filename)=@_;
-    open CONFIG, "<", $filename or die ("Error opening config file $filename!\n");
-
-    while (<CONFIG>) {
-        chomp;                  # no newline
-        s/#.*//;                # no comments
-        s/^\s+//;               # no leading white
-        s/\s+$//;               # no trailing white
-        next unless length;     # anything left?
-        my ($var, $value) = split(/\s*=\s*/, $_, 2);
-        $user_pref{$var} = $value;
-    }
-
-    close CONFIG;
 }
 
 #==========================================================================
@@ -344,7 +318,7 @@ sub prepare ()
     {
       if ($opt_many_mpi)
       {
-        $version = $packages{"$opt_mpi"}[$vrs];
+        my $version = $packages{"$opt_mpi"}[$vrs];
         $opt_install_mpi_dir = "$opt_install_dir/mpi/$opt_mpi-$version";
       } else {
         $opt_install_mpi_dir = $opt_install_dir;
@@ -393,30 +367,30 @@ sub prepare ()
     if ( !(exists $ENV{CC}) )
     {
       $ENV{CC} = "gcc";
-      print "Setting C compiler to \"".$ENV{CC}."\". Overide this with environment variable \"CC\"\n";
+      print "Setting C compiler to \"".$ENV{CC}."\". Overide this with environment variable \"CC\"\n" if ($opt_verbose);
     }
 
     if ( !(exists $ENV{CXX}) )
     {
       $ENV{CXX} = "g++";
-      print "Setting C++ compiler to \"".$ENV{CXX}."\". Overide this with environment variable \"CXX\"\n";
+      print "Setting C++ compiler to \"".$ENV{CXX}."\". Overide this with environment variable \"CXX\"\n" if ($opt_verbose);
     }
 
     if (!((exists $ENV{FC}) or (exists $ENV{F77})))
     {
       $ENV{FC} = "gfortran";
-      print "Setting Fortran compiler to \"".$ENV{FC}."\". Overide this with environment variable \"FC\".\n";
+      print "Setting Fortran compiler to \"".$ENV{FC}."\". Overide this with environment variable \"FC\".\n" if ($opt_verbose);
     }
 
     # makes sure the both compiler variable F77 and FC always exist
     if ( !(exists $ENV{FC}) )
     {
-      print "Setting FC equal to F77\n";
+      print "Setting FC equal to F77\n" if ($opt_verbose);
       $ENV{FC} = $ENV{F77};
     }
     if ( !(exists $ENV{F77}) )
     {
-      print "Setting F77 equal to FC\n";
+      print "Setting F77 equal to FC\n" if ($opt_verbose);
       $ENV{F77} = $ENV{FC};
     }
 }
@@ -451,6 +425,7 @@ sub remote_file_exists($) {
 #==========================================================================
 
 sub download_src ($$) {
+  
   my ($lib,$version)=@_;
 
   my $file1 = "$lib-$version.tar.gz";
@@ -471,10 +446,10 @@ sub download_src ($$) {
 
     if ( $status )
     {
-      die "$args exited with error" unless $status == 0;
+      die "$lib-$version exited with error" unless $status == 0;
     }
   }
-  else { print my_colored("file already exists, not retrieving.\n",$OK_COLOR); }
+  else { print my_colored("file already exists, not retrieving.\n",$OKCOLOR); }
 }
 
 #==========================================================================
@@ -529,7 +504,7 @@ sub untar_src ($$) {
   if ($status) {
     $status = get_command_status("tar jxf $lib-$version.tar.bz2");
     print my_colored("Exit Status : $status\n",$OKCOLOR);
-    die "$args exited with error" unless $status == 0;
+    die "$lib-$version exited with error" unless $status == 0;
   }
 }
 
@@ -540,7 +515,7 @@ sub install_google_perftools ()
   my $lib="google-perftools";
   my $version = $packages{$lib}[0];
 
-  print my_colored("Installing $lib-$version\n",$HEADINGCOLOR);
+  print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
 
   safe_chdir($opt_tmp_dir);
   download_src($lib,$version);
@@ -561,7 +536,7 @@ sub install_gnu ($)
   my ($lib)=@_;
   my $version = $packages{$lib}[0];
 
-  print my_colored("Installing $lib-$version\n",$HEADINGCOLOR);
+  print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
 
   safe_chdir($opt_tmp_dir);
   download_src($lib,$version);
@@ -582,7 +557,7 @@ sub install_curl ()
   my ($lib)= "curl";
   my $version = $packages{$lib}[0];
 
-  print my_colored("Installing $lib-$version\n",$HEADINGCOLOR);
+  print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
 
   safe_chdir($opt_tmp_dir);
   download_src($lib,$version);
@@ -605,7 +580,7 @@ sub install_blas()
   } else {
     my $lib = "blas";
     my $version = $packages{$lib}[$vrs];
-    print my_colored("Installing $lib-$version\n",$HEADINGCOLOR);
+    print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
 
     safe_chdir($opt_tmp_dir);
     download_src($lib,$version);
@@ -652,7 +627,7 @@ sub install_lapack() {
   } else {
     my $lib = "lapack";
     my $version = $packages{$lib}[$vrs];
-    print my_colored("Installing $lib-$version\n",$HEADINGCOLOR);
+    print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
 
     safe_chdir($opt_tmp_dir);
     download_src($lib,$version);
@@ -699,7 +674,7 @@ sub install_lapack() {
 sub install_lam() {
   my $lib = "lam";
   my $version = $packages{$lib}[$vrs];
-  print my_colored("Installing $lib-$version\n",$HEADINGCOLOR);
+  print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
 
   safe_chdir($opt_tmp_dir);
   download_src($lib,$version);
@@ -722,7 +697,7 @@ sub install_openmpi() {
 
   my $lib = "openmpi";
   my $version = $packages{$lib}[$vrs];
-  print my_colored("Installing $lib-$version\n",$HEADINGCOLOR);
+  print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
 
   safe_chdir($opt_tmp_dir);
   download_src($lib,$version);
@@ -735,7 +710,7 @@ sub install_openmpi() {
   else
   {
 	# support fortran but not f90
-	$fortran_opts = "--disable-mpi-f90";
+	$fortran_opts = "FC=$ENV{F77} --disable-mpi-f90";
   } 
 
   unless ($opt_fetchonly)
@@ -743,7 +718,7 @@ sub install_openmpi() {
     rmtree "$opt_tmp_dir/$lib-$version";
     untar_src($lib,$version);
     safe_chdir("$opt_tmp_dir/$lib-$version/");
-    run_command_or_die("./configure --with-threads=posix $fortran_opts --prefix=$opt_mpi_dir");
+    run_command_or_die("./configure CC=$ENV{CC} CXX=$ENV{CXX} --with-threads=posix $fortran_opts --prefix=$opt_mpi_dir");
     run_command_or_die("make $opt_makeopts");
     run_command_or_die("make install");
   }
@@ -754,7 +729,7 @@ sub install_openmpi() {
 sub install_mpich2() {
   my $lib = "mpich2";
   my $version = $packages{$lib}[$vrs];
-  print my_colored("Installing $lib-$version\n",$HEADINGCOLOR);
+  print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
 
   safe_chdir($opt_tmp_dir);
   download_src($lib,$version);
@@ -774,7 +749,7 @@ sub install_mpich2() {
 sub install_cgns() {
   my $lib = "cgns";
   my $version = $packages{$lib}[$vrs];
-  print my_colored("Installing $lib-$version\n",$HEADINGCOLOR);
+  print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
 
   safe_chdir($opt_tmp_dir);
   download_src($lib,$version);
@@ -797,7 +772,7 @@ sub install_cgns() {
 sub install_cgal() {
   my $lib = "cgal";
   my $version = $packages{$lib}[$vrs];
-  print my_colored("Installing $lib-$version\n",$HEADINGCOLOR);
+  print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
 
   safe_chdir($opt_tmp_dir);
   download_src($lib,$version);
@@ -820,7 +795,7 @@ sub install_cgal() {
 sub install_mpich() {
   my $lib = "mpich";
   my $version = $packages{$lib}[$vrs];
-  print my_colored("Installing $lib-$version\n",$HEADINGCOLOR);
+  print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
 
   safe_chdir($opt_tmp_dir);
   download_src($lib,$version);
@@ -840,7 +815,7 @@ sub install_mpich() {
 sub install_parmetis () {
   my $lib = "parmetis";
   my $version = $packages{$lib}[$vrs];
-  print my_colored("Installing $lib-$version\n",$HEADINGCOLOR);
+  print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
 
   my $include_dir = "$opt_install_mpi_dir/include/";
   my $lib_dir = "$opt_install_mpi_dir/lib/";
@@ -911,7 +886,7 @@ sub install_petsc3 ()
   my $fblas_name = "fblaslapack-3.1.1.tar.gz";
   my $fblas_file = "$opt_tmp_dir/$fblas_name";
 
-  print my_colored("Installing $lib-$version\n",$HEADINGCOLOR);
+  print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
     
 
   safe_chdir($opt_tmp_dir);
@@ -961,7 +936,7 @@ sub install_petsc3 ()
 sub install_trilinos() {
   my $lib = "trilinos";
   my $version = $packages{$lib}[$vrs];
-  print my_colored("Installing $lib-$version\n",$HEADINGCOLOR);
+  print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
 
   safe_chdir($opt_tmp_dir);
   download_src($lib,$version);
@@ -1031,7 +1006,7 @@ sub install_boost()
   my $lib = "boost";
   my $version = $packages{$lib}[$vrs];
   my $pack = "$lib\_$version";
-  print my_colored("Installing $pack\n",$HEADINGCOLOR);
+  print my_colored("Installing $pack\n",$HIGHLIGHTCOLOR);
 
   safe_chdir($opt_tmp_dir);
   if ( not -e "$pack.tar.bz2" ) { download_file("$opt_dwnldsrc/$pack.tar.bz2"); }
@@ -1046,12 +1021,14 @@ sub install_boost()
     # build toolset
     safe_chdir("tools/jam/src");
     my $toolset = "gcc";
-    if($ENV{CC} eq "icc") { $toolset = "intel-linux"; }
+    if( ( $ENV{CC} =~ m/icc$/ )   or ( $ENV{CXX} =~ m/icpc$/ )      ) { $toolset = "intel-linux"; }
+    if( ( $ENV{CC} =~ m/clang$/ ) or ( $ENV{CXX} =~ m/clang\+\+$/ ) ) { $toolset = "cc"; }
     
-    # in case g++ is speaical path
-    $ENV{GCC} = $ENV{CC};
-    $ENV{GXX} = $ENV{CXX};
-
+    if ($toolset eq 'gcc' ) # in case g++ is speical path
+    {
+      $ENV{GCC} = $ENV{CC};
+      $ENV{GXX} = $ENV{CXX};
+    }
 
     my $boost_arch;
     if($arch eq "x86_64") { $boost_arch = "linuxx86_64" ;  }
@@ -1059,7 +1036,7 @@ sub install_boost()
 
     if(is_mac())         
     { 
-	  $toolset = "darwin";
+  	  $toolset = "darwin" unless ( $toolset eq "cc" ) ;
       $boost_arch = "macosxx86"; 
       
       # If Snow Leopard
@@ -1079,7 +1056,20 @@ sub install_boost()
 
     # build boost libs
     safe_chdir("../../..");
-    
+   
+    if ( $toolset eq "cc" )
+    {
+      open  (USERCONFIGJAM, ">>./tools/build/v2/user-config.jam") || die("Cannot Open File ./tools/build/v2/user-config.jam") ;
+      print  USERCONFIGJAM <<ZZZ;
+# ----------------------
+# clang configuration.
+# ----------------------
+using clang ;
+
+ZZZ
+      close (USERCONFIGJAM); 
+    }
+
     my $boostmpiopt=" --without-mpi ";
     unless ($opt_nompi) {
       $boostmpiopt=" --with-mpi cxxflags=-DBOOST_MPI_HOMOGENEOUS ";
@@ -1096,7 +1086,7 @@ ZZZ
       close (USERCONFIGJAM); 
     }
 
-    run_command_or_die("./tools/jam/src/bin.$boost_arch/bjam --prefix=$opt_install_dir $opt_makeopts --with-test --with-thread --with-iostreams --with-filesystem --with-system --with-regex --with-date_time --with-program_options $boostmpiopt toolset=$toolset threading=multi variant=release stage install");
+    run_command_or_die("./tools/jam/src/bin.$boost_arch/bjam --prefix=$opt_install_dir --with-test --with-thread --with-iostreams --with-filesystem --with-system --with-regex --with-date_time --with-program_options $boostmpiopt toolset=$toolset threading=multi variant=release stage install");
 
   }
 }
@@ -1107,7 +1097,7 @@ sub install_cmake() {
   my $lib = "cmake";
   my $version = $packages{$lib}[$vrs];
   my $pack = "$lib-$version";
-  print my_colored("Installing $pack\n",$HEADINGCOLOR);
+  print my_colored("Installing $pack\n",$HIGHLIGHTCOLOR);
 
   safe_chdir($opt_tmp_dir);
   download_src($lib,$version);
@@ -1130,7 +1120,7 @@ sub install_cmake() {
 sub install_hdf5() {
   my $lib = "hdf5";
   my $version = $packages{$lib}[$vrs];
-  print my_colored("Installing $lib-$version\n",$HEADINGCOLOR);
+  print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
 
   safe_chdir($opt_tmp_dir);
   download_src($lib,$version);
@@ -1160,34 +1150,40 @@ sub install_hdf5() {
 
 sub print_info() # print information about the
 {
-    print my_colored("Installing COOLFLUID dependencies\n",$HEADINGCOLOR);
+    print my_colored("Installing coolfluid dependencies\n",$HIGHLIGHTCOLOR);
 
-    print_var("Install     dir ","$opt_install_dir");
-    print_var("Install MPI dir ","$opt_install_mpi_dir");
-    print_var("CMake       dir ","$opt_cmake_dir");
-    print_var("MPI         dir ","$opt_mpi_dir");
-    print_var("Temporary   dir ","$opt_tmp_dir");
+    print "---------------------------------\n"; 
+    
+    print "Install     dir : $opt_install_dir\n";
+    print "Install MPI dir : $opt_install_mpi_dir\n";
+    print "CMake       dir : $opt_cmake_dir\n";
+    print "MPI         dir : $opt_mpi_dir\n";
+    print "Temporary   dir : $opt_tmp_dir\n";
+
+    print "---------------------------------\n"; 
 
 # Env vars
-    print_var(PATH,$ENV{PATH});
-    print_var(LD_LIBRARY_PATH,$ENV{LD_LIBRARY_PATH});
-    print_var(CC,$ENV{CC});
-    print_var(CXX,$ENV{CXX});
-    print_var(FC,$ENV{FC});
-    print_var(CFLAGS,$ENV{CFLAGS});
-    print_var(CXXFLAGS,$ENV{CXXFLAGS});
-    print_var(FFLAGS,$ENV{FFLAGS});
-    print_var(F77FLAGS,$ENV{F77FLAGS});
-    print_var(F90FLAGS,$ENV{F90FLAGS});
+    print "PATH            : $ENV{PATH}\n";
+    print "LD_LIBRARY_PATH : $ENV{LD_LIBRARY_PATH}\n";
+    print "CC  : $ENV{CC}\n";
+    print "CXX : $ENV{CXX}\n";
+    print "FC  : $ENV{FC}\n";
+    print "CFLAGS   : $ENV{CFLAGS}\n";
+    print "CXXFLAGS : $ENV{CXXFLAGS}\n";
+    print "FFLAGS   : $ENV{FFLAGS}\n";
+    print "F77FLAGS : $ENV{F77FLAGS}\n";
+    print "F90FLAGS : $ENV{F90FLAGS}\n";
 
+    print "---------------------------------\n"; 
+    
 # Options
 #     while ( my ($key, $value) = each(%options) ) {
-#         print_var($key,get_option($key));
+#         print "$key : get_option($key)";
 #     }
 
 # User prefs
 #     while ( my ($key, $value) = each(%user_pref) ) {
-#         print_var($key,$value);
+#         print "$key : $value" ;
 #     }
 }
 
@@ -1195,14 +1191,14 @@ sub print_info() # print information about the
 
 sub set_install_basic()
 {
-  foreach $pname (keys %packages) {
+  foreach my $pname (keys %packages) {
     $packages{$pname}[$ins] = $packages{$pname}[$dft];
   }
 }
 
 sub set_install_all()
 {
-  foreach $pname (keys %packages) 
+  foreach my $pname (keys %packages) 
   {
     unless ( $pname eq 'lam' or $pname eq 'openmpi' or $pname eq 'mpich' or $pname eq 'mpich2' )
     {
@@ -1220,7 +1216,7 @@ sub install_packages()
   check_wgetprog();
 
     # check for 'basic' or 'all' keywords
-    for ($i=0; $i < scalar @opt_install_list; $i++)
+    for ( my $i=0; $i < scalar @opt_install_list; $i++ )
     {
         if ($opt_install_list[$i] eq 'basic') { set_install_basic(); }
         if ($opt_install_list[$i] eq 'all')   { set_install_all(); }
@@ -1230,7 +1226,7 @@ sub install_packages()
     if (scalar @opt_install_list == 0) { set_install_basic(); }
 
     # turn on the manually selected packages
-    for ($i=0; $i < scalar @opt_install_list; $i++)
+    for ( my $i=0; $i < scalar @opt_install_list; $i++)
     {
         my $opt = $opt_install_list[$i];
         if (exists $packages{$opt})
@@ -1245,20 +1241,20 @@ sub install_packages()
     my %install_packages = ();
 
     # sort the packages to install by priority
-    foreach $pname (keys %packages) {
+    foreach my $pname (keys %packages) {
     #       print "$pname\n";
         if ($packages{$pname}[$ins] eq 'on') {
             $install_packages{$packages{$pname}[$pri]} = $pname;
         }
     }
 
-    $actually_installed = "";
+    my $actually_installed = "";
 
     # install the packages by priority
-    foreach $p (sort {$a <=> $b} keys %install_packages) {
+    foreach my $p (sort {$a <=> $b} keys %install_packages) {
         my $pname = $install_packages{$p};
         my $pversion = $packages{$pname}[$vrs];
-        print my_colored("Package marked for installation: $pname\t[$pversion]\n",$WARNCOLOR);
+        print my_colored("Package marked for installation: $pname\t[$pversion]\n",$OKCOLOR);
         unless ($opt_dryrun)
         {
           $packages{$pname}[$fnc]->();
