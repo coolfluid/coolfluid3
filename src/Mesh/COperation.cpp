@@ -133,7 +133,7 @@ COperation& COperation::create_operation(const std::string operation_type)
 {
   // The execuation of operations must be in chronological order, hence
   // they get an alphabetical name
-  std::string name = "operation_"+StringOps::to_str(++m_counter);
+  std::string name = "operation_"+String::to_str(++m_counter);
   COperation::Ptr sub_operation = 
     create_component_abstract_type<COperation>(operation_type,name);
   add_component(sub_operation);
