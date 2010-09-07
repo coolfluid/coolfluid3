@@ -42,10 +42,10 @@ namespace Common {
     virtual const char * tag() const;
 
     /// @returns the value as a sd::string
-    virtual std::string value_str () const { return value_to_xmlstr ( value<TYPE>() ); }
+    virtual std::string value_str () const { return from_value ( value<TYPE>() ); }
 
     /// @returns the default value as a sd::string
-    virtual std::string def_str () const  { return value_to_xmlstr ( def<TYPE>() ); }
+    virtual std::string def_str () const  { return from_value ( def<TYPE>() ); }
 
     //@} END VIRTUAL FUNCTIONS
 
@@ -78,7 +78,7 @@ namespace Common {
     XmlNode * type_node = node.first_node(type_str);
 
     if(type_node != CFNULL)
-      xmlstr_to_value(*type_node,val);
+      to_value(*type_node,val);
     else
     {
       std::string str;

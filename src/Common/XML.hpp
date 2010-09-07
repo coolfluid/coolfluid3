@@ -14,34 +14,37 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////  
 
-  /// typedef for the XmlBase
-  typedef rapidxml::xml_base<> XmlBase;
-  /// typedef for the XmlDoc
-  typedef rapidxml::xml_document<> XmlDoc;
-  /// typedef for the XmlNode
-  typedef rapidxml::xml_node<> XmlNode;
-  /// typedef for the XmlAttribute
-  typedef rapidxml::xml_attribute<> XmlAttr;
-  /// typedef for the XmlMemPool
-  typedef rapidxml::memory_pool<> XmlMemPool;
+/// typedef for the XmlBase
+typedef rapidxml::xml_base<> XmlBase;
+/// typedef for the XmlDoc
+typedef rapidxml::xml_document<> XmlDoc;
+/// typedef for the XmlNode
+typedef rapidxml::xml_node<> XmlNode;
+/// typedef for the XmlAttribute
+typedef rapidxml::xml_attribute<> XmlAttr;
+/// typedef for the XmlMemPool
+typedef rapidxml::memory_pool<> XmlMemPool;
 
-  /// converts the value inside the xml node to the type
-  template < typename TYPE>
-    Common_API void xmlstr_to_value ( XmlBase& node, TYPE& val );
+/// Converts a type to an Xml tag
+template < typename TYPE > struct XmlTag
+{
+  /// xml tag for arrays
+  static const char* array () { return "array"; }
 
-  /// converts the value inside the xml node to the type
-  template < typename TYPE>
-    Common_API std::string value_to_xmlstr ( const TYPE& val );
+  /// returns a string with the xmltag corresponding to this type
+  static const char* type ();
+};
 
-  /// Converts a type to an Xml tag
-  template < typename TYPE > struct XmlTag
-  {
-    /// xml tag for arrays
-    static const char* array () { return "array"; }
+/// converts the value inside the xml node to the type
+template < typename T>
+Common_API void to_value (XmlBase& node, T& val);
 
-    /// returns a string with the xmltag corresponding to this type
-    static const char* type ();
-  };
+template < typename T>
+Common_API T to_value (XmlBase& node);
+
+/// converts the value inside the xml node to the type
+template < typename T>
+Common_API std::string from_value (const T& val);
 
 
 ////////////////////////////////////////////////////////////////////////////////

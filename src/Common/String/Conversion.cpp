@@ -60,7 +60,7 @@ namespace String {
     return v.string();
   }
   
-  //////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////
   
   /// Converts from std::string
   /// Don't use this to convert to a char, use c_str for that.
@@ -119,11 +119,8 @@ namespace String {
   template <>
   Common_API URI from_str<URI> (const std::string& str)
   {
-    return boost::lexical_cast<URI> ( str );
+    return URI( str );
   }
-  
-  
-  
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -1,151 +1,175 @@
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string/compare.hpp>
+/// @todo tmp header boost/filesystem/path, should go!
 #include <boost/filesystem/path.hpp>
 
 #include "Common/BasicExceptions.hpp"
 #include "Common/URI.hpp"
 #include "Common/XML.hpp"
+#include "Common/String/Conversion.hpp"
 
 namespace CF {
 namespace Common {
-
-////////////////////////////////////////////////////////////////////////////////
-
-  template<>
-  Common_API const char * XmlTag<bool>::type() { return "bool"; }
-
-  template<>
-  Common_API const char * XmlTag<int>::type() { return "integer"; };
-
-  template<>
-  Common_API const char * XmlTag<CF::Uint>::type() { return "unsigned"; }
-
-  template<>
-  Common_API const char * XmlTag<CF::Real>::type() { return "real"; }
-
-  template<>
-  Common_API const char * XmlTag<std::string>::type() { return "string"; }
   
-  template<>
-  Common_API const char * XmlTag<boost::filesystem::path>::type() { return "file"; }
-
-  template<>
-  Common_API const char * XmlTag<URI>::type() { return "uri"; }
+  using namespace String;
 
 ////////////////////////////////////////////////////////////////////////////////
 
+template<>
+Common_API const char * XmlTag<bool>::type() { return "bool"; }
+
+template<>
+Common_API const char * XmlTag<int>::type() { return "integer"; };
+
+template<>
+Common_API const char * XmlTag<CF::Uint>::type() { return "unsigned"; }
+
+template<>
+Common_API const char * XmlTag<CF::Real>::type() { return "real"; }
+
+template<>
+Common_API const char * XmlTag<std::string>::type() { return "string"; }
+
+template<>
+Common_API const char * XmlTag<boost::filesystem::path>::type() { return "file"; }
+
+template<>
+Common_API const char * XmlTag<URI>::type() { return "uri"; }
+
+  
+////////////////////////////////////////////////////////////////////////////////
+
 template <>
-    Common_API void xmlstr_to_value ( XmlBase& node, bool& val )
+Common_API std::string from_value<bool> (const bool& val)
 {
-  bool match = false;
-  std::string vt ( node.value() );
-
-  boost::algorithm::is_equal test_equal;
-
-  if ( test_equal(vt,"true") ||
-       test_equal(vt,"on")   ||
-       test_equal(vt,"1")     )
-  {
-    val   = true;
-    match = true;
-  }
-
-  if ( !match && (
-       test_equal(vt,"false") ||
-       test_equal(vt,"off")   ||
-       test_equal(vt,"0")     ))
-  {
-      val   = false;
-      match = true;
-  }
-
-  if (!match)
-    throw ParsingFailed (FromHere(), "Incorrect option conversion to bool of string [" + vt + "]" );
+  return to_str(val);
 }
 
 template <>
-    Common_API void xmlstr_to_value ( XmlBase& node, int& val )
+Common_API std::string from_value<int> (const int& val)
 {
-   val = boost::lexical_cast<int> ( node.value() );
+  return to_str(val);
 }
 
 template <>
-    Common_API void xmlstr_to_value ( XmlBase& node, CF::Uint& val )
+Common_API std::string from_value<Uint> (const Uint& val)
 {
-  val = boost::lexical_cast<CF::Uint> ( node.value() );
+  return to_str(val);
 }
 
 template <>
-    Common_API void xmlstr_to_value ( XmlBase& node, CF::Real& val )
+Common_API std::string from_value<Real> (const Real& val)
 {
-  val = boost::lexical_cast<CF::Real> ( node.value() );
+  return to_str(val);
 }
 
 template <>
-    Common_API void xmlstr_to_value ( XmlBase& node, std::string& val )
+Common_API std::string from_value<std::string> (const std::string& val)
 {
-   val = node.value();
+  return val;
 }
 
 template <>
-    Common_API void xmlstr_to_value ( XmlBase& node, boost::filesystem::path& val )
+Common_API std::string from_value<URI> (const URI& val)
 {
-   val = node.value();
-}
-
-template <>
-Common_API void xmlstr_to_value ( XmlBase& node, URI& val )
-{
-  val = boost::lexical_cast<URI> ( node.value() );
+  return to_str(val);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 template <>
-    Common_API std::string value_to_xmlstr<bool> ( const bool& val )
+Common_API void to_value<bool> (XmlBase& node, bool& val)
 {
-  return val ? "true" : "false";
+  val = from_str<bool>(node.value());
 }
 
 template <>
-    Common_API std::string value_to_xmlstr<int> ( const int& val )
+Common_API void to_value<int> (XmlBase& node, int& val)
 {
-  return boost::lexical_cast<std::string> ( val );
+  val = from_str<int>(node.value());
 }
 
 template <>
-    Common_API std::string value_to_xmlstr<CF::Uint> ( const CF::Uint& val )
+Common_API void to_value<Uint> (XmlBase& node, Uint& val)
 {
-  return boost::lexical_cast<std::string> ( val );
+  val = from_str<Uint>(node.value());
 }
 
 template <>
-    Common_API std::string value_to_xmlstr<CF::Real> ( const CF::Real& val )
+Common_API void to_value<Real> (XmlBase& node, Real& val)
 {
-  std::stringstream ss;
-  ss << val;
-  return ss.str();
+  val = from_str<Real>(node.value());
 }
 
 template <>
-    Common_API std::string value_to_xmlstr<std::string> ( const std::string& val )
+Common_API void to_value<std::string> (XmlBase& node, std::string& val)
 {
-   return val;
+  val = node.value();
 }
 
 template <>
-    Common_API std::string value_to_xmlstr<boost::filesystem::path> ( const boost::filesystem::path & val )
+Common_API void to_value<URI> (XmlBase& node, URI& val)
 {
-   return val.string();
+  val = from_str<URI>(node.value());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+template <>
+Common_API bool to_value<bool> (XmlBase& node)
+{
+  return from_str<bool>(node.value());
 }
 
 template <>
-    Common_API std::string value_to_xmlstr<URI> ( const URI & val )
+Common_API int to_value<int> (XmlBase& node)
+{
+  return from_str<int>(node.value());
+}
+
+template <>
+Common_API Uint to_value<Uint> (XmlBase& node)
+{
+  return from_str<Uint>(node.value());
+}
+
+template <>
+Common_API Real to_value<Real> (XmlBase& node)
+{
+  return from_str<Real>(node.value());
+}
+
+template <>
+Common_API std::string to_value<std::string> (XmlBase& node)
+{
+  return node.value();
+}
+
+template <>
+Common_API URI to_value<URI> (XmlBase& node)
+{
+  return from_str<URI>(node.value());
+}
+  
+////////////////////////////////////////////////////////////////////////////////
+  
+  
+/// @todo Temporary, should GO!!!
+template <>
+Common_API boost::filesystem::path to_value<boost::filesystem::path> (XmlBase& node)
+{
+  return boost::filesystem::path(node.value());
+}
+  
+template <>
+Common_API void to_value<boost::filesystem::path> (XmlBase& node, boost::filesystem::path& val)
+{
+  val = boost::filesystem::path(node.value());
+}
+  
+template <>
+Common_API std::string from_value<boost::filesystem::path> (const boost::filesystem::path& val)
 {
   return val.string();
 }
-
-////////////////////////////////////////////////////////////////////////////////
 
 } // Common
 } // CF

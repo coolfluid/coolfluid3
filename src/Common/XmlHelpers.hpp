@@ -191,10 +191,7 @@ namespace Common {
                                  " with \'key\' attribute  [" + pname + "]" );
 
       // convert xml value to TYPE
-      TYPE value;
-      xmlstr_to_value (*found_node, value);
-
-      return value;
+      return to_value<TYPE>(*found_node);
     }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -232,7 +229,7 @@ namespace Common {
       XmlNode* elemnode = found_node->first_node();
       for ( ; elemnode ; elemnode = elemnode->next_sibling() )
       {
-        xmlstr_to_value (*elemnode, tmp_value);
+        to_value (*elemnode, tmp_value);
         result.push_back(tmp_value);
       }
 
@@ -255,7 +252,7 @@ namespace Common {
     const char* type_name = xmldoc.allocate_string( XmlTag<TYPE>::type() );
 
     // convert value to string
-    const char* value_str = xmldoc.allocate_string( value_to_xmlstr(value).c_str() );
+    const char* value_str = xmldoc.allocate_string( from_value(value).c_str() );
 
     // creates the node
     //XmlNode* node = xmldoc.allocate_node ( node_element, node_name, value_str );
@@ -317,7 +314,7 @@ namespace Common {
 
     for(size_t i = 0 ; i < vect.size() ; i++)
     {
-      const char* value_str = xmldoc.allocate_string( value_to_xmlstr(vect[i]).c_str() );
+      const char* value_str = xmldoc.allocate_string( from_value(vect[i]).c_str() );
       XmlNode * itemNode = xmldoc.allocate_node ( node_element, "e", value_str );
       node->append_node(itemNode);
     }

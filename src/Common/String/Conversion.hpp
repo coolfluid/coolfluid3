@@ -11,7 +11,7 @@
 namespace CF {
 namespace Common {
 namespace String {
-
+  
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Conversions from and to std::string
@@ -32,7 +32,6 @@ namespace String {
   /// @return converter type
   template < typename T>
   Common_API T from_str (const std::string& str);
-
 
 ////////////////////////////////////////////////////////////////////////////////
 

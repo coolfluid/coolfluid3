@@ -108,9 +108,7 @@ namespace Common {
 
     for (XmlNode * itr = node.first_node(); itr ; itr = itr->next_sibling() )
     {
-      TYPE vi;
-      xmlstr_to_value(*itr,vi);
-      val.push_back(vi);
+      val.push_back(to_value<TYPE>(*itr));
     }
 
     XmlAttr *size_attr = node.first_attribute( "size" );
@@ -118,7 +116,7 @@ namespace Common {
       throw ParsingFailed (FromHere(), "OptionArray does not have \'size\' attribute" );
 
     Uint expected_size = 0;
-    xmlstr_to_value(*size_attr,expected_size);
+    to_value(*size_attr,expected_size);
     if ( expected_size != val.size() )
       throw ParsingFailed (FromHere(), "OptionArray \'size\' did not match number of entries" );
 
@@ -156,7 +154,7 @@ namespace Common {
 
     BOOST_FOREACH ( TYPE v, values )
     {
-      result += value_to_xmlstr ( v );
+      result += from_value ( v );
       result += ":";
     }
 
