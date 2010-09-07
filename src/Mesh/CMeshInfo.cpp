@@ -107,7 +107,7 @@ std::string CMeshInfo::print_region_tree(const CRegion& region, Uint level)
     
   for (Uint i=0; i<level; i++)
     tree += "    ";
-  tree += region.name() + " (" + StringOps::to_str<Uint>(region.recursive_elements_count()) +  ")\n";
+  tree += region.name() + " (" + String::to_str<Uint>(region.recursive_elements_count()) +  ")\n";
   
   tree += print_elements(region,level+1);
   
@@ -126,7 +126,7 @@ std::string CMeshInfo::print_field_tree(const CField& field, Uint level)
   
   for (Uint i=0; i<level; i++)
     tree += "    ";
-  tree += field.name() + " (" + StringOps::to_str<Uint>(field.recursive_elements_count()) +  ")\n";
+  tree += field.name() + " (" + String::to_str<Uint>(field.recursive_elements_count()) +  ")\n";
   
   tree += print_elements(field,level+1);
   
@@ -147,7 +147,7 @@ std::string CMeshInfo::print_elements(const Component& region, Uint level)
     for (Uint i=0; i<level; i++)
       tree += "    ";
     std::string dimensionality = IsElementsVolume()(elements_region) ? "volume" : "surface";
-    tree += elements_region.name() + " -- " + dimensionality + "  (" + StringOps::to_str<Uint>(elements_region.elements_count()) +  ")\n";
+    tree += elements_region.name() + " -- " + dimensionality + "  (" + String::to_str<Uint>(elements_region.elements_count()) +  ")\n";
   }
   return tree;
 }

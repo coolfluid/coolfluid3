@@ -226,7 +226,7 @@ class MyC : public ConfigObject {
   {
     boost::any value = option("OptBool")->value();
     // bool b = boost::any_cast<bool>(value);
-    // CFinfo << "config bool [" << Common::StringOps::to_str(b) << "]\n" << CFendl;
+    // CFinfo << "config bool [" << Common::String::to_str(b) << "]\n" << CFendl;
   }
 
   void config_int ()

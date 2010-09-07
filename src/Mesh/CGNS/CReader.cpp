@@ -6,8 +6,8 @@
 #include "Common/ObjectProvider.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/ComponentPredicates.hpp"
-#include "Common/StringOps.hpp"
 #include "Common/BasicExceptions.hpp"
+#include "Common/String/Conversion.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -20,13 +20,14 @@ namespace Mesh {
 namespace CGNS {
   
 using namespace Common;
+using namespace Common::String;
   
 ////////////////////////////////////////////////////////////////////////////////
 
 ObjectProvider < CReader,
                  CMeshReader,
                  CGNSLib,
-                 1 >
+                 NB_ARGS_1 >
 aCGNSReader_Provider ( "CGNS" );
 
 //////////////////////////////////////////////////////////////////////////////
@@ -448,7 +449,7 @@ void CReader::read_section(CRegion& parent_region)
         row[n-1]=start_idx+(elemNodes[0][n]-1); // -1 because cgns has index-base 1 instead of 0
       
       // Convert the cgns element type to the CF element type
-      const std::string& etype_CF = m_elemtype_CGNS_to_CF[etype_cgns]+StringOps::to_str<int>(m_base.phys_dim)+"DLagrangeP1";
+      const std::string& etype_CF = m_elemtype_CGNS_to_CF[etype_cgns]+String::to_str<int>(m_base.phys_dim)+"DLagrangeP1";
 
       // Add the nodes to the correct CElements component using its buffer
       Uint table_idx = buffer[etype_CF]->add_row(row);
@@ -470,7 +471,7 @@ void CReader::read_section(CRegion& parent_region)
     int nbElems = m_section.elemDataSize/m_section.elemNodeCount;
 
     // Convert the CGNS element type to the CF element type
-    const std::string& etype_CF = m_elemtype_CGNS_to_CF[m_section.type]+StringOps::to_str<int>(m_base.phys_dim)+"DLagrangeP1";
+    const std::string& etype_CF = m_elemtype_CGNS_to_CF[m_section.type]+String::to_str<int>(m_base.phys_dim)+"DLagrangeP1";
 
     
     // Create element component in this region for this CF element type, automatically creates connectivity_table
@@ -563,20 +564,19 @@ void CReader::read_section(CRegion& parent_region)
 
 void CReader::create_structured_elements(CRegion& parent_region)
 {
-    
   CArray& coordinates = *m_zone.coords;
       
   std::string etype_CF;
   switch (m_base.cell_dim)
   {
     case 3: // Hexahedrons
-      etype_CF = "Hexa"+StringOps::to_str<int>(m_base.phys_dim)+"DLagrangeP1";      
+      etype_CF = "Hexa"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";      
       break;
     case 2: // Quadrilaterals
-      etype_CF = "Quad"+StringOps::to_str<int>(m_base.phys_dim)+"DLagrangeP1";
+      etype_CF = "Quad"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
       break;
     case 1: // Segments
-      etype_CF = "Line"+StringOps::to_str<int>(m_base.phys_dim)+"DLagrangeP1";
+      etype_CF = "Line"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
     default:
       break;
   }
@@ -772,7 +772,7 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
     case PointList : // bc elements are given by node index list
       throw NotSupported(FromHere(),"CGNS: Boundary with pointset_type \"PointList\" is only supported for Structured grids");
     default :
-      throw NotImplemented(FromHere(),"CGNS: no boundary with pointset_type " + StringOps::to_str<int>(m_boco.ptset_type) + " supported in CF yet"); 
+      throw NotImplemented(FromHere(),"CGNS: no boundary with pointset_type " + to_str<int>(m_boco.ptset_type) + " supported in CF yet"); 
   }
 
   delete_ptr(boco_elems);
@@ -803,16 +803,16 @@ void CReader::read_boco_structured(CRegion& parent_region)
   switch (m_base.cell_dim)
   {
     case 3: // Hexahedrons
-      etype_CF = "Hexa"+StringOps::to_str<int>(m_base.phys_dim)+"DLagrangeP1";
-      etypeBC_CF = "Quad"+StringOps::to_str<int>(m_base.phys_dim)+"DLagrangeP1";
+      etype_CF = "Hexa"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
+      etypeBC_CF = "Quad"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
       break;
     case 2: // Quadrilaterals
-      etype_CF = "Quad"+StringOps::to_str<int>(m_base.phys_dim)+"DLagrangeP1";
-      etypeBC_CF = "Line"+StringOps::to_str<int>(m_base.phys_dim)+"DLagrangeP1";
+      etype_CF = "Quad"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
+      etypeBC_CF = "Line"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
       break;
     case 1: // Segments
-      etype_CF = "Line"+StringOps::to_str<int>(m_base.phys_dim)+"DLagrangeP1";
-      etypeBC_CF = "Point"+StringOps::to_str<int>(m_base.phys_dim)+"D";
+      etype_CF = "Line"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
+      etypeBC_CF = "Point"+to_str<int>(m_base.phys_dim)+"D";
     default:
       break;
   }
@@ -929,7 +929,7 @@ void CReader::read_boco_structured(CRegion& parent_region)
     }
     case PointList : // bc elements are given by node index list
     default :
-      throw NotImplemented(FromHere(),"CGNS: no boundary with pointset_type " + StringOps::to_str<int>(m_boco.ptset_type) + " supported in CF yet"); 
+      throw NotImplemented(FromHere(),"CGNS: no boundary with pointset_type " + to_str<int>(m_boco.ptset_type) + " supported in CF yet"); 
   }
   
   

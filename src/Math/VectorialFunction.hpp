@@ -4,7 +4,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/BasicExceptions.hpp"
-#include "Common/StringOps.hpp"
+#include "Common/String/Conversion.hpp"
 #include "Math/RealVector.hpp"
 #include "Math/FunctionParser.hpp"
 

@@ -10,7 +10,7 @@
 #include "Common/CF.hpp"
 #include "Common/LogStringForwarder.hpp"
 #include "Common/CodeLocation.hpp"
-#include "Common/StringOps.hpp"
+#include "Common/String/Conversion.hpp"
 #include "Common/MPI/PEInterface.hpp"
 
 namespace CF {

@@ -1,9 +1,10 @@
 #include <boost/tokenizer.hpp>
 #include <boost/regex.hpp>
+#include <boost/algorithm/string/find.hpp>
 
 #include "Common/URI.hpp"
 #include "Common/Log.hpp"
-#include "Common/StringOps.hpp"
+#include "Common/String/Conversion.hpp"
 
 namespace CF {
 namespace Common {

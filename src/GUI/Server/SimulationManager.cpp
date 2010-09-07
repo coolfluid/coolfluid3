@@ -3,7 +3,6 @@
 #include <QtCore>
 
 #include "Common/MPI/PEInterface.hpp"
-#include "Common/StringOps.hpp"
 #include "Common/BasicExceptions.hpp"
 
 #include "GUI/Server/SimulationManager.hpp"

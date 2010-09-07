@@ -1,7 +1,8 @@
 #include <sstream>
 
-#include "Common/StringOps.hpp"
+#include "Common/String/Conversion.hpp"
 #include "Common/ConfigArgs.hpp"
+#include <boost/algorithm/string.hpp>
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -1,7 +1,5 @@
 #include <QtCore>
 
-#include "Common/StringOps.hpp"
-
 #include "GUI/Server/MPIListener.hpp"
 
 using namespace MPI;

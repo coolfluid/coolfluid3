@@ -1,23 +1,26 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
+#include <boost/algorithm/string.hpp>
 
-#include "Common/StringOps.hpp"
+#include "Common/String/Conversion.hpp"
 #include "Common/URI.hpp"
 
 using namespace std;
 using namespace boost;
 using namespace CF;
 using namespace CF::Common;
+using namespace CF::Common::String;
 
-struct StringOps_Fixture
+
+struct String_Fixture
 {
   /// common setup for each test case
-  StringOps_Fixture()
+  String_Fixture()
   {
   }
 
   /// common tear-down for each test case
-  ~StringOps_Fixture()
+  ~String_Fixture()
   {
   }
 
@@ -27,7 +30,7 @@ struct StringOps_Fixture
 
 };
 
-BOOST_FIXTURE_TEST_SUITE( StringOps_TestSuite, StringOps_Fixture )
+BOOST_FIXTURE_TEST_SUITE( String_TestSuite, String_Fixture )
 
 BOOST_AUTO_TEST_CASE( boostFunctions )
 {
@@ -90,31 +93,31 @@ BOOST_AUTO_TEST_CASE( boostFunctions )
 
 }
 
-BOOST_AUTO_TEST_CASE( to_str )
+BOOST_AUTO_TEST_CASE( test__to_str )
 {
-  BOOST_CHECK_EQUAL(StringOps::to_str<int>(42), "42");
-  BOOST_CHECK_EQUAL(StringOps::to_str<CF::Real>(3.14), "3.14");
+  BOOST_CHECK_EQUAL(to_str(42), "42");
+  BOOST_CHECK_EQUAL(to_str(3.14), "3.14");
 }
 
-BOOST_AUTO_TEST_CASE( from_str )
+BOOST_AUTO_TEST_CASE( test__from_str )
 {
-  BOOST_CHECK_EQUAL(StringOps::from_str<int>("42"), 42);
-  BOOST_CHECK_EQUAL(StringOps::from_str<CF::Real>("3.14"), 3.14);
+  BOOST_CHECK_EQUAL(from_str<int>("42"), 42);
+  BOOST_CHECK_EQUAL(from_str<CF::Real>("3.14"), 3.14);
 }
 
 BOOST_AUTO_TEST_CASE( URI_test )
 {
-  Common::URI uri("file://hostname");
+  URI uri("file://hostname");
   uri /= "file_name.txt";
   BOOST_CHECK(uri.is_absolute());
   BOOST_CHECK_EQUAL(uri.string(),"file://hostname/file_name.txt");
   BOOST_CHECK_EQUAL(uri.base_path().string(),"file://hostname");
   
-  Common::URI uri2("file_name.txt");
+  URI uri2("file_name.txt");
   BOOST_CHECK(uri2.is_relative());
   BOOST_CHECK_EQUAL(uri2.string(),"file_name.txt");
   
-  Common::URI uri3("cpath://hostname");
+  URI uri3("cpath://hostname");
   uri3 /= "component";
   BOOST_CHECK(uri3.is_absolute());
   BOOST_CHECK_EQUAL(uri3.string(),"cpath://hostname/component");

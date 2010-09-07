@@ -1,7 +1,7 @@
 #include <cstdlib>  // provides system call
 
 #include "Common/OSystemLayer.hpp"
-#include "Common/StringOps.hpp"
+#include "Common/String/Conversion.hpp"
 
 #ifdef CF_HAVE_DLOPEN
   #include "Common/PosixDlopenLibLoader.hpp"

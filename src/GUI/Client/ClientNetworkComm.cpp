@@ -6,7 +6,6 @@
 
 #include "Common/CF.hpp"
 #include "Common/CPath.hpp"
-#include "Common/StringOps.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/XmlHelpers.hpp"
 

@@ -190,11 +190,11 @@ void CReader::read_connectivity(std::fstream& file)
       throw Common::NotImplemented(FromHere(),"pyramid element not able to convert to COOLFluiD yet.");
     else {
       throw Common::NotSupported(FromHere(),"no support for element type/nodes "
-                                 + StringOps::to_str<int>(elementType) + "/" + StringOps::to_str<int>(nbElementNodes) +
+                                 + String::to_str<int>(elementType) + "/" + String::to_str<int>(nbElementNodes) +
            " in Gambit Neutral format");
     }
     // append dimension to the element type (1D, 2D, 3D)
-    etype_CF += StringOps::to_str<int>(m_headerData.NDFCD)+"DLagrangeP1";
+    etype_CF += String::to_str<int>(m_headerData.NDFCD)+"DLagrangeP1";
     
     // get element nodes
     std::vector<Uint> cf_element(nbElementNodes);

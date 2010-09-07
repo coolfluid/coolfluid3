@@ -93,7 +93,8 @@ list( APPEND Common_files
     SetupObject.hpp
     SetupObject.cpp
     Stopwatch.hpp
-    StringOps.hpp
+    String/Conversion.hpp
+    String/Conversion.cpp
     SignalHandler.hpp
     SignalHandler.cpp
     TaggedObject.hpp
@@ -192,6 +193,8 @@ CF_ADD_LIBRARY( Common )
 add_subdirectory( MacOSX )   # support for Mac OSX
 add_subdirectory( Linux  )   # support for Linux
 add_subdirectory( Win32  )   # support for Win32
+
+add_subdirectory( String  )  # std::string conversions
 
 add_subdirectory( uTests )    # unit tests for Common
 

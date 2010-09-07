@@ -57,7 +57,7 @@ CRegion& CMesh::create_region( const CName& name )
         if (boost::regex_match(region.name(), e))
           count++;
 
-      std::string append = (count == 0) ? "" : "_"+StringOps::to_str(count);
+      std::string append = (count == 0) ? "" : "_"+String::to_str(count);
       new_region = existing_region.create_region(name+append).get_type<CRegion>();
       new_region->add_tag("grid_zone");
     }
@@ -76,7 +76,7 @@ CRegion& CMesh::create_region( const CName& name )
       if (boost::regex_match(region.name(), e))
         count++;
 
-      std::string append = (count == 0) ? "" : "_"+StringOps::to_str(count);
+      std::string append = (count == 0) ? "" : "_"+String::to_str(count);
       new_region = base_region->create_region(name+append).get_type<CRegion>();
       new_region->add_tag("grid_zone");
     }

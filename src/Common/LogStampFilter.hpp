@@ -3,10 +3,12 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <boost/algorithm/string/replace.hpp>
+
 #include "Common/BoostIostreams.hpp"
 
 #include "Common/CodeLocation.hpp"
-#include "Common/StringOps.hpp"
+#include "Common/String/Conversion.hpp"
 #include "Common/MPI/PEInterface.hpp"
 
 #include "Common/CommonAPI.hpp"
@@ -14,7 +16,6 @@
 namespace CF {
 namespace Common {
 
-class StringOps;
 class CodeLocation;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -87,7 +88,7 @@ public:
       boost::algorithm::replace_all(stamp, "%time%", "TIME");
       boost::algorithm::replace_all(stamp, "%type%", m_streamName);
       boost::algorithm::replace_all(stamp, "%place%", m_place.short_str());
-      boost::algorithm::replace_all(stamp, "%rank%", StringOps::to_str( PEInterface::instance().rank() ));
+      boost::algorithm::replace_all(stamp, "%rank%", String::to_str( PEInterface::instance().rank() ));
       
       m_newMessage = false;
       

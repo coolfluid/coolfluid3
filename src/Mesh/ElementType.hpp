@@ -7,7 +7,7 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/range.hpp>
 
-#include "Common/StringOps.hpp"
+#include "Common/String/Conversion.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/ConcreteProvider.hpp"
 

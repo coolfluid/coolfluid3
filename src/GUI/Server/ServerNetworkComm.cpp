@@ -4,7 +4,6 @@
 #include <QtNetwork>
 #include <QtCore>
 
-#include "Common/StringOps.hpp"
 #include "Common/XmlHelpers.hpp"
 
 #include "Common/ConfigArgs.hpp"

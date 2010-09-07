@@ -8,15 +8,16 @@
 #include <boost/foreach.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/regex.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include "Common/Component.hpp"
 #include "Common/XmlHelpers.hpp"
-#include "Common/StringOps.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/ComponentIterator.hpp"
 #include "Common/OptionArray.hpp"
+#include "Common/String/Conversion.hpp"
 
 namespace CF {
 namespace Common {
@@ -124,10 +125,10 @@ Component::Ptr Component::add_component ( Component::Ptr subcomp, AddOption add_
 
           Uint count = 1;
           //count howmany times the name "name(_[0-9]+)?" occurs (REGEX)
-          while (m_components.find(name+"_"+StringOps::to_str(count)) != m_components.end())
+          while (m_components.find(name+"_"+String::to_str(count)) != m_components.end())
             count++;
 
-          std::string new_name = name+"_"+StringOps::to_str(count);
+          std::string new_name = name+"_"+String::to_str(count);
 
           CFwarn << "A component \"" << subcomp->full_path().string() << "\" already existed. New component added with name \"" << new_name << "\"" << CFendl;
           subcomp->rename(new_name);

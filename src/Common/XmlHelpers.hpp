@@ -7,9 +7,10 @@
 
 #include "Common/XML.hpp"
 #include "Common/NonInstantiable.hpp"
-#include "Common/StringOps.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/OptionArray.hpp"
+
+#include "Common/String/Conversion.hpp"
 
 namespace CF {
 namespace Common {
@@ -302,7 +303,7 @@ namespace Common {
 
     // create the size attribute
     const char* size_str = xmldoc.allocate_string( "size" );
-    const char* sizevalue_str = xmldoc.allocate_string( StringOps::to_str(vect.size()).c_str() );
+    const char* sizevalue_str = xmldoc.allocate_string( String::to_str(vect.size()).c_str() );
 
     // creates the attribute
     XmlAttr* attr = xmldoc.allocate_attribute("type", XmlTag<TYPE>::type());
