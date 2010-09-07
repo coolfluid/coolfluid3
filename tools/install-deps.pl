@@ -27,6 +27,7 @@ my $user = $ENV{USER};
 my $arch = get_arch();
 
 my $opt_help          = 0;
+my $opt_list          = 0;
 my $opt_dryrun        = 0;
 my $opt_nocolor       = 0;
 my $opt_debug         = 0;
@@ -99,6 +100,7 @@ sub parse_commandline() # Parse command line
 {
     $opt_help=1 unless GetOptions (
         'help'                  => \$opt_help,
+        'list'                  => \$opt_list,
         'nocolor'               => \$opt_nocolor,
         'debug'                 => \$opt_debug,
         'nompi'                 => \$opt_nompi,
@@ -123,7 +125,7 @@ sub parse_commandline() # Parse command line
     if ($opt_help != 0)
     {
       print <<ZZZ;
-install-coolfluid-deps.pl : Install software dependencies for COOLFluiD
+install-deps.pl : Install software dependencies for COOLFluiD
 
 usage: install-deps.pl [options]
 
@@ -167,6 +169,18 @@ options:
 ZZZ
     exit(0);
     }
+
+	if($opt_list != 0)
+	{
+		print my_colored("install-deps.pl - can install the following packages:\n",$OKCOLOR);
+		
+		foreach $pname (keys %packages) 
+		{
+			print "Package $pname\t[$packages{$pname}[$vrs]]\n";
+	  	}
+		exit(0);
+	}
+
     @opt_install = split(/,/,join(',',@opt_install));
 }
 
