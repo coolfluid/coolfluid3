@@ -20,6 +20,7 @@
 #include "Common/XmlHelpers.hpp"
 #include "Common/ObjectProvider.hpp"
 #include "Common/CRoot.hpp"
+#include "Common/URI.hpp"
 
 using namespace std;
 using namespace boost;
@@ -99,8 +100,9 @@ public: // functions
   
   static void defineConfigOptions ( Common::OptionList& options ) 
   {
-    CPath def_path("//");
-    options.add< OptionT<CPath> > ( "OptComponentPath", "a path to another component"   , def_path  );
+    URI def_path("cpath://");
+    options.add< OptionT<URI> > ( "MyRelativeFriend", "a path to another component"   , def_path  );
+    options.add< OptionT<URI> > ( "MyAbsoluteFriend", "a path to another component"   , def_path  );
 
   }
   
@@ -179,8 +181,9 @@ class MyC : public ConfigObject {
     options.add< OptionT<bool> >            ( "OptBool", "bool option"   , false  );
     options.add< OptionT<int> >             ( "OptInt",  "int option"    , -5     );
     options.add< OptionT<Uint> >            ( "OptUInt", "int option"    , 10     );
-    options.add< OptionT<Real> >            ( "OptReal", "real option"    , 0.0   );
+    options.add< OptionT<Real> >            ( "OptReal", "real option"   , 0.0   );
     options.add< OptionT<std::string> >     ( "OptStr",  "string option" , "LOLO" );
+    options.add< OptionT<URI> >             ( "OptURI",  "URI option"    , "cpath://lolo" );
 
     // vector of POD's
     std::vector<int> def;
@@ -210,6 +213,7 @@ class MyC : public ConfigObject {
     option("OptInt")->attach_processor ( boost::bind ( &MyC::config_int,   this ) );
     option("OptStr")->attach_processor ( boost::bind ( &MyC::config_str,   this ) );
     option("VecInt")->attach_processor ( boost::bind ( &MyC::config_vecint,this ) );
+    option("OptURI")->attach_processor ( boost::bind ( &MyC::config_uri,   this ) );
 
     std::vector<int> vi = option("VecInt")->value< std::vector<int> >();
 //    for (Uint i = 0; i < vi.size(); ++i)
@@ -248,6 +252,12 @@ class MyC : public ConfigObject {
   {
     CAbstract::Ptr abstract_component;
     option("OptComp")->put_value(abstract_component);
+  }
+  
+  void config_uri ()
+  {
+    URI uri; option("OptURI")->put_value(uri);
+    //    CFinfo << "config str [" << s << "]\n" << CFendl;
   }
 
 };
@@ -440,7 +450,8 @@ BOOST_AUTO_TEST_CASE( configure_component_path )
                       "<signal>"
                       " <valuemap>"
                       ""
-                      "<value  key=\"MyFriend\"> <component> ../component2 </component> </value>"
+                      "<value  key=\"MyRelativeFriend\"> <uri> ../component2 </uri> </value>"
+                      "<value  key=\"MyAbsoluteFriend\"> <uri> cpath://root/component2 </uri> </value>"
                       ""
                       " </valuemap>"
                       "</signal>"
@@ -454,9 +465,13 @@ BOOST_AUTO_TEST_CASE( configure_component_path )
     
   component1->configure( frame );
   
-  CPath friend_path = component1->option("MyFriend")->value<CPath>();
-  CConcrete1::Ptr myFriend = component1->look_component_type<CConcrete1>(friend_path);
-  BOOST_CHECK_EQUAL(myFriend->name(),"component2");
+  CPath absolute_friend_path = component1->option("MyAbsoluteFriend")->value<URI>();
+  CConcrete1::Ptr absolute_friend = component1->look_component_type<CConcrete1>(absolute_friend_path);
+  BOOST_CHECK_EQUAL(absolute_friend->name(),"component2");
+  
+  CPath relative_friend_path = component1->option("MyRelativeFriend")->value<URI>();
+  CConcrete1::Ptr relative_friend = component1->look_component_type<CConcrete1>(relative_friend_path);
+  BOOST_CHECK_EQUAL(relative_friend->name(),"component2");
 
 }
 

@@ -1,11 +1,10 @@
-#ifndef CF_Common_CPath_hpp
-#define CF_Common_CPath_hpp
+#ifndef CF_Common_URI_hpp
+#define CF_Common_URI_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/CF.hpp"
 #include "Common/Exception.hpp"
-#include "Common/URI.hpp"
 
 namespace CF {
 namespace Common {
@@ -13,48 +12,47 @@ namespace Common {
 ////////////////////////////////////////////////////////////////////////////////
 
   /// Exception thrown when a string does not construct a valid path
-  struct Common_API InvalidPath: public Common::Exception {
+  struct Common_API InvalidURI: public Common::Exception {
 
     /// Constructor
-    InvalidPath( const Common::CodeLocation& where, const std::string& what);
+    InvalidURI( const Common::CodeLocation& where, const std::string& what);
 
   }; // InvalidPath
 
   /// Base class for defining the path to a component
-  /// @author Tiago Quintino
-  class Common_API CPath {
+  /// @author Willem Deconinck
+  class Common_API URI {
 
   public:
 
     // constructors
 
     /// Empty constructor
-    CPath ();
+    URI ();
     /// Copy constructor from other path object
     /// @param path object
-    CPath ( const CPath& path );
+    URI ( const URI& path );
     /// Constructor from string object
     /// @param s string with path
-    CPath ( const std::string& s );
+    URI ( const std::string& s );
     /// Constructor from const char*
     /// @param c C string with path
-    CPath ( const char* c );
-    /// Copy constructor from other path object
-    /// @param path object
-    CPath ( const URI& uri );
-    
+    URI ( const char* c );
+
     // operators
 
-    /// assignement operator with CPath
-    CPath& operator=  (const CPath& p);
+    /// assignement operator with URI
+    URI& operator=  (const URI& p);
 
-    /// concatenation and assignement operator with CPath
-    CPath& operator/= (const CPath& rhs);
+    /// concatenation and assignement operator with URI
+    URI& operator/= (const URI& rhs);
     /// concatenation and assignement operator with std::string
-    CPath& operator/= (const std::string& s);
+    URI& operator/= (const std::string& s);
+    /// concatenation and assignement operator with C string
+    URI& operator/= ( const char* c );
 
-    /// concatenation operator with CPath
-    CPath  operator/  (const CPath& p) const;
+    /// concatenation operator with URI
+    URI  operator/  (const URI& p) const;
 
     // accessors
 
@@ -79,14 +77,7 @@ namespace Common {
     std::string string() const { return m_path; }
 
     /// @return the base path
-    CPath base_path() const;
-
-    /// check that the passed string is a valid path
-    /// @post string does not contain ";,"
-    static bool is_valid ( const std::string& str);
-
-    /// check that the passed string is a valid path element
-    static bool is_valid_element ( const std::string& str);
+    URI base_path() const;
 
     /// separator for path tokens
     static const std::string& separator ();
@@ -96,24 +87,24 @@ namespace Common {
     /// @param [in] out the out stream 
     /// @param [in] path the path to output
     /// @return the out stream
-    friend std::ostream& operator<< (std::ostream& out, const CPath& path);
+    friend std::ostream& operator<< (std::ostream& out, const URI& path);
     
     /// Overloading of the stream operator ">>" for the input
     /// @param [in] in the in stream
     /// @param [out] path the path to read
     /// @return the in stream
-    friend std::istream& operator>> (std::istream& in, CPath& path);
+    friend std::istream& operator>> (std::istream& in, URI& path);
     
   private:
 
     /// path string
     std::string m_path;
 
-  }; // CPath
+  }; // URI
 
 ////////////////////////////////////////////////////////////////////////////////
 
-inline std::ostream& operator<< (std::ostream& out, const CPath& path)
+inline std::ostream& operator<< (std::ostream& out, const URI& path)
 {
   out << path.string();
   return out;
@@ -121,11 +112,11 @@ inline std::ostream& operator<< (std::ostream& out, const CPath& path)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-inline std::istream& operator>> (std::istream& in, CPath& path)
+inline std::istream& operator>> (std::istream& in, URI& path)
 {
   std::string path_str;
   in >> path_str;
-  path = CPath(path_str);
+  path = URI(path_str);
   return in;
 }
 
@@ -136,4 +127,4 @@ inline std::istream& operator>> (std::istream& in, CPath& path)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_CPath_hpp
+#endif // CF_Common_URI_hpp

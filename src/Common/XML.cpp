@@ -3,7 +3,7 @@
 #include <boost/filesystem/path.hpp>
 
 #include "Common/BasicExceptions.hpp"
-#include "Common/CPath.hpp"
+#include "Common/URI.hpp"
 #include "Common/XML.hpp"
 
 namespace CF {
@@ -25,12 +25,12 @@ namespace Common {
 
   template<>
   Common_API const char * XmlTag<std::string>::type() { return "string"; }
-
+  
   template<>
   Common_API const char * XmlTag<boost::filesystem::path>::type() { return "file"; }
 
   template<>
-  Common_API const char * XmlTag<CPath>::type() { return "component"; }
+  Common_API const char * XmlTag<URI>::type() { return "uri"; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -94,9 +94,9 @@ template <>
 }
 
 template <>
-Common_API void xmlstr_to_value ( XmlBase& node, CPath& val )
+Common_API void xmlstr_to_value ( XmlBase& node, URI& val )
 {
-  val = boost::lexical_cast<CPath> ( node.value() );
+  val = boost::lexical_cast<URI> ( node.value() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -140,7 +140,7 @@ template <>
 }
 
 template <>
-    Common_API std::string value_to_xmlstr<CPath> ( const CPath & val )
+    Common_API std::string value_to_xmlstr<URI> ( const URI & val )
 {
   return val.string();
 }

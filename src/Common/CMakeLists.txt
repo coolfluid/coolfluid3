@@ -100,6 +100,8 @@ list( APPEND Common_files
     TaggedObject.cpp
     TimePolicies.cpp
     TimePolicies.hpp
+    URI.hpp
+    URI.cpp
     WorkerStatus.cpp
     WorkerStatus.hpp
     XmlHelpers.hpp

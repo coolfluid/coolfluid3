@@ -54,6 +54,20 @@ BOOST_AUTO_TEST_CASE( constructors )
   BOOST_CHECK(!p2.empty());
   BOOST_CHECK(!p3.empty());
   BOOST_CHECK_EQUAL( std::strcmp( p2.string().c_str(), p2.string().c_str() ), 0 );
+  
+  URI uri_absolute ( "cpath://hostname/root/component");
+  URI uri_relative ( "../component");
+  
+  CPath p4(uri_absolute);
+  BOOST_CHECK(!p4.empty());
+  BOOST_CHECK_EQUAL( p4.string(), "//hostname/root/component");
+  BOOST_CHECK(p4.is_absolute());
+  
+  CPath p5(uri_relative);
+  BOOST_CHECK(!p5.empty());
+  BOOST_CHECK_EQUAL( p5.string(), "../component");
+  BOOST_CHECK(p5.is_relative());
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////

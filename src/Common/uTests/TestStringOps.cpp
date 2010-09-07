@@ -2,6 +2,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Common/StringOps.hpp"
+#include "Common/URI.hpp"
 
 using namespace std;
 using namespace boost;
@@ -101,4 +102,23 @@ BOOST_AUTO_TEST_CASE( from_str )
   BOOST_CHECK_EQUAL(StringOps::from_str<CF::Real>("3.14"), 3.14);
 }
 
+BOOST_AUTO_TEST_CASE( URI_test )
+{
+  Common::URI uri("file://hostname");
+  uri /= "file_name.txt";
+  BOOST_CHECK(uri.is_absolute());
+  BOOST_CHECK_EQUAL(uri.string(),"file://hostname/file_name.txt");
+  BOOST_CHECK_EQUAL(uri.base_path().string(),"file://hostname");
+  
+  Common::URI uri2("file_name.txt");
+  BOOST_CHECK(uri2.is_relative());
+  BOOST_CHECK_EQUAL(uri2.string(),"file_name.txt");
+  
+  Common::URI uri3("cpath://hostname");
+  uri3 /= "component";
+  BOOST_CHECK(uri3.is_absolute());
+  BOOST_CHECK_EQUAL(uri3.string(),"cpath://hostname/component");
+  BOOST_CHECK_EQUAL(uri3.base_path().string(),"cpath://hostname");
+  
+}
 BOOST_AUTO_TEST_SUITE_END()

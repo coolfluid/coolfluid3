@@ -1,4 +1,5 @@
 #include <boost/tokenizer.hpp>
+#include <boost/regex.hpp>
 
 #include "Common/CPath.hpp"
 #include "Common/Log.hpp"
@@ -35,6 +36,27 @@ CPath::CPath ( const std::string& s ):
 CPath::CPath ( const char* c ):
   m_path ( c )
 {
+  if ( ! is_valid(m_path) )
+    throw InvalidPath (FromHere(),"Trying to construct path with string '" +m_path+ "'");
+}
+  
+CPath::CPath ( const URI& uri ) 
+{
+  if (uri.is_relative())
+  {
+    m_path = uri.string();
+  }
+  else
+  {
+    boost::regex e("cpath://.+");
+    if (!boost::regex_match(uri.string(),e))
+    {
+      throw InvalidPath (FromHere(),"The URI \""+uri.string()+"\" doesn't refer to a component path");
+    }
+    m_path = uri.string();
+    m_path.erase(m_path.begin(),m_path.begin()+6);
+  }
+
   if ( ! is_valid(m_path) )
     throw InvalidPath (FromHere(),"Trying to construct path with string '" +m_path+ "'");
 }

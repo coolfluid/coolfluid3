@@ -2,7 +2,7 @@
 #include <boost/filesystem/path.hpp>
 
 #include "Common/Option.hpp"
-#include "Common/CPath.hpp"
+#include "Common/URI.hpp"
 
 namespace CF {
 namespace Common {
@@ -53,7 +53,7 @@ namespace Common {
   Common_API const char * Option::type_to_str<boost::filesystem::path>() const { return "file"; }
 
   template<>
-  Common_API const char * Option::type_to_str<CPath>() const { return "component"; }
+  Common_API const char * Option::type_to_str<URI>() const { return "uri"; }
 
   void Option::mark_basic()
   {
