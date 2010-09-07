@@ -1,14 +1,14 @@
 ################################################################################
 
-  LIST( APPEND uTestBlockMeshReader_cflibs OpenFOAM Neu MeshDiff Mesh SF )
+  LIST( APPEND uTestBlockMeshReader_cflibs OpenFOAM Neu MeshDiff SF )
   LIST( APPEND uTestBlockMeshReader_files
     uTestBlockMeshReader.cpp )
 
-  # note this is not cross-platform
-  # because compilation flags are compiler dependent
-
-  SET_SOURCE_FILES_PROPERTIES( uTestBlockMeshReader.cpp
+  # avoid long compilation and bloated memory in this specific utest
+  IF( CMAKE_COMPILER_IS_GNUCC )
+    SET_SOURCE_FILES_PROPERTIES( uTestBlockMeshReader.cpp
       PROPERTIES COMPILE_FLAGS "-g0 -O0" )
+  ENDIF()
 
   CF_ADD_UNITTEST( uTestBlockMeshReader )
 
