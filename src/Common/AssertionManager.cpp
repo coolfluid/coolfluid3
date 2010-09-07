@@ -1,8 +1,8 @@
 #include <sstream>
 #include <iostream>
 
-#include "Common/CommonAPI.hpp"
-#include "Common/AssertionManager.hpp"
+#include "Common/CF.hpp"
+
 #include "Common/BasicExceptions.hpp"
 #include "Common/OSystemLayer.hpp"
 
