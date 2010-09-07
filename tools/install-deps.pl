@@ -52,7 +52,7 @@ my $opt_curlprog      = "curl -O -nc -nv --progress-bar";
 my $opt_dwnldprog     = $opt_wgetprog;
 my $opt_makeopts      = "-j2";
 my $opt_svnrevision       = 0;
-my @opt_install = ();
+my @opt_install_list = ();
 
 # list of packages, and their associated values
 # [$vrs] : default version to install
@@ -118,7 +118,7 @@ sub parse_commandline() # Parse command line
         'branch=s'              => \$opt_branch,
         'build=s'               => \$opt_build,
         'makeopts=s'            => \$opt_makeopts,
-        'install=s'             => \@opt_install,
+        'install=s'             => \@opt_install_list,
     );
 
     # show help if required
@@ -132,40 +132,32 @@ usage: install-deps.pl [options]
 By default will install a recomended set of dependencies: cmake,curl,boost,openmpi,parmetis,petsc
 
 options:
-        --help            Show this help.
-        --nocolor         Don't color output
-  
-        --no-fortran      Dont compile any fortran bindings (on mpi, etc...)
-        --nompi           Don't compile with mpi support. This is only active for some packages.
-        --mpi=            MPI compiler to use for compilations
-                            Default: $opt_mpi.
-        --many-mpi=       Install all mpi related packages in a separate directory
-                          therefore allowing multiple mpi environments to coexist
-                            Default: $opt_many_mpi.
+        --help             Show this help.
+        --nocolor          Don't color output
+        --list             List packages that this script can install
+        --fetchonly        Just download the sources. Do not install anything.
+        --dry-run          Don't actually install, just output what you would do.
 
-        --debug           Compile dependencies and coolfluid with debug symbols
-        --fetchonly       Just download the sources. Do not install anything.
-        --dry-run         Don't actually perform the configuration.
-                          Just output what you would do.
+        --debug            Compile some dependencies with debug symbols [petsc]
+        --no-fortran       Dont compile any fortran bindings (on mpi, etc...)
+        --nompi            Don't compile with mpi support. This is only active for some packages.
 
-        --install-dir=    Location of the software installation directory
-                            Default: $opt_install_dir
-        --install-mpi-dir=        Location for the mpi dependent installations
-                            Default: $opt_install_mpi_dir
-        --cmake-dir=      Location for the cmake installation
-        --tmp-dir=        Location of the temporary directory for complation
-                            Default: $opt_tmp_dir
+        --mpi=             MPI implementation [$opt_mpi]
+        --many-mpi=        Install all mpi related packages in a separate directory
+                           therefore allowing multiple mpi environments to coexist [$opt_many_mpi]
 
-        --dwnldsrc=       URL of download server from where to download sources of dependencies
-                            Default: $opt_dwnldsrc
+        --install-dir=     Install location of the packages [$opt_install_dir]
+        --install-mpi-dir= Install location for the mpi dependent installations [$opt_install_mpi_dir]
+        
+        --cmake-dir=       Location for the cmake installation []
+        --mpi-dir=         Location for the MPI implementation []
+        --tmp-dir=         Location of the temporary directory for complation [$opt_tmp_dir]
 
-        --makeopts=       Options to pass to make
-                            Default: $opt_makeopts
+        --dwnldsrc=        Download server [$opt_dwnldsrc]
+        --makeopts=        Options to pass to make [$opt_makeopts]
 
-        --install         Comma separated list of packages to install.
-                          Every test will be run for on the number of cpus specified here.
-                            Example: --install=all,hdf5,lam
-                            Default: all
+        --install          Comma separated list of packages to install. Example: --install=all,hdf5,lam
+
 ZZZ
     exit(0);
     }
@@ -181,7 +173,7 @@ ZZZ
 		exit(0);
 	}
 
-    @opt_install = split(/,/,join(',',@opt_install));
+    @opt_install_list = split(/,/,join(',',@opt_install_list));
 }
 
 #==========================================================================
@@ -793,7 +785,7 @@ sub install_cgns() {
     
     mkpath("build",1);
     safe_chdir("build");
-    run_command_or_die("cmake ../ -DHDF5_LIBRARY_DIR=$opt_mpi_dir/lib -DHDF5_INCLUDE_DIR=$opt_mpi_dir/include -DHDF5_NEED_MPI=ON -DHDF5_NEED_ZLIB=ON -DHDF5_NEED_SZIP=OFF -DMPI_INCLUDE_DIR=$opt_mpi_dir/include -DMPI_LIBRARY_DIR=$opt_mpi_dir/lib -DCMAKE_INSTALL_PREFIX=$opt_mpi_dir");
+    run_command_or_die("cmake ../ -DHDF5_LIBRARY_DIR=$opt_install_mpi_dir/lib -DHDF5_INCLUDE_DIR=$opt_install_mpi_dir/include -DHDF5_NEED_MPI=ON -DHDF5_NEED_ZLIB=ON -DHDF5_NEED_SZIP=OFF -DMPI_INCLUDE_DIR=$opt_mpi_dir/include -DMPI_LIBRARY_DIR=$opt_mpi_dir/lib -DCMAKE_INSTALL_PREFIX=$opt_install_mpi_dir");
     run_command_or_die("make $opt_makeopts");
     run_command_or_die("make install");
   }
@@ -1200,11 +1192,23 @@ sub print_info() # print information about the
 
 #==========================================================================
 
-sub set_install_all()
+sub set_install_basic()
 {
   foreach $pname (keys %packages) {
     $packages{$pname}[$ins] = $packages{$pname}[$dft];
   }
+}
+
+sub set_install_all()
+{
+  foreach $pname (keys %packages) 
+  {
+    unless ( $pname eq 'lam' or $pname eq 'openmpi' or $pname eq 'mpich' or $pname eq 'mpich2' )
+    {
+      $packages{$pname}[$ins] = 'on';
+    }
+  }
+  $packages{$opt_mpi}[$ins] = 'on';
 }
 
 #==========================================================================
@@ -1214,19 +1218,20 @@ sub install_packages()
   print_info();
   check_wgetprog();
 
-    # if 'all' exists, copy the [$dft] to [$ins]
-    for ($i=0; $i < scalar @opt_install; $i++)
+    # check for 'basic' or 'all' keywords
+    for ($i=0; $i < scalar @opt_install_list; $i++)
     {
-        if ($opt_install[$i] eq 'all') { set_install_all(); }
+        if ($opt_install_list[$i] eq 'basic') { set_install_basic(); }
+        if ($opt_install_list[$i] eq 'all')   { set_install_all(); }
     }
 
     # if there is no package selected, then also copy the [$dft] to [$ins]
-    if (scalar @opt_install == 0) { set_install_all(); }
+    if (scalar @opt_install_list == 0) { set_install_basic(); }
 
     # turn on the manually selected packages
-    for ($i=0; $i < scalar @opt_install; $i++)
+    for ($i=0; $i < scalar @opt_install_list; $i++)
     {
-        my $opt = $opt_install[$i];
+        my $opt = $opt_install_list[$i];
         if (exists $packages{$opt})
         {
             $packages{$opt}[$ins] = 'on';
