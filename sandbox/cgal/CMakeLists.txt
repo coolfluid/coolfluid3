@@ -24,7 +24,7 @@ SET_SOURCE_FILES_PROPERTIES(linear_interpolation.cpp
 
 ELSE()
 
-  CF_MARK_NOT_ORPHAN (
+  CF_MARK_NOT_ORPHAN(
       linear_interpolation.cpp
   )
 
