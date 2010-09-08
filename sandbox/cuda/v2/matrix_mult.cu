@@ -8,6 +8,33 @@
 #include "matrix_sizes.h"
 #include "matrix_mult.h"
 
+#if 0 // version 1
+// CUDA Kernel
+__global__ void
+cudakernel_matrix_mul( float* C, float* A, float* B, int wA, int wB)
+{
+
+   // 2D Thread ID
+   int tx = threadIdx.x;
+   int ty = threadIdx.y;
+
+   // value stores the element that is
+   // computed by the thread
+   float value = 0;
+   for (int i = 0; i < wA; ++i)
+   {
+      float elementA = A[ty * wA + i];
+      float elementB = B[i * wB + tx];
+      value += elementA * elementB;
+   }
+
+   // Write the matrix to device memory each
+   // thread writes one element
+   C[ty * wA + tx] = value;
+}
+#endif
+
+#if 1 // version 2
 // CUDA Kernel
 // Multiply two matrices A * B = C
 __global__ void
@@ -32,8 +59,8 @@ cudakernel_matrix_mul( float* C, float* A, float* B, int wA, int wB)
    // each thread writes one element
    C[ty * wA + tx] = value;
 }
+#endif
 
-  
 void gpu_mat_mul(float* h_A, float* h_B, float* h_C )
 {
 

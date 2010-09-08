@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 
 #include <cstdlib>
 #include <cstdio>
@@ -14,7 +15,8 @@
 void random_init(float* data, int size)
 {
     for (int i = 0; i < size; ++i)
-        data[i] = rand() / (float)RAND_MAX;
+        data[i] = 10*i;
+      //  data[i] = rand() / (float)RAND_MAX;
 }
 
 
@@ -25,6 +27,7 @@ int main(int argc, char * argv[])
   boost::program_options::options_description desc("allowed options");
   desc.add_options()
       ("help", "produce help message")
+      ("file", boost::program_options::value<std::string>() , "naem of the file to create" )
       ("cuda", "run with cuda code")
       ("native", "run with native code");
 
@@ -57,26 +60,6 @@ int main(int argc, char * argv[])
   /* 2. initialize host memory*/
   random_init(h_A, size_A);
   random_init(h_B, size_B);
-
-#if 0
-    /* 3. print out A and B*/
-    printf("\n\nMatrix A\n");
-    for( unsigned int i = 0; i < size_A; i++)
-    {
-       printf("%f ", h_A[i]);
-       if(((i + 1) % WA) == 0)
-          printf("\n");
-    }
-
-    printf("\n\nMatrix B\n");
-    for( unsigned int i = 0; i < size_B; i++)
-    {
-       printf("%f ", h_B[i]);
-       if(((i + 1) % WB) == 0)
-          printf("\n");
-    }
-#endif
-
 
   // run with native code ---------------------------------------------------
 
@@ -111,22 +94,26 @@ int main(int argc, char * argv[])
     gpu_mat_mul(h_A, h_B, h_C);
 
     printf("[cuda] time: %6.3f seconds\n", ctimer.elapsed() );
+
+  }
+
+
+  // write result  -------------------------------------------------------
+
+  if (vm.count("file"))
+  {
+    std::string filename = vm["file"].as<std::string>();
+    std::cout << "writing to " << filename << std::endl;
+    std::ofstream fout ( filename.c_str() );
+    for( unsigned  int i = 0; i < size_C; i++)
+    {
+      fout << h_C[i] << " ";
+      if(((i + 1) % WC) == 0 ) fout << "\n";
+    }
+    fout.close();
   }
 
   // clean up memory -------------------------------------------------------
-
-#if 0
-    /* 6. print out the results */
-    printf("\n\nMatrix C (Results)\n");
-    for( unsigned  int i = 0; i < size_C; i++)
-    {
-       printf("%f ", h_C[i]);
-       if(((i + 1) % WC) == 0)
-          printf("\n");
-    }
-    printf("\n");
-#endif
-
 
   free(h_A);
   free(h_B);
