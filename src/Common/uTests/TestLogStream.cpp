@@ -2,10 +2,10 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/test/unit_test_suite.hpp>
 
-#include <iostream>
-
 #include <boost/progress.hpp>
+
 #include "Common/Log.hpp"
+#include "Common/LogStringForwarder.hpp"
 
 using namespace std;
 using namespace boost;

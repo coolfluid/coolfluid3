@@ -1,10 +1,7 @@
 #ifndef CF_Mesh_SF_Quad2DLagrangeP1_hpp
 #define CF_Mesh_SF_Quad2DLagrangeP1_hpp
 
-#include "Common/CF.hpp"
 #include "Math/RealMatrix.hpp"
-#include "Mesh/GeoShape.hpp"
-
 #include "Mesh/Quad2D.hpp"
 
 namespace CF {

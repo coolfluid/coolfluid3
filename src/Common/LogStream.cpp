@@ -5,6 +5,9 @@
 #include "Common/LogStream.hpp"
 #include "Common/LogLevelFilter.hpp"
 #include "Common/LogStampFilter.hpp"
+#include "Common/LogStringForwarder.hpp"
+#include "Common/CodeLocation.hpp"
+
 
 using namespace CF;
 using namespace CF::Common;

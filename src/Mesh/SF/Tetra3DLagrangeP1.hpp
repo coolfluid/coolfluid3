@@ -1,7 +1,6 @@
 #ifndef CF_Mesh_SF_Tetra3DLagrangeP1_hpp
 #define CF_Mesh_SF_Tetra3DLagrangeP1_hpp
 
-#include "Common/CF.hpp"
 #include "Math/RealMatrix.hpp"
 #include "Math/MatrixInverterT.hpp"
 #include "Mesh/GeoShape.hpp"

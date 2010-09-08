@@ -11,7 +11,6 @@
 
 #include <memory>    // for std::auto_ptr
 #include <string>    // for std::string
-#include <sstream>   // string stream
 #include <vector>    // for std::vector
 #include <map>       // for std::map
 #include <cmath>     // all sorts of mathematical functions and constants

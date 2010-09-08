@@ -5,8 +5,6 @@
 
 #include <rapidxml/rapidxml.hpp>
 
-#include "Common/CF.hpp"
-
 #include "Common/CommonAPI.hpp"
 
 namespace CF {
