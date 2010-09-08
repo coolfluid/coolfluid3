@@ -12,7 +12,7 @@ class BlockData;
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Parse an OpenFoam blockMeshDict file to generate block data 
-void parse_blockmesh_dict(std::fstream& file, BlockData& blockData);
+void parse_blockmesh_dict(std::istream& file, BlockData& blockData);
 
 ////////////////////////////////////////////////////////////////////////////////
 

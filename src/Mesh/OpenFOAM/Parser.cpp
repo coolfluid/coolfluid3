@@ -157,7 +157,7 @@ void expand_simple_gradings(std::vector<BlockData::GradingT>& Gradings)
   }
 }
 
-void parse_blockmesh_dict(std::fstream& file, BlockData& blockData)
+void parse_blockmesh_dict(std::istream& file, BlockData& blockData)
 {
   std::string storage; // We will read the contents here.
   file.unsetf(std::ios::skipws); // No white space skipping!

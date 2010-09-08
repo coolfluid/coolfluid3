@@ -8,7 +8,7 @@ LIST( APPEND Testing_files
 )
 
 LIST( APPEND Testing_cflibs Common )
-IF( CF_BUILD_GooglePerfTools )
+IF( CF_BUILD_GooglePerfTools AND CF_ENABLE_PROFILING )
   LIST( APPEND Testing_cflibs GooglePerfTools )
 ENDIF()
 

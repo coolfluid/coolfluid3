@@ -38,6 +38,8 @@ struct BlockData
   std::vector<CountsT> block_subdivisions;
   /// edgeGrading for each block
   std::vector<GradingT> block_gradings;
+  /// Distribution of blocks among processors
+  IndicesT block_distribution;
 
   /// Type of each patch
   std::vector<std::string> patch_types;
@@ -45,10 +47,20 @@ struct BlockData
   std::vector<std::string> patch_names;
   /// Point indices for each patch (grouped per 4)
   std::vector<IndicesT> patch_points;
+  
+  /// Checks for equality
+  bool operator== (const BlockData& other) const;
 };
 
 /// Using the given block data, construct the mesh
 void build_mesh(const BlockData& block_data, CF::Mesh::CMesh& mesh);
+
+/// Partition a mesh along the X, Y or Z axis into the given number of partitions
+/// Partitioning ensures that processor boundaries lie on a boundary between blocks
+void partition_blocks(const BlockData& blocks_in, const Uint nb_partitions, const CoordXYZ direction, BlockData& blocks_out);
+
+/// Creates a mesh containing only the blocks as elements
+void create_block_mesh(const BlockData& block_data, CMesh& mesh);
 
 ////////////////////////////////////////////////////////////////////////////////
 

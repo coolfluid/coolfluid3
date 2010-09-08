@@ -1,6 +1,6 @@
 ################################################################################
 
-  LIST( APPEND uTestBlockMeshReader_cflibs OpenFOAM Neu MeshDiff SF )
+  LIST( APPEND uTestBlockMeshReader_cflibs OpenFOAM Neu Gmsh MeshDiff SF )
   LIST( APPEND uTestBlockMeshReader_files
     uTestBlockMeshReader.cpp )
 

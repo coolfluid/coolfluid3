@@ -6,7 +6,7 @@ LIST( APPEND MeshDiff_files
 )
 
 LIST( APPEND MeshDiff_cflibs Mesh )
-IF( CF_BUILD_GooglePerfTools )
+IF( CF_BUILD_GooglePerfTools AND CF_ENABLE_PROFILING )
   LIST( APPEND MeshDiff_cflibs GooglePerfTools )
 ENDIF()
 

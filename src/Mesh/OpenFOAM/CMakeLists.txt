@@ -6,6 +6,8 @@
     OpenFOAMAPI.hpp
     Parser.cpp
     Parser.hpp
+    WriteDict.cpp
+    WriteDict.hpp
   )
 
   LIST( APPEND OpenFOAM_cflibs Mesh )
