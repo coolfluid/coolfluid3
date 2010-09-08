@@ -51,10 +51,6 @@ namespace Common {
     /// Returns a C-strng representation of element type
     virtual const char * elem_type() const;
 
-    /// updates the option value using the xml configuration
-    /// @param node XML node with data for this option
-    virtual void change_value ( XmlNode& node );
-
     /// @returns the xml tag for this option
     virtual const char * tag() const { return "array"; }
 
@@ -67,6 +63,12 @@ namespace Common {
     std::vector<TYPE> value_vect() const;
 
     //@} END VIRTUAL FUNCTIONS
+        
+  protected:
+    
+    /// updates the option value using the xml configuration
+    /// @param node XML node with data for this option
+    virtual void configure ( XmlNode& node );
 
   private: // helper functions
 
@@ -91,7 +93,7 @@ namespace Common {
   }
 
   template < typename TYPE >
-   void OptionArrayT<TYPE>::change_value ( XmlNode& node )
+   void OptionArrayT<TYPE>::configure ( XmlNode& node )
   {
     XmlAttr *attr = node.first_attribute( "type" );
 

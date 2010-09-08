@@ -27,10 +27,6 @@ namespace Common {
     /// @name VIRTUAL FUNCTIONS
     //@{
 
-    /// updates the option value using the xml configuration
-    /// @param node XML node with data for this option
-    virtual void change_value ( XmlNode& node );
-
     /// @returns the xml tag for this option
     virtual const char * tag() const { return XmlParams::tag_node_valuemap(); }
 
@@ -42,6 +38,12 @@ namespace Common {
 
     //@} END VIRTUAL FUNCTIONS
 
+  protected:
+
+    /// updates the option value using the xml configuration
+    /// @param node XML node with data for this option
+    virtual void configure ( XmlNode& node );
+    
   protected:
 
     /// storage of the component pointer
@@ -73,7 +75,7 @@ namespace Common {
   }
 
   template < typename BASETYPE >
-  void OptionComponent<BASETYPE>::change_value ( XmlNode& node )
+  void OptionComponent<BASETYPE>::configure ( XmlNode& node )
   {
     XmlParams params ( node );
 

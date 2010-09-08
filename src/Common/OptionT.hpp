@@ -34,10 +34,6 @@ namespace Common {
     /// @name VIRTUAL FUNCTIONS
     //@{
 
-    /// updates the option value using the xml configuration
-    /// @param node XML node with data for this option
-    virtual void change_value ( XmlNode& node );
-
     /// @returns the xml tag for this option
     virtual const char * tag() const;
 
@@ -48,6 +44,12 @@ namespace Common {
     virtual std::string def_str () const  { return from_value ( def<TYPE>() ); }
 
     //@} END VIRTUAL FUNCTIONS
+        
+  protected: // functions 
+        
+    /// updates the option value using the xml configuration
+    /// @param node XML node with data for this option
+    virtual void configure ( XmlNode& node );
 
   private: // helper functions
 
@@ -71,7 +73,7 @@ namespace Common {
   }
 
   template < typename TYPE>
-  void OptionT<TYPE>::change_value ( XmlNode& node )
+  void OptionT<TYPE>::configure ( XmlNode& node )
   {
     TYPE val;
     const char * type_str = XmlTag<TYPE>::type();

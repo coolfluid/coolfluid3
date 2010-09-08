@@ -71,11 +71,7 @@ namespace Common {
 
     /// @name VIRTUAL FUNCTIONS
     //@{
-
-    /// updates the option value using the xml configuration
-    /// @param node XML node with data for this option
-    virtual void change_value ( XmlNode& node ) = 0;
-
+    
     /// @returns the xml tag for this option
     virtual const char * tag() const = 0;
 
@@ -89,7 +85,7 @@ namespace Common {
 
     /// configure this option using the passed xml node
     void configure_option ( XmlNode& node );
-
+    
     void attach_processor ( Processor_t proc ) { m_processors.push_back(proc); }
 
     // accessor functions
@@ -108,10 +104,10 @@ namespace Common {
 
     /// @returns the value of the option casted to TYPE
     template < typename TYPE >
-        TYPE value() const { return boost::any_cast< TYPE >(m_value); }
+        const TYPE value() const { return boost::any_cast< TYPE >(m_value); }
     /// @returns the default value of the option casted to TYPE
     template < typename TYPE >
-        TYPE def() const { return boost::any_cast<TYPE>(m_default); }
+        const TYPE def() const { return boost::any_cast<TYPE>(m_default); }
 
     /// @returns puts the value of the option casted to TYPE on the passed parameter
     /// @param value which to assign the option value
@@ -130,10 +126,22 @@ namespace Common {
       cf_assert ( type_to_str<TYPE>() == m_type );
       m_linked_params.push_back(par);
     }
+    
+    const ProcStorage_t& processors() const { return m_processors; }
+    
+    /// change the value of this option
+    void change_value ( const boost::any& value ) { m_value = value; };
 
     /// this option is tagged as a basic option on the GUI
     void mark_basic ();
 
+  protected: // function
+    
+    /// updates the option value using the xml configuration
+    /// @param node XML node with data for this option
+    virtual void configure ( XmlNode& node ) = 0;
+    
+    
   protected:
 
     /// storage of the value of the option

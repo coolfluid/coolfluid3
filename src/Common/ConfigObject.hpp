@@ -3,6 +3,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
+#include <boost/foreach.hpp>
 #include "Common/Option.hpp"
 
 namespace CF {
@@ -34,6 +35,17 @@ namespace Common {
 
     /// get and option from the list
     Option::Ptr getOption( const std::string& optname );
+    
+    void configure_option(const std::string& optname, const boost::any& val)
+    {
+      //getOption(optname)->change_value(val);
+      Option::Ptr opt = getOption(optname);
+      opt->change_value(val); // update the value
+      
+      // call all process functors
+      BOOST_FOREACH(const Option::Processor_t& process, opt->processors() )
+        process();
+    }
 
   public:
 
@@ -72,6 +84,12 @@ namespace Common {
 
     /// get the pointer to the option
     Option::Ptr option( const std::string& optname );
+    
+    void configure_option(const std::string& optname, const boost::any& val)
+    {
+      m_option_list.configure_option(optname,val);
+    }
+
 
   protected:
 
