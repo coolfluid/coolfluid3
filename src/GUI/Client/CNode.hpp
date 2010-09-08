@@ -262,7 +262,7 @@ namespace Client {
                      CF::Common::XmlNode & node )
     {
       TYPE value;
-      CF::Common::xmlstr_to_value(node, value);
+      CF::Common::to_value(node, value);
       m_option_list.add< CF::Common::OptionT<TYPE> >(name, descr, value);
     }
 
