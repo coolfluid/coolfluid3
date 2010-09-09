@@ -36,15 +36,12 @@ namespace Common {
     /// get and option from the list
     Option::Ptr getOption( const std::string& optname );
     
+    /// Configure one option, and trigger its actions
+    /// @param [in] optname  The option name
+    /// @param [in] val      The new value assigned to the option
     void configure_option(const std::string& optname, const boost::any& val)
     {
-      //getOption(optname)->change_value(val);
-      Option::Ptr opt = getOption(optname);
-      opt->change_value(val); // update the value
-      
-      // call all process functors
-      BOOST_FOREACH(const Option::Processor_t& process, opt->processors() )
-        process();
+      getOption(optname)->change_value(val); // update the value and trigger its actions
     }
 
   public:
@@ -85,6 +82,9 @@ namespace Common {
     /// get the pointer to the option
     Option::Ptr option( const std::string& optname );
     
+    /// Configure one option, and trigger its actions
+    /// @param [in] optname  The option name
+    /// @param [in] val      The new value assigned to the option    
     void configure_option(const std::string& optname, const boost::any& val)
     {
       m_option_list.configure_option(optname,val);

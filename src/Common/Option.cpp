@@ -30,9 +30,19 @@ namespace Common {
     this->configure(node); // update the value
 
     // call all process functors
-    BOOST_FOREACH( Option::Processor_t& process, m_processors )
+    BOOST_FOREACH( Option::Trigger_t& process, m_triggers )
         process();
   }
+  
+  
+  void Option::change_value ( const boost::any& value ) 
+  { 
+    m_value = value; // update the value
+  
+    // call all process functors
+    BOOST_FOREACH( Option::Trigger_t& process, m_triggers )
+      process();
+  };
 
   template<>
   Common_API const char * Option::type_to_str<bool>() const { return "bool"; }

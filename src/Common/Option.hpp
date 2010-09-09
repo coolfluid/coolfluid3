@@ -56,9 +56,9 @@ namespace Common {
   {
   public:
 
-    typedef boost::shared_ptr<Option>     Ptr;
-    typedef boost::function< void() >     Processor_t;
-    typedef std::vector< Processor_t >    ProcStorage_t;
+    typedef boost::shared_ptr<Option>   Ptr;
+    typedef boost::function< void() >   Trigger_t;
+    typedef std::vector< Trigger_t >    TriggerStorage_t;
 
     /// Constructor
     Option ( const std::string& name,
@@ -86,7 +86,7 @@ namespace Common {
     /// configure this option using the passed xml node
     void configure_option ( XmlNode& node );
     
-    void attach_processor ( Processor_t proc ) { m_processors.push_back(proc); }
+    void attach_trigger ( Trigger_t trigger ) { m_triggers.push_back(trigger); }
 
     // accessor functions
 
@@ -126,11 +126,9 @@ namespace Common {
       cf_assert ( type_to_str<TYPE>() == m_type );
       m_linked_params.push_back(par);
     }
-    
-    const ProcStorage_t& processors() const { return m_processors; }
-    
+        
     /// change the value of this option
-    void change_value ( const boost::any& value ) { m_value = value; };
+    void change_value ( const boost::any& value);
 
     /// this option is tagged as a basic option on the GUI
     void mark_basic ();
@@ -155,7 +153,7 @@ namespace Common {
     /// option description
     std::string m_description;
     /// list of processors that will process the option
-    ProcStorage_t m_processors;
+    TriggerStorage_t m_triggers;
     /// parameters that also get updated when option is changed
     std::vector< void* > m_linked_params;
 

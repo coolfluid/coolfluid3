@@ -103,7 +103,6 @@ public: // functions
     URI def_path("cpath://");
     options.add< OptionT<URI> > ( "MyRelativeFriend", "a path to another component"   , def_path  );
     options.add< OptionT<URI> > ( "MyAbsoluteFriend", "a path to another component"   , def_path  );
-
   }
   
   // --------- Specific functions to this component ---------
@@ -209,17 +208,17 @@ class MyC : public ConfigObject {
 
     link_to_parameter ( "OptStr", &m_str );
 
-    option("OptBool")->attach_processor( boost::bind ( &MyC::config_bool,  this ) );
-    option("OptInt")->attach_processor ( boost::bind ( &MyC::config_int,   this ) );
-    option("OptStr")->attach_processor ( boost::bind ( &MyC::config_str,   this ) );
-    option("VecInt")->attach_processor ( boost::bind ( &MyC::config_vecint,this ) );
-    option("OptURI")->attach_processor ( boost::bind ( &MyC::config_uri,   this ) );
+    option("OptBool")->attach_trigger( boost::bind ( &MyC::config_bool,  this ) );
+    option("OptInt")->attach_trigger ( boost::bind ( &MyC::config_int,   this ) );
+    option("OptStr")->attach_trigger ( boost::bind ( &MyC::config_str,   this ) );
+    option("VecInt")->attach_trigger ( boost::bind ( &MyC::config_vecint,this ) );
+    option("OptURI")->attach_trigger ( boost::bind ( &MyC::config_uri,   this ) );
 
     std::vector<int> vi = option("VecInt")->value< std::vector<int> >();
 //    for (Uint i = 0; i < vi.size(); ++i)
 //      CFinfo << "vi[" << i << "] : " << vi[i] << "\n" << CFendl;
 
-    option("OptComp")->attach_processor ( boost::bind ( &MyC::config_comp,this ) );
+    option("OptComp")->attach_trigger ( boost::bind ( &MyC::config_comp,this ) );
   };
 
   void config_bool ()
@@ -431,40 +430,17 @@ BOOST_AUTO_TEST_CASE( configure )
 
 
 BOOST_AUTO_TEST_CASE( configure_component_path )
-{
-  using namespace rapidxml;
-  
-  boost::gregorian::date today = boost::gregorian::day_clock::local_day();
-  boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
-  
-  CFinfo << "starting [" << today << "] [" << now << "]" << CFendl;
-  
-  
+{  
+  // Setup a little data-structure
   CRoot::Ptr root = CRoot::create("root");
   CConcrete1::Ptr component1 = root->create_component_type<CConcrete1>("component1");
   CConcrete1::Ptr component2 = root->create_component_type<CConcrete1>("component2");
-    
-  std::string text = (
-                      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-                      "<cfxml version=\"1.0\">"
-                      "<signal>"
-                      " <valuemap>"
-                      ""
-                      "<value  key=\"MyRelativeFriend\"> <uri> ../component2 </uri> </value>"
-                      "<value  key=\"MyAbsoluteFriend\"> <uri> cpath://root/component2 </uri> </value>"
-                      ""
-                      " </valuemap>"
-                      "</signal>"
-                      "</cfxml>"
-                      );
   
-  boost::shared_ptr<XmlDoc> xml = XmlOps::parse(text);
+  // Configure component 1 without XML (It could also be done with xml)
+  component1->configure_option("MyRelativeFriend",URI("../component2"));
+  component1->configure_option("MyAbsoluteFriend",URI("cpath://root/component2"));
   
-  XmlNode& doc   = *XmlOps::goto_doc_node(*xml.get());
-  XmlNode& frame = *XmlOps::first_frame_node( doc );
-    
-  component1->configure( frame );
-  
+  // Check if everything worked OK.
   CPath absolute_friend_path = component1->option("MyAbsoluteFriend")->value<URI>();
   CConcrete1::Ptr absolute_friend = component1->look_component_type<CConcrete1>(absolute_friend_path);
   BOOST_CHECK_EQUAL(absolute_friend->name(),"component2");
@@ -472,7 +448,6 @@ BOOST_AUTO_TEST_CASE( configure_component_path )
   CPath relative_friend_path = component1->option("MyRelativeFriend")->value<URI>();
   CConcrete1::Ptr relative_friend = component1->look_component_type<CConcrete1>(relative_friend_path);
   BOOST_CHECK_EQUAL(relative_friend->name(),"component2");
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
