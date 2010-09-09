@@ -5,6 +5,7 @@
 // IMPORTANT:
 // run it both on 1 and 4 cores
 
+#include "Common/Log.hpp"
 #include "Common/MPI/PEInterface.hpp"
 #include "Common/MPI/PECommPattern.hpp"
 
@@ -36,6 +37,8 @@ BOOST_FIXTURE_TEST_SUITE( PECommPattern_TestSuite, PECommPattern_Fixture )
 
 BOOST_AUTO_TEST_CASE( check_initialized )
 {
+  CFinfo << "TestPECommPattern" << CFendl;
+
   BOOST_CHECK_EQUAL( PEInterface::instance().is_init() , true );
 }
 

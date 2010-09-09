@@ -5,6 +5,7 @@
 // run it both on 1 and 4 cores
 
 #include "Common/MPI/PEInterface.hpp"
+#include "Common/Log.hpp"
 
 using namespace std;
 using namespace boost;
@@ -33,6 +34,8 @@ BOOST_FIXTURE_TEST_SUITE( PE_Finalize_TestSuite, PE_Finalize_Fixture )
 
 BOOST_AUTO_TEST_CASE( finalize )
 {
+  CFinfo << "TestPE_Finalize" << CFendl;
+
   PEInterface::instance().finalize();
   BOOST_CHECK_EQUAL( PEInterface::instance().is_init() , false );
 }

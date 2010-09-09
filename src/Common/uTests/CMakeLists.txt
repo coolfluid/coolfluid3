@@ -47,9 +47,9 @@ CF_ADD_UNITTEST( uTestComponentIteration )
 LIST( APPEND uTestPE_cflibs Common )
 LIST( APPEND uTestPE_files
   uTestPE.cpp
-  TestPE_Finalize.cpp
-  TestPECommPattern.cpp
   TestPE_Init.cpp
+  TestPECommPattern.cpp
+  TestPE_Finalize.cpp
 )
 
 CF_ADD_UNITTEST( uTestPE )

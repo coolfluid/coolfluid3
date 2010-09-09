@@ -4,6 +4,7 @@
 // IMPORTANT:
 // run it both on 1 and 4 cores
 
+#include "Common/Log.hpp"
 #include "Common/MPI/PEInterface.hpp"
 
 using namespace std;
@@ -37,6 +38,7 @@ BOOST_FIXTURE_TEST_SUITE( PE_Init_TestSuite, PE_Init_Fixture )
 
 BOOST_AUTO_TEST_CASE( isinit_preinit )
 {
+  CFinfo << "TestPE_Init" << CFendl;
   BOOST_CHECK_EQUAL( PEInterface::instance().is_init() , false );
 }
 
