@@ -32,4 +32,8 @@ ADD_SUBDIRECTORY( cgal )
 ### test for CUDA
 ADD_SUBDIRECTORY( cuda )
 
+###############################################################################
+### test for OpenCL
+ADD_SUBDIRECTORY( opencl )
+
 
