@@ -5,6 +5,7 @@
 
 #include "Mesh/CElements.hpp"
 #include "Mesh/CTable.hpp"
+#include "Mesh/CArray.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -58,7 +59,7 @@ public:
   /// @see create_celements_vector
   /// @see create_node_element_connectivity
   template<typename RangeT>
-  void initialize(const Uint nb_nodes, const RangeT& celements_range);
+  void initialize(const RangeT& celements_range);
   
   /// Range of global element indices that use the node with index node_idx.
   boost::iterator_range<IndicesT::const_iterator> node_element_range(const Uint node_idx) const;
@@ -211,8 +212,17 @@ void create_face_element_connectivity( const CElements& own_celements, const CFa
 void create_face_face_connectivity( const CElements& own_celements, const CFaceConnectivity::ElementsT& celements_vector, const CFaceConnectivity::IndicesT& celements_first_elements, const CFaceConnectivity::BoolsT& face_has_neighbour, const CFaceConnectivity::IndicesT& face_element_connectivity, CFaceConnectivity::IndicesT& face_face_connectivity);
 
 template<typename RangeT>
-void CNodeConnectivity::initialize ( const Uint nb_nodes, const RangeT& celements_range )
+void CNodeConnectivity::initialize (const RangeT& celements_range )
 {
+  std::set<const CArray*> coordinates_set;
+  BOOST_FOREACH(const CElements& elements, celements_range)
+    coordinates_set.insert(&elements.coordinates());
+  
+  // Total number of nodes in the mesh
+  Uint nb_nodes = 0;
+  BOOST_FOREACH(const CArray* coordinates, coordinates_set)
+    nb_nodes += coordinates->size();
+    
   create_celements_vector(celements_range, m_celements_vector, m_celements_first_elements);
   create_node_element_connectivity(nb_nodes, m_celements_vector, m_celements_first_elements, m_node_first_elements, m_node_element_counts, m_node_elements);
 }

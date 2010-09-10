@@ -292,14 +292,9 @@ void CWriter::write_groups(std::fstream& file)
 
 void CWriter::write_boundaries(std::fstream& file)
 { 
-  // Total number of nodes in the mesh
-  Uint nb_nodes = 0;
-  BOOST_FOREACH(const CArray& coordinates, recursive_filtered_range_typed<CArray>(*m_mesh,IsComponentTag("coordinates")))
-    nb_nodes += coordinates.size();
-  
   // Add node connectivity data at the mesh level
   CNodeConnectivity::Ptr node_connectivity = m_mesh->create_component_type<CNodeConnectivity>("node_connectivity");
-  node_connectivity->initialize(nb_nodes, recursive_filtered_range_typed<CElements>(*m_mesh, IsElementsVolume()));
+  node_connectivity->initialize(recursive_filtered_range_typed<CElements>(*m_mesh, IsElementsVolume()));
 
   
   BOOST_FOREACH(CElements& elementregion, recursive_filtered_range_typed<CElements>(*m_mesh,IsElementsSurface()))

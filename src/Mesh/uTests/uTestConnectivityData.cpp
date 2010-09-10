@@ -240,12 +240,9 @@ BOOST_FIXTURE_TEST_CASE( CreateFaceConnectivity, NeuFixture )
 /// Internal connectivity between all volume cells of the mesh
 BOOST_FIXTURE_TEST_CASE( CreateVolumeToVolumeConnectivity, NeuFixture )
 {
-  // Total number of nodes in the mesh
-  const Uint nb_nodes = recursive_get_named_component_typed<CArray>(*mesh2d, "coordinates").array().size();
-  
   // Add node connectivity data at the mesh level
   CNodeConnectivity::Ptr node_connectivity = mesh2d->create_component_type<CNodeConnectivity>("node_connectivity");
-  node_connectivity->initialize(nb_nodes, recursive_filtered_range_typed<CElements>(*mesh2d, IsElementsVolume()));
+  node_connectivity->initialize(recursive_filtered_range_typed<CElements>(*mesh2d, IsElementsVolume()));
   
   // Add face connectivity data for each CElements. Note that we can choose any CElements here, we don't have to do this
   // for the same set as used in node_connectivity
@@ -260,12 +257,9 @@ BOOST_FIXTURE_TEST_CASE( CreateVolumeToVolumeConnectivity, NeuFixture )
 /// For all surface elements, look up their adjacent volume element
 BOOST_FIXTURE_TEST_CASE( CreateSurfaceToVolumeConnectivity, NeuFixture )
 {
-  // Total number of nodes in the mesh
-  const Uint nb_nodes = recursive_get_named_component_typed<CArray>(*mesh2d, "coordinates").array().size();
-  
   // Add node connectivity data at the mesh level
   CNodeConnectivity::Ptr node_connectivity = mesh2d->create_component_type<CNodeConnectivity>("node_connectivity");
-  node_connectivity->initialize(nb_nodes, recursive_filtered_range_typed<CElements>(*mesh2d, IsElementsVolume()));
+  node_connectivity->initialize(recursive_filtered_range_typed<CElements>(*mesh2d, IsElementsVolume()));
   
   // Add face connectivity data for surface elements
   BOOST_FOREACH(CElements& celements, recursive_filtered_range_typed<CElements>(*mesh2d, IsElementsSurface()))
@@ -281,12 +275,9 @@ BOOST_FIXTURE_TEST_CASE( CreateSurfaceToVolumeConnectivity, NeuFixture )
 /// For all volume elements, look up their adjacent surface element, if any
 BOOST_FIXTURE_TEST_CASE( CreateVolumeToSurfaceConnectivity, NeuFixture )
 {
-  // Total number of nodes in the mesh
-  const Uint nb_nodes = recursive_get_named_component_typed<CArray>(*mesh2d, "coordinates").array().size();
-  
   // Add node connectivity data at the mesh level, for surface elements only
   CNodeConnectivity::Ptr node_connectivity = mesh2d->create_component_type<CNodeConnectivity>("node_connectivity");
-  node_connectivity->initialize(nb_nodes, recursive_filtered_range_typed<CElements>(*mesh2d, IsElementsSurface()));
+  node_connectivity->initialize(recursive_filtered_range_typed<CElements>(*mesh2d, IsElementsSurface()));
   
   // Add face connectivity data for volume elements
   BOOST_FOREACH(CElements& celements, recursive_filtered_range_typed<CElements>(*mesh2d, IsElementsVolume()))
@@ -302,12 +293,9 @@ BOOST_FIXTURE_TEST_CASE( CreateVolumeToSurfaceConnectivity, NeuFixture )
 /// For all surface elements, look up their adjacent volume element
 BOOST_FIXTURE_TEST_CASE( CreateSurfaceToVolumeConnectivity3D, NeuFixture )
 {
-  // Total number of nodes in the mesh
-  const Uint nb_nodes = recursive_get_named_component_typed<CArray>(*mesh3d, "coordinates").array().size();
-  
   // Add node connectivity data at the mesh level
   CNodeConnectivity::Ptr node_connectivity = mesh3d->create_component_type<CNodeConnectivity>("node_connectivity");
-  node_connectivity->initialize(nb_nodes, recursive_filtered_range_typed<CElements>(*mesh3d, IsElementsVolume()));
+  node_connectivity->initialize(recursive_filtered_range_typed<CElements>(*mesh3d, IsElementsVolume()));
   
   
   for(Uint i = 0; i != node_connectivity->node_first_elements().size(); ++i)

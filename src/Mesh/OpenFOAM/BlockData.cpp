@@ -87,7 +87,7 @@ void create_block_mesh(const BlockData& block_data, CMesh& mesh, std::map<std::s
   
   // Create connectivity data
   CNodeConnectivity::Ptr node_connectivity = block_mesh_region.create_component_type<CNodeConnectivity>("node_connectivity");
-  node_connectivity->initialize(nb_nodes, recursive_range_typed<CElements>(block_mesh_region));
+  node_connectivity->initialize(recursive_range_typed<CElements>(block_mesh_region));
   BOOST_FOREACH(CElements& celements, recursive_range_typed<CElements>(block_mesh_region))
   {
     celements.create_component_type<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
@@ -828,7 +828,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh)
   // Copy only the nodes that are still needed
   const Uint nb_nodes_3d = nodes.block_first_nodes.back();
   CNodeConnectivity node_connectivity_2d("nodes");
-  node_connectivity_2d.initialize(nb_nodes_3d, recursive_range_typed<CElements>(root_region_2d));
+  node_connectivity_2d.initialize(recursive_range_typed<CElements>(root_region_2d));
   
   // Count 2D nodes
   Uint nb_nodes_2d = 0;
