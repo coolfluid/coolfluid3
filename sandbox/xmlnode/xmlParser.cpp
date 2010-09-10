@@ -737,7 +737,11 @@ ToXMLStringTool::~ToXMLStringTool(){ freeBuffer(); }
 void ToXMLStringTool::freeBuffer(){ if (buf) free(buf); buf=NULL; buflen=0; }
 XMLSTR ToXMLStringTool::toXML(XMLCSTR source)
 {
-    if (!source) return _CXML("");
+    if (!source) 
+    { 
+      XMLCSTR empty = _CXML("");
+      return empty;
+    }
     int l=lengthXMLString(source)+1;
     if (l>buflen) { buflen=l; buf=(XMLSTR)realloc(buf,l*sizeof(XMLCHAR)); }
     return toXMLUnSafe(buf,source);
