@@ -43,22 +43,6 @@ public: // functions
   /// Configuration Options
   static void defineConfigOptions ( Common::OptionList& options ) {}
   
-  
-  void needs(CField& field);
-  void needs(CField& field1, CField& field2);
-  void needs(CField& field1, CField& field2, CField& field3);
-  virtual void needs_fields (std::vector<CField::Ptr>& fields);
-  
-  void needs(CRegion& region);
-  void needs(CRegion& region1, CRegion& region2);
-  void needs(CRegion& region1, CRegion& region2, CRegion& region3);
-  virtual void needs_regions (std::vector<CRegion::Ptr>& regions);
-  
-  void stores(CField& field);
-  void stores(CField& field1, CField& field2);
-  void stores(CField& field1, CField& field2, CField& field3);
-  virtual void stores_fields (std::vector<CField::Ptr>& fields);
-  
   virtual void set_loophelper (CElements& geometry_elements );
   
   virtual void execute (Uint index = 0 )
@@ -225,13 +209,7 @@ public: // functions
   {
     options.add< OptionT<URI> > ("Field","Field URI to output", URI("cpath://"))->mark_basic();
   }
-  
-  void needs_fields(std::vector<CField::Ptr>& fields)
-  {
-    scalar_field = fields[0];
-    scalar_name = scalar_field->field_name();
-  }
-  
+    
   void set_loophelper (CElements& geometry_elements )
   {
     data = boost::shared_ptr<LoopHelper> ( new LoopHelper(*scalar_field, geometry_elements ) );
@@ -308,12 +286,7 @@ public: // functions
   {
     options.add< OptionT<URI> > ("Field","Field URI to output", URI("cpath://"))->mark_basic();
   }
-  
-  void stores_fields(std::vector<CField::Ptr>& fields)
-  {
-    volume_field = fields[0];
-  }
-  
+    
   void set_loophelper (CElements& geometry_elements )
   {
     data = boost::shared_ptr<LoopHelper> ( new LoopHelper(*volume_field, geometry_elements ) );

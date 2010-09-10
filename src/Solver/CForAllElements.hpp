@@ -74,11 +74,6 @@ public: // functions
   }
 
   // functions specific to the CForAllElements component
-
-  void needs_regions(std::vector<CRegion::Ptr>& regions)
-  {
-    m_loop_regions = regions;
-  }
   
   const COp& operation() const
   {
