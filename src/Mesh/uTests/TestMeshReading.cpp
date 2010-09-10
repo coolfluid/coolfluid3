@@ -123,6 +123,9 @@ BOOST_AUTO_TEST_CASE( quadtriag_readNeu_writeGmsh_writeNeu )
   boost::filesystem::path fp_out_neu ("quadtriag_write.neu");
   CMeshWriter::Ptr neu_writer = create_component_abstract_type<CMeshWriter>("Neu","meshwriter");
   neu_writer->write_from_to(mesh,fp_out_neu);
+  
+  BOOST_CHECK_EQUAL(mesh->domain().recursive_nodes_count(), 16);
+  BOOST_CHECK_EQUAL(mesh->domain().recursive_elements_count(), 28);
   BOOST_CHECK_EQUAL(1,1);
 }
 
@@ -177,7 +180,8 @@ BOOST_AUTO_TEST_CASE( quadtriag_read_NewNeu_writeGmsh )
   
   //CFinfo << "ready to write" << CFendl;
   meshwriter->write_from_to(mesh,fp_out);
-  BOOST_CHECK_EQUAL(1,1);
+  BOOST_CHECK_EQUAL(mesh->domain().recursive_nodes_count(), 16);
+  BOOST_CHECK_EQUAL(mesh->domain().recursive_elements_count(), 28);
 
 //  CMeshTransformer::Ptr meshinfo = create_component_abstract_type<CMeshTransformer>("Info","meshinfo");
 //  meshinfo->transform(mesh);
@@ -236,7 +240,8 @@ BOOST_AUTO_TEST_CASE( hextet_readNeu_writeGmsh_writeNeu )
   boost::filesystem::path fp_out_neu ("hextet_write.neu");
   CMeshWriter::Ptr neu_writer = create_component_abstract_type<CMeshWriter>("Neu","meshwriter");
   neu_writer->write_from_to(mesh,fp_out_neu);
-  BOOST_CHECK_EQUAL(1,1);
+  BOOST_CHECK_EQUAL(mesh->domain().recursive_nodes_count(), 35);
+  BOOST_CHECK_EQUAL(mesh->domain().recursive_elements_count(), 44);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -289,7 +294,8 @@ BOOST_AUTO_TEST_CASE( hextet_read_NewNeu_writeGmsh )
   
   //CFinfo << "ready to write" << CFendl;
   meshwriter->write_from_to(mesh,fp_out);
-  BOOST_CHECK_EQUAL(1,1);
+  BOOST_CHECK_EQUAL(mesh->domain().recursive_nodes_count(), 35);
+  BOOST_CHECK_EQUAL(mesh->domain().recursive_elements_count(), 44);
   
 //  CMeshTransformer::Ptr meshinfo = create_component_abstract_type<CMeshTransformer>("Info","meshinfo");
 //  meshinfo->transform(mesh);

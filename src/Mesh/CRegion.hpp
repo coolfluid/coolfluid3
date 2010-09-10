@@ -8,13 +8,13 @@
 #include "Mesh/MeshAPI.hpp"
 
 #include "Mesh/CElements.hpp"
+#include "Mesh/CArray.hpp"
 
 namespace CF {
 namespace Mesh {
   
   class CField; 
   class CTable;
-  class CArray;
   
   using namespace Common;
 
@@ -69,6 +69,13 @@ public:
   /// @return the number of elements stored in this region, including any subregions
   template <typename Predicate>
     Uint recursive_filtered_elements_count(const Predicate& pred) const;
+
+  Uint recursive_nodes_count() const;
+
+  /// @return the number of elements stored in this region, including any subregions
+  template <typename Predicate>
+    Uint recursive_filtered_nodes_count(const Predicate& pred) const;
+  
   
   CField& get_field(const CName& field_name);
   
@@ -103,6 +110,21 @@ inline Uint CRegion::recursive_filtered_elements_count(const Predicate& pred) co
     elem_count += elements.elements_count();
 
   return elem_count;
+}
+  
+template <typename Predicate>
+inline Uint CRegion::recursive_filtered_nodes_count(const Predicate& pred) const
+{
+  std::set<const CArray*> coordinates_set;
+  BOOST_FOREACH(const CElements& elements, recursive_filtered_range_typed<CElements>(*this,pred))
+  coordinates_set.insert(&elements.coordinates());
+  
+  // Total number of nodes in the mesh
+  Uint nb_nodes = 0;
+  BOOST_FOREACH(const CArray* coordinates, coordinates_set)
+    nb_nodes += coordinates->size();
+  
+  return nb_nodes;
 }
   
 } // Mesh

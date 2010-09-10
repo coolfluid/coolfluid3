@@ -114,6 +114,22 @@ Uint CRegion::recursive_elements_count() const
     elem_count += elements.elements_count();
   return elem_count;
 }
+  
+//////////////////////////////////////////////////////////////////////////////
+
+Uint CRegion::recursive_nodes_count() const
+{
+  std::set<const CArray*> coordinates_set;
+  BOOST_FOREACH(const CElements& elements, recursive_range_typed<CElements>(*this))
+    coordinates_set.insert(&elements.coordinates());
+
+  // Total number of nodes in the mesh
+  Uint nb_nodes = 0;
+  BOOST_FOREACH(const CArray* coordinates, coordinates_set)
+    nb_nodes += coordinates->size();
+  
+  return nb_nodes;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
