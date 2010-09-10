@@ -5,10 +5,6 @@
 ADD_SUBDIRECTORY( rapidxml )
 
 ###############################################################################
-### test for xmlnode
-ADD_SUBDIRECTORY( xmlnode )
-
-###############################################################################
 ### test for boost::lambda
 ADD_SUBDIRECTORY( boost_lambda )
 
