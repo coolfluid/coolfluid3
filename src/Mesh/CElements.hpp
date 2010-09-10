@@ -74,6 +74,7 @@ public: // functions
   void add_field_elements_link(CElements& field_elements);
   
   CFieldElements& get_field_elements(const CName& field_name);
+  const CFieldElements& get_field_elements(const CName& field_name) const;
     
 private: // helper functions
 

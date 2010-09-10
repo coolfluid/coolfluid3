@@ -2,6 +2,7 @@
 #define CF_Mesh_COperation_hpp
 
 #include "Common/ObjectProvider.hpp"
+#include "Common/OptionT.hpp"
 
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CArray.hpp"
@@ -58,7 +59,7 @@ public: // functions
   void stores(CField& field1, CField& field2, CField& field3);
   virtual void stores_fields (std::vector<CField::Ptr>& fields);
   
-  virtual void setup (CElements& geometry_elements );
+  virtual void set_loophelper (CElements& geometry_elements );
   
   virtual void execute (Uint index = 0 )
   {
@@ -76,6 +77,13 @@ public: // functions
   
   /// Only for use in non-templatized version
   COperation& create_operation(const std::string operation_type);
+  
+  
+  ///@todo this function is temporary until statically linked childs are available.
+  virtual void bind()
+  {
+    add_component(operation().get());
+  }
   
 private: // helper functions
   
@@ -118,10 +126,10 @@ public: // functions
   /// Configuration Options
   static void defineConfigOptions ( Common::OptionList& options ) {}
     
-  void setup (CElements& geometry_elements )
+  void set_loophelper (CElements& geometry_elements )
   {
-    m_op1->setup(geometry_elements);
-    m_op2->setup(geometry_elements);
+    m_op1->set_loophelper(geometry_elements);
+    m_op2->set_loophelper(geometry_elements);
   }
   
   const OP1& operation1() const
@@ -158,6 +166,15 @@ public: // functions
     m_op2->execute( elem );
   }
   
+  
+  ///@todo this function is temporary until statically linked childs are available.
+  virtual void bind()
+  {
+    add_component(operation1().get());
+    add_component(operation2().get());
+  }
+  
+  
 private: // helper functions
   
   /// regists all the signals declared in this class
@@ -186,7 +203,16 @@ public: // functions
   COutputField ( const CName& name ) : COperation(name)
   {
     BUILD_COMPONENT;
+    option("Field")->attach_trigger ( boost::bind ( &COutputField::trigger_Field,   this ) );
   }
+  
+  void trigger_Field()
+  {
+    CPath field_path (option("Field")->value<URI>());
+    CFdebug << "field_path = " << field_path.string() << CFendl;
+    scalar_field = look_component_type<CField>(field_path);
+    scalar_name = scalar_field->field_name();
+  }  
   
   /// Virtual destructor
   virtual ~COutputField() {};
@@ -195,19 +221,21 @@ public: // functions
   static std::string type_name () { return "COutputField"; }
   
   /// Configuration Options
-  static void defineConfigOptions ( Common::OptionList& options ) {}
+  static void defineConfigOptions ( Common::OptionList& options ) 
+  {
+    options.add< OptionT<URI> > ("Field","Field URI to output", URI("cpath://"))->mark_basic();
+  }
   
   void needs_fields(std::vector<CField::Ptr>& fields)
   {
-    scalar_field = fields[0]; 
+    scalar_field = fields[0];
+    scalar_name = scalar_field->field_name();
   }
   
-  void setup (CElements& geometry_elements )
+  void set_loophelper (CElements& geometry_elements )
   {
-    CFieldElements& field_elements = geometry_elements.get_field_elements(scalar_field->field_name());
-    scalar_name = scalar_field->field_name();
-    scalars = field_elements.data().get_type<CArray>();
-    CFinfo << field_elements.full_path().string() << CFendl;
+    data = boost::shared_ptr<LoopHelper> ( new LoopHelper(*scalar_field, geometry_elements ) );
+    CFinfo << data->field_elements.full_path().string() << CFendl;
   }
   
   template < typename SFType >
@@ -218,8 +246,7 @@ public: // functions
   
   void execute ( Uint elem )
   {
-    cf_assert(scalars.get());
-    CFinfo << "   " << scalar_field->field_name() << "["<<elem<<"] = " << scalars->array()[elem][0] << CFendl;
+    CFinfo << "   " << scalar_name << "["<<elem<<"] = " << data->scalars[elem][0] << CFendl;
   }
   
 private: // helper functions
@@ -229,8 +256,19 @@ private: // helper functions
   
 private: // data
   
+  struct LoopHelper
+  {
+    LoopHelper(CField& scalar_field, CElements& geometry_elements) :
+      field_elements(geometry_elements.get_field_elements(scalar_field.field_name())),
+      scalars(field_elements.data())
+    { }
+    CFieldElements& field_elements;
+    CArray& scalars;
+  };
+  
+  boost::shared_ptr<LoopHelper> data;
+  
   CField::Ptr scalar_field;
-  CArray::Ptr scalars;
   std::string scalar_name;
 };
   
@@ -249,8 +287,15 @@ public: // functions
   CComputeVolumes ( const CName& name ) : COperation(name)
   {
     BUILD_COMPONENT;
+    option("Field")->attach_trigger ( boost::bind ( &CComputeVolumes::trigger_Field,   this ) );
   }
   
+  void trigger_Field()
+  {
+    CPath field_path (option("Field")->value<URI>());
+    CFdebug << "field_path = " << field_path.string() << CFendl;
+    volume_field = look_component_type<CField>(field_path);
+  }  
   
   /// Virtual destructor
   virtual ~CComputeVolumes() {};
@@ -259,36 +304,34 @@ public: // functions
   static std::string type_name () { return "CComputeVolume"; }
   
   /// Configuration Options
-  static void defineConfigOptions ( Common::OptionList& options ) {}
+  static void defineConfigOptions ( Common::OptionList& options ) 
+  {
+    options.add< OptionT<URI> > ("Field","Field URI to output", URI("cpath://"))->mark_basic();
+  }
   
   void stores_fields(std::vector<CField::Ptr>& fields)
   {
     volume_field = fields[0];
   }
   
-  void setup (CElements& geometry_elements )
+  void set_loophelper (CElements& geometry_elements )
   {
-    field_elements = geometry_elements.get_field_elements(volume_field->field_name()).get_type<CFieldElements>();
-    volumes = field_elements->data().get_type<CArray>();    
-    coordinates = field_elements->coordinates().get_type<CArray>();
-    connectivity_table = field_elements->connectivity_table().get_type<CTable>();
+    data = boost::shared_ptr<LoopHelper> ( new LoopHelper(*volume_field, geometry_elements ) );
   }
   
   template < typename SFType >
   void executeT ( Uint elem )
   {
-    cf_assert(volumes.get());
     std::vector<RealVector> nodes;
-    fill_node_list( std::inserter(nodes, nodes.begin()), *coordinates, *connectivity_table, elem );
-    volumes->array()[elem][0] = SFType::volume( nodes );
+    fill_node_list( std::inserter(nodes, nodes.begin()), data->coordinates, data->connectivity_table, elem );
+    data->volumes[elem][0] = SFType::volume( nodes );
   }
   
   void execute ( Uint elem )
   {
-    cf_assert(volumes.get());
     std::vector<RealVector> nodes;
-    fill_node_list( std::inserter(nodes, nodes.begin()), *coordinates, *connectivity_table, elem );
-    volumes->array()[elem][0] = field_elements->element_type().computeVolume( nodes );
+    fill_node_list( std::inserter(nodes, nodes.begin()), data->coordinates, data->connectivity_table, elem );
+    data->volumes[elem][0] = data->field_elements.element_type().computeVolume( nodes );
   }
   
 private: // helper functions
@@ -298,11 +341,23 @@ private: // helper functions
   
 private: // data
   
+  struct LoopHelper
+  {
+    LoopHelper(CField& volume_field, CElements& geometry_elements) :
+      field_elements(geometry_elements.get_field_elements(volume_field.field_name())),
+      volumes(field_elements.data()),
+      coordinates(field_elements.coordinates()),
+      connectivity_table(field_elements.connectivity_table())
+    { }
+    CFieldElements& field_elements;
+    CArray& volumes;
+    CArray& coordinates;
+    CTable& connectivity_table;
+  };
+  
+  boost::shared_ptr<LoopHelper> data;
+  
   CField::Ptr volume_field;
-  CFieldElements::Ptr field_elements;
-  CArray::Ptr volumes;
-  CArray::Ptr coordinates;
-  CTable::Ptr connectivity_table;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////

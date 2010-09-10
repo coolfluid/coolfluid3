@@ -131,6 +131,17 @@ CFieldElements& CElements::get_field_elements(const CName& field_name)
   cf_assert(field.get());
   return *field->get_type<CFieldElements>();
 }
+  
+//////////////////////////////////////////////////////////////////////////////
+
+const CFieldElements& CElements::get_field_elements(const CName& field_name) const
+{
+  Component::ConstPtr all_fields = get_child("fields");
+  cf_assert(all_fields.get());
+  Component::ConstPtr field = all_fields->get_child(field_name);
+  cf_assert(field.get());
+  return *field->get_type<CFieldElements const>();
+}
 
 //////////////////////////////////////////////////////////////////////////////
 

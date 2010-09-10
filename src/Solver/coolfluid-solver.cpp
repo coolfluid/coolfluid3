@@ -38,7 +38,9 @@ int main(int argc, char * argv[])
     CMesh::Ptr mesh = meshreader->create_mesh_from(inputfile);
     root->add_component(mesh);
     
-    CField& volumes = mesh->create_field("volumes",1, CField::ELEMENT_BASED);
+    mesh->create_field("volumes",1, CField::ELEMENT_BASED);
+
+    std::vector<URI> regions_to_loop = boost::assign::list_of(URI("cpath://root/mesh/Base"));
 
     CFinfo << CFendl << CFendl;
     
@@ -46,15 +48,18 @@ int main(int argc, char * argv[])
     CFinfo << "Volume Computer, templated" << CFendl;
     CFinfo << "--------------------------" << CFendl;
     // Create volume computer, can be virtual at this level
-    COperation::Ptr volume_computer(new CForAllElementsT<CComputeVolumes>("volume_computer")); 
+    COperation::Ptr volume_computer =
+        root->create_component_type< CForAllElementsT< CComputeVolumes > > ("volume_computer"); 
+
+    ///@todo temporary call bind after construction and before configuration until statically added child-components are allowed.
+    volume_computer->bind();
 
     // Configure the sub-operation, in this case CComputeVolumes
-    // This can all be done through ConfigOptions and xml later
-    volume_computer->operation().stores(volumes);
+    // Configure the operation
+    volume_computer->operation().configure_option(     "Field"   ,   URI("cpath://root/mesh/volumes"   ));
     
     // Configure this operation (CForAllElements)
-    // This can all be done through ConfigOptions and xml later
-    volume_computer->needs(mesh->domain());
+    volume_computer->configure_option(    "Regions"   , regions_to_loop );
     
     // Execute this operation
     volume_computer->execute(); 
@@ -65,19 +70,21 @@ int main(int argc, char * argv[])
     // -------------------------------------------------- Output scalar field
     CFinfo << "Output Volume, templated" << CFendl;
     CFinfo << "------------------------" << CFendl;
-    // Create volume computer, concrete in this case
-    CForAllElementsT<COutputField> scalarfield_outputer ("scalarfield_outputer");
-
-    // Configure the sub-operation, in this case COutputField
-    // This can all be done through ConfigOptions and xml later
-    scalarfield_outputer.operation().needs(volumes);
+    // Create volume writer, concrete in this case
+    CForAllElementsT<COutputField>::Ptr scalarfield_outputer = 
+        root->create_component_type< CForAllElementsT<COutputField> >("scalarfield_outputer");
     
+    ///@todo temporary call bind after construction and before configuration until statically added child-components are allowed.
+    scalarfield_outputer->bind();
+    
+    // Configure the operation
+    scalarfield_outputer->operation().configure_option(     "Field"   ,   URI("cpath://root/mesh/volumes"   ));
+
     // Configure this operation (CForAllElements)
-    // This can all be done through ConfigOptions and xml later
-    scalarfield_outputer.needs(mesh->domain());
+    scalarfield_outputer->configure_option(    "Regions"   , regions_to_loop );
 
     // Execute this operation;
-    scalarfield_outputer.execute();
+    scalarfield_outputer->execute();
     
     CFinfo << CFendl << CFendl;
         
@@ -86,32 +93,39 @@ int main(int argc, char * argv[])
     CFinfo << "Merge[Volume Computer & Output Volume], templated" << CFendl;
     CFinfo << "-------------------------------------------------" << CFendl;
 
-    CForAllElementsT< COperationMergeT<CComputeVolumes,COutputField> > merged_operator("merged");
+    CForAllElementsT< COperationMergeT<CComputeVolumes,COutputField> >::Ptr merged_operator = 
+        root->create_component_type<CForAllElementsT< COperationMergeT<CComputeVolumes,COutputField> > >("merged_operator");
     
+    ///@todo temporary call bind after construction and before configuration until statically added child-components are allowed.
+    merged_operator->bind();
+    merged_operator->operation().bind();
+
     // Configuration
-    merged_operator.operation().operation1().stores(volumes);
-    merged_operator.operation().operation2().needs(volumes);
-    merged_operator.needs(mesh->domain());
+    merged_operator->configure_option(    "Regions"   , regions_to_loop );
+    merged_operator->operation().operation1().configure_option(     "Field"   ,   URI("cpath://root/mesh/volumes"   ));
+    merged_operator->operation().operation2().configure_option(     "Field"   ,   URI("cpath://root/mesh/volumes"   ));
+    
 
     // Execution
-    merged_operator.execute();
+    merged_operator->execute();
     
     CFinfo << CFendl << CFendl;
     
     // --------------------------------------------------- Virtual Operation
     CFinfo << "Volume Computer & Output Volume, virtual" << CFendl;
     CFinfo << "----------------------------------------" << CFendl;
-    // Create virtual operator, and configure (can be done later through xml)
-    CForAllElements::Ptr virtual_operator (new CForAllElements("virtual"), Deleter<CForAllElements>());
-      virtual_operator->needs(mesh->domain());
+    // Create virtual operator, and configure (can be done through xml)
+    CForAllElements::Ptr virtual_operator = 
+      root->create_component_type< CForAllElements >("virtual_operator");
+    virtual_operator->configure_option(    "Regions"   , regions_to_loop );
     
-    // Create a virtual operation_1, and configure (can be done later through xml)
+    // Create a virtual operation_1, and configure (can be done through xml)
     COperation& volume_op = virtual_operator->create_operation("CComputeVolumes");
-      volume_op.stores(volumes);
+    volume_op.configure_option(   "Field"   ,   URI("cpath://root/mesh/volumes"   ));
     
-    // Create a virtual operation_2, and configure (can be done later through xml)
+    // Create a virtual operation_2, and configure (can be done through xml)
     COperation& output_op = virtual_operator->create_operation("COutputField");
-      output_op.needs(volumes);
+    output_op.configure_option(   "Field"   ,   URI("cpath://root/mesh/volumes"   ));
 
     // Execute all
     virtual_operator->execute();

@@ -95,7 +95,7 @@ public: // functions
     return elem_count;
   }
   
-  std::string field_name() const { return m_field_name; }
+  const std::string field_name() const { return m_field_name; }
   
   /// @return the field with given name
   const CField& subfield(const CName& name) const;

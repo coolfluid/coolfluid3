@@ -3,6 +3,10 @@
 
 #include <boost/mpl/for_each.hpp>
 
+#include "Common/OptionArray.hpp"
+#include "Common/OptionT.hpp"
+#include "Common/URI.hpp"
+
 #include "Mesh/COperation.hpp"
 #include "Mesh/SF/Types.hpp"
 
@@ -43,7 +47,18 @@ public: // functions
     m_operation(new COp("operation"), Deleter<COp>()) 
   {
     BUILD_COMPONENT;
+    option("Regions")->attach_trigger ( boost::bind ( &CForAllElementsT::trigger_Regions,   this ) );
   }
+  
+  void trigger_Regions()
+  {
+    std::vector<URI> vec; option("Regions")->put_value(vec);
+    BOOST_FOREACH(const CPath region_path, vec)
+    {
+      m_loop_regions.push_back(look_component_type<CRegion>(region_path));
+    }
+  }  
+  
 
   /// Virtual destructor
   virtual ~CForAllElementsT() {}
@@ -52,7 +67,11 @@ public: // functions
   static std::string type_name () { return "CForAllElements"; }
 
   /// Configuration Options
-  static void defineConfigOptions ( Common::OptionList& options ) {}
+  static void defineConfigOptions ( Common::OptionList& options )
+  {
+    std::vector< URI > dummy;
+    options.add< OptionArrayT < URI > > ("Regions", "Regions to loop over", dummy)->mark_basic();
+  }
 
   // functions specific to the CForAllElements component
 
@@ -83,14 +102,10 @@ public: // functions
       {
         // Setup all child operations
         BOOST_FOREACH(COperation& operation, range_typed<COperation>(*this))
-          operation.setup( elements );
-
-        // loop on elements. Things will still be virtual starting from here!
-        const Uint elem_count = elements.elements_count();
-        for ( Uint elem = 0; elem != elem_count; ++elem )
-        {
-          // Execute all child operations on this element
-          BOOST_FOREACH(COperation& operation, range_typed<COperation>(*this))
+        { 
+          operation.set_loophelper( elements );
+          const Uint elem_count = elements.elements_count();
+          for ( Uint elem = 0; elem != elem_count; ++elem )
             operation.execute( elem );
         }
       }
@@ -112,29 +127,36 @@ private:
   /// passes. It is the core of the looping mechanism.
   struct Looper
   {
-  private:
-    CForAllElementsT& this_class;
-    CRegion& region;
-  public:
-    Looper(CForAllElementsT& this_class_in, CRegion& region_in ) : this_class(this_class_in), region(region_in) 
-    {
-    }
+  public: // functions
+    
+    /// Constructor
+    Looper(CForAllElementsT& this_class, CRegion& region_in ) : region(region_in) , op(*this_class.m_operation) { }
 
+    /// Operator
     template < typename SFType >
     void operator() ( SFType& T )
     { 
       BOOST_FOREACH(CElements& elements, recursive_filtered_range_typed<CElements>(region,IsComponentElementType<SFType>()))
       {
-        this_class.m_operation->setup( elements );
+        op.set_loophelper( elements );
 
         // loop on elements. Nothing may be virtual starting from here!
         const Uint elem_count = elements.elements_count();
         for ( Uint elem = 0; elem != elem_count; ++elem )
         {
-          this_class.m_operation->template executeT<SFType>( elem );
+          op.template executeT<SFType>( elem );
         }
       }
     }
+    
+  private: // data
+    
+    /// Region to loop on
+    CRegion& region;
+    
+    /// Operation to perform
+    COp& op;
+    
   }; // Looper      
 
 private: // helper functions
@@ -144,8 +166,10 @@ private: // helper functions
 
 private:
 
+  /// Operation to perform
   typename COp::Ptr m_operation;
 
+  /// Regions to loop over
   std::vector<CRegion::Ptr> m_loop_regions;
 
 };

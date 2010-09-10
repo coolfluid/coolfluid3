@@ -108,7 +108,7 @@ void COperation::stores_fields (std::vector<CField::Ptr>& fields)
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void COperation::setup (CElements& geometry_elements )
+void COperation::set_loophelper (CElements& geometry_elements )
 {
   throw NotImplemented(FromHere(), "Must create child that overloads this function");
 }
