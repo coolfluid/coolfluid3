@@ -61,9 +61,6 @@ include( DefineInstallPaths )      # define where to install the files after bui
 
 include( ResetVariables )          # reset variables used for the build and set DEPS_ROOT if needed
 
-
-
-
 ##############################################################################
 # configuration options
 ##############################################################################
