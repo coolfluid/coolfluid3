@@ -18,6 +18,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
+#include "Mesh/CFieldElements.hpp"
 #include "Mesh/CArray.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
@@ -71,9 +72,10 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 {
   // build meshes
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
-  boost::filesystem::path fp_in ("hextet.neu");
-  CMesh::Ptr source = meshreader->create_mesh_from(fp_in);
-  CMesh::Ptr target (new CMesh ("target"));
+  boost::filesystem::path fp_source ("hextet.neu");
+  CMesh::Ptr source = meshreader->create_mesh_from(fp_source);
+  boost::filesystem::path fp_target ("quadtriag.neu");
+  CMesh::Ptr target = meshreader->create_mesh_from(fp_target);
                      
   CInterpolator::Ptr interpolator = create_component_abstract_type<CInterpolator>("Honeycomb","interpolator");
   
@@ -84,13 +86,13 @@ BOOST_AUTO_TEST_CASE( Interpolation )
                       "  <signal>"
                       "    <valuemap>"
                       ""
-                      "      <value  key=\"ApproximateNbElementsPerCell\"> <unsigned> 2 </unsigned> </value>"
+                      "      <value  key=\"ApproximateNbElementsPerCell\"> <unsigned> 1 </unsigned> </value>"
                       ""
-                      "      <array key=\"Divisions\" type=\"unsigned\" size=\"3\" >"
-                      "        <e> 3 </e>"
-                      "        <e> 2 </e>"
-                      "        <e> 2 </e>"
-                      "      </array>"
+//                      "      <array key=\"Divisions\" type=\"unsigned\" size=\"3\" >"
+//                      "        <e> 3 </e>"
+//                      "        <e> 2 </e>"
+//                      "        <e> 2 </e>"
+//                      "      </array>"
                       ""
                       "    </valuemap>"
                       "  </signal>"
@@ -103,7 +105,26 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   interpolator->configure( frame );
   
   
-  interpolator->construct_internal_storage(source,target);
+  //interpolator->construct_internal_storage(source,target);
+  
+  
+  source->create_field("rho",1,CField::NODE_BASED);
+  target->create_field("rho",1,CField::NODE_BASED);
+  
+  
+  BOOST_FOREACH(CFieldElements& field_elements, recursive_range_typed<CFieldElements>(*target))
+  {    
+    CArray& node_data = field_elements.data();
+    CArray& coordinates = field_elements.coordinates();
+    
+    for (Uint i=0; i<coordinates.size(); ++i)
+    {
+      node_data[i][0]=sin(3*2*3.141592*coordinates[i][XX]);
+    }
+  }
+  
+  
+  //interpolator->interpolate_field_from_to(source->field("rho"),target->field("rho"));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
