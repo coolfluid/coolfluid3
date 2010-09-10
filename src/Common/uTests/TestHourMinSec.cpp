@@ -13,20 +13,11 @@ using namespace CF::Common;
 struct HourMinSec_Fixture
 {
   /// common setup for each test case
-  HourMinSec_Fixture()
-  {
-
-  }
+  HourMinSec_Fixture() {}
   
   /// common tear-down for each test case
-  ~HourMinSec_Fixture()
-  {
-  }
-  
-  /// possibly common functions used on the tests below
-  
-  /// common values accessed by all tests goes here
-  
+  ~HourMinSec_Fixture() {}
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

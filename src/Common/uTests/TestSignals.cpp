@@ -104,20 +104,10 @@ private: // helper functions
 struct TestSignals_Fixture
 {
   /// common setup for each test case
-  TestSignals_Fixture()
-  {
-    // int*    argc = &boost::unit_test::framework::master_test_suite().argc;
-    // char*** argv = &boost::unit_test::framework::master_test_suite().argv;
-  }
+  TestSignals_Fixture()  {}
 
   /// common tear-down for each test case
-  ~TestSignals_Fixture()
-  {
-  }
-
-  /// possibly common functions used on the tests below
-
-  /// common values accessed by all tests goes here
+  ~TestSignals_Fixture() {}
 
 };
 
