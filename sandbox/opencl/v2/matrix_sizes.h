@@ -1,9 +1,13 @@
 #ifndef MATRIX_SIZES_H
 #define MATRIX_SIZES_H
 
-#define WA 1024   // Matrix A width
-#define HA 1024   // Matrix A height
-#define WB 1024   // Matrix B width
+#define WA 2048   // Matrix A width
+#define HA 2048   // Matrix A height
+#define WB 2048   // Matrix B width
+
+//#define WA 1024   // Matrix A width
+//#define HA 1024   // Matrix A height
+//#define WB 1024   // Matrix B width
 
 //#define WA 512   // Matrix A width
 //#define HA 512   // Matrix A height
