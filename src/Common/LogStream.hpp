@@ -111,7 +111,7 @@ class Common_API LogStream
         {
         for( Uint i = 0 ; i < (Uint)(PEInterface::instance().size()); ++i )
         {
-          PEInterface::instance().barrier();
+          //PEInterface::instance().barrier();
 
           if(i == (Uint)PEInterface::instance().rank())
           {
@@ -122,7 +122,7 @@ class Common_API LogStream
           {
             for( Uint i = 0 ; i < (Uint)(PEInterface::instance().size()); ++i )
             {
-              PEInterface::instance().barrier();
+              //PEInterface::instance().barrier();
 
               if(i == (Uint)PEInterface::instance().rank())
               {

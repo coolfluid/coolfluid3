@@ -3,14 +3,12 @@
   LIST( APPEND uTestBlockMeshReader_cflibs OpenFOAM Neu Gmsh MeshDiff SF )
   LIST( APPEND uTestBlockMeshReader_files
     uTestBlockMeshReader.cpp )
-
-  # avoid long compilation and bloated memory in this specific utest
-  IF( CMAKE_COMPILER_IS_GNUCC )
-    SET_SOURCE_FILES_PROPERTIES( uTestBlockMeshReader.cpp
-      PROPERTIES COMPILE_FLAGS "-g0 -O0" )
-  ENDIF()
-
   CF_ADD_UNITTEST( uTestBlockMeshReader )
+
+  LIST( APPEND uTestBlockMeshMPI_cflibs OpenFOAM Neu Gmsh MeshDiff SF )
+  LIST( APPEND uTestBlockMeshMPI_files
+    uTestBlockMeshMPI.cpp )
+  CF_ADD_UNITTEST( uTestBlockMeshMPI )
 
   configure_file(channel3d.dict channel3d.dict COPYONLY)
   configure_file(cavity2d.dict cavity2d.dict COPYONLY)

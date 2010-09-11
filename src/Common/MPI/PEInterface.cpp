@@ -43,7 +43,7 @@ void PEInterface::init(int argc, char** args) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool PEInterface::is_init(){
+bool PEInterface::is_init() const {
   if (m_environment==0) return false;
   return m_environment->initialized();
 }
@@ -59,10 +59,19 @@ void PEInterface::finalize() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Uint PEInterface::rank() {
+Uint PEInterface::rank() const {
   if (!is_init()) return 0;
-  return (Uint)mpi::communicator::rank();
+  return static_cast<Uint>(mpi::communicator::rank());
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+Uint PEInterface::size() const
+{
+  if (!is_init()) return 1;
+  return static_cast<Uint>(mpi::communicator::size());
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

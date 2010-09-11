@@ -205,7 +205,7 @@ void create_face_element_connectivity(const CElements& own_celements,
       {
         const Uint adjacent_element = adjacent_elements[i];
         const Uint start_idx = i;
-        while(adjacent_element == adjacent_elements[i] && i != adjacent_count)
+        while(i != adjacent_count && adjacent_element == adjacent_elements[i])
           ++i;
         if(!vector_has_own_celements || (vector_has_own_celements && adjacent_element != (global_offset + elem_idx)))
         {

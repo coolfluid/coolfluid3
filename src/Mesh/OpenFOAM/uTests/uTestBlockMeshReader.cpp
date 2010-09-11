@@ -14,6 +14,7 @@
 
 #include "Mesh/OpenFOAM/BlockData.hpp"
 #include "Mesh/OpenFOAM/Parser.hpp"
+#include "Mesh/OpenFOAM/SimpleCommunicationPattern.hpp"
 #include "Mesh/OpenFOAM/WriteDict.hpp"
 
 #include "Tools/MeshDiff/MeshDiff.hpp"
@@ -114,6 +115,9 @@ BOOST_AUTO_TEST_CASE( WriteDict )
 
 BOOST_AUTO_TEST_CASE( PartitionBlocks )
 {
+  if(!PEInterface::instance().is_init())
+    PEInterface::instance().init(0,0);
+  
   boost::filesystem::path path = boost::filesystem::path("channel3d.dict");
   boost::filesystem::fstream file;
   file.open(path,std::ios_base::in);
@@ -133,7 +137,8 @@ BOOST_AUTO_TEST_CASE( PartitionBlocks )
   boost::filesystem::path outf("PartitionBlocks.msh");
   msh_writer->write_from_to(block_mesh, outf);
   
-  std::cout << "-------------- Partitioned blocks ----------------\n" << partitioned_blocks << std::endl;
+  if( PEInterface::instance().rank() == 0)
+    std::cout << "-------------- Partitioned blocks ----------------\n" << partitioned_blocks << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -36,13 +36,16 @@ public:
   void init(int argc, char** args);
 
   /// Checks if the PE is initialized
-  bool is_init();
+  bool is_init() const;
 
   /// Free the PE, careful because some mpi-s fail upon re-init after a proper finalize
   void finalize();
 
-  /// Return rank, additionally, if is_init==0 returns 0
-  Uint rank();
+  /// Return rank, additionally, if is_init==0.
+  Uint rank() const;
+  
+  /// Return the number of processes, or 1 if is_init==0.
+  Uint size() const;
 
   /// Sets current process status.
   /// @param status New status

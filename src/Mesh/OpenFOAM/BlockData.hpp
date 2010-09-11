@@ -10,6 +10,8 @@ class CMesh;
   
 namespace OpenFOAM {
 
+struct SimpleCommunicationPattern;
+  
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Storage for the information about blocks for structured grid generation
@@ -53,7 +55,7 @@ struct BlockData
 };
 
 /// Using the given block data, construct the mesh
-void build_mesh(const BlockData& block_data, CF::Mesh::CMesh& mesh);
+void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPattern& pattern);
 
 /// Partition a mesh along the X, Y or Z axis into the given number of partitions
 /// Partitioning ensures that processor boundaries lie on a boundary between blocks

@@ -2,6 +2,7 @@
 #include "Common/Exception.hpp"
 
 #include "Mesh/OpenFOAM/BlockData.hpp"
+#include "Mesh/OpenFOAM/SimpleCommunicationPattern.hpp"
 #include "Mesh/OpenFOAM/WriteDict.hpp"
 
 #include "Mesh/CArray.hpp"
@@ -13,6 +14,8 @@
 
 #include "Mesh/SF/Hexa3DLagrangeP1.hpp"
 #include "Mesh/SF/Line1DLagrangeP1.hpp"
+
+#include "Common/MPI/PEInterface.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -467,8 +470,12 @@ void create_mapped_coords(const Uint segments, BlockData::GradingT::const_iterat
   
 } // namespace detail
 
-void build_mesh(const BlockData& block_data, CMesh& mesh)
+void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPattern& pattern)
 {
+  const Uint nb_procs = PEInterface::instance().size();
+  const Uint rank = PEInterface::instance().rank();
+  cf_assert(block_data.block_distribution.size() == nb_procs+1);
+  
   // This is a "dummy" mesh, in which each element corresponds to a block in the blockMeshDict file.
   // The final mesh will in fact be a refinement of this mesh. Using a CMesh allows us to use the
   // coolfluid connectivity functions to determine inter-block connectivity and the relation to boundary patches.
@@ -480,11 +487,19 @@ void build_mesh(const BlockData& block_data, CMesh& mesh)
   const CTable::ArrayT& block_connectivity = block_elements.connectivity_table().array();
   const CArray& block_coordinates = block_elements.coordinates();
   
-  // Total number of elements
-  const Uint nb_blocks = block_data.block_points.size();
-  Uint nb_elements = 0;
-  for(Uint block = 0; block != nb_blocks; ++block)
-    nb_elements += block_data.block_subdivisions[block][XX] * block_data.block_subdivisions[block][YY] * block_data.block_subdivisions[block][ZZ];
+  // Get the distribution of the elements across the CPUs
+  detail::NodeIndices::IndicesT elements_dist;
+  elements_dist.reserve(nb_procs+1);
+  elements_dist.push_back(0);
+  for(Uint proc = 0; proc != nb_procs; ++proc)
+  {
+    const Uint proc_begin = block_data.block_distribution[proc];
+    const Uint proc_end = block_data.block_distribution[proc+1];
+    Uint nb_elements = 0;
+    for(Uint block = proc_begin; block != proc_end; ++block)
+      nb_elements += block_data.block_subdivisions[block][XX] * block_data.block_subdivisions[block][YY] * block_data.block_subdivisions[block][ZZ];
+    elements_dist.push_back(elements_dist.back() + nb_elements);
+  }
   
   ////////////////////////////////////
   // Create the refined mesh
@@ -494,8 +509,23 @@ void build_mesh(const BlockData& block_data, CMesh& mesh)
   const CFaceConnectivity& volume_to_face_connectivity = get_component_typed<CFaceConnectivity>(block_elements);
   detail::NodeIndices nodes(volume_to_face_connectivity, block_data);
   
+  // Distribution of the nodes among CPUs
+  detail::NodeIndices::IndicesT nodes_dist;
+  nodes_dist.reserve(nb_procs+1);
+  nodes_dist.push_back(0);
+  for(Uint proc = 0; proc != nb_procs; ++proc)
+  {
+    nodes_dist.push_back(nodes_dist.back() + nodes.block_first_nodes[block_data.block_distribution[proc+1]] - nodes.block_first_nodes[block_data.block_distribution[proc]]);
+  }
+  
+  // begin and end for the nodes and blocks on this CPU
+  const Uint blocks_begin = block_data.block_distribution[rank];
+  const Uint blocks_end = block_data.block_distribution[rank+1];
+  const Uint nodes_begin = nodes_dist[rank];
+  const Uint nodes_end = nodes_dist[rank+1];
+  
   // Get the dimensionality info
-  const std::pair<Uint,Uint> dims = detail::dimensionality(nb_blocks, volume_to_face_connectivity, patch_types);
+  const std::pair<Uint,Uint> dims = detail::dimensionality(block_data.block_distribution.back(), volume_to_face_connectivity, patch_types);
   
   // 3D helper mesh in case we have a non-3D problem
   CMesh::Ptr tmp_mesh3d(dims.first == DIM_3D ? 0 : new CMesh("tmp_mesh3d"));
@@ -504,16 +534,16 @@ void build_mesh(const BlockData& block_data, CMesh& mesh)
   CRegion& root_region = tmp_mesh3d ? tmp_mesh3d->create_region("root_region") : mesh.create_region("root_region");
   CArray& mesh_coords_comp = root_region.create_coordinates(3);
   CArray::ArrayT& mesh_coords = mesh_coords_comp.array();
-  mesh_coords.resize(boost::extents[nodes.block_first_nodes.back()][3]);
+  mesh_coords_comp.resize(nodes_end - nodes_begin);
   
   // Create the volume cells connectivity
   CElements& volume_elements = root_region.create_region("volume").create_elements("Hexa3DLagrangeP1", mesh_coords_comp);
+  volume_elements.connectivity_table().resize(elements_dist[rank+1]-elements_dist[rank]);
   CTable::ArrayT& volume_connectivity = volume_elements.connectivity_table().array();
-  volume_connectivity.resize(boost::extents[nb_elements][8]);
   
   // Fill the volume arrays
   Uint element_idx = 0; // global element index
-  for(Uint block = 0; block != nb_blocks; ++block)
+  for(Uint block = blocks_begin; block != blocks_end; ++block)
   {
     ElementNodeVector block_nodes(8, RealVector(3));
     fill_node_list(block_nodes.begin(), block_coordinates, block_connectivity[block]);
@@ -564,9 +594,13 @@ void build_mesh(const BlockData& block_data, CMesh& mesh)
           
           // Store the result
           const Uint node_idx = nodes(block, i, j, k);
-          mesh_coords[node_idx][XX] = coords[XX];
-          mesh_coords[node_idx][YY] = coords[YY];
-          mesh_coords[node_idx][ZZ] = coords[ZZ];
+          if(node_idx >= nodes_begin && node_idx < nodes_end)
+          {
+            cf_assert(node_idx - nodes_begin < mesh_coords.size());
+            mesh_coords[node_idx - nodes_begin][XX] = coords[XX];
+            mesh_coords[node_idx - nodes_begin][YY] = coords[YY];
+            mesh_coords[node_idx - nodes_begin][ZZ] = coords[ZZ];
+          }
         }
       }
     }
@@ -609,6 +643,8 @@ void build_mesh(const BlockData& block_data, CMesh& mesh)
     {
       const Uint adjacent_face = adjacency_data.adjacent_face(patch_idx, 0);
       const CFaceConnectivity::ElementReferenceT block = adjacency_data.adjacent_element(patch_idx, 0);
+      if(block.second < blocks_begin || block.second >= blocks_end)
+        continue;
       const BlockData::CountsT& segments = block_data.block_subdivisions[block.second];
       if(adjacent_face == Hexa3DLagrangeP1::XNEG || adjacent_face == Hexa3DLagrangeP1::XPOS)
       {
@@ -678,205 +714,215 @@ void build_mesh(const BlockData& block_data, CMesh& mesh)
   }
   
   // If we had a 3d problem, we're done
-  if(!tmp_mesh3d)
-    return;
-  
-  // We skip 1D meshes for now
-  if(dims.first == DIM_1D)
-    throw NotImplemented(FromHere(), "1D meshes are not supported");
-  
-  // Create the 2D mesh
-  // Create the node coordinates
-  CRegion& root_region_2d = mesh.create_region("root_region");
-  CArray& mesh_coords_comp_2d = root_region_2d.create_coordinates(3);
-  CArray::ArrayT& mesh_coords_2d = mesh_coords_comp_2d.array();
-  
-  // Create the volume cells connectivity
-  CElements& volume_elements_2d = root_region_2d.create_region("volume").create_elements("Quad2DLagrangeP1", mesh_coords_comp_2d);
-  CTable::ArrayT& volume_connectivity_2d = volume_elements_2d.connectivity_table().array();
-  volume_connectivity_2d.resize(boost::extents[nb_elements][4]);
-  
-  // Extract 2D data from the temporary 3D mesh
-  
-  const Uint direction = dims.second == Hexa3DLagrangeP1::XNEG ? XX : (dims.second == Hexa3DLagrangeP1::YNEG ? YY : ZZ);
-  
-  // Volume data
-  Uint elements_end = 0;
-  for(Uint block = 0; block != nb_blocks; ++block)
+  if(tmp_mesh3d)
   {
-    const BlockData::IndicesT& segments = block_data.block_subdivisions[block];
-    cf_assert(segments[direction] == 1); // We require this, although OpenFOAM does not
-    const CFaceConnectivity::ElementReferenceT adjacent_patch = volume_to_face_connectivity.adjacent_element(block, dims.second);
-    cf_assert(adjacent_patch.first->element_type().dimensionality() == DIM_2D);
-    const std::string& adjacent_name = adjacent_patch.first->get_parent()->name();
-    const CRegion& adjacent_region = get_named_component_typed<CRegion>(root_region, adjacent_name);
-    const CElements& adjacent_celements = get_component_typed<CElements>(adjacent_region);
-    const CTable::ArrayT& adj_tbl = adjacent_celements.connectivity_table().array();
-    const Uint start_idx = patch_first_elements[adjacent_name][adjacent_patch.second];
-    const Uint end_idx = start_idx + patch_elements_counts[adjacent_name][adjacent_patch.second];
-    std::copy(adj_tbl.begin() + start_idx,
-              adj_tbl.begin() + end_idx,
-              volume_connectivity_2d.begin() + elements_end);
-    elements_end += (end_idx - start_idx);
-  }
-  
-  // Boundary data
-  for(Uint patch = 0; patch != block_data.patch_names.size(); ++patch)
-  {
-    if(block_data.patch_types[patch] == "empty")
-      continue;
+    // We skip 1D meshes for now
+    if(dims.first == DIM_1D)
+      throw NotImplemented(FromHere(), "1D meshes are not supported");
     
-    const CElements& patch_celements = get_component_typed<CElements>(*block_mesh_region.get_child(block_data.patch_names[patch]));
-    const CFaceConnectivity& patch_adjacency = get_component_typed<CFaceConnectivity>(patch_celements);
-    const CTable::ArrayT& subpatches = patch_celements.connectivity_table().array();
+    // Create the 2D mesh
+    // Create the node coordinates
+    CRegion& root_region_2d = mesh.create_region("root_region");
+    CArray& mesh_coords_comp_2d = root_region_2d.create_coordinates(3);
+    CArray::ArrayT& mesh_coords_2d = mesh_coords_comp_2d.array();
     
-    const CRegion& patch_region_3d = get_named_component_typed<CRegion>(root_region, block_data.patch_names[patch]);
-    const CElements& patch_celements_3d = get_component_typed<CElements>(patch_region_3d);
+    // Create the volume cells connectivity
+    CElements& volume_elements_2d = root_region_2d.create_region("volume").create_elements("Quad2DLagrangeP1", mesh_coords_comp_2d);
+    CTable::ArrayT& volume_connectivity_2d = volume_elements_2d.connectivity_table().array();
+    volume_connectivity_2d.resize(boost::extents[elements_dist[rank+1]-elements_dist[rank]][4]);
     
-    const CTable::ArrayT& patch_connectivity_3d = patch_celements_3d.connectivity_table().array();
+    // Extract 2D data from the temporary 3D mesh
     
-    CElements& patch_celements_2d = root_region_2d.create_region(block_data.patch_names[patch]).create_elements("Line2DLagrangeP1", mesh_coords_comp_2d);
-    CTable::ArrayT& patch_connectivity_2d = patch_celements_2d.connectivity_table().array();
+    const Uint direction = dims.second == Hexa3DLagrangeP1::XNEG ? XX : (dims.second == Hexa3DLagrangeP1::YNEG ? YY : ZZ);
     
-    const Uint patch_nb_subpatches = subpatches.size();
-    patch_connectivity_2d.resize(boost::extents[patch_connectivity_3d.size()][2]);
-    for(Uint subpatch_idx = 0; subpatch_idx != patch_nb_subpatches; ++subpatch_idx)
+    // Volume data
+    Uint elements_end = 0;
+    for(Uint block = blocks_begin; block != blocks_end; ++block)
     {
-      const Uint adjacent_face = patch_adjacency.adjacent_face(subpatch_idx, 0);
-      const Uint patch_elems_begin = patch_first_elements[block_data.patch_names[patch]][subpatch_idx];
-      const Uint patch_elems_end = patch_elems_begin + patch_elements_counts[block_data.patch_names[patch]][subpatch_idx];
-      for(Uint patch_elem_idx = patch_elems_begin; patch_elem_idx != patch_elems_end; ++patch_elem_idx)
+      const BlockData::IndicesT& segments = block_data.block_subdivisions[block];
+      cf_assert(segments[direction] == 1); // We require this, although OpenFOAM does not
+      const CFaceConnectivity::ElementReferenceT adjacent_patch = volume_to_face_connectivity.adjacent_element(block, dims.second);
+      cf_assert(adjacent_patch.first->element_type().dimensionality() == DIM_2D);
+      const std::string& adjacent_name = adjacent_patch.first->get_parent()->name();
+      const CRegion& adjacent_region = get_named_component_typed<CRegion>(root_region, adjacent_name);
+      const CElements& adjacent_celements = get_component_typed<CElements>(adjacent_region);
+      const CTable::ArrayT& adj_tbl = adjacent_celements.connectivity_table().array();
+      const Uint start_idx = patch_first_elements[adjacent_name][adjacent_patch.second];
+      const Uint end_idx = start_idx + patch_elements_counts[adjacent_name][adjacent_patch.second];
+      std::copy(adj_tbl.begin() + start_idx,
+                adj_tbl.begin() + end_idx,
+                volume_connectivity_2d.begin() + elements_end);
+      elements_end += (end_idx - start_idx);
+    }
+    
+    // Boundary data
+    for(Uint patch = 0; patch != block_data.patch_names.size(); ++patch)
+    {
+      if(block_data.patch_types[patch] == "empty")
+        continue;
+      
+      const CElements& patch_celements = get_component_typed<CElements>(*block_mesh_region.get_child(block_data.patch_names[patch]));
+      const CFaceConnectivity& patch_adjacency = get_component_typed<CFaceConnectivity>(patch_celements);
+      const CTable::ArrayT& subpatches = patch_celements.connectivity_table().array();
+      
+      const CRegion& patch_region_3d = get_named_component_typed<CRegion>(root_region, block_data.patch_names[patch]);
+      const CElements& patch_celements_3d = get_component_typed<CElements>(patch_region_3d);
+      
+      const CTable::ArrayT& patch_connectivity_3d = patch_celements_3d.connectivity_table().array();
+      
+      CElements& patch_celements_2d = root_region_2d.create_region(block_data.patch_names[patch]).create_elements("Line2DLagrangeP1", mesh_coords_comp_2d);
+      CTable::ArrayT& patch_connectivity_2d = patch_celements_2d.connectivity_table().array();
+      
+      const Uint patch_nb_subpatches = subpatches.size();
+      patch_connectivity_2d.resize(boost::extents[patch_connectivity_3d.size()][2]);
+      for(Uint subpatch_idx = 0; subpatch_idx != patch_nb_subpatches; ++subpatch_idx)
       {
-        CTable::ConstRow patch_element = patch_connectivity_3d[patch_elem_idx];
-        CTable::Row patch_element_2d = patch_connectivity_2d[patch_elem_idx];
+        const Uint adjacent_face = patch_adjacency.adjacent_face(subpatch_idx, 0);
+        const Uint patch_elems_begin = patch_first_elements[block_data.patch_names[patch]][subpatch_idx];
+        const Uint patch_elems_end = patch_elems_begin + patch_elements_counts[block_data.patch_names[patch]][subpatch_idx];
+        for(Uint patch_elem_idx = patch_elems_begin; patch_elem_idx != patch_elems_end; ++patch_elem_idx)
+        {
+          CTable::ConstRow patch_element = patch_connectivity_3d[patch_elem_idx];
+          CTable::Row patch_element_2d = patch_connectivity_2d[patch_elem_idx];
+          if(dims.second == Hexa3DLagrangeP1::XNEG)
+          {
+            switch(adjacent_face)
+            {
+              case Hexa3DLagrangeP1::YNEG:
+                patch_element_2d[0] = patch_element[0];
+                patch_element_2d[1] = patch_element[3];
+                break;
+              case Hexa3DLagrangeP1::YPOS:
+                patch_element_2d[0] = patch_element[1];
+                patch_element_2d[1] = patch_element[0];
+                break;
+              case Hexa3DLagrangeP1::ZNEG:
+                patch_element_2d[0] = patch_element[0];
+                patch_element_2d[1] = patch_element[1];
+                break;
+              case Hexa3DLagrangeP1::ZPOS:
+                patch_element_2d[0] = patch_element[3];
+                patch_element_2d[1] = patch_element[0];
+                break;
+              default:
+                throw ShouldNotBeHere(FromHere(), "Invalid 2D block data");
+            }
+          }
+          else if(dims.second == Hexa3DLagrangeP1::YNEG)
+          {
+            switch(adjacent_face)
+            {
+              case Hexa3DLagrangeP1::XNEG:
+                patch_element_2d[0] = patch_element[0];
+                patch_element_2d[1] = patch_element[1];
+                break;
+              case Hexa3DLagrangeP1::XPOS:
+                patch_element_2d[0] = patch_element[3];
+                patch_element_2d[1] = patch_element[0];
+                break;
+              case Hexa3DLagrangeP1::ZNEG:
+                patch_element_2d[0] = patch_element[1];
+                patch_element_2d[1] = patch_element[0];
+                break;
+              case Hexa3DLagrangeP1::ZPOS:
+                patch_element_2d[0] = patch_element[0];
+                patch_element_2d[1] = patch_element[3];
+                break;
+              default:
+                throw ShouldNotBeHere(FromHere(), "Invalid 2D block data");
+            }
+          }
+          else if(dims.second == Hexa3DLagrangeP1::ZNEG)
+          {
+            switch(adjacent_face)
+            {
+              case Hexa3DLagrangeP1::XNEG:
+                patch_element_2d[0] = patch_element[0];
+                patch_element_2d[1] = patch_element[3];
+                break;
+              case Hexa3DLagrangeP1::XPOS:
+                patch_element_2d[0] = patch_element[1];
+                patch_element_2d[1] = patch_element[0];
+                break;
+              case Hexa3DLagrangeP1::YNEG:
+                patch_element_2d[0] = patch_element[1];
+                patch_element_2d[1] = patch_element[0];
+                break;
+              case Hexa3DLagrangeP1::YPOS:
+                patch_element_2d[0] = patch_element[0];
+                patch_element_2d[1] = patch_element[3];
+                break;
+              default:
+                throw ShouldNotBeHere(FromHere(), "Invalid 2D block data");
+            }
+          }
+        }
+      }
+    }
+    
+    // Copy only the nodes that are still needed
+    const Uint nb_nodes_3d = nodes_end - nodes_begin;
+    CNodeConnectivity node_connectivity_2d("nodes");
+    node_connectivity_2d.initialize(nb_nodes_3d, recursive_range_typed<CElements>(root_region_2d));
+    
+    // Count 2D nodes
+    Uint nb_nodes_2d = 0;
+    for(Uint node_idx = 0; node_idx != nb_nodes_3d; ++node_idx)
+      if(node_connectivity_2d.node_element_counts()[node_idx])
+        ++nb_nodes_2d;
+      
+    mesh_coords_2d.resize(boost::extents[nb_nodes_2d][2]);
+    
+    // Mapping between old and new index
+    std::vector<Uint> node_index_map(nb_nodes_3d);
+    
+    Uint node_idx_2d = 0;
+    for(Uint node_idx = 0; node_idx != nb_nodes_3d; ++node_idx)
+    {
+      if(node_connectivity_2d.node_element_counts()[node_idx])
+      {
+        node_index_map[node_idx] = node_idx_2d;
         if(dims.second == Hexa3DLagrangeP1::XNEG)
         {
-          switch(adjacent_face)
-          {
-            case Hexa3DLagrangeP1::YNEG:
-              patch_element_2d[0] = patch_element[0];
-              patch_element_2d[1] = patch_element[3];
-              break;
-            case Hexa3DLagrangeP1::YPOS:
-              patch_element_2d[0] = patch_element[1];
-              patch_element_2d[1] = patch_element[0];
-              break;
-            case Hexa3DLagrangeP1::ZNEG:
-              patch_element_2d[0] = patch_element[0];
-              patch_element_2d[1] = patch_element[1];
-              break;
-            case Hexa3DLagrangeP1::ZPOS:
-              patch_element_2d[0] = patch_element[3];
-              patch_element_2d[1] = patch_element[0];
-              break;
-            default:
-              throw ShouldNotBeHere(FromHere(), "Invalid 2D block data");
-          }
+          mesh_coords_2d[node_idx_2d][XX] = mesh_coords[node_idx][YY];
+          mesh_coords_2d[node_idx_2d][YY] = mesh_coords[node_idx][ZZ];
         }
         else if(dims.second == Hexa3DLagrangeP1::YNEG)
         {
-          switch(adjacent_face)
-          {
-            case Hexa3DLagrangeP1::XNEG:
-              patch_element_2d[0] = patch_element[0];
-              patch_element_2d[1] = patch_element[1];
-              break;
-            case Hexa3DLagrangeP1::XPOS:
-              patch_element_2d[0] = patch_element[3];
-              patch_element_2d[1] = patch_element[0];
-              break;
-            case Hexa3DLagrangeP1::ZNEG:
-              patch_element_2d[0] = patch_element[1];
-              patch_element_2d[1] = patch_element[0];
-              break;
-            case Hexa3DLagrangeP1::ZPOS:
-              patch_element_2d[0] = patch_element[0];
-              patch_element_2d[1] = patch_element[3];
-              break;
-            default:
-              throw ShouldNotBeHere(FromHere(), "Invalid 2D block data");
-          }
+          mesh_coords_2d[node_idx_2d][XX] = mesh_coords[node_idx][XX];
+          mesh_coords_2d[node_idx_2d][YY] = mesh_coords[node_idx][ZZ];
         }
         else if(dims.second == Hexa3DLagrangeP1::ZNEG)
         {
-          switch(adjacent_face)
-          {
-            case Hexa3DLagrangeP1::XNEG:
-              patch_element_2d[0] = patch_element[0];
-              patch_element_2d[1] = patch_element[3];
-              break;
-            case Hexa3DLagrangeP1::XPOS:
-              patch_element_2d[0] = patch_element[1];
-              patch_element_2d[1] = patch_element[0];
-              break;
-            case Hexa3DLagrangeP1::YNEG:
-              patch_element_2d[0] = patch_element[1];
-              patch_element_2d[1] = patch_element[0];
-              break;
-            case Hexa3DLagrangeP1::YPOS:
-              patch_element_2d[0] = patch_element[0];
-              patch_element_2d[1] = patch_element[3];
-              break;
-            default:
-              throw ShouldNotBeHere(FromHere(), "Invalid 2D block data");
-          }
+          mesh_coords_2d[node_idx_2d][XX] = mesh_coords[node_idx][XX];
+          mesh_coords_2d[node_idx_2d][YY] = mesh_coords[node_idx][YY];
         }
+        ++node_idx_2d;
       }
     }
-  }
-  
-  // Copy only the nodes that are still needed
-  const Uint nb_nodes_3d = nodes.block_first_nodes.back();
-  CNodeConnectivity node_connectivity_2d("nodes");
-  node_connectivity_2d.initialize(recursive_range_typed<CElements>(root_region_2d));
-  
-  // Count 2D nodes
-  Uint nb_nodes_2d = 0;
-  for(Uint node_idx = 0; node_idx != nb_nodes_3d; ++node_idx)
-    if(node_connectivity_2d.node_element_counts()[node_idx])
-      ++nb_nodes_2d;
     
-  mesh_coords_2d.resize(boost::extents[nb_nodes_2d][2]);
-  
-  // Mapping between old and new index
-  std::vector<Uint> node_index_map(nb_nodes_3d);
-  
-  Uint node_idx_2d = 0;
-  for(Uint node_idx = 0; node_idx != nb_nodes_3d; ++node_idx)
-  {
-    if(node_connectivity_2d.node_element_counts()[node_idx])
+    // Adapt CElements connectivity tables
+    BOOST_FOREACH(CElements& celements, recursive_range_typed<CElements>(mesh))
     {
-      node_index_map[node_idx] = node_idx_2d;
-      if(dims.second == Hexa3DLagrangeP1::XNEG)
+      const Uint element_nb_nodes = celements.element_type().nb_nodes();
+      CTable::ArrayT& ctable = celements.connectivity_table().array();
+      BOOST_FOREACH(CTable::Row element, ctable)
       {
-        mesh_coords_2d[node_idx_2d][XX] = mesh_coords[node_idx][YY];
-        mesh_coords_2d[node_idx_2d][YY] = mesh_coords[node_idx][ZZ];
+        for(Uint i = 0; i != element_nb_nodes; ++i)
+          element[i] = node_index_map[element[i]];
       }
-      else if(dims.second == Hexa3DLagrangeP1::YNEG)
-      {
-        mesh_coords_2d[node_idx_2d][XX] = mesh_coords[node_idx][XX];
-        mesh_coords_2d[node_idx_2d][YY] = mesh_coords[node_idx][ZZ];
-      }
-      else if(dims.second == Hexa3DLagrangeP1::ZNEG)
-      {
-        mesh_coords_2d[node_idx_2d][XX] = mesh_coords[node_idx][XX];
-        mesh_coords_2d[node_idx_2d][YY] = mesh_coords[node_idx][YY];
-      }
-      ++node_idx_2d;
     }
   }
   
-  // Adapt CElements connectivity tables
-  BOOST_FOREACH(CElements& celements, recursive_range_typed<CElements>(mesh))
-  {
-    const Uint element_nb_nodes = celements.element_type().nb_nodes();
-    CTable::ArrayT& ctable = celements.connectivity_table().array();
-    BOOST_FOREACH(CTable::Row element, ctable)
-    {
-      for(Uint i = 0; i != element_nb_nodes; ++i)
-        element[i] = node_index_map[element[i]];
-    }
-  }
+  // Update consistency across CPUs
+  if(!PEInterface::instance().is_init())
+    PEInterface::instance().init(0,0);
+
+  make_receive_lists(nodes_dist, mesh, pattern);
+  CArray& final_coords = recursive_get_component_typed<CArray>(mesh, IsComponentTrue());
+  final_coords.resize(final_coords.size() + pattern.receive_list.size());
+  pattern.update_send_lists();
+  apply_pattern_carray(pattern, recursive_range_typed<CArray>(mesh));
 }
 
 void partition_blocks(const BlockData& blocks_in, const Uint nb_partitions, const CoordXYZ direction, BlockData& blocks_out)
@@ -968,6 +1014,7 @@ void partition_blocks(const BlockData& blocks_in, const Uint nb_partitions, cons
   blocks_out.block_subdivisions.clear();
   blocks_out.patch_points.clear();
   blocks_out.patch_points.resize(blocks_in.patch_points.size());
+  blocks_out.block_distribution.clear();
   
   // Size of one partition
   const Uint partition_size = static_cast<Uint>( ceil( static_cast<Real>(global_nb_elements) / static_cast<Real>(nb_partitions) ) );
@@ -1160,6 +1207,8 @@ void partition_blocks(const BlockData& blocks_in, const Uint nb_partitions, cons
       }
     }
   }
+  
+  blocks_out.block_distribution.push_back(blocks_out.block_points.size());
   
   // Preserve original start and end patches
   const BlockData::IndicesT start_end_directions = boost::assign::list_of(start_direction)(end_direction);

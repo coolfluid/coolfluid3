@@ -176,6 +176,9 @@ void parse_blockmesh_dict(std::istream& file, BlockData& blockData)
   if(!r)
     throw ParsingFailed(FromHere(), "Error parsing blockMeshDict file");
   expand_simple_gradings(blockData.block_gradings);
+  
+  blockData.block_distribution.push_back(0);
+  blockData.block_distribution.push_back(blockData.block_points.size());
 }
 
 } // namespace OpenFOAM

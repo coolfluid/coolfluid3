@@ -7,6 +7,7 @@
 #include "Mesh/OpenFOAM/BlockMeshReader.hpp"
 #include "Mesh/OpenFOAM/OpenFOAMAPI.hpp"
 #include "Mesh/OpenFOAM/Parser.hpp"
+#include "Mesh/OpenFOAM/SimpleCommunicationPattern.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -53,7 +54,8 @@ void BlockMeshReader::read_from_to(boost::filesystem::path& path, const CMesh::P
   
   BlockData block_data;
   parse_blockmesh_dict(file, block_data);
-  build_mesh(block_data, *mesh);
+  SimpleCommunicationPattern unused;
+  build_mesh(block_data, *mesh, unused);
 }
 
 } // namespace OpenFOAM

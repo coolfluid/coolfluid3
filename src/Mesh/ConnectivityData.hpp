@@ -61,6 +61,10 @@ public:
   template<typename RangeT>
   void initialize(const RangeT& celements_range);
   
+  /// Allow explicitely supplying the number of nodes
+  template<typename RangeT>
+  void initialize(const Uint nb_nodes, const RangeT& celements_range);
+  
   /// Range of global element indices that use the node with index node_idx.
   boost::iterator_range<IndicesT::const_iterator> node_element_range(const Uint node_idx) const;
   
@@ -223,10 +227,15 @@ void CNodeConnectivity::initialize (const RangeT& celements_range )
   BOOST_FOREACH(const CArray* coordinates, coordinates_set)
     nb_nodes += coordinates->size();
     
+  initialize(nb_nodes, celements_range);
+}
+
+template<typename RangeT>
+void CNodeConnectivity::initialize(const Uint nb_nodes, const RangeT& celements_range)
+{
   create_celements_vector(celements_range, m_celements_vector, m_celements_first_elements);
   create_node_element_connectivity(nb_nodes, m_celements_vector, m_celements_first_elements, m_node_first_elements, m_node_element_counts, m_node_elements);
 }
-
 
 } // Mesh
 } // CF
