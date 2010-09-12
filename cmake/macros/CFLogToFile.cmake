@@ -2,7 +2,7 @@
 # this macro logs simultaneously to screen and to file
 ##############################################################################
 macro( coolfluid_log line )
-   MESSAGE(STATUS ${line})
+   message(STATUS ${line})
    file(APPEND ${PROJECT_LOG_FILE} "${line}\n")
 endmacro()
 

@@ -4,7 +4,7 @@
 macro( coolfluid_add_application APPNAME )
 
   # option to build it or not
-  OPTION( CF_BUILD_${APPNAME} "Build the ${APPNAME} application" ON )
+  option( CF_BUILD_${APPNAME} "Build the ${APPNAME} application" ON )
 
   # add to list of local apps
   list( APPEND CF_LOCAL_APPNAMES ${APPNAME} )

@@ -43,7 +43,7 @@ coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 #   CHECK_TYPE_SIZE(__int64        CF_SIZEOF___INT64)
   CHECK_TYPE_SIZE("long long"    CF_SIZEOF_LONG_LONG)
 
-  MATH ( EXPR CF_OS_BITS "${CF_SIZEOF_PTR} * 8")
+  math( EXPR CF_OS_BITS "${CF_SIZEOF_PTR} * 8")
 
 #######################################################################################
 

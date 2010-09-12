@@ -7,23 +7,23 @@
 # CF_HAVE_METIS        = set to true after finding the library
 #
 
-OPTION ( CF_SKIP_METIS "Skip search for Metis library" OFF )
+option( CF_SKIP_METIS "Skip search for Metis library" OFF )
 if( NOT CF_SKIP_METIS )
 
-  SET_TRIAL_INCLUDE_PATH ("") # clear include search path
-  SET_TRIAL_LIBRARY_PATH ("") # clear library search path
+  coolfluid_set_trial_include_path("") # clear include search path
+  coolfluid_set_trial_library_path("") # clear library search path
 
-  ADD_TRIAL_INCLUDE_PATH( ${METIS_HOME}/include )
-  ADD_TRIAL_INCLUDE_PATH( $ENV{METIS_HOME}/include )
+  coolfluid_add_trial_include_path( ${METIS_HOME}/include )
+  coolfluid_add_trial_include_path( $ENV{METIS_HOME}/include )
 
-  FIND_PATH(METIS_INCLUDE_DIR metis.h ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH)
-  FIND_PATH(METIS_INCLUDE_DIR metis.h)
+  find_path(METIS_INCLUDE_DIR metis.h ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH)
+  find_path(METIS_INCLUDE_DIR metis.h)
 
-  ADD_TRIAL_LIBRARY_PATH(${METIS_HOME}/lib )
-  ADD_TRIAL_LIBRARY_PATH($ENV{METIS_HOME}/lib )
+  coolfluid_add_trial_library_path(${METIS_HOME}/lib )
+  coolfluid_add_trial_library_path($ENV{METIS_HOME}/lib )
 
-  FIND_LIBRARY(METIS_LIBRARY metis ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
-  FIND_LIBRARY(METIS_LIBRARY metis )
+  find_library(METIS_LIBRARY metis ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
+  find_library(METIS_LIBRARY metis )
 
   if(METIS_INCLUDE_DIR AND METIS_LIBRARY)
     set(CF_HAVE_METIS 1 CACHE BOOL "Found metis library")

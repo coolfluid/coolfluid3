@@ -12,23 +12,23 @@ OPTION( CF_SKIP_PARMETIS "Skip search for Parmetis library" OFF )
 # dont search for parmetis without MPI
 if( NOT CF_SKIP_PARMETIS OR NOT CF_HAVE_MPI )
 
-  SET_TRIAL_INCLUDE_PATH ("") # clear include search path
-  SET_TRIAL_LIBRARY_PATH ("") # clear library search path
+  coolfluid_set_trial_include_path("") # clear include search path
+  coolfluid_set_trial_library_path("") # clear library search path
 
-  ADD_TRIAL_INCLUDE_PATH( ${PARMETIS_ROOT}/include )
-  ADD_TRIAL_INCLUDE_PATH( $ENV{PARMETIS_ROOT}/include )
+  coolfluid_add_trial_include_path( ${PARMETIS_ROOT}/include )
+  coolfluid_add_trial_include_path( $ENV{PARMETIS_ROOT}/include )
 
-  FIND_PATH(PARMETIS_INCLUDE_DIR parmetis.h  ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH)
-  FIND_PATH(PARMETIS_INCLUDE_DIR parmetis.h )
+  find_path(PARMETIS_INCLUDE_DIR parmetis.h  ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH)
+  find_path(PARMETIS_INCLUDE_DIR parmetis.h )
 
-  ADD_TRIAL_LIBRARY_PATH(${PARMETIS_ROOT}/lib )
-  ADD_TRIAL_LIBRARY_PATH($ENV{PARMETIS_ROOT}/lib )
+  coolfluid_add_trial_library_path(${PARMETIS_ROOT}/lib )
+  coolfluid_add_trial_library_path($ENV{PARMETIS_ROOT}/lib )
 
-  FIND_LIBRARY(PARMETIS_LIB_PARMETIS parmetis ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
-  FIND_LIBRARY(PARMETIS_LIB_PARMETIS parmetis )
+  find_library(PARMETIS_LIB_PARMETIS parmetis ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
+  find_library(PARMETIS_LIB_PARMETIS parmetis )
 
-  FIND_LIBRARY(PARMETIS_LIB_METIS metis ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
-  FIND_LIBRARY(PARMETIS_LIB_METIS metis )
+  find_library(PARMETIS_LIB_METIS metis ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
+  find_library(PARMETIS_LIB_METIS metis )
 
   set( PARMETIS_LIBRARIES ${PARMETIS_LIB_PARMETIS} ${PARMETIS_LIB_METIS} )
 

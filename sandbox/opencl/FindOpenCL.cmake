@@ -9,16 +9,16 @@ option( CF_SKIP_OPENCL "Skip search for OpenCL library" OFF )
 
 if( NOT CF_SKIP_OPENCL )
 
-  SET_TRIAL_INCLUDE_PATH("") # clear include search path
-  SET_TRIAL_LIBRARY_PATH("") # clear library search path
+  coolfluid_set_trial_include_path("") # clear include search path
+  coolfluid_set_trial_library_path("") # clear library search path
 
-  ADD_TRIAL_INCLUDE_PATH( ${DEPS_ROOT}/include )
-  ADD_TRIAL_INCLUDE_PATH( ${OPENCL_ROOT}/include )
-  ADD_TRIAL_INCLUDE_PATH( $ENV{OPENCL_ROOT}/include )
+  coolfluid_add_trial_include_path( ${DEPS_ROOT}/include )
+  coolfluid_add_trial_include_path( ${OPENCL_ROOT}/include )
+  coolfluid_add_trial_include_path( $ENV{OPENCL_ROOT}/include )
 
-  ADD_TRIAL_INCLUDE_PATH( ${DEPS_ROOT}/include )
-  ADD_TRIAL_LIBRARY_PATH( ${OPENCL_ROOT}/lib )
-  ADD_TRIAL_LIBRARY_PATH( $ENV{OPENCL_ROOT}/lib )
+  coolfluid_add_trial_include_path( ${DEPS_ROOT}/include )
+  coolfluid_add_trial_library_path( ${OPENCL_ROOT}/lib )
+  coolfluid_add_trial_library_path( $ENV{OPENCL_ROOT}/lib )
 
 if(WIN32)
 

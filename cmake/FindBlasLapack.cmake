@@ -13,16 +13,16 @@ if( NOT LAPACK_LIBRARIES )
   if( NOT CF_HAVE_BLAS )
 
     if( EXISTS ${BLAS_DIR} )
-      ADD_TRIAL_LIBRARY_PATH( ${BLAS_DIR} )
-      ADD_TRIAL_LIBRARY_PATH( ${BLAS_DIR}/lib )
+      coolfluid_add_trial_library_path( ${BLAS_DIR} )
+      coolfluid_add_trial_library_path( ${BLAS_DIR}/lib )
     endif()
 
     if( EXISTS $ENV{BLAS_HOME} )
-      ADD_TRIAL_LIBRARY_PATH( $ENV{BLAS_HOME}/lib )
+      coolfluid_add_trial_library_path( $ENV{BLAS_HOME}/lib )
     endif()
 
-    FIND_LIBRARY(BLAS_LIBRARY blas ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
-    FIND_LIBRARY(BLAS_LIBRARY blas )
+    find_library(BLAS_LIBRARY blas ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
+    find_library(BLAS_LIBRARY blas )
 
     if( BLAS_LIBRARY )
       set( CF_HAVE_BLAS 1 CACHE BOOL "Found BLAS library" )
@@ -41,22 +41,22 @@ if( NOT LAPACK_LIBRARIES )
 
   if( NOT CF_HAVE_LAPACK )
 
-    SET_TRIAL_INCLUDE_PATH ("") # clear include search path
-    SET_TRIAL_LIBRARY_PATH ("") # clear library search path
+    coolfluid_set_trial_include_path("") # clear include search path
+    coolfluid_set_trial_library_path("") # clear library search path
 
 
     if( EXISTS ${LAPACK_DIR} )
-      ADD_TRIAL_LIBRARY_PATH ( ${LAPACK_DIR}  )
-      ADD_TRIAL_LIBRARY_PATH ( ${LAPACK_DIR}/lib )
+      coolfluid_add_trial_library_path ( ${LAPACK_DIR}  )
+      coolfluid_add_trial_library_path ( ${LAPACK_DIR}/lib )
     endif()
 
     if( EXISTS $ENV{LAPACK_HOME} )
-      ADD_TRIAL_LIBRARY_PATH( $ENV{LAPACK_HOME} )
-      ADD_TRIAL_LIBRARY_PATH( $ENV{LAPACK_HOME}/lib )
+      coolfluid_add_trial_library_path( $ENV{LAPACK_HOME} )
+      coolfluid_add_trial_library_path( $ENV{LAPACK_HOME}/lib )
     endif()
 
-    FIND_LIBRARY(LAPACK_LIBRARY lapack ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
-    FIND_LIBRARY(LAPACK_LIBRARY lapack )
+    find_library(LAPACK_LIBRARY lapack ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
+    find_library(LAPACK_LIBRARY lapack )
 
   endif()
 

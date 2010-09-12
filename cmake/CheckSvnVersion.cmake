@@ -1,5 +1,5 @@
 # sunversion version check
-FIND_PACKAGE(Subversion QUIET)
+find_package(Subversion QUIET)
 set(Subversion_WC FALSE)
 
 if(Subversion_FOUND)
@@ -18,10 +18,10 @@ endif()
 
 if(Subversion_WC)
     Subversion_WC_INFO(${coolfluid_SOURCE_DIR} coolfluid)
-    # MESSAGE("Current revision is ${coolfluid_WC_REVISION}")
-    # MESSAGE("svn info : ${coolfluid_WC_INFO}")
+    # message("Current revision is ${coolfluid_WC_REVISION}")
+    # message("svn info : ${coolfluid_WC_INFO}")
 
-    FIND_PROGRAM(Subversion_SVNVERSION_EXECUTABLE svnversion DOC "subversion svnversion command line client")
+    find_program(Subversion_SVNVERSION_EXECUTABLE svnversion DOC "subversion svnversion command line client")
     mark_as_advanced(Subversion_SVNVERSION_EXECUTABLE)
 
     if(Subversion_SVNVERSION_EXECUTABLE)
@@ -35,7 +35,7 @@ if(Subversion_WC)
 else()
     
     # Check if this is a git repository, and get revision number through "git-svn"
-    FIND_PACKAGE(Git QUIET)
+    find_package(Git QUIET)
     set(Git_WC FALSE)
     
     if(Git_FOUND)

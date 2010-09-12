@@ -3,7 +3,7 @@
 # config options that affect all the framework libraries and components
 # must be handled in this directory
 
-string ( TOUPPER "${CMAKE_BUILD_TYPE}" CF_BUILD_TYPE )
+string( TOUPPER "${CMAKE_BUILD_TYPE}" CF_BUILD_TYPE )
 
 # coolfluid_config.h
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/coolfluid_config.h.in ${coolfluid_BINARY_DIR}/coolfluid_config.h)

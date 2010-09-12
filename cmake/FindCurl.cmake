@@ -3,23 +3,23 @@
 # CURL_LIBRARY      = the library to link against (curl etc)
 # CF_HAVE_CURL        = set to true after finding the library
 
-OPTION ( CF_SKIP_CURL "Skip search for Curl library" OFF )
+option( CF_SKIP_CURL "Skip search for Curl library" OFF )
 
 if( NOT CF_SKIP_CURL )
 
-  SET_TRIAL_INCLUDE_PATH ("") # clear include search path
-  SET_TRIAL_LIBRARY_PATH ("") # clear library search path
+  coolfluid_set_trial_include_path("") # clear include search path
+  coolfluid_set_trial_library_path("") # clear library search path
 
-  ADD_TRIAL_INCLUDE_PATH( ${CURL_HOME}/include )
-  ADD_TRIAL_INCLUDE_PATH( $ENV{CURL_HOME}/include )
+  coolfluid_add_trial_include_path( ${CURL_HOME}/include )
+  coolfluid_add_trial_include_path( $ENV{CURL_HOME}/include )
 
-  FIND_PATH(CURL_INCLUDE_DIR curl/curl.h ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH)
-  FIND_PATH(CURL_INCLUDE_DIR curl/curl.h)
+  find_path(CURL_INCLUDE_DIR curl/curl.h ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH)
+  find_path(CURL_INCLUDE_DIR curl/curl.h)
 
-  ADD_TRIAL_LIBRARY_PATH( ${CURL_HOME}/bin ${CURL_HOME}/lib $ENV{CURL_HOME}/bin ${CURL_HOME}/lib )
+  coolfluid_add_trial_library_path( ${CURL_HOME}/bin ${CURL_HOME}/lib $ENV{CURL_HOME}/bin ${CURL_HOME}/lib )
 
-  FIND_LIBRARY(CURL_LIBRARY curl ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
-  FIND_LIBRARY(CURL_LIBRARY curl )
+  find_library(CURL_LIBRARY curl ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
+  find_library(CURL_LIBRARY curl )
 
   if(CURL_INCLUDE_DIR AND CURL_LIBRARY)
     set(CF_HAVE_CURL 1 CACHE BOOL "Found curl library")

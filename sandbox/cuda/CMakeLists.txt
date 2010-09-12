@@ -1,4 +1,4 @@
-FIND_PACKAGE(CUDA)
+find_package(CUDA)
 
 if(CUDA_FOUND)
 

@@ -146,20 +146,20 @@ endif()
 
 # test and add the user defined flags
 
-STRING ( REGEX MATCHALL "[^ ]+" C_FLAGS_LIST "${CF_C_FLAGS}"  )
+string( REGEX MATCHALL "[^ ]+" C_FLAGS_LIST "${CF_C_FLAGS}"  )
 foreach( c_flag ${C_FLAGS_LIST} )
-  coolfluid_add_c_flags_SIGNAL_ERROR ( ${c_flag} )
+  coolfluid_add_c_flags_or_die ( ${c_flag} )
 endforeach()
 mark_as_advanced( C_FLAGS_LIST   )
 
-STRING ( REGEX MATCHALL "[^ ]+" CXX_FLAGS_LIST "${CF_CXX_FLAGS}"  )
+string( REGEX MATCHALL "[^ ]+" CXX_FLAGS_LIST "${CF_CXX_FLAGS}"  )
 foreach( cxx_flag ${CXX_FLAGS_LIST} )
-  coolfluid_add_cxx_flags_SIGNAL_ERROR ( ${cxx_flag} )
+  coolfluid_add_cxx_flags_or_die ( ${cxx_flag} )
 endforeach()
 mark_as_advanced( CXX_FLAGS_LIST  )
 
 if( NOT CF_SKIP_FORTRAN )
-  STRING ( REGEX MATCHALL "[^ ]+" Fortran_FLAGS_LIST "${CF_Fortran_FLAGS}"  )
+  string( REGEX MATCHALL "[^ ]+" Fortran_FLAGS_LIST "${CF_Fortran_FLAGS}"  )
   # fortran flags currently nont checked
   set( CMAKE_Fortran_FLAGS "${CF_Fortran_FLAGS}" )
   # foreach( fortran_flag ${Fortran_FLAGS_LIST} )

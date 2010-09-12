@@ -2,17 +2,17 @@
 # valgrind_INCLUDE_DIR  = where valgrind.h can be found
 # CF_HAVE_VALGRIND      = set to true after finding the library
 
-OPTION ( CF_SKIP_VALGRIND "Skip search for Valgrins library" OFF )
+option( CF_SKIP_VALGRIND "Skip search for Valgrins library" OFF )
 if( NOT CF_SKIP_VALGRIND ) # guard for double inclusion
 
-  SET_TRIAL_INCLUDE_PATH ("") # clear include search path
-  SET_TRIAL_LIBRARY_PATH ("") # clear library search path
+  coolfluid_set_trial_include_path("") # clear include search path
+  coolfluid_set_trial_library_path("") # clear library search path
 
-  ADD_TRIAL_INCLUDE_PATH( ${VALGRIND_HOME}/include )
-  ADD_TRIAL_INCLUDE_PATH( $ENV{VALGRIND_HOME}/include )
+  coolfluid_add_trial_include_path( ${VALGRIND_HOME}/include )
+  coolfluid_add_trial_include_path( $ENV{VALGRIND_HOME}/include )
 
-  FIND_PATH(valgrind_INCLUDE_DIR valgrind/valgrind.h ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH)
-  FIND_PATH(valgrind_INCLUDE_DIR valgrind/valgrind.h)
+  find_path(valgrind_INCLUDE_DIR valgrind/valgrind.h ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH)
+  find_path(valgrind_INCLUDE_DIR valgrind/valgrind.h)
 
   if( valgrind_INCLUDE_DIR )
     set(CF_HAVE_VALGRIND 1 CACHE BOOL "Found valgrind headers")

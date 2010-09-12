@@ -5,7 +5,7 @@
 macro( coolfluid_add_unittest UTESTNAME )
 
   # option to build it or not
-  OPTION( CF_BUILD_${UTESTNAME} "Build the ${UTESTNAME} testing application" ON )
+  option( CF_BUILD_${UTESTNAME} "Build the ${UTESTNAME} testing application" ON )
   # this option is advanced (does not appear in the cmake gui)
   mark_as_advanced(CF_BUILD_${UTESTNAME})
 

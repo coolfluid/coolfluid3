@@ -347,9 +347,9 @@ if(_boost_IN_CACHE)
   endforeach(COMPONENT)
   set(Boost_INCLUDE_DIRS ${Boost_INCLUDE_DIR})
   if(Boost_VERSION AND NOT "${Boost_VERSION}" STREQUAL "0")
-    MATH(EXPR Boost_MAJOR_VERSION "${Boost_VERSION} / 100000")
-    MATH(EXPR Boost_MINOR_VERSION "${Boost_VERSION} / 100 % 1000")
-    MATH(EXPR Boost_SUBMINOR_VERSION "${Boost_VERSION} % 100")
+    math(EXPR Boost_MAJOR_VERSION "${Boost_VERSION} / 100000")
+    math(EXPR Boost_MINOR_VERSION "${Boost_VERSION} / 100 % 1000")
+    math(EXPR Boost_SUBMINOR_VERSION "${Boost_VERSION} % 100")
   endif(Boost_VERSION AND NOT "${Boost_VERSION}" STREQUAL "0")
   if(Boost_DEBUG)
       message(STATUS "[ ${CMAKE_CURRENT_LIST_FILE}:${CMAKE_CURRENT_LIST_LINE} ] "
@@ -491,7 +491,7 @@ ELSE (_boost_IN_CACHE)
     endif()
 
     # Look for a standard boost header file.
-    FIND_PATH(Boost_INCLUDE_DIR
+    find_path(Boost_INCLUDE_DIR
       NAMES         boost/config.hpp
       HINTS         ${_boost_INCLUDE_SEARCH_DIRS}
       PATH_SUFFIXES ${_boost_PATH_SUFFIXES}
@@ -521,9 +521,9 @@ ELSE (_boost_IN_CACHE)
     set(Boost_VERSION ${Boost_VERSION} CACHE INTERNAL "The version number for boost libraries")
     
     if(NOT "${Boost_VERSION}" STREQUAL "0")
-      MATH(EXPR Boost_MAJOR_VERSION "${Boost_VERSION} / 100000")
-      MATH(EXPR Boost_MINOR_VERSION "${Boost_VERSION} / 100 % 1000")
-      MATH(EXPR Boost_SUBMINOR_VERSION "${Boost_VERSION} % 100")
+      math(EXPR Boost_MAJOR_VERSION "${Boost_VERSION} / 100000")
+      math(EXPR Boost_MINOR_VERSION "${Boost_VERSION} / 100 % 1000")
+      math(EXPR Boost_SUBMINOR_VERSION "${Boost_VERSION} % 100")
 
       set(Boost_ERROR_REASON
           "${Boost_ERROR_REASON}Boost version: ${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION}\nBoost include path: ${Boost_INCLUDE_DIR}")
@@ -692,17 +692,17 @@ ELSE (_boost_IN_CACHE)
     set( Boost_${UPPERCOMPONENT}_LIBRARY_RELEASE "Boost_${UPPERCOMPONENT}_LIBRARY_RELEASE-NOTFOUND" )
     set( Boost_${UPPERCOMPONENT}_LIBRARY_DEBUG "Boost_${UPPERCOMPONENT}_LIBRARY_DEBUG-NOTFOUND")
 
-    # Support preference of static libs by adjusting CMAKE_FIND_LIBRARY_SUFFIXES
+    # Support preference of static libs by adjusting CMAKE_find_library_SUFFIXES
     if( Boost_USE_STATIC_LIBS )
-      set( _boost_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES ${CMAKE_FIND_LIBRARY_SUFFIXES})
+      set( _boost_ORIG_CMAKE_find_library_SUFFIXES ${CMAKE_find_library_SUFFIXES})
       if(WIN32)
-        set(CMAKE_FIND_LIBRARY_SUFFIXES .lib .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
+        set(CMAKE_find_library_SUFFIXES .lib .a ${CMAKE_find_library_SUFFIXES})
       ELSE(WIN32)
-        set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
+        set(CMAKE_find_library_SUFFIXES .a ${CMAKE_find_library_SUFFIXES})
       endif(WIN32)
     endif( Boost_USE_STATIC_LIBS )
 
-    FIND_LIBRARY(Boost_${UPPERCOMPONENT}_LIBRARY_RELEASE
+    find_library(Boost_${UPPERCOMPONENT}_LIBRARY_RELEASE
         NAMES  ${Boost_LIB_PREFIX}boost_${COMPONENT}${_boost_COMPILER}${_boost_MULTITHREADED}-${Boost_LIB_VERSION}
                ${Boost_LIB_PREFIX}boost_${COMPONENT}${_boost_COMPILER}${_boost_MULTITHREADED}${_boost_STATIC_TAG}-${Boost_LIB_VERSION}
                ${Boost_LIB_PREFIX}boost_${COMPONENT}${_boost_MULTITHREADED}-${Boost_LIB_VERSION}
@@ -714,7 +714,7 @@ ELSE (_boost_IN_CACHE)
 	NO_DEFAULT_PATH
     )
 
-    FIND_LIBRARY(Boost_${UPPERCOMPONENT}_LIBRARY_RELEASE
+    find_library(Boost_${UPPERCOMPONENT}_LIBRARY_RELEASE
         NAMES  ${Boost_LIB_PREFIX}boost_${COMPONENT}${_boost_COMPILER}${_boost_MULTITHREADED}-${Boost_LIB_VERSION}
                ${Boost_LIB_PREFIX}boost_${COMPONENT}${_boost_COMPILER}${_boost_MULTITHREADED}${_boost_STATIC_TAG}-${Boost_LIB_VERSION}
                ${Boost_LIB_PREFIX}boost_${COMPONENT}${_boost_MULTITHREADED}-${Boost_LIB_VERSION}
@@ -725,7 +725,7 @@ ELSE (_boost_IN_CACHE)
         HINTS  ${_boost_LIBRARIES_SEARCH_DIRS}
     )
 
-    FIND_LIBRARY(Boost_${UPPERCOMPONENT}_LIBRARY_DEBUG
+    find_library(Boost_${UPPERCOMPONENT}_LIBRARY_DEBUG
         NAMES  ${Boost_LIB_PREFIX}boost_${COMPONENT}${_boost_COMPILER}${_boost_MULTITHREADED}-${_boost_ABI_TAG}-${Boost_LIB_VERSION}
                ${Boost_LIB_PREFIX}boost_${COMPONENT}${_boost_COMPILER}${_boost_MULTITHREADED}${_boost_STATIC_TAG}${_boost_ABI_TAG}-${Boost_LIB_VERSION}
                ${Boost_LIB_PREFIX}boost_${COMPONENT}${_boost_MULTITHREADED}-${_boost_ABI_TAG}-${Boost_LIB_VERSION}
@@ -737,7 +737,7 @@ ELSE (_boost_IN_CACHE)
 	NO_DEFAULT_PATH
     )
 
-    FIND_LIBRARY(Boost_${UPPERCOMPONENT}_LIBRARY_DEBUG
+    find_library(Boost_${UPPERCOMPONENT}_LIBRARY_DEBUG
         NAMES  ${Boost_LIB_PREFIX}boost_${COMPONENT}${_boost_COMPILER}${_boost_MULTITHREADED}-${_boost_ABI_TAG}-${Boost_LIB_VERSION}
                ${Boost_LIB_PREFIX}boost_${COMPONENT}${_boost_COMPILER}${_boost_MULTITHREADED}${_boost_STATIC_TAG}${_boost_ABI_TAG}-${Boost_LIB_VERSION}
                ${Boost_LIB_PREFIX}boost_${COMPONENT}${_boost_MULTITHREADED}-${_boost_ABI_TAG}-${Boost_LIB_VERSION}
@@ -750,7 +750,7 @@ ELSE (_boost_IN_CACHE)
 
     _Boost_ADJUST_LIB_VARS(${UPPERCOMPONENT})
     if( Boost_USE_STATIC_LIBS )
-      set(CMAKE_FIND_LIBRARY_SUFFIXES ${_boost_ORIG_CMAKE_FIND_LIBRARY_SUFFIXES})
+      set(CMAKE_find_library_SUFFIXES ${_boost_ORIG_CMAKE_find_library_SUFFIXES})
     endif( Boost_USE_STATIC_LIBS )
   endforeach(COMPONENT)
   # ------------------------------------------------------------------------
@@ -899,10 +899,10 @@ ELSE (_boost_IN_CACHE)
 
   if(Boost_FOUND)
       if(NOT Boost_FIND_QUIETLY)
-        MESSAGE(STATUS "Boost version: ${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION}")
+        message(STATUS "Boost version: ${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION}")
       endif(NOT Boost_FIND_QUIETLY)
       if(NOT Boost_FIND_QUIETLY)
-        MESSAGE(STATUS "Found the following Boost libraries:")
+        message(STATUS "Found the following Boost libraries:")
       endif(NOT Boost_FIND_QUIETLY)
       foreach( COMPONENT  ${Boost_FIND_COMPONENTS} )
        string( TOUPPER ${COMPONENT} UPPERCOMPONENT )

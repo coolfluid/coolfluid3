@@ -9,20 +9,20 @@
 #   CF_HAVE_CGNS
 #
 
-SET_TRIAL_INCLUDE_PATH ("") # clear include search path
-SET_TRIAL_LIBRARY_PATH ("") # clear library search path
+coolfluid_set_trial_include_path("") # clear include search path
+coolfluid_set_trial_library_path("") # clear library search path
 
-ADD_TRIAL_INCLUDE_PATH( ${CGNS_HOME}/include )
-ADD_TRIAL_INCLUDE_PATH( $ENV{CGNS_HOME}/include )
+coolfluid_add_trial_include_path( ${CGNS_HOME}/include )
+coolfluid_add_trial_include_path( $ENV{CGNS_HOME}/include )
 
-FIND_PATH( CGNS_INCLUDE_DIR cgnslib.h PATHS ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH )
-FIND_PATH( CGNS_INCLUDE_DIR cgnslib.h )
+find_path( CGNS_INCLUDE_DIR cgnslib.h PATHS ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH )
+find_path( CGNS_INCLUDE_DIR cgnslib.h )
 
-ADD_TRIAL_LIBRARY_PATH(${CGNS_HOME}/lib )
-ADD_TRIAL_LIBRARY_PATH($ENV{CGNS_HOME}/lib)
+coolfluid_add_trial_library_path(${CGNS_HOME}/lib )
+coolfluid_add_trial_library_path($ENV{CGNS_HOME}/lib)
 
-FIND_LIBRARY(CGNS_LIBRARY cgns  PATHS  ${TRIAL_LIBRARY_PATHS}  NO_DEFAULT_PATH)
-FIND_LIBRARY(CGNS_LIBRARY cgns )
+find_library(CGNS_LIBRARY cgns  PATHS  ${TRIAL_LIBRARY_PATHS}  NO_DEFAULT_PATH)
+find_library(CGNS_LIBRARY cgns )
 
 if(CGNS_INCLUDE_DIR AND CGNS_LIBRARY)
   set(CF_HAVE_CGNS 1 CACHE BOOL "Found CGNS library")

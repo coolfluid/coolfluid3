@@ -26,7 +26,7 @@ else()
   FIND_PACKAGE(MPI)
 
   if( NOT CF_MPI_LIBS_FOUND )
-      MESSAGE( FATAL_ERROR "MPI: No MPI compiler or libraries were found.\n     MPI is required to compile coolfluid." )
+      message( FATAL_ERROR "MPI: No MPI compiler or libraries were found.\n     MPI is required to compile coolfluid." )
   endif()
 
   coolfluid_log( "     MPI_INCLUDE_PATH   : [${MPI_INCLUDE_PATH}]")
@@ -38,13 +38,13 @@ endif()
 #######################################################################
 # find mpirun
 
-FIND_PROGRAM( CF_MPIRUN_PROGRAM mpirun
+find_program( CF_MPIRUN_PROGRAM mpirun
               PATHS ${MPI_HOME}/bin $ENV{MPI_HOME}/bin
               PATH_SUFFIXES mpi/bin
               DOC "mpirun program"
               NO_DEFAULT_PATH )
 
-FIND_PROGRAM( CF_MPIRUN_PROGRAM mpirun
+find_program( CF_MPIRUN_PROGRAM mpirun
               PATH_SUFFIXES mpi/bin
               DOC "mpirun program" )
 

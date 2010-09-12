@@ -47,10 +47,10 @@ coolfluid_log_file( "CMAKE_CURRENT_LIST_FILE: ${CMAKE_CURRENT_LIST_FILE}" )
 # this is linenumber where the variable is used
 coolfluid_log_file( "CMAKE_CURRENT_LIST_LINE: ${CMAKE_CURRENT_LIST_LINE}" )
 
-# this is used when searching for include files e.g. using the FIND_PATH() command.
+# this is used when searching for include files e.g. using the find_path() command.
 coolfluid_log_file( "CMAKE_INCLUDE_PATH: ${CMAKE_INCLUDE_PATH}" )
 
-# this is used when searching for libraries e.g. using the FIND_LIBRARY() command.
+# this is used when searching for libraries e.g. using the find_library() command.
 coolfluid_log_file( "CMAKE_LIBRARY_PATH: ${CMAKE_LIBRARY_PATH}" )
 
 # the complete system name, e.g. "Linux-2.4.22", "FreeBSD-5.4-RELEASE" or "Windows 5.1"
