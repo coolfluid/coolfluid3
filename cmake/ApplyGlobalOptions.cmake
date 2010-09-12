@@ -42,7 +42,7 @@ if( NOT DEFINED CF_REAL_TYPE )
   set( CF_REAL_TYPE "double" CACHE STRING "Real type" FORCE )
 endif()
 
-mark_as_advanced ( CF_REAL_TYPE )
+mark_as_advanced( CF_REAL_TYPE )
 
 ###############################################################################
 # explicit template support
@@ -61,16 +61,16 @@ if( APPLE AND CMAKE_COMPILER_IS_GNUCC )
   endif()
 endif()
 
-coolfluid_log_file ( "CF_HAVE_CXX_EXPLICIT_TEMPLATES [${CF_HAVE_CXX_EXPLICIT_TEMPLATES}]" )
+coolfluid_log_file( "CF_HAVE_CXX_EXPLICIT_TEMPLATES [${CF_HAVE_CXX_EXPLICIT_TEMPLATES}]" )
 
-mark_as_advanced ( CF_HAVE_CXX_EXPLICIT_TEMPLATES )
+mark_as_advanced( CF_HAVE_CXX_EXPLICIT_TEMPLATES )
 	
 ###############################################################################
 # sys and time together
-if ( CF_HAVE_SYS_TIME_H AND CF_HAVE_TIME_H )
+if( CF_HAVE_SYS_TIME_H AND CF_HAVE_TIME_H )
   set( CF_TIME_WITH_SYS_TIME 1 CACHE BOOL "Have time.h and sys/time.h together")
-  mark_as_advanced ( CF_TIME_WITH_SYS_TIME )
-endif ()
+  mark_as_advanced( CF_TIME_WITH_SYS_TIME )
+endif()
 
 #########################################################################################
 # PROFILING OPTIONS

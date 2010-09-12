@@ -13,7 +13,7 @@ set( CF_KERNEL_VERSION          "${CF_KERNEL_VERSION_MAJOR}.${CF_KERNEL_VERSION_
 # Append the library version information to the library target properties.
 # A parent project may set its own properties and/or may block this.
 # TO avoid it set CF_NO_LIBRARY_VERSION to TRUE
-if ( NOT CF_NO_LIBRARY_VERSION )
+if( NOT CF_NO_LIBRARY_VERSION )
 
   set(  coolfluid_LIBRARY_PROPERTIES ${coolfluid_LIBRARY_PROPERTIES}
          VERSION   "${CF_KERNEL_VERSION}"

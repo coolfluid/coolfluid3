@@ -44,7 +44,7 @@ VectorialFunction.cpp
 
 list( APPEND Math_cflibs Common )
 
-SET  ( Math_kernellib TRUE )
+set( Math_kernellib TRUE )
 
 coolfluid_add_library ( Math )
 

@@ -1,6 +1,6 @@
-if ( CF_HAVE_GOOGLE_PERFTOOLS )
+if( CF_HAVE_GOOGLE_PERFTOOLS )
   add_subdirectory ( GooglePerf )
-endif ()
+endif()
 
 add_subdirectory ( Testing )
 add_subdirectory(MeshGeneration)

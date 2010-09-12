@@ -53,7 +53,7 @@ set(uTestClient_moc_classes
 
 QT4_WRAP_CPP(uTestClient_moc_files ${uTestClient_moc_classes})
 
-CONFIGURE_FILE ( tree.xml  ${CMAKE_CURRENT_BINARY_DIR}/tree.xml  @ONLY )
+configure_file( tree.xml  ${CMAKE_CURRENT_BINARY_DIR}/tree.xml  @ONLY )
 
 list( APPEND uTestClient_cflibs Network)
 list( APPEND uTestClient_libs ${QT_LIBRARIES})

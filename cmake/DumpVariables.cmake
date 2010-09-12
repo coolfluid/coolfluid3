@@ -139,8 +139,8 @@ coolfluid_log_file( "CMAKE_COMPILER_IS_GNUCXX : ${CMAKE_COMPILER_IS_GNUCXX}" )
 coolfluid_log_file( "CMAKE_AR: ${CMAKE_AR}" )
 coolfluid_log_file( "CMAKE_RANLIB: ${CMAKE_RANLIB}" )
 
-coolfluid_log_file ( "CMAKE_SHARED_LINKER_FLAGS: [${CMAKE_SHARED_LINKER_FLAGS}}]")
-coolfluid_log_file ( "CMAKE_MODULE_LINKER_FLAGS: [${CMAKE_MODULE_LINKER_FLAGS}}]")
+coolfluid_log_file( "CMAKE_SHARED_LINKER_FLAGS: [${CMAKE_SHARED_LINKER_FLAGS}}]")
+coolfluid_log_file( "CMAKE_MODULE_LINKER_FLAGS: [${CMAKE_MODULE_LINKER_FLAGS}}]")
 
 coolfluid_log_file( "CMAKE_CXX_COMPILE_OBJECT:        [${CMAKE_CXX_COMPILE_OBJECT}]" )
 coolfluid_log_file( "CMAKE_CXX_CREATE_SHARED_MODULE:  [${CMAKE_CXX_CREATE_SHARED_MODULE}]" )

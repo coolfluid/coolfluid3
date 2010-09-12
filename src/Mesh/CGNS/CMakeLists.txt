@@ -1,4 +1,4 @@
-if (CF_HAVE_CGNS)
+if(CF_HAVE_CGNS)
 
   list( APPEND CGNS3_files
     CGNSAPI.hpp
@@ -15,7 +15,7 @@ if (CF_HAVE_CGNS)
   list( APPEND CGNS3_libs ${CGNS_LIBRARY} )
   list( APPEND CGNS3_cflibs Mesh )
 
-  SET  ( CGNS3_kernellib TRUE )
+  set( CGNS3_kernellib TRUE )
 
   coolfluid_add_library ( CGNS3 )
 

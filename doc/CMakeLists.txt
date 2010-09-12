@@ -27,7 +27,7 @@ if( DOXYGEN_FOUND )
   
   IF   (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${DOXYFILE}.in")
     MESSAGE(STATUS "configured ${CMAKE_CURRENT_SOURCE_DIR}/${DOXYFILE}.in --> ${CMAKE_CURRENT_BINARY_DIR}/${DOXYFILE}")
-    CONFIGURE_file(${CMAKE_CURRENT_SOURCE_DIR}/${DOXYFILE}.in
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${DOXYFILE}.in
       ${CMAKE_CURRENT_BINARY_DIR}/${DOXYFILE}
       @ONLY )
     # use (configured) ${DOXYFILE} from (out of place) BUILD tree:
@@ -41,7 +41,7 @@ if( DOXYGEN_FOUND )
       IF   (EXISTS "${CMAKE_MODULE_PATH}/${DOXYFILE}.in")
         # using template ${DOXYFILE}.in
         MESSAGE(STATUS "configured ${CMAKE_CMAKE_MODULE_PATH}/${DOXYFILE}.in --> ${CMAKE_CURRENT_BINARY_DIR}/${DOXYFILE}")
-        CONFIGURE_file(${CMAKE_MODULE_PATH}/${DOXYFILE}.in
+        configure_file(${CMAKE_MODULE_PATH}/${DOXYFILE}.in
           ${CMAKE_CURRENT_BINARY_DIR}/${DOXYFILE}
           @ONLY )
         set(DOXY_CONFIG "${CMAKE_CURRENT_BINARY_DIR}/${DOXYFILE}")

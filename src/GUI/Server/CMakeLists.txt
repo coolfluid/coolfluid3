@@ -53,16 +53,16 @@ list( APPEND coolfluid-server_cflibs ${CF_KERNEL_LIBS} Network )
 
 coolfluid_add_application(coolfluid-server)
 
-CONFIGURE_FILE ( Tree.xml      ${CMAKE_CURRENT_BINARY_DIR}/Tree.xml       @ONLY )
-CONFIGURE_FILE ( TypesList.xml ${CMAKE_CURRENT_BINARY_DIR}/TypesList.xml  @ONLY )
-CONFIGURE_FILE (machine.txt ${CMAKE_CURRENT_BINARY_DIR}/machine.txt  @ONLY)
+configure_file( Tree.xml      ${CMAKE_CURRENT_BINARY_DIR}/Tree.xml       @ONLY )
+configure_file( TypesList.xml ${CMAKE_CURRENT_BINARY_DIR}/TypesList.xml  @ONLY )
+configure_file(machine.txt ${CMAKE_CURRENT_BINARY_DIR}/machine.txt  @ONLY)
 
 # scripts to start the server
-CONFIGURE_FILE ( start_coolfluid_server.sh ${CMAKE_CURRENT_BINARY_DIR}/start_coolfluid_server.sh  @ONLY )
-CONFIGURE_FILE ( check_coolfluid_server.sh ${CMAKE_CURRENT_BINARY_DIR}/check_coolfluid_server.sh  @ONLY )
+configure_file( start_coolfluid_server.sh ${CMAKE_CURRENT_BINARY_DIR}/start_coolfluid_server.sh  @ONLY )
+configure_file( check_coolfluid_server.sh ${CMAKE_CURRENT_BINARY_DIR}/check_coolfluid_server.sh  @ONLY )
 
-CONFIGURE_FILE ( fsm_advect_wave.CFcase ${CMAKE_CURRENT_BINARY_DIR}/fsm_advect_wave.CFcase @ONLY )
-CONFIGURE_FILE ( advect_wave.thor ${CMAKE_CURRENT_BINARY_DIR}/advect_wave.thor @ONLY )
-CONFIGURE_FILE ( advect_wave.SP ${CMAKE_CURRENT_BINARY_DIR}/advect_wave.SP @ONLY )
+configure_file( fsm_advect_wave.CFcase ${CMAKE_CURRENT_BINARY_DIR}/fsm_advect_wave.CFcase @ONLY )
+configure_file( advect_wave.thor ${CMAKE_CURRENT_BINARY_DIR}/advect_wave.thor @ONLY )
+configure_file( advect_wave.SP ${CMAKE_CURRENT_BINARY_DIR}/advect_wave.SP @ONLY )
 
 coolfluid_mark_not_orphan(ServerSimulation.cpp)

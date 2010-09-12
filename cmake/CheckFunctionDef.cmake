@@ -1,5 +1,5 @@
 # try to compile a program
-CHECK_CXX_SOURCE_COMPILES (
+check_cxx_source_compiles(
 " #include <iostream>
   int main(int argc, char* argv[])
   {

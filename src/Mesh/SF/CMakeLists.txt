@@ -23,7 +23,7 @@ list( APPEND SF_files
 
 list( APPEND SF_cflibs Mesh )
 
-SET  ( SF_kernellib TRUE )
+set( SF_kernellib TRUE )
 
 coolfluid_add_library ( SF )
 

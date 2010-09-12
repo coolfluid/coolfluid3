@@ -43,6 +43,6 @@ mark_as_advanced(
 
 coolfluid_log( "CF_HAVE_METIS: [${CF_HAVE_METIS}]" )
 if(CF_HAVE_METIS)
-  coolfluid_log_file ( "  METIS_INCLUDE_DIR: [${METIS_INCLUDE_DIR}]" )
-  coolfluid_log_file ( "  METIS_LIBRARY: [${METIS_LIBRARY}]" )
+  coolfluid_log_file( "  METIS_INCLUDE_DIR: [${METIS_INCLUDE_DIR}]" )
+  coolfluid_log_file( "  METIS_LIBRARY: [${METIS_LIBRARY}]" )
 endif()

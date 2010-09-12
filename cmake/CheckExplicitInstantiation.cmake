@@ -4,7 +4,7 @@
 # both the instantiation syntax and symbol linkage is handled
 # properly.
 
- make_directory(${coolfluid_BINARY_DIR}/CMakeTmp/CheckExplicitInstantiation)
+file( MAKE_DIRECTORY ${coolfluid_BINARY_DIR}/CMakeTmp/CheckExplicitInstantiation)
 string(ASCII 35 POUND)
  write_file(
    ${coolfluid_BINARY_DIR}/CMakeTmp/CheckExplicitInstantiation/CMakeLists.txt

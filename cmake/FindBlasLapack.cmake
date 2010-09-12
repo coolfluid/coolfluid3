@@ -79,7 +79,7 @@ if( NOT LAPACK_LIBRARIES )
     set( CF_HAVE_BLASLAPACK ON CACHE BOOL "Found BLAS and LAPACK libraries")
   endif()
 
-  mark_as_advanced ( LAPACK_LIBRARY BLAS_LIBRARY )
+  mark_as_advanced( LAPACK_LIBRARY BLAS_LIBRARY )
 
 #################################
 
@@ -94,12 +94,12 @@ else()
 
   set( CF_BLASLAPACK_LIBRARIES   "${LAPACK_LIBRARIES}" CACHE STRING "BLAS and LAPACK libraries")
 
-  mark_as_advanced ( CF_BLASLAPACK_LIBRARIES LAPACK_LIBRARIES )
+  mark_as_advanced( CF_BLASLAPACK_LIBRARIES LAPACK_LIBRARIES )
 
   coolfluid_log( "CF_HAVE_BLASLAPACK: [${CF_HAVE_BLASLAPACK}]" )
   coolfluid_log( "  LAPACK_LIBRARIES: [${LAPACK_LIBRARIES}]" )
 
 endif()
 
-mark_as_advanced ( CF_HAVE_LAPACK CF_HAVE_BLAS CF_HAVE_BLASLAPACK CF_BLASLAPACK_LIBRARIES )
+mark_as_advanced( CF_HAVE_LAPACK CF_HAVE_BLAS CF_HAVE_BLASLAPACK CF_BLASLAPACK_LIBRARIES )
 

@@ -30,7 +30,7 @@ else()
   set(CF_HAVE_CGNS 0 CACHE BOOL "Not fount CGNS library")
 endif()
 
-mark_as_advanced (
+mark_as_advanced(
   CGNS_INCLUDE_DIR
   CGNS_LIBRARY
   CF_HAVE_CGNS
@@ -41,6 +41,6 @@ if(CF_HAVE_CGNS)
    coolfluid_log( "  CGNS_INCLUDE_DIR: [${CGNS_INCLUDE_DIR}]" )
    coolfluid_log( "  CGNS_LIBRARY:     [${CGNS_LIBRARY}]" )
 else()
-   coolfluid_log_file ( "  CGNS_INCLUDE_DIR: [${CGNS_INCLUDE_DIR}]" )
-   coolfluid_log_file ( "  CGNS_LIBRARY:     [${CGNS_LIBRARY}]" )
+   coolfluid_log_file( "  CGNS_INCLUDE_DIR: [${CGNS_INCLUDE_DIR}]" )
+   coolfluid_log_file( "  CGNS_LIBRARY:     [${CGNS_LIBRARY}]" )
 endif()

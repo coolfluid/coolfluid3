@@ -10,6 +10,6 @@ list( APPEND Neu_files
 
 list( APPEND Neu_cflibs Mesh )
 
-SET  ( Neu_kernellib TRUE )
+set( Neu_kernellib TRUE )
 
 coolfluid_add_library ( Neu )

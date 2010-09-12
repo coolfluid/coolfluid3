@@ -6,6 +6,6 @@ list( APPEND Gmsh_files
 
 list( APPEND Gmsh_cflibs Mesh )
 
-SET  ( Gmsh_kernellib TRUE )
+set( Gmsh_kernellib TRUE )
 
 coolfluid_add_library ( Gmsh )

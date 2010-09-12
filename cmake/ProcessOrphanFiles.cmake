@@ -1,7 +1,7 @@
 # if file with orphan files exists remove it
 set( ORPHAN_FILE "${coolfluid_BINARY_DIR}/OrphanFiles.txt" )
 if( EXISTS ${ORPHAN_FILE} ) 
-	FILE ( REMOVE ${ORPHAN_FILE} )
+	file( REMOVE ${ORPHAN_FILE} )
 endif()
 
 
@@ -12,7 +12,7 @@ if( CF_LENGTH_ORPHAN_FILES )
   coolfluid_log( " !!! ERROR !!! ")
   LOG  ( "Orphan file list:" )
   foreach( AFILE ${CF_ORPHAN_FILES} )
-    FILE ( APPEND ${ORPHAN_FILE} "${AFILE}\n" )
+    file( APPEND ${ORPHAN_FILE} "${AFILE}\n" )
     LOG  ( "${AFILE}" )
   endforeach()
 
