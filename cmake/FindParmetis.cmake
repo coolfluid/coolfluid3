@@ -7,7 +7,7 @@
 # CF_HAVE_PARMETIS        = set to true after finding the library
 #
 
-OPTION( CF_SKIP_PARMETIS "Skip search for Parmetis library" OFF )
+option( CF_SKIP_PARMETIS "Skip search for Parmetis library" OFF )
 
 # dont search for parmetis without MPI
 if( NOT CF_SKIP_PARMETIS OR NOT CF_HAVE_MPI )
@@ -21,8 +21,8 @@ if( NOT CF_SKIP_PARMETIS OR NOT CF_HAVE_MPI )
   find_path(PARMETIS_INCLUDE_DIR parmetis.h  ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH)
   find_path(PARMETIS_INCLUDE_DIR parmetis.h )
 
-  coolfluid_add_trial_library_path(${PARMETIS_ROOT}/lib )
-  coolfluid_add_trial_library_path($ENV{PARMETIS_ROOT}/lib )
+  coolfluid_coolfluid_add_trial_library_path(${PARMETIS_ROOT}/lib )
+  coolfluid_coolfluid_add_trial_library_path($ENV{PARMETIS_ROOT}/lib )
 
   find_library(PARMETIS_LIB_PARMETIS parmetis ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
   find_library(PARMETIS_LIB_PARMETIS parmetis )

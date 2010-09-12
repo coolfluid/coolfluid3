@@ -32,7 +32,7 @@ coolfluid_log_file( "EXECUTABLE_OUTPUT_PATH: ${EXECUTABLE_OUTPUT_PATH}" )
 coolfluid_log_file( "LIBRARY_OUTPUT_PATH:      ${LIBRARY_OUTPUT_PATH}" )
 
 # tell CMake to search first in directories listed in CMAKE_MODULE_PATH
-# when you use FIND_PACKAGE() or include()
+# when you use find_package() or include()
 coolfluid_log_file( "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}" )
 
 # this is the complete path of the cmake which runs currently (e.g. /usr/local/bin/cmake)

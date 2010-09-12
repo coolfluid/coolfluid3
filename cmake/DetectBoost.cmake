@@ -25,13 +25,13 @@ if( NOT Boost_FOUND )
 endif()
 
 # add boost include path
-INCLUDE_DIRECTORIES ( ${Boost_INCLUDE_DIR} )
+include_directories( ${Boost_INCLUDE_DIR} )
 
 #######################################################################################
 
 coolfluid_log( "+++++  Checking for boost erfc function" )
 set( CMAKE_REQUIRED_INCLUDES ${Boost_INCLUDE_DIR} )
-CHECK_CXX_SOURCE_COMPILES (
+check_cxx_source_compiles (
 "#include <boost/math/special_functions/erf.hpp>
 int main(int argc, char* argv[])
 {

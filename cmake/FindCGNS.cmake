@@ -18,8 +18,8 @@ coolfluid_add_trial_include_path( $ENV{CGNS_HOME}/include )
 find_path( CGNS_INCLUDE_DIR cgnslib.h PATHS ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH )
 find_path( CGNS_INCLUDE_DIR cgnslib.h )
 
-coolfluid_add_trial_library_path(${CGNS_HOME}/lib )
-coolfluid_add_trial_library_path($ENV{CGNS_HOME}/lib)
+coolfluid_coolfluid_add_trial_library_path(${CGNS_HOME}/lib )
+coolfluid_coolfluid_add_trial_library_path($ENV{CGNS_HOME}/lib)
 
 find_library(CGNS_LIBRARY cgns  PATHS  ${TRIAL_LIBRARY_PATHS}  NO_DEFAULT_PATH)
 find_library(CGNS_LIBRARY cgns )

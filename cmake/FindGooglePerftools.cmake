@@ -16,8 +16,8 @@ if( NOT CF_SKIP_GOOGLE_PERFTOOLS )
   find_path(GOOGLE_PERFTOOLS_INCLUDE_DIR google/profiler.h ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH)
   find_path(GOOGLE_PERFTOOLS_INCLUDE_DIR google/profiler.h )
 
-  coolfluid_add_trial_library_path(    ${GOOGLE_PERFTOOLS_ROOT}/lib )
-  coolfluid_add_trial_library_path( $ENV{GOOGLE_PERFTOOLS_ROOT}/lib )
+  coolfluid_coolfluid_add_trial_library_path(    ${GOOGLE_PERFTOOLS_ROOT}/lib )
+  coolfluid_coolfluid_add_trial_library_path( $ENV{GOOGLE_PERFTOOLS_ROOT}/lib )
 
   find_library(GOOGLE_PERFTOOLS_PROFILER_LIB profiler ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
   find_library(GOOGLE_PERFTOOLS_PROFILER_LIB profiler )

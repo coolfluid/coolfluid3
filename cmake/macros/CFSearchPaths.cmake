@@ -11,11 +11,11 @@ endmacro( coolfluid_add_trial_include_path )
 ##############################################################################
 # adds a path to search for when searching for library files
 ##############################################################################
-macro( coolfluid_add_trial_library_path ICPATH )
+macro( coolfluid_coolfluid_add_trial_library_path ICPATH )
  if( EXISTS ${ICPATH})
    list( APPEND TRIAL_LIBRARY_PATHS ${ICPATH} )
  endif( EXISTS ${ICPATH})
-endmacro( coolfluid_add_trial_library_path )
+endmacro( coolfluid_coolfluid_add_trial_library_path )
 ##############################################################################
 
 ##############################################################################

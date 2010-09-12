@@ -53,7 +53,7 @@ coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 #######################################################################################
 
   coolfluid_log( "+++++  Checking C++ compiler has namespaces" )
-  CHECK_CXX_SOURCE_COMPILES (
+  check_cxx_source_compiles (
   " namespace lolo { struct popo { int i; };  }
     using namespace lolo;
     int main(int argc, char* argv[])
@@ -102,7 +102,7 @@ coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 #######################################################################################
 
   coolfluid_log( "+++++  Checking for erfc function" )
-  CHECK_CXX_SOURCE_COMPILES (
+  check_cxx_source_compiles (
   " #include <cmath>
     int main (int argc, char* argv[]) { erfc (0.); }
   "
@@ -111,7 +111,7 @@ coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 #######################################################################################
 
   coolfluid_log( "+++++  Checking for asinh function" )
-  CHECK_CXX_SOURCE_COMPILES (
+  check_cxx_source_compiles (
   " #include <cmath>
     int main (int argc, char* argv[]) { asinh (0.); }
   "
@@ -120,7 +120,7 @@ coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 #######################################################################################
 
   coolfluid_log( "+++++  Checking for acosh function" )
-  CHECK_CXX_SOURCE_COMPILES (
+  check_cxx_source_compiles (
   " #include <cmath>
     int main (int argc, char* argv[]) { acosh (0.); }
   "
@@ -129,7 +129,7 @@ coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 #######################################################################################
 
   coolfluid_log( "+++++  Checking for atanh function" )
-  CHECK_CXX_SOURCE_COMPILES (
+  check_cxx_source_compiles (
   " #include <cmath>
     int main (int argc, char* argv[]) { atanh (0.); }
   "
@@ -145,7 +145,7 @@ coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
   # check for c++ abi, ussually present in GNU compilers
   coolfluid_log( "+++++  Checking for cxxabi" )
 
-  CHECK_CXX_SOURCE_COMPILES (
+  check_cxx_source_compiles (
     "#include <cxxabi.h>
     int main(int argc, char* argv[])
     { char * type; int status;

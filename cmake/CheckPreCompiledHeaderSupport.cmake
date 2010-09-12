@@ -1,5 +1,5 @@
 # Check support for precompiled headers
-IF(WIN32)
+if(WIN32)
 
   # Assume WIN32 uses MSVC, therefore PCH support is ok
   set(PCHSUPPORT_FOUND TRUE)
@@ -13,12 +13,12 @@ IF(WIN32)
     # Flags to use PCH
   endmacro(USE_PRECOMPILED_HEADER _project _hdr _cpp)
 
-ELSE()
+else()
 
   # if we have gcc > 3.4 then PCH support is ok
   # but for the moment we keep it out
   set(PCHSUPPORT_FOUND FALSE)
 
-ENDIF()
+endif()
 
 

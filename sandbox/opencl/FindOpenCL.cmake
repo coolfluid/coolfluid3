@@ -17,8 +17,8 @@ if( NOT CF_SKIP_OPENCL )
   coolfluid_add_trial_include_path( $ENV{OPENCL_ROOT}/include )
 
   coolfluid_add_trial_include_path( ${DEPS_ROOT}/include )
-  coolfluid_add_trial_library_path( ${OPENCL_ROOT}/lib )
-  coolfluid_add_trial_library_path( $ENV{OPENCL_ROOT}/lib )
+  coolfluid_coolfluid_add_trial_library_path( ${OPENCL_ROOT}/lib )
+  coolfluid_coolfluid_add_trial_library_path( $ENV{OPENCL_ROOT}/lib )
 
 if(WIN32)
 

@@ -2,7 +2,7 @@
 # find MPI compiler or libraries
 
 # try to compile an mpi program to check if compiler is already mpi
-CHECK_CXX_SOURCE_COMPILES(
+check_cxx_source_compiles(
   "#include <mpi.h>
    #include <iostream>
    int main(int argc, char* argv[])
@@ -23,7 +23,7 @@ else()
 
   coolfluid_log( "MPI: No MPI C++ compiler was set. Searching for MPI libraries..." )
 
-  FIND_PACKAGE(MPI)
+  find_package(MPI)
 
   if( NOT CF_MPI_LIBS_FOUND )
       message( FATAL_ERROR "MPI: No MPI compiler or libraries were found.\n     MPI is required to compile coolfluid." )
