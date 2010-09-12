@@ -1,4 +1,4 @@
-# recreate the logfile
+# recreate the coolfluid_log_file
 SET  ( PROJECT_LOG_FILE ${PROJECT_BINARY_DIR}/CMakeLogInfo.txt )
 FILE ( WRITE ${PROJECT_LOG_FILE} "coolfluid cmake log file\n")
 

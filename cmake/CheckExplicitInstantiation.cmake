@@ -38,13 +38,13 @@
    )
  
  IF(CF_CXX_SUPPORTS_EXPLICIT_TEMPLATES)
-   LOG( "+++++  Checking support for C++ explicit template instantiation -- yes")
+   coolfluid_log( "+++++  Checking support for C++ explicit template instantiation -- yes")
    SET(CF_CXX_SUPPORTS_EXPLICIT_TEMPLATES ON CACHE INTERNAL "Support for C++ explict templates")
    WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeOutput.log
      "Determining if the C++ compiler supports explict template instantiation passed with the following output:\n"
      "${OUTPUT}\n" APPEND)
  ELSE()
-   LOG( "+++++  Checking support for C++ explicit template instantiation -- no")
+   coolfluid_log( "+++++  Checking support for C++ explicit template instantiation -- no")
    SET(CF_CXX_SUPPORTS_EXPLICIT_TEMPLATES OFF CACHE INTERNAL "Support for C++ explict templates")
    WRITE_FILE(${CMAKE_BINARY_DIR}/CMakeFiles/CMakeError.log
      "Determining if the C++ compiler supports explict template instantiation failed with the following output:\n"

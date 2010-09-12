@@ -1,7 +1,7 @@
 ##############################################################################
 # macro for adding a application in the project
 ##############################################################################
-MACRO( CF_ADD_APP APPNAME )
+MACRO( coolfluid_add_application APPNAME )
 
   # option to build it or not
   OPTION( CF_BUILD_${APPNAME} "Build the ${APPNAME} application" ON )
@@ -18,7 +18,7 @@ MACRO( CF_ADD_APP APPNAME )
     IF ( ${pos} EQUAL -1 )
       SET ( ${APPNAME}_all_mods_pres OFF )
       IF ( CF_BUILD_${APPNAME} )
-          LOGVERBOSE ( "     \# app [${APPNAME}] requires module [${reqmod}] which is not present")
+          coolfluid_log_verbose ( "     \# app [${APPNAME}] requires module [${reqmod}] which is not present")
       ENDIF()
     ENDIF()
   ENDFOREACH()
@@ -31,7 +31,7 @@ MACRO( CF_ADD_APP APPNAME )
     SET ( ${APPNAME}_will_compile OFF )
   ENDIF()
 
-  LOGVERBOSE ("app_${APPNAME} = ${${APPNAME}_will_compile}")
+  coolfluid_log_verbose ("app_${APPNAME} = ${${APPNAME}_will_compile}")
 
   # compile if selected and all required modules are present
   IF (${APPNAME}_will_compile)
@@ -45,7 +45,7 @@ MACRO( CF_ADD_APP APPNAME )
     SOURCE_GROUP( Headers FILES ${${APPNAME}_headers} )
     SOURCE_GROUP( Sources FILES ${${APPNAME}_sources} )
 
-    LOG ( " +++ APP [${APPNAME}]" )
+    coolfluid_log( " +++ APP [${APPNAME}]" )
 
     ADD_EXECUTABLE( ${APPNAME} ${${APPNAME}_sources} ${${APPNAME}_headers} ${${APPNAME}_moc_files})
 
@@ -89,18 +89,18 @@ MACRO( CF_ADD_APP APPNAME )
   GET_TARGET_PROPERTY ( ${APPNAME}_TYPE             ${APPNAME} TYPE )
 
   # log some info about the app
-  LOGFILE("${APPNAME} : [${CF_BUILD_${APPNAME}}]")
-  LOGFILE("${APPNAME} : [${${APPNAME}_will_compile}]")
-  LOGFILE("${APPNAME}_dir             : [${${APPNAME}_dir}]")
-  LOGFILE("${APPNAME}_includedirs     : [${${APPNAME}_includedirs}]")
-  LOGFILE("${APPNAME}_libs            : [${${APPNAME}_libs}]")
-  LOGFILE("${APPNAME}_cflibs          : [${${APPNAME}_cflibs}]")
-  LOGFILE("${APPNAME}_all_mods_pres   : [${${APPNAME}_all_mods_pres}]")
-  LOGFILE("${APPNAME}_requires_mods   : [${${APPNAME}_requires_mods}]")
-  LOGFILE("${APPNAME}_P_SOURCES       : [${${APPNAME}_P_SOURCES}]")
-  LOGFILE("${APPNAME}_LINK_FLAGS      : [${${APPNAME}_LINK_FLAGS}]")
-  LOGFILE("${APPNAME}_TYPE            : [${${APPNAME}_TYPE}]")
+  coolfluid_log_file("${APPNAME} : [${CF_BUILD_${APPNAME}}]")
+  coolfluid_log_file("${APPNAME} : [${${APPNAME}_will_compile}]")
+  coolfluid_log_file("${APPNAME}_dir             : [${${APPNAME}_dir}]")
+  coolfluid_log_file("${APPNAME}_includedirs     : [${${APPNAME}_includedirs}]")
+  coolfluid_log_file("${APPNAME}_libs            : [${${APPNAME}_libs}]")
+  coolfluid_log_file("${APPNAME}_cflibs          : [${${APPNAME}_cflibs}]")
+  coolfluid_log_file("${APPNAME}_all_mods_pres   : [${${APPNAME}_all_mods_pres}]")
+  coolfluid_log_file("${APPNAME}_requires_mods   : [${${APPNAME}_requires_mods}]")
+  coolfluid_log_file("${APPNAME}_P_SOURCES       : [${${APPNAME}_P_SOURCES}]")
+  coolfluid_log_file("${APPNAME}_LINK_FLAGS      : [${${APPNAME}_LINK_FLAGS}]")
+  coolfluid_log_file("${APPNAME}_TYPE            : [${${APPNAME}_TYPE}]")
 
 
-ENDMACRO( CF_ADD_APP )
+ENDMACRO( coolfluid_add_application )
 ##############################################################################

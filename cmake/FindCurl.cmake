@@ -37,8 +37,8 @@ ENDIF()
     CF_HAVE_CURL
   )
 
-  LOG ( "CF_HAVE_CURL: [${CF_HAVE_CURL}]" )
+  coolfluid_log( "CF_HAVE_CURL: [${CF_HAVE_CURL}]" )
   IF(CF_HAVE_CURL)
-    LOG ( "  CURL_INCLUDE_DIR:  [${CURL_INCLUDE_DIR}]" )
-    LOG ( "  CURL_LIBRARY:      [${CURL_LIBRARY}]" )
+    coolfluid_log( "  CURL_INCLUDE_DIR:  [${CURL_INCLUDE_DIR}]" )
+    coolfluid_log( "  CURL_LIBRARY:      [${CURL_LIBRARY}]" )
   ENDIF(CF_HAVE_CURL)

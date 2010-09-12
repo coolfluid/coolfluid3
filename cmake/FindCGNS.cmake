@@ -36,11 +36,11 @@ MARK_AS_ADVANCED (
   CF_HAVE_CGNS
 )
 
-LOG ( "CF_HAVE_CGNS: [${CF_HAVE_CGNS}]" )
+coolfluid_log( "CF_HAVE_CGNS: [${CF_HAVE_CGNS}]" )
 IF(CF_HAVE_CGNS)
-   LOG ( "  CGNS_INCLUDE_DIR: [${CGNS_INCLUDE_DIR}]" )
-   LOG ( "  CGNS_LIBRARY:     [${CGNS_LIBRARY}]" )
+   coolfluid_log( "  CGNS_INCLUDE_DIR: [${CGNS_INCLUDE_DIR}]" )
+   coolfluid_log( "  CGNS_LIBRARY:     [${CGNS_LIBRARY}]" )
 ELSE()
-   LOGFILE ( "  CGNS_INCLUDE_DIR: [${CGNS_INCLUDE_DIR}]" )
-   LOGFILE ( "  CGNS_LIBRARY:     [${CGNS_LIBRARY}]" )
+   coolfluid_log_file ( "  CGNS_INCLUDE_DIR: [${CGNS_INCLUDE_DIR}]" )
+   coolfluid_log_file ( "  CGNS_LIBRARY:     [${CGNS_LIBRARY}]" )
 ENDIF()

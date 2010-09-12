@@ -2,34 +2,38 @@
 
 ###############################################################################
 ### test for rapidxml
-ADD_SUBDIRECTORY( rapidxml )
+add_subdirectory( rapidxml )
 
 ###############################################################################
 ### test for boost::lambda
-ADD_SUBDIRECTORY( boost_lambda )
+add_subdirectory( boost-lambda )
 
 ###############################################################################
 ### test for boost::bind
-ADD_SUBDIRECTORY( boost_bind )
+add_subdirectory( boost-bind )
 
 ###############################################################################
 ### test for boost::multi_array
-ADD_SUBDIRECTORY( boost_multiarray )
+add_subdirectory( boost-multiarray )
+
+###############################################################################
+### test for boost::ublas
+add_subdirectory( boost-ublas )
 
 ###############################################################################
 ### test for using boost::progress_display with LogStream
-ADD_SUBDIRECTORY( LogWithProgressDisplay )
+add_subdirectory( boost-progress-logstream )
 
 ###############################################################################
 ### test for CGAL functions
-ADD_SUBDIRECTORY( cgal )
+add_subdirectory( cgal )
 
 ###############################################################################
 ### test for CUDA
-ADD_SUBDIRECTORY( cuda )
+add_subdirectory( cuda )
 
 ###############################################################################
 ### test for OpenCL
-ADD_SUBDIRECTORY( opencl )
+add_subdirectory( opencl )
 
 

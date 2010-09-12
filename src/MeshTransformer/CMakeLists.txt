@@ -10,4 +10,4 @@ if(CF_BUILD_OpenFOAM)
   LIST ( APPEND coolfluid-mesh-transformer_libs OpenFOAM)
 endif()
 
-CF_ADD_APP (coolfluid-mesh-transformer)
+coolfluid_add_application (coolfluid-mesh-transformer)

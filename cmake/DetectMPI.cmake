@@ -14,14 +14,14 @@ CHECK_CXX_SOURCE_COMPILES(
 
 IF( CF_MPI_COMPILER_AVAILABLE )
 
-  LOG( "MPI: Already using MPI C++ compiler, no need to search for MPI libraries" )
+  coolfluid_log( "MPI: Already using MPI C++ compiler, no need to search for MPI libraries" )
   SET( CF_HAVE_MPI 1 CACHE BOOL "Found MPI compiler" )
 
-  LOG( "     MPI CXX COMPILER   : [${CMAKE_CXX_COMPILER}]")
+  coolfluid_log( "     MPI CXX COMPILER   : [${CMAKE_CXX_COMPILER}]")
 
 ELSE()
 
-  LOG( "MPI: No MPI C++ compiler was set. Searching for MPI libraries..." )
+  coolfluid_log( "MPI: No MPI C++ compiler was set. Searching for MPI libraries..." )
 
   FIND_PACKAGE(MPI)
 
@@ -29,8 +29,8 @@ ELSE()
       MESSAGE( FATAL_ERROR "MPI: No MPI compiler or libraries were found.\n     MPI is required to compile coolfluid." )
   ENDIF()
 
-  LOG( "     MPI_INCLUDE_PATH   : [${MPI_INCLUDE_PATH}]")
-  LOG( "     MPI_LIBRARIES      : [${MPI_LIBRARIES}]")
+  coolfluid_log( "     MPI_INCLUDE_PATH   : [${MPI_INCLUDE_PATH}]")
+  coolfluid_log( "     MPI_LIBRARIES      : [${MPI_LIBRARIES}]")
 
 ENDIF()
 
@@ -54,7 +54,7 @@ FIND_PROGRAM( CF_MPIRUN_PROGRAM mpirun
 
 MARK_AS_ADVANCED( CF_MPIRUN_PROGRAM )
 
-LOGFILE( "     CF_MPIRUN_PROGRAM : [${CF_MPIRUN_PROGRAM}]" )
+coolfluid_log_file( "     CF_MPIRUN_PROGRAM : [${CF_MPIRUN_PROGRAM}]" )
 
 ###############################################################################
 IF( CF_MPI_LIBS_FOUND )

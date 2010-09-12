@@ -16,7 +16,7 @@
 # cmake behavior
 ##############################################################################
 
-CMAKE_MINIMUM_REQUIRED( VERSION 2.8 FATAL_ERROR )
+cmake_minimum_required( VERSION 2.8 FATAL_ERROR )
 
 ##############################################################################
 # project definition and versioning
@@ -75,11 +75,11 @@ include( DefineBuildRules )        # defined default compilation flags and linki
 
 include( ApplyGlobalOptions )      # take options into effect
 
-LOG( "" )
+coolfluid_log( "" )
 ##############################################################################
-LOG( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
-LOG( "General Configuration ")
-LOG( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
+coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
+coolfluid_log( "General Configuration ")
+coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 ##############################################################################
 
 add_subdirectory( cmake )         # dir with macros to be installed
@@ -88,11 +88,11 @@ add_subdirectory( doc )           # dir with documentation to be installed
 
 include( DetectSoftware )         # find sofwtare dependencies
 
-LOG( "" )
+coolfluid_log( "" )
 ##############################################################################
-LOG( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
-LOG( "Kernel Configuration ")
-LOG( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
+coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
+coolfluid_log( "Kernel Configuration ")
+coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 ##############################################################################
 
 
@@ -115,11 +115,11 @@ if( CF_ENABLE_SANDBOX )
   add_subdirectory( sandbox )
 endif()
 
-LOG( "" )
+coolfluid_log( "" )
 ##############################################################################
-LOG( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
-LOG( "Plugin's Configuration ")
-LOG( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
+coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
+coolfluid_log( "Plugin's Configuration ")
+coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 ##############################################################################
 
 # find plugins
@@ -128,10 +128,10 @@ foreach( EXDIR ${CF_PLUGIN_DIRS} )
 
   include_directories( ${EXDIR} )
 
-  LOG( "" )
-  LOG( "---------------------------------------------------------" )
-  LOG( "PLUGINS DIR [${EXDIR}]")
-  LOG( "---------------------------------------------------------" )
+  coolfluid_log( "" )
+  coolfluid_log( "---------------------------------------------------------" )
+  coolfluid_log( "PLUGINS DIR [${EXDIR}]")
+  coolfluid_log( "---------------------------------------------------------" )
 
   # find modules in each search dir
   file( GLOB  FOUND_PLUGIN_DIRS "${EXDIR}/*/CMakeLists.txt")
@@ -147,7 +147,7 @@ foreach( EXDIR ${CF_PLUGIN_DIRS} )
 
       list( APPEND CF_PLUGIN_LIST ${aPluginName} )
 
-      LOG( " + PLUGIN [${aPluginName}]" )
+      coolfluid_log( " + PLUGIN [${aPluginName}]" )
 
       add_subdirectory( ${aPluginDir} plugins/${aPluginName} )
 
@@ -158,69 +158,69 @@ foreach( EXDIR ${CF_PLUGIN_DIRS} )
 endforeach()
 
 
-LOG( "" )
+coolfluid_log( "" )
 ##############################################################################
-LOG( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
-LOG( "+ coolfluid configuration summary " )
-LOG( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
+coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
+coolfluid_log( "+ coolfluid configuration summary " )
+coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 ##############################################################################
-LOG( " coolfluid Release     : [${CF_VERSION}]" )
-LOG( " coolfluid Kernel      : [${CF_KERNEL_VERSION}]" )
-LOG( " coolfluid SVN version : [${coolfluid_svnversion}]" )
-LOG( "---------------------------------------------------------" )
-LOG( " CMake Version         : [${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}]" )
-LOG( " CMake Generator       : [${CMAKE_GENERATOR}]" )
-LOG( " Build Type            : [${CMAKE_BUILD_TYPE}]" )
-LOG( " Operating System      : [${CMAKE_SYSTEM}]" )
-LOG( " Memory address        : [${CF_OS_BITS} bits]" )
-LOG( "---------------------------------------------------------" )
-LOG( " Install path          : [${CMAKE_INSTALL_PREFIX}]" )
-LOG( " Install tests         : [${CF_INSTALL_TESTS}]" )
-LOG( "---------------------------------------------------------" )
-LOG( " C compiler            : [${CMAKE_C_COMPILER}]" )
-LOG( " C flags               : [${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_${CMAKE_BUILD_TYPE}}]" )
-LOG( " C++ compiler          : [${CMAKE_CXX_COMPILER}]" )
-LOG( " C++ flags             : [${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}}]" )
-LOG( " C++ link flags        : [${CMAKE_CXX_LINK_FLAGS}]" )
+coolfluid_log( " coolfluid Release     : [${CF_VERSION}]" )
+coolfluid_log( " coolfluid Kernel      : [${CF_KERNEL_VERSION}]" )
+coolfluid_log( " coolfluid SVN version : [${coolfluid_svnversion}]" )
+coolfluid_log( "---------------------------------------------------------" )
+coolfluid_log( " CMake Version         : [${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}]" )
+coolfluid_log( " CMake Generator       : [${CMAKE_GENERATOR}]" )
+coolfluid_log( " Build Type            : [${CMAKE_BUILD_TYPE}]" )
+coolfluid_log( " Operating System      : [${CMAKE_SYSTEM}]" )
+coolfluid_log( " Memory address        : [${CF_OS_BITS} bits]" )
+coolfluid_log( "---------------------------------------------------------" )
+coolfluid_log( " Install path          : [${CMAKE_INSTALL_PREFIX}]" )
+coolfluid_log( " Install tests         : [${CF_INSTALL_TESTS}]" )
+coolfluid_log( "---------------------------------------------------------" )
+coolfluid_log( " C compiler            : [${CMAKE_C_COMPILER}]" )
+coolfluid_log( " C flags               : [${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_${CMAKE_BUILD_TYPE}}]" )
+coolfluid_log( " C++ compiler          : [${CMAKE_CXX_COMPILER}]" )
+coolfluid_log( " C++ flags             : [${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}}]" )
+coolfluid_log( " C++ link flags        : [${CMAKE_CXX_LINK_FLAGS}]" )
 if( NOT CF_SKIP_FORTRAN )
-  LOG( " Fortran compiler      : [${CMAKE_Fortran_COMPILER}]" )
-  LOG( " Fortran flags         : [${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_${CMAKE_BUILD_TYPE}}]" )
+  coolfluid_log( " Fortran compiler      : [${CMAKE_Fortran_COMPILER}]" )
+  coolfluid_log( " Fortran flags         : [${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_${CMAKE_BUILD_TYPE}}]" )
 endif()
-LOG( " common linker flags   : [${LINK_FLAGS}]" )
-LOG( " shared linker flags   : [${CMAKE_SHARED_LINKER_FLAGS}]" )
-LOG( " link libraries        : [${LINK_LIBRARIES}]" )
+coolfluid_log( " common linker flags   : [${LINK_FLAGS}]" )
+coolfluid_log( " shared linker flags   : [${CMAKE_SHARED_LINKER_FLAGS}]" )
+coolfluid_log( " link libraries        : [${LINK_LIBRARIES}]" )
 
-LOG( "---------------------------------------------------------" )
-LOG( " MPI                   : [${CF_HAVE_MPI}]" )
+coolfluid_log( "---------------------------------------------------------" )
+coolfluid_log( " MPI                   : [${CF_HAVE_MPI}]" )
 if(CF_HAVE_MPI)
   if(CF_MPIRUN_PROGRAM)
-    LOG( "    CF_MPIRUN_PROGRAM  : [${CF_MPIRUN_PROGRAM}]" )
+    coolfluid_log( "    CF_MPIRUN_PROGRAM  : [${CF_MPIRUN_PROGRAM}]" )
   endif()
   if( NOT CF_MPI_COMPILER_AVAILABLE )
-    LOG( "    MPI_INCLUDE_PATH   : [${MPI_INCLUDE_PATH}]")
-    LOG( "    MPI_LIBRARIES      : [${MPI_LIBRARIES}]")
+    coolfluid_log( "    MPI_INCLUDE_PATH   : [${MPI_INCLUDE_PATH}]")
+    coolfluid_log( "    MPI_LIBRARIES      : [${MPI_LIBRARIES}]")
   endif()
 endif()
-LOG( "---------------------------------------------------------" )
-LOG( " Log all               : [${CF_ENABLE_LOGALL}]")
-LOG( " Log debug             : [${CF_ENABLE_LOGDEBUG}]")
-LOG( " Assertions            : [${CF_ENABLE_ASSERTIONS}]")
-LOG( " Tracing               : [${CF_ENABLE_TRACE}]")
-LOG( " Static libs           : [${CF_ENABLE_STATIC}]")
-LOG( " Code coverage         : [${CF_ENABLE_CODECOVERAGE}]")
+coolfluid_log( "---------------------------------------------------------" )
+coolfluid_log( " Log all               : [${CF_ENABLE_LOGALL}]")
+coolfluid_log( " Log debug             : [${CF_ENABLE_LOGDEBUG}]")
+coolfluid_log( " Assertions            : [${CF_ENABLE_ASSERTIONS}]")
+coolfluid_log( " Tracing               : [${CF_ENABLE_TRACE}]")
+coolfluid_log( " Static libs           : [${CF_ENABLE_STATIC}]")
+coolfluid_log( " Code coverage         : [${CF_ENABLE_CODECOVERAGE}]")
 if(CF_ENABLE_CODECOVERAGE)
-  LOG( "    Coverage tool      : [${CTEST_COVERAGE_COMMAND}]")
+  coolfluid_log( "    Coverage tool      : [${CTEST_COVERAGE_COMMAND}]")
 endif()
-LOG( " Profiling             : [${CF_ENABLE_PROFILING}]")
+coolfluid_log( " Profiling             : [${CF_ENABLE_PROFILING}]")
 if(CF_ENABLE_PROFILING)
-  LOG( "    Profiler           : [${CF_PROFILER_TOOL}]")
+  coolfluid_log( "    Profiler           : [${CF_PROFILER_TOOL}]")
 endif()
-LOG( " Explicit Templates    : [${CF_HAVE_CXX_EXPLICIT_TEMPLATES}]")
-LOG( "---------------------------------------------------------" )
-LOG( " Kernel libs           : [${CF_KERNEL_LIBS}]")
-LOG( " List Plugins          : [${CF_PLUGIN_LIST}]")
-LOG( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
-LOG( "")
+coolfluid_log( " Explicit Templates    : [${CF_HAVE_CXX_EXPLICIT_TEMPLATES}]")
+coolfluid_log( "---------------------------------------------------------" )
+coolfluid_log( " Kernel libs           : [${CF_KERNEL_LIBS}]")
+coolfluid_log( " List Plugins          : [${CF_PLUGIN_LIST}]")
+coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+coolfluid_log( "")
 
 ##############################################################################
 # finalize build

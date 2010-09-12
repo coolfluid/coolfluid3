@@ -1,8 +1,8 @@
 ###############################################################################
 # assertions
-if ( NOT CF_ENABLE_ASSERTIONS )
-  add_definitions ( -DNDEBUG )
-endif ()
+if( NOT CF_ENABLE_ASSERTIONS )
+  add_definitions( -DNDEBUG )
+endif()
 
 ###############################################################################
 # Logging options
@@ -25,20 +25,20 @@ ENDIF()
 
 ###############################################################################
 # process precision option
-if  ( CF_USER_PRECISION MATCHES "[Ss][Ii][Nn][Gg][Ll][Ee]" )
+if( CF_USER_PRECISION MATCHES "[Ss][Ii][Nn][Gg][Ll][Ee]" )
   set ( CF_REAL_TYPE "float" CACHE STRING "Real type" FORCE )
 endif()
 
-if  ( CF_USER_PRECISION MATCHES "[Dd][Oo][Uu][Bb][Ll][Ee]" )
+if( CF_USER_PRECISION MATCHES "[Dd][Oo][Uu][Bb][Ll][Ee]" )
   set ( CF_REAL_TYPE "double" CACHE STRING "Real type" FORCE )
 endif()
 
-if  ( CF_USER_PRECISION MATCHES "[Qq][Uu][Aa][Dd]" )
+if( CF_USER_PRECISION MATCHES "[Qq][Uu][Aa][Dd]" )
   set ( CF_REAL_TYPE "long double" CACHE STRING "Real type" FORCE )
 endif()
 
 # default is double precision
-if ( NOT DEFINED CF_REAL_TYPE )
+if( NOT DEFINED CF_REAL_TYPE )
   set ( CF_REAL_TYPE "double" CACHE STRING "Real type" FORCE )
 endif()
 
@@ -57,11 +57,11 @@ endif()
 if( APPLE AND CMAKE_COMPILER_IS_GNUCC )
   set( CF_HAVE_CXX_EXPLICIT_TEMPLATES OFF CACHE BOOL "Support for explicit templates deactivated -- Apple with GCC don't support it" FORCE )
   if( CF_ENABLE_EXPLICIT_TEMPLATES )
-    LOG( "Explicit templates requested but not supported on Mac OS X" )
+    coolfluid_log( "Explicit templates requested but not supported on Mac OS X" )
   endif()
 endif()
 
-LOGFILE ( "CF_HAVE_CXX_EXPLICIT_TEMPLATES [${CF_HAVE_CXX_EXPLICIT_TEMPLATES}]" )
+coolfluid_log_file ( "CF_HAVE_CXX_EXPLICIT_TEMPLATES [${CF_HAVE_CXX_EXPLICIT_TEMPLATES}]" )
 
 mark_as_advanced ( CF_HAVE_CXX_EXPLICIT_TEMPLATES )
 	
@@ -90,7 +90,7 @@ IF(CF_ENABLE_PROFILING)
       SET(CMAKE_C_FLAGS     "${CMAKE_C_FLAGS} -pg" )
       SET(CMAKE_CXX_FLAGS   "${CMAKE_CXX_FLAGS} -pg" )
     ELSE()
-      LOG("User selected profiler [gprof] must be used with GCC compiler")
+      coolfluid_log("User selected profiler [gprof] must be used with GCC compiler")
       SET( CF_PROFILER_TOOL     NOTFOUND )
     ENDIF()
   ENDIF()
@@ -103,7 +103,7 @@ IF(CF_ENABLE_PROFILING)
     if( CF_HAVE_GOOGLE_PERFTOOLS )
       set( CF_PROFILER_IS_GOOGLE  ON )
     else()
-      log("User selected profiler [google-pertools] could not be found")
+      coolfluid_log("User selected profiler [google-pertools] could not be found")
       set( CF_PROFILER_GOOGLE  OFF )
       set( CF_PROFILER_IS_GOOGLE    NOTFOUND )
     endif()

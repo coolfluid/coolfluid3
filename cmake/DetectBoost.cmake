@@ -14,13 +14,13 @@ LIST ( APPEND CF_Boost_COMPONENTS thread iostreams filesystem system regex unit_
 
 find_package( Boost COMPONENTS ${CF_Boost_COMPONENTS} )
 
-LOG ( "Boost include path [${Boost_INCLUDE_DIR}]" )
-LOG ( "Boost lib version  [${Boost_LIB_VERSION}]" )
-LOG ( "Boost libraries    [${Boost_LIBRARIES}]"   )
+coolfluid_log( "Boost include path [${Boost_INCLUDE_DIR}]" )
+coolfluid_log( "Boost lib version  [${Boost_LIB_VERSION}]" )
+coolfluid_log( "Boost libraries    [${Boost_LIBRARIES}]"   )
 
 # if not found give more information
 IF ( NOT Boost_FOUND )
-  LOG ( ${Boost_ERROR_REASON} )
+  coolfluid_log( ${Boost_ERROR_REASON} )
   MESSAGE ( FATAL_ERROR "Boost is required to compile coolfluid Kernel" )
 ENDIF()
 
@@ -29,7 +29,7 @@ INCLUDE_DIRECTORIES ( ${Boost_INCLUDE_DIR} )
 
 #######################################################################################
 
-LOG ( "+++++  Checking for boost erfc function" )
+coolfluid_log( "+++++  Checking for boost erfc function" )
 SET ( CMAKE_REQUIRED_INCLUDES ${Boost_INCLUDE_DIR} )
 CHECK_CXX_SOURCE_COMPILES (
 "#include <boost/math/special_functions/erf.hpp>

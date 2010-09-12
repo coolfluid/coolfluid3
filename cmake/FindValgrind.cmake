@@ -22,9 +22,9 @@ IF ( NOT CF_SKIP_VALGRIND ) # guard for double inclusion
 
   MARK_AS_ADVANCED ( valgrind_INCLUDE_DIR CF_HAVE_VALGRIND )
 
-  LOG ( "CF_HAVE_VALGRIND: [${CF_HAVE_VALGRIND}]" )
+  coolfluid_log( "CF_HAVE_VALGRIND: [${CF_HAVE_VALGRIND}]" )
   IF(CF_HAVE_VALGRIND)
-    LOGFILE ( "  valgrind_INCLUDE_DIR:  [${valgrind_INCLUDE_DIR}]" )
+    coolfluid_log_file ( "  valgrind_INCLUDE_DIR:  [${valgrind_INCLUDE_DIR}]" )
   ENDIF(CF_HAVE_VALGRIND)
 
 ENDIF ( NOT CF_SKIP_VALGRIND )

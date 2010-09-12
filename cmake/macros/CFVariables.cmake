@@ -2,7 +2,7 @@
 # prints the variable name and value
 ##############################################################################
 MACRO( CF_DEBUG_VAR THE_VARIABLE )
-  LOG ( " +++++ DEBUG +++++ ${THE_VARIABLE} : [${${THE_VARIABLE}}]")
+  coolfluid_log( " +++++ DEBUG +++++ ${THE_VARIABLE} : [${${THE_VARIABLE}}]")
 ENDMACRO( CF_DEBUG_VAR THE_VARIABLE )
 
 ##############################################################################

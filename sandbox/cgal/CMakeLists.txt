@@ -12,7 +12,7 @@ LIST( APPEND bounding-ellipse_includedirs ${CGAL_INCLUDE_DIR} )
 LIST( APPEND bounding-ellipse_libs ${CGAL_LIBRARY} ${Boost_THREAD_LIBRARY} )
 LIST( APPEND bounding-ellipse_cflibs Mesh )
 
-CF_ADD_APP( bounding-ellipse )
+coolfluid_add_application( bounding-ellipse )
 #avoid a conflict between boost and CGAL
 SET(bounding-ellipse_COMPILE_FLAGS "-frounding-math -DCGAL_CFG_NO_TR1_ARRAY -DCGAL_CFG_NO_TR1_TUPLE")
 IF(CF_STRIP_CGAL_COMPILE_FLAGS)

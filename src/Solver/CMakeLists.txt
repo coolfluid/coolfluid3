@@ -9,7 +9,7 @@ LIST( APPEND coolfluid-solver_files
 
 LIST (APPEND coolfluid-solver_libs Neu SF)
 
-CF_ADD_APP (coolfluid-solver)
+coolfluid_add_application (coolfluid-solver)
 
 # Custom post-build rule (must be defined after adding target):
 # Copy the file quadtriag.neu from source dir to binary dir.

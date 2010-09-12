@@ -1,29 +1,29 @@
 ##############################################################################
 # this macro logs simultaneously to screen and to file
 ##############################################################################
-MACRO ( LOG line )
+MACRO ( coolfluid_log line )
    MESSAGE(STATUS ${line})
    FILE(APPEND ${PROJECT_LOG_FILE} "${line}\n")
-ENDMACRO ( LOG )
+ENDMACRO ()
 
 ##############################################################################
 # this macro logs just to file
 ##############################################################################
-MACRO ( LOGFILE line )
+MACRO ( coolfluid_log_file line )
    FILE(APPEND ${PROJECT_LOG_FILE} "${line}\n")
-ENDMACRO ( LOGFILE )
+ENDMACRO ( )
 ##############################################################################
 
 ##############################################################################
 # this macro logs to screen if we are verbose
 ##############################################################################
-MACRO ( LOGVERBOSE line )
+MACRO ( coolfluid_log_verbose line )
     IF ( CF_CMAKE_VERBOSE )
-      LOG ( ${line} )
+      coolfluid_log( ${line} )
     ELSE ()
-      LOGFILE ( ${line} )
+      coolfluid_log_file( ${line} )
     ENDIF()
-ENDMACRO ( LOGVERBOSE )
+ENDMACRO ( )
 ##############################################################################
 
 

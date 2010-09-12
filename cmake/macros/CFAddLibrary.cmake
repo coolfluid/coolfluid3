@@ -44,7 +44,7 @@ MACRO( CF_ADD_LIBRARY LIBNAME )
     IF( ${pos} EQUAL -1 )
       SET( ${LIBNAME}_all_mods_pres OFF )
       IF( CF_BUILD_${LIBNAME} )
-          LOGVERBOSE( "\# lib [${LIBNAME}] requires module [${reqmod}] which is not present")
+          coolfluid_log_verbose( "\# lib [${LIBNAME}] requires module [${reqmod}] which is not present")
       ENDIF()
     ENDIF()
   ENDFOREACH()
@@ -58,7 +58,7 @@ MACRO( CF_ADD_LIBRARY LIBNAME )
   SET( ${LIBNAME}_dir ${CMAKE_CURRENT_SOURCE_DIR} )
   SET( CF_COMPILES_${LIBNAME} ${${LIBNAME}_will_compile} CACHE INTERNAL "" FORCE )
 
-  LOGVERBOSE("lib_${LIBNAME} = ${${LIBNAME}_will_compile}")
+  coolfluid_log_verbose("lib_${LIBNAME} = ${${LIBNAME}_will_compile}")
 
   # separate the source files
   # and remove them from the orphan list
@@ -76,7 +76,7 @@ MACRO( CF_ADD_LIBRARY LIBNAME )
       INCLUDE_DIRECTORIES(${${LIBNAME}_includedirs})
     ENDIF()
 
-    LOG( " +++ LIB [${LIBNAME}]" )
+    coolfluid_log( " +++ LIB [${LIBNAME}]" )
 
     ADD_LIBRARY(${LIBNAME} ${${LIBNAME}_buildtype} ${${LIBNAME}_sources} ${${LIBNAME}_headers})
 
@@ -99,7 +99,7 @@ MACRO( CF_ADD_LIBRARY LIBNAME )
 
       install( FILES ${${LIBNAME}_headers} DESTINATION ${${LIBNAME}_INSTALL_HEADERS})
 
-      LOGFILE("${LIBNAME}_INSTALL_HEADERS : [${${LIBNAME}_INSTALL_HEADERS}]")
+      coolfluid_log_file("${LIBNAME}_INSTALL_HEADERS : [${${LIBNAME}_INSTALL_HEADERS}]")
     endif()
 
     # add coolfluid internal dependency libraries if defined
@@ -152,18 +152,18 @@ MACRO( CF_ADD_LIBRARY LIBNAME )
   GET_TARGET_PROPERTY( ${LIBNAME}_LINK_LIBRARIES  ${LIBNAME} LINK_LIBRARIES )
   
   # log some info about the library
-  LOGFILE("${LIBNAME} enabled         : [${CF_BUILD_${LIBNAME}}]")
-  LOGFILE("${LIBNAME} will compile    : [${${LIBNAME}_will_compile}]")
-  LOGFILE("${LIBNAME} install dir     : [${${LIBNAME}_INSTALL_HEADERS}]")
-  LOGFILE("${LIBNAME} install API     : [${CF_BUILD_${LIBNAME}_API}]")
-  LOGFILE("${LIBNAME}_dir             : [${${LIBNAME}_dir}]")
-  LOGFILE("${LIBNAME}_kernellib       : [${${LIBNAME}_kernellib}]")
-  LOGFILE("${LIBNAME}_includedirs     : [${${LIBNAME}_includedirs}]")
-  LOGFILE("${LIBNAME}_libs            : [${${LIBNAME}_libs}]")
-  LOGFILE("${LIBNAME}_all_mods_pres   : [${${LIBNAME}_all_mods_pres}]")
-  LOGFILE("${LIBNAME}_requires_mods   : [${${LIBNAME}_requires_mods}]")
-  LOGFILE("${LIBNAME}_sources         : [${${LIBNAME}_sources}]")
-  LOGFILE("${LIBNAME}_LINK_LIBRARIES  : [${${LIBNAME}_LINK_LIBRARIES}]")
+  coolfluid_log_file("${LIBNAME} enabled         : [${CF_BUILD_${LIBNAME}}]")
+  coolfluid_log_file("${LIBNAME} will compile    : [${${LIBNAME}_will_compile}]")
+  coolfluid_log_file("${LIBNAME} install dir     : [${${LIBNAME}_INSTALL_HEADERS}]")
+  coolfluid_log_file("${LIBNAME} install API     : [${CF_BUILD_${LIBNAME}_API}]")
+  coolfluid_log_file("${LIBNAME}_dir             : [${${LIBNAME}_dir}]")
+  coolfluid_log_file("${LIBNAME}_kernellib       : [${${LIBNAME}_kernellib}]")
+  coolfluid_log_file("${LIBNAME}_includedirs     : [${${LIBNAME}_includedirs}]")
+  coolfluid_log_file("${LIBNAME}_libs            : [${${LIBNAME}_libs}]")
+  coolfluid_log_file("${LIBNAME}_all_mods_pres   : [${${LIBNAME}_all_mods_pres}]")
+  coolfluid_log_file("${LIBNAME}_requires_mods   : [${${LIBNAME}_requires_mods}]")
+  coolfluid_log_file("${LIBNAME}_sources         : [${${LIBNAME}_sources}]")
+  coolfluid_log_file("${LIBNAME}_LINK_LIBRARIES  : [${${LIBNAME}_LINK_LIBRARIES}]")
 
 ENDMACRO( CF_ADD_LIBRARY )
 ##############################################################################

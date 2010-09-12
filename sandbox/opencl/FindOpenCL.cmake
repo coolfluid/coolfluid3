@@ -70,8 +70,8 @@ mark_as_advanced( OPENCL_INCLUDE_DIR OPENCL_LIBRARIES )
 
 endif()
 
-LOG( "OPENCL_FOUND: [${OPENCL_FOUND}]" )
+coolfluid_log( "OPENCL_FOUND: [${OPENCL_FOUND}]" )
 if(OPENCL_FOUND)
-  LOG( "  OPENCL_INCLUDE_DIR: [${OPENCL_INCLUDE_DIR}]" )
-  LOG( "  OPENCL_LIBRARIES:   [${OPENCL_LIBRARIES}]" )
+  coolfluid_log( "  OPENCL_INCLUDE_DIR: [${OPENCL_INCLUDE_DIR}]" )
+  coolfluid_log( "  OPENCL_LIBRARIES:   [${OPENCL_LIBRARIES}]" )
 endif()

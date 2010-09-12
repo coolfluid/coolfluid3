@@ -51,7 +51,7 @@ LIST ( APPEND coolfluid-server_files
 LIST( APPEND coolfluid-server_libs ${QT_LIBRARIES} )
 LIST( APPEND coolfluid-server_cflibs ${CF_KERNEL_LIBS} Network )
 
-CF_ADD_APP(coolfluid-server)
+coolfluid_add_application(coolfluid-server)
 
 CONFIGURE_FILE ( Tree.xml      ${CMAKE_CURRENT_BINARY_DIR}/Tree.xml       @ONLY )
 CONFIGURE_FILE ( TypesList.xml ${CMAKE_CURRENT_BINARY_DIR}/TypesList.xml  @ONLY )
