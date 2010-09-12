@@ -1,15 +1,15 @@
-CF_FIND_ORPHAN_FILES()
+coolfluid_find_orphan_files()
 
-LIST( APPEND Testing_files
+list( APPEND Testing_files
   Difference.hpp
   ProfiledTestFixture.cpp
   ProfiledTestFixture.hpp
   TimedTestFixture.hpp
 )
 
-LIST( APPEND Testing_cflibs Common )
-IF( CF_BUILD_GooglePerfTools AND CF_ENABLE_PROFILING )
-  LIST( APPEND Testing_cflibs GooglePerfTools )
-ENDIF()
+list( APPEND Testing_cflibs Common )
+if( CF_BUILD_GooglePerfTools AND CF_ENABLE_PROFILING )
+  list( APPEND Testing_cflibs GooglePerfTools )
+endif()
 
-CF_ADD_LIBRARY( Testing )
+coolfluid_add_library( Testing )

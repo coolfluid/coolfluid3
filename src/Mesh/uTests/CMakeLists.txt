@@ -1,7 +1,7 @@
 ################################################################################
 
-LIST( APPEND uTestMesh_cflibs Neu Gmsh SF )
-LIST( APPEND uTestMesh_files
+list( APPEND uTestMesh_cflibs Neu Gmsh SF )
+list( APPEND uTestMesh_files
   uTestMesh.cpp
   TestMeshComponents.cpp
   TestMeshConstruction.cpp
@@ -10,16 +10,16 @@ LIST( APPEND uTestMesh_files
 )
   
 # Only add TestCGNS.cpp if the CGNS library is available
-IF( ${CF_COMPILES_CGNS3} )
-  LIST( APPEND uTestMesh_cflibs CGNS3 )
-  LIST( APPEND uTestMesh_files  TestCGNS.cpp )
-  LIST( APPEND uTestMesh_includedirs ${CGNS_INCLUDE_DIR} )
-ELSE()
-  CF_MARK_NOT_ORPHAN( TestCGNS.cpp )
-ENDIF()
+if( ${CF_COMPILES_CGNS3} )
+  list( APPEND uTestMesh_cflibs CGNS3 )
+  list( APPEND uTestMesh_files  TestCGNS.cpp )
+  list( APPEND uTestMesh_includedirs ${CGNS_INCLUDE_DIR} )
+else()
+  coolfluid_mark_not_orphan( TestCGNS.cpp )
+endif()
 
 # Add the target
-CF_ADD_UNITTEST( uTestMesh )
+coolfluid_add_unittest( uTestMesh )
 
 # Custom post-build rule (must be defined after adding target):
 # Copy the file quadtriag.neu from source dir to binary dir.
@@ -33,100 +33,100 @@ add_custom_command(TARGET uTestMesh
 
 ################################################################################
 
-LIST( APPEND uTestConnectivityData_cflibs Neu Testing MeshGeneration SF )
-LIST( APPEND uTestConnectivityData_files
+list( APPEND uTestConnectivityData_cflibs Neu Testing MeshGeneration SF )
+list( APPEND uTestConnectivityData_files
   uTestConnectivityData.cpp )
 
-CF_ADD_UNITTEST( uTestConnectivityData )
+coolfluid_add_unittest( uTestConnectivityData )
 
 ################################################################################
 
-LIST( APPEND uTestHexa3DLagrangeP1_cflibs SF )
-LIST( APPEND uTestHexa3DLagrangeP1_files
+list( APPEND uTestHexa3DLagrangeP1_cflibs SF )
+list( APPEND uTestHexa3DLagrangeP1_files
   uTestHexa3DLagrangeP1.cpp )
 
-CF_ADD_UNITTEST( uTestHexa3DLagrangeP1 )
+coolfluid_add_unittest( uTestHexa3DLagrangeP1 )
 
 ################################################################################
 
-LIST( APPEND uTestTetra3DLagrangeP1_cflibs SF )
-LIST( APPEND uTestTetra3DLagrangeP1_files
+list( APPEND uTestTetra3DLagrangeP1_cflibs SF )
+list( APPEND uTestTetra3DLagrangeP1_files
   uTestTetra3DLagrangeP1.cpp )
 
-CF_ADD_UNITTEST( uTestTetra3DLagrangeP1 )
+coolfluid_add_unittest( uTestTetra3DLagrangeP1 )
 
 ################################################################################
 
-LIST( APPEND uTestLine1DLagrangeP1_cflibs SF )
-LIST( APPEND uTestLine1DLagrangeP1_files
+list( APPEND uTestLine1DLagrangeP1_cflibs SF )
+list( APPEND uTestLine1DLagrangeP1_files
   uTestLine1DLagrangeP1.cpp )
 
-CF_ADD_UNITTEST( uTestLine1DLagrangeP1 )
+coolfluid_add_unittest( uTestLine1DLagrangeP1 )
 
 ################################################################################
 
-LIST( APPEND uTestLine2DLagrangeP1_cflibs SF )
-LIST( APPEND uTestLine2DLagrangeP1_files
+list( APPEND uTestLine2DLagrangeP1_cflibs SF )
+list( APPEND uTestLine2DLagrangeP1_files
   uTestLine2DLagrangeP1.cpp )
 
-CF_ADD_UNITTEST( uTestLine2DLagrangeP1 )
+coolfluid_add_unittest( uTestLine2DLagrangeP1 )
 
 ################################################################################
 
-LIST( APPEND uTestLine3DLagrangeP1_cflibs SF )
-LIST( APPEND uTestLine3DLagrangeP1_files
+list( APPEND uTestLine3DLagrangeP1_cflibs SF )
+list( APPEND uTestLine3DLagrangeP1_files
   uTestLine3DLagrangeP1.cpp )
 
-CF_ADD_UNITTEST( uTestLine3DLagrangeP1 )
+coolfluid_add_unittest( uTestLine3DLagrangeP1 )
 
 ################################################################################
 
-LIST( APPEND uTestTriag2DLagrangeP1_cflibs SF )
-LIST( APPEND uTestTriag2DLagrangeP1_files
+list( APPEND uTestTriag2DLagrangeP1_cflibs SF )
+list( APPEND uTestTriag2DLagrangeP1_files
   uTestTriag2DLagrangeP1.cpp )
 
-CF_ADD_UNITTEST( uTestTriag2DLagrangeP1 )
+coolfluid_add_unittest( uTestTriag2DLagrangeP1 )
 
 ################################################################################
 
-LIST( APPEND uTestTriag3DLagrangeP1_cflibs SF )
-LIST( APPEND uTestTriag3DLagrangeP1_files
+list( APPEND uTestTriag3DLagrangeP1_cflibs SF )
+list( APPEND uTestTriag3DLagrangeP1_files
   uTestTriag3DLagrangeP1.cpp )
 
-CF_ADD_UNITTEST( uTestTriag3DLagrangeP1 )
+coolfluid_add_unittest( uTestTriag3DLagrangeP1 )
 
 ################################################################################
 
-LIST( APPEND uTestQuad2DLagrangeP1_cflibs  SF )
-LIST( APPEND uTestQuad2DLagrangeP1_files
+list( APPEND uTestQuad2DLagrangeP1_cflibs  SF )
+list( APPEND uTestQuad2DLagrangeP1_files
   uTestQuad2DLagrangeP1.cpp )
 
-CF_ADD_UNITTEST( uTestQuad2DLagrangeP1 )
+coolfluid_add_unittest( uTestQuad2DLagrangeP1 )
 
 ################################################################################
 
-LIST( APPEND uTestQuad3DLagrangeP1_cflibs  SF )
-LIST( APPEND uTestQuad3DLagrangeP1_files
+list( APPEND uTestQuad3DLagrangeP1_cflibs  SF )
+list( APPEND uTestQuad3DLagrangeP1_files
   uTestQuad3DLagrangeP1.cpp )
 
-CF_ADD_UNITTEST( uTestQuad3DLagrangeP1 )
+coolfluid_add_unittest( uTestQuad3DLagrangeP1 )
 
 ################################################################################
 
-LIST( APPEND uTestIntegration_cflibs Neu Testing MeshGeneration SF )
-LIST( APPEND uTestIntegration_files
+list( APPEND uTestIntegration_cflibs Neu Testing MeshGeneration SF )
+list( APPEND uTestIntegration_files
   uTestIntegration.cpp )
 
-SET( uTestIntegration_profile ON )
-CF_ADD_UNITTEST( uTestIntegration )
+set( uTestIntegration_profile ON )
+coolfluid_add_unittest( uTestIntegration )
 
 ################################################################################
 
-LIST( APPEND uTestNodes_cflibs Neu SF )
-LIST( APPEND uTestNodes_files
+list( APPEND uTestNodes_cflibs Neu SF )
+list( APPEND uTestNodes_files
   uTestNodes.cpp )
 
-CF_ADD_UNITTEST( uTestNodes )
+coolfluid_add_unittest( uTestNodes )
 
 # Custom post-build rule (must be defined after adding target):
 # Copy the file quadtriag.neu from source dir to binary dir.
@@ -139,18 +139,18 @@ add_custom_command(TARGET uTestNodes
 
 ################################################################################
 
-LIST( APPEND uTestField_cflibs Neu SF)
-LIST( APPEND uTestField_files
+list( APPEND uTestField_cflibs Neu SF)
+list( APPEND uTestField_files
   uTestFields.cpp )
 
-CF_ADD_UNITTEST( uTestField )
+coolfluid_add_unittest( uTestField )
 
 ################################################################################
 
-LIST( APPEND uTestVolumeSF_cflibs SF Mesh )
-LIST( APPEND uTestVolumeSF_files
+list( APPEND uTestVolumeSF_cflibs SF Mesh )
+list( APPEND uTestVolumeSF_files
   uTestVolumeSF.cpp )
 
-CF_ADD_UNITTEST( uTestVolumeSF )
+coolfluid_add_unittest( uTestVolumeSF )
 
 ################################################################################

@@ -1,18 +1,18 @@
-IF( QT4_FOUND AND CF_ENABLE_GUI )
+if( QT4_FOUND AND CF_ENABLE_GUI )
 
-  CF_FIND_ORPHAN_FILES()
+  coolfluid_find_orphan_files()
 
   # deactivate some c++ warnings in Qt
   if( CMAKE_COMPILER_IS_GNUCC )
-    SET( CMAKE_CXX_FLAGS   "${CMAKE_CXX_FLAGS} -Wno-sign-promo" )
+    set( CMAKE_CXX_FLAGS   "${CMAKE_CXX_FLAGS} -Wno-sign-promo" )
   endif()
 
   #  we need XML and Network modules
-  #  SET( QT_USE_QTXML TRUE     )
-  #  SET( QT_USE_QTNETWORK TRUE )
+  #  set( QT_USE_QTXML TRUE     )
+  #  set( QT_USE_QTNETWORK TRUE )
 
   # Add useful macros and variables
-  INCLUDE( ${QT_USE_FILE} )
+  include( ${QT_USE_FILE} )
 
   # sub project dirs
   INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR} ${QT_INCLUDES} )
@@ -21,5 +21,5 @@ IF( QT4_FOUND AND CF_ENABLE_GUI )
   ADD_SUBDIRECTORY( Network )
   ADD_SUBDIRECTORY( Server )
 
-ENDIF()
+endif()
 

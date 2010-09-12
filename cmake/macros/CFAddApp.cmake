@@ -1,53 +1,53 @@
 ##############################################################################
 # macro for adding a application in the project
 ##############################################################################
-MACRO( coolfluid_add_application APPNAME )
+macro( coolfluid_add_application APPNAME )
 
   # option to build it or not
   OPTION( CF_BUILD_${APPNAME} "Build the ${APPNAME} application" ON )
 
   # add to list of local apps
-  LIST( APPEND CF_LOCAL_APPNAMES ${APPNAME} )
+  list( APPEND CF_LOCAL_APPNAMES ${APPNAME} )
 
-#   CF_DEBUG_VAR(CF_MODULES_LIST)
+#   coolfluid_debug_var(CF_MODULES_LIST)
 
   # check if all required modules are present
-  SET ( ${APPNAME}_all_mods_pres ON )
-  FOREACH ( reqmod ${${APPNAME}_requires_mods} )
-    LIST ( FIND CF_MODULES_LIST ${reqmod} pos )
-    IF ( ${pos} EQUAL -1 )
-      SET ( ${APPNAME}_all_mods_pres OFF )
-      IF ( CF_BUILD_${APPNAME} )
-          coolfluid_log_verbose ( "     \# app [${APPNAME}] requires module [${reqmod}] which is not present")
-      ENDIF()
-    ENDIF()
-  ENDFOREACH()
+  set( ${APPNAME}_all_mods_pres ON )
+  foreach( reqmod ${${APPNAME}_requires_mods} )
+    list( FIND CF_MODULES_LIST ${reqmod} pos )
+    if( ${pos} EQUAL -1 )
+      set( ${APPNAME}_all_mods_pres OFF )
+      if( CF_BUILD_${APPNAME} )
+          coolfluid_log_verbose( "     \# app [${APPNAME}] requires module [${reqmod}] which is not present")
+      endif()
+    endif()
+  endforeach()
 
-  SET ( ${APPNAME}_dir ${CMAKE_CURRENT_SOURCE_DIR} )
+  set( ${APPNAME}_dir ${CMAKE_CURRENT_SOURCE_DIR} )
 
-  IF ( CF_BUILD_${APPNAME} AND ${APPNAME}_all_mods_pres)
-    SET ( ${APPNAME}_will_compile ON )
-  ELSE()
-    SET ( ${APPNAME}_will_compile OFF )
-  ENDIF()
+  if( CF_BUILD_${APPNAME} AND ${APPNAME}_all_mods_pres)
+    set( ${APPNAME}_will_compile ON )
+  else()
+    set( ${APPNAME}_will_compile OFF )
+  endif()
 
-  coolfluid_log_verbose ("app_${APPNAME} = ${${APPNAME}_will_compile}")
+  coolfluid_log_verbose("app_${APPNAME} = ${${APPNAME}_will_compile}")
 
   # compile if selected and all required modules are present
-  IF (${APPNAME}_will_compile)
+  if(${APPNAME}_will_compile)
 
-    IF( DEFINED ${APPNAME}_includedirs )
+    if( DEFINED ${APPNAME}_includedirs )
       INCLUDE_DIRECTORIES(${${APPNAME}_includedirs})
-    ENDIF()
+    endif()
 
-    CF_SEPARATE_SOURCES("${${APPNAME}_files}" ${APPNAME})
+    coolfluid_separate_sources("${${APPNAME}_files}" ${APPNAME})
 
-    SOURCE_GROUP( Headers FILES ${${APPNAME}_headers} )
-    SOURCE_GROUP( Sources FILES ${${APPNAME}_sources} )
+    source_group( Headers FILES ${${APPNAME}_headers} )
+    source_group( Sources FILES ${${APPNAME}_sources} )
 
     coolfluid_log( " +++ APP [${APPNAME}]" )
 
-    ADD_EXECUTABLE( ${APPNAME} ${${APPNAME}_sources} ${${APPNAME}_headers} ${${APPNAME}_moc_files})
+    add_executable( ${APPNAME} ${${APPNAME}_sources} ${${APPNAME}_headers} ${${APPNAME}_moc_files})
 
     # add installation paths
     INSTALL( TARGETS ${APPNAME}
@@ -57,36 +57,36 @@ MACRO( coolfluid_add_application APPNAME )
       )
 
     # if mpi was found add it to the libraries
-    IF(CF_HAVE_MPI AND NOT CF_HAVE_MPI_COMPILER)
-#           MESSAGE ( STATUS "${APPNAME} links to ${MPI_LIBRARIES}" )
+    if(CF_HAVE_MPI AND NOT CF_HAVE_MPI_COMPILER)
+#           message( STATUS "${APPNAME} links to ${MPI_LIBRARIES}" )
           TARGET_LINK_LIBRARIES ( ${APPNAME} ${MPI_LIBRARIES} )
-    ENDIF()
+    endif()
 
     # add external dependency libraries if defined
-    IF( DEFINED ${APPNAME}_libs )
+    if( DEFINED ${APPNAME}_libs )
       TARGET_LINK_LIBRARIES ( ${APPNAME} ${${APPNAME}_libs} )
-    ENDIF()
+    endif()
 
     # profiling gloabally selected
     if( CF_ENABLE_PROFILING AND CF_PROFILER_IS_GOOGLE AND CF_BUILD_GooglePerfTools )
-      LIST ( APPEND ${APPNAME}_cflibs GooglePerfTools )
+      list( APPEND ${APPNAME}_cflibs GooglePerfTools )
     endif()
 
     # profiling selected for specific target
     if( ${APPNAME}_profile AND CF_BUILD_GooglePerfTools )
-      LIST ( APPEND ${APPNAME}_cflibs GooglePerfTools )
+      list( APPEND ${APPNAME}_cflibs GooglePerfTools )
     endif()
 
     # internal dependencies
-    IF( DEFINED ${APPNAME}_cflibs )
+    if( DEFINED ${APPNAME}_cflibs )
         TARGET_LINK_LIBRARIES ( ${APPNAME} ${${APPNAME}_cflibs} )
-    ENDIF()
+    endif()
 
-  ENDIF()
+  endif()
 
-  GET_TARGET_PROPERTY ( ${APPNAME}_P_SOURCES        ${APPNAME} SOURCES )
-  GET_TARGET_PROPERTY ( ${APPNAME}_LINK_FLAGS       ${APPNAME} LINK_FLAGS )
-  GET_TARGET_PROPERTY ( ${APPNAME}_TYPE             ${APPNAME} TYPE )
+  get_target_property ( ${APPNAME}_P_SOURCES        ${APPNAME} SOURCES )
+  get_target_property ( ${APPNAME}_LINK_FLAGS       ${APPNAME} LINK_FLAGS )
+  get_target_property ( ${APPNAME}_TYPE             ${APPNAME} TYPE )
 
   # log some info about the app
   coolfluid_log_file("${APPNAME} : [${CF_BUILD_${APPNAME}}]")
@@ -102,5 +102,5 @@ MACRO( coolfluid_add_application APPNAME )
   coolfluid_log_file("${APPNAME}_TYPE            : [${${APPNAME}_TYPE}]")
 
 
-ENDMACRO( coolfluid_add_application )
+endmacro( coolfluid_add_application )
 ##############################################################################

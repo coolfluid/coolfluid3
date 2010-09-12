@@ -1,4 +1,4 @@
-  LIST( APPEND OpenFOAM_files
+  list( APPEND OpenFOAM_files
     BlockData.cpp
     BlockData.hpp
     BlockMeshReader.cpp
@@ -12,11 +12,11 @@
     WriteDict.hpp
   )
 
-  LIST( APPEND OpenFOAM_cflibs Mesh SF )
+  list( APPEND OpenFOAM_cflibs Mesh SF )
 
-  SET( OpenFOAM_kernellib TRUE )
+  set( OpenFOAM_kernellib TRUE )
 
-  CF_ADD_LIBRARY( OpenFOAM )
+  coolfluid_add_library( OpenFOAM )
   
   ADD_SUBDIRECTORY(uTests)
   

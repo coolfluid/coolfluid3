@@ -1,14 +1,14 @@
 ################################################################################
 
-  LIST( APPEND uTestBlockMeshReader_cflibs OpenFOAM Neu Gmsh MeshDiff SF )
-  LIST( APPEND uTestBlockMeshReader_files
+  list( APPEND uTestBlockMeshReader_cflibs OpenFOAM Neu Gmsh MeshDiff SF )
+  list( APPEND uTestBlockMeshReader_files
     uTestBlockMeshReader.cpp )
-  CF_ADD_UNITTEST( uTestBlockMeshReader )
+  coolfluid_add_unittest( uTestBlockMeshReader )
 
-  LIST( APPEND uTestBlockMeshMPI_cflibs OpenFOAM Neu Gmsh MeshDiff SF )
-  LIST( APPEND uTestBlockMeshMPI_files
+  list( APPEND uTestBlockMeshMPI_cflibs OpenFOAM Neu Gmsh MeshDiff SF )
+  list( APPEND uTestBlockMeshMPI_files
     uTestBlockMeshMPI.cpp )
-  CF_ADD_UNITTEST( uTestBlockMeshMPI )
+  coolfluid_add_unittest( uTestBlockMeshMPI )
 
   configure_file(channel3d.dict channel3d.dict COPYONLY)
   configure_file(cavity2d.dict cavity2d.dict COPYONLY)

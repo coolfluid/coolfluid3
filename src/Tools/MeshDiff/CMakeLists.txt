@@ -1,15 +1,15 @@
-CF_FIND_ORPHAN_FILES()
+coolfluid_find_orphan_files()
 
-LIST( APPEND MeshDiff_files
+list( APPEND MeshDiff_files
   MeshDiff.cpp
   MeshDiff.hpp
 )
 
-LIST( APPEND MeshDiff_cflibs Mesh )
-IF( CF_BUILD_GooglePerfTools AND CF_ENABLE_PROFILING )
-  LIST( APPEND MeshDiff_cflibs GooglePerfTools )
-ENDIF()
+list( APPEND MeshDiff_cflibs Mesh )
+if( CF_BUILD_GooglePerfTools AND CF_ENABLE_PROFILING )
+  list( APPEND MeshDiff_cflibs GooglePerfTools )
+endif()
 
-CF_ADD_LIBRARY( MeshDiff )
+coolfluid_add_library( MeshDiff )
 
 

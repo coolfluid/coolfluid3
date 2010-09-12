@@ -1,6 +1,6 @@
 
 # Add the project files
-LIST ( APPEND Network_files
+list( APPEND Network_files
   ComponentNames.hpp
   ComponentType.cpp
   ComponentType.hpp
@@ -13,7 +13,7 @@ LIST ( APPEND Network_files
   NetworkException.hpp)
 
 # Use Qt Libraries
-LIST( APPEND Network_libs ${QT_LIBRARIES} )
-LIST( APPEND Network_cflibs Common)
+list( APPEND Network_libs ${QT_LIBRARIES} )
+list( APPEND Network_cflibs Common)
 
-CF_ADD_LIBRARY(Network)
+coolfluid_add_library(Network)

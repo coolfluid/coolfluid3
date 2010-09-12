@@ -1,6 +1,6 @@
-CF_FIND_ORPHAN_FILES()
+coolfluid_find_orphan_files()
 
-LIST( APPEND Mesh_files
+list( APPEND Mesh_files
   MeshAPI.hpp
   MeshAPI.cpp
   ArrayBase.hpp
@@ -75,11 +75,11 @@ LIST( APPEND Mesh_files
   Integrators/IntegrationFunctorBase.hpp
 )
 
-LIST( APPEND Mesh_cflibs Math)  # Math includes Common
+list( APPEND Mesh_cflibs Math)  # Math includes Common
 
-SET( Mesh_kernellib TRUE )
+set( Mesh_kernellib TRUE )
 
-CF_ADD_LIBRARY( Mesh )
+coolfluid_add_library( Mesh )
 
 ADD_SUBDIRECTORY( SF )            # Shape functions
 

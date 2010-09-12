@@ -16,9 +16,9 @@ if( CF_HAVE_CGAL )
   set( CF_CGAL_kernellib TRUE )
 
   # avoid a conflict between boost and CGAL
-  ADD_DEFINITIONS(-DCGAL_CFG_NO_TR1_ARRAY -DCGAL_CFG_NO_TR1_TUPLE)
+  add_definitions(-DCGAL_CFG_NO_TR1_ARRAY -DCGAL_CFG_NO_TR1_TUPLE)
 
-  CF_ADD_LIBRARY( CF_CGAL )
+  coolfluid_add_library( CF_CGAL )
 
   set( CF_CGAL_COMPILE_FLAGS "" )
   if( CMAKE_COMPILER_IS_GNUCC )
@@ -39,7 +39,7 @@ add_subdirectory( uTests )
 
 else()
 
-  CF_MARK_NOT_ORPHAN(
+  coolfluid_mark_not_orphan(
     CGALAPI.hpp
     ImplicitFunctionMesh.cpp
     ImplicitFunctionMesh.hpp

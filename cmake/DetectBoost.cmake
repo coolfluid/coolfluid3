@@ -1,16 +1,16 @@
 # find boost package (essential)
-# SET ( Boost_DEBUG 1 )  # to debug boost search
-SET ( Boost_USE_STATIC_LIBS ${CF_ENABLE_STATIC} )
-SET ( Boost_USE_MULTITHREAD ON  )
+# set( Boost_DEBUG 1 )  # to debug boost search
+set( Boost_USE_STATIC_LIBS ${CF_ENABLE_STATIC} )
+set( Boost_USE_MULTITHREAD ON  )
 # find based on minimal version defined below
-SET ( Boost_FIND_VERSION        ON   )
-SET ( Boost_FIND_VERSION_MAJOR  "1"  )
-SET ( Boost_FIND_VERSION_MINOR  "42" )
-SET ( Boost_FIND_VERSION_PATCH  "0"  )
+set( Boost_FIND_VERSION        ON   )
+set( Boost_FIND_VERSION_MAJOR  "1"  )
+set( Boost_FIND_VERSION_MINOR  "42" )
+set( Boost_FIND_VERSION_PATCH  "0"  )
 # older cmakes dont have these versions
-SET ( Boost_ADDITIONAL_VERSIONS "1.44" "1.44.0" "1.43" "1.43.0" "1.42" "1.42.0" )
+set( Boost_ADDITIONAL_VERSIONS "1.44" "1.44.0" "1.43" "1.43.0" "1.42" "1.42.0" )
 # components to search for
-LIST ( APPEND CF_Boost_COMPONENTS thread iostreams filesystem system regex unit_test_framework date_time program_options mpi serialization )
+list( APPEND CF_Boost_COMPONENTS thread iostreams filesystem system regex unit_test_framework date_time program_options mpi serialization )
 
 find_package( Boost COMPONENTS ${CF_Boost_COMPONENTS} )
 
@@ -19,10 +19,10 @@ coolfluid_log( "Boost lib version  [${Boost_LIB_VERSION}]" )
 coolfluid_log( "Boost libraries    [${Boost_LIBRARIES}]"   )
 
 # if not found give more information
-IF ( NOT Boost_FOUND )
+if( NOT Boost_FOUND )
   coolfluid_log( ${Boost_ERROR_REASON} )
-  MESSAGE ( FATAL_ERROR "Boost is required to compile coolfluid Kernel" )
-ENDIF()
+  message( FATAL_ERROR "Boost is required to compile coolfluid Kernel" )
+endif()
 
 # add boost include path
 INCLUDE_DIRECTORIES ( ${Boost_INCLUDE_DIR} )
@@ -30,7 +30,7 @@ INCLUDE_DIRECTORIES ( ${Boost_INCLUDE_DIR} )
 #######################################################################################
 
 coolfluid_log( "+++++  Checking for boost erfc function" )
-SET ( CMAKE_REQUIRED_INCLUDES ${Boost_INCLUDE_DIR} )
+set( CMAKE_REQUIRED_INCLUDES ${Boost_INCLUDE_DIR} )
 CHECK_CXX_SOURCE_COMPILES (
 "#include <boost/math/special_functions/erf.hpp>
 int main(int argc, char* argv[])

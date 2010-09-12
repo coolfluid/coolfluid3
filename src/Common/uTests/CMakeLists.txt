@@ -1,8 +1,8 @@
 ################################################################################
 # Test Common
 
-LIST( APPEND uTestCommon_cflibs Common )
-LIST( APPEND uTestCommon_files
+list( APPEND uTestCommon_cflibs Common )
+list( APPEND uTestCommon_files
   uTestCommon.cpp
   TestOSystem.cpp
   TestStringOps.cpp
@@ -13,13 +13,13 @@ LIST( APPEND uTestCommon_files
   TestLogStream.cpp
 )
 
-CF_ADD_UNITTEST( uTestCommon )
+coolfluid_add_unittest( uTestCommon )
 
 ################################################################################
 # Test Component
 
-LIST( APPEND uTestComponent_cflibs Common )
-LIST( APPEND uTestComponent_files
+list( APPEND uTestComponent_cflibs Common )
+list( APPEND uTestComponent_files
   uTestComponent.cpp
   TestCPath.cpp
   TestComponent.cpp
@@ -29,31 +29,31 @@ LIST( APPEND uTestComponent_files
   TestXmlParams.cpp
 )
 
-CF_ADD_UNITTEST( uTestComponent )
+coolfluid_add_unittest( uTestComponent )
 
 ################################################################################
 # Test Component iterators
 
-LIST( APPEND uTestComponentIteration_cflibs Common )
-LIST( APPEND uTestComponentIteration_files
+list( APPEND uTestComponentIteration_cflibs Common )
+list( APPEND uTestComponentIteration_files
   uTestComponentIteration.cpp
 )
 
-CF_ADD_UNITTEST( uTestComponentIteration )
+coolfluid_add_unittest( uTestComponentIteration )
 
 ################################################################################
 # Test PE
 
-LIST( APPEND uTestPE_cflibs Common )
-LIST( APPEND uTestPE_files
+list( APPEND uTestPE_cflibs Common )
+list( APPEND uTestPE_files
   uTestPE.cpp
   TestPE_Init.cpp
   TestPECommPattern.cpp
   TestPE_Finalize.cpp
 )
 
-CF_ADD_UNITTEST( uTestPE )
+coolfluid_add_unittest( uTestPE )
 
-CF_MARK_NOT_ORPHAN( TestPE.cpp )
+coolfluid_mark_not_orphan( TestPE.cpp )
 
 ################################################################################

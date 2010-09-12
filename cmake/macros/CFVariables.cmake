@@ -1,15 +1,15 @@
 ##############################################################################
 # prints the variable name and value
 ##############################################################################
-MACRO( CF_DEBUG_VAR THE_VARIABLE )
+macro( coolfluid_debug_var THE_VARIABLE )
   coolfluid_log( " +++++ DEBUG +++++ ${THE_VARIABLE} : [${${THE_VARIABLE}}]")
-ENDMACRO( CF_DEBUG_VAR THE_VARIABLE )
+endmacro()
 
 ##############################################################################
 # sets a variable if not yet defined
 ##############################################################################
-MACRO    ( SET_VAR_IF_NOT_DEFINED variable value )
-  IF ( NOT DEFINED ${variable} )
-    SET ( ${variable} ${value} )
-  ENDIF ( NOT DEFINED ${variable} )
-ENDMACRO ( SET_VAR_IF_NOT_DEFINED )
+macro( coolfluid_set_if_not_defined variable value )
+  if( NOT DEFINED ${variable} )
+    set( ${variable} ${value} )
+  endif()
+endmacro()

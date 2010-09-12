@@ -1,45 +1,45 @@
 ##############################################################################
 # adds a path to search for when searching for include files
 ##############################################################################
-MACRO( ADD_TRIAL_INCLUDE_PATH ICPATH )
- IF( EXISTS ${ICPATH})
-  LIST ( APPEND TRIAL_INCLUDE_PATHS ${ICPATH} )
- ENDIF( EXISTS ${ICPATH})
-ENDMACRO( ADD_TRIAL_INCLUDE_PATH )
+macro( ADD_TRIAL_INCLUDE_PATH ICPATH )
+ if( EXISTS ${ICPATH})
+  list( APPEND TRIAL_INCLUDE_PATHS ${ICPATH} )
+ endif( EXISTS ${ICPATH})
+endmacro( ADD_TRIAL_INCLUDE_PATH )
 ##############################################################################
 
 ##############################################################################
 # adds a path to search for when searching for library files
 ##############################################################################
-MACRO( ADD_TRIAL_LIBRARY_PATH ICPATH )
- IF( EXISTS ${ICPATH})
-   LIST ( APPEND TRIAL_LIBRARY_PATHS ${ICPATH} )
- ENDIF( EXISTS ${ICPATH})
-ENDMACRO( ADD_TRIAL_LIBRARY_PATH )
+macro( ADD_TRIAL_LIBRARY_PATH ICPATH )
+ if( EXISTS ${ICPATH})
+   list( APPEND TRIAL_LIBRARY_PATHS ${ICPATH} )
+ endif( EXISTS ${ICPATH})
+endmacro( ADD_TRIAL_LIBRARY_PATH )
 ##############################################################################
 
 ##############################################################################
 # sets a path to search for when searching for INCLUDE files
 ##############################################################################
-MACRO( SET_TRIAL_INCLUDE_PATH IPATHS )
- SET ( TRIAL_INCLUDE_PATHS "" )
- FOREACH ( path ${IPATHS} )
-   IF( EXISTS ${path})
-     LIST ( APPEND TRIAL_INCLUDE_PATHS ${path} )
-   ENDIF( EXISTS ${path})
- ENDFOREACH ( path ${IPATHS} )
-ENDMACRO( SET_TRIAL_INCLUDE_PATH )
+macro( SET_TRIAL_INCLUDE_PATH IPATHS )
+ set( TRIAL_INCLUDE_PATHS "" )
+ foreach( path ${IPATHS} )
+   if( EXISTS ${path})
+     list( APPEND TRIAL_INCLUDE_PATHS ${path} )
+   endif( EXISTS ${path})
+ endforeach( path ${IPATHS} )
+endmacro( SET_TRIAL_INCLUDE_PATH )
 ##############################################################################
 
 ##############################################################################
 # sets a path to search for when searching for library files
 ##############################################################################
-MACRO( SET_TRIAL_LIBRARY_PATH LPATHS )
- SET ( TRIAL_LIBRARY_PATHS "" )
- FOREACH ( path ${LPATHS} )
-   IF( EXISTS ${path})
-     LIST ( APPEND TRIAL_LIBRARY_PATHS ${path} )
-   ENDIF( EXISTS ${path})
- ENDFOREACH ( path ${LPATHS} )
-ENDMACRO( SET_TRIAL_LIBRARY_PATH )
+macro( SET_TRIAL_LIBRARY_PATH LPATHS )
+ set( TRIAL_LIBRARY_PATHS "" )
+ foreach( path ${LPATHS} )
+   if( EXISTS ${path})
+     list( APPEND TRIAL_LIBRARY_PATHS ${path} )
+   endif( EXISTS ${path})
+ endforeach( path ${LPATHS} )
+endmacro( SET_TRIAL_LIBRARY_PATH )
 ##############################################################################

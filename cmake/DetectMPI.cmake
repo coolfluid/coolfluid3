@@ -12,27 +12,27 @@ CHECK_CXX_SOURCE_COMPILES(
    }"
    CF_MPI_COMPILER_AVAILABLE )
 
-IF( CF_MPI_COMPILER_AVAILABLE )
+if( CF_MPI_COMPILER_AVAILABLE )
 
   coolfluid_log( "MPI: Already using MPI C++ compiler, no need to search for MPI libraries" )
-  SET( CF_HAVE_MPI 1 CACHE BOOL "Found MPI compiler" )
+  set( CF_HAVE_MPI 1 CACHE BOOL "Found MPI compiler" )
 
   coolfluid_log( "     MPI CXX COMPILER   : [${CMAKE_CXX_COMPILER}]")
 
-ELSE()
+else()
 
   coolfluid_log( "MPI: No MPI C++ compiler was set. Searching for MPI libraries..." )
 
   FIND_PACKAGE(MPI)
 
-  IF( NOT CF_MPI_LIBS_FOUND )
+  if( NOT CF_MPI_LIBS_FOUND )
       MESSAGE( FATAL_ERROR "MPI: No MPI compiler or libraries were found.\n     MPI is required to compile coolfluid." )
-  ENDIF()
+  endif()
 
   coolfluid_log( "     MPI_INCLUDE_PATH   : [${MPI_INCLUDE_PATH}]")
   coolfluid_log( "     MPI_LIBRARIES      : [${MPI_LIBRARIES}]")
 
-ENDIF()
+endif()
 
 
 #######################################################################
@@ -48,22 +48,22 @@ FIND_PROGRAM( CF_MPIRUN_PROGRAM mpirun
               PATH_SUFFIXES mpi/bin
               DOC "mpirun program" )
 
-# IF( NOT CF_MPIRUN_PROGRAM)
-#  SET(CF_MPIRUN_PROGRAM mpirun CACHE STRING "mpirun program set by default")
-# ENDIF()
+# if( NOT CF_MPIRUN_PROGRAM)
+#  set(CF_MPIRUN_PROGRAM mpirun CACHE STRING "mpirun program set by default")
+# endif()
 
-MARK_AS_ADVANCED( CF_MPIRUN_PROGRAM )
+mark_as_advanced( CF_MPIRUN_PROGRAM )
 
 coolfluid_log_file( "     CF_MPIRUN_PROGRAM : [${CF_MPIRUN_PROGRAM}]" )
 
 ###############################################################################
-IF( CF_MPI_LIBS_FOUND )
-    SET( CF_HAVE_MPI 1 CACHE BOOL "User enabled MPI [FOUND]" )
-ELSE()
-    SET( CF_HAVE_MPI 0 CACHE BOOL "User enabled MPI [NOT-FOUND]" )
-ENDIF()
+if( CF_MPI_LIBS_FOUND )
+    set( CF_HAVE_MPI 1 CACHE BOOL "User enabled MPI [FOUND]" )
+else()
+    set( CF_HAVE_MPI 0 CACHE BOOL "User enabled MPI [NOT-FOUND]" )
+endif()
 
-MARK_AS_ADVANCED( CF_HAVE_MPI )
+mark_as_advanced( CF_HAVE_MPI )
 
 #######################################################################
 # add MPI include path

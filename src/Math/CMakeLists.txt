@@ -1,6 +1,6 @@
-CF_FIND_ORPHAN_FILES()
+coolfluid_find_orphan_files()
 
-LIST ( APPEND Math_files
+list( APPEND Math_files
 BoostMath.hpp
 FindMinimum.hpp
 MatrixInverter.cpp
@@ -42,11 +42,11 @@ VectorialFunction.hpp
 VectorialFunction.cpp
 )
 
-LIST ( APPEND Math_cflibs Common )
+list( APPEND Math_cflibs Common )
 
 SET  ( Math_kernellib TRUE )
 
-CF_ADD_LIBRARY ( Math )
+coolfluid_add_library ( Math )
 
 ADD_SUBDIRECTORY ( uTests )    # unit tests for Math
 

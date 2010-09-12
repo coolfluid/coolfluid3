@@ -32,7 +32,7 @@ coolfluid_log_file( "EXECUTABLE_OUTPUT_PATH: ${EXECUTABLE_OUTPUT_PATH}" )
 coolfluid_log_file( "LIBRARY_OUTPUT_PATH:      ${LIBRARY_OUTPUT_PATH}" )
 
 # tell CMake to search first in directories listed in CMAKE_MODULE_PATH
-# when you use FIND_PACKAGE() or INCLUDE()
+# when you use FIND_PACKAGE() or include()
 coolfluid_log_file( "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}" )
 
 # this is the complete path of the cmake which runs currently (e.g. /usr/local/bin/cmake)
@@ -107,7 +107,7 @@ coolfluid_log_file( "CMAKE_VERBOSE_MAKEFILE: ${CMAKE_VERBOSE_MAKEFILE}" )
 coolfluid_log_file( "CMAKE_SUPPRESS_REGENERATION: ${CMAKE_SUPPRESS_REGENERATION}" )
 
 
-# A simple way to get switches to the compiler is to use ADD_DEFINITIONS().
+# A simple way to get switches to the compiler is to use add_definitions().
 # But there are also two variables exactly for this purpose:
 
 # the compiler flags for compiling C sources
@@ -117,7 +117,7 @@ coolfluid_log_file( "CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}" )
 coolfluid_log_file( "CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}" )
 
 
-# Choose the type of build.  Example: SET(CMAKE_BUILD_TYPE Debug)
+# Choose the type of build.  Example: set(CMAKE_BUILD_TYPE Debug)
 coolfluid_log_file( "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}" )
 
 # if this is set to ON, then all libraries are built as shared libraries by default.

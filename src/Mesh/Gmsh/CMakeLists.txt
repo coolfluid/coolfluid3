@@ -1,11 +1,11 @@
-LIST ( APPEND Gmsh_files
+list( APPEND Gmsh_files
   GmshAPI.hpp
   CWriter.hpp
   CWriter.cpp
 )
 
-LIST ( APPEND Gmsh_cflibs Mesh )
+list( APPEND Gmsh_cflibs Mesh )
 
 SET  ( Gmsh_kernellib TRUE )
 
-CF_ADD_LIBRARY ( Gmsh )
+coolfluid_add_library ( Gmsh )

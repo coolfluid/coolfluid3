@@ -1,9 +1,9 @@
 ################################################################################
 # Test Client
 
-IF( QT_QTTEST_FOUND )
+if( QT_QTTEST_FOUND )
 
-SET(uTestClient_moc_classes
+set(uTestClient_moc_classes
 
   NTreeTest.hpp
   NBrowserTest.hpp
@@ -55,9 +55,9 @@ QT4_WRAP_CPP(uTestClient_moc_files ${uTestClient_moc_classes})
 
 CONFIGURE_FILE ( tree.xml  ${CMAKE_CURRENT_BINARY_DIR}/tree.xml  @ONLY )
 
-LIST( APPEND uTestClient_cflibs Network)
-LIST( APPEND uTestClient_libs ${QT_LIBRARIES})
-LIST( APPEND uTestClient_files
+list( APPEND uTestClient_cflibs Network)
+list( APPEND uTestClient_libs ${QT_LIBRARIES})
+list( APPEND uTestClient_files
   uTestClient.cpp
   ExceptionThrowHandler.hpp
   NTreeTest.hpp
@@ -174,6 +174,6 @@ LIST( APPEND uTestClient_files
   ../UnknownTypeException.hpp
 )
 
-CF_ADD_UNITTEST( uTestClient )
+coolfluid_add_unittest( uTestClient )
 
-ENDIF()
+endif()

@@ -5,7 +5,7 @@
 #
 
 # List of classes to "moc"
-LIST( APPEND coolfluid-client_moc_classes
+list( APPEND coolfluid-client_moc_classes
   NCore.hpp
   ClientNetworkComm.hpp
   CNode.hpp
@@ -48,7 +48,7 @@ LIST( APPEND coolfluid-client_moc_classes
 QT4_WRAP_CPP(coolfluid-client_moc_files ${coolfluid-client_moc_classes})
 
 # Add the project files (including the moc files)
-LIST( APPEND coolfluid-client_files
+list( APPEND coolfluid-client_files
   AboutCFDialog.cpp
   AboutCFDialog.hpp
   ClientNetworkComm.cpp
@@ -149,7 +149,7 @@ LIST( APPEND coolfluid-client_files
   UnknownTypeException.hpp  )
 
 # Use Qt Libraries
-LIST( APPEND coolfluid-client_libs Network ${QT_LIBRARIES})
+list( APPEND coolfluid-client_libs Network ${QT_LIBRARIES})
 
 coolfluid_add_application(coolfluid-client)
 

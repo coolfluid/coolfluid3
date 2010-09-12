@@ -5,7 +5,7 @@
 
 OPTION ( CF_SKIP_CURL "Skip search for Curl library" OFF )
 
-IF ( NOT CF_SKIP_CURL )
+if( NOT CF_SKIP_CURL )
 
   SET_TRIAL_INCLUDE_PATH ("") # clear include search path
   SET_TRIAL_LIBRARY_PATH ("") # clear library search path
@@ -21,24 +21,24 @@ IF ( NOT CF_SKIP_CURL )
   FIND_LIBRARY(CURL_LIBRARY curl ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
   FIND_LIBRARY(CURL_LIBRARY curl )
 
-  IF(CURL_INCLUDE_DIR AND CURL_LIBRARY)
-    SET(CF_HAVE_CURL 1 CACHE BOOL "Found curl library")
-  ELSE()
-    SET(CF_HAVE_CURL 0 CACHE BOOL "Not fount curl library")
-  ENDIF()
+  if(CURL_INCLUDE_DIR AND CURL_LIBRARY)
+    set(CF_HAVE_CURL 1 CACHE BOOL "Found curl library")
+  else()
+    set(CF_HAVE_CURL 0 CACHE BOOL "Not fount curl library")
+  endif()
   
-ELSE()
-    SET(CF_HAVE_CURL 0 CACHE BOOL "Skipped Curl library")
-ENDIF()
+else()
+    set(CF_HAVE_CURL 0 CACHE BOOL "Skipped Curl library")
+endif()
 
-  MARK_AS_ADVANCED(
+  mark_as_advanced(
     CURL_INCLUDE_DIR
     CURL_LIBRARY
     CF_HAVE_CURL
   )
 
   coolfluid_log( "CF_HAVE_CURL: [${CF_HAVE_CURL}]" )
-  IF(CF_HAVE_CURL)
+  if(CF_HAVE_CURL)
     coolfluid_log( "  CURL_INCLUDE_DIR:  [${CURL_INCLUDE_DIR}]" )
     coolfluid_log( "  CURL_LIBRARY:      [${CURL_LIBRARY}]" )
-  ENDIF(CF_HAVE_CURL)
+  endif(CF_HAVE_CURL)

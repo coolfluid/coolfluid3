@@ -1,4 +1,4 @@
-# CF_FIND_ORPHAN_FILES()
+# coolfluid_find_orphan_files()
 
 ###############################################################################
 ### test for rapidxml

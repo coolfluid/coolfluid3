@@ -1,4 +1,4 @@
-CF_FIND_ORPHAN_FILES()
+coolfluid_find_orphan_files()
 
 list( APPEND Common_files
     AssertionManager.cpp
@@ -165,10 +165,10 @@ endif()
 ###############################################################################
 
 if( NOT CF_HAVE_LIBLOADER )
-  MESSAGE ( FATAL_ERROR "No dynamic library loader was found!")
+  message( FATAL_ERROR "No dynamic library loader was found!")
 endif()
 
-CF_MARK_NOT_ORPHAN (
+coolfluid_mark_not_orphan (
 PosixDlopenLibLoader.hpp PosixDlopenLibLoader.cpp
 MacOSX/OSystemLayer.hpp   MacOSX/OSystemLayer.cpp
 Linux/OSystemLayer.hpp    Linux/OSystemLayer.cpp
@@ -188,7 +188,7 @@ endif()
 
 set( Common_kernellib TRUE )
 
-CF_ADD_LIBRARY( Common )
+coolfluid_add_library( Common )
 
 add_subdirectory( MacOSX )   # support for Mac OSX
 add_subdirectory( Linux  )   # support for Linux

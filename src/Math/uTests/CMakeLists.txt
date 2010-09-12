@@ -1,11 +1,11 @@
 ################################################################################
 
-LIST ( APPEND uTestMath_cflibs Math )
-LIST ( APPEND uTestMath_files
+list( APPEND uTestMath_cflibs Math )
+list( APPEND uTestMath_files
   uTestMath.cpp
   TestVectorOperations.cpp
   TestMatrixInverter.cpp )
 
-CF_ADD_UNITTEST ( uTestMath )
+coolfluid_add_unittest ( uTestMath )
 
 ################################################################################

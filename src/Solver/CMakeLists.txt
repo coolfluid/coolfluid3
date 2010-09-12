@@ -1,13 +1,13 @@
-CF_FIND_ORPHAN_FILES()
+coolfluid_find_orphan_files()
 
-LIST( APPEND coolfluid-solver_files
+list( APPEND coolfluid-solver_files
   coolfluid-solver.cpp
   ForAllRegions.hpp
   CForAllElements.hpp
   CForAllElements.cpp
 )
 
-LIST (APPEND coolfluid-solver_libs Neu SF)
+list(APPEND coolfluid-solver_libs Neu SF)
 
 coolfluid_add_application (coolfluid-solver)
 

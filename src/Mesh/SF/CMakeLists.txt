@@ -1,4 +1,4 @@
-LIST ( APPEND SF_files
+list( APPEND SF_files
   Hexa3DLagrangeP1.cpp
   Hexa3DLagrangeP1.hpp
   Line1DLagrangeP1.cpp
@@ -21,10 +21,10 @@ LIST ( APPEND SF_files
   Types.hpp
 )
 
-LIST ( APPEND SF_cflibs Mesh )
+list( APPEND SF_cflibs Mesh )
 
 SET  ( SF_kernellib TRUE )
 
-CF_ADD_LIBRARY ( SF )
+coolfluid_add_library ( SF )
 
 

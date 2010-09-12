@@ -5,7 +5,7 @@
 #
 
 # List of classes to "moc"
-SET ( coolfluid-server_moc_classes
+set( coolfluid-server_moc_classes
   ServerNetworkComm.hpp
   CSimulator.hpp
   RemoteClientAppender.hpp
@@ -20,7 +20,7 @@ SET ( coolfluid-server_moc_classes
 QT4_WRAP_CPP(coolfluid-server_moc_files ${coolfluid-server_moc_classes})
 
 # Add the project files (including the moc files)
-LIST ( APPEND coolfluid-server_files
+list( APPEND coolfluid-server_files
   MPIListener.cpp
   MPIListener.hpp
   MPIListeningInfo.cpp
@@ -48,8 +48,8 @@ LIST ( APPEND coolfluid-server_files
   main.cpp)
 
 # Use Qt Libraries
-LIST( APPEND coolfluid-server_libs ${QT_LIBRARIES} )
-LIST( APPEND coolfluid-server_cflibs ${CF_KERNEL_LIBS} Network )
+list( APPEND coolfluid-server_libs ${QT_LIBRARIES} )
+list( APPEND coolfluid-server_cflibs ${CF_KERNEL_LIBS} Network )
 
 coolfluid_add_application(coolfluid-server)
 
@@ -65,4 +65,4 @@ CONFIGURE_FILE ( fsm_advect_wave.CFcase ${CMAKE_CURRENT_BINARY_DIR}/fsm_advect_w
 CONFIGURE_FILE ( advect_wave.thor ${CMAKE_CURRENT_BINARY_DIR}/advect_wave.thor @ONLY )
 CONFIGURE_FILE ( advect_wave.SP ${CMAKE_CURRENT_BINARY_DIR}/advect_wave.SP @ONLY )
 
-CF_MARK_NOT_ORPHAN(ServerSimulation.cpp)
+coolfluid_mark_not_orphan(ServerSimulation.cpp)

@@ -1,7 +1,7 @@
 ##############################################################################
 # macro for adding a library in the project
 ##############################################################################
-MACRO( CF_ADD_LIBRARY LIBNAME )
+macro( coolfluid_add_library LIBNAME )
 
   # option to build it or not
   option( CF_BUILD_${LIBNAME} "Build the ${LIBNAME} library" ON )
@@ -19,62 +19,62 @@ MACRO( CF_ADD_LIBRARY LIBNAME )
   # default for plugin libs is not to install
   if( ${LIBNAME}_kernellib )
       option( CF_BUILD_${LIBNAME}_API "Publish the ${LIBNAME} (kernel) library API" ON )
-  		CF_CACHE_LIST_APPEND ( CF_KERNEL_LIBS ${LIBNAME} )
+      coolfluid_append_cached_list( CF_KERNEL_LIBS ${LIBNAME} )
   else()
-      option ( CF_BUILD_${LIBNAME}_API "Publish the ${LIBNAME} (plugin) library API" OFF )
+      option( CF_BUILD_${LIBNAME}_API "Publish the ${LIBNAME} (plugin) library API" OFF )
   endif()	
   mark_as_advanced( CF_BUILD_${LIBNAME}_API )	# and mark the option advanced
 
   # library is shared or static?
-  IF( BUILD_SHARED_LIBS )
-    SET( ${LIBNAME}_buildtype SHARED )
-  ELSE()
-    SET( ${LIBNAME}_buildtype STATIC )
-  ENDIF()
+  if( BUILD_SHARED_LIBS )
+    set( ${LIBNAME}_buildtype SHARED )
+  else()
+    set( ${LIBNAME}_buildtype STATIC )
+  endif()
 
   # add to list of local libs
-  LIST( APPEND CF_LOCAL_LIBNAMES ${LIBNAME} )
+  list( APPEND CF_LOCAL_LIBNAMES ${LIBNAME} )
 
   # do we still need this in CF3???
 
   # check if all required modules are present
-  SET( ${LIBNAME}_all_mods_pres ON )
-  FOREACH( reqmod ${${LIBNAME}_requires_mods} )
-    LIST( FIND CF_MODULES_LIST ${reqmod} pos )
-    IF( ${pos} EQUAL -1 )
-      SET( ${LIBNAME}_all_mods_pres OFF )
-      IF( CF_BUILD_${LIBNAME} )
+  set( ${LIBNAME}_all_mods_pres ON )
+  foreach( reqmod ${${LIBNAME}_requires_mods} )
+    list( FIND CF_MODULES_LIST ${reqmod} pos )
+    if( ${pos} EQUAL -1 )
+      set( ${LIBNAME}_all_mods_pres OFF )
+      if( CF_BUILD_${LIBNAME} )
           coolfluid_log_verbose( "\# lib [${LIBNAME}] requires module [${reqmod}] which is not present")
-      ENDIF()
-    ENDIF()
-  ENDFOREACH()
+      endif()
+    endif()
+  endforeach()
 
-  IF(CF_BUILD_${LIBNAME} AND ${LIBNAME}_all_mods_pres)
-    SET( ${LIBNAME}_will_compile ON )
-  ELSE()
-    SET( ${LIBNAME}_will_compile OFF )
-  ENDIF()
+  if(CF_BUILD_${LIBNAME} AND ${LIBNAME}_all_mods_pres)
+    set( ${LIBNAME}_will_compile ON )
+  else()
+    set( ${LIBNAME}_will_compile OFF )
+  endif()
 
-  SET( ${LIBNAME}_dir ${CMAKE_CURRENT_SOURCE_DIR} )
-  SET( CF_COMPILES_${LIBNAME} ${${LIBNAME}_will_compile} CACHE INTERNAL "" FORCE )
+  set( ${LIBNAME}_dir ${CMAKE_CURRENT_SOURCE_DIR} )
+  set( CF_COMPILES_${LIBNAME} ${${LIBNAME}_will_compile} CACHE INTERNAL "" FORCE )
 
   coolfluid_log_verbose("lib_${LIBNAME} = ${${LIBNAME}_will_compile}")
 
   # separate the source files
   # and remove them from the orphan list
 
-  CF_SEPARATE_SOURCES("${${LIBNAME}_files}" ${LIBNAME})
+  coolfluid_separate_sources("${${LIBNAME}_files}" ${LIBNAME})
 
-  SOURCE_GROUP( Headers FILES ${${LIBNAME}_headers} )
-  SOURCE_GROUP( Sources FILES ${${LIBNAME}_sources} )
+  source_group( Headers FILES ${${LIBNAME}_headers} )
+  source_group( Sources FILES ${${LIBNAME}_sources} )
 
   # compile if selected and all required modules are present
-  IF(${LIBNAME}_will_compile)
+  if(${LIBNAME}_will_compile)
 
     # add include dirs if defined
-    IF( DEFINED ${LIBNAME}_includedirs )
+    if( DEFINED ${LIBNAME}_includedirs )
       INCLUDE_DIRECTORIES(${${LIBNAME}_includedirs})
-    ENDIF()
+    endif()
 
     coolfluid_log( " +++ LIB [${LIBNAME}]" )
 
@@ -103,53 +103,53 @@ MACRO( CF_ADD_LIBRARY LIBNAME )
     endif()
 
     # add coolfluid internal dependency libraries if defined
-    IF( DEFINED ${LIBNAME}_cflibs )
-				# MESSAGE ( STATUS "${LIBNAME} has ${${LIBNAME}_cflibs}}" )
+    if( DEFINED ${LIBNAME}_cflibs )
+				# message( STATUS "${LIBNAME} has ${${LIBNAME}_cflibs}}" )
 				TARGET_LINK_LIBRARIES ( ${LIBNAME} ${${LIBNAME}_cflibs} )
-    ENDIF()
+    endif()
 
     # add external dependency libraries if defined
-    IF( DEFINED ${LIBNAME}_libs )
-			#	MESSAGE ( STATUS "${LIBNAME} has ${${LIBNAME}_libs}}" )
+    if( DEFINED ${LIBNAME}_libs )
+			#	message( STATUS "${LIBNAME} has ${${LIBNAME}_libs}}" )
       TARGET_LINK_LIBRARIES( ${LIBNAME} ${${LIBNAME}_libs} )
-    ENDIF()
+    endif()
 
     # if mpi was found add it to the libraries
-    IF(CF_HAVE_MPI AND NOT CF_HAVE_MPI_COMPILER)
-    #           MESSAGE ( STATUS "${LIBNAME} links to ${MPI_LIBRARIES}" )
+    if(CF_HAVE_MPI AND NOT CF_HAVE_MPI_COMPILER)
+    #           message( STATUS "${LIBNAME} links to ${MPI_LIBRARIES}" )
         TARGET_LINK_LIBRARIES( ${LIBNAME} ${MPI_LIBRARIES} )
-    ENDIF()
+    endif()
 
     # only add link in dso library if building shared libs
-    IF(BUILD_SHARED_LIBS)
-      GET_TARGET_PROPERTY(LIB_LOCNAME ${LIBNAME} LOCATION)
-      SET(DSO_LIB_NAME ${CMAKE_SHARED_LIBRARY_PREFIX}${LIBNAME}${CMAKE_SHARED_LIBRARY_SUFFIX}${LIB_SUFFIX})
-      IF( UNIX )
+    if(BUILD_SHARED_LIBS)
+      get_target_property(LIB_LOCNAME ${LIBNAME} LOCATION)
+      set(DSO_LIB_NAME ${CMAKE_SHARED_LIBRARY_PREFIX}${LIBNAME}${CMAKE_SHARED_LIBRARY_SUFFIX}${LIB_SUFFIX})
+      if( UNIX )
         ADD_CUSTOM_COMMAND(
           TARGET ${LIBNAME}
           POST_BUILD
           COMMAND ${CMAKE_COMMAND} -E remove ${coolfluid_DSO_DIR}/${DSO_LIB_NAME}
           COMMAND ${CMAKE_COMMAND} -E create_symlink ${LIB_LOCNAME} ${coolfluid_DSO_DIR}/${DSO_LIB_NAME}
         )
-      ELSE()
+      else()
         ADD_CUSTOM_COMMAND(
           TARGET ${LIBNAME}
           POST_BUILD
           COMMAND ${CMAKE_COMMAND} -E remove ${coolfluid_DSO_DIR}/${DSO_LIB_NAME}
           COMMAND ${CMAKE_COMMAND} -E copy ${LIB_LOCNAME} ${coolfluid_DSO_DIR}/${DSO_LIB_NAME}
         )
-      ENDIF()
-    ENDIF()
+      endif()
+    endif()
 
 	  # if not kernel lib and static is set 	
 	  # then this lib will be added to the list of kernel libs
-    IF( NOT ${LIBNAME}_kernellib AND CF_ENABLE_STATIC )
-	      CF_CACHE_LIST_APPEND ( CF_KERNEL_STATIC_LIBS ${LIBNAME} )
-    ENDIF()
+    if( NOT ${LIBNAME}_kernellib AND CF_ENABLE_STATIC )
+        coolfluid_append_cached_list( CF_KERNEL_STATIC_LIBS ${LIBNAME} )
+    endif()
 
-  ENDIF()
+  endif()
 
-  GET_TARGET_PROPERTY( ${LIBNAME}_LINK_LIBRARIES  ${LIBNAME} LINK_LIBRARIES )
+  get_target_property( ${LIBNAME}_LINK_LIBRARIES  ${LIBNAME} LINK_LIBRARIES )
   
   # log some info about the library
   coolfluid_log_file("${LIBNAME} enabled         : [${CF_BUILD_${LIBNAME}}]")
@@ -165,5 +165,5 @@ MACRO( CF_ADD_LIBRARY LIBNAME )
   coolfluid_log_file("${LIBNAME}_sources         : [${${LIBNAME}_sources}]")
   coolfluid_log_file("${LIBNAME}_LINK_LIBRARIES  : [${${LIBNAME}_LINK_LIBRARIES}]")
 
-ENDMACRO( CF_ADD_LIBRARY )
+endmacro( coolfluid_add_library )
 ##############################################################################

@@ -48,7 +48,7 @@ coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 #######################################################################################
 
   # coolfluid_log( "+++++  Checking for pre compiled header support" )
-  # INCLUDE(CheckPreCompiledHeaderSupport)
+  # include(CheckPreCompiledHeaderSupport)
 
 #######################################################################################
 
@@ -64,40 +64,40 @@ coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
     }
   "
   CF_CXX_HAVE_NAMESPACES)
-  IF( NOT CF_CXX_HAVE_NAMESPACES )
-    MESSAGE ( FATAL_ERROR "C++ compiler does not support namespaces" )
-  ENDIF()
+  if( NOT CF_CXX_HAVE_NAMESPACES )
+    message( FATAL_ERROR "C++ compiler does not support namespaces" )
+  endif()
 
 #######################################################################################
 
   coolfluid_log( "+++++  Checking for __FUNCTION__ support" )
-  INCLUDE(CheckFunctionDef)
+  include(CheckFunctionDef)
 
 #######################################################################################
 
   coolfluid_log( "+++++  Checking for restrict keyword" )
-  INCLUDE(CheckRestrictKeyword)
+  include(CheckRestrictKeyword)
 
 #######################################################################################
 
   # coolfluid_log( "+++++  Checking for explicit template support" ) # output in macro
-  INCLUDE ( CheckExplicitInstantiation )
+  include( CheckExplicitInstantiation )
 
 #######################################################################################
 
   coolfluid_log( "+++++  Checking for mmap support" ) # check memory mmap functions
   # check memory mmap functions
-  CHECK_FUNCTION_EXISTS(mmap   CF_HAVE_MMAP)
-  CHECK_FUNCTION_EXISTS(munmap CF_HAVE_MUNMAP)
-  CHECK_FUNCTION_EXISTS(mremap CF_HAVE_MREMAP)
-  IF(CF_HAVE_MMAP AND CF_HAVE_MUNMAP AND CF_HAVE_MREMAP)
-    SET( CF_HAVE_ALLOC_MMAP 1 CACHE BOOL "MemoryAllocator_MMAP can be built")
-  ENDIF()
+  check_function_exists(mmap   CF_HAVE_MMAP)
+  check_function_exists(munmap CF_HAVE_MUNMAP)
+  check_function_exists(mremap CF_HAVE_MREMAP)
+  if(CF_HAVE_MMAP AND CF_HAVE_MUNMAP AND CF_HAVE_MREMAP)
+    set( CF_HAVE_ALLOC_MMAP 1 CACHE BOOL "MemoryAllocator_MMAP can be built")
+  endif()
 
 #######################################################################################
 
   coolfluid_log( "+++++  Checking for vsnprintf function" ) # check memory mmap functions
-  CHECK_FUNCTION_EXISTS(vsnprintf   CF_HAVE_VSNPRINTF)
+  check_function_exists(vsnprintf   CF_HAVE_VSNPRINTF)
 
 #######################################################################################
 
@@ -138,7 +138,7 @@ coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 #######################################################################################
 
   coolfluid_log( "+++++  Checking for the POSIX unistd.h header" )    # check unistd.h
-  CHECK_INCLUDE_FILE( unistd.h  CF_HAVE_UNISTD_H )
+  check_include_file( unistd.h  CF_HAVE_UNISTD_H )
 
 #######################################################################################
 
@@ -158,34 +158,34 @@ coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 
   # check for time headers
   coolfluid_log( "+++++  Checking for headers with time information" )
-  CHECK_INCLUDE_FILE(sys/time.h       CF_HAVE_SYS_TIME_H)
-  CHECK_INCLUDE_FILE(time.h           CF_HAVE_TIME_H)
-  CHECK_INCLUDE_FILE(sys/resource.h   CF_HAVE_SYS_RESOURCE_H)
-  CHECK_FUNCTION_EXISTS(gettimeofday  CF_HAVE_GETTIMEOFDAY)
+  check_include_file(sys/time.h       CF_HAVE_SYS_TIME_H)
+  check_include_file(time.h           CF_HAVE_TIME_H)
+  check_include_file(sys/resource.h   CF_HAVE_SYS_RESOURCE_H)
+  check_function_exists(gettimeofday  CF_HAVE_GETTIMEOFDAY)
 
 #######################################################################################
 # Win32 specific
 #######################################################################################
 
-IF(WIN32)
+if(WIN32)
 
   coolfluid_log( "+++++  Checking for the Win32 windows.h header" )    # check windows.hfor Windows API
-  CHECK_INCLUDE_FILE_CXX(windows.h CF_HAVE_WINDOWSH)
+  check_include_file_cxx(windows.h CF_HAVE_WINDOWSH)
   coolfluid_log( "+++++  Checking for the Win32 dbghelp.h header" )    # check dbghelp.h for call stack
-  CHECK_INCLUDE_FILE_CXX(dbghelp.h CF_HAVE_DBGHELPH)
+  check_include_file_cxx(dbghelp.h CF_HAVE_DBGHELPH)
   coolfluid_log( "+++++  Checking for the Win32 psapi.h header" )      # check psapi.h for memory info
-  CHECK_INCLUDE_FILE_CXX(psapi.h CF_HAVE_PSAPIH)
+  check_include_file_cxx(psapi.h CF_HAVE_PSAPIH)
 
-ENDIF()
+endif()
 
 #######################################################################################
 # UNIX specific
 #######################################################################################
 
-IF(UNIX)
+if(UNIX)
 
   coolfluid_log( "+++++  Checking for the dlfcn.h header" )  # for dlopen
-  CHECK_INCLUDE_FILE_CXX(dlfcn.h CF_HAVE_DLOPEN)
+  check_include_file_cxx(dlfcn.h CF_HAVE_DLOPEN)
 
-ENDIF()
+endif()
 
