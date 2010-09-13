@@ -20,8 +20,8 @@ if( NOT CF_SKIP_CGAL )
   find_path(CGAL_INCLUDE_DIR CGAL ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH)
   find_path(CGAL_INCLUDE_DIR CGAL )
 
-  coolfluid_coolfluid_add_trial_library_path(${CGAL_ROOT}/lib )
-  coolfluid_coolfluid_add_trial_library_path($ENV{CGAL_ROOT}/lib )
+  coolfluid_add_trial_library_path(${CGAL_ROOT}/lib )
+  coolfluid_add_trial_library_path($ENV{CGAL_ROOT}/lib )
 
   find_library(CGAL_LIBRARY CGAL ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
   find_library(CGAL_LIBRARY CGAL )

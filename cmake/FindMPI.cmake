@@ -32,8 +32,8 @@ find_path(MPI_INCLUDE_PATH
           "C:/Program Files/MPICH/SDK/Include"
           )
 
-coolfluid_add_trial_library_path(${MPI_HOME}/lib )
-coolfluid_add_trial_library_path($ENV{MPI_HOME}/lib )
+coolfluid_add_trial_library_path( ${MPI_HOME}/lib )
+coolfluid_add_trial_library_path( $ENV{MPI_HOME}/lib )
 
 find_library(MPI_LIBRARY
              NAMES mpich2 mpi mpich mpich.rts
@@ -49,7 +49,7 @@ find_library(MPI_LIBRARY
              "C:/Program Files/MPICH/SDK/Lib" )
 
 # search for the mpi c++ library
-find_library((MPICXX_LIBRARY
+find_library(MPICXX_LIBRARY
              NAMES mpi++ mpi_cxx
              PATH_SUFFIXES mpi/lib
              PATHS ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
@@ -85,21 +85,21 @@ if( DEFINED MPI_EXTRA_LIBRARY_NAMES )
                   PATHS /usr/lib /usr/local/lib
                   "$ENV{ProgramFiles}/MPICH/SDK/Lib"
                   "$ENV{ProgramFiles}/MPICH2/Lib"
-                  "C:/Program Files/MPICH/SDK/Lib" )
+                 "C:/Program Files/MPICH/SDK/Lib" )
 
-    mark_as_advanced( MPI_EXTRA_LIBRARY_${mpi_extra_lib} )
+   mark_as_advanced( MPI_EXTRA_LIBRARY_${mpi_extra_lib} )
 
 #    CF_DEBUG_VAR ( ${mpi_extra_lib} )
 #    CF_DEBUG_VAR ( MPI_EXTRA_LIBRARY_${mpi_extra_lib} )
 
     if( NOT MPI_EXTRA_LIBRARY_${mpi_extra_lib} )
-      MESSAGE ( FATAL_ERROR "User defined MPI extra lib \'${mpi_extra_lib}\' NOT FOUND" )
+      message( FATAL_ERROR "User defined MPI extra lib \'${mpi_extra_lib}\' NOT FOUND" )
     else()
       list( APPEND MPI_EXTRA_LIBS ${MPI_EXTRA_LIBRARY_${mpi_extra_lib}} )
-      MARK_AS_ADVANCED( MPI_EXTRA_LIBS )
+      mark_as_advanced( MPI_EXTRA_LIBS )
     endif()
 
-   endforeach( mpi_extra_lib )
+   endforeach()
 
   list( APPEND MPI_LIBRARIES ${MPI_EXTRA_LIBS} )
 

@@ -1,6 +1,6 @@
 # - Try to find OpenCL
 # Once done this will define
-#  
+#
 #  OPENCL_FOUND        - system has OpenCL
 #  OPENCL_INCLUDE_DIR  - the OpenCL include directory
 #  OPENCL_LIBRARIES    - link these to use OpenCL
@@ -17,8 +17,8 @@ if( NOT CF_SKIP_OPENCL )
   coolfluid_add_trial_include_path( $ENV{OPENCL_ROOT}/include )
 
   coolfluid_add_trial_include_path( ${DEPS_ROOT}/include )
-  coolfluid_coolfluid_add_trial_library_path( ${OPENCL_ROOT}/lib )
-  coolfluid_coolfluid_add_trial_library_path( $ENV{OPENCL_ROOT}/lib )
+  coolfluid_add_trial_library_path( ${OPENCL_ROOT}/lib )
+  coolfluid_add_trial_library_path( $ENV{OPENCL_ROOT}/lib )
 
 if(WIN32)
 
@@ -47,7 +47,7 @@ if(UNIX)
 
       find_library(OPENCL_LIBRARIES OpenCL ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
       find_library(OPENCL_LIBRARIES OpenCL )
- 
+
     else() # Other UNIX, like Linux, etc
 
       find_path(OPENCL_INCLUDE_DIR CL/cl.h  ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH )
@@ -55,7 +55,7 @@ if(UNIX)
 
       find_library(OPENCL_LIBRARIES OpenCL ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
       find_library(OPENCL_LIBRARIES OpenCL  )
- 
+
   endif()
 
 endif()

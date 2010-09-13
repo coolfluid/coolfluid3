@@ -16,7 +16,7 @@ if( NOT CF_SKIP_CURL )
   find_path(CURL_INCLUDE_DIR curl/curl.h ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH)
   find_path(CURL_INCLUDE_DIR curl/curl.h)
 
-  coolfluid_coolfluid_add_trial_library_path( ${CURL_HOME}/bin ${CURL_HOME}/lib $ENV{CURL_HOME}/bin ${CURL_HOME}/lib )
+  coolfluid_add_trial_library_path( ${CURL_HOME}/bin ${CURL_HOME}/lib $ENV{CURL_HOME}/bin ${CURL_HOME}/lib )
 
   find_library(CURL_LIBRARY curl ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
   find_library(CURL_LIBRARY curl )
@@ -26,7 +26,7 @@ if( NOT CF_SKIP_CURL )
   else()
     set(CF_HAVE_CURL 0 CACHE BOOL "Not fount curl library")
   endif()
-  
+
 else()
     set(CF_HAVE_CURL 0 CACHE BOOL "Skipped Curl library")
 endif()

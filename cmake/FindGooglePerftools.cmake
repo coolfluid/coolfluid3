@@ -16,8 +16,8 @@ if( NOT CF_SKIP_GOOGLE_PERFTOOLS )
   find_path(GOOGLE_PERFTOOLS_INCLUDE_DIR google/profiler.h ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH)
   find_path(GOOGLE_PERFTOOLS_INCLUDE_DIR google/profiler.h )
 
-  coolfluid_coolfluid_add_trial_library_path(    ${GOOGLE_PERFTOOLS_ROOT}/lib )
-  coolfluid_coolfluid_add_trial_library_path( $ENV{GOOGLE_PERFTOOLS_ROOT}/lib )
+  coolfluid_add_trial_library_path(    ${GOOGLE_PERFTOOLS_ROOT}/lib )
+  coolfluid_add_trial_library_path( $ENV{GOOGLE_PERFTOOLS_ROOT}/lib )
 
   find_library(GOOGLE_PERFTOOLS_PROFILER_LIB profiler ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
   find_library(GOOGLE_PERFTOOLS_PROFILER_LIB profiler )
@@ -30,11 +30,11 @@ if( NOT CF_SKIP_GOOGLE_PERFTOOLS )
   else()
     set( CF_HAVE_GOOGLE_PERFTOOLS 0 CACHE BOOL "Not fount google-perftools" )
   endif()
-  
+
   # tools used for profiling post-processing
   find_program(CF_PPROF_COMMAND pprof)
   find_program(CF_DOT_COMMAND dot)
-  
+
 
 else()
 

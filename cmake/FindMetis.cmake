@@ -19,8 +19,8 @@ if( NOT CF_SKIP_METIS )
   find_path(METIS_INCLUDE_DIR metis.h ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH)
   find_path(METIS_INCLUDE_DIR metis.h)
 
-  coolfluid_coolfluid_add_trial_library_path(${METIS_HOME}/lib )
-  coolfluid_coolfluid_add_trial_library_path($ENV{METIS_HOME}/lib )
+  coolfluid_add_trial_library_path(${METIS_HOME}/lib )
+  coolfluid_add_trial_library_path($ENV{METIS_HOME}/lib )
 
   find_library(METIS_LIBRARY metis ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
   find_library(METIS_LIBRARY metis )
