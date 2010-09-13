@@ -1,5 +1,5 @@
 #include "SimpleCommunicationPattern.hpp"
-
+#include "WriteDict.hpp"
 #include "Common/MPI/PEInterface.hpp"
 
 #include "Mesh/CTable.hpp"
@@ -74,6 +74,7 @@ void make_receive_lists(const SimpleCommunicationPattern::IndicesT& nodes_dist, 
   
   // set the communications pattern
   const Uint nb_missing_nodes = missing_nodes.size();
+  std::map<Uint,Uint> replace_nodes;
   for(Uint i = 0; i != nb_missing_nodes;)
   {
     const Uint node_idx = missing_nodes[i];
@@ -82,10 +83,10 @@ void make_receive_lists(const SimpleCommunicationPattern::IndicesT& nodes_dist, 
     comms_pattern.receive_targets.push_back(nodes_end - nodes_begin + comms_pattern.receive_list.size());
     comms_pattern.receive_list.push_back(node_idx - nodes_dist[node_processor]);
     comms_pattern.receive_dist[node_processor+1] = comms_pattern.receive_list.size();
+    replace_nodes[node_idx] = comms_pattern.receive_targets.back();
     
     while(i != nb_missing_nodes && node_idx == missing_nodes[i])
     {
-      missing_nodes[i] = comms_pattern.receive_targets.back();
       ++i;
     }
   }
@@ -98,9 +99,11 @@ void make_receive_lists(const SimpleCommunicationPattern::IndicesT& nodes_dist, 
   }
   
   // Update connectivity data to point to ghosts where data is missing
-  Uint missing_idx = 0;
+  const Uint nb_nodes = nodes_end - nodes_begin + comms_pattern.receive_list.size();
   BOOST_FOREACH(CElements& celements, recursive_range_typed<CElements>(mesh))
   {
+    CArray& coords = celements.coordinates();
+    coords.resize(nb_nodes);
     CTable::ArrayT& connectivity_table = celements.connectivity_table().array();
     BOOST_FOREACH(CTable::Row row, connectivity_table)
     {
@@ -108,10 +111,13 @@ void make_receive_lists(const SimpleCommunicationPattern::IndicesT& nodes_dist, 
       {
         if(node_idx >= nodes_end || node_idx < nodes_begin)
         {
-          node_idx = missing_nodes[missing_idx];
-          cf_assert(node_idx < (nodes_end - nodes_begin + comms_pattern.receive_list.size()));
-          ++missing_idx;
+          node_idx = replace_nodes[node_idx];
         }
+        else
+        {
+          node_idx -= nodes_begin;
+        }
+        cf_assert(node_idx < coords.size());
       }
     }
   }

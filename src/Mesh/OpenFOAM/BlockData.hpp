@@ -55,7 +55,7 @@ struct BlockData
 };
 
 /// Using the given block data, construct the mesh
-void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPattern& pattern);
+void build_mesh(const CF::Mesh::OpenFOAM::BlockData& block_data, CF::Mesh::CMesh& mesh, std::vector<Uint>& nodes_dist);
 
 /// Partition a mesh along the X, Y or Z axis into the given number of partitions
 /// Partitioning ensures that processor boundaries lie on a boundary between blocks

@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE( PartitionBlocks )
   parse_blockmesh_dict(file, block_data);
   
   BlockData partitioned_blocks;
-  partition_blocks(block_data, 4, CF::XX, partitioned_blocks);
+  partition_blocks(block_data, 3, CF::XX, partitioned_blocks);
   
   // create a mesh with the blocks only
   CMesh::Ptr block_mesh(new CMesh("block_mesh"));

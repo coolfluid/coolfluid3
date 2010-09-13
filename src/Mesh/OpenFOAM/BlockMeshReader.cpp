@@ -54,7 +54,7 @@ void BlockMeshReader::read_from_to(boost::filesystem::path& path, const CMesh::P
   
   BlockData block_data;
   parse_blockmesh_dict(file, block_data);
-  SimpleCommunicationPattern unused;
+  SimpleCommunicationPattern::IndicesT unused;
   build_mesh(block_data, *mesh, unused);
 }
 

@@ -470,7 +470,7 @@ void create_mapped_coords(const Uint segments, BlockData::GradingT::const_iterat
   
 } // namespace detail
 
-void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPattern& pattern)
+void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPattern::IndicesT& nodes_dist)
 {
   const Uint nb_procs = PEInterface::instance().size();
   const Uint rank = PEInterface::instance().rank();
@@ -510,7 +510,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
   detail::NodeIndices nodes(volume_to_face_connectivity, block_data);
   
   // Distribution of the nodes among CPUs
-  detail::NodeIndices::IndicesT nodes_dist;
+  nodes_dist.clear();
   nodes_dist.reserve(nb_procs+1);
   nodes_dist.push_back(0);
   for(Uint proc = 0; proc != nb_procs; ++proc)
@@ -913,16 +913,6 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
       }
     }
   }
-  
-  // Update consistency across CPUs
-  if(!PEInterface::instance().is_init())
-    PEInterface::instance().init(0,0);
-
-  make_receive_lists(nodes_dist, mesh, pattern);
-  CArray& final_coords = recursive_get_component_typed<CArray>(mesh, IsComponentTrue());
-  final_coords.resize(final_coords.size() + pattern.receive_list.size());
-  pattern.update_send_lists();
-  apply_pattern_carray(pattern, recursive_range_typed<CArray>(mesh));
 }
 
 void partition_blocks(const BlockData& blocks_in, const Uint nb_partitions, const CoordXYZ direction, BlockData& blocks_out)
@@ -1046,8 +1036,7 @@ void partition_blocks(const BlockData& blocks_in, const Uint nb_partitions, cons
     }
     cf_assert(slice_size);
     Uint partition_nb_slices = static_cast<Uint>( ceil( static_cast<Real>(partition_size) / static_cast<Real>(slice_size) ) );
-    
-    if((partition_size + nb_partitioned) > global_nb_elements)
+    if((nb_partitioned + (partition_nb_slices * slice_size)) > global_nb_elements)
     {
       cf_assert(partition == nb_partitions-1);
       const Uint nb_remaining_elements = global_nb_elements - nb_partitioned;
@@ -1055,7 +1044,7 @@ void partition_blocks(const BlockData& blocks_in, const Uint nb_partitions, cons
       partition_nb_slices = nb_remaining_elements / slice_size;
     }
     
-    nb_partitioned += partition_size;
+    nb_partitioned += partition_nb_slices * slice_size;
     while(partition_nb_slices)
     {
       const Uint block_nb_slices = blocks_to_partition.block_subdivisions[current_block_layer.front()][direction];

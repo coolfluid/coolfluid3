@@ -1,42 +1,31 @@
 #include <boost/foreach.hpp>
 #include <boost/range.hpp>
 
+#include "Common/StreamHelpers.hpp"
+
 #include "WriteDict.hpp"
 
-
+using namespace CF::Common;
 
 namespace CF {
 namespace Mesh {
 namespace OpenFOAM {
 
-/// Print a vector enclosed in ()
-template<typename VectorT, typename StreamT>
-void print_vector(const VectorT& vector, StreamT& stream)
-{
-  stream << "(";
-  const Uint vector_size = vector.size();
-  for(Uint i = 0; i != vector_size; ++i)
-  {
-    stream << " " << vector[i];
-  }
-  stream << " )";
-}
-
 std::ostream& operator<<(std::ostream& os, const BlockData::IndicesT& data)
 {
-  print_vector(data, os);
+  print_vector(os, data, " ", "(", ")");
   return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const BlockData::PointT& data)
 {
-  print_vector(data, os);
+  print_vector(os, data, " ", "(", ")");
   return os;
 }
 
 std::ostream& operator<<(std::ostream& os, const boost::iterator_range<BlockData::IndicesT::const_iterator>& data)
 {
-  print_vector(data, os);
+  print_vector(os, data, " ", "(", ")");
   return os;
 }
 
