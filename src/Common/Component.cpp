@@ -405,6 +405,7 @@ void Component::regist_signals ( Component* self  )
   self->regist_signal ( "list_options" , "lists the options of this component" )->connect ( boost::bind ( &Component::list_options, self, _1 ) );
 
   self->regist_signal ( "configure" , "configures this component" )->connect ( boost::bind ( &Component::configure, self, _1 ) );
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -414,9 +415,9 @@ void Component::create_component ( XmlNode& node  )
 {
   XmlParams p ( node );
 
-  std::string name  = p.get_param<std::string>("name");
-  std::string atype = p.get_param<std::string>("atype");
-  std::string ctype = p.get_param<std::string>("ctype");
+  std::string name  = p.get_option<std::string>("name");
+  std::string atype = p.get_option<std::string>("atype");
+  std::string ctype = p.get_option<std::string>("ctype");
 
 
   SafePtr< FactoryBase > factory =
@@ -451,6 +452,9 @@ void Component::write_xml_tree( XmlNode& node )
 
       // add options
       list_options(options);
+
+      // add properties
+      list_properties(options);
 
       BOOST_FOREACH( CompStorage_t::value_type c, m_components )
       {
@@ -500,50 +504,76 @@ void Component::list_options ( XmlNode& node )
 {
   OptionList::OptionStorage_t::iterator it = m_option_list.m_options.begin();
 
+  XmlParams p(*node.parent());
+
   for( ; it != m_option_list.m_options.end() ; it++)
   {
     Option::Ptr opt = it->second;
 
+    bool basic = opt->has_tag("basic");
+    boost::any value = opt->value();
+    std::string desc = opt->description();
+    std::string name = it->first;
+    std::string type = opt->type();
+
     if(std::strcmp(opt->tag(), "array") != 0)
     {
-      XmlNode& value_node = *XmlOps::add_node_to(node, "value");
-
-      // set key (option name) and descr attributes (option description)
-      XmlOps::add_attribute_to(value_node, XmlParams::tag_attr_key(), it->first);
-      XmlOps::add_attribute_to(value_node, XmlParams::tag_attr_descr(), opt->description());
-
-      XmlOps::add_attribute_to(value_node, "mode",
-                               opt->has_tag("basic") ? "basic" : "adv" );
-
-      // set option value
-      XmlOps::add_node_to(value_node, opt->type(), opt->value_str());
+      if(type == "string")
+        p.add_option(name, boost::any_cast< std::string >(value), desc, basic);
+      else if(type == "bool")
+        p.add_option(name, boost::any_cast< bool >(value), desc, basic);
+      else if(type == "integer")
+        p.add_option(name, boost::any_cast< int >(value), desc, basic);
+      else if(type == "unsigned")
+        p.add_option(name, boost::any_cast< CF::Uint >(value), desc, basic);
+      else if(type == "real")
+        p.add_option(name, boost::any_cast< CF::Real >(value), desc, basic);
+      else if(type == "file")
+        p.add_option(name, boost::any_cast< boost::filesystem::path >(value), desc, basic);
+      else
+        throw ShouldNotBeHere(FromHere(),
+             std::string("Don't know how the manage \"") + type + "\" type.");
     }
     else
     {
+
       boost::shared_ptr<OptionArray> optArray;
-      XmlParams p(*node.parent());
 
       optArray = boost::dynamic_pointer_cast<OptionArray>(opt);
 
       const char * elem_type = optArray->elem_type();
 
       if(strcmp(elem_type, "string") == 0)
-        add_array_to_xml<std::string>(p, it->first, optArray);
+        add_array_to_xml< std::string >(p, it->first, optArray);
       else if(strcmp(elem_type, "bool") == 0)
-        add_array_to_xml<bool>(p, it->first, optArray);
+        add_array_to_xml< bool >(p, it->first, optArray);
       else if(strcmp(elem_type, "integer") == 0)
-        add_array_to_xml<int>(p, it->first, optArray);
+        add_array_to_xml< int >(p, it->first, optArray);
       else if(strcmp(elem_type, "unsigned") == 0)
-        add_array_to_xml<CF::Uint>(p, it->first, optArray);
+        add_array_to_xml< CF::Uint >(p, it->first, optArray);
       else if(strcmp(elem_type, "real") == 0)
-        add_array_to_xml<CF::Real>(p, it->first, optArray);
+        add_array_to_xml< CF::Real >(p, it->first, optArray);
       else if(strcmp(elem_type, "file") == 0)
-        add_array_to_xml<boost::filesystem::path>(p, it->first, optArray);
+        add_array_to_xml< boost::filesystem::path >(p, it->first, optArray);
       else
         throw ShouldNotBeHere(FromHere(),
              std::string("Don't know how the manage OptionArrayT<") +
                   elem_type + ">.");
     }
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+void Component::list_properties( XmlNode& node )
+{
+  PropertyList::iterator it = m_properties.begin();
+
+  XmlParams p(*node.parent());
+
+  for( ; it != m_properties.end() ; it++)
+  {
+    p.add_property(it->first, boost::any_cast< std::string >(it->second));
   }
 }
 

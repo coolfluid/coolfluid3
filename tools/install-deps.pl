@@ -51,7 +51,7 @@ my $opt_dwnldsrc      = "http://coolfluidsrv.vki.ac.be/webfiles/coolfluid/packag
 my $opt_wgetprog      = "wget -nc -nd";
 my $opt_curlprog      = "curl -O -nc -nv --progress-bar";
 my $opt_dwnldprog     = $opt_wgetprog;
-my $opt_makeopts      = "-j2";
+my $opt_makeopts      = "-j8";
 my $opt_svnrevision       = 0;
 my @opt_install_list = ();
 
@@ -82,7 +82,7 @@ my %packages = (  #  version   default install priority      function
     "openmpi"    => [ "1.4.2",  'off',   'off', $priority++,  \&install_openmpi ],
     "mpich"      => [ "1.2.7p1",'off',   'off', $priority++,  \&install_mpich ],
     "mpich2"     => [ "1.2.1",  'off',   'off', $priority++,  \&install_mpich2 ],
-    "boost"      => [ "1_44_0", 'on' ,   'off', $priority++,  \&install_boost ],
+    "boost"      => [ "1_43_0", 'on' ,   'off', $priority++,  \&install_boost ],
     "parmetis"   => [ "3.1.1",  'on' ,   'off', $priority++,  \&install_parmetis ],
     "hdf5"       => [ "1.8.5",  'off',   'off', $priority++,  \&install_hdf5 ],
     "trilinos"   => [ "10.2.0", 'off',   'off', $priority++,  \&install_trilinos ],

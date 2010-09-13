@@ -145,7 +145,7 @@ void NCore::client_registration(XmlNode & node)
 {
   XmlParams p(node);
 
-  if(p.get_param<bool>("accepted"))
+  if(p.get_option<bool>("accepted"))
   {
     ClientRoot::getLog()->addMessage("Registration was successful.");
     emit connectedToServer();
@@ -164,8 +164,8 @@ void NCore::client_registration(XmlNode & node)
 void NCore::frame_rejected(CF::Common::XmlNode & node)
 {
   XmlParams p(node);
-  string frameid = p.get_param<string>("frameid");
-  string reason = p.get_param<string>("reason");
+  string frameid = p.get_option<string>("frameid");
+  string reason = p.get_option<string>("reason");
 
   QString msg("Action %1 has been rejected by the server: %2");
 

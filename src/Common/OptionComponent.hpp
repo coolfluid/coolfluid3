@@ -43,7 +43,7 @@ namespace Common {
     /// updates the option value using the xml configuration
     /// @param node XML node with data for this option
     virtual void configure ( XmlNode& node );
-    
+
   protected:
 
     /// storage of the component pointer
@@ -65,7 +65,7 @@ namespace Common {
       m_value = m_component;
     }
 
- 
+
   //  CFinfo
   //      << " creating OptionComponent [" << m_name << "]"
   //      << " of type [" << m_type << "]"
@@ -79,12 +79,15 @@ namespace Common {
   {
     XmlParams params ( node );
 
-    if ( params.params == 0 )
-      throw  Common::XmlError( FromHere(), "ConfigObject received  XML without a \'" + std::string(XmlParams::tag_node_valuemap()) + "\' node" );
+    std::string str;
+    XmlOps::xml_to_string(node, str);
 
-    std::string name  = params.get_param<std::string>("name");
-    std::string atype = params.get_param<std::string>("atype");
-    std::string ctype = params.get_param<std::string>("ctype");
+    if ( params.option_map == 0 )
+      throw  Common::XmlError( FromHere(), "ConfigObject received  XML without a \'" + std::string(XmlParams::tag_node_valuemap()) + "\' node\n\n" +str );
+
+    std::string name  = params.get_option<std::string>("name");
+    std::string atype = params.get_option<std::string>("atype");
+    std::string ctype = params.get_option<std::string>("ctype");
 
     if ( atype != m_type )
       throw BadValue ( FromHere(), "Option [" + m_name + "] received configuration with wrong abstract type [" + atype + "]" );

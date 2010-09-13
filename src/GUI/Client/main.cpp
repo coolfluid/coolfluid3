@@ -19,6 +19,7 @@ int main(int argc, char *argv[])
   QApplication app(argc, argv);
   int returnValue;
   CF::AssertionManager::instance().AssertionThrows = true;
+  CF::AssertionManager::instance().AssertionDumps = true;
 
   try
   {

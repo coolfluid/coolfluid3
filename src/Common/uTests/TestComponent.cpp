@@ -300,9 +300,9 @@ BOOST_AUTO_TEST_CASE( create_component_signal )
 
   XmlParams params ( node );
 
-  params.add_param<std::string>( "name",  "MyMesh" );
-  params.add_param<std::string>( "atype", "CMeshReader" );
-  params.add_param<std::string>( "ctype", "CGNS" );
+  params.add_option<std::string>( "name",  "MyMesh" );
+  params.add_option<std::string>( "atype", "CMeshReader" );
+  params.add_option<std::string>( "ctype", "CGNS" );
 
 //  XmlOps::print_xml_node( *doc.get() );
 //  XmlOps::write_xml_node( *doc.get(),  "test.xml" );

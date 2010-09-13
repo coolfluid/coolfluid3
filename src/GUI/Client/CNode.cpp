@@ -101,104 +101,109 @@ CNode::Type CNode::getType() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CNode::setOptions(const XmlNode & options)
+void CNode::setOptions(XmlNode & options)
 {
-  // iterate through options
-  XmlNode* node = options.first_node();
-  for ( ; node != CFNULL ; node = node->next_sibling(  ) )
+  XmlParams p(options);
+
+  if(p.option_map != CFNULL)
   {
-    bool advanced;
-    XmlAttr * keyAttr= node->first_attribute( XmlParams::tag_attr_key() );
-    XmlAttr * descrAttr = node->first_attribute( XmlParams::tag_attr_descr() );
-    XmlAttr * modeAttr = node->first_attribute( "mode" );
-
-    advanced = modeAttr != CFNULL && std::strcmp(modeAttr->value(), "adv") == 0;
-
-    const char * keyVal = keyAttr->value(); // option name
-
-    if ( keyAttr != CFNULL )
+    // iterate through options
+    XmlNode* node = p.option_map->first_node();
+    for ( ; node != CFNULL ; node = node->next_sibling(  ) )
     {
-      if(std::strcmp(node->name(), "value")  == 0)
+      bool advanced;
+      XmlAttr * keyAttr= node->first_attribute( XmlParams::tag_attr_key() );
+      XmlAttr * descrAttr = node->first_attribute( XmlParams::tag_attr_descr() );
+      XmlAttr * modeAttr = node->first_attribute( "mode" );
+
+      advanced = modeAttr != CFNULL && std::strcmp(modeAttr->value(), "adv") == 0;
+
+      if ( keyAttr != CFNULL )
       {
-        XmlNode * type_node = node->first_node();
+        const char * keyVal = keyAttr->value(); // option name
 
-        if( type_node != CFNULL)
+        if(std::strcmp(node->name(), "value")  == 0)
         {
-          const char * descrVal = (descrAttr != CFNULL) ? descrAttr->value() : "";
-          const char * typeVal = type_node->name(); // type name
+          XmlNode * type_node = node->first_node();
 
-          if(std::strcmp(typeVal, "bool") == 0)
-            addOption<bool>(keyVal, descrVal, *type_node);
-          else if(std::strcmp(typeVal, "integer") == 0)
-            addOption<int>(keyVal, descrVal, *type_node);
-          else if(std::strcmp(typeVal, "unsigned") == 0)
-            addOption<CF::Uint>(keyVal, descrVal, *type_node);
-          else if(std::strcmp(typeVal, "real") == 0)
-            addOption<CF::Real>(keyVal, descrVal, *type_node);
-          else if(std::strcmp(typeVal, "string") == 0)
-            addOption<std::string>(keyVal, descrVal, *type_node);
-          else if(std::strcmp(typeVal, "file") == 0)
-            addOption<boost::filesystem::path>(keyVal, descrVal, *type_node);
-          else
-            throw ShouldNotBeHere(FromHere(), std::string(typeVal) + ": Unknown type");
+          if( type_node != CFNULL)
+          {
+            const char * descrVal = (descrAttr != CFNULL) ? descrAttr->value() : "";
+            const char * typeVal = type_node->name(); // type name
+
+            if(std::strcmp(typeVal, "bool") == 0)
+              addOption<bool>(keyVal, descrVal, *type_node);
+            else if(std::strcmp(typeVal, "integer") == 0)
+              addOption<int>(keyVal, descrVal, *type_node);
+            else if(std::strcmp(typeVal, "unsigned") == 0)
+              addOption<CF::Uint>(keyVal, descrVal, *type_node);
+            else if(std::strcmp(typeVal, "real") == 0)
+              addOption<CF::Real>(keyVal, descrVal, *type_node);
+            else if(std::strcmp(typeVal, "string") == 0)
+              addOption<std::string>(keyVal, descrVal, *type_node);
+            else if(std::strcmp(typeVal, "file") == 0)
+              addOption<boost::filesystem::path>(keyVal, descrVal, *type_node);
+            else
+              throw ShouldNotBeHere(FromHere(), std::string(typeVal) + ": Unknown type parent is " + node->name());
+          }
         }
-      }
-      else if(std::strcmp(node->name(), "array")  == 0)
-      {
-        XmlParams p(*options.parent());
-
-        XmlAttr * typeAttr= node->first_attribute( XmlParams::tag_attr_type() );
-
-        if( typeAttr != CFNULL)
+        else if(std::strcmp(node->name(), "array")  == 0)
         {
-          const char * descrVal = (descrAttr != CFNULL) ? descrAttr->value() : "";
-          const char * typeVal = typeAttr->value(); // element type
+//          XmlParams p(*options.parent());
 
-          if(std::strcmp(typeVal, "bool") == 0)
+          XmlAttr * typeAttr= node->first_attribute( XmlParams::tag_attr_type() );
+
+          if( typeAttr != CFNULL)
           {
-            std::vector<bool> data = p.get_array<bool>(keyVal);
-            m_option_list.add< OptionArrayT<bool> >(keyVal, descrVal, data);
+            const char * descrVal = (descrAttr != CFNULL) ? descrAttr->value() : "";
+            const char * typeVal = typeAttr->value(); // element type
+
+            if(std::strcmp(typeVal, "bool") == 0)
+            {
+              std::vector<bool> data = p.get_array<bool>(keyVal);
+              m_option_list.add< OptionArrayT<bool> >(keyVal, descrVal, data);
+            }
+            else if(std::strcmp(typeVal, "integer") == 0)
+            {
+              std::vector<int> data = p.get_array<int>(keyVal);
+              m_option_list.add< OptionArrayT<int> >(keyVal, descrVal, data);
+            }
+            else if(std::strcmp(typeVal, "unsigned") == 0)
+            {
+              std::vector<unsigned int> data = p.get_array<unsigned int>(keyVal);
+              m_option_list.add< OptionArrayT<unsigned int> >(keyVal, descrVal, data);
+            }
+            else if(std::strcmp(typeVal, "real") == 0)
+            {
+              std::vector<CF::Real> data = p.get_array<CF::Real>(keyVal);
+              m_option_list.add< OptionArrayT<CF::Real> >(keyVal, descrVal, data);
+            }
+            else if(std::strcmp(typeVal, "string") == 0)
+            {
+              std::vector<std::string> data = p.get_array<std::string>(keyVal);
+              m_option_list.add< OptionArrayT<std::string> >(keyVal, descrVal, data);
+            }
+            else if(std::strcmp(typeVal, "file") == 0)
+            {
+              std::vector<boost::filesystem::path> data;
+              data = p.get_array<boost::filesystem::path>(keyVal);
+              m_option_list.add< OptionArrayT<boost::filesystem::path> >(keyVal, descrVal, data);
+            }
+            else
+              throw ShouldNotBeHere(FromHere(), std::string(typeVal) + ": Unknown array type");
           }
-          else if(std::strcmp(typeVal, "integer") == 0)
-          {
-            std::vector<int> data = p.get_array<int>(keyVal);
-            m_option_list.add< OptionArrayT<int> >(keyVal, descrVal, data);
-          }
-          else if(std::strcmp(typeVal, "unsigned") == 0)
-          {
-            std::vector<unsigned int> data = p.get_array<unsigned int>(keyVal);
-            m_option_list.add< OptionArrayT<unsigned int> >(keyVal, descrVal, data);
-          }
-          else if(std::strcmp(typeVal, "real") == 0)
-          {
-            std::vector<CF::Real> data = p.get_array<CF::Real>(keyVal);
-            m_option_list.add< OptionArrayT<CF::Real> >(keyVal, descrVal, data);
-          }
-          else if(std::strcmp(typeVal, "string") == 0)
-          {
-            std::vector<std::string> data = p.get_array<std::string>(keyVal);
-            m_option_list.add< OptionArrayT<std::string> >(keyVal, descrVal, data);
-          }
-          else if(std::strcmp(typeVal, "file") == 0)
-          {
-            std::vector<boost::filesystem::path> data;
-            data = p.get_array<boost::filesystem::path>(keyVal);
-            m_option_list.add< OptionArrayT<boost::filesystem::path> >(keyVal, descrVal, data);
-          }
-          else
-            throw ShouldNotBeHere(FromHere(), std::string(typeVal) + ": Unknown array type");
+
         }
 
+        if(!advanced)
+          m_option_list.getOption(keyVal)->mark_basic();
       }
-
-      if(!advanced)
-        m_option_list.getOption(keyVal)->mark_basic();
     }
   }
 }
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 void CNode::modifyOptions(const QMap<QString, QString> options)
 {
@@ -241,17 +246,17 @@ void CNode::modifyOptions(const QMap<QString, QString> options)
         QString value = it.value();
 
         if(option->type() == "bool")
-          p.add_param(name, QVariant(value).toBool());
+          p.add_option(name, QVariant(value).toBool());
         else if(option->type() == "integer")
-          p.add_param(name, value.toInt());
+          p.add_option(name, value.toInt());
         else if(option->type() == "unsigned")
-          p.add_param(name, value.toUInt());
+          p.add_option(name, value.toUInt());
         else if(option->type() == "real")
-          p.add_param(name, value.toDouble());
+          p.add_option(name, value.toDouble());
         else if(option->type() == "string")
-          p.add_param(name, value.toStdString());
+          p.add_option(name, value.toStdString());
         else if(option->type() == "file")
-          p.add_param(name, boost::filesystem::path(value.toStdString()));
+          p.add_option(name, boost::filesystem::path(value.toStdString()));
         else
           throw ValueNotFound(FromHere(), option->type() + ": Unknown type for option " + name );
       }
@@ -531,14 +536,14 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, CPath> & lin
   else if(std::strcmp(nodeType, "CRoot") == 0)
     rootNode = boost::shared_ptr<NRoot>(new NRoot(nodeName));
   else
-    throw XmlError(FromHere(), QString("%1: Unknown type").arg(nodeType).toStdString().c_str());
+    throw XmlError(FromHere(), QString("%1: Unknown type parent is %2").arg(nodeType).arg(node.parent()->name()).toStdString().c_str());
 
   while(child != CFNULL)
   {
     try
     {
       if(std::strcmp(child->name(), XmlParams::tag_node_valuemap()) == 0)
-        rootNode->setOptions(*child);
+        rootNode->setOptions(node);
       else
       {
         CNode::Ptr node = createFromXmlRec(*child, linkTargets);

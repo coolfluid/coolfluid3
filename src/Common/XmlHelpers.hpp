@@ -79,7 +79,7 @@ namespace Common {
 
   /// Helper class that extracts parameters from a XmlNode
   /// @author Tiago Quintino
-  /// @todo add_param function
+  /// @todo add_option function
   /// @todo implement params converted to std::vector
 
   struct Common_API XmlParams
@@ -94,6 +94,8 @@ namespace Common {
     static const char * tag_node_valuemap ();
     /// the xml tag used for the signal frame node
     static const char * tag_node_frame ();
+    /// the xml tag used for the value node
+    static const char * tag_node_value ();
     /// the xml attribute name used for the key
     static const char * tag_attr_key ();
     /// the xml attribute name used for the type (array options)
@@ -106,6 +108,10 @@ namespace Common {
     static const char * tag_attr_clientid();
     /// the xml attribute name used for the frame UUID
     static const char * tag_attr_frameid();
+    /// the key attribute value for option list
+    static const char * tag_key_options();
+    /// the key attribute value for property list
+    static const char * tag_key_properties();
 
     /// Constructor
     /// @param node the node where the parameters will be extracted from
@@ -115,23 +121,32 @@ namespace Common {
 
     /// returns the params node as reference
     /// @throw XmlError if the params node was not found
-    XmlNode& get_params_node() const;
+    XmlNode& get_options_node() const;
 
-    /// access to the value of one parameter
+    /// access to the value of one option
     template < typename TYPE >
-        TYPE get_param ( const std::string& pname ) const;
+        TYPE get_option ( const std::string& pname ) const;
+
+    /// access to the value of one option
+    template < typename TYPE >
+        TYPE get_property ( const std::string& pname ) const;
 
     /// access to the value of an array
     template < typename TYPE >
         std::vector<TYPE> get_array ( const std::string& pname ) const;
 
-    /// add a key-value node to the parameters
+    /// add a key-value node to the options
     template < typename TYPE >
-        void add_param ( const std::string& key, const TYPE& value );
+        void add_option ( const std::string& key, const TYPE& value,
+                          const std::string& desc = std::string(), bool basic = false);
+
+    /// add a key-value node to the options
+    template < typename TYPE >
+        void add_property ( const std::string& key, const TYPE& value);
 
     /// add an array node to the parameters
     template < typename TYPE >
-        void add_array ( const std::string& key, const std::vector<TYPE>& vect);
+        void add_array ( const std::string& key, const std::vector<TYPE>& vect, const std::string& desc = std::string(), bool basic = false);
 
     /// Sets UUID attribute to the first frame found
     /// If the attribute does not exists, it is created; otherwise its value
@@ -151,62 +166,66 @@ namespace Common {
     XmlNode& xmlnode;
     /// reference to the XmlDoc to which the node belongs
     XmlDoc& xmldoc;
-    /// pointer to the params node
-    XmlNode* params;
+    /// pointer to the valuemap of option nodes
+    XmlNode* option_map;
+    /// pointer to the valuemap of property nodes
+    XmlNode* property_map;
+
+  private:
+
+    /// access to the value of one parameter
+    template < typename TYPE >
+        TYPE get_value_from (const XmlNode & map, const std::string& pname ) const;
+
+    /// add a key-value node to the options
+    template < typename TYPE >
+        XmlNode * add_value_to (XmlNode & map, const std::string& key, const TYPE& value);
+
+    XmlNode* add_valuemap(const char * key);
+
+    XmlNode* seek_valuemap(const char * key);
 
   }; // XmlParams
 
   ////////////////////////////////////////////////////////////////////////////////
 
-    template < typename TYPE >
-        TYPE XmlParams::get_param ( const std::string& pname ) const
-    {
-      if ( params == 0 )
-        throw  Common::XmlError( FromHere(), "XML node \'" + std::string(tag_node_valuemap()) + "\' not found" );
+  template < typename TYPE >
+      TYPE XmlParams::get_option ( const std::string& pname ) const
+  {
+    std::string str;
 
-      XmlNode* found_node = 0;
-      const char * nodetype = XmlTag<TYPE>::type();
+    XmlOps::xml_to_string(xmlnode, str);
 
-      // search for the node with correct type
-      XmlNode* node = params->first_node( "value" );
-      for ( ; node; node = node->next_sibling( "value" ) )
-      {
-        // search for the attribute with key
-        XmlAttr* att = node->first_attribute( tag_attr_key() );
-        if ( att && !pname.compare(att->value()) )
-        {
-          XmlNode* type_node = node->first_node( XmlTag<TYPE>::type() );
+    if ( option_map == 0 )
+      throw  Common::XmlError( FromHere(), "XML node \'" + std::string(tag_node_valuemap()) + "\' not found for options\n\n" + str );
 
-          if( type_node )
-          {
-            found_node = type_node;
-            break;
-          }
-        }
-      }
+    return get_value_from<TYPE>(*option_map, pname);
+  }
 
-      if ( !found_node )
-        throw  Common::XmlError( FromHere(),
-                                 "Did not find node of type [" + std::string(nodetype) + "]"
-                                 " with \'key\' attribute  [" + pname + "]" );
+  //////////////////////////////////////////////////////////////////////////////
 
-      // convert xml value to TYPE
-      return to_value<TYPE>(*found_node);
-    }
+  template < typename TYPE >
+      TYPE XmlParams::get_property ( const std::string& pname ) const
+  {
+    if ( property_map == 0 )
+      throw  Common::XmlError( FromHere(), "XML node \'" + std::string(tag_node_valuemap()) + "\' not found for properties" );
+
+    return get_value_from<TYPE>(*property_map, pname);
+  }
 
 ////////////////////////////////////////////////////////////////////////////////
 
     template < typename TYPE >
         std::vector<TYPE> XmlParams::get_array ( const std::string& pname ) const
     {
-      if ( params == 0 )
-        throw  Common::XmlError( FromHere(), "XML node \'" + std::string(tag_node_valuemap()) + "\' not found" );
+      if ( option_map == 0 )
+        throw  Common::XmlError( FromHere(), "XML node \'" + std::string(tag_node_valuemap()) + "\' not found for options");
 
       XmlNode* found_node = 0;
       const char * nodetype = XmlTag<TYPE>::array();
 
       // search for the node with correct type
-      XmlNode* node = params->first_node( nodetype );
+      XmlNode* node = option_map->first_node( nodetype );
       for ( ; node; node = node->next_sibling( nodetype ) )
       {
         // search for the attribute with key
@@ -238,86 +257,186 @@ namespace Common {
 
     ////////////////////////////////////////////////////////////////////////////////
 
-  template < typename TYPE >
-      void XmlParams::add_param ( const std::string& key, const TYPE& value )
-  {
-    using namespace rapidxml;
-
-    if ( params == 0 )
+    template < typename TYPE >
+        void XmlParams::add_option ( const std::string& key, const TYPE& value, const std::string& desc, bool basic)
     {
-      params = XmlOps::add_node_to ( xmlnode, XmlParams::tag_node_valuemap() );
+      if ( option_map == 0 )
+        option_map = add_valuemap( tag_key_options() );
+
+      XmlNode * node = add_value_to(*option_map, key, value);
+
+      XmlOps::add_attribute_to(*node, "mode", basic ? "basic" : "adv" );
+
+      // add the description if any
+      if(!desc.empty())
+      {
+        const char* desc_str = xmldoc.allocate_string( tag_attr_descr() );
+        const char* descvalue_str = xmldoc.allocate_string( desc.c_str() );
+
+        // create the attribute
+        XmlAttr* desc_attr = xmldoc.allocate_attribute( desc_str, descvalue_str );
+        node->append_attribute(desc_attr);
+      }
     }
 
+    ////////////////////////////////////////////////////////////////////////////////
+
+    template < typename TYPE >
+        void XmlParams::add_property ( const std::string& key, const TYPE& value)
+    {
+      if ( property_map == 0 )
+        property_map = add_valuemap( tag_key_properties() );
+
+      add_value_to(*property_map, key, value);
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////
+
+  template < typename TYPE >
+      void XmlParams::add_array ( const std::string& key, const std::vector<TYPE>& vect, const std::string& desc, bool basic)
+  {
+//    using namespace rapidxml;
+
+    if ( option_map == 0 )
+      option_map = add_valuemap( tag_key_options() );
+
     // convert TYPE to node name
-    const char* type_name = xmldoc.allocate_string( XmlTag<TYPE>::type() );
+//    const char* node_name = xmldoc.allocate_string( XmlTag<TYPE>::array() );
 
-    // convert value to string
-    const char* value_str = xmldoc.allocate_string( from_value(value).c_str() );
+    // create the "array" node and append it to the map
+    XmlNode* node = XmlOps::add_node_to(*option_map, XmlTag<TYPE>::array());
 
-    // creates the node
-    //XmlNode* node = xmldoc.allocate_node ( node_element, node_name, value_str );
-    XmlNode* node = xmldoc.allocate_node ( node_element, "value");
-    params->append_node(node);
+    // add "key", "size" and "type" attributes to "array" node
+    XmlOps::add_attribute_to(*node, tag_attr_key(), key);
+    XmlOps::add_attribute_to(*node, tag_attr_size(), String::to_str(vect.size()));
+    XmlOps::add_attribute_to(*node, tag_attr_type(), XmlTag<TYPE>::type());
 
-    // create the type node
-    XmlNode* type_node = xmldoc.allocate_node ( node_element, type_name, value_str );
-    node->append_node(type_node);
+//     creates the node
+//    XmlNode* node = xmldoc.allocate_node ( node_element, node_name, "" );
+//    option_map->append_node(node);
 
     // convert key to xml atribute string
-    const char* key_str = xmldoc.allocate_string( "key" );
-    const char* keyvalue_str = xmldoc.allocate_string( key.c_str() );
+//    const char* key_str = xmldoc.allocate_string( "key" );
+//    const char* keyvalue_str = xmldoc.allocate_string( key.c_str() );
+
+//    // create the size attribute
+//    const char* size_str = xmldoc.allocate_string( "size" );
+//    const char* sizevalue_str = xmldoc.allocate_string( String::to_str(vect.size()).c_str() );
 
     // creates the attribute
-    XmlAttr* attr = xmldoc.allocate_attribute( key_str, keyvalue_str );
-    node->append_attribute(attr);
+//    XmlAttr* attr = xmldoc.allocate_attribute("type", XmlTag<TYPE>::type());
+//    node->append_attribute(attr);
+
+//    attr = xmldoc.allocate_attribute( key_str, keyvalue_str );
+//    node->append_attribute(attr);
+
+//    attr = xmldoc.allocate_attribute( size_str, sizevalue_str );
+//    node->append_attribute(attr);
+
+    for(size_t i = 0 ; i < vect.size() ; i++)
+    {
+      XmlOps::add_node_to(*node, "e", from_value(vect[i]));
+//      const char* value_str = xmldoc.allocate_string( from_value(vect[i]).c_str() );
+//      XmlNode * itemNode = xmldoc.allocate_node ( node_element, "e", value_str );
+//      node->append_node(itemNode);
+    }
+
+
+
+
+//    using namespace rapidxml;
+
+//    if ( options_map == 0 )
+//      options_map = add_valuemap( tag_key_options() );
+
+//    // convert TYPE to node name
+//    const char* node_name = xmldoc.allocate_string( XmlTag<TYPE>::array() );
+
+
+////     creates the node
+//    XmlNode* node = xmldoc.allocate_node ( node_element, node_name, "" );
+//    options_map->append_node(node);
+
+//    // convert key to xml atribute string
+//    const char* key_str = xmldoc.allocate_string( "key" );
+//    const char* keyvalue_str = xmldoc.allocate_string( key.c_str() );
+
+//    // create the size attribute
+//    const char* size_str = xmldoc.allocate_string( "size" );
+//    const char* sizevalue_str = xmldoc.allocate_string( String::to_str(vect.size()).c_str() );
+
+//    // creates the attribute
+//    XmlAttr* attr = xmldoc.allocate_attribute("type", XmlTag<TYPE>::type());
+//    node->append_attribute(attr);
+
+//    attr = xmldoc.allocate_attribute( key_str, keyvalue_str );
+//    node->append_attribute(attr);
+
+//    attr = xmldoc.allocate_attribute( size_str, sizevalue_str );
+//    node->append_attribute(attr);
+
+//    for(size_t i = 0 ; i < vect.size() ; i++)
+//    {
+//      const char* value_str = xmldoc.allocate_string( from_value(vect[i]).c_str() );
+//      XmlNode * itemNode = xmldoc.allocate_node ( node_element, "e", value_str );
+//      node->append_node(itemNode);
+//    }
   }
 
   ////////////////////////////////////////////////////////////////////////////////
 
   template < typename TYPE >
-      void XmlParams::add_array ( const std::string& key, const std::vector<TYPE>& vect)
+      TYPE XmlParams::get_value_from (const XmlNode & map, const std::string& pname ) const
   {
-    using namespace rapidxml;
+    XmlNode* found_node = 0;
+    const char * nodetype = XmlTag<TYPE>::type();
 
-    if ( params == 0 )
+    // search for the node with correct type
+    XmlNode* node = map.first_node( "value" );
+    for ( ; node; node = node->next_sibling( "value" ) )
     {
-      params = XmlOps::add_node_to ( xmlnode, XmlParams::tag_node_valuemap() );
+      // search for the attribute with key
+      XmlAttr* att = node->first_attribute( tag_attr_key() );
+      if ( att && !pname.compare(att->value()) )
+      {
+        XmlNode* type_node = node->first_node( XmlTag<TYPE>::type() );
+
+        if( type_node )
+        {
+          found_node = type_node;
+          break;
+        }
+      }
     }
 
-    // convert TYPE to node name
-    const char* node_name = xmldoc.allocate_string( XmlTag<TYPE>::array() );
+    if ( !found_node )
+      throw  Common::XmlError( FromHere(),
+                               "Did not find node of type [" + std::string(nodetype) + "]"
+                               " with \'key\' attribute  [" + pname + "]" );
 
-    // convert value to string
+    // convert xml value to TYPE
+    return to_value<TYPE>(*found_node);
+  }
 
+  ////////////////////////////////////////////////////////////////////////////////
 
-    // creates the node
-    XmlNode* node = xmldoc.allocate_node ( node_element, node_name, "" );
-    params->append_node(node);
+  /// add a key-value node to the options
+  template < typename TYPE >
+      XmlNode * XmlParams::add_value_to (XmlNode & map, const std::string& key, const TYPE& value)
+  {
+    std::string type_name = XmlTag<TYPE>::type();
+    std::string value_str = from_value(value); // convert value to string
 
-    // convert key to xml atribute string
-    const char* key_str = xmldoc.allocate_string( "key" );
-    const char* keyvalue_str = xmldoc.allocate_string( key.c_str() );
+    // create "value" node and append it to the valuemap
+    XmlNode* node = XmlOps::add_node_to(map, tag_node_value());
 
-    // create the size attribute
-    const char* size_str = xmldoc.allocate_string( "size" );
-    const char* sizevalue_str = xmldoc.allocate_string( String::to_str(vect.size()).c_str() );
+    // create the type node (with option value) and append it to the "value" node
+    XmlOps::add_node_to(*node, type_name, value_str);
 
-    // creates the attribute
-    XmlAttr* attr = xmldoc.allocate_attribute("type", XmlTag<TYPE>::type());
-    node->append_attribute(attr);
+    // add "key" attribute
+    XmlOps::add_attribute_to(*node, tag_attr_key(), key);
 
-    attr = xmldoc.allocate_attribute( key_str, keyvalue_str );
-    node->append_attribute(attr);
-
-    attr = xmldoc.allocate_attribute( size_str, sizevalue_str );
-    node->append_attribute(attr);
-
-    for(size_t i = 0 ; i < vect.size() ; i++)
-    {
-      const char* value_str = xmldoc.allocate_string( from_value(vect[i]).c_str() );
-      XmlNode * itemNode = xmldoc.allocate_node ( node_element, "e", value_str );
-      node->append_node(itemNode);
-    }
+    return node;
   }
 
 ////////////////////////////////////////////////////////////////////////////////

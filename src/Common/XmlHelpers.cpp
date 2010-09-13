@@ -18,23 +18,18 @@ namespace Common {
   XmlParams::XmlParams( XmlNode& node ) :
       xmlnode(node),
       xmldoc(*node.document()),
-      params(CFNULL)
+      option_map(CFNULL),
+      property_map(CFNULL)
   {
-    if ( strcmp(node.name(),tag_node_valuemap()) ) // not valuemap
-    {
-      params = node.first_node( tag_node_valuemap() ); // might be NULL
-    }
-    else // node is a valuemap
-    {
-      params = &node;
-    }
+    option_map = seek_valuemap( tag_key_options() );
+    property_map = seek_valuemap( tag_key_properties() );
   }
-  
-  XmlNode& XmlParams::get_params_node() const
+
+  XmlNode& XmlParams::get_options_node() const
   {
-    if ( params == 0 )
+    if ( option_map == 0 )
       throw  Common::XmlError( FromHere(), "XML node \'" + std::string(tag_node_valuemap()) + "\' not found" );
-    return *params;
+    return *option_map;
   }
 
   void XmlParams::set_clientid(const std::string & uuid)
@@ -69,6 +64,50 @@ namespace Common {
     return uuid;
   }
 
+  XmlNode* XmlParams::add_valuemap(const char * key)
+  {
+    XmlNode * map_node = xmlnode.first_node( tag_node_valuemap() );
+    XmlNode * value_node;
+
+    if(map_node == CFNULL)
+      map_node = XmlOps::add_node_to( xmlnode, tag_node_valuemap() );
+
+    value_node = XmlOps::add_node_to( *map_node, tag_node_value() );
+
+    XmlOps::add_attribute_to( *value_node, tag_attr_key(), key);
+
+    return XmlOps::add_node_to( *value_node, tag_node_valuemap() );
+  }
+
+  XmlNode* XmlParams::seek_valuemap(const char * key)
+  {
+    XmlNode * map_node;
+    XmlNode * value_node;
+    XmlAttr * key_attr;
+    XmlNode * found_node = CFNULL;
+
+    if(std::strcmp(xmlnode.name(), tag_node_valuemap()) == 0) // xmlnode is a valuemap
+      map_node = &xmlnode;
+    else                                                     // not a valuemap
+      map_node = xmlnode.first_node( tag_node_valuemap() );
+
+    if(map_node != CFNULL)
+    {
+      value_node = map_node->first_node( tag_node_value() );
+
+      while(value_node != CFNULL && found_node == CFNULL)
+      {
+        key_attr = value_node->first_attribute( tag_attr_key() );
+
+        if(key_attr != CFNULL && std::strcmp(key_attr->value(), key) == 0)
+          found_node = value_node->first_node( tag_node_valuemap() );
+
+        value_node = value_node->next_sibling( tag_node_value() );
+      }
+    }
+
+    return found_node;
+  }
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -82,6 +121,8 @@ namespace Common {
 
   const char * XmlParams::tag_node_frame()  { return "frame"; }
 
+  const char * XmlParams::tag_node_value()  { return "value"; }
+
   const char * XmlParams::tag_attr_key()    { return "key"; }
 
   const char * XmlParams::tag_attr_type()    { return "type"; }
@@ -93,6 +134,11 @@ namespace Common {
   const char * XmlParams::tag_attr_clientid()    { return "clientid"; }
 
   const char * XmlParams::tag_attr_frameid()    { return "frameid"; }
+
+  const char * XmlParams::tag_key_options() { return "options"; }
+
+  const char * XmlParams::tag_key_properties() { return "properties"; }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

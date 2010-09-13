@@ -213,8 +213,8 @@ bool ServerNetworkComm::sendFrameRejected(QTcpSocket * clientId,
                                               CLIENT_CORE_PATH, false);
   XmlParams p(*signal);
 
-  p.add_param("frameid", frameid);
-  p.add_param("reason", reason.toStdString());
+  p.add_option("frameid", frameid);
+  p.add_option("reason", reason.toStdString());
 
   return this->send(clientId, *doc) != 0;
 }
@@ -230,8 +230,8 @@ bool ServerNetworkComm::sendMessage(QTcpSocket * client, const QString & message
                                               CLIENT_LOG_PATH, false);
   XmlParams p(*signal);
 
-  p.add_param("type", LogMessage::Convert::to_str(LogMessage::INFO));
-  p.add_param("text", message.toStdString());
+  p.add_option("type", LogMessage::Convert::to_str(LogMessage::INFO));
+  p.add_option("text", message.toStdString());
 
   return this->send(client, *doc) != 0;
 }
@@ -263,8 +263,8 @@ bool ServerNetworkComm::sendError(QTcpSocket * client, const QString & message)
                                               CLIENT_LOG_PATH, false);
   XmlParams p(*signal);
 
-  p.add_param("type", LogMessage::Convert::to_str(LogMessage::ERROR));
-  p.add_param("text", message.toStdString());
+  p.add_option("type", LogMessage::Convert::to_str(LogMessage::ERROR));
+  p.add_option("text", message.toStdString());
 
   return this->send(client, *doc) != 0;
 }
@@ -400,7 +400,7 @@ void ServerNetworkComm::newData()
             XmlNode * replyNode = XmlOps::add_reply_frame(*nodedoc.first_node());
             XmlParams reply(*replyNode);
 
-            reply.add_param("accepted", true);
+            reply.add_option("accepted", true);
 
             this->send(socket, *xmldoc.get());
 

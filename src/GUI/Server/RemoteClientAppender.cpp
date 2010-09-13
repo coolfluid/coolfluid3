@@ -9,7 +9,7 @@ RemoteClientAppender::RemoteClientAppender() : LogStringForwarder()
 
 void RemoteClientAppender::message(const std::string & data)
 {
-  emit newData( data.c_str() );
+ // emit newData( data.c_str() );
 }
 
 

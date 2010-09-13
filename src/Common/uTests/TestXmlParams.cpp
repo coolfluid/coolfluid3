@@ -45,16 +45,20 @@ BOOST_AUTO_TEST_CASE( constructors )
       "<cfxml version=\"1.0\">"
       "<signal>"
       " <valuemap>"
-      "  <value  key=\"OptBool\"> <bool> true </bool> </value>"
-      "  <value  key=\"OptInt\" > <integer> -156 </integer> </value>"
-      "  <value  key=\"OptUint\" > <unsigned> 134 </unsigned> </value>"
-      "  <value  key=\"OptReal\" > <real> 6.4564E+5 </real> </value>"
-      "  <value  key=\"OptStr\" > <string> lolo </string> </value>"
-      "  <component  key=\"OptComp\" >"
-      "   <value key=\"name\"> <string> MyNewton </string> </value>"
-      "   <value key=\"atype\"> <string> CIterativeMethod </string> </value>"
-      "   <value key=\"ctype\"> <string> Newton </string> </value>"
-      "  </component>"
+      "  <value key=\"options\">"
+      "   <valuemap>"
+      "    <value  key=\"OptBool\"> <bool> true </bool> </value>"
+      "    <value  key=\"OptInt\" > <integer> -156 </integer> </value>"
+      "    <value  key=\"OptUint\" > <unsigned> 134 </unsigned> </value>"
+      "    <value  key=\"OptReal\" > <real> 6.4564E+5 </real> </value>"
+      "    <value  key=\"OptStr\" > <string> lolo </string> </value>"
+      "    <component  key=\"OptComp\" >"
+      "     <value key=\"name\"> <string> MyNewton </string> </value>"
+      "     <value key=\"atype\"> <string> CIterativeMethod </string> </value>"
+      "     <value key=\"ctype\"> <string> Newton </string> </value>"
+      "    </component>"
+      "   </valuemap>"
+      "  </value>"
       " </valuemap>"
       "</signal>"
       "</cfxml>"
@@ -81,7 +85,7 @@ BOOST_AUTO_TEST_CASE( goto_doc_node )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( throw_get_param )
+BOOST_AUTO_TEST_CASE( throw_get_option )
 {
   std::string text = (
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
@@ -93,32 +97,32 @@ BOOST_AUTO_TEST_CASE( throw_get_param )
   XmlNode& nodedoc = *XmlOps::goto_doc_node(*xmldoc.get());
   XmlParams params ( nodedoc );
 
-  BOOST_CHECK_THROW( params.get_param<int>("noint")  , Common::XmlError );
+  BOOST_CHECK_THROW( params.get_option<int>("noint")  , Common::XmlError );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( get_param )
+BOOST_AUTO_TEST_CASE( get_option )
 {
   std::string text = (
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
       "<cfxml version=\"1.0\">"
       "<signal>"
-      ""
       " <valuemap>"
-      ""
-      "  <value  key=\"OptBool\"> <bool> true </bool> </value>"
-      "  <value  key=\"OptInt\" > <integer> -156 </integer> </value>"
-      "  <value  key=\"OptUint\" > <unsigned> 134 </unsigned> </value>"
-      "  <value  key=\"OptReal\" > <real> 6.4564E+5 </real> </value>"
-      "  <value  key=\"OptStr\" > <string> lolo </string> </value>"
-      ""
-      "  <valuemap  key=\"OptComp\" >"
-      "   <value  key=\"name\"> <string> MyNewton </string> </value>"
-      "   <value  key=\"atype\"> <string> CIterativeMethod </string> </value>"
-      "   <value  key=\"ctype\"> <string> Newton </string> </value>"
-      "  </valuemap>"
-      ""
+      "  <value key=\"options\">"
+      "   <valuemap>"
+      "    <value  key=\"OptBool\"> <bool> true </bool> </value>"
+      "    <value  key=\"OptInt\" > <integer> -156 </integer> </value>"
+      "    <value  key=\"OptUint\" > <unsigned> 134 </unsigned> </value>"
+      "    <value  key=\"OptReal\" > <real> 6.4564E+5 </real> </value>"
+      "    <value  key=\"OptStr\" > <string> lolo </string> </value>"
+      "    <component  key=\"OptComp\" >"
+      "     <value key=\"name\"> <string> MyNewton </string> </value>"
+      "     <value key=\"atype\"> <string> CIterativeMethod </string> </value>"
+      "     <value key=\"ctype\"> <string> Newton </string> </value>"
+      "    </component>"
+      "   </valuemap>"
+      "  </value>"
       " </valuemap>"
       "</signal>"
       "</cfxml>"
@@ -132,20 +136,20 @@ BOOST_AUTO_TEST_CASE( get_param )
 
 //  XmlOps::print_xml_node(*doc.get());
 
-  BOOST_REQUIRE_EQUAL ( params.get_param<bool>("OptBool") , true );
+  BOOST_REQUIRE_EQUAL ( params.get_option<bool>("OptBool") , true );
 
-  BOOST_REQUIRE_EQUAL ( params.get_param<int>("OptInt"), -156 );
+  BOOST_REQUIRE_EQUAL ( params.get_option<int>("OptInt"), -156 );
 
-  BOOST_REQUIRE_EQUAL ( params.get_param<std::string>("OptStr") , "lolo" );
+  BOOST_REQUIRE_EQUAL ( params.get_option<std::string>("OptStr") , "lolo" );
 
 //  std::vector<Uint> v;
 //  v += 2,8,9;
-//  std::vector<Uint> cv = params.get_param<Uint>("VecInt");
+//  std::vector<Uint> cv = params.get_option<Uint>("VecInt");
 //  BOOST_CHECK_EQUAL_COLLECTIONS( v.begin(), v.end(), cv.begin(), cv.end() );
 
   /// @todo how to access the nexted params?
 
-//  BOOST_REQUIRE_EQUAL ( params.get_param<std::string>("OptComp") , "CGroup" );
+//  BOOST_REQUIRE_EQUAL ( params.get_option<std::string>("OptComp") , "CGroup" );
 
 }
 

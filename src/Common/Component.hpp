@@ -260,6 +260,9 @@ public: // functions
   /// lists the options of this component
   void list_options ( XmlNode& xml );
 
+  /// lists the properties of this component
+  void list_properties ( XmlNode& xml );
+
   //@} END SIGNALS
 
 protected: // functions
@@ -299,7 +302,7 @@ private: // helper functions
   /// @param array Array to add. It must be an OptionArrayT<TYPE>
   template<typename TYPE>
   void add_array_to_xml(XmlParams & params, const std::string & name,
-                        boost::shared_ptr<OptionArray> Array) const;
+                        boost::shared_ptr<OptionArray> array) const;
 
 protected: // data
 
@@ -571,8 +574,8 @@ inline void Component::partial_build_component(TYPE* meself)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename TYPE>
-    void Component::add_array_to_xml(XmlParams & params, const std::string & name,
-                                     boost::shared_ptr<OptionArray> array) const
+void Component::add_array_to_xml(XmlParams & params, const std::string & name,
+                                 boost::shared_ptr<OptionArray> array) const
 {
   boost::shared_ptr<OptionArrayT<TYPE> > optArray;
   optArray = boost::dynamic_pointer_cast< OptionArrayT<TYPE> >(array);

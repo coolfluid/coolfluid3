@@ -748,9 +748,9 @@ void NRemoteBrowser::openDir(const QString & path)
     it++;
   }
 
-  p.add_param("dirPath", path.toStdString());
-  p.add_param("includeFiles", m_includeFiles);
-  p.add_param("includeNoExtensions", m_includeNoExtension);
+  p.add_option("dirPath", path.toStdString());
+  p.add_option("includeFiles", m_includeFiles);
+  p.add_option("includeNoExtensions", m_includeNoExtension);
   p.add_array("extensions", vect);
 
   m_clientCore->sendSignal(*docnode.get());
@@ -766,7 +766,7 @@ Signal::return_t NRemoteBrowser::read_dir(Signal::arg_t & node)
   std::vector<std::string> dirs;
   std::vector<std::string> files;
 
-  m_currentPath = p.get_param<std::string>("dirPath").c_str();
+  m_currentPath = p.get_option<std::string>("dirPath").c_str();
 
   // add an ending '/' if the string does not have any
   if(!m_currentPath.endsWith(m_pathSep))

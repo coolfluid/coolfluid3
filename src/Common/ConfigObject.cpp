@@ -20,15 +20,14 @@ namespace Common {
   {
     XmlParams pn ( node );
 
-
-    if ( pn.params == 0 )
+    if ( pn.option_map == 0 )
       throw  Common::XmlError( FromHere(), "ConfigObject received  XML without a \'" + std::string(XmlParams::tag_node_valuemap()) + "\' node" );
 
     // get the list of options
     OptionList::OptionStorage_t& options = m_option_list.m_options;
 
     // loop on the param nodes
-    for (XmlNode* itr =  pn.params->first_node(); itr; itr = itr->next_sibling() )
+    for (XmlNode* itr =  pn.option_map->first_node(); itr; itr = itr->next_sibling() )
     {
       // search for the attribute with key
       XmlAttr* att = itr->first_attribute( XmlParams::tag_attr_key() );

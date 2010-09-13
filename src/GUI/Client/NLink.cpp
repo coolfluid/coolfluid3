@@ -117,7 +117,7 @@ void NLink::changeTarget()
                            full_path(), true);
   XmlParams p(*signal);
 
-  p.add_param("target_path", path.string());
+  p.add_option("target_path", path.string());
 
   ClientRoot::getCore()->sendSignal(*root.get());
 }
@@ -131,9 +131,9 @@ void NLink::change_link(CF::Common::XmlNode & node)
 
   try
   {
-    std::string path = p.get_param<std::string>("target_path");
+    std::string path = p.get_option<std::string>("target_path");
 
-    this->setTargetPath(p.get_param<std::string>("target_path"));
+    this->setTargetPath(p.get_option<std::string>("target_path"));
 
     ClientRoot::getLog()->addMessage(QString("Link '%1' now points to '%2'.")
                                      .arg(full_path().string().c_str()).arg(path.c_str()));

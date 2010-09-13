@@ -218,9 +218,9 @@ Signal::return_t CCore::read_dir(Signal::arg_t & node)
 
   try
   {
-    QString dirPath = p.get_param<std::string>("dirPath").c_str();
-    bool includeFiles = p.get_param<bool>("includeFiles");
-    bool includeNoExtension = p.get_param<bool>("includeNoExtensions");
+    QString dirPath = p.get_option<std::string>("dirPath").c_str();
+    bool includeFiles = p.get_option<bool>("includeFiles");
+    bool includeNoExtension = p.get_option<bool>("includeNoExtensions");
     std::vector<std::string> extensions = p.get_array<std::string>("extensions");
 
     if(dirPath.isEmpty())
@@ -247,7 +247,7 @@ Signal::return_t CCore::read_dir(Signal::arg_t & node)
       XmlNode * replyNode = XmlOps::add_reply_frame(node);
       XmlParams reply(*replyNode);
 
-      reply.add_param("dirPath", directory.toStdString());
+      reply.add_option("dirPath", directory.toStdString());
       reply.add_array("dirs", dirList);
       reply.add_array("files", fileList);
     }

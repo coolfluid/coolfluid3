@@ -52,7 +52,7 @@ public: // functions
 
     XmlParams p ( signal_frame );
 
-    p.add_param<int>( "Counter", 10 );
+    p.add_option<int>( "Counter", 10 );
 
     receiver.call_signal( "print_message", signal_frame );
   }
@@ -84,7 +84,7 @@ public: // functions
   {
     XmlParams p (xml);
 
-    CFinfo << "Component [" << name() << "] received counter [" << p.get_param<int>("Counter") << "]" << CFendl;
+    CFinfo << "Component [" << name() << "] received counter [" << p.get_option<int>("Counter") << "]" << CFendl;
   }
 
   //@} END SIGNALS

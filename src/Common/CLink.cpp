@@ -57,14 +57,14 @@ void CLink::change_link( XmlNode & node )
 {
   XmlParams p(node);
 
-  std::string path = p.get_param<std::string>("target_path");
+  std::string path = p.get_option<std::string>("target_path");
   Component::Ptr target = m_root.lock()->look_component(path);
 
   link_to (target);
 
   XmlNode * reply = XmlOps::add_reply_frame(node);
 
-  XmlParams(*reply).add_param("target_path", path);
+  XmlParams(*reply).add_option("target_path", path);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

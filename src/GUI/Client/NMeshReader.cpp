@@ -5,7 +5,6 @@
 #include "Common/XmlHelpers.hpp"
 
 #include "GUI/Client/ClientRoot.hpp"
-#include "GUI/Client/NRemoteOpen.hpp"
 
 #include "GUI/Client/NMeshReader.hpp"
 
@@ -16,8 +15,6 @@ NMeshReader::NMeshReader(const QString & name)
   : CNode(name, "CMeshReader", MESH_READER_NODE)
 {
   BUILD_COMPONENT;
-
-  m_openFile = NRemoteOpen::create();
 
   CFinfo << ClientRoot::getBrowser()->get_child_count();
 

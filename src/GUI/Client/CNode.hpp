@@ -181,7 +181,7 @@ namespace Client {
 
     /// @brief Sets node options
     /// @param node Note containing the options
-    void setOptions(const CF::Common::XmlNode & node);
+    void setOptions(CF::Common::XmlNode & node);
 
     /// @brief Modifies options
 

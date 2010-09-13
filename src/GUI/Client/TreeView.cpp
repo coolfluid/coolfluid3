@@ -138,30 +138,37 @@ void TreeView::mousePressEvent(QMouseEvent * event)
 
   Qt::MouseButton button = event->button();
 
-  if(event->type() == QEvent::MouseButtonDblClick && button == Qt::LeftButton
-    && indexInModel.isValid())
+  try
   {
-    if(this->isExpanded(index))
-      this->collapse(index);
-    else
-      this->expand(index);
-  }
-  else if(m_contextMenuAllowed)
-  {
-    if(button == Qt::RightButton)
+    if(event->type() == QEvent::MouseButtonDblClick && button == Qt::LeftButton
+       && indexInModel.isValid())
     {
-      if(!tree->getCurrentIndex().isValid())
-        tree->setCurrentIndex(indexInModel);
-
-      tree->showNodeMenu(indexInModel, QCursor::pos());
-    }
-    else if(!tree->areFromSameNode(indexInModel, tree->getCurrentIndex()))
-    {
-      if(this->confirmChangeOptions(index))
-        tree->setCurrentIndex(indexInModel);
+      if(this->isExpanded(index))
+        this->collapse(index);
       else
-        this->currentIndexChanged(tree->getCurrentIndex(), tree->getCurrentIndex());
+        this->expand(index);
     }
+    else if(m_contextMenuAllowed)
+    {
+      if(button == Qt::RightButton)
+      {
+        if(!tree->getCurrentIndex().isValid())
+          tree->setCurrentIndex(indexInModel);
+
+        tree->showNodeMenu(indexInModel, QCursor::pos());
+      }
+      else if(!tree->areFromSameNode(indexInModel, tree->getCurrentIndex()))
+      {
+        if(this->confirmChangeOptions(index))
+          tree->setCurrentIndex(indexInModel);
+        else
+          this->currentIndexChanged(tree->getCurrentIndex(), tree->getCurrentIndex());
+      }
+    }
+  }
+  catch(Exception & e)
+  {
+    ClientRoot::getLog()->addException(e.what());
   }
 }
 
