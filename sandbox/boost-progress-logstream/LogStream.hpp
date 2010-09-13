@@ -9,7 +9,7 @@
 #include "Common/BoostIostreams.hpp"
 
 #include "Common/CF.hpp"
-#include "LogWithProgressDisplay/LogStringForwarder.hpp"
+#include "LogStringForwarder.hpp"
 #include "Common/CodeLocation.hpp"
 #include "Common/String/Conversion.hpp"
 #include "Common/MPI/PEInterface.hpp"
