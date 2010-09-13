@@ -1,4 +1,5 @@
 #include "Common/ObjectProvider.hpp"
+#include "Common/StreamHelpers.hpp"
 
 #include "Mesh/MeshAPI.hpp"
 #include "Mesh/CTable.hpp"
@@ -17,6 +18,12 @@ CTable::CTable ( const CName& name  ) :
   Component ( name )
 {
   BUILD_COMPONENT;
+}
+
+std::ostream& operator<<(std::ostream& os, const CTable::ConstRow& row)
+{
+  print_vector(os, row);
+  return os;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

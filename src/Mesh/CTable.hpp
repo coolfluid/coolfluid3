@@ -43,6 +43,8 @@ private: // helper functions
   static void regist_signals ( Component* self ) {}  
 };
 
+std::ostream& operator<<(std::ostream& os, const CTable::ConstRow& row);
+
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh

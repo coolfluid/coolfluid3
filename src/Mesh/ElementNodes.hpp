@@ -103,6 +103,7 @@ inline RealVector point3(const Real x, const Real y, const Real z)
 ////////////////////////////////////////////////////////////////////////////////
 
 std::ostream& operator<<(std::ostream& output, const ElementNodeView& nodeVector);
+std::ostream& operator<<(std::ostream& output, const ConstElementNodeView& nodeVector);
 
 ////////////////////////////////////////////////////////////////////////////////
 

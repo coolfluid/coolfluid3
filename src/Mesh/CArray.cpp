@@ -1,4 +1,5 @@
 #include "Common/ObjectProvider.hpp"
+#include "Common/StreamHelpers.hpp"
 
 #include "Mesh/MeshAPI.hpp"
 #include "Mesh/CArray.hpp"
@@ -18,6 +19,13 @@ CArray::CArray ( const CName& name  ) :
 {
   BUILD_COMPONENT;
 }
+
+std::ostream& operator<<(std::ostream& os, const CArray::ConstRow& row)
+{
+  print_vector(os, row);
+  return os;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
   

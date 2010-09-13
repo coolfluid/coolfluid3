@@ -44,6 +44,7 @@ Uint ElementNodeView::size() const {
 
 CArray::ConstRow ElementNodeView::operator[](const Uint idx) const {
   cf_assert(idx < size());
+  cf_assert(m_data->connectivity[idx] < m_data->coordinates.size());
   return m_data->coordinates[m_data->connectivity[idx]];
 }
 
@@ -51,6 +52,7 @@ CArray::ConstRow ElementNodeView::operator[](const Uint idx) const {
 
 CArray::Row ElementNodeView::operator[](const Uint idx) {
   cf_assert(idx < size());
+  cf_assert(m_data->connectivity[idx] < m_data->coordinates.size());
   return m_data->coordinates[m_data->connectivity[idx]];
 }
 
@@ -90,6 +92,19 @@ CArray::ConstRow ConstElementNodeView::operator[](const Uint idx) const {
 ////////////////////////////////////////////////////////////////////////////////
 
 std::ostream& operator<<(std::ostream& output, const ElementNodeView& nodeVector)
+{
+  const Uint num_nodes = nodeVector.size();
+  for(Uint node = 0; node != num_nodes; ++node) {
+    output << "( ";
+    BOOST_FOREACH(Real coordinate, nodeVector[node]) {
+      output << coordinate << " ";
+    }
+    output << ") ";
+  }
+  return output;
+}
+
+std::ostream& operator<<(std::ostream& output, const ConstElementNodeView& nodeVector)
 {
   const Uint num_nodes = nodeVector.size();
   for(Uint node = 0; node != num_nodes; ++node) {

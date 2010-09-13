@@ -44,6 +44,8 @@ private: // helper functions
 
 };
 
+std::ostream& operator<<(std::ostream& os, const CArray::ConstRow& row);
+
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh

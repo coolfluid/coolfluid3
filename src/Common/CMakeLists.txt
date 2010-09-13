@@ -93,6 +93,7 @@ list( APPEND Common_files
     SetupObject.hpp
     SetupObject.cpp
     Stopwatch.hpp
+    StreamHelpers.hpp
     String/Conversion.hpp
     String/Conversion.cpp
     SignalHandler.hpp
