@@ -106,33 +106,25 @@ class Common_API LogStream
         *(it->second) << t;
         m_flushed = false;
       }
-      else if(it->first != SYNC_SCREEN && PEInterface::instance().is_init()
-        && this->isDestinationUsed(it->first))
-        {
+      else if(it->first != SYNC_SCREEN && PEInterface::instance().is_init() && this->isDestinationUsed(it->first))
+      {
+        *(it->second) << t;
+        m_flushed = false;
+      
+      }
+      else if(it->first == SYNC_SCREEN && PEInterface::instance().is_init())
+      {
         for( Uint i = 0 ; i < (Uint)(PEInterface::instance().size()); ++i )
         {
-          //PEInterface::instance().barrier();
+          PEInterface::instance().barrier();
 
           if(i == (Uint)PEInterface::instance().rank())
           {
             *(it->second) << t;
             m_flushed = false;
           }
-          else if(it->first == SYNC_SCREEN && PEInterface::instance().is_init())
-          {
-            for( Uint i = 0 ; i < (Uint)(PEInterface::instance().size()); ++i )
-            {
-              //PEInterface::instance().barrier();
-
-              if(i == (Uint)PEInterface::instance().rank())
-              {
-                *(it->second) << t;
-                m_flushed = false;
-              }
-            }
-          } // end of "else if (PEInterface::instance().isInit())"
-        } // end of "if(this->isDestinationUsed(it->first()))"
-      }
+        }
+      } // end of "else if (PEInterface::instance().isInit())"
     }
 
     return *this;
