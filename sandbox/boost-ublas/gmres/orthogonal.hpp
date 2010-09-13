@@ -376,7 +376,7 @@ int gmres_short (LinOp const & A,
                  const Vector & b, 
                  Precond const & B, 
                  int number, 
-                 int maxiter, 
+                 unsigned int maxiter,
                  double tol)
 {
 
@@ -419,15 +419,15 @@ int gmres_short (LinOp const & A,
 
     int lower = max<int>(0, k-number);
 
-    for (int j = lower; j <= k; ++j) {
+    for (unsigned int j = lower; j <= k; ++j) {
       ublas::matrix_column<Matrix> q = column(Q, j % (number+1));
       h(j % (number + 1)) = ublas::inner_prod(q, g);
       g -=  h(j % (number + 1))*q;
     }
 
-    double h_i = 0;
+    // double h_i = 0;
 
-    for (int i = lower; i < k; ++i) {
+    for (unsigned int i = lower; i < k; ++i) {
       double h_i  = c((i+1) % (number + 1))*h(i % (number + 1)) + s((i+1) % (number + 1))*h((i+1) % (number + 1));
       double h_i1 = s((i+1) % (number + 1))*h(i % (number + 1)) - c((i+1) % (number + 1))*h((i+1) % (number + 1));
       h(i % (number + 1))     = h_i;
@@ -449,7 +449,7 @@ int gmres_short (LinOp const & A,
     z_1 = c((k+1) % (number + 1))*z_1;
         
     sum = h(lower % (number + 1))*column(P, lower % number);
-    for (int i=lower+1; i < k; ++i){
+    for (unsigned int i=lower+1; i < k; ++i){
       sum += h(i % (number + 1))*column(P, i%number);
     }
 
