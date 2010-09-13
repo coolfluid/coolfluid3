@@ -10,6 +10,12 @@
     uTestBlockMeshMPI.cpp )
   set( uTestBlockMeshMPI_scaling ON )
   coolfluid_add_mpi_unittest( uTestBlockMeshMPI )
+
+  list( APPEND uTestBlockMeshMPIScale_cflibs OpenFOAM Neu Gmsh MeshDiff SF )
+  list( APPEND uTestBlockMeshMPIScale_files
+    uTestBlockMeshMPIScale.cpp )
+  set( uTestBlockMeshMPIScale_scaling ON )
+  coolfluid_add_mpi_unittest( uTestBlockMeshMPIScale )
   
 
   configure_file(channel3d.dict channel3d.dict COPYONLY)
