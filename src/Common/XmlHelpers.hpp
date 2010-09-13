@@ -295,13 +295,8 @@ namespace Common {
   template < typename TYPE >
       void XmlParams::add_array ( const std::string& key, const std::vector<TYPE>& vect, const std::string& desc, bool basic)
   {
-//    using namespace rapidxml;
-
     if ( option_map == 0 )
       option_map = add_valuemap( tag_key_options() );
-
-    // convert TYPE to node name
-//    const char* node_name = xmldoc.allocate_string( XmlTag<TYPE>::array() );
 
     // create the "array" node and append it to the map
     XmlNode* node = XmlOps::add_node_to(*option_map, XmlTag<TYPE>::array());
@@ -311,76 +306,8 @@ namespace Common {
     XmlOps::add_attribute_to(*node, tag_attr_size(), String::to_str(vect.size()));
     XmlOps::add_attribute_to(*node, tag_attr_type(), XmlTag<TYPE>::type());
 
-//     creates the node
-//    XmlNode* node = xmldoc.allocate_node ( node_element, node_name, "" );
-//    option_map->append_node(node);
-
-    // convert key to xml atribute string
-//    const char* key_str = xmldoc.allocate_string( "key" );
-//    const char* keyvalue_str = xmldoc.allocate_string( key.c_str() );
-
-//    // create the size attribute
-//    const char* size_str = xmldoc.allocate_string( "size" );
-//    const char* sizevalue_str = xmldoc.allocate_string( String::to_str(vect.size()).c_str() );
-
-    // creates the attribute
-//    XmlAttr* attr = xmldoc.allocate_attribute("type", XmlTag<TYPE>::type());
-//    node->append_attribute(attr);
-
-//    attr = xmldoc.allocate_attribute( key_str, keyvalue_str );
-//    node->append_attribute(attr);
-
-//    attr = xmldoc.allocate_attribute( size_str, sizevalue_str );
-//    node->append_attribute(attr);
-
     for(size_t i = 0 ; i < vect.size() ; i++)
-    {
       XmlOps::add_node_to(*node, "e", from_value(vect[i]));
-//      const char* value_str = xmldoc.allocate_string( from_value(vect[i]).c_str() );
-//      XmlNode * itemNode = xmldoc.allocate_node ( node_element, "e", value_str );
-//      node->append_node(itemNode);
-    }
-
-
-
-
-//    using namespace rapidxml;
-
-//    if ( options_map == 0 )
-//      options_map = add_valuemap( tag_key_options() );
-
-//    // convert TYPE to node name
-//    const char* node_name = xmldoc.allocate_string( XmlTag<TYPE>::array() );
-
-
-////     creates the node
-//    XmlNode* node = xmldoc.allocate_node ( node_element, node_name, "" );
-//    options_map->append_node(node);
-
-//    // convert key to xml atribute string
-//    const char* key_str = xmldoc.allocate_string( "key" );
-//    const char* keyvalue_str = xmldoc.allocate_string( key.c_str() );
-
-//    // create the size attribute
-//    const char* size_str = xmldoc.allocate_string( "size" );
-//    const char* sizevalue_str = xmldoc.allocate_string( String::to_str(vect.size()).c_str() );
-
-//    // creates the attribute
-//    XmlAttr* attr = xmldoc.allocate_attribute("type", XmlTag<TYPE>::type());
-//    node->append_attribute(attr);
-
-//    attr = xmldoc.allocate_attribute( key_str, keyvalue_str );
-//    node->append_attribute(attr);
-
-//    attr = xmldoc.allocate_attribute( size_str, sizevalue_str );
-//    node->append_attribute(attr);
-
-//    for(size_t i = 0 ; i < vect.size() ; i++)
-//    {
-//      const char* value_str = xmldoc.allocate_string( from_value(vect[i]).c_str() );
-//      XmlNode * itemNode = xmldoc.allocate_node ( node_element, "e", value_str );
-//      node->append_node(itemNode);
-//    }
   }
 
   ////////////////////////////////////////////////////////////////////////////////
