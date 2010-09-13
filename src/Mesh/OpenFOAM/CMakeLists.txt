@@ -18,5 +18,5 @@
 
   coolfluid_add_library( OpenFOAM )
   
-  ADD_SUBDIRECTORY(uTests)
+  add_subdirectory(uTests)
   

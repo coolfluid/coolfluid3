@@ -48,5 +48,5 @@ set( Math_kernellib TRUE )
 
 coolfluid_add_library ( Math )
 
-ADD_SUBDIRECTORY ( uTests )    # unit tests for Math
+add_subdirectory ( uTests )    # unit tests for Math
 

@@ -7,10 +7,10 @@ if(CUDA_FOUND)
 #  coolfluid_debug_var(CUDA_TOOLKIT_ROOT_DIR)
 #  coolfluid_debug_var(CUDA_INCLUDE_DIRS)
 
-ADD_SUBDIRECTORY( v1 )
+add_subdirectory( v1 )
 
-ADD_SUBDIRECTORY( v2 )
+add_subdirectory( v2 )
 
-ADD_SUBDIRECTORY( v3 )
+add_subdirectory( v3 )
 
 endif()

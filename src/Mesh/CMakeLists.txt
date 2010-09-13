@@ -81,20 +81,20 @@ set( Mesh_kernellib TRUE )
 
 coolfluid_add_library( Mesh )
 
-ADD_SUBDIRECTORY( SF )            # Shape functions
+add_subdirectory( SF )            # Shape functions
 
-ADD_SUBDIRECTORY( Neu )           # Neutral file IO
+add_subdirectory( Neu )           # Neutral file IO
 
-ADD_SUBDIRECTORY( OpenFOAM )      # OpenFOAM IO
+add_subdirectory( OpenFOAM )      # OpenFOAM IO
 
-ADD_SUBDIRECTORY( Gmsh )          # Gmsh file IO
+add_subdirectory( Gmsh )          # Gmsh file IO
 
-ADD_SUBDIRECTORY( CGNS )          # CGNS file IO
+add_subdirectory( CGNS )          # CGNS file IO
 
-ADD_SUBDIRECTORY( CGAL )          # CGAL mesh generator
+add_subdirectory( CGAL )          # CGAL mesh generator
 
 
 # Must be after all the other subdirectories
-ADD_SUBDIRECTORY( uTests )        # unit tests for Mesh
+add_subdirectory( uTests )        # unit tests for Mesh
 
 

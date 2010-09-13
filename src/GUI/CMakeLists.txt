@@ -17,9 +17,9 @@ if( QT4_FOUND AND CF_ENABLE_GUI )
   # sub project dirs
   INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR} ${QT_INCLUDES} )
 
-  ADD_SUBDIRECTORY( Client )
-  ADD_SUBDIRECTORY( Network )
-  ADD_SUBDIRECTORY( Server )
+  add_subdirectory( Client )
+  add_subdirectory( Network )
+  add_subdirectory( Server )
 
 endif()
 
