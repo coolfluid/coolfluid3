@@ -47,7 +47,6 @@ list( APPEND Mesh_files
   ElementType.cpp
   GeoShape.hpp
   GeoShape.cpp
-
   ElementType.hpp
   ElementType.cpp
   Hexa3D.hpp
