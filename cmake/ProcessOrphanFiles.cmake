@@ -10,10 +10,10 @@ list( LENGTH CF_ORPHAN_FILES CF_LENGTH_ORPHAN_FILES)
 if( CF_LENGTH_ORPHAN_FILES )
 
   coolfluid_log( " !!! ERROR !!! ")
-  LOG  ( "Orphan file list:" )
+  coolfluid_log  ( "Orphan file list:" )
   foreach( AFILE ${CF_ORPHAN_FILES} )
     file( APPEND ${ORPHAN_FILE} "${AFILE}\n" )
-    LOG  ( "${AFILE}" )
+    coolfluid_log  ( "${AFILE}" )
   endforeach()
 
   coolfluid_log( " !!! ERROR !!! ")

@@ -39,3 +39,9 @@ set( CF_USER_PRECISION "DOUBLE" CACHE STRING "Precision for floating point numbe
 
 option( CF_CHECK_ORPHAN_FILES  "If turned on, build system checks for files in the source tree that are not used in CMakeLists.txt files" ON)
 mark_as_advanced( CF_CHECK_ORPHAN_FILES )
+
+# MPI testing options
+option( CF_MPI_TESTS_RUN "Run the MPI tests" OFF)
+option( CF_MPI_TESTS_RUN_SCALABILITY "Run the MPI scalability tests" OFF)
+set( CF_MPI_TESTS_NB_PROCS "4" CACHE STRING "Number of processes for the regular MPI tests")
+set( CF_MPI_TESTS_MAX_NB_PROCS "4" CACHE STRING "Maximum number of processes for the MPI scalability tests")

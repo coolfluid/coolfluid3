@@ -7,6 +7,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "Common/OSystem.hpp"
+#include "Common/MPI/PEInterface.hpp"
 
 #include "Tools/GooglePerf/GooglePerfTools.hpp"
 #include "Tools/Testing/ProfiledTestFixture.hpp"
@@ -45,7 +46,12 @@ ProfiledTestFixture::~ProfiledTestFixture() {
 ////////////////////////////////////////////////////////////////////////////////
 
 void ProfiledTestFixture::test_unit_start( boost::unit_test::test_unit const& unit ) {
-  m_current_filename = m_prefix + "-" + unit.p_name.get() + ".pprof";
+  std::stringstream job_suffix;
+  if(PEInterface::instance().is_init())
+  {
+    job_suffix << "-" << PEInterface::instance().rank();
+  }
+  m_current_filename = m_prefix + "-" + unit.p_name.get() + job_suffix.str() + ".pprof";
   m_profiler.setFilePath(boost::filesystem::path(m_profile_dir / m_current_filename));
   m_profiler.initiate();
 }
@@ -54,6 +60,8 @@ void ProfiledTestFixture::test_unit_start( boost::unit_test::test_unit const& un
 
 void ProfiledTestFixture::test_unit_finish( boost::unit_test::test_unit const& unit ) {
   m_profiler.terminate();
+  if(PEInterface::instance().rank() > 0)
+   return;
   cf_assert(boost::algorithm::ends_with(m_current_filename, ".pprof"));
   boost::filesystem::path infile(m_profile_dir / m_current_filename);
   std::string basename = boost::algorithm::erase_last_copy(m_current_filename, ".pprof");
@@ -77,11 +85,11 @@ void ProfiledTestFixture::test_unit_finish( boost::unit_test::test_unit const& u
         std::istream_iterator<char>(),
         std::back_inserter(profile));
       // Output a CDash reference to the generated profiling graph
-      CFinfo << "<DartMeasurement name=\""<< unit.p_name.get() << " profile data\" type=\"text/plain\"><![CDATA[<html><body><pre>" + profile + "</pre></body></html>]]></DartMeasurement>" << CFendl;
+      std::cout << "<DartMeasurement name=\""<< unit.p_name.get() << " profile data\" type=\"text/plain\"><![CDATA[<html><body><pre>" + profile + "</pre></body></html>]]></DartMeasurement>" << std::endl;
       //CFinfo << "<DartMeasurementFile name=\""<< basename << " profile graph\" type=\"image/png\">" + outfile.file_string() + ".png</DartMeasurementFile>\n";
     } catch(OSystemError& E) {
       // Fail softly and inform the user, since a profiling error is not fatal.
-      CFwarn << "Error processing profile file: " << E.what() << CFendl;
+      std::cout << "Error processing profile file: " << E.what() << CFendl;
     }
   }
 }

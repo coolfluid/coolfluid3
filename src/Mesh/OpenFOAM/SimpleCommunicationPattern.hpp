@@ -44,7 +44,7 @@ struct SimpleCommunicationPattern
 };
 
 /// Given a mesh and the distribution of its nodes among CPUs, fill the receive lists in the communication pattern
-void make_receive_lists(const SimpleCommunicationPattern::IndicesT& nodes_dist, CMesh& mesh, SimpleCommunicationPattern& comms_pattern);
+void make_node_receive_lists(const SimpleCommunicationPattern::IndicesT& nodes_dist, CMesh& mesh, SimpleCommunicationPattern& comms_pattern);
 
 /// Apply a communication pattern to the given range of CArrays.
 /// RangeT must iterable by BOOST_FOREACH
@@ -57,7 +57,7 @@ void apply_pattern_carray(const SimpleCommunicationPattern& pattern, RangeT rang
   Uint total_width = 0;
   BOOST_FOREACH(CArray& array, range)
   {
-    total_width += array.array().shape()[0];
+    total_width += array.array().shape()[1];
   }
   
   std::vector<Real> receive_buffer(total_width * pattern.receive_list.size());
@@ -78,7 +78,7 @@ void apply_pattern_carray(const SimpleCommunicationPattern& pattern, RangeT rang
     Uint receive_size = 0;
     BOOST_FOREACH(CArray& array, range)
     {
-      const Uint nb_cols = array.array().shape()[0];
+      const Uint nb_cols = array.array().shape()[1];
       receive_size += nb_cols * (pattern.receive_dist[proc+1] - pattern.receive_dist[proc]);
       for(Uint i = proc_begin; i != proc_end; ++i)
       {

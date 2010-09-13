@@ -8,7 +8,9 @@
   list( APPEND uTestBlockMeshMPI_cflibs OpenFOAM Neu Gmsh MeshDiff SF )
   list( APPEND uTestBlockMeshMPI_files
     uTestBlockMeshMPI.cpp )
-  coolfluid_add_unittest( uTestBlockMeshMPI )
+  set( uTestBlockMeshMPI_scaling ON )
+  coolfluid_add_mpi_unittest( uTestBlockMeshMPI )
+  
 
   configure_file(channel3d.dict channel3d.dict COPYONLY)
   configure_file(cavity2d.dict cavity2d.dict COPYONLY)

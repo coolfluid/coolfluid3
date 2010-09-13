@@ -45,7 +45,7 @@ void SimpleCommunicationPattern::update_send_lists()
   boost::mpi::wait_all(reqs.begin(), reqs.end());
 }
 
-void make_receive_lists(const SimpleCommunicationPattern::IndicesT& nodes_dist, CMesh& mesh, SimpleCommunicationPattern& comms_pattern)
+void make_node_receive_lists(const SimpleCommunicationPattern::IndicesT& nodes_dist, CMesh& mesh, SimpleCommunicationPattern& comms_pattern)
 {
   std::vector<Uint> missing_nodes;
   const Uint nodes_begin = nodes_dist[PEInterface::instance().rank()];

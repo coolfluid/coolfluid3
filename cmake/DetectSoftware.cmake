@@ -28,6 +28,7 @@ find_package(Valgrind)        # valgrind for profiling and memmory leak detectio
 find_package(GooglePerftools) # dynamic profiler and memory checker
 find_package(CGNS)            # CGNS library
 find_package(CGAL)            # CGAL library
+find_package(PythonInterp)
 
 # using cmake find macros
 
