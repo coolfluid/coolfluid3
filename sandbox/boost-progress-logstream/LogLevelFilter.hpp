@@ -8,7 +8,7 @@
 #include <iostream>
 
 #include "Common/CommonAPI.hpp"
-#include "LogWithProgressDisplay/LogLevel.hpp"
+#include "LogLevel.hpp"
 
 namespace CF {
 namespace Common {

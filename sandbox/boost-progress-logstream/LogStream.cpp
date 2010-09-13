@@ -1,10 +1,10 @@
 #include <iostream>
 
 #include "Common/MPI/PEInterface.hpp"
-#include "LogWithProgressDisplay/Log.hpp"
-#include "LogWithProgressDisplay/LogStream.hpp"
-#include "LogWithProgressDisplay/LogLevelFilter.hpp"
-#include "LogWithProgressDisplay/LogStampFilter.hpp"
+#include "Log.hpp"
+#include "LogStream.hpp"
+#include "LogLevelFilter.hpp"
+#include "LogStampFilter.hpp"
 
 using namespace CF;
 using namespace CF::Common;

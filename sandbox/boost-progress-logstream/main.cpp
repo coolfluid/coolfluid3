@@ -1,8 +1,8 @@
 #include <iostream>
 #include <boost/progress.hpp>
 
-#include "LogWithProgressDisplay/Log.hpp"
-#include "LogWithProgressDisplay/LogStream.hpp"
+#include "Log.hpp"
+#include "LogStream.hpp"
 
 using namespace CF::Common;
 
