@@ -8,12 +8,14 @@
   list( APPEND uTestBlockMeshMPI_cflibs OpenFOAM Neu Gmsh MeshDiff SF )
   list( APPEND uTestBlockMeshMPI_files
     uTestBlockMeshMPI.cpp )
+  set( uTestBlockMeshMPI_args ${CF_MPI_TESTS_SIZE} )
   set( uTestBlockMeshMPI_scaling ON )
   coolfluid_add_mpi_unittest( uTestBlockMeshMPI )
 
   list( APPEND uTestBlockMeshMPIScale_cflibs OpenFOAM Neu Gmsh MeshDiff SF )
   list( APPEND uTestBlockMeshMPIScale_files
-    uTestBlockMeshMPIScale.cpp )
+    uTestBlockMeshMPI.cpp )
+  set( uTestBlockMeshMPIScale_args "${CF_MPI_TESTS_SIZE} scale" )
   set( uTestBlockMeshMPIScale_scaling ON )
   coolfluid_add_mpi_unittest( uTestBlockMeshMPIScale )
   

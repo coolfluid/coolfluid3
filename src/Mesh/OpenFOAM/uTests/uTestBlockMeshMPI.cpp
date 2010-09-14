@@ -62,8 +62,6 @@ GlobalFixture::GlobalFixture() : partitioned_mesh(new CMesh("partitioned_mesh"))
   Logger::instance().getStream(Logger::DEBUG).useDestination(LogStream::SCREEN, false);
   Logger::instance().getStream(Logger::TRACE).useDestination(LogStream::SCREEN, false);
   
-  CFinfo << "Created global fixture" << CFendl;
-  
   instance = this;
 }
 
@@ -77,8 +75,20 @@ struct BlockMeshMPIFixture :
     partitioned_blocks(GlobalFixture::instance->partitioned_blocks),
     partitioned_mesh(*GlobalFixture::instance->partitioned_mesh),
     pattern(GlobalFixture::instance->pattern),
-    nodes_dist(GlobalFixture::instance->nodes_dist)
+    nodes_dist(GlobalFixture::instance->nodes_dist),
+    factor(2),
+    scale(false)
   {
+    int    argc = boost::unit_test::framework::master_test_suite().argc;
+    char** argv = boost::unit_test::framework::master_test_suite().argv;
+    
+    if(argc > 1)
+    {
+      factor = boost::lexical_cast<Uint>(argv[1]);
+      scale =  argc > 2 ? std::string(argv[2]) == "scale" : false;
+    }
+    
+    CFinfo << "Using factor " << factor << ", " << (scale ? "" : "not ") << "scaled" << CFendl;
   }
   
   BlockData& block_data;
@@ -86,6 +96,9 @@ struct BlockMeshMPIFixture :
   CMesh& partitioned_mesh;
   SimpleCommunicationPattern& pattern;
   SimpleCommunicationPattern::IndicesT& nodes_dist;
+  
+  Uint factor;
+  bool scale;
 };
 
 
@@ -103,12 +116,13 @@ BOOST_AUTO_TEST_CASE( PartitionBlocks )
   
   parse_blockmesh_dict(file, block_data);
   
-  // Multiply the data, so each CPU has enough work
-  const Uint factor = 8;
+  // Multiply the data, so each CPU has enough work, and keep size per CPU constant
+  const Uint nb_procs = PEInterface::instance().size();
+  
   BOOST_FOREACH(BlockData::CountsT& subdivisions, block_data.block_subdivisions)
   {
-    BOOST_FOREACH(Uint& segments, subdivisions)
-      segments *= factor;
+    for(Uint i = 0; i != subdivisions.size(); ++i)
+      subdivisions[i] *= ((i == 0 && scale) ? factor*nb_procs : factor);
   }
   
   partition_blocks(block_data, PEInterface::instance().size(), CF::XX, partitioned_blocks);
@@ -137,9 +151,17 @@ BOOST_AUTO_TEST_CASE( ApplyCommPattern )
 
 BOOST_AUTO_TEST_CASE( ComputeVolume )
 {
-  CFinfo << "Computing volume" << CFendl;
   CF::Real volume = 0;
-    
+  Uint nb_elems = 0;
+  
+  const Uint rank = PEInterface::instance().rank();
+  const Uint nb_procs = PEInterface::instance().size();
+  
+  // This assumes a channel mesh with 2 transversal blocks as input
+  const Uint slice_size = 2*block_data.block_subdivisions[0][YY] * block_data.block_subdivisions[0][ZZ];
+  const Uint mesh_length = block_data.block_subdivisions[0][XX];
+  const Uint elem_length = ( (mesh_length % nb_procs) == 0 || rank != (nb_procs-1) ) ? mesh_length / nb_procs : mesh_length % nb_procs;
+  
   BOOST_FOREACH(const CElements& celements, recursive_filtered_range_typed<CElements>(partitioned_mesh, IsElementsVolume()))
   {
     const CArray& coords = celements.coordinates();
@@ -148,16 +170,21 @@ BOOST_AUTO_TEST_CASE( ComputeVolume )
     {
       const CF::Real elem_vol = SF::Hexa3DLagrangeP1::volume(ConstElementNodeView(coords, row));
       volume += elem_vol;
+      ++nb_elems;
     }
   }
   
-  CFinfo << "Volume for process " << PEInterface::instance().rank() << ": " << volume << CFendl;
+  BOOST_CHECK_EQUAL(slice_size*elem_length, nb_elems);
+  BOOST_CHECK_CLOSE(volume, 78.9568 * static_cast<Real>(elem_length) / static_cast<Real>(mesh_length), 0.5);
+  
+  CFinfo << "Number of elements for process " << rank << ": " << nb_elems << CFendl;
+  CFinfo << "Volume for process " << rank << ": " << volume << CFendl;
   
   if (PEInterface::instance().rank() == 0)
   {
     Real total_volume;
     boost::mpi::reduce(PEInterface::instance(), volume, total_volume, std::plus<Real>(), 0);
-    BOOST_CHECK_CLOSE(total_volume, 78.9568, 0.0001);
+    BOOST_CHECK_CLOSE(total_volume, 78.9568, 0.5);
   }
   else
   {

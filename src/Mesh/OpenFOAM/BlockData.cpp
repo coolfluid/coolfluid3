@@ -449,7 +449,7 @@ void create_mapped_coords(const Uint segments, BlockData::GradingT::const_iterat
   for(Uint edge = 0; edge != 4; ++edge)
   {
     Real grading = *(gradings++);
-    if(fabs(grading-1.) > 10*std::numeric_limits<Real>::epsilon())
+    if(fabs(grading-1.) > 100*std::numeric_limits<Real>::epsilon())
     {
       const Real r = pow(grading, 1. / static_cast<Real>(segments - 1)); // expansion ratio
       for(Uint i = 0; i <= segments; ++i)
