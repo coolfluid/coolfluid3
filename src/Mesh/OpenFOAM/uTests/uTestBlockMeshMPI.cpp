@@ -3,6 +3,7 @@
 
 #include <boost/assign/list_of.hpp>
 #include <boost/filesystem/fstream.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include "Common/Log.hpp"
