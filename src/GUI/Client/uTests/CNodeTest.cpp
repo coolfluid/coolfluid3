@@ -122,7 +122,7 @@ void CNodeTest::test_setOptions()
 void CNodeTest::test_getOptions()
 {
   TreeHandler th;
-  NRoot::Ptr root = ClientRoot::getRoot();
+  NRoot::Ptr root = ClientRoot::root();
   MyNode::Ptr node(new MyNode("Node"));
   NLink::Ptr link(new NLink("Link")) ;
 

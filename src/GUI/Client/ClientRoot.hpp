@@ -35,7 +35,7 @@ namespace Client {
     /// @brief Gives the root node.
 
     /// @return Returns the root node.
-    static NRoot::Ptr getRoot();
+    static NRoot::Ptr root();
 
     /// @brief Processes a signal from an Xml document
 
@@ -53,43 +53,43 @@ namespace Client {
 
     /// If the node does not exist yet, it is created.
     /// @return Returns the log node.
-    inline static NLog::Ptr getLog()
+    inline static NLog::Ptr log()
     {
-      return getRoot()->root()->access_component< NLog >(CLIENT_LOG_PATH);
+      return root()->root()->access_component< NLog >(CLIENT_LOG_PATH);
     }
 
     /// @brief Gives the browser node.
 
     /// If the node does not exist yet, it is created.
     /// @return Returns the browser node
-    inline static NBrowser::Ptr getBrowser()
+    inline static NBrowser::Ptr browser()
     {
-      return getRoot()->root()->access_component< NBrowser >(CLIENT_BROWSERS_PATH);
+      return root()->root()->access_component< NBrowser >(CLIENT_BROWSERS_PATH);
     }
 
     /// @brief Gives the tree node.
 
     /// If the node does not exist yet, it is created.
     /// @return Returns the tree node.
-    inline static NTree::Ptr getTree()
+    inline static NTree::Ptr tree()
     {
-      return getRoot()->root()->access_component< NTree >(CLIENT_TREE_PATH);
+      return root()->root()->access_component< NTree >(CLIENT_TREE_PATH);
     }
 
     /// @brief Gives the core node.
 
     /// If the node does not exist yet, it is created.
     /// @return Returns the tree node.
-    inline static NCore::Ptr getCore()
+    inline static NCore::Ptr core()
     {
-      return getRoot()->root()->access_component< NCore >(CLIENT_CORE_PATH);
+      return root()->root()->access_component< NCore >(CLIENT_CORE_PATH);
     }
 
     /// @brief Gives the root UUID.
     /// @return Returns the root UUID.
     inline static std::string getUUID()
     {
-      return getRoot()->getUUID();
+      return root()->getUUID();
     }
 
   }; // class ClientRoot

@@ -81,7 +81,7 @@ void NLink::setTargetPath(const CPath & path)
 void NLink::setTargetNode(const CNode::Ptr & node)
 {
   if(node.get() == CFNULL)
-    ClientRoot::getLog()->addError("Target is null");
+    ClientRoot::log()->addError("Target is null");
   else
     m_target = node;
 }
@@ -91,12 +91,12 @@ void NLink::setTargetNode(const CNode::Ptr & node)
 
 void NLink::goToTarget()
 {
-  QModelIndex index = ClientRoot::getTree()->getIndexByPath(m_target->full_path());
+  QModelIndex index = ClientRoot::tree()->getIndexByPath(m_target->full_path());
 
   if(index.isValid())
-    ClientRoot::getTree()->setCurrentIndex(index);
+    ClientRoot::tree()->setCurrentIndex(index);
   else
-    ClientRoot::getLog()->addError(QString("%1: path does not exist")
+    ClientRoot::log()->addError(QString("%1: path does not exist")
                                    .arg(m_target->full_path().string().c_str()));
 }
 
@@ -118,7 +118,7 @@ void NLink::changeTarget()
 
   p.add_option("target_path", path.string());
 
-  ClientRoot::getCore()->sendSignal(*root.get());
+  ClientRoot::core()->sendSignal(*root.get());
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -134,12 +134,12 @@ void NLink::change_link(CF::Common::XmlNode & node)
 
     this->setTargetPath(p.get_option<std::string>("target_path"));
 
-    ClientRoot::getLog()->addMessage(QString("Link '%1' now points to '%2'.")
+    ClientRoot::log()->addMessage(QString("Link '%1' now points to '%2'.")
                                      .arg(full_path().string().c_str()).arg(path.c_str()));
 
   }
   catch(InvalidPath & ip)
   {
-    ClientRoot::getLog()->addError(ip.msg().c_str());
+    ClientRoot::log()->addError(ip.msg().c_str());
   }
 }

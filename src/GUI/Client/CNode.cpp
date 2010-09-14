@@ -272,7 +272,7 @@ void CNode::modifyOptions(const QMap<QString, QString> options)
   {
     CPath path = ((NLink*)this)->getTargetPath();
 
-    CNode::Ptr target = ClientRoot::getTree()->getNodeByPath(path);
+    CNode::Ptr target = ClientRoot::tree()->getNodeByPath(path);
 
     if(target.get() != CFNULL)
       target->modifyOptions(options);
@@ -328,7 +328,7 @@ void CNode::modifyOptions(const QMap<QString, QString> options)
     }
 
     if(valid)
-      ClientRoot::getCore()->sendSignal(*docnode.get());
+      ClientRoot::core()->sendSignal(*docnode.get());
   }
 }
 
@@ -484,8 +484,8 @@ void CNode::removeNode(const QString & nodeName)
 
 void CNode::configure(CF::Common::XmlNode & node)
 {
-  ClientRoot::getTree()->optionsChanged(this->full_path());
-  ClientRoot::getLog()->addMessage(QString("Node \"%1\" options updated.").arg(full_path().string().c_str()));
+  ClientRoot::tree()->optionsChanged(this->full_path());
+  ClientRoot::log()->addMessage(QString("Node \"%1\" options updated.").arg(full_path().string().c_str()));
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -497,7 +497,7 @@ void CNode::getOptions(QList<NodeOption> & options) const
   {
     CPath path = ((NLink*)this)->getTargetPath();
 
-    CNode::Ptr target = ClientRoot::getTree()->getNodeByPath(path);
+    CNode::Ptr target = ClientRoot::tree()->getNodeByPath(path);
 
     if(target.get() != CFNULL)
       target->getOptions(options);
@@ -533,7 +533,7 @@ void CNode::getOptions(QList<NodeOption> & options) const
         else
         {
           success = false;
-          ClientRoot::getLog()->addError(QString("Unable to process %1 option array")
+          ClientRoot::log()->addError(QString("Unable to process %1 option array")
                                          .arg(optArray->elem_type()));
         }
       }
@@ -626,7 +626,7 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, CPath> & lin
     }
     catch (ShouldNotBeHere & snbh)
     {
-      ClientRoot::getLog()->addException(snbh.msg().c_str());
+      ClientRoot::log()->addException(snbh.msg().c_str());
     }
 
     child = child->next_sibling();

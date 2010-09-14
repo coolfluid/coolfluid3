@@ -16,7 +16,7 @@ NMeshReader::NMeshReader(const QString & name)
 {
   BUILD_COMPONENT;
 
-  CFinfo << ClientRoot::getBrowser()->get_child_count();
+  CFinfo << ClientRoot::browser()->get_child_count();
 
   QAction * action;
 
@@ -51,6 +51,6 @@ void NMeshReader::readMesh()
                            "read", full_path(),
                            full_path(), false);
 
-  ClientRoot::getCore()->sendSignal(*doc);
+  ClientRoot::core()->sendSignal(*doc);
 }
 

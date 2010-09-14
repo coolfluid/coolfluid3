@@ -26,7 +26,7 @@ OptionPanel::OptionPanel(QWidget * parent)
   : QWidget(parent),
     m_modelReset(false)
 {
-  NTree::Ptr tree = ClientRoot::getTree();
+  NTree::Ptr tree = ClientRoot::tree();
 
   // create the components
   m_scrollBasicOptions = new QScrollArea(this);
@@ -161,7 +161,7 @@ void OptionPanel::clearList(QList<GraphicalOption *> & list)
 void OptionPanel::setOptions(const QList<NodeOption> & list)
 {
   QList<NodeOption>::const_iterator it = list.begin();
-  const NTree::Ptr & tree = ClientRoot::getTree();
+  const NTree::Ptr & tree = ClientRoot::tree();
 
   // delete old widgets
   this->clearList(m_basicOptions);
@@ -227,7 +227,7 @@ void OptionPanel::setOptions(const QList<NodeOption> & list)
     }
     catch(UnknownTypeException ute)
     {
-      ClientRoot::getLog()->addException(ute.what());
+      ClientRoot::log()->addException(ute.what());
     }
 
     it++;
@@ -355,11 +355,11 @@ void OptionPanel::btApplyClicked()
   {
     try
     {
-      QModelIndex currentIndex = ClientRoot::getTree()->getCurrentIndex();
+      QModelIndex currentIndex = ClientRoot::tree()->getCurrentIndex();
       QList<GraphicalOption*>::iterator itBasic = m_basicOptions.begin();
       QList<GraphicalOption*>::iterator itAdv = m_advancedOptions.begin();
 
-      ClientRoot::getTree()->modifyOptions(currentIndex, options);
+      ClientRoot::tree()->modifyOptions(currentIndex, options);
 
       for( ; itBasic < m_basicOptions.end() ; itBasic++)
         (*itBasic)->commit();
@@ -369,7 +369,7 @@ void OptionPanel::btApplyClicked()
     }
     catch (ValueNotFound & vnf)
     {
-      ClientRoot::getLog()->addException(vnf.msg().c_str());
+      ClientRoot::log()->addException(vnf.msg().c_str());
     }
   }
 }
@@ -379,10 +379,10 @@ void OptionPanel::btApplyClicked()
 
 void OptionPanel::currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex)
 {
-  if(!ClientRoot::getTree()->haveSameData(newIndex, oldIndex))
+  if(!ClientRoot::tree()->haveSameData(newIndex, oldIndex))
   {
     QList<NodeOption> params;
-    ClientRoot::getTree()->getNodeOptions(newIndex, params);
+    ClientRoot::tree()->getNodeOptions(newIndex, params);
     this->setOptions(params);
   }
 }
@@ -400,7 +400,7 @@ void OptionPanel::advancedModeChanged(bool advanced)
 
 void OptionPanel::dataChanged(const QModelIndex & first, const QModelIndex & last)
 {
-  QModelIndex currIndex = ClientRoot::getTree()->getCurrentIndex();
+  QModelIndex currIndex = ClientRoot::tree()->getCurrentIndex();
 
   if(first == last && first.row() == currIndex.row() && first.parent() == currIndex.parent())
     this->currentIndexChanged(first, QModelIndex());
@@ -423,7 +423,7 @@ void OptionPanel::btSeeChangesClicked()
 
 void OptionPanel::btForgetClicked()
 {
-  this->currentIndexChanged(ClientRoot::getTree()->getCurrentIndex(), QModelIndex());
+  this->currentIndexChanged(ClientRoot::tree()->getCurrentIndex(), QModelIndex());
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

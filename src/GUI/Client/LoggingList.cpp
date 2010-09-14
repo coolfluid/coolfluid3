@@ -14,7 +14,7 @@ LoggingList::LoggingList(QWidget * parent, unsigned int maxLogLines)
   this->setWordWrapMode(QTextOption::NoWrap);
   this->setReadOnly(true);
 
-  connect(ClientRoot::getLog().get(), SIGNAL(newMessage(const QString &, bool)),
+  connect(ClientRoot::log().get(), SIGNAL(newMessage(const QString &, bool)),
            this, SLOT(newMessage(const QString &, bool)));
 }
 

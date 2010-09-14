@@ -9,11 +9,11 @@ using namespace CF::GUI::Client;
 PropertyModel::PropertyModel()
   : QAbstractItemModel()
 {
-  currentIndexChanged(ClientRoot::getTree()->getCurrentIndex(), QModelIndex());
+  currentIndexChanged(ClientRoot::tree()->getCurrentIndex(), QModelIndex());
 
   m_columns << "Name" << "Value";
 
-  connect(ClientRoot::getTree().get(), SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)),
+  connect(ClientRoot::tree().get(), SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)),
           this, SLOT(currentIndexChanged(QModelIndex,QModelIndex)));
 }
 
@@ -122,7 +122,7 @@ void PropertyModel::currentIndexChanged(const QModelIndex & newIndex,
 
   emit layoutAboutToBeChanged();
 
-  ClientRoot::getTree()->getNodeProperties(newIndex, props);
+  ClientRoot::tree()->getNodeProperties(newIndex, props);
 
   this->emptyList();
 

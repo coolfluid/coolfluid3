@@ -98,23 +98,23 @@ MainWindow::MainWindow()
 
   this->buildMenus();
 
-  connect(ClientRoot::getLog().get(), SIGNAL(newException(const QString &)),
+  connect(ClientRoot::log().get(), SIGNAL(newException(const QString &)),
           this, SLOT(newException(const QString &)));
 
-  connect(ClientRoot::getLog().get(), SIGNAL(newMessage(const QString &,bool)),
+  connect(ClientRoot::log().get(), SIGNAL(newMessage(const QString &,bool)),
           this, SLOT(newLogMessage(QString,bool)));
 
-  connect(ClientRoot::getCore().get(), SIGNAL(connectedToServer()),
+  connect(ClientRoot::core().get(), SIGNAL(connectedToServer()),
           this, SLOT(connectedToServer()));
 
-  connect(ClientRoot::getCore().get(), SIGNAL(disconnectedFromServer()),
+  connect(ClientRoot::core().get(), SIGNAL(disconnectedFromServer()),
           this, SLOT(disconnectedFromServer()));
 
   connect(m_tabWindow, SIGNAL(currentChanged(int)), this, SLOT(tabClicked(int)));
 
   this->setConnectedState(false);
 
-  ClientRoot::getLog()->addMessage("Client successfully launched.");
+  ClientRoot::log()->addMessage("Client successfully launched.");
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -236,7 +236,7 @@ void MainWindow::buildMenus()
   actionInfo.m_shortcut = tr("ctrl+U");
 
   tmpAction = actionInfo.buildAction(this);
-  connect(tmpAction, SIGNAL(triggered()), ClientRoot::getCore().get(), SLOT(updateTree()));
+  connect(tmpAction, SIGNAL(triggered()), ClientRoot::core().get(), SLOT(updateTree()));
   m_actions[MainWindow::ACTION_UPDATE_TREE] = tmpAction;
 
 
@@ -488,7 +488,7 @@ bool MainWindow::saveToFileLocally(const QString & filename)
   }
   catch(Exception & e)
   {
-    ClientRoot::getLog()->addException(e.what());
+    ClientRoot::log()->addException(e.what());
   }
 
   return retValue;
@@ -571,7 +571,7 @@ void MainWindow::closeEvent(QCloseEvent * event)
 
 void MainWindow::quit()
 {
-  ClientRoot::getCore()->disconnectFromServer(false);
+  ClientRoot::core()->disconnectFromServer(false);
   qApp->exit(0);
 }
 
@@ -581,7 +581,7 @@ void MainWindow::quit()
 void MainWindow::toggleAdvanced()
 {
   bool advanced = m_actions[ ACTION_TOGGLE_ADVANCED_MODE ]->isChecked();
-  ClientRoot::getTree()->setAdvancedMode(advanced);
+  ClientRoot::tree()->setAdvancedMode(advanced);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -590,7 +590,7 @@ void MainWindow::toggleAdvanced()
 void MainWindow::toggleDebugMode()
 {
   bool debug = m_actions[ ACTION_TOGGLE_DEBUG_MODE ]->isChecked();
-  ClientRoot::getTree()->setDebugModeEnabled(debug);
+  ClientRoot::tree()->setDebugModeEnabled(debug);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -628,7 +628,7 @@ void MainWindow::connectToServer()
 
   if(dlg.show(false, sshInfo))
   {
-    ClientRoot::getCore()->connectToServer(sshInfo);
+    ClientRoot::core()->connectToServer(sshInfo);
   }
 }
 
@@ -637,7 +637,7 @@ void MainWindow::connectToServer()
 
 void MainWindow::disconnectFromServer()
 {
-  ClientRoot::getCore()->disconnectFromServer(sender() == m_actions[ACTION_SHUTDOWN_SERVER]);
+  ClientRoot::core()->disconnectFromServer(sender() == m_actions[ACTION_SHUTDOWN_SERVER]);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -654,7 +654,7 @@ void MainWindow::connectedToServer()
 void MainWindow::disconnectedFromServer()
 {
   this->setConnectedState(false);
-  ClientRoot::getTree()->clearTree();
+  ClientRoot::tree()->clearTree();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -66,7 +66,7 @@ void NLinkTest::test_goToTarget()
  qRegisterMetaType<QModelIndex>("QModelIndex");
 
   TreeHandler th;
-  NTree::Ptr t = ClientRoot::getTree();
+  NTree::Ptr t = ClientRoot::tree();
   QModelIndex index;
   QSignalSpy spy(t.get(), SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)));
 

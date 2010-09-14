@@ -48,7 +48,7 @@ void NTreeTest::test_constructor()
   NTree t2(makeTreeFromFile());
 
   // the root must be the same as the client root
-  QCOMPARE(t.getRoot().get(), ClientRoot::getRoot().get());
+  QCOMPARE(t.getRoot().get(), ClientRoot::root().get());
   QCOMPARE(makeTreeFromFile().get(), t2.getRoot().get());
 
   // the root must be different from CFNULL
@@ -178,7 +178,7 @@ void NTreeTest::test_getNodeByPath()
 
   logNode = t.getNodeByPath(CLIENT_LOG_PATH);
 
-  QCOMPARE(logNode.get(), ClientRoot::getLog().get());
+  QCOMPARE(logNode.get(), ClientRoot::log().get());
 
   // no risk of segfault if the test has failed (null pointer)
   QCOMPARE(logNode->full_path().string(), std::string(CLIENT_LOG_PATH));
@@ -269,7 +269,7 @@ void NTreeTest::test_rowCount()
   NTree t;
 
   QCOMPARE(t.rowCount(), 1);
-  QCOMPARE(t.rowCount(t.index(0, 0)), (int) ClientRoot::getRoot()->root()->get_child_count());
+  QCOMPARE(t.rowCount(t.index(0, 0)), (int) ClientRoot::root()->root()->get_child_count());
   QCOMPARE(t.rowCount(t.index(0, 1)), 0);
 }
 

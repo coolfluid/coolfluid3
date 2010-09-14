@@ -15,12 +15,12 @@ TreeHandler::~TreeHandler()
   QStringList::iterator it = names.begin();
 
   for( ; it != names.end() ; it++)
-    ClientRoot::getTree()->getRoot()->removeNode(*it);
+    ClientRoot::tree()->getRoot()->removeNode(*it);
 }
 
 void TreeHandler::add(CNode::Ptr node)
 {
-  ClientRoot::getTree()->getRoot()->addNode(node);
+  ClientRoot::tree()->getRoot()->addNode(node);
   names << node->name().c_str();
 }
 

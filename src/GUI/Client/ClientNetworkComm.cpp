@@ -143,7 +143,7 @@ bool ClientNetworkComm::send(XmlDoc & signal)
 bool ClientNetworkComm::checkConnected()
 {
   if(!m_connectedToServer)
-    ClientRoot::getLog()->addError("Not connected to the server.");
+    ClientRoot::log()->addError("Not connected to the server.");
 
   return m_connectedToServer;
 }
@@ -189,7 +189,7 @@ void ClientNetworkComm::newData()
     }
     catch(Exception & e)
     {
-      ClientRoot::getLog()->addException(e.what());
+      ClientRoot::log()->addException(e.what());
     }
 
     m_blockSize = 0;
@@ -212,7 +212,7 @@ void ClientNetworkComm::disconnected()
 {
   if(!m_requestDisc)
   {
-    ClientRoot::getLog()->addError("The connection has been closed");
+    ClientRoot::log()->addError("The connection has been closed");
   }
   emit disconnectFromServer();
 
@@ -224,7 +224,7 @@ void ClientNetworkComm::disconnected()
 
 void ClientNetworkComm::socketError(QAbstractSocket::SocketError err)
 {
-  NLog::Ptr log = ClientRoot::getLog();
+  NLog::Ptr log = ClientRoot::log();
 
   if(m_requestDisc)
     return;

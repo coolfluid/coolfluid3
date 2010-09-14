@@ -31,7 +31,7 @@ NRemoteOpen::Ptr NRemoteOpen::create(QMainWindow * parent)
 {
   NRemoteOpen::Ptr rop(new NRemoteOpen(parent));
 
-  ClientRoot::getBrowser()->addNode(rop);
+  ClientRoot::browser()->addNode(rop);
 
   return rop;
 }

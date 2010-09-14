@@ -36,7 +36,7 @@ TreeView::TreeView(OptionPanel * optionsPanel, QMainWindow * parent,
 
   m_optionsPanel = optionsPanel;
 
-  m_modelFilter->setSourceModel(ClientRoot::getTree().get());
+  m_modelFilter->setSourceModel(ClientRoot::tree().get());
   m_modelFilter->setDynamicSortFilter(true);
 
   QRegExp reg(QRegExp(".+", Qt::CaseInsensitive, QRegExp::RegExp));
@@ -55,7 +55,7 @@ TreeView::TreeView(OptionPanel * optionsPanel, QMainWindow * parent,
 
   if(m_contextMenuAllowed)
   {
-    connect(ClientRoot::getTree().get(),
+    connect(ClientRoot::tree().get(),
             SIGNAL(currentIndexChanged(const QModelIndex &, const QModelIndex &)),
             this,
             SLOT(currentIndexChanged(const QModelIndex &, const QModelIndex &)));
@@ -98,7 +98,7 @@ CPath TreeView::getSelectedPath() const
   {
     QModelIndex indexInModel = m_modelFilter->mapToSource(currentPath);
 
-    path = ClientRoot::getTree()->getIndexPath(indexInModel);
+    path = ClientRoot::tree()->getIndexPath(indexInModel);
   }
 
   return path;
@@ -109,7 +109,7 @@ CPath TreeView::getSelectedPath() const
 
 void TreeView::selectItem(const CPath & path)
 {
-  QModelIndex index = ClientRoot::getTree()->getIndexByPath(path);
+  QModelIndex index = ClientRoot::tree()->getIndexByPath(path);
 
   if(index.isValid())
   {
@@ -132,7 +132,7 @@ void TreeView::mousePressEvent(QMouseEvent * event)
   QTreeView::mousePressEvent(event);
   QPoint mousePosition(event->x() + this->x(), event->y() + this->y());
   QModelIndex index = this->indexAt(mousePosition);
-  NTree::Ptr tree = ClientRoot::getTree();
+  NTree::Ptr tree = ClientRoot::tree();
 
   QModelIndex indexInModel = m_modelFilter->mapToSource(index);
 
@@ -168,7 +168,7 @@ void TreeView::mousePressEvent(QMouseEvent * event)
   }
   catch(Exception & e)
   {
-    ClientRoot::getLog()->addException(e.what());
+    ClientRoot::log()->addException(e.what());
   }
 }
 
@@ -177,7 +177,7 @@ void TreeView::mousePressEvent(QMouseEvent * event)
 
 void TreeView::keyPressEvent(QKeyEvent * event)
 {
-  NTree::Ptr tree= ClientRoot::getTree();
+  NTree::Ptr tree= ClientRoot::tree();
   QModelIndex currentIndex = m_modelFilter->mapFromSource(tree->getCurrentIndex());
 
   if(m_contextMenuAllowed)
@@ -218,7 +218,7 @@ void TreeView::keyPressEvent(QKeyEvent * event)
 bool TreeView::confirmChangeOptions(const QModelIndex & index, bool okIfSameIndex)
 {
   bool confirmed = true;
-  NTree::Ptr tree = ClientRoot::getTree();
+  NTree::Ptr tree = ClientRoot::tree();
 
   if(!okIfSameIndex &&  tree->areFromSameNode(tree->getCurrentIndex(), index))
     return confirmed;

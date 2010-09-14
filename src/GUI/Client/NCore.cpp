@@ -66,7 +66,7 @@ void NCore::disconnectFromServer(bool shutdown)
 {
   m_networkComm->disconnectFromServer(shutdown);
 
-  ClientRoot::getLog()->addMessage("Disconnected from the server.");
+  ClientRoot::log()->addMessage("Disconnected from the server.");
 
   emit disconnectedFromServer();
 }
@@ -116,8 +116,8 @@ void NCore::connected()
   QString msg1 = "Now connected to server '%1' on port %2.";
   QString msg2 = "Attempting to register with UUID %1.";
 
-  ClientRoot::getLog()->addMessage(msg1.arg(host).arg(port));
-  ClientRoot::getLog()->addMessage(msg2.arg(uuid.c_str()));
+  ClientRoot::log()->addMessage(msg1.arg(host).arg(port));
+  ClientRoot::log()->addMessage(msg2.arg(uuid.c_str()));
 
   // build and send signal
   boost::shared_ptr<XmlDoc> root = XmlOps::create_doc();
@@ -134,7 +134,7 @@ void NCore::connected()
 
 void NCore::shutdown(XmlNode & node)
 {
-  ClientRoot::getLog()->addMessage("The server is shutting down. Disconnecting...");
+  ClientRoot::log()->addMessage("The server is shutting down. Disconnecting...");
   this->disconnectFromServer(false);
 }
 
@@ -147,13 +147,13 @@ void NCore::client_registration(XmlNode & node)
 
   if(p.get_option<bool>("accepted"))
   {
-    ClientRoot::getLog()->addMessage("Registration was successful.");
+    ClientRoot::log()->addMessage("Registration was successful.");
     emit connectedToServer();
     this->updateTree();
   }
   else
   {
-    ClientRoot::getLog()->addError("Registration failed. Disconnecting...");
+    ClientRoot::log()->addError("Registration failed. Disconnecting...");
     this->disconnectFromServer(false);
   }
 }
@@ -169,5 +169,5 @@ void NCore::frame_rejected(CF::Common::XmlNode & node)
 
   QString msg("Action %1 has been rejected by the server: %2");
 
-  ClientRoot::getLog()->addError(msg.arg(frameid.c_str()).arg(reason.c_str()));
+  ClientRoot::log()->addError(msg.arg(frameid.c_str()).arg(reason.c_str()));
 }

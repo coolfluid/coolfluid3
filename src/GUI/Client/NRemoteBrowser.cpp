@@ -40,13 +40,13 @@ NRemoteBrowser::NRemoteBrowser(const QString & componentType, QMainWindow * pare
     CNode("a", componentType, CNode::BROWSER_NODE)
 
 {
-  this->rename(ClientRoot::getBrowser()->generateName().toStdString());
+  this->rename(ClientRoot::browser()->generateName().toStdString());
 
   regist_signal("read_dir", "Directory content")->connect(boost::bind(&NRemoteBrowser::read_dir, this, _1));
 
   this->setWindowTitle("Open file");
 
-  m_clientCore = ClientRoot::getCore();
+  m_clientCore = ClientRoot::core();
 
   // create the components
   m_labFilter = new QLabel("Filter (wildcards allowed) :", this);
@@ -183,14 +183,14 @@ QString NRemoteBrowser::show(const QString & startingDir)
   m_listView->setSelectionMode(QAbstractItemView::SingleSelection);
   m_listView->clearSelection();
 
-  connect(ClientRoot::getLog().get(), SIGNAL(newMessage(const QString &, bool)),
+  connect(ClientRoot::log().get(), SIGNAL(newMessage(const QString &, bool)),
           this, SLOT(error(const QString &, bool)));
 
   this->reinitValues();
 
   this->exec();
 
-  this->disconnect(ClientRoot::getLog().get());
+  this->disconnect(ClientRoot::log().get());
 
   if(m_okClicked)
     return this->getSelectedFile();
@@ -227,14 +227,14 @@ QStringList NRemoteBrowser::showMultipleSelect(const QString & startingDir)
   m_listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
   m_listView->clearSelection();
 
-  connect(ClientRoot::getLog().get(), SIGNAL(newMessage(const QString &, bool)),
+  connect(ClientRoot::log().get(), SIGNAL(newMessage(const QString &, bool)),
           this, SLOT(error(const QString &, bool)));
 
   this->reinitValues();
 
   this->exec();
 
-  this->disconnect(ClientRoot::getLog().get());
+  this->disconnect(ClientRoot::log().get());
 
   if(m_okClicked)
     getSelectedFileList(list);
@@ -476,7 +476,7 @@ void NRemoteBrowser::btOkClicked()
 
     if(validation == POLICY_VALID)
     {
-      disconnect(ClientRoot::getLog().get());
+      disconnect(ClientRoot::log().get());
 
       m_okClicked = true;
       this->setVisible(false);
@@ -490,7 +490,7 @@ void NRemoteBrowser::btOkClicked()
 
 void NRemoteBrowser::btCancelClicked()
 {
-  disconnect(ClientRoot::getLog().get());
+  disconnect(ClientRoot::log().get());
 
   m_okClicked = false;
   this->setVisible(false);

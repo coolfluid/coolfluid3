@@ -14,7 +14,7 @@ using namespace CF::Common;
 using namespace CF::GUI::Client;
 using namespace CF::GUI::Network;
 
-NRoot::Ptr ClientRoot::getRoot()
+NRoot::Ptr ClientRoot::root()
 {
   static bool rootCreated = false;
   static NRoot::Ptr root(new NRoot(CLIENT_ROOT));
@@ -62,11 +62,11 @@ void ClientRoot::processSignal(const QDomDocument & signal)
 
     try
     {
-      getRoot()->root()->access_component(receiver)->call_signal(type, *nodeToProcess);
+      root()->root()->access_component(receiver)->call_signal(type, *nodeToProcess);
     }
     catch(InvalidPath ip)
     {
-      getLog()->addException(ip.what());
+      log()->addException(ip.what());
     }
   }
 }
