@@ -19,6 +19,7 @@
 
 #include "Tools/MeshDiff/MeshDiff.hpp"
 
+using namespace CF;
 using namespace CF::Common;
 using namespace CF::Mesh;
 using namespace CF::Mesh::OpenFOAM;
@@ -125,8 +126,18 @@ BOOST_AUTO_TEST_CASE( PartitionBlocks )
   BlockData block_data;
   parse_blockmesh_dict(file, block_data);
   
+  const Uint factor = 12;
+  const bool scale = true;
+  const Uint nb_procs = 16;
+  
+  BOOST_FOREACH(BlockData::CountsT& subdivisions, block_data.block_subdivisions)
+  {
+    for(Uint i = 0; i != subdivisions.size(); ++i)
+      subdivisions[i] *= ((i == 0 && scale) ? factor*nb_procs : factor);
+  }
+  
   BlockData partitioned_blocks;
-  partition_blocks(block_data, 3, CF::XX, partitioned_blocks);
+  partition_blocks(block_data, nb_procs, CF::XX, partitioned_blocks);
   
   // create a mesh with the blocks only
   CMesh::Ptr block_mesh(new CMesh("block_mesh"));

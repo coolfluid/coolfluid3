@@ -445,16 +445,19 @@ private:
 /// Create the first step length and expansion rations in each direction
 void create_mapped_coords(const Uint segments, BlockData::GradingT::const_iterator gradings, CArray::ArrayT& mapped_coords)
 {
+  const Real eps = 50*std::numeric_limits<Real>::epsilon();
   mapped_coords.resize(boost::extents[segments+1][4]);
   for(Uint edge = 0; edge != 4; ++edge)
   {
     Real grading = *(gradings++);
-    if(fabs(grading-1.) > 100*std::numeric_limits<Real>::epsilon())
+    if(fabs(grading-1.) > 1.e-6)
     {
       const Real r = pow(grading, 1. / static_cast<Real>(segments - 1)); // expansion ratio
       for(Uint i = 0; i <= segments; ++i)
       {
-        mapped_coords[i][edge] = 2. * (1. - pow(r, i)) / (1. - grading*r) - 1.;
+        const Real result = 2. * (1. - pow(r, i)) / (1. - grading*r) - 1.;
+        mapped_coords[i][edge] = result;
+        cf_assert(fabs(result) < (1. + eps));
       }
     }
     else
@@ -463,8 +466,13 @@ void create_mapped_coords(const Uint segments, BlockData::GradingT::const_iterat
       for(Uint i = 0; i <= segments; ++i)
       {
         mapped_coords[i][edge] = i*step - 1.;
+        cf_assert(fabs(mapped_coords[i][edge]) < 1. + eps);
       }
     }
+    const Real start = mapped_coords[0][edge];
+    cf_assert(fabs(start+1.) < eps);
+    const Real end = mapped_coords[segments][edge];
+    cf_assert(fabs(end-1.) < eps);
   }
 }
   

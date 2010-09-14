@@ -54,6 +54,7 @@ GlobalFixture* GlobalFixture::instance = 0;
 GlobalFixture::GlobalFixture() : partitioned_mesh(new CMesh("partitioned_mesh"))
 {
   PEInterface::instance().init(0,0);
+  
   pattern = SimpleCommunicationPattern(); // must be created after MPI init
   // Use SYNC_SCREEN logging only
   Logger::instance().getStream(Logger::INFO).useDestination(LogStream::SCREEN, false);
