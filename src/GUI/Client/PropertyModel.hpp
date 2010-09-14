@@ -109,7 +109,7 @@ namespace Client {
 
     /// @param newIndex New current index.
     /// @param oldIndex Old current index.
-    void currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & newIndex);
+    void currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex);
 
   private:
 
