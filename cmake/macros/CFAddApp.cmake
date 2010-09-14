@@ -47,7 +47,7 @@ macro( coolfluid_add_application APPNAME )
 
     coolfluid_log( " +++ APP [${APPNAME}]" )
 
-    add_executable( ${APPNAME} ${${APPNAME}_sources} ${${APPNAME}_headers} ${${APPNAME}_moc_files})
+    add_executable( ${APPNAME} ${${APPNAME}_sources} ${${APPNAME}_headers} ${${APPNAME}_moc_files} ${${APPNAME}_RCC})
 
     # add installation paths
     INSTALL( TARGETS ${APPNAME}

@@ -154,6 +154,8 @@ list( APPEND coolfluid-client_files
 # Use Qt Libraries
 list( APPEND coolfluid-client_libs Network ${QT_LIBRARIES})
 
+QT4_ADD_RESOURCES(coolfluid-client_RCC Resources/coolfluid-client.qrc)
+
 coolfluid_add_application(coolfluid-client)
 
 add_subdirectory( uTests )

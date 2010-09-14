@@ -5,6 +5,8 @@
 
 #include <QTextEdit>
 
+#include "GUI/Network/LogMessage.hpp"
+
 #include "Common/CF.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -63,7 +65,7 @@ namespace Client {
 
   private slots:
 
-      void newMessage(const QString & message, bool isError);
+    void newMessage(const QString & message, CF::GUI::Network::LogMessage::Type type);
 
   private:
 

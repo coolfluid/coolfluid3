@@ -101,8 +101,8 @@ MainWindow::MainWindow()
   connect(ClientRoot::log().get(), SIGNAL(newException(const QString &)),
           this, SLOT(newException(const QString &)));
 
-  connect(ClientRoot::log().get(), SIGNAL(newMessage(const QString &,bool)),
-          this, SLOT(newLogMessage(QString,bool)));
+  connect(ClientRoot::log().get(), SIGNAL(newMessage(QString, CF::GUI::Network::LogMessage::Type)),
+          this, SLOT(newLogMessage(QString,CF::GUI::Network::LogMessage::Type)));
 
   connect(ClientRoot::core().get(), SIGNAL(connectedToServer()),
           this, SLOT(connectedToServer()));
@@ -711,7 +711,7 @@ void MainWindow::openFileRemotely()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void MainWindow::newLogMessage(const QString & message, bool isError)
+void MainWindow::newLogMessage(const QString & message, CF::GUI::Network::LogMessage::Type type)
 {
   m_logFile << message << '\n';
 }

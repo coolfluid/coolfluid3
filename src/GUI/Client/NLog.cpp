@@ -59,6 +59,16 @@ void NLog::addError(const QString & message)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+void NLog::addWarning(const QString & message)
+{
+  cf_assert(!message.isEmpty());
+
+  this->appendToLog(LogMessage::WARNING, false, message);
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 void NLog::addException(const QString & message)
 {
   cf_assert(!message.isEmpty());
@@ -72,18 +82,17 @@ void NLog::addException(const QString & message)
 void NLog::appendToLog(LogMessage::Type type, bool fromServer,
                        const QString & message)
 {
-  QString header = "[ %1 ][ %2 ][ %3 ] ";
+  QString header = "[ %1 ][ %2 ] ";
   QString msg;
 
   header = header.arg(QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss"));
-  header = header.arg(m_typeNames[type]);
   header = header.arg(fromServer ? "Server" : "Client");
 
   msg = message;
   msg.replace('\n', QString("\n%1").arg(header));
   msg.prepend(header);
 
-  emit newMessage(msg, type == LogMessage::ERROR || type == LogMessage::EXCEPTION);
+  emit newMessage(msg, type);
 
   if(type == LogMessage::EXCEPTION)
     emit newException(message);

@@ -11,6 +11,8 @@
 
 #include "GUI/Client/TSshInformation.hpp"
 
+#include "GUI/Network/LogMessage.hpp"
+
 class QGridLayout;
 class QLabel;
 class QTextEdit;
@@ -139,7 +141,7 @@ namespace Client {
 
     void openFileRemotely();
 
-    void newLogMessage(const QString & message, bool isError);
+    void newLogMessage(const QString & message, CF::GUI::Network::LogMessage::Type type);
 
     void tabClicked(int num);
 

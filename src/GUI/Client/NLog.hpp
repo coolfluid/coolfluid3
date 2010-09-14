@@ -56,6 +56,13 @@ namespace Client {
     /// @param message The error message to add.
     void addError(const QString & message);
 
+    /// @brief Adds a warning message to the log.
+
+    /// If the message contains '<' or '>' characters, they will replaced
+    /// respectively by '&lt;' and '&gt;'.
+    /// @param message The warning message to add.
+    void addWarning(const QString & message);
+
     /// @brief Adds an exception message to the log.
 
     /// @param message The exception message to add.
@@ -76,7 +83,7 @@ namespace Client {
     /// @param message Message text
     /// @param isError If @c true it is an error message; otherwise it is
     /// a "normal" message.
-    void newMessage(const QString & message, bool isError);
+    void newMessage(const QString & message, CF::GUI::Network::LogMessage::Type type);
 
     /// @brief Signal emitted when an exception arrives
     /// @param message Exception message
