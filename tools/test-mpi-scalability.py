@@ -30,9 +30,21 @@ for nb_procs in nb_procs_lst:
   cmd.append(test_command)
   for extra_arg in sys.argv[4:len(sys.argv)]:
     cmd.append(extra_arg)
-  p = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+
+  print "running",
+  for arg in cmd:
+    print arg,
+  print '\n',
+
+  p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
   if p.wait() != 0:
-    raise "Test exited with error"
+    for line in p.stdout:
+      print line,
+    for line in p.stderr:
+      print line,
+    raise RuntimeError("Test exited with error")
+  
   for line in p.stdout:
     idx = line.find(search_str)
     if idx > 0:
