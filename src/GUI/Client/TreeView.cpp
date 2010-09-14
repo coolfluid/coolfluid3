@@ -255,7 +255,6 @@ void TreeView::currentIndexChanged(const QModelIndex & newIndex,
 
     flags = QItemSelectionModel::Select | QItemSelectionModel::Rows;
 
-
     this->selectionModel()->clearSelection();
     this->selectionModel()->select(indexInFilter, flags);
     this->selectionModel()->setCurrentIndex(indexInFilter, flags);

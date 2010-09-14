@@ -42,6 +42,7 @@ set(uTestClient_moc_classes
   ../OptionPanel.hpp
   ../NRemoteBrowser.hpp
   ../NRemoteSave.hpp
+  ../PropertyModel.hpp
   ../SelectFileDialog.hpp
   ../SelectPathDialog.hpp
   ../StatusModel.hpp
@@ -155,6 +156,8 @@ list( APPEND uTestClient_files
   ../NRemoteOpen.hpp
   ../NRemoteSave.cpp
   ../NRemoteSave.hpp
+  ../PropertyModel.cpp
+  ../PropertyModel.hpp
   ../SelectFileDialog.cpp
   ../SelectFileDialog.hpp
   ../SelectPathDialog.cpp

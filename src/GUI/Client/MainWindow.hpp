@@ -11,13 +11,14 @@
 
 #include "GUI/Client/TSshInformation.hpp"
 
-class QDockWidget;
 class QGridLayout;
 class QLabel;
 class QTextEdit;
 class QScrollBar;
 class QSplitter;
+class QTabWidget;
 class QVBoxLayout;
+class QTableView;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -36,6 +37,7 @@ namespace Client {
   class TreeView;
   class AboutCFDialog;
   struct HostInfos;
+  class PropertyModel;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -69,6 +71,8 @@ namespace Client {
       ACTION_TOGGLE_ADVANCED_MODE,
 
       ACTION_SHOW_HIDE_STATUS_PANEL,
+
+      ACTION_TOGGLE_INFO_PANE,
 
       ACTION_CLEAR_LOG,
 
@@ -137,6 +141,8 @@ namespace Client {
 
     void newLogMessage(const QString & message, bool isError);
 
+    void tabClicked(int num);
+
   private:
 
     /// @brief Indicates that the user wants to disconnect from the server.
@@ -186,9 +192,6 @@ namespace Client {
     /// @brief "Save file" sub-menu
     QMenu * m_mnuSaveFile;
 
-    /// @brief Log window, docked at the bottom of the window.
-    QDockWidget * m_logWindow;
-
     /// @brief Text area displaying the log messages.
     LoggingList * m_logList;
 
@@ -200,6 +203,12 @@ namespace Client {
     QVBoxLayout * m_centralWidgetLayout;
 
     QSplitter * m_centralSplitter;
+
+    QTabWidget * m_tabWindow;
+
+    QTableView * m_propertyView;
+
+    PropertyModel * m_propertyModel;
 
     /// @brief Creates actions and menus
     void buildMenus();

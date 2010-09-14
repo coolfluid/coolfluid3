@@ -2,12 +2,15 @@
 #include <QCloseEvent>
 #include <QDateTime>
 #include <QDir>
-#include <QDockWidget>
 #include <QFile>
+#include <QHeaderView>
+#include <QListView>
 #include <QMessageBox>
 #include <QMenuBar>
 #include <QPushButton>
 #include <QSplitter>
+#include <QTableView>
+#include <QTabWidget>
 #include <QVBoxLayout>
 
 #include "Common/Exception.hpp"
@@ -25,6 +28,7 @@
 #include "GUI/Client/StatusModel.hpp"
 #include "GUI/Client/StatusPanel.hpp"
 #include "GUI/Client/TreeView.hpp"
+#include "GUI/Client/PropertyModel.hpp"
 
 #include "GUI/Network/HostInfos.hpp"
 #include "GUI/Network/ComponentNames.hpp"
@@ -51,23 +55,30 @@ MainWindow::MainWindow()
 
   // create the components
   m_optionPanel = new OptionPanel(this);
-  m_logWindow = new QDockWidget("Log Window", m_optionPanel);
   m_treeView = new TreeView(m_optionPanel);
   m_statusPanel = CFNULL;//new StatusPanel(m_statusModel, this);
-  m_logList = new LoggingList(m_logWindow);
   m_splitter = new QSplitter(Qt::Horizontal, this);
   m_centralSplitter = new QSplitter(Qt::Vertical, this);
   m_centralWidgetLayout = new QVBoxLayout(m_centralSplitter);
+  m_tabWindow = new QTabWidget(m_optionPanel);
+  m_logList = new LoggingList(m_tabWindow);
+  m_propertyModel = new PropertyModel();
+  m_propertyView = new QTableView(m_tabWindow);
 
   m_aboutCFDialog = new AboutCFDialog(this);
 
   // configure components
-  m_logWindow->setWidget(m_logList);
-  m_logWindow->setFeatures(QDockWidget::NoDockWidgetFeatures |
-                           QDockWidget::DockWidgetClosable);
+
+  m_propertyView->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+  m_propertyView->horizontalHeader()->setStretchLastSection(true);
+
+  m_propertyView->setModel(m_propertyModel);
+
+  m_tabWindow->addTab(m_logList, "Log");
+  m_tabWindow->addTab(m_propertyView, "Properties");
 
   m_centralWidgetLayout->addWidget(m_optionPanel);
-  m_centralWidgetLayout->addWidget(m_logWindow);
+  m_centralWidgetLayout->addWidget(m_tabWindow);
 
   m_centralWidgetLayout->setContentsMargins(0, 0, 0, 0);
 
@@ -77,7 +88,6 @@ MainWindow::MainWindow()
   m_splitter->addWidget(m_treeView);
 
   m_splitter->addWidget(m_centralSplitter);
-  //m_splitter->addWidget(m_logWindow);
 //  m_splitter->addWidget(m_statusPanel);
   m_splitter->setStretchFactor(1, 10);
 
@@ -100,6 +110,8 @@ MainWindow::MainWindow()
   connect(ClientRoot::getCore().get(), SIGNAL(disconnectedFromServer()),
           this, SLOT(disconnectedFromServer()));
 
+  connect(m_tabWindow, SIGNAL(currentChanged(int)), this, SLOT(tabClicked(int)));
+
   this->setConnectedState(false);
 
   ClientRoot::getLog()->addMessage("Client successfully launched.");
@@ -117,7 +129,6 @@ MainWindow::~MainWindow()
   delete m_statusPanel;
 
   delete m_logList;
-  delete m_logWindow;
   delete m_mnuView;
   delete m_mnuFile;
   delete m_mnuHelp;
@@ -246,7 +257,24 @@ void MainWindow::buildMenus()
 
   //-----------------------------------------------
 
-  m_mnuView->addAction(m_logWindow->toggleViewAction());
+  actionInfo.initDefaults();
+  actionInfo.m_menu = m_mnuView;
+  actionInfo.m_text = "&Toggle information pane";
+  actionInfo.m_shortcut = tr("ctrl+I");
+
+  tmpAction = actionInfo.buildAction(this);
+
+  tmpAction->setCheckable(true);
+
+  tmpAction->setChecked(true);
+  m_tabWindow->setVisible(true);
+
+  m_actions[MainWindow::ACTION_TOGGLE_INFO_PANE] = tmpAction;
+
+  // QTabWidget overrides setVisible(bool) slot to hide/show the widget
+  // contained in the tab. Since we want to hide/show the whole pane
+  // (including tab bar), we need to cast the object to QWidget.
+  connect(tmpAction, SIGNAL(toggled(bool)), (QWidget*)this->m_tabWindow, SLOT(setVisible(bool)));
 
   //-----------------------------------------------
 
@@ -686,4 +714,13 @@ void MainWindow::openFileRemotely()
 void MainWindow::newLogMessage(const QString & message, bool isError)
 {
   m_logFile << message << '\n';
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void MainWindow::tabClicked(int num)
+{
+  if(m_tabWindow->currentWidget() == m_propertyView)
+    m_propertyView->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 }

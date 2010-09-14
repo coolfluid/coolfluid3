@@ -31,7 +31,6 @@ NLink::NLink(const QString & name)
   m_contextMenu->addAction(action);
 
   regist_signal("change_link", "Change target")->connect(boost::bind(&NLink::change_link, this, _1));
-
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

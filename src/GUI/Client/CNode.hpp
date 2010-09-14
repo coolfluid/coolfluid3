@@ -44,7 +44,6 @@ namespace Client {
   signals:
 
     void childCountChanged();
-
   }; // class CNodeNotifier
 
   ////////////////////////////////////////////////////////////////////////////
@@ -183,6 +182,10 @@ namespace Client {
     /// @param node Note containing the options
     void setOptions(CF::Common::XmlNode & node);
 
+    /// @brief Sets node properties
+    /// @param node Note containing the options
+    void setProperties(CF::Common::XmlNode & node);
+
     /// @brief Modifies options
 
     /// If at least on option has been modified, a @c configure signal is sent
@@ -195,6 +198,11 @@ namespace Client {
     /// @param options Reference to a list where options will be put. The list
     /// cleared before first use.
     void getOptions(QList<NodeOption> & options) const;
+
+    /// @brief Gives properties
+    /// @param props Reference to a map where properties will be put. The map
+    /// cleared before first use.
+    void getProperties(QMap<QString, QString> & props) const;
 
     /// @brief Creates an object tree from a given node
 

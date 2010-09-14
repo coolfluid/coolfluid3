@@ -10,6 +10,7 @@
 
 #include "Common/CF.hpp"
 #include "Common/XmlHelpers.hpp"
+#include "Common/String/Conversion.hpp"
 
 #include "GUI/Client/ClientRoot.hpp"
 #include "GUI/Client/NArray.hpp"
@@ -41,6 +42,7 @@ p.add_array(it.key().toStdString(), data);\
 
 
 using namespace CF::Common;
+using namespace CF::Common::String;
 using namespace CF::GUI::Client;
 
 bool NodeOption::operator==(const NodeOption & option)
@@ -80,6 +82,8 @@ CNode::CNode(const QString & name, const QString & componentType, CNode::Type ty
   BUILD_COMPONENT;
 
   regist_signal("configure", "Update component options")->connect(boost::bind(&CNode::configure, this, _1));
+
+  m_properties["originalComponentType"] = componentType.toStdString();
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -122,7 +126,7 @@ void CNode::setOptions(XmlNode & options)
       {
         const char * keyVal = keyAttr->value(); // option name
 
-        if(std::strcmp(node->name(), "value")  == 0)
+        if(std::strcmp(node->name(), XmlParams::tag_node_value())  == 0)
         {
           XmlNode * type_node = node->first_node();
 
@@ -149,8 +153,6 @@ void CNode::setOptions(XmlNode & options)
         }
         else if(std::strcmp(node->name(), "array")  == 0)
         {
-//          XmlParams p(*options.parent());
-
           XmlAttr * typeAttr= node->first_attribute( XmlParams::tag_attr_type() );
 
           if( typeAttr != CFNULL)
@@ -197,6 +199,55 @@ void CNode::setOptions(XmlNode & options)
 
         if(!advanced)
           m_option_list.getOption(keyVal)->mark_basic();
+      }
+    }
+  }
+}
+
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void CNode::setProperties(XmlNode & options)
+{
+  XmlParams p(options);
+
+  if(p.property_map != CFNULL)
+  {
+    // iterate through properties
+    XmlNode* node = p.property_map->first_node();
+    for ( ; node != CFNULL ; node = node->next_sibling(  ) )
+    {
+      XmlAttr * keyAttr= node->first_attribute( XmlParams::tag_attr_key() );
+
+      if ( keyAttr != CFNULL )
+      {
+        const char * keyVal = keyAttr->value(); // option name
+
+        if(std::strcmp(node->name(), XmlParams::tag_node_value())  == 0)
+        {
+          XmlNode * type_node = node->first_node();
+
+          if( type_node != CFNULL)
+          {
+            const char * typeVal = type_node->name(); // type name
+
+            if(std::strcmp(typeVal, "bool") == 0)
+              m_properties[keyVal] = from_str<bool>(type_node->value());
+            else if(std::strcmp(typeVal, "integer") == 0)
+              m_properties[keyVal] = from_str<int>(type_node->value());
+            else if(std::strcmp(typeVal, "unsigned") == 0)
+              m_properties[keyVal] = from_str<Uint>(type_node->value());
+            else if(std::strcmp(typeVal, "real") == 0)
+              m_properties[keyVal] = from_str<Real>(type_node->value());
+            else if(std::strcmp(typeVal, "string") == 0)
+              m_properties[keyVal] = std::string(type_node->value());
+            else if(std::strcmp(typeVal, "file") == 0)
+              m_properties[keyVal] = std::string(type_node->value());
+            else
+              throw ShouldNotBeHere(FromHere(), std::string(typeVal) + ": Unknown type parent is " + node->name());
+          }
+        }
       }
     }
   }
@@ -496,6 +547,19 @@ void CNode::getOptions(QList<NodeOption> & options) const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+void CNode::getProperties(QMap<QString, QString> & props) const
+{
+  PropertyList::const_iterator it = m_properties.begin();
+
+  props.clear();
+
+  for( ; it != m_properties.end() ; it++)
+    props[ it->first.c_str() ] = boost::any_cast<std::string>(it->second).c_str();
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, CPath> & linkTargets)
 {
   char * nodeType = node.name();
@@ -543,7 +607,10 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, CPath> & lin
     try
     {
       if(std::strcmp(child->name(), XmlParams::tag_node_valuemap()) == 0)
+      {
         rootNode->setOptions(node);
+        rootNode->setProperties(node);
+      }
       else
       {
         CNode::Ptr node = createFromXmlRec(*child, linkTargets);

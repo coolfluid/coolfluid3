@@ -118,7 +118,7 @@ void NTreeTest::test_getNodeParams()
 
   QVERIFY(index.isValid());
 
-  t.getNodeParams(index, options, &ok);
+  t.getNodeOptions(index, options, &ok);
 
   QVERIFY(ok);
   QCOMPARE(options.count(), 2);

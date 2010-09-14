@@ -31,11 +31,12 @@ list( APPEND coolfluid-client_moc_classes
   NMeshReader.hpp
   NMethod.hpp
   NRegion.hpp
+  NRemoteBrowser.hpp
+  NRemoteSave.hpp
   NTable.hpp
   NTree.hpp
   OptionPanel.hpp
-  NRemoteBrowser.hpp
-  NRemoteSave.hpp
+  PropertyModel.hpp
   SelectFileDialog.hpp
   StatusModel.hpp
   StatusPanel.hpp
@@ -130,6 +131,8 @@ list( APPEND coolfluid-client_files
   NRemoteOpen.hpp
   NRemoteSave.cpp
   NRemoteSave.hpp
+  PropertyModel.cpp
+  PropertyModel.hpp
   SelectFileDialog.cpp
   SelectFileDialog.hpp
   SelectPathDialog.cpp

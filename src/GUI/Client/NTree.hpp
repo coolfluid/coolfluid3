@@ -78,8 +78,18 @@ namespace Client {
     /// @param params List where options will be stored
     /// @param ok If not @c CFNULL, used to strore whether the option
     /// gathering succeded or not.
-    void getNodeParams(const QModelIndex & index,
+    void getNodeOptions(const QModelIndex & index,
                        QList<NodeOption> & params, bool * ok = CFNULL) const;
+
+    /// @brief Gets node properties
+
+    /// @param index Node index
+    /// @param props Map where properties will be stored. The key is the
+    /// property name, the value is the property value.
+    /// @param ok If not @c CFNULL, used to strore whether the property
+    /// gathering succeded or not.
+    void getNodeProperties(const QModelIndex & index,
+                           QMap<QString, QString> & params, bool * ok = CFNULL) const;
 
     /// @brief Retrieves a node path.
 

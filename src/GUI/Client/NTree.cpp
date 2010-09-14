@@ -83,7 +83,7 @@ QModelIndex NTree::getCurrentIndex() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NTree::getNodeParams(const QModelIndex & index, QList<NodeOption> & params,
+void NTree::getNodeOptions(const QModelIndex & index, QList<NodeOption> & params,
                           bool * ok) const
 {
   TreeNode * node = this->indexToTreeNode(index);
@@ -95,6 +95,23 @@ void NTree::getNodeParams(const QModelIndex & index, QList<NodeOption> & params,
 
   if(node != CFNULL && node->getNode().get() != CFNULL)
     node->getNode()->getOptions(params);
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void NTree::getNodeProperties(const QModelIndex &index,
+                              QMap<QString, QString> &props, bool *ok) const
+{
+  TreeNode * node = this->indexToTreeNode(index);
+
+  if(ok != CFNULL)
+    *ok = node != CFNULL;
+
+  props.clear();
+
+  if(node != CFNULL && node->getNode().get() != CFNULL)
+    node->getNode()->getProperties(props);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
