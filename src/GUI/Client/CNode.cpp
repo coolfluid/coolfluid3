@@ -268,17 +268,6 @@ void CNode::modifyOptions(const QMap<QString, QString> options)
 //				m_options[it.key()].m_paramValue = it.value();
     }
   }
-  else if(m_type == LINK_NODE)
-  {
-    CPath path = ((NLink*)this)->getTargetPath();
-
-    CNode::Ptr target = ClientRoot::tree()->getNodeByPath(path);
-
-    if(target.get() != CFNULL)
-      target->modifyOptions(options);
-    else
-      throw InvalidPath(FromHere(), path.string() + ": path does not exist");
-  }
   else
   {
     boost::shared_ptr<XmlDoc> docnode = XmlOps::create_doc();
@@ -493,54 +482,40 @@ void CNode::configure(CF::Common::XmlNode & node)
 
 void CNode::getOptions(QList<NodeOption> & options) const
 {
-  if(m_type == LINK_NODE)
+  OptionList::OptionStorage_t::const_iterator it = m_option_list.m_options.begin();
+
+  options.clear();
+
+  for( ; it != m_option_list.m_options.end() ; it++)
   {
-    CPath path = ((NLink*)this)->getTargetPath();
+    bool success = true;
+    NodeOption nodeOpt;
+    OptionType::Type optionType = OptionType::Convert::to_enum(it->second->type());
 
-    CNode::Ptr target = ClientRoot::tree()->getNodeByPath(path);
+    nodeOpt.m_paramAdv= !it->second->has_tag("basic");
+    nodeOpt.m_paramName = it->first.c_str();
+    nodeOpt.m_paramValue = it->second->value_str().c_str();
+    nodeOpt.m_paramDescr = it->second->description().c_str();
 
-    if(target.get() != CFNULL)
-      target->getOptions(options);
+    if(optionType != OptionType::INVALID)
+      nodeOpt.m_paramType = OptionType::Convert::to_enum(it->second->type());
     else
-      throw InvalidPath(FromHere(), path.string() + ": path does not exist");
-  }
-  else
-  {
-    OptionList::OptionStorage_t::const_iterator it = m_option_list.m_options.begin();
-
-    options.clear();
-
-    for( ; it != m_option_list.m_options.end() ; it++)
     {
-      bool success = true;
-      NodeOption nodeOpt;
-      OptionType::Type optionType = OptionType::Convert::to_enum(it->second->type());
+      boost::shared_ptr<OptionArray> optArray;
+      optArray = boost::dynamic_pointer_cast<OptionArray>(it->second);
 
-      nodeOpt.m_paramAdv= !it->second->has_tag("basic");
-      nodeOpt.m_paramName = it->first.c_str();
-      nodeOpt.m_paramValue = it->second->value_str().c_str();
-      nodeOpt.m_paramDescr = it->second->description().c_str();
-
-      if(optionType != OptionType::INVALID)
-        nodeOpt.m_paramType = OptionType::Convert::to_enum(it->second->type());
+      if(std::strcmp(optArray->elem_type(), "file") == 0)
+        nodeOpt.m_paramType = OptionType::TYPE_FILES;
       else
       {
-        boost::shared_ptr<OptionArray> optArray;
-        optArray = boost::dynamic_pointer_cast<OptionArray>(it->second);
-
-        if(std::strcmp(optArray->elem_type(), "file") == 0)
-          nodeOpt.m_paramType = OptionType::TYPE_FILES;
-        else
-        {
-          success = false;
-          ClientRoot::log()->addError(QString("Unable to process %1 option array")
-                                         .arg(optArray->elem_type()));
-        }
+        success = false;
+        ClientRoot::log()->addError(QString("Unable to process %1 option array")
+                                    .arg(optArray->elem_type()));
       }
-
-      if(success)
-        options.append(nodeOpt);
     }
+
+    if(success)
+      options.append(nodeOpt);
   }
 }
 

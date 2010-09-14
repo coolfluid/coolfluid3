@@ -157,33 +157,6 @@ bool NTree::areFromSameNode(const QModelIndex & left, const QModelIndex & right)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool NTree::haveSameData(const QModelIndex & left, const QModelIndex & right) const
-{
-  bool sameData = false;
-  TreeNode * leftTreeNode = this->indexToTreeNode(left);
-  TreeNode * rightTreeNode = this->indexToTreeNode(right);
-
-  if(leftTreeNode != CFNULL && rightTreeNode != CFNULL)
-  {
-    CNode::Ptr leftNode = leftTreeNode->getNode();
-    CNode::Ptr rightNode = rightTreeNode->getNode();
-
-    if(leftNode->checkType(CNode::LINK_NODE))
-    {
-      sameData = leftNode->convertTo<NLink>()->getTargetPath().string() == QString("//%1").arg(rightNode->full_path().string().c_str()).toStdString();
-    }
-    else if(rightNode->checkType(CNode::LINK_NODE))
-    {
-      sameData = rightNode->convertTo<NLink>()->getTargetPath().string() == QString("//%1").arg(leftNode->full_path().string().c_str()).toStdString();
-    }
-  }
-
-  return sameData;
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 CNode::Ptr NTree::getNodeByPath(const CPath & path) const
 {
   QString pathStr = path.string().c_str();

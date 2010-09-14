@@ -379,12 +379,9 @@ void OptionPanel::btApplyClicked()
 
 void OptionPanel::currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex)
 {
-  if(!ClientRoot::tree()->haveSameData(newIndex, oldIndex))
-  {
-    QList<NodeOption> params;
-    ClientRoot::tree()->getNodeOptions(newIndex, params);
-    this->setOptions(params);
-  }
+  QList<NodeOption> params;
+  ClientRoot::tree()->getNodeOptions(newIndex, params);
+  this->setOptions(params);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

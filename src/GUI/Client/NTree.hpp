@@ -118,16 +118,6 @@ namespace Client {
     /// Otherwise returns @c false.
     bool areFromSameNode(const QModelIndex & left, const QModelIndex & right) const;
 
-    /// @brief Checks whether two indexes have the same data.
-
-    /// This method can be used to check if one link node has the other
-    /// one as target.
-    /// @param left Left index.
-    /// @param right Right index.
-    /// @return Returns @c true if both node have the same data. Otherwise,
-    /// returns @c false.
-    bool haveSameData(const QModelIndex & left, const QModelIndex & right) const;
-
     /// @brief Retrieves a node from its path.
 
     /// @param path The node path
