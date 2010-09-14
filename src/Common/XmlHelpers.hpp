@@ -302,8 +302,12 @@ namespace Common {
     XmlNode* node = XmlOps::add_node_to(*option_map, XmlTag<TYPE>::array());
 
     // add "key", "size" and "type" attributes to "array" node
+	// note : the size of the array has to be explicitly cast to CF::Uint or
+	// MSVC will consider the value to be of type "unsigned __int64" 
+	// (defined by Microsoft) and the linking will fail because 
+	// String::to_str<unsigned __int64>() is not defined.
     XmlOps::add_attribute_to(*node, tag_attr_key(), key);
-    XmlOps::add_attribute_to(*node, tag_attr_size(), String::to_str(vect.size()));
+	XmlOps::add_attribute_to(*node, tag_attr_size(), String::to_str( (CF::Uint) vect.size() ));
     XmlOps::add_attribute_to(*node, tag_attr_type(), XmlTag<TYPE>::type());
 
     for(size_t i = 0 ; i < vect.size() ; i++)
