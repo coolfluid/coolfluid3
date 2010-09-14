@@ -5,11 +5,13 @@
 #include "Common/CRoot.hpp"
 
 #include "Mesh/CMeshReader.hpp"
+#include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CMeshTransformer.hpp"
 #include "Mesh/SF/Types.hpp"
 #include "Mesh/CTable.hpp"
 
 #include "Solver/CForAllElements.hpp"
+#include "Solver/CForAllNodes.hpp"
 // #include "ForAllRegions.hpp"
 
 using namespace CF;
@@ -139,6 +141,27 @@ int main(int argc, char * argv[])
     // loops can be nested both templatized as virtual
     
     
+    
+    mesh->create_field("linear",1, CField::NODE_BASED);
+
+    
+    // --------------------------------------------------- Virtual Operation
+    CFinfo << "Loop nodes" << CFendl;
+    CFinfo << "----------------------------------------" << CFendl;
+    CForAllNodes::Ptr node_loop = root->create_component_type<CForAllNodes>("nodes_loop");
+    node_loop->configure_option(    "Regions"   , regions_to_loop );
+    
+    // Create a virtual operation_1, and configure (can be done through xml)
+    COperation& setval_op = node_loop->create_operation("CSetValue");
+    setval_op.configure_option(   "Field"   ,   URI("cpath://root/mesh/linear"   ));
+    CFinfo << "before execution" << CFendl;
+    node_loop->execute();
+    
+    CFinfo << mesh->tree() << CFendl;
+
+    CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
+    boost::filesystem::path fp("field.msh");
+    meshwriter->write_from_to(mesh,fp);
     
     
 //////////////////////////////////////////////////////////////////////////////////////////

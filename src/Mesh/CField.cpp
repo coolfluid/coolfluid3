@@ -59,7 +59,15 @@ CField& CField::synchronize_with_region(CRegion& support, const std::string& fie
 
 void CField::create_data_storage(const Uint dim, const DataBasis basis)
 {
-  switch (basis)
+  properties()["dimension"] = dim;
+  m_basis = basis;
+  BOOST_FOREACH(CField& subfield, recursive_range_typed<CField>(*this))
+  {
+    subfield.set_basis(m_basis);
+    subfield.properties()["dimension"] = dim;
+  }
+  
+  switch (m_basis)
   {
     case ELEMENT_BASED:
       BOOST_FOREACH(CFieldElements& field_elements, recursive_range_typed<CFieldElements>(*this))
@@ -132,7 +140,6 @@ void CField::create_data_storage(const Uint dim, const DataBasis basis)
 CElements& CField::create_elements(CElements& geometry_elements)
 {
   CFieldElements& field_elements = *create_component_type<CFieldElements>(geometry_elements.name());
-  field_elements.add_tag("FieldElements");
   field_elements.initialize(geometry_elements);
   geometry_elements.add_field_elements_link(field_elements);
   return field_elements;

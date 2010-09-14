@@ -5,9 +5,11 @@ list( APPEND coolfluid-solver_files
   ForAllRegions.hpp
   CForAllElements.hpp
   CForAllElements.cpp
+  CForAllNodes.hpp
+  CForAllNodes.cpp
 )
 
-list(APPEND coolfluid-solver_libs Neu SF)
+list(APPEND coolfluid-solver_libs Neu Gmsh SF)
 
 coolfluid_add_application (coolfluid-solver)
 

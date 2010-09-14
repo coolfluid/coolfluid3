@@ -63,6 +63,10 @@ private: // functions
   
   void write_connectivity(std::fstream& file);
   
+  void write_nodal_data(std::fstream& file);
+  
+  void write_element_data(std::fstream& file);
+  
 private: // helper functions
 
   /// regists all the signals declared in this class
@@ -73,6 +77,9 @@ private: // data
   PhysicalGroupMap m_groups;
   
   std::map<GeoShape::Type,Uint> m_elementTypes;
+  
+  std::map<CElements*,Uint> m_node_start_idx;
+  std::map<CElements*,Uint> m_element_start_idx;
   
 }; // end CWriter
 

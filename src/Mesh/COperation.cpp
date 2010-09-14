@@ -19,6 +19,11 @@ void COperation::set_loophelper (CElements& geometry_elements )
 {
   throw NotImplemented(FromHere(), "Must create child that overloads this function");
 }
+  
+void COperation::set_loophelper ( CArray& coordinates )
+{
+  throw NotImplemented(FromHere(), "Must create child that overloads this function");
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -54,6 +59,8 @@ Common::ObjectProvider < COperationMerge, COperation, MeshLib, NB_ARGS_1 > COper
 Common::ObjectProvider < COutputField,    COperation, MeshLib, NB_ARGS_1 > COutputFieldProvider( "COutputField" );
 
 Common::ObjectProvider < CComputeVolumes, COperation, MeshLib, NB_ARGS_1 > CComputeVolumeProvider( "CComputeVolumes" );
+
+Common::ObjectProvider < CSetValue,       COperation, MeshLib, NB_ARGS_1 > CSetValueProvider( "CSetValue" );
 
 //
 //struct SetX

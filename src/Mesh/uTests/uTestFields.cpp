@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE( FieldTest )
   CMesh& mesh = *m_mesh;
   
   mesh.create_field("Volume",1,CField::ELEMENT_BASED);
-  mesh.create_field("Solution",5,CField::NODE_BASED);
+  mesh.create_field("Solution",3,CField::NODE_BASED);
   
   // Check if the fields have been created inside the mesh
   BOOST_CHECK_EQUAL(mesh.field("Volume").full_path().string(),"mesh/Volume");
@@ -99,8 +99,7 @@ BOOST_AUTO_TEST_CASE( FieldTest )
   BOOST_CHECK_EQUAL(mesh.look_component_type<CFieldElements>("Volume/quadtriag/gas/elements_Quad2DLagrangeP1")->data().array().shape()[1], (Uint) 1);
   
   // Check if node based data is correctly created
-  BOOST_CHECK_EQUAL(mesh.look_component_type<CFieldElements>("Solution/quadtriag/gas/elements_Quad2DLagrangeP1")->data().array().shape()[1], (Uint) 5);
-  
+  BOOST_CHECK_EQUAL(mesh.look_component_type<CFieldElements>("Solution/quadtriag/gas/elements_Quad2DLagrangeP1")->data().array().shape()[1], (Uint) 3);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

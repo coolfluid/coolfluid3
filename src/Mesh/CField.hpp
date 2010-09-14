@@ -97,6 +97,10 @@ public: // functions
   
   const std::string field_name() const { return m_field_name; }
   
+  const DataBasis basis() const { return m_basis; }
+  
+  void set_basis(const DataBasis& basis) { m_basis = basis;}
+  
   /// @return the field with given name
   const CField& subfield(const CName& name) const;
   
@@ -118,11 +122,40 @@ private: // helper functions
 private:
   
   std::string m_field_name;
+  
+  DataBasis m_basis;
 
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+  
+class IsFieldNodeBased
+{
+public:
+  IsFieldNodeBased () {}
+  
+  bool operator()(const CField::Ptr& component)
+  { return component->basis() == CField::NODE_BASED; }
+  
+  bool operator()(const CField& component)
+  { return component.basis() == CField::NODE_BASED; }
+};
 
+class IsFieldElementBased
+{
+public:
+  IsFieldElementBased () {}
+  
+  bool operator()(const CField::Ptr& component)
+  { return component->basis() == CField::ELEMENT_BASED; }
+  
+  bool operator()(const CField& component)
+  { return component.basis() == CField::ELEMENT_BASED; }
+};
+  
+////////////////////////////////////////////////////////////////////////////////
+
+  
 } // Mesh
 } // CF
 

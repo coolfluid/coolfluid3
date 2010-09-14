@@ -3,6 +3,7 @@
 
 #include "Common/ObjectProvider.hpp"
 #include "Common/OptionT.hpp"
+#include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CArray.hpp"
@@ -10,6 +11,7 @@
 #include "Mesh/CFieldElements.hpp"
 #include "Mesh/ElementNodes.hpp"
 #include "Mesh/CElements.hpp"
+#include "Mesh/ConnectivityData.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -45,6 +47,8 @@ public: // functions
   
   virtual void set_loophelper (CElements& geometry_elements );
   
+  virtual void set_loophelper (CArray& coordinates );
+
   virtual void execute (Uint index = 0 )
   {
     throw NotImplemented(FromHere(), "Must create child that overloads this function");
@@ -332,7 +336,88 @@ private: // data
   
   CField::Ptr volume_field;
 };
+  
+/////////////////////////////////////////////////////////////////////////////////////
 
+class Mesh_API CSetValue : public COperation 
+{
+public: // typedefs
+  
+  typedef boost::shared_ptr<CSetValue> Ptr;
+  typedef boost::shared_ptr<CSetValue const> ConstPtr;
+  
+public: // functions
+  /// Contructor
+  /// @param name of the component
+  CSetValue ( const CName& name ) : COperation(name)
+  {
+    BUILD_COMPONENT;
+    option("Field")->attach_trigger ( boost::bind ( &CSetValue::trigger_Field,   this ) );
+  }
+  
+  void trigger_Field()
+  {
+    CPath field_path (option("Field")->value<URI>());
+    CFdebug << "field_path = " << field_path.string() << CFendl;
+    field = look_component_type<CField>(field_path);
+  }  
+  
+  /// Virtual destructor
+  virtual ~CSetValue() {};
+  
+  /// Get the class name
+  static std::string type_name () { return "CComputeVolume"; }
+  
+  /// Configuration Options
+  static void defineConfigOptions ( Common::OptionList& options ) 
+  {
+    options.add< OptionT<URI> > ("Field","Field URI to output", URI("cpath://"))->mark_basic();
+  }
+  
+  virtual void set_loophelper (CArray& coordinates )
+  {
+    data = boost::shared_ptr<LoopHelper> ( new LoopHelper(*field, coordinates ) );
+  }
+  
+  template < typename SFType >
+  void executeT ( Uint node )
+  {
+    execute(node);
+  }
+  
+  void execute ( Uint node )
+  {
+    
+    CArray& field_data = data->field_data;
+    field_data[node][0] = data->coordinates[node][XX]*data->coordinates[node][XX];
+  }
+  
+private: // helper functions
+  
+  /// regists all the signals declared in this class
+  static void regist_signals ( Component* self ) {}
+  
+private: // data
+  
+  struct LoopHelper
+  {
+    LoopHelper(CField& field, CArray& coords) :
+      coordinates(coords),
+      node_connectivity(*coords.look_component_type<CNodeConnectivity>("../node_connectivity")),
+      local_field(coords.get_parent()->get_type<CRegion>()->get_field(field.name())),
+      field_data(get_tagged_component_typed<CArray>(local_field, "field_data"))
+    { }
+    const CArray& coordinates;
+    const CNodeConnectivity& node_connectivity;
+    CField& local_field;
+    CArray& field_data;
+  };
+  
+  boost::shared_ptr<LoopHelper> data;
+  
+  CField::Ptr field;
+};
+  
 /////////////////////////////////////////////////////////////////////////////////////
   
 } // Mesh
