@@ -151,7 +151,7 @@ struct IsElementType
 
 /// Evaluate a shape function
 template<typename ShapeFunctionT, typename NodeValuesT, typename ResultT>
-static void eval(const RealVector& mapped_coord, const NodeValuesT& values, ResultT& result)
+void eval(const RealVector& mapped_coord, const NodeValuesT& values, ResultT& result)
 {
   RealVector sf(ShapeFunctionT::nb_nodes);
   ShapeFunctionT::shape_function(mapped_coord, sf);
