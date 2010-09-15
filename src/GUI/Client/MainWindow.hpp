@@ -15,10 +15,11 @@
 
 class QGridLayout;
 class QLabel;
-class QTextEdit;
+class QModelIndex;
 class QScrollBar;
 class QSplitter;
 class QTabWidget;
+class QTextEdit;
 class QVBoxLayout;
 class QTableView;
 
@@ -145,6 +146,8 @@ namespace Client {
 
     void tabClicked(int num);
 
+    void currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex);
+
   private:
 
     /// @brief Indicates that the user wants to disconnect from the server.
@@ -211,6 +214,8 @@ namespace Client {
     QTableView * m_propertyView;
 
     PropertyModel * m_propertyModel;
+
+    QLabel * m_labDescription;
 
     /// @brief Creates actions and menus
     void buildMenus();

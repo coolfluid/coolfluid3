@@ -64,6 +64,7 @@ MainWindow::MainWindow()
   m_logList = new LoggingList(m_tabWindow);
   m_propertyModel = new PropertyModel();
   m_propertyView = new QTableView(m_tabWindow);
+  m_labDescription = new QLabel(m_tabWindow);
 
   m_aboutCFDialog = new AboutCFDialog(this);
 
@@ -74,8 +75,12 @@ MainWindow::MainWindow()
 
   m_propertyView->setModel(m_propertyModel);
 
+  m_labDescription->setTextFormat(Qt::RichText);
+  m_labDescription->setAlignment(Qt::AlignTop);
+
   m_tabWindow->addTab(m_logList, "Log");
   m_tabWindow->addTab(m_propertyView, "Properties");
+  m_tabWindow->addTab(m_labDescription, "Description");
 
   m_centralWidgetLayout->addWidget(m_optionPanel);
   m_centralWidgetLayout->addWidget(m_tabWindow);
@@ -98,8 +103,8 @@ MainWindow::MainWindow()
 
   this->buildMenus();
 
-  connect(ClientRoot::log().get(), SIGNAL(newException(const QString &)),
-          this, SLOT(newException(const QString &)));
+  connect(ClientRoot::log().get(), SIGNAL(newException(QString)),
+          this, SLOT(newException(QString)));
 
   connect(ClientRoot::log().get(), SIGNAL(newMessage(QString, CF::GUI::Network::LogMessage::Type)),
           this, SLOT(newLogMessage(QString,CF::GUI::Network::LogMessage::Type)));
@@ -109,6 +114,9 @@ MainWindow::MainWindow()
 
   connect(ClientRoot::core().get(), SIGNAL(disconnectedFromServer()),
           this, SLOT(disconnectedFromServer()));
+
+  connect(ClientRoot::tree().get(), SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)),
+          this, SLOT(currentIndexChanged(QModelIndex,QModelIndex)));
 
   connect(m_tabWindow, SIGNAL(currentChanged(int)), this, SLOT(tabClicked(int)));
 
@@ -723,4 +731,17 @@ void MainWindow::tabClicked(int num)
 {
   if(m_tabWindow->currentWidget() == m_propertyView)
     m_propertyView->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void MainWindow::currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex)
+{
+  QString text = "<b>%1</b><br><br>%2";
+  QMap<QString, QString> data;
+
+  ClientRoot::tree()->getNodeProperties(newIndex, data);
+
+  m_labDescription->setText(text.arg(data["brief"]).arg(data["description"]));
 }
