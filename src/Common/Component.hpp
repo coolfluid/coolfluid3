@@ -1,11 +1,11 @@
-#ifndef CF_Common_Component_hpp
-#define CF_Common_Component_hpp
-
 // Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3.
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
+
+#ifndef CF_Common_Component_hpp
+#define CF_Common_Component_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -181,16 +181,26 @@ public: // functions
 
   /// Looks for a component via its path
   /// @param path to the component
+  /// @return constant Ptr to component
   ConstPtr look_component ( const CPath& path ) const;
 
+  /// Looks for a component via its path
+  /// @param path to the component
+  /// @return Ptr to component
   Ptr look_component ( const CPath& path );
 
+  /// Looks for a component via its path
+  /// @param path to the component
+  /// @return constant Ptr to component cast to specific type
   template < typename T >
     typename T::ConstPtr look_component_type ( const CPath& path ) const
   {
     return boost::dynamic_pointer_cast<T const>(look_component(path));
   }
 
+  /// Looks for a component via its path
+  /// @param path to the component
+  /// @return Ptr to component cast to specific type
   template < typename T >
   typename T::Ptr look_component_type ( const CPath& path )
   {
@@ -312,7 +322,7 @@ protected: // data
   CPath m_path;
   /// properties of this component
   PropertyList m_properties;
-  /// list of children
+  /// list of dynamic children
   CompStorage_t m_components;
   /// pointer to the root of this tree
   boost::weak_ptr<Component> m_root;
@@ -497,7 +507,7 @@ inline Component::const_iterator Component::begin() const
   return begin<Component>();
 }
 
-////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ComponentT>
 inline ComponentIterator<ComponentT const> Component::end() const

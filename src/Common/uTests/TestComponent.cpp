@@ -92,8 +92,8 @@ BOOST_AUTO_TEST_CASE( add_component )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( xml_tree )
-{
+// BOOST_AUTO_TEST_CASE( xml_tree )
+//{
 //  CRoot::Ptr root = CRoot::create ( "root" );
 //
 //  Component::Ptr dir1 ( new CGroup ( "dir1" ) );
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE( xml_tree )
 ////  CFinfo << "xml_str\n" << xml_str << CFflush;
 //
 //  freeXMLString(xml_str);
-}
+// }
 
 ////////////////////////////////////////////////////////////////////////////////
 
