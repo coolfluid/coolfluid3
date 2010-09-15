@@ -49,7 +49,7 @@ public: // functions
   static std::string type_name () { return "CFieldElements"; }
 
   /// Configuration Options
-  static void defineConfigOptions ( Common::OptionList& options ) {}
+  static void defineConfigProperties ( Common::PropertyList& options ) {}
   
   /// Mutable access to the nodal data (e.g. node coordinates);
   CArray& data();

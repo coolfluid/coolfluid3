@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_Option_hpp
-#define CF_Common_Option_hpp
+#ifndef CF_Common_Property_hpp
+#define CF_Common_Property_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -57,27 +57,28 @@ namespace Common {
   ///       - ConfigObject ( ConfigObject, OptionList )
   ///       - Option
   ///       - OptionT
-  class Common_API Option :
+  class Common_API Property :
       public TaggedObject
   {
   public:
 
-    typedef boost::shared_ptr<Option>   Ptr;
+    typedef boost::shared_ptr<Property>   Ptr;
     typedef boost::function< void() >   Trigger_t;
     typedef std::vector< Trigger_t >    TriggerStorage_t;
 
     /// Constructor
-    Option ( const std::string& name,
+    Property ( const std::string& name,
              const std::string& type,
              const std::string& desc,
-             boost::any def);
+             boost::any def,
+             bool is_option = false);
 
     /// Virtual destructor
-    virtual ~Option ();
+    virtual ~Property ();
 
     /// @name VIRTUAL FUNCTIONS
     //@{
-    
+
     /// @returns the xml tag for this option
     virtual const char * tag() const = 0;
 
@@ -91,7 +92,7 @@ namespace Common {
 
     /// configure this option using the passed xml node
     void configure_option ( XmlNode& node );
-    
+
     void attach_trigger ( Trigger_t trigger ) { m_triggers.push_back(trigger); }
 
     // accessor functions
@@ -102,6 +103,8 @@ namespace Common {
     std::string type() const { return m_type; }
     /// @returns the description of the option
     std::string description() const { return m_description; }
+    /// @returns @c true if the property is an option
+    bool is_option() const { return m_is_option; }
 
     /// @returns the value of the option as a boost::any
     boost::any value() const { return m_value; }
@@ -132,7 +135,7 @@ namespace Common {
       cf_assert ( type_to_str<TYPE>() == m_type );
       m_linked_params.push_back(par);
     }
-        
+
     /// change the value of this option
     void change_value ( const boost::any& value);
 
@@ -140,12 +143,12 @@ namespace Common {
     void mark_basic ();
 
   protected: // function
-    
+
     /// updates the option value using the xml configuration
     /// @param node XML node with data for this option
     virtual void configure ( XmlNode& node ) = 0;
-    
-    
+
+
   protected:
 
     /// storage of the value of the option
@@ -162,11 +165,14 @@ namespace Common {
     TriggerStorage_t m_triggers;
     /// parameters that also get updated when option is changed
     std::vector< void* > m_linked_params;
+    /// indicates whether a property is an option. Options are user-modifiable
+    /// properties.
+    bool m_is_option;
 
     template< typename TYPE>
     const char * type_to_str() const;
 
-  }; // Option
+  }; // class Property
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -175,4 +181,4 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_Option_hpp
+#endif // CF_Common_Property_hpp

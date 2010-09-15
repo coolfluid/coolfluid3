@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/OptionT.hpp"
+#include "Common/PropertyT.hpp"
 
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CArray.hpp"
@@ -31,10 +31,10 @@ CMeshWriter::~CMeshWriter()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void CMeshWriter::defineConfigOptions(Common::OptionList& options)
+void CMeshWriter::defineConfigProperties(Common::PropertyList& options)
 {
-  //options.add< OptionT<std::string> >  ( "File",  "File to read" , "" );
-  //options.add< Common::OptionT<std::string> >  ( "Mesh",  "Mesh to construct" , "" );
+  //options.add_option OptionT<std::string> >  ( "File",  "File to read" , "" );
+  //options.add_option Common::OptionT<std::string> >  ( "Mesh",  "Mesh to construct" , "" );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ void CMeshWriter::write( XmlNode& node  )
   /// @todo[1]: wait for Tiago for functionality
 
   // Get the file path
-  boost::filesystem::path file = option("File")->value<std::string>();
+  boost::filesystem::path file = property("File")->value<std::string>();
 
   // Call implementation
   /// @todo wait for todo[1]
@@ -58,7 +58,7 @@ void CMeshWriter::write( XmlNode& node  )
 boost::filesystem::path CMeshWriter::write_from(const CMesh::Ptr& mesh)
 {
   // Get the file path
-  boost::filesystem::path file = option("File")->value<std::string>();
+  boost::filesystem::path file = property("File")->value<std::string>();
 
   // Call implementation
   write_from_to(mesh,file);

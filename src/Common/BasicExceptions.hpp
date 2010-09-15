@@ -224,6 +224,18 @@ struct Common_API InvalidStructure: public Common::Exception {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// Exception thrown when a function is called in a moment it should not.
+/// i.e. function a() has be called before function b() but is not.
+/// @author Quentin Gasper
+struct Common_API IllegalCall: public Common::Exception {
+
+  /// Constructor
+  IllegalCall( const Common::CodeLocation& where, const std::string& what);
+
+}; //  InvalidStructure
+
+////////////////////////////////////////////////////////////////////////////////
+
   } // namespace Common
 } // namespace CF
 

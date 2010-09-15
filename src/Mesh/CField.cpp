@@ -39,40 +39,40 @@ CField::~CField()
 ////////////////////////////////////////////////////////////////////////////////
 
 CField& CField::synchronize_with_region(CRegion& support, const std::string& field_name)
-{ 
+{
   // Setup this field
   m_field_name = (field_name == "") ? name() : field_name;
   support.add_field_link(*this);
   CLink::Ptr support_link = create_component_type<CLink>("support");
   support_link->add_tag("support");
-  support_link->link_to(support.get()); 
-  
+  support_link->link_to(support.get());
+
   // Create FieldElements if the support has them
   BOOST_FOREACH(CElements& geometry_elements, range_typed<CElements>(support))
     create_elements(geometry_elements);
-  
+
   // Go down one level in the tree
   BOOST_FOREACH(CRegion& support_level_down, range_typed<CRegion>(support))
   {
     CField& subfield = *create_component_type<CField>(support_level_down.name());
     subfield.synchronize_with_region(support_level_down,m_field_name);
   }
-  
+
   return *this;
 }
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void CField::create_data_storage(const Uint dim, const DataBasis basis)
 {
-  properties()["dimension"] = dim;
+  configure_property("dimension", dim);
   m_basis = basis;
   BOOST_FOREACH(CField& subfield, recursive_range_typed<CField>(*this))
   {
     subfield.set_basis(m_basis);
-    subfield.properties()["dimension"] = dim;
+    subfield.configure_property("dimension", dim);
   }
-  
+
   switch (m_basis)
   {
     case ELEMENT_BASED:
@@ -85,7 +85,7 @@ void CField::create_data_storage(const Uint dim, const DataBasis basis)
     case NODE_BASED:
     {
       std::map<std::string,CArray*> data_for_coordinates;
-      
+
       // Check if there are coordinates in this field, and add to map
       if (! range_typed<CArray>(support()).empty() )
       {
@@ -114,15 +114,15 @@ void CField::create_data_storage(const Uint dim, const DataBasis basis)
       break;
   }
 }
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 //CField& CField::create_element_based_field(const std::string& field_name, CRegion& support)
-//{  
+//{
 //  m_field_name = field_name;
 //  support.add_field_link(*this);
-//  create_component_type<CLink>("support")->link_to(support.get()); 
-//  
+//  create_component_type<CLink>("support")->link_to(support.get());
+//
 //  BOOST_FOREACH(CElements& geometry_elements, range_typed<CElements>(support))
 //  {
 //    CFinfo << "creating elements element_based" << geometry_elements.name() << CFendl;
@@ -132,7 +132,7 @@ void CField::create_data_storage(const Uint dim, const DataBasis basis)
 //    field_elements.add_element_based_storage();
 //    geometry_elements.add_field_elements_link(field_elements);
 //  }
-//  
+//
 //  BOOST_FOREACH(CRegion& support_level_down, range_typed<CRegion>(support))
 //  {
 //    CField& field = *create_component_type<CField>(support_level_down.name());
@@ -160,21 +160,21 @@ CArray& CField::create_data(const Uint dim, const Uint nb_rows)
   data.array().resize(boost::extents[nb_rows][dim]);
   return data;
 }
- 
+
 //////////////////////////////////////////////////////////////////////////////
 
 const CRegion& CField::support() const
 {
   return *get_child("support")->get_type<CRegion const>();  // get() because it is a link
 }
-  
+
 //////////////////////////////////////////////////////////////////////////////
 
 CRegion& CField::support()
 {
   return *get_child("support")->get_type<CRegion>();  // get() because it is a link
 }
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 const CField& CField::subfield(const CName& name) const
@@ -188,7 +188,7 @@ CField& CField::subfield(const CName& name)
 {
   return get_named_component_typed<CField>(*this,name);
 }
-  
+
 //////////////////////////////////////////////////////////////////////////////
 
 const CFieldElements& CField::elements(const CName& name) const
@@ -202,8 +202,8 @@ CFieldElements& CField::elements(const CName& name)
 {
   return get_named_component_typed<CFieldElements>(*this,name);
 }
-  
+
 //////////////////////////////////////////////////////////////////////////////
-  
+
 } // Mesh
 } // CF

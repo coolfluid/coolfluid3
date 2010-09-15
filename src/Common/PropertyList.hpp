@@ -7,62 +7,91 @@
 #ifndef CF_Common_PropertyList_hpp
 #define CF_Common_PropertyList_hpp
 
-////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
 
-#include <boost/any.hpp>
-
-#include "Common/CF.hpp"
-
-////////////////////////////////////////////////////////////////////////////////
+#include "Common/Property.hpp"
 
 namespace CF {
 namespace Common {
 
-////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
 
-/// Class that represents a list of properties.
-/// Properties can be of any type and are internally stored as boost::any.
-/// A property name is associated to each property, and both are stored in a map,
-/// for quick search by name.
-/// @author Tiago Quintino
-class Common_API PropertyList : public boost::noncopyable,
-                                public std::map< std::string, boost::any > {
+  /// Class defines a list of options to be used in the ConfigObject class
+  /// @author Tiago Quintino
+  class Common_API PropertyList {
 
-public: // types
+  public:
 
-  /// storage type
-  typedef std::map< std::string, boost::any > StorageType;
-  /// typedef for the iterator to inner storage
-  typedef StorageType::iterator iterator;
-  /// typedef for the iterator to inner storage
-  typedef StorageType::const_iterator const_iterator;
+    /// type to store the options per name
+    typedef std::map < std::string , Property::Ptr > PropertyStorage_t;
 
-public: // functions
+  public:
 
-  /// Access a property and cast it to the specified Type
-  /// Property must already exist
-  /// @see PropertyList::check
-  /// @param prop_name the property name
-  template < typename Type >
-      Type value ( const std::string& prop_name )
-  {
-    cf_assert ( check(prop_name) );
-    return boost::any_cast<Type>( operator[](prop_name) );
-  }
+    /// adds a property to the list
+    template < typename OPTION_TYPE >
+    Property::Ptr add_property (const std::string& name,
+                                const typename OPTION_TYPE::value_type& value )
+    {
+      return add< OPTION_TYPE >(name, "", value, false);
+    }
 
-  /// check that a property with the name exists
-  /// @param prop_name the property name
-  bool check ( const std::string& prop_name ) const
-  {
-    return find(prop_name) != this->end();
-  }
+    /// adds an option to the list
+    template < typename OPTION_TYPE >
+    Property::Ptr add_option (const std::string& name,
+                              const std::string& description,
+                              const typename OPTION_TYPE::value_type& def )
+    {
+      return add< OPTION_TYPE >(name, description, def, true);
+    }
 
-}; // end of class PropertyList
+    /// get a property from the list
+    Property::Ptr getProperty( const std::string& optname );
 
-////////////////////////////////////////////////////////////////////////////////
+    /// Configure one option, and trigger its actions
+    /// @param [in] optname  The option name
+    /// @param [in] val      The new value assigned to the option
+    void configure_property(const std::string& optname, const boost::any& val)
+    {
+      getProperty(optname)->change_value(val); // update the value and trigger its actions
+    }
 
-} // namespace Common
-} // namespace CF
+    /// check that a property with the name exists
+    /// @param prop_name the property name
+    bool check ( const std::string& prop_name ) const
+    {
+      return m_properties.find(prop_name) != m_properties.end();
+    }
+
+    /// erases a property
+    /// @param prop_name the property name
+    void erase(const std::string & pname);
+
+  public:
+
+    /// storage of options
+    PropertyStorage_t m_properties;
+
+  private:
+
+    /// adds a property to the list
+    template < typename OPTION_TYPE >
+    Property::Ptr add (const std::string& name, const std::string& description,
+                       const typename OPTION_TYPE::value_type& def, bool is_option)
+    {
+      cf_assert_desc ( "Class has already property with same name",
+                       this->m_properties.find(name) == m_properties.end() );
+      Property::Ptr opt ( new OPTION_TYPE(name, description, def, is_option) );
+      m_properties.insert( std::make_pair(name, opt ) );
+      return opt;
+    }
+
+
+  }; // class PropertyList
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+} // Common
+} // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -38,7 +38,7 @@ namespace Common {
     static std::string type_name () { return "CLink"; }
 
     /// Configuration Options
-    static void defineConfigOptions ( Common::OptionList& options ) {}
+    static void defineConfigProperties ( Common::PropertyList& options ) {}
 
     /// get the component through the links to the actual components
     virtual Component::Ptr get ();

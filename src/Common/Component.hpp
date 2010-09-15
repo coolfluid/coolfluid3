@@ -22,9 +22,8 @@
 #include "Common/CPath.hpp"
 #include "Common/ConcreteProvider.hpp"
 #include "Common/ComponentIterator.hpp"
-#include "Common/PropertyList.hpp"
 #include "Common/XmlHelpers.hpp"
-#include "Common/OptionArray.hpp"
+#include "Common/PropertyArray.hpp"
 #include "Common/TaggedObject.hpp"
 
 namespace CF {
@@ -80,8 +79,8 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "Component"; }
 
-  /// Configuration Options
-  static void defineConfigOptions ( Common::OptionList& options ) {}
+  /// Configuration properties
+  static void defineConfigProperties ( Common::PropertyList& props );
 
   /// Contructor
   /// @param name of the component
@@ -157,10 +156,10 @@ public: // functions
   //@} END ITERATORS
 
   /// access to the meta information of this component
-  PropertyList& properties() { return m_properties; }
+//  PropertyListOLD& properties() { return m_properties; }
 
   /// access to the meta information of this component
-  const PropertyList& properties() const { return m_properties; }
+//  const PropertyListOLD& properties() const { return m_properties; }
 
   /// checks if this component is in fact a link to another component
   bool is_link () const { return m_is_link; }
@@ -273,9 +272,6 @@ public: // functions
   /// lists the sub components and puts them on the xml_tree
   void list_tree ( XmlNode& xml );
 
-  /// lists the options of this component
-  void list_options ( XmlNode& xml );
-
   /// lists the properties of this component
   void list_properties ( XmlNode& xml );
 
@@ -314,11 +310,15 @@ private: // helper functions
 
   /// Adds an array to XML tree
   /// @param params XmlParams object that manages the tree
-  /// @param name Array name
-  /// @param array Array to add. It must be an OptionArrayT<TYPE>
+  /// @param array Array to add. It must be an PropertyArrayT<TYPE>
   template<typename TYPE>
-  void add_array_to_xml(XmlParams & params, const std::string & name,
-                        boost::shared_ptr<OptionArray> array) const;
+  void add_array_to_xml(XmlParams & params, boost::shared_ptr<PropertyArray> array) const;
+
+  /// Adds an array to XML tree
+  /// @param params XmlParams object that manages the tree
+  /// @param prop Property to add
+  template<typename TYPE>
+  void add_prop_to_xml(XmlParams & params, boost::shared_ptr<Property> prop) const;
 
 protected: // data
 
@@ -326,8 +326,6 @@ protected: // data
   CPath m_name;
   /// component current path
   CPath m_path;
-  /// properties of this component
-  PropertyList m_properties;
   /// list of dynamic children
   CompStorage_t m_components;
   /// pointer to the root of this tree
@@ -590,13 +588,32 @@ inline void Component::partial_build_component(TYPE* meself)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename TYPE>
-void Component::add_array_to_xml(XmlParams & params, const std::string & name,
-                                 boost::shared_ptr<OptionArray> array) const
+void Component::add_array_to_xml(XmlParams & params,
+                                 boost::shared_ptr<PropertyArray> array) const
 {
-  boost::shared_ptr<OptionArrayT<TYPE> > optArray;
-  optArray = boost::dynamic_pointer_cast< OptionArrayT<TYPE> >(array);
+  boost::shared_ptr<PropertyArrayT<TYPE> > optArray;
+  std::string name = array->name();
+
+  optArray = boost::dynamic_pointer_cast< PropertyArrayT<TYPE> >(array);
 
   params.add_array(name, boost::any_cast< std::vector<TYPE> >(optArray->value()));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+template <typename TYPE>
+void Component::add_prop_to_xml(XmlParams & params,
+                                 boost::shared_ptr<Property> prop) const
+{
+  bool basic = prop->has_tag("basic");
+  boost::any value = prop->value();
+  std::string desc = prop->description();
+
+  if(prop->is_option())
+    params.add_option(prop->name(), boost::any_cast< TYPE >(value), desc, basic);
+  else
+    params.add_property(prop->name(), boost::any_cast< TYPE >(value));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

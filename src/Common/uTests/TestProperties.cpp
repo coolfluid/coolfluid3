@@ -10,6 +10,7 @@
 #include <iostream>
 
 #include "Common/PropertyList.hpp"
+#include "Common/PropertyT.hpp"
 
 using namespace std;
 using namespace boost;
@@ -51,8 +52,8 @@ BOOST_AUTO_TEST_CASE( construct )
 
   // test construction
 
-  props["count"] = int ( 10 );
-  props["name"]  = std::string( "lolo" );
+  props.add_property< PropertyT<int> >("count", int(10));
+  props.add_property< PropertyT<std::string> >("name", std::string("lolo"));
 
   BOOST_CHECK_EQUAL ( props.check( "nono" ),  false );
   BOOST_CHECK_EQUAL ( props.check( "count" ), true );
@@ -60,9 +61,9 @@ BOOST_AUTO_TEST_CASE( construct )
 
   // test no duplicates
 
-  props["name"]  = std::string( "lolo" );
+//  props["name"]  = std::string( "lolo" );
 
-  BOOST_CHECK_EQUAL ( props.check( "name" ), 1 );
+//  BOOST_CHECK_EQUAL ( props.check( "name" ), 1 );
 
 }
 
@@ -72,17 +73,19 @@ BOOST_AUTO_TEST_CASE( assign )
 {
   PropertyList props;
 
+  props.add_property< PropertyT<std::string> >("name", std::string("(empty)"));
+
   // test assign
 
-  props["name"]  = std::string( "john" );
+  props.configure_property("name", std::string( "john" ));
 
-  BOOST_CHECK_EQUAL ( props.value<std::string>( "name" ), "john" );
+  BOOST_CHECK_EQUAL ( props.getProperty("name")->value<std::string>(), "john" );
 
   // test re-assign
 
-  props["name"]  = std::string( "joanna" );
+  props.configure_property("name", std::string( "joanna" ));
 
-  BOOST_CHECK_EQUAL ( props.value<std::string>( "name" ), "joanna" );
+  BOOST_CHECK_EQUAL ( props.getProperty("name")->value<std::string>(), "joanna" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -93,17 +96,17 @@ BOOST_AUTO_TEST_CASE( list )
 
   // test construction
 
-  props["count0"] = Uint ( 10 );
-  props["count1"] = Uint ( 11 );
-  props["count2"] = Uint ( 12 );
-  props["count3"] = Uint ( 13 );
+  props.add_property< PropertyT<Uint> >("count0", Uint(10));
+  props.add_property< PropertyT<Uint> >("count1", Uint(11));
+  props.add_property< PropertyT<Uint> >("count2", Uint(12));
+  props.add_property< PropertyT<Uint> >("count3", Uint(13));
 
   Uint counter = 10;
-  PropertyList::iterator itr = props.begin();
-  for ( itr = props.begin(); itr != props.begin(); ++itr, ++counter )
+  PropertyList::PropertyStorage_t::iterator itr = props.m_properties.begin();
+  for ( ; itr != props.m_properties.end(); ++itr, ++counter )
   {
     const std::string& pname = itr->first;
-    BOOST_CHECK_EQUAL ( props.value<Uint>( pname ), counter );
+    BOOST_CHECK_EQUAL ( props.getProperty(pname)->value<Uint>(), counter );
   }
 }
 
@@ -113,12 +116,12 @@ BOOST_AUTO_TEST_CASE( remove )
 {
   PropertyList props;
 
-  props["count"]   = int ( 10 );
-  props["name"]    = std::string( "john" );
-  props["surname"] = std::string( "doe" );
-  props["size"]    = int ( 99 );
+  props.add_property< PropertyT<int> >("count", int(10));
+  props.add_property< PropertyT<std::string> >("name", std::string("john"));
+  props.add_property< PropertyT<std::string> >("surname", std::string("doe"));
+  props.add_property< PropertyT<int> >("size", int(99));
 
-  BOOST_CHECK_EQUAL ( props.size(), (Uint) 4 );
+  BOOST_CHECK_EQUAL ( props.m_properties.size(), (Uint) 4 );
 
   BOOST_CHECK_EQUAL ( props.check( "count" ),   true );
   BOOST_CHECK_EQUAL ( props.check( "name" ),    true );
@@ -133,7 +136,7 @@ BOOST_AUTO_TEST_CASE( remove )
   props.erase("count");
   props.erase("surname");
 
-  BOOST_CHECK_EQUAL ( props.size(), (Uint) 2 );
+  BOOST_CHECK_EQUAL ( props.m_properties.size(), (Uint) 2 );
 
   BOOST_CHECK_EQUAL ( props.check( "count" ),   false );
   BOOST_CHECK_EQUAL ( props.check( "surname" ), false );
@@ -147,7 +150,7 @@ BOOST_AUTO_TEST_CASE( remove )
   props.erase("age");
   BOOST_CHECK_EQUAL ( props.check( "age" ),     false );
 
-  BOOST_CHECK_EQUAL ( props.size(), (Uint) 2 );
+  BOOST_CHECK_EQUAL ( props.m_properties.size(), (Uint) 2 );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

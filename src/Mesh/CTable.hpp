@@ -41,7 +41,7 @@ public:
   static std::string type_name () { return "CTable"; }
 
   /// Configuration Options
-  static void defineConfigOptions ( Common::OptionList& options ) {}
+  static void defineConfigProperties ( Common::PropertyList& options ) {}
 
 private: // helper functions
 

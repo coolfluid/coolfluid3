@@ -49,7 +49,7 @@ public:
   static std::string type_name () { return "CRegion"; }
 
   /// Configuration Options
-  static void defineConfigOptions ( Common::OptionList& options ) {}
+  static void defineConfigProperties ( Common::PropertyList& options ) {}
 
   // functions specific to the CRegion component
 

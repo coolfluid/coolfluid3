@@ -4,12 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_OptionComponent_hpp
-#define CF_Common_OptionComponent_hpp
+#ifndef CF_Common_PropertyComponent_hpp
+#define CF_Common_PropertyComponent_hpp
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/Option.hpp"
+#include "Common/Property.hpp"
 #include "Common/Component.hpp"
 #include "Common/XmlHelpers.hpp"
 
@@ -21,14 +21,14 @@ namespace Common {
   /// Class defines options to be used in the ConfigObject class
   /// @author Tiago Quintino
   template < typename BASETYPE >
-  class OptionComponent : public Option
+  class PropertyComponent : public Property
   {
   public:
 
     typedef std::string value_type;
 
     /// constructor
-    OptionComponent ( const std::string& name, const std::string& desc, const std::string& def_name );
+    PropertyComponent ( const std::string& name, const std::string& desc, const std::string& def_name, bool is_option = false );
 
     /// @name VIRTUAL FUNCTIONS
     //@{
@@ -55,13 +55,13 @@ namespace Common {
     /// storage of the component pointer
     typename BASETYPE::Ptr m_component;
 
-  }; // OptionComponent
+  }; // class PropertyComponent
 
 ////////////////////////////////////////////////////////////////////////////////
 
   template < typename BASETYPE >
-  OptionComponent<BASETYPE>::OptionComponent ( const std::string& name, const std::string& desc, const std::string& def_name ) :
-      Option(name, BASETYPE::type_name(), desc, def_name )
+  PropertyComponent<BASETYPE>::PropertyComponent ( const std::string& name, const std::string& desc, const std::string& def_name, bool is_option ) :
+      Property(name, BASETYPE::type_name(), desc, def_name, is_option )
   {
     if (def_name!="")
     {
@@ -81,15 +81,12 @@ namespace Common {
   }
 
   template < typename BASETYPE >
-  void OptionComponent<BASETYPE>::configure ( XmlNode& node )
+  void PropertyComponent<BASETYPE>::configure ( XmlNode& node )
   {
     XmlParams params ( node );
 
-    std::string str;
-    XmlOps::xml_to_string(node, str);
-
     if ( params.option_map == 0 )
-      throw  Common::XmlError( FromHere(), "ConfigObject received  XML without a \'" + std::string(XmlParams::tag_node_valuemap()) + "\' node\n\n" +str );
+      throw  Common::XmlError( FromHere(), "ConfigObject received  XML without a \'" + std::string(XmlParams::tag_node_valuemap()) + "\' node");
 
     std::string name  = params.get_option<std::string>("name");
     std::string atype = params.get_option<std::string>("atype");
@@ -115,4 +112,4 @@ namespace Common {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_OptionComponent_hpp
+#endif // CF_Common_PropertyComponent_hpp

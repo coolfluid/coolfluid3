@@ -13,7 +13,7 @@
 #include <boost/filesystem/path.hpp>
 
 #include "Common/ConfigObject.hpp"
-#include "Common/OptionT.hpp"
+#include "Common/PropertyT.hpp"
 #include "Common/Log.hpp"
 
 #include "Math/RealVector.hpp"

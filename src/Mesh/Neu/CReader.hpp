@@ -48,7 +48,7 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "CReader"; }
   
-  static void defineConfigOptions ( CF::Common::OptionList& options ) {}
+  static void defineConfigProperties ( CF::Common::PropertyList& options ) {}
 
   virtual std::string get_format() { return "Neu"; }
 

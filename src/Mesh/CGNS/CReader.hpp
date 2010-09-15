@@ -51,7 +51,7 @@ public: // functions
 
   virtual std::vector<std::string> get_extensions();
 
-  static void defineConfigOptions ( CF::Common::OptionList& options );
+  static void defineConfigProperties ( CF::Common::PropertyList& options );
 
 private: // functions
   

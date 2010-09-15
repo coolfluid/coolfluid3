@@ -46,7 +46,7 @@ public: // methods
 
   /// Defines the Config Option's of this class
   /// @param options a OptionList where to add the Option's
-//  static void defineConfigOptions(Common::OptionList& options);
+//  static void defineConfigProperties(Common::OptionList& options);
 
   /// Configures this Simulator.
   /// Sets up the data for this Object.

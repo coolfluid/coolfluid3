@@ -8,7 +8,7 @@
 #define CF_Mesh_COperation_hpp
 
 #include "Common/ObjectProvider.hpp"
-#include "Common/OptionT.hpp"
+#include "Common/PropertyT.hpp"
 #include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/CRegion.hpp"
@@ -49,7 +49,7 @@ public: // functions
   static std::string type_name () { return "COperation"; }
   
   /// Configuration Options
-  static void defineConfigOptions ( Common::OptionList& options ) {}
+  static void defineConfigProperties ( Common::PropertyList& options ) {}
   
   virtual void set_loophelper (CElements& geometry_elements );
   
@@ -118,7 +118,7 @@ public: // functions
   static std::string type_name () { return "COutputField"; }
   
   /// Configuration Options
-  static void defineConfigOptions ( Common::OptionList& options ) {}
+  static void defineConfigProperties ( Common::PropertyList& options ) {}
     
   void set_loophelper (CElements& geometry_elements )
   {
@@ -197,12 +197,12 @@ public: // functions
   COutputField ( const CName& name ) : COperation(name)
   {
     BUILD_COMPONENT;
-    option("Field")->attach_trigger ( boost::bind ( &COutputField::trigger_Field,   this ) );
+    property("Field")->attach_trigger ( boost::bind ( &COutputField::trigger_Field,   this ) );
   }
   
   void trigger_Field()
   {
-    CPath field_path (option("Field")->value<URI>());
+    CPath field_path (property("Field")->value<URI>());
     CFdebug << "field_path = " << field_path.string() << CFendl;
     scalar_field = look_component_type<CField>(field_path);
     scalar_name = scalar_field->field_name();
@@ -215,9 +215,9 @@ public: // functions
   static std::string type_name () { return "COutputField"; }
   
   /// Configuration Options
-  static void defineConfigOptions ( Common::OptionList& options ) 
+  static void defineConfigProperties ( Common::PropertyList& options ) 
   {
-    options.add< OptionT<URI> > ("Field","Field URI to output", URI("cpath://"))->mark_basic();
+    options.add_option< PropertyT<URI> > ("Field","Field URI to output", URI("cpath://"))->mark_basic();
   }
     
   void set_loophelper (CElements& geometry_elements )
@@ -275,12 +275,12 @@ public: // functions
   CComputeVolumes ( const CName& name ) : COperation(name)
   {
     BUILD_COMPONENT;
-    option("Field")->attach_trigger ( boost::bind ( &CComputeVolumes::trigger_Field,   this ) );
+    property("Field")->attach_trigger ( boost::bind ( &CComputeVolumes::trigger_Field,   this ) );
   }
   
   void trigger_Field()
   {
-    CPath field_path (option("Field")->value<URI>());
+    CPath field_path (property("Field")->value<URI>());
     CFdebug << "field_path = " << field_path.string() << CFendl;
     volume_field = look_component_type<CField>(field_path);
   }  
@@ -292,9 +292,9 @@ public: // functions
   static std::string type_name () { return "CComputeVolume"; }
   
   /// Configuration Options
-  static void defineConfigOptions ( Common::OptionList& options ) 
+  static void defineConfigProperties ( Common::PropertyList& options ) 
   {
-    options.add< OptionT<URI> > ("Field","Field URI to output", URI("cpath://"))->mark_basic();
+    options.add_option< PropertyT<URI> > ("Field","Field URI to output", URI("cpath://"))->mark_basic();
   }
     
   void set_loophelper (CElements& geometry_elements )
@@ -358,12 +358,12 @@ public: // functions
   CSetValue ( const CName& name ) : COperation(name)
   {
     BUILD_COMPONENT;
-    option("Field")->attach_trigger ( boost::bind ( &CSetValue::trigger_Field,   this ) );
+    property("Field")->attach_trigger ( boost::bind ( &CSetValue::trigger_Field,   this ) );
   }
   
   void trigger_Field()
   {
-    CPath field_path (option("Field")->value<URI>());
+    CPath field_path (property("Field")->value<URI>());
     CFdebug << "field_path = " << field_path.string() << CFendl;
     field = look_component_type<CField>(field_path);
   }  
@@ -375,9 +375,9 @@ public: // functions
   static std::string type_name () { return "CComputeVolume"; }
   
   /// Configuration Options
-  static void defineConfigOptions ( Common::OptionList& options ) 
+  static void defineConfigProperties ( Common::PropertyList& options ) 
   {
-    options.add< OptionT<URI> > ("Field","Field URI to output", URI("cpath://"))->mark_basic();
+    options.add_option< PropertyT<URI> > ("Field","Field URI to output", URI("cpath://"))->mark_basic();
   }
   
   virtual void set_loophelper (CArray& coordinates )

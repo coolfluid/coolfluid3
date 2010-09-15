@@ -14,7 +14,7 @@
 #include <QObject>
 
 #include "Common/Component.hpp"
-#include "Common/OptionT.hpp"
+#include "Common/PropertyT.hpp"
 #include "Common/XML.hpp"
 
 #include "GUI/Client/OptionType.hpp"
@@ -253,6 +253,9 @@ namespace Client {
 
     void listChildPaths(QStringList & list, bool recursive, bool clientNode = true) const;
 
+    /// Configuration properties
+    static void defineConfigProperties ( CF::Common::PropertyList& props );
+
   protected:
 
     QMenu * m_contextMenu;
@@ -277,7 +280,7 @@ namespace Client {
     {
       TYPE value;
       CF::Common::to_value(node, value);
-      m_option_list.add< CF::Common::OptionT<TYPE> >(name, descr, value);
+      m_property_list.add_option< CF::Common::PropertyT<TYPE> >(name, descr, value);
     }
 
     static CNode::Ptr createFromXmlRec(CF::Common::XmlNode & node,

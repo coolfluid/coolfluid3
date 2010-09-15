@@ -1,12 +1,6 @@
 // Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
-// GNU Lesser General Public License version 3 (LGPLv3).
-// See doc/lgpl.txt and doc/gpl.txt for the license text.
-
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
-//
-// This software is distributed under the terms of the
 // GNU Lesser General Public License version 3.
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
@@ -22,7 +16,8 @@
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/ComponentIterator.hpp"
-#include "Common/OptionArray.hpp"
+#include "Common/PropertyArray.hpp"
+#include "Common/PropertyT.hpp"
 #include "Common/String/Conversion.hpp"
 
 namespace CF {
@@ -33,7 +28,7 @@ namespace Common {
 Component::Component ( const CName& name ) :
     m_name (),
     m_path (),
-    m_properties(),
+    //m_properties(),
     m_is_link (false)
 {
   BUILD_COMPONENT;
@@ -43,8 +38,8 @@ Component::Component ( const CName& name ) :
 
   m_name = name;
 
-  m_properties["brief"] = std::string( "No brief description available" );
-  m_properties["description"] = std::string( "This component has not a long description" );
+  m_property_list.add_property< PropertyT<std::string> >("brief", std::string( "No brief description available" ));
+  m_property_list.add_property< PropertyT<std::string> >("description", std::string( "This component has not a long description" ));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -52,6 +47,13 @@ Component::Component ( const CName& name ) :
 Component::~Component()
 {
 }
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+void Component::defineConfigProperties ( Common::PropertyList& props )
+{
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -408,7 +410,7 @@ void Component::regist_signals ( Component* self  )
 
   self->regist_signal ( "list_tree" , "lists the component tree inside this component" )->connect ( boost::bind ( &Component::list_tree, self, _1 ) );
 
-  self->regist_signal ( "list_options" , "lists the options of this component" )->connect ( boost::bind ( &Component::list_options, self, _1 ) );
+  self->regist_signal ( "list_properties" , "lists the options of this component" )->connect ( boost::bind ( &Component::list_properties, self, _1 ) );
 
   self->regist_signal ( "configure" , "configures this component" )->connect ( boost::bind ( &Component::configure, self, _1 ) );
 
@@ -455,9 +457,6 @@ void Component::write_xml_tree( XmlNode& node )
     else
     {
       XmlNode& options = *XmlOps::add_node_to( this_node, XmlParams::tag_node_valuemap());
-
-      // add options
-      list_options(options);
 
       // add properties
       list_properties(options);
@@ -506,36 +505,32 @@ size_t Component::get_child_count() const
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::list_options ( XmlNode& node )
+void Component::list_properties( XmlNode& node )
 {
-  OptionList::OptionStorage_t::iterator it = m_option_list.m_options.begin();
+  PropertyList::PropertyStorage_t::iterator it = m_property_list.m_properties.begin();
 
   XmlParams p(*node.parent());
 
-  for( ; it != m_option_list.m_options.end() ; it++)
+  for( ; it != m_property_list.m_properties.end() ; it++)
   {
-    Option::Ptr opt = it->second;
+    Property::Ptr prop = it->second;
 
-    bool basic = opt->has_tag("basic");
-    boost::any value = opt->value();
-    std::string desc = opt->description();
-    std::string name = it->first;
-    std::string type = opt->type();
+    std::string type = prop->type();
 
-    if(std::strcmp(opt->tag(), "array") != 0)
+    if(std::strcmp(prop->tag(), "array") != 0)
     {
       if(type == "string")
-        p.add_option(name, boost::any_cast< std::string >(value), desc, basic);
+        add_prop_to_xml<std::string>(p, prop);
       else if(type == "bool")
-        p.add_option(name, boost::any_cast< bool >(value), desc, basic);
+        add_prop_to_xml<bool>(p, prop);
       else if(type == "integer")
-        p.add_option(name, boost::any_cast< int >(value), desc, basic);
+        add_prop_to_xml<int>(p, prop);
       else if(type == "unsigned")
-        p.add_option(name, boost::any_cast< CF::Uint >(value), desc, basic);
+        add_prop_to_xml<CF::Uint>(p, prop);
       else if(type == "real")
-        p.add_option(name, boost::any_cast< CF::Real >(value), desc, basic);
+        add_prop_to_xml<CF::Real>(p, prop);
       else if(type == "file")
-        p.add_option(name, boost::any_cast< boost::filesystem::path >(value), desc, basic);
+        add_prop_to_xml<boost::filesystem::path>(p, prop);
       else
         throw ShouldNotBeHere(FromHere(),
              std::string("Don't know how the manage \"") + type + "\" type.");
@@ -543,43 +538,29 @@ void Component::list_options ( XmlNode& node )
     else
     {
 
-      boost::shared_ptr<OptionArray> optArray;
+      boost::shared_ptr<PropertyArray> optArray;
 
-      optArray = boost::dynamic_pointer_cast<OptionArray>(opt);
+      optArray = boost::dynamic_pointer_cast<PropertyArray>(prop);
 
       const char * elem_type = optArray->elem_type();
 
       if(strcmp(elem_type, "string") == 0)
-        add_array_to_xml< std::string >(p, it->first, optArray);
+        add_array_to_xml< std::string >(p, optArray);
       else if(strcmp(elem_type, "bool") == 0)
-        add_array_to_xml< bool >(p, it->first, optArray);
+        add_array_to_xml< bool >(p, optArray);
       else if(strcmp(elem_type, "integer") == 0)
-        add_array_to_xml< int >(p, it->first, optArray);
+        add_array_to_xml< int >(p, optArray);
       else if(strcmp(elem_type, "unsigned") == 0)
-        add_array_to_xml< CF::Uint >(p, it->first, optArray);
+        add_array_to_xml< CF::Uint >(p, optArray);
       else if(strcmp(elem_type, "real") == 0)
-        add_array_to_xml< CF::Real >(p, it->first, optArray);
+        add_array_to_xml< CF::Real >(p, optArray);
       else if(strcmp(elem_type, "file") == 0)
-        add_array_to_xml< boost::filesystem::path >(p, it->first, optArray);
+        add_array_to_xml< boost::filesystem::path >(p, optArray);
       else
         throw ShouldNotBeHere(FromHere(),
-             std::string("Don't know how the manage OptionArrayT<") +
+             std::string("Don't know how the manage PropertyArrayT<") +
                   elem_type + ">.");
     }
-  }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
-
-void Component::list_properties( XmlNode& node )
-{
-  PropertyList::iterator it = m_properties.begin();
-
-  XmlParams p(*node.parent());
-
-  for( ; it != m_properties.end() ; it++)
-  {
-    p.add_property(it->first, boost::any_cast< std::string >(it->second));
   }
 }
 

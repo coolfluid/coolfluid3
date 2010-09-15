@@ -13,7 +13,7 @@
 
 
 #include "Common/ConfigObject.hpp"
-#include "Common/OptionT.hpp"
+#include "Common/PropertyT.hpp"
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/ComponentPredicates.hpp"

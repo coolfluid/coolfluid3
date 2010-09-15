@@ -62,7 +62,6 @@ list( APPEND Common_files
     LogStream.hpp
     LogStringForwarder.hpp
     LogStringForwarder.cpp
-    PropertyList.hpp
     ModuleRegistry.hpp
     ModuleRegisterBase.hpp
     ModuleRegistry.cpp
@@ -72,12 +71,14 @@ list( APPEND Common_files
     NamedObject.cpp
     NonInstantiable.hpp
     ObjectProvider.hpp
-    Option.hpp
-    Option.cpp
-    OptionT.hpp
-    OptionArray.hpp
-    OptionArray.cpp
-    OptionComponent.hpp
+    Property.hpp
+    Property.cpp
+    PropertyT.hpp
+    PropertyArray.hpp
+    PropertyArray.cpp
+    PropertyList.hpp
+    PropertyList.cpp
+    PropertyComponent.hpp
     ConfigObject.hpp
     ConfigObject.cpp
     OSystem.cpp

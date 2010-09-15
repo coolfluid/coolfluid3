@@ -47,7 +47,7 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "CWriter"; }
 
-  static void defineConfigOptions ( CF::Common::OptionList& options ) {}
+  static void defineConfigProperties ( CF::Common::PropertyList& options ) {}
 
   virtual void write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& path);
 

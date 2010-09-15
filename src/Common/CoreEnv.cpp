@@ -46,7 +46,7 @@ CoreEnv& CoreEnv::instance()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-//void CoreEnv::defineConfigOptions(Common::OptionList& options)
+//void CoreEnv::defineConfigProperties(Common::OptionList& options)
 //{
 //  options.addConfigOption< bool >    ("OnlyCPU0Writes",    "Only CPU0 writes to stdout");
 //  options.addConfigOption< bool >    ("DoAssertions",      "Turn off assertions dynamically");

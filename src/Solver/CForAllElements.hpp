@@ -9,8 +9,8 @@
 
 #include <boost/mpl/for_each.hpp>
 
-#include "Common/OptionArray.hpp"
-#include "Common/OptionT.hpp"
+#include "Common/PropertyArray.hpp"
+#include "Common/PropertyT.hpp"
 #include "Common/URI.hpp"
 
 #include "Mesh/COperation.hpp"
@@ -53,12 +53,12 @@ public: // functions
     m_operation(new COp("operation"), Deleter<COp>()) 
   {
     BUILD_COMPONENT;
-    option("Regions")->attach_trigger ( boost::bind ( &CForAllElementsT::trigger_Regions,   this ) );
+    property("Regions")->attach_trigger ( boost::bind ( &CForAllElementsT::trigger_Regions,   this ) );
   }
   
   void trigger_Regions()
   {
-    std::vector<URI> vec; option("Regions")->put_value(vec);
+    std::vector<URI> vec; property("Regions")->put_value(vec);
     BOOST_FOREACH(const CPath region_path, vec)
     {
       m_loop_regions.push_back(look_component_type<CRegion>(region_path));
@@ -73,10 +73,10 @@ public: // functions
   static std::string type_name () { return "CForAllElements"; }
 
   /// Configuration Options
-  static void defineConfigOptions ( Common::OptionList& options )
+  static void defineConfigProperties ( Common::PropertyList& options )
   {
     std::vector< URI > dummy;
-    options.add< OptionArrayT < URI > > ("Regions", "Regions to loop over", dummy)->mark_basic();
+    options.add_option< PropertyArrayT < URI > > ("Regions", "Regions to loop over", dummy)->mark_basic();
   }
 
   // functions specific to the CForAllElements component

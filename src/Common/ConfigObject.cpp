@@ -13,15 +13,6 @@ namespace Common {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-  Option::Ptr OptionList::getOption( const std::string& optname)
-  {
-    OptionStorage_t::iterator itr = m_options.find(optname);
-    if ( itr != m_options.end() )
-      return itr->second;
-    else
-      throw ValueNotFound(FromHere(), "Option with name [" + optname + "] not found" );
-  }
-
   void ConfigObject::configure ( XmlNode& node )
   {
     XmlParams pn ( node );
@@ -30,7 +21,7 @@ namespace Common {
       throw  Common::XmlError( FromHere(), "ConfigObject received  XML without a \'" + std::string(XmlParams::tag_node_valuemap()) + "\' node" );
 
     // get the list of options
-    OptionList::OptionStorage_t& options = m_option_list.m_options;
+    PropertyList::PropertyStorage_t& options = m_property_list.m_properties;
 
     // loop on the param nodes
     for (XmlNode* itr =  pn.option_map->first_node(); itr; itr = itr->next_sibling() )
@@ -39,16 +30,16 @@ namespace Common {
       XmlAttr* att = itr->first_attribute( XmlParams::tag_attr_key() );
       if ( att )
       {
-        OptionList::OptionStorage_t::iterator opt = options.find( att->value() );
+        PropertyList::PropertyStorage_t::iterator opt = options.find( att->value() );
         if (opt != options.end())
           opt->second->configure_option(*itr);
       }
     }
   }
 
-  Option::Ptr ConfigObject::option( const std::string& optname )
+  Property::Ptr ConfigObject::property( const std::string& optname )
   {
-    return m_option_list.getOption(optname);
+    return m_property_list.getProperty(optname);
   }
 
 /////////////////////////////////////////////////////////////////////////////////////

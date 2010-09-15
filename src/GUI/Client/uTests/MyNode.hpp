@@ -25,11 +25,11 @@ namespace ClientTest {
 
     QString getToolTip() const;
 
-    static void defineConfigOptions ( CF::Common::OptionList& options )
+    static void defineConfigProperties ( CF::Common::PropertyList& options )
     {
-      options.add< CF::Common::OptionT<int> >("theAnswer", "The answer to the ultimate "
+      options.add_option< CF::Common::PropertyT<int> >("theAnswer", "The answer to the ultimate "
                                   "question of Life, the Universe, and Everything", 42);
-      options.add< CF::Common::OptionT<bool> >("someBool", "The bool value", true);
+      options.add_option< CF::Common::PropertyT<bool> >("someBool", "The bool value", true);
     }
 
   private: // helper functions

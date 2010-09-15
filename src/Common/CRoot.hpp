@@ -37,7 +37,7 @@ namespace Common {
     static std::string type_name () { return "CRoot"; }
 
     /// Configuration Options
-    static void defineConfigOptions ( Common::OptionList& options ) {}
+    static void defineConfigProperties ( Common::PropertyList& options ) {}
 
     // functions specific to the CRoot component
 

@@ -10,9 +10,9 @@
 #include <boost/filesystem/path.hpp>
 
 #include "Common/ConfigObject.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/OptionComponent.hpp"
+#include "Common/PropertyT.hpp"
+#include "Common/PropertyArray.hpp"
+#include "Common/PropertyComponent.hpp"
 #include "Common/XmlHelpers.hpp"
 
 #include "Common/Log.hpp"

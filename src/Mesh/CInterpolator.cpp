@@ -7,7 +7,7 @@
 #include <boost/foreach.hpp>
 
 #include "Common/Log.hpp"
-#include "Common/OptionT.hpp"
+#include "Common/PropertyT.hpp"
 #include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/CInterpolator.hpp"
@@ -34,7 +34,7 @@ CInterpolator::~CInterpolator()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CInterpolator::defineConfigOptions(Common::OptionList& options)
+void CInterpolator::defineConfigProperties(Common::PropertyList& options)
 {
 }
 

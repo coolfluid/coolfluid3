@@ -8,8 +8,8 @@
 #include <boost/algorithm/string/erase.hpp>
 #include "Common/ObjectProvider.hpp"
 #include "Common/ComponentPredicates.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionArray.hpp"
+#include "Common/PropertyT.hpp"
+#include "Common/PropertyArray.hpp"
 
 
 #include "Mesh/CHoneycombInterpolator.hpp"
@@ -44,15 +44,15 @@ CHoneycombInterpolator::CHoneycombInterpolator( const CName& name )
   
 /////////////////////////////////////////////////////////////////////////////
 
-void CHoneycombInterpolator::defineConfigOptions ( CF::Common::OptionList& options )
+void CHoneycombInterpolator::defineConfigProperties ( CF::Common::PropertyList& options )
 {
-  options.add< OptionT<Uint> >
+  options.add_option< PropertyT<Uint> >
   ( "ApproximateNbElementsPerCell",
     "The approximate amount of elements that are stored in a structured" ,
     1 );
   
   std::vector<Uint> dummy;
-  options.add< OptionArrayT<Uint> >
+  options.add_option< PropertyArrayT<Uint> >
   ( "Divisions",
     "The number of divisions in each direction of the comb. Takes precedence over \"ApproximateNbElementsPerCell\". " ,
     dummy);   
@@ -115,16 +115,16 @@ void CHoneycombInterpolator::create_honeycomb()
   m_nb_elems = get_component_typed<CRegion>(*m_source_mesh).recursive_filtered_elements_count(IsElementsVolume());
   
   
-  if (option("Divisions")->value<std::vector<Uint> >().size() > 0)
+  if (property("Divisions")->value<std::vector<Uint> >().size() > 0)
   {
-    m_N = option("Divisions")->value<std::vector<Uint> >();
+    m_N = property("Divisions")->value<std::vector<Uint> >();
     for (Uint d=0; d<m_dim; ++d)
       m_D[d] = (L[d])/static_cast<Real>(m_N[d]);
   }
   else
   {
     Real V1 = V/m_nb_elems;
-    Real D1 = std::pow(V1,1./m_dim)*option("ApproximateNbElementsPerCell")->value<Uint>();
+    Real D1 = std::pow(V1,1./m_dim)*property("ApproximateNbElementsPerCell")->value<Uint>();
     
     for (Uint d=0; d<m_dim; ++d)
     {

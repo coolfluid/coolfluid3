@@ -52,7 +52,7 @@ public:
   static std::string type_name () { return "CFlexTable"; }
 
   /// Configuration Options
-  static void defineConfigOptions ( Common::OptionList& options ) {}
+  static void defineConfigProperties ( Common::PropertyList& options ) {}
 
   // functions specific to the CFlexTable component
     

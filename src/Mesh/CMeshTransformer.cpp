@@ -7,7 +7,7 @@
 #include <boost/foreach.hpp>
 
 #include "Common/Log.hpp"
-#include "Common/OptionT.hpp"
+#include "Common/PropertyT.hpp"
 #include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/CMeshTransformer.hpp"
@@ -34,10 +34,10 @@ CMeshTransformer::~CMeshTransformer()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMeshTransformer::defineConfigOptions(Common::OptionList& options)
+void CMeshTransformer::defineConfigProperties(Common::PropertyList& options)
 {
-  //options.add< OptionT<std::string> >  ( "File",  "File to read" , "" );
-  //options.add< Common::OptionT<std::string> >  ( "Mesh",  "Mesh to construct" , "" );
+  //options.add_option OptionT<std::string> >  ( "File",  "File to read" , "" );
+  //options.add_option Common::OptionT<std::string> >  ( "Mesh",  "Mesh to construct" , "" );
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -4,14 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_OptionArray_hpp
-#define CF_Common_OptionArray_hpp
+#ifndef CF_Common_PropertyArray_hpp
+#define CF_Common_PropertyArray_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <boost/foreach.hpp>
 
-#include "Common/Option.hpp"
+#include "Common/Property.hpp"
 #include "Common/BasicExceptions.hpp"
 
 namespace CF {
@@ -22,11 +22,11 @@ namespace Common {
   /// Class used to get element type of an OptionArray when down casting
   /// from Option.
   /// @author Quentin Gasper
-  class Common_API OptionArray : public Option
+  class Common_API PropertyArray : public Property
   {
   public:
-    OptionArray(const std::string& name, const std::string& type,
-                const std::string& desc, boost::any def);
+    PropertyArray(const std::string& name, const std::string& type,
+                const std::string& desc, boost::any def, bool is_option = false);
 
     /// Returns a C-string representation of element type
     virtual const char * elem_type() const = 0;
@@ -41,7 +41,7 @@ namespace Common {
   ///   - std::string
   /// @author Tiago Quintino
   template < typename TYPE >
-      class OptionArrayT : public OptionArray  {
+      class PropertyArrayT : public PropertyArray  {
 
   public:
 
@@ -49,7 +49,7 @@ namespace Common {
 
     typedef TYPE element_type;
 
-    OptionArrayT( const std::string& name, const std::string& desc, const value_type& def );
+    PropertyArrayT( const std::string& name, const std::string& desc, const value_type& def, bool is_option = false);
 
     /// @name VIRTUAL FUNCTIONS
     //@{
@@ -69,9 +69,9 @@ namespace Common {
     std::vector<TYPE> value_vect() const;
 
     //@} END VIRTUAL FUNCTIONS
-        
+
   protected:
-    
+
     /// updates the option value using the xml configuration
     /// @param node XML node with data for this option
     virtual void configure ( XmlNode& node );
@@ -82,13 +82,13 @@ namespace Common {
 
     std::string dump_to_str ( const boost::any& c ) const;
 
-  }; // OptionArray
+  }; // class PropertyArray
 
 ////////////////////////////////////////////////////////////////////////////////
 
   template < typename TYPE>
-  OptionArrayT<TYPE>::OptionArrayT ( const std::string& name, const std::string& desc, const value_type& def ) :
-  OptionArray(name,DEMANGLED_TYPEID(value_type), desc, def)
+  PropertyArrayT<TYPE>::PropertyArrayT ( const std::string& name, const std::string& desc, const value_type& def, bool is_option ) :
+  PropertyArray(name,DEMANGLED_TYPEID(value_type), desc, def, is_option)
   {
 //    CFinfo
 //        << " creating OptionArray of " << elem_type() <<  "\'s [" << m_name << "]"
@@ -99,7 +99,7 @@ namespace Common {
   }
 
   template < typename TYPE >
-   void OptionArrayT<TYPE>::configure ( XmlNode& node )
+   void PropertyArrayT<TYPE>::configure ( XmlNode& node )
   {
     XmlAttr *attr = node.first_attribute( "type" );
 
@@ -133,7 +133,7 @@ namespace Common {
   }
 
   template < typename TYPE >
-   void OptionArrayT<TYPE>::copy_to_linked_params ( const value_type& val )
+   void PropertyArrayT<TYPE>::copy_to_linked_params ( const value_type& val )
   {
     BOOST_FOREACH ( void* v, this->m_linked_params )
     {
@@ -143,19 +143,19 @@ namespace Common {
   }
 
   template < typename TYPE >
-   std::string OptionArrayT<TYPE>::value_str () const
+   std::string PropertyArrayT<TYPE>::value_str () const
   {
     return dump_to_str(m_value);
   }
 
   template < typename TYPE >
-      std::string OptionArrayT<TYPE>::def_str () const
+      std::string PropertyArrayT<TYPE>::def_str () const
   {
     return dump_to_str(m_default);
   }
 
     template < typename TYPE >
-     std::string OptionArrayT<TYPE>::dump_to_str ( const boost::any& c ) const
+     std::string PropertyArrayT<TYPE>::dump_to_str ( const boost::any& c ) const
   {
     value_type values = boost::any_cast<value_type>(c);
     std::string result;
@@ -174,7 +174,7 @@ namespace Common {
   }
 
   template<typename TYPE>
-    std::vector<TYPE> OptionArrayT<TYPE>::value_vect() const
+    std::vector<TYPE> PropertyArrayT<TYPE>::value_vect() const
   {
     return boost::any_cast<value_type>(m_value);
   }
@@ -187,4 +187,4 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_OptionArray_hpp
+#endif // CF_Common_PropertyArray_hpp

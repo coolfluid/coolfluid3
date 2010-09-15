@@ -123,6 +123,12 @@ InvalidStructure::InvalidStructure ( const Common::CodeLocation& where, const st
 
 ////////////////////////////////////////////////////////////////////////////////
 
+IllegalCall::IllegalCall ( const Common::CodeLocation& where, const std::string& what)
+: Common::Exception(where, what, "IllegalCall")
+{}
+
+////////////////////////////////////////////////////////////////////////////////
+
   } // namespace Common
 } // namespace CF
 

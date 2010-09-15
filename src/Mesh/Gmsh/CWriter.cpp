@@ -24,7 +24,7 @@
 namespace CF {
 namespace Mesh {
 namespace Gmsh {
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 Common::ObjectProvider < Mesh::Gmsh::CWriter,
@@ -77,7 +77,7 @@ void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& pat
 
 
   compute_mesh_specifics();
-  
+
   // must be in correct order!
   write_header(file);
   write_coordinates(file);
@@ -94,13 +94,13 @@ void CWriter::write_header(std::fstream& file)
   std::string version = "2";
   Uint file_type = 0; // ASCII
   Uint data_size = 8; // double precision
-  
+
   // format
   file << "$MeshFormat\n";
   file << version << " " << file_type << " " << data_size << "\n";
   file << "$EndMeshFormat\n";
-  
-  
+
+
   // physical names
   Uint phys_name_counter(0);
   BOOST_FOREACH(const CRegion& groupRegion, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
@@ -109,11 +109,11 @@ void CWriter::write_header(std::fstream& file)
     PhysicalGroup group (m_coord_dim,phys_name_counter,groupRegion.full_path().string());
     m_groups.insert(PhysicalGroupMap::value_type(group.name,group));
   }
-  
+
   file << "$PhysicalNames\n";
   file << phys_name_counter << "\n";
   BOOST_FOREACH(PhysicalGroupMap::value_type& g, m_groups)
-    file << g.second.dimension << " " << g.second.number << " \"" << g.second.name << "\"\n"; 
+    file << g.second.dimension << " " << g.second.number << " \"" << g.second.name << "\"\n";
   file << "$EndPhysicalNames\n";
 }
 
@@ -129,20 +129,20 @@ void CWriter::write_coordinates(std::fstream& file)
   BOOST_FOREACH(CoordinatesElementsMap::value_type& coord, m_all_coordinates)
   {
     nb_nodes += coord.first->size();
-  }    
-  
-  
+  }
+
+
   file << "$Nodes\n";
   file << nb_nodes << "\n";
-  
+
   Uint node_number = 0;
 
   BOOST_FOREACH(CoordinatesElementsMap::value_type& coord, m_all_coordinates)
   {
-    BOOST_FOREACH(CElements* elements, coord.second) 
+    BOOST_FOREACH(CElements* elements, coord.second)
       m_node_start_idx[elements] = node_number;
 
-    BOOST_FOREACH(CArray::ConstRow row, coord.first->array()) 
+    BOOST_FOREACH(CArray::ConstRow row, coord.first->array())
     {
       ++node_number;
       file << node_number << " ";
@@ -155,7 +155,7 @@ void CWriter::write_coordinates(std::fstream& file)
       }
       file << "\n";
     }
-  }   
+  }
 
   file << "$EndNodes\n";
   // restore precision
@@ -189,7 +189,7 @@ void CWriter::write_connectivity(std::fstream& file)
 //      group_name = region.name();
 //      group_number = m_groups[group_name].number;
 //  }
-  
+
   BOOST_FOREACH(const CoordinatesElementsMap::value_type& coord, m_all_coordinates)
   {
     BOOST_FOREACH(CElements* elements, coord.second)
@@ -198,9 +198,9 @@ void CWriter::write_connectivity(std::fstream& file)
       {
         group_name = elements->get_parent()->full_path().string();
         group_number = m_groups[group_name].number;
-       
+
         m_element_start_idx[elements]=elm_number;
-        
+
         //file << "// Region " << elements.full_path().string() << "\n";
         elm_type = m_elementTypes[elements->element_type().shape()];
         Uint node_start_idx = m_node_start_idx[elements];
@@ -219,7 +219,7 @@ void CWriter::write_connectivity(std::fstream& file)
   }
   file << "$EndElements\n";
 }
-  
+
 //////////////////////////////////////////////////////////////////////
 
 void CWriter::write_nodal_data(std::fstream& file)
@@ -240,7 +240,7 @@ void CWriter::write_nodal_data(std::fstream& file)
 //  5 0.2
 //  6 0.4
 //  $EndNodeData
-  
+
 //  $ElementNodeData
 //  number-of-string-tags
 //  < "string-tag" >
@@ -254,29 +254,29 @@ void CWriter::write_nodal_data(std::fstream& file)
 //  elm-number number-of-nodes-per-element value ...
 //  ...
 //  $ElementEndNodeData
-  
+
   // set precision for Real
   Uint prec = file.precision();
   file.precision(8);
-    
+
   BOOST_FOREACH(CField& nodebased_field, filtered_range_typed<CField>(*m_mesh,IsFieldNodeBased()))
   {
     std::string field_name = nodebased_field.field_name();
     Uint nb_elements = nodebased_field.support().recursive_elements_count();
 
-    Uint dim = nodebased_field.properties().value<Uint>("dimension");
+    Uint dim = nodebased_field.property("dimension")->value<Uint>();
     cf_assert(dim == 1 || dim == 3 || dim == 9);
-    
+
     file << "$ElementNodeData\n";
     file << 1 << "\n";
     file << "\"" << field_name << "\"\n";
     file << 1 << "\n" << 0.0 << "\n";
-    file << 3 << "\n" << 0 << "\n" << dim << "\n" << nb_elements <<"\n";    
+    file << 3 << "\n" << 0 << "\n" << dim << "\n" << nb_elements <<"\n";
     BOOST_FOREACH(CFieldElements& field_elements, recursive_range_typed<CFieldElements>(nodebased_field))
     {
       const CArray& field_data = field_elements.data();
       Uint nb_nodes_per_element = field_elements.element_type().nb_nodes();
-      
+
       Uint elm_number = m_element_start_idx[&field_elements.get_geometry_elements()];
       BOOST_FOREACH(const CTable::ConstRow& row, field_elements.connectivity_table().array())
       {
@@ -287,7 +287,7 @@ void CWriter::write_nodal_data(std::fstream& file)
           for (Uint idx=0; idx<field_data.array().shape()[1]; ++idx)
             file << " " << field_data[local_node_idx][idx];
         }
-        file << "\n";        
+        file << "\n";
       }
     }
     file << "$EndElementNodeData\n";
@@ -295,7 +295,7 @@ void CWriter::write_nodal_data(std::fstream& file)
   // restore precision
   file.precision(prec);
 }
-  
+
 //////////////////////////////////////////////////////////////////////
 
 void CWriter::write_element_data(std::fstream& file)
@@ -316,7 +316,7 @@ void CWriter::write_element_data(std::fstream& file)
   //  5 0.2
   //  6 0.4
   //  $EndNodeData
-  
+
   //  $ElementNodeData
   //  number-of-string-tags
   //  < "string-tag" >
@@ -330,28 +330,28 @@ void CWriter::write_element_data(std::fstream& file)
   //  elm-number number-of-nodes-per-element value ...
   //  ...
   //  $ElementEndNodeData
-  
+
   // set precision for Real
   Uint prec = file.precision();
   file.precision(8);
-  
+
   BOOST_FOREACH(CField& elementbased_field, filtered_range_typed<CField>(*m_mesh,IsFieldElementBased()))
   {
     std::string field_name = elementbased_field.field_name();
     Uint nb_elements = elementbased_field.support().recursive_elements_count();
-    
-    Uint dim = elementbased_field.properties().value<Uint>("dimension");
+
+    Uint dim = elementbased_field.property("dimension")->value<Uint>();
     cf_assert(dim == 1 || dim == 3 || dim == 9);
 
     file << "$ElementData\n";
     file << 1 << "\n";
     file << "\"" << field_name << "\"\n";
     file << 1 << "\n" << 0.0 << "\n";
-    file << 3 << "\n" << 0 << "\n" << dim << "\n" << nb_elements <<"\n";    
+    file << 3 << "\n" << 0 << "\n" << dim << "\n" << nb_elements <<"\n";
     BOOST_FOREACH(CFieldElements& field_elements, recursive_range_typed<CFieldElements>(elementbased_field))
     {
       const CArray& field_data = field_elements.data();
-      
+
       Uint elm_number = m_element_start_idx[&field_elements.get_geometry_elements()];
       Uint local_nb_elms = field_elements.connectivity_table().size();
       for (Uint local_elm_idx = 0; local_elm_idx<local_nb_elms; ++local_elm_idx)
@@ -359,7 +359,7 @@ void CWriter::write_element_data(std::fstream& file)
         file << ++elm_number << " " ;
         for (Uint idx=0; idx<field_data.array().shape()[1]; ++idx)
           file << " " << field_data[local_elm_idx][idx];
-        file << "\n";                
+        file << "\n";
       }
     }
     file << "$EndElementData\n";
