@@ -97,8 +97,13 @@ void CField::create_data_storage(const Uint dim, const DataBasis basis)
       {
         if (! range_typed<CArray>(subfield.support()).empty() )
         {
+					// Create data and store in a map
           CArray& coordinates = get_component_typed<CArray>(subfield.support());
-          data_for_coordinates[coordinates.full_path().string()] = &subfield.create_data(dim,coordinates.size());
+					CArray& data = subfield.create_data(dim,coordinates.size());
+          data_for_coordinates[coordinates.full_path().string()] = &data;
+					
+					// create a link to the coordinates in the data
+					data.create_component_type<CLink>("coordinates")->link_to(coordinates.get());
         }
       }
 
