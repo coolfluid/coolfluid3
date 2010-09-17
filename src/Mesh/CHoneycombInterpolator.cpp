@@ -10,8 +10,8 @@
 
 #include "Common/ObjectProvider.hpp"
 #include "Common/ComponentPredicates.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionArray.hpp"
+#include "Common/PropertyT.hpp"
+#include "Common/PropertyArray.hpp"
 #include "Common/CLink.hpp"
 
 
