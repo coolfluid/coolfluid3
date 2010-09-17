@@ -8,6 +8,8 @@
 #define CF_Mesh_SF_Triag2DLagrangeP1_hpp
 
 #include "Math/RealMatrix.hpp"
+#include "Math/MathConsts.hpp"
+
 #include "Mesh/Triag2D.hpp"
 
 namespace CF {
@@ -108,6 +110,23 @@ template<typename NodesT>
 static Real volume(const NodesT& nodes) {
   return 0.5 * jacobian_determinant(nodes);
 }
+	
+template<typename NodesT>
+static bool in_element(const RealVector& coord, const NodesT& nodes)
+{
+	RealVector mapped_coord(coord.size());
+	mapped_coordinates(coord, nodes, mapped_coord);
+	if( (mapped_coord[KSI] >= -Math::MathConsts::RealEps()) &&
+		 (mapped_coord[ETA] >= -Math::MathConsts::RealEps()) &&
+		 (mapped_coord.sum() <= 1.))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
 
 /// Number of nodes
 static const Uint nb_nodes = 3;
@@ -120,6 +139,7 @@ static const FaceConnectivity& faces();
 Triag2DLagrangeP1();
 virtual std::string getElementTypeName() const;
 virtual Real computeVolume(const NodesT& coord) const;
+virtual bool is_coord_in_element(const RealVector& coord, const NodesT& nodes) const;
 virtual const CF::Mesh::ElementType::FaceConnectivity& face_connectivity() const;
 virtual const CF::Mesh::ElementType& face_type(const CF::Uint face) const;
 

@@ -8,6 +8,8 @@
 #define CF_Mesh_SF_Hexa3DLagrangeP1_hpp
 
 #include "Math/RealMatrix.hpp"
+#include "Math/MathFunctions.hpp"
+#include "Math/MatrixInverterT.hpp"
 #include "Mesh/Hexa3D.hpp"
 
 namespace CF {
@@ -66,6 +68,7 @@ template<typename NodesT>
 static void mapped_coordinates(const RealVector& coord, const NodesT& nodes, RealVector& mappedCoord)
 {
   throw NotImplemented (FromHere(), "Hexa3DLagrangeP1::mapped_coordinates is not implemented yet.");
+
 }
   
 
@@ -289,6 +292,9 @@ static Real volume(const NodesT& nodes) {
   RealVector center(0.0, 3); // center in mapped coords
   return 8*jacobian_determinant(center, nodes);
 }
+	
+//template<typename NodesT>
+static bool in_element(const RealVector& coord, const ElementType::NodesT& nodes);
 
 /// Number of nodes
 static const Uint nb_nodes = 8;
@@ -304,9 +310,18 @@ static const FaceConnectivity& faces();
 Hexa3DLagrangeP1();
 virtual std::string getElementTypeName() const;
 virtual Real computeVolume(const NodesT& coord) const;
+virtual bool is_coord_in_element(const RealVector& coord, const NodesT& nodes) const;
 virtual const FaceConnectivity& face_connectivity() const;
 virtual const ElementType& face_type(const Uint face) const;
 
+private:
+	
+/// @return if coordinate is oriented towards the inside of the element from the point of view from a given face
+/// @param coord [in]  coordinates
+/// @param nodes [in]  the nodes defining the element
+/// @param face  [in]  the face number fo the element
+static	bool is_orientation_inside(const RealVector& coord, const NodesT& nodes, const Uint face);
+	
 };
 
 } // namespace SF

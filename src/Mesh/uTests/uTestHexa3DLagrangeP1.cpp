@@ -224,6 +224,28 @@ BOOST_AUTO_TEST_CASE( JacobianAdjoint )
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 2);
 }
 
+BOOST_AUTO_TEST_CASE( Is_coord_in_element )
+{
+  RealVector centroid(3);
+  for (Uint i=0; i<Hexa3DLagrangeP1::nb_nodes; ++i)
+		centroid += skewed_nodes[i];
+	centroid /= Hexa3DLagrangeP1::nb_nodes;
+
+  BOOST_CHECK_EQUAL(Hexa3DLagrangeP1::in_element(centroid,skewed_nodes),true);
+	
+	BOOST_CHECK_EQUAL(Hexa3DLagrangeP1::in_element(skewed_nodes[0],skewed_nodes),true);
+	BOOST_CHECK_EQUAL(Hexa3DLagrangeP1::in_element(skewed_nodes[2],skewed_nodes),true);
+	BOOST_CHECK_EQUAL(Hexa3DLagrangeP1::in_element(skewed_nodes[5],skewed_nodes),true);
+	BOOST_CHECK_EQUAL(Hexa3DLagrangeP1::in_element(skewed_nodes[6],skewed_nodes),true);
+	BOOST_CHECK_EQUAL(Hexa3DLagrangeP1::in_element(skewed_nodes[7],skewed_nodes),true);
+	
+	
+	RealVector outside_coord(3);
+	outside_coord = 5.0*centroid;
+	BOOST_CHECK_EQUAL(Hexa3DLagrangeP1::in_element(outside_coord,skewed_nodes),false);
+	
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()

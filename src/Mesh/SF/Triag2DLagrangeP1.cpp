@@ -38,6 +38,11 @@ Real Triag2DLagrangeP1::computeVolume(const NodesT& coord) const
 {
   return volume(coord);
 }
+	
+bool Triag2DLagrangeP1::is_coord_in_element(const RealVector& coord, const NodesT& nodes) const
+{
+	return in_element(coord,nodes);
+}
 
 const CF::Mesh::ElementType::FaceConnectivity& Triag2DLagrangeP1::faces()
 {

@@ -37,6 +37,11 @@ Real Quad3DLagrangeP1::computeVolume(const NodesT& coord) const
 {
   return 0;
 }
+	
+bool Quad3DLagrangeP1::is_coord_in_element(const RealVector& coord, const NodesT& nodes) const
+{
+	return false;
+}
 
 const ElementType::FaceConnectivity& Quad3DLagrangeP1::face_connectivity() const
 {

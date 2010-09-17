@@ -6,9 +6,9 @@
 
 #include "Common/ObjectProvider.hpp"
 
-#include "SFLib.hpp"
-#include "Tetra3DLagrangeP1.hpp"
-#include "Triag3DLagrangeP1.hpp"
+#include "Mesh/SF/SFLib.hpp"
+#include "Mesh/SF/Tetra3DLagrangeP1.hpp"
+#include "Mesh/SF/Triag3DLagrangeP1.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -37,6 +37,11 @@ std::string Tetra3DLagrangeP1::getElementTypeName() const
 Real Tetra3DLagrangeP1::computeVolume(const NodesT& coord) const
 {
   return volume(coord);
+}
+	
+bool Tetra3DLagrangeP1::is_coord_in_element(const RealVector& coord, const NodesT& nodes) const
+{
+	return in_element(coord,nodes);
 }
 
 const CF::Mesh::ElementType::FaceConnectivity& Tetra3DLagrangeP1::faces()

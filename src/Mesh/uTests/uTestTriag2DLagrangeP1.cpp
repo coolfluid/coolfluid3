@@ -191,6 +191,25 @@ BOOST_AUTO_TEST_CASE( JacobianAdjoint )
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 2);
 }
 
+BOOST_AUTO_TEST_CASE( Is_coord_in_element )
+{
+  RealVector centroid(2);
+  for (Uint i=0; i<Triag2DLagrangeP1::nb_nodes; ++i)
+		centroid += nodes[i];
+	centroid /= Triag2DLagrangeP1::nb_nodes;
+  BOOST_CHECK_EQUAL(Triag2DLagrangeP1::in_element(centroid,nodes),true);
+	
+	BOOST_CHECK_EQUAL(Triag2DLagrangeP1::in_element(nodes[0],nodes),true);
+	BOOST_CHECK_EQUAL(Triag2DLagrangeP1::in_element(nodes[1],nodes),true);
+	BOOST_CHECK_EQUAL(Triag2DLagrangeP1::in_element(nodes[2],nodes),true);	
+	
+	RealVector outside_coord(2);
+	outside_coord = 2.0*centroid;
+	BOOST_CHECK_EQUAL(Triag2DLagrangeP1::in_element(outside_coord,nodes),false);
+	
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()

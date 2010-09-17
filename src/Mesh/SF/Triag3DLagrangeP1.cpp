@@ -38,6 +38,11 @@ Real Triag3DLagrangeP1::computeVolume(const NodesT& coord) const
   return 0;
 }
 
+bool Triag3DLagrangeP1::is_coord_in_element(const RealVector& coord, const NodesT& nodes) const
+{
+	return false;
+}
+
 const CF::Mesh::ElementType::FaceConnectivity& Triag3DLagrangeP1::face_connectivity() const
 {
   static FaceConnectivity connectivity;

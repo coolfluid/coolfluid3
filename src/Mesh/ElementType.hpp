@@ -116,7 +116,12 @@ public: // functions
   
   /// Return the face type for the given face
   virtual const ElementType& face_type(const Uint face) const = 0;
-    
+
+	/// @return if the coordinate is in the element with given nodes
+	/// @param [in] coord  the coordinates that will be checked
+	/// @param [in] nodes  the nodes of the element
+	virtual bool is_coord_in_element(const RealVector& coord, const NodesT& nodes) const = 0;
+
 protected: // data
 
   /// the GeoShape::Type corresponding to the shape
