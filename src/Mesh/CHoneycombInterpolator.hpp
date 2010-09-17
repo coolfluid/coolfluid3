@@ -9,6 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <boost/tuple/tuple.hpp>
+
 #include "Mesh/CInterpolator.hpp"
 #include "Mesh/CElements.hpp"
 
@@ -48,9 +50,9 @@ private: // functions
   virtual void construct_internal_storage(const CMesh::Ptr& source, const CMesh::Ptr& target);
   virtual void interpolate_field_from_to(const CField& source, CField& target); 
   void create_honeycomb();
-  void find_comb_idx(const RealVector& coordinate);
-  void find_pointcloud();
-
+  bool find_comb_idx(const RealVector& coordinate);
+  void find_pointcloud(Uint nb_points);
+	boost::tuple<CElements::ConstPtr,Uint> find_element(const RealVector& target_coord);
   
 private: // helper functions
 

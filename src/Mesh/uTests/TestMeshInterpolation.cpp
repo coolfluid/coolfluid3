@@ -8,6 +8,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/foreach.hpp>
 #include <boost/filesystem/path.hpp>
+#include <boost/assign/list_of.hpp>
 
 #include "Common/ConfigObject.hpp"
 #include "Common/PropertyT.hpp"
@@ -81,56 +82,46 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   boost::filesystem::path fp_source ("hextet.neu");
   CMesh::Ptr source = meshreader->create_mesh_from(fp_source);
   boost::filesystem::path fp_target ("quadtriag.neu");
-  CMesh::Ptr target = meshreader->create_mesh_from(fp_target);
+	CMesh::Ptr target = meshreader->create_mesh_from(fp_target);
                      
+//  boost::filesystem::path fp_target ("grid_c.cgns");	
+//	CMeshReader::Ptr cgns_meshreader = create_component_abstract_type<CMeshReader>("CGNS","cgns_meshreader");
+//  CMesh::Ptr target = cgns_meshreader->create_mesh_from(fp_target);
+
+
+	// Create and configure interpolator.
   CInterpolator::Ptr interpolator = create_component_abstract_type<CInterpolator>("Honeycomb","interpolator");
+	interpolator->configure_option("ApproximateNbElementsPerCell", (Uint) 1 );
+	// Following configuration option has priority over the the previous one.
+	std::vector<Uint> divisions = boost::assign::list_of(3)(2)(2);
+	//interpolator->configure_option("Divisions", divisions ); 
+	
+  // Create the honeycomb
+  interpolator->construct_internal_storage(source,target);
   
-  
-  std::string text = (
-                      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-                      "<cfxml version=\"1.0\">"
-                      "  <signal>"
-                      "    <valuemap>"
-                      ""
-                      "      <value  key=\"ApproximateNbElementsPerCell\"> <unsigned> 1 </unsigned> </value>"
-                      ""
-//                      "      <array key=\"Divisions\" type=\"unsigned\" size=\"3\" >"
-//                      "        <e> 3 </e>"
-//                      "        <e> 2 </e>"
-//                      "        <e> 2 </e>"
-//                      "      </array>"
-                      ""
-                      "    </valuemap>"
-                      "  </signal>"
-                      "</cfxml>"
-                      );
-  
-  boost::shared_ptr<XmlDoc> xml = XmlOps::parse(text);
-  XmlNode& doc   = *XmlOps::goto_doc_node(*xml.get());
-  XmlNode& frame = *XmlOps::first_frame_node( doc );
-  interpolator->configure( frame );
-  
-  
-  //interpolator->construct_internal_storage(source,target);
-  
-  
+  // Create empty fields
   source->create_field("rho",1,CField::NODE_BASED);
   target->create_field("rho",1,CField::NODE_BASED);
   
-  
-  BOOST_FOREACH(CFieldElements& field_elements, recursive_range_typed<CFieldElements>(*target))
+  // Set the field data of the source field
+  BOOST_FOREACH(CFieldElements& field_elements, recursive_range_typed<CFieldElements>(*source))
   {    
     CArray& node_data = field_elements.data();
     CArray& coordinates = field_elements.coordinates();
     
     for (Uint i=0; i<coordinates.size(); ++i)
-    {
-      node_data[i][0]=sin(3*2*3.141592*coordinates[i][XX]);
-    }
+      node_data[i][0]=2*coordinates[i][XX];
   }
   
-  
-  //interpolator->interpolate_field_from_to(source->field("rho"),target->field("rho"));
+  // Interpolate the source field data to the target field. Note it can be in same or different meshes
+  interpolator->interpolate_field_from_to(source->field("rho"),target->field("rho"));
+	
+	// Write the fields to file.
+	CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
+	boost::filesystem::path fp_source_out("source.msh");
+	boost::filesystem::path fp_interpolated("interpolated.msh");
+	meshwriter->write_from_to(source,fp_source_out);
+	meshwriter->write_from_to(target,fp_interpolated);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
