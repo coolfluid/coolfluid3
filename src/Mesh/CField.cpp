@@ -65,12 +65,12 @@ CField& CField::synchronize_with_region(CRegion& support, const std::string& fie
 
 void CField::create_data_storage(const Uint dim, const DataBasis basis)
 {
-  configure_property("dimension", dim);
+  properties()["dimension"] = dim;
   m_basis = basis;
   BOOST_FOREACH(CField& subfield, recursive_range_typed<CField>(*this))
   {
     subfield.set_basis(m_basis);
-    subfield.configure_property("dimension", dim);
+    subfield.properties()["dimension"] = dim;
   }
 
   switch (m_basis)

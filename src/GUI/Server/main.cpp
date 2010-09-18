@@ -47,6 +47,9 @@ int main(int argc, char *argv[])
 
   QList<HostInfos> list;
 
+  AssertionManager::instance().AssertionDumps = true;
+  AssertionManager::instance().AssertionThrows = true;
+
   //  setenv("OMPI_MCA_orte_default_hostfile", hostfile, 1);
 
   /// @todo the following line should be in PE::Init_PE()

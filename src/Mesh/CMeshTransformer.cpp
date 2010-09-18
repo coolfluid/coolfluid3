@@ -7,7 +7,6 @@
 #include <boost/foreach.hpp>
 
 #include "Common/Log.hpp"
-#include "Common/PropertyT.hpp"
 #include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/CMeshTransformer.hpp"

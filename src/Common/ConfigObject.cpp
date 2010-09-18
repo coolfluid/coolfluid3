@@ -31,13 +31,13 @@ namespace Common {
       if ( att )
       {
         PropertyList::PropertyStorage_t::iterator opt = options.find( att->value() );
-        if (opt != options.end())
-          opt->second->configure_option(*itr);
+        if (opt != options.end() && opt->second->is_option())
+          opt->second->as_option().configure_option(*itr);
       }
     }
   }
 
-  Property::Ptr ConfigObject::property( const std::string& optname )
+  const Property & ConfigObject::property( const std::string& optname ) const
   {
     return m_property_list.getProperty(optname);
   }

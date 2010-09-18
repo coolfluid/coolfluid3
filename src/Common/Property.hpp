@@ -23,6 +23,8 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+  class Option;
+
   /// Class defines options to be used in the ConfigObject class
   ///
   /// @author Tiago Quintino
@@ -57,21 +59,14 @@ namespace Common {
   ///       - ConfigObject ( ConfigObject, OptionList )
   ///       - Option
   ///       - OptionT
-  class Common_API Property :
-      public TaggedObject
+  class Common_API Property
   {
   public:
 
     typedef boost::shared_ptr<Property>   Ptr;
-    typedef boost::function< void() >   Trigger_t;
-    typedef std::vector< Trigger_t >    TriggerStorage_t;
 
     /// Constructor
-    Property ( const std::string& name,
-             const std::string& type,
-             const std::string& desc,
-             boost::any def,
-             bool is_option = false);
+    Property (boost::any value);
 
     /// Virtual destructor
     virtual ~Property ();
@@ -80,91 +75,51 @@ namespace Common {
     //@{
 
     /// @returns the xml tag for this option
-    virtual const char * tag() const = 0;
+    virtual const char * tag() const;
 
     /// @returns the value as a sd::string
-    virtual std::string value_str () const = 0;
-
-    /// @returns the default value as a sd::string
-    virtual std::string def_str () const = 0;
+    virtual std::string value_str () const
+    {
+      return boost::any_cast<std::string>(m_value);
+    }
 
     //@} END VIRTUAL FUNCTIONS
 
-    /// configure this option using the passed xml node
-    void configure_option ( XmlNode& node );
-
-    void attach_trigger ( Trigger_t trigger ) { m_triggers.push_back(trigger); }
-
     // accessor functions
 
-    /// @returns the name of the option
-    std::string name() const { return m_name; }
     /// @returns the type of the option as a string
-    std::string type() const { return m_type; }
-    /// @returns the description of the option
-    std::string description() const { return m_description; }
+    std::string type() const
+    {
+      return CF::class_name_from_typeinfo(m_value.type());
+    }
     /// @returns @c true if the property is an option
     bool is_option() const { return m_is_option; }
 
+    Option & as_option();
+
+    const Option & as_option() const;
+
     /// @returns the value of the option as a boost::any
     boost::any value() const { return m_value; }
-    /// @returns the default value of the option as a boost::any
-    boost::any def() const { return m_default; }
 
     /// @returns the value of the option casted to TYPE
     template < typename TYPE >
         const TYPE value() const { return boost::any_cast< TYPE >(m_value); }
-    /// @returns the default value of the option casted to TYPE
-    template < typename TYPE >
-        const TYPE def() const { return boost::any_cast<TYPE>(m_default); }
 
     /// @returns puts the value of the option casted to TYPE on the passed parameter
     /// @param value which to assign the option value
     template < typename TYPE >
         void put_value( TYPE& value ) const { value = boost::any_cast<TYPE>(m_value); }
 
-    /// @returns puts the default value of the option casted to TYPE on the passed parameter
-    /// @param value which to assign the default option value
-    template < typename TYPE >
-        void put_def( TYPE& def ) const { def = boost::any_cast<TYPE>(m_default); }
-
-    /// Link the state of this option to the passed parameter
-    template < typename TYPE >
-        void link_to ( TYPE* par )
-    {
-      cf_assert ( type_to_str<TYPE>() == m_type );
-      m_linked_params.push_back(par);
-    }
-
     /// change the value of this option
     void change_value ( const boost::any& value);
 
-    /// this option is tagged as a basic option on the GUI
-    void mark_basic ();
-
-  protected: // function
-
-    /// updates the option value using the xml configuration
-    /// @param node XML node with data for this option
-    virtual void configure ( XmlNode& node ) = 0;
-
+    Property & operator = (const boost::any & value);
 
   protected:
 
     /// storage of the value of the option
     boost::any m_value;
-    /// storage of the default value of the option
-    const boost::any m_default;
-    /// option name
-    std::string m_name;
-    /// option type as a string
-    std::string m_type;
-    /// option description
-    std::string m_description;
-    /// list of processors that will process the option
-    TriggerStorage_t m_triggers;
-    /// parameters that also get updated when option is changed
-    std::vector< void* > m_linked_params;
     /// indicates whether a property is an option. Options are user-modifiable
     /// properties.
     bool m_is_option;

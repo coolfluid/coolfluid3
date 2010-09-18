@@ -11,7 +11,7 @@
 
 #include "Common/Component.hpp"
 
-#include "Common/PropertyT.hpp"
+#include "Common/OptionT.hpp"
 
 namespace CF {
 namespace Common {
@@ -45,7 +45,7 @@ namespace Common {
     /// Configuration Options
     static void defineConfigProperties ( Common::PropertyList& options )
     {
-      options.add_option< PropertyT<CF::Real> >("pi", "Pi in a CGroup", 3.141592);
+      options.add_option< OptionT<CF::Real> >("pi", "Pi in a CGroup", 3.141592);
     }
 
   private: // helper functions

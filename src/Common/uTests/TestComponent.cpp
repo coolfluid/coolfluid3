@@ -16,7 +16,7 @@
 #include "Common/CRoot.hpp"
 #include "Common/CGroup.hpp"
 #include "Common/CLink.hpp"
-#include "Common/DemangledTypeID.hpp"
+#include "Common/TypeInfo.hpp"
 #include "Common/XmlHelpers.hpp"
 
 using namespace std;

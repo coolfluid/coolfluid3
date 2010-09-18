@@ -10,6 +10,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/Property.hpp"
+#include "Common/Option.hpp"
 
 namespace CF {
 namespace Common {
@@ -28,31 +29,44 @@ namespace Common {
   public:
 
     /// adds a property to the list
-    template < typename OPTION_TYPE >
-    Property::Ptr add_property (const std::string& name,
-                                const typename OPTION_TYPE::value_type& value )
-    {
-      return add< OPTION_TYPE >(name, "", value, false);
-    }
+    Property::Ptr add_property (const std::string& name, const boost::any & value);
 
     /// adds an option to the list
     template < typename OPTION_TYPE >
-    Property::Ptr add_option (const std::string& name,
+    Option::Ptr add_option (const std::string& name,
                               const std::string& description,
                               const typename OPTION_TYPE::value_type& def )
     {
-      return add< OPTION_TYPE >(name, description, def, true);
+      cf_assert_desc ( "Class has already property with same name",
+                       this->m_properties.find(name) == m_properties.end() );
+      Option::Ptr opt ( new OPTION_TYPE(name, description, def) );
+      m_properties.insert( std::make_pair(name, opt ) );
+      return opt;
     }
 
     /// get a property from the list
-    Property::Ptr getProperty( const std::string& optname );
+    const Property & getProperty( const std::string& pname ) const;
+
+    /// get an option from the list
+    const Option & getOption( const std::string& pname ) const;
+
+    Property & operator [] (const std::string & pname);
 
     /// Configure one option, and trigger its actions
     /// @param [in] optname  The option name
     /// @param [in] val      The new value assigned to the option
-    void configure_property(const std::string& optname, const boost::any& val)
+    void configure_property(const std::string& pname, const boost::any& val)
     {
-      getProperty(optname)->change_value(val); // update the value and trigger its actions
+      PropertyStorage_t::iterator itr = m_properties.find(pname);
+      cf_assert ( itr != m_properties.end() );
+
+      Property::Ptr prop = itr->second;
+
+      // update the value and trigger its actions (if it is an option)
+      if(prop->is_option())
+        prop->as_option().change_value(val);
+      else
+        prop->change_value(val);
     }
 
     /// check that a property with the name exists
@@ -70,21 +84,6 @@ namespace Common {
 
     /// storage of options
     PropertyStorage_t m_properties;
-
-  private:
-
-    /// adds a property to the list
-    template < typename OPTION_TYPE >
-    Property::Ptr add (const std::string& name, const std::string& description,
-                       const typename OPTION_TYPE::value_type& def, bool is_option)
-    {
-      cf_assert_desc ( "Class has already property with same name",
-                       this->m_properties.find(name) == m_properties.end() );
-      Property::Ptr opt ( new OPTION_TYPE(name, description, def, is_option) );
-      m_properties.insert( std::make_pair(name, opt ) );
-      return opt;
-    }
-
 
   }; // class PropertyList
 

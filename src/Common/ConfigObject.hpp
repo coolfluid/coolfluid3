@@ -37,13 +37,15 @@ namespace Common {
 
     /// sets a link to the option
     template < typename TYPE >
-        void link_to_parameter ( const std::string& optname, TYPE* par )
+        void link_to_parameter ( const std::string& pname, TYPE* par )
     {
-        property(optname)->link_to(par);
+      cf_assert(m_property_list.check(pname));
+
+      m_property_list[pname].as_option().link_to(par);
     }
 
     /// get the pointer to the option
-    Property::Ptr property( const std::string& optname );
+    const Property & property( const std::string& optname ) const;
 
     /// Configure one option, and trigger its actions
     /// @param [in] optname  The option name

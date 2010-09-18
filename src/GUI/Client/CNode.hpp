@@ -14,7 +14,7 @@
 #include <QObject>
 
 #include "Common/Component.hpp"
-#include "Common/PropertyT.hpp"
+#include "Common/OptionT.hpp"
 #include "Common/XML.hpp"
 
 #include "GUI/Client/OptionType.hpp"
@@ -280,7 +280,7 @@ namespace Client {
     {
       TYPE value;
       CF::Common::to_value(node, value);
-      m_property_list.add_option< CF::Common::PropertyT<TYPE> >(name, descr, value);
+      m_property_list.add_option< CF::Common::OptionT<TYPE> >(name, descr, value);
     }
 
     static CNode::Ptr createFromXmlRec(CF::Common::XmlNode & node,

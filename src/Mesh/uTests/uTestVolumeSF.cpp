@@ -13,7 +13,6 @@
 
 
 #include "Common/ConfigObject.hpp"
-#include "Common/PropertyT.hpp"
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/ComponentPredicates.hpp"
@@ -39,7 +38,7 @@ struct VolumeSFFixture
 {
   typedef std::vector<RealVector> NodesT;
   typedef std::map<GeoShape::Type, NodesT> NodesMapT;
-  
+
   /// common setup for each test case
   VolumeSFFixture()
   {
@@ -52,13 +51,13 @@ struct VolumeSFFixture
 
   // Store test nodes per shape type
   NodesMapT nodes;
-  
+
   /// Applies a functor if the element is a volume element
   template<typename FunctorT>
   struct VolumeMPLFunctor
   {
     VolumeMPLFunctor(const NodesMapT& nodes) : m_nodes(nodes) {}
-    
+
     template<typename ShapeFunctionT> void operator()(const ShapeFunctionT& T)
     {
       FunctorT functor;
@@ -104,7 +103,7 @@ struct VolumeSFFixture
           break;
       }
     }
-    
+
   private:
     const NodesMapT& m_nodes;
   };
@@ -120,15 +119,15 @@ RealVector gradient(const NodesT& nodes, const RealVector& mapped_coordinates, c
   // Get the gradient in mapped coordinates
   RealMatrix mapped_grad(ShapeFunctionT::dimensionality,ShapeFunctionT::nb_nodes);
   ShapeFunctionT::mapped_gradient(mapped_coordinates,mapped_grad);
-  
+
   // The Jacobian adjugate
   RealMatrix jacobian_adj(ShapeFunctionT::dimension, ShapeFunctionT::dimensionality);
   ShapeFunctionT::jacobian_adjoint(mapped_coordinates, nodes, jacobian_adj);
-  
+
   // The gradient operator matrix in the absolute frame
   RealMatrix grad(ShapeFunctionT::dimension,ShapeFunctionT::nb_nodes);
   grad = (jacobian_adj * mapped_grad) / ShapeFunctionT::jacobian_determinant(mapped_coordinates, nodes);
-  
+
   // Apply the gradient to the function values
   RealVector result(ShapeFunctionT::dimension);
   result = grad * function_values;
@@ -166,13 +165,13 @@ struct CheckJacobianInverse
   {
     RealMatrix jacobian(ShapeFunctionT::dimensionality, ShapeFunctionT::dimension);
     ShapeFunctionT::jacobian(mapped_coord, nodes, jacobian);
-    
+
     RealMatrix jacobian_adjoint(ShapeFunctionT::dimension, ShapeFunctionT::dimensionality);
     ShapeFunctionT::jacobian_adjoint(mapped_coord, nodes, jacobian_adjoint);
-    
+
     RealMatrix identity(ShapeFunctionT::dimensionality, ShapeFunctionT::dimension);
     identity = jacobian * jacobian_adjoint / ShapeFunctionT::jacobian_determinant(mapped_coord, nodes);
-    
+
     for(Uint i = 0; i != ShapeFunctionT::dimensionality; ++i)
     {
       for(Uint j = 0; j != ShapeFunctionT::dimension; ++j)
@@ -196,10 +195,10 @@ struct CheckGradientX
     RealVector function(ShapeFunctionT::nb_nodes);
     for(Uint i = 0; i != ShapeFunctionT::nb_nodes; ++i)
       function[i] = nodes[i][XX];
-    
+
     // Calculate the gradient
     RealVector grad = gradient<ShapeFunctionT>(nodes, mapped_coord, function);
-    
+
     // Check the result
     BOOST_CHECK_CLOSE(grad[0], 1, 1e-6);
     for(Uint i = 1; i != grad.size(); ++i)
@@ -224,7 +223,7 @@ BOOST_AUTO_TEST_CASE( TestJacobianDeterminant )
 BOOST_AUTO_TEST_CASE( TestJacobianInverse )
 {
   VolumeMPLFunctor<CheckJacobianInverse> functor(nodes);
-  boost::mpl::for_each<VolumeTypes>(functor); 
+  boost::mpl::for_each<VolumeTypes>(functor);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -232,7 +231,7 @@ BOOST_AUTO_TEST_CASE( TestJacobianInverse )
 BOOST_AUTO_TEST_CASE( TestGradientX )
 {
   VolumeMPLFunctor<CheckGradientX> functor(nodes);
-  boost::mpl::for_each<VolumeTypes>(functor); 
+  boost::mpl::for_each<VolumeTypes>(functor);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

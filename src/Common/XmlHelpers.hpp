@@ -14,7 +14,7 @@
 #include "Common/XML.hpp"
 #include "Common/NonInstantiable.hpp"
 #include "Common/BasicExceptions.hpp"
-#include "Common/PropertyArray.hpp"
+#include "Common/OptionArray.hpp"
 
 #include "Common/String/Conversion.hpp"
 

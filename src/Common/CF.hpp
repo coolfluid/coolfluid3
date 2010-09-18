@@ -30,7 +30,7 @@
 
 #include "Common/CommonAPI.hpp"
 #include "Common/AssertionManager.hpp"
-#include "Common/DemangledTypeID.hpp"
+#include "Common/TypeInfo.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 

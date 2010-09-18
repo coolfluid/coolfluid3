@@ -43,9 +43,9 @@ struct MeshConstruction_Fixture
   }
 
   /// possibly common functions used on the tests below
-  
+
   /// These are handy functions that should maybe be implemented somewhere easily accessible.
-  
+
   /// create a Real vector with 2 coordinates
   RealVector create_coord(const Real& x, const Real& y) {
     RealVector coordVec(2);
@@ -53,7 +53,7 @@ struct MeshConstruction_Fixture
     coordVec[YY]=y;
     return coordVec;
   }
-  
+
   /// create a Uint vector with 4 node ID's
   std::vector<Uint> create_quad(const Uint& A, const Uint& B, const Uint& C, const Uint& D) {
     Uint quad[] = {A,B,C,D};
@@ -61,7 +61,7 @@ struct MeshConstruction_Fixture
     quadVec.assign(quad,quad+4);
     return quadVec;
   }
-  
+
   /// create a Uint vector with 3 node ID's
   std::vector<Uint> create_triag(const Uint& A, const Uint& B, const Uint& C) {
     Uint triag[] = {A,B,C};
@@ -69,7 +69,7 @@ struct MeshConstruction_Fixture
     triagVec.assign(triag,triag+3);
     return triagVec;
   }
-  
+
   /// common values accessed by all tests goes here
 
 };
@@ -82,7 +82,8 @@ BOOST_FIXTURE_TEST_SUITE( MeshConstruction_TestSuite, MeshConstruction_Fixture )
 
 BOOST_AUTO_TEST_CASE( MeshConstruction )
 {
-  
+  AssertionManager::instance().AssertionThrows = true;
+
   const Uint dim=2;
 
   // Create root and mesh component
@@ -91,7 +92,7 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   Component::Ptr mesh ( new CMesh  ( "mesh" ) );
 
   root->add_component( mesh );
-  
+
   // create a mesh pointer
   CMesh::Ptr p_mesh = boost::dynamic_pointer_cast<CMesh>(mesh);
 
@@ -104,10 +105,10 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   CTable::Buffer qTableBuffer = quadRegion.connectivity_table().create_buffer();
   CTable::Buffer tTableBuffer = triagRegion.connectivity_table().create_buffer();
   CArray::Buffer coordinatesBuffer = coordinates.create_buffer();
-  
+
   //  Mesh of quads and triangles with node and element numbering:
   //
-  //    5----4----6    
+  //    5----4----6
   //    |    |\ 3 |
   //    |    | \  |
   //    | 1  |  \ |
@@ -117,8 +118,8 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   //    |    | \  |
   //    | 0  |  \ |
   //    |    | 0 \|
-  //    0----1----8   
-  
+  //    0----1----8
+
   // fill coordinates in the buffer
   coordinatesBuffer.add_row(create_coord( 0.0 , 0.0 ));  // 0
   coordinatesBuffer.add_row(create_coord( 1.0 , 0.0 ));  // 1
@@ -130,7 +131,7 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   coordinatesBuffer.add_row(create_coord( 2.0 , 1.0 ));  // 7
   coordinatesBuffer.add_row(create_coord( 2.0 , 0.0 ));  // 8
 
-  
+
   // fill connectivity in the buffer
   qTableBuffer.add_row(create_quad( 0 , 1 , 2 , 3 ));
   qTableBuffer.add_row(create_quad( 3 , 2 , 4 , 5 ));
@@ -140,16 +141,16 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
   tTableBuffer.add_row(create_triag( 2 , 7 , 4 ));
   tTableBuffer.add_row(create_triag( 7 , 6 , 4 ));
 
-  // flush buffers into the table. 
+  // flush buffers into the table.
   // This causes the table and array to be resized and filled.
   coordinatesBuffer.flush();
   qTableBuffer.flush();
   tTableBuffer.flush();
-  
+
   // check if coordinates match
   Uint elem=1;
   Uint node=2;
-  
+
   CTable::ConstRow nodesRef = triagRegion.connectivity_table()[elem];
   CArray::Row coordRef = triagRegion.coordinates()[nodesRef[node]];
   BOOST_CHECK_EQUAL(coordRef[0],1.0);
@@ -178,7 +179,7 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
         BOOST_CHECK_EQUAL(volumes[iElem],0.5);
     }
   }
-    
+
 //  BOOST_FOREACH(CArray::Row node , elem_coord)
 //  {
 //    CFinfo << "node = ";
@@ -187,7 +188,7 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
 //    }
 //    CFinfo << "\n" << CFflush;
 //  }
-      
+
 }
 
 

@@ -9,8 +9,7 @@
 
 #include <boost/mpl/for_each.hpp>
 
-#include "Common/PropertyArray.hpp"
-#include "Common/PropertyT.hpp"
+#include "Common/OptionArray.hpp"
 #include "Common/URI.hpp"
 
 #include "Mesh/COperation.hpp"
@@ -38,22 +37,22 @@ public: // functions
   /// Contructor
   /// @param name of the component
   CForAllNodesT ( const CName& name ) :
-    COperation(name), 
-    m_operation(new COp("operation"), Deleter<COp>()) 
+    COperation(name),
+    m_operation(new COp("operation"), Deleter<COp>())
   {
     BUILD_COMPONENT;
-    property("Regions")->attach_trigger ( boost::bind ( &CForAllNodesT::trigger_Regions,   this ) );
+    m_property_list["Regions"].as_option().attach_trigger ( boost::bind ( &CForAllNodesT::trigger_Regions,   this ) );
   }
-  
+
   void trigger_Regions()
   {
-    std::vector<URI> vec; property("Regions")->put_value(vec);
+    std::vector<URI> vec; property("Regions").put_value(vec);
     BOOST_FOREACH(const CPath region_path, vec)
     {
       m_loop_regions.push_back(look_component_type<CRegion>(region_path));
     }
-  }  
-  
+  }
+
 
   /// Virtual destructor
   virtual ~CForAllNodesT() {}
@@ -65,33 +64,33 @@ public: // functions
   static void defineConfigProperties ( Common::PropertyList& options )
   {
     std::vector< URI > dummy;
-    options.add_option< PropertyArrayT < URI > > ("Regions", "Regions to loop over", dummy)->mark_basic();
+    options.add_option< OptionArrayT < URI > > ("Regions", "Regions to loop over", dummy)->mark_basic();
   }
 
   // functions specific to the CForAllNodes component
-  
+
   const COp& operation() const
   {
     return *m_operation;
   }
-  
+
   COp& operation()
   {
     return *m_operation;
   }
-  
+
   void execute(Uint index = 0)
   {
     // If the typename of the operation equals "COperation", then the virtual version
-    // must have been called. In this case the operation must have been created as a 
+    // must have been called. In this case the operation must have been created as a
     // child component of "this_class", and should be set accordingly.
     //if (m_operation->type_name() == "COperation")
     //{
-      
+
       // 1. Find all regions with node connectivity
       // 2. Construct node-to-element-connectivity if not present yet
-      // 2. For each node, that is part of a region, AND not processed yet, DO 
-      
+      // 2. For each node, that is part of a region, AND not processed yet, DO
+
       std::set<CArray*> coordinates_set;
       BOOST_FOREACH(CRegion::Ptr& region, m_loop_regions)
       {
@@ -112,7 +111,7 @@ public: // functions
         //const CNodeConnectivity& node_connectivity = *coordinates->look_component_type<CNodeConnectivity>("../node_connectivity");
         // Execute all child operations
         BOOST_FOREACH(COperation& operation, range_typed<COperation>(*this))
-        { 
+        {
           operation.set_loophelper( *coordinates );
           for (Uint iNode = 0; iNode!= coordinates->size(); ++iNode)
           {
@@ -133,7 +132,7 @@ public: // functions
     //   {
     //     Looper looper(*this,*region);
     //     boost::mpl::for_each< SF::Types >(looper);
-    //   }      
+    //   }
     // }
   }
 
@@ -144,18 +143,18 @@ private:
   // struct Looper
   // {
   // public: // functions
-  //   
+  //
   //   /// Constructor
   //   Looper(CForAllNodesT& this_class, CRegion& region_in ) : region(region_in) , op(*this_class.m_operation) { }
-  // 
+  //
   //   /// Operator
   //   template < typename SFType >
   //   void operator() ( SFType& T )
-  //   { 
+  //   {
   //     BOOST_FOREACH(CElements& elements, recursive_filtered_range_typed<CElements>(region,IsComponentElementType<SFType>()))
   //     {
   //       op.set_loophelper( elements );
-  // 
+  //
   //       // loop on elements. Nothing may be virtual starting from here!
   //       const Uint elem_count = elements.elements_count();
   //       for ( Uint elem = 0; elem != elem_count; ++elem )
@@ -164,16 +163,16 @@ private:
   //       }
   //     }
   //   }
-  //    
+  //
   //  private: // data
-  //    
+  //
   //    /// Region to loop on
   //    CRegion& region;
-  //    
+  //
   //    /// Operation to perform
   //    COp& op;
-  //    
-  //  }; // Looper      
+  //
+  //  }; // Looper
 
 private: // helper functions
 
@@ -193,7 +192,7 @@ private:
 typedef CForAllNodesT<COperation> CForAllNodes;
 
 /////////////////////////////////////////////////////////////////////////////////////
-  
+
 } // Mesh
 } // CF
 

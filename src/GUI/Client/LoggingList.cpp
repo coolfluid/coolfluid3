@@ -4,8 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/PropertyT.hpp"
-
 #include "GUI/Client/ClientRoot.hpp"
 #include "GUI/Client/NLog.hpp"
 

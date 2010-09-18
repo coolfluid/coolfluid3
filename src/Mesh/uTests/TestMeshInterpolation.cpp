@@ -11,9 +11,7 @@
 #include <boost/assign/list_of.hpp>
 
 #include "Common/ConfigObject.hpp"
-#include "Common/PropertyT.hpp"
-#include "Common/PropertyArray.hpp"
-#include "Common/PropertyComponent.hpp"
+#include "Common/OptionArray.hpp"
 #include "Common/XmlHelpers.hpp"
 
 #include "Common/Log.hpp"
@@ -55,7 +53,7 @@ struct MeshInterpolation_Fixture
   }
 
   /// possibly common functions used on the tests below
-  
+
 
   /// common values accessed by all tests goes here
 
@@ -106,13 +104,14 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   // Set the field data of the source field
   BOOST_FOREACH(CFieldElements& field_elements, recursive_range_typed<CFieldElements>(*source))
   {    
+
     CArray& node_data = field_elements.data();
     CArray& coordinates = field_elements.coordinates();
-    
+
     for (Uint i=0; i<coordinates.size(); ++i)
       node_data[i][0]=2*coordinates[i][XX];
   }
-  
+
   // Interpolate the source field data to the target field. Note it can be in same or different meshes
   interpolator->interpolate_field_from_to(source->field("rho"),target->field("rho"));
 	

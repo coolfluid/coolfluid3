@@ -10,7 +10,7 @@
 #include <boost/filesystem/convenience.hpp>
 
 #include "Common/ObjectProvider.hpp"
-#include "Common/PropertyT.hpp"
+#include "Common/OptionT.hpp"
 #include "Common/ComponentPredicates.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/String/Conversion.hpp"
@@ -57,12 +57,12 @@ std::vector<std::string> CReader::get_extensions()
 
 void CReader::defineConfigProperties ( PropertyList& options )
 {
-  options.add_option< PropertyT<bool> >
+  options.add_option< OptionT<bool> >
       ( "SectionsAreBCs",
         ("Treat Sections of lower dimensionality as BC. "
         "This means no BCs from cgns will be read"),
         false );
-  options.add_option< PropertyT<bool> >
+  options.add_option< OptionT<bool> >
   ( "SharedCoordinates",
    ("Store all the coordinates in 1 table. "
     "This means that there will be no coordinates per region"),
@@ -409,10 +409,10 @@ void CReader::read_section(CRegion& parent_region)
   {
     if (existing_region.check_property("cgns_section_name"))
     {
-      if (existing_region.property("cgns_section_name")->value<CName>() == m_section.name)
+      if (existing_region.property("cgns_section_name").value<CName>() == m_section.name)
       {
-        existing_region.rename(existing_region.property("cgns_section_name")->value<CName>());
-        existing_region.configure_property("previous_elem_count", existing_region.recursive_elements_count());
+        existing_region.rename(existing_region.property("cgns_section_name").value<CName>());
+        existing_region.properties()["previous_elem_count"] = existing_region.recursive_elements_count();
         break;
       }
     }
@@ -481,7 +481,7 @@ void CReader::read_section(CRegion& parent_region)
 
 
     // Create element component in this region for this CF element type, automatically creates connectivity_table
-    if (property("SharedCoordinates")->value<bool>())
+    if (property("SharedCoordinates").value<bool>())
       this_region.create_elements(etype_CF,all_coordinates);
     else
     {
@@ -506,7 +506,7 @@ void CReader::read_section(CRegion& parent_region)
     std::vector<Uint> coords_added;
     std::vector<Uint> row(m_section.elemNodeCount);
     element_buffer.increase_array_size(nbElems);  // we can use increase_array_size + add_row_directly because we know apriori the change
-    if (property("SharedCoordinates")->value<bool>())
+    if (property("SharedCoordinates").value<bool>())
     {
       for (int elem=0; elem<nbElems; ++elem) //, ++progress)
       {
@@ -686,10 +686,10 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
       if (first_elements->get_parent() == last_elements->get_parent())
       {
         CRegion::Ptr group_region = first_elements->get_parent()->get_type<CRegion>();
-        Uint prev_elm_count = group_region->check_property("previous_elem_count") ? group_region->property("previous_elem_count")->value<Uint>() : 0;
+        Uint prev_elm_count = group_region->check_property("previous_elem_count") ? group_region->property("previous_elem_count").value<Uint>() : 0;
         if (group_region->recursive_elements_count() == prev_elm_count + Uint(boco_elems[1]-boco_elems[0]+1))
         {
-          group_region->configure_property("cgns_section_name", group_region->name());
+          group_region->properties()["cgns_section_name"] = group_region->name();
           group_region->rename(m_boco.name,NUMBER);
           break;
         }
@@ -734,10 +734,10 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
       if (first_elements->get_parent() == last_elements->get_parent())
       {
         CRegion::Ptr group_region = first_elements->get_parent()->get_type<CRegion>();
-        Uint prev_elm_count = group_region->check_property("previous_elem_count") ? group_region->property("previous_elem_count")->value<Uint>() : 0;
+        Uint prev_elm_count = group_region->check_property("previous_elem_count") ? group_region->property("previous_elem_count").value<Uint>() : 0;
         if (group_region->recursive_elements_count() == prev_elm_count + Uint(boco_elems[m_boco.nBC_elem-1]-boco_elems[0]+1))
         {
-          group_region->configure_property("cgns_section_name", group_region->name());
+          group_region->properties()["cgns_section_name"] = group_region->name();
           group_region->rename(m_boco.name,NUMBER);
           break;
         }

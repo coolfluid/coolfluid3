@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_DemangledTypeID_hpp
-#define CF_Common_DemangledTypeID_hpp
+#ifndef CF_Common_TypeInfo_hpp
+#define CF_Common_TypeInfo_hpp
 
 /// @note This header should be included by including CF.hpp instead.
 
@@ -33,6 +33,11 @@ Common_API std::string demangle (const char* type);
   /// @author Quentin Gasper
   struct Common_API TypeInfo : public boost::noncopyable
   {
+
+    /// @brief Constructor.
+    /// Registers all supported otion types.
+    TypeInfo();
+
     /// @return Returns the instance
     static TypeInfo& instance();
 
@@ -55,13 +60,18 @@ Common_API std::string demangle (const char* type);
       std::string class_name ()
   {
     TypeInfo& ti = TypeInfo::instance();
-    cf_assert( ti.portable_types.find(typeid(TYPE).name()) != ti.portable_types.end() );
-    return ti.portable_types[ typeid(TYPE).name() ];
+    std::map<std::string, std::string>::const_iterator it =
+        ti.portable_types.find(typeid(TYPE).name());
+
+    cf_assert( it != ti.portable_types.end() );
+
+    return it->second;
   }
 
+  std::string class_name_from_typeinfo (const std::type_info & info);
 
 } // namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_DemangledTypeID_hpp
+#endif // CF_Common_TypeInfo_hpp

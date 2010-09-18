@@ -10,22 +10,16 @@
 #include "Common/Property.hpp"
 #include "Common/URI.hpp"
 
+#include "Common/Option.hpp"
+
 namespace CF {
 namespace Common {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-  Property::Property ( const std::string& name,
-                   const std::string& type,
-                   const std::string& desc,
-                   boost::any def,
-                   bool is_option) :
-  m_value(def),
-  m_default(def),
-  m_name(name),
-  m_type(type),
-  m_description(desc),
-  m_is_option(is_option)
+  Property::Property (boost::any value)
+    : m_value(value),
+      m_is_option(false)
   {
   }
 
@@ -33,24 +27,39 @@ namespace Common {
   {
   }
 
-  void Property::configure_option ( XmlNode& node )
-  {
-    this->configure(node); // update the value
-
-    // call all process functors
-    BOOST_FOREACH( Property::Trigger_t& process, m_triggers )
-        process();
-  }
-
 
   void Property::change_value ( const boost::any& value )
   {
     m_value = value; // update the value
+  }
 
-    // call all process functors
-    BOOST_FOREACH( Property::Trigger_t& process, m_triggers )
-      process();
-  };
+  Option & Property::as_option()
+  {
+    cf_assert(m_is_option);
+    return *(static_cast< Option* >(this));
+  }
+
+  const Option & Property::as_option() const
+  {
+    cf_assert(m_is_option);
+    return *(static_cast<const Option* const >(this));
+  }
+
+  const char * Property::tag() const
+  {
+    if(is_option())
+      return as_option().tag();
+
+    return CF::class_name_from_typeinfo(m_value.type()).c_str();
+  }
+
+
+  Property & Property::operator = (const boost::any & value)
+  {
+    change_value(value);
+    return *this;
+  }
+
 
   template<>
   Common_API const char * Property::type_to_str<bool>() const { return "bool"; }
@@ -73,11 +82,6 @@ namespace Common {
   template<>
   Common_API const char * Property::type_to_str<URI>() const { return "uri"; }
 
-  void Property::mark_basic()
-  {
-    if(!has_tag("basic"))
-      add_tag("basic");
-  }
 
 /////////////////////////////////////////////////////////////////////////////////////
 

@@ -22,8 +22,8 @@ CFieldElements::CFieldElements ( const CName& name ) :
   CElements (name)
 {
   BUILD_COMPONENT;
-  configure_property("element_based", false);
-  configure_property("node_based", false);
+  properties()["element_based"] = false;
+  properties()["node_based"] = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -60,7 +60,7 @@ void CFieldElements::add_node_based_storage(CArray& nodal_data)
   CLink::Ptr node_data = create_component_type<CLink>(m_data_name);
   node_data->add_tag(m_data_name);
   node_data->link_to(nodal_data.get());
-  configure_property("node_based", true);
+  properties()["node_based"] = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -71,7 +71,7 @@ void CFieldElements::add_element_based_storage()
   m_data_name = "element_data";
   CArray::Ptr elm_data = create_component_type<CArray>(m_data_name);
   elm_data->add_tag(m_data_name);
-  configure_property("element_based", true);
+  properties()["element_based"] = true;
 }
 
 //////////////////////////////////////////////////////////////////////////////

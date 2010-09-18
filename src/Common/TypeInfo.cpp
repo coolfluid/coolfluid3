@@ -46,10 +46,30 @@ std::string demangle(const char* type)
 
   ////////////////////////////////////////////////////////////////////////////////
 
+  TypeInfo::TypeInfo()
+  {
+    regist<int>("integer");
+    regist<CF::Uint>("unsigned");
+    regist<std::string>("string");
+    regist<bool>("bool");
+    regist<CF::Real>("real");
+  }
+
   TypeInfo& TypeInfo::instance()
   {
     static TypeInfo tregister;
     return tregister;
+  }
+
+  std::string class_name_from_typeinfo (const std::type_info & info)
+  {
+    TypeInfo& ti = TypeInfo::instance();
+    std::map<std::string, std::string>::const_iterator it =
+        ti.portable_types.find(info.name());
+
+    cf_assert_desc(Common::demangle(info.name()).c_str(), it != ti.portable_types.end() );
+
+    return it->second;
   }
 
   ////////////////////////////////////////////////////////////////////////////////

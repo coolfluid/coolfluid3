@@ -7,7 +7,7 @@
 #include <boost/foreach.hpp>
 
 #include "Common/Log.hpp"
-#include "Common/PropertyT.hpp"
+#include "Common/OptionT.hpp"
 #include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/CInterpolator.hpp"

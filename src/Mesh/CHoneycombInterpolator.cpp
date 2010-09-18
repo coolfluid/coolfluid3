@@ -10,8 +10,8 @@
 
 #include "Common/ObjectProvider.hpp"
 #include "Common/ComponentPredicates.hpp"
-#include "Common/PropertyT.hpp"
-#include "Common/PropertyArray.hpp"
+#include "Common/OptionT.hpp"
+#include "Common/OptionArray.hpp"
 #include "Common/CLink.hpp"
 
 
@@ -31,7 +31,7 @@ namespace CF {
 namespace Mesh {
 
   using namespace Common;
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 CF::Common::ObjectProvider < Mesh::CHoneycombInterpolator,
@@ -47,22 +47,22 @@ CHoneycombInterpolator::CHoneycombInterpolator( const CName& name )
 {
   BUILD_COMPONENT;
 }
-  
+
 /////////////////////////////////////////////////////////////////////////////
 
 void CHoneycombInterpolator::defineConfigProperties ( CF::Common::PropertyList& options )
 {
-  options.add_option< PropertyT<Uint> >
+  options.add_option< OptionT<Uint> >
   ( "ApproximateNbElementsPerCell",
     "The approximate amount of elements that are stored in a structured" ,
     1 );
-  
+
   std::vector<Uint> dummy;
-  options.add_option< PropertyArrayT<Uint> >
+  options.add_option< OptionArrayT<Uint> >
   ( "Divisions",
     "The number of divisions in each direction of the comb. Takes precedence over \"ApproximateNbElementsPerCell\". " ,
-    dummy);   
-}  
+    dummy);
+}
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -75,9 +75,9 @@ void CHoneycombInterpolator::construct_internal_storage(const CMesh::Ptr& source
   }
   m_target_mesh = target;
 }
-  
+
 /////////////////////////////////////////////////////////////////////////////
-  
+
 void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CField& target)
 {  
 	if (target.basis() == CField::NODE_BASED && source.basis() == CField::NODE_BASED)
@@ -224,7 +224,7 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 	}
 
 }
-  
+
 //////////////////////////////////////////////////////////////////////
 
 void CHoneycombInterpolator::create_honeycomb()
@@ -232,17 +232,17 @@ void CHoneycombInterpolator::create_honeycomb()
   m_dim=0;
   std::set<const CArray*> all_coordinates;
   BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*m_source_mesh))
-  { 
+  {
     m_dim = std::max(elements.element_type().dimensionality() , m_dim);
     all_coordinates.insert(&elements.coordinates());
   }
-  
+
   std::vector<Real> L(3);
   for (Uint d=0; d<m_dim; ++d)
   {
     m_ranges[d].resize(2,0.0);
   }
-      
+
   Real V=1;
   BOOST_FOREACH(const CArray* coordinates , all_coordinates)
     BOOST_FOREACH(const CArray::ConstRow& node, coordinates->array())
@@ -256,28 +256,28 @@ void CHoneycombInterpolator::create_honeycomb()
     L[d] = m_ranges[d][1] - m_ranges[d][0];
     V*=L[d];
   }
-  
+
   m_nb_elems = get_component_typed<CRegion>(*m_source_mesh).recursive_filtered_elements_count(IsElementsVolume());
-  
-  
-  if (property("Divisions")->value<std::vector<Uint> >().size() > 0)
+
+
+  if (property("Divisions").value<std::vector<Uint> >().size() > 0)
   {
-    m_N = property("Divisions")->value<std::vector<Uint> >();
+    m_N = property("Divisions").value<std::vector<Uint> >();
     for (Uint d=0; d<m_dim; ++d)
       m_D[d] = (L[d])/static_cast<Real>(m_N[d]);
   }
   else
   {
     Real V1 = V/m_nb_elems;
-    Real D1 = std::pow(V1,1./m_dim)*property("ApproximateNbElementsPerCell")->value<Uint>();
-    
+    Real D1 = std::pow(V1,1./m_dim)*property("ApproximateNbElementsPerCell").value<Uint>();
+
     for (Uint d=0; d<m_dim; ++d)
     {
       m_N[d] = (Uint) std::ceil(L[d]/D1);
       m_D[d] = (L[d])/static_cast<Real>(m_N[d]);
     }
   }
-  
+
 
   CFinfo << "Honeycomb:" << CFendl;
 	CFinfo << "----------" << CFendl;
@@ -286,11 +286,11 @@ void CHoneycombInterpolator::create_honeycomb()
     CFinfo << "range["<<d<<"] :   L = " << L[d] << "    N = " << m_N[d] << "    D = " << m_D[d] << CFendl;
   }
   CFinfo << "V = " << V << CFendl;
-  
+
   // initialize the honeycomb
   m_honeycomb.resize(boost::extents[std::max(Uint(1),m_N[0])][std::max(Uint(1),m_N[1])][std::max(Uint(1),m_N[2])]);
-  
-  
+
+
   Uint total_nb_elems=0;
   BOOST_FOREACH(const CElements& elements, recursive_filtered_range_typed<CElements>(*m_source_mesh,IsElementsVolume()))
   {
@@ -301,7 +301,7 @@ void CHoneycombInterpolator::create_honeycomb()
     {
       RealVector centroid(0.0,m_dim);
       BOOST_FOREACH(const Uint node_idx, elem)
-        centroid += RealVector(coordinates[node_idx]);        
+        centroid += RealVector(coordinates[node_idx]);
 
       centroid /= static_cast<Real>(nb_nodes_per_element);
       for (Uint d=0; d<m_dim; ++d)
@@ -311,10 +311,10 @@ void CHoneycombInterpolator::create_honeycomb()
     }
     total_nb_elems += elem_idx;
   }
-  
-  
+
+
   Uint total=0;
- 
+
   switch (m_dim)
   {
     case DIM_2D:
@@ -340,7 +340,7 @@ void CHoneycombInterpolator::create_honeycomb()
   }
 
   CFinfo << "total = " << total << " of " << m_nb_elems << CFendl;
-  
+
   m_sufficient_nb_points = static_cast<Uint>(std::pow(3.,(int)m_dim));
 	m_sufficient_nb_points = 6;
 
@@ -353,7 +353,7 @@ bool CHoneycombInterpolator::find_comb_idx(const RealVector& coordinate)
 {
   //CFinfo << "point " << coordinate << CFflush;
   cf_assert(coordinate.size() == m_dim);
-  
+
   for (Uint d=0; d<m_dim; ++d)
 	{
 		if ( (coordinate[d] - m_ranges[d][0])/m_D[d] > m_N[d])
@@ -368,7 +368,7 @@ bool CHoneycombInterpolator::find_comb_idx(const RealVector& coordinate)
   //CFinfo << " should be in box ("<<m_comb_idx[0]<<","<<m_comb_idx[1]<<","<<m_comb_idx[2]<<")" << CFendl;
 	return true;
 }
-  
+
 //////////////////////////////////////////////////////////////////////////////
 
 void CHoneycombInterpolator::find_pointcloud(Uint nb_points)
@@ -422,7 +422,7 @@ void CHoneycombInterpolator::find_pointcloud(Uint nb_points)
           //CFinfo << "   ("<<i<<","<<j<<","<<k<<")" <<  CFendl;
         }
         break;
-    }    
+    }
   }
     
   //CFinfo << m_pointcloud.size() << " points in the pointcloud " << CFendl;
@@ -458,7 +458,7 @@ boost::tuple<CElements::ConstPtr,Uint> CHoneycombInterpolator::find_element(cons
 //////////////////////////////////////////////////////////////////////
 
 
-  
+
 //////////////////////////////////////////////////////////////////////////////
 
 } // Mesh

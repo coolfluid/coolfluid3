@@ -8,8 +8,8 @@
 #include <boost/filesystem/path.hpp>
 
 #include "Common/Log.hpp"
-#include "Common/PropertyT.hpp"
-#include "Common/PropertyArray.hpp"
+#include "Common/OptionT.hpp"
+#include "Common/OptionArray.hpp"
 #include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/CMeshReader.hpp"
@@ -46,11 +46,11 @@ void CMeshReader::regist_signals ( CMeshReader* self )
 void CMeshReader::defineConfigProperties(Common::PropertyList& options)
 {
   std::vector<boost::filesystem::path> dummy;
-  options.add_option< PropertyArrayT<boost::filesystem::path> >  ( "Files",  "Files to read" , dummy );
-  options.add_option< PropertyT<std::string> >  ( "Mesh",  "Mesh to construct" , "" );
+  options.add_option< OptionArrayT<boost::filesystem::path> >  ( "Files",  "Files to read" , dummy );
+  options.add_option< OptionT<std::string> >  ( "Mesh",  "Mesh to construct" , "" );
 
-  options.getProperty("Files")->mark_basic();
-  options.getProperty("Mesh")->mark_basic();
+  options["Files"].as_option().mark_basic();
+  options["Mesh"].as_option().mark_basic();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -58,11 +58,11 @@ void CMeshReader::defineConfigProperties(Common::PropertyList& options)
 void CMeshReader::read( XmlNode& node  )
 {
   // Get the mesh
-  CMesh::Ptr mesh = look_component_type<CMesh>( property("Mesh")->value<std::string>() );
+  CMesh::Ptr mesh = look_component_type<CMesh>( property("Mesh").value<std::string>() );
 
   // Get the file paths
   std::vector<boost::filesystem::path> files;
-  BOOST_FOREACH(boost::filesystem::path file, property("Files")->value<std::vector<boost::filesystem::path> >())
+  BOOST_FOREACH(boost::filesystem::path file, property("Files").value<std::vector<boost::filesystem::path> >())
     read_from_to(file,mesh);
 }
 

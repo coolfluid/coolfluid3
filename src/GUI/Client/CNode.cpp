@@ -37,8 +37,8 @@
 
 #define ADD_ARRAY_TO_XML(type) { \
 std::vector<type> data;\
-boost::shared_ptr<PropertyArrayT<type> > array;\
-array = boost::dynamic_pointer_cast<PropertyArrayT<type> >(array);\
+boost::shared_ptr<OptionArrayT<type> > array;\
+array = boost::dynamic_pointer_cast<OptionArrayT<type> >(array);\
         \
 for( ; itList != list.end() ; itList++)\
   data.push_back(itList->toStdString());\
@@ -89,7 +89,7 @@ CNode::CNode(const QString & name, const QString & componentType, CNode::Type ty
 
   regist_signal("configure", "Update component options")->connect(boost::bind(&CNode::configure, this, _1));
 
-  m_property_list.add_property< PropertyT<std::string> >("originalComponentType", m_componentType.toStdString());
+  m_property_list.add_property("originalComponentType", m_componentType.toStdString());
 
 }
 
@@ -177,33 +177,33 @@ void CNode::setOptions(XmlNode & options)
             if(std::strcmp(typeVal, "bool") == 0)
             {
               std::vector<bool> data = p.get_array<bool>(keyVal);
-              m_property_list.add_option< PropertyArrayT<bool> >(keyVal, descrVal, data);
+              m_property_list.add_option< OptionArrayT<bool> >(keyVal, descrVal, data);
             }
             else if(std::strcmp(typeVal, "integer") == 0)
             {
               std::vector<int> data = p.get_array<int>(keyVal);
-              m_property_list.add_option< PropertyArrayT<int> >(keyVal, descrVal, data);
+              m_property_list.add_option< OptionArrayT<int> >(keyVal, descrVal, data);
             }
             else if(std::strcmp(typeVal, "unsigned") == 0)
             {
               std::vector<unsigned int> data = p.get_array<unsigned int>(keyVal);
-              m_property_list.add_option< PropertyArrayT<unsigned int> >(keyVal, descrVal, data);
+              m_property_list.add_option< OptionArrayT<unsigned int> >(keyVal, descrVal, data);
             }
             else if(std::strcmp(typeVal, "real") == 0)
             {
               std::vector<CF::Real> data = p.get_array<CF::Real>(keyVal);
-              m_property_list.add_option< PropertyArrayT<CF::Real> >(keyVal, descrVal, data);
+              m_property_list.add_option< OptionArrayT<CF::Real> >(keyVal, descrVal, data);
             }
             else if(std::strcmp(typeVal, "string") == 0)
             {
               std::vector<std::string> data = p.get_array<std::string>(keyVal);
-              m_property_list.add_option< PropertyArrayT<std::string> >(keyVal, descrVal, data);
+              m_property_list.add_option< OptionArrayT<std::string> >(keyVal, descrVal, data);
             }
             else if(std::strcmp(typeVal, "file") == 0)
             {
               std::vector<boost::filesystem::path> data;
               data = p.get_array<boost::filesystem::path>(keyVal);
-              m_property_list.add_option< PropertyArrayT<boost::filesystem::path> >(keyVal, descrVal, data);
+              m_property_list.add_option< OptionArrayT<boost::filesystem::path> >(keyVal, descrVal, data);
             }
             else
               throw ShouldNotBeHere(FromHere(), std::string(typeVal) + ": Unknown array type");
@@ -212,7 +212,7 @@ void CNode::setOptions(XmlNode & options)
         }
 
         if(!advanced)
-          m_property_list.getProperty(keyVal)->mark_basic();
+          m_property_list[keyVal].as_option().mark_basic();
       }
     }
   }
@@ -266,17 +266,17 @@ void CNode::setProperties(XmlNode & options)
             else
             {
               if(std::strcmp(typeVal, "bool") == 0)
-                m_property_list.add_property< PropertyT<bool> >(keyVal, from_str<bool>(type_node->value()));
+                m_property_list.add_property(keyVal, from_str<bool>(type_node->value()));
               else if(std::strcmp(typeVal, "integer") == 0)
-                m_property_list.add_property< PropertyT<int> >(keyVal, from_str<int>(type_node->value()));
+                m_property_list.add_property(keyVal, from_str<int>(type_node->value()));
               else if(std::strcmp(typeVal, "unsigned") == 0)
-                m_property_list.add_property< PropertyT<CF::Uint> >(keyVal, from_str<CF::Uint>(type_node->value()));
+                m_property_list.add_property(keyVal, from_str<CF::Uint>(type_node->value()));
               else if(std::strcmp(typeVal, "real") == 0)
-                m_property_list.add_property< PropertyT<CF::Real> >(keyVal, from_str<CF::Real>(type_node->value()));
+                m_property_list.add_property(keyVal, from_str<CF::Real>(type_node->value()));
               else if(std::strcmp(typeVal, "string") == 0)
-                m_property_list.add_property< PropertyT<std::string> >(keyVal, std::string(type_node->value()));
+                m_property_list.add_property(keyVal, std::string(type_node->value()));
               else if(std::strcmp(typeVal, "file") == 0)
-                m_property_list.add_property< PropertyT<boost::filesystem::path> >(keyVal, boost::filesystem::path(type_node->value()));
+                m_property_list.add_property(keyVal, boost::filesystem::path(type_node->value()));
               else
                 throw ShouldNotBeHere(FromHere(), std::string(typeVal) + ": Unknown type parent is " + node->name());
 
@@ -313,41 +313,44 @@ void CNode::modifyOptions(const QMap<QString, QString> options)
 
     for ( ; it != options.end() ; it++)
     {
-      Property::Ptr option = m_property_list.getProperty(it.key().toStdString());
+      Property * prop = &m_property_list[it.key().toStdString()].as_option();
 
-      if( strcmp( option->tag() , "array" ) )
+      if( prop != CFNULL && strcmp( prop->tag() , "array" ) )
       {
         std::string name = it.key().toStdString();
         QString value = it.value();
 
-        if(option->type() == "bool")
+        if(prop->type() == "bool")
           p.add_option(name, QVariant(value).toBool());
-        else if(option->type() == "integer")
+        else if(prop->type() == "integer")
           p.add_option(name, value.toInt());
-        else if(option->type() == "unsigned")
+        else if(prop->type() == "unsigned")
           p.add_option(name, value.toUInt());
-        else if(option->type() == "real")
+        else if(prop->type() == "real")
           p.add_option(name, value.toDouble());
-        else if(option->type() == "string")
+        else if(prop->type() == "string")
           p.add_option(name, value.toStdString());
-        else if(option->type() == "file")
+        else if(prop->type() == "file")
           p.add_option(name, boost::filesystem::path(value.toStdString()));
         else
-          throw ValueNotFound(FromHere(), option->type() + ": Unknown type for option " + name );
+          throw ValueNotFound(FromHere(), prop->type() + ": Unknown type for option " + name );
       }
-      else if( !strcmp ( option->tag() , "array" ))
+      else if( prop != CFNULL && !strcmp ( prop->tag() , "array" ))
       {
-        boost::shared_ptr<PropertyArray> optArray;
+        OptionArray * optArray;
         QStringList list = it.value().split(":");
         QStringList::iterator itList = list.begin();
 
-        optArray = boost::dynamic_pointer_cast<PropertyArray>(option);
+        optArray = static_cast<OptionArray*>(prop);
+
+        cf_assert(optArray != CFNULL);
+
         const char * elemType = optArray->elem_type();
 
         if(std::strcmp(elemType, "file") == 0)
           ADD_ARRAY_TO_XML(boost::filesystem::path)
         else
-          throw ValueNotFound(FromHere(), std::string(elemType) + ": Unknown type for option array " + option->name());
+          throw ValueNotFound(FromHere(), std::string(elemType) + ": Unknown type for option array " + optArray->name());
       }
     }
 
@@ -525,21 +528,22 @@ void CNode::getOptions(QList<NodeOption> & options) const
   {
     if(it->second->is_option())
     {
+      Option::Ptr opt = boost::dynamic_pointer_cast<Option>(it->second);
       bool success = true;
       NodeOption nodeOpt;
-      OptionType::Type optionType = OptionType::Convert::to_enum(it->second->type());
+      //OptionType::Type optionType = OptionType::Convert::to_enum(opt->type());
 
-      nodeOpt.m_paramAdv= !it->second->has_tag("basic");
+      nodeOpt.m_paramAdv= !opt->has_tag("basic");
       nodeOpt.m_paramName = it->first.c_str();
-      nodeOpt.m_paramValue = it->second->value_str().c_str();
-      nodeOpt.m_paramDescr = it->second->description().c_str();
+      nodeOpt.m_paramValue = opt->value_str().c_str();
+      nodeOpt.m_paramDescr = opt->description().c_str();
 
-      if(optionType != OptionType::INVALID)
-        nodeOpt.m_paramType = OptionType::Convert::to_enum(it->second->type());
+      if(std::strcmp(opt->tag(), "array") != 0)
+        nodeOpt.m_paramType = OptionType::Convert::to_enum(opt->type());
       else
       {
-        boost::shared_ptr<PropertyArray> optArray;
-        optArray = boost::dynamic_pointer_cast<PropertyArray>(it->second);
+        boost::shared_ptr<OptionArray> optArray;
+        optArray = boost::dynamic_pointer_cast<OptionArray>(opt);
 
         if(std::strcmp(optArray->elem_type(), "file") == 0)
           nodeOpt.m_paramType = OptionType::TYPE_FILES;

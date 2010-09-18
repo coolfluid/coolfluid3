@@ -4,14 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_PropertyT_hpp
-#define CF_Common_PropertyT_hpp
+#ifndef CF_Common_OptionT_hpp
+#define CF_Common_OptionT_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <boost/foreach.hpp>
 
-#include "Common/Property.hpp"
+#include "Common/Option.hpp"
 
 #include "Common/BasicExceptions.hpp"
 
@@ -29,13 +29,13 @@ namespace Common {
   ///   - std::string
   /// @author Tiago Quintino
   template < typename TYPE >
-      class PropertyT : public Property  {
+      class OptionT : public Option  {
 
   public:
 
     typedef TYPE value_type;
 
-    PropertyT ( const std::string& name, const std::string& desc, value_type def, bool is_option );
+    OptionT ( const std::string& name, const std::string& desc, value_type def);
 
     /// @name VIRTUAL FUNCTIONS
     //@{
@@ -62,13 +62,13 @@ namespace Common {
     /// copy the configured update value to all linked parameters
     void copy_to_linked_params ( const TYPE& val );
 
-  }; // class PropertyT
+  }; // class OptionT
 
 ////////////////////////////////////////////////////////////////////////////////
 
   template < typename TYPE>
-  PropertyT<TYPE>::PropertyT ( const std::string& name, const std::string& desc, value_type def, bool is_option = false ) :
-      Property(name, type_to_str<TYPE>(), desc, def, is_option)
+  OptionT<TYPE>::OptionT ( const std::string& name, const std::string& desc, value_type def) :
+      Option(name, desc, def)
   {
 //    CFinfo
 //        << " creating OptionT [" << m_name << "]"
@@ -79,7 +79,7 @@ namespace Common {
   }
 
   template < typename TYPE>
-  void PropertyT<TYPE>::configure ( XmlNode& node )
+  void OptionT<TYPE>::configure ( XmlNode& node )
   {
     TYPE val;
     const char * type_str = XmlTag<TYPE>::type();
@@ -98,7 +98,7 @@ namespace Common {
   }
 
   template < typename TYPE >
-  void PropertyT<TYPE>::copy_to_linked_params ( const TYPE& val )
+  void OptionT<TYPE>::copy_to_linked_params ( const TYPE& val )
   {
     BOOST_FOREACH ( void* v, this->m_linked_params )
     {
@@ -108,7 +108,7 @@ namespace Common {
   }
 
   template < typename TYPE >
-  const char* PropertyT<TYPE>::tag () const
+  const char* OptionT<TYPE>::tag () const
   {
     return XmlTag<TYPE>::type();
   }
@@ -120,4 +120,4 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_PropertyT_hpp
+#endif // CF_Common_OptionT_hpp

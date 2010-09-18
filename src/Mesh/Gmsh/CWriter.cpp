@@ -264,7 +264,7 @@ void CWriter::write_nodal_data(std::fstream& file)
     std::string field_name = nodebased_field.field_name();
     Uint nb_elements = nodebased_field.support().recursive_elements_count();
 
-    Uint dim = nodebased_field.property("dimension")->value<Uint>();
+    Uint dim = nodebased_field.property("dimension").value<Uint>();
     cf_assert(dim == 1 || dim == 3 || dim == 9);
 
     file << "$ElementNodeData\n";
@@ -340,7 +340,7 @@ void CWriter::write_element_data(std::fstream& file)
     std::string field_name = elementbased_field.field_name();
     Uint nb_elements = elementbased_field.support().recursive_elements_count();
 
-    Uint dim = elementbased_field.property("dimension")->value<Uint>();
+    Uint dim = elementbased_field.property("dimension").value<Uint>();
     cf_assert(dim == 1 || dim == 3 || dim == 9);
 
     file << "$ElementData\n";

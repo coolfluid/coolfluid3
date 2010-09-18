@@ -16,8 +16,7 @@
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/ComponentIterator.hpp"
-#include "Common/PropertyArray.hpp"
-#include "Common/PropertyT.hpp"
+#include "Common/OptionArray.hpp"
 #include "Common/String/Conversion.hpp"
 
 namespace CF {
@@ -38,8 +37,8 @@ Component::Component ( const CName& name ) :
 
   m_name = name;
 
-  m_property_list.add_property< PropertyT<std::string> >("brief", std::string( "No brief description available" ));
-  m_property_list.add_property< PropertyT<std::string> >("description", std::string( "This component has not a long description" ));
+  m_property_list.add_property("brief", std::string("No brief description available"));
+  m_property_list.add_property("description", std::string("This component has not a long description"));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -444,14 +443,14 @@ void Component::create_component ( XmlNode& node  )
 
 void Component::write_xml_tree( XmlNode& node )
 {
-  XmlNode& this_node = *XmlOps::add_node_to(node, derived_type_name());
-  XmlOps::add_attribute_to( this_node, "name", name() );
-
   if(derived_type_name().empty())
     CFerror << "Unknown derived name for " << DEMANGLED_TYPEID(*this)
         << ". Was this class added to the object provider?" << CFendl;
   else
   {
+    XmlNode& this_node = *XmlOps::add_node_to(node, derived_type_name());
+    XmlOps::add_attribute_to( this_node, "name", name() );
+
     if( m_is_link ) // if it is a link, we put the target path as value
       this_node.value( this_node.document()->allocate_string( get()->full_path().string().c_str() ));
     else
@@ -513,52 +512,52 @@ void Component::list_properties( XmlNode& node )
 
   for( ; it != m_property_list.m_properties.end() ; it++)
   {
+    std::string name = it->first;
     Property::Ptr prop = it->second;
-
-    std::string type = prop->type();
 
     if(std::strcmp(prop->tag(), "array") != 0)
     {
+      std::string type = prop->type();
+
       if(type == "string")
-        add_prop_to_xml<std::string>(p, prop);
+        add_prop_to_xml<std::string>(p, name, prop);
       else if(type == "bool")
-        add_prop_to_xml<bool>(p, prop);
+        add_prop_to_xml<bool>(p, name, prop);
       else if(type == "integer")
-        add_prop_to_xml<int>(p, prop);
+        add_prop_to_xml<int>(p, name, prop);
       else if(type == "unsigned")
-        add_prop_to_xml<CF::Uint>(p, prop);
-      else if(type == "real")
-        add_prop_to_xml<CF::Real>(p, prop);
+        add_prop_to_xml<CF::Uint>(p, name, prop);
+      else if(type == "real" || type == "double")
+        add_prop_to_xml<CF::Real>(p, name, prop);
       else if(type == "file")
-        add_prop_to_xml<boost::filesystem::path>(p, prop);
+        add_prop_to_xml<boost::filesystem::path>(p, name, prop);
       else
         throw ShouldNotBeHere(FromHere(),
              std::string("Don't know how the manage \"") + type + "\" type.");
     }
     else
     {
+      boost::shared_ptr<OptionArray> optArray;
 
-      boost::shared_ptr<PropertyArray> optArray;
-
-      optArray = boost::dynamic_pointer_cast<PropertyArray>(prop);
+      optArray = boost::dynamic_pointer_cast<OptionArray>(prop);
 
       const char * elem_type = optArray->elem_type();
 
       if(strcmp(elem_type, "string") == 0)
-        add_array_to_xml< std::string >(p, optArray);
+        add_array_to_xml< std::string >(p, name, optArray);
       else if(strcmp(elem_type, "bool") == 0)
-        add_array_to_xml< bool >(p, optArray);
+        add_array_to_xml< bool >(p, name, optArray);
       else if(strcmp(elem_type, "integer") == 0)
-        add_array_to_xml< int >(p, optArray);
+        add_array_to_xml< int >(p, name, optArray);
       else if(strcmp(elem_type, "unsigned") == 0)
-        add_array_to_xml< CF::Uint >(p, optArray);
-      else if(strcmp(elem_type, "real") == 0)
-        add_array_to_xml< CF::Real >(p, optArray);
+        add_array_to_xml< CF::Uint >(p, name, optArray);
+      else if(strcmp(elem_type, "real") == 0 || strcmp(elem_type, "double") == 0)
+        add_array_to_xml< CF::Real >(p, name, optArray);
       else if(strcmp(elem_type, "file") == 0)
-        add_array_to_xml< boost::filesystem::path >(p, optArray);
+        add_array_to_xml< boost::filesystem::path >(p, name, optArray);
       else
         throw ShouldNotBeHere(FromHere(),
-             std::string("Don't know how the manage PropertyArrayT<") +
+             std::string("Don't know how the manage OptionArrayT<") +
                   elem_type + ">.");
     }
   }

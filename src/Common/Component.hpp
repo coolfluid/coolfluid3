@@ -23,13 +23,14 @@
 #include "Common/ConcreteProvider.hpp"
 #include "Common/ComponentIterator.hpp"
 #include "Common/XmlHelpers.hpp"
-#include "Common/PropertyArray.hpp"
+#include "Common/OptionArray.hpp"
 #include "Common/TaggedObject.hpp"
 
 namespace CF {
 namespace Common {
 
   class XmlParams;
+  class Option;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -263,6 +264,12 @@ public: // functions
     return CF::TypeInfo::instance().portable_types[ typeid(*this).name() ];
   }
 
+  /// @return Returns a reference to the property list
+  PropertyList & properties() { return m_property_list; }
+
+  /// @return Returns a constant referent to the property list
+  const PropertyList & properties() const { return m_property_list; }
+
   /// @name SIGNALS
   //@{
 
@@ -310,15 +317,17 @@ private: // helper functions
 
   /// Adds an array to XML tree
   /// @param params XmlParams object that manages the tree
-  /// @param array Array to add. It must be an PropertyArrayT<TYPE>
+  /// @param array Array to add. It must be an OptionArrayT<TYPE>
   template<typename TYPE>
-  void add_array_to_xml(XmlParams & params, boost::shared_ptr<PropertyArray> array) const;
+  void add_array_to_xml(XmlParams & params, const std::string & name,
+                        boost::shared_ptr<OptionArray> array) const;
 
   /// Adds an array to XML tree
   /// @param params XmlParams object that manages the tree
   /// @param prop Property to add
   template<typename TYPE>
-  void add_prop_to_xml(XmlParams & params, boost::shared_ptr<Property> prop) const;
+  void add_prop_to_xml(XmlParams & params, const std::string & name,
+                       boost::shared_ptr<Property> prop) const;
 
 protected: // data
 
@@ -588,32 +597,34 @@ inline void Component::partial_build_component(TYPE* meself)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename TYPE>
-void Component::add_array_to_xml(XmlParams & params,
-                                 boost::shared_ptr<PropertyArray> array) const
+    void Component::add_array_to_xml(XmlParams & params, const std::string & name,
+                                 boost::shared_ptr<OptionArray> array) const
 {
-  boost::shared_ptr<PropertyArrayT<TYPE> > optArray;
-  std::string name = array->name();
+  boost::shared_ptr<OptionArrayT<TYPE> > optArray;
 
-  optArray = boost::dynamic_pointer_cast< PropertyArrayT<TYPE> >(array);
+  optArray = boost::dynamic_pointer_cast< OptionArrayT<TYPE> >(array);
 
   params.add_array(name, boost::any_cast< std::vector<TYPE> >(optArray->value()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-
 template <typename TYPE>
-void Component::add_prop_to_xml(XmlParams & params,
+void Component::add_prop_to_xml(XmlParams & params, const std::string & name,
                                  boost::shared_ptr<Property> prop) const
 {
-  bool basic = prop->has_tag("basic");
-  boost::any value = prop->value();
-  std::string desc = prop->description();
+  TYPE value = prop->value<TYPE>();
 
   if(prop->is_option())
-    params.add_option(prop->name(), boost::any_cast< TYPE >(value), desc, basic);
+  {
+    Option & opt = prop->as_option();
+    bool basic = opt.has_tag("basic");
+    std::string desc = opt.description();
+
+    params.add_option(name, value, desc, basic);
+  }
   else
-    params.add_property(prop->name(), boost::any_cast< TYPE >(value));
+    params.add_property(name, value);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

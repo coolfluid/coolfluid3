@@ -27,9 +27,9 @@ namespace ClientTest {
 
     static void defineConfigProperties ( CF::Common::PropertyList& options )
     {
-      options.add_option< CF::Common::PropertyT<int> >("theAnswer", "The answer to the ultimate "
+      options.add_option< CF::Common::OptionT<int> >("theAnswer", "The answer to the ultimate "
                                   "question of Life, the Universe, and Everything", 42);
-      options.add_option< CF::Common::PropertyT<bool> >("someBool", "The bool value", true);
+      options.add_option< CF::Common::OptionT<bool> >("someBool", "The bool value", true);
     }
 
   private: // helper functions

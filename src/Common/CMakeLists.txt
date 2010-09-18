@@ -33,8 +33,6 @@ list( APPEND Common_files
     CoreEnv.cpp
     CoreVars.hpp
     CoreVars.cpp
-    DemangledTypeID.cpp
-    DemangledTypeID.hpp
     DirPaths.cpp
     DirPaths.hpp
     EnumT.hpp
@@ -71,14 +69,16 @@ list( APPEND Common_files
     NamedObject.cpp
     NonInstantiable.hpp
     ObjectProvider.hpp
+    Option.cpp
+    Option.hpp
+    OptionArray.cpp
+    OptionArray.hpp
+    OptionT.hpp
     Property.hpp
     Property.cpp
-    PropertyT.hpp
-    PropertyArray.hpp
-    PropertyArray.cpp
     PropertyList.hpp
     PropertyList.cpp
-    PropertyComponent.hpp
+    OptionComponent.hpp
     ConfigObject.hpp
     ConfigObject.cpp
     OSystem.cpp
@@ -103,6 +103,8 @@ list( APPEND Common_files
     TaggedObject.cpp
     TimePolicies.cpp
     TimePolicies.hpp
+    TypeInfo.cpp
+    TypeInfo.hpp
     URI.hpp
     URI.cpp
     WorkerStatus.cpp
