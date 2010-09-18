@@ -68,6 +68,7 @@ include( ResetVariables )          # reset variables used for the build and set 
 include( DefineGlobalOptions )     # add user global options
 
 include( CheckOperatingSystem  )   # check for operating system features
+
 include( CheckCompilerFeatures )   # check compiler features
 
 include( DefineBuildModes )        # define how build modes behave ( may override some options )
