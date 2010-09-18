@@ -44,10 +44,10 @@ public:
   void setup(std::vector<Uint> gid, std::vector<Uint> rank);
 
   /// synchronize ghost items
-  template<typename T> void sync(T vec);
+  template<typename T> void sync(T vec) {}
 
   /// move elements accross processes
-  template<typename T> void move(T vec, std::vector<Uint> proc);
+  template<typename T> void move(T vec, std::vector<Uint> proc) {}
 
 private:
 
