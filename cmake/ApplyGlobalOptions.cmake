@@ -64,7 +64,7 @@ endif()
 coolfluid_log_file( "CF_HAVE_CXX_EXPLICIT_TEMPLATES [${CF_HAVE_CXX_EXPLICIT_TEMPLATES}]" )
 
 mark_as_advanced( CF_HAVE_CXX_EXPLICIT_TEMPLATES )
-	
+
 ###############################################################################
 # sys and time together
 if( CF_HAVE_SYS_TIME_H AND CF_HAVE_TIME_H )
@@ -107,7 +107,7 @@ if(CF_ENABLE_PROFILING)
       set( CF_PROFILER_GOOGLE  OFF )
       set( CF_PROFILER_IS_GOOGLE    NOTFOUND )
     endif()
-    mark_advanced(CF_PROFILER_IS_GOOGLE)
+    mark_as_advanced(CF_PROFILER_IS_GOOGLE)
 
   endif()
 
