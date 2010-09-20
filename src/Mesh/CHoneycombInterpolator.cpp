@@ -66,21 +66,20 @@ void CHoneycombInterpolator::defineConfigProperties ( CF::Common::PropertyList& 
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CHoneycombInterpolator::construct_internal_storage(const CMesh::Ptr& source, const CMesh::Ptr& target)
+void CHoneycombInterpolator::construct_internal_storage(const CMesh::Ptr& source)
 {
   if (m_source_mesh != source)
   {
     m_source_mesh = source;
     create_honeycomb();
   }
-  m_target_mesh = target;
 }
-
-/////////////////////////////////////////////////////////////////////////////
-
+	
+//////////////////////////////////////////////////////////////////////
+	
 void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CField& target)
 {  
-	if (target.basis() == CField::NODE_BASED && source.basis() == CField::NODE_BASED)
+	if (source.basis() == CField::NODE_BASED && target.basis() == CField::NODE_BASED)
 	{
 		// Loop over all target data
 		BOOST_FOREACH(CArray& t_data, recursive_filtered_range_typed<CArray>(target,IsComponentTag("field_data")))
@@ -119,110 +118,207 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 					
 					// interpolate the source data to the target data
 					// CFinfo << "interpolating with " << s_nodes.size() << " source nodes" << CFendl;
+					std::vector<Real> w(s_nodes.size());
+					pseudo_laplacian_weighted_linear_interpolation(s_nodes, t_node, w);
 					
-					switch (m_dim)
+					for (Uint idata=0; idata<t_data.array().shape()[1]; ++idata)
+						t_data[t_node_idx][idata] = 0;
+					
+					for (Uint s_node_idx=0; s_node_idx<s_nodes.size(); ++s_node_idx)
+						for (Uint idata=0; idata<t_data.array().shape()[1]; ++idata)
+							t_data[t_node_idx][idata] += w[s_node_idx]*s_data[s_elm[s_node_idx]][idata];
+
+					
+				}
+			}
+		}
+	}
+	else if (source.basis() == CField::ELEMENT_BASED && target.basis() == CField::NODE_BASED)
+	{
+		// Loop over all target data
+		BOOST_FOREACH(CArray& t_data, recursive_filtered_range_typed<CArray>(target,IsComponentTag("field_data")))
+		{
+			// get the target coordinates table
+			const CArray& t_coords = *t_data.get_child_type<CLink>("coordinates")->get_type<CArray>();
+			
+			// Allocations
+			Uint t_coords_dim = t_coords.array().shape()[1];
+			RealVector t_node(0.,m_dim);
+			
+			for (Uint t_node_idx=0; t_node_idx<t_data.size(); ++t_node_idx)
+			{
+				// find the element in the source
+				for (Uint d=0; d<t_coords_dim; ++d)
+					t_node[d] = t_coords[t_node_idx][d];
+				
+				if (find_comb_idx(t_node))
+				{
+					find_pointcloud(m_sufficient_nb_points);
+					std::vector<RealVector> s_centroids;
+					std::vector<boost::tuple<CArray::ConstPtr,Uint> > s_data;
+					RealVector s_centroid(0.0,m_dim);
+					BOOST_FOREACH(const Point* point, m_pointcloud)
 					{
-						case DIM_3D:
+						const ElementType& etype = point->first->element_type();
+						Uint nb_nodes_per_element = etype.nb_nodes();
+						const CTable& connectivity_table = point->first->connectivity_table();
+						const CArray& coordinates_table  = point->first->coordinates();
+						CTable::ConstRow element = connectivity_table[point->second];
+						std::vector<RealVector> s_nodes;
+						fill_node_list( std::inserter(s_nodes,s_nodes.begin()) , coordinates_table , element );
+						s_centroid = 0.0;
+						BOOST_FOREACH(RealVector& s_node, s_nodes)
 						{
-							Real Ixx(0),Ixy(0),Ixz(0),Iyy(0),Iyz(0),Izz(0), Rx(0),Ry(0),Rz(0), Lx,Ly,Lz, dx,dy,dz;
-							RealVector Dx(s_nodes.size());
-							RealVector Dy(s_nodes.size());
-							RealVector Dz(s_nodes.size());
-							for (Uint s_node_idx=0; s_node_idx<s_nodes.size(); ++s_node_idx)
-							{
-								dx = s_nodes[s_node_idx][XX] - t_node[XX];
-								dy = s_nodes[s_node_idx][YY] - t_node[YY];
-								dz = s_nodes[s_node_idx][ZZ] - t_node[ZZ];
-								
-								Ixx += dx*dx;
-								Ixy += dx*dy;
-								Ixz += dx*dz;
-								Iyy += dy*dy;
-								Iyz += dy*dz;
-								Izz += dz*dz;
-								
-								Rx += dx;
-								Ry += dy;
-								Rz += dz;
-								
-								Dx[s_node_idx]=dx;
-								Dy[s_node_idx]=dy;
-								Dz[s_node_idx]=dz;
-							}
-							Lx =  (-(Iyz*Iyz*Rx) + Iyy*Izz*Rx + Ixz*Iyz*Ry - Ixy*Izz*Ry - Ixz*Iyy*Rz + Ixy*Iyz*Rz)/
-										(Ixz*Ixz*Iyy - 2.*Ixy*Ixz*Iyz + Ixy*Ixy*Izz + Ixx*(Iyz*Iyz - Iyy*Izz));
-							Ly =  (Ixz*Iyz*Rx - Ixy*Izz*Rx - Ixz*Ixz*Ry + Ixx*Izz*Ry + Ixy*Ixz*Rz - Ixx*Iyz*Rz)/
-										(Ixz*Ixz*Iyy - 2.*Ixy*Ixz*Iyz + Ixx*Iyz*Iyz + Ixy*Ixy*Izz - Ixx*Iyy*Izz);
-							Lz =  (-(Ixz*Iyy*Rx) + Ixy*Iyz*Rx + Ixy*Ixz*Ry - Ixx*Iyz*Ry - Ixy*Ixy*Rz + Ixx*Iyy*Rz)/
-										(Ixz*Ixz*Iyy - 2.*Ixy*Ixz*Iyz + Ixy*Ixy*Izz + Ixx*(Iyz*Iyz - Iyy*Izz));
-							
-							Real S(0);
-							Real w;
-							for (Uint idata=0; idata<t_data.array().shape()[1]; ++idata)
-								t_data[t_node_idx][idata] = 0;
-							for (Uint s_node_idx=0; s_node_idx<s_nodes.size(); ++s_node_idx)
-							{
-								w = 1.0 + Lx*Dx[s_node_idx] + Ly*Dy[s_node_idx] + Lz*Dz[s_node_idx];
-								S += w;
-								
-								for (Uint idata=0; idata<t_data.array().shape()[1]; ++idata)
-									t_data[t_node_idx][idata] += w*s_data[s_elm[s_node_idx]][idata];
-							}
-							for (Uint idata=0; idata<t_data.array().shape()[1]; ++idata)
-								t_data[t_node_idx][idata] /= S;	
-							break;
+							for (Uint d=0; d<s_node.size(); ++d)
+								s_centroid[d] += s_node[d]/nb_nodes_per_element;
 						}
-						case DIM_2D:
-						{
-							Real Ixx(0),Ixy(0),Iyy(0), Rx(0),Ry(0), Lx,Ly, dx,dy;
-							RealVector Dx(s_nodes.size());
-							RealVector Dy(s_nodes.size());
-							for (Uint s_node_idx=0; s_node_idx<s_nodes.size(); ++s_node_idx)
-							{
-								dx = s_nodes[s_node_idx][XX] - t_node[XX];
-								dy = s_nodes[s_node_idx][YY] - t_node[YY];
-								
-								Ixx += dx*dx;
-								Ixy += dx*dy;
-								Iyy += dy*dy;
-								
-								Rx += dx;
-								Ry += dy;
-								
-								Dx[s_node_idx]=dx;
-								Dy[s_node_idx]=dy;
-							}
-							Lx =  (Ixy*Ry - Iyy*Rx)/(Ixx*Iyy-Ixy*Ixy);
-							Ly =  (Ixy*Rx - Ixx*Ry)/(Ixx*Iyy-Ixy*Ixy);
-							
-							Real S(0);
-							Real w;
-							for (Uint idata=0; idata<t_data.array().shape()[1]; ++idata)
-								t_data[t_node_idx][idata] = 0;
-							for (Uint s_node_idx=0; s_node_idx<s_nodes.size(); ++s_node_idx)
-							{
-								w = 1.0 + Lx*Dx[s_node_idx] + Ly*Dy[s_node_idx];
-								S += w;
-								
-								for (Uint idata=0; idata<t_data.array().shape()[1]; ++idata)
-									t_data[t_node_idx][idata] += w*s_data[s_elm[s_node_idx]][idata];
-							}
-							for (Uint idata=0; idata<t_data.array().shape()[1]; ++idata)
-								t_data[t_node_idx][idata] /= S;	
-							break;
-						}
-						default:
-							break;
+						s_centroids.push_back(s_centroid);
+						CArray::ConstPtr field_data = point->first->get_field_elements(source.field_name()).data().get_type<CArray const>();
+						s_data.push_back(boost::make_tuple(field_data,point->second));
 					}	
+					
+					std::vector<Real> w(s_centroids.size());
+					pseudo_laplacian_weighted_linear_interpolation(s_centroids, t_node, w);
+					
+					for (Uint idata=0; idata<t_data.array().shape()[1]; ++idata)
+						t_data[t_node_idx][idata] = 0;
+					
+					for (Uint s_elm_idx=0; s_elm_idx<s_centroids.size(); ++s_elm_idx)
+						for (Uint idata=0; idata<t_data.array().shape()[1]; ++idata)
+							t_data[t_node_idx][idata] += w[s_elm_idx]*s_data[s_elm_idx].get<0>()->array()[s_data[s_elm_idx].get<1>()][idata];
+				}
+			}
+		}
+	}
+	else if (source.basis() == CField::NODE_BASED && target.basis() == CField::ELEMENT_BASED)
+	{
+		BOOST_FOREACH(CFieldElements& t_elems, recursive_range_typed<CFieldElements>(target))
+		{
+			RealVector t_centroid(0.,m_dim);
+			CTable& connectivity_table = t_elems.connectivity_table();
+			CArray& coordinates = t_elems.coordinates();
+			CArray& t_data = t_elems.data();
+			Uint nb_nodes_per_element = t_elems.element_type().nb_nodes();
+			CElements::ConstPtr s_geom_elements;
+			Uint s_elm_idx;
+			for (Uint t_elm_idx=0; t_elm_idx<connectivity_table.size(); ++t_elm_idx)
+			{
+				
+				// Find the coordinates of the target element centroid
+				CTable::ConstRow t_elm = connectivity_table[t_elm_idx];
+				
+				std::vector<RealVector> t_nodes;
+				fill_node_list( std::inserter(t_nodes,t_nodes.begin()) , coordinates , t_elm );
+				
+				t_centroid = 0.0;
+				BOOST_FOREACH(RealVector& t_node, t_nodes)
+				{
+					for (Uint d=0; d<t_node.size(); ++d)
+						t_centroid[d] += t_node[d]/nb_nodes_per_element;
+				}				
+				
+				boost::tie(s_geom_elements,s_elm_idx) = find_element(t_centroid);
+				
+				if (s_geom_elements)
+				{
+					// look for the source_field elements
+					const CFieldElements& s_field_elements = s_geom_elements->get_field_elements(source.field_name());
+					
+					// extract the single source element of interest
+					CTable::ConstRow s_elm = s_field_elements.connectivity_table()[s_elm_idx];
+					
+					// get the coordinates of the nodes of the source element
+					std::vector<RealVector> s_nodes;
+					fill_node_list( std::inserter(s_nodes,s_nodes.begin()) , s_field_elements.coordinates() , s_elm );
+					
+					// get the source data
+					const CArray& s_data = s_field_elements.data();
+					
+					std::vector<Real> w(s_nodes.size());
+					pseudo_laplacian_weighted_linear_interpolation(s_nodes, t_centroid, w);
+					
+					for (Uint idata=0; idata<t_data.array().shape()[1]; ++idata)
+						t_data[t_elm_idx][idata] = 0;
+					
+					for (Uint s_node_idx=0; s_node_idx<s_nodes.size(); ++s_node_idx)
+						for (Uint idata=0; idata<t_data.array().shape()[1]; ++idata)
+							t_data[t_elm_idx][idata] += w[s_node_idx]*s_data[s_elm[s_node_idx]][idata];
+					
+				}					
+			}
+		}
+	}
+	else if (source.basis() == CField::ELEMENT_BASED && target.basis() == CField::ELEMENT_BASED)
+	{
+		BOOST_FOREACH(CFieldElements& t_elems, recursive_range_typed<CFieldElements>(target))
+		{
+			RealVector t_centroid(0.,m_dim);
+			CTable& connectivity_table = t_elems.connectivity_table();
+			CArray& coordinates = t_elems.coordinates();
+			CArray& t_data = t_elems.data();
+			Uint nb_nodes_per_element = t_elems.element_type().nb_nodes();
+
+			for (Uint t_elm_idx=0; t_elm_idx<connectivity_table.size(); ++t_elm_idx)
+			{
+				
+				// Find the coordinates of the target element centroid
+				CTable::ConstRow t_elm = connectivity_table[t_elm_idx];
+				
+				std::vector<RealVector> t_nodes;
+				fill_node_list( std::inserter(t_nodes,t_nodes.begin()) , coordinates , t_elm );
+				
+				t_centroid = 0.0;
+				BOOST_FOREACH(RealVector& t_node, t_nodes)
+				{
+					for (Uint d=0; d<t_node.size(); ++d)
+						t_centroid[d] += t_node[d]/nb_nodes_per_element;
+				}				
+				
+				if (find_comb_idx(t_centroid))
+				{
+					find_pointcloud(m_sufficient_nb_points);
+					std::vector<RealVector> s_centroids;
+					std::vector<boost::tuple<CArray::ConstPtr,Uint> > s_data;
+					RealVector s_centroid(0.0,m_dim);
+					BOOST_FOREACH(const Point* point, m_pointcloud)
+					{
+						const ElementType& etype = point->first->element_type();
+						Uint nb_nodes_per_element = etype.nb_nodes();
+						const CTable& connectivity_table = point->first->connectivity_table();
+						const CArray& coordinates_table  = point->first->coordinates();
+						CTable::ConstRow element = connectivity_table[point->second];
+						std::vector<RealVector> s_nodes;
+						fill_node_list( std::inserter(s_nodes,s_nodes.begin()) , coordinates_table , element );
+						s_centroid = 0.0;
+						BOOST_FOREACH(RealVector& s_node, s_nodes)
+						{
+							for (Uint d=0; d<s_node.size(); ++d)
+								s_centroid[d] += s_node[d]/nb_nodes_per_element;
+						}
+						s_centroids.push_back(s_centroid);
+						CArray::ConstPtr field_data = point->first->get_field_elements(source.field_name()).data().get_type<CArray const>();
+						s_data.push_back(boost::make_tuple(field_data,point->second));
+					}	
+					
+					std::vector<Real> w(s_centroids.size());
+					pseudo_laplacian_weighted_linear_interpolation(s_centroids, t_centroid, w);
+					
+					for (Uint idata=0; idata<t_data.array().shape()[1]; ++idata)
+						t_data[t_elm_idx][idata] = 0;
+					
+					for (Uint s_elm_idx=0; s_elm_idx<s_centroids.size(); ++s_elm_idx)
+						for (Uint idata=0; idata<t_data.array().shape()[1]; ++idata)
+							t_data[t_elm_idx][idata] += w[s_elm_idx]*s_data[s_elm_idx].get<0>()->array()[s_data[s_elm_idx].get<1>()][idata];
+					
+					
 				}
 			}
 		}
 	}
 	else
 	{
-		throw NotImplemented(FromHere(), "interpolation for element-based fields is not implemented yet");
+		throw ShouldNotBeHere(FromHere(), "CField::basis() should return NODE_BASED or ELEMENT_BASED");
 	}
-
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -342,7 +438,6 @@ void CHoneycombInterpolator::create_honeycomb()
   CFinfo << "total = " << total << " of " << m_nb_elems << CFendl;
 
   m_sufficient_nb_points = static_cast<Uint>(std::pow(3.,(int)m_dim));
-	m_sufficient_nb_points = 6;
 
 }
 
@@ -456,8 +551,122 @@ boost::tuple<CElements::ConstPtr,Uint> CHoneycombInterpolator::find_element(cons
 }
 	
 //////////////////////////////////////////////////////////////////////
-
-
+	
+void CHoneycombInterpolator::pseudo_laplacian_weighted_linear_interpolation(const std::vector<RealVector>& s_points, const RealVector& t_point, std::vector<Real>& weights)
+{
+	switch (m_dim)
+	{
+		case DIM_3D:
+		{
+			CFinfo << "3d" << CFendl;
+			Real Ixx(0),Ixy(0),Ixz(0),Iyy(0),Iyz(0),Izz(0), Rx(0),Ry(0),Rz(0), Lx,Ly,Lz, dx,dy,dz;
+			RealVector Dx(s_points.size());
+			RealVector Dy(s_points.size());
+			RealVector Dz(s_points.size());
+			for (Uint s_pt_idx=0; s_pt_idx<s_points.size(); ++s_pt_idx)
+			{
+				dx = s_points[s_pt_idx][XX] - t_point[XX];
+				dy = s_points[s_pt_idx][YY] - t_point[YY];
+				dz = s_points[s_pt_idx][ZZ] - t_point[ZZ];
+				
+				Ixx += dx*dx;
+				Ixy += dx*dy;
+				Ixz += dx*dz;
+				Iyy += dy*dy;
+				Iyz += dy*dz;
+				Izz += dz*dz;
+				
+				Rx += dx;
+				Ry += dy;
+				Rz += dz;
+				
+				Dx[s_pt_idx]=dx;
+				Dy[s_pt_idx]=dy;
+				Dz[s_pt_idx]=dz;
+			}
+			Lx =  (-(Iyz*Iyz*Rx) + Iyy*Izz*Rx + Ixz*Iyz*Ry - Ixy*Izz*Ry - Ixz*Iyy*Rz + Ixy*Iyz*Rz)/
+						(Ixz*Ixz*Iyy - 2.*Ixy*Ixz*Iyz + Ixy*Ixy*Izz + Ixx*(Iyz*Iyz - Iyy*Izz));
+			Ly =  (Ixz*Iyz*Rx - Ixy*Izz*Rx - Ixz*Ixz*Ry + Ixx*Izz*Ry + Ixy*Ixz*Rz - Ixx*Iyz*Rz)/
+						(Ixz*Ixz*Iyy - 2.*Ixy*Ixz*Iyz + Ixx*Iyz*Iyz + Ixy*Ixy*Izz - Ixx*Iyy*Izz);
+			Lz =  (-(Ixz*Iyy*Rx) + Ixy*Iyz*Rx + Ixy*Ixz*Ry - Ixx*Iyz*Ry - Ixy*Ixy*Rz + Ixx*Iyy*Rz)/
+						(Ixz*Ixz*Iyy - 2.*Ixy*Ixz*Iyz + Ixy*Ixy*Izz + Ixx*(Iyz*Iyz - Iyy*Izz));
+			
+			Real S(0);
+			for (Uint s_pt_idx=0; s_pt_idx<s_points.size(); ++s_pt_idx)
+			{
+				weights[s_pt_idx] = 1.0 + Lx*Dx[s_pt_idx] + Ly*Dy[s_pt_idx] + Lz*Dz[s_pt_idx];
+				S += weights[s_pt_idx];
+			}
+			for (Uint s_pt_idx=0; s_pt_idx<s_points.size(); ++s_pt_idx)
+				weights[s_pt_idx] /= S;
+			return;
+		}
+		case DIM_2D:
+		{
+			CFinfo << "2d" << CFendl;
+			Real Ixx(0),Ixy(0),Iyy(0), Rx(0),Ry(0), Lx,Ly, dx,dy;
+			RealVector Dx(s_points.size());
+			RealVector Dy(s_points.size());
+			for (Uint s_pt_idx=0; s_pt_idx<s_points.size(); ++s_pt_idx)
+			{
+				dx = s_points[s_pt_idx][XX] - t_point[XX];
+				dy = s_points[s_pt_idx][YY] - t_point[YY];
+				
+				Ixx += dx*dx;
+				Ixy += dx*dy;
+				Iyy += dy*dy;
+				
+				Rx += dx;
+				Ry += dy;
+				
+				Dx[s_pt_idx]=dx;
+				Dy[s_pt_idx]=dy;
+			}
+			Lx =  (Ixy*Ry - Iyy*Rx)/(Ixx*Iyy-Ixy*Ixy);
+			Ly =  (Ixy*Rx - Ixx*Ry)/(Ixx*Iyy-Ixy*Ixy);
+			
+			Real S(0);
+			for (Uint s_pt_idx=0; s_pt_idx<s_points.size(); ++s_pt_idx)
+			{
+				weights[s_pt_idx] = 1.0 + Lx*Dx[s_pt_idx] + Ly*Dy[s_pt_idx] ;
+				S += weights[s_pt_idx];
+			}
+			for (Uint s_pt_idx=0; s_pt_idx<s_points.size(); ++s_pt_idx)
+				weights[s_pt_idx] /= S;
+			return;
+		}
+		case DIM_1D:
+		{
+			Real Ixx(0), Rx(0), Lx, dx;
+			RealVector Dx(s_points.size());
+			for (Uint s_pt_idx=0; s_pt_idx<s_points.size(); ++s_pt_idx)
+			{
+				dx = s_points[s_pt_idx][XX] - t_point[XX];
+				
+				Ixx += dx*dx;
+				
+				Rx += dx;
+				
+				Dx[s_pt_idx]=dx;
+			}
+			Lx =  Rx/Ixx;
+			
+			Real S(0);
+			for (Uint s_pt_idx=0; s_pt_idx<s_points.size(); ++s_pt_idx)
+			{
+				weights[s_pt_idx] = 1.0 + Lx*Dx[s_pt_idx];
+				S += weights[s_pt_idx];
+			}
+			for (Uint s_pt_idx=0; s_pt_idx<s_points.size(); ++s_pt_idx)
+				weights[s_pt_idx] /= S;
+			return;
+		}
+		default:
+			throw ShouldNotBeHere(FromHere(), "");
+			break;
+	}	
+	
+}
 
 //////////////////////////////////////////////////////////////////////////////
 

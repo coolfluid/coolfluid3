@@ -47,13 +47,39 @@ public: // functions
 
 private: // functions
 
-  virtual void construct_internal_storage(const CMesh::Ptr& source, const CMesh::Ptr& target);
+	/// Construct internal storage for fast searching algorithm
+	/// @param source [in] the mesh from which interpolation will occur
+  virtual void construct_internal_storage(const CMesh::Ptr& source);
+	
+	/// Interpolate from one source field to target field
+	/// @param source [in] the source field
+	/// @param target [out] the target field
   virtual void interpolate_field_from_to(const CField& source, CField& target); 
-  void create_honeycomb();
-  bool find_comb_idx(const RealVector& coordinate);
+
+  /// Create the honeycomb for fast searching in which element a coordinate can be found
+	void create_honeycomb();
+	
+	/// Given a coordinate, find which box in the honeycomb it is located in
+  /// @param coordinate [in] The coordinate to look for
+	/// @return if the coordinate is found inside the honeycomb
+	bool find_comb_idx(const RealVector& coordinate);
+	
+	/// Find the pointcloud of minimum "nb_points" points
+	/// It is assumed that first "find_comb_idx(coordinate)" is called
+	/// @param nb_points [in] the minimum number of points in the point cloud
   void find_pointcloud(Uint nb_points);
+	
+	/// Find one single element in which the given coordinate resides.
+	/// @param target_coord [in] the given coordinate
+	/// @return the elements region, and the local coefficient in this region
 	boost::tuple<CElements::ConstPtr,Uint> find_element(const RealVector& target_coord);
   
+	/// Pseudo-Laplacian weighted linear interpolation algorithm
+	/// @param source_points [in] The coordinates of the points used for interpolation
+	/// @param target_points [in] The coordinate of the target point for interpolation
+	/// @param weights [out]  The weights corresponding for each source_point.  Q_t = sum( weight_i * Q_i )
+	void pseudo_laplacian_weighted_linear_interpolation(const std::vector<RealVector>& source_points, const RealVector& target_point, std::vector<Real>& weights);
+
 private: // helper functions
 
   /// regists all the signals declared in this class
@@ -62,9 +88,6 @@ private: // helper functions
 private: // data
   
   CMesh::Ptr m_source_mesh;
-  CMesh::Ptr m_target_mesh;
-  CField::Ptr m_source_field;
-  CField::Ptr m_target_field;
   
   Pointcloud m_pointcloud;
   Honeycomb m_honeycomb;

@@ -62,7 +62,7 @@ public: // functions
 
   // --------- Direct access ---------
 
-  virtual void construct_internal_storage(const CMesh::Ptr& source, const CMesh::Ptr& target) = 0;
+  virtual void construct_internal_storage(const CMesh::Ptr& source) = 0;
   
   virtual void interpolate_field_from_to(const CField& source, CField& target) = 0;
 

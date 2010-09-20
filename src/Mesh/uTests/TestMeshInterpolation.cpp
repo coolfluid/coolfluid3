@@ -17,6 +17,7 @@
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/ComponentPredicates.hpp"
+#include "Common/CLink.hpp"
 
 #include "Math/RealVector.hpp"
 
@@ -95,25 +96,32 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 	//interpolator->configure_property("Divisions", divisions ); 
 	
   // Create the honeycomb
-  interpolator->construct_internal_storage(source,target);
+  interpolator->construct_internal_storage(source);
   
   // Create empty fields
-  source->create_field("rho",1,CField::NODE_BASED);
-  target->create_field("rho",1,CField::NODE_BASED);
+  source->create_field("nodebased",     1,CField::NODE_BASED);
+  target->create_field("nodebased",     1,CField::NODE_BASED);
+	target->create_field("nodebased_2",   1,CField::NODE_BASED);
+	source->create_field("elementbased",  1,CField::ELEMENT_BASED);
+	target->create_field("elementbased",  1,CField::ELEMENT_BASED);
+	target->create_field("elementbased_2",1,CField::ELEMENT_BASED);
   
   // Set the field data of the source field
-  BOOST_FOREACH(CFieldElements& field_elements, recursive_range_typed<CFieldElements>(*source))
+  BOOST_FOREACH(CArray& node_data, recursive_filtered_range_typed<CArray>(*source,IsComponentTag("node_data")))
   {    
-
-    CArray& node_data = field_elements.data();
-    CArray& coordinates = field_elements.coordinates();
+		CFinfo << node_data.full_path().string() << CFendl;
+		CArray& coordinates = *node_data.get_child_type<CLink>("coordinates")->get_type<CArray>();
 
     for (Uint i=0; i<coordinates.size(); ++i)
-      node_data[i][0]=2*coordinates[i][XX];
+      node_data[i][0]=coordinates[i][XX]+2.*coordinates[i][YY]+2.*coordinates[i][ZZ];
   }
 
   // Interpolate the source field data to the target field. Note it can be in same or different meshes
-  interpolator->interpolate_field_from_to(source->field("rho"),target->field("rho"));
+  interpolator->interpolate_field_from_to(source->field("nodebased"),target->field("nodebased"));
+	interpolator->interpolate_field_from_to(source->field("nodebased"),target->field("elementbased"));
+	interpolator->interpolate_field_from_to(source->field("nodebased"),source->field("elementbased"));
+	interpolator->interpolate_field_from_to(source->field("elementbased"),target->field("elementbased_2"));
+	interpolator->interpolate_field_from_to(source->field("elementbased"),target->field("nodebased_2"));
 	
 	// Write the fields to file.
 	CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");

@@ -58,7 +58,8 @@ void CFieldElements::add_node_based_storage(CArray& nodal_data)
   // Set the nodal data
   m_data_name = "node_data";
   CLink::Ptr node_data = create_component_type<CLink>(m_data_name);
-  node_data->add_tag(m_data_name);
+  nodal_data.add_tag(m_data_name);
+	node_data->add_tag(m_data_name);
   node_data->link_to(nodal_data.get());
   properties()["node_based"] = true;
 }

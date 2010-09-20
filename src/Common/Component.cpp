@@ -481,7 +481,7 @@ void Component::list_tree( XmlNode& xml )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-std::string Component::tree(Uint level)
+std::string Component::tree(Uint level) const
 {
   std::string tree;
   for (Uint i=0; i<level; i++)

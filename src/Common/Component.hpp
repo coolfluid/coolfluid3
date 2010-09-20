@@ -252,7 +252,7 @@ public: // functions
   /// @param new_parent will be the new parent of this component
   void move_component ( Ptr new_parent );
 
-  std::string tree(Uint level=0);
+  std::string tree(Uint level=0) const;
 
   /// @return Returns the number of children this component has.
   size_t get_child_count() const;
