@@ -36,7 +36,7 @@ struct IsComponentElementType
 /////////////////////////////////////////////////////////////////////////////////////
 
 template<typename COp>
-class Mesh_API CForAllElementsT : public COperation
+class CForAllElementsT : public COperation
 {
 public: // typedefs
 

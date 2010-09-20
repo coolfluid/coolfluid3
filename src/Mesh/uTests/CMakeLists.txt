@@ -33,7 +33,7 @@ add_custom_command(TARGET uTestMesh
 
 ################################################################################
 
-list( APPEND uTestConnectivityData_cflibs Neu Testing MeshGeneration SF )
+list( APPEND uTestConnectivityData_cflibs Neu MeshGeneration SF )
 list( APPEND uTestConnectivityData_files
   uTestConnectivityData.cpp )
 

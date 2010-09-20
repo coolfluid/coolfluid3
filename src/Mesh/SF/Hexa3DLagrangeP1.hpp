@@ -12,6 +12,8 @@
 #include "Math/MatrixInverterT.hpp"
 #include "Mesh/Hexa3D.hpp"
 
+#include "Mesh/SF/SFLib.hpp"
+
 namespace CF {
 namespace Mesh {
 namespace SF {
@@ -24,7 +26,7 @@ namespace SF {
 /// @author Tiago Quintino
 /// @author Bart Janssens
 /// @author Willem Deconinck
-struct Hexa3DLagrangeP1  : public Hexa3D {
+struct SF_API Hexa3DLagrangeP1  : public Hexa3D {
 
 /// Compute the shape functions corresponding to the given
 /// mapped coordinates

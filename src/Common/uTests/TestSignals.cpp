@@ -21,7 +21,7 @@ using namespace CF::Common;
 
 /// Mini component class for tesng
 /// @author Tiago Quintino
-class Common_API CSmall : public Component {
+class CSmall : public Component {
 
 public: // typedefs
 

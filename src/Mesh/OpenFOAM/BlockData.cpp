@@ -461,7 +461,7 @@ void create_mapped_coords(const Uint segments, BlockData::GradingT::const_iterat
       const Real r = pow(grading, 1. / static_cast<Real>(segments - 1)); // expansion ratio
       for(Uint i = 0; i <= segments; ++i)
       {
-        const Real result = 2. * (1. - pow(r, i)) / (1. - grading*r) - 1.;
+        const Real result = 2. * (1. - pow(r, (int)i)) / (1. - grading*r) - 1.;
         mapped_coords[i][edge] = result;
         cf_assert(fabs(result) < (1. + eps));
       }

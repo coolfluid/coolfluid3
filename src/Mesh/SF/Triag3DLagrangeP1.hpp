@@ -13,6 +13,8 @@
 
 #include "Mesh/SF/Triag2DLagrangeP1.hpp"
 
+#include "Mesh/SF/SFLib.hpp"
+
 namespace CF {
 namespace Mesh {
 namespace SF {
@@ -24,7 +26,7 @@ namespace SF {
 /// @author Geoffrey Deliege
 /// @author Tiago Quintino
 /// @author Bart Janssens
-struct Triag3DLagrangeP1  : public Triag3D
+struct SF_API Triag3DLagrangeP1  : public Triag3D
 {
   Triag3DLagrangeP1();
 

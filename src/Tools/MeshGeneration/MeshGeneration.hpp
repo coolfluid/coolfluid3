@@ -9,6 +9,8 @@
 
 #include "Mesh/CMesh.hpp"
 
+#include "Mesh/MeshAPI.hpp"
+
 using namespace CF;
 using namespace CF::Common;
 using namespace CF::Mesh;
@@ -22,7 +24,7 @@ namespace MeshGeneration {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Create a rectangular, 2D, quad-only mesh. No buffer for creation
-void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments);
+void Mesh_API create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments);
 
 ////////////////////////////////////////////////////////////////////////////////
 

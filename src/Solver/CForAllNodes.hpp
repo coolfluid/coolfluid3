@@ -24,7 +24,7 @@ namespace Mesh {
 /////////////////////////////////////////////////////////////////////////////////////
 
 template<typename COp>
-class Mesh_API CForAllNodesT : public COperation
+class CForAllNodesT : public COperation
 {
 public: // typedefs
 

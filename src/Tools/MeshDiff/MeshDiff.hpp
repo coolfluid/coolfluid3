@@ -11,6 +11,21 @@
 
 #include "Tools/Testing/Difference.hpp"
 
+#include "Common/ExportAPI.hpp"
+#include "Common/ModuleRegister.hpp"
+
+////////////////////////////////////////////////////////////////////////////////
+
+/// Define the macro MeshDiff_API
+/// @note build system defines MeshDiff_EXPORTS when compiling MeshDiffTools files
+#ifdef MeshDiff_EXPORTS
+#   define MeshDiff_API      CF_EXPORT_API
+#   define MeshDiff_TEMPLATE
+#else
+#   define MeshDiff_API      CF_IMPORT_API
+#   define MeshDiff_TEMPLATE CF_TEMPLATE_EXTERN
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -20,7 +35,7 @@ namespace MeshDiff {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Calculates the difference between two meshes
-bool diff( const CF::Mesh::CMesh& a, const CF::Mesh::CMesh& b, const CF::Uint max_ulps);
+bool MeshDiff_API diff( const CF::Mesh::CMesh& a, const CF::Mesh::CMesh& b, const CF::Uint max_ulps);
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -12,6 +12,8 @@
 
 #include "Mesh/Triag2D.hpp"
 
+#include "Mesh/SF/SFLib.hpp"
+
 namespace CF {
 namespace Mesh {
 namespace SF {
@@ -23,7 +25,7 @@ namespace SF {
 /// @author Geoffrey Deliege
 /// @author Tiago Quintino
 /// @author Bart Janssens
-struct Triag2DLagrangeP1  : public Triag2D {
+struct SF_API Triag2DLagrangeP1  : public Triag2D {
 
 /// Compute the shape functions corresponding to the given
 /// mapped coordinates

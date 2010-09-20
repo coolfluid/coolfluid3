@@ -11,6 +11,8 @@
 
 #include "Mesh/Line2D.hpp"
 
+#include "Mesh/SF/SFLib.hpp"
+
 namespace CF {
 namespace Mesh {
 namespace SF {
@@ -22,7 +24,7 @@ namespace SF {
 /// @author Geoffrey Deliege
 /// @author Tiago Quintino
 /// @author Bart Janssens
-struct Line2DLagrangeP1  : public Line2D
+struct SF_API Line2DLagrangeP1  : public Line2D
 {
   Line2DLagrangeP1();
 

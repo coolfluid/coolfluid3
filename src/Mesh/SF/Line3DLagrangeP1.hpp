@@ -10,6 +10,8 @@
 #include "Math/RealMatrix.hpp"
 #include "Mesh/Line3D.hpp"
 
+#include "Mesh/SF/SFLib.hpp"
+
 namespace CF {
 namespace Mesh {
 namespace SF {
@@ -21,7 +23,7 @@ namespace SF {
 /// @author Geoffrey Deliege
 /// @author Tiago Quintino
 /// @author Bart Janssens
-struct Line3DLagrangeP1  : public Line3D
+struct SF_API Line3DLagrangeP1  : public Line3D
 {
   Line3DLagrangeP1();
 

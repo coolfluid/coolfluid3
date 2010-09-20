@@ -36,7 +36,7 @@ namespace Mesh {
 /// the buffer is flushed.
 /// @author Willem Deconinck
 template < typename T >
-class Mesh_API BufferT {
+class BufferT {
 
 public: // typedef
   

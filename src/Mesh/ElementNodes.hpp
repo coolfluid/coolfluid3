@@ -26,7 +26,7 @@ namespace Mesh {
 
 /// Provide a mutable view of the nodes of a single element, offering operator[] and size() functions
 /// Copying this creates a shallow copy and modifying a copy modifies the original coordinate data
-struct ElementNodeView
+struct Mesh_API ElementNodeView
 {
   ElementNodeView() {}
   ElementNodeView(CArray& coordinates, const CTable::ConstRow& connectivity);
@@ -43,7 +43,7 @@ private:
 
 /// Provide a constant view of the nodes of a single element, offering operator[] and size() functions
 /// Copying this creates a shallow copy.
-struct ConstElementNodeView
+struct Mesh_API ConstElementNodeView
 {
   ConstElementNodeView() {}
   ConstElementNodeView(CArray const& coordinates, const CTable::ConstRow& connectivity);

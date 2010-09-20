@@ -10,6 +10,8 @@
 #include "Math/RealMatrix.hpp"
 #include "Mesh/Quad2D.hpp"
 
+#include "Mesh/SF/SFLib.hpp"
+
 namespace CF {
 namespace Mesh {
 namespace SF {
@@ -22,7 +24,7 @@ namespace SF {
 /// @author Tiago Quintino
 /// @author Bart Janssens
 /// @author Willem Deconinck
-struct Quad2DLagrangeP1  : public Quad2D {
+struct SF_API Quad2DLagrangeP1  : public Quad2D {
 
 /// Compute the shape functions corresponding to the given
 /// mapped coordinates

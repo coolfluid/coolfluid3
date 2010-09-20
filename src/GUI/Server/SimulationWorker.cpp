@@ -7,7 +7,6 @@
 #include <QtCore>
 #include <QHostInfo>
 #include <string>
-#include <unistd.h>
 #include <mpi.h>
 
 #include <QDomDocument>

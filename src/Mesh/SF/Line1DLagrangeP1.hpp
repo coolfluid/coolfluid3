@@ -11,6 +11,8 @@
 
 #include "Mesh/Line1D.hpp"
 
+#include "Mesh/SF/SFLib.hpp"
+
 namespace CF {
 namespace Mesh {
 namespace SF {
@@ -22,7 +24,7 @@ namespace SF {
 /// @author Geoffrey Deliege
 /// @author Tiago Quintino
 /// @author Bart Janssens
-struct Line1DLagrangeP1  : public Line1D {
+struct SF_API Line1DLagrangeP1  : public Line1D {
 
 /// Compute the shape functions corresponding to the given
 /// mapped coordinates

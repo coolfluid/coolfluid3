@@ -9,6 +9,8 @@
 
 #include "Common/CF.hpp"
 
+#include "Mesh/OpenFOAM/OpenFOAMAPI.hpp"
+
 namespace CF {
 namespace Mesh {
 
@@ -21,7 +23,7 @@ struct SimpleCommunicationPattern;
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Storage for the information about blocks for structured grid generation
-struct BlockData
+struct OpenFOAM_API BlockData
 {
   /// Type to store indices into another vector
   typedef std::vector<Uint> IndicesT;
@@ -61,14 +63,14 @@ struct BlockData
 };
 
 /// Using the given block data, construct the mesh
-void build_mesh(const CF::Mesh::OpenFOAM::BlockData& block_data, CF::Mesh::CMesh& mesh, std::vector<Uint>& nodes_dist);
+void OpenFOAM_API build_mesh(const CF::Mesh::OpenFOAM::BlockData& block_data, CF::Mesh::CMesh& mesh, std::vector<Uint>& nodes_dist);
 
 /// Partition a mesh along the X, Y or Z axis into the given number of partitions
 /// Partitioning ensures that processor boundaries lie on a boundary between blocks
-void partition_blocks(const BlockData& blocks_in, const Uint nb_partitions, const CoordXYZ direction, BlockData& blocks_out);
+void OpenFOAM_API partition_blocks(const BlockData& blocks_in, const Uint nb_partitions, const CoordXYZ direction, BlockData& blocks_out);
 
 /// Creates a mesh containing only the blocks as elements
-void create_block_mesh(const BlockData& block_data, CMesh& mesh);
+void OpenFOAM_API create_block_mesh(const BlockData& block_data, CMesh& mesh);
 
 ////////////////////////////////////////////////////////////////////////////////
 

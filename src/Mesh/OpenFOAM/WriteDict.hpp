@@ -9,16 +9,17 @@
 
 #include "Common/CF.hpp"
 #include "Mesh/OpenFOAM/BlockData.hpp"
+#include "Mesh/OpenFOAM/OpenFOAMAPI.hpp"
 
 namespace CF {
 namespace Mesh {  
 namespace OpenFOAM {
 
-std::ostream& operator<<(std::ostream& os, const BlockData::IndicesT& data);
+OpenFOAM_API std::ostream& operator<<(std::ostream& os, const BlockData::IndicesT& data);
 
-std::ostream& operator<<(std::ostream& os, const BlockData::PointT& data);
+OpenFOAM_API std::ostream& operator<<(std::ostream& os, const BlockData::PointT& data);
 
-std::ostream& operator<<(std::ostream& os, const BlockData& block_data);
+OpenFOAM_API std::ostream& operator<<(std::ostream& os, const BlockData& block_data);
 
 ////////////////////////////////////////////////////////////////////////////////
 

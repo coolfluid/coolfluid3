@@ -15,6 +15,20 @@
 #include "Common/Log.hpp"
 #include "Common/MPI/PEInterface.hpp"
 
+#include "Common/ExportAPI.hpp"
+
+////////////////////////////////////////////////////////////////////////////////
+
+/// Define the macro Testing_API
+/// @note build system defines Testing_EXPORTS when compiling Testing files
+#ifdef Testing_EXPORTS
+#   define Testing_API      CF_EXPORT_API
+#   define Testing_TEMPLATE
+#else
+#   define Testing_API      CF_IMPORT_API
+#   define Testing_TEMPLATE CF_TEMPLATE_EXTERN
+#endif
+
 using namespace CF;
 using namespace CF::Common;
 
@@ -27,7 +41,7 @@ namespace Testing {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Any test using this fixture (or a derivative) will be timed
-class TimedTestFixture {
+class Testing_API TimedTestFixture {
 public:
 
   TimedTestFixture() {

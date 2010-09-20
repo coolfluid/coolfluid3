@@ -22,7 +22,7 @@ namespace Mesh {
 /// Base class for 2-dimensional array data
 /// @author Willem Deconinck, Tiago Quintino, Bart Janssens
 template<typename ValueT>
-class Mesh_API ArrayBase {
+class ArrayBase {
 
 public: // typedefs
   typedef ValueT value_type;

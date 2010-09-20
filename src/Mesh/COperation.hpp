@@ -93,7 +93,7 @@ private: // data
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template < typename OP1, typename OP2 >
-class Mesh_API COperationMergeT : public COperation
+class COperationMergeT : public COperation
 {
 public: // typedefs
 

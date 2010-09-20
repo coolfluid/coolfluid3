@@ -12,6 +12,8 @@
 
 #include "Mesh/SF/Quad2DLagrangeP1.hpp"
 
+#include "Mesh/SF/SFLib.hpp"
+
 namespace CF {
 namespace Mesh {
 namespace SF {
@@ -23,7 +25,7 @@ namespace SF {
 /// @author Geoffrey Deliege
 /// @author Tiago Quintino
 /// @author Bart Janssens
-struct Quad3DLagrangeP1  : public Quad3D
+struct SF_API Quad3DLagrangeP1  : public Quad3D
 {
   Quad3DLagrangeP1();
 

@@ -14,6 +14,8 @@
 #include "Mesh/GeoShape.hpp"
 #include "Mesh/Tetra3D.hpp"
 
+#include "Mesh/SF/SFLib.hpp"
+
 namespace CF {
 namespace Mesh {
 namespace SF {
@@ -25,7 +27,7 @@ namespace SF {
 /// @author Geoffrey Deliege
 /// @author Tiago Quintino
 /// @author Bart Janssens
-struct Tetra3DLagrangeP1  : public Tetra3D
+struct SF_API Tetra3DLagrangeP1  : public Tetra3D
 {
 
 /// Compute the shape functions corresponding to the given

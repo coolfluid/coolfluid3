@@ -5,7 +5,7 @@ list( APPEND MeshDiff_files
   MeshDiff.hpp
 )
 
-list( APPEND MeshDiff_cflibs Mesh )
+list( APPEND MeshDiff_cflibs Mesh)
 if( CF_BUILD_GooglePerfTools AND CF_ENABLE_PROFILING )
   list( APPEND MeshDiff_cflibs GooglePerfTools )
 endif()
