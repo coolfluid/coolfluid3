@@ -13,7 +13,6 @@
 #include <QMutex>
 #include <QVector>
 #include <QThread>
-#include <mpi.h>
 
 #include "GUI/Server/MPIListeningInfo.hpp"
 

@@ -100,12 +100,12 @@ int main(int argc, char *argv[])
 
     DirPaths::instance().addModuleDirs(moduleDirs);
 
-    if(COMM_WORLD.Get_parent() != COMM_NULL)
+   /* if(COMM_WORLD.Get_parent() != COMM_NULL)
     {
       SimulationWorker worker;
       worker.listen();
       return app.exec();
-    }
+    }*/
 
     if(argc == 2)
     {

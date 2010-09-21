@@ -6,7 +6,7 @@
 
 #include <QtXml>
 #include <QHostInfo>
-#include <mpi.h>
+#include <boost/mpi.hpp>
 
 #include <boost/filesystem/path.hpp>
 

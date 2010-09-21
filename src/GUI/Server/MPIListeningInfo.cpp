@@ -18,12 +18,12 @@ MPIListeningInfo::MPIListeningInfo()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void MPIListeningInfo::setComm(Intercomm comm)
+/*void MPIListeningInfo::setComm(Intercomm comm)
 {
   m_comm = comm;
   m_processCount = comm.Get_remote_size();
   m_finished = m_counter == m_processCount;
-}
+}*/
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

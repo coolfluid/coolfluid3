@@ -13,7 +13,6 @@
 #include <QThread>
 #include <QList>
 #include <QDomDocument>
-#include <mpi.h>
 #include <vector>
 #include <string>
 

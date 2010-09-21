@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <mpi.h>
+#include <boost/mpi.hpp>
 
 #include "Common/CF.hpp"
 
@@ -66,7 +66,7 @@ namespace Server {
     
     /// Structure data are reinitialized.
     /// @param comm Intercommunicator
-    void setComm(MPI::Intercomm comm);
+    //void setComm(MPI::Intercomm comm);
     
     /// @brief Increment the counter and update @c #finished attribute.
     /// @todo this method should be removed

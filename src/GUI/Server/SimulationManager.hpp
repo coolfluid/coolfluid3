@@ -12,9 +12,9 @@
 #include <QThread>
 #include <QHash>
 
-#include <mpi.h>
+#include <boost/mpi.hpp>
 
-#include "GUI/Server/MPIListener.hpp"
+//#include "GUI/Server/MPIListener.hpp"
 
 class QString;
 
@@ -26,7 +26,7 @@ namespace Server {
 
 ////////////////////////////////////////////////////////////////////////////
 
-  class MPIListener;
+  //class MPIListener;
 
   /// @brief Simulation manager
 
@@ -101,12 +101,12 @@ namespace Server {
 
     /// The key is the subsystem name. The value is the associated
     /// intercommunicator.
-    QHash<QString, MPI::Intercomm> m_subSysComms;
+    //QHash<QString, MPI::Intercomm> m_subSysComms;
 
     /// @brief Manager-Worker m_protocol rules
 //    CF::Common::ManagerWorkerProtocol m_protocol;
 
-    MPIListener m_listener;
+    //MPIListener m_listener;
 
     bool m_spawning;
 

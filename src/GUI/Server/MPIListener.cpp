@@ -27,7 +27,7 @@ MPIListener::MPIListener(unsigned int waitingTime)
 
   // register classes to Qt. This will allow to throw a signal with objects
   // of these classes.
-  qRegisterMetaType<MPI::Intercomm>("MPI::Intercomm");
+  //qRegisterMetaType<MPI::Intercomm>("MPI::Intercomm");
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

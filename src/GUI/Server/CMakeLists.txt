@@ -10,9 +10,9 @@ set( coolfluid-server_moc_classes
   CSimulator.hpp
   RemoteClientAppender.hpp
   CCore.hpp
-  SimulationWorker.hpp
+#  SimulationWorker.hpp
   SimulationManager.hpp
-  MPIListener.hpp
+#  MPIListener.hpp
   ServerRoot.hpp
   )
 
@@ -21,10 +21,7 @@ QT4_WRAP_CPP(coolfluid-server_moc_files ${coolfluid-server_moc_classes})
 
 # Add the project files (including the moc files)
 list( APPEND coolfluid-server_files
-  MPIListener.cpp
-  MPIListener.hpp
-  MPIListeningInfo.cpp
-  MPIListeningInfo.hpp
+
   RemoteClientAppender.cpp
   RemoteClientAppender.hpp
   CCore.cpp
@@ -39,8 +36,6 @@ list( APPEND coolfluid-server_files
   ProcessingThread.hpp
   SimulationManager.cpp
   SimulationManager.hpp
-  SimulationWorker.cpp
-  SimulationWorker.hpp
   TypesNotFoundException.cpp
   TypesNotFoundException.hpp
   UnknownClientIdException.cpp
@@ -65,4 +60,9 @@ configure_file( fsm_advect_wave.CFcase ${CMAKE_CURRENT_BINARY_DIR}/fsm_advect_wa
 configure_file( advect_wave.thor ${CMAKE_CURRENT_BINARY_DIR}/advect_wave.thor @ONLY )
 configure_file( advect_wave.SP ${CMAKE_CURRENT_BINARY_DIR}/advect_wave.SP @ONLY )
 
-coolfluid_mark_not_orphan(ServerSimulation.cpp)
+coolfluid_mark_not_orphan(  MPIListener.cpp
+  MPIListener.hpp
+  MPIListeningInfo.cpp
+  MPIListeningInfo.hpp
+    SimulationWorker.cpp
+  SimulationWorker.hpp)

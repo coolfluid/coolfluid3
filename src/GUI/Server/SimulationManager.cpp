@@ -23,7 +23,7 @@ using namespace CF::GUI::Server;
 
 SimulationManager::SimulationManager()
 {
-  connect(&m_listener, SIGNAL(ackArrived()), this, SLOT(ackArrived()));
+//  connect(&m_listener, SIGNAL(ackArrived()), this, SLOT(ackArrived()));
   m_spawning = false;
 }
 
@@ -32,7 +32,7 @@ SimulationManager::SimulationManager()
 
 void SimulationManager::run()
 {
-  m_listener.start();
+//  m_listener.start();
   //  while(1)
   //  {
   //   BuilderParserFrameInfo frameInfo;

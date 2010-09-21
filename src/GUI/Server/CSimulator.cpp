@@ -8,8 +8,6 @@
 #include <vector>
 #include <string>
 
-#include <mpi.h>
-
 #include <QtXml>
 #include <QStringList>
 
@@ -126,7 +124,7 @@ void CSimulator::run()
 //        return;
 //      }
 
-      COMM_WORLD.Barrier();
+     // COMM_WORLD.Barrier();
       CFinfo << "#\n###### RUN PHASE ####################\n#\n";
  //     for ( ; !m_stopcriteria->isSatisfied(); )
 //      {
@@ -315,7 +313,7 @@ bool CSimulator::runConfigPhase(int subsystem)
 //      CFinfo << "#\n###### SETUP PHASE ##################\n#\n";
 //      event_handler->call_signal("CF_ON_MAESTRO_SETUP", subSys);
 
-      COMM_WORLD.Barrier();
+     // COMM_WORLD.Barrier();
 
 //      m_lastSubsystemConfigured = subsystem;
 
@@ -364,7 +362,7 @@ bool CSimulator::runUnconfigPhase()
 //      CFinfo << "#\n###### DESTRUCTION SUBSYSTEM PHASE #########\n#\n";
 //      event_handler->call_signal ( "CF_ON_MAESTRO_DESTROYSUBSYSTEM", subSys );
 //
-      COMM_WORLD.Barrier();
+      //COMM_WORLD.Barrier();
 //
 //      m_lastSubsystemConfigured = -1;
 
