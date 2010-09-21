@@ -3,6 +3,8 @@ coolfluid_find_orphan_files()
 list( APPEND MeshDiff_files
   MeshDiff.cpp
   MeshDiff.hpp
+  MeshDiffAPI.cpp
+  MeshDiffAPI.hpp
 )
 
 list( APPEND MeshDiff_cflibs Mesh)

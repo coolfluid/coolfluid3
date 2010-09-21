@@ -14,24 +14,14 @@
 #include "Common/ExportAPI.hpp"
 #include "Common/ModuleRegister.hpp"
 
-////////////////////////////////////////////////////////////////////////////////
-
-/// Define the macro MeshDiff_API
-/// @note build system defines MeshDiff_EXPORTS when compiling MeshDiffTools files
-#ifdef MeshDiff_EXPORTS
-#   define MeshDiff_API      CF_EXPORT_API
-#   define MeshDiff_TEMPLATE
-#else
-#   define MeshDiff_API      CF_IMPORT_API
-#   define MeshDiff_TEMPLATE CF_TEMPLATE_EXTERN
-#endif
+#include "Tools/MeshDiff/MeshDiffAPI.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace Tools {
 namespace MeshDiff {
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Calculates the difference between two meshes
