@@ -88,6 +88,10 @@ namespace Client {
 
     CF::Common::CPath getSelectedPath() const;
 
+    CF::Common::CPath getPath(const QModelIndex & index);
+
+    QIcon getIcon(const QModelIndex & index);
+
     void selectItem(const CF::Common::CPath & path);
 
   protected:

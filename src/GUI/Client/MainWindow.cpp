@@ -33,6 +33,7 @@
 #include "GUI/Client/SelectFileDialog.hpp"
 #include "GUI/Client/StatusModel.hpp"
 #include "GUI/Client/StatusPanel.hpp"
+#include "GUI/Client/TreeBrowser.hpp"
 #include "GUI/Client/TreeView.hpp"
 #include "GUI/Client/PropertyModel.hpp"
 
@@ -71,6 +72,7 @@ MainWindow::MainWindow()
   m_propertyModel = new PropertyModel();
   m_propertyView = new QTableView(m_tabWindow);
   m_labDescription = new QLabel(m_tabWindow);
+  m_treeBrowser = new TreeBrowser(m_treeView, this);
 
   m_aboutCFDialog = new AboutCFDialog(this);
 
@@ -96,7 +98,7 @@ MainWindow::MainWindow()
   m_centralSplitter->setStretchFactor(0, 10);
 
   // add the components to the splitter
-  m_splitter->addWidget(m_treeView);
+  m_splitter->addWidget(m_treeBrowser);
 
   m_splitter->addWidget(m_centralSplitter);
 //  m_splitter->addWidget(m_statusPanel);
@@ -105,7 +107,6 @@ MainWindow::MainWindow()
   m_splitter->setHandleWidth(0);
 
   this->setCentralWidget(m_splitter);
-//  this->addDockWidget(Qt::BottomDockWidgetArea, m_logWindow);
 
   this->buildMenus();
 

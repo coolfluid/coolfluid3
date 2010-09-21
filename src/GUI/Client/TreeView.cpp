@@ -10,6 +10,7 @@
 #include <QMouseEvent>
 #include <QRegExp>
 #include <QSortFilterProxyModel>
+#include <QDebug>
 
 #include "Common/CF.hpp"
 
@@ -62,9 +63,9 @@ TreeView::TreeView(OptionPanel * optionsPanel, QMainWindow * parent,
   if(m_contextMenuAllowed)
   {
     connect(ClientRoot::tree().get(),
-            SIGNAL(currentIndexChanged(const QModelIndex &, const QModelIndex &)),
+            SIGNAL(currentIndexChanged(QModelIndex, QModelIndex)),
             this,
-            SLOT(currentIndexChanged(const QModelIndex &, const QModelIndex &)));
+            SLOT(currentIndexChanged(QModelIndex, QModelIndex)));
   }
 }
 
@@ -113,6 +114,23 @@ CPath TreeView::getSelectedPath() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+CPath TreeView::getPath(const QModelIndex & index)
+{
+  return ClientRoot::tree()->getIndexPath(m_modelFilter->mapToSource(index));
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+QIcon TreeView::getIcon(const QModelIndex & index)
+{
+  QModelIndex indexInModel = m_modelFilter->mapToSource(index);
+  return ClientRoot::tree()->data(indexInModel, Qt::DecorationRole).value<QIcon>();
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 void TreeView::selectItem(const CPath & path)
 {
   QModelIndex index = ClientRoot::tree()->getIndexByPath(path);
@@ -136,30 +154,27 @@ void TreeView::selectItem(const CPath & path)
 void TreeView::mousePressEvent(QMouseEvent * event)
 {
   QTreeView::mousePressEvent(event);
-  QPoint mousePosition(event->x() + this->x(), event->y() + this->y());
+  QPoint mousePosition = event->pos() + this->geometry().topLeft();//(event->x() + this->geometry().x(), event->y() + this->geometry().y());
   QModelIndex index = this->indexAt(mousePosition);
   NTree::Ptr tree = ClientRoot::tree();
 
-  QModelIndex indexInModel = m_modelFilter->mapToSource(index);
+  QTreeView::mousePressEvent(event);
+
+  QModelIndex indexInModel = m_modelFilter->mapToSource(this->currentIndex());
 
   Qt::MouseButton button = event->button();
 
   try
   {
-    if(event->type() == QEvent::MouseButtonDblClick && button == Qt::LeftButton
-       && indexInModel.isValid())
-    {
-      if(this->isExpanded(index))
-        this->collapse(index);
-      else
-        this->expand(index);
-    }
-    else if(m_contextMenuAllowed)
+    if(m_contextMenuAllowed && indexInModel.isValid())
     {
       if(button == Qt::RightButton)
       {
-        if(!tree->getCurrentIndex().isValid())
+//        if(!tree->getCurrentIndex().isValid())
           tree->setCurrentIndex(indexInModel);
+
+        ClientRoot::log()->addMessage(tree->getNodePath(tree->getCurrentIndex()) + " " +
+                                      tree->getNodePath(indexInModel));
 
         tree->showNodeMenu(indexInModel, QCursor::pos());
       }

@@ -47,6 +47,7 @@ set(uTestClient_moc_classes
   ../SelectPathDialog.hpp
   ../StatusModel.hpp
   ../StatusPanel.hpp
+  ../TreeBrowser.hpp
   ../TreeNode.hpp
   ../TreeView.hpp
   ../TypeAndNameDialog.hpp
@@ -169,6 +170,8 @@ list( APPEND uTestClient_files
   ../TSshInformation.hpp
   ../TreeNode.cpp
   ../TreeNode.hpp
+  ../TreeBrowser.cpp
+  ../TreeBrowser.hpp
   ../TreeView.cpp
   ../TreeView.hpp
   ../TypeAndNameDialog.cpp

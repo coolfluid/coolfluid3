@@ -9,11 +9,12 @@
 #include <vector>
 #include <string>
 #include <map>
-#include <mpi.h>
 
 #include <QtCore>
 #include <QXmlDefaultHandler>
 #include <QHostInfo>
+
+#include "Common/MPI/PEInterface.hpp"
 
 #include "GUI/Network/NetworkException.hpp"
 #include "GUI/Network/HostInfos.hpp"
@@ -24,7 +25,6 @@
 //#include "Framework/Simulator.hpp"
 #include "Common/DirPaths.hpp"
 #include "Common/CoreVars.hpp"
-#include "Common/MPI/PEInterface.hpp"
 
 #define CF_NO_TRACE
 

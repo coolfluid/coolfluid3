@@ -41,6 +41,7 @@ list( APPEND coolfluid-client_moc_classes
   StatusModel.hpp
   StatusPanel.hpp
   SelectPathDialog.hpp
+  TreeBrowser.hpp
   TreeNode.hpp
   TreeView.hpp
   TypeAndNameDialog.hpp)
@@ -141,6 +142,8 @@ list( APPEND coolfluid-client_files
   StatusModel.hpp
   StatusPanel.cpp
   StatusPanel.hpp
+  TreeBrowser.cpp
+  TreeBrowser.hpp
   TreeNode.cpp
   TreeNode.hpp
   TreeView.cpp

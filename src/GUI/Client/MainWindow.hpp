@@ -47,6 +47,7 @@ namespace Client {
   class AboutCFDialog;
   struct HostInfos;
   class PropertyModel;
+  class TreeBrowser;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -222,6 +223,8 @@ namespace Client {
     PropertyModel * m_propertyModel;
 
     QLabel * m_labDescription;
+
+    TreeBrowser * m_treeBrowser;
 
     /// @brief Creates actions and menus
     void buildMenus();
