@@ -291,7 +291,7 @@ void CNode::setProperties(XmlNode & options)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CNode::modifyOptions(const QMap<QString, QString> options)
+void CNode::modifyOptions(const QMap<QString, QString> & options)
 {
   QMap<QString, QString>::const_iterator it = options.begin();
 

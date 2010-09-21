@@ -198,7 +198,7 @@ namespace Client {
     /// to the corresponding component on the server.
     /// @param options Map of options to modify. The key is the option name.
     /// The value is the new option value, in string format.
-    void modifyOptions(const QMap<QString, QString> options);
+    void modifyOptions(const QMap<QString, QString> & options);
 
     /// @brief Gives options
     /// @param options Reference to a list where options will be put. The list
