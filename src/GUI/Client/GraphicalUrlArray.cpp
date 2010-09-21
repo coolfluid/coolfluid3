@@ -95,6 +95,9 @@ void GraphicalUrlArray::btAddClicked()
   }
 
   m_model->setStringList(currentFilesList);
+
+  if(!files.isEmpty())
+    emit valueChanged();
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

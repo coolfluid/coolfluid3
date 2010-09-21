@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <QHBoxLayout>
+#include <QDebug>
 
 #include "GUI/Client/GraphicalValue.hpp"
 
@@ -43,6 +44,9 @@ QVariant GraphicalValue::getOriginalValue() const
 
 QString GraphicalValue::getOriginalString() const
 {
+  if(m_originalValue.type() == QVariant::StringList)
+    return m_originalValue.toStringList().join(":");
+
   return m_originalValue.toString();
 }
 
@@ -51,7 +55,7 @@ QString GraphicalValue::getOriginalString() const
 
 bool GraphicalValue::isModified() const
 {
-  return m_originalValue.toString() != this->getValue().toString();
+  return getOriginalString() != getValueString();
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
