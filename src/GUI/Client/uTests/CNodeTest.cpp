@@ -20,6 +20,7 @@
 #include "GUI/Client/NRoot.hpp"
 #include "GUI/Client/NTree.hpp"
 
+#include "GUI/Client/uTests/CommonFunctions.hpp"
 #include "GUI/Client/uTests/ExceptionThrowHandler.hpp"
 #include "GUI/Client/uTests/MyNode.hpp"
 #include "GUI/Client/uTests/TreeHandler.hpp"
@@ -101,22 +102,31 @@ void CNodeTest::test_setOptions()
   MyNode node("Node");
 
   boost::shared_ptr<XmlDoc> wrongOpt = XmlOps::parse(std::string("<valuemap>"
-      "	<value key=\"pi\" descr=\"Pi value\">"
-      " 	<double>3.141592</double>"
-      " </value>"
-      "	<value key=\"fakePi\" descr=\"Pi value in an unknown type\">"
-      " 	<type>3.141592</type>"
-      " </value>"
+      "<value key=\"options\">"
+      " <valuemap>"
+      " 	<value key=\"pi\" descr=\"Pi value\">"
+      "   	<real>3.141592</real>"
+      "  </value>"
+      "	 <value key=\"fakePi\" descr=\"Pi value in an unknown type\">"
+      "   	<type>3.141592</type>"
+      "  </value>"
+      " </valuemap>"
+      "</value>"
       "</valuemap>"));
 
   boost::shared_ptr<XmlDoc> correctOpt = XmlOps::parse(std::string("<valuemap>"
-      "	<value key=\"pi\" descr=\"Pi value\">"
-      " 	<double>3.141592</double>"
-      " </value>"
-      "	<value key=\"hello\" descr=\"Some string\">"
-      " 	<string>Hello World!</type>"
-      " </value>"
+      "<value key=\"options\">"
+      " <valuemap>"
+      " 	<value key=\"pi\" descr=\"Pi value\">"
+      "   	<real>3.141592</real>"
+      "  </value>"
+      "	 <value key=\"fakePi\" descr=\"Pi value in an unknown type\">"
+      "   	<string>Hello world!</string>"
+      "  </value>"
+      " </valuemap>"
+      "</value>"
       "</valuemap>"));
+
 
   GUI_CHECK_THROW(MyNode("Node").setOptions(*wrongOpt->first_node()), ShouldNotBeHere);
 
@@ -128,38 +138,31 @@ void CNodeTest::test_setOptions()
 void CNodeTest::test_getOptions()
 {
   TreeHandler th;
-  NRoot::Ptr root = ClientRoot::root();
   MyNode::Ptr node(new MyNode("Node"));
-  NLink::Ptr link(new NLink("Link")) ;
 
   QList<NodeOption> nodeOptList;
-  QList<NodeOption> linkOptList;
 
   boost::shared_ptr<XmlDoc> options = XmlOps::parse(std::string("<valuemap>"
-      "	<value key=\"pi\" descr=\"Pi value\">"
-      " 	<double>3.141592</double>"
-      " </value>"
-      "	<value key=\"hello\" descr=\"Some bool\">"
-      " 	<bool>false</bool>"
-      " </value>"
+      "<value key=\"options\">"
+      " <valuemap>"
+      " 	<value key=\"pi\" descr=\"Pi value\">"
+      "   	<real>3.141592</real>"
+      "  </value>"
+      "	 <value key=\"hello\" descr=\"Some bool\">"
+      "   	<bool>false</bool>"
+      "  </value>"
+      " </valuemap>"
+      "</value>"
       "</valuemap>"));
 
   th.add(node);
-  th.add(link);
-
-  link->setTargetNode(node);
 
   node->setOptions(*options->first_node());
 
   GUI_CHECK_NO_THROW(node->getOptions(nodeOptList));
-  GUI_CHECK_NO_THROW(link->getOptions(linkOptList));
 
   // there were already 2 options in MyNode + 2 new options => 4 options
   QCOMPARE(nodeOptList.count(), 4);
-  QCOMPARE(linkOptList.count(), 4);
-
-  // lists must be equal
-  QCOMPARE(nodeOptList, linkOptList);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -167,7 +170,6 @@ void CNodeTest::test_getOptions()
 void CNodeTest::test_createFromXml()
 {
   CNode::Ptr node;
-  boost::shared_ptr<XmlDoc> doc;
   NRoot::Ptr root;
   NGroup::Ptr group;
   QList<NodeOption> optList;
@@ -175,16 +177,20 @@ void CNodeTest::test_createFromXml()
   boost::shared_ptr<XmlDoc> tree = XmlOps::parse(
       std::string("<CRoot name=\"Simulator\">"
                   "  <SomeComponent name=\"Flow\">" // comp. type does not exist
-                  "   <valuemap>"
-                  "    <value key=\"pi\" descr=\"Pi in a CGroup\">"
-                  "     <double>3.1415920000000002</double>"
-                  "    </value>"
-                  "   </valuemap>"
+                  "    <valuemap>"
+                  "      <value key=\"options\">"
+                  "        <valuemap>"
+                  "          <value key=\"pi\" descr=\"Pi in a CGroup\">"
+                  "            <real>3.1415920000000002</real>"
+                  "          </value>"
+                  "        </valuemap>"
+                  "      </value>"
+                  "    </valuemap>"
                   "  </SomeComponent>"
                   "</CGroup>"));
 
-  GUI_CHECK_NO_THROW(doc = XmlOps::parse(boost::filesystem::path("./tree.xml")));
-  GUI_CHECK_NO_THROW(root = CNode::createFromXml(*doc->first_node())->convertTo<NRoot>());
+ // GUI_CHECK_NO_THROW(doc = XmlOps::parse(boost::filesystem::path("./tree.xml")));
+  GUI_CHECK_NO_THROW(root = makeTreeFromFile());
   GUI_CHECK_THROW(CNode::createFromXml(*tree->first_node())->convertTo<NRoot>(), XmlError);
 
   GUI_CHECK_NO_THROW(node = boost::dynamic_pointer_cast<CNode>(root->root()->get_child("Flow")));

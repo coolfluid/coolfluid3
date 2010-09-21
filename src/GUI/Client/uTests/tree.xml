@@ -1,69 +1,785 @@
 <CRoot name="Simulator">
-  <valuemap/>
+  <valuemap>
+    <value key="properties">
+      <valuemap>
+        <value key="brief">
+          <string>No brief description available</string>
+        </value>
+        <value key="description">
+          <string>This component has not a long description</string>
+        </value>
+      </valuemap>
+    </value>
+  </valuemap>
   <CCore name="Core">
-    <valuemap/>
+    <valuemap>
+      <value key="properties">
+        <valuemap>
+          <value key="brief">
+            <string>No brief description available</string>
+          </value>
+          <value key="description">
+            <string>This component has not a long description</string>
+          </value>
+        </valuemap>
+      </value>
+    </valuemap>
   </CCore>
   <CGroup name="Flow">
     <valuemap>
-      <value key="pi" descr="Pi in a CGroup">
-        <double>3.1415920000000002</double>
+      <value key="properties">
+        <valuemap>
+          <value key="brief">
+            <string>No brief description available</string>
+          </value>
+          <value key="description">
+            <string>This component has not a long description</string>
+          </value>
+        </valuemap>
+      </value>
+      <value key="options">
+        <valuemap>
+          <value key="pi" mode="adv" descr="Pi in a CGroup">
+            <real>3.14159</real>
+          </value>
+        </valuemap>
       </value>
     </valuemap>
     <CMethod name="FVM">
       <valuemap>
-        <value key="euler" descr="Euler number in a CMethod">
-          <double>2.71</double>
+        <value key="properties">
+          <valuemap>
+            <value key="brief">
+              <string>No brief description available</string>
+            </value>
+            <value key="description">
+              <string>This component has not a long description</string>
+            </value>
+          </valuemap>
         </value>
-        <value key="fourtyTwo" descr="An integer value in a CMethod">
-          <int>42</int>
-        </value>
-        <value key="myBoolMeth" descr="A boolean value in a CMethod">
-          <bool>true</bool>
+        <value key="options">
+          <valuemap>
+            <value key="euler" mode="adv" descr="Euler number in a CMethod">
+              <real>2.71</real>
+            </value>
+            <value key="fourtyTwo" mode="adv" descr="An integer value in a CMethod">
+              <integer>42</integer>
+            </value>
+            <value key="myBoolMeth" mode="adv" descr="A boolean value in a CMethod">
+              <bool>true</bool>
+            </value>
+          </valuemap>
         </value>
       </valuemap>
     </CMethod>
     <CLink name="Mesh">//Simulator/MG/Mesh1</CLink>
     <CMethod name="Petsc">
       <valuemap>
-        <value key="euler" descr="Euler number in a CMethod">
-          <double>2.71</double>
+        <value key="properties">
+          <valuemap>
+            <value key="brief">
+              <string>No brief description available</string>
+            </value>
+            <value key="description">
+              <string>This component has not a long description</string>
+            </value>
+          </valuemap>
         </value>
-        <value key="fourtyTwo" descr="An integer value in a CMethod">
-          <int>42</int>
-        </value>
-        <value key="myBoolMeth" descr="A boolean value in a CMethod">
-          <bool>true</bool>
+        <value key="options">
+          <valuemap>
+            <value key="euler" mode="adv" descr="Euler number in a CMethod">
+              <real>2.71</real>
+            </value>
+            <value key="fourtyTwo" mode="adv" descr="An integer value in a CMethod">
+              <integer>42</integer>
+            </value>
+            <value key="myBoolMeth" mode="adv" descr="A boolean value in a CMethod">
+              <bool>true</bool>
+            </value>
+          </valuemap>
         </value>
       </valuemap>
     </CMethod>
   </CGroup>
   <CGroup name="MG">
     <valuemap>
-      <value key="pi" descr="Pi in a CGroup">
-        <double>3.1415920000000002</double>
+      <value key="properties">
+        <valuemap>
+          <value key="brief">
+            <string>No brief description available</string>
+          </value>
+          <value key="description">
+            <string>This component has not a long description</string>
+          </value>
+        </valuemap>
+      </value>
+      <value key="options">
+        <valuemap>
+          <value key="pi" mode="adv" descr="Pi in a CGroup">
+            <real>3.14159</real>
+          </value>
+        </valuemap>
       </value>
     </valuemap>
     <CMesh name="Mesh1">
-      <valuemap/>
+      <valuemap>
+        <value key="properties">
+          <valuemap>
+            <value key="brief">
+              <string>No brief description available</string>
+            </value>
+            <value key="description">
+              <string>This component has not a long description</string>
+            </value>
+          </valuemap>
+        </value>
+      </valuemap>
+      <CRegion name="Base">
+        <valuemap>
+          <value key="properties">
+            <valuemap>
+              <value key="brief">
+                <string>No brief description available</string>
+              </value>
+              <value key="description">
+                <string>This component has not a long description</string>
+              </value>
+            </valuemap>
+          </value>
+        </valuemap>
+        <CRegion name="hextet">
+          <valuemap>
+            <value key="properties">
+              <valuemap>
+                <value key="brief">
+                  <string>No brief description available</string>
+                </value>
+                <value key="description">
+                  <string>This component has not a long description</string>
+                </value>
+              </valuemap>
+            </value>
+          </valuemap>
+          <CArray name="coordinates">
+            <valuemap>
+              <value key="properties">
+                <valuemap>
+                  <value key="brief">
+                    <string>No brief description available</string>
+                  </value>
+                  <value key="description">
+                    <string>This component has not a long description</string>
+                  </value>
+                </valuemap>
+              </value>
+            </valuemap>
+          </CArray>
+          <CRegion name="fluid">
+            <valuemap>
+              <value key="properties">
+                <valuemap>
+                  <value key="brief">
+                    <string>No brief description available</string>
+                  </value>
+                  <value key="description">
+                    <string>This component has not a long description</string>
+                  </value>
+                </valuemap>
+              </value>
+            </valuemap>
+            <CElements name="elements_Hexa3DLagrangeP1">
+              <valuemap>
+                <value key="properties">
+                  <valuemap>
+                    <value key="brief">
+                      <string>No brief description available</string>
+                    </value>
+                    <value key="description">
+                      <string>This component has not a long description</string>
+                    </value>
+                  </valuemap>
+                </value>
+              </valuemap>
+              <CTable name="connectivity_table">
+                <valuemap>
+                  <value key="properties">
+                    <valuemap>
+                      <value key="brief">
+                        <string>No brief description available</string>
+                      </value>
+                      <value key="description">
+                        <string>This component has not a long description</string>
+                      </value>
+                    </valuemap>
+                  </value>
+                </valuemap>
+              </CTable>
+              <CLink name="coordinates">//Simulator/MG/Mesh1/Base/hextet/coordinates</CLink>
+            </CElements>
+            <CElements name="elements_Tetra3DLagrangeP1">
+              <valuemap>
+                <value key="properties">
+                  <valuemap>
+                    <value key="brief">
+                      <string>No brief description available</string>
+                    </value>
+                    <value key="description">
+                      <string>This component has not a long description</string>
+                    </value>
+                  </valuemap>
+                </value>
+              </valuemap>
+              <CTable name="connectivity_table">
+                <valuemap>
+                  <value key="properties">
+                    <valuemap>
+                      <value key="brief">
+                        <string>No brief description available</string>
+                      </value>
+                      <value key="description">
+                        <string>This component has not a long description</string>
+                      </value>
+                    </valuemap>
+                  </value>
+                </valuemap>
+              </CTable>
+              <CLink name="coordinates">//Simulator/MG/Mesh1/Base/hextet/coordinates</CLink>
+            </CElements>
+          </CRegion>
+          <CRegion name="inlet">
+            <valuemap>
+              <value key="properties">
+                <valuemap>
+                  <value key="brief">
+                    <string>No brief description available</string>
+                  </value>
+                  <value key="description">
+                    <string>This component has not a long description</string>
+                  </value>
+                </valuemap>
+              </value>
+            </valuemap>
+            <CElements name="elements_Quad3DLagrangeP1">
+              <valuemap>
+                <value key="properties">
+                  <valuemap>
+                    <value key="brief">
+                      <string>No brief description available</string>
+                    </value>
+                    <value key="description">
+                      <string>This component has not a long description</string>
+                    </value>
+                  </valuemap>
+                </value>
+              </valuemap>
+              <CTable name="connectivity_table">
+                <valuemap>
+                  <value key="properties">
+                    <valuemap>
+                      <value key="brief">
+                        <string>No brief description available</string>
+                      </value>
+                      <value key="description">
+                        <string>This component has not a long description</string>
+                      </value>
+                    </valuemap>
+                  </value>
+                </valuemap>
+              </CTable>
+              <CLink name="coordinates">//Simulator/MG/Mesh1/Base/hextet/coordinates</CLink>
+            </CElements>
+          </CRegion>
+          <CRegion name="outlet">
+            <valuemap>
+              <value key="properties">
+                <valuemap>
+                  <value key="brief">
+                    <string>No brief description available</string>
+                  </value>
+                  <value key="description">
+                    <string>This component has not a long description</string>
+                  </value>
+                </valuemap>
+              </value>
+            </valuemap>
+            <CElements name="elements_Triag3DLagrangeP1">
+              <valuemap>
+                <value key="properties">
+                  <valuemap>
+                    <value key="brief">
+                      <string>No brief description available</string>
+                    </value>
+                    <value key="description">
+                      <string>This component has not a long description</string>
+                    </value>
+                  </valuemap>
+                </value>
+              </valuemap>
+              <CTable name="connectivity_table">
+                <valuemap>
+                  <value key="properties">
+                    <valuemap>
+                      <value key="brief">
+                        <string>No brief description available</string>
+                      </value>
+                      <value key="description">
+                        <string>This component has not a long description</string>
+                      </value>
+                    </valuemap>
+                  </value>
+                </valuemap>
+              </CTable>
+              <CLink name="coordinates">//Simulator/MG/Mesh1/Base/hextet/coordinates</CLink>
+            </CElements>
+          </CRegion>
+          <CRegion name="wall">
+            <valuemap>
+              <value key="properties">
+                <valuemap>
+                  <value key="brief">
+                    <string>No brief description available</string>
+                  </value>
+                  <value key="description">
+                    <string>This component has not a long description</string>
+                  </value>
+                </valuemap>
+              </value>
+            </valuemap>
+            <CElements name="elements_Quad3DLagrangeP1">
+              <valuemap>
+                <value key="properties">
+                  <valuemap>
+                    <value key="brief">
+                      <string>No brief description available</string>
+                    </value>
+                    <value key="description">
+                      <string>This component has not a long description</string>
+                    </value>
+                  </valuemap>
+                </value>
+              </valuemap>
+              <CTable name="connectivity_table">
+                <valuemap>
+                  <value key="properties">
+                    <valuemap>
+                      <value key="brief">
+                        <string>No brief description available</string>
+                      </value>
+                      <value key="description">
+                        <string>This component has not a long description</string>
+                      </value>
+                    </valuemap>
+                  </value>
+                </valuemap>
+              </CTable>
+              <CLink name="coordinates">//Simulator/MG/Mesh1/Base/hextet/coordinates</CLink>
+            </CElements>
+            <CElements name="elements_Triag3DLagrangeP1">
+              <valuemap>
+                <value key="properties">
+                  <valuemap>
+                    <value key="brief">
+                      <string>No brief description available</string>
+                    </value>
+                    <value key="description">
+                      <string>This component has not a long description</string>
+                    </value>
+                  </valuemap>
+                </value>
+              </valuemap>
+              <CTable name="connectivity_table">
+                <valuemap>
+                  <value key="properties">
+                    <valuemap>
+                      <value key="brief">
+                        <string>No brief description available</string>
+                      </value>
+                      <value key="description">
+                        <string>This component has not a long description</string>
+                      </value>
+                    </valuemap>
+                  </value>
+                </valuemap>
+              </CTable>
+              <CLink name="coordinates">//Simulator/MG/Mesh1/Base/hextet/coordinates</CLink>
+            </CElements>
+          </CRegion>
+        </CRegion>
+        <CRegion name="quadtriag">
+          <valuemap>
+            <value key="properties">
+              <valuemap>
+                <value key="brief">
+                  <string>No brief description available</string>
+                </value>
+                <value key="description">
+                  <string>This component has not a long description</string>
+                </value>
+              </valuemap>
+            </value>
+          </valuemap>
+          <CArray name="coordinates">
+            <valuemap>
+              <value key="properties">
+                <valuemap>
+                  <value key="brief">
+                    <string>No brief description available</string>
+                  </value>
+                  <value key="description">
+                    <string>This component has not a long description</string>
+                  </value>
+                </valuemap>
+              </value>
+            </valuemap>
+          </CArray>
+          <CRegion name="gas">
+            <valuemap>
+              <value key="properties">
+                <valuemap>
+                  <value key="brief">
+                    <string>No brief description available</string>
+                  </value>
+                  <value key="description">
+                    <string>This component has not a long description</string>
+                  </value>
+                </valuemap>
+              </value>
+            </valuemap>
+            <CElements name="elements_Quad2DLagrangeP1">
+              <valuemap>
+                <value key="properties">
+                  <valuemap>
+                    <value key="brief">
+                      <string>No brief description available</string>
+                    </value>
+                    <value key="description">
+                      <string>This component has not a long description</string>
+                    </value>
+                  </valuemap>
+                </value>
+              </valuemap>
+              <CTable name="connectivity_table">
+                <valuemap>
+                  <value key="properties">
+                    <valuemap>
+                      <value key="brief">
+                        <string>No brief description available</string>
+                      </value>
+                      <value key="description">
+                        <string>This component has not a long description</string>
+                      </value>
+                    </valuemap>
+                  </value>
+                </valuemap>
+              </CTable>
+              <CLink name="coordinates">//Simulator/MG/Mesh1/Base/quadtriag/coordinates</CLink>
+            </CElements>
+            <CElements name="elements_Triag2DLagrangeP1">
+              <valuemap>
+                <value key="properties">
+                  <valuemap>
+                    <value key="brief">
+                      <string>No brief description available</string>
+                    </value>
+                    <value key="description">
+                      <string>This component has not a long description</string>
+                    </value>
+                  </valuemap>
+                </value>
+              </valuemap>
+              <CTable name="connectivity_table">
+                <valuemap>
+                  <value key="properties">
+                    <valuemap>
+                      <value key="brief">
+                        <string>No brief description available</string>
+                      </value>
+                      <value key="description">
+                        <string>This component has not a long description</string>
+                      </value>
+                    </valuemap>
+                  </value>
+                </valuemap>
+              </CTable>
+              <CLink name="coordinates">//Simulator/MG/Mesh1/Base/quadtriag/coordinates</CLink>
+            </CElements>
+          </CRegion>
+          <CRegion name="inlet">
+            <valuemap>
+              <value key="properties">
+                <valuemap>
+                  <value key="brief">
+                    <string>No brief description available</string>
+                  </value>
+                  <value key="description">
+                    <string>This component has not a long description</string>
+                  </value>
+                </valuemap>
+              </value>
+            </valuemap>
+            <CElements name="elements_Line2DLagrangeP1">
+              <valuemap>
+                <value key="properties">
+                  <valuemap>
+                    <value key="brief">
+                      <string>No brief description available</string>
+                    </value>
+                    <value key="description">
+                      <string>This component has not a long description</string>
+                    </value>
+                  </valuemap>
+                </value>
+              </valuemap>
+              <CTable name="connectivity_table">
+                <valuemap>
+                  <value key="properties">
+                    <valuemap>
+                      <value key="brief">
+                        <string>No brief description available</string>
+                      </value>
+                      <value key="description">
+                        <string>This component has not a long description</string>
+                      </value>
+                    </valuemap>
+                  </value>
+                </valuemap>
+              </CTable>
+              <CLink name="coordinates">//Simulator/MG/Mesh1/Base/quadtriag/coordinates</CLink>
+            </CElements>
+          </CRegion>
+          <CRegion name="liquid">
+            <valuemap>
+              <value key="properties">
+                <valuemap>
+                  <value key="brief">
+                    <string>No brief description available</string>
+                  </value>
+                  <value key="description">
+                    <string>This component has not a long description</string>
+                  </value>
+                </valuemap>
+              </value>
+            </valuemap>
+            <CElements name="elements_Triag2DLagrangeP1">
+              <valuemap>
+                <value key="properties">
+                  <valuemap>
+                    <value key="brief">
+                      <string>No brief description available</string>
+                    </value>
+                    <value key="description">
+                      <string>This component has not a long description</string>
+                    </value>
+                  </valuemap>
+                </value>
+              </valuemap>
+              <CTable name="connectivity_table">
+                <valuemap>
+                  <value key="properties">
+                    <valuemap>
+                      <value key="brief">
+                        <string>No brief description available</string>
+                      </value>
+                      <value key="description">
+                        <string>This component has not a long description</string>
+                      </value>
+                    </valuemap>
+                  </value>
+                </valuemap>
+              </CTable>
+              <CLink name="coordinates">//Simulator/MG/Mesh1/Base/quadtriag/coordinates</CLink>
+            </CElements>
+          </CRegion>
+          <CRegion name="outlet">
+            <valuemap>
+              <value key="properties">
+                <valuemap>
+                  <value key="brief">
+                    <string>No brief description available</string>
+                  </value>
+                  <value key="description">
+                    <string>This component has not a long description</string>
+                  </value>
+                </valuemap>
+              </value>
+            </valuemap>
+            <CElements name="elements_Line2DLagrangeP1">
+              <valuemap>
+                <value key="properties">
+                  <valuemap>
+                    <value key="brief">
+                      <string>No brief description available</string>
+                    </value>
+                    <value key="description">
+                      <string>This component has not a long description</string>
+                    </value>
+                  </valuemap>
+                </value>
+              </valuemap>
+              <CTable name="connectivity_table">
+                <valuemap>
+                  <value key="properties">
+                    <valuemap>
+                      <value key="brief">
+                        <string>No brief description available</string>
+                      </value>
+                      <value key="description">
+                        <string>This component has not a long description</string>
+                      </value>
+                    </valuemap>
+                  </value>
+                </valuemap>
+              </CTable>
+              <CLink name="coordinates">//Simulator/MG/Mesh1/Base/quadtriag/coordinates</CLink>
+            </CElements>
+          </CRegion>
+          <CRegion name="wall">
+            <valuemap>
+              <value key="properties">
+                <valuemap>
+                  <value key="brief">
+                    <string>No brief description available</string>
+                  </value>
+                  <value key="description">
+                    <string>This component has not a long description</string>
+                  </value>
+                </valuemap>
+              </value>
+            </valuemap>
+            <CElements name="elements_Line2DLagrangeP1">
+              <valuemap>
+                <value key="properties">
+                  <valuemap>
+                    <value key="brief">
+                      <string>No brief description available</string>
+                    </value>
+                    <value key="description">
+                      <string>This component has not a long description</string>
+                    </value>
+                  </valuemap>
+                </value>
+              </valuemap>
+              <CTable name="connectivity_table">
+                <valuemap>
+                  <value key="properties">
+                    <valuemap>
+                      <value key="brief">
+                        <string>No brief description available</string>
+                      </value>
+                      <value key="description">
+                        <string>This component has not a long description</string>
+                      </value>
+                    </valuemap>
+                  </value>
+                </valuemap>
+              </CTable>
+              <CLink name="coordinates">//Simulator/MG/Mesh1/Base/quadtriag/coordinates</CLink>
+            </CElements>
+          </CRegion>
+        </CRegion>
+      </CRegion>
     </CMesh>
     <CMesh name="Mesh2">
-      <valuemap/>
+      <valuemap>
+        <value key="properties">
+          <valuemap>
+            <value key="brief">
+              <string>No brief description available</string>
+            </value>
+            <value key="description">
+              <string>This component has not a long description</string>
+            </value>
+          </valuemap>
+        </value>
+      </valuemap>
     </CMesh>
   </CGroup>
   <CSimulator name="Simulator">
-    <valuemap/>
+    <valuemap>
+      <value key="properties">
+        <valuemap>
+          <value key="brief">
+            <string>No brief description available</string>
+          </value>
+          <value key="description">
+            <string>This component has not a long description</string>
+          </value>
+        </valuemap>
+      </value>
+    </valuemap>
   </CSimulator>
   <CGroup name="Solid">
     <valuemap>
-      <value key="pi" descr="Pi in a CGroup">
-        <double>3.1415920000000002</double>
+      <value key="properties">
+        <valuemap>
+          <value key="brief">
+            <string>No brief description available</string>
+          </value>
+          <value key="description">
+            <string>This component has not a long description</string>
+          </value>
+        </valuemap>
+      </value>
+      <value key="options">
+        <valuemap>
+          <value key="pi" mode="adv" descr="Pi in a CGroup">
+            <real>3.14159</real>
+          </value>
+        </valuemap>
       </value>
     </valuemap>
     <CMesh name="Mesh3">
-      <valuemap/>
+      <valuemap>
+        <value key="properties">
+          <valuemap>
+            <value key="brief">
+              <string>No brief description available</string>
+            </value>
+            <value key="description">
+              <string>This component has not a long description</string>
+            </value>
+          </valuemap>
+        </value>
+      </valuemap>
     </CMesh>
     <CMesh name="Mesh4">
-      <valuemap/>
+      <valuemap>
+        <value key="properties">
+          <valuemap>
+            <value key="brief">
+              <string>No brief description available</string>
+            </value>
+            <value key="description">
+              <string>This component has not a long description</string>
+            </value>
+          </valuemap>
+        </value>
+      </valuemap>
+      <CReader name="NeuMeshReader">
+        <valuemap>
+          <value key="options">
+            <valuemap>
+              <array key="Files" size="2" type="file">
+                <e>/Users/qt/workspace/coolfluid3/Builds/MacOSX/qtcreator-build/src/Mesh/uTests/quadtriag.neu</e>
+                <e>/Users/qt/workspace/coolfluid3/Builds/MacOSX/qtcreator-build/src/Mesh/uTests/hextet.neu</e>
+              </array>
+              <value key="Mesh" mode="basic" descr="Mesh to construct">
+                <string>//Simulator/MG/Mesh1</string>
+              </value>
+            </valuemap>
+          </value>
+          <value key="properties">
+            <valuemap>
+              <value key="brief">
+                <string>No brief description available</string>
+              </value>
+              <value key="description">
+                <string>This component has not a long description</string>
+              </value>
+            </valuemap>
+          </value>
+        </valuemap>
+      </CReader>
     </CMesh>
     <CLink name="PestcLnk">//Simulator/Flow/Petsc</CLink>
   </CGroup>

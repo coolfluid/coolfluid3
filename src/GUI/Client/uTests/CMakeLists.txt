@@ -5,6 +5,7 @@ if( QT_QTTEST_FOUND )
 
 set(uTestClient_moc_classes
 
+  CommonFunctions.hpp
   NTreeTest.hpp
   NBrowserTest.hpp
   NLinkTest.hpp
@@ -64,6 +65,8 @@ list( APPEND uTestClient_files
   ExceptionThrowHandler.hpp
   NTreeTest.hpp
   NTreeTest.cpp
+  CommonFunctions.cpp
+  CommonFunctions.hpp
   CNodeTest.hpp
   CNodeTest.cpp
   MyNode.cpp

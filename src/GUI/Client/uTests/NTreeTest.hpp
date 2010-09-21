@@ -27,8 +27,6 @@ namespace ClientTest {
 
   private slots:
 
-    void initTestCase();
-
     void test_constructor();
 
     void test_setRoot();
@@ -60,10 +58,6 @@ namespace ClientTest {
     void test_setDebugModeEnabled();
 
     void test_list_tree();
-
-  private:
-
-    static CF::GUI::Client::NRoot::Ptr makeTreeFromFile();
 
   }; // class NTreeTest
 

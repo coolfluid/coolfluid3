@@ -8,6 +8,7 @@
 #include <QtTest>
 
 #include "GUI/Client/uTests/CNodeTest.hpp"
+#include "GUI/Client/uTests/CommonFunctions.hpp"
 #include "GUI/Client/uTests/NBrowserTest.hpp"
 #include "GUI/Client/uTests/NTreeTest.hpp"
 #include "GUI/Client/uTests/NLinkTest.hpp"
@@ -19,6 +20,8 @@ int main(int argc, char * argv[])
   QApplication app(argc, argv);
   int passed = 0;
 
+  // CommonFunctionsTest must be the first to be run !!
+  passed += QTest::qExec(new CommonFunctionsTest, argc, argv);
   passed += QTest::qExec(new NTreeTest(), argc, argv);
   passed += QTest::qExec(new CNodeTest(), argc, argv);
   passed += QTest::qExec(new NBrowserTest(), argc, argv);

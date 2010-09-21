@@ -15,8 +15,9 @@
 #include "GUI/Client/NGroup.hpp"
 #include "GUI/Client/NTree.hpp"
 
-#include "GUI/Client/uTests/TreeHandler.hpp"
+#include "GUI/Client/uTests/CommonFunctions.hpp"
 #include "GUI/Client/uTests/ExceptionThrowHandler.hpp"
+#include "GUI/Client/uTests/TreeHandler.hpp"
 
 #include "GUI/Client/uTests/NLinkTest.hpp"
 
@@ -76,12 +77,9 @@ void NLinkTest::test_goToTarget()
   QModelIndex index;
   QSignalSpy spy(t.get(), SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)));
 
-  boost::shared_ptr<XmlDoc> doc;
   NLink::Ptr link;
-  ComponentIterator<CNode> it = t->getRoot()->root()->begin<CNode>();
 
-   GUI_CHECK_NO_THROW(doc = XmlOps::parse(boost::filesystem::path("./tree.xml")));
-  th.addChildren(CNode::createFromXml(*doc->first_node()));
+  th.addChildren(makeTreeFromFile());
   link = boost::dynamic_pointer_cast<NLink>(t->getRoot()->root()->access_component("//Simulator/Flow/Mesh"));
 
   QVERIFY(link.get() != CFNULL);

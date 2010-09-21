@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef MYNODE_HPP
-#define MYNODE_HPP
+#ifndef CF_GUI_Client_uTests_MyNode_hpp
+#define CF_GUI_Client_uTests_MyNode_hpp
 
 #include "GUI/Client/CNode.hpp"
 

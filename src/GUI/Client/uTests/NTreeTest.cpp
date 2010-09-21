@@ -16,6 +16,7 @@
 #include "GUI/Client/NTree.hpp"
 #include "GUI/Client/UnknownTypeException.hpp"
 
+#include "GUI/Client/uTests/CommonFunctions.hpp"
 #include "GUI/Client/uTests/ExceptionThrowHandler.hpp"
 #include "GUI/Client/uTests/MyNode.hpp"
 
@@ -26,25 +27,6 @@ using namespace CF::GUI::Client;
 using namespace CF::GUI::ClientTest;
 
 Q_DECLARE_METATYPE(QModelIndex);
-
-////////////////////////////////////////////////////////////////////////////
-
-NRoot::Ptr NTreeTest::makeTreeFromFile()
-{
-    static boost::shared_ptr<XmlDoc> doc = XmlOps::parse(boost::filesystem::path("./tree.xml"));
-
-    static NRoot::Ptr root = CNode::createFromXml(*doc->first_node())->convertTo<NRoot>();
-    return root;
-}
-
-////////////////////////////////////////////////////////////////////////////
-
-void NTreeTest::initTestCase()
-{
-  // this is mainly to check whether the file is found (an exception is
-  // thrown if not)
-  GUI_CHECK_NO_THROW(makeTreeFromFile());
-}
 
 ////////////////////////////////////////////////////////////////////////////
 
