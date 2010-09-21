@@ -225,7 +225,7 @@ struct Triag3DLagrangeP1Fixture
     const Real m_radius;
     const Real m_circulation;
     const Real m_u;
-    static const Real m_rho = 1.225;
+    static const Real m_rho;
 
     // Reconstruct the value of theta, based on the coordinates
     Real theta(const RealVector& coords)
@@ -258,6 +258,8 @@ private:
     return list_of(c0)(c1)(c2);
   }
 };
+
+const Real Triag3DLagrangeP1Fixture::RotatingCylinderPressure::m_rho = 1.225;
 
 /// Mimic a possible new integration interface
 template<typename ResultT, typename FunctorT, typename GeoSF>

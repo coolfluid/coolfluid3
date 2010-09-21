@@ -12,6 +12,8 @@
 
 #include <coolfluid_profiling_config.h>
 
+#include "Tools/Testing/TestingAPI.hpp"
+
 using namespace CF;
 using namespace CF::Common;
 
@@ -27,7 +29,7 @@ namespace Testing {
 
 #ifdef CF_BUILD_GooglePerfTools
 /// Any test using this fixture (or a derivative) will be profiled
-class ProfiledTestFixture {
+class Testing_API ProfiledTestFixture {
 public:
 
   ProfiledTestFixture();
@@ -54,7 +56,7 @@ private:
 };
 #else
 
-class ProfiledTestFixture {
+class Testing_API ProfiledTestFixture {
 public:
   ProfiledTestFixture();
 };

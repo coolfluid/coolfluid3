@@ -5,6 +5,8 @@ list( APPEND Testing_files
   ProfiledTestFixture.cpp
   ProfiledTestFixture.hpp
   TimedTestFixture.hpp
+  TestingAPI.cpp
+  TestingAPI.hpp
 )
 
 list( APPEND Testing_cflibs Common )
