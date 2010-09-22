@@ -1,9 +1,10 @@
 list( APPEND Neu_files
-  NeuAPI.hpp
   CReader.hpp
   CReader.cpp
   CWriter.hpp
   CWriter.cpp
+  LibNeu.cpp
+  LibNeu.hpp
   Shared.hpp
   Shared.cpp
 )

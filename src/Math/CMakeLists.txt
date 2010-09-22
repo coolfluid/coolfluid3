@@ -3,6 +3,8 @@ coolfluid_find_orphan_files()
 list( APPEND Math_files
 BoostMath.hpp
 FindMinimum.hpp
+LibMath.cpp
+LibMath.hpp
 MatrixInverter.cpp
 MatrixEigenSolver.hpp
 IntersectSolver.hpp
@@ -21,7 +23,6 @@ InverterDiag.hpp
 LUInverter.cpp
 MatrixSliceT.hpp
 MathChecks.hpp
-Math.hpp
 MathExceptions.hpp
 MathExceptions.cpp
 FunctionParser.hpp

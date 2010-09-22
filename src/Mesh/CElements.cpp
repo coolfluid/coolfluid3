@@ -20,7 +20,7 @@ namespace Mesh {
 
 using namespace Common;
 
-Common::ObjectProvider < CElements, Component, MeshLib, NB_ARGS_1 >
+Common::ObjectProvider < CElements, Component, LibMesh, NB_ARGS_1 >
 CElements_Provider ( CElements::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////

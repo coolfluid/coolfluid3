@@ -1,7 +1,8 @@
 list( APPEND Gmsh_files
-  GmshAPI.hpp
   CWriter.hpp
   CWriter.cpp
+  LibGmsh.cpp
+  LibGmsh.hpp
 )
 
 list( APPEND Gmsh_cflibs Mesh )

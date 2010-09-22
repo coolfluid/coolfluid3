@@ -29,7 +29,7 @@ namespace Neu {
 
 CF::Common::ObjectProvider < Mesh::Neu::CReader,
                              Mesh::CMeshReader,
-                             Mesh::Neu::NeuLib,
+                             Mesh::Neu::LibNeu,
                              1 >
 aNeuReader_Provider ( "Neu" );
 

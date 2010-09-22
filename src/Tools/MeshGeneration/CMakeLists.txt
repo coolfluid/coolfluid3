@@ -1,6 +1,8 @@
 coolfluid_find_orphan_files()
 
-list( APPEND MeshGeneration_files
+list(APPEND MeshGeneration_files
+  LibMeshGeneration.cpp
+  LibMeshGeneration.hpp
   MeshGeneration.cpp
   MeshGeneration.hpp
 )

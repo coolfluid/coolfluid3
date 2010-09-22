@@ -10,7 +10,7 @@
 #include "Math/RealMatrix.hpp"
 #include "Mesh/Quad2D.hpp"
 
-#include "Mesh/SF/SFLib.hpp"
+#include "Mesh/SF/LibSF.hpp"
 
 namespace CF {
 namespace Mesh {

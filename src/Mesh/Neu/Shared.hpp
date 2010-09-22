@@ -11,7 +11,7 @@
 
 #include "Mesh/GeoShape.hpp"
 
-#include "Mesh/Neu/NeuAPI.hpp"
+#include "Mesh/Neu/LibNeu.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 

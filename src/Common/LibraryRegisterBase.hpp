@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_ModuleRegisterBase_hpp
-#define CF_Common_ModuleRegisterBase_hpp
+#ifndef CF_Common_LibraryRegisterBase_hpp
+#define CF_Common_LibraryRegisterBase_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -30,7 +30,7 @@ namespace CF {
 /// There should exist only one global instance of this object per
 /// object.
 /// @author Tiago Quintino
-class Common_API ModuleRegisterBase :
+class Common_API LibraryRegisterBase :
   public boost::noncopyable,
   public Common::NamedObject  {
 
@@ -43,7 +43,7 @@ public: // methods
 //  ConfigRegistry& getConfigRegistry();
 
   /// Returns the description of the module.
-  /// Must be implemented by the ModuleRegister
+  /// Must be implemented by the LibraryRegister
   /// @return descripton of the module
   virtual std::string getDescription() const = 0;
 
@@ -64,23 +64,23 @@ public: // methods
 protected: // methods
 
     /// Constructor
-  ModuleRegisterBase(const std::string& name);
+  LibraryRegisterBase(const std::string& name);
 
     /// Destructor
-  virtual ~ModuleRegisterBase();
+  virtual ~LibraryRegisterBase();
 
 protected: // data
 
-  /// the SelfRegistry object is only held by the ModuleRegisterBase's
+  /// the SelfRegistry object is only held by the LibraryRegisterBase's
 //  Common::SelfRegistry    m_selfRegistry;
 
-  /// the ConfigRegistry object is only held by the ModuleRegisterBase's
+  /// the ConfigRegistry object is only held by the LibraryRegisterBase's
 //  Common::ConfigRegistry  m_configRegistry;
 
   /// is this module initialized
   bool m_init;
 
-}; // end class ModuleRegisterBase
+}; // end class LibraryRegisterBase
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -90,4 +90,4 @@ protected: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_ModuleRegisterBase_hpp
+#endif // CF_Common_LibraryRegisterBase_hpp

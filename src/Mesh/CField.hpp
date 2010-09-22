@@ -12,7 +12,7 @@
 #include "Common/Component.hpp"
 #include "Common/ComponentPredicates.hpp"
 
-#include "Mesh/MeshAPI.hpp"
+#include "Mesh/LibMesh.hpp"
 
 #include "Mesh/CElements.hpp"
 #include "Mesh/CArray.hpp"

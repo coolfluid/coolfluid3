@@ -4,66 +4,71 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_NeuAPI_hpp
-#define CF_NeuAPI_hpp
+#ifndef CF_LibCGAL_hpp
+#define CF_LibCGAL_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "Common/LibraryRegister.hpp"
 #include "Common/ExportAPI.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Define the macro Neu_API
-/// @note build system defines Neu_EXPORTS when compiling Neu files
-#ifdef Neu_EXPORTS
-#   define Neu_API      CF_EXPORT_API
-#   define Neu_TEMPLATE
+/// Define the macro CGAL_API
+/// @note build system defines CGAL_EXPORTS when compiling CGAL files
+#ifdef CGAL_EXPORTS
+#   define CGAL_API      CF_EXPORT_API
+#   define CGAL_TEMPLATE
 #else
-#   define Neu_API      CF_IMPORT_API
-#   define Neu_TEMPLATE CF_TEMPLATE_EXTERN
+#   define CGAL_API      CF_IMPORT_API
+#   define CGAL_TEMPLATE CF_TEMPLATE_EXTERN
 #endif
-
-////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace Mesh {
-namespace Neu {
+namespace CGAL {
 
 ////////////////////////////////////////////////////////////////////////////////
-    
-/// Class defines the Neutral mesh format operations
-/// @author Willem Deconinck
-class NeuLib :
-    public Common::ModuleRegister<NeuLib>
+
+/// Class defines the CGAL mesh format operations
+/// @author Bart Janssens
+class LibCGAL :
+    public CF::Common::LibraryRegister<LibCGAL>
 {
 public:
 
   /// Static function that returns the module name.
-  /// Must be implemented for the ModuleRegister template
+  /// Must be implemented for the LibraryRegister template
   /// @return name of the module
-  static std::string getModuleName() { return "Neu"; }
+  static std::string library_name() { return "CGAL"; }
 
   /// Static function that returns the description of the module.
-  /// Must be implemented for the ModuleRegister template
+  /// Must be implemented for the LibraryRegister template
   /// @return descripton of the module
-  static std::string getModuleDescription()
+  static std::string library_description()
   {
-    return "This library implements the Neutral mesh format operations.";
+    return "This library provides an interface for the CGAL 3D tetrahedral mesher.";
   }
 
   /// Gets the Class name
-  static std::string type_name() { return "NeuLib"; }
+  static std::string getClassName() { return "LibCGAL"; }
 
-}; // end NeuLib
+  /// Start profiling
+  virtual void initiate();
+
+  /// Stop profiling
+  virtual void terminate();
+
+}; // end CGALLib
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace Neu
+} // namespace CGAL
 } // namespace Mesh
 } // namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Neu_hpp
+#endif // CF_LibCGAL_hpp

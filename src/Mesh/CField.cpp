@@ -9,7 +9,7 @@
 #include "Common/CLink.hpp"
 #include "Common/ComponentPredicates.hpp"
 
-#include "Mesh/MeshAPI.hpp"
+#include "Mesh/LibMesh.hpp"
 #include "Mesh/CField.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CFieldElements.hpp"
@@ -19,7 +19,7 @@ namespace Mesh {
 
 using namespace Common;
 
-Common::ObjectProvider < CField, Component, MeshLib, NB_ARGS_1 >
+Common::ObjectProvider < CField, Component, LibMesh, NB_ARGS_1 >
 CField_Provider ( CField::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////

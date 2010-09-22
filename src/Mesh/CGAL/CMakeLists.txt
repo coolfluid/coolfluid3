@@ -3,7 +3,8 @@ if( CF_HAVE_CGAL )
   option(CF_STRIP_CGAL_COMPILE_FLAGS "Strip optimization and compile flags for CGAL, to avoid the long compilation" ON)
 
   list( APPEND CF_CGAL_files
-    CGALAPI.hpp
+    LibCGAL.cpp
+    LibCGAL.hpp
     ImplicitFunctionMesh.cpp
     ImplicitFunctionMesh.hpp
   )
@@ -32,7 +33,7 @@ if( CF_HAVE_CGAL )
     endif(CF_STRIP_CGAL_COMPILE_FLAGS)
 
     set_source_files_properties(ImplicitFunctionMesh.cpp PROPERTIES COMPILE_FLAGS ${CF_CGAL_COMPILE_FLAGS})
-  
+
   endif( CMAKE_COMPILER_IS_GNUCC )
 
 add_subdirectory( uTests )
@@ -40,7 +41,8 @@ add_subdirectory( uTests )
 else()
 
   coolfluid_mark_not_orphan(
-    CGALAPI.hpp
+    LibCGAL.hpp
+    LibCGAL.cpp
     ImplicitFunctionMesh.cpp
     ImplicitFunctionMesh.hpp
     uTests/uTestTetraSF.cpp  )

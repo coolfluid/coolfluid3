@@ -4,24 +4,28 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Tools/Testing/TestingAPI.hpp"
+#include "Common/CoreEnv.hpp"
+
+#include "Mesh/CGAL/LibCGAL.hpp"
 
 namespace CF {
-namespace Tools {
-namespace Testing {
+namespace Mesh {
+namespace CGAL {
+
+  CF::Common::ForceLibRegist<LibCGAL> libCGAL;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void TestingLib::initiate()
+void LibCGAL::initiate()
 {
 }
 
-void TestingLib::terminate()
+void LibCGAL::terminate()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Testing
-} // Tools
+} // CGAL
+} // Mesh
 } // CF

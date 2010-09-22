@@ -11,7 +11,6 @@ list( APPEND Common_files
     CodeLocation.cpp
     CodeLocation.hpp
     CommonAPI.hpp
-    CommonLib.hpp
     Component.hpp
     Component.cpp
     ComponentIterator.hpp
@@ -47,8 +46,15 @@ list( APPEND Common_files
     GeneralStorage.hpp
     HourMinSec.cpp
     HourMinSec.hpp
+    LibCommon.cpp
+    LibCommon.hpp
     LibLoader.cpp
     LibLoader.hpp
+    LibraryRegistry.hpp
+    LibraryRegisterBase.hpp
+    LibraryRegistry.cpp
+    LibraryRegister.hpp
+    LibraryRegisterBase.cpp
     Log.cpp
     Log.hpp
     LogLevel.hpp
@@ -60,11 +66,6 @@ list( APPEND Common_files
     LogStream.hpp
     LogStringForwarder.hpp
     LogStringForwarder.cpp
-    ModuleRegistry.hpp
-    ModuleRegisterBase.hpp
-    ModuleRegistry.cpp
-    ModuleRegister.hpp
-    ModuleRegisterBase.cpp
     NamedObject.hpp
     NamedObject.cpp
     NonInstantiable.hpp

@@ -4,57 +4,56 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_MeshAPI_hpp
-#define CF_MeshAPI_hpp
+#ifndef CF_Tools_MeshDiff_LibMeshDiff_hpp
+#define CF_Tools_MeshDiff_LibMeshDiff_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/ExportAPI.hpp"
-#include "Common/ModuleRegister.hpp"
+#include "Common/LibraryRegister.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Define the macro Mesh_API
-/// @note build system defines Mesh_EXPORTS when compiling MeshTools files
-#ifdef Mesh_EXPORTS
-#   define Mesh_API      CF_EXPORT_API
-#   define Mesh_TEMPLATE
+/// Define the macro MeshDiff_API
+/// @note build system defines MeshDiff_EXPORTS when compiling MeshDiffTools files
+#ifdef MeshDiff_EXPORTS
+#   define MeshDiff_API      CF_EXPORT_API
+#   define MeshDiff_TEMPLATE
 #else
-#   define Mesh_API      CF_IMPORT_API
-#   define Mesh_TEMPLATE CF_TEMPLATE_EXTERN
+#   define MeshDiff_API      CF_IMPORT_API
+#   define MeshDiff_TEMPLATE CF_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-
-  /// Basic Classes for Mesh applications used by CF
-  namespace Mesh {
+namespace Tools {
+namespace MeshDiff {
 
 ////////////////////////////////////////////////////////////////////////////////
-    
-  /// Class defines the initialization and termination of the library Mesh
+
+  /// Class defines the initialization and termination of the library MeshDiff
   /// @author Tiago Quintino
-  class MeshLib :
-      public Common::ModuleRegister<MeshLib>
+  class LibMeshDiff :
+      public Common::LibraryRegister<LibMeshDiff>
   {
   public:
 
     /// Static function that returns the module name.
-    /// Must be implemented for the ModuleRegister template
+    /// Must be implemented for the LibraryRegister template
     /// @return name of the module
-    static std::string getModuleName() { return "Mesh"; }
+    static std::string library_name() { return "MeshDiff"; }
 
     /// Static function that returns the description of the module.
-    /// Must be implemented for the ModuleRegister template
+    /// Must be implemented for the LibraryRegister template
     /// @return descripton of the module
-    static std::string getModuleDescription()
+    static std::string library_description()
     {
-      return "This library implements the mesh manipulation API.";
+      return "This library implements the MeshDiff manipulation API.";
     }
 
     /// Gets the Class name
-    static std::string type_name() { return "MeshLib"; }
+    static std::string type_name() { return "LibMeshDiff"; }
 
     /// Start profiling
     virtual void initiate();
@@ -62,13 +61,14 @@ namespace CF {
     /// Stop profiling
     virtual void terminate();
 
-  }; // end MeshLib
+  }; // end LibMeshDiff
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace Mesh
+} // namespace MeshDiff
+} // namespace Tools
 } // namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_hpp
+#endif // CF_Tools_MeshDiff_LibMeshDiff_hpp

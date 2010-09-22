@@ -6,7 +6,7 @@
 
 #include "Common/ObjectProvider.hpp"
 
-#include "SFLib.hpp"
+#include "LibSF.hpp"
 #include "Quad3DLagrangeP1.hpp"
 
 namespace CF {
@@ -17,7 +17,7 @@ namespace SF {
 
 Common::ObjectProvider < Quad3DLagrangeP1,
                          ElementType,
-                         SFLib >
+                         LibSF >
 aQuad3DLagrangeP1_Provider ( "Quad3DLagrangeP1" );
 
 ////////////////////////////////////////////////////////////////////////////////

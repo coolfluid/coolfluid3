@@ -22,7 +22,7 @@ namespace Mesh {
 
 using namespace Common;
 
-Common::ObjectProvider < CRegion, Component, MeshLib, NB_ARGS_1 >
+Common::ObjectProvider < CRegion, Component, LibMesh, NB_ARGS_1 >
 CRegion_Provider ( CRegion::type_name() );
 
 

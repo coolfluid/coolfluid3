@@ -14,7 +14,7 @@
 #include "Common/ComponentPredicates.hpp"
 #include "Common/ConcreteProvider.hpp"
 
-#include "Mesh/MeshAPI.hpp"
+#include "Mesh/LibMesh.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CElements.hpp"
 

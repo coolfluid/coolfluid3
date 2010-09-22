@@ -60,13 +60,13 @@ COperation& COperation::create_operation(const std::string operation_type)
 
 ///////////////////////////////////////////////////////////////////////////////////////
   
-Common::ObjectProvider < COperationMerge, COperation, MeshLib, NB_ARGS_1 > COperationMergeProvider( "COperationMerge" );
+Common::ObjectProvider < COperationMerge, COperation, LibMesh, NB_ARGS_1 > COperationMergeProvider( "COperationMerge" );
 
-Common::ObjectProvider < COutputField,    COperation, MeshLib, NB_ARGS_1 > COutputFieldProvider( "COutputField" );
+Common::ObjectProvider < COutputField,    COperation, LibMesh, NB_ARGS_1 > COutputFieldProvider( "COutputField" );
 
-Common::ObjectProvider < CComputeVolumes, COperation, MeshLib, NB_ARGS_1 > CComputeVolumeProvider( "CComputeVolumes" );
+Common::ObjectProvider < CComputeVolumes, COperation, LibMesh, NB_ARGS_1 > CComputeVolumeProvider( "CComputeVolumes" );
 
-Common::ObjectProvider < CSetValue,       COperation, MeshLib, NB_ARGS_1 > CSetValueProvider( "CSetValue" );
+Common::ObjectProvider < CSetValue,       COperation, LibMesh, NB_ARGS_1 > CSetValueProvider( "CSetValue" );
 
 //
 //struct SetX

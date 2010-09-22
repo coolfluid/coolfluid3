@@ -35,7 +35,7 @@ namespace Neu {
 
 Common::ObjectProvider < Mesh::Neu::CWriter,
                          Mesh::CMeshWriter,
-                         Mesh::Neu::NeuLib,
+                         Mesh::Neu::LibNeu,
                          1 >
 aNeuWriter_Provider ( "Neu" );
 

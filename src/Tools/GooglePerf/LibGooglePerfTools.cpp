@@ -6,8 +6,9 @@
 
 #include <google/profiler.h>
 
-#include "Tools/GooglePerf/GooglePerfTools.hpp"
+#include "Tools/GooglePerf/LibGooglePerfTools.hpp"
 
+#include "Common/CoreEnv.hpp"
 #include "Common/DirPaths.hpp"
 #include "Common/Log.hpp"
 #include "Common/ObjectProvider.hpp"
@@ -16,32 +17,35 @@ namespace CF {
 namespace Tools {
 namespace GooglePerf {
 
-GooglePerfToolsModule::GooglePerfToolsModule()
+  CF::Common::ForceLibRegist<LibGooglePerfTools> libGooglePerfTools;
+
+
+LibGooglePerfTools::LibGooglePerfTools()
 {
   m_init = false;
   m_path = Common::DirPaths::instance().getResultsDir() / boost::filesystem::path("perftools-profile.pprof");
 }
 
-void GooglePerfToolsModule::initiate() {
+void LibGooglePerfTools::initiate() {
   if(!isInitialized()) {
     m_init = true;
-    CFinfo <<  getModuleName() << ": Saving profile data to: "  << m_path.native_file_string() << CFendl;
+    CFinfo <<  library_name() << ": Saving profile data to: "  << m_path.native_file_string() << CFendl;
     ProfilerStart(m_path.native_file_string().c_str());
   } else {
-    CFwarn << getModuleName() << "Was already profiling!" << CFendl;
+    CFwarn << library_name() << "Was already profiling!" << CFendl;
   }
 }
 
-void GooglePerfToolsModule::terminate() {
-  CFinfo << getModuleName() << ": Stopping profiling" << CFendl;
+void LibGooglePerfTools::terminate() {
+  CFinfo << library_name() << ": Stopping profiling" << CFendl;
   ProfilerStop();
   m_init = false;
 }
 
-void GooglePerfToolsModule::setFilePath(const boost::filesystem::path& path) {
+void LibGooglePerfTools::setFilePath(const boost::filesystem::path& path) {
   m_path = path;
 }
 
-} // GooglePerfTools
+} // GooglePerf
 } // Tools
 } // CF

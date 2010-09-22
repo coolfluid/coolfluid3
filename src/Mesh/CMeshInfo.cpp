@@ -51,7 +51,7 @@ namespace Mesh {
 
 Common::ObjectProvider < Mesh::CMeshInfo,
                          Mesh::CMeshTransformer,
-                         Mesh::MeshLib,
+                         Mesh::LibMesh,
                          NB_ARGS_1 >
 CMeshInfo_Provider ( "Info" );
 

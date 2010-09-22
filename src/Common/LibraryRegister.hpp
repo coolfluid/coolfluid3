@@ -4,12 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_ModuleRegister_hpp
-#define CF_Common_ModuleRegister_hpp
+#ifndef CF_Common_LibraryRegister_hpp
+#define CF_Common_LibraryRegister_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/ModuleRegisterBase.hpp"
+#include "Common/LibraryRegisterBase.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -22,31 +22,31 @@ namespace CF {
 /// This class represents a module register template.
 /// @author Tiago Quintino
 template < typename MODULE >
-class ModuleRegister : public Common::ModuleRegisterBase {
+class LibraryRegister : public Common::LibraryRegisterBase {
 public: // methods
 
     /// Acessor to the singleton
   static MODULE& instance();
 
   /// Returns the description of the module.
-  /// Must be implemented by the ModuleRegister
+  /// Must be implemented by the LibraryRegister
   /// @return descripton of the module
   virtual std::string getDescription() const;
 
 protected: // methods
 
     /// Constructor
-  ModuleRegister();
+  LibraryRegister();
 
     /// Destructor
-  ~ModuleRegister();
+  ~LibraryRegister();
 
-}; // end class ModuleRegister
+}; // end class LibraryRegister
 
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename MODULE >
-MODULE& ModuleRegister<MODULE>::instance()
+MODULE& LibraryRegister<MODULE>::instance()
 {
   static MODULE instance;
   return instance;
@@ -55,24 +55,24 @@ MODULE& ModuleRegister<MODULE>::instance()
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename MODULE >
-ModuleRegister<MODULE>::ModuleRegister() :
-ModuleRegisterBase(MODULE::getModuleName())
+LibraryRegister<MODULE>::LibraryRegister() :
+LibraryRegisterBase(MODULE::library_name())
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename MODULE >
-ModuleRegister<MODULE>::~ModuleRegister()
+LibraryRegister<MODULE>::~LibraryRegister()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename MODULE >
-std::string ModuleRegister<MODULE>::getDescription() const
+std::string LibraryRegister<MODULE>::getDescription() const
 {
-  return MODULE::getModuleDescription();
+  return MODULE::library_description();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -83,4 +83,4 @@ std::string ModuleRegister<MODULE>::getDescription() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_ModuleRegister_hpp
+#endif // CF_Common_LibraryRegister_hpp

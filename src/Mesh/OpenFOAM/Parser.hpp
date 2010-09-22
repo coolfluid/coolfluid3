@@ -9,17 +9,17 @@
 
 #include <fstream>
 
-#include "Mesh/OpenFOAM/OpenFOAMAPI.hpp"
+#include "Mesh/OpenFOAM/LibOpenFOAM.hpp"
 
 namespace CF {
 namespace Mesh {
 namespace OpenFOAM {
 
 class BlockData;
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Parse an OpenFoam blockMeshDict file to generate block data 
+/// Parse an OpenFoam blockMeshDict file to generate block data
 void OpenFOAM_API parse_blockmesh_dict(std::istream& file, BlockData& blockData);
 
 ////////////////////////////////////////////////////////////////////////////////

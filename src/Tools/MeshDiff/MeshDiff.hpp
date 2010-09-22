@@ -12,9 +12,9 @@
 #include "Tools/Testing/Difference.hpp"
 
 #include "Common/ExportAPI.hpp"
-#include "Common/ModuleRegister.hpp"
+#include "Common/LibraryRegister.hpp"
 
-#include "Tools/MeshDiff/MeshDiffAPI.hpp"
+#include "Tools/MeshDiff/LibMeshDiff.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 

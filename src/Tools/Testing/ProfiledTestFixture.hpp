@@ -12,7 +12,7 @@
 
 #include <coolfluid_profiling_config.h>
 
-#include "Tools/Testing/TestingAPI.hpp"
+#include "Tools/Testing/LibTesting.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -21,7 +21,7 @@ using namespace CF::Common;
 
 namespace CF {
 namespace Tools {
-namespace GooglePerf { class GooglePerfToolsModule; }
+namespace GooglePerf { class LibGooglePerfTools; }
 namespace Testing {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@ public:
 
 protected:
   /// The profiling module that is used
-  CF::Tools::GooglePerf::GooglePerfToolsModule& m_profiler;
+  CF::Tools::GooglePerf::LibGooglePerfTools& m_profiler;
   /// Start of the profile output name
   std::string m_prefix;
   /// Directory to store the profile data in

@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "GUI/Network/NetworkAPI.hpp"
+#include "GUI/Network/LibNetwork.hpp"
 
 class QString;
 

@@ -6,7 +6,7 @@
 
 #include "Common/ObjectProvider.hpp"
 
-#include "SFLib.hpp"
+#include "LibSF.hpp"
 #include "Triag3DLagrangeP1.hpp"
 
 namespace CF {
@@ -17,7 +17,7 @@ namespace SF {
 
 Common::ObjectProvider < Triag3DLagrangeP1,
                          ElementType,
-                         SFLib >
+                         LibSF >
 aTriag3DLagrangeP1_Provider ( "Triag3DLagrangeP1" );
 
 ////////////////////////////////////////////////////////////////////////////////

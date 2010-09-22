@@ -11,7 +11,7 @@
 
 #include "Common/CF.hpp"
 #include "Common/NonInstantiable.hpp"
-#include "Math/Math.hpp"
+#include "Math/LibMath.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 

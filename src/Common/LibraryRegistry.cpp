@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/ModuleRegistry.hpp"
-#include "Common/ModuleRegisterBase.hpp"
+#include "Common/LibraryRegistry.hpp"
+#include "Common/LibraryRegisterBase.hpp"
 #include "Common/Log.hpp"
 #include "Common/LogLevel.hpp"
 
@@ -16,12 +16,13 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ModuleRegistry::regist(Common::ModuleRegisterBase* module)
+void LibraryRegistry::regist(Common::LibraryRegisterBase* module)
 {
   if ( !m_store.checkEntry( module->getName()) )
   {
     m_store.addEntry(module->getName(),module);
-    CFLogInfo ( "Module " + module->getName() + " registered\n");
+    //    CFLogInfo ( "Module " + module->getName() + " registered\n");
+//    CFinfo << "Module " << module->getName() << " registered\n" << CFendl ;
   }
   else
   {
@@ -31,7 +32,7 @@ void ModuleRegistry::regist(Common::ModuleRegisterBase* module)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ModuleRegistry::unregist(const std::string& moduleName)
+void LibraryRegistry::unregist(const std::string& moduleName)
 {
   if ( m_store.checkEntry( moduleName ) )
   {
@@ -45,15 +46,15 @@ void ModuleRegistry::unregist(const std::string& moduleName)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool ModuleRegistry::isRegistered(const std::string& moduleName)
+bool LibraryRegistry::isRegistered(const std::string& moduleName)
 {
   return m_store.checkEntry(moduleName);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::SafePtr<Common::ModuleRegisterBase>
-ModuleRegistry::getModuleRegisterBase(const std::string& moduleName)
+Common::SafePtr<Common::LibraryRegisterBase>
+LibraryRegistry::getLibraryRegisterBase(const std::string& moduleName)
 {
   if ( m_store.checkEntry( moduleName ) )
   {
@@ -62,21 +63,21 @@ ModuleRegistry::getModuleRegisterBase(const std::string& moduleName)
   else
   {
     CFLogWarn("Module " + moduleName + " not registered : returning null pointer\n");
-    return Common::SafePtr<Common::ModuleRegisterBase>(CFNULL);
+    return Common::SafePtr<Common::LibraryRegisterBase>(CFNULL);
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::vector< Common::SafePtr<Common::ModuleRegisterBase> >
-ModuleRegistry::getAllModules()
+std::vector< Common::SafePtr<Common::LibraryRegisterBase> >
+LibraryRegistry::getAllModules()
 {
-  std::vector< SafePtr<ModuleRegisterBase> > all;
+  std::vector< SafePtr<LibraryRegisterBase> > all;
   all.reserve(m_store.size());
   std::transform(m_store.begin(),
                  m_store.end(),
                  back_inserter(all),
-                 GeneralStorage<ModuleRegisterBase>::extract);
+                 GeneralStorage<LibraryRegisterBase>::extract);
   return all;
 }
 

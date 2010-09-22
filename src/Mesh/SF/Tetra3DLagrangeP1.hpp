@@ -14,7 +14,7 @@
 #include "Mesh/GeoShape.hpp"
 #include "Mesh/Tetra3D.hpp"
 
-#include "Mesh/SF/SFLib.hpp"
+#include "Mesh/SF/LibSF.hpp"
 
 namespace CF {
 namespace Mesh {

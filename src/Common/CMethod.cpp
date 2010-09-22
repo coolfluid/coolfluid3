@@ -6,14 +6,14 @@
 
 #include "Common/CMethod.hpp"
 #include "Common/ObjectProvider.hpp"
-#include "Common/CommonLib.hpp"
+#include "Common/LibCommon.hpp"
 
 namespace CF {
 namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ObjectProvider < CMethod, Component, CommonLib, NB_ARGS_1 >
+Common::ObjectProvider < CMethod, Component, LibCommon, NB_ARGS_1 >
 CMethod_Provider ( CMethod::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////

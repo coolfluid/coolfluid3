@@ -4,65 +4,72 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_CGNSAPI_hpp
-#define CF_CGNSAPI_hpp
+#ifndef CF_Mesh_Neu_LibNeu_hpp
+#define CF_Mesh_Neu_LibNeu_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/ModuleRegister.hpp"
+#include "Common/LibraryRegister.hpp"
 #include "Common/ExportAPI.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Define the macro CGNS_API
-/// @note build system defines CGNS_EXPORTS when compiling CGNS files
-#ifdef CGNS_EXPORTS
-#   define CGNS_API      CF_EXPORT_API
-#   define CGNS_TEMPLATE
+/// Define the macro Neu_API
+/// @note build system defines Neu_EXPORTS when compiling Neu files
+#ifdef Neu_EXPORTS
+#   define Neu_API      CF_EXPORT_API
+#   define Neu_TEMPLATE
 #else
-#   define CGNS_API      CF_IMPORT_API
-#   define CGNS_TEMPLATE CF_TEMPLATE_EXTERN
+#   define Neu_API      CF_IMPORT_API
+#   define Neu_TEMPLATE CF_TEMPLATE_EXTERN
 #endif
+
+////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace Mesh {
-namespace CGNS {
+namespace Neu {
 
 ////////////////////////////////////////////////////////////////////////////////
-    
-/// Class defines the CGNS mesh format operations
+
+/// Class defines the Neutral mesh format operations
 /// @author Willem Deconinck
-class CGNS_API CGNSLib :
-    public CF::Common::ModuleRegister<CGNSLib>
+class LibNeu :
+    public Common::LibraryRegister<LibNeu>
 {
 public:
 
   /// Static function that returns the module name.
-  /// Must be implemented for the ModuleRegister template
+  /// Must be implemented for the LibraryRegister template
   /// @return name of the module
-  static std::string getModuleName() { return "CGNS"; }
+  static std::string library_name() { return "Neu"; }
 
   /// Static function that returns the description of the module.
-  /// Must be implemented for the ModuleRegister template
+  /// Must be implemented for the LibraryRegister template
   /// @return descripton of the module
-  static std::string getModuleDescription()
+  static std::string library_description()
   {
-    return "This library implements the CGNS mesh format operations.";
+    return "This library implements the Neutral mesh format operations.";
   }
 
   /// Gets the Class name
-  static std::string type_name() { return "CGNSLib"; }
+  static std::string type_name() { return "LibNeu"; }
 
-}; // end CGNSLib
+  /// Start profiling
+  virtual void initiate();
+
+  /// Stop profiling
+  virtual void terminate();
+}; // end LibNeu
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace CGNS
+} // namespace Neu
 } // namespace Mesh
 } // namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_CGNS_hpp
+#endif // CF_Mesh_Neu_LibNeu_hpp

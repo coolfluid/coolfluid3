@@ -9,7 +9,7 @@
 
 #include "Common/CF.hpp"
 
-#include "Mesh/OpenFOAM/OpenFOAMAPI.hpp"
+#include "Mesh/OpenFOAM/LibOpenFOAM.hpp"
 
 namespace CF {
 namespace Mesh {

@@ -38,7 +38,7 @@ namespace Mesh {
 
 Common::ObjectProvider < Mesh::CMeshExtract,
                          Mesh::CMeshTransformer,
-                         Mesh::MeshLib,
+                         Mesh::LibMesh,
                          1 >
 CMeshExtract_Provider ( "Extract" );
 

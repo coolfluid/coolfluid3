@@ -4,66 +4,71 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GmshAPI_hpp
-#define CF_GmshAPI_hpp
+#ifndef CF_LibCGNS_hpp
+#define CF_LibCGNS_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "Common/LibraryRegister.hpp"
 #include "Common/ExportAPI.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Define the macro Gmsh_API
-/// @note build system defines Gmsh_EXPORTS when compiling Gmsh files
-#ifdef Gmsh_EXPORTS
-#   define Gmsh_API      CF_EXPORT_API
-#   define Gmsh_TEMPLATE
+/// Define the macro CGNS_API
+/// @note build system defines CGNS_EXPORTS when compiling CGNS files
+#ifdef CGNS_EXPORTS
+#   define CGNS_API      CF_EXPORT_API
+#   define CGNS_TEMPLATE
 #else
-#   define Gmsh_API      CF_IMPORT_API
-#   define Gmsh_TEMPLATE CF_TEMPLATE_EXTERN
+#   define CGNS_API      CF_IMPORT_API
+#   define CGNS_TEMPLATE CF_TEMPLATE_EXTERN
 #endif
-
-////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace Mesh {
-namespace Gmsh {
+namespace CGNS {
 
 ////////////////////////////////////////////////////////////////////////////////
-    
-/// Class defines the Gmshtral mesh format operations
+
+/// Class defines the CGNS mesh format operations
 /// @author Willem Deconinck
-class GmshLib :
-    public Common::ModuleRegister<GmshLib>
+class LibCGNS :
+    public CF::Common::LibraryRegister<LibCGNS>
 {
 public:
 
   /// Static function that returns the module name.
-  /// Must be implemented for the ModuleRegister template
+  /// Must be implemented for the LibraryRegister template
   /// @return name of the module
-  static std::string getModuleName() { return "Gmsh"; }
+  static std::string library_name() { return "CGNS"; }
 
   /// Static function that returns the description of the module.
-  /// Must be implemented for the ModuleRegister template
+  /// Must be implemented for the LibraryRegister template
   /// @return descripton of the module
-  static std::string getModuleDescription()
+  static std::string library_description()
   {
-    return "This library implements the Gmsh mesh format operations.";
+    return "This library implements the CGNS mesh format operations.";
   }
 
   /// Gets the Class name
-  static std::string type_name() { return "GmshLib"; }
+  static std::string type_name() { return "LibCGNS"; }
 
-}; // end GmshLib
+  /// Start profiling
+  virtual void initiate();
+
+  /// Stop profiling
+  virtual void terminate();
+
+}; // end LibCGNS
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace Gmsh
+} // namespace CGNS
 } // namespace Mesh
 } // namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Gmsh_hpp
+#endif // CF_CGNS_hpp

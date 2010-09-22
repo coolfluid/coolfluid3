@@ -29,7 +29,7 @@ namespace Gmsh {
 
 Common::ObjectProvider < Mesh::Gmsh::CWriter,
                          Mesh::CMeshWriter,
-                         Mesh::Gmsh::GmshLib,
+                         Mesh::Gmsh::LibGmsh,
                          1 >
 aGmshWriter_Provider ( "Gmsh" );
 

@@ -15,7 +15,7 @@
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-#include "Common/CommonLib.hpp"
+#include "Common/LibCommon.hpp"
 #include "Common/ConfigObject.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionArray.hpp"
@@ -162,10 +162,10 @@ private: // helper functions
 };
 
 
-CF::Common::ObjectProvider < CConcrete1, CAbstract, CommonLib, NB_ARGS_1 >
+CF::Common::ObjectProvider < CConcrete1, CAbstract, LibCommon, NB_ARGS_1 >
 aConcrete1ComponentProvider ( "Concrete1" );
 
-CF::Common::ObjectProvider < CConcrete2, CAbstract, CommonLib, NB_ARGS_1 >
+CF::Common::ObjectProvider < CConcrete2, CAbstract, LibCommon, NB_ARGS_1 >
 aConcrete2ComponentProvider ( "Concrete2" );
 
 /////////////////////////////////////////////////////////////////////////////////////

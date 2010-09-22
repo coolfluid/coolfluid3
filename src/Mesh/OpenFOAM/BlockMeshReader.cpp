@@ -11,7 +11,7 @@
 
 #include "Mesh/OpenFOAM/BlockData.hpp"
 #include "Mesh/OpenFOAM/BlockMeshReader.hpp"
-#include "Mesh/OpenFOAM/OpenFOAMAPI.hpp"
+#include "Mesh/OpenFOAM/LibOpenFOAM.hpp"
 #include "Mesh/OpenFOAM/Parser.hpp"
 #include "Mesh/OpenFOAM/SimpleCommunicationPattern.hpp"
 
@@ -26,7 +26,7 @@ using namespace CF::Mesh;
 
 CF::Common::ObjectProvider < Mesh::OpenFOAM::BlockMeshReader,
                              Mesh::CMeshReader,
-                             Mesh::OpenFOAM::OpenFOAMLib,
+                             Mesh::OpenFOAM::LibOpenFOAM,
                              1 >
 aBlockMeshReader_Provider ( "blockMeshDict" );
 

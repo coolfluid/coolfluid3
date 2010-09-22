@@ -1,27 +1,31 @@
+
 // Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Tools/MeshDiff/MeshDiffAPI.hpp"
+#include "Common/CoreEnv.hpp"
+
+#include "Common/LibCommon.hpp"
 
 namespace CF {
-namespace Tools {
-namespace MeshDiff {
+namespace Common {
+
+CF::Common::ForceLibRegist<LibCommon> libCommon;
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void MeshDiffLib::initiate()
+void LibCommon::initiate()
 {
 }
 
-void MeshDiffLib::terminate()
+void LibCommon::terminate()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // MeshDiff
-} // Tools
+} // Common
 } // CF

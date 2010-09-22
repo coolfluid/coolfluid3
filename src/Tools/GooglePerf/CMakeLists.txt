@@ -1,8 +1,8 @@
   coolfluid_find_orphan_files()
 
   list( APPEND GooglePerfTools_files
-    GooglePerfTools.cpp
-    GooglePerfTools.hpp
+    LibGooglePerfTools.cpp
+    LibGooglePerfTools.hpp
   )
 
   list( APPEND GooglePerfTools_includedirs ${GOOGLE_PERFTOOLS_INCLUDE_DIR} )

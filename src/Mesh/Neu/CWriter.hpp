@@ -12,7 +12,7 @@
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CTable.hpp"
 
-#include "Mesh/Neu/NeuAPI.hpp"
+#include "Mesh/Neu/LibNeu.hpp"
 #include "Mesh/Neu/Shared.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////

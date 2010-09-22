@@ -6,7 +6,7 @@
 
 #include "Common/ObjectProvider.hpp"
 
-#include "SFLib.hpp"
+#include "LibSF.hpp"
 #include "Line2DLagrangeP1.hpp"
 #include "Quad2DLagrangeP1.hpp"
 
@@ -18,7 +18,7 @@ namespace SF {
 
 Common::ObjectProvider < Quad2DLagrangeP1,
                          ElementType,
-                         SFLib >
+                         LibSF >
 aQuad2DLagrangeP1_Provider ( "Quad2DLagrangeP1" );
 
 ////////////////////////////////////////////////////////////////////////////////

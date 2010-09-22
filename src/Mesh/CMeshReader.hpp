@@ -14,7 +14,7 @@
 #include "Common/Component.hpp"
 #include "Common/ConcreteProvider.hpp"
 
-#include "Mesh/MeshAPI.hpp"
+#include "Mesh/LibMesh.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CArray.hpp"

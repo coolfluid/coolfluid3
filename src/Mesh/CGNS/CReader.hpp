@@ -10,7 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Mesh/CMeshReader.hpp"
-#include "Mesh/CGNS/CGNSAPI.hpp"
+#include "Mesh/CGNS/LibCGNS.hpp"
 #include "Mesh/CGNS/Shared.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -28,23 +28,23 @@ namespace CGNS {
   class CGNS_API CReader : public CMeshReader, public CGNS::Shared
 {
 public: // typedefs
-  
+
   typedef boost::shared_ptr<CReader> Ptr;
   typedef boost::shared_ptr<CReader const> ConstPtr;
-  
+
 private: // typedefs
 
   typedef std::pair<boost::shared_ptr<CElements>,Uint> Region_TableIndex_pair;
 
 public: // functions
-  
+
   /// Contructor
   /// @param name of the component
   CReader ( const CName& name );
 
   /// Gets the Class name
   static std::string type_name() { return "CReader"; }
-  
+
   virtual void read_from_to(boost::filesystem::path& fp, const boost::shared_ptr<CMesh>& mesh);
 
   virtual std::string get_format() { return "CGNS"; }
@@ -54,7 +54,7 @@ public: // functions
   static void defineConfigProperties ( CF::Common::PropertyList& options );
 
 private: // functions
-  
+
   void read_base(CMesh& parent_region);
   void read_zone(CRegion& parent_region);
   void read_coordinates_unstructured(CRegion& parent_region);
@@ -72,15 +72,15 @@ private: // functions
   Uint structured_elm_idx(Uint i, Uint j, Uint k)
   {
     return i + j*(m_zone.nbVertices[XX]-1) + k*(m_zone.nbVertices[XX]-1)*(m_zone.nbVertices[YY]-1);
-  }  
-  
+  }
+
 private: // helper functions
 
   /// regists all the signals declared in this class
   static void regist_signals ( Component* self ) {}
 
 private: // data
-  
+
   std::vector<Region_TableIndex_pair> m_global_to_region;
   boost::shared_ptr<CMesh> m_mesh;
   Uint m_coord_start_idx;

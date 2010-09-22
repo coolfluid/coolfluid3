@@ -1,6 +1,8 @@
 list( APPEND SF_files
   Hexa3DLagrangeP1.cpp
   Hexa3DLagrangeP1.hpp
+  LibSF.cpp
+  LibSF.hpp
   Line1DLagrangeP1.cpp
   Line1DLagrangeP1.hpp
   Line2DLagrangeP1.cpp
@@ -11,7 +13,6 @@ list( APPEND SF_files
   Quad2DLagrangeP1.hpp
   Quad3DLagrangeP1.cpp
   Quad3DLagrangeP1.hpp
-  SFLib.hpp
   Tetra3DLagrangeP1.cpp
   Tetra3DLagrangeP1.hpp
   Triag2DLagrangeP1.cpp

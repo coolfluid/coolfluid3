@@ -12,7 +12,7 @@
 #include "Common/CF.hpp"
 #include "Common/Log.hpp"
 
-#include "Common/ModuleRegister.hpp"
+#include "Common/LibraryRegister.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -36,14 +36,14 @@ public:
   {
     CFLogDebugVerbose (  "Creating provider \'" << name << "\' of type \'" << BASE::type_name() << "\'\n" );
     CF::TypeInfo::instance().regist<CONCRETE>( CONCRETE::type_name() );
-    //Common::ModuleRegister<MODULE>::instance().getSelfRegistry().regist(this);
+//    Common::LibraryRegister<MODULE>::instance().getSelfRegistry().regist(this);
   }
 
   /// Destructor
   /// @todo unregistration is currently not working
   ~ObjectProvider()
   {
-    // Common::ModuleRegister<MODULE>::instance().getSelfRegistry().unregist(this);
+    // Common::LibraryRegister<MODULE>::instance().getSelfRegistry().unregist(this);
   }
 
   /// Polymorphic function to create objects of dynamical type BASE
@@ -79,7 +79,7 @@ public:
   /// @todo unregistration is currently not working
   ~ObjectProvider()
   {
-    // Common::ModuleRegister<MODULE>::instance().getSelfRegistry().unregist(this);
+    // Common::LibraryRegister<MODULE>::instance().getSelfRegistry().unregist(this);
   }
 
   /// Polymorphic function to create objects of dynamical type BASE
@@ -116,7 +116,7 @@ public:
   /// @todo unregistration is currently not working
   ~ObjectProvider()
   {
-    // Common::ModuleRegister<MODULE>::instance().getSelfRegistry().unregist(this);
+    // Common::LibraryRegister<MODULE>::instance().getSelfRegistry().unregist(this);
   }
 
   /// Polymorphic function to create objects of dynamical type BASE

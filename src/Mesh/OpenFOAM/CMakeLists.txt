@@ -3,7 +3,8 @@
     BlockData.hpp
     BlockMeshReader.cpp
     BlockMeshReader.hpp
-    OpenFOAMAPI.hpp
+    LibOpenFOAM.cpp
+    LibOpenFOAM.hpp
     Parser.cpp
     Parser.hpp
     SimpleCommunicationPattern.cpp
@@ -17,6 +18,6 @@
   set( OpenFOAM_kernellib TRUE )
 
   coolfluid_add_library( OpenFOAM )
-  
+
   add_subdirectory(uTests)
-  
+

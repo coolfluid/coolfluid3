@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/CoreVars.hpp"
-#include "Common/ModuleRegisterBase.hpp"
+#include "Common/LibraryRegisterBase.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 

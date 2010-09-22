@@ -15,7 +15,7 @@
 #include "Common/OSystem.hpp"
 #include "Common/MPI/PEInterface.hpp"
 
-#include "Tools/GooglePerf/GooglePerfTools.hpp"
+#include "Tools/GooglePerf/LibGooglePerfTools.hpp"
 #include "Tools/Testing/ProfiledTestFixture.hpp"
 
 using namespace CF::Tools::GooglePerf;
@@ -30,7 +30,7 @@ namespace Testing {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ProfiledTestFixture::ProfiledTestFixture() : m_profiler(ModuleRegister<GooglePerfToolsModule>::instance()) {
+ProfiledTestFixture::ProfiledTestFixture() : m_profiler(LibraryRegister<LibGooglePerfTools>::instance()) {
   char** argv = boost::unit_test::framework::master_test_suite().argv;
 
   boost::filesystem::path commandPath(argv[0]);

@@ -6,7 +6,7 @@
 
 #include "Common/ObjectProvider.hpp"
 
-#include "SFLib.hpp"
+#include "LibSF.hpp"
 #include "Triag2DLagrangeP1.hpp"
 #include "Line2DLagrangeP1.hpp"
 
@@ -18,7 +18,7 @@ namespace SF {
 
 Common::ObjectProvider < Triag2DLagrangeP1,
                          ElementType,
-                         SFLib >
+                         LibSF >
 aTriag2DLagrangeP1_Provider ( "Triag2DLagrangeP1" );
 
 ////////////////////////////////////////////////////////////////////////////////

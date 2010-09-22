@@ -6,7 +6,7 @@
 
 #include "Common/ObjectProvider.hpp"
 
-#include "SFLib.hpp"
+#include "LibSF.hpp"
 #include "Line3DLagrangeP1.hpp"
 
 namespace CF {
@@ -17,7 +17,7 @@ namespace SF {
 
 Common::ObjectProvider < Line3DLagrangeP1,
                          ElementType,
-                         SFLib >
+                         LibSF >
 aLine3DLagrangeP1_Provider ( "Line3DLagrangeP1" );
 
 ////////////////////////////////////////////////////////////////////////////////

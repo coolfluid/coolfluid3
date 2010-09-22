@@ -4,24 +4,24 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_OpenFOAM_OpenFOAMAPI_hpp
-#define CF_Mesh_OpenFOAM_OpenFOAMAPI_hpp
+#ifndef CF_LibGmsh_hpp
+#define CF_LibGmsh_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "Common/LibraryRegister.hpp"
 #include "Common/ExportAPI.hpp"
-#include "Common/ModuleRegister.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Define the macro OpenFOAM_API
-/// @note build system defines OpenFOAM_EXPORTS when compiling OpenFOAM files
-#ifdef OpenFOAM_EXPORTS
-#   define OpenFOAM_API      CF_EXPORT_API
-#   define OpenFOAM_TEMPLATE
+/// Define the macro Gmsh_API
+/// @note build system defines Gmsh_EXPORTS when compiling Gmsh files
+#ifdef Gmsh_EXPORTS
+#   define Gmsh_API      CF_EXPORT_API
+#   define Gmsh_TEMPLATE
 #else
-#   define OpenFOAM_API      CF_IMPORT_API
-#   define OpenFOAM_TEMPLATE CF_TEMPLATE_EXTERN
+#   define Gmsh_API      CF_IMPORT_API
+#   define Gmsh_TEMPLATE CF_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -30,41 +30,47 @@
 
 namespace CF {
 namespace Mesh {
-namespace OpenFOAM {
+namespace Gmsh {
 
 ////////////////////////////////////////////////////////////////////////////////
-    
-/// Class defines the OpenFOAMtral mesh format operations
+
+/// Class defines the Gmshtral mesh format operations
 /// @author Willem Deconinck
-class OpenFOAMLib :
-    public Common::ModuleRegister<OpenFOAMLib>
+class LibGmsh :
+    public Common::LibraryRegister<LibGmsh>
 {
 public:
 
   /// Static function that returns the module name.
-  /// Must be implemented for the ModuleRegister template
+  /// Must be implemented for the LibraryRegister template
   /// @return name of the module
-  static std::string getModuleName() { return "OpenFOAM"; }
+  static std::string library_name() { return "Gmsh"; }
 
   /// Static function that returns the description of the module.
-  /// Must be implemented for the ModuleRegister template
+  /// Must be implemented for the LibraryRegister template
   /// @return descripton of the module
-  static std::string getModuleDescription()
+  static std::string library_description()
   {
-    return "This library implements some OpenFOAM compatibility functions.";
+    return "This library implements the Gmsh mesh format operations.";
   }
 
   /// Gets the Class name
-  static std::string type_name() { return "OpenFOAMLib"; }
+  static std::string type_name() { return "LibGmsh"; }
 
-}; // end OpenFOAMLib
+  /// Start profiling
+  virtual void initiate();
+
+  /// Stop profiling
+  virtual void terminate();
+
+}; // end LibGmsh
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace OpenFOAM
+} // namespace Gmsh
 } // namespace Mesh
 } // namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_OpenFOAM_OpenFOAMAPI_hpp
+#endif // CF_LibGmsh_hpp

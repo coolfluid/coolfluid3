@@ -4,13 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_CommonLib_hpp
-#define CF_Common_CommonLib_hpp
+#ifndef CF_Common_LibCommon_hpp
+#define CF_Common_LibCommon_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/CF.hpp"
-#include "Common/ModuleRegister.hpp"
+#include "Common/LibraryRegister.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -19,25 +19,25 @@ namespace Common {
 
 /// Class defines the initialization and termination of the library Mesh
 /// @author Tiago Quintino
-class CommonLib : public Common::ModuleRegister<CommonLib>
+class LibCommon : public Common::LibraryRegister<LibCommon>
 {
 public:
 
   /// Static function that returns the module name.
-  /// Must be implemented for the ModuleRegister template
+  /// Must be implemented for the LibraryRegister template
   /// @return name of the module
-  static std::string getModuleName() { return "Common"; }
+  static std::string library_name() { return "Common"; }
 
   /// Static function that returns the description of the module.
-  /// Must be implemented for the ModuleRegister template
+  /// Must be implemented for the LibraryRegister template
   /// @return descripton of the module
-  static std::string getModuleDescription()
+  static std::string library_description()
   {
     return "This library implements the Common API.";
   }
 
   /// Gets the Class name
-  static std::string type_name() { return "CommonLib"; }
+  static std::string type_name() { return "LibCommon"; }
 
   /// Start profiling
   virtual void initiate();
@@ -45,11 +45,11 @@ public:
   /// Stop profiling
   virtual void terminate();
 
-}; // CommonLib
+}; // LibCommon
 
 } // namespace Common
 } // namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_CommonLib_hpp
+#endif // CF_Common_LibCommon_hpp

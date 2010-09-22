@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE( Constructors )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( TestCGNSLib )
+BOOST_AUTO_TEST_CASE( TestLibCGNS )
 {
 
  int maxelemi = 20*16*8;

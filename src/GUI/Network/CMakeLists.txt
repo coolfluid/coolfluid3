@@ -6,9 +6,10 @@ list( APPEND Network_files
   ComponentType.hpp
   HostInfos.cpp
   HostInfos.hpp
+  LibNetwork.cpp
+  LibNetwork.hpp
   LogMessage.cpp
   LogMessage.hpp
-  NetworkAPI.hpp
   NetworkException.cpp
   NetworkException.hpp)
 

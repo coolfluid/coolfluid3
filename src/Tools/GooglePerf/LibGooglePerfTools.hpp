@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GooglePerfTools_GooglePerfTools_hpp
-#define CF_GooglePerfTools_GooglePerfTools_hpp
+#ifndef CF_Tools_GooglePerfTools_LibGooglePerfTools_hpp
+#define CF_Tools_GooglePerfTools_LibGooglePerfTools_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,7 +13,7 @@
 
 #include "Common/OwnedObject.hpp"
 #include "Common/ConcreteProvider.hpp"
-#include "Common/ModuleRegister.hpp"
+#include "Common/LibraryRegister.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -25,7 +25,7 @@ namespace GooglePerf {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Google perf-tools module
+/// Google perf-tools library
 /// This module starts CPU profiling using Google perftools when loaded.
 /// Usage: Add libGooglePerfTools to the Simulator.Modules.Libs list. This will
 /// create a file called "perftools-profile.pprof" in the current output directory,
@@ -34,30 +34,30 @@ namespace GooglePerf {
 /// More examples are given on the google perftools website:
 /// http://google-perftools.googlecode.com/svn/trunk/doc/cpuprofile.html
 /// @author Bart Janssens
-class GooglePerfToolsModule : public Common::ModuleRegister<GooglePerfToolsModule>
+class LibGooglePerfTools : public Common::LibraryRegister<LibGooglePerfTools>
 {
 public:
   /// Default constructor constructs as uninited
-  GooglePerfToolsModule();
+  LibGooglePerfTools();
 
   /// Static function that returns the module name.
-  /// Must be implemented for the ModuleRegister template
+  /// Must be implemented for the LibraryRegister template
   /// @return name of the module
-  static std::string getModuleName()
+  static std::string library_name()
   {
     return "GooglePerfTools";
   }
 
   /// Static function that returns the description of the module.
-  /// Must be implemented for the ModuleRegister template
+  /// Must be implemented for the LibraryRegister template
   /// @return descripton of the module
-  static std::string getModuleDescription()
+  static std::string library_description()
   {
     return "This module implements profiling using Google perftools.";
   }
 
   /// Gets the Class name
-  static std::string type_name() { return "GooglePerfToolsModule"; }
+  static std::string type_name() { return "LibGooglePerfTools"; }
 
   /// Start profiling
   virtual void initiate();
@@ -71,7 +71,7 @@ public:
 private:
   boost::filesystem::path m_path;
 
-}; // end GooglePerfToolsModule
+}; // end LibGooglePerfTools
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -81,4 +81,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GooglePerfTools_GooglePerfTools_hpp
+#endif // CF_Tools_GooglePerfTools_LibGooglePerfTools_hpp

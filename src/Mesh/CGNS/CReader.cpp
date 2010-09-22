@@ -32,7 +32,7 @@ using namespace Common::String;
 
 ObjectProvider < CReader,
                  CMeshReader,
-                 CGNSLib,
+                 LibCGNS,
                  NB_ARGS_1 >
 aCGNSReader_Provider ( "CGNS" );
 

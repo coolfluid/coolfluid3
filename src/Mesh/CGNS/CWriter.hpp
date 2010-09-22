@@ -11,7 +11,7 @@
 
 #include "Mesh/CMeshWriter.hpp"
 
-#include "Mesh/CGNS/CGNSAPI.hpp"
+#include "Mesh/CGNS/LibCGNS.hpp"
 #include "Mesh/CGNS/Shared.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////

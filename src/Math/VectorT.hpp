@@ -14,7 +14,7 @@
 #include "Math/ExprOp.hpp"
 #include "Math/VectorSliceT.hpp"
 #include "Common/BoostArray.hpp"
-#include "Math/Math.hpp"
+#include "Math/LibMath.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -92,7 +92,7 @@ public:
   /// Provide STL-compatible construction, useful for compatibility with boost::assign::list_of
   template< typename InputIterator >
   VectorT( InputIterator start, InputIterator end ) :
-	  Expr<VectorT<T>,T>(*this),
+    Expr<VectorT<T>,T>(*this),
       m_owner (true),
       m_size  ( end-start ),
       m_data  (CFNULL)

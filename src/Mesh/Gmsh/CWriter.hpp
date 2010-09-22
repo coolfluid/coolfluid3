@@ -12,7 +12,7 @@
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/GeoShape.hpp"
 
-#include "Mesh/Gmsh/GmshAPI.hpp"
+#include "Mesh/Gmsh/LibGmsh.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -32,7 +32,7 @@ public: // typedefs
     typedef boost::shared_ptr<CWriter const> ConstPtr;
 
 private: // typedefs
-  
+
   struct PhysicalGroup
   {
     PhysicalGroup() {}
@@ -42,14 +42,14 @@ private: // typedefs
     Uint number;
     std::string name;
   };
-  
+
   typedef std::map<std::string,PhysicalGroup> PhysicalGroupMap;
-  
+
 public: // functions
-  
+
   /// constructor
   CWriter( const CName& name );
-  
+
   /// Gets the Class name
   static std::string type_name() { return "CWriter"; }
 
@@ -62,17 +62,17 @@ public: // functions
   virtual std::vector<std::string> get_extensions();
 
 private: // functions
-  
+
   void write_header(std::fstream& file);
-  
+
   void write_coordinates(std::fstream& file);
-  
+
   void write_connectivity(std::fstream& file);
-  
+
   void write_nodal_data(std::fstream& file);
-  
+
   void write_element_data(std::fstream& file);
-  
+
 private: // helper functions
 
   /// regists all the signals declared in this class
@@ -81,12 +81,12 @@ private: // helper functions
 private: // data
 
   PhysicalGroupMap m_groups;
-  
+
   std::map<GeoShape::Type,Uint> m_elementTypes;
-  
+
   std::map<CElements*,Uint> m_node_start_idx;
   std::map<CElements*,Uint> m_element_start_idx;
-  
+
 }; // end CWriter
 
 

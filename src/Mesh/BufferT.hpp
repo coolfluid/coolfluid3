@@ -16,7 +16,7 @@
 #include "Common/BoostArray.hpp"
 #include "Common/BasicExceptions.hpp"
 
-#include "Mesh/MeshAPI.hpp"
+#include "Mesh/LibMesh.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 

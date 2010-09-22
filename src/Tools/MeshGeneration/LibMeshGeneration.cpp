@@ -4,22 +4,28 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Mesh/MeshAPI.hpp"
+#include "Common/CoreEnv.hpp"
+
+#include "Tools/MeshGeneration/LibMeshGeneration.hpp"
 
 namespace CF {
-namespace Mesh {
+namespace Tools {
+namespace MeshGeneration {
+
+  CF::Common::ForceLibRegist<LibMeshGeneration> libMeshGeneration;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void MeshLib::initiate()
+void LibMeshGeneration::initiate()
 {
 }
 
-void MeshLib::terminate()
+void LibMeshGeneration::terminate()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // LibMeshGeneration
+} // Tools
 } // CF

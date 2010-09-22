@@ -6,7 +6,7 @@
 
 #include "Common/BasicExceptions.hpp"
 #include "Common/ObjectProvider.hpp"
-#include "Common/CommonLib.hpp"
+#include "Common/LibCommon.hpp"
 #include "Common/XmlHelpers.hpp"
 
 #include "Common/CLink.hpp"
@@ -16,7 +16,7 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ObjectProvider < CLink, Component, CommonLib, NB_ARGS_1 >
+Common::ObjectProvider < CLink, Component, LibCommon, NB_ARGS_1 >
 CLink_Provider ( CLink::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////

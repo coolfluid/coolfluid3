@@ -15,7 +15,7 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/CArray.hpp"
 
-#include "Mesh/Neu/NeuAPI.hpp"
+#include "Mesh/Neu/LibNeu.hpp"
 #include "Mesh/Neu/Shared.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -41,13 +41,13 @@ private: // typedefs
 
   typedef std::pair<boost::shared_ptr<CElements>,Uint> Region_TableIndex_pair;
 
-public: // functions  
+public: // functions
   /// constructor
   CReader( const CName& name );
-  
+
   /// Gets the Class name
   static std::string type_name() { return "CReader"; }
-  
+
   static void defineConfigProperties ( CF::Common::PropertyList& options ) {}
 
   virtual std::string get_format() { return "Neu"; }
@@ -55,9 +55,9 @@ public: // functions
   virtual std::vector<std::string> get_extensions();
 
 private: // functions
-  
+
   void read_headerData(std::fstream& file);
-  
+
   void read_coordinates(std::fstream& file);
 
   void read_connectivity(std::fstream& file);
@@ -67,7 +67,7 @@ private: // functions
   void read_boundaries(std::fstream& file);
 
   virtual void read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh);
-  
+
 private: // helper functions
 
   /// regists all the signals declared in this class
@@ -77,13 +77,13 @@ private: // data
 
   // map< global index , pair< temporary table, index in temporary table > >
   std::vector<Region_TableIndex_pair> m_global_to_tmp;
-  
+
   CMesh::Ptr m_mesh;
   CRegion::Ptr m_region;
   CArray::Ptr m_coordinates;
   CRegion::Ptr m_tmp;
   std::string m_file_basename;
-  
+
   struct HeaderData
   {
     // NUMNP    Total number of nodal points in the mesh
@@ -98,7 +98,7 @@ private: // data
       CFinfo << NUMNP << " " << NELEM << " " << NGRPS << " " << NBSETS << " " << NDFCD << " " << NDFVL << CFendl;
     }
   } m_headerData;
-  
+
   struct GroupData
   {
     // NGP      Element group number
@@ -115,7 +115,7 @@ private: // data
       CFinfo << NGP << " " << NELGP << " " << MTYP << " " << NFLAGS << " " << ELMMAT << CFendl;
     }
   };
-  
+
   struct BCData
   {
     // NAME     Name of boundary-condition set

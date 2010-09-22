@@ -9,20 +9,19 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-
 #include <cgnslib.h>
 
-#include "Mesh/CGNS/CGNSAPI.hpp"
+#include "Mesh/CGNS/LibCGNS.hpp"
 #include "Mesh/CGNS/CGNSExceptions.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace Mesh {
-  
+
   class CArray;
   class CRegion;
-  
+
 namespace CGNS {
 
 #define CALL_CGNS(cgns_func) {                                                 \
@@ -33,7 +32,7 @@ namespace CGNS {
                                  throw CGNSException (FromHere(),error_msg);   \
                                }                                               \
                              }
-  
+
 #define CGNS_CHAR_MAX 1024
 #define CGNS_VERT_IDX 0
 #define CGNS_CELL_IDX 1
@@ -46,13 +45,13 @@ namespace CGNS {
 class CGNS_API Shared
 {
 public:
-  
+
   /// constructor
   Shared();
-  
+
   /// Gets the Class name
   static std::string type_name() { return "Shared"; }
-  
+
   std::vector<std::string>& get_supported_element_types() { return m_supported_element_types; }
 
 protected:
@@ -67,16 +66,16 @@ protected:
     int nbElements;
     int nbBoundaryVertices;
   } m_size;
-  
+
   bool m_isCoordinatesCreated;
   bool m_uniqueBase;
-  
+
   struct CGNS_File
   {
     int idx;
     int nbBases;
   } m_file;
-  
+
   struct CGNS_Base
   {
     int idx;
@@ -86,7 +85,7 @@ protected:
     bool unique;
     int nbZones;
   } m_base;
-  
+
   struct CGNS_Zone
   {
     int idx;
@@ -107,7 +106,7 @@ protected:
     Uint coords_start_idx;
     //
   } m_zone;
-  
+
   struct CGNS_Section
   {
     int idx;
@@ -137,15 +136,15 @@ protected:
     int normalListFlag;
     DataType_t normalDataType;
     int nDataSet;
-  } m_boco;  
-  
-  
+  } m_boco;
+
+
   std::map<int,CRegion*> m_base_map;
   std::map<int,CRegion*> m_zone_map;
   std::map<int,CRegion*> m_section_map;
   std::map<int,CArray* > m_coordinates_map;
   std::map<int,CRegion*> m_boco_map;
-  
+
 private:
   std::vector<std::string> m_supported_element_types;
 

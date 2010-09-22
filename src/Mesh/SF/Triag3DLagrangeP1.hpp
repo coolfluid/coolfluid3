@@ -13,7 +13,7 @@
 
 #include "Mesh/SF/Triag2DLagrangeP1.hpp"
 
-#include "Mesh/SF/SFLib.hpp"
+#include "Mesh/SF/LibSF.hpp"
 
 namespace CF {
 namespace Mesh {

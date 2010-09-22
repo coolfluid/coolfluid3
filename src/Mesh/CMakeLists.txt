@@ -1,8 +1,6 @@
 coolfluid_find_orphan_files()
 
 list( APPEND Mesh_files
-  MeshAPI.hpp
-  MeshAPI.cpp
   ArrayBase.hpp
   CMesh.cpp
   CArray.hpp
@@ -17,7 +15,7 @@ list( APPEND Mesh_files
   CFlexTable.cpp
   CHoneycombInterpolator.hpp
   CHoneycombInterpolator.cpp
-  CInterpolator.hpp  
+  CInterpolator.hpp
   CInterpolator.cpp
   CMesh.hpp
   CMesh.cpp
@@ -51,6 +49,8 @@ list( APPEND Mesh_files
   ElementType.cpp
   Hexa3D.hpp
   Hexa3D.cpp
+  LibMesh.hpp
+  LibMesh.cpp
   Line1D.hpp
   Line1D.cpp
   Line2D.hpp

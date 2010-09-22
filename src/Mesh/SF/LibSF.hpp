@@ -4,71 +4,70 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_MeshDiffAPI_hpp
-#define CF_MeshDiffAPI_hpp
+#ifndef CF_Mesh_LibSF_hpp
+#define CF_Mesh_LibSF_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/ExportAPI.hpp"
-#include "Common/ModuleRegister.hpp"
+#include "Common/LibraryRegister.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Define the macro MeshDiff_API
-/// @note build system defines MeshDiff_EXPORTS when compiling MeshDiffTools files
-#ifdef MeshDiff_EXPORTS
-#   define MeshDiff_API      CF_EXPORT_API
-#   define MeshDiff_TEMPLATE
+/// Define the macro SF_API
+/// @note build system defines SF_EXPORTS when compiling SF files
+#ifdef SF_EXPORTS
+#   define SF_API      CF_EXPORT_API
+#   define SF_TEMPLATE
 #else
-#   define MeshDiff_API      CF_IMPORT_API
-#   define MeshDiff_TEMPLATE CF_TEMPLATE_EXTERN
+#   define SF_API      CF_IMPORT_API
+#   define SF_TEMPLATE CF_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Tools {
-namespace MeshDiff {
+namespace Mesh {
+namespace SF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  /// Class defines the initialization and termination of the library MeshDiffDiff
-  /// @author Tiago Quintino
-  class MeshDiffLib :
-      public Common::ModuleRegister<MeshDiffLib>
+  /// Shape functions module
+  /// @author Tiago Quintino, Willem Deconinck, Bart Janssens
+  class LibSF :
+      public Common::LibraryRegister<LibSF>
   {
   public:
 
     /// Static function that returns the module name.
-    /// Must be implemented for the ModuleRegister template
+    /// Must be implemented for the LibraryRegister template
     /// @return name of the module
-    static std::string getModuleName() { return "MeshDiff"; }
+    static std::string library_name() { return "SF"; }
 
     /// Static function that returns the description of the module.
-    /// Must be implemented for the ModuleRegister template
+    /// Must be implemented for the LibraryRegister template
     /// @return descripton of the module
-    static std::string getModuleDescription()
+    static std::string library_description()
     {
-      return "This library implements the MeshDiff manipulation API.";
+      return "This library implements the shape functions.";
     }
 
     /// Gets the Class name
-    static std::string type_name() { return "MeshDiffLib"; }
+    static std::string type_name() { return "LibSF"; }
 
     /// Start profiling
     virtual void initiate();
 
     /// Stop profiling
     virtual void terminate();
-
-  }; // end MeshDiffLib
+  }; // end LibSF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace MeshDiff
-} // namespace Tools
+} // namespace SF
+} // namespace Mesh
 } // namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_MeshDiff_hpp
+#endif // CF_Mesh_LibSF_hpp

@@ -10,7 +10,7 @@
 #include "Common/CLink.hpp"
 #include "Common/ComponentPredicates.hpp"
 
-#include "Mesh/MeshAPI.hpp"
+#include "Mesh/LibMesh.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -21,7 +21,7 @@ namespace Mesh {
 
 using namespace Common;
 
-Common::ObjectProvider < CMesh, Component, MeshLib, NB_ARGS_1 >
+Common::ObjectProvider < CMesh, Component, LibMesh, NB_ARGS_1 >
 CMesh_Provider ( CMesh::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////

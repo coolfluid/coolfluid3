@@ -8,7 +8,7 @@
 
 #include "Common/ObjectProvider.hpp"
 
-#include "SFLib.hpp"
+#include "LibSF.hpp"
 #include "Hexa3DLagrangeP1.hpp"
 #include "Quad3DLagrangeP1.hpp"
 
@@ -20,7 +20,7 @@ namespace SF {
 
 Common::ObjectProvider < Hexa3DLagrangeP1,
                          ElementType,
-                         SFLib >
+                         LibSF >
 aHexa3DLagrangeP1_Provider ( "Hexa3DLagrangeP1" );
 
 ////////////////////////////////////////////////////////////////////////////////

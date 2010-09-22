@@ -12,7 +12,7 @@
 #include "Math/MatrixInverterT.hpp"
 #include "Mesh/Hexa3D.hpp"
 
-#include "Mesh/SF/SFLib.hpp"
+#include "Mesh/SF/LibSF.hpp"
 
 namespace CF {
 namespace Mesh {

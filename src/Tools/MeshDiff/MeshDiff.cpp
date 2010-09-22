@@ -25,7 +25,7 @@ using namespace Tools::Testing;
 
 namespace CF {
 namespace Tools {
-  
+
 namespace Testing {
 
 /// Compare 2D arrays
@@ -34,7 +34,7 @@ void array2d_test(const ArrayT a, const ArrayT b, Accumulator& result, const std
 {
   const Uint size_a = a.size();
   const Uint size_b = b.size();
-  
+
   for(Uint i = 0, j = 0; i != size_a && j != size_b; ++i, ++j)
   {
     Accumulator acc;
@@ -57,9 +57,9 @@ void array2d_test(const ArrayT a, const ArrayT b, Accumulator& result, const std
     result.exact(exact);
     result.ulps(ulps);
   }
-  
+
   result.exact(size_a == size_b);
-  
+
   if(size_a != size_b)
     CFerror << "Size difference in " << context << ": " << size_a << " != " << size_b << CFendl;
 }
@@ -78,14 +78,14 @@ void test(const CArray& a, const CArray& b, Accumulator& result)
 {
   const CArray::ArrayT& array_a = a.array();
   const CArray::ArrayT& array_b = b.array();
-  
+
   array2d_test<Real>(array_a, array_b, result, "comparing " + a.full_path().string() + " and " + b.full_path().string());
 }
-  
+
 }
-  
+
 namespace MeshDiff {
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Compares two ranges
@@ -103,7 +103,7 @@ bool diff(const Mesh::CMesh& a, const Mesh::CMesh& b, const Uint max_ulps)
   compare_ranges(recursive_range_typed<CArray>(a), recursive_range_typed<CArray>(b), accumulator);
   // Compare connectivity
   compare_ranges(recursive_range_typed<CElements>(a), recursive_range_typed<CElements>(b), accumulator);
-  
+
   return boost::accumulators::min(accumulator.exact) && (boost::accumulators::max(accumulator.ulps) < max_ulps);
 }
 

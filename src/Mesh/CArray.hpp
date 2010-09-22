@@ -12,7 +12,7 @@
 #include "Common/Component.hpp"
 
 #include "Mesh/ArrayBase.hpp"
-#include "Mesh/MeshAPI.hpp"
+#include "Mesh/LibMesh.hpp"
 
 #include "Mesh/BufferT.hpp"
 

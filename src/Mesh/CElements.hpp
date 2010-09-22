@@ -11,7 +11,7 @@
 
 #include "Common/Component.hpp"
 
-#include "Mesh/MeshAPI.hpp"
+#include "Mesh/LibMesh.hpp"
 #include "Mesh/ElementType.hpp"
 
 namespace CF {

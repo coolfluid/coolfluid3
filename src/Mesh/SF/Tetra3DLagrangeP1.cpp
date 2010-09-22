@@ -6,7 +6,7 @@
 
 #include "Common/ObjectProvider.hpp"
 
-#include "Mesh/SF/SFLib.hpp"
+#include "Mesh/SF/LibSF.hpp"
 #include "Mesh/SF/Tetra3DLagrangeP1.hpp"
 #include "Mesh/SF/Triag3DLagrangeP1.hpp"
 
@@ -18,7 +18,7 @@ namespace SF {
 
 Common::ObjectProvider < Tetra3DLagrangeP1,
                          ElementType,
-                         SFLib >
+                         LibSF >
 aTetra3DLagrangeP1_Provider ( "Tetra3DLagrangeP1" );
 
 ////////////////////////////////////////////////////////////////////////////////

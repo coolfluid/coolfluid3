@@ -1,7 +1,8 @@
 if(CF_HAVE_CGNS)
 
   list( APPEND CGNS3_files
-    CGNSAPI.hpp
+    LibCGNS.cpp
+    LibCGNS.hpp
     Shared.hpp
     Shared.cpp
     CReader.hpp
@@ -22,7 +23,8 @@ if(CF_HAVE_CGNS)
 else()
 
   coolfluid_mark_not_orphan (
-    CGNSAPI.hpp
+    LibCGNS.cpp
+    LibCGNS.hpp
     Shared.hpp
     Shared.cpp
     CReader.hpp

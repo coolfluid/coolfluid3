@@ -13,6 +13,7 @@
 
 #include "Common/CF.hpp"
 
+#include "Common/LibraryRegistry.hpp"
 #include "Common/SafePtr.hpp"
 #include "Common/SetupObject.hpp"
 #include "Common/SharedPtr.hpp"
@@ -25,11 +26,22 @@ namespace CF {
 namespace Common {
 
   class EventHandler;
-  class ModuleRegistry;
   class FactoryRegistry;
   class CoreVars;
 
-////////////////////////////////////////////////////////////////////////////////
+
+  ////////////////////////////////////////////////////////////////////////////////
+
+  /// @brief Struct to force library registration
+  /// @author Quentin Gasper
+  template< typename LIB >
+  struct ForceLibRegist
+  {
+    /// @brief Registers the library LIB in the registry.
+    ForceLibRegist();
+  };
+
+  ////////////////////////////////////////////////////////////////////////////////
 
 /// This class represents a singleton object where
 /// which is used to initialize the CF runtime environment.
@@ -71,9 +83,9 @@ public: // methods
   ///       only destruction procedures ar allowed afterwards.
   void terminate();
 
-  /// Gets the ModuleRegistry
+  /// Gets the LibraryRegistry
   /// @note Does not need to be initialized before
-  Common::SafePtr<Common::ModuleRegistry> getModuleRegistry();
+  Common::SafePtr<Common::LibraryRegistry> getLibraryRegistry();
 
   /// Gets the FactoryRegistry
   /// @note Does not need to be initialized before
@@ -89,13 +101,13 @@ public: // methods
   /// Calls initiate() on all registered modules.
   /// Mind that some modules might already have been initiated.
   /// It is up to the modules to track if they have or not been initiated.
-  /// @see ModuleRegisterBase
+  /// @see LibraryRegisterBase
   void initiate_modules();
 
   /// Calls terminate() on all registered modules
   /// Mind that some modules might already have been terminated.
   /// It is up to the modules to track if they have or not been terminated.
-  /// @see ModuleRegisterBase
+  /// @see LibraryRegisterBase
   void terminate_modules();
 
   /// Return the subversion version string of this build
@@ -138,8 +150,8 @@ private: // data
   /// the EventHandler object is only held by the CoreEnv singleton object
   Common::SharedPtr<Common::EventHandler> m_event_handler;
 
-  /// the ModuleRegistry singleton object is only held by the CoreEnv singleton object
-  Common::ModuleRegistry* m_module_registry;
+  /// the LibraryRegistry singleton object is only held by the CoreEnv singleton object
+  Common::LibraryRegistry* m_module_registry;
 
   /// the FactoryRegistry singleton object is only held by the CoreEnv singleton object
   Common::FactoryRegistry* m_factory_registry;
@@ -149,6 +161,19 @@ private: // data
   CoreVars * m_env_vars;
 
 }; // end of class CoreEnv
+
+////////////////////////////////////////////////////////////////////////////////
+
+template < typename LIB >
+ForceLibRegist<LIB>::ForceLibRegist()
+{
+  Common::SafePtr<Common::LibraryRegistry> registry = CoreEnv::instance().getLibraryRegistry();
+
+  if(!registry->isRegistered( LIB::library_name() ))
+  {
+    registry->regist(new LIB());
+  }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -23,9 +23,9 @@
 #include "Common/DirPaths.hpp"
 //#include "Common/FileHandlerInput.hpp"
 //#include "Common/FileHandlerOutput.hpp"
-#include "Common/ModuleRegistry.hpp"
+#include "Common/LibraryRegistry.hpp"
 #include "Common/FactoryRegistry.hpp"
-#include "Common/ModuleRegisterBase.hpp"
+#include "Common/LibraryRegisterBase.hpp"
 #include "Common/CoreEnv.hpp"
 #include "Common/CoreVars.hpp"
 
@@ -70,7 +70,7 @@ CoreEnv::CoreEnv() :
 // Common::ConfigObject("CoreEnv"),
 //  m_var_registry ( new VarRegistry() )
   m_event_handler(new Common::EventHandler()),
-  m_module_registry(new Common::ModuleRegistry()),
+  m_module_registry(new Common::LibraryRegistry()),
   m_factory_registry(new Common::FactoryRegistry()),
   m_env_vars (new CoreVars())
 {
@@ -246,7 +246,7 @@ CoreEnv::~CoreEnv()
 
 /// @todo should be done like this and these classes probably
 ///       should be nested and private inside this class
-//   delete_ptr(m_moduleRegistry);
+//   delete_ptr(m_LibraryRegistry);
 //   delete_ptr(m_factoryRegistry);
 }
 
@@ -280,20 +280,20 @@ void CoreEnv::initiate ( int argc, char** argv )
 
 void CoreEnv::initiate_modules()
 {
-  std::vector< SafePtr<ModuleRegisterBase> > mod = m_module_registry->getAllModules();
+  std::vector< SafePtr<LibraryRegisterBase> > mod = m_module_registry->getAllModules();
   std::for_each(mod.begin(),
                 mod.end(),
-                Common::safeptr_mem_fun(&ModuleRegisterBase::initiate));
+                Common::safeptr_mem_fun(&LibraryRegisterBase::initiate));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CoreEnv::terminate_modules()
 {
-  std::vector< SafePtr<ModuleRegisterBase> > mod = m_module_registry->getAllModules();
+  std::vector< SafePtr<LibraryRegisterBase> > mod = m_module_registry->getAllModules();
   std::for_each(mod.begin(),
                 mod.end(),
-                Common::safeptr_mem_fun(&ModuleRegisterBase::terminate));
+                Common::safeptr_mem_fun(&LibraryRegisterBase::terminate));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -323,7 +323,7 @@ Common::SafePtr<Common::CoreVars> CoreEnv::getVars()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::SafePtr<Common::ModuleRegistry> CoreEnv::getModuleRegistry()
+Common::SafePtr<Common::LibraryRegistry> CoreEnv::getLibraryRegistry()
 {
   cf_assert(m_module_registry != CFNULL);
   return m_module_registry;

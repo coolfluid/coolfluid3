@@ -6,9 +6,11 @@
 
 //#include <iostream>
 
-#include "Common/ModuleRegisterBase.hpp"
 //#include "Common/CoreEnv.hpp"
-#include "Common/ModuleRegistry.hpp"
+#include "Common/LibraryRegistry.hpp"
+
+#include "Common/LibraryRegisterBase.hpp"
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -17,39 +19,39 @@ namespace CF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ModuleRegisterBase::ModuleRegisterBase(const std::string& name) :
+LibraryRegisterBase::LibraryRegisterBase(const std::string& name) :
 NamedObject(name),
 //m_selfRegistry(),
 //m_configRegistry(),
 m_init(false)
 {
 //  std::cout << "Registering module [" << name << "]" << std::endl;
-//  Common::CoreEnv::instance().getModuleRegistry()->regist(this);
+//  Common::CoreEnv::instance().getLibraryRegistry()->regist(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ModuleRegisterBase::~ModuleRegisterBase()
+LibraryRegisterBase::~LibraryRegisterBase()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-//Common::SelfRegistry& ModuleRegisterBase::getSelfRegistry()
+//Common::SelfRegistry& LibraryRegisterBase::getSelfRegistry()
 //{
 //  return m_selfRegistry;
 //}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-//Common::ConfigRegistry& ModuleRegisterBase::getConfigRegistry()
+//Common::ConfigRegistry& LibraryRegisterBase::getConfigRegistry()
 //{
 //  return m_configRegistry;
 //}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ModuleRegisterBase::initiate()
+void LibraryRegisterBase::initiate()
 {
   if (!isInitialized())
   {
@@ -60,7 +62,7 @@ void ModuleRegisterBase::initiate()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ModuleRegisterBase::terminate()
+void LibraryRegisterBase::terminate()
 {
   if(isInitialized())
   {

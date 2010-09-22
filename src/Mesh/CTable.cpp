@@ -7,7 +7,7 @@
 #include "Common/ObjectProvider.hpp"
 #include "Common/StreamHelpers.hpp"
 
-#include "Mesh/MeshAPI.hpp"
+#include "Mesh/LibMesh.hpp"
 #include "Mesh/CTable.hpp"
 
 namespace CF {
@@ -15,7 +15,7 @@ namespace Mesh {
 
 using namespace Common;
 
-Common::ObjectProvider < CTable, Component, MeshLib, NB_ARGS_1 >
+Common::ObjectProvider < CTable, Component, LibMesh, NB_ARGS_1 >
 CTable_Provider ( CTable::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////

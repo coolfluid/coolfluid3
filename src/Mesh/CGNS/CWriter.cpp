@@ -26,7 +26,7 @@ namespace CGNS {
 
 Common::ObjectProvider < Mesh::CGNS::CWriter,
                          Mesh::CMeshWriter,
-                         Mesh::CGNS::CGNSLib,
+                         Mesh::CGNS::LibCGNS,
                          1 >
 aCGNSWriter_Provider ( "CGNS" );
 

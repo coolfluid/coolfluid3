@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_ModuleRegistry_hpp
-#define CF_Common_ModuleRegistry_hpp
+#ifndef CF_Common_LibraryRegistry_hpp
+#define CF_Common_LibraryRegistry_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -19,7 +19,7 @@
 namespace CF {
 namespace Common {
 
-    class ModuleRegisterBase;
+    class LibraryRegisterBase;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -27,36 +27,36 @@ namespace Common {
 /// modules that are loaded
 /// The only instance of this object is held by the CFEnv.
 /// @author Tiago Quintino
-class Common_API ModuleRegistry : public boost::noncopyable {
+class Common_API LibraryRegistry : public boost::noncopyable {
 
 public:
 
   /// Register a module
-  /// @param module pointer to a ModuleRegisterBase to be added
-  void regist(Common::ModuleRegisterBase* module);
+  /// @param module pointer to a LibraryRegisterBase to be added
+  void regist(Common::LibraryRegisterBase* module);
 
   /// Remove a registered module
-  /// @param moduleName name of a ModuleRegisterBase to be removed
+  /// @param moduleName name of a LibraryRegisterBase to be removed
   void unregist(const std::string& moduleName);
 
   /// Checks that a module is registered
-  /// @param moduleName name of a ModuleRegisterBase to be checked
+  /// @param moduleName name of a LibraryRegisterBase to be checked
   bool isRegistered(const std::string& moduleName);
 
   /// Get a given module
-  /// @param moduleName name of a ModuleRegisterBase to be accessed
-  /// @return a pointer to a ModuleRegisterBase if found or a null pointer if not found
-  Common::SafePtr<Common::ModuleRegisterBase> getModuleRegisterBase(const std::string& moduleName);
+  /// @param moduleName name of a LibraryRegisterBase to be accessed
+  /// @return a pointer to a LibraryRegisterBase if found or a null pointer if not found
+  Common::SafePtr<Common::LibraryRegisterBase> getLibraryRegisterBase(const std::string& moduleName);
 
   /// Get all modules
   /// @return a vector with all the modules
-  std::vector< Common::SafePtr<Common::ModuleRegisterBase> > getAllModules();
+  std::vector< Common::SafePtr<Common::LibraryRegisterBase> > getAllModules();
 
 private: // data
 
-  Common::GeneralStorage<Common::ModuleRegisterBase> m_store;
+  Common::GeneralStorage<Common::LibraryRegisterBase> m_store;
 
-}; // ModuleRegistry
+}; // LibraryRegistry
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -65,4 +65,4 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_ModuleRegistry_hpp
+#endif // CF_Common_LibraryRegistry_hpp

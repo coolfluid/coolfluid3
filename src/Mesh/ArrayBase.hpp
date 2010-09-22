@@ -11,7 +11,7 @@
 
 #include "Common/BoostArray.hpp"
 
-#include "Mesh/MeshAPI.hpp"
+#include "Mesh/LibMesh.hpp"
 #include "Mesh/BufferT.hpp"
 
 namespace CF {

@@ -2,11 +2,11 @@ coolfluid_find_orphan_files()
 
 list( APPEND Testing_files
   Difference.hpp
+  LibTesting.cpp
+  LibTesting.hpp
   ProfiledTestFixture.cpp
   ProfiledTestFixture.hpp
   TimedTestFixture.hpp
-  TestingAPI.cpp
-  TestingAPI.hpp
 )
 
 list( APPEND Testing_cflibs Common )

@@ -9,7 +9,7 @@
 
 #include "Mesh/CMesh.hpp"
 
-#include "Mesh/MeshAPI.hpp"
+#include "Tools/MeshGeneration/LibMeshGeneration.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -20,11 +20,11 @@ using namespace CF::Mesh;
 namespace CF {
 namespace Tools {
 namespace MeshGeneration {
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Create a rectangular, 2D, quad-only mesh. No buffer for creation
-void Mesh_API create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments);
+void MeshGeneration_API create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -32,13 +32,13 @@ void Mesh_API create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, 
 /// Useful for creating large grids outside of profiled fixtures
 template<Uint MeshSize>
 struct MeshSourceGlobalFixture {
-  
+
   /// Init all meshes at creation time
   MeshSourceGlobalFixture()
   {
     CFinfo << "Created mesh " << grid2().name() << CFendl;
   }
-  
+
   /// Returns a 2D square grid, with side MeshSize
   static const CMesh& grid2()
   {
@@ -49,7 +49,7 @@ struct MeshSourceGlobalFixture {
     }
     return *grid2D;
   }
-  
+
 };
 
 
