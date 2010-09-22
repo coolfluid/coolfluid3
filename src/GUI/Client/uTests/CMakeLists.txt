@@ -14,7 +14,7 @@ set(uTestClient_moc_classes
 
 QT4_WRAP_CPP(uTestClient_moc_files ${uTestClient_moc_classes})
 
-configure_file( tree.xml  ${CMAKE_CURRENT_BINARY_DIR}/tree.xml  @ONLY )
+#configure_file( tree.xml  ${CMAKE_CURRENT_BINARY_DIR}/tree.xml  @ONLY )
 
 list( APPEND uTestClient_cflibs Network)
 list( APPEND uTestClient_libs ${QT_LIBRARIES})
@@ -40,5 +40,11 @@ list( APPEND uTestClient_files
 list( APPEND uTestClient_libs ClientCore ${QT_LIBRARIES})
 
 coolfluid_add_unittest( uTestClient )
+
+add_custom_command(TARGET uTestClient
+                   POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/tree.xml ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                  )
+
 
 endif()
