@@ -10,7 +10,9 @@
 #include "Math/RealMatrix.hpp"
 #include "Math/MathFunctions.hpp"
 #include "Math/MatrixInverterT.hpp"
+
 #include "Mesh/Hexa3D.hpp"
+#include "Mesh/ElementNodes.hpp"
 
 #include "Mesh/SF/LibSF.hpp"
 
@@ -67,10 +69,79 @@ static void shape_function(const RealVector& mapped_coord, RealVector& shape_fun
 /// @param nodes contains the nodes
 /// @param mappedCoord Store the output mapped coordinates
 template<typename NodesT>
-static void mapped_coordinates(const RealVector& coord, const NodesT& nodes, RealVector& mappedCoord)
-{
-  throw NotImplemented (FromHere(), "Hexa3DLagrangeP1::mapped_coordinates is not implemented yet.");
-
+static void mapped_coordinates(const RealVector& coord, const NodesT& nodes, RealVector& mapped_coord)
+{  
+  // Axes of the local coordinate system, centered around the centroid and going through the center of each face
+  RealVector ux(0.,3);
+  RealVector uy(0.,3);
+  RealVector uz(0.,3);
+  eval<Hexa3DLagrangeP1>(point3(1.,0.,0.), nodes, ux);
+  eval<Hexa3DLagrangeP1>(point3(0.,1.,0.), nodes, uy);
+  eval<Hexa3DLagrangeP1>(point3(0.,0.,1.), nodes, uz);
+  
+  RealVector ux_neg(0.,3);
+  RealVector uy_neg(0.,3);
+  RealVector uz_neg(0.,3);
+  eval<Hexa3DLagrangeP1>(point3(-1.,0.,0.), nodes, ux_neg);
+  eval<Hexa3DLagrangeP1>(point3(0.,-1.,0.), nodes, uy_neg);
+  eval<Hexa3DLagrangeP1>(point3(0.,0.,-1.), nodes, uz_neg);
+  
+  RealVector centroid(0., 3);
+  centroid[XX] = (ux[XX] + ux_neg[XX]) * 0.5;
+  centroid[YY] = (uy[YY] + uy_neg[YY]) * 0.5;
+  centroid[ZZ] = (uz[ZZ] + uz_neg[ZZ]) * 0.5;
+  
+  ux -= ux_neg;
+  uy -= uy_neg;
+  uz -= uz_neg;
+  
+  ux *= 0.5; // because the origin is at the center
+  uy *= 0.5;
+  uz *= 0.5;
+  
+  const Real ux_len_inv = 1. / ux.norm2();
+  const Real uy_len_inv = 1. / uy.norm2();
+  const Real uz_len_inv = 1. / uz.norm2();
+  
+  ux *= ux_len_inv;
+  uy *= uy_len_inv;
+  uz *= uz_len_inv;
+  
+  // Normal vectors
+  RealVector nyz(3);
+  RealVector nxz(3);
+  RealVector nxy(3);
+  Math::MathFunctions::crossProd(uy, uz, nyz);
+  Math::MathFunctions::crossProd(ux, uz, nxz);
+  Math::MathFunctions::crossProd(ux, uy, nxy);
+  
+  // division factors for line-plane intersection
+  const Real fx = ux_len_inv / Math::MathFunctions::innerProd(ux, nyz);
+  const Real fy = uy_len_inv / Math::MathFunctions::innerProd(uy, nxz);
+  const Real fz = uz_len_inv / Math::MathFunctions::innerProd(uz, nxy);
+  
+  RealVector diff(3);
+  diff = coord-centroid;
+  RealVector test(3);
+  const Real threshold = 1e-24; // 1e-12 squared, because we compare the squared distance
+  Uint nb_iters = 0;
+  // Initial guess will be correct if our element is a parallelepiped
+  mapped_coord[KSI] = Math::MathFunctions::innerProd(diff, nyz) * fx;
+  mapped_coord[ETA] = Math::MathFunctions::innerProd(diff, nxz) * fy;
+  mapped_coord[ZTA] = Math::MathFunctions::innerProd(diff, nxy) * fz;
+  while (nb_iters < 100 && Math::MathFunctions::innerProd(diff, diff) > threshold)
+  {
+    eval<Hexa3DLagrangeP1>(mapped_coord, nodes, test);
+    diff = coord - test;
+    test[XX] = Math::MathFunctions::innerProd(diff, nyz) * fx;  // Transform difference to the relative coordinate system and
+    test[YY] = Math::MathFunctions::innerProd(diff, nxz) * fy;  // use it to adjust our initial guess
+    test[ZZ] = Math::MathFunctions::innerProd(diff, nxy) * fz;
+    mapped_coord += test;
+    ++nb_iters;
+  }
+  
+  if(nb_iters > 100)
+    throw ConvergenceNotReached(FromHere(), "Failed to find Hexa3DLagrangeP1 mapped coordinates");
 }
   
 

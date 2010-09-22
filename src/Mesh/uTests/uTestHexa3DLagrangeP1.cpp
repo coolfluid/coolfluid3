@@ -140,6 +140,54 @@ BOOST_AUTO_TEST_CASE( IntegrateConst )
   BOOST_CHECK_CLOSE(result, 1., 0.000001);
 }
 
+BOOST_AUTO_TEST_CASE( MappedCoordinates )
+{
+  const RealVector c0 = list_of(0.7)(0.6)(0.5);
+  const RealVector c1 = list_of(1.)(0.)(0.);
+  const RealVector c2 = list_of(1.)(1.)(0.);
+  const RealVector c3 = list_of(0.)(1.)(0.);
+  const RealVector c4 = list_of(0.)(0.)(1.);
+  const RealVector c5 = list_of(1.)(0.)(1.);
+  const RealVector c6 = list_of(1.3)(1.4)(1.5);
+  const RealVector c7 = list_of(0.)(1.)(1.);
+
+  const NodesT inverted = list_of(c7)(c6)(c5)(c4)(c3)(c2)(c1)(c0);
+  
+  NodesT bignodes = unit_nodes;
+  BOOST_FOREACH(RealVector& v, bignodes)
+    v *= 100;
+    
+  NodesT biginverted = inverted;
+  BOOST_FOREACH(RealVector& v, biginverted)
+    v *= 100;
+    
+  NodesT parallelepiped = unit_nodes;
+  for(Uint i = 4; i != 8; ++i)
+  {
+    parallelepiped[i][XX] += 1.;
+    parallelepiped[i][YY] += 0.3;
+  }
+  
+  const Real max_ulps = boost::accumulators::max(test(0.1+1e-12, 0.1).ulps); //expected max ulps based on the iteration threshold
+  
+  const std::vector<Hexa3DLagrangeP1Fixture::NodesT> test_nodes = boost::assign::list_of(unit_nodes)(skewed_nodes)(inverted)(bignodes)(biginverted)(parallelepiped);
+  const std::vector<Real> ulps_list = boost::assign::list_of(10)(max_ulps)(max_ulps)(10)(max_ulps)(20);
+  Uint idx = 0;
+  BOOST_FOREACH(const Hexa3DLagrangeP1Fixture::NodesT& nodes, test_nodes)
+  {
+    RealVector coords(3);
+    eval<Hexa3DLagrangeP1>(mapped_coords, nodes, coords);
+    CFinfo << "Looking for coords " << coords << " in mapped coords " << mapped_coords << CFendl;
+    
+    RealVector result(3);
+    Hexa3DLagrangeP1::mapped_coordinates(coords, nodes, result);
+    
+    Accumulator accumulator;
+    vector_test(result, mapped_coords, accumulator);
+    BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), ulps_list[idx++]);
+  }
+}
+
 BOOST_AUTO_TEST_CASE( MappedGradient )
 {
   RealMatrix expected(Hexa3DLagrangeP1::dimension, Hexa3DLagrangeP1::nb_nodes);
