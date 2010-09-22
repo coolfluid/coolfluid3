@@ -13,6 +13,8 @@
 
 #include "Common/CF.hpp"
 
+#include "GUI/Client/UI/LibClientUI.hpp"
+
 class QDialogButtonBox;
 class QPushButton;
 class QTableView;
@@ -29,7 +31,7 @@ namespace CF {
       /////////////////////////////////////////////////////////////////////////////
 
       /// @brief Dialog that shows commit details.
-      class CommitDetailsDialog : public QDialog
+      class ClientUI_API CommitDetailsDialog : public QDialog
       {
         Q_OBJECT
 

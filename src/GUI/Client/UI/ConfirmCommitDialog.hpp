@@ -15,6 +15,8 @@
 
 #include "Common/CF.hpp"
 
+#include "GUI/Client/UI/LibClientUI.hpp"
+
 class QPushButton;
 class QLabel;
 class QVBoxLayout;
@@ -38,7 +40,7 @@ class CommitDetails;
 
   /// This dialog is used, for instance, when user clicks on another node
   /// or closes the application without committing.
-  class ConfirmCommitDialog : public QDialog
+  class ClientUI_API ConfirmCommitDialog : public QDialog
   {
     Q_OBJECT
 

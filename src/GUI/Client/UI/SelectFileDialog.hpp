@@ -14,6 +14,8 @@
 
 #include "Common/CF.hpp"
 
+#include "GUI/Client/UI/LibClientUI.hpp"
+
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -97,7 +99,7 @@ namespace Client {
   /// </ul></ul>@n @n
 
   /// @author Quentin Gasper.
-  class SelectFileDialog : public QFileDialog
+  class ClientUI_API SelectFileDialog : public QFileDialog
   {
     Q_OBJECT
 

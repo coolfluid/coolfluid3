@@ -6,6 +6,8 @@
 #include <QWidget>
 #include <QMap>
 
+#include "GUI/Client/UI/LibClientUI.hpp"
+
 class QAction;
 class QGridLayout;
 class QMenu;
@@ -55,7 +57,7 @@ namespace Client {
   /// list @b and is directly after the current index in the history. After
   /// insterting, the new item becomes the current index.@n
 
-  class TreeBrowser : public QWidget
+  class ClientUI_API TreeBrowser : public QWidget
   {
     Q_OBJECT
 

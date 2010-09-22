@@ -13,6 +13,8 @@
 
 #include "Common/CF.hpp"
 
+#include "GUI/Client/UI/LibClientUI.hpp"
+
 class QComboBox;
 class QFormLayout;
 class QLabel;
@@ -68,7 +70,7 @@ namespace Client {
 
   /// @author Quentin Gasper.
 
-  class TypeAndNameDialog : QDialog
+  class ClientUI_API TypeAndNameDialog : QDialog
   {
     Q_OBJECT
 

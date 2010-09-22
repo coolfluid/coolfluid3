@@ -11,6 +11,8 @@
 
 #include <QObject>
 
+#include "GUI/Client/UI/LibClientUI.hpp"
+
 class QIcon;
 class QKeySequence;
 class QMenu;
@@ -36,7 +38,7 @@ namespace Client {
 
   /// @author Quentin Gasper.
 
-  struct MenuActionInfo : public QObject
+  struct ClientUI_API MenuActionInfo : public QObject
   {
     public :
 

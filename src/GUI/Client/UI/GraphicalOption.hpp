@@ -13,6 +13,8 @@
 
 #include "GUI/Client/Core/OptionType.hpp"
 
+#include "GUI/Client/UI/LibClientUI.hpp"
+
 class QFormLayout;
 class QHBoxLayout;
 class QLabel;
@@ -35,7 +37,7 @@ namespace Client {
 
   /// The value component is adapted to the type of the option.
 
-  class GraphicalOption : public QObject
+  class ClientUI_API GraphicalOption : public QObject
   {
     Q_OBJECT
 

@@ -33,7 +33,7 @@ namespace Client {
   /// and @c #showMultipleSelect base class methods.
 
   /// @author Quentin Gasper
-  class NRemoteSave : public NRemoteBrowser
+  class ClientUI_API NRemoteSave : public NRemoteBrowser
   {
     Q_OBJECT
 

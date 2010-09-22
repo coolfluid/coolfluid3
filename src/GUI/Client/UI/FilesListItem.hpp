@@ -11,6 +11,8 @@
 
 #include <QStandardItem>
 
+#include "GUI/Client/UI/LibClientUI.hpp"
+
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -39,7 +41,7 @@ namespace Client {
   /// the list view.@n @n
   /// @author Quentin Gasper.
 
-  class FilesListItem : public QStandardItem
+  class ClientUI_API FilesListItem : public QStandardItem
   {
 
     public:

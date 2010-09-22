@@ -12,6 +12,8 @@
 #include <QDialog>
 #include <QList>
 
+#include "GUI/Client/UI/LibClientUI.hpp"
+
 class QFormLayout;
 class QLabel;
 class QPushButton;
@@ -26,7 +28,7 @@ namespace Client {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  class AboutCFDialog : public QDialog
+  class ClientUI_API AboutCFDialog : public QDialog
   {
     struct CFInfo
     {

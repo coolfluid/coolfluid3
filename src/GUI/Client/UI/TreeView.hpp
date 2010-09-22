@@ -15,6 +15,8 @@
 
 #include "GUI/Client/Core/TSshInformation.hpp"
 
+#include "GUI/Client/UI/LibClientUI.hpp"
+
 class QDomDocument;
 class QDomNode;
 class QMainWindow;
@@ -44,7 +46,7 @@ namespace Client {
 
   /// @author Gasper Quentin
 
-  class TreeView : public QTreeView
+  class ClientUI_API TreeView : public QTreeView
   {
     Q_OBJECT
 

@@ -13,6 +13,8 @@
 
 #include "Common/CF.hpp"
 
+#include "GUI/Client/UI/LibClientUI.hpp"
+
 /////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -25,7 +27,7 @@ namespace Client {
 
 /////////////////////////////////////////////////////////////////////////////
 
-  class StatusPanel : public QTreeView
+  class ClientUI_API StatusPanel : public QTreeView
   {
     Q_OBJECT
 

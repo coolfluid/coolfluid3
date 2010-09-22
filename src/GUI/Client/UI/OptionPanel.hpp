@@ -18,6 +18,8 @@
 
 #include "GUI/Client/Core/OptionType.hpp"
 
+#include "GUI/Client/UI/LibClientUI.hpp"
+
 class QDomNodeList;
 class QFormLayout;
 class QGridLayout;
@@ -49,7 +51,7 @@ namespace Client {
 
   /// @author Quentin Gasper.
 
-  class OptionPanel : public QWidget
+  class ClientUI_API OptionPanel : public QWidget
   {
     Q_OBJECT
 

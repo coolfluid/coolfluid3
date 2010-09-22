@@ -25,7 +25,7 @@ namespace Client {
 
   /////////////////////////////////////////////////////////////////////////
 
-  class GraphicalUrlArray : public GraphicalValue
+  class ClientUI_API GraphicalUrlArray : public GraphicalValue
   {
     Q_OBJECT
 

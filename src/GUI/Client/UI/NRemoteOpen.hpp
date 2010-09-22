@@ -29,7 +29,7 @@ namespace Client {
   /// This class subclasses @c NRemoteBrowser.
 
   /// @author Quentin Gasper
-  class NRemoteOpen : public NRemoteBrowser
+  class ClientUI_API NRemoteOpen : public NRemoteBrowser
   {
   public:
 

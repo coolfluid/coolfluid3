@@ -15,6 +15,8 @@
 
 #include "GUI/Client/Core/CNode.hpp"
 
+#include "GUI/Client/UI/LibClientUI.hpp"
+
 class QCompleter;
 class QDomDocument;
 class QEvent;
@@ -46,7 +48,7 @@ namespace Client {
   /// It allows subclasses to inform the base class that the currently selected
   /// item(s) is (are) conformed to the validation policy defined by these
   /// subclasses. See @c NRemoteBrowser class documentation for more details.
-  enum ValidationPolicy
+  enum ClientUI_API ValidationPolicy
   {
     /// @brief The associated selection has been validated by the subclass
     /// policy.
@@ -109,7 +111,7 @@ namespace Client {
 
   /// @author Quentin Gasper.
 
-  class NRemoteBrowser
+  class ClientUI_API NRemoteBrowser
     : public QDialog,
       public CNode
   {

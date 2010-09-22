@@ -11,6 +11,8 @@
 
 #include <QDialog>
 
+#include "GUI/Client/UI/LibClientUI.hpp"
+
 class QCompleter;
 class QDialogButtonBox;
 class QLineEdit;
@@ -31,7 +33,7 @@ namespace Client {
 
   class TreeView;
 
-  class SelectPathDialog : public QDialog
+  class ClientUI_API SelectPathDialog : public QDialog
   {
       Q_OBJECT
   public:

@@ -12,6 +12,8 @@
 #include <QVariant>
 #include <QWidget>
 
+#include "GUI/Client/UI/LibClientUI.hpp"
+
 class QHBoxLayout;
 
 ////////////////////////////////////////////////////////////////////////////
@@ -22,7 +24,7 @@ namespace Client {
 
   //////////////////////////////////////////////////////////////////////////
 
-  class GraphicalValue : public QWidget
+  class ClientUI_API GraphicalValue : public QWidget
   {
     Q_OBJECT
   public:

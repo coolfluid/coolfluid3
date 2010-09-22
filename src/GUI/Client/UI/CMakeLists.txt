@@ -60,6 +60,8 @@ list( APPEND ClientUI_files
   GraphicalUrlArray.hpp
   GraphicalValue.cpp
   GraphicalValue.hpp
+  LibClientUI.cpp
+  LibClientUI.hpp
   LoggingList.cpp
   LoggingList.hpp
   MainWindow.cpp

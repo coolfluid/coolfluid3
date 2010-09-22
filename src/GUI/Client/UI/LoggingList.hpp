@@ -15,6 +15,8 @@
 
 #include "Common/CF.hpp"
 
+#include "GUI/Client/UI/LibClientUI.hpp"
+
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -25,7 +27,7 @@ namespace Client {
 
   /// @brief Manages a graphical log component.
 
-  class LoggingList : public QTextEdit
+  class ClientUI_API LoggingList : public QTextEdit
   {
     Q_OBJECT
 

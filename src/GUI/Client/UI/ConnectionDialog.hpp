@@ -11,6 +11,8 @@
 
 #include <QDialog>
 
+#include "GUI/Client/UI/LibClientUI.hpp"
+
 class QCheckBox;
 class QDialogButtonBox;
 class QFormLayout;
@@ -74,7 +76,7 @@ namespace Client {
 
   /// @author Quentin Gasper.
 
-  class ConnectionDialog : public QDialog
+  class ClientUI_API ConnectionDialog : public QDialog
   {
     Q_OBJECT
 

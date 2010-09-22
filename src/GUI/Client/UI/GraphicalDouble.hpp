@@ -22,7 +22,7 @@ namespace Client {
 
   //////////////////////////////////////////////////////////////////////////
 
-  class GraphicalDouble : public GraphicalValue
+  class ClientUI_API GraphicalDouble : public GraphicalValue
   {
     Q_OBJECT
 

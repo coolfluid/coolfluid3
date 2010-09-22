@@ -19,6 +19,8 @@
 
 #include "GUI/Network/LogMessage.hpp"
 
+#include "GUI/Client/UI/LibClientUI.hpp"
+
 class QGridLayout;
 class QLabel;
 class QModelIndex;
@@ -54,7 +56,7 @@ namespace Client {
   /// @brief Client main window.
 
   /// @author Quentin Gasper.
-  class MainWindow : public QMainWindow
+  class ClientUI_API MainWindow : public QMainWindow
   {
     Q_OBJECT
 
