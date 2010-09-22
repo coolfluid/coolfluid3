@@ -11,10 +11,10 @@
 
 #include "Common/XmlHelpers.hpp"
 
-#include "GUI/Client/ClientRoot.hpp"
-#include "GUI/Client/NRoot.hpp"
-#include "GUI/Client/NTree.hpp"
-#include "GUI/Client/UnknownTypeException.hpp"
+#include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/NRoot.hpp"
+#include "GUI/Client/Core/NTree.hpp"
+#include "GUI/Client/Core/UnknownTypeException.hpp"
 
 #include "GUI/Client/uTests/CommonFunctions.hpp"
 #include "GUI/Client/uTests/ExceptionThrowHandler.hpp"

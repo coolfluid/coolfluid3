@@ -11,7 +11,7 @@
 
 #include <QObject>
 
-#include "GUI/Client/NRoot.hpp"
+#include "GUI/Client/Core/NRoot.hpp"
 
 ///////////////////////////////////////////////////////////////////////////
 

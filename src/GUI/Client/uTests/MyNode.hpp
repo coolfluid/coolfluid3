@@ -7,7 +7,7 @@
 #ifndef CF_GUI_Client_uTests_MyNode_hpp
 #define CF_GUI_Client_uTests_MyNode_hpp
 
-#include "GUI/Client/CNode.hpp"
+#include "GUI/Client/Core/CNode.hpp"
 
 namespace CF {
 namespace GUI {

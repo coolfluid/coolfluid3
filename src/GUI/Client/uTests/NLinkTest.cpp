@@ -10,10 +10,10 @@
 #include "Common/CPath.hpp"
 #include "Common/XmlHelpers.hpp"
 
-#include "GUI/Client/ClientRoot.hpp"
-#include "GUI/Client/NLink.hpp"
-#include "GUI/Client/NGroup.hpp"
-#include "GUI/Client/NTree.hpp"
+#include "GUI/Client/Core/ClientRoot.hpp"
+#include "GUI/Client/Core/NLink.hpp"
+#include "GUI/Client/Core/NGroup.hpp"
+#include "GUI/Client/Core/NTree.hpp"
 
 #include "GUI/Client/uTests/CommonFunctions.hpp"
 #include "GUI/Client/uTests/ExceptionThrowHandler.hpp"

@@ -8,7 +8,7 @@
 
 #include "Common/XmlHelpers.hpp"
 
-#include "GUI/Client/CNode.hpp"
+#include "GUI/Client/Core/CNode.hpp"
 
 #include "GUI/Client/uTests/ExceptionThrowHandler.hpp"
 

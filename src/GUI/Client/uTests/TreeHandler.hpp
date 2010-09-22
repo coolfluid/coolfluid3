@@ -9,7 +9,7 @@
 
 ///////////////////////////////////////////////////////////////////////////
 
-#include "GUI/Client/CNode.hpp"
+#include "GUI/Client/Core/CNode.hpp"
 
 class QStringList;
 

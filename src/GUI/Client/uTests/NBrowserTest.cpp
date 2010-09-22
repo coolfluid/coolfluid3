@@ -7,7 +7,7 @@
 #include <QString>
 #include <QtTest>
 
-#include "GUI/Client/NBrowser.hpp"
+#include "GUI/Client/Core/NBrowser.hpp"
 
 #include "GUI/Client/uTests/NBrowserTest.hpp"
 

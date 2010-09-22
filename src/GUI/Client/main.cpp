@@ -15,7 +15,7 @@
 #include "Common/CRoot.hpp"
 #include "Common/CLink.hpp"
 
-#include "GUI/Client/MainWindow.hpp"
+#include "GUI/Client/UI/MainWindow.hpp"
 
 using namespace CF::Common;
 using namespace CF::GUI::Client;

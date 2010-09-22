@@ -8,7 +8,7 @@
 
 //#include "Common/Component"
 
-#include "GUI/Client/ClientRoot.hpp"
+#include "GUI/Client/Core/ClientRoot.hpp"
 
 #include "GUI/Client/uTests/TreeHandler.hpp"
 

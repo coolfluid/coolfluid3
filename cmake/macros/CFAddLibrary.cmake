@@ -14,7 +14,7 @@ macro( coolfluid_add_library LIBNAME )
 
   # if is kernel library
   # add the library to the list of kernel libs
-  # and add option to install or not the API headers 
+  # and add option to install or not the API headers
   # default for kernel libs is to install
   # default for plugin libs is not to install
   if( ${LIBNAME}_kernellib )
@@ -22,7 +22,7 @@ macro( coolfluid_add_library LIBNAME )
       coolfluid_append_cached_list( CF_KERNEL_LIBS ${LIBNAME} )
   else()
       option( CF_BUILD_${LIBNAME}_API "Publish the ${LIBNAME} (plugin) library API" OFF )
-  endif()	
+  endif()
   mark_as_advanced( CF_BUILD_${LIBNAME}_API )	# and mark the option advanced
 
   # library is shared or static?
@@ -78,7 +78,7 @@ macro( coolfluid_add_library LIBNAME )
 
     coolfluid_log( " +++ LIB [${LIBNAME}]" )
 
-    ADD_LIBRARY(${LIBNAME} ${${LIBNAME}_buildtype} ${${LIBNAME}_sources} ${${LIBNAME}_headers})
+    ADD_LIBRARY(${LIBNAME} ${${LIBNAME}_buildtype} ${${LIBNAME}_sources} ${${LIBNAME}_headers}  ${${LIBNAME}_moc_files} ${${LIBNAME}_RCC})
 
     SET_TARGET_PROPERTIES( ${LIBNAME} PROPERTIES LINK_FLAGS "${CF_LIBRARY_LINK_FLAGS}" )
     SET_TARGET_PROPERTIES( ${LIBNAME} PROPERTIES DEFINE_SYMBOL ${LIBNAME}_EXPORTS )
@@ -104,13 +104,13 @@ macro( coolfluid_add_library LIBNAME )
 
     # add coolfluid internal dependency libraries if defined
     if( DEFINED ${LIBNAME}_cflibs )
-				# message( STATUS "${LIBNAME} has ${${LIBNAME}_cflibs}}" )
-				TARGET_LINK_LIBRARIES ( ${LIBNAME} ${${LIBNAME}_cflibs} )
+        # message( STATUS "${LIBNAME} has ${${LIBNAME}_cflibs}}" )
+        TARGET_LINK_LIBRARIES ( ${LIBNAME} ${${LIBNAME}_cflibs} )
     endif()
 
     # add external dependency libraries if defined
     if( DEFINED ${LIBNAME}_libs )
-			#	message( STATUS "${LIBNAME} has ${${LIBNAME}_libs}}" )
+      #	message( STATUS "${LIBNAME} has ${${LIBNAME}_libs}}" )
       TARGET_LINK_LIBRARIES( ${LIBNAME} ${${LIBNAME}_libs} )
     endif()
 
@@ -141,16 +141,16 @@ macro( coolfluid_add_library LIBNAME )
       endif()
     endif()
 
-	  # if not kernel lib and static is set 	
-	  # then this lib will be added to the list of kernel libs
-    if( NOT ${LIBNAME}_kernellib AND CF_ENABLE_STATIC )
-        coolfluid_append_cached_list( CF_KERNEL_STATIC_LIBS ${LIBNAME} )
-    endif()
+		# if not kernel lib and static is set
+		# then this lib will be added to the list of kernel libs
+		if( NOT ${LIBNAME}_kernellib AND CF_ENABLE_STATIC )
+				coolfluid_append_cached_list( CF_KERNEL_STATIC_LIBS ${LIBNAME} )
+		endif()
 
-  endif()
+	endif()
 
-  get_target_property( ${LIBNAME}_LINK_LIBRARIES  ${LIBNAME} LINK_LIBRARIES )
-  
+	get_target_property( ${LIBNAME}_LINK_LIBRARIES  ${LIBNAME} LINK_LIBRARIES )
+
   # log some info about the library
   coolfluid_log_file("${LIBNAME} enabled         : [${CF_BUILD_${LIBNAME}}]")
   coolfluid_log_file("${LIBNAME} will compile    : [${${LIBNAME}_will_compile}]")
