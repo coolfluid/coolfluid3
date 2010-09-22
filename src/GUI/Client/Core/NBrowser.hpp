@@ -11,6 +11,8 @@
 
 #include "GUI/Client/Core/CNode.hpp"
 
+#include "GUI/Client/Core/LibClientCore.hpp"
+
 class QString;
 class QIcon;
 
@@ -24,7 +26,7 @@ namespace Client {
 
   /// @brief Component that manages remote browsers.
   /// This class subclasses CNode class.
-  class NBrowser : public CNode
+  class ClientCore_API NBrowser : public CNode
   {
   public:
 

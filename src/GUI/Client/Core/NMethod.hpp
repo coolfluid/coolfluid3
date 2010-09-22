@@ -22,7 +22,7 @@ namespace Client {
   ////////////////////////////////////////////////////////////////////////////
 
   /// @brief Client corresponding component for @c CF::Mesh::CMesh.
-  class NMethod :
+  class ClientCore_API NMethod :
       public QObject,
       public CNode
   {

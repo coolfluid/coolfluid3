@@ -31,7 +31,7 @@ namespace Client {
   /// A NRoot object may never have any child. Add them to the
   /// internal @c CRoot componenent instead. It can be obtained by calling
   /// @c root() method.
-  class NRoot :
+  class ClientCore_API NRoot :
       public CNode
   {
   public:

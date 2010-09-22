@@ -9,6 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "GUI/Client/Core/LibClientCore.hpp"
+
 class QString;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -21,7 +23,7 @@ namespace Client {
 
   /// @brief Basic item used by CommitDetails class.
 
-  class CommitDetailsItem
+  class ClientCore_API CommitDetailsItem
   {
 
   public:

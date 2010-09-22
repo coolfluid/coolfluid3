@@ -17,6 +17,8 @@
 
 #include "GUI/Client/Core/CNode.hpp"
 
+#include "GUI/Client/Core/LibClientCore.hpp"
+
 class QProcess;
 class QString;
 class QTimer;
@@ -49,7 +51,7 @@ namespace Client {
   /// of the application. Because it is a singleton, the network layer is
   /// accessible from everywhere.
 
-  class NCore :
+  class ClientCore_API NCore :
       public QObject,
       public CNode
   {

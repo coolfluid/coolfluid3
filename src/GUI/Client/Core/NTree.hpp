@@ -31,7 +31,7 @@ namespace Client {
 
   /// @brief Tree model
 
-  class NTree :
+  class ClientCore_API NTree :
       public QAbstractItemModel,
       public CNode
   {

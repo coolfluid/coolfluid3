@@ -19,6 +19,8 @@
 
 #include "GUI/Client/Core/OptionType.hpp"
 
+#include "GUI/Client/Core/LibClientCore.hpp"
+
 class QIcon;
 class QString;
 class QAction;
@@ -36,7 +38,7 @@ namespace Client {
 
   /////////////////////////////////////////////////////////////////////////
 
-  class CNodeNotifier
+  class ClientCore_API CNodeNotifier
     : public QObject
   {
     Q_OBJECT
@@ -56,7 +58,7 @@ namespace Client {
 
   /// @brief Structure that handles node options
 
-  struct NodeOption
+  struct ClientCore_API NodeOption
   {
 
     /// @brief Option name
@@ -82,7 +84,7 @@ namespace Client {
 
   /// @brief Base component adapted to fit the client needs.
 
-  class CNode :
+  class ClientCore_API CNode :
       public CF::Common::Component
   {
   public:

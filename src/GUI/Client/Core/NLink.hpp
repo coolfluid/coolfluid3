@@ -25,7 +25,7 @@ namespace Client {
   ////////////////////////////////////////////////////////////////////////////
 
   /// @brief Client corresponding component for @c CF::Common::CLink.
-  class NLink :
+  class ClientCore_API NLink :
       public QObject,
       public CNode
   {

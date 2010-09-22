@@ -16,6 +16,8 @@
 
 #include "Common/CF.hpp"
 
+#include "GUI/Client/Core/LibClientCore.hpp"
+
 class QModelIndex;
 class QVariant;
 
@@ -40,7 +42,7 @@ namespace Client {
 
   /// @author Quentin Gasper.
 
-  class StatusModel : public QAbstractItemModel
+  class ClientCore_API StatusModel : public QAbstractItemModel
   {
     Q_OBJECT
 

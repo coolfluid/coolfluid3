@@ -16,6 +16,8 @@
 
 #include "GUI/Network/ComponentType.hpp"
 
+#include "GUI/Client/Core/LibClientCore.hpp"
+
 class QString;
 class QTcpSocket;
 
@@ -43,7 +45,7 @@ namespace Client {
 
   /// @author Quentin Gasper.
 
-  class ClientNetworkComm : public QObject
+  class ClientCore_API ClientNetworkComm : public QObject
   {
     Q_OBJECT
 

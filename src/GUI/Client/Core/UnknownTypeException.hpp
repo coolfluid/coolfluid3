@@ -11,6 +11,8 @@
 
 #include "Common/Exception.hpp"
 
+#include "GUI/Client/Core/LibClientCore.hpp"
+
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -19,7 +21,7 @@ namespace Client {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  class UnknownTypeException : public CF::Common::Exception
+  class ClientCore_API UnknownTypeException : public CF::Common::Exception
   {
     public:
 

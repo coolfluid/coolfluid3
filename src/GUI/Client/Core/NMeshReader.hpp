@@ -23,7 +23,7 @@ namespace Client {
 
   //////////////////////////////////////////////////////////////////////////
 
-  class NMeshReader : public QObject, public CNode
+  class ClientCore_API NMeshReader : public QObject, public CNode
   {
     Q_OBJECT
 

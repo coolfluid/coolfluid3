@@ -40,6 +40,8 @@ CommitDetails.cpp
 CommitDetails.hpp
 CommitDetailsItem.cpp
 CommitDetailsItem.hpp
+LibClientCore.cpp
+LibClientCore.hpp
 NArray.cpp
 NArray.hpp
 NBrowser.cpp

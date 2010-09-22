@@ -22,7 +22,7 @@ namespace Client {
   //////////////////////////////////////////////////////////////////////////
 
   /// @brief Client corresponding component for @c CF::Mesh::CTable.
-  class NTable :
+  class ClientCore_API NTable :
       public QObject,
       public CNode
   {

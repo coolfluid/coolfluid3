@@ -29,7 +29,7 @@ namespace Client {
 /////////////////////////////////////////////////////////////////////////////
 
   /// @brief Log component
-  class NLog :
+  class ClientCore_API NLog :
       public QObject,
       public CNode
   {

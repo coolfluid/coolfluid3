@@ -14,6 +14,8 @@
 #include "Common/CF.hpp"
 #include "GUI/Client/Core/OptionType.hpp"
 
+#include "GUI/Client/Core/LibClientCore.hpp"
+
 class QStringList;
 class QString;
 
@@ -31,7 +33,7 @@ namespace Client {
     /// current value. When a method takes as parameter a @c QModelIndex
     /// that can be null, the root is taken is this case.
 
-    class CommitDetails : public QAbstractItemModel
+    class ClientCore_API CommitDetails : public QAbstractItemModel
     {
 
     public:

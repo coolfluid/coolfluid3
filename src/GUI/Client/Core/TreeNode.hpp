@@ -14,6 +14,8 @@
 #include "Common/CF.hpp"
 #include "GUI/Client/Core/CNode.hpp"
 
+#include "GUI/Client/Core/LibClientCore.hpp"
+
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -24,7 +26,7 @@ namespace Client {
 
   /// @brief Handles a CNode component in the tree.
 
-  class TreeNode :
+  class ClientCore_API TreeNode :
       public QObject
   {
     Q_OBJECT

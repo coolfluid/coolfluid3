@@ -13,6 +13,8 @@
 
 #include "GUI/Client/Core/CNode.hpp"
 
+#include "GUI/Client/Core/LibClientCore.hpp"
+
 ////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -22,7 +24,7 @@ namespace Client {
   //////////////////////////////////////////////////////////////////////////
 
   /// @brief Client corresponding component for @c CF::Mesh::CArray.
-  class NArray :
+  class ClientCore_API NArray :
       public QObject,
       public CNode
   {

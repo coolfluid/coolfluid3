@@ -9,6 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
+#include "GUI/Client/Core/LibClientCore.hpp"
+
 class QString;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -24,7 +26,7 @@ namespace Client {
 
   /// @author Quentin Gasper.
 
-  struct TSshInformation
+  struct ClientCore_API TSshInformation
   {
     public :
 

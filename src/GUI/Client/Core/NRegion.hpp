@@ -22,7 +22,7 @@ namespace Client {
   //////////////////////////////////////////////////////////////////////////
 
   /// @brief Client corresponding component for @c CF::Mesh::CRegion.
-  class NRegion :
+  class ClientCore_API NRegion :
       public QObject,
       public CNode
   {

@@ -20,6 +20,8 @@
 #include "GUI/Client/Core/NTree.hpp"
 #include "GUI/Client/Core/NCore.hpp"
 
+#include "GUI/Client/Core/LibClientCore.hpp"
+
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -33,7 +35,7 @@ namespace Client {
 
   /// This class ensures that the root node is available from anywhere, at
   /// anytime.
-  class ClientRoot :
+  class ClientCore_API ClientRoot :
       public CF::Common::NonInstantiable<ClientRoot>
   {
   public:

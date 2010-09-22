@@ -22,7 +22,7 @@ namespace Client {
   //////////////////////////////////////////////////////////////////////////
 
   /// @brief Client corresponding component for @c CF::Common::CGroup.
-  class NGroup :
+  class ClientCore_API NGroup :
       public QObject,
       public CNode
   {

@@ -12,6 +12,8 @@
 #include <QAbstractItemModel>
 #include <QStringList>
 
+#include "GUI/Client/Core/LibClientCore.hpp"
+
 ////////////////////////////////////////////////////////////////////////////
 
 class QModelIndex;
@@ -23,7 +25,7 @@ namespace CF {
 namespace GUI {
 namespace Client {
 
-  struct PropertyItem
+  struct ClientCore_API PropertyItem
   {
     QString m_name;
 
@@ -40,7 +42,7 @@ namespace Client {
   /// by the index returned by <code>ClientRoot::getTree()->getCurrentIndex()</code>.
   /// This class is a view for the tree model and is automatically
   /// updated whenever the current index is changed.
-  class PropertyModel : public QAbstractItemModel
+  class ClientCore_API PropertyModel : public QAbstractItemModel
   {
     Q_OBJECT
 

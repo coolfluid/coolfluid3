@@ -22,7 +22,7 @@ namespace Client {
   //////////////////////////////////////////////////////////////////////////
 
   /// @brief Client corresponding component for @c CF::Mesh::CElements.
-  class NElements :
+  class ClientCore_API NElements :
       public QObject,
       public CNode
   {
