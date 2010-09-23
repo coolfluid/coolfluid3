@@ -90,7 +90,7 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 			// Allocations
 			CElements::ConstPtr s_geom_elements;
 			Uint s_elm_idx;
-			Uint t_coords_dim = t_coords.array().shape()[1];
+			Uint t_coords_dim = t_coords.row_size();
 			RealVector t_node(0.,m_dim);
 			
 			for (Uint t_node_idx=0; t_node_idx<t_data.size(); ++t_node_idx)
@@ -121,11 +121,11 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 					std::vector<Real> w(s_nodes.size());
 					pseudo_laplacian_weighted_linear_interpolation(s_nodes, t_node, w);
 					
-					for (Uint idata=0; idata<t_data.array().shape()[1]; ++idata)
+					for (Uint idata=0; idata<t_data.row_size(); ++idata)
 						t_data[t_node_idx][idata] = 0;
 					
 					for (Uint s_node_idx=0; s_node_idx<s_nodes.size(); ++s_node_idx)
-						for (Uint idata=0; idata<t_data.array().shape()[1]; ++idata)
+						for (Uint idata=0; idata<t_data.row_size(); ++idata)
 							t_data[t_node_idx][idata] += w[s_node_idx]*s_data[s_elm[s_node_idx]][idata];
 
 					
@@ -142,7 +142,7 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 			const CArray& t_coords = *t_data.get_child_type<CLink>("coordinates")->get_type<CArray>();
 			
 			// Allocations
-			Uint t_coords_dim = t_coords.array().shape()[1];
+			Uint t_coords_dim = t_coords.row_size();
 			RealVector t_node(0.,m_dim);
 			
 			for (Uint t_node_idx=0; t_node_idx<t_data.size(); ++t_node_idx)
@@ -180,11 +180,11 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 					std::vector<Real> w(s_centroids.size());
 					pseudo_laplacian_weighted_linear_interpolation(s_centroids, t_node, w);
 					
-					for (Uint idata=0; idata<t_data.array().shape()[1]; ++idata)
+					for (Uint idata=0; idata<t_data.row_size(); ++idata)
 						t_data[t_node_idx][idata] = 0;
 					
 					for (Uint s_elm_idx=0; s_elm_idx<s_centroids.size(); ++s_elm_idx)
-						for (Uint idata=0; idata<t_data.array().shape()[1]; ++idata)
+						for (Uint idata=0; idata<t_data.row_size(); ++idata)
 							t_data[t_node_idx][idata] += w[s_elm_idx]*s_data[s_elm_idx].get<0>()->array()[s_data[s_elm_idx].get<1>()][idata];
 				}
 			}
@@ -237,11 +237,11 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 					std::vector<Real> w(s_nodes.size());
 					pseudo_laplacian_weighted_linear_interpolation(s_nodes, t_centroid, w);
 					
-					for (Uint idata=0; idata<t_data.array().shape()[1]; ++idata)
+					for (Uint idata=0; idata<t_data.row_size(); ++idata)
 						t_data[t_elm_idx][idata] = 0;
 					
 					for (Uint s_node_idx=0; s_node_idx<s_nodes.size(); ++s_node_idx)
-						for (Uint idata=0; idata<t_data.array().shape()[1]; ++idata)
+						for (Uint idata=0; idata<t_data.row_size(); ++idata)
 							t_data[t_elm_idx][idata] += w[s_node_idx]*s_data[s_elm[s_node_idx]][idata];
 					
 				}					
@@ -303,11 +303,11 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 					std::vector<Real> w(s_centroids.size());
 					pseudo_laplacian_weighted_linear_interpolation(s_centroids, t_centroid, w);
 					
-					for (Uint idata=0; idata<t_data.array().shape()[1]; ++idata)
+					for (Uint idata=0; idata<t_data.row_size(); ++idata)
 						t_data[t_elm_idx][idata] = 0;
 					
 					for (Uint s_elm_idx=0; s_elm_idx<s_centroids.size(); ++s_elm_idx)
-						for (Uint idata=0; idata<t_data.array().shape()[1]; ++idata)
+						for (Uint idata=0; idata<t_data.row_size(); ++idata)
 							t_data[t_elm_idx][idata] += w[s_elm_idx]*s_data[s_elm_idx].get<0>()->array()[s_data[s_elm_idx].get<1>()][idata];
 					
 					
@@ -391,7 +391,7 @@ void CHoneycombInterpolator::create_honeycomb()
   BOOST_FOREACH(const CElements& elements, recursive_filtered_range_typed<CElements>(*m_source_mesh,IsElementsVolume()))
   {
     const CArray& coordinates = elements.coordinates();
-    Uint nb_nodes_per_element = elements.connectivity_table().array().shape()[1];
+    Uint nb_nodes_per_element = elements.connectivity_table().row_size();
     Uint elem_idx=0;
     BOOST_FOREACH(const CTable::ConstRow& elem, elements.connectivity_table().array())
     {
@@ -558,7 +558,6 @@ void CHoneycombInterpolator::pseudo_laplacian_weighted_linear_interpolation(cons
 	{
 		case DIM_3D:
 		{
-			CFinfo << "3d" << CFendl;
 			Real Ixx(0),Ixy(0),Ixz(0),Iyy(0),Iyz(0),Izz(0), Rx(0),Ry(0),Rz(0), Lx,Ly,Lz, dx,dy,dz;
 			RealVector Dx(s_points.size());
 			RealVector Dy(s_points.size());
@@ -603,7 +602,6 @@ void CHoneycombInterpolator::pseudo_laplacian_weighted_linear_interpolation(cons
 		}
 		case DIM_2D:
 		{
-			CFinfo << "2d" << CFendl;
 			Real Ixx(0),Ixy(0),Iyy(0), Rx(0),Ry(0), Lx,Ly, dx,dy;
 			RealVector Dx(s_points.size());
 			RealVector Dy(s_points.size());

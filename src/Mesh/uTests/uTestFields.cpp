@@ -8,7 +8,7 @@
 #define BOOST_TEST_MODULE "Test module for CF::Mesh::CField"
 
 #include <boost/test/unit_test.hpp>
-
+#include <boost/assign/list_of.hpp>
 #include <boost/foreach.hpp>
 #include <boost/filesystem/path.hpp>
 
@@ -29,6 +29,7 @@ using namespace boost;
 using namespace CF;
 using namespace CF::Mesh;
 using namespace CF::Common;
+using namespace boost::assign;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -74,7 +75,8 @@ BOOST_AUTO_TEST_CASE( FieldTest )
   CMesh& mesh = *m_mesh;
 
   mesh.create_field("Volume",1,CField::ELEMENT_BASED);
-  mesh.create_field("Solution",3,CField::NODE_BASED);
+	std::vector<std::string> solution_vars = list_of("rho[1]")("V[3]")("p[1]");
+  mesh.create_field("Solution",solution_vars,CField::NODE_BASED);
 
   // Check if the fields have been created inside the mesh
   BOOST_CHECK_EQUAL(mesh.field("Volume").full_path().string(),"mesh/Volume");
@@ -101,10 +103,10 @@ BOOST_AUTO_TEST_CASE( FieldTest )
 
   // Check if element based data is correctly created
   BOOST_CHECK_EQUAL(mesh.look_component_type<CFieldElements>("Volume/quadtriag/gas/elements_Quad2DLagrangeP1")->data().size(), (Uint) 2);
-  BOOST_CHECK_EQUAL(mesh.look_component_type<CFieldElements>("Volume/quadtriag/gas/elements_Quad2DLagrangeP1")->data().array().shape()[1], (Uint) 1);
+  BOOST_CHECK_EQUAL(mesh.look_component_type<CFieldElements>("Volume/quadtriag/gas/elements_Quad2DLagrangeP1")->data().row_size(), (Uint) 1);
 
   // Check if node based data is correctly created
-  BOOST_CHECK_EQUAL(mesh.look_component_type<CFieldElements>("Solution/quadtriag/gas/elements_Quad2DLagrangeP1")->data().array().shape()[1], (Uint) 3);
+  BOOST_CHECK_EQUAL(mesh.look_component_type<CFieldElements>("Solution/quadtriag/gas/elements_Quad2DLagrangeP1")->data().row_size(), (Uint) 5);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

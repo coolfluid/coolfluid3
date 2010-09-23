@@ -9,6 +9,7 @@
 #include "Common/ObjectProvider.hpp"
 #include "Common/CLink.hpp"
 #include "Common/ComponentPredicates.hpp"
+#include "Common/String/Conversion.hpp"
 
 #include "Mesh/LibMesh.hpp"
 
@@ -20,6 +21,7 @@ namespace CF {
 namespace Mesh {
 
 using namespace Common;
+using namespace Common::String;
 
 Common::ObjectProvider < CMesh, Component, LibMesh, NB_ARGS_1 >
 CMesh_Provider ( CMesh::type_name() );
@@ -113,21 +115,61 @@ CRegion& CMesh::create_domain( const CName& name )
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-  
-  
-CField& CMesh::create_field( const CName& name , CRegion& support, const Uint dimension, const CField::DataBasis basis)
+
+
+CField& CMesh::create_field( const CName& name , CRegion& support, const std::vector<std::string>& variables, const CField::DataBasis basis)
 {
-  CField& field = *create_component_type<CField>(name);
-  field.synchronize_with_region(support);
-  field.create_data_storage(dimension,basis);
-  return field;
+	CField& field = *create_component_type<CField>(name);
+	field.synchronize_with_region(support);
+
+  std::vector<std::string> names;
+	std::vector<std::string> types;
+	BOOST_FOREACH(std::string var, variables)
+	{ 
+    boost::regex e_variable("([[:word:]]+)?[[:space:]]*\\[[[:space:]]*([[:word:]]+)[[:space:]]*\\]");
+    
+		boost::match_results<std::string::const_iterator> what; 
+		if (regex_search(var,what,e_variable))
+		{
+			names.push_back(what[1]);
+			types.push_back(what[2]);
+		}
+    else
+      throw ShouldNotBeHere(FromHere(), "No match found for VarType " + var);
+	}
+	field.configure_property("VarNames",names);
+	field.configure_property("VarTypes",types);
+	field.create_data_storage(basis);
+	return field;
+}
+	
+CField& CMesh::create_field( const CName& name , const std::vector<std::string>& variables, const CField::DataBasis basis)
+{
+  return create_field(name,domain(),variables,basis);
+}
+	
+////////////////////////////////////////////////////////////////////////////////
+  
+CField& CMesh::create_field( const CName& name , CRegion& support, const Uint size, const CField::DataBasis basis)
+{
+	std::vector<std::string> variables;
+	if (size==1)
+	{
+		variables.push_back(name+"[scalar]");
+	}
+	else
+	{
+		for (Uint iVar=0; iVar<size; ++iVar)
+			variables.push_back(name+to_str(iVar)+"[scalar]");
+	}
+	return create_field(name,support,variables,basis);
 }
   
 ////////////////////////////////////////////////////////////////////////////////
 
-CField& CMesh::create_field( const CName& name, const Uint dimension, const CField::DataBasis basis )
+CField& CMesh::create_field( const CName& name, const Uint size, const CField::DataBasis basis )
 {
-  return create_field(name,domain(),dimension,basis);
+  return create_field(name,domain(),size,basis);
 }
   
 ////////////////////////////////////////////////////////////////////////////////

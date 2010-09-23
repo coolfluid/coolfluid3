@@ -9,6 +9,7 @@
 
 #include "Common/ObjectProvider.hpp"
 #include "Common/ComponentPredicates.hpp"
+#include "Common/String/Conversion.hpp"
 
 #include "Mesh/Gmsh/CWriter.hpp"
 
@@ -22,6 +23,9 @@
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
+	
+	using namespace Common::String;
+	
 namespace Mesh {
 namespace Gmsh {
 
@@ -264,33 +268,70 @@ void CWriter::write_nodal_data(std::fstream& file)
     std::string field_name = nodebased_field.field_name();
     Uint nb_elements = nodebased_field.support().recursive_elements_count();
 
-    Uint dim = nodebased_field.property("dimension").value<Uint>();
-    cf_assert(dim == 1 || dim == 3 || dim == 9);
+		
+		// data_header
+		Uint row_idx=0;
+		for (Uint iVar=0; iVar<nodebased_field.nb_vars(); ++iVar)
+		{
+			CField::VarType var_type = nodebased_field.var_type(iVar);
+			std::string var_name = nodebased_field.var_name(iVar);
+			
+			Uint datasize(var_type);
+			switch (var_type)
+			{
+				case CField::VECTOR_2D:
+					datasize=Uint(CField::VECTOR_3D);
+					break;						
+				case CField::TENSOR_2D:
+					datasize=Uint(CField::TENSOR_3D);
+					break;
+				default:
+					break;
+			}
+			RealVector data(0.0, datasize); 
 
-    file << "$ElementNodeData\n";
-    file << 1 << "\n";
-    file << "\"" << field_name << "\"\n";
-    file << 1 << "\n" << 0.0 << "\n";
-    file << 3 << "\n" << 0 << "\n" << dim << "\n" << nb_elements <<"\n";
-    BOOST_FOREACH(CFieldElements& field_elements, recursive_range_typed<CFieldElements>(nodebased_field))
-    {
-      const CArray& field_data = field_elements.data();
-      Uint nb_nodes_per_element = field_elements.element_type().nb_nodes();
-
-      Uint elm_number = m_element_start_idx[&field_elements.get_geometry_elements()];
-      BOOST_FOREACH(const CTable::ConstRow& row, field_elements.connectivity_table().array())
-      {
-        elm_number++;
-        file << elm_number << " " << nb_nodes_per_element << " ";
-        BOOST_FOREACH(const Uint local_node_idx, row)
-        {
-          for (Uint idx=0; idx<field_data.array().shape()[1]; ++idx)
-            file << " " << field_data[local_node_idx][idx];
-        }
-        file << "\n";
-      }
-    }
-    file << "$EndElementNodeData\n";
+			
+			file << "$ElementNodeData\n";
+			file << 1 << "\n";
+			file << "\"" << (var_name == "var" ? field_name+to_str(iVar) : var_name) << "\"\n";
+			file << 1 << "\n" << 0.0 << "\n";
+			file << 3 << "\n" << 0 << "\n" << datasize << "\n" << nb_elements <<"\n";
+			
+			BOOST_FOREACH(CFieldElements& field_elements, recursive_range_typed<CFieldElements>(nodebased_field))
+			{
+				const CArray& field_data = field_elements.data();
+				Uint nb_nodes_per_element = field_elements.element_type().nb_nodes();
+				
+				Uint elm_number = m_element_start_idx[&field_elements.get_geometry_elements()];
+				BOOST_FOREACH(const CTable::ConstRow& row, field_elements.connectivity_table().array())
+				{
+					elm_number++;
+					file << elm_number << " " << nb_nodes_per_element << " ";
+					BOOST_FOREACH(const Uint local_node_idx, row)
+					{
+						if (var_type==CField::TENSOR_2D)
+						{
+							data[0]=field_data[local_node_idx][row_idx+0];
+							data[1]=field_data[local_node_idx][row_idx+1];
+							data[3]=field_data[local_node_idx][row_idx+2];
+							data[4]=field_data[local_node_idx][row_idx+3];
+							for (Uint idx=0; idx<datasize; ++idx)
+								file << " " << data[idx];
+						}
+						else
+						{
+							for (Uint idx=row_idx; idx<row_idx+Uint(var_type); ++idx)
+								file << " " << field_data[local_node_idx][idx];
+							if (var_type == CField::VECTOR_2D)
+								file << " " << 0.0;
+						}
+					}
+					file << "\n";
+				}
+			}
+			file << "$EndElementNodeData\n";
+			row_idx += Uint(var_type);
+		}			
   }
   // restore precision
   file.precision(prec);
@@ -340,30 +381,64 @@ void CWriter::write_element_data(std::fstream& file)
     std::string field_name = elementbased_field.field_name();
     Uint nb_elements = elementbased_field.support().recursive_elements_count();
 
-    Uint dim = elementbased_field.property("dimension").value<Uint>();
-    cf_assert(dim == 1 || dim == 3 || dim == 9);
-
-    file << "$ElementData\n";
-    file << 1 << "\n";
-    file << "\"" << field_name << "\"\n";
-    file << 1 << "\n" << 0.0 << "\n";
-    file << 3 << "\n" << 0 << "\n" << dim << "\n" << nb_elements <<"\n";
-    BOOST_FOREACH(CFieldElements& field_elements, recursive_range_typed<CFieldElements>(elementbased_field))
-    {
-      const CArray& field_data = field_elements.data();
-
-      Uint elm_number = m_element_start_idx[&field_elements.get_geometry_elements()];
-      Uint local_nb_elms = field_elements.connectivity_table().size();
-      for (Uint local_elm_idx = 0; local_elm_idx<local_nb_elms; ++local_elm_idx)
-      {
-        file << ++elm_number << " " ;
-        for (Uint idx=0; idx<field_data.array().shape()[1]; ++idx)
-          file << " " << field_data[local_elm_idx][idx];
-        file << "\n";
-      }
-    }
-    file << "$EndElementData\n";
-  }
+		// data_header
+		Uint row_idx=0;
+		for (Uint iVar=0; iVar<elementbased_field.nb_vars(); ++iVar)
+		{
+			CField::VarType var_type = elementbased_field.var_type(iVar);
+			std::string var_name = elementbased_field.var_name(iVar);
+			
+			Uint datasize(var_type);
+			switch (var_type)
+			{
+				case CField::VECTOR_2D:
+					datasize=Uint(CField::VECTOR_3D);
+					break;						
+				case CField::TENSOR_2D:
+					datasize=Uint(CField::TENSOR_3D);
+					break;
+				default:
+					break;
+			}
+			RealVector data(0.0, datasize); 
+			
+			file << "$ElementData\n";
+			file << 1 << "\n";
+			file << "\"" << (var_name == "var" ? field_name+to_str(iVar) : var_name) << "\"\n";
+			file << 1 << "\n" << 0.0 << "\n";
+			file << 3 << "\n" << 0 << "\n" << datasize << "\n" << nb_elements <<"\n";
+			BOOST_FOREACH(CFieldElements& field_elements, recursive_range_typed<CFieldElements>(elementbased_field))
+			{
+				const CArray& field_data = field_elements.data();
+				
+				Uint elm_number = m_element_start_idx[&field_elements.get_geometry_elements()];
+				Uint local_nb_elms = field_elements.connectivity_table().size();
+				for (Uint local_elm_idx = 0; local_elm_idx<local_nb_elms; ++local_elm_idx)
+				{
+					file << ++elm_number << " " ;
+					if (var_type==CField::TENSOR_2D)
+					{
+						data[0]=field_data[local_elm_idx][row_idx+0];
+						data[1]=field_data[local_elm_idx][row_idx+1];
+						data[3]=field_data[local_elm_idx][row_idx+2];
+						data[4]=field_data[local_elm_idx][row_idx+3];
+						for (Uint idx=0; idx<datasize; ++idx)
+							file << " " << data[idx];
+					}
+					else
+					{
+						for (Uint idx=row_idx; idx<row_idx+Uint(var_type); ++idx)
+							file << " " << field_data[local_elm_idx][idx];
+						if (var_type == CField::VECTOR_2D)
+							file << " " << 0.0;
+					}						
+					file << "\n";
+				}
+			}
+			file << "$EndElementData\n";
+			row_idx += Uint(var_type);
+		}			
+	}
   // restore precision
   file.precision(prec);
 }

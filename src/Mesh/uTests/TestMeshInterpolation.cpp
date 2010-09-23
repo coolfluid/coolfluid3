@@ -9,6 +9,7 @@
 #include <boost/foreach.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/assign/list_of.hpp>
+#include <boost/assign/std/vector.hpp>
 
 #include "Common/ConfigObject.hpp"
 #include "Common/OptionArray.hpp"
@@ -32,6 +33,7 @@
 
 using namespace std;
 using namespace boost;
+using namespace boost::assign;
 using namespace CF;
 using namespace CF::Mesh;
 using namespace CF::Common;
@@ -98,13 +100,24 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   // Create the honeycomb
   interpolator->construct_internal_storage(source);
   
+	std::vector<std::string> nvars;
+	std::vector<std::string> nvars_2;
+	std::vector<std::string> evars;
+	std::vector<std::string> evars_2;
+	
+	nvars +=   "rho_n[1]"   , "V_n[3]"   , "p_n[1]";
+  nvars_2 += "rho_n_2[1]" , "V_n_2[3]" , "p_n_2[1]";
+	evars +=   "rho_e[1]"   , "V_e[3]"   , "p_e[1]";
+  evars_2 += "rho_e_2[1]" , "V_e_2[3]" , "p_e_2[1]";
+	
   // Create empty fields
-  source->create_field("nodebased",     1,CField::NODE_BASED);
-  target->create_field("nodebased",     1,CField::NODE_BASED);
-	target->create_field("nodebased_2",   1,CField::NODE_BASED);
-	source->create_field("elementbased",  1,CField::ELEMENT_BASED);
-	target->create_field("elementbased",  1,CField::ELEMENT_BASED);
-	target->create_field("elementbased_2",1,CField::ELEMENT_BASED);
+  source->create_field( "nodebased",      nvars,   CField::NODE_BASED    );
+	source->create_field( "elementbased",   evars,   CField::ELEMENT_BASED );
+
+  target->create_field( "nodebased",      nvars,   CField::NODE_BASED    );
+	target->create_field( "nodebased_2",    nvars_2, CField::NODE_BASED    );
+	target->create_field( "elementbased",   evars,   CField::ELEMENT_BASED );
+	target->create_field( "elementbased_2", evars_2, CField::ELEMENT_BASED );
   
   // Set the field data of the source field
   BOOST_FOREACH(CArray& node_data, recursive_filtered_range_typed<CArray>(*source,IsComponentTag("node_data")))
@@ -113,7 +126,13 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 		CArray& coordinates = *node_data.get_child_type<CLink>("coordinates")->get_type<CArray>();
 
     for (Uint i=0; i<coordinates.size(); ++i)
-      node_data[i][0]=coordinates[i][XX]+2.*coordinates[i][YY]+2.*coordinates[i][ZZ];
+		{
+			node_data[i][0]=coordinates[i][XX]+2.*coordinates[i][YY]+2.*coordinates[i][ZZ];
+			node_data[i][1]=coordinates[i][XX];
+			node_data[i][2]=coordinates[i][YY];
+			node_data[i][3]=7.0;
+			node_data[i][4]=coordinates[i][XX];
+		}
   }
 
   // Interpolate the source field data to the target field. Note it can be in same or different meshes

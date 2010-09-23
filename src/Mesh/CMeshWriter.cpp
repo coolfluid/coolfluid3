@@ -78,7 +78,7 @@ void CMeshWriter::compute_mesh_specifics()
   {
     m_all_coordinates[&elements.coordinates()].push_back(&elements);
     m_max_dimensionality = std::max(elements.element_type().dimensionality() , m_max_dimensionality);
-    m_coord_dim = std::max((Uint) elements.coordinates().array().shape()[1] , m_coord_dim);
+    m_coord_dim = std::max((Uint) elements.coordinates().row_size() , m_coord_dim);
   }
 }
 

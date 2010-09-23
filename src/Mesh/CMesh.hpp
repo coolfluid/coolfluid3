@@ -67,10 +67,17 @@ public: // functions
   
   /// create a field with a given support
   /// @param name of the field
-  CField& create_field( const CName& name , CRegion& support, const Uint dimension, const CField::DataBasis basis);
+  CField& create_field( const CName& name , CRegion& support, const Uint size, const CField::DataBasis basis);
   
   /// create a field with the default support being the full mesh geometry
-  CField& create_field( const CName& name , const Uint dimension, const CField::DataBasis basis);
+  CField& create_field( const CName& name , const Uint size, const CField::DataBasis basis);
+	
+	/// create a field with a given support
+  /// @param name of the field
+  CField& create_field( const CName& name , CRegion& support, const std::vector<std::string>& variables, const CField::DataBasis basis);
+  
+  /// create a field with the default support being the full mesh geometry
+  CField& create_field( const CName& name , const std::vector<std::string>& variables, const CField::DataBasis basis);
   
   /// @return the field with given name
   const CField& field(const CName& name) const;

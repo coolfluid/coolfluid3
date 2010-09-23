@@ -41,6 +41,7 @@ public: // typedefs
   typedef boost::shared_ptr<CField const> ConstPtr;
   
   enum DataBasis { ELEMENT_BASED=0,  NODE_BASED=1};
+	enum VarType { SCALAR=1, VECTOR_2D=2, VECTOR_3D=3, TENSOR_2D=4, TENSOR_3D=9};
 
 public: // functions
 
@@ -55,26 +56,21 @@ public: // functions
   static std::string type_name () { return "CField"; }
 
   /// Configuration Options
-  static void defineConfigProperties ( Common::PropertyList& options ) {}
+  static void defineConfigProperties ( Common::PropertyList& options );
 
   // functions specific to the CField component
   
   /// create a Cfield component
   /// @param name of the field
   CField& synchronize_with_region(CRegion& support, const std::string& field_name = "");
-
-  void create_data_storage(const Uint dim, const DataBasis basis);
+	
+  void create_data_storage(const DataBasis basis);
 
   /// create a CElements component, initialized to take connectivity data for the given type
   /// @param name of the field
   /// @param element_type_name type of the elements
   CElements& create_elements (CElements& geometry_elements);
-  
-  /// create a coordinates component, initialized with the coordinate dimension
-  /// @param name of the field
-  /// @param element_type_name type of the elements  
-  CArray& create_data(const Uint dim, const Uint nb_rows);
-  
+    
   const CRegion& support() const;
   CRegion& support();
   
@@ -119,6 +115,10 @@ public: // functions
   /// @return the elements with given name
   CFieldElements& elements (const CName& element_type_name);
   
+	std::string var_name(Uint i=0) const;
+	VarType var_type(Uint i=0) const { return m_var_types[i]; }
+	Uint nb_vars() const { return m_var_types.size(); }
+	
   
 private: // helper functions
 
@@ -130,7 +130,16 @@ private:
   std::string m_field_name;
   
   DataBasis m_basis;
-
+				
+	void config_var_names();
+	void config_var_sizes();
+	void config_var_types();
+	
+	
+	std::vector<std::string> m_var_names;
+	std::vector<VarType> m_var_types;
+	
+	
 };
 
 ////////////////////////////////////////////////////////////////////////////////
