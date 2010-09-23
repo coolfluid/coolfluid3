@@ -48,7 +48,7 @@ namespace Client {
   /// It allows subclasses to inform the base class that the currently selected
   /// item(s) is (are) conformed to the validation policy defined by these
   /// subclasses. See @c NRemoteBrowser class documentation for more details.
-  enum ClientUI_API ValidationPolicy
+  enum ValidationPolicy
   {
     /// @brief The associated selection has been validated by the subclass
     /// policy.
