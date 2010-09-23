@@ -18,7 +18,7 @@
 #include "GUI/Client/UI/MainWindow.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientUI;
 
 int main(int argc, char *argv[])
 {
