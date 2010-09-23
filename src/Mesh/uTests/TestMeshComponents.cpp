@@ -251,7 +251,7 @@ BOOST_AUTO_TEST_CASE( CTableTest )
   
   // check constructor
   BOOST_CHECK_EQUAL(connTable.size(),(Uint) 0);
-  BOOST_CHECK_EQUAL(connTable.array().shape()[1],(Uint) 0);
+  BOOST_CHECK_EQUAL(connTable.row_size(),(Uint) 0);
   BOOST_CHECK_EQUAL(connTable.array().num_elements(),(Uint) 0);
   
   // check initalization
@@ -260,7 +260,7 @@ BOOST_AUTO_TEST_CASE( CTableTest )
   CTable::Buffer tableBuffer = connTable.create_buffer();
   
   BOOST_CHECK_EQUAL(connTable.size(),(Uint) 0);
-  BOOST_CHECK_EQUAL(connTable.array().shape()[1],(Uint) 5);
+  BOOST_CHECK_EQUAL(connTable.row_size(),(Uint) 5);
   BOOST_CHECK_EQUAL(connTable.array().num_elements(),(Uint) 0);  
   
   // check for adding rows to table
@@ -271,7 +271,7 @@ BOOST_AUTO_TEST_CASE( CTableTest )
   tableBuffer.add_row(row);
   tableBuffer.flush();
   BOOST_CHECK_EQUAL(connTable.size(),(Uint) 1);
-  BOOST_CHECK_EQUAL(connTable.array().shape()[1],(Uint) 5);
+  BOOST_CHECK_EQUAL(connTable.row_size(),(Uint) 5);
   BOOST_CHECK_EQUAL(connTable.array().num_elements(),(Uint) 5);  
   
   
@@ -279,13 +279,13 @@ BOOST_AUTO_TEST_CASE( CTableTest )
   for (Uint i=0; i<1023; ++i)
     tableBuffer.add_row(row);
   BOOST_CHECK_EQUAL(connTable.size(),(Uint) 1);
-  BOOST_CHECK_EQUAL(connTable.array().shape()[1],(Uint) 5);
+  BOOST_CHECK_EQUAL(connTable.row_size(),(Uint) 5);
   BOOST_CHECK_EQUAL(connTable.array().num_elements(),(Uint) 5); 
   
   tableBuffer.add_row(row);
   tableBuffer.flush();
   BOOST_CHECK_EQUAL(connTable.size(),(Uint) 1025);
-  BOOST_CHECK_EQUAL(connTable.array().shape()[1],(Uint) 5);
+  BOOST_CHECK_EQUAL(connTable.row_size(),(Uint) 5);
   BOOST_CHECK_EQUAL(connTable.array().num_elements(),(Uint) 5*1025); 
       
   // check if accessor / mutator works
@@ -310,6 +310,7 @@ BOOST_AUTO_TEST_CASE( CArrayTest )
   // initialize the array
   Uint dim = 2;
   coordinates->initialize(dim);
+	BOOST_CHECK_EQUAL(coordinates->row_size(),dim);
   CArray::Buffer coordinatesBuffer = coordinates->create_buffer();
   
   // Add coordinates to the array

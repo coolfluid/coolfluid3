@@ -25,7 +25,15 @@ CArray::CArray ( const CName& name  ) :
 {
   BUILD_COMPONENT;
 }
+	
+////////////////////////////////////////////////////////////////////////////////
 
+void CArray::defineConfigProperties ( Common::PropertyList& options )
+{
+}
+	
+////////////////////////////////////////////////////////////////////////////////
+	
 std::ostream& operator<<(std::ostream& os, const CArray::ConstRow& row)
 {
   print_vector(os, row);

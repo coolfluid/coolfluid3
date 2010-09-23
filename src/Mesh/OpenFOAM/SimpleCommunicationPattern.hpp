@@ -65,7 +65,7 @@ void apply_pattern_carray(const SimpleCommunicationPattern& pattern, RangeT rang
   Uint total_width = 0;
   BOOST_FOREACH(CArray& array, range)
   {
-    total_width += array.array().shape()[1];
+    total_width += array.row_size();
   }
   
   std::vector<Real> receive_buffer(total_width * pattern.receive_list.size());
@@ -86,7 +86,7 @@ void apply_pattern_carray(const SimpleCommunicationPattern& pattern, RangeT rang
     Uint receive_size = 0;
     BOOST_FOREACH(CArray& array, range)
     {
-      const Uint nb_cols = array.array().shape()[1];
+      const Uint nb_cols = array.row_size();
       receive_size += nb_cols * (pattern.receive_dist[proc+1] - pattern.receive_dist[proc]);
       for(Uint i = proc_begin; i != proc_end; ++i)
       {
@@ -113,7 +113,7 @@ void apply_pattern_carray(const SimpleCommunicationPattern& pattern, RangeT rang
     const Uint proc_end = pattern.receive_dist[proc+1];
     BOOST_FOREACH(CArray& array, range)
     {
-      const Uint nb_cols = array.array().shape()[1];
+      const Uint nb_cols = array.row_size();
       for(Uint i = proc_begin; i != proc_end; ++i)
       {
         cf_assert(pattern.receive_targets[i] < array.size());

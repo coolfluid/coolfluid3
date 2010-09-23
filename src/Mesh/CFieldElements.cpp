@@ -72,6 +72,7 @@ void CFieldElements::add_element_based_storage()
   m_data_name = "element_data";
   CArray::Ptr elm_data = create_component_type<CArray>(m_data_name);
   elm_data->add_tag(m_data_name);
+	elm_data->add_tag("field_data");
   properties()["element_based"] = true;
 }
 

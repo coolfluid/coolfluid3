@@ -55,7 +55,7 @@ public: // functions
   Buffer create_buffer(const size_t buffersize=1024)
   {
     // make sure the array has its columnsize defined
-    cf_assert(m_array.shape()[1] > 0);
+    cf_assert(row_size() > 0);
     return Buffer(m_array,buffersize); 
   }
 
@@ -67,6 +67,9 @@ public: // functions
   
   /// @return The number of local rows in the array
   Uint size() const { return m_array.size(); }
+	
+	/// @return The number of local rows in the array
+  Uint row_size() const { return m_array.shape()[1]; }
   
   /// copy a given row into the array
   /// @param [in] array_idx the index of the row that will be set
@@ -74,7 +77,7 @@ public: // functions
   template<typename VectorT>
   void set_row(const Uint array_idx, const VectorT& row)
   {
-    cf_assert(row.size() == m_array.shape()[1]);
+    cf_assert(row.size() == row_size());
   
     Row row_to_set = m_array[array_idx];
     

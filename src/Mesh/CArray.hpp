@@ -41,8 +41,8 @@ public: // functions
   static std::string type_name () { return "CArray"; }
 
   /// Configuration Options
-  static void defineConfigProperties ( Common::PropertyList& options ) {}
-
+  static void defineConfigProperties ( Common::PropertyList& options );
+	
 private: // helper functions
 
   /// regists all the signals declared in this class

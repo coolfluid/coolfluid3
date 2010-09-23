@@ -80,12 +80,11 @@ CArray& CRegion::create_coordinates(const Uint& dim)
     coordinates->add_tag("coordinates");
     coordinates->initialize(dim);
   }
-  else if (coordinates->array().shape()[1] != dim)
+  else if (coordinates->row_size() != dim)
   {
     coordinates = create_component_type<CArray>("coordinates",NUMBER);
     coordinates->add_tag("coordinates");
     coordinates->initialize(dim);
-    
   }
   return *coordinates;
 }
