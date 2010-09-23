@@ -41,6 +41,10 @@ void ProcessingThread::run()
   {
     CFerror << stde.what() << CFendl;
   }
+  catch(...)
+  {
+    CFerror << "Unknown exception thrown..." << CFendl;
+  }
 }
 
 XmlNode & ProcessingThread::getNode() const
