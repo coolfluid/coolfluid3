@@ -11,7 +11,7 @@
 
 #include "Common/NamedObject.hpp"
 
-//#include "Common/SelfRegistry.hpp"
+#include "Common/SelfRegistry.hpp"
 //#include "Common/ConfigRegistry.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@ class Common_API LibraryRegisterBase :
 public: // methods
 
   /// Gets the SelfRegistry of this Module Register
-//  SelfRegistry& getSelfRegistry();
+  SelfRegistry& getSelfRegistry();
 
   /// Gets the ConfigRegistry of this Module Register
 //  ConfigRegistry& getConfigRegistry();
@@ -72,7 +72,7 @@ protected: // methods
 protected: // data
 
   /// the SelfRegistry object is only held by the LibraryRegisterBase's
-//  Common::SelfRegistry    m_selfRegistry;
+  Common::SelfRegistry    m_selfRegistry;
 
   /// the ConfigRegistry object is only held by the LibraryRegisterBase's
 //  Common::ConfigRegistry  m_configRegistry;

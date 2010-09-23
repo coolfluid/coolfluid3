@@ -94,6 +94,8 @@ list( APPEND Common_files
     SharedPtr.hpp
     SetupObject.hpp
     SetupObject.cpp
+    SelfRegistry.cpp
+    SelfRegistry.hpp
     Stopwatch.hpp
     StreamHelpers.hpp
     String/Conversion.hpp

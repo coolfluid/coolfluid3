@@ -1,0 +1,65 @@
+#ifndef CF_Common_SelfRegistry_hpp
+#define CF_Common_SelfRegistry_hpp
+
+//////////////////////////////////////////////////////////////////////////////
+
+#include "Common/SafePtr.hpp"
+#include "Common/GeneralStorage.hpp"
+
+//////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace Common {
+
+  class ProviderBase;
+
+//////////////////////////////////////////////////////////////////////////////
+
+  /// This class is a singleton object which serves as registry for all the
+  /// self-registration object providers.
+  /// The only instance of this object is held by the ModuleRegister
+  /// @see Common::ProviderBase
+  /// @see Common::Provider
+  /// @author Tiago Quintino
+  class Common_API SelfRegistry : public boost::noncopyable
+  {
+
+  public:
+
+    /// Constructor is private to allow only the friend classes to build it
+    SelfRegistry();
+
+    /// Default destructor is private to allow only the friend classes to destroy it
+    ~SelfRegistry();
+
+    /// Register a Object provider
+    /// @param factory pointer to the provider
+    void regist(ProviderBase* provider);
+
+    /// Remove a registered provider
+    /// @param name of the provider
+    void unregist(const std::string& name, const std::string& type);
+
+    /// Remove a registered provider
+    /// @param name of the provider
+    void unregist(ProviderBase* provider);
+
+    /// Get a given provider by his name
+    /// @param name of the provider
+    /// @return a SafePtr to the provider
+    SafePtr<ProviderBase> getProvider(const std::string& name, const std::string& type);
+
+  private: // data
+
+    std::map<std::string, GeneralStorage<ProviderBase> > m_store;
+
+}; // class SelfRegistry
+
+//////////////////////////////////////////////////////////////////////////////
+
+} // namespace Common
+} // namespace CF
+
+//////////////////////////////////////////////////////////////////////////////
+
+#endif // CF_Common_SelfRegistry_hpp

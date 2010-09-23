@@ -36,7 +36,7 @@ public:
   {
     CFLogDebugVerbose (  "Creating provider \'" << name << "\' of type \'" << BASE::type_name() << "\'\n" );
     CF::TypeInfo::instance().regist<CONCRETE>( CONCRETE::type_name() );
-//    Common::LibraryRegister<MODULE>::instance().getSelfRegistry().regist(this);
+    Common::LibraryRegister<MODULE>::instance().getSelfRegistry().regist(this);
   }
 
   /// Destructor
@@ -72,7 +72,7 @@ public:
   {
     CFLogDebugVerbose (  "Creating provider \'" << name << "\' of type \'" << BASE::type_name() << "\'\n" );
     CF::TypeInfo::instance().regist<CONCRETE>( CONCRETE::type_name() );
-//    MODULE::instance().getSelfRegistry().regist(this);
+    MODULE::instance().getSelfRegistry().regist(this);
   }
 
   /// Destructor
@@ -109,7 +109,7 @@ public:
   {
     CFLogDebugVerbose (  "Creating provider \'" << name << "\' of type \'" << BASE::type_name() << "\'\n" );
     CF::TypeInfo::instance().regist<CONCRETE>( CONCRETE::type_name() );
-//    MODULE::instance().getSelfRegistry().regist(this);
+    MODULE::instance().getSelfRegistry().regist(this);
   }
 
   /// Destructor

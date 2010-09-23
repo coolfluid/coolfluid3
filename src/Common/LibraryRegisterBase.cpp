@@ -21,7 +21,7 @@ namespace CF {
 
 LibraryRegisterBase::LibraryRegisterBase(const std::string& name) :
 NamedObject(name),
-//m_selfRegistry(),
+m_selfRegistry(),
 //m_configRegistry(),
 m_init(false)
 {
@@ -37,10 +37,10 @@ LibraryRegisterBase::~LibraryRegisterBase()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-//Common::SelfRegistry& LibraryRegisterBase::getSelfRegistry()
-//{
-//  return m_selfRegistry;
-//}
+Common::SelfRegistry& LibraryRegisterBase::getSelfRegistry()
+{
+  return m_selfRegistry;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
