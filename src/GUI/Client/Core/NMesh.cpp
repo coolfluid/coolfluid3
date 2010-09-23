@@ -11,7 +11,7 @@
 #include "GUI/Client/Core/NMesh.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
 
 NMesh::NMesh(const QString & name)
   : CNode(name, "CMesh", MESH_NODE)

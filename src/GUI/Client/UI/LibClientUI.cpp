@@ -10,7 +10,7 @@
 
 namespace CF {
 namespace GUI {
-namespace Client {
+namespace ClientUI {
 
   CF::Common::ForceLibRegist<LibClientUI> libClientUI;
 

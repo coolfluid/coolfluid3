@@ -15,11 +15,10 @@
 
 namespace CF {
 namespace GUI {
-namespace Client {
 
-////////////////////////////////////////////////////////////////////////////////
+namespace ClientCore { class ClientNetworkComm; }
 
-  class ClientNetworkComm;
+namespace ClientUI {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -108,13 +107,13 @@ namespace Client {
     QStringList m_fileList;
 
     /// regists all the signals declared in this class
-    static void regist_signals ( Component* self ) {}
+    static void regist_signals ( Common::Component* self ) {}
 
   }; // namespace NRemoteOpen
 
   /////////////////////////////////////////////////////////////////////////////
 
-} // namespace Client
+} // namespace ClientUI
 } // namespace GUI
 } // namespace CF
 

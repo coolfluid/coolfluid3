@@ -14,7 +14,7 @@
 
 #include "GUI/Client/UI/AboutCFDialog.hpp"
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientUI;
 
 AboutCFDialog::AboutCFDialog(QWidget * parent)
   : QDialog(parent)

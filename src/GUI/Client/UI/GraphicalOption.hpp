@@ -27,7 +27,7 @@ class QVariant;
 
 namespace CF {
 namespace GUI {
-namespace Client {
+namespace ClientUI {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -47,7 +47,7 @@ namespace Client {
 
     /// @param type Option type. Must be one of those defined by
     /// <code>OptionType::Type</code> enum.
-    GraphicalOption(OptionType::Type type, QWidget * parent = CFNULL);
+    GraphicalOption(ClientCore::OptionType::Type type, QWidget * parent = CFNULL);
 
     /// @brief Destructor.
 
@@ -82,7 +82,7 @@ namespace Client {
 
     /// @brief Gives option type
     /// @return Returns option type.
-    OptionType::Type getType() const;
+    ClientCore::OptionType::Type getType() const;
 
     /// @brief Adds this option to the provided layout.
 
@@ -164,7 +164,7 @@ namespace Client {
 
     /// @brief Type of the option, according to the type ids defined by
     /// OptionTypes class.
-    OptionType::Type m_type;
+    ClientCore::OptionType::Type m_type;
 
     /// @brief Indicates wether the value component is enabled (allows
     /// modification) or not.
@@ -174,7 +174,7 @@ namespace Client {
 
   /////////////////////////////////////////////////////////////////////////////
 
-} // namespace Client
+} // namespace ClientUI
 } // namespace GUI
 } // namespace CF
 

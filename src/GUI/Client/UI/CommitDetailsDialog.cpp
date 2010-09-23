@@ -13,7 +13,8 @@
 
 #include "GUI/Client/UI/CommitDetailsDialog.hpp"
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::ClientUI;
 
 CommitDetailsDialog::CommitDetailsDialog(QWidget * parent)
 : QDialog(parent)

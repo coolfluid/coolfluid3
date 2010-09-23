@@ -9,7 +9,7 @@
 
 #include "GUI/Client/UI/GraphicalString.hpp"
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientUI;
 
 GraphicalString::GraphicalString(QWidget * parent)
   : GraphicalValue(parent)

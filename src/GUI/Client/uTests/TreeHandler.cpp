@@ -13,7 +13,7 @@
 #include "GUI/Client/uTests/TreeHandler.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
 using namespace CF::GUI::ClientTest;
 
 TreeHandler::~TreeHandler()

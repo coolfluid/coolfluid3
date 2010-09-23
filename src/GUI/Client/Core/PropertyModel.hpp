@@ -23,7 +23,7 @@ template<class T> class QList;
 
 namespace CF {
 namespace GUI {
-namespace Client {
+namespace ClientCore {
 
   struct ClientCore_API PropertyItem
   {
@@ -132,7 +132,7 @@ namespace Client {
 
   }; // class PropertyModel
 
-} // namespace Client
+} // namespace ClientCore
 } // namespace GUI
 } // namespace CF
 

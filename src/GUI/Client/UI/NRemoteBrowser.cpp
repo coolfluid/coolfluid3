@@ -38,7 +38,8 @@
 #include "GUI/Client/UI/NRemoteBrowser.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::ClientUI;
 using namespace CF::GUI::Network;
 
 NRemoteBrowser::NRemoteBrowser(const QString & componentType, QMainWindow * parent)

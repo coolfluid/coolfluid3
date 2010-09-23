@@ -32,7 +32,7 @@ class QStringList;
 
 namespace CF {
 namespace GUI {
-namespace Client {
+namespace ClientCore {
 
   class NLink;
 
@@ -292,7 +292,7 @@ namespace Client {
 
   ////////////////////////////////////////////////////////////////////////////
 
-} // namespace Client
+} // namespace ClientCore
 } // namespace GUI
 } // namespace CF
 

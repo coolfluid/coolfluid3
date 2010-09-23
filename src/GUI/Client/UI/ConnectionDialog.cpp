@@ -17,8 +17,8 @@
 #include "GUI/Client/UI/ConnectionDialog.hpp"
 #include "GUI/Client/Core/TSshInformation.hpp"
 
-using namespace CF::GUI::Client;
-
+using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::ClientUI;
 
 ConnectionDialog::ConnectionDialog(QMainWindow * parent)
 : QDialog(parent)

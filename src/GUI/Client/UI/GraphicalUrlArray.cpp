@@ -14,7 +14,8 @@
 
 #include "GUI/Client/UI/GraphicalUrlArray.hpp"
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::ClientUI;
 
 GraphicalUrlArray::GraphicalUrlArray(QWidget * parent)
   : GraphicalValue(parent)

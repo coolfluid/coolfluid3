@@ -19,7 +19,7 @@
 #include "GUI/Client/Core/NLink.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
 
 NLink::NLink(const QString & name)
   : CNode(name, "CLink", LINK_NODE)

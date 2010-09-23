@@ -25,7 +25,8 @@
 #include "GUI/Client/UI/OptionPanel.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::ClientUI;
 
 
 OptionPanel::OptionPanel(QWidget * parent)
@@ -164,9 +165,9 @@ void OptionPanel::clearList(QList<GraphicalOption *> & list)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void OptionPanel::setOptions(const QList<NodeOption> & list)
+void OptionPanel::setOptions(const QList<ClientCore::NodeOption> & list)
 {
-  QList<NodeOption>::const_iterator it = list.begin();
+  QList<ClientCore::NodeOption>::const_iterator it = list.begin();
   const NTree::Ptr & tree = ClientRoot::tree();
 
   // delete old widgets
@@ -203,7 +204,7 @@ void OptionPanel::setOptions(const QList<NodeOption> & list)
   {
     GraphicalOption * graphicalOption;
 
-    NodeOption param = *it;
+    ClientCore::NodeOption param = *it;
     OptionType::Type type = param.m_paramType;
     bool advanced = param.m_paramAdv;
 
@@ -385,7 +386,7 @@ void OptionPanel::btApplyClicked()
 
 void OptionPanel::currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex)
 {
-  QList<NodeOption> params;
+  QList<ClientCore::NodeOption> params;
   ClientRoot::tree()->getNodeOptions(newIndex, params);
   this->setOptions(params);
 }

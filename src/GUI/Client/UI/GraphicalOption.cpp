@@ -29,7 +29,8 @@
 #include "GUI/Client/UI/GraphicalOption.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::ClientUI;
 
 GraphicalOption::GraphicalOption(OptionType::Type type, QWidget * parent)
 {

@@ -15,7 +15,7 @@
 #include "GUI/Client/Core/NMeshReader.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
 
 NMeshReader::NMeshReader(const QString & name)
   : CNode(name, "CMeshReader", MESH_READER_NODE)

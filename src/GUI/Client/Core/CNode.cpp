@@ -49,7 +49,7 @@ p.add_array(it.key().toStdString(), data);\
 
 using namespace CF::Common;
 using namespace CF::Common::String;
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
 
 bool NodeOption::operator==(const NodeOption & option)
 {

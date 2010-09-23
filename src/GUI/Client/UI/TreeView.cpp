@@ -27,7 +27,8 @@
 #include "GUI/Client/UI/TreeView.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::ClientUI;
 using namespace CF::GUI::Network;
 
 TreeView::TreeView(OptionPanel * optionsPanel, QMainWindow * parent,

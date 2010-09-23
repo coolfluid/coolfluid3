@@ -8,7 +8,7 @@
 
 #include "GUI/Client/Core/NRegion.hpp"
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
 
 NRegion::NRegion(const QString & name) :
     CNode(name, "CRegion", REGION_NODE)

@@ -35,11 +35,16 @@ class QVBoxLayout;
 
 namespace CF {
 namespace GUI {
-namespace Client {
+
+namespace ClientCore {
+  class CommitDetails;
+  struct NodeOption;
+}
+
+namespace ClientUI {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  class CommitDetails;
   class GraphicalOption;
   struct CloseConfirmationInfos;
   struct NodeOption;
@@ -100,7 +105,7 @@ namespace Client {
     /// The key is the option name as stored in @c m_options string list. The
     /// value is the new value.
     /// @param m_newOptions String list where new option names will be stored.
-    void getModifiedOptions(CommitDetails & commitDetails) const;
+    void getModifiedOptions(ClientCore::CommitDetails & commitDetails) const;
 
     /// @brief Gives the current path.
 
@@ -244,7 +249,7 @@ namespace Client {
     /// @param commitDetails Reference to where meodified options will be stored.
     /// @b Not cleared before first use.
     void getModifiedOptions(const QList<GraphicalOption *> & graphicalOptions,
-                            CommitDetails & commitDetails) const;
+                            ClientCore::CommitDetails & commitDetails) const;
 
     /// @brief Checks if options has been modified.
 
@@ -253,7 +258,7 @@ namespace Client {
     /// otherwise, returns @c false.
     bool isModified(const QList<GraphicalOption *> & graphicalOptions) const;
 
-    void setOptions(const QList<NodeOption> & list);
+    void setOptions(const QList<ClientCore::NodeOption> & list);
 
     void setButtonsVisible(bool visible);
 
@@ -263,7 +268,7 @@ namespace Client {
 
   /////////////////////////////////////////////////////////////////////////////
 
-} // namespace Client
+} // namespace ClientUI
 } // namespace GUI
 } // namespace CF
 

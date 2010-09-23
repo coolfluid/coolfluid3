@@ -21,7 +21,7 @@
 #include "GUI/Client/Core/NTree.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
 
 NTree::NTree(NRoot::Ptr rootNode)
   : CNode(CLIENT_TREE, "NTree", CNode::TREE_NODE),

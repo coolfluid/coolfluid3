@@ -10,7 +10,7 @@
 
 #include "GUI/Client/Core/PropertyModel.hpp"
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
 
 PropertyModel::PropertyModel()
   : QAbstractItemModel()

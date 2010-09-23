@@ -15,7 +15,7 @@
 #include "GUI/Client/uTests/CommonFunctions.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
 using namespace CF::GUI::ClientTest;
 
 NRoot::Ptr CF::GUI::ClientTest::makeTreeFromFile()

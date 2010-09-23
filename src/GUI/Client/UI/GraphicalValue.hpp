@@ -20,7 +20,7 @@ class QHBoxLayout;
 
 namespace CF {
 namespace GUI {
-namespace Client {
+namespace ClientUI {
 
   //////////////////////////////////////////////////////////////////////////
 
@@ -61,7 +61,7 @@ namespace Client {
 
   //////////////////////////////////////////////////////////////////////////
 
-} // namespace Client
+} // namespace ClientUI
 } // namespace GUI
 } // namespace CF
 

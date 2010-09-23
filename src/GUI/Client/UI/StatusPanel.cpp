@@ -12,7 +12,8 @@
 
 #include "GUI/Client/UI/StatusPanel.hpp"
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::ClientUI;
 
 StatusPanel::StatusPanel(StatusModel * model, QWidget * parent)
 : QTreeView(parent)

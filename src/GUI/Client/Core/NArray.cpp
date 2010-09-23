@@ -8,7 +8,7 @@
 
 #include "GUI/Client/Core/NArray.hpp"
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
 
 NArray::NArray(const QString & name) :
     CNode(name, "CArray", ARRAY_NODE)

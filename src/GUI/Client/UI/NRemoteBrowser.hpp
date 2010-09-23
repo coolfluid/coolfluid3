@@ -35,11 +35,13 @@ class QStringList;
 
 namespace CF {
 namespace GUI {
-namespace Client {
+
+namespace ClientCore { class NCore; }
+
+namespace ClientUI {
 
   ////////////////////////////////////////////////////////////////////////////////
 
-  class NCore;
   class FilesListItem;
 
   /// @brief This enum defines a validation protocol between @c NRemoteBrowser
@@ -111,9 +113,9 @@ namespace Client {
 
   /// @author Quentin Gasper.
 
-  class ClientUI_API NRemoteBrowser
-    : public QDialog,
-      public CNode
+  class ClientUI_API NRemoteBrowser :
+      public QDialog,
+      public ClientCore::CNode
   {
     Q_OBJECT
 
@@ -228,7 +230,7 @@ namespace Client {
   protected:
 
     /// @brief Client kernel.
-    boost::shared_ptr<NCore> m_clientCore;
+    boost::shared_ptr<ClientCore::NCore> m_clientCore;
 
     QModelIndex index;
 
@@ -597,7 +599,7 @@ namespace Client {
 
   /////////////////////////////////////////////////////////////////////////////
 
-} // namespace Client
+} // namespace ClientUI
 } // namespace GUI
 } // namespace CF
 

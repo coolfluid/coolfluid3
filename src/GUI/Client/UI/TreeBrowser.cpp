@@ -17,7 +17,8 @@
 #include "GUI/Client/UI/TreeBrowser.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::ClientUI;
 
 TreeBrowser::TreeBrowser(TreeView * view, QWidget *parent) :
     QWidget(parent),

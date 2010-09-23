@@ -8,7 +8,7 @@
 
 #include "GUI/Client/Core/NMethod.hpp"
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
 
 NMethod::NMethod(const QString & name)
   : CNode(name, "CMethod", METHOD_NODE)

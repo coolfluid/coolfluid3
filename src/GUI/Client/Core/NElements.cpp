@@ -8,7 +8,7 @@
 
 #include "GUI/Client/Core/NElements.hpp"
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
 
 NElements::NElements(const QString & name) :
     CNode(name, "CElements", ELEMENTS_NODE)

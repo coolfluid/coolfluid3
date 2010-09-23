@@ -27,9 +27,9 @@ namespace ClientTest {
 
     ~TreeHandler();
 
-    void add(CF::GUI::Client::CNode::Ptr node);
+    void add(CF::GUI::ClientCore::CNode::Ptr node);
 
-    void addChildren(CF::GUI::Client::CNode::Ptr node);
+    void addChildren(CF::GUI::ClientCore::CNode::Ptr node);
 
   private:
 

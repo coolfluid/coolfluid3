@@ -11,7 +11,7 @@
 
 #include "GUI/Client/UI/MenuActionInfo.hpp"
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientUI;
 
 MenuActionInfo::MenuActionInfo()
 {

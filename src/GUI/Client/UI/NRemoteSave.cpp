@@ -14,7 +14,8 @@
 #include "GUI/Client/UI/TypeAndNameDialog.hpp"
 #include "GUI/Client/UI/NRemoteSave.hpp"
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::ClientUI;
 
 NRemoteSave::NRemoteSave(QMainWindow * parent)
   : NRemoteBrowser("NRemoteSave", parent)

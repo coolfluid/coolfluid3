@@ -25,7 +25,7 @@
 
 #include "GUI/Client/Core/ClientNetworkComm.hpp"
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
 using namespace CF::GUI::Network;
 using namespace CF::Common;
 

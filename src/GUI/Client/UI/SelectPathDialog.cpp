@@ -19,7 +19,8 @@
 #include "GUI/Client/UI/SelectPathDialog.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::ClientUI;
 
 SelectPathDialog::SelectPathDialog(QWidget *parent) :
     QDialog(parent),

@@ -35,20 +35,23 @@ class QTableView;
 
 namespace CF {
 namespace GUI {
-namespace Client {
+
+namespace ClientCore {
+  class StatusModel;
+  class NCore;
+  class PropertyModel;
+}
+
+namespace ClientUI {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  class StatusModel;
-  class NCore;
   class ConnectionDialog;
   class LoggingList;
   class OptionPanel;
   class StatusPanel;
   class TreeView;
   class AboutCFDialog;
-  struct HostInfos;
-  class PropertyModel;
   class TreeBrowser;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -222,7 +225,7 @@ namespace Client {
 
     QTableView * m_propertyView;
 
-    PropertyModel * m_propertyModel;
+    ClientCore::PropertyModel * m_propertyModel;
 
     QLabel * m_labDescription;
 
@@ -304,7 +307,7 @@ namespace Client {
 
   //////////////////////////////////////////////////////////////////////////////
 
-} // namespace Client
+} // namespace ClientUI
 } // namespace GUI
 } // namespace CF
 

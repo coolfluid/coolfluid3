@@ -27,11 +27,10 @@ class QString;
 
 namespace CF {
 namespace GUI {
-namespace Client {
 
-////////////////////////////////////////////////////////////////////////////////
+namespace ClientCore { class CommitDetails; }
 
-class CommitDetails;
+namespace ClientUI {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -80,7 +79,7 @@ class CommitDetails;
     /// @brief Shows the dialog
     /// @param commitDetails Commit details to show.
     /// @return Returns the user answer.
-    ConfirmCommitDialog::CommitConfirmation show(CommitDetails & commitDetails);
+    ConfirmCommitDialog::CommitConfirmation show(ClientCore::CommitDetails & commitDetails);
 
   private slots:
 
@@ -120,7 +119,7 @@ class CommitDetails;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace Client
+} // namespace ClientUI
 } // namespace GUI
 } // namespace CF
 

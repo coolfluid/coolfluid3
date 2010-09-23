@@ -22,7 +22,7 @@
 using namespace CF::Common;
 using namespace CF::Common;
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
 
 StatusModel::StatusModel(QDomDocument document, QObject * parent)
 : QAbstractItemModel(parent)

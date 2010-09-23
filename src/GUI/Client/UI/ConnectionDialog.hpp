@@ -26,11 +26,12 @@ class QSpinBox;
 
 namespace CF {
 namespace GUI {
-namespace Client {
+
+namespace ClientCore { struct TSshInformation; }
+
+namespace ClientUI {
 
 ////////////////////////////////////////////////////////////////////////////////
-
-  struct TSshInformation;
 
   /// @brief Dialog used to gather information to connect to a server.
 
@@ -101,9 +102,9 @@ namespace Client {
     /// and the name is not empty, otherwise the structure is unchanged.
     /// @return If the user clicked on "OK", returns "true". Otherwise,
     /// returns @c false.
-    bool show(bool hidePort,TSshInformation & sshInfos);
+    bool show(bool hidePort, ClientCore::TSshInformation & sshInfos);
 
-    void setSshInfos(const TSshInformation & sshInfos);
+    void setSshInfos(const ClientCore::TSshInformation & sshInfos);
 
     public slots:
 
@@ -174,7 +175,7 @@ namespace Client {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace Client
+} // namespace ClientUI
 } // namespace GUI
 } // namespace CF
 

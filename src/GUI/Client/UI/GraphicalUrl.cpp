@@ -18,7 +18,8 @@
 #include "GUI/Client/UI/GraphicalUrl.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::ClientUI;
 
 GraphicalUrl::GraphicalUrl(QWidget *parent) :
     GraphicalValue(parent)

@@ -8,7 +8,8 @@
 
 #include "GUI/Client/UI/FilesListItem.hpp"
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::ClientUI;
 
 FilesListItem::FilesListItem(const QIcon & icon, const QString & text,
                              FilesListItemType type)

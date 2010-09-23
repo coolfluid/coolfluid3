@@ -16,7 +16,7 @@
 #include "GUI/Client/Core/NRoot.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
 
 NRoot::NRoot(const QString & name)
   : CNode(name, "CRoot", ROOT_NODE),

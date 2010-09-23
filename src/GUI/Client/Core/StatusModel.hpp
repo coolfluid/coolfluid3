@@ -25,7 +25,7 @@ class QVariant;
 
 namespace CF {
 namespace GUI {
-namespace Client {
+namespace ClientCore {
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -144,7 +144,7 @@ namespace Client {
 
   ///////////////////////////////////////////////////////////////////////////
 
-} // namespace Client
+} // namespace ClientCore
 } // namespace GUI
 } // namespace CF
 

@@ -11,7 +11,7 @@
 
 #include "GUI/Client/UI/GraphicalDouble.hpp"
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientUI;
 
 GraphicalDouble::GraphicalDouble(QWidget * parent)
   : GraphicalValue(parent)

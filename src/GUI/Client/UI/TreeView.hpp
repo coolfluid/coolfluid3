@@ -32,13 +32,15 @@ namespace CF {
   namespace Common { class CPath; }
 
 namespace GUI {
-namespace Client {
+
+namespace ClientCore { struct TSshInformation; }
+
+namespace ClientUI {
 
 ////////////////////////////////////////////////////////////////////////////////
 
   class OptionPanel;
   class NodeAction;
-  struct TSshInformation;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -160,7 +162,7 @@ namespace Client {
 
   /////////////////////////////////////////////////////////////////////////////
 
-} // namespace Client
+} // namespace ClientUI
 } // namespace GUI
 } // namespace CF
 

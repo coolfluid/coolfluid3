@@ -14,7 +14,7 @@
 #include "GUI/Client/Core/OptionType.hpp"
 #include "GUI/Client/Core/CommitDetails.hpp"
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
 
 CommitDetails::CommitDetails(QObject * parent, const QString & nodePath)
 : QAbstractItemModel(parent)

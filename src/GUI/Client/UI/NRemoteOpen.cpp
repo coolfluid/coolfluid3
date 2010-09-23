@@ -11,7 +11,8 @@
 #include "GUI/Client/UI/FilesListItem.hpp"
 #include "GUI/Client/UI/NRemoteOpen.hpp"
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::ClientUI;
 
 NRemoteOpen::NRemoteOpen(QMainWindow * parent)
 : NRemoteBrowser("NRemoteOpen", parent)

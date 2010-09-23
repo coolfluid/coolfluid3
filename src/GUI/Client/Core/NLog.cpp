@@ -19,7 +19,7 @@
 
 using namespace CF::Common;
 using namespace CF::GUI::Network;
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
 
 NLog::NLog()
   : CNode(CLIENT_LOG, "NLog", CNode::LOG_NODE)

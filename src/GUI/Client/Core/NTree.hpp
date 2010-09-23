@@ -23,7 +23,7 @@ namespace CF {
 namespace Common { class CPath; }
 
 namespace GUI {
-namespace Client {
+namespace ClientCore {
 
   ///////////////////////////////////////////////////////////////////////////
 
@@ -46,7 +46,7 @@ namespace Client {
 
     /// If the root node is a @c CFNULL pointer
     /// @param rootNode The root node. May be @c CFNULL.
-    NTree(CF::GUI::Client::NRoot::Ptr rootNode = CF::GUI::Client::NRoot::Ptr());
+    NTree(CF::GUI::ClientCore::NRoot::Ptr rootNode = CF::GUI::ClientCore::NRoot::Ptr());
 
     /// @brief Replaces the current component tree.
 
@@ -323,7 +323,7 @@ namespace Client {
 
   ///////////////////////////////////////////////////////////////////////////
 
-} // namespace Client
+} // namespace ClientCore
 } // namespace GUI
 } // namespace CF
 

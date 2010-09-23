@@ -9,7 +9,7 @@
 
 #include "GUI/Client/UI/GraphicalBool.hpp"
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientUI;
 
 GraphicalBool::GraphicalBool(QWidget * parent)
   : GraphicalValue(parent)

@@ -23,52 +23,53 @@ class QVBoxLayout;
 /////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-  namespace GUI {
-    namespace Client {
+namespace GUI {
 
-      class CommitDetails;
+namespace ClientCore { class CommitDetails; }
 
-      /////////////////////////////////////////////////////////////////////////////
+namespace ClientUI {
 
-      /// @brief Dialog that shows commit details.
-      class ClientUI_API CommitDetailsDialog : public QDialog
-      {
-        Q_OBJECT
+  /////////////////////////////////////////////////////////////////////////////
 
-      public:
+  /// @brief Dialog that shows commit details.
+  class ClientUI_API CommitDetailsDialog : public QDialog
+  {
+    Q_OBJECT
 
-        /// @brief Constructor
-        /// @param parent Parent widget. May be @c CFNULL.
-        CommitDetailsDialog(QWidget * parent = CFNULL);
+  public:
 
-        /// @brief Desctructor
-        /// Frees all allocated memory. Parent is not destroyed.
-        ~CommitDetailsDialog();
+    /// @brief Constructor
+    /// @param parent Parent widget. May be @c CFNULL.
+    CommitDetailsDialog(QWidget * parent = CFNULL);
 
-        /// @brief Shows the dialog with provided details.
-        /// @param details Details to use
-        void show(CommitDetails & details);
+    /// @brief Desctructor
+    /// Frees all allocated memory. Parent is not destroyed.
+    ~CommitDetailsDialog();
 
-      private:
+    /// @brief Shows the dialog with provided details.
+    /// @param details Details to use
+    void show(ClientCore::CommitDetails & details);
 
-        /// @brief Table view
-        QTableView * m_view;
+  private:
 
-        /// @brief Button box
-        QDialogButtonBox * m_buttonBox;
+    /// @brief Table view
+    QTableView * m_view;
 
-        /// @brief Main layout
-        QVBoxLayout * m_mainLayout;
+    /// @brief Button box
+    QDialogButtonBox * m_buttonBox;
 
-        /// @brief "OK" button
-        QPushButton * m_btOk;
+    /// @brief Main layout
+    QVBoxLayout * m_mainLayout;
 
-      }; // class CommitDetailsDialog
+    /// @brief "OK" button
+    QPushButton * m_btOk;
 
-      ////////////////////////////////////////////////////////////////////////////////
+  }; // class CommitDetailsDialog
 
-    } // namespace Client
-  } // namespace GUI
+  ////////////////////////////////////////////////////////////////////////////////
+
+} // namespace ClientUI
+} // namespace GUI
 } // namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////

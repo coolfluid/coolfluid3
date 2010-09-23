@@ -10,7 +10,7 @@
 
 #include "GUI/Client/Core/NBrowser.hpp"
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
 
 NBrowser::NBrowser()
   : CNode(CLIENT_BROWSERS, "NBrowser", CNode::BROWSER_NODE),

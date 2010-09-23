@@ -17,7 +17,7 @@
 #include "GUI/Client/Core/ClientRoot.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
 using namespace CF::GUI::Network;
 
 NRoot::Ptr ClientRoot::root()

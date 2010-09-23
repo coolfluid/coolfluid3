@@ -13,7 +13,7 @@ namespace CF {
 namespace GUI {
 namespace ClientTest {
 
-  class MyNode : public CF::GUI::Client::CNode
+  class MyNode : public CF::GUI::ClientCore::CNode
   {
   public:
 

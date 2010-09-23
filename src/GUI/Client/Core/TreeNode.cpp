@@ -8,7 +8,7 @@
 
 #include "GUI/Client/Core/TreeNode.hpp"
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
 
 TreeNode::TreeNode(CNode::Ptr node, TreeNode * parent, int rowNumber)
   : m_node(node),

@@ -13,7 +13,7 @@
 
 #include "GUI/Client/UI/TypeAndNameDialog.hpp"
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientUI;
 
 TypeAndNameDialog::TypeAndNameDialog(const QString & fieldLabelText,
                                      const QString & dropListText,

@@ -11,7 +11,7 @@
 #include "GUI/Client/Core/UnknownTypeException.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
 
 UnknownTypeException::UnknownTypeException(const CodeLocation& where,
                                            const std::string& what)

@@ -8,7 +8,7 @@
 
 #include "GUI/Client/Core/NTable.hpp"
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
 
 NTable::NTable(const QString & name) :
     CNode(name, "CTable", TABLE_NODE)

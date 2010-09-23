@@ -14,7 +14,8 @@
 
 #include "GUI/Client/UI/ConfirmCommitDialog.hpp"
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::ClientUI;
 
 ConfirmCommitDialog::ConfirmCommitDialog(QWidget * parent)
 : QDialog(parent)

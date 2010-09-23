@@ -12,7 +12,7 @@
 #include "Common/CF.hpp"
 #include "GUI/Client/UI/SelectFileDialog.hpp"
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientUI;
 
 SelectFileDialog::SelectFileDialog(QWidget * parent)
 : QFileDialog(parent)

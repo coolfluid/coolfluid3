@@ -47,7 +47,8 @@
 &ClientCore::instance(), SLOT(slotSig));
 #define WORKSPACE_FILE QDir::homePath() + "/CF_workspace.xml"
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::ClientUI;
 using namespace CF::GUI::Network;
 
 using namespace CF::Common;

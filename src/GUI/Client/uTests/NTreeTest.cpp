@@ -23,7 +23,7 @@
 #include "GUI/Client/uTests/NTreeTest.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
 using namespace CF::GUI::ClientTest;
 
 Q_DECLARE_METATYPE(QModelIndex);

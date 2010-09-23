@@ -9,7 +9,7 @@
 
 #include "GUI/Client/UI/GraphicalValue.hpp"
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientUI;
 
 GraphicalValue::GraphicalValue(QWidget *parent) :
     QWidget(parent),

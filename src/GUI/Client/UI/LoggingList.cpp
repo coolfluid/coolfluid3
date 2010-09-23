@@ -12,7 +12,8 @@
 #include "GUI/Client/UI/LoggingList.hpp"
 
 using namespace CF::GUI::Network;
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::ClientUI;
 
 LoggingList::LoggingList(QWidget * parent, unsigned int maxLogLines)
   : QTextEdit(parent),

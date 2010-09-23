@@ -19,11 +19,10 @@
 
 namespace CF {
 namespace GUI {
-namespace Client {
 
-/////////////////////////////////////////////////////////////////////////////
+namespace ClientCore { class StatusModel; }
 
-  class StatusModel;
+namespace ClientUI {
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -31,25 +30,25 @@ namespace Client {
   {
     Q_OBJECT
 
-    public:
+  public:
 
-    StatusPanel(StatusModel * model, QWidget * parent = CFNULL);
+    StatusPanel(ClientCore::StatusModel * model, QWidget * parent = CFNULL);
 
     ~StatusPanel();
 
-    private slots:
+  private slots:
 
     void subSystemAdded(const QModelIndex & index);
 
-    private:
+  private:
 
-    StatusModel * m_model;
+    ClientCore::StatusModel * m_model;
 
   }; // class StatusPanel
 
 /////////////////////////////////////////////////////////////////////////////
 
-} // namespace Client
+} // namespace ClientUI
 } // namespace GUI
 } // namespace CF
 

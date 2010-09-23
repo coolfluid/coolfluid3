@@ -19,7 +19,7 @@ namespace ClientTest {
 
   //////////////////////////////////////////////////////////////////////////
 
-  Client::NRoot::Ptr makeTreeFromFile();
+  ClientCore::NRoot::Ptr makeTreeFromFile();
 
   class CommonFunctionsTest : public QObject
   {

@@ -8,7 +8,7 @@
 
 #include "GUI/Client/Core/CommitDetailsItem.hpp"
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
 
 CommitDetailsItem::CommitDetailsItem(const QString & optionName,
                                      const QString & oldValue,

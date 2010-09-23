@@ -11,7 +11,7 @@
 
 #include "GUI/Client/uTests/NBrowserTest.hpp"
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
 using namespace CF::GUI::ClientTest;
 
 void NBrowserTest::test_generateName()

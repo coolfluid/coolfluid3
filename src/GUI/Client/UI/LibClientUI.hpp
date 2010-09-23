@@ -30,7 +30,7 @@ namespace CF {
 
   namespace GUI {
   /// Basic Classes for ClientUI applications used by CF
-  namespace Client {
+  namespace ClientUI {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -67,7 +67,7 @@ namespace CF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace Client
+} // namespace ClientUI
 } // namespace GUI
 } // namespace CF
 

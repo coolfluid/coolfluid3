@@ -8,7 +8,7 @@
 
 #include "GUI/Client/Core/NGroup.hpp"
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientCore;
 
 NGroup::NGroup(const QString & name) :
     CNode(name, "CGroup", GROUP_NODE)

@@ -12,7 +12,7 @@
 
 #include "GUI/Client/UI/GraphicalInt.hpp"
 
-using namespace CF::GUI::Client;
+using namespace CF::GUI::ClientUI;
 
 GraphicalInt::GraphicalInt(bool isUint, QWidget * parent)
   : GraphicalValue(parent),
