@@ -9,6 +9,7 @@
 
 #include <boost/mpl/for_each.hpp>
 #include <boost/foreach.hpp>
+#include <boost/proto/proto.hpp>
 
 #include "Common/AssertionManager.hpp"
 #include "Common/BasicExceptions.hpp"
@@ -125,6 +126,210 @@ void gaussIntegrate(const CMesh& mesh, FunctorT& functor, ResultT& result)
     functor.setRegion(region); // initialize region-specific functor data
     gaussIntegrate((region), functor, result);
   }
+}
+
+////////////////////
+// proto integrators
+////////////////////
+
+template<Uint Order, GeoShape::Type Shape>
+struct GaussProto;
+
+template<>
+struct GaussProto<1, GeoShape::TRIAG>
+{
+  template<typename ExprT, typename ResultT, typename ContextT>
+  static void integrate(ExprT& expr, ResultT& result, ContextT& context)
+  {
+    static const double mu = 0.3333333333333333333333333;
+    static const double w = 0.5;
+    context.mapped_coords.resize(2);
+    context.mapped_coords[KSI] = mu;
+    context.mapped_coords[ETA] = mu;
+    result = w * boost::proto::eval(expr, context);
+  }
+};
+
+template<>
+struct GaussProto<1, GeoShape::TETRA>
+{
+  template<typename ExprT, typename ResultT, typename ContextT>
+  static void integrate(ExprT& expr, ResultT& result, ContextT& context)
+  {
+    static const double mu = 0.25;
+    static const double w = 0.1666666666666666666666667;
+    context.mapped_coords.resize(3);
+    context.mapped_coords[KSI] = mu;
+    context.mapped_coords[ETA] = mu;
+    context.mapped_coords[ZTA] = mu;
+    result = w * boost::proto::eval(expr, context);
+  }
+};
+
+template<>
+struct GaussProto<1, GeoShape::LINE>
+{
+  template<typename ExprT, typename ResultT, typename ContextT>
+  static void integrate(ExprT& expr, ResultT& result, ContextT& context)
+  {
+    static const double mu = 0.;
+    static const double w = 2.;
+    context.mapped_coords.resize(1);
+    context.mapped_coords[KSI] = mu;
+    result = w * boost::proto::eval(expr, context);
+  }
+};
+
+template<Uint Order>
+struct GaussProto<Order, GeoShape::LINE>
+{
+  template<typename ExprT, typename ResultT, typename ContextT>
+  static void integrate(ExprT& expr, ResultT& result, ContextT& context)
+  {
+    // Init result to 0
+    context.mapped_coords.resize(1, 0);
+    result = boost::proto::eval(expr, context);
+    result -= result;
+    
+    const static Uint npoints = Order/2;
+    for(Uint i = 0; i != npoints; ++i)
+    {
+      const Real w = (GaussPoints<Order>::w[i]);
+      context.mapped_coords[KSI] = GaussPoints<Order>::x[i];
+      result += w*boost::proto::eval(expr, context);
+      context.mapped_coords[KSI] = -GaussPoints<Order>::x[i];
+      result += w*boost::proto::eval(expr, context);
+    }
+  }
+};
+
+template<>
+struct GaussProto<1, GeoShape::QUAD>
+{
+  template<typename ExprT, typename ResultT, typename ContextT>
+  static void integrate(ExprT& expr, ResultT& result, ContextT& context)
+  {
+    static const double mu = 0.;
+    static const double w = 4.;
+    context.mapped_coords.resize(2);
+    context.mapped_coords[KSI] = mu;
+    context.mapped_coords[ETA] = mu;
+    result = w * boost::proto::eval(expr, context);
+  }
+};
+
+template<Uint Order>
+struct GaussProto<Order, GeoShape::QUAD>
+{
+  template<typename ExprT, typename ResultT, typename ContextT>
+  static void integrate(ExprT& expr, ResultT& result, ContextT& context)
+  {
+    // Init result to 0
+    context.mapped_coords.resize(2, 0);
+    result = boost::proto::eval(expr, context);
+    result -= result;
+    
+    const static Uint npoints = Order/2;
+    for(Uint i = 0; i != npoints; ++i) {
+      for(Uint j = 0; j != npoints; ++j) {
+        const Real w = (GaussPoints<Order>::w[i] * GaussPoints<Order>::w[j]);
+        context.mapped_coords[KSI] = GaussPoints<Order>::x[i];
+        context.mapped_coords[ETA] = GaussPoints<Order>::x[j];
+        result += w*boost::proto::eval(expr, context);
+        context.mapped_coords[KSI] = -GaussPoints<Order>::x[i];
+        context.mapped_coords[ETA] = GaussPoints<Order>::x[j];
+        result += w*boost::proto::eval(expr, context);
+        context.mapped_coords[KSI] = GaussPoints<Order>::x[i];
+        context.mapped_coords[ETA] = -GaussPoints<Order>::x[j];
+        result += w*boost::proto::eval(expr, context);
+        context.mapped_coords[KSI] = -GaussPoints<Order>::x[i];
+        context.mapped_coords[ETA] = -GaussPoints<Order>::x[j];
+        result += w*boost::proto::eval(expr, context) ;
+      }
+    }
+  }
+};
+
+template<>
+struct GaussProto<1, GeoShape::HEXA>
+{
+  template<typename ExprT, typename ResultT, typename ContextT>
+  static void integrate(ExprT& expr, ResultT& result, ContextT& context)
+  {
+    static const double mu = 0.;
+    static const double w = 8.;
+    context.mapped_coords.resize(3);
+    context.mapped_coords[KSI] = mu;
+    context.mapped_coords[ETA] = mu;
+    context.mapped_coords[ETA] = mu;
+    result = w * boost::proto::eval(expr, context);
+  }
+};
+
+template<Uint Order>
+struct GaussProto<Order, GeoShape::HEXA>
+{
+  template<typename ExprT, typename ResultT, typename ContextT>
+  static void integrate(ExprT& expr, ResultT& result, ContextT& context)
+  {
+    // Init result to 0
+    context.mapped_coords.resize(3, 0);
+    result = boost::proto::eval(expr, context);
+    result -= result;
+    
+    const static Uint npoints = Order/2;
+    for(Uint i = 0; i != npoints; ++i) {
+      for(Uint j = 0; j != npoints; ++j) {
+        for(Uint k = 0; k != npoints; ++k) {
+          const Real w = (GaussPoints<Order>::w[i] * GaussPoints<Order>::w[j] * GaussPoints<Order>::w[k]);
+          
+          context.mapped_coords[KSI] = GaussPoints<Order>::x[i];
+          context.mapped_coords[ETA] = GaussPoints<Order>::x[j];
+          context.mapped_coords[ETA] = GaussPoints<Order>::x[k];
+          result += w*boost::proto::eval(expr, context);
+          context.mapped_coords[KSI] = -GaussPoints<Order>::x[i];
+          context.mapped_coords[ETA] = GaussPoints<Order>::x[j];
+          context.mapped_coords[ETA] = GaussPoints<Order>::x[k];
+          result += w*boost::proto::eval(expr, context);
+          context.mapped_coords[KSI] = GaussPoints<Order>::x[i];
+          context.mapped_coords[ETA] = -GaussPoints<Order>::x[j];
+          context.mapped_coords[ETA] = GaussPoints<Order>::x[k];
+          result += w*boost::proto::eval(expr, context);
+          context.mapped_coords[KSI] = -GaussPoints<Order>::x[i];
+          context.mapped_coords[ETA] = -GaussPoints<Order>::x[j];
+          context.mapped_coords[ETA] = GaussPoints<Order>::x[k];
+          result += w*boost::proto::eval(expr, context);
+          
+          context.mapped_coords[KSI] = GaussPoints<Order>::x[i];
+          context.mapped_coords[ETA] = GaussPoints<Order>::x[j];
+          context.mapped_coords[ETA] = -GaussPoints<Order>::x[k];
+          result += w*boost::proto::eval(expr, context);
+          context.mapped_coords[KSI] = -GaussPoints<Order>::x[i];
+          context.mapped_coords[ETA] = GaussPoints<Order>::x[j];
+          context.mapped_coords[ETA] = -GaussPoints<Order>::x[k];
+          result += w*boost::proto::eval(expr, context);
+          context.mapped_coords[KSI] = GaussPoints<Order>::x[i];
+          context.mapped_coords[ETA] = -GaussPoints<Order>::x[j];
+          context.mapped_coords[ETA] = -GaussPoints<Order>::x[k];
+          result += w*boost::proto::eval(expr, context);
+          context.mapped_coords[KSI] = -GaussPoints<Order>::x[i];
+          context.mapped_coords[ETA] = -GaussPoints<Order>::x[j];
+          context.mapped_coords[ETA] = -GaussPoints<Order>::x[k];
+          result += w*boost::proto::eval(expr, context);
+        }
+      }
+    }
+  }
+};
+
+/// Integral of a proto expression. Context must define:
+/// - SF: type of the shape function
+/// - mapped_coords: RealVector with the mapped coordinates for the evaluation
+template<Uint Order, typename ExprT, typename ResultT, typename ContextT>
+void integrate(ExprT& expr, ResultT& result, ContextT& context)
+{
+  typedef typename ContextT::SF ShapeFunctionT;
+  GaussProto<Order, ShapeFunctionT::shape>::integrate(expr, result, context);
 }
 
 } // namespace Integrators
