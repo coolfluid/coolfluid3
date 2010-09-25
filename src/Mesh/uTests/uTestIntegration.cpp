@@ -210,11 +210,7 @@ BOOST_FIXTURE_TEST_CASE( ComputeVolume2DUnitSquareDirect, IntegrationFixture ) /
     //const ElementType& element_type = region.element_type();
     for(Uint element = 0; element != element_count; ++element)
     {
-      ElementType::NodesT nodes;
-      BOOST_FOREACH(const Uint idx, ctbl[element])
-      {
-        nodes.push_back(RealVector(coords[idx]));
-      }
+      const ConstElementNodeView nodes(coords, ctbl[element]);
       volume += (nodes[2][XX] - nodes[0][XX]) * (nodes[3][YY] - nodes[1][YY]) -
           (nodes[2][YY] - nodes[0][YY]) * (nodes[3][XX] - nodes[1][XX]);
     }

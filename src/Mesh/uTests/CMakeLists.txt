@@ -113,7 +113,7 @@ coolfluid_add_unittest( uTestQuad3DLagrangeP1 )
 
 ################################################################################
 
-list( APPEND uTestIntegration_cflibs Neu Testing MeshGeneration SF )
+list( APPEND uTestIntegration_cflibs Mesh Neu Testing MeshGeneration SF )
 list( APPEND uTestIntegration_files
   uTestIntegration.cpp )
 

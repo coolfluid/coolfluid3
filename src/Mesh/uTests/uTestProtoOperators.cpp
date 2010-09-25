@@ -371,10 +371,6 @@ BOOST_FIXTURE_TEST_CASE( VolumeTiming, ProtoOperatorsFixture )
 {
   Real vol = 0.;
   for_all_elements_accumulate(*big_grid, volume(shape_f, const_node_v), vol);
-  
-  Uint nb_elems = 0;
-  for_all_elements_accumulate(*big_grid, proto::lit(1), nb_elems); // Count elements. No custom functor needed!!
-  BOOST_CHECK_EQUAL(nb_elems, static_cast<Uint>(500*500));
   BOOST_CHECK_CLOSE(vol, 1., 0.0001);
 }
 
