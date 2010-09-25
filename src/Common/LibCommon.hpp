@@ -10,6 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/CF.hpp"
+#include "Common/CommonAPI.hpp"
 #include "Common/LibraryRegister.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -19,7 +20,7 @@ namespace Common {
 
 /// Class defines the initialization and termination of the library Mesh
 /// @author Tiago Quintino
-class LibCommon : public Common::LibraryRegister<LibCommon>
+class Common_API LibCommon : public Common::LibraryRegister<LibCommon>
 {
 public:
 

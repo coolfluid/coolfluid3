@@ -165,9 +165,9 @@ void OptionPanel::clearList(QList<GraphicalOption *> & list)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void OptionPanel::setOptions(const QList<ClientCore::NodeOption> & list)
+void OptionPanel::setOptions(const QList<NodeOption> & list)
 {
-  QList<ClientCore::NodeOption>::const_iterator it = list.begin();
+  QList<NodeOption>::const_iterator it = list.begin();
   const NTree::Ptr & tree = ClientRoot::tree();
 
   // delete old widgets
@@ -204,7 +204,7 @@ void OptionPanel::setOptions(const QList<ClientCore::NodeOption> & list)
   {
     GraphicalOption * graphicalOption;
 
-    ClientCore::NodeOption param = *it;
+    NodeOption param = *it;
     OptionType::Type type = param.m_paramType;
     bool advanced = param.m_paramAdv;
 
@@ -386,7 +386,7 @@ void OptionPanel::btApplyClicked()
 
 void OptionPanel::currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex)
 {
-  QList<ClientCore::NodeOption> params;
+  QList<NodeOption> params;
   ClientRoot::tree()->getNodeOptions(newIndex, params);
   this->setOptions(params);
 }

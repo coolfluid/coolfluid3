@@ -47,7 +47,6 @@ namespace ClientUI {
 
   class GraphicalOption;
   struct CloseConfirmationInfos;
-  struct NodeOption;
 
   /// @brief Panel to m_view and modify m_options of an object.
 
@@ -258,7 +257,7 @@ namespace ClientUI {
     /// otherwise, returns @c false.
     bool isModified(const QList<GraphicalOption *> & graphicalOptions) const;
 
-    void setOptions(const QList<ClientCore::NodeOption> & list);
+	void setOptions(const QList<ClientCore::NodeOption> & list);
 
     void setButtonsVisible(bool visible);
 

@@ -35,7 +35,7 @@ namespace CF {
 
   /// Class defines the initialization and termination of the library Mesh
   /// @author Tiago Quintino
-  class LibMesh :
+  class Mesh_API LibMesh :
       public Common::LibraryRegister<LibMesh>
   {
   public:
