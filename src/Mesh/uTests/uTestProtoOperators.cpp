@@ -156,6 +156,7 @@ struct MeshContext
   }
   
   typedef ShapeFunctionT SF;
+  typedef MeshContext<ShapeFunctionT> ThisContextT;
   
   /// Reference for the context
   CArray& coordinates;
@@ -164,10 +165,10 @@ struct MeshContext
   RealVector mapped_coords;
   
   template<typename Expr,
-           typename Tag = typename proto::tag_of<Expr>::type,
-           typename Arg = typename proto::result_of::child_c<Expr, 0>::type>
+           typename Tag = typename Expr::proto_tag,
+           typename Arg = typename Expr::proto_child0>
   struct eval
-    : proto::default_eval<Expr, MeshContext<ShapeFunctionT>, Tag>
+    : proto::default_eval<Expr, ThisContextT>
   {};
   
   // Handle placeholder terminals here...
@@ -218,10 +219,11 @@ struct MeshContext
   };
   
   // Handle integration
-  template<typename Expr, typename Arg>
-  struct eval<Expr, integral_tag, Arg >
+  template<typename Expr, typename ChildExpr>
+  struct eval<Expr, integral_tag, ChildExpr >
   {
-    typedef typename eval<Arg>::result_type result_type;
+    typedef typename boost::remove_const<typename boost::remove_reference<ChildExpr>::type>::type RealChildT;
+    typedef typename proto::result_of::eval<RealChildT, ThisContextT>::type result_type;
 
     result_type operator()(Expr& expr, MeshContext<ShapeFunctionT>& context) const
     {
