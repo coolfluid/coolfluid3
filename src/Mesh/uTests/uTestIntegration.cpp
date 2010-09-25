@@ -187,10 +187,13 @@ BOOST_FIXTURE_TEST_CASE( ComputeVolume2DUnitSquare, IntegrationFixture ) // time
     const ElementType& element_type = region.element_type();
     for(Uint element = 0; element != element_count; ++element)
     {
-      ElementType::NodesT nodes;
+      ElementType::NodesT nodes(element_type.nb_nodes(), RealVector(element_type.dimension()));
+      Uint i = 0;
       BOOST_FOREACH(const Uint idx, ctbl[element])
       {
-        nodes.push_back(RealVector(coords[idx]));
+        nodes[i][XX] = coords[idx][XX];
+        nodes[i][YY] = coords[idx][YY];
+        ++i;
       }
       volume += element_type.computeVolume(nodes);
     }

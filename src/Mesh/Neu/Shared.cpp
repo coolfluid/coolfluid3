@@ -43,7 +43,7 @@ Shared::Shared() :
   m_faces_cf_to_neu[LINE][0]=1;
   m_faces_cf_to_neu[LINE][1]=2;
 
-  m_faces_neu_to_cf[LINE].resize(2);
+  m_faces_neu_to_cf[LINE].resize(3);
   m_faces_neu_to_cf[LINE][1]=0;
   m_faces_neu_to_cf[LINE][2]=1;
 
