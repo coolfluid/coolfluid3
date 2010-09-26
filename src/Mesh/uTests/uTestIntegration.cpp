@@ -79,7 +79,7 @@ void create_rectangle_buffered(CMesh& mesh, const Real x_len, const Real y_len, 
 //////////////////////////////////////////////////////////////////////////////
 
 /// Define the global fixture type
-typedef MeshSourceGlobalFixture<500> MeshSource;
+typedef MeshSourceGlobalFixture<1000> MeshSource;
 
 /// Profile and time tests using this fixture
 struct IntegrationFixture :
@@ -185,16 +185,10 @@ BOOST_FIXTURE_TEST_CASE( ComputeVolume2DUnitSquare, IntegrationFixture ) // time
     const CTable::ArrayT& ctbl = region.connectivity_table().array();
     const Uint element_count = ctbl.size();
     const ElementType& element_type = region.element_type();
+    ElementType::NodesT nodes;
     for(Uint element = 0; element != element_count; ++element)
     {
-      ElementType::NodesT nodes(element_type.nb_nodes(), RealVector(element_type.dimension()));
-      Uint i = 0;
-      BOOST_FOREACH(const Uint idx, ctbl[element])
-      {
-        nodes[i][XX] = coords[idx][XX];
-        nodes[i][YY] = coords[idx][YY];
-        ++i;
-      }
+      fill_node_list(nodes, coords, ctbl[element]);
       volume += element_type.computeVolume(nodes);
     }
   }

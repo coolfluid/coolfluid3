@@ -86,6 +86,27 @@ BOOST_AUTO_TEST_CASE( writeNodes )
   BOOST_CHECK_EQUAL(nodes[0][0], const_nodes[0][0]);
 }
 
+BOOST_AUTO_TEST_CASE( FillNodeList )
+{
+  const CElements& firstRegion = get_first_region();
+  const CArray& coords = firstRegion.coordinates();
+  const CTable& conn = firstRegion.connectivity_table();
+  const Uint element_count = conn.size();
+  ElementType::NodesT node_vector;
+  for(Uint element = 0; element != element_count; ++element)
+  {
+    fill_node_list(node_vector, coords, conn[element]);
+    const ConstElementNodeView node_view(coords, conn[element]);
+   for(Uint node_idx = 0; node_idx != conn.row_size(); ++node_idx)
+   {
+     for(Uint xyz = 0; xyz != coords.row_size(); ++xyz)
+     {
+       BOOST_CHECK_EQUAL(node_vector[node_idx][xyz], node_view[node_idx][xyz]);
+     }
+   }
+  }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()

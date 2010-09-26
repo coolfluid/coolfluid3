@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
     for (Uint iElem=0; iElem<nbRows; ++iElem)
     {
       std::vector<RealVector> elementCoordinates;
-      fill_node_list(std::inserter(elementCoordinates, elementCoordinates.begin()), region_coordinates, region_connTable, iElem);
+      fill_node_list(elementCoordinates, region_coordinates, region_connTable[iElem]);
 
       volumes[iElem]=elementType.computeVolume(elementCoordinates);
 

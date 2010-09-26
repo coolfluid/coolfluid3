@@ -559,8 +559,8 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
   Uint element_idx = 0; // global element index
   for(Uint block = blocks_begin; block != blocks_end; ++block)
   {
-    ElementNodeVector block_nodes(8, RealVector(3));
-    fill_node_list(block_nodes.begin(), block_coordinates, block_connectivity[block]);
+    ElementNodeVector block_nodes;
+    fill_node_list(block_nodes, block_coordinates, block_connectivity[block]);
     const BlockData::IndicesT& segments = block_data.block_subdivisions[block];
     const BlockData::GradingT& gradings = block_data.block_gradings[block];
     

@@ -90,7 +90,7 @@ struct LoopElems
     BOOST_FOREACH(const CTable::ConstRow& elem, conn_table)
     {
       ElementNodeVector nodes;
-      fill_node_list( std::inserter(nodes, nodes.begin()), coords, elem );
+      fill_node_list( nodes, nodes.begin(), coords, elem );
       functor(nodes, T);
     }
   }

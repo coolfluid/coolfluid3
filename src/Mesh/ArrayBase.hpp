@@ -68,7 +68,7 @@ public: // functions
   /// @return The number of local rows in the array
   Uint size() const { return m_array.size(); }
 	
-	/// @return The number of local rows in the array
+	/// @return The number of elements in each row, i.e. the number of columns of the array
   Uint row_size() const { return m_array.shape()[1]; }
   
   /// copy a given row into the array

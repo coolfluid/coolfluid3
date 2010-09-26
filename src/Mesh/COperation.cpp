@@ -89,7 +89,7 @@ Common::ObjectProvider < CSetValue,       COperation, LibMesh, NB_ARGS_1 > CSetV
 //  {
 //    cf_assert(x_coord.get());
 //    //std::vector<RealVector> nodes;
-//    //fill_node_list( std::inserter(nodes, nodes.begin()), *coordinates, *connectivity_table, elem );
+//    //fill_node_list( nodes, *coordinates, *connectivity_table, elem );
 //    
 //    
 //    //RealVector mapped_coord = RealVector(0.0,SFType::dimension);
@@ -131,7 +131,7 @@ Common::ObjectProvider < CSetValue,       COperation, LibMesh, NB_ARGS_1 > CSetV
 //  {
 //    cf_assert(gradx.get());
 //    std::vector<RealVector> nodes;
-//    fill_node_list( std::inserter(nodes, nodes.begin()), *coordinates, *connectivity_table, elem );
+//    fill_node_list( nodes, *coordinates, *connectivity_table, elem );
 //    
 //    RealVector nodal_function_values(SFType::nb_nodes);
 //    for (Uint i=0; i<SFType::nb_nodes; i++)
@@ -187,7 +187,7 @@ Common::ObjectProvider < CSetValue,       COperation, LibMesh, NB_ARGS_1 > CSetV
 //  {
 //    cf_assert(volumes.get());
 //    std::vector<RealVector> nodes;
-//    fill_node_list( std::inserter(nodes, nodes.begin()), *coordinates, *connectivity_table, elem );
+//    fill_node_list( nodes, *coordinates, *connectivity_table, elem );
 //    volumes->array()[elem][0] = SFType::volume( nodes );
 //  }
 //

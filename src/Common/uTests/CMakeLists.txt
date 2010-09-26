@@ -47,13 +47,8 @@ coolfluid_add_unittest( uTestComponentIteration )
 list( APPEND uTestPE_cflibs Common )
 list( APPEND uTestPE_files
   uTestPE.cpp
-  TestPE_Init.cpp
-  TestPECommPattern.cpp
-  TestPE_Finalize.cpp
 )
 
 coolfluid_add_unittest( uTestPE )
-
-coolfluid_mark_not_orphan( TestPE.cpp )
 
 ################################################################################

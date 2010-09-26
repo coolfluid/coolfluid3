@@ -64,17 +64,21 @@ typedef std::vector<RealVector> ElementNodeVector;
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Starting at the given iterator, fill its sequence with the node coordinates
-template<typename IteratorT, typename RowT>
-inline void fill_node_list(IteratorT iterator, const CArray& coordinates, const RowT& element_row) {
-  BOOST_FOREACH(const Uint point_idx, element_row) {
-    *(iterator++) = coordinates[point_idx];
+/// ListT must support operator[], resize(size, value) and ::value_type
+template<typename ListT, typename RowT>
+inline void fill_node_list(ListT& result, const CArray& coordinates, const RowT& element_row)
+{
+  const Uint nb_nodes = element_row.size();
+  typedef typename ListT::value_type CoordT;
+  const Uint dim = coordinates.row_size();
+  result.resize(nb_nodes, CoordT(dim));
+  for(Uint i = 0; i != nb_nodes; ++i)
+  {
+    const CArray::ConstRow from_coords = coordinates[element_row[i]];
+    CoordT& to_coords = result[i];
+    for(Uint j = 0; j != dim; ++j)
+      to_coords[j] = from_coords[j];
   }
-}
-
-/// Starting at the given iterator, fill its sequence with the node coordinates
-template<typename IteratorT>
-inline void fill_node_list(IteratorT iterator, const CArray& coordinates, const CTable& connectivity, const Uint element) {
-  fill_node_list(iterator, coordinates, connectivity[element]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

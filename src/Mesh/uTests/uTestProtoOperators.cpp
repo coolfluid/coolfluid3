@@ -364,7 +364,7 @@ BOOST_AUTO_TEST_CASE( Volume )
 BOOST_FIXTURE_TEST_CASE( CreateMesh, ProtoOperatorsFixture )
 {
   ProtoOperatorsFixture::big_grid.reset(new CMesh("big_grid"));
-  Tools::MeshGeneration::create_rectangle(*big_grid, 1., 1., 500, 500);
+  Tools::MeshGeneration::create_rectangle(*big_grid, 1., 1., 1000, 1000);
 }
 
 BOOST_FIXTURE_TEST_CASE( VolumeTiming, ProtoOperatorsFixture )

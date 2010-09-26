@@ -111,10 +111,9 @@ public:
         m_data  (CFNULL)
       {
         alloc_mem();
-        size_t i = 0;
-        for (typename BoostRow::const_iterator it = row.begin(); it != row.end(); ++it) {
-          m_data[i++] = *it;
-        }
+        const Uint row_size = row.size();
+        for(Uint i = 0; i != row_size; ++i)
+          m_data[i] = row[i];
       }
 
   VectorT(const ConstBoostRow& row) :
@@ -124,10 +123,9 @@ public:
         m_data  (CFNULL)
       {
         alloc_mem();
-        size_t i = 0;
-        for (typename ConstBoostRow::const_iterator it = row.begin(); it != row.end(); ++it) {
-          m_data[i++] = *it;
-        }
+        const Uint row_size = row.size();
+        for(Uint i = 0; i != row_size; ++i)
+          m_data[i] = row[i];
       }
 
 

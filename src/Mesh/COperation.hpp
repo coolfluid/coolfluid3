@@ -306,14 +306,14 @@ public: // functions
   void executeT ( Uint elem )
   {
     std::vector<RealVector> nodes;
-    fill_node_list( std::inserter(nodes, nodes.begin()), data->coordinates, data->connectivity_table, elem );
+    fill_node_list( nodes, data->coordinates, data->connectivity_table[elem] );
     data->volumes[elem][0] = SFType::volume( nodes );
   }
 
   void execute ( Uint elem )
   {
     std::vector<RealVector> nodes;
-    fill_node_list( std::inserter(nodes, nodes.begin()), data->coordinates, data->connectivity_table, elem );
+    fill_node_list( nodes, data->coordinates, data->connectivity_table[elem] );
     data->volumes[elem][0] = data->field_elements.element_type().computeVolume( nodes );
   }
 
