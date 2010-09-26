@@ -155,10 +155,10 @@ coolfluid_add_unittest( uTestVolumeSF )
 
 ################################################################################
 
-list( APPEND uTestProtoOperators_cflibs Mesh SF MeshGeneration )
+list( APPEND uTestProtoOperators_cflibs Mesh SF Testing MeshGeneration )
 list( APPEND uTestProtoOperators_files
   uTestProtoOperators.cpp )
-
+set( uTestProtoOperators_profile ON )
 coolfluid_add_unittest( uTestProtoOperators )
 
 ################################################################################

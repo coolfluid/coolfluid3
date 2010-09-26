@@ -30,6 +30,7 @@
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"
+#include "Tools/Testing/ProfiledTestFixture.hpp"
 
 using namespace CF;
 using namespace CF::Mesh;
@@ -45,68 +46,34 @@ namespace Mesh
 {
 
 //////////////////////////////////////////////////////////
-// functors
+// custom functions
+
+
 
 // Wrap the volume function
-struct volume_fun
-{
-  typedef Real result_type;
-  template<typename ShapeFunctionT, typename NodesT>
-  Real operator()(const ShapeFunctionT&, const NodesT& nodes) const
-  {
-      return ShapeFunctionT::volume(nodes);
-  }
-};
+struct jacobian_determinant_tag;
 
-// Lazy evaluation
-template<typename ShapeFunctionT, typename NodesT>
+template<typename Arg>
 typename proto::result_of::make_expr<
-    proto::tag::function
-  , volume_fun          // First child is the functor wrapping the function
-  , ShapeFunctionT const & // First function arg
-  , NodesT const &           // Second function arg
+    jacobian_determinant_tag
+  , Arg const &
 >::type const
-volume(ShapeFunctionT const& sf, NodesT const& nodes)
+jacobian_determinant(Arg const &arg)
 {
-    return proto::make_expr<proto::tag::function>(
-        volume_fun()
-      , boost::ref(sf)
-      , boost::ref(nodes)
-    );
+  return proto::make_expr<jacobian_determinant_tag>(boost::ref(arg));
 }
 
-// Wrap the volume function
-struct jacobian_determinant_fun
-{
-  typedef Real result_type;
-  template<typename ShapeFunctionT, typename NodesT>
-  Real operator()(const ShapeFunctionT&, const RealVector& mapped_coord, const NodesT& nodes) const
-  {
-      return ShapeFunctionT::jacobian_determinant(mapped_coord, nodes);
-  }
-};
+struct volume_tag;
 
-// Lazy evaluation
-template<typename ShapeFunctionT, typename MappedCoordT, typename NodesT>
+template<typename Arg>
 typename proto::result_of::make_expr<
-    proto::tag::function
-  , jacobian_determinant_fun
-  , ShapeFunctionT const &
-  , MappedCoordT const &
-  , NodesT const &
+    volume_tag
+    , Arg const &
 >::type const
-jacobian_determinant(ShapeFunctionT const& sf, MappedCoordT const& mapped_coord, NodesT const& nodes)
+volume(Arg const &arg)
 {
-    return proto::make_expr<proto::tag::function>(
-        jacobian_determinant_fun()
-      , boost::ref(sf)
-      , boost::ref(mapped_coord)
-      , boost::ref(nodes)
-    );
+  return proto::make_expr<volume_tag>(boost::ref(arg));
 }
-
-template<typename ShapeFunctionT>
-struct MeshContext;
 
 struct integral_tag;
 
@@ -139,10 +106,6 @@ proto::terminal<NodeVectorHolder>::type const node_vec = {{}}; // Represents a c
 struct MappedCoordHolder {};
 proto::terminal<MappedCoordHolder>::type const mapped_c = {{}};
 
-// placeholders for shape functions
-struct SFHolder {};
-proto::terminal<SFHolder>::type const shape_f = {{}};
-
 ///////////////////////////////////////////////////////////
 // Context
 
@@ -151,10 +114,11 @@ proto::terminal<SFHolder>::type const shape_f = {{}};
 template<typename ShapeFunctionT>
 struct MeshContext
 {
-  MeshContext(CArray& coords, CTable& conn_table) :
+  MeshContext(const CArray& coords, const CTable::ArrayT& conn_table, const ElementNodeVector& nodes) :
     coordinates(coords),
     connectivity(conn_table),
-    element_idx(0)
+    element_idx(0),
+    element_node_vector(nodes)
   {
   }
   
@@ -162,11 +126,11 @@ struct MeshContext
   typedef MeshContext<ShapeFunctionT> ThisContextT;
   
   /// Reference for the context
-  CArray& coordinates;
-  CTable& connectivity;
+  const CArray& coordinates;
+  const CTable::ArrayT& connectivity;
   Uint element_idx;
   RealVector mapped_coords;
-  ElementNodeVector element_node_vector;
+  const ElementNodeVector& element_node_vector;
   
   template<typename Expr,
            typename Tag = typename Expr::proto_tag,
@@ -175,13 +139,12 @@ struct MeshContext
     : proto::default_eval<Expr, ThisContextT>
   {};
   
-  // Handle placeholder terminals here...
   template<typename Expr>
   struct eval<Expr, proto::tag::terminal, ConstNodeViewHolder>
   {
     typedef const ConstElementNodeView result_type;
 
-    result_type operator()(Expr &, MeshContext<ShapeFunctionT>& ctx) const
+    result_type operator()(Expr &, const MeshContext<ShapeFunctionT>& ctx) const
     {
       return ConstElementNodeView(ctx.coordinates, ctx.connectivity[ctx.element_idx]);
     }
@@ -192,9 +155,8 @@ struct MeshContext
   {
     typedef const ElementNodeVector& result_type;
 
-    result_type operator()(Expr &, MeshContext<ShapeFunctionT>& ctx) const
+    result_type operator()(Expr &, const MeshContext<ShapeFunctionT>& ctx) const
     {
-      fill_node_list(ctx.element_node_vector, ctx.coordinates, ctx.connectivity[ctx.element_idx]);
       return ctx.element_node_vector;
     }
   };
@@ -204,22 +166,9 @@ struct MeshContext
   {
     typedef Uint result_type;
 
-    result_type operator()(Expr &, MeshContext<ShapeFunctionT>& ctx) const
+    result_type operator()(Expr &, const MeshContext<ShapeFunctionT>& ctx) const
     {
       return ctx.element_idx;
-    }
-  };
-  
-  // Handle shape function placeholders
-  template<typename Expr>
-  struct eval<Expr, proto::tag::terminal, SFHolder >
-  {
-    typedef const ShapeFunctionT& result_type;
-
-    result_type operator()(Expr &, MeshContext<ShapeFunctionT>&) const
-    {
-      static ShapeFunctionT sf;
-      return sf;
     }
   };
   
@@ -228,9 +177,32 @@ struct MeshContext
   {
     typedef const RealVector& result_type;
 
-    result_type operator()(Expr &, MeshContext<ShapeFunctionT>& ctx) const
+    result_type operator()(Expr &, const MeshContext<ShapeFunctionT>& ctx) const
     {
       return ctx.mapped_coords;
+    }
+  };
+  
+    // Handle volume function
+  template<typename Expr, typename NoArg>
+  struct eval<Expr, volume_tag, NoArg >
+  {
+    typedef Real result_type;
+
+    result_type operator()(Expr& expr, const MeshContext<ShapeFunctionT>& ctx) const
+    {
+      return SF::volume(ctx.element_node_vector);
+    }
+  };
+    
+  template<typename Expr, typename MappedCoordsT>
+  struct eval<Expr, jacobian_determinant_tag, MappedCoordsT >
+  {
+    typedef Real result_type;
+
+    result_type operator()(Expr& expr, const MeshContext<ShapeFunctionT>& context) const
+    {
+      return SF::jacobian_determinant(context.mapped_coords, context.element_node_vector);
     }
   };
   
@@ -268,10 +240,14 @@ public: // functions
     if(!IsElementType<ShapeFunctionT>()(m_elements.element_type()))
       return;
     
-    MeshContext<ShapeFunctionT> context(m_elements.coordinates(), m_elements.connectivity_table());
+    ElementNodeVector nodes;
+    const CArray& coords = m_elements.coordinates();
+    const CTable::ArrayT& conn = m_elements.connectivity_table().array();
+    MeshContext<ShapeFunctionT> context(coords, conn, nodes);
     
     for(context.element_idx = 0; context.element_idx != context.connectivity.size(); ++context.element_idx)
     {
+      fill_node_list(nodes, coords, conn[context.element_idx]);
       m_evaluator.eval(m_expr, context);
     }
     
@@ -338,7 +314,7 @@ void for_all_elements_accumulate(CMesh& mesh, ExpressionT& expr, ResultT& result
 } // Namespace CF
 
 
-struct ProtoOperatorsFixture : Tools::Testing::TimedTestFixture
+struct ProtoOperatorsFixture : public Tools::Testing::ProfiledTestFixture, Tools::Testing::TimedTestFixture
 {
   static CMesh::Ptr big_grid;
 };
@@ -349,18 +325,18 @@ BOOST_AUTO_TEST_SUITE( ProtoOperatorsSuite )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( Volume )
+BOOST_AUTO_TEST_CASE( ProtoBasics )
 {
   CMesh::Ptr mesh(new CMesh("rect"));
   Tools::MeshGeneration::create_rectangle(*mesh, 5, 5, 5, 5);
   
   // Use the volume function
-  for_all_elements_execute(*mesh, cout_ << "Volume for element " << elem_i << ": " << volume(shape_f, const_node_v) << "\n");
+  for_all_elements_execute(*mesh, cout_ << "Volume for element " << elem_i << ": " << volume(elem_i) << "\n");
   std::cout << std::endl; // Can't be in expression
   
   // volume calculation
   Real vol1 = 0.;
-  for_all_elements_accumulate(*mesh, volume(shape_f, const_node_v), vol1);
+  for_all_elements_accumulate(*mesh, volume(elem_i), vol1);
   
   CFinfo << "Mesh volume: " << vol1 << CFendl;
   
@@ -372,7 +348,7 @@ BOOST_AUTO_TEST_CASE( Volume )
                               vol2);
   BOOST_CHECK_EQUAL(vol1, vol2);
   
-  for_all_elements_execute(*mesh, cout_ << "test integral for element " << elem_i << ": " << integral(jacobian_determinant(shape_f, mapped_c, const_node_v)) <<  "\n");
+  for_all_elements_execute(*mesh, cout_ << "test integral for element " << elem_i << ": " << integral(jacobian_determinant(mapped_c)) <<  "\n");
   std::cout << std::endl;
 }
 
@@ -380,27 +356,20 @@ BOOST_AUTO_TEST_CASE( Volume )
 BOOST_FIXTURE_TEST_CASE( CreateMesh, ProtoOperatorsFixture )
 {
   ProtoOperatorsFixture::big_grid.reset(new CMesh("big_grid"));
-  Tools::MeshGeneration::create_rectangle(*big_grid, 1., 1., 1000, 1000);
+  Tools::MeshGeneration::create_rectangle(*big_grid, 1., 1., 2000, 2000);
 }
 
-BOOST_FIXTURE_TEST_CASE( VolumeByView, ProtoOperatorsFixture )
+BOOST_FIXTURE_TEST_CASE( Volume, ProtoOperatorsFixture )
 {
   Real vol = 0.;
-  for_all_elements_accumulate(*big_grid, volume(shape_f, const_node_v), vol);
+  for_all_elements_accumulate(*big_grid, volume(elem_i), vol);
   BOOST_CHECK_CLOSE(vol, 1., 0.0001);
 }
 
-BOOST_FIXTURE_TEST_CASE( VolumeByCopy, ProtoOperatorsFixture )
+BOOST_FIXTURE_TEST_CASE( Integral, ProtoOperatorsFixture )
 {
   Real vol = 0.;
-  for_all_elements_accumulate(*big_grid, volume(shape_f, node_vec), vol);
-  BOOST_CHECK_CLOSE(vol, 1., 0.0001);
-}
-
-BOOST_FIXTURE_TEST_CASE( IntegralTiming, ProtoOperatorsFixture )
-{
-  Real vol = 0.;
-  for_all_elements_accumulate(*big_grid, integral(jacobian_determinant(shape_f, mapped_c, const_node_v)), vol);
+  for_all_elements_accumulate(*big_grid, integral(jacobian_determinant(mapped_c)), vol);
   BOOST_CHECK_CLOSE(vol, 1., 0.0001);
 }
 
