@@ -73,10 +73,10 @@ struct ForAllRegions
 
       // loop on elements
       const Uint elem_count = ctable.size();
+      std::vector<RealVector> nodes;
       for ( Uint elem = 0; elem != elem_count; ++elem )
       {
-        std::vector<RealVector> nodes(ctable.row_size(), coordinates.row_size());
-        fill_node_list( nodes.begin(), coordinates, ctable[elem] );
+        fill_node_list( nodes, coordinates, ctable[elem] );
         op.template execute<EType>( elem, nodes );
       }
     }

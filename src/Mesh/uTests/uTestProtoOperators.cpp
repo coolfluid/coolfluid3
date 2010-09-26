@@ -133,6 +133,9 @@ proto::terminal<ElementIdxHolder>::type const elem_i = {{}}; // Represents an el
 struct ConstNodeViewHolder {};
 proto::terminal<ConstNodeViewHolder>::type const const_node_v = {{}}; // Represents a const view of the element nodes
 
+struct NodeVectorHolder {};
+proto::terminal<NodeVectorHolder>::type const node_vec = {{}}; // Represents a copy of element nodes
+
 struct MappedCoordHolder {};
 proto::terminal<MappedCoordHolder>::type const mapped_c = {{}};
 
@@ -163,6 +166,7 @@ struct MeshContext
   CTable& connectivity;
   Uint element_idx;
   RealVector mapped_coords;
+  ElementNodeVector element_node_vector;
   
   template<typename Expr,
            typename Tag = typename Expr::proto_tag,
@@ -180,6 +184,18 @@ struct MeshContext
     result_type operator()(Expr &, MeshContext<ShapeFunctionT>& ctx) const
     {
       return ConstElementNodeView(ctx.coordinates, ctx.connectivity[ctx.element_idx]);
+    }
+  };
+  
+  template<typename Expr>
+  struct eval<Expr, proto::tag::terminal, NodeVectorHolder>
+  {
+    typedef const ElementNodeVector& result_type;
+
+    result_type operator()(Expr &, MeshContext<ShapeFunctionT>& ctx) const
+    {
+      fill_node_list(ctx.element_node_vector, ctx.coordinates, ctx.connectivity[ctx.element_idx]);
+      return ctx.element_node_vector;
     }
   };
   
@@ -367,10 +383,17 @@ BOOST_FIXTURE_TEST_CASE( CreateMesh, ProtoOperatorsFixture )
   Tools::MeshGeneration::create_rectangle(*big_grid, 1., 1., 1000, 1000);
 }
 
-BOOST_FIXTURE_TEST_CASE( VolumeTiming, ProtoOperatorsFixture )
+BOOST_FIXTURE_TEST_CASE( VolumeByView, ProtoOperatorsFixture )
 {
   Real vol = 0.;
   for_all_elements_accumulate(*big_grid, volume(shape_f, const_node_v), vol);
+  BOOST_CHECK_CLOSE(vol, 1., 0.0001);
+}
+
+BOOST_FIXTURE_TEST_CASE( VolumeByCopy, ProtoOperatorsFixture )
+{
+  Real vol = 0.;
+  for_all_elements_accumulate(*big_grid, volume(shape_f, node_vec), vol);
   BOOST_CHECK_CLOSE(vol, 1., 0.0001);
 }
 
