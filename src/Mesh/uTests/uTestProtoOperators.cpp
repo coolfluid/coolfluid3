@@ -38,6 +38,50 @@ using namespace CF::Common;
 
 using namespace boost;
 
+namespace boost
+{
+  
+namespace proto
+{
+  template<template<typename, typename> class Extends>
+  struct pod_dummy_generator
+  {
+      BOOST_PROTO_CALLABLE()
+
+      template<typename Sig>
+      struct result;
+
+      template<typename This, typename Expr>
+      struct result<This(Expr)>
+      {
+          typedef Extends<Expr, is_proto_expr> type;
+      };
+
+      template<typename This, typename Expr>
+      struct result<This(Expr &)>
+      {
+          typedef Extends<Expr, is_proto_expr> type;
+      };
+
+      template<typename This, typename Expr>
+      struct result<This(Expr const &)>
+      {
+          typedef Extends<Expr, is_proto_expr> type;
+      };
+
+      /// \param expr The expression to wrap
+      /// \return <tt>Extends\<Expr\> that = {expr}; return that;</tt>
+      template<typename Expr>
+      Extends<Expr, is_proto_expr> operator ()(Expr const &expr) const
+      {
+          Extends<Expr, is_proto_expr> that = {expr};
+          return that;
+      }
+  };
+} // namespace proto
+
+} // namespace boost
+
 // Experimental boost::proto stuff. Scroll down to the actual test to see the use
 namespace CF
 {
@@ -46,9 +90,41 @@ namespace Mesh
 {
 
 //////////////////////////////////////////////////////////
+// Grammar that must be matched for an expression to be valid
+
+// struct MeshGrammar
+//   : proto::or_<
+//         proto::terminal< Real >
+//       , proto::plus< MeshGrammar, MeshGrammar >
+//       , proto::minus< MeshGrammar, MeshGrammar >
+//       , proto::multiplies< MeshGrammar, MeshGrammar >
+//       , proto::plus_assign< MeshGrammar, MeshGrammar >
+//       , proto::shift_left< proto::terminal< std::ostream & >, proto::_ >
+//       , proto::shift_left< MeshGrammar, proto::_ >
+//       , proto::subscript< proto::_, proto::_ > // TODO: deal with subscript properly
+//     >
+// {};
+
+struct MeshGrammar : proto::_ {};
+  
+//////////////////////////////////////////////////////////
+// Proto domain for mesh operations
+
+/// Wrapper for expressions in the MeshDomain
+struct MeshDomain;
+
+template<class Expr, class Dummy = proto::is_proto_expr>
+struct MeshExpr
+{
+  BOOST_PROTO_EXTENDS(Expr, MeshExpr<Expr>, MeshDomain)
+};
+
+struct MeshDomain
+  : proto::domain<proto::pod_dummy_generator<MeshExpr>, MeshGrammar>
+{};
+  
+//////////////////////////////////////////////////////////
 // custom functions
-
-
 
 // Wrap the volume function
 struct jacobian_determinant_tag;
@@ -56,11 +132,12 @@ struct jacobian_determinant_tag;
 template<typename Arg>
 typename proto::result_of::make_expr<
     jacobian_determinant_tag
+  , MeshDomain
   , Arg const &
 >::type const
 jacobian_determinant(Arg const &arg)
 {
-  return proto::make_expr<jacobian_determinant_tag>(boost::ref(arg));
+  return proto::make_expr<jacobian_determinant_tag, MeshDomain>(boost::ref(arg));
 }
 
 struct volume_tag;
@@ -68,11 +145,12 @@ struct volume_tag;
 template<typename Arg>
 typename proto::result_of::make_expr<
     volume_tag
-    , Arg const &
+  , MeshDomain
+  , Arg const &
 >::type const
 volume(Arg const &arg)
 {
-  return proto::make_expr<volume_tag>(boost::ref(arg));
+  return proto::make_expr<volume_tag, MeshDomain>(boost::ref(arg));
 }
 
 struct integral_tag;
@@ -80,31 +158,32 @@ struct integral_tag;
 template<typename Arg>
 typename proto::result_of::make_expr<
     integral_tag
+  , MeshDomain
   , Arg const &
 >::type const
 integral(Arg const &arg)
 {
-  return proto::make_expr<integral_tag>(boost::ref(arg));
+  return proto::make_expr<integral_tag, MeshDomain>(boost::ref(arg));
 }
 
 ///////////////////////////////////////////////////////////
 // Placeholders
 
 // Wrap std::cout
-proto::terminal< std::ostream & >::type cout_ = { std::cout };
+proto::terminal< std::ostream & >::type cout_ = {std::cout};
 
 // Placeholders for different types of data
 struct ElementIdxHolder {};
-proto::terminal<ElementIdxHolder>::type const elem_i = {{}}; // Represents an element index
+MeshExpr<proto::terminal<ElementIdxHolder>::type> const elem_i = {{{}}}; // Represents an element index ({{{}}} makes this a static initialization)
 
 struct ConstNodeViewHolder {};
-proto::terminal<ConstNodeViewHolder>::type const const_node_v = {{}}; // Represents a const view of the element nodes
+MeshExpr<proto::terminal<ConstNodeViewHolder>::type> const const_node_v = {{{}}}; // Represents a const view of the element nodes
 
 struct NodeVectorHolder {};
-proto::terminal<NodeVectorHolder>::type const node_vec = {{}}; // Represents a copy of element nodes
+MeshExpr<proto::terminal<NodeVectorHolder>::type> const node_vec = {{{}}}; // Represents a copy of element nodes
 
 struct MappedCoordHolder {};
-proto::terminal<MappedCoordHolder>::type const mapped_c = {{}};
+MeshExpr<proto::terminal<MappedCoordHolder>::type> const mapped_c = {{{}}};
 
 ///////////////////////////////////////////////////////////
 // Context
@@ -343,9 +422,9 @@ BOOST_AUTO_TEST_CASE( ProtoBasics )
   // For an all-quad mesh, this is the same... cool or what?
   Real vol2 = 0.;
   for_all_elements_accumulate(*mesh,
-                     0.5*((const_node_v[2][XX] - const_node_v[0][XX]) * (const_node_v[3][YY] - const_node_v[1][YY])
-                       -  (const_node_v[2][YY] - const_node_v[0][YY]) * (const_node_v[3][XX] - const_node_v[1][XX])),
-                              vol2);
+                    0.5*((const_node_v[2][XX] - const_node_v[0][XX]) * (const_node_v[3][YY] - const_node_v[1][YY])
+                      -  (const_node_v[2][YY] - const_node_v[0][YY]) * (const_node_v[3][XX] - const_node_v[1][XX])),
+                             vol2);
   BOOST_CHECK_EQUAL(vol1, vol2);
   
   for_all_elements_execute(*mesh, cout_ << "test integral for element " << elem_i << ": " << integral(jacobian_determinant(mapped_c)) <<  "\n");
@@ -363,6 +442,14 @@ BOOST_FIXTURE_TEST_CASE( Volume, ProtoOperatorsFixture )
 {
   Real vol = 0.;
   for_all_elements_accumulate(*big_grid, volume(elem_i), vol);
+  BOOST_CHECK_CLOSE(vol, 1., 0.0001);
+}
+
+// Yes, this actually works!
+BOOST_FIXTURE_TEST_CASE( VolumePlusAssign, ProtoOperatorsFixture )
+{
+  Real vol = 0.;
+  for_all_elements_execute(*big_grid, vol += volume(elem_i));
   BOOST_CHECK_CLOSE(vol, 1., 0.0001);
 }
 
