@@ -13,6 +13,7 @@
 
 #include "Common/Option.hpp"
 #include "Common/BasicExceptions.hpp"
+#include "Common/XML.hpp"
 
 namespace CF {
 namespace Common {
@@ -54,7 +55,7 @@ namespace Common {
     //@{
 
     /// Returns a C-strng representation of element type
-    virtual const char * elem_type() const { return type_to_str<element_type>(); }
+    virtual const char * elem_type() const { return XmlTag<element_type>::type(); }
 
     /// @returns the xml tag for this option
     virtual const char * tag() const { return "array"; }

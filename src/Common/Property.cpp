@@ -60,29 +60,6 @@ namespace Common {
     return *this;
   }
 
-
-  template<>
-  Common_API const char * Property::type_to_str<bool>() const { return "bool"; }
-
-  template<>
-  Common_API const char * Property::type_to_str<int>() const { return "integer"; };
-
-  template<>
-  Common_API const char * Property::type_to_str<CF::Uint>() const { return "unsigned"; }
-
-  template<>
-  Common_API const char * Property::type_to_str<CF::Real>() const { return "real"; }
-
-  template<>
-  Common_API const char * Property::type_to_str<std::string>() const { return "string"; }
-
-  template<>
-  Common_API const char * Property::type_to_str<boost::filesystem::path>() const { return "file"; }
-
-  template<>
-  Common_API const char * Property::type_to_str<URI>() const { return "uri"; }
-
-
 /////////////////////////////////////////////////////////////////////////////////////
 
 } // Common

@@ -124,9 +124,6 @@ namespace Common {
     /// properties.
     bool m_is_option;
 
-    template< typename TYPE>
-    const char * type_to_str() const;
-
   }; // class Property
 
 /////////////////////////////////////////////////////////////////////////////////////
