@@ -7,6 +7,9 @@
 #ifndef CF_Common_OSystem_hpp
 #define CF_Common_OSystem_hpp
 
+#include <boost/shared_ptr.hpp>
+
+#include "Common/CodeProfiler.hpp"
 #include "Common/Exception.hpp"
 #include "Common/SafePtr.hpp"
 #include "Common/CommonAPI.hpp"
@@ -48,6 +51,16 @@ public: // methods
   /// @todo should return the output of the command but not yet implemented.
   void executeCommand (const std::string& call);
 
+  /// @brief Sets the profiler.
+  /// @param profiler_name Profiler name
+  /// @throw ValueNotFound if no such profiler was found
+  /// @todo Checks if another profiler has been set before
+  void set_profiler(const std::string & profiler_name);
+
+  /// @brief Gives the current profiler
+  /// @return Returns the current profiler
+  boost::shared_ptr<CodeProfiler> profiler() const;
+
 private: // functions
 
   /// constructor
@@ -61,6 +74,8 @@ private: // data
   Common::OSystemLayer * m_system_layer;
   /// libloader object
   Common::LibLoader * m_lib_loader;
+
+  boost::shared_ptr<CodeProfiler> m_profiler;
 
 }; // class FileHandlerOutput
 

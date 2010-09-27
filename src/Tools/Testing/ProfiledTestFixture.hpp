@@ -12,6 +12,7 @@
 
 #include <coolfluid_profiling_config.h>
 
+#include "Common/CodeProfiler.hpp"
 #include "Tools/Testing/LibTesting.hpp"
 
 using namespace CF;
@@ -21,13 +22,11 @@ using namespace CF::Common;
 
 namespace CF {
 namespace Tools {
-namespace GooglePerf { class LibGooglePerfTools; }
 namespace Testing {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#ifdef CF_BUILD_GooglePerfTools
 /// Any test using this fixture (or a derivative) will be profiled
 class Testing_API ProfiledTestFixture {
 public:
@@ -42,8 +41,6 @@ public:
   void test_unit_finish( boost::unit_test::test_unit const& );
 
 protected:
-  /// The profiling module that is used
-  CF::Tools::GooglePerf::LibGooglePerfTools& m_profiler;
   /// Start of the profile output name
   std::string m_prefix;
   /// Directory to store the profile data in
@@ -53,15 +50,9 @@ private:
   std::string m_current_filename;
   /// The full command that was ran
   std::string m_command;
+  /// @c true if GooglePerfTools was found
+  bool m_using_google_perf;
 };
-#else
-
-class Testing_API ProfiledTestFixture {
-public:
-  ProfiledTestFixture();
-};
-
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -7,4 +7,3 @@ add_subdirectory( GUI )
 add_subdirectory( Tools )
 add_subdirectory( Solver )
 add_subdirectory( MeshTransformer )
-

@@ -10,6 +10,8 @@ list( APPEND Common_files
     CF.hpp
     CodeLocation.cpp
     CodeLocation.hpp
+    CodeProfiler.cpp
+    CodeProfiler.hpp
     CommonAPI.hpp
     Component.hpp
     Component.cpp
@@ -69,6 +71,8 @@ list( APPEND Common_files
     NamedObject.hpp
     NamedObject.cpp
     NonInstantiable.hpp
+    NoProfiling.cpp
+    NoProfiling.hpp
     ObjectProvider.hpp
     Option.cpp
     Option.hpp

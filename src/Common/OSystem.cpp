@@ -6,6 +6,7 @@
 
 #include <cstdlib>  // provides system call
 
+#include "Common/Factory.hpp"
 #include "Common/OSystemLayer.hpp"
 #include "Common/String/Conversion.hpp"
 
@@ -117,6 +118,21 @@ void OSystem::executeCommand(const std::string& call)
     throw OSystemError ( FromHere(), msg );
   }
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+void OSystem::set_profiler(const std::string & profiler_name)
+{
+  m_profiler = Factory<CodeProfiler>::instance().getProvider(profiler_name)->create();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+boost::shared_ptr<CodeProfiler> OSystem::profiler() const
+{
+  return m_profiler;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

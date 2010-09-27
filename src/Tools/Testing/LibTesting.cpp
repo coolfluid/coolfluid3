@@ -5,8 +5,15 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/CoreEnv.hpp"
+#include "Common/Factory.hpp"
+#include "Common/OSystem.hpp"
+
+#include "Tools/GooglePerf/GooglePerfProfiling.hpp"
 
 #include "Tools/Testing/LibTesting.hpp"
+
+using namespace CF::Common;
+using namespace CF::Tools::GooglePerf;
 
 namespace CF {
 namespace Tools {
@@ -18,10 +25,12 @@ namespace Testing {
 
 void LibTesting::initiate()
 {
+
 }
 
 void LibTesting::terminate()
 {
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

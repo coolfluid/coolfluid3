@@ -17,6 +17,18 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// Define the macro GooglePerfTools_API
+/// @note build system defines GooglePerfTools_EXPORTS when compiling GooglePerfTools files
+#ifdef GooglePerfTools_EXPORTS
+#   define GooglePerfTools_API      CF_EXPORT_API
+#   define GooglePerfTools_TEMPLATE
+#else
+#   define GooglePerfTools_API      CF_IMPORT_API
+#   define GooglePerfTools_TEMPLATE CF_TEMPLATE_EXTERN
+#endif
+
+////////////////////////////////////////////////////////////////////////////////
+
 namespace CF {
 namespace Tools {
 
@@ -64,12 +76,6 @@ public:
 
   /// Stop profiling
   virtual void terminate();
-
-  /// Set the path to the profiling file
-  void setFilePath(const boost::filesystem::path& path);
-
-private:
-  boost::filesystem::path m_path;
 
 }; // end LibGooglePerfTools
 
