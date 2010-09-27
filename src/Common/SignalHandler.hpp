@@ -82,7 +82,7 @@ class Common_API SignalHandler
   protected: // functions
 
     /// Get a signal by providing its name
-    Signal::Ptr get_signal ( const Signal::id_t& sname );
+    Signal::Ptr signal ( const Signal::id_t& sname );
 
     /// Create a signal
     Signal::Ptr create_signal ( const Signal::id_t& sname,  const Signal::desc_t& desc );

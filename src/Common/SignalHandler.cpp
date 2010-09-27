@@ -31,12 +31,12 @@ std::vector < std::pair < Signal::id_t, Signal::desc_t > > SignalHandler::list_s
 
 Signal::return_t SignalHandler::call_signal ( const Signal::id_t& sname, Signal::arg_t& sinput )
 {
-  return ( *get_signal ( sname ) ) ( sinput );
+  return ( *signal ( sname ) ) ( sinput );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Signal::Ptr SignalHandler::get_signal ( const Signal::id_t& sname )
+Signal::Ptr SignalHandler::signal ( const Signal::id_t& sname )
 {
   sigmap_t::iterator itr = m_signals.find(sname);
   if ( itr != m_signals.end() )
