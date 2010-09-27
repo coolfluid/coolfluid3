@@ -19,11 +19,11 @@ SignalError::SignalError ( const Common::CodeLocation& where, const std::string&
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::vector < std::pair < Signal::id_t, Signal::desc_t > > SignalHandler::list_signals () const
+std::vector < Signal > SignalHandler::list_signals () const
 {
-  std::vector < std::pair < Signal::id_t, Signal::desc_t > > result;
+  std::vector < Signal > result;
   for ( sigmap_t::const_iterator itr = m_signals.begin() ; itr != m_signals.end() ; ++itr )
-    result.push_back ( make_pair ( itr->first , itr->second.second ) );
+    result.push_back ( itr->second ); // add a copy of the signal to the vector
   return result;
 }
 
@@ -31,16 +31,16 @@ std::vector < std::pair < Signal::id_t, Signal::desc_t > > SignalHandler::list_s
 
 Signal::return_t SignalHandler::call_signal ( const Signal::id_t& sname, Signal::arg_t& sinput )
 {
-  return ( *signal ( sname ) ) ( sinput );
+  return ( *signal ( sname ).m_signal ) ( sinput );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Signal::Ptr SignalHandler::signal ( const Signal::id_t& sname )
+Signal & SignalHandler::signal ( const Signal::id_t& sname )
 {
   sigmap_t::iterator itr = m_signals.find(sname);
   if ( itr != m_signals.end() )
-    return itr->second.first;
+    return itr->second;
   else
     throw SignalError ( FromHere(), "Signal with name \'" + sname + "\' does not exist" );
 }
@@ -52,9 +52,13 @@ Signal::Ptr SignalHandler::create_signal ( const Signal::id_t& sname,  const Sig
   sigmap_t::iterator itr = m_signals.find (sname);
   if ( itr == m_signals.end() )
   {
-    Signal::Ptr ptr ( new Signal::type() );
-    m_signals.insert ( make_pair ( sname , make_pair ( ptr , desc ) )  );
-    return ptr;
+    Signal signal;
+
+    signal.m_signal = Signal::Ptr( new Signal::type() );
+    signal.m_description = desc;
+
+    m_signals.insert ( make_pair ( sname , signal ) );
+    return signal.m_signal;
   }
   else
     throw SignalError ( FromHere(), "Signal with name \'" + sname + "\' already exists" );
@@ -67,12 +71,16 @@ Signal::Ptr SignalHandler::regist_signal ( const Signal::id_t& sname,  const Sig
   sigmap_t::iterator itr = m_signals.find (sname);
   if ( itr == m_signals.end() )
   {
-    Signal::Ptr ptr ( new Signal::type() );
-    m_signals.insert ( make_pair ( sname , make_pair ( ptr , desc ) )  );
-    return ptr;
+    Signal signal;
+
+    signal.m_signal = Signal::Ptr( new Signal::type() );
+    signal.m_description = desc;
+
+    m_signals.insert ( make_pair ( sname , signal ) );
+    return signal.m_signal;
   }
   else
-    return itr->second.first;
+    return itr->second.m_signal;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

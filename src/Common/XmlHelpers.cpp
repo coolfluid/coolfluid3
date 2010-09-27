@@ -70,7 +70,7 @@ namespace Common {
     return uuid;
   }
 
-  XmlNode* XmlParams::add_valuemap(const char * key)
+  XmlNode* XmlParams::add_valuemap(const std::string & key)
   {
     XmlNode * map_node = xmlnode.first_node( tag_node_valuemap() );
     XmlNode * value_node;
@@ -114,6 +114,68 @@ namespace Common {
 
     return found_node;
   }
+
+  bool XmlParams::check_valuemap_in(const XmlNode & node, const std::string & name)
+  {
+    bool found = false;
+
+    // search for the node with correct type
+    XmlNode* value_node = node.first_node( tag_node_valuemap() );
+    for ( ; value_node != CFNULL && !found ; value_node = value_node->next_sibling(  tag_node_valuemap() ) )
+    {
+      // search for the attribute with key
+      XmlAttr* att = value_node->first_attribute( tag_attr_key() );
+      found = att != CFNULL && name == att->value();
+    }
+
+    return found;
+  }
+
+  bool XmlParams::check_key_in(const XmlNode & node, const std::string & key)
+  {
+    bool found = false;
+
+    // search for the node with correct type
+    XmlNode* value_node = node.first_node();
+    for ( ; value_node != CFNULL && !found ; value_node = value_node->next_sibling(  tag_node_valuemap() ) )
+    {
+      // search for the attribute with key
+      XmlAttr* att = value_node->first_attribute( tag_attr_key() );
+      found = att != CFNULL && key.compare(att->value()) == 0;
+    }
+
+    return found;
+  }
+
+  const XmlNode * XmlParams::get_valuemap_from(const XmlNode & node,
+                                         const std::string & key)
+  {
+    const XmlNode * found_node = CFNULL;
+
+    // search for the node with correct type
+    XmlNode* value_node = node.first_node( tag_node_valuemap() );
+    for ( ; value_node != CFNULL && !found_node ; value_node = value_node->next_sibling(  tag_node_valuemap() ) )
+    {
+      // search for the attribute with key
+      XmlAttr* att = value_node->first_attribute( tag_attr_key() );
+      if(att != CFNULL && key == att->value())
+        found_node = value_node;
+    }
+
+    return found_node;
+  }
+
+   XmlNode * XmlParams::add_valuemap_to (XmlNode & node, const std::string& key,
+                                        const std::string & desc)
+  {
+    XmlNode * map_node = XmlOps::add_node_to( node, tag_node_valuemap() );
+
+    XmlOps::add_attribute_to( *map_node, tag_attr_key(), key);
+    XmlOps::add_attribute_to( *map_node, tag_attr_descr(), desc);
+
+    return map_node;
+  }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -14,6 +14,7 @@
 
 #include "Common/Exception.hpp"
 #include "Common/NonInstantiable.hpp"
+#include "Common/XmlSignature.hpp"
 #include "Common/XML.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -37,7 +38,7 @@ public:
 
 /// Class that harbours the types handled by the SignalHandler
 /// @author Tiago Quintino
-struct Signal : public NonInstantiable<Signal>
+struct Signal
 {
     /// signal key
     typedef std::string id_t;
@@ -51,6 +52,12 @@ struct Signal : public NonInstantiable<Signal>
     typedef boost::signals2::signal< Signal::return_t ( Signal::arg_t& ) >  type;
     /// signal pointer
     typedef boost::shared_ptr<type> Ptr;
+    /// the boost signal object
+    Ptr m_signal;
+    /// signal description
+    desc_t m_description;
+    /// signal xml signature
+    XmlSignature m_signature;
 };
 
 /// SignalHandler executes calls received as string by issuing singals to the slots
@@ -61,17 +68,15 @@ struct Signal : public NonInstantiable<Signal>
 /// @author Tiago Quintino
 class Common_API SignalHandler
 {
-
-
   public:
 
     /// storage type for signals
-    typedef std::map < Signal::id_t , std::pair< Signal::Ptr , Signal::desc_t > >  sigmap_t;
+  typedef std::map < Signal::id_t , Signal >  sigmap_t;
 
   public:
 
     /// Get the list of signals and respective descriptions
-    std::vector < std::pair < Signal::id_t, Signal::desc_t > > list_signals () const;
+    std::vector < Signal > list_signals () const;
 
     /// Calls the signal by providing its name and input
     Signal::return_t call_signal ( const Signal::id_t& sname, Signal::arg_t& sinput );
@@ -82,7 +87,7 @@ class Common_API SignalHandler
   protected: // functions
 
     /// Get a signal by providing its name
-    Signal::Ptr signal ( const Signal::id_t& sname );
+    Signal & signal ( const Signal::id_t& sname );
 
     /// Create a signal
     Signal::Ptr create_signal ( const Signal::id_t& sname,  const Signal::desc_t& desc );

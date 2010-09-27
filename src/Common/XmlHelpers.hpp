@@ -168,6 +168,55 @@ namespace Common {
 
     std::string get_frameid() const;
 
+    /// @brief Checks the presence of a value of specified name and type.
+    /// @param node The valuemap the value has to be searched in
+    /// @param name The value name.
+    /// @return Returns @c true if the value was found with the type TYPE ;
+    /// otherwise returns @c false.
+    template<typename TYPE>
+    static bool check_value_in(const XmlNode & node, const std::string & name);
+
+    /// @brief Checks the presence of a valuemap of specified name.
+    /// @param node The valuemap the valuemap has to be searched in
+    /// @param name The valuemap name.
+    /// @return Returns @c true if the valuemap was found;
+    /// otherwise returns @c false.
+    static bool check_valuemap_in(const XmlNode & node, const std::string & name);
+
+    /// @brief Checks the presence of an array of specified name and type.
+    /// @param node The valuemap the array has to be searched in
+    /// @param name The value name.
+    /// @return Returns @c true if the array was found with the type TYPE ;
+    /// otherwise returns @c false.
+    template<typename TYPE>
+    static bool check_array_in(const XmlNode & node, const std::string & name);
+
+    /// @brief Checks the presence a child node which has a "key" attribute
+    /// with a given value.
+    /// @param node The valuemap to check
+    /// @param key The key value to search
+    static bool check_key_in(const XmlNode & node, const std::string & key);
+
+    static const XmlNode * get_valuemap_from(const XmlNode & node, const std::string & key);
+
+    XmlNode* add_valuemap(const std::string & key);
+
+    /// access to the value of one parameter
+    template < typename TYPE >
+    static TYPE get_value_from (const XmlNode & map, const std::string& pname );
+
+    /// add a key-value node to the options
+    template < typename TYPE >
+    static XmlNode * add_value_to (XmlNode & map, const std::string& key, const TYPE& value);
+
+    /// add a valuemap node to the options
+    static XmlNode * add_valuemap_to (XmlNode & map, const std::string& key,
+                                      const std::string & desc = std::string());
+
+    /// add an array node to the options
+    template < typename TYPE >
+    static XmlNode * add_array_to (XmlNode & map, const std::string& key, const std::vector<TYPE>& value);
+
     /// reference to the XmlNode to retrieve params from
     XmlNode& xmlnode;
     /// reference to the XmlDoc to which the node belongs
@@ -178,16 +227,6 @@ namespace Common {
     XmlNode* property_map;
 
   private:
-
-    /// access to the value of one parameter
-    template < typename TYPE >
-        TYPE get_value_from (const XmlNode & map, const std::string& pname ) const;
-
-    /// add a key-value node to the options
-    template < typename TYPE >
-        XmlNode * add_value_to (XmlNode & map, const std::string& key, const TYPE& value);
-
-    XmlNode* add_valuemap(const char * key);
 
     XmlNode* seek_valuemap(const char * key);
 
@@ -304,26 +343,70 @@ namespace Common {
     if ( option_map == 0 )
       option_map = add_valuemap( tag_key_options() );
 
-    // create the "array" node and append it to the map
-    XmlNode* node = XmlOps::add_node_to(*option_map, XmlTag<TYPE>::array());
+    XmlNode * node = add_array_to(*option_map, key, vect);
 
-		// add "key", "size" and "type" attributes to "array" node
-	// note : the size of the array has to be explicitly cast to CF::Uint or
-	// MSVC will consider the value to be of type "unsigned __int64"
-	// (defined by Microsoft) and the linking will fail because
-	// String::to_str<unsigned __int64>() is not defined.
-		XmlOps::add_attribute_to(*node, tag_attr_key(), key);
-	XmlOps::add_attribute_to(*node, tag_attr_size(), String::to_str( (CF::Uint) vect.size() ));
-		XmlOps::add_attribute_to(*node, tag_attr_type(), XmlTag<TYPE>::type());
+    XmlOps::add_attribute_to(*node, "mode", basic ? "basic" : "adv" );
 
-    for(size_t i = 0 ; i < vect.size() ; i++)
-      XmlOps::add_node_to(*node, "e", from_value(vect[i]));
+    // add the description if any
+    if(!desc.empty())
+    {
+      const char* desc_str = xmldoc.allocate_string( tag_attr_descr() );
+      const char* descvalue_str = xmldoc.allocate_string( desc.c_str() );
+
+      // create the attribute
+      XmlAttr* desc_attr = xmldoc.allocate_attribute( desc_str, descvalue_str );
+      node->append_attribute(desc_attr);
+    }
+
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////
+
+  template<typename TYPE>
+  bool XmlParams::check_value_in(const XmlNode & node, const std::string & name)
+  {
+    bool found = false;
+
+    // search for the node with correct type
+    XmlNode* value_node = node.first_node( "value" );
+    for ( ; value_node != CFNULL && !found ; value_node = value_node->next_sibling( "value" ) )
+    {
+      // search for the attribute with key
+      XmlAttr* att = value_node->first_attribute( tag_attr_key() );
+      if ( att && !name.compare(att->value()) )
+        found = value_node->first_node( XmlTag<TYPE>::type() ) != CFNULL;
+    }
+
+    return found;
+  }
+
+  ////////////////////////////////////////////////////////////////////////////////
+
+  template<typename TYPE>
+  bool XmlParams::check_array_in(const XmlNode & node, const std::string & name)
+  {
+    bool found = false;
+
+    // search for the node with correct type
+    XmlNode* array_node = node.first_node( "value" );
+    for ( ; array_node != CFNULL && !found ; array_node = array_node->next_sibling( "array" ) )
+    {
+      // search for the attribute with key
+      XmlAttr* att = array_node->first_attribute( tag_attr_key() );
+      if ( att && !name.compare(att->value()) )
+      {
+        XmlAttr * attr = array_node->first_attribute( tag_attr_type() );
+        found = attr!= CFNULL && std::strcmp(attr->value(), XmlTag<TYPE>::type()) != 0;
+      }
+    }
+
+    return found;
   }
 
   ////////////////////////////////////////////////////////////////////////////////
 
   template < typename TYPE >
-      TYPE XmlParams::get_value_from (const XmlNode & map, const std::string& pname ) const
+      TYPE XmlParams::get_value_from (const XmlNode & map, const std::string& pname )
   {
     XmlNode* found_node = 0;
     const char * nodetype = XmlTag<TYPE>::type();
@@ -372,6 +455,31 @@ namespace Common {
 
     // add "key" attribute
     XmlOps::add_attribute_to(*node, tag_attr_key(), key);
+
+    return node;
+  }
+
+////////////////////////////////////////////////////////////////////////////////
+
+  /// add a key-value node to the options
+  template < typename TYPE >
+      XmlNode * XmlParams::add_array_to (XmlNode & map, const std::string& key, const std::vector<TYPE>& vect)
+  {
+    // create the "array" node and append it to the map
+    XmlNode* node = XmlOps::add_node_to( map, XmlTag<TYPE>::array());
+
+		// add "key", "size" and "type" attributes to "array" node
+	// note : the size of the array has to be explicitly cast to CF::Uint or
+	// MSVC will consider the value to be of type "unsigned __int64"
+	// (defined by Microsoft) and the linking will fail because
+	// String::to_str<unsigned __int64>() is not defined.
+		XmlOps::add_attribute_to(*node, tag_attr_key(), key);
+	XmlOps::add_attribute_to(*node, tag_attr_size(), String::to_str( (CF::Uint) vect.size() ));
+		XmlOps::add_attribute_to(*node, tag_attr_type(), XmlTag<TYPE>::type());
+
+    for(size_t i = 0 ; i < vect.size() ; i++)
+      XmlOps::add_node_to(*node, "e", from_value(vect[i]));
+
 
     return node;
   }

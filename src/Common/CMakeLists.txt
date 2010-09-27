@@ -114,6 +114,8 @@ list( APPEND Common_files
     WorkerStatus.hpp
     XmlHelpers.hpp
     XmlHelpers.cpp
+    XmlSignature.cpp
+    XmlSignature.hpp
     XML.hpp
     XML.cpp
 )
