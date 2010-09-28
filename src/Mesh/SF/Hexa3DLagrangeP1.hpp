@@ -386,6 +386,7 @@ virtual Real computeVolume(const NodesT& coord) const;
 virtual bool is_coord_in_element(const RealVector& coord, const NodesT& nodes) const;
 virtual const FaceConnectivity& face_connectivity() const;
 virtual const ElementType& face_type(const Uint face) const;
+virtual Real jacobian_determinantV ( const CF::RealVector& mapped_coord, const CF::Mesh::ElementType::NodesT& nodes ) const;
 
 private:
 	

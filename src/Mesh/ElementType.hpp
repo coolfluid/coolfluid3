@@ -121,6 +121,9 @@ public: // functions
 	/// @param [in] coord  the coordinates that will be checked
 	/// @param [in] nodes  the nodes of the element
 	virtual bool is_coord_in_element(const RealVector& coord, const NodesT& nodes) const = 0;
+  
+  /// Virtual version of jacobian_determinant. Default implementation throws NotImplemented
+  virtual Real jacobian_determinantV(const RealVector& mapped_coord, const NodesT& nodes) const;
 
 protected: // data
 

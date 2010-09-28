@@ -111,7 +111,12 @@ struct MeshGrammar : proto::_ {};
 // Proto domain for mesh operations
 
 /// Wrapper for expressions in the MeshDomain
-struct MeshDomain;
+template<class Expr, class Dummy>
+struct MeshExpr;
+
+struct MeshDomain
+  : proto::domain<proto::pod_dummy_generator<MeshExpr>, MeshGrammar>
+{};
 
 template<class Expr, class Dummy = proto::is_proto_expr>
 struct MeshExpr
@@ -119,15 +124,12 @@ struct MeshExpr
   BOOST_PROTO_EXTENDS(Expr, MeshExpr<Expr>, MeshDomain)
 };
 
-struct MeshDomain
-  : proto::domain<proto::pod_dummy_generator<MeshExpr>, MeshGrammar>
-{};
-  
 //////////////////////////////////////////////////////////
 // custom functions
 
 // Wrap the volume function
-struct jacobian_determinant_tag;
+struct jacobian_determinant_tag
+{};
 
 template<typename Arg>
 typename proto::result_of::make_expr<
@@ -140,7 +142,23 @@ jacobian_determinant(Arg const &arg)
   return proto::make_expr<jacobian_determinant_tag, MeshDomain>(boost::ref(arg));
 }
 
-struct volume_tag;
+// Wrap the volume function
+struct jacobian_determinantV_tag
+{};
+
+template<typename Arg>
+typename proto::result_of::make_expr<
+    jacobian_determinantV_tag
+  , MeshDomain
+  , Arg const &
+>::type const
+jacobian_determinantV(Arg const &arg)
+{
+  return proto::make_expr<jacobian_determinantV_tag, MeshDomain>(boost::ref(arg));
+}
+
+struct volume_tag
+{};
 
 template<typename Arg>
 typename proto::result_of::make_expr<
@@ -153,17 +171,20 @@ volume(Arg const &arg)
   return proto::make_expr<volume_tag, MeshDomain>(boost::ref(arg));
 }
 
-struct integral_tag;
 
-template<typename Arg>
+template<Uint Order>
+struct integral_tag
+{};
+
+template<Uint Order, typename Arg>
 typename proto::result_of::make_expr<
-    integral_tag
+    integral_tag<Order>
   , MeshDomain
   , Arg const &
 >::type const
 integral(Arg const &arg)
 {
-  return proto::make_expr<integral_tag, MeshDomain>(boost::ref(arg));
+  return proto::make_expr<integral_tag<Order>, MeshDomain>(boost::ref(arg));
 }
 
 ///////////////////////////////////////////////////////////
@@ -193,9 +214,10 @@ MeshExpr<proto::terminal<MappedCoordHolder>::type> const mapped_c = {{{}}};
 template<typename ShapeFunctionT>
 struct MeshContext
 {
-  MeshContext(const CArray& coords, const CTable::ArrayT& conn_table, const ElementNodeVector& nodes) :
+  MeshContext(const CArray& coords, const CTable::ArrayT& conn_table, const ElementType& etype, const ElementNodeVector& nodes) :
     coordinates(coords),
     connectivity(conn_table),
+    element_type(etype),
     element_idx(0),
     element_node_vector(nodes)
   {
@@ -207,6 +229,7 @@ struct MeshContext
   /// Reference for the context
   const CArray& coordinates;
   const CTable::ArrayT& connectivity;
+  const ElementType& element_type;
   Uint element_idx;
   RealVector mapped_coords;
   const ElementNodeVector& element_node_vector;
@@ -285,9 +308,20 @@ struct MeshContext
     }
   };
   
+  template<typename Expr, typename MappedCoordsT>
+  struct eval<Expr, jacobian_determinantV_tag, MappedCoordsT >
+  {
+    typedef Real result_type;
+
+    result_type operator()(Expr& expr, const MeshContext<ShapeFunctionT>& context) const
+    {
+      return context.element_type.jacobian_determinantV(context.mapped_coords, context.element_node_vector);
+    }
+  };
+  
   // Handle integration
-  template<typename Expr, typename ChildExpr>
-  struct eval<Expr, integral_tag, ChildExpr >
+  template<typename Expr, Uint I, typename ChildExpr>
+  struct eval<Expr, integral_tag<I>, ChildExpr >
   {
     typedef typename boost::remove_const<typename boost::remove_reference<ChildExpr>::type>::type RealChildT;
     typedef typename proto::result_of::eval<RealChildT, ThisContextT>::type result_type;
@@ -295,7 +329,7 @@ struct MeshContext
     result_type operator()(Expr& expr, MeshContext<ShapeFunctionT>& context) const
     {
       result_type r;
-      Integrators::integrate<1>(proto::child(expr), r, context);
+      Integrators::integrate<I>(proto::child(expr), r, context);
       return r;
     }
   };
@@ -322,7 +356,7 @@ public: // functions
     ElementNodeVector nodes;
     const CArray& coords = m_elements.coordinates();
     const CTable::ArrayT& conn = m_elements.connectivity_table().array();
-    MeshContext<ShapeFunctionT> context(coords, conn, nodes);
+    MeshContext<ShapeFunctionT> context(coords, conn, m_elements.element_type(), nodes);
     
     for(context.element_idx = 0; context.element_idx != context.connectivity.size(); ++context.element_idx)
     {
@@ -362,13 +396,19 @@ struct AccumulatingEvaluator
   ResultT& result;
 };
 
+/// List of all supported shapefunctions that allow high order integration
+typedef boost::mpl::vector< SF::Line1DLagrangeP1,
+                            SF::Quad2DLagrangeP1,
+                            SF::Hexa3DLagrangeP1
+> HigherIntegrationElements;
+
 /// Applies the given expression to all elements using the supplied evaluator
 template<typename ExpressionT, typename ExpressionEvaluatorT>
 void for_all_elements(CMesh& mesh, ExpressionT& expr, ExpressionEvaluatorT& evaluator)
 {
   BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(mesh))
   {
-    boost::mpl::for_each<SF::VolumeTypes>(ElementLooper<ExpressionT, ExpressionEvaluatorT>(expr, evaluator, elements));
+    boost::mpl::for_each<HigherIntegrationElements>(ElementLooper<ExpressionT, ExpressionEvaluatorT>(expr, evaluator, elements));
   }
 }
 
@@ -427,7 +467,7 @@ BOOST_AUTO_TEST_CASE( ProtoBasics )
                              vol2);
   BOOST_CHECK_EQUAL(vol1, vol2);
   
-  for_all_elements_execute(*mesh, cout_ << "test integral for element " << elem_i << ": " << integral(jacobian_determinant(mapped_c)) <<  "\n");
+  for_all_elements_execute(*mesh, cout_ << "test integral for element " << elem_i << ": " << integral<1>(jacobian_determinant(mapped_c)) <<  "\n");
   std::cout << std::endl;
 }
 
@@ -456,7 +496,21 @@ BOOST_FIXTURE_TEST_CASE( VolumePlusAssign, ProtoOperatorsFixture )
 BOOST_FIXTURE_TEST_CASE( Integral, ProtoOperatorsFixture )
 {
   Real vol = 0.;
-  for_all_elements_accumulate(*big_grid, integral(jacobian_determinant(mapped_c)), vol);
+  for_all_elements_accumulate(*big_grid, integral<1>(jacobian_determinant(mapped_c)), vol);
+  BOOST_CHECK_CLOSE(vol, 1., 0.0001);
+}
+
+BOOST_FIXTURE_TEST_CASE( IntegralOrder4, ProtoOperatorsFixture )
+{
+  Real vol = 0.;
+  for_all_elements_accumulate(*big_grid, integral<4>(jacobian_determinant(mapped_c)), vol);
+  BOOST_CHECK_CLOSE(vol, 1., 0.0001);
+}
+
+BOOST_FIXTURE_TEST_CASE( IntegralOrder4Virtual, ProtoOperatorsFixture )
+{
+  Real vol = 0.;
+  for_all_elements_accumulate(*big_grid, integral<4>(jacobian_determinantV(mapped_c)), vol);
   BOOST_CHECK_CLOSE(vol, 1., 0.0001);
 }
 

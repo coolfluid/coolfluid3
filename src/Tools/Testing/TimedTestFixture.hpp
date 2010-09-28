@@ -17,6 +17,8 @@
 #include "Common/Log.hpp"
 #include "Common/MPI/PEInterface.hpp"
 
+#include <coolfluid_config.h>
+
 ////////////////////////////////////////////////////////////////////////////////
 
 using namespace CF;
@@ -27,6 +29,50 @@ using namespace CF::Common;
 namespace CF {
 namespace Tools {
 namespace Testing {
+
+////////////////////////////////////////////////////////////////////////////////
+#ifdef CF_OS_LINUX
+extern "C"
+{
+  #include <time.h>
+}
+/// Based on boost::timer and spirit/optimization/high_res_timer. Uses high resolution
+class Timer
+{
+public:
+  Timer()
+  { 
+    restart();
+  }
+  
+  void restart()
+  {
+    if (-1 == clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &m_start_time))
+      throw NotSupported(FromHere(), "Couldn't initialize high resolution timer");
+  }
+  
+  double elapsed() const
+  {
+    timespec now;
+    if (-1 == clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now))
+      throw NotSupported(FromHere(), "Couldn't get current time from high resolution timer");
+
+    if (now.tv_sec == m_start_time.tv_sec)
+      return double(now.tv_nsec - m_start_time.tv_nsec) * 1e-9;
+
+    return double(now.tv_sec - m_start_time.tv_sec) + 
+      (double(now.tv_nsec - m_start_time.tv_nsec) * 1e-9);
+  }
+
+private:
+  timespec m_start_time;
+}; // timer
+
+#else
+
+typedef boost::timer Timer;
+
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -57,7 +103,7 @@ public:
     std::cout << "<DartMeasurement name=\"" << unit.p_name.get() << " time\" type=\"numeric/double\">" << (PEInterface::instance().is_init() ? m_mpi_timer.elapsed() : m_timer.elapsed()) << "</DartMeasurement>" << std::endl;
   }
 private:
-  boost::timer m_timer;
+  Timer m_timer;
   boost::mpi::timer m_mpi_timer;
 };
 

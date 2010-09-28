@@ -82,6 +82,12 @@ const CF::Mesh::ElementType& Quad2DLagrangeP1::face_type(const CF::Uint face) co
   return facetype;
 }
 
+Real Quad2DLagrangeP1::jacobian_determinantV ( const CF::RealVector& mapped_coord, const CF::Mesh::ElementType::NodesT& nodes ) const
+{
+  return jacobian_determinant(mapped_coord, nodes);
+}
+
+
 
 } // namespace SF
 } // namespace Mesh

@@ -153,6 +153,11 @@ bool Hexa3DLagrangeP1::is_orientation_inside(const RealVector& coord, const Node
 	return true;
 }
 
+Real Hexa3DLagrangeP1::jacobian_determinantV ( const CF::RealVector& mapped_coord, const CF::Mesh::ElementType::NodesT& nodes ) const
+{
+  return jacobian_determinant(mapped_coord, nodes);
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

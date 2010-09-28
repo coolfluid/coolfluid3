@@ -133,7 +133,8 @@ void gaussIntegrate(const CMesh& mesh, FunctorT& functor, ResultT& result)
 ////////////////////
 
 template<Uint Order, GeoShape::Type Shape>
-struct GaussProto;
+struct GaussProto
+{};
 
 template<>
 struct GaussProto<1, GeoShape::TRIAG>
