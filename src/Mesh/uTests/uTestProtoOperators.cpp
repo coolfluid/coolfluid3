@@ -180,7 +180,7 @@ struct ConstNodeViewHolder {};
 MeshExpr<proto::terminal<ConstNodeViewHolder>::type> const const_node_v = {{{}}}; // Represents a const view of the element nodes
 
 struct NodeVectorHolder {};
-MeshExpr<proto::terminal<NodeVectorHolder>::type> const node_vec = {{{}}}; // Represents a copy of element nodes
+// unused // MeshExpr<proto::terminal<NodeVectorHolder>::type> const node_vec = {{{}}}; // Represents a copy of element nodes
 
 struct MappedCoordHolder {};
 MeshExpr<proto::terminal<MappedCoordHolder>::type> const mapped_c = {{{}}};
