@@ -21,8 +21,8 @@ XmlSignature XmlSignature::make_signature(const XmlNode & node)
 XmlSignature::XmlSignature() :
     m_parent(CFNULL)
 {
-  boost::shared_ptr<XmlDoc> xmldoc = XmlOps::create_doc();
-  m_data = XmlOps::add_node_to(*xmldoc.get(), XmlParams::tag_node_valuemap());
+  m_xmldoc = XmlOps::create_doc();
+  m_data = XmlOps::add_node_to(*m_xmldoc.get(), XmlParams::tag_node_valuemap());
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -31,10 +31,10 @@ XmlSignature::XmlSignature() :
 XmlSignature::XmlSignature(const XmlNode & node) :
     m_parent(CFNULL)
 {
-  boost::shared_ptr<XmlDoc> xmldoc = XmlOps::create_doc();
-  m_data = XmlOps::add_node_to(*xmldoc.get(), XmlParams::tag_node_valuemap());
+  m_xmldoc = XmlOps::create_doc();
+  m_data = XmlOps::add_node_to(*m_xmldoc.get(), XmlParams::tag_node_valuemap());
 
-  XmlOps::deep_copy(node, *m_data);
+  copy_node(node, *m_data);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -54,13 +54,6 @@ XmlSignature::~XmlSignature()
 {
   std::map<std::string, XmlSignature *>::iterator it = m_valuemaps.begin();
 
-  if(m_parent == CFNULL)
-  {
-    // the following instruction makes the code crashing
-//    m_data->document()->clear();
-//    delete m_data->document();
-  }
-
   for( ; it != m_valuemaps.end() ; it++)
     delete it->second;
 }
@@ -70,7 +63,7 @@ XmlSignature::~XmlSignature()
 
 void XmlSignature::put_signature(XmlNode & node) const
 {
-  XmlOps::deep_copy(*m_data, node);
+  copy_node(*m_data, node);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -170,3 +163,26 @@ XmlSignature & XmlSignature::insert_valuemap(const std::string & name, const std
   return *sig;
 }
 
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void XmlSignature::copy_node(const XmlNode & in, XmlNode & out) const
+{
+  XmlNode * node = in.first_node();
+
+  while( node != CFNULL )
+  {
+    XmlNode * copy = XmlOps::add_node_to(out, node->name());
+    XmlAttr * attr = node->first_attribute();
+
+    while( attr != CFNULL )
+    {
+      XmlOps::add_attribute_to(*copy, attr->name(), attr->value());
+      attr = attr->next_attribute();
+    }
+
+    copy_node(*node, *copy);
+
+    node = node->next_sibling();
+  }
+}

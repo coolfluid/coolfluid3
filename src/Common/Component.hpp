@@ -282,6 +282,12 @@ public: // functions
   /// lists the properties of this component
   void list_properties ( XmlNode& xml );
 
+  /// lists the signals of this component
+  void list_signals ( XmlNode& xml );
+
+  /// renames this component
+  void rename_component ( XmlNode& xml) ;
+
   //@} END SIGNALS
 
 protected: // functions

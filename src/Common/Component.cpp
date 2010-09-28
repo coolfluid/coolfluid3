@@ -411,8 +411,14 @@ void Component::regist_signals ( Component* self  )
 
   self->regist_signal ( "list_properties" , "lists the options of this component" )->connect ( boost::bind ( &Component::list_properties, self, _1 ) );
 
+  self->regist_signal ( "list_signals" , "lists the options of this component" )->connect ( boost::bind ( &Component::list_signals, self, _1 ) );
+
   self->regist_signal ( "configure" , "configures this component" )->connect ( boost::bind ( &Component::configure, self, _1 ) );
 
+  self->regist_signal ( "rename_component" , "Renames this component" )->connect ( boost::bind ( &Component::rename_component, self, _1 ) );
+
+
+  self->signal("rename_component").m_signature.insert<std::string>("new_name", "Component new name");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -561,6 +567,34 @@ void Component::list_properties( XmlNode& node )
                   elem_type + ">.");
     }
   }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+void Component::list_signals( XmlNode& node )
+{
+  XmlNode& reply = *XmlOps::add_reply_frame( node );
+
+  XmlOps::add_attribute_to( reply, "sender", full_path().string() );
+
+  sigmap_t::iterator it = m_signals.begin();
+
+  for( ; it != m_signals.end() ; it++)
+  {
+    XmlNode & map = *XmlParams::add_valuemap_to(reply, it->first, it->second.m_description);
+    it->second.m_signature.put_signature(map);
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+void Component::rename_component ( XmlNode& xml )
+{
+  XmlParams p(xml);
+
+  std::string new_name = p.get_option<std::string>("new_name");
+
+  rename(new_name);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

@@ -494,6 +494,9 @@ void NTree::list_tree(XmlNode & node)
   emit currentIndexChanged(m_currentIndex, QModelIndex());
 
   ClientRoot::log()->addMessage("Tree updated.");
+
+  treeRoot->fetchSignals();
+
 } catch(XmlError & xe)
   {
   ClientRoot::log()->addException(xe.what());

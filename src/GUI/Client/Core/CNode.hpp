@@ -10,12 +10,13 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include <QMap>
-#include <QList>
 #include <QObject>
+#include <QStringList>
 
 #include "Common/Component.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/XML.hpp"
+#include "Common/XmlHelpers.hpp"
 
 #include "GUI/Client/Core/OptionType.hpp"
 
@@ -26,7 +27,8 @@ class QString;
 class QAction;
 class QMenu;
 class QPoint;
-class QStringList;
+
+template<typename T> class QList;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -53,6 +55,17 @@ namespace ClientCore {
 
     void childCountChanged();
   }; // class CNodeNotifier
+
+  ////////////////////////////////////////////////////////////////////////////
+
+  struct ClientCore_API SignalInfo
+  {
+    QString m_name;
+
+    QString m_description;
+
+    CF::Common::XmlSignature m_signature;
+  };
 
   ////////////////////////////////////////////////////////////////////////////
 
@@ -258,6 +271,10 @@ namespace ClientCore {
     /// Configuration properties
     static void defineConfigProperties ( CF::Common::PropertyList& props );
 
+    void fetchSignals();
+
+    void list_signals_reply(CF::Common::XmlNode & node);
+
   protected:
 
     QMenu * m_contextMenu;
@@ -266,15 +283,23 @@ namespace ClientCore {
 
     CNodeNotifier * m_notifier;
 
-    void configure(CF::Common::XmlNode & node);
+    void configure_reply(CF::Common::XmlNode & node);
 
   private:
 
     /// @brief Component type name.
     QString m_componentType;
 
+    CNode::Ptr m_fetchingManager;
+
+    QStringList m_fetchingChildren;
+
+    QList<SignalInfo> m_signalSigs;
+
     /// regists all the signals declared in this class
-    static void regist_signals ( Component* self ) {}
+    static void regist_signals ( CNode* self )
+    {
+    }
 
     template < typename TYPE >
     void addOption ( const std::string & name, const std::string & descr,
@@ -287,6 +312,8 @@ namespace ClientCore {
 
     static CNode::Ptr createFromXmlRec(CF::Common::XmlNode & node,
                QMap<boost::shared_ptr<NLink>, CF::Common::CPath> & linkTargets);
+
+    void signalsFetched(CNode::Ptr notifier);
 
   }; // class CNode
 

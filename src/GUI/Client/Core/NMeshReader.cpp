@@ -22,13 +22,13 @@ NMeshReader::NMeshReader(const QString & name)
 {
   BUILD_COMPONENT;
 
-  CFinfo << ClientRoot::browser()->get_child_count();
+//  CFinfo << ClientRoot::browser()->get_child_count();
 
-  QAction * action;
+//  QAction * action;
 
-  action = new QAction("Read", m_contextMenu);
-  connect(action, SIGNAL(triggered()), this, SLOT(readMesh()));
-  m_contextMenu->addAction(action);
+//  action = new QAction("Read", m_contextMenu);
+//  connect(action, SIGNAL(triggered()), this, SLOT(readMesh()));
+//  m_contextMenu->addAction(action);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

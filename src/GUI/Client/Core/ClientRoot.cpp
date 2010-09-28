@@ -68,7 +68,10 @@ void ClientRoot::processSignal(const QDomDocument & signal)
 
     try
     {
-      root()->root()->access_component(receiver)->call_signal(type, *nodeToProcess);
+      if(root()->root()->full_path().string() == receiver)
+        root()->call_signal(type, *nodeToProcess);
+      else
+        root()->root()->access_component(receiver)->call_signal(type, *nodeToProcess);
     }
     catch(InvalidPath ip)
     {

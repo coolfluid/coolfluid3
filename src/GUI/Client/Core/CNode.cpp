@@ -85,12 +85,13 @@ CNode::CNode(const QString & name, const QString & componentType, CNode::Type ty
     m_notifier(new CNodeNotifier()),
     m_componentType(componentType)
 {
+
   BUILD_COMPONENT;
 
-  regist_signal("configure", "Update component options")->connect(boost::bind(&CNode::configure, this, _1));
+  regist_signal("configure", "Update component options")->connect(boost::bind(&CNode::configure_reply, this, _1));
+  regist_signal("list_signals", "Update component signals")->connect(boost::bind(&CNode::list_signals_reply, this, _1));
 
   m_property_list.add_property("originalComponentType", m_componentType.toStdString());
-
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -412,6 +413,15 @@ QMenu * CNode::getContextMenu() const
 
 void CNode::showContextMenu(const QPoint & pos) const
 {
+  QList<SignalInfo>::const_iterator it = m_signalSigs.begin();
+
+  m_contextMenu->clear();
+
+  for( ; it != m_signalSigs.end() ; it++)
+  {
+    m_contextMenu->addAction(it->m_name);
+  }
+
   m_contextMenu->exec(pos);
 }
 
@@ -446,7 +456,7 @@ void CNode::listChildPaths(QStringList & list, bool recursive, bool clientNodes)
     itEnd = root->end<const CNode>();
 
     if(it->get_child_count() > 0)
-      list << QString(root->full_path().string().c_str()) + '/';
+      list << QString(root->full_path().string().c_str()) /*+ '/'*/;
     else
       list << root->full_path().string().c_str();
   }
@@ -456,13 +466,13 @@ void CNode::listChildPaths(QStringList & list, bool recursive, bool clientNodes)
     if(!it->isClientComponent() || clientNodes)
     {
       if(it->get_child_count() > 0)
-        list << QString(it->full_path().string().c_str()) + '/';
+        list << QString(it->full_path().string().c_str()) /*+ '/'*/;
       else
         list << it->full_path().string().c_str();
     }
 
     if(recursive)
-      it->listChildPaths(list, recursive);
+      it->listChildPaths(list, recursive, clientNodes);
   }
 }
 
@@ -509,7 +519,7 @@ void CNode::removeNode(const QString & nodeName)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CNode::configure(CF::Common::XmlNode & node)
+void CNode::configure_reply(CF::Common::XmlNode & node)
 {
   ClientRoot::tree()->optionsChanged(this->full_path());
   ClientRoot::log()->addMessage(QString("Node \"%1\" options updated.").arg(full_path().string().c_str()));
@@ -575,6 +585,119 @@ void CNode::getProperties(QMap<QString, QString> & props) const
     if(!it->second->is_option())
       props[ it->first.c_str() ] = it->second->value<std::string>().c_str();
   }
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void CNode::fetchSignals()
+{
+  if(m_fetchingManager.get() == CFNULL)
+  {
+    ClientRoot::log()->addMessage("Fetching actions...");
+    listChildPaths(m_fetchingChildren, true, false);
+
+    m_fetchingManager = boost::dynamic_pointer_cast<CNode>(shared_from_this());
+    fetchSignals();
+  }
+  else
+  {
+    CPath path;
+
+    if(m_type == ROOT_NODE)
+      path = convertTo<NRoot>()->root()->full_path();
+    else
+      path = full_path();
+
+    boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
+    XmlOps::add_signal_frame(*XmlOps::goto_doc_node(*doc.get()),
+                             "list_signals", path,
+                             path, false);
+
+    ClientRoot::core()->sendSignal(*doc);
+  }
+
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void CNode::signalsFetched(CNode::Ptr notifier)
+{
+  int index;
+  QString notifier_path;
+
+  if(notifier->checkType(ROOT_NODE))
+    notifier_path = notifier->convertTo<NRoot>()->root()->full_path().string().c_str();
+  else
+    notifier_path = notifier->full_path().string().c_str();
+
+  index = m_fetchingChildren.indexOf(notifier_path);
+
+  index++;
+
+  notifier->m_fetchingManager = CNode::Ptr();
+
+  if(index == -1)
+    ClientRoot::log()->addError(QString("Received unexpected actions fetched notification from %1").arg(notifier_path));
+  else
+  {
+    if(index == m_fetchingChildren.size())
+    {
+      m_fetchingChildren.clear();
+      ClientRoot::log()->addMessage("Actions successfully fetched.");
+    }
+    else
+    {
+      QString path = m_fetchingChildren.at(index);
+
+      CRoot::Ptr root = m_type == ROOT_NODE ? convertTo<NRoot>()->root() : boost::dynamic_pointer_cast<CRoot>(m_root.lock());
+
+      CNode::Ptr node;
+
+      if(m_type == ROOT_NODE && root->full_path().string() == path.toStdString())
+        node = boost::dynamic_pointer_cast<CNode>(shared_from_this());
+      else
+        node = root->access_component<CNode>(path.toStdString());
+
+      node->m_fetchingManager = boost::dynamic_pointer_cast<CNode>(shared_from_this());
+      node->fetchSignals();
+    }
+
+  }
+
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void CNode::list_signals_reply( XmlNode & node )
+{
+  XmlNode * map = node.first_node();
+
+  while(map != CFNULL)
+  {
+    SignalInfo si;
+    XmlAttr * key_attr = map->first_attribute( XmlParams::tag_attr_key() );
+    XmlAttr * desc_attr = map->first_attribute( XmlParams::tag_attr_descr() );
+
+    cf_assert( key_attr != CFNULL );
+    cf_assert( key_attr->value_size() > 0 );
+    cf_assert( desc_attr != CFNULL );
+
+    si.m_name = key_attr->value();
+    si.m_description = desc_attr->value();
+    si.m_signature = XmlSignature(*map);
+
+    m_signalSigs.append(si);
+
+    map = map->next_sibling();
+  }
+
+  if(m_fetchingManager.get() != CFNULL)
+    m_fetchingManager->signalsFetched(boost::dynamic_pointer_cast<CNode>(shared_from_this()));
+  else
+    ClientRoot::log()->addMessage("Received actions !");
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

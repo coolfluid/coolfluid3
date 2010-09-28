@@ -86,6 +86,8 @@ namespace Common {
     /// @brief The signature parent. May be null.
     XmlSignature * m_parent;
 
+    boost::shared_ptr<XmlDoc> m_xmldoc;
+
     /// @brief The value storage.
     XmlNode * m_data;
 
@@ -98,6 +100,8 @@ namespace Common {
     /// @param node A pointer to the valuemap the object has to manage
     /// @param parent The parent object.
     XmlSignature(XmlNode * node, XmlSignature * parent);
+
+    void copy_node(const XmlNode & in, XmlNode & out) const;
 
   }; // class XmlSignature
 
@@ -118,9 +122,11 @@ namespace Common {
     }
 
     if( !is_array )
-      node = XmlParams::add_value_to(m_data, name, TYPE());
+      node = XmlParams::add_value_to(*m_data, name, TYPE());
     else
-      node = XmlParams::add_array(name, std::vector<TYPE>(), desc);
+      node = XmlParams::add_array_to(*m_data, name, std::vector<TYPE>());
+
+    XmlOps::add_attribute_to(*node, XmlParams::tag_attr_descr(), desc);
 
     return *this;
   }
