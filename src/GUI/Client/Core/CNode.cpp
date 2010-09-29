@@ -63,8 +63,8 @@ bool NodeOption::operator==(const NodeOption & option)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CNodeNotifier::CNodeNotifier(QObject * parent)
-  : QObject(parent)
+CNodeNotifier::CNodeNotifier(CNode * parent)
+  : m_parent(parent)
 { }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -75,6 +75,15 @@ void CNodeNotifier::notifyChildCountChanged()
   emit childCountChanged();
 }
 
+void CNodeNotifier::actionTriggered()
+{
+  QAction * action = static_cast<QAction *>(sender());
+
+  if(m_parent != CFNULL && action != CFNULL)
+    m_parent->sendSignal(action->text());
+}
+
+
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -82,7 +91,7 @@ CNode::CNode(const QString & name, const QString & componentType, CNode::Type ty
   : Component(name.toStdString()),
     m_contextMenu(new QMenu("Node")),
     m_type(type),
-    m_notifier(new CNodeNotifier()),
+    m_notifier(new CNodeNotifier(this)),
     m_componentType(componentType)
 {
 
@@ -419,7 +428,8 @@ void CNode::showContextMenu(const QPoint & pos) const
 
   for( ; it != m_signalSigs.end() ; it++)
   {
-    m_contextMenu->addAction(it->m_name);
+    QAction * action = m_contextMenu->addAction(it->m_name);
+    QObject::connect(action, SIGNAL(triggered()), m_notifier, SLOT(actionTriggered()));
   }
 
   m_contextMenu->exec(pos);
@@ -777,5 +787,23 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, CPath> & lin
 
   return rootNode;
 }
+
+
+
+
+void CNode::sendSignal(const QString & name) const
+{
+  boost::shared_ptr<CF::Common::XmlDoc> doc = CF::Common::XmlOps::create_doc();
+  CF::Common::XmlOps::add_signal_frame(*CF::Common::XmlOps::goto_doc_node(*doc.get()),
+                           name.toStdString(), full_path(),
+                           full_path(), true);
+
+  ClientRoot::core()->sendSignal(*doc);
+}
+
+
+
+
+
 
 #undef ADD_ARRAY_TO_XML

@@ -37,6 +37,7 @@ namespace GUI {
 namespace ClientCore {
 
   class NLink;
+  class CNode;
 
   /////////////////////////////////////////////////////////////////////////
 
@@ -47,13 +48,22 @@ namespace ClientCore {
 
   public:
 
-    CNodeNotifier(QObject * parent = CFNULL);
+    CNodeNotifier(CNode * parent = CFNULL);
 
     void notifyChildCountChanged();
+
+  public slots:
+
+    void actionTriggered();
 
   signals:
 
     void childCountChanged();
+
+  private:
+
+    CNode * m_parent;
+
   }; // class CNodeNotifier
 
   ////////////////////////////////////////////////////////////////////////////
@@ -274,6 +284,8 @@ namespace ClientCore {
     void fetchSignals();
 
     void list_signals_reply(CF::Common::XmlNode & node);
+
+    void sendSignal(const QString & name) const;
 
   protected:
 
