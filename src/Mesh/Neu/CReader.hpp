@@ -48,7 +48,7 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "CReader"; }
 
-  static void defineConfigProperties ( CF::Common::PropertyList& options ) {}
+  static void defineConfigProperties ( CF::Common::PropertyList& options );
 
   virtual std::string get_format() { return "Neu"; }
 
@@ -56,15 +56,22 @@ public: // functions
 
 private: // functions
 
-  void read_headerData(std::fstream& file);
+	void check_Partition_valid();
+	
+	void config_repartition();
 
-  void read_coordinates(std::fstream& file);
+  void read_headerData();
+	
+	void partition_nodes(const std::pair<Uint,Uint>& range);
+	void partition_elements(const std::pair<Uint,Uint>& range);
 
-  void read_connectivity(std::fstream& file);
+  void read_coordinates();
 
-  void read_groups(std::fstream& file);
+  void read_connectivity();
 
-  void read_boundaries(std::fstream& file);
+  void read_groups();
+
+  void read_boundaries();
 
   virtual void read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh);
 
@@ -76,13 +83,27 @@ private: // helper functions
 private: // data
 
   // map< global index , pair< temporary table, index in temporary table > >
-  std::vector<Region_TableIndex_pair> m_global_to_tmp;
+  std::map<Uint,Region_TableIndex_pair> m_global_to_tmp;
 
+	boost::filesystem::fstream m_file;
   CMesh::Ptr m_mesh;
   CRegion::Ptr m_region;
   CArray::Ptr m_coordinates;
   CRegion::Ptr m_tmp;
   std::string m_file_basename;
+	
+	std::set<Uint> m_ghost_nodes;
+	std::set<Uint> m_ghost_elems;
+	std::set<Uint> m_nodes_to_read;
+	std::set<Uint> m_elements_to_read;
+	std::map<Uint,Uint> m_node_to_coord_idx;
+	bool m_repartition;
+	
+	
+	std::vector<Uint> m_nodal_coordinates_positions;
+	std::vector<Uint> m_elements_cells_positions;
+	std::vector<Uint> m_element_group_positions;
+	std::vector<Uint> m_boundary_condition_positions;
 
   struct HeaderData
   {
@@ -130,7 +151,24 @@ private: // data
       CFinfo << NAME << " " << ITYPE << " " << NENTRY << " " << NVALUES << " " << IBCODE1 << CFendl;
     }
   };
+	
+	
+	void set_pt_scotch_data();
+	Uint baseval;								  // first index of an array starts with 0 for c++
+	Uint vertglbnbr;						  // number of vertices in the total mesh
+	Uint edgeglbnbr;						  // number of connections in the total mesh
+	Uint procglbnbr;						  // number of processors
+	std::vector<Uint> proccnttab; // number of vertices per processor
+	std::vector<Uint> procvrttab; // start_idx of the vertex for each processor + one extra index greater than vertglbnbr
 
+	Uint vertlocnbr;							// number of vertices on this processor
+	Uint vertgstnbr;							// number of vertices on this processor, including ghost vertices
+	Uint edgelocnbr;							// number of connections to other vertices starting from each local vertex
+	std::vector<Uint> vertloctab; // start_idx in edgeloctab and edgegsttab of array of connected vertices
+	std::vector<Uint> vendloctab; // end_idx in edgeloctab and edgegsttab of array of connected vertices
+	std::vector<Uint> edgeloctab; // array of all connections between vertices in global indices
+	std::vector<Uint> edgegsttab; // array of all connections between vertices in local indices
+	
 }; // end CReader
 
 

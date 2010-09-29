@@ -84,6 +84,10 @@ BOOST_AUTO_TEST_CASE( quadtriag_readNeu_writeGmsh_writeNeu )
 {
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
   
+	meshreader->configure_property("Repartition",true);
+	meshreader->configure_property("number_of_processors",(Uint) 1);
+	meshreader->configure_property("rank",(Uint) 0);
+	
   // the file to read from
   boost::filesystem::path fp_in ("quadtriag.neu");
 
