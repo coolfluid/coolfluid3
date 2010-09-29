@@ -62,7 +62,7 @@ const CF::Mesh::ElementType::FaceConnectivity& Line1DLagrangeP1::face_connectivi
 const CF::Mesh::ElementType& Line1DLagrangeP1::face_type(const CF::Uint face) const
 {
   // TODO: Add a Point1DLagrangeP1 type to complete this
-  throw NotImplemented(FromHere(), "Line1DLagrangeP1::face_type requires a point type");
+  throw Common::NotImplemented(FromHere(), "Line1DLagrangeP1::face_type requires a point type");
 }
 
 

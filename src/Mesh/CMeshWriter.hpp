@@ -81,7 +81,7 @@ protected: // classes
 
      bool operator()(const Component& component)
      {
-       return count(range_typed<CElements>(component));
+       return count(Common::range_typed<CElements>(component));
      }
      
   }; // IsGroup

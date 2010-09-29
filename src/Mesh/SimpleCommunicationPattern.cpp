@@ -13,6 +13,8 @@
 namespace CF {
 namespace Mesh {
 
+using namespace Common;
+  
 SimpleCommunicationPattern::SimpleCommunicationPattern()  : 
     receive_dist(PEInterface::instance().size()+1, 0),
     send_dist(PEInterface::instance().size()+1, 0)

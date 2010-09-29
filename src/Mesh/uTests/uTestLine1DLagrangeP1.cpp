@@ -81,7 +81,7 @@ BOOST_FIXTURE_TEST_SUITE( Line1DLagrangeP1Suite, LagrangeSFLine1DLagrangeP1Fixtu
 
 BOOST_AUTO_TEST_CASE( Volume )
 {
-  ElementType::NodesT nodes_line1D(2, RealVector(1));
+  ElementType::NodesT nodes_line1D(2, 1);
   nodes_line1D[0][XX] = 2.0;
   nodes_line1D[1][XX] = 1.0;
   Line1DLagrangeP1 line;

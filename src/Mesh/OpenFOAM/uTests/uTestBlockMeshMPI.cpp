@@ -24,7 +24,7 @@
 
 #include "Mesh/OpenFOAM/BlockData.hpp"
 #include "Mesh/OpenFOAM/Parser.hpp"
-#include "Mesh/OpenFOAM/SimpleCommunicationPattern.hpp"
+#include "Mesh/SimpleCommunicationPattern.hpp"
 #include "Mesh/OpenFOAM/WriteDict.hpp"
 
 #include "Mesh/SF/Hexa3DLagrangeP1.hpp"

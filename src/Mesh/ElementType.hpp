@@ -19,14 +19,13 @@
 
 #include "Math/RealVector.hpp"
 
+#include "Mesh/ElementNodes.hpp"
 #include "Mesh/GeoShape.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace Mesh {
-
-  using namespace Common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -43,7 +42,7 @@ public: // functions
   typedef Common::ConcreteProvider < ElementType > PROVIDER;
   
   /// Type used to pass node coordinates of an element
-  typedef std::vector<RealVector> NodesT;
+  typedef ElementNodes NodesT;
 
   /// Stores connectivity information about the faces that form the cell boundary
   struct FaceConnectivity
@@ -82,7 +81,7 @@ public: // functions
   static std::string type_name() { return "ElementType"; }
   
   /// @return m_nameShape
-  std::string shape_name() const { return EnumT<GeoShape>::to_str( m_shape ); }
+  std::string shape_name() const { return Common::EnumT<GeoShape>::to_str( m_shape ); }
 
   /// @return m_geoShape
   GeoShape::Type shape() const  {  return m_shape; }

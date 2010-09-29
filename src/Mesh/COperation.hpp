@@ -312,8 +312,8 @@ public: // functions
 
   void execute ( Uint elem )
   {
-    std::vector<RealVector> nodes;
-    fill_node_list( nodes, data->coordinates, data->connectivity_table[elem] );
+    ElementType::NodesT nodes;
+    nodes.resize_and_fill(data->coordinates, data->connectivity_table[elem]);
     data->volumes[elem][0] = data->field_elements.element_type().computeVolume( nodes );
   }
 

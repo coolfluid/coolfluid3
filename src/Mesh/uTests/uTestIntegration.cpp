@@ -185,10 +185,10 @@ BOOST_FIXTURE_TEST_CASE( ComputeVolume2DUnitSquare, IntegrationFixture ) // time
     const CTable::ArrayT& ctbl = region.connectivity_table().array();
     const Uint element_count = ctbl.size();
     const ElementType& element_type = region.element_type();
-    ElementType::NodesT nodes;
+    ElementType::NodesT nodes(element_type.nb_nodes(), element_type.dimension());
     for(Uint element = 0; element != element_count; ++element)
     {
-      fill_node_list(nodes, coords, ctbl[element]);
+      nodes.fill(coords, ctbl[element]);
       volume += element_type.computeVolume(nodes);
     }
   }
@@ -196,7 +196,7 @@ BOOST_FIXTURE_TEST_CASE( ComputeVolume2DUnitSquare, IntegrationFixture ) // time
 }
 
 /// Directly compute the volume using the node coordinates
-BOOST_FIXTURE_TEST_CASE( ComputeVolume2DUnitSquareDirect, IntegrationFixture ) // timed and profiled
+BOOST_FIXTURE_TEST_CASE( ComputeVolume2DUnitSquareDirectVector, IntegrationFixture ) // timed and profiled
 {
   const CArray& coords = get_named_component_typed<CArray>(grid2D, "coordinates");
   Real volume = 0.0;
@@ -208,6 +208,27 @@ BOOST_FIXTURE_TEST_CASE( ComputeVolume2DUnitSquareDirect, IntegrationFixture ) /
     for(Uint element = 0; element != element_count; ++element)
     {
       fill_node_list(nodes, coords, ctbl[element]);
+      volume += (nodes[2][XX] - nodes[0][XX]) * (nodes[3][YY] - nodes[1][YY]) -
+          (nodes[2][YY] - nodes[0][YY]) * (nodes[3][XX] - nodes[1][XX]);
+    }
+  }
+  volume *= 0.5;
+  BOOST_CHECK_CLOSE(volume, 1., 1e-8);
+}
+
+/// Directly compute the volume using the node coordinates. ElementNodes version
+BOOST_FIXTURE_TEST_CASE( ComputeVolume2DUnitSquareDirectMemCopy, IntegrationFixture ) // timed and profiled
+{
+  const CArray& coords = get_named_component_typed<CArray>(grid2D, "coordinates");
+  Real volume = 0.0;
+  BOOST_FOREACH(const CElements& region, recursive_range_typed<CElements>(grid2D))
+  {
+    const CTable::ArrayT& ctbl = region.connectivity_table().array();
+    const Uint element_count = ctbl.size();
+    ElementNodes nodes(4,2);
+    for(Uint element = 0; element != element_count; ++element)
+    {
+      nodes.fill(coords, ctbl[element]);
       volume += (nodes[2][XX] - nodes[0][XX]) * (nodes[3][YY] - nodes[1][YY]) -
           (nodes[2][YY] - nodes[0][YY]) * (nodes[3][XX] - nodes[1][XX]);
     }

@@ -13,9 +13,7 @@
 
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CTable.hpp"
-#include "Mesh/CElements.hpp"
 #include "Mesh/CArray.hpp"
-#include "Mesh/CRegion.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -58,8 +56,53 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Copy of the node coordinates
 typedef std::vector<RealVector> ElementNodeVector;
+
+/// Copy of the node coordinates
+class ElementNodes
+{
+public:
+  ElementNodes();
+  ElementNodes(const Uint nb_nodes, const Uint dim);
+  
+  /// For easy construction with boost::assign::list_of
+  ElementNodes(const std::vector< std::vector<Real> > v);
+  
+  const RealVector& operator[](const Uint i) const;
+  RealVector& operator[](const Uint i);
+  
+  const Uint size() const { return m_nb_nodes; }
+  
+  void resize(const Uint nb_nodes, const Uint dim);
+  
+  /// Fill the node lists, always making sure the data storage is resized appropriatly
+  template<typename RowT>
+  void resize_and_fill(const CArray& coordinates, const RowT& element_row)
+  {
+    const Uint nb_nodes = element_row.size();
+    const Uint dim = coordinates.row_size();
+    resize(nb_nodes, dim);
+    
+    fill(coordinates, element_row);
+  }
+  
+  /// Fill the node list, without checking if the data size is correct
+  template<typename RowT>
+  void fill(const CArray& coordinates, const RowT& element_row)
+  {
+    for(Uint i = 0; i != m_nb_nodes; ++i)
+    {
+      memcpy(&m_data[i*m_dim], &coordinates[element_row[i]][0], m_dim*sizeof(Real));
+    }
+  }
+  
+  friend Common::LogStream& operator<<(Common::LogStream& output, const ElementNodes& nodes);
+  
+private:
+  std::vector<Real> m_data;
+  std::vector<RealVector> m_data_views;
+  Uint m_nb_nodes, m_dim;
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -80,6 +123,7 @@ inline void fill_node_list(ListT& result, const CArray& coordinates, const RowT&
       to_coords[j] = from_coords[j];
   }
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -114,6 +158,7 @@ inline RealVector point3(const Real x, const Real y, const Real z)
 
 std::ostream& operator<<(std::ostream& output, const ElementNodeView& nodeVector);
 std::ostream& operator<<(std::ostream& output, const ConstElementNodeView& nodeVector);
+Common::LogStream& operator<<(Common::LogStream& output, const ElementNodes& nodes);
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -165,10 +165,10 @@ BOOST_AUTO_TEST_CASE( MeshConstruction )
     const CArray& region_coordinates = region.coordinates();
     const CTable& region_connTable = region.connectivity_table();
     // the loop
+    ElementType::NodesT elementCoordinates(elementType.nb_nodes(), elementType.dimension());
     for (Uint iElem=0; iElem<nbRows; ++iElem)
     {
-      std::vector<RealVector> elementCoordinates;
-      fill_node_list(elementCoordinates, region_coordinates, region_connTable[iElem]);
+      elementCoordinates.fill(region_coordinates, region_connTable[iElem]);
 
       volumes[iElem]=elementType.computeVolume(elementCoordinates);
 

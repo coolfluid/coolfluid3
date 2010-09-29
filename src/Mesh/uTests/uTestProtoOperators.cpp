@@ -214,7 +214,7 @@ MeshExpr<proto::terminal<MappedCoordHolder>::type> const mapped_c = {{{}}};
 template<typename ShapeFunctionT>
 struct MeshContext
 {
-  MeshContext(const CArray& coords, const CTable::ArrayT& conn_table, const ElementType& etype, const ElementNodeVector& nodes) :
+  MeshContext(const CArray& coords, const CTable::ArrayT& conn_table, const ElementType& etype, const ElementNodes& nodes) :
     coordinates(coords),
     connectivity(conn_table),
     element_type(etype),
@@ -232,7 +232,7 @@ struct MeshContext
   const ElementType& element_type;
   Uint element_idx;
   RealVector mapped_coords;
-  const ElementNodeVector& element_node_vector;
+  const ElementNodes& element_node_vector;
   
   template<typename Expr,
            typename Tag = typename Expr::proto_tag,
@@ -255,7 +255,7 @@ struct MeshContext
   template<typename Expr>
   struct eval<Expr, proto::tag::terminal, NodeVectorHolder>
   {
-    typedef const ElementNodeVector& result_type;
+    typedef const ElementNodes& result_type;
 
     result_type operator()(Expr &, const MeshContext<ShapeFunctionT>& ctx) const
     {
@@ -353,14 +353,14 @@ public: // functions
     if(!IsElementType<ShapeFunctionT>()(m_elements.element_type()))
       return;
     
-    ElementNodeVector nodes;
     const CArray& coords = m_elements.coordinates();
     const CTable::ArrayT& conn = m_elements.connectivity_table().array();
+    ElementNodes nodes(m_elements.element_type().nb_nodes(), m_elements.element_type().dimension());
     MeshContext<ShapeFunctionT> context(coords, conn, m_elements.element_type(), nodes);
     
     for(context.element_idx = 0; context.element_idx != context.connectivity.size(); ++context.element_idx)
     {
-      fill_node_list(nodes, coords, conn[context.element_idx]);
+      nodes.fill(coords, conn[context.element_idx]);
       m_evaluator.eval(m_expr, context);
     }
     
@@ -507,12 +507,12 @@ BOOST_FIXTURE_TEST_CASE( IntegralOrder4, ProtoOperatorsFixture )
   BOOST_CHECK_CLOSE(vol, 1., 0.0001);
 }
 
-BOOST_FIXTURE_TEST_CASE( IntegralOrder4Virtual, ProtoOperatorsFixture )
-{
-  Real vol = 0.;
-  for_all_elements_accumulate(*big_grid, integral<4>(jacobian_determinantV(mapped_c)), vol);
-  BOOST_CHECK_CLOSE(vol, 1., 0.0001);
-}
+// BOOST_FIXTURE_TEST_CASE( IntegralOrder4Virtual, ProtoOperatorsFixture )
+// {
+//   Real vol = 0.;
+//   for_all_elements_accumulate(*big_grid, integral<4>(jacobian_determinantV(mapped_c)), vol);
+//   BOOST_CHECK_CLOSE(vol, 1., 0.0001);
+// }
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -141,7 +141,7 @@ static void mapped_coordinates(const RealVector& coord, const NodesT& nodes, Rea
   }
   
   if(nb_iters > 100)
-    throw ConvergenceNotReached(FromHere(), "Failed to find Hexa3DLagrangeP1 mapped coordinates");
+    throw Common::ConvergenceNotReached(FromHere(), "Failed to find Hexa3DLagrangeP1 mapped coordinates");
 }
   
 

@@ -532,14 +532,14 @@ boost::tuple<CElements::ConstPtr,Uint> CHoneycombInterpolator::find_element(cons
 	{
 		find_pointcloud(1);
 		
+    ElementType::NodesT nodes;
 		BOOST_FOREACH(const Point* point, m_pointcloud)
 		{
 			const ElementType& etype = point->first->element_type();
 			const CTable& connectivity_table = point->first->connectivity_table();
 			const CArray& coordinates_table = point->first->coordinates();
 			CTable::ConstRow element = connectivity_table[point->second];
-			std::vector<RealVector> nodes;
-			fill_node_list( nodes , coordinates_table , element );
+			nodes.resize_and_fill(coordinates_table , element);
 			if (etype.is_coord_in_element(target_coord,nodes))
 			{
 				//CFinfo << "found target in element" << point->first->full_path().string() << " [" << point->second << "]" <<CFendl;

@@ -30,7 +30,7 @@ using namespace CF::Tools::Testing;
 
 struct Hexa3DLagrangeP1Fixture
 {
-  typedef std::vector<RealVector> NodesT;
+  typedef ElementType::NodesT NodesT;
   /// common setup for each test case
   Hexa3DLagrangeP1Fixture() : mapped_coords(init_mapped_coords()), unit_nodes(init_nodes_unit_cube()), skewed_nodes(init_nodes_skewed_cube())
   {
@@ -68,30 +68,32 @@ private:
   /// Workaround for boost:assign ambiguity
   NodesT init_nodes_unit_cube()
   {
-    const RealVector c0 = list_of(0.)(0.)(0.);
-    const RealVector c1 = list_of(1.)(0.)(0.);
-    const RealVector c2 = list_of(1.)(1.)(0.);
-    const RealVector c3 = list_of(0.)(1.)(0.);
-    const RealVector c4 = list_of(0.)(0.)(1.);
-    const RealVector c5 = list_of(1.)(0.)(1.);
-    const RealVector c6 = list_of(1.)(1.)(1.);
-    const RealVector c7 = list_of(0.)(1.)(1.);
+    const std::vector<Real> c0 = list_of(0.)(0.)(0.);
+    const std::vector<Real> c1 = list_of(1.)(0.)(0.);
+    const std::vector<Real> c2 = list_of(1.)(1.)(0.);
+    const std::vector<Real> c3 = list_of(0.)(1.)(0.);
+    const std::vector<Real> c4 = list_of(0.)(0.)(1.);
+    const std::vector<Real> c5 = list_of(1.)(0.)(1.);
+    const std::vector<Real> c6 = list_of(1.)(1.)(1.);
+    const std::vector<Real> c7 = list_of(0.)(1.)(1.);
 
-    return list_of(c0)(c1)(c2)(c3)(c4)(c5)(c6)(c7);
+    std::vector< std::vector<Real> > v = list_of(c0)(c1)(c2)(c3)(c4)(c5)(c6)(c7);
+    return v;
   }
 
   NodesT init_nodes_skewed_cube()
   {
-    const RealVector c0 = list_of(0.5)(0.5)(0.5);
-    const RealVector c1 = list_of(1.)(0.)(0.);
-    const RealVector c2 = list_of(1.)(1.)(0.);
-    const RealVector c3 = list_of(0.)(1.)(0.);
-    const RealVector c4 = list_of(0.)(0.)(1.);
-    const RealVector c5 = list_of(1.)(0.)(1.);
-    const RealVector c6 = list_of(1.5)(1.5)(1.5);
-    const RealVector c7 = list_of(0.)(1.)(1.);
+    const std::vector<Real> c0 = list_of(0.5)(0.5)(0.5);
+    const std::vector<Real> c1 = list_of(1.)(0.)(0.);
+    const std::vector<Real> c2 = list_of(1.)(1.)(0.);
+    const std::vector<Real> c3 = list_of(0.)(1.)(0.);
+    const std::vector<Real> c4 = list_of(0.)(0.)(1.);
+    const std::vector<Real> c5 = list_of(1.)(0.)(1.);
+    const std::vector<Real> c6 = list_of(1.5)(1.5)(1.5);
+    const std::vector<Real> c7 = list_of(0.)(1.)(1.);
 
-    return list_of(c0)(c1)(c2)(c3)(c4)(c5)(c6)(c7);
+    std::vector< std::vector<Real> > v = list_of(c0)(c1)(c2)(c3)(c4)(c5)(c6)(c7);
+    return v;
   }
 
 };
@@ -142,24 +144,25 @@ BOOST_AUTO_TEST_CASE( IntegrateConst )
 
 BOOST_AUTO_TEST_CASE( MappedCoordinates )
 {
-  const RealVector c0 = list_of(0.7)(0.6)(0.5);
-  const RealVector c1 = list_of(1.)(0.)(0.);
-  const RealVector c2 = list_of(1.)(1.)(0.);
-  const RealVector c3 = list_of(0.)(1.)(0.);
-  const RealVector c4 = list_of(0.)(0.)(1.);
-  const RealVector c5 = list_of(1.)(0.)(1.);
-  const RealVector c6 = list_of(1.3)(1.4)(1.5);
-  const RealVector c7 = list_of(0.)(1.)(1.);
+  const std::vector<Real> c0 = list_of(0.7)(0.6)(0.5);
+  const std::vector<Real> c1 = list_of(1.)(0.)(0.);
+  const std::vector<Real> c2 = list_of(1.)(1.)(0.);
+  const std::vector<Real> c3 = list_of(0.)(1.)(0.);
+  const std::vector<Real> c4 = list_of(0.)(0.)(1.);
+  const std::vector<Real> c5 = list_of(1.)(0.)(1.);
+  const std::vector<Real> c6 = list_of(1.3)(1.4)(1.5);
+  const std::vector<Real> c7 = list_of(0.)(1.)(1.);
 
-  const NodesT inverted = list_of(c7)(c6)(c5)(c4)(c3)(c2)(c1)(c0);
+  const std::vector<std::vector<Real> > inverted_vec = list_of(c7)(c6)(c5)(c4)(c3)(c2)(c1)(c0);
+  const NodesT inverted(inverted_vec);
   
   NodesT bignodes = unit_nodes;
-  BOOST_FOREACH(RealVector& v, bignodes)
-    v *= 100;
+  for(Uint i = 0; i != 8; ++i)
+    bignodes[i] *= 100;
     
   NodesT biginverted = inverted;
-  BOOST_FOREACH(RealVector& v, biginverted)
-    v *= 100;
+  for(Uint i = 0; i != 8; ++i)
+    biginverted[i] *= 100;
     
   NodesT parallelepiped = unit_nodes;
   for(Uint i = 4; i != 8; ++i)

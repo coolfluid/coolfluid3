@@ -190,7 +190,16 @@ VEC_EQ_OP_CONST(*=)
   const VectorT<T>& operator= (const VectorT<T>& other)
   {
     cf_assert(&other != this);
-    copy(other,*this);
+    if(!other.m_owner)
+    {
+      m_owner = false;
+      m_data = other.m_data;
+      m_size = other.size();
+    }
+    else
+    {
+      copy(other,*this);
+    }
     return *this;
   }
 
@@ -208,6 +217,11 @@ VEC_EQ_OP_CONST(*=)
   /// This is to be used to pass the vector to C or Fortran functions
   /// Avoid using this function as much as possible
   T* getRawPtr () const { return m_data; }
+  
+  bool isOwner() const
+  {
+    return m_owner;
+  }
 
   /// Accessor used by the expression template wrapper class
   T at (const Uint& iElem) const
