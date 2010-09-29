@@ -7,14 +7,19 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for CF::Common 's parallel environment (PE) part"
 
+#include <vector>
 #include <boost/test/unit_test.hpp>
+#include <boost/lambda/lambda.hpp>
 
 // IMPORTANT:
-// run it both on 1 and 4 cores
+// run it both on 1 and many cores
+// for example: mpirun -np 4 ./uTestPE --report_level=confirm
+
 
 #include "Common/Log.hpp"
 #include "Common/MPI/PEInterface.hpp"
 #include "Common/MPI/PECommPattern.hpp"
+#include "Common/MPI/scatterv.hpp"
 
 using namespace std;
 using namespace boost;
@@ -49,7 +54,6 @@ BOOST_FIXTURE_TEST_SUITE( PESuite, PEFixture )
 
 BOOST_AUTO_TEST_CASE( isinit_preinit )
 {
-  CFinfo << "TestPE_Init" << CFendl;
   BOOST_CHECK_EQUAL( PEInterface::instance().is_init() , false );
 }
 
@@ -74,7 +78,7 @@ BOOST_AUTO_TEST_CASE( collective_op )
   Uint rank_based_sum=0,size_based_sum=0;
   std::vector<Uint> ranklist(PEInterface::instance().size(),0);
   mpi::all_gather(PEInterface::instance(),PEInterface::instance().rank(),ranklist);
-  for(Uint i=0; i<(Uint)PEInterface::instance().size(); i++) {
+  for(Uint i=0; i<(const Uint)PEInterface::instance().size(); i++) {
     rank_based_sum+=ranklist[i];
     size_based_sum+=(Uint)PEInterface::instance().size()-(i+1);
   }
@@ -84,6 +88,28 @@ BOOST_AUTO_TEST_CASE( collective_op )
 BOOST_AUTO_TEST_CASE( comm_pattern )
 {
   // Do something with cp
+}
+
+
+BOOST_AUTO_TEST_CASE( scatterv )
+{
+/*
+ 1 #include "boost/assign/std/vector.hpp"
+ 2 #include "boost/lambda/lambda.hpp"
+ 3
+ 4 using namespace boost::lambda;
+ 5 using namespace boost::assign;
+ 6 int main()
+ 7 {
+ 8   // use boost:assign to initialize the vector
+ 9   std::vector<int> y;
+10   y += 1,2,3,4,5,6,7,8,9;
+11
+12   // use boost::lambda to pass a generic function to a for_each loop
+13   for_each(y.begin(), y.end(), std::cout << _1 << '\n');
+14 }
+*/
+
 }
 
 BOOST_AUTO_TEST_CASE( finalize )
