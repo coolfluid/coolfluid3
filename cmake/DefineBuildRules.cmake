@@ -93,6 +93,7 @@ if(WIN32)
   # disable auto-linking with boost
   add_definitions( -DBOOST_ALL_NO_LIB )
   add_definitions( -DBOOST_ALL_DYN_LINK )
+  
   # Required for auto link not to mess up on vs80.
   # @todo Disable auto link on windows altogether.
   # add_definitions( -DBOOST_DYN_LINK )
@@ -105,6 +106,10 @@ if(WIN32)
   # add exception handling
   coolfluid_add_c_flags( "/EHsc" )
   coolfluid_add_cxx_flags( "/EHsc" )
+  
+  # remove warnings
+  coolfluid_add_c_flags( "/W1" )
+  coolfluid_add_cxx_flags( "/W1" )
 
   # linker flags:
   #   /OPT:NOREF keeps functions and data that are never referenced ( needed for static libs )
