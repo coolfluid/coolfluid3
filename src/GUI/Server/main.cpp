@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-//#include <iostream>
+#include <iostream>
 #include <cstdlib>
 #include <vector>
 #include <string>
@@ -133,7 +133,7 @@ int main(int argc, char *argv[])
                 .arg(QHostInfo::localHostName())
                 .arg(port);
 
-      //std::cout << message.toStdString() << std::endl;
+      std::cout << message.toStdString() << std::endl;
 
       return_value = app.exec();
     }
@@ -169,9 +169,9 @@ int main(int argc, char *argv[])
 
   if(!errorString.isEmpty())
   {
-//    std::cerr << std::endl << std::endl;
-//    std::cerr << "Server application exited on error:" << std::endl;
-//    std::cerr << errorString.toStdString() << std::endl << std::endl;
+    std::cerr << std::endl << std::endl;
+    std::cerr << "Server application exited on error:" << std::endl;
+    std::cerr << errorString.toStdString() << std::endl << std::endl;
   }
 
   return return_value;
