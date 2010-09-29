@@ -17,10 +17,10 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
+#include "Mesh/SimpleCommunicationPattern.hpp"
 
 #include "Mesh/OpenFOAM/BlockData.hpp"
 #include "Mesh/OpenFOAM/Parser.hpp"
-#include "Mesh/OpenFOAM/SimpleCommunicationPattern.hpp"
 #include "Mesh/OpenFOAM/WriteDict.hpp"
 
 #include "Tools/MeshDiff/MeshDiff.hpp"

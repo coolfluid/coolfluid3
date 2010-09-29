@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_OpenFOAM_SimpleCommunicationPattern_hpp
-#define CF_Mesh_OpenFOAM_SimpleCommunicationPattern_hpp
+#ifndef CF_Mesh_SimpleCommunicationPattern_hpp
+#define CF_Mesh_SimpleCommunicationPattern_hpp
 
 #include <boost/foreach.hpp>
 
@@ -14,17 +14,15 @@
 
 #include "Mesh/CArray.hpp"
 
-#include "Mesh/OpenFOAM/LibOpenFOAM.hpp"
+#include "Mesh/LibMesh.hpp"
 
 namespace CF {
 namespace Mesh {
 
 class CMesh;
   
-namespace OpenFOAM {
-
 /// Holds lists of indices to fetch from other CPUs
-struct OpenFOAM_API SimpleCommunicationPattern
+struct Mesh_API SimpleCommunicationPattern
 {
   typedef std::vector<Uint> IndicesT;
   
@@ -52,7 +50,7 @@ struct OpenFOAM_API SimpleCommunicationPattern
 };
 
 /// Given a mesh and the distribution of its nodes among CPUs, fill the receive lists in the communication pattern
-void OpenFOAM_API make_node_receive_lists(const SimpleCommunicationPattern::IndicesT& nodes_dist, CMesh& mesh, SimpleCommunicationPattern& comms_pattern);
+void Mesh_API make_node_receive_lists(const SimpleCommunicationPattern::IndicesT& nodes_dist, CMesh& mesh, SimpleCommunicationPattern& comms_pattern);
 
 /// Apply a communication pattern to the given range of CArrays.
 /// RangeT must iterable by BOOST_FOREACH
@@ -126,10 +124,9 @@ void apply_pattern_carray(const SimpleCommunicationPattern& pattern, RangeT rang
 }
 
 // Stream output
-OpenFOAM_API std::ostream& operator<<(std::ostream& os, const SimpleCommunicationPattern& pattern);
+Mesh_API std::ostream& operator<<(std::ostream& os, const SimpleCommunicationPattern& pattern);
 
-} // namespace OpenFOAM
 } // namespace Mesh
 } // namespace CF
 
-#endif /* CF_Mesh_OpenFOAM_SimpleCommunicationPattern_hpp */
+#endif /* CF_Mesh_SimpleCommunicationPattern_hpp */

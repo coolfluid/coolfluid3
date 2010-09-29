@@ -7,8 +7,6 @@
     LibOpenFOAM.hpp
     Parser.cpp
     Parser.hpp
-    SimpleCommunicationPattern.cpp
-    SimpleCommunicationPattern.hpp
     WriteDict.cpp
     WriteDict.hpp
   )

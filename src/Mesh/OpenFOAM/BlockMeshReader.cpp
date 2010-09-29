@@ -9,11 +9,12 @@
 
 #include "Common/ObjectProvider.hpp"
 
+#include "Mesh/SimpleCommunicationPattern.hpp"
+
 #include "Mesh/OpenFOAM/BlockData.hpp"
 #include "Mesh/OpenFOAM/BlockMeshReader.hpp"
 #include "Mesh/OpenFOAM/LibOpenFOAM.hpp"
 #include "Mesh/OpenFOAM/Parser.hpp"
-#include "Mesh/OpenFOAM/SimpleCommunicationPattern.hpp"
 
 namespace CF {
 namespace Mesh {

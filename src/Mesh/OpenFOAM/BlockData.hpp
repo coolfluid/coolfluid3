@@ -15,10 +15,10 @@ namespace CF {
 namespace Mesh {
 
 class CMesh;
-  
+struct SimpleCommunicationPattern;
+
 namespace OpenFOAM {
 
-struct SimpleCommunicationPattern;
   
 ////////////////////////////////////////////////////////////////////////////////
 

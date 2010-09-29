@@ -61,6 +61,8 @@ list( APPEND Mesh_files
   Quad2D.cpp
   Quad3D.hpp
   Quad3D.cpp
+  SimpleCommunicationPattern.hpp
+  SimpleCommunicationPattern.cpp
   Tetra3D.hpp
   Tetra3D.cpp
   Triag2D.hpp

@@ -8,9 +8,9 @@
 #include "Common/Exception.hpp"
 
 #include "Mesh/OpenFOAM/BlockData.hpp"
-#include "Mesh/OpenFOAM/SimpleCommunicationPattern.hpp"
 #include "Mesh/OpenFOAM/WriteDict.hpp"
 
+#include "Mesh/SimpleCommunicationPattern.hpp"
 #include "Mesh/CArray.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CMesh.hpp"

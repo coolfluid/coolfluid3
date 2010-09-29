@@ -4,8 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "SimpleCommunicationPattern.hpp"
-#include "WriteDict.hpp"
+#include "Mesh/SimpleCommunicationPattern.hpp"
 #include "Common/MPI/PEInterface.hpp"
 
 #include "Mesh/CTable.hpp"
@@ -13,7 +12,6 @@
 
 namespace CF {
 namespace Mesh {
-namespace OpenFOAM {
 
 SimpleCommunicationPattern::SimpleCommunicationPattern()  : 
     receive_dist(PEInterface::instance().size()+1, 0),
@@ -142,8 +140,5 @@ std::ostream& operator<<(std::ostream& os, const SimpleCommunicationPattern& pat
   return os;
 }
 
-
-
-} // namespace OpenFOAM
 } // namespace Mesh
 } // namespace CF
