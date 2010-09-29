@@ -66,13 +66,16 @@ bool GraphicalUrlArray::setValue(const QVariant & value)
 {
   if(value.type() == QVariant::StringList)
   {
-    m_originalValue = value;
-    m_model->setStringList(value.toStringList());
+    QStringList list = value.toStringList();
+    list.removeAll(QString());
+    m_originalValue = list;
+    m_model->setStringList(list);
     return true;
   }
   else if(value.type() == QVariant::String)
   {
     QStringList list = value.toString().split(":");
+    list.removeAll(QString());
     m_originalValue = list;
     m_model->setStringList(list);
     return true;
