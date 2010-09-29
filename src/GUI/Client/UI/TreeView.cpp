@@ -16,10 +16,11 @@
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/CommitDetails.hpp"
+#include "GUI/Client/Core/UnknownTypeException.hpp"
 #include "GUI/Client/UI/CommitDetailsDialog.hpp"
 #include "GUI/Client/UI/ConfirmCommitDialog.hpp"
 #include "GUI/Client/UI/OptionPanel.hpp"
-#include "GUI/Client/Core/UnknownTypeException.hpp"
+#include "GUI/Client/UI/SignalManager.hpp"
 
 #include "GUI/Network/ComponentType.hpp"
 #include "GUI/Network/ComponentNames.hpp"
@@ -41,11 +42,10 @@ TreeView::TreeView(OptionPanel * optionsPanel, QMainWindow * parent,
 
   // instantiate class attributes
   m_modelFilter = new QSortFilterProxyModel(this);
-
   m_optionsPanel = optionsPanel;
-
   m_modelFilter->setSourceModel(ClientRoot::tree().get());
   m_modelFilter->setDynamicSortFilter(true);
+  m_signalManager = new SignalManager(this);
 
   QRegExp reg(QRegExp(".+", Qt::CaseInsensitive, QRegExp::RegExp));
   m_modelFilter->setFilterRegExp(reg);
@@ -155,7 +155,8 @@ void TreeView::selectItem(const CPath & path)
 void TreeView::mousePressEvent(QMouseEvent * event)
 {
   QTreeView::mousePressEvent(event);
-  QPoint mousePosition = event->pos() + this->geometry().topLeft();//(event->x() + this->geometry().x(), event->y() + this->geometry().y());
+  QPoint mousePosition = event->pos() + this->geometry().topLeft();
+
   QModelIndex index = this->indexAt(mousePosition);
   NTree::Ptr tree = ClientRoot::tree();
 
@@ -171,13 +172,14 @@ void TreeView::mousePressEvent(QMouseEvent * event)
     {
       if(button == Qt::RightButton)
       {
-//        if(!tree->getCurrentIndex().isValid())
-          tree->setCurrentIndex(indexInModel);
+        QList<ActionInfo> actions;
+        CPath path;
 
-        ClientRoot::log()->addMessage(tree->getNodePath(tree->getCurrentIndex()) + " " +
-                                      tree->getNodePath(indexInModel));
+        tree->setCurrentIndex(indexInModel);
+        tree->getNodeActions(indexInModel, actions);
+        path =  tree->getCurrentPath();
 
-        tree->showNodeMenu(indexInModel, QCursor::pos());
+        m_signalManager->showMenu(QCursor::pos(), path, actions);
       }
       else if(!tree->areFromSameNode(indexInModel, tree->getCurrentIndex()))
       {

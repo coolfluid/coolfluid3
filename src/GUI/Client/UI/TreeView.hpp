@@ -40,7 +40,7 @@ namespace ClientUI {
 ////////////////////////////////////////////////////////////////////////////////
 
   class OptionPanel;
-  class NodeAction;
+  class SignalManager;
 
   /////////////////////////////////////////////////////////////////////////////
 
@@ -140,6 +140,8 @@ namespace ClientUI {
     /// "Delete", "Rename", "Add a child node" and "Add an option" m_items are then
     /// disabled.
     bool m_readOnly;
+
+    SignalManager * m_signalManager;
 
     bool m_contextMenuAllowed;
 

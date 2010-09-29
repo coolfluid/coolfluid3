@@ -43,7 +43,7 @@ GraphicalOption::GraphicalOption(OptionType::Type type, QWidget * parent)
 
     // if type valueWidget is a string
   case OptionType::TYPE_STRING:
-    m_valueWidget = new GraphicalUrl(parent);
+    m_valueWidget = new GraphicalString(parent);
     //m_valueWidget = new GraphicalString(parent);
     break;
 

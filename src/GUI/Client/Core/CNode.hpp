@@ -52,10 +52,6 @@ namespace ClientCore {
 
     void notifyChildCountChanged();
 
-  public slots:
-
-    void actionTriggered();
-
   signals:
 
     void childCountChanged();
@@ -68,7 +64,7 @@ namespace ClientCore {
 
   ////////////////////////////////////////////////////////////////////////////
 
-  struct ClientCore_API SignalInfo
+  struct ClientCore_API ActionInfo
   {
     QString m_name;
 
@@ -235,16 +231,14 @@ namespace ClientCore {
     /// cleared before first use.
     void getProperties(QMap<QString, QString> & props) const;
 
+    void getActions(QList<ActionInfo> & actions) const;
+
     /// @brief Creates an object tree from a given node
 
     /// @param node Node to convert
     /// @return Retuns a shared pointer to the created node.
     /// @throw XmlError If the tree could not be built.
     static CNode::Ptr createFromXml(CF::Common::XmlNode & node);
-
-    QMenu * getContextMenu() const;
-
-    void showContextMenu(const QPoint & pos) const;
 
     template<class TYPE>
     boost::shared_ptr<const TYPE> convertTo() const
@@ -285,11 +279,7 @@ namespace ClientCore {
 
     void list_signals_reply(CF::Common::XmlNode & node);
 
-    void sendSignal(const QString & name) const;
-
   protected:
-
-    QMenu * m_contextMenu;
 
     CNode::Type m_type;
 
@@ -306,7 +296,7 @@ namespace ClientCore {
 
     QStringList m_fetchingChildren;
 
-    QList<SignalInfo> m_signalSigs;
+    QList<ActionInfo> m_actionSigs;
 
     /// regists all the signals declared in this class
     static void regist_signals ( CNode* self )

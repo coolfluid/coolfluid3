@@ -78,6 +78,8 @@ namespace ClientCore {
     /// @see setCurrentIndex.
     QModelIndex getCurrentIndex() const;
 
+    CF::Common::CPath getCurrentPath() const;
+
     /// @brief Gets node options
 
     /// @param index Node index
@@ -95,7 +97,11 @@ namespace ClientCore {
     /// @param ok If not @c CFNULL, used to strore whether the property
     /// gathering succeded or not.
     void getNodeProperties(const QModelIndex & index,
-                           QMap<QString, QString> & params, bool * ok = CFNULL) const;
+                           QMap<QString, QString> & params,
+                           bool * ok = CFNULL) const;
+
+    void getNodeActions(const QModelIndex & index, QList<ActionInfo> & actions,
+                        bool * ok = CFNULL) const;
 
     /// @brief Retrieves a node path.
 
@@ -210,12 +216,6 @@ namespace ClientCore {
     /// @return Returns the data or an empty @c QVariant on error.
     virtual QVariant headerData(int section, Qt::Orientation orientation,
                                 int role = Qt::DisplayRole) const;
-
-    /// @brief Shows the context menu
-
-    /// @param index Node index
-    /// @param pos Position of the top-left corner of the menu.
-    void showNodeMenu(const QModelIndex & index, const QPoint & pos) const;
 
     /// @brief Gives the icon associated to this node
     /// @return Returns the icon associated to this node

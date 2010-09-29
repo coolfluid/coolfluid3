@@ -89,6 +89,20 @@ QModelIndex NTree::getCurrentIndex() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+CPath NTree::getCurrentPath() const
+{
+  TreeNode * node = this->indexToTreeNode(m_currentIndex);
+  CPath path;
+
+  if(node != CFNULL)
+    path = node->getNode()->full_path();
+
+  return path;
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 void NTree::getNodeOptions(const QModelIndex & index, QList<NodeOption> & params,
                           bool * ok) const
 {
@@ -118,6 +132,23 @@ void NTree::getNodeProperties(const QModelIndex &index,
 
   if(node != CFNULL && node->getNode().get() != CFNULL)
     node->getNode()->getProperties(props);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void NTree::getNodeActions(const QModelIndex & index, QList<ActionInfo> & actions,
+                           bool * ok) const
+{
+  TreeNode * node = this->indexToTreeNode(index);
+
+  if(ok != CFNULL)
+    *ok = node != CFNULL;
+
+  actions.clear();
+
+  if(node != CFNULL && node->getNode().get() != CFNULL)
+    node->getNode()->getActions(actions);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -417,19 +448,6 @@ QVariant NTree::headerData(int section, Qt::Orientation orientation,
     return m_columns.at(section);
 
   return QVariant();
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void NTree::showNodeMenu(const QModelIndex & index, const QPoint & pos) const
-{
-  TreeNode * treeNode = indexToTreeNode(index);
-
-  cf_assert(treeNode != CFNULL);
-
-  if(treeNode != CFNULL)
-    treeNode->getNode()->showContextMenu(pos);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -23,6 +23,7 @@ list( APPEND ClientUI_moc_classes
   NRemoteSave.hpp
   OptionPanel.hpp
   SelectFileDialog.hpp
+  SignalManager.hpp
   StatusPanel.hpp
   SelectPathDialog.hpp
   TreeBrowser.hpp
@@ -80,6 +81,8 @@ list( APPEND ClientUI_files
   SelectFileDialog.hpp
   SelectPathDialog.cpp
   SelectPathDialog.hpp
+  SignalManager.cpp
+  SignalManager.hpp
   StatusPanel.cpp
   StatusPanel.hpp
   TreeBrowser.cpp

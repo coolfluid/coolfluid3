@@ -31,7 +31,6 @@ namespace GUI {
 namespace Network {
   class ComponenentType;
   struct HostInfos;
-  class SignalInfo;
 }
 
 namespace ClientCore {

@@ -75,21 +75,11 @@ void CNodeNotifier::notifyChildCountChanged()
   emit childCountChanged();
 }
 
-void CNodeNotifier::actionTriggered()
-{
-  QAction * action = static_cast<QAction *>(sender());
-
-  if(m_parent != CFNULL && action != CFNULL)
-    m_parent->sendSignal(action->text());
-}
-
-
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 CNode::CNode(const QString & name, const QString & componentType, CNode::Type type)
   : Component(name.toStdString()),
-    m_contextMenu(new QMenu("Node")),
     m_type(type),
     m_notifier(new CNodeNotifier(this)),
     m_componentType(componentType)
@@ -412,32 +402,6 @@ CNode::Ptr CNode::getNode(CF::Uint index)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QMenu * CNode::getContextMenu() const
-{
-  return m_contextMenu;
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void CNode::showContextMenu(const QPoint & pos) const
-{
-  QList<SignalInfo>::const_iterator it = m_signalSigs.begin();
-
-  m_contextMenu->clear();
-
-  for( ; it != m_signalSigs.end() ; it++)
-  {
-    QAction * action = m_contextMenu->addAction(it->m_name);
-    QObject::connect(action, SIGNAL(triggered()), m_notifier, SLOT(actionTriggered()));
-  }
-
-  m_contextMenu->exec(pos);
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 void CNode::connectNotifier(QObject * reciever, const char * signal, const char * slot)
 {
   QObject::connect(m_notifier, signal, reciever, slot);
@@ -600,6 +564,14 @@ void CNode::getProperties(QMap<QString, QString> & props) const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+void CNode::getActions(QList<ActionInfo> & actions) const
+{
+  actions = m_actionSigs;
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 void CNode::fetchSignals()
 {
   if(m_fetchingManager.get() == CFNULL)
@@ -687,7 +659,7 @@ void CNode::list_signals_reply( XmlNode & node )
 
   while(map != CFNULL)
   {
-    SignalInfo si;
+    ActionInfo si;
     XmlAttr * key_attr = map->first_attribute( XmlParams::tag_attr_key() );
     XmlAttr * desc_attr = map->first_attribute( XmlParams::tag_attr_descr() );
 
@@ -699,7 +671,7 @@ void CNode::list_signals_reply( XmlNode & node )
     si.m_description = desc_attr->value();
     si.m_signature = XmlSignature(*map);
 
-    m_signalSigs.append(si);
+    m_actionSigs.append(si);
 
     map = map->next_sibling();
   }
@@ -787,23 +759,5 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, CPath> & lin
 
   return rootNode;
 }
-
-
-
-
-void CNode::sendSignal(const QString & name) const
-{
-  boost::shared_ptr<CF::Common::XmlDoc> doc = CF::Common::XmlOps::create_doc();
-  CF::Common::XmlOps::add_signal_frame(*CF::Common::XmlOps::goto_doc_node(*doc.get()),
-                           name.toStdString(), full_path(),
-                           full_path(), true);
-
-  ClientRoot::core()->sendSignal(*doc);
-}
-
-
-
-
-
 
 #undef ADD_ARRAY_TO_XML
