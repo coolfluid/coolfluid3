@@ -607,10 +607,12 @@ template <typename TYPE>
                                  boost::shared_ptr<OptionArray> array) const
 {
   boost::shared_ptr<OptionArrayT<TYPE> > optArray;
+  bool basic = array->has_tag("basic");
+  std::string desc = array->description();
 
   optArray = boost::dynamic_pointer_cast< OptionArrayT<TYPE> >(array);
 
-  params.add_array(name, boost::any_cast< std::vector<TYPE> >(optArray->value()));
+  params.add_array(name, boost::any_cast< std::vector<TYPE> >(optArray->value()), desc, basic);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
