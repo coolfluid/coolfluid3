@@ -59,7 +59,7 @@ private:
 typedef std::vector<RealVector> ElementNodeVector;
 
 /// Copy of the node coordinates
-class ElementNodes
+class Mesh_API ElementNodes
 {
 public:
   ElementNodes();
@@ -96,7 +96,7 @@ public:
     }
   }
   
-  friend Common::LogStream& operator<<(Common::LogStream& output, const ElementNodes& nodes);
+  friend Mesh_API Common::LogStream& operator<<(Common::LogStream& output, const ElementNodes& nodes);
   
 private:
   std::vector<Real> m_data;
@@ -158,7 +158,7 @@ inline RealVector point3(const Real x, const Real y, const Real z)
 
 std::ostream& operator<<(std::ostream& output, const ElementNodeView& nodeVector);
 std::ostream& operator<<(std::ostream& output, const ConstElementNodeView& nodeVector);
-Common::LogStream& operator<<(Common::LogStream& output, const ElementNodes& nodes);
+Mesh_API Common::LogStream& operator<<(Common::LogStream& output, const ElementNodes& nodes);
 
 ////////////////////////////////////////////////////////////////////////////////
 

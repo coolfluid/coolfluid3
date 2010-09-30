@@ -59,7 +59,7 @@ namespace ClientCore {
 
     typedef Common::EnumT< OptionType > ConverterBase;
 
-    struct Convert : public ConverterBase
+    struct ClientCore_API Convert : public ConverterBase
     {
       /// storage of the enum forward map
       static ConverterBase::FwdMap_t all_fwd;
