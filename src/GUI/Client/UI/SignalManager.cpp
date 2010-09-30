@@ -13,6 +13,8 @@
 #include "Common/XmlHelpers.hpp"
 #include "Common/XmlSignature.hpp"
 
+#include "GUI/Client/UI/SignatureDialog.hpp"
+
 #include "GUI/Client/Core/ClientRoot.hpp"
 
 using namespace CF::Common;
@@ -65,12 +67,29 @@ void SignalManager::actionTriggered()
 
   if(action != CFNULL)
   {
+    ActionInfo & info = m_signals[action];
     boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
     XmlNode & node = *XmlOps::goto_doc_node(*doc.get());
-    ActionInfo & info = m_signals[action];
+    XmlNode & frame = *XmlOps::add_signal_frame(node, info.m_name.toStdString(),
+                                               m_path, m_path, true);
+    XmlParams p(frame);
 
-    XmlOps::add_signal_frame(node, info.m_name.toStdString(), m_path, m_path, true);
+    XmlNode & valuemap = *p.add_valuemap(XmlParams::tag_key_options());
 
-    ClientRoot::core()->sendSignal(*doc);
+    info.m_signature.put_signature(valuemap);
+
+    try
+    {
+      SignatureDialog * sg = new SignatureDialog();
+
+      if(sg->show(valuemap, action->text()))
+        ClientRoot::core()->sendSignal(*doc);
+
+      delete sg;
+    }
+    catch( ValueNotFound & vnf)
+    {
+      ClientRoot::log()->addException(vnf.what());
+    }
   }
 }

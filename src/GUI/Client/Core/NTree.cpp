@@ -95,7 +95,14 @@ CPath NTree::getCurrentPath() const
   CPath path;
 
   if(node != CFNULL)
-    path = node->getNode()->full_path();
+  {
+    CNode::Ptr cnode = node->getNode();
+
+    if(cnode->checkType(ROOT_NODE))
+      path = cnode->convertTo<NRoot>()->root()->full_path();
+    else
+      path = cnode->full_path();
+  }
 
   return path;
 }

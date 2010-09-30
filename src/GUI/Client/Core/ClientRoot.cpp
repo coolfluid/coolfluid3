@@ -90,5 +90,3 @@ void ClientRoot::processSignalString(const QString & signal)
   doc.setContent(signal);
   processSignal(doc);
 }
-
-

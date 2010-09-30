@@ -24,6 +24,7 @@ list( APPEND ClientUI_moc_classes
   OptionPanel.hpp
   SelectFileDialog.hpp
   SignalManager.hpp
+  SignatureDialog.hpp
   StatusPanel.hpp
   SelectPathDialog.hpp
   TreeBrowser.hpp
@@ -83,6 +84,8 @@ list( APPEND ClientUI_files
   SelectPathDialog.hpp
   SignalManager.cpp
   SignalManager.hpp
+  SignatureDialog.cpp
+  SignatureDialog.hpp
   StatusPanel.cpp
   StatusPanel.hpp
   TreeBrowser.cpp
