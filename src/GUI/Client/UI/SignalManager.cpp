@@ -50,6 +50,10 @@ void SignalManager::showMenu(const QPoint & pos, const CF::Common::CPath & path,
   for( ; it!= sigs.end() ; it++)
   {
     QAction * action = m_menu->addAction(it->m_name);
+
+    if(!it->m_readableName.isEmpty())
+      action->setText(it->m_readableName);
+
     connect(action, SIGNAL(triggered()), this, SLOT(actionTriggered()));
     m_signals[action] = *it;
   }

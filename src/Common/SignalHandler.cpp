@@ -47,7 +47,7 @@ Signal & SignalHandler::signal ( const Signal::id_t& sname )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Signal::Ptr SignalHandler::create_signal ( const Signal::id_t& sname,  const Signal::desc_t& desc )
+Signal::Ptr SignalHandler::create_signal ( const Signal::id_t& sname,  const Signal::desc_t& desc, const Signal::readable_t& readable_name )
 {
   sigmap_t::iterator itr = m_signals.find (sname);
   if ( itr == m_signals.end() )
@@ -56,6 +56,7 @@ Signal::Ptr SignalHandler::create_signal ( const Signal::id_t& sname,  const Sig
 
     signal.m_signal = Signal::Ptr( new Signal::type() );
     signal.m_description = desc;
+    signal.m_readable_name = readable_name;
 
     m_signals.insert ( make_pair ( sname , signal ) );
     return signal.m_signal;
@@ -66,7 +67,7 @@ Signal::Ptr SignalHandler::create_signal ( const Signal::id_t& sname,  const Sig
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Signal::Ptr SignalHandler::regist_signal ( const Signal::id_t& sname,  const Signal::desc_t& desc )
+Signal::Ptr SignalHandler::regist_signal ( const Signal::id_t& sname,  const Signal::desc_t& desc, const Signal::readable_t& readable_name )
 {
   sigmap_t::iterator itr = m_signals.find (sname);
   if ( itr == m_signals.end() )
@@ -75,6 +76,7 @@ Signal::Ptr SignalHandler::regist_signal ( const Signal::id_t& sname,  const Sig
 
     signal.m_signal = Signal::Ptr( new Signal::type() );
     signal.m_description = desc;
+    signal.m_readable_name = readable_name;
 
     m_signals.insert ( make_pair ( sname , signal ) );
     return signal.m_signal;

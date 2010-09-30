@@ -38,7 +38,7 @@ CMeshReader::~CMeshReader()
 
 void CMeshReader::regist_signals ( CMeshReader* self )
 {
-  self->regist_signal ( "read" , "reads a mesh" )->connect ( boost::bind ( &CMeshReader::read, self, _1 ) );
+  self->regist_signal ( "read" , "reads a mesh", "Read mesh" )->connect ( boost::bind ( &CMeshReader::read, self, _1 ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -662,13 +662,14 @@ void CNode::list_signals_reply( XmlNode & node )
     ActionInfo si;
     XmlAttr * key_attr = map->first_attribute( XmlParams::tag_attr_key() );
     XmlAttr * desc_attr = map->first_attribute( XmlParams::tag_attr_descr() );
+    XmlAttr * name_attr = map->first_attribute( "name" );
 
     cf_assert( key_attr != CFNULL );
     cf_assert( key_attr->value_size() > 0 );
-    cf_assert( desc_attr != CFNULL );
 
     si.m_name = key_attr->value();
-    si.m_description = desc_attr->value();
+    si.m_readableName = name_attr != CFNULL ? name_attr->value() : "";
+    si.m_description = desc_attr != CFNULL ? desc_attr->value() : "";
     si.m_signature = XmlSignature(*map);
 
     m_actionSigs.append(si);

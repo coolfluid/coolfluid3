@@ -68,6 +68,8 @@ namespace ClientCore {
   {
     QString m_name;
 
+    QString m_readableName;
+
     QString m_description;
 
     CF::Common::XmlSignature m_signature;

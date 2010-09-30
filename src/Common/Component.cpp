@@ -405,17 +405,17 @@ Component::Ptr Component::look_component ( const CPath& path )
 
 void Component::regist_signals ( Component* self  )
 {
-  self->regist_signal ( "create_component" , "creates a component" )->connect ( boost::bind ( &Component::create_component, self, _1 ) );
+  self->regist_signal ( "create_component" , "creates a component", "Create component" )->connect ( boost::bind ( &Component::create_component, self, _1 ) );
 
-  self->regist_signal ( "list_tree" , "lists the component tree inside this component" )->connect ( boost::bind ( &Component::list_tree, self, _1 ) );
+  self->regist_signal ( "list_tree" , "lists the component tree inside this component", "List tree" )->connect ( boost::bind ( &Component::list_tree, self, _1 ) );
 
-  self->regist_signal ( "list_properties" , "lists the options of this component" )->connect ( boost::bind ( &Component::list_properties, self, _1 ) );
+  self->regist_signal ( "list_properties" , "lists the options of this component", "List properties" )->connect ( boost::bind ( &Component::list_properties, self, _1 ) );
 
-  self->regist_signal ( "list_signals" , "lists the options of this component" )->connect ( boost::bind ( &Component::list_signals, self, _1 ) );
+  self->regist_signal ( "list_signals" , "lists the options of this component", "List signals" )->connect ( boost::bind ( &Component::list_signals, self, _1 ) );
 
-  self->regist_signal ( "configure" , "configures this component" )->connect ( boost::bind ( &Component::configure, self, _1 ) );
+  self->regist_signal ( "configure" , "configures this component", "Configure" )->connect ( boost::bind ( &Component::configure, self, _1 ) );
 
-  self->regist_signal ( "rename_component" , "Renames this component" )->connect ( boost::bind ( &Component::rename_component, self, _1 ) );
+  self->regist_signal ( "rename_component" , "Renames this component", "Rename" )->connect ( boost::bind ( &Component::rename_component, self, _1 ) );
 
 
   self->signal("rename_component").m_signature.insert<std::string>("new_name", "Component new name");
@@ -582,6 +582,7 @@ void Component::list_signals( XmlNode& node )
   for( ; it != m_signals.end() ; it++)
   {
     XmlNode & map = *XmlParams::add_valuemap_to(reply, it->first, it->second.m_description);
+    XmlOps::add_attribute_to(map, "name", it->second.m_readable_name);
     it->second.m_signature.put_signature(map);
   }
 }

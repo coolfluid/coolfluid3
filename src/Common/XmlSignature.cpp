@@ -146,7 +146,8 @@ XmlSignature & XmlSignature::back()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-XmlSignature & XmlSignature::insert_valuemap(const std::string & name, const std::string & desc)
+XmlSignature & XmlSignature::insert_valuemap(const std::string & name,
+                                             const std::string & desc)
 {
   cf_assert( !name.empty() );
   XmlSignature * sig;

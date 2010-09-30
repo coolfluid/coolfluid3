@@ -44,6 +44,8 @@ struct Signal
     typedef std::string id_t;
     /// signal description
     typedef std::string desc_t;
+    /// signal readable name
+    typedef std::string readable_t;
     /// signal return type
     typedef void return_t;
     /// signal argument
@@ -58,6 +60,7 @@ struct Signal
     desc_t m_description;
     /// signal xml signature
     XmlSignature m_signature;
+    readable_t m_readable_name;
 };
 
 /// SignalHandler executes calls received as string by issuing singals to the slots
@@ -82,7 +85,7 @@ class Common_API SignalHandler
     Signal::return_t call_signal ( const Signal::id_t& sname, Signal::arg_t& sinput );
 
     /// Regist signal
-    Signal::Ptr regist_signal ( const Signal::id_t& sname,  const Signal::desc_t& desc );
+    Signal::Ptr regist_signal ( const Signal::id_t& sname, const Signal::desc_t& desc, const Signal::readable_t& readable_name = Signal::readable_t() );
 
   protected: // functions
 
@@ -90,7 +93,7 @@ class Common_API SignalHandler
     Signal & signal ( const Signal::id_t& sname );
 
     /// Create a signal
-    Signal::Ptr create_signal ( const Signal::id_t& sname,  const Signal::desc_t& desc );
+    Signal::Ptr create_signal ( const Signal::id_t& sname,  const Signal::desc_t& desc, const Signal::readable_t& readable_name = Signal::readable_t() );
 
   protected: // data
 
