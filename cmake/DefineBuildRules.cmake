@@ -108,8 +108,13 @@ if(WIN32)
   coolfluid_add_cxx_flags( "/EHsc" )
   
   # remove warnings
-  coolfluid_add_c_flags( "/W1" )
-  coolfluid_add_cxx_flags( "/W1" )
+  if( CF_ENABLE_WARNINGS ) 
+    coolfluid_add_c_flags( "/W3" )
+    coolfluid_add_cxx_flags( "/W3" )
+  else()
+    coolfluid_add_c_flags( "/W0" )
+    coolfluid_add_cxx_flags( "/W0" )
+  endif()
 
   # linker flags:
   #   /OPT:NOREF keeps functions and data that are never referenced ( needed for static libs )
@@ -136,14 +141,7 @@ if( APPLE )
     set( CF_ENABLE_INTERNAL_DEPS ON CACHE BOOL "Use of internal deps is forced" FORCE )
   endif()
 
-endif()
-
-########################################################################################
-# GENERIC
-########################################################################################
-
-# Disable boost pre-1.34 boost::filesystem functions.
-# add_definitions ( -DBOOST_FILESYSTEM_NO_DEPRECATED )
+endif(APPLE)
 
 ########################################################################################
 # FINAL
@@ -168,7 +166,7 @@ if( NOT CF_SKIP_FORTRAN )
   # fortran flags currently nont checked
   set( CMAKE_Fortran_FLAGS "${CF_Fortran_FLAGS}" )
   # foreach( fortran_flag ${Fortran_FLAGS_LIST} )
-  #   CF_ADD_Fortran_FLAGS_SIGNAL_ERROR ( ${fortran_flag} )
+  #   coolfluid_add_Fortran_flags_or_die ( ${fortran_flag} )
   # endforeach()
   mark_as_advanced( Fortran_FLAGS_LISTS )
 endif()
