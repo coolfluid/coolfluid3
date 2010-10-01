@@ -26,7 +26,7 @@ CLink::CLink ( const CName& name) : Component ( name )
   BUILD_COMPONENT;
   m_is_link = true;
 
-  regist_signal("change_link", "Change link path")->connect(boost::bind(&CLink::change_link, this, _1));
+  regist_signal("change_link", "Change link path", "Change target")->connect(boost::bind(&CLink::change_link, this, _1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
