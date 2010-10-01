@@ -132,8 +132,10 @@ class Common_API Logger : public boost::noncopyable
 
 #ifndef CF_NO_LOG
 #define CFLog(n,x) CFinfo << n << x << CFflush;
+#define CFLogVar(x) CFinfo << #x << " = " << x << CFendl;
 #else
 #define CFLog(n,x)
+#define CFLogVar(x)
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////

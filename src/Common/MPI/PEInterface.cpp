@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/MPI/PEInterface.hpp"
+#include "Common/Log.hpp"
 
 using namespace boost;
 
@@ -13,38 +14,47 @@ namespace CF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PEInterface::PEInterface(int argc, char** args) {
-  PEInterface();
+PEInterface::PEInterface(int argc, char** args):
+	boost::mpi::communicator()
+{
   m_environment=new mpi::environment(argc,args);
-  mpi::communicator();
+	m_current_status=WorkerStatus::NOT_RUNNING;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PEInterface::PEInterface() {
+PEInterface::PEInterface() :
+	boost::mpi::communicator()
+{
   m_environment=0;
   m_current_status=WorkerStatus::NOT_RUNNING;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PEInterface::~PEInterface () {
+PEInterface::~PEInterface () 
+{
   finalize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PEInterface& PEInterface::instance() {
+PEInterface& PEInterface::instance() 
+{
   static PEInterface pe_instance;
   return pe_instance;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PEInterface::init(int argc, char** args) {
+void PEInterface::init(int argc, char** args) 
+{
+// The mpi::environment object is initialized with the program arguments
+// (which it may modify) in your main program. The creation of this object
+// initializes MPI, and its destruction will finalize MPI.
+	
   if (m_environment!=0) delete(m_environment);
   m_environment=new mpi::environment(argc,args);
-  mpi::communicator();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -57,10 +67,14 @@ bool PEInterface::is_init() const {
 ////////////////////////////////////////////////////////////////////////////////
 
 void PEInterface::finalize() {
-  delete(m_environment);
-  m_environment=0;
-  /// TODO: communicator has no destructor, see boost/mpi/communicator.hpp, this is sort of dangerous
-  /// needs to be checked if it somehow realizes that
+	if (is_init())
+	{
+		barrier();
+		delete(m_environment);
+		m_environment=0;
+		/// TODO: communicator has no destructor, see boost/mpi/communicator.hpp, this is sort of dangerous
+		/// needs to be checked if it somehow realizes that
+	}	
 }
 
 ////////////////////////////////////////////////////////////////////////////////

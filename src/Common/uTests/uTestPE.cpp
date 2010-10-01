@@ -15,8 +15,6 @@
 // run it both on 1 and many cores
 // for example: mpirun -np 4 ./uTestPE --report_level=confirm
 
-
-#include "Common/Log.hpp"
 #include "Common/MPI/PEInterface.hpp"
 #include "Common/MPI/PECommPattern.hpp"
 #include "Common/MPI/scatterv.hpp"
@@ -64,13 +62,13 @@ BOOST_AUTO_TEST_CASE( allrankzero_preinit )
 
 BOOST_AUTO_TEST_CASE( init )
 {
-  PEInterface::instance().init(m_argc,m_argv);
+	PEInterface::instance().init(m_argc,m_argv);
   BOOST_CHECK_EQUAL( PEInterface::instance().is_init() , true );
 }
 
 BOOST_AUTO_TEST_CASE( rank_and_size )
 {
-  BOOST_CHECK_LT( (Uint)PEInterface::instance().rank() , (Uint)PEInterface::instance().size() );
+  BOOST_CHECK_LT( PEInterface::instance().rank() , PEInterface::instance().size() );
 }
 
 BOOST_AUTO_TEST_CASE( collective_op )
@@ -78,9 +76,9 @@ BOOST_AUTO_TEST_CASE( collective_op )
   Uint rank_based_sum=0,size_based_sum=0;
   std::vector<Uint> ranklist(PEInterface::instance().size(),0);
   mpi::all_gather(PEInterface::instance(),PEInterface::instance().rank(),ranklist);
-  for(Uint i=0; i<(const Uint)PEInterface::instance().size(); i++) {
+  for(Uint i=0; i<PEInterface::instance().size(); i++) {
     rank_based_sum+=ranklist[i];
-    size_based_sum+=(Uint)PEInterface::instance().size()-(i+1);
+    size_based_sum+=PEInterface::instance().size()-(i+1);
   }
   BOOST_CHECK_EQUAL( rank_based_sum , size_based_sum );
 }

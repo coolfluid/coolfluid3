@@ -57,6 +57,8 @@ class Common_API LogStream
     STRING = 4,
 
     /// @brief Standard output (with MPI synchronization)
+		/// @note If one processor will output more than another, that processor will 
+		/// wait FOREVER for synchronization. Use with care!
     SYNC_SCREEN = 8
   };
 
@@ -106,31 +108,32 @@ class Common_API LogStream
 
     for(it = m_destinations.begin() ; it != m_destinations.end() ; it++)
     {
-      if(it->first != SYNC_SCREEN && this->isDestinationUsed(it->first) &&
-         (PEInterface::instance().rank() == 0 || !m_filterRankZero[it->first]))
-      {
-        *(it->second) << t;
-        m_flushed = false;
-      }
-      else if(it->first != SYNC_SCREEN && PEInterface::instance().is_init() && this->isDestinationUsed(it->first))
-      {
-        *(it->second) << t;
-        m_flushed = false;
-      
-      }
-      else if(it->first == SYNC_SCREEN && PEInterface::instance().is_init())
-      {
-        for( Uint i = 0 ; i < (Uint)(PEInterface::instance().size()); ++i )
-        {
-          PEInterface::instance().barrier();
-
-          if(i == (Uint)PEInterface::instance().rank())
-          {
-            *(it->second) << t;
-            m_flushed = false;
-          }
-        }
-      } // end of "else if (PEInterface::instance().isInit())"
+			if (this->isDestinationUsed(it->first))
+			{
+				if (it->first != SYNC_SCREEN)
+				{
+					if ((PEInterface::instance().rank() == 0 || !this->getFilterRankZero(it->first)))
+					{
+						*(it->second) << t;
+						m_flushed = false;
+					}
+				}
+				else if (PEInterface::instance().is_init())
+				{
+					for( Uint i = 0 ; i < PEInterface::instance().size(); ++i )
+					{
+						if (!this->getFilterRankZero(it->first))
+						{
+							PEInterface::instance().barrier();
+						}						
+						if(i == PEInterface::instance().rank())
+						{
+							*(it->second) << t;
+							m_flushed = false;
+						}
+					}
+				}
+			}
     }
 
     return *this;

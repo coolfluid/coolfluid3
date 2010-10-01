@@ -53,12 +53,13 @@ m_flushed(true)
   m_destinations[SYNC_SCREEN] = stream;
 
 
-  // by default, we use all destinations
+  // by default, we use all destinations except SYNC_SCREEN
   m_usedDests[SCREEN] = true;
   m_usedDests[FILE] = true;
   m_usedDests[STRING] = true;
-  m_usedDests[SYNC_SCREEN] = true;
+  m_usedDests[SYNC_SCREEN] = false;
 
+	// by default, only the first processor outputs
   m_filterRankZero[SCREEN] = true;
   m_filterRankZero[FILE] = true;
   m_filterRankZero[STRING] = true;

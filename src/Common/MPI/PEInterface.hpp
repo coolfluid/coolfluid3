@@ -22,10 +22,18 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// Communication with MPI always occurs over a communicator, 
+// which can be created be simply default-constructing an object 
+// of type boost::mpi::communicator. This communicator can then be queried 
+// to determine how many processes are running (the "size" of the communicator) 
+// and to give a unique number to each process, from zero to the size 
+// of the communicator (i.e., the "rank" of the process)
+	
 /// Base class for the PEInterface
 class Common_API PEInterface :
     public boost::noncopyable,
-    public boost::mpi::communicator {
+    public boost::mpi::communicator 
+{
 
 public:
 
