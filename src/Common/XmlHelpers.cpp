@@ -353,8 +353,8 @@ namespace Common {
 
     // parser trims and merges whitespaces
     xmldoc->parse< parse_no_data_nodes |
-                   parse_trim_whitespace |
-                   parse_normalize_whitespace >(ctext);
+                   parse_trim_whitespace /*|
+                   parse_normalize_whitespace*/ >(ctext);
 
     return xmldoc;
   }
@@ -387,8 +387,8 @@ namespace Common {
 
     // parser trims and merges whitespaces
     xmldoc->parse< parse_no_data_nodes |
-                   parse_trim_whitespace |
-                   parse_normalize_whitespace >(buffer);
+                   parse_trim_whitespace /*|
+                   parse_normalize_whitespace*/ >(buffer);
 
     return xmldoc;
   }

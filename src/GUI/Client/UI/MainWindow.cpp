@@ -14,10 +14,13 @@
 #include <QMessageBox>
 #include <QMenuBar>
 #include <QPushButton>
+#include <QScrollArea>
 #include <QSplitter>
 #include <QTableView>
 #include <QTabWidget>
 #include <QVBoxLayout>
+
+#include <QDebug>
 
 #include "Common/Exception.hpp"
 #include "Common/ConfigArgs.hpp"
@@ -74,6 +77,7 @@ MainWindow::MainWindow()
   m_propertyView = new QTableView(m_tabWindow);
   m_labDescription = new QLabel(m_tabWindow);
   m_treeBrowser = new TreeBrowser(m_treeView, this);
+  m_scrollDescription = new QScrollArea(this);
 
   m_aboutCFDialog = new AboutCFDialog(this);
 
@@ -86,10 +90,14 @@ MainWindow::MainWindow()
 
   m_labDescription->setTextFormat(Qt::RichText);
   m_labDescription->setAlignment(Qt::AlignTop);
+  m_labDescription->setWordWrap(true);
+
+  m_scrollDescription->setWidgetResizable(true);
+  m_scrollDescription->setWidget(m_labDescription);
 
   m_tabWindow->addTab(m_logList, "Log");
   m_tabWindow->addTab(m_propertyView, "Properties");
-  m_tabWindow->addTab(m_labDescription, "Description");
+  m_tabWindow->addTab(m_scrollDescription, "Description");
 
   m_centralWidgetLayout->addWidget(m_optionPanel);
   m_centralWidgetLayout->addWidget(m_tabWindow);
@@ -751,5 +759,6 @@ void MainWindow::currentIndexChanged(const QModelIndex & newIndex, const QModelI
 
   ClientRoot::tree()->getNodeProperties(newIndex, data);
 
-  m_labDescription->setText(text.arg(data["brief"]).arg(data["description"]));
+  text = text.arg(data["brief"]).arg(data["description"]);
+  m_labDescription->setText(text.replace("\n","<br>"));
 }

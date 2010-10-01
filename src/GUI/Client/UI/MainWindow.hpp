@@ -24,7 +24,7 @@
 class QGridLayout;
 class QLabel;
 class QModelIndex;
-class QScrollBar;
+class QScrollArea;
 class QSplitter;
 class QTabWidget;
 class QTextEdit;
@@ -228,6 +228,8 @@ namespace ClientUI {
     ClientCore::PropertyModel * m_propertyModel;
 
     QLabel * m_labDescription;
+
+    QScrollArea * m_scrollDescription;
 
     TreeBrowser * m_treeBrowser;
 
