@@ -87,7 +87,9 @@ void LoggingList::newMessage(const QString & message, LogMessage::Type type)
   else
     color = "black";
 
-  msg.prepend(imgTag.arg(typeName).arg(size));
+  imgTag = imgTag.arg(typeName).arg(size);
 
-  this->append(msgToAppend.arg(color).arg(msg.replace("\n", "<br>")));
+  msg.prepend(imgTag);
+
+  this->append(msgToAppend.arg(color).arg(msg.replace("\n", "<br>" + imgTag)));
 }
