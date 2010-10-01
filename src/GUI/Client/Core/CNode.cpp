@@ -567,6 +567,28 @@ void CNode::getProperties(QMap<QString, QString> & props) const
 void CNode::getActions(QList<ActionInfo> & actions) const
 {
   actions = m_actionSigs;
+
+  QStringList::const_iterator it = m_localSignals.begin();
+
+  for( ; it != m_localSignals.end() ; it++)
+  {
+
+    if(m_signals.find(it->toStdString()) != m_signals.end())
+    {
+      ActionInfo ai;
+      const Signal & sig = m_signals.find(it->toStdString())->second;
+
+      ai.m_name = it->toStdString().c_str();
+      ai.m_description = sig.m_description.c_str();
+      ai.m_readableName = sig.m_readable_name.c_str();
+      ai.m_signature = sig.m_signature;
+      ai.m_is_local = true;
+
+      actions.append(ai);
+    }
+    else
+      ClientRoot::log()->addError(*it + ": local signal not found");
+  }
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -671,6 +693,7 @@ void CNode::list_signals_reply( XmlNode & node )
     si.m_readableName = name_attr != CFNULL ? name_attr->value() : "";
     si.m_description = desc_attr != CFNULL ? desc_attr->value() : "";
     si.m_signature = XmlSignature(*map);
+    si.m_is_local = false;
 
     m_actionSigs.append(si);
 

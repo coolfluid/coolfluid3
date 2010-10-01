@@ -72,6 +72,8 @@ namespace ClientCore {
 
     QString m_description;
 
+    bool m_is_local;
+
     CF::Common::XmlSignature m_signature;
   };
 
@@ -288,6 +290,8 @@ namespace ClientCore {
     CNodeNotifier * m_notifier;
 
     void configure_reply(CF::Common::XmlNode & node);
+
+    QStringList m_localSignals;
 
   private:
 

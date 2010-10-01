@@ -56,6 +56,7 @@ void SignalManager::showMenu(const QPoint & pos, const CF::Common::CPath & path,
 
     connect(action, SIGNAL(triggered()), this, SLOT(actionTriggered()));
     m_signals[action] = *it;
+    m_localStatus[action] = it->m_is_local;
   }
 
   if(!m_menu->isEmpty())
@@ -87,7 +88,24 @@ void SignalManager::actionTriggered()
       SignatureDialog * sg = new SignatureDialog();
 
       if(sg->show(valuemap, action->text()))
-        ClientRoot::core()->sendSignal(*doc);
+      {
+        if(m_localStatus[action])
+        {
+          try
+          {
+            if(ClientRoot::root()->root()->full_path().string() == m_path.string())
+              ClientRoot::root()->call_signal(info.m_name.toStdString(), frame);
+            else
+              ClientRoot::root()->root()->access_component(m_path)->call_signal(info.m_name.toStdString(), frame);
+          }
+          catch(InvalidPath ip)
+          {
+            ClientRoot::log()->addException(ip.what());
+          }
+        }
+        else
+          ClientRoot::core()->sendSignal(*doc);
+      }
 
       delete sg;
     }

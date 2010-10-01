@@ -86,7 +86,7 @@ void NLinkTest::test_goToTarget()
   t->setCurrentIndex(t->index(0, 0));
 
   index = t->getIndexByPath("//Simulator/MG/Mesh1");
-  link->goToTarget();
+  link->goToTarget(*XmlOps::create_doc().get());
 
   // 2 signals should have been thrown, one by setCurrentIndex() and one by
   // goToTarget()

@@ -53,6 +53,8 @@ namespace ClientUI {
 
     QMap<QAction *, CF::GUI::ClientCore::ActionInfo> m_signals;
 
+    QMap<QAction *, bool> m_localStatus;
+
   }; // class SignalManager
 
   //////////////////////////////////////////////////////////////////////////////

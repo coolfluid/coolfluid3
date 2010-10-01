@@ -26,6 +26,10 @@ NLink::NLink(const QString & name)
 {
   BUILD_COMPONENT;
 
+  regist_signal("goToTarget", "Switch to the target node", "Go to target node")->connect(boost::bind(&NLink::goToTarget, this, _1));
+
+  m_localSignals << "goToTarget";
+
 //  QAction * action;
 
 //  action = new QAction("Go to target node", m_contextMenu);
@@ -95,7 +99,7 @@ void NLink::setTargetNode(const CNode::Ptr & node)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NLink::goToTarget()
+void NLink::goToTarget(XmlNode & node)
 {
   QModelIndex index = ClientRoot::tree()->getIndexByPath(m_target->full_path());
 

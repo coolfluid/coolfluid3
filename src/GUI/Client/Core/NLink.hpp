@@ -58,13 +58,13 @@ namespace ClientCore {
 
     void setTargetNode(const CNode::Ptr & node);
 
+    /// @brief Slot called when user wants to switch to the target
+    void goToTarget(CF::Common::XmlNode & node);
+
   public slots:
 
     /// @brief Slot called when user wants to change the target path
     void changeTarget();
-
-    /// @brief Slot called when user wants to switch to the target
-    void goToTarget();
 
   private :
 
