@@ -13,7 +13,7 @@
     WriteDict.hpp
   )
 
-  list( APPEND OpenFOAM_cflibs Mesh SF )
+  list( APPEND OpenFOAM_cflibs SF )
 
   set( OpenFOAM_kernellib TRUE )
 
