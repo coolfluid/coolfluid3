@@ -39,7 +39,7 @@ public:
   static PEInterface& instance();
 
   /// Initialise the PE
-  void init(int argc, char** args);
+  void init(int argc=0, char** args=0);
 
   /// Checks if the PE is initialized
   bool is_init() const;
