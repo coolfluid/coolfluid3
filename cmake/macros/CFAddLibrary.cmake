@@ -12,19 +12,6 @@ macro( coolfluid_add_library LIBNAME )
     set( ${LIBNAME}_kernellib OFF )
   endif()
 
-  # if is kernel library
-  # add the library to the list of kernel libs
-  # and add option to install or not the API headers
-  # default for kernel libs is to install
-  # default for plugin libs is not to install
-  if( ${LIBNAME}_kernellib )
-      option( CF_BUILD_${LIBNAME}_API "Publish the ${LIBNAME} (kernel) library API" ON )
-      coolfluid_append_cached_list( CF_KERNEL_LIBS ${LIBNAME} )
-  else()
-      option( CF_BUILD_${LIBNAME}_API "Publish the ${LIBNAME} (plugin) library API" OFF )
-  endif()
-  mark_as_advanced( CF_BUILD_${LIBNAME}_API )	# and mark the option advanced
-
   # library is shared or static?
   if( BUILD_SHARED_LIBS )
     set( ${LIBNAME}_buildtype SHARED )
@@ -70,6 +57,20 @@ macro( coolfluid_add_library LIBNAME )
 
   # compile if selected and all required modules are present
   if(${LIBNAME}_will_compile)
+
+    # if is kernel library
+    # add the library to the list of kernel libs
+    # and add option to install or not the API headers
+    # default for kernel libs is to install
+    # default for plugin libs is not to install
+    if( ${LIBNAME}_kernellib )
+        option( CF_BUILD_${LIBNAME}_API "Publish the ${LIBNAME} (kernel) library API" ON )
+        coolfluid_append_cached_list( CF_KERNEL_LIBS ${LIBNAME} )
+    else()
+        option( CF_BUILD_${LIBNAME}_API "Publish the ${LIBNAME} (plugin) library API" OFF )
+    endif()
+    mark_as_advanced( CF_BUILD_${LIBNAME}_API )	# and mark the option advanced
+
 
     # add include dirs if defined
     if( DEFINED ${LIBNAME}_includedirs )
