@@ -48,7 +48,14 @@ public:
                            int line,
                            const char * func,
                            const char * desc = 0 );
-
+	
+  static void do_assert (  bool condition,
+												   const char * cond_str,
+												   const char * file,
+												   int line,
+												   const char * func,
+												   const std::string& desc) { do_assert(condition,cond_str,file,line,func,desc.c_str()); }
+	
   /// flag to  dynamically turn off assertions
   bool DoAssertions;
   /// assertions dump backtraces

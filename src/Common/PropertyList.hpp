@@ -58,7 +58,7 @@ namespace Common {
     void configure_property(const std::string& pname, const boost::any& val)
     {
       PropertyStorage_t::iterator itr = m_properties.find(pname);
-      cf_assert ( itr != m_properties.end() );
+      cf_assert_desc("property "+pname+" not found", itr != m_properties.end() );
 
       Property::Ptr prop = itr->second;
 
