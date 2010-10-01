@@ -26,6 +26,7 @@ CMeshReader::CMeshReader ( const CName& name  ) :
   Component ( name )
 {
   BUILD_COMPONENT;
+	comm_pattern = SimpleCommunicationPattern(); // must be created after MPI init
 }
 
 ////////////////////////////////////////////////////////////////////////////////

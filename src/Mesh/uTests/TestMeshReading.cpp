@@ -1,3 +1,4 @@
+
 // Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
@@ -82,11 +83,13 @@ BOOST_AUTO_TEST_CASE( Constructors )
 
 BOOST_AUTO_TEST_CASE( quadtriag_readNeu_writeGmsh_writeNeu )
 {
+	PEInterface::instance().init();
+
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
-  
+	
+	meshreader->configure_property("number_of_processors",(Uint) PEInterface::instance().size());
+	meshreader->configure_property("rank",(Uint) PEInterface::instance().rank());
 	meshreader->configure_property("Repartition",true);
-	meshreader->configure_property("number_of_processors",(Uint) 1);
-	meshreader->configure_property("rank",(Uint) 0);
 	
   // the file to read from
   boost::filesystem::path fp_in ("quadtriag.neu");
@@ -137,6 +140,8 @@ BOOST_AUTO_TEST_CASE( quadtriag_readNeu_writeGmsh_writeNeu )
   BOOST_CHECK_EQUAL(mesh->domain().recursive_nodes_count(), (Uint) 16);
   BOOST_CHECK_EQUAL(mesh->domain().recursive_elements_count(), (Uint) 28);
   BOOST_CHECK_EQUAL(1,1);
+	
+	PEInterface::instance().finalize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

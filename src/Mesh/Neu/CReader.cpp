@@ -47,6 +47,16 @@ CReader::CReader( const CName& name )
   BUILD_COMPONENT;
 	m_property_list["Partition"].as_option().attach_trigger ( boost::bind ( &CReader::check_Partition_valid,   this ) );
 	m_property_list["Repartition"].as_option().attach_trigger ( boost::bind ( &CReader::config_repartition,   this ) );
+	
+	m_property_list["brief"] = std::string("Gambit Neutral file mesh reader component");
+	
+	std::string desc;
+	desc += "This component can read in parallel.\n";
+	desc += "It can also read multiple files in serial, combining them in one large mesh.\n";
+  desc += "Available coolfluid-element types are:\n";
+	BOOST_FOREACH(const std::string& supported_type, m_supported_types)
+	desc += "  - " + supported_type + "\n";
+	m_property_list["description"] = desc;
 }
 	
 void CReader::check_Partition_valid()
@@ -141,12 +151,12 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 	Uint np=property("number_of_processors").value<Uint>();
 	if (property("Partition").value<std::string>() == "nodes")
 	{
-		std::pair<Uint,Uint> range = std::make_pair(rank*m_headerData.NUMNP/np,(rank+1)*m_headerData.NUMNP/np-1);	
+		std::pair<Uint,Uint> range = std::make_pair(m_headerData.NUMNP/np * rank ,(rank == np-1 ? m_headerData.NUMNP : m_headerData.NUMNP/np*(rank+1)));	
 		partition_nodes(range);
 	}
 	else if (property("Partition").value<std::string>() == "elements")
 	{
-		std::pair<Uint,Uint> range = std::make_pair(rank*m_headerData.NELEM/np,(rank+1)*m_headerData.NELEM/np-1);	
+		std::pair<Uint,Uint> range = std::make_pair(m_headerData.NELEM/np * rank ,(rank == np-1 ? m_headerData.NELEM : m_headerData.NELEM/np*(rank+1)));	
 		partition_elements(range);		
 	}
 	
@@ -332,7 +342,7 @@ void CReader::read_coordinates()
 			if (it != m_nodes_to_read.end())
 			{
 				// add global node index
-				(*global_node_idx)[coord_idx][0] = i; // -1 because base zero
+				(*global_node_idx)[coord_idx][0] = i-1; // -1 because base zero
 				
 				std::stringstream ss(line);
 				Uint nodeNumber;
@@ -377,7 +387,7 @@ void CReader::partition_nodes(const std::pair<Uint,Uint>& range)
 			for (Uint j=0; j<nbElementNodes; ++j)
 			{
 				m_file >> neu_element_nodes[j];
-				if (neu_element_nodes[j]>=range.first && neu_element_nodes[j]<=range.second)
+				if (neu_element_nodes[j]>=range.first && neu_element_nodes[j]<range.second)
 				{
 					element_contains_nodes_in_range = true;
 				}
@@ -388,7 +398,7 @@ void CReader::partition_nodes(const std::pair<Uint,Uint>& range)
 				BOOST_FOREACH(const Uint node_number, neu_element_nodes)
 				{
 					m_nodes_to_read.insert(node_number);
-					if (node_number<range.first || node_number>range.second)
+					if (node_number<range.first || node_number>=range.second)
 					{
 						m_ghost_nodes.insert(node_number);
 						is_ghost_elem = true;
@@ -434,7 +444,7 @@ void CReader::partition_elements(const std::pair<Uint,Uint>& range)
 			{
 				m_file >> neu_element_nodes[j];
 			}
-			if (i>=range.first && i<=range.second)
+			if (i>=range.first && i<range.second)
 			{
 				BOOST_FOREACH(const Uint node_number, neu_element_nodes)
 					m_nodes_to_read.insert(node_number);

@@ -18,13 +18,14 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CArray.hpp"
+#include "Mesh/SimpleCommunicationPattern.hpp"
 
 namespace CF {
 namespace Mesh {
 
   class CMesh;
   class CRegion;
-
+	
 ////////////////////////////////////////////////////////////////////////////////
 
 /// CMeshReader component class
@@ -102,6 +103,11 @@ private: // helper functions
 
   /// regists all the signals declared in this class
   static void regist_signals ( CMeshReader* self );
+	
+protected: // data
+	
+  SimpleCommunicationPattern comm_pattern;
+  SimpleCommunicationPattern::IndicesT nodes_dist;	
 
 };
 
