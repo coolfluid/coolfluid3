@@ -55,20 +55,8 @@ namespace Common {
     /// Configure one option, and trigger its actions
     /// @param [in] optname  The option name
     /// @param [in] val      The new value assigned to the option
-    void configure_property(const std::string& pname, const boost::any& val)
-    {
-      PropertyStorage_t::iterator itr = m_properties.find(pname);
-      cf_assert_desc("property "+pname+" not found", itr != m_properties.end() );
-
-      Property::Ptr prop = itr->second;
-
-      // update the value and trigger its actions (if it is an option)
-      if(prop->is_option())
-        prop->as_option().change_value(val);
-      else
-        prop->change_value(val);
-    }
-
+    void configure_property(const std::string& pname, const boost::any& val);
+		
     /// check that a property with the name exists
     /// @param prop_name the property name
     bool check ( const std::string& prop_name ) const

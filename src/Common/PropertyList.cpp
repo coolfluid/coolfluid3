@@ -29,8 +29,16 @@ namespace Common {
     if ( itr != m_properties.end() )
       return *itr->second.get();
     else
-      throw ValueNotFound(FromHere(), "Property with name [" + pname + "] not found" );
-  }
+		{ 			
+			std::string msg;
+			msg += "Property with name ["+pname+"] not found. Available properties are:\n";
+			PropertyStorage_t::const_iterator it = m_properties.begin();
+			for (; it!=m_properties.end(); it++)
+				msg += "  - " + it->first + "\n";
+			throw ValueNotFound(FromHere(),msg);
+		}
+		
+	}
 
   const Option & PropertyList::getOption( const std::string& pname) const
   {
@@ -59,6 +67,28 @@ namespace Common {
     return *prop.get();
   }
 
+	void PropertyList::configure_property(const std::string& pname, const boost::any& val)
+	{
+		PropertyStorage_t::iterator itr = m_properties.find(pname);
+		if (itr == m_properties.end())
+		{
+			std::string msg;
+			msg += "Property with name ["+pname+"] not found. Available properties are:\n";
+			PropertyStorage_t::iterator it = m_properties.begin();
+			for (; it!=m_properties.end(); it++)
+				msg += "  - " + it->first + "\n";
+			throw ValueNotFound(FromHere(),msg);
+		}
+		
+		Property::Ptr prop = itr->second;
+		
+		// update the value and trigger its actions (if it is an option)
+		if(prop->is_option())
+			prop->as_option().change_value(val);
+		else
+			prop->change_value(val);
+	}
+	
 
 /////////////////////////////////////////////////////////////////////////////////////
 
