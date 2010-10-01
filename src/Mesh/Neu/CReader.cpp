@@ -223,6 +223,7 @@ void CReader::set_pt_scotch_data()
   CNodeConnectivity::Ptr node_connectivity = create_component_type<CNodeConnectivity>("node_connectivity");
 	node_connectivity->initialize(recursive_range_typed<CElements>(*m_mesh));
 	
+	CFinfo.setFilterRankZero(LogStream::SCREEN,false);
 	Uint start;
 	Uint end = 0;
 	for (Uint iNode=0; iNode<m_coordinates->size(); ++iNode)
@@ -265,11 +266,14 @@ void CReader::set_pt_scotch_data()
 		}
 		
 	}
-	
+
 	print_vector(CFinfo, vertloctab, " ", "vertloctab = ","\n");
 	print_vector(CFinfo, edgeloctab, " ", "edgeloctab = ","\n");
 	print_vector(CFinfo, edgegsttab, " ", "edgegsttab = ","\n");
 	CFinfo << CFendl;	
+	
+	CFinfo.setFilterRankZero(LogStream::SCREEN,true);
+
 }
 
 //////////////////////////////////////////////////////////////////////////////

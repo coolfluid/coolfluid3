@@ -40,9 +40,8 @@ struct MeshReading_Fixture
   /// common setup for each test case
   MeshReading_Fixture()
   {
-     // uncomment if you want to use arguments to the test executable
-     //int*    argc = &boost::unit_test::framework::master_test_suite().argc;
-     //char*** argv = &boost::unit_test::framework::master_test_suite().argv;
+    m_argc = boost::unit_test::framework::master_test_suite().argc;
+    m_argv = boost::unit_test::framework::master_test_suite().argv;
   }
 
   /// common tear-down for each test case
@@ -54,6 +53,8 @@ struct MeshReading_Fixture
   
 
   /// common values accessed by all tests goes here
+  int    m_argc;
+  char** m_argv;
 
 };
 
@@ -83,7 +84,7 @@ BOOST_AUTO_TEST_CASE( Constructors )
 
 BOOST_AUTO_TEST_CASE( quadtriag_readNeu_writeGmsh_writeNeu )
 {
-	PEInterface::instance().init();
+	PEInterface::instance().init(m_argc,m_argv);
 
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
 	
@@ -129,7 +130,7 @@ BOOST_AUTO_TEST_CASE( quadtriag_readNeu_writeGmsh_writeNeu )
                       );
   // test if tree matches
   //BOOST_CHECK_EQUAL(text,mesh->tree());
-
+	
   boost::filesystem::path fp_out ("quadtriag.msh");
   CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
   gmsh_writer->write_from_to(mesh,fp_out);
@@ -140,8 +141,8 @@ BOOST_AUTO_TEST_CASE( quadtriag_readNeu_writeGmsh_writeNeu )
   BOOST_CHECK_EQUAL(mesh->domain().recursive_nodes_count(), (Uint) 16);
   BOOST_CHECK_EQUAL(mesh->domain().recursive_elements_count(), (Uint) 28);
   BOOST_CHECK_EQUAL(1,1);
-	
 	PEInterface::instance().finalize();
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -200,7 +201,6 @@ BOOST_AUTO_TEST_CASE( quadtriag_read_NewNeu_writeGmsh )
 
 //  CMeshTransformer::Ptr meshinfo = create_component_abstract_type<CMeshTransformer>("Info","meshinfo");
 //  meshinfo->transform(mesh);
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
