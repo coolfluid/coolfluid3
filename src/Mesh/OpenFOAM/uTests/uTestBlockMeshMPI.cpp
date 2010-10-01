@@ -69,7 +69,16 @@ GlobalFixture::GlobalFixture() : partitioned_mesh(new CMesh("partitioned_mesh"))
   Logger::instance().getStream(Logger::WARN).useDestination(LogStream::SCREEN, false);
   Logger::instance().getStream(Logger::DEBUG).useDestination(LogStream::SCREEN, false);
   Logger::instance().getStream(Logger::TRACE).useDestination(LogStream::SCREEN, false);
-  
+	Logger::instance().getStream(Logger::INFO).useDestination(LogStream::SYNC_SCREEN, false);
+  Logger::instance().getStream(Logger::ERROR).useDestination(LogStream::SYNC_SCREEN, false);
+  Logger::instance().getStream(Logger::WARN).useDestination(LogStream::SYNC_SCREEN, false);
+  Logger::instance().getStream(Logger::DEBUG).useDestination(LogStream::SYNC_SCREEN, false);
+  Logger::instance().getStream(Logger::TRACE).useDestination(LogStream::SYNC_SCREEN, false);
+	Logger::instance().getStream(Logger::INFO).setFilterRankZero(LogStream::SYNC_SCREEN, false);
+  Logger::instance().getStream(Logger::ERROR).setFilterRankZero(LogStream::SYNC_SCREEN, false);
+  Logger::instance().getStream(Logger::WARN).setFilterRankZero(LogStream::SYNC_SCREEN, false);
+  Logger::instance().getStream(Logger::DEBUG).setFilterRankZero(LogStream::SYNC_SCREEN, false);
+  Logger::instance().getStream(Logger::TRACE).setFilterRankZero(LogStream::SYNC_SCREEN, false);
   instance = this;
 }
 
