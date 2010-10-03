@@ -679,6 +679,8 @@ void CNode::list_signals_reply( XmlNode & node )
 {
   XmlNode * map = node.first_node();
 
+  m_actionSigs.clear();
+
   while(map != CFNULL)
   {
     ActionInfo si;
