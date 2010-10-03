@@ -376,23 +376,26 @@ sub prepare ()
       print "Setting C++ compiler to \"".$ENV{CXX}."\". Overide this with environment variable \"CXX\"\n" if ($opt_verbose);
     }
 
-    if (!((exists $ENV{FC}) or (exists $ENV{F77})))
+    unless ($opt_no_fortran)
     {
-      $ENV{FC} = "gfortran";
-      print "Setting Fortran compiler to \"".$ENV{FC}."\". Overide this with environment variable \"FC\".\n" if ($opt_verbose);
-    }
+	    if (!((exists $ENV{FC}) or (exists $ENV{F77})))
+	    {
+	      $ENV{FC} = "gfortran";
+	      print "Setting Fortran compiler to \"".$ENV{FC}."\". Overide this with environment variable \"FC\".\n" if ($opt_verbose);
+	    }
 
-    # makes sure the both compiler variable F77 and FC always exist
-    if ( !(exists $ENV{FC}) )
-    {
-      print "Setting FC equal to F77\n" if ($opt_verbose);
-      $ENV{FC} = $ENV{F77};
-    }
-    if ( !(exists $ENV{F77}) )
-    {
-      print "Setting F77 equal to FC\n" if ($opt_verbose);
-      $ENV{F77} = $ENV{FC};
-    }
+	    # makes sure the both compiler variable F77 and FC always exist
+	    if ( !(exists $ENV{FC}) )
+	    {
+	      print "Setting FC equal to F77\n" if ($opt_verbose);
+	      $ENV{FC} = $ENV{F77};
+	    }
+	    if ( !(exists $ENV{F77}) )
+	    {
+	      print "Setting F77 equal to FC\n" if ($opt_verbose);
+	      $ENV{F77} = $ENV{FC};
+	    }
+	}
 }
 
 #==========================================================================
@@ -1167,12 +1170,12 @@ sub print_info() # print information about the
     print "LD_LIBRARY_PATH : $ENV{LD_LIBRARY_PATH}\n";
     print "CC  : $ENV{CC}\n";
     print "CXX : $ENV{CXX}\n";
-    print "FC  : $ENV{FC}\n";
+    print "FC  : $ENV{FC}\n" unless ($opt_no_fortran);
     print "CFLAGS   : $ENV{CFLAGS}\n";
     print "CXXFLAGS : $ENV{CXXFLAGS}\n";
-    print "FFLAGS   : $ENV{FFLAGS}\n";
-    print "F77FLAGS : $ENV{F77FLAGS}\n";
-    print "F90FLAGS : $ENV{F90FLAGS}\n";
+    print "FFLAGS   : $ENV{FFLAGS}\n"   unless ($opt_no_fortran);
+    print "F77FLAGS : $ENV{F77FLAGS}\n" unless ($opt_no_fortran);
+    print "F90FLAGS : $ENV{F90FLAGS}\n" unless ($opt_no_fortran);
 
     print "---------------------------------\n"; 
     
