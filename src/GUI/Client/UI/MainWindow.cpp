@@ -62,11 +62,13 @@ MainWindow::MainWindow()
 {
   this->setWindowTitle("COOLFluiD client");
 
+  this->statusBar(); // has to be called to create the status bar
+
   m_logFile.device()->open(QIODevice::WriteOnly);
 
   // create the components
   m_optionPanel = new OptionPanel(this);
-  m_treeView = new TreeView(m_optionPanel);
+  m_treeView = new TreeView(m_optionPanel, this);
   m_statusPanel = CFNULL;//new StatusPanel(m_statusModel, this);
   m_splitter = new QSplitter(Qt::Horizontal, this);
   m_centralSplitter = new QSplitter(Qt::Vertical, this);

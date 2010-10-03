@@ -16,6 +16,7 @@
 #include "GUI/Client/Core/CNode.hpp"
 
 class QMenu;
+class QMainWindow;
 
 template<typename T> class QList;
 template<typename T, typename V> class QMap;
@@ -34,7 +35,7 @@ namespace ClientUI {
 
   public:
 
-    SignalManager(QObject *parent = 0);
+    SignalManager(QMainWindow *parent = 0);
 
     ~SignalManager();
 
@@ -44,6 +45,8 @@ namespace ClientUI {
   private slots:
 
     void actionTriggered();
+
+    void actionHovered();
 
   private:
 

@@ -7,8 +7,12 @@
 #include "GUI/Client/UI/SignalManager.hpp"
 
 #include <QList>
+#include <QMainWindow>
 #include <QMap>
 #include <QMenu>
+#include <QStatusBar>
+
+#include <QDebug>
 
 #include "Common/XmlHelpers.hpp"
 #include "Common/XmlSignature.hpp"
@@ -21,7 +25,7 @@ using namespace CF::Common;
 using namespace CF::GUI::ClientCore;
 using namespace CF::GUI::ClientUI;
 
-SignalManager::SignalManager(QObject *parent) :
+SignalManager::SignalManager(QMainWindow *parent) :
     QObject(parent)
 {
   m_menu = new QMenu();
@@ -54,7 +58,11 @@ void SignalManager::showMenu(const QPoint & pos, const CF::Common::CPath & path,
     if(!it->m_readableName.isEmpty())
       action->setText(it->m_readableName);
 
+    action->setStatusTip(it->m_description);
+
     connect(action, SIGNAL(triggered()), this, SLOT(actionTriggered()));
+    connect(action, SIGNAL(hovered()), this, SLOT(actionHovered()));
+
     m_signals[action] = *it;
     m_localStatus[action] = it->m_is_local;
   }
@@ -113,5 +121,18 @@ void SignalManager::actionTriggered()
     {
       ClientRoot::log()->addException(vnf.what());
     }
+  }
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void SignalManager::actionHovered()
+{
+  QAction * action = static_cast<QAction*>(sender());
+
+  if(action != CFNULL)
+  {
+    static_cast<QMainWindow*>(parent())->statusBar()->showMessage(action->statusTip(), 3000);
   }
 }

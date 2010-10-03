@@ -45,7 +45,7 @@ TreeView::TreeView(OptionPanel * optionsPanel, QMainWindow * parent,
   m_optionsPanel = optionsPanel;
   m_modelFilter->setSourceModel(ClientRoot::tree().get());
   m_modelFilter->setDynamicSortFilter(true);
-  m_signalManager = new SignalManager(this);
+  m_signalManager = new SignalManager(parent);
 
   QRegExp reg(QRegExp(".+", Qt::CaseInsensitive, QRegExp::RegExp));
   m_modelFilter->setFilterRegExp(reg);
