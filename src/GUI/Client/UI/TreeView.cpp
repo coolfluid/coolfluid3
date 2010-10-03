@@ -160,8 +160,6 @@ void TreeView::mousePressEvent(QMouseEvent * event)
   QModelIndex index = this->indexAt(mousePosition);
   NTree::Ptr tree = ClientRoot::tree();
 
-  QTreeView::mousePressEvent(event);
-
   QModelIndex indexInModel = m_modelFilter->mapToSource(this->currentIndex());
 
   Qt::MouseButton button = event->button();
