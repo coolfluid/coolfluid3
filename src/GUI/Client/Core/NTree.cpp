@@ -6,6 +6,7 @@
 
 #include <QFileIconProvider>
 #include <QMutableMapIterator>
+#include <QDebug>
 
 #include "Common/CF.hpp"
 #include "Common/XmlHelpers.hpp"
@@ -331,6 +332,22 @@ void NTree::optionsChanged(const CPath & path)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+bool NTree::nodeMatches(const QModelIndex & index, const QRegExp & regex) const
+{
+  Component::Ptr node = m_rootNode->getNode()->convertTo<NRoot>()->root();
+
+  if(index.isValid() && indexToTreeNode(index) != m_rootNode)
+    node = indexToNode(index);
+
+  if(node.get() != CFNULL)
+    return this->nodeMatchesRec(node, regex);
+  else
+    return false;
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 void NTree::modifyOptions(const QModelIndex & index,
                           const QMap<QString, QString> & options)
 {
@@ -590,4 +607,18 @@ QIcon NTree::getIcon() const
 QString NTree::getToolTip() const
 {
   return this->getComponentType();
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+bool NTree::nodeMatchesRec(Component::Ptr node, const QRegExp regex) const
+{
+  bool match = QString(node->name().c_str()).contains(regex);
+  ComponentIterator<CNode> it = node->begin<CNode>();
+
+  for( ; it != node->end<CNode>() ; it++)
+    match |= (m_debugModeEnabled || !it->isClientComponent()) && this->nodeMatchesRec(it.get(), regex);
+
+  return match;
 }

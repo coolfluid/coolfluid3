@@ -16,6 +16,7 @@
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/CommitDetails.hpp"
+#include "GUI/Client/Core/FilteringModel.hpp"
 #include "GUI/Client/Core/UnknownTypeException.hpp"
 #include "GUI/Client/UI/CommitDetailsDialog.hpp"
 #include "GUI/Client/UI/ConfirmCommitDialog.hpp"
@@ -41,14 +42,12 @@ TreeView::TreeView(OptionPanel * optionsPanel, QMainWindow * parent,
     throw BadValue(FromHere(), "Options panel is a CFNULL pointer");
 
   // instantiate class attributes
-  m_modelFilter = new QSortFilterProxyModel(this);
+  m_modelFilter = new FilteringModel(this);
   m_optionsPanel = optionsPanel;
-  m_modelFilter->setSourceModel(ClientRoot::tree().get());
-  m_modelFilter->setDynamicSortFilter(true);
   m_signalManager = new SignalManager(parent);
 
-  QRegExp reg(QRegExp(".+", Qt::CaseInsensitive, QRegExp::RegExp));
-  m_modelFilter->setFilterRegExp(reg);
+  m_modelFilter->setSourceModel(ClientRoot::tree().get());
+  m_modelFilter->setDynamicSortFilter(true);
 
   this->setModel(m_modelFilter);
 
@@ -147,6 +146,16 @@ void TreeView::selectItem(const CPath & path)
     this->selectionModel()->select(indexInFilter, flags);
     this->selectionModel()->setCurrentIndex(indexInFilter, flags);
   }
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void TreeView::setFilter(const QString & pattern)
+{
+  QRegExp regex(pattern, Qt::CaseInsensitive, QRegExp::Wildcard);
+  m_modelFilter->setFilterRegExp(regex);
+  this->expandAll();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

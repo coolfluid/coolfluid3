@@ -17,6 +17,9 @@
 #include "GUI/Client/Core/TreeNode.hpp"
 #include "GUI/Client/Core/NRoot.hpp"
 
+class QRegExp;
+
+//////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 
@@ -243,6 +246,8 @@ namespace ClientCore {
 
     void optionsChanged(const CF::Common::CPath & path);
 
+    bool nodeMatches(const QModelIndex & index, const QRegExp & regex) const;
+
     /// @name Signals
     /// @{
 
@@ -318,6 +323,8 @@ namespace ClientCore {
 
     /// regists all the signals declared in this class
     static void regist_signals ( Component* self ) {}
+
+    bool nodeMatchesRec(Component::Ptr node, const QRegExp regex) const;
 
   }; // class NTree
 

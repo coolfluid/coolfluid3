@@ -3,6 +3,7 @@
 #include <QModelIndex>
 #include <QPersistentModelIndex>
 #include <QPushButton>
+#include <QLineEdit>
 #include <QToolBar>
 #include <QToolButton>
 #include <QVBoxLayout>
@@ -31,6 +32,7 @@ TreeBrowser::TreeBrowser(TreeView * view, QWidget *parent) :
   m_btNext = new QToolButton(this);
   m_menuNext = new QMenu(m_btNext);
   m_menuPrevious = new QMenu(m_btPrevious);
+  m_filter = new QLineEdit(this);
 
   m_buttonsLayout = new QGridLayout();
   m_mainLayout = new QVBoxLayout(this);
@@ -46,7 +48,7 @@ TreeBrowser::TreeBrowser(TreeView * view, QWidget *parent) :
 
   m_buttonsLayout->addWidget(m_btPrevious, 0, 0);
   m_buttonsLayout->addWidget(m_btNext, 0, 1);
-  m_buttonsLayout->addWidget(new QWidget(), 0, 2);
+  m_buttonsLayout->addWidget(m_filter, 0, 2);
 
   m_buttonsLayout->setColumnStretch(2, 10);
 
@@ -55,6 +57,7 @@ TreeBrowser::TreeBrowser(TreeView * view, QWidget *parent) :
 
   connect(m_btPrevious, SIGNAL(clicked()), this, SLOT(previousClicked()));
   connect(m_btNext, SIGNAL(clicked()), this, SLOT(nextClicked()));
+  connect(m_filter, SIGNAL(textChanged(QString)), this, SLOT(filterUpdated(QString)));
 
   connect(m_treeView, SIGNAL(doubleClicked(QModelIndex)),
           this, SLOT(doubleClicked(QModelIndex)));
@@ -135,6 +138,14 @@ void TreeBrowser::actionTriggered()
     m_treeView->setRootIndex(m_history.at(m_currentIndex));
     this->updateButtons();
   }
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void TreeBrowser::filterUpdated(const QString & text)
+{
+  m_treeView->setFilter(text);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

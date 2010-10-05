@@ -29,11 +29,15 @@ class QSortFilterProxyModel;
 
 namespace CF {
 
-  namespace Common { class CPath; }
+namespace Common { class CPath; }
 
 namespace GUI {
 
-namespace ClientCore { struct TSshInformation; }
+namespace ClientCore
+{
+  class FilteringModel;
+  struct TSshInformation;
+}
 
 namespace ClientUI {
 
@@ -98,6 +102,8 @@ namespace ClientUI {
 
     void selectItem(const CF::Common::CPath & path);
 
+    void setFilter(const QString & pattern);
+
   protected:
 
     /// @brief Method called when a mouse button is pressed in the Client.
@@ -131,7 +137,7 @@ namespace ClientUI {
 
     /// Allows to switch between basic/advanced mode. The filter is used as the
     /// Client model. Its source is the tree model.
-    QSortFilterProxyModel * m_modelFilter;
+    CF::GUI::ClientCore::FilteringModel * m_modelFilter;
 
     /// @brief Indicates whether the tree m_view is in read-only mode or not.
 

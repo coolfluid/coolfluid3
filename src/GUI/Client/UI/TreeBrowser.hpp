@@ -14,6 +14,7 @@ class QMenu;
 class QModelIndex;
 class QPersistentModelIndex;
 class QPushButton;
+class QLineEdit;
 class QToolBar;
 class QToolButton;
 class QVBoxLayout;
@@ -91,6 +92,8 @@ namespace ClientUI {
     /// @brief Slot called when a menu item is clicked.
     void actionTriggered();
 
+    void filterUpdated(const QString & text);
+
   private:
 
     /// @brief The observed treeview.
@@ -104,6 +107,8 @@ namespace ClientUI {
 
     /// @brief The history
     QList<QPersistentModelIndex> m_history;
+
+    QLineEdit * m_filter;
 
     /// @brief Menu actions
 

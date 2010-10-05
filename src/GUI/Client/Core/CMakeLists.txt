@@ -8,6 +8,7 @@
 list( APPEND ClientCore_moc_classes
 CNode.hpp
 ClientNetworkComm.hpp
+FilteringModel.hpp # needs to be added because base class emits signals
 NArray.hpp
 NCore.hpp
 NElements.hpp
@@ -40,6 +41,8 @@ CommitDetails.cpp
 CommitDetails.hpp
 CommitDetailsItem.cpp
 CommitDetailsItem.hpp
+FilteringModel.cpp
+FilteringModel.hpp
 LibClientCore.cpp
 LibClientCore.hpp
 NArray.cpp

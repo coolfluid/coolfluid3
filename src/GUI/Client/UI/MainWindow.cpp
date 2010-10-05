@@ -179,7 +179,7 @@ void MainWindow::buildMenus()
   actionInfo.initDefaults();
   actionInfo.m_menu = m_mnuFile;
   actionInfo.m_text = "&Connect to server";
-  actionInfo.m_shortcut = tr("ctrl+C");
+  actionInfo.m_shortcut = tr("ctrl+shift+C");
   actionInfo.m_slot = SLOT(connectToServer());
 
   m_actions[MainWindow::ACTION_CONNECT_TO_SERVER] = actionInfo.buildAction(this);
@@ -199,7 +199,7 @@ void MainWindow::buildMenus()
   actionInfo.initDefaults();
   actionInfo.m_menu = m_mnuFile;
   actionInfo.m_text = "&Shutdown the server";
-  actionInfo.m_shortcut = tr("ctrl+K");
+  actionInfo.m_shortcut = tr("ctrl+shift+K");
   actionInfo.m_slot = SLOT(disconnectFromServer());
 
   m_actions[MainWindow::ACTION_SHUTDOWN_SERVER] = actionInfo.buildAction(this);

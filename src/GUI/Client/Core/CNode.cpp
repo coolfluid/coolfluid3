@@ -91,6 +91,8 @@ CNode::CNode(const QString & name, const QString & componentType, CNode::Type ty
   regist_signal("list_signals", "Update component signals")->connect(boost::bind(&CNode::list_signals_reply, this, _1));
 
   m_property_list.add_property("originalComponentType", m_componentType.toStdString());
+
+//  m_property_list.add_property("test", int(2));
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -557,7 +559,7 @@ void CNode::getProperties(QMap<QString, QString> & props) const
   for( ; it != m_property_list.m_properties.end() ; it++)
   {
     if(!it->second->is_option())
-      props[ it->first.c_str() ] = it->second->value<std::string>().c_str();
+      props[ it->first.c_str() ] = it->second->value_str().c_str();
   }
 }
 
