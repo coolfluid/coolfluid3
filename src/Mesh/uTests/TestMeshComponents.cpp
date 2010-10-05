@@ -16,6 +16,7 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CArray.hpp"
+#include "Mesh/CList.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/ElementType.hpp"
 
@@ -364,6 +365,61 @@ BOOST_AUTO_TEST_CASE( moving_mesh_components_around )
 
 
 }
+
+BOOST_AUTO_TEST_CASE( CList_tests )
+{
+	CList<bool> bool_list ("bool_list");
+	BOOST_CHECK_EQUAL(bool_list.type_name(),"CList<bool>");
+	
+	CList<int>::Ptr integer_list (new CList<int>("integer_list"));
+	BOOST_CHECK_EQUAL(integer_list->type_name(),"CList<integer>");
+
+	CList<Uint>::Ptr unsigned_list (new CList<Uint>("unsigned_list"));
+	BOOST_CHECK_EQUAL(unsigned_list->type_name(),"CList<unsigned>");
+	
+	CList<Real>::Ptr real_list (new CList<Real>("real_list"));
+	BOOST_CHECK_EQUAL(real_list->type_name(),"CList<real>");
+	
+	CList<std::string>::Ptr string_list (new CList<std::string>("string_list"));
+	BOOST_CHECK_EQUAL(string_list->type_name(),"CList<string>");
+	
+	bool_list.resize(10);
+	BOOST_CHECK_EQUAL(bool_list.size(),(Uint) 10);
+	bool_list[0] = true;
+	bool_list[5] = true;
+	
+	for (Uint i=0; i<10; ++i)
+	{
+		switch (i)
+		{
+			case 0:
+			case 5:
+				BOOST_CHECK_EQUAL(bool_list[i],true);
+				break;
+			default:
+				BOOST_CHECK_EQUAL(bool_list[i],false);
+				break;
+		}
+	}
+	
+	bool_list.resize(20);
+	BOOST_CHECK_EQUAL(bool_list.size(),(Uint) 20);
+
+	for (Uint i=0; i<20; ++i)
+	{
+		switch (i)
+		{
+			case 0:
+			case 5:
+				BOOST_CHECK_EQUAL(bool_list[i],true);
+				break;
+			default:
+				BOOST_CHECK_EQUAL(bool_list[i],false);
+				break;
+		}
+	}
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

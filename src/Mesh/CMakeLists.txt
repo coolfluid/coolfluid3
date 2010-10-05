@@ -17,6 +17,8 @@ list( APPEND Mesh_files
   CHoneycombInterpolator.cpp
   CInterpolator.hpp
   CInterpolator.cpp
+  CList.hpp
+  CList.cpp
   CMesh.hpp
   CMesh.cpp
   CMeshInfo.hpp
@@ -57,6 +59,7 @@ list( APPEND Mesh_files
   Line2D.cpp
   Line3D.hpp
   Line3D.cpp
+  ListBase.hpp
   Quad2D.hpp
   Quad2D.cpp
   Quad3D.hpp
