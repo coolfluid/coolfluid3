@@ -77,6 +77,15 @@ TreeBrowser::~TreeBrowser()
   delete m_mainLayout;
   delete m_btNext;
   delete m_btPrevious;
+  delete m_filter;
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void TreeBrowser::focusFilter()
+{
+  m_filter->setFocus();
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

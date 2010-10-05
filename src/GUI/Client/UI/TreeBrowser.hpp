@@ -76,6 +76,10 @@ namespace ClientUI {
     /// deleted.
     ~TreeBrowser();
 
+  public slots:
+
+    void focusFilter();
+
   private slots:
 
     /// @brief Slot called when user clicks on the @e previous button.

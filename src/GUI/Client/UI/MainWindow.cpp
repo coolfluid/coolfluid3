@@ -285,6 +285,16 @@ void MainWindow::buildMenus()
 
   actionInfo.initDefaults();
   actionInfo.m_menu = m_mnuView;
+  actionInfo.m_text = "&Find component";
+  actionInfo.m_shortcut = tr("ctrl+F");
+
+  tmpAction = actionInfo.buildAction(this);
+
+  connect(tmpAction, SIGNAL(triggered()), m_treeBrowser, SLOT(focusFilter()));
+
+
+  actionInfo.initDefaults();
+  actionInfo.m_menu = m_mnuView;
   actionInfo.m_text = "&Toggle information pane";
   actionInfo.m_shortcut = tr("ctrl+I");
 
