@@ -64,6 +64,7 @@ namespace Common {
   public:
 
     typedef boost::shared_ptr<Property>   Ptr;
+		typedef boost::shared_ptr<Property const>   ConstPtr;
 
     /// Constructor
     Property (boost::any value);

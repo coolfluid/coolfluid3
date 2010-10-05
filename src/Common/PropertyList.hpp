@@ -51,6 +51,8 @@ namespace Common {
     const Option & getOption( const std::string& pname ) const;
 
     Property & operator [] (const std::string & pname);
+		
+		const Property & operator [] (const std::string & pname) const;
 
     /// Configure one option, and trigger its actions
     /// @param [in] optname  The option name

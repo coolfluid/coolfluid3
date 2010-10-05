@@ -66,6 +66,25 @@ namespace Common {
 
     return *prop.get();
   }
+	
+	const Property & PropertyList::operator [] (const std::string & pname) const
+  {
+    Property::ConstPtr prop;
+    PropertyStorage_t::const_iterator itr = m_properties.find(pname);
+		
+    if ( itr != m_properties.end() )
+      prop = itr->second;
+    else
+		{
+			std::string msg;
+			msg += "Property with name ["+pname+"] not found. Available properties are:\n";
+			PropertyStorage_t::const_iterator it = m_properties.begin();
+			for (; it!=m_properties.end(); it++)
+				msg += "  - " + it->first + "\n";
+			throw	ValueNotFound(FromHere(),msg);
+		}
+    return *prop.get();
+  }
 
 	void PropertyList::configure_property(const std::string& pname, const boost::any& val)
 	{
