@@ -12,7 +12,7 @@
 #include "Common/BoostArray.hpp"
 
 #include "Mesh/LibMesh.hpp"
-// #include "Mesh/BufferT.hpp"
+#include "Mesh/ListBufferT.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -27,7 +27,7 @@ class ListBase {
 public: // typedefs
   typedef ValueT value_type;
   typedef boost::multi_array<ValueT,1> ListT;
-  //typedef BufferT<ValueT> Buffer;
+  typedef ListBufferT<ValueT> Buffer;
 
 public: // functions
   
@@ -43,13 +43,11 @@ public: // functions
   /// @return A const reference to the array data
   const ListT& array() const { return m_array; }
 
-  // /// @return A Buffer object that can fill this Array
-  // Buffer create_buffer(const size_t buffersize=1024)
-  // {
-  //   // make sure the array has its columnsize defined
-  //   cf_assert(row_size() > 0);
-  //   return Buffer(m_array,buffersize); 
-  // }
+  /// @return A Buffer object that can fill this Array
+  Buffer create_buffer(const size_t buffersize=1024)
+  {
+    return Buffer(m_array,buffersize); 
+  }
 
   /// @return A mutable row of the underlying array
   ValueT& operator[](const Uint idx) { return m_array[idx]; }

@@ -12,7 +12,7 @@
 #include "Common/BoostArray.hpp"
 
 #include "Mesh/LibMesh.hpp"
-#include "Mesh/BufferT.hpp"
+#include "Mesh/ArrayBufferT.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -29,7 +29,7 @@ public: // typedefs
   typedef boost::multi_array<ValueT,2> ArrayT;
   typedef typename boost::subarray_gen<ArrayT,1>::type Row;
   typedef typename boost::const_subarray_gen<ArrayT,1>::type ConstRow;
-  typedef BufferT<ValueT> Buffer;
+  typedef ArrayBufferT<ValueT> Buffer;
 
 public: // functions
   

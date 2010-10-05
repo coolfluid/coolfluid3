@@ -2,6 +2,7 @@ coolfluid_find_orphan_files()
 
 list( APPEND Mesh_files
   ArrayBase.hpp
+  ArrayBufferT.hpp
   CMesh.cpp
   CArray.hpp
   CArray.cpp
@@ -39,8 +40,6 @@ list( APPEND Mesh_files
   CRegion.cpp
   CTable.hpp
   CTable.cpp
-  BufferT.hpp
-  BufferT.cpp
   ElementNodes.hpp
   ElementNodes.cpp
   ElementType.hpp
@@ -60,6 +59,7 @@ list( APPEND Mesh_files
   Line3D.hpp
   Line3D.cpp
   ListBase.hpp
+  ListBufferT.hpp
   Quad2D.hpp
   Quad2D.cpp
   Quad3D.hpp

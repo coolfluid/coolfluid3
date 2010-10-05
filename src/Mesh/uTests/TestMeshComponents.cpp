@@ -420,6 +420,124 @@ BOOST_AUTO_TEST_CASE( CList_tests )
 	}
 }
 
+BOOST_AUTO_TEST_CASE( ListAddRemoveTest )
+{
+  // create table
+  CTable::Ptr table (new CTable("table"));
+  // initialize with number of columns
+  Uint nbCols = 3;
+  table->initialize(nbCols);
+  // create a buffer to interact with the table
+  CTable::Buffer buffer = table->create_buffer();
+  
+  // make a row
+  std::vector<Uint> row(nbCols);
+  
+  // add 4 rows to buffer
+  for(Uint i=0; i<nbCols; i++) row[i] = 0;
+  buffer.add_row(row);
+  for(Uint i=0; i<nbCols; i++) row[i] = 1;
+  buffer.add_row(row);
+  for(Uint i=0; i<nbCols; i++) row[i] = 2;
+  buffer.add_row(row);
+  for(Uint i=0; i<nbCols; i++) row[i] = 3;
+  buffer.add_row(row);
+  
+  // remove row 0 and 2
+  buffer.rm_row(0);
+  buffer.rm_row(2);
+  
+  // table should still be empty as the buffer is not flushed
+  BOOST_CHECK_EQUAL(table->array().size(),(Uint) 0);
+	
+	
+  buffer.flush();
+  
+  // table should have 2 elements as the buffer is flushed
+  BOOST_CHECK_EQUAL(table->array().size(),(Uint) 2);
+  BOOST_CHECK_EQUAL(table->array()[0][0], (Uint) 1);
+  BOOST_CHECK_EQUAL(table->array()[1][0], (Uint) 3);
+	
+  
+  // Test now if 2 rows can be deleted and only 1 added
+  
+  for(Uint i=0; i<nbCols; i++) row[i] = 4;
+  buffer.add_row(row);
+  buffer.rm_row(0);
+  buffer.rm_row(1);
+  BOOST_CHECK_EQUAL(table->array().size(),(Uint) 2);
+	
+  
+  buffer.flush();
+  BOOST_CHECK_EQUAL(table->array().size(),(Uint) 1);
+  BOOST_CHECK_EQUAL(table->array()[0][0], (Uint) 4);
+	
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( ListFlushTest )
+{
+  // create table
+  CList<Uint>list ("list");
+  // create a buffer to interact with the list with buffersize 3 (if no argument, use default buffersize)
+  CList<Uint>::Buffer buffer = list.create_buffer(3);
+  
+  // make a row
+  Uint row;
+  
+  // add 4 rows to buffer
+  row = 0;
+  buffer.add_row(row);
+  row = 1;
+  buffer.add_row(row);
+	row = 2;
+	buffer.add_row(row);
+	BOOST_CHECK_EQUAL(buffer.total_allocated(), (Uint) 3);
+	row = 3;
+	buffer.add_row(row);
+
+	// adding that last row allocated a new buffer of size 3
+  BOOST_CHECK_EQUAL(buffer.total_allocated(), (Uint) 6);
+  buffer.flush();
+  // the flush copied everything in the table, and removed the buffers
+  BOOST_CHECK_EQUAL(buffer.total_allocated(), (Uint) 4);
+  BOOST_CHECK_EQUAL(list.size(),(Uint) 4);
+	
+  
+  // buffer is now empty.
+  // add a row to buffer, remove that same row, and add another row.
+	row = 4;
+  buffer.add_row(row);
+  buffer.rm_row(4);
+	row = 5;
+  buffer.add_row(row);
+  BOOST_CHECK_EQUAL(buffer.total_allocated(), (Uint) 7);
+	
+  buffer.flush();
+  // the table should have grown with 1 as the buffer with 1 item was flushed
+  BOOST_CHECK_EQUAL(buffer.total_allocated(), (Uint) 5);
+  BOOST_CHECK_EQUAL(list.size(),(Uint) 5);
+  BOOST_CHECK_EQUAL(list[4],(Uint) 5);
+  
+  // remove row 0, 1, 2
+  buffer.rm_row(0);
+  buffer.rm_row(1);
+  buffer.rm_row(2);
+  
+  // table still has 5 rows, but first 3 rows are marked as disabled
+  BOOST_CHECK_EQUAL(list.size(),(Uint) 5);
+  
+  buffer.flush();
+  // now the table should only have 2 row, as the 3 disabled rows should be removed
+  
+  BOOST_CHECK_EQUAL(list.size(),(Uint) 2);
+  BOOST_CHECK_EQUAL(list[0],(Uint) 3);
+  BOOST_CHECK_EQUAL(list[1],(Uint) 5);
+	
+  
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

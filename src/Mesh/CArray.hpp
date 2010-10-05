@@ -14,7 +14,7 @@
 #include "Mesh/ArrayBase.hpp"
 #include "Mesh/LibMesh.hpp"
 
-#include "Mesh/BufferT.hpp"
+#include "Mesh/ArrayBufferT.hpp"
 
 namespace CF {
 namespace Mesh {
