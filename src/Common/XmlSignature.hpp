@@ -46,7 +46,7 @@ namespace Common {
     XmlSignature(const XmlNode & node);
 
     /// @brief Destructor
-    /// Frees all allocated node if the signature has node parent.
+    /// Frees all allocated nodes.
     ~XmlSignature();
 
     /// @brief Appends the list of the value to the provided node.
@@ -72,9 +72,11 @@ namespace Common {
     XmlSignature & insert_valuemap(const std::string & name, const std::string & desc);
 
     /// @brief Adds a data description of type T.
-    /// Type should be a subclass of @c #Option class.
+    /// T should be a type supported by the Xml protocol.
     /// @param name The description name. Can not be empty.
     /// @param desc A description string. May be empty.
+    /// @param is_array If @c true, an array of T is inserted; otherwise, a single
+    /// value is inserted. Default value is @c false.
     /// @return Returns a reference to this object.
     template<typename T>
     XmlSignature & insert(const std::string & name,
@@ -89,6 +91,7 @@ namespace Common {
     boost::shared_ptr<XmlDoc> m_xmldoc;
 
     /// @brief The value storage.
+    /// Points to a valuemap node.
     XmlNode * m_data;
 
     /// @brief The valuemap children.
@@ -101,6 +104,12 @@ namespace Common {
     /// @param parent The parent object.
     XmlSignature(XmlNode * node, XmlSignature * parent);
 
+    /// @brief Makes a deep copy of @c in child nodes to @c out.
+
+    /// Existing child nodes under @c out are not deleted and its name is not
+    /// modified.
+    /// @param in Node to copy.
+    /// @param out Node where the copy has to be appended to.
     void copy_node(const XmlNode & in, XmlNode & out) const;
 
   }; // class XmlSignature
