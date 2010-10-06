@@ -83,7 +83,7 @@ my %packages = (  #  version   default install priority      function
     "mpich"      => [ "1.2.7p1",'off',   'off', $priority++,  \&install_mpich ],
     "mpich2"     => [ "1.2.1",  'off',   'off', $priority++,  \&install_mpich2 ],
     "boost"      => [ "1_43_0", 'on' ,   'off', $priority++,  \&install_boost ],
-    "parmetis"   => [ "3.1.1",  'on' ,   'off', $priority++,  \&install_parmetis ],
+    "parmetis"   => [ "3.1.1",  'off',   'off', $priority++,  \&install_parmetis ],
     "hdf5"       => [ "1.8.5",  'off',   'off', $priority++,  \&install_hdf5 ],
     "trilinos"   => [ "10.2.0", 'off',   'off', $priority++,  \&install_trilinos ],
     "petsc"      => [ "3.1-p2", 'off',   'off', $priority++,  \&install_petsc3 ],
@@ -106,7 +106,7 @@ sub parse_commandline() # Parse command line
         'nocolor'               => \$opt_nocolor,
         'debug'                 => \$opt_debug,
         'nompi'                 => \$opt_nompi,
-        'no-fortran'             => \$opt_no_fortran,
+        'no-fortran'            => \$opt_no_fortran,
         'many-mpi'              => \$opt_many_mpi,
         'mpi=s'                 => \$opt_mpi,
         'mpi-dir=s'             => \$opt_mpi_dir,
@@ -159,7 +159,8 @@ options:
         --dwnldsrc=        Download server [$opt_dwnldsrc]
         --makeopts=        Options to pass to make [$opt_makeopts]
 
-        --install          Comma separated list of packages to install. Example: --install=all,hdf5,lam
+        --install          Comma separated list of packages to install. Example: --install=basic,hdf5,lam
+                           Special meta keywords for installation: [ basic | all ]
 
 ZZZ
     exit(0);
