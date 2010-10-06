@@ -74,7 +74,19 @@ bool SignatureDialog::show(XmlNode & sig, const QString & title)
     }
     else if( std::strcmp(node->name(), "array") == 0 )
     {
-      ClientRoot::log()->addError("Found array");
+      XmlAttr * type_attr = node->first_attribute( XmlParams::tag_attr_type() );
+
+      if( type_attr != CFNULL )
+      {
+        const char * type_str = type_attr->value();
+
+        if(std::strcmp(type_str, "file") == 0)
+          type = OptionType::TYPE_FILES;
+        else
+          throw ValueNotFound(FromHere(), std::string(type_str) + ": Type not found for array");
+      }
+      else
+        throw ValueNotFound(FromHere(), "Type not found");
     }
 
     goption = new GraphicalOption(type, this);
