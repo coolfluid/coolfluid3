@@ -11,13 +11,15 @@
 
 #include <QSortFilterProxyModel>
 
+#include "GUI/Client/Core/LibClientCore.hpp"
+
 namespace CF {
 namespace GUI {
 namespace ClientCore {
 
   //////////////////////////////////////////////////////////////////////////////
 
-  class FilteringModel : public QSortFilterProxyModel
+  class ClientCore_API FilteringModel : public QSortFilterProxyModel
   {
     Q_OBJECT
 
