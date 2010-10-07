@@ -17,7 +17,6 @@
 #include "Common/CRoot.hpp"
 #include "Common/CLink.hpp"
 #include "Common/CGroup.hpp"
-#include "Common/CMethod.hpp"
 #include "Common/CPath.hpp"
 #include "Common/EventHandler.hpp"
 #include "Common/SharedPtr.hpp"
@@ -33,6 +32,8 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/Neu/CReader.hpp"
 
+#include "Solver/CMethod.hpp"
+
 //#include "Framework/GlobalStopCriteria.hpp"
 //#include "Framework/Simulator.hpp"
 //#include "Framework/SimulationStatus.hpp"
@@ -46,6 +47,7 @@
 using namespace MPI;
 using namespace CF::Common;
 using namespace CF::Mesh;
+using namespace CF::Solver;
 using namespace CF::Mesh::Neu;
 //using namespace CF::Config;
 //using namespace CF::Environment;
