@@ -34,4 +34,5 @@ list( APPEND Solver_files
   CMethod.cpp
 )
 coolfluid_add_library(Solver)
+list(APPEND Solver_libs Common)
 
