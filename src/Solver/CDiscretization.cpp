@@ -22,7 +22,7 @@ CDiscretization_Provider ( CDiscretization::type_name() );
 ////////////////////////////////////////////////////////////////////////////////
 
 CDiscretization::CDiscretization ( const CName& name  ) :
-  Component ( name )
+  CMethod ( name )
 {
   BUILD_COMPONENT;
 }
