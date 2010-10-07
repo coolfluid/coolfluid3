@@ -24,6 +24,8 @@ add_custom_command(TARGET coolfluid-solver
 set( Solver_kernellib TRUE )
 
 list( APPEND Solver_files
+  CDiscretization.hpp
+  CDiscretization.cpp
   CMethod.hpp
   CMethod.cpp
 )
