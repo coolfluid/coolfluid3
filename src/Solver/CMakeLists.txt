@@ -4,7 +4,7 @@ list( APPEND coolfluid-solver_files
   coolfluid-solver.cpp
 )
 
-list(APPEND coolfluid-solver_libs Neu Gmsh SF)
+list(APPEND coolfluid-solver_libs Neu Gmsh Solver )
 
 coolfluid_add_application(coolfluid-solver)
 
@@ -34,7 +34,7 @@ list( APPEND Solver_files
 
 set( Solver_kernellib TRUE )
 
-list(APPEND Solver_libs Common)
+list(APPEND Solver_libs Mesh SF )
 
 coolfluid_add_library(Solver)
 
