@@ -23,6 +23,7 @@
 using namespace CF;
 using namespace CF::Common;
 using namespace CF::Mesh;
+using namespace CF::Solver;
 
 /////////////////////////////////////////////////////////////////////////////////////
 

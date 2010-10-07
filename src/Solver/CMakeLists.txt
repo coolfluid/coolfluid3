@@ -7,6 +7,10 @@ list( APPEND coolfluid-solver_files
   CForAllElements.cpp
   CForAllNodes.hpp
   CForAllNodes.cpp
+  CModel.hpp
+  CModel.cpp
+  LibSolver.hpp
+  LibSolver.cpp
 )
 
 list(APPEND coolfluid-solver_libs Neu Gmsh SF)

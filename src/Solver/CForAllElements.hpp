@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CForAllElements_hpp
-#define CF_Mesh_CForAllElements_hpp
+#ifndef CF_Solver_CForAllElements_hpp
+#define CF_Solver_CForAllElements_hpp
 
 #include <boost/mpl/for_each.hpp>
 
@@ -16,10 +16,13 @@
 #include "Mesh/COperation.hpp"
 #include "Mesh/SF/Types.hpp"
 
+using namespace CF::Mesh;
+
+
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Mesh {
+namespace Solver {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -179,9 +182,9 @@ typedef CForAllElementsT<COperation> CForAllElements;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // Solver
 } // CF
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_COperation_hpp
+#endif // CF_Solver_COperation_hpp
