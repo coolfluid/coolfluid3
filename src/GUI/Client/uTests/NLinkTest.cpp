@@ -12,7 +12,7 @@
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/NLink.hpp"
-#include "GUI/Client/Core/NGroup.hpp"
+#include "GUI/Client/Core/NGeneric.hpp"
 #include "GUI/Client/Core/NTree.hpp"
 
 #include "GUI/Client/uTests/CommonFunctions.hpp"
@@ -30,7 +30,7 @@ Q_DECLARE_METATYPE(QModelIndex);
 void NLinkTest::test_getTootip()
 {
   NRoot::Ptr root(new NRoot("Root"));
-  NGroup::Ptr target(new NGroup("Target"));
+  NGeneric::Ptr target(new NGeneric("Target", "MyType"));
 
   NLink::Ptr l1(new NLink("Link1"));
   NLink::Ptr l2(new NLink("Link2"));
@@ -50,7 +50,7 @@ void NLinkTest::test_getTootip()
 void NLinkTest::test_getTargetPath()
 {
   NRoot::Ptr root(new NRoot("Root"));
-  NGroup::Ptr target(new NGroup("Target"));
+  NGeneric::Ptr target(new NGeneric("Target", "MyType"));
 
   NLink::Ptr l1(new NLink("Link1"));
   NLink::Ptr l2(new NLink("Link2"));

@@ -12,11 +12,9 @@
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/CNode.hpp"
 #include "GUI/Client/Core/NBrowser.hpp"
-#include "GUI/Client/Core/NGroup.hpp"
+#include "GUI/Client/Core/NGeneric.hpp"
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/NLink.hpp"
-#include "GUI/Client/Core/NMesh.hpp"
-#include "GUI/Client/Core/NMethod.hpp"
 #include "GUI/Client/Core/NRoot.hpp"
 #include "GUI/Client/Core/NTree.hpp"
 
@@ -46,11 +44,11 @@ void CNodeTest::test_isClientComponent()
 {
   MyNode node("Node");
   NBrowser browser;
-  NGroup group("Group");
+  NGeneric group("Group", "MyType");
   NLink link("Link");
   NLog log;
-  NMesh mesh("Mesh");
-  NMethod method("Method");
+  NGeneric mesh("Mesh", "MyType");
+  NGeneric method("Method", "MyType");
   NRoot root("Root");
   NTree tree;
 
@@ -82,8 +80,8 @@ void CNodeTest::test_getType()
 
 void CNodeTest::test_checkType()
 {
-  NMesh mesh("Mesh");
-  NMethod method("Method");
+  NGeneric mesh("Mesh", "MyType");
+  NGeneric method("Method", "MyType");
   NRoot root("Root");
   NTree tree;
 
@@ -171,7 +169,7 @@ void CNodeTest::test_createFromXml()
 {
   CNode::Ptr node;
   NRoot::Ptr root;
-  NGroup::Ptr group;
+  NGeneric::Ptr group;
   QList<NodeOption> optList;
   NodeOption option;
   boost::shared_ptr<XmlDoc> tree = XmlOps::parse(
@@ -194,7 +192,7 @@ void CNodeTest::test_createFromXml()
   GUI_CHECK_THROW(CNode::createFromXml(*tree->first_node())->convertTo<NRoot>(), XmlError);
 
   GUI_CHECK_NO_THROW(node = boost::dynamic_pointer_cast<CNode>(root->root()->get_child("Flow")));
-  GUI_CHECK_NO_THROW(group = node->convertTo<NGroup>());
+  GUI_CHECK_NO_THROW(group = node->convertTo<NGeneric>());
 
   GUI_CHECK_NO_THROW(group->getOptions(optList));
 
