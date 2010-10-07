@@ -2,15 +2,6 @@ coolfluid_find_orphan_files()
 
 list( APPEND coolfluid-solver_files
   coolfluid-solver.cpp
-  ForAllRegions.hpp
-  CForAllElements.hpp
-  CForAllElements.cpp
-  CForAllNodes.hpp
-  CForAllNodes.cpp
-  CModel.hpp
-  CModel.cpp
-  LibSolver.hpp
-  LibSolver.cpp
 )
 
 list(APPEND coolfluid-solver_libs Neu Gmsh SF)
@@ -28,6 +19,15 @@ add_custom_command(TARGET coolfluid-solver
 set( Solver_kernellib TRUE )
 
 list( APPEND Solver_files
+  ForAllRegions.hpp
+  CForAllElements.hpp
+  CForAllElements.cpp
+  CForAllNodes.hpp
+  CForAllNodes.cpp
+  CModel.hpp
+  CModel.cpp
+  LibSolver.hpp
+  LibSolver.cpp
   CDiscretization.hpp
   CDiscretization.cpp
   CMethod.hpp
