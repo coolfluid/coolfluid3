@@ -46,7 +46,12 @@ public: // functions
   static std::string type_name () { return "CMethod"; }
 
   /// Configuration Options
-  static void defineConfigProperties ( Common::PropertyList& options ) {}
+  static void defineConfigProperties ( Common::PropertyList& options )
+  {
+    options.add_option< OptionT<bool> >("myBoolMeth", "A boolean value in a CMethod", true);
+    options.add_option< OptionT<int> >("fourtyTwo", "An integer value in a CMethod", 42);
+    options.add_option< OptionT<CF::Real> >("euler", "Euler number in a CMethod", 2.71);
+  }
 
   // functions specific to the CMethod component
   

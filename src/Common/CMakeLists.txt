@@ -27,8 +27,6 @@ list( APPEND Common_files
     CLibrary.hpp
     CLink.hpp
     CLink.cpp
-    CMethod.cpp
-    CMethod.hpp
     ConcreteProvider.hpp
     ConfigArgs.cpp
     ConfigArgs.hpp
