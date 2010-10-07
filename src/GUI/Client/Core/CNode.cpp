@@ -19,19 +19,11 @@
 #include "Common/String/Conversion.hpp"
 
 #include "GUI/Client/Core/ClientRoot.hpp"
-#include "GUI/Client/Core/NArray.hpp"
 #include "GUI/Client/Core/NCore.hpp"
-#include "GUI/Client/Core/NElements.hpp"
-#include "GUI/Client/Core/NGroup.hpp"
+#include "GUI/Client/Core/NGeneric.hpp"
 #include "GUI/Client/Core/NLog.hpp"
-#include "GUI/Client/Core/NLibrary.hpp"
 #include "GUI/Client/Core/NLink.hpp"
-#include "GUI/Client/Core/NMesh.hpp"
-#include "GUI/Client/Core/NMeshReader.hpp"
-#include "GUI/Client/Core/NMethod.hpp"
-#include "GUI/Client/Core/NRegion.hpp"
 #include "GUI/Client/Core/NRoot.hpp"
-#include "GUI/Client/Core/NTable.hpp"
 #include "GUI/Client/Core/NTree.hpp"
 
 #include "GUI/Client/Core/CNode.hpp"
@@ -735,28 +727,11 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, CPath> & lin
     rootNode = link;
     linkTargets[link] = node.value();
   }
-  else if(std::strcmp(nodeType, "CMesh") == 0)
-    rootNode = boost::shared_ptr<NMesh>(new NMesh(nodeName));
-  else if(std::strcmp(nodeType, "CReader") == 0)
-    rootNode = boost::shared_ptr<NMeshReader>(new NMeshReader(nodeName));
-  else if(std::strcmp(nodeType, "CMethod") == 0)
-    rootNode = boost::shared_ptr<NMethod>(new NMethod(nodeName));
-  else if(std::strcmp(nodeType, "CGroup") == 0)
-    rootNode = boost::shared_ptr<NGroup>(new NGroup(nodeName));
-  else if(std::strcmp(nodeType, "CArray") == 0)
-    rootNode = boost::shared_ptr<NArray>(new NArray(nodeName));
-  else if(std::strcmp(nodeType, "CTable") == 0)
-    rootNode = boost::shared_ptr<NTable>(new NTable(nodeName));
-  else if(std::strcmp(nodeType, "CRegion") == 0)
-    rootNode = boost::shared_ptr<NRegion>(new NRegion(nodeName));
-  else if(std::strcmp(nodeType, "CElements") == 0)
-    rootNode = boost::shared_ptr<NElements>(new NElements(nodeName));
   else if(std::strcmp(nodeType, "CRoot") == 0)
     rootNode = boost::shared_ptr<NRoot>(new NRoot(nodeName));
-  else if(std::strcmp(nodeType, "CLibrary") == 0)
-    rootNode = boost::shared_ptr<NLibrary>(new NLibrary(nodeName));
   else
-    throw XmlError(FromHere(), QString("%1: Unknown type parent is %2").arg(nodeType).arg(node.parent()->name()).toStdString().c_str());
+    rootNode = boost::shared_ptr<NGeneric>(new NGeneric(nodeName, nodeType));
+
 
   while(child != CFNULL)
   {

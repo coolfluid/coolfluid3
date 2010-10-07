@@ -6,12 +6,12 @@
 
 #include <QFileIconProvider>
 
-#include "GUI/Client/Core/NMethod.hpp"
+#include "GUI/Client/Core/NGeneric.hpp"
 
 using namespace CF::GUI::ClientCore;
 
-NMethod::NMethod(const QString & name)
-  : CNode(name, "CMethod", METHOD_NODE)
+NGeneric::NGeneric(const QString & name, const QString & type) :
+    CNode(name, type, ARRAY_NODE)
 {
   BUILD_COMPONENT;
 }
@@ -19,7 +19,7 @@ NMethod::NMethod(const QString & name)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QIcon NMethod::getIcon() const
+QIcon NGeneric::getIcon() const
 {
   return QFileIconProvider().icon(QFileIconProvider::File);
 }
@@ -27,7 +27,8 @@ QIcon NMethod::getIcon() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString NMethod::getToolTip() const
+QString NGeneric::getToolTip() const
 {
   return this->getComponentType();
 }
+

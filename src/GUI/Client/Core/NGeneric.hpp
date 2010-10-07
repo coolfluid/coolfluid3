@@ -4,14 +4,16 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Client_Core_NGroup_hpp
-#define CF_GUI_Client_Core_NGroup_hpp
+#ifndef CF_GUI_Client_Core_NGeneric_hpp
+#define CF_GUI_Client_Core_NGeneric_hpp
 
 ////////////////////////////////////////////////////////////////////////////
 
 #include <QObject>
 
 #include "GUI/Client/Core/CNode.hpp"
+
+#include "GUI/Client/Core/LibClientCore.hpp"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -21,21 +23,20 @@ namespace ClientCore {
 
   //////////////////////////////////////////////////////////////////////////
 
-  /// @brief Client corresponding component for @c CF::Common::CGroup.
-  class ClientCore_API NGroup :
-      public QObject,
+  /// @brief Client generic component.
+  class ClientCore_API NGeneric :
       public CNode
   {
-    Q_OBJECT
 
   public:
 
-    typedef boost::shared_ptr<NGroup> Ptr;
-    typedef boost::shared_ptr<NGroup const> ConstPtr;
+    typedef boost::shared_ptr<NGeneric> Ptr;
+    typedef boost::shared_ptr<NGeneric const> ConstPtr;
 
     /// @brief Constructor
     /// @param name Group name
-    NGroup(const QString & name);
+    /// @param The component type
+    NGeneric(const QString & name, const QString & type);
 
     /// @brief Gives the icon associated to this node
     /// @return Returns the icon associated to this node
@@ -51,7 +52,7 @@ namespace ClientCore {
     /// regists all the signals declared in this class
     static void regist_signals ( Component* self ) {}
 
-  }; // class NGroup
+  }; // class NGeneric
 
   //////////////////////////////////////////////////////////////////////////
 
@@ -61,4 +62,4 @@ namespace ClientCore {
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Client_Core_NGroup_hpp
+#endif // CF_GUI_Client_Core_NGeneric_hpp

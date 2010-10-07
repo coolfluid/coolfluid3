@@ -163,7 +163,10 @@ namespace ClientCore {
       TABLE_NODE,
 
       /// @brief Library node
-      LIBRARY_NODE
+      LIBRARY_NODE,
+
+      /// @brief Generic node
+      GENERIC_NODE
 
     }; // enum Type
 
