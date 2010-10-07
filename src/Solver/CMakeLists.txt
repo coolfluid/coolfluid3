@@ -28,6 +28,8 @@ list( APPEND Solver_files
   LibSolver.cpp
   CDiscretization.hpp
   CDiscretization.cpp
+  CIterativeSolver.hpp
+  CIterativeSolver.cpp
   CMethod.hpp
   CMethod.cpp
 )
