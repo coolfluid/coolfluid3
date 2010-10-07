@@ -31,11 +31,14 @@ namespace Tools {
 namespace Testing {
 
 ////////////////////////////////////////////////////////////////////////////////
+
 #ifdef CF_OS_LINUX
+
 extern "C"
 {
   #include <time.h>
 }
+
 /// Based on boost::timer and spirit/optimization/high_res_timer. Uses high resolution
 class Timer
 {

@@ -1,0 +1,44 @@
+#Sets:
+# RT_LIBRARY      = the library to link against (RT etc)
+# CF_HAVE_RT        = set to true after finding the library
+
+option( CF_SKIP_RT "Skip search for RT library" OFF )
+
+if( NOT CF_SKIP_RT )
+
+#  coolfluid_set_trial_include_path("") # clear include search path
+  coolfluid_set_trial_library_path("") # clear library search path
+
+#  coolfluid_add_trial_include_path( ${RT_HOME}/include )
+#  coolfluid_add_trial_include_path( $ENV{RT_HOME}/include )
+
+#  find_path(RT_INCLUDE_DIR RT/RT.h ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH)
+#  find_path(RT_INCLUDE_DIR RT/RT.h)
+
+  if( DEFINED RT_HOME )
+    coolfluid_add_trial_library_path( ${RT_HOME}/lib )
+  endif()
+
+  find_library(RT_LIBRARY RT ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
+  find_library(RT_LIBRARY RT )
+
+  if( RT_LIBRARY)
+    set(CF_HAVE_RT 1 CACHE BOOL "Found RT library")
+  else()
+    set(CF_HAVE_RT 0 CACHE BOOL "Not fount RT library")
+  endif()
+
+else()
+    set(CF_HAVE_RT 0 CACHE BOOL "Skipped RT library")
+endif()
+
+  mark_as_advanced(
+    RT_LIBRARY
+    CF_HAVE_RT
+  )
+
+  coolfluid_log( "CF_HAVE_RT: [${CF_HAVE_RT}]" )
+  if(CF_HAVE_RT)
+#    coolfluid_log( "  RT_INCLUDE_DIR:  [${RT_INCLUDE_DIR}]" )
+    coolfluid_log( "  RT_LIBRARY:      [${RT_LIBRARY}]" )
+  endif(CF_HAVE_RT)
