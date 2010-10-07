@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Client_MenuActionInfo_h
-#define CF_GUI_Client_MenuActionInfo_h
+#ifndef CF_GUI_Client_UI_MenuActionInfo_h
+#define CF_GUI_Client_UI_MenuActionInfo_h
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -115,4 +115,4 @@ namespace ClientUI {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Client_MenuActionInfo_h
+#endif // CF_GUI_Client_UI_MenuActionInfo_h

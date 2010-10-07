@@ -1,5 +1,5 @@
-#ifndef CF_GUI_Client_TreeBrowser_hpp
-#define CF_GUI_Client_TreeBrowser_hpp
+#ifndef CF_GUI_Client_UI_TreeBrowser_hpp
+#define CF_GUI_Client_UI_TreeBrowser_hpp
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -147,4 +147,4 @@ namespace ClientUI {
 
 /////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Client_TreeBrowser_hpp
+#endif // CF_GUI_Client_UI_TreeBrowser_hpp

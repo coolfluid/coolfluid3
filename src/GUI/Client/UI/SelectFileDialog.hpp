@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Client_SelectFileDialog_h
-#define CF_GUI_Client_SelectFileDialog_h
+#ifndef CF_GUI_Client_UI_SelectFileDialog_h
+#define CF_GUI_Client_UI_SelectFileDialog_h
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -248,4 +248,4 @@ namespace ClientUI {
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Client_SelectFileDialog_h
+#endif // CF_GUI_Client_UI_SelectFileDialog_h

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Client_CommitDetails_h
-#define CF_GUI_Client_CommitDetails_h
+#ifndef CF_GUI_Client_Core_CommitDetails_h
+#define CF_GUI_Client_Core_CommitDetails_h
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -150,4 +150,4 @@ namespace ClientCore {
 } // namespace GUI
 } // namespace CF
 
-#endif // CF_GUI_Client_CommitDetails_h
+#endif // CF_GUI_Client_Core_CommitDetails_h

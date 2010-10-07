@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Client_ClientCore_hpp
-#define CF_GUI_Client_ClientCore_hpp
+#ifndef CF_GUI_Client_Core_ClientCore_hpp
+#define CF_GUI_Client_Core_ClientCore_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -143,4 +143,4 @@ namespace ClientCore {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Client_ClientCore_hpp
+#endif // CF_GUI_Client_Core_ClientCore_hpp

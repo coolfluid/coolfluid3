@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Client_SignatureDialog_hpp
-#define CF_GUI_Client_SignatureDialog_hpp
+#ifndef CF_GUI_Client_UI_SignatureDialog_hpp
+#define CF_GUI_Client_UI_SignatureDialog_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -68,4 +68,4 @@ namespace ClientUI {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Client_SignatureDialog_hpp
+#endif // CF_GUI_Client_UI_SignatureDialog_hpp

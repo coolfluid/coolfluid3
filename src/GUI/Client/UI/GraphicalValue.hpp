@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Client_GraphicalValue_hpp
-#define CF_GUI_Client_GraphicalValue_hpp
+#ifndef CF_GUI_Client_UI_GraphicalValue_hpp
+#define CF_GUI_Client_UI_GraphicalValue_hpp
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -67,4 +67,4 @@ namespace ClientUI {
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Client_GraphicalValut_hpp
+#endif // CF_GUI_Client_UI_GraphicalValut_hpp

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Client_UnknownType_h
-#define CF_GUI_Client_UnknownType_h
+#ifndef CF_GUI_Client_Core_UnknownType_h
+#define CF_GUI_Client_Core_UnknownType_h
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -43,4 +43,4 @@ namespace ClientCore {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Client_UnknownType_h
+#endif // CF_GUI_Client_Core_UnknownType_h
