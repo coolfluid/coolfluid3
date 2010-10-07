@@ -18,6 +18,8 @@
 //#include "Common/VarRegistry.hpp"
 #include "Common/Log.hpp"
 #include "Common/OSystem.hpp"
+#include "Common/CGroup.hpp"
+#include "Common/CRoot.hpp"
 
 //#include "Common/SingleBehaviorFactory.hpp"
 #include "Common/DirPaths.hpp"
@@ -26,12 +28,11 @@
 #include "Common/LibraryRegistry.hpp"
 #include "Common/FactoryRegistry.hpp"
 #include "Common/LibraryRegisterBase.hpp"
-#include "Common/CoreEnv.hpp"
 #include "Common/CoreVars.hpp"
 
-////////////////////////////////////////////////////////////////////////////////
+#include "Common/CoreEnv.hpp"
 
-using namespace CF::Common;
+////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
   namespace Common {
@@ -40,8 +41,25 @@ namespace CF {
 
 CoreEnv& CoreEnv::instance()
 {
+  static bool created = false;
   static CoreEnv env;
+
+  if(!created)
+  {
+    env.m_root = CRoot::create("Root");
+    env.m_root->create_component_type<CGroup>("Libraries");
+    env.m_root->create_component_type<CGroup>("Tools");
+    created = true;
+  }
+
   return env;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CRoot::Ptr CoreEnv::root()
+{
+  return CoreEnv::instance().m_root;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

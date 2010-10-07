@@ -10,6 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "boost/checked_delete.hpp"
+#include <boost/shared_ptr.hpp>
 
 #include "Common/CF.hpp"
 
@@ -28,6 +29,7 @@ namespace Common {
   class EventHandler;
   class FactoryRegistry;
   class CoreVars;
+  class CRoot;
 
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -55,6 +57,10 @@ public: // methods
 
   /// @return the instance of this singleton
   static CoreEnv& instance();
+
+  /// @brief Gives the root component.
+  /// @return Returns the root component.
+  static boost::shared_ptr<CRoot> root();
 
   /// Defines the Config Option's of this class
   /// @param options a OptionList where to add the Option's
@@ -159,6 +165,9 @@ private: // data
   /// @brief Static environment variables
   /// pointer to a struct of variables that always exist
   CoreVars * m_env_vars;
+
+  /// @brief The component tree root
+  boost::shared_ptr<CRoot> m_root;
 
 }; // end of class CoreEnv
 
