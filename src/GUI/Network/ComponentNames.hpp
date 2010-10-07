@@ -9,7 +9,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-#define CLIENT_ROOT      "Simulator"
+#define CLIENT_ROOT      "Root"
 #define CLIENT_LOG       "Log"
 #define CLIENT_TREE      "Tree"
 #define CLIENT_CORE      "Core"

@@ -46,7 +46,7 @@ namespace Server {
   {
   public:
 
-    static CF::Common::CRoot::Ptr & getRoot();
+    static CF::Common::CRoot::Ptr getRoot();
 
     static void processSignal(const std::string & target,
                               const CF::Common::CPath & receiver,

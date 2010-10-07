@@ -123,8 +123,6 @@ int main(int argc, char *argv[])
       CCore::Ptr sk = ServerRoot::getCore();
       QString message("Server successfully launched on machine %1 (%2) on port %3!");
 
-      ServerRoot::getRoot();
-
       //        sk->listenToNetwork(hostInfo.addresses().at(0).toString(), port);
       sk->listenToNetwork(hostInfo.addresses().last().toString(), port);
       sk->setHostList(list);

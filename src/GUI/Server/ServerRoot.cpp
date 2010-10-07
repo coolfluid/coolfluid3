@@ -42,20 +42,21 @@ void SignalCatcher::finished()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CRoot::Ptr & ServerRoot::getRoot()
+CRoot::Ptr ServerRoot::getRoot()
 {
-  static bool rootCreated = false;
-  static CRoot::Ptr root = CRoot::create(SERVER_ROOT);
-  static CCore::Ptr core(new CCore());
-  static CSimulator::Ptr simulator(new CSimulator());
+  static bool created = false;
+  CRoot::Ptr root = CoreEnv::root();
 
-  if(!rootCreated)
+  if(!created)
   {
+    CCore::Ptr core(new CCore());
+    CSimulator::Ptr simulator(new CSimulator());
+
     m_thread = CFNULL;
     root->add_component(core);
     root->add_component(simulator);
 
-    rootCreated = true;
+    created = true;
 
     simulator->createSimulator();
   }
@@ -74,6 +75,9 @@ void ServerRoot::processSignal(const string & target,
 {
   if(m_mutex.tryLock())
   {
+    qDebug() << "in" << __FUNCTION__;
+    qDebug() << getRoot()->access_component<CCore>("//Root/Core")->full_path().string().c_str();
+
     m_doc.swap(doc);
     Component::Ptr receivingCompo = getRoot()->access_component(receiver);
     m_thread = new ProcessingThread(node, target, receivingCompo);
@@ -91,5 +95,5 @@ void ServerRoot::processSignal(const string & target,
 
 CCore::Ptr ServerRoot::getCore()
 {
-  return boost::dynamic_pointer_cast<CCore>(getRoot()->access_component(SERVER_CORE_PATH));
+  return getRoot()->access_component<CCore>(SERVER_CORE_PATH);
 }
