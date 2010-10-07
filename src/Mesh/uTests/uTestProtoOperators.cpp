@@ -177,6 +177,9 @@ struct Var : T
   typedef T type;
   Var() : T() {}
   
+  /// Index of the var
+  typedef I index_type;
+  
   template<typename T1>
   Var(const T1& par1) : T(par1) {}
   
@@ -228,6 +231,28 @@ struct MeshTerm : Var<mpl::int_<I>, T>::expr_type
   template<typename T1>
   MeshTerm(const T1& par1) : base_type(par1) {}
 };
+
+template<typename T>
+struct VarArity
+{
+  typedef typename T::index_type type;
+};
+
+// Gets the arity (max index) for the numbered variables
+struct ExprVarArity
+  : proto::or_<
+        proto::when< proto::terminal< Var<proto::_, proto::_> >,
+          mpl::next< VarArity<proto::_value> >()
+        >
+      , proto::when< proto::terminal<proto::_>,
+          mpl::int_<0>()
+        >
+      , proto::when<
+            proto::nary_expr<proto::_, proto::vararg<proto::_> >
+          , proto::fold<proto::_, mpl::int_<0>(), mpl::max<ExprVarArity, proto::_state>()>
+        >
+    >
+{};
 
 /// Transform that extracts the type of variable I
 template<Uint I>
@@ -296,17 +321,22 @@ void print::operator()(mpl::void_ const&) const
 template<typename Expr>
 void introspect(const Expr& E)
 {
+  // Determine the number of different variables
+  typedef typename boost::result_of<ExprVarArity(Expr)>::type nb_vars;
+  
+  std::cout << "nb vars: " << nb_vars::value << std::endl;
+  
   // init empty vector that will store variable indices
   typedef mpl::vector_c<Uint> numbers_empty;
   
   // Fill the vector with indices 0 to 9, so we allow 10 different (field or node related) variables in an expression
   typedef typename mpl::copy<
-      mpl::range_c<int,0,10>
+      mpl::range_c<int,0,nb_vars::value>
     , mpl::back_inserter< numbers_empty >
-    >::type range10;
+    >::type range;
   
   // Get the type for each variable that is used, or set to mpl::void_ for unused indices
-  typedef typename mpl::transform<range10, DefineTypeOp<mpl::_1, Expr > >::type expr_types;
+  typedef typename mpl::transform<range, DefineTypeOp<mpl::_1, Expr > >::type expr_types;
   
   typedef typename fusion::result_of::as_vector<expr_types>::type FusionVarsT;
   //error_printer<FusionVarsT>().print(); // induce a compile error to see the type
@@ -509,7 +539,7 @@ struct FillContexts
 
 /// Looper defines a functor taking the type that boost::mpl::for_each
 /// passes. It is the core of the looping mechanism.
-template<typename ExpressionT, typename VarTypesT>
+template<typename ExpressionT, typename VarTypesT, Uint nb_vars>
 class ElementLooper
 {
 public: // functions
@@ -529,7 +559,7 @@ public: // functions
     ContextsT contexts;
     
     InitContexts<VarTypesT, ContextsT> init_ctx(m_vars, contexts, m_elements);
-    boost::mpl::for_each<boost::mpl::range_c<int, 0, 10> >(init_ctx);
+    boost::mpl::for_each<boost::mpl::range_c<int, 0, nb_vars> >(init_ctx);
     
     FillContexts<VarTypesT, ContextsT> fill_ctx(m_vars, contexts);
     
@@ -540,7 +570,7 @@ public: // functions
     for(context.element_idx = 0; context.element_idx != nb_elems; ++context.element_idx)
     {
       fill_ctx.elem_idx = context.element_idx;
-      boost::mpl::for_each<boost::mpl::range_c<int, 0, 10> >(fill_ctx);
+      boost::mpl::for_each<boost::mpl::range_c<int, 0, nb_vars> >(fill_ctx);
       proto::eval(m_expr, context);
     }
     
@@ -560,17 +590,20 @@ typedef boost::mpl::vector< SF::Line1DLagrangeP1,
 template<typename Expr>
 void for_each_element(CMesh& mesh, const Expr& expr)
 {
+  // Number of variables
+  typedef typename boost::result_of<ExprVarArity(Expr)>::type nb_vars;
+  
   // init empty vector that will store variable indices
   typedef mpl::vector_c<Uint> numbers_empty;
   
   // Fill the vector with indices 0 to 9, so we allow 10 different (field or node related) variables in an expression
   typedef typename mpl::copy<
-      mpl::range_c<int,0,10>
+      mpl::range_c<int,0,nb_vars::value>
     , mpl::back_inserter< numbers_empty >
-    >::type range10;
+    >::type range_nb_vars;
   
   // Get the type for each variable that is used, or set to mpl::void_ for unused indices
-  typedef typename mpl::transform<range10, DefineTypeOp<mpl::_1, Expr > >::type expr_types;
+  typedef typename mpl::transform<range_nb_vars, DefineTypeOp<mpl::_1, Expr > >::type expr_types;
   
   typedef typename fusion::result_of::as_vector<expr_types>::type FusionVarsT;
   
@@ -581,7 +614,7 @@ void for_each_element(CMesh& mesh, const Expr& expr)
   // Evaluate the expression
   BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(mesh))
   {
-    boost::mpl::for_each<HigherIntegrationElements>(ElementLooper<Expr, FusionVarsT>(expr, vars, elements));
+    boost::mpl::for_each<HigherIntegrationElements>(ElementLooper<Expr, FusionVarsT, nb_vars::value>(expr, vars, elements));
   }
 }
 
@@ -644,6 +677,15 @@ BOOST_FIXTURE_TEST_CASE( Volume, ProtoOperatorsFixture )
 {
   Real vol = 0.;
   MeshTerm<0, ConstNodes> nodes;
+  for_each_element(*big_grid, vol += volume(nodes));
+  BOOST_CHECK_CLOSE(vol, 1., 0.0001);
+}
+
+// Compute volume, using an unnecessarily high var index
+BOOST_FIXTURE_TEST_CASE( VolumeVector10, ProtoOperatorsFixture )
+{
+  Real vol = 0.;
+  MeshTerm<9, ConstNodes> nodes; // setting this to 9 increases the overhead
   for_each_element(*big_grid, vol += volume(nodes));
   BOOST_CHECK_CLOSE(vol, 1., 0.0001);
 }
