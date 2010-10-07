@@ -62,7 +62,7 @@ public: // functions
 private: // helper functions
 
   /// regists all the signals declared in this class
-  static void regist_signals ( Component* self );
+  static void regist_signals ( CMethod* self );
 
 };
 
