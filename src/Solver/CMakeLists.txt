@@ -26,6 +26,8 @@ list( APPEND Solver_files
   CForAllNodes.cpp
   CModel.hpp
   CModel.cpp
+  CPhysicalModel.cpp
+  CPhysicalModel.hpp
   LibSolver.hpp
   LibSolver.cpp
   CDiscretization.hpp
@@ -42,3 +44,5 @@ list(APPEND Solver_libs Mesh SF )
 
 coolfluid_add_library(Solver)
 
+
+add_subdirectory(uTests)
