@@ -61,13 +61,20 @@ CMeshInfo::CMeshInfo( const CName& name )
 : CMeshTransformer(name)
 {
   BUILD_COMPONENT;
+	properties()["brief"] = std::string("Print information of the mesh");
+	std::string desc;
+	desc = 
+  "  Usage: Info \n\n"
+  "          Information given: internal mesh hierarchy,\n"
+  "      element distribution for each region, and element type"; 
+	properties()["description"] = desc;
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
 std::string CMeshInfo::brief_description() const
 {
-  return "Print information of the mesh";
+  return properties()["brief"].value<std::string>();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -75,14 +82,7 @@ std::string CMeshInfo::brief_description() const
   
 std::string CMeshInfo::help() const
 {
-  std::stringstream out;
- 
-  out << "  " << brief_description() << "\n";
-  out << "  Usage: Info \n\n";
-  out << "          Information given: internal mesh hierarchy,\n";
-  out << "      element distribution for each region, and element type"; 
-  
-  return out.str();
+  return "  " + properties()["brief"].value<std::string>() + "\n" + properties()["description"].value<std::string>();
 }  
   
 /////////////////////////////////////////////////////////////////////////////

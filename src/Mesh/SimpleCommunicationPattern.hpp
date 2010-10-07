@@ -13,6 +13,7 @@
 #include "Common/MPI/PEInterface.hpp"
 
 #include "Mesh/CArray.hpp"
+#include "Mesh/CList.hpp"
 
 #include "Mesh/LibMesh.hpp"
 
@@ -117,6 +118,75 @@ void apply_pattern_carray(const SimpleCommunicationPattern& pattern, RangeT rang
         cf_assert(pattern.receive_targets[i] < array.size());
         CArray::Row row = array[pattern.receive_targets[i]];
         std::copy(receive_buffer.begin() + buffer_idx, receive_buffer.begin() + buffer_idx + nb_cols, row.begin());
+        buffer_idx += nb_cols;
+      }
+    }
+  }
+}
+
+/// Apply a communication pattern to the given range of CArrays.
+/// RangeT must iterable by BOOST_FOREACH
+template<typename ValueT,typename RangeT>
+void apply_pattern_clist(const SimpleCommunicationPattern& pattern, RangeT range)
+{
+	typedef CList<ValueT> CListT;
+
+  boost::mpi::communicator& world = CF::Common::PEInterface::instance();
+  const Uint nb_procs = world.size();
+  
+  Uint total_width = range.size();
+  
+  std::vector<ValueT> receive_buffer(total_width * pattern.receive_list.size());
+  std::vector<ValueT> send_buffer;
+  send_buffer.reserve(total_width * pattern.receive_list.size());
+  
+  // track non-blocking requests
+  std::vector<boost::mpi::request> reqs;
+  reqs.reserve(nb_procs*2);
+  
+  // Do the buffer initialization and communication
+  Uint receive_begin = 0;
+  for(Uint proc = 0; proc != nb_procs; ++proc)
+  {
+    const Uint send_begin = send_buffer.size();
+    const Uint proc_begin = pattern.send_dist[proc];
+    const Uint proc_end = pattern.send_dist[proc+1];
+    Uint receive_size = 0;
+    BOOST_FOREACH(CListT& array, range)
+    {
+      const Uint nb_cols = 1;
+      receive_size += nb_cols * (pattern.receive_dist[proc+1] - pattern.receive_dist[proc]);
+      for(Uint i = proc_begin; i != proc_end; ++i)
+      {
+        cf_assert(pattern.send_list[i] < array.size());
+        ValueT& row = array[pattern.send_list[i]];
+        send_buffer.insert(send_buffer.end(), row);
+      }
+    }
+    
+    // Schedule send and receive operations
+    reqs.push_back(world.isend(proc, 0, &send_buffer[send_begin], send_buffer.size() - send_begin));
+    reqs.push_back(world.irecv(proc, 0, &receive_buffer[receive_begin], receive_size));
+    receive_begin += receive_size;
+  }
+  
+  // Wait for the comms to be done
+  boost::mpi::wait_all(reqs.begin(), reqs.end());
+  
+  // Unpack the receive buffer
+  Uint buffer_idx = 0;
+  for(Uint proc = 0; proc != nb_procs; ++proc)
+  {
+    const Uint proc_begin = pattern.receive_dist[proc];
+    const Uint proc_end = pattern.receive_dist[proc+1];
+    BOOST_FOREACH(CListT& array, range)
+    {
+      const Uint nb_cols = 1;
+      for(Uint i = proc_begin; i != proc_end; ++i)
+      {
+        cf_assert(pattern.receive_targets[i] < array.size());
+        ValueT& row = array[pattern.receive_targets[i]];
+        std::copy(receive_buffer.begin() + buffer_idx, receive_buffer.begin() + buffer_idx + nb_cols, &row);
         buffer_idx += nb_cols;
       }
     }

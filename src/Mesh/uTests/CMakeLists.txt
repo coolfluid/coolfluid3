@@ -33,6 +33,26 @@ add_custom_command(TARGET uTestMesh
 
 ################################################################################
 
+list( APPEND uTestNeuReaderMPI_cflibs Neu Gmsh SF )
+list( APPEND uTestNeuReaderMPI_files
+  uTestNeuReaderMPI.cpp
+)
+  
+# Add the target
+coolfluid_add_unittest( uTestNeuReaderMPI )
+
+# Custom post-build rule (must be defined after adding target):
+# Copy the file quadtriag.neu from source dir to binary dir.
+# this must happen after building, as some IDE like Xcode define their
+# build types internally, in which the binary dir exists
+add_custom_command(TARGET uTestMesh
+                   POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/hextet.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                  )
+
+################################################################################
+
 list( APPEND uTestConnectivityData_cflibs Neu MeshGeneration SF )
 list( APPEND uTestConnectivityData_files
   uTestConnectivityData.cpp )

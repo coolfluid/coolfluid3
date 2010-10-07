@@ -16,6 +16,7 @@
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CArray.hpp"
+#include "Mesh/CList.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/ConnectivityData.hpp"
 
@@ -79,6 +80,7 @@ void CReader::defineConfigProperties ( CF::Common::PropertyList& options )
 	options.add_option<OptionT <Uint> >("rank","rank of this processor, temporary option",(Uint) 0);
 	options.add_option<OptionT <Uint> >("number_of_processors","number_of_processors, temporary option",(Uint) 1);
 	options.add_option<OptionT <bool> >("Repartition","setting this to true, puts global indexes, for repartitioning later",false);
+	options.add_option<OptionT <Uint> >("OutputRank","shows output for the specified rank",0);
 }
 	
 //////////////////////////////////////////////////////////////////////////////
@@ -147,6 +149,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 	}
 	m_file.clear();
 
+	
 	Uint rank=property("rank").value<Uint>();
 	Uint np=property("number_of_processors").value<Uint>();
 	if (property("Partition").value<std::string>() == "nodes")
@@ -166,11 +169,8 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 	CFinfo << "nodes to read = " << m_nodes_to_read.size() << CFendl;
 	CFinfo << "elements to read = " << m_elements_to_read.size() << CFendl;
 
-	
 	read_coordinates();
-	
 	read_connectivity();
-	
 	cf_assert(m_element_group_positions.size() == m_headerData.NGRPS)
 	read_groups();
   read_boundaries();
@@ -191,9 +191,32 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 
   m_file.close();
 	
+	
+	if (np > 1)
+	{
+		nodes_dist.resize(np+1);
+		for (Uint r=0; r<np; ++r)
+			nodes_dist[r] = m_headerData.NUMNP/np * r;
+		nodes_dist[np] = m_headerData.NUMNP;
+		
+		make_node_receive_lists(nodes_dist, *m_mesh, comm_pattern);
+		comm_pattern.update_send_lists();
+		
+		CFinfo << comm_pattern << CFendl;
+		
+		apply_pattern_carray(comm_pattern, recursive_range_typed<CArray>(*m_mesh));
+		apply_pattern_clist<Uint>(comm_pattern, recursive_range_typed<CList<Uint> >(*m_mesh));		
+	}
+		
+	m_mesh->properties()["nb_cells"] = m_mesh->properties()["nb_cells"].value<Uint>() + m_headerData.NELEM;
+	m_mesh->properties()["nb_nodes"] = m_mesh->properties()["nb_nodes"].value<Uint>()	+ m_headerData.NUMNP;
+
 	if (m_repartition)
 	{
-		set_pt_scotch_data();
+		if (properties()["rank"].value<Uint>() == properties()["OutputRank"].value<Uint>())
+		{
+			set_pt_scotch_data();
+		}
 	}
 	
 }
@@ -215,20 +238,19 @@ void CReader::set_pt_scotch_data()
 	vertlocnbr = m_nodes_to_read.size() - m_ghost_nodes.size();
 	vertgstnbr = m_nodes_to_read.size();
 	
-	CArray::Ptr global_node_idx = m_coordinates->get_child_type<CArray>("global_idx");
+	const CList<Uint>& global_node_idx = *m_coordinates->get_child_type<CList<Uint> >("global_indices");
 	
 	
 	CFinfo << " m_coordinates->size() = " << m_coordinates->size() << CFendl;
-	CFinfo << " global_node_idx->size() = " << global_node_idx->size() << CFendl;
+	CFinfo << " global_node_idx.size() = " << global_node_idx.size() << CFendl;
   CNodeConnectivity::Ptr node_connectivity = create_component_type<CNodeConnectivity>("node_connectivity");
 	node_connectivity->initialize(recursive_range_typed<CElements>(*m_mesh));
 	
-	CFinfo.setFilterRankZero(LogStream::SCREEN,false);
 	Uint start;
 	Uint end = 0;
 	for (Uint iNode=0; iNode<m_coordinates->size(); ++iNode)
 	{
-		if (m_ghost_nodes.find((*global_node_idx)[iNode][0]) == m_ghost_nodes.end())
+		if (m_ghost_nodes.find(global_node_idx[iNode]+1) == m_ghost_nodes.end())
 		{
 			start = end;
 			std::set<Uint> nodes_vec;
@@ -245,7 +267,7 @@ void CReader::set_pt_scotch_data()
 						{
 							nodes_vec.insert(nodes[n]);
 							edgeloctab.push_back(nodes[n]);
-							edgegsttab.push_back((*global_node_idx)[nodes[n]][0]);
+							edgegsttab.push_back(global_node_idx[nodes[n]]);
 							end++;							
 						}
 					}
@@ -256,7 +278,7 @@ void CReader::set_pt_scotch_data()
 			vendloctab.push_back(end);
 			
 			
-			CFinfo << "node " << (*global_node_idx)[iNode][0] << " is connected to nodes " << CFflush;
+			CFinfo << "node " << global_node_idx[iNode] << " is connected to nodes " << CFflush;
 			for (Uint j=start; j<end; ++j)
 			{
 				CFinfo << edgegsttab[j] << " " << CFflush;
@@ -271,9 +293,6 @@ void CReader::set_pt_scotch_data()
 	print_vector(CFinfo, edgeloctab, " ", "edgeloctab = ","\n");
 	print_vector(CFinfo, edgegsttab, " ", "edgegsttab = ","\n");
 	CFinfo << CFendl;	
-	
-	CFinfo.setFilterRankZero(LogStream::SCREEN,true);
-
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -299,6 +318,8 @@ void CReader::read_headerData()
   m_headerData.NDFCD  = NDFCD;
   m_headerData.NDFVL  = NDFVL;
 	
+	//m_mesh->properties()["nb_cells"] = m_mesh->properties()["nb_cells"].value<Uint>() + NELEM;
+	//m_mesh->properties()["nb_nodes"] = m_mesh->properties()["nb_nodes"].value<Uint>()		+ NUMNP;
   //m_headerData.print();
   
   getline(m_file,line);
@@ -308,26 +329,27 @@ void CReader::read_headerData()
 
 void CReader::read_coordinates()
 {
-	m_node_to_coord_idx.clear();
 	BOOST_FOREACH(Uint file_pos, m_nodal_coordinates_positions)
 	{
+		
+		Uint global_start_idx = m_mesh->properties()["nb_nodes"].value<Uint>();
+		
 		m_file.seekg(file_pos,std::ios::beg);
 		
 		// Create the coordinates array
 		m_coordinates = m_region->create_coordinates(m_headerData.NDFCD).get_type<CArray>();
-		CArray::ArrayT& coordinates = m_coordinates->array();
+		
+		CArray& coordinates = *m_coordinates;
 		Uint coord_start_idx = coordinates.size();
-		coordinates.resize(boost::extents[coordinates.size()+m_nodes_to_read.size()][m_headerData.NDFCD]);
+		coordinates.resize(coordinates.size()+m_nodes_to_read.size());
 
-		CArray::Ptr global_node_idx = m_coordinates->get_child_type<CArray>("global_idx");
-		if (!global_node_idx)
-		{
-			CFinfo << "before" << CFendl;
-			global_node_idx = m_coordinates->create_component_type<CArray>("global_idx");
-			global_node_idx->initialize(1);
-			CFinfo << "after" << CFendl;
-		}
-		global_node_idx->array().resize(boost::extents[global_node_idx->size()+m_nodes_to_read.size()][1]);
+		
+		CList<Uint>& global_node_idx = *m_coordinates->get_child_type<CList<Uint> >("global_indices");
+		global_node_idx.resize(global_node_idx.size()+m_nodes_to_read.size());
+
+		CList<bool>& is_ghost = *m_coordinates->get_child_type<CList<bool> >("is_ghost");
+		is_ghost.resize(is_ghost.size()+m_nodes_to_read.size());
+
 		
 		std::string line;
 		// skip one line
@@ -339,19 +361,18 @@ void CReader::read_coordinates()
 		std::set<Uint>::const_iterator it;
 
 		Uint coord_idx=coord_start_idx;
-		for (Uint i=1; i<=m_headerData.NUMNP; ++i) 
+		for (Uint node_idx=1; node_idx<=m_headerData.NUMNP; ++node_idx) 
 		{
 			getline(m_file,line);
-			it = m_nodes_to_read.find(i);
+			it = m_nodes_to_read.find(node_idx);
 			if (it != m_nodes_to_read.end())
 			{
 				// add global node index
-				(*global_node_idx)[coord_idx][0] = i-1; // -1 because base zero
-				
+				global_node_idx[coord_idx] = global_start_idx + node_idx - 1; // -1 because base zero
+				is_ghost[coord_idx] = false;
 				std::stringstream ss(line);
 				Uint nodeNumber;
 				ss >> nodeNumber;
-				m_node_to_coord_idx[nodeNumber]= coord_idx;
 				for (Uint dim=0; dim<m_headerData.NDFCD; ++dim)
 					ss >> coordinates[coord_idx][dim];
 				coord_idx++;
@@ -391,7 +412,7 @@ void CReader::partition_nodes(const std::pair<Uint,Uint>& range)
 			for (Uint j=0; j<nbElementNodes; ++j)
 			{
 				m_file >> neu_element_nodes[j];
-				if (neu_element_nodes[j]>=range.first && neu_element_nodes[j]<range.second)
+				if (neu_element_nodes[j]>=range.first+1 && neu_element_nodes[j]<range.second+1)
 				{
 					element_contains_nodes_in_range = true;
 				}
@@ -401,11 +422,14 @@ void CReader::partition_nodes(const std::pair<Uint,Uint>& range)
 				bool is_ghost_elem = false;
 				BOOST_FOREACH(const Uint node_number, neu_element_nodes)
 				{
-					m_nodes_to_read.insert(node_number);
-					if (node_number<range.first || node_number>=range.second)
+					if (node_number<range.first+1 || node_number>=range.second+1)
 					{
 						m_ghost_nodes.insert(node_number);
 						is_ghost_elem = true;
+					}
+					else
+					{
+						m_nodes_to_read.insert(node_number);
 					}
 				}
 				m_ghost_elems.insert(elementNumber);
@@ -467,6 +491,8 @@ void CReader::partition_elements(const std::pair<Uint,Uint>& range)
 	
 void CReader::read_connectivity()
 {
+	Uint nodes_start_idx = m_mesh->properties()["nb_nodes"].value<Uint>();
+
 	m_global_to_tmp.clear();
 	BOOST_FOREACH(Uint file_pos, m_elements_cells_positions)
 	{
@@ -522,7 +548,7 @@ void CReader::read_connectivity()
 					Uint neu_node_number;
 					Uint cf_idx = m_nodes_neu_to_cf[elementType][j];
 					m_file >> neu_node_number;
-					cf_element[cf_idx] = m_node_to_coord_idx[neu_node_number];
+					cf_element[cf_idx] = nodes_start_idx + neu_node_number - 1;
 				}
 				Uint table_idx = buffer[etype_CF]->add_row(cf_element);
 				CElements::Ptr tmp_elements = get_named_component_typed_ptr<CElements>(*m_tmp, "elements_" + etype_CF);
@@ -676,7 +702,7 @@ void CReader::read_boundaries()
 				const ElementType::FaceConnectivity& face_connectivity = etype.face_connectivity();
 				
 				// make a row of nodes
-				const CTable::Row& elem_nodes = tmp_region->connectivity_table().array()[local_element];
+				const CTable::Row& elem_nodes = tmp_region->connectivity_table()[local_element];
 				std::vector<Uint> row;
 				row.reserve(face_connectivity.face_node_counts[faceIdx]);
 				BOOST_FOREACH(const Uint& node, face_connectivity.face_node_range(faceIdx))

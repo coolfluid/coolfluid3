@@ -16,6 +16,7 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CArray.hpp"
+#include "Mesh/CList.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -79,12 +80,22 @@ CArray& CRegion::create_coordinates(const Uint& dim)
     coordinates = create_component_type<CArray>("coordinates");
     coordinates->add_tag("coordinates");
     coordinates->initialize(dim);
+		CList<Uint>::Ptr global_indices = get_child_type<CList<Uint> >("global_indices");
+		if (!global_indices)
+			global_indices = coordinates->create_component_type< CList<Uint> >("global_indices");
+		CList<bool>::Ptr is_ghost = get_child_type<CList<bool> >("is_ghost");
+		if (!is_ghost)
+			is_ghost = coordinates->create_component_type< CList<bool> >("is_ghost");
+		
   }
   else if (coordinates->row_size() != dim)
   {
     coordinates = create_component_type<CArray>("coordinates",NUMBER);
     coordinates->add_tag("coordinates");
     coordinates->initialize(dim);
+		CList<Uint>::Ptr global_indices = coordinates->create_component_type< CList<Uint> >("global_indices");
+		CList<bool>::Ptr is_ghost = coordinates->create_component_type< CList<bool> >("is_ghost");
+
   }
   return *coordinates;
 }

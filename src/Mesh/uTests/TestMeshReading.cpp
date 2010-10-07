@@ -84,14 +84,8 @@ BOOST_AUTO_TEST_CASE( Constructors )
 
 BOOST_AUTO_TEST_CASE( quadtriag_readNeu_writeGmsh_writeNeu )
 {
-	PEInterface::instance().init(m_argc,m_argv);
-
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
-	
-	meshreader->configure_property("number_of_processors",(Uint) PEInterface::instance().size());
-	meshreader->configure_property("rank",(Uint) PEInterface::instance().rank());
-	meshreader->configure_property("Repartition",true);
-	
+		
   // the file to read from
   boost::filesystem::path fp_in ("quadtriag.neu");
 
@@ -141,7 +135,6 @@ BOOST_AUTO_TEST_CASE( quadtriag_readNeu_writeGmsh_writeNeu )
   BOOST_CHECK_EQUAL(mesh->domain().recursive_nodes_count(), (Uint) 16);
   BOOST_CHECK_EQUAL(mesh->domain().recursive_elements_count(), (Uint) 28);
   BOOST_CHECK_EQUAL(1,1);
-	PEInterface::instance().finalize();
 
 }
 
@@ -151,7 +144,7 @@ BOOST_AUTO_TEST_CASE( quadtriag_read_NewNeu_writeGmsh )
 {
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
   CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
-
+	
   // the file to read from and to
   boost::filesystem::path fp_in ("quadtriag_write.neu");
   boost::filesystem::path fp_out("quadtriag_write.msh");
@@ -208,7 +201,7 @@ BOOST_AUTO_TEST_CASE( quadtriag_read_NewNeu_writeGmsh )
 BOOST_AUTO_TEST_CASE( hextet_readNeu_writeGmsh_writeNeu )
 {
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
-  
+  	
   // the file to read from
   boost::filesystem::path fp_in ("hextet.neu");
   
@@ -265,7 +258,7 @@ BOOST_AUTO_TEST_CASE( hextet_read_NewNeu_writeGmsh )
 {
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
   CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
-  
+  	
   // the file to read from and to
   boost::filesystem::path fp_in ("hextet_write.neu");
   boost::filesystem::path fp_out("hextet_write.msh");
