@@ -11,7 +11,7 @@ list( APPEND coolfluid-solver_files
 
 list(APPEND coolfluid-solver_libs Neu Gmsh SF)
 
-coolfluid_add_application (coolfluid-solver)
+coolfluid_add_application(coolfluid-solver)
 
 # Custom post-build rule (must be defined after adding target):
 # Copy the file quadtriag.neu from source dir to binary dir.
@@ -20,3 +20,10 @@ coolfluid_add_application (coolfluid-solver)
 add_custom_command(TARGET coolfluid-solver
                    POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../Mesh/uTests/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR})
+
+list( APPEND Solver_files
+  CMethod.hpp
+  CMethod.cpp
+)
+coolfluid_add_library(Solver)
+
