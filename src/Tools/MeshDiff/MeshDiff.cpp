@@ -99,8 +99,8 @@ bool diff(const Mesh::CMesh& a, const Mesh::CMesh& b, const Uint max_ulps)
 {
   Accumulator accumulator;
   accumulator.max_ulps = max_ulps;
-  // Compare Array data
-  compare_ranges(recursive_range_typed<CArray>(a), recursive_range_typed<CArray>(b), accumulator);
+  // Compare Array data TODO: filtered out only coords, because the neu reader always adds a global_indices table
+  compare_ranges(recursive_filtered_range_typed<CArray>(a, IsComponentName("coordinates")), recursive_filtered_range_typed<CArray>(b, IsComponentName("coordinates")), accumulator);
   // Compare connectivity
   compare_ranges(recursive_range_typed<CElements>(a), recursive_range_typed<CElements>(b), accumulator);
 

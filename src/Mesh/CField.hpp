@@ -115,10 +115,18 @@ public: // functions
   /// @return the elements with given name
   CFieldElements& elements (const CName& element_type_name);
   
-	std::string var_name(Uint i=0) const;
-	VarType var_type(Uint i=0) const { return m_var_types[i]; }
-	Uint nb_vars() const { return m_var_types.size(); }
-	
+  std::string var_name(Uint i=0) const;
+  VarType var_type(Uint i=0) const { return m_var_types[i]; }
+  Uint nb_vars() const { return m_var_types.size(); }
+  
+  /// Find the variable index of the given variable
+  Uint find_var(const std::string& vname) const;
+
+  /// Return the start index of a given variable
+  Uint var_index(const std::string& vname) const;
+  
+  /// Return the length (in number of Real values occupied in the data row) of the variable of the given name
+  Uint var_length(const std::string& vname) const;
   
 private: // helper functions
 

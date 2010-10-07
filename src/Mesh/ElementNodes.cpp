@@ -18,6 +18,8 @@ using namespace Common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
+namespace detail {
+
 template<typename CoordinatesT>
 struct ElementData : boost::noncopyable
 {
@@ -30,11 +32,13 @@ struct ElementData : boost::noncopyable
   const CTable::ConstRow connectivity;
 };
 
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
-struct ElementNodeView::Data : public ElementData<CArray>
+struct ElementNodeView::Data : public detail::ElementData<CArray>
 {
-  Data(CArray& coordinates, const CTable::ConstRow& connectivity) : ElementData<CArray>(coordinates, connectivity) {}
+  Data(CArray& coordinates, const CTable::ConstRow& connectivity) : detail::ElementData<CArray>(coordinates, connectivity) {}
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -68,9 +72,9 @@ CArray::Row ElementNodeView::operator[](const Uint idx) {
 ////////////////////////////////////////////////////////////////////////////////
 
 
-struct ConstElementNodeView::Data : public ElementData<CArray const>
+struct ConstElementNodeView::Data : public detail::ElementData<CArray const>
 {
-  Data(CArray const& coordinates, const CTable::ConstRow& connectivity) : ElementData<CArray const>(coordinates, connectivity) {}
+  Data(CArray const& coordinates, const CTable::ConstRow& connectivity) : detail::ElementData<CArray const>(coordinates, connectivity) {}
 };
 
 ////////////////////////////////////////////////////////////////////////////////

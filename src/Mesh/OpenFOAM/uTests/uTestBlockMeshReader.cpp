@@ -78,6 +78,9 @@ BOOST_AUTO_TEST_CASE( Cavity2D )
   CMesh::Ptr ref_mesh(new CMesh("reference"));
   ref_reader->read_from_to(ref_path, ref_mesh);
   
+  CFinfo << dict_mesh->tree() << CFendl;
+  CFinfo << ref_mesh->tree() << CFendl;
+  
   // Check if they are equal
   BOOST_CHECK(CF::Tools::MeshDiff::diff(*dict_mesh, *ref_mesh, 100));
 }

@@ -104,7 +104,7 @@ static void mapped_gradient(const RealVector& mappedCoord, RealMatrix& result)
 
 /// Compute the jacobian determinant at the given mapped coordinates
 template<typename NodesT>
-inline static Real jacobian_determinant(const RealVector& mappedCoord, const NodesT& nodes)
+static Real jacobian_determinant(const RealVector& mappedCoord, const NodesT& nodes)
 {
   cf_assert(mappedCoord.size() == 2);
   cf_assert(nodes.size() == 4);

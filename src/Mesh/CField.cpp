@@ -337,7 +337,33 @@ CFieldElements& CField::elements(const CName& name)
   return get_named_component_typed<CFieldElements>(*this,name);
 }
 
-//////////////////////////////////////////////////////////////////////////////	
+Uint CField::find_var ( const std::string& vname ) const
+{
+  const std::vector<std::string>::const_iterator var_loc_it = std::find(m_var_names.begin(), m_var_names.end(), vname);
+  if(var_loc_it == m_var_names.end())
+    throw Common::ValueNotFound(FromHere(), "Variable " + vname + " was not found in field " + field_name());
+  return var_loc_it - m_var_names.begin();
+}
+//////////////////////////////////////////////////////////////////////////////
+
+Uint CField::var_index ( const std::string& vname ) const
+{
+  const Uint var_number = find_var(vname);
+  Uint var_start = 0;
+  for(Uint i = 0; i != var_number; ++i)
+    var_start += m_var_types[i];
+  return var_start;
+}
+
+//////////////////////////////////////////////////////////////////////////////  
+
+Uint CField::var_length ( const std::string& vname ) const
+{
+  return var_type(find_var(vname));
+}
+
+
+//////////////////////////////////////////////////////////////////////////////  
 	
 } // Mesh
 } // CF

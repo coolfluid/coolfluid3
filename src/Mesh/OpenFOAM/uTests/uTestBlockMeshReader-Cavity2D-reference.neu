@@ -2,7 +2,7 @@
 ** GAMBIT NEUTRAL FILE
 uTestBlockMeshReader-Cavity2D-reference
 PROGRAM:                Gambit     VERSION:  2.3.16
- Sep 2010
+ Oct 2010
      NUMNP     NELEM     NGRPS    NBSETS     NDFCD     NDFVL
        441       400         1         2         2         2
 ENDOFSECTION
@@ -897,6 +897,29 @@ GROUP:          1 ELEMENTS:        400 MATERIAL:          2 NFLAGS:          1
      391     392     393     394     395     396     397     398     399     400
 ENDOFSECTION
  BOUNDARY CONDITIONS 2.3.16
+                      movingWall       1      20       0       6
+       381    2    2
+       382    2    2
+       383    2    2
+       384    2    2
+       385    2    2
+       386    2    2
+       387    2    2
+       388    2    2
+       389    2    2
+       390    2    2
+       391    2    2
+       392    2    2
+       393    2    2
+       394    2    2
+       395    2    2
+       396    2    2
+       397    2    2
+       398    2    2
+       399    2    2
+       400    2    2
+ENDOFSECTION
+ BOUNDARY CONDITIONS 2.3.16
                       fixedWalls       1      60       0       6
          1    2    1
         21    2    1
@@ -958,27 +981,4 @@ ENDOFSECTION
         18    2    4
         19    2    4
         20    2    4
-ENDOFSECTION
- BOUNDARY CONDITIONS 2.3.16
-                      movingWall       1      20       0       6
-       381    2    2
-       382    2    2
-       383    2    2
-       384    2    2
-       385    2    2
-       386    2    2
-       387    2    2
-       388    2    2
-       389    2    2
-       390    2    2
-       391    2    2
-       392    2    2
-       393    2    2
-       394    2    2
-       395    2    2
-       396    2    2
-       397    2    2
-       398    2    2
-       399    2    2
-       400    2    2
 ENDOFSECTION
