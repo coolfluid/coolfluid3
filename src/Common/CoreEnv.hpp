@@ -13,6 +13,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "Common/CF.hpp"
+#include "Common/Log.hpp"
 
 #include "Common/LibraryRegistry.hpp"
 #include "Common/SafePtr.hpp"
@@ -176,12 +177,8 @@ private: // data
 template < typename LIB >
 ForceLibRegist<LIB>::ForceLibRegist()
 {
-  Common::SafePtr<Common::LibraryRegistry> registry = CoreEnv::instance().getLibraryRegistry();
-
-  if(!registry->isRegistered( LIB::library_name() ))
-  {
-    registry->regist(new LIB());
-  }
+  CFinfo << VERBOSE << "Library [" << LIB::instance().getName()
+      << "] loaded." << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -23,6 +23,8 @@ list( APPEND Common_files
     CRoot.cpp
     CGroup.hpp
     CGroup.cpp
+    CLibrary.cpp
+    CLibrary.hpp
     CLink.hpp
     CLink.cpp
     CMethod.cpp
