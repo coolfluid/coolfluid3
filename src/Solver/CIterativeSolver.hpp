@@ -15,9 +15,6 @@
 namespace CF {
 namespace Solver {
 
-  class CRegion;
-  class ElementType;
-
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Solver component class

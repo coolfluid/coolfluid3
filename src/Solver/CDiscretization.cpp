@@ -14,7 +14,6 @@ namespace CF {
 namespace Solver {
 
 using namespace Common;
-using namespace Common::String;
 
 Common::ObjectProvider < CDiscretization, Component, LibSolver, NB_ARGS_1 >
 CDiscretization_Provider ( CDiscretization::type_name() );
@@ -25,6 +24,8 @@ CDiscretization::CDiscretization ( const CName& name  ) :
   CMethod ( name )
 {
   BUILD_COMPONENT;
+  properties()["brief"]=std::string("Discretization Method component");
+  properties()["description"]=std::string("Handles the discretization of the PDE's");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

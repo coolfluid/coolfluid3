@@ -14,7 +14,6 @@ namespace CF {
 namespace Solver {
 
 using namespace Common;
-using namespace Common::String;
 
 Common::ObjectProvider < CIterativeSolver, Component, LibSolver, NB_ARGS_1 >
 CIterativeSolver_Provider ( CIterativeSolver::type_name() );

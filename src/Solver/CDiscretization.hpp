@@ -15,15 +15,9 @@
 namespace CF {
 namespace Solver {
 
-  class CRegion;
-  class ElementType;
-
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Solver component class
-/// Solver now stores:
-///   - regions which subdivide in subregions
-///   - arrays containing coordinates, variables, ...
 /// @author Tiago Quintino
 /// @author Willem Deconinck
 class Solver_API CDiscretization : public Solver::CMethod {
