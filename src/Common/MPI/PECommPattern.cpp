@@ -18,7 +18,8 @@ namespace CF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PECommPattern::PECommPattern(){
+PECommPattern::PECommPattern()
+{
   m_isCommPatternPrepared=false;
   m_sendCount.resize(PEInterface::instance().size(),0);
   m_sendMap.resize(0);
@@ -29,19 +30,27 @@ PECommPattern::PECommPattern(){
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PECommPattern::PECommPattern(std::vector<Uint> gid, std::vector<Uint> rank){
-  PECommPattern::PECommPattern();
+PECommPattern::PECommPattern(std::vector<Uint> gid, std::vector<Uint> rank)
+{
+  m_isCommPatternPrepared=false;
+  m_sendCount.resize(PEInterface::instance().size(),0);
+  m_sendMap.resize(0);
+  m_receiveCount.resize(PEInterface::instance().size(),0);
+  m_receiveMap.resize(0);
+  m_updatable.resize(0);
   setup(gid,rank);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PECommPattern::~PECommPattern(){
+PECommPattern::~PECommPattern()
+{
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PECommPattern::setup(std::vector<Uint> gid, std::vector<Uint> rank){
+void PECommPattern::setup(std::vector<Uint> gid, std::vector<Uint> rank)
+{
 
   const Uint irank=PEInterface::instance().rank();
   const Uint nproc=(Uint)PEInterface::instance().size();

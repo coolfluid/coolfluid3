@@ -5,6 +5,7 @@
 #include <boost/timer.hpp>
 #include <boost/program_options.hpp>
 
+#include <cstdio>
 #include <iostream>
 
 // #define STATIC_SIZES
