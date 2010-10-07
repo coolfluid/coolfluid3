@@ -123,17 +123,11 @@ namespace ClientCore {
       /// @brief Root node
       ROOT_NODE,
 
-      /// @brief Group node
-      GROUP_NODE,
+      /// @brief Browser node
+      BROWSER_NODE,
 
       /// @brief Link node
       LINK_NODE,
-
-      /// @brief Mesh node
-      MESH_NODE,
-
-      /// @brief Method node
-      METHOD_NODE,
 
       /// @brief Log node
       LOG_NODE,
@@ -143,27 +137,6 @@ namespace ClientCore {
 
       /// @brief Core node
       CORE_NODE,
-
-      /// @brief Browser node
-      BROWSER_NODE,
-
-      /// @brief Mesh reader node
-      MESH_READER_NODE,
-
-      /// @brief Array node
-      ARRAY_NODE,
-
-      /// @brief Elements node
-      ELEMENTS_NODE,
-
-      /// @brief Region node
-      REGION_NODE,
-
-      /// @brief Table node
-      TABLE_NODE,
-
-      /// @brief Library node
-      LIBRARY_NODE,
 
       /// @brief Generic node
       GENERIC_NODE

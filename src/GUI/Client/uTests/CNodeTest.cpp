@@ -71,7 +71,7 @@ void CNodeTest::test_getType()
   NBrowser browser;
   NLog log;
 
-  QCOMPARE(node.getType(), CNode::GROUP_NODE);
+  QCOMPARE(node.getType(), CNode::GENERIC_NODE);
   QCOMPARE(browser.getType(), CNode::BROWSER_NODE);
   QCOMPARE(log.getType(), CNode::LOG_NODE);
 }
@@ -85,10 +85,10 @@ void CNodeTest::test_checkType()
   NRoot root("Root");
   NTree tree;
 
-  QVERIFY(mesh.checkType(CNode::MESH_NODE));
-  QVERIFY(!mesh.checkType(CNode::GROUP_NODE));
+  QVERIFY(mesh.checkType(CNode::GENERIC_NODE));
+  QVERIFY(!mesh.checkType(CNode::GENERIC_NODE));
   QVERIFY(!mesh.checkType(CNode::LINK_NODE));
-  QVERIFY(method.checkType(CNode::METHOD_NODE));
+  QVERIFY(method.checkType(CNode::GENERIC_NODE));
   QVERIFY(root.checkType(CNode::ROOT_NODE));
   QVERIFY(tree.checkType(CNode::TREE_NODE));
 }

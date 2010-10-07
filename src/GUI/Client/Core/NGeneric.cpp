@@ -11,7 +11,7 @@
 using namespace CF::GUI::ClientCore;
 
 NGeneric::NGeneric(const QString & name, const QString & type) :
-    CNode(name, type, ARRAY_NODE)
+    CNode(name, type, GENERIC_NODE)
 {
   BUILD_COMPONENT;
 }

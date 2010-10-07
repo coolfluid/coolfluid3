@@ -12,7 +12,7 @@
 using namespace CF::GUI::ClientTest;
 
 MyNode::MyNode(const QString & name)
-  : CNode(name, "MyNode", CNode::GROUP_NODE)
+  : CNode(name, "MyNode", CNode::GENERIC_NODE)
 {
   BUILD_COMPONENT;
 }
