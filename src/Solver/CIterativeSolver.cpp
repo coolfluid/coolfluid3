@@ -25,6 +25,9 @@ CIterativeSolver::CIterativeSolver ( const CName& name  ) :
   CMethod ( name )
 {
   BUILD_COMPONENT;
+  
+  properties()["brief"]=std::string("Iterative Solver component");
+  properties()["description"]=std::string("Handles time stepping and convergence operations");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
