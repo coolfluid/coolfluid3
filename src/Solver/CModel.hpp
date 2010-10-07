@@ -50,43 +50,6 @@ public: // functions
   static void defineConfigProperties ( Common::PropertyList& options ) {}
 
   // functions specific to the CModel component
-/*
-  /// create a region
-  /// @param name of the region
-  CRegion& create_region ( const CName& name );
-
-  /// create a domain
-  /// @param name of the domain
-  CRegion& create_domain( const CName& name );
-
-  /// @return the geometry
-  const CRegion& domain() const;
-  
-  /// @return the geometry
-  CRegion& domain();
-  
-  /// create a field with a given support
-  /// @param name of the field
-  CField& create_field( const CName& name , CRegion& support, const Uint size, const CField::DataBasis basis);
-  
-  /// create a field with the default support being the full mesh geometry
-  CField& create_field( const CName& name , const Uint size, const CField::DataBasis basis);
-	
-	/// create a field with a given support
-  /// @param name of the field
-  CField& create_field( const CName& name , CRegion& support, const std::vector<std::string>& variables, const CField::DataBasis basis);
-  
-  /// create a field with the default support being the full mesh geometry
-  CField& create_field( const CName& name , const std::vector<std::string>& variables, const CField::DataBasis basis);
-  
-  /// @return the field with given name
-  const CField& field(const CName& name) const;
-  
-  /// @return the field with given name
-  CField& field(const CName& name);
-  
-  void update_statistics();
-*/
 
   
 private: // helper functions
