@@ -16,8 +16,6 @@ add_custom_command(TARGET coolfluid-solver
                    POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/../Mesh/uTests/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR})
 
-set( Solver_kernellib TRUE )
-
 list( APPEND Solver_files
   ForAllRegions.hpp
   CForAllElements.hpp
@@ -33,6 +31,10 @@ list( APPEND Solver_files
   CMethod.hpp
   CMethod.cpp
 )
-coolfluid_add_library(Solver)
+
+set( Solver_kernellib TRUE )
+
 list(APPEND Solver_libs Common)
+
+coolfluid_add_library(Solver)
 
