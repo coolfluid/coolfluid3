@@ -24,6 +24,7 @@
 #include "GUI/Client/Core/NElements.hpp"
 #include "GUI/Client/Core/NGroup.hpp"
 #include "GUI/Client/Core/NLog.hpp"
+#include "GUI/Client/Core/NLibrary.hpp"
 #include "GUI/Client/Core/NLink.hpp"
 #include "GUI/Client/Core/NMesh.hpp"
 #include "GUI/Client/Core/NMeshReader.hpp"
@@ -752,6 +753,8 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, CPath> & lin
     rootNode = boost::shared_ptr<NElements>(new NElements(nodeName));
   else if(std::strcmp(nodeType, "CRoot") == 0)
     rootNode = boost::shared_ptr<NRoot>(new NRoot(nodeName));
+  else if(std::strcmp(nodeType, "CLibrary") == 0)
+    rootNode = boost::shared_ptr<NLibrary>(new NLibrary(nodeName));
   else
     throw XmlError(FromHere(), QString("%1: Unknown type parent is %2").arg(nodeType).arg(node.parent()->name()).toStdString().c_str());
 

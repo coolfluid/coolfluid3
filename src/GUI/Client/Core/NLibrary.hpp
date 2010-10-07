@@ -4,38 +4,37 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Client_Core_NMesh_hpp
-#define CF_GUI_Client_Core_NMesh_hpp
+#ifndef CF_GUI_Client_Core_NLibrary_hpp
+#define CF_GUI_Client_Core_NLibrary_hpp
 
-//////////////////////////////////////////////////////////////////////////////
-
-#include <QObject>
+/////////////////////////////////////////////////////////////////////////////////
 
 #include "GUI/Client/Core/CNode.hpp"
 
-//////////////////////////////////////////////////////////////////////////////
+#include "GUI/Client/Core/LibClientCore.hpp"
+
+/////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace GUI {
 namespace ClientCore {
 
-  ////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////
 
   /// @brief Client corresponding component for @c CF::Mesh::CMesh.
-  class ClientCore_API NMesh :
-      public QObject,
+  /// @author Quentin Gasper
+  class ClientCore_API NLibrary :
       public CNode
   {
-    Q_OBJECT
 
   public:
 
-    typedef boost::shared_ptr<NMesh> Ptr;
-    typedef boost::shared_ptr<NMesh const> ConstPtr;
+    typedef boost::shared_ptr<NLibrary> Ptr;
+    typedef boost::shared_ptr<NLibrary const> ConstPtr;
 
     /// @brief Constructor
     /// @param name Node name
-    NMesh(const QString & name);
+    NLibrary(const QString & name);
 
     /// @brief Gives the icon associated to this node
     /// @return Returns the icon associated to this node
@@ -49,16 +48,16 @@ namespace ClientCore {
   private:
 
     /// regists all the signals declared in this class
-    static void regist_signals ( Component* self ) {}
+    static void regist_signals ( NLibrary* self ) {}
 
-  }; // class NMesh
+  }; // class NLibrary
 
-//////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////
 
 } // namespace ClientCore
 } // namespace GUI
 } // namespace CF
 
-//////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Client_Core_NMesh_hpp
+#endif // CF_GUI_Client_Core_NLibrary_hpp

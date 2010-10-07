@@ -55,6 +55,8 @@ NElements.cpp
 NElements.hpp
 NGroup.cpp
 NGroup.hpp
+NLibrary.cpp
+NLibrary.hpp
 NLink.cpp
 NLink.hpp
 NLog.cpp
