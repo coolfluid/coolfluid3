@@ -18,6 +18,8 @@ add_custom_command(TARGET coolfluid-solver
 
 list( APPEND Solver_files
   ForAllRegions.hpp
+  CDomain.hpp
+  CDomain.cpp
   CForAllElements.hpp
   CForAllElements.cpp
   CForAllNodes.hpp

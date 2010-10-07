@@ -4,22 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <boost/regex.hpp>
-
 #include "Common/ObjectProvider.hpp"
-#include "Common/CLink.hpp"
-#include "Common/ComponentPredicates.hpp"
-#include "Common/String/Conversion.hpp"
-
-
-
-#include "Solver/LibSolver.hpp"
 #include "Solver/CModel.hpp"
-
-/*
-#include "Mesh/CRegion.hpp"
-#include "Mesh/ElementType.hpp"
-*/
 
 namespace CF {
 namespace Solver {

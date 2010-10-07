@@ -51,7 +51,7 @@ namespace CF {
     /// @return descripton of the module
     static std::string library_description()
     {
-      return "This library implements the solver API.";
+      return "This library implements the Solver API.";
     }
 
     /// Gets the Class name

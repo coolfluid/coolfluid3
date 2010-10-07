@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_CModel_hpp
-#define CF_Solver_CModel_hpp
+#ifndef CF_Solver_CDomain_hpp
+#define CF_Solver_CDomain_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -15,48 +15,39 @@
 namespace CF {
 namespace Solver {
 
-//  class CRegion;
-//  class ElementType;
-
 ////////////////////////////////////////////////////////////////////////////////
 
-/// CModel component class
-/// CModel now stores:
-/// - Physical model
-/// - Iterative solver
-/// - Discretization
-/// @author Martin Vymazal
-class Solver_API CModel : public Common::Component {
+/// CDomain component class
+/// CDomain stores the meshes
+/// @author Tiago Quintino
+class Solver_API CDomain : public Common::Component {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<CModel> Ptr;
-  typedef boost::shared_ptr<CModel const> ConstPtr;
+  typedef boost::shared_ptr<CDomain> Ptr;
+  typedef boost::shared_ptr<CDomain const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  CModel ( const CName& name );
+  CDomain ( const CName& name );
 
   /// Virtual destructor
-  virtual ~CModel();
+  virtual ~CDomain();
 
   /// Get the class name
-  static std::string type_name () { return "CModel"; }
+  static std::string type_name () { return "CDomain"; }
 
   /// Configuration Options
   static void defineConfigProperties ( Common::PropertyList& options ) {}
 
-  // functions specific to the CModel component
-
+  // functions specific to the CDomain component
   
 private: // helper functions
 
   /// regists all the signals declared in this class
   static void regist_signals ( Component* self ) {}
-
-private:
 
 };
 
@@ -67,4 +58,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Solver_CModel_hpp
+#endif // CF_Solver_CDomain_hpp
