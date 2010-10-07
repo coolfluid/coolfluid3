@@ -54,10 +54,15 @@ public: // functions
 
   // functions specific to the CMethod component
   
+  // Signal run_operation
+  void run_operation( Common::XmlNode& node ) {}
+  
+  CMethod& operation(const std::string& name);
+  
 private: // helper functions
 
   /// regists all the signals declared in this class
-  static void regist_signals ( Component* self ) {}
+  static void regist_signals ( Component* self );
 
 };
 

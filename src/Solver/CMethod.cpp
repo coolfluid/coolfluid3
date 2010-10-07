@@ -35,5 +35,18 @@ CMethod::~CMethod()
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void CMethod::regist_signals ( CMethod* self )
+{
+  self->regist_signal ( "run_operation" , "run an operation", "Run Operation" )->connect ( boost::bind ( &CMethod::run_operation, self, _1 ) );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CMethod& CMethod::operation(const std::string& name)
+{
+  return *get_child_type<CMethod>(name);
+}
+
+
 } // Solver
 } // CF
