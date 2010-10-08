@@ -36,6 +36,8 @@ list( APPEND Solver_files
   CIterativeSolver.cpp
   CMethod.hpp
   CMethod.cpp
+  ForwardEuler.hpp
+  ForwardEuler.cpp
   ResidualDistribution.hpp
   ResidualDistribution.cpp
 )

@@ -4,13 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_CIterativeSolver_hpp
-#define CF_Solver_CIterativeSolver_hpp
+#ifndef CF_Solver_ForwardEuler_hpp
+#define CF_Solver_ForwardEuler_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Solver/CMethod.hpp"
-#include "Solver/LibSolver.hpp"
+#include "Solver/CIterativeSolver.hpp"
 
 namespace CF {
 namespace Solver {
@@ -18,35 +17,34 @@ namespace Solver {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Solver component class
-/// Iterative solver component
 /// @author Tiago Quintino
 /// @author Willem Deconinck
-class Solver_API CIterativeSolver : public Solver::CMethod {
+class Solver_API ForwardEuler : public Solver::CIterativeSolver {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<CIterativeSolver> Ptr;
-  typedef boost::shared_ptr<CIterativeSolver const> ConstPtr;
+  typedef boost::shared_ptr<ForwardEuler> Ptr;
+  typedef boost::shared_ptr<ForwardEuler const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  CIterativeSolver ( const CName& name );
+  ForwardEuler ( const CName& name );
 
   /// Virtual destructor
-  virtual ~CIterativeSolver();
+  virtual ~ForwardEuler();
 
   /// Get the class name
-  static std::string type_name () { return "CIterativeSolver"; }
+  static std::string type_name () { return "ForwardEuler"; }
 
   /// Configuration Options
   static void defineConfigProperties ( Common::PropertyList& options ) {}
 
-  // functions specific to the CIterativeSolver component
-
-  virtual void do_stuff() = 0;
+  // functions specific to the ForwardEuler component
   
+  virtual void do_stuff();
+
 private: // helper functions
 
   /// regists all the signals declared in this class
@@ -61,4 +59,4 @@ private: // helper functions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Solver_CIterativeSolver_hpp
+#endif // CF_Solver_ForwardEuler_hpp

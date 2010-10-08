@@ -4,26 +4,38 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Solver/CDiscretization.hpp"
+#include "Common/ObjectProvider.hpp"
+
+#include "Solver/ForwardEuler.hpp"
 
 namespace CF {
 namespace Solver {
 
 using namespace Common;
 
+Common::ObjectProvider < ForwardEuler, Component, LibSolver, NB_ARGS_1 >
+ForwardEuler_Provider ( ForwardEuler::type_name() );
+
 ////////////////////////////////////////////////////////////////////////////////
 
-CDiscretization::CDiscretization ( const CName& name  ) :
-  CMethod ( name )
+ForwardEuler::ForwardEuler ( const CName& name  ) :
+  CIterativeSolver ( name )
 {
   BUILD_COMPONENT;
-  properties()["brief"]=std::string("Discretization Method component");
-  properties()["description"]=std::string("Handles the discretization of the PDE's");
+  
+  properties()["brief"] = std::string("Iterative Solver component");
+  properties()["description"] = std::string("Forward Euler Time Stepper");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CDiscretization::~CDiscretization()
+ForwardEuler::~ForwardEuler()
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void ForwardEuler::do_stuff()
 {
 }
 

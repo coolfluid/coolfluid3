@@ -6,8 +6,6 @@
 
 #include "Common/ObjectProvider.hpp"
 
-#include "Solver/LibSolver.hpp"
-
 #include "Solver/ResidualDistribution.hpp"
 
 namespace CF {

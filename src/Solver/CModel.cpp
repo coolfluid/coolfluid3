@@ -11,7 +11,6 @@ namespace CF {
 namespace Solver {
 
 using namespace Common;
-using namespace Common::String;
 
 Common::ObjectProvider < CModel, Component, LibSolver, NB_ARGS_1 >
 CModel_Provider ( CModel::type_name() );

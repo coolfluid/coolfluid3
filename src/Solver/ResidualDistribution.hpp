@@ -10,7 +10,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Solver/CDiscretization.hpp"
-#include "Solver/LibSolver.hpp"
 
 namespace CF {
 namespace Solver {

@@ -4,19 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/ObjectProvider.hpp"
-
-#include "Solver/LibSolver.hpp"
-
 #include "Solver/CIterativeSolver.hpp"
 
 namespace CF {
 namespace Solver {
 
 using namespace Common;
-
-Common::ObjectProvider < CIterativeSolver, Component, LibSolver, NB_ARGS_1 >
-CIterativeSolver_Provider ( CIterativeSolver::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////
 
