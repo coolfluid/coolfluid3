@@ -1,6 +1,8 @@
 coolfluid_find_orphan_files()
 
 list( APPEND Actions_files
+  CAction.hpp
+  CAction.cpp
   LibActions.hpp
   LibActions.cpp
 )
