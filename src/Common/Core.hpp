@@ -61,7 +61,7 @@ public: // methods
 
   /// @brief Gives the root component.
   /// @return Returns the root component.
-  static boost::shared_ptr<CRoot> root();
+  boost::shared_ptr<CRoot> root();
 
   /// Defines the Config Option's of this class
   /// @param options a OptionList where to add the Option's

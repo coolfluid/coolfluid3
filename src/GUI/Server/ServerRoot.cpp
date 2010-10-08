@@ -45,7 +45,7 @@ void SignalCatcher::finished()
 CRoot::Ptr ServerRoot::getRoot()
 {
   static bool created = false;
-  CRoot::Ptr root = Core::root();
+  CRoot::Ptr root = Core::instance().root();
 
   if(!created)
   {

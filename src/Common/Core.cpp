@@ -41,17 +41,7 @@ namespace CF {
 
 Core& Core::instance()
 {
-  static bool created = false;
   static Core env;
-
-  if(!created)
-  {
-    env.m_root = CRoot::create("Root");
-    env.m_root->create_component_type<CGroup>("Libraries");
-    env.m_root->create_component_type<CGroup>("Tools");
-    created = true;
-  }
-
   return env;
 }
 
@@ -92,6 +82,10 @@ Core::Core() :
   m_factory_registry(new Common::FactoryRegistry()),
   m_env_vars (new CoreVars())
 {
+  m_root = CRoot::create("Root");
+  m_root->create_component_type<CGroup>("Libraries");
+  m_root->create_component_type<CGroup>("Tools");
+
 //  addConfigOptionsTo(this);
 //
 //  setParameter("DoAssertions",          &(AssertionManager::instance().DoAssertions));
