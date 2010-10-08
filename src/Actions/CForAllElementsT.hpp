@@ -108,7 +108,10 @@ public: // functions
           operation.set_loophelper( elements );
           const Uint elem_count = elements.elements_count();
           for ( Uint elem = 0; elem != elem_count; ++elem )
-            operation.execute( /*elem*/ );
+          {
+            operation.set_element_idx(elem);
+            operation.execute();
+          }
         }
       }
     }
@@ -146,7 +149,8 @@ private:
         const Uint elem_count = elements.elements_count();
         for ( Uint elem = 0; elem != elem_count; ++elem )
         {
-          op.template executeT<SFType>( /*elem*/ );
+          op.set_element_idx(elem);
+          op.template executeT<SFType>( );
         }
       }
     }

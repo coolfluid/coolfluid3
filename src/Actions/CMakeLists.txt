@@ -3,6 +3,8 @@ coolfluid_find_orphan_files()
 list( APPEND Actions_files
   CAction.hpp
   CAction.cpp
+  CElementOperation.hpp
+  CElementOperation.cpp
   CForAllElementsT.hpp
   CSchemeLDA.hpp
   CSchemeLDA.cpp

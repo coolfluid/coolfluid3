@@ -29,7 +29,7 @@ void CSchemeLDA::defineConfigProperties( Common::PropertyList& options )
 ///////////////////////////////////////////////////////////////////////////////////////
 
 CSchemeLDA::CSchemeLDA ( const CName& name ) : 
-  CAction(name)
+  CElementOperation(name)
 {
   BUILD_COMPONENT;
   m_property_list["SolutionField"].as_option().attach_trigger ( boost::bind ( &CSchemeLDA::trigger_SolutionField,   this ) );  
@@ -56,9 +56,10 @@ void CSchemeLDA::trigger_ResidualField()
 
 void CSchemeLDA::execute()
 {
-  // set element number to zero... should be passed from looper action
-  Uint elem = 0;
-  data->residual[elem][0] = data->solution[elem][0];
+  BOOST_FOREACH(const Uint node, data->connectivity_table[m_elm_idx])
+  {
+    data->residual[node][0] = data->solution[node][0];
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

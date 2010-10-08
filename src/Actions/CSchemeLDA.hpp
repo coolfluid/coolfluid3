@@ -10,7 +10,7 @@
 #include "Mesh/CField.hpp"
 #include "Mesh/CFieldElements.hpp"
 
-#include "Actions/CAction.hpp"
+#include "Actions/CElementOperation.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -21,7 +21,7 @@ namespace Actions {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class Actions_API CSchemeLDA : public CAction
+class Actions_API CSchemeLDA : public CElementOperation
 {
 public: // typedefs
 
