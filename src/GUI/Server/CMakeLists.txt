@@ -44,7 +44,7 @@ list( APPEND coolfluid-server_files
 
 # Use Qt Libraries
 list( APPEND coolfluid-server_libs ${QT_LIBRARIES} )
-list( APPEND coolfluid-server_cflibs ${CF_KERNEL_LIBS} Network )
+list( APPEND coolfluid-server_cflibs ${CF_KERNEL_LIBS} Network Solver )
 
 coolfluid_add_application(coolfluid-server)
 
