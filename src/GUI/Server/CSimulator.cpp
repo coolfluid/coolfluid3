@@ -28,7 +28,7 @@
 #include "Common/XmlHelpers.hpp"
 
 #include "Mesh/CMesh.hpp"
-
+#include "Mesh/CList.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/Neu/CReader.hpp"
 
@@ -441,6 +441,7 @@ void CSimulator::createSimulator()
   // MG subcomponents
   CMesh::Ptr mesh1 = mgGroup->create_component_type<CMesh>("Mesh1");
   CMesh::Ptr mesh2 = mgGroup->create_component_type<CMesh>("Mesh2");
+  CList<bool>::Ptr list = mgGroup->create_component_type< CList<bool> >("SomeList");
 
   // Solid subcomponents
   CMesh::Ptr mesh3 = solidGroup->create_component_type<CMesh>("Mesh3");
