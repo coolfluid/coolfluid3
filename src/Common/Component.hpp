@@ -49,17 +49,19 @@ class Common_API Component
 
 public: // typedef
 
-  /// typedef of pointers to components
-  typedef boost::shared_ptr<Component> Ptr;
-  typedef boost::shared_ptr<Component const> ConstPtr;
   /// type for names of components
   typedef std::string CName;
   /// type of this class contruction provider
   typedef Common::ConcreteProvider < Component, NB_ARGS_1 > PROVIDER;
   /// type of first argument of constructor
   typedef const CName& ARG1;
-  /// typedef of the iterator
+  /// type of pointer to Component
+  typedef boost::shared_ptr<Component> Ptr;
+  /// type of pointer to constant Component
+  typedef boost::shared_ptr<Component const> ConstPtr;
+  /// type of the iterator to Component
   typedef ComponentIterator<Component> iterator;
+  /// type of the iterator to constant Component
   typedef ComponentIterator<Component const> const_iterator;
 
 

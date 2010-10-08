@@ -12,8 +12,6 @@ JacobiEigenSolver.cpp
 MathConsts.hpp
 MathFunctions.hpp
 RealMatrix.hpp
-RealMatrix.cpp
-RealVector.cpp
 MatrixIntersect.hpp
 MatrixInverter.hpp
 InverterT.hpp
@@ -47,7 +45,7 @@ list( APPEND Math_cflibs Common )
 
 set( Math_kernellib TRUE )
 
-coolfluid_add_library ( Math )
+coolfluid_add_library( Math )
 
-add_subdirectory ( uTests )    # unit tests for Math
+add_subdirectory( uTests )    # unit tests for Math
 
