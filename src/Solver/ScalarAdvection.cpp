@@ -73,9 +73,11 @@ void ScalarAdvection::run_wizzard ( Common::XmlNode& node )
   pm->configure_property( "dimensions", 2 );
 
   // setup
-  CDiscretization::Ptr cdm = model->create_component_abstract_type<CDiscretization>("ResidualDistribution", "Discretization");
+  CDiscretization::Ptr cdm = create_component_abstract_type<CDiscretization>("ResidualDistribution", "Discretization");
+  model->add_component( cdm );
 
-  CIterativeSolver::Ptr solver = model->create_component_abstract_type<CIterativeSolver>("ForwardEuler", "IterativeSolver");
+  CIterativeSolver::Ptr solver = create_component_abstract_type<CIterativeSolver>("ForwardEuler", "IterativeSolver");
+  model->add_component( solver );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

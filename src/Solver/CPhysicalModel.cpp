@@ -43,12 +43,12 @@ void CPhysicalModel::defineConfigProperties(PropertyList& options)
   options.add_option<OptionT <Uint> >("NbDOFs", "Degrees of freedom", 0u);
 }
 
-void CPhysicalModel::trigger_dimensionality() const
+void CPhysicalModel::trigger_dimensionality()
 {
   m_dim = boost::any_cast<Uint>(property("dimensions").value());
 }
 
-void CPhysicalModel::trigger_nbdofs() const
+void CPhysicalModel::trigger_nbdofs()
 {
   m_nbdofs = boost::any_cast<Uint>(property("dof").value());
 }
