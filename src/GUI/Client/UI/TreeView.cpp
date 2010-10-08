@@ -16,7 +16,7 @@
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/CommitDetails.hpp"
-#include "GUI/Client/Core/FilteringModel.hpp"
+#include "GUI/Client/UI/FilteringModel.hpp"
 #include "GUI/Client/Core/UnknownTypeException.hpp"
 #include "GUI/Client/UI/CommitDetailsDialog.hpp"
 #include "GUI/Client/UI/ConfirmCommitDialog.hpp"

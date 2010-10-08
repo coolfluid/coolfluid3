@@ -9,17 +9,19 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <QIcon>
+#include <QMap>
 #include <QSortFilterProxyModel>
 
-#include "GUI/Client/Core/LibClientCore.hpp"
+#include "GUI/Client/UI/LibClientUI.hpp"
 
 namespace CF {
 namespace GUI {
-namespace ClientCore {
+namespace ClientUI {
 
   //////////////////////////////////////////////////////////////////////////////
 
-  class ClientCore_API FilteringModel : public QSortFilterProxyModel
+  class ClientUI_API FilteringModel : public QSortFilterProxyModel
   {
     Q_OBJECT
 
@@ -27,9 +29,15 @@ namespace ClientCore {
 
     FilteringModel(QObject *parent = 0);
 
+    QVariant data(const QModelIndex &index, int role) const;
+
   protected:
 
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
+
+  private:
+
+    QMap<QString, QIcon> m_icons;
 
   }; // class FilteringModel
 

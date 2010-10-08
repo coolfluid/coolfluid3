@@ -4,17 +4,42 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <QFileIconProvider>
 #include <QModelIndex>
 #include <QDebug>
 
 #include "GUI/Client/Core/NTree.hpp"
-#include "GUI/Client/Core/FilteringModel.hpp"
+#include "GUI/Client/UI/FilteringModel.hpp"
 
 using namespace CF::GUI::ClientCore;
+using namespace CF::GUI::ClientUI;
 
 FilteringModel::FilteringModel(QObject *parent) :
     QSortFilterProxyModel(parent)
 {
+  QFileIconProvider prov;
+  m_icons["CRoot"] = prov.icon(QFileIconProvider::Computer);
+  m_icons["CGroup"] = prov.icon(QFileIconProvider::Folder);
+  m_icons["CMesh"] = prov.icon(QFileIconProvider::Drive);
+  m_icons["CMeshReader"] = prov.icon(QFileIconProvider::Trashcan);
+  m_icons["CLink"] = prov.icon(QFileIconProvider::Network);
+  m_icons["NLog"] = prov.icon(QFileIconProvider::Folder);
+  m_icons["NBrowser"] = prov.icon(QFileIconProvider::Folder);
+  m_icons["NTree"] = prov.icon(QFileIconProvider::Folder);
+}
+
+//////////////////////////////////////////////////////////////////////////////////
+
+QVariant FilteringModel::data(const QModelIndex &index, int role) const
+{
+  if(role == Qt::DecorationRole && index.column() == 0)
+  {
+    QModelIndex typeIndex = this->index(index.row(), 1, index.parent());
+    QString type = QSortFilterProxyModel::data(typeIndex, Qt::DisplayRole).toString();
+    return m_icons.value(type, QFileIconProvider().icon(QFileIconProvider::File));
+  }
+  else
+    return QSortFilterProxyModel::data(index, role);
 }
 
 //////////////////////////////////////////////////////////////////////////////////

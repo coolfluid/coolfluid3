@@ -220,11 +220,6 @@ namespace ClientCore {
     virtual QVariant headerData(int section, Qt::Orientation orientation,
                                 int role = Qt::DisplayRole) const;
 
-    /// @brief Gives the icon associated to this node
-    /// @return Returns the icon associated to this node
-    /// @note This method should be reimplemented by all subclasses.
-    virtual QIcon getIcon() const;
-
     /// @brief Gives the tool tip text
     /// @return Returns The class name
     virtual QString getToolTip() const;

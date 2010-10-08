@@ -33,16 +33,13 @@ namespace Common { class CPath; }
 
 namespace GUI {
 
-namespace ClientCore
-{
-  class FilteringModel;
-  struct TSshInformation;
-}
+namespace ClientCore { struct TSshInformation; }
 
 namespace ClientUI {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+  class FilteringModel;
   class OptionPanel;
   class SignalManager;
 
@@ -137,7 +134,7 @@ namespace ClientUI {
 
     /// Allows to switch between basic/advanced mode. The filter is used as the
     /// Client model. Its source is the tree model.
-    CF::GUI::ClientCore::FilteringModel * m_modelFilter;
+    FilteringModel * m_modelFilter;
 
     /// @brief Indicates whether the tree m_view is in read-only mode or not.
 

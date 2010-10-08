@@ -19,14 +19,6 @@ NGeneric::NGeneric(const QString & name, const QString & type) :
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QIcon NGeneric::getIcon() const
-{
-  return QFileIconProvider().icon(QFileIconProvider::File);
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 QString NGeneric::getToolTip() const
 {
   return this->getComponentType();

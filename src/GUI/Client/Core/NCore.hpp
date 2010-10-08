@@ -79,11 +79,6 @@ namespace ClientCore {
 
     void disconnectFromServer(bool shutdown);
 
-    /// @brief Gives the icon associated to this node
-    /// @return Returns the icon associated to this node
-    /// @note This method should be reimplemented by all subclasses.
-    virtual QIcon getIcon() const;
-
     /// @brief Gives the text to put on a tool tip
     /// @return The name of the class.
     virtual QString getToolTip() const;

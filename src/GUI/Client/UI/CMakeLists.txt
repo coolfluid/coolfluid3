@@ -9,6 +9,7 @@ list( APPEND ClientUI_moc_classes
   CommitDetailsDialog.hpp
   ConfirmCommitDialog.hpp
   ConnectionDialog.hpp
+  FilteringModel.hpp # needs to be added because base class emits signals
   GraphicalBool.hpp
   GraphicalDouble.hpp
   GraphicalInt.hpp
@@ -46,6 +47,8 @@ list( APPEND ClientUI_files
   ConnectionDialog.hpp
   FilesListItem.cpp
   FilesListItem.hpp
+  FilteringModel.cpp
+  FilteringModel.hpp
   GraphicalBool.hpp
   GraphicalBool.cpp
   GraphicalDouble.hpp

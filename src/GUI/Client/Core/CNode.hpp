@@ -22,7 +22,6 @@
 
 #include "GUI/Client/Core/LibClientCore.hpp"
 
-class QIcon;
 class QString;
 class QAction;
 class QMenu;
@@ -157,10 +156,6 @@ namespace ClientCore {
     QString getComponentType() const;
 
     CNode::Ptr getNode(CF::Uint index);
-
-    /// @brief Gives the icon associated to this node
-    /// @return Returns the icon associated to this node
-    virtual QIcon getIcon() const = 0;
 
     /// @brief Gives the node tooltip.
     /// @return Returns the tooltip text.

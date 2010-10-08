@@ -362,7 +362,7 @@ void NTree::modifyOptions(const QModelIndex & index,
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QVariant  NTree::data(const QModelIndex & index, int role) const
+QVariant NTree::data(const QModelIndex & index, int role) const
 {
   QVariant data;
 
@@ -384,14 +384,8 @@ QVariant  NTree::data(const QModelIndex & index, int role) const
           break;
         }
       }
-      else
-      {
-        if(role == Qt::DecorationRole && index.column() == 0)
-          data = node->getIcon();
-
-        if(role == Qt::ToolTipRole)
+      else if(role == Qt::ToolTipRole)
           data = node->getToolTip();
-      }
     }
   }
 
@@ -591,14 +585,6 @@ void NTree::getNodePathRec(const QModelIndex & index, QString & path) const
   }
   else
     path.prepend("//");
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-QIcon NTree::getIcon() const
-{
-  return QFileIconProvider().icon(QFileIconProvider::Folder);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

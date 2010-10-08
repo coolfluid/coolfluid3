@@ -30,14 +30,6 @@ QString NBrowser::generateName()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QIcon NBrowser::getIcon() const
-{
-  return QFileIconProvider().icon(QFileIconProvider::Folder);
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 QString NBrowser::getToolTip() const
 {
   return this->getComponentType();

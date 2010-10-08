@@ -80,14 +80,6 @@ void NCore::disconnectFromServer(bool shutdown)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QIcon NCore::getIcon() const
-{
-  return QFileIconProvider().icon(QFileIconProvider::Folder);
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 QString NCore::getToolTip() const
 {
   return this->getComponentType();
