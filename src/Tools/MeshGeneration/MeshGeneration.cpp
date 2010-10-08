@@ -15,6 +15,7 @@
 using namespace CF;
 using namespace CF::Common;
 using namespace CF::Mesh;
+using namespace CF::Math;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -57,6 +58,43 @@ void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uin
       nodes[3] = (j+1) * (x_segments+1) + i;
       nodes[2] = nodes[3] + 1;
     }
+  }
+}
+
+void create_circle_2d(CArray& coordinates, CTable& connectivity, const Real radius, const Uint segments, const Real start_angle, const Real end_angle)
+{
+  const Uint dim = 2;
+  const Uint nb_nodes = 2;
+  const bool closed = std::abs(std::abs(end_angle - start_angle) - 2.0*MathConsts::RealPi()) < MathConsts::RealEps();
+
+  coordinates.initialize(dim);
+  CArray::ArrayT& coord_array = coordinates.array();
+  coord_array.resize(boost::extents[segments + (!closed)][dim]);
+
+  connectivity.initialize(nb_nodes);
+  CTable::ArrayT& conn_array = connectivity.array();
+  conn_array.resize(boost::extents[segments][nb_nodes]);
+  for(Uint u = 0; u != segments; ++u)
+  {
+    const Real theta = start_angle + (end_angle - start_angle) * (static_cast<Real>(u) / static_cast<Real>(segments));
+    CArray::Row coord_row = coord_array[u];
+
+    coord_row[XX] = radius * cos(theta);
+    coord_row[YY] = radius * sin(theta);
+
+    CTable::Row nodes = conn_array[u];
+    nodes[0] = u;
+    nodes[1] = u+1;
+  }
+  if(closed)
+  {
+    conn_array[segments-1][1] = 0;
+  }
+  else
+  {
+    CArray::Row coord_row = coord_array[segments];
+    coord_row[XX] = radius * cos(end_angle);
+    coord_row[YY] = radius * sin(end_angle);
   }
 }
 

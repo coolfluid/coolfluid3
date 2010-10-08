@@ -681,7 +681,7 @@ BOOST_FIXTURE_TEST_CASE( VolumeDirect, ProtoOperatorsFixture ) // timed and prof
   {
     const CTable::ArrayT& ctbl = region.connectivity_table().array();
     const Uint element_count = ctbl.size();
-    ElementNodes nodes(4,2);
+    ElementNodeValues<4, 2, 1> nodes;
     for(Uint element = 0; element != element_count; ++element)
     {
       nodes.fill(coords, ctbl[element]);

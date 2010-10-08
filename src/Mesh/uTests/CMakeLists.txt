@@ -85,7 +85,7 @@ coolfluid_add_unittest( uTestLine1DLagrangeP1 )
 
 ################################################################################
 
-list( APPEND uTestLine2DLagrangeP1_cflibs SF )
+list( APPEND uTestLine2DLagrangeP1_cflibs MeshGeneration SF )
 list( APPEND uTestLine2DLagrangeP1_files
   uTestLine2DLagrangeP1.cpp )
 

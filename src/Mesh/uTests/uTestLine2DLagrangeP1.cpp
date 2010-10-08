@@ -24,6 +24,7 @@
 
 
 #include "Tools/Testing/Difference.hpp"
+#include "Tools/MeshGeneration/MeshGeneration.hpp"
 
 using namespace boost::assign;
 using namespace CF;
@@ -32,6 +33,7 @@ using namespace CF::Mesh;
 using namespace CF::Mesh::Integrators;
 using namespace CF::Mesh::SF;
 using namespace CF::Tools::Testing;
+using namespace CF::Tools::MeshGeneration;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -46,44 +48,6 @@ struct LagrangeSFLine2DLagrangeP1Fixture
   /// common tear-down for each test case
   ~LagrangeSFLine2DLagrangeP1Fixture()
   {
-  }
-
-  /// Fills the given coordinate and connectivity data to create a 2D circle, consisting of Line2DLagrangeP1 elements
-  void create_circle_2d(CArray& coordinates, CTable& connectivity, const Real radius, const Uint segments, const Real start_angle = 0., const Real end_angle = 2.*MathConsts::RealPi())
-  {
-    const Uint dim = Line2DLagrangeP1::dimension;
-    const Uint nb_nodes = Line2DLagrangeP1::nb_nodes;
-    const bool closed = std::abs(std::abs(end_angle - start_angle) - 2.0*MathConsts::RealPi()) < MathConsts::RealEps();
-
-    coordinates.initialize(dim);
-    CArray::ArrayT& coord_array = coordinates.array();
-    coord_array.resize(boost::extents[segments + (!closed)][dim]);
-
-    connectivity.initialize(nb_nodes);
-    CTable::ArrayT& conn_array = connectivity.array();
-    conn_array.resize(boost::extents[segments][nb_nodes]);
-    for(Uint u = 0; u != segments; ++u)
-    {
-      const Real theta = start_angle + (end_angle - start_angle) * (static_cast<Real>(u) / static_cast<Real>(segments));
-      CArray::Row coord_row = coord_array[u];
-
-      coord_row[XX] = radius * cos(theta);
-      coord_row[YY] = radius * sin(theta);
-
-      CTable::Row nodes = conn_array[u];
-      nodes[0] = u;
-      nodes[1] = u+1;
-    }
-    if(closed)
-    {
-      conn_array[segments-1][1] = 0;
-    }
-    else
-    {
-      CArray::Row coord_row = coord_array[segments];
-      coord_row[XX] = radius * cos(end_angle);
-      coord_row[YY] = radius * sin(end_angle);
-    }
   }
 
   const RealVector mapped_coords;
