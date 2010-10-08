@@ -47,6 +47,7 @@ CMethod& CMethod::operation(const std::string& name)
   return *get_child_type<CMethod>(name);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
 } // Solver
 } // CF
