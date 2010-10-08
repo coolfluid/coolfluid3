@@ -47,6 +47,16 @@ void CEnv::defineConfigProperties ( Common::PropertyList& options )
   options.add_option< OptionT<bool> >("ErrorOnUnusedConfig", "If true, signal error when some user provided config parameters are not used.", false);
   options.add_option< OptionT<std::string> >("MainLoggerFileName", "The name if the file in which to put the logging messages.", "output.log");
   options.add_option< OptionT<Uint> >("ExceptionLogLevel", "The log level for exceptions", (Uint) VERBOSE);
+
+  options["OnlyCP0Writes"].as_option().mark_basic();
+  options["AssertionThrows"].as_option().mark_basic();
+  options["RegistRignalHandlers"].as_option().mark_basic();
+  options["TraceActive"].as_option().mark_basic();
+  options["TraceToStdOut"].as_option().mark_basic();
+  options["VerboseEvents"].as_option().mark_basic();
+  options["ErrorOnUnusedConfig"].as_option().mark_basic();
+  options["MainLoggerFileName"].as_option().mark_basic();
+  options["ExceptionLogLevel"].as_option().mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
