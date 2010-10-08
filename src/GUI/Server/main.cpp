@@ -24,7 +24,6 @@
 #include "Common/Core.hpp"
 //#include "Framework/Simulator.hpp"
 #include "Common/DirPaths.hpp"
-#include "Common/CoreVars.hpp"
 
 #define CF_NO_TRACE
 
