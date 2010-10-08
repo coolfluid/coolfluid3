@@ -36,6 +36,8 @@ list( APPEND Solver_files
   CIterativeSolver.cpp
   CMethod.hpp
   CMethod.cpp
+  ResidualDistribution.hpp
+  ResidualDistribution.cpp
 )
 
 set( Solver_kernellib TRUE )

@@ -4,12 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_CDiscretization_hpp
-#define CF_Solver_CDiscretization_hpp
+#ifndef CF_Solver_ResidualDistribution_hpp
+#define CF_Solver_ResidualDistribution_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Solver/CMethod.hpp"
+#include "Solver/CDiscretization.hpp"
 #include "Solver/LibSolver.hpp"
 
 namespace CF {
@@ -20,32 +20,32 @@ namespace Solver {
 /// Solver component class
 /// @author Tiago Quintino
 /// @author Willem Deconinck
-class Solver_API CDiscretization : public Solver::CMethod {
+class Solver_API ResidualDistribution : public Solver::CDiscretization {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<CDiscretization> Ptr;
-  typedef boost::shared_ptr<CDiscretization const> ConstPtr;
+  typedef boost::shared_ptr<ResidualDistribution> Ptr;
+  typedef boost::shared_ptr<ResidualDistribution const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  CDiscretization ( const CName& name );
+  ResidualDistribution ( const CName& name );
 
   /// Virtual destructor
-  virtual ~CDiscretization();
+  virtual ~ResidualDistribution();
 
   /// Get the class name
-  static std::string type_name () { return "CDiscretization"; }
+  static std::string type_name () { return "ResidualDistribution"; }
 
   /// Configuration Options
   static void defineConfigProperties ( Common::PropertyList& options ) {}
 
-  // functions specific to the CDiscretization component
-
-  virtual void do_whatever() = 0;
+  // functions specific to the ResidualDistribution component
   
+  virtual void do_whatever();
+
 private: // helper functions
 
   /// regists all the signals declared in this class
@@ -60,4 +60,4 @@ private: // helper functions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Solver_CDiscretization_hpp
+#endif // CF_Solver_ResidualDistribution_hpp

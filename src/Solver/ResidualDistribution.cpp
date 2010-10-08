@@ -8,26 +8,35 @@
 
 #include "Solver/LibSolver.hpp"
 
-#include "Solver/CDiscretization.hpp"
+#include "Solver/ResidualDistribution.hpp"
 
 namespace CF {
 namespace Solver {
 
 using namespace Common;
 
+Common::ObjectProvider < ResidualDistribution, Component, LibSolver, NB_ARGS_1 >
+ResidualDistribution_Provider ( ResidualDistribution::type_name() );
+
 ////////////////////////////////////////////////////////////////////////////////
 
-CDiscretization::CDiscretization ( const CName& name  ) :
-  CMethod ( name )
+ResidualDistribution::ResidualDistribution ( const CName& name  ) :
+  CDiscretization ( name )
 {
   BUILD_COMPONENT;
-  properties()["brief"]=std::string("Discretization Method component");
-  properties()["description"]=std::string("Handles the discretization of the PDE's");
+  properties()["brief"] = std::string("Residual Distribution Method");
+  properties()["description"] = std::string("Discretize the PDE's using the Residual Distribution Method");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CDiscretization::~CDiscretization()
+ResidualDistribution::~ResidualDistribution()
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void ResidualDistribution::do_whatever()
 {
 }
 
