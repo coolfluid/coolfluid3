@@ -17,6 +17,8 @@ list( APPEND Common_files
     Component.cpp
     ComponentIterator.hpp
     ComponentPredicates.hpp
+    CEnv.cpp
+    CEnv.hpp
     CPath.hpp
     CPath.cpp
     CRoot.hpp
@@ -32,8 +34,6 @@ list( APPEND Common_files
     ConfigArgs.hpp
     Core.hpp
     Core.cpp
-    CoreVars.hpp
-    CoreVars.cpp
     DirPaths.cpp
     DirPaths.hpp
     EnumT.hpp

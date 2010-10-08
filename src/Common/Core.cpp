@@ -20,6 +20,7 @@
 #include "Common/OSystem.hpp"
 #include "Common/CGroup.hpp"
 #include "Common/CRoot.hpp"
+#include "Common/CEnv.hpp"
 
 //#include "Common/SingleBehaviorFactory.hpp"
 #include "Common/DirPaths.hpp"
@@ -28,7 +29,6 @@
 #include "Common/LibraryRegistry.hpp"
 #include "Common/FactoryRegistry.hpp"
 #include "Common/LibraryRegisterBase.hpp"
-#include "Common/CoreVars.hpp"
 
 #include "Common/Core.hpp"
 
@@ -59,12 +59,12 @@ Core::Core() :
 //  m_var_registry ( new VarRegistry() )
   m_event_handler(new Common::EventHandler()),
   m_module_registry(new Common::LibraryRegistry()),
-  m_factory_registry(new Common::FactoryRegistry()),
-  m_env_vars (new CoreVars())
+  m_factory_registry(new Common::FactoryRegistry())
 {
   m_root = CRoot::create("Root");
   m_root->create_component_type<CGroup>("Libraries");
   m_root->create_component_type<CGroup>("Tools");
+  m_root->create_component_type<CEnv>("Env");
 
 //  addConfigOptionsTo(this);
 //
@@ -202,7 +202,6 @@ std::string Core::getVersionHeader() const
 Core::~Core()
 {
   // delete_ptr ( m_var_registry );
-  delete_ptr ( m_env_vars );
 
   delete m_module_registry;     m_module_registry = CFNULL;
   delete m_factory_registry;    m_factory_registry = CFNULL;
@@ -218,9 +217,6 @@ Core::~Core()
 void Core::initiate ( int argc, char** argv )
 {
   PEInterface::instance().init(argc,argv); // this might modify argc and argv
-
-  m_env_vars->InitArgs.first  = argc;
-  m_env_vars->InitArgs.second = argv;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -237,14 +233,6 @@ void Core::terminate()
 //  CFinfo << "-------------------------------------------------------------\n" << CFflush;
 //  CFinfo << "CF Environment Terminated\n";
 //  CFinfo << "-------------------------------------------------------------\n" << CFflush;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-Common::SafePtr<Common::CoreVars> Core::getVars()
-{
-  cf_assert(m_env_vars != CFNULL);
-  return m_env_vars;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

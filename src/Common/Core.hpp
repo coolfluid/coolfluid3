@@ -29,7 +29,6 @@ namespace Common {
 
   class EventHandler;
   class FactoryRegistry;
-  class CoreVars;
   class CRoot;
 
 
@@ -94,9 +93,6 @@ public: // methods
   /// @note Does not need to be initialized before
   Common::SafePtr<Common::EventHandler> getEventHandler();
 
-  /// Gets the CoreVars
-  Common::SafePtr<Common::CoreVars> getVars();
-
   /// Return the subversion version string of this build
   std::string getVersionHeader() const;
   /// Return the subversion version string of this build
@@ -142,10 +138,6 @@ private: // data
 
   /// the FactoryRegistry singleton object is only held by the CoreEnv singleton object
   Common::FactoryRegistry* m_factory_registry;
-
-  /// @brief Static environment variables
-  /// pointer to a struct of variables that always exist
-  CoreVars * m_env_vars;
 
   /// @brief The component tree root
   boost::shared_ptr<CRoot> m_root;
