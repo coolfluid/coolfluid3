@@ -14,8 +14,6 @@
 
 using namespace CF::Common;
 
-
-
 namespace CF {
 namespace Solver {
 

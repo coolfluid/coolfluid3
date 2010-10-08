@@ -60,12 +60,21 @@ void ScalarAdvection::regist_signals ( ScalarAdvection* self )
 
 void ScalarAdvection::run_wizzard ( Common::XmlNode& node )
 {
+  // access the CModel
   CModel::Ptr model = look_component_type<CModel>( property("Model").value<std::string>() );
 
+  // set the CDomain
   CDomain::Ptr domain = model->create_component_type<CDomain>("Domain");
+
+  // setup the Physical Model
   CPhysicalModel::Ptr pm = model->create_component_type<CPhysicalModel>("Physics");
 
+  pm->configure_property( "dof", 1 );
+  pm->configure_property( "dimensions", 2 );
+
+  // setup
   CDiscretization::Ptr cdm = model->create_component_abstract_type<CDiscretization>("ResidualDistribution", "Discretization");
+
   CIterativeSolver::Ptr solver = model->create_component_abstract_type<CIterativeSolver>("ForwardEuler", "IterativeSolver");
 }
 
