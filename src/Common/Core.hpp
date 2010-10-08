@@ -63,14 +63,6 @@ public: // methods
   /// @return Returns the root component.
   boost::shared_ptr<CRoot> root();
 
-  /// Defines the Config Option's of this class
-  /// @param options a OptionList where to add the Option's
-//  static void defineConfigProperties(Common::OptionList& options);
-
-  /// Configures this Simulator.
-  /// Sets up the data for this Object.
-//  virtual void configure ( Common::ConfigArgs& args );
-
   /// Setup the environment
   /// @pre called after configure
   virtual void setup();
@@ -104,18 +96,6 @@ public: // methods
 
   /// Gets the CoreVars
   Common::SafePtr<Common::CoreVars> getVars();
-
-  /// Calls initiate() on all registered modules.
-  /// Mind that some modules might already have been initiated.
-  /// It is up to the modules to track if they have or not been initiated.
-  /// @see LibraryRegisterBase
-  void initiate_modules();
-
-  /// Calls terminate() on all registered modules
-  /// Mind that some modules might already have been terminated.
-  /// It is up to the modules to track if they have or not been terminated.
-  /// @see LibraryRegisterBase
-  void terminate_modules();
 
   /// Return the subversion version string of this build
   std::string getVersionHeader() const;

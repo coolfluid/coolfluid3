@@ -54,26 +54,6 @@ CRoot::Ptr Core::root()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-//void CoreEnv::defineConfigProperties(Common::OptionList& options)
-//{
-//  options.addConfigOption< bool >    ("OnlyCPU0Writes",    "Only CPU0 writes to stdout");
-//  options.addConfigOption< bool >    ("DoAssertions",      "Turn off assertions dynamically");
-//  options.addConfigOption< bool >    ("AssertionDumps",    "If assertions should dump backtraces");
-//  options.addConfigOption< bool >    ("AssertionThrows",   "If assertions should throw exceptions instead of aborting code");
-//  options.addConfigOption< bool >    ("ExceptionOutputs",  "If exception contructor should output");
-//  options.addConfigOption< bool >    ("ExceptionDumps",    "If exception contructor should dump backtrace");
-//  options.addConfigOption< bool >    ("ExceptionAborts",   "If exception contructor should abort execution immedietly");
-//  options.addConfigOption< Uint >    ("ExceptionLogLevel", "Loglevel for exceptions");
-//  options.addConfigOption< bool >    ("RegistSignalHandlers", "If CPU signal handlers should be registered");
-//  options.addConfigOption< bool >    ("TraceToStdOut",     "If Tracing should be sent to stdout also");
-//  options.addConfigOption< bool >    ("TraceActive",       "If Tracing should be active");
-//  options.addConfigOption< bool >    ("VerboseEvents",     "If Events have verbose output");
-//  options.addConfigOption< bool >    ("ErrorOnUnusedConfig","Signal error when some user provided config parameters are not used");
-//  options.addConfigOption< std::string >("MainLoggerFileName", "Name of main log file");
-//}
-
-////////////////////////////////////////////////////////////////////////////////
-
 Core::Core() :
 // Common::ConfigObject("CoreEnv"),
 //  m_var_registry ( new VarRegistry() )
@@ -105,35 +85,6 @@ Core::Core() :
 //  setParameter("MainLoggerFileName",    &(m_env_vars->MainLoggerFileName));
 //  setParameter("ExceptionLogLevel",     &(m_env_vars->ExceptionLogLevel));
 }
-
-////////////////////////////////////////////////////////////////////////////////
-
-//void CoreEnv::configure ( Common::ConfigArgs& args )
-//{
-//  ConfigObject::configure(args);
-//
-//  CFinfo << "Configuring OSystem signal handlers ... " << CFflush;
-//  if ( m_env_vars->RegistSignalHandlers )
-//  {
-//    OSystem::instance().getSignalHandler()->registSignalHandlers();
-//    CFinfo << "OK\n" << CFflush;
-//  }
-//  else
-//    CFinfo << "skipping\n" << CFflush;
-//
-//  CFinfo << "Configuring Logging ... " << CFflush;
-//  CFinfo << "OK\n" << CFflush;
-//
-//  // clean the config.log file
-//  boost::filesystem::path fileconfig =
-//    Common::DirPaths::instance().getResultsDir() / boost::filesystem::path("config.log");
-//
-////  SelfRegistPtr<Common::FileHandlerOutput> fhandle = Common::SingleBehaviorFactory<Common::FileHandlerOutput>::instance().create();
-////  std::ofstream& fout = fhandle->open(fileconfig,std::ios_base::trunc);
-////
-////  fout << "CONFIG LOG:" << "\n";
-////  fhandle->close();
-//}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -266,46 +217,10 @@ Core::~Core()
 
 void Core::initiate ( int argc, char** argv )
 {
-//  CFinfo << "-------------------------------------------------------------\n" << CFflush;
-//  CFinfo << "CF Core Environment\n" << CFflush;
-//  CFinfo << "-------------------------------------------------------------\n" << CFflush;
-
-//  CFinfo << getVersionHeader() << CFflush;
-
-//  CFinfo << "-------------------------------------------------------------\n" << CFflush;
-
-//  CFinfo << "Initializing Parallel Environment ..." << CFendl;
-
   PEInterface::instance().init(argc,argv); // this might modify argc and argv
 
   m_env_vars->InitArgs.first  = argc;
   m_env_vars->InitArgs.second = argv;
-
-//  CFinfo << "Initializing Hook Modules ..." << CFendl;
-
-  initiate_modules();
-
-//  CFinfo << "-------------------------------------------------------------\n" << CFflush;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void Core::initiate_modules()
-{
-  std::vector< SafePtr<LibraryRegisterBase> > mod = m_module_registry->getAllModules();
-  std::for_each(mod.begin(),
-                mod.end(),
-                Common::safeptr_mem_fun(&LibraryRegisterBase::initiate));
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void Core::terminate_modules()
-{
-  std::vector< SafePtr<LibraryRegisterBase> > mod = m_module_registry->getAllModules();
-  std::for_each(mod.begin(),
-                mod.end(),
-                Common::safeptr_mem_fun(&LibraryRegisterBase::terminate));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -316,7 +231,6 @@ void Core::terminate()
 //  CFinfo << "CF Environment Terminating\n" << CFflush;
 
 //  CFinfo << "Terminating Hook Modules ...\n" << CFflush;
-  terminate_modules();
 
   PEInterface::instance().finalize();
 
