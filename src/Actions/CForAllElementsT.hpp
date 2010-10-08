@@ -103,7 +103,7 @@ public: // functions
         BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*region))
       {
         // Setup all child operations
-        BOOST_FOREACH(COperation& operation, range_typed<COperation>(*this))
+        BOOST_FOREACH(CAction& operation, range_typed<CAction>(*this))
         {
           operation.set_loophelper( elements );
           const Uint elem_count = elements.elements_count();

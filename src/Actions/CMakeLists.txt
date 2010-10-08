@@ -4,6 +4,8 @@ list( APPEND Actions_files
   CAction.hpp
   CAction.cpp
   CForAllElementsT.hpp
+  CSchemeLDA.hpp
+  CSchemeLDA.cpp
   CSetFieldValues.hpp
   CSetFieldValues.cpp
   LibActions.hpp
