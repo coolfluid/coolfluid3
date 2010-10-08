@@ -40,6 +40,8 @@ list( APPEND Solver_files
   ForwardEuler.cpp
   ResidualDistribution.hpp
   ResidualDistribution.cpp
+  ScalarAdvection.hpp
+  ScalarAdvection.cpp
 )
 
 set( Solver_kernellib TRUE )

@@ -294,8 +294,7 @@ Component::ConstPtr Component::look_component ( const CPath& path ) const
     complete_path(lpath); // ensure the path is complete
 
     // get the root
-    boost::shared_ptr<CRoot> root =
-    boost::dynamic_pointer_cast<CRoot>( m_root.lock() );
+    boost::shared_ptr<CRoot> root = boost::dynamic_pointer_cast<CRoot>( m_root.lock() );
 
     return root->access_component(lpath);
   }

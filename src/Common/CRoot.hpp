@@ -63,6 +63,10 @@ namespace Common {
     /// @param path to the component
     void remove_component_path ( const CPath& path );
 
+    /// check that a component path actually points to a component
+    /// @param path to the component
+    bool exists_component_path ( const CPath& path );
+
   private: // helper functions
 
     typedef std::map< std::string , Component::Ptr > CompStorage_t;

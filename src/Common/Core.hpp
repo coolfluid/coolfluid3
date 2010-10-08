@@ -31,27 +31,25 @@ namespace Common {
   class FactoryRegistry;
   class CRoot;
 
+////////////////////////////////////////////////////////////////////////////////
 
-  ////////////////////////////////////////////////////////////////////////////////
+/// @brief Struct to force library registration
+/// @author Quentin Gasper
+template< typename LIB >
+struct ForceLibRegist
+{
+  /// @brief Registers the library LIB in the registry.
+  ForceLibRegist();
+};
 
-  /// @brief Struct to force library registration
-  /// @author Quentin Gasper
-  template< typename LIB >
-  struct ForceLibRegist
-  {
-    /// @brief Registers the library LIB in the registry.
-    ForceLibRegist();
-  };
-
-  ////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 /// This class represents a singleton object where
 /// which is used to initialize the CF runtime environment.
 /// @author Tiago Quintino
 class Common_API  Core :
     public boost::noncopyable,
-//  public Common::ConfigObject,
-  public Common::SetupObject {
+    public Common::SetupObject {
 
 public: // methods
 
