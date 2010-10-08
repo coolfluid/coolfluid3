@@ -216,27 +216,6 @@ BOOST_FIXTURE_TEST_CASE( ComputeVolume2DUnitSquareDirectVector, IntegrationFixtu
   BOOST_CHECK_CLOSE(volume, 1., 1e-8);
 }
 
-/// Directly compute the volume using the node coordinates. ElementNodes version
-BOOST_FIXTURE_TEST_CASE( ComputeVolume2DUnitSquareDirectMemCopy, IntegrationFixture ) // timed and profiled
-{
-  const CArray& coords = get_named_component_typed<CArray>(grid2D, "coordinates");
-  Real volume = 0.0;
-  BOOST_FOREACH(const CElements& region, recursive_range_typed<CElements>(grid2D))
-  {
-    const CTable::ArrayT& ctbl = region.connectivity_table().array();
-    const Uint element_count = ctbl.size();
-    ElementNodes nodes(4,2);
-    for(Uint element = 0; element != element_count; ++element)
-    {
-      nodes.fill(coords, ctbl[element]);
-      volume += (nodes[2][XX] - nodes[0][XX]) * (nodes[3][YY] - nodes[1][YY]) -
-          (nodes[2][YY] - nodes[0][YY]) * (nodes[3][XX] - nodes[1][XX]);
-    }
-  }
-  volume *= 0.5;
-  BOOST_CHECK_CLOSE(volume, 1., 1e-8);
-}
-
 /// Compute the volume by integrating a functor, using a view of the nodes
 BOOST_FIXTURE_TEST_CASE( IntegrateVolume2DUnitSquareNodeView, IntegrationFixture ) // timed and profiled
 {

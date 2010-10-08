@@ -12,6 +12,7 @@
 #include "Mesh/Line1D.hpp"
 
 #include "Mesh/SF/LibSF.hpp"
+#include "Mesh/ElementData.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -71,7 +72,7 @@ static void mapped_gradient(const RealVector& mappedCoord, RealMatrix& result)
 /// Compute the jacobian determinant at the given mapped coordinates
 template<typename NodesT>
 static Real jacobian_determinant(const RealVector& mappedCoord, const NodesT& nodes) {
-  return 0.5*(nodes[1][XX] - nodes[0][XX]);
+  return 0.5*volume(nodes);
 }
 
 /// Compute the Jacobian matrix
@@ -95,10 +96,8 @@ static void jacobian_adjoint(const RealVector& mappedCoord, const NodesT& nodes,
 }
 
 /// Volume of the cell
-template<typename NodesT>
-static Real volume(const NodesT& nodes) {
-  return std::abs(nodes[1][XX] - nodes[0][XX]);
-}
+template<typename NodesType>
+static Real volume(const NodesType& nodes); // inline because of multiple definition at link time
 
 /// Number of nodes
 static const Uint nb_nodes = 2;
@@ -114,6 +113,17 @@ virtual const CF::Mesh::ElementType::FaceConnectivity& face_connectivity() const
 virtual const CF::Mesh::ElementType& face_type(const CF::Uint face) const;
 
 };
+
+template<typename NodesType>
+inline Real Line1DLagrangeP1::volume(const NodesType& nodes) {
+  return std::abs(nodes[1][XX] - nodes[0][XX]);
+}
+
+/// Specialize for ElementNodeData
+template<>
+inline Real Line1DLagrangeP1::volume(const ElementNodeValues<2, 1, 1>& nodes) {
+  return std::abs(nodes[1] - nodes[0]);
+}
 
 } // namespace SF
 } // namespace Mesh

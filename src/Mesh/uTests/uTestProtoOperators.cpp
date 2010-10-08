@@ -367,13 +367,13 @@ struct VarContext<SF, ConstNodes>
   : proto::callable_context< VarContext<SF, ConstNodes> const, proto::null_context const>
 {
   typedef SF ShapeFunctionT;
-  typedef const ElementNodes& result_type;
+  typedef ElementNodeValues<SF::nb_nodes, SF::dimension> NodesT;
+  typedef const NodesT& result_type;
   
   void init(const ConstNodes&, const CElements& elements)
   {
     coordinates = &elements.coordinates();
     connectivity = &elements.connectivity_table();
-    nodes.resize(connectivity->row_size(), coordinates->row_size());
   }
   
   void fill(const ConstNodes&, const Uint element_idx)
@@ -387,7 +387,7 @@ struct VarContext<SF, ConstNodes>
     return nodes;
   }
   
-  ElementNodes nodes;
+  NodesT nodes;
   const CArray* coordinates;
   const CTable* connectivity;
 };
@@ -670,6 +670,27 @@ BOOST_FIXTURE_TEST_CASE( CreateMesh, ProtoOperatorsFixture )
 {
   ProtoOperatorsFixture::big_grid.reset(new CMesh("big_grid"));
   Tools::MeshGeneration::create_rectangle(*big_grid, 1., 1., 2000, 2000);
+}
+
+/// Non-proto calculation, as reference
+BOOST_FIXTURE_TEST_CASE( VolumeDirect, ProtoOperatorsFixture ) // timed and profiled
+{
+  const CArray& coords = get_named_component_typed<CArray>(*big_grid, "coordinates");
+  Real volume = 0.0;
+  BOOST_FOREACH(const CElements& region, recursive_range_typed<CElements>(*big_grid))
+  {
+    const CTable::ArrayT& ctbl = region.connectivity_table().array();
+    const Uint element_count = ctbl.size();
+    ElementNodes nodes(4,2);
+    for(Uint element = 0; element != element_count; ++element)
+    {
+      nodes.fill(coords, ctbl[element]);
+      volume += (nodes[2][XX] - nodes[0][XX]) * (nodes[3][YY] - nodes[1][YY]) -
+          (nodes[2][YY] - nodes[0][YY]) * (nodes[3][XX] - nodes[1][XX]);
+    }
+  }
+  volume *= 0.5;
+  BOOST_CHECK_CLOSE(volume, 1., 1e-8);
 }
 
 // Compute volume
