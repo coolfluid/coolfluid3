@@ -4,6 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "Common/ObjectProvider.hpp"
 #include "Common/OptionT.hpp"
 #include "Actions/CSetFieldValues.hpp"
 
@@ -13,6 +14,10 @@ using namespace CF::Common;
 
 namespace CF {
 namespace Actions {
+
+///////////////////////////////////////////////////////////////////////////////////////
+
+Common::ObjectProvider < CSetFieldValues, CAction, LibActions, NB_ARGS_1 > CSetFieldValuesProvider( "CSetFieldValues" );
 
 ///////////////////////////////////////////////////////////////////////////////////////
   
