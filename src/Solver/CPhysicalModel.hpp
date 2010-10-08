@@ -46,16 +46,32 @@ public: // functions
   // CPhysicalModel specific
   /////////////////////////////////
   
-  /// Dimensionality of the problem, i.e. the number of components for the spatial coordinates
-  Uint dimensions() const;
+  /// @return dimensionality of the problem, which is
+  ///         the number of spatial coordinates used in the PDEs
+  Uint dimensions() const { return m_dim; }
   
-  /// Degrees of freedom
-  Uint nb_dof() const;
+  /// @return the number of degrees of freedom (DOFs)
+  Uint nb_dof() const { return m_nbdofs; }
 
 private: // helper functions
 
   /// regists all the signals declared in this class
   static void regist_signals ( Component* self ) {}
+
+  /// trigger for configuration of dimensions
+  void trigger_dimensionality();
+
+  /// trigger for configuration of dofs
+  void trigger_nbdofs();
+
+private: // data
+
+  /// dimensionality of physics
+  Uint m_dim;
+
+  /// number of degrees of freedom
+  Uint m_nbdofs;
+
 }; // CPhysicalModel
 
 ////////////////////////////////////////////////////////////////////////////////

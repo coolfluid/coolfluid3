@@ -20,9 +20,17 @@ namespace Solver {
 Common::ObjectProvider < CPhysicalModel, Component, LibSolver, NB_ARGS_1 >
 CPhysicalModel_Provider ( CPhysicalModel::type_name() );
   
-CPhysicalModel::CPhysicalModel(const CName& name) : Component(name)
+////////////////////////////////////////////////////////////////////////////////
+
+CPhysicalModel::CPhysicalModel(const CName& name) : Component(name),
+m_dim(0u),
+m_nbdofs(0u)
 {
   BUILD_COMPONENT;
+
+  m_property_list["Dimensionality"].as_option().attach_trigger ( boost::bind ( &CPhysicalModel::trigger_dimensionality, this ) );
+  m_property_list["NbDOFs"].as_option().attach_trigger ( boost::bind ( &CPhysicalModel::trigger_nbdofs, this ) );
+
 }
 
 CPhysicalModel::~CPhysicalModel()
@@ -31,19 +39,21 @@ CPhysicalModel::~CPhysicalModel()
 
 void CPhysicalModel::defineConfigProperties(PropertyList& options)
 {
-  options.add_option<OptionT <Uint> >("dimensions", "Dimensionality of the problem, i.e. the number of components for the spatial coordinates", DIM_0D);
-  options.add_option<OptionT <Uint> >("dof", "Degrees of freedom", 0u);
+  options.add_option<OptionT <Uint> >("Dimensionality", "Dimensionality of the problem, i.e. the number of components for the spatial coordinates", DIM_0D);
+  options.add_option<OptionT <Uint> >("NbDOFs", "Degrees of freedom", 0u);
 }
 
-Uint CPhysicalModel::dimensions() const
+void CPhysicalModel::trigger_dimensionality() const
 {
-  return boost::any_cast<Uint>(property("dimensions").value());
+  m_dim = boost::any_cast<Uint>(property("dimensions").value());
 }
 
-Uint CPhysicalModel::nb_dof() const
+void CPhysicalModel::trigger_nbdofs() const
 {
-  return boost::any_cast<Uint>(property("dof").value());
+  m_nbdofs = boost::any_cast<Uint>(property("dof").value());
 }
 
-}
-}
+////////////////////////////////////////////////////////////////////////////////
+
+} // Solver
+} // CF
