@@ -690,7 +690,7 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
         if (group_region->recursive_elements_count() == prev_elm_count + Uint(boco_elems[1]-boco_elems[0]+1))
         {
           group_region->properties()["cgns_section_name"] = group_region->name();
-          group_region->rename(m_boco.name,NUMBER);
+          group_region->rename(m_boco.name);
           break;
         }
       }
@@ -738,7 +738,7 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
         if (group_region->recursive_elements_count() == prev_elm_count + Uint(boco_elems[m_boco.nBC_elem-1]-boco_elems[0]+1))
         {
           group_region->properties()["cgns_section_name"] = group_region->name();
-          group_region->rename(m_boco.name,NUMBER);
+          group_region->rename(m_boco.name);
           break;
         }
       }

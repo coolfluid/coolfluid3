@@ -27,7 +27,6 @@ namespace Common {
 Component::Component ( const CName& name ) :
     m_name (),
     m_path (),
-    //m_properties(),
     m_is_link (false)
 {
   BUILD_COMPONENT;
@@ -70,7 +69,7 @@ Component::ConstPtr Component::get() const
 /////////////////////////////////////////////////////////////////////////////////////
 
 
-void Component::rename ( const CName& name , AddOption add_option)
+void Component::rename ( const CName& name )
 {
   std::string new_name = name;
   if ( new_name == m_name.string() ) // skip if name does not change
@@ -93,7 +92,7 @@ void Component::rename ( const CName& name , AddOption add_option)
     Component::Ptr parent = get_parent();
     Component::Ptr removed = parent->remove_component(m_name.string());
     m_name = new_name;
-    Component::Ptr this_component = parent->add_component(get(),add_option);
+    Component::Ptr this_component = parent->add_component( get() );
     new_name = this_component->name();
   }
 
@@ -102,22 +101,8 @@ void Component::rename ( const CName& name , AddOption add_option)
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr Component::add_component ( Component::Ptr subcomp, AddOption add_option )
+Component::Ptr Component::add_component ( Component::Ptr subcomp )
 {
-  switch (add_option)
-  {
-    case THROW:
-      if (m_components.find(subcomp->name()) != m_components.end() )
-      {
-        throw ValueExists(FromHere(), "Component with name '"
-                          + subcomp->name() + "' already exists in component '"
-                          + name() + "' with path ["
-                          + m_path.string() + "]");
-      }
-      break;
-    case NUMBER:
-      // check that no other component with such name exists
-    {
       const std::string name = subcomp->name();
       boost::regex e(name+"(_[0-9]+)?");
       BOOST_FOREACH(CompStorage_t::value_type subcomp_pair, m_components)
@@ -125,10 +110,6 @@ Component::Ptr Component::add_component ( Component::Ptr subcomp, AddOption add_
         if (boost::regex_match(subcomp_pair.first,e))
         {
           CFinfo << "++++ match found: " << name << " ~~ " << subcomp_pair.first << CFendl;
-          // A subcomponent with this name already exists.
-          // Instead of throwing, append a number to its name.
-          if (m_components.find(name) != m_components.end() )
-            m_components[name]->rename(name+"_0");
 
           Uint count = 1;
           //count howmany times the name "name(_[0-9]+)?" occurs (REGEX)
@@ -142,11 +123,6 @@ Component::Ptr Component::add_component ( Component::Ptr subcomp, AddOption add_
           break;
         }
       }
-      break;
-    }
-    default:
-      throw ValueNotFound (FromHere(), "No such option exists for the function add_component");
-  }
 
   m_components[subcomp->name()] = subcomp;
 

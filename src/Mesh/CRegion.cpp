@@ -90,7 +90,7 @@ CArray& CRegion::create_coordinates(const Uint& dim)
   }
   else if (coordinates->row_size() != dim)
   {
-    coordinates = create_component_type<CArray>("coordinates",NUMBER);
+    coordinates = create_component_type<CArray>( "coordinates" );
     coordinates->add_tag("coordinates");
     coordinates->initialize(dim);
 		CList<Uint>::Ptr global_indices = coordinates->create_component_type< CList<Uint> >("global_indices");

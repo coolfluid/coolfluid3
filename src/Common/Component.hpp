@@ -64,14 +64,6 @@ public: // typedef
   /// type of the iterator to constant Component
   typedef ComponentIterator<Component const> const_iterator;
 
-
-  /// Options that can be passed to Component::add_component
-  /// This is defines when adding a component whose name already exists
-  enum AddOption {
-    THROW = 0,      ///< throw an exception
-    NUMBER = 2      ///< add the component with a different name "name_1" , "name_2" , ...
-  };
-
 private: // typedef
 
   /// type for storing the sub components
@@ -171,7 +163,7 @@ public: // functions
   CName name () const { return m_name.string(); }
 
   /// Rename the component
-  void rename ( const CName& name, AddOption add_option = THROW );
+  void rename ( const CName& name );
 
   /// Access the path of the component
   const CPath& path () const { return m_path; }
@@ -242,10 +234,10 @@ public: // functions
 
   /// Create a (sub)component of this component automatically cast to the specified type
   template < typename T >
-      typename T::Ptr create_component_type ( const CName& name, AddOption add_opt = THROW );
+      typename T::Ptr create_component_type ( const CName& name );
 
   /// Add a (sub)component of this component
-  Ptr add_component ( Ptr subcomp, AddOption add_opt = THROW );
+  Ptr add_component ( Ptr subcomp );
 
   /// Remove a (sub)component of this component
   Ptr remove_component ( const CName& name );
@@ -370,10 +362,10 @@ template < typename ATYPE >
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename T >
-inline typename T::Ptr Component::create_component_type ( const CName& name, AddOption add_opt )
+inline typename T::Ptr Component::create_component_type ( const CName& name )
 {
   typename T::Ptr new_component ( new T(name), Deleter<T>() );
-  return boost::dynamic_pointer_cast<T>(add_component(new_component, add_opt));
+  return boost::dynamic_pointer_cast<T>( add_component( new_component ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
