@@ -8,7 +8,7 @@
 
 #include "Common/Factory.hpp"
 #include "Common/Log.hpp"
-#include "Common/CoreEnv.hpp"
+#include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 
 #include "Mesh/CMesh.hpp"
@@ -26,7 +26,7 @@ int main(int argc, char * argv[])
 {
   CFinfo << "COOLFLUID K3 Mesh Transformer\n" << CFflush;
   
-  CoreEnv::instance().initiate(argc, argv);
+  Core::instance().initiate(argc, argv);
   
   // map file extensions to readers and writers
   
@@ -150,7 +150,7 @@ int main(int argc, char * argv[])
   
   if (vm.count("version"))
   {
-    CFinfo << CoreEnv::instance().getVersionHeader () << "\n"; 
+    CFinfo << Core::instance().getVersionHeader () << "\n"; 
   }
   
   // create mesh object
@@ -258,5 +258,5 @@ int main(int argc, char * argv[])
     }
   }
   
-  CoreEnv::instance().terminate();
+  Core::instance().terminate();
 }

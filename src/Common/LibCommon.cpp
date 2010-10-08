@@ -5,7 +5,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CoreEnv.hpp"
+#include "Common/Core.hpp"
 
 #include "Common/LibCommon.hpp"
 

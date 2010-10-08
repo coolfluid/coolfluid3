@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/CoreEnv.hpp"
+#include "Common/Core.hpp"
 #include "Common/ConfigArgs.hpp"
 //#include "Framework/Maestro.hpp"
 

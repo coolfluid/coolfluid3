@@ -30,8 +30,8 @@ list( APPEND Common_files
     ConcreteProvider.hpp
     ConfigArgs.cpp
     ConfigArgs.hpp
-    CoreEnv.hpp
-    CoreEnv.cpp
+    Core.hpp
+    Core.cpp
     CoreVars.hpp
     CoreVars.cpp
     DirPaths.cpp

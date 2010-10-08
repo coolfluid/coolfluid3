@@ -30,7 +30,7 @@
 #include "Common/LibraryRegisterBase.hpp"
 #include "Common/CoreVars.hpp"
 
-#include "Common/CoreEnv.hpp"
+#include "Common/Core.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -39,10 +39,10 @@ namespace CF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CoreEnv& CoreEnv::instance()
+Core& Core::instance()
 {
   static bool created = false;
-  static CoreEnv env;
+  static Core env;
 
   if(!created)
   {
@@ -57,9 +57,9 @@ CoreEnv& CoreEnv::instance()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CRoot::Ptr CoreEnv::root()
+CRoot::Ptr Core::root()
 {
-  return CoreEnv::instance().m_root;
+  return Core::instance().m_root;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -84,7 +84,7 @@ CRoot::Ptr CoreEnv::root()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CoreEnv::CoreEnv() :
+Core::Core() :
 // Common::ConfigObject("CoreEnv"),
 //  m_var_registry ( new VarRegistry() )
   m_event_handler(new Common::EventHandler()),
@@ -143,7 +143,7 @@ CoreEnv::CoreEnv() :
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CoreEnv::setup()
+void Core::setup()
 {
   SetupObject::setup();
 
@@ -155,49 +155,49 @@ void CoreEnv::setup()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CoreEnv::unsetup()
+void Core::unsetup()
 {
   SetupObject::unsetup();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string CoreEnv::getBuildType () const
+std::string Core::getBuildType () const
 {
   return CF_BUILD_TYPE;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string CoreEnv::getSvnVersion () const
+std::string Core::getSvnVersion () const
 {
   return CF_SVNVERSION;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string CoreEnv::getReleaseVersion () const
+std::string Core::getReleaseVersion () const
 {
   return CF_VERSION_STR;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string CoreEnv::getKernelVersion () const
+std::string Core::getKernelVersion () const
 {
   return CF_KERNEL_VERSION_STR;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string CoreEnv::getBuildProcessor () const
+std::string Core::getBuildProcessor () const
 {
   return CF_BUILD_PROCESSOR;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string CoreEnv::getBuildSystem () const
+std::string Core::getBuildSystem () const
 {
   std::string ret;
 #ifdef CF_CMAKE_VERSION
@@ -211,34 +211,34 @@ std::string CoreEnv::getBuildSystem () const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string CoreEnv::getSystemName() const
+std::string Core::getSystemName() const
 {
   return CF_OS_NAME;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string CoreEnv::getLongSystemName() const
+std::string Core::getLongSystemName() const
 {
   return CF_OS_LONGNAME;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string CoreEnv::getSystemVersion() const
+std::string Core::getSystemVersion() const
 {
   return CF_OS_VERSION;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string CoreEnv::getSystemBits() const
+std::string Core::getSystemBits() const
 {
   return CF_OS_BITS;
 }
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string CoreEnv::getVersionHeader() const
+std::string Core::getVersionHeader() const
 {
   std::ostringstream out;
 
@@ -254,7 +254,7 @@ std::string CoreEnv::getVersionHeader() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CoreEnv::~CoreEnv()
+Core::~Core()
 {
   // delete_ptr ( m_var_registry );
   delete_ptr ( m_env_vars );
@@ -270,7 +270,7 @@ CoreEnv::~CoreEnv()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CoreEnv::initiate ( int argc, char** argv )
+void Core::initiate ( int argc, char** argv )
 {
 //  CFinfo << "-------------------------------------------------------------\n" << CFflush;
 //  CFinfo << "CF Core Environment\n" << CFflush;
@@ -296,7 +296,7 @@ void CoreEnv::initiate ( int argc, char** argv )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CoreEnv::initiate_modules()
+void Core::initiate_modules()
 {
   std::vector< SafePtr<LibraryRegisterBase> > mod = m_module_registry->getAllModules();
   std::for_each(mod.begin(),
@@ -306,7 +306,7 @@ void CoreEnv::initiate_modules()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CoreEnv::terminate_modules()
+void Core::terminate_modules()
 {
   std::vector< SafePtr<LibraryRegisterBase> > mod = m_module_registry->getAllModules();
   std::for_each(mod.begin(),
@@ -316,7 +316,7 @@ void CoreEnv::terminate_modules()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CoreEnv::terminate()
+void Core::terminate()
 {
 //  CFinfo << "-------------------------------------------------------------\n" << CFflush;
 //  CFinfo << "CF Environment Terminating\n" << CFflush;
@@ -333,7 +333,7 @@ void CoreEnv::terminate()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::SafePtr<Common::CoreVars> CoreEnv::getVars()
+Common::SafePtr<Common::CoreVars> Core::getVars()
 {
   cf_assert(m_env_vars != CFNULL);
   return m_env_vars;
@@ -341,7 +341,7 @@ Common::SafePtr<Common::CoreVars> CoreEnv::getVars()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::SafePtr<Common::LibraryRegistry> CoreEnv::getLibraryRegistry()
+Common::SafePtr<Common::LibraryRegistry> Core::getLibraryRegistry()
 {
   cf_assert(m_module_registry != CFNULL);
   return m_module_registry;
@@ -349,7 +349,7 @@ Common::SafePtr<Common::LibraryRegistry> CoreEnv::getLibraryRegistry()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::SafePtr<Common::FactoryRegistry> CoreEnv::getFactoryRegistry()
+Common::SafePtr<Common::FactoryRegistry> Core::getFactoryRegistry()
 {
   cf_assert(m_factory_registry != CFNULL);
   return m_factory_registry;
@@ -357,7 +357,7 @@ Common::SafePtr<Common::FactoryRegistry> CoreEnv::getFactoryRegistry()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::SafePtr<Common::EventHandler> CoreEnv::getEventHandler()
+Common::SafePtr<Common::EventHandler> Core::getEventHandler()
 {
   cf_assert(m_event_handler.isNotNull());
   return m_event_handler.getPtr();

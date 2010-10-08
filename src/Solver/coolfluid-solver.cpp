@@ -7,7 +7,7 @@
 //#include <boost/mpl/for_each.hpp>
 
 #include "Common/Log.hpp"
-#include "Common/CoreEnv.hpp"
+#include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 
 #include "Mesh/CMeshReader.hpp"
@@ -31,7 +31,7 @@ int main(int argc, char * argv[])
 {
   CFinfo << "COOLFLUID K3 Solver" << CFendl;
 
-  CoreEnv::instance().initiate(argc, argv);
+  Core::instance().initiate(argc, argv);
 
   try
   {
@@ -222,7 +222,7 @@ int main(int argc, char * argv[])
     CFerror << "Detected unknown exception" << CFendl;
   }
 
-  CoreEnv::instance().terminate();
+  Core::instance().terminate();
 
   return 0;
 }

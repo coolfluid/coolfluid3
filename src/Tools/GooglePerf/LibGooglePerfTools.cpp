@@ -6,7 +6,7 @@
 
 #include "Tools/GooglePerf/LibGooglePerfTools.hpp"
 
-#include "Common/CoreEnv.hpp"
+#include "Common/Core.hpp"
 #include "Common/DirPaths.hpp"
 #include "Common/Log.hpp"
 #include "Common/ObjectProvider.hpp"

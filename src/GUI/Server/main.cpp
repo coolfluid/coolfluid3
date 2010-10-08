@@ -21,7 +21,7 @@
 #include "GUI/Server/ServerRoot.hpp"
 #include "GUI/Server/SimulationWorker.hpp"
 
-#include "Common/CoreEnv.hpp"
+#include "Common/Core.hpp"
 //#include "Framework/Simulator.hpp"
 #include "Common/DirPaths.hpp"
 #include "Common/CoreVars.hpp"
@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
 
   try
   {
-    CoreEnv& cf_env = CoreEnv::instance();  // build the environment
+    Core& cf_env = Core::instance();  // build the environment
     cf_env.initiate ( argc, argv );        // initiate the environemnt
     ConfigArgs args;
     //cf_env.configure(args);

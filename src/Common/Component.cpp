@@ -410,7 +410,7 @@ void Component::create_component ( XmlNode& node  )
 
 
   SafePtr< FactoryBase > factory =
-      CoreEnv::instance().getFactoryRegistry()->getFactory(atype);
+      Core::instance().getFactoryRegistry()->getFactory(atype);
 
   SafePtr< ProviderBase > prov = factory->getProviderBase(ctype);
 

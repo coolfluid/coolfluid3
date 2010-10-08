@@ -23,7 +23,7 @@
 #include "Common/BasicExceptions.hpp"
 //#include "Common/ConfigFileReader.hpp"
 
-#include "Common/CoreEnv.hpp"
+#include "Common/Core.hpp"
 #include "Common/FactoryRegistry.hpp"
 #include "Common/XmlHelpers.hpp"
 
@@ -103,7 +103,7 @@ void CSimulator::run()
       std::string subSys;
       std::vector<std::string> subsysnames;
       QStringList::iterator it = m_subsystemNames.begin();
-      Common::SafePtr<EventHandler> event_handler = Common::CoreEnv::instance().getEventHandler();
+      Common::SafePtr<EventHandler> event_handler = Common::Core::instance().getEventHandler();
 
       //      SimulationStatus& simStatus = SimulationStatus::instance();
 
@@ -201,7 +201,7 @@ const
   /// @bug what if the abstract type does not exist ????
 
   std::vector< ProviderBase* > registered_providers =
-  CoreEnv::instance().getFactoryRegistry()->
+  Core::instance().getFactoryRegistry()->
   getFactory(abstractType.toStdString())->getAllProviders();
 
 //  for(size_t i = 0; i < registered_providers.size(); ++i)

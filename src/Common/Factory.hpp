@@ -14,7 +14,7 @@
 #include "Common/BasicExceptions.hpp"
 #include "Common/FactoryRegistry.hpp"
 #include "Common/Provider.hpp"
-#include "Common/CoreEnv.hpp"
+#include "Common/Core.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -122,7 +122,7 @@ Factory<BASE>& Factory<BASE>::instance()
 template <class BASE>
 Factory<BASE>::Factory()
 {
-  Common::CoreEnv::instance().getFactoryRegistry()->regist(this);
+  Common::Core::instance().getFactoryRegistry()->regist(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

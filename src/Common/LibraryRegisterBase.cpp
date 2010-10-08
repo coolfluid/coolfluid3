@@ -8,7 +8,7 @@
 
 #include "Common/CLibrary.hpp"
 #include "Common/CRoot.hpp"
-#include "Common/CoreEnv.hpp"
+#include "Common/Core.hpp"
 #include "Common/LibraryRegistry.hpp"
 
 #include "Common/LibraryRegisterBase.hpp"
@@ -29,7 +29,7 @@ m_init(false)
 {
   CLibrary::Ptr lib(new CLibrary(name));
   lib->set_library(this);
-  CoreEnv::instance().root()->get_child("Libraries")->add_component(lib);
+  Core::instance().root()->get_child("Libraries")->add_component(lib);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

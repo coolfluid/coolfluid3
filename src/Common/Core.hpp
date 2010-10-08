@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_CoreEnv_hpp
-#define CF_Common_CoreEnv_hpp
+#ifndef CF_Common_Core_hpp
+#define CF_Common_Core_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -49,7 +49,7 @@ namespace Common {
 /// This class represents a singleton object where
 /// which is used to initialize the CF runtime environment.
 /// @author Tiago Quintino
-class Common_API  CoreEnv :
+class Common_API  Core :
     public boost::noncopyable,
 //  public Common::ConfigObject,
   public Common::SetupObject {
@@ -57,7 +57,7 @@ class Common_API  CoreEnv :
 public: // methods
 
   /// @return the instance of this singleton
-  static CoreEnv& instance();
+  static Core& instance();
 
   /// @brief Gives the root component.
   /// @return Returns the root component.
@@ -148,9 +148,9 @@ public: // methods
 private: // methods
 
   /// Default contructor
-  CoreEnv();
+  Core();
   /// Default destructor
-  ~CoreEnv();
+  ~Core();
 
 private: // data
 
@@ -188,4 +188,4 @@ ForceLibRegist<LIB>::ForceLibRegist()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_CoreEnv_hpp
+#endif // CF_Common_Core_hpp
