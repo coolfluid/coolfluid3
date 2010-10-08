@@ -55,7 +55,7 @@ void CSetFieldValues::execute()
     
     // setting values of fields here
     for ( Uint n = 0; n < field_data.size(); ++n)
-      for (Uint i = 0; i < field_row.size(); ++i)
+      for (Uint i = 0; i < field_data.row_size(); ++i)
       {
         const CF::Real x = coordinates[n][XX];
         const CF::Real y = coordinates[n][YY];
