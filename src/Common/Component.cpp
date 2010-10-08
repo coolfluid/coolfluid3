@@ -425,13 +425,16 @@ void Component::create_component ( XmlNode& node  )
 
 void Component::write_xml_tree( XmlNode& node )
 {
-  if(derived_type_name().empty())
+  std::string type_name = derived_type_name();
+
+  if(type_name.empty())
     CFerror << "Unknown derived name for " << DEMANGLED_TYPEID(*this)
         << ". Was this class added to the object provider?" << CFendl;
   else
   {
-    XmlNode& this_node = *XmlOps::add_node_to(node, derived_type_name());
+    XmlNode& this_node = *XmlOps::add_node_to(node, "node");
     XmlOps::add_attribute_to( this_node, "name", name() );
+    XmlOps::add_attribute_to( this_node, "atype", type_name);
 
     if( m_is_link ) // if it is a link, we put the target path as value
       this_node.value( this_node.document()->allocate_string( get()->full_path().string().c_str() ));

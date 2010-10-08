@@ -708,29 +708,36 @@ void CNode::list_signals_reply( XmlNode & node )
 
 CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, CPath> & linkTargets)
 {
-  char * nodeType = node.name();
-  char * nodeName = node.first_attribute("name")->value();
-  XmlNode * child = node.first_node();
+  XmlAttr * typeAttr = node.first_attribute("atype");
+  XmlAttr * nameAttr = node.first_attribute("name");
 
-  cf_assert(nodeType != CFNULL);
+  cf_assert(typeAttr != CFNULL);
+  cf_assert(nameAttr != CFNULL);
+
+  char * typeName = typeAttr->value();
+  char * nodeName = nameAttr->value();
+  XmlNode * child = node.first_node("node");
+
+  cf_assert(typeName != CFNULL);
   cf_assert(nodeName != CFNULL);
-  cf_assert(std::strlen(nodeType) > 0);
+  cf_assert(std::strlen(typeName) > 0);
+  cf_assert(std::strlen(nodeName) > 0);
 
   CNode::Ptr rootNode;
 
-  if(std::strcmp(nodeType, "CCore") == 0 || std::strcmp(nodeType, "CSimulator") == 0)
+  if(std::strcmp(typeName, "CCore") == 0 || std::strcmp(typeName, "CSimulator") == 0)
     return rootNode;
 
-  if(std::strcmp(nodeType, "CLink") == 0)
+  if(std::strcmp(typeName, "CLink") == 0)
   {
     NLink::Ptr link = boost::shared_ptr<NLink>(new NLink(nodeName));
     rootNode = link;
     linkTargets[link] = node.value();
   }
-  else if(std::strcmp(nodeType, "CRoot") == 0)
+  else if(std::strcmp(typeName, "CRoot") == 0)
     rootNode = boost::shared_ptr<NRoot>(new NRoot(nodeName));
   else
-    rootNode = boost::shared_ptr<NGeneric>(new NGeneric(nodeName, nodeType));
+    rootNode = boost::shared_ptr<NGeneric>(new NGeneric(nodeName, typeName));
 
 
   while(child != CFNULL)
