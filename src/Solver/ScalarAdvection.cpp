@@ -7,6 +7,7 @@
 #include "Common/ObjectProvider.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/Core.hpp"
+#include "Common/CRoot.hpp"
 
 #include "Solver/CModel.hpp"
 #include "Solver/CPhysicalModel.hpp"
@@ -44,38 +45,42 @@ ScalarAdvection::~ScalarAdvection()
 
 void ScalarAdvection::defineConfigProperties(Common::PropertyList& options)
 {
-  options.add_option< OptionT<std::string> >  ( "Model",  "Model to fill, if empty a new model will be created in the root" , "" );
-
-  options["Model"].as_option().mark_basic();
+//  options.add_option< OptionT<std::string> >  ( "Model",  "Model to fill, if empty a new model will be created in the root" , "" );
+//  options["Model"].as_option().mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void ScalarAdvection::regist_signals ( ScalarAdvection* self )
 {
-  self->regist_signal ( "run_wizzard" , "runs the wizzard ", "Run Wizzard" )->connect ( boost::bind ( &ScalarAdvection::run_wizzard, self, _1 ) );
+  self->regist_signal ( "run_wizard" , "runs the wizard ", "Run Wizard" )->connect ( boost::bind ( &ScalarAdvection::run_wizard, self, _1 ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ScalarAdvection::run_wizzard ( Common::XmlNode& node )
+void ScalarAdvection::run_wizard ( Common::XmlNode& node )
 {
-  // access the CModel
-  CModel::Ptr model = look_component_type<CModel>( property("Model").value<std::string>() );
+//  // access the CModel
+//  CModel::Ptr model = look_component_type<CModel>( property("Model").value<std::string>() );
+
+  CModel::Ptr model =
+    Core::instance().root()->create_component_type<CModel>("ScalarAdvection");
 
   // set the CDomain
-  CDomain::Ptr domain = model->create_component_type<CDomain>("Domain");
+  // CDomain::Ptr domain =
+      model->create_component_type<CDomain>("Domain");
 
   // setup the Physical Model
   CPhysicalModel::Ptr pm = model->create_component_type<CPhysicalModel>("Physics");
 
-  pm->configure_property( "dof", 1 );
-  pm->configure_property( "dimensions", 2 );
+  pm->configure_property( "DOFs", 1u );
+  pm->configure_property( "Dimensions", 2u );
 
-  // setup
+  // setup discretization method
   CDiscretization::Ptr cdm = create_component_abstract_type<CDiscretization>("ResidualDistribution", "Discretization");
   model->add_component( cdm );
 
+  // setup iterative solver
   CIterativeSolver::Ptr solver = create_component_abstract_type<CIterativeSolver>("ForwardEuler", "IterativeSolver");
   model->add_component( solver );
 }

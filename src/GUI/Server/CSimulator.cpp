@@ -33,6 +33,7 @@
 #include "Mesh/Neu/CReader.hpp"
 
 #include "Solver/CMethod.hpp"
+#include "Solver/ScalarAdvection.hpp"
 
 //#include "Framework/GlobalStopCriteria.hpp"
 //#include "Framework/Simulator.hpp"
@@ -49,9 +50,6 @@ using namespace CF::Common;
 using namespace CF::Mesh;
 using namespace CF::Solver;
 using namespace CF::Mesh::Neu;
-//using namespace CF::Config;
-//using namespace CF::Environment;
-//using namespace CF::Framework;
 using namespace CF::GUI::Server;
 using namespace CF::GUI::Network;
 using namespace std;
@@ -429,28 +427,33 @@ void CSimulator::createSimulator()
 {
   CRoot::Ptr root = ServerRoot::getRoot();
 
-  CGroup::Ptr flowGroup = root->create_component_type<CGroup>("Flow");
-  CGroup::Ptr mgGroup = root->create_component_type<CGroup>("MG");
-  CGroup::Ptr solidGroup = root->create_component_type<CGroup>("Solid");
+//  CGroup::Ptr flowGroup = root->create_component_type<CGroup>("Flow");
+//  CGroup::Ptr mgGroup = root->create_component_type<CGroup>("MG");
+//  CGroup::Ptr solidGroup = root->create_component_type<CGroup>("Solid");
 
-  // Flow subcomponents
-  CLink::Ptr meshLnk = flowGroup->create_component_type<CLink>("Mesh");
-  CMethod::Ptr fvm = flowGroup->create_component_type<CMethod>("FVM");
-  CMethod::Ptr petsc = flowGroup->create_component_type<CMethod>("Petsc");
+//  // Flow subcomponents
+//  CLink::Ptr meshLnk = flowGroup->create_component_type<CLink>("Mesh");
+//  CMethod::Ptr fvm = flowGroup->create_component_type<CMethod>("FVM");
+//  CMethod::Ptr petsc = flowGroup->create_component_type<CMethod>("Petsc");
 
-  // MG subcomponents
-  CMesh::Ptr mesh1 = mgGroup->create_component_type<CMesh>("Mesh1");
-  CMesh::Ptr mesh2 = mgGroup->create_component_type<CMesh>("Mesh2");
-  CList<bool>::Ptr list = mgGroup->create_component_type< CList<bool> >("SomeList");
+//  // MG subcomponents
+//  CMesh::Ptr mesh1 = mgGroup->create_component_type<CMesh>("Mesh1");
+//  CMesh::Ptr mesh2 = mgGroup->create_component_type<CMesh>("Mesh2");
+//  CList<bool>::Ptr list = mgGroup->create_component_type< CList<bool> >("SomeList");
 
-  // Solid subcomponents
-  CMesh::Ptr mesh3 = solidGroup->create_component_type<CMesh>("Mesh3");
-  CMesh::Ptr mesh4 = solidGroup->create_component_type<CMesh>("Mesh4");
-  CLink::Ptr petscLnk = solidGroup->create_component_type<CLink>("PestcLnk");
+//  // Solid subcomponents
+//  CMesh::Ptr mesh3 = solidGroup->create_component_type<CMesh>("Mesh3");
+//  CMesh::Ptr mesh4 = solidGroup->create_component_type<CMesh>("Mesh4");
+//  CLink::Ptr petscLnk = solidGroup->create_component_type<CLink>("PestcLnk");
 
-  mesh4->create_component_type<CReader>("NeuMeshReader");
+//  mesh4->create_component_type<CReader>("NeuMeshReader");
 
-  meshLnk->link_to(mesh1);
-  petscLnk->link_to(petsc);
+//  meshLnk->link_to(mesh1);
+//  petscLnk->link_to(petsc);
+
+
+  Component::Ptr wizs = root->get_child("Wizards");
+
+  wizs->create_component_type<Solver::ScalarAdvection>( "ScalarAdvection" );
 }
 

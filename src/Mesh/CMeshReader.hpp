@@ -36,10 +36,11 @@ class Mesh_API CMeshReader : public Common::Component {
 
 public: // typedefs
 
-  /// provider
+  /// type of this class contruction provider
   typedef Common::ConcreteProvider < CMeshReader,1 > PROVIDER;
-  /// pointer to this type
+  /// type of pointer to Component
   typedef boost::shared_ptr<CMeshReader> Ptr;
+  /// type of pointer to constant Component
   typedef boost::shared_ptr<CMeshReader const> ConstPtr;
 
 public: // functions

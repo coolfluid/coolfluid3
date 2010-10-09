@@ -13,7 +13,7 @@ namespace Solver {
 
 using namespace Common;
 
-Common::ObjectProvider < ForwardEuler, Component, LibSolver, NB_ARGS_1 >
+Common::ObjectProvider < ForwardEuler, CIterativeSolver, LibSolver, NB_ARGS_1 >
 ForwardEuler_Provider ( ForwardEuler::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -15,17 +15,13 @@
 #include "Common/MPI/PEInterface.hpp"
 
 #include "Common/EventHandler.hpp"
-//#include "Common/VarRegistry.hpp"
 #include "Common/Log.hpp"
 #include "Common/OSystem.hpp"
 #include "Common/CGroup.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/CEnv.hpp"
 
-//#include "Common/SingleBehaviorFactory.hpp"
 #include "Common/DirPaths.hpp"
-//#include "Common/FileHandlerInput.hpp"
-//#include "Common/FileHandlerOutput.hpp"
 #include "Common/LibraryRegistry.hpp"
 #include "Common/FactoryRegistry.hpp"
 #include "Common/LibraryRegisterBase.hpp"
@@ -55,35 +51,19 @@ CRoot::Ptr Core::root()
 ////////////////////////////////////////////////////////////////////////////////
 
 Core::Core() :
-// Common::ConfigObject("CoreEnv"),
-//  m_var_registry ( new VarRegistry() )
   m_event_handler(new Common::EventHandler()),
   m_module_registry(new Common::LibraryRegistry()),
   m_factory_registry(new Common::FactoryRegistry())
 {
   m_root = CRoot::create("Root");
-  m_root->create_component_type<CGroup>("Libraries");
-  m_root->create_component_type<CGroup>("Tools");
+
   m_root->create_component_type<CEnv>("Env");
 
-//  addConfigOptionsTo(this);
-//
-//  setParameter("DoAssertions",          &(AssertionManager::instance().DoAssertions));
-//  setParameter("AssertionDumps",        &(AssertionManager::instance().AssertionDumps));
-//  setParameter("AssertionThrows",       &(AssertionManager::instance().AssertionThrows));
-//
-//  setParameter("ExceptionOutputs",      &(ExceptionManager::instance().ExceptionOutputs));
-//  setParameter("ExceptionDumps",        &(ExceptionManager::instance().ExceptionDumps));
-//  setParameter("ExceptionAborts",       &(ExceptionManager::instance().ExceptionAborts));
-//
-//  setParameter("OnlyCPU0Writes",        &(m_env_vars->OnlyCPU0Writes));
-//  setParameter("RegistSignalHandlers",  &(m_env_vars->RegistSignalHandlers));
-//  setParameter("VerboseEvents",         &(m_env_vars->VerboseEvents));
-//  setParameter("ErrorOnUnusedConfig",   &(m_env_vars->ErrorOnUnusedConfig));
-//  setParameter("TraceToStdOut",         &(m_env_vars->TraceToStdOut));
-//  setParameter("TraceActive",           &(m_env_vars->TraceActive));
-//  setParameter("MainLoggerFileName",    &(m_env_vars->MainLoggerFileName));
-//  setParameter("ExceptionLogLevel",     &(m_env_vars->ExceptionLogLevel));
+  m_root->create_component_type<CGroup>("Libraries");
+
+  m_root->create_component_type<CGroup>("Tools");
+
+  m_root->create_component_type<CGroup>("Wizards");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

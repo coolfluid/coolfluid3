@@ -24,7 +24,11 @@ class Solver_API CDiscretization : public Solver::CMethod {
 
 public: // typedefs
 
+  /// type of this class contruction provider
+  typedef Common::ConcreteProvider < CDiscretization,1 > PROVIDER;
+  /// type of pointer to Component
   typedef boost::shared_ptr<CDiscretization> Ptr;
+  /// type of pointer to constant Component
   typedef boost::shared_ptr<CDiscretization const> ConstPtr;
 
 public: // functions

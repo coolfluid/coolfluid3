@@ -13,7 +13,7 @@ namespace Solver {
 
 using namespace Common;
 
-Common::ObjectProvider < ResidualDistribution, Component, LibSolver, NB_ARGS_1 >
+Common::ObjectProvider < ResidualDistribution, CDiscretization, LibSolver, NB_ARGS_1 >
 ResidualDistribution_Provider ( ResidualDistribution::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////

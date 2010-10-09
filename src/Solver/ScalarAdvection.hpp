@@ -18,7 +18,7 @@ namespace Solver {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Wizzard to setup a scalar advection simulation
+/// Wizard to setup a scalar advection simulation
 /// @author Tiago Quintino
 class Solver_API ScalarAdvection : public Common::Component {
 
@@ -45,7 +45,7 @@ public: // functions
   // functions specific to the ScalarAdvection component
   
   /// Signal run_operation
-  void run_wizzard ( Common::XmlNode& node );
+  void run_wizard ( Common::XmlNode& node );
   
   ScalarAdvection& operation(const std::string& name);
   
