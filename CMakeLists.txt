@@ -110,6 +110,10 @@ add_subdirectory( include )
 include_directories( ${coolfluid_SOURCE_DIR}/src )
 add_subdirectory( src )
 
+# add dir with kernel plugins
+include_directories( ${coolfluid_SOURCE_DIR}/plugins )
+add_subdirectory( plugins )
+
 # sandbox is where we play around before putting stuff in the released code, off by default
 if( CF_ENABLE_SANDBOX )
   include_directories( ${coolfluid_SOURCE_DIR}/sandbox )

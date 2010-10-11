@@ -1,10 +1,6 @@
 # coolfluid_find_orphan_files()
 
 ###############################################################################
-### test for rapidxml
-add_subdirectory( rapidxml )
-
-###############################################################################
 ### test for boost::lambda
 add_subdirectory( boost-lambda )
 

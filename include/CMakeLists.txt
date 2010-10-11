@@ -1,2 +1,1 @@
-include_directories( rapidxml )
-
+add_subdirectory(rapidxml)
