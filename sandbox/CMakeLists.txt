@@ -36,4 +36,8 @@ add_subdirectory( cuda )
 ### test for OpenCL
 add_subdirectory( opencl )
 
+###############################################################################
+### test for nullptr
+add_subdirectory( nullptr )
+
 
