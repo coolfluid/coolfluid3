@@ -87,7 +87,6 @@ my %packages = (  #  version   default install priority      function
     "hdf5"       => [ "1.8.5",  'off',   'off', $priority++,  \&install_hdf5 ],
     "trilinos"   => [ "10.2.0", 'off',   'off', $priority++,  \&install_trilinos ],
     "petsc"      => [ "3.1-p2", 'off',   'off', $priority++,  \&install_petsc3 ],
-    "gmsh"       => [ "1.60.1", 'off',   'off', $priority++,  sub { install_gnu("gmsh") } ],
     "cgns"       => [ "3.0.8",  'off',   'off', $priority++,  \&install_cgns ],
     "google-perftools" => [ "1.6",'off', 'off', $priority++,  \&install_google_perftools ],
     "cgal"       => [ "3.6.1",  'off',   'off', $priority++,  \&install_cgal ],
