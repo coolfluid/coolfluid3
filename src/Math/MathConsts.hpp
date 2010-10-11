@@ -48,8 +48,8 @@ public:
   static Real RealInf () { return std::numeric_limits<Real>::infinity(); }
   /// Definition of the Pi constant.
   static Real RealPi  () { return M_PI; }
-  /// Definition of the imaginary constant i = sqrt(-1)
-  static Complex complexI () { return Complex(0.0,1.0); }
+//  /// Definition of the imaginary constant i = sqrt(-1)
+//  static Complex complexI () { return Complex(0.0,1.0); }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
