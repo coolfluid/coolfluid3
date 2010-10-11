@@ -120,9 +120,6 @@ if( CF_ENABLE_SANDBOX )
   add_subdirectory( sandbox )
 endif()
 
-# add the plugins that are distributed with the core
-add_subdirectory( plugins )
-
 coolfluid_log( "" )
 ##############################################################################
 coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
