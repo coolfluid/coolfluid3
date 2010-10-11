@@ -1,5 +1,3 @@
-find_package(CUDA)
-
 if(CUDA_FOUND)
 
 #  set( CUDA_VERBOSE_BUILD 1)

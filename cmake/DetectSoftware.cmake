@@ -31,6 +31,8 @@ find_package(CGAL)            # CGAL library
 find_package(PythonInterp)    # Python interpreter
 find_package(Realtime)        # POSIX Realtime library
 find_package(Eigen)           # Matrix library
+find_package(OpenCL)          # opencl support
+find_package(CUDA)            # cuda support
 
 # using cmake find macros
 
