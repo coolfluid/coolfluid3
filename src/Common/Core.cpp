@@ -71,11 +71,6 @@ Core::Core() :
 void Core::setup()
 {
   SetupObject::setup();
-
-  // these are the default values
-/// @todo port these into k3
-//  SingleBehaviorFactory<Common::FileHandlerInput>::instance().setDefaultBehavior("CurlAccessRepository");
-//  SingleBehaviorFactory<Common::FileHandlerOutput>::instance().setDefaultBehavior("DirectFileWrite");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -129,7 +124,7 @@ std::string Core::getBuildSystem () const
   ret += "CMake ";
   ret += CF_CMAKE_VERSION;
 #else
-  ret += "Unknown";
+  ret += "UNKNOWN";
 #endif
   return ret;
 }
@@ -181,8 +176,6 @@ std::string Core::getVersionHeader() const
 
 Core::~Core()
 {
-  // delete_ptr ( m_var_registry );
-
   delete m_module_registry;     m_module_registry = CFNULL;
   delete m_factory_registry;    m_factory_registry = CFNULL;
 
@@ -203,16 +196,8 @@ void Core::initiate ( int argc, char** argv )
 
 void Core::terminate()
 {
-//  CFinfo << "-------------------------------------------------------------\n" << CFflush;
-//  CFinfo << "CF Environment Terminating\n" << CFflush;
-
 //  CFinfo << "Terminating Hook Modules ...\n" << CFflush;
-
   PEInterface::instance().finalize();
-
-//  CFinfo << "-------------------------------------------------------------\n" << CFflush;
-//  CFinfo << "CF Environment Terminated\n";
-//  CFinfo << "-------------------------------------------------------------\n" << CFflush;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
