@@ -43,7 +43,7 @@ int main(void)
   
   // nullptr_t *null = &n1;    // Address can't be taken.
   if (nullptr == ch) {}       // ok
-  if (nullptr == pmf) {}      // Valid statement; but fails on g++ 4.1.1 due to bug #33990
+  // if (nullptr == pmf) {}      // Valid statement; but fails on g++ 4.1.1 due to bug #33990
   
   const int n = 0;
   if (nullptr == n) {}        // Should not compile; but only Comeau shows an error.
