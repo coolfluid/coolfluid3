@@ -9,6 +9,7 @@
 
 #include "Common/CF.hpp"
 
+#include "Mesh/LibMesh.hpp"
 #include "Mesh/BlockMesh/LibBlockMesh.hpp"
 
 namespace CF {
