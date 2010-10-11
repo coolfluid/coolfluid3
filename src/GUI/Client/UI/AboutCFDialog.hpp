@@ -43,7 +43,7 @@ namespace ClientUI {
 
   public:
 
-    AboutCFDialog(QWidget * parent = CFNULL);
+    AboutCFDialog(QWidget * parent = nullptr);
 
     ~AboutCFDialog();
 

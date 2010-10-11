@@ -85,7 +85,7 @@ namespace Common {
     const char * type_str = XmlTag<TYPE>::type();
     XmlNode * type_node = node.first_node(type_str);
 
-    if(type_node != CFNULL)
+    if(type_node != nullptr)
       to_value(*type_node,val);
     else
     {

@@ -53,12 +53,12 @@ bool SignatureDialog::show(XmlNode & sig, const QString & title)
 
   this->setWindowTitle(title);
 
-  while(node != CFNULL)
+  while(node != nullptr)
   {
     XmlAttr * key_attr = node->first_attribute( XmlParams::tag_attr_key() );
     XmlAttr * desc_attr = node->first_attribute( XmlParams::tag_attr_descr() );
-    QString name = key_attr != CFNULL ? key_attr->value() : "";
-    QString desc = desc_attr != CFNULL ? desc_attr->value() : "";
+    QString name = key_attr != nullptr ? key_attr->value() : "";
+    QString desc = desc_attr != nullptr ? desc_attr->value() : "";
 
     if(name.isEmpty())
       throw ValueNotFound(FromHere(), "No non-empty name found.");
@@ -67,7 +67,7 @@ bool SignatureDialog::show(XmlNode & sig, const QString & title)
     {
       XmlNode * type_name = node->first_node();
 
-      if( type_name != CFNULL )
+      if( type_name != nullptr )
         type = OptionType::Convert::to_enum(type_name->name());
       else
         throw ValueNotFound(FromHere(), "Type not found");
@@ -76,7 +76,7 @@ bool SignatureDialog::show(XmlNode & sig, const QString & title)
     {
       XmlAttr * type_attr = node->first_attribute( XmlParams::tag_attr_type() );
 
-      if( type_attr != CFNULL )
+      if( type_attr != nullptr )
       {
         const char * type_str = type_attr->value();
 

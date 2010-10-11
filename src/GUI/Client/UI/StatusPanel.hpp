@@ -32,7 +32,7 @@ namespace ClientUI {
 
   public:
 
-    StatusPanel(ClientCore::StatusModel * model, QWidget * parent = CFNULL);
+    StatusPanel(ClientCore::StatusModel * model, QWidget * parent = nullptr);
 
     ~StatusPanel();
 

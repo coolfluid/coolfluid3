@@ -38,8 +38,8 @@ TreeView::TreeView(OptionPanel * optionsPanel, QMainWindow * parent,
 : QTreeView(parent),
   m_contextMenuAllowed(contextMenuAllowed)
 {
-  if(m_contextMenuAllowed && optionsPanel == CFNULL)
-    throw BadValue(FromHere(), "Options panel is a CFNULL pointer");
+  if(m_contextMenuAllowed && optionsPanel == nullptr)
+    throw BadValue(FromHere(), "Options panel is a nullptr pointer");
 
   // instantiate class attributes
   m_modelFilter = new FilteringModel(this);

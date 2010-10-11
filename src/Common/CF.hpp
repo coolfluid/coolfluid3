@@ -11,7 +11,7 @@
 
 #ifdef CF_HAVE_CONFIG_H
 #  include "coolfluid_config.h"
-#endif // CF_HAVE_CONFIG_H
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -19,11 +19,9 @@
 #include <string>    // for std::string
 #include <vector>    // for std::vector
 #include <map>       // for std::map
-#include <cmath>     // all sorts of mathematical functions and constants
 #include <algorithm> // all sorts of algorithms on stl containers
 #include <utility>   // for stl::pair
 #include <typeinfo>  // for typeid
-#include <complex>   // for complex numbers and complex functions
 
 #include <boost/utility.hpp>           // for boost::noncopyable
 #include <boost/checked_delete.hpp>    // for boost::checked_delete
@@ -31,6 +29,22 @@
 #include "Common/CommonAPI.hpp"
 #include "Common/AssertionManager.hpp"
 #include "Common/TypeInfo.hpp"
+
+////////////////////////////////////////////////////////////////////////////////
+
+// define the nullptr either as macro or as nullptr idiom until C++0x
+#ifdef CF_CXX_SUPPORTS_NULLPTR
+const class nullptr_t
+{
+public:
+  template<class T> operator T*() const { return 0; }
+  template<class C, class T> operator T C::*() const { return 0; }
+private:
+  void operator&() const;
+} nullptr = {};
+#else
+  #define nullptr 0
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -45,70 +59,56 @@ namespace CF {
 typedef unsigned int Uint;
 
 /// Definition of the default precision
-typedef CF_REAL_TYPE Real;
-
-// if nothing defined
-#if !defined CF_PRECISION_DOUBLE && !defined CF_PRECISION_SINGLE && !defined CF_PRECISION_LONG_DOUBLE
-    typedef double Real;
+#ifdef CF_REAL_IS_FLOAT
+typedef float Real;
+#endif
+#ifdef CF_REAL_IS_DOUBLE
+typedef double Real;
+#endif
+#ifdef CF_REAL_IS_LONGDOUBLE
+typedef long double Real;
 #endif
 
-typedef std::complex< Real >  Complex;
-
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Enumeration of the dimensions
-enum Dim                  { DIM_0D, DIM_1D, DIM_2D, DIM_3D };
-/// Enumeration of the coordinates indexes
-enum CoordXYZ             { XX, YY, ZZ };
-/// Enumeration of the reference coordinates indexes
-enum CoordRef             { KSI, ETA, ZTA };
-
-////////////////////////////////////////////////////////////////////////////////
-
-///  Definition of CFNULL
-#define CFNULL 0
-
-/// @brief Deletes a pointer and makes sure it is set to CFNULL afterwards
-/// It would not have to check for CFNULL before deletion, as
+/// @brief Deletes a pointer and makes sure it is set to nullptr afterwards
+/// It would not have to check for nullptr before deletion, as
 /// deleting a null is explicitely allowed by the standard.
 /// Nevertheless it does check, to avoid problems with not so compliant compilers.
 /// Do not use this function with data allocate with new [].
 /// @author Tiago Quintino
 /// @pre ptr has been allocated with operator new
 /// @param ptr pointer to be deleted
-/// @post  ptr equals CFNULL
+/// @post  ptr equals nullptr
 template <class TYPE>
-    void delete_ptr (TYPE*& ptr)
+  void delete_ptr (TYPE*& ptr)
 {
-  if (ptr != CFNULL)
+  if (ptr != nullptr)
   {
     boost::checked_delete( ptr );
-    ptr = CFNULL;
+    ptr = nullptr;
   }
 }
 
-/// @brief Deletes a pointer and makes sure it is set to CFNULL afterwards
-/// It would not have to check for CFNULL before deletion, as
-/// deleting a null is explicitely allowed by the standard.
-/// Nevertheless it does check, to avoid problems with not so compliant compilers.
-/// Do not use this function with data allocate with new.
+/// @brief Deletes a pointer to array and makes sure it is set to nullptr afterwards
+/// @see delete_ptr
 /// @author Tiago Quintino
 /// @pre ptr has been allocated with operator new []
 /// @param ptr pointer to be deleted
-/// @post  ptr equals CFNULL
+/// @post  ptr equals nullptr
 template <class TYPE>
-    void delete_ptr_array (TYPE*& ptr)
+  void delete_ptr_array (TYPE*& ptr)
 {
-  if (ptr != CFNULL)
+  if (ptr != nullptr)
   {
     boost::checked_array_delete( ptr );
-    ptr = CFNULL;
+    ptr = nullptr;
   }
 }
 
 /// functor for deleting objects by calling the safer delete_ptr function
 template < typename BASE >
-    struct Deleter { void operator()( BASE * p ) { delete_ptr<BASE>(p); } };
+  struct Deleter { void operator()( BASE * p ) { delete_ptr<BASE>(p); } };
 
 ////////////////////////////////////////////////////////////////////////////////
 

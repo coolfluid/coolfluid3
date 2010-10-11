@@ -39,8 +39,8 @@ namespace ClientUI {
   public:
 
     /// @brief Constructor
-    /// @param parent Parent widget. May be @c CFNULL.
-    CommitDetailsDialog(QWidget * parent = CFNULL);
+    /// @param parent Parent widget. May be @c nullptr.
+    CommitDetailsDialog(QWidget * parent = nullptr);
 
     /// @brief Desctructor
     /// Frees all allocated memory. Parent is not destroyed.

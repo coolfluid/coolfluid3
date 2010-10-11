@@ -31,10 +31,10 @@ NTree::NTree(NRoot::Ptr rootNode)
 {
   BUILD_COMPONENT;
 
-  if(rootNode.get() == CFNULL)
-    m_rootNode = new TreeNode(ClientRoot::root(), CFNULL, 0);
+  if(rootNode.get() == nullptr)
+    m_rootNode = new TreeNode(ClientRoot::root(), nullptr, 0);
   else
-    m_rootNode = new TreeNode(rootNode, CFNULL, 0);
+    m_rootNode = new TreeNode(rootNode, nullptr, 0);
 
   m_columns << "Name" << "Type";
 
@@ -50,10 +50,10 @@ void NTree::setRoot(NRoot::Ptr rootNode)
   emit layoutAboutToBeChanged();
   delete m_rootNode;
 
-  m_rootNode = CFNULL;
+  m_rootNode = nullptr;
 
-  if(rootNode.get() != CFNULL)
-    m_rootNode = new TreeNode(rootNode, CFNULL, 0);
+  if(rootNode.get() != nullptr)
+    m_rootNode = new TreeNode(rootNode, nullptr, 0);
 
   emit layoutChanged();
 }
@@ -95,7 +95,7 @@ CPath NTree::getCurrentPath() const
   TreeNode * node = this->indexToTreeNode(m_currentIndex);
   CPath path;
 
-  if(node != CFNULL)
+  if(node != nullptr)
   {
     CNode::Ptr cnode = node->getNode();
 
@@ -116,12 +116,12 @@ void NTree::getNodeOptions(const QModelIndex & index, QList<NodeOption> & params
 {
   TreeNode * node = this->indexToTreeNode(index);
 
-  if(ok != CFNULL)
-    *ok = node != CFNULL;
+  if(ok != nullptr)
+    *ok = node != nullptr;
 
   params.clear();
 
-  if(node != CFNULL && node->getNode().get() != CFNULL)
+  if(node != nullptr && node->getNode().get() != nullptr)
     node->getNode()->getOptions(params);
 }
 
@@ -133,12 +133,12 @@ void NTree::getNodeProperties(const QModelIndex &index,
 {
   TreeNode * node = this->indexToTreeNode(index);
 
-  if(ok != CFNULL)
-    *ok = node != CFNULL;
+  if(ok != nullptr)
+    *ok = node != nullptr;
 
   props.clear();
 
-  if(node != CFNULL && node->getNode().get() != CFNULL)
+  if(node != nullptr && node->getNode().get() != nullptr)
     node->getNode()->getProperties(props);
 }
 
@@ -150,12 +150,12 @@ void NTree::getNodeActions(const QModelIndex & index, QList<ActionInfo> & action
 {
   TreeNode * node = this->indexToTreeNode(index);
 
-  if(ok != CFNULL)
-    *ok = node != CFNULL;
+  if(ok != nullptr)
+    *ok = node != nullptr;
 
   actions.clear();
 
-  if(node != CFNULL && node->getNode().get() != CFNULL)
+  if(node != nullptr && node->getNode().get() != nullptr)
     node->getNode()->getActions(actions);
 }
 
@@ -216,7 +216,7 @@ CNode::Ptr NTree::getNodeByPath(const CPath & path) const
     if(comps.first().toStdString() == node->name())
       comps.removeFirst();
 
-    for(it = comps.begin() ; it != comps.end() && node.get() != CFNULL ; it++)
+    for(it = comps.begin() ; it != comps.end() && node.get() != nullptr ; it++)
     {
       if(node->checkType(CNode::ROOT_NODE))
         node = boost::dynamic_pointer_cast<CNode>(node->convertTo<NRoot>()->root()->get_child(it->toStdString()));
@@ -239,7 +239,7 @@ QModelIndex NTree::getIndexByPath(const CPath & path) const
   QStringList::iterator it;
   TreeNode * treeNode = m_rootNode;
 
-  cf_assert(treeNode != CFNULL);
+  cf_assert(treeNode != nullptr);
 
   if(path.is_absolute())
   {
@@ -248,11 +248,11 @@ QModelIndex NTree::getIndexByPath(const CPath & path) const
     if(comps.first() == treeNode->getName())
       comps.removeFirst();
 
-    for(it = comps.begin() ; it != comps.end() && treeNode != CFNULL ; it++)
+    for(it = comps.begin() ; it != comps.end() && treeNode != nullptr ; it++)
     {
       treeNode = treeNode->getChildByName(*it);
 
-      if(treeNode != CFNULL)
+      if(treeNode != nullptr)
         index = this->index(treeNode->getRowNumber(), 0, index);
       else
       {
@@ -273,7 +273,7 @@ CPath NTree::getIndexPath(const QModelIndex & index) const
   TreeNode * treeNode = this->indexToTreeNode(index);
   CPath path;
 
-  if(treeNode != CFNULL)
+  if(treeNode != nullptr)
   {
     CNode::Ptr node = treeNode->getNode();
 
@@ -339,7 +339,7 @@ bool NTree::nodeMatches(const QModelIndex & index, const QRegExp & regex) const
   if(index.isValid() && indexToTreeNode(index) != m_rootNode)
     node = indexToNode(index);
 
-  if(node.get() != CFNULL)
+  if(node.get() != nullptr)
     return this->nodeMatchesRec(node, regex);
   else
     return false;
@@ -353,7 +353,7 @@ void NTree::modifyOptions(const QModelIndex & index,
 {
   TreeNode * node = this->indexToTreeNode(index);
 
-  if(node != CFNULL)
+  if(node != nullptr)
     node->getNode()->modifyOptions(options);
   else
     ClientRoot::log()->addError("Could not modify options! Invalid node.");
@@ -407,7 +407,7 @@ QModelIndex NTree::index(int row, int column, const QModelIndex & parent) const
     else
       childNode = this->indexToTreeNode(parent)->getChild(row);
 
-    if(childNode != CFNULL)
+    if(childNode != nullptr)
       index = createIndex(row, column, childNode);
   }
 
@@ -425,7 +425,7 @@ QModelIndex NTree::parent(const QModelIndex &child) const
   {
     TreeNode * parentNode = this->indexToTreeNode(child)->getParent();
 
-    if (parentNode != CFNULL)
+    if (parentNode != nullptr)
       index = createIndex(parentNode->getRowNumber(), 0, parentNode);
   }
 
@@ -578,7 +578,7 @@ void NTree::getNodePathRec(const QModelIndex & index, QString & path) const
 {
   TreeNode * node = this->indexToTreeNode(index);
 
-  if(node != CFNULL)
+  if(node != nullptr)
   {
     path.prepend('/').prepend(node->getName());
     this->getNodePathRec(index.parent(), path);

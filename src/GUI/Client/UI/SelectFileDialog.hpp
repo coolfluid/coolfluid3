@@ -107,7 +107,7 @@ namespace ClientUI {
     /// @brief Constructor.
 
     /// @param parent Parent widget.
-    SelectFileDialog(QWidget * parent = CFNULL);
+    SelectFileDialog(QWidget * parent = nullptr);
 
     /// @brief Destructor.
 

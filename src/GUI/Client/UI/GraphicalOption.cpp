@@ -150,7 +150,7 @@ void GraphicalOption::setValue(const QVariant & newValue)
 
 void GraphicalOption::addToLayout(QFormLayout * layout)
 {
-  if(layout != CFNULL)
+  if(layout != nullptr)
     layout->addRow(m_name, m_valueWidget);
 }
 

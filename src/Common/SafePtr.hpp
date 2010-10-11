@@ -60,12 +60,12 @@ public: // functions
   /// @throw Common::FailedCast
   template < typename DTYPE > SafePtr<DTYPE> d_castTo() const;
 
-  /// Check if it is CFNULL
-  /// @return true if m_ptr == CFNULL
+  /// Check if it is nullptr
+  /// @return true if m_ptr == nullptr
   inline bool isNull() const;
 
-  /// Check if it is Not CFNULL
-  /// @return true if m_ptr != CFNULL
+  /// Check if it is Not nullptr
+  /// @return true if m_ptr != nullptr
   inline bool isNotNull() const;
 
   /// Overloading of "=" with SafePtr
@@ -156,7 +156,7 @@ template < typename TYPE , typename Ret >
 ////////////////////////////////////////////////////////////////////////////////
 
 template< typename TYPE>
-SafePtr<TYPE>::SafePtr() : m_ptr(CFNULL) {}
+SafePtr<TYPE>::SafePtr() : m_ptr(nullptr) {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -186,7 +186,7 @@ void SafePtr<TYPE>::reset(const SafePtr& other) {  m_ptr = other.m_ptr; }
 ////////////////////////////////////////////////////////////////////////////////
 
 template< typename TYPE>
-inline bool SafePtr<TYPE>::isNull() const { return (m_ptr == CFNULL); }
+inline bool SafePtr<TYPE>::isNull() const { return (m_ptr == nullptr); }
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -250,7 +250,7 @@ template< typename DTYPE>
 SafePtr<DTYPE> SafePtr<TYPE>::d_castTo() const
 {
   DTYPE* rPtr = dynamic_cast<DTYPE*>(m_ptr);
-  if (rPtr == CFNULL)
+  if (rPtr == nullptr)
   {
     std::string msg ("SafePtr failed dynamic cast from ");
     msg += DEMANGLED_TYPEID(TYPE);

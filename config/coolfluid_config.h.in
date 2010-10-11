@@ -51,6 +51,7 @@
 #endif
 
 // compiler features
+#cmakedefine CF_CXX_SUPPORTS_NULLPTR  // nullptr as type
 #define CXX_NEEDS_FRIEND_TMPL_DECL           // cxx friend templates
 #define cf_restrict ${CF_RESTRICT_KEYWORD}   // define our restrict keyword
 
@@ -80,9 +81,11 @@
 // User options
 #cmakedefine CF_ENABLE_STDASSERT
 
-#define CF_REAL_TYPE ${CF_REAL_TYPE}
+#cmakedefine CF_REAL_IS_FLOAT       // CF::Real is float
+#cmakedefine CF_REAL_IS_DOUBLE      // CF::Real is double
+#cmakedefine CF_REAL_IS_LONGDOUBLE  // CF::Real is long double
 
-/// for compilers that do not define the __FUNCTION__ variable
+// for compilers that do not define the __FUNCTION__ variable
 #ifndef CF_HAVE_FUNCTION_DEF
 #  define __FUNCTION__ ""
 #endif

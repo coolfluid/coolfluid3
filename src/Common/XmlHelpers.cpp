@@ -24,8 +24,8 @@ namespace Common {
   XmlParams::XmlParams( XmlNode& node ) :
       xmlnode(node),
       xmldoc(*node.document()),
-      option_map(CFNULL),
-      property_map(CFNULL)
+      option_map(nullptr),
+      property_map(nullptr)
   {
     option_map = seek_valuemap( tag_key_options() );
     property_map = seek_valuemap( tag_key_properties() );
@@ -42,7 +42,7 @@ namespace Common {
   {
     XmlAttr * attr = xmlnode.first_attribute(tag_attr_clientid());
 
-    if(attr == CFNULL)
+    if(attr == nullptr)
       XmlOps::add_attribute_to(xmlnode, tag_attr_clientid(), uuid);
     else
       attr->value(uuid.c_str());
@@ -53,7 +53,7 @@ namespace Common {
     std::string uuid;
     XmlAttr * attr = xmlnode.first_attribute(tag_attr_clientid());
 
-    if(attr != CFNULL)
+    if(attr != nullptr)
       uuid = attr->value();
 
     return uuid;
@@ -64,7 +64,7 @@ namespace Common {
     std::string uuid;
     XmlAttr * attr = xmlnode.first_attribute(tag_attr_frameid());
 
-    if(attr != CFNULL)
+    if(attr != nullptr)
       uuid = attr->value();
 
     return uuid;
@@ -75,7 +75,7 @@ namespace Common {
     XmlNode * map_node = xmlnode.first_node( tag_node_valuemap() );
     XmlNode * value_node;
 
-    if(map_node == CFNULL)
+    if(map_node == nullptr)
       map_node = XmlOps::add_node_to( xmlnode, tag_node_valuemap() );
 
     value_node = XmlOps::add_node_to( *map_node, tag_node_value() );
@@ -90,22 +90,22 @@ namespace Common {
     XmlNode * map_node;
     XmlNode * value_node;
     XmlAttr * key_attr;
-    XmlNode * found_node = CFNULL;
+    XmlNode * found_node = nullptr;
 
     if(std::strcmp(xmlnode.name(), tag_node_valuemap()) == 0) // xmlnode is a valuemap
       map_node = &xmlnode;
     else                                                     // not a valuemap
       map_node = xmlnode.first_node( tag_node_valuemap() );
 
-    if(map_node != CFNULL)
+    if(map_node != nullptr)
     {
       value_node = map_node->first_node( tag_node_value() );
 
-      while(value_node != CFNULL && found_node == CFNULL)
+      while(value_node != nullptr && found_node == nullptr)
       {
         key_attr = value_node->first_attribute( tag_attr_key() );
 
-        if(key_attr != CFNULL && std::strcmp(key_attr->value(), key) == 0)
+        if(key_attr != nullptr && std::strcmp(key_attr->value(), key) == 0)
           found_node = value_node->first_node( tag_node_valuemap() );
 
         value_node = value_node->next_sibling( tag_node_value() );
@@ -121,11 +121,11 @@ namespace Common {
 
     // search for the node with correct type
     XmlNode* value_node = node.first_node( tag_node_valuemap() );
-    for ( ; value_node != CFNULL && !found ; value_node = value_node->next_sibling(  tag_node_valuemap() ) )
+    for ( ; value_node != nullptr && !found ; value_node = value_node->next_sibling(  tag_node_valuemap() ) )
     {
       // search for the attribute with key
       XmlAttr* att = value_node->first_attribute( tag_attr_key() );
-      found = att != CFNULL && name == att->value();
+      found = att != nullptr && name == att->value();
     }
 
     return found;
@@ -137,11 +137,11 @@ namespace Common {
 
     // search for the node with correct type
     XmlNode* value_node = node.first_node();
-    for ( ; value_node != CFNULL && !found ; value_node = value_node->next_sibling(  tag_node_valuemap() ) )
+    for ( ; value_node != nullptr && !found ; value_node = value_node->next_sibling(  tag_node_valuemap() ) )
     {
       // search for the attribute with key
       XmlAttr* att = value_node->first_attribute( tag_attr_key() );
-      found = att != CFNULL && key.compare(att->value()) == 0;
+      found = att != nullptr && key.compare(att->value()) == 0;
     }
 
     return found;
@@ -150,15 +150,15 @@ namespace Common {
   const XmlNode * XmlParams::get_valuemap_from(const XmlNode & node,
                                          const std::string & key)
   {
-    const XmlNode * found_node = CFNULL;
+    const XmlNode * found_node = nullptr;
 
     // search for the node with correct type
     XmlNode* value_node = node.first_node( tag_node_valuemap() );
-    for ( ; value_node != CFNULL && !found_node ; value_node = value_node->next_sibling(  tag_node_valuemap() ) )
+    for ( ; value_node != nullptr && !found_node ; value_node = value_node->next_sibling(  tag_node_valuemap() ) )
     {
       // search for the attribute with key
       XmlAttr* att = value_node->first_attribute( tag_attr_key() );
-      if(att != CFNULL && key == att->value())
+      if(att != nullptr && key == att->value())
         found_node = value_node;
     }
 
@@ -485,12 +485,12 @@ namespace Common {
     // copy uuids, if any
     XmlAttr* uuid_att = xmlnode.first_attribute(XmlParams::tag_attr_clientid());
 
-    if(uuid_att != CFNULL)
+    if(uuid_att != nullptr)
       XmlOps::add_attribute_to( *replynode, XmlParams::tag_attr_clientid(), uuid_att->value() );
 
     uuid_att = xmlnode.first_attribute(XmlParams::tag_attr_frameid());
 
-    if(uuid_att != CFNULL)
+    if(uuid_att != nullptr)
       XmlOps::add_attribute_to( *replynode, XmlParams::tag_attr_frameid(), uuid_att->value() );
 
     return replynode;

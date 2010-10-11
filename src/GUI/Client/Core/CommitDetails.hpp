@@ -40,9 +40,9 @@ namespace ClientCore {
 
       /// @brief Constructor.
 
-      /// @param parent The parent object. May be @c CFNULL.
+      /// @param parent The parent object. May be @c nullptr.
       /// @param nodePath Path to the node the options belong to. May be empty.
-      CommitDetails(QObject * parent = CFNULL, const QString & nodePath = QString());
+      CommitDetails(QObject * parent = nullptr, const QString & nodePath = QString());
 
       /// @brief Implements QAbstractItemModel::data()
 

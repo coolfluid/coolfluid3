@@ -82,7 +82,7 @@ void NLinkTest::test_goToTarget()
   th.addChildren(makeTreeFromFile());
   link = boost::dynamic_pointer_cast<NLink>(t->getRoot()->root()->access_component("//Simulator/Flow/Mesh"));
 
-  QVERIFY(link.get() != CFNULL);
+  QVERIFY(link.get() != nullptr);
   t->setCurrentIndex(t->index(0, 0));
 
   index = t->getIndexByPath("//Simulator/MG/Mesh1");

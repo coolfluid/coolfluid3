@@ -118,20 +118,20 @@ void CNode::setOptions(XmlNode & options)
 {
   XmlParams p(options);
 
-  if(p.option_map != CFNULL)
+  if(p.option_map != nullptr)
   {
     // iterate through options
     XmlNode* node = p.option_map->first_node();
-    for ( ; node != CFNULL ; node = node->next_sibling(  ) )
+    for ( ; node != nullptr ; node = node->next_sibling(  ) )
     {
       bool advanced;
       XmlAttr * keyAttr= node->first_attribute( XmlParams::tag_attr_key() );
       XmlAttr * descrAttr = node->first_attribute( XmlParams::tag_attr_descr() );
       XmlAttr * modeAttr = node->first_attribute( "mode" );
 
-      advanced = modeAttr != CFNULL && std::strcmp(modeAttr->value(), "adv") == 0;
+      advanced = modeAttr != nullptr && std::strcmp(modeAttr->value(), "adv") == 0;
 
-      if ( keyAttr != CFNULL )
+      if ( keyAttr != nullptr )
       {
         const char * keyVal = keyAttr->value(); // option name
 
@@ -139,9 +139,9 @@ void CNode::setOptions(XmlNode & options)
         {
           XmlNode * type_node = node->first_node();
 
-          if( type_node != CFNULL)
+          if( type_node != nullptr)
           {
-            const char * descrVal = (descrAttr != CFNULL) ? descrAttr->value() : "";
+            const char * descrVal = (descrAttr != nullptr) ? descrAttr->value() : "";
             const char * typeVal = type_node->name(); // type name
 
             if(std::strcmp(typeVal, "bool") == 0)
@@ -164,9 +164,9 @@ void CNode::setOptions(XmlNode & options)
         {
           XmlAttr * typeAttr= node->first_attribute( XmlParams::tag_attr_type() );
 
-          if( typeAttr != CFNULL)
+          if( typeAttr != nullptr)
           {
-            const char * descrVal = (descrAttr != CFNULL) ? descrAttr->value() : "";
+            const char * descrVal = (descrAttr != nullptr) ? descrAttr->value() : "";
             const char * typeVal = typeAttr->value(); // element type
 
             if(std::strcmp(typeVal, "bool") == 0)
@@ -221,15 +221,15 @@ void CNode::setProperties(XmlNode & options)
 {
   XmlParams p(options);
 
-  if(p.property_map != CFNULL)
+  if(p.property_map != nullptr)
   {
     // iterate through properties
     XmlNode* node = p.property_map->first_node();
-    for ( ; node != CFNULL ; node = node->next_sibling(  ) )
+    for ( ; node != nullptr ; node = node->next_sibling(  ) )
     {
       XmlAttr * keyAttr= node->first_attribute( XmlParams::tag_attr_key() );
 
-      if ( keyAttr != CFNULL )
+      if ( keyAttr != nullptr )
       {
         const char * keyVal = keyAttr->value(); // option name
 
@@ -237,7 +237,7 @@ void CNode::setProperties(XmlNode & options)
         {
           XmlNode * type_node = node->first_node();
 
-          if( type_node != CFNULL)
+          if( type_node != nullptr)
           {
             const char * typeVal = type_node->name(); // type name
 
@@ -310,7 +310,7 @@ void CNode::modifyOptions(const QMap<QString, QString> & options)
     {
       Property * prop = &m_property_list[it.key().toStdString()].as_option();
 
-      if( prop != CFNULL && strcmp( prop->tag() , "array" ) )
+      if( prop != nullptr && strcmp( prop->tag() , "array" ) )
       {
         std::string name = it.key().toStdString();
         QString value = it.value();
@@ -330,7 +330,7 @@ void CNode::modifyOptions(const QMap<QString, QString> & options)
         else
           throw ValueNotFound(FromHere(), prop->type() + ": Unknown type for option " + name );
       }
-      else if( prop != CFNULL && !strcmp ( prop->tag() , "array" ))
+      else if( prop != nullptr && !strcmp ( prop->tag() , "array" ))
       {
         OptionArray * optArray;
         QStringList list = it.value().split(":");
@@ -338,7 +338,7 @@ void CNode::modifyOptions(const QMap<QString, QString> & options)
 
         optArray = static_cast<OptionArray*>(prop);
 
-        cf_assert(optArray != CFNULL);
+        cf_assert(optArray != nullptr);
 
         const char * elemType = optArray->elem_type();
 
@@ -591,7 +591,7 @@ void CNode::getActions(QList<ActionInfo> & actions) const
 
 void CNode::fetchSignals()
 {
-  if(m_fetchingManager.get() == CFNULL)
+  if(m_fetchingManager.get() == nullptr)
   {
     ClientRoot::log()->addMessage("Fetching actions...");
     listChildPaths(m_fetchingChildren, true, false);
@@ -676,19 +676,19 @@ void CNode::list_signals_reply( XmlNode & node )
 
   m_actionSigs.clear();
 
-  while(map != CFNULL)
+  while(map != nullptr)
   {
     ActionInfo si;
     XmlAttr * key_attr = map->first_attribute( XmlParams::tag_attr_key() );
     XmlAttr * desc_attr = map->first_attribute( XmlParams::tag_attr_descr() );
     XmlAttr * name_attr = map->first_attribute( "name" );
 
-    cf_assert( key_attr != CFNULL );
+    cf_assert( key_attr != nullptr );
     cf_assert( key_attr->value_size() > 0 );
 
     si.m_name = key_attr->value();
-    si.m_readableName = name_attr != CFNULL ? name_attr->value() : "";
-    si.m_description = desc_attr != CFNULL ? desc_attr->value() : "";
+    si.m_readableName = name_attr != nullptr ? name_attr->value() : "";
+    si.m_description = desc_attr != nullptr ? desc_attr->value() : "";
     si.m_signature = XmlSignature(*map);
     si.m_is_local = false;
 
@@ -697,7 +697,7 @@ void CNode::list_signals_reply( XmlNode & node )
     map = map->next_sibling();
   }
 
-  if(m_fetchingManager.get() != CFNULL)
+  if(m_fetchingManager.get() != nullptr)
     m_fetchingManager->signalsFetched(boost::dynamic_pointer_cast<CNode>(shared_from_this()));
   else
     ClientRoot::log()->addMessage("Received actions !");
@@ -711,15 +711,15 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, CPath> & lin
   XmlAttr * typeAttr = node.first_attribute("atype");
   XmlAttr * nameAttr = node.first_attribute("name");
 
-  cf_assert(typeAttr != CFNULL);
-  cf_assert(nameAttr != CFNULL);
+  cf_assert(typeAttr != nullptr);
+  cf_assert(nameAttr != nullptr);
 
   char * typeName = typeAttr->value();
   char * nodeName = nameAttr->value();
   XmlNode * child = node.first_node("node");
 
-  cf_assert(typeName != CFNULL);
-  cf_assert(nodeName != CFNULL);
+  cf_assert(typeName != nullptr);
+  cf_assert(nodeName != nullptr);
   cf_assert(std::strlen(typeName) > 0);
   cf_assert(std::strlen(nodeName) > 0);
 
@@ -740,7 +740,7 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, CPath> & lin
     rootNode = boost::shared_ptr<NGeneric>(new NGeneric(nodeName, typeName));
 
 
-  while(child != CFNULL)
+  while(child != nullptr)
   {
     try
     {
@@ -753,7 +753,7 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, CPath> & lin
       {
         CNode::Ptr node = createFromXmlRec(*child, linkTargets);
 
-        if(node.get() != CFNULL)
+        if(node.get() != nullptr)
         {
           if(rootNode->checkType(ROOT_NODE))
             rootNode->convertTo<NRoot>()->root()->add_component(node);

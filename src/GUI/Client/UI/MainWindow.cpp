@@ -69,7 +69,7 @@ MainWindow::MainWindow()
   // create the components
   m_optionPanel = new OptionPanel(this);
   m_treeView = new TreeView(m_optionPanel, this);
-  m_statusPanel = CFNULL;//new StatusPanel(m_statusModel, this);
+  m_statusPanel = nullptr;//new StatusPanel(m_statusModel, this);
   m_splitter = new QSplitter(Qt::Horizontal, this);
   m_centralSplitter = new QSplitter(Qt::Vertical, this);
   m_centralWidgetLayout = new QVBoxLayout(m_centralSplitter);
@@ -422,9 +422,9 @@ int MainWindow::confirmClose()
 {
   int answer;
   QMessageBox discBox(this);
-  QPushButton * btDisc = CFNULL;
-  QPushButton * btCancel = CFNULL;
-  QPushButton * btShutServer = CFNULL;
+  QPushButton * btDisc = nullptr;
+  QPushButton * btCancel = nullptr;
+  QPushButton * btShutServer = nullptr;
 
   btDisc = discBox.addButton("Disconnect", QMessageBox::NoRole);
   btCancel = discBox.addButton(QMessageBox::Cancel);

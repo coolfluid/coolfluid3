@@ -81,7 +81,7 @@ public:
 
   /// Default Constructor
   MatrixT() :  Expr<MatrixT<T>, T>(*this),
-  m_owner(true), m_rows(0), m_cols(0), m_data(CFNULL) {}
+  m_owner(true), m_rows(0), m_cols(0), m_data(nullptr) {}
 
   /// Constructor with initialization.
   /// @param mn number of rows
@@ -400,7 +400,7 @@ private: // helper function
 
   /// Allocates the memory for the size
   void alloc_mem () {
-    cf_assert(m_owner && m_data == CFNULL);
+    cf_assert(m_owner && m_data == nullptr);
     if (m_rows*m_cols > 0) m_data = new T [m_rows*m_cols];
   }
 
@@ -428,7 +428,7 @@ MatrixT<T>::MatrixT(Uint mn,
           Uint nn,
           T value) :
   Expr<MatrixT<T>, T>(*this),
-  m_owner (true), m_rows(mn), m_cols(nn), m_data(CFNULL)
+  m_owner (true), m_rows(mn), m_cols(nn), m_data(nullptr)
 {
   alloc_mem();
   operator= (value);
@@ -442,7 +442,7 @@ MatrixT<T>::MatrixT(bool owner,
           Uint nn,
           T* init) :
   Expr<MatrixT<T>, T>(*this),
-  m_owner(owner), m_rows(mn), m_cols(nn), m_data(CFNULL)
+  m_owner(owner), m_rows(mn), m_cols(nn), m_data(nullptr)
 {
   if (m_owner) {
     alloc_mem();
@@ -464,7 +464,7 @@ MatrixT<T>::MatrixT(const MatrixT<T>& init) :
   m_owner (true),
   m_rows(init.m_rows),
   m_cols(init.m_cols),
-  m_data(CFNULL)
+  m_data(nullptr)
 {
   alloc_mem();
   copy(init,*this);
@@ -481,7 +481,7 @@ MatrixT<T>::MatrixT(const Expr<EXPR,T>& expr) :
   const Uint sizeN = static_cast<Uint>(std::sqrt(static_cast<T>(expr.size())));
   m_rows = sizeN;
   m_cols = sizeN;
-  m_data = CFNULL;
+  m_data = nullptr;
 
   alloc_mem();
   const size_t msize = size();
@@ -503,10 +503,10 @@ MatrixT<T>::~MatrixT()
 template <class T>
 void MatrixT<T>::release_mem ()
 {
-  if (m_owner && m_data != CFNULL)
+  if (m_owner && m_data != nullptr)
   {
     delete [] m_data;
-    m_data = CFNULL;
+    m_data = nullptr;
   }
 }
 

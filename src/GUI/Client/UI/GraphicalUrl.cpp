@@ -100,7 +100,7 @@ void GraphicalUrl::updateModel(const QString & path)
   }
   catch(InvalidPath & ip) {}
 
-  if(node != CFNULL)
+  if(node != nullptr)
     newPath = path;
   else
     newPath = path.left(lastSlash);
@@ -115,14 +115,14 @@ void GraphicalUrl::updateModel(const QString & path)
     else
       node = root->access_component<CNode>(newPath.toStdString());
 
-    if(node != CFNULL)
+    if(node != nullptr)
     {
       QStringList list;
       node->listChildPaths(list, false, false);
 
       node = boost::dynamic_pointer_cast<CNode>(node->get_parent());
 
-      if(node != CFNULL)
+      if(node != nullptr)
         node->listChildPaths(list, false, false);
 
       m_completerModel->setStringList(list);

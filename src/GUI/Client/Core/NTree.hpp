@@ -47,15 +47,15 @@ namespace ClientCore {
 
     /// @brief Constructor.
 
-    /// If the root node is a @c CFNULL pointer
-    /// @param rootNode The root node. May be @c CFNULL.
+    /// If the root node is a @c nullptr pointer
+    /// @param rootNode The root node. May be @c nullptr.
     NTree(CF::GUI::ClientCore::NRoot::Ptr rootNode = CF::GUI::ClientCore::NRoot::Ptr());
 
     /// @brief Replaces the current component tree.
 
     /// The old tree is destroyed (regarding to @c boost::shared_ptr delete
     /// rules).
-    /// @param node The new root. May be @c CFNULL.
+    /// @param node The new root. May be @c nullptr.
     void setRoot(NRoot::Ptr node);
 
     /// @brief Gives the current root
@@ -87,24 +87,24 @@ namespace ClientCore {
 
     /// @param index Node index
     /// @param params List where options will be stored
-    /// @param ok If not @c CFNULL, used to strore whether the option
+    /// @param ok If not @c nullptr, used to strore whether the option
     /// gathering succeded or not.
     void getNodeOptions(const QModelIndex & index,
-                       QList<NodeOption> & params, bool * ok = CFNULL) const;
+                       QList<NodeOption> & params, bool * ok = nullptr) const;
 
     /// @brief Gets node properties
 
     /// @param index Node index
     /// @param props Map where properties will be stored. The key is the
     /// property name, the value is the property value.
-    /// @param ok If not @c CFNULL, used to strore whether the property
+    /// @param ok If not @c nullptr, used to strore whether the property
     /// gathering succeded or not.
     void getNodeProperties(const QModelIndex & index,
                            QMap<QString, QString> & params,
-                           bool * ok = CFNULL) const;
+                           bool * ok = nullptr) const;
 
     void getNodeActions(const QModelIndex & index, QList<ActionInfo> & actions,
-                        bool * ok = CFNULL) const;
+                        bool * ok = nullptr) const;
 
     /// @brief Retrieves a node path.
 
@@ -188,7 +188,7 @@ namespace ClientCore {
     /// @param row Item row from the parent.
     /// @param column Item column.
     /// @param parent Item parent.
-    /// @return Returns the requested index, or a CFNULL index if
+    /// @return Returns the requested index, or a nullptr index if
     /// <code>hasIndex(row, column, parent)</code> returns @c false.
     virtual QModelIndex index(int row, int column,
                               const QModelIndex & parent = QModelIndex()) const;
@@ -196,7 +196,7 @@ namespace ClientCore {
     /// @brief Implementation of @c QAbstractItemModel::parent().
 
     /// @param child Item index of which we would like to know the parent.
-    /// @return Returns the parent index of the given child or a CFNULL
+    /// @return Returns the parent index of the given child or a nullptr
     /// index if the child is not a valid index.
     virtual QModelIndex parent(const QModelIndex &child) const;
 
@@ -292,7 +292,7 @@ namespace ClientCore {
     /// @brief Converts an index to a tree node
 
     /// @param index Node index to convert
-    /// @return Returns the tree node, or @c CFNULL if the index could
+    /// @return Returns the tree node, or @c nullptr if the index could
     /// not be converted (i.e. index is invalid)
     inline TreeNode * indexToTreeNode(const QModelIndex & index) const
     {

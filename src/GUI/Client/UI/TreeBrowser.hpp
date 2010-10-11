@@ -66,7 +66,7 @@ namespace ClientUI {
 
     /// @brief Constructor
 
-    /// @param view The observed treeview. Can not be @c CFNULL.
+    /// @param view The observed treeview. Can not be @c nullptr.
     /// @param parent Widget parent.
     TreeBrowser(TreeView * view, QWidget *parent = 0);
 

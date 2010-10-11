@@ -15,7 +15,7 @@ TreeNode::TreeNode(CNode::Ptr node, TreeNode * parent, int rowNumber)
     m_parent(parent),
     m_rowNumber(rowNumber)
 {
-  cf_assert(node.get() != CFNULL);
+  cf_assert(node.get() != nullptr);
   cf_assert(rowNumber >= 0);
 
   m_node->connectNotifier(this, SIGNAL(childCountChanged()), SLOT(updateChildList()));
@@ -28,7 +28,7 @@ TreeNode::TreeNode(CNode::Ptr node, TreeNode * parent, int rowNumber)
 
 bool TreeNode::hasParent() const
 {
-  return m_parent != CFNULL;
+  return m_parent != nullptr;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -36,14 +36,14 @@ bool TreeNode::hasParent() const
 
 TreeNode * TreeNode::getChild(int rowNumber)
 {
-  TreeNode * child = CFNULL;
+  TreeNode * child = nullptr;
   // if the TreeNode corresponding to this child has already been created,
   // it is returned...
   if (rowNumber >= 0 && rowNumber < m_childNodes.size())
     child = m_childNodes.at(rowNumber);
 
   // ...otherwise, if the index is valid, it is created and returned...
-  if(child == CFNULL && rowNumber>= 0 && rowNumber < m_childNodes.size())
+  if(child == nullptr && rowNumber>= 0 && rowNumber < m_childNodes.size())
   {
     CNode::Ptr childNode;
 
@@ -53,7 +53,7 @@ TreeNode * TreeNode::getChild(int rowNumber)
     m_childNodes.replace(rowNumber, child);
   }
 
-  // ...if the index is not valid, return a CFNULL pointer
+  // ...if the index is not valid, return a nullptr pointer
   return child;
 }
 
@@ -97,7 +97,7 @@ int TreeNode::getChildCount() const
 
 TreeNode * TreeNode::getChildByName(const QString & name)
 {
-  TreeNode * treeNode = CFNULL;
+  TreeNode * treeNode = nullptr;
   bool found = false;
 
   /// @todo find a better algorithm !!!
@@ -108,7 +108,7 @@ TreeNode * TreeNode::getChildByName(const QString & name)
   }
 
   if(!found)
-    treeNode = CFNULL;
+    treeNode = nullptr;
 
   return treeNode;
 }
@@ -129,6 +129,6 @@ void TreeNode::updateChildList()
     childCount = m_node->get_child_count();
 
   for(int i = 0 ; i < childCount ; i++)
-    m_childNodes << CFNULL;
+    m_childNodes << nullptr;
 }
 

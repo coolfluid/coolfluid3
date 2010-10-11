@@ -19,7 +19,7 @@ XmlSignature XmlSignature::make_signature(const XmlNode & node)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 XmlSignature::XmlSignature() :
-    m_parent(CFNULL)
+    m_parent(nullptr)
 {
   m_xmldoc = XmlOps::create_doc();
   m_data = XmlOps::add_node_to(*m_xmldoc.get(), XmlParams::tag_node_valuemap());
@@ -29,7 +29,7 @@ XmlSignature::XmlSignature() :
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 XmlSignature::XmlSignature(const XmlNode & node) :
-    m_parent(CFNULL)
+    m_parent(nullptr)
 {
   m_xmldoc = XmlOps::create_doc();
   m_data = XmlOps::add_node_to(*m_xmldoc.get(), XmlParams::tag_node_valuemap());
@@ -74,7 +74,7 @@ bool XmlSignature::validate(const XmlNode & node) const
   XmlNode * value_node = m_data->first_node();
   bool valid = true;
 
-  while( value_node != CFNULL && valid)
+  while( value_node != nullptr && valid)
   {
     std::string name = value_node->first_attribute(XmlParams::tag_attr_key())->value();
     std::string node_name = value_node->name();
@@ -84,7 +84,7 @@ bool XmlSignature::validate(const XmlNode & node) const
       std::map<std::string, XmlSignature *>::const_iterator it = m_valuemaps.find(name);
       const XmlNode * valuemap = XmlParams::get_valuemap_from(node, name);
 
-      if( valuemap != CFNULL )
+      if( valuemap != nullptr )
         valid = it->second->validate( *valuemap );
       else
         valid = false;
@@ -139,7 +139,7 @@ bool XmlSignature::validate(const XmlNode & node) const
 
 XmlSignature & XmlSignature::back()
 {
-  cf_assert( m_parent != CFNULL );
+  cf_assert( m_parent != nullptr );
   return *m_parent;
 }
 
@@ -171,12 +171,12 @@ void XmlSignature::copy_node(const XmlNode & in, XmlNode & out) const
 {
   XmlNode * node = in.first_node();
 
-  while( node != CFNULL )
+  while( node != nullptr )
   {
     XmlNode * copy = XmlOps::add_node_to(out, node->name());
     XmlAttr * attr = node->first_attribute();
 
-    while( attr != CFNULL )
+    while( attr != nullptr )
     {
       XmlOps::add_attribute_to(*copy, attr->name(), attr->value());
       attr = attr->next_attribute();

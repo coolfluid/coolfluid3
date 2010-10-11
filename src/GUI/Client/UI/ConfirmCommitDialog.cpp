@@ -83,7 +83,7 @@ void ConfirmCommitDialog::buttonClicked()
 {
   QPushButton * button = static_cast<QPushButton *> (sender());
 
-  if(button != CFNULL)
+  if(button != nullptr)
     m_answer = m_buttons.key(button);
   else
     m_answer = CANCEL;

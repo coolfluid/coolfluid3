@@ -57,7 +57,7 @@ FactoryRegistry::getFactory(const std::string& type_name)
   else
   {
     CFLogWarn("Factory [" + type_name + "] not registered : returning null pointer\n");
-    return Common::SafePtr<Common::FactoryBase>(CFNULL);
+    return Common::SafePtr<Common::FactoryBase>(nullptr);
   }
 }
 

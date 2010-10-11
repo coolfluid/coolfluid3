@@ -9,6 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <cmath>  // all sorts of mathematical functions and constants
+
 #include "Common/ExportAPI.hpp"
 #include "Common/LibraryRegister.hpp"
 
@@ -29,47 +31,45 @@
 namespace CF {
 
   /// Basic Classes for Mathematical applications used by the CF
-  namespace Math
-  {
+  namespace Math {
 
-    ////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
-      /// Class defines the initialization and termination of the library MeshDiff
-      /// @author Tiago Quintino
-      class LibMath :
-          public Common::LibraryRegister<LibMath>
+    /// Class defines the initialization and termination of the library MeshDiff
+    /// @author Tiago Quintino
+    class LibMath :
+        public Common::LibraryRegister<LibMath>
+    {
+    public:
+
+      /// Static function that returns the module name.
+      /// Must be implemented for the LibraryRegister template
+      /// @return name of the module
+      static std::string library_name() { return "LibMath"; }
+
+      /// Static function that returns the description of the module.
+      /// Must be implemented for the LibraryRegister template
+      /// @return descripton of the module
+      static std::string library_description()
       {
-      public:
+        return "This library implements the MeshDiff manipulation API.";
+      }
 
-        /// Static function that returns the module name.
-        /// Must be implemented for the LibraryRegister template
-        /// @return name of the module
-        static std::string library_name() { return "LibMath"; }
+      /// Gets the Class name
+      static std::string type_name() { return "LibMath"; }
 
-        /// Static function that returns the description of the module.
-        /// Must be implemented for the LibraryRegister template
-        /// @return descripton of the module
-        static std::string library_description()
-        {
-          return "This library implements the MeshDiff manipulation API.";
-        }
+      /// Start profiling
+      virtual void initiate();
 
-        /// Gets the Class name
-        static std::string type_name() { return "LibMath"; }
+      /// Stop profiling
+      virtual void terminate();
 
-        /// Start profiling
-        virtual void initiate();
+    }; // end LibMath
 
-        /// Stop profiling
-        virtual void terminate();
+////////////////////////////////////////////////////////////////////////////////
 
-      }; // end LibMath
-
-    ////////////////////////////////////////////////////////////////////////////////
-
-  }
-
-} // namespace Math
+} // Math
+} // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 

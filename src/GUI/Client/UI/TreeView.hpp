@@ -57,9 +57,9 @@ namespace ClientUI {
     /// @brief Constructor.
 
     /// @param optionsPanel Panel m_options of the selected node will be displayed.
-    /// @param parent Parent window. May be @c CFNULL.
-    /// @throws std::invalid_argument if @c optionsPanel is @c CFNULL.
-    TreeView(OptionPanel * optionsPanel, QMainWindow * parent = CFNULL,
+    /// @param parent Parent window. May be @c nullptr.
+    /// @throws std::invalid_argument if @c optionsPanel is @c nullptr.
+    TreeView(OptionPanel * optionsPanel, QMainWindow * parent = nullptr,
              bool contextMenuAllowed = true);
 
     /// @brief Destructor.

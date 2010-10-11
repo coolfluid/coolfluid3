@@ -80,7 +80,7 @@ public:
     Expr<VectorT<T>, T>(*this),
     m_owner (true),
     m_size  ( expr.size() ),
-    m_data  (CFNULL)
+    m_data  (nullptr)
   {
     alloc_mem();
     const size_t size = this->size();
@@ -95,7 +95,7 @@ public:
     Expr<VectorT<T>,T>(*this),
       m_owner (true),
       m_size  ( end-start ),
-      m_data  (CFNULL)
+      m_data  (nullptr)
     {
       alloc_mem();
       size_t i = 0;
@@ -108,7 +108,7 @@ public:
       Expr<VectorT<T>,T>(*this),
         m_owner (true),
         m_size  ( row.size() ),
-        m_data  (CFNULL)
+        m_data  (nullptr)
       {
         alloc_mem();
         const Uint row_size = row.size();
@@ -120,7 +120,7 @@ public:
       Expr<VectorT<T>,T>(*this),
         m_owner (true),
         m_size  ( row.size() ),
-        m_data  (CFNULL)
+        m_data  (nullptr)
       {
         alloc_mem();
         const Uint row_size = row.size();
@@ -442,7 +442,7 @@ private: // helper functions
   void release_mem ();
 
   /// Allocates the memory for the size
-  void alloc_mem () { cf_assert(m_owner && m_data == CFNULL); if ( m_size > 0 ) m_data = new T [m_size]; }
+  void alloc_mem () { cf_assert(m_owner && m_data == nullptr); if ( m_size > 0 ) m_data = new T [m_size]; }
 
 private: // data
   /// indicates ownership of the memory
@@ -461,7 +461,7 @@ template <class T>
 VectorT<T>::VectorT ( const Uint size ) : Expr<VectorT<T>,T>(*this),
   m_owner (true),
   m_size  (size),
-  m_data  (CFNULL)
+  m_data  (nullptr)
 {
   alloc_mem();
   operator= (T());
@@ -485,7 +485,7 @@ VectorT<T>::VectorT ( const T& value, const Uint size ) :
   Expr<VectorT<T>,T>(*this),
   m_owner (true),
   m_size  (size),
-  m_data  (CFNULL)
+  m_data  (nullptr)
 {
   alloc_mem();
   operator= (value);
@@ -504,10 +504,10 @@ VectorT<T>::~VectorT()
 template <class T>
 void VectorT<T>::release_mem ()
 {
-  if (m_owner && m_data != CFNULL)
+  if (m_owner && m_data != nullptr)
   {
     delete [] m_data;
-    m_data = CFNULL;
+    m_data = nullptr;
   }
 }
 
@@ -518,7 +518,7 @@ VectorT<T>::VectorT(const VectorT<T>& orig) :
   Expr<VectorT<T>,T>(*this),
   m_owner (true),
   m_size  (orig.m_size),
-  m_data  (CFNULL)
+  m_data  (nullptr)
 {
   alloc_mem();
   //    for (size_t i = 0; i < size; ++i) m_data [i] = orig.m_data [i];

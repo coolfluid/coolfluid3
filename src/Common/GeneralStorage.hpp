@@ -79,7 +79,7 @@ public: // functions
   void removeEntry(const std::string& name)
   {
     TYPE * ptr = getPtr(name);
-    if (ptr != CFNULL)
+    if (ptr != nullptr)
     {
       erasePtr(name);
     }
@@ -94,7 +94,7 @@ public: // functions
   void deleteEntry(const std::string& name)
   {
     TYPE * ptr = getPtr(name);
-    if (ptr != CFNULL)
+    if (ptr != nullptr)
     {
       erasePtr(name);
       delete_ptr(ptr);
@@ -111,7 +111,7 @@ public: // functions
   TYPE * getEntry(const std::string& name) const
   {
     TYPE * ptr = getPtr(name);
-    if (ptr == CFNULL) {
+    if (ptr == nullptr) {
       throw Common::ValueNotFound (FromHere()," didn't find " + name);
     }
     return ptr;
@@ -168,11 +168,11 @@ private: // helper methods
 
   /// Access the pointer in storage by its name
   /// @param name std::string identifier for the storage
-  /// @post return CFNULL if pointer does not exis
+  /// @post return nullptr if pointer does not exis
   TYPE* getPtr(const std::string& name) const
   {
     const_iterator citr = m_storage.find(name);
-    return (citr == m_storage.end()) ? CFNULL : (*citr).second;
+    return (citr == m_storage.end()) ? nullptr : (*citr).second;
   }
 
   /// Removes the pointer from the storage

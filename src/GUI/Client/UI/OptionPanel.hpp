@@ -64,8 +64,8 @@ namespace ClientUI {
 
     /// Builds an @c OptionPanel with no m_options. The panel is neither in
     /// read-only mode nor advanced mode.
-    /// @param parent The parent widget. Default value is @c CFNULL
-    OptionPanel(QWidget * parent = CFNULL);
+    /// @param parent The parent widget. Default value is @c nullptr
+    OptionPanel(QWidget * parent = nullptr);
 
     /// @brief Destructor.
 

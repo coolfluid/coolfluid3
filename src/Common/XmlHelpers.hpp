@@ -369,12 +369,12 @@ namespace Common {
 
     // search for the node with correct type
     XmlNode* value_node = node.first_node( "value" );
-    for ( ; value_node != CFNULL && !found ; value_node = value_node->next_sibling( "value" ) )
+    for ( ; value_node != nullptr && !found ; value_node = value_node->next_sibling( "value" ) )
     {
       // search for the attribute with key
       XmlAttr* att = value_node->first_attribute( tag_attr_key() );
       if ( att && !name.compare(att->value()) )
-        found = value_node->first_node( XmlTag<TYPE>::type() ) != CFNULL;
+        found = value_node->first_node( XmlTag<TYPE>::type() ) != nullptr;
     }
 
     return found;
@@ -389,14 +389,14 @@ namespace Common {
 
     // search for the node with correct type
     XmlNode* array_node = node.first_node( "value" );
-    for ( ; array_node != CFNULL && !found ; array_node = array_node->next_sibling( "array" ) )
+    for ( ; array_node != nullptr && !found ; array_node = array_node->next_sibling( "array" ) )
     {
       // search for the attribute with key
       XmlAttr* att = array_node->first_attribute( tag_attr_key() );
       if ( att && !name.compare(att->value()) )
       {
         XmlAttr * attr = array_node->first_attribute( tag_attr_type() );
-        found = attr!= CFNULL && std::strcmp(attr->value(), XmlTag<TYPE>::type()) != 0;
+        found = attr!= nullptr && std::strcmp(attr->value(), XmlTag<TYPE>::type()) != 0;
       }
     }
 

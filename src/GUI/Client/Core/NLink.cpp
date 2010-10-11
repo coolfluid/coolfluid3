@@ -50,7 +50,7 @@ QString NLink::getToolTip() const
 {
   QString path = "<No target>";
 
-  if(m_target.get() != CFNULL)
+  if(m_target.get() != nullptr)
     path = m_target->full_path().string().c_str();
 
   return QString("Target: %1").arg(path);
@@ -61,7 +61,7 @@ QString NLink::getToolTip() const
 
 CPath NLink::getTargetPath() const
 {
-  if(m_target.get() == CFNULL)
+  if(m_target.get() == nullptr)
     return CPath();
 
   return m_target->full_path();
@@ -81,7 +81,7 @@ void NLink::setTargetPath(const CPath & path)
 
 void NLink::setTargetNode(const CNode::Ptr & node)
 {
-  if(node.get() == CFNULL)
+  if(node.get() == nullptr)
     ClientRoot::log()->addError("Target is null");
   else
     m_target = node;

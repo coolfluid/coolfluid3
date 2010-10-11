@@ -419,7 +419,7 @@ void NRemoteBrowser::getSelectedFileList(QStringList & fileList) const
     FilesListItem * item;
     item = static_cast<FilesListItem *>(m_viewModel->itemFromIndex(indexInModel));
 
-    if(item != CFNULL)
+    if(item != nullptr)
       fileList << m_currentPath + item->text();
 
     it++;
@@ -455,7 +455,7 @@ void NRemoteBrowser::btOkClicked()
 
       item = static_cast<FilesListItem *>(m_viewModel->itemFromIndex(indexInModel));
 
-      if(item != CFNULL) // if an item is selected
+      if(item != nullptr) // if an item is selected
       {
         this->assemblePath(name, item->text());
         isDir = item->getType() == DIRECTORY;
@@ -565,7 +565,7 @@ void NRemoteBrowser::doubleClick(const QModelIndex & index)
   FilesListItem * item;
   item = static_cast<FilesListItem *>(m_viewModel->itemFromIndex(indexInModel));
 
-  if(item == CFNULL)
+  if(item == nullptr)
     return;
 
   if(item->getType() == DIRECTORY)
@@ -664,7 +664,7 @@ QPushButton * NRemoteBrowser::addButton(const QString & text,
   if(!text.isEmpty())
     return m_buttons->addButton(text, role);
 
-  return CFNULL;
+  return nullptr;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -811,7 +811,7 @@ QString NRemoteBrowser::getSelectedFile() const
 
   item = static_cast<FilesListItem *>(m_viewModel->itemFromIndex(indexInModel));
 
-  if(item != CFNULL && item->getType() == FILE)
+  if(item != nullptr && item->getType() == FILE)
     return m_currentPath + item->text();
 
   return QString();

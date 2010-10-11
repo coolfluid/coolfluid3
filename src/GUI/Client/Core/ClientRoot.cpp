@@ -55,12 +55,12 @@ void ClientRoot::processSignal(const QDomDocument & signal)
   XmlNode& nodedoc = *XmlOps::goto_doc_node(*xmldoc.get());
   XmlNode * nodeToProcess = nodedoc.first_node(XmlParams::tag_node_frame());
 
-  if(nodeToProcess != CFNULL)
+  if(nodeToProcess != nullptr)
   {
     XmlNode * tmpNode = nodeToProcess->next_sibling(XmlParams::tag_node_frame());
 
     // check this is a reply
-    if(tmpNode != CFNULL && std::strcmp(tmpNode->first_attribute("type")->value(), "reply") == 0)
+    if(tmpNode != nullptr && std::strcmp(tmpNode->first_attribute("type")->value(), "reply") == 0)
       nodeToProcess = tmpNode;
 
     std::string type = nodeToProcess->first_attribute("target")->value();

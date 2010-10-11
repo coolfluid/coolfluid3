@@ -176,8 +176,8 @@ std::string Core::getVersionHeader() const
 
 Core::~Core()
 {
-  delete m_module_registry;     m_module_registry = CFNULL;
-  delete m_factory_registry;    m_factory_registry = CFNULL;
+  delete m_module_registry;     m_module_registry = nullptr;
+  delete m_factory_registry;    m_factory_registry = nullptr;
 
 /// @todo should be done like this and these classes probably
 ///       should be nested and private inside this class
@@ -204,7 +204,7 @@ void Core::terminate()
 
 Common::SafePtr<Common::LibraryRegistry> Core::getLibraryRegistry()
 {
-  cf_assert(m_module_registry != CFNULL);
+  cf_assert(m_module_registry != nullptr);
   return m_module_registry;
 }
 
@@ -212,7 +212,7 @@ Common::SafePtr<Common::LibraryRegistry> Core::getLibraryRegistry()
 
 Common::SafePtr<Common::FactoryRegistry> Core::getFactoryRegistry()
 {
-  cf_assert(m_factory_registry != CFNULL);
+  cf_assert(m_factory_registry != nullptr);
   return m_factory_registry;
 }
 

@@ -63,7 +63,7 @@ LibraryRegistry::getLibraryRegisterBase(const std::string& moduleName)
   else
   {
     CFLogWarn("Module " + moduleName + " not registered : returning null pointer\n");
-    return Common::SafePtr<Common::LibraryRegisterBase>(CFNULL);
+    return Common::SafePtr<Common::LibraryRegisterBase>(nullptr);
   }
 }
 

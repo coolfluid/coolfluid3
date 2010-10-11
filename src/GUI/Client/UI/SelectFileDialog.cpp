@@ -234,7 +234,7 @@ bool SelectFileDialog::fixExtensionSave(const QRegExp & extensions)
     else if(keyForExtension.isEmpty())
       m_filename.append("." + m_extensions[key]);
 
-    QMessageBox::information(this, CFNULL, m_filename);
+    QMessageBox::information(this, nullptr, m_filename);
 
   } // END "if(this->filename.contains(extensions))"
   else

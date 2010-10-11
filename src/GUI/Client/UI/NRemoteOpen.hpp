@@ -37,15 +37,15 @@ namespace ClientUI {
 
     /// @brief Constructor
 
-    /// @param parent Parent window. May be @c CFNULL
-    NRemoteOpen(QMainWindow * parent = CFNULL);
+    /// @param parent Parent window. May be @c nullptr
+    NRemoteOpen(QMainWindow * parent = nullptr);
 
     /// @brief Destructor
 
     /// Frees all allocated memory. Parent is not destroyed.
     ~NRemoteOpen();
 
-    static NRemoteOpen::Ptr create(QMainWindow * parent = CFNULL);
+    static NRemoteOpen::Ptr create(QMainWindow * parent = nullptr);
 
     /// @brief Gives the icon associated to this node
     /// @return Returns the icon associated to this node

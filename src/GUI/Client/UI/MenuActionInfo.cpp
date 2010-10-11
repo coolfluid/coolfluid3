@@ -29,9 +29,9 @@ void MenuActionInfo::initDefaults()
   m_icon = QIcon();
   m_shortcut = QKeySequence();
 
-  m_slot = CFNULL;
-  m_menu = CFNULL;
-  m_toolbar = CFNULL;
+  m_slot = nullptr;
+  m_menu = nullptr;
+  m_toolbar = nullptr;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -39,9 +39,9 @@ void MenuActionInfo::initDefaults()
 
 QAction * MenuActionInfo::buildAction(QObject * parent)
 {
-  QAction * action = CFNULL;
+  QAction * action = nullptr;
 
-  if(parent != CFNULL)
+  if(parent != nullptr)
   {
     action = new QAction(m_text, parent);
     action->setEnabled(m_enabled);
@@ -49,13 +49,13 @@ QAction * MenuActionInfo::buildAction(QObject * parent)
     if(!m_shortcut.isEmpty())
       action->setShortcut(m_shortcut);
 
-    if(m_slot != CFNULL)
+    if(m_slot != nullptr)
       connect(action, SIGNAL(triggered()), parent, m_slot);
 
-    if(m_menu != CFNULL)
+    if(m_menu != nullptr)
       m_menu->addAction(action);
 
-    if(m_toolbar != CFNULL)
+    if(m_toolbar != nullptr)
       m_toolbar->addAction(action);
 
     action->setIcon(m_icon);

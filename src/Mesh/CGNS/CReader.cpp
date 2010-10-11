@@ -331,9 +331,9 @@ void CReader::read_coordinates_structured(CRegion& parent_region)
   one[2]= 1;
 
   // read coordinates
-  Real *xCoord = CFNULL;
-  Real *yCoord = CFNULL;
-  Real *zCoord = CFNULL;
+  Real *xCoord = nullptr;
+  Real *yCoord = nullptr;
+  Real *zCoord = nullptr;
   switch (m_zone.coord_dim)
   {
     case 3:

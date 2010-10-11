@@ -39,8 +39,8 @@ void NTreeTest::test_constructor()
   QCOMPARE(t.getRoot().get(), ClientRoot::root().get());
   QCOMPARE(makeTreeFromFile().get(), t2.getRoot().get());
 
-  // the root must be different from CFNULL
-  QVERIFY(t2.getRoot().get() != CFNULL);
+  // the root must be different from nullptr
+  QVERIFY(t2.getRoot().get() != nullptr);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -162,7 +162,7 @@ void NTreeTest::test_getNodeByPath()
   NTree t;
   CNode::Ptr logNode = t.getNodeByPath("//blabla"); // the path does not exist
 
-  QVERIFY(logNode.get() == CFNULL);
+  QVERIFY(logNode.get() == nullptr);
 
   logNode = t.getNodeByPath(CLIENT_LOG_PATH);
 

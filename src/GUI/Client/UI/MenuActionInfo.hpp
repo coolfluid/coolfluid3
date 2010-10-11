@@ -50,7 +50,7 @@ namespace ClientUI {
     /// @brief Slot to call when the action is triggered.
 
     /// It is recommended to use Qt's @c SLOT() macro. The default value is
-    /// @c CFNULL.
+    /// @c nullptr.
     const char * m_slot;
 
     /// @brief Indicates wether the action is enabled.
@@ -65,12 +65,12 @@ namespace ClientUI {
 
     /// @brief The menu the action will be added to.
 
-    /// The default value is @c CFNULL.
+    /// The default value is @c nullptr.
     QMenu * m_menu;
 
     /// @brief The toolbar the action will be added to.
 
-    /// The default value is @c CFNULL.
+    /// The default value is @c nullptr.
     QToolBar * m_toolbar;
 
     /// @brief Action icon.
@@ -97,12 +97,12 @@ namespace ClientUI {
 
     /// @brief Builds an action from this config.
 
-    /// @c CFNULL pointers are ignored. If a toolbar is set but no icon, icon
+    /// @c nullptr pointers are ignored. If a toolbar is set but no icon, icon
     /// is replace by action text.
     /// @param parent Parent object that contains @c slot. This object will be
     /// thie action parent.
-    /// @return Returns the built action or a @c CFNULL pointer if the parent
-    /// is @c CFNULL.
+    /// @return Returns the built action or a @c nullptr pointer if the parent
+    /// is @c nullptr.
     QAction * buildAction(QObject * parent);
 
   }; // struct MenuActionInfo

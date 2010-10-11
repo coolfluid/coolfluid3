@@ -94,7 +94,7 @@ SelfRegistry::getProvider(const std::string& name, const std::string& type)
     CFwarn << "Provider [" << name << "] of type [" << type
         << "] not registered : returning null pointer\n";
 
-    return SafePtr<ProviderBase>(CFNULL);
+    return SafePtr<ProviderBase>(nullptr);
   }
 }
 

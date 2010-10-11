@@ -47,7 +47,7 @@ namespace ClientUI {
 
     /// @param type Option type. Must be one of those defined by
     /// <code>OptionType::Type</code> enum.
-    GraphicalOption(ClientCore::OptionType::Type type, QWidget * parent = CFNULL);
+    GraphicalOption(ClientCore::OptionType::Type type, QWidget * parent = nullptr);
 
     /// @brief Destructor.
 

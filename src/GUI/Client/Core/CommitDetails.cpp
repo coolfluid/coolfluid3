@@ -136,7 +136,7 @@ QModelIndex CommitDetails::parent(const QModelIndex &index) const
 
   CommitDetailsItem * item = static_cast<CommitDetailsItem *> (index.internalPointer());
 
-  if (item == CFNULL)
+  if (item == nullptr)
     return QModelIndex();
 
   return QModelIndex();

@@ -47,7 +47,7 @@ namespace ClientCore {
 
   public:
 
-    CNodeNotifier(CNode * parent = CFNULL);
+    CNodeNotifier(CNode * parent = nullptr);
 
     void notifyChildCountChanged();
 

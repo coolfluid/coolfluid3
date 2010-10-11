@@ -51,7 +51,7 @@ namespace ClientCore {
 
     /// @param document XML document on which this model is based.
     /// @param parent Parent of this model.
-    StatusModel(QDomDocument document, QObject * parent = CFNULL);
+    StatusModel(QDomDocument document, QObject * parent = nullptr);
 
     /// @brief Destructor.
     ~StatusModel();

@@ -20,7 +20,7 @@ using namespace std;
 using namespace CF::Common;
 using namespace CF::GUI::Server;
 
-ProcessingThread * ServerRoot::m_thread = CFNULL;
+ProcessingThread * ServerRoot::m_thread = nullptr;
 QMutex ServerRoot::m_mutex;
 SignalCatcher * ServerRoot::m_catcher = new SignalCatcher();
 boost::shared_ptr<XmlDoc> ServerRoot::m_doc;
@@ -30,11 +30,11 @@ void SignalCatcher::finished()
   XmlNode& nodedoc = *XmlOps::goto_doc_node(*ServerRoot::m_doc.get());
   XmlNode& frameNode = *nodedoc.first_node();
 
-  if(frameNode.next_sibling() != CFNULL)
+  if(frameNode.next_sibling() != nullptr)
     ServerRoot::getCore()->sendSignal(*ServerRoot::m_doc.get());
 
   delete ServerRoot::m_thread;
-  ServerRoot::m_thread = CFNULL;
+  ServerRoot::m_thread = nullptr;
   ServerRoot::m_doc.reset();
   ServerRoot::m_mutex.unlock();
 }
@@ -52,7 +52,7 @@ CRoot::Ptr ServerRoot::getRoot()
     CCore::Ptr core(new CCore());
     CSimulator::Ptr simulator(new CSimulator());
 
-    m_thread = CFNULL;
+    m_thread = nullptr;
     root->add_component(core);
     root->add_component(simulator);
 

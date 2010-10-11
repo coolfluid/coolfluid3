@@ -26,7 +26,7 @@ TreeBrowser::TreeBrowser(TreeView * view, QWidget *parent) :
     m_treeView(view),
     m_currentIndex(0)
 {
-  cf_assert(view != CFNULL);
+  cf_assert(view != nullptr);
 
   m_btPrevious = new QToolButton(this);
   m_btNext = new QToolButton(this);
@@ -141,7 +141,7 @@ void TreeBrowser::actionTriggered()
 {
   QAction * action = static_cast<QAction*>(sender());
 
-  if(action != CFNULL && m_actions.contains(action))
+  if(action != nullptr && m_actions.contains(action))
   {
     m_currentIndex = m_actions[action];
     m_treeView->setRootIndex(m_history.at(m_currentIndex));

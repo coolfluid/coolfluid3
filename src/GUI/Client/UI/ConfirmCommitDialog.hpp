@@ -69,7 +69,7 @@ namespace ClientUI {
 
     /// @brief Constructor
     /// @param parent Dialog parent. May be null.
-    ConfirmCommitDialog(QWidget * parent = CFNULL);
+    ConfirmCommitDialog(QWidget * parent = nullptr);
 
     /// @brief Destructor.
 

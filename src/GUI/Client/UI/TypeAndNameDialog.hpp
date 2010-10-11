@@ -80,9 +80,9 @@ namespace ClientUI {
 
     /// @param fieldLabelText Text to set on the buddy label of the text field.
     /// @param dropListText Text to set on the buddy label of the drop down list.
-    /// @param parent Dialog parent. May be CFNULL.
+    /// @param parent Dialog parent. May be nullptr.
     TypeAndNameDialog(const QString & fieldLabelText,
-                      const QString & dropListText, QWidget * parent = CFNULL);
+                      const QString & dropListText, QWidget * parent = nullptr);
 
     /// @brief Destructor.
 
@@ -131,7 +131,7 @@ namespace ClientUI {
 
     /// @brief The parent window.
 
-    /// Can be CFNULL.
+    /// Can be nullptr.
     QMainWindow * m_parent;
 
     /// @brief Label for the line edit

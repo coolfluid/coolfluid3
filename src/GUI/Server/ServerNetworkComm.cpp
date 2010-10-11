@@ -30,8 +30,8 @@ using namespace CF::GUI::Network;
 using namespace CF::GUI::Server;
 
 ServerNetworkComm::ServerNetworkComm()
-  : m_server(CFNULL),
-  m_localSocket(CFNULL),
+  : m_server(nullptr),
+  m_localSocket(nullptr),
   m_lastClientId(0)
 {
   m_blockSize = 0;
@@ -57,7 +57,7 @@ ServerNetworkComm::~ServerNetworkComm()
   m_server->close();
   delete m_server;
 
-  if(m_localSocket != CFNULL)
+  if(m_localSocket != nullptr)
   {
     m_localSocket->close();
     delete m_localSocket;
@@ -72,7 +72,7 @@ bool ServerNetworkComm::openPort(const QString & hostAddress, quint16 port)
   bool success = false;
   bool local = hostAddress == "127.0.0.1" || hostAddress == "localhost";
 
-  if(m_server == CFNULL)
+  if(m_server == nullptr)
   {
     m_server = new QTcpServer(this);
 
@@ -134,7 +134,7 @@ int ServerNetworkComm::send(QTcpSocket * client, const XmlNode & signal)
   out.device()->seek(0); // go back to the beginning of the frame
   out << (quint32)(block.size() - sizeof(quint32)); // store the data size
 
-  if(client == CFNULL)
+  if(client == nullptr)
   {
     QHash<QTcpSocket *, std::string>::iterator it = m_clients.begin();
 
@@ -280,13 +280,13 @@ bool ServerNetworkComm::sendError(QTcpSocket * client, const QString & message)
 
 QTcpSocket * ServerNetworkComm::getSocket(const string & uuid) const
 {
-  QTcpSocket * socket = CFNULL;
+  QTcpSocket * socket = nullptr;
 
   if(!uuid.empty())
   {
-    socket = m_clients.key(uuid, CFNULL);
+    socket = m_clients.key(uuid, nullptr);
 
-    if(socket == CFNULL)
+    if(socket == nullptr)
       throw UnknownClientIdException(FromHere(), "Unknown client id: " + uuid);
   }
 
@@ -305,7 +305,7 @@ string ServerNetworkComm::getAttr(const XmlNode & node, const char * paramName,
 	{
 		XmlAttr * tmpAttr = node.first_attribute(paramName);
 
-		if(tmpAttr == CFNULL)
+		if(tmpAttr == nullptr)
 			reason = QString("%1 is missing.").arg(paramName);
 		else
 			param = tmpAttr->value();
@@ -327,7 +327,7 @@ void ServerNetworkComm::newClient()
 
   socket = m_server->nextPendingConnection();
 
-  if(socket == CFNULL)
+  if(socket == nullptr)
     socket = m_localSocket->nextPendingConnection();
 
   // connect useful signals to slots
@@ -455,7 +455,7 @@ void ServerNetworkComm::clientDisconnected()
   // which client has been disconnected ?
   QTcpSocket * socket = qobject_cast<QTcpSocket *>(sender());
 
-  if(socket != CFNULL)
+  if(socket != nullptr)
   {
     m_clients.remove(socket);
 

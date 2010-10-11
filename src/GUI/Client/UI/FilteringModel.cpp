@@ -49,7 +49,7 @@ bool FilteringModel::filterAcceptsRow(int row, const QModelIndex & parent) const
   NTree * tree = static_cast<NTree*>(sourceModel());
   QModelIndex index = sourceModel()->index(row, 0, parent);
 
-  if(tree != CFNULL)
+  if(tree != nullptr)
     return sourceModel()->data(index).isValid() && tree->nodeMatches(index, filterRegExp());
   else
     return QSortFilterProxyModel::filterAcceptsRow(row, parent);

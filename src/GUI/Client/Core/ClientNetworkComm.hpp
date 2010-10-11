@@ -53,7 +53,7 @@ namespace ClientCore {
 
     /// @brief Constructor.
 
-    /// The socket @c #commClient is set to @c CFNULL.
+    /// The socket @c #commClient is set to @c nullptr.
     ClientNetworkComm();
 
     /// @brief Destructor.

@@ -123,9 +123,9 @@ namespace ClientUI {
 
     /// @brief Constructor.
 
-    /// @param parent Parent window of the dialog. May be @c CFNULL.
+    /// @param parent Parent window of the dialog. May be @c nullptr.
     /// @throw std::invalid_argument If a connection to the server does not exist.
-    NRemoteBrowser(const QString & componentType, QMainWindow * parent = CFNULL);
+    NRemoteBrowser(const QString & componentType, QMainWindow * parent = nullptr);
 
     /// @brief Destructor.
 
@@ -302,7 +302,7 @@ namespace ClientUI {
     /// destructor.
     /// @param text Text for the new button
     /// @param role Role of the new button.
-    /// @return Returns a pointer to the newly created button, or a @c CFNULL
+    /// @return Returns a pointer to the newly created button, or a @c nullptr
     /// pointer if the text is empty/null or the role is invalid.
     QPushButton * addButton(const QString & text,
                             QDialogButtonBox::ButtonRole role);

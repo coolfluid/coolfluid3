@@ -35,10 +35,10 @@ namespace ClientUI {
 
     /// @brief Constructor
 
-    /// @param parent Parent. May be @c CFNULL.
+    /// @param parent Parent. May be @c nullptr.
     /// @param maxLogLines Number of lines before the log must be cleared. If 0,
     /// the log is never cleared.
-    LoggingList(QWidget * parent = CFNULL, unsigned int maxLogLines = 100000);
+    LoggingList(QWidget * parent = nullptr, unsigned int maxLogLines = 100000);
 
     /// @brief Destructor
 

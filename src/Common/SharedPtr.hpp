@@ -46,7 +46,7 @@ public:
   ~SharedPtr();
 
   /// Release ownership
-  /// @post m_ptr = CFNULL
+  /// @post m_ptr = nullptr
   void release();
 
   /// Reset the ptr
@@ -56,11 +56,11 @@ public:
   /// @post m_ptr = other
   void reset(const SharedPtr& other);
 
-  /// @returns true if m_ptr == CFNULL
-  inline bool isNull() const { return (m_ptr == CFNULL); }
+  /// @returns true if m_ptr == nullptr
+  inline bool isNull() const { return (m_ptr == nullptr); }
 
-  /// @returns true if m_ptr != CFNULL
-  inline bool isNotNull() const { return (m_ptr != CFNULL); }
+  /// @returns true if m_ptr != nullptr
+  inline bool isNotNull() const { return (m_ptr != nullptr); }
 
   /// Overloading of "=" with SharedPtr
   /// @param other missing documentation
@@ -84,7 +84,7 @@ public:
   /// @returns the naked pointer to the object
   T* operator->() const
   {
-    cf_assert(m_ptr != CFNULL);
+    cf_assert(m_ptr != nullptr);
     return m_ptr;
   }
 
@@ -92,7 +92,7 @@ public:
   /// @return missing documentation
   T& operator*() const
   {
-    cf_assert(m_ptr != CFNULL);
+    cf_assert(m_ptr != nullptr);
     return *m_ptr;
   }
 
@@ -114,7 +114,7 @@ template<class T>
 SharedPtr<T>::SharedPtr(T* ptr)
 {
   m_ptr = ptr;
-  if (m_ptr != CFNULL) {
+  if (m_ptr != nullptr) {
     m_ptr->addOwner();
   }
 }
@@ -124,7 +124,7 @@ SharedPtr<T>::SharedPtr(T* ptr)
 template<class T>
 SharedPtr<T>::~SharedPtr()
 {
-  if(m_ptr != CFNULL) {
+  if(m_ptr != nullptr) {
     m_ptr->removeOwner();
     if(m_ptr->hasNoOwner()) {
       delete_ptr(m_ptr);
@@ -137,7 +137,7 @@ SharedPtr<T>::~SharedPtr()
 template<class T>
 SharedPtr<T>::SharedPtr(const SharedPtr& other) : m_ptr(other.m_ptr)
 {
-  if (m_ptr != CFNULL) {
+  if (m_ptr != nullptr) {
     m_ptr->addOwner();
   }
 }
@@ -147,7 +147,7 @@ SharedPtr<T>::SharedPtr(const SharedPtr& other) : m_ptr(other.m_ptr)
 template<class T>
 SharedPtr<T>::SharedPtr(const SafePtr<T>& other) : m_ptr(other.m_ptr)
 {
-  if (m_ptr != CFNULL)
+  if (m_ptr != nullptr)
     m_ptr->addOwner();
 }
 
@@ -156,13 +156,13 @@ SharedPtr<T>::SharedPtr(const SafePtr<T>& other) : m_ptr(other.m_ptr)
 template<class T>
 void SharedPtr<T>::release()
 {
-  if (m_ptr != CFNULL) {
+  if (m_ptr != nullptr) {
     m_ptr->removeOwner();
     if(m_ptr->hasNoOwner()) {
       delete_ptr(m_ptr);
     }
   }
-  m_ptr = CFNULL;
+  m_ptr = nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -170,14 +170,14 @@ void SharedPtr<T>::release()
 template<class T>
 void SharedPtr<T>::reset(T* other)
 {
-  if (m_ptr != CFNULL) {
+  if (m_ptr != nullptr) {
     m_ptr->removeOwner();
     if(m_ptr->hasNoOwner()) {
       delete_ptr(m_ptr);
     }
   }
   m_ptr = other;
-  if (m_ptr != CFNULL) {
+  if (m_ptr != nullptr) {
     m_ptr->addOwner();
   }
 }
@@ -187,14 +187,14 @@ void SharedPtr<T>::reset(T* other)
 template<class T>
 void SharedPtr<T>::reset(const SharedPtr& other)
 {
-  if (m_ptr != CFNULL) {
+  if (m_ptr != nullptr) {
     m_ptr->removeOwner();
     if(m_ptr->hasNoOwner()) {
       delete_ptr(m_ptr);
     }
   }
   m_ptr = other.m_ptr;
-  if (m_ptr != CFNULL) {
+  if (m_ptr != nullptr) {
     m_ptr->addOwner();
   }
 }

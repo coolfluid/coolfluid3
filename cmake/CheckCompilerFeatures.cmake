@@ -52,6 +52,11 @@ coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 
 #######################################################################################
 
+coolfluid_log( "+++++  Checking for pre compiled header support" )
+include(CheckNullPtr)
+
+#######################################################################################
+
   coolfluid_log( "+++++  Checking C++ compiler has namespaces" )
   check_cxx_source_compiles (
   " namespace lolo { struct popo { int i; };  }

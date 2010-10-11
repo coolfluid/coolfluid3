@@ -30,7 +30,7 @@ SelectPathDialog::SelectPathDialog(QWidget *parent) :
   this->setWindowTitle("Change target path");
 
   m_editPath = new QLineEdit(this);
-  m_treeView = new TreeView(CFNULL, CFNULL, false);
+  m_treeView = new TreeView(nullptr, nullptr, false);
   m_buttons = new QDialogButtonBox(this);
   m_completer = new QCompleter(this);
   m_model = new QStringListModel(this);
@@ -119,7 +119,7 @@ void SelectPathDialog::pathChanged(const QString & path)
     CRoot::Ptr root = ClientRoot::tree()->getRoot()->root();
     try
     {
-      if(root->access_component<CNode>(path.toStdString()) != CFNULL)
+      if(root->access_component<CNode>(path.toStdString()) != nullptr)
         newPath = path;
       else
         newPath = path.left(lastSlash);
@@ -129,7 +129,7 @@ void SelectPathDialog::pathChanged(const QString & path)
 
       node = root->access_component<CNode>(newPath.toStdString());
 
-      if(node.get() != CFNULL)
+      if(node.get() != nullptr)
       {
         node->listChildPaths(list, false);
 

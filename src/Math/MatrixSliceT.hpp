@@ -189,7 +189,7 @@ SLICEMAT_EQ_OP_CONST(*=)
   }
 
   /// Checks if MatrixSliceT is null
-  bool isNull() const { return ( _start == CFNULL ); }
+  bool isNull() const { return ( _start == nullptr ); }
 
   /// Get the maximum element
   T emax() const

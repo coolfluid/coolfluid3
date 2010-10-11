@@ -169,7 +169,7 @@ namespace Server {
 
     /// @brief Sends a message to a client.
 
-    /// @param client Client socket to use. If @c CFNULL, the message will be
+    /// @param client Client socket to use. If @c nullptr, the message will be
     /// sent to all clients.
     /// @param message Message to send.
     /// @return Returns @c true if the frame was built and sent successfully;
@@ -178,7 +178,7 @@ namespace Server {
 
     /// @brief Sends an error message to a client.
 
-    /// @param client Client socket to use. If @c CFNULL, the error message will
+    /// @param client Client socket to use. If @c nullptr, the error message will
     /// be sent to all clients.
     /// @param message Error message to send.
     /// @return Returns @c true if the frame was built and sent successfully;
@@ -187,7 +187,7 @@ namespace Server {
 
     /// @brief Sends a message to a client.
 
-    /// @param client Client m_socket to use. If @c CFNULL, the frame will be sent
+    /// @param client Client m_socket to use. If @c nullptr, the frame will be sent
     /// to all clients.
     /// @param signal Signal frame to send.
     /// @return Returns the number of bytes sent.
@@ -201,7 +201,7 @@ namespace Server {
 		/// @brief Retrieves a client socket from its UUID.
 
     /// @param uuid Client UUID
-    /// @return Returns a pointer to the socket, or @c CFNULL if client
+    /// @return Returns a pointer to the socket, or @c nullptr if client
     /// UUID was -1 (all clients).
     /// @throw UnknownClientIdException if Client id is unknown.
     QTcpSocket * getSocket(const std::string & uuid) const;

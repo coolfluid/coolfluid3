@@ -78,7 +78,7 @@ void SignalManager::actionTriggered()
 {
   QAction * action = static_cast<QAction*>(sender());
 
-  if(action != CFNULL)
+  if(action != nullptr)
   {
     ActionInfo & info = m_signals[action];
     boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
@@ -131,7 +131,7 @@ void SignalManager::actionHovered()
 {
   QAction * action = static_cast<QAction*>(sender());
 
-  if(action != CFNULL)
+  if(action != nullptr)
   {
     static_cast<QMainWindow*>(parent())->statusBar()->showMessage(action->statusTip(), 3000);
   }

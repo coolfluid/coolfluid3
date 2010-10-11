@@ -78,7 +78,7 @@ namespace ClientCore {
     /// @param row Item row from the parent.
     /// @param column Item column.
     /// @param parent Item parent.
-    /// @return Returns the requested index, or a CFNULL index if
+    /// @return Returns the requested index, or a nullptr index if
     /// <code>hasIndex(row, column, parent)</code> returns @c false.
     virtual QModelIndex index(int row, int column,
                               const QModelIndex & parent = QModelIndex()) const;
@@ -86,7 +86,7 @@ namespace ClientCore {
     /// @brief Implementation of @c QAbstractItemModel::parent().
 
     /// @param child Item index of which we would like to know the parent.
-    /// @return Returns the parent index of the given child or a CFNULL
+    /// @return Returns the parent index of the given child or a nullptr
     /// index if the child is not a valid index.
     virtual QModelIndex parent(const QModelIndex &child) const;
 
