@@ -16,11 +16,15 @@ namespace Common {
 
   boost::shared_ptr<CRoot> CRoot::create ( const CName& name )
   {
-    boost::shared_ptr<CRoot> root ( new CRoot(name) );
-    root->m_root = root;
-    root->m_parent = root;
+    CRoot* raw_root = new CRoot(name);
+    boost::shared_ptr<CRoot> root ( raw_root );
 
-    root->m_toc[root->full_path().string()] = root; // put himself in the database
+    // point root's parent and root to himself
+    root->m_root = root;
+    root->m_raw_parent = raw_root;
+
+    // put himself in the database
+    root->m_toc[root->full_path().string()] = root;
 
     return root;
   }

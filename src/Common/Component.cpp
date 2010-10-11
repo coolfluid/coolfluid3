@@ -27,6 +27,9 @@ namespace Common {
 Component::Component ( const CName& name ) :
     m_name (),
     m_path (),
+    m_components(),
+    m_dynamic_components(),
+    m_raw_parent(NULL),
     m_is_link (false)
 {
   BUILD_COMPONENT;
@@ -36,11 +39,11 @@ Component::Component ( const CName& name ) :
 
   m_name = name;
 
-  m_property_list.add_property("brief", std::string("No brief description available"));
-  m_property_list.add_property("description", std::string("This component has not a long description"));
+  m_property_list.add_property("brief",
+                               std::string("No brief description available"));
+  m_property_list.add_property("description",
+                               std::string("This component has not a long description"));
 }
-
-/////////////////////////////////////////////////////////////////////////////////////
 
 Component::~Component()
 {
@@ -51,7 +54,6 @@ Component::~Component()
 void Component::defineConfigProperties ( Common::PropertyList& props )
 {
 }
-
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -87,10 +89,10 @@ void Component::rename ( const CName& name )
   }
 
   // inform parent of rename
-  if (!m_parent.expired() )
+  if (!m_raw_parent)
   {
-    Component::Ptr parent = get_parent();
-    Component::Ptr removed = parent->remove_component(m_name.string());
+    Component::Ptr parent = m_raw_parent->self();
+    parent->remove_component(m_name.string());
     m_name = new_name;
     Component::Ptr this_component = parent->add_component( get() );
     new_name = this_component->name();
@@ -101,33 +103,71 @@ void Component::rename ( const CName& name )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
+Component::Ptr Component::get_parent()
+{
+  cf_assert( m_raw_parent != NULL );
+  return m_raw_parent->self();
+}
+
+Component::ConstPtr Component::get_parent() const
+{
+  cf_assert( m_raw_parent != NULL );
+  return m_raw_parent->self();
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
 Component::Ptr Component::add_component ( Component::Ptr subcomp )
 {
-      const std::string name = subcomp->name();
-      boost::regex e(name+"(_[0-9]+)?");
-      BOOST_FOREACH(CompStorage_t::value_type subcomp_pair, m_components)
+  ensure_unique_name(subcomp);
+
+  m_components[subcomp->name()] = subcomp;           // add to all component list
+  m_dynamic_components[subcomp->name()] = subcomp;   // add to dynamic component list
+
+  subcomp->change_parent( this );
+
+  return subcomp;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+Component::Ptr Component::add_static_component ( Component::Ptr subcomp )
+{
+  m_components[subcomp->name()] = ensure_unique_name(subcomp);
+
+  subcomp->change_parent( this );
+
+  return subcomp;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+Component::Ptr Component::ensure_unique_name ( Component::Ptr subcomp )
+{
+  const std::string name = subcomp->name();
+  boost::regex e(name+"(_[0-9]+)?");
+  BOOST_FOREACH(CompStorage_t::value_type subcomp_pair, m_components)
+  {
+    if (boost::regex_match(subcomp_pair.first,e))
+    {
+      Uint count = 1;
+
+      std::string new_name = name + "_" + String::to_str(count);
+
+      // make sure constructed name does not exist
+      while ( m_components.find(new_name) != m_components.end() )
       {
-        if (boost::regex_match(subcomp_pair.first,e))
-        {
-          CFinfo << "++++ match found: " << name << " ~~ " << subcomp_pair.first << CFendl;
-
-          Uint count = 1;
-          //count howmany times the name "name(_[0-9]+)?" occurs (REGEX)
-          while (m_components.find(name+"_"+String::to_str(count)) != m_components.end())
-            count++;
-
-          std::string new_name = name+"_"+String::to_str(count);
-
-          CFwarn << "A component \"" << subcomp->full_path().string() << "\" already existed. New component added with name \"" << new_name << "\"" << CFendl;
-          subcomp->rename(new_name);
-          break;
-        }
+        ++count;
+        new_name = name  + "_" + String::to_str(count);
       }
 
-  m_components[subcomp->name()] = subcomp;
+//      CFwarn << "Component named \'" << subcomp->full_path().string() << "\' already exists. Component renamed to \'" << new_name << "\'" << CFendl;
 
-  subcomp->change_parent( shared_from_this() );
+      subcomp->rename(new_name);
 
+      break;
+    }
+  }
   return subcomp;
 }
 
@@ -137,23 +177,28 @@ Component::Ptr Component::add_component ( Component::Ptr subcomp )
 Component::Ptr Component::remove_component ( const CName& name )
 {
   // find the component exists
-  Component::CompStorage_t::iterator itr = m_components.find(name);
+  Component::CompStorage_t::iterator itr = m_dynamic_components.find(name);
 
-  if ( itr != m_components.end() )         // if exists
+  if ( itr != m_dynamic_components.end() )         // if exists
   {
-    Component::Ptr comp = itr->second;     // get the component
-    m_components.erase(itr);                // remove it from the storage
-    comp->change_parent(Component::Ptr());  // set parent to invalid
-    return comp;                             // return it to client to do somethinng typically delete it
+    Component::Ptr comp = itr->second;             // get the component
+    m_dynamic_components.erase(itr);               // remove it from the storage
+
+    // remove fromt the list of all components
+    Component::CompStorage_t::iterator citr = m_components.find(name);
+    m_components.erase(citr);
+
+    comp->change_parent( NULL );         // set parent to invalid
+
+    return comp;                                   // return it to client
   }
-  else                                        // if does not exist
+  else                                             // if does not exist
   {
-    throw ValueNotFound(FromHere(), "Component with name '"
+    throw ValueNotFound(FromHere(), "Dynamic component with name '"
                         + name + "' does not exist in component '"
                         + this->name() + "' with path ["
                         + m_path.string() + "]");
   }
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -164,13 +209,13 @@ void Component::complete_path ( CPath& path ) const
 
 //  CFinfo << "PATH [" << path.string() << "]\n" << CFflush;
 
-  if (m_parent.expired())
+  if (!m_raw_parent)
     throw  InvalidPath(FromHere(), "Component \'" + name() + "\' has no parent");
 
   if (m_root.expired())
     throw  InvalidPath(FromHere(), "Component \'" + name() + "\' has no root");
 
-  boost::shared_ptr<Component> parent = m_parent.lock();
+  boost::shared_ptr<Component> parent = m_raw_parent->self();
   boost::shared_ptr<Component> root   = m_root.lock();
 
   std::string sp = path.string();
@@ -237,7 +282,7 @@ Component::ConstPtr Component::get_child(const CName& name) const
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::change_parent ( Component::Ptr new_parent )
+void Component::change_parent ( Component* new_parent )
 {
   if( !m_root.expired() )   // get the root and remove the current path
   {
@@ -264,14 +309,13 @@ void Component::change_parent ( Component::Ptr new_parent )
     m_root.reset();
   }
 
-  // modifiy the parent
-  // may be invalid
-  m_parent = new_parent;
+  // modifiy the parent, may be NULL
+  m_raw_parent = new_parent;
 
   // modify the children
   BOOST_FOREACH( CompStorage_t::value_type c, m_components )
   {
-    c.second->change_parent( shared_from_this() );
+    c.second->change_parent( this );
   }
 }
 
@@ -279,7 +323,7 @@ void Component::change_parent ( Component::Ptr new_parent )
 
 void Component::move_component ( Component::Ptr new_parent )
 {
-  Component::Ptr this_ptr = m_parent.lock()->remove_component( this->name() );
+  Component::Ptr this_ptr = get_parent()->remove_component( this->name() );
   new_parent->add_component( this_ptr );
 }
 

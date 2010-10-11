@@ -27,6 +27,7 @@ list( APPEND uTestComponent_files
   TestProperties.cpp
   TestSignals.cpp
   TestXmlParams.cpp
+  TestStaticSubComponent.cpp
 )
 
 coolfluid_add_unittest( uTestComponent )

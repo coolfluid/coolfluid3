@@ -8,6 +8,8 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Common/CRoot.hpp"
+#include "Common/LibCommon.hpp"
+#include "Common/ObjectProvider.hpp"
 #include "Common/Log.hpp"
 #include "Common/XmlHelpers.hpp"
 
@@ -90,7 +92,7 @@ public: // functions
   {
     XmlParams p (xml);
 
-    CFinfo << "Component [" << name() << "] received counter [" << p.get_option<int>("Counter") << "]" << CFendl;
+  //  CFinfo << "Component [" << name() << "] received counter [" << p.get_option<int>("Counter") << "]" << CFendl;
   }
 
   //@} END SIGNALS
@@ -104,6 +106,9 @@ private: // helper functions
   }
 
 }; // CSmall
+
+Common::ObjectProvider < CSmall, Component, LibCommon, 1 > CSmall_Provider ( CSmall::type_name() );
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

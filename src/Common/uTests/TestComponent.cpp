@@ -98,33 +98,6 @@ BOOST_AUTO_TEST_CASE( add_component )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// BOOST_AUTO_TEST_CASE( xml_tree )
-//{
-//  CRoot::Ptr root = CRoot::create ( "root" );
-//
-//  Component::Ptr dir1 ( new CGroup ( "dir1" ) );
-//  Component::Ptr dir2 ( new CGroup ( "dir2" ) );
-//
-//  root->add_component( dir1 );
-//  dir1->add_component( dir2 );
-//
-//  XMLNode root_node = XMLNode::createXMLTopNode("xml", TRUE);
-//
-//  root_node.addAttribute("version","1.0");
-//  root_node.addAttribute("encoding","UTF-8");
-//  root_node.addAttribute("standalone","yes");
-//
-//  root->xml_tree( root_node );
-//
-//  XMLSTR xml_str = root_node.createXMLString();
-//
-////  CFinfo << "xml_str\n" << xml_str << CFflush;
-//
-//  freeXMLString(xml_str);
-// }
-
-////////////////////////////////////////////////////////////////////////////////
-
 BOOST_AUTO_TEST_CASE( is_link )
 {
   CRoot::Ptr root = CRoot::create ( "root" );
@@ -263,7 +236,7 @@ BOOST_AUTO_TEST_CASE( change_parent )
 
   BOOST_CHECK_EQUAL ( dir2->full_path().string(), "//root/dir1/dir2" );
 
-  dir2->change_parent( root );
+  dir2->change_parent( root.get() );
 
   BOOST_CHECK_EQUAL ( dir2->full_path().string(), "//root/dir2" );
 

@@ -87,7 +87,11 @@ public: // functions
 
   /// Get the component through the links to the actual components
   virtual Component::Ptr  get();
+
   virtual Component::ConstPtr  get() const;
+
+  /// @return a shared pointer to self
+  Component::Ptr self() { return shared_from_this(); }
 
   /// @name ITERATORS
   //@{
@@ -150,12 +154,6 @@ public: // functions
 
   //@} END ITERATORS
 
-  /// access to the meta information of this component
-//  PropertyListOLD& properties() { return m_properties; }
-
-  /// access to the meta information of this component
-//  const PropertyListOLD& properties() const { return m_properties; }
-
   /// checks if this component is in fact a link to another component
   bool is_link () const { return m_is_link; }
 
@@ -207,36 +205,41 @@ public: // functions
     return boost::dynamic_pointer_cast<T>(look_component(path));
   }
 
-  /// Return the parent component
-  Ptr get_parent() { return m_parent.lock(); }
-  ConstPtr get_parent() const { return m_parent.lock(); }
+  /// @returns the pointer to parent component
+  /// @pre parent pointer is valid
+  Ptr get_parent();
+  /// @returns the const pointer to parent component
+  /// @pre parent pointer is valid
+  ConstPtr get_parent() const;
 
   /// Get the named child from the direct subcomponents.
   Ptr get_child(const CName& name);
   ConstPtr get_child(const CName& name) const;
 
-  /// Get the named child from the direct subcomponents automatically cast to the specified type
+  /// @returns the named child from the direct subcomponents automatically cast to the specified type
   template < typename T >
       typename T::Ptr get_child_type ( const CName& name );
 
-  /// Get the named child from the direct subcomponents automatically cast to the specified type
+  /// @returns the named child from the direct subcomponents automatically cast to the specified type
   template < typename T >
       typename T::ConstPtr get_child_type ( const CName& name ) const ;
 
+  /// @returns this component converted to type T shared pointer
   template < typename T >
     typename T::Ptr get_type();
 
+  /// @returns this component converted to type T shared const pointer
   template < typename T >
     typename T::ConstPtr get_type() const;
 
   /// Modify the parent of this component
-  void change_parent ( Ptr new_parent );
+  void change_parent ( Component* new_parent );
 
   /// Create a (sub)component of this component automatically cast to the specified type
   template < typename T >
       typename T::Ptr create_component_type ( const CName& name );
 
-  /// Add a (sub)component of this component
+  /// Add a dynamic (sub)component of this component
   Ptr add_component ( Ptr subcomp );
 
   /// Remove a (sub)component of this component
@@ -246,6 +249,7 @@ public: // functions
   /// @param new_parent will be the new parent of this component
   void move_component ( Ptr new_parent );
 
+  /// @returns a string representation of the tree below this component
   std::string tree(Uint level=0) const;
 
   /// @return Returns the number of children this component has.
@@ -289,7 +293,13 @@ protected: // functions
   /// Must be called in constructor of each derived class
  template <typename TYPE> void partial_build_component (TYPE* meself);
 
+ /// Add a static (sub)component of this component
+ Ptr add_static_component ( Ptr subcomp );
+
 private: // helper functions
+
+  /// insures the sub component has a unique name within this component
+  Component::Ptr ensure_unique_name ( Ptr subcomp );
 
   /// writes the underlying component tree to the xml node
   void write_xml_tree( XmlNode& node );
@@ -335,12 +345,14 @@ protected: // data
   CPath m_name;
   /// component current path
   CPath m_path;
-  /// list of dynamic children
+  /// list of sub-components
   CompStorage_t m_components;
+  /// list of dynamic sub-components
+  CompStorage_t m_dynamic_components;
   /// pointer to the root of this tree
   boost::weak_ptr<Component> m_root;
-  /// pointer to the parent component
-  boost::weak_ptr<Component> m_parent;
+  /// pointer to parent, naked pointer because of static components
+  Component * m_raw_parent;
   /// is this a link component
   bool m_is_link;
 

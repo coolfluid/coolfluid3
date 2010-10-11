@@ -395,7 +395,7 @@ BOOST_AUTO_TEST_CASE( configure )
   XmlNode& doc   = *XmlOps::goto_doc_node(*xml.get());
   XmlNode& frame = *XmlOps::first_frame_node( doc );
 
-  CFinfo << "FRAME [" << frame.name() << "]" << CFendl;
+//  CFinfo << "FRAME [" << frame.name() << "]" << CFendl;
 
 
   // By default the OptComp is set to a Concrete1 specialization of CAbstract
