@@ -126,10 +126,10 @@ BOOST_AUTO_TEST_SUITE( VectorBenchmarkSuite )
 BOOST_FIXTURE_TEST_CASE( CreateMesh, VectorBenchmarkFixture )
 {
   grid_2d.reset(new CMesh("grid_2d"));
-  Tools::MeshGeneration::create_rectangle(*grid_2d, 1., 1., 20, 20);
+  Tools::MeshGeneration::create_rectangle(*grid_2d, 1., 1., 2000, 2000);
   channel_3d.reset(new CMesh("channel_3d"));
   BlockData block_data;
-  Tools::MeshGeneration::create_channel_3d(block_data, 10., 0.5, 5., 16, 8, 12, 0.1);
+  Tools::MeshGeneration::create_channel_3d(block_data, 10., 0.5, 5., 160, 80, 120, 0.1);
   std::vector<Uint> nodes_dist;
   build_mesh(block_data, *channel_3d, nodes_dist);
 }
@@ -243,6 +243,35 @@ BOOST_FIXTURE_TEST_CASE( UblasVector3DDynamic, VectorBenchmarkFixture )
 }
 
 #ifdef CF_HAVE_EIGEN
+
+BOOST_FIXTURE_TEST_CASE( EigenVector2DStatic, VectorBenchmarkFixture )
+{
+  Eigen::Vector2d c0(2);
+  Eigen::Vector2d c1(2);
+  Eigen::Vector2d c2(2);
+  Eigen::Vector2d c3(2);
+  Eigen::Vector2d result(2);
+  
+  centroid_2d(recursive_get_component_typed<CTable>(*grid_2d, IsComponentTrue()).array(), recursive_get_component_typed<CArray>(*grid_2d, IsComponentTrue()).array(), c0, c1, c2, c3, result);
+  
+  BOOST_CHECK_CLOSE(result[XX], 0.5, 1e-6);
+  BOOST_CHECK_CLOSE(result[YY], 0.5, 1e-6);
+}
+
+BOOST_FIXTURE_TEST_CASE( EigenVector2DDynamic, VectorBenchmarkFixture )
+{
+  Eigen::VectorXd c0(2);
+  Eigen::VectorXd c1(2);
+  Eigen::VectorXd c2(2);
+  Eigen::VectorXd c3(2);
+  Eigen::VectorXd result(2);
+  
+  centroid_2d(recursive_get_component_typed<CTable>(*grid_2d, IsComponentTrue()).array(), recursive_get_component_typed<CArray>(*grid_2d, IsComponentTrue()).array(), c0, c1, c2, c3, result);
+  
+  BOOST_CHECK_CLOSE(result[XX], 0.5, 1e-6);
+  BOOST_CHECK_CLOSE(result[YY], 0.5, 1e-6);
+}
+
 BOOST_FIXTURE_TEST_CASE( EigenVector3DStatic, VectorBenchmarkFixture )
 {
   Eigen::Vector3d c0(3);
