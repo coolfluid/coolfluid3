@@ -30,6 +30,7 @@ find_package(CGNS)            # CGNS library
 find_package(CGAL)            # CGAL library
 find_package(PythonInterp)    # Python interpreter
 find_package(Realtime)        # POSIX Realtime library
+find_package(Eigen)           # Matrix library
 
 # using cmake find macros
 

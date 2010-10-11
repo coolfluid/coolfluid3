@@ -11,29 +11,30 @@
 
 #include "Mesh/SimpleCommunicationPattern.hpp"
 
-#include "Mesh/OpenFOAM/BlockData.hpp"
-#include "Mesh/OpenFOAM/BlockMeshReader.hpp"
-#include "Mesh/OpenFOAM/LibOpenFOAM.hpp"
-#include "Mesh/OpenFOAM/Parser.hpp"
+#include "Mesh/BlockMesh/BlockData.hpp"
+
+#include "BlockMeshReader.hpp"
+#include "LibBlockMeshReader.hpp"
+#include "Parser.hpp"
 
 namespace CF {
-namespace Mesh {
-namespace OpenFOAM {
+namespace BlockMeshReader {
 
 using namespace CF::Common;
 using namespace CF::Mesh;
+using namespace CF::Mesh::BlockMesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CF::Common::ObjectProvider < Mesh::OpenFOAM::BlockMeshReader,
+CF::Common::ObjectProvider < BlockMeshReader,
                              Mesh::CMeshReader,
-                             Mesh::OpenFOAM::LibOpenFOAM,
+                             LibBlockMeshReader,
                              1 >
 aBlockMeshReader_Provider ( "blockMeshDict" );
 
 //////////////////////////////////////////////////////////////////////////////
 
-BlockMeshReader::BlockMeshReader(const Component::CName& name): CMeshReader(name)
+BlockMeshReader::BlockMeshReader(const CName& name): CMeshReader(name)
 {
   BUILD_COMPONENT;
 }
@@ -65,6 +66,5 @@ void BlockMeshReader::read_from_to(boost::filesystem::path& path, const CMesh::P
   build_mesh(block_data, *mesh, unused);
 }
 
-} // namespace OpenFOAM
-} // namespace Mesh
+} // namespace BlockMeshReader
 } // namespace CF

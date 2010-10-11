@@ -116,6 +116,9 @@ if( CF_ENABLE_SANDBOX )
   add_subdirectory( sandbox )
 endif()
 
+# add the plugins that are distributed with the core
+add_subdirectory( plugins )
+
 coolfluid_log( "" )
 ##############################################################################
 coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
@@ -234,4 +237,3 @@ endif(CF_CHECK_ORPHAN_FILES)
 include( DumpVariables )         # dump relevant variables in the log file
 
 include( PrepareCPack  )         # packaging instructions
-

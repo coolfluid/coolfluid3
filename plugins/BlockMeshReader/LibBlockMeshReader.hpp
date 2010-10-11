@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_OpenFOAM_LibOpenFOAM_hpp
-#define CF_Mesh_OpenFOAM_LibOpenFOAM_hpp
+#ifndef CF_BlockMeshReader_LibBlockMeshReader_hpp
+#define CF_BlockMeshReader_LibBlockMeshReader_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -14,14 +14,14 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Define the macro OpenFOAM_API
-/// @note build system defines OpenFOAM_EXPORTS when compiling OpenFOAM files
-#ifdef OpenFOAM_EXPORTS
-#   define OpenFOAM_API      CF_EXPORT_API
-#   define OpenFOAM_TEMPLATE
+/// Define the macro BlockMeshReader_API
+/// @note build system defines BlockMeshReader_EXPORTS when compiling BlockMeshReader files
+#ifdef BlockMeshReader_EXPORTS
+#   define BlockMeshReader_API      CF_EXPORT_API
+#   define BlockMeshReader_TEMPLATE
 #else
-#   define OpenFOAM_API      CF_IMPORT_API
-#   define OpenFOAM_TEMPLATE CF_TEMPLATE_EXTERN
+#   define BlockMeshReader_API      CF_IMPORT_API
+#   define BlockMeshReader_TEMPLATE CF_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -29,47 +29,45 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Mesh {
-namespace OpenFOAM {
+namespace BlockMeshReader {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Class defines the OpenFOAMtral mesh format operations
+/// Class defines the BlockMeshReadertral mesh format operations
 /// @author Willem Deconinck
-class LibOpenFOAM :
-    public Common::LibraryRegister<LibOpenFOAM>
+class LibBlockMeshReader :
+    public Common::LibraryRegister<LibBlockMeshReader>
 {
 public:
 
   /// Static function that returns the module name.
   /// Must be implemented for the LibraryRegister template
   /// @return name of the module
-  static std::string library_name() { return "OpenFOAM"; }
+  static std::string library_name() { return "BlockMeshReader"; }
 
   /// Static function that returns the description of the module.
   /// Must be implemented for the LibraryRegister template
   /// @return descripton of the module
   static std::string library_description()
   {
-    return "This library implements some OpenFOAM compatibility functions.";
+    return "This library implements some BlockMeshReader compatibility functions.";
   }
 
   /// Gets the Class name
-  static std::string type_name() { return "LibOpenFOAM"; }
+  static std::string type_name() { return "LibBlockMeshReader"; }
 
   /// Start profiling
   virtual void initiate();
 
   /// Stop profiling
   virtual void terminate();
-}; // end LibOpenFOAM
+}; // end LibBlockMeshReader
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace OpenFOAM
-} // namespace Mesh
+} // namespace BlockMeshReader
 } // namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_OpenFOAM_LibOpenFOAM_hpp
+#endif // CF_BlockMeshReader_LibBlockMeshReader_hpp

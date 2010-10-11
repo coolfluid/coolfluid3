@@ -4,28 +4,27 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_OpenFOAM_Parser_hpp
-#define CF_Mesh_OpenFOAM_Parser_hpp
+#ifndef CF_BlockMeshReader_Parser_hpp
+#define CF_BlockMeshReader_Parser_hpp
 
 #include <fstream>
 
-#include "Mesh/OpenFOAM/LibOpenFOAM.hpp"
+#include "LibBlockMeshReader.hpp"
 
 namespace CF {
-namespace Mesh {
-namespace OpenFOAM {
-
-class BlockData;
+  
+  namespace Mesh { namespace BlockMesh { class BlockData; } }
+  
+namespace BlockMeshReader {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Parse an OpenFoam blockMeshDict file to generate block data
-void OpenFOAM_API parse_blockmesh_dict(std::istream& file, BlockData& blockData);
+void BlockMeshReader_API parse_blockmesh_dict(std::istream& file, Mesh::BlockMesh::BlockData& blockData);
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace OpenFOAM
-} // namespace Mesh
+} // namespace BlockMeshReader
 } // namespace CF
 
-#endif /* CF_Mesh_OpenFOAM_Parser_hpp */
+#endif /* CF_BlockMeshReader_Parser_hpp */

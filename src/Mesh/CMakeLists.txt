@@ -88,10 +88,8 @@ add_subdirectory( SF )            # Shape functions
 
 add_subdirectory( Neu )           # Neutral file IO
 
-add_subdirectory( OpenFOAM )      # OpenFOAM IO
-
 add_subdirectory( Gmsh )          # Gmsh file IO
-
+add_subdirectory( BlockMesh )     # Structured mesh generation
 add_subdirectory( CGNS )          # CGNS file IO
 
 add_subdirectory( CGAL )          # CGAL mesh generator

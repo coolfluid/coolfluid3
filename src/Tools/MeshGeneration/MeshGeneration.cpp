@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/assign.hpp>
+
 #include "MeshGeneration.hpp"
 
 #include "Mesh/CRegion.hpp"
@@ -15,7 +17,10 @@
 using namespace CF;
 using namespace CF::Common;
 using namespace CF::Mesh;
+using namespace CF::Mesh::BlockMesh;
 using namespace CF::Math;
+
+using namespace boost::assign;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -104,6 +109,41 @@ void create_circle_2d ( CMesh& mesh, const Real radius, const Uint segments, con
   CRegion& region = mesh.create_region("region");
   CTable& conn = region.create_elements("Line2DLagrangeP1",coordinates).connectivity_table();
   create_circle_2d(coordinates, conn, radius, segments, start_angle, end_angle);
+}
+
+void create_channel_3d(BlockData& blocks, const Real length, const Real half_height, const Real width, const Uint x_segs, const Uint y_segs_half, const Uint z_segs, const Real ratio)
+{
+  blocks.scaling_factor = 1.;
+  
+  blocks.points += list_of(0.    )(-half_height)(0.   )
+                 , list_of(length)(-half_height)(0.   )
+                 , list_of(0.    )( 0.         )(0.   )
+                 , list_of(length)( 0.         )(0.   )
+                 , list_of(0.    )( half_height)(0.   )
+                 , list_of(length)( half_height)(0.   )
+                 , list_of(0.    )(-half_height)(width)
+                 , list_of(length)(-half_height)(width)
+                 , list_of(0.    )( 0.         )(width)
+                 , list_of(length)( 0.         )(width)
+                 , list_of(0.    )( half_height)(width)
+                 , list_of(length)( half_height)(width);
+                 
+  blocks.block_points += list_of(0)(1)(3)(2)(6)(7)(9)(8)
+                       , list_of(2)(3)(5)(4)(8)(9)(11)(10);
+  blocks.block_subdivisions += list_of(x_segs)(y_segs_half)(z_segs)
+                             , list_of(x_segs)(y_segs_half)(z_segs);
+  blocks.block_gradings += list_of(1.)(1.)(1.)(1.)(1./ratio)(1./ratio)(1./ratio)(1./ratio)(1.)(1.)(1.)(1.)
+                         , list_of(1.)(1.)(1.)(1.)(ratio   )(ratio   )(ratio   )(ratio   )(1.)(1.)(1.)(1.);
+  blocks.block_distribution += 0, 2;
+  
+  blocks.patch_names += "bottomWall", "topWall", "sides1", "sides2", "inout1", "inout2";
+  blocks.patch_types += "wall"      , "wall"   , "cyclic", "cyclic", "cyclic", "cyclic";
+  blocks.patch_points += list_of(0)(1)(7)(6),
+                         list_of(4)(10)(11)(5),
+                         list_of(0)(2)(3)(1)(6)(7)(9)(8),
+                         list_of(2)(4)(5)(3)(8)(9)(11)(10),
+                         list_of(0)(6)(8)(2)(1)(3)(9)(7),
+                         list_of(2)(8)(10)(4)(3)(5)(11)(9);
 }
 
 

@@ -10,20 +10,31 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 
+
+
+#include "Mesh/BlockMesh/BlockData.hpp"
+
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"
+
+#ifdef CF_HAVE_EIGEN
+#include <Eigen/Dense>
+#endif
 
 using namespace CF;
 using namespace CF::Common;
 using namespace CF::Math;
 using namespace CF::Mesh;
+using namespace CF::Mesh::BlockMesh;
 
 struct VectorBenchmarkFixture : Tools::Testing::TimedTestFixture
 {
   static CMesh::Ptr grid_2d;
+  static CMesh::Ptr channel_3d;
 };
 
 CMesh::Ptr VectorBenchmarkFixture::grid_2d;
+CMesh::Ptr VectorBenchmarkFixture::channel_3d;
 
 /// Calculates the centroid of all centroids over a set of quads
 template<typename VectorType>
@@ -56,13 +67,71 @@ void centroid_2d(const CTable::ArrayT& connectivity, const CArray::ArrayT& coord
   result /= nb_elem;
 }
 
+/// Calculates the centroid of all centroids over a set of hexahedra
+template<typename VectorType>
+void centroid_3d(const CTable::ArrayT& connectivity, const CArray::ArrayT& coords
+    , VectorType c0
+    , VectorType c1
+    , VectorType c2
+    , VectorType c3
+    , VectorType c4
+    , VectorType c5
+    , VectorType c6
+    , VectorType c7
+    , VectorType& result)
+{
+  const Uint nb_elem = connectivity.size();
+  
+  result[XX] = 0.;
+  result[YY] = 0.;
+  result[ZZ] = 0.;
+  
+  for(Uint elem = 0; elem != nb_elem; ++elem)
+  {
+    const CTable::ConstRow row = connectivity[elem];
+    
+    const CArray::ConstRow crow0 = coords[row[0]];
+    c0[XX] = crow0[XX]; c0[YY] = crow0[YY]; c0[ZZ] = crow0[ZZ];
+    
+    const CArray::ConstRow crow1 = coords[row[1]];
+    c1[XX] = crow1[XX]; c1[YY] = crow1[YY]; c1[ZZ] = crow1[ZZ];
+    
+    const CArray::ConstRow crow2 = coords[row[2]];
+    c2[XX] = crow2[XX]; c2[YY] = crow2[YY]; c2[ZZ] = crow2[ZZ];
+    
+    const CArray::ConstRow crow3 = coords[row[3]];
+    c3[XX] = crow3[XX]; c3[YY] = crow3[YY]; c3[ZZ] = crow3[ZZ];
+    
+    const CArray::ConstRow crow4 = coords[row[4]];
+    c4[XX] = crow4[XX]; c4[YY] = crow4[YY]; c4[ZZ] = crow4[ZZ];
+    
+    const CArray::ConstRow crow5 = coords[row[5]];
+    c5[XX] = crow5[XX]; c5[YY] = crow5[YY]; c5[ZZ] = crow5[ZZ];
+    
+    const CArray::ConstRow crow6 = coords[row[6]];
+    c6[XX] = crow6[XX]; c6[YY] = crow6[YY]; c6[ZZ] = crow6[ZZ];
+    
+    const CArray::ConstRow crow7 = coords[row[7]];
+    c7[XX] = crow7[XX]; c7[YY] = crow7[YY]; c7[ZZ] = crow7[ZZ];
+    
+    result += 0.125*(c0 + c1 + c2 + c3 + c4 + c5 + c6 + c7);
+  }
+  
+  result /= nb_elem;
+}
+
 BOOST_AUTO_TEST_SUITE( VectorBenchmarkSuite )
 
 // Must be run  before the next tests
 BOOST_FIXTURE_TEST_CASE( CreateMesh, VectorBenchmarkFixture )
 {
-  grid_2d.reset(new CMesh("big_grid"));
-  Tools::MeshGeneration::create_rectangle(*grid_2d, 1., 1., 8000, 8000);
+  grid_2d.reset(new CMesh("grid_2d"));
+  Tools::MeshGeneration::create_rectangle(*grid_2d, 1., 1., 20, 20);
+  channel_3d.reset(new CMesh("channel_3d"));
+  BlockData block_data;
+  Tools::MeshGeneration::create_channel_3d(block_data, 10., 0.5, 5., 16, 8, 12, 0.1);
+  std::vector<Uint> nodes_dist;
+  build_mesh(block_data, *channel_3d, nodes_dist);
 }
 
 BOOST_FIXTURE_TEST_CASE( RealVector2D, VectorBenchmarkFixture )
@@ -106,5 +175,117 @@ BOOST_FIXTURE_TEST_CASE( UblasVector2DDynamic, VectorBenchmarkFixture )
   BOOST_CHECK_CLOSE(result[XX], 0.5, 1e-6);
   BOOST_CHECK_CLOSE(result[YY], 0.5, 1e-6);
 }
+
+BOOST_FIXTURE_TEST_CASE( RealVector3D, VectorBenchmarkFixture )
+{
+  RealVector c0(3);
+  RealVector c1(3);
+  RealVector c2(3);
+  RealVector c3(3);
+  RealVector c4(3);
+  RealVector c5(3);
+  RealVector c6(3);
+  RealVector c7(3);
+  RealVector result(3);
+  
+  const CElements& elems = recursive_get_named_component_typed<CElements>(*channel_3d, "elements_Hexa3DLagrangeP1");
+  const CArray& coords = elems.coordinates();
+  
+  centroid_3d(elems.connectivity_table().array(), coords.array(), c0, c1, c2, c3, c4, c5, c6, c7, result);
+
+  BOOST_CHECK_CLOSE(result[XX], 5., 1e-6);
+  BOOST_CHECK_SMALL(result[YY], 1e-6);
+  BOOST_CHECK_CLOSE(result[ZZ], 2.5, 1e-6);
+}
+
+BOOST_FIXTURE_TEST_CASE( UblasVector3DStatic, VectorBenchmarkFixture )
+{
+  boost::numeric::ublas::c_vector<Real, 3> c0(3);
+  boost::numeric::ublas::c_vector<Real, 3> c1(3);
+  boost::numeric::ublas::c_vector<Real, 3> c2(3);
+  boost::numeric::ublas::c_vector<Real, 3> c3(3);
+  boost::numeric::ublas::c_vector<Real, 3> c4(3);
+  boost::numeric::ublas::c_vector<Real, 3> c5(3);
+  boost::numeric::ublas::c_vector<Real, 3> c6(3);
+  boost::numeric::ublas::c_vector<Real, 3> c7(3);
+  boost::numeric::ublas::c_vector<Real, 3> result(3);
+  
+  const CElements& elems = recursive_get_named_component_typed<CElements>(*channel_3d, "elements_Hexa3DLagrangeP1");
+  const CArray& coords = elems.coordinates();
+  
+  centroid_3d(elems.connectivity_table().array(), coords.array(), c0, c1, c2, c3, c4, c5, c6, c7, result);
+
+  BOOST_CHECK_CLOSE(result[XX], 5., 1e-6);
+  BOOST_CHECK_SMALL(result[YY], 1e-6);
+  BOOST_CHECK_CLOSE(result[ZZ], 2.5, 1e-6);
+}
+
+BOOST_FIXTURE_TEST_CASE( UblasVector3DDynamic, VectorBenchmarkFixture )
+{
+  boost::numeric::ublas::vector<Real> c0(3);
+  boost::numeric::ublas::vector<Real> c1(3);
+  boost::numeric::ublas::vector<Real> c2(3);
+  boost::numeric::ublas::vector<Real> c3(3);
+  boost::numeric::ublas::vector<Real> c4(3);
+  boost::numeric::ublas::vector<Real> c5(3);
+  boost::numeric::ublas::vector<Real> c6(3);
+  boost::numeric::ublas::vector<Real> c7(3);
+  boost::numeric::ublas::vector<Real> result(3);
+  
+  const CElements& elems = recursive_get_named_component_typed<CElements>(*channel_3d, "elements_Hexa3DLagrangeP1");
+  const CArray& coords = elems.coordinates();
+  
+  centroid_3d(elems.connectivity_table().array(), coords.array(), c0, c1, c2, c3, c4, c5, c6, c7, result);
+
+  BOOST_CHECK_CLOSE(result[XX], 5., 1e-6);
+  BOOST_CHECK_SMALL(result[YY], 1e-6);
+  BOOST_CHECK_CLOSE(result[ZZ], 2.5, 1e-6);
+}
+
+#ifdef CF_HAVE_EIGEN
+BOOST_FIXTURE_TEST_CASE( EigenVector3DStatic, VectorBenchmarkFixture )
+{
+  Eigen::Vector3d c0(3);
+  Eigen::Vector3d c1(3);
+  Eigen::Vector3d c2(3);
+  Eigen::Vector3d c3(3);
+  Eigen::Vector3d c4(3);
+  Eigen::Vector3d c5(3);
+  Eigen::Vector3d c6(3);
+  Eigen::Vector3d c7(3);
+  Eigen::Vector3d result(3);
+  
+  const CElements& elems = recursive_get_named_component_typed<CElements>(*channel_3d, "elements_Hexa3DLagrangeP1");
+  const CArray& coords = elems.coordinates();
+  
+  centroid_3d(elems.connectivity_table().array(), coords.array(), c0, c1, c2, c3, c4, c5, c6, c7, result);
+
+  BOOST_CHECK_CLOSE(result[XX], 5., 1e-6);
+  BOOST_CHECK_SMALL(result[YY], 1e-6);
+  BOOST_CHECK_CLOSE(result[ZZ], 2.5, 1e-6);
+}
+
+BOOST_FIXTURE_TEST_CASE( EigenVector3DDynamic, VectorBenchmarkFixture )
+{
+  Eigen::VectorXd c0(3);
+  Eigen::VectorXd c1(3);
+  Eigen::VectorXd c2(3);
+  Eigen::VectorXd c3(3);
+  Eigen::VectorXd c4(3);
+  Eigen::VectorXd c5(3);
+  Eigen::VectorXd c6(3);
+  Eigen::VectorXd c7(3);
+  Eigen::VectorXd result(3);
+  
+  const CElements& elems = recursive_get_named_component_typed<CElements>(*channel_3d, "elements_Hexa3DLagrangeP1");
+  const CArray& coords = elems.coordinates();
+  
+  centroid_3d(elems.connectivity_table().array(), coords.array(), c0, c1, c2, c3, c4, c5, c6, c7, result);
+
+  BOOST_CHECK_CLOSE(result[XX], 5., 1e-6);
+  BOOST_CHECK_SMALL(result[YY], 1e-6);
+  BOOST_CHECK_CLOSE(result[ZZ], 2.5, 1e-6);
+}
+#endif
 
 BOOST_AUTO_TEST_SUITE_END()

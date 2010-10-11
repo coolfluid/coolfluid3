@@ -9,6 +9,7 @@
 
 #include "Math/MathConsts.hpp"
 #include "Mesh/CMesh.hpp"
+#include "Mesh/BlockMesh/BlockData.hpp"
 
 #include "Tools/MeshGeneration/LibMeshGeneration.hpp"
 
@@ -29,8 +30,17 @@ void MeshGeneration_API create_rectangle(CMesh& mesh, const Real x_len, const Re
 
 /// Creates a 2D circular arc
 void MeshGeneration_API create_circle_2d(CArray& coordinates, CTable& connectivity, const Real radius, const Uint segments, const Real start_angle = 0., const Real end_angle = 2.*Math::MathConsts::RealPi());
-
 void MeshGeneration_API create_circle_2d(CMesh& mesh, const Real radius, const Uint segments, const Real start_angle = 0., const Real end_angle = 2.*Math::MathConsts::RealPi());
+
+/// Create block data for a 3D periodic channel (flow between infinite flat plates)
+/// @param length: Total distance between the streamwise periodic boundaries (X-direction)
+/// @param half_height: Half of the distance between the plates
+/// @param width: Total distance between periodic boundaries in the spanwise (Z) direction
+/// @param x_segs: Number of segments in the X direction
+/// @param y_segs_half: HALF the number of segements between the flat plates
+/// @param z_segs: Number of segments in the Z-direction
+/// @param ratio: Ratio (smallest cell / largest cell) in the Y-direction
+void MeshGeneration_API create_channel_3d(Mesh::BlockMesh::BlockData& blocks, const Real length, const Real half_height, const Real width, const Uint x_segs, const Uint y_segs_half, const Uint z_segs, const Real ratio);
 
 ////////////////////////////////////////////////////////////////////////////////
 

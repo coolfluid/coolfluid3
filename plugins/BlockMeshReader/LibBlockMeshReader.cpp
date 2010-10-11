@@ -6,26 +6,24 @@
 
 #include "Common/Core.hpp"
 
-#include "Mesh/OpenFOAM/LibOpenFOAM.hpp"
+#include "LibBlockMeshReader.hpp"
 
 namespace CF {
-namespace Mesh {
-namespace OpenFOAM {
+namespace BlockMeshReader {
 
-  CF::Common::ForceLibRegist<LibOpenFOAM> libOpenFOAM;
-
-////////////////////////////////////////////////////////////////////////////////
-
-void LibOpenFOAM::initiate()
-{
-}
-
-void LibOpenFOAM::terminate()
-{
-}
+  CF::Common::ForceLibRegist<LibBlockMeshReader> libBlockMeshReader;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // OpenFOAM
-} // Mesh
+void LibBlockMeshReader::initiate()
+{
+}
+
+void LibBlockMeshReader::terminate()
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+} // BlockMeshReader
 } // CF

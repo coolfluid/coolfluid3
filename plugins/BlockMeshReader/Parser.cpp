@@ -21,27 +21,29 @@
 #include <boost/spirit/include/phoenix_stl.hpp>
 
 #include "Common/BasicExceptions.hpp"
+#include "Mesh/BlockMesh/BlockData.hpp"
 
-#include "Mesh/OpenFOAM/Parser.hpp"
-#include "Mesh/OpenFOAM/BlockData.hpp"
+#include "Parser.hpp"
+
 
 BOOST_FUSION_ADAPT_STRUCT(
-  CF::Mesh::OpenFOAM::BlockData,
+  CF::Mesh::BlockMesh::BlockData,
   (CF::Real, scaling_factor)
-  (std::vector<CF::Mesh::OpenFOAM::BlockData::PointT>, points)
-  (std::vector<CF::Mesh::OpenFOAM::BlockData::IndicesT>, block_points)
-  (std::vector<CF::Mesh::OpenFOAM::BlockData::CountsT>, block_subdivisions)
-  (std::vector<CF::Mesh::OpenFOAM::BlockData::GradingT>, block_gradings)
+  (std::vector<CF::Mesh::BlockMesh::BlockData::PointT>, points)
+  (std::vector<CF::Mesh::BlockMesh::BlockData::IndicesT>, block_points)
+  (std::vector<CF::Mesh::BlockMesh::BlockData::CountsT>, block_subdivisions)
+  (std::vector<CF::Mesh::BlockMesh::BlockData::GradingT>, block_gradings)
   (std::vector<std::string>, patch_types)
   (std::vector<std::string>, patch_names)
-  (std::vector<CF::Mesh::OpenFOAM::BlockData::IndicesT>, patch_points)
+  (std::vector<CF::Mesh::BlockMesh::BlockData::IndicesT>, patch_points)
 )
 
 namespace CF {
-namespace Mesh {
-namespace OpenFOAM {
+namespace BlockMeshReader {
 
 using namespace CF::Common;
+using namespace CF::Mesh;
+using namespace CF::Mesh::BlockMesh;
 
 namespace fusion = boost::fusion;
 namespace phoenix = boost::phoenix;
@@ -187,6 +189,5 @@ void parse_blockmesh_dict(std::istream& file, BlockData& blockData)
   blockData.block_distribution.push_back(blockData.block_points.size());
 }
 
-} // namespace OpenFOAM
-} // namespace Mesh
+} // namespace BlockMeshReader
 } // namespace CF

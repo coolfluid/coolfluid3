@@ -75,6 +75,7 @@
 // Package options
 #cmakedefine CF_HAVE_PARMETIS
 #cmakedefine CF_HAVE_VALGRIND
+#cmakedefine CF_HAVE_EIGEN
 
 // User options
 #cmakedefine CF_ENABLE_STDASSERT

@@ -4,20 +4,19 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_OpenFOAM_BlockMeshReader_hpp
-#define CF_Mesh_OpenFOAM_BlockMeshReader_hpp
+#ifndef CF_BlockMeshReader_BlockMeshReader_hpp
+#define CF_BlockMeshReader_BlockMeshReader_hpp
 
 #include "Mesh/CMeshReader.hpp"
 
 namespace CF {
-namespace Mesh {
-namespace OpenFOAM {
+namespace BlockMeshReader {
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// This class defines OpenFOAM BlockMesh mesh format reader
+/// This class defines BlockMeshReader BlockMesh mesh format reader
 /// @author Bart Janssens
-class BlockMeshReader : public CMeshReader
+class BlockMeshReader : public CF::Mesh::CMeshReader
 {
 public:
 
@@ -33,7 +32,7 @@ public:
 
   virtual std::vector<std::string> get_extensions();
   
-  virtual void read_from_to(boost::filesystem::path& path, const CMesh::Ptr& mesh);
+  virtual void read_from_to(boost::filesystem::path& path, const Mesh::CMesh::Ptr& mesh);
   
 private:
   static void regist_signals ( BlockMeshReader* self ) {}
@@ -43,8 +42,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace OpenFOAM
-} // namespace Mesh
+} // namespace BlockMeshReader
 } // namespace CF
 
-#endif /* CF_Mesh_OpenFOAM_BlockMeshReader_hpp */
+#endif /* CF_BlockMeshReader_BlockMeshReader_hpp */
