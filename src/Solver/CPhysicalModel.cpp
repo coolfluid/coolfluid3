@@ -11,7 +11,6 @@
 
 #include "CPhysicalModel.hpp"
 
-
 using namespace CF::Common;
 
 namespace CF {
@@ -39,7 +38,7 @@ CPhysicalModel::~CPhysicalModel()
 
 void CPhysicalModel::defineConfigProperties(PropertyList& options)
 {
-  options.add_option<OptionT <Uint> >("Dimensions", "Dimensionality of the problem, i.e. the number of components for the spatial coordinates", DIM_0D);
+  options.add_option<OptionT <Uint> >("Dimensions", "Dimensionality of the problem, i.e. the number of components for the spatial coordinates", 0u);
   options.add_option<OptionT <Uint> >("DOFs", "Degrees of freedom", 0u);
 
   options["Dimensions"].as_option().mark_basic();

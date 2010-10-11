@@ -25,7 +25,7 @@
 #include "Tools/MeshDiff/MeshDiff.hpp"
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
-#include "../Parser.hpp"
+#include "BlockMeshReader/Parser.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE( PartitionBlocks )
   }
   
   BlockData partitioned_blocks;
-  partition_blocks(block_data, nb_procs, CF::XX, partitioned_blocks);
+  partition_blocks(block_data, nb_procs, CF::Mesh::XX, partitioned_blocks);
   
   // create a mesh with the blocks only
   CMesh::Ptr block_mesh(new CMesh("block_mesh"));

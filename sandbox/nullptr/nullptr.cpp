@@ -8,10 +8,12 @@ class nullptr_t
       operator T*() const // convertible to any type of null non-member pointer...
     { return 0; }
  
+#if 0
     template<class C, class T>
     operator T C::*() const   // or any type of null member pointer...
     { return 0; }
- 
+#endif
+
   private:
     void operator&() const;  // Can't take address of nullptr
  
@@ -37,7 +39,7 @@ int main(void)
   func (nullptr);             // Calls func(double *)
   func (0);                   // Calls func(int)
   void (C::*pmf2)() = 0;      // ok
-  void (C::*pmf)() = nullptr; // ok
+//  void (C::*pmf)() = nullptr; // ok
   nullptr_t n1, n2;
   n1 = n2;
   
@@ -46,7 +48,7 @@ int main(void)
   // if (nullptr == pmf) {}      // Valid statement; but fails on g++ 4.1.1 due to bug #33990
   
   const int n = 0;
-  if (nullptr == n) {}        // Should not compile; but only Comeau shows an error.
+//  if (nullptr == n) {}        // Should not compile; but only Comeau shows an error.
   
   //int p = 0;
   //if (nullptr == p) {}      // not ok
@@ -64,6 +66,7 @@ int main(void)
  
   sizeof( nullptr );     // ok
   typeid( nullptr );     // ok
+
   try{
       throw nullptr;         // ok
   } catch (...) {};
