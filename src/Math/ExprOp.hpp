@@ -107,7 +107,7 @@ public:            \
   Uint size() const {return ex2.size();}    \
       \
 private:            \
-const T& ex1;            \
+  const T ex1;            \
   const Expr<V2,T>& ex2;        \
 };
 
@@ -144,7 +144,7 @@ public:            \
       \
 private:            \
   const Expr<V1,T>& ex1;          \
-  const T&          ex2;        \
+  const T          ex2;        \
 };
 
 EXPR_BINARY_OP_CONST2(Add,+)

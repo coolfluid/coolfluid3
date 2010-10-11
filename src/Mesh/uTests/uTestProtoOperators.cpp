@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Mesh::CField"
+#define BOOST_TEST_MODULE "Test module for proto operators"
 
 #include <boost/foreach.hpp>
 
@@ -60,9 +60,21 @@ using namespace boost;
 namespace CF
 {
 
+namespace Math
+{
+  template <typename T1, typename T2>
+  std::ostream& operator<<(std::ostream& os, const CF::Math::Expr<T1, T2>& expr)
+  {
+    for(Uint i = 0; i != expr.size(); ++i)
+      os << expr.at(i) << " ";
+    return os;
+}
+
+}
+  
 namespace Mesh
 {
-
+  
 //////////////////////////////////////////////////////////
 // Grammar that must be matched for an expression to be valid
 
@@ -110,7 +122,7 @@ struct MeshExpr : proto::extends<Expr, MeshExpr<Expr>, MeshDomain>
 //////////////////////////////////////////////////////////
 // custom functions
 
-// Wrap the volume function
+// Wrap the jacobian determinant function
 struct jacobian_determinant_tag
 {};
 
@@ -124,6 +136,22 @@ typename proto::result_of::make_expr<
 jacobian_determinant(MappedCoordsT const& mapped_coords, NodesT const& nodes)
 {
   return proto::make_expr<jacobian_determinant_tag, MeshDomain>(boost::ref(mapped_coords), boost::ref(nodes));
+}
+
+// Wrap the normal function
+struct normal_tag
+{};
+
+template<typename MappedCoordsT, typename NodesT>
+typename proto::result_of::make_expr<
+    normal_tag
+  , MeshDomain
+  , MappedCoordsT const &
+  , NodesT const &
+>::type const
+normal(MappedCoordsT const& mapped_coords, NodesT const& nodes)
+{
+  return proto::make_expr<normal_tag, MeshDomain>(boost::ref(mapped_coords), boost::ref(nodes));
 }
 
 struct volume_tag
@@ -156,11 +184,58 @@ integral(Arg const &arg)
   return proto::make_expr<integral_tag<Order>, MeshDomain>(boost::ref(arg));
 }
 
+struct coords_tag
+{};
+
+template<typename MappedCoordsT, typename NodesT>
+typename proto::result_of::make_expr<
+    coords_tag
+  , MeshDomain
+  , MappedCoordsT const &
+  , NodesT const &
+>::type const
+coords(MappedCoordsT const& mapped_coords, NodesT const& nodes)
+{
+  return proto::make_expr<coords_tag, MeshDomain>(boost::ref(mapped_coords), boost::ref(nodes));
+}
+
 ///////////////////////////////////////////////////////////
 // Placeholders
 
 // Wrap std::cout
 proto::terminal< std::ostream & >::type _cout = {std::cout};
+
+// Wrap some math functions
+proto::terminal< double(*)(double) >::type const _sin = {&sin};
+proto::terminal< double(*)(double, double) >::type const _atan2 = {&atan2};
+
+// Pow function based on Proto docs example
+// Define a pow_fun function object
+template<Uint Exp>
+struct pow_fun
+{
+  typedef Real result_type;
+  Real operator()(Real d) const
+  {
+    for(Uint i = 0; i != (Exp-1); ++i)
+      d *= d;
+    return d;
+  }
+};
+
+template<Uint Exp, typename Arg>
+typename proto::result_of::make_expr<
+    proto::tag::function  // Tag type
+  , pow_fun<Exp>          // First child (by value)
+  , Arg const &           // Second child (by reference)
+>::type const
+pow(Arg const &arg)
+{
+  return proto::make_expr<proto::tag::function>(
+      pow_fun<Exp>()    // First child (by value)
+    , boost::ref(arg)   // Second child (by reference)
+  );
+}
 
 // Placeholders for different types of data
 struct ElementIdxHolder {};
@@ -300,6 +375,7 @@ private:
 ////////////////////////////////////////////////////
 // debugging stuff
 template <class T> struct error_printer {};
+template <class T1, class T2> struct error_printer2 {};
 
 struct print
 {
@@ -392,6 +468,24 @@ struct VarContext<SF, ConstNodes>
   const CTable* connectivity;
 };
 
+/// Strip the CF expression templates
+template<typename T1, typename T2=mpl::void_, typename T3=mpl::void_>
+struct StripExpr
+{
+  typedef T1 type;
+};
+
+template<typename T1, typename T2>
+struct StripExpr< Math::Mult<RealVector, T1, T2> >
+{
+  typedef RealVector type;
+};
+
+template<typename T1, typename T2>
+struct StripExpr< Math::Mult<T1, RealVector, T2> >
+{
+  typedef RealVector type;
+};
 
 ///////////////////////////////////////////////////////////
 // Context
@@ -403,6 +497,7 @@ struct MeshContext
 {
   MeshContext(ContextsT& ctxts) :
     element_idx(0)
+  , mapped_coords(0., ShapeFunctionT::dimensionality) // mapped coords default to centroid
   , contexts(ctxts)
   {
   }
@@ -413,6 +508,8 @@ struct MeshContext
   /// Reference for the context
   Uint element_idx;
   RealVector mapped_coords;
+  RealVector real_coords;
+  RealVector surface_normal;
   ContextsT& contexts;
   
   template<typename Expr,
@@ -482,20 +579,85 @@ struct MeshContext
     }
   };
   
+  /// normal vector calculation
+  template<typename Expr, typename MappedCoordsT>
+  struct eval<Expr, normal_tag, MappedCoordsT >
+  {
+    typedef const RealVector& result_type;
+
+    result_type operator()(Expr& expr, ThisContextT& context)
+    {
+      context.surface_normal.resize(SF::dimension);
+      SF::normal(context.mapped_coords, proto::eval(proto::child_c<1>(expr), context), context.surface_normal);
+      return context.surface_normal;
+    }
+  };
+  
   /// Handle integration
   template<typename Expr, Uint I, typename ChildExpr>
   struct eval<Expr, integral_tag<I>, ChildExpr >
   {
     typedef typename boost::remove_const<typename boost::remove_reference<ChildExpr>::type>::type RealChildT;
-    typedef typename proto::result_of::eval<RealChildT, ThisContextT>::type result_type;
+    typedef typename boost::remove_const
+    <
+      typename boost::remove_reference
+      <
+        typename StripExpr
+        <
+          typename proto::result_of::eval
+          <
+            RealChildT, ThisContextT
+          >::type
+        >::type
+      >::type
+    >::type result_type;
 
     result_type operator()(Expr& expr, ThisContextT& context)
     {
-      result_type r;
+      result_type r(2); // TODO: Auto-detect result size
       Integrators::integrate<I>(proto::child(expr), r, context);
       return r;
     }
   };
+  
+  /// Convert the current mapped coords to real coords
+  template<typename Expr, typename ChildExpr>
+  struct eval<Expr, coords_tag, ChildExpr >
+  {
+    typedef typename boost::remove_const<typename boost::remove_reference<ChildExpr>::type>::type RealChildT;
+    typedef const RealVector& result_type;
+
+    result_type operator()(Expr& expr, ThisContextT& context)
+    {
+      context.real_coords.resize(SF::dimension);
+      ::CF::Mesh::eval<SF>(context.mapped_coords, proto::eval(proto::child_c<1>(expr), context), context.real_coords);
+      return context.real_coords;
+    }
+  };
+  
+//   template<typename Expr, typename ChildExpr0>
+//   struct eval<Expr, proto::tag::multiplies, ChildExpr0 >
+//   {
+//     typedef typename boost::remove_const<typename boost::remove_reference<ChildExpr0>::type>::type RealChildT0;
+//     typedef typename boost::remove_const<typename boost::remove_reference<typename proto::result_of::child_c<Expr, 1>::type>::type>::type RealChildT1;
+//     typedef RealVector result_type;
+// 
+//     result_type operator()(Expr& expr, ThisContextT& context)
+//     {
+//       return proto::eval(proto::child_c<0>(expr), context) * proto::eval(proto::child_c<1>(expr), context);
+//       error_printer2<
+//         typename proto::result_of::eval
+//         <
+//           RealChildT0, ThisContextT
+//         >::type
+//       ,
+//         typename proto::result_of::eval
+//         <
+//           RealChildT1, ThisContextT
+//         >::type
+//       >().print();
+//     }
+//   };
 };
 
 /// Wrap up a var type in its context
@@ -587,7 +749,7 @@ typedef boost::mpl::vector< SF::Line1DLagrangeP1,
                             SF::Hexa3DLagrangeP1
 > HigherIntegrationElements;
 
-template<typename Expr>
+template<typename ETypesT, typename Expr>
 void for_each_element(CMesh& mesh, const Expr& expr)
 {
   // Number of variables
@@ -614,7 +776,7 @@ void for_each_element(CMesh& mesh, const Expr& expr)
   // Evaluate the expression
   BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(mesh))
   {
-    boost::mpl::for_each<HigherIntegrationElements>(ElementLooper<Expr, FusionVarsT, nb_vars::value>(expr, vars, elements));
+    boost::mpl::for_each<ETypesT>(ElementLooper<Expr, FusionVarsT, nb_vars::value>(expr, vars, elements));
   }
 }
 
@@ -634,6 +796,7 @@ BOOST_AUTO_TEST_SUITE( ProtoOperatorsSuite )
 
 //////////////////////////////////////////////////////////////////////////////
 
+
 BOOST_AUTO_TEST_CASE( ProtoBasics )
 {
   CMesh::Ptr mesh(new CMesh("rect"));
@@ -648,22 +811,53 @@ BOOST_AUTO_TEST_CASE( ProtoBasics )
   introspect(mat * (nodes + temperature) + nodes*mat);
   
   // Use the volume function
-  for_each_element(*mesh, _cout << "Volume for element " << _elem << ": " << volume(nodes) << "\n");
+  for_each_element<SF::VolumeTypes>(*mesh, _cout << "Element " << _elem << ": volume = " << volume(nodes) << ", centroid = " << coords(_mapped_coord, nodes) << "\n");
   std::cout << std::endl; // Can't be in expression
   
   // volume calculation
   Real vol1 = 0.;
-  for_each_element(*mesh, vol1 += volume(nodes));
+  for_each_element<SF::VolumeTypes>(*mesh, vol1 += volume(nodes));
   
   CFinfo << "Mesh volume: " << vol1 << CFendl;
 
   // For an all-quad mesh, this is the same... cool or what?, also this doesn't work anymore
-  //Real vol2 = 0.;
-  //for_each_element(*mesh, vol2 +=
-  //                  0.5*((nodes[2][XX] - nodes[0][XX]) * (nodes[3][YY] - nodes[1][YY])
-  //                    -  (nodes[2][YY] - nodes[0][YY]) * (nodes[3][XX] - nodes[1][XX])));
-  //BOOST_CHECK_CLOSE(vol1, vol2, 1e-5);
+//   Real vol2 = 0.;
+//   for_each_element<mpl::vector<SF::Quad2DLagrangeP1> >(*mesh, vol2 +=
+//                    0.5*((nodes[2][XX] - nodes[0][XX]) * (nodes[3][YY] - nodes[1][YY])
+//                      -  (nodes[2][YY] - nodes[0][YY]) * (nodes[3][XX] - nodes[1][XX])));
+//   BOOST_CHECK_CLOSE(vol1, vol2, 1e-5);
 }
+
+BOOST_AUTO_TEST_CASE( RotatingCylinder )
+{
+  const Real radius = 1.;
+  const Uint segments = 1000;
+  const Real u = 300.;
+  const Real circulation = 975.;
+  const Real rho = 1.225;
+  
+  CMesh::Ptr mesh(new CMesh("circle"));
+  Tools::MeshGeneration::create_circle_2d(*mesh, radius, segments);
+  
+  MeshTerm<0, ConstNodes> nodes;
+  
+  typedef boost::mpl::vector< SF::Line2DLagrangeP1> SurfaceTypes;
+  
+  RealVector force(0., 2);
+  for_each_element<SurfaceTypes>(*mesh,
+    force += integral<1>
+      (
+        pow<2>
+        (
+          2. * u * _sin(_atan2(coords(_mapped_coord, nodes)[YY], coords(_mapped_coord, nodes)[XX])) + circulation / (2. * Math::MathConsts::RealPi() * radius)
+        )  * 0.5 * rho * normal(_mapped_coord, nodes) 
+      )
+  );
+
+  BOOST_CHECK_CLOSE(force[YY], rho*u*circulation, 0.001); // lift according to theory
+  BOOST_CHECK_SMALL(force[XX], 1e-8); // Drag should be zero
+}
+
 
 // Must be run  before the next tests
 BOOST_FIXTURE_TEST_CASE( CreateMesh, ProtoOperatorsFixture )
@@ -671,6 +865,7 @@ BOOST_FIXTURE_TEST_CASE( CreateMesh, ProtoOperatorsFixture )
   ProtoOperatorsFixture::big_grid.reset(new CMesh("big_grid"));
   Tools::MeshGeneration::create_rectangle(*big_grid, 1., 1., 2000, 2000);
 }
+
 
 /// Non-proto calculation, as reference
 BOOST_FIXTURE_TEST_CASE( VolumeDirect, ProtoOperatorsFixture ) // timed and profiled
@@ -698,7 +893,7 @@ BOOST_FIXTURE_TEST_CASE( Volume, ProtoOperatorsFixture )
 {
   Real vol = 0.;
   MeshTerm<0, ConstNodes> nodes;
-  for_each_element(*big_grid, vol += volume(nodes));
+  for_each_element<SF::VolumeTypes>(*big_grid, vol += volume(nodes));
   BOOST_CHECK_CLOSE(vol, 1., 0.0001);
 }
 
@@ -707,7 +902,7 @@ BOOST_FIXTURE_TEST_CASE( VolumeVector10, ProtoOperatorsFixture )
 {
   Real vol = 0.;
   MeshTerm<9, ConstNodes> nodes; // setting this to 9 increases the overhead
-  for_each_element(*big_grid, vol += volume(nodes));
+  for_each_element<SF::VolumeTypes>(*big_grid, vol += volume(nodes));
   BOOST_CHECK_CLOSE(vol, 1., 0.0001);
 }
 
@@ -716,7 +911,7 @@ BOOST_FIXTURE_TEST_CASE( Integral, ProtoOperatorsFixture )
 {
   Real vol = 0.;
   MeshTerm<0, ConstNodes> nodes;
-  for_each_element(*big_grid, vol += integral<1>(jacobian_determinant(_mapped_coord, nodes)));
+  for_each_element<SF::VolumeTypes>(*big_grid, vol += integral<1>(jacobian_determinant(_mapped_coord, nodes)));
   BOOST_CHECK_CLOSE(vol, 1., 0.0001);
 }
 
@@ -725,7 +920,7 @@ BOOST_FIXTURE_TEST_CASE( IntegralOrder4, ProtoOperatorsFixture )
 {
   Real vol = 0.;
   MeshTerm<0, ConstNodes> nodes;
-  for_each_element(*big_grid, vol += integral<4>(jacobian_determinant(_mapped_coord, nodes)));
+  for_each_element<HigherIntegrationElements>(*big_grid, vol += integral<4>(jacobian_determinant(_mapped_coord, nodes)));
   BOOST_CHECK_CLOSE(vol, 1., 0.0001);
 }
 

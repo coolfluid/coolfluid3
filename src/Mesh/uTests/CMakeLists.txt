@@ -182,3 +182,11 @@ set( uTestProtoOperators_profile ON )
 coolfluid_add_unittest( uTestProtoOperators )
 
 ################################################################################
+
+list( APPEND uTestVectorBenchmark_cflibs SF MeshGeneration )
+list( APPEND uTestVectorBenchmark_files
+  uTestVectorBenchmark.cpp )
+set( uTestVectorBenchmark_profile ON )
+coolfluid_add_unittest( uTestVectorBenchmark )
+
+################################################################################

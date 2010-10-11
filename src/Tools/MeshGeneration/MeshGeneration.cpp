@@ -98,6 +98,14 @@ void create_circle_2d(CArray& coordinates, CTable& connectivity, const Real radi
   }
 }
 
+void create_circle_2d ( CMesh& mesh, const Real radius, const Uint segments, const Real start_angle, const Real end_angle )
+{
+  CArray& coordinates = *mesh.create_component_type<CArray>("coordinates");
+  CRegion& region = mesh.create_region("region");
+  CTable& conn = region.create_elements("Line2DLagrangeP1",coordinates).connectivity_table();
+  create_circle_2d(coordinates, conn, radius, segments, start_angle, end_angle);
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -27,7 +27,10 @@ namespace MeshGeneration {
 /// Create a rectangular, 2D, quad-only mesh. No buffer for creation
 void MeshGeneration_API create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments);
 
+/// Creates a 2D circular arc
 void MeshGeneration_API create_circle_2d(CArray& coordinates, CTable& connectivity, const Real radius, const Uint segments, const Real start_angle = 0., const Real end_angle = 2.*Math::MathConsts::RealPi());
+
+void MeshGeneration_API create_circle_2d(CMesh& mesh, const Real radius, const Uint segments, const Real start_angle = 0., const Real end_angle = 2.*Math::MathConsts::RealPi());
 
 ////////////////////////////////////////////////////////////////////////////////
 
