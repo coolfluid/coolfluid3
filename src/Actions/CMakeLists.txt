@@ -18,6 +18,13 @@ list( APPEND Actions_files
   CTakeStep.cpp
   LibActions.hpp
   LibActions.cpp
+  ProtoContexts.hpp
+  ProtoDomain.hpp
+  ProtoElementLooper.hpp
+  ProtoFunctions.hpp
+  ProtoGrammars.hpp
+  ProtoTransforms.hpp
+  ProtoVariables.hpp
 )
 
 set( Actions_kernellib TRUE )

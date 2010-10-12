@@ -13,3 +13,13 @@ add_custom_command(TARGET uTestActions
                    POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/rotation.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                   )
+
+################################################################################
+
+list( APPEND uTestProtoOperators_cflibs Mesh Actions SF BlockMesh Testing MeshGeneration )
+list( APPEND uTestProtoOperators_files
+  uTestProtoOperators.cpp )
+set( uTestProtoOperators_profile ON )
+coolfluid_add_unittest( uTestProtoOperators )
+
+################################################################################
