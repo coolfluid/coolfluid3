@@ -40,7 +40,6 @@ CSetFieldValues::CSetFieldValues ( const CName& name ) :
 void CSetFieldValues::trigger_Field()
 {
   CPath field_path (property("Field").value<URI>());
-  CFdebug << "field_path = " << field_path.string() << CFendl;
   m_field = look_component_type<CField>(field_path);
 }
 
@@ -55,12 +54,16 @@ void CSetFieldValues::execute()
     
     // setting values of fields here
     for ( Uint n = 0; n < field_data.size(); ++n)
+    {
+      const CF::Real x = coordinates[n][XX];
+      const CF::Real y = coordinates[n][YY];
+
       for (Uint i = 0; i < field_data.row_size(); ++i)
       {
-        const CF::Real x = coordinates[n][XX];
-        const CF::Real y = coordinates[n][YY];
-        field_data[n][i] = cos ( x*y );
+        field_data[n][i] = 0.0;//x+y;
       }
+      
+    }
 
   }
 }

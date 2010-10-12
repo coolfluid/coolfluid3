@@ -7,21 +7,28 @@
 #ifndef CF_Mesh_CElementOperation_hpp
 #define CF_Mesh_CElementOperation_hpp
 
-#include "Mesh/CField.hpp"
 #include "Actions/CAction.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Mesh;
-
 namespace CF {
+  
+namespace Mesh {
+  class CElements;
+}
+
 namespace Actions {
+
+  using namespace CF::Mesh;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 class Actions_API CElementOperation : public CAction
 {
 public: // typedefs
+
+  /// provider
+  typedef Common::ConcreteProvider < CElementOperation , Common::NB_ARGS_1 > PROVIDER;
 
   /// pointers
   typedef boost::shared_ptr<CElementOperation> Ptr;

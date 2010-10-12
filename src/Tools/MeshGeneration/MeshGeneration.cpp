@@ -32,8 +32,10 @@ namespace MeshGeneration {
 
 void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments)
 {
+  CRegion& region = mesh.create_region("region");
+  
   const Uint dim = 2;
-  CArray& coordinates = *mesh.create_component_type<CArray>("coordinates");
+  CArray& coordinates = *region.create_component_type<CArray>("coordinates");
   coordinates.initialize(dim);
   CArray::ArrayT& coordArray = coordinates.array();
   coordArray.resize(boost::extents[(x_segments+1)*(y_segments+1)][dim]);
@@ -50,7 +52,6 @@ void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uin
       row[YY] = y;
     }
   }
-  CRegion& region = mesh.create_region("region");
   CTable::ArrayT& connArray = region.create_elements("Quad2DLagrangeP1",coordinates).connectivity_table().array();
   connArray.resize(boost::extents[(x_segments)*(y_segments)][4]);
   for(Uint j = 0; j < y_segments; ++j)

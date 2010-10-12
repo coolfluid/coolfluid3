@@ -228,6 +228,9 @@ void CField::create_data_storage(const DataBasis basis)
 				field_data.add_tag("field_data");
 				field_data.array().resize(boost::extents[coordinates.size()][row_size]);
         data_for_coordinates[coordinates.full_path().string()] = &field_data;
+        
+        	// create a link to the coordinates in the data
+					field_data.create_component_type<CLink>("coordinates")->link_to(coordinates.get());
       }
       // Check if there are coordinates in all subfields and add to map
       BOOST_FOREACH(CField& subfield, recursive_range_typed<CField>(*this))

@@ -6,6 +6,8 @@ list( APPEND Actions_files
   CElementOperation.hpp
   CElementOperation.cpp
   CForAllElementsT.hpp
+  CForAllElements.hpp
+  CForAllElements.cpp
   CSchemeLDA.hpp
   CSchemeLDA.cpp
   CSetFieldValues.hpp

@@ -89,6 +89,10 @@ private: // data
   /// The field set by configuration, to perform action on
   CField::Ptr m_solution_field;
   CField::Ptr m_residual_field;
+  
+  Uint nb_q;
+  Real w;
+  std::vector<RealVector> mapped_coords;
 
 };
 

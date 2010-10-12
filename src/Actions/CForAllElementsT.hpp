@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CSetFieldValues_hpp
-#define CF_Mesh_CSetFieldValues_hpp
+#ifndef CF_Mesh_CForAllElementsT_hpp
+#define CF_Mesh_CForAllElementsT_hpp
 
 #include "Mesh/SF/Types.hpp"
 
@@ -66,7 +66,6 @@ public: // functions
     }
   }
 
-
   /// Virtual destructor
   virtual ~CForAllElementsT() {}
 
@@ -92,6 +91,11 @@ public: // functions
     return *m_action;
   }
 
+  void bind()
+  {
+    add_component(m_action);
+  }
+  
   void execute()
   {
     // If the typename of the operation equals "COperation", then the virtual version
@@ -121,7 +125,7 @@ public: // functions
       BOOST_FOREACH(CRegion::Ptr& region, m_loop_regions)
       {
         Looper looper(*this,*region);
-        boost::mpl::for_each< SF::Types >(looper);
+        boost::mpl::for_each< SF::VolumeTypes >(looper);
       }
     }
   }
@@ -187,4 +191,4 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CSetFieldValues_hpp
+#endif // CF_Mesh_CForAllElementsT_hpp
