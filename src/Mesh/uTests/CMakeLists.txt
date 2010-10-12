@@ -133,6 +133,14 @@ coolfluid_add_unittest( uTestQuad3DLagrangeP1 )
 
 ################################################################################
 
+list( APPEND uTestMatrixInterpolation_cflibs  SF )
+list( APPEND uTestMatrixInterpolation_files
+  uTestMatrixInterpolation.cpp )
+
+coolfluid_add_unittest( uTestMatrixInterpolation )
+
+################################################################################
+
 list( APPEND uTestIntegration_cflibs Neu Testing MeshGeneration SF )
 list( APPEND uTestIntegration_files
   uTestIntegration.cpp )

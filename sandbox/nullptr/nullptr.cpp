@@ -54,7 +54,7 @@ int main(void)
   n1 = n2;
   
   // nullptr_t *null = &n1;    // Address can't be taken.
-  if (nullptr == ch) {}       // ok
+  //if (nullptr == ch) {}       // ok
   // if (nullptr == pmf) {}      // Valid statement; but fails on g++ 4.1.1 due to bug #33990
   
   const int n = 0;
