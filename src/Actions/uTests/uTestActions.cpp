@@ -76,12 +76,10 @@ BOOST_AUTO_TEST_CASE( Templated_Looping_Test )
   
   // Create a loop over elements with the LDAScheme
   CForAllElementsT<CSchemeLDA>::Ptr elem_loop = root->create_component_type< CForAllElementsT<CSchemeLDA> >("loop_LDA");
-  elem_loop->bind();
   
   // Or fully dynamic:
-  //   CForAllElements::Ptr elem_loop = root->create_component_type< CForAllElements >("loop_LDA");
-  //   elem_loop->create_action("CSchemeLDA");
-  
+    // CForAllElements::Ptr elem_loop = root->create_component_type< CForAllElements >("loop_LDA");
+    // elem_loop->create_action("CSchemeLDA");  
   
   // Configure the loop
   std::vector<URI> regions_to_loop = list_of(URI("cpath://Root/mesh/Base"));

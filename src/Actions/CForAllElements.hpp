@@ -16,7 +16,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace CF::Mesh;
-
+using namespace CF::Common::String;
 namespace CF {
 namespace Actions {
 
@@ -69,7 +69,7 @@ public: // functions
   {
     // The execuation of operations must be in chronological order, hence
     // they get an alphabetical name
-    std::string name = "operation_"+String::to_str(++m_counter);
+    std::string name = action_provider;
     CElementOperation::Ptr sub_operation = 
       (create_component_abstract_type<CElementOperation>(action_provider,name));
     add_component(sub_operation);

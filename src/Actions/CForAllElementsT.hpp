@@ -55,6 +55,8 @@ public: // functions
   {
     BUILD_COMPONENT;
     m_property_list["Regions"].as_option().attach_trigger ( boost::bind ( &CForAllElementsT::trigger_Regions,   this ) );
+    
+    add_static_component ( m_action );
   }
 
   void trigger_Regions()
@@ -90,43 +92,13 @@ public: // functions
   {
     return *m_action;
   }
-
-  void bind()
-  {
-    add_component(m_action);
-  }
   
   void execute()
   {
-    // If the typename of the operation equals "COperation", then the virtual version
-    // must have been called. In this case the operation must have been created as a
-    // child component of "this_class", and should be set accordingly.
-    if (m_action->type_name() == "CElementOperation")
+    BOOST_FOREACH(CRegion::Ptr& region, m_loop_regions)
     {
-      BOOST_FOREACH(CRegion::Ptr& region, m_loop_regions)
-        BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*region))
-      {
-        // Setup all child operations
-        BOOST_FOREACH(ActionT& operation, range_typed<ActionT>(*this))
-        {
-          operation.set_loophelper( elements );
-          const Uint elem_count = elements.elements_count();
-          for ( Uint elem = 0; elem != elem_count; ++elem )
-          {
-            operation.set_element_idx(elem);
-            operation.execute();
-          }
-        }
-      }
-    }
-    else
-    // Use now the templated version defined below
-    {
-      BOOST_FOREACH(CRegion::Ptr& region, m_loop_regions)
-      {
-        Looper looper(*this,*region);
-        boost::mpl::for_each< SF::VolumeTypes >(looper);
-      }
+      Looper looper(*this,*region);
+      boost::mpl::for_each< SF::VolumeTypes >(looper);
     }
   }
 
