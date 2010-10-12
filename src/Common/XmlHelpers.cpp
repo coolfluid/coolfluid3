@@ -207,6 +207,7 @@ namespace Common {
 
   const char * XmlParams::tag_key_properties() { return "properties"; }
 
+  const char * XmlParams::tag_key_restricted_values() { return "restrictedValues"; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
