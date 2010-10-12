@@ -48,11 +48,14 @@ public: // functions
 
   /// configure m_residual_field
   void trigger_ResidualField();
+  
+  /// configure m_inverseUpdateCoeff
+  void trigger_InverseUpdateCoeff();
 
   /// Set the loop_helper
   void set_loophelper (CElements& geometry_elements )
   {
-    data = boost::shared_ptr<LoopHelper> ( new LoopHelper(*m_solution_field, *m_residual_field, geometry_elements ) );
+    data = boost::shared_ptr<LoopHelper> ( new LoopHelper(*m_solution_field, *m_residual_field, *m_inverseUpdateCoeff, geometry_elements ) );
   }
 
   /// execute the action
@@ -67,19 +70,23 @@ private: // data
 
   struct LoopHelper
   {
-    LoopHelper(CField& solution_field, CField& residual_field, CElements& geometry_elements) :
+    LoopHelper(CField& solution_field, CField& residual_field, CField& inverse_updateCoeff_field, CElements& geometry_elements) :
       solution_field_elements(geometry_elements.get_field_elements(solution_field.field_name())),
       residual_field_elements(geometry_elements.get_field_elements(residual_field.field_name())),
+      inverse_updateCoeff_field_elements(geometry_elements.get_field_elements(inverse_updateCoeff_field.field_name())),
       solution(solution_field_elements.data()),
       residual(residual_field_elements.data()),
+      inverse_updatecoeff(inverse_updateCoeff_field_elements.data()),
       // Assume coordinates and connectivity_table are the same for solution and residual (pretty safe)
       coordinates(solution_field_elements.coordinates()),
       connectivity_table(solution_field_elements.connectivity_table())
     { }
     CFieldElements& solution_field_elements;
     CFieldElements& residual_field_elements;
+    CFieldElements& inverse_updateCoeff_field_elements;
     CArray& solution;
     CArray& residual;
+    CArray& inverse_updatecoeff;
     CArray& coordinates;
     CTable& connectivity_table;
   };
@@ -89,6 +96,7 @@ private: // data
   /// The field set by configuration, to perform action on
   CField::Ptr m_solution_field;
   CField::Ptr m_residual_field;
+  CField::Ptr m_inverseUpdateCoeff;
   
   Uint nb_q;
   Real w;

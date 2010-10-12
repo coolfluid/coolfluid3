@@ -30,6 +30,7 @@ void CSchemeLDA::defineConfigProperties( Common::PropertyList& options )
 {
   options.add_option< OptionT<URI> > ("SolutionField","Solution Field for calculation", URI("cpath://"))->mark_basic();
   options.add_option< OptionT<URI> > ("ResidualField","Residual Field updated after calculation", URI("cpath://"))->mark_basic();
+  options.add_option< OptionT<URI> > ("InverseUpdateCoeff","Inverse update coefficient Field updated after calculation", URI("cpath://"))->mark_basic();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -40,6 +41,7 @@ CSchemeLDA::CSchemeLDA ( const CName& name ) :
   BUILD_COMPONENT;
   m_property_list["SolutionField"].as_option().attach_trigger ( boost::bind ( &CSchemeLDA::trigger_SolutionField,   this ) );  
   m_property_list["ResidualField"].as_option().attach_trigger ( boost::bind ( &CSchemeLDA::trigger_ResidualField,   this ) );  
+  m_property_list["InverseUpdateCoeff"].as_option().attach_trigger ( boost::bind ( &CSchemeLDA::trigger_InverseUpdateCoeff,   this ) );  
   
   
   nb_q=3;
@@ -65,6 +67,12 @@ void CSchemeLDA::trigger_ResidualField()
 {
   CPath field_path (property("ResidualField").value<URI>());
   m_residual_field = look_component_type<CField>(field_path);
+}
+
+void CSchemeLDA::trigger_InverseUpdateCoeff()
+{
+  CPath field_path (property("InverseUpdateCoeff").value<URI>());
+  m_inverseUpdateCoeff = look_component_type<CField>(field_path);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -116,7 +124,7 @@ void CSchemeLDA::execute()
     Real jacobian = grad_x[XX]*grad_y[YY]-grad_x[YY]*grad_y[XX];
     for (Uint i=0; i<3; ++i)
     {
-      phi[i] += nominator[i]/denominator*w * (y*grad_solution[XX] - x*grad_solution[YY]) * jacobian;
+      phi[i] += nominator[i]/denominator * (y*grad_solution[XX] - x*grad_solution[YY]) * w * jacobian;
     }
   }
   
@@ -152,9 +160,16 @@ void CSchemeLDA::execute()
   nodal_normals(YY,1) = data->coordinates[nodes[0]][XX] - data->coordinates[nodes[2]][XX];
   nodal_normals(YY,2) = data->coordinates[nodes[1]][XX] - data->coordinates[nodes[0]][XX];
   
-  RealVector kplus(3);
+  Real sumK=0;
   for (Uint i=0; i<3; ++i)
-    kplus[i] = std::max(0.0,centroid[YY]*nodal_normals(XX,i)-centroid[XX]*nodal_normals(YY,i));
+  {
+    sumK += 0.5*std::max(0.0,centroid[YY]*nodal_normals(XX,i)-centroid[XX]*nodal_normals(YY,i));
+  }   
+  for (Uint i=0; i<3; ++i)
+  {
+    // Real kplus = 0.5*std::max(0.0,centroid[YY]*nodal_normals(XX,i)-centroid[XX]*nodal_normals(YY,i));
+    data->inverse_updatecoeff[nodes[i]][0] += sumK; 
+  } 
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

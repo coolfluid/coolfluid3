@@ -1,6 +1,5 @@
 
 list( APPEND uTestActions_cflibs Actions SF Gmsh Neu)
-list( APPEND uTestActions_libs MeshGeneration )
 list( APPEND uTestActions_files
   uTestActions.cpp )
 

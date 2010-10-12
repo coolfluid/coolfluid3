@@ -7,6 +7,8 @@
 #include "Common/ObjectProvider.hpp"
 #include "Common/OptionT.hpp"
 #include "Actions/CSetFieldValues.hpp"
+#include "Mesh/CFieldElements.hpp"
+#include "Mesh/CTable.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -47,25 +49,59 @@ void CSetFieldValues::trigger_Field()
 
 void CSetFieldValues::execute()
 {
-  BOOST_FOREACH(CArray& field_data, recursive_filtered_range_typed<CArray>(*m_field,IsComponentTag("field_data")))
+  CF_DEBUG_POINT;
+  CFLogVar(m_field->full_path().string());
+  
+  BOOST_FOREACH(CFieldElements& elements, recursive_range_typed<CFieldElements>(*m_field))
   {
-
-    // unused // CArray& coordinates = *field_data.get_child("coordinates")->get_type<CArray>();
     
-    // setting values of fields here
-    for ( Uint n = 0; n < field_data.size(); ++n)
+    CArray& field_data = elements.data();
+    CArray& coordinates = elements.coordinates();
+    
+    BOOST_FOREACH(CTable::Row nodes, elements.connectivity_table().array())
     {
-      // unused // const CF::Real x = coordinates[n][XX];
-      // unused // const CF::Real y = coordinates[n][YY];
-
-      for (Uint i = 0; i < field_data.row_size(); ++i)
+      BOOST_FOREACH(Uint n, nodes)
       {
-        field_data[n][i] = 0.0;//x+y;
-      }
-      
-    }
+        const CF::Real x = coordinates[n][XX];
+        const CF::Real y = coordinates[n][YY];
 
+        for (Uint i = 0; i < field_data.row_size(); ++i)
+        {
+          // if (x >= -0.8 && x <= -0.4)
+            // field_data[n][i] = cos(3.141592*(x+0.6)/0.2)+1.0;
+          if (x >= -2.0 && x <= 0.0)
+            field_data[n][i] = x;
+          else
+            field_data[n][i] = 0.0;
+        }
+      }
+    }
   }
+  
+  // BOOST_FOREACH(CArray::Ptr field_data, field_data_set)
+  //   {
+  // 
+  //     CArray& coordinates = *field_data->get_child("coordinates")->get_type<CArray>();
+  //     
+  //     // setting values of fields here
+  //     for ( Uint n = 0; n < field_data->size(); ++n)
+  //     {
+  //       const CF::Real x = coordinates[n][XX];
+  //       const CF::Real y = coordinates[n][YY];
+  // 
+  //       for (Uint i = 0; i < field_data->row_size(); ++i)
+  //       {
+  //         if (x >= -0.8 && x <= -0.4)
+  //           (*field_data)[n][i] = cos(3.141592*(x+0.6)/0.2)+1.0;
+  //         else
+  //           (*field_data)[n][i] = 0.0;
+  //       }
+  //       
+  //       // CFinfo << "field_data["<<n<<"] = " << (*field_data)[n][0] << CFendl;
+  //       
+  //     }
+  // 
+  //   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

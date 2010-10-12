@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "Mesh/CRegion.hpp"
+
 #include "Actions/CForAllElements.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -13,6 +15,34 @@ namespace Actions {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
+void CForAllElements::defineConfigProperties ( Common::PropertyList& options ) {}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+CForAllElements::CForAllElements ( const CName& name ) :
+  CLoop(name)
+{
+  BUILD_COMPONENT;
+}
+
+void CForAllElements::execute()
+{
+  BOOST_FOREACH(CRegion::Ptr& region, m_loop_regions)
+    BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*region))
+  {
+    // Setup all child operations
+    BOOST_FOREACH(CElementOperation& op, range_typed<CElementOperation>(*this))
+    {
+      op.set_loophelper( elements );
+      const Uint elem_count = elements.elements_count();
+      for ( Uint elem = 0; elem != elem_count; ++elem )
+      {
+        op.set_element_idx(elem);
+        op.execute();
+      }
+    }
+  }
+}
 
 /////////////////////////////////////////////////////////////////////////////////////
 

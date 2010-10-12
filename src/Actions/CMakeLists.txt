@@ -8,10 +8,14 @@ list( APPEND Actions_files
   CForAllElementsT.hpp
   CForAllElements.hpp
   CForAllElements.cpp
+  CLoop.hpp
+  CLoop.cpp
   CSchemeLDA.hpp
   CSchemeLDA.cpp
   CSetFieldValues.hpp
   CSetFieldValues.cpp
+  CTakeStep.hpp
+  CTakeStep.cpp
   LibActions.hpp
   LibActions.cpp
 )

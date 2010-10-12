@@ -8,12 +8,9 @@
 #define CF_Mesh_CForAllElementsT_hpp
 
 #include "Mesh/SF/Types.hpp"
-
-#include "Mesh/CField.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CArray.hpp"
 
-#include "Actions/CAction.hpp"
+#include "Actions/CLoop.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +34,7 @@ struct IsComponentElementType
 /////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ActionT>
-class Actions_API CForAllElementsT : public CAction
+class Actions_API CForAllElementsT : public CLoop
 {
 public: // typedefs
 
@@ -50,22 +47,11 @@ public: // functions
   /// Contructor
   /// @param name of the component
   CForAllElementsT ( const CName& name ) :
-    CAction(name),
-    m_action(new ActionT("action"), Deleter<ActionT>())
+    CLoop(name),
+    m_action(new ActionT(ActionT::type_name()), Deleter<ActionT>())
   {
-    BUILD_COMPONENT;
-    m_property_list["Regions"].as_option().attach_trigger ( boost::bind ( &CForAllElementsT::trigger_Regions,   this ) );
-    
+    BUILD_COMPONENT;    
     add_static_component ( m_action );
-  }
-
-  void trigger_Regions()
-  {
-    std::vector<URI> vec; property("Regions").put_value(vec);
-    BOOST_FOREACH(const CPath region_path, vec)
-    {
-      m_loop_regions.push_back(look_component_type<CRegion>(region_path));
-    }
   }
 
   /// Virtual destructor
@@ -77,28 +63,26 @@ public: // functions
   /// Configuration Options
   static void defineConfigProperties ( Common::PropertyList& options )
   {
-    std::vector< URI > dummy;
-    options.add_option< OptionArrayT < URI > > ("Regions", "Regions to loop over", dummy)->mark_basic();
   }
 
   // functions specific to the CForAllElements component
 
-  const ActionT& action() const
+  virtual const CElementOperation& action(const CName& name = ActionT::type_name()) const
   {
-    return *m_action;
+    return *m_action->get_type<CElementOperation>();
   }
 
-  ActionT& action()
+  virtual CElementOperation& action(const CName& name = ActionT::type_name())
   {
-    return *m_action;
+    return *m_action->get_type<CElementOperation>();
   }
   
-  void execute()
+  virtual void execute()
   {
     BOOST_FOREACH(CRegion::Ptr& region, m_loop_regions)
     {
       Looper looper(*this,*region);
-      boost::mpl::for_each< SF::VolumeTypes >(looper);
+      boost::mpl::for_each< SF::Types >(looper);
     }
   }
 
@@ -150,9 +134,6 @@ private:
 
   /// Operation to perform
   typename ActionT::Ptr m_action;
-
-  /// Regions to loop over
-  std::vector<CRegion::Ptr> m_loop_regions;
 
 };
 
