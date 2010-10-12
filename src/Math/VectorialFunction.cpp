@@ -112,7 +112,7 @@ void VectorialFunction::variables(const std::string& vars)
   m_nbvars = 0;
   for (tokenizer::iterator el=tok.begin(); el!=tok.end(); ++el, ++m_nbvars )
   {
-    CFinfo << "var" << m_nbvars << " [" << *el << "]" << CFendl;
+//    CFinfo << "var" << m_nbvars << " [" << *el << "]" << CFendl;
   }
 
   m_is_parsed = false;
@@ -132,7 +132,7 @@ void VectorialFunction::functions( const std::string& functions )
 
   for (tokenizer::iterator el=tok.begin(); el!=tok.end(); ++el)
   {
-    CFinfo << "func  [" << *el << "]" << CFendl;
+//    CFinfo << "func  [" << *el << "]" << CFendl;
     m_functions.push_back(*el);
   }
 
@@ -153,18 +153,18 @@ void VectorialFunction::parse()
 {
   clear();
 
-  for(Uint i = 0; i < m_functions.size(); i++)
+  for(Uint i = 0; i < m_functions.size(); ++i)
   {
     FunctionParser* ptr = new FunctionParser();
-
     m_parsers.push_back(ptr);
-    CFinfo << "Parsing Function: [" << m_functions[i] << "] Vars: [" << m_vars << "]\n" << CFendl;
+
+//    CFinfo << "Parsing Function: \'" << m_functions[i] << "\' Vars: \'" << m_vars << "\'\n" << CFendl;
     ptr->Parse(m_functions[i],m_vars);
 
-    if (ptr->ErrorMsg() != 0)
+    if ( ptr->GetParseErrorType() !=  FunctionParser::FP_NO_ERROR )
     {
       std::string msg("ParseError in VectorialFunction::parse(): ");
-      msg += std::string(ptr->ErrorMsg());
+      msg += " Error [" +std::string(ptr->ErrorMsg()) + "]";
       msg += " Function [" + m_functions[i] + "]";
       msg += " Vars: ["    + m_vars + "]";
       throw Common::ParsingFailed (FromHere(),msg);

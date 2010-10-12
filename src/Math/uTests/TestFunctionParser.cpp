@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE( tt )
   double variables[2] = { 1.5, 2.9 };
   double result = fp.Eval(variables);
 
-  BOOST_CHECK_CLOSE( result, sqrt(1.5*1.5 + 2.9*2.9) , 1e-6);
+  BOOST_CHECK_CLOSE( result, 1.5/2.9 , 1e-6);
 }
 
 BOOST_AUTO_TEST_CASE( function_1 )
