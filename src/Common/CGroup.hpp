@@ -43,11 +43,7 @@ namespace Common {
     static std::string type_name () { return "CGroup"; }
 
     /// Configuration Options
-    static void defineConfigProperties ( Common::PropertyList& options )
-    {
-      options.add_option< OptionT<CF::Real> >("pi", "Pi in a CGroup", 3.141592);
-    }
-
+    static void defineConfigProperties ( Common::PropertyList& options );
   private: // helper functions
 
     /// regists all the signals declared in this class

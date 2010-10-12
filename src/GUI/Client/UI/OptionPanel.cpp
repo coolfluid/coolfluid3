@@ -213,7 +213,14 @@ void OptionPanel::setOptions(const QList<NodeOption> & list)
     {
       graphicalOption = new GraphicalOption(type, this);
       graphicalOption->setName(param.m_paramName);
-      graphicalOption->setValue(param.m_paramValue.trimmed());
+
+      if(type == OptionType::TYPE_LIST)
+      {
+        graphicalOption->setValue(param.m_paramRestrValues);
+        graphicalOption->setValue(param.m_paramValue);
+      }
+      else
+        graphicalOption->setValue(param.m_paramValue.trimmed());
 
       graphicalOption->setToolTip(param.m_paramDescr);
 

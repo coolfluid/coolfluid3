@@ -54,7 +54,9 @@ namespace ClientCore {
       /// @brief Array type
       TYPE_ARRAY = 7,
 
-      TYPE_PATH = 8
+      TYPE_PATH = 8,
+
+      TYPE_LIST = 9
     };
 
     typedef Common::EnumT< OptionType > ConverterBase;

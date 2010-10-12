@@ -517,20 +517,52 @@ void CNode::getOptions(QList<NodeOption> & options) const
       nodeOpt.m_paramValue = opt->value_str().c_str();
       nodeOpt.m_paramDescr = opt->description().c_str();
 
-      if(std::strcmp(opt->tag(), "array") != 0)
-        nodeOpt.m_paramType = OptionType::Convert::to_enum(opt->type());
+      if(opt->has_restricted_list())
+      {
+        const std::vector<boost::any> & vect = opt->restricted_list();
+
+        nodeOpt.m_paramType = OptionType::TYPE_LIST;
+
+        try
+        {
+          if(opt->type().compare(XmlTag<std::string>::type()) == 0)
+            nodeOpt.m_paramRestrValues = this->vectToStringList<std::string>(vect);
+          else if(opt->type().compare(XmlTag<CF::Uint>::type()) == 0)
+            nodeOpt.m_paramRestrValues = this->vectToStringList<CF::Uint>(vect);
+          else if(opt->type().compare(XmlTag<CF::Real>::type()) == 0)
+            nodeOpt.m_paramRestrValues = this->vectToStringList<CF::Real>(vect);
+          else if(opt->type().compare(XmlTag<int>::type()) == 0)
+            nodeOpt.m_paramRestrValues = this->vectToStringList<int>(vect);
+          else if(opt->type().compare(XmlTag<bool>::type()) == 0)
+            nodeOpt.m_paramRestrValues = this->vectToStringList<bool>(vect);
+          else if(opt->type().compare(XmlTag<URI>::type()) == 0)
+            nodeOpt.m_paramRestrValues = this->vectToStringList<URI>(vect);
+          else
+            ClientRoot::log()->addError(QString("%1: unknown type").arg(opt->type().c_str()));
+        }
+        catch(boost::bad_any_cast & ex)
+        {
+          QString msg("Could not build restricted list: %1");
+          ClientRoot::log()->addException(msg.arg(opt->restricted_list().size()));
+        }
+      }
       else
       {
-        boost::shared_ptr<OptionArray> optArray;
-        optArray = boost::dynamic_pointer_cast<OptionArray>(opt);
-
-        if(std::strcmp(optArray->elem_type(), "file") == 0)
-          nodeOpt.m_paramType = OptionType::TYPE_FILES;
+        if(std::strcmp(opt->tag(), "array") != 0)
+          nodeOpt.m_paramType = OptionType::Convert::to_enum(opt->type());
         else
         {
-          success = false;
-          ClientRoot::log()->addError(QString("Unable to process %1 option array")
-                                      .arg(optArray->elem_type()));
+          boost::shared_ptr<OptionArray> optArray;
+          optArray = boost::dynamic_pointer_cast<OptionArray>(opt);
+
+          if(std::strcmp(optArray->elem_type(), "file") == 0)
+            nodeOpt.m_paramType = OptionType::TYPE_FILES;
+          else
+          {
+            success = false;
+            ClientRoot::log()->addError(QString("Unable to process %1 option array")
+                                        .arg(optArray->elem_type()));
+          }
         }
       }
 

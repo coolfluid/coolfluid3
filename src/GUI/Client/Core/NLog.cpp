@@ -7,7 +7,8 @@
 #include <QDateTime>
 #include <QFileIconProvider>
 
-#include <string>
+#include <boost/assign/std/vector.hpp>
+#include <boost/assign/list_of.hpp>
 
 #include "Common/CF.hpp"
 #include "Common/XmlHelpers.hpp"
@@ -16,6 +17,8 @@
 #include "GUI/Network/ComponentNames.hpp"
 
 #include "GUI/Client/Core/NLog.hpp"
+
+using namespace boost::assign; // for operator+=()
 
 using namespace CF::Common;
 using namespace CF::GUI::Network;
@@ -32,6 +35,56 @@ NLog::NLog()
   m_typeNames[ LogMessage::WARNING ]   = " Warning ";
 
   regist_signal("message", "Log message")->connect(boost::bind(&NLog::message, this, _1));
+
+  Option::Ptr option;
+
+  option = m_property_list.add_option< OptionT<std::string> >("Months", "Month names", std::string("January"));
+
+  option->restricted_list() += std::string("February"),
+                               std::string("March"),
+                               std::string("April"),
+                               std::string("May"),
+                               std::string("June"),
+                               std::string("July"),
+                               std::string("August"),
+                               std::string("Septemeber"),
+                               std::string("October"),
+                               std::string("November"),
+                               std::string("December");
+
+  option->change_value(std::string("October"));
+
+  option->mark_basic();
+
+  //----------------------------------------------------
+
+  option = m_property_list.add_option< OptionT<Uint> >("Days", "Days of the month", Uint(1));
+
+  option->restricted_list() += Uint(2), Uint(3), Uint(4), Uint(5), Uint(6),
+                               Uint(7), Uint(8), Uint(9), Uint(10), Uint(11),
+                               Uint(12), Uint(13), Uint(14), Uint(15), Uint(16),
+                               Uint(17), Uint(18), Uint(19), Uint(20), Uint(21),
+                               Uint(22), Uint(23), Uint(24), Uint(25), Uint(26),
+                               Uint(27), Uint(28), Uint(29), Uint(30), Uint(31);
+  option->mark_basic();
+
+  //----------------------------------------------------
+
+  option = m_property_list.add_option< OptionT<Real> >("SomeReals", "Some real values", Real(1.5));
+
+  option->restricted_list() += Real(3.141592), Real(.5772156649015328606065),
+                               Real(4.660299067185320382046620161),
+                               Real(0.00000000000000000234);
+  option->mark_basic();
+
+  //----------------------------------------------------
+
+  option = m_property_list.add_option< OptionT<bool> >("ABool", "A boolean value", bool(true));
+
+  option->restricted_list() += bool(false);
+  option->mark_basic();
+
+
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

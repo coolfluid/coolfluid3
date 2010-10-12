@@ -19,6 +19,7 @@
 #include "GUI/Client/UI/GraphicalBool.hpp"
 #include "GUI/Client/UI/GraphicalDouble.hpp"
 #include "GUI/Client/UI/GraphicalInt.hpp"
+#include "GUI/Client/UI/GraphicalRestrictedList.hpp"
 #include "GUI/Client/UI/GraphicalString.hpp"
 #include "GUI/Client/UI/GraphicalUrl.hpp"
 #include "GUI/Client/UI/GraphicalUrlArray.hpp"
@@ -36,45 +37,50 @@ GraphicalOption::GraphicalOption(OptionType::Type type, QWidget * parent)
 {
   switch(type)
   {
-    // if type valueWidget is a bool
+    // if type value is a bool
   case OptionType::TYPE_BOOL:
     m_valueWidget = new GraphicalBool(parent);
     break;
 
-    // if type valueWidget is a string
+    // if type value is a string
   case OptionType::TYPE_STRING:
     m_valueWidget = new GraphicalString(parent);
     //m_valueWidget = new GraphicalString(parent);
     break;
 
-    // if type valueWidget is a double
+    // if type value is a double
   case OptionType::TYPE_DOUBLE:
     m_valueWidget = new GraphicalDouble(parent);
     break;
 
-    // if type valueWidget is an int
+    // if type value is an int
   case OptionType::TYPE_INT:
     m_valueWidget = new GraphicalInt(false, parent);
     break;
 
-    // if type valueWidget is an unsigned int
+    // if type value is an unsigned int
   case OptionType::TYPE_UNSIGNED_INT:
     m_valueWidget = new GraphicalInt(true, parent);
     break;
 
-    // if type valueWidget is a files list
+    // if type value is a files list
   case OptionType::TYPE_FILES:
     m_valueWidget = new GraphicalUrlArray(parent);
     break;
 
-    // if type valueWidget is a library list
+    // if type value is a library list
   case OptionType::TYPE_LIBRARIES:
     m_valueWidget = new GraphicalUrlArray(parent);
     break;
 
-    // if type valueWidget is a string
+    // if type value is a string
   case OptionType::TYPE_PATH:
     m_valueWidget = new GraphicalUrl(parent);
+    break;
+
+    // if type value is a string
+  case OptionType::TYPE_LIST:
+    m_valueWidget = new GraphicalRestrictedList(parent);
     break;
 
   default:

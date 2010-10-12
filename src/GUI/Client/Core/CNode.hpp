@@ -98,6 +98,8 @@ namespace ClientCore {
     /// @brief If @c true, the option is advanced. Otherwise, it is not.
     bool m_paramAdv;
 
+    QStringList m_paramRestrValues;
+
     bool operator == (const NodeOption & option);
 
   }; // struct NodeParams
@@ -289,14 +291,41 @@ namespace ClientCore {
                      CF::Common::XmlNode & node )
     {
       TYPE value;
+      CF::Common::Option::Ptr option;
       CF::Common::to_value(node, value);
-      m_property_list.add_option< CF::Common::OptionT<TYPE> >(name, descr, value);
+      CF::Common::XmlNode * next = node.next_sibling();
+
+      option = m_property_list.add_option< CF::Common::OptionT<TYPE> >(name, descr, value);
+
+      if(next != nullptr &&
+         std::strcmp(next->name(), CF::Common::XmlTag<TYPE>::array()))
+      {
+        CF::Common::XmlNode * elem_node = next->first_node("e");
+
+        for( ; elem_node != nullptr ; elem_node = elem_node->next_sibling("e"))
+        {
+          CF::Common::to_value(*elem_node, value);
+          option->restricted_list().push_back(TYPE(value));
+        }
+      }
     }
 
     static CNode::Ptr createFromXmlRec(CF::Common::XmlNode & node,
                QMap<boost::shared_ptr<NLink>, CF::Common::CPath> & linkTargets);
 
     void signalsFetched(CNode::Ptr notifier);
+
+    template<typename TYPE>
+    QStringList vectToStringList(const std::vector<boost::any> & vect) const
+    {
+      QStringList returnList;
+      std::vector<boost::any>::const_iterator it = vect.begin();
+
+      for( ; it != vect.end() ; it++)
+        returnList << CF::Common::from_value( boost::any_cast<TYPE>(*it) ).c_str();
+
+      return returnList;
+    }
 
   }; // class CNode
 

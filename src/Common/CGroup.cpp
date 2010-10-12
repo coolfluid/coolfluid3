@@ -4,9 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+/// @todo can be removed when removing "count" option,
+/// as well as the "using namespace boost::assign;" directive.
+#include <boost/assign/std/vector.hpp>
+
 #include "Common/CGroup.hpp"
 #include "Common/ObjectProvider.hpp"
 #include "Common/LibCommon.hpp"
+
+using namespace boost::assign; // for operator+=()
 
 namespace CF {
 namespace Common {
@@ -27,6 +33,27 @@ CGroup::CGroup ( const CName& name ) : Component ( name )
 
 CGroup::~CGroup()
 {
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CGroup::defineConfigProperties ( Common::PropertyList& options )
+{
+  options.add_option< OptionT<CF::Real> >("pi", "Pi in a CGroup", 3.141592);
+
+  Option::Ptr opt = options.add_option< OptionT<std::string> >("count", "From one to ten", std::string("One"));
+
+  opt->restricted_list() += std::string("Two"),
+                            std::string("Three"),
+                            std::string("Four"),
+                            std::string("Five"),
+                            std::string("Six"),
+                            std::string("Seven"),
+                            std::string("Eight"),
+                            std::string("Nine"),
+                            std::string("Ten");
+
+  opt->mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
