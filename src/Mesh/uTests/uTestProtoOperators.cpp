@@ -262,7 +262,7 @@ struct Var : T
   typedef MeshExpr<typename proto::terminal<Var<I, T> >::type> expr_type;
 };
 
-/// Represent const element nodes
+/// Represent const element nodes. This will be replaced with the current list of element nodes
 struct ConstNodes
 {
 };
@@ -426,6 +426,10 @@ void introspect(const Expr& E)
 
 ///////////////////////////////////////////////////
 
+/// Fall-back context for numbered variables, doing nothing
+/// This gets used in case there is a gap in the variable numbers, i.e.
+/// if pressure has index 0 and temperature index 8, and nothing in between
+/// is used.
 template<typename SF, typename VarT>
 struct VarContext
 {
@@ -438,6 +442,7 @@ struct VarContext
   }
 };
 
+/// Evaluate const nodes numbered variables
 template<typename SF>
 struct VarContext<SF, ConstNodes>
   : proto::callable_context< VarContext<SF, ConstNodes> const, proto::null_context const>
@@ -490,8 +495,7 @@ struct StripExpr< Math::Mult<T1, RealVector, T2> >
 ///////////////////////////////////////////////////////////
 // Context
 
-// The calculator_context from the "Hello Calculator" section,
-// implemented from scratch.
+/// Context for evaluating mesh-related expressions, providing an interface to field variables and the shape functions
 template<typename ShapeFunctionT, typename ContextsT>
 struct MeshContext
 {
@@ -634,30 +638,30 @@ struct MeshContext
       return context.real_coords;
     }
   };
+};
+
+struct ResultSize
+{
+  Uint nb_rows;
+  Uint nb_cols;
   
-//   template<typename Expr, typename ChildExpr0>
-//   struct eval<Expr, proto::tag::multiplies, ChildExpr0 >
-//   {
-//     typedef typename boost::remove_const<typename boost::remove_reference<ChildExpr0>::type>::type RealChildT0;
-//     typedef typename boost::remove_const<typename boost::remove_reference<typename proto::result_of::child_c<Expr, 1>::type>::type>::type RealChildT1;
-//     typedef RealVector result_type;
-// 
-//     result_type operator()(Expr& expr, ThisContextT& context)
-//     {
-//       return proto::eval(proto::child_c<0>(expr), context) * proto::eval(proto::child_c<1>(expr), context);
-//       error_printer2<
-//         typename proto::result_of::eval
-//         <
-//           RealChildT0, ThisContextT
-//         >::type
-//       ,
-//         typename proto::result_of::eval
-//         <
-//           RealChildT1, ThisContextT
-//         >::type
-//       >().print();
-//     }
-//   };
+  bool operator==(const ResultSize& other) const
+  {
+    return other.nb_rows == nb_rows && other.nb_cols == nb_cols;
+  }
+};
+
+/// addition doesn't change size
+const ResultSize operator+(const ResultSize& a, const ResultSize& b)
+{
+  cf_assert(a == b);
+  return a;
+}
+
+/// Context used to evaluate the size of expressions
+template<typename ShapeFunctionT>
+struct MeshSizeContext
+{
 };
 
 /// Wrap up a var type in its context
@@ -787,10 +791,12 @@ void for_each_element(CMesh& mesh, const Expr& expr)
 
 struct ProtoOperatorsFixture : public Tools::Testing::ProfiledTestFixture, Tools::Testing::TimedTestFixture
 {
-  static CMesh::Ptr big_grid;
+  static CMesh::Ptr grid_2d;
+  static CMesh::Ptr channel_3d;
 };
 
-CMesh::Ptr ProtoOperatorsFixture::big_grid;
+CMesh::Ptr ProtoOperatorsFixture::grid_2d;
+CMesh::Ptr ProtoOperatorsFixture::channel_3d;
 
 BOOST_AUTO_TEST_SUITE( ProtoOperatorsSuite )
 
@@ -860,19 +866,19 @@ BOOST_AUTO_TEST_CASE( RotatingCylinder )
 
 
 // Must be run  before the next tests
-BOOST_FIXTURE_TEST_CASE( CreateMesh, ProtoOperatorsFixture )
+BOOST_FIXTURE_TEST_CASE( CreateMesh2D, ProtoOperatorsFixture )
 {
-  ProtoOperatorsFixture::big_grid.reset(new CMesh("big_grid"));
-  Tools::MeshGeneration::create_rectangle(*big_grid, 1., 1., 2000, 2000);
+  ProtoOperatorsFixture::grid_2d.reset(new CMesh("grid_2d"));
+  Tools::MeshGeneration::create_rectangle(*grid_2d, 1., 1., 2000, 2000);
 }
 
 
 /// Non-proto calculation, as reference
-BOOST_FIXTURE_TEST_CASE( VolumeDirect, ProtoOperatorsFixture ) // timed and profiled
+BOOST_FIXTURE_TEST_CASE( VolumeDirect2D, ProtoOperatorsFixture ) // timed and profiled
 {
-  const CArray& coords = get_named_component_typed<CArray>(*big_grid, "coordinates");
+  const CArray& coords = get_named_component_typed<CArray>(*grid_2d, "coordinates");
   Real volume = 0.0;
-  BOOST_FOREACH(const CElements& region, recursive_range_typed<CElements>(*big_grid))
+  BOOST_FOREACH(const CElements& region, recursive_range_typed<CElements>(*grid_2d))
   {
     const CTable::ArrayT& ctbl = region.connectivity_table().array();
     const Uint element_count = ctbl.size();
@@ -889,11 +895,11 @@ BOOST_FIXTURE_TEST_CASE( VolumeDirect, ProtoOperatorsFixture ) // timed and prof
 }
 
 // Compute volume
-BOOST_FIXTURE_TEST_CASE( Volume, ProtoOperatorsFixture )
+BOOST_FIXTURE_TEST_CASE( Volume2D, ProtoOperatorsFixture )
 {
   Real vol = 0.;
   MeshTerm<0, ConstNodes> nodes;
-  for_each_element<SF::VolumeTypes>(*big_grid, vol += volume(nodes));
+  for_each_element<SF::VolumeTypes>(*grid_2d, vol += volume(nodes));
   BOOST_CHECK_CLOSE(vol, 1., 0.0001);
 }
 
@@ -902,16 +908,16 @@ BOOST_FIXTURE_TEST_CASE( VolumeVector10, ProtoOperatorsFixture )
 {
   Real vol = 0.;
   MeshTerm<9, ConstNodes> nodes; // setting this to 9 increases the overhead
-  for_each_element<SF::VolumeTypes>(*big_grid, vol += volume(nodes));
+  for_each_element<SF::VolumeTypes>(*grid_2d, vol += volume(nodes));
   BOOST_CHECK_CLOSE(vol, 1., 0.0001);
 }
 
 // Compute volume through integration
-BOOST_FIXTURE_TEST_CASE( Integral, ProtoOperatorsFixture )
+BOOST_FIXTURE_TEST_CASE( Integral2D, ProtoOperatorsFixture )
 {
   Real vol = 0.;
   MeshTerm<0, ConstNodes> nodes;
-  for_each_element<SF::VolumeTypes>(*big_grid, vol += integral<1>(jacobian_determinant(_mapped_coord, nodes)));
+  for_each_element<SF::VolumeTypes>(*grid_2d, vol += integral<1>(jacobian_determinant(_mapped_coord, nodes)));
   BOOST_CHECK_CLOSE(vol, 1., 0.0001);
 }
 
@@ -920,8 +926,52 @@ BOOST_FIXTURE_TEST_CASE( IntegralOrder4, ProtoOperatorsFixture )
 {
   Real vol = 0.;
   MeshTerm<0, ConstNodes> nodes;
-  for_each_element<HigherIntegrationElements>(*big_grid, vol += integral<4>(jacobian_determinant(_mapped_coord, nodes)));
+  for_each_element<HigherIntegrationElements>(*grid_2d, vol += integral<4>(jacobian_determinant(_mapped_coord, nodes)));
   BOOST_CHECK_CLOSE(vol, 1., 0.0001);
+}
+
+BOOST_FIXTURE_TEST_CASE( CreateMesh3D, ProtoOperatorsFixture )
+{
+  channel_3d.reset(new CMesh("channel_3d"));
+  BlockMesh::BlockData block_data;
+  Tools::MeshGeneration::create_channel_3d(block_data, 10., 0.5, 5., 160, 80, 120, 0.1);
+  std::vector<Uint> nodes_dist;
+  BlockMesh::build_mesh(block_data, *channel_3d, nodes_dist);
+}
+
+// Compute volume
+BOOST_FIXTURE_TEST_CASE( Volume3D, ProtoOperatorsFixture )
+{
+  Real vol = 0.;
+  MeshTerm<0, ConstNodes> nodes;
+  for_each_element<SF::VolumeTypes>(*channel_3d, vol += volume(nodes));
+  BOOST_CHECK_CLOSE(vol, 50., 1e-6);
+}
+
+// Compute volume through integration
+BOOST_FIXTURE_TEST_CASE( Integral3D, ProtoOperatorsFixture )
+{
+  Real vol = 0.;
+  MeshTerm<0, ConstNodes> nodes;
+  for_each_element<SF::VolumeTypes>(*channel_3d, vol += integral<1>(jacobian_determinant(_mapped_coord, nodes)));
+  BOOST_CHECK_CLOSE(vol, 50., 1e-6);
+}
+
+/// Non-proto calculation, as reference
+BOOST_FIXTURE_TEST_CASE( VolumeDirect3D, ProtoOperatorsFixture ) // timed and profiled
+{
+  const CElements& elems = recursive_get_named_component_typed<CElements>(*channel_3d, "elements_Hexa3DLagrangeP1");
+  const CArray& coords = elems.coordinates();
+  const CTable::ArrayT conn = elems.connectivity_table().array();
+  const Uint nb_elems = conn.size();
+  Real volume = 0.0;
+  ElementNodeValues<8, 3> nodes;
+  for(Uint elem = 0; elem != nb_elems; ++elem)
+  {
+    nodes.fill(coords, conn[elem]);
+    volume += SF::Hexa3DLagrangeP1::volume(nodes);
+  }
+  BOOST_CHECK_CLOSE(volume, 50., 1e-6);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
