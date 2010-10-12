@@ -4,10 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/assign/std/vector.hpp>
 #include <boost/foreach.hpp>
 
 #include "Common/Option.hpp"
 
+using namespace boost::assign;
 using namespace CF::Common;
 
 Option::Option(const std::string & name, const std::string & desc, boost::any def)
@@ -16,6 +18,8 @@ Option::Option(const std::string & name, const std::string & desc, boost::any de
     m_name(name),
     m_description(desc)
 {
+  m_restricted_list += def;
+
   m_is_option = true;
 }
 
@@ -49,6 +53,10 @@ void Option::mark_basic()
 
 void Option::change_value ( const boost::any& value )
 {
+//  cf_assert(/*m_restricted_list.size() == 1 ||*/
+//            std::find(m_restricted_list.begin(), m_restricted_list.end(), value)
+//            != m_restricted_list.end());
+
   Property::change_value(value);
 
   // call all process functors

@@ -19,6 +19,27 @@ namespace Common {
 
   //////////////////////////////////////////////////////////////////////////
 
+  /// @brief Adds fonctionnalities to @c Property class.
+
+  /// An option is a property of which user can modify the value. Additional
+  /// features an option provides compared to a property:
+  /// @li a description string
+  /// @li basic/advanced modes
+  /// @li change value using a XML node
+  /// @li restricted list of values
+  /// @li triggers management
+  /// By default, an option is advanced. It can be marked as basic by calling
+  /// @c #mark_basic() method. @n
+  /// Developer can define a restricted list of values, meaning that only those
+  /// values are the valid. The list is obtained with @c #restricted_list() method.
+  /// Values can be added using Boost.Assign library. Note that this list always
+  /// contains at least one value: the default one. @n
+  /// Triggers are functions called whenever the value is modified. They can be
+  /// registered with @c #attach_trigger() method. Triggers take no parameter
+  /// and return nothing.
+
+  /// @author Tiago Quintino
+  /// @author Quentin Gasper
   class Common_API Option :
       public Property,
       public TaggedObject
@@ -81,6 +102,19 @@ namespace Common {
     /// change the value of this option
     void change_value ( const boost::any& value);
 
+    /// @brief Gives a reference to the restricted list.
+    /// @return Returns a reference to the restricted list.
+    std::vector<boost::any> & restricted_list() { return m_restricted_list; }
+
+    /// @brief Gives a const reference to the restricted list.
+    /// @return Returns a const reference to the restricted list.
+    const std::vector<boost::any> & restricted_list() const { return m_restricted_list; }
+
+    /// @brief Checks whether the option has a list of restricted values.
+    /// @return Returns @c true if the option a such list; otherwise, returns
+    /// @c false.
+    bool has_restricted_list() const { return m_restricted_list.size() > 1; }
+
   protected: // data
     /// storage of the default value of the option
     const boost::any m_default;
@@ -92,6 +126,8 @@ namespace Common {
     TriggerStorage_t m_triggers;
     /// parameters that also get updated when option is changed
     std::vector< void* > m_linked_params;
+
+    std::vector<boost::any> m_restricted_list;
 
   protected: // function
 
