@@ -1,5 +1,6 @@
+#include <iostream>
 #include <typeinfo>
- 
+
 const // It is a const object...
 class nullptr_t 
 {
@@ -39,6 +40,9 @@ int main(void)
   func (nullptr);             // Calls func(double *)
   func (0);                   // Calls func(int)
   void (C::*pmf2)() = 0;      // ok
+
+  std::cout << pmf2 << std::endl;
+
 //  void (C::*pmf)() = nullptr; // ok
   nullptr_t n1, n2;
   n1 = n2;
@@ -49,7 +53,8 @@ int main(void)
   
   const int n = 0;
 //  if (nullptr == n) {}        // Should not compile; but only Comeau shows an error.
-  
+  std::cout << n << std::endl;
+
   //int p = 0;
   //if (nullptr == p) {}      // not ok
   //g (nullptr);              // Can't deduce T
@@ -64,8 +69,8 @@ int main(void)
   h( nullptr );          // deduces T = nullptr_t
   h( (float*) nullptr ); // deduces T = float*
  
-  sizeof( nullptr );     // ok
-  typeid( nullptr );     // ok
+  std::cout << sizeof( nullptr ) << std::endl;            // ok
+  std::cout << typeid( nullptr_t ).name() << std::endl;     // ok
 
   try{
       throw nullptr;         // ok
