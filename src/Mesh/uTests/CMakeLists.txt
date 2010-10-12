@@ -186,7 +186,10 @@ coolfluid_add_unittest( uTestProtoOperators )
 list( APPEND uTestVectorBenchmark_cflibs SF MeshGeneration BlockMesh )
 list( APPEND uTestVectorBenchmark_files
   uTestVectorBenchmark.cpp )
-set( uTestVectorBenchmark_profile ON )
+if(CF_HAVE_EIGEN)
+    list( APPEND uTestVectorBenchmark_includedirs ${EIGEN_INCLUDE_DIR} )
+endif()
+  set( uTestVectorBenchmark_profile ON )
 coolfluid_add_unittest( uTestVectorBenchmark )
 
 ################################################################################
