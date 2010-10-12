@@ -32,13 +32,9 @@ else()
     set(CF_HAVE_RT 0 CACHE BOOL "Skipped RT library")
 endif()
 
-  mark_as_advanced(
-    RT_LIBRARY
-    CF_HAVE_RT
-  )
+mark_as_advanced( RT_LIBRARY CF_HAVE_RT )
 
-  coolfluid_log( "CF_HAVE_RT: [${CF_HAVE_RT}]" )
-  if(CF_HAVE_RT)
-#    coolfluid_log( "  RT_INCLUDE_DIR:  [${RT_INCLUDE_DIR}]" )
+coolfluid_log( "CF_HAVE_RT: [${CF_HAVE_RT}]" )
+if(CF_HAVE_RT)
     coolfluid_log( "  RT_LIBRARY:      [${RT_LIBRARY}]" )
-  endif(CF_HAVE_RT)
+endif()
