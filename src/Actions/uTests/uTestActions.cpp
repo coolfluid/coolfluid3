@@ -9,8 +9,12 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Actions/LibActions.hpp"
 #include "Common/LibCommon.hpp"
+
+#include "Actions/LibActions.hpp"
+#include "Actions/CForAllElementsT.hpp"
+#include "Actions/CElementOperation.hpp"
+#include "Actions/CSchemeLDA.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -24,7 +28,17 @@ BOOST_AUTO_TEST_SUITE( TestActionsSuite )
 
 BOOST_AUTO_TEST_CASE( ConstructorTest )
 {
+  CElementOperation* elem_op = new CSchemeLDA("LDA");
+  CForAllElementsT<CSchemeLDA> elem_loop ("loop_LDA");
 }
+
+// ////////////////////////////////////////////////////////////////////////////////
+// 
+// BOOST_AUTO_TEST_CASE( ConstructorTest )
+// {
+//   CElementOperation* elem_op = new CSchemeLDA("LDA");
+//   CForAllElementsT<CSchemeLDA> elem_loop ("loop_LDA");
+// }
 
 ////////////////////////////////////////////////////////////////////////////////
 

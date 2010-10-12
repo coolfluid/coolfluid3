@@ -23,7 +23,8 @@ Common::ObjectProvider < CSchemeLDA, CAction, LibActions, NB_ARGS_1 > CSchemeLDA
   
 void CSchemeLDA::defineConfigProperties( Common::PropertyList& options )
 {
-  options.add_option< OptionT<URI> > ("Field","Field URI to output", URI("cpath://"))->mark_basic();
+  options.add_option< OptionT<URI> > ("SolutionField","Solution Field for calculation", URI("cpath://"))->mark_basic();
+  options.add_option< OptionT<URI> > ("ResidualField","Residual Field updated after calculation", URI("cpath://"))->mark_basic();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

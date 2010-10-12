@@ -50,8 +50,8 @@ public: // functions
   /// Contructor
   /// @param name of the component
   CForAllElementsT ( const CName& name ) :
-    COperation(name),
-    m_operation(new ActionT("action"), Deleter<ActionT>())
+    CAction(name),
+    m_action(new ActionT("action"), Deleter<ActionT>())
   {
     BUILD_COMPONENT;
     m_property_list["Regions"].as_option().attach_trigger ( boost::bind ( &CForAllElementsT::trigger_Regions,   this ) );
@@ -97,13 +97,13 @@ public: // functions
     // If the typename of the operation equals "COperation", then the virtual version
     // must have been called. In this case the operation must have been created as a
     // child component of "this_class", and should be set accordingly.
-    if (m_action->type_name() == "CAction")
+    if (m_action->type_name() == "CElementOperation")
     {
       BOOST_FOREACH(CRegion::Ptr& region, m_loop_regions)
         BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*region))
       {
         // Setup all child operations
-        BOOST_FOREACH(CAction& operation, range_typed<CAction>(*this))
+        BOOST_FOREACH(ActionT& operation, range_typed<ActionT>(*this))
         {
           operation.set_loophelper( elements );
           const Uint elem_count = elements.elements_count();
@@ -135,7 +135,7 @@ private:
   public: // functions
 
     /// Constructor
-    Looper(CForAllElementsT& this_class, CRegion& region_in ) : region(region_in) , op(*this_class.m_operation) { }
+    Looper(CForAllElementsT& this_class, CRegion& region_in ) : region(region_in) , op(*this_class.m_action) { }
 
     /// Operator
     template < typename SFType >
@@ -173,7 +173,7 @@ private: // helper functions
 private:
 
   /// Operation to perform
-  typename ActionT::Ptr m_operation;
+  typename ActionT::Ptr m_action;
 
   /// Regions to loop over
   std::vector<CRegion::Ptr> m_loop_regions;

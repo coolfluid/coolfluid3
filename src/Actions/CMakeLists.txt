@@ -16,7 +16,7 @@ list( APPEND Actions_files
 
 set( Actions_kernellib TRUE )
 
-list( APPEND Actions_libs Mesh )
+list( APPEND Actions_cflibs Mesh )
 
 coolfluid_add_library(Actions)
 

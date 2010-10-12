@@ -1,5 +1,5 @@
 
-list( APPEND uTestActions_cflibs Actions )
+list( APPEND uTestActions_cflibs Actions SF )
 list( APPEND uTestActions_files
   uTestActions.cpp )
 
