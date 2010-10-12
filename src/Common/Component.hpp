@@ -637,8 +637,6 @@ void Component::add_prop_to_xml(XmlParams & params, const std::string & name,
     bool basic = opt.has_tag("basic");
     std::string desc = opt.description();
 
-    CFinfo << opt.name() << " has " << (opt.has_restricted_list() ? "" : "no ") << "restricted values." << CFendl;
-
     if(opt.has_restricted_list())
       params.add_option(name, value, desc, basic, opt.restricted_list());
     else
