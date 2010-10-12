@@ -20,6 +20,7 @@ find_package( Qt4 4.6.0 COMPONENTS QtCore QtGui QtXml QtNetwork QtTest )
 # using our find macros
 
 coolfluid_log( "" )
+find_package(CMath)           # find the math library
 find_package(BlasLapack)      # search for Blas Lapack support
 find_package(Metis)           # serial domain decomposition
 find_package(Parmetis)        # parallel domain decomposition
@@ -40,18 +41,18 @@ find_package(ZLIB)          # file compression support
 
 coolfluid_log( "ZLIB_FOUND: [${ZLIB_FOUND}]" )
 if( ZLIB_FOUND )
-  coolfluid_log( "  ZLIB_INCLUDE_DIRS: [${ZLIB_INCLUDE_DIRS}]" )
-  coolfluid_log( "  ZLIB_LIBRARIES:    [${ZLIB_LIBRARIES}]" )
+  coolfluid_log_file( "  ZLIB_INCLUDE_DIRS: [${ZLIB_INCLUDE_DIRS}]" )
+  coolfluid_log_file( "  ZLIB_LIBRARIES:    [${ZLIB_LIBRARIES}]" )
 endif()
 
 find_package(BZip2)        # file compression support
 
 coolfluid_log( "BZIP2_FOUND: [${BZIP2_FOUND}]" )
 if( BZIP2_FOUND )
-  coolfluid_log( "  BZIP2_INCLUDE_DIR:  [${BZIP2_INCLUDE_DIR}]" )
-  coolfluid_log( "  BZIP2_LIBRARIES:    [${BZIP2_LIBRARIES}]" )
-  coolfluid_log( "  BZIP2_DEFINITIONS:  [${BZIP2_DEFINITIONS}]" )
-  coolfluid_log( "  BZIP2_NEED_PREFIX:  [${BZIP2_NEED_PREFIX}]" )
+  coolfluid_log_file( "  BZIP2_INCLUDE_DIR:  [${BZIP2_INCLUDE_DIR}]" )
+  coolfluid_log_file( "  BZIP2_LIBRARIES:    [${BZIP2_LIBRARIES}]" )
+  coolfluid_log_file( "  BZIP2_DEFINITIONS:  [${BZIP2_DEFINITIONS}]" )
+  coolfluid_log_file( "  BZIP2_NEED_PREFIX:  [${BZIP2_NEED_PREFIX}]" )
 endif()
 
 include( CheckSvnVersion ) # check for subversion support
