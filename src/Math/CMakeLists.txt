@@ -23,8 +23,6 @@ MatrixSliceT.hpp
 MathChecks.hpp
 MathExceptions.hpp
 MathExceptions.cpp
-FunctionParser.hpp
-FunctionParser.cpp
 MatrixT.hpp
 VectorSliceT.hpp
 MatrixIntersect.cpp

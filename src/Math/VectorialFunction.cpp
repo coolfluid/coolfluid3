@@ -5,9 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/Log.hpp"
-#include "VectorialFunction.hpp"
-#include "Math/FunctionParser.hpp"
-#include <math.h>
+#include "Math/VectorialFunction.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -107,15 +105,14 @@ void VectorialFunction::parse()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void VectorialFunction::evaluate(const RealVector& varValue,
-         RealVector& value) const
+void VectorialFunction::evaluate(const RealVector& varValue, RealVector& value) const
 {
   cf_assert(m_isParsed);
   cf_assert(varValue.size() == m_nbVars);
 
   // evaluate and store the functions line by line in the vector
   for(Uint i = 0; i < m_parsers.size(); i++) {
-    value[i] = m_parsers[i]->Eval(varValue);
+    value[i] = m_parsers[i]->Eval(varValue.getRawPtr());
   }
 }
 
@@ -128,7 +125,7 @@ RealVector& VectorialFunction::operator()(const RealVector& varValue)
 
   // evaluate and store the functions line by line in the vector
   for(Uint i = 0; i < m_parsers.size(); i++) {
-    m_result[i] = m_parsers[i]->Eval(varValue);
+    m_result[i] = m_parsers[i]->Eval(varValue.getRawPtr());
   }
 
   return m_result;
