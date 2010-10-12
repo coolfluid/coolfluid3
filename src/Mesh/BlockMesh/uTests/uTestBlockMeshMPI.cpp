@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE( PartitionBlocks )
       subdivisions[i] *= ((i == 0 && scale) ? factor*nb_procs : factor);
   }
   
-  partition_blocks(block_data, PEInterface::instance().size(), CF::XX, partitioned_blocks);
+  partition_blocks(block_data, PEInterface::instance().size(), XX, partitioned_blocks);
 }
 
 BOOST_AUTO_TEST_CASE( BuildMesh )
