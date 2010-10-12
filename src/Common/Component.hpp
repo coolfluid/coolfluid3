@@ -629,16 +629,21 @@ void Component::add_prop_to_xml(XmlParams & params, const std::string & name,
 {
   TYPE value = prop->value<TYPE>();
 
-  if(prop->is_option())
+  if(!prop->is_option())
+    params.add_property(name, value);
+  else
   {
     Option & opt = prop->as_option();
     bool basic = opt.has_tag("basic");
     std::string desc = opt.description();
 
-    params.add_option(name, value, desc, basic);
+    CFinfo << opt.name() << " has " << (opt.has_restricted_list() ? "" : "no ") << "restricted values." << CFendl;
+
+    if(opt.has_restricted_list())
+      params.add_option(name, value, desc, basic, opt.restricted_list());
+    else
+      params.add_option(name, value, desc, basic);
   }
-  else
-    params.add_property(name, value);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
