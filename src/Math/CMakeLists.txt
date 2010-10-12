@@ -41,7 +41,7 @@ VectorialFunction.hpp
 VectorialFunction.cpp
 )
 
-list( APPEND Math_cflibs Common )
+list( APPEND Math_cflibs fparser Common )
 
 set( Math_kernellib TRUE )
 
