@@ -1,7 +1,7 @@
 add_definitions( -DNDEBUG )
-list( APPEND boost_multiarray_libs ${Boost_LIBRARIES} )
-list( APPEND boost_multiarray_files multiarray.cpp )
+list( APPEND boost-multiarray_libs ${Boost_LIBRARIES} )
+list( APPEND boost-multiarray_files multiarray.cpp )
 
-coolfluid_add_application( boost_multiarray )
+coolfluid_add_application( boost-multiarray )
 
 

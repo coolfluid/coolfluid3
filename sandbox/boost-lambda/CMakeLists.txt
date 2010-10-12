@@ -1,6 +1,6 @@
-list( APPEND boost_lambda_libs ${Boost_LIBRARIES} )
-list( APPEND boost_lambda_files lambda.cpp )
+list( APPEND boost-lambda_libs ${Boost_LIBRARIES} )
+list( APPEND boost-lambda_files lambda.cpp )
 
-coolfluid_add_application( boost_lambda )
+coolfluid_add_application( boost-lambda )
 
 
