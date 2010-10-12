@@ -12,6 +12,8 @@
 #include <QMap>
 #include <QObject>
 #include <QStringList>
+#include <QDebug>
+
 
 #include "Common/Component.hpp"
 #include "Common/OptionT.hpp"
@@ -298,7 +300,7 @@ namespace ClientCore {
       option = m_property_list.add_option< CF::Common::OptionT<TYPE> >(name, descr, value);
 
       if(next != nullptr &&
-         std::strcmp(next->name(), CF::Common::XmlTag<TYPE>::array()))
+         std::strcmp(next->name(), CF::Common::XmlTag<TYPE>::array()) == 0)
       {
         CF::Common::XmlNode * elem_node = next->first_node("e");
 
