@@ -50,13 +50,13 @@ void CSetFieldValues::execute()
   BOOST_FOREACH(CArray& field_data, recursive_filtered_range_typed<CArray>(*m_field,IsComponentTag("field_data")))
   {
 
-    CArray& coordinates = *field_data.get_child("coordinates")->get_type<CArray>();
+    // unused // CArray& coordinates = *field_data.get_child("coordinates")->get_type<CArray>();
     
     // setting values of fields here
     for ( Uint n = 0; n < field_data.size(); ++n)
     {
-      const CF::Real x = coordinates[n][XX];
-      const CF::Real y = coordinates[n][YY];
+      // unused // const CF::Real x = coordinates[n][XX];
+      // unused // const CF::Real y = coordinates[n][YY];
 
       for (Uint i = 0; i < field_data.row_size(); ++i)
       {
