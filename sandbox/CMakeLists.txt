@@ -17,10 +17,6 @@ add_subdirectory( boost-multiarray )
 add_subdirectory( boost-ublas )
 
 ###############################################################################
-### test for using boost::progress_display with LogStream
-add_subdirectory( boost-progress-logstream )
-
-###############################################################################
 ### test for CGAL functions
 add_subdirectory( cgal )
 
