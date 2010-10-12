@@ -748,7 +748,7 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, CPath> & lin
 
   char * typeName = typeAttr->value();
   char * nodeName = nameAttr->value();
-  XmlNode * child = node.first_node("node");
+  XmlNode * child = node.first_node();
 
   cf_assert(typeName != nullptr);
   cf_assert(nodeName != nullptr);
