@@ -49,8 +49,8 @@ void CSetFieldValues::trigger_Field()
 
 void CSetFieldValues::execute()
 {
-  CF_DEBUG_POINT;
-  CFLogVar(m_field->full_path().string());
+//  CF_DEBUG_POINT;
+//  CFLogVar(m_field->full_path().string());
   
   BOOST_FOREACH(CFieldElements& elements, recursive_range_typed<CFieldElements>(*m_field))
   {

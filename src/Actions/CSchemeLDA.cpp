@@ -8,6 +8,7 @@
 #include "Common/OptionT.hpp"
 
 #include "Math/RealMatrix.hpp"
+#include "Math/MathChecks.hpp"
 
 #include "Mesh/SF/Triag2DLagrangeP1.hpp"
 #include "Actions/CSchemeLDA.hpp"
@@ -79,16 +80,26 @@ void CSchemeLDA::trigger_InverseUpdateCoeff()
 
 void CSchemeLDA::execute()
 {
+  static const Uint fix = 0;
+
   // inside element with index m_elm_idx
   RealMatrix mapped_grad(2,3);
   RealVector shapefunc(3);
   RealVector grad_solution(2);
   RealVector grad_x(2);
   RealVector grad_y(2);
-  Real denominator;
+  CF::Real denominator;
   RealVector nominator(3);
   RealVector phi(3);
+
+  phi = 0.;
   
+  if (m_elm_idx == fix)
+    CFinfo << "elem [" << m_elm_idx << "]" << CFendl;
+  if (m_elm_idx == fix)
+    BOOST_FOREACH(const Uint node, data->connectivity_table[m_elm_idx])
+      CFinfo << "n(" << node << ") ["  << data->coordinates[node][XX] << ":" << data->coordinates[node][YY] << "]" << CFendl;
+
   for (Uint q=0; q<nb_q; ++q)
   {
     Triag2DLagrangeP1::mapped_gradient(mapped_coords[q],mapped_grad);
@@ -119,9 +130,13 @@ void CSchemeLDA::execute()
       grad_x[YY] += mapped_grad(YY,node_counter) * data->coordinates[node][XX];
       grad_y[XX] += mapped_grad(XX,node_counter) * data->coordinates[node][YY];
       grad_y[YY] += mapped_grad(YY,node_counter) * data->coordinates[node][YY];
+
       ++node_counter;
+
     }
+
     Real jacobian = grad_x[XX]*grad_y[YY]-grad_x[YY]*grad_y[XX];
+
     for (Uint i=0; i<3; ++i)
     {
       phi[i] += nominator[i]/denominator * (y*grad_solution[XX] - x*grad_solution[YY]) * w * jacobian;
@@ -132,9 +147,10 @@ void CSchemeLDA::execute()
   Uint node_counter = 0;
   BOOST_FOREACH(const Uint node, data->connectivity_table[m_elm_idx])
   {
+    if (m_elm_idx == fix)
+      CFinfo << "phi(" << node_counter << ") ["  << phi[node_counter] << "]" << CFendl;
     data->residual[node][0] += phi[node_counter];
     ++node_counter;
-
   }  
   
   
@@ -159,7 +175,10 @@ void CSchemeLDA::execute()
   nodal_normals(YY,0) = data->coordinates[nodes[2]][XX] - data->coordinates[nodes[1]][XX];
   nodal_normals(YY,1) = data->coordinates[nodes[0]][XX] - data->coordinates[nodes[2]][XX];
   nodal_normals(YY,2) = data->coordinates[nodes[1]][XX] - data->coordinates[nodes[0]][XX];
-  
+
+  if (m_elm_idx == fix)
+    CFinfo << "nnormals(" << nodal_normals << "]" << CFendl;
+
   Real sumK=0;
   for (Uint i=0; i<3; ++i)
   {
@@ -170,6 +189,19 @@ void CSchemeLDA::execute()
     // Real kplus = 0.5*std::max(0.0,centroid[YY]*nodal_normals(XX,i)-centroid[XX]*nodal_normals(YY,i));
     data->inverse_updatecoeff[nodes[i]][0] += sumK; 
   } 
+
+  if (m_elm_idx == fix)
+    CFinfo << "nnormals(" << nodal_normals << "]" << CFendl;
+
+
+//  if ( Math::MathChecks::isZero( data->coordinates[nodes[0]][YY] )
+//    || Math::MathChecks::isZero( data->coordinates[nodes[1]][YY] )
+//    || Math::MathChecks::isZero( data->coordinates[nodes[2]][YY] ) )
+//  {
+//    CFinfo << "elem [" << m_elm_idx << "]" << CFendl;
+//  }
+
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

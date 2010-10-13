@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE( Templated_Looping_Test )
   CField& inv_update_coeff = mesh->create_field("inverse_updatecoeff",1,CField::NODE_BASED);
   std::vector<std::string> lambda_vars(2);
   // CField& lambda = mesh->create_field("lambda",)
-  CFinfo << mesh->tree() << CFendl;
+//  CFinfo << mesh->tree() << CFendl;
   
   // Set the solution field to an initial state
   CSetFieldValues::Ptr set_field = root->create_component_type<CSetFieldValues>("set_field");
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE( Templated_Looping_Test )
   take_step->configure_property("ResidualField",URI("cpath://Root/mesh/residual"));
   take_step->configure_property("InverseUpdateCoeff",URI("cpath://Root/mesh/inverse_updatecoeff"));
   
-  for ( Uint iter = 0; iter < 5;  ++iter)
+  for ( Uint iter = 0; iter < 1;  ++iter)
   {
     // update coefficient and residual to zero
     // Set the field data of the source field
