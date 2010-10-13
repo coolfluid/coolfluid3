@@ -126,7 +126,7 @@ private:
 
 /// The actual looping function. Executes expr for each element that matches a shape function in ETypesT.
 template<typename ETypesT, typename Expr>
-void for_each_element(Mesh::CMesh& mesh, const Expr& expr)
+void for_each_element(Common::Component& root, const Expr& expr)
 {
   // Number of variables
   typedef typename boost::result_of<ExprVarArity(Expr)>::type nb_vars;
@@ -150,7 +150,7 @@ void for_each_element(Mesh::CMesh& mesh, const Expr& expr)
   boost::proto::eval(expr, ctx);
   
   // Evaluate the expression
-  BOOST_FOREACH(Mesh::CElements& elements, Mesh::recursive_range_typed<Mesh::CElements>(mesh))
+  BOOST_FOREACH(Mesh::CElements& elements, Mesh::recursive_range_typed<Mesh::CElements>(root))
   {
     boost::mpl::for_each<ETypesT>(ElementLooper<Expr, FusionVarsT, nb_vars::value>(expr, vars, elements));
   }

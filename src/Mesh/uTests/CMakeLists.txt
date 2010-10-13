@@ -141,15 +141,6 @@ coolfluid_add_unittest( uTestMatrixInterpolation )
 
 ################################################################################
 
-list( APPEND uTestIntegration_cflibs Neu Testing MeshGeneration SF )
-list( APPEND uTestIntegration_files
-  uTestIntegration.cpp )
-
-set( uTestIntegration_profile ON )
-coolfluid_add_unittest( uTestIntegration )
-
-################################################################################
-
 list( APPEND uTestNodes_cflibs Neu SF )
 list( APPEND uTestNodes_files
   uTestNodes.cpp )

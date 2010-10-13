@@ -86,16 +86,18 @@ struct LagrangeSFLine3DLagrangeP1Fixture
   const RealVector mapped_coords;
   const NodesT nodes;
 
+  template<typename ShapeF>
   struct ConstFunctor
   {
-    ConstFunctor(const NodesT& node_list) : m_nodes(node_list) {}
-    template<typename GeoShapeF, typename SolShapeF>
-    Real valTimesDetJacobian(const RealVector& mappedCoords)
+    ConstFunctor(const NodesT& node_list) : mapped_coords(3), m_nodes(node_list) {}
+
+    Real operator()() const
     {
-      RealMatrix jac(GeoShapeF::dimensionality, GeoShapeF::dimension);
-      GeoShapeF::jacobian(mappedCoords, m_nodes, jac);
+      RealMatrix jac(ShapeF::dimensionality, ShapeF::dimension);
+      ShapeF::jacobian(mapped_coords, m_nodes, jac);
       return sqrt(jac[XX]*jac[XX] + jac[YY]*jac[YY] + jac[ZZ]*jac[ZZ]);
     }
+    RealVector mapped_coords;
   private:
     const NodesT& m_nodes;
   };
@@ -213,7 +215,7 @@ BOOST_AUTO_TEST_CASE( Jacobian )
 
 BOOST_AUTO_TEST_CASE( IntegrateConst )
 {
-  ConstFunctor ftor(nodes);
+  ConstFunctor<Line3DLagrangeP1> ftor(nodes);
   const Real len = Line3DLagrangeP1::length(nodes);
 
   Real result1 = 0.0;
@@ -223,12 +225,12 @@ BOOST_AUTO_TEST_CASE( IntegrateConst )
   Real result16 = 0.0;
   Real result32 = 0.0;
 
-  Gauss<Line3DLagrangeP1>::integrateElement(ftor, result1);
-  Gauss<Line3DLagrangeP1, Line3DLagrangeP1, 2>::integrateElement(ftor, result2);
-  Gauss<Line3DLagrangeP1, Line3DLagrangeP1, 4>::integrateElement(ftor, result4);
-  Gauss<Line3DLagrangeP1, Line3DLagrangeP1, 8>::integrateElement(ftor, result8);
-  Gauss<Line3DLagrangeP1, Line3DLagrangeP1, 16>::integrateElement(ftor, result16);
-  Gauss<Line3DLagrangeP1, Line3DLagrangeP1, 32>::integrateElement(ftor, result32);
+  gauss_integrate<1, GeoShape::LINE>(ftor, ftor.mapped_coords, result1);
+  gauss_integrate<2, GeoShape::LINE>(ftor, ftor.mapped_coords, result2);
+  gauss_integrate<4, GeoShape::LINE>(ftor, ftor.mapped_coords, result4);
+  gauss_integrate<8, GeoShape::LINE>(ftor, ftor.mapped_coords, result8);
+  gauss_integrate<16, GeoShape::LINE>(ftor, ftor.mapped_coords, result16);
+  gauss_integrate<32, GeoShape::LINE>(ftor, ftor.mapped_coords, result32);
 
   BOOST_CHECK_CLOSE(result1, len, 0.00001);
   BOOST_CHECK_CLOSE(result2, len, 0.00001);

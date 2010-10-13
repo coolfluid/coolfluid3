@@ -46,14 +46,15 @@ struct LagrangeSFQuad2DLagrangeP1Fixture
   const CF::RealVector mapped_coords;
   const NodesT nodes;
 
-  struct const_functor
+  struct ConstFunctor
   {
-    const_functor(const NodesT& node_list) : m_nodes(node_list) {}
-    template<typename GeoShapeF, typename SolShapeF>
-    CF::Real valTimesDetJacobian(const CF::RealVector& mappedCoords)
+    ConstFunctor(const NodesT& node_list) : mapped_coords(3), m_nodes(node_list) {}
+
+    Real operator()() const
     {
-      return GeoShapeF::jacobian_determinant(mappedCoords, m_nodes);
+      return Quad2DLagrangeP1::jacobian_determinant(mapped_coords, m_nodes);
     }
+    RealVector mapped_coords;
   private:
     const NodesT& m_nodes;
   };
@@ -258,7 +259,7 @@ BOOST_AUTO_TEST_CASE( computeJacobianAdjoint )
 BOOST_AUTO_TEST_CASE( integrateConst )
 {
   // Shapefunction determinant should be double the volume for triangles
-  const_functor ftor(nodes);
+  ConstFunctor ftor(nodes);
   const Real vol = Quad2DLagrangeP1::volume(nodes);
 
   CF::Real result1 = 0.0;
@@ -268,19 +269,19 @@ BOOST_AUTO_TEST_CASE( integrateConst )
   CF::Real result16 = 0.0;
   CF::Real result32 = 0.0;
 
-  Gauss<Quad2DLagrangeP1>::integrateElement(ftor, result1);
-  Gauss<Quad2DLagrangeP1, Quad2DLagrangeP1, 2>::integrateElement(ftor, result2);
-  Gauss<Quad2DLagrangeP1, Quad2DLagrangeP1, 4>::integrateElement(ftor, result4);
-  Gauss<Quad2DLagrangeP1, Quad2DLagrangeP1, 8>::integrateElement(ftor, result8);
-  Gauss<Quad2DLagrangeP1, Quad2DLagrangeP1, 16>::integrateElement(ftor, result16);
-  Gauss<Quad2DLagrangeP1, Quad2DLagrangeP1, 32>::integrateElement(ftor, result32);
+  gauss_integrate<1, GeoShape::QUAD>(ftor, ftor.mapped_coords, result1);
+  gauss_integrate<2, GeoShape::QUAD>(ftor, ftor.mapped_coords, result2);
+  gauss_integrate<4, GeoShape::QUAD>(ftor, ftor.mapped_coords, result4);
+  gauss_integrate<8, GeoShape::QUAD>(ftor, ftor.mapped_coords, result8);
+  gauss_integrate<16, GeoShape::QUAD>(ftor, ftor.mapped_coords, result16);
+  gauss_integrate<32, GeoShape::QUAD>(ftor, ftor.mapped_coords, result32);
 
   BOOST_CHECK_LT(boost::accumulators::max(test(result1, vol).ulps), 1);
-  BOOST_CHECK_LT(boost::accumulators::max(test(result2, vol).ulps), 5);
-  BOOST_CHECK_LT(boost::accumulators::max(test(result4, vol).ulps), 5);
-  BOOST_CHECK_LT(boost::accumulators::max(test(result8, vol).ulps), 5);
-  BOOST_CHECK_LT(boost::accumulators::max(test(result16, vol).ulps), 5);
-  BOOST_CHECK_LT(boost::accumulators::max(test(result32, vol).ulps), 5);
+  BOOST_CHECK_LT(boost::accumulators::max(test(result2, vol).ulps), 15);
+  BOOST_CHECK_LT(boost::accumulators::max(test(result4, vol).ulps), 15);
+  BOOST_CHECK_LT(boost::accumulators::max(test(result8, vol).ulps), 15);
+  BOOST_CHECK_LT(boost::accumulators::max(test(result16, vol).ulps), 15);
+  BOOST_CHECK_LT(boost::accumulators::max(test(result32, vol).ulps), 15);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

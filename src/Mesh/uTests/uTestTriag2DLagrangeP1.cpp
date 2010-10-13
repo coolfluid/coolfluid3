@@ -44,14 +44,15 @@ struct Triag2DLagrangeP1Fixture
   const CF::RealVector mapped_coords;
   const NodesT nodes;
 
-  struct const_functor
+  struct ConstFunctor
   {
-    const_functor(const NodesT& node_list) : m_nodes(node_list) {}
-    template<typename GeoShapeF, typename SolShapeF>
-    CF::Real valTimesDetJacobian(const CF::RealVector& mappedCoords)
+    ConstFunctor(const NodesT& node_list) : mapped_coords(2), m_nodes(node_list) {}
+
+    Real operator()() const
     {
-      return GeoShapeF::jacobian_determinant(mappedCoords, m_nodes);
+      return Triag2DLagrangeP1::jacobian_determinant(mapped_coords, m_nodes);
     }
+    RealVector mapped_coords;
   private:
     const NodesT& m_nodes;
   };
@@ -135,9 +136,9 @@ BOOST_AUTO_TEST_CASE( MappedCoordinates )
 
 BOOST_AUTO_TEST_CASE( IntegrateConst )
 {
-  const_functor ftor(nodes);
+  ConstFunctor ftor(nodes);
   CF::Real result = 0.0;
-  Gauss<Triag2DLagrangeP1>::integrateElement(ftor, result);
+  gauss_integrate<1, GeoShape::TRIAG>(ftor, ftor.mapped_coords, result);
   BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Testing::test(result, Triag2DLagrangeP1::volume(nodes)).ulps), 1);
 }
 

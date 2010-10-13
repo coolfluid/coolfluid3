@@ -285,6 +285,19 @@ BOOST_FIXTURE_TEST_CASE( VolumeDirect3D, ProtoOperatorsFixture ) // timed and pr
   BOOST_CHECK_CLOSE(volume, 50., 1e-6);
 }
 
+BOOST_FIXTURE_TEST_CASE( SurfaceIntegral3D, ProtoOperatorsFixture )
+{
+  RealVector area(0., 3);
+  MeshTerm<0, ConstNodes> nodes;
+  for_each_element< boost::mpl::vector<SF::Quad3DLagrangeP1> >(recursive_get_named_component_typed<CRegion>(*channel_3d, "bottomWall")
+                                                             , area += integral<1>(normal(_mapped_coord, nodes)));
+  
+  /// Normal vector on the bottom wall should point down, with a length equal to the area
+  BOOST_CHECK_SMALL(area[XX], 1e-10);
+  BOOST_CHECK_CLOSE(area[YY], -50., 1e-8);
+  BOOST_CHECK_SMALL(area[ZZ], 1e-10);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()

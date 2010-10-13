@@ -75,7 +75,6 @@ list( APPEND Mesh_files
 # directories with headers only can have their contents appended to base dir
   Integrators/Gauss.hpp
   Integrators/GaussImplementation.hpp
-  Integrators/IntegrationFunctorBase.hpp
 )
 
 list( APPEND Mesh_cflibs Math)  # Math includes Common

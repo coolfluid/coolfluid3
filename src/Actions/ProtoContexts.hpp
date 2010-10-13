@@ -70,6 +70,11 @@ struct VarContext<SF, ConstNodes>
   const Mesh::CTable* connectivity;
 };
 
+template<typename ShapeFunctionT>
+struct MeshSizeContext;
+
+template<typename T> struct printer {};
+
 /// Context for evaluating mesh-related expressions, providing an interface to field variables and the shape functions
 template<typename ShapeFunctionT, typename ContextsT>
 struct MeshContext
@@ -181,22 +186,35 @@ struct MeshContext
     <
       typename boost::remove_reference
       <
-        typename StripExpr
+        typename boost::proto::result_of::eval
         <
-          typename boost::proto::result_of::eval
-          <
-            RealChildT, ThisContextT
-          >::type
+          RealChildT, MeshSizeContext<SF>
         >::type
       >::type
-    >::type result_type;
+    >::type TypeSizeT;
+    
+    typedef typename TypeSizeT::result_type result_type;
 
     result_type operator()(Expr& expr, ThisContextT& context)
     {
-      result_type r(2); // TODO: Auto-detect result size
-      Mesh::Integrators::integrate<I>(boost::proto::child(expr), r, context);
+      result_type r;
+      TypeSizeT::init(r);
+      Mesh::Integrators::gauss_integrate<I, SF::shape>(integration_ftor(boost::proto::child(expr), context), context.mapped_coords, r);
       return r;
     }
+    
+    struct integration_ftor
+    {
+      integration_ftor(const RealChildT& expr, ThisContextT& ctx) : m_expr(expr), m_context(ctx) {}
+      
+      inline result_type operator()() const
+      {
+        return boost::proto::eval(m_expr, m_context);
+      }
+      
+      const RealChildT& m_expr;
+      ThisContextT& m_context;
+    };
   };
   
   /// Convert the current mapped coords to real coords
@@ -211,6 +229,142 @@ struct MeshContext
       context.real_coords.resize(SF::dimension);
       ::CF::Mesh::eval<SF>(context.mapped_coords, boost::proto::eval(boost::proto::child_c<1>(expr), context), context.real_coords);
       return context.real_coords;
+    }
+  };
+};
+
+/// Context for detrmining the result size and type of mesh expressions
+template<typename ShapeFunctionT>
+struct MeshSizeContext
+{ 
+  typedef ShapeFunctionT SF;
+  typedef MeshSizeContext<ShapeFunctionT> ThisContextT;
+  
+  template<typename Expr,
+           typename Tag = typename Expr::proto_tag,
+           typename Arg = typename Expr::proto_child0>
+  struct eval
+    : boost::proto::default_eval<Expr, ThisContextT>
+  {};
+  
+  /// Unless specialized, terminals evaluate to a 1x1 value
+  template<typename Expr, typename T>
+  struct eval< Expr, boost::proto::tag::terminal, T >
+  {
+    typedef ResultSize<1, 1> result_type;
+    
+    result_type operator()(Expr &, ThisContextT&)
+    {
+      return result_type();
+    }
+  };
+  
+  /// ConstNodes encapsulates vector types
+  template<typename Expr, typename I>
+  struct eval< Expr, boost::proto::tag::terminal, Var<I, ConstNodes> >
+  {
+    typedef ResultSize<SF::dimension, 1> result_type;
+    
+    result_type operator()(Expr &, ThisContextT&)
+    {
+      return result_type();
+    }
+  };
+  
+  /// Placeholder that evaluates to the current element index
+  template<typename Expr>
+  struct eval<Expr, boost::proto::tag::terminal, ElementIdxHolder>
+  {
+    typedef ResultSize<1, 1> result_type;
+
+    result_type operator()(Expr &, const ThisContextT&) const
+    {
+      return result_type();
+    }
+  };
+  
+  /// Placeholder that evaluates to the current mapped coordinates
+  template<typename Expr>
+  struct eval<Expr, boost::proto::tag::terminal, MappedCoordHolder>
+  {
+    typedef ResultSize<SF::dimensionality, 1> result_type;
+
+    result_type operator()(Expr &, const ThisContextT&) const
+    {
+      return result_type();
+    }
+  };
+  
+  /// volume function
+  template<typename Expr, typename NodesT>
+  struct eval<Expr, volume_tag, NodesT >
+  {
+    typedef ResultSize<1, 1> result_type;
+
+    result_type operator()(Expr& expr, ThisContextT& ctx)
+    {
+      return result_type();
+    }
+  };
+  
+  /// jacobian determinant function
+  template<typename Expr, typename MappedCoordsT>
+  struct eval<Expr, jacobian_determinant_tag, MappedCoordsT >
+  {
+    typedef ResultSize<1, 1> result_type;
+
+    result_type operator()(Expr& expr, ThisContextT& ctx)
+    {
+      return result_type();
+    }
+  };
+  
+  /// normal vector calculation
+  template<typename Expr, typename MappedCoordsT>
+  struct eval<Expr, normal_tag, MappedCoordsT >
+  {
+    typedef ResultSize<SF::dimension, 1> result_type;
+    
+    result_type operator()(Expr &, ThisContextT&)
+    {
+      return result_type();
+    }
+  };
+  
+  /// Handle integration
+  template<typename Expr, Uint I, typename ChildExpr>
+  struct eval<Expr, integral_tag<I>, ChildExpr >
+  {
+    typedef typename boost::remove_const<typename boost::remove_reference<ChildExpr>::type>::type RealChildT;
+    typedef typename boost::remove_const
+    <
+      typename boost::remove_reference
+      <
+        typename StripExpr
+        <
+          typename boost::proto::result_of::eval
+          <
+            RealChildT, ThisContextT
+          >::type
+        >::type
+      >::type
+    >::type result_type;
+
+    result_type operator()(Expr& expr, ThisContextT& context)
+    {
+      return result_type();
+    }
+  };
+  
+  /// Convert the current mapped coords to real coords
+  template<typename Expr, typename ChildExpr>
+  struct eval<Expr, coords_tag, ChildExpr >
+  {
+    typedef ResultSize<SF::dimension, 1> result_type;
+    
+    result_type operator()(Expr &, ThisContextT&)
+    {
+      return result_type();
     }
   };
 };

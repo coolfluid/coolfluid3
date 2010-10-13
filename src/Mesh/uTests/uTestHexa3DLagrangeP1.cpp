@@ -46,14 +46,15 @@ struct Hexa3DLagrangeP1Fixture
   const NodesT unit_nodes;
   const NodesT skewed_nodes;
 
-  struct const_functor
+  struct ConstFunctor
   {
-    const_functor(const NodesT& node_list) : m_nodes(node_list) {}
-    template<typename GeoShapeF, typename SolShapeF>
-    Real valTimesDetJacobian(const RealVector& mappedCoords)
+    ConstFunctor(const NodesT& node_list) : mapped_coords(3), m_nodes(node_list) {}
+
+    Real operator()() const
     {
-      return GeoShapeF::jacobian_determinant(mappedCoords, m_nodes);
+      return Hexa3DLagrangeP1::jacobian_determinant(mapped_coords, m_nodes);
     }
+    RealVector mapped_coords;
   private:
     const NodesT& m_nodes;
   };
@@ -135,10 +136,10 @@ BOOST_AUTO_TEST_CASE( ShapeFunction )
 
 BOOST_AUTO_TEST_CASE( IntegrateConst )
 {
-  const_functor ftor(unit_nodes);
+  ConstFunctor ftor(unit_nodes);
   Real result = 0.0;
 
-  Gauss<Hexa3DLagrangeP1>::integrateElement(ftor, result);
+  gauss_integrate<1, GeoShape::HEXA>(ftor, ftor.mapped_coords, result);
   BOOST_CHECK_CLOSE(result, 1., 0.000001);
 }
 

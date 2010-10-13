@@ -150,16 +150,18 @@ struct Triag3DLagrangeP1Fixture
   const RealVector mapped_coords;
   const NodesT nodes;
 
+  template<typename SF>
   struct ConstFunctor
   {
-    ConstFunctor(const NodesT& node_list) : m_nodes(node_list) {}
-    template<typename GeoSF, typename SolSF>
-    Real valTimesDetJacobian(const RealVector& mappedCoords)
+    ConstFunctor(const NodesT& node_list) : mapped_coords(3), m_nodes(node_list) {}
+
+    Real operator()() const
     {
-      RealVector result(GeoSF::dimension);
-      GeoSF::normal(mappedCoords, m_nodes, result);
+      RealVector result(SF::dimension);
+      SF::normal(mapped_coords, m_nodes, result);
       return result.norm2();
     }
+    RealVector mapped_coords;
   private:
     const NodesT& m_nodes;
   };
@@ -303,7 +305,7 @@ BOOST_AUTO_TEST_CASE( ShapeFunction )
 {
   const CF::RealVector reference_result = list_of(0.1)(0.1)(0.8);
   CF::RealVector result(3);
-  Triag2DLagrangeP1::shape_function(mapped_coords, result);
+  Triag3DLagrangeP1::shape_function(mapped_coords, result);
   CF::Tools::Testing::Accumulator accumulator;
   CF::Tools::Testing::vector_test(result, reference_result, accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 10); // Maximal difference can't be greater than 10 times the least representable unit
@@ -345,12 +347,12 @@ BOOST_AUTO_TEST_CASE( Jacobian )
 
 BOOST_AUTO_TEST_CASE( IntegrateConst )
 {
-  ConstFunctor ftor(nodes);
+  ConstFunctor<Triag3DLagrangeP1> ftor(nodes);
   const Real area = Triag3DLagrangeP1::area(nodes);
 
   Real result = 0.0;
 
-  Gauss<Triag3DLagrangeP1>::integrateElement(ftor, result);
+  gauss_integrate<1, GeoShape::TRIAG>(ftor, ftor.mapped_coords, result);
 
   BOOST_CHECK_CLOSE(result, area, 0.001);
 }

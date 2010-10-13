@@ -128,17 +128,19 @@ struct Quad3DLagrangeP1Fixture
 
   const RealVector mapped_coords;
   const NodesT nodes;
-
+  
+  template<typename SF>
   struct ConstFunctor
   {
-    ConstFunctor(const NodesT& node_list) : m_nodes(node_list) {}
-    template<typename GeoSF, typename SolSF>
-    Real valTimesDetJacobian(const RealVector& mappedCoords)
+    ConstFunctor(const NodesT& node_list) : mapped_coords(3), m_nodes(node_list) {}
+
+    Real operator()() const
     {
-      RealVector result(GeoSF::dimension);
-      GeoSF::normal(mappedCoords, m_nodes, result);
+      RealVector result(SF::dimension);
+      SF::normal(mapped_coords, m_nodes, result);
       return result.norm2();
     }
+    RealVector mapped_coords;
   private:
     const NodesT& m_nodes;
   };
@@ -329,7 +331,7 @@ BOOST_AUTO_TEST_CASE( Jacobian )
 
 BOOST_AUTO_TEST_CASE( IntegrateConst )
 {
-  ConstFunctor ftor(nodes);
+  ConstFunctor<Quad3DLagrangeP1> ftor(nodes);
   const Real area = Quad3DLagrangeP1::area(nodes);
 
   Real result1 = 0.0;
@@ -339,12 +341,12 @@ BOOST_AUTO_TEST_CASE( IntegrateConst )
   Real result16 = 0.0;
   Real result32 = 0.0;
 
-  Gauss<Quad3DLagrangeP1>::integrateElement(ftor, result1);
-  Gauss<Quad3DLagrangeP1, Quad3DLagrangeP1, 2>::integrateElement(ftor, result2);
-  Gauss<Quad3DLagrangeP1, Quad3DLagrangeP1, 4>::integrateElement(ftor, result4);
-  Gauss<Quad3DLagrangeP1, Quad3DLagrangeP1, 8>::integrateElement(ftor, result8);
-  Gauss<Quad3DLagrangeP1, Quad3DLagrangeP1, 16>::integrateElement(ftor, result16);
-  Gauss<Quad3DLagrangeP1, Quad3DLagrangeP1, 32>::integrateElement(ftor, result32);
+  gauss_integrate<1, GeoShape::QUAD>(ftor, ftor.mapped_coords, result1);
+  gauss_integrate<2, GeoShape::QUAD>(ftor, ftor.mapped_coords, result2);
+  gauss_integrate<4, GeoShape::QUAD>(ftor, ftor.mapped_coords, result4);
+  gauss_integrate<8, GeoShape::QUAD>(ftor, ftor.mapped_coords, result8);
+  gauss_integrate<16, GeoShape::QUAD>(ftor, ftor.mapped_coords, result16);
+  gauss_integrate<32, GeoShape::QUAD>(ftor, ftor.mapped_coords, result32);
 
   BOOST_CHECK_CLOSE(result1, area, 0.001);
   // TODO: Computed area is approximate, higher order integration is actually more accurate than what is returned by area()
