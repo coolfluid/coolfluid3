@@ -44,10 +44,11 @@ using namespace CF::GUI::Network;
 
 NRemoteBrowser::NRemoteBrowser(const QString & componentType, QMainWindow * parent)
   : QDialog(parent),
-    CNode("a", componentType, CNode::BROWSER_NODE)
+    CNode(ClientRoot::browser()->generateName(), componentType,
+          CNode::BROWSER_NODE)
 
 {
-  this->rename(ClientRoot::browser()->generateName().toStdString());
+//  this->rename();
 
   regist_signal("read_dir", "Directory content")->connect(boost::bind(&NRemoteBrowser::read_dir, this, _1));
 
