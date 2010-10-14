@@ -78,12 +78,14 @@ list( APPEND Common_files
     Option.hpp
     OptionArray.cpp
     OptionArray.hpp
+    OptionComponent.hpp
     OptionT.hpp
+    OptionURI.cpp
+    OptionURI.hpp
     Property.hpp
     Property.cpp
     PropertyList.hpp
     PropertyList.cpp
-    OptionComponent.hpp
     ConfigObject.hpp
     ConfigObject.cpp
     OSystem.cpp

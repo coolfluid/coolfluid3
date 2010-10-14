@@ -24,6 +24,7 @@
 #include "Common/ComponentIterator.hpp"
 #include "Common/XmlHelpers.hpp"
 #include "Common/OptionArray.hpp"
+#include "Common/OptionURI.hpp"
 #include "Common/TaggedObject.hpp"
 
 namespace CF {
@@ -636,11 +637,21 @@ void Component::add_prop_to_xml(XmlParams & params, const std::string & name,
     Option & opt = prop->as_option();
     bool basic = opt.has_tag("basic");
     std::string desc = opt.description();
+    XmlNode * node;
 
     if(opt.has_restricted_list())
-      params.add_option(name, value, desc, basic, opt.restricted_list());
+      node = params.add_option(name, value, desc, basic, opt.restricted_list());
     else
-      params.add_option(name, value, desc, basic);
+      node = params.add_option(name, value, desc, basic);
+
+    if(std::strcmp(opt.tag(), "uri") == 0)
+    {
+      std::vector<std::string> prots = static_cast<OptionURI*>(&opt)->supported_protocols();
+      std::vector<std::string>::iterator it = prots.begin();
+
+      for( ; it != prots.end() ; it++)
+        XmlOps::add_attribute_to(*node, XmlParams::tag_attr_protocol(), *it);
+    }
   }
 }
 

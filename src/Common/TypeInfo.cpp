@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/CF.hpp"
+#include "Common/URI.hpp"
 
 #ifdef CF_HAVE_CXXABI_H
 #include <cxxabi.h>
@@ -53,6 +54,7 @@ std::string demangle(const char* type)
     regist<std::string>("string");
     regist<bool>("bool");
     regist<CF::Real>("real");
+    regist<Common::URI>("uri");
   }
 
   TypeInfo& TypeInfo::instance()

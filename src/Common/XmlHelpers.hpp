@@ -118,8 +118,10 @@ namespace Common {
     static const char * tag_key_options();
     /// the key attribute value for property list
     static const char * tag_key_properties();
-    /// the key attribute value for option restricted values
-    static const char * tag_key_restricted_values();
+    /// the key attribute name for option restricted values
+    static const char * tag_attr_restricted_values();
+    /// the key attribute name for URI protocols
+    static const char * tag_attr_protocol();
 
     /// Constructor
     /// @param node the node where the parameters will be extracted from
@@ -145,7 +147,7 @@ namespace Common {
 
     /// add a key-value node to the options
     template < typename TYPE >
-        void add_option ( const std::string& key, const TYPE& value,
+    XmlNode * add_option ( const std::string& key, const TYPE& value,
                           const std::string& desc = std::string(),
                           bool basic = false,
                           const std::vector<boost::any> & restricted_val =
@@ -153,7 +155,7 @@ namespace Common {
 
     /// add a key-value node to the options
     template < typename TYPE >
-        void add_property ( const std::string& key, const TYPE& value);
+    void add_property ( const std::string& key, const TYPE& value);
 
     /// add an array node to the parameters
     template < typename TYPE >
@@ -308,7 +310,7 @@ namespace Common {
     ////////////////////////////////////////////////////////////////////////////////
 
     template < typename TYPE >
-        void XmlParams::add_option ( const std::string& key, const TYPE& value,
+    XmlNode * XmlParams::add_option ( const std::string& key, const TYPE& value,
                                      const std::string& desc, bool basic,
                                      const std::vector<boost::any> & restricted_vals)
     {
@@ -335,7 +337,7 @@ namespace Common {
         // create the "array" node and append it to the map
         XmlNode* vals_node = XmlOps::add_node_to(*node, XmlTag<TYPE>::array());
 
-        XmlOps::add_attribute_to(*vals_node, tag_attr_key(), tag_key_restricted_values());
+        XmlOps::add_attribute_to(*vals_node, tag_attr_key(), tag_attr_restricted_values());
         XmlOps::add_attribute_to(*vals_node, tag_attr_size(), String::to_str( (CF::Uint) restricted_vals.size() ));
         XmlOps::add_attribute_to(*vals_node, tag_attr_type(), XmlTag<TYPE>::type());
 
@@ -343,6 +345,8 @@ namespace Common {
           XmlOps::add_node_to(*vals_node, "e",
                               from_value(boost::any_cast<TYPE>(restricted_vals[i])));
       }
+
+      return node;
     }
 
     ////////////////////////////////////////////////////////////////////////////////
