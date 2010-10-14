@@ -98,7 +98,6 @@ coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 
 
 # add dir with kernel config (automatic generated headers)
-add_definitions( -DCF_HAVE_CONFIG_H )
 include_directories( ${coolfluid_BINARY_DIR} )
 add_subdirectory( config )
 
