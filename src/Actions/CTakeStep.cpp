@@ -68,30 +68,20 @@ void CTakeStep::trigger_InverseUpdateCoeff()
 
 void CTakeStep::go_deeper(CField& driving_field, std::vector<CField::Ptr>& driven_fields)
 {  
-  BOOST_FOREACH(CField::Ptr driven_field, driven_fields)
+  BOOST_FOREACH(CField::Ptr& driven_field, driven_fields)
   {
     driven_field = driving_field.support().get_field(driven_field->field_name()).get_type<CField>();
-    CFinfo << driven_field->field_name() << "  --> " << driven_field->full_path().string() << CFendl;
   }
   
-  CFinfo << CFendl;
   if(filtered_range_typed<CArray>(driving_field,IsComponentTag("field_data")).empty())
   {
     BOOST_FOREACH(CField& subfield, range_typed<CField>(driving_field))
-    {
-      CFinfo << subfield.field_name() << "  --> " << subfield.full_path().string() << CFendl;
-      
+    {      
       go_deeper(subfield,driven_fields);
     }
   }
   else
   {
-    
-    CFinfo << "data found in: " << get_tagged_component_typed<CArray>(driving_field,"field_data").full_path().string() << CFendl;
-    // CFinfo << "data found in: " << get_tagged_component_typed<CArray>(*driven_fields[0],"field_data").full_path().string() << CFendl;
-    
-    CFinfo << driven_fields[0]->tree() << CFendl;
-    
     data = boost::shared_ptr<LoopHelper> ( new LoopHelper(driving_field,*driven_fields[0],*driven_fields[1]) );
     
     for(m_point_idx=0; m_point_idx<data->solution.size(); ++m_point_idx)
@@ -103,25 +93,15 @@ void CTakeStep::go_deeper(CField& driving_field, std::vector<CField::Ptr>& drive
 
 void CTakeStep::execute_impl()
 {
-  data->solution[m_point_idx][0] += - 1./data->inverse_updatecoeff[m_point_idx][0] * data->residual[m_point_idx][0]; 
+  data->solution[m_point_idx][0] += - ( 1./data->inverse_updatecoeff[m_point_idx][0] ) * data->residual[m_point_idx][0]; 
 }
 
 void CTakeStep::execute()
 {  
-  // std::vector<CField::Ptr> driven_fields(2);
-  // driven_fields[0] = m_residual_field;
-  // driven_fields[1] = m_inverseUpdateCoeff;
-  // go_deeper(*m_solution_field,driven_fields);
-
-  CArray& solution = *look_component("//Root/mesh/solution/rotation/data")->get_type<CArray>();
-  CArray& residual = *look_component("//Root/mesh/residual/rotation/data")->get_type<CArray>();
-  CArray& inverse_update_coeff = *look_component("//Root/mesh/inverse_updatecoeff/rotation/data")->get_type<CArray>();
-
-  for(m_point_idx=0; m_point_idx<solution.size(); ++m_point_idx)
-  {
-    if (inverse_update_coeff[m_point_idx][0] > Math::MathConsts::RealEps())
-      solution[m_point_idx][0] += - ( 1./inverse_update_coeff[m_point_idx][0] ) * residual[m_point_idx][0]; 
-  }
+  std::vector<CField::Ptr> driven_fields(2);
+  driven_fields[0] = m_residual_field;
+  driven_fields[1] = m_inverseUpdateCoeff;
+  go_deeper(*m_solution_field,driven_fields);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
