@@ -17,6 +17,7 @@
 #include "Common/BasicExceptions.hpp"
 
 #include "Mesh/LibMesh.hpp"
+#include "Mesh/ListBufferIterator.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -40,6 +41,12 @@ class ListBufferT {
 
 public: // typedef
   
+	/// type of the iterator
+  typedef ListBufferIterator<ListBufferT> iterator;
+  /// type of the iterator to constant Component
+  typedef ListBufferIterator<ListBufferT const> const_iterator;
+
+	
   typedef boost::multi_array<T,1> Array_t;
   typedef T value_type;
 
@@ -98,6 +105,33 @@ public: // functions
   /// increase the size of the array, only to be used when going to write directly in array
   void increase_array_size(const size_t increase);
   
+	
+  /// The begin iterator for a range containing Components
+  iterator begin()
+	{
+		return iterator(*this,0);
+	}
+	
+  /// The end iterator for a range containing Components
+  iterator end()
+	{
+		return iterator(*this,total_allocated());
+	}
+	
+  /// The begin iterator for a range containing Components (const version)
+  const_iterator begin() const
+	{
+		return const_iterator(*this,0);
+	}
+
+  /// The end iterator for a range containing Components (const version)
+  const_iterator end() const
+	{
+		return const_iterator(*this,total_allocated());
+	}
+	
+	
+	
 private: // functions
 
   /// Create a new buffer, allocate it with m_buffersize, and fill m_newBufferRows with the new ones.
