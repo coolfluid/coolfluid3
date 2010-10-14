@@ -80,11 +80,11 @@ void CSchemeLDA::trigger_InverseUpdateCoeff()
 
 void CSchemeLDA::execute()
 {
-  static const Uint fix = 0;
+  static const Uint fix = 10000000000000000000;
 
   // inside element with index m_elm_idx
-  RealMatrix mapped_grad(2,3);
-  RealVector shapefunc(3);
+  RealMatrix mapped_grad(2,3); //Gradient of the shape functions in reference space
+  RealVector shapefunc(3);     //Values of shape functions in reference space
   RealVector grad_solution(2);
   RealVector grad_x(2);
   RealVector grad_y(2);
@@ -94,13 +94,30 @@ void CSchemeLDA::execute()
 
   phi = 0.;
   
-  if (m_elm_idx == fix)
+  if (m_elm_idx == fix) {
     CFinfo << "elem [" << m_elm_idx << "]" << CFendl;
-  if (m_elm_idx == fix)
+    CFinfo << "vertex coodinates:" << CFendl;
     BOOST_FOREACH(const Uint node, data->connectivity_table[m_elm_idx])
-      CFinfo << "n(" << node << ") ["  << data->coordinates[node][XX] << ":" << data->coordinates[node][YY] << "]" << CFendl;
+    CFinfo << "V(" << node << ") = [" << data->coordinates[node][XX] << "," << data->coordinates[node][YY] << "]" << CFendl;
+  }
+  
+  
+  if (m_elm_idx == fix) {
 
-  for (Uint q=0; q<nb_q; ++q)
+    CFinfo << "nodal normals:" << CFendl;
+    
+    CTable::ConstRow nodes = data->connectivity_table[m_elm_idx]; 
+    CFinfo << "n0 = [" << data->coordinates[nodes[1]][YY] - data->coordinates[nodes[2]][YY] << ",";
+    CFinfo << data->coordinates[nodes[2]][XX] - data->coordinates[nodes[1]][XX] << "]" << CFendl;
+
+    CFinfo << "n1 = [" << data->coordinates[nodes[2]][YY] - data->coordinates[nodes[0]][YY] << ",";
+    CFinfo << data->coordinates[nodes[0]][XX] - data->coordinates[nodes[2]][XX] << "]" << CFendl;    
+
+    CFinfo << "n2 = [" << data->coordinates[nodes[0]][YY] - data->coordinates[nodes[1]][YY] << ",";
+    CFinfo << data->coordinates[nodes[1]][XX] - data->coordinates[nodes[0]][XX] << "]" << CFendl;
+  }    
+      
+  for (Uint q=0; q<nb_q; ++q) //Loop over quadrature points
   {
     Triag2DLagrangeP1::mapped_gradient(mapped_coords[q],mapped_grad);
     Triag2DLagrangeP1::shape_function(mapped_coords[q], shapefunc);
@@ -115,34 +132,57 @@ void CSchemeLDA::execute()
       ++node_counter;
     }
     
-    denominator = 0;
-    grad_solution = 0;
+    if (m_elm_idx == fix) {
+      CFinfo << "The coords of quadrature point are: [" << x << "," << y << "]" << CFendl;
+    }
+    
+    
     grad_x = 0;
     grad_y = 0;
     node_counter = 0;
+
+    // Compute the components of the Jacobian matrix representing the transformation
+    // physical -> reference space
     BOOST_FOREACH(const Uint node, data->connectivity_table[m_elm_idx])
     {
-      nominator[node_counter] = std::max(0.0,y*mapped_grad(XX,node_counter) - x*mapped_grad(YY,node_counter));
-      denominator += nominator[node_counter];
-      grad_solution[XX] += mapped_grad(XX,node_counter) * data->solution[node][0];
-      grad_solution[YY] += mapped_grad(YY,node_counter) * data->solution[node][0];
       grad_x[XX] += mapped_grad(XX,node_counter) * data->coordinates[node][XX];
       grad_x[YY] += mapped_grad(YY,node_counter) * data->coordinates[node][XX];
       grad_y[XX] += mapped_grad(XX,node_counter) * data->coordinates[node][YY];
       grad_y[YY] += mapped_grad(YY,node_counter) * data->coordinates[node][YY];
 
       ++node_counter;
-
     }
 
-    Real jacobian = grad_x[XX]*grad_y[YY]-grad_x[YY]*grad_y[XX];
+    const Real jacobian = grad_x[XX]*grad_y[YY]-grad_x[YY]*grad_y[XX];
+    
+    //Compute the gradient of the solution in physical space
+    node_counter = 0;
+    grad_solution = 0;
+    denominator = 0;
+    
+    BOOST_FOREACH(const Uint node, data->connectivity_table[m_elm_idx])
+    {
+      const Real dNdx = 1.0/jacobian * (  grad_y[YY]*mapped_grad(XX,node_counter) - grad_y[XX]*mapped_grad(YY,node_counter) );
+      const Real dNdy = 1.0/jacobian * ( -grad_x[YY]*mapped_grad(XX,node_counter) + grad_x[XX]*mapped_grad(YY,node_counter) );
+      
+      grad_solution[XX] += dNdx*data->solution[node][0];
+      grad_solution[YY] += dNdy*data->solution[node][0];
+    
+      nominator[node_counter] = std::max(0.0,y*dNdx - x*dNdy);
+      denominator += nominator[node_counter];
+      ++node_counter;
+    }
+
+
+    const Real nablaF = (y*grad_solution[XX] - x*grad_solution[YY]);
 
     for (Uint i=0; i<3; ++i)
     {
-      phi[i] += nominator[i]/denominator * (y*grad_solution[XX] - x*grad_solution[YY]) * w * jacobian;
+      phi[i] += nominator[i]/denominator * nablaF * w * jacobian;
     }
+    
   }
-  
+  // Loop over quadrature nodes
   
   Uint node_counter = 0;
   BOOST_FOREACH(const Uint node, data->connectivity_table[m_elm_idx])
@@ -157,6 +197,7 @@ void CSchemeLDA::execute()
   // For time marching scheme
   
   RealVector centroid(0.0,2);
+  centroid = 0.0;
   BOOST_FOREACH(const Uint node, data->connectivity_table[m_elm_idx])
   {
     centroid[XX] += data->coordinates[node][XX];
@@ -177,7 +218,7 @@ void CSchemeLDA::execute()
   nodal_normals(YY,2) = data->coordinates[nodes[1]][XX] - data->coordinates[nodes[0]][XX];
 
   if (m_elm_idx == fix)
-    CFinfo << "nnormals(" << nodal_normals << "]" << CFendl;
+    CFinfo << "nnormals(" << CFendl << nodal_normals << ")" << CFendl;
 
   Real sumK=0;
   for (Uint i=0; i<3; ++i)
@@ -188,10 +229,9 @@ void CSchemeLDA::execute()
   {
     // Real kplus = 0.5*std::max(0.0,centroid[YY]*nodal_normals(XX,i)-centroid[XX]*nodal_normals(YY,i));
     data->inverse_updatecoeff[nodes[i]][0] += sumK; 
+      if (m_elm_idx == fix)
+        CFinfo << "Updated node " << nodes[i] << CFendl;
   } 
-
-  if (m_elm_idx == fix)
-    CFinfo << "nnormals(" << nodal_normals << "]" << CFendl;
 
 
 //  if ( Math::MathChecks::isZero( data->coordinates[nodes[0]][YY] )

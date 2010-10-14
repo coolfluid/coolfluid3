@@ -114,7 +114,7 @@ void CTakeStep::execute()
   // go_deeper(*m_solution_field,driven_fields);
 
   CArray& solution = *look_component("//Root/mesh/solution/rotation/data")->get_type<CArray>();
-  CArray& residual = *look_component("//Root/mesh/solution/rotation/data")->get_type<CArray>();
+  CArray& residual = *look_component("//Root/mesh/residual/rotation/data")->get_type<CArray>();
   CArray& inverse_update_coeff = *look_component("//Root/mesh/inverse_updatecoeff/rotation/data")->get_type<CArray>();
 
   for(m_point_idx=0; m_point_idx<solution.size(); ++m_point_idx)

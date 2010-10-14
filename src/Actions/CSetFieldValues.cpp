@@ -67,10 +67,8 @@ void CSetFieldValues::execute()
 
         for (Uint i = 0; i < field_data.row_size(); ++i)
         {
-          // if (x >= -0.8 && x <= -0.4)
-            // field_data[n][i] = cos(3.141592*(x+0.6)/0.2)+1.0;
-          if (x >= -2.0 && x <= 0.0)
-            field_data[n][i] = x;
+          if (x >= -1.4 && x <= -0.6)
+	   field_data[n][i] = 0.5*(cos(3.141592*(x+1.0)/0.4)+1.0);
           else
             field_data[n][i] = 0.0;
         }
