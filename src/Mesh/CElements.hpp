@@ -21,7 +21,8 @@ namespace Mesh {
   class CArray;
   class ElementType;
   class CFieldElements;
-
+  template <typename T> class CList;
+	
 ////////////////////////////////////////////////////////////////////////////////
 
 /// CElements component class
@@ -64,7 +65,14 @@ public: // functions
   /// create a CTable component and add it to the list of subcomponents
   /// @param name of the region
   CTable& create_connectivity_table ( const CName& name = "connectivity_table");
-  
+
+	/// create a CList<Uint> component and add it to the list of subcomponents
+  /// @param name of the node list
+	virtual CList<Uint>& create_node_list( const CName& name = "node_list");
+
+	/// update the node list using the connectivity table
+	CList<Uint>& update_node_list();
+	
   /// Mutable access to the connectivity table
   CTable& connectivity_table();
   
@@ -77,9 +85,21 @@ public: // functions
   /// Const access to the coordinates
   virtual const CArray& coordinates() const;
   
+	/// Mutable access to the list of nodes
+	CList<Uint>& node_list();
+	
+	/// Const access to the list of nodes
+	const CList<Uint>& node_list() const;
+	
+	/// Link a CFieldElements to this CElements
   void add_field_elements_link(CElements& field_elements);
   
+	/// Mutable access to a field by its elements
+	/// @param name of a field
   CFieldElements& get_field_elements(const CName& field_name);
+	
+	/// Const access to a field by its elements
+	/// @param name of a field
   const CFieldElements& get_field_elements(const CName& field_name) const;
     
 private: // helper functions

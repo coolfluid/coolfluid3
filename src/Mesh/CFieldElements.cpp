@@ -10,6 +10,7 @@
 #include "Mesh/CFieldElements.hpp"
 #include "Mesh/CArray.hpp"
 #include "Mesh/CTable.hpp"
+#include "Mesh/CList.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -48,6 +49,11 @@ void CFieldElements::initialize(CElements& elements)
   // create the connectivity table as a CLink to another one.
   CLink::Ptr connectivity_table = create_component_type<CLink>(elements.connectivity_table().name());
   connectivity_table->link_to(elements.connectivity_table().get());
+	
+	// create the node list as a CLink to another one.
+  CLink::Ptr node_list = create_component_type<CLink>(elements.node_list().name());
+  node_list->link_to(elements.node_list().get());
+	
 
 }
 
