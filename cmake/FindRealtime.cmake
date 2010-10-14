@@ -19,8 +19,8 @@ if( NOT CF_SKIP_RT )
     coolfluid_add_trial_library_path( ${RT_HOME}/lib )
   endif()
 
-  find_library(RT_LIBRARY RT ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
-  find_library(RT_LIBRARY RT )
+  find_library(RT_LIBRARY rt ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
+  find_library(RT_LIBRARY rt )
 
   if( RT_LIBRARY)
     set(CF_HAVE_RT 1 CACHE BOOL "Found RT library")
