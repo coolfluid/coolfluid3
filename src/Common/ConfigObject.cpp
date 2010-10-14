@@ -18,7 +18,7 @@ namespace Common {
     XmlParams pn ( node );
 
     if ( pn.option_map == 0 )
-      throw  Common::XmlError( FromHere(), "ConfigObject received  XML without a \'" + std::string(XmlParams::tag_node_valuemap()) + "\' node" );
+      throw  Common::XmlError( FromHere(), "ConfigObject received  XML without a \'" + std::string(XmlParams::tag_node_map()) + "\' node" );
 
     // get the list of options
     PropertyList::PropertyStorage_t& options = m_property_list.m_properties;

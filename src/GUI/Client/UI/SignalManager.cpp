@@ -87,15 +87,15 @@ void SignalManager::actionTriggered()
                                                m_path, m_path, true);
     XmlParams p(frame);
 
-    XmlNode & valuemap = *p.add_valuemap(XmlParams::tag_key_options());
+    XmlNode & map = *p.add_map(XmlParams::tag_key_options());
 
-    info.m_signature.put_signature(valuemap);
+    info.m_signature.put_signature(map);
 
     try
     {
       SignatureDialog * sg = new SignatureDialog();
 
-      if(sg->show(valuemap, action->text()))
+      if(sg->show(map, action->text()))
       {
         if(m_localStatus[action])
         {

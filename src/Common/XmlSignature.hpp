@@ -22,11 +22,11 @@ namespace Common {
 
   //////////////////////////////////////////////////////////////////////////
 
-  /// @brief Describes how a valuemap should look like to be accepted by
+  /// @brief Describes how a map should look like to be accepted by
   /// a signal/configuration.
 
   /// This class describes the "minimal" requirements. Those ones have
-  /// to be present in the valuemap. Additional values are accepted.
+  /// to be present in the map. Additional values are accepted.
   /// @author Quentin Gasper
   class Common_API XmlSignature
   {
@@ -34,7 +34,7 @@ namespace Common {
   public:
 
     /// @brief Creates a XmlSignature
-    /// @param node The valuemap with required values for this signature.
+    /// @param node The map with required values for this signature.
     /// @return Returns the created signature.
     static XmlSignature make_signature(const XmlNode & node);
 
@@ -51,12 +51,12 @@ namespace Common {
 
     /// @brief Appends the list of the value to the provided node.
     /// @param node The node to which data will be appended to. Should be
-    /// a valuemap.
+    /// a map.
     void put_signature(XmlNode & node) const;
 
     /// @brief Checks whether the provided node contains at least the
     /// expected values.
-    /// @param node The node to check. Should be a valuemap.
+    /// @param node The node to check. Should be a map.
     /// @return Returns @c true if the node contains at least all the
     /// expected data; otherwise, returns @c false.
     bool validate(const XmlNode & node) const;
@@ -65,11 +65,11 @@ namespace Common {
     /// @return Returns a reference to the parent.
     XmlSignature & back();
 
-    /// @brief Adds a valuemap.
-    /// @param name Valuemap name.
-    /// @param desc Valuemap description
-    /// @return Returns the newly created valuemap.
-    XmlSignature & insert_valuemap(const std::string & name, const std::string & desc);
+    /// @brief Adds a map.
+    /// @param name map name.
+    /// @param desc map description
+    /// @return Returns the newly created map.
+    XmlSignature & insert_map(const std::string & name, const std::string & desc);
 
     /// @brief Adds a data description of type T.
     /// T should be a type supported by the Xml protocol.
@@ -91,16 +91,16 @@ namespace Common {
     boost::shared_ptr<XmlDoc> m_xmldoc;
 
     /// @brief The value storage.
-    /// Points to a valuemap node.
+    /// Points to a map node.
     XmlNode * m_data;
 
-    /// @brief The valuemap children.
-    /// The key in is the valuemap key (name). The value is the object
-    /// that manages the valuemap.
-    std::map<std::string, XmlSignature *> m_valuemaps;
+    /// @brief The map children.
+    /// The key in is the map key (name). The value is the object
+    /// that manages the map.
+    std::map<std::string, XmlSignature *> m_maps;
 
     /// @brief Private constructor used build child XmlSignatures
-    /// @param node A pointer to the valuemap the object has to manage
+    /// @param node A pointer to the map the object has to manage
     /// @param parent The parent object.
     XmlSignature(XmlNode * node, XmlSignature * parent);
 

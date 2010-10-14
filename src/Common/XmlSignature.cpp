@@ -22,7 +22,7 @@ XmlSignature::XmlSignature() :
     m_parent(nullptr)
 {
   m_xmldoc = XmlOps::create_doc();
-  m_data = XmlOps::add_node_to(*m_xmldoc.get(), XmlParams::tag_node_valuemap());
+  m_data = XmlOps::add_node_to(*m_xmldoc.get(), XmlParams::tag_node_map());
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -32,7 +32,7 @@ XmlSignature::XmlSignature(const XmlNode & node) :
     m_parent(nullptr)
 {
   m_xmldoc = XmlOps::create_doc();
-  m_data = XmlOps::add_node_to(*m_xmldoc.get(), XmlParams::tag_node_valuemap());
+  m_data = XmlOps::add_node_to(*m_xmldoc.get(), XmlParams::tag_node_map());
 
   copy_node(node, *m_data);
 }
@@ -52,9 +52,9 @@ XmlSignature::XmlSignature(XmlNode * node, XmlSignature * parent) :
 
 XmlSignature::~XmlSignature()
 {
-  std::map<std::string, XmlSignature *>::iterator it = m_valuemaps.begin();
+  std::map<std::string, XmlSignature *>::iterator it = m_maps.begin();
 
-  for( ; it != m_valuemaps.end() ; it++)
+  for( ; it != m_maps.end() ; it++)
     delete it->second;
 }
 
@@ -79,13 +79,13 @@ bool XmlSignature::validate(const XmlNode & node) const
     std::string name = value_node->first_attribute(XmlParams::tag_attr_key())->value();
     std::string node_name = value_node->name();
 
-    if( node_name.compare(XmlParams::tag_node_valuemap()) == 0 )
+    if( node_name.compare(XmlParams::tag_node_map()) == 0 )
     {
-      std::map<std::string, XmlSignature *>::const_iterator it = m_valuemaps.find(name);
-      const XmlNode * valuemap = XmlParams::get_valuemap_from(node, name);
+      std::map<std::string, XmlSignature *>::const_iterator it = m_maps.find(name);
+      const XmlNode * map = XmlParams::get_map_from(node, name);
 
-      if( valuemap != nullptr )
-        valid = it->second->validate( *valuemap );
+      if( map != nullptr )
+        valid = it->second->validate( *map );
       else
         valid = false;
     }
@@ -146,7 +146,7 @@ XmlSignature & XmlSignature::back()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-XmlSignature & XmlSignature::insert_valuemap(const std::string & name,
+XmlSignature & XmlSignature::insert_map(const std::string & name,
                                              const std::string & desc)
 {
   cf_assert( !name.empty() );
@@ -157,9 +157,9 @@ XmlSignature & XmlSignature::insert_valuemap(const std::string & name,
     throw ValueExists(FromHere(), "A value with name [" + name + "] already exists.");
   }
 
-  sig = new XmlSignature(XmlParams::add_valuemap_to(*m_data, name, desc), this);
+  sig = new XmlSignature(XmlParams::add_map_to(*m_data, name, desc), this);
 
-  m_valuemaps[name] = sig;
+  m_maps[name] = sig;
 
   return *sig;
 }

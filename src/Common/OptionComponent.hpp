@@ -34,7 +34,7 @@ namespace Common {
     //@{
 
     /// @returns the xml tag for this option
-    virtual const char * tag() const { return XmlParams::tag_node_valuemap(); }
+    virtual const char * tag() const { return XmlParams::tag_node_map(); }
 
     /// @returns the value as a sd::string
     virtual std::string value_str () const { return value<std::string>(); }
@@ -86,7 +86,7 @@ namespace Common {
     XmlParams params ( node );
 
     if ( params.option_map == 0 )
-      throw  Common::XmlError( FromHere(), "ConfigObject received  XML without a \'" + std::string(XmlParams::tag_node_valuemap()) + "\' node");
+      throw  Common::XmlError( FromHere(), "ConfigObject received  XML without a \'" + std::string(XmlParams::tag_node_map()) + "\' node");
 
     std::string name  = params.get_option<std::string>("name");
     std::string atype = params.get_option<std::string>("atype");

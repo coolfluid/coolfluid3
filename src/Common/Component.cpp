@@ -483,7 +483,7 @@ void Component::write_xml_tree( XmlNode& node )
       this_node.value( this_node.document()->allocate_string( get()->full_path().string().c_str() ));
     else
     {
-      XmlNode& options = *XmlOps::add_node_to( this_node, XmlParams::tag_node_valuemap());
+      XmlNode& options = *XmlOps::add_node_to( this_node, XmlParams::tag_node_map());
 
       // add properties
       list_properties(options);
@@ -603,7 +603,7 @@ void Component::list_signals( XmlNode& node )
 
   for( ; it != m_signals.end() ; it++)
   {
-    XmlNode & map = *XmlParams::add_valuemap_to(reply, it->first, it->second.m_description);
+    XmlNode & map = *XmlParams::add_map_to(reply, it->first, it->second.m_description);
     XmlOps::add_attribute_to(map, "name", it->second.m_readable_name);
     it->second.m_signature.put_signature(map);
   }

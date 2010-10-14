@@ -776,7 +776,7 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, CPath> & lin
   {
     try
     {
-      if(std::strcmp(child->name(), XmlParams::tag_node_valuemap()) == 0)
+      if(std::strcmp(child->name(), XmlParams::tag_node_map()) == 0)
       {
         rootNode->setOptions(node);
         rootNode->setProperties(node);

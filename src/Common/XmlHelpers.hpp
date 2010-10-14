@@ -97,7 +97,7 @@ namespace Common {
     /// the xml tag used for the reply node
     static const char * tag_node_reply ();
     /// the xml tag used for the params node
-    static const char * tag_node_valuemap ();
+    static const char * tag_node_map ();
     /// the xml tag used for the signal frame node
     static const char * tag_node_frame ();
     /// the xml tag used for the value node
@@ -123,7 +123,7 @@ namespace Common {
 
     /// Constructor
     /// @param node the node where the parameters will be extracted from
-    ///        might be itself a valuemap in which case this will be detected
+    ///        might be itself a map in which case this will be detected
     /// @throw XmlError when the Params node is not found
     XmlParams ( XmlNode& node );
 
@@ -174,22 +174,22 @@ namespace Common {
     std::string get_frameid() const;
 
     /// @brief Checks the presence of a value of specified name and type.
-    /// @param node The valuemap the value has to be searched in
+    /// @param node The map the value has to be searched in
     /// @param name The value name.
     /// @return Returns @c true if the value was found with the type TYPE ;
     /// otherwise returns @c false.
     template<typename TYPE>
     static bool check_value_in(const XmlNode & node, const std::string & name);
 
-    /// @brief Checks the presence of a valuemap of specified name.
-    /// @param node The valuemap the valuemap has to be searched in
-    /// @param name The valuemap name.
-    /// @return Returns @c true if the valuemap was found;
+    /// @brief Checks the presence of a map of specified name.
+    /// @param node The map the map has to be searched in
+    /// @param name The map name.
+    /// @return Returns @c true if the map was found;
     /// otherwise returns @c false.
-    static bool check_valuemap_in(const XmlNode & node, const std::string & name);
+    static bool check_map_in(const XmlNode & node, const std::string & name);
 
     /// @brief Checks the presence of an array of specified name and type.
-    /// @param node The valuemap the array has to be searched in
+    /// @param node The map the array has to be searched in
     /// @param name The value name.
     /// @return Returns @c true if the array was found with the type TYPE ;
     /// otherwise returns @c false.
@@ -198,13 +198,13 @@ namespace Common {
 
     /// @brief Checks the presence a child node which has a "key" attribute
     /// with a given value.
-    /// @param node The valuemap to check
+    /// @param node The map to check
     /// @param key The key value to search
     static bool check_key_in(const XmlNode & node, const std::string & key);
 
-    static const XmlNode * get_valuemap_from(const XmlNode & node, const std::string & key);
+    static const XmlNode * get_map_from(const XmlNode & node, const std::string & key);
 
-    XmlNode* add_valuemap(const std::string & key);
+    XmlNode* add_map(const std::string & key);
 
     /// access to the value of one parameter
     template < typename TYPE >
@@ -214,8 +214,8 @@ namespace Common {
     template < typename TYPE >
     static XmlNode * add_value_to (XmlNode & map, const std::string& key, const TYPE& value);
 
-    /// add a valuemap node to the options
-    static XmlNode * add_valuemap_to (XmlNode & map, const std::string& key,
+    /// add a map node to the options
+    static XmlNode * add_map_to (XmlNode & map, const std::string& key,
                                       const std::string & desc = std::string());
 
     /// add an array node to the options
@@ -226,14 +226,14 @@ namespace Common {
     XmlNode& xmlnode;
     /// reference to the XmlDoc to which the node belongs
     XmlDoc& xmldoc;
-    /// pointer to the valuemap of option nodes
+    /// pointer to the map of option nodes
     XmlNode* option_map;
-    /// pointer to the valuemap of property nodes
+    /// pointer to the map of property nodes
     XmlNode* property_map;
 
   private:
 
-    XmlNode* seek_valuemap(const char * key);
+    XmlNode* seek_map(const char * key);
 
   }; // XmlParams
 
@@ -247,7 +247,7 @@ namespace Common {
     XmlOps::xml_to_string(xmlnode, str);
 
     if ( option_map == 0 )
-      throw  Common::XmlError( FromHere(), "XML node \'" + std::string(tag_node_valuemap()) + "\' not found for options\n\n" + str );
+      throw  Common::XmlError( FromHere(), "XML node \'" + std::string(tag_node_map()) + "\' not found for options\n\n" + str );
 
     return get_value_from<TYPE>(*option_map, pname);
   }
@@ -258,7 +258,7 @@ namespace Common {
       TYPE XmlParams::get_property ( const std::string& pname ) const
   {
     if ( property_map == 0 )
-      throw  Common::XmlError( FromHere(), "XML node \'" + std::string(tag_node_valuemap()) + "\' not found for properties" );
+      throw  Common::XmlError( FromHere(), "XML node \'" + std::string(tag_node_map()) + "\' not found for properties" );
 
     return get_value_from<TYPE>(*property_map, pname);
   }
@@ -269,7 +269,7 @@ namespace Common {
         std::vector<TYPE> XmlParams::get_array ( const std::string& pname ) const
     {
       if ( option_map == 0 )
-        throw  Common::XmlError( FromHere(), "XML node \'" + std::string(tag_node_valuemap()) + "\' not found for options");
+        throw  Common::XmlError( FromHere(), "XML node \'" + std::string(tag_node_map()) + "\' not found for options");
 
       XmlNode* found_node = 0;
       const char * nodetype = XmlTag<TYPE>::array();
@@ -313,7 +313,7 @@ namespace Common {
                                      const std::vector<boost::any> & restricted_vals)
     {
       if ( option_map == 0 )
-        option_map = add_valuemap( tag_key_options() );
+        option_map = add_map( tag_key_options() );
 
       XmlNode * node = add_value_to(*option_map, key, value);
 
@@ -351,7 +351,7 @@ namespace Common {
         void XmlParams::add_property ( const std::string& key, const TYPE& value)
     {
       if ( property_map == 0 )
-        property_map = add_valuemap( tag_key_properties() );
+        property_map = add_map( tag_key_properties() );
 
       add_value_to(*property_map, key, value);
     }
@@ -362,7 +362,7 @@ namespace Common {
       void XmlParams::add_array ( const std::string& key, const std::vector<TYPE>& vect, const std::string& desc, bool basic)
   {
     if ( option_map == 0 )
-      option_map = add_valuemap( tag_key_options() );
+      option_map = add_map( tag_key_options() );
 
     XmlNode * node = add_array_to(*option_map, key, vect);
 
@@ -468,7 +468,7 @@ namespace Common {
     std::string type_name = XmlTag<TYPE>::type();
     std::string value_str = from_value(value); // convert value to string
 
-    // create "value" node and append it to the valuemap
+    // create "value" node and append it to the map
     XmlNode* node = XmlOps::add_node_to(map, tag_node_value());
 
     // create the type node (with option value) and append it to the "value" node

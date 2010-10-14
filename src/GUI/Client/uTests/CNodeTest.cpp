@@ -99,31 +99,31 @@ void CNodeTest::test_setOptions()
 {
   MyNode node("Node");
 
-  boost::shared_ptr<XmlDoc> wrongOpt = XmlOps::parse(std::string("<valuemap>"
+  boost::shared_ptr<XmlDoc> wrongOpt = XmlOps::parse(std::string("<map>"
       "<value key=\"options\">"
-      " <valuemap>"
+      " <map>"
       " 	<value key=\"pi\" descr=\"Pi value\">"
       "   	<real>3.141592</real>"
       "  </value>"
       "	 <value key=\"fakePi\" descr=\"Pi value in an unknown type\">"
       "   	<type>3.141592</type>"
       "  </value>"
-      " </valuemap>"
+      " </map>"
       "</value>"
-      "</valuemap>"));
+      "</map>"));
 
-  boost::shared_ptr<XmlDoc> correctOpt = XmlOps::parse(std::string("<valuemap>"
+  boost::shared_ptr<XmlDoc> correctOpt = XmlOps::parse(std::string("<map>"
       "<value key=\"options\">"
-      " <valuemap>"
+      " <map>"
       " 	<value key=\"pi\" descr=\"Pi value\">"
       "   	<real>3.141592</real>"
       "  </value>"
       "	 <value key=\"fakePi\" descr=\"Pi value in an unknown type\">"
       "   	<string>Hello world!</string>"
       "  </value>"
-      " </valuemap>"
+      " </map>"
       "</value>"
-      "</valuemap>"));
+      "</map>"));
 
 
   GUI_CHECK_THROW(MyNode("Node").setOptions(*wrongOpt->first_node()), ShouldNotBeHere);
@@ -140,18 +140,18 @@ void CNodeTest::test_getOptions()
 
   QList<NodeOption> nodeOptList;
 
-  boost::shared_ptr<XmlDoc> options = XmlOps::parse(std::string("<valuemap>"
+  boost::shared_ptr<XmlDoc> options = XmlOps::parse(std::string("<map>"
       "<value key=\"options\">"
-      " <valuemap>"
+      " <map>"
       " 	<value key=\"pi\" descr=\"Pi value\">"
       "   	<real>3.141592</real>"
       "  </value>"
       "	 <value key=\"hello\" descr=\"Some bool\">"
       "   	<bool>false</bool>"
       "  </value>"
-      " </valuemap>"
+      " </map>"
       "</value>"
-      "</valuemap>"));
+      "</map>"));
 
   th.add(node);
 
@@ -175,15 +175,15 @@ void CNodeTest::test_createFromXml()
   boost::shared_ptr<XmlDoc> tree = XmlOps::parse(
       std::string("<CRoot name=\"Simulator\">"
                   "  <SomeComponent name=\"Flow\">" // comp. type does not exist
-                  "    <valuemap>"
+                  "    <map>"
                   "      <value key=\"options\">"
-                  "        <valuemap>"
+                  "        <map>"
                   "          <value key=\"pi\" descr=\"Pi in a CGroup\">"
                   "            <real>3.1415920000000002</real>"
                   "          </value>"
-                  "        </valuemap>"
+                  "        </map>"
                   "      </value>"
-                  "    </valuemap>"
+                  "    </map>"
                   "  </SomeComponent>"
                   "</CGroup>"));
 
