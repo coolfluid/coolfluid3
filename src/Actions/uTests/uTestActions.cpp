@@ -123,18 +123,19 @@ BOOST_AUTO_TEST_CASE( Templated_Looping_Test )
     // explicit update
     take_step->execute();
   
-    Real L2norm=0;
+    Real rhs_L2=0;
     Uint dof=0;
     BOOST_FOREACH(CArray& node_data, recursive_filtered_range_typed<CArray>(residual,IsComponentTag("node_data")))
     {    
       for (Uint i=0; i<node_data.size(); ++i)
   		{
-  			L2norm += node_data[i][0]*node_data[i][0];
+        rhs_L2 += node_data[i][0]*node_data[i][0];
         dof++;
   		}
     }
-    L2norm = sqrt(L2norm)/dof;
-    CFLogVar(L2norm);
+    rhs_L2 = sqrt(rhs_L2)/dof;
+
+    CFinfo << "Iter [" << iter << "] L2(rhs) [" << rhs_L2 << "]" << CFendl;
   }
   // Write all fields and mesh to file
   CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
