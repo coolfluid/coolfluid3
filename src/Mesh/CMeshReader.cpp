@@ -10,6 +10,7 @@
 #include "Common/Log.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionArray.hpp"
+#include "Common/OptionURI.hpp"
 #include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/CMeshReader.hpp"
@@ -23,9 +24,9 @@ using namespace Common;
 ////////////////////////////////////////////////////////////////////////////////
 
 CMeshReader::CMeshReader ( const CName& name  ) :
-  Component ( name )
+	Component ( name )
 {
-  BUILD_COMPONENT;
+	BUILD_COMPONENT;
 	comm_pattern = SimpleCommunicationPattern(); // must be created after MPI init
 }
 
@@ -47,11 +48,17 @@ void CMeshReader::regist_signals ( CMeshReader* self )
 void CMeshReader::defineConfigProperties(Common::PropertyList& options)
 {
   std::vector<boost::filesystem::path> dummy;
+  Option::Ptr option;
+  OptionURI::Ptr option_uri;
+
   options.add_option< OptionArrayT<boost::filesystem::path> >  ( "Files",  "Files to read" , dummy );
-  options.add_option< OptionT<std::string> >  ( "Mesh",  "Mesh to construct" , "" );
+  option = options.add_option<OptionURI> ( "Mesh",  "Mesh to construct" , "" );
 
   options["Files"].as_option().mark_basic();
   options["Mesh"].as_option().mark_basic();
+
+  option_uri = boost::dynamic_pointer_cast<OptionURI> (option);
+  option_uri->supported_protocol("cpath");
 }
 
 //////////////////////////////////////////////////////////////////////////////
