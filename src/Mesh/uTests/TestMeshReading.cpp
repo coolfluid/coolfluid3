@@ -135,6 +135,19 @@ BOOST_AUTO_TEST_CASE( quadtriag_readNeu_writeGmsh_writeNeu )
   BOOST_CHECK_EQUAL(mesh->domain().recursive_nodes_count(), (Uint) 16);
   BOOST_CHECK_EQUAL(mesh->domain().recursive_elements_count(), (Uint) 28);
   BOOST_CHECK_EQUAL(1,1);
+	
+	
+	
+	BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*mesh))
+	{
+		CList<Uint>& nodes = elements.node_list();
+		
+		CFinfo << elements.full_path().string() << CFendl;
+		for (Uint i=0; i<nodes.size(); ++i)
+		{
+			CFinfo << "  " << nodes[i] << CFendl;
+		}
+	}
 
 }
 

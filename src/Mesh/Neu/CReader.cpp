@@ -191,7 +191,6 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 
   m_file.close();
 	
-	
 	if (np > 1)
 	{
 		nodes_dist.resize(np+1);
@@ -218,6 +217,9 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 			set_pt_scotch_data();
 		}
 	}
+	
+	BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*m_region))
+		elements.update_node_list();
 	
 }
 
