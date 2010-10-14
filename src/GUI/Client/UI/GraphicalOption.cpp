@@ -21,7 +21,7 @@
 #include "GUI/Client/UI/GraphicalInt.hpp"
 #include "GUI/Client/UI/GraphicalRestrictedList.hpp"
 #include "GUI/Client/UI/GraphicalString.hpp"
-#include "GUI/Client/UI/GraphicalUrl.hpp"
+#include "GUI/Client/UI/GraphicalUri.hpp"
 #include "GUI/Client/UI/GraphicalUrlArray.hpp"
 #include "GUI/Client/UI/GraphicalValue.hpp"
 
@@ -74,8 +74,8 @@ GraphicalOption::GraphicalOption(OptionType::Type type, QWidget * parent)
     break;
 
     // if type value is a string
-  case OptionType::TYPE_PATH:
-    m_valueWidget = new GraphicalUrl(parent);
+  case OptionType::TYPE_URI:
+    m_valueWidget = new GraphicalUri(parent);
     break;
 
     // if type value is a string

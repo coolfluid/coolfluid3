@@ -154,8 +154,13 @@ void CNode::setOptions(XmlNode & options)
               addOption<CF::Real>(keyVal, descrVal, *type_node);
             else if(std::strcmp(typeVal, "string") == 0)
               addOption<std::string>(keyVal, descrVal, *type_node);
-            else if(std::strcmp(typeVal, "file") == 0)
-              addOption<boost::filesystem::path>(keyVal, descrVal, *type_node);
+            else if(std::strcmp(typeVal, "uri") == 0)
+            {
+              URI value;
+              to_value(*type_node, value);
+              m_property_list.add_option<OptionURI>(keyVal, descrVal, value);
+              //addOption<boost::filesystem::path>(keyVal, descrVal, *type_node);
+            }
             else
               throw ShouldNotBeHere(FromHere(), std::string(typeVal) + ": Unknown type parent is " + node->name());
           }
@@ -253,25 +258,26 @@ void CNode::setProperties(XmlNode & options)
                 configure_property(keyVal, from_str<CF::Real>(type_node->value()));
               else if(std::strcmp(typeVal, "string") == 0)
                 configure_property(keyVal, std::string(type_node->value()));
-              else if(std::strcmp(typeVal, "file") == 0)
-                configure_property(keyVal, boost::filesystem::path(type_node->value()));
+              else if(std::strcmp(typeVal, "uri") == 0)
+                configure_property(keyVal, from_str<URI>(type_node->value()));
               else
                 throw ShouldNotBeHere(FromHere(), std::string(typeVal) + ": Unknown type parent is " + node->name());
             }
             else
             {
+              const char * value = type_node->value();
               if(std::strcmp(typeVal, "bool") == 0)
-                m_property_list.add_property(keyVal, from_str<bool>(type_node->value()));
+                m_property_list.add_property(keyVal, from_str<bool>(value));
               else if(std::strcmp(typeVal, "integer") == 0)
-                m_property_list.add_property(keyVal, from_str<int>(type_node->value()));
+                m_property_list.add_property(keyVal, from_str<int>(value));
               else if(std::strcmp(typeVal, "unsigned") == 0)
-                m_property_list.add_property(keyVal, from_str<CF::Uint>(type_node->value()));
+                m_property_list.add_property(keyVal, from_str<CF::Uint>(value));
               else if(std::strcmp(typeVal, "real") == 0)
-                m_property_list.add_property(keyVal, from_str<CF::Real>(type_node->value()));
+                m_property_list.add_property(keyVal, from_str<CF::Real>(value));
               else if(std::strcmp(typeVal, "string") == 0)
-                m_property_list.add_property(keyVal, std::string(type_node->value()));
-              else if(std::strcmp(typeVal, "file") == 0)
-                m_property_list.add_property(keyVal, boost::filesystem::path(type_node->value()));
+                m_property_list.add_property(keyVal, std::string(value));
+              else if(std::strcmp(typeVal, "uri") == 0)
+                m_property_list.add_property(keyVal, from_str<URI>(value));
               else
                 throw ShouldNotBeHere(FromHere(), std::string(typeVal) + ": Unknown type parent is " + node->name());
 

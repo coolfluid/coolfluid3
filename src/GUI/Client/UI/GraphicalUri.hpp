@@ -25,15 +25,15 @@ namespace ClientUI {
 
 ////////////////////////////////////////////////////////////////////////////
 
-  class ClientUI_API GraphicalUrl : public GraphicalValue
+  class ClientUI_API GraphicalUri : public GraphicalValue
   {
     Q_OBJECT
 
   public:
 
-    GraphicalUrl(QWidget *parent = 0);
+    GraphicalUri(QWidget *parent = 0);
 
-    ~GraphicalUrl();
+    ~GraphicalUri();
 
     virtual bool setValue(const QVariant & path);
 

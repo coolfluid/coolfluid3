@@ -25,6 +25,7 @@ GraphicalUrlArray::GraphicalUrlArray(QWidget * parent)
   m_btAdd = new QPushButton("Add", this);
   m_btRemove = new QPushButton("Remove", this);
   m_browser = NRemoteOpen::create();
+
   m_buttonsLayout = new QVBoxLayout();
 
   m_listView->setModel(m_model);

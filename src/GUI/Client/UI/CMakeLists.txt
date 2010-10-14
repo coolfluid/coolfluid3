@@ -16,7 +16,7 @@ list( APPEND ClientUI_moc_classes
   GraphicalOption.hpp
   GraphicalRestrictedList.hpp
   GraphicalString.hpp
-  GraphicalUrl.hpp
+  GraphicalUri.hpp
   GraphicalUrlArray.hpp
   GraphicalValue.hpp
   LoggingList.hpp
@@ -62,8 +62,8 @@ list( APPEND ClientUI_files
   GraphicalRestrictedList.hpp
   GraphicalString.hpp
   GraphicalString.cpp
-  GraphicalUrl.cpp
-  GraphicalUrl.hpp
+  GraphicalUri.cpp
+  GraphicalUri.hpp
   GraphicalUrlArray.cpp
   GraphicalUrlArray.hpp
   GraphicalValue.cpp

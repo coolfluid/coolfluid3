@@ -15,13 +15,13 @@
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/UI/SelectPathDialog.hpp"
 
-#include "GUI/Client/UI/GraphicalUrl.hpp"
+#include "GUI/Client/UI/GraphicalUri.hpp"
 
 using namespace CF::Common;
 using namespace CF::GUI::ClientCore;
 using namespace CF::GUI::ClientUI;
 
-GraphicalUrl::GraphicalUrl(QWidget *parent) :
+GraphicalUri::GraphicalUri(QWidget *parent) :
     GraphicalValue(parent)
 {
   m_btBrowse = new QPushButton("Browse", this);
@@ -44,7 +44,7 @@ GraphicalUrl::GraphicalUrl(QWidget *parent) :
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-GraphicalUrl::~GraphicalUrl()
+GraphicalUri::~GraphicalUri()
 {
   delete m_btBrowse;
   delete m_editPath;
@@ -54,7 +54,7 @@ GraphicalUrl::~GraphicalUrl()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QVariant GraphicalUrl::getValue() const
+QVariant GraphicalUri::getValue() const
 {
   return m_editPath->text();
 }
@@ -62,7 +62,7 @@ QVariant GraphicalUrl::getValue() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool GraphicalUrl::setValue(const QVariant & path)
+bool GraphicalUri::setValue(const QVariant & path)
 {
   m_originalValue = path;
   m_editPath->setText(path.toString());
@@ -72,7 +72,7 @@ bool GraphicalUrl::setValue(const QVariant & path)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void GraphicalUrl::btBrowseClicked()
+void GraphicalUri::btBrowseClicked()
 {
   SelectPathDialog spd;
 
@@ -85,7 +85,7 @@ void GraphicalUrl::btBrowseClicked()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void GraphicalUrl::updateModel(const QString & path)
+void GraphicalUri::updateModel(const QString & path)
 {
   int lastSlash = path.lastIndexOf(CPath::separator().c_str());
   QString newPath;
