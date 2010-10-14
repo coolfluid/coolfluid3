@@ -47,7 +47,7 @@ void OptionURI::configure ( XmlNode& node )
 
   colon_pos = val.find_first_of(':');
 
-  if( colon_pos == std::string::npos ) // if ':' was not found
+  if( colon_pos == static_cast<Uint>(std::string::npos) ) // if ':' was not found
     throw XmlError(FromHere(), "No protocol found in URI.");
 
   protocol_str = val.substr(0, colon_pos);
