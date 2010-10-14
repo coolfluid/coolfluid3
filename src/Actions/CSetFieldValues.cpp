@@ -9,6 +9,7 @@
 #include "Actions/CSetFieldValues.hpp"
 #include "Mesh/CFieldElements.hpp"
 #include "Mesh/CTable.hpp"
+#include "Mesh/CList.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -58,22 +59,19 @@ void CSetFieldValues::execute()
     CArray& field_data = elements.data();
     CArray& coordinates = elements.coordinates();
     
-    BOOST_FOREACH(CTable::Row nodes, elements.connectivity_table().array())
+    BOOST_FOREACH(const Uint n, elements.node_list().array())
     {
-      BOOST_FOREACH(Uint n, nodes)
-      {
-        const CF::Real x = coordinates[n][XX];
-        const CF::Real y = coordinates[n][YY];
+			const CF::Real x = coordinates[n][XX];
+			//const CF::Real y = coordinates[n][YY];
 
-        for (Uint i = 0; i < field_data.row_size(); ++i)
-        {
-          if (x >= -1.4 && x <= -0.6)
-	   field_data[n][i] = 0.5*(cos(3.141592*(x+1.0)/0.4)+1.0);
-          else
-            field_data[n][i] = 0.0;
-        }
-      }
-    }
+			for (Uint i = 0; i < field_data.row_size(); ++i)
+			{
+				if (x >= -1.4 && x <= -0.6)
+					field_data[n][i] = 0.5*(cos(3.141592*(x+1.0)/0.4)+1.0);
+				else
+					field_data[n][i] = 0.0;
+			}
+		}
   }
   
   // BOOST_FOREACH(CArray::Ptr field_data, field_data_set)
