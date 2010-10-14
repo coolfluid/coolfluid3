@@ -195,6 +195,11 @@ Win32/LibLoader.hpp      Win32/LibLoader.cpp
 
 list( APPEND Common_libs ${Boost_LIBRARIES})
 
+# explicit linking of all libraries for modern linkers (gcc4.5)
+if( CF_HAVE_RT )
+  list( APPEND Common_libs ${RT_LIBRARY})
+endif()
+
 # faster allocation and memory porfiling
 if( CF_USE_TCMALLOC )
   list(APPEND Common_libs ${GOOGLE_PERFTOOLS_TCMALLOC_LIB} )
