@@ -67,14 +67,14 @@ public: // functions
 
   // functions specific to the CForAllElements component
 
-  virtual const CElementOperation& action(const CName& name = ActionT::type_name()) const
+  virtual const CLoopOperation& action(const CName& name = ActionT::type_name()) const
   {
-    return *m_action->get_type<CElementOperation>();
+    return *m_action->get_type<CLoopOperation>();
   }
 
-  virtual CElementOperation& action(const CName& name = ActionT::type_name())
+  virtual CLoopOperation& action(const CName& name = ActionT::type_name())
   {
-    return *m_action->get_type<CElementOperation>();
+    return *m_action->get_type<CLoopOperation>();
   }
   
   virtual void execute()
@@ -109,7 +109,7 @@ private:
         const Uint elem_count = elements.elements_count();
         for ( Uint elem = 0; elem != elem_count; ++elem )
         {
-          op.set_element_idx(elem);
+          op.set_loop_idx(elem);
           op.template executeT<SFType>( );
         }
       }

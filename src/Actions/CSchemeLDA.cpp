@@ -23,27 +23,26 @@ namespace Actions {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 Common::ObjectProvider < CSchemeLDA, CAction, LibActions, NB_ARGS_1 > CSchemeLDAProviderCAction( "CSchemeLDA" );
-Common::ObjectProvider < CSchemeLDA, CElementOperation, LibActions, NB_ARGS_1 > CSchemeLDAProviderCElementOperation( "CSchemeLDA" );
+Common::ObjectProvider < CSchemeLDA, CLoopOperation, LibActions, NB_ARGS_1 > CSchemeLDAProviderCLoopOperation( "CSchemeLDA" );
 
 ///////////////////////////////////////////////////////////////////////////////////////
   
 void CSchemeLDA::defineConfigProperties( Common::PropertyList& options )
 {
-  options.add_option< OptionT<URI> > ("SolutionField","Solution Field for calculation", URI("cpath://"))->mark_basic();
-  options.add_option< OptionT<URI> > ("ResidualField","Residual Field updated after calculation", URI("cpath://"))->mark_basic();
-  options.add_option< OptionT<URI> > ("InverseUpdateCoeff","Inverse update coefficient Field updated after calculation", URI("cpath://"))->mark_basic();
+  options.add_option< OptionT<std::string> > ("SolutionField","Solution Field for calculation", "solution")->mark_basic();
+  options.add_option< OptionT<std::string> > ("ResidualField","Residual Field updated after calculation", "residual")->mark_basic();
+  options.add_option< OptionT<std::string> > ("InverseUpdateCoeff","Inverse update coefficient Field updated after calculation", "inv_updateCoeff")->mark_basic();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 CSchemeLDA::CSchemeLDA ( const CName& name ) : 
-  CElementOperation(name)
+  CLoopOperation(name)
 {
   BUILD_COMPONENT;
-  m_property_list["SolutionField"].as_option().attach_trigger ( boost::bind ( &CSchemeLDA::trigger_SolutionField,   this ) );  
-  m_property_list["ResidualField"].as_option().attach_trigger ( boost::bind ( &CSchemeLDA::trigger_ResidualField,   this ) );  
-  m_property_list["InverseUpdateCoeff"].as_option().attach_trigger ( boost::bind ( &CSchemeLDA::trigger_InverseUpdateCoeff,   this ) );  
-  
+//  m_property_list["SolutionField"].as_option().attach_trigger ( boost::bind ( &CSchemeLDA::trigger_SolutionField,   this ) );  
+//  m_property_list["ResidualField"].as_option().attach_trigger ( boost::bind ( &CSchemeLDA::trigger_ResidualField,   this ) );  
+//  m_property_list["InverseUpdateCoeff"].as_option().attach_trigger ( boost::bind ( &CSchemeLDA::trigger_InverseUpdateCoeff,   this ) );  
   
   nb_q=3;
   mapped_coords.resize(nb_q);
@@ -58,31 +57,11 @@ CSchemeLDA::CSchemeLDA ( const CName& name ) :
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void CSchemeLDA::trigger_SolutionField()
-{
-  CPath field_path (property("SolutionField").value<URI>());
-  m_solution_field = look_component_type<CField>(field_path);
-}
-
-void CSchemeLDA::trigger_ResidualField()
-{
-  CPath field_path (property("ResidualField").value<URI>());
-  m_residual_field = look_component_type<CField>(field_path);
-}
-
-void CSchemeLDA::trigger_InverseUpdateCoeff()
-{
-  CPath field_path (property("InverseUpdateCoeff").value<URI>());
-  m_inverseUpdateCoeff = look_component_type<CField>(field_path);
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
-
 void CSchemeLDA::execute()
 {
   static const Uint fix = 10000000000000000000;
 
-  // inside element with index m_elm_idx
+  // inside element with index m_idx
   RealMatrix mapped_grad(2,3); //Gradient of the shape functions in reference space
   RealVector shapefunc(3);     //Values of shape functions in reference space
   RealVector grad_solution(2);
@@ -94,19 +73,19 @@ void CSchemeLDA::execute()
 
   phi = 0.;
   
-  if (m_elm_idx == fix) {
-    CFinfo << "elem [" << m_elm_idx << "]" << CFendl;
+  if (m_idx == fix) {
+    CFinfo << "elem [" << m_idx << "]" << CFendl;
     CFinfo << "vertex coodinates:" << CFendl;
-    BOOST_FOREACH(const Uint node, data->connectivity_table[m_elm_idx])
+    BOOST_FOREACH(const Uint node, data->connectivity_table[m_idx])
     CFinfo << "V(" << node << ") = [" << data->coordinates[node][XX] << "," << data->coordinates[node][YY] << "]" << CFendl;
   }
   
   
-  if (m_elm_idx == fix) {
+  if (m_idx == fix) {
 
     CFinfo << "nodal normals:" << CFendl;
     
-    CTable::ConstRow nodes = data->connectivity_table[m_elm_idx]; 
+    CTable::ConstRow nodes = data->connectivity_table[m_idx]; 
     CFinfo << "n0 = [" << data->coordinates[nodes[1]][YY] - data->coordinates[nodes[2]][YY] << ",";
     CFinfo << data->coordinates[nodes[2]][XX] - data->coordinates[nodes[1]][XX] << "]" << CFendl;
 
@@ -125,14 +104,14 @@ void CSchemeLDA::execute()
     Real x=0;
     Real y=0;
     Uint node_counter = 0;
-    BOOST_FOREACH(const Uint node, data->connectivity_table[m_elm_idx])
+    BOOST_FOREACH(const Uint node, data->connectivity_table[m_idx])
     {
       x += shapefunc[node_counter] * data->coordinates[node][XX];
       y += shapefunc[node_counter] * data->coordinates[node][YY];
       ++node_counter;
     }
     
-    if (m_elm_idx == fix) {
+    if (m_idx == fix) {
       CFinfo << "The coords of quadrature point are: [" << x << "," << y << "]" << CFendl;
     }
     
@@ -143,7 +122,7 @@ void CSchemeLDA::execute()
 
     // Compute the components of the Jacobian matrix representing the transformation
     // physical -> reference space
-    BOOST_FOREACH(const Uint node, data->connectivity_table[m_elm_idx])
+    BOOST_FOREACH(const Uint node, data->connectivity_table[m_idx])
     {
       grad_x[XX] += mapped_grad(XX,node_counter) * data->coordinates[node][XX];
       grad_x[YY] += mapped_grad(YY,node_counter) * data->coordinates[node][XX];
@@ -160,7 +139,7 @@ void CSchemeLDA::execute()
     grad_solution = 0;
     denominator = 0;
     
-    BOOST_FOREACH(const Uint node, data->connectivity_table[m_elm_idx])
+    BOOST_FOREACH(const Uint node, data->connectivity_table[m_idx])
     {
       const Real dNdx = 1.0/jacobian * (  grad_y[YY]*mapped_grad(XX,node_counter) - grad_y[XX]*mapped_grad(YY,node_counter) );
       const Real dNdy = 1.0/jacobian * ( -grad_x[YY]*mapped_grad(XX,node_counter) + grad_x[XX]*mapped_grad(YY,node_counter) );
@@ -185,9 +164,9 @@ void CSchemeLDA::execute()
   // Loop over quadrature nodes
   
   Uint node_counter = 0;
-  BOOST_FOREACH(const Uint node, data->connectivity_table[m_elm_idx])
+  BOOST_FOREACH(const Uint node, data->connectivity_table[m_idx])
   {
-    if (m_elm_idx == fix)
+    if (m_idx == fix)
       CFinfo << "phi(" << node_counter << ") ["  << phi[node_counter] << "]" << CFendl;
     data->residual[node][0] += phi[node_counter];
     ++node_counter;
@@ -198,7 +177,7 @@ void CSchemeLDA::execute()
   
   RealVector centroid(0.0,2);
   centroid = 0.0;
-  BOOST_FOREACH(const Uint node, data->connectivity_table[m_elm_idx])
+  BOOST_FOREACH(const Uint node, data->connectivity_table[m_idx])
   {
     centroid[XX] += data->coordinates[node][XX];
     centroid[YY] += data->coordinates[node][YY];
@@ -207,7 +186,7 @@ void CSchemeLDA::execute()
   centroid /= 3.0;
   
   RealMatrix nodal_normals(2,3);
-  CTable::ConstRow nodes = data->connectivity_table[m_elm_idx];
+  CTable::ConstRow nodes = data->connectivity_table[m_idx];
 
   nodal_normals(XX,0) = data->coordinates[nodes[1]][YY] - data->coordinates[nodes[2]][YY];
   nodal_normals(XX,1) = data->coordinates[nodes[2]][YY] - data->coordinates[nodes[0]][YY];
@@ -217,7 +196,7 @@ void CSchemeLDA::execute()
   nodal_normals(YY,1) = data->coordinates[nodes[0]][XX] - data->coordinates[nodes[2]][XX];
   nodal_normals(YY,2) = data->coordinates[nodes[1]][XX] - data->coordinates[nodes[0]][XX];
 
-  if (m_elm_idx == fix)
+  if (m_idx == fix)
     CFinfo << "nnormals(" << CFendl << nodal_normals << ")" << CFendl;
 
   Real sumK=0;
@@ -229,7 +208,7 @@ void CSchemeLDA::execute()
   {
     // Real kplus = 0.5*std::max(0.0,centroid[YY]*nodal_normals(XX,i)-centroid[XX]*nodal_normals(YY,i));
     data->inverse_updatecoeff[nodes[i]][0] += sumK; 
-      if (m_elm_idx == fix)
+      if (m_idx == fix)
         CFinfo << "Updated node " << nodes[i] << CFendl;
   } 
 
@@ -238,7 +217,7 @@ void CSchemeLDA::execute()
 //    || Math::MathChecks::isZero( data->coordinates[nodes[1]][YY] )
 //    || Math::MathChecks::isZero( data->coordinates[nodes[2]][YY] ) )
 //  {
-//    CFinfo << "elem [" << m_elm_idx << "]" << CFendl;
+//    CFinfo << "elem [" << m_idx << "]" << CFendl;
 //  }
 
 

@@ -6,7 +6,11 @@
 
 #include "Common/ObjectProvider.hpp"
 #include "Common/OptionT.hpp"
-#include "Actions/CElementOperation.hpp"
+
+#include "Mesh/CList.hpp"
+
+#include "Actions/CLoopOperation.hpp"
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -17,16 +21,23 @@ namespace Actions {
 
 ///////////////////////////////////////////////////////////////////////////////////////
   
-void CElementOperation::defineConfigProperties( Common::PropertyList& options )
+void CLoopOperation::defineConfigProperties( Common::PropertyList& options )
 {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-CElementOperation::CElementOperation ( const CName& name ) : 
+CLoopOperation::CLoopOperation ( const CName& name ) : 
   CAction(name)
 {
   BUILD_COMPONENT;
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+
+CList<Uint>& CLoopOperation::loop_list()
+{
+	throw NotImplemented(FromHere(), "Your operation did not implement the loop_list() function");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

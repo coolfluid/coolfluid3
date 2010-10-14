@@ -4,62 +4,56 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CElementOperation_hpp
-#define CF_Mesh_CElementOperation_hpp
+#ifndef CF_Mesh_CForAllNodes_hpp
+#define CF_Mesh_CForAllNodes_hpp
 
-#include "Actions/CAction.hpp"
+
+#include "Actions/CLoop.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
+using namespace CF::Mesh;
+using namespace CF::Common::String;
 namespace CF {
-  
-namespace Mesh {
-  class CElements;
-}
-
+	namespace Mesh{
+		class CElements;
+	}
 namespace Actions {
 
-  using namespace CF::Mesh;
+/////////////////////////////////////////////////////////////////////////////////////
 
-///////////////////////////////////////////////////////////////////////////////////////
-
-class Actions_API CElementOperation : public CAction
+class Actions_API CForAllNodes : public CLoop
 {
 public: // typedefs
 
-  /// provider
-  typedef Common::ConcreteProvider < CElementOperation , Common::NB_ARGS_1 > PROVIDER;
-
-  /// pointers
-  typedef boost::shared_ptr<CElementOperation> Ptr;
-  typedef boost::shared_ptr<CElementOperation const> ConstPtr;
+  typedef boost::shared_ptr< CForAllNodes > Ptr;
+  typedef boost::shared_ptr< CForAllNodes const > ConstPtr;
 
 public: // functions
+
   /// Contructor
   /// @param name of the component
-  CElementOperation ( const CName& name );
+  CForAllNodes ( const CName& name );
 
   /// Virtual destructor
-  virtual ~CElementOperation() {};
+  virtual ~CForAllNodes() {}
 
   /// Get the class name
-  static std::string type_name () { return "CElementOperation"; }
+  static std::string type_name () { return "CForAllNodes"; }
 
   /// Configuration Options
   static void defineConfigProperties ( Common::PropertyList& options );
-  
-  virtual void set_loophelper ( CElements& geometry_elements ) = 0;
-  
-  void set_element_idx ( const Uint elem_idx ) { m_elm_idx = elem_idx; }
-  
+
+  // functions specific to the CForAllNodes component
+
+  virtual void execute();
+
+	
 private: // helper functions
 
   /// regists all the signals declared in this class
   static void regist_signals ( Component* self ) {}
 
-protected: // data
-
-  Uint m_elm_idx;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -69,4 +63,4 @@ protected: // data
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CElementOperation_hpp
+#endif // CF_Mesh_CForAllNodes_hpp

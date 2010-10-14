@@ -4,72 +4,65 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CLoop_hpp
-#define CF_Mesh_CLoop_hpp
+#ifndef CF_Actions_CLoopOperation_hpp
+#define CF_Actions_CLoopOperation_hpp
 
 #include "Actions/CAction.hpp"
-#include "Actions/CLoopOperation.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
+  
 namespace Mesh {
-  class CRegion;
+  class CElements;
+	template <typename T> class CList;
 }
+
 namespace Actions {
 
   using namespace CF::Mesh;
 
-/////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
 
-class Actions_API CLoop : public CAction
+class Actions_API CLoopOperation : public CAction
 {
 public: // typedefs
 
   /// provider
-  typedef Common::ConcreteProvider < CAction , Common::NB_ARGS_1 > PROVIDER;
+  typedef Common::ConcreteProvider < CLoopOperation , Common::NB_ARGS_1 > PROVIDER;
 
-  /// provider
-  typedef boost::shared_ptr< CLoop > Ptr;
-  typedef boost::shared_ptr< CLoop const > ConstPtr;
+  /// pointers
+  typedef boost::shared_ptr<CLoopOperation> Ptr;
+  typedef boost::shared_ptr<CLoopOperation const> ConstPtr;
 
 public: // functions
-
   /// Contructor
   /// @param name of the component
-  CLoop ( const CName& name );
-
-  void trigger_Regions();
+  CLoopOperation ( const CName& name );
 
   /// Virtual destructor
-  virtual ~CLoop() {}
+  virtual ~CLoopOperation() {};
 
   /// Get the class name
-  static std::string type_name () { return "CLoop"; }
+  static std::string type_name () { return "CLoopOperation"; }
 
   /// Configuration Options
   static void defineConfigProperties ( Common::PropertyList& options );
-
-  // functions specific to the CLoop component
-
-  CLoopOperation& create_action(const std::string action_provider);
-
-  virtual const CLoopOperation& action(const CName& name) const;
-
-  virtual CLoopOperation& action(const CName& name);
-
-  virtual void execute() = 0;
-
+  
+  virtual void set_loophelper ( CElements& geometry_elements ) = 0;
+  
+  void set_loop_idx ( const Uint idx ) { m_idx = idx; }
+	
+	virtual CList<Uint>& loop_list();
+  
 private: // helper functions
 
   /// regists all the signals declared in this class
   static void regist_signals ( Component* self ) {}
 
-protected:
+protected: // data
 
-  /// Regions to loop over
-  std::vector<boost::shared_ptr<CRegion> > m_loop_regions;
-
+  Uint m_idx;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -79,4 +72,4 @@ protected:
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CLoop_hpp
+#endif // CF_Actions_CLoopOperation_hpp

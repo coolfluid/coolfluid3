@@ -23,7 +23,8 @@
 #include "Actions/CSetFieldValues.hpp"
 #include "Actions/CForAllElementsT.hpp"
 #include "Actions/CForAllElements.hpp"
-#include "Actions/CElementOperation.hpp"
+#include "Actions/CForAllNodes.hpp"
+#include "Actions/CLoopOperation.hpp"
 #include "Actions/CSchemeLDA.hpp"
 #include "Actions/CTakeStep.hpp"
 
@@ -43,7 +44,7 @@ BOOST_AUTO_TEST_CASE( ConstructorTest )
 {
   CForAllElementsT<CSchemeLDA>::Ptr elem_loop ( new CForAllElementsT<CSchemeLDA> ("loop_LDA") );
   BOOST_CHECK(elem_loop);
-  CElementOperation::Ptr lda_scheme = create_component_abstract_type<CElementOperation>("CSchemeLDA","lda_scheme");
+  CLoopOperation::Ptr lda_scheme = create_component_abstract_type<CLoopOperation>("CSchemeLDA","lda_scheme");
   BOOST_CHECK(lda_scheme);
 }
 
@@ -60,17 +61,17 @@ BOOST_AUTO_TEST_CASE( Templated_Looping_Test )
   meshreader->read_from_to(fp_in,mesh);
   
   // create a node-based scalar solution and residual field
-  CField& solution = mesh->create_field("solution",1,CField::NODE_BASED);
+  mesh->create_field("solution",1,CField::NODE_BASED);
   CField& residual = mesh->create_field("residual",1,CField::NODE_BASED);
   CField& inv_update_coeff = mesh->create_field("inverse_updatecoeff",1,CField::NODE_BASED);
-  std::vector<std::string> lambda_vars(2);
-  // CField& lambda = mesh->create_field("lambda",)
-  CFinfo << mesh->tree() << CFendl;
   
-  // Set the solution field to an initial state
-  CSetFieldValues::Ptr set_field = root->create_component_type<CSetFieldValues>("set_field");
-  set_field->configure_property("Field",URI("cpath://Root/mesh/solution/rotation/inlet"));
-  set_field->execute();
+  // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
+	CLoop::Ptr apply_bc = root->create_component_type< CForAllNodes >("apply_bc");
+  apply_bc->create_action("CSetFieldValues");
+	
+	std::vector<URI> bc_regions = list_of(URI("cpath://Root/mesh/Base/rotation/inlet"));
+	apply_bc->configure_property("Regions",bc_regions);
+  apply_bc->action("CSetFieldValues").configure_property("Field",std::string("solution"));
   
   // Create a loop over elements with the LDAScheme
   CLoop::Ptr elem_loop;
@@ -85,13 +86,14 @@ BOOST_AUTO_TEST_CASE( Templated_Looping_Test )
   // Configure the elem_loop, and the LDA scheme
   std::vector<URI> regions_to_loop = list_of(URI("cpath://Root/mesh/Base/rotation/fluid"));
   elem_loop->configure_property("Regions",regions_to_loop);  
-  elem_loop->action("CSchemeLDA").configure_property("SolutionField",URI("cpath://Root/mesh/solution"));
-  elem_loop->action("CSchemeLDA").configure_property("ResidualField",URI("cpath://Root/mesh/residual"));
-  elem_loop->action("CSchemeLDA").configure_property("InverseUpdateCoeff",URI("cpath://Root/mesh/inverse_updatecoeff"));
-  
+  elem_loop->action("CSchemeLDA").configure_property("SolutionField",std::string("solution"));
+  elem_loop->action("CSchemeLDA").configure_property("ResidualField",std::string("residual"));
+  elem_loop->action("CSchemeLDA").configure_property("InverseUpdateCoeff",std::string("inverse_updatecoeff"));
+
+	BOOST_CHECK(true);
+
   // Execute the loop
   
-  BOOST_CHECK(true);
   
   CAction::Ptr take_step = root->create_component_type<CTakeStep>("take_step");
   take_step->configure_property("SolutionField",URI("cpath://Root/mesh/solution"));
@@ -103,21 +105,14 @@ BOOST_AUTO_TEST_CASE( Templated_Looping_Test )
     // update coefficient and residual to zero
     // Set the field data of the source field
     BOOST_FOREACH(CArray& node_data, recursive_filtered_range_typed<CArray>(residual,IsComponentTag("node_data")))
-    {    
       for (Uint i=0; i<node_data.size(); ++i)
-  		{
   			node_data[i][0]=0;
-  		}
-    }
     BOOST_FOREACH(CArray& node_data, recursive_filtered_range_typed<CArray>(inv_update_coeff,IsComponentTag("node_data")))
-    {    
       for (Uint i=0; i<node_data.size(); ++i)
-  		{
   			node_data[i][0]=0;
-  		}
-    }
+
     // apply BC
-    set_field->execute();  
+    apply_bc->execute();  
     // compute element residual distribution
     elem_loop->execute();
     // explicit update
@@ -135,8 +130,11 @@ BOOST_AUTO_TEST_CASE( Templated_Looping_Test )
     }
     rhs_L2 = sqrt(rhs_L2)/dof;
 
-    CFinfo << "Iter [" << iter << "] L2(rhs) [" << rhs_L2 << "]" << CFendl;
+    CFinfo << "Iter [" << std::setw(4) << iter << "] L2(rhs) [" << std::setw(12) << rhs_L2 << "]" << CFendl;
   }
+	
+	
+	BOOST_CHECK(true);
   // Write all fields and mesh to file
   CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
   boost::filesystem::path fp_out("LDA_scheme.msh");

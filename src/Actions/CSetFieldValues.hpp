@@ -4,22 +4,28 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CSetFieldValues_hpp
-#define CF_Mesh_CSetFieldValues_hpp
+#ifndef CF_Actions_CSetFieldValues_hpp
+#define CF_Actions_CSetFieldValues_hpp
 
-#include "Mesh/CField.hpp"
-#include "Actions/CAction.hpp"
+#include "Mesh/CFieldElements.hpp"
+
+#include "Actions/CLoopOperation.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace CF::Mesh;
 
 namespace CF {
+	
+	namespace Mesh {
+		class CArray;
+		class CFieldElements;
+	}
 namespace Actions {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class Actions_API CSetFieldValues : public CAction
+class Actions_API CSetFieldValues : public CLoopOperation
 {
 public: // typedefs
 
@@ -41,21 +47,34 @@ public: // functions
   /// Configuration Options
   static void defineConfigProperties ( Common::PropertyList& options );
 
+  /// Set the loop_helper
+  void set_loophelper (CElements& geometry_elements );
+	
   /// execute the action
   virtual void execute ();
-  
-  /// configure the field
-  void trigger_Field();
-  
+	
+	virtual CList<Uint>& loop_list ();
+	
 private: // helper functions
-
+	
   /// regists all the signals declared in this class
   static void regist_signals ( Component* self ) {}
-
+	
 private: // data
-
-  /// The field set by configuration, to perform action on
-  CField::Ptr m_field;
+	
+  struct LoopHelper
+  {
+    LoopHelper(CElements& geometry_elements, CLoopOperation& op) :
+		field_data(geometry_elements.get_field_elements(op.properties()["Field"].value<std::string>()).data()),
+		coordinates(geometry_elements.get_field_elements(op.properties()["Field"].value<std::string>()).coordinates()),
+		node_list(geometry_elements.get_field_elements(op.properties()["Field"].value<std::string>()).node_list())
+    { }
+    CArray& field_data;
+    CArray& coordinates;
+		CList<Uint>& node_list;
+  };
+	
+  boost::shared_ptr<LoopHelper> data;
 
 };
 
@@ -66,4 +85,4 @@ private: // data
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CSetFieldValues_hpp
+#endif // CF_Actions_CSetFieldValues_hpp

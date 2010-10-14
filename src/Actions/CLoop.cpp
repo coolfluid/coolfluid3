@@ -35,13 +35,13 @@ CLoop::CLoop ( const CName& name ) :
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-CElementOperation& CLoop::create_action(const std::string action_provider)
+CLoopOperation& CLoop::create_action(const std::string action_provider)
 {
   // The execuation of operations must be in chronological order, hence
   // they get an alphabetical name
   std::string name = action_provider;
-  CElementOperation::Ptr sub_operation = 
-    (create_component_abstract_type<CElementOperation>(action_provider,name));
+  CLoopOperation::Ptr sub_operation = 
+    (create_component_abstract_type<CLoopOperation>(action_provider,name));
   add_component(sub_operation);
   return *sub_operation;
 }
@@ -59,16 +59,16 @@ void CLoop::trigger_Regions()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-const CElementOperation& CLoop::action(const CName& name) const
+const CLoopOperation& CLoop::action(const CName& name) const
 {
-  return *get_child_type<CElementOperation const>(name);
+  return *get_child_type<CLoopOperation const>(name);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-CElementOperation& CLoop::action(const CName& name)
+CLoopOperation& CLoop::action(const CName& name)
 {
-  return *get_child_type<CElementOperation>(name);
+  return *get_child_type<CLoopOperation>(name);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
