@@ -43,6 +43,8 @@ void func (int) {}
 int main(void)
 {
   char * ch = nullptr;        // ok
+  use_variable( ch );
+
   func (nullptr);             // Calls func(double *)
   func (0);                   // Calls func(int)
   void (C::*pmf2)() = 0;      // ok
