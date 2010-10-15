@@ -37,20 +37,18 @@ void OptionURI::configure ( XmlNode& node )
 {
   std::string val;
   XmlNode * type_node = node.first_node(XmlTag<std::string>::type());
-  int colon_pos;
-  std::string protocol_str;
 
   if(type_node != nullptr)
     to_value(*type_node, val);
   else
     throw XmlError(FromHere(), "Could not find a stringvalue of this type.");
 
-  colon_pos = val.find_first_of(':');
+  size_t colon_pos = val.find_first_of(':');
 
   if( colon_pos == std::string::npos ) // if ':' was not found
     throw XmlError(FromHere(), "No protocol found in URI.");
 
-  protocol_str = val.substr(0, colon_pos);
+  std::string protocol_str = val.substr(0, colon_pos);
 
   if(std::find(m_protocols.begin(), m_protocols.end(), protocol_str) == m_protocols.end())
     throw XmlError(FromHere(), protocol_str + ": unsupported protocol.");
