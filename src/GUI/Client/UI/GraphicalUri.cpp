@@ -4,6 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <QComboBox>
 #include <QCompleter>
 #include <QHBoxLayout>
 #include <QLineEdit>
@@ -14,6 +15,7 @@
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/UI/SelectPathDialog.hpp"
+#include "GUI/Client/UI/NRemoteOpen.hpp"
 
 #include "GUI/Client/UI/GraphicalUri.hpp"
 
@@ -28,15 +30,21 @@ GraphicalUri::GraphicalUri(QWidget *parent) :
   m_editPath = new QLineEdit(this);
   m_completerModel = new QStringListModel(this);
   m_completer = new QCompleter(this);
+  m_comboType = new QComboBox(this);
 
-  m_editPath->setCompleter(m_completer);
   m_completer->setModel(m_completerModel);
 
+  m_comboType->addItems(QStringList() << "cpath" << "file" << "http");
+
+  changeType(m_comboType->currentText());
+
+  m_layout->addWidget(m_comboType);
   m_layout->addWidget(m_editPath);
   m_layout->addWidget(m_btBrowse);
 
   connect(m_btBrowse, SIGNAL(clicked()), this, SLOT(btBrowseClicked()));
-  connect(m_editPath, SIGNAL(textChanged(QString)), this, SLOT(updateModel(QString)));
+//  connect(m_editPath, SIGNAL(textChanged(QString)), this, SLOT(updateModel(QString)));
+  connect(m_comboType, SIGNAL(activated(QString)), this, SLOT(changeType(QString)));
 
   this->updateModel("");
 }
@@ -62,11 +70,31 @@ QVariant GraphicalUri::getValue() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool GraphicalUri::setValue(const QVariant & path)
+bool GraphicalUri::setValue(const QVariant & value)
 {
-  m_originalValue = path;
-  m_editPath->setText(path.toString());
-  return true;
+  if(value.type() == QVariant::String)
+  {
+    m_originalValue = value;
+    m_editPath->setText(value.toString());
+    return true;
+  }
+  else if(value.type() == QVariant::StringList)
+  {
+    QStringList list = value.toStringList();
+
+    m_comboType->clear();
+
+    if(list.isEmpty())
+      list << "cpath" << "file" << "http";
+
+    m_comboType->addItems(list);
+
+    changeType(m_comboType->currentText());
+
+    return true;
+  }
+
+  return false;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -74,12 +102,26 @@ bool GraphicalUri::setValue(const QVariant & path)
 
 void GraphicalUri::btBrowseClicked()
 {
-  SelectPathDialog spd;
+  if(m_comboType->currentText() == "cpath")
+  {
+    SelectPathDialog spd;
+    QString modified_path = m_editPath->text();
 
-  CPath path = spd.show(m_editPath->text().toStdString());
+    CPath path = spd.show(modified_path.toStdString());
 
-  if(!path.empty())
-    m_editPath->setText(path.string().c_str());
+    if(!path.empty())
+      m_editPath->setText(path.string().c_str());
+  }
+  else if(m_comboType->currentText() == "file")
+  {
+    NRemoteOpen::Ptr nro = NRemoteOpen::create();
+    bool canceled;
+
+    QString filename = nro->show("", &canceled);
+
+    if(!canceled && !filename.isEmpty())
+      m_editPath->setText(filename);
+  }
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -87,6 +129,9 @@ void GraphicalUri::btBrowseClicked()
 
 void GraphicalUri::updateModel(const QString & path)
 {
+  if(m_editPath->completer() == nullptr)
+    return;
+
   int lastSlash = path.lastIndexOf(CPath::separator().c_str());
   QString newPath;
   QStringList list;
@@ -131,4 +176,14 @@ void GraphicalUri::updateModel(const QString & path)
   catch(InvalidPath & ip) {}
 
   emit valueChanged();
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void GraphicalUri::changeType(const QString & type)
+{
+  m_btBrowse->setVisible(type == "cpath" || type == "file");
+  m_editPath->setVisible(!type.isEmpty());
+  m_editPath->setCompleter(type == "cpath" ? m_completer : nullptr);
 }

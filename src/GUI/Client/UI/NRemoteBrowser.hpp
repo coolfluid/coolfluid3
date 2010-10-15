@@ -143,13 +143,15 @@ namespace ClientUI {
     /// is used as starting directory
     /// @li if the dialog is shown for the first time, the browsing starts in
     /// the default directory defined by the server.
+    /// @param ok If not null, the method stores @c true if user canceled (ie.
+    /// clicked on "Cancel" button or closed the dialog)
     ///
     /// The path may be absolute or relative. If the string is null, it is
     /// considered as empty.
     /// @return Returns the absolute path of the selected file to open or an
     /// empty string if user clicked on "Cancel" or closed the dialog.
     /// @see showMultipleSelect
-    QString show(const QString & startingDir = "");
+    QString show(const QString & startingDir = "", bool * canceled = nullptr);
 
     /// @brief Shows the dialog.
 

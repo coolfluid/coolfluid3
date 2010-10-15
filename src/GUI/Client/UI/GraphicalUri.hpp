@@ -11,6 +11,7 @@
 
 #include "GUI/Client/UI/GraphicalValue.hpp"
 
+class QComboBox;
 class QCompleter;
 class QLineEdit;
 class QPushButton;
@@ -45,15 +46,21 @@ namespace ClientUI {
 
     void updateModel(const QString & path);
 
+    void changeType(const QString & type);
+
   private:
 
     QLineEdit * m_editPath;
 
     QPushButton * m_btBrowse;
 
+    QComboBox * m_comboType;
+
     QCompleter * m_completer;
 
     QStringListModel * m_completerModel;
+
+    QString m_currentType;
 
   }; // class GraphicalUrl
 

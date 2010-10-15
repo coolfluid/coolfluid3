@@ -102,6 +102,8 @@ namespace ClientCore {
 
     QStringList m_paramRestrValues;
 
+    QStringList m_paramProtocols;
+
     bool operator == (const NodeOption & option);
 
   }; // struct NodeParams

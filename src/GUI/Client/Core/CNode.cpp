@@ -157,9 +157,16 @@ void CNode::setOptions(XmlNode & options)
             else if(std::strcmp(typeVal, "uri") == 0)
             {
               URI value;
+              Option::Ptr option;
+              OptionURI::Ptr opt;
+              XmlAttr * attr = node->first_attribute(XmlParams::tag_attr_protocol());
               to_value(*type_node, value);
-              m_property_list.add_option<OptionURI>(keyVal, descrVal, value);
-              //addOption<boost::filesystem::path>(keyVal, descrVal, *type_node);
+//              opt = m_property_list.add_option<OptionURI>(keyVal, descrVal, value);
+
+//              for( ; attr != nullptr ; attr = attr->next_attribute(XmlParams::tag_attr_protocol()))
+//              {
+//                opt->supported_protocol(attr->value());
+//              }
             }
             else
               throw ShouldNotBeHere(FromHere(), std::string(typeVal) + ": Unknown type parent is " + node->name());
@@ -542,7 +549,13 @@ void CNode::getOptions(QList<NodeOption> & options) const
           else if(opt->type().compare(XmlTag<bool>::type()) == 0)
             nodeOpt.m_paramRestrValues = this->vectToStringList<bool>(vect);
           else if(opt->type().compare(XmlTag<URI>::type()) == 0)
+          {
+            OptionURI::Ptr optURI = boost::dynamic_pointer_cast<OptionURI>(opt);
+
+            std::vector<std::string>::const_iterator it = optURI->supported_protocols().begin();
+
             nodeOpt.m_paramRestrValues = this->vectToStringList<URI>(vect);
+          }
           else
             ClientRoot::log()->addError(QString("%1: unknown type").arg(opt->type().c_str()));
         }
@@ -570,6 +583,18 @@ void CNode::getOptions(QList<NodeOption> & options) const
                                         .arg(optArray->elem_type()));
           }
         }
+
+        if(opt->type().compare(XmlTag<URI>::type()) == 0)
+        {
+          OptionURI::Ptr optURI = boost::dynamic_pointer_cast<OptionURI>(opt);
+
+          std::vector<std::string>::const_iterator it = optURI->supported_protocols().begin();
+
+          for( ; it != optURI->supported_protocols().end() ; it++)
+            nodeOpt.m_paramProtocols << it->c_str();
+
+        }
+
       }
 
       if(success)

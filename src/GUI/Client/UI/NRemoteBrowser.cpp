@@ -46,9 +46,7 @@ NRemoteBrowser::NRemoteBrowser(const QString & componentType, QMainWindow * pare
   : QDialog(parent),
     CNode(ClientRoot::browser()->generateName(), componentType,
           CNode::BROWSER_NODE)
-
 {
-//  this->rename();
 
   regist_signal("read_dir", "Directory content")->connect(boost::bind(&NRemoteBrowser::read_dir, this, _1));
 
@@ -170,7 +168,7 @@ NRemoteBrowser::~NRemoteBrowser()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString NRemoteBrowser::show(const QString & startingDir)
+QString NRemoteBrowser::show(const QString & startingDir, bool * canceled)
 {
   if(!this->allowSingleSelect)
   {
@@ -199,6 +197,9 @@ QString NRemoteBrowser::show(const QString & startingDir)
   this->exec();
 
   this->disconnect(ClientRoot::log().get());
+
+  if(canceled != nullptr)
+    *canceled = !m_okClicked;
 
   if(m_okClicked)
     return this->getSelectedFile();
