@@ -46,11 +46,8 @@ public: // functions
   static void defineConfigProperties ( Common::PropertyList& options );
 
   /// Set the loop_helper
-  void set_loophelper (CElements& geometry_elements )
-  {
-    data = boost::shared_ptr<LoopHelper> ( new LoopHelper(geometry_elements , *this ) );
-  }
-
+  void set_loophelper (CElements& geometry_elements );
+	
   /// execute the action
   virtual void execute ();
     

@@ -53,6 +53,7 @@ public: // functions
   /// execute the action
   virtual void execute ();
 	
+	/// @return the nodes to loop over
 	virtual CList<Uint>& loop_list ();
 	
 private: // helper functions

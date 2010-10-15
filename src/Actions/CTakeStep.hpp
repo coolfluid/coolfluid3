@@ -8,9 +8,10 @@
 #define CF_Mesh_CTakeStep_hpp
 
 #include "Common/ComponentPredicates.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/CFieldElements.hpp"
 #include "Mesh/CArray.hpp"
-#include "Actions/CAction.hpp"
+#include "Mesh/CList.hpp"
+#include "Actions/CLoopOperation.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -22,7 +23,7 @@ namespace Actions {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class Actions_API CTakeStep : public CAction
+class Actions_API CTakeStep : public CLoopOperation
 {
 public: // typedefs
 
@@ -44,49 +45,37 @@ public: // functions
   /// Configuration Options
   static void defineConfigProperties ( PropertyList& options );
 
+  /// Set the loop_helper
+  void set_loophelper (CElements& geometry_elements );
+	
+	/// @return the nodes to loop over
+	virtual CList<Uint>& loop_list ();
+	
   /// execute the action
   virtual void execute ();
-  
-  void execute_impl();
-  
-  void go_deeper(CField& driving_field, std::vector<CField::Ptr>& driven_fields);
-  
-  /// configure m_solution_field
-  void trigger_SolutionField();
-
-  /// configure m_residual_field
-  void trigger_ResidualField();
-  
-  /// configure m_inverseUpdateCoeff
-  void trigger_InverseUpdateCoeff();
-    
+	
 private: // helper functions
-
+	
   /// regists all the signals declared in this class
   static void regist_signals ( Component* self ) {}
-
+	
 private: // data
-
-  /// The field set by configuration, to perform action on
-  CField::Ptr m_solution_field;
-  CField::Ptr m_residual_field;
-  CField::Ptr m_inverseUpdateCoeff;
-
+	
   struct LoopHelper
   {
-    LoopHelper(CField& solution_field, CField& residual_field, CField& inverse_updateCoeff_field) :
-      solution            (get_tagged_component_typed<CArray>(solution_field, "field_data")),
-      residual            (get_tagged_component_typed<CArray>(residual_field, "field_data")),
-      inverse_updatecoeff (get_tagged_component_typed<CArray>(inverse_updateCoeff_field, "field_data"))
+    LoopHelper(CElements& geometry_elements, CLoopOperation& op) :
+		solution(geometry_elements.get_field_elements(op.properties()["SolutionField"].value<std::string>()).data()),
+		residual(geometry_elements.get_field_elements(op.properties()["ResidualField"].value<std::string>()).data()),
+		inverse_updatecoeff(geometry_elements.get_field_elements(op.properties()["InverseUpdateCoeff"].value<std::string>()).data()),
+		node_list(geometry_elements.get_field_elements(op.properties()["SolutionField"].value<std::string>()).node_list())
     { }
     CArray& solution;
     CArray& residual;
     CArray& inverse_updatecoeff;
+		CList<Uint>& node_list;
   };
-
+	
   boost::shared_ptr<LoopHelper> data;
-
-  Uint m_point_idx;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////

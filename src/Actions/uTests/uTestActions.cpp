@@ -95,10 +95,12 @@ BOOST_AUTO_TEST_CASE( Templated_Looping_Test )
   // Execute the loop
   
   
-  CAction::Ptr take_step = root->create_component_type<CTakeStep>("take_step");
-  take_step->configure_property("SolutionField",URI("cpath://Root/mesh/solution"));
-  take_step->configure_property("ResidualField",URI("cpath://Root/mesh/residual"));
-  take_step->configure_property("InverseUpdateCoeff",URI("cpath://Root/mesh/inverse_updatecoeff"));
+  CLoop::Ptr take_step = root->create_component_type<CForAllNodes>("take_step");
+	take_step->create_action("CTakeStep");
+	take_step->configure_property("Regions",regions_to_loop);
+  take_step->action("CTakeStep").configure_property("SolutionField",std::string("solution"));
+  take_step->action("CTakeStep").configure_property("ResidualField",std::string("residual"));
+  take_step->action("CTakeStep").configure_property("InverseUpdateCoeff",std::string("inverse_updatecoeff"));
   
   for ( Uint iter = 0; iter < 500;  ++iter)
   {

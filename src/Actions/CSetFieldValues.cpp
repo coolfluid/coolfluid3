@@ -34,13 +34,6 @@ CSetFieldValues::CSetFieldValues ( const CName& name ) :
 {
   BUILD_COMPONENT;
 }
-
-/////////////////////////////////////////////////////////////////////////////////////
-
-void CSetFieldValues::set_loophelper (CElements& geometry_elements )
-{
-	data = boost::shared_ptr<LoopHelper> ( new LoopHelper(geometry_elements , *this ) );
-}
 	
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -57,6 +50,13 @@ void CSetFieldValues::execute()
 		else
 			data->field_data[m_idx][i] = 0.0;
 	}
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+void CSetFieldValues::set_loophelper (CElements& geometry_elements )
+{
+	data = boost::shared_ptr<LoopHelper> ( new LoopHelper(geometry_elements , *this ) );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
