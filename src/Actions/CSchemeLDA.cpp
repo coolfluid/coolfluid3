@@ -59,8 +59,6 @@ CSchemeLDA::CSchemeLDA ( const CName& name ) :
 
 void CSchemeLDA::execute()
 {
-  static const Uint fix = 10000000000000000000;
-
   // inside element with index m_idx
   RealMatrix mapped_grad(2,3); //Gradient of the shape functions in reference space
   RealVector shapefunc(3);     //Values of shape functions in reference space
@@ -71,31 +69,8 @@ void CSchemeLDA::execute()
   RealVector nominator(3);
   RealVector phi(3);
 
-  phi = 0.;
-  
-  if (m_idx == fix) {
-    CFinfo << "elem [" << m_idx << "]" << CFendl;
-    CFinfo << "vertex coodinates:" << CFendl;
-    BOOST_FOREACH(const Uint node, data->connectivity_table[m_idx])
-    CFinfo << "V(" << node << ") = [" << data->coordinates[node][XX] << "," << data->coordinates[node][YY] << "]" << CFendl;
-  }
-  
-  
-  if (m_idx == fix) {
-
-    CFinfo << "nodal normals:" << CFendl;
-    
-    CTable::ConstRow nodes = data->connectivity_table[m_idx]; 
-    CFinfo << "n0 = [" << data->coordinates[nodes[1]][YY] - data->coordinates[nodes[2]][YY] << ",";
-    CFinfo << data->coordinates[nodes[2]][XX] - data->coordinates[nodes[1]][XX] << "]" << CFendl;
-
-    CFinfo << "n1 = [" << data->coordinates[nodes[2]][YY] - data->coordinates[nodes[0]][YY] << ",";
-    CFinfo << data->coordinates[nodes[0]][XX] - data->coordinates[nodes[2]][XX] << "]" << CFendl;    
-
-    CFinfo << "n2 = [" << data->coordinates[nodes[0]][YY] - data->coordinates[nodes[1]][YY] << ",";
-    CFinfo << data->coordinates[nodes[1]][XX] - data->coordinates[nodes[0]][XX] << "]" << CFendl;
-  }    
-      
+  phi = 0.;  
+        
   for (Uint q=0; q<nb_q; ++q) //Loop over quadrature points
   {
     Triag2DLagrangeP1::mapped_gradient(mapped_coords[q],mapped_grad);
@@ -109,12 +84,7 @@ void CSchemeLDA::execute()
       x += shapefunc[node_counter] * data->coordinates[node][XX];
       y += shapefunc[node_counter] * data->coordinates[node][YY];
       ++node_counter;
-    }
-    
-    if (m_idx == fix) {
-      CFinfo << "The coords of quadrature point are: [" << x << "," << y << "]" << CFendl;
-    }
-    
+    }    
     
     grad_x = 0;
     grad_y = 0;
@@ -166,8 +136,6 @@ void CSchemeLDA::execute()
   Uint node_counter = 0;
   BOOST_FOREACH(const Uint node, data->connectivity_table[m_idx])
   {
-    if (m_idx == fix)
-      CFinfo << "phi(" << node_counter << ") ["  << phi[node_counter] << "]" << CFendl;
     data->residual[node][0] += phi[node_counter];
     ++node_counter;
   }  
@@ -196,9 +164,6 @@ void CSchemeLDA::execute()
   nodal_normals(YY,1) = data->coordinates[nodes[0]][XX] - data->coordinates[nodes[2]][XX];
   nodal_normals(YY,2) = data->coordinates[nodes[1]][XX] - data->coordinates[nodes[0]][XX];
 
-  if (m_idx == fix)
-    CFinfo << "nnormals(" << CFendl << nodal_normals << ")" << CFendl;
-
   Real sumK=0;
   for (Uint i=0; i<3; ++i)
   {
@@ -208,19 +173,7 @@ void CSchemeLDA::execute()
   {
     // Real kplus = 0.5*std::max(0.0,centroid[YY]*nodal_normals(XX,i)-centroid[XX]*nodal_normals(YY,i));
     data->inverse_updatecoeff[nodes[i]][0] += sumK; 
-      if (m_idx == fix)
-        CFinfo << "Updated node " << nodes[i] << CFendl;
   } 
-
-
-//  if ( Math::MathChecks::isZero( data->coordinates[nodes[0]][YY] )
-//    || Math::MathChecks::isZero( data->coordinates[nodes[1]][YY] )
-//    || Math::MathChecks::isZero( data->coordinates[nodes[2]][YY] ) )
-//  {
-//    CFinfo << "elem [" << m_idx << "]" << CFendl;
-//  }
-
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
