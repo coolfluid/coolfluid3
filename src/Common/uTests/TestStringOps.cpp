@@ -6,6 +6,7 @@
 
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
+
 #include <boost/algorithm/string.hpp>
 
 #include "Common/String/Conversion.hpp"
@@ -18,25 +19,7 @@ using namespace CF::Common;
 using namespace CF::Common::String;
 
 
-struct String_Fixture
-{
-  /// common setup for each test case
-  String_Fixture()
-  {
-  }
-
-  /// common tear-down for each test case
-  ~String_Fixture()
-  {
-  }
-
-  /// possibly common functions used on the tests below
-
-  /// common values accessed by all tests goes here
-
-};
-
-BOOST_FIXTURE_TEST_SUITE( String_TestSuite, String_Fixture )
+BOOST_AUTO_TEST_SUITE( String_TestSuite )
 
 BOOST_AUTO_TEST_CASE( boostFunctions )
 {

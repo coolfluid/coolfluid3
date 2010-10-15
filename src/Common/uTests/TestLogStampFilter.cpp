@@ -5,8 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-
 #include <boost/test/unit_test.hpp>
+
 #include <boost/iostreams/device/back_inserter.hpp>
 
 #include "Common/LogStampFilter.hpp"

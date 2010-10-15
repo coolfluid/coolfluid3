@@ -53,11 +53,11 @@ add_custom_command(TARGET uTestMesh
 
 ################################################################################
 
-list( APPEND uTestConnectivityData_cflibs Neu MeshGeneration SF )
-list( APPEND uTestConnectivityData_files
-  uTestConnectivityData.cpp )
+list( APPEND utest-connectivity-data_cflibs Neu MeshGeneration SF )
+list( APPEND utest-connectivity-data_files
+  utest-connectivity-data.cpp )
 
-coolfluid_add_unittest( uTestConnectivityData )
+coolfluid_add_unittest( utest-connectivity-data )
 
 ################################################################################
 

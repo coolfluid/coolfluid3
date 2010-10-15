@@ -1,9 +1,9 @@
 ################################################################################
 # Test Common
 
-list( APPEND uTestCommon_cflibs Common )
-list( APPEND uTestCommon_files
-  uTestCommon.cpp
+list( APPEND utest-common_cflibs Common )
+list( APPEND utest-common_files
+  utest-common.cpp
   TestOSystem.cpp
   TestStringOps.cpp
   TestHourMinSec.cpp
@@ -13,14 +13,14 @@ list( APPEND uTestCommon_files
   TestLogStream.cpp
 )
 
-coolfluid_add_unittest( uTestCommon )
+coolfluid_add_unittest( utest-common )
 
 ################################################################################
 # Test Component
 
-list( APPEND uTestComponent_cflibs Common )
-list( APPEND uTestComponent_files
-  uTestComponent.cpp
+list( APPEND utest-component_cflibs Common )
+list( APPEND utest-component_files
+  utest-component.cpp
   TestCPath.cpp
   TestComponent.cpp
   TestConfig.cpp
@@ -30,26 +30,25 @@ list( APPEND uTestComponent_files
   TestStaticSubComponent.cpp
 )
 
-coolfluid_add_unittest( uTestComponent )
+coolfluid_add_unittest( utest-component )
 
 ################################################################################
 # Test Component iterators
 
-list( APPEND uTestComponentIteration_cflibs Common )
-list( APPEND uTestComponentIteration_files
-  uTestComponentIteration.cpp
+list( APPEND utest-component-iterator_cflibs Common )
+list( APPEND utest-component-iterator_files
+  utest-component-iterator.cpp
 )
 
-coolfluid_add_unittest( uTestComponentIteration )
+coolfluid_add_unittest( utest-component-iterator )
 
 ################################################################################
 # Test PE
 
-list( APPEND uTestPE_cflibs Common )
-list( APPEND uTestPE_files
-  uTestPE.cpp
+list( APPEND utest-parallel-environment_cflibs Common )
+list( APPEND utest-parallel-environment_files
+  utest-parallel-environment.cpp
 )
 
-coolfluid_add_unittest( uTestPE )
+coolfluid_add_unittest( utest-parallel-environment )
 
-################################################################################

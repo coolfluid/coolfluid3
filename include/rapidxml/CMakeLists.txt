@@ -1,10 +1,13 @@
-list( APPEND utest-rapidxml_files
+list( APPEND rapidxml_files
   rapidxml.hpp
   rapidxml_utils.hpp
   rapidxml_print.hpp
   rapidxml_iterators.hpp
-  rapidxml.cpp
   )
+
+source_group( Headers FILES ${rapidxml_files} )
+
+list( APPEND utest-rapidxml_files ${rapidxml_files} rapidxml.cpp )
 
 # install rapidxml headers since tests dont install sources
 install( FILES ${rapidxml_files}

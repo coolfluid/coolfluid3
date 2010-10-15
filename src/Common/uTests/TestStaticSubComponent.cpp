@@ -5,8 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-
 #include <boost/test/unit_test.hpp>
+
 #include <boost/foreach.hpp>
 #include <boost/iterator.hpp>
 
@@ -92,16 +92,7 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct StaticSubComponent_Fixture
-{
-  StaticSubComponent_Fixture() {}
-
-  ~StaticSubComponent_Fixture() {}
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-BOOST_FIXTURE_TEST_SUITE( StaticSubComponent_TestSuite, StaticSubComponent_Fixture )
+BOOST_AUTO_TEST_SUITE( StaticSubComponent_TestSuite )
 
 ////////////////////////////////////////////////////////////////////////////////
 

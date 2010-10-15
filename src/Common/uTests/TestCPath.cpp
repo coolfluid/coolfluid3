@@ -16,29 +16,7 @@ using namespace CF::Common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct CPath_Fixture
-{
-  /// common setup for each test case
-  CPath_Fixture()
-  {
-    // int*    argc = &boost::unit_test::framework::master_test_suite().argc;
-    // char*** argv = &boost::unit_test::framework::master_test_suite().argv;
-  }
-
-  /// common tear-down for each test case
-  ~CPath_Fixture()
-  {
-  }
-
-  /// possibly common functions used on the tests below
-
-  /// common values accessed by all tests goes here
-
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-BOOST_FIXTURE_TEST_SUITE( CPath_TestSuite, CPath_Fixture )
+BOOST_AUTO_TEST_SUITE( CPath_TestSuite )
 
 ////////////////////////////////////////////////////////////////////////////////
 

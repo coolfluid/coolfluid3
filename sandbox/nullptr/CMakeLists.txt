@@ -1,5 +1,5 @@
-list( APPEND nullptr_files nullptr.cpp )
+list( APPEND sandbox-nullptr_files nullptr.cpp )
 
-coolfluid_add_application( nullptr )
+coolfluid_add_application( sandbox-nullptr )
 
 

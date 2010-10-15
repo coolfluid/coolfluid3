@@ -45,6 +45,6 @@ else()
     LibCGAL.cpp
     ImplicitFunctionMesh.cpp
     ImplicitFunctionMesh.hpp
-    uTests/uTestTetraSF.cpp  )
+    uTests/utest-tetra-sf.cpp  )
 
 endif()

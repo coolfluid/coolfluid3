@@ -1,7 +1,5 @@
 file( GLOB_RECURSE EIGEN_FIND_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*")
 
-# coolfluid_debug_var(EIGEN_FIND_FILES)
-
 foreach( efound ${EIGEN_FIND_FILES} )
 
   if( IS_DIRECTORY "${efound}" )
@@ -13,10 +11,12 @@ endforeach()
 
 source_group( Headers FILES ${EIGEN_FOUND_FILES} )
 
-# coolfluid_log( ${EIGEN_FOUND_FILES} )
-
 # install Eigen headers
 install( FILES ${EIGEN_FOUND_FILES}
          DESTINATION
          ${CF_INSTALL_INCLUDE_DIR}/Eigen )
 
+list( APPEND utest-eigen_files ${EIGEN_FOUND_FILES} utest-eigen.cpp )
+list( APPEND utest-eigen_libs  ${Boost_LIBRARIES} )
+
+coolfluid_add_unittest( utest-eigen )
