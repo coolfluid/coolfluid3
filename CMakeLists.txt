@@ -8,7 +8,6 @@
 # -DCF_PLUGIN_DIRS:STRING="/dir/path1;/dir/path2"
 ##############################################################################
 # TODO
-#  * test packaging with the build system
 #  * try using precompiled headers and add a check to their support
 ##############################################################################
 
