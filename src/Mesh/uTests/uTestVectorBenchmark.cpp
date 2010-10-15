@@ -17,9 +17,7 @@
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"
 
-#ifdef CF_HAVE_EIGEN
 #include <Eigen/Dense>
-#endif
 
 using namespace CF;
 using namespace CF::Common;
@@ -242,8 +240,6 @@ BOOST_FIXTURE_TEST_CASE( UblasVector3DDynamic, VectorBenchmarkFixture )
   BOOST_CHECK_CLOSE(result[ZZ], 2.5, 1e-6);
 }
 
-#ifdef CF_HAVE_EIGEN
-
 BOOST_FIXTURE_TEST_CASE( EigenVector2DStatic, VectorBenchmarkFixture )
 {
   Eigen::Vector2d c0(2);
@@ -315,6 +311,5 @@ BOOST_FIXTURE_TEST_CASE( EigenVector3DDynamic, VectorBenchmarkFixture )
   BOOST_CHECK_SMALL(result[YY], 1e-6);
   BOOST_CHECK_CLOSE(result[ZZ], 2.5, 1e-6);
 }
-#endif
 
 BOOST_AUTO_TEST_SUITE_END()
