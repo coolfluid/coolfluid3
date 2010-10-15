@@ -34,7 +34,7 @@ namespace CGAL {
 
 /// Class defines the CGAL mesh format operations
 /// @author Bart Janssens
-class LibCGAL :
+class CGAL_API LibCGAL :
     public CF::Common::LibraryRegister<LibCGAL>
 {
 public:

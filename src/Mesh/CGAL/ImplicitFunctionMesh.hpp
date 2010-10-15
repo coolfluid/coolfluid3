@@ -11,6 +11,8 @@
 
 #include "Mesh/CMesh.hpp"
 
+#include "Mesh/CGAL/LibCGAL.hpp"
+
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -30,7 +32,7 @@ typedef KernelT::Point_3 Point; // 3D point coordinates
 /// This is a virtual functor on purpose, since making it template would expose
 /// CGAL too much outside of the library, and delegate the responsibility for linking
 /// to the CGAL libs to anything that uses these functions.
-struct ImplicitFunction {
+struct CGAL_API ImplicitFunction {
   /// Construct using the given radius and center for the domain bounding sphere
   ImplicitFunction(const Real X, const Real Y, const Real Z, const Real R) : x(X), y(Y), z(Z), radius(R) {}
 
@@ -50,7 +52,7 @@ struct ImplicitFunction {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Sphere around the origin with radius r
-struct SphereFunction : public ImplicitFunction {
+struct CGAL_API SphereFunction : public ImplicitFunction {
   /// constructor
   SphereFunction(const Real r) : ImplicitFunction(0., 0, 0., r*1.1), m_radius(r) {}
   /// virtual destructor
@@ -63,7 +65,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Parameters for mesh generation, as defined in the CGAL manual
-struct MeshParameters {
+struct CGAL_API MeshParameters {
 /// Default parameters based on the sphere example
 MeshParameters() : facet_angle(30),
                    facet_size(0.1),
@@ -81,13 +83,13 @@ MeshParameters() : facet_angle(30),
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Using the given implicit function delimiting a domain,
-void create_mesh(const ImplicitFunction& function, CMesh& mesh, const MeshParameters parameters=MeshParameters());
+CGAL_API void create_mesh(const ImplicitFunction& function, CMesh& mesh, const MeshParameters parameters=MeshParameters());
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace CGAL
-} // namespace Mesh
-} // namespace CF
+} //  CGAL
+} //  Mesh
+} //  CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
