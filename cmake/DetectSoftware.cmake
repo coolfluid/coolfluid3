@@ -22,6 +22,7 @@ find_package( Qt4 4.6.0 COMPONENTS QtCore QtGui QtXml QtNetwork QtTest )
 coolfluid_log( "" )
 find_package(CMath)           # find the math library
 find_package(BlasLapack)      # search for Blas Lapack support
+find_package(PTScotch)        # parallel domain decomposition
 find_package(Metis)           # serial domain decomposition
 find_package(Parmetis)        # parallel domain decomposition
 find_package(Curl)            # curl downloads files on the fly
