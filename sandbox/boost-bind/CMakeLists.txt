@@ -1,6 +1,4 @@
-list( APPEND boost-bind_libs ${Boost_LIBRARIES} )
-list( APPEND boost-bind_files bind.cpp )
+list( APPEND sandbox-boost-bind_libs ${Boost_LIBRARIES} )
+list( APPEND sandbox-boost-bind_files bind.cpp )
 
-coolfluid_add_application( boost-bind )
-
-
+coolfluid_add_application( sandbox-boost-bind )
