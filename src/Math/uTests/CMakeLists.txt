@@ -19,3 +19,8 @@ list( APPEND utest-eigen-vs-matrixt_files
 
 add_definitions( -DNDEBUG -DEIGEN_NO_DEBUG )
 coolfluid_add_unittest( utest-eigen-vs-matrixt )
+
+if( CMAKE_COMPILER_IS_GNUCC )
+    set_source_files_properties( utest-eigen-vs-matrixt.cpp
+      PROPERTIES COMPILE_FLAGS "-O2 -msse2 -msse3 -mssse3 -march=core2" )
+endif()

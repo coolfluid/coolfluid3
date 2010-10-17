@@ -26,11 +26,9 @@ using namespace CF::Math;
 
 /// @todo
 ///  * check validity of the results
-///  * play with optimization parameters (aliasing?)
-
 
 #define MSIZE 100000
-#define LSIZE 4
+#define LSIZE 5
 
 BOOST_AUTO_TEST_SUITE( VectorBenchmarkSuite )
 
@@ -58,7 +56,7 @@ BOOST_AUTO_TEST_CASE( timed_dgemv_eigen_dynamic )
   for ( int i = 0; i < MSIZE; ++i )
     vc[i].noalias() = ma[i] * vb[i];
 
-  cout << "[Eigen:Dyn] elapsed time: " << mtimer.elapsed() << " seconds" << endl;
+  cout << "[Eigen:Dyn]   dgemv elapsed time: " << mtimer.elapsed() << " seconds" << endl;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -88,17 +86,18 @@ BOOST_AUTO_TEST_CASE( timed_dgemv_eigen_fixed )
   for ( int i = 0; i < MSIZE; ++i )
     vc[i].noalias() = ma[i] * vb[i];
 
-  cout << "[Eigen:Fixed] elapsed time: " << mtimer.elapsed() << " seconds" << endl;
+  cout << "[Eigen:Fixed] dgemv elapsed time: " << mtimer.elapsed() << " seconds" << endl;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( timed_dgemv_matrix )
+BOOST_AUTO_TEST_CASE( timed_dgemv_matrixt )
 {
   std::vector< RealMatrix > ma;
   ma.resize( MSIZE );
   for ( int i = 0; i < MSIZE; ++i )
-    ma[i].resize( LSIZE, LSIZE);
+    ma[i].resize( LSIZE, LSIZE );
+
 
   std::vector< RealVector > vb;
   vb.resize( MSIZE );
@@ -115,7 +114,90 @@ BOOST_AUTO_TEST_CASE( timed_dgemv_matrix )
   for ( int i = 0; i < MSIZE; ++i )
     vc[i] = ma[i] * vb[i];
 
-  cout << "[MatrixT] elapsed time: " << mtimer.elapsed() << " seconds" << endl;
+  cout << "[MatrixT]     dgemv elapsed time: " << mtimer.elapsed() << " seconds" << endl;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( timed_dgemm_eigen_dynamic )
+{
+  std::vector< MatrixXd > ma;
+  ma.resize( MSIZE );
+  for ( int i = 0; i < MSIZE; ++i )
+    ma[i] = MatrixXd::Random( LSIZE, LSIZE);
+
+  std::vector< MatrixXd > mb;
+  mb.resize( MSIZE );
+  for ( int i = 0; i < MSIZE; ++i )
+    mb[i] = MatrixXd::Random( LSIZE, LSIZE);
+
+  std::vector< MatrixXd > mc;
+  mc.resize( MSIZE );
+  for ( int i = 0; i < MSIZE; ++i )
+    mc[i] = MatrixXd::Random( LSIZE, LSIZE);
+
+  boost::timer mtimer;
+
+  for ( int i = 0; i < MSIZE; ++i )
+    mc[i].noalias() = ma[i] * mb[i];
+
+  cout << "[Eigen:Dyn]   dgemm elapsed time: " << mtimer.elapsed() << " seconds" << endl;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( timed_dgemm_eigen_fixed )
+{
+  typedef Matrix< double, LSIZE, LSIZE >  MatrixSd;
+
+  std::vector< MatrixSd > ma;
+  ma.resize( MSIZE );
+  for ( int i = 0; i < MSIZE; ++i )
+    ma[i] = MatrixSd::Random( LSIZE, LSIZE);
+
+  std::vector< MatrixSd > mb;
+  mb.resize( MSIZE );
+  for ( int i = 0; i < MSIZE; ++i )
+    mb[i] = MatrixSd::Random( LSIZE, LSIZE);
+
+  std::vector< MatrixSd > mc;
+  mc.resize( MSIZE );
+  for ( int i = 0; i < MSIZE; ++i )
+    mc[i] = MatrixSd::Random( LSIZE, LSIZE);
+
+  boost::timer mtimer;
+
+  for ( int i = 0; i < MSIZE; ++i )
+    mc[i].noalias() = ma[i] * mb[i];
+
+  cout << "[Eigen:Fixed] dgemm elapsed time: " << mtimer.elapsed() << " seconds" << endl;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( timed_dgemm_matrixt )
+{
+  std::vector< RealMatrix > ma;
+  ma.resize( MSIZE );
+  for ( int i = 0; i < MSIZE; ++i )
+    ma[i].resize( LSIZE, LSIZE);
+
+  std::vector< RealMatrix > mb;
+  mb.resize( MSIZE );
+  for ( int i = 0; i < MSIZE; ++i )
+    mb[i].resize( LSIZE, LSIZE);
+
+  std::vector< RealMatrix > mc;
+  mc.resize( MSIZE );
+  for ( int i = 0; i < MSIZE; ++i )
+    mc[i].resize( LSIZE, LSIZE);
+
+  boost::timer mtimer;
+
+  for ( int i = 0; i < MSIZE; ++i )
+    mc[i] = ma[i] * mb[i];
+
+  cout << "[MatrixT]     dgemm elapsed time: " << mtimer.elapsed() << " seconds" << endl;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
