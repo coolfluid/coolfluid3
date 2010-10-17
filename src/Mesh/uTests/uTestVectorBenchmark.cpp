@@ -10,14 +10,12 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 
-
+#include <Eigen/Dense>
 
 #include "Mesh/BlockMesh/BlockData.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"
-
-#include <Eigen/Dense>
 
 using namespace CF;
 using namespace CF::Common;
@@ -147,7 +145,7 @@ BOOST_FIXTURE_TEST_CASE( RealVector2D, VectorBenchmarkFixture )
 }
 
 BOOST_FIXTURE_TEST_CASE( UblasVector2DStatic, VectorBenchmarkFixture )
-{ 
+{
   boost::numeric::ublas::c_vector<Real, 2> c0(2);
   boost::numeric::ublas::c_vector<Real, 2> c1(2);
   boost::numeric::ublas::c_vector<Real, 2> c2(2);
@@ -161,7 +159,7 @@ BOOST_FIXTURE_TEST_CASE( UblasVector2DStatic, VectorBenchmarkFixture )
 }
 
 BOOST_FIXTURE_TEST_CASE( UblasVector2DDynamic, VectorBenchmarkFixture )
-{ 
+{
   boost::numeric::ublas::vector<Real> c0(2);
   boost::numeric::ublas::vector<Real> c1(2);
   boost::numeric::ublas::vector<Real> c2(2);
@@ -310,6 +308,64 @@ BOOST_FIXTURE_TEST_CASE( EigenVector3DDynamic, VectorBenchmarkFixture )
   BOOST_CHECK_CLOSE(result[XX], 5., 1e-6);
   BOOST_CHECK_SMALL(result[YY], 1e-6);
   BOOST_CHECK_CLOSE(result[ZZ], 2.5, 1e-6);
+}
+
+BOOST_AUTO_TEST_CASE( timed_matrix_mult_eigen )
+{
+  #define LSIZE 20
+
+  std::vector< MatrixXd > ma;
+  ma.resize( MSIZE );
+  for ( int i = 0; i < MSIZE; ++i )
+    ma[i] = MatrixXd::Zero( LSIZE, LSIZE);
+
+  std::vector< VectorXd > vb;
+  vb.resize( MSIZE );
+  for ( int i = 0; i < MSIZE; ++i )
+    vb[i] = VectorXd::Zero( LSIZE );
+
+  std::vector< VectorXd > vc;
+  vc.resize( MSIZE );
+  for ( int i = 0; i < MSIZE; ++i )
+    vc[i] = VectorXd::Zero( LSIZE );
+
+  boost::timer mtimer;
+
+  for ( int i = 0; i < MSIZE; ++i )
+    vc[i] = ma[i] * vb[i];
+
+  cout << "[Eigen] elapsed time: " << mtimer.elapsed() << " seconds" << endl;
+
+  #undef LSIZE
+}
+
+BOOST_AUTO_TEST_CASE( timed_matrix_mult_cfmat )
+{
+  #define LSIZE 20
+
+  std::vector< RealMatrix > ma;
+  ma.resize( MSIZE );
+  for ( int i = 0; i < MSIZE; ++i )
+    ma[i].resize( LSIZE, LSIZE);
+
+  std::vector< RealVector > vb;
+  vb.resize( MSIZE );
+  for ( int i = 0; i < MSIZE; ++i )
+    vb[i].resize( LSIZE );
+
+  std::vector< RealVector > vc;
+  vc.resize( MSIZE );
+  for ( int i = 0; i < MSIZE; ++i )
+    vc[i].resize( LSIZE );
+
+  boost::timer mtimer;
+
+  for ( int i = 0; i < MSIZE; ++i )
+    vc[i] = ma[i] * vb[i];
+
+  cout << "[MatrixT] elapsed time: " << mtimer.elapsed() << " seconds" << endl;
+
+  #undef LSIZE
 }
 
 BOOST_AUTO_TEST_SUITE_END()
