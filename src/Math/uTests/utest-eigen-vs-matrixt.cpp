@@ -24,36 +24,71 @@ using namespace CF::Math;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#define MSIZE 10000
-#define LSIZE 10
+/// @todo
+///  * check validity of the results
+///  * play with optimization parameters (aliasing?)
+
+
+#define MSIZE 100000
+#define LSIZE 4
 
 BOOST_AUTO_TEST_SUITE( VectorBenchmarkSuite )
 
 ///////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( timed_dgemv_eigen )
+BOOST_AUTO_TEST_CASE( timed_dgemv_eigen_dynamic )
 {
   std::vector< MatrixXd > ma;
   ma.resize( MSIZE );
   for ( int i = 0; i < MSIZE; ++i )
-    ma[i] = MatrixXd::Zero( LSIZE, LSIZE);
+    ma[i] = MatrixXd::Random( LSIZE, LSIZE);
 
   std::vector< VectorXd > vb;
   vb.resize( MSIZE );
   for ( int i = 0; i < MSIZE; ++i )
-    vb[i] = VectorXd::Zero( LSIZE );
+    vb[i] = VectorXd::Random( LSIZE );
 
   std::vector< VectorXd > vc;
   vc.resize( MSIZE );
   for ( int i = 0; i < MSIZE; ++i )
-    vc[i] = VectorXd::Zero( LSIZE );
+    vc[i] = VectorXd::Random( LSIZE );
 
   boost::timer mtimer;
 
   for ( int i = 0; i < MSIZE; ++i )
-    vc[i] = ma[i] * vb[i];
+    vc[i].noalias() = ma[i] * vb[i];
 
-  cout << "[Eigen] elapsed time: " << mtimer.elapsed() << " seconds" << endl;
+  cout << "[Eigen:Dyn] elapsed time: " << mtimer.elapsed() << " seconds" << endl;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( timed_dgemv_eigen_fixed )
+{
+  typedef Matrix< double, LSIZE, LSIZE >  MatrixSd;
+  typedef Matrix< double, LSIZE, 1     >  VectorSd;
+
+  std::vector< MatrixSd > ma;
+  ma.resize( MSIZE );
+  for ( int i = 0; i < MSIZE; ++i )
+    ma[i] = MatrixSd::Random( LSIZE, LSIZE);
+
+  std::vector< VectorSd > vb;
+  vb.resize( MSIZE );
+  for ( int i = 0; i < MSIZE; ++i )
+    vb[i] = VectorSd::Random( LSIZE );
+
+  std::vector< VectorSd > vc;
+  vc.resize( MSIZE );
+  for ( int i = 0; i < MSIZE; ++i )
+    vc[i] = VectorSd::Random( LSIZE );
+
+  boost::timer mtimer;
+
+  for ( int i = 0; i < MSIZE; ++i )
+    vc[i].noalias() = ma[i] * vb[i];
+
+  cout << "[Eigen:Fixed] elapsed time: " << mtimer.elapsed() << " seconds" << endl;
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -17,4 +17,5 @@ list( APPEND utest-eigen-vs-matrixt_files
   utest-eigen-vs-matrixt.cpp
 )
 
+add_definitions( -DNDEBUG -DEIGEN_NO_DEBUG )
 coolfluid_add_unittest( utest-eigen-vs-matrixt )
