@@ -159,7 +159,7 @@ void CNode::setOptions(XmlNode & options)
               URI value;
               Option::Ptr option;
               OptionURI::Ptr opt;
-              XmlAttr * attr = node->first_attribute(XmlParams::tag_attr_protocol());
+              //XmlAttr * attr = node->first_attribute(XmlParams::tag_attr_protocol());
               to_value(*type_node, value);
 //              opt = m_property_list.add_option<OptionURI>(keyVal, descrVal, value);
 
