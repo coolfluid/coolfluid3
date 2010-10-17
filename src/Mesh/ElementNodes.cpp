@@ -36,42 +36,6 @@ struct ElementData : boost::noncopyable
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct ElementNodeView::Data : public detail::ElementData<CArray>
-{
-  Data(CArray& coordinates, const CTable::ConstRow& connectivity) : detail::ElementData<CArray>(coordinates, connectivity) {}
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-ElementNodeView::ElementNodeView(CArray& coordinates, const CTable::ConstRow& connectivity) :
-    m_data(new Data(coordinates, connectivity))
-{}
-
-////////////////////////////////////////////////////////////////////////////////
-
-Uint ElementNodeView::size() const {
-  return m_data->connectivity.size();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-CArray::ConstRow ElementNodeView::operator[](const Uint idx) const {
-  cf_assert(idx < size());
-  cf_assert(m_data->connectivity[idx] < m_data->coordinates.size());
-  return m_data->coordinates[m_data->connectivity[idx]];
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-CArray::Row ElementNodeView::operator[](const Uint idx) {
-  cf_assert(idx < size());
-  cf_assert(m_data->connectivity[idx] < m_data->coordinates.size());
-  return m_data->coordinates[m_data->connectivity[idx]];
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-
 struct ConstElementNodeView::Data : public detail::ElementData<CArray const>
 {
   Data(CArray const& coordinates, const CTable::ConstRow& connectivity) : detail::ElementData<CArray const>(coordinates, connectivity) {}
@@ -81,12 +45,6 @@ struct ConstElementNodeView::Data : public detail::ElementData<CArray const>
 
 ConstElementNodeView::ConstElementNodeView(CArray const& coordinates, const CTable::ConstRow& connectivity) :
     m_data(new Data(coordinates, connectivity))
-{}
-
-////////////////////////////////////////////////////////////////////////////////
-
-ConstElementNodeView::ConstElementNodeView(const ElementNodeView& elementNodeVector) :
-    m_data(new Data(elementNodeVector.m_data->coordinates, elementNodeVector.m_data->connectivity))
 {}
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -163,21 +121,6 @@ void ElementNodes::resize(const CF::Uint nb_nodes, const CF::Uint dim)
   
   m_nb_nodes = nb_nodes;
   m_dim = dim;
-}
-
-
-
-std::ostream& operator<<(std::ostream& output, const ElementNodeView& nodeVector)
-{
-  const Uint num_nodes = nodeVector.size();
-  for(Uint node = 0; node != num_nodes; ++node) {
-    output << "( ";
-    BOOST_FOREACH(Real coordinate, nodeVector[node]) {
-      output << coordinate << " ";
-    }
-    output << ") ";
-  }
-  return output;
 }
 
 std::ostream& operator<<(std::ostream& output, const ConstElementNodeView& nodeVector)

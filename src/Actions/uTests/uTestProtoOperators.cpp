@@ -11,6 +11,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Actions/ProtoElementLooper.hpp"
+#include "Actions/ProtoNodeLooper.hpp"
 
 #include "Common/ConfigObject.hpp"
 #include "Common/Log.hpp"
@@ -41,58 +42,6 @@ using namespace CF::Common;
 using namespace boost;
 
 ////////////////////////////////////////////////////
-// debugging stuff
-template <class T> struct error_printer {};
-template <class T1, class T2> struct error_printer2 {};
-
-struct print
-{
-  template <typename T>
-  void operator()(T const& x) const;
-};
-
-template <typename T>
-void print::operator()(T const& x) const
-{
-  std::cout << x << ", ";
-}
-
-template <>
-void print::operator()(mpl::void_ const&) const
-{
-}
-
-template<typename Expr>
-void introspect(const Expr& E)
-{
-  // Determine the number of different variables
-  typedef typename boost::result_of<ExprVarArity(Expr)>::type nb_vars;
-  
-  std::cout << "nb vars: " << nb_vars::value << std::endl;
-  
-  // init empty vector that will store variable indices
-  typedef mpl::vector_c<Uint> numbers_empty;
-  
-  // Fill the vector with indices 0 to 9, so we allow 10 different (field or node related) variables in an expression
-  typedef typename mpl::copy<
-      mpl::range_c<int,0,nb_vars::value>
-    , mpl::back_inserter< numbers_empty >
-    >::type range;
-  
-  // Get the type for each variable that is used, or set to mpl::void_ for unused indices
-  typedef typename mpl::transform<range, DefineTypeOp<mpl::_1, Expr > >::type expr_types;
-  
-  typedef typename fusion::result_of::as_vector<expr_types>::type FusionVarsT;
-  //error_printer<FusionVarsT>().print(); // induce a compile error to see the type
-  
-  FusionVarsT vars;
-  CopyNumberedVars<FusionVarsT> ctx(vars);
-  proto::eval(E, ctx);
-  fusion::for_each(vars, print());
-  std::cout << std::endl;
-}
-
-////////////////////////////////////////////////////
 
 /// List of all supported shapefunctions that allow high order integration
 typedef boost::mpl::vector< SF::Line1DLagrangeP1,
@@ -100,7 +49,8 @@ typedef boost::mpl::vector< SF::Line1DLagrangeP1,
                             SF::Hexa3DLagrangeP1
 > HigherIntegrationElements;
 
-struct ProtoOperatorsFixture : public Tools::Testing::ProfiledTestFixture, Tools::Testing::TimedTestFixture
+struct ProtoOperatorsFixture : public //Tools::Testing::ProfiledTestFixture,
+                                      Tools::Testing::TimedTestFixture
 {
   static CMesh::Ptr grid_2d;
   static CMesh::Ptr channel_3d;
@@ -121,14 +71,9 @@ BOOST_AUTO_TEST_CASE( ProtoBasics )
   
   // Create the variables
   MeshTerm<0, ConstNodes> nodes;
-  MeshTerm<1, ConstNodesFd<Real> > temperature("Temp");
-  MeshTerm<2, ConstNodesFd<RealMatrix> > mat("SomeMatrix");
-  
-  // Output the different numbered variable names for a nonsensical but somewhat elaborate expression
-  introspect(mat * (nodes + temperature) + nodes*mat);
   
   // Use the volume function
-  for_each_element<SF::VolumeTypes>(*mesh, _cout << "Element " << _elem << ": volume = " << volume(nodes) << ", centroid = " << coords(_mapped_coord, nodes) << "\n");
+  for_each_element<SF::VolumeTypes>(*mesh, _cout << "Element " << _elem << ": volume = " << volume(nodes) << ", centroid = " << nodes(_mapped_coord) << "\n");
   std::cout << std::endl; // Can't be in expression
   
   // volume calculation
@@ -143,6 +88,30 @@ BOOST_AUTO_TEST_CASE( ProtoBasics )
 //                    0.5*((nodes[2][XX] - nodes[0][XX]) * (nodes[3][YY] - nodes[1][YY])
 //                      -  (nodes[2][YY] - nodes[0][YY]) * (nodes[3][XX] - nodes[1][XX])));
 //   BOOST_CHECK_CLOSE(vol1, vol2, 1e-5);
+}
+
+BOOST_AUTO_TEST_CASE( VertexValence )
+{
+  // Create a 3x3 rectangle
+  CMesh::Ptr mesh(new CMesh("rect"));
+  Tools::MeshGeneration::create_rectangle(*mesh, 5., 5., 2, 2);
+  
+  // Set up a node-based field to store the number of cells that are adjacent to each node
+  const std::vector<std::string> vars(1, "Valence[1]");
+  mesh->create_field("Valences", vars, CField::NODE_BASED);
+  
+  // Set up proto variables
+  MeshTerm<0, ConstNodes> nodes; // Mesh geometry nodes
+  MeshTerm<1, Field<Real> > valence("Valences", "Valence"); // Valence field
+  
+  // Count the elements!
+  for_each_element<SF::VolumeTypes>(recursive_get_named_component_typed<CRegion>(*mesh, "region")
+                                  , for_each_element_node(nodes, valence[_elem_node]++));
+  
+  // output the result
+  for_each_node(recursive_get_named_component_typed<CRegion>(*mesh, "region")
+              , _cout << valence << " ");
+  std::cout << std::endl;
 }
 
 BOOST_AUTO_TEST_CASE( RotatingCylinder )
@@ -161,15 +130,51 @@ BOOST_AUTO_TEST_CASE( RotatingCylinder )
   typedef boost::mpl::vector< SF::Line2DLagrangeP1> SurfaceTypes;
   
   RealVector force(0., 2);
+  
   for_each_element<SurfaceTypes>(*mesh,
     force += integral<1>
       (
         pow<2>
         (
-          2. * u * _sin(_atan2(coords(_mapped_coord, nodes)[YY], coords(_mapped_coord, nodes)[XX])) + circulation / (2. * Math::MathConsts::RealPi() * radius)
-        )  * 0.5 * rho * normal(_mapped_coord, nodes) 
+          2. * u * _sin(_atan_vec(nodes(_mapped_coord))) + circulation / (2. * Math::MathConsts::RealPi() * radius)
+        )  * 0.5 * rho * normal(nodes) 
       )
   );
+
+  BOOST_CHECK_CLOSE(force[YY], rho*u*circulation, 0.001); // lift according to theory
+  BOOST_CHECK_SMALL(force[XX], 1e-8); // Drag should be zero
+}
+
+/// First create a field with the pressure distribution, then integrate it
+BOOST_AUTO_TEST_CASE( RotatingCylinderField )
+{
+  const Real radius = 1.;
+  const Uint segments = 1000;
+  const Real u = 300.;
+  const Real circulation = 975.;
+  const Real rho = 1.225;
+  
+  CMesh::Ptr mesh(new CMesh("circle"));
+  Tools::MeshGeneration::create_circle_2d(*mesh, radius, segments);
+  
+  const std::vector<std::string> vars(1, "p[1]");
+  mesh->create_field("Pressure", vars, CField::NODE_BASED);
+  
+  MeshTerm<0, ConstNodes> nodes;
+  MeshTerm<1, Field<Real> > p("Pressure", "p"); // Pressure field
+
+  typedef boost::mpl::vector< SF::Line2DLagrangeP1> SurfaceTypes;
+  
+  RealVector force(0., 2);
+  for_each_node(recursive_get_named_component_typed<CRegion>(*mesh, "region"),
+    p = pow<2>
+    (
+      2. * u * _sin(_atan2(nodes[YY], nodes[XX])) + circulation / (2. * Math::MathConsts::RealPi() * radius)
+    )  * 0.5 * rho);
+
+  for_each_element<SurfaceTypes>(recursive_get_named_component_typed<CRegion>(*mesh, "region")
+                               , force += integral<1>(p(_mapped_coord) * normal(nodes)));
+    
 
   BOOST_CHECK_CLOSE(force[YY], rho*u*circulation, 0.001); // lift according to theory
   BOOST_CHECK_SMALL(force[XX], 1e-8); // Drag should be zero
@@ -228,7 +233,7 @@ BOOST_FIXTURE_TEST_CASE( Integral2D, ProtoOperatorsFixture )
 {
   Real vol = 0.;
   MeshTerm<0, ConstNodes> nodes;
-  for_each_element<SF::VolumeTypes>(*grid_2d, vol += integral<1>(jacobian_determinant(_mapped_coord, nodes)));
+  for_each_element<SF::VolumeTypes>(*grid_2d, vol += integral<1>(jacobian_determinant(nodes)));
   BOOST_CHECK_CLOSE(vol, 1., 0.0001);
 }
 
@@ -237,7 +242,7 @@ BOOST_FIXTURE_TEST_CASE( IntegralOrder4, ProtoOperatorsFixture )
 {
   Real vol = 0.;
   MeshTerm<0, ConstNodes> nodes;
-  for_each_element<HigherIntegrationElements>(*grid_2d, vol += integral<4>(jacobian_determinant(_mapped_coord, nodes)));
+  for_each_element<HigherIntegrationElements>(*grid_2d, vol += integral<4>(jacobian_determinant(nodes)));
   BOOST_CHECK_CLOSE(vol, 1., 0.0001);
 }
 
@@ -264,7 +269,7 @@ BOOST_FIXTURE_TEST_CASE( Integral3D, ProtoOperatorsFixture )
 {
   Real vol = 0.;
   MeshTerm<0, ConstNodes> nodes;
-  for_each_element<SF::VolumeTypes>(*channel_3d, vol += integral<1>(jacobian_determinant(_mapped_coord, nodes)));
+  for_each_element<SF::VolumeTypes>(*channel_3d, vol += integral<1>(jacobian_determinant(nodes)));
   BOOST_CHECK_CLOSE(vol, 50., 1e-6);
 }
 
@@ -290,7 +295,7 @@ BOOST_FIXTURE_TEST_CASE( SurfaceIntegral3D, ProtoOperatorsFixture )
   RealVector area(0., 3);
   MeshTerm<0, ConstNodes> nodes;
   for_each_element< boost::mpl::vector<SF::Quad3DLagrangeP1> >(recursive_get_named_component_typed<CRegion>(*channel_3d, "bottomWall")
-                                                             , area += integral<1>(normal(_mapped_coord, nodes)));
+                                                             , area += integral<1>(normal(nodes)));
   
   /// Normal vector on the bottom wall should point down, with a length equal to the area
   BOOST_CHECK_SMALL(area[XX], 1e-10);

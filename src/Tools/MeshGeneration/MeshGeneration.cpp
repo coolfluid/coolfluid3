@@ -30,15 +30,38 @@ namespace MeshGeneration {
   
 ////////////////////////////////////////////////////////////////////////////////
 
+void create_line(CMesh& mesh, const Real x_len, const Uint x_segments)
+{
+  CRegion& region = mesh.create_region("region");
+  CArray& coordinates = region.create_coordinates(1);
+  CArray::ArrayT& coord_array = coordinates.array();
+  
+  coord_array.resize(boost::extents[(x_segments+1)][1]);
+  const Real x_step = x_len / static_cast<Real>(x_segments);
+  for(Uint i = 0; i <= x_segments; ++i)
+  {
+    coord_array[i][XX] = static_cast<Real>(i) * x_step;
+  }
+  
+  CTable::ArrayT& conn_array = region.create_elements("Line1DLagrangeP1",coordinates).connectivity_table().array();
+  conn_array.resize(boost::extents[x_segments][2]);
+  for(Uint i = 0; i < x_segments; ++i)
+  {
+    CTable::Row nodes = conn_array[i];
+    nodes[0] = i;
+    nodes[1] = i+1;
+  }
+}
+
+
 void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments)
 {
   CRegion& region = mesh.create_region("region");
   
   const Uint dim = 2;
-  CArray& coordinates = *region.create_component_type<CArray>("coordinates");
-  coordinates.initialize(dim);
-  CArray::ArrayT& coordArray = coordinates.array();
-  coordArray.resize(boost::extents[(x_segments+1)*(y_segments+1)][dim]);
+  CArray& coordinates = region.create_coordinates(dim);
+  CArray::ArrayT& coord_array = coordinates.array();
+  coord_array.resize(boost::extents[(x_segments+1)*(y_segments+1)][dim]);
   const Real x_step = x_len / static_cast<Real>(x_segments);
   const Real y_step = y_len / static_cast<Real>(y_segments);
   Real y;
@@ -47,18 +70,18 @@ void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uin
     y = static_cast<Real>(j) * y_step;
     for(Uint i = 0; i <= x_segments; ++i)
     {
-      CArray::Row row = coordArray[j*(x_segments+1)+i];
+      CArray::Row row = coord_array[j*(x_segments+1)+i];
       row[XX] = static_cast<Real>(i) * x_step;
       row[YY] = y;
     }
   }
-  CTable::ArrayT& connArray = region.create_elements("Quad2DLagrangeP1",coordinates).connectivity_table().array();
-  connArray.resize(boost::extents[(x_segments)*(y_segments)][4]);
+  CTable::ArrayT& conn_array = region.create_elements("Quad2DLagrangeP1",coordinates).connectivity_table().array();
+  conn_array.resize(boost::extents[(x_segments)*(y_segments)][4]);
   for(Uint j = 0; j < y_segments; ++j)
   {
     for(Uint i = 0; i < x_segments; ++i)
     {
-      CTable::Row nodes = connArray[j*(x_segments)+i];
+      CTable::Row nodes = conn_array[j*(x_segments)+i];
       nodes[0] = j * (x_segments+1) + i;
       nodes[1] = nodes[0] + 1;
       nodes[3] = (j+1) * (x_segments+1) + i;
@@ -106,8 +129,8 @@ void create_circle_2d(CArray& coordinates, CTable& connectivity, const Real radi
 
 void create_circle_2d ( CMesh& mesh, const Real radius, const Uint segments, const Real start_angle, const Real end_angle )
 {
-  CArray& coordinates = *mesh.create_component_type<CArray>("coordinates");
   CRegion& region = mesh.create_region("region");
+  CArray& coordinates = region.create_coordinates(DIM_2D);
   CTable& conn = region.create_elements("Line2DLagrangeP1",coordinates).connectivity_table();
   create_circle_2d(coordinates, conn, radius, segments, start_angle, end_angle);
 }

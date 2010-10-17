@@ -36,24 +36,25 @@ namespace Actions {
 template<typename SF, typename VarT>
 struct AddContext
 {
-  typedef VarContext<SF, VarT> type;
+  typedef ElementVarContext<SF, VarT> type;
 };
 
 /// Initialize the contexts for numbered variables. Called when the CElements has changed
 template<typename VarsT, typename ContextsT>
 struct InitContexts
 {
-  InitContexts(const VarsT& vars, ContextsT& contexts, Mesh::CElements& elements) : m_vars(vars), m_contexts(contexts), m_elements(elements) {}
+  InitContexts(const VarsT& vars, ContextsT& contexts, Mesh::CElements& elements, const RealVector& mapped_coordinates) : m_vars(vars), m_contexts(contexts), m_elements(elements), m_mapped_coords(mapped_coordinates) {}
   
   template<typename I>
   void operator()(const I&)
   {
-    boost::fusion::at<I>(m_contexts).init(boost::fusion::at<I>(m_vars), m_elements);
+    boost::fusion::at<I>(m_contexts).init(boost::fusion::at<I>(m_vars), m_elements, m_mapped_coords);
   }
   
   const VarsT& m_vars;
   ContextsT& m_contexts;
   Mesh::CElements& m_elements;
+  const RealVector& m_mapped_coords;
 };
 
 /// Fill the numbered variables. Called when the element changed
@@ -65,7 +66,7 @@ struct FillContexts
   template<typename I>
   void operator()(const I&)
   {
-    boost::fusion::at<I>(m_contexts).fill(boost::fusion::at<I>(m_vars), elem_idx);
+    boost::fusion::at<I>(m_contexts).fill(elem_idx);
   }
   
   const VarsT& m_vars;
@@ -97,13 +98,15 @@ public: // functions
     typedef typename boost::mpl::transform< VarTypesT, AddContext<ShapeFunctionT, boost::mpl::_1> >::type ContextsT;
     ContextsT contexts;
     
-    InitContexts<VarTypesT, ContextsT> init_ctx(m_vars, contexts, m_elements);
+    RealVector mapped_coordinates;
+    
+    InitContexts<VarTypesT, ContextsT> init_ctx(m_vars, contexts, m_elements, mapped_coordinates);
     boost::mpl::for_each<boost::mpl::range_c<int, 0, nb_vars> >(init_ctx);
     
     FillContexts<VarTypesT, ContextsT> fill_ctx(m_vars, contexts);
     
     // Create the global context
-    MeshContext<ShapeFunctionT, ContextsT> context(contexts);
+    ElementMeshContext<ShapeFunctionT, ContextsT> context(contexts, mapped_coordinates);
     
     const Uint nb_elems = m_elements.connectivity_table().size();
     for(context.element_idx = 0; context.element_idx != nb_elems; ++context.element_idx)

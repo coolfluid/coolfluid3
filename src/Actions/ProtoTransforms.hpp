@@ -83,6 +83,7 @@ private:
   VarsT& m_vars;  
 };
 
+/*
 /// Strip the CF expression templates
 template<typename T1, typename T2=boost::mpl::void_, typename T3=boost::mpl::void_>
 struct StripExpr
@@ -100,7 +101,7 @@ template<typename T1, typename T2>
 struct StripExpr< Math::Mult<T1, RealVector, T2> >
 {
   typedef RealVector type;
-};
+};*/
 
 } // namespace Actions
 } // namespace CF

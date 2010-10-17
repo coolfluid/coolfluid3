@@ -22,30 +22,12 @@ namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Provide a mutable view of the nodes of a single element, offering operator[] and size() functions
-/// Copying this creates a shallow copy and modifying a copy modifies the original coordinate data
-struct Mesh_API ElementNodeView
-{
-  ElementNodeView() {}
-  ElementNodeView(CArray& coordinates, const CTable::ConstRow& connectivity);
-  Uint size() const;
-  CArray::ConstRow operator[](const Uint idx) const;
-  CArray::Row operator[](const Uint idx);
-private:
-  friend class ConstElementNodeView; // Allows construction of the const version from the mutable version
-  struct Data;
-  boost::shared_ptr<Data> m_data;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
 /// Provide a constant view of the nodes of a single element, offering operator[] and size() functions
 /// Copying this creates a shallow copy.
 struct Mesh_API ConstElementNodeView
 {
   ConstElementNodeView() {}
   ConstElementNodeView(CArray const& coordinates, const CTable::ConstRow& connectivity);
-  ConstElementNodeView(const ElementNodeView& elementNodeVector);
   Uint size() const;
   CArray::ConstRow operator[](const Uint idx) const;
   CArray::Row operator[](const Uint idx);
@@ -156,7 +138,6 @@ inline RealVector point3(const Real x, const Real y, const Real z)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::ostream& operator<<(std::ostream& output, const ElementNodeView& nodeVector);
 std::ostream& operator<<(std::ostream& output, const ConstElementNodeView& nodeVector);
 Mesh_API Common::LogStream& operator<<(Common::LogStream& output, const ElementNodes& nodes);
 

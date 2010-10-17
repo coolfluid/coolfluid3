@@ -25,6 +25,9 @@ namespace MeshGeneration {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// Create a 1D line mesh
+void MeshGeneration_API create_line(CMesh& mesh, const Real x_len, const Uint x_segments);
+
 /// Create a rectangular, 2D, quad-only mesh. No buffer for creation
 void MeshGeneration_API create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments);
 

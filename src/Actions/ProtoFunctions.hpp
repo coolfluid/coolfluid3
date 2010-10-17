@@ -10,57 +10,45 @@
 #include <cmath>
 
 #include "Actions/ProtoDomain.hpp"
+#include <boost/concept_check.hpp>
+
+#include "Math/RealMatrix.hpp"
+#include "Math/RealVector.hpp"
+#include "Common/Log.hpp"
 
 namespace CF {
 namespace Actions {
 
-/// Wrap the jacobian determinant function
-struct jacobian_determinant_tag
+/// Tags functions that are evaluated using element shape functions
+template<typename FunctionT>
+struct sf_function_tag
 {};
 
-template<typename MappedCoordsT, typename NodesT>
-typename boost::proto::result_of::make_expr<
-    jacobian_determinant_tag
-  , MeshDomain
-  , MappedCoordsT const &
-  , NodesT const &
->::type const
-jacobian_determinant(MappedCoordsT const& mapped_coords, NodesT const& nodes)
-{
-  return boost::proto::make_expr<jacobian_determinant_tag, MeshDomain>(boost::ref(mapped_coords), boost::ref(nodes));
+#define SF_FUNCTION(__FName)    \
+struct __FName ## _tag {}; \
+\
+template<typename NodesT> \
+typename boost::proto::result_of::make_expr< \
+    sf_function_tag<__FName ## _tag> \
+  , MeshDomain \
+  , NodesT const & \
+>::type const \
+__FName(NodesT const &nodes) \
+{ \
+  return boost::proto::make_expr<sf_function_tag<__FName ## _tag>, MeshDomain>(boost::ref(nodes)); \
 }
 
-/// Return the value of the normal at the given mapped coordinates for an element with the given nodes
-// Wrap the normal function
-struct normal_tag
-{};
+/// The set of shape function wrappers is defined using macros to avoid code reptition. See the
+/// shape function docs for more info.
+SF_FUNCTION(volume)
+SF_FUNCTION(jacobian)
+SF_FUNCTION(jacobian_adjoint)
+SF_FUNCTION(jacobian_determinant)
+SF_FUNCTION(mapped_gradient)
+SF_FUNCTION(normal)
+SF_FUNCTION(laplacian)
 
-template<typename MappedCoordsT, typename NodesT>
-typename boost::proto::result_of::make_expr<
-    normal_tag
-  , MeshDomain
-  , MappedCoordsT const &
-  , NodesT const &
->::type const
-normal(MappedCoordsT const& mapped_coords, NodesT const& nodes)
-{
-  return boost::proto::make_expr<normal_tag, MeshDomain>(boost::ref(mapped_coords), boost::ref(nodes));
-}
-
-/// Return element volume
-struct volume_tag
-{};
-
-template<typename Arg>
-typename boost::proto::result_of::make_expr<
-    volume_tag
-  , MeshDomain
-  , Arg const &
->::type const
-volume(Arg const &arg)
-{
-  return boost::proto::make_expr<volume_tag, MeshDomain>(boost::ref(arg));
-}
+#undef SF_FUNCTION
 
 /// Integrates the argument
 template<Uint Order>
@@ -78,20 +66,20 @@ integral(Arg const &arg)
   return boost::proto::make_expr<integral_tag<Order>, MeshDomain>(boost::ref(arg));
 }
 
-/// Convert mapped coordinates to real coordinates
-struct coords_tag
+/// Executes the second argument for each node of the element data given in the first argument
+struct for_each_node_tag
 {};
 
-template<typename MappedCoordsT, typename NodesT>
+template<typename NodesT, typename ExprT>
 typename boost::proto::result_of::make_expr<
-    coords_tag
+    for_each_node_tag
   , MeshDomain
-  , MappedCoordsT const &
-  , NodesT const &
+  , NodesT const&
+  , ExprT const&
 >::type const
-coords(MappedCoordsT const& mapped_coords, NodesT const& nodes)
+for_each_element_node(NodesT const& nodes, ExprT const& expr)
 {
-  return boost::proto::make_expr<coords_tag, MeshDomain>(boost::ref(mapped_coords), boost::ref(nodes));
+  return boost::proto::make_expr<for_each_node_tag, MeshDomain>(boost::ref(nodes), boost::ref(expr));
 }
 
 /// Pow function based on Proto docs example
@@ -121,12 +109,33 @@ pow(Arg const &arg)
   );
 }
 
+/// Accept a 2D realvector for atan2
+Real atan_vec(const RealVector& vec)
+{
+  return atan2(vec[1], vec[0]);
+}
+
 // Wrap some math functions
 boost::proto::terminal< double(*)(double) >::type const _sin = {&sin};
 boost::proto::terminal< double(*)(double, double) >::type const _atan2 = {&atan2};
+boost::proto::terminal< double(*)(const RealVector&) >::type const _atan_vec = {&atan_vec};
 
 // Wrap std::cout
 boost::proto::terminal< std::ostream & >::type _cout = {std::cout};
+
+/// Transpose a matrix. TODO: use expression templates (Eigen?)
+/// Don't use this, it's a bad hack as proof of concept
+const RealMatrix& transpose(const RealMatrix& to_transpose)
+{
+  static RealMatrix transposed;
+  transposed.resize(to_transpose.nbCols(), to_transpose.nbRows());
+  to_transpose.transpose(transposed);
+  return transposed;
+}
+
+
+typedef const RealMatrix&(*TransposeT)(const RealMatrix&);
+boost::proto::terminal< TransposeT >::type const _transpose = {&transpose};
 
 } // namespace Actions
 } // namespace CF

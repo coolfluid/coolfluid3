@@ -78,14 +78,14 @@ BOOST_FIXTURE_TEST_SUITE( Nodes, Nodes_Fixture )
 //////////////////////////////////////////////////////////////////////////////
 
 /// Test node modification
-BOOST_AUTO_TEST_CASE( writeNodes )
+/*BOOST_AUTO_TEST_CASE( writeNodes )
 {
   CElements& firstRegion = get_first_region();
   ElementNodeView nodes(firstRegion.coordinates(), firstRegion.connectivity_table().array()[0]);
   nodes[0][0] = 1.;
   const ConstElementNodeView const_nodes(firstRegion.coordinates(), firstRegion.connectivity_table().array()[0]);
   BOOST_CHECK_EQUAL(nodes[0][0], const_nodes[0][0]);
-}
+}*/
 
 BOOST_AUTO_TEST_CASE( FillNodeList )
 {

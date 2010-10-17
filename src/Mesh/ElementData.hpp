@@ -163,6 +163,112 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// View of nodal data, allowing modification of the referenced data
+template<Uint NbNodes, Uint NbRows, Uint NbCols=1>
+struct ElementNodeView;
+
+///Specialization for single Real values
+template<Uint NbNodes>
+struct ElementNodeView<NbNodes, 1, 1>
+{
+  static const Uint nb_nodes = NbNodes;
+  static const Uint nb_rows = 1;
+  static const Uint nb_cols = 1;
+  static const Uint node_size = 1;
+  
+  Uint size() const
+  {
+    return nb_nodes;
+  }
+  
+  const Real& operator[](const Uint i) const
+  {
+    return *m_data[i];
+  }
+  
+  Real& operator[](const Uint i)
+  {
+    return *m_data[i];
+  }
+  
+  template<typename RowT>
+  void fill(CArray& data_array, const RowT& element_row, const Uint start=0)
+  {
+    for(Uint i = 0; i != nb_nodes; ++i)
+    {
+      m_data[i] = &data_array[element_row[i]][start];
+    }
+  }
+
+private:
+  Real* m_data[NbNodes];
+};
+
+/// View of nodal data. Size of tensors at nodes is runtime-modifiable
+template<Uint NbNodes>
+struct ElementNodeTensorViewD
+{
+  ElementNodeTensorViewD()
+  {
+    for(Uint i = 0; i != NbNodes; ++i)
+    {
+      m_data[i] = 0;
+    }
+  }
+  
+  ~ElementNodeTensorViewD()
+  {
+    clear();
+  }
+  
+  void clear()
+  {
+    for(Uint i = 0; i != NbNodes; ++i)
+    {
+      delete m_data[i];
+      m_data[i] = 0;
+    }
+  }
+  
+  Uint size() const
+  {
+    return NbNodes;
+  }
+  
+  void init(const Uint nb_rows, const Uint nb_cols)
+  {
+    clear();
+    m_nb_rows = nb_rows;
+    m_nb_cols = nb_cols;
+  }
+  
+  const RealMatrix& operator[](const Uint i) const
+  {
+    return *m_data[i];
+  }
+  
+  RealMatrix& operator[](const Uint i)
+  {
+    return *m_data[i];
+  }
+  
+  template<typename RowT>
+  void fill(CArray& data_array, const RowT& element_row, const Uint start=0)
+  {
+    for(Uint i = 0; i != NbNodes; ++i)
+    {
+      m_data[i] = new RealMatrix(false, m_nb_rows, m_nb_cols, &data_array[element_row[i]][start]);
+    }
+  }
+
+private:
+  RealMatrix* m_data[NbNodes];
+  Uint m_nb_rows;
+  Uint m_nb_cols;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // Mesh
 } // CF
 

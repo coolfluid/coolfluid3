@@ -30,13 +30,8 @@ struct MeshExpr : boost::proto::extends<Expr, MeshExpr<Expr>, MeshDomain>
 
   MeshExpr(Expr const &expr = Expr()) : base_type(expr) {}
   
-  /// Constructor taking a single parameter
-  template<typename T>
-  MeshExpr(const T& par1)
-  {
-    typedef typename boost::fusion::result_of::value_at_c<Expr, 0>::type var_t;
-    boost::proto::value(*this) = var_t(par1);
-  }
+  // Overrides the compiler-generated operator=
+  BOOST_PROTO_EXTENDS_USING_ASSIGN(MeshExpr)
 };
 
 } // namespace Actions

@@ -25,6 +25,9 @@ list( APPEND Actions_files
   ProtoElementLooper.hpp
   ProtoFunctions.hpp
   ProtoGrammars.hpp
+  ProtoNodeContexts.hpp
+  ProtoNodeLooper.hpp
+  ProtoSFContexts.hpp
   ProtoTransforms.hpp
   ProtoVariables.hpp
 )

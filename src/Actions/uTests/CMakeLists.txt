@@ -25,3 +25,10 @@ list( APPEND uTestProtoOperators_files
 set( uTestProtoOperators_profile ON )
 coolfluid_add_unittest( uTestProtoOperators )
 
+################################################################################
+
+list( APPEND utest-proto-heat_cflibs Mesh Actions SF MeshGeneration )
+list( APPEND utest-proto-heat_files
+  utest-proto-heat.cpp )
+coolfluid_add_unittest( utest-proto-heat )
+

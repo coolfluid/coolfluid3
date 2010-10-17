@@ -21,6 +21,9 @@ namespace Actions {
 struct ElementIdxHolder {};
 boost::proto::terminal<ElementIdxHolder>::type const _elem = {{}}; // Represents an element index ({{{}}} makes this a static initialization)
 
+struct ElementNodeIdxHolder {};
+boost::proto::terminal<ElementNodeIdxHolder>::type const _elem_node = {{}}; // Represents a node index relative to the element
+
 struct MappedCoordHolder {};
 boost::proto::terminal<MappedCoordHolder>::type const _mapped_coord = {{}};
 
@@ -38,8 +41,8 @@ struct Var : T
   template<typename T1>
   Var(const T1& par1) : T(par1) {}
   
-  /// Type of the terminal expression wrapping this variable
-  typedef MeshExpr<typename boost::proto::terminal<Var<I, T> >::type> expr_type;
+  template<typename T1, typename T2>
+  Var(const T1& par1, const T2& par2) : T(par1, par2) {}
 };
 
 /// Represent const element nodes. This will be replaced with the current list of element nodes
@@ -55,17 +58,29 @@ std::ostream& operator<<(std::ostream& output, const ConstNodes&)
 
 /// Const node field data
 template<typename T>
-struct ConstNodesFd
+struct ConstField
 {
-  ConstNodesFd() : field_name() {}
+  ConstField() : field_name() {}
   
-  ConstNodesFd(const std::string& fld_name) : field_name(fld_name) {}
+  ConstField(const std::string& fld_name) : field_name(fld_name) {}
   
   std::string field_name;
 };
 
+/// Mutable node field data
 template<typename T>
-std::ostream& operator<<(std::ostream& output, const ConstNodesFd<T>& fd)
+struct Field
+{
+  Field() : field_name() {}
+  
+  Field(const std::string& field_nm, const std::string var_nm) : field_name(field_nm), var_name(var_nm) {}
+  
+  std::string field_name;
+  std::string var_name;
+};
+
+template<typename T>
+std::ostream& operator<<(std::ostream& output, const ConstField<T>& fd)
 {
   output << "field " << fd.field_name;
   return output;
@@ -77,14 +92,29 @@ struct MutableNodes
 };
 
 template<Uint I, typename T>
-struct MeshTerm : Var<boost::mpl::int_<I>, T>::expr_type
+struct MeshTerm : boost::proto::result_of::make_expr
+                  <
+                    boost::proto::tag::terminal
+                  , MeshDomain
+                  , Var<boost::mpl::int_<I>, T>
+                  >::type
 {
-  typedef typename Var<boost::mpl::int_<I>, T>::expr_type base_type;
+  typedef typename boost::proto::result_of::make_expr
+  <
+    boost::proto::tag::terminal
+  , MeshDomain
+  , Var<boost::mpl::int_<I>, T>
+  >::type base_type;
   
-  MeshTerm() : base_type() {}
+  MeshTerm() : base_type(boost::proto::make_expr<boost::proto::tag::terminal, MeshDomain>(Var<boost::mpl::int_<I>, T>())) {}
   
   template<typename T1>
-  MeshTerm(const T1& par1) : base_type(par1) {}
+  MeshTerm(const T1& par1) : base_type(boost::proto::make_expr<boost::proto::tag::terminal, MeshDomain>(Var<boost::mpl::int_<I>, T>(par1))) {}
+  
+  template<typename T1, typename T2>
+  MeshTerm(const T1& par1, const T2& par2) : base_type(boost::proto::make_expr<boost::proto::tag::terminal, MeshDomain>(Var<boost::mpl::int_<I>, T>(par1, par2))) {}
+  
+  BOOST_PROTO_EXTENDS_USING_ASSIGN(MeshTerm)
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -251,6 +281,13 @@ operator/(const ResultSize<NbRows,NbCols>& x, const Real& y)
   return ResultSize<NbRows,NbCols>();
 }
 
+template <Uint NbRows, Uint NbCols>
+ResultSize<NbRows,NbCols>
+operator/(const ResultSize<NbRows,NbCols>& x, const ScalarT& y)
+{
+  return ResultSize<NbRows,NbCols>();
+}
+
 /// Types of product
 template <Uint NbRows1, Uint NbCols1, Uint NbRows2, Uint NbCols2>
 struct ProductType; // generic case is an error
@@ -274,6 +311,13 @@ template<Uint NbRows, Uint NbCols>
 struct ProductType<NbRows, NbCols, 1, 1>
 {
   typedef ResultSize<NbRows, NbCols> type;
+};
+
+/// Scalar * matrix
+template<Uint NbCols>
+struct ProductType<1, 1, 1, NbCols>
+{
+  typedef ResultSize<1, NbCols> type;
 };
 
 /// Scalar*Scalar
