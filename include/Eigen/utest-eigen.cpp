@@ -64,27 +64,26 @@ BOOST_FIXTURE_TEST_SUITE( TestEigen, EigenFixture )
 BOOST_AUTO_TEST_CASE( VectorCoeffWiseOps )
 {
   vc = va.array() * vb.array();
-  cout << vc << endl;
+//  cout << vc << endl;
   vc = va.array() / vb.array();
-  cout << vc << endl;
+//  cout << vc << endl;
 }
 
 BOOST_AUTO_TEST_CASE( VectorVectorOps )
 {
   vc = va + vb;
-  cout << vc << endl;
+//  cout << vc << endl;
   vc += vb;
-  cout << vc << endl;
+//  cout << vc << endl;
 }
 
 BOOST_AUTO_TEST_CASE( MatrixMatrixOps )
 {
   mc = ma * mb;
-  cout << mc << endl;
+//  cout << mc << endl;
   mc += mb;
-  cout << mc << endl;
+//  cout << mc << endl;
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 
