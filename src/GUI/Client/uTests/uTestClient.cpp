@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <QApplication>
+#include <QCoreApplication>
 #include <QtTest>
 
 #include "GUI/Client/uTests/CNodeTest.hpp"
@@ -17,7 +17,7 @@ using namespace CF::GUI::ClientTest;
 
 int main(int argc, char * argv[])
 {
-  QApplication app(argc, argv);
+  QCoreApplication app(argc, argv);
   int passed = 0;
 
   // CommonFunctionsTest must be the first to be run !!
