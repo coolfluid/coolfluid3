@@ -92,11 +92,17 @@ public:
   }
 
   /// Start timing when a test starts
-  void test_unit_start( boost::unit_test::test_unit const& unit) {
+  void test_unit_start( boost::unit_test::test_unit const& unit)
+  {
+    restart_timer();
+  }
+  
+  void restart_timer()
+  {
     m_timer.restart();
     if(PEInterface::instance().is_init())
       m_mpi_timer.restart();
-  }
+  };
 
   /// Stop timing when a test ends
   void test_unit_finish( boost::unit_test::test_unit const& unit ) {

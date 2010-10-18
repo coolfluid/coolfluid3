@@ -8,7 +8,6 @@
 #define BOOST_TEST_MODULE "Some benchmarkings for vector operations"
 
 #include <boost/test/unit_test.hpp>
-#include <boost/timer.hpp>
 
 #include <Eigen/Dense>
 
@@ -57,7 +56,7 @@ BOOST_AUTO_TEST_CASE( dgemv_eigen_dynamic )
   for ( int i = 0; i < MSIZE; ++i )
     vc[i] = VectorXd::Constant( LSIZE, 0.0);
 
-  boost::timer mtimer;
+  restart_timer();
 
   for ( int i = 0; i < MSIZE; ++i )
     vc[i].noalias() = ma[i] * vb[i];
@@ -85,7 +84,7 @@ BOOST_AUTO_TEST_CASE( dgemv_eigen_fixed )
   for ( int i = 0; i < MSIZE; ++i )
     vc[i] = VectorSd::Constant( LSIZE, 0.0 );
 
-  boost::timer mtimer;
+  restart_timer();
 
   for ( int i = 0; i < MSIZE; ++i )
     vc[i].noalias() = ma[i] * vb[i];
@@ -119,7 +118,7 @@ BOOST_AUTO_TEST_CASE( dgemv_matrixt )
     vc[i] = 0.0;
   }
 
-  boost::timer mtimer;
+  restart_timer();
 
   for ( int i = 0; i < MSIZE; ++i )
     vc[i] = ma[i] * vb[i];
@@ -153,7 +152,7 @@ BOOST_AUTO_TEST_CASE( dgemv_native )
       for ( int j = 0; j < LSIZE; ++j ) vc[i].data[j] = 0.0;
   }
 
-  boost::timer mtimer;
+  restart_timer();
 
   for ( int e = 0; e < MSIZE; ++e )
     for ( int i = 0; i < LSIZE; ++i )
@@ -183,7 +182,7 @@ BOOST_AUTO_TEST_CASE( dgemm_eigen_dynamic )
   for ( int i = 0; i < MSIZE; ++i )
     mc[i] = MatrixXd::Constant( LSIZE, LSIZE, 0.0);
 
-  boost::timer mtimer;
+  restart_timer();
 
   for ( int i = 0; i < MSIZE; ++i )
     mc[i].noalias() = ma[i] * mb[i];
@@ -210,7 +209,7 @@ BOOST_AUTO_TEST_CASE( dgemm_eigen_fixed )
   for ( int i = 0; i < MSIZE; ++i )
     mc[i] = MatrixSd::Constant( LSIZE, LSIZE, 0.0);
 
-  boost::timer mtimer;
+  restart_timer();
 
   for ( int i = 0; i < MSIZE; ++i )
     mc[i].noalias() = ma[i] * mb[i];
@@ -244,7 +243,7 @@ BOOST_AUTO_TEST_CASE( dgemm_matrixt )
     mc[i] = 0.0;
   }
 
-  boost::timer mtimer;
+  restart_timer();
 
   for ( int i = 0; i < MSIZE; ++i )
     mc[i] = ma[i] * mb[i];
@@ -278,7 +277,7 @@ BOOST_AUTO_TEST_CASE( dgemm_native )
     for ( int j = 0; j < LSIZE*LSIZE; ++j ) mc[i].data[j] = 0.0;
   }
 
-  boost::timer mtimer;
+  restart_timer();
 
   for ( int e = 0; e < MSIZE; ++e )
   {
