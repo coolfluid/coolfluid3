@@ -80,12 +80,12 @@ void NLinkTest::test_goToTarget()
   NLink::Ptr link;
 
   th.addChildren(makeTreeFromFile());
-  link = boost::dynamic_pointer_cast<NLink>(t->getRoot()->root()->access_component("//Simulator/Flow/Mesh"));
+  link = boost::dynamic_pointer_cast<NLink>(t->getRoot()->root()->access_component("//Root/Flow/Mesh"));
 
   QVERIFY(link.get() != nullptr);
   t->setCurrentIndex(t->index(0, 0));
 
-  index = t->getIndexByPath("//Simulator/MG/Mesh1");
+  index = t->getIndexByPath("//Root/MG/Mesh1");
   link->goToTarget(*XmlOps::create_doc().get());
 
   // 2 signals should have been thrown, one by setCurrentIndex() and one by

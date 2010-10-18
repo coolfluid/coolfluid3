@@ -98,7 +98,7 @@ void NTreeTest::test_getNodeParams()
   NTree t;
   MyNode::Ptr node(new MyNode("UselessNode"));
   QModelIndex index;
-  QList<NodeOption> options;
+  QList<Option::ConstPtr> options;
   bool ok = false;
 
   t.getRoot()->addNode(node);
@@ -182,7 +182,7 @@ void NTreeTest::test_getIndexByPath()
 
   CNode::Ptr node = static_cast<TreeNode*>(index.internalPointer())->getNode();
 
-  QModelIndex foundRootIndex = t.getIndexByPath("//Simulator");
+  QModelIndex foundRootIndex = t.getIndexByPath("//Root");
   QModelIndex foundIndex = t.getIndexByPath(node->full_path());
 
   QVERIFY(foundRootIndex.isValid());
