@@ -15,12 +15,16 @@
 #include "Math/RealMatrix.hpp"
 #include "Math/RealVector.hpp"
 
+#include "Tools/Testing/TimedTestFixture.hpp"
+
 using namespace std;
 using namespace Eigen;
 
 using namespace CF;
 using namespace CF::Common;
 using namespace CF::Math;
+
+using namespace Tools::Testing;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -29,14 +33,14 @@ struct nat
   double * cf_restrict data;
 };
 
-#define MSIZE 100000
+#define MSIZE 1000000
 #define LSIZE 4
 
-BOOST_AUTO_TEST_SUITE( VectorBenchmarkSuite )
+BOOST_FIXTURE_TEST_SUITE( VectorBenchmarkSuite, TimedTestFixture )
 
 ///////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( timed_dgemv_eigen_dynamic )
+BOOST_AUTO_TEST_CASE( dgemv_eigen_dynamic )
 {
   std::vector< MatrixXd > ma;
   ma.resize( MSIZE );
@@ -57,14 +61,11 @@ BOOST_AUTO_TEST_CASE( timed_dgemv_eigen_dynamic )
 
   for ( int i = 0; i < MSIZE; ++i )
     vc[i].noalias() = ma[i] * vb[i];
-
-  cout << "[Eigen:Dyn]   dgemv elapsed time: " << mtimer.elapsed() << " seconds" << endl;
-//  cout << vc[0] << endl;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( timed_dgemv_eigen_fixed )
+BOOST_AUTO_TEST_CASE( dgemv_eigen_fixed )
 {
   typedef Matrix< double, LSIZE, LSIZE >  MatrixSd;
   typedef Matrix< double, LSIZE, 1     >  VectorSd;
@@ -88,14 +89,11 @@ BOOST_AUTO_TEST_CASE( timed_dgemv_eigen_fixed )
 
   for ( int i = 0; i < MSIZE; ++i )
     vc[i].noalias() = ma[i] * vb[i];
-
-  cout << "[Eigen:Fixed] dgemv elapsed time: " << mtimer.elapsed() << " seconds" << endl;
-//  cout << vc[0] << endl;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( timed_dgemv_matrixt )
+BOOST_AUTO_TEST_CASE( dgemv_matrixt )
 {
   std::vector< RealMatrix > ma;
   ma.resize( MSIZE );
@@ -125,14 +123,11 @@ BOOST_AUTO_TEST_CASE( timed_dgemv_matrixt )
 
   for ( int i = 0; i < MSIZE; ++i )
     vc[i] = ma[i] * vb[i];
-
-  cout << "[MatrixT]     dgemv elapsed time: " << mtimer.elapsed() << " seconds" << endl;
-//  cout << vc[0] << endl;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( timed_dgemv_native )
+BOOST_AUTO_TEST_CASE( dgemv_native )
 {
   std::vector< nat > ma;
   ma.resize( MSIZE );
@@ -167,18 +162,12 @@ BOOST_AUTO_TEST_CASE( timed_dgemv_native )
       for (Uint j = 0, k = i*n; j < n; ++j, ++k)
         vc[e].data[i] += ma[e].data[k] * vb[e].data[j];
     }
-
-  cout << "[native]      dgemv elapsed time: " << mtimer.elapsed() << " seconds" << endl;
-//  for ( int i = 0; i < LSIZE; ++i )
-//    cout << vc[0].data[i] << endl;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( timed_dgemm_eigen_dynamic )
+BOOST_AUTO_TEST_CASE( dgemm_eigen_dynamic )
 {
-  cout << "-------------------------" << endl;
-
   std::vector< MatrixXd > ma;
   ma.resize( MSIZE );
   for ( int i = 0; i < MSIZE; ++i )
@@ -198,14 +187,11 @@ BOOST_AUTO_TEST_CASE( timed_dgemm_eigen_dynamic )
 
   for ( int i = 0; i < MSIZE; ++i )
     mc[i].noalias() = ma[i] * mb[i];
-
-  cout << "[Eigen:Dyn]   dgemm elapsed time: " << mtimer.elapsed() << " seconds" << endl;
-//  cout << mc[0] << endl;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( timed_dgemm_eigen_fixed )
+BOOST_AUTO_TEST_CASE( dgemm_eigen_fixed )
 {
   typedef Matrix< double, LSIZE, LSIZE >  MatrixSd;
 
@@ -228,14 +214,11 @@ BOOST_AUTO_TEST_CASE( timed_dgemm_eigen_fixed )
 
   for ( int i = 0; i < MSIZE; ++i )
     mc[i].noalias() = ma[i] * mb[i];
-
-  cout << "[Eigen:Fixed] dgemm elapsed time: " << mtimer.elapsed() << " seconds" << endl;
-//  cout << mc[0] << endl;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( timed_dgemm_matrixt )
+BOOST_AUTO_TEST_CASE( dgemm_matrixt )
 {
   std::vector< RealMatrix > ma;
   ma.resize( MSIZE );
@@ -265,14 +248,11 @@ BOOST_AUTO_TEST_CASE( timed_dgemm_matrixt )
 
   for ( int i = 0; i < MSIZE; ++i )
     mc[i] = ma[i] * mb[i];
-
-  cout << "[MatrixT]     dgemm elapsed time: " << mtimer.elapsed() << " seconds" << endl;
-//  cout << mc[0];
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( timed_dgemm_native )
+BOOST_AUTO_TEST_CASE( dgemm_native )
 {
   std::vector< nat > ma;
   ma.resize( MSIZE );
@@ -330,14 +310,6 @@ BOOST_AUTO_TEST_CASE( timed_dgemm_native )
       }
     }
   }
-
-  cout << "[native]      dgemv elapsed time: " << mtimer.elapsed() << " seconds" << endl;
-//  for ( int i = 0; i < LSIZE; ++i )
-//  {
-//    for ( int j = 0; j < LSIZE; ++j )
-//      cout << mc[0].data[i*LSIZE + j] << " ";
-//    cout << endl;
-//  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
