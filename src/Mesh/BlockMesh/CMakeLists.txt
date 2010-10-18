@@ -1,4 +1,4 @@
-list( APPEND BlockMesh_files
+list( APPEND coolfluid_blockmesh_files
   BlockData.cpp
   BlockData.hpp
   LibBlockMesh.cpp
@@ -7,11 +7,11 @@ list( APPEND BlockMesh_files
   WriteDict.hpp
 )
 
-list( APPEND BlockMesh_cflibs Mesh SF )
+list( APPEND coolfluid_blockmesh_cflibs coolfluid_mesh coolfluid_sf )
 
-set( BlockMesh_kernellib TRUE )
+set( coolfluid_blockmesh_kernellib TRUE )
 
-coolfluid_add_library( BlockMesh )
+coolfluid_add_library( coolfluid_blockmesh )
 
 add_subdirectory(uTests)
 

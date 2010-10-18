@@ -1,6 +1,6 @@
 ################################################################################
 
-LIST( APPEND utest-tetra-sf_cflibs SF ICGAL Gmsh )
+LIST( APPEND utest-tetra-sf_cflibs coolfluid_sf coolfluid_cgal coolfluid_gmsh )
 LIST( APPEND utest-tetra-sf_files
   utest-tetra-sf.cpp )
 

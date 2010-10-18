@@ -1,7 +1,7 @@
 ################################################################################
 # Test Common
 
-list( APPEND utest-common_cflibs Common )
+list( APPEND utest-common_cflibs coolfluid_common )
 list( APPEND utest-common_files
   utest-common.cpp
   TestOSystem.cpp
@@ -18,7 +18,7 @@ coolfluid_add_unittest( utest-common )
 ################################################################################
 # Test Component
 
-list( APPEND utest-component_cflibs Common )
+list( APPEND utest-component_cflibs coolfluid_common )
 list( APPEND utest-component_files
   utest-component.cpp
   TestCPath.cpp
@@ -35,7 +35,7 @@ coolfluid_add_unittest( utest-component )
 ################################################################################
 # Test Component iterators
 
-list( APPEND utest-component-iterator_cflibs Common )
+list( APPEND utest-component-iterator_cflibs coolfluid_common )
 list( APPEND utest-component-iterator_files
   utest-component-iterator.cpp
 )
@@ -45,7 +45,7 @@ coolfluid_add_unittest( utest-component-iterator )
 ################################################################################
 # Test PE
 
-list( APPEND utest-parallel-environment_cflibs Common )
+list( APPEND utest-parallel-environment_cflibs coolfluid_common )
 list( APPEND utest-parallel-environment_files
   utest-parallel-environment.cpp
 )

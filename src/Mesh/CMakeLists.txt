@@ -1,6 +1,6 @@
 coolfluid_find_orphan_files()
 
-list( APPEND Mesh_files
+list( APPEND coolfluid_mesh_files
   ArrayBase.hpp
   ArrayBufferT.hpp
   CMesh.cpp
@@ -78,11 +78,11 @@ list( APPEND Mesh_files
   Integrators/GaussImplementation.hpp
 )
 
-list( APPEND Mesh_cflibs Math)  # Math includes Common
+list( APPEND coolfluid_mesh_cflibs coolfluid_math )  # Math includes coolfluid_common
 
-set( Mesh_kernellib TRUE )
+set( coolfluid_mesh_kernellib TRUE )
 
-coolfluid_add_library( Mesh )
+coolfluid_add_library( coolfluid_mesh )
 
 add_subdirectory( SF )            # Shape functions
 

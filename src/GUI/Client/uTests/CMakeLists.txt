@@ -3,8 +3,7 @@
 
 if( QT_QTTEST_FOUND )
 
-set(uTestClientModel_moc_classes
-
+set(utest-client_moc_classes
   CommonFunctions.hpp
   NTreeTest.hpp
   NBrowserTest.hpp
@@ -12,14 +11,14 @@ set(uTestClientModel_moc_classes
   CNodeTest.hpp
 )
 
-QT4_WRAP_CPP(uTestClientModel_moc_files ${uTestClientModel_moc_classes})
+QT4_WRAP_CPP(utest-client_moc_files ${utest-client_moc_classes})
 
 #configure_file( tree.xml  ${CMAKE_CURRENT_BINARY_DIR}/tree.xml  @ONLY )
 
-list( APPEND uTestClientModel_cflibs Network)
-list( APPEND uTestClientModel_libs ${QT_LIBRARIES})
-list( APPEND uTestClientModel_files
-  uTestClient.cpp
+list( APPEND utest-client_cflibs coolfluid_network)
+list( APPEND utest-client_libs ${QT_LIBRARIES})
+list( APPEND utest-client_files
+  utest-client.cpp
   ExceptionThrowHandler.hpp
   NTreeTest.hpp
   NTreeTest.cpp
@@ -37,11 +36,11 @@ list( APPEND uTestClientModel_files
   TreeHandler.hpp
 )
 
-list( APPEND uTestClientModel_libs ClientCore ${QT_LIBRARIES})
+list( APPEND utest-client_libs coolfluid_client_core ${QT_LIBRARIES})
 
-coolfluid_add_unittest( uTestClientModel )
+coolfluid_add_unittest( utest-client )
 
-add_custom_command(TARGET uTestClientModel
+add_custom_command(TARGET utest-client
                    POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/tree.xml ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                   )

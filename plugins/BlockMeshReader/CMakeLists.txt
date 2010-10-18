@@ -1,6 +1,6 @@
 option(CF_STRIP_BLOCKMESHREADER_COMPILE_FLAGS "Strip optimization and debug flags for BlockMeshReader, to avoid the long compilation" ON)
 
-list( APPEND BlockMeshReader_files
+list( APPEND coolfluid_blockmesh_reader_files
   BlockMeshReader.cpp
   BlockMeshReader.hpp
   LibBlockMeshReader.cpp
@@ -9,11 +9,11 @@ list( APPEND BlockMeshReader_files
   Parser.hpp
 )
 
-list( APPEND BlockMeshReader_cflibs Mesh MeshGeneration BlockMesh SF )
+list( APPEND coolfluid_blockmesh_reader_cflibs coolfluid_mesh coolfluid_meshgeneration coolfluid-blockmesh coolfluid_sfolfluid_sf )
 
-set( BlockMeshReader_kernellib TRUE )
+set( coolfluid_blockmesh_reader_kernellib TRUE )
 
-coolfluid_add_library( BlockMeshReader )
+coolfluid_add_library( coolfluid_blockmesh_reader )
 
 if( CMAKE_COMPILER_IS_GNUCC )
 

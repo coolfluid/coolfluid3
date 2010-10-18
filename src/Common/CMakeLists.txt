@@ -1,6 +1,6 @@
 coolfluid_find_orphan_files()
 
-list( APPEND Common_files
+list( APPEND coolfluid_common_files
     AssertionManager.cpp
     AssertionManager.hpp
     BasicExceptions.cpp
@@ -129,7 +129,7 @@ list( APPEND Common_files
 ###############################################################################
 # MPI Files
 if(CF_HAVE_MPI)
-list( APPEND Common_files
+list( APPEND coolfluid_common_files
       MPI/PEInterface.hpp
       MPI/PEInterface.cpp
       MPI/PECommPattern.hpp
@@ -146,17 +146,17 @@ endif()
 if(UNIX)
 
   if( CF_HAVE_DLOPEN )
-    list( APPEND Common_files PosixDlopenLibLoader.hpp PosixDlopenLibLoader.cpp )
-    list( APPEND Common_libs  dl )
+    list( APPEND coolfluid_common_files PosixDlopenLibLoader.hpp PosixDlopenLibLoader.cpp )
+    list( APPEND coolfluid_common_libs  dl )
     set( CF_HAVE_LIBLOADER ON )
   endif()
 
   if( CF_OS_MACOSX )
-    list( APPEND Common_files MacOSX/OSystemLayer.hpp   MacOSX/OSystemLayer.cpp )
+    list( APPEND coolfluid_common_files MacOSX/OSystemLayer.hpp   MacOSX/OSystemLayer.cpp )
   endif()
 
   if( CF_OS_LINUX )
-    list( APPEND Common_files Linux/OSystemLayer.hpp   Linux/OSystemLayer.cpp )
+    list( APPEND coolfluid_common_files Linux/OSystemLayer.hpp   Linux/OSystemLayer.cpp )
   endif()
 
 endif()
@@ -164,16 +164,16 @@ endif()
 ### WINDOWS ####
 if(WIN32)
 
-  list( APPEND Common_files Win32/OSystemLayer.hpp   Win32/OSystemLayer.cpp )
+  list( APPEND coolfluid_common_files Win32/OSystemLayer.hpp   Win32/OSystemLayer.cpp )
 
   # should search explicitly for dbghelp.dll
   # should search for psapi.dll if not in windows 7 (already in kernel32.dll)
 
   # libraries for OSystemLayerWin32
-  list( APPEND Common_libs dbghelp psapi )
+  list( APPEND coolfluid_common_libs dbghelp psapi )
 
   if( CF_HAVE_WINDOWSH )
-    list( APPEND Common_files Win32/LibLoader.hpp     Win32/LibLoader.cpp )
+    list( APPEND coolfluid_common_files Win32/LibLoader.hpp     Win32/LibLoader.cpp )
     set( CF_HAVE_LIBLOADER ON )
   endif()
 
@@ -185,32 +185,32 @@ if( NOT CF_HAVE_LIBLOADER )
   message( FATAL_ERROR "No dynamic library loader was found!")
 endif()
 
-coolfluid_mark_not_orphan (
-PosixDlopenLibLoader.hpp PosixDlopenLibLoader.cpp
-MacOSX/OSystemLayer.hpp   MacOSX/OSystemLayer.cpp
-Linux/OSystemLayer.hpp    Linux/OSystemLayer.cpp
-Win32/OSystemLayer.hpp    Win32/OSystemLayer.cpp
-Win32/LibLoader.hpp      Win32/LibLoader.cpp
+coolfluid_mark_not_orphan(
+  PosixDlopenLibLoader.hpp  PosixDlopenLibLoader.cpp
+  MacOSX/OSystemLayer.hpp   MacOSX/OSystemLayer.cpp
+  Linux/OSystemLayer.hpp    Linux/OSystemLayer.cpp
+  Win32/OSystemLayer.hpp    Win32/OSystemLayer.cpp
+  Win32/LibLoader.hpp       Win32/LibLoader.cpp
 )
 
 
 ###############################################################################
 
-list( APPEND Common_libs ${Boost_LIBRARIES})
+list( APPEND coolfluid_common_libs ${Boost_LIBRARIES})
 
 # explicit linking of all libraries for modern linkers (gcc4.5)
 if( CF_HAVE_RT )
-  list( APPEND Common_libs ${RT_LIBRARY})
+  list( APPEND coolfluid_common_libs ${RT_LIBRARY})
 endif()
 
 # faster allocation and memory porfiling
 if( CF_USE_TCMALLOC )
-  list(APPEND Common_libs ${GOOGLE_PERFTOOLS_TCMALLOC_LIB} )
+  list(APPEND coolfluid_common_libs ${GOOGLE_PERFTOOLS_TCMALLOC_LIB} )
 endif()
 
-set( Common_kernellib TRUE )
+set( coolfluid_common_kernellib TRUE )
 
-coolfluid_add_library( Common )
+coolfluid_add_library( coolfluid_common )
 
 add_subdirectory( MacOSX )   # support for Mac OSX
 add_subdirectory( Linux  )   # support for Linux

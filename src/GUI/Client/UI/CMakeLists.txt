@@ -5,7 +5,7 @@
 #
 
 # List of classes to "moc"
-list( APPEND ClientUI_moc_classes
+list( APPEND coolfluid_client_ui_moc_classes
   CentralPanel.hpp
   CommitDetailsDialog.hpp
   ConfirmCommitDialog.hpp
@@ -35,10 +35,10 @@ list( APPEND ClientUI_moc_classes
   TypeAndNameDialog.hpp)
 
 # Create the moc files
-QT4_WRAP_CPP(ClientUI_moc_files ${ClientUI_moc_classes})
+QT4_WRAP_CPP(coolfluid_client_ui_moc_files ${coolfluid_client_ui_moc_classes})
 
 # Add the project files (including the moc files)
-list( APPEND ClientUI_files
+list( APPEND coolfluid_client_ui_files
   AboutCFDialog.cpp
   AboutCFDialog.hpp
   CentralPanel.cpp
@@ -105,8 +105,8 @@ list( APPEND ClientUI_files
   TypeAndNameDialog.hpp)
 
 # Use Qt Libraries
-list( APPEND ClientUI_libs ClientCore ${QT_LIBRARIES})
+list( APPEND coolfluid_client_ui_libs ClientCore ${QT_LIBRARIES})
 
-QT4_ADD_RESOURCES(ClientUI_RCC Resources/coolfluid-client.qrc)
+QT4_ADD_RESOURCES(coolfluid_client_ui_RCC Resources/coolfluid-client.qrc)
 
-coolfluid_add_library(ClientUI)
+coolfluid_add_library(coolfluid_client_ui)

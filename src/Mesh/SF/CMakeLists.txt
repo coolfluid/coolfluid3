@@ -1,4 +1,4 @@
-list( APPEND SF_files
+list( APPEND coolfluid_sf_files
   Hexa3DLagrangeP1.cpp
   Hexa3DLagrangeP1.hpp
   LibSF.cpp
@@ -17,15 +17,17 @@ list( APPEND SF_files
   Tetra3DLagrangeP1.hpp
   Triag2DLagrangeP1.cpp
   Triag2DLagrangeP1.hpp
+  Triag2DLagrangeP2B.cpp
+  Triag2DLagrangeP2B.hpp
   Triag3DLagrangeP1.cpp
   Triag3DLagrangeP1.hpp
   Types.hpp
 )
 
-list( APPEND SF_cflibs Mesh )
+list( APPEND coolfluid_sf_cflibs coolfluid_mesh )
 
-set( SF_kernellib TRUE )
+set( coolfluid_sf_kernellib TRUE )
 
-coolfluid_add_library ( SF )
+coolfluid_add_library( coolfluid_sf )
 
 

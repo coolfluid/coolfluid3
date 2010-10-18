@@ -1,6 +1,6 @@
 coolfluid_find_orphan_files()
 
-list( APPEND Testing_files
+list( APPEND coolfluid_testing_files
   Difference.hpp
   LibTesting.cpp
   LibTesting.hpp
@@ -9,15 +9,15 @@ list( APPEND Testing_files
   TimedTestFixture.hpp
 )
 
-list( APPEND Testing_cflibs Common )
+list( APPEND coolfluid_testing_cflibs coolfluid_common )
 if( CF_BUILD_GooglePerfTools AND CF_ENABLE_PROFILING )
-  list( APPEND Testing_cflibs GooglePerfTools )
+  list( APPEND coolfluid_testing_cflibs coolfluid_google_perftools )
 endif()
 
 if( CF_OS_LINUX AND CF_HAVE_RT )
 
-  list( APPEND Testing_libs ${RT_LIB} )
+  list( APPEND coolfluid_testing_libs ${RT_LIB} )
 
 endif()
 
-coolfluid_add_library( Testing )
+coolfluid_add_library( coolfluid_testing )

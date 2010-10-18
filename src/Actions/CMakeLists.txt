@@ -1,6 +1,6 @@
 coolfluid_find_orphan_files()
 
-list( APPEND Actions_files
+list( APPEND coolfluid_actions_files
   CAction.hpp
   CAction.cpp
   CDummyLoopOperation.hpp
@@ -34,10 +34,10 @@ list( APPEND Actions_files
   ProtoVariables.hpp
 )
 
-set( Actions_kernellib TRUE )
+set( coolfluid_actions_kernellib TRUE )
 
-list( APPEND Actions_cflibs Mesh )
+list( APPEND coolfluid_actions_cflibs coolfluid_mesh )
 
-coolfluid_add_library(Actions)
+coolfluid_add_library( coolfluid_actions )
 
 add_subdirectory(uTests)

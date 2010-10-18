@@ -1,6 +1,6 @@
 coolfluid_find_orphan_files()
 
-list( APPEND Math_files
+list( APPEND coolfluid_math_files
 BoostMath.hpp
 FindMinimum.hpp
 LibMath.cpp
@@ -39,11 +39,11 @@ VectorialFunction.hpp
 VectorialFunction.cpp
 )
 
-list( APPEND Math_cflibs fparser Common )
+list( APPEND coolfluid_math_cflibs fparser coolfluid_common )
 
-set( Math_kernellib TRUE )
+set( coolfluid_math_kernellib TRUE )
 
-coolfluid_add_library( Math )
+coolfluid_add_library( coolfluid_math )
 
 add_subdirectory( uTests )    # unit tests for Math
 

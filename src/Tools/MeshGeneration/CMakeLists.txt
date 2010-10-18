@@ -1,16 +1,16 @@
 coolfluid_find_orphan_files()
 
-list(APPEND MeshGeneration_files
+list(APPEND coolfluid_mesh_generation_files
   LibMeshGeneration.cpp
   LibMeshGeneration.hpp
   MeshGeneration.cpp
   MeshGeneration.hpp
 )
 
-list( APPEND MeshGeneration_cflibs Mesh )
+list( APPEND coolfluid_mesh_generation_cflibs coolfluid_mesh )
 if( CF_BUILD_GooglePerfTools )
-  list( APPEND MeshGeneration_cflibs GooglePerfTools )
+  list( APPEND coolfluid_mesh_generation_cflibs coolfluid_google_perftools )
 endif()
 
-coolfluid_add_library( MeshGeneration )
+coolfluid_add_library( coolfluid_mesh_generation )
 

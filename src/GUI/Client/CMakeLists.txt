@@ -5,15 +5,14 @@
 #
 
 # Add the project files (including the moc files)
-list( APPEND coolfluid-client_files
-  main.cpp  )
+list( APPEND coolfluid-client_files main.cpp  )
 
 add_subdirectory( Core )
 add_subdirectory( UI )
 
 # Use Qt Libraries
-list( APPEND coolfluid-client_libs ClientUI ${QT_LIBRARIES})
+list( APPEND coolfluid-client_libs coolfluid_client_ui ${QT_LIBRARIES})
 
-coolfluid_add_application(coolfluid-client)
+coolfluid_add_application( coolfluid-client )
 
 add_subdirectory( uTests )
