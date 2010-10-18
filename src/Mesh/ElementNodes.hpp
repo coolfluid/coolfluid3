@@ -30,7 +30,6 @@ struct Mesh_API ConstElementNodeView
   ConstElementNodeView(CArray const& coordinates, const CTable::ConstRow& connectivity);
   Uint size() const;
   CArray::ConstRow operator[](const Uint idx) const;
-  CArray::Row operator[](const Uint idx);
 private:
   struct Data;
   boost::shared_ptr<Data> m_data;

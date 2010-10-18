@@ -49,13 +49,12 @@ ConstElementNodeView::ConstElementNodeView(CArray const& coordinates, const CTab
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Uint ConstElementNodeView::size() const {
-  return m_data->connectivity.size();
-}
+Uint ConstElementNodeView::size() const { return m_data->connectivity.size(); }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CArray::ConstRow ConstElementNodeView::operator[](const Uint idx) const {
+CArray::ConstRow ConstElementNodeView::operator[](const Uint idx) const
+{
   cf_assert(idx < size());
   return m_data->coordinates[m_data->connectivity[idx]];
 }

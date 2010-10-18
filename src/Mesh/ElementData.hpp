@@ -24,13 +24,13 @@ namespace Mesh {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Generic nodal data consists of matrices with dimensions NbRows and NbCols
-/// Note: we don't consider tensors of rank higher than 2 at this time
+/// @note we don't consider tensors of rank higher than 2 at this time
 template<Uint NbNodes, Uint NbRows, Uint NbCols=1>
 struct ElementNodeValues
 {
-  static const Uint nb_nodes = NbNodes;
-  static const Uint nb_rows = NbRows;
-  static const Uint nb_cols = NbCols;
+  static const Uint nb_nodes  = NbNodes;
+  static const Uint nb_rows   = NbRows;
+  static const Uint nb_cols   = NbCols;
   static const Uint node_size = NbRows*NbCols;
   
   Uint size() const
