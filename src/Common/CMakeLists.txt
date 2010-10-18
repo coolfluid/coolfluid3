@@ -135,6 +135,7 @@ list( APPEND Common_files
       MPI/PECommPattern.hpp
       MPI/PECommPattern.cpp
       MPI/scatterv.hpp
+      MPI/all_to_all.hpp
 )
 endif()
 

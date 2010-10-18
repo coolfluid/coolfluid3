@@ -8,6 +8,7 @@
 
 #include "Common/MPI/PEInterface.hpp"
 #include "Common/MPI/PECommPattern.hpp"
+#include "Common/MPI/all_to_all.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
