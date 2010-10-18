@@ -48,6 +48,7 @@ namespace Common {
   public:
 
     typedef boost::shared_ptr<Option>   Ptr;
+    typedef boost::shared_ptr<Option const>   ConstPtr;
     typedef boost::function< void() >   Trigger_t;
     typedef std::vector< Trigger_t >    TriggerStorage_t;
 
