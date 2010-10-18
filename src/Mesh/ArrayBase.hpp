@@ -28,7 +28,7 @@ public: // typedefs
   typedef ValueT value_type;
   typedef boost::multi_array<ValueT,2> ArrayT;
   typedef typename boost::subarray_gen<ArrayT,1>::type Row;
-  typedef typename boost::const_subarray_gen<ArrayT,1>::type ConstRow;
+  typedef const typename boost::const_subarray_gen<ArrayT,1>::type ConstRow;
   typedef ArrayBufferT<ValueT> Buffer;
 
 public: // functions

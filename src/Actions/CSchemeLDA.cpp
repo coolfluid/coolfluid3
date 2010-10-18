@@ -68,7 +68,7 @@ void CSchemeLDA::execute()
 {
 	// inside element with index m_idx
 
-	CTable::Row node_idx = data->connectivity_table[m_idx];
+	const CTable::ConstRow node_idx = data->connectivity_table[m_idx];
   ConstElementNodeView nodes (data->coordinates, data->connectivity_table[m_idx]);
 
   RealMatrix mapped_grad(2,3); //Gradient of the shape functions in reference space

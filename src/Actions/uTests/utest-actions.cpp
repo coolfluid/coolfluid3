@@ -51,6 +51,38 @@ BOOST_AUTO_TEST_CASE( ConstructorTest )
 
 ////////////////////////////////////////////////////////////////////////////////
 
+BOOST_AUTO_TEST_CASE( Node_Looping_Test )
+{
+  CRoot::Ptr root = CRoot::create("Root");
+  CMesh::Ptr mesh = root->create_component_type<CMesh>("mesh");
+	
+  // Read mesh from file
+  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
+  boost::filesystem::path fp_in("rotation.neu");
+  meshreader->read_from_to(fp_in,mesh);
+	std::vector<URI> regions = list_of(URI("cpath://Root/mesh/Base/rotation/inlet"))(URI("cpath://Root/mesh/Base/rotation/outlet"));
+
+  
+  // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
+	CLoop::Ptr node_loop = root->create_component_type< CForAllNodes >("node_loop");
+  node_loop->create_action("CDummyLoopOperation");
+	//node_loop->create_action("CDummyLoopOperation");
+	node_loop->configure_property("Regions",regions);
+	CFinfo << "\n\n\nNode loop" << CFendl;
+  node_loop->execute();
+
+	CLoop::Ptr elem_loop = root->create_component_type< CForAllElements >("elem_loop");
+  elem_loop->create_action("CDummyLoopOperation");
+	//elem_loop->create_action("CDummyLoopOperation");
+	elem_loop->configure_property("Regions",regions);
+	CFinfo << "\n\n\nElement loop" << CFendl;
+  elem_loop->execute();
+
+	
+}	
+
+////////////////////////////////////////////////////////////////////////////////
+
 BOOST_AUTO_TEST_CASE( Templated_Looping_Test )
 {
   CRoot::Ptr root = CRoot::create("Root");

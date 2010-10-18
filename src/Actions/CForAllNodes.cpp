@@ -36,10 +36,19 @@ void CForAllNodes::execute()
 		BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*region))
 		{
 			// Setup all child operations
+			CList<Uint>::Ptr loop_list;
 			BOOST_FOREACH(CLoopOperation& op, range_typed<CLoopOperation>(*this))
 			{
 				op.set_loophelper( elements );
-				BOOST_FOREACH(const Uint node, op.loop_list().array())
+				
+				if (!loop_list)
+					loop_list = op.loop_list().get_type< CList<Uint> >();
+				else if (loop_list->size() != op.loop_list().size())
+					throw BadValue(FromHere(), "The number of nodes of CLoopOperation [" + op.name() + "] doesn't match with other operations in the same loop");
+			}
+			BOOST_FOREACH(const Uint node, loop_list->array())
+			{
+				BOOST_FOREACH(CLoopOperation& op, range_typed<CLoopOperation>(*this))
 				{
 					op.set_loop_idx(node);
 					op.execute();
