@@ -105,7 +105,7 @@ list( APPEND coolfluid_client_ui_files
   TypeAndNameDialog.hpp)
 
 # Use Qt Libraries
-list( APPEND coolfluid_client_ui_libs ClientCore ${QT_LIBRARIES})
+list( APPEND coolfluid_client_ui_libs coolfluid_client_core ${QT_LIBRARIES})
 
 QT4_ADD_RESOURCES(coolfluid_client_ui_RCC Resources/coolfluid-client.qrc)
 

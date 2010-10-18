@@ -2,7 +2,7 @@ coolfluid_find_orphan_files()
 
 list( APPEND coolfluid-solver_files  coolfluid-solver.cpp  )
 
-list(APPEND coolfluid-solver_libs coolfluid_neutral coolfluid_gmsh coolfluid-rdm )
+list(APPEND coolfluid-solver_libs coolfluid_neutral coolfluid_gmsh coolfluid_rdm )
 
 coolfluid_add_application( coolfluid-solver )
 
@@ -44,7 +44,7 @@ list( APPEND coolfluid_rdm_files
 
 set( coolfluid_rdm_kernellib TRUE )
 
-list(APPEND coolfluid-rdm_libs coolfluid_mesh coolfluid_sf )
+list(APPEND coolfluid_rdm_libs coolfluid_mesh coolfluid_sf )
 
 coolfluid_add_library( coolfluid_rdm )
 
