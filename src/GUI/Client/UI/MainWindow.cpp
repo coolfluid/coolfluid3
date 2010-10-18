@@ -30,7 +30,7 @@
 #include "GUI/Client/UI/ConnectionDialog.hpp"
 #include "GUI/Client/UI/LoggingList.hpp"
 #include "GUI/Client/UI/MenuActionInfo.hpp"
-#include "GUI/Client/UI/OptionPanel.hpp"
+#include "GUI/Client/UI/CentralPanel.hpp"
 #include "GUI/Client/UI/NRemoteSave.hpp"
 #include "GUI/Client/UI/NRemoteOpen.hpp"
 #include "GUI/Client/UI/SelectFileDialog.hpp"
@@ -67,13 +67,13 @@ MainWindow::MainWindow()
   m_logFile.device()->open(QIODevice::WriteOnly);
 
   // create the components
-  m_optionPanel = new OptionPanel(this);
-  m_treeView = new TreeView(m_optionPanel, this);
+  m_centralPanel = new CentralPanel(this);
+  m_treeView = new TreeView(m_centralPanel, this);
   m_statusPanel = nullptr;//new StatusPanel(m_statusModel, this);
   m_splitter = new QSplitter(Qt::Horizontal, this);
   m_centralSplitter = new QSplitter(Qt::Vertical, this);
   m_centralWidgetLayout = new QVBoxLayout(m_centralSplitter);
-  m_tabWindow = new QTabWidget(m_optionPanel);
+  m_tabWindow = new QTabWidget(m_centralPanel);
   m_logList = new LoggingList(m_tabWindow);
   m_propertyModel = new PropertyModel();
   m_propertyView = new QTableView(m_tabWindow);
@@ -101,7 +101,7 @@ MainWindow::MainWindow()
   m_tabWindow->addTab(m_propertyView, "Properties");
   m_tabWindow->addTab(m_scrollDescription, "Description");
 
-  m_centralWidgetLayout->addWidget(m_optionPanel);
+  m_centralWidgetLayout->addWidget(m_centralPanel);
   m_centralWidgetLayout->addWidget(m_tabWindow);
 
   m_centralWidgetLayout->setContentsMargins(0, 0, 0, 0);
@@ -151,7 +151,7 @@ MainWindow::~MainWindow()
   m_logFile.flush();
 
   delete m_treeView;
-  delete m_optionPanel;
+  delete m_centralPanel;
   delete m_statusPanel;
 
   delete m_logList;
@@ -410,7 +410,7 @@ void MainWindow::setSimRunning(bool simRunning)
 void MainWindow::setFileOpen(bool fileOpen)
 {
   m_mnuSaveFile->setEnabled(fileOpen);
-  m_optionPanel->setVisible(fileOpen);
+  m_centralPanel->setVisible(fileOpen);
 
   m_treeView->setVisible(fileOpen);
 }

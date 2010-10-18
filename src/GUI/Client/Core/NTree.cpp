@@ -38,7 +38,7 @@ NTree::NTree(NRoot::Ptr rootNode)
 
   m_columns << "Name" << "Type";
 
-  regist_signal("list_tree", "New tree")->connect(boost::bind(&NTree::list_tree, this, _1));
+  regist_signal("list_tree", "New tree")->connect(boost::bind(&NTree::list_tree_reply, this, _1));
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -111,18 +111,19 @@ CPath NTree::getCurrentPath() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NTree::getNodeOptions(const QModelIndex & index, QList<NodeOption> & params,
-                          bool * ok) const
+void NTree::getNodeOptions(const QModelIndex & index,
+                           QList<Option::ConstPtr> & options,
+                           bool * ok) const
 {
   TreeNode * node = this->indexToTreeNode(index);
 
   if(ok != nullptr)
     *ok = node != nullptr;
 
-  params.clear();
+  options.clear();
 
   if(node != nullptr && node->getNode().get() != nullptr)
-    node->getNode()->getOptions(params);
+    node->getNode()->getOptions(options);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -471,7 +472,7 @@ QVariant NTree::headerData(int section, Qt::Orientation orientation,
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NTree::list_tree(XmlNode & node)
+void NTree::list_tree_reply(XmlNode & node)
 {
   try
   {

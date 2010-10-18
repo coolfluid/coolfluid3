@@ -38,50 +38,50 @@ GraphicalOption::GraphicalOption(OptionType::Type type, QWidget * parent)
   switch(type)
   {
     // if type value is a bool
-  case OptionType::TYPE_BOOL:
-    m_valueWidget = new GraphicalBool(parent);
-    break;
+//  case OptionType::TYPE_BOOL:
+//    m_valueWidget = new GraphicalBool(parent);
+//    break;
 
-    // if type value is a string
-  case OptionType::TYPE_STRING:
-    m_valueWidget = new GraphicalString(parent);
-    //m_valueWidget = new GraphicalString(parent);
-    break;
+//    // if type value is a string
+//  case OptionType::TYPE_STRING:
+//    m_valueWidget = new GraphicalString(parent);
+//    //m_valueWidget = new GraphicalString(parent);
+//    break;
 
-    // if type value is a double
-  case OptionType::TYPE_DOUBLE:
-    m_valueWidget = new GraphicalDouble(parent);
-    break;
+//    // if type value is a double
+//  case OptionType::TYPE_DOUBLE:
+//    m_valueWidget = new GraphicalDouble(parent);
+//    break;
 
-    // if type value is an int
-  case OptionType::TYPE_INT:
-    m_valueWidget = new GraphicalInt(false, parent);
-    break;
+//    // if type value is an int
+//  case OptionType::TYPE_INT:
+//    m_valueWidget = new GraphicalInt(false, parent);
+//    break;
 
-    // if type value is an unsigned int
-  case OptionType::TYPE_UNSIGNED_INT:
-    m_valueWidget = new GraphicalInt(true, parent);
-    break;
+//    // if type value is an unsigned int
+//  case OptionType::TYPE_UNSIGNED_INT:
+//    m_valueWidget = new GraphicalInt(true, parent);
+//    break;
 
-    // if type value is a files list
-  case OptionType::TYPE_FILES:
-    m_valueWidget = new GraphicalUrlArray(parent);
-    break;
+//    // if type value is a files list
+//  case OptionType::TYPE_FILES:
+//    m_valueWidget = new GraphicalUrlArray(parent);
+//    break;
 
-    // if type value is a library list
-  case OptionType::TYPE_LIBRARIES:
-    m_valueWidget = new GraphicalUrlArray(parent);
-    break;
+//    // if type value is a library list
+//  case OptionType::TYPE_LIBRARIES:
+//    m_valueWidget = new GraphicalUrlArray(parent);
+//    break;
 
-    // if type value is a string
-  case OptionType::TYPE_URI:
-    m_valueWidget = new GraphicalUri(parent);
-    break;
+//    // if type value is a string
+//  case OptionType::TYPE_URI:
+//    m_valueWidget = new GraphicalUri(parent);
+//    break;
 
-    // if type value is a string
-  case OptionType::TYPE_LIST:
-    m_valueWidget = new GraphicalRestrictedList(parent);
-    break;
+//    // if type value is a string
+//  case OptionType::TYPE_LIST:
+//    m_valueWidget = new GraphicalRestrictedList(parent);
+//    break;
 
   default:
     throw UnknownTypeException(FromHere(), "Uknowmn option type");

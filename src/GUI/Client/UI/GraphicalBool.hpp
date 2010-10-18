@@ -26,7 +26,7 @@ namespace ClientUI {
     Q_OBJECT
   public:
 
-    GraphicalBool(QWidget * parent = 0);
+    GraphicalBool(CF::Common::Option::ConstPtr opt, QWidget * parent = 0);
 
     ~GraphicalBool();
 

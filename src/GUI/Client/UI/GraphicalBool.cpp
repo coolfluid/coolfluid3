@@ -11,12 +11,14 @@
 
 using namespace CF::GUI::ClientUI;
 
-GraphicalBool::GraphicalBool(QWidget * parent)
+GraphicalBool::GraphicalBool(CF::Common::Option::ConstPtr opt, QWidget * parent)
   : GraphicalValue(parent)
 {
   m_checkBox = new QCheckBox(this);
 
   m_layout->addWidget(m_checkBox);
+
+  this->setValue(opt->value<bool>());
 
   connect(m_checkBox, SIGNAL(stateChanged(int)), this, SLOT(stateChanged(int)));
 }

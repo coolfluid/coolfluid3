@@ -12,6 +12,8 @@
 #include <QVariant>
 #include <QWidget>
 
+#include "Common/Option.hpp"
+
 #include "GUI/Client/UI/LibClientUI.hpp"
 
 class QHBoxLayout;
@@ -29,7 +31,8 @@ namespace ClientUI {
     Q_OBJECT
   public:
 
-    GraphicalValue(QWidget * parent = 0);
+    static GraphicalValue * create(CF::Common::Option::ConstPtr option,
+                                   QWidget * parent = nullptr);
 
     virtual bool setValue(const QVariant & value) = 0;
 
@@ -50,6 +53,10 @@ namespace ClientUI {
     void valueChanged();
 
   protected:
+
+    GraphicalValue(QWidget * parent = 0);
+
+    QWidget * m_parent;
 
     QVariant m_originalValue;
 

@@ -28,7 +28,7 @@ namespace ClientUI {
 
   public:
 
-    GraphicalDouble(QWidget * parent = 0);
+    GraphicalDouble(CF::Common::Option::ConstPtr opt, QWidget * parent = 0);
 
     ~GraphicalDouble();
 

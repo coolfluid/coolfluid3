@@ -7,14 +7,37 @@
 #include <QComboBox>
 #include <QVBoxLayout>
 
-#include "GraphicalRestrictedList.hpp"
+#include "Common/URI.hpp"
 
+#include "GUI/Client/UI/GraphicalRestrictedList.hpp"
+
+using namespace CF::Common;
 using namespace CF::GUI::ClientUI;
 
-GraphicalRestrictedList::GraphicalRestrictedList(QWidget * parent)
+GraphicalRestrictedList::GraphicalRestrictedList(Option::ConstPtr opt, QWidget * parent)
   : GraphicalValue(parent)
 {
+  const std::vector<boost::any> & vect = opt->restricted_list();
+  std::string type = opt->type();
+  QStringList list;
+
   m_comboChoices = new QComboBox(this);
+
+  if(type.compare(XmlTag<bool>::type()) == 0)              // bool option
+    vectToStringList<bool>(vect, list);
+  else if(type.compare(XmlTag<CF::Real>::type()) == 0)     // Real option
+    vectToStringList<CF::Real>(vect, list);
+  else if(type.compare(XmlTag<int>::type()) == 0)          // int option
+    vectToStringList<int>(vect, list);
+  else if(type.compare(XmlTag<CF::Uint>::type()) == 0)     // Uint option
+    vectToStringList<CF::Uint>(vect, list);
+  else if(type.compare(XmlTag<std::string>::type()) == 0)  // string option
+    vectToStringList<std::string>(vect, list);
+  else if(type.compare(XmlTag<URI>::type()) == 0)          // URI option
+    vectToStringList<URI>(vect, list);
+  else
+    throw CastingFailed(FromHere(), type + ": Unknown type");
+
 
   m_layout->addWidget(m_comboChoices);
 }

@@ -20,7 +20,7 @@
 #include "GUI/Client/Core/UnknownTypeException.hpp"
 #include "GUI/Client/UI/CommitDetailsDialog.hpp"
 #include "GUI/Client/UI/ConfirmCommitDialog.hpp"
-#include "GUI/Client/UI/OptionPanel.hpp"
+#include "GUI/Client/UI/CentralPanel.hpp"
 #include "GUI/Client/UI/SignalManager.hpp"
 
 #include "GUI/Network/ComponentType.hpp"
@@ -33,7 +33,7 @@ using namespace CF::GUI::ClientCore;
 using namespace CF::GUI::ClientUI;
 using namespace CF::GUI::Network;
 
-TreeView::TreeView(OptionPanel * optionsPanel, QMainWindow * parent,
+TreeView::TreeView(CentralPanel * optionsPanel, QMainWindow * parent,
                    bool contextMenuAllowed)
 : QTreeView(parent),
   m_contextMenuAllowed(contextMenuAllowed)
@@ -43,7 +43,7 @@ TreeView::TreeView(OptionPanel * optionsPanel, QMainWindow * parent,
 
   // instantiate class attributes
   m_modelFilter = new FilteringModel(this);
-  m_optionsPanel = optionsPanel;
+  m_centralPanel = optionsPanel;
   m_signalManager = new SignalManager(parent);
 
   m_modelFilter->setSourceModel(ClientRoot::tree().get());
@@ -254,18 +254,18 @@ bool TreeView::confirmChangeOptions(const QModelIndex & index, bool okIfSameInde
   if(!okIfSameIndex &&  tree->areFromSameNode(tree->getCurrentIndex(), index))
     return confirmed;
 
-  if(m_optionsPanel->isModified())
+  if(m_centralPanel->isModified())
   {
     CommitDetails commitDetails;
 
     ConfirmCommitDialog dlg;
 
-    m_optionsPanel->getModifiedOptions(commitDetails);
+    m_centralPanel->getModifiedOptions(commitDetails);
 
     ConfirmCommitDialog::CommitConfirmation answer = dlg.show(commitDetails);
 
     if(answer == ConfirmCommitDialog::COMMIT)
-      m_optionsPanel->btApplyClicked();
+      m_centralPanel->btApplyClicked();
 
     confirmed = answer != ConfirmCommitDialog::CANCEL;
   }

@@ -209,7 +209,8 @@ namespace ClientCore {
     /// @brief Gives options
     /// @param options Reference to a list where options will be put. The list
     /// cleared before first use.
-    void getOptions(QList<NodeOption> & options) const;
+    void getOptions(QList<CF::Common::Option::ConstPtr> & list) const;
+//    void getOptions(QList<NodeOption> & options) const;
 
     /// @brief Gives properties
     /// @param props Reference to a map where properties will be put. The map

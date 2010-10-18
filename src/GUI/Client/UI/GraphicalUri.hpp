@@ -9,6 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
+#include "Common/OptionURI.hpp"
+
 #include "GUI/Client/UI/GraphicalValue.hpp"
 
 class QComboBox;
@@ -32,13 +34,15 @@ namespace ClientUI {
 
   public:
 
-    GraphicalUri(QWidget *parent = 0);
+    GraphicalUri(CF::Common::OptionURI::ConstPtr opt, QWidget *parent = 0);
 
     ~GraphicalUri();
 
     virtual bool setValue(const QVariant & path);
 
     virtual QVariant getValue() const;
+
+    void setProtocols(const std::vector<std::string> & list);
 
   private slots:
 

@@ -463,19 +463,12 @@ void CNode::listChildPaths(QStringList & list, bool recursive, bool clientNodes)
 
 void CNode::addNode(CNode::Ptr node)
 {
-  try
-  {
     if(checkType(ROOT_NODE))
       ((NRoot *)this)->root()->add_component(node);
     else
       this->add_component(node);
 
     m_notifier->notifyChildCountChanged();
-  }
-  catch(CF::Common::ValueExists & ve)
-  {
-    throw;
-  }
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -510,96 +503,18 @@ void CNode::configure_reply(CF::Common::XmlNode & node)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CNode::getOptions(QList<NodeOption> & options) const
+void CNode::getOptions(QList<Option::ConstPtr> & list) const
 {
-  PropertyList::PropertyStorage_t::const_iterator it = m_property_list.m_properties.begin();
+  PropertyList::PropertyStorage_t::const_iterator it;
 
-  options.clear();
+  it = m_property_list.m_properties.begin();
 
   for( ; it != m_property_list.m_properties.end() ; it++)
   {
-    if(it->second->is_option())
-    {
-      Option::Ptr opt = boost::dynamic_pointer_cast<Option>(it->second);
-      bool success = true;
-      NodeOption nodeOpt;
-      //OptionType::Type optionType = OptionType::Convert::to_enum(opt->type());
+    Property::Ptr prop = it->second;
 
-      nodeOpt.m_paramAdv= !opt->has_tag("basic");
-      nodeOpt.m_paramName = it->first.c_str();
-      nodeOpt.m_paramValue = opt->value_str().c_str();
-      nodeOpt.m_paramDescr = opt->description().c_str();
-
-      if(opt->has_restricted_list())
-      {
-        const std::vector<boost::any> & vect = opt->restricted_list();
-
-        nodeOpt.m_paramType = OptionType::TYPE_LIST;
-
-        try
-        {
-          if(opt->type().compare(XmlTag<std::string>::type()) == 0)
-            nodeOpt.m_paramRestrValues = this->vectToStringList<std::string>(vect);
-          else if(opt->type().compare(XmlTag<CF::Uint>::type()) == 0)
-            nodeOpt.m_paramRestrValues = this->vectToStringList<CF::Uint>(vect);
-          else if(opt->type().compare(XmlTag<CF::Real>::type()) == 0)
-            nodeOpt.m_paramRestrValues = this->vectToStringList<CF::Real>(vect);
-          else if(opt->type().compare(XmlTag<int>::type()) == 0)
-            nodeOpt.m_paramRestrValues = this->vectToStringList<int>(vect);
-          else if(opt->type().compare(XmlTag<bool>::type()) == 0)
-            nodeOpt.m_paramRestrValues = this->vectToStringList<bool>(vect);
-          else if(opt->type().compare(XmlTag<URI>::type()) == 0)
-          {
-            OptionURI::Ptr optURI = boost::dynamic_pointer_cast<OptionURI>(opt);
-
-            std::vector<std::string>::const_iterator it = optURI->supported_protocols().begin();
-
-            nodeOpt.m_paramRestrValues = this->vectToStringList<URI>(vect);
-          }
-          else
-            ClientRoot::log()->addError(QString("%1: unknown type").arg(opt->type().c_str()));
-        }
-        catch(boost::bad_any_cast & ex)
-        {
-          QString msg("Could not build restricted list: %1");
-          ClientRoot::log()->addException(msg.arg(opt->restricted_list().size()));
-        }
-      }
-      else
-      {
-        if(std::strcmp(opt->tag(), "array") != 0)
-          nodeOpt.m_paramType = OptionType::Convert::to_enum(opt->type());
-        else
-        {
-          boost::shared_ptr<OptionArray> optArray;
-          optArray = boost::dynamic_pointer_cast<OptionArray>(opt);
-
-          if(std::strcmp(optArray->elem_type(), "file") == 0)
-            nodeOpt.m_paramType = OptionType::TYPE_FILES;
-          else
-          {
-            success = false;
-            ClientRoot::log()->addError(QString("Unable to process %1 option array")
-                                        .arg(optArray->elem_type()));
-          }
-        }
-
-        if(opt->type().compare(XmlTag<URI>::type()) == 0)
-        {
-          OptionURI::Ptr optURI = boost::dynamic_pointer_cast<OptionURI>(opt);
-
-          std::vector<std::string>::const_iterator it = optURI->supported_protocols().begin();
-
-          for( ; it != optURI->supported_protocols().end() ; it++)
-            nodeOpt.m_paramProtocols << it->c_str();
-
-        }
-
-      }
-
-      if(success)
-        options.append(nodeOpt);
-    }
+    if(prop->is_option())
+      list.append(boost::dynamic_pointer_cast<Option const>(prop));
   }
 }
 

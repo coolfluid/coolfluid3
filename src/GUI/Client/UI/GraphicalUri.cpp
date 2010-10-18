@@ -23,7 +23,7 @@ using namespace CF::Common;
 using namespace CF::GUI::ClientCore;
 using namespace CF::GUI::ClientUI;
 
-GraphicalUri::GraphicalUri(QWidget *parent) :
+GraphicalUri::GraphicalUri(CF::Common::OptionURI::ConstPtr opt, QWidget *parent) :
     GraphicalValue(parent)
 {
   m_btBrowse = new QPushButton("Browse", this);
@@ -41,6 +41,9 @@ GraphicalUri::GraphicalUri(QWidget *parent) :
   m_layout->addWidget(m_comboType);
   m_layout->addWidget(m_editPath);
   m_layout->addWidget(m_btBrowse);
+
+  this->setValue(opt->value_str().c_str());
+  this->setProtocols(opt->supported_protocols());
 
   connect(m_btBrowse, SIGNAL(clicked()), this, SLOT(btBrowseClicked()));
 //  connect(m_editPath, SIGNAL(textChanged(QString)), this, SLOT(updateModel(QString)));
@@ -70,27 +73,35 @@ QVariant GraphicalUri::getValue() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+void GraphicalUri::setProtocols(const std::vector<std::string> & list)
+{
+  m_comboType->clear();
+
+  if(list.empty())
+  {
+    m_comboType->addItem("cpath");
+    m_comboType->addItem("file");
+    m_comboType->addItem("http");
+  }
+  else
+  {
+    std::vector<std::string>::const_iterator it;
+    for(it = list.begin() ; it != list.end() ; it++)
+      m_comboType->addItem(it->c_str());
+  }
+
+  changeType(m_comboType->currentText());
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 bool GraphicalUri::setValue(const QVariant & value)
 {
   if(value.type() == QVariant::String)
   {
     m_originalValue = value;
     m_editPath->setText(value.toString());
-    return true;
-  }
-  else if(value.type() == QVariant::StringList)
-  {
-    QStringList list = value.toStringList();
-
-    m_comboType->clear();
-
-    if(list.isEmpty())
-      list << "cpath" << "file" << "http";
-
-    m_comboType->addItems(list);
-
-    changeType(m_comboType->currentText());
-
     return true;
   }
 

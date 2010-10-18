@@ -27,7 +27,7 @@ namespace ClientUI {
 
   public:
 
-    GraphicalString(QWidget * parent = 0);
+    GraphicalString(CF::Common::Option::ConstPtr opt, QWidget * parent = 0);
 
     ~GraphicalString();
 

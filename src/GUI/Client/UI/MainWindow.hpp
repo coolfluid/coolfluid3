@@ -48,7 +48,7 @@ namespace ClientUI {
 
   class ConnectionDialog;
   class LoggingList;
-  class OptionPanel;
+  class CentralPanel;
   class StatusPanel;
   class TreeView;
   class AboutCFDialog;
@@ -185,9 +185,9 @@ namespace ClientUI {
 
     AboutCFDialog * m_aboutCFDialog;
 
-    /// @brief Panel used to display and modify m_options for a selected
+    /// @brief Panel used to display and modify options for a selected
     /// object.
-    OptionPanel * m_optionPanel;
+    CentralPanel * m_centralPanel;
 
     /// @brief Hashmap containing all available actions for menu m_items.
 

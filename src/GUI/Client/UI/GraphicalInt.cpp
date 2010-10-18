@@ -14,7 +14,7 @@
 
 using namespace CF::GUI::ClientUI;
 
-GraphicalInt::GraphicalInt(bool isUint, QWidget * parent)
+GraphicalInt::GraphicalInt(bool isUint, CF::Common::Option::ConstPtr opt, QWidget * parent)
   : GraphicalValue(parent),
     m_isUint(isUint)
 {
@@ -23,6 +23,11 @@ GraphicalInt::GraphicalInt(bool isUint, QWidget * parent)
   m_spinBox->setRange((m_isUint ? 0 : INT_MIN), INT_MAX);
 
   m_layout->addWidget(m_spinBox);
+
+  if(isUint)
+    this->setValue(opt->value<CF::Uint>());
+  else
+    this->setValue(opt->value<int>());
 
   connect(m_spinBox, SIGNAL(valueChanged(int)), this, SLOT(integerChanged(int)));
 }

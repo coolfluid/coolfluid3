@@ -40,7 +40,7 @@ namespace ClientUI {
 ////////////////////////////////////////////////////////////////////////////////
 
   class FilteringModel;
-  class OptionPanel;
+  class CentralPanel;
   class SignalManager;
 
   /////////////////////////////////////////////////////////////////////////////
@@ -59,7 +59,7 @@ namespace ClientUI {
     /// @param optionsPanel Panel m_options of the selected node will be displayed.
     /// @param parent Parent window. May be @c nullptr.
     /// @throws std::invalid_argument if @c optionsPanel is @c nullptr.
-    TreeView(OptionPanel * optionsPanel, QMainWindow * parent = nullptr,
+    TreeView(CentralPanel * optionsPanel, QMainWindow * parent = nullptr,
              bool contextMenuAllowed = true);
 
     /// @brief Destructor.
@@ -125,7 +125,7 @@ namespace ClientUI {
 
     /// @brief Panel used to display and modify m_options for a selected
     /// object.
-    OptionPanel * m_optionsPanel;
+    CentralPanel * m_centralPanel;
 
     /// @brief List of abstract types
     QStringList m_abstractTypes;

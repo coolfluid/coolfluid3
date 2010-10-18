@@ -16,6 +16,8 @@
 #include <QObject>
 #include <QWidget>
 
+#include "Common/Option.hpp"
+
 #include "GUI/Client/Core/OptionType.hpp"
 
 #include "GUI/Client/UI/LibClientUI.hpp"
@@ -45,13 +47,12 @@ namespace ClientUI {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  class GraphicalOption;
+  class GraphicalValue;
   struct CloseConfirmationInfos;
 
   /// @brief Panel to m_view and modify m_options of an object.
 
-  /// This class allows user to display and modify m_options of an object or
-  /// add new m_options.
+  /// This class allows user to display and modify options of an object.
 
   /// @author Quentin Gasper.
 
@@ -62,7 +63,7 @@ namespace ClientUI {
   public:
     /// @brief Constructor.
 
-    /// Builds an @c OptionPanel with no m_options. The panel is neither in
+    /// Builds an @c OptionPanel with no options. The panel is neither in
     /// read-only mode nor advanced mode.
     /// @param parent The parent widget. Default value is @c nullptr
     OptionPanel(QWidget * parent = nullptr);
@@ -71,6 +72,9 @@ namespace ClientUI {
 
     /// Frees the allocated memory.  Parent is not destroyed.
     ~OptionPanel();
+    
+    /// @brief Destroys all graphical values.
+    void clearOptions();
 
     /// @brief Indicates wether at least on option has been modified.
 
@@ -79,14 +83,14 @@ namespace ClientUI {
 
     /// @brief Build containers with modified m_options.
 
-    /// This method allows to get old and new values of each modified option
-    /// (this does not include new m_options). The old value is the original one,
-    /// that the option had on calling @c setOptions. The new value is the
-    /// current option value. All intermediate values (i.e. : if user modified
-    /// several times the same option) are ignored. These values are stored in
-    /// @c oldValues and @c newValues respectively. Each modified option name
-    /// is stored if the provides string list. Hash map keys have one of these
-    /// names. @n @n
+    /// This method allows to get old and new values of each modified option.
+    /// The old value is the original one, that the option had on calling
+    /// @c setOptions. The new value is the current option value. All
+    /// intermediate values (i.e. : if user modified several times the same
+    /// option) are ignored. These values are stored in @c oldValues and
+    /// @c newValues respectively. Each modified option name is stored in the
+    /// provided string list. Hash map keys have one of these names. @n @n
+    ///
     /// The method garantees that:
     /// @li string list and hash map will have exactly the same number of
     /// elements
@@ -106,104 +110,25 @@ namespace ClientUI {
     /// @param m_newOptions String list where new option names will be stored.
     void getModifiedOptions(ClientCore::CommitDetails & commitDetails) const;
 
-    /// @brief Gives the current path.
-
-    /// @return Returns the current path.
-    QString getCurrentPath() const;
-
-  public slots:
-
-    /// @brief Slot called when user clicks on "Commit changes" button.
-
-    /// If at least one option has been modified, @c changesMade signal is
-    /// emitted.
-    void btApplyClicked();
-
-  private slots:
-
-    void currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex);
-
-    void advancedModeChanged(bool advanced);
-
-    void dataChanged(const QModelIndex & first, const QModelIndex & last);
-
-    void btSeeChangesClicked();
-
-    void btForgetClicked();
-
-    void valueChanged();
+    void addOption(CF::Common::Option::ConstPtr option);
 
   signals:
 
-    /// @brief Signal emitted when user clicks on "Commit changes" button if
-    /// at least one option has been modified.
-
-    /// @param modOptions XML document representing all modified m_options.
-    /// Each document child is a modified option.
-    /// @param m_newOptions XML document representing all new m_options. Each
-    /// document child is a new option.
-    void changesMade(const QDomDocument & modOptions,
-                     const QDomDocument & m_newOptions) const;
+    void valueChanged();
 
   private:
 
-    /// @brief Scroll area for basic m_options
-    QScrollArea * m_scrollBasicOptions;
-
-    /// @brief Scroll area for advanced m_options
-    QScrollArea * m_scrollAdvancedOptions;
-
     /// @brief List containing basic m_options components.
-    QList<GraphicalOption *> m_basicOptions;
+    QList<GraphicalValue *> m_options;
 
-    /// @brief List containing advanced m_options components.
-    QList<GraphicalOption *> m_advancedOptions;
-
-    /// @brief Button used to commit changes made.
-    QPushButton * m_btApply;
-
-    QPushButton * m_btForget;
-
-    QPushButton * m_btSeeChanges;
-
-    QGridLayout * m_buttonsLayout;
-
-    /// @brief Layout used to display basic options components.
-    QFormLayout * m_basicOptionsLayout;
-
-    /// @brief Layout used to display advanced options components.
-    QFormLayout * m_advancedOptionsLayout;
-
-    /// @brief Main layout containing all widgets.
-
-    /// This layout is composed of two lines and one column.
-    QGridLayout * m_mainLayout;
-
-    QGridLayout * m_topLayout;
-
-    /// @brief Groupbox used to display basic m_options components
-    /// with a titled border.
-
-    ///  Its m_layout is @c #basicOptionsLayout.
-    QGroupBox * m_gbBasicOptions;
-
-    /// @brief Groupbox used to display advanced m_options components
-    /// with a titled border.
-
-    ///  Its m_layout is @c #advancedOptionsLayout.
-    QGroupBox * m_gbAdvancedOptions;
+    /// @brief Main layout containing all option widgets.
+    QFormLayout * m_mainLayout;
 
      /// @brief Indicates if the panel is in advanced mode or not.
 
     /// If @c true, the panel is in advanced mode. Advanced m_options (if any)
     /// are displayed. Otherwise, they are m_hidden.
     bool m_advancedMode;
-
-    QString m_currentPath;
-
-    QSplitter * m_splitter;
-
-    bool m_modelReset;
 
     /// @brief Puts all modified options in a provided hashmap.
 
@@ -212,29 +137,6 @@ namespace ClientUI {
     /// @param options A hashmap were modified options will be written. The
     /// key is the option name and the value is the option new value.
     void getOptions(QMap<QString, QString> & options) const;
-
-    /// @brief Clears the given list by deleting the @c TOption
-    /// objects its elements point to.
-
-    /// After calling this method, the list is empty.
-    /// @param list The list to clear.
-    void clearList(QList<GraphicalOption *> & list);
-
-    /// @brief Builds a part (basic or advanced m_options) of the XML document
-    /// returned by @c #getOptions() and @c #getNewOptions().
-
-    /// This document is built by comparing original m_options nodes to
-    /// corresponding m_options components, which may have different values.
-    /// If the values differ, the node is considered to have been modified
-    /// and components values are taken as new values. Only modified nodes
-    /// are appended to the document, which means that the document may be
-    /// empty (if no option has been modified).
-    /// @param nodes Original m_options nodes.
-    /// @param graphOptions Options components.
-    /// @param options A hashmap were modified options will be written. The
-    /// key is the option name and the value is the option new value.
-    void buildOptions(const QList<GraphicalOption *> & graphOptions,
-                      QMap<QString, QString> & options) const;
 
     /// @brief Build containers with modified options.
 
@@ -247,7 +149,7 @@ namespace ClientUI {
     /// nodes.
     /// @param commitDetails Reference to where meodified options will be stored.
     /// @b Not cleared before first use.
-    void getModifiedOptions(const QList<GraphicalOption *> & graphicalOptions,
+    void getModifiedOptions(const QList<GraphicalValue *> & graphicalOptions,
                             ClientCore::CommitDetails & commitDetails) const;
 
     /// @brief Checks if options has been modified.
@@ -255,13 +157,9 @@ namespace ClientUI {
     /// @param graphicalOptions Options to check
     /// @return Returns @c true if at least one option has been modified;
     /// otherwise, returns @c false.
-    bool isModified(const QList<GraphicalOption *> & graphicalOptions) const;
+    bool isModified(const QList<GraphicalValue *> & graphicalOptions) const;
 
-	void setOptions(const QList<ClientCore::NodeOption> & list);
-
-    void setButtonsVisible(bool visible);
-
-    void setButtonsEnabled(bool enabled);
+    void setOptions(const QList<CF::Common::Option::ConstPtr> & list);
 
   }; // class OptionPanel
 

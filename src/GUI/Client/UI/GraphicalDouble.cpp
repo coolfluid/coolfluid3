@@ -13,7 +13,7 @@
 
 using namespace CF::GUI::ClientUI;
 
-GraphicalDouble::GraphicalDouble(QWidget * parent)
+GraphicalDouble::GraphicalDouble(CF::Common::Option::ConstPtr opt, QWidget * parent)
   : GraphicalValue(parent)
 {
   m_lineEdit = new QLineEdit(this);
@@ -23,6 +23,8 @@ GraphicalDouble::GraphicalDouble(QWidget * parent)
   m_lineEdit->setValidator(m_validator);
 
   m_layout->addWidget(m_lineEdit);
+
+  this->setValue(opt->value<CF::Real>());
 
   connect(m_lineEdit, SIGNAL(textChanged(QString)), this, SLOT(textUpdated(QString)));
 }

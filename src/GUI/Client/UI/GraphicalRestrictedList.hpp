@@ -27,7 +27,7 @@ namespace ClientUI {
 
   public:
 
-      GraphicalRestrictedList(QWidget * parent = 0);
+    GraphicalRestrictedList(CF::Common::Option::ConstPtr opt, QWidget * parent = 0);
 
       ~GraphicalRestrictedList();
 
@@ -39,7 +39,16 @@ namespace ClientUI {
 
       QComboBox * m_comboChoices;
 
-  private slots:
+    template<typename TYPE>
+    void vectToStringList(const std::vector<boost::any> & vect,
+                                 QStringList & list) const
+    {
+      std::vector<boost::any>::const_iterator it = vect.begin();
+
+      for( ; it != vect.end() ; it++)
+        list << CF::Common::from_value( boost::any_cast<TYPE>(*it) ).c_str();
+    }
+
 
 
 

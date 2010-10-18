@@ -19,6 +19,8 @@
 
 class QRegExp;
 
+template<typename T> class QList;
+
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -86,11 +88,12 @@ namespace ClientCore {
     /// @brief Gets node options
 
     /// @param index Node index
-    /// @param params List where options will be stored
+    /// @param options List where options will be stored
     /// @param ok If not @c nullptr, used to strore whether the option
     /// gathering succeded or not.
     void getNodeOptions(const QModelIndex & index,
-                       QList<NodeOption> & params, bool * ok = nullptr) const;
+                        QList<CF::Common::Option::ConstPtr> & options,
+                        bool * ok = nullptr) const;
 
     /// @brief Gets node properties
 
@@ -249,7 +252,7 @@ namespace ClientCore {
     /// @brief Signal called when the tree needs to be updated
 
     /// @param node New tree
-    void list_tree(CF::Common::XmlNode & node);
+    void list_tree_reply(CF::Common::XmlNode & node);
 
     /// @} END Signals
 

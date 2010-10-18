@@ -6,6 +6,7 @@
 
 # List of classes to "moc"
 list( APPEND ClientUI_moc_classes
+  CentralPanel.hpp
   CommitDetailsDialog.hpp
   ConfirmCommitDialog.hpp
   ConnectionDialog.hpp
@@ -40,6 +41,8 @@ QT4_WRAP_CPP(ClientUI_moc_files ${ClientUI_moc_classes})
 list( APPEND ClientUI_files
   AboutCFDialog.cpp
   AboutCFDialog.hpp
+  CentralPanel.cpp
+  CentralPanel.hpp
   CommitDetailsDialog.cpp
   CommitDetailsDialog.hpp
   ConfirmCommitDialog.cpp
