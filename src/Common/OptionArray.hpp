@@ -26,6 +26,9 @@ namespace Common {
   class Common_API OptionArray : public Option
   {
   public:
+    typedef boost::shared_ptr<OptionArray> Ptr;
+    typedef boost::shared_ptr<OptionArray const> ConstPtr;
+
     OptionArray(const std::string& name, const std::string& desc, boost::any def);
 
     /// Returns a C-string representation of element type
@@ -44,6 +47,9 @@ namespace Common {
       class OptionArrayT : public OptionArray  {
 
   public:
+
+    typedef boost::shared_ptr<OptionArrayT> Ptr;
+    typedef boost::shared_ptr<OptionArrayT const> ConstPtr;
 
     typedef std::vector<TYPE> value_type;
 
