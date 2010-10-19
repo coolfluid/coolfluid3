@@ -1,6 +1,6 @@
 ################################################################################
 
-list( APPEND utest-block-mesh-reader_cflibs coolfluid_blockmesh BlockMeshReader coolfluid_neutral coolfluid_meshdiff coolfluid_sfolfluid_sf )
+list( APPEND utest-block-mesh-reader_cflibs coolfluid_blockmesh coolfluid_blockmesh_reader coolfluid_neutral coolfluid_meshdiff coolfluid_sf )
 list( APPEND utest-block-mesh-reader_files
     utest-block-mesh-reader.cpp )
 
