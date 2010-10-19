@@ -106,9 +106,27 @@ CentralPanel::CentralPanel(QWidget * parent)
 
 CentralPanel::~CentralPanel()
 {
+  // buttons
   delete m_btApply;
   delete m_btForget;
   delete m_btSeeChanges;
+
+  // layouts
+  delete m_buttonsLayout;
+  delete m_topLayout;
+  delete m_basicOptionLayout;
+  delete m_advancedOptionLayout;
+
+  // group boxes
+  delete m_gbBasicOptions;
+  delete m_gbAdvancedOptions;
+
+  // scroll areas
+  delete m_scrollAdvancedOptions;
+  delete m_scrollBasicOptions;
+
+  // splitter
+  delete m_splitter;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
