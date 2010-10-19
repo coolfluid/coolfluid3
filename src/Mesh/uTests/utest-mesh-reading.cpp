@@ -6,6 +6,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE "Tests mesh reading"
+
 #include <boost/test/unit_test.hpp>
 #include <boost/foreach.hpp>
 #include <boost/filesystem/path.hpp>

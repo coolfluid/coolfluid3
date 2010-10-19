@@ -5,6 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE "Test matrix inverter"
+
 #include <boost/test/unit_test.hpp>
 
 #include "Math/MatrixInverter.hpp"
@@ -19,30 +21,7 @@ using namespace CF::Common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct MatrixInverter_Fixture
-{
-  /// common setup for each test case
-  MatrixInverter_Fixture()
-  {
-     // uncomment if you want to use arguments to the test executable
-     //int*    argc = &boost::unit_test::framework::master_test_suite().argc;
-     //char*** argv = &boost::unit_test::framework::master_test_suite().argv;
-  }
-
-  /// common tear-down for each test case
-  ~MatrixInverter_Fixture()
-  {
-  }
-
-  /// possibly common functions used on the tests below
-
-  /// common values accessed by all tests goes here
-
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-BOOST_FIXTURE_TEST_SUITE( MatrixInverter_TestSuite, MatrixInverter_Fixture )
+BOOST_AUTO_TEST_SUITE( MatrixInverter_TestSuite )
 
 ////////////////////////////////////////////////////////////////////////////////
 
