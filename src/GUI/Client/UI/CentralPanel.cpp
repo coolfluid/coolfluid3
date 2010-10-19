@@ -108,7 +108,7 @@ CentralPanel::~CentralPanel()
 {
   delete m_btApply;
   delete m_btForget;
-  delete m_btForget;
+  delete m_btSeeChanges;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
