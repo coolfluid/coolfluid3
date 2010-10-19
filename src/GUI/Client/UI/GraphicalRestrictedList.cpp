@@ -40,6 +40,8 @@ GraphicalRestrictedList::GraphicalRestrictedList(Option::ConstPtr opt, QWidget *
 
   m_comboChoices->addItems(list);
 
+  setValue(m_comboChoices->currentText());
+
   m_layout->addWidget(m_comboChoices);
 }
 
@@ -68,7 +70,10 @@ bool GraphicalRestrictedList::setValue(const QVariant & value)
     int index = m_comboChoices->findText(value.toString());
 
     if(index > -1)
+    {
+      m_originalValue = value;
       m_comboChoices->setCurrentIndex(index);
+    }
     else
       valid = false;
   }
