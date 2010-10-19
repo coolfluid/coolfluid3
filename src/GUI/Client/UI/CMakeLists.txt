@@ -24,7 +24,7 @@ list( APPEND coolfluid_client_ui_moc_classes
   MainWindow.hpp
   NRemoteBrowser.hpp
   NRemoteSave.hpp
-  OptionPanel.hpp
+  OptionLayout.hpp
   SelectFileDialog.hpp
   SignalManager.hpp
   SignatureDialog.hpp
@@ -79,8 +79,8 @@ list( APPEND coolfluid_client_ui_files
   MainWindow.hpp
   MenuActionInfo.cpp
   MenuActionInfo.hpp
-  OptionPanel.cpp
-  OptionPanel.hpp
+  OptionLayout.cpp
+  OptionLayout.hpp
   NRemoteBrowser.cpp
   NRemoteBrowser.hpp
   NRemoteOpen.cpp

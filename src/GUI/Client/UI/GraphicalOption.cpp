@@ -206,7 +206,7 @@ QVariant GraphicalOption::getOrginalValue() const
 
 QString GraphicalOption::getOrginalValueString() const
 {
-  return m_valueWidget->getOriginalString();
+  return m_valueWidget->getOriginalValueString();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

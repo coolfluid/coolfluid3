@@ -114,7 +114,7 @@ QVariant GraphicalValue::getOriginalValue() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString GraphicalValue::getOriginalString() const
+QString GraphicalValue::getOriginalValueString() const
 {
   if(m_originalValue.type() == QVariant::StringList)
     return m_originalValue.toStringList().join(":");
@@ -127,7 +127,7 @@ QString GraphicalValue::getOriginalString() const
 
 bool GraphicalValue::isModified() const
 {
-  return getOriginalString() != getValueString();
+  return getOriginalValueString() != getValueString();
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

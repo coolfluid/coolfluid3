@@ -42,7 +42,7 @@ namespace ClientUI {
 
     QVariant getOriginalValue() const;
 
-    QString getOriginalString() const;
+    QString getOriginalValueString() const;
 
     bool isModified() const;
 

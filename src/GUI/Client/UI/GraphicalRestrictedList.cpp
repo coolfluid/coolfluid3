@@ -38,6 +38,7 @@ GraphicalRestrictedList::GraphicalRestrictedList(Option::ConstPtr opt, QWidget *
   else
     throw CastingFailed(FromHere(), type + ": Unknown type");
 
+  m_comboChoices->addItems(list);
 
   m_layout->addWidget(m_comboChoices);
 }

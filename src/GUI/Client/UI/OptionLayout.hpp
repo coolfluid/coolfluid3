@@ -14,7 +14,7 @@
 #include <QLineEdit>
 #include <QList>
 #include <QObject>
-#include <QWidget>
+#include <QFormLayout>
 
 #include "Common/Option.hpp"
 
@@ -23,7 +23,6 @@
 #include "GUI/Client/UI/LibClientUI.hpp"
 
 class QDomNodeList;
-class QFormLayout;
 class QGridLayout;
 class QGroupBox;
 class QHBoxLayout;
@@ -56,7 +55,7 @@ namespace ClientUI {
 
   /// @author Quentin Gasper.
 
-  class ClientUI_API OptionPanel : public QWidget
+  class ClientUI_API OptionLayout : public QFormLayout
   {
     Q_OBJECT
 
@@ -66,13 +65,13 @@ namespace ClientUI {
     /// Builds an @c OptionPanel with no options. The panel is neither in
     /// read-only mode nor advanced mode.
     /// @param parent The parent widget. Default value is @c nullptr
-    OptionPanel(QWidget * parent = nullptr);
+    OptionLayout(QWidget * parent = nullptr);
 
     /// @brief Destructor.
 
     /// Frees the allocated memory.  Parent is not destroyed.
-    ~OptionPanel();
-    
+    ~OptionLayout();
+
     /// @brief Destroys all graphical values.
     void clearOptions();
 
@@ -81,36 +80,14 @@ namespace ClientUI {
     /// @return Returns @c true if at least one option has been modified.
     bool isModified() const;
 
-    /// @brief Build containers with modified m_options.
+    /// @brief Gathers modified options.
 
-    /// This method allows to get old and new values of each modified option.
-    /// The old value is the original one, that the option had on calling
-    /// @c setOptions. The new value is the current option value. All
-    /// intermediate values (i.e. : if user modified several times the same
-    /// option) are ignored. These values are stored in @c oldValues and
-    /// @c newValues respectively. Each modified option name is stored in the
-    /// provided string list. Hash map keys have one of these names. @n @n
-    ///
-    /// The method garantees that:
-    /// @li string list and hash map will have exactly the same number of
-    /// elements
-    /// @li all hash map keys can be found in the string list
-    /// @li each string list item has a corresponding key in both hash maps.
-    /// New m_options values are not stored in any hash map.
-    ///
-    /// To ensure consistency of the data returned, these four containers are
-    /// cleared before first use.
-    /// @param m_options String list where modified option names will be stored.
-    /// @param newValues This hash map is used to store old value of an option.
-    /// The key is the option name as stored in @c m_options string list. The
-    /// value is the old value.
-    /// @param newValues This hash map is used to store new value of an option.
-    /// The key is the option name as stored in @c m_options string list. The
-    /// value is the new value.
-    /// @param m_newOptions String list where new option names will be stored.
+    /// @param commitDetails Object where modified values will be stored.
     void getModifiedOptions(ClientCore::CommitDetails & commitDetails) const;
 
     void addOption(CF::Common::Option::ConstPtr option);
+
+    bool hasOptions() const;
 
   signals:
 
@@ -120,9 +97,6 @@ namespace ClientUI {
 
     /// @brief List containing basic m_options components.
     QList<GraphicalValue *> m_options;
-
-    /// @brief Main layout containing all option widgets.
-    QFormLayout * m_mainLayout;
 
      /// @brief Indicates if the panel is in advanced mode or not.
 
@@ -137,20 +111,6 @@ namespace ClientUI {
     /// @param options A hashmap were modified options will be written. The
     /// key is the option name and the value is the option new value.
     void getOptions(QMap<QString, QString> & options) const;
-
-    /// @brief Build containers with modified options.
-
-    /// This method allows to get old and new values of each modified option.
-    /// The old value is the original one, that the option had on calling
-    /// @c setOptions. The new value is the current option value. All
-    /// intermediate values (i.e. : if user modified several times the same
-    /// option) are ignored.
-    /// @param graphicalOptions Graphical components corresponding the option
-    /// nodes.
-    /// @param commitDetails Reference to where meodified options will be stored.
-    /// @b Not cleared before first use.
-    void getModifiedOptions(const QList<GraphicalValue *> & graphicalOptions,
-                            ClientCore::CommitDetails & commitDetails) const;
 
     /// @brief Checks if options has been modified.
 

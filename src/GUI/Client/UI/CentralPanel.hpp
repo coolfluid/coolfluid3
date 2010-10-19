@@ -48,7 +48,7 @@ namespace ClientUI {
 ////////////////////////////////////////////////////////////////////////////////
 
   class GraphicalValue;
-  class OptionPanel;
+  class OptionLayout;
   struct CloseConfirmationInfos;
 
   /// @brief Panel to view and modify options of an object.
@@ -157,10 +157,10 @@ namespace ClientUI {
     QScrollArea * m_scrollAdvancedOptions;
 
     /// @brief List containing basic m_options components.
-    OptionPanel * m_basicOptionPanel;
+    OptionLayout * m_basicOptionLayout;
 
     /// @brief List containing advanced m_options components.
-    OptionPanel * m_advancedOptionPanel;
+    OptionLayout * m_advancedOptionLayout;
 
     /// @brief Button used to commit changes made.
     QPushButton * m_btApply;

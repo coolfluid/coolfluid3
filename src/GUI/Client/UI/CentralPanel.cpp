@@ -22,7 +22,7 @@
 #include "GUI/Client/UI/CommitDetailsDialog.hpp"
 #include "GUI/Client/UI/ConfirmCommitDialog.hpp"
 #include "GUI/Client/UI/GraphicalValue.hpp"
-#include "GUI/Client/UI/OptionPanel.hpp"
+#include "GUI/Client/UI/OptionLayout.hpp"
 
 #include "GUI/Client/UI/CentralPanel.hpp"
 
@@ -38,17 +38,18 @@ CentralPanel::CentralPanel(QWidget * parent)
   NTree::Ptr tree = ClientRoot::tree();
 
   // create the components
-  m_scrollBasicOptions = new QScrollArea(this);
-  m_scrollAdvancedOptions = new QScrollArea(this);
-  m_gbBasicOptions = new QGroupBox(this);
-  m_gbAdvancedOptions = new QGroupBox();
+  m_scrollBasicOptions = new QScrollArea();
+  m_scrollAdvancedOptions = new QScrollArea();
+  m_gbBasicOptions = new QGroupBox(m_scrollBasicOptions);
+  m_gbAdvancedOptions = new QGroupBox(m_scrollAdvancedOptions);
   m_btApply = new QPushButton("Apply");
   m_btSeeChanges = new QPushButton("See changes");
   m_btForget = new QPushButton("Forget");
   m_splitter = new QSplitter(this);
-	m_basicOptionPanel = new OptionPanel(m_scrollBasicOptions);
-	m_advancedOptionPanel = new OptionPanel(m_scrollAdvancedOptions);
-	
+
+  m_basicOptionLayout = new OptionLayout(m_gbBasicOptions);
+  m_advancedOptionLayout = new OptionLayout(m_gbAdvancedOptions);
+
   m_mainLayout = new QGridLayout(this);
   m_topLayout = new QGridLayout();
   m_buttonsLayout = new QGridLayout();
@@ -56,11 +57,15 @@ CentralPanel::CentralPanel(QWidget * parent)
   m_mainLayout->setContentsMargins(0, 11, 0, 0);
 
   m_splitter->setOrientation(Qt::Vertical);
+
   m_scrollBasicOptions->setWidgetResizable(true);
   m_scrollBasicOptions->setWidget(m_gbBasicOptions);
 
   m_scrollAdvancedOptions->setWidgetResizable(true);
   m_scrollAdvancedOptions->setWidget(m_gbAdvancedOptions);
+
+//  m_gbBasicOptions->setLayout(m_basicOptionPanel);
+//  m_gbAdvancedOptions->setLayout(m_advancedOptionPanel);
 
   m_btSeeChanges->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
   m_btForget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
@@ -81,8 +86,10 @@ CentralPanel::CentralPanel(QWidget * parent)
   m_mainLayout->addWidget(m_splitter, 1, 0);
   m_mainLayout->addLayout(m_buttonsLayout, 2, 0);
 
-  m_gbBasicOptions->setVisible(false);
-  m_gbAdvancedOptions->setVisible(false);
+  advancedModeChanged(tree->isAdvancedMode());
+
+//  m_gbBasicOptions->setVisible(false);
+//  m_gbAdvancedOptions->setVisible(false);
   this->setButtonsVisible(false);
 
   connect(m_btApply, SIGNAL(clicked()), this, SLOT(btApplyClicked()));
@@ -118,11 +125,10 @@ void CentralPanel::setOptions(const QList<Option::ConstPtr> & list)
   const NTree::Ptr & tree = ClientRoot::tree();
 
   // delete old options
-  m_basicOptionPanel->clearOptions();
-  m_advancedOptionPanel->clearOptions();
-  
-  
- // set the new widgets
+  m_basicOptionLayout->clearOptions();
+  m_advancedOptionLayout->clearOptions();
+
+  // set the new widgets
   if(!list.isEmpty())
   {
     // get a UNIX-like path for the node
@@ -132,39 +138,40 @@ void CentralPanel::setOptions(const QList<Option::ConstPtr> & list)
     m_gbAdvancedOptions->setTitle(QString("Advanced options of %1").arg(parentPath));
     m_currentPath = parentPath;
 
-    // To avoid confusion, basic options panel is always showed if there is at
+    // To avoid confusion, basic option panel is always showed if there is at
     // least one option for the selected object, even if all options are advanced.
     // Doing so, we ensure that the advanced options panel is *always* the
     // middle one (if visible) and never the top one.
-    m_scrollBasicOptions->setVisible(true);
+   // m_gbBasicOptions->setVisible(true);
 
     this->setButtonsVisible(true);
   }
   else
   {
-    m_scrollBasicOptions->setVisible(false);
-    m_scrollAdvancedOptions->setVisible(false);
+//    m_gbBasicOptions->setVisible(false);
+//    m_gbAdvancedOptions->setVisible(false);
     this->setButtonsVisible(false);
   }
 
   while(it != list.end())
   {
-      
+
 //    GraphicalValue * graphicalOption;
 
 //    NodeOption param = *it;
 //    OptionType::Type type = param.m_paramType;
 //    bool advanced = param.m_paramAdv;
 
-//    // create the graphical component
+    // create the option
     try
     {
       Option::ConstPtr option = *it;
-      
-      if (option->has_tag("basic")) 
-        m_basicOptionPanel->addOption(option);
+      bool basic = option->has_tag("basic");
+
+      if (basic)
+        m_basicOptionLayout->addOption(option);
       else
-        m_advancedOptionPanel->addOption(option);
+        m_advancedOptionLayout->addOption(option);
       //      graphicalOption = new GraphicalValue(type, this);
 //      graphicalOption->setName(param.m_paramName);
 
@@ -178,8 +185,8 @@ void CentralPanel::setOptions(const QList<Option::ConstPtr> & list)
 
 //      graphicalOption->setToolTip(param.m_paramDescr);
 
-//      // if this is a basic option...
-//      if(!advanced)
+      // if this is a basic option...
+//      if(!basic)
 //      {
 //        m_basicOptions.append(graphicalOption);
 //        graphicalOption->addToLayout(m_basicOptionsLayout);
@@ -202,9 +209,9 @@ void CentralPanel::setOptions(const QList<Option::ConstPtr> & list)
 
   } // end of "while()"
 
-//  // change row stretch and panel visibilities
-//  this->advancedModeChanged(tree->isAdvancedMode());
-//  this->setButtonsEnabled(false);
+  // change row stretch and panel visibilities
+  this->advancedModeChanged(tree->isAdvancedMode());
+  this->setButtonsEnabled(false);
 
   // set options to enabled or disabled (depending on their mode)
 //  this->setEnabled(m_basicOptionsNodes, m_basicOptions);
@@ -216,8 +223,7 @@ void CentralPanel::setOptions(const QList<Option::ConstPtr> & list)
 
 bool CentralPanel::isModified() const
 {
-  return true;
-  //return this->isModified(m_basicOptions) || this->isModified(m_advancedOptions);
+  return m_basicOptionLayout->isModified() || m_advancedOptionLayout->isModified();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -227,6 +233,9 @@ void CentralPanel::getModifiedOptions(CommitDetails & commitDetails) const
 {
   commitDetails.clear();
   commitDetails.setNodePath(m_currentPath);
+
+  m_basicOptionLayout->getModifiedOptions(commitDetails);
+  m_advancedOptionLayout->getModifiedOptions(commitDetails);
 
   // basic m_options
   //this->getModifiedOptions(m_basicOptions, commitDetails);
@@ -310,9 +319,9 @@ void CentralPanel::btApplyClicked()
 
 void CentralPanel::currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex)
 {
-  QList<Option::ConstPtr> params;
-  ClientRoot::tree()->getNodeOptions(newIndex, params);
-  this->setOptions(params);
+  QList<Option::ConstPtr> options;
+  ClientRoot::tree()->getNodeOptions(newIndex, options);
+  this->setOptions(options);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -320,7 +329,9 @@ void CentralPanel::currentIndexChanged(const QModelIndex & newIndex, const QMode
 
 void CentralPanel::advancedModeChanged(bool advanced)
 {
-//  m_scrollAdvancedOptions->setVisible(advanced && !m_advancedOptions.empty());
+  m_scrollAdvancedOptions->setVisible(advanced && !m_advancedOptionLayout->hasOptions());
+
+  m_scrollBasicOptions->setVisible(m_basicOptionLayout->hasOptions() || m_scrollAdvancedOptions->isVisible());
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
