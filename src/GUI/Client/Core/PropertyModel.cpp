@@ -134,8 +134,7 @@ void PropertyModel::currentIndexChanged(const QModelIndex & newIndex,
 
   for(i = 0, it = props.begin() ; it != props.end() ; it++, i++)
   {
-    if(it.key() != "brief" && it.key() != "description")
-      m_data << new PropertyItem(it.key(), it.value(), i);
+    m_data << new PropertyItem(it.key(), it.value(), i);
   }
 
   emit layoutChanged();

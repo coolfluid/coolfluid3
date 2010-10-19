@@ -529,8 +529,7 @@ void CNode::getProperties(QMap<QString, QString> & props) const
 
   for( ; it != m_property_list.m_properties.end() ; it++)
   {
-    if(!it->second->is_option())
-      props[ it->first.c_str() ] = it->second->value_str().c_str();
+    props[ it->first.c_str() ] = it->second->value_str().c_str();
   }
 }
 
