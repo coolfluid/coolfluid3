@@ -9,7 +9,7 @@ list( APPEND coolfluid_blockmesh_reader_files
   Parser.hpp
 )
 
-list( APPEND coolfluid_blockmesh_reader_cflibs coolfluid_mesh coolfluid_meshgeneration coolfluid-blockmesh coolfluid_sfolfluid_sf )
+list( APPEND coolfluid_blockmesh_reader_cflibs coolfluid_mesh coolfluid_mesh_generation coolfluid_blockmesh coolfluid_sf )
 
 set( coolfluid_blockmesh_reader_kernellib TRUE )
 

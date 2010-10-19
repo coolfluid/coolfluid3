@@ -1,7 +1,7 @@
 ################################################################################
 # test Component CAction
 
-list( APPEND utest-actions_cflibs Actions coolfluid_sfolfluid_sf coolfluid_gmsh coolfluid_neutral)
+list( APPEND utest-actions_cflibs coolfluid_actions coolfluid_sf coolfluid_gmsh coolfluid_neutral)
 list( APPEND utest-actions_files
   utest-actions.cpp )
 
@@ -19,7 +19,7 @@ add_custom_command(TARGET utest-actions
 ################################################################################
 # test Proto operations
 
-list( APPEND utest-proto-operators_cflibs coolfluid_mesh Actions coolfluid_sfolfluid_sf coolfluid_blockmesh Testing coolfluid_mesh_generation )
+list( APPEND utest-proto-operators_cflibs coolfluid_mesh coolfluid_actions coolfluid_sf coolfluid_blockmesh coolfluid_testing coolfluid_mesh_generation )
 list( APPEND utest-proto-operators_files
   utest-proto-operators.cpp )
 set( utest-proto-operators_profile ON )
@@ -27,7 +27,7 @@ coolfluid_add_unittest( utest-proto-operators )
 
 ################################################################################
 
-list( APPEND utest-proto-heat_cflibs coolfluid_mesh Actions coolfluid_sfolfluid_sf coolfluid_mesh_generation )
+list( APPEND utest-proto-heat_cflibs coolfluid_mesh coolfluid_actions coolfluid_sf coolfluid_mesh_generation )
 list( APPEND utest-proto-heat_files
   utest-proto-heat.cpp )
 coolfluid_add_unittest( utest-proto-heat )
