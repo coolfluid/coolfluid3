@@ -45,7 +45,7 @@ namespace CF {
       /// Static function that returns the module name.
       /// Must be implemented for the LibraryRegister template
       /// @return name of the module
-      static std::string library_name() { return "LibMath"; }
+      static std::string library_name() { return "Math"; }
 
       /// Static function that returns the description of the module.
       /// Must be implemented for the LibraryRegister template
