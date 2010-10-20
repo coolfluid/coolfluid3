@@ -28,8 +28,8 @@ using namespace CF::GUI::ClientUI;
 
 GraphicalValue::GraphicalValue(QWidget *parent) :
     QWidget(parent),
-    m_committing(false),
-    m_parent(parent)
+    m_parent(parent),
+    m_committing(false)
 {
   this->m_layout = new QHBoxLayout(this);
 }
