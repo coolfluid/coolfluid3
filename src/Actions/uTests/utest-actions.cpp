@@ -27,6 +27,10 @@
 #include "Actions/CForAllNodes.hpp"
 #include "Actions/CLoopOperation.hpp"
 #include "Actions/CSchemeLDA.hpp"
+
+#include "Actions/CSchemeLDAT.hpp"
+#include "Mesh/SF/Triag2DLagrangeP1.hpp"
+
 #include "Actions/CTakeStep.hpp"
 
 using namespace CF;
@@ -110,8 +114,12 @@ BOOST_AUTO_TEST_CASE( Templated_Looping_Test )
   CLoop::Ptr elem_loop;
   
   // Static version, templates
-  elem_loop = root->create_component_type< CForAllElementsT<CSchemeLDA> >("loop_LDA");
-  
+//  elem_loop =
+//      root->create_component_type< CForAllElementsT<CSchemeLDA> >("loop_LDA");
+
+  elem_loop =
+    root->create_component_type< CForAllElementsT< CSchemeLDAT< SF::Triag2DLagrangeP1 > > >("loop_LDA");
+
   // Dynamic version, virtual
   //elem_loop = root->create_component_type< CForAllElements >("loop_LDA");
   //elem_loop->create_action("CSchemeLDA");

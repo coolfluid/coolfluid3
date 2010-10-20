@@ -16,6 +16,7 @@ list( APPEND coolfluid_actions_files
   CLoop.cpp
   CSchemeLDA.hpp
   CSchemeLDA.cpp
+  CSchemeLDAT.hpp
   CSetFieldValues.hpp
   CSetFieldValues.cpp
   CTakeStep.hpp
