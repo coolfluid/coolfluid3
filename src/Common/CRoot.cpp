@@ -96,5 +96,20 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+  std::string CRoot::list_toc() const
+  {
+    std::stringstream out;
+
+    CompStorage_t::const_iterator itr = m_toc.begin();
+    for ( ; itr != m_toc.end(); ++itr )
+    {
+      out << itr->first << " " << itr->second->full_path() << "\n";
+    }
+
+    return out.str();
+  }
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // Common
 } // CF

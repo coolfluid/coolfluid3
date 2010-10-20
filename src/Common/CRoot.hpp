@@ -67,6 +67,10 @@ namespace Common {
     /// @param path to the component
     bool exists_component_path ( const CPath& path );
 
+    /// dump to string table of contents of the component list
+    /// @return string with list of components in the root
+    std::string list_toc () const;
+
   private: // helper functions
 
     typedef std::map< std::string , Component::Ptr > CompStorage_t;
