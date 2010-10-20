@@ -27,6 +27,9 @@ namespace SF {
 /// @author Willem Deconinck
 struct SF_API Quad2DLagrangeP1  : public Quad2D {
 
+/// typedef for the supporting geometry
+typedef Quad2D Support;
+
 /// Compute the shape functions corresponding to the given
 /// mapped coordinates
 /// @param mappedCoord The mapped coordinates

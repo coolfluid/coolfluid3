@@ -19,6 +19,8 @@ list( APPEND coolfluid_sf_files
   Triag2DLagrangeP1.hpp
   Triag2DLagrangeP2B.cpp
   Triag2DLagrangeP2B.hpp
+  Triag2DLagrangeP2.cpp
+  Triag2DLagrangeP2.hpp
   Triag3DLagrangeP1.cpp
   Triag3DLagrangeP1.hpp
   Types.hpp

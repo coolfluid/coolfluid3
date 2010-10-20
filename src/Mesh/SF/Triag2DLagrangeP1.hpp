@@ -27,6 +27,9 @@ namespace SF {
 /// @author Bart Janssens
 struct SF_API Triag2DLagrangeP1  : public Triag2D {
 
+/// typedef for the supporting geometry
+typedef Triag2D Support;
+
 /// Compute the shape functions corresponding to the given
 /// mapped coordinates
 /// @param mappedCoord The mapped coordinates

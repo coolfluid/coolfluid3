@@ -30,6 +30,7 @@
 
 #include "Actions/CSchemeLDAT.hpp"
 #include "Mesh/SF/Triag2DLagrangeP1.hpp"
+#include "Mesh/SF/Quad2DLagrangeP1.hpp"
 
 #include "Actions/CTakeStep.hpp"
 
@@ -64,7 +65,7 @@ BOOST_AUTO_TEST_CASE( Node_Looping_Test )
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
   boost::filesystem::path fp_in("rotation.neu");
   meshreader->read_from_to(fp_in,mesh);
-	std::vector<URI> regions = list_of(URI("cpath://Root/mesh/Base/rotation/inlet"))(URI("cpath://Root/mesh/Base/rotation/outlet"));
+  std::vector<URI> regions = list_of(URI("cpath://Root/mesh/Base/rotation/inlet"))(URI("cpath://Root/mesh/Base/rotation-qd/outlet"));
 
   
   // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
@@ -94,9 +95,15 @@ BOOST_AUTO_TEST_CASE( Templated_Looping_Test )
 
   // Read mesh from file
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
-  boost::filesystem::path fp_in("rotation.neu");
+  boost::filesystem::path fp_in("rotation-qd.neu");
   meshreader->read_from_to(fp_in,mesh);
-  
+
+//  root->access_component( "//Root/mesh/Base/rotation-qd" )->rename("rotation");
+
+//  std::cout << root->tree() << std::endl;
+
+//  std::cout << root->list_toc() << std::endl;
+
   // create a node-based scalar solution and residual field
   mesh->create_field("solution",1,CField::NODE_BASED);
   CField& residual = mesh->create_field("residual",1,CField::NODE_BASED);
@@ -106,10 +113,14 @@ BOOST_AUTO_TEST_CASE( Templated_Looping_Test )
 	CLoop::Ptr apply_bc = root->create_component_type< CForAllNodes >("apply_bc");
   apply_bc->create_action("CSetFieldValues");
 	
-	std::vector<URI> bc_regions = list_of(URI("cpath://Root/mesh/Base/rotation/inlet"));
+  CF_DEBUG_POINT;
+
+  std::vector<URI> bc_regions = list_of(URI("cpath://Root/mesh/Base/rotation-qd/inlet"));
 	apply_bc->configure_property("Regions",bc_regions);
   apply_bc->action("CSetFieldValues").configure_property("Field",std::string("solution"));
   
+  CF_DEBUG_POINT;
+
   // Create a loop over elements with the LDAScheme
   CLoop::Ptr elem_loop;
   
@@ -118,14 +129,16 @@ BOOST_AUTO_TEST_CASE( Templated_Looping_Test )
 //      root->create_component_type< CForAllElementsT<CSchemeLDA> >("loop_LDA");
 
   elem_loop =
-    root->create_component_type< CForAllElementsT< CSchemeLDAT< SF::Triag2DLagrangeP1 > > >("loop_LDA");
+    root->create_component_type< CForAllElementsT< CSchemeLDAT< SF::Quad2DLagrangeP1 > > >("loop_LDA");
 
   // Dynamic version, virtual
   //elem_loop = root->create_component_type< CForAllElements >("loop_LDA");
   //elem_loop->create_action("CSchemeLDA");
 
+  CF_DEBUG_POINT;
+
   // Configure the elem_loop, and the LDA scheme
-  std::vector<URI> regions_to_loop = list_of(URI("cpath://Root/mesh/Base/rotation/fluid"));
+  std::vector<URI> regions_to_loop = list_of(URI("cpath://Root/mesh/Base/rotation-qd/fluid"));
   elem_loop->configure_property("Regions",regions_to_loop);  
   elem_loop->action("CSchemeLDA").configure_property("SolutionField",std::string("solution"));
   elem_loop->action("CSchemeLDA").configure_property("ResidualField",std::string("residual"));
@@ -178,11 +191,11 @@ BOOST_AUTO_TEST_CASE( Templated_Looping_Test )
 	
 	
 	BOOST_CHECK(true);
+
   // Write all fields and mesh to file
   CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
   boost::filesystem::path fp_out("LDA_scheme.msh");
-  meshwriter->write_from_to(mesh,fp_out);
-  
+  meshwriter->write_from_to(mesh,fp_out);  
 }
 
 ////////////////////////////////////////////////////////////////////////////////

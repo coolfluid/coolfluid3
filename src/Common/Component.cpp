@@ -70,7 +70,6 @@ Component::ConstPtr Component::get() const
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-
 void Component::rename ( const CName& name )
 {
   std::string new_name = name;
@@ -99,6 +98,9 @@ void Component::rename ( const CName& name )
   }
 
   m_name = new_name;
+
+  // loop on children and inform them of change in name
+  /// @todo solve this, maybe putting finally uuid's in the comps and using the root to get the path
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

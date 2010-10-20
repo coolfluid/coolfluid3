@@ -116,6 +116,8 @@ CSchemeLDAT<SHAPEFUNC>::CSchemeLDAT ( const CName& name ) :
   properties()["brief"] = std::string("Element Loop component that computes the residual and update coefficient using the LDA scheme");
   properties()["description"] = std::string("Write here the full description of this component");
 
+#if 0
+
   nb_q=3;
   mapped_coords.resize(nb_q);
   for(Uint q=0; q<nb_q; ++q)
@@ -125,6 +127,29 @@ CSchemeLDAT<SHAPEFUNC>::CSchemeLDAT ( const CName& name ) :
   mapped_coords[1][XX] = 0.5;  mapped_coords[1][YY] = 0.5;
   mapped_coords[2][XX] = 0.0;  mapped_coords[2][YY] = 0.5;
   w = 1./6.;
+
+ # else
+
+  const Real ref = 1.0/std::sqrt(3);
+
+
+
+
+  nb_q=4;
+  mapped_coords.resize(nb_q);
+  for(Uint q=0; q<nb_q; ++q)
+    mapped_coords[q].resize(DIM_2D);
+
+  mapped_coords[0][XX] = -ref;  mapped_coords[0][YY] = -ref;
+  mapped_coords[1][XX] =  ref;  mapped_coords[1][YY] = -ref;
+  mapped_coords[2][XX] =  ref;  mapped_coords[2][YY] =  ref;
+  mapped_coords[3][XX] = -ref;  mapped_coords[3][YY] =  ref;
+
+  w = 1.0;
+
+#endif
+
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -202,22 +227,26 @@ void CSchemeLDAT<SHAPEFUNC>::execute()
     }
 
   }
+
   // Loop over quadrature nodes
 
   for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
     data->residual[node_idx[n]][0] += phi[n];
 
-  // For time marching scheme
+  // computing average advection speed on element
 
-  RealVector centroid(0.0,2);
+  RealVector centroid(0.0, SHAPEFUNC::Support::dimension );
   for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
   {
     centroid[XX] += nodes[n][XX];
     centroid[YY] += nodes[n][YY];
   }
-  centroid /= 3.0;
+  centroid /= SHAPEFUNC::nb_nodes;
 
-  RealMatrix nodal_normals(DIM_2D,SHAPEFUNC::nb_nodes);
+
+#if 0
+
+  RealMatrix nodal_normals( SHAPEFUNC::Support::dimension, SHAPEFUNC::nb_nodes );
 
   nodal_normals(XX,0) = nodes[1][YY] - nodes[2][YY];
   nodal_normals(XX,1) = nodes[2][YY] - nodes[0][YY];
@@ -235,6 +264,40 @@ void CSchemeLDAT<SHAPEFUNC>::execute()
     // Real kplus = 0.5*std::max(0.0,centroid[YY]*nodal_normals(XX,i)-centroid[XX]*nodal_normals(YY,i));
     data->inverse_updatecoeff[node_idx[n]][0] += sum_kplus;
   }
+
+#else
+
+  // compute a bounding box of the element:
+
+  Real xmin = nodes[0][XX];
+  Real xmax = nodes[0][XX];
+  Real ymin = nodes[0][YY];
+  Real ymax = nodes[0][YY];
+
+  for(Uint inode = 1; inode < SHAPEFUNC::nb_nodes; ++inode)
+  {
+    xmin = std::min(xmin,nodes[inode][XX]);
+    xmax = std::max(xmax,nodes[inode][XX]);
+
+    ymin = std::min(ymin,nodes[inode][YY]);
+    ymax = std::max(ymax,nodes[inode][YY]);
+
+  }
+
+  const Real dx = xmax - xmin;
+  const Real dy = ymax - ymin;
+
+  // The update coeff is updated by a product of bb radius and norm of advection velocity
+
+  for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
+  {
+    data->inverse_updatecoeff[node_idx[n]][0] +=
+        2.0*std::sqrt( dx*dx+dy*dy) *
+        std::sqrt( centroid[XX]*centroid[XX] + centroid[YY]*centroid[YY] );
+  }
+
+#endif
+
 }
 
 
