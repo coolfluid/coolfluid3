@@ -63,9 +63,9 @@ BOOST_AUTO_TEST_CASE( Node_Looping_Test )
 	
   // Read mesh from file
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
-  boost::filesystem::path fp_in("rotation.neu");
+  boost::filesystem::path fp_in("rotation-tg.neu");
   meshreader->read_from_to(fp_in,mesh);
-  std::vector<URI> regions = list_of(URI("cpath://Root/mesh/Base/rotation/inlet"))(URI("cpath://Root/mesh/Base/rotation-qd/outlet"));
+  std::vector<URI> regions = list_of(URI("cpath://Root/mesh/Base/rotation-tg/inlet"))(URI("cpath://Root/mesh/Base/rotation-tg/outlet"));
 
   
   // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
@@ -113,14 +113,10 @@ BOOST_AUTO_TEST_CASE( Templated_Looping_Test )
 	CLoop::Ptr apply_bc = root->create_component_type< CForAllNodes >("apply_bc");
   apply_bc->create_action("CSetFieldValues");
 	
-  CF_DEBUG_POINT;
-
   std::vector<URI> bc_regions = list_of(URI("cpath://Root/mesh/Base/rotation-qd/inlet"));
 	apply_bc->configure_property("Regions",bc_regions);
   apply_bc->action("CSetFieldValues").configure_property("Field",std::string("solution"));
   
-  CF_DEBUG_POINT;
-
   // Create a loop over elements with the LDAScheme
   CLoop::Ptr elem_loop;
   
@@ -134,8 +130,6 @@ BOOST_AUTO_TEST_CASE( Templated_Looping_Test )
   // Dynamic version, virtual
   //elem_loop = root->create_component_type< CForAllElements >("loop_LDA");
   //elem_loop->create_action("CSchemeLDA");
-
-  CF_DEBUG_POINT;
 
   // Configure the elem_loop, and the LDA scheme
   std::vector<URI> regions_to_loop = list_of(URI("cpath://Root/mesh/Base/rotation-qd/fluid"));
