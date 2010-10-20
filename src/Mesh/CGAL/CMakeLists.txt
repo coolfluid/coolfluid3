@@ -10,10 +10,9 @@ if( CF_HAVE_CGAL )
   )
 
   list( APPEND coolfluid_cgal_includedirs ${CGAL_INCLUDE_DIR} )
-  list( APPEND coolfluid_cgal_libs
-                ${CGAL_LIBRARY}
-                ${Boost_THREAD_LIBRARY} )
+  list( APPEND coolfluid_cgal_libs        ${CGAL_LIBRARY} ${Boost_THREAD_LIBRARY} )
   list( APPEND coolfluid_cgal_cflibs coolfluid_mesh )
+
   set( coolfluid_cgal_kernellib TRUE )
 
   # avoid a conflict between boost and CGAL
@@ -34,7 +33,7 @@ if( CF_HAVE_CGAL )
 
     set_source_files_properties(ImplicitFunctionMesh.cpp PROPERTIES COMPILE_FLAGS ${coolfluid_cgal_COMPILE_FLAGS})
 
-  endif( CMAKE_COMPILER_IS_GNUCC )
+  endif()
 
 add_subdirectory( uTests )
 
