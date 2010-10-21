@@ -29,7 +29,7 @@ if( CF_HAVE_CGAL )
     # to avoid enormous compilation times and memory usage
     if(CF_STRIP_CGAL_COMPILE_FLAGS)
       set(coolfluid_cgal_COMPILE_FLAGS "${coolfluid_cgal_COMPILE_FLAGS} -g0 -O0")
-    endif(CF_STRIP_CGAL_COMPILE_FLAGS)
+    endif()
 
     set_source_files_properties(ImplicitFunctionMesh.cpp PROPERTIES COMPILE_FLAGS ${coolfluid_cgal_COMPILE_FLAGS})
 
