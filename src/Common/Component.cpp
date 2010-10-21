@@ -121,13 +121,13 @@ Component::ConstPtr Component::get_parent() const
 
 Component::Ptr Component::add_component ( Component::Ptr subcomp )
 {
-  ensure_unique_name(subcomp);
+	std::string unique_name = ensure_unique_name(subcomp);
 
-  m_components[subcomp->name()] = subcomp;           // add to all component list
-  m_dynamic_components[subcomp->name()] = subcomp;   // add to dynamic component list
+  m_components[unique_name] = subcomp;           // add to all component list
+  m_dynamic_components[unique_name] = subcomp;   // add to dynamic component list
 
   subcomp->change_parent( this );
-
+	subcomp->rename( unique_name );
   return subcomp;
 }
 
@@ -135,18 +135,22 @@ Component::Ptr Component::add_component ( Component::Ptr subcomp )
 
 Component::Ptr Component::add_static_component ( Component::Ptr subcomp )
 {
-  m_components[subcomp->name()] = ensure_unique_name(subcomp);
+	std::string unique_name = ensure_unique_name(subcomp);
+
+  m_components[unique_name] = subcomp;
 
   subcomp->change_parent( this );
+	subcomp->rename( unique_name );
 
   return subcomp;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr Component::ensure_unique_name ( Component::Ptr subcomp )
+std::string Component::ensure_unique_name ( Component::Ptr subcomp )
 {
   const std::string name = subcomp->name();
+	std::string new_name = name;
   boost::regex e(name+"(_[0-9]+)?");
   BOOST_FOREACH(CompStorage_t::value_type subcomp_pair, m_components)
   {
@@ -154,7 +158,7 @@ Component::Ptr Component::ensure_unique_name ( Component::Ptr subcomp )
     {
       Uint count = 1;
 
-      std::string new_name = name + "_" + String::to_str(count);
+      new_name = name + "_" + String::to_str(count);
 
       // make sure constructed name does not exist
       while ( m_components.find(new_name) != m_components.end() )
@@ -165,12 +169,10 @@ Component::Ptr Component::ensure_unique_name ( Component::Ptr subcomp )
 
 //      CFwarn << "Component named \'" << subcomp->full_path().string() << "\' already exists. Component renamed to \'" << new_name << "\'" << CFendl;
 
-      subcomp->rename(new_name);
-
       break;
     }
   }
-  return subcomp;
+  return new_name;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

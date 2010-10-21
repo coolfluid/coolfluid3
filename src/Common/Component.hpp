@@ -300,7 +300,7 @@ protected: // functions
 private: // helper functions
 
   /// insures the sub component has a unique name within this component
-  Component::Ptr ensure_unique_name ( Ptr subcomp );
+	std::string ensure_unique_name ( Ptr subcomp );
 
   /// writes the underlying component tree to the xml node
   void write_xml_tree( XmlNode& node );

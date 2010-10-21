@@ -20,7 +20,8 @@ TaggedObject::TaggedObject() :
 
 void TaggedObject::add_tag(const std::string& tag)
 {
-  m_tags += tag + ":";
+	if (!has_tag(tag))
+		m_tags += tag + ":";
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
