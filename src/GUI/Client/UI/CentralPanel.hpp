@@ -18,8 +18,6 @@
 
 #include "Common/Option.hpp"
 
-#include "GUI/Client/Core/OptionType.hpp"
-
 #include "GUI/Client/UI/LibClientUI.hpp"
 
 class QDomNodeList;
@@ -38,10 +36,7 @@ class QVBoxLayout;
 namespace CF {
 namespace GUI {
 
-namespace ClientCore {
-  class CommitDetails;
-  struct NodeOption;
-}
+namespace ClientCore { class CommitDetails; }
 
 namespace ClientUI {
 
@@ -53,8 +48,8 @@ namespace ClientUI {
 
   /// @brief Panel to view and modify options of an object.
 
-  /// This class allows user to display and modify m_options of an object or
-  /// add new m_options.
+  /// This class allows user to display and modify options of an object or
+  /// add new options.
 
   /// @author Quentin Gasper.
 

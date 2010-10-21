@@ -13,7 +13,6 @@
 #include "GUI/Client/UI/ConfirmCommitDialog.hpp"
 #include "GUI/Client/UI/GraphicalValue.hpp"
 #include "GUI/Client/Core/UnknownTypeException.hpp"
-#include "GUI/Client/Core/OptionType.hpp"
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/CNode.hpp"
 

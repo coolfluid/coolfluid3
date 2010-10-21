@@ -44,18 +44,6 @@ using namespace CF::Common;
 using namespace CF::Common::String;
 using namespace CF::GUI::ClientCore;
 
-bool NodeOption::operator==(const NodeOption & option)
-{
-  return m_paramAdv ^ option.m_paramAdv
-      && m_paramName == option.m_paramName
-      && m_paramType == option.m_paramType
-      && m_paramValue == option.m_paramValue
-      && m_paramDescr == option.m_paramDescr;
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 CNodeNotifier::CNodeNotifier(CNode * parent)
   : m_parent(parent)
 { }

@@ -48,8 +48,6 @@ NRoot.cpp
 NRoot.hpp
 NTree.cpp
 NTree.hpp
-OptionType.cpp
-OptionType.hpp
 PropertyModel.cpp
 PropertyModel.hpp
 StatusModel.cpp

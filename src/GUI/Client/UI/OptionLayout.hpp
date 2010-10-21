@@ -18,8 +18,6 @@
 
 #include "Common/Option.hpp"
 
-#include "GUI/Client/Core/OptionType.hpp"
-
 #include "GUI/Client/UI/LibClientUI.hpp"
 
 class QDomNodeList;
@@ -37,10 +35,7 @@ class QVBoxLayout;
 namespace CF {
 namespace GUI {
 
-namespace ClientCore {
-  class CommitDetails;
-  struct NodeOption;
-}
+namespace ClientCore { class CommitDetails; }
 
 namespace ClientUI {
 

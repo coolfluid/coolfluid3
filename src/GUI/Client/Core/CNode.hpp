@@ -20,8 +20,6 @@
 #include "Common/XML.hpp"
 #include "Common/XmlHelpers.hpp"
 
-#include "GUI/Client/Core/OptionType.hpp"
-
 #include "GUI/Client/Core/LibClientCore.hpp"
 
 class QString;
@@ -77,36 +75,6 @@ namespace ClientCore {
 
     CF::Common::XmlSignature m_signature;
   };
-
-  ////////////////////////////////////////////////////////////////////////////
-
-  /// @brief Structure that handles node options
-
-  struct ClientCore_API NodeOption
-  {
-
-    /// @brief Option name
-    QString m_paramName;
-
-    /// @brief Option type
-    OptionType::Type m_paramType;
-
-    /// @brief Option value
-    QString m_paramValue;
-
-    /// @brief Option description
-    QString m_paramDescr;
-
-    /// @brief If @c true, the option is advanced. Otherwise, it is not.
-    bool m_paramAdv;
-
-    QStringList m_paramRestrValues;
-
-    QStringList m_paramProtocols;
-
-    bool operator == (const NodeOption & option);
-
-  }; // struct NodeParams
 
   ////////////////////////////////////////////////////////////////////////////
 
@@ -210,7 +178,6 @@ namespace ClientCore {
     /// @param options Reference to a list where options will be put. The list
     /// cleared before first use.
     void getOptions(QList<CF::Common::Option::ConstPtr> & list) const;
-//    void getOptions(QList<NodeOption> & options) const;
 
     /// @brief Gives properties
     /// @param props Reference to a map where properties will be put. The map

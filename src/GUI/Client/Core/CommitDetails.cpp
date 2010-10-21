@@ -11,7 +11,6 @@
 #include "Common/CF.hpp"
 
 #include "GUI/Client/Core/CommitDetailsItem.hpp"
-#include "GUI/Client/Core/OptionType.hpp"
 #include "GUI/Client/Core/CommitDetails.hpp"
 
 using namespace CF::GUI::ClientCore;

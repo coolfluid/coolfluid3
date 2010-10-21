@@ -12,7 +12,6 @@
 #include <QAbstractItemModel>
 
 #include "Common/CF.hpp"
-#include "GUI/Client/Core/OptionType.hpp"
 
 #include "GUI/Client/Core/LibClientCore.hpp"
 

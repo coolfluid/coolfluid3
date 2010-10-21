@@ -16,7 +16,6 @@
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/CommitDetails.hpp"
 #include "GUI/Client/Core/CNode.hpp"
-#include "GUI/Client/Core/OptionType.hpp"
 #include "GUI/Client/Core/UnknownTypeException.hpp"
 
 #include "GUI/Client/UI/CommitDetailsDialog.hpp"
