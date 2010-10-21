@@ -9,8 +9,8 @@
 #include <boost/filesystem/convenience.hpp>
 #include <boost/regex.hpp>
 
-#include <mpi.h>
-#include <ptscotch.h>
+// #include <mpi.h>
+// #include <ptscotch.h>
 
 #include "Common/ObjectProvider.hpp"
 #include "Common/ComponentPredicates.hpp"
@@ -24,7 +24,6 @@
 #include "Mesh/ConnectivityData.hpp"
 
 #include "Mesh/Neu/CReader.hpp"
-
 
 
 //////////////////////////////////////////////////////////////////////////////
@@ -305,7 +304,7 @@ void CReader::set_pt_scotch_data()
 	}
 	*/
 	
-	for (Uint node=0; node<procvrtab[procglbnbr+1]; ++node)
+  for (Uint node=0; node<procvrttab[procglbnbr+1]; ++node)
 	{
 		BOOST_FOREACH(CList<Uint>& glb_node_list, recursive_filtered_range_typed< CList<Uint> >(*m_region,IsComponentTag("global_node_indices")))
 		{

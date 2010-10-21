@@ -162,7 +162,7 @@ private: // data
 	Uint edgeglbnbr;						  // number of connections in the total mesh
 	Uint procglbnbr;						  // number of processors
 	std::vector<Uint> proccnttab; // number of vertices per processor
-	std::vector<Uint> procvrttab; // start_idx of the vertex for each processor + one extra index greater than vertglbnbr
+  std::vector<Uint> procvrttab; // start_idx of the vertex for each processor + one extra index greater than vertglbnbr
 
 	Uint vertlocnbr;							// number of vertices on this processor
 	Uint vertgstnbr;							// number of vertices on this processor, including ghost vertices
@@ -173,7 +173,6 @@ private: // data
 	std::vector<Uint> edgegsttab; // array of all connections between vertices in local indices
 	
 }; // end CReader
-
 
 ////////////////////////////////////////////////////////////////////////////////
 
