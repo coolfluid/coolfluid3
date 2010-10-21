@@ -101,8 +101,8 @@ void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& pat
   write_header(file);
   write_coordinates(file);
   write_connectivity(file);
-  //write_elem_nodal_data(file);
-	write_nodal_data(file);
+  write_elem_nodal_data(file);
+	//write_nodal_data(file);
   write_element_data(file);
   file.close();
 

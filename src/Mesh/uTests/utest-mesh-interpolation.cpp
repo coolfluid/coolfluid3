@@ -102,6 +102,8 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   // Create the honeycomb
   interpolator->construct_internal_storage(source);
   
+	BOOST_CHECK(true);
+	
 	std::vector<std::string> nvars;
 	std::vector<std::string> nvars_2;
 	std::vector<std::string> evars;
@@ -121,6 +123,8 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 	target->create_field( "elementbased",   evars,   CField::ELEMENT_BASED );
 	target->create_field( "elementbased_2", evars_2, CField::ELEMENT_BASED );
   
+	BOOST_CHECK(true);
+	
   // Set the field data of the source field
   BOOST_FOREACH(CArray& node_data, recursive_filtered_range_typed<CArray>(*source,IsComponentTag("node_data")))
   {    
@@ -144,12 +148,20 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 	interpolator->interpolate_field_from_to(source->field("elementbased"),target->field("elementbased_2"));
 	interpolator->interpolate_field_from_to(source->field("elementbased"),target->field("nodebased_2"));
 	
+	BOOST_CHECK(true);
+	
 	// Write the fields to file.
 	CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
 	boost::filesystem::path fp_source_out("source.msh");
 	boost::filesystem::path fp_interpolated("interpolated.msh");
+	BOOST_CHECK(true);
+
 	meshwriter->write_from_to(source,fp_source_out);
+	BOOST_CHECK(true);
+
 	meshwriter->write_from_to(target,fp_interpolated);
+	BOOST_CHECK(true);
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

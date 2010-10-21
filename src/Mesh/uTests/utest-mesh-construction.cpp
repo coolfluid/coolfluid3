@@ -255,14 +255,14 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
   //  2 -  5--15---4--24--6
   //    |  |       |\     |
   //    |  |       | \ (3)|
-  // 1.5-  16 17  14 22  23
+  // 1.5-  16 17  14  22 23
   //    |  |       |   \  |
 	//    |  |  (1)  |(2) \ |
 	//    |  |       |     \|
   //  1 -  3--11---2--21--7
   //    |  |       |\     |
   //    |  |       | \ (1)|
-  // 0.5-  12 13  10 19  20
+  // 0.5-  12 13  10  19 20
   //    |  |       |   \  |
 	//    |  |  (0)  | (0)\ |
 	//    |  |       |     \|
@@ -327,16 +327,16 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
   BOOST_CHECK_EQUAL(coordRef[0],1.0);
   BOOST_CHECK_EQUAL(coordRef[1],1.0);
 	
-  // calculate all volumes of a region
-  BOOST_FOREACH( CElements& region, recursive_range_typed<CElements>(superRegion))
-  {
-    const ElementType& elementType = region.element_type();
-    const Uint nbRows = region.connectivity_table().size();
-    std::vector<Real> volumes(nbRows);
-    const CArray& region_coordinates = region.coordinates();
-    const CTable& region_connTable = region.connectivity_table();
-    // the loop
-    ElementType::NodesT elementCoordinates(elementType.nb_nodes(), elementType.dimension());
+//  // calculate all volumes of a region
+//  BOOST_FOREACH( CElements& region, recursive_range_typed<CElements>(superRegion))
+//  {
+//    const ElementType& elementType = region.element_type();
+//    const Uint nbRows = region.connectivity_table().size();
+//    std::vector<Real> volumes(nbRows);
+//    const CArray& region_coordinates = region.coordinates();
+//    const CTable& region_connTable = region.connectivity_table();
+//    // the loop
+//    ElementType::NodesT elementCoordinates(elementType.nb_nodes(), elementType.dimension());
 //    for (Uint iElem=0; iElem<nbRows; ++iElem)
 //    {
 //      elementCoordinates.fill(region_coordinates, region_connTable[iElem]);
@@ -349,18 +349,17 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
 //      if(elementType.shape() == GeoShape::TRIAG)
 //        BOOST_CHECK_EQUAL(volumes[iElem],0.5);
 //    }
-  }
+//  }
+//	
+//	//  BOOST_FOREACH(CArray::Row node , elem_coord)
+//	//  {
+//	//    CFinfo << "node = ";
+//	//    for (Uint j=0; j<node.size(); j++) {
+//	//      CFinfo << node[j] << " ";
+//	//    }
+//	//    CFinfo << "\n" << CFflush;
+//	//  }
 	
-	//  BOOST_FOREACH(CArray::Row node , elem_coord)
-	//  {
-	//    CFinfo << "node = ";
-	//    for (Uint j=0; j<node.size(); j++) {
-	//      CFinfo << node[j] << " ";
-	//    }
-	//    CFinfo << "\n" << CFflush;
-	//  }
-	
-	CFinfo << p_mesh->tree() << CFendl;
 	
 	CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
 	boost::filesystem::path fp_out("p2-mesh.msh");

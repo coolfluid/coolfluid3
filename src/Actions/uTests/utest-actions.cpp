@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE( Node_Looping_Test )
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
   boost::filesystem::path fp_in("rotation-tg.neu");
   meshreader->read_from_to(fp_in,mesh);
-  std::vector<URI> regions = list_of(URI("cpath://Root/mesh/Base/rotation-tg/inlet"))(URI("cpath://Root/mesh/Base/rotation-tg/outlet"));
+  std::vector<URI> regions = list_of(URI("cpath://Root/mesh/default_id1084/inlet"))(URI("cpath://Root/mesh/default_id1084/outlet"));
 
   
   // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
@@ -83,6 +83,7 @@ BOOST_AUTO_TEST_CASE( Node_Looping_Test )
 	CFinfo << "\n\n\nElement loop" << CFendl;
   elem_loop->execute();
 
+	BOOST_CHECK(true);
 	
 }	
 
@@ -113,7 +114,7 @@ BOOST_AUTO_TEST_CASE( Templated_Looping_Test )
 	CLoop::Ptr apply_bc = root->create_component_type< CForAllNodes >("apply_bc");
   apply_bc->create_action("CSetFieldValues");
 	
-  std::vector<URI> bc_regions = list_of(URI("cpath://Root/mesh/Base/rotation-qd/inlet"));
+  std::vector<URI> bc_regions = list_of(URI("cpath://Root/mesh/rotation/inlet"));
 	apply_bc->configure_property("Regions",bc_regions);
   apply_bc->action("CSetFieldValues").configure_property("Field",std::string("solution"));
   
@@ -131,8 +132,11 @@ BOOST_AUTO_TEST_CASE( Templated_Looping_Test )
   //elem_loop = root->create_component_type< CForAllElements >("loop_LDA");
   //elem_loop->create_action("CSchemeLDA");
 
+	BOOST_CHECK(true);
+
+	
   // Configure the elem_loop, and the LDA scheme
-  std::vector<URI> regions_to_loop = list_of(URI("cpath://Root/mesh/Base/rotation-qd/fluid"));
+  std::vector<URI> regions_to_loop = list_of(URI("cpath://Root/mesh/rotation/fluid"));
   elem_loop->configure_property("Regions",regions_to_loop);  
   elem_loop->action("CSchemeLDA").configure_property("SolutionField",std::string("solution"));
   elem_loop->action("CSchemeLDA").configure_property("ResidualField",std::string("residual"));

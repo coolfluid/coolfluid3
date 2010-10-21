@@ -75,8 +75,8 @@ void CReader::defineConfigProperties ( CF::Common::PropertyList& options )
 {
 	options.add_option<OptionT <bool> >("Serial Merge","New mesh will be merged with existing if mesh-names match",true);
 	options.add_option<OptionT <bool> >("Unified Zones","Reads Neu Groups and splits the mesh in these subgroups",true);
-	options.add_option<OptionT <Uint> >("Part","Number of the part of the mesh to read. (e.g. rank of processor)",PEInterface::instance().rank());
-	options.add_option<OptionT <Uint> >("Number of Parts","Total number of parts. (e.g. number of processors)",PEInterface::instance().size());
+	options.add_option<OptionT <Uint> >("Part","Number of the part of the mesh to read. (e.g. rank of processor)",PEInterface::instance().is_init()?PEInterface::instance().rank():0);
+	options.add_option<OptionT <Uint> >("Number of Parts","Total number of parts. (e.g. number of processors)",PEInterface::instance().is_init()?PEInterface::instance().size():1);
 	
 	
 	options.add_option<OptionT <bool> >("Repartition","setting this to true, puts global indexes, for repartitioning later",false);
@@ -135,7 +135,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 
 	read_boundaries();
 
-	if (!property("Unified Zones").value<bool>())
+	if (property("Unified Zones").value<bool>())
 		read_groups();
 	
 	
@@ -166,7 +166,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 	{
 		//if (property("Part").value<Uint>() == property("OutputRank").value<Uint>())
 		{
-			set_pt_scotch_data();
+			//set_pt_scotch_data();
 		}
 	}
 	
@@ -182,7 +182,7 @@ void CReader::set_pt_scotch_data()
 	CF_DEBUG_POINT;
 
 	baseval=0;
-	vertglbnbr = m_headerData.NUMNP;
+	vertglbnbr = m_mesh->property("nb_nodes").value<Uint>();
 
 	//edgeglbnbr = ; // total number of connections in the total mesh
 	procglbnbr = property("Number of Parts").value<Uint>();
@@ -213,7 +213,8 @@ void CReader::set_pt_scotch_data()
 	{
 		if (!is_ghost_node)
 			nb_nodes++;
-	}	
+	}
+	if (PEInterface::instance().is_init())
 	boost::mpi::all_gather(PEInterface::instance(), nb_nodes, proccnttab);
 	
 	Uint cnt=0;
@@ -253,6 +254,7 @@ void CReader::set_pt_scotch_data()
 	BOOST_FOREACH(Uint node, nodes_to_renumber_set)
 		nodes_to_renumber.push_back(node);
 	
+	if (PEInterface::instance().is_init())
 	PEInterface::instance().barrier();
 
 	//if (property("Part").value<Uint>() == property("OutputRank").value<Uint>())
@@ -263,6 +265,7 @@ void CReader::set_pt_scotch_data()
 		CFinfo << CFendl;
 	}
 	
+	if (PEInterface::instance().is_init())
 	PEInterface::instance().barrier();
 	
 	/*
@@ -317,6 +320,7 @@ void CReader::set_pt_scotch_data()
 				}
 			}
 		}
+		if (PEInterface::instance().is_init())
 		PEInterface::instance().barrier();
 	}
 	
