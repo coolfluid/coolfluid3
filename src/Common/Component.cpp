@@ -441,7 +441,7 @@ void Component::regist_signals ( Component* self  )
   self->regist_signal ( "rename_component" , "Renames this component", "Rename" )->connect ( boost::bind ( &Component::rename_component, self, _1 ) );
 
 
-  self->signal("rename_component").m_signature.insert<std::string>("new_name", "Component new name");
+  self->signal("rename_component").m_signature.insert<std::string>("newName", "Component new name");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -621,7 +621,7 @@ void Component::rename_component ( XmlNode& xml )
 {
   XmlParams p(xml);
 
-  std::string new_name = p.get_option<std::string>("new_name");
+  std::string new_name = p.get_option<std::string>("newName");
 
   rename(new_name);
 }
