@@ -280,6 +280,7 @@ void CentralPanel::currentIndexChanged(const QModelIndex & newIndex, const QMode
 {
   QList<Option::ConstPtr> options;
   ClientRoot::tree()->getNodeOptions(newIndex, options);
+
   this->setOptions(options);
 }
 

@@ -110,15 +110,13 @@ void CNode::setOptions(XmlNode & options)
   {
     // iterate through options
     XmlNode* node = p.option_map->first_node();
-    for ( ; node != nullptr ; node = node->next_sibling(  ) )
+    for ( ; node != nullptr ; node = node->next_sibling() )
     {
       Option::Ptr opt = makeOption(*node);
-
-      m_property_list[ opt->name() ] = opt;
+      m_property_list.m_properties[ opt->name() ] = opt;
     }
   }
 }
-
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -422,9 +420,8 @@ void CNode::getProperties(QMap<QString, QString> & props) const
   props.clear();
 
   for( ; it != m_property_list.m_properties.end() ; it++)
-  {
     props[ it->first.c_str() ] = it->second->value_str().c_str();
-  }
+
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
