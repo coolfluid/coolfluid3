@@ -292,7 +292,7 @@ void CSchemeLDAT<SHAPEFUNC>::execute()
   for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
   {
     data->inverse_updatecoeff[node_idx[n]][0] +=
-        2.0*std::sqrt( dx*dx+dy*dy) *
+        std::sqrt( dx*dx+dy*dy) *
         std::sqrt( centroid[XX]*centroid[XX] + centroid[YY]*centroid[YY] );
   }
 
