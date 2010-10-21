@@ -17,8 +17,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro Math_API
-/// @note build system defines Math_EXPORTS when compiling MathTools files
-#ifdef Math_EXPORTS
+/// @note build system defines COOLFLUID_MATH_EXPORTS when compiling MathTools files
+#ifdef COOLFLUID_MATH_EXPORTS
 #   define Math_API      CF_EXPORT_API
 #   define Math_TEMPLATE
 #else

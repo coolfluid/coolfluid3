@@ -15,8 +15,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro ClientCore_API
-/// @note build system defines ClientCore_EXPORTS when compiling ClientCoreTools files
-#ifdef ClientCore_EXPORTS
+/// @note build system defines COOLFLUID_CLIENT_CORE_EXPORTS when compiling ClientCoreTools files
+#ifdef COOLFLUID_CLIENT_CORE_EXPORTS
 #   define ClientCore_API      CF_EXPORT_API
 #   define ClientCore_TEMPLATE
 #else

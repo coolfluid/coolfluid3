@@ -45,7 +45,7 @@ namespace Common {
     }
 
     /// get the pointer to the option
-    const Property & property( const std::string& optname ) const;
+    const Property & property(const std::string& optname ) const;
 
     /// Configure one option, and trigger its actions
     /// @param [in] optname  The option name

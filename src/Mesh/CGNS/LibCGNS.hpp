@@ -15,8 +15,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro CGNS_API
-/// @note build system defines CGNS_EXPORTS when compiling CGNS files
-#ifdef CGNS_EXPORTS
+/// @note build system defines COOLFLUID_CGNS3_EXPORTS when compiling CGNS files
+#ifdef COOLFLUID_CGNS3_EXPORTS
 #   define CGNS_API      CF_EXPORT_API
 #   define CGNS_TEMPLATE
 #else

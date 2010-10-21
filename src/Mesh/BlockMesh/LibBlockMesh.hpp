@@ -15,8 +15,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro BlockMesh_API
-/// @note build system defines BlockMesh_EXPORTS when compiling BlockMesh files
-#ifdef BlockMesh_EXPORTS
+/// @note build system defines COOLFLUID_BLOCKMESH_EXPORTS when compiling BlockMesh files
+#ifdef COOLFLUID_BLOCKMESH_EXPORTS
 #   define BlockMesh_API      CF_EXPORT_API
 #   define BlockMesh_TEMPLATE
 #else

@@ -15,8 +15,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro Solver_API
-/// @note build system defines Mesh_EXPORTS when compiling MeshTools files
-#ifdef Solver_EXPORTS
+/// @note build system defines COOLFLUID_SOLVER_EXPORTS when compiling MeshTools files
+#ifdef COOLFLUID_SOLVER_EXPORTS
 #   define Solver_API      CF_EXPORT_API
 #   define Solver_TEMPLATE
 #else

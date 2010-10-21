@@ -18,8 +18,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro GooglePerfTools_API
-/// @note build system defines GooglePerfTools_EXPORTS when compiling GooglePerfTools files
-#ifdef GooglePerfTools_EXPORTS
+/// @note build system defines COOLFLUID_GOOGLE_PERFTOOLS_EXPORTS when compiling
+/// GooglePerfTools files
+#ifdef COOLFLUID_GOOGLE_PERFTOOLS_EXPORTS
 #   define GooglePerfTools_API      CF_EXPORT_API
 #   define GooglePerfTools_TEMPLATE
 #else

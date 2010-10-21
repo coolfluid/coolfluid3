@@ -15,8 +15,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro CGAL_API
-/// @note build system defines CGAL_EXPORTS when compiling CGAL files
-#ifdef CGAL_EXPORTS
+/// @note build system defines COOLFLUID_CGAL_EXPORTS when compiling CGAL files
+#ifdef COOLFLUID_CGAL_EXPORTS
 #   define CGAL_API      CF_EXPORT_API
 #   define CGAL_TEMPLATE
 #else

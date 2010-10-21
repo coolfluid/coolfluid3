@@ -15,8 +15,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro Gmsh_API
-/// @note build system defines Gmsh_EXPORTS when compiling Gmsh files
-#ifdef Gmsh_EXPORTS
+/// @note build system defines COOLFLUID_GMSH_EXPORTS when compiling Gmsh files
+#ifdef COOLFLUID_GMSH_EXPORTS
 #   define Gmsh_API      CF_EXPORT_API
 #   define Gmsh_TEMPLATE
 #else

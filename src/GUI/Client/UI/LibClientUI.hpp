@@ -15,8 +15,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro ClientUI_API
-/// @note build system defines ClientUI_EXPORTS when compiling ClientUITools files
-#ifdef ClientUI_EXPORTS
+/// @note build system defines COOLFLUID_CLIENT_UI_EXPORTS when compiling ClientUITools files
+#ifdef COOLFLUID_CLIENT_UI_EXPORTS
 #   define ClientUI_API      CF_EXPORT_API
 #   define ClientUI_TEMPLATE
 #else

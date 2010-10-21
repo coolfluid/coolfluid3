@@ -15,8 +15,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro Actions_API
-/// @note build system defines Mesh_EXPORTS when compiling MeshTools files
-#ifdef Actions_EXPORTS
+/// @note build system defines COOLFLUID_ACTIONS_EXPORTS when compiling MeshTools files
+#ifdef COOLFLUID_ACTIONS_EXPORTS
 #   define Actions_API      CF_EXPORT_API
 #   define Actions_TEMPLATE
 #else

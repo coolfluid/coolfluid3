@@ -15,8 +15,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro SF_API
-/// @note build system defines SF_EXPORTS when compiling SF files
-#ifdef SF_EXPORTS
+/// @note build system defines COOLFLUID_SF_EXPORTS when compiling SF files
+#ifdef COOLFLUID_SF_EXPORTS
 #   define SF_API      CF_EXPORT_API
 #   define SF_TEMPLATE
 #else

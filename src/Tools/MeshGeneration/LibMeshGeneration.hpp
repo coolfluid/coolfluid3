@@ -15,8 +15,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro MeshGeneration_API
-/// @note build system defines MeshGeneration_EXPORTS when compiling MeshGenerationTools files
-#ifdef MeshGeneration_EXPORTS
+/// @note build system defines COOLFLUID_MESH_GENERATION_EXPORTS when compiling
+/// MeshGeneration files
+#ifdef COOLFLUID_MESH_GENERATION_EXPORTS
 #   define MeshGeneration_API      CF_EXPORT_API
 #   define MeshGeneration_TEMPLATE
 #else

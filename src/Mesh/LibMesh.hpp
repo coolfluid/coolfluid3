@@ -15,8 +15,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro Mesh_API
-/// @note build system defines Mesh_EXPORTS when compiling MeshTools files
-#ifdef Mesh_EXPORTS
+/// @note build system defines COOLFLUID_MESH_EXPORTS when compiling MeshTools files
+#ifdef COOLFLUID_MESH_EXPORTS
 #   define Mesh_API      CF_EXPORT_API
 #   define Mesh_TEMPLATE
 #else

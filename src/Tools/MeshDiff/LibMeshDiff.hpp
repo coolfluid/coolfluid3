@@ -15,8 +15,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro MeshDiff_API
-/// @note build system defines MeshDiff_EXPORTS when compiling MeshDiffTools files
-#ifdef MeshDiff_EXPORTS
+/// @note build system defines COOLFLUID_MESHDIFF_EXPORTS when compiling
+/// MeshDiff files
+#ifdef COOLFLUID_MESHDIFF_EXPORTS
 #   define MeshDiff_API      CF_EXPORT_API
 #   define MeshDiff_TEMPLATE
 #else

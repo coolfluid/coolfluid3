@@ -15,8 +15,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro Testing_API
-/// @note build system defines Testing_EXPORTS when compiling TestingTools files
-#ifdef Testing_EXPORTS
+/// @note build system defines COOLFLUID_TESTING_EXPORTS when compiling
+/// Testing files
+#ifdef COOLFLUID_TESTING_EXPORTS
 #   define Testing_API      CF_EXPORT_API
 #   define Testing_TEMPLATE
 #else

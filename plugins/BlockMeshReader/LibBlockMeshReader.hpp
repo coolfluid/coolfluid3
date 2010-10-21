@@ -15,8 +15,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro BlockMeshReader_API
-/// @note build system defines BlockMeshReader_EXPORTS when compiling BlockMeshReader files
-#ifdef BlockMeshReader_EXPORTS
+/// @note build system defines COOLFLUID_BLOCKMESH_READER_EXPORTS when compiling
+/// BlockMeshReader files
+#ifdef COOLFLUID_BLOCKMESH_READER_EXPORTS
 #   define BlockMeshReader_API      CF_EXPORT_API
 #   define BlockMeshReader_TEMPLATE
 #else

@@ -15,8 +15,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro Network_API
-/// @note build system defines Network_EXPORTS when compiling Network files
-#ifdef Network_EXPORTS
+/// @note build system defines COOLFLUID_NETWORK_EXPORTS when compiling Network files
+#ifdef COOLFLUID_NETWORK_EXPORTS
 #   define Network_API CF_EXPORT_API
 #else
 #   define Network_API CF_IMPORT_API

@@ -15,8 +15,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro Neu_API
-/// @note build system defines Neu_EXPORTS when compiling Neu files
-#ifdef Neu_EXPORTS
+/// @note build system defines COOLFLUID_NEU_EXPORTS when compiling Neu files
+#ifdef COOLFLUID_NEU_EXPORTS
 #   define Neu_API      CF_EXPORT_API
 #   define Neu_TEMPLATE
 #else
