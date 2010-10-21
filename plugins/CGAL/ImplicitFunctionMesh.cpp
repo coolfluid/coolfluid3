@@ -17,7 +17,7 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CTable.hpp"
 
-#include "Mesh/CGAL/ImplicitFunctionMesh.hpp"
+#include "CGAL/ImplicitFunctionMesh.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 

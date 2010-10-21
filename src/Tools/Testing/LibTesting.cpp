@@ -19,7 +19,7 @@ namespace CF {
 namespace Tools {
 namespace Testing {
 
-  CF::Common::ForceLibRegist<LibTesting> libTesting;
+CF::Common::ForceLibRegist<LibTesting> libTesting;
 
 ////////////////////////////////////////////////////////////////////////////////
 
