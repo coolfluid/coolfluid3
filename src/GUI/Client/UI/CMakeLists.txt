@@ -14,7 +14,6 @@ list( APPEND coolfluid_client_ui_moc_classes
   GraphicalBool.hpp
   GraphicalDouble.hpp
   GraphicalInt.hpp
-  GraphicalOption.hpp
   GraphicalRestrictedList.hpp
   GraphicalString.hpp
   GraphicalUri.hpp
@@ -59,8 +58,6 @@ list( APPEND coolfluid_client_ui_files
   GraphicalDouble.cpp
   GraphicalInt.hpp
   GraphicalInt.cpp
-  GraphicalOption.cpp
-  GraphicalOption.hpp
   GraphicalRestrictedList.cpp
   GraphicalRestrictedList.hpp
   GraphicalString.hpp

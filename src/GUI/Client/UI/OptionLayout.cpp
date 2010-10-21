@@ -41,7 +41,7 @@ OptionLayout::~OptionLayout()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void OptionLayout::getOptions(QMap<QString, QString> & options) const
+void OptionLayout::getOptions(QMap<QString, QString> & options, bool all) const
 {
   QList<GraphicalValue *>::const_iterator it = m_options.begin();
 
@@ -50,7 +50,7 @@ void OptionLayout::getOptions(QMap<QString, QString> & options) const
     GraphicalValue * value = *it;
     QLabel * label = static_cast<QLabel*>(labelForField(*it));
 
-    if(value->isModified())
+    if(all || value->isModified())
       options[ label->text() ] = value->getValueString();
   }
 }
@@ -116,7 +116,7 @@ void OptionLayout::getModifiedOptions(CommitDetails & commitDetails) const
 
 void OptionLayout::addOption(CF::Common::Option::ConstPtr option)
 {
-  GraphicalValue * value = GraphicalValue::create(option, static_cast<QWidget*>(this->parent()));
+  GraphicalValue * value = GraphicalValue::createFromOption(option);
 
   m_options.append(value);
 

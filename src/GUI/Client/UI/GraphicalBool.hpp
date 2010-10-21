@@ -26,7 +26,8 @@ namespace ClientUI {
     Q_OBJECT
   public:
 
-    GraphicalBool(CF::Common::Option::ConstPtr opt, QWidget * parent = 0);
+    GraphicalBool(CF::Common::Option::ConstPtr opt = CF::Common::Option::ConstPtr(),
+                  QWidget * parent = 0);
 
     ~GraphicalBool();
 
@@ -41,6 +42,8 @@ namespace ClientUI {
   private:
 
       QCheckBox * m_checkBox;
+
+      void initGui();
 
   }; // class GraphicalBool
 

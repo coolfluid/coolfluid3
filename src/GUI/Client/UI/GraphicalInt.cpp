@@ -24,10 +24,13 @@ GraphicalInt::GraphicalInt(bool isUint, CF::Common::Option::ConstPtr opt, QWidge
 
   m_layout->addWidget(m_spinBox);
 
-  if(isUint)
-    this->setValue(opt->value<CF::Uint>());
-  else
-    this->setValue(opt->value<int>());
+  if(opt.get() != nullptr)
+  {
+    if(isUint)
+      this->setValue(opt->value<CF::Uint>());
+    else
+      this->setValue(opt->value<int>());
+  }
 
   connect(m_spinBox, SIGNAL(valueChanged(int)), this, SLOT(integerChanged(int)));
 }

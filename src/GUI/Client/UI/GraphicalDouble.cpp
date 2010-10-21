@@ -11,9 +11,10 @@
 
 #include "GUI/Client/UI/GraphicalDouble.hpp"
 
+using namespace CF::Common;
 using namespace CF::GUI::ClientUI;
 
-GraphicalDouble::GraphicalDouble(CF::Common::Option::ConstPtr opt, QWidget * parent)
+GraphicalDouble::GraphicalDouble(Option::ConstPtr opt, QWidget * parent)
   : GraphicalValue(parent)
 {
   m_lineEdit = new QLineEdit(this);
@@ -24,7 +25,8 @@ GraphicalDouble::GraphicalDouble(CF::Common::Option::ConstPtr opt, QWidget * par
 
   m_layout->addWidget(m_lineEdit);
 
-  this->setValue(opt->value<CF::Real>());
+  if(opt.get() != nullptr)
+    this->setValue(opt->value<CF::Real>());
 
   connect(m_lineEdit, SIGNAL(textChanged(QString)), this, SLOT(textUpdated(QString)));
 }

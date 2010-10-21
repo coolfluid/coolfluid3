@@ -89,6 +89,15 @@ namespace ClientUI {
 
     bool hasOptions() const;
 
+    /// @brief Puts options in a provided map.
+
+    /// @param options A hashmap were modified options will be written. The
+    /// key is the option name and the value is the option new value.
+    /// @param all If @c false, only modified options will be put, meaning
+    /// that the hashmap may be empty. If @c true, all option are put.
+    /// if no option has been modified.
+    void getOptions(QMap<QString, QString> & options, bool all) const;
+
   signals:
 
     void valueChanged();
@@ -103,14 +112,6 @@ namespace ClientUI {
     /// If @c true, the panel is in advanced mode. Advanced m_options (if any)
     /// are displayed. Otherwise, they are m_hidden.
     bool m_advancedMode;
-
-    /// @brief Puts all modified options in a provided hashmap.
-
-    /// Only modified options will be set, meaning that the hashmap may be empty
-    /// if no option has been modified. The map is cleared before first use.
-    /// @param options A hashmap were modified options will be written. The
-    /// key is the option name and the value is the option new value.
-    void getOptions(QMap<QString, QString> & options) const;
 
     /// @brief Checks if options has been modified.
 

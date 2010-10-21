@@ -24,7 +24,7 @@ namespace CF {
 namespace GUI {
 namespace ClientUI {
 
-  class GraphicalOption;
+  class OptionLayout;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -50,13 +50,13 @@ namespace ClientUI {
 
     QDialogButtonBox * m_buttons;
 
-    QFormLayout * m_dataLayout;
+    OptionLayout * m_dataLayout;
 
     QVBoxLayout * m_mainLayout;
 
     bool m_okClicked;
 
-    QMap<CF::Common::XmlNode *, GraphicalOption *> m_data;
+    QMap<QString, CF::Common::XmlNode*> m_nodes;
 
   }; // class SignatureDialog
 

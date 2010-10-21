@@ -9,7 +9,9 @@
 #include <QVBoxLayout>
 
 #include "GUI/Client/Core/ClientRoot.hpp"
-#include "GUI/Client/UI/GraphicalOption.hpp"
+
+#include "GUI/Client/UI/GraphicalValue.hpp"
+#include "GUI/Client/UI/OptionLayout.hpp"
 
 #include "GUI/Client/UI/SignatureDialog.hpp"
 
@@ -22,7 +24,7 @@ SignatureDialog::SignatureDialog(QWidget *parent) :
     m_okClicked(false)
 {
   m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-  m_dataLayout = new QFormLayout();
+  m_dataLayout = new OptionLayout();
   m_mainLayout = new QVBoxLayout(this);
 
   m_mainLayout->addLayout(m_dataLayout);
@@ -45,76 +47,43 @@ SignatureDialog::~SignatureDialog()
 
 bool SignatureDialog::show(XmlNode & sig, const QString & title)
 {
-  XmlNode * node = sig.first_node();
-  GraphicalOption * goption;
-  OptionType::Type type = OptionType::INVALID;
+  XmlNode * node;
+  QString name;
 
   m_okClicked = false;
 
   this->setWindowTitle(title);
 
-  while(node != nullptr)
+  m_dataLayout->clearOptions();
+  m_nodes.clear();
+
+  for(node = sig.first_node() ; node != nullptr ; node = node->next_sibling())
   {
-    XmlAttr * key_attr = node->first_attribute( XmlParams::tag_attr_key() );
-    XmlAttr * desc_attr = node->first_attribute( XmlParams::tag_attr_descr() );
-    QString name = key_attr != nullptr ? key_attr->value() : "";
-    QString desc = desc_attr != nullptr ? desc_attr->value() : "";
+    m_dataLayout->addOption( CNode::makeOption(*node) );
 
-    if(name.isEmpty())
-      throw ValueNotFound(FromHere(), "No non-empty name found.");
+    name = node->first_attribute(XmlParams::tag_attr_key())->value();
 
-    if( std::strcmp(node->name(), XmlParams::tag_node_value()) == 0 )
-    {
-      XmlNode * type_name = node->first_node();
-
-      if( type_name != nullptr )
-        type = OptionType::Convert::to_enum(type_name->name());
-      else
-        throw ValueNotFound(FromHere(), "Type not found");
-    }
-    else if( std::strcmp(node->name(), "array") == 0 )
-    {
-      XmlAttr * type_attr = node->first_attribute( XmlParams::tag_attr_type() );
-
-      if( type_attr != nullptr )
-      {
-        const char * type_str = type_attr->value();
-
-        if(std::strcmp(type_str, "file") == 0)
-          type = OptionType::TYPE_FILES;
-        else
-          throw ValueNotFound(FromHere(), std::string(type_str) + ": Type not found for array");
-      }
-      else
-        throw ValueNotFound(FromHere(), "Type not found");
-    }
-
-    goption = new GraphicalOption(type, this);
-
-    goption->setName(name);
-    goption->setToolTip(desc);
-    goption->addToLayout(m_dataLayout);
-
-    m_data[node] = goption;
-
-    node = node->next_sibling();
+    m_nodes[name] = node;
   }
 
-  if( !m_data.isEmpty() )
+  if( m_dataLayout->hasOptions() )
   {
     this->exec();
 
     if(m_okClicked)
     {
-      QMap<XmlNode *, GraphicalOption *>::iterator it = m_data.begin();
+      QMap<QString, QString> options;
 
-      for( ; it != m_data.end() ; it++)
+      m_dataLayout->getOptions(options, true);
+
+      QMap<QString, XmlNode*>::iterator it = m_nodes.begin();
+
+      for( ; it != m_nodes.end() ; it++)
       {
-        XmlNode * node = it.key()->first_node();
-        const char * value = it.value()->getValueString().toStdString().c_str();
+        XmlNode * node = it.value()->first_node();
+        const char * value = options[it.key()].toStdString().c_str();
 
         node->value( node->document()->allocate_string(value) );
-        ClientRoot::log()->addMessage(it.value()->getValueString());
       }
     }
 

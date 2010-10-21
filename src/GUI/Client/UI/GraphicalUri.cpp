@@ -42,8 +42,11 @@ GraphicalUri::GraphicalUri(CF::Common::OptionURI::ConstPtr opt, QWidget *parent)
   m_layout->addWidget(m_editPath);
   m_layout->addWidget(m_btBrowse);
 
-  this->setValue(opt->value_str().c_str());
-  this->setProtocols(opt->supported_protocols());
+  if(opt.get() != nullptr)
+  {
+    this->setValue(opt->value_str().c_str());
+    this->setProtocols(opt->supported_protocols());
+  }
 
   connect(m_btBrowse, SIGNAL(clicked()), this, SLOT(btBrowseClicked()));
 //  connect(m_editPath, SIGNAL(textChanged(QString)), this, SLOT(updateModel(QString)));

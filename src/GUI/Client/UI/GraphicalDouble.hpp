@@ -28,7 +28,8 @@ namespace ClientUI {
 
   public:
 
-    GraphicalDouble(CF::Common::Option::ConstPtr opt, QWidget * parent = 0);
+    GraphicalDouble(CF::Common::Option::ConstPtr opt = CF::Common::Option::ConstPtr(),
+                    QWidget * parent = 0);
 
     ~GraphicalDouble();
 
@@ -45,6 +46,8 @@ namespace ClientUI {
     QLineEdit * m_lineEdit;
 
     QDoubleValidator * m_validator;
+
+    void initGui();
 
   }; // class GraphicalDouble
 

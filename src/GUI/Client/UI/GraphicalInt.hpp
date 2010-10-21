@@ -27,7 +27,8 @@ namespace ClientUI {
 
   public:
 
-    GraphicalInt(bool isUint, CF::Common::Option::ConstPtr opt, QWidget * parent = 0);
+    GraphicalInt(bool isUint, CF::Common::Option::ConstPtr opt = CF::Common::Option::ConstPtr(),
+                 QWidget * parent = 0);
 
     ~GraphicalInt();
 

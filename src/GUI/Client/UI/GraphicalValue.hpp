@@ -31,8 +31,11 @@ namespace ClientUI {
     Q_OBJECT
   public:
 
-    static GraphicalValue * create(CF::Common::Option::ConstPtr option,
-                                   QWidget * parent = nullptr);
+    static GraphicalValue * createFromOption(CF::Common::Option::ConstPtr option,
+                                             QWidget * parent = nullptr);
+
+    static GraphicalValue * createFromXml(const CF::Common::XmlNode & node,
+                                          QWidget * parent = nullptr);
 
     virtual bool setValue(const QVariant & value) = 0;
 
@@ -63,6 +66,10 @@ namespace ClientUI {
     QVariant m_originalValue;
 
     QHBoxLayout * m_layout;
+
+  private:
+
+    static GraphicalValue * create(const QString & type, bool isArray, QWidget * parent);
 
   }; // class GraphicalValue
 

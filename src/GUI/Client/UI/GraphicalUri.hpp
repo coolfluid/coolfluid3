@@ -34,7 +34,8 @@ namespace ClientUI {
 
   public:
 
-    GraphicalUri(CF::Common::OptionURI::ConstPtr opt, QWidget *parent = 0);
+    GraphicalUri(CF::Common::OptionURI::ConstPtr opt = CF::Common::OptionURI::ConstPtr(),
+                 QWidget *parent = 0);
 
     ~GraphicalUri();
 

@@ -265,6 +265,8 @@ namespace ClientCore {
 
     void list_signals_reply(CF::Common::XmlNode & node);
 
+    static CF::Common::Option::Ptr makeOption(const CF::Common::XmlNode & node);
+
   protected:
 
     CNode::Type m_type;
@@ -313,6 +315,61 @@ namespace ClientCore {
           option->restricted_list().push_back(TYPE(value));
         }
       }
+    }
+
+    template<typename TYPE>
+    static CF::Common::Option::Ptr makeOptionT(const std::string & name,
+                                                      const std::string & descr,
+                                                      CF::Common::XmlNode & node)
+    {
+      TYPE value;
+      CF::Common::to_value(node, value);
+      CF::Common::XmlNode * next = node.next_sibling();
+
+      CF::Common::Option::Ptr option(new CF::Common::OptionT<TYPE>(name, descr, value));
+
+      if(next != nullptr &&
+         std::strcmp(next->name(), CF::Common::XmlTag<TYPE>::array()) == 0)
+      {
+
+        CF::Common::XmlNode * elem_node = next->first_node("e");
+
+        for( ; elem_node != nullptr ; elem_node = elem_node->next_sibling("e"))
+        {
+          CF::Common::to_value(*elem_node, value);
+          option->restricted_list().push_back(TYPE(value));
+        }
+      }
+
+      return option;
+    }
+
+    template<typename TYPE>
+    static CF::Common::Option::Ptr makeOptionArrayT(const std::string & name,
+                                                    const std::string & descr,
+                                                    const CF::Common::XmlNode & node)
+    {
+      std::vector<TYPE> value;
+      //CF::Common::to_value(node, value);
+      CF::Common::XmlNode * next = node.next_sibling();
+
+      if(next != nullptr &&
+         std::strcmp(next->name(), CF::Common::XmlTag<TYPE>::array()) == 0)
+      {
+
+        CF::Common::XmlNode * elem_node = next->first_node("e");
+
+        for( ; elem_node != nullptr ; elem_node = elem_node->next_sibling("e"))
+        {
+          TYPE elem_value;
+          CF::Common::to_value(*elem_node, elem_value);
+          value.push_back(TYPE(elem_value));
+        }
+      }
+
+      CF::Common::Option::Ptr option(new CF::Common::OptionArrayT<TYPE>(name, descr, value));
+
+      return option;
     }
 
     static CNode::Ptr createFromXmlRec(CF::Common::XmlNode & node,

@@ -18,7 +18,8 @@ GraphicalString::GraphicalString(CF::Common::Option::ConstPtr opt, QWidget * par
 
   m_layout->addWidget(m_lineEdit);
 
-  this->setValue(opt->value<std::string>().c_str());
+  if(opt.get() != nullptr)
+    this->setValue(opt->value<std::string>().c_str());
 
   connect(m_lineEdit, SIGNAL(textChanged(QString)), this, SLOT(textUpdated(QString)));
 }
