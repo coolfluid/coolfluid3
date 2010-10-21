@@ -46,11 +46,21 @@ CWriter::CWriter( const CName& name )
   BUILD_COMPONENT;
 
   // gmsh types: http://www.geuz.org/gmsh/doc/texinfo/gmsh.html#MSH-ASCII-file-format
-  m_elementTypes[GeoShape::LINE]=1;
-  m_elementTypes[GeoShape::TRIAG]=2;
-  m_elementTypes[GeoShape::QUAD]=3;
-  m_elementTypes[GeoShape::TETRA]=4;
-  m_elementTypes[GeoShape::HEXA]=5;
+  m_elementTypes["Line1DLagrangeP1" ]=1;
+	m_elementTypes["Line2DLagrangeP1" ]=1;
+	m_elementTypes["Line3DLagrangeP1" ]=1;
+	m_elementTypes["Triag2DLagrangeP1"]=2;
+	m_elementTypes["Triag3DLagrangeP1"]=2;
+	m_elementTypes["Quad2DLagrangeP1" ]=3;
+	m_elementTypes["Quad3DLagrangeP1" ]=3;
+	m_elementTypes["Tetra3DLagrangeP1"]=4;
+	m_elementTypes["Hexa3DLagrangeP1" ]=5;
+
+	m_elementTypes["Triag2DLagrangeP2"]=9;
+	m_elementTypes["Triag3DLagrangeP2"]=9;
+	m_elementTypes["Quad2DLagrangeP2" ]=10;
+	m_elementTypes["Quad3DLagrangeP2" ]=10;
+
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -211,7 +221,7 @@ void CWriter::write_connectivity(std::fstream& file)
         m_element_start_idx[elements]=elm_number;
 
         //file << "// Region " << elements.full_path().string() << "\n";
-        elm_type = m_elementTypes[elements->element_type().shape()];
+        elm_type = m_elementTypes[elements->element_type().getElementTypeName()];
         Uint node_start_idx = m_node_start_idx[elements];
         BOOST_FOREACH(const CTable::ConstRow& row, elements->connectivity_table().array())
         {

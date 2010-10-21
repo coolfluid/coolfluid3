@@ -82,7 +82,7 @@ private: // data
 
   PhysicalGroupMap m_groups;
 
-  std::map<GeoShape::Type,Uint> m_elementTypes;
+  std::map<std::string,Uint> m_elementTypes;
 
   std::map<CElements*,Uint> m_node_start_idx;
   std::map<CElements*,Uint> m_element_start_idx;
