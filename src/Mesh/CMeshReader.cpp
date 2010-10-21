@@ -12,6 +12,7 @@
 #include "Common/OptionArray.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/ComponentPredicates.hpp"
+#include "Common/MPI/PEInterface.hpp"
 
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CRegion.hpp"
@@ -114,13 +115,15 @@ void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
   BOOST_FOREACH(CElements& region, recursive_range_typed<CElements>(parent_region))
   {
     // find the empty regions
-    if ( region.connectivity_table().array().empty() )
-      {
-        // no elements in connectivity table --> remove this region
-        //CFinfo << "remove: " << region->full_path().string() << "\n" << CFflush;
-        CElements::Ptr removed = boost::dynamic_pointer_cast<CElements>(region.get_parent()->remove_component(region.name()));
-        removed.reset();
-      }
+		bool empty_on_this_rank = region.connectivity_table().array().empty();
+		bool empty_on_all_ranks = boost::mpi::all_reduce(PEInterface::instance(), empty_on_this_rank, std::logical_and<bool>());
+    if ( empty_on_all_ranks )
+		{
+			// no elements in connectivity table --> remove this region
+			//CFinfo << "remove: " << region->full_path().string() << "\n" << CFflush;
+			CElements::Ptr removed = boost::dynamic_pointer_cast<CElements>(region.get_parent()->remove_component(region.name()));
+			removed.reset();
+		}
   }
 
   // loop over regions
@@ -137,6 +140,10 @@ void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
   }
 }
 
+void CMeshReader::collect_from_other_ranks()
+{
+	throw NotImplemented(FromHere(),"");
+}
 
 } // Mesh
 } // CF

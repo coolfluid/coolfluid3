@@ -53,6 +53,7 @@ void SimpleCommunicationPattern::update_send_lists()
 
 void make_node_receive_lists(const SimpleCommunicationPattern::IndicesT& nodes_dist, CMesh& mesh, SimpleCommunicationPattern& comms_pattern)
 {
+	CFinfo << "making node_receive_lists" << CFendl;
   std::vector<Uint> missing_nodes;
   const Uint nodes_begin = nodes_dist[PEInterface::instance().rank()];
   const Uint nodes_end = nodes_dist[PEInterface::instance().rank()+1];
@@ -130,10 +131,13 @@ void make_node_receive_lists(const SimpleCommunicationPattern::IndicesT& nodes_d
       }
     }
   }
+	CFinfo << "finished making node_receive_lists" << CFendl;
+
 }
 
 std::ostream& operator<<(std::ostream& os, const SimpleCommunicationPattern& pattern)
 {
+	CFinfo << "outputting pattern" << CFendl;
   os << "send dist for rank " << PEInterface::instance().rank() << ":" << "\n";
   for(Uint i = 0; i != (pattern.send_dist.size()-1); ++i)
     os << "  " << pattern.send_dist[i+1] - pattern.send_dist[i] << " to process " << i << "\n";

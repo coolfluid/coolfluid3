@@ -53,7 +53,7 @@ public: // functions
 
   /// create a region
   /// @param name of the region
-  CRegion& create_region ( const CName& name );
+  CRegion& create_region ( const CName& name, bool ensure_unique = false );
 
   /// create a domain
   /// @param name of the domain

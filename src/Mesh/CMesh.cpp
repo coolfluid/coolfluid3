@@ -46,7 +46,7 @@ CMesh::~CMesh()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CRegion& CMesh::create_region( const CName& name )
+CRegion& CMesh::create_region( const CName& name, bool ensure_unique )
 {
   CRegion::Ptr new_region;
   
@@ -61,17 +61,17 @@ CRegion& CMesh::create_region( const CName& name )
     CRegion& existing_region = get_component_typed<CRegion>(*this);
     if (existing_region.has_tag("grid_base"))
     {
-      //count howmany times the name "name(_[0-9]+)?" occurs (REGEX)
-      Uint count = 0;
-      boost::regex e(name+"(_[0-9]+)?");
-      
-      BOOST_FOREACH(const CRegion& region, range_typed<CRegion>(existing_region))
-        if (boost::regex_match(region.name(), e))
-          count++;
-
-      std::string append = (count == 0) ? "" : "_"+String::to_str(count);
-      new_region = existing_region.create_region(name+append).get_type<CRegion>();
-      new_region->add_tag("grid_zone");
+//      //count howmany times the name "name(_[0-9]+)?" occurs (REGEX)
+//      Uint count = 0;
+//      boost::regex e(name+"(_[0-9]+)?");
+//      
+//      BOOST_FOREACH(const CRegion& region, range_typed<CRegion>(existing_region))
+//        if (boost::regex_match(region.name(), e))
+//          count++;
+//
+//      std::string append = (count == 0) ? "" : "_"+to_str(count);
+      new_region = existing_region.create_region(name,ensure_unique).get_type<CRegion>();
+			new_region->add_tag("grid_zone");
     }
     else if (existing_region.has_tag("grid_zone"))
     {
@@ -80,16 +80,16 @@ CRegion& CMesh::create_region( const CName& name )
       base_region->add_tag("grid_base");
       existing_region.move_component(base_region);
             
-      //count howmany times the name "name(_[0-9]+)?" occurs (REGEX)
-      Uint count = 0;
-      boost::regex e(name+"(_[0-9]+)?");
-      
-      BOOST_FOREACH(const CRegion& region, range_typed<CRegion>(*base_region))
-      if (boost::regex_match(region.name(), e))
-        count++;
-
-      std::string append = (count == 0) ? "" : "_"+String::to_str(count);
-      new_region = base_region->create_region(name+append).get_type<CRegion>();
+//      //count howmany times the name "name(_[0-9]+)?" occurs (REGEX)
+//      Uint count = 0;
+//      boost::regex e(name+"(_[0-9]+)?");
+//      
+//      BOOST_FOREACH(const CRegion& region, range_typed<CRegion>(*base_region))
+//      if (boost::regex_match(region.name(), e))
+//        count++;
+//
+//      std::string append = (count == 0) ? "" : "_"+to_str(count);
+      new_region = base_region->create_region(name,ensure_unique).get_type<CRegion>();
       new_region->add_tag("grid_zone");
     }
     else

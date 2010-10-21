@@ -43,15 +43,20 @@ CRegion::~CRegion()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CRegion& CRegion::create_region( const CName& name )
+CRegion& CRegion::create_region( const CName& name, bool ensure_unique )
 {
-  CRegion::Ptr region = get_child_type<CRegion>(name);
-  if (!region)
-  {
-    region = create_component_type<CRegion>(name);
-  }
-  return *region;
-
+	if (ensure_unique)
+	{
+		return *create_component_type<CRegion>(name);
+	}
+	else
+	{
+		CRegion::Ptr region = get_child_type<CRegion>(name);
+		if (!region)
+			region = create_component_type<CRegion>(name);
+		
+		return *region;
+	}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -82,7 +87,10 @@ CArray& CRegion::create_coordinates(const Uint& dim)
     coordinates->initialize(dim);
 		CList<Uint>::Ptr global_indices = get_child_type<CList<Uint> >("global_indices");
 		if (!global_indices)
+		{
 			global_indices = coordinates->create_component_type< CList<Uint> >("global_indices");
+			global_indices->add_tag("global_node_indices");
+		}
 		CList<bool>::Ptr is_ghost = get_child_type<CList<bool> >("is_ghost");
 		if (!is_ghost)
 			is_ghost = coordinates->create_component_type< CList<bool> >("is_ghost");

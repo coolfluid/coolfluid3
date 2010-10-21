@@ -55,7 +55,7 @@ public:
 
   /// create a CRegion component
   /// @param name of the region
-  CRegion& create_region ( const CName& name );
+  CRegion& create_region ( const CName& name, bool ensure_unique = false );
   
   /// create a CElements component, initialized to take connectivity data for the given type
   /// @param name of the region

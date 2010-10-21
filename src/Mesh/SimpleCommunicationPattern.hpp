@@ -58,6 +58,7 @@ void Mesh_API make_node_receive_lists(const SimpleCommunicationPattern::IndicesT
 template<typename RangeT>
 void apply_pattern_carray(const SimpleCommunicationPattern& pattern, RangeT range)
 {
+	CFinfo << "applying pattern to carray" << CFendl;
   boost::mpi::communicator& world = CF::Common::PEInterface::instance();
   const Uint nb_procs = world.size();
   
@@ -95,6 +96,7 @@ void apply_pattern_carray(const SimpleCommunicationPattern& pattern, RangeT rang
       }
     }
     
+		CFinfo << "proc " << proc << " sending to " << CF::Common::PEInterface::instance().rank() << CFendl;
     // Schedule send and receive operations
     reqs.push_back(world.isend(proc, 0, &send_buffer[send_begin], send_buffer.size() - send_begin));
     reqs.push_back(world.irecv(proc, 0, &receive_buffer[receive_begin], receive_size));
@@ -134,8 +136,12 @@ void apply_pattern_clist(const SimpleCommunicationPattern& pattern, RangeT range
   boost::mpi::communicator& world = CF::Common::PEInterface::instance();
   const Uint nb_procs = world.size();
   
-  Uint total_width = range.size();
-  
+	Uint total_width = 0;
+  BOOST_FOREACH(CList<ValueT>& list, range)
+  {
+    ++total_width;
+  }
+	
   std::vector<ValueT> receive_buffer(total_width * pattern.receive_list.size());
   std::vector<ValueT> send_buffer;
   send_buffer.reserve(total_width * pattern.receive_list.size());

@@ -55,16 +55,13 @@ public: // functions
   virtual std::vector<std::string> get_extensions();
 
 private: // functions
-
-	void check_Partition_valid();
 	
 	void config_repartition();
 
   void read_headerData();
 	
-	void partition_nodes(const std::pair<Uint,Uint>& range);
-	void partition_elements(const std::pair<Uint,Uint>& range);
-
+	void partition_nodes();
+	
   void read_coordinates();
 
   void read_connectivity();
@@ -72,9 +69,15 @@ private: // functions
   void read_groups();
 
   void read_boundaries();
+	
+	void get_file_positions();
 
   virtual void read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh);
+	
+	std::string element_type(const Uint neu_type, const Uint nb_nodes);
 
+	
+	
 private: // helper functions
 
   /// regists all the signals declared in this class
@@ -99,9 +102,8 @@ private: // data
 	std::map<Uint,Uint> m_node_to_coord_idx;
 	bool m_repartition;
 	
-	
-	std::vector<Uint> m_nodal_coordinates_positions;
-	std::vector<Uint> m_elements_cells_positions;
+	Uint m_nodal_coordinates_position;
+	Uint m_elements_cells_position;
 	std::vector<Uint> m_element_group_positions;
 	std::vector<Uint> m_boundary_condition_positions;
 
@@ -114,6 +116,7 @@ private: // data
     // NDFCD    Number of coordinate directions (2 or 3)
     // NDFVL    Number of velocity components (2 or 3)
     Uint NUMNP, NELEM, NGRPS, NBSETS, NDFCD, NDFVL;
+		std::string mesh_name;
     void print()
     {
       CFinfo << NUMNP << " " << NELEM << " " << NGRPS << " " << NBSETS << " " << NDFCD << " " << NDFVL << CFendl;

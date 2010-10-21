@@ -66,32 +66,32 @@ BOOST_AUTO_TEST_CASE( twoD_test )
 
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
 	
-	meshreader->configure_property("number_of_processors",(Uint) PEInterface::instance().size());
-	meshreader->configure_property("rank",(Uint) PEInterface::instance().rank());
-	meshreader->configure_property("Repartition",false);
-	meshreader->configure_property("OutputRank",(Uint) 2);
+	meshreader->configure_property("Repartition",true);
+	meshreader->configure_property("OutputRank",(Uint) 0);
 	
   // the file to read from
-  boost::filesystem::path fp_in ("quadtriag.neu");
+	boost::filesystem::path fp_in ("quadtriag.neu");
 	
   // the mesh to store in
   CMesh::Ptr mesh ( new CMesh  ( "mesh" ) );
   
 	
-	CFinfo.setFilterRankZero(false);
+	//CFinfo.setFilterRankZero(false);
   meshreader->read_from_to(fp_in,mesh);
-	CFinfo.setFilterRankZero(true);
+	//CFinfo.setFilterRankZero(true);
 	
   boost::filesystem::path fp_out ("quadtriag.msh");
   CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
   gmsh_writer->write_from_to(mesh,fp_out);
   
-  BOOST_CHECK_EQUAL(1,1);
+  BOOST_CHECK(true);
+	
+	CFinfo << mesh->tree() << CFendl;
 
-}
+} 
 
 ////////////////////////////////////////////////////////////////////////////////
-
+/*
 BOOST_AUTO_TEST_CASE( threeD_test )
 {
 	
@@ -117,50 +117,53 @@ BOOST_AUTO_TEST_CASE( threeD_test )
   CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
   gmsh_writer->write_from_to(mesh,fp_out);
   
+  BOOST_CHECK(true);
+	
+}
+*/
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( read_multiple_2D )
+{
+	
+  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
+	
+	meshreader->configure_property("Repartition",true);
+	meshreader->configure_property("OutputRank",(Uint) 0);
+	
+  // the file to read from
+  boost::filesystem::path fp_in ("quadtriag.neu");
+	
+  // the mesh to store in
+  CMesh::Ptr mesh ( new CMesh  ( "mesh" ) );
+  
+	
+	CFinfo.setFilterRankZero(false);	
+	
+	
+
+	for (Uint count=1; count<=2; ++count)
+	{
+		CFinfo << "\n\n\nMesh parallel:" << CFendl;
+		meshreader->read_from_to(fp_in,mesh);
+	}
+	
+	
+	
+	CFinfo.setFilterRankZero(true);
+	CFinfo << mesh->tree() << CFendl;
+	CFinfo << meshreader->tree() << CFendl;
+	CMeshTransformer::Ptr info  = create_component_abstract_type<CMeshTransformer>("Info","info");
+	info->transform(mesh);
+
+	
+  boost::filesystem::path fp_out ("quadtriag_mult.msh");
+  CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
+  gmsh_writer->write_from_to(mesh,fp_out);
+  
   BOOST_CHECK_EQUAL(1,1);
 	
 }
-
-////////////////////////////////////////////////////////////////////////////////
-
-//BOOST_AUTO_TEST_CASE( read_multiple_2D )
-//{
-//	
-//  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
-//	
-//	meshreader->configure_property("number_of_processors",(Uint) PEInterface::instance().size());
-//	meshreader->configure_property("rank",(Uint) PEInterface::instance().rank());
-//	meshreader->configure_property("Repartition",true);
-//	meshreader->configure_property("OutputRank",(Uint) 0);
-//	
-//  // the file to read from
-//  boost::filesystem::path fp_in ("quadtriag.neu");
-//	
-//  // the mesh to store in
-//  CMesh::Ptr mesh ( new CMesh  ( "mesh" ) );
-//  
-//	
-//	CFinfo.setFilterRankZero(false);	
-//	
-//	for (Uint count=1; count<=2; ++count)
-//	{
-//		CFinfo << "\n\n\nMesh parallel:" << CFendl;
-//		meshreader->read_from_to(fp_in,mesh);
-//	}
-//	
-//	CMeshTransformer::Ptr info  = create_component_abstract_type<CMeshTransformer>("Info","info");
-//	info->transform(mesh);
-//	
-//	
-//	CFinfo.setFilterRankZero(true);
-//	
-//  boost::filesystem::path fp_out ("quadtriag_mult.msh");
-//  CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
-//  gmsh_writer->write_from_to(mesh,fp_out);
-//  
-//  BOOST_CHECK_EQUAL(1,1);
-//	
-//}
 
 ////////////////////////////////////////////////////////////////////////////////
 
