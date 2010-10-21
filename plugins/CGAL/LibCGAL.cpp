@@ -6,7 +6,7 @@
 
 #include "Common/Core.hpp"
 
-#include "Mesh/CGAL/LibCGAL.hpp"
+#include "CGAL/LibCGAL.hpp"
 
 namespace CF {
 namespace Mesh {
