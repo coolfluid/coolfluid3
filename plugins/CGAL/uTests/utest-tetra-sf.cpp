@@ -26,7 +26,7 @@
 #include "Mesh/SF/Tetra3DLagrangeP1.hpp"
 #include "Mesh/SF/Types.hpp"
 
-#include "Mesh/CGAL/ImplicitFunctionMesh.hpp"
+#include "CGAL/ImplicitFunctionMesh.hpp"
 
 
 using namespace CF;
