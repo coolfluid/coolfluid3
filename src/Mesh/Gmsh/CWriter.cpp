@@ -101,7 +101,8 @@ void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& pat
   write_header(file);
   write_coordinates(file);
   write_connectivity(file);
-  write_nodal_data(file);
+  //write_elem_nodal_data(file);
+	write_nodal_data(file);
   write_element_data(file);
   file.close();
 
@@ -241,25 +242,8 @@ void CWriter::write_connectivity(std::fstream& file)
 
 //////////////////////////////////////////////////////////////////////
 
-void CWriter::write_nodal_data(std::fstream& file)
+void CWriter::write_elem_nodal_data(std::fstream& file)
 {
-//  $NodeData
-//  1              // 1 string tag:
-//  "a_string_tag" //   the name of the view
-//  1              // 1 real tag:
-//  0              //  time value == 0
-//  3              // 3 integer tags:
-//  0              //  time step == 0 (time steps always start at 0)
-//  1              //  1-component field (scalar) (only 1,3,9 are valid)
-//  6              //  6 values follow:
-//  1 0.0          //  value associated with node 1 == 0.0
-//  2 0.1          //  ...
-//  3 0.2
-//  4 0.0
-//  5 0.2
-//  6 0.4
-//  $EndNodeData
-
 //  $ElementNodeData
 //  number-of-string-tags
 //  < "string-tag" >
@@ -352,6 +336,128 @@ void CWriter::write_nodal_data(std::fstream& file)
   file.precision(prec);
 }
 
+void CWriter::write_nodal_data(std::fstream& file)
+{
+	//  $NodeData
+	//  1              // 1 string tag:
+	//  "a_string_tag" //   the name of the view
+	//  1              // 1 real tag:
+	//  0              //  time value == 0
+	//  3              // 3 integer tags:
+	//  0              //  time step == 0 (time steps always start at 0)
+	//  1              //  1-component field (scalar) (only 1,3,9 are valid)
+	//  6              //  6 values follow:
+	//  1 0.0          //  value associated with node 1 == 0.0
+	//  2 0.1          //  ...
+	//  3 0.2
+	//  4 0.0
+	//  5 0.2
+	//  6 0.4
+	//  $EndNodeData
+	
+	//  $ElementNodeData
+	//  number-of-string-tags
+	//  < "string-tag" >
+	//  ...
+	//  number-of-real-tags
+	//  < real-tag >
+	//  ...
+	//  number-of-integer-tags
+	//  < integer-tag >
+	//  ...
+	//  elm-number number-of-nodes-per-element value ...
+	//  ...
+	//  $ElementEndNodeData
+	
+	// set precision for Real
+	Uint prec = file.precision();
+	file.precision(8);
+	
+	BOOST_FOREACH(CField& nodebased_field, filtered_range_typed<CField>(*m_mesh,IsFieldNodeBased()))
+	{
+		std::string field_name = nodebased_field.field_name();
+		Uint nb_elements = nodebased_field.support().recursive_elements_count();
+		
+		
+		// data_header
+		Uint row_idx=0;
+		for (Uint iVar=0; iVar<nodebased_field.nb_vars(); ++iVar)
+		{
+			CField::VarType var_type = nodebased_field.var_type(iVar);
+			std::string var_name = nodebased_field.var_name(iVar);
+			
+			Uint datasize(var_type);
+			switch (var_type)
+			{
+				case CField::VECTOR_2D:
+					datasize=Uint(CField::VECTOR_3D);
+					break;						
+				case CField::TENSOR_2D:
+					datasize=Uint(CField::TENSOR_3D);
+					break;
+				default:
+					break;
+			}
+			RealVector data(0.0, datasize); 
+			
+			std::set<std::string> field_data_paths;
+			BOOST_FOREACH(CFieldElements& field_elements, recursive_range_typed<CFieldElements>(nodebased_field))
+			{
+				field_data_paths.insert(field_elements.data().full_path().string());
+			}
+			
+			Uint nb_nodes=0;
+			BOOST_FOREACH(const CPath& field_data_path, field_data_paths)
+			{
+				const CArray& field_data = *m_mesh->look_component_type<CArray>(field_data_path);
+				
+				nb_nodes += field_data.size();
+			}
+			
+			file << "$NodeData\n";
+			file << 1 << "\n";
+			file << "\"" << (var_name == "var" ? field_name+to_str(iVar) : var_name) << "\"\n";
+			file << 1 << "\n" << 0.0 << "\n";
+			file << 3 << "\n" << 0 << "\n" << datasize << "\n" << nb_nodes <<"\n";
+			
+			
+			
+			Uint local_node_idx=1;   // +1 for gmsh base starting at 1
+			BOOST_FOREACH(const CPath& field_data_path, field_data_paths)
+			{
+				const CArray& field_data = *m_mesh->look_component_type<CArray>(field_data_path);
+
+				BOOST_FOREACH(CArray::ConstRow field_per_node, field_data.array())
+				{
+					file << local_node_idx++ << " "; 
+
+					if (var_type==CField::TENSOR_2D)
+					{
+						data[0]=field_per_node[row_idx+0];
+						data[1]=field_per_node[row_idx+1];
+						data[3]=field_per_node[row_idx+2];
+						data[4]=field_per_node[row_idx+3];
+						for (Uint idx=0; idx<datasize; ++idx)
+							file << " " << data[idx];
+					}
+					else
+					{
+						for (Uint idx=row_idx; idx<row_idx+Uint(var_type); ++idx)
+							file << " " << field_per_node[idx];
+						if (var_type == CField::VECTOR_2D)
+							file << " " << 0.0;
+					}
+					file << "\n";
+				}
+			}
+			file << "$EndNodeData\n";
+			row_idx += Uint(var_type);
+		}			
+	}
+	// restore precision
+	file.precision(prec);
+}
+	
 //////////////////////////////////////////////////////////////////////
 
 void CWriter::write_element_data(std::fstream& file)

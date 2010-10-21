@@ -123,10 +123,10 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   // create regions
   CRegion& superRegion = p_mesh->create_region("superRegion");
   CArray& coordinates = superRegion.create_coordinates(dim);
-  //CElements& quadRegion = superRegion.create_elements("Quad2DLagrangeP1",coordinates);
+  CElements& quadRegion = superRegion.create_elements("Quad2DLagrangeP1",coordinates);
   CElements& triagRegion = superRegion.create_elements("Triag2DLagrangeP1",coordinates);
 
-  //CTable::Buffer qTableBuffer = quadRegion.connectivity_table().create_buffer();
+  CTable::Buffer qTableBuffer = quadRegion.connectivity_table().create_buffer();
   CTable::Buffer tTableBuffer = triagRegion.connectivity_table().create_buffer();
   CArray::Buffer coordinatesBuffer = coordinates.create_buffer();
 
@@ -157,8 +157,8 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
 
 
   // fill connectivity in the buffer
-  //qTableBuffer.add_row(create_quad( 0 , 1 , 2 , 3 ));
-  //qTableBuffer.add_row(create_quad( 3 , 2 , 4 , 5 ));
+  qTableBuffer.add_row(create_quad( 0 , 1 , 2 , 3 ));
+  qTableBuffer.add_row(create_quad( 3 , 2 , 4 , 5 ));
 
   tTableBuffer.add_row(create_triag( 1 , 8 , 2 ));
   tTableBuffer.add_row(create_triag( 8 , 7 , 2 ));
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   // flush buffers into the table.
   // This causes the table and array to be resized and filled.
   coordinatesBuffer.flush();
-  //qTableBuffer.flush();
+  qTableBuffer.flush();
   tTableBuffer.flush();
 
   // check if coordinates match
@@ -241,10 +241,10 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
   // create regions
   CRegion& superRegion = p_mesh->create_region("superRegion");
   CArray& coordinates = superRegion.create_coordinates(dim);
-//  CElements& quadRegion = superRegion.create_elements("Quad2DLagrangeP2",coordinates);
+  CElements& quadRegion = superRegion.create_elements("Quad2DLagrangeP2",coordinates);
   CElements& triagRegion = superRegion.create_elements("Triag2DLagrangeP2",coordinates);
 	
-//  CTable::Buffer qTableBuffer = quadRegion.connectivity_table().create_buffer();
+  CTable::Buffer qTableBuffer = quadRegion.connectivity_table().create_buffer();
   CTable::Buffer tTableBuffer = triagRegion.connectivity_table().create_buffer();
   CArray::Buffer coordinatesBuffer = coordinates.create_buffer();
 	
@@ -304,8 +304,8 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
 	// enrich
 	
   // fill connectivity in the buffer
-//  qTableBuffer.add_row(create_quad_p2( 0 , 1 , 2 , 3 , 9 , 10, 11, 12, 13 ));
-//  qTableBuffer.add_row(create_quad_p2( 3 , 2 , 4 , 5 , 11, 14, 15, 16, 17 ));
+  qTableBuffer.add_row(create_quad_p2( 0 , 1 , 2 , 3 , 9 , 10, 11, 12, 13 ));
+  qTableBuffer.add_row(create_quad_p2( 3 , 2 , 4 , 5 , 11, 14, 15, 16, 17 ));
 	
   tTableBuffer.add_row(create_triag_p2( 1 , 8 , 2 , 18 , 19 , 10 ));
   tTableBuffer.add_row(create_triag_p2( 8 , 7 , 2 , 20 , 21 , 19 ));
@@ -315,7 +315,7 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
   // flush buffers into the table.
   // This causes the table and array to be resized and filled.
   coordinatesBuffer.flush();
-//  qTableBuffer.flush();
+  qTableBuffer.flush();
   tTableBuffer.flush();
 	
   // check if coordinates match
@@ -359,6 +359,8 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
 	//    }
 	//    CFinfo << "\n" << CFflush;
 	//  }
+	
+	CFinfo << p_mesh->tree() << CFendl;
 	
 	CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
 	boost::filesystem::path fp_out("p2-mesh.msh");

@@ -69,7 +69,9 @@ private: // functions
 
   void write_connectivity(std::fstream& file);
 
-  void write_nodal_data(std::fstream& file);
+	void write_nodal_data(std::fstream& file);
+
+  void write_elem_nodal_data(std::fstream& file);
 
   void write_element_data(std::fstream& file);
 
