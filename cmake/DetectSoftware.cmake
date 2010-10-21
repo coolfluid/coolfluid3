@@ -33,11 +33,14 @@ find_package(CGAL)            # CGAL library
 find_package(PythonInterp)    # Python interpreter
 find_package(Realtime)        # POSIX Realtime library
 find_package(OpenCL)          # opencl support
-find_package(CUDA)            # cuda support
 
 # using cmake find macros
 
-find_package(ZLIB)          # file compression support
+find_package(CUDA)            # cuda support
+
+coolfluid_log( "CUDA_FOUND: [${CUDA_FOUND}]" )
+
+find_package(ZLIB)            # file compression support
 
 coolfluid_log( "ZLIB_FOUND: [${ZLIB_FOUND}]" )
 if( ZLIB_FOUND )

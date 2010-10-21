@@ -45,7 +45,7 @@ macro( coolfluid_add_application APPNAME )
     source_group( Headers FILES ${${APPNAME}_headers} )
     source_group( Sources FILES ${${APPNAME}_sources} )
 
-    coolfluid_log( " +++ APP [${APPNAME}]" )
+    coolfluid_log( " +++ APP   [${APPNAME}]" )
 
     add_executable( ${APPNAME} ${${APPNAME}_sources} ${${APPNAME}_headers} ${${APPNAME}_moc_files} ${${APPNAME}_RCC})
 

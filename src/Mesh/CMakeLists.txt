@@ -92,9 +92,6 @@ add_subdirectory( Gmsh )          # Gmsh file IO
 add_subdirectory( BlockMesh )     # Structured mesh generation
 add_subdirectory( CGNS )          # CGNS file IO
 
-add_subdirectory( CGAL )          # CGAL mesh generator
-
-
 # Must be after all the other subdirectories
 add_subdirectory( uTests )        # unit tests for Mesh
 

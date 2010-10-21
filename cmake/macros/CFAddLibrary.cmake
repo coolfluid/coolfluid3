@@ -77,7 +77,7 @@ macro( coolfluid_add_library LIBNAME )
       INCLUDE_DIRECTORIES(${${LIBNAME}_includedirs})
     endif()
 
-    coolfluid_log( " +++ LIB [${LIBNAME}]" )
+    coolfluid_log( " +++ LIB   [${LIBNAME}]" )
 
     ADD_LIBRARY(${LIBNAME} ${${LIBNAME}_buildtype} ${${LIBNAME}_sources} ${${LIBNAME}_headers}  ${${LIBNAME}_moc_files} ${${LIBNAME}_RCC})
 

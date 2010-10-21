@@ -64,7 +64,7 @@ macro( coolfluid_prepare_unittest UTESTNAME )
       INCLUDE_DIRECTORIES(${${UTESTNAME}_includedirs})
     endif()
 
-    coolfluid_log( " +++ TEST [${UTESTNAME}]" )
+    coolfluid_log( " +++ UTEST [${UTESTNAME}]" )
 
     if( DEFINED ${UTESTNAME}_moc_files )
       add_executable( ${UTESTNAME} ${${UTESTNAME}_sources} ${${UTESTNAME}_headers}  ${${UTESTNAME}_moc_files})
