@@ -59,13 +59,13 @@ namespace ClientUI {
 
     GraphicalValue(QWidget * parent = 0);
 
-    bool m_committing;
-
     QWidget * m_parent;
 
     QVariant m_originalValue;
 
     QHBoxLayout * m_layout;
+
+    bool m_committing;
 
   private:
 
