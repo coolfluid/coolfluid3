@@ -11,6 +11,8 @@ list( APPEND coolfluid_sf_files
   Line3DLagrangeP1.hpp
   Quad2DLagrangeP1.cpp
   Quad2DLagrangeP1.hpp
+  Quad2DLagrangeP2.cpp
+  Quad2DLagrangeP2.hpp
   Quad3DLagrangeP1.cpp
   Quad3DLagrangeP1.hpp
   Tetra3DLagrangeP1.cpp
