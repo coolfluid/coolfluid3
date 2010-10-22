@@ -12,6 +12,7 @@
 #include <windows.h> // for CaptureStackBacktrace
 #include <dbghelp.h> // for stack trace
 #include <psapi.h>   // for memory usage
+#include <sstream>
 
 // The arraysize(arr) macro returns the # of elements in an array arr.
 // The expression is a compile-time constant, and therefore can be

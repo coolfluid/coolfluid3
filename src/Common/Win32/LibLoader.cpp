@@ -48,7 +48,7 @@ void LibLoader::load_library(const std::string& lib)
   std::string libname = lib + ".dll";
 
   // attempt to load a module
-  HINSTANCE hdl = CFNULL;
+  HINSTANCE hdl = nullptr;
   std::vector<path>::const_iterator itr = m_search_paths.begin();
   for (; itr != m_search_paths.end() ; ++itr)
   {
@@ -58,17 +58,17 @@ void LibLoader::load_library(const std::string& lib)
 
   // try to load the library
     hdl = LoadLibrary(TEXT(libname.c_str()));
-    if( hdl != CFNULL ) break;
+    if( hdl != nullptr ) break;
     CFLog ( VERBOSE, "didnt find '" <<  lib << "' in dir '" <<  (*itr).string() << "'\n" );
   }
 
   // searhc in the global path
   hdl = LoadLibrary(TEXT(libname.c_str()));
-  if( hdl == CFNULL )
+  if( hdl == nullptr )
   {
     char * pPath;
     pPath = getenv ("PATH");
-    if (pPath != CFNULL)
+    if (pPath != nullptr)
       CFLog ( VERBOSE, "didnt find '" <<  lib << "' in global path variable PATH='" << pPath << "'\n" );
   }
 
