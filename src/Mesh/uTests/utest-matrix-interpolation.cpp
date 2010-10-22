@@ -13,7 +13,7 @@
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
 
-#include "Math/RealVector.hpp"
+#include "Math/MatrixTypes.hpp"
 #include "Mesh/SF/Triag2DLagrangeP1.hpp"
 
 #include "Tools/Testing/Difference.hpp"
@@ -35,9 +35,9 @@ struct MatrixInterpolationFixture
 
     const static Uint NDOF = ShapeFunc::nb_nodes;
     const static Uint nbQdPts = 4;
-    const static RealVector xi_q;
-    const static RealVector eta_q;
-    const static RealVector w;
+    const static RealVector4 xi_q;
+    const static RealVector4 eta_q;
+    const static RealVector4 w;
 
   /// common setup for each test case
     MatrixInterpolationFixture()
@@ -54,11 +54,11 @@ struct MatrixInterpolationFixture
         dVdeta->initialize(NDOF);
         dVdeta->resize(nbQdPts);
 
-        RealVector ref_coord(DIM_2D);
-        RealVector values(NDOF);
-        RealMatrix gradients(DIM_2D,NDOF);
-        RealVector dSFdxi(NDOF);
-        RealVector dSFdeta(NDOF);
+        ShapeFunc::CoordsT ref_coord;
+        ShapeFunc::ShapeFunctionsT values;
+        ShapeFunc::MappedGradientT gradients;
+        ShapeFunc::ShapeFunctionsT dSFdxi;
+        ShapeFunc::ShapeFunctionsT dSFdeta;
 
 
         // Loop over quadrature points and set the elements of 
@@ -126,9 +126,9 @@ struct MatrixInterpolationFixture
 
 
 /// Integration for P1 triangle, 4 quadrature points:
-const RealVector MatrixInterpolationFixture::xi_q   = boost::assign::list_of(1.0/3.0)(0.2)(0.6)(0.2);
-const RealVector MatrixInterpolationFixture::eta_q  = boost::assign::list_of(1.0/3.0)(0.2)(0.2)(0.6);
-const RealVector MatrixInterpolationFixture::w      = boost::assign::list_of(-27.0/96.0)(25.0/96.0)(25.0/96.0)(25.0/96.0);
+const RealVector4 MatrixInterpolationFixture::xi_q(1.0/3.0, 0.2, 0.6, 0.2);
+const RealVector4 MatrixInterpolationFixture::eta_q(1.0/3.0, 0.2, 0.2, 0.6);
+const RealVector4 MatrixInterpolationFixture::w(-27.0/96.0, 25.0/96.0, 25.0/96.0, 25.0/96.0);
 
 //////////////////////////////////////////////////////////////////////////////
 

@@ -17,9 +17,9 @@
 #include "Common/BasicExceptions.hpp"
 #include "Common/ConcreteProvider.hpp"
 
-#include "Math/RealVector.hpp"
+#include "Math/MatrixTypes.hpp"
 
-#include "Mesh/ElementNodes.hpp"
+#include "Mesh/ElementData.hpp"
 #include "Mesh/GeoShape.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -41,8 +41,9 @@ public: // functions
 
   typedef Common::ConcreteProvider < ElementType > PROVIDER;
   
-  /// Type used to pass node coordinates of an element
-  typedef ElementNodes NodesT;
+  /// Type used to pass node coordinates of an element.
+  /// Each row of the matrix represents the coordinates of a node
+  typedef RealMatrix NodesT;
 
   /// Stores connectivity information about the faces that form the cell boundary
   struct FaceConnectivity
@@ -116,13 +117,10 @@ public: // functions
   /// Return the face type for the given face
   virtual const ElementType& face_type(const Uint face) const = 0;
 
-	/// @return if the coordinate is in the element with given nodes
-	/// @param [in] coord  the coordinates that will be checked
-	/// @param [in] nodes  the nodes of the element
-	virtual bool is_coord_in_element(const RealVector& coord, const NodesT& nodes) const = 0;
-  
-  /// Virtual version of jacobian_determinant. Default implementation throws NotImplemented
-  virtual Real jacobian_determinantV(const RealVector& mapped_coord, const NodesT& nodes) const;
+  /// @return if the coordinate is in the element with given nodes
+  /// @param [in] coord  the coordinates that will be checked
+  /// @param [in] nodes  the nodes of the element
+  virtual bool is_coord_in_element(const RealVector& coord, const NodesT& nodes) const = 0;
 
 protected: // data
 
@@ -164,9 +162,9 @@ struct IsElementType
 
 /// Evaluate a shape function
 template<typename ShapeFunctionT, typename NodeValuesT, typename ResultT>
-void eval(const RealVector& mapped_coord, const NodeValuesT& values, ResultT& result)
+void eval(const typename ShapeFunctionT::MappedCoordsT& mapped_coord, const NodeValuesT& values, ResultT& result)
 {
-  RealVector sf(ShapeFunctionT::nb_nodes);
+  typename ShapeFunctionT::ShapeFunctionsT sf;
   ShapeFunctionT::shape_function(mapped_coord, sf);
   
   // Make sure result is zero

@@ -160,18 +160,19 @@ void CSchemeLDAT<SHAPEFUNC>::execute()
   // inside element with index m_idx
 
   const CTable::ConstRow node_idx = data->connectivity_table[m_idx];
-  ConstElementNodeView nodes (data->coordinates, data->connectivity_table[m_idx]);
+  typename SHAPEFUNC::NodeMatrixT nodes;
+  fill(nodes, data->coordinates, data->connectivity_table[m_idx]);
 
-  RealMatrix mapped_grad(DIM_2D,SHAPEFUNC::nb_nodes); //Gradient of the shape functions in reference space
-  RealVector shapefunc(SHAPEFUNC::nb_nodes);     //Values of shape functions in reference space
-  RealVector grad_solution(DIM_2D);
-  RealVector grad_x(DIM_2D);
-  RealVector grad_y(DIM_2D);
+  typename SHAPEFUNC::MappedGradientT mapped_grad; //Gradient of the shape functions in reference space
+  typename SHAPEFUNC::ShapeFunctionsT shapefunc;     //Values of shape functions in reference space
+  typename SHAPEFUNC::CoordsT grad_solution;
+  typename SHAPEFUNC::CoordsT grad_x(DIM_2D);
+  typename SHAPEFUNC::CoordsT grad_y(DIM_2D);
   Real denominator;
   RealVector nominator(SHAPEFUNC::nb_nodes);
   RealVector phi(SHAPEFUNC::nb_nodes);
 
-  phi = 0.;
+  phi.setZero();
 
   for (Uint q=0; q<nb_q; ++q) //Loop over quadrature points
   {
@@ -183,27 +184,27 @@ void CSchemeLDAT<SHAPEFUNC>::execute()
 
     for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
     {
-      x += shapefunc[n] * nodes[n][XX];
-      y += shapefunc[n] * nodes[n][YY];
+      x += shapefunc[n] * nodes(n, XX);
+      y += shapefunc[n] * nodes(n, YY);
     }
 
-    grad_x = 0;
-    grad_y = 0;
+    grad_x.setZero();
+    grad_y.setZero();
 
     // Compute the components of the Jacobian matrix representing the transformation
     // physical -> reference space
     for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
     {
-      grad_x[XX] += mapped_grad(XX,n) * nodes[n][XX];
-      grad_x[YY] += mapped_grad(YY,n) * nodes[n][XX];
-      grad_y[XX] += mapped_grad(XX,n) * nodes[n][YY];
-      grad_y[YY] += mapped_grad(YY,n) * nodes[n][YY];
+      grad_x[XX] += mapped_grad(XX,n) * nodes(n, XX);
+      grad_x[YY] += mapped_grad(YY,n) * nodes(n, XX);
+      grad_y[XX] += mapped_grad(XX,n) * nodes(n, YY);
+      grad_y[YY] += mapped_grad(YY,n) * nodes(n, YY);
     }
 
     const Real jacobian = grad_x[XX]*grad_y[YY]-grad_x[YY]*grad_y[XX];
 
     //Compute the gradient of the solution in physical space
-    grad_solution = 0;
+    grad_solution.setZero();
     denominator = 0;
 
     for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
@@ -238,8 +239,8 @@ void CSchemeLDAT<SHAPEFUNC>::execute()
   RealVector centroid(0.0, SHAPEFUNC::Support::dimension );
   for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
   {
-    centroid[XX] += nodes[n][XX];
-    centroid[YY] += nodes[n][YY];
+    centroid[XX] += nodes(n, XX);
+    centroid[YY] += nodes(n, YY);
   }
   centroid /= SHAPEFUNC::nb_nodes;
 
@@ -269,18 +270,18 @@ void CSchemeLDAT<SHAPEFUNC>::execute()
 
   // compute a bounding box of the element:
 
-  Real xmin = nodes[0][XX];
-  Real xmax = nodes[0][XX];
-  Real ymin = nodes[0][YY];
-  Real ymax = nodes[0][YY];
+  Real xmin = nodes(0, XX);
+  Real xmax = nodes(0, XX);
+  Real ymin = nodes(0, YY);
+  Real ymax = nodes(0, YY);
 
   for(Uint inode = 1; inode < SHAPEFUNC::nb_nodes; ++inode)
   {
-    xmin = std::min(xmin,nodes[inode][XX]);
-    xmax = std::max(xmax,nodes[inode][XX]);
+    xmin = std::min(xmin,nodes(inode, XX));
+    xmax = std::max(xmax,nodes(inode, XX));
 
-    ymin = std::min(ymin,nodes[inode][YY]);
-    ymax = std::max(ymax,nodes[inode][YY]);
+    ymin = std::min(ymin,nodes(inode, YY));
+    ymax = std::max(ymax,nodes(inode, YY));
 
   }
 

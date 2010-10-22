@@ -20,7 +20,6 @@
 #include "Mesh/CArray.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
-#include "Mesh/ElementNodes.hpp"
 #include "Mesh/ElementData.hpp"
 
 #include "Mesh/Integrators/Gauss.hpp"
@@ -77,90 +76,43 @@ BOOST_FIXTURE_TEST_SUITE( Nodes, Nodes_Fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// Test node modification
-/*BOOST_AUTO_TEST_CASE( writeNodes )
-{
-  CElements& firstRegion = get_first_region();
-  ElementNodeView nodes(firstRegion.coordinates(), firstRegion.connectivity_table().array()[0]);
-  nodes[0][0] = 1.;
-  const ConstElementNodeView const_nodes(firstRegion.coordinates(), firstRegion.connectivity_table().array()[0]);
-  BOOST_CHECK_EQUAL(nodes[0][0], const_nodes[0][0]);
-}*/
-
-BOOST_AUTO_TEST_CASE( FillNodeList )
+BOOST_AUTO_TEST_CASE( FillVector )
 {
   const CElements& firstRegion = get_first_region();
   const CArray& coords = firstRegion.coordinates();
   const CTable& conn = firstRegion.connectivity_table();
   const Uint element_count = conn.size();
-  ElementNodeVector node_vector;
+  std::vector<RealVector> node_vector(conn.row_size(), RealVector(coords.row_size()));
   for(Uint element = 0; element != element_count; ++element)
   {
-    fill_node_list(node_vector, coords, conn[element]);
-    const ConstElementNodeView node_view(coords, conn[element]);
-   for(Uint node_idx = 0; node_idx != conn.row_size(); ++node_idx)
-   {
-     for(Uint xyz = 0; xyz != coords.row_size(); ++xyz)
-     {
-       BOOST_CHECK_EQUAL(node_vector[node_idx][xyz], node_view[node_idx][xyz]);
-     }
-   }
-  }
-}
-
-BOOST_AUTO_TEST_CASE( ElementNodeTest )
-{
-  const CElements& firstRegion = get_first_region();
-  const CArray& coords = firstRegion.coordinates();
-  const CTable& conn = firstRegion.connectivity_table();
-  const Uint element_count = conn.size();
-  ElementNodes nodes(4, 2);
-  for(Uint element = 0; element != element_count; ++element)
-  {
-    nodes.fill(coords, conn[element]);
-    const ConstElementNodeView node_view(coords, conn[element]);
+    fill(node_vector, coords, conn[element]); 
     for(Uint node_idx = 0; node_idx != conn.row_size(); ++node_idx)
     {
       for(Uint xyz = 0; xyz != coords.row_size(); ++xyz)
       {
-        BOOST_CHECK_EQUAL(nodes[node_idx][xyz], node_view[node_idx][xyz]);
+        BOOST_CHECK_EQUAL(node_vector[node_idx][xyz], coords[conn[element][node_idx]][xyz]);
       }
     }
-    CFinfo << "nodes before mod: " << nodes << CFendl;
-    RealVector& node0 = nodes[0];
-    BOOST_CHECK(!node0.isOwner());
-    node0[XX] = 13;
-    node0[YY] = 14;
-    BOOST_CHECK_EQUAL(nodes[0][XX], 13);
-    BOOST_CHECK_EQUAL(nodes[0][YY], 14);
-    CFinfo << "nodes after mod: " << nodes << CFendl;
   }
 }
 
-BOOST_AUTO_TEST_CASE( ElementNodeValuesTest )
+BOOST_AUTO_TEST_CASE( FillMatrix )
 {
   const CElements& firstRegion = get_first_region();
   const CArray& coords = firstRegion.coordinates();
   const CTable& conn = firstRegion.connectivity_table();
   const Uint element_count = conn.size();
-  ElementNodeValues<4, 2> nodes;
+  RealMatrix node_matrix(conn.row_size(), coords.row_size());
   for(Uint element = 0; element != element_count; ++element)
   {
-    nodes.fill(coords, conn[element]);
-    const ConstElementNodeView node_view(coords, conn[element]);
+    fill(node_matrix, coords, conn[element]); 
     for(Uint node_idx = 0; node_idx != conn.row_size(); ++node_idx)
     {
       for(Uint xyz = 0; xyz != coords.row_size(); ++xyz)
       {
-        BOOST_CHECK_EQUAL(nodes[node_idx][xyz], node_view[node_idx][xyz]);
+        BOOST_CHECK_EQUAL(node_matrix(node_idx, xyz), coords[conn[element][node_idx]][xyz]);
       }
     }
-    RealVector& node0 = nodes[0];
-    BOOST_CHECK(!node0.isOwner());
-    node0[XX] = 13;
-    node0[YY] = 14;
-    BOOST_CHECK_EQUAL(nodes[0][XX], 13);
-    BOOST_CHECK_EQUAL(nodes[0][YY], 14);
   }
 }
 

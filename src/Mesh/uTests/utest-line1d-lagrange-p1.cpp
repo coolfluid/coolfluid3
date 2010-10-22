@@ -28,11 +28,13 @@ using namespace CF::Tools::Testing;
 
 //////////////////////////////////////////////////////////////////////////////
 
+typedef Line1DLagrangeP1 SFT;
+
 struct LagrangeSFLine1DLagrangeP1Fixture
 {
-  typedef std::vector<RealVector> NodesT;
+  typedef SFT::NodeMatrixT NodesT;
   /// common setup for each test case
-  LagrangeSFLine1DLagrangeP1Fixture() : mapped_coords(init_mapped_coords()), nodes(init_nodes())
+  LagrangeSFLine1DLagrangeP1Fixture() : mapped_coords((SFT::MappedCoordsT() << .2).finished()), nodes(5., 10.)
   {
   }
 
@@ -42,36 +44,21 @@ struct LagrangeSFLine1DLagrangeP1Fixture
   }
   /// common values accessed by all tests goes here
 
-  const CF::RealVector mapped_coords;
+  const SFT::MappedCoordsT mapped_coords;
   const NodesT nodes;
 
   struct ConstFunctor
   {
-    ConstFunctor(const NodesT& node_list) : mapped_coords(3), m_nodes(node_list) {}
+    ConstFunctor(const NodesT& node_list) : m_nodes(node_list) {}
 
     Real operator()() const
     {
       return Line1DLagrangeP1::jacobian_determinant(mapped_coords, m_nodes);
     }
-    RealVector mapped_coords;
+    SFT::CoordsT mapped_coords;
   private:
     const NodesT& m_nodes;
   };
-
-private:
-  /// Workaround for boost:assign ambiguity
-  CF::RealVector init_mapped_coords()
-  {
-    return list_of(0.2);
-  }
-
-  /// Workaround for boost:assign ambiguity
-  NodesT init_nodes()
-  {
-    const CF::RealVector c0 = list_of(5.);
-    const CF::RealVector c1 = list_of(10.);
-    return list_of(c0)(c1);
-  }
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -82,17 +69,15 @@ BOOST_FIXTURE_TEST_SUITE( Line1DLagrangeP1Suite, LagrangeSFLine1DLagrangeP1Fixtu
 
 BOOST_AUTO_TEST_CASE( Volume )
 {
-  ElementType::NodesT nodes_line1D(2, 1);
-  nodes_line1D[0][XX] = 2.0;
-  nodes_line1D[1][XX] = 1.0;
+  NodesT nodes_line1D(2.0, 1.0);
   Line1DLagrangeP1 line;
   BOOST_CHECK_EQUAL(line.computeVolume(nodes_line1D),1.);
 }
 
 BOOST_AUTO_TEST_CASE( ShapeFunction )
 {
-  const CF::RealVector reference_result = list_of(0.4)(0.6);
-  CF::RealVector result(Line1DLagrangeP1::nb_nodes);
+  const SFT::ShapeFunctionsT reference_result(0.4, 0.6);
+  SFT::ShapeFunctionsT result;
   Line1DLagrangeP1::shape_function(mapped_coords, result);
   Accumulator accumulator;
   vector_test(result, reference_result, accumulator);
@@ -101,8 +86,9 @@ BOOST_AUTO_TEST_CASE( ShapeFunction )
 
 BOOST_AUTO_TEST_CASE( MappedCoordinates )
 {
-  const CF::RealVector test_coords = list_of(6.);
-  CF::RealVector result(Line1DLagrangeP1::dimension);
+  SFT::CoordsT test_coords;
+  test_coords << 6.;
+  SFT::MappedCoordsT result;
   Line1DLagrangeP1::mapped_coordinates(test_coords, nodes, result);
   Accumulator acc = test(result[0], -0.6);
   BOOST_CHECK_LT(boost::accumulators::max(acc.ulps), 5);
@@ -110,8 +96,8 @@ BOOST_AUTO_TEST_CASE( MappedCoordinates )
 
 BOOST_AUTO_TEST_CASE( MappedGradient )
 {
-  CF::RealMatrix result(Line1DLagrangeP1::dimension, Line1DLagrangeP1::nb_nodes);
-  CF::RealMatrix expected(Line1DLagrangeP1::dimension, Line1DLagrangeP1::nb_nodes);
+  SFT::MappedGradientT result;
+  SFT::MappedGradientT expected;
   expected(0,0) = -0.5;
   expected(0,1) = 0.5;
   Line1DLagrangeP1::mapped_gradient(mapped_coords, result);
@@ -127,9 +113,9 @@ BOOST_AUTO_TEST_CASE( JacobianDeterminant )
 
 BOOST_AUTO_TEST_CASE( Jacobian )
 {
-  CF::RealMatrix expected(Line1DLagrangeP1::dimension, Line1DLagrangeP1::dimension);
-  expected(0,0) = 2.5;
-  CF::RealMatrix result(Line1DLagrangeP1::dimension, Line1DLagrangeP1::dimension);
+  SFT::JacobianT expected;
+  expected << 2.5;
+  SFT::JacobianT result;
   Line1DLagrangeP1::jacobian(mapped_coords, nodes, result);
   Accumulator accumulator;
   vector_test(result, expected, accumulator);
@@ -138,9 +124,9 @@ BOOST_AUTO_TEST_CASE( Jacobian )
 
 BOOST_AUTO_TEST_CASE( JacobianAdjoint )
 {
-  CF::RealMatrix expected(Line1DLagrangeP1::dimension, Line1DLagrangeP1::dimension);
-  expected(0,0) = 1.;
-  CF::RealMatrix result(Line1DLagrangeP1::dimension, Line1DLagrangeP1::dimension);
+  SFT::JacobianT expected;
+  expected << 1.;
+  SFT::JacobianT result;
   Line1DLagrangeP1::jacobian_adjoint(mapped_coords, nodes, result);
   Accumulator accumulator;
   vector_test(result, expected, accumulator);

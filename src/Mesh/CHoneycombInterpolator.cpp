@@ -22,7 +22,7 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/ElementType.hpp"
-#include "Mesh/ElementNodes.hpp"
+#include "Mesh/ElementData.hpp"
 #include "Mesh/CFieldElements.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -91,7 +91,8 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 			CElements::ConstPtr s_geom_elements;
 			Uint s_elm_idx;
 			Uint t_coords_dim = t_coords.row_size();
-			RealVector t_node(0.,m_dim);
+			RealVector t_node(m_dim);
+      t_node.setZero();
 			
 			for (Uint t_node_idx=0; t_node_idx<t_data.size(); ++t_node_idx)
 			{
@@ -110,8 +111,8 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 					CTable::ConstRow s_elm = s_field_elements.connectivity_table()[s_elm_idx];
 					
 					// get the coordinates of the nodes of the source element
-					std::vector<RealVector> s_nodes;
-					fill_node_list( s_nodes , s_field_elements.coordinates() , s_elm );
+					std::vector<RealVector> s_nodes(s_elm.size(), RealVector(s_field_elements.coordinates().row_size()));
+					fill( s_nodes , s_field_elements.coordinates() , s_elm );
 					
 					// get the source data
 					const CArray& s_data = s_field_elements.data();
@@ -143,7 +144,8 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 			
 			// Allocations
 			Uint t_coords_dim = t_coords.row_size();
-			RealVector t_node(0.,m_dim);
+			RealVector t_node(m_dim);
+      t_node.setZero();
 			
 			for (Uint t_node_idx=0; t_node_idx<t_data.size(); ++t_node_idx)
 			{
@@ -156,7 +158,8 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 					find_pointcloud(m_sufficient_nb_points);
 					std::vector<RealVector> s_centroids;
 					std::vector<boost::tuple<CArray::ConstPtr,Uint> > s_data;
-					RealVector s_centroid(0.0,m_dim);
+					RealVector s_centroid(m_dim);
+          s_centroid.setZero();
 					BOOST_FOREACH(const Point* point, m_pointcloud)
 					{
 						const ElementType& etype = point->first->element_type();
@@ -164,12 +167,12 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 						const CTable& connectivity_table = point->first->connectivity_table();
 						const CArray& coordinates_table  = point->first->coordinates();
 						CTable::ConstRow element = connectivity_table[point->second];
-						std::vector<RealVector> s_nodes;
-						fill_node_list( s_nodes , coordinates_table , element );
-						s_centroid = 0.0;
+						std::vector<RealVector> s_nodes(element.size(), RealVector(coordinates_table.row_size()));
+						fill( s_nodes , coordinates_table , element );
+						s_centroid.setZero();
 						BOOST_FOREACH(RealVector& s_node, s_nodes)
 						{
-							for (Uint d=0; d<s_node.size(); ++d)
+							for (int d=0; d<s_node.size(); ++d)
 								s_centroid[d] += s_node[d]/nb_nodes_per_element;
 						}
 						s_centroids.push_back(s_centroid);
@@ -194,7 +197,8 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 	{
 		BOOST_FOREACH(CFieldElements& t_elems, recursive_range_typed<CFieldElements>(target))
 		{
-			RealVector t_centroid(0.,m_dim);
+			RealVector t_centroid(m_dim);
+      t_centroid.setZero();
 			CTable& connectivity_table = t_elems.connectivity_table();
 			CArray& coordinates = t_elems.coordinates();
 			CArray& t_data = t_elems.data();
@@ -207,13 +211,13 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 				// Find the coordinates of the target element centroid
 				CTable::ConstRow t_elm = connectivity_table[t_elm_idx];
 				
-				std::vector<RealVector> t_nodes;
-				fill_node_list( t_nodes , coordinates , t_elm );
+				std::vector<RealVector> t_nodes(t_elm.size(), RealVector(coordinates.row_size()));
+				fill( t_nodes , coordinates , t_elm );
 				
-				t_centroid = 0.0;
+				t_centroid.setZero();
 				BOOST_FOREACH(RealVector& t_node, t_nodes)
 				{
-					for (Uint d=0; d<t_node.size(); ++d)
+					for (int d=0; d<t_node.size(); ++d)
 						t_centroid[d] += t_node[d]/nb_nodes_per_element;
 				}				
 				
@@ -228,8 +232,8 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 					CTable::ConstRow s_elm = s_field_elements.connectivity_table()[s_elm_idx];
 					
 					// get the coordinates of the nodes of the source element
-					std::vector<RealVector> s_nodes;
-					fill_node_list( s_nodes , s_field_elements.coordinates() , s_elm );
+					std::vector<RealVector> s_nodes(s_elm.size(), RealVector(s_field_elements.coordinates().row_size()));
+					fill( s_nodes , s_field_elements.coordinates() , s_elm );
 					
 					// get the source data
 					const CArray& s_data = s_field_elements.data();
@@ -252,7 +256,8 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 	{
 		BOOST_FOREACH(CFieldElements& t_elems, recursive_range_typed<CFieldElements>(target))
 		{
-			RealVector t_centroid(0.,m_dim);
+			RealVector t_centroid(m_dim);
+      t_centroid.setZero();
 			CTable& connectivity_table = t_elems.connectivity_table();
 			CArray& coordinates = t_elems.coordinates();
 			CArray& t_data = t_elems.data();
@@ -264,13 +269,13 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 				// Find the coordinates of the target element centroid
 				CTable::ConstRow t_elm = connectivity_table[t_elm_idx];
 				
-				std::vector<RealVector> t_nodes;
-				fill_node_list( t_nodes , coordinates , t_elm );
+				std::vector<RealVector> t_nodes(t_elm.size(), RealVector(coordinates.row_size()));
+				fill( t_nodes , coordinates , t_elm );
 				
-				t_centroid = 0.0;
+				t_centroid.setZero();
 				BOOST_FOREACH(RealVector& t_node, t_nodes)
 				{
-					for (Uint d=0; d<t_node.size(); ++d)
+					for (int d=0; d<t_node.size(); ++d)
 						t_centroid[d] += t_node[d]/nb_nodes_per_element;
 				}				
 				
@@ -279,7 +284,8 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 					find_pointcloud(m_sufficient_nb_points);
 					std::vector<RealVector> s_centroids;
 					std::vector<boost::tuple<CArray::ConstPtr,Uint> > s_data;
-					RealVector s_centroid(0.0,m_dim);
+					RealVector s_centroid(m_dim);
+          s_centroid.setZero();
 					BOOST_FOREACH(const Point* point, m_pointcloud)
 					{
 						const ElementType& etype = point->first->element_type();
@@ -287,12 +293,12 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 						const CTable& connectivity_table = point->first->connectivity_table();
 						const CArray& coordinates_table  = point->first->coordinates();
 						CTable::ConstRow element = connectivity_table[point->second];
-						std::vector<RealVector> s_nodes;
-						fill_node_list( s_nodes , coordinates_table , element );
-						s_centroid = 0.0;
+						std::vector<RealVector> s_nodes(element.size(), RealVector(coordinates_table.row_size()));
+						fill( s_nodes , coordinates_table , element );
+						s_centroid.setZero();
 						BOOST_FOREACH(RealVector& s_node, s_nodes)
 						{
-							for (Uint d=0; d<s_node.size(); ++d)
+							for (int d=0; d<s_node.size(); ++d)
 								s_centroid[d] += s_node[d]/nb_nodes_per_element;
 						}
 						s_centroids.push_back(s_centroid);
@@ -395,9 +401,9 @@ void CHoneycombInterpolator::create_honeycomb()
     Uint elem_idx=0;
     BOOST_FOREACH(const CTable::ConstRow& elem, elements.connectivity_table().array())
     {
-      RealVector centroid(0.0,m_dim);
+      RealVector centroid(m_dim);
       BOOST_FOREACH(const Uint node_idx, elem)
-        centroid += RealVector(coordinates[node_idx]);
+        centroid += to_vector(coordinates[node_idx]);
 
       centroid /= static_cast<Real>(nb_nodes_per_element);
       for (Uint d=0; d<m_dim; ++d)
@@ -447,7 +453,7 @@ void CHoneycombInterpolator::create_honeycomb()
 bool CHoneycombInterpolator::find_comb_idx(const RealVector& coordinate)
 {
   //CFinfo << "point " << coordinate << CFflush;
-  cf_assert(coordinate.size() == m_dim);
+  cf_assert(coordinate.size() == static_cast<int>(m_dim));
 
   for (Uint d=0; d<m_dim; ++d)
 	{
@@ -532,14 +538,14 @@ boost::tuple<CElements::ConstPtr,Uint> CHoneycombInterpolator::find_element(cons
 	{
 		find_pointcloud(1);
 		
-    ElementType::NodesT nodes;
 		BOOST_FOREACH(const Point* point, m_pointcloud)
 		{
 			const ElementType& etype = point->first->element_type();
 			const CTable& connectivity_table = point->first->connectivity_table();
 			const CArray& coordinates_table = point->first->coordinates();
 			CTable::ConstRow element = connectivity_table[point->second];
-			nodes.resize_and_fill(coordinates_table , element);
+      ElementType::NodesT nodes(etype.nb_nodes(), etype.dimension());
+			fill(nodes, coordinates_table , element);
 			if (etype.is_coord_in_element(target_coord,nodes))
 			{
 				//CFinfo << "found target in element" << point->first->full_path().string() << " [" << point->second << "]" <<CFendl;

@@ -22,8 +22,6 @@
 #include "Common/ComponentPredicates.hpp"
 #include "Common/CLink.hpp"
 
-#include "Math/RealVector.hpp"
-
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"

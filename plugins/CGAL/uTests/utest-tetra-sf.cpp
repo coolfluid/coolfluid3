@@ -20,7 +20,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CTable.hpp"
-#include "Mesh/ElementNodes.hpp"
+#include "Mesh/ElementData.hpp"
 #include "Mesh/CMeshWriter.hpp"
 
 #include "Mesh/SF/Tetra3DLagrangeP1.hpp"
@@ -90,8 +90,8 @@ struct LoopElems
     // loop on elements
     BOOST_FOREACH(const CTable::ConstRow& elem, conn_table)
     {
-      ElementNodeVector nodes;
-      fill_node_list( nodes, coords, elem );
+      typename EType::NodeMatrixT nodes;
+      fill(nodes, coords, elem );
       functor(nodes, T);
     }
   }

@@ -28,11 +28,23 @@ using namespace CF::Tools::Testing;
 
 //////////////////////////////////////////////////////////////////////////////
 
+typedef Tetra3DLagrangeP1 SFT;
+
 struct Tetra3DLagrangeP1Fixture
 {
-  typedef std::vector<RealVector> NodesT;
+  typedef SFT::NodeMatrixT NodesT;
   /// common setup for each test case
-  Tetra3DLagrangeP1Fixture() : mapped_coords(init_mapped_coords()), nodes(init_nodes()), volume(1.451803461048456186e-4)
+  Tetra3DLagrangeP1Fixture() :
+    mapped_coords(0.1, 0.8, 0.45),
+    nodes
+    (
+      (NodesT() <<
+        0.830434, 0.885201, 0.188108, 
+        0.89653, 0.899961, 0.297475,
+        0.888273, 0.821744, 0.211428, 
+        0.950439, 0.904872, 0.20736).finished()
+    ),
+    volume(1.451803461048456186e-4)
   {
   }
 
@@ -42,39 +54,22 @@ struct Tetra3DLagrangeP1Fixture
   }
   /// common values accessed by all tests goes here
 
-  const RealVector mapped_coords;
+  const SFT::MappedCoordsT mapped_coords;
   const NodesT nodes;
   const Real volume;
 
   struct ConstFunctor
   {
-    ConstFunctor(const NodesT& node_list) : mapped_coords(3), m_nodes(node_list) {}
+    ConstFunctor(const NodesT& node_list) : m_nodes(node_list) {}
 
     Real operator()() const
     {
       return Tetra3DLagrangeP1::jacobian_determinant(mapped_coords, m_nodes);
     }
-    RealVector mapped_coords;
+    SFT::CoordsT mapped_coords;
   private:
     const NodesT& m_nodes;
   };
-
-private:
-  /// Workaround for boost:assign ambiguity
-  RealVector init_mapped_coords()
-  {
-    return list_of(0.1)(0.8)(0.45);
-  }
-
-  /// Workaround for boost:assign ambiguity
-  NodesT init_nodes()
-  {
-    const RealVector c0 = list_of(0.830434)(0.885201)(0.188108);
-    const RealVector c1 = list_of(0.89653)(0.899961)(0.297475);
-    const RealVector c2 = list_of(0.888273)(0.821744)(0.211428);
-    const RealVector c3 = list_of(0.950439)(0.904872)(0.20736);
-    return list_of(c0)(c1)(c2)(c3);
-  }
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -85,8 +80,8 @@ BOOST_FIXTURE_TEST_SUITE( Tetra3DLagrangeP1Suite, Tetra3DLagrangeP1Fixture )
 
 BOOST_AUTO_TEST_CASE( ShapeFunction )
 {
-  const RealVector reference_result = list_of(-0.35)(0.1)(0.8)(0.45);
-  RealVector result(4);
+  const SFT::ShapeFunctionsT reference_result(-0.35, 0.1, 0.8, 0.45);
+  SFT::ShapeFunctionsT result;
   Tetra3DLagrangeP1::shape_function(mapped_coords, result);
   Accumulator accumulator;
   vector_test(result, reference_result, accumulator);
@@ -95,9 +90,9 @@ BOOST_AUTO_TEST_CASE( ShapeFunction )
 
 BOOST_AUTO_TEST_CASE( MappedCoordinates )
 {
-  const RealVector test_coords = list_of(0.92)(0.87)(0.21);
-  const RealVector reference_result = list_of(1.779178467272182762e-02)(4.106555656123735409e-01)(5.386286149811901902e-01);
-  RealVector result(3);
+  const SFT::MappedCoordsT test_coords(0.92, 0.87, 0.21);
+  const SFT::CoordsT reference_result(1.779178467272182762e-02, 4.106555656123735409e-01, 5.386286149811901902e-01);
+  SFT::MappedCoordsT result;
   Tetra3DLagrangeP1::mapped_coordinates(test_coords, nodes, result);
   Accumulator accumulator;
   vector_test(result, reference_result, accumulator);
@@ -114,7 +109,7 @@ BOOST_AUTO_TEST_CASE( IntegrateConst )
 
 BOOST_AUTO_TEST_CASE( MappedGradient )
 {
-  RealMatrix expected(Tetra3DLagrangeP1::dimension, Tetra3DLagrangeP1::nb_nodes);
+  SFT::MappedGradientT expected;
   expected(XX, 0) = -1.;
   expected(YY, 0) = -1.;
   expected(ZZ, 0) = -1.;
@@ -127,7 +122,7 @@ BOOST_AUTO_TEST_CASE( MappedGradient )
   expected(XX, 3) = 0.;
   expected(YY, 3) = 0.;
   expected(ZZ, 3) = 1.;
-  RealMatrix result(Tetra3DLagrangeP1::dimension, Tetra3DLagrangeP1::nb_nodes);
+  SFT::MappedGradientT result;
   Tetra3DLagrangeP1::mapped_gradient(mapped_coords, result);
   Accumulator accumulator;
   vector_test(result, expected, accumulator);
@@ -143,7 +138,7 @@ BOOST_AUTO_TEST_CASE( JacobianDeterminant )
 
 BOOST_AUTO_TEST_CASE( Jacobian )
 {
-  RealMatrix expected(3, 3);
+  SFT::JacobianT expected;
   expected(0,0) = 6.609600000000004361e-02;
   expected(0,1) = 1.475999999999999535e-02;
   expected(0,2) = 1.093669999999999920e-01;
@@ -153,7 +148,7 @@ BOOST_AUTO_TEST_CASE( Jacobian )
   expected(2,0) = 1.200050000000000283e-01;
   expected(2,1) = 1.967099999999999405e-02;
   expected(2,2) = 1.925199999999999134e-02;
-  RealMatrix result(3, 3);
+  SFT::JacobianT result;
   Tetra3DLagrangeP1::jacobian(mapped_coords, nodes, result);
   Accumulator accumulator;
   vector_test(result, expected, accumulator);
@@ -162,7 +157,7 @@ BOOST_AUTO_TEST_CASE( Jacobian )
 
 BOOST_AUTO_TEST_CASE( JacobianAdjoint )
 {
-  RealMatrix expected(3, 3);
+  SFT::JacobianT expected;
   expected(0,0) = -1.680401883999999273e-03;
   expected(0,1) = 1.867198736999999475e-03;
   expected(0,2) = 7.284304918999997755e-03;
@@ -172,7 +167,7 @@ BOOST_AUTO_TEST_CASE( JacobianAdjoint )
   expected(2,0) = 8.752908253999998334e-03;
   expected(2,1) = 4.710993839999994925e-04;
   expected(2,2) = -5.047957512000001042e-03;
-  RealMatrix result(3, 3);
+  SFT::JacobianT result;
   Tetra3DLagrangeP1::jacobian_adjoint(mapped_coords, nodes, result);
   Accumulator accumulator;
   vector_test(result, expected, accumulator);
@@ -181,22 +176,16 @@ BOOST_AUTO_TEST_CASE( JacobianAdjoint )
 
 BOOST_AUTO_TEST_CASE( Is_coord_in_element )
 {
-  RealVector centroid(3);
-  for (Uint i=0; i<Tetra3DLagrangeP1::nb_nodes; ++i)
-		centroid += nodes[i];
-	centroid /= Tetra3DLagrangeP1::nb_nodes;
+  const SFT::CoordsT centroid = nodes.colwise().sum() / SFT::nb_nodes;
+  
   BOOST_CHECK_EQUAL(Tetra3DLagrangeP1::in_element(centroid,nodes),true);
-	
-	BOOST_CHECK_EQUAL(Tetra3DLagrangeP1::in_element(nodes[0],nodes),true);
-	BOOST_CHECK_EQUAL(Tetra3DLagrangeP1::in_element(nodes[1],nodes),true);
-	BOOST_CHECK_EQUAL(Tetra3DLagrangeP1::in_element(nodes[2],nodes),true);
-	BOOST_CHECK_EQUAL(Tetra3DLagrangeP1::in_element(nodes[3],nodes),true);
+  
+  BOOST_CHECK_EQUAL(Tetra3DLagrangeP1::in_element(nodes.row(0),nodes),true);
+  BOOST_CHECK_EQUAL(Tetra3DLagrangeP1::in_element(nodes.row(1),nodes),true);
+  BOOST_CHECK_EQUAL(Tetra3DLagrangeP1::in_element(nodes.row(2),nodes),true);
+  BOOST_CHECK_EQUAL(Tetra3DLagrangeP1::in_element(nodes.row(3),nodes),true);
 
-	
-	RealVector outside_coord(3);
-	outside_coord = 2.0*centroid;
-	BOOST_CHECK_EQUAL(Tetra3DLagrangeP1::in_element(outside_coord,nodes),false);
-
+  BOOST_CHECK_EQUAL(Tetra3DLagrangeP1::in_element(2.0 * centroid,nodes),false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

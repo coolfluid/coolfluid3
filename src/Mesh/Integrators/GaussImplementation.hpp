@@ -11,7 +11,6 @@
 
 #include "Common/AssertionManager.hpp"
 #include "Mesh/GeoShape.hpp"
-#include "Math/RealVector.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -118,7 +117,6 @@ struct GaussIntegrator<1, GeoShape::LINE>
   {
     static const double mu = 0.;
     static const double w = 2.;
-    mapped_coords.resize(1);
     mapped_coords[KSI] = mu;
     result = w * functor();
   }

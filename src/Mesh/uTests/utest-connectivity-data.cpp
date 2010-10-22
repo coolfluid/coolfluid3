@@ -21,7 +21,6 @@
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/ConnectivityData.hpp"
-#include "Mesh/ElementNodes.hpp"
 
 #include "Tools/Testing/Difference.hpp"
 #include "Tools/MeshGeneration/MeshGeneration.hpp"

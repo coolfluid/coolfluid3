@@ -15,7 +15,7 @@
 #include "Mesh/CArray.hpp"
 #include "Mesh/CField.hpp"
 #include "Mesh/CFieldElements.hpp"
-#include "Mesh/ElementNodes.hpp"
+#include "Mesh/ElementData.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/ConnectivityData.hpp"
 
@@ -305,15 +305,15 @@ public: // functions
   template < typename SFType >
   void executeT ( Uint elem )
   {
-    std::vector<RealVector> nodes;
-    fill_node_list( nodes, data->coordinates, data->connectivity_table[elem] );
+    typename SFType::NodeMatrixT nodes;
+    fill( nodes, data->coordinates, data->connectivity_table[elem] );
     data->volumes[elem][0] = SFType::volume( nodes );
   }
 
   void execute ( Uint elem )
   {
-    ElementType::NodesT nodes;
-    nodes.resize_and_fill(data->coordinates, data->connectivity_table[elem]);
+    ElementType::NodesT nodes(data->connectivity_table.row_size(), data->coordinates.row_size());
+    fill(nodes, data->coordinates, data->connectivity_table[elem]);
     data->volumes[elem][0] = data->field_elements.element_type().computeVolume( nodes );
   }
 

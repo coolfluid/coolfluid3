@@ -17,7 +17,6 @@
 
 #include "Mesh/CArray.hpp"
 #include "Mesh/CTable.hpp"
-#include "Mesh/ElementNodes.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/SF/Triag3DLagrangeP1.hpp"
 
@@ -35,11 +34,15 @@ using namespace CF::Tools::Testing;
 
 //////////////////////////////////////////////////////////////////////////////
 
+typedef Triag3DLagrangeP1 SFT;
+
 struct Triag3DLagrangeP1Fixture
 {
-  typedef std::vector<RealVector> NodesT;
+  typedef SFT::NodeMatrixT NodesT;
   /// common setup for each test case
-  Triag3DLagrangeP1Fixture() : mapped_coords(init_mapped_coords()), nodes(init_nodes())
+  Triag3DLagrangeP1Fixture() : mapped_coords(0.1, 0.8), nodes((NodesT() << 0.5, 0.3, 0.,
+                                                                           1.1, 1.2, 0.5,
+                                                                           0.8, 2.1, 1.).finished())
   {
   }
 
@@ -147,21 +150,20 @@ struct Triag3DLagrangeP1Fixture
     }
   }
 
-  const RealVector mapped_coords;
+  const SFT::MappedCoordsT mapped_coords;
   const NodesT nodes;
 
-  template<typename SF>
   struct ConstFunctor
   {
-    ConstFunctor(const NodesT& node_list) : mapped_coords(3), m_nodes(node_list) {}
+    ConstFunctor(const NodesT& node_list) : m_nodes(node_list) {}
 
     Real operator()() const
     {
-      RealVector result(SF::dimension);
-      SF::normal(mapped_coords, m_nodes, result);
-      return result.norm2();
+      SFT::CoordsT result;
+      SFT::normal(mapped_coords, m_nodes, result);
+      return result.norm();
     }
-    RealVector mapped_coords;
+    SFT::MappedCoordsT mapped_coords;
   private:
     const NodesT& m_nodes;
   };
@@ -169,12 +171,11 @@ struct Triag3DLagrangeP1Fixture
   /// Returns the norm of the normal vector to the curve or surface element (equal to tangent in the case of Line2D)
   struct NormalVectorNorm {
 
-    template<typename NodesT, typename GeoSF>
-    Real operator()(const RealVector& mapped_coords, const NodesT& nodes, const GeoSF& sf)
+    Real operator()(const RealVector& mapped_coords, const NodesT& nodes)
     {
-      RealVector result(GeoSF::dimension);
-      GeoSF::normal(mapped_coords, nodes, result);
-      return result.norm2();
+      SFT::CoordsT result;
+      SFT::normal(mapped_coords, nodes, result);
+      return result.norm();
     }
 
   };
@@ -184,43 +185,43 @@ struct Triag3DLagrangeP1Fixture
 
     ConstVectorField(const RealVector& vector) : m_vector(vector) {}
 
-    template<typename NodesT, typename GeoSF>
-    Real operator()(const RealVector& mapped_coords, const NodesT& nodes, const GeoSF& sf)
+    Real operator()(const RealVector& mapped_coords, const NodesT& nodes)
     {
-      RealVector normal(GeoSF::dimension);
-      GeoSF::normal(mapped_coords, nodes, normal);
+      SFT::CoordsT normal;
+      SFT::normal(mapped_coords, nodes, normal);
       return MathFunctions::innerProd(normal, m_vector);
     }
 
   private:
-    const RealVector m_vector;
+    const SFT::CoordsT m_vector;
 
   };
 
   /// Returns the static pressure around a rotating cylinder in a horizontal,
   /// uniform velocity field U, multiplied with the local normal vector
-  struct RotatingCylinderPressure {
+  struct RotatingCylinderPressure
+  {
 
     RotatingCylinderPressure(const Real radius, const Real circulation, const Real U) :
       m_radius(radius), m_circulation(circulation), m_u(U) {}
 
-    template<typename NodesT, typename GeoSF>
-    RealVector operator()(const RealVector& mapped_coords, const NodesT& nodes, const GeoSF& sf)
+    SFT::CoordsT operator()(const RealVector& mapped_coords, const NodesT& nodes)
     {
       // The pressures to interpolate
-      RealVector nodal_p(GeoSF::nb_nodes);
-      for(Uint i = 0; i != GeoSF::nb_nodes; ++i)
-        nodal_p[i] = pressure(theta(nodes[i]));
+      RealVector3 nodal_p;
+      nodal_p[0] = pressure(theta(nodes.row(0)));
+      nodal_p[1] = pressure(theta(nodes.row(1)));
+      nodal_p[2] = pressure(theta(nodes.row(2)));
 
       // The local normal
-      RealVector normal(GeoSF::dimension);
-      GeoSF::normal(mapped_coords, nodes, normal);
+      SFT::CoordsT normal;
+      SFT::normal(mapped_coords, nodes, normal);
 
       // Interpolate the pressure
-      Real p;
-      sf(mapped_coords, nodal_p, p);
+      SFT::ShapeFunctionsT sf_mat;
+      SFT::shape_function(mapped_coords, sf_mat);
 
-      return normal * p;
+      return normal * (sf_mat * nodal_p);
     }
 
   private:
@@ -230,7 +231,7 @@ struct Triag3DLagrangeP1Fixture
     static const Real m_rho;
 
     // Reconstruct the value of theta, based on the coordinates
-    Real theta(const RealVector& coords)
+    Real theta(const SFT::CoordsT& coords)
     {
       return atan2(coords[YY], coords[XX]);
     }
@@ -241,49 +242,31 @@ struct Triag3DLagrangeP1Fixture
       Real tmp = (2. * m_u * sin(theta) + m_circulation / (2. * MathConsts::RealPi() * m_radius));
       return 0.5 * m_rho * tmp * tmp;
     }
-
   };
-
-private:
-  /// Workaround for boost:assign ambiguity
-  RealVector init_mapped_coords()
-  {
-    return list_of(0.1)(0.8);
-  }
-
-  /// Workaround for boost:assign ambiguity
-  NodesT init_nodes()
-  {
-    const CF::RealVector c0 = list_of(0.5)(0.3)(0.);
-    const CF::RealVector c1 = list_of(1.1)(1.2)(0.5);
-    const CF::RealVector c2 = list_of(0.8)(2.1)(1.);
-    return list_of(c0)(c1)(c2);
-  }
 };
 
 const Real Triag3DLagrangeP1Fixture::RotatingCylinderPressure::m_rho = 1.225;
 
-/// Mimic a possible new integration interface
-template<typename ResultT, typename FunctorT, typename GeoSF>
-void integrate_region(ResultT& result, FunctorT functor, const CArray& coordinates, const CTable& connectivity, const GeoSF& geo_sf)
+template<typename ResultT, typename FunctorT>
+void integrate_region(ResultT& result, FunctorT functor, const CArray& coordinates, const CTable& connectivity)
 {
   const Uint nb_elems = connectivity.array().size();
   for(Uint elem_idx = 0; elem_idx != nb_elems; ++ elem_idx)
   {
     //const CTable::ConstRow& r = connectivity.array()[elem_idx];
-    const ConstElementNodeView nodes(coordinates, connectivity.array()[elem_idx]);
-    integrate_element(result, functor, nodes, geo_sf);
+    typename SFT::NodeMatrixT nodes;
+    fill(nodes, coordinates, connectivity.array()[elem_idx]);
+    integrate_element(result, functor, nodes);
   }
 }
 
-/// Mimic a possible new integration interface. Integration over a single element
-template<typename ResultT, typename FunctorT, typename NodesT, typename GeoSF>
-void integrate_element(ResultT& result, FunctorT functor, const NodesT& nodes, const GeoSF& sf)
+template<typename ResultT, typename FunctorT, typename NodesT>
+void integrate_element(ResultT& result, FunctorT functor, const NodesT& nodes)
 {
   static const double mu = 0.3333333333333333333333333;
   static const double w = 0.5;
-  static const RealVector mapped_coords = boost::assign::list_of(mu)(mu);
-  result += w * functor(mapped_coords, nodes, sf);
+  static const SFT::MappedCoordsT mapped_coords(mu, mu);
+  result += w * functor(mapped_coords, nodes);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -294,17 +277,18 @@ BOOST_FIXTURE_TEST_SUITE( Triag3DLagrangeP1Suite, Triag3DLagrangeP1Fixture )
 
 BOOST_AUTO_TEST_CASE( Area )
 {
-  boost::multi_array<Real,2> nodes_triag3D (boost::extents[3][3]);
-  nodes_triag3D[0][XX] = 0.0;     nodes_triag3D[0][YY] = 0.0;     nodes_triag3D[0][ZZ] = 0.0;
-  nodes_triag3D[1][XX] = 1.0;     nodes_triag3D[1][YY] = 0.0;     nodes_triag3D[1][ZZ] = 1.0;
-  nodes_triag3D[2][XX] = 1.0;     nodes_triag3D[2][YY] = 1.0;     nodes_triag3D[2][ZZ] = 1.0;
+  NodesT nodes_triag3D;
+  nodes_triag3D <<
+    0.0, 0.0, 0.0,
+    1.0, 0.0, 1.0,
+    1.0, 1.0, 1.0;
   BOOST_CHECK_EQUAL(Triag3DLagrangeP1::area(nodes_triag3D), std::sqrt(2.)/2.);
 }
 
 BOOST_AUTO_TEST_CASE( ShapeFunction )
 {
-  const CF::RealVector reference_result = list_of(0.1)(0.1)(0.8);
-  CF::RealVector result(3);
+  const SFT::ShapeFunctionsT reference_result(0.1, 0.1, 0.8);
+  SFT::ShapeFunctionsT result;
   Triag3DLagrangeP1::shape_function(mapped_coords, result);
   CF::Tools::Testing::Accumulator accumulator;
   CF::Tools::Testing::vector_test(result, reference_result, accumulator);
@@ -313,14 +297,14 @@ BOOST_AUTO_TEST_CASE( ShapeFunction )
 
 BOOST_AUTO_TEST_CASE( MappedGradient )
 {
-  CF::RealMatrix expected(Triag3DLagrangeP1::dimensionality, Triag3DLagrangeP1::nb_nodes);
+  SFT::MappedGradientT expected;
   expected(0,0) = -1.;
   expected(1,0) = -1.;
   expected(0,1) = 1.;
   expected(1,1) = 0.;
   expected(0,2) = 0.;
   expected(1,2) = 1.;
-  CF::RealMatrix result(Triag3DLagrangeP1::dimensionality, Triag3DLagrangeP1::nb_nodes);
+  SFT::MappedGradientT result;
   Triag3DLagrangeP1::mapped_gradient(mapped_coords, result);
   CF::Tools::Testing::Accumulator accumulator;
   CF::Tools::Testing::vector_test(result, expected, accumulator);
@@ -329,7 +313,7 @@ BOOST_AUTO_TEST_CASE( MappedGradient )
 
 BOOST_AUTO_TEST_CASE( Jacobian )
 {
-  CF::RealMatrix expected(Triag3DLagrangeP1::dimensionality, Triag3DLagrangeP1::dimension);
+  SFT::JacobianT expected;
   expected(KSI,XX) = 0.6;
   expected(KSI,YY) = 0.9;
   expected(KSI,ZZ) = 0.5;
@@ -338,7 +322,7 @@ BOOST_AUTO_TEST_CASE( Jacobian )
   expected(ETA,YY) = 1.8;
   expected(ETA,ZZ) = 1.;
 
-  CF::RealMatrix result(Triag3DLagrangeP1::dimensionality, Triag3DLagrangeP1::dimension);
+  SFT::JacobianT result;
   Triag3DLagrangeP1::jacobian(mapped_coords, nodes, result);
   CF::Tools::Testing::Accumulator accumulator;
   CF::Tools::Testing::vector_test(result, expected, accumulator);
@@ -347,7 +331,7 @@ BOOST_AUTO_TEST_CASE( Jacobian )
 
 BOOST_AUTO_TEST_CASE( IntegrateConst )
 {
-  ConstFunctor<Triag3DLagrangeP1> ftor(nodes);
+  ConstFunctor ftor(nodes);
   const Real area = Triag3DLagrangeP1::area(nodes);
 
   Real result = 0.0;
@@ -374,17 +358,15 @@ BOOST_AUTO_TEST_CASE( SurfaceIntegral )
   CTable connectivity("connectivity");
   create_cylinder(coordinates, connectivity, radius, u_segments, v_segments, height);
 
-  Triag3DLagrangeP1 aSF; /* temporary solution, on Mac it tries to use copy-constructor */
-
   // Check the area
   Real area = 0.;
-  integrate_region(area, NormalVectorNorm(), coordinates, connectivity, aSF);
+  integrate_region(area, NormalVectorNorm(), coordinates, connectivity);
   BOOST_CHECK_CLOSE(area, 2.*MathConsts::RealPi()*radius*height, 0.1);
 
   // Flux from a constant vector field through a closed surface should be 0
   Real zero_flux = 0.;
-  const RealVector field_vector = boost::assign::list_of(0.35)(1.25)(0.);
-  integrate_region(zero_flux, ConstVectorField(field_vector), coordinates, connectivity, aSF);
+  const SFT::CoordsT field_vector(0.35, 1.25, 0.);
+  integrate_region(zero_flux, ConstVectorField(field_vector), coordinates, connectivity);
   BOOST_CHECK_SMALL(zero_flux, 1e-14);
 }
 
@@ -395,9 +377,8 @@ BOOST_AUTO_TEST_CASE( ArcIntegral )
   CTable arc_connectivity("connectivity");
   create_cylinder(arc_coordinates, arc_connectivity, 1., 100, 24, 3., 0., MathConsts::RealPi());
   Real arc_flux = 0.;
-  const RealVector y_vector = boost::assign::list_of(0.)(1.)(0.);
-  Triag3DLagrangeP1 aSF; /* temporary solution, on Mac it tries to use copy-constructor */
-  integrate_region(arc_flux, ConstVectorField(y_vector), arc_coordinates, arc_connectivity, aSF);
+  const SFT::CoordsT y_vector(0., 1., 0.);
+  integrate_region(arc_flux, ConstVectorField(y_vector), arc_coordinates, arc_connectivity);
   BOOST_CHECK_CLOSE(arc_flux, 6., 0.01);
 }
 
@@ -418,9 +399,8 @@ BOOST_AUTO_TEST_CASE( RotatingCylinder )
   // Rotating cylinder in uniform flow
   const Real u = 300.;
   const Real circulation = 975.;
-  RealVector force(0.,3);
-  Triag3DLagrangeP1 aSF; /* temporary solution, on Mac it tries to use copy-constructor */
-  integrate_region(force, RotatingCylinderPressure(radius, circulation, u), coordinates, connectivity, aSF);
+  SFT::CoordsT force;
+  integrate_region(force, RotatingCylinderPressure(radius, circulation, u), coordinates, connectivity);
   BOOST_CHECK_CLOSE(force[YY], height * 1.225*u*circulation, 0.001); // lift according to theory
   BOOST_CHECK_SMALL(force[XX], 1e-8); // Drag should be zero
   BOOST_CHECK_SMALL(force[ZZ], 1e-8);

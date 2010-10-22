@@ -7,7 +7,7 @@
 #ifndef CF_Mesh_SF_Line1DLagrangeP1_hpp
 #define CF_Mesh_SF_Line1DLagrangeP1_hpp
 
-#include "Math/RealMatrix.hpp"
+#include "Math/MatrixTypes.hpp"
 
 #include "Mesh/Line1D.hpp"
 
@@ -26,16 +26,27 @@ namespace SF {
 /// @author Tiago Quintino
 /// @author Bart Janssens
 struct SF_API Line1DLagrangeP1  : public Line1D {
+  
+/// Number of nodes
+static const Uint nb_nodes = 2;
+
+/// Order of the shape function
+static const Uint order = 1;
+  
+/// Types for the matrices used
+typedef Eigen::Matrix<Real, dimension, 1> CoordsT;
+typedef Eigen::Matrix<Real, dimensionality, 1> MappedCoordsT;
+typedef Eigen::Matrix<Real, nb_nodes, dimension> NodeMatrixT;
+typedef Eigen::Matrix<Real, 1, nb_nodes> ShapeFunctionsT;
+typedef Eigen::Matrix<Real, dimensionality, nb_nodes> MappedGradientT;
+typedef Eigen::Matrix<Real, dimensionality, dimension> JacobianT;
 
 /// Compute the shape functions corresponding to the given
 /// mapped coordinates
 /// @param mappedCoord The mapped coordinates
 /// @param shapeFunc Vector storing the result
-static void shape_function(const RealVector& mappedCoord, RealVector& shapeFunc)
+static void shape_function(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc)
 {
-  cf_assert(shapeFunc.size() == nb_nodes);
-  cf_assert(mappedCoord.size() == dimension);
-
   shapeFunc[0] = 0.5 * (1.0 - mappedCoord[KSI]);
   shapeFunc[1] = 0.5 * (1.0 + mappedCoord[KSI]);
 }
@@ -45,14 +56,10 @@ static void shape_function(const RealVector& mappedCoord, RealVector& shapeFunc)
 /// @param nodes contains the nodes
 /// @param mappedCoord Store the output mapped coordinates
 template<typename NodesT>
-static void mapped_coordinates(const RealVector& coord, const NodesT& nodes, RealVector& mappedCoord)
+static void mapped_coordinates(const CoordsT& coord, const NodesT& nodes, MappedCoordsT& mappedCoord)
 {
-  cf_assert(coord.size() == dimension);
-  cf_assert(mappedCoord.size() == dimension);
-  cf_assert(nodes.size() == nb_nodes);
-
-  const Real x0 = nodes[0][XX];
-  const Real x1 = nodes[1][XX];
+  const Real x0 = nodes(0, XX);
+  const Real x1 = nodes(1, XX);
   mappedCoord[KSI] = (2*coord[0] - (x1 + x0)) / (x1 - x0);
 }
 
@@ -61,17 +68,16 @@ static void mapped_coordinates(const RealVector& coord, const NodesT& nodes, Rea
 /// coordinates.
 /// @param mappedCoord The mapped coordinates where the gradient should be calculated
 /// @param result Storage for the resulting gradient matrix
-static void mapped_gradient(const RealVector& mappedCoord, RealMatrix& result)
+static void mapped_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result)
 {
-  cf_assert(result.nbCols() == nb_nodes);
-  cf_assert(result.nbRows() == dimension);
   result(XX, 0) = -0.5;
   result(XX, 1) = 0.5;
 }
 
 /// Compute the jacobian determinant at the given mapped coordinates
 template<typename NodesT>
-static Real jacobian_determinant(const RealVector& mappedCoord, const NodesT& nodes) {
+static Real jacobian_determinant(const MappedCoordsT& mappedCoord, const NodesT& nodes)
+{
   return 0.5*volume(nodes);
 }
 
@@ -79,9 +85,8 @@ static Real jacobian_determinant(const RealVector& mappedCoord, const NodesT& no
 /// @param mappedCoord The mapped coordinates where the Jacobian should be calculated
 /// @param result Storage for the resulting Jacobian matrix
 template<typename NodesT>
-static void jacobian(const RealVector& mappedCoord, const NodesT& nodes, RealMatrix& result) {
-  cf_assert(result.nbRows() == dimension);
-  cf_assert(result.isSquare());
+static void jacobian(const MappedCoordsT& mappedCoord, const NodesT& nodes, JacobianT& result)
+{
   result(KSI,XX) = jacobian_determinant(mappedCoord, nodes);
 }
 
@@ -89,9 +94,8 @@ static void jacobian(const RealVector& mappedCoord, const NodesT& nodes, RealMat
 /// @param mappedCoord The mapped coordinates where the Jacobian should be calculated
 /// @param result Storage for the resulting adjoint
 template<typename NodesT>
-static void jacobian_adjoint(const RealVector& mappedCoord, const NodesT& nodes, RealMatrix& result) {
-  cf_assert(result.nbRows() == dimension);
-  cf_assert(result.isSquare());
+static void jacobian_adjoint(const MappedCoordsT& mappedCoord, const NodesT& nodes, JacobianT& result)
+{
   result(KSI,XX) = 1.;
 }
 
@@ -99,31 +103,21 @@ static void jacobian_adjoint(const RealVector& mappedCoord, const NodesT& nodes,
 template<typename NodesType>
 static Real volume(const NodesType& nodes); // inline because of multiple definition at link time
 
-/// Number of nodes
-static const Uint nb_nodes = 2;
-
-/// Order of the shape function
-static const Uint order = 1;
-
 Line1DLagrangeP1();
 virtual std::string getElementTypeName() const;
 virtual Real computeVolume(const NodesT& coord) const;
-virtual bool is_coord_in_element(const RealVector& coord, const NodesT& nodes) const;
+virtual bool is_coord_in_element( const RealVector& coord, const NodesT& nodes) const;
 virtual const CF::Mesh::ElementType::FaceConnectivity& face_connectivity() const;
 virtual const CF::Mesh::ElementType& face_type(const CF::Uint face) const;
 
 };
 
 template<typename NodesType>
-inline Real Line1DLagrangeP1::volume(const NodesType& nodes) {
-  return std::abs(nodes[1][XX] - nodes[0][XX]);
+inline Real Line1DLagrangeP1::volume(const NodesType& nodes)
+{
+  return std::abs(nodes(1, XX) - nodes(0, XX));
 }
 
-/// Specialize for ElementNodeData
-template<>
-inline Real Line1DLagrangeP1::volume(const ElementNodeValues<2, 1, 1>& nodes) {
-  return std::abs(nodes[1] - nodes[0]);
-}
 
 } // namespace SF
 } // namespace Mesh

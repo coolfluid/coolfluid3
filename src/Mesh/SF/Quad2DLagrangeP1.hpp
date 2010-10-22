@@ -8,7 +8,7 @@
 #ifndef CF_Mesh_SF_Quad2DLagrangeP1_hpp
 #define CF_Mesh_SF_Quad2DLagrangeP1_hpp
 
-#include "Math/RealMatrix.hpp"
+#include "Math/MatrixTypes.hpp"
 #include "Mesh/Quad2D.hpp"
 
 #include "Mesh/SF/LibSF.hpp"
@@ -27,17 +27,28 @@ namespace SF {
 /// @author Willem Deconinck
 struct SF_API Quad2DLagrangeP1  : public Quad2D {
 
+/// Number of nodes
+static const Uint nb_nodes = 4;
+
+/// Order of the shape function
+static const Uint order = 1;
+
+/// Types for the matrices used
+typedef Eigen::Matrix<Real, dimension, 1> CoordsT;
+typedef Eigen::Matrix<Real, dimensionality, 1> MappedCoordsT;
+typedef Eigen::Matrix<Real, nb_nodes, dimension> NodeMatrixT;
+typedef Eigen::Matrix<Real, 1, nb_nodes> ShapeFunctionsT;
+typedef Eigen::Matrix<Real, dimensionality, nb_nodes> MappedGradientT;
+typedef Eigen::Matrix<Real, dimensionality, dimension> JacobianT;
+
 /// typedef for the supporting geometry
 typedef Quad2D Support;
-
 /// Compute the shape functions corresponding to the given
 /// mapped coordinates
 /// @param mappedCoord The mapped coordinates
 /// @param shapeFunc Vector storing the result
-static void shape_function(const RealVector& mappedCoord, RealVector& shapeFunc)
+static void shape_function(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc)
 {
-  cf_assert(shapeFunc.size() == 4);
-  cf_assert(mappedCoord.size() == 2);
   const Real xi  = mappedCoord[KSI];
   const Real eta = mappedCoord[ETA];
 
@@ -52,23 +63,19 @@ static void shape_function(const RealVector& mappedCoord, RealVector& shapeFunc)
 /// @param nodes contains the nodes
 /// @param mappedCoord Store the output mapped coordinates
 template<typename NodesT>
-static void mapped_coordinates(const RealVector& coord, const NodesT& nodes, RealVector& mappedCoord)
+static void mapped_coordinates(const CoordsT& coord, const NodesT& nodes, MappedCoordsT& mappedCoord)
 {
-  cf_assert(coord.size() == 2);
-  cf_assert(mappedCoord.size() == 2);
-  cf_assert(nodes.size() == 4);
-
   const Real x = coord[XX];
   const Real y = coord[YY];
   
-  const Real x0 = nodes[0][XX];
-  const Real y0 = nodes[0][YY];
-  const Real x1 = nodes[1][XX];
-  const Real y1 = nodes[1][YY];
-  const Real x2 = nodes[2][XX];
-  const Real y2 = nodes[2][YY];
-  const Real x3 = nodes[3][XX];
-  const Real y3 = nodes[3][YY];
+  const Real x0 = nodes(0, XX);
+  const Real y0 = nodes(0, YY);
+  const Real x1 = nodes(1, XX);
+  const Real y1 = nodes(1, YY);
+  const Real x2 = nodes(2, XX);
+  const Real y2 = nodes(2, YY);
+  const Real x3 = nodes(3, XX);
+  const Real y3 = nodes(3, YY);
   
   JacobianCoefficients jc(nodes);
   if(jc.bx*jc.dy != jc.by*jc.dx) // non-zero quadratic term
@@ -87,11 +94,8 @@ static void mapped_coordinates(const RealVector& coord, const NodesT& nodes, Rea
 /// coordinates.
 /// @param mappedCoord The mapped coordinates where the gradient should be calculated
 /// @param result Storage for the resulting gradient matrix
-static void mapped_gradient(const RealVector& mappedCoord, RealMatrix& result)
+static void mapped_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result)
 {
-  cf_assert(result.nbCols() == nb_nodes);
-  cf_assert(result.nbRows() == dimension);
-
   const Real ksi  = mappedCoord[0];
   const Real eta = mappedCoord[1];
 
@@ -107,19 +111,16 @@ static void mapped_gradient(const RealVector& mappedCoord, RealMatrix& result)
 
 /// Compute the jacobian determinant at the given mapped coordinates
 template<typename NodesT>
-static Real jacobian_determinant(const RealVector& mappedCoord, const NodesT& nodes)
+static Real jacobian_determinant(const MappedCoordsT& mappedCoord, const NodesT& nodes)
 {
-  cf_assert(mappedCoord.size() == 2);
-  cf_assert(nodes.size() == 4);
-
-  const Real x0 = nodes[0][XX];
-  const Real y0 = nodes[0][YY];
-  const Real x1 = nodes[1][XX];
-  const Real y1 = nodes[1][YY];
-  const Real x2 = nodes[2][XX];
-  const Real y2 = nodes[2][YY];
-  const Real x3 = nodes[3][XX];
-  const Real y3 = nodes[3][YY];
+  const Real x0 = nodes(0, XX);
+  const Real y0 = nodes(0, YY);
+  const Real x1 = nodes(1, XX);
+  const Real y1 = nodes(1, YY);
+  const Real x2 = nodes(2, XX);
+  const Real y2 = nodes(2, YY);
+  const Real x3 = nodes(3, XX);
+  const Real y3 = nodes(3, YY);
   
   const Real xi  = mappedCoord[0];
   const Real eta = mappedCoord[1];
@@ -133,11 +134,8 @@ static Real jacobian_determinant(const RealVector& mappedCoord, const NodesT& no
 /// @param mappedCoord The mapped coordinates where the Jacobian should be calculated
 /// @param result Storage for the resulting Jacobian matrix
 template<typename NodesT>
-static void jacobian(const RealVector& mappedCoord, const NodesT& nodes, RealMatrix& result)
+static void jacobian(const MappedCoordsT& mappedCoord, const NodesT& nodes, JacobianT& result)
 {
-  cf_assert(result.nbRows() == 2);
-  cf_assert(result.isSquare());
-
   JacobianCoefficients jc(nodes);
 
   const Real xi = mappedCoord[KSI];
@@ -153,10 +151,8 @@ static void jacobian(const RealVector& mappedCoord, const NodesT& nodes, RealMat
 /// @param mappedCoord The mapped coordinates where the Jacobian should be calculated
 /// @param result Storage for the resulting adjoint
 template<typename NodesT>
-static void jacobian_adjoint(const RealVector& mappedCoord, const NodesT& nodes, RealMatrix& result) {
-  cf_assert(result.nbRows() == 2);
-  cf_assert(result.isSquare());
-
+static void jacobian_adjoint(const MappedCoordsT& mappedCoord, const NodesT& nodes, JacobianT& result)
+{
   JacobianCoefficients jc(nodes);
 
   const Real xi = mappedCoord[KSI];
@@ -170,19 +166,14 @@ static void jacobian_adjoint(const RealVector& mappedCoord, const NodesT& nodes,
 
 /// Volume of the cell
 template<typename NodesT>
-inline static Real volume(const NodesT& nodes) {
+inline static Real volume(const NodesT& nodes)
+{
   const Real diagonalsProd =
-    (nodes[2][XX] - nodes[0][XX]) * (nodes[3][YY] - nodes[1][YY]) -
-    (nodes[2][YY] - nodes[0][YY]) * (nodes[3][XX] - nodes[1][XX]);
+    (nodes(2, XX) - nodes(0, XX)) * (nodes(3, YY) - nodes(1, YY)) -
+    (nodes(2, YY) - nodes(0, YY)) * (nodes(3, XX) - nodes(1, XX));
 
   return 0.5*diagonalsProd;
 }
-
-/// Number of nodes
-static const Uint nb_nodes = 4;
-
-/// Order of the shape function
-static const Uint order = 1;
 
 /// Connectivity info for the faces
 static const FaceConnectivity& faces();
@@ -193,7 +184,6 @@ virtual Real computeVolume(const NodesT& coord) const;
 virtual bool is_coord_in_element(const RealVector& coord, const NodesT& nodes) const;
 virtual const CF::Mesh::ElementType::FaceConnectivity& face_connectivity() const;
 virtual const CF::Mesh::ElementType& face_type(const CF::Uint face) const;
-virtual Real jacobian_determinantV ( const CF::RealVector& mapped_coord, const CF::Mesh::ElementType::NodesT& nodes ) const;
 
 private:
 /// Convenience struct to easily access the elements that make up the jacobian
@@ -204,14 +194,14 @@ struct JacobianCoefficients
   template<typename NodesT>
   JacobianCoefficients(const NodesT& nodes)
   {
-    const Real x0 = nodes[0][XX];
-    const Real y0 = nodes[0][YY];
-    const Real x1 = nodes[1][XX];
-    const Real y1 = nodes[1][YY];
-    const Real x2 = nodes[2][XX];
-    const Real y2 = nodes[2][YY];
-    const Real x3 = nodes[3][XX];
-    const Real y3 = nodes[3][YY];
+    const Real x0 = nodes(0, XX);
+    const Real y0 = nodes(0, YY);
+    const Real x1 = nodes(1, XX);
+    const Real y1 = nodes(1, YY);
+    const Real x2 = nodes(2, XX);
+    const Real y2 = nodes(2, YY);
+    const Real x3 = nodes(3, XX);
+    const Real y3 = nodes(3, YY);
 
     ax = 0.25*( x0 + x1 + x2 + x3);
     bx = 0.25*(-x0 + x1 + x2 - x3);

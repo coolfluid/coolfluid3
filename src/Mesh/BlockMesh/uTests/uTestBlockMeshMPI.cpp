@@ -18,7 +18,6 @@
 #include "Mesh/CArray.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CMesh.hpp"
-#include "Mesh/ElementNodes.hpp"
 
 #include "Mesh/BlockMesh/BlockData.hpp"
 #include "Mesh/SimpleCommunicationPattern.hpp"
@@ -171,13 +170,15 @@ BOOST_AUTO_TEST_CASE( ComputeVolume )
   const Uint mesh_length = block_data.block_subdivisions[0][XX];
   const Uint elem_length = ( (mesh_length % nb_procs) == 0 || rank != (nb_procs-1) ) ? mesh_length / nb_procs : mesh_length % nb_procs;
   
+  SF::Hexa3DLagrangeP1::NodeMatrixT nodes;
   BOOST_FOREACH(const CElements& celements, recursive_filtered_range_typed<CElements>(partitioned_mesh, IsElementsVolume()))
   {
     const CArray& coords = celements.coordinates();
     const CTable::ArrayT& conn_table = celements.connectivity_table().array();
     BOOST_FOREACH(const CTable::ConstRow row, conn_table)
     {
-      const CF::Real elem_vol = SF::Hexa3DLagrangeP1::volume(ConstElementNodeView(coords, row));
+      fill(nodes, coords, row);
+      const CF::Real elem_vol = SF::Hexa3DLagrangeP1::volume(nodes);
       volume += elem_vol;
       ++nb_elems;
     }

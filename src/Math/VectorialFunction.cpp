@@ -177,7 +177,7 @@ void VectorialFunction::parse()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void VectorialFunction::evaluate(const RealVector& var_values, RealVector& value) const
+void VectorialFunction::evaluate( const VariablesT& var_values, RealVector& ret_value) const
 {
   cf_assert(m_is_parsed);
   cf_assert(var_values.size() == m_nbvars);
@@ -187,12 +187,12 @@ void VectorialFunction::evaluate(const RealVector& var_values, RealVector& value
   std::vector<FunctionParser*>::const_iterator end = m_parsers.end();
   Uint i = 0;
   for( ; parser != end ; ++parser, ++i )
-    value[i] = (*parser)->Eval(var_values.getRawPtr());
+    ret_value[i] = (*parser)->Eval(&var_values[0]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-RealVector& VectorialFunction::operator()(const RealVector& var_values)
+RealVector& VectorialFunction::operator()( const VariablesT& var_values)
 {
   cf_assert(m_is_parsed);
   cf_assert(var_values.size() == m_nbvars);
@@ -202,7 +202,7 @@ RealVector& VectorialFunction::operator()(const RealVector& var_values)
   std::vector<FunctionParser*>::const_iterator end = m_parsers.end();
   Uint i = 0;
   for( ; parser != end ; ++parser, ++i )
-    m_result[i] = (*parser)->Eval(var_values.getRawPtr());
+    m_result[i] = (*parser)->Eval(&var_values[0]);
 
   return m_result;
 }

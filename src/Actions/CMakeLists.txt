@@ -23,17 +23,37 @@ list( APPEND coolfluid_actions_files
   CTakeStep.cpp
   LibActions.hpp
   LibActions.cpp
-  ProtoContexts.hpp
-  ProtoDomain.hpp
-  ProtoElementLooper.hpp
-  ProtoFunctions.hpp
-  ProtoGrammars.hpp
-  ProtoNodeContexts.hpp
-  ProtoNodeLooper.hpp
-  ProtoSFContexts.hpp
-  ProtoTransforms.hpp
-  ProtoVariables.hpp
 )
+
+option( CF_ENABLE_PROTO            "Build boost::proto related code for expressions"               OFF ) #off until RealVector conversion is complete
+
+if(CF_ENABLE_PROTO)
+  list( APPEND Actions_files 
+    Proto/ProtoContexts.hpp
+    Proto/ProtoDomain.hpp
+    Proto/ProtoElementLooper.hpp
+    Proto/ProtoFunctions.hpp
+    Proto/ProtoGrammars.hpp
+    Proto/ProtoNodeContexts.hpp
+    Proto/ProtoNodeLooper.hpp
+    Proto/ProtoSFContexts.hpp
+    Proto/ProtoTransforms.hpp
+    Proto/ProtoVariables.hpp
+  )
+else()
+  coolfluid_mark_not_orphan(
+    Proto/ProtoContexts.hpp
+    Proto/ProtoDomain.hpp
+    Proto/ProtoElementLooper.hpp
+    Proto/ProtoFunctions.hpp
+    Proto/ProtoGrammars.hpp
+    Proto/ProtoNodeContexts.hpp
+    Proto/ProtoNodeLooper.hpp
+    Proto/ProtoSFContexts.hpp
+    Proto/ProtoTransforms.hpp
+    Proto/ProtoVariables.hpp
+  )
+endif()
 
 set( coolfluid_actions_kernellib TRUE )
 

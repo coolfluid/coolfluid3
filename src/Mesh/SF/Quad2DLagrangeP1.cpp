@@ -41,8 +41,8 @@ Real Quad2DLagrangeP1::computeVolume(const NodesT& coord) const
 	
 bool Quad2DLagrangeP1::is_coord_in_element(const RealVector& coord, const NodesT& nodes) const
 {
-	RealVector mapped_coord(coord.size());
-	mapped_coordinates(coord, nodes, mapped_coord);
+	MappedCoordsT mapped_coord;
+	mapped_coordinates(CoordsT(coord), nodes, mapped_coord);
 	if( (mapped_coord[KSI] >= -0.5) &&
 			(mapped_coord[ETA] >= -0.5) &&
 		  (mapped_coord[KSI] <=  0.5) &&
@@ -81,12 +81,6 @@ const CF::Mesh::ElementType& Quad2DLagrangeP1::face_type(const CF::Uint face) co
   const static Line2DLagrangeP1 facetype;
   return facetype;
 }
-
-Real Quad2DLagrangeP1::jacobian_determinantV ( const CF::RealVector& mapped_coord, const CF::Mesh::ElementType::NodesT& nodes ) const
-{
-  return jacobian_determinant(mapped_coord, nodes);
-}
-
 
 
 } // namespace SF

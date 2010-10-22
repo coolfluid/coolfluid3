@@ -75,89 +75,54 @@ const CF::Mesh::ElementType& Hexa3DLagrangeP1::face_type(const CF::Uint face) co
 }
 
 	
-bool Hexa3DLagrangeP1::in_element(const RealVector& coord, const ElementType::NodesT& nodes)
+bool Hexa3DLagrangeP1::in_element( const CoordsT& coord, const NodeMatrixT& nodes)
 {
-	//  This would be easier if mapped_coord function were implemented
-	//	RealVector mapped_coord(coord.size());
-	//	mapped_coordinates(coord, nodes, mapped_coord);
-	//	if((mapped_coord[KSI] >= -1.0) &&
-	//		 (mapped_coord[ETA] >= -1.0) &&
-	//		 (mapped_coord[ZTA] >= -1.0) &&
-	//		 (mapped_coord[KSI] <=  1.0) &&
-	//		 (mapped_coord[ETA] <=  1.0) &&
-	//		 (mapped_coord[ZTA] <=  1.0))
-	//	{
-	//		return true;
-	//	}
-	//	else
-	//	{
-	//		return false;
-	//	}
-	
-	for (Uint iFace=0; iFace<nb_faces; ++iFace)
-	{
-		if (!(is_orientation_inside(coord, nodes, iFace)))
-			return false;
-	}
-	return true;
+  
+  for (Uint iFace=0; iFace<nb_faces; ++iFace)
+  {
+    if (!(is_orientation_inside(coord, nodes, iFace)))
+      return false;
+  }
+  return true;
 }
 
-bool Hexa3DLagrangeP1::is_orientation_inside(const RealVector& coord, const NodesT& nodes, const Uint face)
+bool Hexa3DLagrangeP1::is_orientation_inside(const CoordsT& coord, const NodeMatrixT& nodes, const Uint face)
 {
-	//test according to http://graphics.ethz.ch/~peikert/personal/HexCellTest/
-	
-	RealVector p(coord);
-	RealVector a(nodes[faces().face_node_range(face)[3]]);
-	RealVector b(nodes[faces().face_node_range(face)[2]]);
-	RealVector c(nodes[faces().face_node_range(face)[1]]);
-	RealVector d(nodes[faces().face_node_range(face)[0]]);
-	
-	RealVector bp = b - a;
-	RealVector cp = c - a;
-	RealVector dp = d - a;
-	RealVector pp = p - a;
-	
-	
-	RealVector bp_x_dp(3);
-	Math::MathFunctions::crossProd(bp,dp,bp_x_dp);
-	Real h = Math::MathFunctions::innerProd(bp_x_dp,cp);
-	if (h != 0)
-	{
-		RealMatrix T(3,3);
-		T(0,0) = 1;		T(0,1) = 0;		T(0,2) = 1;
-		T(1,0) = 0;		T(1,1) = 1;		T(1,2) = 1;
-		T(2,0) = 0;		T(2,1) = 0;		T(2,2) = h;
-		
-		RealMatrix M(3,3);
-		M(0,0) = bp[XX];		M(0,1) = dp[XX];		M(0,2) = cp[XX];
-		M(1,0) = bp[YY];		M(1,1) = dp[YY];		M(1,2) = cp[YY];
-		M(2,0) = bp[ZZ];		M(2,1) = dp[ZZ];		M(2,2) = cp[ZZ];
-		
-		RealMatrix M_inv(3,3);
-		Math::MatrixInverterT<3> inverter;
-		inverter.invert(M,M_inv);
-		RealMatrix transformation(3,3);
-		transformation = T*M_inv;
-		
-		// Do transformation
-		RealVector ppp = transformation*pp;
-		
-		if (ppp[ZZ] < h*ppp[XX]*ppp[YY])
-			return false;
-	}
-	else
-	{
-		if (Math::MathFunctions::innerProd(bp_x_dp,pp) < 0)
-			return false;
-	}
-	return true;
+  //test according to http://graphics.ethz.ch/~peikert/personal/HexCellTest/
+  
+  const Uint a = faces().face_node_range(face)[3];
+  const Uint b = faces().face_node_range(face)[2];
+  const Uint c = faces().face_node_range(face)[1];
+  const Uint d = faces().face_node_range(face)[0];
+  
+  RealMatrix3 M;
+  M.col(0) = nodes.row(b) - nodes.row(a);
+  M.col(1) = nodes.row(d) - nodes.row(a);
+  M.col(2) = nodes.row(c) - nodes.row(a);
+  const CoordsT pp = coord.transpose()  - nodes.row(a);
+  
+  const CoordsT bp_x_dp = M.col(0).cross(M.col(1));
+  const Real h = bp_x_dp.dot(M.col(2));
+  if (h != 0)
+  {
+    RealMatrix3 T;
+    T << 1,  0,  1,
+         0,  1,  1,
+         0,  0,  h;
+    
+    // Do transformation
+    RealVector ppp = T*M.inverse()*pp;
+    
+    if (ppp[ZZ] < h*ppp[XX]*ppp[YY])
+      return false;
+  }
+  else
+  {
+    if (bp_x_dp.dot(pp) < 0)
+      return false;
+  }
+  return true;
 }
-
-Real Hexa3DLagrangeP1::jacobian_determinantV ( const CF::RealVector& mapped_coord, const CF::Mesh::ElementType::NodesT& nodes ) const
-{
-  return jacobian_determinant(mapped_coord, nodes);
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 

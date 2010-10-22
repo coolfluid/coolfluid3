@@ -11,8 +11,6 @@
 
 #include <boost/assign/list_of.hpp>
 
-#include "Math/RealMatrix.hpp"
-
 #include "Mesh/ElementType.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////

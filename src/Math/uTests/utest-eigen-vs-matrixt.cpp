@@ -11,9 +11,6 @@
 
 #include <Eigen/Dense>
 
-#include "Math/RealMatrix.hpp"
-#include "Math/RealVector.hpp"
-
 #include "Tools/Testing/TimedTestFixture.hpp"
 
 using namespace std;
@@ -21,7 +18,6 @@ using namespace Eigen;
 
 using namespace CF;
 using namespace CF::Common;
-using namespace CF::Math;
 
 using namespace Tools::Testing;
 
@@ -92,37 +88,37 @@ BOOST_AUTO_TEST_CASE( dgemv_eigen_fixed )
 
 ///////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( dgemv_matrixt )
-{
-  std::vector< RealMatrix > ma;
-  ma.resize( MSIZE );
-  for ( int i = 0; i < MSIZE; ++i )
-  {
-    ma[i].resize( LSIZE, LSIZE );
-    ma[i] = 2.0;
-  }
-
-  std::vector< RealVector > vb;
-  vb.resize( MSIZE );
-  for ( int i = 0; i < MSIZE; ++i )
-  {
-    vb[i].resize( LSIZE );
-    vb[i] = 5.0;
-  }
-
-  std::vector< RealVector > vc;
-  vc.resize( MSIZE );
-  for ( int i = 0; i < MSIZE; ++i )
-  {
-    vc[i].resize( LSIZE );
-    vc[i] = 0.0;
-  }
-
-  restart_timer();
-
-  for ( int i = 0; i < MSIZE; ++i )
-    vc[i] = ma[i] * vb[i];
-}
+// BOOST_AUTO_TEST_CASE( dgemv_matrixt )
+// {
+//   std::vector< RealMatrix > ma;
+//   ma.resize( MSIZE );
+//   for ( int i = 0; i < MSIZE; ++i )
+//   {
+//     ma[i].resize( LSIZE, LSIZE );
+//     ma[i] = 2.0;
+//   }
+// 
+//   std::vector< RealVector > vb;
+//   vb.resize( MSIZE );
+//   for ( int i = 0; i < MSIZE; ++i )
+//   {
+//     vb[i].resize( LSIZE );
+//     vb[i] = 5.0;
+//   }
+// 
+//   std::vector< RealVector > vc;
+//   vc.resize( MSIZE );
+//   for ( int i = 0; i < MSIZE; ++i )
+//   {
+//     vc[i].resize( LSIZE );
+//     vc[i] = 0.0;
+//   }
+// 
+//   restart_timer();
+// 
+//   for ( int i = 0; i < MSIZE; ++i )
+//     vc[i] = ma[i] * vb[i];
+// }
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -217,37 +213,37 @@ BOOST_AUTO_TEST_CASE( dgemm_eigen_fixed )
 
 ///////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( dgemm_matrixt )
-{
-  std::vector< RealMatrix > ma;
-  ma.resize( MSIZE );
-  for ( int i = 0; i < MSIZE; ++i )
-  {
-    ma[i].resize( LSIZE, LSIZE );
-    ma[i] = 2.0;
-  }
-
-  std::vector< RealMatrix > mb;
-  mb.resize( MSIZE );
-  for ( int i = 0; i < MSIZE; ++i )
-  {
-    mb[i].resize( LSIZE, LSIZE );
-    mb[i] = 7.0;
-  }
-
-  std::vector< RealMatrix > mc;
-  mc.resize( MSIZE );
-  for ( int i = 0; i < MSIZE; ++i )
-  {
-    mc[i].resize( LSIZE, LSIZE );
-    mc[i] = 0.0;
-  }
-
-  restart_timer();
-
-  for ( int i = 0; i < MSIZE; ++i )
-    mc[i] = ma[i] * mb[i];
-}
+// BOOST_AUTO_TEST_CASE( dgemm_matrixt )
+// {
+//   std::vector< RealMatrix > ma;
+//   ma.resize( MSIZE );
+//   for ( int i = 0; i < MSIZE; ++i )
+//   {
+//     ma[i].resize( LSIZE, LSIZE );
+//     ma[i] = 2.0;
+//   }
+// 
+//   std::vector< RealMatrix > mb;
+//   mb.resize( MSIZE );
+//   for ( int i = 0; i < MSIZE; ++i )
+//   {
+//     mb[i].resize( LSIZE, LSIZE );
+//     mb[i] = 7.0;
+//   }
+// 
+//   std::vector< RealMatrix > mc;
+//   mc.resize( MSIZE );
+//   for ( int i = 0; i < MSIZE; ++i )
+//   {
+//     mc[i].resize( LSIZE, LSIZE );
+//     mc[i] = 0.0;
+//   }
+// 
+//   restart_timer();
+// 
+//   for ( int i = 0; i < MSIZE; ++i )
+//     mc[i] = ma[i] * mb[i];
+// }
 
 ///////////////////////////////////////////////////////////////////////////////
 

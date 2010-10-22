@@ -17,7 +17,7 @@
 
 #include "Mesh/CArray.hpp"
 #include "Mesh/CTable.hpp"
-#include "Mesh/ElementNodes.hpp"
+#include "Mesh/ElementData.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/SF/Line3DLagrangeP1.hpp"
 
@@ -35,11 +35,14 @@ using namespace CF::Tools::Testing;
 
 //////////////////////////////////////////////////////////////////////////////
 
+typedef Line3DLagrangeP1 SFT;
+
 struct LagrangeSFLine3DLagrangeP1Fixture
 {
-  typedef std::vector<RealVector> NodesT;
+  typedef SFT::NodeMatrixT NodesT;
   /// common setup for each test case
-  LagrangeSFLine3DLagrangeP1Fixture() : mapped_coords(init_mapped_coords()), nodes(init_nodes())
+  LagrangeSFLine3DLagrangeP1Fixture() : mapped_coords((SFT::MappedCoordsT() << .2).finished()), nodes((NodesT() << 5., 7., 2.,
+                                                                              10., 3., 3.).finished())
   {
   }
 
@@ -83,21 +86,20 @@ struct LagrangeSFLine3DLagrangeP1Fixture
     coord_row[ZZ] = segments * height_step;
   }
 
-  const RealVector mapped_coords;
+  const SFT::MappedCoordsT mapped_coords;
   const NodesT nodes;
 
-  template<typename ShapeF>
   struct ConstFunctor
   {
-    ConstFunctor(const NodesT& node_list) : mapped_coords(3), m_nodes(node_list) {}
+    ConstFunctor(const NodesT& node_list) : m_nodes(node_list) {}
 
     Real operator()() const
     {
-      RealMatrix jac(ShapeF::dimensionality, ShapeF::dimension);
-      ShapeF::jacobian(mapped_coords, m_nodes, jac);
-      return sqrt(jac[XX]*jac[XX] + jac[YY]*jac[YY] + jac[ZZ]*jac[ZZ]);
+      SFT::JacobianT jac;
+      SFT::jacobian(mapped_coords, m_nodes, jac);
+      return jac.norm();
     }
-    RealVector mapped_coords;
+    SFT::MappedCoordsT mapped_coords;
   private:
     const NodesT& m_nodes;
   };
@@ -105,63 +107,47 @@ struct LagrangeSFLine3DLagrangeP1Fixture
   /// Returns the norm of the tangen vector to the curve
   struct TangentVectorNorm {
 
-    template<typename NodesT, typename GeoSF>
-    Real operator()(const RealVector& mapped_coords, const NodesT& nodes, const GeoSF& sf)
+    template<typename NodesT>
+    Real operator()(const SFT::MappedCoordsT& mapped_coords, const NodesT& nodes)
     {
-      cf_assert(GeoSF::dimensionality == 1);
-      RealMatrix jac(GeoSF::dimensionality, GeoSF::dimension);
-      GeoSF::jacobian(mapped_coords, nodes, jac);
+      SFT::JacobianT jac;
+      SFT::jacobian(mapped_coords, nodes, jac);
       Real result = 0.;
-      for(Uint i = 0; i != GeoSF::dimension; ++i)
+      for(Uint i = 0; i != SFT::dimension; ++i)
       {
         result += jac(0, i) * jac(0, i);
       }
       return sqrt(result);
     }
-
   };
 
   Real square(const Real a)
   {
     return a*a;
   }
-
-private:
-  /// Workaround for boost:assign ambiguity
-  RealVector init_mapped_coords()
-  {
-    return list_of(0.2);
-  }
-
-  /// Workaround for boost:assign ambiguity
-  NodesT init_nodes()
-  {
-    const RealVector c0 = list_of(5.)(7.)(2.);
-    const RealVector c1 = list_of(10.)(3.)(3.);
-    return list_of(c0)(c1);
-  }
 };
 
-/// Mimic a possible new integration interface
-template<typename ResultT, typename FunctorT, typename GeoSF>
-void integrate_region(ResultT& result, FunctorT functor, const CArray& coordinates, const CTable& connectivity, const GeoSF& geo_sf)
+/// Integral over a region
+template<typename ResultT, typename FunctorT>
+void integrate_region(ResultT& result, FunctorT functor, const CArray& coordinates, const CTable& connectivity)
 {
   const Uint nb_elems = connectivity.array().size();
   for(Uint elem_idx = 0; elem_idx != nb_elems; ++ elem_idx)
   {
-    const ConstElementNodeView nodes(coordinates, connectivity.array()[elem_idx]);
-    integrate_element(result, functor, nodes, geo_sf);
+    SFT::NodeMatrixT nodes;
+    fill(nodes, coordinates, connectivity.array()[elem_idx]);
+    integrate_element(result, functor, nodes);
   }
 }
 
-/// Mimic a possible new integration interface. Integration over a single element
-template<typename ResultT, typename FunctorT, typename NodesT, typename GeoSF>
-void integrate_element(ResultT& result, FunctorT functor, const NodesT& nodes, const GeoSF& sf)
+/// Integral over an element
+template<typename ResultT, typename FunctorT, typename NodesT>
+void integrate_element(ResultT& result, FunctorT functor, const NodesT& nodes)
 {
   static const double mu = 0.;
   static const double w = 2.;
-  static const RealVector mapped_coords = boost::assign::list_of(mu);
-  result += w * functor(mapped_coords, nodes, sf);
+  static const SFT::MappedCoordsT mapped_coords((SFT::MappedCoordsT() << mu).finished());
+  result += w * functor(mapped_coords, nodes);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -172,16 +158,17 @@ BOOST_FIXTURE_TEST_SUITE( Line3DLagrangeP1Suite, LagrangeSFLine3DLagrangeP1Fixtu
 
 BOOST_AUTO_TEST_CASE( Length )
 {
-  boost::multi_array<Real,2> nodes_line3D (boost::extents[2][3]);
-  nodes_line3D[0][XX] = 2.0;     nodes_line3D[0][YY] = 2.0;     nodes_line3D[0][ZZ] = 2.0;
-  nodes_line3D[1][XX] = 1.0;     nodes_line3D[1][YY] = 1.0;     nodes_line3D[1][ZZ] = 1.0;
+  NodesT nodes_line3D;
+  nodes_line3D << 2., 2., 2.,
+                  1., 1., 1.;
   BOOST_CHECK_EQUAL(Line3DLagrangeP1::length(nodes_line3D),std::sqrt(3.));
 }
 
 BOOST_AUTO_TEST_CASE( ShapeFunction )
 {
-  const RealVector reference_result = list_of(0.4)(0.6)(1.);
-  RealVector result(Line3DLagrangeP1::nb_nodes);
+  SFT::ShapeFunctionsT reference_result;
+  reference_result << 0.4, 0.6;
+  SFT::ShapeFunctionsT result;
   Line3DLagrangeP1::shape_function(mapped_coords, result);
   Accumulator accumulator;
   vector_test(result, reference_result, accumulator);
@@ -190,10 +177,8 @@ BOOST_AUTO_TEST_CASE( ShapeFunction )
 
 BOOST_AUTO_TEST_CASE( MappedGradient )
 {
-  RealMatrix result(Line3DLagrangeP1::dimension, Line3DLagrangeP1::nb_nodes);
-  RealMatrix expected(Line3DLagrangeP1::dimension, Line3DLagrangeP1::nb_nodes);
-  expected(0,0) = -0.5;
-  expected(0,1) = 0.5;
+  SFT::MappedGradientT result;
+  SFT::MappedGradientT expected(-0.5, 0.5);
   Line3DLagrangeP1::mapped_gradient(mapped_coords, result);
   Accumulator accumulator;
   vector_test(result, expected, accumulator);
@@ -202,11 +187,8 @@ BOOST_AUTO_TEST_CASE( MappedGradient )
 
 BOOST_AUTO_TEST_CASE( Jacobian )
 {
-  RealMatrix expected(Line3DLagrangeP1::dimensionality, Line3DLagrangeP1::dimension);
-  expected(KSI,XX) = 2.5;
-  expected(KSI,YY) = -2.;
-  expected(KSI,ZZ) = 0.5;
-  RealMatrix result(Line3DLagrangeP1::dimensionality, Line3DLagrangeP1::dimension);
+  SFT::JacobianT expected(2.5, -2., 0.5);
+  SFT::JacobianT result;
   Line3DLagrangeP1::jacobian(mapped_coords, nodes, result);
   Accumulator accumulator;
   vector_test(result, expected, accumulator);
@@ -215,7 +197,7 @@ BOOST_AUTO_TEST_CASE( Jacobian )
 
 BOOST_AUTO_TEST_CASE( IntegrateConst )
 {
-  ConstFunctor<Line3DLagrangeP1> ftor(nodes);
+  ConstFunctor ftor(nodes);
   const Real len = Line3DLagrangeP1::length(nodes);
 
   Real result1 = 0.0;
@@ -253,11 +235,9 @@ BOOST_AUTO_TEST_CASE( LineIntegral )
   CTable connectivity("connectivity");
   create_helix(coordinates, connectivity, radius, height, tours, segments);
 
-  Line3DLagrangeP1 aSF; /* temporary solution, on Mac it tries to use copy-constructor */
-
   // Check the length, using the line integral of one times the norm of the tangent vector
   Real length = 0.;
-  integrate_region(length, TangentVectorNorm(), coordinates, connectivity, aSF);
+  integrate_region(length, TangentVectorNorm(), coordinates, connectivity);
   BOOST_CHECK_CLOSE(length, tours*sqrt((square(2.*MathConsts::RealPi()*radius)+square(height/tours))), 0.01);
 }
 

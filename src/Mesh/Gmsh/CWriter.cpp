@@ -287,7 +287,8 @@ void CWriter::write_elem_nodal_data(std::fstream& file)
 				default:
 					break;
 			}
-			RealVector data(0.0, datasize); 
+			RealVector data(datasize);
+      data.setZero();
 
 			
 			file << "$ElementNodeData\n";
@@ -521,7 +522,8 @@ void CWriter::write_element_data(std::fstream& file)
 				default:
 					break;
 			}
-			RealVector data(0.0, datasize); 
+			RealVector data(datasize);
+      data.setZero(); 
 			
 			file << "$ElementData\n";
 			file << 1 << "\n";

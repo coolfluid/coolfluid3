@@ -16,7 +16,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/ConnectivityData.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/ElementNodes.hpp"
+#include "Mesh/ElementData.hpp"
 
 #include "Mesh/SF/Hexa3DLagrangeP1.hpp"
 #include "Mesh/SF/Line1DLagrangeP1.hpp"
@@ -559,8 +559,9 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
   Uint element_idx = 0; // global element index
   for(Uint block = blocks_begin; block != blocks_end; ++block)
   {
-    ElementNodeVector block_nodes;
-    fill_node_list(block_nodes, block_coordinates, block_connectivity[block]);
+    typedef Hexa3DLagrangeP1 SF;
+    SF::NodeMatrixT block_nodes;
+    fill(block_nodes, block_coordinates, block_connectivity[block]);
     const BlockData::IndicesT& segments = block_data.block_subdivisions[block];
     const BlockData::GradingT& gradings = block_data.block_gradings[block];
     
@@ -597,14 +598,16 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
           w_mag[ZTA] = (w[0][ZTA] + w[1][ZTA] + w[2][ZTA] + w[3][ZTA]);
           
           // Get the mapped coordinates of the node to add
-          RealVector mapped_coords(3);
+          SF::MappedCoordsT mapped_coords;
           mapped_coords[KSI] = (w[0][KSI]*ksi[i][0] + w[1][KSI]*ksi[i][1] + w[2][KSI]*ksi[i][2] + w[3][KSI]*ksi[i][3]) / w_mag[KSI];
           mapped_coords[ETA] = (w[0][ETA]*eta[j][0] + w[1][ETA]*eta[j][1] + w[2][ETA]*eta[j][2] + w[3][ETA]*eta[j][3]) / w_mag[ETA];
           mapped_coords[ZTA] = (w[0][ZTA]*zta[k][0] + w[1][ZTA]*zta[k][1] + w[2][ZTA]*zta[k][2] + w[3][ZTA]*zta[k][3]) / w_mag[ZTA];
           
+          SF::ShapeFunctionsT sf;
+          SF::shape_function(mapped_coords, sf);
+          
           // Transform to real coordinates
-          RealVector coords(0., 3);
-          eval<Hexa3DLagrangeP1>(mapped_coords, block_nodes, coords);
+          SF::CoordsT coords = sf * block_nodes;
           
           // Store the result
           const Uint node_idx = nodes(block, i, j, k);
@@ -1096,16 +1099,18 @@ void partition_blocks(const BlockData& blocks_in, const Uint nb_partitions, cons
               node_is_mapped[original_end_node_idx] = true;
               end_node_mapping[original_end_node_idx] = blocks_out.points.size();
               // Get new block node coords
-              const RealVector mapped_coord(mapped_coords[partition_nb_slices][grading_idx], 1);
+              Line1DLagrangeP1::MappedCoordsT mapped_coord;
+              mapped_coord << mapped_coords[partition_nb_slices][grading_idx];
 
               const BlockData::PointT& old_node = blocks_in.points[original_end_node_idx];
-              RealVector node_1d(0., 1);
-              RealVector new_node(0., 3);
+              RealVector3 new_node;
               
-              ElementNodeVector block_nodes(2, RealVector(1));
-              block_nodes[0][XX] = block_coordinates[original_start_node_idx][direction];
-              block_nodes[1][XX] = block_coordinates[original_end_node_idx][direction];
-              eval<Line1DLagrangeP1>(mapped_coord, block_nodes, node_1d);
+              Line1DLagrangeP1::NodeMatrixT block_nodes;
+              block_nodes(0, XX) = block_coordinates[original_start_node_idx][direction];
+              block_nodes(1, XX) = block_coordinates[original_end_node_idx][direction];
+              Line1DLagrangeP1::ShapeFunctionsT sf_1d;
+              Line1DLagrangeP1::shape_function(mapped_coord, sf_1d);
+              const Line1DLagrangeP1::CoordsT node_1d = sf_1d * block_nodes;
               
               new_node[XX] = direction == XX ? node_1d[XX] : old_node[XX];
               new_node[YY] = direction == YY ? node_1d[XX] : old_node[YY];

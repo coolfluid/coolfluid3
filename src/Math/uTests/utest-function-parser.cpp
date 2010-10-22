@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE( function_1 )
   CF::Math::VectorialFunction f ("[x/y]","x,y");
 
   RealVector r(1);
-  RealVector u = boost::assign::list_of(1.0)(3.0);
+  CF::Math::VectorialFunction::VariablesT u = boost::assign::list_of(1.0)(3.0);
 
   r = f(u);
 
@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE( function_2 )
   CF::Math::VectorialFunction f ("[x+y][5*z]","x,y,z");
 
   RealVector r(2);
-  RealVector u = boost::assign::list_of(2.0)(3.0)(7.0);
+  CF::Math::VectorialFunction::VariablesT u = boost::assign::list_of(2.0)(3.0)(7.0);
 
   r = f(u);
 

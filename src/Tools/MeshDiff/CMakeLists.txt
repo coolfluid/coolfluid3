@@ -9,7 +9,7 @@ list( APPEND coolfluid_meshdiff_files
 
 list( APPEND coolfluid_meshdiff_cflibs coolfluid_mesh)
 if( CF_BUILD_GooglePerfTools AND CF_ENABLE_PROFILING )
-  list( APPEND coolfluid_meshdiff_cflibs GooglePerfTools )
+  list( APPEND coolfluid_meshdiff_cflibs coolfluid_google_perftools )
 endif()
 
 coolfluid_add_library( coolfluid_meshdiff )

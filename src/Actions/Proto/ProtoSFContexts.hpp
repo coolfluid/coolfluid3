@@ -161,54 +161,6 @@ struct SFContext
   RealMatrix gradient_real_transposed;
 };
 
-////////////////////////////
-// Sizing of the result
-
-template<typename SF, typename TagT>
-struct SizeOfResult;
-
-template<typename SF>
-struct SizeOfResult<SF, volume_tag>
-{
-  typedef ResultSize<1, 1> type;
-};
-
-template<typename SF>
-struct SizeOfResult<SF, jacobian_tag>
-{
-  typedef ResultSize<SF::dimensionality, SF::dimension> type;
-};
-
-template<typename SF>
-struct SizeOfResult<SF, jacobian_adjoint_tag>
-{
-  typedef ResultSize<SF::dimension, SF::dimension> type;
-};
-
-template<typename SF>
-struct SizeOfResult<SF, jacobian_determinant_tag>
-{
-  typedef ResultSize<1, 1> type;
-};
-
-template<typename SF>
-struct SizeOfResult<SF, mapped_gradient_tag>
-{
-  typedef ResultSize<SF::dimension, SF::nb_nodes> type;
-};
-
-template<typename SF>
-struct SizeOfResult<SF, normal_tag>
-{
-  typedef ResultSize<SF::dimension, 1> type;
-};
-
-template<typename SF>
-struct SizeOfResult<SF, laplacian_tag>
-{
-  typedef ResultSize<SF::nb_nodes, SF::nb_nodes> type;
-};
-
 } // namespace Actions
 } // namespace CF
 

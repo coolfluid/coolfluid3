@@ -38,19 +38,19 @@ Real Line1DLagrangeP1::computeVolume(const NodesT& coord) const
 }
 
 
-bool Line1DLagrangeP1::is_coord_in_element(const RealVector& coord, const NodesT& nodes) const
+bool Line1DLagrangeP1::is_coord_in_element( const RealVector& coord, const NodesT& nodes) const
 {
-	RealVector mapped_coord(coord.size());
-	mapped_coordinates(coord, nodes, mapped_coord);
-	if( (mapped_coord[KSI] >= -0.5) &&
-		  (mapped_coord[KSI] <= 0.5) )
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+  MappedCoordsT mapped_coord;
+  mapped_coordinates(CoordsT(coord), nodes, mapped_coord);
+  if( (mapped_coord[KSI] >= -0.5) &&
+      (mapped_coord[KSI] <= 0.5) )
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 const CF::Mesh::ElementType::FaceConnectivity& Line1DLagrangeP1::face_connectivity() const

@@ -21,7 +21,12 @@ add_custom_command(TARGET utest-actions
                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/rotation-qd.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                   )
 
-################################################################################
+add_custom_command(TARGET utest-actions
+                   POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/rotation-qd.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                  )
+if(CF_ENABLE_PROTO)
+  ################################################################################
 # test Proto operations
 
 list( APPEND utest-proto-operators_cflibs coolfluid_mesh coolfluid_actions coolfluid_sf coolfluid_blockmesh coolfluid_testing coolfluid_mesh_generation )
@@ -36,3 +41,9 @@ list( APPEND utest-proto-heat_cflibs coolfluid_mesh coolfluid_actions coolfluid_
 list( APPEND utest-proto-heat_files
   utest-proto-heat.cpp )
 coolfluid_add_unittest( utest-proto-heat )
+
+else()
+
+coolfluid_mark_not_orphan(utest-proto-heat.cpp utest-proto-operators.cpp)
+
+endif()

@@ -7,7 +7,7 @@
 #ifndef CF_Mesh_SF_Triag3DLagrangeP1_hpp
 #define CF_Mesh_SF_Triag3DLagrangeP1_hpp
 
-#include "Math/RealMatrix.hpp"
+#include "Math/MatrixTypes.hpp"
 
 #include "Mesh/Triag3D.hpp"
 
@@ -28,13 +28,28 @@ namespace SF {
 /// @author Bart Janssens
 struct SF_API Triag3DLagrangeP1  : public Triag3D
 {
+  /// Number of nodes
+  static const Uint nb_nodes = 3;
+
+  /// Order of the shape function
+  static const Uint order = 1;
+  
+  /// Types for the matrices used
+  typedef Eigen::Matrix<Real, dimension, 1> CoordsT;
+  typedef Eigen::Matrix<Real, dimensionality, 1> MappedCoordsT;
+  typedef Eigen::Matrix<Real, nb_nodes, dimension> NodeMatrixT;
+  typedef Eigen::Matrix<Real, 1, nb_nodes> ShapeFunctionsT;
+  typedef Eigen::Matrix<Real, dimensionality, nb_nodes> MappedGradientT;
+  typedef Eigen::Matrix<Real, dimensionality, dimension> JacobianT;
+
+  
   Triag3DLagrangeP1();
 
   /// Compute the shape functions corresponding to the given
   /// mapped coordinates
   /// @param mapped_coord The mapped coordinates
   /// @param shapeFunc Vector storing the result
-  static void shape_function(const RealVector& mapped_coord, RealVector& shape_func)
+  static void shape_function(const MappedCoordsT& mapped_coord, ShapeFunctionsT& shape_func)
   {
     Triag2DLagrangeP1::shape_function(mapped_coord, shape_func);
   }
@@ -43,7 +58,7 @@ struct SF_API Triag3DLagrangeP1  : public Triag3D
   /// mapped coordinates.
   /// @param mapped_coord The mapped coordinates where the gradient should be calculated
   /// @param result Storage for the resulting gradient matrix
-  static void mapped_gradient(const RealVector& mapped_coord, RealMatrix& result)
+  static void mapped_gradient(const MappedCoordsT& mapped_coord, MappedGradientT& result)
   {
     Triag2DLagrangeP1::mapped_gradient(mapped_coord, result);
   }
@@ -53,25 +68,19 @@ struct SF_API Triag3DLagrangeP1  : public Triag3D
   /// @param mapped_coord The mapped coordinates where the Jacobian should be calculated
   /// @param result Storage for the resulting Jacobian matrix
   template<typename NodesT>
-  static void jacobian(const RealVector& mapped_coord, const NodesT& nodes, RealMatrix& result)
+  static void jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& result)
   {
-    cf_assert(result.nbRows() == dimensionality);
-    cf_assert(result.nbCols() == dimension);
+    const Real x0 = nodes(0, XX);
+    const Real x1 = nodes(1, XX);
+    const Real x2 = nodes(2, XX);
 
-    //const Real xi = mapped_coord[KSI];
-    //const Real eta = mapped_coord[ETA];
+    const Real y0 = nodes(0, YY);
+    const Real y1 = nodes(1, YY);
+    const Real y2 = nodes(2, YY);
 
-    const Real x0 = nodes[0][XX];
-    const Real x1 = nodes[1][XX];
-    const Real x2 = nodes[2][XX];
-
-    const Real y0 = nodes[0][YY];
-    const Real y1 = nodes[1][YY];
-    const Real y2 = nodes[2][YY];
-
-    const Real z0 = nodes[0][ZZ];
-    const Real z1 = nodes[1][ZZ];
-    const Real z2 = nodes[2][ZZ];
+    const Real z0 = nodes(0, ZZ);
+    const Real z1 = nodes(1, ZZ);
+    const Real z2 = nodes(2, ZZ);
 
     result(KSI,XX) = x1 - x0;
     result(KSI,YY) = y1 - y0;
@@ -86,10 +95,9 @@ struct SF_API Triag3DLagrangeP1  : public Triag3D
   /// @param mapped_coord The mapped coordinates where the Jacobian should be calculated
   /// @param result Storage for the resulting Jacobian matrix
   template<typename NodesT>
-  static void normal(const RealVector& mapped_coord, const NodesT& nodes, RealVector& result)
+  static void normal(const MappedCoordsT& mapped_coord, const NodesT& nodes, CoordsT& result)
   {
-    cf_assert(result.size() == dimension);
-    RealMatrix jac(dimensionality, dimension);
+    JacobianT jac;
     jacobian(mapped_coord, nodes, jac);
 
     result[XX] = jac(KSI,YY)*jac(ETA,ZZ) - jac(KSI,ZZ)*jac(ETA,YY);
@@ -110,30 +118,23 @@ struct SF_API Triag3DLagrangeP1  : public Triag3D
   template<typename NodesT>
   static Real area(const NodesT& nodes)
   {
-    RealVector n(dimension);
-    RealVector center(0., 2);
-    normal(center, nodes, n);
-    return 0.5*n.norm2();
+    CoordsT n;
+    normal(MappedCoordsT::Zero(), nodes, n);
+    return 0.5*n.norm();
   }
-
-  /// Number of nodes
-  static const Uint nb_nodes = 3;
-
-  /// Order of the shape function
-  static const Uint order = 1;
 
   /// Given nodal values, write the interpolation
-  template<typename NodalValuesT, typename ValueT>
-  void operator()(const RealVector& mapped_coord, const NodalValuesT& nodal_values, ValueT& interpolation) const
-  {
-    cf_assert(mapped_coord.size() == dimensionality);
-    cf_assert(nodal_values.size() == nb_nodes);
-
-    RealVector sf(nb_nodes);
-    shape_function(mapped_coord, sf);
-
-    interpolation = sf[0]*nodal_values[0] + sf[1]*nodal_values[1] + sf[2]*nodal_values[2];
-  }
+//   template<typename NodalValuesT, typename ValueT>
+//   void operator()(const MappedCoo& mapped_coord, const NodalValuesT& nodal_values, ValueT& interpolation) const
+//   {
+//     cf_assert(mapped_coord.size() == dimensionality);
+//     cf_assert(nodal_values.size() == nb_nodes);
+// 
+//     RealVector sf(nb_nodes);
+//     shape_function(mapped_coord, sf);
+// 
+//     interpolation = sf[0]*nodal_values[0] + sf[1]*nodal_values[1] + sf[2]*nodal_values[2];
+//   }
 
   virtual std::string getElementTypeName() const;
 

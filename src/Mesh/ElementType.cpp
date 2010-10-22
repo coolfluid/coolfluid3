@@ -21,12 +21,6 @@ ElementType::~ElementType()
 {
 }
 
-Real ElementType::jacobian_determinantV( const CF::RealVector& mapped_coord, const CF::Mesh::ElementType::NodesT& nodes) const
-{
-  throw Common::NotImplemented(FromHere(), "Shape function " + getElementTypeName() + " does not support jacobian_determinants");
-}
-
-
 ////////////////////////////////////////////////////////////////////////////////
 
 } // namespace Mesh

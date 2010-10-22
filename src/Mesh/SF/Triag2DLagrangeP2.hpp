@@ -9,7 +9,7 @@
 
 #include "Common/BasicExceptions.hpp"
 
-#include "Math/RealMatrix.hpp"
+#include "Math/MatrixTypes.hpp"
 #include "Math/MathConsts.hpp"
 
 #include "Mesh/Triag2D.hpp"
@@ -38,16 +38,21 @@ struct SF_API Triag2DLagrangeP2  : public Triag2D
 
   /// Order of the shape function
   static const Uint order = 2;
+  
+  /// Types for the matrices used
+  typedef Eigen::Matrix<Real, dimension, 1> CoordsT;
+  typedef Eigen::Matrix<Real, dimensionality, 1> MappedCoordsT;
+  typedef Eigen::Matrix<Real, nb_nodes, dimension> NodeMatrixT;
+  typedef Eigen::Matrix<Real, 1, nb_nodes> ShapeFunctionsT;
+  typedef Eigen::Matrix<Real, dimensionality, nb_nodes> MappedGradientT;
+  typedef Eigen::Matrix<Real, dimensionality, dimension> JacobianT;
 
   /// Compute the shape functions corresponding to the given
   /// mapped coordinates
   /// @param map_coord The mapped coordinates
   /// @param shapef Vector storing the result
-  static void shape_function(const RealVector& map_coord, RealVector& shapef)
+  static void shape_function(const MappedCoordsT& map_coord, ShapeFunctionsT& shapef)
   {
-    cf_assert( shapef.size()    == nb_nodes );
-    cf_assert( map_coord.size() == dimension );
-
     const Real L0 = 1.0 - map_coord[0] - map_coord[1];
     const Real L1 = map_coord[0];
     const Real L2 = map_coord[1];
@@ -65,7 +70,7 @@ struct SF_API Triag2DLagrangeP2  : public Triag2D
   /// @param nodes contains the nodes
   /// @param map_coord Store the output mapped coordinates
   template<typename NodesT>
-  static void mapped_coordinates(const RealVector& coord, const NodesT& nodes, RealVector& map_coord)
+  static void mapped_coordinates(const CoordsT& coord, const NodesT& nodes, MappedCoordsT& map_coord)
   {
     throw Common::NotImplemented( FromHere(), "" );
 
@@ -75,8 +80,8 @@ struct SF_API Triag2DLagrangeP2  : public Triag2D
 
     const Real invDet = 1. / jacobian_determinant(nodes);
 
-    map_coord[KSI] = invDet * ((nodes[2][YY] - nodes[0][YY])*coord[XX] + (nodes[0][XX] - nodes[2][XX])*coord[YY] - nodes[0][XX]*nodes[2][YY] + nodes[2][XX]*nodes[0][YY]);
-    map_coord[ETA] = invDet * ((nodes[0][YY] - nodes[1][YY])*coord[XX] + (nodes[1][XX] - nodes[0][XX])*coord[YY] + nodes[0][XX]*nodes[1][YY] - nodes[1][XX]*nodes[0][YY]);
+    map_coord[KSI] = invDet * ((nodes(2, YY) - nodes(0, YY))*coord[XX] + (nodes(0, XX) - nodes(2, XX))*coord[YY] - nodes(0, XX)*nodes(2, YY) + nodes(2, XX)*nodes(0, YY));
+    map_coord[ETA] = invDet * ((nodes(0, YY) - nodes(1, YY))*coord[XX] + (nodes(1, XX) - nodes(0, XX))*coord[YY] + nodes(0, XX)*nodes(1, YY) - nodes(1, XX)*nodes(0, YY));
 
   }
 
@@ -85,11 +90,8 @@ struct SF_API Triag2DLagrangeP2  : public Triag2D
   /// The result needs to be multiplied with the inverse jacobian to get the result in real coordinates.
   /// @param map_coord The mapped coordinates where the gradient should be calculated
   /// @param result Storage for the resulting gradient matrix
-  static void mapped_gradient(const RealVector& map_coord, RealMatrix& result)
+  static void mapped_gradient(const MappedCoordsT& map_coord, MappedGradientT& result)
   {
-    cf_assert(result.nbCols() == nb_nodes);
-    cf_assert(result.nbRows() == dimension);
-
     const Real L0 = 1.0 - map_coord[0] - map_coord[1];
     const Real L1 = map_coord[0];
     const Real L2 = map_coord[1];
@@ -115,7 +117,7 @@ struct SF_API Triag2DLagrangeP2  : public Triag2D
 
   /// Compute the jacobian determinant at the given mapped coordinates
   template<typename NodesT>
-  static Real jacobian_determinant(const RealVector& map_coord, const NodesT& nodes)
+  static Real jacobian_determinant(const MappedCoordsT& map_coord, const NodesT& nodes)
   {
     return jacobian_determinant(nodes);
   }
@@ -124,32 +126,26 @@ struct SF_API Triag2DLagrangeP2  : public Triag2D
   /// @param map_coord The mapped coordinates where the Jacobian should be calculated
   /// @param result Storage for the resulting Jacobian matrix
   template<typename NodesT>
-  static void jacobian(const RealVector& map_coord, const NodesT& nodes, RealMatrix& result)
+  static void jacobian(const MappedCoordsT& map_coord, const NodesT& nodes, JacobianT& result)
   {
-    cf_assert( result.nbRows() == dimension );
-    cf_assert( result.isSquare() );
-
-    result(KSI,XX) = nodes[1][XX] - nodes[0][XX];
-    result(KSI,YY) = nodes[1][YY] - nodes[0][YY];
-    result(ETA,XX) = nodes[2][XX] - nodes[0][XX];
-    result(ETA,YY) = nodes[2][YY] - nodes[0][YY];
+    result(KSI,XX) = nodes(1, XX) - nodes(0, XX);
+    result(KSI,YY) = nodes(1, YY) - nodes(0, YY);
+    result(ETA,XX) = nodes(2, XX) - nodes(0, XX);
+    result(ETA,YY) = nodes(2, YY) - nodes(0, YY);
   }
 
   /// Compute the adjoint of Jacobian matrix
   /// @param map_coord The mapped coordinates where the Jacobian should be calculated
   /// @param result Storage for the resulting adjoint
   template<typename NodesT>
-  static void jacobian_adjoint(const RealVector& map_coord, const NodesT& nodes, RealMatrix& result)
+  static void jacobian_adjoint(const MappedCoordsT& map_coord, const NodesT& nodes, JacobianT& result)
   {
     throw Common::NotImplemented( FromHere(), "" );
 
-    cf_assert(result.nbRows() == 2);
-    cf_assert(result.isSquare());
-
-    result(KSI,XX) = nodes[2][YY] - nodes[0][YY];
-    result(KSI,YY) = nodes[0][YY] - nodes[1][YY];
-    result(ETA,XX) = nodes[0][XX] - nodes[2][XX];
-    result(ETA,YY) = nodes[1][XX] - nodes[0][XX];
+    result(KSI,XX) = nodes(2, YY) - nodes(0, YY);
+    result(KSI,YY) = nodes(0, YY) - nodes(1, YY);
+    result(ETA,XX) = nodes(0, XX) - nodes(2, XX);
+    result(ETA,YY) = nodes(1, XX) - nodes(0, XX);
 
   }
 
@@ -161,11 +157,11 @@ struct SF_API Triag2DLagrangeP2  : public Triag2D
   }
 	
   template<typename NodesT>
-  static bool in_element(const RealVector& coord, const NodesT& nodes)
+  static bool in_element(const CoordsT& coord, const NodesT& nodes)
   {
     throw Common::NotImplemented( FromHere(), "" );
 
-    RealVector mapped_coord(coord.size());
+    MappedCoordsT mapped_coord;
     mapped_coordinates(coord, nodes, mapped_coord);
     if( (mapped_coord[KSI] >= -Math::MathConsts::RealEps()) &&
         (mapped_coord[ETA] >= -Math::MathConsts::RealEps()) &&
@@ -197,12 +193,12 @@ static Real jacobian_determinant(const NodesT& nodes)
 {
   throw Common::NotImplemented( FromHere(), "" );
 
-  const Real x0 = nodes[0][XX];
-  const Real x1 = nodes[1][XX];
-  const Real x2 = nodes[2][XX];
-  const Real y0 = nodes[0][YY];
-  const Real y1 = nodes[1][YY];
-  const Real y2 = nodes[2][YY];
+  const Real x0 = nodes(0, XX);
+  const Real x1 = nodes(1, XX);
+  const Real x2 = nodes(2, XX);
+  const Real y0 = nodes(0, YY);
+  const Real y1 = nodes(1, YY);
+  const Real y2 = nodes(2, YY);
 
   return (x1 - x0) * (y2 - y0) - (x2 - x0) * (y1 - y0);
 }

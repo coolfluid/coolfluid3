@@ -37,6 +37,8 @@
 #include <boost/math/tools/test.hpp>
 #include <boost/static_assert.hpp>
 
+#include <Eigen/Dense>
+
 #include "Common/CF.hpp"
 
 namespace CF {
@@ -135,6 +137,17 @@ void vector_test(const VectorT& A, const VectorT& B, Accumulator& Result)
     test(A[i], B[j], Result);
 
   Result.exact(sizeA == sizeB);
+};
+
+/// Compares Eigen matrices or vectors
+template<int NbRows, int NbCols>
+void vector_test(const Eigen::Matrix<Real, NbRows, NbCols>& A, const Eigen::Matrix<Real, NbRows, NbCols>& B, Accumulator& Result)
+{
+  for(int i = 0, k = 0; i != A.rows() && k != B.rows(); ++i, ++k)
+    for(int j = 0, l = 0; j != A.cols() && l != B.cols(); ++j, ++l)
+      test(A(i, j), B(k, l), Result);
+
+  Result.exact(A.rows() == B.rows() && A.cols() == B.cols());
 };
 
 } // namespace Testing

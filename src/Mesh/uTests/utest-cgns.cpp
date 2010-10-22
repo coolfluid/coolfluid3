@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE "Test module for CGNS"
 #include <boost/test/unit_test.hpp>
 #include <boost/foreach.hpp>
 #include <boost/filesystem/path.hpp>
@@ -15,7 +16,6 @@
 #include "Common/OSystem.hpp"
 #include "Common/LibLoader.hpp"
 
-#include "Math/RealVector.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"

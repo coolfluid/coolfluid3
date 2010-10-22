@@ -19,7 +19,7 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CArray.hpp"
-#include "Mesh/ElementNodes.hpp"
+#include "Mesh/ElementData.hpp"
 #include "Mesh/ElementType.hpp"
 
 #include "Mesh/CMeshWriter.hpp"
@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
     ElementType::NodesT elementCoordinates(elementType.nb_nodes(), elementType.dimension());
     for (Uint iElem=0; iElem<nbRows; ++iElem)
     {
-      elementCoordinates.fill(region_coordinates, region_connTable[iElem]);
+      fill(elementCoordinates, region_coordinates, region_connTable[iElem]);
 
       volumes[iElem]=elementType.computeVolume(elementCoordinates);
 

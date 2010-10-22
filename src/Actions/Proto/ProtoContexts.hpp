@@ -198,8 +198,6 @@ struct ElementVarContext< SF, Field<RealMatrix> >
   const Mesh::CTable* connectivity;
 };
 */
-template<typename ShapeFunctionT>
-struct MeshSizeContext;
 
 template<typename T>
 struct error_printer {};
@@ -375,10 +373,8 @@ struct ElementMeshContext
     
     typedef typename boost::proto::result_of::eval
     <
-      ChildT, MeshSizeContext<SF>
-    >::type TypeSizeT;
-    
-    typedef typename TypeSizeT::result_type result_type;
+      ChildT, ThisContextT
+    >::type result_type;
 
     result_type operator()(Expr& expr, ThisContextT& context)
     {
@@ -419,97 +415,6 @@ struct ElementMeshContext
       NodesT nodes = boost::proto::eval(boost::proto::left(expr), context);
       for(context.element_node_idx = 0; context.element_node_idx != nodes.size(); ++context.element_node_idx)
         boost::proto::eval(boost::proto::right(expr), context);
-    }
-  };
-};
-
-/// Context for detrmining the result size and type of mesh expressions
-template<typename ShapeFunctionT>
-struct MeshSizeContext
-{ 
-  typedef ShapeFunctionT SF;
-  typedef MeshSizeContext<ShapeFunctionT> ThisContextT;
-  
-  template<typename Expr,
-           typename Tag = typename Expr::proto_tag,
-           typename Arg = typename Expr::proto_child0>
-  struct eval
-    : boost::proto::default_eval<Expr, ThisContextT>
-  {};
-  
-  /// Unless specialized, terminals evaluate to a 1x1 value
-  template<typename Expr, typename T>
-  struct eval< Expr, boost::proto::tag::terminal, T >
-  {
-    typedef ResultSize<1, 1> result_type;
-    
-    result_type operator()(Expr &, ThisContextT&)
-    {
-      return result_type();
-    }
-  };
-  
-  /// ConstNodes encapsulates vector types
-  template<typename Expr, typename I>
-  struct eval< Expr, boost::proto::tag::terminal, Var<I, ConstNodes> >
-  {
-    typedef ResultSize<SF::dimension, 1> result_type;
-    
-    result_type operator()(Expr &, ThisContextT&)
-    {
-      return result_type();
-    }
-  };
-  
-  /// Placeholder that evaluates to the current element index
-  template<typename Expr>
-  struct eval<Expr, boost::proto::tag::terminal, ElementIdxHolder>
-  {
-    typedef ResultSize<1, 1> result_type;
-
-    result_type operator()(Expr &, const ThisContextT&) const
-    {
-      return result_type();
-    }
-  };
-  
-  /// Placeholder that evaluates to the current mapped coordinates
-  template<typename Expr>
-  struct eval<Expr, boost::proto::tag::terminal, MappedCoordHolder>
-  {
-    typedef ResultSize<SF::dimensionality, 1> result_type;
-
-    result_type operator()(Expr &, const ThisContextT&) const
-    {
-      return result_type();
-    }
-  };
-  
-  /// Handle shape function functions
-  template<typename Expr, typename TagT, typename ChildExpr>
-  struct eval<Expr, sf_function_tag<TagT>, ChildExpr >
-  {
-    // return type of the evaluation
-    typedef typename SizeOfResult<SF, TagT>::type result_type;
-    
-    result_type operator()(Expr &expr, ThisContextT& ctx)
-    {
-      return result_type();
-    }
-  };
-  
-  /// Handle integration
-  template<typename Expr, Uint I, typename ChildExpr>
-  struct eval<Expr, integral_tag<I>, ChildExpr >
-  {
-    typedef typename boost::proto::result_of::eval
-    <
-      typename boost::proto::result_of::child<Expr>::type, ThisContextT
-    >::type result_type;
-
-    result_type operator()(Expr& expr, ThisContextT& context)
-    {
-      return result_type();
     }
   };
 };

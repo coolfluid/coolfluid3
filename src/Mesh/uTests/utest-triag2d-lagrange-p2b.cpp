@@ -23,38 +23,28 @@ using namespace CF::Mesh::SF;
 
 //////////////////////////////////////////////////////////////////////////////
 
+typedef Triag2DLagrangeP2B SFT;
+
 struct Triag2DLagrangeP2BFixture
 {
-  typedef std::vector<RealVector> NodesT;
+  typedef SFT::NodeMatrixT NodesT;
   /// common setup for each test case
-  Triag2DLagrangeP2BFixture() : mapped_coords(init_mapped_coords()), nodes(init_nodes()) {}
+  Triag2DLagrangeP2BFixture() : mapped_coords(1./6., 1./6.), nodes((NodesT() <<  1.0, 0.0,
+                                                                                 0.0, 2.0,
+                                                                                -1.0, 0.0,
+                                                                                 0.5, 1.0,
+                                                                                -0.5, 1.0,
+                                                                                 0.0, 0.0,
+                                                                                 0.0, 2./3.).finished())
+ {}
 
   /// common tear-down for each test case
   ~Triag2DLagrangeP2BFixture()  {}
 
   /// common values accessed by all tests goes here
-  const CF::RealVector mapped_coords;
+  const SFT::MappedCoordsT mapped_coords;
   const NodesT nodes;
 
-private:
-  /// Workaround for boost:assign ambiguity
-  CF::RealVector init_mapped_coords()
-  {
-    return list_of(1./6.)(1./6.);
-  }
-
-  /// Workaround for boost:assign ambiguity
-  NodesT init_nodes()
-  {
-    const CF::RealVector c0 = list_of( 1.0)(0.0);
-    const CF::RealVector c1 = list_of( 0.0)(2.0);
-    const CF::RealVector c2 = list_of(-1.0)(0.0);
-    const CF::RealVector c3 = list_of( 0.5)(1.0);
-    const CF::RealVector c4 = list_of(-0.5)(1.0);
-    const CF::RealVector c5 = list_of( 0.0)(0.0);
-    const CF::RealVector c6 = list_of( 0.0)(2./3.);
-    return list_of(c0)(c1)(c2)(c3)(c4)(c5)(c6);
-  }
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -65,8 +55,9 @@ BOOST_FIXTURE_TEST_SUITE( Triag2DLagrangeP2BSuite, Triag2DLagrangeP2BFixture )
 
 BOOST_AUTO_TEST_CASE( ShapeFunction )
 {
-  const CF::RealVector reference_result = list_of(5./18.)(-1./18.)(-1./18.)(2./9.)(-1./9.)(2./9.)(0.5);
-  CF::RealVector result(Triag2DLagrangeP2B::nb_nodes);
+  SFT::ShapeFunctionsT reference_result;
+  reference_result << 5./18., -1./18., -1./18., 2./9., -1./9., 2./9., 0.5;
+  SFT::ShapeFunctionsT result;
   Triag2DLagrangeP2B::shape_function(mapped_coords, result);
 
   std::cout<< reference_result << std::endl;
@@ -84,7 +75,7 @@ BOOST_AUTO_TEST_CASE( ShapeFunction )
 BOOST_AUTO_TEST_CASE( Gradient )
 {
 //  const CF::RealVector reference_result = list_of(5./18.)(-1./18.)(-1./18.)(2./9.)(-1./9.)(2./9.)(0.5);
-  CF::RealMatrix result ( 2, Triag2DLagrangeP2B::nb_nodes);
+  SFT::MappedGradientT result;
   Triag2DLagrangeP2B::mapped_gradient(mapped_coords, result);
 
 //  std::cout<< reference_result << std::endl;
@@ -96,7 +87,7 @@ BOOST_AUTO_TEST_CASE( Gradient )
   std::cout<< result(YY,0) + result(YY,1) + result(YY,2) + result(YY,3) + result(YY,4) + result(YY,5) + result(YY,6)  << std::endl;
 
 
-  RealVector m1 (2); m1[KSI] = 1./6.; m1[ETA] = 5./6.;
+  const SFT::MappedCoordsT m1(1./6.,  5./6.);
   Triag2DLagrangeP2B::mapped_gradient(m1, result);
 
   std::cout<< result << std::endl;

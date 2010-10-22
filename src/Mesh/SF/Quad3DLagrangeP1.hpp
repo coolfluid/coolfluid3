@@ -7,7 +7,7 @@
 #ifndef CF_Mesh_SF_Quad3DLagrangeP1_hpp
 #define CF_Mesh_SF_Quad3DLagrangeP1_hpp
 
-#include "Math/RealMatrix.hpp"
+#include "Math/MatrixTypes.hpp"
 #include "Mesh/Quad3D.hpp"
 
 #include "Mesh/SF/Quad2DLagrangeP1.hpp"
@@ -27,13 +27,28 @@ namespace SF {
 /// @author Bart Janssens
 struct SF_API Quad3DLagrangeP1  : public Quad3D
 {
+  
+  /// Number of nodes
+  static const Uint nb_nodes = 4;
+
+  /// Order of the shape function
+  static const Uint order = 1;
+  
+  /// Types for the matrices used
+  typedef Eigen::Matrix<Real, dimension, 1> CoordsT;
+  typedef Eigen::Matrix<Real, dimensionality, 1> MappedCoordsT;
+  typedef Eigen::Matrix<Real, nb_nodes, dimension> NodeMatrixT;
+  typedef Eigen::Matrix<Real, 1, nb_nodes> ShapeFunctionsT;
+  typedef Eigen::Matrix<Real, dimensionality, nb_nodes> MappedGradientT;
+  typedef Eigen::Matrix<Real, dimensionality, dimension> JacobianT;
+  
   Quad3DLagrangeP1();
 
   /// Compute the shape functions corresponding to the given
   /// mapped coordinates
   /// @param mappedCoord The mapped coordinates
   /// @param shapeFunc Vector storing the result
-  static void shape_function(const RealVector& mapped_coord, RealVector& shape_func)
+  static void shape_function(const MappedCoordsT& mapped_coord, ShapeFunctionsT& shape_func)
   {
     Quad2DLagrangeP1::shape_function(mapped_coord, shape_func);
   }
@@ -42,7 +57,7 @@ struct SF_API Quad3DLagrangeP1  : public Quad3D
   /// mapped coordinates.
   /// @param mappedCoord The mapped coordinates where the gradient should be calculated
   /// @param result Storage for the resulting gradient matrix
-  static void mapped_gradient(const RealVector& mapped_coord, RealMatrix& result)
+  static void mapped_gradient(const MappedCoordsT& mapped_coord, MappedGradientT& result)
   {
     Quad2DLagrangeP1::mapped_gradient(mapped_coord, result);
   }
@@ -52,11 +67,8 @@ struct SF_API Quad3DLagrangeP1  : public Quad3D
   /// @param mappedCoord The mapped coordinates where the Jacobian should be calculated
   /// @param result Storage for the resulting Jacobian matrix
   template<typename NodesT>
-  static void jacobian(const RealVector& mappedCoord, const NodesT& nodes, RealMatrix& result)
+  static void jacobian(const MappedCoordsT& mappedCoord, const NodesT& nodes, JacobianT& result)
   {
-    cf_assert(result.nbRows() == dimensionality);
-    cf_assert(result.nbCols() == dimension);
-
     JacobianCoefficients jc(nodes);
 
     const Real xi = mappedCoord[KSI];
@@ -75,10 +87,9 @@ struct SF_API Quad3DLagrangeP1  : public Quad3D
   /// @param mappedCoord The mapped coordinates where the Jacobian should be calculated
   /// @param result Storage for the resulting Jacobian matrix
   template<typename NodesT>
-  static void normal(const RealVector& mappedCoord, const NodesT& nodes, RealVector& result)
+  static void normal(const MappedCoordsT& mappedCoord, const NodesT& nodes, CoordsT& result)
   {
-    cf_assert(result.size() == dimension);
-    RealMatrix jac(dimensionality, dimension);
+    JacobianT jac;
     jacobian(mappedCoord, nodes, jac);
 
     result[XX] = jac(KSI,YY)*jac(ETA,ZZ) - jac(KSI,ZZ)*jac(ETA,YY);
@@ -99,37 +110,30 @@ struct SF_API Quad3DLagrangeP1  : public Quad3D
   template<typename NodesT>
   static Real area(const NodesT& nodes)
   {
-    RealVector n(dimension);
-    RealVector center(0., 2);
-    normal(center, nodes, n);
-    return 4.*n.norm2();
+    CoordsT n;
+    normal(MappedCoordsT::Zero(), nodes, n);
+    return 4.*n.norm();
   }
-
-  /// Number of nodes
-  static const Uint nb_nodes = 4;
-
-  /// Order of the shape function
-  static const Uint order = 1;
 
   /// Given nodal values, write the interpolation
-  template<typename NodalValuesT, typename ValueT>
-  void operator()(const RealVector& mapped_coord, const NodalValuesT& nodal_values, ValueT& interpolation) const
-  {
-    cf_assert(mapped_coord.size() == dimensionality);
-    cf_assert(nodal_values.size() == nb_nodes);
-
-    RealVector sf(nb_nodes);
-    shape_function(mapped_coord, sf);
-
-    interpolation = sf[0]*nodal_values[0] + sf[1]*nodal_values[1] + sf[2]*nodal_values[2] + sf[3]*nodal_values[3];
-  }
+//   template<typename NodalValuesT, typename ValueT>
+//   void operator()(const RealVector& mapped_coord, const NodalValuesT& nodal_values, ValueT& interpolation) const
+//   {
+//     cf_assert(mapped_coord.size() == dimensionality);
+//     cf_assert(nodal_values.size() == nb_nodes);
+// 
+//     RealVector sf(nb_nodes);
+//     shape_function(mapped_coord, sf);
+// 
+//     interpolation = sf[0]*nodal_values[0] + sf[1]*nodal_values[1] + sf[2]*nodal_values[2] + sf[3]*nodal_values[3];
+//   }
 
   virtual std::string getElementTypeName() const;
 
   /// The volume of an element with a dimensionality that is less than
   /// the dimension of the problem is 0.
   virtual Real computeVolume(const NodesT& coord) const;
-	virtual bool is_coord_in_element(const RealVector& coord, const NodesT& nodes) const;
+  virtual bool is_coord_in_element(const RealVector& coord, const NodesT& nodes) const;
   virtual const FaceConnectivity& face_connectivity() const;
   virtual const CF::Mesh::ElementType& face_type(const CF::Uint face) const;
 
@@ -143,21 +147,21 @@ private:
     template<typename NodesT>
     JacobianCoefficients(const NodesT& nodes)
     {
-      const Real x0 = nodes[0][XX];
-      const Real y0 = nodes[0][YY];
-      const Real z0 = nodes[0][ZZ];
+      const Real x0 = nodes(0, XX);
+      const Real y0 = nodes(0, YY);
+      const Real z0 = nodes(0, ZZ);
 
-      const Real x1 = nodes[1][XX];
-      const Real y1 = nodes[1][YY];
-      const Real z1 = nodes[1][ZZ];
+      const Real x1 = nodes(1, XX);
+      const Real y1 = nodes(1, YY);
+      const Real z1 = nodes(1, ZZ);
 
-      const Real x2 = nodes[2][XX];
-      const Real y2 = nodes[2][YY];
-      const Real z2 = nodes[2][ZZ];
+      const Real x2 = nodes(2, XX);
+      const Real y2 = nodes(2, YY);
+      const Real z2 = nodes(2, ZZ);
 
-      const Real x3 = nodes[3][XX];
-      const Real y3 = nodes[3][YY];
-      const Real z3 = nodes[3][ZZ];
+      const Real x3 = nodes(3, XX);
+      const Real y3 = nodes(3, YY);
+      const Real z3 = nodes(3, ZZ);
 
       ax = 0.25*( x0 + x1 + x2 + x3);
       bx = 0.25*(-x0 + x1 + x2 - x3);

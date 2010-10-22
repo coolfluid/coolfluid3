@@ -9,16 +9,13 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <boost/assign/list_of.hpp>
-
-#include "Math/RealMatrix.hpp"
-#include "Math/RealVector.hpp"
 #include "Common/Log.hpp"
+
+#include "Math/MatrixTypes.hpp"
 
 using namespace std;
 using namespace boost;
 using namespace CF;
-using namespace CF::Math;
 using namespace CF::Common;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -37,27 +34,7 @@ struct VectorOperations_Fixture
   ~VectorOperations_Fixture()
   {
   }
-
-  /// Returns the Real value 2.0. Just used to create a source for a temporary.
-  Real two();
-  
-  /// Multiplies the given vector by two()
-  CF::Math::Mult<Real, RealVector, Real> twice(const RealVector& v);
-
-
 };
-
-Real VectorOperations_Fixture::two()
-{
-  return 2.;
-}
-
-Mult< Real, RealVector, Real > VectorOperations_Fixture::twice(const CF::RealVector& v)
-{
-  return two() * v;
-}
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -65,50 +42,15 @@ BOOST_FIXTURE_TEST_SUITE( VectorOperations_TestSuite, VectorOperations_Fixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( Constructors )
-{
-  // make a boost array
-  boost::multi_array<Real,2> array (boost::extents[1][3]);
-  array[0][0] = 1;
-  array[0][1] = 2;
-  array[0][2] = 3;
-  
-  // make a RealVector from a row from the boost array
-  RealVector vec(array[0]);
-  RealVector vec2(3);
-  vec2 = RealVector(array[0]);
-
-  // check if the vector has the correct content
-  BOOST_CHECK_EQUAL(vec[0] , 1);
-  BOOST_CHECK_EQUAL(vec[1] , 2);
-  BOOST_CHECK_EQUAL(vec[2] , 3);
-  
-  BOOST_CHECK_EQUAL(vec2[0] , 1);
-  BOOST_CHECK_EQUAL(vec2[1] , 2);
-  BOOST_CHECK_EQUAL(vec2[2] , 3);
-}
-
-/// Inside the twice function, a temporary Real value is used. This causes the
-/// stored reference to become invalid, unless the Mult ExprOp stores the constant
-/// by value
-BOOST_AUTO_TEST_CASE( VectorTimesTempConst )
-{
-  RealVector v = boost::assign::list_of(1.)(2.)(3.)(4.);
-  RealVector v2(4);
-  v2 = twice(v);
-  
-  BOOST_CHECK_CLOSE(v2[0], 2., 1e-6);
-  BOOST_CHECK_CLOSE(v2[1], 4., 1e-6);
-  BOOST_CHECK_CLOSE(v2[2], 6., 1e-6);
-  BOOST_CHECK_CLOSE(v2[3], 8., 1e-6);
-}
-
 /// Multiplication with a matrix
 BOOST_AUTO_TEST_CASE( VectorTimesMat )
 {
-  RealVector v = boost::assign::list_of(1.)(2.)(3.);
-  RealMatrix m1(3,3,0.);
-  RealMatrix m2(3,3,0.);
+  RealVector3 v(1., 2., 3.);
+  RealMatrix m1(3,3);
+  RealMatrix m2(3,3);
+  
+  m1.setZero();
+  m2.setZero();
   
   m1(0, 0) = 0.125;
   m1(1, 1) = 0.125;
@@ -120,18 +62,25 @@ BOOST_AUTO_TEST_CASE( VectorTimesMat )
   
   RealVector v2(3);
   
-  // Terms should be grouped like this
+  // Test grouped matrix calculations
   v2 = 2. * (m2 * (m1 * v));
   BOOST_CHECK_CLOSE(v2[0], 2., 1e-6);
   BOOST_CHECK_CLOSE(v2[1], 4., 1e-6);
   BOOST_CHECK_CLOSE(v2[2], 6., 1e-6);
   
-  // This gives the wrong result
+  // Test lazy writing of the expression
   v2 = 2. * m2 * (m1 * v);
 
-//  BOOST_CHECK_CLOSE(v2[0], 2., 1e-6);
-//  BOOST_CHECK_CLOSE(v2[1], 4., 1e-6);
-//  BOOST_CHECK_CLOSE(v2[2], 6., 1e-6);
+  BOOST_CHECK_CLOSE(v2[0], 2., 1e-6);
+  BOOST_CHECK_CLOSE(v2[1], 4., 1e-6);
+  BOOST_CHECK_CLOSE(v2[2], 6., 1e-6);
+  
+    // Test lazy writing of the expression
+  v2 = 2. * m2 * m1 * v;
+
+  BOOST_CHECK_CLOSE(v2[0], 2., 1e-6);
+  BOOST_CHECK_CLOSE(v2[1], 4., 1e-6);
+  BOOST_CHECK_CLOSE(v2[2], 6., 1e-6);
 
 }
 

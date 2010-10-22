@@ -39,8 +39,6 @@ list( APPEND coolfluid_mesh_files
   CTable.hpp
   CTable.cpp
   ElementData.hpp
-  ElementNodes.hpp
-  ElementNodes.cpp
   ElementType.hpp
   ElementType.cpp
   GeoShape.hpp

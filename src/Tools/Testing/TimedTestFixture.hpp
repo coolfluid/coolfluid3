@@ -14,15 +14,12 @@
 
 #include <boost/mpi/timer.hpp>
 
+#include "Common/BasicExceptions.hpp"
 #include "Common/Log.hpp"
 #include "Common/MPI/PEInterface.hpp"
 
 #include <coolfluid_config.h>
 
-////////////////////////////////////////////////////////////////////////////////
-
-using namespace CF;
-using namespace CF::Common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -51,14 +48,14 @@ public:
   void restart()
   {
     if (-1 == clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &m_start_time))
-      throw NotSupported(FromHere(), "Couldn't initialize high resolution timer");
+      throw Common::NotSupported(FromHere(), "Couldn't initialize high resolution timer");
   }
   
   double elapsed() const
   {
     timespec now;
     if (-1 == clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &now))
-      throw NotSupported(FromHere(), "Couldn't get current time from high resolution timer");
+      throw Common::NotSupported(FromHere(), "Couldn't get current time from high resolution timer");
 
     if (now.tv_sec == m_start_time.tv_sec)
       return double(now.tv_nsec - m_start_time.tv_nsec) * 1e-9;
@@ -100,16 +97,16 @@ public:
   void restart_timer()
   {
     m_timer.restart();
-    if(PEInterface::instance().is_init())
+    if(Common::PEInterface::instance().is_init())
       m_mpi_timer.restart();
   };
 
   /// Stop timing when a test ends
   void test_unit_finish( boost::unit_test::test_unit const& unit ) {
-    if(PEInterface::instance().rank() > 0)
+    if(Common::PEInterface::instance().rank() > 0)
       return;
     // TODO: Provide more generic support for output in CDash format
-    std::cout << "<DartMeasurement name=\"" << unit.p_name.get() << " time\" type=\"numeric/double\">" << (PEInterface::instance().is_init() ? m_mpi_timer.elapsed() : m_timer.elapsed()) << "</DartMeasurement>" << std::endl;
+    std::cout << "<DartMeasurement name=\"" << unit.p_name.get() << " time\" type=\"numeric/double\">" << (Common::PEInterface::instance().is_init() ? m_mpi_timer.elapsed() : m_timer.elapsed()) << "</DartMeasurement>" << std::endl;
   }
 private:
   Timer m_timer;
