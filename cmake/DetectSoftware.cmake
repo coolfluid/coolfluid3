@@ -40,20 +40,20 @@ find_package(CUDA)            # cuda support
 
 coolfluid_log( "CUDA_FOUND: [${CUDA_FOUND}]" )
 
-find_package(ZLIB)            # file compression support
+# find_package(ZLIB)            # file compression support
 
-coolfluid_log( "ZLIB_FOUND: [${ZLIB_FOUND}]" )
-if( ZLIB_FOUND )
-  coolfluid_log_file( "  ZLIB_INCLUDE_DIRS: [${ZLIB_INCLUDE_DIRS}]" )
-  coolfluid_log_file( "  ZLIB_LIBRARIES:    [${ZLIB_LIBRARIES}]" )
-endif()
+# coolfluid_log( "ZLIB_FOUND: [${ZLIB_FOUND}]" )
+# if( ZLIB_FOUND )
+#  coolfluid_log_file( "  ZLIB_INCLUDE_DIRS: [${ZLIB_INCLUDE_DIRS}]" )
+#  coolfluid_log_file( "  ZLIB_LIBRARIES:    [${ZLIB_LIBRARIES}]" )
+# endif()
 
-find_package(BZip2)        # file compression support
+# find_package(BZip2)        # file compression support
 
-coolfluid_log( "BZIP2_FOUND: [${BZIP2_FOUND}]" )
-if( BZIP2_FOUND )
-  coolfluid_log_file( "  BZIP2_INCLUDE_DIR:  [${BZIP2_INCLUDE_DIR}]" )
-  coolfluid_log_file( "  BZIP2_LIBRARIES:    [${BZIP2_LIBRARIES}]" )
-  coolfluid_log_file( "  BZIP2_DEFINITIONS:  [${BZIP2_DEFINITIONS}]" )
-  coolfluid_log_file( "  BZIP2_NEED_PREFIX:  [${BZIP2_NEED_PREFIX}]" )
-endif()
+#coolfluid_log( "BZIP2_FOUND: [${BZIP2_FOUND}]" )
+#if( BZIP2_FOUND )
+#  coolfluid_log_file( "  BZIP2_INCLUDE_DIR:  [${BZIP2_INCLUDE_DIR}]" )
+#  coolfluid_log_file( "  BZIP2_LIBRARIES:    [${BZIP2_LIBRARIES}]" )
+#  coolfluid_log_file( "  BZIP2_DEFINITIONS:  [${BZIP2_DEFINITIONS}]" )
+#  coolfluid_log_file( "  BZIP2_NEED_PREFIX:  [${BZIP2_NEED_PREFIX}]" )
+#endif()
