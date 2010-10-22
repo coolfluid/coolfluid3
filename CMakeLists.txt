@@ -71,6 +71,7 @@ include( CheckOperatingSystem  )   # check for operating system features
 include( CheckCompilerFeatures )   # check compiler features
 
 include( DefineBuildModes )        # define how build modes behave ( may override some options )
+
 include( DefineBuildRules )        # defined default compilation flags and linking rules per architecture
 
 include( ApplyGlobalOptions )      # take options into effect
@@ -87,6 +88,8 @@ add_subdirectory( cmake )         # dir with macros to be installed
 add_subdirectory( doc )           # dir with documentation to be installed
 
 include( DetectSoftware )         # find sofwtare dependencies
+
+include( CheckSourceRevision )        # check for subversion support
 
 coolfluid_log( "" )
 ##############################################################################

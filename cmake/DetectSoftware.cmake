@@ -57,5 +57,3 @@ if( BZIP2_FOUND )
   coolfluid_log_file( "  BZIP2_DEFINITIONS:  [${BZIP2_DEFINITIONS}]" )
   coolfluid_log_file( "  BZIP2_NEED_PREFIX:  [${BZIP2_NEED_PREFIX}]" )
 endif()
-
-include( CheckSvnVersion ) # check for subversion support
