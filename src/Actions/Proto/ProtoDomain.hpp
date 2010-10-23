@@ -9,10 +9,11 @@
 
 #include <boost/fusion/sequence/intrinsic/value_at.hpp>
 
-#include "Actions/ProtoGrammars.hpp"
+#include "Actions/Proto/ProtoGrammars.hpp"
 
 namespace CF {
 namespace Actions {
+namespace Proto {
 
 /// Wrapper for expressions in the MeshDomain
 template<class Expr>
@@ -34,6 +35,7 @@ struct MeshExpr : boost::proto::extends<Expr, MeshExpr<Expr>, MeshDomain>
   BOOST_PROTO_EXTENDS_USING_ASSIGN(MeshExpr)
 };
 
+} // namespace Proto
 } // namespace Actions
 } // namespace CF
 

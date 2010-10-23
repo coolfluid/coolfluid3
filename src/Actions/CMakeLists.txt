@@ -25,10 +25,10 @@ list( APPEND coolfluid_actions_files
   LibActions.cpp
 )
 
-option( CF_ENABLE_PROTO            "Build boost::proto related code for expressions"               OFF ) #off until RealVector conversion is complete
+option( CF_ENABLE_PROTO            "Build boost::proto related code for expressions"               ON )
 
 if(CF_ENABLE_PROTO)
-  list( APPEND Actions_files 
+  list( APPEND coolfluid_actions_files 
     Proto/ProtoContexts.hpp
     Proto/ProtoDomain.hpp
     Proto/ProtoElementLooper.hpp

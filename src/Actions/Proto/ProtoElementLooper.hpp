@@ -21,12 +21,13 @@
 #include <boost/mpl/transform.hpp>
 #include <boost/mpl/vector_c.hpp>
 
-#include "Actions/ProtoContexts.hpp"
+#include "Actions/Proto/ProtoContexts.hpp"
 
 #include "Mesh/CMesh.hpp"
 
 namespace CF {
 namespace Actions {
+namespace Proto {
 
 ////////////////////////////////////////////////////////
 // Helper transforms
@@ -40,10 +41,10 @@ struct AddContext
 };
 
 /// Initialize the contexts for numbered variables. Called when the CElements has changed
-template<typename VarsT, typename ContextsT>
+template<typename MappedCoordsT, typename VarsT, typename ContextsT>
 struct InitContexts
 {
-  InitContexts(const VarsT& vars, ContextsT& contexts, Mesh::CElements& elements, const RealVector& mapped_coordinates) : m_vars(vars), m_contexts(contexts), m_elements(elements), m_mapped_coords(mapped_coordinates) {}
+  InitContexts(const VarsT& vars, ContextsT& contexts, Mesh::CElements& elements, const MappedCoordsT& mapped_coordinates) : m_vars(vars), m_contexts(contexts), m_elements(elements), m_mapped_coords(mapped_coordinates) {}
   
   template<typename I>
   void operator()(const I&)
@@ -54,7 +55,7 @@ struct InitContexts
   const VarsT& m_vars;
   ContextsT& m_contexts;
   Mesh::CElements& m_elements;
-  const RealVector& m_mapped_coords;
+  const MappedCoordsT& m_mapped_coords;
 };
 
 /// Fill the numbered variables. Called when the element changed
@@ -91,6 +92,8 @@ public: // functions
   template < typename ShapeFunctionT >
   void operator() ( ShapeFunctionT& T )
   {
+    typedef typename ShapeFunctionT::MappedCoordsT MappedCoordsT;
+    
     if(!Mesh::IsElementType<ShapeFunctionT>()(m_elements.element_type()))
       return;
     
@@ -98,9 +101,10 @@ public: // functions
     typedef typename boost::mpl::transform< VarTypesT, AddContext<ShapeFunctionT, boost::mpl::_1> >::type ContextsT;
     ContextsT contexts;
     
-    RealVector mapped_coordinates;
+    MappedCoordsT mapped_coordinates;
+    mapped_coordinates.setZero();
     
-    InitContexts<VarTypesT, ContextsT> init_ctx(m_vars, contexts, m_elements, mapped_coordinates);
+    InitContexts<MappedCoordsT, VarTypesT, ContextsT> init_ctx(m_vars, contexts, m_elements, mapped_coordinates);
     boost::mpl::for_each<boost::mpl::range_c<int, 0, nb_vars> >(init_ctx);
     
     FillContexts<VarTypesT, ContextsT> fill_ctx(m_vars, contexts);
@@ -159,6 +163,7 @@ void for_each_element(Common::Component& root, const Expr& expr)
   }
 }
 
+} // namespace Proto
 } // namespace Actions
 } // namespace CF
 

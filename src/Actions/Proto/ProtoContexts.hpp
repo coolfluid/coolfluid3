@@ -7,10 +7,10 @@
 #ifndef CF_Actions_ProtoContexts_hpp
 #define CF_Actions_ProtoContexts_hpp
 
-#include "Actions/ProtoFunctions.hpp"
-#include "Actions/ProtoSFContexts.hpp"
-#include "Actions/ProtoTransforms.hpp"
-#include "Actions/ProtoVariables.hpp"
+#include "Actions/Proto/ProtoFunctions.hpp"
+#include "Actions/Proto/ProtoSFContexts.hpp"
+#include "Actions/Proto/ProtoTransforms.hpp"
+#include "Actions/Proto/ProtoVariables.hpp"
 
 #include "Mesh/CArray.hpp"
 #include "Mesh/CElements.hpp"
@@ -22,8 +22,18 @@
 
 #include "Common/CF.hpp"
 
+namespace boost {
+namespace proto {
+namespace result_of {
+template<class Expr, class Context >
+class eval;
+}
+}
+}
+
 namespace CF {
 namespace Actions {
+namespace Proto {
 
 /// Fall-back context for numbered variables, doing nothing
 /// This gets used in case there is a gap in the variable numbers, i.e.
@@ -32,7 +42,7 @@ namespace Actions {
 template<typename SF, typename VarT>
 struct ElementVarContext
 {
-  void init(const VarT&, const Mesh::CElements& elements, const RealVector& mapped_coordinates)
+  void init(const VarT&, const Mesh::CElements& elements, const typename SF::MappedCoordsT& mapped_coordinates)
   {
   }
   
@@ -43,12 +53,15 @@ struct ElementVarContext
 
 /// Evaluate const nodes numbered variables
 template<typename SF>
-struct ElementVarContext<SF, ConstNodes>
+struct ElementVarContext<SF, ConstNodes> : ShapeFunctionMatrix<SF>
 {
+  typedef SF ShapeFunctionT;
   typedef ElementVarContext<SF, ConstNodes> ThisContextT;
-  typedef Mesh::ElementNodeValues<SF::nb_nodes, SF::dimension> NodesT;
+  typedef typename SF::NodeMatrixT NodeValueMatrixT;
   typedef SFContext<SF> SFContextT;
-  typedef RealVector data_type;
+  typedef typename SF::MappedCoordsT MappedCoordsT;
+  
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   
   ElementVarContext() : m_sf_context(0) {}
   
@@ -57,12 +70,7 @@ struct ElementVarContext<SF, ConstNodes>
     delete m_sf_context;
   }
   
-  void init_data(data_type& data)
-  {
-    data.resize(SF::dimension);
-  }
-  
-  void init(const ConstNodes&, const Mesh::CElements& elements, const RealVector& mapped_coordinates)
+  void init(const ConstNodes&, const Mesh::CElements& elements, const MappedCoordsT& mapped_coordinates)
   {
     coordinates = &elements.coordinates();
     connectivity = &elements.connectivity_table();
@@ -72,7 +80,7 @@ struct ElementVarContext<SF, ConstNodes>
   
   void fill(const Uint element_idx)
   {
-    nodes.fill(*coordinates, (*connectivity)[element_idx]);
+    Mesh::fill(nodes, *coordinates, (*connectivity)[element_idx]);
   }
   
   SFContextT& sf_context()
@@ -88,7 +96,7 @@ struct ElementVarContext<SF, ConstNodes>
   template<typename Expr, typename I>
   struct eval< Expr, boost::proto::tag::terminal, Var<I, ConstNodes> >
   {
-    typedef const NodesT& result_type;
+    typedef const NodeValueMatrixT& result_type;
 
     result_type operator()(Expr& expr, ThisContextT& ctx)
     {
@@ -96,8 +104,12 @@ struct ElementVarContext<SF, ConstNodes>
     }
   };
   
-  NodesT nodes;
-  const RealVector* mapped_coordinates;
+  const NodeValueMatrixT& node_value_matrix()
+  {
+    return nodes;
+  }
+  
+  NodeValueMatrixT nodes;
   const Mesh::CArray* coordinates;
   const Mesh::CTable* connectivity;
   
@@ -108,19 +120,18 @@ private:
 /// Evaluate scalar mutable nodal field data
 template<typename SF>
 struct ElementVarContext< SF, Field<Real> >
-  : boost::proto::callable_context< ElementVarContext<SF, Field<Real> >, boost::proto::null_context>
+  : boost::proto::callable_context< ElementVarContext<SF, Field<Real> >, boost::proto::null_context>,
+    ShapeFunctionMatrix<SF>
 {
   typedef SF ShapeFunctionT;
   typedef Mesh::ElementNodeView<SF::nb_nodes, 1> NodesViewT;
   typedef NodesViewT& result_type;
-  typedef Real data_type;
+  typedef typename SF::MappedCoordsT MappedCoordsT;
+  typedef Eigen::Matrix<Real, SF::nb_nodes, 1> NodeValueMatrixT;
   
-  void init_data(Real& data)
-  {
-    data = 0.;
-  }
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   
-  void init(const Field<Real>& placeholder, Mesh::CElements& elements, const RealVector& mapped_coordinates)
+  void init(const Field<Real>& placeholder, Mesh::CElements& elements, const MappedCoordsT& mapped_coordinates)
   {
     Mesh::CFieldElements& field_elems = elements.get_field_elements(placeholder.field_name);
     data = &field_elems.data();
@@ -144,10 +155,19 @@ struct ElementVarContext< SF, Field<Real> >
     return node_view;
   }
   
+  const NodeValueMatrixT& node_value_matrix()
+  {
+    for(Uint node = 0; node != SF::nb_nodes; ++node)
+      m_node_matrix[node] = node_view[node];
+    return m_node_matrix;
+  }
+  
   Uint var_begin;
   NodesViewT node_view;
   Mesh::CArray* data;
   const Mesh::CTable* connectivity;
+private:
+  NodeValueMatrixT m_node_matrix;
 };
 /*
 /// Evaluate scalar mutable nodal field data
@@ -206,7 +226,11 @@ struct error_printer {};
 template<typename ShapeFunctionT, typename ContextsT>
 struct ElementMeshContext
 {
-  ElementMeshContext(ContextsT& ctxts, RealVector& mapped_coordinates) :
+  typedef ShapeFunctionT SF;
+  typedef ElementMeshContext<ShapeFunctionT, ContextsT> ThisContextT;
+  typedef typename SF::MappedCoordsT MappedCoordsT;
+  
+  ElementMeshContext(ContextsT& ctxts, MappedCoordsT& mapped_coordinates) :
     element_idx(0)
   , contexts(ctxts)
   , mapped_coords(mapped_coordinates)
@@ -214,19 +238,11 @@ struct ElementMeshContext
     mapped_coords.resize(ShapeFunctionT::dimensionality, 0.);
   }
   
-  typedef ShapeFunctionT SF;
-  typedef ElementMeshContext<ShapeFunctionT, ContextsT> ThisContextT;
-  
   /// Reference for the context
   Uint element_idx;
-  RealVector real_coords;
-  RealVector surface_normal;
   ContextsT& contexts;
-  RealVector& mapped_coords;
-  Uint element_node_idx;
-  RealMatrix jacobian_matrix;
-  RealMatrix jacobian_adjoint_matrix;
-  RealMatrix mapped_gradient_matrix;
+  MappedCoordsT& mapped_coords;
+  int element_node_idx;
   
   template<typename Expr,
            typename Tag = typename Expr::proto_tag,
@@ -257,20 +273,26 @@ struct ElementMeshContext
   template<typename Expr, typename I, typename T>
   struct FunEval< Expr, boost::proto::tag::terminal, Var<I, T> >
   {
+    // Lookup the type of the context for this numbered variable
     typedef typename boost::fusion::result_of::value_at<ContextsT, I>::type ContextT;
-    typedef typename ContextT::data_type result_type;
-
+    
+    // return type of the matrix product evaluation
+    typedef typename Transform1x1MatrixToScalar
+    <
+      typename Eigen::ProductReturnType
+      <
+        typename ContextT::ShapeFunctionT::ShapeFunctionsT, typename ContextT::NodeValueMatrixT
+      >::Type
+    >::type result_type;
+    
     result_type operator()(Expr& expr, ThisContextT& context)
     {
-      result_type r;
-      boost::fusion::at<I>(context.contexts).init_data(r);
-      ::CF::Mesh::eval<SF>
+      ContextT& var_ctx = boost::fusion::at<I>(context.contexts);
+      return 
       (
-        boost::proto::eval(boost::proto::right(expr), context), // should evaluate to mapped coordinates
-        boost::proto::eval(boost::proto::left(expr), context), // should evaluate to the nodal values
-        r
+        var_ctx.shape_function(boost::proto::eval(boost::proto::right(expr), context)) * // This is the shape function matrix
+        var_ctx.node_value_matrix() // these are the nodal values, in the form of an Eigen matrix
       );
-      return r;
     }
   };
   
@@ -332,7 +354,7 @@ struct ElementMeshContext
   template<typename Expr>
   struct eval<Expr, boost::proto::tag::terminal, MappedCoordHolder>
   {
-    typedef const RealVector& result_type;
+    typedef const MappedCoordsT& result_type;
 
     result_type operator()(Expr &, const ThisContextT& ctx) const
     {
@@ -371,15 +393,26 @@ struct ElementMeshContext
   {
     typedef typename boost::proto::result_of::child<Expr>::type ChildT;
     
-    typedef typename boost::proto::result_of::eval
+    typedef ValueType
     <
-      ChildT, ThisContextT
-    >::type result_type;
+      typename boost::remove_const
+      <
+        typename boost::remove_reference
+        <
+          typename boost::proto::result_of::eval
+          <
+            ChildT, ThisContextT
+          >::type
+        >::type
+      >::type
+    > ValueT;
+    
+    typedef typename ValueT::type result_type;
 
     result_type operator()(Expr& expr, ThisContextT& context)
     {
       result_type r;
-      TypeSizeT::init(r);
+      ValueT::set_zero(r);
       Mesh::Integrators::gauss_integrate<I, SF::shape>(integration_ftor(boost::proto::child(expr), context), context.mapped_coords, r);
       return r;
     }
@@ -402,23 +435,31 @@ struct ElementMeshContext
   template<typename Expr, typename NodesArg>
   struct eval<Expr, for_each_node_tag, NodesArg >
   {
-    // First child represents the nodes or states
-    typedef typename boost::proto::result_of::eval
+    // Index of the variable that is used in the function
+    typedef typename boost::remove_const
     <
-      typename boost::proto::result_of::left<Expr>::type, ThisContextT
-    >::type NodesT;
+      typename boost::remove_reference
+      <
+        typename boost::proto::result_of::value<NodesArg>::type
+      >::type
+    >::type::index_type I;
+    
+    // Context that will evaluate the function
+    typedef typename boost::fusion::result_of::value_at<ContextsT, I>::type ContextT;
+    
+    static const int nb_nodes = static_cast<int>(ContextT::ShapeFunctionT::nb_nodes);
     
     typedef void result_type;
 
     result_type operator()(Expr& expr, ThisContextT& context)
     {
-      NodesT nodes = boost::proto::eval(boost::proto::left(expr), context);
-      for(context.element_node_idx = 0; context.element_node_idx != nodes.size(); ++context.element_node_idx)
+      for(context.element_node_idx = 0; context.element_node_idx != nb_nodes; ++context.element_node_idx)
         boost::proto::eval(boost::proto::right(expr), context);
     }
   };
 };
 
+} // namespace Proto
 } // namespace Actions
 } // namespace CF
 

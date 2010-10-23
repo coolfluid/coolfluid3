@@ -7,9 +7,9 @@
 #ifndef CF_Actions_ProtoNodeContexts_hpp
 #define CF_Actions_ProtoNodeContexts_hpp
 
-#include "Actions/ProtoFunctions.hpp"
-#include "Actions/ProtoTransforms.hpp"
-#include "Actions/ProtoVariables.hpp"
+#include "Actions/Proto/ProtoFunctions.hpp"
+#include "Actions/Proto/ProtoTransforms.hpp"
+#include "Actions/Proto/ProtoVariables.hpp"
 
 #include "Mesh/CArray.hpp"
 #include "Mesh/CElements.hpp"
@@ -23,6 +23,7 @@
 
 namespace CF {
 namespace Actions {
+namespace Proto {
 
 /// Fall-back context for numbered variables, doing nothing
 /// This gets used in case there is a gap in the variable numbers, i.e.
@@ -140,6 +141,7 @@ struct NodeMeshContext
   };
 };
 
+} // namespace Proto
 } // namespace Actions
 } // namespace CF
 

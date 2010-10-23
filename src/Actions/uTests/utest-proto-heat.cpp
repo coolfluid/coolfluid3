@@ -10,13 +10,11 @@
 #include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Actions/ProtoElementLooper.hpp"
-#include "Actions/ProtoNodeLooper.hpp"
+#include "Actions/Proto/ProtoElementLooper.hpp"
+#include "Actions/Proto/ProtoNodeLooper.hpp"
 
 #include "Common/ConfigObject.hpp"
 #include "Common/Log.hpp"
-
-#include "Math/RealVector.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -34,6 +32,7 @@
 
 using namespace CF;
 using namespace CF::Actions;
+using namespace CF::Actions::Proto;
 using namespace CF::Mesh;
 using namespace CF::Common;
 

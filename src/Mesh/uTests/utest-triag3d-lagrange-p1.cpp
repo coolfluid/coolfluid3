@@ -400,6 +400,7 @@ BOOST_AUTO_TEST_CASE( RotatingCylinder )
   const Real u = 300.;
   const Real circulation = 975.;
   SFT::CoordsT force;
+  force.setZero();
   integrate_region(force, RotatingCylinderPressure(radius, circulation, u), coordinates, connectivity);
   BOOST_CHECK_CLOSE(force[YY], height * 1.225*u*circulation, 0.001); // lift according to theory
   BOOST_CHECK_SMALL(force[XX], 1e-8); // Drag should be zero

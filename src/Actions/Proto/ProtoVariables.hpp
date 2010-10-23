@@ -14,6 +14,7 @@
 
 namespace CF {
 namespace Actions {
+namespace Proto {
 
 // Placeholders for different types of data
 struct ElementIdxHolder {};
@@ -115,6 +116,7 @@ struct MeshTerm : boost::proto::result_of::make_expr
   BOOST_PROTO_EXTENDS_USING_ASSIGN(MeshTerm)
 };
 
+} // namespace Proto
 } // namespace Actions
 } // namespace CF
 

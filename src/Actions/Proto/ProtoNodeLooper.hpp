@@ -21,12 +21,13 @@
 #include <boost/mpl/transform.hpp>
 #include <boost/mpl/vector_c.hpp>
 
-#include "Actions/ProtoNodeContexts.hpp"
+#include "Actions/Proto/ProtoNodeContexts.hpp"
 
 #include "Mesh/CMesh.hpp"
 
 namespace CF {
 namespace Actions {
+namespace Proto {
 
 ////////////////////////////////////////////////////////
 // Helper transforms
@@ -126,6 +127,7 @@ void for_each_node(Mesh::CRegion& region, const Expr& expr)
   }
 }
 
+} // namespace Proto
 } // namespace Actions
 } // namespace CF
 

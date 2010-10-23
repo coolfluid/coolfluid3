@@ -10,12 +10,19 @@
 #include <boost/mpl/max.hpp>
 #include <boost/mpl/void.hpp>
 
-#include "Actions/ProtoVariables.hpp"
+#include "Actions/Proto/ProtoVariables.hpp"
 
-#include "Math/RealVector.hpp"
+#include "Math/MatrixTypes.hpp"
+#include <boost/variant/variant.hpp>
+
+namespace boost {
+template<class T >
+struct remove_reference;
+}
 
 namespace CF {
 namespace Actions {
+namespace Proto {
 
 
 template<typename T>
@@ -83,26 +90,64 @@ private:
   VarsT& m_vars;  
 };
 
-/*
-/// Strip the CF expression templates
-template<typename T1, typename T2=boost::mpl::void_, typename T3=boost::mpl::void_>
-struct StripExpr
+/// Extract the real value type of a given type, which might be an Eigen expression
+template<typename T>
+struct ValueType
 {
-  typedef T1 type;
+  typedef typename Eigen::MatrixBase<T>::PlainObject type;
+  
+  static void set_zero(type& val)
+  {
+    val.setZero();
+  }
 };
 
-template<typename T1, typename T2>
-struct StripExpr< Math::Mult<RealVector, T1, T2> >
+/// Specialize for Eigen matrices
+template<int I, int J>
+struct ValueType< Eigen::Matrix<Real, I, J> >
 {
-  typedef RealVector type;
+  typedef Eigen::Matrix<Real, I, J> type;
+  
+  static void set_zero(type& val)
+  {
+    val.setZero();
+  }
 };
 
-template<typename T1, typename T2>
-struct StripExpr< Math::Mult<T1, RealVector, T2> >
+/// Specialise for reals
+template<>
+struct ValueType<Real>
 {
-  typedef RealVector type;
-};*/
+  typedef Real type;
+  
+  static void set_zero(type& val)
+  {
+    val = 0.;
+  }
+};
 
+/// Internal
+template<typename ExprT, typename MatrixT>
+struct Transform1x1MatrixToScalarHelper
+{
+  typedef ExprT type;
+};
+
+/// Internal
+template<typename ExprT>
+struct Transform1x1MatrixToScalarHelper< ExprT, Eigen::Matrix<Real, 1, 1> >
+{
+  typedef Real type;
+};
+
+/// Turn 1x1 matrices to scalar
+template<typename T>
+struct Transform1x1MatrixToScalar
+{
+  typedef typename Transform1x1MatrixToScalarHelper< T, typename Eigen::MatrixBase<T>::PlainObject >::type type;
+};
+
+} // namespace Proto
 } // namespace Actions
 } // namespace CF
 

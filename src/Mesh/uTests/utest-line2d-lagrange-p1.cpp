@@ -41,6 +41,8 @@ typedef Line2DLagrangeP1 SFT;
 
 struct LagrangeSFLine2DLagrangeP1Fixture
 {
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  
   typedef SFT::NodeMatrixT NodesT;
   /// common setup for each test case
   LagrangeSFLine2DLagrangeP1Fixture() :

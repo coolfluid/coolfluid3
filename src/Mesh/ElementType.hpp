@@ -160,21 +160,6 @@ struct IsElementType
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Evaluate a shape function
-template<typename ShapeFunctionT, typename NodeValuesT, typename ResultT>
-void eval(const typename ShapeFunctionT::MappedCoordsT& mapped_coord, const NodeValuesT& values, ResultT& result)
-{
-  typename ShapeFunctionT::ShapeFunctionsT sf;
-  ShapeFunctionT::shape_function(mapped_coord, sf);
-  
-  // Make sure result is zero
-  result -= result;
-  
-  // Add node contributions
-  for(Uint i = 0; i != ShapeFunctionT::nb_nodes; ++i)
-    result += (values[i] * sf[i]);
-}
-
 } // namespace Mesh
 } // namespace CF
 

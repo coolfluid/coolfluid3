@@ -9,15 +9,16 @@
 
 #include <cmath>
 
-#include "Actions/ProtoDomain.hpp"
+#include "Actions/Proto/ProtoDomain.hpp"
 #include <boost/concept_check.hpp>
 
-#include "Math/RealMatrix.hpp"
-#include "Math/RealVector.hpp"
+#include "Math/MatrixTypes.hpp"
+
 #include "Common/Log.hpp"
 
 namespace CF {
 namespace Actions {
+namespace Proto {
 
 /// Tags functions that are evaluated using element shape functions
 template<typename FunctionT>
@@ -110,7 +111,7 @@ pow(Arg const &arg)
 }
 
 /// Accept a 2D realvector for atan2
-Real atan_vec(const RealVector& vec)
+Real atan_vec(const RealVector2& vec)
 {
   return atan2(vec[1], vec[0]);
 }
@@ -118,25 +119,12 @@ Real atan_vec(const RealVector& vec)
 // Wrap some math functions
 boost::proto::terminal< double(*)(double) >::type const _sin = {&sin};
 boost::proto::terminal< double(*)(double, double) >::type const _atan2 = {&atan2};
-boost::proto::terminal< double(*)(const RealVector&) >::type const _atan_vec = {&atan_vec};
+boost::proto::terminal< double(*)(const RealVector2&) >::type const _atan_vec = {&atan_vec};
 
 // Wrap std::cout
 boost::proto::terminal< std::ostream & >::type _cout = {std::cout};
 
-/// Transpose a matrix. TODO: use expression templates (Eigen?)
-/// Don't use this, it's a bad hack as proof of concept
-const RealMatrix& transpose(const RealMatrix& to_transpose)
-{
-  static RealMatrix transposed;
-  transposed.resize(to_transpose.nbCols(), to_transpose.nbRows());
-  to_transpose.transpose(transposed);
-  return transposed;
-}
-
-
-typedef const RealMatrix&(*TransposeT)(const RealMatrix&);
-boost::proto::terminal< TransposeT >::type const _transpose = {&transpose};
-
+} // namespace Proto
 } // namespace Actions
 } // namespace CF
 

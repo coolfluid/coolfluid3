@@ -13,6 +13,7 @@
 
 namespace CF {
 namespace Actions {
+namespace Proto {
 
 //////////////////////////////////////////////////////////
 // Grammar that must be matched for an expression to be valid
@@ -34,6 +35,7 @@ namespace Actions {
 /// For now, we accept anything, since the commented attempt above is incomplete
 struct MeshGrammar : boost::proto::_ {};
 
+} // namespace Proto
 } // namespace Actions
 } // namespace CF
 

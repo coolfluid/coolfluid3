@@ -7,9 +7,9 @@
 #ifndef CF_Actions_ProtoSFContexts_hpp
 #define CF_Actions_ProtoSFContexts_hpp
 
-#include "Actions/ProtoFunctions.hpp"
-#include "Actions/ProtoTransforms.hpp"
-#include "Actions/ProtoVariables.hpp"
+#include "Actions/Proto/ProtoFunctions.hpp"
+#include "Actions/Proto/ProtoTransforms.hpp"
+#include "Actions/Proto/ProtoVariables.hpp"
 
 #include "Mesh/CArray.hpp"
 #include "Mesh/CElements.hpp"
@@ -23,22 +23,20 @@
 
 namespace CF {
 namespace Actions {
+namespace Proto {
 
 /// Evaluates functions that depend on the shape functions
 template<typename SF>
 struct SFContext
 {
-  typedef Mesh::ElementNodeValues<SF::nb_nodes, SF::dimension> NodesT;
-  SFContext(const NodesT& nodes_ref, const RealVector& mapped_coords) : 
+  typedef typename SF::NodeMatrixT NodesT;
+  typedef typename SF::MappedCoordsT MappedCoordsT;
+ 
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  
+  SFContext(const NodesT& nodes_ref, const MappedCoordsT& mapped_coords) : 
     nodes(nodes_ref),
-    mapped_coordinates(mapped_coords),
-    jacobian_matrix(SF::dimensionality, SF::dimension),
-    jacobian_adjoint_matrix(SF::dimension, SF::dimension),
-    mapped_gradient_matrix(SF::dimension, SF::nb_nodes),
-    normal_vector(SF::dimension),
-    laplacian_matrix(SF::nb_nodes, SF::nb_nodes),
-    gradient_real(SF::dimension, SF::nb_nodes),
-    gradient_real_transposed(SF::nb_nodes, SF::dimension)
+    mapped_coordinates(mapped_coords)
   {}
   
   typedef SFContext<SF> ThisContextT;
@@ -65,7 +63,7 @@ struct SFContext
   template<typename Expr, typename ChildT>
   struct eval<Expr, sf_function_tag<jacobian_tag>, ChildT >
   {
-    typedef const RealMatrix& result_type;
+    typedef const typename SF::JacobianT& result_type;
 
     result_type operator()(Expr& expr, ThisContextT& ctx)
     {
@@ -78,7 +76,7 @@ struct SFContext
   template<typename Expr, typename ChildT>
   struct eval<Expr, sf_function_tag<jacobian_adjoint_tag>, ChildT >
   {
-    typedef const RealMatrix& result_type;
+    typedef const typename SF::JacobianT& result_type;
 
     result_type operator()(Expr& expr, ThisContextT& ctx)
     {
@@ -103,7 +101,7 @@ struct SFContext
   template<typename Expr, typename ChildT>
   struct eval<Expr, sf_function_tag<mapped_gradient_tag>, ChildT >
   {
-    typedef const RealMatrix& result_type;
+    typedef const typename SF::MappedGradientT& result_type;
 
     result_type operator()(Expr& expr, ThisContextT& ctx)
     {
@@ -116,7 +114,7 @@ struct SFContext
   template<typename Expr, typename ChildT>
   struct eval<Expr, sf_function_tag<normal_tag>, ChildT >
   {
-    typedef const RealVector& result_type;
+    typedef const typename SF::CoordsT& result_type;
 
     result_type operator()(Expr& expr, ThisContextT& ctx)
     {
@@ -129,38 +127,51 @@ struct SFContext
   template<typename Expr, typename ChildT>
   struct eval<Expr, sf_function_tag<laplacian_tag>, ChildT >
   {
-    typedef const RealMatrix& result_type;
+    typedef const Eigen::Matrix<Real, SF::nb_nodes, SF::nb_nodes>& result_type;
 
     result_type operator()(Expr& expr, ThisContextT& ctx)
     {
       SF::mapped_gradient(ctx.mapped_coordinates, ctx.mapped_gradient_matrix);
       SF::jacobian_adjoint(ctx.mapped_coordinates, ctx.nodes, ctx.jacobian_adjoint_matrix);
       
-      ctx.gradient_real = ctx.jacobian_adjoint_matrix * ctx.mapped_gradient_matrix;
-      ctx.gradient_real.transpose(ctx.gradient_real_transposed);
-      
-      ctx.laplacian_matrix = (ctx.gradient_real_transposed * ctx.gradient_real) / SF::jacobian_determinant(ctx.mapped_coordinates, ctx.nodes);
+      ctx.laplacian_matrix = (ctx.mapped_gradient_matrix.transpose() * ctx.jacobian_adjoint_matrix.transpose()) * 
+                             (ctx.jacobian_adjoint_matrix * ctx.mapped_gradient_matrix) / SF::jacobian_determinant(ctx.mapped_coordinates, ctx.nodes);
       
       return ctx.laplacian_matrix;
     }
   };
     
   const NodesT& nodes;
-  const RealVector& mapped_coordinates;
+  const MappedCoordsT& mapped_coordinates;
   
   /// Temp storage for non-scalar results
-  RealMatrix jacobian_matrix;
-  RealMatrix jacobian_adjoint_matrix;
+  typename SF::JacobianT jacobian_matrix;
+  typename SF::JacobianT jacobian_adjoint_matrix;
   
-  RealMatrix mapped_gradient_matrix;
+  typename SF::MappedGradientT mapped_gradient_matrix;
   
-  RealVector normal_vector;
+  typename SF::CoordsT normal_vector;
   
-  RealMatrix laplacian_matrix;
-  RealMatrix gradient_real;
-  RealMatrix gradient_real_transposed;
+  Eigen::Matrix<Real, SF::nb_nodes, SF::nb_nodes> laplacian_matrix;
 };
 
+/// Calculation and storage of the shape function matrix for a given shape function
+template<typename SF>
+struct ShapeFunctionMatrix
+{
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  
+  const typename SF::ShapeFunctionsT& shape_function(const typename SF::MappedCoordsT& mapped_coords)
+  {
+    SF::shape_function(mapped_coords, m_shape_function);
+    return m_shape_function;
+  }
+  
+private:  
+  typename SF::ShapeFunctionsT m_shape_function;
+};
+
+} // namespace Proto
 } // namespace Actions
 } // namespace CF
 

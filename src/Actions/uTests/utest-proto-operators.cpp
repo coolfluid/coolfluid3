@@ -10,13 +10,13 @@
 #include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Actions/ProtoElementLooper.hpp"
-#include "Actions/ProtoNodeLooper.hpp"
+#include "Actions/Proto/ProtoElementLooper.hpp"
+#include "Actions/Proto/ProtoNodeLooper.hpp"
 
 #include "Common/ConfigObject.hpp"
 #include "Common/Log.hpp"
 
-#include "Math/RealVector.hpp"
+#include "Math/MatrixTypes.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -36,6 +36,7 @@
 
 using namespace CF;
 using namespace CF::Actions;
+using namespace CF::Actions::Proto;
 using namespace CF::Mesh;
 using namespace CF::Common;
 
@@ -62,7 +63,6 @@ CMesh::Ptr ProtoOperatorsFixture::channel_3d;
 BOOST_AUTO_TEST_SUITE( ProtoOperatorsSuite )
 
 //////////////////////////////////////////////////////////////////////////////
-
 
 BOOST_AUTO_TEST_CASE( ProtoBasics )
 {
@@ -129,7 +129,8 @@ BOOST_AUTO_TEST_CASE( RotatingCylinder )
   
   typedef boost::mpl::vector< SF::Line2DLagrangeP1> SurfaceTypes;
   
-  RealVector force(0., 2);
+  RealVector2 force;
+  force.setZero();
   
   for_each_element<SurfaceTypes>(*mesh,
     force += integral<1>
@@ -165,7 +166,8 @@ BOOST_AUTO_TEST_CASE( RotatingCylinderField )
 
   typedef boost::mpl::vector< SF::Line2DLagrangeP1> SurfaceTypes;
   
-  RealVector force(0., 2);
+  RealVector2 force;
+  force.setZero();
   for_each_node(recursive_get_named_component_typed<CRegion>(*mesh, "region"),
     p = pow<2>
     (
@@ -198,12 +200,12 @@ BOOST_FIXTURE_TEST_CASE( VolumeDirect2D, ProtoOperatorsFixture ) // timed and pr
     const CArray& coords = region.coordinates();
     const CTable::ArrayT& ctbl = region.connectivity_table().array();
     const Uint element_count = ctbl.size();
-    ElementNodeValues<4, 2, 1> nodes;
+    SF::Quad2DLagrangeP1::NodeMatrixT nodes;
     for(Uint element = 0; element != element_count; ++element)
     {
-      nodes.fill(coords, ctbl[element]);
-      volume += (nodes[2][XX] - nodes[0][XX]) * (nodes[3][YY] - nodes[1][YY]) -
-          (nodes[2][YY] - nodes[0][YY]) * (nodes[3][XX] - nodes[1][XX]);
+      fill(nodes, coords, ctbl[element]);
+      volume += (nodes(2, XX) - nodes(0, XX)) * (nodes(3, YY) - nodes(1, YY)) -
+          (nodes(2, YY) - nodes(0, YY)) * (nodes(3, XX) - nodes(1, XX));
     }
   }
   volume *= 0.5;
@@ -281,10 +283,10 @@ BOOST_FIXTURE_TEST_CASE( VolumeDirect3D, ProtoOperatorsFixture ) // timed and pr
   const CTable::ArrayT conn = elems.connectivity_table().array();
   const Uint nb_elems = conn.size();
   Real volume = 0.0;
-  ElementNodeValues<8, 3> nodes;
+  SF::Hexa3DLagrangeP1::NodeMatrixT nodes;
   for(Uint elem = 0; elem != nb_elems; ++elem)
   {
-    nodes.fill(coords, conn[elem]);
+    fill(nodes, coords, conn[elem]);
     volume += SF::Hexa3DLagrangeP1::volume(nodes);
   }
   BOOST_CHECK_CLOSE(volume, 50., 1e-6);
@@ -292,7 +294,8 @@ BOOST_FIXTURE_TEST_CASE( VolumeDirect3D, ProtoOperatorsFixture ) // timed and pr
 
 BOOST_FIXTURE_TEST_CASE( SurfaceIntegral3D, ProtoOperatorsFixture )
 {
-  RealVector area(0., 3);
+  RealVector3 area;
+  area.setZero();
   MeshTerm<0, ConstNodes> nodes;
   for_each_element< boost::mpl::vector<SF::Quad3DLagrangeP1> >(recursive_get_named_component_typed<CRegion>(*channel_3d, "bottomWall")
                                                              , area += integral<1>(normal(nodes)));
