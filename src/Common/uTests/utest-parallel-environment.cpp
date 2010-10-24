@@ -10,6 +10,7 @@
 #include <vector>
 #include <boost/test/unit_test.hpp>
 #include <boost/lambda/lambda.hpp>
+#include <boost/foreach.hpp>
 
 // IMPORTANT:
 // run it both on 1 and many cores
@@ -44,11 +45,14 @@ struct PEFixture
   int    m_argc;
   char** m_argv;
   
+  /// communication pattern
   PECommPattern cp;
 
 };
 
 BOOST_FIXTURE_TEST_SUITE( PESuite, PEFixture )
+
+// general tests on the environment
 
 BOOST_AUTO_TEST_CASE( isinit_preinit )
 {
@@ -71,6 +75,49 @@ BOOST_AUTO_TEST_CASE( rank_and_size )
   BOOST_CHECK_LT( PEInterface::instance().rank() , PEInterface::instance().size() );
 }
 
+// all to all communication tests
+BOOST_AUTO_TEST_CASE( all_to_all )
+{
+/*
+  int i,j;
+  const int nproc=PEInterface::instance().size();
+
+  int* ptr_sndcnt=new int[nproc];
+  int* ptr_rcvcnt=new int[nproc];
+  double* ptr_snddat=new double[nproc*nproc];
+  double* ptr_rcvdat=new double[nproc*nproc];
+  int* ptr_sndmap=new int[PEInterface::instance().size()*PEInterface::instance().size()];
+  int* ptr_rcvmap=new int[PEInterface::instance().size()*PEInterface::instance().size()];
+
+  for (i=0; i<nproc; i++)
+    for (j=0; j<nproc; j++){
+      ptr_snddat[i*nproc+j]=i*1024+j;
+      ptr_rcvdat[i*nproc+j]=j*1024+i;
+    }
+  double* ptr_tmprec=all_to_all(PEInterface::instance(), ptr_snddat, int in_n, T* out_values)
+*/
+
+/*
+
+
+
+  BOOST_FOREACH( int i, ptr_sndcnt ) {
+    i=15;
+  }
+  cout << ptr_sndcnt[1] << " " << ptr_sndcnt[3];
+
+  delete(ptr_sndcnt);
+  delete(ptr_rcvcnt);
+  delete(ptr_snddat);
+  delete(ptr_rcvdat);
+
+  delete(ptr_sndmap);
+  delete(ptr_rcvmap);
+*/
+}
+
+
+/*
 BOOST_AUTO_TEST_CASE( collective_op )
 {
   Uint rank_based_sum=0,size_based_sum=0;
@@ -91,7 +138,6 @@ BOOST_AUTO_TEST_CASE( comm_pattern )
 
 BOOST_AUTO_TEST_CASE( scatterv )
 {
-/*
  1 #include "boost/assign/std/vector.hpp"
  2 #include "boost/lambda/lambda.hpp"
  3
@@ -106,9 +152,8 @@ BOOST_AUTO_TEST_CASE( scatterv )
 12   // use boost::lambda to pass a generic function to a for_each loop
 13   for_each(y.begin(), y.end(), std::cout << _1 << '\n');
 14 }
-*/
-
 }
+*/
 
 BOOST_AUTO_TEST_CASE( finalize )
 {

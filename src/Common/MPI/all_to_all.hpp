@@ -212,7 +212,7 @@ all_to_all(const communicator& comm, const std::vector<T>& in_values, std::vecto
 /**
   Interface to the variable size all to all communication with specialization to raw pointer.
   If null pointer passed for out_values then memory is allocated and the pointer to it is returned, otherwise out_values is returned.
-  If out_n (receive counts) contains only zeros, then a pre communication occurs to fill out_n.
+  If out_n (receive counts) contains only -1, then a pre communication occurs to fill out_n.
   @param comm mpi::communicator
   @param in_values pointer to the send buffer
   @param in_n array holding send counts of size #processes
@@ -226,7 +226,7 @@ all_to_all(const communicator& comm, const T* in_values, int *in_n, T* out_value
   const int nproc=comm.size();
   int out_sum=0;
   for (int i=0; i<nproc; i++) out_sum+=out_n[i];
-  if (out_sum==0) {
+  if (out_sum==-nproc) {
     detail::all_to_all_impl(comm,in_n,1,out_n)
     out_sum=0;
     for (int i=0; i<nproc; i++) out_sum+=out_n[i];
@@ -241,9 +241,9 @@ all_to_all(const communicator& comm, const T* in_values, int *in_n, T* out_value
 
 
 /**
-  Interface to the constant size all to all communication with specialization to raw pointer.
+  Interface to the constant size all to all communication with specialization to std::vector.
   If out_values's size is zero then its resized.
-  If out_n (receive counts) contains only zeros or the size itself iz zero, then a pre communication occurs to fill out_n.
+  If out_n (receive counts) is not of size of #processes, then a pre communication occurs to fill out_n.
   @param comm mpi::communicator
   @param in_values send buffer
   @param in_n send counts of size #processes
@@ -254,19 +254,17 @@ template<typename T>
 inline void
 all_to_all(const communicator& comm, const std::vector<T>& in_values, const std::vector<int>& in_n, std::vector<T>& out_values, const std::vector<int>& out_n)
 {
+  BOOST_ASSERT( in_n.size() == comm.size() );
   int in_sum=0;
   BOOST_FOREACH( int & i, in_n ) in_sum+=i;
-  int out_sum=0;
-  BOOST_FOREACH( int & i, out_n ) out_sum+=i;
-  BOOST_ASSERT( in_n.size() == comm.size() );
   BOOST_ASSERT( in_values.size() == in_sum );
-  if ((out_sum==0)||(out_n.size()!=comm.size())){
+  if (out_n.size()!=comm.size()){
     out_n.resize(comm.size());
     out_n.reserve(comm.size());
     detail::all_to_all_impl(comm,&in_n[0],1,&out_n[0]);
   }
   if (out_values.size() == 0){
-    out_sum=0;
+    int out_sum=0;
     BOOST_FOREACH( int & i, out_n ) out_sum+=i;
     out_values.resize(out_sum);
     out_values.reserve(out_sum);
@@ -278,7 +276,7 @@ all_to_all(const communicator& comm, const std::vector<T>& in_values, const std:
 /**
   Interface to the variable size mapped all to all communication with specialization to raw pointer.
   If null pointer passed for out_values then memory is allocated to fit the max in map and the pointer is returned, otherwise out_values is returned.
-  If out_n (receive counts) contains only zeros, then a pre communication occurs to fill out_n.
+  If out_n (receive counts) contains only -1, then a pre communication occurs to fill out_n.
   However due to the fact that map already needs all the information if you use all_to_all to allocate out_values and fill out_n then you most probably doing something wrong.
   @param comm mpi::communicator
   @param in_values pointer to the send buffer
@@ -295,7 +293,7 @@ all_to_all(const communicator& comm, const T* in_values, int *in_n, int *in_map,
   const int nproc=comm.size();
   int out_sum=0;
   for (int i=0; i<nproc; i++) out_sum+=out_n[i];
-  if (out_sum==0) {
+  if (out_sum==-nproc) {
     detail::all_to_all_impl(comm,in_n,1,out_n)
     out_sum=0;
     for (int i=0; i<nproc; i++) out_sum+=out_n[i];
@@ -315,7 +313,7 @@ all_to_all(const communicator& comm, const T* in_values, int *in_n, int *in_map,
 /**
   Interface to the constant size all to all communication with specialization to raw pointer.
   If out_values's size is zero then its resized.
-  If out_n (receive counts) contains only zeros or the size itself is zero, then a pre communication occurs to fill out_n.
+  If out_n (receive counts) is not of size of #processes, then a pre communication occurs to fill out_n.
   However due to the fact that map already needs all the information if you use all_to_all to allocate out_values and fill out_n then you most probably doing something wrong.
   @param comm mpi::communicator
   @param in_values send buffer
@@ -327,22 +325,21 @@ template<typename T>
 inline void
 all_to_all(const communicator& comm, const std::vector<T>& in_values, const std::vector<int>& in_n, const std::vector<int>& in_map, std::vector<T>& out_values, const std::vector<int>& out_n, const std::vector<int>& out_map)
 {
+  BOOST_ASSERT( in_n.size() == comm.size() );
   int in_sum=0;
   BOOST_FOREACH( int & i, in_n ) in_sum+=i;
-  int out_sum=0;
-  BOOST_FOREACH( int & i, out_n ) out_sum+=i;
-  BOOST_ASSERT( in_n.size() == comm.size() );
-  if ((out_sum==0)||(out_n.size()!=comm.size())){
+  if (out_n.size()!=comm.size()){
     out_n.resize(comm.size());
     out_n.reserve(comm.size());
     detail::all_to_all_impl(comm,&in_n[0],1,&out_n[0]);
-    out_sum=0;
-    BOOST_FOREACH( int & i, out_n ) out_sum+=i;
   }
   if (out_values.size() == 0 ){
+    int out_sum=0;
     if (out_map.size()!=0) {
       out_sum=1;
       BOOST_FOREACH( int & i, out_map ) out_sum=MAX(i,out_sum);
+    } else {
+      BOOST_FOREACH( int & i, out_n ) out_sum+=i;
     }
     out_values.resize(out_sum);
     out_values.reserve(out_sum);
