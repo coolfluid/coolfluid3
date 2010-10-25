@@ -166,8 +166,8 @@ void CSchemeLDAT<SHAPEFUNC>::execute()
   typename SHAPEFUNC::MappedGradientT mapped_grad; //Gradient of the shape functions in reference space
   typename SHAPEFUNC::ShapeFunctionsT shapefunc;     //Values of shape functions in reference space
   typename SHAPEFUNC::CoordsT grad_solution;
-  typename SHAPEFUNC::CoordsT grad_x(DIM_2D);
-  typename SHAPEFUNC::CoordsT grad_y(DIM_2D);
+  typename SHAPEFUNC::CoordsT grad_x;
+  typename SHAPEFUNC::CoordsT grad_y;
   Real denominator;
   RealVector nominator(SHAPEFUNC::nb_nodes);
   RealVector phi(SHAPEFUNC::nb_nodes);
@@ -236,7 +236,10 @@ void CSchemeLDAT<SHAPEFUNC>::execute()
 
   // computing average advection speed on element
 
-  RealVector centroid(0.0, SHAPEFUNC::Support::dimension );
+	typename SHAPEFUNC::CoordsT centroid;
+	
+	centroid.setZero();
+
   for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
   {
     centroid[XX] += nodes(n, XX);
