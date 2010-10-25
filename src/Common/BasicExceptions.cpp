@@ -129,6 +129,12 @@ IllegalCall::IllegalCall ( const Common::CodeLocation& where, const std::string&
 
 ////////////////////////////////////////////////////////////////////////////////
 
+NotEnoughMemory::NotEnoughMemory ( const Common::CodeLocation& where, const std::string& what)
+: Common::Exception(where, what, "NotEnoughMemory")
+{}
+
+////////////////////////////////////////////////////////////////////////////////
+
   } // namespace Common
 } // namespace CF
 

@@ -7,29 +7,38 @@
 #ifndef CF_Common_PEInterface_hpp
 #define CF_Common_PEInterface_hpp
 
-#include <boost/mpi.hpp>
-
+#include <boost/mpi/communicator.hpp>
+#include <boost/mpi/environment.hpp>
+#include <boost/mpi/graph_communicator.hpp>
 #include "Common/WorkerStatus.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Parallel Environment Interface
-/// The whole interface depends on boost.mpi, it is basically an encapsulation of mpi::environment mpi::world and WorkerStatus
-/// @author Tamas Banyai to blame
+/**
+ * @file PEInterface.hpp
+ * @author Tamas Banyai
+ *
+ * This header defines the the parallel environment interface.
+ * The parallel interface is strongly based on Boost.MPI.
+ * But since it has its issues and limitations, parts of the interface is re-implemented on COOLFluiD side.
+ * Do not include any Boost.MPI header directly, rather use the headers provided in Common/MPI.
+ * Dont worry, most of them are plain Boost.MPI forwards.
+ */
 
 namespace CF {
 namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// Communication with MPI always occurs over a communicator, 
-// which can be created be simply default-constructing an object 
-// of type boost::mpi::communicator. This communicator can then be queried 
-// to determine how many processes are running (the "size" of the communicator) 
-// and to give a unique number to each process, from zero to the size 
-// of the communicator (i.e., the "rank" of the process)
-	
-/// Base class for the PEInterface
+/**
+ * Base class for the PEInterface
+ * Communication with MPI always occurs over a communicator,
+ * which can be created be simply default-constructing an object
+ * of type boost::mpi::communicator. This communicator can then be queried
+ * to determine how many processes are running (the "size" of the communicator)
+ * and to give a unique number to each process, from zero to the size
+ * of the communicator-1 (i.e., the "rank" of the process)
+**/
 class Common_API PEInterface :
     public boost::noncopyable,
     public boost::mpi::communicator 

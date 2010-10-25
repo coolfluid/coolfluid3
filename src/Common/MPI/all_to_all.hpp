@@ -18,14 +18,17 @@
 #include <boost/mpi/allocator.hpp>
 #include <boost/mpi/environment.hpp>
 */
+#include <vector>
 #include <boost/mpi/datatype.hpp>
 #include <boost/mpi/communicator.hpp>
 #include <boost/assert.hpp>
-#include <vector>
-#include <boost/test/minimal.hpp>
-
+//#include <boost/test/minimal.hpp>
+#include <boost/foreach.hpp>
+#include <Common/BasicExceptions.hpp>
+#include <Common/CodeLocation.hpp>
 
 // TODO: it is dangerous in the interface functions to put a collective comm into an if which can have different true/false results.
+// TODO: what if in_values==&out_values[int_n*nproc] ???
 
 /**
   @file all_to_all.hpp
@@ -59,7 +62,7 @@ namespace detail {
     MPI_Datatype type = get_mpi_datatype<T>(*in_values);
     T* out_buf=0;
     if (const_cast<T*>(in_values)==out_values) {
-      BOOST_REQUIRE( (out_buf=new T[comm.size()*in_n+1]) != 0 ); // +1 for avoiding possible zero allocation
+      if ( (out_buf=new T[comm.size()*in_n+1]) != 0 ) CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
     } else {
       out_buf=out_values;
     }
@@ -85,7 +88,7 @@ namespace detail {
   all_to_allv_impl(const communicator& comm, const T* in_values, int *in_n, T* out_values, int *out_n)
   {
     MPI_Datatype type = get_mpi_datatype<T>(*in_values);
-    const int nproc=communicator.size();
+    const int nproc=comm.size();
     int out_sum=0;
     int *in_disp=new int[nproc];
     int *out_disp=new int[nproc];
@@ -98,7 +101,7 @@ namespace detail {
     T* out_buf=0;
     if (const_cast<T*>(in_values)==out_values) {
       for(int i=1; i<nproc; i++) out_sum+=out_n[i];
-      BOOST_REQUIRE( (out_buf=new T[out_sum+1]) != 0 ); // +1 for avoiding possible zero allocation
+      if ( (out_buf=new T[out_sum+1]) != 0 ) CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
     } else {
       out_buf=out_values;
     }
@@ -128,7 +131,7 @@ namespace detail {
   all_to_allvm_impl(const communicator& comm, const T* in_values, int *in_n, int *in_map, T* out_values, int *out_n, int *out_map)
   {
     MPI_Datatype type = get_mpi_datatype<T>(*in_values);
-    const int nproc=communicator.size();
+    const int nproc=comm.size();
     int in_sum=0;
     int out_sum=0;
     int *in_disp=new int[nproc];
@@ -143,14 +146,14 @@ namespace detail {
     }
     T *in_buf=0;
     if (in_map!=0) {
-      BOOST_REQUIRE( (in_buf=new T[in_sum+1]) != 0 ); // +1 for avoiding possible zero allocation
+      if ( (in_buf=new T[in_sum+1]) != 0 ) CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
       for(int i=0; i<in_sum; i++) in_buf[i]=(const_cast<T*>(in_values))[in_map[i]];
     } else {
       in_buf=const_cast<T*>(in_values);
     }
     T *out_buf=0;
     if ((out_map!=0)||(const_cast<T*>(in_values)==out_values)) {
-      BOOST_REQUIRE( (out_buf=new T[out_sum+1]) != 0 ); // +1 for avoiding possible zero allocation
+      if ( (out_buf=new T[out_sum+1]) != 0 ) CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
     } else {
       out_buf=out_values;
     }
@@ -181,14 +184,15 @@ namespace detail {
 **/
 template<typename T>
 inline T*
-all_to_all(const communicator& comm, const T* in_values, int in_n, T* out_values)
+all_to_all(const communicator& comm, const T* in_values, const int in_n, T* out_values)
 {
+  T* out_buf=out_values;
   if (out_values==0) {
-    const int size=MAX(in_n,1);
-    BOOST_REQUIRE( (out_buf=new T[size]) != 0 );
+    const int size=in_n>1?in_n:1;
+    if ( (out_buf=new T[size]) != 0 ) CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
   }
-  detail::all_to_all_impl(comm, in_values, in_n, out_values);
-  return out_values;
+  detail::all_to_all_impl(comm, in_values, in_n, out_buf);
+  return out_buf;
 }
 
 
@@ -227,16 +231,17 @@ all_to_all(const communicator& comm, const T* in_values, int *in_n, T* out_value
   int out_sum=0;
   for (int i=0; i<nproc; i++) out_sum+=out_n[i];
   if (out_sum==-nproc) {
-    detail::all_to_all_impl(comm,in_n,1,out_n)
+    detail::all_to_all_impl(comm,in_n,1,out_n);
     out_sum=0;
     for (int i=0; i<nproc; i++) out_sum+=out_n[i];
   }
+  T* out_buf=out_values;
   if (out_values==0) {
-    const int size=MAX(out_sum,1);
-    BOOST_REQUIRE( (out_buf=new T[size]) != 0 );
+    const int size=out_sum>1?out_sum:1;
+    if ( (out_buf=new T[size]) != 0 ) CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
   }
-  detail::all_to_allv_impl(comm, in_values, in_n, out_values, out_n);
-  return out_values;
+  detail::all_to_allv_impl(comm, in_values, in_n, out_buf, out_n);
+  return out_buf;
 }
 
 
@@ -252,7 +257,7 @@ all_to_all(const communicator& comm, const T* in_values, int *in_n, T* out_value
 **/
 template<typename T>
 inline void
-all_to_all(const communicator& comm, const std::vector<T>& in_values, const std::vector<int>& in_n, std::vector<T>& out_values, const std::vector<int>& out_n)
+all_to_all(const communicator& comm, const std::vector<T>& in_values, const std::vector<int>& in_n, std::vector<T>& out_values, std::vector<int>& out_n)
 {
   BOOST_ASSERT( in_n.size() == comm.size() );
   int in_sum=0;
@@ -294,19 +299,20 @@ all_to_all(const communicator& comm, const T* in_values, int *in_n, int *in_map,
   int out_sum=0;
   for (int i=0; i<nproc; i++) out_sum+=out_n[i];
   if (out_sum==-nproc) {
-    detail::all_to_all_impl(comm,in_n,1,out_n)
+    detail::all_to_all_impl(comm,in_n,1,out_n);
     out_sum=0;
     for (int i=0; i<nproc; i++) out_sum+=out_n[i];
   }
+  T* out_buf=out_values;
   if (out_values==0) {
     if (out_map!=0){
-      out_sum=1
-      for (int i=0; i<out_sum i++) out_sum=MAX(out_map[i],out_sum);
+      out_sum=1;
+      for (int i=0; i<out_sum; i++) out_sum=out_map[i]>out_sum?out_map[i]:out_sum;
     }
-    BOOST_REQUIRE( (out_buf=new T[out_sum]) != 0 );
+    if ( (out_buf=new T[out_sum]) != 0 ) CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
   }
-  detail::all_to_allvm_impl(comm, in_values, in_n, in_map, out_values, out_n, out_map);
-  return out_values;
+  detail::all_to_allvm_impl(comm, in_values, in_n, in_map, out_buf, out_n, out_map);
+  return out_buf;
 }
 
 
@@ -323,7 +329,7 @@ all_to_all(const communicator& comm, const T* in_values, int *in_n, int *in_map,
 **/
 template<typename T>
 inline void
-all_to_all(const communicator& comm, const std::vector<T>& in_values, const std::vector<int>& in_n, const std::vector<int>& in_map, std::vector<T>& out_values, const std::vector<int>& out_n, const std::vector<int>& out_map)
+all_to_all(const communicator& comm, const std::vector<T>& in_values, const std::vector<int>& in_n, const std::vector<int>& in_map, std::vector<T>& out_values, std::vector<int>& out_n, const std::vector<int>& out_map)
 {
   BOOST_ASSERT( in_n.size() == comm.size() );
   int in_sum=0;
@@ -337,7 +343,7 @@ all_to_all(const communicator& comm, const std::vector<T>& in_values, const std:
     int out_sum=0;
     if (out_map.size()!=0) {
       out_sum=1;
-      BOOST_FOREACH( int & i, out_map ) out_sum=MAX(i,out_sum);
+      BOOST_FOREACH( int & i, out_map ) out_sum=i>out_sum?i:out_sum;
     } else {
       BOOST_FOREACH( int & i, out_n ) out_sum+=i;
     }

@@ -11,14 +11,16 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/foreach.hpp>
+#include <boost/thread/thread.hpp>
 
 // IMPORTANT:
 // run it both on 1 and many cores
-// for example: mpirun -np 4 ./uTestPE --report_level=confirm
+// for example: mpirun -np 4 ./test-parallel-environment --report_level=confirm or --report_level=detailed
 
 #include "Common/MPI/PEInterface.hpp"
 #include "Common/MPI/PECommPattern.hpp"
-#include "Common/MPI/scatterv.hpp"
+#include "Common/MPI/all_to_all.hpp"
+//#include "Common/MPI/scatterv.hpp"
 
 using namespace std;
 using namespace boost;
@@ -78,10 +80,15 @@ BOOST_AUTO_TEST_CASE( rank_and_size )
 // all to all communication tests
 BOOST_AUTO_TEST_CASE( all_to_all )
 {
-/*
+
   int i,j;
+PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "00\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+
   const int nproc=PEInterface::instance().size();
 
+PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "01\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+
+  // send side and receive side for check
   int* ptr_sndcnt=new int[nproc];
   int* ptr_rcvcnt=new int[nproc];
   double* ptr_snddat=new double[nproc*nproc];
@@ -89,31 +96,42 @@ BOOST_AUTO_TEST_CASE( all_to_all )
   int* ptr_sndmap=new int[PEInterface::instance().size()*PEInterface::instance().size()];
   int* ptr_rcvmap=new int[PEInterface::instance().size()*PEInterface::instance().size()];
 
+PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "02\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+
+  // constant size
   for (i=0; i<nproc; i++)
     for (j=0; j<nproc; j++){
-      ptr_snddat[i*nproc+j]=i*1024+j;
-      ptr_rcvdat[i*nproc+j]=j*1024+i;
+      ptr_snddat[i*nproc+j]=i*10000+j;
+      ptr_rcvdat[i*nproc+j]=j*10000+i;
+std::cout << PEInterface::instance().rank() <<  "   " << ptr_snddat[i*nproc+j] << "   " << ptr_rcvdat[i*nproc+j] << "\n" << std::flush;
     }
-  double* ptr_tmprec=all_to_all(PEInterface::instance(), ptr_snddat, int in_n, T* out_values)
-*/
-
-/*
-
-
-
-  BOOST_FOREACH( int i, ptr_sndcnt ) {
-    i=15;
+PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "03\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+  double* ptr_tmprcv=(double*)mpi::all_to_all(PEInterface::instance(), ptr_snddat, nproc, (double*)0);
+PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "04\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+  for (i=0; i<nproc*nproc; i++){
+//      BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[i] );
+std::cout << PEInterface::instance().rank() <<  "   " << ptr_tmprcv[i] << "   " << ptr_rcvdat[i] << "\n" << std::flush;
+      ptr_tmprcv[i]=0.;
   }
-  cout << ptr_sndcnt[1] << " " << ptr_sndcnt[3];
+PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "05\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+  mpi::all_to_all(PEInterface::instance(), ptr_snddat, nproc, ptr_tmprcv);
+PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "06\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+  for (i=0; i<nproc*nproc; i++){
+//      BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[i] );
+  }
+PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "07\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+  delete(ptr_tmprcv);
+PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "08\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
 
+
+
+  // free data
   delete(ptr_sndcnt);
   delete(ptr_rcvcnt);
   delete(ptr_snddat);
   delete(ptr_rcvdat);
-
   delete(ptr_sndmap);
   delete(ptr_rcvmap);
-*/
 }
 
 

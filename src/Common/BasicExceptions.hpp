@@ -236,6 +236,17 @@ struct Common_API IllegalCall: public Common::Exception {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// Exception thrown when an allocation failed.
+/// @author Tamas Banyai
+struct Common_API NotEnoughMemory: public Common::Exception {
+
+  /// Constructor
+  NotEnoughMemory( const Common::CodeLocation& where, const std::string& what);
+
+}; //  InvalidStructure
+
+////////////////////////////////////////////////////////////////////////////////
+
   } // namespace Common
 } // namespace CF
 
