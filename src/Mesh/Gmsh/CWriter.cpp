@@ -376,9 +376,7 @@ void CWriter::write_nodal_data(std::fstream& file)
 	
 	BOOST_FOREACH(CField& nodebased_field, filtered_range_typed<CField>(*m_mesh,IsFieldNodeBased()))
 	{
-		std::string field_name = nodebased_field.field_name();
-		Uint nb_elements = nodebased_field.support().recursive_elements_count();
-		
+		std::string field_name = nodebased_field.field_name();		
 		
 		// data_header
 		Uint row_idx=0;
