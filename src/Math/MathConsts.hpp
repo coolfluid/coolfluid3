@@ -24,32 +24,32 @@ namespace Math {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Provides an a set of static functions for mathematical constants
-/// @author Tiago Quintino
-class MathConsts : public Common::NonInstantiable<MathConsts> {
-public:
-  /// Returns the maximum number representable with the chosen precision
-  static Real intMax () { return std::numeric_limits<int>::max(); }
+/// @author Tiago Quintino, Willem Deconinck
+namespace MathConsts
+{	
+	/// Returns the maximum number representable with the chosen precision
+  const Real intMax = std::numeric_limits<int>::max();
   /// Definition of the minimum number representable with the chosen precision.
-  static Real intMin () { return std::numeric_limits<int>::min(); }
+  const Real intMin = std::numeric_limits<int>::min();
   /// Returns the maximum number representable with the chosen precision
-  static Uint UintMax () { return std::numeric_limits<Uint>::max(); }
+  const Uint UintMax = std::numeric_limits<Uint>::max();
   /// Definition of the minimum number representable with the chosen precision.
-  static Uint UintMin () { return std::numeric_limits<Uint>::min(); }
+  const Uint UintMin = std::numeric_limits<Uint>::min();
   /// Returns the maximum number representable with the chosen precision
-  static Real RealMax () { return std::numeric_limits<Real>::max(); }
+  const Real RealMax = std::numeric_limits<Real>::max();
   /// Definition of the minimum number representable with the chosen precision.
-  static Real RealMin () { return std::numeric_limits<Real>::min(); }
+  const Real RealMin = std::numeric_limits<Real>::min();
   /// Definition of the maximum difference recognazible between two numbers with
   /// the chosen precision. Usefull for comparisons to zero  with real numbers:
-  /// @code std::abs(x) > Math::MathConsts::RealEps()  @endcode
-  static Real RealEps () { return std::numeric_limits<Real>::epsilon(); }
+  /// @code std::abs(x) > Math::MathConsts::RealEps  @endcode
+	const Real RealEps = std::numeric_limits<Real>::epsilon();
   /// Definition of Infinity
-  static Real RealInf () { return std::numeric_limits<Real>::infinity(); }
+	const Real RealInf = std::numeric_limits<Real>::infinity();
   /// Definition of the Pi constant.
-  static Real RealPi  () { return M_PI; }
-//  /// Definition of the imaginary constant i = sqrt(-1)
-//  static Complex complexI () { return Complex(0.0,1.0); }
-};
+	const Real RealPi = M_PI;
+	// /// Definition of the imaginary constant i = sqrt(-1)
+	// const Complex complexI = Complex(0.0,1.0);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

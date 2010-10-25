@@ -94,7 +94,7 @@ void create_circle_2d(CArray& coordinates, CTable& connectivity, const Real radi
 {
   const Uint dim = 2;
   const Uint nb_nodes = 2;
-  const bool closed = std::abs(std::abs(end_angle - start_angle) - 2.0*MathConsts::RealPi()) < MathConsts::RealEps();
+  const bool closed = std::abs(std::abs(end_angle - start_angle) - 2.0*RealPi) < RealEps;
 
   coordinates.initialize(dim);
   CArray::ArrayT& coord_array = coordinates.array();

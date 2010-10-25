@@ -141,7 +141,7 @@ struct LagrangeSFLine2DLagrangeP1Fixture
     // Pressure in function of theta
     Real pressure(const Real theta)
     {
-      Real tmp = (2. * m_u * sin(theta) + m_circulation / (2. * MathConsts::RealPi() * m_radius));
+      Real tmp = (2. * m_u * sin(theta) + m_circulation / (2. * MathConsts::RealPi * m_radius));
       return 0.5 * m_rho * tmp * tmp;
     }
 
@@ -265,7 +265,7 @@ BOOST_AUTO_TEST_CASE( SurfaceIntegral )
   // Check the length, using the line integral of one times the norm of the tangent vector
   Real length = 0.;
   integrate_region(length, NormalVectorNorm(), coordinates, connectivity);
-  BOOST_CHECK_CLOSE(length, 2.*MathConsts::RealPi(), 0.1);
+  BOOST_CHECK_CLOSE(length, 2.*MathConsts::RealPi, 0.1);
 
   // Flux from a constant vector field through a closed surface should be 0
   Real zero_flux = 0.;
@@ -279,7 +279,7 @@ BOOST_AUTO_TEST_CASE( ArcIntegral )
   // half circle arc, so the flux of a uniform field of unit vectors should equal the diameter
   CArray arc_coordinates("coordinates");
   CTable arc_connectivity("connectivity");
-  create_circle_2d(arc_coordinates, arc_connectivity, 1., 100, 0., MathConsts::RealPi());
+  create_circle_2d(arc_coordinates, arc_connectivity, 1., 100, 0., MathConsts::RealPi);
   Real arc_flux = 0.;
   const SFT::CoordsT y_vector(0., 1.);
   integrate_region(arc_flux, ConstVectorField(y_vector), arc_coordinates, arc_connectivity);

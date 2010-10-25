@@ -53,11 +53,11 @@ struct Quad3DLagrangeP1Fixture
   }
 
   /// Fills the given coordinate and connectivity data to create a cylinder along the Z-axis, consisting of Quad3DLagrangeP1 elements
-  void create_cylinder(CArray& coordinates, CTable& connectivity, const Real radius, const Uint u_segments, const Uint v_segments, const Real height, const Real start_angle = 0., const Real end_angle = 2.*MathConsts::RealPi())
+  void create_cylinder(CArray& coordinates, CTable& connectivity, const Real radius, const Uint u_segments, const Uint v_segments, const Real height, const Real start_angle = 0., const Real end_angle = 2.*MathConsts::RealPi)
   {
     const Uint dim = Quad3DLagrangeP1::dimension;
     const Uint nb_nodes = Quad3DLagrangeP1::nb_nodes;
-    const bool closed = std::abs(std::abs(end_angle - start_angle) - 2.0*MathConsts::RealPi()) < MathConsts::RealEps();
+    const bool closed = std::abs(std::abs(end_angle - start_angle) - 2.0*MathConsts::RealPi) < MathConsts::RealEps;
 
     coordinates.initialize(dim);
     CArray::ArrayT& coord_array = coordinates.array();
@@ -220,7 +220,7 @@ struct Quad3DLagrangeP1Fixture
     // Pressure in function of theta
     Real pressure(const Real theta)
     {
-      Real tmp = (2. * m_u * sin(theta) + m_circulation / (2. * MathConsts::RealPi() * m_radius));
+      Real tmp = (2. * m_u * sin(theta) + m_circulation / (2. * MathConsts::RealPi * m_radius));
       return 0.5 * m_rho * tmp * tmp;
     }
 
@@ -365,7 +365,7 @@ BOOST_AUTO_TEST_CASE( SurfaceIntegral )
   // Check the area
   Real area = 0.;
   integrate_region(area, NormalVectorNorm(), coordinates, connectivity);
-  BOOST_CHECK_CLOSE(area, 2.*MathConsts::RealPi()*radius*height, 0.1);
+  BOOST_CHECK_CLOSE(area, 2.*MathConsts::RealPi*radius*height, 0.1);
 
   // Flux from a constant vector field through a closed surface should be 0
   Real zero_flux = 0.;
@@ -379,7 +379,7 @@ BOOST_AUTO_TEST_CASE( ArcIntegral )
   // half cylinder arc
   CArray arc_coordinates("coordinates");
   CTable arc_connectivity("connectivity");
-  create_cylinder(arc_coordinates, arc_connectivity, 1., 100, 24, 3., 0., MathConsts::RealPi());
+  create_cylinder(arc_coordinates, arc_connectivity, 1., 100, 24, 3., 0., MathConsts::RealPi);
   Real arc_flux = 0.;
   const SFT::CoordsT y_vector(0., 1., 0.);
   integrate_region(arc_flux, ConstVectorField(y_vector), arc_coordinates, arc_connectivity);
