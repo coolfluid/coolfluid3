@@ -165,11 +165,10 @@ endforeach()
 
 
 coolfluid_log( "" )
-##############################################################################
+
 coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 coolfluid_log( "+ coolfluid configuration summary " )
 coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
-##############################################################################
 coolfluid_log( " coolfluid Release     : [${CF_VERSION}]" )
 coolfluid_log( " coolfluid Kernel      : [${CF_KERNEL_VERSION}]" )
 coolfluid_log( " coolfluid SVN version : [${coolfluid_svnversion}]" )
@@ -207,6 +206,7 @@ if(CF_HAVE_MPI)
     coolfluid_log( "    MPI_LIBRARIES      : [${MPI_LIBRARIES}]")
   endif()
 endif()
+
 coolfluid_log( "---------------------------------------------------------" )
 coolfluid_log( " Log all               : [${CF_ENABLE_LOGALL}]")
 coolfluid_log( " Log debug             : [${CF_ENABLE_LOGDEBUG}]")
