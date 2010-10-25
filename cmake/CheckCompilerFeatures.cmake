@@ -115,6 +115,42 @@ include(CheckNullPtr)
 
 #######################################################################################
 
+  coolfluid_log( "+++++  Checking for cbrt function" )
+  check_cxx_source_compiles (
+  " #include <cmath>
+    int main (int argc, char* argv[]) { cbrt (0.); }
+  "
+  CF_HAVE_MATH_CBRT )
+
+#######################################################################################
+
+  coolfluid_log( "+++++  Checking for log2 function" )
+  check_cxx_source_compiles (
+  " #include <cmath>
+    int main (int argc, char* argv[]) { log2 (0.); }
+  "
+  CF_HAVE_MATH_LOG2 )
+
+#######################################################################################
+
+  coolfluid_log( "+++++  Checking for hypot function" )
+  check_cxx_source_compiles (
+  " #include <cmath>
+    int main (int argc, char* argv[]) { hypot (0., 1.2); }
+  "
+  CF_HAVE_MATH_HYPOT )
+
+#######################################################################################
+
+  coolfluid_log( "+++++  Checking for exp2 function" )
+  check_cxx_source_compiles (
+  " #include <cmath>
+    int main (int argc, char* argv[]) { exp2 (0.); }
+  "
+  CF_HAVE_MATH_EXP2 )
+
+#######################################################################################
+
   coolfluid_log( "+++++  Checking for asinh function" )
   check_cxx_source_compiles (
   " #include <cmath>

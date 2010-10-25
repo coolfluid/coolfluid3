@@ -1,6 +1,24 @@
 # parser library
 
+if( CF_HAVE_MATH_ASINH )
+  add_definitions( -DFP_SUPPORT_ASINH )
+endif()
+if( CF_HAVE_MATH_EXP2 )
+  add_definitions( -DFP_SUPPORT_EXP2 )
+endif()
+if( CF_HAVE_MATH_LOG2 )
+  add_definitions( -DFP_SUPPORT_LOG2 )
+endif()
+if( CF_HAVE_MATH_CBRT )
+  add_definitions( -DFP_SUPPORT_CBRT )
+endif()
+if( CF_HAVE_MATH_HYPOT )
+  add_definitions( -DFP_SUPPORT_HYPOT )
+endif()
+
 list( APPEND fparser_files 
+  LibFParser.hpp
+  LibFParser.cpp
   fpconfig.hh
   fptypes.hh
   fparser.hh

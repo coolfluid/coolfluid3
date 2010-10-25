@@ -46,15 +46,15 @@
  These will make the source code use asinh(), acosh(), atanh(), exp2()
  and log2().
 */
-#define FP_SUPPORT_TR1_MATH_FUNCS
+//#define FP_SUPPORT_TR1_MATH_FUNCS
 
-#ifdef FP_SUPPORT_TR1_MATH_FUNCS
-#define FP_SUPPORT_ASINH
-#define FP_SUPPORT_EXP2
-#define FP_SUPPORT_LOG2
-#define FP_SUPPORT_CBRT
-#define FP_SUPPORT_HYPOT
-#endif
+//#ifdef FP_SUPPORT_TR1_MATH_FUNCS
+//#define FP_SUPPORT_ASINH
+//#define FP_SUPPORT_EXP2
+//#define FP_SUPPORT_LOG2
+//#define FP_SUPPORT_CBRT
+//#define FP_SUPPORT_HYPOT
+//#endif
 
 /*
  Comment out the following line to enable the eval() function, which can
