@@ -74,7 +74,7 @@ void CReader::config_repartition()
 void CReader::defineConfigProperties ( CF::Common::PropertyList& options )
 {
 	options.add_option<OptionT <bool> >("Serial Merge","New mesh will be merged with existing if mesh-names match",true);
-	options.add_option<OptionT <bool> >("Unified Zones","Reads Neu Groups and splits the mesh in these subgroups",true);
+	options.add_option<OptionT <bool> >("Unified Zones","Reads Neu Groups and splits the mesh in these subgroups",false);
 	options.add_option<OptionT <Uint> >("Part","Number of the part of the mesh to read. (e.g. rank of processor)",PEInterface::instance().is_init()?PEInterface::instance().rank():0);
 	options.add_option<OptionT <Uint> >("Number of Parts","Total number of parts. (e.g. number of processors)",PEInterface::instance().is_init()?PEInterface::instance().size():1);
 	
@@ -135,7 +135,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 
 	read_boundaries();
 
-	if (property("Unified Zones").value<bool>())
+	if (!property("Unified Zones").value<bool>())
 		read_groups();
 	
 	
@@ -730,7 +730,8 @@ void CReader::read_groups()
 		if (m_headerData.NGRPS == 1)
 		{
 			m_tmp->rename(groups[0].ELMMAT);
-			continue;
+			m_tmp.reset();
+			return;
 		}
 		// 2) there are multiple groups --> New regions have to be created
 		//    and the elements from the tmp region have to be distributed among
@@ -755,6 +756,7 @@ void CReader::read_groups()
 		
 		CRegion& region = m_region->create_region(group.ELMMAT);
 		
+		CFinfo << "region " << region.full_path().string() << " created" << CFendl;
 		// Create regions for each element type in each group-region
 		std::map<std::string,boost::shared_ptr<CTable::Buffer> > buffer =
 		create_element_regions_with_buffermap(region,coordinates,m_supported_types);
@@ -772,7 +774,7 @@ void CReader::read_groups()
 			m_global_to_tmp[global_element] = std::make_pair(region.get_child_type<CElements>(new_region_name),idx);
 		}
 	}
-	
+
 	m_region->remove_component(m_tmp->name());
 	m_tmp.reset();
 	
