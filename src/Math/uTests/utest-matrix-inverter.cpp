@@ -8,17 +8,21 @@
 #define BOOST_TEST_MODULE "Test matrix inverter"
 
 #include <boost/test/unit_test.hpp>
-
+#include <boost/foreach.hpp>
 #include <Eigen/SVD>
 
 #include "Common/Log.hpp"
 
 #include "Math/MatrixTypes.hpp"
+#include "Math/MathChecks.hpp"
 
 using namespace std;
 using namespace boost;
 using namespace CF;
 using namespace CF::Common;
+
+using namespace CF::Math::MathChecks;
+using namespace CF::Math::MathConsts;
 
 using namespace Eigen;
 
@@ -70,12 +74,23 @@ BOOST_AUTO_TEST_CASE( SVDInverterTest )
   RealVector3 tol(1., 1., 1.); // 1% tolerance
 
   JacobiSVD<RealMatrix> svd(A);
+	
+	//CFinfo << svd.singularValues() << CFendl;
+	BOOST_CHECK_CLOSE(svd.singularValues()[0],12.,tol[0]);
+	BOOST_CHECK_CLOSE(svd.singularValues()[1],6.,tol[0]);
+	BOOST_CHECK_CLOSE(svd.singularValues()[2]+1.,0.+1.,tol[0]);
+		
+	RealVector s_inv = svd.singularValues();
+	for (Uint i=0; i<3; ++i)
+		s_inv[i] = isNotZeroWithError(s_inv[i],RealEps*10.)? 1./s_inv[i] : 0.;
+	
+	RealMatrix A_pinv = svd.matrixV()*s_inv.asDiagonal()*svd.matrixU().transpose();
+	RealVector3 x = A_pinv * b;
 //   RealVector3 x = svd.solve(b); // TODO: Solve method is in Eigen mercurial, but not the latest beta
 // 
-//   // Check if solution matches
-//   for (Uint i=0; i<x.size(); i++) {
-//     BOOST_CHECK_CLOSE(x[i]+1.,xCheck[i]+1.,tol[i]);
-//   }
+	// Check if solution matches
+	for (Uint i=0; i<x.size(); i++)
+		BOOST_CHECK_CLOSE(x[i]+1.,xCheck[i]+1.,tol[i]);
 }
 
 
