@@ -1,12 +1,6 @@
 // Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
-// GNU Lesser General Public License version 3 (LGPLv3).
-// See doc/lgpl.txt and doc/gpl.txt for the license text.
-
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
-//
-// This software is distributed under the terms of the
 // GNU Lesser General Public License version 3.
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
@@ -300,7 +294,7 @@ protected: // functions
 private: // helper functions
 
   /// insures the sub component has a unique name within this component
-	std::string ensure_unique_name ( Ptr subcomp );
+  std::string ensure_unique_name ( Ptr subcomp );
 
   /// writes the underlying component tree to the xml node
   void write_xml_tree( XmlNode& node );
