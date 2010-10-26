@@ -11,6 +11,7 @@
 #include <boost/filesystem/fstream.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/test/unit_test.hpp>
+#include <boost/mpi/collectives.hpp>
 
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
