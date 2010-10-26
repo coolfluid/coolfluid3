@@ -9,6 +9,11 @@ macro( coolfluid_add_application APPNAME )
   # add to list of local apps
   list( APPEND CF_LOCAL_APPNAMES ${APPNAME} )
 
+  # by default, applications are not part of the sandbox
+  if( NOT DEFINED ${APPNAME}_sandbox_app )
+    set( ${APPNAME}_sandbox_app OFF )
+  endif()
+
 #   coolfluid_debug_var(CF_MODULES_LIST)
 
   # check if all required modules are present
@@ -49,12 +54,14 @@ macro( coolfluid_add_application APPNAME )
 
     add_executable( ${APPNAME} ${${APPNAME}_sources} ${${APPNAME}_headers} ${${APPNAME}_moc_files} ${${APPNAME}_RCC})
 
-    # add installation paths
-    INSTALL( TARGETS ${APPNAME}
-      RUNTIME DESTINATION ${CF_INSTALL_BIN_DIR}
-      LIBRARY DESTINATION ${CF_INSTALL_LIB_DIR}
-      ARCHIVE DESTINATION ${CF_INSTALL_LIB_DIR}
+    # add installation paths, if it not a sandbox application
+    if( NOT ${APPNAME}_sandbox_app )
+      INSTALL( TARGETS ${APPNAME}
+        RUNTIME DESTINATION ${CF_INSTALL_BIN_DIR}
+        LIBRARY DESTINATION ${CF_INSTALL_LIB_DIR}
+        ARCHIVE DESTINATION ${CF_INSTALL_LIB_DIR}
       )
+    endif()
 
     # if mpi was found add it to the libraries
     if(CF_HAVE_MPI AND NOT CF_HAVE_MPI_COMPILER)
@@ -95,6 +102,7 @@ macro( coolfluid_add_application APPNAME )
   coolfluid_log_file("${APPNAME}_includedirs     : [${${APPNAME}_includedirs}]")
   coolfluid_log_file("${APPNAME}_libs            : [${${APPNAME}_libs}]")
   coolfluid_log_file("${APPNAME}_cflibs          : [${${APPNAME}_cflibs}]")
+  coolfluid_log_file("${APPNAME}_sandbox_app     : [${${APPNAME}_sandbox_app}]")
   coolfluid_log_file("${APPNAME}_all_mods_pres   : [${${APPNAME}_all_mods_pres}]")
   coolfluid_log_file("${APPNAME}_requires_mods   : [${${APPNAME}_requires_mods}]")
   coolfluid_log_file("${APPNAME}_P_SOURCES       : [${${APPNAME}_P_SOURCES}]")
