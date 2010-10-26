@@ -10,6 +10,8 @@
 #include <boost/mpi/communicator.hpp>
 #include <boost/mpi/environment.hpp>
 #include <boost/mpi/graph_communicator.hpp>
+#include <boost/mpi/nonblocking.hpp>
+
 #include "Common/WorkerStatus.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
