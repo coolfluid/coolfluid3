@@ -8,7 +8,7 @@
 #include <boost/algorithm/string/erase.hpp>
 #include <boost/filesystem/convenience.hpp>
 #include <boost/regex.hpp>
-
+#include <boost/mpi/collectives.hpp>
 // #include <mpi.h>
 // #include <ptscotch.h>
 

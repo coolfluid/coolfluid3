@@ -6,6 +6,7 @@
 
 #include <boost/foreach.hpp>
 #include <boost/filesystem/path.hpp>
+#include <boost/mpi/collectives.hpp>
 
 #include "Common/Log.hpp"
 #include "Common/OptionT.hpp"
