@@ -11,7 +11,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/foreach.hpp>
-#include <boost/thread/thread.hpp>
+//#include <boost/thread/thread.hpp>
 
 // IMPORTANT:
 // run it both on 1 and many cores
@@ -82,11 +82,11 @@ BOOST_AUTO_TEST_CASE( all_to_all )
 {
 
   int i,j;
-PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "00\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+//PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "00\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
 
   const int nproc=PEInterface::instance().size();
 
-PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "01\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+//PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "01\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
 
   // send side and receive side for check
   int* ptr_sndcnt=new int[nproc];
@@ -96,7 +96,7 @@ PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() <<
   int* ptr_sndmap=new int[PEInterface::instance().size()*PEInterface::instance().size()];
   int* ptr_rcvmap=new int[PEInterface::instance().size()*PEInterface::instance().size()];
 
-PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "02\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+//PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "02\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
 
   // constant size
   for (i=0; i<nproc; i++)
@@ -105,23 +105,23 @@ PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() <<
       ptr_rcvdat[i*nproc+j]=j*10000+i;
 std::cout << PEInterface::instance().rank() <<  "   " << ptr_snddat[i*nproc+j] << "   " << ptr_rcvdat[i*nproc+j] << "\n" << std::flush;
     }
-PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "03\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+//PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "03\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
   double* ptr_tmprcv=(double*)mpi::all_to_all(PEInterface::instance(), ptr_snddat, nproc, (double*)0);
-PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "04\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+//PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "04\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
   for (i=0; i<nproc*nproc; i++){
 //      BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[i] );
 std::cout << PEInterface::instance().rank() <<  "   " << ptr_tmprcv[i] << "   " << ptr_rcvdat[i] << "\n" << std::flush;
       ptr_tmprcv[i]=0.;
   }
-PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "05\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+//PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "05\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
   mpi::all_to_all(PEInterface::instance(), ptr_snddat, nproc, ptr_tmprcv);
-PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "06\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+//PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "06\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
   for (i=0; i<nproc*nproc; i++){
 //      BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[i] );
   }
-PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "07\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+//PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "07\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
   delete(ptr_tmprcv);
-PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "08\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+//PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "08\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
 
 
 
