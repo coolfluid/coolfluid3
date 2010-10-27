@@ -11,7 +11,9 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/foreach.hpp>
-//#include <boost/thread/thread.hpp>
+#include <boost/thread/thread.hpp>
+#define  CHKPT(msg) PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << msg << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+
 
 // IMPORTANT:
 // run it both on 1 and many cores
@@ -82,96 +84,111 @@ BOOST_AUTO_TEST_CASE( all_to_all )
 {
 
   int i,j;
-//PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "00\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
-
   const int nproc=PEInterface::instance().size();
+  const int irank=PEInterface::instance().rank();
 
-//PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "01\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
-
-  // send side and receive side for check
+  // pointers
   int* ptr_sndcnt=new int[nproc];
   int* ptr_rcvcnt=new int[nproc];
   double* ptr_snddat=new double[nproc*nproc];
   double* ptr_rcvdat=new double[nproc*nproc];
-  int* ptr_sndmap=new int[PEInterface::instance().size()*PEInterface::instance().size()];
-  int* ptr_rcvmap=new int[PEInterface::instance().size()*PEInterface::instance().size()];
+  int* ptr_sndmap=new int[nproc*nproc];
+  int* ptr_rcvmap=new int[nproc*nproc];
+  double* ptr_tmprcv=0;
+  //int* ptr_tmpcnt=new int[nproc];
 
-//PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "02\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
-
-  // constant size
+  // setting up input and verification data
   for (i=0; i<nproc; i++)
     for (j=0; j<nproc; j++){
-      ptr_snddat[i*nproc+j]=i*10000+j;
-      ptr_rcvdat[i*nproc+j]=j*10000+i;
-std::cout << PEInterface::instance().rank() <<  "   " << ptr_snddat[i*nproc+j] << "   " << ptr_rcvdat[i*nproc+j] << "\n" << std::flush;
+      ptr_snddat[i*nproc+j]=(irank+1)*1000000+(i+1)*10000+(j+1);
+      ptr_rcvdat[i*nproc+j]=(i+1)*1000000+(irank+1)*10000+(j+1);
     }
-//PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "03\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
-  double* ptr_tmprcv=(double*)mpi::all_to_all(PEInterface::instance(), ptr_snddat, nproc, (double*)0);
-//PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "04\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
-  for (i=0; i<nproc*nproc; i++){
-//      BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[i] );
-std::cout << PEInterface::instance().rank() <<  "   " << ptr_tmprcv[i] << "   " << ptr_rcvdat[i] << "\n" << std::flush;
-      ptr_tmprcv[i]=0.;
+  for (i=0; i<nproc; i++){
+    ptr_sndcnt[i]=(i+irank*irank)%nproc;
+    ptr_rcvcnt[i]=(i*i+irank)%nproc;
   }
-//PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "05\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+  for (i=0; i<nproc; i++)
+    for (j=0; j<ptr_sndcnt[i]; j++)
+      ptr_sndmap[i]=nproc-1-j;
+  for (i=0; i<nproc; i++)
+    for (j=0; j<ptr_sndcnt[i]; j++)
+      ptr_rcvmap[i]=nproc-1-j;
+
+
+  // constant size - pointers
+  ptr_tmprcv=0;
+
+  ptr_tmprcv=(double*)mpi::all_to_all(PEInterface::instance(), ptr_snddat, nproc, (double*)0);
+  for (i=0; i<nproc*nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[i] );
+
+  for (i=0; i<nproc*nproc; i++) ptr_tmprcv[i]=0.;
   mpi::all_to_all(PEInterface::instance(), ptr_snddat, nproc, ptr_tmprcv);
-//PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "06\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
-  for (i=0; i<nproc*nproc; i++){
-//      BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[i] );
-  }
-//PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "07\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
-  delete(ptr_tmprcv);
-//PEInterface::instance().barrier();std::cout << PEInterface::instance().rank() << "08\n" << std::flush; PEInterface::instance().barrier();boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+  for (i=0; i<nproc*nproc; i++)  BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[i] );
 
+  for (i=0; i<nproc*nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
+  mpi::all_to_all(PEInterface::instance(), ptr_tmprcv, nproc, ptr_tmprcv);
+  for (i=0; i<nproc*nproc; i++)  BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[i] );
 
+  for (i=0; i<nproc*nproc; i++) ptr_tmprcv[i]=0.;
+  mpi::all_to_all(PEInterface::instance(), (char*)ptr_snddat, nproc, (char*)ptr_tmprcv, sizeof(double));
+  for (i=0; i<nproc*nproc; i++)  BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[i] );
+
+  delete[] ptr_tmprcv;
+
+  // variable size - pointers
+/*
+  ptr_tmprcv=0;
+  ptr_tmprcv=(double*)mpi::all_to_all(PEInterface::instance(), ptr_snddat, ptr_sndcnt, (double*)0);
+  for (i=0; i<nproc*nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[i] );
+*/
+
+  // std vectors
+  std::vector<int> vec_sndcnt(nproc);
+  vec_sndcnt.assign(ptr_sndcnt,ptr_sndcnt+nproc);
+  std::vector<int> vec_rcvcnt(nproc);
+  vec_rcvcnt.assign(ptr_rcvcnt,ptr_rcvcnt+nproc);
+  std::vector<double> vec_snddat(nproc*nproc);
+  vec_snddat.assign(ptr_snddat,ptr_snddat+nproc*nproc);
+  std::vector<double> vec_rcvdat(nproc*nproc);
+  vec_rcvdat.assign(ptr_rcvdat,ptr_rcvdat+nproc*nproc);
+  std::vector<int> vec_sndmap(nproc*nproc);
+  vec_sndmap.assign(ptr_sndmap,ptr_sndmap+nproc*nproc);
+  std::vector<int> vec_rcvmap(nproc*nproc);
+  vec_rcvmap.assign(ptr_rcvmap,ptr_rcvmap+nproc*nproc);
+  std::vector<double> vec_tmprcv(0);
+
+  // constant size std vectors
+  vec_tmprcv.resize(0);
+  vec_tmprcv.reserve(0);
+
+  mpi::all_to_all(PEInterface::instance(), vec_snddat, vec_tmprcv);
+  for (i=0; i<nproc*nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_rcvdat[i] );
+  BOOST_CHECK_EQUAL( vec_tmprcv.size() , nproc*nproc );
+
+  vec_tmprcv.assign(nproc*nproc,0);
+  mpi::all_to_all(PEInterface::instance(), vec_snddat, vec_tmprcv);
+  for (i=0; i<nproc*nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_rcvdat[i] );
+
+  vec_tmprcv=vec_snddat;
+  mpi::all_to_all(PEInterface::instance(), vec_tmprcv, vec_tmprcv);
+  for (i=0; i<nproc*nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_rcvdat[i] );
+
+  std::vector<char> vec_tmprcvchr(0);
+  vec_tmprcvchr.assign((char*)(&ptr_snddat[0]),(char*)(&ptr_snddat[nproc*nproc]));
+  mpi::all_to_all(PEInterface::instance(), vec_tmprcvchr, vec_tmprcvchr );
+  for (i=0; i<nproc*nproc; i++) BOOST_CHECK_EQUAL( ((double*)(&vec_tmprcvchr[0]))[i], vec_rcvdat[i] );
+
+  vec_tmprcv.resize(0);
+  vec_tmprcv.reserve(0);
 
   // free data
-  delete(ptr_sndcnt);
-  delete(ptr_rcvcnt);
-  delete(ptr_snddat);
-  delete(ptr_rcvdat);
-  delete(ptr_sndmap);
-  delete(ptr_rcvmap);
+  delete[] ptr_sndcnt;
+  delete[] ptr_rcvcnt;
+  delete[] ptr_snddat;
+  delete[] ptr_rcvdat;
+  delete[] ptr_sndmap;
+  delete[] ptr_rcvmap;
 }
-
-
-/*
-BOOST_AUTO_TEST_CASE( collective_op )
-{
-  Uint rank_based_sum=0,size_based_sum=0;
-  std::vector<Uint> ranklist(PEInterface::instance().size(),0);
-  mpi::all_gather(PEInterface::instance(),PEInterface::instance().rank(),ranklist);
-  for(Uint i=0; i<PEInterface::instance().size(); i++) {
-    rank_based_sum+=ranklist[i];
-    size_based_sum+=PEInterface::instance().size()-(i+1);
-  }
-  BOOST_CHECK_EQUAL( rank_based_sum , size_based_sum );
-}
-
-BOOST_AUTO_TEST_CASE( comm_pattern )
-{
-  // Do something with cp
-}
-
-
-BOOST_AUTO_TEST_CASE( scatterv )
-{
- 1 #include "boost/assign/std/vector.hpp"
- 2 #include "boost/lambda/lambda.hpp"
- 3
- 4 using namespace boost::lambda;
- 5 using namespace boost::assign;
- 6 int main()
- 7 {
- 8   // use boost:assign to initialize the vector
- 9   std::vector<int> y;
-10   y += 1,2,3,4,5,6,7,8,9;
-11
-12   // use boost::lambda to pass a generic function to a for_each loop
-13   for_each(y.begin(), y.end(), std::cout << _1 << '\n');
-14 }
-}
-*/
 
 BOOST_AUTO_TEST_CASE( finalize )
 {
