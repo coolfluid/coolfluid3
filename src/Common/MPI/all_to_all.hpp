@@ -17,6 +17,31 @@
 #include <Common/BasicExceptions.hpp>
 #include <Common/CodeLocation.hpp>
 
+
+/**
+  mpiProcessSortedExecute is a macro for executing something ensured that the execution order is 0..nproc-1.
+  @param irank rank of the process where the command is executed (-1 for all ranks)
+  @param expression stuff to execute
+**/
+#define mpiProcessSortedExecute(comm,irank,expression) {                                                                        \
+  if (irank<0){                                                                                                                 \
+    int _process_ordered_execute_i_;                                                                                            \
+    int _process_ordered_execute_n_=(int)comm.size();                                                                           \
+    int _process_ordered_execute_r_=(int)comm.rank();                                                                           \
+    comm.barrier();                                                                                                             \
+    for(_process_ordered_execute_i_=0; _process_ordered_execute_i_<_process_ordered_execute_n_; _process_ordered_execute_i_++){ \
+      comm.barrier();                                                                                                           \
+      if(_process_ordered_execute_i_ == _process_ordered_execute_r_){                                                           \
+        expression;                                                                                                             \
+        comm.barrier();                                                                                                         \
+      }                                                                                                                         \
+    }                                                                                                                           \
+    comm.barrier();                                                                                                             \
+  } else if (irank==(int)comm.rank()){                                                                                          \
+    expression;                                                                                                                 \
+  }                                                                                                                             \
+}
+
 // TODO: it is dangerous in the interface functions to put a collective comm into an if which can have different true/false results.
 
 /**
@@ -59,7 +84,7 @@ namespace detail {
     // set up out_buf
     T* out_buf=0;
     if (in_values==out_values) {
-      if ( (out_buf=new T[nproc*in_n*stride+1]) != 0 ) CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
+      if ( (out_buf=new T[nproc*in_n*stride+1]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
     } else {
       out_buf=out_values;
     }
@@ -97,69 +122,65 @@ namespace detail {
 
     // if stride is greater than one
     BOOST_ASSERT( stride>0 );
-    if (stride>1) for (int i=0; i<nproc; i++) {
-      in_n[i]*=stride;
-      out_n[i]*=stride;
-    }
 
     // compute displacements both on send an receive side
+    // also compute stride-multiplied send and receive counts
+    int *in_nstride=new int[nproc];
+    int *out_nstride=new int[nproc];
     int *in_disp=new int[nproc];
     int *out_disp=new int[nproc];
     in_disp[0]=0;
     out_disp[0]=0;
-    for(int i=1; i<nproc; i++) {
-      in_disp[i]=in_disp[i-1]+in_n[i-1];
-      out_disp[i]=out_disp[i-1]+out_n[i-1];
+    for(int i=0; i<nproc-1; i++) {
+      in_nstride[i]=stride*in_n[i];
+      out_nstride[i]=stride*out_n[i];
+      in_disp[i+1]=in_disp[i]+in_nstride[i];
+      out_disp[i+1]=out_disp[i]+out_nstride[i];
     }
+    in_nstride[nproc-1]=in_n[nproc-1]*stride;
+    out_nstride[nproc-1]=out_n[nproc-1]*stride;
 
     // compute total number of send and receive items
-    int in_sum=0;
-    int out_sum=0;
-    for(int i=0; i<nproc; i++) {
-      in_sum+=in_n[i];
-      out_sum+=out_n[i];
-    }
+    const int in_sum=in_disp[nproc-1]+stride*in_n[nproc-1];
+    const int out_sum=out_disp[nproc-1]+stride*out_n[nproc-1];
 
     // set up in_buf
     T *in_buf=0;
     if (in_map!=0) {
-      if ( (in_buf=new T[in_sum+1]) != 0 ) CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
+      if ( (in_buf=new T[in_sum+1]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
       if (stride==1) { for(int i=0; i<in_sum; i++) in_buf[i]=in_values[in_map[i]]; }
       else { for(int i=0; i<(const int)(in_sum/stride); i++) memcpy(&in_buf[stride*i],&in_values[stride*in_map[i]],stride*sizeof(T)); }
     } else {
-      in_buf=in_values;
+      in_buf=(T*)in_values;
     }
 
     // set up out_buf
     T *out_buf=0;
     if ((out_map!=0)||(in_values==out_values)) {
-      if ( (out_buf=new T[out_sum+1]) != 0 ) CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
+      if ( (out_buf=new T[out_sum+1]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
     } else {
       out_buf=out_values;
     }
 
     // do the communication
-    BOOST_MPI_CHECK_RESULT(MPI_Alltoallv, (in_buf, in_n, in_disp, type, out_buf, out_n, out_disp, type, comm));
+    BOOST_MPI_CHECK_RESULT(MPI_Alltoallv, (in_buf, in_nstride, in_disp, type, out_buf, out_nstride, out_disp, type, comm));
 
+    // re-populate out_values
     if (out_map!=0) {
-      if (stride==1) { for(int i=0; i<out_sum; i++) out_values[i]=out_buf[out_map[i]]; }
-      else { for(int i=0; i<(const int)(out_sum/stride); i++) memcpy(&out_values[stride*i],&out_buf[stride*out_map[i]],stride*sizeof(T)); }
+      if (stride==1) { for(int i=0; i<out_sum; i++) out_values[out_map[i]]=out_buf[i]; }
+      else { for(int i=0; i<(const int)(out_sum/stride); i++) memcpy(&out_values[stride*out_map[i]],&out_buf[stride*i],stride*sizeof(T)); }
       delete[] out_buf;
     } else if (in_values==out_values) {
       memcpy(out_values,out_buf,out_sum*sizeof(T));
       delete[] out_buf;
     }
 
-    // if stride is greater than one
-    if (stride>1) for (int i=0; i<nproc; i++) {
-      in_n[i]/=stride;
-      out_n[i]/=stride;
-    }
-
     // free internal memory
     if (in_map!=0) delete[] in_buf;
     delete[] in_disp;
     delete[] out_disp;
+    delete[] in_nstride;
+    delete[] out_nstride;
   }
 
 
@@ -179,11 +200,14 @@ template<typename T>
 inline T*
 all_to_all(const communicator& comm, const T* in_values, const int in_n, T* out_values, const int stride=1)
 {
+  // allocate out_buf if incoming pointer is null
   T* out_buf=out_values;
   if (out_values==0) {
     const int size=stride*comm.size()*in_n>1?stride*comm.size()*in_n:1;
-    if ( (out_buf=new T[size]) != 0 ) CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
+    if ( (out_buf=new T[size]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
   }
+
+  // call c_impl
   detail::all_to_allc_impl(comm, in_values, in_n, out_buf, stride);
   return out_buf;
 }
@@ -200,9 +224,12 @@ template<typename T>
 inline void
 all_to_all(const communicator& comm, const std::vector<T>& in_values, std::vector<T>& out_values, const int stride=1)
 {
+  // set out_values's sizes
   BOOST_ASSERT( in_values.size() % (comm.size()*stride) == 0 );
   out_values.resize(in_values.size());
   out_values.reserve(in_values.size());
+
+  // call c_impl
   detail::all_to_allc_impl(comm, &in_values[0], in_values.size()/(comm.size()*stride), &out_values[0], stride);
 }
 
@@ -222,14 +249,16 @@ template<typename T>
 inline T*
 all_to_all(const communicator& comm, const T* in_values, const int *in_n, T* out_values, int *out_n, const int stride=1)
 {
-  all_to_all(comm,in_values,in_n,0,out_values,out_n,0,stride);
+  // call mapped variable all_to_all
+  return all_to_all(comm,in_values,in_n,0,out_values,out_n,0,stride);
 }
 
 
 /**
   Interface to the constant size all to all communication with specialization to std::vector.
   If out_values's size is zero then its resized.
-  If out_n (receive counts) is not of size of #processes, then a pre communication occurs to fill out_n.
+  If out_n (receive counts) is not of size of #processes, then error occurs.
+  If out_n (receive counts) is filled with -1s, then a pre communication occurs to fill out_n.
   @param comm mpi::communicator
   @param in_values send buffer
   @param in_n send counts of size #processes
@@ -241,6 +270,7 @@ template<typename T>
 inline void
 all_to_all(const communicator& comm, const std::vector<T>& in_values, const std::vector<int>& in_n, std::vector<T>& out_values, std::vector<int>& out_n, const int stride=1)
 {
+  // call mapped variable all_to_all
   all_to_all(comm,in_values,in_n,0,out_values,out_n,0,stride);
 }
 
@@ -263,7 +293,10 @@ template<typename T>
 inline T*
 all_to_all(const communicator& comm, const T* in_values, const int *in_n, const int *in_map, T* out_values, int *out_n, const int *out_map, const int stride=1)
 {
+  // number of processes
   const int nproc=comm.size();
+
+  // if out_n consist of -1s then communicate for number of receives
   int out_sum=0;
   for (int i=0; i<nproc; i++) out_sum+=out_n[i];
   if (out_sum==-nproc) {
@@ -272,15 +305,20 @@ std::cout << "PRECOMM\n" << std::flush;
     out_sum=0;
     for (int i=0; i<nproc; i++) out_sum+=out_n[i];
   }
+
+  // allocate out_buf if incoming pointer is null
   T* out_buf=out_values;
   if (out_values==0) {
     if (out_map!=0){
-      out_sum=1;
-      for (int i=0; i<out_sum; i++) out_sum=out_map[i]>out_sum?out_map[i]:out_sum;
+      int out_sum_tmp=1;
+      for (int i=0; i<out_sum; i++) out_sum_tmp=out_map[i]>out_sum_tmp?out_map[i]:out_sum_tmp;
+      out_sum=out_sum_tmp;
     }
-    if ( (out_buf=new T[out_sum]) != 0 ) CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
+    if ( (out_buf=new T[stride*out_sum]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
   }
-  detail::all_to_allvm_impl(comm, in_values, in_n, in_map, out_buf, out_n, out_map,stride);
+
+  // call vm_impl
+  detail::all_to_allvm_impl(comm, in_values, in_n, in_map, out_buf, out_n, out_map, stride);
   return out_buf;
 }
 
@@ -288,39 +326,52 @@ std::cout << "PRECOMM\n" << std::flush;
 /**
   Interface to the constant size all to all communication with specialization to raw pointer.
   If out_values's size is zero then its resized.
-  If out_n (receive counts) is not of size of #processes, then a pre communication occurs to fill out_n.
+  If out_n (receive counts) is not of size of #processes, then error occurs.
+  If out_n (receive counts) is filled with -1s, then a pre communication occurs to fill out_n.
   However due to the fact that map already needs all the information if you use all_to_all to allocate out_values and fill out_n then you most probably doing something wrong.
   @param comm mpi::communicator
   @param in_values send buffer
   @param in_n send counts of size #processes
+  @param in_map array of size #processes holding the mapping. If zero pointer or zero size vector passed, no mapping on send side.
   @param out_values receive buffer
   @param out_n receive counts of size #processes
+  @param out_map array of size #processes holding the mapping. If zero pointer or zero size vector passed, no mapping on receive side.
   @param stride is the number of items of type T forming one array element, for example if communicating coordinates together, then stride==3:  X0,Y0,Z0,X1,Y1,Z1,...,Xn-1,Yn-1,Zn-1
 **/
 template<typename T>
 inline void
 all_to_all(const communicator& comm, const std::vector<T>& in_values, const std::vector<int>& in_n, const std::vector<int>& in_map, std::vector<T>& out_values, std::vector<int>& out_n, const std::vector<int>& out_map, const int stride=1)
 {
-  BOOST_ASSERT( in_n.size() == comm.size() );
+  // number of processes and checking in_n and out_n (out_n deliberately throws exception because the vector can arrive from arbitrary previous usage)
+  const int nproc=comm.size();
+  BOOST_ASSERT( in_n.size() == nproc );
+  if (out_n.size()!=nproc) CF::Common::BadValue(FromHere(),"Size of vector for number of items to be received does not match to number of processes.");
+
+  // compute number of send and receive
   int in_sum=0;
+  int out_sum=0;
   BOOST_FOREACH( int & i, in_n ) in_sum+=i;
-  if (out_n.size()!=comm.size()){
-    out_n.resize(comm.size());
-    out_n.reserve(comm.size());
+  BOOST_FOREACH( int & i, out_n ) out_sum+=i;
+
+  // if necessary, do communication for out_n
+  if (out_sum == -nproc){
 std::cout << "PRECOMM\n" << std::flush;
     detail::all_to_allc_impl(comm,&in_n[0],1,&out_n[0],1);
+    out_sum=0;
+    BOOST_FOREACH( int & i, out_n ) out_sum+=i;
   }
+
+  // resize out_values if vector size is zero
   if (out_values.size() == 0 ){
-    int out_sum=0;
     if (out_map.size()!=0) {
       out_sum=1;
       BOOST_FOREACH( int & i, out_map ) out_sum=i>out_sum?i:out_sum;
-    } else {
-      BOOST_FOREACH( int & i, out_n ) out_sum+=i;
     }
-    out_values.resize(out_sum);
-    out_values.reserve(out_sum);
+    out_values.resize(stride*out_sum);
+    out_values.reserve(stride*out_sum);
   }
+
+  // call vm_impl
   detail::all_to_allvm_impl(comm, &in_values[0], &in_n[0], &in_map[0] &out_values[0], &out_n[0], &out_map[0], stride);
 }
 
