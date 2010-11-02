@@ -134,6 +134,7 @@ list( APPEND coolfluid_common_files
       MPI/PEInterface.cpp
       MPI/PECommPattern.hpp
       MPI/PECommPattern.cpp
+      MPI/tools.hpp
       MPI/scatterv.hpp
       MPI/all_to_all.hpp
 )

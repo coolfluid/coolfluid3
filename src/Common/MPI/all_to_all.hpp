@@ -1,13 +1,14 @@
-// Copyright (C) 2005, 2006 Douglas Gregor.
+// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+//
+// This software is distributed under the terms of the
+// GNU Lesser General Public License version 3 (LGPLv3).
+// See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-// Use, modification and distribution is subject to the Boost Software
-// License, Version 1.0. (See accompanying file LICENSE_1_0.txt or copy at
-// http://www.boost.org/LICENSE_1_0.txt)
-
-// Imported and customized into COOLFluiD environment by Tamas Banyai
 
 #ifndef BOOST_MPI_ALL_TO_ALL_HPP
 #define BOOST_MPI_ALL_TO_ALL_HPP
+
+////////////////////////////////////////////////////////////////////////////////
 
 #include <vector>
 #include <boost/mpi/datatype.hpp>
@@ -17,35 +18,11 @@
 #include <Common/BasicExceptions.hpp>
 #include <Common/CodeLocation.hpp>
 
-
-/**
-  mpiProcessSortedExecute is a macro for executing something ensured that the execution order is 0..nproc-1.
-  @param irank rank of the process where the command is executed (-1 for all ranks)
-  @param expression stuff to execute
-**/
-#define mpiProcessSortedExecute(comm,irank,expression) {                                                                        \
-  if (irank<0){                                                                                                                 \
-    int _process_ordered_execute_i_;                                                                                            \
-    int _process_ordered_execute_n_=(int)comm.size();                                                                           \
-    int _process_ordered_execute_r_=(int)comm.rank();                                                                           \
-    comm.barrier();                                                                                                             \
-    for(_process_ordered_execute_i_=0; _process_ordered_execute_i_<_process_ordered_execute_n_; _process_ordered_execute_i_++){ \
-      comm.barrier();                                                                                                           \
-      if(_process_ordered_execute_i_ == _process_ordered_execute_r_){                                                           \
-        expression;                                                                                                             \
-        comm.barrier();                                                                                                         \
-      }                                                                                                                         \
-    }                                                                                                                           \
-    comm.barrier();                                                                                                             \
-  } else if (irank==(int)comm.rank()){                                                                                          \
-    expression;                                                                                                                 \
-  }                                                                                                                             \
-}
-
-// TODO: it is dangerous in the interface functions to put a collective comm into an if which can have different true/false results.
+////////////////////////////////////////////////////////////////////////////////
 
 /**
   @file all_to_all.hpp
+  @author Tamas Banyai
   All to all collective communication interface to MPI standard.
   Due to the nature of MPI standard, at the lowest level the memory required to be linear meaning &xyz[0] should give a single and continous block of memory.
   Some functions support automatic evaluation of number of items on the receive side but be very cautious with using them because it requires two collective communication and may end up with degraded performance.
@@ -56,9 +33,15 @@
   - Extension of the variable sized communication to support mapped storage both on send and receive side.
 **/
 
+////////////////////////////////////////////////////////////////////////////////
+
 namespace boost { namespace mpi {
-          
+
+////////////////////////////////////////////////////////////////////////////////
+
 namespace detail {
+
+////////////////////////////////////////////////////////////////////////////////
 
   /**
     Implementation to the all to all interface with constant size communication.
@@ -99,6 +82,8 @@ namespace detail {
     }
   }
 
+////////////////////////////////////////////////////////////////////////////////
+
   /**
     Implementation to the all to all interface with variable size communication through in and out map.
     Don't call this function directly, use mpi::alltoallvm instead.
@@ -120,7 +105,7 @@ namespace detail {
     MPI_Datatype type = get_mpi_datatype<T>(*in_values);
     const int nproc=comm.size();
 
-    // if stride is greater than one
+    // if stride is greater than one and unsupported functionality
     BOOST_ASSERT( stride>0 );
 
     // compute displacements both on send an receive side
@@ -183,9 +168,11 @@ namespace detail {
     delete[] out_nstride;
   }
 
+////////////////////////////////////////////////////////////////////////////////
 
 } // end namespace detail
 
+////////////////////////////////////////////////////////////////////////////////
 
 /**
   Interface to the constant size all to all communication with specialization to raw pointer.
@@ -212,6 +199,7 @@ all_to_all(const communicator& comm, const T* in_values, const int in_n, T* out_
   return out_buf;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
 /**
   Interface to the constant size all to all communication with specialization to std::vector.
@@ -230,9 +218,10 @@ all_to_all(const communicator& comm, const std::vector<T>& in_values, std::vecto
   out_values.reserve(in_values.size());
 
   // call c_impl
-  detail::all_to_allc_impl(comm, &in_values[0], in_values.size()/(comm.size()*stride), &out_values[0], stride);
+  detail::all_to_allc_impl(comm, (T*)(&in_values[0]), in_values.size()/(comm.size()*stride), (T*)(&out_values[0]), stride);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
 /**
   Interface to the variable size all to all communication with specialization to raw pointer.
@@ -253,6 +242,7 @@ all_to_all(const communicator& comm, const T* in_values, const int *in_n, T* out
   return all_to_all(comm,in_values,in_n,0,out_values,out_n,0,stride);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
 /**
   Interface to the constant size all to all communication with specialization to std::vector.
@@ -271,9 +261,12 @@ inline void
 all_to_all(const communicator& comm, const std::vector<T>& in_values, const std::vector<int>& in_n, std::vector<T>& out_values, std::vector<int>& out_n, const int stride=1)
 {
   // call mapped variable all_to_all
-  all_to_all(comm,in_values,in_n,0,out_values,out_n,0,stride);
+  std::vector<int> in_map(0);
+  std::vector<int> out_map(0);
+  all_to_all(comm,in_values,in_n,in_map,out_values,out_n,out_map,stride);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
 /**
   Interface to the variable size mapped all to all communication with specialization to raw pointer.
@@ -300,7 +293,7 @@ all_to_all(const communicator& comm, const T* in_values, const int *in_n, const 
   int out_sum=0;
   for (int i=0; i<nproc; i++) out_sum+=out_n[i];
   if (out_sum==-nproc) {
-std::cout << "PRECOMM\n" << std::flush;
+    if (out_map!=0) throw CF::Common::ParallelError(FromHere(),"Trying to perform communication with receive map while receive counts are unknown, this is bad usage of parallel environment.");
     detail::all_to_allc_impl(comm,in_n,1,out_n,1);
     out_sum=0;
     for (int i=0; i<nproc; i++) out_sum+=out_n[i];
@@ -310,9 +303,9 @@ std::cout << "PRECOMM\n" << std::flush;
   T* out_buf=out_values;
   if (out_values==0) {
     if (out_map!=0){
-      int out_sum_tmp=1;
+      int out_sum_tmp=0;
       for (int i=0; i<out_sum; i++) out_sum_tmp=out_map[i]>out_sum_tmp?out_map[i]:out_sum_tmp;
-      out_sum=out_sum_tmp;
+      out_sum=out_sum_tmp+1;
     }
     if ( (out_buf=new T[stride*out_sum]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
   }
@@ -322,6 +315,7 @@ std::cout << "PRECOMM\n" << std::flush;
   return out_buf;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
 /**
   Interface to the constant size all to all communication with specialization to raw pointer.
@@ -344,18 +338,18 @@ all_to_all(const communicator& comm, const std::vector<T>& in_values, const std:
 {
   // number of processes and checking in_n and out_n (out_n deliberately throws exception because the vector can arrive from arbitrary previous usage)
   const int nproc=comm.size();
-  BOOST_ASSERT( in_n.size() == nproc );
-  if (out_n.size()!=nproc) CF::Common::BadValue(FromHere(),"Size of vector for number of items to be received does not match to number of processes.");
+  BOOST_ASSERT( (int)in_n.size() == nproc );
+  if ((int)out_n.size()!=nproc) CF::Common::BadValue(FromHere(),"Size of vector for number of items to be received does not match to number of processes.");
 
   // compute number of send and receive
   int in_sum=0;
   int out_sum=0;
-  BOOST_FOREACH( int & i, in_n ) in_sum+=i;
-  BOOST_FOREACH( int & i, out_n ) out_sum+=i;
+  BOOST_FOREACH( int i, in_n ) in_sum+=i;
+  BOOST_FOREACH( int i, out_n ) out_sum+=i;
 
   // if necessary, do communication for out_n
   if (out_sum == -nproc){
-std::cout << "PRECOMM\n" << std::flush;
+    if (out_map.size()!=0) throw CF::Common::ParallelError(FromHere(),"Trying to perform communication with receive map while receive counts are unknown, this is bad usage of parallel environment.");
     detail::all_to_allc_impl(comm,&in_n[0],1,&out_n[0],1);
     out_sum=0;
     BOOST_FOREACH( int & i, out_n ) out_sum+=i;
@@ -364,20 +358,23 @@ std::cout << "PRECOMM\n" << std::flush;
   // resize out_values if vector size is zero
   if (out_values.size() == 0 ){
     if (out_map.size()!=0) {
-      out_sum=1;
-      BOOST_FOREACH( int & i, out_map ) out_sum=i>out_sum?i:out_sum;
+      out_sum=0;
+      BOOST_FOREACH( int i, out_map ) out_sum=i>out_sum?i:out_sum;
+      if (out_sum!=0) out_sum++;
     }
     out_values.resize(stride*out_sum);
     out_values.reserve(stride*out_sum);
   }
 
   // call vm_impl
-  detail::all_to_allvm_impl(comm, &in_values[0], &in_n[0], &in_map[0] &out_values[0], &out_n[0], &out_map[0], stride);
+  detail::all_to_allvm_impl(comm, (T*)(&in_values[0]), &in_n[0], &in_map[0], (T*)(&out_values[0]), &out_n[0], &out_map[0], stride);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
 } // end namespace mpi
 } // end namespace boost
 
+////////////////////////////////////////////////////////////////////////////////
 
 #endif // BOOST_MPI_ALL_TO_ALL_HPP
