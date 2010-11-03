@@ -124,6 +124,27 @@ boost::proto::terminal< double(*)(const RealVector2&) >::type const _atan_vec = 
 // Wrap std::cout
 boost::proto::terminal< std::ostream & >::type _cout = {std::cout};
 
+////////////////////////////////
+// Wrappers for Eigen
+
+template<typename FunctionT>
+struct eigen_function_tag
+{};
+
+/// Transpose of an Eigen matrix
+struct transpose_tag {};
+
+template<typename EigenExprT>
+typename boost::proto::result_of::make_expr<
+    eigen_function_tag<transpose_tag>
+  , MeshDomain
+  , EigenExprT const &
+>::type const
+transpose(EigenExprT const &expr)
+{
+  return boost::proto::make_expr<eigen_function_tag<transpose_tag>, MeshDomain>(boost::ref(expr));
+}
+
 } // namespace Proto
 } // namespace Actions
 } // namespace CF

@@ -52,19 +52,22 @@ BOOST_AUTO_TEST_CASE( Laplacian1D )
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (
     recursive_get_named_component_typed<CRegion>(*mesh, "region"),
-    _cout << integral<1>(laplacian(nodes)) << "\n"
+    _cout << "elem result:\n" << integral<1>(laplacian(nodes)) << "\n"
   );
   
-//   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
-//   (
-//     recursive_get_named_component_typed<CRegion>(*mesh, "region"),
-//     _cout << integral<1>
-//     (
-//       (_transpose(jacobian_adjoint(nodes) * mapped_gradient(nodes)) 
-//       * (jacobian_adjoint(nodes) * mapped_gradient(nodes))) / jacobian_determinant(nodes)
-//     )
-//     << "\n"
-//   );
+  for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
+  (
+    recursive_get_named_component_typed<CRegion>(*mesh, "region"),
+    _cout << "elem result:\n" << integral<1>
+    (
+      (
+        transpose(mapped_gradient(nodes)) * transpose(jacobian_adjoint(nodes)) *
+        jacobian_adjoint(nodes) * mapped_gradient(nodes)
+      ) / jacobian_determinant(nodes)
+    )
+    << "\n"
+  );
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////

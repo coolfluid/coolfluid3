@@ -58,6 +58,8 @@ list( APPEND coolfluid_mesh_files
   ListBase.hpp
   ListBufferT.hpp
   ListBufferIterator.hpp
+  Point1D.hpp
+  Point1D.cpp
   Quad2D.hpp
   Quad2D.cpp
   Quad3D.hpp

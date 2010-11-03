@@ -9,6 +9,8 @@ list( APPEND coolfluid_sf_files
   Line2DLagrangeP1.hpp
   Line3DLagrangeP1.cpp
   Line3DLagrangeP1.hpp
+  Point1DLagrangeP1.cpp
+  Point1DLagrangeP1.hpp
   Quad2DLagrangeP1.cpp
   Quad2DLagrangeP1.hpp
   Quad2DLagrangeP2.cpp

@@ -7,6 +7,7 @@
 #ifndef CF_Actions_ProtoContexts_hpp
 #define CF_Actions_ProtoContexts_hpp
 
+#include "Actions/Proto/ProtoEigenContext.hpp"
 #include "Actions/Proto/ProtoFunctions.hpp"
 #include "Actions/Proto/ProtoSFContexts.hpp"
 #include "Actions/Proto/ProtoTransforms.hpp"
@@ -219,9 +220,6 @@ struct ElementVarContext< SF, Field<RealMatrix> >
 };
 */
 
-template<typename T>
-struct error_printer {};
-
 /// Context for evaluating mesh-related expressions, providing an interface to field variables and the shape functions
 template<typename ShapeFunctionT, typename ContextsT>
 struct ElementMeshContext
@@ -387,24 +385,39 @@ struct ElementMeshContext
     }
   };
   
+  /// Handle Eigen matrix functions
+  template<typename Expr, typename TagT, typename ChildExpr>
+  struct eval<Expr, eigen_function_tag<TagT>, ChildExpr >
+  {
+    // return type of the evaluation
+    typedef typename boost::proto::result_of::eval< Expr, EigenContext<ThisContextT> >::type result_type;
+    
+    result_type operator()(Expr &expr, ThisContextT& ctx)
+    {
+      return boost::proto::eval(expr, EigenContext<ThisContextT>(ctx));
+    }
+  };
+  
   /// Handle integration
   template<typename Expr, Uint I, typename ChildExpr>
   struct eval<Expr, integral_tag<I>, ChildExpr >
   {
     typedef typename boost::proto::result_of::child<Expr>::type ChildT;
     
-    typedef ValueType
+    typedef typename boost::remove_const
     <
-      typename boost::remove_const
+      typename boost::remove_reference
       <
-        typename boost::remove_reference
+        typename boost::proto::result_of::eval
         <
-          typename boost::proto::result_of::eval
-          <
-            ChildT, ThisContextT
-          >::type
+          ChildT, ThisContextT
         >::type
       >::type
+    >::type EigenExprT;
+    
+    typedef ValueType
+    <
+      EigenExprT
     > ValueT;
     
     typedef typename ValueT::type result_type;
@@ -421,7 +434,7 @@ struct ElementMeshContext
     {
       integration_ftor(const ChildT& expr, ThisContextT& ctx) : m_expr(expr), m_context(ctx) {}
       
-      inline result_type operator()() const
+      inline EigenExprT operator()() const
       {
         return boost::proto::eval(m_expr, m_context);
       }
@@ -457,6 +470,40 @@ struct ElementMeshContext
         boost::proto::eval(boost::proto::right(expr), context);
     }
   };
+  
+  /// Delegate multiplication to an Eigen-specific context, if needed
+  template<typename Expr, typename ChildT>
+  struct eval< Expr, boost::proto::tag::multiplies, ChildT >
+  {
+    typedef typename boost::proto::result_of::left<Expr>::type LeftExprT;
+    typedef typename boost::proto::result_of::right<Expr>::type RightExprT;
+    
+    typedef typename boost::remove_const
+    <
+      typename boost::remove_reference
+      <
+        typename boost::proto::result_of::eval<LeftExprT, ThisContextT>::type
+      >::type
+    >::type LeftT;
+    
+    typedef typename boost::remove_const
+    <
+      typename boost::remove_reference
+      <
+        typename boost::proto::result_of::eval<RightExprT, ThisContextT>::type
+      >::type
+    >::type RightT;
+    
+    typedef EigenMultiplier<LeftT, RightT> MultiplierT;
+    typedef typename MultiplierT::result_type result_type;
+    
+    inline result_type operator()(Expr& expr, ThisContextT& context)
+    {
+      return MultiplierT().exec(boost::proto::eval(boost::proto::left(expr), context),
+                                boost::proto::eval(boost::proto::right(expr), context));
+    }
+  };
+  
 };
 
 } // namespace Proto

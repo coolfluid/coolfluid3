@@ -51,6 +51,18 @@ void create_line(CMesh& mesh, const Real x_len, const Uint x_segments)
     nodes[0] = i;
     nodes[1] = i+1;
   }
+  
+  // Left boundary
+  CElements& xneg_elements = region.create_region("xneg").create_elements("Point1DLagrangeP1", coordinates);
+  CTable::ArrayT& xneg_connectivity = xneg_elements.connectivity_table().array();
+  xneg_connectivity.resize(boost::extents[1][1]);
+  xneg_connectivity[0][0] = 0;
+  
+  // right boundary
+  CElements& xpos_elements = region.create_region("xpos").create_elements("Point1DLagrangeP1", coordinates);
+  CTable::ArrayT& xpos_connectivity = xpos_elements.connectivity_table().array();
+  xpos_connectivity.resize(boost::extents[1][1]);
+  xpos_connectivity[0][0] = x_segments + 1;
 }
 
 

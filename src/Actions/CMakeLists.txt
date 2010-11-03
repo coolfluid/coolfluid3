@@ -31,6 +31,7 @@ if(CF_ENABLE_PROTO)
   list( APPEND coolfluid_actions_files 
     Proto/ProtoContexts.hpp
     Proto/ProtoDomain.hpp
+    Proto/ProtoEigenContext.hpp
     Proto/ProtoElementLooper.hpp
     Proto/ProtoFunctions.hpp
     Proto/ProtoGrammars.hpp
