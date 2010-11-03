@@ -6,6 +6,7 @@
 
 #include "Common/BasicExceptions.hpp"
 #include "Common/CF.hpp"
+#include "Common/NotificationQueue.hpp"
 
 #include "Common/CRoot.hpp"
 
@@ -38,6 +39,8 @@ namespace Common {
     // we need to manually register the type name since CRoot cannot be
     // put into ObjectProvider (because the constructor is private)
     TypeInfo::instance().regist<CRoot>( type_name() );
+
+    regist_signal("new_event", "Notifies new events.");
 
     m_path = "/";
   }
@@ -87,7 +90,7 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  bool CRoot::exists_component_path( const CPath& path )
+  bool CRoot::exists_component_path( const CPath& path ) const
   {
     cf_assert ( path.is_complete() );
 
@@ -107,6 +110,29 @@ namespace Common {
     }
 
     return out.str();
+  }
+
+////////////////////////////////////////////////////////////////////////////////
+
+  void CRoot::raise_new_event ( const std::string & event_name,
+                                const CPath & raiser_path )
+  {
+    cf_assert( exists_component_path(raiser_path) );
+
+    std::vector<NotificationQueue*>::iterator it;
+
+    for( it = m_notif_queues.begin() ; it != m_notif_queues.end() ; it++)
+      (*it)->add_notification(event_name, raiser_path);
+  }
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+  void CRoot::add_notification_queue ( NotificationQueue * queue )
+  {
+    cf_assert( queue != nullptr );
+
+    m_notif_queues.push_back(queue);
   }
 
 ////////////////////////////////////////////////////////////////////////////////

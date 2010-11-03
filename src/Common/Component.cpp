@@ -99,6 +99,8 @@ void Component::rename ( const CName& name )
 
   m_name = new_name;
 
+//  raise_path_changed();
+
   // loop on children and inform them of change in name
   /// @todo solve this, maybe putting finally uuid's in the comps and using the root to get the path
 }
@@ -121,44 +123,47 @@ Component::ConstPtr Component::get_parent() const
 
 Component::Ptr Component::add_component ( Component::Ptr subcomp )
 {
-	std::string unique_name = ensure_unique_name(subcomp);
+  std::string unique_name = ensure_unique_name(subcomp);
 
   m_components[unique_name] = subcomp;           // add to all component list
   m_dynamic_components[unique_name] = subcomp;   // add to dynamic component list
 
-  subcomp->change_parent( this );
+  raise_path_changed();
+
+	subcomp->change_parent( this );
 	subcomp->rename( unique_name );
-  return subcomp;
+
+	return subcomp;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 Component::Ptr Component::add_static_component ( Component::Ptr subcomp )
 {
-	std::string unique_name = ensure_unique_name(subcomp);
+  std::string unique_name = ensure_unique_name(subcomp);
 
   m_components[unique_name] = subcomp;
 
-  subcomp->change_parent( this );
+	subcomp->change_parent( this );
 	subcomp->rename( unique_name );
 
-  return subcomp;
+	return subcomp;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 std::string Component::ensure_unique_name ( Component::Ptr subcomp )
 {
-  const std::string name = subcomp->name();
+	const std::string name = subcomp->name();
 	std::string new_name = name;
-  boost::regex e(name+"(_[0-9]+)?");
-  BOOST_FOREACH(CompStorage_t::value_type subcomp_pair, m_components)
-  {
-    if (boost::regex_match(subcomp_pair.first,e))
-    {
-      Uint count = 1;
+	boost::regex e(name+"(_[0-9]+)?");
+	BOOST_FOREACH(CompStorage_t::value_type subcomp_pair, m_components)
+	{
+		if (boost::regex_match(subcomp_pair.first,e))
+		{
+			Uint count = 1;
 
-      new_name = name + "_" + String::to_str(count);
+			new_name = name + "_" + String::to_str(count);
 
       // make sure constructed name does not exist
       while ( m_components.find(new_name) != m_components.end() )
@@ -193,6 +198,8 @@ Component::Ptr Component::remove_component ( const CName& name )
     m_components.erase(citr);
 
     comp->change_parent( NULL );         // set parent to invalid
+
+    raise_path_changed();
 
     return comp;                                   // return it to client
   }
@@ -321,6 +328,9 @@ void Component::change_parent ( Component* new_parent )
   {
     c.second->change_parent( this );
   }
+
+  /// @bug event is raised for each child
+//  raise_path_changed();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -329,6 +339,7 @@ void Component::move_component ( Component::Ptr new_parent )
 {
   Component::Ptr this_ptr = get_parent()->remove_component( this->name() );
   new_parent->add_component( this_ptr );
+  raise_path_changed();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -624,6 +635,26 @@ void Component::rename_component ( XmlNode& xml )
   std::string new_name = p.get_option<std::string>("newName");
 
   rename(new_name);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+void Component::raise_path_changed ()
+{
+  raise_event("tree_updated");
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+void Component::raise_event ( const std::string & name )
+{
+  if( !m_root.expired() )
+  {
+    boost::shared_ptr<CRoot> root =
+        boost::dynamic_pointer_cast<CRoot>( m_root.lock() );
+
+    root->raise_new_event(name, full_path());
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

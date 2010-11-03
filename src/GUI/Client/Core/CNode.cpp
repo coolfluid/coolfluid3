@@ -70,8 +70,11 @@ CNode::CNode(const QString & name, const QString & componentType, CNode::Type ty
 
   regist_signal("configure", "Update component options")->connect(boost::bind(&CNode::configure_reply, this, _1));
   regist_signal("list_signals", "Update component signals")->connect(boost::bind(&CNode::list_signals_reply, this, _1));
+  regist_signal("tree_updated", "Event that notifies a path has changed")->connect(boost::bind(&CNode::update_tree, this, _1));
 
   m_property_list.add_property("originalComponentType", m_componentType.toStdString());
+
+
 
 //  m_property_list.add_property("test", int(2));
 }
@@ -725,6 +728,14 @@ Option::Ptr CNode::makeOption(const CF::Common::XmlNode & node)
   }
 
   return option;
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Signal::return_t CNode::update_tree(XmlNode & node)
+{
+  ClientRoot::core()->updateTree();
 }
 
 #undef ADD_ARRAY_TO_XML

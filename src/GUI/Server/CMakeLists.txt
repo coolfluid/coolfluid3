@@ -10,6 +10,7 @@ set( coolfluid-server_moc_classes
   CSimulator.hpp
   RemoteClientAppender.hpp
   CCore.hpp
+  Notifier.hpp
 #  SimulationWorker.hpp
   SimulationManager.hpp
 #  MPIListener.hpp
@@ -21,25 +22,27 @@ QT4_WRAP_CPP(coolfluid-server_moc_files ${coolfluid-server_moc_classes})
 
 # Add the project files (including the moc files)
 list( APPEND coolfluid-server_files
-  RemoteClientAppender.cpp
-  RemoteClientAppender.hpp
   CCore.cpp
   CCore.hpp
+  CSimulator.cpp
+  CSimulator.hpp
+  main.cpp
+  Notifier.cpp
+  Notifier.hpp
+  ProcessingThread.cpp
+  ProcessingThread.hpp
+  RemoteClientAppender.cpp
+  RemoteClientAppender.hpp
   ServerNetworkComm.cpp
   ServerNetworkComm.hpp
   ServerRoot.cpp
   ServerRoot.hpp
-  CSimulator.cpp
-  CSimulator.hpp
-  ProcessingThread.cpp
-  ProcessingThread.hpp
   SimulationManager.cpp
   SimulationManager.hpp
   TypesNotFoundException.cpp
   TypesNotFoundException.hpp
   UnknownClientIdException.cpp
-  UnknownClientIdException.hpp
-  main.cpp)
+  UnknownClientIdException.hpp)
 
 # Use Qt Libraries
 list( APPEND coolfluid-server_libs ${QT_LIBRARIES} )

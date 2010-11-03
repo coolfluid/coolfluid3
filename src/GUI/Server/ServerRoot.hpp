@@ -28,6 +28,7 @@ namespace GUI {
 namespace Server {
 
   class ProcessingThread;
+  class Notifier;
 
   ///////////////////////////////////////////////////////////////////////////
 
@@ -66,6 +67,10 @@ namespace Server {
     static SignalCatcher * m_catcher;
 
     static QMutex m_mutex;
+
+    static CF::Common::NotificationQueue * m_queue;
+
+    static Notifier * m_notifier;
 
     friend void SignalCatcher::finished();
 

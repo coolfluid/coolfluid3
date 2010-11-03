@@ -234,6 +234,8 @@ namespace ClientCore {
 
     static CF::Common::Option::Ptr makeOption(const CF::Common::XmlNode & node);
 
+    CF::Common::Signal::return_t update_tree( CF::Common::XmlNode & node);
+
   protected:
 
     CNode::Type m_type;

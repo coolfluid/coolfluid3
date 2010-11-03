@@ -293,8 +293,13 @@ protected: // functions
 
 private: // helper functions
 
+<<<<<<< HEAD
   /// insures the sub component has a unique name within this component
   std::string ensure_unique_name ( Ptr subcomp );
+=======
+	/// insures the sub component has a unique name within this component
+	std::string ensure_unique_name ( Ptr subcomp );
+>>>>>>> [DEV] client component tree is automatically updated on "tree_updated" event on server side.
 
   /// writes the underlying component tree to the xml node
   void write_xml_tree( XmlNode& node );
@@ -350,6 +355,10 @@ protected: // data
   Component * m_raw_parent;
   /// is this a link component
   bool m_is_link;
+
+  void raise_path_changed();
+
+  void raise_event(const std::string & name );
 
 }; // Component
 

@@ -16,6 +16,8 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+  class NotificationQueue;
+
   /// Component class for tree root
   /// @author Tiago Quintino
   class Common_API CRoot : public Component {
@@ -24,6 +26,8 @@ namespace Common {
 
     typedef boost::shared_ptr<CRoot> Ptr;
     typedef boost::shared_ptr<CRoot const> ConstPtr;
+    typedef boost::signals2::signal< void (const std::string&, const CPath&) > signal_type_t;
+    typedef boost::shared_ptr< signal_type_t > signal_ptr_t;
 
   public: // functions
 
@@ -65,11 +69,22 @@ namespace Common {
 
     /// check that a component path actually points to a component
     /// @param path to the component
-    bool exists_component_path ( const CPath& path );
+    bool exists_component_path ( const CPath& path ) const;
 
     /// dump to string table of contents of the component list
     /// @return string with list of components in the root
     std::string list_toc () const;
+
+    /// @brief Raises an event.
+    /// @param event_name Event name
+    /// @param raiser_path Path of the component that raised the event. The path
+    /// must exist under this root.
+    void raise_new_event ( const std::string & event_name,
+                           const CPath & raiser_path );
+
+    /// @brief Adds a listener to the events
+    /// @param queue The queue object. Cannot be null.
+    void add_notification_queue ( NotificationQueue * queue );
 
   private: // helper functions
 
@@ -86,6 +101,8 @@ namespace Common {
 
     /// map the paths to each component
     CompStorage_t  m_toc;
+
+    std::vector<NotificationQueue*> m_notif_queues;
 
   }; // CRoot
 

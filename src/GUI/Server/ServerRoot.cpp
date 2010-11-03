@@ -9,8 +9,10 @@
 #include "GUI/Network/ComponentNames.hpp"
 
 #include "Common/CRoot.hpp"
+#include "Common/NotificationQueue.hpp"
 #include "Common/XmlHelpers.hpp"
 
+#include "GUI/Server/Notifier.hpp"
 #include "GUI/Server/ProcessingThread.hpp"
 #include "GUI/Server/CSimulator.hpp"
 
@@ -19,6 +21,9 @@
 using namespace std;
 using namespace CF::Common;
 using namespace CF::GUI::Server;
+
+NotificationQueue * ServerRoot::m_queue;
+Notifier * ServerRoot::m_notifier;
 
 ProcessingThread * ServerRoot::m_thread = nullptr;
 QMutex ServerRoot::m_mutex;
@@ -37,6 +42,8 @@ void SignalCatcher::finished()
   ServerRoot::m_thread = nullptr;
   ServerRoot::m_doc.reset();
   ServerRoot::m_mutex.unlock();
+
+  ServerRoot::m_queue->flush();
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -51,6 +58,14 @@ CRoot::Ptr ServerRoot::getRoot()
   {
     CCore::Ptr core(new CCore());
     CSimulator::Ptr simulator(new CSimulator());
+
+    m_queue = new NotificationQueue(root);
+    m_notifier = new Notifier(m_queue);
+
+    m_notifier->listenToEvent("tree_updated", true);
+
+    QObject::connect(m_notifier, SIGNAL(eventOccured(std::string,CF::Common::CPath)),
+                     core.get(), SLOT(newEvent(std::string,CF::Common::CPath)));
 
     m_thread = nullptr;
     root->add_component(core);
@@ -75,9 +90,6 @@ void ServerRoot::processSignal(const string & target,
 {
   if(m_mutex.tryLock())
   {
-    qDebug() << "in" << __FUNCTION__;
-    qDebug() << getRoot()->access_component<CCore>("//Root/Core")->full_path().string().c_str();
-
     m_doc.swap(doc);
     Component::Ptr receivingCompo = getRoot()->access_component(receiver);
     m_thread = new ProcessingThread(node, target, receivingCompo);

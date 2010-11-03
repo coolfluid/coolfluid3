@@ -19,6 +19,8 @@ namespace CF {
 namespace GUI {
 namespace Server {
 
+  class Notifier;
+
   ////////////////////////////////////////////////////////////////////////////
 
   class ProcessingThread : public QThread
@@ -40,6 +42,7 @@ namespace Server {
       std::string m_target;
 
       boost::shared_ptr<CF::Common::Component> m_receiver;
+
 };
 
   ////////////////////////////////////////////////////////////////////////////

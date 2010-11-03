@@ -49,6 +49,7 @@ CCore::CCore()
 
   regist_signal("read_dir", "Read directory content")->connect(boost::bind(&CCore::read_dir, this, _1));
   regist_signal("shutdown", "Shutdown the server")->connect(boost::bind(&CCore::shutdown, this, _1));
+
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -87,7 +88,7 @@ QList<HostInfos> CCore::getHostList() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CCore::sendSignal(const CF::Common::XmlDoc & signal)
+void CCore::sendSignal( const CF::Common::XmlNode & signal )
 {
   m_commServer->sendSignalToClient(signal);
 }
@@ -263,6 +264,18 @@ Signal::return_t CCore::read_dir(Signal::arg_t & node)
     CFerror << e.what() << CFflush;
   }
 
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void CCore::newEvent(const std::string & name, const CPath & path)
+{
+  boost::shared_ptr<XmlDoc> docnode = XmlOps::create_doc();
+  XmlNode * rootNode = XmlOps::goto_doc_node(*docnode.get());
+  XmlNode & node = *XmlOps::add_signal_frame(*rootNode, name, path, path, false);
+
+  m_commServer->sendSignalToClient(*docnode.get());
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -68,7 +68,7 @@ namespace Server {
 
      QList<CF::GUI::Network::HostInfos> getHostList() const;
 
-     void sendSignal(const CF::Common::XmlDoc & signal);
+     void sendSignal(const CF::Common::XmlNode & signal);
 
      static std::string type_name() { return "CCore"; }
 
@@ -109,6 +109,10 @@ namespace Server {
     void deactivateSimulation(int clientId);
 
     void spawned();
+
+  public slots:
+
+    void newEvent(const std::string & name, const CF::Common::CPath & path);
 
   private:
     /// @brief The default path for the file browsing.
@@ -201,3 +205,94 @@ namespace Server {
 ////////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_GUI_Server_CCore_h
+
+//std::_Rb_tree
+//{std::string, std::pair
+//		<std::string const, boost::shared_ptr
+//			<boost::signals2::signal
+//				<void ()(std::string const&, CF::Common::CPath const&), boost::signals2::optional_last_value<void>, int, std::less<int>, boost::function
+//					<void ()(std::string const&, CF::Common::CPath const&)>, boost::function
+//					<void ()(boost::signals2::connection const&, std::string const&, CF::Common::CPath const&)>,
+//				boost::signals2::mutex>
+//			>
+//		>,
+//		std::_Select1st
+//			<std::pair
+//				<std::string const, boost::shared_ptr
+//					<boost::signals2::signal
+//						<void ()(std::string const&, CF::Common::CPath const&), boost::signals2::optional_last_value<void>, int, std::less<int>, boost::function
+//							<void ()(std::string const&, CF::Common::CPath const&)>, boost::function
+//							<void ()(boost::signals2::connection const&, std::string const&, CF::Common::CPath const&)>,
+//						boost::signals2::mutex>
+//					>
+//				>
+//			>,
+//			std::less<std::string>, std::allocator
+//				<std::pair
+//					<std::string const, boost::shared_ptr
+//						<boost::signals2::signal
+//							<void ()(std::string const&, CF::Common::CPath const&), boost::signals2::optional_last_value<void>, int, std::less<int>, boost::function
+//								<void ()(std::string const&, CF::Common::CPath const&)>, boost::function
+//									<void ()(boost::signals2::connection const&, std::string const&, CF::Common::CPath const&)>,
+//							boost::signals2::mutex>
+//						>
+//					>
+//				>
+//			}::lower_bound (this=0x18, __k=@0x7fff5fbfed20)
+
+
+
+//std::_Rb_tree
+//{
+//	std::string, std::pair
+//	{
+//		std::string const, boost::shared_ptr
+//		{
+//			boost::signals2::signal
+//			{
+//				void ()(std::string const&, CF::Common::CPath const&), boost::signals2::optional_last_value{void}, int, std::less{int}, boost::function
+//				{
+//					void ()(std::string const&, CF::Common::CPath const&)
+//				}, boost::function
+//        {
+//          void ()(boost::signals2::connection const&, std::string const&, CF::Common::CPath const&)}, boost::signals2::mutex
+//        }
+//      }
+//    }, std::_Select1st
+//    {
+//      std::pair
+//      {
+//        std::string const, boost::shared_ptr
+//        {
+//          boost::signals2::signal
+//          {
+//            void ()(std::string const&, CF::Common::CPath const&), boost::signals2::optional_last_value{void}, int, std::less{int}, boost::function
+//            {
+//              void ()(std::string const&, CF::Common::CPath const&)
+//            }, boost::function
+//            {
+//              void ()(boost::signals2::connection const&, std::string const&, CF::Common::CPath const&)
+//            }, boost::signals2::mutex
+//          }
+//        }
+//      }
+//    }, std::less{std::string}, std::allocator
+//    {
+//      std::pair
+//      {
+//        std::string const, boost::shared_ptr
+//        {
+//          boost::signals2::signal
+//          {
+//            void ()(std::string const&, CF::Common::CPath const&), boost::signals2::optional_last_value{void}, int, std::less{int}, boost::function
+//            {
+//              void ()(std::string const&, CF::Common::CPath const&)
+//            }, boost::function
+//            {
+//              void ()(boost::signals2::connection const&, std::string const&, CF::Common::CPath const&)
+//            }, boost::signals2::mutex
+//          }
+//        }
+//      }
+//    }
+//}::lower_bound (this=0x18, __k=@0x7fff5fbfed20)

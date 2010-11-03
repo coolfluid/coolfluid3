@@ -73,6 +73,8 @@ list( APPEND coolfluid_common_files
     NonInstantiable.hpp
     NoProfiling.cpp
     NoProfiling.hpp
+    NotificationQueue.cpp
+    NotificationQueue.hpp
     ObjectProvider.hpp
     Option.cpp
     Option.hpp
