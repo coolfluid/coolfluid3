@@ -25,10 +25,12 @@ namespace Common {
       xmlnode(node),
       xmldoc(*node.document()),
       option_map(nullptr),
-      property_map(nullptr)
+      property_map(nullptr),
+      signal_map(nullptr)
   {
     option_map = seek_map( tag_key_options() );
     property_map = seek_map( tag_key_properties() );
+    signal_map = seek_map( tag_key_signals() );
   }
 
   XmlNode& XmlParams::get_options_node() const
@@ -207,7 +209,9 @@ namespace Common {
 
   const char * XmlParams::tag_key_properties() { return "properties"; }
 
-  const char * XmlParams::tag_attr_restricted_values() { return "restrictedValues";}
+  const char * XmlParams::tag_key_signals() { return "signals"; }
+
+  const char * XmlParams::tag_attr_restricted_values() { return "restrictedValues"; }
 
   const char * XmlParams::tag_attr_protocol() { return "protocol"; }
 

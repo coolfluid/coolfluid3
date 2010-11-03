@@ -194,6 +194,43 @@ void CNode::setProperties(XmlNode & options)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+void CNode::setSignals(CF::Common::XmlNode & node)
+{
+  XmlParams p(node);
+
+  if(p.signal_map != nullptr)
+  {
+    XmlNode * map = p.signal_map->parent()->first_node();
+
+    m_actionSigs.clear();
+
+    while(map != nullptr)
+    {
+      ActionInfo si;
+      XmlAttr * key_attr = map->first_attribute( XmlParams::tag_attr_key() );
+      XmlAttr * desc_attr = map->first_attribute( XmlParams::tag_attr_descr() );
+      XmlAttr * name_attr = map->first_attribute( "name" );
+
+      cf_assert( key_attr != nullptr );
+      cf_assert( key_attr->value_size() > 0 );
+
+      si.m_name = key_attr->value();
+      si.m_readableName = name_attr != nullptr ? name_attr->value() : "";
+      si.m_description = desc_attr != nullptr ? desc_attr->value() : "";
+      si.m_signature = XmlSignature(*map);
+      si.m_is_local = false;
+
+      m_actionSigs.append(si);
+
+      map = map->next_sibling();
+    }
+
+  }
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 void CNode::modifyOptions(const QMap<QString, QString> & options)
 {
   QMap<QString, QString>::const_iterator it = options.begin();
@@ -619,6 +656,7 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, CPath> & lin
       {
         rootNode->setOptions(node);
         rootNode->setProperties(node);
+        rootNode->setSignals(node);
       }
       else
       {

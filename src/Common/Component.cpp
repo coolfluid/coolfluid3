@@ -500,8 +500,9 @@ void Component::write_xml_tree( XmlNode& node )
     {
       XmlNode& options = *XmlOps::add_node_to( this_node, XmlParams::tag_node_map());
 
-      // add properties
+      // add properties and signals
       list_properties(options);
+      list_signals(options);
 
       BOOST_FOREACH( CompStorage_t::value_type c, m_components )
       {
@@ -612,15 +613,15 @@ void Component::list_properties( XmlNode& node )
 
 void Component::list_signals( XmlNode& node )
 {
-  XmlNode& reply = *XmlOps::add_reply_frame( node );
-
-  XmlOps::add_attribute_to( reply, "sender", full_path().string() );
-
   sigmap_t::iterator it = m_signals.begin();
+
+  XmlNode & value_node = *XmlOps::add_node_to(node, "value");
+
+  XmlOps::add_attribute_to(value_node, XmlParams::tag_attr_key(), XmlParams::tag_key_signals());
 
   for( ; it != m_signals.end() ; it++)
   {
-    XmlNode & map = *XmlParams::add_map_to(reply, it->first, it->second.m_description);
+    XmlNode & map = *XmlParams::add_map_to(value_node, it->first, it->second.m_description);
     XmlOps::add_attribute_to(map, "name", it->second.m_readable_name);
     it->second.m_signature.put_signature(map);
   }

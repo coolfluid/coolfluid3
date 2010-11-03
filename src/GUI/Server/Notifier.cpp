@@ -55,15 +55,11 @@ void Notifier::newEvent(const std::string & name, const CPath & raiserPath)
 {
   QMap<std::string, bool>::iterator it = m_onceNotifyingEvents.find(name);
 
-  qDebug() << "Sending event" << name.c_str();
-
-  if(it != m_onceNotifyingEvents.end() || !it.value())
+  if(it == m_onceNotifyingEvents.end() || !it.value())
   {
     emit eventOccured(name, raiserPath);
 
     if(it != m_onceNotifyingEvents.end())
       it.value() = true;
   }
-  else
-    qDebug() << "Not sending event" << name.c_str();
 }

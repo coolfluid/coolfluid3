@@ -118,6 +118,8 @@ namespace Common {
     static const char * tag_key_options();
     /// the key attribute value for property list
     static const char * tag_key_properties();
+    /// the key attribute value for signal list
+    static const char * tag_key_signals();
     /// the key attribute name for option restricted values
     static const char * tag_attr_restricted_values();
     /// the key attribute name for URI protocols
@@ -232,6 +234,7 @@ namespace Common {
     XmlNode* option_map;
     /// pointer to the map of property nodes
     XmlNode* property_map;
+    XmlNode* signal_map;
 
   private:
 

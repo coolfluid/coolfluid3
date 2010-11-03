@@ -166,6 +166,8 @@ namespace ClientCore {
     /// @param node Note containing the options
     void setProperties(CF::Common::XmlNode & node);
 
+    void setSignals(CF::Common::XmlNode & node);
+
     /// @brief Modifies options
 
     /// If at least on option has been modified, a @c configure signal is sent

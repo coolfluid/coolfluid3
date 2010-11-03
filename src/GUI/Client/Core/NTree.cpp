@@ -532,7 +532,7 @@ void NTree::list_tree_reply(XmlNode & node)
 
   ClientRoot::log()->addMessage("Tree updated.");
 
-  treeRoot->fetchSignals();
+//  treeRoot->fetchSignals();
 
 } catch(XmlError & xe)
   {
