@@ -6,14 +6,10 @@
 
 #include <iostream>
 
-#include <QtCore>
 #include <QApplication>
 
 #include "Common/CF.hpp"
 #include "Common/Exception.hpp"
-
-#include "Common/CRoot.hpp"
-#include "Common/CLink.hpp"
 
 #include "GUI/Client/UI/MainWindow.hpp"
 
@@ -24,6 +20,7 @@ int main(int argc, char *argv[])
 {
   QApplication app(argc, argv);
   int returnValue;
+
   CF::AssertionManager::instance().AssertionThrows = true;
   CF::AssertionManager::instance().AssertionDumps = true;
 
