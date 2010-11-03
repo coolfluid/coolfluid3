@@ -61,17 +61,20 @@ CF::Uint NotificationQueue::nb_notifications ( const std::string & name ) const
 
 void NotificationQueue::flush()
 {
-  (*m_sig_begin_flush.get())(); // call the signal
+  std::vector< std::pair<std::string, CPath> >::iterator it;
 
-  std::vector< std::pair<std::string, CPath> >::iterator it = m_notifications.begin();
-
-  for( ; it != m_notifications.end() ; it++)
+  if( !m_notifications.empty() )
   {
-    EventSigsStorage_t::iterator itSig = m_event_signals.find(it->first);
+    (*m_sig_begin_flush.get())(); // call the signal
 
-    if(itSig != m_event_signals.end())
-      (*itSig->second.get())(it->first, it->second);
+    for(it = m_notifications.begin() ; it != m_notifications.end() ; it++)
+    {
+      EventSigsStorage_t::iterator itSig = m_event_signals.find(it->first);
+
+      if(itSig != m_event_signals.end())
+        (*itSig->second.get())(it->first, it->second);
+    }
+
+    m_notifications.clear();
   }
-
-  m_notifications.clear();
 }
