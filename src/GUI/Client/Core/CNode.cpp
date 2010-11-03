@@ -69,7 +69,6 @@ CNode::CNode(const QString & name, const QString & componentType, CNode::Type ty
   BUILD_COMPONENT;
 
   regist_signal("configure", "Update component options")->connect(boost::bind(&CNode::configure_reply, this, _1));
-  regist_signal("list_signals", "Update component signals")->connect(boost::bind(&CNode::list_signals_reply, this, _1));
   regist_signal("tree_updated", "Event that notifies a path has changed")->connect(boost::bind(&CNode::update_tree, this, _1));
 
   m_property_list.add_property("originalComponentType", m_componentType.toStdString());
@@ -492,123 +491,6 @@ void CNode::getActions(QList<ActionInfo> & actions) const
     else
       ClientRoot::log()->addError(*it + ": local signal not found");
   }
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void CNode::fetchSignals()
-{
-  if(m_fetchingManager.get() == nullptr)
-  {
-    ClientRoot::log()->addMessage("Fetching actions...");
-    listChildPaths(m_fetchingChildren, true, false);
-
-    m_fetchingManager = boost::dynamic_pointer_cast<CNode>(shared_from_this());
-    fetchSignals();
-  }
-  else
-  {
-    CPath path;
-
-    if(m_type == ROOT_NODE)
-      path = convertTo<NRoot>()->root()->full_path();
-    else
-      path = full_path();
-
-    boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
-    XmlOps::add_signal_frame(*XmlOps::goto_doc_node(*doc.get()),
-                             "list_signals", path,
-                             path, false);
-
-    ClientRoot::core()->sendSignal(*doc);
-  }
-
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void CNode::signalsFetched(CNode::Ptr notifier)
-{
-  int index;
-  QString notifier_path;
-
-  if(notifier->checkType(ROOT_NODE))
-    notifier_path = notifier->convertTo<NRoot>()->root()->full_path().string().c_str();
-  else
-    notifier_path = notifier->full_path().string().c_str();
-
-  index = m_fetchingChildren.indexOf(notifier_path);
-
-  index++;
-
-  notifier->m_fetchingManager = CNode::Ptr();
-
-  if(index == -1)
-    ClientRoot::log()->addError(QString("Received unexpected actions fetched notification from %1").arg(notifier_path));
-  else
-  {
-    if(index == m_fetchingChildren.size())
-    {
-      m_fetchingChildren.clear();
-      ClientRoot::log()->addMessage("Actions successfully fetched.");
-    }
-    else
-    {
-      QString path = m_fetchingChildren.at(index);
-
-      CRoot::Ptr root = m_type == ROOT_NODE ? convertTo<NRoot>()->root() : boost::dynamic_pointer_cast<CRoot>(m_root.lock());
-
-      CNode::Ptr node;
-
-      if(m_type == ROOT_NODE && root->full_path().string() == path.toStdString())
-        node = boost::dynamic_pointer_cast<CNode>(shared_from_this());
-      else
-        node = root->access_component<CNode>(path.toStdString());
-
-      node->m_fetchingManager = boost::dynamic_pointer_cast<CNode>(shared_from_this());
-      node->fetchSignals();
-    }
-
-  }
-
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void CNode::list_signals_reply( XmlNode & node )
-{
-  XmlNode * map = node.first_node();
-
-  m_actionSigs.clear();
-
-  while(map != nullptr)
-  {
-    ActionInfo si;
-    XmlAttr * key_attr = map->first_attribute( XmlParams::tag_attr_key() );
-    XmlAttr * desc_attr = map->first_attribute( XmlParams::tag_attr_descr() );
-    XmlAttr * name_attr = map->first_attribute( "name" );
-
-    cf_assert( key_attr != nullptr );
-    cf_assert( key_attr->value_size() > 0 );
-
-    si.m_name = key_attr->value();
-    si.m_readableName = name_attr != nullptr ? name_attr->value() : "";
-    si.m_description = desc_attr != nullptr ? desc_attr->value() : "";
-    si.m_signature = XmlSignature(*map);
-    si.m_is_local = false;
-
-    m_actionSigs.append(si);
-
-    map = map->next_sibling();
-  }
-
-  if(m_fetchingManager.get() != nullptr)
-    m_fetchingManager->signalsFetched(boost::dynamic_pointer_cast<CNode>(shared_from_this()));
-  else
-    ClientRoot::log()->addMessage("Received actions !");
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

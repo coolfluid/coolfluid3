@@ -230,10 +230,6 @@ namespace ClientCore {
     /// Configuration properties
     static void defineConfigProperties ( CF::Common::PropertyList& props );
 
-    void fetchSignals();
-
-    void list_signals_reply(CF::Common::XmlNode & node);
-
     static CF::Common::Option::Ptr makeOption(const CF::Common::XmlNode & node);
 
     CF::Common::Signal::return_t update_tree( CF::Common::XmlNode & node);
@@ -252,10 +248,6 @@ namespace ClientCore {
 
     /// @brief Component type name.
     QString m_componentType;
-
-    CNode::Ptr m_fetchingManager;
-
-    QStringList m_fetchingChildren;
 
     QList<ActionInfo> m_actionSigs;
 

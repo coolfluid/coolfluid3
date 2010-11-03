@@ -476,68 +476,67 @@ void NTree::list_tree_reply(XmlNode & node)
 {
   try
   {
-  NRoot::Ptr treeRoot = m_rootNode->getNode()->convertTo<NRoot>();
-  NRoot::Ptr rootNode = CNode::createFromXml(*node.first_node())->convertTo<NRoot>();
-  ComponentIterator<CNode> it = rootNode->root()->begin<CNode>();
-  CPath currentIndexPath;
+    NRoot::Ptr treeRoot = m_rootNode->getNode()->convertTo<NRoot>();
+    NRoot::Ptr rootNode = CNode::createFromXml(*node.first_node())->convertTo<NRoot>();
+    ComponentIterator<CNode> it = rootNode->root()->begin<CNode>();
+    CPath currentIndexPath;
 
-  if(m_currentIndex.isValid())
-  {
-    currentIndexPath = indexToTreeNode(m_currentIndex)->getNode()->full_path();
+    if(m_currentIndex.isValid())
+    {
+      currentIndexPath = indexToTreeNode(m_currentIndex)->getNode()->full_path();
+    }
+
+    emit beginResetModel();
+
+    //
+    // rename the root
+    //
+    treeRoot->rename(rootNode->root()->name());
+    treeRoot->root()->rename(rootNode->root()->name());
+
+    //
+    // remove old nodes
+    //
+    ComponentIterator<CNode> itRem = treeRoot->root()->begin<CNode>();
+    QList<std::string> listToRemove;
+    QList<std::string>::iterator itList;
+
+    for( ; itRem != treeRoot->root()->end<CNode>() ; itRem++)
+    {
+      if(!itRem->isClientComponent())
+        listToRemove << itRem->name();
+    }
+
+    itList = listToRemove.begin();
+
+    for( ; itList != listToRemove.end() ; itList++)
+      treeRoot->root()->remove_component(*itList);
+
+    //
+    // add the new nodes
+    //
+
+    for( ; it != rootNode->root()->end<CNode>() ; it++)
+      treeRoot->root()->add_component(it.get());
+
+    // child count may have changed, ask the root TreeNode to update its internal data
+    m_rootNode->updateChildList();
+
+    if(!currentIndexPath.string().empty())
+      m_currentIndex = this->getIndexByPath(currentIndexPath);
+
+    // tell the view to update the whole thing
+    emit endResetModel();
+
+    emit currentIndexChanged(m_currentIndex, QModelIndex());
+
+    ClientRoot::log()->addMessage("Tree updated.");
+
   }
-
-  emit beginResetModel();
-
-  //
-  // rename the root
-  //
-  treeRoot->rename(rootNode->root()->name());
-  treeRoot->root()->rename(rootNode->root()->name());
-
-  //
-  // remove old nodes
-  //
-  ComponentIterator<CNode> itRem = treeRoot->root()->begin<CNode>();
-  QList<std::string> listToRemove;
-  QList<std::string>::iterator itList;
-
-  for( ; itRem != treeRoot->root()->end<CNode>() ; itRem++)
+  catch(XmlError & xe)
   {
-    if(!itRem->isClientComponent())
-      listToRemove << itRem->name();
+    ClientRoot::log()->addException(xe.what());
   }
-
-  itList = listToRemove.begin();
-
-  for( ; itList != listToRemove.end() ; itList++)
-    treeRoot->root()->remove_component(*itList);
-
-  //
-  // add the new nodes
-  //
-
-  for( ; it != rootNode->root()->end<CNode>() ; it++)
-    treeRoot->root()->add_component(it.get());
-
-  // child count may have changed, ask the root TreeNode to update its internal data
-  m_rootNode->updateChildList();
-
-  if(!currentIndexPath.string().empty())
-    m_currentIndex = this->getIndexByPath(currentIndexPath);
-
-  // tell the view to update the whole thing
-  emit endResetModel();
-
-  emit currentIndexChanged(m_currentIndex, QModelIndex());
-
-  ClientRoot::log()->addMessage("Tree updated.");
-
-//  treeRoot->fetchSignals();
-
-} catch(XmlError & xe)
-  {
-  ClientRoot::log()->addException(xe.what());
-}
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
