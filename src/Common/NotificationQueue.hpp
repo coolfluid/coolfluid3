@@ -104,14 +104,14 @@ namespace Common {
     /// the path to the component that emitted the event.
     std::vector< std::pair<std::string, CPath> > m_notifications;
 
+    boost::shared_ptr< SignalTypeFlush_t > m_sig_begin_flush;
+
     /// @brief Event signals
 
     /// The map stores all event names that are listened to by at least one
     /// notifier. The key is the event name. The value is the corresponding
     /// signal, to which are connected notifiers.
     EventSigsStorage_t m_event_signals;
-
-    boost::shared_ptr< SignalTypeFlush_t > m_sig_begin_flush;
 
   }; // class NotificationQueue
 
