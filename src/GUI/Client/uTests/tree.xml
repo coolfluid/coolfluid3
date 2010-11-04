@@ -694,20 +694,6 @@
       </map>
     </node>
   </node>
-  <node atype="CSimulator" name="Simulator">
-    <map>
-      <value key="properties">
-        <map>
-          <value key="brief">
-            <string>No brief description available</string>
-          </value>
-          <value key="description">
-            <string>This component has not a long description</string>
-          </value>
-        </map>
-      </value>
-    </map>
-  </node>
   <node atype="CGroup" name="Solid">
     <map>
       <value key="properties">
