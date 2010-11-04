@@ -43,8 +43,8 @@ CCore::CCore()
 
   m_commServer = new ServerNetworkComm();
 
-  connect(m_commServer, SIGNAL(newClientConnected(const std::string &)),
-          this,  SLOT(newClient(const std::string &)));
+  connect(m_commServer, SIGNAL(newClientConnected(std::string)),
+          this,  SLOT(newClient(std::string)));
 
   RemoteClientAppender * rca = new RemoteClientAppender();
 

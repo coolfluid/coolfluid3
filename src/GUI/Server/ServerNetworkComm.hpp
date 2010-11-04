@@ -18,6 +18,8 @@
 #include "GUI/Network/HostInfos.hpp"
 #include "GUI/Network/ComponentType.hpp"
 
+#include "Common/XmlHelpers.hpp"
+
 class QHostAdress;
 class QTcpServer;
 class QTcpSocket;
@@ -25,7 +27,6 @@ class QString;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "Common/XmlHelpers.hpp"
 
 namespace CF {
 

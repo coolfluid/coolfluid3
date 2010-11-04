@@ -118,17 +118,17 @@ NRemoteBrowser::NRemoteBrowser(const QString & componentType, QMainWindow * pare
   connect(m_buttons, SIGNAL(accepted()), this, SLOT(btOkClicked()));
   connect(m_buttons, SIGNAL(rejected()), this, SLOT(btCancelClicked()));
 
-  connect(m_editFilter, SIGNAL(textEdited(const QString &)),
-          this, SLOT(filterUpdated(const QString &)));
+  connect(m_editFilter, SIGNAL(textEdited(QString)),
+          this, SLOT(filterUpdated(QString)));
 
-  connect(m_editPath, SIGNAL(textEdited(const QString &)),
-          this, SLOT(pathUpdated(const QString &)));
+  connect(m_editPath, SIGNAL(textEdited(QString)),
+          this, SLOT(pathUpdated(QString)));
 
-  connect(m_listView, SIGNAL(doubleClicked(const QModelIndex &)),
-          this, SLOT(doubleClick(const QModelIndex &)));
+  connect(m_listView, SIGNAL(doubleClicked(QModelIndex)),
+          this, SLOT(doubleClick(QModelIndex)));
 
-  connect(m_pathCompleter, SIGNAL(activated(const QString &)),
-          this, SLOT(completerActivated(const QString &)));
+  connect(m_pathCompleter, SIGNAL(activated(QString)),
+          this, SLOT(completerActivated(QString)));
 
   m_includeFiles = true;
   m_includeNoExtension = true;

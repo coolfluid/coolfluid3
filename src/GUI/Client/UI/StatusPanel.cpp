@@ -22,8 +22,8 @@ StatusPanel::StatusPanel(StatusModel * model, QWidget * parent)
   this->setModel(m_model);
 //  this->header()->setResizeMode(QHeaderView::ResizeToContents);
 
-  connect(m_model, SIGNAL(subSystemAdded(const QModelIndex &)),
-          this, SLOT(subSystemAdded(const QModelIndex &)));
+  connect(m_model, SIGNAL(subSystemAdded(QModelIndex)),
+          this, SLOT(subSystemAdded(QModelIndex)));
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
