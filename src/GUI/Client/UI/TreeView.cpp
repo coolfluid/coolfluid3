@@ -206,6 +206,15 @@ void TreeView::mousePressEvent(QMouseEvent * event)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+void TreeView::mouseDoubleClickEvent(QMouseEvent * event)
+{
+  if(event->button() == Qt::LeftButton)
+    emit itemDoubleClicked(this->currentIndex());
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 void TreeView::keyPressEvent(QKeyEvent * event)
 {
   NTree::Ptr tree= ClientRoot::tree();

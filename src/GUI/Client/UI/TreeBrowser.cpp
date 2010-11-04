@@ -59,7 +59,7 @@ TreeBrowser::TreeBrowser(TreeView * view, QWidget *parent) :
   connect(m_btNext, SIGNAL(clicked()), this, SLOT(nextClicked()));
   connect(m_filter, SIGNAL(textChanged(QString)), this, SLOT(filterUpdated(QString)));
 
-  connect(m_treeView, SIGNAL(doubleClicked(QModelIndex)),
+  connect(m_treeView, SIGNAL(itemDoubleClicked(QModelIndex)),
           this, SLOT(doubleClicked(QModelIndex)));
 
   m_history << m_treeView->rootIndex();

@@ -115,11 +115,17 @@ namespace ClientUI {
     /// @param event Event that occured.
     virtual void mousePressEvent(QMouseEvent * event);
 
+    virtual void mouseDoubleClickEvent(QMouseEvent * event);
+
     virtual void keyPressEvent(QKeyEvent * event);
 
   private slots:
 
     void currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex);
+
+  signals:
+
+    void itemDoubleClicked(const QModelIndex & index);
 
   private:
 
