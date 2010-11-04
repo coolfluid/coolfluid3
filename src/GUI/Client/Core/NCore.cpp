@@ -62,7 +62,7 @@ void NCore::sendSignal(XmlDoc & signal)
 
 void NCore::connectToServer(const TSshInformation & sshInfo)
 {
-  m_networkComm->connectToServer(sshInfo.m_hostname, sshInfo.port, false);
+  m_networkComm->connectToServer(sshInfo.m_hostname, sshInfo.m_port, false);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -108,7 +108,7 @@ void NCore::connected()
 {
   // get some reference (for better readability)
   QString & host = m_commSshInfo.m_hostname;
-  quint16 & port = m_commSshInfo.port;
+  quint16 & port = m_commSshInfo.m_port;
   std::string uuid = ClientRoot::getUUID();
 
   QString msg1 = "Now connected to server '%1' on port %2.";

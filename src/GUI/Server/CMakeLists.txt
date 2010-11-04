@@ -54,14 +54,6 @@ configure_file( Tree.xml      ${CMAKE_CURRENT_BINARY_DIR}/Tree.xml       @ONLY )
 configure_file( TypesList.xml ${CMAKE_CURRENT_BINARY_DIR}/TypesList.xml  @ONLY )
 configure_file( machine.txt   ${CMAKE_CURRENT_BINARY_DIR}/machine.txt    @ONLY)
 
-# scripts to start the server
-configure_file( start_coolfluid_server.sh ${CMAKE_CURRENT_BINARY_DIR}/start_coolfluid_server.sh  @ONLY )
-configure_file( check_coolfluid_server.sh ${CMAKE_CURRENT_BINARY_DIR}/check_coolfluid_server.sh  @ONLY )
-
-configure_file( fsm_advect_wave.CFcase ${CMAKE_CURRENT_BINARY_DIR}/fsm_advect_wave.CFcase @ONLY )
-configure_file( advect_wave.thor       ${CMAKE_CURRENT_BINARY_DIR}/advect_wave.thor       @ONLY )
-configure_file( advect_wave.SP         ${CMAKE_CURRENT_BINARY_DIR}/advect_wave.SP         @ONLY )
-
 coolfluid_mark_not_orphan(  MPIListener.cpp
   MPIListener.hpp
   MPIListeningInfo.cpp

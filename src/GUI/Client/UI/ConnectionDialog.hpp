@@ -81,7 +81,7 @@ namespace ClientUI {
   {
     Q_OBJECT
 
-    public:
+  public:
 
     /// @brief Constructor.
 
@@ -106,7 +106,7 @@ namespace ClientUI {
 
     void setSshInfos(const ClientCore::TSshInformation & sshInfos);
 
-    public slots:
+  public slots:
 
     /// @brief Slot called when "OK" button is clicked.
 
@@ -120,23 +120,10 @@ namespace ClientUI {
     /// sets the dialog to an invisible state.
     void btCancelClicked();
 
-    /// @brief Slot called when @c #m_chkLaunchServer has been checked or
-    /// unchecked.
-
-    /// If it is checked, username line edit will be enabled for
-    /// modification, otherwise it will be disabled.
-    /// @param state New state of @c #m_chkLaunchServer (based on
-    /// @c Qt::CheckState enum). If the value is @c Qt::Checked, the username
-    /// line edit is set to enabled.
-    void chkLaunchServerChecked(int state);
-
-    private:
+  private:
 
     /// @brief Label for the hostame line edit.
     QLabel * m_labHostname;
-
-    /// @brief Label for the username line edit.
-    QLabel * m_labUsername;
 
     /// @brief Label for the port number spin box.
     QLabel * m_labPortNumber;
@@ -144,32 +131,23 @@ namespace ClientUI {
     /// @brief Line edit for the hostame.
     QLineEdit * m_editHostname;
 
-    /// @brief Line edit for the username.
-    QLineEdit * m_editUsername;
-
     /// @brief Spin box for the port number.
     QSpinBox * m_spinPortNumber;
 
     /// @brief Main m_layout.
     QFormLayout * m_layout;
 
-    /// @brief Button box containing "OK" and "Cancel" m_buttons.
+    /// @brief Button box containing "OK" and "Cancel" buttons.
     QDialogButtonBox * m_buttons;
 
     /// @brief Layout for hostname and port number components.
     QHBoxLayout * m_infosLayout;
-
-    /// @brief Ckeck box to check of the user wants to launch a new
-    /// server m_instance.
-    QCheckBox * m_chkLaunchServer;
 
     /// @brief Indicates whether the user clicked on "OK" button.
 
     /// If the user clicked on "OK" button, the attribute value is @c true, (if
     /// the user closed the window or clicked on "Cancel" button) it is @c false.
     bool m_okClicked;
-
-    QSize m_minSize;
 
   }; // class ConnectionDialog
 

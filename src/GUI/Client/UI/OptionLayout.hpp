@@ -91,7 +91,6 @@ namespace ClientUI {
     /// key is the option name and the value is the option new value.
     /// @param all If @c false, only modified options will be put, meaning
     /// that the hashmap may be empty. If @c true, all option are put.
-    /// if no option has been modified.
     void getOptions(QMap<QString, QString> & options, bool all) const;
 
     /// @brief Marks options as commited
