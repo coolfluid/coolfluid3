@@ -108,13 +108,6 @@ namespace ClientUI {
     /// are displayed. Otherwise, they are m_hidden.
     bool m_advancedMode;
 
-    /// @brief Checks if options has been modified.
-
-    /// @param graphicalOptions Options to check
-    /// @return Returns @c true if at least one option has been modified;
-    /// otherwise, returns @c false.
-    bool isModified(const QList<GraphicalValue *> & graphicalOptions) const;
-
     void setOptions(const QList<CF::Common::Option::ConstPtr> & list);
 
   }; // class OptionPanel

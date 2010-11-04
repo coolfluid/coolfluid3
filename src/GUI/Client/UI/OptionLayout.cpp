@@ -122,6 +122,9 @@ void OptionLayout::addOption(CF::Common::Option::ConstPtr option)
   value->setToolTip(option->description().c_str());
 
   addRow(option->name().c_str(), value);
+
+  // forward the signal
+  connect(value, SIGNAL(valueChanged()), this, SIGNAL(valueChanged()));
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -130,25 +133,4 @@ void OptionLayout::addOption(CF::Common::Option::ConstPtr option)
 bool OptionLayout::hasOptions() const
 {
   return !m_options.isEmpty();
-}
-
-/****************************************************************************
-
- PRIVATE METHOD
-
- ****************************************************************************/
-
-bool OptionLayout::isModified(const QList<GraphicalValue *> & graphicalOptions) const
-{
-  bool modified = false;
-
-  QList<GraphicalValue *>::const_iterator it = graphicalOptions.begin();
-
-  while(it != graphicalOptions.end() && !modified)
-  {
-    modified = (*it)->isModified();
-    it++;
-  }
-
-  return modified;
 }

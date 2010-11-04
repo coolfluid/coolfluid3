@@ -90,6 +90,9 @@ CentralPanel::CentralPanel(QWidget * parent)
   connect(m_btSeeChanges, SIGNAL(clicked()), this, SLOT(btSeeChangesClicked()));
   connect(m_btForget, SIGNAL(clicked()), this, SLOT(btForgetClicked()));
 
+  connect(m_basicOptionLayout, SIGNAL(valueChanged()), this, SLOT(valueChanged()));
+  connect(m_advancedOptionLayout, SIGNAL(valueChanged()), this, SLOT(valueChanged()));
+
   connect(tree.get(), SIGNAL(currentIndexChanged(QModelIndex, QModelIndex)),
           this, SLOT(currentIndexChanged(QModelIndex, QModelIndex)));
 
