@@ -73,7 +73,7 @@ CRoot::Ptr ServerRoot::getRoot()
 
     created = true;
 
-    Component::Ptr wizs = root->get_child("Wizards");
+    Component::Ptr wizs = root->get_child("Tools");
 
     wizs->create_component_type<Solver::ScalarAdvection>( "ScalarAdvection" );
   }

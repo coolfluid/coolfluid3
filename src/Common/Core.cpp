@@ -62,8 +62,6 @@ Core::Core() :
   m_root->create_component_type<CGroup>("Libraries");
 
   m_root->create_component_type<CGroup>("Tools");
-
-  m_root->create_component_type<CGroup>("Wizards");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
