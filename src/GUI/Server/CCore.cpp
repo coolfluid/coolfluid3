@@ -19,6 +19,7 @@
 #include "GUI/Network/ComponentNames.hpp"
 #include "GUI/Network/HostInfos.hpp"
 
+#include "GUI/Server/RemoteClientAppender.hpp"
 #include "GUI/Server/ServerNetworkComm.hpp"
 #include "GUI/Server/SimulationManager.hpp"
 #include "GUI/Server/TypesNotFoundException.hpp"
@@ -44,6 +45,13 @@ CCore::CCore()
 
   connect(m_commServer, SIGNAL(newClientConnected(const std::string &)),
           this,  SLOT(newClient(const std::string &)));
+
+  RemoteClientAppender * rca = new RemoteClientAppender();
+
+  Logger::instance().getStream(Logger::ERROR).addStringForwarder(rca);
+  Logger::instance().getStream(Logger::INFO).addStringForwarder(rca);
+
+  connect(rca, SIGNAL(newData(QString)), this, SLOT(message(QString)));
 
   regist_signal("read_dir", "Read directory content")->connect(boost::bind(&CCore::read_dir, this, _1));
   regist_signal("shutdown", "Shutdown the server")->connect(boost::bind(&CCore::shutdown, this, _1));
