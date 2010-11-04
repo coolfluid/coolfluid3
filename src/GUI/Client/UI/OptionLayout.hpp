@@ -77,7 +77,8 @@ namespace ClientUI {
 
     /// @brief Gathers modified options.
 
-    /// @param commitDetails Object where modified values will be stored.
+    /// @param commitDetails Object where modified values will be stored. The
+    /// object is not cleared.
     void getModifiedOptions(ClientCore::CommitDetails & commitDetails) const;
 
     void addOption(CF::Common::Option::ConstPtr option);
@@ -92,6 +93,12 @@ namespace ClientUI {
     /// that the hashmap may be empty. If @c true, all option are put.
     /// if no option has been modified.
     void getOptions(QMap<QString, QString> & options, bool all) const;
+
+    /// @brief Marks options as commited
+
+    /// Calls GraphicalOption::commit() for each graphical option the layout
+    /// contains.
+    void commitOpions();
 
   signals:
 

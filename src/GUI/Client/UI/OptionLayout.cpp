@@ -57,6 +57,17 @@ void OptionLayout::getOptions(QMap<QString, QString> & options, bool all) const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+void OptionLayout::commitOpions()
+{
+  QList<GraphicalValue *>::const_iterator it = m_options.begin();
+
+  for( ; it != m_options.end() ; it++)
+    (*it)->commit();
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 void OptionLayout::clearOptions()
 {
   QList<GraphicalValue *>::iterator it = m_options.begin();

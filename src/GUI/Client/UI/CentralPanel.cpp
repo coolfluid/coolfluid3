@@ -249,8 +249,8 @@ void CentralPanel::btApplyClicked()
 {
   QMap<QString, QString> options;
 
-
-  //this->getOptions(options);
+  m_basicOptionLayout->getOptions(options, false);
+  m_advancedOptionLayout->getOptions(options, false);
 
   // if there is at least one option that has been modified
   if(!options.isEmpty())
@@ -258,16 +258,11 @@ void CentralPanel::btApplyClicked()
     try
     {
       QModelIndex currentIndex = ClientRoot::tree()->getCurrentIndex();
-//      QList<GraphicalValue*>::iterator itBasic = m_basicOptions.begin();
-//      QList<GraphicalValue*>::iterator itAdv = m_advancedOptions.begin();
 
       ClientRoot::tree()->modifyOptions(currentIndex, options);
 
-//      for( ; itBasic < m_basicOptions.end() ; itBasic++)
-//        (*itBasic)->commit();
-
-//      for( ; itAdv < m_advancedOptions.end() ; itAdv++)
-//        (*itAdv)->commit();
+      m_basicOptionLayout->commitOpions();
+      m_advancedOptionLayout->commitOpions();
     }
     catch (ValueNotFound & vnf)
     {
