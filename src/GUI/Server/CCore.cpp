@@ -273,7 +273,7 @@ void CCore::newEvent(const std::string & name, const CPath & path)
 {
   boost::shared_ptr<XmlDoc> docnode = XmlOps::create_doc();
   XmlNode * rootNode = XmlOps::goto_doc_node(*docnode.get());
-  XmlNode & node = *XmlOps::add_signal_frame(*rootNode, name, path, path, false);
+  XmlOps::add_signal_frame(*rootNode, name, path, path, false);
 
   m_commServer->sendSignalToClient(*docnode.get());
 }
