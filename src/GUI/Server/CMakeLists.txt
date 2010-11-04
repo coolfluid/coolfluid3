@@ -7,7 +7,6 @@
 # List of classes to "moc"
 set( coolfluid-server_moc_classes
   ServerNetworkComm.hpp
-  CSimulator.hpp
   RemoteClientAppender.hpp
   CCore.hpp
   Notifier.hpp
@@ -24,8 +23,6 @@ QT4_WRAP_CPP(coolfluid-server_moc_files ${coolfluid-server_moc_classes})
 list( APPEND coolfluid-server_files
   CCore.cpp
   CCore.hpp
-  CSimulator.cpp
-  CSimulator.hpp
   main.cpp
   Notifier.cpp
   Notifier.hpp

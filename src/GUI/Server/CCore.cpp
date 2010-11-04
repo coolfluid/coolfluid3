@@ -20,7 +20,6 @@
 #include "GUI/Network/HostInfos.hpp"
 
 #include "GUI/Server/ServerNetworkComm.hpp"
-#include "GUI/Server/CSimulator.hpp"
 #include "GUI/Server/SimulationManager.hpp"
 #include "GUI/Server/TypesNotFoundException.hpp"
 
@@ -42,7 +41,6 @@ CCore::CCore()
   TypeInfo::instance().regist<CCore>( type_name() );
 
   m_commServer = new ServerNetworkComm();
-  this->createSimulator("Simulator");
 
   connect(m_commServer, SIGNAL(newClientConnected(const std::string &)),
           this,  SLOT(newClient(const std::string &)));
@@ -58,7 +56,6 @@ CCore::CCore()
 CCore::~CCore()
 {
   delete m_commServer;
-  delete m_srvSimulation;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -109,23 +106,6 @@ void CCore::sendFrameRejected(const std::string clientid,
 PRIVATE METHODS
 
 ***************************************************************************/
-
-void CCore::createSimulator(const QString & name)
-{
-  m_srvSimulation = new CSimulator(name);
-
-  connect(m_srvSimulation, SIGNAL(message(const QString&)), this,
-          SLOT(message(const QString&)));
-
-  connect(m_srvSimulation, SIGNAL(error(const QString&)), this,
-          SLOT(error(const QString&)));
-
-  connect(m_srvSimulation, SIGNAL(finished()),
-          this, SLOT(simulationFinished()));
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 void CCore::setStatus(WorkerStatus::Type status)
 {

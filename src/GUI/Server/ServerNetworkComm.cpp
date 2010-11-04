@@ -19,7 +19,6 @@
 #include "GUI/Network/NetworkException.hpp"
 
 #include "GUI/Server/UnknownClientIdException.hpp"
-#include "GUI/Server/CSimulator.hpp"
 #include "GUI/Server/ServerRoot.hpp"
 
 #include "GUI/Server/ServerNetworkComm.hpp"

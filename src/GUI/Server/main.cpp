@@ -14,6 +14,7 @@
 #include <QXmlDefaultHandler>
 #include <QHostInfo>
 
+#include "Common/ConfigArgs.hpp"
 #include "Common/MPI/PEInterface.hpp"
 
 #include "GUI/Network/NetworkException.hpp"

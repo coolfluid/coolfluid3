@@ -20,7 +20,6 @@
 #include "Common/MPI/PEInterface.hpp"
 
 #include "GUI/Network/HostInfos.hpp"
-#include "GUI/Server/CSimulator.hpp"
 #include "GUI/Server/SimulationManager.hpp"
 
 ////////////////////////////////////////////////////////////////////////////
@@ -120,9 +119,6 @@ namespace Server {
     /// The default path is the current directory (./).
     const QString DEFAULT_PATH;
 
-    /// @brief The simulation.
-    CSimulator * m_srvSimulation;
-
     /// @brief The network communication
     ServerNetworkComm * m_commServer;
 
@@ -149,13 +145,6 @@ namespace Server {
 
     /// @brief Host list
     QList<CF::GUI::Network::HostInfos> m_hostList;
-
-    /// @brief Creates a new simulator with the name @c name.
-
-    /// If a simulator already exists, it is not destroyed. If a file is open,
-    /// it is not closed.
-    /// @param name Name of the new simulator.
-    void createSimulator(const QString & name);
 
     /// @brief Reads a directory contents.
 

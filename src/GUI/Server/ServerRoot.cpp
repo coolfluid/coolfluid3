@@ -12,9 +12,11 @@
 #include "Common/NotificationQueue.hpp"
 #include "Common/XmlHelpers.hpp"
 
+#include "Solver/CMethod.hpp"
+#include "Solver/ScalarAdvection.hpp"
+
 #include "GUI/Server/Notifier.hpp"
 #include "GUI/Server/ProcessingThread.hpp"
-#include "GUI/Server/CSimulator.hpp"
 
 #include "GUI/Server/ServerRoot.hpp"
 
@@ -57,7 +59,6 @@ CRoot::Ptr ServerRoot::getRoot()
   if(!created)
   {
     CCore::Ptr core(new CCore());
-    CSimulator::Ptr simulator(new CSimulator());
 
     m_queue = new NotificationQueue(root);
     m_notifier = new Notifier(m_queue);
@@ -69,11 +70,12 @@ CRoot::Ptr ServerRoot::getRoot()
 
     m_thread = nullptr;
     root->add_component(core);
-    root->add_component(simulator);
 
     created = true;
 
-    simulator->createSimulator();
+    Component::Ptr wizs = root->get_child("Wizards");
+
+    wizs->create_component_type<Solver::ScalarAdvection>( "ScalarAdvection" );
   }
 
   return root;

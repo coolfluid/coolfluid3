@@ -540,7 +540,7 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, CPath> & lin
 
   CNode::Ptr rootNode;
 
-  if(std::strcmp(typeName, "CCore") == 0 || std::strcmp(typeName, "CSimulator") == 0)
+  if(std::strcmp(typeName, "CCore") == 0)
     return rootNode;
 
   if(std::strcmp(typeName, "CLink") == 0)
