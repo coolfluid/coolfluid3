@@ -72,10 +72,6 @@ CNode::CNode(const QString & name, const QString & componentType, CNode::Type ty
   regist_signal("tree_updated", "Event that notifies a path has changed")->connect(boost::bind(&CNode::update_tree, this, _1));
 
   m_property_list.add_property("originalComponentType", m_componentType.toStdString());
-
-
-
-//  m_property_list.add_property("test", int(2));
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -456,10 +452,39 @@ void CNode::getProperties(QMap<QString, QString> & props) const
 {
   PropertyList::PropertyStorage_t::const_iterator it = m_property_list.m_properties.begin();
 
+  boost::any val = int(120);
+
   props.clear();
 
   for( ; it != m_property_list.m_properties.end() ; it++)
-    props[ it->first.c_str() ] = it->second->value_str().c_str();
+  {
+    Property::Ptr prop = it->second;
+    std::string valueStr;
+
+    if(prop->is_option())
+       valueStr = prop->value_str().c_str();
+    else
+    {
+      std::string propType = prop->type();
+
+      if(propType.compare( XmlTag<bool>::type() ) == 0)              // bool prop
+        valueStr = to_str(prop->value<bool>());
+      else if(propType.compare( XmlTag<int>::type() ) == 0)          // int prop
+        valueStr = to_str(prop->value<int>());
+      else if(propType.compare( XmlTag<CF::Uint>::type() ) == 0)     // Uint prop
+        valueStr = to_str(prop->value<CF::Uint>());
+      else if(propType.compare( XmlTag<CF::Real>::type() ) == 0)     // Real prop
+        valueStr = to_str(prop->value<CF::Real>());
+      else if(propType.compare( XmlTag<std::string>::type() ) == 0)  // string prop
+        valueStr = prop->value_str();
+      else if(propType.compare( XmlTag<URI>::type() ) == 0)          // URI prop
+        valueStr = to_str(prop->value<URI>());
+      else
+        throw CastingFailed(FromHere(), "Unable to convert " + propType + " to string.");
+    }
+
+    props[ it->first.c_str() ] = valueStr.c_str();
+  }
 
 }
 
