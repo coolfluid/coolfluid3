@@ -20,7 +20,7 @@ namespace Common {
 
   /////////////////////////////////////////////////////////////////////////////
 
-  class OptionURI : public Option
+  class Common_API OptionURI : public Option
   {
 
   public:
