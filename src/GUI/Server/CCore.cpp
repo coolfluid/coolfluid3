@@ -11,7 +11,7 @@
 #include <boost/filesystem/path.hpp>
 
 #include "Common/BasicExceptions.hpp"
-#include "Common/MPI/PEInterface.hpp"
+#include "Common/MPI/PE.hpp"
 #include "Common/Log.hpp"
 #include "Common/ConfigArgs.hpp"
 #include "Common/XmlHelpers.hpp"
@@ -117,7 +117,7 @@ PRIVATE METHODS
 
 void CCore::setStatus(WorkerStatus::Type status)
 {
-  PEInterface::instance().change_status(status);
+  PE::instance().change_status(status);
   //  this->commServer->sendStatus(-1, PE::getStatusString(status).c_str());
 }
 

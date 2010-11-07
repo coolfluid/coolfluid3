@@ -12,7 +12,7 @@
 
 #include <boost/filesystem/path.hpp>
 
-#include "Common/MPI/PEInterface.hpp"
+#include "Common/MPI/PE.hpp"
 
 #include "Common/ConfigArgs.hpp"
 

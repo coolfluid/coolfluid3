@@ -56,7 +56,7 @@ BOOST_FIXTURE_TEST_SUITE( NeuReaderMPITests_TestSuite, NeuReaderMPITests_Fixture
 
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
-	PEInterface::instance().init(m_argc,m_argv);
+	PE::instance().init(m_argc,m_argv);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -97,8 +97,8 @@ BOOST_AUTO_TEST_CASE( threeD_test )
 	
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
 	
-	meshreader->configure_property("number_of_processors",(Uint) PEInterface::instance().size());
-	meshreader->configure_property("rank",(Uint) PEInterface::instance().rank());
+	meshreader->configure_property("number_of_processors",(Uint) PE::instance().size());
+	meshreader->configure_property("rank",(Uint) PE::instance().rank());
 	meshreader->configure_property("Repartition",false);
 	meshreader->configure_property("OutputRank",(Uint) 2);
 	
@@ -170,7 +170,7 @@ BOOST_AUTO_TEST_CASE( read_multiple_2D )
 
 BOOST_AUTO_TEST_CASE( finalize_mpi )
 {
-	PEInterface::instance().finalize();
+	PE::instance().finalize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

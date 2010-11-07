@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_PEInterface_hpp
-#define CF_Common_PEInterface_hpp
+#ifndef CF_Common_PE_hpp
+#define CF_Common_PE_hpp
 
 #include <boost/mpi/communicator.hpp>
 #include <boost/mpi/environment.hpp>
@@ -17,7 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- * @file PEInterface.hpp
+ * @file PE.hpp
  * @author Tamas Banyai
  *
  * This header defines the the parallel environment interface.
@@ -33,7 +33,7 @@ namespace Common {
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- * Base class for the PEInterface
+ * Base class for the PE
  * Communication with MPI always occurs over a communicator,
  * which can be created be simply default-constructing an object
  * of type boost::mpi::communicator. This communicator can then be queried
@@ -41,7 +41,7 @@ namespace Common {
  * and to give a unique number to each process, from zero to the size
  * of the communicator-1 (i.e., the "rank" of the process)
 **/
-class Common_API PEInterface :
+class Common_API PE :
     public boost::noncopyable,
     public boost::mpi::communicator 
 {
@@ -49,13 +49,13 @@ class Common_API PEInterface :
 public:
 
   /// public constructor
-  PEInterface(int argc, char** args);
+  PE(int argc, char** args);
 
   /// destructor
-  ~PEInterface();
+  ~PE();
 
   /// Return a reference to the current PE
-  static PEInterface& instance();
+  static PE& instance();
 
   /// Initialise the PE
   void init(int argc=0, char** args=0);
@@ -88,7 +88,7 @@ public:
 private:
 
   /// private constructor
-  PEInterface();
+  PE();
 
   /// Current status.
   /// Default value is @c #NOT_RUNNING.
@@ -97,7 +97,7 @@ private:
   /// mpi environment
   boost::mpi::environment *m_environment;
 
-}; // PEInterface
+}; // PE
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -106,4 +106,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_PEInterface_hpp
+#endif // CF_Common_PE_hpp

@@ -21,7 +21,7 @@
 #include <stdio.h>
 
 #include "Common/Log.hpp"
-#include "Common/MPI/PEInterface.hpp"
+#include "Common/MPI/PE.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -110,7 +110,7 @@ LogStream & Logger::getStream(Logger::StreamType type)
 
 void Logger::openFiles()
 {
-  if(PEInterface::instance().is_init())
+  if(PE::instance().is_init())
   {
     std::ostringstream logFile;
     std::ostringstream traceFile;
@@ -118,7 +118,7 @@ void Logger::openFiles()
     iostreams::file_descriptor_sink fdLogFile;
     iostreams::file_descriptor_sink fdTraceFile;
 
-    int rank = PEInterface::instance().rank();
+    int rank = PE::instance().rank();
 
     filesystem::remove(logFile.str());
     filesystem::remove(traceFile.str());

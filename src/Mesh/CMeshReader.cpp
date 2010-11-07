@@ -13,7 +13,7 @@
 #include "Common/OptionArray.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/ComponentPredicates.hpp"
-#include "Common/MPI/PEInterface.hpp"
+#include "Common/MPI/PE.hpp"
 
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CRegion.hpp"
@@ -118,8 +118,8 @@ void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
     // find the empty regions
 		bool empty_on_this_rank = region.connectivity_table().array().empty();
 		bool empty_on_all_ranks = empty_on_this_rank;
-		if (PEInterface::instance().is_init())
-			empty_on_all_ranks = boost::mpi::all_reduce(PEInterface::instance(), empty_on_this_rank, std::logical_and<bool>());
+		if (PE::instance().is_init())
+			empty_on_all_ranks = boost::mpi::all_reduce(PE::instance(), empty_on_this_rank, std::logical_and<bool>());
     if ( empty_on_all_ranks )
 		{
 			// no elements in connectivity table --> remove this region

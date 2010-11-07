@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/MPI/PEInterface.hpp"
+#include "Common/MPI/PE.hpp"
 #include "Common/Log.hpp"
 
 using namespace boost;
@@ -14,7 +14,7 @@ namespace CF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PEInterface::PEInterface(int argc, char** args):
+PE::PE(int argc, char** args):
 	boost::mpi::communicator()
 {
   m_environment=new mpi::environment(argc,args);
@@ -23,7 +23,7 @@ PEInterface::PEInterface(int argc, char** args):
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PEInterface::PEInterface() :
+PE::PE() :
 	boost::mpi::communicator()
 {
   m_environment=0;
@@ -32,22 +32,22 @@ PEInterface::PEInterface() :
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PEInterface::~PEInterface () 
+PE::~PE () 
 {
   finalize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PEInterface& PEInterface::instance() 
+PE& PE::instance() 
 {
-  static PEInterface pe_instance;
+  static PE pe_instance;
   return pe_instance;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PEInterface::init(int argc, char** args) 
+void PE::init(int argc, char** args) 
 {
 // The mpi::environment object is initialized with the program arguments
 // (which it may modify) in your main program. The creation of this object
@@ -59,14 +59,14 @@ void PEInterface::init(int argc, char** args)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool PEInterface::is_init() const {
+bool PE::is_init() const {
   if (m_environment==0) return false;
   return m_environment->initialized();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PEInterface::finalize() {
+void PE::finalize() {
 	if (is_init())
 	{
 		barrier();
@@ -79,14 +79,14 @@ void PEInterface::finalize() {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Uint PEInterface::rank() const {
+Uint PE::rank() const {
   if (!is_init()) return 0;
   return static_cast<Uint>(mpi::communicator::rank());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Uint PEInterface::size() const
+Uint PE::size() const
 {
   if (!is_init()) return 1;
   return static_cast<Uint>(mpi::communicator::size());
@@ -95,14 +95,14 @@ Uint PEInterface::size() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PEInterface::change_status(WorkerStatus::Type status) {
+void PE::change_status(WorkerStatus::Type status) {
   cf_assert ( WorkerStatus::Convert::is_valid(status) );
   m_current_status = status;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-WorkerStatus::Type PEInterface::status() {
+WorkerStatus::Type PE::status() {
   return m_current_status;
 }
 

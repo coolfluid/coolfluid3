@@ -11,7 +11,7 @@
 
 #include "Common/BoostIostreams.hpp"
 //#include "Common/CF.hpp"
-#include "Common/MPI/PEInterface.hpp"
+#include "Common/MPI/PE.hpp"
 
 namespace CF {
 namespace Common {
@@ -112,21 +112,21 @@ class Common_API LogStream
 			{
 				if (it->first != SYNC_SCREEN)
 				{
-					if ((PEInterface::instance().rank() == 0 || !this->getFilterRankZero(it->first)))
+					if ((PE::instance().rank() == 0 || !this->getFilterRankZero(it->first)))
 					{
 						*(it->second) << t;
 						m_flushed = false;
 					}
 				}
-				else if (PEInterface::instance().is_init())
+				else if (PE::instance().is_init())
 				{
-					for( Uint i = 0 ; i < PEInterface::instance().size(); ++i )
+					for( Uint i = 0 ; i < PE::instance().size(); ++i )
 					{
 						if (!this->getFilterRankZero(it->first))
 						{
-							PEInterface::instance().barrier();
+							PE::instance().barrier();
 						}						
-						if(i == PEInterface::instance().rank())
+						if(i == PE::instance().rank())
 						{
 							*(it->second) << t;
 							m_flushed = false;

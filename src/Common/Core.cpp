@@ -12,7 +12,7 @@
 
 #include "coolfluid_svnversion.h"
 
-#include "Common/MPI/PEInterface.hpp"
+#include "Common/MPI/PE.hpp"
 
 #include "Common/EventHandler.hpp"
 #include "Common/Log.hpp"
@@ -187,7 +187,7 @@ Core::~Core()
 
 void Core::initiate ( int argc, char** argv )
 {
-  PEInterface::instance().init(argc,argv); // this might modify argc and argv
+  PE::instance().init(argc,argv); // this might modify argc and argv
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -195,7 +195,7 @@ void Core::initiate ( int argc, char** argv )
 void Core::terminate()
 {
 //  CFinfo << "Terminating Hook Modules ...\n" << CFflush;
-  PEInterface::instance().finalize();
+  PE::instance().finalize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

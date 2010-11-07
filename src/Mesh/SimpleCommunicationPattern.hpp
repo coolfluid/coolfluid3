@@ -10,7 +10,7 @@
 #include <boost/foreach.hpp>
 
 #include "Common/CF.hpp"
-#include "Common/MPI/PEInterface.hpp"
+#include "Common/MPI/PE.hpp"
 
 #include "Mesh/CArray.hpp"
 #include "Mesh/CList.hpp"
@@ -59,7 +59,7 @@ template<typename RangeT>
 void apply_pattern_carray(const SimpleCommunicationPattern& pattern, RangeT range)
 {
 	CFinfo << "applying pattern to carray" << CFendl;
-  boost::mpi::communicator& world = CF::Common::PEInterface::instance();
+  boost::mpi::communicator& world = CF::Common::PE::instance();
   const Uint nb_procs = world.size();
   
   Uint total_width = 0;
@@ -96,7 +96,7 @@ void apply_pattern_carray(const SimpleCommunicationPattern& pattern, RangeT rang
       }
     }
     
-		CFinfo << "proc " << proc << " sending to " << CF::Common::PEInterface::instance().rank() << CFendl;
+		CFinfo << "proc " << proc << " sending to " << CF::Common::PE::instance().rank() << CFendl;
     // Schedule send and receive operations
     reqs.push_back(world.isend(proc, 0, &send_buffer[send_begin], send_buffer.size() - send_begin));
     reqs.push_back(world.irecv(proc, 0, &receive_buffer[receive_begin], receive_size));
@@ -133,7 +133,7 @@ void apply_pattern_clist(const SimpleCommunicationPattern& pattern, RangeT range
 {
 	typedef CList<ValueT> CListT;
 
-  boost::mpi::communicator& world = CF::Common::PEInterface::instance();
+  boost::mpi::communicator& world = CF::Common::PE::instance();
   const Uint nb_procs = world.size();
   
 	Uint total_width = 0;

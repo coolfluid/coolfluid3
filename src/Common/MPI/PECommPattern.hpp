@@ -4,11 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef PECommPattern_hpp
-#define PECommPattern_hpp
-
-/// Parallel Communication Pattern
-/// @author Tamas Banyai
+#ifndef CF_Common_PECommPattern_hpp
+#define CF_Common_PECommPattern_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -19,9 +16,12 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-  namespace Common  {
+namespace Common  {
 
 ////////////////////////////////////////////////////////////////////////////////
+
+/// Parallel Communication Pattern
+/// @author Tamas Banyai
 
 class Common_API PECommPattern {
 
@@ -74,9 +74,9 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  }  // namespace Common
-} // namespace CF
+} // Common
+} // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // PECommPattern_hpp
+#endif // CF_Common_PECommPattern_hpp

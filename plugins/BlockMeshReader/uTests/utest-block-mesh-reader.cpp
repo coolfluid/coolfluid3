@@ -138,8 +138,8 @@ BOOST_AUTO_TEST_CASE( WriteDict )
 
 BOOST_AUTO_TEST_CASE( PartitionBlocks )
 {
-  if(!PEInterface::instance().is_init())
-    PEInterface::instance().init(0,0);
+  if(!PE::instance().is_init())
+    PE::instance().init(0,0);
   
   boost::filesystem::path path = base_dir / boost::filesystem::path("channel3d.dict");
   boost::filesystem::fstream file;
@@ -170,7 +170,7 @@ BOOST_AUTO_TEST_CASE( PartitionBlocks )
 //   boost::filesystem::path outf("PartitionBlocks.msh");
 //   msh_writer->write_from_to(block_mesh, outf);
   
-  if( PEInterface::instance().rank() == 0)
+  if( PE::instance().rank() == 0)
     std::cout << "-------------- Partitioned blocks ----------------\n" << partitioned_blocks << std::endl;
 }
 

@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE( openFiles )
   Logger::instance().openFiles();
   
   // files are not created if PE is not initializaed
-  if(PEInterface::instance().is_init()) 
+  if(PE::instance().is_init()) 
   {
     BOOST_CHECK(Logger::instance().getStream(Logger::INFO).isFileOpen());
     BOOST_CHECK(Logger::instance().getStream(Logger::ERROR).isFileOpen());

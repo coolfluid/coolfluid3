@@ -17,7 +17,7 @@
 #include <string>
 
 #include "Common/Component.hpp"
-#include "Common/MPI/PEInterface.hpp"
+#include "Common/MPI/PE.hpp"
 
 #include "GUI/Network/HostInfos.hpp"
 #include "GUI/Server/SimulationManager.hpp"

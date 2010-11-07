@@ -82,9 +82,9 @@ void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& pat
 
   // if the file is present open it
   boost::filesystem::fstream file;
-	if (PEInterface::instance().size() > 1)
+	if (PE::instance().size() > 1)
 	{
-		path = boost::filesystem::basename(path) + "_P" + to_str(PEInterface::instance().rank()) + boost::filesystem::extension(path);
+		path = boost::filesystem::basename(path) + "_P" + to_str(PE::instance().rank()) + boost::filesystem::extension(path);
 	}
   CFLog(VERBOSE, "Opening file " <<  path.string() << "\n");
   file.open(path,std::ios_base::out);

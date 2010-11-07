@@ -7,7 +7,7 @@
 #include <boost/mpi/collectives.hpp>
 
 #include "Mesh/SimpleCommunicationPattern.hpp"
-#include "Common/MPI/PEInterface.hpp"
+#include "Common/MPI/PE.hpp"
 
 #include "Mesh/CTable.hpp"
 #include "Mesh/CMesh.hpp"
@@ -18,14 +18,14 @@ namespace Mesh {
 using namespace Common;
   
 SimpleCommunicationPattern::SimpleCommunicationPattern()  : 
-    receive_dist(PEInterface::instance().size()+1, 0),
-    send_dist(PEInterface::instance().size()+1, 0)
+    receive_dist(PE::instance().size()+1, 0),
+    send_dist(PE::instance().size()+1, 0)
 {
 }
 
 void SimpleCommunicationPattern::update_send_lists()
 {
-  boost::mpi::communicator& world = PEInterface::instance();
+  boost::mpi::communicator& world = PE::instance();
   const Uint nb_procs = world.size();
   
   IndicesT receive_counts(nb_procs);
@@ -57,8 +57,8 @@ void make_node_receive_lists(const SimpleCommunicationPattern::IndicesT& nodes_d
 {
 	CFinfo << "making node_receive_lists" << CFendl;
   std::vector<Uint> missing_nodes;
-  const Uint nodes_begin = nodes_dist[PEInterface::instance().rank()];
-  const Uint nodes_end = nodes_dist[PEInterface::instance().rank()+1];
+  const Uint nodes_begin = nodes_dist[PE::instance().rank()];
+  const Uint nodes_end = nodes_dist[PE::instance().rank()+1];
   
   // Find the nodes that are not stored locally
   BOOST_FOREACH(const CElements& celements, recursive_range_typed<CElements>(mesh))
@@ -140,11 +140,11 @@ void make_node_receive_lists(const SimpleCommunicationPattern::IndicesT& nodes_d
 std::ostream& operator<<(std::ostream& os, const SimpleCommunicationPattern& pattern)
 {
 	CFinfo << "outputting pattern" << CFendl;
-  os << "send dist for rank " << PEInterface::instance().rank() << ":" << "\n";
+  os << "send dist for rank " << PE::instance().rank() << ":" << "\n";
   for(Uint i = 0; i != (pattern.send_dist.size()-1); ++i)
     os << "  " << pattern.send_dist[i+1] - pattern.send_dist[i] << " to process " << i << "\n";
   
-  os << "recv dist for rank " << PEInterface::instance().rank() << ":" << "\n";
+  os << "recv dist for rank " << PE::instance().rank() << ":" << "\n";
   for(Uint i = 0; i != (pattern.receive_dist.size()-1); ++i)
     os << "  " << pattern.receive_dist[i+1] - pattern.receive_dist[i] << " from process " << i << "\n";
   

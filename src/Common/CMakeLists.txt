@@ -132,8 +132,8 @@ list( APPEND coolfluid_common_files
 # MPI Files
 if(CF_HAVE_MPI)
 list( APPEND coolfluid_common_files
-      MPI/PEInterface.hpp
-      MPI/PEInterface.cpp
+      MPI/PE.hpp
+      MPI/PE.cpp
       MPI/PECommPattern.hpp
       MPI/PECommPattern.cpp
       MPI/PECommPattern2.hpp

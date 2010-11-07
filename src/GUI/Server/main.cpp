@@ -15,7 +15,7 @@
 #include <QHostInfo>
 
 #include "Common/ConfigArgs.hpp"
-#include "Common/MPI/PEInterface.hpp"
+#include "Common/MPI/PE.hpp"
 
 #include "GUI/Network/NetworkException.hpp"
 #include "GUI/Network/HostInfos.hpp"

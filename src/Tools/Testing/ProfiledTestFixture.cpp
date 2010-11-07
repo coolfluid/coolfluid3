@@ -13,7 +13,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "Common/OSystem.hpp"
-#include "Common/MPI/PEInterface.hpp"
+#include "Common/MPI/PE.hpp"
 
 #include "Tools/Testing/ProfiledTestFixture.hpp"
 
@@ -55,9 +55,9 @@ ProfiledTestFixture::~ProfiledTestFixture() {
 
 void ProfiledTestFixture::test_unit_start( boost::unit_test::test_unit const& unit ) {
   std::stringstream job_suffix;
-  if(PEInterface::instance().is_init())
+  if(PE::instance().is_init())
   {
-    job_suffix << "-" << PEInterface::instance().rank();
+    job_suffix << "-" << PE::instance().rank();
   }
 
   if(m_using_google_perf)
@@ -74,7 +74,7 @@ void ProfiledTestFixture::test_unit_finish( boost::unit_test::test_unit const& u
   if(m_using_google_perf)
   {
     OSystem::instance().profiler()->stop_profiling();
-    if(PEInterface::instance().rank() > 0)
+    if(PE::instance().rank() > 0)
       return;
     cf_assert(boost::algorithm::ends_with(m_current_filename, ".pprof"));
     boost::filesystem::path infile(m_profile_dir / m_current_filename);

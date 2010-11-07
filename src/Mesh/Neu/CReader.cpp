@@ -75,8 +75,8 @@ void CReader::defineConfigProperties ( CF::Common::PropertyList& options )
 {
 	options.add_option<OptionT <bool> >("Serial Merge","New mesh will be merged with existing if mesh-names match",true);
 	options.add_option<OptionT <bool> >("Unified Zones","Reads Neu Groups and splits the mesh in these subgroups",false);
-	options.add_option<OptionT <Uint> >("Part","Number of the part of the mesh to read. (e.g. rank of processor)",PEInterface::instance().is_init()?PEInterface::instance().rank():0);
-	options.add_option<OptionT <Uint> >("Number of Parts","Total number of parts. (e.g. number of processors)",PEInterface::instance().is_init()?PEInterface::instance().size():1);
+	options.add_option<OptionT <Uint> >("Part","Number of the part of the mesh to read. (e.g. rank of processor)",PE::instance().is_init()?PE::instance().rank():0);
+	options.add_option<OptionT <Uint> >("Number of Parts","Total number of parts. (e.g. number of processors)",PE::instance().is_init()?PE::instance().size():1);
 	
 	
 	options.add_option<OptionT <bool> >("Repartition","setting this to true, puts global indexes, for repartitioning later",false);
@@ -214,8 +214,8 @@ void CReader::set_pt_scotch_data()
 		if (!is_ghost_node)
 			nb_nodes++;
 	}
-	if (PEInterface::instance().is_init())
-	boost::mpi::all_gather(PEInterface::instance(), nb_nodes, proccnttab);
+	if (PE::instance().is_init())
+	boost::mpi::all_gather(PE::instance(), nb_nodes, proccnttab);
 	
 	Uint cnt=0;
 	for (Uint p=0; p<proccnttab.size(); ++p)
@@ -226,7 +226,7 @@ void CReader::set_pt_scotch_data()
 	procvrttab[procglbnbr] = cnt;
 	
 	if (property("Part").value<Uint>() == property("OutputRank").value<Uint>())
-	for (Uint proc = 0; proc < PEInterface::instance().size(); ++proc)
+	for (Uint proc = 0; proc < PE::instance().size(); ++proc)
 		CFinfo << "Process #" << proc << " has " << proccnttab[proc] << " nodes" << CFendl;
 		
 	if (property("Part").value<Uint>() == property("OutputRank").value<Uint>())
@@ -236,7 +236,7 @@ void CReader::set_pt_scotch_data()
 
 
 	cf_assert(m_coordinates->size()==global_node_idx.size());
-	Uint rank = PEInterface::instance().rank();
+	Uint rank = PE::instance().rank();
 	std::set<Uint> nodes_to_renumber_set;
 	for (Uint iNode=0; iNode<m_coordinates->size(); ++iNode)
 	{
@@ -254,8 +254,8 @@ void CReader::set_pt_scotch_data()
 	BOOST_FOREACH(Uint node, nodes_to_renumber_set)
 		nodes_to_renumber.push_back(node);
 	
-	if (PEInterface::instance().is_init())
-	PEInterface::instance().barrier();
+	if (PE::instance().is_init())
+	PE::instance().barrier();
 
 	//if (property("Part").value<Uint>() == property("OutputRank").value<Uint>())
 	{
@@ -265,26 +265,26 @@ void CReader::set_pt_scotch_data()
 		CFinfo << CFendl;
 	}
 	
-	if (PEInterface::instance().is_init())
-	PEInterface::instance().barrier();
+	if (PE::instance().is_init())
+	PE::instance().barrier();
 	
 	/*
-	for (Uint proc=0; proc<PEInterface::instance().size(); ++proc)
+	for (Uint proc=0; proc<PE::instance().size(); ++proc)
 	{
 		// renumber everywhere the ones that processor "proc" wants
 		std::vector<Uint> nodes_to_renumber_from_proc;
-		if (proc == PEInterface::instance().rank())
+		if (proc == PE::instance().rank())
 		{
 			nodes_to_renumber_from_proc = nodes_to_renumber;
 		}
 		
-		boost::mpi::broadcast(PEInterface::instance(),nodes_to_renumber_from_proc,proc);
+		boost::mpi::broadcast(PE::instance(),nodes_to_renumber_from_proc,proc);
 		
 		Uint cnt = procvrttab[proc+1] - nodes_to_renumber_from_proc.size();
 		
 		//CFinfo << "proc #" << proc << " : " ;
 		//print_vector(CFinfo,nodes_to_renumber_from_proc); CFinfo << CFendl;		
-		//PEInterface::instance().barrier();
+		//PE::instance().barrier();
 
 		BOOST_FOREACH(Uint node, nodes_to_renumber_from_proc)
 		{
@@ -300,7 +300,7 @@ void CReader::set_pt_scotch_data()
 					}
 				}
 			}
-			PEInterface::instance().barrier();
+			PE::instance().barrier();
 			cnt++;
 		}
 
@@ -320,8 +320,8 @@ void CReader::set_pt_scotch_data()
 				}
 			}
 		}
-		if (PEInterface::instance().is_init())
-		PEInterface::instance().barrier();
+		if (PE::instance().is_init())
+		PE::instance().barrier();
 	}
 	
 	
