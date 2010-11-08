@@ -51,6 +51,12 @@ CCore::CCore()
   Logger::instance().getStream(Logger::ERROR).addStringForwarder(rca);
   Logger::instance().getStream(Logger::INFO).addStringForwarder(rca);
 
+  Logger::instance().getStream(Logger::INFO).setStamp(LogStream::STRING, "%type% ");
+  Logger::instance().getStream(Logger::ERROR).setStamp(LogStream::STRING, "%type% ");
+  Logger::instance().getStream(Logger::WARN).setStamp(LogStream::STRING, "%type% ");
+  Logger::instance().getStream(Logger::DEBUG).setStamp(LogStream::STRING, "%type% ");
+  Logger::instance().getStream(Logger::TRACE).setStamp(LogStream::STRING, "%type% ");
+
   connect(rca, SIGNAL(newData(QString)), this, SLOT(message(QString)));
 
   regist_signal("read_dir", "Read directory content")->connect(boost::bind(&CCore::read_dir, this, _1));
@@ -234,7 +240,7 @@ Signal::return_t CCore::read_dir(Signal::arg_t & node)
     if(!this->getDirContent(directory, extensions, includeFiles,
                             includeNoExtension, dirList, fileList))
     {
-      m_commServer->sendErrorToClient(dirPath + ": no such direcrory", clientId);
+      m_commServer->sendMessageToClient(dirPath + ": no such direcrory", LogMessage::ERROR, clientId);
     }
     else
     {
@@ -273,7 +279,7 @@ Signal::return_t CCore::createDir(Signal::arg_t & node)
 {
   XmlParams p(node);
 
-  m_commServer->sendErrorToClient("Cannot create a directory", p.get_clientid());
+  m_commServer->sendMessageToClient("Cannot create a directory yet", LogMessage::ERROR, p.get_clientid());
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -292,7 +298,8 @@ Signal::return_t CCore::saveConfig(Signal::arg_t & node)
 {
   XmlParams p(node);
 
-  m_commServer->sendErrorToClient("Cannot save the configuration", p.get_clientid());
+  m_commServer->sendMessageToClient("Cannot save the configuration yet", LogMessage::ERROR,
+                                    p.get_clientid());
 }
 
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -304,7 +311,9 @@ Signal::return_t CCore::saveConfig(Signal::arg_t & node)
 void CCore::newClient(const std::string & clientId)
 {
   // send a welcome message to the new client
-  m_commServer->sendMessageToClient("Welcome to the Client-Server project!", clientId);
+  m_commServer->sendMessageToClient("Welcome to the Client-Server project!", LogMessage::INFO, clientId);
+
+  CFerror << "This is an error" << CFendl;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -312,7 +321,11 @@ void CCore::newClient(const std::string & clientId)
 
 void CCore::message(const QString & message)
 {
-  m_commServer->sendMessageToClient(message);
+  QString typeStr = message.split(" ").first();
+  QString copy(message);
+  LogMessage::Type type = LogMessage::Convert::to_enum(typeStr.toStdString());
+
+  m_commServer->sendMessageToClient(copy.remove(0, typeStr.length() + 1), type);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -320,7 +333,7 @@ void CCore::message(const QString & message)
 
 void CCore::error(const QString & message)
 {
-  m_commServer->sendErrorToClient(message);
+  m_commServer->sendMessageToClient(message, LogMessage::ERROR);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

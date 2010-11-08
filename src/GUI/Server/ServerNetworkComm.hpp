@@ -17,6 +17,7 @@
 
 #include "GUI/Network/HostInfos.hpp"
 #include "GUI/Network/ComponentType.hpp"
+#include "GUI/Network/LogMessage.hpp"
 
 #include "Common/XmlHelpers.hpp"
 
@@ -83,19 +84,14 @@ namespace Server {
     /// @return Returns the number of bytes sent.
     int getBytesSent() const;
 
-    /// @brief Sends an error message to a client
-
-    /// @param message Message to send
-    /// @param uuid Client UUID, or an empty string to send to all clients.
-    /// @throw UnknownClientIdException if Client UUID is unknown.
-    void sendErrorToClient(const QString & message, const std::string & uuid = std::string());
-
     /// @brief Sends a message to a client
 
     /// @param message Message to send
     /// @param uuid Client UUID, or an empty string to send to all clients.
     /// @throw UnknownClientIdException if Client UUID is unknown.
-    void sendMessageToClient(const QString & message, const std::string & uuid = std::string());
+    void sendMessageToClient(const QString & message,
+                             Network::LogMessage::Type type,
+                             const std::string & uuid = std::string());
 
     void sendSignalToClient(const CF::Common::XmlNode & signal,
                             const std::string & uuid = std::string());
@@ -175,16 +171,8 @@ namespace Server {
     /// @param message Message to send.
     /// @return Returns @c true if the frame was built and sent successfully;
     /// otherwise returns @c false.
-    bool sendMessage(QTcpSocket * client, const QString & message);
-
-    /// @brief Sends an error message to a client.
-
-    /// @param client Client socket to use. If @c nullptr, the error message will
-    /// be sent to all clients.
-    /// @param message Error message to send.
-    /// @return Returns @c true if the frame was built and sent successfully;
-    /// otherwise returns @c false.
-    bool sendError(QTcpSocket * client, const QString & message);
+    bool sendMessage(QTcpSocket * client, const QString & message,
+                     Network::LogMessage::Type type);
 
     /// @brief Sends a message to a client.
 

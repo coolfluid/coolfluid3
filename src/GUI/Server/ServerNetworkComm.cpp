@@ -189,19 +189,12 @@ void ServerNetworkComm::disconnectAll()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void ServerNetworkComm::sendErrorToClient(const QString & message, const string & uuid)
+void ServerNetworkComm::sendMessageToClient(const QString & message,
+                                            LogMessage::Type type,
+                                            const string & uuid)
 {
   QTcpSocket * socket = this->getSocket(uuid);
-  this->sendError(socket, message);
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void ServerNetworkComm::sendMessageToClient(const QString & message, const string & uuid)
-{
-  QTcpSocket * socket = this->getSocket(uuid);
-  this->sendMessage(socket, message);
+  this->sendMessage(socket, message, type);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -227,7 +220,8 @@ bool ServerNetworkComm::sendFrameRejected(QTcpSocket * clientId,
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool ServerNetworkComm::sendMessage(QTcpSocket * client, const QString & message)
+bool ServerNetworkComm::sendMessage(QTcpSocket * client, const QString & message,
+                                    LogMessage::Type type)
 {
   boost::shared_ptr<XmlNode> doc = XmlOps::create_doc();
   XmlNode * signal = XmlOps::add_signal_frame(*XmlOps::goto_doc_node(*doc.get()),
@@ -235,7 +229,10 @@ bool ServerNetworkComm::sendMessage(QTcpSocket * client, const QString & message
                                               CLIENT_LOG_PATH, false);
   XmlParams p(*signal);
 
-  p.add_option("type", LogMessage::Convert::to_str(LogMessage::INFO));
+  if(type == LogMessage::INVALID)
+    type = LogMessage::INFO;
+
+  p.add_option("type", LogMessage::Convert::to_str(type));
   p.add_option("text", message.toStdString());
 
   return this->send(client, *doc) != 0;
@@ -255,23 +252,6 @@ int ServerNetworkComm::getBytesRecieved() const
 int ServerNetworkComm::getBytesSent() const
 {
   return m_bytesSent;
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-bool ServerNetworkComm::sendError(QTcpSocket * client, const QString & message)
-{
-  boost::shared_ptr<XmlNode> doc = XmlOps::create_doc();
-  XmlNode * signal = XmlOps::add_signal_frame(*XmlOps::goto_doc_node(*doc.get()),
-                                              "message", SERVER_CORE_PATH,
-                                              CLIENT_LOG_PATH, false);
-  XmlParams p(*signal);
-
-  p.add_option("type", LogMessage::Convert::to_str(LogMessage::ERROR));
-  p.add_option("text", message.toStdString());
-
-  return this->send(client, *doc) != 0;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -467,7 +447,7 @@ void ServerNetworkComm::clientDisconnected()
 
 void ServerNetworkComm::message(const QString & message)
 {
-  this->sendMessage((QTcpSocket*)NULL, message);
+  this->sendMessage((QTcpSocket*)NULL, message, LogMessage::INFO);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -475,5 +455,5 @@ void ServerNetworkComm::message(const QString & message)
 
 void ServerNetworkComm::error(const QString & message)
 {
-  this->sendError((QTcpSocket*)NULL, message);
+  this->sendMessage((QTcpSocket*)NULL, message, LogMessage::ERROR);
 }
