@@ -25,7 +25,7 @@ GraphicalArray::GraphicalArray(QValidator * validator, QWidget * parent)
   m_editAdd = new QLineEdit(this);
   m_model = new QStringListModel(this);
   m_listView = new QListView(this);
-  m_btAdd = new QPushButton("Add", this);
+  m_btAdd = new QPushButton("Add"/*, this*/);
   m_btRemove = new QPushButton("Remove", this);
 
   m_buttonsLayout = new QVBoxLayout();
@@ -36,7 +36,7 @@ GraphicalArray::GraphicalArray(QValidator * validator, QWidget * parent)
   m_listView->setModel(m_model);
   m_listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-  m_buttonsLayout->addWidget(m_btAdd);
+//  m_buttonsLayout->addWidget(m_btAdd);
   m_buttonsLayout->addWidget(m_btRemove);
 
   m_leftLayout->addWidget(m_editAdd);
@@ -163,7 +163,16 @@ void GraphicalArray::btAddClicked()
 
 void GraphicalArray::btRemoveClicked()
 {
+  QModelIndexList selectedItems;
 
+  selectedItems = m_listView->selectionModel()->selectedIndexes();
+
+  for(int i = selectedItems.size() - 1 ; i >= 0 ; i--)
+  {
+    QModelIndex index = selectedItems.at(i);
+
+    m_model->removeRow(index.row(), index.parent());
+  }
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
