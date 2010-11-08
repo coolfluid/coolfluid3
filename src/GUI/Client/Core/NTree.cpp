@@ -378,7 +378,7 @@ void NTree::modifyOptions(const QModelIndex & index,
 {
   TreeNode * node = this->indexToTreeNode(index);
 
-  if(node != nulcflptr)
+  if(node != nullptr)
     node->getNode()->modifyOptions(options);
   else
     ClientRoot::log()->addError("Could not modify options! Invalid node.");
