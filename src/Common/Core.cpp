@@ -57,7 +57,7 @@ Core::Core() :
 {
   m_root = CRoot::create("Root");
 
-  m_root->create_component_type<CEnv>("Env");
+  m_root->create_component_type<CEnv>("Environment");
 
   m_root->create_component_type<CGroup>("Libraries");
 
