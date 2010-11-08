@@ -363,7 +363,7 @@ bool NTree::nodeIsVisible(const QModelIndex & index) const
     if(node.get() != nullptr)
     {
       visible = node->has_tag("basic") || m_advancedMode;
-      visible &= m_debugModeEnabled || !node->isClientComponent();
+      visible &= (!node->isClientComponent() || m_debugModeEnabled);
     }
   }
 
@@ -378,7 +378,7 @@ void NTree::modifyOptions(const QModelIndex & index,
 {
   TreeNode * node = this->indexToTreeNode(index);
 
-  if(node != nullptr)
+  if(node != nulcflptr)
     node->getNode()->modifyOptions(options);
   else
     ClientRoot::log()->addError("Could not modify options! Invalid node.");

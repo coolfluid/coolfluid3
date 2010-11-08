@@ -41,6 +41,11 @@ NRoot::Ptr ClientRoot::root()
 
     root->mark_basic();
 
+    core->mark_basic();
+    log->mark_basic();
+    browser->mark_basic();
+    tree->mark_basic();
+
     tree->setRoot(root);
   }
 
