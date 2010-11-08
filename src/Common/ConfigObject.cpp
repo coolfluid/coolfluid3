@@ -35,6 +35,14 @@ namespace Common {
           opt->second->as_option().configure_option(*itr);
       }
     }
+
+    // add a reply frame
+    /// @todo adapt when the new XML layer is in place
+    XmlNode & reply_node = *XmlOps::add_reply_frame(node);
+    XmlParams p_reply(reply_node);
+    XmlNode & map_node = *p_reply.add_map(XmlParams::tag_key_options()); //XmlOps::add_node_to(reply_node, XmlParams::tag_node_map());
+
+    XmlOps::deep_copy(*pn.option_map, map_node);
   }
 
   const Property & ConfigObject::property( const std::string& optname ) const
