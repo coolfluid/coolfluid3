@@ -283,6 +283,9 @@ public: // functions
 
   //@} END SIGNALS
 
+  /// marks this component as basic.
+  void mark_basic();
+
 protected: // functions
 
   /// Must be called in constructor of each derived class

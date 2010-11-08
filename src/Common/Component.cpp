@@ -493,6 +493,7 @@ void Component::write_xml_tree( XmlNode& node )
     XmlNode& this_node = *XmlOps::add_node_to(node, "node");
     XmlOps::add_attribute_to( this_node, "name", name() );
     XmlOps::add_attribute_to( this_node, "atype", type_name);
+    XmlOps::add_attribute_to( this_node, "mode", has_tag("basic") ? "basic" : "adv");
 
     if( m_is_link ) // if it is a link, we put the target path as value
       this_node.value( this_node.document()->allocate_string( get()->full_path().string().c_str() ));
@@ -659,6 +660,11 @@ void Component::raise_event ( const std::string & name )
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
+
+void Component::mark_basic()
+{
+  add_tag("basic");
+}
 
 } // Common
 } // CF

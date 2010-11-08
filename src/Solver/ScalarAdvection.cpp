@@ -68,7 +68,7 @@ void ScalarAdvection::run_wizard ( Common::XmlNode& node )
 
   // set the CDomain
   // CDomain::Ptr domain =
-      model->create_component_type<CDomain>("Domain");
+      model->create_component_type<CDomain>("Domain")->mark_basic();;
 
   // setup the Physical Model
   CPhysicalModel::Ptr pm = model->create_component_type<CPhysicalModel>("Physics");
@@ -83,6 +83,12 @@ void ScalarAdvection::run_wizard ( Common::XmlNode& node )
   // setup iterative solver
   CIterativeSolver::Ptr solver = create_component_abstract_type<CIterativeSolver>("ForwardEuler", "IterativeSolver");
   model->add_component( solver );
+
+  // mark the new components as basic
+  model->mark_basic();
+  pm->mark_basic();
+  cdm->mark_basic();
+  solver->mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
