@@ -246,6 +246,16 @@ namespace ClientCore {
 
     bool nodeMatches(const QModelIndex & index, const QRegExp & regex) const;
 
+    /// @brief Checks whether a nodeis visible or not.
+
+    /// A node is visible if:
+    /// @li it is basic, or it is advanced @b and advanced mode is activated
+    /// @li it is a client component @b and debug mode is activated.
+    /// @param index Index of the node to check
+    /// @return Returns @c true if the node is visible. Otherwise, returns
+    /// @c false (i.e. the index is not valid).
+    bool nodeIsVisible(const QModelIndex & index) const;
+
     /// @name Signals
     /// @{
 

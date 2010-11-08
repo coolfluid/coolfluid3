@@ -286,6 +286,16 @@ void CentralPanel::currentIndexChanged(const QModelIndex & newIndex, const QMode
 
 void CentralPanel::advancedModeChanged(bool advanced)
 {
+  NTree::Ptr tree = ClientRoot::tree();
+
+  // if the node went to a hidden state, we clear everything
+  /// @todo what if options are modified ???
+  if(!tree->nodeIsVisible(tree->getCurrentIndex()))
+  {
+    m_basicOptionLayout->clearOptions();
+    m_advancedOptionLayout->clearOptions();
+  }
+
   m_scrollAdvancedOptions->setVisible(advanced && m_advancedOptionLayout->hasOptions());
 
   // To avoid confusion, basic option panel is always showed if there is at
@@ -293,6 +303,8 @@ void CentralPanel::advancedModeChanged(bool advanced)
   // Doing so, we ensure that the advanced options panel is *never* the
   // top one (if visible).
   m_scrollBasicOptions->setVisible(m_basicOptionLayout->hasOptions() || m_scrollAdvancedOptions->isVisible());
+
+  setButtonsVisible(m_scrollBasicOptions->isVisible());
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

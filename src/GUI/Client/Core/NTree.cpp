@@ -179,8 +179,11 @@ void NTree::setAdvancedMode(bool advanceMode)
 {
   if(m_advancedMode ^ advanceMode) // if values are different
   {
+    /// @todo find a better way to refresh the tree
+    emit layoutAboutToBeChanged();
     m_advancedMode = advanceMode;
     emit advancedModeChanged(m_advancedMode);
+    emit layoutChanged();
   }
 }
 
@@ -349,6 +352,27 @@ bool NTree::nodeMatches(const QModelIndex & index, const QRegExp & regex) const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+bool NTree::nodeIsVisible(const QModelIndex & index) const
+{
+  bool visible = false;
+
+  if(index.isValid())
+  {
+    CNode::Ptr node = this->indexToNode(index);
+
+    if(node.get() != nullptr)
+    {
+      visible = node->has_tag("basic") || m_advancedMode;
+      visible &= m_debugModeEnabled || !node->isClientComponent();
+    }
+  }
+
+  return visible;
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 void NTree::modifyOptions(const QModelIndex & index,
                           const QMap<QString, QString> & options)
 {
@@ -367,27 +391,24 @@ QVariant NTree::data(const QModelIndex & index, int role) const
 {
   QVariant data;
 
-  if(index.isValid())
+  if(nodeIsVisible(index))
   {
     CNode::Ptr node = this->indexToNode(index);
 
-    if(m_debugModeEnabled || !node->isClientComponent())
+    if(role == Qt::DisplayRole)
     {
-      if(role == Qt::DisplayRole)
+      switch(index.column())
       {
-        switch(index.column())
-        {
-        case 0:
-          data = QString(node->name().c_str());
-          break;
-        case 1:
-          data = QString(node->getComponentType());
-          break;
-        }
+      case 0:
+        data = QString(node->name().c_str());
+        break;
+      case 1:
+        data = QString(node->getComponentType());
+        break;
       }
-      else if(role == Qt::ToolTipRole)
-          data = node->getToolTip();
     }
+    else if(role == Qt::ToolTipRole)
+      data = node->getToolTip();
   }
 
   return data;
@@ -531,7 +552,6 @@ void NTree::list_tree_reply(XmlNode & node)
     emit currentIndexChanged(m_currentIndex, QModelIndex());
 
     ClientRoot::log()->addMessage("Tree updated.");
-
   }
   catch(XmlError & xe)
   {

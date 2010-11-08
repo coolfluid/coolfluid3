@@ -525,6 +525,7 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, CPath> & lin
 {
   XmlAttr * typeAttr = node.first_attribute("atype");
   XmlAttr * nameAttr = node.first_attribute("name");
+  XmlAttr * modeAttr = node.first_attribute("mode");
 
   cf_assert(typeAttr != nullptr);
   cf_assert(nameAttr != nullptr);
@@ -554,6 +555,9 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, CPath> & lin
   else
     rootNode = boost::shared_ptr<NGeneric>(new NGeneric(nodeName, typeName));
 
+
+  if(modeAttr != nullptr && std::strcmp(modeAttr->value(), "basic") == 0)
+    rootNode->mark_basic();
 
   while(child != nullptr)
   {

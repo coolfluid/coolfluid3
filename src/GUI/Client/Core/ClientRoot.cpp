@@ -39,6 +39,8 @@ NRoot::Ptr ClientRoot::root()
     root->root()->add_component(browser);
     root->root()->add_component(tree);
 
+    root->mark_basic();
+
     tree->setRoot(root);
   }
 
