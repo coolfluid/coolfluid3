@@ -156,6 +156,7 @@ QVariant GraphicalArray::getValue() const
 void GraphicalArray::btAddClicked()
 {
 
+  emit valueChanged();
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -173,6 +174,8 @@ void GraphicalArray::btRemoveClicked()
 
     m_model->removeRow(index.row(), index.parent());
   }
+
+  emit valueChanged();
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -195,6 +198,8 @@ void GraphicalArray::keyPressEvent(QKeyEvent * event)
       m_model->setStringList( m_model->stringList() << m_editAdd->text() );
 
       m_editAdd->clear();
+
+      emit valueChanged();
     }
   }
 }

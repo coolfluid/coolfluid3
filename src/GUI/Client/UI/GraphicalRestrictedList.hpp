@@ -38,6 +38,10 @@ namespace ClientUI {
 
     virtual QVariant getValue() const;
 
+  private slots:
+
+    void currentIndexChanged(int);
+
   private:
 
     QComboBox * m_comboChoices;

@@ -48,6 +48,8 @@ GraphicalRestrictedList::GraphicalRestrictedList(Option::ConstPtr opt, QWidget *
   setValue(m_comboChoices->currentText());
 
   m_layout->addWidget(m_comboChoices);
+
+  connect(m_comboChoices, SIGNAL(currentIndexChanged(int)), this, SLOT(currentIndexChanged(int)));
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -95,4 +97,12 @@ bool GraphicalRestrictedList::setValue(const QVariant & value)
 QVariant GraphicalRestrictedList::getValue() const
 {
   return m_comboChoices->currentText();
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void GraphicalRestrictedList::currentIndexChanged(int)
+{
+  emit valueChanged();
 }
