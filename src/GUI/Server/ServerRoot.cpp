@@ -75,7 +75,7 @@ CRoot::Ptr ServerRoot::getRoot()
 
     Component::Ptr wizs = root->get_child("Tools");
 
-    wizs->create_component_type<Solver::ScalarAdvection>( "ScalarAdvection" );
+    wizs->create_component_type<Solver::ScalarAdvection>( "ScalarAdvection" )->mark_basic();
   }
 
   return root;
