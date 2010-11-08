@@ -37,6 +37,10 @@ namespace ClientUI {
     static GraphicalValue * createFromXml(const CF::Common::XmlNode & node,
                                           QWidget * parent = nullptr);
 
+    GraphicalValue(QWidget * parent = 0);
+
+    ~GraphicalValue();
+
     virtual bool setValue(const QVariant & value) = 0;
 
     virtual QVariant getValue() const = 0;
@@ -56,8 +60,6 @@ namespace ClientUI {
     void valueChanged();
 
   protected:
-
-    GraphicalValue(QWidget * parent = 0);
 
     QWidget * m_parent;
 

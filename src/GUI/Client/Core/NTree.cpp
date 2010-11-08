@@ -177,7 +177,7 @@ QString NTree::getNodePath(const QModelIndex & index) const
 
 void NTree::setAdvancedMode(bool advanceMode)
 {
-  if(m_advancedMode != advanceMode)
+  if(m_advancedMode ^ advanceMode) // if values are different
   {
     m_advancedMode = advanceMode;
     emit advancedModeChanged(m_advancedMode);
@@ -537,6 +537,24 @@ void NTree::list_tree_reply(XmlNode & node)
   {
     ClientRoot::log()->addException(xe.what());
   }
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void NTree::defineConfigProperties ( CF::Common::PropertyList& props )
+{
+  std::vector<int> vectInt;
+  std::vector<bool> vectBool;
+  std::vector<CF::Uint> vectUint;
+  std::vector<CF::Real> vectReal;
+  std::vector<std::string> vectString;
+
+  props.add_option< OptionArrayT<int> >("intArray", "Array of ints", vectInt)->mark_basic();
+  props.add_option< OptionArrayT<bool> >("boolArray", "Array of ints", vectBool)->mark_basic();
+  props.add_option< OptionArrayT<CF::Uint> >("uIntArray", "Array of ints", vectUint)->mark_basic();
+  props.add_option< OptionArrayT<CF::Real> >("realArray", "Array of ints", vectReal)->mark_basic();
+  props.add_option< OptionArrayT<std::string> >("stringArray", "Array of ints", vectString)->mark_basic();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

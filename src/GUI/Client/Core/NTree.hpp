@@ -256,6 +256,9 @@ namespace ClientCore {
 
     /// @} END Signals
 
+    /// Configuration properties
+    static void defineConfigProperties ( CF::Common::PropertyList& props );
+
   public slots:
 
     void clearTree();

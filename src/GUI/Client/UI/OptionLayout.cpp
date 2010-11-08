@@ -26,7 +26,12 @@ using namespace CF::GUI::ClientUI;
 OptionLayout::OptionLayout(QWidget * parent)
   : QFormLayout(parent)
 {
-
+  // on MacOSX, GUI guidelines define the default behaviour for graphical
+  // components size in a FormLayout as size hint (they don't take all
+  // the space). Since it's extremely ugly (in the client case, they take
+  // about 10% of the availbale space), we override the rule by changing
+  // the field growth policy.
+  setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

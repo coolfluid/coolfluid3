@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <QHBoxLayout>
+#include <QRegExpValidator>
 #include <QDebug>
 
 #include "Common/XML.hpp"
@@ -13,6 +14,7 @@
 #include "GUI/Client/Core/CNode.hpp"
 #include "GUI/Client/Core/UnknownTypeException.hpp"
 
+#include "GUI/Client/UI/GraphicalArray.hpp"
 #include "GUI/Client/UI/GraphicalBool.hpp"
 #include "GUI/Client/UI/GraphicalDouble.hpp"
 #include "GUI/Client/UI/GraphicalInt.hpp"
@@ -38,17 +40,25 @@ GraphicalValue::GraphicalValue(QWidget *parent) :
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+GraphicalValue::~GraphicalValue()
+{
+  delete m_layout;
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 GraphicalValue * GraphicalValue::createFromOption(CF::Common::Option::ConstPtr option,
                                         QWidget * parent)
 {
   GraphicalValue * value = nullptr;
   std::string tag(option->tag());
-  std::string type(option->type());
-
   if(option->has_restricted_list())
     value = new GraphicalRestrictedList(option, parent);
   else if(tag.compare("array") != 0)
   {
+    std::string type(option->type());
+
     if(type.compare(XmlTag<bool>::type()) == 0)               // bool option
       value = new GraphicalBool(option, parent);
     else if(tag.compare(XmlTag<CF::Real>::type()) == 0)      // Real option
@@ -71,19 +81,23 @@ GraphicalValue * GraphicalValue::createFromOption(CF::Common::Option::ConstPtr o
     tag = array->elem_type();
 
     if(tag.compare(XmlTag<bool>::type()) == 0)               // bool option
-      throw CastingFailed(FromHere(), tag + ": This type is not supported yet for arrays");
+      value = new GraphicalArray(new QRegExpValidator(QRegExp("(true)|(false)"), parent), parent);
     else if(tag.compare(XmlTag<CF::Real>::type()) == 0)      // Real option
-      throw CastingFailed(FromHere(), tag + ": This type is not supported yet for arrays");
+    {
+      QDoubleValidator * val = new QDoubleValidator();
+      val->setNotation(QDoubleValidator::ScientificNotation);
+      value = new GraphicalArray(val, parent);
+    }
     else if(tag.compare(XmlTag<int>::type()) == 0)           // int option
-      throw CastingFailed(FromHere(), tag + ": This type is not supported yet for arrays");
+      value = new GraphicalArray(new QIntValidator(), parent);
     else if(tag.compare(XmlTag<CF::Uint>::type()) == 0)      // Uint option
-      throw CastingFailed(FromHere(), tag + ": This type is not supported yet for arrays");
+      value = new GraphicalArray(new QIntValidator(0, INT_MAX, parent), parent);
     else if(tag.compare(XmlTag<std::string>::type()) == 0)   // string option
-      throw CastingFailed(FromHere(), tag + ": This type is not supported yet for arrays");
+      value = new GraphicalArray(nullptr, parent);
     else if(tag.compare(XmlTag<URI>::type()) == 0)           // URI option
       throw CastingFailed(FromHere(), tag + ": This type is not supported yet for arrays");
-    else if(tag.compare(XmlTag<boost::filesystem::path>::type()) == 0)           // path option
-      value = new GraphicalUrlArray(parent);
+//    else if(tag.compare(XmlTag<boost::filesystem::path>::type()) == 0)           // path option
+//      value = new GraphicalUrlArray() GraphicalUrlArray(parent);
     else
       throw CastingFailed(FromHere(), tag + ": Unknown type");
   }

@@ -11,6 +11,7 @@ list( APPEND coolfluid_client_ui_moc_classes
   ConfirmCommitDialog.hpp
   ConnectionDialog.hpp
   FilteringModel.hpp # needs to be added because base class emits signals
+  GraphicalArray.hpp
   GraphicalBool.hpp
   GraphicalDouble.hpp
   GraphicalInt.hpp
@@ -52,6 +53,8 @@ list( APPEND coolfluid_client_ui_files
   FilesListItem.hpp
   FilteringModel.cpp
   FilteringModel.hpp
+  GraphicalArray.hpp
+  GraphicalArray.cpp
   GraphicalBool.hpp
   GraphicalBool.cpp
   GraphicalDouble.hpp

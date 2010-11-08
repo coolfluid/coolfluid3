@@ -166,7 +166,6 @@ void CentralPanel::setOptions(const QList<Option::ConstPtr> & list)
         m_basicOptionLayout->addOption(option);
       else
         m_advancedOptionLayout->addOption(option);
-
     }
     catch(UnknownTypeException ute)
     {
@@ -287,7 +286,7 @@ void CentralPanel::currentIndexChanged(const QModelIndex & newIndex, const QMode
 
 void CentralPanel::advancedModeChanged(bool advanced)
 {
-  m_scrollAdvancedOptions->setVisible(advanced && !m_advancedOptionLayout->hasOptions());
+  m_scrollAdvancedOptions->setVisible(advanced && m_advancedOptionLayout->hasOptions());
 
   // To avoid confusion, basic option panel is always showed if there is at
   // least one option for the selected object, even if all options are advanced.
