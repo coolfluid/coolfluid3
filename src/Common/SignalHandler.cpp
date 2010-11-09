@@ -57,6 +57,7 @@ Signal::Ptr SignalHandler::create_signal ( const Signal::id_t& sname,  const Sig
     signal.m_signal = Signal::Ptr( new Signal::type() );
     signal.m_description = desc;
     signal.m_readable_name = readable_name;
+    signal.m_is_read_only = false;
 
     m_signals.insert ( make_pair ( sname , signal ) );
     return signal.m_signal;
@@ -77,12 +78,24 @@ Signal::Ptr SignalHandler::regist_signal ( const Signal::id_t& sname,  const Sig
     signal.m_signal = Signal::Ptr( new Signal::type() );
     signal.m_description = desc;
     signal.m_readable_name = readable_name;
+    signal.m_is_read_only = false;
 
     m_signals.insert ( make_pair ( sname , signal ) );
     return signal.m_signal;
   }
   else
     return itr->second.m_signal;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool SignalHandler::is_signal_read_only( const Signal::id_t& sname ) const
+{
+  sigmap_t::const_iterator itr = m_signals.find(sname);
+  if ( itr != m_signals.end() )
+    return itr->second.m_is_read_only;
+  else
+    throw SignalError ( FromHere(), "Signal with name \'" + sname + "\' does not exist" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

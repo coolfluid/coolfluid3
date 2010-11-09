@@ -453,6 +453,9 @@ void Component::regist_signals ( Component* self  )
 
 
   self->signal("rename_component").m_signature.insert<std::string>("newName", "Component new name");
+
+
+  self->signal("list_tree").m_is_read_only = true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

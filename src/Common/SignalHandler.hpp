@@ -60,7 +60,12 @@ struct Signal
     desc_t m_description;
     /// signal xml signature
     XmlSignature m_signature;
+    /// signal readable name (used by the GUI). For exemple, if key is
+    /// "set_options", readable should be "Set options".
     readable_t m_readable_name;
+    /// if @c true, the signal is considered as read-only and might be called
+    /// during another signal execution. Default value is @c false.
+    bool m_is_read_only;
 };
 
 /// SignalHandler executes calls received as string by issuing singals to the slots
@@ -86,6 +91,10 @@ class Common_API SignalHandler
 
     /// Regist signal
     Signal::Ptr regist_signal ( const Signal::id_t& sname, const Signal::desc_t& desc, const Signal::readable_t& readable_name = Signal::readable_t() );
+
+    /// Checks whether a signal is read-only
+    /// @throw SignalError if the signal does not exist
+    bool is_signal_read_only( const Signal::id_t& sname ) const;
 
   protected: // functions
 
