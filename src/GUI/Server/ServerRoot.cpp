@@ -92,8 +92,6 @@ void ServerRoot::processSignal(const string & target,
 {
   if(m_mutex.tryLock())
   {
-    throw SignalError(FromHere(), "Testing exception forwarding");
-
     m_doc.swap(doc);
     Component::Ptr receivingCompo = getRoot()->access_component(receiver);
     m_thread = new ProcessingThread(node, target, receivingCompo);
@@ -102,7 +100,36 @@ void ServerRoot::processSignal(const string & target,
   }
   else
   {
-    getCore()->sendFrameRejected(clientid, frameid, SERVER_CORE_PATH, "Server is busy.");
+    try
+    {
+      Component::Ptr comp = getRoot()->access_component(receiver);
+
+      if(comp->is_signal_read_only(target))
+      {
+        comp->call_signal(target, *node.first_node() );
+
+        XmlNode& nodedoc = *XmlOps::goto_doc_node(*doc.get());
+        XmlNode& frameNode = *nodedoc.first_node();
+
+        if(frameNode.next_sibling() != nullptr)
+          getCore()->sendSignal(*doc.get());
+      }
+      else
+        getCore()->sendFrameRejected(clientid, frameid, SERVER_CORE_PATH, "Server is busy.");
+    }
+    catch(CF::Common::Exception & cfe)
+    {
+      getCore()->sendException(cfe.what());
+    }
+    catch(std::exception & stde)
+    {
+      getCore()->sendException(stde.what());
+    }
+    catch(...)
+    {
+      CFerror << "Unknown exception thrown during execution of action [" << target
+          << "] on component " << " [" << receiver << "]." << CFendl;
+    }
   }
 }
 

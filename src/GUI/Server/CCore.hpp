@@ -186,6 +186,20 @@ namespace Server {
     CF::Common::Signal::return_t saveConfig(CF::Common::Signal::arg_t & node);
 
     CF::Common::Signal::return_t list_tree(CF::Common::Signal::arg_t & node);
+
+    /// @todo this is a signal to test server business, queuing,...
+    /// should be removed ASAP
+    CF::Common::Signal::return_t heavy_compute(CF::Common::Signal::arg_t & node)
+    {
+      CFinfo << "Waiting..." << CFendl;
+
+      for(int i = 0 ; i < 10 ; i++)
+      {
+        std::system("sleep 1");
+      }
+
+      CFinfo << "...done!" << CFendl;
+    }
   };
 
 ////////////////////////////////////////////////////////////////////////////
