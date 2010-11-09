@@ -71,10 +71,13 @@ namespace Server {
 
      static std::string type_name() { return "CCore"; }
 
-     void sendFrameRejected(const std::string clientid,
+     void sendFrameRejected(const std::string & clientid,
                             const std::string & frameid,
                             const CF::Common::CPath & sender,
                             const QString & reason);
+
+     void sendException(const char * what,
+                        const std::string & clientid = std::string());
 
   private slots:
 

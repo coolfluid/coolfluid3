@@ -106,12 +106,21 @@ void CCore::sendSignal( const CF::Common::XmlNode & signal )
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CCore::sendFrameRejected(const std::string clientid,
+void CCore::sendFrameRejected(const std::string & clientid,
                               const std::string & frameid,
                               const CF::Common::CPath & sender,
                               const QString & reason)
 {
   m_commServer->sendFrameRejectedToClient(clientid, frameid, sender, reason);
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void CCore::sendException(const char * what,
+                          const std::string & clientid)
+{
+  m_commServer->sendMessageToClient(what, LogMessage::EXCEPTION, clientid);
 }
 
 /***************************************************************************

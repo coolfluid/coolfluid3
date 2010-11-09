@@ -410,11 +410,11 @@ void ServerNetworkComm::newData()
   }
   catch(Exception & e)
   {
-    errorMsg = QString("A CF exception has been caught: ") + e.what();
+    this->sendMessage(socket, e.what(), LogMessage::EXCEPTION);
   }
   catch(std::exception & stde)
   {
-    errorMsg = QString("A std exception has been caught: ") + stde.what();
+    this->sendMessage(socket, stde.what(), LogMessage::EXCEPTION);
   }
   catch(...)
   {

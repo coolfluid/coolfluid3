@@ -92,6 +92,8 @@ void ServerRoot::processSignal(const string & target,
 {
   if(m_mutex.tryLock())
   {
+    throw SignalError(FromHere(), "Testing exception forwarding");
+
     m_doc.swap(doc);
     Component::Ptr receivingCompo = getRoot()->access_component(receiver);
     m_thread = new ProcessingThread(node, target, receivingCompo);

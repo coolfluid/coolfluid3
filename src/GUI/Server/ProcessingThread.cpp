@@ -35,15 +35,16 @@ void ProcessingThread::run()
   }
   catch(CF::Common::Exception & cfe)
   {
-    CFerror << cfe.what() << CFendl;
+    ServerRoot::getCore()->sendException(cfe.what());
   }
   catch(std::exception & stde)
   {
-    CFerror << stde.what() << CFendl;
+    ServerRoot::getCore()->sendException(stde.what());
   }
   catch(...)
   {
-    CFerror << "Unknown exception thrown..." << CFendl;
+    CFerror << "Unknown exception thrown during execution of action [" << m_target
+        << "] on component " << " [" << m_receiver->full_path() << "]." << CFendl;
   }
 }
 
