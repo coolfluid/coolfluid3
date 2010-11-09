@@ -112,7 +112,7 @@ void DirPaths::addModuleDirs(const vector<std::string>& modulesDir)
     {
       if (boost::filesystem::is_directory(p)) {
         m_modulesDir.push_back(p);
-        CFinfo << "Adding Module Dir: " << "\'" << p.string() << "\'\n";
+        CFinfo << "Adding Module Dir: " << "\'" << p.string() << "\'\n" << CFflush;
       }
       else {
         badPaths.push_back(p);
@@ -131,7 +131,7 @@ void DirPaths::setWorkingDir(const std::string& workingDir)
   boost::filesystem::path wDir;
   boost::filesystem::path workPath(workingDir);
   if (workPath.root_path().empty()) {
-	CFinfo << "Found a relative working dir path\n";
+  CFinfo << "Found a relative working dir path\n";
     wDir = m_baseDir / workPath;
   }
   else {
