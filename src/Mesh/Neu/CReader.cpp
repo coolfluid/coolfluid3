@@ -208,7 +208,7 @@ void CReader::set_pt_scotch_data()
 	
 	
 	// renumber global indices
-	Uint nb_nodes = 0;
+	/*Uint nb_nodes = 0;
 	BOOST_FOREACH(bool is_ghost_node, is_ghost.array())
 	{
 		if (!is_ghost_node)
@@ -268,7 +268,14 @@ void CReader::set_pt_scotch_data()
 	if (PE::instance().is_init())
 	PE::instance().barrier();
 	
-	/*
+	
+	CFinfo << "before renumbering: global nodes on proc " << rank << " = ";
+	BOOST_FOREACH(Uint node, global_node_idx.array())
+	CFinfo << node << " " ;
+	CFinfo << CFendl;
+	PE::instance().barrier();
+	
+	
 	for (Uint proc=0; proc<PE::instance().size(); ++proc)
 	{
 		// renumber everywhere the ones that processor "proc" wants
@@ -282,22 +289,29 @@ void CReader::set_pt_scotch_data()
 		
 		Uint cnt = procvrttab[proc+1] - nodes_to_renumber_from_proc.size();
 		
-		//CFinfo << "proc #" << proc << " : " ;
-		//print_vector(CFinfo,nodes_to_renumber_from_proc); CFinfo << CFendl;		
-		//PE::instance().barrier();
+		CFinfo << "proc #" << proc << " : " ;
+		print_vector(CFinfo,nodes_to_renumber_from_proc); CFinfo << CFendl;		
+		PE::instance().barrier();
 
+		
 		BOOST_FOREACH(Uint node, nodes_to_renumber_from_proc)
 		{
 			//CFinfo << "proc " << rank << " dealing with " << node << CFendl;
+			Uint found = false;
 			BOOST_FOREACH(CList<Uint>& glb_node_list, recursive_filtered_range_typed< CList<Uint> >(*m_region,IsComponentTag("global_node_indices")))
 			{
-				BOOST_FOREACH(Uint& glb_node, glb_node_list.array())
+				if (!found)
 				{
-					if (glb_node == node && (glb_node < procvrttab[rank] || glb_node >= procvrttab[rank+1]))					
+					BOOST_FOREACH(Uint& glb_node, glb_node_list.array())
 					{
-						CFinfo << "proc " << rank << " will renumber glb_node " << glb_node << " to " << cnt << CFendl;
-						glb_node = cnt;
-					}
+						if (glb_node == node && (glb_node < procvrttab[rank] || glb_node >= procvrttab[rank+1]))					
+						{
+							//CFinfo << "proc " << rank << " will renumber glb_node " << glb_node << " to " << cnt << CFendl;
+							glb_node = cnt;
+							found = true;
+							break;
+						}
+					}					
 				}
 			}
 			PE::instance().barrier();
@@ -306,7 +320,7 @@ void CReader::set_pt_scotch_data()
 
 	}
 	*/
-	
+	/*
 	for (Uint node=0; node<procvrttab[procglbnbr+1]; ++node)
 	{
 		BOOST_FOREACH(CList<Uint>& glb_node_list, recursive_filtered_range_typed< CList<Uint> >(*m_region,IsComponentTag("global_node_indices")))
@@ -322,14 +336,16 @@ void CReader::set_pt_scotch_data()
 		}
 		if (PE::instance().is_init())
 		PE::instance().barrier();
-	}
+	}*/
 	
-	
-	CFinfo << "global nodes on proc " << rank << " = ";
+	PE::instance().barrier();
+
+	CFinfo << "global nodes on proc " << PE::instance().rank() << " = ";
 	BOOST_FOREACH(Uint node, global_node_idx.array())
 	CFinfo << node << " " ;
 	CFinfo << CFendl;
-	
+	PE::instance().barrier();
+
 //	
 //	for (Uint iNode=0; iNode<m_coordinates->size(); ++iNode)
 //	{
