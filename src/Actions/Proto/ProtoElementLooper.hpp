@@ -117,7 +117,8 @@ public: // functions
     {
       fill_ctx.elem_idx = context.element_idx;
       boost::mpl::for_each<boost::mpl::range_c<int, 0, nb_vars> >(fill_ctx);
-      boost::proto::eval(m_expr, context);
+      //boost::proto::eval(m_expr, context);
+      EvaluateExpr()(m_expr, 0, context);
     }
     
   }

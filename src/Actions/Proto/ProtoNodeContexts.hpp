@@ -50,7 +50,20 @@ struct NodeVarContext<ConstNodes>
   
   void init(const ConstNodes& placeholder, Mesh::CRegion& region)
   {
-    coordinates = &Common::get_component_typed<Mesh::CArray>(region, Common::IsComponentTag("coordinates"));
+    // use a little hack to get to the coords
+    coordinates = Common::get_component_typed_ptr<Mesh::CArray>(region, Common::IsComponentTag("coordinates")).get();
+    if(!coordinates)
+    {
+      BOOST_FOREACH(Mesh::CElements& elements, Common::recursive_range_typed<Mesh::CElements>(region))
+      {
+        if(coordinates)
+        {
+          cf_assert(coordinates == &elements.coordinates());
+          continue;
+        }
+        coordinates = &elements.coordinates();
+      }
+    }
     dim = coordinates->row_size();
     nodes.resize(dim);
   }

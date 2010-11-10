@@ -471,6 +471,30 @@ struct ElementMeshContext
     }
   };
   
+  /// Get node index
+  template<typename Expr, typename NodesArg>
+  struct eval<Expr, node_idx_tag, NodesArg >
+  {
+    // Index of the variable that is used in the function
+    typedef typename boost::remove_const
+    <
+      typename boost::remove_reference
+      <
+        typename boost::proto::result_of::value<NodesArg>::type
+      >::type
+    >::type::index_type I;
+    
+    // Context that will provide the connectivity to get the node index
+    typedef typename boost::fusion::result_of::value_at<ContextsT, I>::type ContextT;
+    
+    typedef Uint result_type;
+
+    result_type operator()(Expr& expr, ThisContextT& context)
+    {
+      return (*boost::fusion::at<I>(context.contexts).connectivity)[context.element_idx][context.element_node_idx];
+    }
+  };
+  
   /// Delegate multiplication to an Eigen-specific context, if needed
   template<typename Expr, typename ChildT>
   struct eval< Expr, boost::proto::tag::multiplies, ChildT >
@@ -503,7 +527,6 @@ struct ElementMeshContext
                                 boost::proto::eval(boost::proto::right(expr), context));
     }
   };
-  
 };
 
 } // namespace Proto

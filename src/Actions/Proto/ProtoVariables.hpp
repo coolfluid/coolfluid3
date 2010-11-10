@@ -116,6 +116,88 @@ struct MeshTerm : boost::proto::result_of::make_expr
   BOOST_PROTO_EXTENDS_USING_ASSIGN(MeshTerm)
 };
 
+/// Encapsulae a matrix
+template< typename MatrixT >
+struct MatrixView
+{
+  MatrixView(MatrixT& m) : matrix(m) {}
+  MatrixT& matrix;
+};
+
+/// System matrix terminal. Use assignment operators to assemble by element
+template< typename MatrixT >
+struct BlockMatrix
+  : MeshExpr< typename boost::proto::terminal< MatrixView<MatrixT> >::type >
+{
+    typedef typename boost::proto::terminal< MatrixView<MatrixT> >::type expr_type;
+
+    BlockMatrix(MatrixT& m)
+      : MeshExpr<expr_type>( expr_type::make( m ) )
+    {}
+    
+    BOOST_PROTO_EXTENDS_USING_ASSIGN(BlockMatrix)
+};
+
+/// Helper struct for assignment to a matrix
+template<typename OpTagT>
+struct BlockAssignmentOp;
+
+#define MAKE_ASSIGN_OP(__tagname, __op)    \
+template<> \
+struct BlockAssignmentOp<__tagname> \
+{ \
+  template<typename MatrixT, int NbRows, int NbCols, typename ConnectivityT> \
+  static void assign(MatrixT& matrix, const Eigen::Matrix<Real, NbRows, NbCols>& rhs, const ConnectivityT& connectivity) \
+  { \
+    for(Uint i = 0; i != NbRows; ++i) \
+      for(Uint j = 0; j != NbCols; ++j) \
+        matrix(connectivity[i], connectivity[j]) __op rhs(i, j); \
+  } \
+};
+
+MAKE_ASSIGN_OP(boost::proto::tag::assign, =)
+MAKE_ASSIGN_OP(boost::proto::tag::plus_assign, +=)
+
+#undef MAKE_ASSIGN_OP
+
+/// Encapsulate a system matrix and a RHS
+template<typename MatrixT, typename RhsT>
+struct DirichletBCView
+{
+  DirichletBCView(MatrixT& m, RhsT& r) : matrix(m), rhs(r)
+  {
+  }
+    
+  MatrixT& matrix;
+  RhsT& rhs;
+};
+
+/// Dirichlet boundary conditions terminal. Use the assignment operator to set the BC in a node
+template< typename MatrixT, typename RhsT >
+struct DirichletBC
+  : MeshExpr< typename boost::proto::terminal< DirichletBCView<MatrixT, RhsT> >::type >
+{
+    typedef typename boost::proto::terminal< DirichletBCView<MatrixT, RhsT> >::type expr_type;
+
+    DirichletBC(MatrixT& m, RhsT& rhs)
+      : MeshExpr<expr_type>( expr_type::make( DirichletBCView<MatrixT, RhsT>(m, rhs) ) )
+    {}
+    
+    BOOST_PROTO_EXTENDS_USING_ASSIGN(DirichletBC)
+};
+
+template<typename MatrixT, typename RhsT>
+void assign_dirichlet(MatrixT& matrix, RhsT& rhs, const Real value, const Uint node_idx)
+{
+  const int size = matrix.rows();
+  cf_assert(matrix.cols() == size);
+  cf_assert(rhs.rows() == size);
+  
+  matrix.row(node_idx).setZero();
+  matrix(node_idx, node_idx) = 1.;
+  rhs[node_idx] = value;
+}
+
 } // namespace Proto
 } // namespace Actions
 } // namespace CF

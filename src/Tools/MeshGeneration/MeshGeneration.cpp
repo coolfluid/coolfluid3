@@ -62,7 +62,7 @@ void create_line(CMesh& mesh, const Real x_len, const Uint x_segments)
   CElements& xpos_elements = region.create_region("xpos").create_elements("Point1DLagrangeP1", coordinates);
   CTable::ArrayT& xpos_connectivity = xpos_elements.connectivity_table().array();
   xpos_connectivity.resize(boost::extents[1][1]);
-  xpos_connectivity[0][0] = x_segments + 1;
+  xpos_connectivity[0][0] = x_segments;
 }
 
 

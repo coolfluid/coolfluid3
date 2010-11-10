@@ -83,6 +83,21 @@ for_each_element_node(NodesT const& nodes, ExprT const& expr)
   return boost::proto::make_expr<for_each_node_tag, MeshDomain>(boost::ref(nodes), boost::ref(expr));
 }
 
+/// Get the current index into the node or state array. Only valid when doing an operation that visits nodes for an element.
+struct node_idx_tag
+{};
+
+template<typename NodesT>
+typename boost::proto::result_of::make_expr<
+    node_idx_tag
+  , MeshDomain
+  , NodesT const&
+>::type const
+node_idx(NodesT const& nodes)
+{
+  return boost::proto::make_expr<node_idx_tag, MeshDomain>(boost::ref(nodes));
+}
+
 /// Pow function based on Proto docs example
 template<Uint Exp>
 struct pow_fun

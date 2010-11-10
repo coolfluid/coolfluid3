@@ -17,6 +17,8 @@
 #include "Actions/Proto/ProtoVariables.hpp"
 
 #include "Math/MatrixTypes.hpp"
+#include "Mesh/CTable.hpp"
+
 #include <boost/variant/variant.hpp>
 
 namespace boost {
@@ -24,53 +26,139 @@ template<class T >
 struct remove_reference;
 }
 
-// namespace CF {
-// namespace Actions {
-// namespace Proto {
-// 
-// /// Functor for evaluting an expression using proto::eval
-// struct ContextEvaluator :
-//   boost::proto::transform< ContextEvaluator >
-// {
-//   template<typename Expr, typename State, typename Data>
-//   struct impl : boost::proto::transform_impl<Expr, State, Data>
-//   {
-//     typedef typename boost::proto::result_of::eval
-//     <
-//       typename boost::remove_const
-//       <
-//         typename boost::remove_reference<Expr>::type
-//       >::type,
-//       typename boost::remove_const
-//       <
-//         typename boost::remove_reference<Data>::type
-//       >::type
-//     >::type result_type;
-//   
-//     result_type operator ()(
-//                 typename impl::expr_param expr
-//               , typename impl::state_param state
-//               , typename impl::data_param data
-//     ) const
-//     {
-//       return boost::proto::eval(expr, data);
-//     }
-//   };
-// };
-// 
-// } // namespace Proto
-// } // namespace Actions
-// } // namespace CF
-// 
-// namespace boost {
-// namespace proto {
-//   /// Make our ContextEvaluator callable
-//   template<>
-//   struct is_callable<CF::Actions::Proto::ContextEvaluator>
-//     : mpl::true_
-//   {};
-// }
-// }
+namespace CF {
+namespace Actions {
+namespace Proto {
+
+template<typename T>
+struct VarArity
+{
+  typedef typename T::index_type type;
+};
+
+/// Gets the arity (max index) for the numbered variables
+struct ExprVarArity
+  : boost::proto::or_<
+        boost::proto::when< boost::proto::terminal< Var<boost::proto::_, boost::proto::_> >,
+          boost::mpl::next< VarArity<boost::proto::_value> >()
+        >
+      , boost::proto::when< boost::proto::terminal<boost::proto::_>,
+          boost::mpl::int_<0>()
+        >
+      , boost::proto::when<
+            boost::proto::nary_expr<boost::proto::_, boost::proto::vararg<boost::proto::_> >
+          , boost::proto::fold<boost::proto::_, boost::mpl::int_<0>(), boost::mpl::max<ExprVarArity, boost::proto::_state>()>
+        >
+    >
+{};
+  
+/// Functor for evaluting an expression using proto::eval
+struct ContextEvaluator :
+  boost::proto::transform< ContextEvaluator >
+{
+  template<typename Expr, typename State, typename Data>
+  struct impl : boost::proto::transform_impl<Expr, State, Data>
+  {
+    typedef typename boost::proto::result_of::eval
+    <
+      typename boost::remove_const
+      <
+        typename boost::remove_reference<Expr>::type
+      >::type,
+      typename boost::remove_const
+      <
+        typename boost::remove_reference<Data>::type
+      >::type
+    >::type result_type;
+  
+    result_type operator ()(
+                typename impl::expr_param expr
+              , typename impl::state_param state
+              , typename impl::data_param data
+    ) const
+    {
+      return boost::proto::eval(expr, data);
+    }
+  };
+};
+
+/// Handle assignment to an LSS matrix
+template<typename OpT>
+struct BlockAccumulator :
+  boost::proto::transform< BlockAccumulator<OpT> >
+{
+  template<typename Expr, typename State, typename ContextT>
+  struct impl : boost::proto::transform_impl<Expr, State, ContextT>
+  {
+    typedef void result_type;
+    
+    /// Number of the numbered varaible that determines the connectivity. We assume there is only one numbered var here.
+    typedef typename boost::mpl::prior<typename boost::result_of<ExprVarArity(Expr)>::type>::type I;
+    typedef typename boost::proto::result_of::value<typename boost::proto::result_of::left<Expr>::type>::type MatrixViewT;
+    typedef typename boost::proto::result_of::eval
+    <
+      typename boost::remove_reference<typename boost::proto::result_of::right<Expr>::type>::type,
+      typename boost::remove_reference<ContextT>::type
+    >::type RhsT;
+  
+    result_type operator ()(
+                typename impl::expr_param expr
+              , typename impl::state_param state
+              , typename impl::data_param context // We assume data is a context
+    ) const
+    {
+      const Mesh::CTable::ConstRow conn_row = (*boost::fusion::at<I>(context.contexts).connectivity)[context.element_idx];
+      MatrixViewT m = boost::proto::value(boost::proto::left(expr));
+      BlockAssignmentOp<OpT>::assign(m.matrix, boost::proto::eval(boost::proto::right(expr), context), conn_row);
+    }
+  };
+};
+
+struct DirichletBCSetter :
+  boost::proto::transform< DirichletBCSetter >
+{
+  template<typename Expr, typename State, typename ContextT>
+  struct impl : boost::proto::transform_impl<Expr, State, ContextT>
+  {
+    typedef void result_type;
+    
+    typedef typename boost::proto::result_of::value<typename boost::proto::result_of::left<Expr>::type>::type DirichletBCT;
+    typedef typename boost::proto::result_of::eval
+    <
+      typename boost::remove_reference<typename boost::proto::result_of::right<Expr>::type>::type,
+      typename boost::remove_reference<ContextT>::type
+    >::type RhsT;
+  
+    result_type operator ()(
+                typename impl::expr_param expr
+              , typename impl::state_param state
+              , typename impl::data_param context // We assume data is a context
+    ) const
+    {
+      DirichletBCT bc = boost::proto::value(boost::proto::left(expr));
+      assign_dirichlet(bc.matrix, bc.rhs, boost::proto::eval(boost::proto::right(expr), context), context.node_idx);
+    }
+  };
+};
+
+} // namespace Proto
+} // namespace Actions
+} // namespace CF
+
+namespace boost {
+namespace proto {
+  /// Make our custom primitive transforms callable
+  template<>
+  struct is_callable<CF::Actions::Proto::ContextEvaluator>
+    : mpl::true_
+  {};
+  
+  template<typename OpT>
+  struct is_callable< CF::Actions::Proto::BlockAccumulator<OpT> >
+    : mpl::true_
+  {};
+}
+}
 
 namespace CF {
 namespace Actions {
@@ -110,26 +198,69 @@ struct EvaluateExpr :
 {};
 */
 
-template<typename T>
-struct VarArity
+/// Allowed block assignment operations
+struct MatrixAssignOpsCases
 {
-  typedef typename T::index_type type;
+  template<typename TagT> struct case_  : boost::proto::not_<boost::proto::_> {};
 };
 
-/// Gets the arity (max index) for the numbered variables
-struct ExprVarArity
-  : boost::proto::or_<
-        boost::proto::when< boost::proto::terminal< Var<boost::proto::_, boost::proto::_> >,
-          boost::mpl::next< VarArity<boost::proto::_value> >()
-        >
-      , boost::proto::when< boost::proto::terminal<boost::proto::_>,
-          boost::mpl::int_<0>()
-        >
-      , boost::proto::when<
-            boost::proto::nary_expr<boost::proto::_, boost::proto::vararg<boost::proto::_> >
-          , boost::proto::fold<boost::proto::_, boost::mpl::int_<0>(), boost::mpl::max<ExprVarArity, boost::proto::_state>()>
-        >
+template<>
+struct MatrixAssignOpsCases::case_<boost::proto::tag::assign> :
+boost::proto::when
+<
+  boost::proto::assign<boost::proto::terminal< MatrixView<boost::proto::_> >, boost::proto::_>,
+  BlockAccumulator<boost::proto::tag::assign>
+> 
+{};
+template<>
+struct MatrixAssignOpsCases::case_<boost::proto::tag::plus_assign> :
+boost::proto::when
+<
+  boost::proto::plus_assign<boost::proto::terminal< MatrixView<boost::proto::_> >, boost::proto::_>,
+  BlockAccumulator<boost::proto::tag::plus_assign>
+> 
+{};
+template<>
+struct MatrixAssignOpsCases::case_<boost::proto::tag::minus_assign> :
+boost::proto::when
+<
+  boost::proto::minus_assign<boost::proto::terminal< MatrixView<boost::proto::_> >, boost::proto::_>,
+  BlockAccumulator<boost::proto::tag::minus_assign>
+> 
+{};
+template<>
+struct MatrixAssignOpsCases::case_<boost::proto::tag::multiplies_assign> :
+boost::proto::when
+<
+  boost::proto::multiplies_assign<boost::proto::terminal< MatrixView<boost::proto::_> >, boost::proto::_>,
+  BlockAccumulator<boost::proto::tag::multiplies_assign>
+> 
+{};
+template<>
+struct MatrixAssignOpsCases::case_<boost::proto::tag::divides_assign> :
+boost::proto::when
+<
+  boost::proto::divides_assign<boost::proto::terminal< MatrixView<boost::proto::_> >, boost::proto::_>,
+  BlockAccumulator<boost::proto::tag::divides_assign>
+> 
+{};
+
+/// Executes expressions, delegating to specific transforms when needed
+struct EvaluateExpr :
+  boost::proto::or_
+  <
+    boost::proto::switch_<MatrixAssignOpsCases>, // Assignment to system matrix
+    boost::proto::when // Assignment to Dirichlet BC
+    <
+      boost::proto::assign<boost::proto::terminal< DirichletBCView<boost::proto::_, boost::proto::_> >, boost::proto::_>,
+      DirichletBCSetter
+    >,
+    boost::proto::when
+    <
+      boost::proto::_,
+      ContextEvaluator
     >
+  >
 {};
 
 /// Transform that extracts the type of variable I

@@ -74,6 +74,62 @@ struct FillNodeContexts
   Uint node_idx;
 };
 
+/// Creates a list of unique nodes in the region
+void make_node_list(const Mesh::CRegion& region, const Mesh::CArray& coordinates, std::vector<Uint>& nodes)
+{
+  std::vector<bool> node_is_used(coordinates.size(), false);
+  
+  // First count the number of unique nodes
+  Uint nb_nodes = 0;
+  BOOST_FOREACH(const Mesh::CElements& elements, Common::recursive_range_typed<Mesh::CElements>(region))
+  {
+    const Mesh::CTable& conn_tbl = elements.connectivity_table();
+    const Uint nb_elems = conn_tbl.size();
+    const Uint nb_elem_nodes = conn_tbl.row_size();
+    
+    for(Uint elem_idx = 0; elem_idx != nb_elems; ++elem_idx)
+    {
+      const Mesh::CTable::ConstRow row = conn_tbl[elem_idx];
+      for(Uint node_idx = 0; node_idx != nb_elem_nodes; ++node_idx)
+      {
+        const Uint node = row[node_idx];
+        if(!node_is_used[node])
+        {
+          node_is_used[node] = true;
+          ++nb_nodes;
+        }
+      }
+    }
+  }
+  
+  // reserve space for all unique nodes
+  nodes.clear();
+  nodes.reserve(nb_nodes);
+  
+  // Add the unique node indices
+  node_is_used.assign(coordinates.size(), false);
+  BOOST_FOREACH(const Mesh::CElements& elements, Common::recursive_range_typed<Mesh::CElements>(region))
+  {
+    const Mesh::CTable& conn_tbl = elements.connectivity_table();
+    const Uint nb_elems = conn_tbl.size();
+    const Uint nb_nodes = conn_tbl.row_size();
+    
+    for(Uint elem_idx = 0; elem_idx != nb_elems; ++elem_idx)
+    {
+      const Mesh::CTable::ConstRow row = conn_tbl[elem_idx];
+      for(Uint node_idx = 0; node_idx != nb_nodes; ++node_idx)
+      {
+        const Uint node = row[node_idx];
+        if(!node_is_used[node])
+        {
+          node_is_used[node] = true;
+          nodes.push_back(node);
+        }
+      }
+    }
+  }
+}
+
 ////////////////////////////////////////////////////////
 // Public interface
 ///////////////////////////////////////////////////////
@@ -112,18 +168,42 @@ void for_each_node(Mesh::CRegion& region, const Expr& expr)
   
   FillNodeContexts<FusionVarsT, ContextsT> fill_ctx(vars, contexts);
   
-  Mesh::CArray& coordinates = Common::get_component_typed<Mesh::CArray>(region, Common::IsComponentTag("coordinates"));
-  
   // Create the global context
   NodeMeshContext<ContextsT> context(contexts);
   
-  // Evaluate the expression for each node
-  const Uint nb_nodes = coordinates.size();
-  for(context.node_idx = 0; context.node_idx != nb_nodes; ++context.node_idx)
+  Mesh::CArray* coordinates = Common::get_component_typed_ptr<Mesh::CArray>(region, Common::IsComponentTag("coordinates")).get();
+  if(coordinates) // region owns coordinates, so we assume a loop over all nodes
   {
-    fill_ctx.node_idx = context.node_idx;
-    boost::mpl::for_each<boost::mpl::range_c<int, 0, nb_vars::value> >(fill_ctx);
-    boost::proto::eval(expr, context);
+    // Evaluate the expression for each node
+    const Uint nb_nodes = coordinates->size();
+    for(context.node_idx = 0; context.node_idx != nb_nodes; ++context.node_idx)
+    {
+      fill_ctx.node_idx = context.node_idx;
+      boost::mpl::for_each<boost::mpl::range_c<int, 0, nb_vars::value> >(fill_ctx);
+      EvaluateExpr()(expr, 0, context);
+    }
+  }
+  else // no coordinates found, assert that all CElements share the same coords, and use it to construct a list of nodes to visit
+  {
+    BOOST_FOREACH(Mesh::CElements& elements, Common::recursive_range_typed<Mesh::CElements>(region))
+    {
+      if(coordinates)
+      {
+        cf_assert(coordinates == &elements.coordinates());
+        continue;
+      }
+      coordinates = &elements.coordinates();
+    }
+    std::vector<Uint> nodes;
+    make_node_list(region, *coordinates, nodes);
+    const Uint nb_nodes = nodes.size();
+    for(Uint i = 0; i != nb_nodes; ++i)
+    {
+      context.node_idx = nodes[i];
+      fill_ctx.node_idx = context.node_idx;
+      boost::mpl::for_each<boost::mpl::range_c<int, 0, nb_vars::value> >(fill_ctx);
+      EvaluateExpr()(expr, 0, context);
+    }
   }
 }
 

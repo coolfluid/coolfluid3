@@ -55,19 +55,74 @@ BOOST_AUTO_TEST_CASE( Laplacian1D )
     _cout << "elem result:\n" << integral<1>(laplacian(nodes)) << "\n"
   );
   
+  RealMatrix M(6, 6);
+  M.setZero();
+  BlockMatrix<RealMatrix> blocks(M);
+  
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (
     recursive_get_named_component_typed<CRegion>(*mesh, "region"),
-    _cout << "elem result:\n" << integral<1>
+    blocks += integral<1>
     (
       (
         transpose(mapped_gradient(nodes)) * transpose(jacobian_adjoint(nodes)) *
         jacobian_adjoint(nodes) * mapped_gradient(nodes)
       ) / jacobian_determinant(nodes)
     )
-    << "\n"
   );
   
+  std::cout << M << std::endl;
+  
+}
+
+BOOST_AUTO_TEST_CASE( RegionNodes )
+{
+  // build the mesh
+  CMesh::Ptr mesh(new CMesh("line"));
+  const Uint nb_segments = 5;
+  Tools::MeshGeneration::create_line(*mesh, 5., nb_segments);
+  
+  // Build the system matrix
+  MeshTerm<0, ConstNodes> nodes;
+  RealMatrix M(nb_segments+1, nb_segments+1);
+  M.setZero();
+  BlockMatrix<RealMatrix> blocks(M);
+  
+  for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
+  (
+    recursive_get_named_component_typed<CRegion>(*mesh, "region"),
+    blocks += integral<1>(laplacian(nodes))
+  );
+  
+  // Set boundary conditions
+  RealVector rhs(nb_segments+1);
+  rhs = RealVector::Constant(nb_segments+1, 1, 0.);
+  DirichletBC<RealMatrix, RealVector> bc(M, rhs);
+  
+  // Left boundary at 10 degrees
+  for_each_node
+  (
+    recursive_get_named_component_typed<CRegion>(*mesh, "xneg"),
+    bc = 10.
+  );
+  
+  // Right boundary at 25 degrees
+  for_each_node
+  (
+    recursive_get_named_component_typed<CRegion>(*mesh, "xpos"),
+    bc = 35.
+  );
+  
+  // Solve the system!
+  const RealVector solution = M.colPivHouseholderQr().solve(rhs);
+  
+  // Check solution
+  for(int i = 0; i != solution.rows(); ++i)
+  {
+    Real x = i * 5. / static_cast<Real>(nb_segments);
+    CFinfo << "T(" << x << ") = " << solution[i] << CFendl;
+    BOOST_CHECK_CLOSE(solution[i], 10. + i * 25. / static_cast<Real>(nb_segments), 1e-6);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

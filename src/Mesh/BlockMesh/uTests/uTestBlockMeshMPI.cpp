@@ -56,7 +56,7 @@ GlobalFixture* GlobalFixture::instance = 0;
 
 GlobalFixture::GlobalFixture() : partitioned_mesh(new CMesh("partitioned_mesh"))
 {
-  PEInterface::instance().init(0,0);
+  PE::instance().init(0,0);
   
   pattern = SimpleCommunicationPattern(); // must be created after MPI init
   // Use SYNC_SCREEN logging only
@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE( PartitionBlocks )
   Tools::MeshGeneration::create_channel_3d(block_data, 12.5663706144, 0.5, 6.28318530718, 16, 8, 12, 0.1);
   
   // Multiply the data, so each CPU has enough work, and keep size per CPU constant
-  const Uint nb_procs = PEInterface::instance().size();
+  const Uint nb_procs = PE::instance().size();
   
   BOOST_FOREACH(BlockData::CountsT& subdivisions, block_data.block_subdivisions)
   {
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE( PartitionBlocks )
       subdivisions[i] *= ((i == 0 && scale) ? factor*nb_procs : factor);
   }
   
-  partition_blocks(block_data, PEInterface::instance().size(), XX, partitioned_blocks);
+  partition_blocks(block_data, PE::instance().size(), XX, partitioned_blocks);
 }
 
 BOOST_AUTO_TEST_CASE( BuildMesh )
@@ -163,8 +163,8 @@ BOOST_AUTO_TEST_CASE( ComputeVolume )
   CF::Real volume = 0;
   Uint nb_elems = 0;
   
-  const Uint rank = PEInterface::instance().rank();
-  const Uint nb_procs = PEInterface::instance().size();
+  const Uint rank = PE::instance().rank();
+  const Uint nb_procs = PE::instance().size();
   
   // This assumes a channel mesh with 2 transversal blocks as input
   const Uint slice_size = 2*block_data.block_subdivisions[0][YY] * block_data.block_subdivisions[0][ZZ];
@@ -191,15 +191,15 @@ BOOST_AUTO_TEST_CASE( ComputeVolume )
   CFinfo << "Number of elements for process " << rank << ": " << nb_elems << CFendl;
   CFinfo << "Volume for process " << rank << ": " << volume << CFendl;
   
-  if (PEInterface::instance().rank() == 0)
+  if (PE::instance().rank() == 0)
   {
     Real total_volume;
-    boost::mpi::reduce(PEInterface::instance(), volume, total_volume, std::plus<Real>(), 0);
+    boost::mpi::reduce(PE::instance(), volume, total_volume, std::plus<Real>(), 0);
     BOOST_CHECK_CLOSE(total_volume, 78.9568, 0.5);
   }
   else
   {
-    boost::mpi::reduce(PEInterface::instance(), volume, std::plus<Real>(), 0);
+    boost::mpi::reduce(PE::instance(), volume, std::plus<Real>(), 0);
   }
 }
 
