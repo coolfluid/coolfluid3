@@ -12,6 +12,8 @@ list( APPEND coolfluid_mesh_files
   CField.cpp
   CFieldElements.hpp
   CFieldElements.cpp
+  CFlexTable.hpp
+  CFlexTable.cpp
   CHoneycombInterpolator.hpp
   CHoneycombInterpolator.cpp
   CInterpolator.hpp

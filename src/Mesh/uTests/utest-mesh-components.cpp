@@ -20,6 +20,7 @@
 #include "Mesh/CArray.hpp"
 #include "Mesh/CList.hpp"
 #include "Mesh/CTable.hpp"
+#include "Mesh/CFlexTable.hpp"
 #include "Mesh/ElementType.hpp"
 
 using namespace std;
@@ -540,7 +541,52 @@ BOOST_AUTO_TEST_CASE( ListFlushTest )
   
 }
 
+BOOST_AUTO_TEST_CASE ( CFlexTable_test )
+{
+  CFlexTable table ("table");
+  
+  std::vector<Uint> row;
+  
+  row.resize(3);
+  for(Uint i=0; i<row.size(); i++) row[i] = 0;
+  table.add_row(row);
 
+  row.resize(4);
+  for(Uint i=0; i<row.size(); i++) row[i] = 1;
+  table.add_row(row);
+  
+  row.resize(6);
+  for(Uint i=0; i<row.size(); i++) row[i] = 2;
+  table.add_row(row);
+  
+  row.resize(2);
+  for(Uint i=0; i<row.size(); i++) row[i] = 3;
+  table.add_row(row);
+  
+  BOOST_CHECK_EQUAL(table.size(), (Uint) 4);
+  
+  BOOST_CHECK_EQUAL(table[0][0], (Uint) 0);
+  BOOST_CHECK_EQUAL(table[0].size(), (Uint) 3);
+  BOOST_CHECK_EQUAL(table.row_size(0), (Uint) 3);
+  
+  BOOST_CHECK_EQUAL(table[1][0], (Uint) 1);
+  BOOST_CHECK_EQUAL(table[1].size(), (Uint) 4);
+  BOOST_CHECK_EQUAL(table.row_size(1), (Uint) 4);
+  
+  
+  BOOST_CHECK_EQUAL(table[2][0], (Uint) 2);
+  BOOST_CHECK_EQUAL(table[2].size(), (Uint) 6);
+  BOOST_CHECK_EQUAL(table.row_size(2), (Uint) 6);
+  
+  
+  BOOST_CHECK_EQUAL(table[3][0], (Uint) 3);
+  BOOST_CHECK_EQUAL(table[3].size(), (Uint) 2);
+  BOOST_CHECK_EQUAL(table.row_size(3), (Uint) 2);
+  
+  
+  
+  
+}
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()
