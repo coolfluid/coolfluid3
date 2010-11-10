@@ -52,7 +52,7 @@ public: // functions
   const ArrayT& array() const { return m_array; }
 
   /// @return A Buffer object that can fill this Array
-  Buffer create_buffer(const size_t buffersize=1024)
+  Buffer create_buffer(const size_t buffersize=16384)
   {
     // make sure the array has its columnsize defined
     cf_assert(row_size() > 0);
