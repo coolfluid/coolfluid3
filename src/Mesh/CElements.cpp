@@ -50,6 +50,10 @@ void CElements::initialize(const std::string& element_type_name, CArray& coords_
   CLink::Ptr coords = create_component_type<CLink>(coords_in.name());
   coords->add_tag("coordinates");
   coords->link_to(coords_in.get());
+	
+  // Adding global indices for inter-processor connectivity
+	CList<Uint>::Ptr global_indices = create_component_type<CList<Uint> >("global_indices");
+	global_indices->add_tag("global_element_indices");
 }
 
 
