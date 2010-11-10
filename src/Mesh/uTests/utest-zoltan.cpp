@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Mesh::CField"
+#define BOOST_TEST_MODULE "Test module for Zoltan load balancing library"
 
 // boost
 #include <boost/test/unit_test.hpp>
@@ -34,7 +34,7 @@
 #include "Common/Log.hpp"
 //#include "Common/StreamHelpers.hpp"
 
-#include "Common/MPI/PEInterface.hpp"
+#include "Common/MPI/PE.hpp"
 
 #include "Math/MatrixTypes.hpp"
 
@@ -78,6 +78,21 @@
 */
 
 
+#define PE_SERIALIZE(func)                                \
+{                                                         \
+  for (Uint proc=0; proc<PE::instance().size(); ++proc)   \
+  {                                                       \
+    PE::instance().barrier();                             \
+    CFinfo.setFilterRankZero(false);                      \
+    if (proc == PE::instance().rank())                    \
+    {                                                     \
+      func                                                \
+    }                                                     \
+    CFinfo.setFilterRankZero(true);                       \
+    PE::instance().barrier();                             \
+  }                                                       \
+}
+        
 using namespace std;
 using namespace boost;
 using namespace CF;
@@ -201,7 +216,7 @@ struct ZoltanTests_Fixture
     for (Uint i=0; i<graph.nborGID.size(); ++i)
     {
       nborGID[i] = graph.nborGID[i];
-      nborProc[i] = 0;//graph.nborProc[i];
+      nborProc[i] = graph.nborProc[i];
     }
     
     //nborProc = NULL;
@@ -212,7 +227,7 @@ struct ZoltanTests_Fixture
   {
     boost::shared_ptr<GRAPH_DATA> graph_ptr (new GRAPH_DATA);
     GRAPH_DATA& graph = *graph_ptr;
-    switch (PEInterface::instance().rank())
+    switch (PE::instance().rank())
     {
       case 0:
       {
@@ -293,7 +308,7 @@ struct ZoltanTests_Fixture
     boost::shared_ptr<GRAPH_DATA> graph_ptr (new GRAPH_DATA);
     GRAPH_DATA& graph = *graph_ptr;
     Uint a=26, b=27, c=28, d=29, e=30, f=31, g=32, h=33, i=34, j=35, k=36, l=37, m=38, n=39, o=40, p=41;
-    switch (PEInterface::instance().rank())
+    switch (PE::instance().rank())
     {
       case 0:
       {
@@ -386,14 +401,14 @@ struct ZoltanTests_Fixture
     }
     
     
-    if(PEInterface::instance().rank()==2)
+    if(PE::instance().rank()==2)
     {
       CFinfo.setFilterRankZero(false);
       for (Uint i=0; i<graph.globalID.size(); ++i)
       CFinfo << graph.globalID[i] << CFendl;
       CFinfo.setFilterRankZero(true);
     }
-    PEInterface::instance().barrier();
+    PE::instance().barrier();
     
     graph.glb_nb_vertices = 41;
     
@@ -411,7 +426,7 @@ struct ZoltanTests_Fixture
       part_assign_on_this_proc[graph.globalID[i]-1] = parts[i];
     }
 
-    boost::mpi::reduce(PEInterface::instance(), to_ptr(part_assign_on_this_proc),  part_assign.size() , to_ptr(part_assign), boost::mpi::maximum<int>(),0);
+    boost::mpi::reduce(PE::instance(), to_ptr(part_assign_on_this_proc),  part_assign.size() , to_ptr(part_assign), boost::mpi::maximum<int>(),0);
     
     
     for (Uint i=0; i < part_assign.size(); i++){
@@ -420,9 +435,9 @@ struct ZoltanTests_Fixture
     
   int i, j, part, cuts, prevPart=-1;
   float imbal, localImbal, sum;
-  std::vector<int> partCount(PEInterface::instance().size());
+  std::vector<int> partCount(PE::instance().size());
 
-    if (PEInterface::instance().rank() == 0){
+    if (PE::instance().rank() == 0){
 
       cuts = 0;
 
@@ -461,13 +476,13 @@ struct ZoltanTests_Fixture
       }
       printf("\n");
 
-      for (sum=0, i=0; i < (int)PEInterface::instance().size(); i++){
+      for (sum=0, i=0; i < (int)PE::instance().size(); i++){
         sum += partCount[i];
       }
       imbal = 0;
-      for (i=0; i < (int)PEInterface::instance().size(); i++){
+      for (i=0; i < (int)PE::instance().size(); i++){
         /* An imbalance measure.  1.0 is perfect balance, larger is worse */
-        localImbal = (PEInterface::instance().size() * partCount[i]) / sum;
+        localImbal = (PE::instance().size() * partCount[i]) / sum;
         if (localImbal > imbal) imbal = localImbal;
       }
 
@@ -514,11 +529,7 @@ struct ZoltanTests_Fixture
     // In this example, return the IDs of our objects, but no weights.
     // Zoltan will assume equally weighted objects.
     
-    CFinfo << "create component" << CFendl;
-    CList<Uint>::Ptr global_graph_ids (new CList<Uint>("global_graph_id"));
-    CFinfo << "add component" << CFendl;
-    mesh.add_component(global_graph_ids);
-    CFinfo << "create buffer" << CFendl;
+    CList<Uint>::Ptr global_graph_ids = mesh.create_component_type<CList<Uint> >("global_graph_id");
     CList<Uint>::Buffer global_ids_buffer = global_graph_ids->create_buffer();
     
     ZOLTAN_ID_PTR global_idx = globalID;
@@ -544,7 +555,7 @@ struct ZoltanTests_Fixture
     // global element indices start at number of global nodes
     Uint glb_nb_nodes = mesh.property("nb_nodes").value<Uint>();
     
-    BOOST_FOREACH(const CList<Uint>& global_element_indices, recursive_filtered_range_typed<CList<Uint> >(mesh,IsComponentName("global_element_indices")))
+    BOOST_FOREACH(const CList<Uint>& global_element_indices, recursive_filtered_range_typed<CList<Uint> >(mesh,IsComponentTag("global_element_indices")))
     {
       BOOST_FOREACH(const Uint glb_elm_idx, global_element_indices.array())
       {
@@ -682,8 +693,8 @@ struct ZoltanTests_Fixture
     }
     num_edges_from_elems = loc_idx - num_edges_from_nodes;     
     
-    Uint total_num_edges_from_nodes = boost::mpi::all_reduce(PEInterface::instance(),num_edges_from_nodes,std::plus<Uint>());
-    Uint total_num_edges_from_elems = boost::mpi::all_reduce(PEInterface::instance(),num_edges_from_elems,std::plus<Uint>());
+    Uint total_num_edges_from_nodes = boost::mpi::all_reduce(PE::instance(),num_edges_from_nodes,std::plus<Uint>());
+    Uint total_num_edges_from_elems = boost::mpi::all_reduce(PE::instance(),num_edges_from_elems,std::plus<Uint>());
 
     if (total_num_edges_from_nodes != total_num_edges_from_elems)
       *ierr = ZOLTAN_FATAL;
@@ -692,9 +703,7 @@ struct ZoltanTests_Fixture
     //CFLogVar(total_num_edges_from_nodes);
     //CFLogVar(num_edges_from_elems);
     //CFLogVar(total_num_edges_from_elems);
-    PEInterface::instance().barrier();
-    
-    return;
+    PE::instance().barrier();
   }
     
   
@@ -715,7 +724,7 @@ struct ZoltanTests_Fixture
       part_assign_on_this_proc[global_id[i]] = parts[i];
     }
 
-    boost::mpi::reduce(PEInterface::instance(), to_ptr(part_assign_on_this_proc),  part_assign.size() , to_ptr(part_assign), boost::mpi::maximum<int>(),0);
+    boost::mpi::reduce(PE::instance(), to_ptr(part_assign_on_this_proc),  part_assign.size() , to_ptr(part_assign), boost::mpi::maximum<int>(),0);
     
     
     for (Uint i=0; i < part_assign.size(); i++)
@@ -739,7 +748,7 @@ BOOST_FIXTURE_TEST_SUITE( ZoltanTests_TestSuite, ZoltanTests_Fixture )
 
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
-	PEInterface::instance().init(m_argc,m_argv);
+	PE::instance().init(m_argc,m_argv);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -747,113 +756,120 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 BOOST_AUTO_TEST_CASE( Zoltan_tutorial_construction )
 {
 	
-	if (PEInterface::instance().size() != 3)
+	if (PE::instance().size() != 3)
 	{
     CFinfo << "must run this testcase with 3 processors" << CFendl;
 	}
 	else
 	{
 	  
- //boost::shared_ptr<GRAPH_DATA> graph_ptr = build_graph();
-	boost::shared_ptr<GRAPH_DATA> graph_ptr = build_element_node_graph();
-  GRAPH_DATA& graph = *graph_ptr;
-  
-	
-	
-  Zoltan *zz = new Zoltan(PEInterface::instance());
-  if (zz == NULL)
-    throw BadValue(FromHere(),"Zoltan error");
+		//boost::shared_ptr<GRAPH_DATA> graph_ptr = build_graph();
+		boost::shared_ptr<GRAPH_DATA> graph_ptr = build_element_node_graph();
+		GRAPH_DATA& graph = *graph_ptr;
+		
+		
+		
+		Zoltan *zz = new Zoltan(PE::instance());
+		if (zz == NULL)
+			throw BadValue(FromHere(),"Zoltan error");
 
-  zz->Set_Param( "DEBUG_LEVEL", "0");
-  zz->Set_Param( "LB_METHOD", "GRAPH");
-  zz->Set_Param( "GRAPH_PACKAGE","SCOTCH");
-  zz->Set_Param( "LB_APPROACH", "PARTITION");
-  zz->Set_Param( "NUM_GID_ENTRIES", "1 "); 
-  zz->Set_Param( "NUM_LID_ENTRIES", "1");
-  zz->Set_Param( "RETURN_LISTS", "ALL");
-  zz->Set_Param( "GRAPH_SYMMETRIZE","NONE");
-  
+		std::string graph_package = "SCOTCH";
+		if (graph_package == "PHG" && PE::instance().size() != 3)
+		{
+			throw NotImplemented(FromHere(),"PHG graph package needs processor information for each object. It assumes now 3 processors. Run with 3 processors.");
+		}
+		
+			
+		zz->Set_Param( "DEBUG_LEVEL", "0");
+		zz->Set_Param( "LB_METHOD", "GRAPH");
+		zz->Set_Param( "GRAPH_PACKAGE",graph_package);
+		zz->Set_Param( "LB_APPROACH", "PARTITION");
+		zz->Set_Param( "NUM_GID_ENTRIES", "1 "); 
+		zz->Set_Param( "NUM_LID_ENTRIES", "1");
+		zz->Set_Param( "RETURN_LISTS", "ALL");
+		zz->Set_Param( "GRAPH_SYMMETRIZE","NONE");
+		
 
-  zz->Set_Param( "RETURN_LISTS", "ALL");
-  zz->Set_Param( "GRAPH_SYMMETRIZE","NONE");
+		zz->Set_Param( "RETURN_LISTS", "ALL");
+		zz->Set_Param( "GRAPH_SYMMETRIZE","NONE");
 
-  /* Graph parameters */
+		/* Graph parameters */
 
-  zz->Set_Param( "NUM_GLOBAL_PARTS", "3");
-  zz->Set_Param( "CHECK_GRAPH", "2"); 
-  zz->Set_Param( "PHG_EDGE_SIZE_THRESHOLD", ".35");  /* 0-remove all, 1-remove none */
+		zz->Set_Param( "NUM_GLOBAL_PARTS", "3");
+		zz->Set_Param( "CHECK_GRAPH", "2"); 
+		zz->Set_Param( "PHG_EDGE_SIZE_THRESHOLD", ".35");  /* 0-remove all, 1-remove none */
 
-  // Query functions 
+		// Query functions 
 
-  zz->Set_Num_Obj_Fn(get_number_of_objects, &graph);
-  zz->Set_Obj_List_Fn(get_object_list, &graph);
-  zz->Set_Num_Edges_Multi_Fn(get_num_edges_list, &graph);
-  zz->Set_Edge_List_Multi_Fn(get_edges_list, &graph);
-	
-	// partition
-  int changes;
-  int numGidEntries;
-  int numLidEntries;
-  int numImport;
-  ZOLTAN_ID_PTR importGlobalIds;
-  ZOLTAN_ID_PTR importLocalIds;
-  int *importProcs;
-  int *importToPart;
-  int numExport;
-  ZOLTAN_ID_PTR exportGlobalIds;
-  ZOLTAN_ID_PTR exportLocalIds;
-  int *exportProcs;
-  int *exportToPart;
+		zz->Set_Num_Obj_Fn(get_number_of_objects, &graph);
+		zz->Set_Obj_List_Fn(get_object_list, &graph);
+		zz->Set_Num_Edges_Multi_Fn(get_num_edges_list, &graph);
+		zz->Set_Edge_List_Multi_Fn(get_edges_list, &graph);
+		
+		// partition
+		int changes;
+		int numGidEntries;
+		int numLidEntries;
+		int numImport;
+		ZOLTAN_ID_PTR importGlobalIds;
+		ZOLTAN_ID_PTR importLocalIds;
+		int *importProcs;
+		int *importToPart;
+		int numExport;
+		ZOLTAN_ID_PTR exportGlobalIds;
+		ZOLTAN_ID_PTR exportLocalIds;
+		int *exportProcs;
+		int *exportToPart;
 
-  
-  
-  PEInterface::instance().barrier();
-  CFinfo << "before partitioning\n";
-  CFinfo << "-------------------" << CFendl;
+		
+		
+		PE::instance().barrier();
+		CFinfo << "before partitioning\n";
+		CFinfo << "-------------------" << CFendl;
 
-  std::vector<int> parts (graph.globalID.size());
+		std::vector<int> parts (graph.globalID.size());
 
-  for (Uint i=0; i < parts.size(); i++){
-    parts[i] = PEInterface::instance().rank();
-  }
-  
-  if(PEInterface::instance().rank()==2)
-  {
-    CFinfo.setFilterRankZero(false);
-    for (Uint i=0; i<graph.globalID.size(); ++i)
-    CFinfo << graph.globalID[i] << CFendl;
-    CFinfo.setFilterRankZero(true);
-  }
-  PEInterface::instance().barrier();
-  
-  
-  showGraphPartitions(graph,parts);
-  
-  
-  int rc = zz->LB_Partition(changes, numGidEntries, numLidEntries,
-    numImport, importGlobalIds, importLocalIds, importProcs, importToPart,
-    numExport, exportGlobalIds, exportLocalIds, exportProcs, exportToPart);
+		for (Uint i=0; i < parts.size(); i++){
+			parts[i] = PE::instance().rank();
+		}
+		
+		if(PE::instance().rank()==2)
+		{
+			CFinfo.setFilterRankZero(false);
+			for (Uint i=0; i<graph.globalID.size(); ++i)
+			CFinfo << graph.globalID[i] << CFendl;
+			CFinfo.setFilterRankZero(true);
+		}
+		PE::instance().barrier();
+		
+		
+		showGraphPartitions(graph,parts);
+		
+		
+		int rc = zz->LB_Partition(changes, numGidEntries, numLidEntries,
+			numImport, importGlobalIds, importLocalIds, importProcs, importToPart,
+			numExport, exportGlobalIds, exportLocalIds, exportProcs, exportToPart);
 
-  if (rc != (int)ZOLTAN_OK)
-  {
-    CFinfo << "Partitioning failed on process " << PEInterface::instance().rank() << CFendl;
-  }
-  
-  PEInterface::instance().barrier();
-  CFinfo << "after partitioning\n";
-  CFinfo << "------------------" << CFendl;
-  
-  
-  for (int i=0; i < numExport; i++){
-    parts[exportLocalIds[i]] = exportToPart[i];
-  }
-    
-  showGraphPartitions(graph,parts);
-    
-  Zoltan::LB_Free_Part(&importGlobalIds, &importLocalIds, &importProcs, &importToPart);
-  Zoltan::LB_Free_Part(&exportGlobalIds, &exportLocalIds, &exportProcs, &exportToPart);  
-	
-  delete zz;
+		if (rc != (int)ZOLTAN_OK)
+		{
+			CFinfo << "Partitioning failed on process " << PE::instance().rank() << CFendl;
+		}
+		
+		PE::instance().barrier();
+		CFinfo << "after partitioning\n";
+		CFinfo << "------------------" << CFendl;
+		
+		
+		for (int i=0; i < numExport; i++){
+			parts[exportLocalIds[i]] = exportToPart[i];
+		}
+			
+		showGraphPartitions(graph,parts);
+			
+		Zoltan::LB_Free_Part(&importGlobalIds, &importLocalIds, &importProcs, &importToPart);
+		Zoltan::LB_Free_Part(&exportGlobalIds, &exportLocalIds, &exportProcs, &exportToPart);  
+		
+		delete zz;
   }
 	
 }
@@ -864,38 +880,42 @@ BOOST_AUTO_TEST_CASE( Zoltan_tutorial_construction )
 BOOST_AUTO_TEST_CASE ( zoltan_quadtriag_mesh)
 {
  	CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
-	//meshreader->configure_property("Number of Parts",world.size());
-	//meshreader->configure_property("Part",world.rank());
+	meshreader->configure_property("Read Boundaries",false);
+
 	// the file to read from
 	boost::filesystem::path fp_in ("quadtriag.neu");
-	// the mesh to store in
-	
-	
-	CMesh::Ptr mesh_ptr = meshreader->create_mesh_from(fp_in);
 
+	// the mesh to store in
+	CMesh::Ptr mesh_ptr = meshreader->create_mesh_from(fp_in);
   CMesh& mesh = *mesh_ptr;
 
-  Zoltan *zz = new Zoltan(PEInterface::instance());
+	// Zoltan
+  Zoltan *zz = new Zoltan(PE::instance());
   if (zz == NULL)
     throw BadValue(FromHere(),"Zoltan error");
 
+	
+	std::string graph_package = "PARMETIS";
+	if (graph_package == "PHG" && PE::instance().size() != 2)
+	{
+		throw NotImplemented(FromHere(),"PHG graph package needs processor information for each object. It assumes now 2 processors. Run with 2 processors.");
+	}
+	
   zz->Set_Param( "DEBUG_LEVEL", "0");
   zz->Set_Param( "LB_METHOD", "GRAPH");
-  zz->Set_Param( "GRAPH_PACKAGE","SCOTCH");
+  zz->Set_Param( "GRAPH_PACKAGE",graph_package);
   zz->Set_Param( "LB_APPROACH", "PARTITION");
   zz->Set_Param( "NUM_GID_ENTRIES", "1 "); 
   zz->Set_Param( "NUM_LID_ENTRIES", "1");
   zz->Set_Param( "RETURN_LISTS", "ALL");
   zz->Set_Param( "GRAPH_SYMMETRIZE","NONE");
 
-  /* Graph parameters */
-    
+  // Graph parameters
   //zz->Set_Param( "NUM_GLOBAL_PARTS", "2");
   zz->Set_Param( "CHECK_GRAPH", "2"); 
   //zz->Set_Param( "PHG_EDGE_SIZE_THRESHOLD", ".35");  /* 0-remove all, 1-remove none */
 
-    // Query functions 
-
+	// Query functions 
   zz->Set_Num_Obj_Fn(get_number_of_objects_mesh, &mesh);
   zz->Set_Obj_List_Fn(get_object_list_mesh, &mesh);
   zz->Set_Num_Edges_Multi_Fn(get_num_edges_list_mesh, &mesh);
@@ -918,7 +938,7 @@ BOOST_AUTO_TEST_CASE ( zoltan_quadtriag_mesh)
 
 
 
-  PEInterface::instance().barrier();
+  PE::instance().barrier();
   CFinfo << "before partitioning\n";
   CFinfo << "-------------------" << CFendl;
 
@@ -926,35 +946,20 @@ BOOST_AUTO_TEST_CASE ( zoltan_quadtriag_mesh)
   std::vector<int> parts (get_number_of_objects_mesh(&mesh,&ierr));
 
   for (Uint i=0; i < parts.size(); i++){
-    parts[i] = PEInterface::instance().rank();
+    parts[i] = PE::instance().rank();
   }
-  
-//  showMeshPartitions(mesh,parts);
-  
-/*
-  if(PEInterface::instance().rank()==2)
-  {
-    CFinfo.setFilterRankZero(false);
-    for (Uint i=0; i<graph.globalID.size(); ++i)
-    CFinfo << graph.globalID[i] << CFendl;
-    CFinfo.setFilterRankZero(true);
-  }
-  PEInterface::instance().barrier();
-
-
-  showMeshPartitions(mesh,parts);
-*/
 
   int rc = zz->LB_Partition(changes, numGidEntries, numLidEntries,
     numImport, importGlobalIds, importLocalIds, importProcs, importToPart,
     numExport, exportGlobalIds, exportLocalIds, exportProcs, exportToPart);
 
+
   if (rc != (int)ZOLTAN_OK)
   {
-    CFinfo << "Partitioning failed on process " << PEInterface::instance().rank() << CFendl;
+    CFinfo << "Partitioning failed on process " << PE::instance().rank() << CFendl;
   }
 
-  PEInterface::instance().barrier();
+  PE::instance().barrier();
   CFinfo << "after partitioning\n";
   CFinfo << "------------------" << CFendl;
 
@@ -978,7 +983,7 @@ BOOST_AUTO_TEST_CASE ( zoltan_quadtriag_mesh)
 
 BOOST_AUTO_TEST_CASE( finalize_mpi )
 {
-	PEInterface::instance().finalize();
+	PE::instance().finalize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

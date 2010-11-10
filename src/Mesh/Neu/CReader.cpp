@@ -75,7 +75,8 @@ void CReader::defineConfigProperties ( CF::Common::PropertyList& options )
   options.add_option<OptionT <bool> >("Unified Zones","Reads Neu Groups and splits the mesh in these subgroups",false);
   options.add_option<OptionT <Uint> >("Part","Number of the part of the mesh to read. (e.g. rank of processor)",PE::instance().is_init()?PE::instance().rank():0);
   options.add_option<OptionT <Uint> >("Number of Parts","Total number of parts. (e.g. number of processors)",PE::instance().is_init()?PE::instance().size():1);
-  
+	options.add_option<OptionT <bool> >("Read Boundaries","Read the surface elements for the boundary",true);
+
   
   options.add_option<OptionT <bool> >("Repartition","setting this to true, puts global indexes, for repartitioning later",false);
   options.add_option<OptionT <Uint> >("OutputRank","shows output for the specified rank",0);
@@ -125,13 +126,13 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   
   //CFinfo << "nodes to read = " << m_nodes_to_read.size() << CFendl;
   //CFinfo << "elements to read = " << m_elements_to_read.size() << CFendl;
-
   
   read_coordinates();
   
   read_connectivity();
 
-  read_boundaries();
+	if (property("Read Boundaries").value<bool>())
+		read_boundaries();
 
   if (!property("Unified Zones").value<bool>())
     read_groups();
