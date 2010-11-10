@@ -218,5 +218,27 @@ else()
   coolfluid_mark_not_orphan( utest-pt-scotch.cpp )
 endif()
 
+################################################################################
+
+if( ${CF_HAVE_ZOLTAN} )
+  list( APPEND utest-zoltan_cflibs coolfluid_neutral coolfluid_sf coolfluid_gmsh )
+  list( APPEND utest-zoltan_libs ${ZOLTAN_LIBRARIES} )
+  list( APPEND utest-zoltan_files  utest-zoltan.cpp )
+  list( APPEND utest-zoltan_includedirs ${ZOLTAN_INCLUDE_DIR} )
+
+  coolfluid_add_unittest( utest-zoltan )
+
+  # Custom post-build rule (must be defined after adding target):
+  # Copy the file quadtriag.neu from source dir to binary dir.
+  # this must happen after building, as some IDE like Xcode define their
+  # build types internally, in which the binary dir exists
+  add_custom_command(TARGET utest-zoltan
+                     POST_BUILD
+                     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/hextet.neu    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                    )
+else()
+  coolfluid_mark_not_orphan( utest-zoltan.cpp )
+endif()
 
 ################################################################################
