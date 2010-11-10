@@ -102,6 +102,8 @@ private: // data
 	std::map<Uint,Uint> m_node_to_coord_idx;
 	bool m_repartition;
 	
+  std::vector<std::set<Uint> > m_node_to_glb_elements;
+	
 	Uint m_nodal_coordinates_position;
 	Uint m_elements_cells_position;
 	std::vector<Uint> m_element_group_positions;
@@ -154,24 +156,7 @@ private: // data
       CFinfo << NAME << " " << ITYPE << " " << NENTRY << " " << NVALUES << " " << IBCODE1 << CFendl;
     }
   };
-	
-	
-	void set_pt_scotch_data();
-	Uint baseval;								  // first index of an array starts with 0 for c++
-	Uint vertglbnbr;						  // number of vertices in the total mesh
-	Uint edgeglbnbr;						  // number of connections in the total mesh
-	Uint procglbnbr;						  // number of processors
-	std::vector<Uint> proccnttab; // number of vertices per processor
-  std::vector<Uint> procvrttab; // start_idx of the vertex for each processor + one extra index greater than vertglbnbr
 
-	Uint vertlocnbr;							// number of vertices on this processor
-	Uint vertgstnbr;							// number of vertices on this processor, including ghost vertices
-	Uint edgelocnbr;							// number of connections to other vertices starting from each local vertex
-	std::vector<Uint> vertloctab; // start_idx in edgeloctab and edgegsttab of array of connected vertices
-	std::vector<Uint> vendloctab; // end_idx in edgeloctab and edgegsttab of array of connected vertices
-	std::vector<Uint> edgeloctab; // array of all connections between vertices in global indices
-	std::vector<Uint> edgegsttab; // array of all connections between vertices in local indices
-	
 }; // end CReader
 
 ////////////////////////////////////////////////////////////////////////////////
