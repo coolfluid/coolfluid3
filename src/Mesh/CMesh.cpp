@@ -100,7 +100,6 @@ CRegion& CMesh::create_region( const CName& name, bool ensure_unique )
     
   }
   
-  CFdebug << "Mesh created region " << new_region->full_path().string() << CFendl;
   return *new_region;
 }
 
@@ -113,7 +112,6 @@ CRegion& CMesh::create_domain( const CName& name )
   {
     new_region = create_component_type<CRegion>(name);
     new_region->add_tag("grid_base");
-    CFdebug << "Mesh created domain " << new_region->full_path().string() << CFendl;    
   }
   return *new_region;
 }

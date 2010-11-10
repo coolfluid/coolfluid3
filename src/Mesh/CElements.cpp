@@ -46,14 +46,14 @@ void CElements::initialize(const std::string& element_type_name, CArray& coords_
   cf_assert(m_element_type);
   const Uint nb_nodes = m_element_type->nb_nodes();
   create_connectivity_table("connectivity_table").initialize(nb_nodes);
-	create_node_list("node_list");
+  create_node_list("node_list");
   CLink::Ptr coords = create_component_type<CLink>(coords_in.name());
   coords->add_tag("coordinates");
   coords->link_to(coords_in.get());
-	
+  
   // Adding global indices for inter-processor connectivity
-	CList<Uint>::Ptr global_indices = create_component_type<CList<Uint> >("global_indices");
-	global_indices->add_tag("global_element_indices");
+  CList<Uint>::Ptr global_indices = create_component_type<CList<Uint> >("global_indices");
+  global_indices->add_tag("global_element_indices");
 }
 
 
@@ -71,31 +71,33 @@ void CElements::set_element_type(const std::string& etype_name)
 
 CList<Uint>& CElements::create_node_list( const CName& name )
 {
-	CList<Uint>::Ptr node_list = get_child_type< CList<Uint> >(name);
-	if (!node_list)
-		node_list = create_component_type<CList<Uint> >(name);
-	return *node_list;
+  CList<Uint>::Ptr node_list = get_child_type< CList<Uint> >(name);
+  if (!node_list)
+    node_list = create_component_type<CList<Uint> >(name);
+    
+  node_list->properties()["brief"] = std::string("The local node indices used by this connectivity specific connectivity table");
+  return *node_list;
 }
-	
+  
 //////////////////////////////////////////////////////////////////////////////
 
 CList<Uint>& CElements::update_node_list()
 {
-	// Assemble all unique node numbers in a set
-	std::set<Uint> node_set;
-	CTable& ctable = connectivity_table();
-	BOOST_FOREACH(CTable::Row row, ctable.array())
-	BOOST_FOREACH(const Uint node, row)
-	node_set.insert(node);
-	
-	// Copy the set to the node_list
-	CList<Uint>& node_list = *get_child_type< CList<Uint> >("node_list");
-	node_list.resize(node_set.size());
-	Uint cnt=0;
-	BOOST_FOREACH(const Uint node, node_set)
-		node_list[cnt++] = node;
-	
-	return node_list;
+  // Assemble all unique node numbers in a set
+  std::set<Uint> node_set;
+  CTable& ctable = connectivity_table();
+  BOOST_FOREACH(CTable::Row row, ctable.array())
+  BOOST_FOREACH(const Uint node, row)
+  node_set.insert(node);
+  
+  // Copy the set to the node_list
+  CList<Uint>& node_list = *get_child_type< CList<Uint> >("node_list");
+  node_list.resize(node_set.size());
+  Uint cnt=0;
+  BOOST_FOREACH(const Uint node, node_set)
+    node_list[cnt++] = node;
+  
+  return node_list;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -143,23 +145,23 @@ const CArray& CElements::coordinates() const
   return *link.get_type<CArray const>();
 
 }
-	
+  
 //////////////////////////////////////////////////////////////////////////////
 
 CList<Uint>& CElements::node_list()
 {
-	Component::Ptr ptr = get_child("node_list");
-	cf_assert(ptr);
-	return *ptr->get_type< CList<Uint> >();
+  Component::Ptr ptr = get_child("node_list");
+  cf_assert(ptr);
+  return *ptr->get_type< CList<Uint> >();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 const CList<Uint>& CElements::node_list() const
 {
-	Component::ConstPtr ptr = get_child("node_list");
-	cf_assert(ptr);
-	return *ptr->get_type< CList<Uint> const >();
+  Component::ConstPtr ptr = get_child("node_list");
+  cf_assert(ptr);
+  return *ptr->get_type< CList<Uint> const >();
 }
 
 //////////////////////////////////////////////////////////////////////////////
