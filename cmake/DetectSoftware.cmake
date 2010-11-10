@@ -25,6 +25,7 @@ find_package(BlasLapack)      # search for Blas Lapack support
 find_package(PTScotch)        # parallel domain decomposition
 find_package(Metis)           # serial domain decomposition
 find_package(Parmetis)        # parallel domain decomposition
+find_package(Zoltan)          # parallel and serial domain decomposition using parmetis or pt-scotch
 find_package(Curl)            # curl downloads files on the fly
 find_package(Valgrind)        # valgrind for profiling and memmory leak detection
 find_package(GooglePerftools) # dynamic profiler and memory checker
