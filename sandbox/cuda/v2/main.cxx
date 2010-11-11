@@ -90,7 +90,7 @@ int main(int argc, char * argv[])
 
     boost::timer ctimer;
 
-    gpu_mat_mul(h_A, h_B, h_C);
+      gpu_mat_mul(h_A, h_B, h_C);
 
     printf("[cuda] time: %6.3f seconds\n", ctimer.elapsed() );
 
