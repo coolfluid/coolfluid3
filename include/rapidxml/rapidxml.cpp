@@ -1,8 +1,9 @@
 #include <string>
 #include <iostream>
 
-#include <boost/property_tree/detail/rapidxml.hpp>
 #include <boost/algorithm/string.hpp>
+
+#include "rapidxml/rapidxml.hpp"
 
 /// prints the xml node to screen
 void print_xml_node(rapidxml::xml_node<> *node)
