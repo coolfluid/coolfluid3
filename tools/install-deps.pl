@@ -427,12 +427,12 @@ sub remote_file_exists($) {
 
 #==========================================================================
 
-sub download_src ($$) {
+sub download_src ($) {
   
-  my ($lib,$version)=@_;
+  my ($stem)=@_;
 
-  my $file1 = "$lib-$version.tar.gz";
-  my $file2 = "$lib-$version.tar.bz2";
+  my $file1 = "$stem.tar.gz";
+  my $file2 = "$stem.tar.bz2";
   my $status = 0;
 
   if ( not -e $file1 and not -e $file2 )
@@ -449,7 +449,7 @@ sub download_src ($$) {
 
     if ( $status )
     {
-      die "$lib-$version exited with error" unless $status == 0;
+      die "Download of $stem exited with error" unless $status == 0;
     }
   }
   else { print my_colored("file already exists, not retrieving.\n",$OKCOLOR); }
@@ -491,8 +491,8 @@ sub install_wgetprog() {
   my $lib = "wget";
   my $version = $packages{$lib}[0];
   safe_chdir($opt_tmp_dir);
-  download_src($lib,$version);
-  untar_src($lib,$version);
+  download_src("$lib-$version");
+  untar_src("$lib-$version");
   safe_chdir("$opt_tmp_dir/$lib-$version/");
   run_command_or_die("./configure --prefix=$opt_install_dir");
   run_command_or_die("make $opt_makeopts");
@@ -501,13 +501,13 @@ sub install_wgetprog() {
 
 #==========================================================================
 
-sub untar_src ($$) {
-  my ($lib,$version)=@_;
-  my  $status = get_command_status("tar zxf $lib-$version.tar.gz");
+sub untar_src ($) {
+  my ($stem)=@_;
+  my  $status = get_command_status("tar zxf $stem.tar.gz");
   if ($status) {
-    $status = get_command_status("tar jxf $lib-$version.tar.bz2");
+    $status = get_command_status("tar jxf $stem.tar.bz2");
     print my_colored("Exit Status : $status\n",$OKCOLOR);
-    die "$lib-$version exited with error" unless $status == 0;
+    die "Unpack of $stem exited with error" unless $status == 0;
   }
 }
 
@@ -521,10 +521,10 @@ sub install_google_perftools ()
   print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
 
   safe_chdir($opt_tmp_dir);
-  download_src($lib,$version);
+  download_src("$lib-$version");
   unless ($opt_fetchonly) {
     rmtree "$opt_tmp_dir/$lib-$version";
-    untar_src($lib,$version);
+    untar_src("$lib-$version");
     safe_chdir("$opt_tmp_dir/$lib-$version/");
     run_command_or_die("./configure --enable-frame-pointers  --prefix=$opt_install_dir");
     run_command_or_die("make $opt_makeopts");
@@ -542,10 +542,10 @@ sub install_gnu ($)
   print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
 
   safe_chdir($opt_tmp_dir);
-  download_src($lib,$version);
+  download_src("$lib-$version");
   unless ($opt_fetchonly) {
     rmtree "$opt_tmp_dir/$lib-$version";
-    untar_src($lib,$version);
+    untar_src("$lib-$version");
     safe_chdir("$opt_tmp_dir/$lib-$version/");
     run_command_or_die("./configure --prefix=$opt_install_dir");
     run_command_or_die("make $opt_makeopts");
@@ -563,10 +563,10 @@ sub install_curl ()
   print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
 
   safe_chdir($opt_tmp_dir);
-  download_src($lib,$version);
+  download_src("$lib-$version");
   unless ($opt_fetchonly) {
     rmtree "$opt_tmp_dir/$lib-$version";
-    untar_src($lib,$version);
+    untar_src("$lib-$version");
     safe_chdir("$opt_tmp_dir/$lib-$version/");
     run_command_or_die("./configure --prefix=$opt_install_dir --without-ssl --without-libidn --without-gnutls --disable-ipv6 ");
     run_command_or_die("make $opt_makeopts");
@@ -586,10 +586,10 @@ sub install_blas()
     print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
 
     safe_chdir($opt_tmp_dir);
-    download_src($lib,$version);
+    download_src("$lib-$version");
     unless ($opt_fetchonly) {
       rmtree "$opt_tmp_dir/$lib-$version";
-      untar_src($lib,$version);
+      untar_src("$lib-$version");
       safe_chdir("$opt_tmp_dir/$lib-$version/");
 
       # fix Makefile
@@ -633,11 +633,11 @@ sub install_lapack() {
     print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
 
     safe_chdir($opt_tmp_dir);
-    download_src($lib,$version);
+    download_src("$lib-$version");
 
     unless ($opt_fetchonly) {
       rmtree "$opt_tmp_dir/$lib-$version";
-      untar_src($lib,$version);
+      untar_src("$lib-$version");
       safe_chdir("$opt_tmp_dir/$lib-$version/SRC");
 
       # fix Makefile
@@ -680,13 +680,13 @@ sub install_lam() {
   print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
 
   safe_chdir($opt_tmp_dir);
-  download_src($lib,$version);
+  download_src("$lib-$version");
 
   if ($ENV{CXX} eq "g++" ) { $ENV{CXX} = $ENV{CXX} . " -fpermissive"; }
 
   unless ($opt_fetchonly) {
     rmtree "$opt_tmp_dir/$lib-$version";
-    untar_src($lib,$version);
+    untar_src("$lib-$version");
     safe_chdir("$opt_tmp_dir/$lib-$version/");
     run_command_or_die("./configure --enable-shared --enable-static --with-threads=posix --enable-long-long --enable-languages=c,c++,f77 --disable-checking --enable-cstdio=stdio --with-system-zlib --prefix=$opt_mpi_dir");
     run_command_or_die("make $opt_makeopts");
@@ -703,7 +703,7 @@ sub install_openmpi() {
   print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
 
   safe_chdir($opt_tmp_dir);
-  download_src($lib,$version);
+  download_src("$lib-$version");
 
   my $fortran_opts = "";
   if ( $opt_no_fortran )
@@ -719,7 +719,7 @@ sub install_openmpi() {
   unless ($opt_fetchonly)
   {
     rmtree "$opt_tmp_dir/$lib-$version";
-    untar_src($lib,$version);
+    untar_src("$lib-$version");
     safe_chdir("$opt_tmp_dir/$lib-$version/");
     run_command_or_die("./configure CC=$ENV{CC} CXX=$ENV{CXX} --without-cs-fs --with-threads=posix $fortran_opts --prefix=$opt_mpi_dir");
     run_command_or_die("make $opt_makeopts");
@@ -735,11 +735,11 @@ sub install_mpich2() {
   print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
 
   safe_chdir($opt_tmp_dir);
-  download_src($lib,$version);
+  download_src("$lib-$version");
   unless ($opt_fetchonly)
   {
       rmtree "$opt_tmp_dir/$lib-$version";
-      untar_src($lib,$version);
+      untar_src("$lib-$version");
       safe_chdir("$opt_tmp_dir/$lib-$version/");
       run_command_or_die("./configure --enable-cxx --enable-f77 --enable-f90 --enable-sharedlibs=osx-gcc --prefix=$opt_mpi_dir");
       run_command_or_die("make $opt_makeopts");
@@ -755,11 +755,11 @@ sub install_cgns() {
   print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
 
   safe_chdir($opt_tmp_dir);
-  download_src($lib,$version);
+  download_src("$lib-$version");
   unless ($opt_fetchonly)
   {
     rmtree "$opt_tmp_dir/$lib-$version";
-    untar_src($lib,$version);
+    untar_src("$lib-$version");
     safe_chdir("$opt_tmp_dir/$lib-$version/");
     
     mkpath("build",1);
@@ -778,11 +778,11 @@ sub install_cgal() {
   print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
 
   safe_chdir($opt_tmp_dir);
-  download_src($lib,$version);
+  download_src("$lib-$version");
   unless ($opt_fetchonly)
   {
     rmtree "$opt_tmp_dir/$lib-$version";
-    untar_src($lib,$version);
+    untar_src("$lib-$version");
     safe_chdir("$opt_tmp_dir/$lib-$version/");
     
     mkpath("build",1);
@@ -801,11 +801,11 @@ sub install_mpich() {
   print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
 
   safe_chdir($opt_tmp_dir);
-  download_src($lib,$version);
+  download_src("$lib-$version");
   unless ($opt_fetchonly)
   {
       rmtree "$opt_tmp_dir/$lib-$version";
-      untar_src($lib,$version);
+      untar_src("$lib-$version");
       safe_chdir("$opt_tmp_dir/$lib-$version/");
       run_command_or_die("./configure --prefix=$opt_mpi_dir --enable-f77 --enable-f90");
       run_command_or_die("make $opt_makeopts");
@@ -827,11 +827,11 @@ sub install_parmetis () {
   mkpath $lib_dir;
 
   safe_chdir($opt_tmp_dir);
-  download_src("ParMetis",$version);
+  download_src("ParMetis-$version");
   unless ($opt_fetchonly) {
 
     rmtree "$opt_tmp_dir/ParMetis-$version";
-    untar_src("ParMetis",$version);
+    untar_src("ParMetis-$version");
     safe_chdir("$opt_tmp_dir/ParMetis-$version/");
 
     if (is_mac()) { # add include for malloc.h
@@ -909,7 +909,7 @@ sub install_petsc3 ()
 
     # extract sources to build dir
     rmtree $build_dir;
-    untar_src($lib,$version);
+    untar_src("$lib-$version");
 
     safe_chdir("$build_dir");
 
@@ -942,7 +942,7 @@ sub install_trilinos() {
   print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
 
   safe_chdir($opt_tmp_dir);
-  download_src($lib,$version);
+  download_src("$lib-$version");
 
   my $mpiopt;
   unless ($opt_nompi) {
@@ -958,7 +958,7 @@ sub install_trilinos() {
     my $build_dir =  "$opt_tmp_dir/$lib-$version-Source/build"; 
 
     rmtree "$opt_tmp_dir/$lib-$version-Source";
-    untar_src($lib,$version);
+    untar_src("$lib-$version");
     # make build dir - newer versions dont support in-source builds
     mkpath $build_dir or die ("could not create dir $build_dir\n");
     safe_chdir($build_dir);
@@ -1009,61 +1009,76 @@ sub install_boost()
   my $lib = "boost";
   my $version = $packages{$lib}[$vrs];
   my $pack = "$lib\_$version";
+  my $bjamcfg="$opt_tmp_dir/$pack/user-config.jam";
+
   print my_colored("Installing $pack\n",$HIGHLIGHTCOLOR);
 
   safe_chdir($opt_tmp_dir);
-  if ( not -e "$pack.tar.bz2" ) { download_file("$opt_dwnldsrc/$pack.tar.bz2"); }
+  download_src("$pack");
 
   unless ($opt_fetchonly)
   {
     rmtree "$opt_tmp_dir/$pack";
-    run_command_or_die("tar jxf $lib\_$version.tar.bz2");
+    untar_src("$pack");
     safe_chdir("$opt_tmp_dir/$pack/");
 
-
-    # build toolset
-    safe_chdir("tools/jam/src");
+	# select the toolset
     my $toolset = "gcc";
-    if( ( $ENV{CC} =~ m/icc$/ )   or ( $ENV{CXX} =~ m/icpc$/ )      ) { $toolset = "intel-linux"; }
-    if( ( $ENV{CC} =~ m/clang$/ ) or ( $ENV{CXX} =~ m/clang\+\+$/ ) ) { $toolset = "cc"; }
-    
+    if( ( $ENV{CC} =~ m/icc$/   ) or ( $ENV{CXX} =~ m/icpc$/ )      ) { $toolset = "intel-linux"; }
+    if( ( $ENV{CC} =~ m/clang$/ ) or ( $ENV{CXX} =~ m/clang\+\+$/ ) ) { $toolset = "clang"; }
+
     if ($toolset eq 'gcc' ) # in case g++ is speical path
     {
       $ENV{GCC} = $ENV{CC};
       $ENV{GXX} = $ENV{CXX};
     }
 
-    my $boost_arch;
-    if($arch eq "x86_64") { $boost_arch = "linuxx86_64" ;  }
-    if($arch eq "i686")   { $boost_arch = "linuxx86" ;  }
+    if( is_mac() ) {  $toolset = "darwin" unless ( $toolset eq "clang" ) }
 
-    if(is_mac())         
-    { 
-  	  $toolset = "darwin" unless ( $toolset eq "cc" ) ;
-      $boost_arch = "macosxx86"; 
+    # check if we need to build bjam
+ 
+  	my $bjampath = run_command("which bjam");
+    chomp $bjampath;
+
+	if ($bjampath eq "") 
+	{
+	  # assume that bjam source came with boost
+      safe_chdir("tools/jam/src");
+
+      my $boost_arch;
+      if($arch eq "x86_64") { $boost_arch = "linuxx86_64" ;  }
+      if($arch eq "i686")   { $boost_arch = "linuxx86" ;  }
+
+      if(is_mac())         
+      { 
+        $boost_arch = "macosxx86"; 
       
-      # If Snow Leopard
-      my $capable64 = run_command("sysctl hw | grep 'hw.cpu64bit_capable: [0-9]'");
-      my $OSversion = run_command("sw_vers | grep 'ProductVersion:'");
-      if ($capable64 =~ /hw.cpu64bit_capable:\s1/ && $OSversion =~ /10\.6\.*/) 
-      {
-          $boost_arch = "macosxx86_64";    
+        # If Snow Leopard
+        my $capable64 = run_command("sysctl hw | grep 'hw.cpu64bit_capable: [0-9]'");
+        my $OSversion = run_command("sw_vers | grep 'ProductVersion:'");
+        if ($capable64 =~ /hw.cpu64bit_capable:\s1/ && $OSversion =~ /10\.6\.*/) 
+        {
+           $boost_arch = "macosxx86_64";    
+        }
       }
+      run_command_or_die("sh build.sh $toolset");
+  
+	  $bjampath="./tools/jam/src/bin.$boost_arch/bjam";
+	
+	  if ( not -e $bjampath ) { die "Cannot find bjam in $bjampath" }
     }
 
     # disable compression filters in boost because some systems like ubuntu
     # dont have the zlib-dev installed by default
-    $ENV{NO_COMPRESSION} = "1";
-
-    run_command_or_die("sh build.sh $toolset");
+    # $ENV{NO_COMPRESSION} = "1";
 
     # build boost libs
-    safe_chdir("../../..");
+    safe_chdir("$opt_tmp_dir/$pack");
    
-    if ( $toolset eq "cc" )
+    if( ( $ENV{CC} =~ m/clang$/ ) or ( $ENV{CXX} =~ m/clang\+\+$/ ) )
     {
-      open  (USERCONFIGJAM, ">>./tools/build/v2/user-config.jam") || die("Cannot Open File ./tools/build/v2/user-config.jam") ;
-      print  USERCONFIGJAM <<ZZZ;
+      open  ( USERCONFIGJAM, ">>$bjamcfg" ) || die("Cannot open file $bjamcfg") ;
+      print   USERCONFIGJAM <<ZZZ;
 # ----------------------
 # clang configuration.
 # ----------------------
@@ -1076,8 +1091,8 @@ ZZZ
     my $boostmpiopt=" --without-mpi ";
     unless ($opt_nompi) {
       $boostmpiopt=" --with-mpi cxxflags=-DBOOST_MPI_HOMOGENEOUS ";
-      open  (USERCONFIGJAM, ">>./tools/build/v2/user-config.jam") || die("Cannot Open File ./tools/build/v2/user-config.jam") ;
-      print  USERCONFIGJAM <<ZZZ;
+      open  ( USERCONFIGJAM, ">>$bjamcfg") || die("Cannot open file $bjamcfg") ;
+      print   USERCONFIGJAM <<ZZZ;
 
 
 # ----------------------
@@ -1089,7 +1104,7 @@ ZZZ
       close (USERCONFIGJAM); 
     }
 
-    run_command_or_die("./tools/jam/src/bin.$boost_arch/bjam --prefix=$opt_install_dir --with-test --with-thread --with-iostreams --with-filesystem --with-system --with-regex --with-date_time --with-program_options $boostmpiopt toolset=$toolset threading=multi variant=release stage install");
+    run_command_or_die("$bjampath --user-config=$bjamcfg --prefix=$opt_install_dir --with-test --with-thread --with-iostreams --with-filesystem --with-system --with-regex --with-date_time --with-program_options $boostmpiopt toolset=$toolset threading=multi variant=release stage install");
 
   }
 }
@@ -1103,7 +1118,7 @@ sub install_cmake() {
   print my_colored("Installing $pack\n",$HIGHLIGHTCOLOR);
 
   safe_chdir($opt_tmp_dir);
-  download_src($lib,$version);
+  download_src("$lib-$version");
 
   unless ($opt_fetchonly) {
 
@@ -1126,10 +1141,10 @@ sub install_hdf5() {
   print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
 
   safe_chdir($opt_tmp_dir);
-  download_src($lib,$version);
+  download_src("$lib-$version");
   unless ($opt_fetchonly) {
     rmtree "$opt_tmp_dir/$lib-$version";
-    untar_src($lib,$version);
+    untar_src("$lib-$version");
     safe_chdir("$opt_tmp_dir/$lib-$version/");
 
     my $old_cc  = $ENV{CC};
@@ -1236,7 +1251,7 @@ sub install_packages()
         {
             $packages{$opt}[$ins] = 'on';
         }
-        elsif (!($opt eq 'all')) {
+        elsif (!($opt eq 'all') and !($opt eq 'basic')) {
             print my_colored("Package does not exist: $opt\n",$ERRORCOLOR);
         }
     }
