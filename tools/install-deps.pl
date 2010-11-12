@@ -764,7 +764,7 @@ sub install_cgns() {
     
     mkpath("build",1);
     safe_chdir("build");
-    run_command_or_die("cmake ../ -DHDF5_LIBRARY_DIR=$opt_install_mpi_dir/lib -DHDF5_INCLUDE_DIR=$opt_install_mpi_dir/include -DHDF5_NEED_MPI=ON -DHDF5_NEED_ZLIB=ON -DHDF5_NEED_SZIP=OFF -DMPI_INCLUDE_DIR=$opt_mpi_dir/include -DMPI_LIBRARY_DIR=$opt_mpi_dir/lib -DCMAKE_INSTALL_PREFIX=$opt_install_mpi_dir");
+    run_command_or_die("cmake ../ -DCMAKE_C_FLAGS=\"-Wno-return-type\" -DHDF5_LIBRARY_DIR=$opt_install_mpi_dir/lib -DHDF5_INCLUDE_DIR=$opt_install_mpi_dir/include -DHDF5_NEED_MPI=ON -DHDF5_NEED_ZLIB=ON -DHDF5_NEED_SZIP=OFF -DMPI_INCLUDE_DIR=$opt_mpi_dir/include -DMPI_LIBRARY_DIR=$opt_mpi_dir/lib -DCMAKE_INSTALL_PREFIX=$opt_install_mpi_dir");
     run_command_or_die("make $opt_makeopts");
     run_command_or_die("make install");
   }
