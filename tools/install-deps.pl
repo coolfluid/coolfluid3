@@ -88,8 +88,9 @@ my %packages = (  #  version   default install priority      function
     "trilinos"   => [ "10.2.0",   'off',   'off', $priority++,  \&install_trilinos ],
     "petsc"      => [ "3.1-p2",   'off',   'off', $priority++,  \&install_petsc3 ],
     "cgns"       => [ "3.0.8",    'off',   'off', $priority++,  \&install_cgns ],
-    "google-perftools" => [ "1.6",'off', 'off', $priority++,  \&install_google_perftools ],
+    "google-perftools" => [ "1.6",'off',   'off', $priority++,  \&install_google_perftools ],
     "cgal"       => [ "3.6.1",    'off',   'off', $priority++,  \&install_cgal ],
+    "zoltan"     => [ "3.3",      'off',   'off', $priority++,  \&install_zoltan ],
 );
 
 #==========================================================================
@@ -1149,7 +1150,6 @@ sub install_hdf5() {
 
     my $old_cc  = $ENV{CC};
     my $old_cxx = $ENV{CXX};
-    my $mpiopt;
     unless ($opt_nompi) {
         $ENV{CC}   = "mpicc";
         $ENV{CXX}  = "mpic++";
@@ -1161,6 +1161,41 @@ sub install_hdf5() {
 
     $ENV{CC}   = $old_cc;
     $ENV{CXX}  = $old_cxx;
+  }
+}
+
+#==========================================================================
+
+sub install_zoltan()
+{
+  my ($lib)="zoltan";
+  my $version = $packages{$lib}[0];
+
+  print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
+
+  print my_colored("WARNING: This installation assumes pt-scotch and parmetis are installed\n",$ERRORCOLOR);
+
+  safe_chdir($opt_tmp_dir);
+  download_src("$lib-$version");
+  unless ($opt_fetchonly) {
+    rmtree "$opt_tmp_dir/$lib-$version";
+    untar_src("$lib-$version");
+    safe_chdir("$opt_tmp_dir/$lib-$version/");
+    
+    my $old_cc  = $ENV{CC};
+    my $old_cxx = $ENV{CXX};
+    unless ($opt_nompi) {
+        $ENV{CC}   = "mpicc";
+        $ENV{CXX}  = "mpic++";
+    }
+    
+    run_command_or_die("./configure --prefix=$opt_install_mpi_dir --with-gnumake --with-parmetis --with-parmetis-libdir=\"$opt_install_mpi_dir/lib\" --with-parmetis-incdir=\"$opt_install_mpi_dir/include\" --with-scotch --with-scotch-libdir=\"$opt_install_mpi_dir/lib\" --with-scotch-incdir=\"$opt_install_mpi_dir/include\"");
+    run_command_or_die("make everything $opt_makeopts");
+    run_command_or_die("make install");
+    
+    $ENV{CC}   = $old_cc;
+    $ENV{CXX}  = $old_cxx;
+    
   }
 }
 
