@@ -32,8 +32,13 @@ namespace Mesh {
 /// The table is resized when the buffer is full, and values are copied from
 /// the buffer into the table.
 ///
-/// @note Before using the matching table or array one has to be sure that
-/// the buffer is flushed.
+/// First entry that is removed from the array using rm_row(), will also be the first to be filled 
+/// when non-empty buffers are flushed. So in order of removal.
+///
+/// @note Before using the matching array in algorithms, one has to be sure that
+/// the buffer is flushed. This is done automatically at buffer destruction, 
+/// or manually by calling flush().
+///
 /// @author Willem Deconinck
 template < typename T >
 class ArrayBufferT {
@@ -62,12 +67,24 @@ public: // functions
   /// Change the buffer to the new size
   void change_buffersize(const size_t nbRows);
   
-  /// flush the buffer in the connectivity Buffer
-  void flush();
-  // 
+  /// Flush the buffer in the connectivity Buffer
+	/// 2 cases:
+	/// - Array has to expand
+	///   - resize array
+	///   - copy all non-empty buffer entries in sequence to array entries marked to be removed (first one removed, is first one refilled)
+	///   - copy all non-empty buffer entries in sequence to array entries in the expanded part
+	/// - Array has to shrink
+	///   - copy all non-empty buffer entries in sequence to array entries marked to be removed (lower indices first)
+	///   - swap entries in the array starting from the index old_array_size to remaining empty array entries in the new array
+	///   - resize array
+	/// @return for every index of the new array, the index it had in the array + buffer structure created using add_row()
+  boost::shared_ptr< std::vector<Uint> > flush();
+
   /// Add a row to the buffer.
+	/// rows are only added to the buffer, even if there are empty rows in the array!
+	/// Only when flush() is called, will the empty rows be filled.
   /// @param [in] row Row to be added to buffer
-  /// @return the index in the array+buffers
+  /// @return the index in the array+buffers. If array has size 4, and buffer size 3, the last idx will be 6;
   template<typename vectorType>
   Uint add_row(const vectorType& row);
   
@@ -191,7 +208,7 @@ inline Uint ArrayBufferT<T>::total_allocated()
 ////////////////////////////////////////////////////////////////////////////////
 
 template<typename T>
-void ArrayBufferT<T>::flush()
+boost::shared_ptr< std::vector<Uint> > ArrayBufferT<T>::flush()
 {
   
   // get total number of allocated rows
@@ -201,6 +218,15 @@ void ArrayBufferT<T>::flush()
   // get total number of empty rows
   Uint nb_emptyRows = m_emptyArrayRows.size() + m_emptyBufferRows.size() + m_newBufferRows.size();
   Uint new_size = allocated_size-nb_emptyRows;
+	
+	// a vector of index changes compared to before the flush
+	boost::shared_ptr< std::vector<Uint> > old_indexes_sptr (new std::vector<Uint>(new_size));
+	std::vector<Uint>& old_indexes = *old_indexes_sptr;
+	for (Uint i=0; i<new_size; ++i)
+		old_indexes[i]=i;
+	Uint new_idx;
+	Uint old_idx = old_array_size;
+	
   if (new_size > old_array_size) 
   {
     // make m_array bigger
@@ -210,40 +236,52 @@ void ArrayBufferT<T>::flush()
     Uint array_idx=old_array_size;
     BOOST_FOREACH (Array_t& buffer, m_buffers)
     BOOST_FOREACH (SubArray_t row, buffer)
-    if (!is_empty(row))   // for each non-empty row from all buffers
-    {      
-      // first find empty rows inside the old part array
-      if (!m_emptyArrayRows.empty()) 
-      {
-        SubArray_t empty_array_row = get_row(m_emptyArrayRows.front());
-        m_emptyArrayRows.pop_front();
-        for(Uint j=0; j<m_nbCols; ++j)
-          empty_array_row[j] = row[j];
-      }
-      else // then select the new array rows to be filled
-      {
-        SubArray_t empty_array_row=m_array[array_idx++];
-        for(Uint j=0; j<m_nbCols; ++j)
-          empty_array_row[j] = row[j];
-      }
-    }
-  }
+		{
+			if (!is_empty(row))   // for each non-empty row from all buffers
+			{      
+				// first find empty rows inside the old part array
+				if (!m_emptyArrayRows.empty()) 
+				{
+					new_idx = m_emptyArrayRows.front();
+					m_emptyArrayRows.pop_front();
+
+					SubArray_t empty_array_row = get_row(new_idx);
+					old_indexes[new_idx]=old_idx;
+
+					for(Uint j=0; j<m_nbCols; ++j)
+						empty_array_row[j] = row[j];
+				}
+				else // then select the new array rows to be filled
+				{
+					SubArray_t empty_array_row=m_array[array_idx++];
+					for(Uint j=0; j<m_nbCols; ++j)
+						empty_array_row[j] = row[j];
+				}
+			}
+			++old_idx;
+		}
+	}
   else // More rows to be removed than added, now we need to swap rows
   {
     // copy all buffer rows in the m_array
     BOOST_FOREACH (Array_t& buffer, m_buffers)
-    BOOST_FOREACH (SubArray_t row, buffer)
-    if (!is_empty(row))   // for each non-empty row from all buffers
-    {     
-      Uint empty_array_row_idx = m_emptyArrayRows.front();
-      m_emptyArrayRows.pop_front();
-      SubArray_t empty_array_row = get_row(empty_array_row_idx);
-      for(Uint j=0; j<m_nbCols; ++j)
-        empty_array_row[j] = row[j];
-    }
+		{
+			BOOST_FOREACH (SubArray_t row, buffer)
+			if (!is_empty(row))   // for each non-empty row from all buffers
+			{     
+				new_idx = m_emptyArrayRows.front();
+				m_emptyArrayRows.pop_front();
+
+				SubArray_t empty_array_row = get_row(new_idx);
+				old_indexes[new_idx]=old_idx;
+
+				for(Uint j=0; j<m_nbCols; ++j)
+					empty_array_row[j] = row[j];
+			}
+			++old_idx;
+		}
     
     Uint full_row_idx = new_size;
-    
     // The part of the table with rows > new_size will be deallocated
     // The empty rows from the allocated part must be swapped with filled 
     // rows from the part that will be deallocated
@@ -251,15 +289,21 @@ void ArrayBufferT<T>::flush()
     {
       // swap only necessary if it the empty row is in the allocated part
       if (empty_row_idx < new_size)
-      {        
+      { 
         // swap this empty row with a full one in the part that will be deallocated
 
         // 1) find next full row
         while(is_empty(m_array[full_row_idx]))
           full_row_idx++; 
         
-        // 2) swap them   
+        // 2) swap them  
         swap(m_array[empty_row_idx],m_array[full_row_idx]);
+				
+				// 3) add to change_set
+				new_idx = empty_row_idx;
+				old_idx = full_row_idx;
+				old_indexes[new_idx]=old_idx;
+				
         full_row_idx++;
       }
     }
@@ -273,6 +317,8 @@ void ArrayBufferT<T>::flush()
   m_emptyArrayRows.clear();
   m_emptyBufferRows.clear();
   m_newBufferRows.clear();
+	
+	return old_indexes_sptr;
 }
   
 //////////////////////////////////////////////////////////////////////////////

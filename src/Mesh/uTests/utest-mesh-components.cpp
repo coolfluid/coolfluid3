@@ -220,12 +220,17 @@ BOOST_AUTO_TEST_CASE( FlushTest )
   // table still has 5 rows, but first 3 rows are marked as disabled
   BOOST_CHECK_EQUAL(table->array().size(),(Uint) 5);
   
-  buffer.flush();
+	boost::shared_ptr< std::vector<Uint> > old_indexes_ptr = buffer.flush();
+	std::vector<Uint>& old_indexes = *old_indexes_ptr;
   // now the table should only have 2 row, as the 3 disabled rows should be removed
   
   BOOST_CHECK_EQUAL(table->array().size(),(Uint) 2);
   BOOST_CHECK_EQUAL(table->array()[0][0],(Uint) 3);
   BOOST_CHECK_EQUAL(table->array()[1][0],(Uint) 5);
+	
+	// check old indices
+	BOOST_CHECK_EQUAL(old_indexes[0] , (Uint) 3 );
+	BOOST_CHECK_EQUAL(old_indexes[1] , (Uint) 4 );
 
   
   
