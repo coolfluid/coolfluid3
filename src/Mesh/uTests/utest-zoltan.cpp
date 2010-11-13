@@ -32,7 +32,7 @@
 // coolfluid
 #include "Common/ConfigObject.hpp"
 #include "Common/Log.hpp"
-//#include "Common/StreamHelpers.hpp"
+#include "Common/String/Conversion.hpp"
 
 #include "Common/MPI/PE.hpp"
 
@@ -79,18 +79,19 @@
 
 
 #define PE_SERIALIZE(func)                                \
-{                                                         \
+{																													\
+	PE::instance().barrier();																\
+	CFinfo.setFilterRankZero(false);												\
   for (Uint proc=0; proc<PE::instance().size(); ++proc)   \
   {                                                       \
-    PE::instance().barrier();                             \
-    CFinfo.setFilterRankZero(false);                      \
     if (proc == PE::instance().rank())                    \
     {                                                     \
       func                                                \
     }                                                     \
-    CFinfo.setFilterRankZero(true);                       \
     PE::instance().barrier();                             \
   }                                                       \
+	CFinfo.setFilterRankZero(true);													\
+	PE::instance().barrier();																\
 }
         
 using namespace std;
@@ -98,6 +99,7 @@ using namespace boost;
 using namespace CF;
 using namespace CF::Mesh;
 using namespace CF::Common;
+using namespace CF::Common::String;
 using namespace boost::assign;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -493,6 +495,10 @@ struct ZoltanTests_Fixture
 
   }
   
+	//////////////////////////////////////////////////////////////////////
+
+	enum ObjectType { NODE=0, ELEM=1 };
+	enum ObjectIndex { TYPE=0, COMP=1, IDX=2 };
   
   static int get_number_of_objects_mesh(void *data, int *ierr)
   {
@@ -517,6 +523,17 @@ struct ZoltanTests_Fixture
     //CFLogVar(nb_nodes+nb_elems);
     return nb_nodes+nb_elems;
   }
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
   static void get_object_list_mesh(void *data, int sizeGID, int sizeLID,
                               ZOLTAN_ID_PTR globalID, ZOLTAN_ID_PTR localID,
@@ -528,42 +545,60 @@ struct ZoltanTests_Fixture
 
     // In this example, return the IDs of our objects, but no weights.
     // Zoltan will assume equally weighted objects.
-    
-    CList<Uint>::Ptr global_graph_ids = mesh.create_component_type<CList<Uint> >("global_graph_id");
-    CList<Uint>::Buffer global_ids_buffer = global_graph_ids->create_buffer();
-    
+        
     ZOLTAN_ID_PTR global_idx = globalID;
     ZOLTAN_ID_PTR local_idx = localID;
-    Uint loc_idx = 0;
+		
+		Uint node_start_idx = mesh.get_child("temporary_partition_info")->property("node_start_idx").value<Uint>();
+		Uint elem_start_idx = mesh.get_child("temporary_partition_info")->property("elem_start_idx").value<Uint>();
+		
+		// Loop over the nodes of the mesh
+		// -------------------------------
+
+		Uint component_idx=0; // index counting the number of components that will be traversed
     BOOST_FOREACH(const CList<Uint>& global_node_indices, recursive_filtered_range_typed<CList<Uint> >(mesh,IsComponentTag("global_node_indices")))
     {
+			CFinfo << "node comp #"<<component_idx<< " path = " << global_node_indices.get_parent()->full_path().string() << CFendl;
+
       const CList<bool>& is_ghost = *global_node_indices.get_parent()->get_child_type<CList<bool> >("is_ghost");
       
       Uint idx=0;
       BOOST_FOREACH(const Uint glb_node_idx, global_node_indices.array())
       {
-        if (!is_ghost[idx++])
+        if (!is_ghost[idx])
         {
           //CFinfo << "node: GID = " << glb_node_idx << CFendl;
-          *global_idx++ = glb_node_idx;
-          *local_idx++  = loc_idx++;
-          global_ids_buffer.add_row(glb_node_idx);
+					*global_idx++ = node_start_idx + glb_node_idx;
+										
+					*local_idx++  = NODE;
+					*local_idx++  = component_idx;
+          *local_idx++  = idx;
         }
+				++idx;
       }
+			++component_idx;
     }
     
-    // global element indices start at number of global nodes
-    Uint glb_nb_nodes = mesh.property("nb_nodes").value<Uint>();
+		// Loop over the elements of the mesh
+		// -------------------------------
+		component_idx=0;
     
     BOOST_FOREACH(const CList<Uint>& global_element_indices, recursive_filtered_range_typed<CList<Uint> >(mesh,IsComponentTag("global_element_indices")))
     {
+			CFinfo << "elem comp #"<<component_idx<< " path = " << global_element_indices.get_parent()->full_path().string() << CFendl;
+			Uint idx = 0;
       BOOST_FOREACH(const Uint glb_elm_idx, global_element_indices.array())
       {
         //CFinfo << "elem: GID = " << glb_elm_idx + glb_nb_nodes << CFendl;
-        *global_idx++ = glb_elm_idx + glb_nb_nodes;
-        *local_idx++  = loc_idx++;
-        global_ids_buffer.add_row(glb_elm_idx + glb_nb_nodes);      
+				*global_idx++ = elem_start_idx + glb_elm_idx;
+								
+				*local_idx++  = ELEM;
+				*local_idx++  = component_idx;
+				*local_idx++  = idx;
+				
+				++idx;
       }
+			++component_idx;
     }
     return;
   }
@@ -616,6 +651,21 @@ struct ZoltanTests_Fixture
     return;
   }
 
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
   static void get_edges_list_mesh(void *data, int sizeGID, int sizeLID,
           int num_obj, ZOLTAN_ID_PTR globalID, ZOLTAN_ID_PTR localID,
           int *num_edges,
@@ -627,27 +677,26 @@ struct ZoltanTests_Fixture
 
     //nborProc = NULL;
     
-    if ( (sizeGID != 1) || (sizeLID != 1) || 
+    if ( (sizeGID != 1) || (sizeLID != 3) || 
          (wgt_dim != 0)){
       *ierr = ZOLTAN_FATAL;
       return;
     }
     
-    int error;
-    Uint tot_nb_objects =  get_number_of_objects_mesh(data, &error);
-  
+		
+		ZOLTAN_ID_PTR nbor_glb_idx = nborGID;
+    int* nbor_proc = nborProc;
+		
+		Uint node_start_idx = mesh.get_child("temporary_partition_info")->property("node_start_idx").value<Uint>();
+		Uint elem_start_idx = mesh.get_child("temporary_partition_info")->property("elem_start_idx").value<Uint>();
     
-    
-    Uint num_edges_from_nodes;
-    Uint num_edges_from_elems;
+		CFLogVar(node_start_idx);
+		CFLogVar(elem_start_idx);
+		
+    Uint num_edges_from_nodes=0;
+    Uint num_edges_from_elems=0;
 
-    // global element indices start at number of global nodes
-    Uint glb_nb_nodes = mesh.property("nb_nodes").value<Uint>();
-
-    Uint loc_idx = 0;
-    Uint glb_node_idx = 0;
-
-    BOOST_FOREACH(const CFlexTable& node_to_glb_elm, recursive_filtered_range_typed<CFlexTable>(mesh,IsComponentName("glb_elem_connectivity")))
+		BOOST_FOREACH(const CFlexTable& node_to_glb_elm, recursive_filtered_range_typed<CFlexTable>(mesh,IsComponentName("glb_elem_connectivity")))
     {
       const CList<bool>& is_ghost = *node_to_glb_elm.get_parent()->get_child_type<CList<bool> >("is_ghost");
       for (Uint i=0; i<node_to_glb_elm.size(); ++i)
@@ -657,19 +706,13 @@ struct ZoltanTests_Fixture
           CFlexTable::ConstRow glb_elms = node_to_glb_elm[i];
           for (Uint j=0; j<glb_elms.size(); ++j)
           {
-            nborGID[loc_idx] = glb_elms[j] + glb_nb_nodes;
-            nborProc[loc_idx] = glb_elms[j] < 8 ? 0 : 1;
-
-            //CFinfo << "("<<globalID[glb_node_idx]<<","<<nborGID[loc_idx]-glb_nb_nodes<<")" << CFendl;
-            loc_idx++;
+						num_edges_from_nodes++;
+						*nbor_glb_idx++ = elem_start_idx + glb_elms[j];
+            *nbor_proc++ = glb_elms[j] < 8 ? 0 : 1;
           }
-          glb_node_idx++;
         }
       }
     }
-    num_edges_from_nodes = loc_idx;
-
-    Uint glb_elem_idx = glb_node_idx;
 
     BOOST_FOREACH(const CElements& elements, recursive_range_typed<CElements>(get_component_typed<CRegion>(mesh)))
     {
@@ -677,28 +720,23 @@ struct ZoltanTests_Fixture
       const CList<Uint>& glb_node_idx = get_tagged_component_typed< CList<Uint> > (coordinates,"global_node_indices");
       const CTable& conn_table = elements.connectivity_table();
       BOOST_FOREACH(CTable::ConstRow local_nodes, conn_table.array())
-      {
-        if (glb_elem_idx >= tot_nb_objects)
-          throw BadValue(FromHere(),"glb_elem_idx exceeds tot_nb_objects");
-        
+      {        
         BOOST_FOREACH(const Uint loc_node, local_nodes)
-        {
-          nborGID[loc_idx] = glb_node_idx[loc_node];
-          nborProc[loc_idx] = glb_node_idx[loc_node] < 8 ? 0 : 1;
-          //CFinfo << "("<<globalID[glb_elem_idx]-glb_nb_nodes<<","<<nborGID[loc_idx]<<")" << CFendl;
-          loc_idx++;
+        {					
+					num_edges_from_elems++;
+					*nbor_glb_idx++ = node_start_idx + glb_node_idx[loc_node];
+					*nbor_proc++ = glb_node_idx[loc_node] < 8 ? 0 : 1;
         }
-        glb_elem_idx++;
       }
     }
-    num_edges_from_elems = loc_idx - num_edges_from_nodes;     
     
     Uint total_num_edges_from_nodes = boost::mpi::all_reduce(PE::instance(),num_edges_from_nodes,std::plus<Uint>());
     Uint total_num_edges_from_elems = boost::mpi::all_reduce(PE::instance(),num_edges_from_elems,std::plus<Uint>());
 
     if (total_num_edges_from_nodes != total_num_edges_from_elems)
       *ierr = ZOLTAN_FATAL;
-      
+		
+		
     //CFLogVar(num_edges_from_nodes);
     //CFLogVar(total_num_edges_from_nodes);
     //CFLogVar(num_edges_from_elems);
@@ -730,9 +768,9 @@ struct ZoltanTests_Fixture
     for (Uint i=0; i < part_assign.size(); i++)
     {
       if (i<nb_nodes)
-        CFinfo << "node ["<< 1+i <<"]  -->  " << part_assign[i] << CFendl;
+        CFinfo << "node ["<< i <<"]  -->  " << part_assign[i] << CFendl;
       else
-        CFinfo << "elem ["<< 1+i-nb_nodes <<"]  -->  " << part_assign[i] << CFendl;
+        CFinfo << "elem ["<< i-nb_nodes <<"]  -->  " << part_assign[i] << CFendl;
     }
   }
 	
@@ -895,7 +933,7 @@ BOOST_AUTO_TEST_CASE ( zoltan_quadtriag_mesh)
     throw BadValue(FromHere(),"Zoltan error");
 
 	
-	std::string graph_package = "PARMETIS";
+	std::string graph_package = "SCOTCH";
 	if (graph_package == "PHG" && PE::instance().size() != 2)
 	{
 		throw NotImplemented(FromHere(),"PHG graph package needs processor information for each object. It assumes now 2 processors. Run with 2 processors.");
@@ -905,8 +943,8 @@ BOOST_AUTO_TEST_CASE ( zoltan_quadtriag_mesh)
   zz->Set_Param( "LB_METHOD", "GRAPH");
   zz->Set_Param( "GRAPH_PACKAGE",graph_package);
   zz->Set_Param( "LB_APPROACH", "PARTITION");
-  zz->Set_Param( "NUM_GID_ENTRIES", "1 "); 
-  zz->Set_Param( "NUM_LID_ENTRIES", "1");
+  zz->Set_Param( "NUM_GID_ENTRIES", "1"); 
+  zz->Set_Param( "NUM_LID_ENTRIES", "3");
   zz->Set_Param( "RETURN_LISTS", "ALL");
   zz->Set_Param( "GRAPH_SYMMETRIZE","NONE");
 
@@ -935,19 +973,14 @@ BOOST_AUTO_TEST_CASE ( zoltan_quadtriag_mesh)
   ZOLTAN_ID_PTR exportLocalIds;
   int *exportProcs;
   int *exportToPart;
+	
+	
+	Component::Ptr partition_info = mesh.create_component_type<Component>("temporary_partition_info");
+	partition_info->properties()["node_start_idx"]=Uint(0);
+	partition_info->properties()["elem_start_idx"]=mesh.property("nb_nodes").value<Uint>();
+	Uint node_start_idx = mesh.get_child("temporary_partition_info")->property("node_start_idx").value<Uint>();
+	Uint elem_start_idx = mesh.get_child("temporary_partition_info")->property("elem_start_idx").value<Uint>();
 
-
-
-  PE::instance().barrier();
-  CFinfo << "before partitioning\n";
-  CFinfo << "-------------------" << CFendl;
-
-  int ierr;
-  std::vector<int> parts (get_number_of_objects_mesh(&mesh,&ierr));
-
-  for (Uint i=0; i < parts.size(); i++){
-    parts[i] = PE::instance().rank();
-  }
 
   int rc = zz->LB_Partition(changes, numGidEntries, numLidEntries,
     numImport, importGlobalIds, importLocalIds, importProcs, importToPart,
@@ -958,18 +991,98 @@ BOOST_AUTO_TEST_CASE ( zoltan_quadtriag_mesh)
   {
     CFinfo << "Partitioning failed on process " << PE::instance().rank() << CFendl;
   }
+	
+/*
+	PE::instance().barrier();
+  CFinfo << "before partitioning\n";
+  CFinfo << "-------------------" << CFendl;
+	
+  int ierr;
+  std::vector<int> parts (get_number_of_objects_mesh(&mesh,&ierr));
+	
+  for (Uint i=0; i < parts.size(); i++){
+    parts[i] = PE::instance().rank();
+  }
+	
+	showMeshPartitions(mesh,parts);
 
+	
   PE::instance().barrier();
   CFinfo << "after partitioning\n";
   CFinfo << "------------------" << CFendl;
 
+	PE_SERIALIZE
+	( 
+	 {
+		 CFinfo << "proc #"<<proc<<CFendl;
+		 CFinfo << "-------"<<CFendl;
+		 CFinfo << "numExport - numImport = " << numExport - numImport << CFendl;
+		 for (int i=0; i < numImport; i++)
+		 {
+			 std::string global_id = (importGlobalIds[i]<16) ? "node " + to_str(importGlobalIds[i]) : "elem " + to_str(importGlobalIds[i]-16);
+			 CFinfo << "importGlobalIds["<<i<<"] = "<<global_id<<CFendl;
+			 CFinfo << "local id on proc#"<<importProcs[i]<<" = "<<importLocalIds[i]<<CFendl;
 
-  for (int i=0; i < numExport; i++)
-  {
-    parts[exportLocalIds[i]] = exportToPart[i];
-  }
+			 CFinfo << CFendl;
+		 }
+		 
+	 }
+	)
+*/
+	
+	PE::instance().barrier();
 
+	PE_SERIALIZE
+	(
+	 CFinfo << CFendl;
+	 CFinfo << "proc " << proc << CFendl;
+	 CFinfo << "------"<<CFendl;
+		for (int i=0; i < numExport; i++)
+		{
+			ObjectType obj = ObjectType(exportLocalIds[0 + 3*i]);
+			if (obj == NODE)
+				CFinfo << "export node " << exportGlobalIds[i] - node_start_idx << CFendl;
+			else
+				CFinfo << "export elem " << exportGlobalIds[i] - elem_start_idx << CFendl;
+			CFinfo <<   "  component #"<<exportLocalIds[1 + 3*i]<<CFendl;
+			CFinfo <<   "  local idx " << exportLocalIds[2 + 3*i]<<CFendl;
+			CFinfo <<   "  to proc " << exportProcs[i] << CFendl;
+		}
+	
+		for (int i=0; i < numImport; i++)
+		{
+
+			ObjectType obj = ObjectType(importLocalIds[0 + 3*i]);
+			if (obj == NODE)
+				CFinfo << "import node " << importGlobalIds[i] - node_start_idx << CFendl;
+			else
+				CFinfo << "import elem " << importGlobalIds[i] - elem_start_idx << CFendl;
+			CFinfo <<   "  component #"<<importLocalIds[1 + 3*i]<<CFendl;
+			CFinfo <<   "  local idx " << importLocalIds[2 + 3*i]<<CFendl;
+			CFinfo <<   "  from proc " << importProcs[i] << CFendl;
+
+			
+			//		Uint loc_id = exportLocalIDs[i] + (obj == NODE ? 0 ; 
+			//    parts[exportLocalIds[i]] = exportToPart[i];
+		}
+	)
+/*
   showMeshPartitions(mesh,parts);
+
+	
+	
+	PE::instance().barrier();
+  CFinfo << "before migration\n";
+  CFinfo << "------------------" << CFendl;
+	
+	
+	PE::instance().barrier();
+  CFinfo << "after migration\n";
+  CFinfo << "------------------" << CFendl;
+	*/
+	
+	mesh.remove_component("temporary_partition_info");
+	partition_info.reset();
 
   Zoltan::LB_Free_Part(&importGlobalIds, &importLocalIds, &importProcs, &importToPart);
   Zoltan::LB_Free_Part(&exportGlobalIds, &exportLocalIds, &exportProcs, &exportToPart);  
