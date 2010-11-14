@@ -322,7 +322,7 @@ BOOST_AUTO_TEST_CASE( hextet_read_NewNeu_writeGmsh )
 //  meshinfo->transform(mesh);
   
 }
-
+/*
 BOOST_AUTO_TEST_CASE( read_multiple )
 {
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
@@ -341,7 +341,7 @@ BOOST_AUTO_TEST_CASE( read_multiple )
   
   CMeshTransformer::Ptr info  = create_component_abstract_type<CMeshTransformer>("Info","info");
   info->transform(mesh);
-}
+}*/
 
 ////////////////////////////////////////////////////////////////////////////////
 
