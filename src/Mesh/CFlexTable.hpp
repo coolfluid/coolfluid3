@@ -33,8 +33,13 @@ class Mesh_API CFlexArray : public Common::Component {
 public:
   typedef boost::shared_ptr<CFlexArray> Ptr;
   typedef boost::shared_ptr<CFlexArray const> ConstPtr;
+
+  typedef std::deque< std::vector<T> > ArrayT;
   typedef FlexArrayBufferT<T> Buffer;
+  typedef std::vector<T>& Row;
+  typedef const std::vector<T>& ConstRow;
   
+  /*
   class Row
   {
   public:
@@ -66,7 +71,7 @@ public:
 
     const std::vector<T>& m_row;
   };
-  
+  */
   /// Contructor
   /// @param name of the component
   CFlexArray ( const CName& name ) : Component(name)
@@ -138,6 +143,12 @@ public:
   {
     return ConstRow(m_array[idx]);
   } 
+  
+  /// @return A reference to the array data
+  ArrayT& array() { return m_array; }
+
+  /// @return A const reference to the array data
+  const ArrayT& array() const { return m_array; }
   
   
 private: // helper functions
