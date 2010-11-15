@@ -549,24 +549,29 @@ BOOST_AUTO_TEST_CASE( ListFlushTest )
 BOOST_AUTO_TEST_CASE ( CFlexTable_test )
 {
   CFlexTable table ("table");
+  CFlexTable::Buffer buffer = table.create_buffer();
   
   std::vector<Uint> row;
   
   row.resize(3);
   for(Uint i=0; i<row.size(); i++) row[i] = 0;
-  table.add_row(row);
+  buffer.add_row(row);
 
   row.resize(4);
   for(Uint i=0; i<row.size(); i++) row[i] = 1;
-  table.add_row(row);
+  buffer.add_row(row);
   
   row.resize(6);
   for(Uint i=0; i<row.size(); i++) row[i] = 2;
-  table.add_row(row);
+  buffer.add_row(row);
   
   row.resize(2);
   for(Uint i=0; i<row.size(); i++) row[i] = 3;
-  table.add_row(row);
+  buffer.add_row(row);
+  
+  BOOST_CHECK_EQUAL(table.size(), (Uint) 0);
+  
+  buffer.flush();
   
   BOOST_CHECK_EQUAL(table.size(), (Uint) 4);
   
@@ -587,6 +592,54 @@ BOOST_AUTO_TEST_CASE ( CFlexTable_test )
   BOOST_CHECK_EQUAL(table[3][0], (Uint) 3);
   BOOST_CHECK_EQUAL(table[3].size(), (Uint) 2);
   BOOST_CHECK_EQUAL(table.row_size(3), (Uint) 2);
+  
+
+   // buffer is now empty.
+   // add a row to buffer, remove that same row, and add another row.
+  row.resize(4);
+  for(Uint i=0; i<row.size(); i++) row[i] = 4;
+  buffer.add_row(row);
+  buffer.rm_row(4);
+  
+  row.resize(7);
+  for(Uint i=0; i<row.size(); i++) row[i] = 5;
+  buffer.add_row(row);
+  
+  buffer.flush();
+
+  // the table should have grown with 1 as the buffer with 1 item was flushed
+  BOOST_CHECK_EQUAL(table.size(),(Uint) 5);
+  BOOST_CHECK_EQUAL(table[4][0],(Uint) 5);
+  BOOST_CHECK_EQUAL(table.row_size(4), (Uint) 7);
+
+  // remove row 0, 1, 2
+  buffer.rm_row(0);
+  buffer.rm_row(1);
+  buffer.rm_row(2);
+
+
+
+  // table still has 5 rows, but first 3 rows are marked as disabled
+  BOOST_CHECK_EQUAL(table.size(),(Uint) 5);
+
+  // Flush the buffer
+ 	boost::shared_ptr< std::vector<Uint> > old_indexes_ptr = buffer.flush();
+ 	std::vector<Uint>& old_indexes = *old_indexes_ptr;
+  
+  // now the table should only have 2 row, as the 3 disabled rows should be removed
+
+  BOOST_CHECK_EQUAL(table.size(),(Uint) 2);
+  
+  BOOST_CHECK_EQUAL(table[0][0],(Uint) 3);
+  BOOST_CHECK_EQUAL(table.row_size(0), (Uint) 2);
+  
+  BOOST_CHECK_EQUAL(table[1][0],(Uint) 5);
+  BOOST_CHECK_EQUAL(table.row_size(1), (Uint) 7);
+  
+
+ 	// check old indices
+ 	BOOST_CHECK_EQUAL(old_indexes[0] , (Uint) 3 );
+ 	BOOST_CHECK_EQUAL(old_indexes[1] , (Uint) 4 );
   
   
   

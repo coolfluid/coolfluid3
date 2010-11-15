@@ -20,21 +20,5 @@ CFlexTable_Provider ( CFlexTable::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CFlexTable::CFlexTable ( const CName& name  ) :
-  Component ( name )
-{
-  BUILD_COMPONENT;
-  m_idx.resize(1);
-  m_idx[0]=0;
-}
-
-// std::ostream& operator<<(std::ostream& os, const CFlexTable::ConstRow& row)
-// {
-//   print_vector(os, row);
-//   return os;
-// }
-
-////////////////////////////////////////////////////////////////////////////////
-
 } // Mesh
 } // CF
