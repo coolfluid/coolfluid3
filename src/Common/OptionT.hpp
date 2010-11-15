@@ -26,6 +26,7 @@ namespace Common {
   ///   - int
   ///   - CF:Uint
   ///   - CF::Real
+  ///   - boost::path
   ///   - std::string
   /// @author Tiago Quintino
   template < typename TYPE >

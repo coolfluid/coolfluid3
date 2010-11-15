@@ -4,23 +4,18 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <boost/filesystem/path.hpp>
-
 #include "Common/OptionArray.hpp"
-#include "Common/URI.hpp"
 
 namespace CF {
 namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  OptionArray::OptionArray(const std::string& name,
-                           const std::string& desc, const boost::any def) :
-      Option(name, desc, def)
-  {
-
-  }
-
+OptionArray::OptionArray(const std::string& name,
+                        const std::string& desc, const boost::any def) :
+    Option(name, desc, def)
+{
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

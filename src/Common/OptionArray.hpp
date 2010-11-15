@@ -42,6 +42,7 @@ namespace Common {
   ///   - CF:Uint
   ///   - CF::Real
   ///   - std::string
+  ///   - boost::path
   /// @author Tiago Quintino
   template < typename TYPE >
       class OptionArrayT : public OptionArray  {
@@ -184,7 +185,6 @@ namespace Common {
   {
     return boost::any_cast<value_type>(m_value);
   }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 
