@@ -722,7 +722,7 @@ sub install_openmpi() {
     rmtree "$opt_tmp_dir/$lib-$version";
     untar_src("$lib-$version");
     safe_chdir("$opt_tmp_dir/$lib-$version/");
-    run_command_or_die("./configure CC=$ENV{CC} CXX=$ENV{CXX} --without-cs-fs --with-threads=posix $fortran_opts --prefix=$opt_mpi_dir");
+    run_command_or_die("./configure CC=$ENV{CC} CXX=$ENV{CXX} --disable-visibility --without-cs-fs --with-threads=posix $fortran_opts --prefix=$opt_mpi_dir");
     run_command_or_die("make $opt_makeopts");
     run_command_or_die("make install");
   }
