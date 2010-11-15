@@ -1064,8 +1064,7 @@ sub install_boost()
       }
       run_command_or_die("sh build.sh $toolset");
   
-	  $bjampath="./tools/jam/src/bin.$boost_arch/bjam";
-	
+	  $bjampath="$opt_tmp_dir/$pack/tools/jam/src/bin.$boost_arch/bjam";
 	  if ( not -e $bjampath ) { die "Cannot find bjam in $bjampath" }
     }
 
