@@ -641,17 +641,17 @@ namespace FUNCTIONPARSERTYPES
         return fp_equal(value, fp_floor(value));
     }
 
+    template<typename Value_t>
+    inline long makeLongInteger(Value_t value)
+    {
+        return (long) fp_int(value);
+    }
+
     // Is value an integer that fits in "long" datatype?
     template<typename Value_t>
     inline bool isLongInteger(Value_t value)
     {
         return value == Value_t( makeLongInteger(value) );
-    }
-
-    template<typename Value_t>
-    inline long makeLongInteger(Value_t value)
-    {
-        return (long) fp_int(value);
     }
 
 #ifdef FP_SUPPORT_LONG_INT_TYPE
