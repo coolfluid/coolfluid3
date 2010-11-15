@@ -82,7 +82,7 @@ my %packages = (  #  version   default install priority      function
     "openmpi"    => [ "1.5",      'off',   'off', $priority++,  \&install_openmpi ],
     "mpich"      => [ "1.2.7p1",  'off',   'off', $priority++,  \&install_mpich ],
     "mpich2"     => [ "1.2.1",    'off',   'off', $priority++,  \&install_mpich2 ],
-    "boost-bjam" => [ "3.1.18",   'off',   'off', $priority++,  \&install_boost_jam ],
+    "boost-jam"  => [ "3.1.18",   'off',   'off', $priority++,  \&install_boost_jam ],
     "boost"      => [ "1_43_0",   'on' ,   'off', $priority++,  \&install_boost ],
     "parmetis"   => [ "3.1.1",    'off',   'off', $priority++,  \&install_parmetis ],
     "hdf5"       => [ "1.8.5",    'off',   'off', $priority++,  \&install_hdf5 ],
@@ -93,6 +93,9 @@ my %packages = (  #  version   default install priority      function
     "cgal"       => [ "3.6.1",    'off',   'off', $priority++,  \&install_cgal ],
     "zoltan"     => [ "3.3",      'off',   'off', $priority++,  \&install_zoltan ],
 );
+
+# supported extensions for downloading and uncompressing
+my @extensions = ( "tar.gz" , "tar.bz2" , "tgz" , "zip" );
 
 #==========================================================================
 # Command Line
@@ -231,7 +234,6 @@ sub run_command($)
     my ($args)=@_;
     if ($opt_verbose)  { print my_colored("Executing   : $args\n",$OKCOLOR) };
     my $output;
-    # print my_colored("Executing : $args",$OKCOLOR);
     my $command = join("",$args,"|");
     my $pid=open READER, $command or die "Can't run the program: $args $!\n";
     while(<READER>){
@@ -432,29 +434,23 @@ sub remote_file_exists($) {
 sub download_src ($) {
   
   my ($stem)=@_;
+  my $gotit = 0;
 
-  my $file1 = "$stem.tar.gz";
-  my $file2 = "$stem.tar.bz2";
-  my $status = 0;
-
-  if ( not -e $file1 and not -e $file2 )
+  foreach my $ext (@extensions) 
   {
-    if (remote_file_exists($file1)) {
-      $status = download_file("$opt_dwnldsrc/$file1");
-    } elsif (remote_file_exists($file2)) {
-      $status = download_file("$opt_dwnldsrc/$file2");
-    } else {
-      print my_colored("File $file1 or $file2 does not exist on server. \n",$OKCOLOR);
-      $status = 1;
+	my $cfile = "$stem.$ext";
+	if ( not -e $cfile ) # download only if does not exist
+	{ 
+      if ( remote_file_exists($cfile) ) { 
+		my $status = download_file("$opt_dwnldsrc/$cfile"); 
+		die "Download of $cfile exited with error" unless $status == 0;
+		$gotit = 1;
+	  }
     }
-    print my_colored("Exit Status : $status\n",$OKCOLOR);
-
-    if ( $status )
-    {
-      die "Download of $stem exited with error" unless $status == 0;
-    }
+    else { print my_colored("file $cfile alreadyexists, not downloading.\n",$OKCOLOR); $gotit = 1; }
   }
-  else { print my_colored("file already exists, not retrieving.\n",$OKCOLOR); }
+
+  die "Could not get source file '$stem' with neither extension [". join(',',@extensions) ."]" if ( not $gotit );
 }
 
 #==========================================================================
@@ -505,12 +501,26 @@ sub install_wgetprog() {
 
 sub untar_src ($) {
   my ($stem)=@_;
-  my  $status = get_command_status("tar zxf $stem.tar.gz");
-  if ($status) {
-    $status = get_command_status("tar jxf $stem.tar.bz2");
-    print my_colored("Exit Status : $status\n",$OKCOLOR);
-    die "Unpack of $stem exited with error" unless $status == 0;
+  my $gotit = 0;
+
+  foreach my $ext (@extensions) 
+  {
+	my $cfile = "$stem.$ext";
+	my $status = -1;
+	if ( -e $cfile ) 
+	{
+	    $status = get_command_status("tar zxf $stem.$ext") if( $ext eq "tar.gz" );
+	    $status = get_command_status("tar zxf $stem.$ext") if( $ext eq "tgz" );
+	    $status = get_command_status("tar jxf $stem.$ext") if( $ext eq "tar.bz2" );
+	    $status = get_command_status("unzip   $stem.$ext") if( $ext eq "zip" );
+
+	    print my_colored("Exit Status : $status\n",$OKCOLOR);
+	    die "Unpack of $stem exited with error" unless $status == 0;
+		$gotit = 1;
+    }
   }
+
+  die "Could uncompress source file '$stem' with neither extension [". join(',',@extensions) ."]" if ( not $gotit );
 }
 
 #==========================================================================
@@ -1036,7 +1046,6 @@ sub install_boost_jam()
   my $lib = "boost-jam";
   my $version = $packages{$lib}[$vrs];
   my $pack = "$lib-$version";
-  my $bjamcfg="$opt_tmp_dir/$pack/user-config.jam";
 
   print my_colored("Installing $pack\n",$HIGHLIGHTCOLOR);
 
@@ -1062,13 +1071,13 @@ sub install_boost_jam()
 
     if( is_mac() ) {  $toolset = "darwin" unless ( $toolset eq "cc" ) }
 
-    run_command_or_die("sh build.sh $toolset");
+    my $output = run_command("sh build.sh $toolset");
 
     my $boost_arch = boost_arch();
 
+    safe_copy( "$opt_tmp_dir/$pack/bin.$boost_arch/bjam" ,"$opt_install_dir/bin");
   }
 }
-
 
 #==========================================================================
 
