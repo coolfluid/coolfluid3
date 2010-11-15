@@ -82,11 +82,12 @@ my %packages = (  #  version   default install priority      function
     "openmpi"    => [ "1.5",      'off',   'off', $priority++,  \&install_openmpi ],
     "mpich"      => [ "1.2.7p1",  'off',   'off', $priority++,  \&install_mpich ],
     "mpich2"     => [ "1.2.1",    'off',   'off', $priority++,  \&install_mpich2 ],
+    "boost-bjam" => [ "3.1.18",   'off',   'off', $priority++,  \&install_boost_jam ],
     "boost"      => [ "1_43_0",   'on' ,   'off', $priority++,  \&install_boost ],
     "parmetis"   => [ "3.1.1",    'off',   'off', $priority++,  \&install_parmetis ],
     "hdf5"       => [ "1.8.5",    'off',   'off', $priority++,  \&install_hdf5 ],
     "trilinos"   => [ "10.2.0",   'off',   'off', $priority++,  \&install_trilinos ],
-    "petsc"      => [ "3.1-p2",   'off',   'off', $priority++,  \&install_petsc3 ],
+    "petsc"      => [ "3.1-p5",   'off',   'off', $priority++,  \&install_petsc3 ],
     "cgns"       => [ "3.0.8",    'off',   'off', $priority++,  \&install_cgns ],
     "google-perftools" => [ "1.6",'off',   'off', $priority++,  \&install_google_perftools ],
     "cgal"       => [ "3.6.1",    'off',   'off', $priority++,  \&install_cgal ],
@@ -1005,6 +1006,72 @@ $mpiopt \\
 
 #==========================================================================
 
+sub boost_arch()
+{
+	my $boost_arch;
+    
+    # linux
+	if($arch eq "x86_64") { $boost_arch = "linuxx86_64" ;  }
+    if($arch eq "i686")   { $boost_arch = "linuxx86" ;  }
+
+    if(is_mac())         
+    { 
+        $boost_arch = "macosxx86"; 
+      
+        # If Snow Leopard
+        my $capable64 = run_command("sysctl hw | grep 'hw.cpu64bit_capable: [0-9]'");
+        my $OSversion = run_command("sw_vers | grep 'ProductVersion:'");
+        if ($capable64 =~ /hw.cpu64bit_capable:\s1/ && $OSversion =~ /10\.6\.*/) 
+        {
+           $boost_arch = "macosxx86_64";    
+        }
+    }
+	return $boost_arch;
+}
+
+#==========================================================================
+
+sub install_boost_jam()
+{
+  my $lib = "boost-jam";
+  my $version = $packages{$lib}[$vrs];
+  my $pack = "$lib-$version";
+  my $bjamcfg="$opt_tmp_dir/$pack/user-config.jam";
+
+  print my_colored("Installing $pack\n",$HIGHLIGHTCOLOR);
+
+  safe_chdir($opt_tmp_dir);
+  download_src("$pack");
+
+  unless ($opt_fetchonly)
+  {
+    rmtree "$opt_tmp_dir/$pack";
+    untar_src("$pack");
+    safe_chdir("$opt_tmp_dir/$pack/");
+
+	# select the toolset
+    my $toolset = "gcc";
+    if( ( $ENV{CC} =~ m/icc$/   ) or ( $ENV{CXX} =~ m/icpc$/ )      ) { $toolset = "intel-linux"; }
+    if( ( $ENV{CC} =~ m/clang$/ ) or ( $ENV{CXX} =~ m/clang\+\+$/ ) ) { $toolset = "cc"; }
+
+    if ($toolset eq 'gcc' ) # in case g++ is special path
+    {
+      $ENV{GCC} = $ENV{CC};
+      $ENV{GXX} = $ENV{CXX};
+    }
+
+    if( is_mac() ) {  $toolset = "darwin" unless ( $toolset eq "cc" ) }
+
+    run_command_or_die("sh build.sh $toolset");
+
+    my $boost_arch = boost_arch();
+
+  }
+}
+
+
+#==========================================================================
+
 sub install_boost()
 {
   my $lib = "boost";
@@ -1028,7 +1095,7 @@ sub install_boost()
     if( ( $ENV{CC} =~ m/icc$/   ) or ( $ENV{CXX} =~ m/icpc$/ )      ) { $toolset = "intel-linux"; }
     if( ( $ENV{CC} =~ m/clang$/ ) or ( $ENV{CXX} =~ m/clang\+\+$/ ) ) { $toolset = "clang"; }
 
-    if ($toolset eq 'gcc' ) # in case g++ is speical path
+    if ($toolset eq 'gcc' ) # in case g++ is special path
     {
       $ENV{GCC} = $ENV{CC};
       $ENV{GXX} = $ENV{CXX};
@@ -1046,22 +1113,8 @@ sub install_boost()
 	  # assume that bjam source came with boost
       safe_chdir("tools/jam/src");
 
-      my $boost_arch;
-      if($arch eq "x86_64") { $boost_arch = "linuxx86_64" ;  }
-      if($arch eq "i686")   { $boost_arch = "linuxx86" ;  }
+      my $boost_arch = boost_arch();
 
-      if(is_mac())         
-      { 
-        $boost_arch = "macosxx86"; 
-      
-        # If Snow Leopard
-        my $capable64 = run_command("sysctl hw | grep 'hw.cpu64bit_capable: [0-9]'");
-        my $OSversion = run_command("sw_vers | grep 'ProductVersion:'");
-        if ($capable64 =~ /hw.cpu64bit_capable:\s1/ && $OSversion =~ /10\.6\.*/) 
-        {
-           $boost_arch = "macosxx86_64";    
-        }
-      }
       run_command_or_die("sh build.sh $toolset");
   
 	  $bjampath="$opt_tmp_dir/$pack/tools/jam/src/bin.$boost_arch/bjam";
