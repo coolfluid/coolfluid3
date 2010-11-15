@@ -84,7 +84,7 @@ GraphicalValue * GraphicalValue::createFromOption(CF::Common::Option::ConstPtr o
       value = new GraphicalArray(new QRegExpValidator(QRegExp("(true)|(false)"), parent), parent);
     else if(tag.compare(XmlTag<CF::Real>::type()) == 0)      // Real option
     {
-      QDoubleValidator * val = new QDoubleValidator();
+      QDoubleValidator * val = new QDoubleValidator(nullptr);
       val->setNotation(QDoubleValidator::ScientificNotation);
       value = new GraphicalArray(val, parent);
     }
