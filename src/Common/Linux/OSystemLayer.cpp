@@ -144,10 +144,24 @@ void OSystemLayer::registSignalHandlers()
   signal(SIGSEGV,   (sighandler_t) Linux::OSystemLayer::handleSIGSEGV);
 
   // enable the exceptions that will raise the SIGFPE signal
+  // note that the header may be present but the FPU not support certain exceptions
+  // therefore we protect them by the define guards
+  
+#ifdef FE_DIVBYZERO 
   feenableexcept ( FE_DIVBYZERO );
+#endif
+
+#ifdef FE_INVALID
   feenableexcept ( FE_INVALID   );
+#endif
+
+#ifdef FE_OVERFLOW
   feenableexcept ( FE_OVERFLOW  );
+#endif
+
+#ifdef FE_UNDERFLOW
   feenableexcept ( FE_UNDERFLOW );
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
