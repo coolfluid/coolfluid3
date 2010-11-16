@@ -1058,7 +1058,7 @@ sub install_boost_jam()
     untar_src("$pack");
     safe_chdir("$opt_tmp_dir/$pack/");
 
-	# select the toolset
+    # select the toolset
     my $toolset = "gcc";
     if( ( $ENV{CC} =~ m/icc$/   ) or ( $ENV{CXX} =~ m/icpc$/ )      ) { $toolset = "intel-linux"; }
     if( ( $ENV{CC} =~ m/clang$/ ) or ( $ENV{CXX} =~ m/clang\+\+$/ ) ) { $toolset = "cc"; }
@@ -1075,7 +1075,7 @@ sub install_boost_jam()
 
     my $boost_arch = boost_arch();
 
-    safe_copy( "$opt_tmp_dir/$pack/bin.$boost_arch/bjam" ,"$opt_install_dir/bin");
+    move ( "$opt_tmp_dir/$pack/bin.$boost_arch/bjam", "$opt_install_dir/bin" ) or die "Cannot move bjam to $opt_install_dir/bin ($!)";
   }
 }
 
