@@ -33,6 +33,52 @@
 namespace FUNCTIONPARSERTYPES
 {
 
+//==========================================================================
+// Math funcs declarations
+//==========================================================================
+
+    template<typename Value_t>
+    void fp_sinCos(Value_t& sin, Value_t& cos, const Value_t& a);
+
+    template<typename Value_t>
+    Value_t fp_hypot(Value_t x, Value_t y);
+
+    template<typename Value_t>
+    Value_t fp_asinh(Value_t x);
+
+    template<typename Value_t>
+    Value_t fp_acosh(Value_t x);
+
+    template<typename Value_t>
+    Value_t fp_atanh(Value_t x);
+
+    template<typename Value_t>
+    Value_t fp_const_pi();
+
+    template<typename Value_t>
+    Value_t fp_const_e();
+
+    template<typename Value_t>
+    Value_t fp_const_einv();
+
+    template<typename Value_t>
+    Value_t fp_const_log2();
+
+    template<typename Value_t>
+    Value_t fp_const_log10();
+
+    template<typename Value_t>
+    Value_t fp_const_log2inv();
+
+    template<typename Value_t>
+    Value_t fp_const_log10inv();
+
+    template<typename Value_t>
+    const Value_t& fp_const_deg_to_rad();
+
+    template<typename Value_t>
+    const Value_t& fp_const_rad_to_deg();
+
 // -------------------------------------------------------------------------
 // double
 // -------------------------------------------------------------------------
