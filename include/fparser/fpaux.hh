@@ -32,130 +32,6 @@
 #ifdef ONCE_FPARSER_H_
 namespace FUNCTIONPARSERTYPES
 {
-    template<typename value_t>
-    struct IsIntType
-    {
-        enum { result = false };
-    };
-    template<>
-    struct IsIntType<long>
-    {
-        enum { result = true };
-    };
-#ifdef FP_SUPPORT_GMP_INT_TYPE
-    template<>
-    struct IsIntType<GmpInt>
-    {
-        enum { result = true };
-    };
-#endif
-
-//==========================================================================
-// Math funcs
-//==========================================================================
-    template<typename ValueT>
-    ValueT fp_pow(const ValueT& x, const ValueT& y);
-
-    template<typename Value_t>
-    inline void fp_sinCos(Value_t& sin, Value_t& cos, const Value_t& a)
-    {
-        // Assuming that "cos" and "a" don't overlap, but "sin" and "a" may.
-        cos = fp_cos(a);
-        sin = fp_sin(a);
-    }
-
-    template<typename Value_t>
-    inline Value_t fp_hypot(Value_t x, Value_t y) { return fp_sqrt(x*x + y*y); }
-
-    template<typename Value_t>
-    inline Value_t fp_asinh(Value_t x)
-        { return fp_log(x + fp_sqrt(x*x + Value_t(1))); }
-    template<typename Value_t>
-    inline Value_t fp_acosh(Value_t x)
-        { return fp_log(x + fp_sqrt(x*x - Value_t(1))); }
-    template<typename Value_t>
-    inline Value_t fp_atanh(Value_t x)
-        { return fp_log( (Value_t(1)+x) / (Value_t(1)-x)) * Value_t(0.5); }
-
-
-    template<typename Value_t>
-    inline Value_t fp_const_pi() // CONSTANT_PI
-    {
-        return Value_t(3.1415926535897932384626433832795028841971693993751L);
-    }
-
-#ifdef FP_SUPPORT_MPFR_FLOAT_TYPE
-    template<>
-    inline MpfrFloat fp_const_pi<MpfrFloat>() { return MpfrFloat::const_pi(); }
-#endif
-
-    template<typename Value_t>
-    inline Value_t fp_const_e() // CONSTANT_E
-    {
-        return Value_t(2.7182818284590452353602874713526624977572L);
-    }
-    template<typename Value_t>
-    inline Value_t fp_const_einv() // CONSTANT_EI
-    {
-        return Value_t(0.367879441171442321595523770161460867445811131L);
-    }
-    template<typename Value_t>
-    inline Value_t fp_const_log2() // CONSTANT_L2, CONSTANT_L2EI
-    {
-        return Value_t(0.69314718055994530941723212145817656807550013436025525412L);
-    }
-    template<typename Value_t>
-    inline Value_t fp_const_log10() // CONSTANT_L10, CONSTANT_L10EI
-    {
-        return Value_t(2.302585092994045684017991454684364207601101488628772976L);
-    }
-    template<typename Value_t>
-    inline Value_t fp_const_log2inv() // CONSTANT_L2I, CONSTANT_L2E
-    {
-        return Value_t(1.442695040888963407359924681001892137426645954L);
-    }
-    template<typename Value_t>
-    inline Value_t fp_const_log10inv() // CONSTANT_L10I, CONSTANT_L10E
-    {
-        return Value_t(0.434294481903251827651128918916605082294397L);
-    }
-
-    template<typename Value_t>
-    inline const Value_t& fp_const_deg_to_rad() // CONSTANT_DR
-    {
-        static const Value_t factor = fp_const_pi<Value_t>() / Value_t(180); // to rad from deg
-        return factor;
-    }
-
-    template<typename Value_t>
-    inline const Value_t& fp_const_rad_to_deg() // CONSTANT_RD
-    {
-        static const Value_t factor = Value_t(180) / fp_const_pi<Value_t>(); // to deg from rad
-        return factor;
-    }
-
-#ifdef FP_SUPPORT_MPFR_FLOAT_TYPE
-    template<>
-    inline MpfrFloat fp_const_e<MpfrFloat>() { return MpfrFloat::const_e(); }
-
-    template<>
-    inline MpfrFloat fp_const_einv<MpfrFloat>() { return MpfrFloat(1) / MpfrFloat::const_e(); }
-
-    template<>
-    inline MpfrFloat fp_const_log2<MpfrFloat>() { return MpfrFloat::const_log2(); }
-
-    /*
-    template<>
-    inline MpfrFloat fp_const_log10<MpfrFloat>() { return fp_log(MpfrFloat(10)); }
-
-    template<>
-    inline MpfrFloat fp_const_log2inv<MpfrFloat>() { return MpfrFloat(1) / MpfrFloat::const_log2(); }
-
-    template<>
-    inline MpfrFloat fp_const_log10inv<MpfrFloat>() { return fp_log10(MpfrFloat::const_e()); }
-    */
-#endif
-
 
 // -------------------------------------------------------------------------
 // double
@@ -208,6 +84,9 @@ namespace FUNCTIONPARSERTYPES
 #else
     inline double fp_log2(double x) { return log2(x); }
 #endif // FP_SUPPORT_LOG2
+
+    template<typename ValueT>
+    ValueT fp_pow(const ValueT& x, const ValueT& y);
 
     inline double fp_exp2(double x) { return fp_pow(2.0, x); }
 
@@ -495,6 +374,128 @@ namespace FUNCTIONPARSERTYPES
     template<>
     inline GmpInt fp_epsilon<GmpInt>() { return 0; }
 #endif // FP_SUPPORT_GMP_INT_TYPE
+
+    template<typename value_t>
+    struct IsIntType
+    {
+        enum { result = false };
+    };
+    template<>
+    struct IsIntType<long>
+    {
+        enum { result = true };
+    };
+#ifdef FP_SUPPORT_GMP_INT_TYPE
+    template<>
+    struct IsIntType<GmpInt>
+    {
+        enum { result = true };
+    };
+#endif
+
+//==========================================================================
+// Math funcs
+//==========================================================================
+
+    template<typename Value_t>
+    inline void fp_sinCos(Value_t& sin, Value_t& cos, const Value_t& a)
+    {
+        // Assuming that "cos" and "a" don't overlap, but "sin" and "a" may.
+        cos = fp_cos(a);
+        sin = fp_sin(a);
+    }
+
+    template<typename Value_t>
+    inline Value_t fp_hypot(Value_t x, Value_t y) { return fp_sqrt(x*x + y*y); }
+
+    template<typename Value_t>
+    inline Value_t fp_asinh(Value_t x)
+        { return fp_log(x + fp_sqrt(x*x + Value_t(1))); }
+    template<typename Value_t>
+    inline Value_t fp_acosh(Value_t x)
+        { return fp_log(x + fp_sqrt(x*x - Value_t(1))); }
+    template<typename Value_t>
+    inline Value_t fp_atanh(Value_t x)
+        { return fp_log( (Value_t(1)+x) / (Value_t(1)-x)) * Value_t(0.5); }
+
+
+    template<typename Value_t>
+    inline Value_t fp_const_pi() // CONSTANT_PI
+    {
+        return Value_t(3.1415926535897932384626433832795028841971693993751L);
+    }
+
+#ifdef FP_SUPPORT_MPFR_FLOAT_TYPE
+    template<>
+    inline MpfrFloat fp_const_pi<MpfrFloat>() { return MpfrFloat::const_pi(); }
+#endif
+
+    template<typename Value_t>
+    inline Value_t fp_const_e() // CONSTANT_E
+    {
+        return Value_t(2.7182818284590452353602874713526624977572L);
+    }
+    template<typename Value_t>
+    inline Value_t fp_const_einv() // CONSTANT_EI
+    {
+        return Value_t(0.367879441171442321595523770161460867445811131L);
+    }
+    template<typename Value_t>
+    inline Value_t fp_const_log2() // CONSTANT_L2, CONSTANT_L2EI
+    {
+        return Value_t(0.69314718055994530941723212145817656807550013436025525412L);
+    }
+    template<typename Value_t>
+    inline Value_t fp_const_log10() // CONSTANT_L10, CONSTANT_L10EI
+    {
+        return Value_t(2.302585092994045684017991454684364207601101488628772976L);
+    }
+    template<typename Value_t>
+    inline Value_t fp_const_log2inv() // CONSTANT_L2I, CONSTANT_L2E
+    {
+        return Value_t(1.442695040888963407359924681001892137426645954L);
+    }
+    template<typename Value_t>
+    inline Value_t fp_const_log10inv() // CONSTANT_L10I, CONSTANT_L10E
+    {
+        return Value_t(0.434294481903251827651128918916605082294397L);
+    }
+
+    template<typename Value_t>
+    inline const Value_t& fp_const_deg_to_rad() // CONSTANT_DR
+    {
+        static const Value_t factor = fp_const_pi<Value_t>() / Value_t(180); // to rad from deg
+        return factor;
+    }
+
+    template<typename Value_t>
+    inline const Value_t& fp_const_rad_to_deg() // CONSTANT_RD
+    {
+        static const Value_t factor = Value_t(180) / fp_const_pi<Value_t>(); // to deg from rad
+        return factor;
+    }
+
+#ifdef FP_SUPPORT_MPFR_FLOAT_TYPE
+    template<>
+    inline MpfrFloat fp_const_e<MpfrFloat>() { return MpfrFloat::const_e(); }
+
+    template<>
+    inline MpfrFloat fp_const_einv<MpfrFloat>() { return MpfrFloat(1) / MpfrFloat::const_e(); }
+
+    template<>
+    inline MpfrFloat fp_const_log2<MpfrFloat>() { return MpfrFloat::const_log2(); }
+
+    /*
+    template<>
+    inline MpfrFloat fp_const_log10<MpfrFloat>() { return fp_log(MpfrFloat(10)); }
+
+    template<>
+    inline MpfrFloat fp_const_log2inv<MpfrFloat>() { return MpfrFloat(1) / MpfrFloat::const_log2(); }
+
+    template<>
+    inline MpfrFloat fp_const_log10inv<MpfrFloat>() { return fp_log10(MpfrFloat::const_e()); }
+    */
+#endif
 
 
 // -------------------------------------------------------------------------
