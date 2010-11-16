@@ -552,6 +552,56 @@ size_t Component::get_child_count() const
 
 /////////////////////////////////////////////////////////////////////////////////////
 
+/// Adds an array to XML tree
+/// @param params XmlParams object that manages the tree
+/// @param array Array to add. It must be an OptionArrayT<TYPE>
+template<typename TYPE>
+void add_array_to_xml(XmlParams & params, const std::string & name,
+                      boost::shared_ptr<OptionArray> array)
+{
+  boost::shared_ptr<OptionArrayT<TYPE> > optArray;
+  bool basic = array->has_tag("basic");
+  std::string desc = array->description();
+
+  optArray = boost::dynamic_pointer_cast< OptionArrayT<TYPE> >(array);
+
+  params.add_array(name, boost::any_cast< std::vector<TYPE> >(optArray->value()), desc, basic);
+}
+
+/// Adds an array to XML tree
+/// @param params XmlParams object that manages the tree
+/// @param prop Property to add
+template<typename TYPE>
+void add_prop_to_xml(XmlParams & params, const std::string & name,
+                     boost::shared_ptr<Property> prop)
+{
+  TYPE value = prop->value<TYPE>();
+
+  if(!prop->is_option())
+    params.add_property(name, value);
+  else
+  {
+    Option & opt = prop->as_option();
+    bool basic = opt.has_tag("basic");
+    std::string desc = opt.description();
+    XmlNode * node;
+
+    if(opt.has_restricted_list())
+      node = params.add_option(name, value, desc, basic, opt.restricted_list());
+    else
+      node = params.add_option(name, value, desc, basic);
+
+    if(std::strcmp(opt.tag(), "uri") == 0)
+    {
+      std::vector<std::string> prots = static_cast<OptionURI*>(&opt)->supported_protocols();
+      std::vector<std::string>::iterator it = prots.begin();
+
+      for( ; it != prots.end() ; it++)
+        XmlOps::add_attribute_to(*node, XmlParams::tag_attr_protocol(), *it);
+    }
+  }
+}
+
 void Component::list_properties( XmlNode& node )
 {
   PropertyList::PropertyStorage_t::iterator it = m_property_list.m_properties.begin();
