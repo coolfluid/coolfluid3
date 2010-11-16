@@ -24,7 +24,9 @@ namespace Common {
   @file PECommPattern2.hpp
   @author Tamas Banyai
   Parallel Communication Pattern.
-  This class provides functionality to collect communication
+  This class provides functionality to collect communication.
+  For efficiency it works such a way that you submit your request via the constructor or the add/remove/move magic triangle and then call setup to modify the commpattern.
+  The data needed to be kept synchronous can be registered via the insert function
 **/
 
 // TODO:
@@ -39,6 +41,7 @@ public:
   PECommPattern2();
 
   /// constructor with settting up communication pattern
+  /// don't forget to commit changes by using setup
   /// @param gid vector of global ids
   /// @param rank vector of ranks where given global ids are updatable
   /// @see setup for committing changes
@@ -81,7 +84,7 @@ public:
   void move(Uint gid, Uint rank);
 
   /// registers data
-  template <typename T> insert(T*);
+  template <typename T> insert( );
 
   /// releases data
   template <typename T> release(T*);
@@ -92,12 +95,17 @@ public:
   /// clears the communication pattern and releases every data associated to commpattern
   void clear();
 
+  /// accessor to the bool telling if there are modifications pending for the commpattern, which needs to be committed by calling setup
+  const bool isCommPatternSetupNeeded() { return (const bool)m_isCommPatternSetupNeeded; }
+
 private:
 
-  /// storing updatable information
+  /// Storing updatable information.
+  /// Note that this is not containing the full length of the array, only the part is involved in the communication.
   std::vector<bool> m_updatable;
 
   /// this is the global id
+  /// Note that this is not containing the full length of the array, only the part is involved in the communication.
   std::vector< Uint > gid;
 
   /// this is the process-wise counter of sending communication pattern
@@ -112,8 +120,8 @@ private:
   /// this is the map of receiveing communication pattern
   std::vector< int > m_receiveMap;
 
-  /// flag telling if communication pattern is up-to-date
-  bool m_isCommPatternPrepared;
+  /// flag telling if communication pattern is up-to-date (there are no items )
+  bool m_isCommPatternSetupNeeded;
 
 };
 

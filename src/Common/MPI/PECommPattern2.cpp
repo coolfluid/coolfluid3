@@ -1,9 +1,62 @@
-
 // Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
+
+
+namespace CF {
+  namespace Common  {
+
+////////////////////////////////////////////////////////////////////////////////
+/*
+PECommPattern2::PECommPattern2()
+{
+  m_isCommPatternPrepared=false;
+  m_sendCount.resize(PE::instance().size(),0);
+  m_sendMap.resize(0);
+  m_receiveCount.resize(PE::instance().size(),0);
+  m_receiveMap.resize(0);
+  m_updatable.resize(0);
+}
+*/
+////////////////////////////////////////////////////////////////////////////////
+/*
+PECommPattern2::PECommPattern2(std::vector<Uint> gid, std::vector<Uint> rank)
+{
+  m_isCommPatternPrepared=false;
+  m_sendCount.resize(PE::instance().size(),0);
+  m_sendMap.resize(0);
+  m_receiveCount.resize(PE::instance().size(),0);
+  m_receiveMap.resize(0);
+  m_updatable.resize(0);
+  setup(gid,rank);
+}
+*/
+////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+  }  // namespace Common
+} // namespace CF
+
+
+
+
+
+
+
+
+
+
+
 /*
 #include <boost/lambda/lambda.hpp>
 
