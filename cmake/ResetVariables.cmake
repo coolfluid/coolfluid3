@@ -1,4 +1,7 @@
 # reset the list of project files
+set( CF_KERNEL_LIBS "" CACHE INTERNAL "" FORCE )
+
+# reset the list of project files
 set( CF_PROJECT_FILES "" CACHE INTERNAL "" FORCE )
 
 # reset the list of orphan files
