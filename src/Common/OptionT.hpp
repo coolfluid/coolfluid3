@@ -24,10 +24,11 @@ namespace Common {
   /// This class supports the following types:
   ///   - bool
   ///   - int
-  ///   - CF:Uint
-  ///   - CF::Real
-  ///   - boost::path
   ///   - std::string
+  ///   - boost::filesystem::path
+  ///   - CF::Uint
+  ///   - CF::Real
+  ///   - CF::Common::URI
   /// @author Tiago Quintino
   template < typename TYPE >
       class OptionT : public Option  {
@@ -64,55 +65,6 @@ namespace Common {
     void copy_to_linked_params ( const TYPE& val );
 
   }; // class OptionT
-
-////////////////////////////////////////////////////////////////////////////////
-
-  template < typename TYPE>
-  OptionT<TYPE>::OptionT ( const std::string& name, const std::string& desc, value_type def) :
-      Option(name, desc, def)
-  {
-//    CFinfo
-//        << " creating OptionT [" << m_name << "]"
-//        << " of type [" << m_type << "]"
-//        << " w default [" << def_str() << "]"
-//        << " w desc [" << m_description << "]\n"
-//        << CFendl;
-  }
-
-  template < typename TYPE>
-  void OptionT<TYPE>::configure ( XmlNode& node )
-  {
-    TYPE val;
-    const char * type_str = XmlTag<TYPE>::type();
-    XmlNode * type_node = node.first_node(type_str);
-
-    if(type_node != nullptr)
-      to_value(*type_node,val);
-    else
-    {
-      std::string str;
-      throw XmlError(FromHere(), std::string("Could not find a value of this type [")
-                     + type_str + "].");
-    }
-    m_value = val;
-    copy_to_linked_params(val);
-  }
-
-  template < typename TYPE >
-  void OptionT<TYPE>::copy_to_linked_params ( const TYPE& val )
-  {
-    BOOST_FOREACH ( void* v, this->m_linked_params )
-    {
-      TYPE* cv = static_cast<TYPE*>(v);
-      *cv = val;
-    }
-  }
-
-  template < typename TYPE >
-  const char* OptionT<TYPE>::tag () const
-  {
-    return XmlTag<TYPE>::type();
-  }
 
 ////////////////////////////////////////////////////////////////////////////////
 
