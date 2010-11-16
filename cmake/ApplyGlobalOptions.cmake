@@ -45,6 +45,12 @@ endif()
 mark_as_advanced( CF_REAL_TYPE )
 
 ###############################################################################
+
+if(NOT CF_ENABLE_VECTORIZATION)
+  add_definitions( -DEIGEN_DONT_VECTORIZE )
+endif()
+
+###############################################################################
 # explicit template support
 
 if( CF_ENABLE_EXPLICIT_TEMPLATES AND CF_CXX_SUPPORTS_EXPLICIT_TEMPLATES )
