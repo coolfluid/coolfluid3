@@ -140,7 +140,7 @@ list( APPEND coolfluid_common_files
       MPI/PECommPattern2.hpp
       MPI/PECommPattern2.cpp
       MPI/tools.hpp
-      MPI/scatterv.hpp
+      MPI/scatter.hpp
       MPI/all_to_all.hpp
 )
 endif()
