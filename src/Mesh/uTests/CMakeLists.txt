@@ -73,6 +73,27 @@ add_custom_command(TARGET utest-neu-reader-mpi
 
 ################################################################################
 
+list( APPEND utest-gmsh-reader-mpi_cflibs coolfluid_gmsh coolfluid_sf )
+list( APPEND utest-gmsh-reader-mpi_files  utest-gmsh-reader-mpi.cpp )
+
+# Add the target
+coolfluid_add_unittest( utest-gmsh-reader-mpi )
+
+# Custom post-build rule (must be defined after adding target):
+# Copy the file quadtriag.neu from source dir to binary dir.
+# this must happen after building, as some IDE like Xcode define their
+# build types internally, in which the binary dir exists
+#add_custom_command(TARGET utest-neu-reader-mpi
+#                   POST_BUILD
+#                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/quadtriag.neu #${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+#                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/hextet.neu    #${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+
+
+
+
+
+################################################################################
+
 list( APPEND utest-connectivity-data_cflibs coolfluid_neutral coolfluid_mesh_generation coolfluid_sf )
 list( APPEND utest-connectivity-data_files  utest-connectivity-data.cpp )
 
