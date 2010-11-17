@@ -14,12 +14,9 @@
 #include "Common/Log.hpp"
 
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CMeshTransformer.hpp"
-
-#include "Mesh/CFlexTable.hpp"
 
 using namespace std;
 using namespace boost;
@@ -59,7 +56,7 @@ BOOST_FIXTURE_TEST_SUITE( GmshReaderMPITests_TestSuite, GmshReaderMPITests_Fixtu
 
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
-	PE::instance().init(m_argc,m_argv);
+	//PE::instance().init(m_argc,m_argv);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -68,6 +65,10 @@ BOOST_AUTO_TEST_CASE( twoD_test )
 {
 
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Gmsh","meshreader");
+	BOOST_CHECK_EQUAL( meshreader->name() , "meshreader" );
+	BOOST_CHECK_EQUAL( meshreader->get_format() , "Gmsh" );
+	std::vector<std::string> extensions = meshreader->get_extensions();
+	BOOST_CHECK_EQUAL( extensions[0] , ".msh" );
 	
 //	meshreader->configure_property("Repartition",true);
 //	meshreader->configure_property("OutputRank",(Uint) 0);
@@ -213,7 +214,7 @@ BOOST_AUTO_TEST_CASE( read_multiple_2D )
 
 BOOST_AUTO_TEST_CASE( finalize_mpi )
 {
-	PE::instance().finalize();
+	//PE::instance().finalize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
