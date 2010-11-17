@@ -12,7 +12,6 @@
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/CNode.hpp"
-#include "GUI/Client/Core/UnknownTypeException.hpp"
 
 #include "GUI/Client/UI/GraphicalArray.hpp"
 #include "GUI/Client/UI/GraphicalBool.hpp"

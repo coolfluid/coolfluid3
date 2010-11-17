@@ -4,11 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "GUI/Client/Core/UnknownTypeException.hpp"
 
 #include "GUI/Client/UI/FilesListItem.hpp"
 
-using namespace CF::GUI::ClientCore;
 using namespace CF::GUI::ClientUI;
 
 FilesListItem::FilesListItem(const QIcon & icon, const QString & text,
@@ -16,7 +14,7 @@ FilesListItem::FilesListItem(const QIcon & icon, const QString & text,
 : QStandardItem(icon, text)
 {
   if(type != DIRECTORY && type != FILE)
-    throw UnknownTypeException(FromHere(), "Unknown item type");
+    throw CF::Common::ValueNotFound(FromHere(), "Unknown item type");
 
   m_type = type;
 

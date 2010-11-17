@@ -14,7 +14,6 @@
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/NRoot.hpp"
 #include "GUI/Client/Core/NTree.hpp"
-#include "GUI/Client/Core/UnknownTypeException.hpp"
 
 #include "GUI/Client/uTests/CommonFunctions.hpp"
 #include "GUI/Client/uTests/ExceptionThrowHandler.hpp"

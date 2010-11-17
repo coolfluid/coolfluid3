@@ -55,8 +55,6 @@ StatusModel.hpp
 TSshInformation.hpp
 TreeNode.cpp
 TreeNode.hpp
-UnknownTypeException.cpp
-UnknownTypeException.hpp
 )
 
 # Use Qt Libraries

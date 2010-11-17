@@ -16,7 +16,6 @@
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/CommitDetails.hpp"
 #include "GUI/Client/Core/CNode.hpp"
-#include "GUI/Client/Core/UnknownTypeException.hpp"
 
 #include "GUI/Client/UI/CommitDetailsDialog.hpp"
 #include "GUI/Client/UI/ConfirmCommitDialog.hpp"
@@ -167,7 +166,7 @@ void CentralPanel::setOptions(const QList<Option::ConstPtr> & list)
       else
         m_advancedOptionLayout->addOption(option);
     }
-    catch(UnknownTypeException ute)
+    catch(ValueNotFound ute)
     {
       ClientRoot::log()->addException(ute.what());
     }
