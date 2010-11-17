@@ -69,6 +69,8 @@ namespace ClientCore {
     /// @c false
     bool pathExists() const;
 
+    /// @brief Gives the client UUID
+    /// @return Returns the Client UUID
     std::string getUUID() const;
 
   private :
@@ -76,6 +78,8 @@ namespace ClientCore {
     /// @brief The internal CRoot component
     CF::Common::CRoot::Ptr m_root;
 
+
+    /// @brief Client UUID
     boost::uuids::uuid m_uuid;
 
     /// regists all the signals declared in this class
