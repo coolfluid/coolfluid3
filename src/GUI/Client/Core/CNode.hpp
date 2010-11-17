@@ -154,11 +154,15 @@ namespace ClientCore {
     /// @return Returns the corresponding component type name
     QString getComponentType() const;
 
-    CNode::Ptr getNode(CF::Uint index);
+    /// @brief Gives a child a a certain index.
+    /// @param index Index of the wanted child. Should be between 0 (included)
+    /// and @c #get_child_count() (excluded).
+    /// @return Returns the found child.
+    CNode::Ptr child(CF::Uint index);
 
     /// @brief Gives the node tooltip.
     /// @return Returns the tooltip text.
-    virtual QString getToolTip() const = 0;
+    virtual QString toolTip() const = 0;
 
     /// @brief Indicates whether this node is a client component or not.
     /// @return Returns @c true if this node is a client component.
@@ -170,7 +174,7 @@ namespace ClientCore {
 
     /// @brief Gives the node type
     /// @return Returns the node type
-    CNode::Type getType() const;
+    CNode::Type type() const;
 
     /// @brief Checks whether this node is of the provided type.
 
@@ -209,14 +213,14 @@ namespace ClientCore {
     /// @brief Gives options
     /// @param options Reference to a list where options will be put. The list
     /// cleared before first use.
-    void getOptions(QList<CF::Common::Option::ConstPtr> & list) const;
+    void options(QList<CF::Common::Option::ConstPtr> & list) const;
 
     /// @brief Gives properties
     /// @param props Reference to a map where properties will be put. The map
     /// cleared before first use.
-    void getProperties(QMap<QString, QString> & props) const;
+    void properties(QMap<QString, QString> & props) const;
 
-    void getActions(QList<ActionInfo> & actions) const;
+    void actions(QList<ActionInfo> & actions) const;
 
     /// @brief Creates an object tree from a given node
 
@@ -279,7 +283,7 @@ namespace ClientCore {
 
     /// @brief Gives the internal notifier.
     /// @return Returns the internal notifier.
-    CNodeNotifier * getNotifier() const;
+    CNodeNotifier * notifier() const;
 
     /// @brief Lists all children paths in a string list.
 

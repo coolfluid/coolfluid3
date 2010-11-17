@@ -30,7 +30,7 @@ NRoot::NRoot(const QString & name)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString NRoot::getToolTip() const
+QString NRoot::toolTip() const
 {
   return this->getComponentType();
 }
@@ -38,7 +38,7 @@ QString NRoot::getToolTip() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CNode::Ptr NRoot::getNodeFromRoot(CF::Uint number) const
+CNode::Ptr NRoot::childFromRoot(CF::Uint number) const
 {
   ComponentIterator<CNode> it = m_root->begin<CNode>();
   CF::Uint i;
@@ -63,7 +63,7 @@ bool NRoot::pathExists() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-std::string NRoot::getUUID() const
+std::string NRoot::uuid() const
 {
   std::stringstream ss;
   ss << m_uuid;

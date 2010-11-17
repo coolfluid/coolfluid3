@@ -45,11 +45,11 @@ namespace ClientCore {
 
     /// @brief Gives the text to put on a tool tip
     /// @return The name of the class.
-    virtual QString getToolTip() const;
+    virtual QString toolTip() const;
 
     /// @brief Gives the target path
     /// @return Returns the target path.
-    CF::Common::CPath getTargetPath() const;
+    CF::Common::CPath targetPath() const;
 
     /// @brief Sets new target from its path.
     /// @param path New target path.

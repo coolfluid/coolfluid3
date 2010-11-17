@@ -46,7 +46,7 @@ NLink::NLink(const QString & name)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString NLink::getToolTip() const
+QString NLink::toolTip() const
 {
   QString path = "<No target>";
 
@@ -59,7 +59,7 @@ QString NLink::getToolTip() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CPath NLink::getTargetPath() const
+CPath NLink::targetPath() const
 {
   if(m_target.get() == nullptr)
     return CPath();
@@ -92,7 +92,7 @@ void NLink::setTargetNode(const CNode::Ptr & node)
 
 void NLink::goToTarget(XmlNode & node)
 {
-  QModelIndex index = ClientRoot::tree()->getIndexByPath(m_target->full_path());
+  QModelIndex index = ClientRoot::tree()->indexByPath(m_target->full_path());
 
   if(index.isValid())
     ClientRoot::tree()->setCurrentIndex(index);

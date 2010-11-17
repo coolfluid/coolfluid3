@@ -35,11 +35,11 @@ void NTreeTest::test_constructor()
   NTree t2(makeTreeFromFile());
 
   // the root must be the same as the client root
-  QCOMPARE(t.getRoot().get(), ClientRoot::root().get());
-  QCOMPARE(makeTreeFromFile().get(), t2.getRoot().get());
+  QCOMPARE(t.treeRoot().get(), ClientRoot::root().get());
+  QCOMPARE(makeTreeFromFile().get(), t2.treeRoot().get());
 
   // the root must be different from nullptr
-  QVERIFY(t2.getRoot().get() != nullptr);
+  QVERIFY(t2.treeRoot().get() != nullptr);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -56,10 +56,10 @@ void NTreeTest::test_setRoot()
   QCOMPARE(spy.count(), 1);
 
   // newRoot must be the tree root now
-  QCOMPARE(t.getRoot(), newRoot);
+  QCOMPARE(t.treeRoot(), newRoot);
 
   // the tree root should have 3 children now
-  QCOMPARE((int) t.getRoot()->root()->get_child_count(), 3);
+  QCOMPARE((int) t.treeRoot()->root()->get_child_count(), 3);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -70,19 +70,19 @@ void NTreeTest::test_setCurrentIndex()
   qRegisterMetaType<QModelIndex>("QModelIndex");
 
   NTree t;
-  QModelIndex index = t.getCurrentIndex();
+  QModelIndex index = t.currentIndex();
   QSignalSpy spy(&t, SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)));
 
   t.setCurrentIndex(t.index(0, 0));
 
-  QVERIFY(index != t.getCurrentIndex());
+  QVERIFY(index != t.currentIndex());
 
   // the tree must have emitted a currentIndexChanged signal exactly once
   QCOMPARE(spy.count(), 1);
 
   // check signal parameters
   QList<QVariant> arguments = spy.takeFirst();
-  QCOMPARE(qvariant_cast<QModelIndex>(arguments.at(0)), t.getCurrentIndex());
+  QCOMPARE(qvariant_cast<QModelIndex>(arguments.at(0)), t.currentIndex());
   QCOMPARE(qvariant_cast<QModelIndex>(arguments.at(1)), index);
 
   // note : the fact that the index is not set if it is the same as the
@@ -100,17 +100,17 @@ void NTreeTest::test_getNodeParams()
   QList<Option::ConstPtr> options;
   bool ok = false;
 
-  t.getRoot()->addNode(node);
-  index = t.getIndexByPath(node->full_path());
+  t.treeRoot()->addNode(node);
+  index = t.indexByPath(node->full_path());
 
   QVERIFY(index.isValid());
 
-  t.getNodeOptions(index, options, &ok);
+  t.listNodeOptions(index, options, &ok);
 
   QVERIFY(ok);
   QCOMPARE(options.count(), 2);
 
-  t.getRoot()->root()->remove_component(node->name());
+  t.treeRoot()->root()->remove_component(node->name());
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -143,8 +143,8 @@ void NTreeTest::test_areFromSameNode()
 
   t.setCurrentIndex(index);
 
-  QVERIFY(t.areFromSameNode(t.getCurrentIndex(), index));
-  QVERIFY(!t.areFromSameNode(t.getCurrentIndex(), anotherIndex));
+  QVERIFY(t.areFromSameNode(t.currentIndex(), index));
+  QVERIFY(!t.areFromSameNode(t.currentIndex(), anotherIndex));
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -159,11 +159,11 @@ void NTreeTest::test_haveSameData()
 void NTreeTest::test_getNodeByPath()
 {
   NTree t;
-  CNode::Ptr logNode = t.getNodeByPath("//blabla"); // the path does not exist
+  CNode::Ptr logNode = t.nodeByPath("//blabla"); // the path does not exist
 
   QVERIFY(logNode.get() == nullptr);
 
-  logNode = t.getNodeByPath(CLIENT_LOG_PATH);
+  logNode = t.nodeByPath(CLIENT_LOG_PATH);
 
   QCOMPARE(logNode.get(), ClientRoot::log().get());
 
@@ -179,10 +179,10 @@ void NTreeTest::test_getIndexByPath()
   QModelIndex rootIndex = t.index(0, 0);
   QModelIndex index = t.index(1, 0, rootIndex);
 
-  CNode::Ptr node = static_cast<TreeNode*>(index.internalPointer())->getNode();
+  CNode::Ptr node = static_cast<TreeNode*>(index.internalPointer())->node();
 
-  QModelIndex foundRootIndex = t.getIndexByPath("//Root");
-  QModelIndex foundIndex = t.getIndexByPath(node->full_path());
+  QModelIndex foundRootIndex = t.indexByPath("//Root");
+  QModelIndex foundIndex = t.indexByPath(node->full_path());
 
   QVERIFY(foundRootIndex.isValid());
   QVERIFY(foundIndex.isValid());
@@ -196,7 +196,7 @@ void NTreeTest::test_getIndexByPath()
 void NTreeTest::test_data()
 {
   NTree t;
-  QModelIndex logIndex = t.getIndexByPath(CLIENT_LOG_PATH);
+  QModelIndex logIndex = t.indexByPath(CLIENT_LOG_PATH);
   QModelIndex logScndCol = t.index(logIndex.row(), 1, logIndex.parent());
 
   // check with an invalid index
@@ -219,8 +219,8 @@ void NTreeTest::test_data()
   QCOMPARE(logName.toString(), QString(CLIENT_LOG));
   QCOMPARE(logIcon.type(), QVariant::Icon);
   //QCOMPARE(qvariant_cast<QIcon>(logIcon), NLog().getIcon());
-  QCOMPARE(logToolTip.toString(), NLog().getToolTip());
-  QCOMPARE(logToolTipScndCol.toString(), NLog().getToolTip());
+  QCOMPARE(logToolTip.toString(), NLog().toolTip());
+  QCOMPARE(logToolTipScndCol.toString(), NLog().toolTip());
 }
 
 ////////////////////////////////////////////////////////////////////////////

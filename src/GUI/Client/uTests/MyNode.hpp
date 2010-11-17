@@ -23,7 +23,7 @@ namespace ClientTest {
 
     QIcon getIcon() const;
 
-    QString getToolTip() const;
+    QString toolTip() const;
 
     static void defineConfigProperties ( CF::Common::PropertyList& options )
     {

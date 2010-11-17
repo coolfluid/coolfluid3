@@ -54,7 +54,7 @@ QIcon NRemoteOpen::getIcon() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString NRemoteOpen::getToolTip() const
+QString NRemoteOpen::toolTip() const
 {
   return this->getComponentType();
 }

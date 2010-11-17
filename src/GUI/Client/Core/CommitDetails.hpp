@@ -119,7 +119,7 @@ namespace ClientCore {
     /// @brief Gives the node path
     /// @return Returns the node path. This string may be empty if it
     /// has never been set.
-    QString getNodePath() const;
+    QString nodePath() const;
 
     /// @brief Sets the node path
     /// @param nodePath Node path.

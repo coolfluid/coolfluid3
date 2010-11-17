@@ -99,7 +99,7 @@ namespace ClientCore {
     /// @return Returns the root UUID.
     inline static std::string getUUID()
     {
-      return root()->getUUID();
+      return root()->uuid();
     }
 
   }; // class ClientRoot

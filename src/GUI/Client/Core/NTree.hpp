@@ -63,7 +63,7 @@ namespace ClientCore {
 
     /// @brief Gives the current root
     /// @return Returns the current root
-    NRoot::Ptr getRoot() const;
+    NRoot::Ptr treeRoot() const;
 
     /// @brief Sets the current index.
 
@@ -82,12 +82,12 @@ namespace ClientCore {
     /// never called.
     /// @return Returns the current index.
     /// @see setCurrentIndex.
-    QModelIndex getCurrentIndex() const;
+    QModelIndex currentIndex() const;
 
     /// @brief Gives the path of the current index.
     /// @return Returns the path of the index returned by @c #getCurrentIndex()
     /// or an empty path if not valid current index is set.
-    CF::Common::CPath getCurrentPath() const;
+    CF::Common::CPath currentPath() const;
 
     /// @brief Gets node options
 
@@ -95,9 +95,9 @@ namespace ClientCore {
     /// @param options List where options will be stored
     /// @param ok If not @c nullptr, used to strore whether the option
     /// gathering succeded or not.
-    void getNodeOptions(const QModelIndex & index,
-                        QList<CF::Common::Option::ConstPtr> & options,
-                        bool * ok = nullptr) const;
+    void listNodeOptions(const QModelIndex & index,
+                         QList<CF::Common::Option::ConstPtr> & options,
+                         bool * ok = nullptr) const;
 
     /// @brief Gets node properties
 
@@ -106,9 +106,9 @@ namespace ClientCore {
     /// property name, the value is the property value.
     /// @param ok If not @c nullptr, used to store whether the property
     /// gathering succeeded or not.
-    void getNodeProperties(const QModelIndex & index,
-                           QMap<QString, QString> & params,
-                           bool * ok = nullptr) const;
+    void listNodeProperties(const QModelIndex & index,
+                            QMap<QString, QString> & params,
+                            bool * ok = nullptr) const;
 
     /// @brief Gets node actions
 
@@ -116,14 +116,14 @@ namespace ClientCore {
     /// @param actions List where action will be stored.
     /// @param ok If not @c nullptr, used to store whether the action
     /// gathering succeeded or not (i.e. it fails if the index is not valid).
-    void getNodeActions(const QModelIndex & index, QList<ActionInfo> & actions,
-                        bool * ok = nullptr) const;
+    void listNodeActions(const QModelIndex & index, QList<ActionInfo> & actions,
+                         bool * ok = nullptr) const;
 
     /// @brief Retrieves a node path.
 
     /// @param index Node index
     /// @return Returns the node path
-    QString getNodePath(const QModelIndex & index) const;
+    QString nodePath(const QModelIndex & index) const;
 
     /// @brief Set advanced mode
 
@@ -151,20 +151,20 @@ namespace ClientCore {
     /// @param path The node path
     /// @return Returns the found node, or a null shared pointer if
     /// the node does not exist.
-    CNode::Ptr getNodeByPath(const CF::Common::CPath & path) const;
+    CNode::Ptr nodeByPath(const CF::Common::CPath & path) const;
 
     /// @brief Retrieves a node index from its path.
 
     /// @param path The node index path
     /// @return Returns the found node index, or a invalid index if
     /// it does not exist.
-    QModelIndex getIndexByPath(const CF::Common::CPath & path) const;
+    QModelIndex indexByPath(const CF::Common::CPath & path) const;
 
     /// @brief Gives the path of the provided index.
     /// @param index Index of which we want to know the path.
     /// @return Returns the index path, or an empty path if the index is not
     /// valid.
-    CF::Common::CPath getIndexPath(const QModelIndex & index) const;
+    CF::Common::CPath pathFromIndex(const QModelIndex & index) const;
 
     /// @brief Retrieves an index frome a node
 
@@ -239,7 +239,7 @@ namespace ClientCore {
 
     /// @brief Gives the tool tip text
     /// @return Returns The class name
-    virtual QString getToolTip() const;
+    virtual QString toolTip() const;
 
     /// @brief Set the debug mode
 
@@ -350,7 +350,7 @@ namespace ClientCore {
     /// not be converted (i.e. index is invalid)
     inline CNode::Ptr indexToNode(const QModelIndex & index) const
     {
-      return this->indexToTreeNode(index)->getNode();
+      return this->indexToTreeNode(index)->node();
     }
 
     /// @brief Retrieves a node path from its index.
@@ -358,7 +358,7 @@ namespace ClientCore {
     /// This is a recursive method.
     /// @param index Node index.
     /// @param path Intermediate retrieved path
-    void getNodePathRec(const QModelIndex & index, QString & path) const;
+    void buildNodePathRec(const QModelIndex & index, QString & path) const;
 
     /// regists all the signals declared in this class
     static void regist_signals ( Component* self ) {}

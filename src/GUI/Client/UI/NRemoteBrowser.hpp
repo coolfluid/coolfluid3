@@ -227,7 +227,7 @@ namespace ClientUI {
 
     /// @brief Gives the node tooltip.
     /// @return Returns the tooltip text.
-    virtual QString getToolTip() const = 0;
+    virtual QString toolTip() const = 0;
 
   protected:
 

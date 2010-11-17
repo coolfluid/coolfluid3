@@ -30,7 +30,7 @@ QString NBrowser::generateName()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString NBrowser::getToolTip() const
+QString NBrowser::toolTip() const
 {
   return this->getComponentType();
 }

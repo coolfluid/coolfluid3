@@ -34,7 +34,7 @@ bool TreeNode::hasParent() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-TreeNode * TreeNode::getChild(int rowNumber)
+TreeNode * TreeNode::child(int rowNumber)
 {
   TreeNode * child = nullptr;
   // if the TreeNode corresponding to this child has already been created,
@@ -47,7 +47,7 @@ TreeNode * TreeNode::getChild(int rowNumber)
   {
     CNode::Ptr childNode;
 
-    childNode = m_node->getNode(rowNumber);
+    childNode = m_node->child(rowNumber);
 
     child = new TreeNode(childNode, this, rowNumber);
     m_childNodes.replace(rowNumber, child);
@@ -60,7 +60,7 @@ TreeNode * TreeNode::getChild(int rowNumber)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CNode::Ptr TreeNode::getNode() const
+CNode::Ptr TreeNode::node() const
 {
   return m_node;
 }
@@ -68,7 +68,7 @@ CNode::Ptr TreeNode::getNode() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-TreeNode * TreeNode::getParent() const
+TreeNode * TreeNode::parentNode() const
 {
   return m_parent;
 }
@@ -76,7 +76,7 @@ TreeNode * TreeNode::getParent() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-int TreeNode::getRowNumber() const
+int TreeNode::rowNumber() const
 {
   return m_rowNumber;
 }
@@ -84,7 +84,7 @@ int TreeNode::getRowNumber() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-int TreeNode::getChildCount() const
+int TreeNode::childCount() const
 {
   if(m_node->checkType(CNode::ROOT_NODE))
     return m_node->castTo<NRoot>()->root()->get_child_count();
@@ -95,7 +95,7 @@ int TreeNode::getChildCount() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-TreeNode * TreeNode::getChildByName(const QString & name)
+TreeNode * TreeNode::childByName(const QString & name)
 {
   TreeNode * treeNode = nullptr;
   bool found = false;
@@ -103,8 +103,8 @@ TreeNode * TreeNode::getChildByName(const QString & name)
   /// @todo find a better algorithm !!!
   for(int i = 0 ; i < m_childNodes.count() && !found ; i++)
   {
-    treeNode = this->getChild(i);
-    found = treeNode->getName() == name;
+    treeNode = this->child(i);
+    found = treeNode->nodeName() == name;
   }
 
   if(!found)

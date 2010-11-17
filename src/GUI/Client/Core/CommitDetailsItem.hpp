@@ -39,15 +39,15 @@ namespace ClientCore {
 
     /// @brief Gives the current value.
     /// @return Returns the current value.
-    QString getCurrentValue() const;
+    QString currentValue() const;
 
     /// @brief Give the old value.
     /// @return Returns the old value
-    QString getOldValue() const;
+    QString oldValue() const;
 
     /// @brief Gives the option name
     /// @return Returns the option name
-    QString getOptionName() const;
+    QString optionName() const;
 
   private:
 

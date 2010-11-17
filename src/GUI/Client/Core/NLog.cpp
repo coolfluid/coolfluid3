@@ -176,7 +176,7 @@ void NLog::message(XmlNode & node)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString NLog::getToolTip() const
+QString NLog::toolTip() const
 {
   return this->getComponentType();
 }

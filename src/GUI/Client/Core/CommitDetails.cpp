@@ -41,19 +41,19 @@ QVariant CommitDetails::data(const QModelIndex &index, int role) const
       switch (colNumber)
       {
         case 0:
-          returnValue = item->getOptionName();
+          returnValue = item->optionName();
           break;
 
         case 1:
         {
-          QString oldValue = item->getOldValue();
+          QString oldValue = item->oldValue();
           returnValue = oldValue.isEmpty() ? "--" : QString("\"%1\"").arg(oldValue);
           break;
         }
 
         case 2:
         {
-          QString value = item->getCurrentValue();
+          QString value = item->currentValue();
           returnValue = value.isEmpty() ? "--" : QString("\"%1\"").arg(value);
           break;
         }
@@ -187,7 +187,7 @@ void CommitDetails::clear()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString CommitDetails::getNodePath() const
+QString CommitDetails::nodePath() const
 {
   return m_nodePath;
 }

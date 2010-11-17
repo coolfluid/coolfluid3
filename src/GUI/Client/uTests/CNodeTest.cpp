@@ -71,9 +71,9 @@ void CNodeTest::test_getType()
   NBrowser browser;
   NLog log;
 
-  QCOMPARE(node.getType(), CNode::GENERIC_NODE);
-  QCOMPARE(browser.getType(), CNode::BROWSER_NODE);
-  QCOMPARE(log.getType(), CNode::LOG_NODE);
+  QCOMPARE(node.type(), CNode::GENERIC_NODE);
+  QCOMPARE(browser.type(), CNode::BROWSER_NODE);
+  QCOMPARE(log.type(), CNode::LOG_NODE);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -157,7 +157,7 @@ void CNodeTest::test_getOptions()
 
   node->setOptions(*options->first_node());
 
-  GUI_CHECK_NO_THROW(node->getOptions(nodeOptList));
+  GUI_CHECK_NO_THROW(node->options(nodeOptList));
 
   // there were already 2 options in MyNode + 2 new options => 4 options
   QCOMPARE(nodeOptList.count(), 4);
@@ -179,7 +179,7 @@ void CNodeTest::test_createFromXml()
   GUI_CHECK_NO_THROW(node = boost::dynamic_pointer_cast<CNode>(root->root()->get_child("Flow")));
   GUI_CHECK_NO_THROW(group = node->castTo<NGeneric>());
 
-  GUI_CHECK_NO_THROW(group->getOptions(optList));
+  GUI_CHECK_NO_THROW(group->options(optList));
 
   QCOMPARE(optList.count(), 1);
 
@@ -198,7 +198,7 @@ void CNodeTest::test_addNode()
 {
   NRoot::Ptr root(new NRoot("Root"));
   NGeneric::Ptr node(new NGeneric("Node", "NGeneric"));
-  QSignalSpy spy(root->getNotifier(), SIGNAL(childCountChanged()));
+  QSignalSpy spy(root->notifier(), SIGNAL(childCountChanged()));
 
   GUI_CHECK_NO_THROW(root->addNode(node));
 

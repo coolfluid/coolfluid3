@@ -19,7 +19,7 @@ NGeneric::NGeneric(const QString & name, const QString & type) :
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString NGeneric::getToolTip() const
+QString NGeneric::toolTip() const
 {
   return this->getComponentType();
 }

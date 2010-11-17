@@ -26,7 +26,7 @@ QIcon MyNode::getIcon() const
 
 ////////////////////////////////////////////////////////////////////////////
 
-QString MyNode::getToolTip() const
+QString MyNode::toolTip() const
 {
   return this->getComponentType();
 }

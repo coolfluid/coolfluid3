@@ -151,7 +151,7 @@ void GraphicalUri::updateModel(const QString & path)
   QStringList list;
   CNode::Ptr node;
 
-  CRoot::Ptr root = ClientRoot::tree()->getRoot()->root();
+  CRoot::Ptr root = ClientRoot::tree()->treeRoot()->root();
 
   try
   {
@@ -170,7 +170,7 @@ void GraphicalUri::updateModel(const QString & path)
   try
   {
     if(root->full_path().string() == newPath.toStdString())
-      node = ClientRoot::tree()->getRoot();
+      node = ClientRoot::tree()->treeRoot();
     else
       node = root->access_component<CNode>(newPath.toStdString());
 

@@ -15,7 +15,7 @@ using namespace CF::GUI::ClientCore;
 PropertyModel::PropertyModel()
   : QAbstractItemModel()
 {
-  currentIndexChanged(ClientRoot::tree()->getCurrentIndex(), QModelIndex());
+  currentIndexChanged(ClientRoot::tree()->currentIndex(), QModelIndex());
 
   m_columns << "Name" << "Value";
 
@@ -128,7 +128,7 @@ void PropertyModel::currentIndexChanged(const QModelIndex & newIndex,
 
   emit layoutAboutToBeChanged();
 
-  ClientRoot::tree()->getNodeProperties(newIndex, props);
+  ClientRoot::tree()->listNodeProperties(newIndex, props);
 
   this->emptyList();
 

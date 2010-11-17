@@ -47,7 +47,7 @@ namespace ClientCore {
 
     /// @brief Gives the text to put on a tool tip
     /// @return The name of the class.
-    virtual QString getToolTip() const;
+    virtual QString toolTip() const;
 
     /// @brief Gives the CRoot internal shared pointer
     /// @return Returns the CRoot internal shared pointer
@@ -60,7 +60,7 @@ namespace ClientCore {
     /// @param number Child number.
     /// @return Returns the child, or a null pointer if the number is not
     /// valid.
-    CNode::Ptr getNodeFromRoot(CF::Uint number) const;
+    CNode::Ptr childFromRoot(CF::Uint number) const;
 
     /// @brief Checks whether a path is valid.
 
@@ -71,7 +71,7 @@ namespace ClientCore {
 
     /// @brief Gives the client UUID
     /// @return Returns the Client UUID
-    std::string getUUID() const;
+    std::string uuid() const;
 
   private :
 

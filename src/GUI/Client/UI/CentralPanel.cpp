@@ -146,7 +146,7 @@ void CentralPanel::setOptions(const QList<Option::ConstPtr> & list)
   if(!list.isEmpty())
   {
     // get a UNIX-like path for the node
-    QString parentPath = tree->getNodePath(tree->getCurrentIndex());
+    QString parentPath = tree->nodePath(tree->currentIndex());
 
     m_gbBasicOptions->setTitle(QString("Basic options of %1").arg(parentPath));
     m_gbAdvancedOptions->setTitle(QString("Advanced options of %1").arg(parentPath));
@@ -255,7 +255,7 @@ void CentralPanel::btApplyClicked()
   {
     try
     {
-      QModelIndex currentIndex = ClientRoot::tree()->getCurrentIndex();
+      QModelIndex currentIndex = ClientRoot::tree()->currentIndex();
 
       ClientRoot::tree()->modifyOptions(currentIndex, options);
 
@@ -275,7 +275,7 @@ void CentralPanel::btApplyClicked()
 void CentralPanel::currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex)
 {
   QList<Option::ConstPtr> options;
-  ClientRoot::tree()->getNodeOptions(newIndex, options);
+  ClientRoot::tree()->listNodeOptions(newIndex, options);
 
   this->setOptions(options);
 }
@@ -289,7 +289,7 @@ void CentralPanel::advancedModeChanged(bool advanced)
 
   // if the node went to a hidden state, we clear everything
   /// @todo what if options are modified ???
-  if(!tree->nodeIsVisible(tree->getCurrentIndex()))
+  if(!tree->nodeIsVisible(tree->currentIndex()))
   {
     m_basicOptionLayout->clearOptions();
     m_advancedOptionLayout->clearOptions();
@@ -311,7 +311,7 @@ void CentralPanel::advancedModeChanged(bool advanced)
 
 void CentralPanel::dataChanged(const QModelIndex & first, const QModelIndex & last)
 {
-  QModelIndex currIndex = ClientRoot::tree()->getCurrentIndex();
+  QModelIndex currIndex = ClientRoot::tree()->currentIndex();
 
   if(first == last && first.row() == currIndex.row() && first.parent() == currIndex.parent())
     this->currentIndexChanged(first, QModelIndex());
@@ -334,7 +334,7 @@ void CentralPanel::btSeeChangesClicked()
 
 void CentralPanel::btForgetClicked()
 {
-  this->currentIndexChanged(ClientRoot::tree()->getCurrentIndex(), QModelIndex());
+  this->currentIndexChanged(ClientRoot::tree()->currentIndex(), QModelIndex());
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

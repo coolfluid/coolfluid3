@@ -59,31 +59,31 @@ namespace ClientCore {
     /// @return Returns the wanted child, or a @c nullptr pointer if the row
     /// number is not valid (less than 0, or bigger than the number of
     /// child this this node has).
-    TreeNode * getChild(int rowNumber);
+    TreeNode * child(int rowNumber);
 
     /// @brief Gives the node handled by this object
     /// @returns Returns the node handled by this object.
-    CNode::Ptr getNode() const;
+    CNode::Ptr node() const;
 
     /// @brief Gives the parent.
     /// @return Returns the parent. May return a @c nullptr pointer if the
     /// node has no object.
-    TreeNode * getParent() const;
+    TreeNode * parentNode() const;
 
     /// @brief Gives the row number.
     /// @return Returns the row number.
-    int getRowNumber() const;
+    int rowNumber() const;
 
     /// @brief Gives the child count.
     /// @return Returns the child count.
-    int getChildCount() const;
+    int childCount() const;
 
     /// @brief Gives the node name.
 
     /// Calling the method is equivalent to
     /// @code node->getNode()->name().str(); @endcode
     /// @return Return the node name.
-    inline QString getName() const
+    inline QString nodeName() const
     {
       return m_node->name().c_str();
     }
@@ -92,7 +92,7 @@ namespace ClientCore {
 
     /// @return Returns the child, or a @c nullptr pointer if no child
     /// as such name.
-    TreeNode * getChildByName(const QString & name);
+    TreeNode * childByName(const QString & name);
 
   public slots:
 

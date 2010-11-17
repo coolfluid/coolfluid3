@@ -176,7 +176,7 @@ void TreeBrowser::updateButtons()
 
       if(path.isEmpty())
       {
-        path = ClientRoot::tree()->getRoot()->root()->full_path().string().c_str();
+        path = ClientRoot::tree()->treeRoot()->root()->full_path().string().c_str();
         //icon = ClientRoot::tree()->getRoot()->getIcon();
       }
 

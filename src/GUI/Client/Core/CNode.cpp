@@ -92,7 +92,7 @@ QString CNode::getComponentType() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CNode::Type CNode::getType() const
+CNode::Type CNode::type() const
 {
   return m_type;
 }
@@ -316,7 +316,7 @@ CNode::Ptr CNode::createFromXml(CF::Common::XmlNode & node)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CNode::Ptr CNode::getNode(CF::Uint index)
+CNode::Ptr CNode::child(CF::Uint index)
 {
   Component::Ptr compo = shared_from_this();
   CF::Uint i;
@@ -345,7 +345,7 @@ void CNode::connectNotifier(QObject * reciever, const char * signal, const char 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CNodeNotifier * CNode::getNotifier() const
+CNodeNotifier * CNode::notifier() const
 {
   return m_notifier;
 }
@@ -430,7 +430,7 @@ void CNode::configure_reply(CF::Common::XmlNode & node)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CNode::getOptions(QList<Option::ConstPtr> & list) const
+void CNode::options(QList<Option::ConstPtr> & list) const
 {
   PropertyList::PropertyStorage_t::const_iterator it;
 
@@ -448,7 +448,7 @@ void CNode::getOptions(QList<Option::ConstPtr> & list) const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CNode::getProperties(QMap<QString, QString> & props) const
+void CNode::properties(QMap<QString, QString> & props) const
 {
   PropertyList::PropertyStorage_t::const_iterator it = m_property_list.m_properties.begin();
 
@@ -491,7 +491,7 @@ void CNode::getProperties(QMap<QString, QString> & props) const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CNode::getActions(QList<ActionInfo> & actions) const
+void CNode::actions(QList<ActionInfo> & actions) const
 {
   actions = m_actionSigs;
 

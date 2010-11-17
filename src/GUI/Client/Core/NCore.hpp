@@ -84,7 +84,7 @@ namespace ClientCore {
 
     /// @brief Gives the text to put on a tool tip
     /// @return The name of the class.
-    virtual QString getToolTip() const;
+    virtual QString toolTip() const;
 
   public slots:
 

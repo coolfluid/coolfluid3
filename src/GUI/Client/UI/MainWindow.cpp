@@ -778,7 +778,7 @@ void MainWindow::currentIndexChanged(const QModelIndex & newIndex, const QModelI
   QString text = "<b>%1</b><br><br>%2";
   QMap<QString, QString> data;
 
-  ClientRoot::tree()->getNodeProperties(newIndex, data);
+  ClientRoot::tree()->listNodeProperties(newIndex, data);
 
   text = text.arg(data["brief"]).arg(data["description"]);
   m_labDescription->setText(text.replace("\n","<br>"));

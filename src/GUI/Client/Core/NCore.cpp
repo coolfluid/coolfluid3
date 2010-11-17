@@ -80,7 +80,7 @@ void NCore::disconnectFromServer(bool shutdown)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString NCore::getToolTip() const
+QString NCore::toolTip() const
 {
   return this->getComponentType();
 }

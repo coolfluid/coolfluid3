@@ -22,7 +22,7 @@ CommitDetailsItem::CommitDetailsItem(const QString & optionName,
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString CommitDetailsItem::getCurrentValue() const
+QString CommitDetailsItem::currentValue() const
 {
   return m_currentValue;
 }
@@ -30,7 +30,7 @@ QString CommitDetailsItem::getCurrentValue() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString CommitDetailsItem::getOldValue() const
+QString CommitDetailsItem::oldValue() const
 {
   return m_oldValue;
 }
@@ -38,7 +38,7 @@ QString CommitDetailsItem::getOldValue() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString CommitDetailsItem::getOptionName() const
+QString CommitDetailsItem::optionName() const
 {
   return m_optionName;
 }

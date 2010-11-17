@@ -78,7 +78,7 @@ NRemoteSave::Ptr NRemoteSave::create(QMainWindow * parent)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString NRemoteSave::getToolTip() const
+QString NRemoteSave::toolTip() const
 {
   return this->getComponentType();
 }

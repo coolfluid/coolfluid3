@@ -40,8 +40,8 @@ void NLinkTest::test_getTootip()
 
   l1->setTargetPath("//Root/Target");
 
-  QCOMPARE(l1->getToolTip(), QString("Target: //Root/Target"));
-  QCOMPARE(l2->getToolTip(), QString("Target: <No target>"));
+  QCOMPARE(l1->toolTip(), QString("Target: //Root/Target"));
+  QCOMPARE(l2->toolTip(), QString("Target: <No target>"));
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -60,8 +60,8 @@ void NLinkTest::test_getTargetPath()
 
   l1->setTargetPath("//Root/Target");
 
-  QCOMPARE(QString(l1->getTargetPath().string().c_str()), QString("//Root/Target"));
-  QCOMPARE(QString(l2->getTargetPath().string().c_str()), QString(""));
+  QCOMPARE(QString(l1->targetPath().string().c_str()), QString("//Root/Target"));
+  QCOMPARE(QString(l2->targetPath().string().c_str()), QString(""));
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -80,12 +80,12 @@ void NLinkTest::test_goToTarget()
   NLink::Ptr link;
 
   th.addChildren(makeTreeFromFile());
-  link = boost::dynamic_pointer_cast<NLink>(t->getRoot()->root()->access_component("//Root/Flow/Mesh"));
+  link = boost::dynamic_pointer_cast<NLink>(t->treeRoot()->root()->access_component("//Root/Flow/Mesh"));
 
   QVERIFY(link.get() != nullptr);
   t->setCurrentIndex(t->index(0, 0));
 
-  index = t->getIndexByPath("//Root/MG/Mesh1");
+  index = t->indexByPath("//Root/MG/Mesh1");
   link->goToTarget(*XmlOps::create_doc().get());
 
   // 2 signals should have been thrown, one by setCurrentIndex() and one by
