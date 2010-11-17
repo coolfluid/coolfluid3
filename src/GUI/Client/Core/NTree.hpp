@@ -84,6 +84,9 @@ namespace ClientCore {
     /// @see setCurrentIndex.
     QModelIndex getCurrentIndex() const;
 
+    /// @brief Gives the path of the current index.
+    /// @return Returns the path of the index returned by @c #getCurrentIndex()
+    /// or an empty path if not valid current index is set.
     CF::Common::CPath getCurrentPath() const;
 
     /// @brief Gets node options
@@ -101,12 +104,18 @@ namespace ClientCore {
     /// @param index Node index
     /// @param props Map where properties will be stored. The key is the
     /// property name, the value is the property value.
-    /// @param ok If not @c nullptr, used to strore whether the property
-    /// gathering succeded or not.
+    /// @param ok If not @c nullptr, used to store whether the property
+    /// gathering succeeded or not.
     void getNodeProperties(const QModelIndex & index,
                            QMap<QString, QString> & params,
                            bool * ok = nullptr) const;
 
+    /// @brief Gets node actions
+
+    /// @param index Node index
+    /// @param actions List where action will be stored.
+    /// @param ok If not @c nullptr, used to store whether the action
+    /// gathering succeeded or not (i.e. it fails if the index is not valid).
     void getNodeActions(const QModelIndex & index, QList<ActionInfo> & actions,
                         bool * ok = nullptr) const;
 
@@ -151,6 +160,10 @@ namespace ClientCore {
     /// it does not exist.
     QModelIndex getIndexByPath(const CF::Common::CPath & path) const;
 
+    /// @brief Gives the path of the provided index.
+    /// @param index Index of which we want to know the path.
+    /// @return Returns the index path, or an empty path if the index is not
+    /// valid.
     CF::Common::CPath getIndexPath(const QModelIndex & index) const;
 
     /// @brief Retrieves an index frome a node
@@ -241,16 +254,28 @@ namespace ClientCore {
     /// returns @c false.
     bool isDebugModeEnabled() const;
 
+    /// @brief Updates the children row counts, starting from the root.
+    /// @note This method emits a @c layoutChanged() signal, causing the
+    /// view(s) to be completely updated. Calling this method too often might
+    /// decrease the program performances.
     void updateRootChildren();
 
+    /// @todo Remove this method. CNode should emit a signal.
     void optionsChanged(const CF::Common::CPath & path);
 
+    /// @brief Checks whether a node name or one of its children matches a
+    /// provided regular expression.
+    /// @param index Index of the node to check.
+    /// @param regex Regular expression to match.
+    /// @return Returns @c true if the node or at least one of its children
+    /// matches the regular expression.
     bool nodeMatches(const QModelIndex & index, const QRegExp & regex) const;
 
     /// @brief Checks whether a nodeis visible or not.
 
     /// A node is visible if:
-    /// @li it is basic, or it is advanced @b and advanced mode is activated
+    /// @li it is basic
+    /// @li it is advanced @b and advanced mode is activated
     /// @li it is a client component @b and debug mode is activated.
     /// @param index Index of the node to check
     /// @return Returns @c true if the node is visible. Otherwise, returns
@@ -272,6 +297,8 @@ namespace ClientCore {
 
   public slots:
 
+    /// @brief Clears the tree.
+    /// Deletes all component that are not client component.
     void clearTree();
 
   signals:
@@ -336,6 +363,13 @@ namespace ClientCore {
     /// regists all the signals declared in this class
     static void regist_signals ( Component* self ) {}
 
+    /// @brief Recursively checks whether a node name or one of its children
+    /// matches a provided regular expression.
+    /// The check stops once a recursive call returns @c true
+    /// @param node The node to check.
+    /// @param regex Regular expression to match.
+    /// @return Returns @c true if the node or at least one of its children
+    /// matches the regular expression.
     bool nodeMatchesRec(Component::Ptr node, const QRegExp regex) const;
 
   }; // class NTree
