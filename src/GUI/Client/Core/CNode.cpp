@@ -213,7 +213,7 @@ void CNode::setSignals(CF::Common::XmlNode & node)
       si.m_readableName = name_attr != nullptr ? name_attr->value() : "";
       si.m_description = desc_attr != nullptr ? desc_attr->value() : "";
       si.m_signature = XmlSignature(*map);
-      si.m_is_local = false;
+      si.m_isLocal = false;
 
       m_actionSigs.append(si);
 
@@ -322,7 +322,7 @@ CNode::Ptr CNode::getNode(CF::Uint index)
   CF::Uint i;
 
   if(checkType(CNode::ROOT_NODE))
-    compo = this->convertTo<NRoot>()->root();
+    compo = this->castTo<NRoot>()->root();
 
   ComponentIterator<CNode> it = compo->begin<CNode>();
 
@@ -360,7 +360,7 @@ void CNode::listChildPaths(QStringList & list, bool recursive, bool clientNodes)
 
   if(this->checkType(ROOT_NODE))
   {
-    CRoot::ConstPtr root = this->convertTo<const NRoot>()->root();
+    CRoot::ConstPtr root = this->castTo<const NRoot>()->root();
     it = root->begin<const CNode>();
     itEnd = root->end<const CNode>();
 
@@ -509,7 +509,7 @@ void CNode::getActions(QList<ActionInfo> & actions) const
       ai.m_description = sig.m_description.c_str();
       ai.m_readableName = sig.m_readable_name.c_str();
       ai.m_signature = sig.m_signature;
-      ai.m_is_local = true;
+      ai.m_isLocal = true;
 
       actions.append(ai);
     }
@@ -576,7 +576,7 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, CPath> & lin
         if(node.get() != nullptr)
         {
           if(rootNode->checkType(ROOT_NODE))
-            rootNode->convertTo<NRoot>()->root()->add_component(node);
+            rootNode->castTo<NRoot>()->root()->add_component(node);
           else
             rootNode->add_component(node);
         }

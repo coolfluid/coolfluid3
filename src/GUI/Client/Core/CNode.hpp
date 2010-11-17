@@ -40,39 +40,62 @@ namespace ClientCore {
 
   /////////////////////////////////////////////////////////////////////////
 
-  class ClientCore_API CNodeNotifier
-    : public QObject
+  /// @brief Handles signal emitting for @c #CNode class.
+
+  /// @c #CNode class cannot derive from @c QObject (thus, cannot emit or catch
+  /// Qt signals) because one of its subclasses (@c #NTree) also derives from
+  /// another Qt class. It means that this subclass would derive twice from
+  /// @c QObject, which is illegal in C++.
+  class ClientCore_API CNodeNotifier :
+      public QObject
   {
     Q_OBJECT
 
   public:
 
+    /// @brief Constructor
+
+    /// @param parent The parent @c CNode. May be null.
     CNodeNotifier(CNode * parent = nullptr);
 
+    /// @brief Emits @c #childCountChanged() signal.
     void notifyChildCountChanged();
 
   signals:
 
+    /// @brief Signal emitted when children have been added or removed.
     void childCountChanged();
 
   private:
 
+    /// @brief The parent @c CNode.
     CNode * m_parent;
 
   }; // class CNodeNotifier
 
   ////////////////////////////////////////////////////////////////////////////
 
+  /// @brief Handles information about actions (signals).
   struct ClientCore_API ActionInfo
   {
+    /// @brief The action name.
     QString m_name;
 
+    /// @brief The action readable name. This name is intended to be displayed and
+    /// should spaces instead of undescores.
     QString m_readableName;
 
+    /// @brief The action description.
     QString m_description;
 
-    bool m_is_local;
+    /// @brief Indicates whether the action is local or not.
 
+    /// If @c true, the action is considered as local and has to be executed on the
+    /// local component. If @c false, the action has to be executed on the remote
+    /// component (on COOLFluiD side)
+    bool m_isLocal;
+
+    /// @brief Action signature.
     CF::Common::XmlSignature m_signature;
   };
 
@@ -166,6 +189,11 @@ namespace ClientCore {
     /// @param node Note containing the options
     void setProperties(CF::Common::XmlNode & node);
 
+    /// @brief Sets node signals
+    /// Those are considered as non-local ones, meaning that asking the node
+    /// to execute them will result to the sendng of a request to the remote
+    /// component.
+    /// @param node Node containing the signals
     void setSignals(CF::Common::XmlNode & node);
 
     /// @brief Modifies options
@@ -195,53 +223,109 @@ namespace ClientCore {
     /// @throw XmlError If the tree could not be built.
     static CNode::Ptr createFromXml(CF::Common::XmlNode & node);
 
+    /// @brief Casts this node to a constant component of type TYPE.
+    /// @return Returns the cast pointer
+    /// @throw boost::bad_any_cast if the casting failed.
     template<class TYPE>
-    boost::shared_ptr<const TYPE> convertTo() const
+    boost::shared_ptr<const TYPE> castTo() const
     {
       return boost::dynamic_pointer_cast<TYPE>(shared_from_this());
     }
 
+    /// @brief Casts this node to a component of type TYPE.
+    /// @return Returns the cast pointer
+    /// @throw boost::bad_any_cast if the casting failed.
     template<class TYPE>
-    boost::shared_ptr<TYPE> convertTo()
+    boost::shared_ptr<TYPE> castTo()
     {
       return boost::dynamic_pointer_cast<TYPE>(shared_from_this());
     }
 
+    /// @brief Connects a slot a signal provided by the internal notifier.
+    /// @param receiver The receiver object, The object on which the slot will be
+    /// called.
+    /// @param signal The signal.
+    /// @param slot The slot to connect.
+    /// @see CNodeNotifier
     void connectNotifier(QObject * reciever, const char * signal, const char * slot);
 
     /// @brief Adds a sub-node.
 
     /// This method is a wrapper for @c Component::add_component(). It calls
-    /// the parent method, but emits calls
+    /// the parent method, but emits
     /// @c CNodeNotifier::notifyChildCountChanged() on success.@c
-    /// It is recommended to add child nodes using this method.
+    /// It is recommended to add child nodes using this method in order to
+    /// guarantee the view is correctly updated.
     /// @param node Node to add.
     /// @throw CF::Common::ValueExists Forwards to the upper level any
     /// @c CF::Common::ValueExists exception thrown by
     /// @c Component::add_component()
     void addNode(CNode::Ptr node);
 
+    /// @brief Removes a sub-node.
+
+    /// This method is a wrapper for @c Component::remove_component(). It calls
+    /// the parent method, but emits
+    /// @c CNodeNotifier::notifyChildCountChanged() on success.@c
+    /// It is recommended to remove child nodes using this method in order to
+    /// guarantee the view is correctly updated.
+    /// @param node Node to remove.
+    /// @throw CF::Common::ValueNotFound Forwards to the upper level any
+    /// @c CF::Common::ValueNotFound exception thrown by
+    /// @c Component::remove_component()
     void removeNode(const QString & nodeName);
 
+    /// @brief Gives the internal notifier.
+    /// @return Returns the internal notifier.
     CNodeNotifier * getNotifier() const;
 
+    /// @brief Lists all children paths in a string list.
+
+    /// Strings have the same format as returned by @c CPath::full_path().string().
+    /// @param list The string list where paths will be stored. The list is not
+    /// cleaned before first use.
+    /// @param recursive If @c true, the listing is recursive. Otherwise,
+    /// only direct children are listed.
+    /// @param clientNode If @c true, client nodes are included into the the
+    /// result. Otherwise, they are ignored.
     void listChildPaths(QStringList & list, bool recursive, bool clientNode = true) const;
 
-    /// Configuration properties
+    /// Lists configuration properties
     static void defineConfigProperties ( CF::Common::PropertyList& props );
 
+    /// @brief Creates an option from an XML node.
+
+    /// This method handles @c OptionT, @c OptionURI and @c OptionArray types.
+    /// @param node THe XML node from where the option has to be created.
+    /// @return Returns the created option.
+    /// @note This function should be removed once the new XML layer is operational.
     static CF::Common::Option::Ptr makeOption(const CF::Common::XmlNode & node);
 
+    /// @name Signals
+    //@{
+
+    /// @brief Method called when a @e tree_update event occurs on the server.
+    /// This methods calls @c NCore::update_tree() method to resquet an update
+    /// of the tree.
+    /// @param node Signal data. This parameter is not used.
     CF::Common::Signal::return_t update_tree( CF::Common::XmlNode & node);
+
+    /// @brief Method called when receiving a reply to a previously sent
+    /// "configure" signal.
+    /// @param node An XML representation of the modified options.
+    void configure_reply(CF::Common::XmlNode & node);
+
+    //@} END Signals
 
   protected:
 
+    /// @brief This node type.
     CNode::Type m_type;
 
+    /// @brief This internal notifier.
     CNodeNotifier * m_notifier;
 
-    void configure_reply(CF::Common::XmlNode & node);
-
+    /// @brief Lists the names of the local signals.
     QStringList m_localSignals;
 
   private:
@@ -249,6 +333,7 @@ namespace ClientCore {
     /// @brief Component type name.
     QString m_componentType;
 
+    /// @brief List of signals that can be remotely executed
     QList<ActionInfo> m_actionSigs;
 
     /// regists all the signals declared in this class
@@ -256,30 +341,12 @@ namespace ClientCore {
     {
     }
 
-    template < typename TYPE >
-    void addOption ( const std::string & name, const std::string & descr,
-                     CF::Common::XmlNode & node )
-    {
-      TYPE value;
-      CF::Common::Option::Ptr option;
-      CF::Common::to_value(node, value);
-      CF::Common::XmlNode * next = node.next_sibling();
-
-      option = m_property_list.add_option< CF::Common::OptionT<TYPE> >(name, descr, value);
-
-      if(next != nullptr &&
-         std::strcmp(next->name(), CF::Common::XmlTag<TYPE>::array()) == 0)
-      {
-        CF::Common::XmlNode * elem_node = next->first_node("e");
-
-        for( ; elem_node != nullptr ; elem_node = elem_node->next_sibling("e"))
-        {
-          CF::Common::to_value(*elem_node, value);
-          option->restricted_list().push_back(TYPE(value));
-        }
-      }
-    }
-
+    /// @brief Creates an @c #OptionT option with a value of type TYPE.
+    /// @param name Option name
+    /// @param descr Option description
+    /// @param node The value node. If it has a sibling node, this node is taken
+    /// the restricted values list.
+    /// @return Returns the created option.
     template<typename TYPE>
     static CF::Common::Option::Ptr makeOptionT(const std::string & name,
                                                       const std::string & descr,
@@ -307,6 +374,12 @@ namespace ClientCore {
       return option;
     }
 
+    /// @brief Creates an @c #OptionArrayT option with values of type TYPE.
+    /// @param name Option name
+    /// @param descr Option description
+    /// @param node The value node. If it has a sibling node, this node is taken
+    /// the restricted values list.
+    /// @return Returns the created option.
     template<typename TYPE>
     static CF::Common::Option::Ptr makeOptionArrayT(const std::string & name,
                                                     const std::string & descr,
@@ -335,11 +408,27 @@ namespace ClientCore {
       return option;
     }
 
+    /// @brief Creates an object tree from a given node
+
+    /// This is a recursive method. The second parameter holds, for each link
+    /// the tree, the @c CPath of the target. The methods proceeds in this way
+    /// since the target might not exist yet when the link exists. Furthermore,
+    /// the method does not guarantee that each target path exists (e.i. the
+    /// target is missing in the XML). It is up to the calling code to make
+    /// that check.
+    /// @param node Node to convert
+    /// @param linkTargets Map where links
+    /// @return Retuns a shared pointer to the created node.
+    /// @throw XmlError If the tree could not be built.
     static CNode::Ptr createFromXmlRec(CF::Common::XmlNode & node,
                QMap<boost::shared_ptr<NLink>, CF::Common::CPath> & linkTargets);
 
-    void signalsFetched(CNode::Ptr notifier);
+    /// @brief Converts a std::vector<boost::any> to a string list.
 
+    /// Vector elements are supposed to be of type TYPE.
+    /// @param vect The vector to convert.
+    /// @return Returns the built list. May be empty, if the vector is empty.
+    /// @throw boost::bad_any_cast If the casting failed.
     template<typename TYPE>
     QStringList vectToStringList(const std::vector<boost::any> & vect) const
     {

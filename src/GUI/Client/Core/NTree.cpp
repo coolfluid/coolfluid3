@@ -63,7 +63,7 @@ void NTree::setRoot(NRoot::Ptr rootNode)
 
 NRoot::Ptr NTree::getRoot() const
 {
-  return m_rootNode->getNode()->convertTo<NRoot>();
+  return m_rootNode->getNode()->castTo<NRoot>();
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -100,7 +100,7 @@ CPath NTree::getCurrentPath() const
     CNode::Ptr cnode = node->getNode();
 
     if(cnode->checkType(ROOT_NODE))
-      path = cnode->convertTo<NRoot>()->root()->full_path();
+      path = cnode->castTo<NRoot>()->root()->full_path();
     else
       path = cnode->full_path();
   }
@@ -223,7 +223,7 @@ CNode::Ptr NTree::getNodeByPath(const CPath & path) const
     for(it = comps.begin() ; it != comps.end() && node.get() != nullptr ; it++)
     {
       if(node->checkType(CNode::ROOT_NODE))
-        node = boost::dynamic_pointer_cast<CNode>(node->convertTo<NRoot>()->root()->get_child(it->toStdString()));
+        node = boost::dynamic_pointer_cast<CNode>(node->castTo<NRoot>()->root()->get_child(it->toStdString()));
       else
         node = boost::dynamic_pointer_cast<CNode>(node->get_child(it->toStdString()));
     }
@@ -282,7 +282,7 @@ CPath NTree::getIndexPath(const QModelIndex & index) const
     CNode::Ptr node = treeNode->getNode();
 
     if(node->checkType(CNode::ROOT_NODE))
-      path = node->convertTo<NRoot>()->root()->full_path();
+      path = node->castTo<NRoot>()->root()->full_path();
     else
       path = treeNode->getNode()->full_path();
   }
@@ -338,7 +338,7 @@ void NTree::optionsChanged(const CPath & path)
 
 bool NTree::nodeMatches(const QModelIndex & index, const QRegExp & regex) const
 {
-  Component::Ptr node = m_rootNode->getNode()->convertTo<NRoot>()->root();
+  Component::Ptr node = m_rootNode->getNode()->castTo<NRoot>()->root();
 
   if(index.isValid() && indexToTreeNode(index) != m_rootNode)
     node = indexToNode(index);
@@ -497,8 +497,8 @@ void NTree::list_tree_reply(XmlNode & node)
 {
   try
   {
-    NRoot::Ptr treeRoot = m_rootNode->getNode()->convertTo<NRoot>();
-    NRoot::Ptr rootNode = CNode::createFromXml(*node.first_node())->convertTo<NRoot>();
+    NRoot::Ptr treeRoot = m_rootNode->getNode()->castTo<NRoot>();
+    NRoot::Ptr rootNode = CNode::createFromXml(*node.first_node())->castTo<NRoot>();
     ComponentIterator<CNode> it = rootNode->root()->begin<CNode>();
     CPath currentIndexPath;
 
@@ -582,7 +582,7 @@ void NTree::defineConfigProperties ( CF::Common::PropertyList& props )
 
 void NTree::clearTree()
 {
-  NRoot::Ptr treeRoot = m_rootNode->getNode()->convertTo<NRoot>();
+  NRoot::Ptr treeRoot = m_rootNode->getNode()->castTo<NRoot>();
   ComponentIterator<CNode> itRem = treeRoot->root()->begin<CNode>();
   QMap<int, std::string> listToRemove;
   QMutableMapIterator<int, std::string> itList(listToRemove);
