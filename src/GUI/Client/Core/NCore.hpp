@@ -44,11 +44,8 @@ namespace ClientCore {
 
   /// @brief Core of the client application.
 
-  /// This class is a singleton and a reference to the unique instance can be
-  /// obtained by calling @c #instance() function. This class is non-copyable. @n
   /// This class is an interface between the client network layer and the rest
-  /// of the application. Because it is a singleton, the network layer is
-  /// accessible from everywhere.
+  /// of the application.
 
   /// @author Quentin Gasper.
 
@@ -60,6 +57,7 @@ namespace ClientCore {
 
   public:
 
+    typedef boost::shared_ptr<const NCore> ConstPtr;
     typedef boost::shared_ptr<NCore> Ptr;
 
     /// @brief Constructor
@@ -79,6 +77,9 @@ namespace ClientCore {
     /// @param sshInfo Connection information
     void connectToServer(const TSshInformation & sshInfo);
 
+    /// @brief Disconnects from the server
+    /// @param shutdown If @c true, a request to shutdwn the server application
+    /// is sent before the disconnection.
     void disconnectFromServer(bool shutdown);
 
     /// @brief Gives the text to put on a tool tip
@@ -87,6 +88,7 @@ namespace ClientCore {
 
   public slots:
 
+    /// @brief Sends a request to update de tree
     void updateTree();
 
   private slots:
@@ -96,8 +98,12 @@ namespace ClientCore {
 
   signals:
 
+    /// @brief Signal emitted when a connection between the client and the server
+    /// has been established.
     void connectedToServer();
 
+    /// @brief Signal emitted when the connection between the client and the
+    /// server has been closed.
     void disconnectedFromServer();
 
   private: // data
@@ -122,10 +128,22 @@ namespace ClientCore {
     /// @name Signals
     //@{
 
+    /// @brief Method called when the server sends a shutdown event.
+    /// @param node Signal parameters. This parameter is not used.
     void shutdown(CF::Common::XmlNode & node);
 
+    /// @brief Method called when the server confirms/rejects the client
+    /// registration.
+    /// @param node Signal parameters. Should contain a boolean value named
+    /// "accepted". If this value is @c true, the server has accepted the
+    /// registration. Otherwise the server rejects the registration, in this
+    /// case, the method closes the network connection.
     void client_registration(CF::Common::XmlNode & node);
 
+    /// @brief Method called when the server rejects a request.
+    /// @param node Signal parameters. Should contain two values:
+    /// @li a string named "uuid" that contains the rejected frame UUID
+    /// @li a string named "reason" that contains the reason of the reject
     void frame_rejected(CF::Common::XmlNode & node);
 
     //@} END Signals
