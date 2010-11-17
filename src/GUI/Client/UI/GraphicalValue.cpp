@@ -106,9 +106,9 @@ GraphicalValue * GraphicalValue::createFromOption(CF::Common::Option::ConstPtr o
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString GraphicalValue::getValueString() const
+QString GraphicalValue::valueString() const
 {
-  QVariant value = this->getValue();
+  QVariant value = this->value();
 
   if(value.type() == QVariant::StringList)
     return value.toStringList().join(":");
@@ -119,7 +119,7 @@ QString GraphicalValue::getValueString() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QVariant GraphicalValue::getOriginalValue() const
+QVariant GraphicalValue::originalValue() const
 {
   return m_originalValue;
 }
@@ -127,7 +127,7 @@ QVariant GraphicalValue::getOriginalValue() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString GraphicalValue::getOriginalValueString() const
+QString GraphicalValue::originalValueString() const
 {
   if(m_originalValue.type() == QVariant::StringList)
     return m_originalValue.toStringList().join(":");
@@ -140,7 +140,7 @@ QString GraphicalValue::getOriginalValueString() const
 
 bool GraphicalValue::isModified() const
 {
-  return getOriginalValueString() != getValueString();
+  return originalValueString() != valueString();
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -148,6 +148,6 @@ bool GraphicalValue::isModified() const
 
 void GraphicalValue::commit()
 {
-  m_originalValue = getValue();
+  m_originalValue = value();
   emit valueChanged();
 }

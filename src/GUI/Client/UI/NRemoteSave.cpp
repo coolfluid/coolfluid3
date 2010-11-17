@@ -58,14 +58,6 @@ NRemoteSave::~NRemoteSave()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QIcon NRemoteSave::getIcon() const
-{
-  return QFileIconProvider().icon(QFileIconProvider::File);
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 NRemoteSave::Ptr NRemoteSave::create(QMainWindow * parent)
 {
   NRemoteSave::Ptr rsf(new NRemoteSave(parent));
@@ -95,7 +87,7 @@ void NRemoteSave::btFileNameClick()
   do
   {
     overwrite = true;
-    name = m_fileNameDialog->show(this->getExtensions(), selectedExtension);
+    name = m_fileNameDialog->show(this->extensions(), selectedExtension);
 
     if(!name.isEmpty())
     {
@@ -107,7 +99,7 @@ void NRemoteSave::btFileNameClick()
       if(this->itemExists(name))
       {
         int answer;
-        QString path = this->getCurrentPath();
+        QString path = this->currentPath();
         QString message = "The file '%1' already exists. Are you sure to "
         "overwrite this file?";
 
@@ -193,7 +185,7 @@ void NRemoteSave::reinitValues()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString NRemoteSave::getSelectedFile() const
+QString NRemoteSave::selectedFile() const
 {
   return m_selectedFile;
 }

@@ -45,7 +45,7 @@ void LoggingList::setMaxLogLines(unsigned int maxLogLines)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-unsigned int LoggingList::getMaxLogLines() const
+unsigned int LoggingList::maxLogLines() const
 {
   return m_maxLogLines;
 }
@@ -53,7 +53,7 @@ unsigned int LoggingList::getMaxLogLines() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-unsigned int LoggingList::getLogLinesCounter() const
+unsigned int LoggingList::logLinesCount() const
 {
   return m_logLinesCounter;
 }

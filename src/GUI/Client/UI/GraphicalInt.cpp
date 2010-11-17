@@ -61,7 +61,7 @@ bool GraphicalInt::setValue(const QVariant & value)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QVariant GraphicalInt::getValue() const
+QVariant GraphicalInt::value() const
 {
   return m_spinBox->value();
 }

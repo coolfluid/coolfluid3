@@ -45,7 +45,7 @@ bool GraphicalString::setValue(const QVariant & value)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QVariant GraphicalString::getValue() const
+QVariant GraphicalString::value() const
 {
   return m_lineEdit->text();
 }

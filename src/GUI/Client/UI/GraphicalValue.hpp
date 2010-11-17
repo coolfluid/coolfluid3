@@ -43,13 +43,13 @@ namespace ClientUI {
 
     virtual bool setValue(const QVariant & value) = 0;
 
-    virtual QVariant getValue() const = 0;
+    virtual QVariant value() const = 0;
 
-    QString getValueString() const;
+    QString valueString() const;
 
-    QVariant getOriginalValue() const;
+    QVariant originalValue() const;
 
-    QString getOriginalValueString() const;
+    QString originalValueString() const;
 
     bool isModified() const;
 

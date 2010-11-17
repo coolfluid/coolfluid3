@@ -102,12 +102,12 @@ namespace ClientUI {
     /// The key is the option name as stored in @c m_options string list. The
     /// value is the new value.
     /// @param m_newOptions String list where new option names will be stored.
-    void getModifiedOptions(ClientCore::CommitDetails & commitDetails) const;
+    void modifiedOptions(ClientCore::CommitDetails & commitDetails) const;
 
     /// @brief Gives the current path.
 
     /// @return Returns the current path.
-    QString getCurrentPath() const;
+    QString currentPath() const;
 
   public slots:
 

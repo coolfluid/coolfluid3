@@ -63,7 +63,7 @@ bool GraphicalDouble::setValue(const QVariant & value)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QVariant GraphicalDouble::getValue() const
+QVariant GraphicalDouble::value() const
 {
   return m_lineEdit->text();
 }

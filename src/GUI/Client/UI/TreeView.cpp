@@ -95,7 +95,7 @@ bool TreeView::isReadOnly() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CPath TreeView::getSelectedPath() const
+CPath TreeView::selectedPath() const
 {
   QModelIndex currentPath = this->selectionModel()->currentIndex();
   CPath path;
@@ -113,7 +113,7 @@ CPath TreeView::getSelectedPath() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CPath TreeView::getPath(const QModelIndex & index)
+CPath TreeView::pathFromIndex(const QModelIndex & index)
 {
   return ClientRoot::tree()->pathFromIndex(m_modelFilter->mapToSource(index));
 }
@@ -121,7 +121,7 @@ CPath TreeView::getPath(const QModelIndex & index)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QIcon TreeView::getIcon(const QModelIndex & index)
+QIcon TreeView::iconFromIndex(const QModelIndex & index)
 {
   QModelIndex indexInModel = m_modelFilter->mapToSource(index);
   return ClientRoot::tree()->data(indexInModel, Qt::DecorationRole).value<QIcon>();
@@ -268,7 +268,7 @@ bool TreeView::confirmChangeOptions(const QModelIndex & index, bool okIfSameInde
 
     ConfirmCommitDialog dlg;
 
-    m_centralPanel->getModifiedOptions(commitDetails);
+    m_centralPanel->modifiedOptions(commitDetails);
 
     ConfirmCommitDialog::CommitConfirmation answer = dlg.show(commitDetails);
 

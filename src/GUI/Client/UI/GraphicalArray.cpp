@@ -145,7 +145,7 @@ bool GraphicalArray::setValue(const QVariant & value)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QVariant GraphicalArray::getValue() const
+QVariant GraphicalArray::value() const
 {
   return m_model->stringList();
 }

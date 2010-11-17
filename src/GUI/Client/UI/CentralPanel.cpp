@@ -196,19 +196,19 @@ bool CentralPanel::isModified() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CentralPanel::getModifiedOptions(CommitDetails & commitDetails) const
+void CentralPanel::modifiedOptions(CommitDetails & commitDetails) const
 {
   commitDetails.clear();
   commitDetails.setNodePath(m_currentPath);
 
-  m_basicOptionLayout->getModifiedOptions(commitDetails);
-  m_advancedOptionLayout->getModifiedOptions(commitDetails);
+  m_basicOptionLayout->modifiedOptions(commitDetails);
+  m_advancedOptionLayout->modifiedOptions(commitDetails);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString CentralPanel::getCurrentPath() const
+QString CentralPanel::currentPath() const
 {
   return m_currentPath;
 }
@@ -247,8 +247,8 @@ void CentralPanel::btApplyClicked()
 {
   QMap<QString, QString> options;
 
-  m_basicOptionLayout->getOptions(options, false);
-  m_advancedOptionLayout->getOptions(options, false);
+  m_basicOptionLayout->options(options, false);
+  m_advancedOptionLayout->options(options, false);
 
   // if there is at least one option that has been modified
   if(!options.isEmpty())
@@ -325,7 +325,7 @@ void CentralPanel::btSeeChangesClicked()
   CommitDetails details;
   CommitDetailsDialog dialog;
 
-  this->getModifiedOptions(details);
+  this->modifiedOptions(details);
   dialog.show(details);
 }
 

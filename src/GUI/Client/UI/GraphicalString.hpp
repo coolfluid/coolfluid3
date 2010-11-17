@@ -34,7 +34,7 @@ namespace ClientUI {
 
     virtual bool setValue(const QVariant & value);
 
-    virtual QVariant getValue() const;
+    virtual QVariant value() const;
 
   private slots:
 

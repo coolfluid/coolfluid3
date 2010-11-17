@@ -42,7 +42,7 @@ namespace ClientUI {
 
     virtual bool setValue(const QVariant & path);
 
-    virtual QVariant getValue() const;
+    virtual QVariant value() const;
 
   protected:
 

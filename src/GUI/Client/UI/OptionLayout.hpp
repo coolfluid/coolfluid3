@@ -79,7 +79,7 @@ namespace ClientUI {
 
     /// @param commitDetails Object where modified values will be stored. The
     /// object is not cleared.
-    void getModifiedOptions(ClientCore::CommitDetails & commitDetails) const;
+    void modifiedOptions(ClientCore::CommitDetails & commitDetails) const;
 
     void addOption(CF::Common::Option::ConstPtr option);
 
@@ -91,7 +91,7 @@ namespace ClientUI {
     /// key is the option name and the value is the option new value.
     /// @param all If @c false, only modified options will be put, meaning
     /// that the hashmap may be empty. If @c true, all option are put.
-    void getOptions(QMap<QString, QString> & options, bool all) const;
+    void options(QMap<QString, QString> & options, bool all) const;
 
     /// @brief Marks options as commited
 

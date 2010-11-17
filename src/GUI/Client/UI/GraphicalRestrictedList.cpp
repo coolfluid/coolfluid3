@@ -94,7 +94,7 @@ bool GraphicalRestrictedList::setValue(const QVariant & value)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QVariant GraphicalRestrictedList::getValue() const
+QVariant GraphicalRestrictedList::value() const
 {
   return m_comboChoices->currentText();
 }

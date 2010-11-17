@@ -37,7 +37,7 @@ namespace ClientUI {
   {
     Q_OBJECT
 
-    public:
+  public:
 
     typedef boost::shared_ptr<NRemoteSave> Ptr;
     typedef boost::shared_ptr<const NRemoteSave> ConstPtr;
@@ -54,15 +54,11 @@ namespace ClientUI {
 
     static NRemoteSave::Ptr create(QMainWindow * parent = nullptr);
 
-    /// @brief Gives the icon associated to this node
-    /// @return Returns the icon associated to this node
-    virtual QIcon getIcon() const;
-
     /// @brief Gives the node tooltip.
     /// @return Returns the tooltip text.
     virtual QString toolTip() const;
 
-    protected:
+  protected:
 
     /// @brief Checks if the selection is valid.
 
@@ -93,9 +89,9 @@ namespace ClientUI {
     /// @return Returns the selected file, or an empty string if the last call
     /// to @c #isAcceptable did not return @c #POLICY_VALID or if this method was
     /// never called.
-    virtual QString getSelectedFile() const;
+    virtual QString selectedFile() const;
 
-    private slots:
+  private slots:
 
     /// @brief Asks user to enter a file name and select file type.
 
@@ -109,7 +105,7 @@ namespace ClientUI {
     /// the server.
     void btNewDirectoryClicked();
 
-    private:
+  private:
 
     /// @brief "Set file name" button
     QPushButton * m_btFileName;

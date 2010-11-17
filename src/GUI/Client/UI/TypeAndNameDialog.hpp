@@ -74,7 +74,7 @@ namespace ClientUI {
   {
     Q_OBJECT
 
-    public:
+  public:
 
     /// @brief Constructor.
 
@@ -110,7 +110,7 @@ namespace ClientUI {
     /// @param newName New name. May be empty.
     void setName(const QString & newName);
 
-    private slots:
+  private slots:
 
     /// @brief Slot called when "OK" button is clicked.
     void btOkClicked();
@@ -118,7 +118,7 @@ namespace ClientUI {
     /// @brief Slot called when "Cancel" button is clicked.
     void btCancelClicked();
 
-    private:
+  private:
 
     /// @brief Drop-down list that allows the user to select a concrete type.
     QComboBox * m_cbTypes;
@@ -137,7 +137,7 @@ namespace ClientUI {
     /// @brief Label for the line edit
     QLabel * m_labName;
 
-    /// @brief Label for the drop-down list
+    /// @brief Label for the dsrop-down list
     QLabel * m_labConcreteType;
 
     /// @brief Layout on which the components will be placed.

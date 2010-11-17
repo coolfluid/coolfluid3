@@ -74,7 +74,7 @@ bool SignatureDialog::show(XmlNode & sig, const QString & title)
     {
       QMap<QString, QString> options;
 
-      m_dataLayout->getOptions(options, true);
+      m_dataLayout->options(options, true);
 
       QMap<QString, XmlNode*>::iterator it = m_nodes.begin();
 

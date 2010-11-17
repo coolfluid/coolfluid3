@@ -202,7 +202,7 @@ QString NRemoteBrowser::show(const QString & startingDir, bool * canceled)
     *canceled = !m_okClicked;
 
   if(m_okClicked)
-    return this->getSelectedFile();
+    return this->selectedFile();
 
   // restore mouse cursor
   QApplication::restoreOverrideCursor();
@@ -246,7 +246,7 @@ QStringList NRemoteBrowser::showMultipleSelect(const QString & startingDir)
   this->disconnect(ClientRoot::log().get());
 
   if(m_okClicked)
-    getSelectedFileList(list);
+    selectedFileList(list);
 
   // restore mouse cursor
   QApplication::restoreOverrideCursor();
@@ -275,7 +275,7 @@ void NRemoteBrowser::setIncludeNoExtension(bool includeNoExtension)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QStringList NRemoteBrowser::getExtensions() const
+QStringList NRemoteBrowser::extensions() const
 {
   return m_extensions;
 }
@@ -283,7 +283,7 @@ QStringList NRemoteBrowser::getExtensions() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool NRemoteBrowser::getIncludeFiles() const
+bool NRemoteBrowser::includeFiles() const
 {
   return m_includeFiles;
 }
@@ -291,7 +291,7 @@ bool NRemoteBrowser::getIncludeFiles() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool NRemoteBrowser::getIncludeNoExtension() const
+bool NRemoteBrowser::includeNoExtension() const
 {
   return m_includeNoExtension;
 }
@@ -406,7 +406,7 @@ void NRemoteBrowser::assemblePath(QString & part1, const QString & part2) const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NRemoteBrowser::getSelectedFileList(QStringList & fileList) const
+void NRemoteBrowser::selectedFileList(QStringList & fileList) const
 {
   QModelIndexList selectedItems = m_listView->selectionModel()->selectedIndexes();
   QModelIndexList::iterator it = selectedItems.begin();
@@ -479,7 +479,7 @@ void NRemoteBrowser::btOkClicked()
   {
     QStringList list;
 
-    NRemoteBrowser::getSelectedFileList(list);
+    NRemoteBrowser::selectedFileList(list);
 
     validation = this->isAcceptableList(list);
 
@@ -680,7 +680,7 @@ void NRemoteBrowser::setExtensions(const QStringList & newExtensions)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString NRemoteBrowser::getCurrentPath() const
+QString NRemoteBrowser::currentPath() const
 {
   return m_currentPath;
 }
@@ -805,7 +805,7 @@ Signal::return_t NRemoteBrowser::read_dir(Signal::arg_t & node)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString NRemoteBrowser::getSelectedFile() const
+QString NRemoteBrowser::selectedFile() const
 {
   QModelIndex index = m_listView->currentIndex();
   QModelIndex indexInModel = m_filterModel->mapToSource(index);

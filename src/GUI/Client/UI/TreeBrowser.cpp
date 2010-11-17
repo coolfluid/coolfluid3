@@ -171,8 +171,8 @@ void TreeBrowser::updateButtons()
     for(int i = 0 ; i < m_history.size() ; i++)
     {
       QPersistentModelIndex index = m_history.at(i);
-      QString path = m_treeView->getPath(index).string().c_str();
-      QIcon icon = m_treeView->getIcon(index);
+      QString path = m_treeView->pathFromIndex(index).string().c_str();
+      QIcon icon = m_treeView->iconFromIndex(index);
 
       if(path.isEmpty())
       {

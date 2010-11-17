@@ -70,7 +70,7 @@ CPath SelectPathDialog::show(const CPath & path)
   this->exec();
 
   if(m_okClicked)
-    return m_treeView->getSelectedPath();
+    return m_treeView->selectedPath();
   else
     return CPath();
 }
@@ -99,7 +99,7 @@ void SelectPathDialog::btCancelClicked()
 void SelectPathDialog::itemClicked(const QModelIndex & index)
 {
   m_nodeClicked = true;
-  m_editPath->setText(m_treeView->getSelectedPath().string().c_str());
+  m_editPath->setText(m_treeView->selectedPath().string().c_str());
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

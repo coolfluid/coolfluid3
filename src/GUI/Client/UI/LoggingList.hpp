@@ -56,12 +56,12 @@ namespace ClientUI {
     /// @brief Gives the maximum number of lines before the log is cleared.
 
     /// @return Returns the maximum number of lines before the log is cleared.
-    unsigned int getMaxLogLines() const;
+    unsigned int maxLogLines() const;
 
     /// @brief Gives the number of lines the log contains.
 
     /// @return Returns the number of lines the log contains.
-    unsigned int getLogLinesCounter() const;
+    unsigned int logLinesCount() const;
 
   public slots:
 

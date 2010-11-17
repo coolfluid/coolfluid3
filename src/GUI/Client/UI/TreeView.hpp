@@ -91,11 +91,11 @@ namespace ClientUI {
     /// Otherwise, returns @c false.
     bool isReadOnly() const;
 
-    CF::Common::CPath getSelectedPath() const;
+    CF::Common::CPath selectedPath() const;
 
-    CF::Common::CPath getPath(const QModelIndex & index);
+    CF::Common::CPath pathFromIndex(const QModelIndex & index);
 
-    QIcon getIcon(const QModelIndex & index);
+    QIcon iconFromIndex(const QModelIndex & index);
 
     void selectItem(const CF::Common::CPath & path);
 

@@ -68,7 +68,7 @@ GraphicalUri::~GraphicalUri()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QVariant GraphicalUri::getValue() const
+QVariant GraphicalUri::value() const
 {
   return m_editPath->text();
 }

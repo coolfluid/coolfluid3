@@ -46,14 +46,6 @@ NRemoteOpen::Ptr NRemoteOpen::create(QMainWindow * parent)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QIcon NRemoteOpen::getIcon() const
-{
-  return QFileIconProvider().icon(QFileIconProvider::File);
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 QString NRemoteOpen::toolTip() const
 {
   return this->getComponentType();
@@ -105,7 +97,7 @@ ValidationPolicy NRemoteOpen::isAcceptable(const QStringList & names)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString NRemoteOpen::getSelectedFile() const
+QString NRemoteOpen::selectedFile() const
 {
   if(!m_fileList.isEmpty())
     return m_fileList.at(0);

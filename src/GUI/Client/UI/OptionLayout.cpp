@@ -44,7 +44,7 @@ OptionLayout::~OptionLayout()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void OptionLayout::getOptions(QMap<QString, QString> & options, bool all) const
+void OptionLayout::options(QMap<QString, QString> & options, bool all) const
 {
   QList<GraphicalValue *>::const_iterator it = m_options.begin();
 
@@ -54,7 +54,7 @@ void OptionLayout::getOptions(QMap<QString, QString> & options, bool all) const
     QLabel * label = static_cast<QLabel*>(labelForField(*it));
 
     if(all || value->isModified())
-      options[ label->text() ] = value->getValueString();
+      options[ label->text() ] = value->valueString();
   }
 }
 
@@ -104,7 +104,7 @@ bool OptionLayout::isModified() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void OptionLayout::getModifiedOptions(CommitDetails & commitDetails) const
+void OptionLayout::modifiedOptions(CommitDetails & commitDetails) const
 {
   QList<GraphicalValue *>::const_iterator it = m_options.begin();
 
@@ -114,8 +114,8 @@ void OptionLayout::getModifiedOptions(CommitDetails & commitDetails) const
 
     if(value->isModified())
     {
-      QString oldValue = value->getOriginalValueString();
-      QString newValue = value->getValueString();
+      QString oldValue = value->originalValueString();
+      QString newValue = value->valueString();
       QLabel * label = static_cast<QLabel*>(labelForField(*it));
 
       commitDetails.setOption(label->text(), oldValue, newValue);

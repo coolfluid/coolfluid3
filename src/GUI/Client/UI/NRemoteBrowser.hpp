@@ -201,29 +201,25 @@ namespace ClientUI {
     /// @brief Gives the current extensions
 
     /// @return Returns current extensions
-    QStringList getExtensions() const;
+    QStringList extensions() const;
 
     /// @brief Indicates whether files are included.
 
     /// @return Returns @c true if files are included; otherwise, returns
     /// @c false.
-    bool getIncludeFiles() const;
+    bool includeFiles() const;
 
     /// @brief Indicates whether files without extension are included.
 
     /// @return Returns @c true if files without extension are included;
     /// otherwise, returns @c false.
-    bool getIncludeNoExtension() const;
+    bool includeNoExtension() const;
 
     /// @brief Gives the current path
 
     /// @return Returns the current path, or an empty string if the dialog
     /// does not have any current path.
-    QString getCurrentPath() const;
-
-    /// @brief Gives the icon associated to this node
-    /// @return Returns the icon associated to this node
-    virtual QIcon getIcon() const = 0;
+    QString currentPath() const;
 
     /// @brief Gives the node tooltip.
     /// @return Returns the tooltip text.
@@ -400,7 +396,7 @@ namespace ClientUI {
     /// reimplement this method.
     /// @return Return the selected file directory, or an empty string if no
     /// item is selected.
-    virtual QString getSelectedFile() const;
+    virtual QString selectedFile() const;
 
     /// @brief Gives the selected files and/or directories.
 
@@ -409,7 +405,7 @@ namespace ClientUI {
     /// should reimplement this method.
     /// @return Return the selected file directory, or an empty string if no
     /// item is selected.
-    virtual void getSelectedFileList(QStringList & fileList) const;
+    virtual void selectedFileList(QStringList & fileList) const;
 
     /// @brief Allows a subclass to set text on the satus label.
 

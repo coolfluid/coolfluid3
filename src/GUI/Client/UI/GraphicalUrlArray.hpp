@@ -35,7 +35,7 @@ namespace ClientUI {
 
     ~GraphicalUrlArray();
 
-    virtual QVariant getValue() const;
+    virtual QVariant value() const;
 
     virtual bool setValue(const QVariant & value);
 

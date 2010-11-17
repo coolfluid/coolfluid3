@@ -44,7 +44,7 @@ namespace ClientUI {
   class ClientUI_API FilesListItem : public QStandardItem
   {
 
-    public:
+  public:
 
     /// @brief Constructor.
 
@@ -63,7 +63,7 @@ namespace ClientUI {
     /// returns @c FILE.
     FilesListItemType getType() const;
 
-    private:
+  private:
 
     /// @brief Indicates the type of this item.
 

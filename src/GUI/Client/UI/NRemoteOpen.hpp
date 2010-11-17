@@ -47,10 +47,6 @@ namespace ClientUI {
 
     static NRemoteOpen::Ptr create(QMainWindow * parent = nullptr);
 
-    /// @brief Gives the icon associated to this node
-    /// @return Returns the icon associated to this node
-    virtual QIcon getIcon() const;
-
     /// @brief Gives the node tooltip.
     /// @return Returns the tooltip text.
     virtual QString toolTip() const;
@@ -84,7 +80,7 @@ namespace ClientUI {
     /// @return Returns the selected file, or an empty string if the last call
     /// to <code>isAcceptable(const QString &, bool)</code> did not return
     /// @c #POLICY_VALID or if this method was never called.
-    virtual QString getSelectedFile() const;
+    virtual QString selectedFile() const;
 
     /// @brief Give the selected files.
 

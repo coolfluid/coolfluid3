@@ -51,7 +51,7 @@ bool GraphicalBool::setValue(const QVariant & value)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QVariant GraphicalBool::getValue() const
+QVariant GraphicalBool::value() const
 {
   return m_checkBox->isChecked();
 }

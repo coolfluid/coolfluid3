@@ -35,7 +35,7 @@ namespace ClientUI {
 
     virtual bool setValue(const QVariant & value);
 
-    virtual QVariant getValue() const;
+    virtual QVariant value() const;
 
   private slots:
 
@@ -46,8 +46,6 @@ namespace ClientUI {
     QLineEdit * m_lineEdit;
 
     QDoubleValidator * m_validator;
-
-    void initGui();
 
   }; // class GraphicalDouble
 

@@ -103,7 +103,7 @@ namespace ClientUI {
   {
     Q_OBJECT
 
-    public:
+  public:
     /// @brief Constructor.
 
     /// @param parent Parent widget.
@@ -185,12 +185,12 @@ namespace ClientUI {
     /// @brief Removes all previously defined file types.
     void clearFileTypes();
 
-    public slots:
+  public slots:
     /// @brief Overrides @c QFileDialog::accept() slot for extension management
     /// system.
     virtual void accept();
 
-    private:
+  private:
     /// @brief Hash map for file types and extensions.
 
     /// The key is the file type and the value contains associated extension(s).

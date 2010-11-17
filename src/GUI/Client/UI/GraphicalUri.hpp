@@ -41,7 +41,7 @@ namespace ClientUI {
 
     virtual bool setValue(const QVariant & path);
 
-    virtual QVariant getValue() const;
+    virtual QVariant value() const;
 
     void setProtocols(const std::vector<std::string> & list);
 

@@ -55,7 +55,7 @@ GraphicalUrlArray::~GraphicalUrlArray()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QVariant GraphicalUrlArray::getValue() const
+QVariant GraphicalUrlArray::value() const
 {
   return m_model->stringList();
 }
