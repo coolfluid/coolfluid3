@@ -55,33 +55,32 @@ namespace detail {
   **/
   template<typename T>
   inline void
-  scatterc_impl(const communicator& comm, const T* in_values, const int in_n, T* out_values, const  int stride )
+  scatterc_impl(const communicator& comm, const T* in_values, const int in_n, T* out_values, const  int stride, const int root )
   {
-/*
     // get data type and number of processors
     MPI_Datatype type = get_mpi_datatype<T>(*in_values);
     const int nproc=comm.size();
+    const int irank=comm.rank();
 
     // if stride is greater than one
     BOOST_ASSERT( stride>0 );
 
     // set up out_buf
-    T* out_buf=0;
-    if (in_values==out_values) {
+    T* out_buf=out_values;
+    if (irank==root) if (in_values==out_values) {
       if ( (out_buf=new T[nproc*in_n*stride+1]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
     } else {
       out_buf=out_values;
     }
 
     // do the communication
-    BOOST_MPI_CHECK_RESULT(MPI_Alltoall, (const_cast<T*>(in_values), in_n*stride, type, out_buf, in_n*stride, type, comm));
+    BOOST_MPI_CHECK_RESULT(MPI_Scatter, (const_cast<T*>(in_values), in_n*stride, type, out_buf, in_n*stride, type, root, comm));
 
     // deal with out_buf
-    if (in_values==out_values) {
+    if (irank==root) if (in_values==out_values) {
       memcpy(out_values,out_buf,nproc*in_n*stride*sizeof(T));
       delete[] out_buf;
     }
-*/
   }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -103,10 +102,11 @@ namespace detail {
   inline void
   scattervm_impl(const communicator& comm, const T* in_values, const int *in_n, const int *in_map, T* out_values, const int *out_n, const int *out_map, const int stride )
   {
-/*
+
     // get data type and number of processors
     MPI_Datatype type = get_mpi_datatype<T>(*in_values);
     const int nproc=comm.size();
+    const int irank=comm.rank();
 
     // if stride is greater than one and unsupported functionality
     BOOST_ASSERT( stride>0 );
@@ -134,7 +134,7 @@ namespace detail {
 
     // set up in_buf
     T *in_buf=0;
-    if (in_map!=0) {
+    if (irank==root) if (in_map!=0) {
       if ( (in_buf=new T[in_sum+1]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
       if (stride==1) { for(int i=0; i<in_sum; i++) in_buf[i]=in_values[in_map[i]]; }
       else { for(int i=0; i<(const int)(in_sum/stride); i++) memcpy(&in_buf[stride*i],&in_values[stride*in_map[i]],stride*sizeof(T)); }
@@ -151,7 +151,7 @@ namespace detail {
     }
 
     // do the communication
-    BOOST_MPI_CHECK_RESULT(MPI_Alltoallv, (in_buf, in_nstride, in_disp, type, out_buf, out_nstride, out_disp, type, comm));
+    BOOST_MPI_CHECK_RESULT(MPI_Scatterv, (in_buf, in_nstride, in_disp, type, out_buf, out_nstride, out_disp, type, root, comm));
 
     // re-populate out_values
     if (out_map!=0) {
@@ -164,12 +164,12 @@ namespace detail {
     }
 
     // free internal memory
-    if (in_map!=0) delete[] in_buf;
+    if (irank==root) if (in_map!=0) delete[] in_buf;
     delete[] in_disp;
     delete[] out_disp;
     delete[] in_nstride;
     delete[] out_nstride;
-*/
+
   }
 
 ////////////////////////////////////////////////////////////////////////////////
