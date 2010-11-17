@@ -80,7 +80,7 @@ GraphicalValue * GraphicalValue::createFromOption(CF::Common::Option::ConstPtr o
     tag = array->elem_type();
 
     if(tag.compare(XmlTag<bool>::type()) == 0)               // bool option
-      value = new GraphicalArray(new QRegExpValidator(QRegExp("(true)|(false)"), parent), parent);
+      value = new GraphicalArray(new QRegExpValidator(QRegExp("(true)|(false)|(1)|(0)"), parent), parent);
     else if(tag.compare(XmlTag<CF::Real>::type()) == 0)      // Real option
     {
       QDoubleValidator * val = new QDoubleValidator(nullptr);
