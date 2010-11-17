@@ -28,9 +28,9 @@
 
 namespace CF {
 
-  namespace GUI {
-  /// Basic Classes for ClientCore applications used by CF
-  namespace ClientCore {
+namespace GUI {
+/// Basic Classes for client-core library used by coolfluid-client application
+namespace ClientCore {
 
 ////////////////////////////////////////////////////////////////////////////////
 
