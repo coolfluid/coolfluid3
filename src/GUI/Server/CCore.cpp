@@ -321,8 +321,6 @@ void CCore::newClient(const std::string & clientId)
 {
   // send a welcome message to the new client
   m_commServer->sendMessageToClient("Welcome to the Client-Server project!", LogMessage::INFO, clientId);
-
-  CFerror << "This is an error" << CFendl;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
