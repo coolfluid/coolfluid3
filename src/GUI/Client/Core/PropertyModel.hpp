@@ -60,16 +60,14 @@ namespace ClientCore {
 
     /// @brief Implementation of @c QAbstractItemModel::data().
 
-    /// Only the role @c Qt::DisplayRole and @c Qt::DecorationRole are accepted.
+    /// Only the role @c Qt::DisplayRole is accepted.
     /// Other roles will result to the return of an empty @c QVariant object
     /// (built with the default construtor).
     /// @param index Concerned item index.
-    /// @param role Role of the returned value (only @c Qt::DisplayRole or
-    /// @c Qt::DecorationRole).
-    /// @return Returns an empty QVariant object if the role is neither
-    /// @c Qt::DisplayRole nor @c Qt::DecorationRole or if the @c index.isValid()
-    /// returns @c false. Otherwise, returns the nodename of the
-    /// the item at the specified index.
+    /// @param role Role of the returned value (only @c Qt::DisplayRole).
+    /// @return Returns an empty QVariant object if the role is not
+    /// @c Qt::DecorationRole or if the index is not valid. Otherwise,
+    /// returns the nodename of the item at the specified index.
     virtual QVariant data(const QModelIndex & index, int role) const;
 
     /// @brief Implementation of @c QAbstractItemModel::index().
