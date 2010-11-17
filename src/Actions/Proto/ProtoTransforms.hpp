@@ -93,8 +93,8 @@ struct BlockAccumulator :
     typedef void result_type;
     
     /// Number of the numbered varaible that determines the connectivity. We assume there is only one numbered var here.
-    typedef typename boost::mpl::prior<typename boost::result_of<ExprVarArity(Expr)>::type>::type I;
-    typedef typename boost::proto::result_of::value<typename boost::proto::result_of::left<Expr>::type>::type MatrixViewT;
+    typedef typename boost::mpl::prior<typename boost::result_of<ExprVarArity(typename boost::proto::result_of::right<Expr>::type)>::type>::type I;
+    typedef typename boost::proto::result_of::value<typename boost::proto::result_of::left<Expr>::type>::type MatrixHolderT;
     typedef typename boost::proto::result_of::eval
     <
       typename boost::remove_reference<typename boost::proto::result_of::right<Expr>::type>::type,
@@ -108,8 +108,8 @@ struct BlockAccumulator :
     ) const
     {
       const Mesh::CTable::ConstRow conn_row = (*boost::fusion::at<I>(context.contexts).connectivity)[context.element_idx];
-      MatrixViewT m = boost::proto::value(boost::proto::left(expr));
-      BlockAssignmentOp<OpT>::assign(m.matrix, boost::proto::eval(boost::proto::right(expr), context), conn_row);
+      MatrixHolderT m = boost::proto::value(boost::proto::left(expr));
+      BlockAssignmentOp<OpT>::assign(m.matrix(), boost::proto::eval(boost::proto::right(expr), context), conn_row);
     }
   };
 };
@@ -136,7 +136,29 @@ struct DirichletBCSetter :
     ) const
     {
       DirichletBCT bc = boost::proto::value(boost::proto::left(expr));
-      assign_dirichlet(bc.matrix, bc.rhs, boost::proto::eval(boost::proto::right(expr), context), context.node_idx);
+      assign_dirichlet(bc.matrix(), bc.rhs(), boost::proto::eval(boost::proto::right(expr), context), context.node_idx);
+    }
+  };
+};
+
+/// Returns the value of a variable
+struct VarValue :
+  boost::proto::transform< VarValue >
+{
+  template<typename VarT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<VarT, StateT, DataT>
+  { 
+    typedef typename boost::remove_reference<VarT>::type::index_type I;
+    typedef typename boost::remove_reference<DataT>::type::template DataType<I>::type VarDataT;
+    typedef typename VarDataT::value_type result_type;
+  
+    result_type operator ()(
+                typename impl::expr_param var
+              , typename impl::state_param state
+              , typename impl::data_param data
+    ) const
+    {
+      return data.template var_data<I>().value();
     }
   };
 };
@@ -155,6 +177,11 @@ namespace proto {
   
   template<typename OpT>
   struct is_callable< CF::Actions::Proto::BlockAccumulator<OpT> >
+    : mpl::true_
+  {};
+  
+  template<>
+  struct is_callable< CF::Actions::Proto::VarValue >
     : mpl::true_
   {};
 }
@@ -208,7 +235,7 @@ template<>
 struct MatrixAssignOpsCases::case_<boost::proto::tag::assign> :
 boost::proto::when
 <
-  boost::proto::assign<boost::proto::terminal< MatrixView<boost::proto::_> >, boost::proto::_>,
+  boost::proto::assign<boost::proto::terminal< Var< boost::proto::_, EigenDenseMatrix<boost::proto::_> > >, boost::proto::_>,
   BlockAccumulator<boost::proto::tag::assign>
 > 
 {};
@@ -216,7 +243,7 @@ template<>
 struct MatrixAssignOpsCases::case_<boost::proto::tag::plus_assign> :
 boost::proto::when
 <
-  boost::proto::plus_assign<boost::proto::terminal< MatrixView<boost::proto::_> >, boost::proto::_>,
+  boost::proto::plus_assign<boost::proto::terminal< Var< boost::proto::_, EigenDenseMatrix<boost::proto::_> > >, boost::proto::_>,
   BlockAccumulator<boost::proto::tag::plus_assign>
 > 
 {};
@@ -224,7 +251,7 @@ template<>
 struct MatrixAssignOpsCases::case_<boost::proto::tag::minus_assign> :
 boost::proto::when
 <
-  boost::proto::minus_assign<boost::proto::terminal< MatrixView<boost::proto::_> >, boost::proto::_>,
+  boost::proto::minus_assign<boost::proto::terminal< Var< boost::proto::_, EigenDenseMatrix<boost::proto::_> > >, boost::proto::_>,
   BlockAccumulator<boost::proto::tag::minus_assign>
 > 
 {};
@@ -232,7 +259,7 @@ template<>
 struct MatrixAssignOpsCases::case_<boost::proto::tag::multiplies_assign> :
 boost::proto::when
 <
-  boost::proto::multiplies_assign<boost::proto::terminal< MatrixView<boost::proto::_> >, boost::proto::_>,
+  boost::proto::multiplies_assign<boost::proto::terminal< Var< boost::proto::_, EigenDenseMatrix<boost::proto::_> > >, boost::proto::_>,
   BlockAccumulator<boost::proto::tag::multiplies_assign>
 > 
 {};
@@ -240,7 +267,7 @@ template<>
 struct MatrixAssignOpsCases::case_<boost::proto::tag::divides_assign> :
 boost::proto::when
 <
-  boost::proto::divides_assign<boost::proto::terminal< MatrixView<boost::proto::_> >, boost::proto::_>,
+  boost::proto::divides_assign<boost::proto::terminal< Var< boost::proto::_, EigenDenseMatrix<boost::proto::_> > >, boost::proto::_>,
   BlockAccumulator<boost::proto::tag::divides_assign>
 > 
 {};
@@ -252,7 +279,7 @@ struct EvaluateExpr :
     boost::proto::switch_<MatrixAssignOpsCases>, // Assignment to system matrix
     boost::proto::when // Assignment to Dirichlet BC
     <
-      boost::proto::assign<boost::proto::terminal< DirichletBCView<boost::proto::_, boost::proto::_> >, boost::proto::_>,
+      boost::proto::assign<boost::proto::terminal< Var< boost::proto::_, EigenDenseDirichletBC<boost::proto::_, boost::proto::_> > >, boost::proto::_>,
       DirichletBCSetter
     >,
     boost::proto::when
@@ -361,6 +388,25 @@ template<typename T>
 struct Transform1x1MatrixToScalar
 {
   typedef typename Transform1x1MatrixToScalarHelper< T, typename Eigen::MatrixBase<T>::PlainObject >::type type;
+};
+
+//////////////////////// Testing ///////////////////
+
+struct TestGrammar :
+  boost::proto::or_
+  <
+    boost::proto::when
+    <
+      boost::proto::terminal< Var< boost::proto::_, boost::proto::_ > >,
+      VarValue(boost::proto::_value)
+    >,
+    boost::proto::when
+    <
+      boost::proto::_,
+      boost::proto::_default<TestGrammar>
+    >
+  >
+{
 };
 
 } // namespace Proto

@@ -9,8 +9,13 @@
 
 #include <boost/mpl/int.hpp>
 
-#include "Actions/Proto/ProtoDomain.hpp"
+#include "Mesh/CElements.hpp"
+#include "Mesh/CRegion.hpp"
+#include "Mesh/CFieldElements.hpp"
+#include "Mesh/ElementType.hpp"
 
+#include "Actions/Proto/ProtoDomain.hpp"
+#include <boost/concept_check.hpp>
 
 namespace CF {
 namespace Actions {
@@ -40,30 +45,35 @@ struct Var : T
   template<typename T1>
   Var(const T1& par1) : T(par1) {}
   
+  template<typename T1>
+  Var(T1& par1) : T(par1) {}
+  
   template<typename T1, typename T2>
   Var(const T1& par1, const T2& par2) : T(par1, par2) {}
+  
+  template<typename T1, typename T2>
+  Var(T1& par1, T2& par2) : T(par1, par2) {}
 };
 
-/// Represent const element nodes. This will be replaced with the current list of element nodes
+/// Represent const element nodes. Using this in an expression is like passing the nodes of the current element
 struct ConstNodes
 {
-};
-
-std::ostream& operator<<(std::ostream& output, const ConstNodes&)
-{
-  output << "ConstNodes";
-  return output;
-}
-
-/// Const node field data
-template<typename T>
-struct ConstField
-{
-  ConstField() : field_name() {}
+  ConstNodes()
+  {
+  }
   
-  ConstField(const std::string& fld_name) : field_name(fld_name) {}
+  ConstNodes(Mesh::CRegion::Ptr r) : region(r)
+  {
+  }
   
-  std::string field_name;
+  /// Get the element type, based on the CElements currently traversed.
+  const Mesh::ElementType& element_type(const Mesh::CElements& elements) const
+  {
+    return elements.element_type();
+  }
+  
+  /// Root region with which the nodes are associated
+  Mesh::CRegion::Ptr region;
 };
 
 /// Mutable node field data
@@ -74,20 +84,14 @@ struct Field
   
   Field(const std::string& field_nm, const std::string var_nm) : field_name(field_nm), var_name(var_nm) {}
   
+  /// Get the element type, based on the CElements currently traversed.
+  const Mesh::ElementType& element_type(const Mesh::CElements& elements) const
+  {
+    return elements.get_field_elements(field_name).element_type();
+  }
+  
   std::string field_name;
   std::string var_name;
-};
-
-template<typename T>
-std::ostream& operator<<(std::ostream& output, const ConstField<T>& fd)
-{
-  output << "field " << fd.field_name;
-  return output;
-}
-
-/// Represent mutable element nodes
-struct MutableNodes
-{
 };
 
 template<Uint I, typename T>
@@ -110,32 +114,41 @@ struct MeshTerm : boost::proto::result_of::make_expr
   template<typename T1>
   MeshTerm(const T1& par1) : base_type(boost::proto::make_expr<boost::proto::tag::terminal, MeshDomain>(Var<boost::mpl::int_<I>, T>(par1))) {}
   
+  template<typename T1>
+  MeshTerm(T1& par1) : base_type(boost::proto::make_expr<boost::proto::tag::terminal, MeshDomain>(Var<boost::mpl::int_<I>, T>(par1))) {}
+  
   template<typename T1, typename T2>
   MeshTerm(const T1& par1, const T2& par2) : base_type(boost::proto::make_expr<boost::proto::tag::terminal, MeshDomain>(Var<boost::mpl::int_<I>, T>(par1, par2))) {}
+  
+  template<typename T1, typename T2>
+  MeshTerm(T1& par1, T2& par2) : base_type(boost::proto::make_expr<boost::proto::tag::terminal, MeshDomain>(Var<boost::mpl::int_<I>, T>(par1, par2))) {}
   
   BOOST_PROTO_EXTENDS_USING_ASSIGN(MeshTerm)
 };
 
-/// Encapsulae a matrix
+/// Encapsulate a system matrix, stored as dense Eigen matrix
 template< typename MatrixT >
-struct MatrixView
+struct EigenDenseMatrix
 {
-  MatrixView(MatrixT& m) : matrix(m) {}
-  MatrixT& matrix;
-};
-
-/// System matrix terminal. Use assignment operators to assemble by element
-template< typename MatrixT >
-struct BlockMatrix
-  : MeshExpr< typename boost::proto::terminal< MatrixView<MatrixT> >::type >
-{
-    typedef typename boost::proto::terminal< MatrixView<MatrixT> >::type expr_type;
-
-    BlockMatrix(MatrixT& m)
-      : MeshExpr<expr_type>( expr_type::make( m ) )
-    {}
-    
-    BOOST_PROTO_EXTENDS_USING_ASSIGN(BlockMatrix)
+  EigenDenseMatrix() : m_matrix(0) {}
+  
+  EigenDenseMatrix(MatrixT& m)
+  {
+    set_matrix(m);
+  }
+  
+  MatrixT& matrix()
+  {
+    return *m_matrix;
+  }
+  
+  void set_matrix(MatrixT& m)
+  {
+    m_matrix = &m;
+  }
+  
+private:
+  MatrixT* m_matrix;
 };
 
 /// Helper struct for assignment to a matrix
@@ -162,28 +175,41 @@ MAKE_ASSIGN_OP(boost::proto::tag::plus_assign, +=)
 
 /// Encapsulate a system matrix and a RHS
 template<typename MatrixT, typename RhsT>
-struct DirichletBCView
+struct EigenDenseDirichletBC
 {
-  DirichletBCView(MatrixT& m, RhsT& r) : matrix(m), rhs(r)
-  {
+  EigenDenseDirichletBC() : m_matrix(0), m_rhs(0)
+  { 
   }
-    
-  MatrixT& matrix;
-  RhsT& rhs;
-};
-
-/// Dirichlet boundary conditions terminal. Use the assignment operator to set the BC in a node
-template< typename MatrixT, typename RhsT >
-struct DirichletBC
-  : MeshExpr< typename boost::proto::terminal< DirichletBCView<MatrixT, RhsT> >::type >
-{
-    typedef typename boost::proto::terminal< DirichletBCView<MatrixT, RhsT> >::type expr_type;
-
-    DirichletBC(MatrixT& m, RhsT& rhs)
-      : MeshExpr<expr_type>( expr_type::make( DirichletBCView<MatrixT, RhsT>(m, rhs) ) )
-    {}
-    
-    BOOST_PROTO_EXTENDS_USING_ASSIGN(DirichletBC)
+  
+  EigenDenseDirichletBC(MatrixT& m, RhsT& r)
+  {
+    set_matrix(m);
+    set_rhs(r);
+  }
+  
+  MatrixT& matrix()
+  {
+    return *m_matrix;
+  }
+  
+  RhsT& rhs()
+  {
+    return *m_rhs;
+  }
+  
+  void set_matrix(MatrixT& m)
+  {
+    m_matrix = &m;
+  }
+  
+  void set_rhs(RhsT& r)
+  {
+    m_rhs = &r;
+  }
+  
+private:
+  MatrixT* m_matrix;
+  RhsT* m_rhs;
 };
 
 template<typename MatrixT, typename RhsT>

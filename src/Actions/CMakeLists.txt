@@ -29,9 +29,11 @@ option( CF_ENABLE_PROTO            "Build boost::proto related code for expressi
 
 if(CF_ENABLE_PROTO)
   list( APPEND coolfluid_actions_files 
+    Proto/CProtoElementsAction.hpp
     Proto/ProtoContexts.hpp
     Proto/ProtoDomain.hpp
     Proto/ProtoEigenContext.hpp
+    Proto/ProtoElementData.hpp
     Proto/ProtoElementLooper.hpp
     Proto/ProtoFunctions.hpp
     Proto/ProtoGrammars.hpp
@@ -43,8 +45,10 @@ if(CF_ENABLE_PROTO)
   )
 else()
   coolfluid_mark_not_orphan(
+    Proto/CProtoElementsAction.hpp
     Proto/ProtoContexts.hpp
     Proto/ProtoDomain.hpp
+    Proto/ProtoElementData.hpp
     Proto/ProtoElementLooper.hpp
     Proto/ProtoFunctions.hpp
     Proto/ProtoGrammars.hpp

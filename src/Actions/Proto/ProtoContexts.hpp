@@ -170,55 +170,6 @@ struct ElementVarContext< SF, Field<Real> >
 private:
   NodeValueMatrixT m_node_matrix;
 };
-/*
-/// Evaluate scalar mutable nodal field data
-template<typename SF>
-struct ElementVarContext< SF, Field<RealMatrix> >
-  : boost::proto::callable_context< ElementVarContext<SF, Field<RealMatrix> >, boost::proto::null_context>
-{
-  typedef SF ShapeFunctionT;
-  typedef Mesh::ElementNodeTensorViewD<SF::nb_nodes> NodesViewT;
-  typedef NodesViewT& result_type;
-  typedef RealMatrix data_type;
-  
-  void init_data(RealMatrix& data)
-  {
-    data.resize(matrix_dim, matrix_dim);
-  }
-  
-  void init(const Field<RealMatrix>& placeholder, Mesh::CElements& elements)
-  {
-    Mesh::CFieldElements& field_elems = elements.get_field_elements(placeholder.field_name);
-    data = &field_elems.data();
-    connectivity = &field_elems.connectivity_table();
-    
-    Mesh::CField::ConstPtr field = boost::dynamic_pointer_cast<Mesh::CField const>(field_elems.get_parent());
-    cf_assert(field);
-    var_begin = field->var_index(placeholder.var_name);
-    var_length = field->var_length(placeholder.var_name);
-    matrix_dim = static_cast<Uint>(sqrt(static_cast<Real>(var_length)));
-    node_view.init(matrix_dim, matrix_dim);
-  }
-  
-  void fill(const Uint element_idx)
-  {
-    node_view.fill(*data, (*connectivity)[element_idx], var_begin);
-  }
-  
-  template<typename I>
-  result_type operator()(boost::proto::tag::terminal, const Var<I, Field<RealMatrix> >&)
-  {
-    return node_view;
-  }
-  
-  Uint matrix_dim;
-  Uint var_begin;
-  Uint var_length;
-  NodesViewT node_view;
-  Mesh::CArray* data;
-  const Mesh::CTable* connectivity;
-};
-*/
 
 /// Context for evaluating mesh-related expressions, providing an interface to field variables and the shape functions
 template<typename ShapeFunctionT, typename ContextsT>

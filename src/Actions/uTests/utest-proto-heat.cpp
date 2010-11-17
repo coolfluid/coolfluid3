@@ -12,6 +12,7 @@
 
 #include "Actions/Proto/ProtoElementLooper.hpp"
 #include "Actions/Proto/ProtoNodeLooper.hpp"
+#include "Actions/Proto/ProtoElementData.hpp"
 
 #include "Common/ConfigObject.hpp"
 #include "Common/Log.hpp"
@@ -57,7 +58,7 @@ BOOST_AUTO_TEST_CASE( Laplacian1D )
   
   RealMatrix M(6, 6);
   M.setZero();
-  BlockMatrix<RealMatrix> blocks(M);
+  MeshTerm<1, EigenDenseMatrix<RealMatrix> > blocks(M);
   
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (
@@ -75,7 +76,7 @@ BOOST_AUTO_TEST_CASE( Laplacian1D )
   
 }
 
-BOOST_AUTO_TEST_CASE( RegionNodes )
+BOOST_AUTO_TEST_CASE( Heat1D )
 {
   // build the mesh
   CMesh::Ptr mesh(new CMesh("line"));
@@ -86,7 +87,7 @@ BOOST_AUTO_TEST_CASE( RegionNodes )
   MeshTerm<0, ConstNodes> nodes;
   RealMatrix M(nb_segments+1, nb_segments+1);
   M.setZero();
-  BlockMatrix<RealMatrix> blocks(M);
+  MeshTerm<1, EigenDenseMatrix<RealMatrix> > blocks(M);
   
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (
@@ -97,7 +98,7 @@ BOOST_AUTO_TEST_CASE( RegionNodes )
   // Set boundary conditions
   RealVector rhs(nb_segments+1);
   rhs = RealVector::Constant(nb_segments+1, 1, 0.);
-  DirichletBC<RealMatrix, RealVector> bc(M, rhs);
+  MeshTerm<0, EigenDenseDirichletBC<RealMatrix, RealVector> > bc(M, rhs); // as long as we don't mix expressions, we can reuse index 0
   
   // Left boundary at 10 degrees
   for_each_node
@@ -123,6 +124,24 @@ BOOST_AUTO_TEST_CASE( RegionNodes )
     CFinfo << "T(" << x << ") = " << solution[i] << CFendl;
     BOOST_CHECK_CLOSE(solution[i], 10. + i * 25. / static_cast<Real>(nb_segments), 1e-6);
   }
+}
+
+BOOST_AUTO_TEST_CASE( GrammarEval )
+{
+  // build the mesh
+  CMesh::Ptr mesh(new CMesh("line"));
+  const Uint nb_segments = 5;
+  Tools::MeshGeneration::create_line(*mesh, 1., nb_segments);
+  
+  // Build the system matrix
+  MeshTerm<0, ConstNodes> nodes( recursive_get_named_component_typed_ptr<CRegion>(*mesh, "region") );
+  
+  for_each_element_new< boost::mpl::vector<SF::Line1DLagrangeP1> >
+  (
+    _cout << nodes << "\n"
+  );
+  
+  std::cout << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
