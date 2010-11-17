@@ -53,18 +53,18 @@ void SignalManager::showMenu(const QPoint & pos, const CF::Common::CPath & path,
 
   for( ; it!= sigs.end() ; it++)
   {
-    QAction * action = m_menu->addAction(it->m_name);
-
     if(!it->m_readableName.isEmpty())
-      action->setText(it->m_readableName);
+    {
+      QAction * action = m_menu->addAction(it->m_readableName);
 
-    action->setStatusTip(it->m_description);
+      action->setStatusTip(it->m_description);
 
-    connect(action, SIGNAL(triggered()), this, SLOT(actionTriggered()));
-    connect(action, SIGNAL(hovered()), this, SLOT(actionHovered()));
+      connect(action, SIGNAL(triggered()), this, SLOT(actionTriggered()));
+      connect(action, SIGNAL(hovered()), this, SLOT(actionHovered()));
 
-    m_signals[action] = *it;
-    m_localStatus[action] = it->m_is_local;
+      m_signals[action] = *it;
+      m_localStatus[action] = it->m_is_local;
+    }
   }
 
   if(!m_menu->isEmpty())
