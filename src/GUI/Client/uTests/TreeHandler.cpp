@@ -37,8 +37,8 @@ void TreeHandler::addChildren(CNode::Ptr node)
 
   if(node->checkType(CNode::ROOT_NODE))
   {
-    it = node->convertTo<NRoot>()->root()->begin<CNode>();
-    itEnd = node->convertTo<NRoot>()->root()->end<CNode>();
+    it = node->castTo<NRoot>()->root()->begin<CNode>();
+    itEnd = node->castTo<NRoot>()->root()->end<CNode>();
   }
 
   for( ; it != itEnd ; it++)

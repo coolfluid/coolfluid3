@@ -124,7 +124,7 @@ void TreeNode::updateChildList()
     delete m_childNodes.takeFirst();
 
   if(m_node->checkType(CNode::ROOT_NODE))
-    childCount = m_node->convertTo<NRoot>()->root()->get_child_count();
+    childCount = m_node->castTo<NRoot>()->root()->get_child_count();
   else
     childCount = m_node->get_child_count();
 

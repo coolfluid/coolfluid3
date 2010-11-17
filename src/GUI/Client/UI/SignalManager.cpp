@@ -63,7 +63,7 @@ void SignalManager::showMenu(const QPoint & pos, const CF::Common::CPath & path,
       connect(action, SIGNAL(hovered()), this, SLOT(actionHovered()));
 
       m_signals[action] = *it;
-      m_localStatus[action] = it->m_is_local;
+      m_localStatus[action] = it->m_isLocal;
     }
   }
 
