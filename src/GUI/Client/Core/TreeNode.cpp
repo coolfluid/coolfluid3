@@ -87,7 +87,7 @@ int TreeNode::getRowNumber() const
 int TreeNode::getChildCount() const
 {
   if(m_node->checkType(CNode::ROOT_NODE))
-    return m_node->convertTo<NRoot>()->root()->get_child_count();
+    return m_node->castTo<NRoot>()->root()->get_child_count();
 
   return m_node->get_child_count();
 }
