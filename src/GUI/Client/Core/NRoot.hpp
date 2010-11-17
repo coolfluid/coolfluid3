@@ -31,6 +31,8 @@ namespace ClientCore {
   /// A NRoot object may never have any child. Add them to the
   /// internal @c CRoot componenent instead. It can be obtained by calling
   /// @c root() method.
+  /// @author Quentin Gasper.
+
   class ClientCore_API NRoot :
       public CNode
   {

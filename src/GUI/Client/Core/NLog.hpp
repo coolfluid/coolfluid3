@@ -28,6 +28,8 @@ namespace ClientCore {
 /////////////////////////////////////////////////////////////////////////////
 
   /// @brief Log component
+  /// @author Quentin Gasper.
+
   class ClientCore_API NLog :
       public QObject,
       public CNode

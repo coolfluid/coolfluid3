@@ -26,6 +26,8 @@ namespace ClientCore {
 
   /// @brief Handles a CNode component in the tree.
 
+  /// @author Quentin Gasper.
+
   class ClientCore_API TreeNode :
       public QObject
   {

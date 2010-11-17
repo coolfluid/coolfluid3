@@ -31,6 +31,7 @@ namespace ClientCore {
   /// It can be used in a view to show modified options, their old and
   /// current value. When a method takes as parameter a @c QModelIndex
   /// that can be null, the root is taken is this case.
+  /// @author Quentin Gasper.
 
   class ClientCore_API CommitDetails : public QAbstractItemModel
   {

@@ -35,6 +35,8 @@ namespace ClientCore {
 
   /// This class ensures that the root node is available from anywhere, at
   /// anytime.
+  /// @author Quentin Gasper.
+
   class ClientCore_API ClientRoot :
       public CF::Common::NonInstantiable<ClientRoot>
   {

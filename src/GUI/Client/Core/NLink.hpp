@@ -25,6 +25,8 @@ namespace ClientCore {
   ////////////////////////////////////////////////////////////////////////////
 
   /// @brief Client corresponding component for @c CF::Common::CLink.
+  /// @author Quentin Gasper.
+
   class ClientCore_API NLink :
       public QObject,
       public CNode

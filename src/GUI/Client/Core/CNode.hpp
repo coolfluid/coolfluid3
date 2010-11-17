@@ -46,6 +46,7 @@ namespace ClientCore {
   /// Qt signals) because one of its subclasses (@c #NTree) also derives from
   /// another Qt class. It means that this subclass would derive twice from
   /// @c QObject, which is illegal in C++.
+  /// @author Quentin Gasper
   class ClientCore_API CNodeNotifier :
       public QObject
   {
@@ -76,6 +77,7 @@ namespace ClientCore {
   ////////////////////////////////////////////////////////////////////////////
 
   /// @brief Handles information about actions (signals).
+  /// @author Quentin Gasper
   struct ClientCore_API ActionInfo
   {
     /// @brief The action name.
@@ -102,7 +104,7 @@ namespace ClientCore {
   ////////////////////////////////////////////////////////////////////////////
 
   /// @brief Base component adapted to fit the client needs.
-
+  /// @author Quentin Gasper
   class ClientCore_API CNode :
       public CF::Common::Component
   {

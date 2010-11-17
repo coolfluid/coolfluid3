@@ -35,6 +35,7 @@ namespace ClientCore {
   class TreeNode;
 
   /// @brief Tree model
+  /// @author Quentin Gasper.
 
   class ClientCore_API NTree :
       public QAbstractItemModel,

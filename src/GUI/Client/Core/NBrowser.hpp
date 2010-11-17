@@ -25,6 +25,8 @@ namespace ClientCore {
 
   /// @brief Component that manages remote browsers.
   /// This class subclasses CNode class.
+  /// @author Quentin Gasper.
+
   class ClientCore_API NBrowser : public CNode
   {
   public:

@@ -24,6 +24,8 @@ namespace ClientCore {
   //////////////////////////////////////////////////////////////////////////
 
   /// @brief Client generic component.
+  /// @author Quentin Gasper.
+
   class ClientCore_API NGeneric :
       public CNode
   {

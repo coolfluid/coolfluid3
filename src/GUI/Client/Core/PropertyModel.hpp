@@ -42,6 +42,8 @@ namespace ClientCore {
   /// by the index returned by <code>ClientRoot::getTree()->getCurrentIndex()</code>.
   /// This class is a view for the tree model and is automatically
   /// updated whenever the current index is changed.
+  /// @author Quentin Gasper.
+
   class ClientCore_API PropertyModel : public QAbstractItemModel
   {
     Q_OBJECT

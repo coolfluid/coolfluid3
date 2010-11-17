@@ -22,6 +22,7 @@ namespace ClientCore {
   ////////////////////////////////////////////////////////////////////////////////
 
   /// @brief Basic item used by CommitDetails class.
+  /// @author Quentin Gasper.
 
   class ClientCore_API CommitDetailsItem
   {

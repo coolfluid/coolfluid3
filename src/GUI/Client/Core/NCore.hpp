@@ -50,6 +50,8 @@ namespace ClientCore {
   /// of the application. Because it is a singleton, the network layer is
   /// accessible from everywhere.
 
+  /// @author Quentin Gasper.
+
   class ClientCore_API NCore :
       public QObject,
       public CNode
