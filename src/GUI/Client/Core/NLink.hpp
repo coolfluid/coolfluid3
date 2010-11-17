@@ -51,8 +51,14 @@ namespace ClientCore {
     /// @return Returns the target path.
     CF::Common::CPath getTargetPath() const;
 
+    /// @brief Sets new target from its path.
+    /// @param path New target path.
+    /// @throw InvalidPath If the path does exist.
     void setTargetPath(const CF::Common::CPath & path);
 
+    /// @brief Sets new target.
+    /// If the node is null, nothing is done.
+    /// @param path New target path.
     void setTargetNode(const CNode::Ptr & node);
 
     /// @brief Slot called when user wants to switch to the target
@@ -71,8 +77,15 @@ namespace ClientCore {
     /// regists all the signals declared in this class
     static void regist_signals ( Component* self ) {}
 
+    /// @name Signals
+    //@{
+
+    /// @brief Method called when target path changes.
+    /// @param node Signal parameters. Should contain a string value named
+    /// "target_path" that with the new target path.
     void change_link(CF::Common::XmlNode & node);
 
+    //@} END Signals
   }; // class NLink
 
 //////////////////////////////////////////////////////////////////////////////
