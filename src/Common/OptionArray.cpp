@@ -34,6 +34,11 @@ OptionArrayT<TYPE>::OptionArrayT ( const std::string& name, const std::string& d
   //        << " w default [" << def_str() << "]"
   //        << " w desc [" << m_description << "]\n"
   //        << CFendl;
+
+  typename value_type::const_iterator it = def.begin();
+
+  for( ; it != def.end() ; it++)
+    restricted_list().push_back(*it);
 }
 
 template < typename TYPE >

@@ -14,6 +14,7 @@
 #include "GUI/Client/Core/CNode.hpp"
 
 #include "GUI/Client/UI/GraphicalArray.hpp"
+#include "GUI/Client/UI/GraphicalArrayRestrictedList.hpp"
 #include "GUI/Client/UI/GraphicalBool.hpp"
 #include "GUI/Client/UI/GraphicalDouble.hpp"
 #include "GUI/Client/UI/GraphicalInt.hpp"
@@ -52,53 +53,62 @@ GraphicalValue * GraphicalValue::createFromOption(CF::Common::Option::ConstPtr o
 {
   GraphicalValue * value = nullptr;
   std::string tag(option->tag());
-  if(option->has_restricted_list())
-    value = new GraphicalRestrictedList(option, parent);
-  else if(tag.compare("array") != 0)
-  {
-    std::string type(option->type());
 
-    if(type.compare(XmlTag<bool>::type()) == 0)               // bool option
-      value = new GraphicalBool(option, parent);
-    else if(tag.compare(XmlTag<CF::Real>::type()) == 0)      // Real option
-      value = new GraphicalDouble(option, parent);
-    else if(tag.compare(XmlTag<int>::type()) == 0)           // int option
-      value = new GraphicalInt(false, option, parent);
-    else if(tag.compare(XmlTag<CF::Uint>::type()) == 0)      // Uint option
-      value = new GraphicalInt(true, option, parent);
-    else if(tag.compare(XmlTag<std::string>::type()) == 0)   // string option
-      value = new GraphicalString(option, parent);
-    else if(tag.compare(XmlTag<URI>::type()) == 0)           // URI option
-      value = new GraphicalUri(boost::dynamic_pointer_cast<OptionURI const>(option), parent);
+  if(tag.compare("array") != 0)
+  {
+    if(option->has_restricted_list())
+      value = new GraphicalRestrictedList(option, parent);
     else
-      throw CastingFailed(FromHere(), tag + ": Unknown type");
+    {
+      std::string type(option->type());
+
+      if(type.compare(XmlTag<bool>::type()) == 0)               // bool option
+        value = new GraphicalBool(option, parent);
+      else if(tag.compare(XmlTag<CF::Real>::type()) == 0)      // Real option
+        value = new GraphicalDouble(option, parent);
+      else if(tag.compare(XmlTag<int>::type()) == 0)           // int option
+        value = new GraphicalInt(false, option, parent);
+      else if(tag.compare(XmlTag<CF::Uint>::type()) == 0)      // Uint option
+        value = new GraphicalInt(true, option, parent);
+      else if(tag.compare(XmlTag<std::string>::type()) == 0)   // string option
+        value = new GraphicalString(option, parent);
+      else if(tag.compare(XmlTag<URI>::type()) == 0)           // URI option
+        value = new GraphicalUri(boost::dynamic_pointer_cast<OptionURI const>(option), parent);
+      else
+        throw CastingFailed(FromHere(), tag + ": Unknown type");
+    }
   }
   else
   {
-    OptionArray::ConstPtr array = boost::dynamic_pointer_cast<OptionArray const>(option);
+//    if(option->has_restricted_list())
+      value = new GraphicalArrayRestrictedList(option, parent);
+//    else
+//    {
+//      OptionArray::ConstPtr array = boost::dynamic_pointer_cast<OptionArray const>(option);
 
-    tag = array->elem_type();
+//      tag = array->elem_type();
 
-    if(tag.compare(XmlTag<bool>::type()) == 0)               // bool option
-      value = new GraphicalArray(new QRegExpValidator(QRegExp("(true)|(false)|(1)|(0)"), parent), parent);
-    else if(tag.compare(XmlTag<CF::Real>::type()) == 0)      // Real option
-    {
-      QDoubleValidator * val = new QDoubleValidator(nullptr);
-      val->setNotation(QDoubleValidator::ScientificNotation);
-      value = new GraphicalArray(val, parent);
-    }
-    else if(tag.compare(XmlTag<int>::type()) == 0)           // int option
-      value = new GraphicalArray(new QIntValidator(), parent);
-    else if(tag.compare(XmlTag<CF::Uint>::type()) == 0)      // Uint option
-      value = new GraphicalArray(new QIntValidator(0, INT_MAX, parent), parent);
-    else if(tag.compare(XmlTag<std::string>::type()) == 0)   // string option
-      value = new GraphicalArray(nullptr, parent);
-    else if(tag.compare(XmlTag<URI>::type()) == 0)           // URI option
-      throw CastingFailed(FromHere(), tag + ": This type is not supported yet for arrays");
-//    else if(tag.compare(XmlTag<boost::filesystem::path>::type()) == 0)           // path option
-//      value = new GraphicalUrlArray() GraphicalUrlArray(parent);
-    else
-      throw CastingFailed(FromHere(), tag + ": Unknown type");
+//      if(tag.compare(XmlTag<bool>::type()) == 0)               // bool option
+//        value = new GraphicalArray(new QRegExpValidator(QRegExp("(true)|(false)|(1)|(0)"), parent), parent);
+//      else if(tag.compare(XmlTag<CF::Real>::type()) == 0)      // Real option
+//      {
+//        QDoubleValidator * val = new QDoubleValidator(nullptr);
+//        val->setNotation(QDoubleValidator::ScientificNotation);
+//        value = new GraphicalArray(val, parent);
+//      }
+//      else if(tag.compare(XmlTag<int>::type()) == 0)           // int option
+//        value = new GraphicalArray(new QIntValidator(), parent);
+//      else if(tag.compare(XmlTag<CF::Uint>::type()) == 0)      // Uint option
+//        value = new GraphicalArray(new QIntValidator(0, INT_MAX, parent), parent);
+//      else if(tag.compare(XmlTag<std::string>::type()) == 0)   // string option
+//        value = new GraphicalArray(nullptr, parent);
+//      else if(tag.compare(XmlTag<URI>::type()) == 0)           // URI option
+//        throw CastingFailed(FromHere(), tag + ": This type is not supported yet for arrays");
+//      //    else if(tag.compare(XmlTag<boost::filesystem::path>::type()) == 0)           // path option
+//      //      value = new GraphicalUrlArray() GraphicalUrlArray(parent);
+//      else
+//        throw CastingFailed(FromHere(), tag + ": Unknown type");
+//    }
   }
   return value;
 }

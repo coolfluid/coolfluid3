@@ -12,6 +12,7 @@ list( APPEND coolfluid_client_ui_moc_classes
   ConnectionDialog.hpp
   FilteringModel.hpp # needs to be added because base class emits signals
   GraphicalArray.hpp
+  GraphicalArrayRestrictedList.hpp
   GraphicalBool.hpp
   GraphicalDouble.hpp
   GraphicalInt.hpp
@@ -55,6 +56,8 @@ list( APPEND coolfluid_client_ui_files
   FilteringModel.hpp
   GraphicalArray.hpp
   GraphicalArray.cpp
+  GraphicalArrayRestrictedList.hpp
+  GraphicalArrayRestrictedList.cpp
   GraphicalBool.hpp
   GraphicalBool.cpp
   GraphicalDouble.hpp

@@ -18,8 +18,6 @@ Option::Option(const std::string & name, const std::string & desc, boost::any de
     m_name(name),
     m_description(desc)
 {
-  m_restricted_list += def;
-
   m_is_option = true;
 }
 

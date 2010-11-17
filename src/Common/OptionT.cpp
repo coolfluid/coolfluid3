@@ -24,6 +24,7 @@ OptionT<TYPE>::OptionT ( const std::string& name, const std::string& desc, value
 //        << " w default [" << def_str() << "]"
 //        << " w desc [" << m_description << "]\n"
 //        << CFendl;
+  m_restricted_list.push_back(def);
 }
 
 template < typename TYPE>

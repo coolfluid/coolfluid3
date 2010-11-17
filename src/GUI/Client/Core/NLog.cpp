@@ -37,11 +37,29 @@ NLog::NLog()
   regist_signal("message", "Log message")->connect(boost::bind(&NLog::message, this, _1));
 
   Option::Ptr option;
+  std::vector<std::string> vect;
 
-  option = m_property_list.add_option< OptionT<std::string> >("Months", "Month names", std::string("January"));
+  option = m_property_list.add_option< OptionT<std::string> >("MonthsOne", "Month names", std::string("January"));
 
-  option->restricted_list() += std::string("February"),
-                               std::string("March"),
+    option->restricted_list() += std::string("March"),
+                                 std::string("April"),
+                                 std::string("May"),
+                                 std::string("June"),
+                                 std::string("July"),
+                                 std::string("August"),
+                                 std::string("Septemeber"),
+                                 std::string("October"),
+                                 std::string("November"),
+                                 std::string("December");
+    option->mark_basic();
+
+
+  vect.push_back("January");
+  vect.push_back("February");
+
+  option = m_property_list.add_option< OptionArrayT<std::string> >("MonthsTwo", "Month names", vect);
+
+  option->restricted_list() += std::string("March"),
                                std::string("April"),
                                std::string("May"),
                                std::string("June"),
@@ -52,39 +70,7 @@ NLog::NLog()
                                std::string("November"),
                                std::string("December");
 
-  option->change_value(std::string("October"));
-
   option->mark_basic();
-
-  //----------------------------------------------------
-
-  option = m_property_list.add_option< OptionT<Uint> >("Days", "Days of the month", Uint(1));
-
-  option->restricted_list() += Uint(2), Uint(3), Uint(4), Uint(5), Uint(6),
-                               Uint(7), Uint(8), Uint(9), Uint(10), Uint(11),
-                               Uint(12), Uint(13), Uint(14), Uint(15), Uint(16),
-                               Uint(17), Uint(18), Uint(19), Uint(20), Uint(21),
-                               Uint(22), Uint(23), Uint(24), Uint(25), Uint(26),
-                               Uint(27), Uint(28), Uint(29), Uint(30), Uint(31);
-  option->mark_basic();
-
-  //----------------------------------------------------
-
-  option = m_property_list.add_option< OptionT<Real> >("SomeReals", "Some real values", Real(1.5));
-
-  option->restricted_list() += Real(3.141592), Real(.5772156649015328606065),
-                               Real(4.660299067185320382046620161),
-                               Real(0.00000000000000000234);
-  option->mark_basic();
-
-  //----------------------------------------------------
-
-  option = m_property_list.add_option< OptionT<bool> >("ABool", "A boolean value", bool(true));
-
-  option->restricted_list() += bool(false);
-  option->mark_basic();
-
-
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

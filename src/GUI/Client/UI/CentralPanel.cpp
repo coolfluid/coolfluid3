@@ -166,9 +166,9 @@ void CentralPanel::setOptions(const QList<Option::ConstPtr> & list)
       else
         m_advancedOptionLayout->addOption(option);
     }
-    catch(ValueNotFound ute)
+    catch(Exception e)
     {
-      ClientRoot::log()->addException(ute.what());
+      ClientRoot::log()->addException(e.what());
     }
 
     it++;
