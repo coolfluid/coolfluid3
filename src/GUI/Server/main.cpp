@@ -6,12 +6,8 @@
 
 #include <iostream>
 #include <cstdlib>
-#include <vector>
-#include <string>
-#include <map>
 
-#include <QtCore>
-#include <QXmlDefaultHandler>
+#include <QCoreApplication>
 #include <QHostInfo>
 
 #include <boost/program_options/errors.hpp>
@@ -29,7 +25,6 @@
 #include "GUI/Server/SimulationWorker.hpp"
 
 #include "Common/Core.hpp"
-//#include "Framework/Simulator.hpp"
 #include "Common/DirPaths.hpp"
 
 #define CF_NO_TRACE
@@ -41,9 +36,6 @@ using namespace CF::GUI::Server;
 
 using namespace CF;
 using namespace CF::Common;
-//using namespace CF::Config;
-//using namespace CF::Environment;
-//using namespace CF::Framework;
 
 int main(int argc, char *argv[])
 {
@@ -52,7 +44,6 @@ int main(int argc, char *argv[])
   int return_value = 0;
   int port = 62784;
   std::string hostfile("./machine.txt");
-//  char hostfile[] = "machine.txt";
 
   boost::program_options::options_description desc("Allowed options");
 
@@ -68,44 +59,6 @@ int main(int argc, char *argv[])
 
   AssertionManager::instance().AssertionDumps = true;
   AssertionManager::instance().AssertionThrows = true;
-
-  //  setenv("OMPI_MCA_orte_default_hostfile", hostfile, 1);
-
-  /// @todo the following line should be in PE::Init_PE()
-  // setenv("OMPI_MCA_orte_default_hostfile", "./machine.txt", 1);
-
-  /// @todo init MPI environment here
-
-//  QFile file(hostfile);
-
-//  file.open(QFile::ReadOnly);
-
-//  QTextStream in(&file);
-
-//  while(!in.atEnd())
-//  {
-//    HostInfos hi;
-//    QString host = in.readLine();
-
-
-
-//    QStringList line = host.split(" ");
-
-//    hi.m_hostname = line.at(0);
-
-//    for(int i = 1 ; i < line.size() ; i++)
-//    {
-//      QStringList param = line.at(i).split("=");
-
-//      if(param.at(0) == "slots")
-//        hi.m_nbSlots = param.at(1).toUInt();
-
-//      else if(param.at(0) == "max-slots")
-//        hi.m_maxSlots = param.at(1).toUInt();
-//    }
-
-//    list.append(hi);
-//  }
 
   try
   {
@@ -126,7 +79,6 @@ int main(int argc, char *argv[])
     }
 
     // setup COOLFluiD environment
-
    // cf_env.set_mpi_hostfile("./machine.txt"); // must be called before MPI_Init !
     cf_env.initiate ( argc, argv );        // initiate the environemnt
     cf_env.setup();
