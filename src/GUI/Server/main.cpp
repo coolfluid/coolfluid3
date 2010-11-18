@@ -14,8 +14,14 @@
 #include <QXmlDefaultHandler>
 #include <QHostInfo>
 
+#include <boost/program_options/errors.hpp>
+#include <boost/program_options/options_description.hpp>
+#include <boost/program_options/parsers.hpp>
+#include <boost/program_options/variables_map.hpp>
+
 #include "Common/ConfigArgs.hpp"
 #include "Common/MPI/PE.hpp"
+#include "Common/CEnv.hpp"
 
 #include "GUI/Network/NetworkException.hpp"
 #include "GUI/Network/HostInfos.hpp"
@@ -28,6 +34,7 @@
 
 #define CF_NO_TRACE
 
+using namespace boost;
 using namespace MPI;
 using namespace CF::GUI::Network;
 using namespace CF::GUI::Server;
@@ -44,7 +51,18 @@ int main(int argc, char *argv[])
   QString errorString;
   int return_value = 0;
   int port = 62784;
-  char hostfile[] = "machine.txt";
+  std::string hostfile("./machine.txt");
+//  char hostfile[] = "machine.txt";
+
+  boost::program_options::options_description desc("Allowed options");
+
+  desc.add_options()
+      ("help", "Prints this help message and exits")
+      ("port", program_options::value<int>(&port)->default_value(port),
+           "Port to use for network communications.")
+      ("hostfile", program_options::value<std::string>(&hostfile)->default_value(hostfile),
+           "MPI hostfile.");
+
 
   QList<HostInfos> list;
 
@@ -58,48 +76,67 @@ int main(int argc, char *argv[])
 
   /// @todo init MPI environment here
 
-  QFile file(hostfile);
+//  QFile file(hostfile);
 
-  file.open(QFile::ReadOnly);
+//  file.open(QFile::ReadOnly);
 
-  QTextStream in(&file);
+//  QTextStream in(&file);
 
-  while(!in.atEnd())
-  {
-    HostInfos hi;
-    QString host = in.readLine();
-    QStringList line = host.split(" ");
+//  while(!in.atEnd())
+//  {
+//    HostInfos hi;
+//    QString host = in.readLine();
 
-    hi.m_hostname = line.at(0);
 
-    for(int i = 1 ; i < line.size() ; i++)
-    {
-      QStringList param = line.at(i).split("=");
 
-      if(param.at(0) == "slots")
-        hi.m_nbSlots = param.at(1).toUInt();
+//    QStringList line = host.split(" ");
 
-      else if(param.at(0) == "max-slots")
-        hi.m_maxSlots = param.at(1).toUInt();
-    }
+//    hi.m_hostname = line.at(0);
 
-    list.append(hi);
-  }
+//    for(int i = 1 ; i < line.size() ; i++)
+//    {
+//      QStringList param = line.at(i).split("=");
+
+//      if(param.at(0) == "slots")
+//        hi.m_nbSlots = param.at(1).toUInt();
+
+//      else if(param.at(0) == "max-slots")
+//        hi.m_maxSlots = param.at(1).toUInt();
+//    }
+
+//    list.append(hi);
+//  }
 
   try
   {
-    Core& cf_env = Core::instance();  // build the environment
-    cf_env.initiate ( argc, argv );        // initiate the environemnt
-    ConfigArgs args;
-    //cf_env.configure(args);
-    cf_env.setup();
 
+    Core& cf_env = Core::instance();  // build the environment
     std::vector<std::string> moduleDirs;
 
-    moduleDirs.push_back("../../../dso/");
+    // get command line arguments
+    program_options::variables_map vm;
+    program_options::store(program_options::parse_command_line(argc, argv, desc), vm);
+    program_options::notify(vm);
 
+    if (vm.count("help") > 0)
+    {
+      std::cout << "Usage: " << argv[0] << " [--port <port-number>] [--hostfile <hostfile>]" << std::endl;
+      std::cout << desc << std::endl;
+      return 0;
+    }
+
+    // setup COOLFluiD environment
+
+   // cf_env.set_mpi_hostfile("./machine.txt"); // must be called before MPI_Init !
+    cf_env.initiate ( argc, argv );        // initiate the environemnt
+    cf_env.setup();
+
+
+    // set dso directory as module directory
+    moduleDirs.push_back("../../../dso/");
     DirPaths::instance().addModuleDirs(moduleDirs);
 
+    // if COMM_WORLD has a parent, we are in a worker
    /* if(COMM_WORLD.Get_parent() != COMM_NULL)
     {
       SimulationWorker worker;
@@ -107,23 +144,15 @@ int main(int argc, char *argv[])
       return app.exec();
     }*/
 
-    if(argc == 2)
-    {
-      std::istringstream iss(argv[1]);
-
-      if((iss >> std::dec >> port).fail())
-        errorString = "Port number is not a valid integer\n";
-      else if(port < 49153 || port > 65535)
-        errorString = "Port number must be an integer between 49153 and 65535\n";
-    }
-
-    if(errorString.isEmpty())
+    // check if the port number is valid and launch the network connection if so
+    if(port < 49153 || port > 65535)
+      errorString = "Port number must be an integer between 49153 and 65535\n";
+    else
     {
       QHostInfo hostInfo = QHostInfo::fromName(QHostInfo::localHostName());
       CCore::Ptr sk = ServerRoot::getCore();
       QString message("Server successfully launched on machine %1 (%2) on port %3!");
 
-      //        sk->listenToNetwork(hostInfo.addresses().at(0).toString(), port);
       sk->listenToNetwork(hostInfo.addresses().last().toString(), port);
       sk->setHostList(list);
 
@@ -143,33 +172,35 @@ int main(int argc, char *argv[])
     cf_env.terminate();
 
   }
+  catch(program_options::error & error)
+  {
+    errorString = error.what();
+  }
   catch(NetworkException ne)
   {
-    errorString = QString("%1\nAborting ... \n").arg(ne.what());
-    return_value = -1;
+    errorString = ne.what();
   }
   catch(std::string str)
   {
-    errorString = QString("%1\nAborting ... \n").arg(str.c_str());
-    return_value = -1;
+    errorString = str.c_str();
   }
   catch ( std::exception& e )
   {
-    errorString = QString("%1\nAborting ... \n").arg(e.what());
-    return_value = 1;
+    errorString = e.what();
   }
   catch (...)
   {
     errorString = "Unknown exception thrown and not caught !!!\n";
     errorString += "Aborting ... \n";
-    return_value = 1;
   }
 
   if(!errorString.isEmpty())
   {
     std::cerr << std::endl << std::endl;
     std::cerr << "Server application exited on error:" << std::endl;
-    std::cerr << errorString.toStdString() << std::endl << std::endl;
+    std::cerr << errorString.toStdString() << std::endl;
+    std::cerr << "Aborting ..." << std::endl << std::endl << std::endl;
+    return_value = -1;
   }
 
   return return_value;
