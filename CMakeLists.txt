@@ -98,21 +98,22 @@ coolfluid_log( "Kernel Configuration ")
 coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 ##############################################################################
 
+# dir includes
+include_directories( ${coolfluid_BINARY_DIR} )
+include_directories( ${coolfluid_SOURCE_DIR}/include )
+include_directories( ${coolfluid_SOURCE_DIR}/src )
+include_directories( ${coolfluid_SOURCE_DIR}/plugins )
 
 # add dir with kernel config (automatic generated headers)
-include_directories( ${coolfluid_BINARY_DIR} )
 add_subdirectory( config )
 
 # add dir with external kernel dependencies but locally included
-include_directories( ${coolfluid_SOURCE_DIR}/include )
 add_subdirectory( include )
 
 # add dir with kernel sources
-include_directories( ${coolfluid_SOURCE_DIR}/src )
 add_subdirectory( src )
 
 # add dir with kernel plugins
-include_directories( ${coolfluid_SOURCE_DIR}/plugins )
 add_subdirectory( plugins )
 
 # sandbox is where we play around before putting stuff in the released code, off by default

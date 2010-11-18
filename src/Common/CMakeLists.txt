@@ -199,7 +199,6 @@ coolfluid_mark_not_orphan(
   Win32/LibLoader.hpp       Win32/LibLoader.cpp
 )
 
-
 ###############################################################################
 
 list( APPEND coolfluid_common_libs ${Boost_LIBRARIES})

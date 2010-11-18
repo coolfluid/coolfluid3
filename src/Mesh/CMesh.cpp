@@ -126,7 +126,7 @@ CField& CMesh::create_field( const CName& name , CRegion& support, const std::ve
 
   std::vector<std::string> names;
 	std::vector<std::string> types;
-	BOOST_FOREACH(std::string var, variables)
+  BOOST_FOREACH(std::string var, variables)
 	{ 
     boost::regex e_variable("([[:word:]]+)?[[:space:]]*\\[[[:space:]]*([[:word:]]+)[[:space:]]*\\]");
     

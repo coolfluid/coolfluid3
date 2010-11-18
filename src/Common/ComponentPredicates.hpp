@@ -14,7 +14,6 @@
 #include <boost/mpl/if.hpp>
 #include <boost/type_traits/is_const.hpp>
 
-#include "Common/ComponentIterator.hpp"
 #include "Common/Component.hpp"
 
 namespace CF {

@@ -11,7 +11,7 @@
 
 #include <string>
 
-#include "../../src/Common/ExportAPI.hpp"
+#include "Common/ExportAPI.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
