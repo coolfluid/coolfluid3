@@ -25,7 +25,7 @@ namespace SF {
 /// @author Geoffrey Deliege
 /// @author Tiago Quintino
 /// @author Bart Janssens
-struct SF_API Quad3DLagrangeP1  : public Quad3D
+struct MESH_SF_API Quad3DLagrangeP1  : public Quad3D
 {
   
   /// Number of nodes

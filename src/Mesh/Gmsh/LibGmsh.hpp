@@ -36,7 +36,7 @@ namespace Gmsh {
 
 /// Class defines the Gmshtral mesh format operations
 /// @author Willem Deconinck
-class LibGmsh :
+class Gmsh_API LibGmsh :
     public Common::LibraryRegister<LibGmsh>
 {
 public:

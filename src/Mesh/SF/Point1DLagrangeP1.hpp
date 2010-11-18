@@ -25,7 +25,7 @@ namespace SF {
 /// @author Geoffrey Deliege
 /// @author Tiago Quintino
 /// @author Bart Janssens
-struct SF_API Point1DLagrangeP1  : public Point1D {
+struct MESH_SF_API Point1DLagrangeP1  : public Point1D {
   
 /// Number of nodes
 static const Uint nb_nodes = 1;

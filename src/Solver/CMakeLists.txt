@@ -44,7 +44,7 @@ list( APPEND coolfluid_rdm_files
 
 set( coolfluid_rdm_kernellib TRUE )
 
-list(APPEND coolfluid_rdm_libs coolfluid_mesh coolfluid_sf )
+list(APPEND coolfluid_rdm_libs coolfluid_mesh coolfluid_mesh_sf )
 
 coolfluid_add_library( coolfluid_rdm )
 

@@ -34,7 +34,7 @@ namespace CGNS {
 
 /// Class defines the CGNS mesh format operations
 /// @author Willem Deconinck
-class LibCGNS :
+class CGNS_API LibCGNS :
     public CF::Common::LibraryRegister<LibCGNS>
 {
 public:

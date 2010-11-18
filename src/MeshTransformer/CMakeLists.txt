@@ -2,7 +2,7 @@ coolfluid_find_orphan_files()
 
 list( APPEND coolfluid-mesh-transformer_files coolfluid-mesh-transformer.cpp )
 
-list( APPEND coolfluid-mesh-transformer_libs coolfluid_sf coolfluid_neutral coolfluid_gmsh )
+list( APPEND coolfluid-mesh-transformer_libs coolfluid_mesh_sf coolfluid_neutral coolfluid_gmsh )
 if(CF_HAVE_CGNS)
   list( APPEND coolfluid-mesh-transformer_libs coolfluid_cgns3 )
 endif()

@@ -25,7 +25,7 @@ namespace SF {
 /// @author Tiago Quintino
 /// @author Bart Janssens
 /// @author Willem Deconinck
-struct SF_API Quad2DLagrangeP1  : public Quad2D {
+struct MESH_SF_API Quad2DLagrangeP1  : public Quad2D {
 
 /// Number of nodes
 static const Uint nb_nodes = 4;

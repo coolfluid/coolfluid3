@@ -29,7 +29,7 @@ namespace SF {
 /// @author Geoffrey Deliege
 /// @author Tiago Quintino
 /// @author Bart Janssens
-struct SF_API Triag2DLagrangeP2  : public Triag2D
+struct MESH_SF_API Triag2DLagrangeP2  : public Triag2D
 {
 
   /// typedef for the supporting geometry

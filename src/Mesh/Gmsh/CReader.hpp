@@ -14,6 +14,7 @@
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CArray.hpp"
+#include "Mesh/CRegion.hpp"
 
 #include "Mesh/Gmsh/LibGmsh.hpp"
 #include "Mesh/Gmsh/Shared.hpp"

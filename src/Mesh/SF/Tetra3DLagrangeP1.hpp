@@ -28,7 +28,7 @@ using namespace Math::MathConsts;
 /// @author Geoffrey Deliege
 /// @author Tiago Quintino
 /// @author Bart Janssens
-struct SF_API Tetra3DLagrangeP1  : public Tetra3D
+struct MESH_SF_API Tetra3DLagrangeP1  : public Tetra3D
 {
 
 /// Number of nodes

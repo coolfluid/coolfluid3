@@ -15,13 +15,13 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro SF_API
-/// @note build system defines COOLFLUID_SF_EXPORTS when compiling SF files
-#ifdef COOLFLUID_SF_EXPORTS
-#   define SF_API      CF_EXPORT_API
-#   define SF_TEMPLATE
+/// @note build system defines COOLFLUID_MESH_SF_EXPORTS when compiling SF files
+#ifdef COOLFLUID_MESH_SF_EXPORTS
+#   define MESH_SF_API      CF_EXPORT_API
+#   define MESH_SF_TEMPLATE
 #else
-#   define SF_API      CF_IMPORT_API
-#   define SF_TEMPLATE CF_TEMPLATE_EXTERN
+#   define MESH_SF_API      CF_IMPORT_API
+#   define MESH_SF_TEMPLATE CF_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -34,7 +34,7 @@ namespace SF {
 
   /// Shape functions module
   /// @author Tiago Quintino, Willem Deconinck, Bart Janssens
-  class LibSF :
+  class MESH_SF_API LibSF :
       public Common::LibraryRegister<LibSF>
   {
   public:

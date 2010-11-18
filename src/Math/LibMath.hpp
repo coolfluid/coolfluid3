@@ -37,7 +37,7 @@ namespace CF {
 
     /// Class defines the initialization and termination of the library MeshDiff
     /// @author Tiago Quintino
-    class LibMath :
+    class Math_API LibMath :
         public Common::LibraryRegister<LibMath>
     {
     public:

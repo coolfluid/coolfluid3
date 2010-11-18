@@ -36,7 +36,7 @@ namespace CF {
 
   /// Class defines the initialization and termination of the library ClientUI
   /// @author Tiago Quintino
-  class LibClientUI :
+  class ClientUI_API LibClientUI :
       public Common::LibraryRegister<LibClientUI>
   {
   public:

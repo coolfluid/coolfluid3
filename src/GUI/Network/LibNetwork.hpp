@@ -18,24 +18,25 @@
 /// @note build system defines COOLFLUID_NETWORK_EXPORTS when compiling Network files
 #ifdef COOLFLUID_NETWORK_EXPORTS
 #   define Network_API CF_EXPORT_API
+#   define Network_TEMPLATE
 #else
 #   define Network_API CF_IMPORT_API
+#   define Network_TEMPLATE CF_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
+namespace GUI {
 
-  namespace GUI {
-
-  /// Common classes for the client and the server
-  namespace Network {
+/// Common classes for the client and the server
+namespace Network {
 
 ////////////////////////////////////////////////////////////////////////////////
 
   /// Class defines the initialization and termination of the library Network
   /// @author Tiago Quintino
-  class LibNetwork :
+  class Network_API LibNetwork :
       public Common::LibraryRegister<LibNetwork>
   {
   public:

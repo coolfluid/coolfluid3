@@ -36,7 +36,7 @@ namespace ClientCore {
 
   /// Class defines the initialization and termination of the library ClientCore
   /// @author Tiago Quintino
-  class LibClientCore :
+  class ClientCore_API LibClientCore :
       public Common::LibraryRegister<LibClientCore>
   {
   public:

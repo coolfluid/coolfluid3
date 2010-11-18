@@ -29,7 +29,7 @@ namespace SF {
 /// @author Geoffrey Deliege
 /// @author Tiago Quintino
 /// @author Bart Janssens
-struct SF_API Triag2DLagrangeP2B  : public Triag2D
+struct MESH_SF_API Triag2DLagrangeP2B  : public Triag2D
 {
 
   /// Number of nodes

@@ -26,8 +26,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////////////////////////
-
 namespace CF {
 namespace Mesh {
 namespace BlockMesh {
@@ -36,7 +34,7 @@ namespace BlockMesh {
 
 /// Class defines the BlockMeshtral mesh format operations
 /// @author Willem Deconinck
-class LibBlockMesh :
+class BlockMesh_API LibBlockMesh :
     public Common::LibraryRegister<LibBlockMesh>
 {
 public:

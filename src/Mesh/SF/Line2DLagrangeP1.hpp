@@ -24,7 +24,7 @@ namespace SF {
 /// @author Geoffrey Deliege
 /// @author Tiago Quintino
 /// @author Bart Janssens
-struct SF_API Line2DLagrangeP1  : public Line2D
+struct MESH_SF_API Line2DLagrangeP1  : public Line2D
 {
   /// Number of nodes
   static const Uint nb_nodes = 2;

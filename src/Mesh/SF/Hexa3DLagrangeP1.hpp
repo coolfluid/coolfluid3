@@ -27,7 +27,7 @@ namespace SF {
 /// @author Tiago Quintino
 /// @author Bart Janssens
 /// @author Willem Deconinck
-struct SF_API Hexa3DLagrangeP1  : public Hexa3D {
+struct MESH_SF_API Hexa3DLagrangeP1  : public Hexa3D {
 
 /// Number of nodes
 static const Uint nb_nodes = 8;

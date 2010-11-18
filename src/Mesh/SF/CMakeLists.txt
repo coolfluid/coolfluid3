@@ -1,4 +1,4 @@
-list( APPEND coolfluid_sf_files
+list( APPEND coolfluid_mesh_sf_files
   Hexa3DLagrangeP1.cpp
   Hexa3DLagrangeP1.hpp
   LibSF.cpp
@@ -30,10 +30,10 @@ list( APPEND coolfluid_sf_files
   Types.hpp
 )
 
-list( APPEND coolfluid_sf_cflibs coolfluid_mesh )
+list( APPEND coolfluid_mesh_sf_cflibs coolfluid_mesh )
 
-set( coolfluid_sf_kernellib TRUE )
+set( coolfluid_mesh_sf_kernellib TRUE )
 
-coolfluid_add_library( coolfluid_sf )
+coolfluid_add_library( coolfluid_mesh_sf )
 
 

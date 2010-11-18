@@ -1,27 +1,27 @@
 ################################################################################
 
-list( APPEND utest-mesh-interpolation_cflibs coolfluid_neutral coolfluid_gmsh coolfluid_sf )
+list( APPEND utest-mesh-interpolation_cflibs coolfluid_neutral coolfluid_gmsh coolfluid_mesh_sf )
 list( APPEND utest-mesh-interpolation_files  utest-mesh-interpolation.cpp )
 
 coolfluid_add_unittest( utest-mesh-interpolation )
 
 ################################################################################
 
-list( APPEND utest-mesh-construction_cflibs coolfluid_neutral coolfluid_gmsh coolfluid_sf )
+list( APPEND utest-mesh-construction_cflibs coolfluid_neutral coolfluid_gmsh coolfluid_mesh_sf )
 list( APPEND utest-mesh-construction_files  utest-mesh-construction.cpp )
 
 coolfluid_add_unittest( utest-mesh-construction )
 
 ################################################################################
 
-list( APPEND utest-mesh-reading_cflibs coolfluid_neutral coolfluid_gmsh coolfluid_sf )
+list( APPEND utest-mesh-reading_cflibs coolfluid_neutral coolfluid_gmsh coolfluid_mesh_sf )
 list( APPEND utest-mesh-reading_files  utest-mesh-reading.cpp )
 
 coolfluid_add_unittest( utest-mesh-reading )
 
 ################################################################################
 
-list( APPEND utest-mesh-components_cflibs coolfluid_neutral coolfluid_gmsh coolfluid_sf )
+list( APPEND utest-mesh-components_cflibs coolfluid_neutral coolfluid_gmsh coolfluid_mesh_sf )
 list( APPEND utest-mesh-components_files  utest-mesh-components.cpp  )
 
 coolfluid_add_unittest( utest-mesh-components )
@@ -55,7 +55,7 @@ add_custom_command(TARGET utest-mesh-components
 
 ################################################################################
 
-list( APPEND utest-neu-reader-mpi_cflibs coolfluid_neutral coolfluid_gmsh coolfluid_sf )
+list( APPEND utest-neu-reader-mpi_cflibs coolfluid_neutral coolfluid_gmsh coolfluid_mesh_sf )
 list( APPEND utest-neu-reader-mpi_files  utest-neu-reader-mpi.cpp )
   
 # Add the target
@@ -73,7 +73,7 @@ add_custom_command(TARGET utest-neu-reader-mpi
 
 ################################################################################
 
-list( APPEND utest-gmsh-reader-mpi_cflibs coolfluid_gmsh coolfluid_sf )
+list( APPEND utest-gmsh-reader-mpi_cflibs coolfluid_gmsh coolfluid_mesh_sf )
 list( APPEND utest-gmsh-reader-mpi_files  utest-gmsh-reader-mpi.cpp )
 
 # Add the target
@@ -94,91 +94,91 @@ coolfluid_add_unittest( utest-gmsh-reader-mpi )
 
 ################################################################################
 
-list( APPEND utest-connectivity-data_cflibs coolfluid_neutral coolfluid_mesh_generation coolfluid_sf )
+list( APPEND utest-connectivity-data_cflibs coolfluid_neutral coolfluid_mesh_generation coolfluid_mesh_sf )
 list( APPEND utest-connectivity-data_files  utest-connectivity-data.cpp )
 
 coolfluid_add_unittest( utest-connectivity-data )
 
 ################################################################################
 
-list( APPEND utest-hexa3d-lagrange-p1_cflibs coolfluid_sf )
+list( APPEND utest-hexa3d-lagrange-p1_cflibs coolfluid_mesh_sf )
 list( APPEND utest-hexa3d-lagrange-p1_files utest-hexa3d-lagrange-p1.cpp )
 
 coolfluid_add_unittest( utest-hexa3d-lagrange-p1 )
 
 ################################################################################
 
-list( APPEND utest-tetra3d-lagrange-p1_cflibs coolfluid_sf )
+list( APPEND utest-tetra3d-lagrange-p1_cflibs coolfluid_mesh_sf )
 list( APPEND utest-tetra3d-lagrange-p1_files  utest-tetra3d-lagrange-p1.cpp )
 
 coolfluid_add_unittest( utest-tetra3d-lagrange-p1 )
 
 ################################################################################
 
-list( APPEND utest-line1d-lagrange-p1_cflibs coolfluid_sf )
+list( APPEND utest-line1d-lagrange-p1_cflibs coolfluid_mesh_sf )
 list( APPEND utest-line1d-lagrange-p1_files  utest-line1d-lagrange-p1.cpp )
 
 coolfluid_add_unittest( utest-line1d-lagrange-p1 )
 
 ################################################################################
 
-list( APPEND utest-line2d-lagrange-p1_cflibs coolfluid_mesh_generation coolfluid_sf )
+list( APPEND utest-line2d-lagrange-p1_cflibs coolfluid_mesh_generation coolfluid_mesh_sf )
 list( APPEND utest-line2d-lagrange-p1_files  utest-line2d-lagrange-p1.cpp )
 
 coolfluid_add_unittest( utest-line2d-lagrange-p1 )
 
 ################################################################################
 
-list( APPEND utest-line3d-lagrange-p1_cflibs coolfluid_sf )
+list( APPEND utest-line3d-lagrange-p1_cflibs coolfluid_mesh_sf )
 list( APPEND utest-line3d-lagrange-p1_files  utest-line3d-lagrange-p1.cpp )
 
 coolfluid_add_unittest( utest-line3d-lagrange-p1 )
 
 ################################################################################
 
-list( APPEND utest-triag2d-lagrange-p1_cflibs coolfluid_sf )
+list( APPEND utest-triag2d-lagrange-p1_cflibs coolfluid_mesh_sf )
 list( APPEND utest-triag2d-lagrange-p1_files  utest-triag2d-lagrange-p1.cpp )
 
 coolfluid_add_unittest( utest-triag2d-lagrange-p1 )
 
 ################################################################################
 
-list( APPEND utest-triag2d-lagrange-p2b_cflibs coolfluid_sf )
+list( APPEND utest-triag2d-lagrange-p2b_cflibs coolfluid_mesh_sf )
 list( APPEND utest-triag2d-lagrange-p2b_files utest-triag2d-lagrange-p2b.cpp )
 
 coolfluid_add_unittest( utest-triag2d-lagrange-p2b )
 
 ################################################################################
 
-list( APPEND utest-triag3d-lagrange-p1_cflibs coolfluid_sf )
+list( APPEND utest-triag3d-lagrange-p1_cflibs coolfluid_mesh_sf )
 list( APPEND utest-triag3d-lagrange-p1_files  utest-triag3d-lagrange-p1.cpp )
 
 coolfluid_add_unittest( utest-triag3d-lagrange-p1 )
 
 ################################################################################
 
-list( APPEND utest-quad2d-lagrange-p1_cflibs  coolfluid_sf )
+list( APPEND utest-quad2d-lagrange-p1_cflibs  coolfluid_mesh_sf )
 list( APPEND utest-quad2d-lagrange-p1_files   utest-quad2d-lagrange-p1.cpp )
 
 coolfluid_add_unittest( utest-quad2d-lagrange-p1 )
 
 ################################################################################
 
-list( APPEND utest-quad3d-lagrange-p1_cflibs  coolfluid_sf )
+list( APPEND utest-quad3d-lagrange-p1_cflibs  coolfluid_mesh_sf )
 list( APPEND utest-quad3d-lagrange-p1_files   utest-quad3d-lagrange-p1.cpp )
 
 coolfluid_add_unittest( utest-quad3d-lagrange-p1 )
 
 ################################################################################
 
-list( APPEND utest-matrix-interpolation_cflibs  coolfluid_sf )
+list( APPEND utest-matrix-interpolation_cflibs  coolfluid_mesh_sf )
 list( APPEND utest-matrix-interpolation_files   utest-matrix-interpolation.cpp )
 
 coolfluid_add_unittest( utest-matrix-interpolation )
 
 ################################################################################
 
-list( APPEND utest-nodes_cflibs coolfluid_neutral coolfluid_sf )
+list( APPEND utest-nodes_cflibs coolfluid_neutral coolfluid_mesh_sf )
 list( APPEND utest-nodes_files  utest-nodes.cpp )
 
 coolfluid_add_unittest( utest-nodes )
@@ -194,21 +194,21 @@ add_custom_command(TARGET utest-nodes
 
 ################################################################################
 
-list( APPEND utest-field_cflibs coolfluid_neutral coolfluid_sf coolfluid_gmsh )
+list( APPEND utest-field_cflibs coolfluid_neutral coolfluid_mesh_sf coolfluid_gmsh )
 list( APPEND utest-field_files  utest-fields.cpp )
 
 coolfluid_add_unittest( utest-field )
 
 ################################################################################
 
-list( APPEND utest-volume-sf_cflibs coolfluid_sf coolfluid_mesh )
+list( APPEND utest-volume-sf_cflibs coolfluid_mesh_sf coolfluid_mesh )
 list( APPEND utest-volume-sf_files  utest-volume-sf.cpp )
 
 coolfluid_add_unittest( utest-volume-sf )
 
 ################################################################################
 
-list( APPEND utest-vector-benchmark_cflibs coolfluid_sf coolfluid_mesh_generation coolfluid_blockmesh )
+list( APPEND utest-vector-benchmark_cflibs coolfluid_mesh_sf coolfluid_mesh_generation coolfluid_blockmesh )
 list( APPEND utest-vector-benchmark_files  utest-vector-benchmark.cpp )
 
 set( utest-vector-benchmark_profile ON )
@@ -218,7 +218,7 @@ coolfluid_add_unittest( utest-vector-benchmark )
 ################################################################################
 
 if( ${CF_HAVE_PTSCOTCH} )
-  list( APPEND utest-pt-scotch_cflibs coolfluid_neutral coolfluid_sf coolfluid_gmsh )
+  list( APPEND utest-pt-scotch_cflibs coolfluid_neutral coolfluid_mesh_sf coolfluid_gmsh )
   list( APPEND utest-pt-scotch_libs ${PTSCOTCH_LIBRARIES} )
 
   list( APPEND utest-pt-scotch_files  utest-pt-scotch.cpp )
@@ -242,7 +242,7 @@ endif()
 ################################################################################
 
 if( ${CF_HAVE_ZOLTAN} )
-  list( APPEND utest-zoltan_cflibs coolfluid_neutral coolfluid_sf coolfluid_gmsh )
+  list( APPEND utest-zoltan_cflibs coolfluid_neutral coolfluid_mesh_sf coolfluid_gmsh )
   list( APPEND utest-zoltan_libs ${ZOLTAN_LIBRARIES} )
   list( APPEND utest-zoltan_files  utest-zoltan.cpp )
   list( APPEND utest-zoltan_includedirs ${ZOLTAN_INCLUDE_DIR} )

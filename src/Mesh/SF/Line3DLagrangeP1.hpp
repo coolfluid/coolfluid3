@@ -23,7 +23,7 @@ namespace SF {
 /// @author Geoffrey Deliege
 /// @author Tiago Quintino
 /// @author Bart Janssens
-struct SF_API Line3DLagrangeP1  : public Line3D
+struct MESH_SF_API Line3DLagrangeP1  : public Line3D
 {
   
   /// Number of nodes

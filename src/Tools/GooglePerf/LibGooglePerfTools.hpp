@@ -45,7 +45,8 @@ namespace GooglePerf {
 /// More examples are given on the google perftools website:
 /// http://google-perftools.googlecode.com/svn/trunk/doc/cpuprofile.html
 /// @author Bart Janssens
-class LibGooglePerfTools : public Common::LibraryRegister<LibGooglePerfTools>
+class GooglePerfTools_API LibGooglePerfTools :
+    public Common::LibraryRegister<LibGooglePerfTools>
 {
 public:
   /// Default constructor constructs as uninited
@@ -76,7 +77,7 @@ public:
   /// Stop profiling
   virtual void terminate();
 
-}; // end LibGooglePerfTools
+}; // LibGooglePerfTools
 
 ////////////////////////////////////////////////////////////////////////////////
 

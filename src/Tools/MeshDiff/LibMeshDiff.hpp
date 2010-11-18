@@ -35,7 +35,7 @@ namespace MeshDiff {
 
   /// Class defines the initialization and termination of the library MeshDiff
   /// @author Tiago Quintino
-  class LibMeshDiff :
+  class MeshDiff_API LibMeshDiff :
       public Common::LibraryRegister<LibMeshDiff>
   {
   public:
@@ -66,9 +66,9 @@ namespace MeshDiff {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace MeshDiff
-} // namespace Tools
-} // namespace CF
+} // MeshDiff
+} // Tools
+} // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 

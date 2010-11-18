@@ -35,7 +35,7 @@ namespace MeshGeneration {
 
   /// Class defines the initialization and termination of the library MeshGeneration
   /// @author Tiago Quintino
-  class LibMeshGeneration :
+  class MeshGeneration_API LibMeshGeneration :
       public Common::LibraryRegister<LibMeshGeneration>
   {
   public:
@@ -62,13 +62,13 @@ namespace MeshGeneration {
     /// Stop profiling
     virtual void terminate();
 
-  }; // end LibMeshGeneration
+  }; // LibMeshGeneration
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace MeshGeneration
-} // namespace Tools
-} // namespace CF
+} // MeshGeneration
+} // Tools
+} // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -36,7 +36,7 @@ namespace BlockMeshReader {
 
 /// Class defines the BlockMeshReadertral mesh format operations
 /// @author Willem Deconinck
-class LibBlockMeshReader :
+class BlockMeshReader_API LibBlockMeshReader :
     public Common::LibraryRegister<LibBlockMeshReader>
 {
 public:

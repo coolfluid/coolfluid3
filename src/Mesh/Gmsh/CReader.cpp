@@ -48,7 +48,12 @@ CReader::CReader( const CName& name )
   Shared(),
   m_repartition(false)
 {
+  CF_DEBUG_POINT;
+
   BUILD_COMPONENT;
+
+  CF_DEBUG_POINT;
+
   m_property_list["Repartition"].as_option().attach_trigger ( boost::bind ( &CReader::config_repartition,   this ) );
   
   m_property_list["brief"] = std::string("Gmsh file reader component");

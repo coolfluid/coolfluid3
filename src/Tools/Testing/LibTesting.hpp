@@ -35,7 +35,7 @@ namespace Testing {
 
   /// Class defines the initialization and termination of the library Testing
   /// @author Tiago Quintino
-  class LibTesting :
+  class Testing_API LibTesting :
       public Common::LibraryRegister<LibTesting>
   {
   public:
@@ -62,13 +62,13 @@ namespace Testing {
     /// Stop profiling
     virtual void terminate();
 
-  }; // end LibTesting
+  }; // LibTesting
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace Testing
-} // namespace Tools
-} // namespace CF
+} // Testing
+} // Tools
+} // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 

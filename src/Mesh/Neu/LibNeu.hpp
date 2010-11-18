@@ -36,7 +36,7 @@ namespace Neu {
 
 /// Class defines the Neutral mesh format operations
 /// @author Willem Deconinck
-class LibNeu :
+class Neu_API LibNeu :
     public Common::LibraryRegister<LibNeu>
 {
 public:
@@ -62,7 +62,8 @@ public:
 
   /// Stop profiling
   virtual void terminate();
-}; // end LibNeu
+
+}; // LibNeu
 
 ////////////////////////////////////////////////////////////////////////////////
 
