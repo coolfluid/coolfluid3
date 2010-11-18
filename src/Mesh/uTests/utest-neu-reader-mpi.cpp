@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( twoD_test )
+BOOST_AUTO_TEST_CASE( read_2d_mesh )
 {
 
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
