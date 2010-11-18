@@ -78,10 +78,15 @@ BOOST_AUTO_TEST_CASE( Laplacian1D )
 
 BOOST_AUTO_TEST_CASE( Heat1D )
 {
+  Real lenght     =     5.;
+  Real temp_start =   100.;
+  Real temp_stop  =   500.;
+
+  const Uint nb_segments = 20;
+
   // build the mesh
   CMesh::Ptr mesh(new CMesh("line"));
-  const Uint nb_segments = 5;
-  Tools::MeshGeneration::create_line(*mesh, 5., nb_segments);
+  Tools::MeshGeneration::create_line(*mesh, lenght, nb_segments);
   
   // Build the system matrix
   MeshTerm<0, ConstNodes> nodes;
@@ -104,14 +109,14 @@ BOOST_AUTO_TEST_CASE( Heat1D )
   for_each_node
   (
     recursive_get_named_component_typed<CRegion>(*mesh, "xneg"),
-    bc = 10.
+    bc = temp_start
   );
   
   // Right boundary at 25 degrees
   for_each_node
   (
     recursive_get_named_component_typed<CRegion>(*mesh, "xpos"),
-    bc = 35.
+    bc = temp_stop
   );
   
   // Solve the system!
@@ -120,9 +125,9 @@ BOOST_AUTO_TEST_CASE( Heat1D )
   // Check solution
   for(int i = 0; i != solution.rows(); ++i)
   {
-    Real x = i * 5. / static_cast<Real>(nb_segments);
+    Real x = i * lenght / static_cast<Real>(nb_segments);
     CFinfo << "T(" << x << ") = " << solution[i] << CFendl;
-    BOOST_CHECK_CLOSE(solution[i], 10. + i * 25. / static_cast<Real>(nb_segments), 1e-6);
+    BOOST_CHECK_CLOSE(solution[i],temp_start + i * ( temp_stop - temp_start ) / static_cast<Real>(nb_segments), 1e-6);
   }
 }
 
