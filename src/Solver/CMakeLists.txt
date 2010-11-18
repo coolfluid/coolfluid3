@@ -48,6 +48,10 @@ set( coolfluid_rdm_kernellib TRUE )
 
 list(APPEND coolfluid_rdm_cflibs coolfluid_mesh coolfluid_mesh_sf coolfluid_gmsh coolfluid_neutral )
 
+if( CF_HAVE_CGNS )
+  list(APPEND coolfluid_rdm_cflibs coolfluid_cgns3 )
+endif()
+
 coolfluid_add_library( coolfluid_rdm )
 
 add_subdirectory(uTests)

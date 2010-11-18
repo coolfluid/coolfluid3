@@ -10,6 +10,9 @@
 #include "Common/CRoot.hpp"
 
 #include "Mesh/CMeshReader.hpp"
+#include "Mesh/CRegion.hpp"
+
+#include "Mesh/Neu/CReader.hpp"
 
 #include "Solver/LoadMesh.hpp"
 
@@ -30,7 +33,8 @@ LoadMesh::LoadMesh ( const CName& name  ) :
 {
   BUILD_COMPONENT;
 
-  add_component ( create_component_abstract_type<CMeshReader>( "Neu", "NeutralReader") );
+//  add_component ( create_component_abstract_type<CMeshReader>( "Neu", "NeutralReader" ) );
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

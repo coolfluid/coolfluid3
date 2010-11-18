@@ -9,6 +9,8 @@
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 
+#include "Mesh/CMeshReader.hpp"
+
 #include "Solver/CModel.hpp"
 #include "Solver/CPhysicalModel.hpp"
 #include "Solver/CDomain.hpp"
@@ -22,6 +24,7 @@ namespace CF {
 namespace Solver {
 
 using namespace Common;
+using namespace Mesh;
 using namespace Common::String;
 
 Common::ObjectProvider < ScalarAdvection, Component, LibSolver, NB_ARGS_1 >
@@ -83,6 +86,11 @@ void ScalarAdvection::run_wizard ( Common::XmlNode& node )
   // setup iterative solver
   CIterativeSolver::Ptr solver = create_component_abstract_type<CIterativeSolver>("ForwardEuler", "IterativeSolver");
   model->add_component( solver );
+
+//  CMeshReader::Ptr mesh_reader = create_component_abstract_type<CMeshReader>( "Neu", "NeutralReader" );
+//  CMeshReader::Ptr mesh_reader = create_component_abstract_type<CMeshReader>( "CGNS", "CGNSReader" );
+//  mesh_reader->mark_basic();
+//  model->add_component( mesh_reader );
 
   // mark the new components as basic
   model->mark_basic();
