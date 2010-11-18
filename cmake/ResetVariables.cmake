@@ -1,10 +1,9 @@
-# reset the list of project files
+# reset the list of kernel libs
 set( CF_KERNEL_LIBS "" CACHE INTERNAL "" FORCE )
+set( CF_PLUGIN_LIST "" CACHE INTERNAL "" FORCE )
 
-# reset the list of project files
+# reset the list of project n orphan files
 set( CF_PROJECT_FILES "" CACHE INTERNAL "" FORCE )
-
-# reset the list of orphan files
 set( CF_ORPHAN_FILES  "" CACHE INTERNAL "" FORCE )
 
 # user define that affects many search paths simultaneously
