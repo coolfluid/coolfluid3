@@ -15,8 +15,6 @@ namespace Gmsh {
 //////////////////////////////////////////////////////////////////////////////
 
 Shared::Shared() :
-    //m_faces_cf_to_gmsh(13),
-    //m_faces_gmsh_to_cf(13),
     m_nodes_cf_to_gmsh(13),
     m_nodes_gmsh_to_cf(13)
 {
@@ -32,82 +30,14 @@ Shared::Shared() :
   m_supported_types.push_back("TetraLagrangeP2");
   m_supported_types.push_back("HexaLagrangeP2");
 
-  enum GmshElement {P1LINE=1,P1TRIAG=2,P1QUAD=3, P1TETRA=4, P1HEXA=5,
-                    P2LINE=8,P2TRIAG=6,P21UAD=10,P2TETRA=11,P2HEXA= 12};
-
+  enum GmshElement { P1LINE=1, P1TRIAG=2, P1QUAD=3,  P1TETRA=4,  P1HEXA=5,
+                     P2LINE=8, P2TRIAG=6, P21UAD=10, P2TETRA=11, P2HEXA=12 };
 
   m_CFelement_to_GmshElement[GeoShape::LINE ]=P1LINE;
   m_CFelement_to_GmshElement[GeoShape::TRIAG]=P1TRIAG;
   m_CFelement_to_GmshElement[GeoShape::QUAD ]=P1QUAD;
   m_CFelement_to_GmshElement[GeoShape::HEXA ]=P1HEXA;
   m_CFelement_to_GmshElement[GeoShape::TETRA]=P1TETRA;
-
-  /*
-  // ------------------------------------------------------- FACES
-  // line
-  m_faces_cf_to_gmsh[P1LINE].resize(2);
-  m_faces_cf_to_gmsh[P1LINE][0]=0;
-  m_faces_cf_to_gmsh[P1LINE][1]=1;
-
-  m_faces_gmsh_to_cf[P1LINE].resize(2);
-  m_faces_gmsh_to_cf[P1LINE][1]=0;
-  m_faces_gmsh_to_cf[P1LINE][2]=1;
-
-  // triag
-  m_faces_cf_to_gmsh[P1TRIAG].resize(3);
-  m_faces_cf_to_gmsh[P1TRIAG][0]=0;
-  m_faces_cf_to_gmsh[P1TRIAG][1]=1;
-  m_faces_cf_to_gmsh[P1TRIAG][2]=2;
-
-  m_faces_gmsh_to_cf[P1TRIAG].resize(3);
-  m_faces_gmsh_to_cf[P1TRIAG][0]=0;
-  m_faces_gmsh_to_cf[P1TRIAG][1]=1;
-  m_faces_gmsh_to_cf[P1TRIAG][2]=2;
-
-  // quad
-  m_faces_cf_to_gmsh[P1QUAD].resize(4);
-  m_faces_cf_to_gmsh[P1QUAD][0]=0;
-  m_faces_cf_to_gmsh[P1QUAD][1]=1;
-  m_faces_cf_to_gmsh[P1QUAD][2]=2;
-  m_faces_cf_to_gmsh[P1QUAD][3]=3;
-
-  m_faces_gmsh_to_cf[P1QUAD].resize(4);
-  m_faces_gmsh_to_cf[P1QUAD][0]=0;
-  m_faces_gmsh_to_cf[P1QUAD][1]=1;
-  m_faces_gmsh_to_cf[P1QUAD][2]=2;
-  m_faces_gmsh_to_cf[P1QUAD][4]=3;
-
-  // tetra
-  m_faces_cf_to_gmsh[P1TETRA].resize(4);
-  m_faces_cf_to_gmsh[P1TETRA][0]=0;
-  m_faces_cf_to_gmsh[P1TETRA][1]=1;
-  m_faces_cf_to_gmsh[P1TETRA][2]=2;
-  m_faces_cf_to_gmsh[P1TETRA][3]=3;
-
-  m_faces_gmsh_to_cf[P1TETRA].resize(4);
-  m_faces_gmsh_to_cf[P1TETRA][0]=0;
-  m_faces_gmsh_to_cf[P1TETRA][1]=1;
-  m_faces_gmsh_to_cf[P1TETRA][2]=2;
-  m_faces_gmsh_to_cf[P1TETRA][3]=3;
-
-
-  // hexa
-  m_faces_cf_to_gmsh[P1HEXA].resize(6);
-  m_faces_cf_to_gmsh[P1HEXA][0]=0;
-  m_faces_cf_to_gmsh[P1HEXA][1]=1;
-  m_faces_cf_to_gmsh[P1HEXA][2]=2;
-  m_faces_cf_to_gmsh[P1HEXA][3]=3;
-  m_faces_cf_to_gmsh[P1HEXA][4]=4;
-  m_faces_cf_to_gmsh[P1HEXA][5]=5;
-
-  m_faces_gmsh_to_cf[P1HEXA].resize(6);
-  m_faces_gmsh_to_cf[P1HEXA][0]=0;
-  m_faces_gmsh_to_cf[P1HEXA][1]=1;
-  m_faces_gmsh_to_cf[P1HEXA][2]=2;
-  m_faces_gmsh_to_cf[P1HEXA][3]=3;
-  m_faces_gmsh_to_cf[P1HEXA][4]=4;
-  m_faces_gmsh_to_cf[P1HEXA][5]=5;
-  */
 
   // --------------------------------------------------- NODES
 
@@ -260,7 +190,7 @@ Shared::Shared() :
 
 
   // P2 hexa
-  m_nodes_cf_to_gmsh[P2HEXA].resize(26);
+  m_nodes_cf_to_gmsh[P2HEXA].resize(27);
   m_nodes_cf_to_gmsh[P2HEXA][0]=0;
   m_nodes_cf_to_gmsh[P2HEXA][1]=1;
   m_nodes_cf_to_gmsh[P2HEXA][2]=2;
@@ -289,7 +219,7 @@ Shared::Shared() :
   m_nodes_cf_to_gmsh[P2HEXA][25]=25;
   m_nodes_cf_to_gmsh[P2HEXA][26]=26;
 
-  m_nodes_gmsh_to_cf[P2HEXA].resize(26);
+  m_nodes_gmsh_to_cf[P2HEXA].resize(27);
   m_nodes_gmsh_to_cf[P2HEXA][0]=0;
   m_nodes_gmsh_to_cf[P2HEXA][1]=1;
   m_nodes_gmsh_to_cf[P2HEXA][2]=2;
@@ -322,15 +252,6 @@ Shared::Shared() :
 
 //////////////////////////////////////////////////////////////////////////////
 
-
-//////////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////////////
-
-} // gmsh
+} // Gmsh
 } // Mesh
 } // CF
