@@ -40,7 +40,6 @@
 #include "GUI/Client/UI/TreeView.hpp"
 #include "GUI/Client/Core/PropertyModel.hpp"
 
-#include "GUI/Network/HostInfos.hpp"
 #include "GUI/Network/ComponentNames.hpp"
 
 #include "GUI/Client/UI/MainWindow.hpp"

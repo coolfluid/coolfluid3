@@ -19,7 +19,6 @@
 #include "GUI/Client/Core/ClientRoot.hpp"
 
 #include "GUI/Network/ComponentNames.hpp"
-#include "GUI/Network/HostInfos.hpp"
 #include "GUI/Network/NetworkException.hpp"
 
 
