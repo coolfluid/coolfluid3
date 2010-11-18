@@ -189,7 +189,7 @@ struct Triag3DLagrangeP1Fixture
     {
       SFT::CoordsT normal;
       SFT::normal(mapped_coords, nodes, normal);
-      return MathFunctions::innerProd(normal, m_vector);
+      return MathFunctions::inner_product(normal, m_vector);
     }
 
   private:

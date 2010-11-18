@@ -45,25 +45,25 @@ namespace MathFunctions
   /// @param   value   the value of this will be returned
   /// @param   newSignValue   the sign of what will be returned
   /// @return  the value with the sign of newSignValue
-  Real changeSign(const Real& value, const Real& newSignValue);
+  Real change_sign(const Real& value, const Real& newSignValue);
 
   /// Heavyside function
   /// @param value is real
   /// @return 1.0 if value > 0.0
   /// @return 0.0 if value < 0.0
   /// @return 0.5 if value = 0.0
-	Real heavyside(const Real& value);
+  Real heavyside(const Real& value);
 
   /// Calculate the euclidean distance between two "points"
   /// (Node, State, RealVector, ...)
   /// @pre T1 and T2 must have the overloading of the operator[] implemented
   template <class T1, class T2>
-	Real getDistance(const T1& n1, const T2& n2);
+  Real get_distance(const T1& n1, const T2& n2);
 
   /// Calculate the faculty
   /// @param   n   calculate faculty of this number
   /// @return  faculty of n
-	Uint faculty(const Uint& n);
+  Uint faculty(const Uint& n);
 
   /// Mixed Product of three vectors
   /// @pre size() == 3 == v1.size() == v2.size() == v3.size() == temp.size()
@@ -74,10 +74,10 @@ namespace MathFunctions
   /// @param temp temporary vector
   /// @return the mixed product
   template <class T1, class T2, class T3, class T4>
-  Real mixedProd (const T1& v1,
-									const T2& v2,
-									const T3& v3,
-									T4& temp);
+  Real mixed_product (const T1& v1,
+                      const T2& v2,
+                      const T3& v3,
+                      T4& temp);
 
   /// Cross Product for vector*vector operations
   /// @pre v1.size() == v2.size() == result.size() == 3
@@ -85,9 +85,9 @@ namespace MathFunctions
   /// @param v2 second vector
   /// @param result vector storing the result
   template <class T1, class T2, class T3>
-  void crossProd (const T1& v1,
-									const T2& v2,
-									T3& result);
+  void cross_product (const T1& v1,
+                      const T2& v2,
+                      T3& result);
 
   /// Internal Product for vector*vector operations
   /// \f$ s = v \cdot v1 \f$.
@@ -96,7 +96,7 @@ namespace MathFunctions
   /// @param v2 second vector
   /// @return the inner product of the two given vectors
   template <class T1, class T2>
-	Real innerProd (const T1& v1, const T2& v2);
+  Real inner_product (const T1& v1, const T2& v2);
 
   /// Tensor Product for vector*vector operations
   /// \f$ s = v \cdot v1 \f$.
@@ -104,45 +104,45 @@ namespace MathFunctions
   /// @param v2 second vector
   /// @return the tensor product of the two given vectors
   template <class T1, class T2, class T3>
-	void tensorProd(const T1& v1, const T2& v2, T3& m);
+  void tensor_product(const T1& v1, const T2& v2, T3& m);
 
-	
-	////////////////////////////////////////////////////////////////////////////////
+  
+  ////////////////////////////////////////////////////////////////////////////////
 
-	inline Real signum (const Real& value)
+  inline Real signum (const Real& value)
   {
     if ( value <  0.0 )  return -1.0;
     if ( value == 0.0 )  return 0.0;
     return 1.0;
   }
-	
-	
-	inline Real sign(const Real& value)
+  
+  
+  inline Real sign(const Real& value)
   {
     if (value < 0.0) return -1.0;
     else return 1.0;
   }
-	
-	
-	inline Real changeSign(const Real& value, const Real& newSignValue)
+  
+  
+  inline Real change_sign(const Real& value, const Real& newSignValue)
   {
     return newSignValue >= 0 ? (value >=0 ? value : -value) : (value >= 0 ? -value : value);
   }
-	
-	
-	inline Real heavyside(const Real& value)
+  
+  
+  inline Real heavyside(const Real& value)
   {
     if (value < 0.0) return 0.0;
     if (value == 0.0) return 0.5;
     return 1.0;
   }
-	
-	
-	template <class T1, class T2>
-  inline Real getDistance(const T1& n1, const T2& n2)
+  
+  
+  template <class T1, class T2>
+  inline Real get_distance(const T1& n1, const T2& n2)
   {
     cf_assert(n1.size() == n2.size());
-		
+    
     Real dist = 0.;
     const Uint size =  n1.size();
     for (Uint i = 0; i < size; ++i)
@@ -152,54 +152,54 @@ namespace MathFunctions
     }
     return std::sqrt(dist);
   }
-	
-	
-	inline Uint faculty(const Uint& n)
+  
+  
+  inline Uint faculty(const Uint& n)
   {
     if (n<2)
-			return 1;
-		else
-			return (n*faculty(n-1));
+      return 1;
+    else
+      return (n*faculty(n-1));
   }
-	
-	
-	template <class T1, class T2, class T3, class T4>
-  inline Real mixedProd (const T1& v1,
-												 const T2& v2,
-												 const T3& v3,
-												 T4& temp)
+  
+  
+  template <class T1, class T2, class T3, class T4>
+  inline Real mixed_product (const T1& v1,
+                             const T2& v2,
+                             const T3& v3,
+                             T4& temp)
   {
     // sanity checks
     cf_assert(v1.size() == 3);
     cf_assert(v2.size() == 3);
     cf_assert(v3.size() == 3);
     cf_assert(temp.size() == 3);
-		
-    crossProd(v1, v2, temp);
-    return innerProd(v3, temp);
+    
+    cross_product(v1, v2, temp);
+    return inner_product(v3, temp);
   }
-	
-	template <class T1, class T2, class T3>
-  inline void crossProd (const T1& v1,
-                         const T2& v2,
-                         T3& result)
+  
+  template <class T1, class T2, class T3>
+  inline void cross_product (const T1& v1,
+                             const T2& v2,
+                             T3& result)
   {
     // sanity checks
     cf_assert(v1.size() == 3);
     cf_assert(v2.size() == 3);
     cf_assert(result.size() == 3);
-		
+    
     result[0] =  v1[1]*v2[2] - v1[2]*v2[1];
     result[1] = -v1[0]*v2[2] + v1[2]*v2[0];
     result[2] =  v1[0]*v2[1] - v1[1]*v2[0];
   }
-	
+  
 
   template <class T1, class T2>
-  inline Real innerProd (const T1& v1, const T2& v2)
+  inline Real inner_product (const T1& v1, const T2& v2)
   {
     cf_assert(v1.size() == v2.size());
-		
+    
     const Uint size = v1.size();
     Real result = 0.0;
     for (Uint i = 0; i < size; ++i)
@@ -207,13 +207,13 @@ namespace MathFunctions
     return result;
   }
 
-	
+  
   template <class T1, class T2, class T3>
-  inline void tensorProd(const T1& v1, const T2& v2, T3& m)
+  inline void tensor_product(const T1& v1, const T2& v2, T3& m)
   {
     cf_assert(m.getNbRows()    == v1.size());
     cf_assert(m.getNbColumns() == v2.size());
-		
+    
     const Uint v1size = v1.size();
     const Uint v2size = v2.size();
     for (Uint i = 0; i < v1size; ++i) {
@@ -222,9 +222,9 @@ namespace MathFunctions
       }
     }
   }
-	
-	
-	
+  
+  
+  
 } // end namespace MathFunctions
 
 ////////////////////////////////////////////////////////////////////////////////

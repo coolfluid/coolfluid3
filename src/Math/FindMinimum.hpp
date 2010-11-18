@@ -69,7 +69,7 @@ public:
     Real r=(bx-ax)*(fb-fc);
     Real q=(bx-cx)*(fb-fa);
     Real u=bx-((bx-cx)*q-(bx-ax)*r)/
-      (2.0*Math::MathFunctions::changeSign(std::max(std::abs(q-r),TINY),q-r));
+      (2.0*Math::MathFunctions::change_sign(std::max(std::abs(q-r),TINY),q-r));
     Real ulim=bx+GLIMIT*(cx-bx);
     if ((bx-u)*(u-cx) > 0.0) {
       fu=func(u);
@@ -276,12 +276,12 @@ public:
       d=p/q;
       u=x+d;
       if (u-a < tol2 || b-u < tol2)
-        d=Math::MathFunctions::changeSign(tol1,xm-x);
+        d=Math::MathFunctions::change_sign(tol1,xm-x);
       }
     } else {
       d=CGOLD*(e=(x >= xm ? a-x : b-x));
     }
-    u=(std::abs(d) >= tol1 ? x+d : x+Math::MathFunctions::changeSign(tol1,d));
+    u=(std::abs(d) >= tol1 ? x+d : x+Math::MathFunctions::change_sign(tol1,d));
     fu=func(u);
     if (fu <= fx) {
       if (u >= x) a=x; else b=x;
@@ -382,7 +382,7 @@ public:
       if (std::abs(d) <= std::abs(0.5*olde)) {
         u=x+d;
         if (u-a < tol2 || b-u < tol2)
-        d=Math::MathFunctions::changeSign(tol1,xm-x);
+        d=Math::MathFunctions::change_sign(tol1,xm-x);
       } else {
         d=0.5*(e=(dx >= 0.0 ? a-x : b-x));
       }
@@ -396,7 +396,7 @@ public:
       u=x+d;
       fu=funcd(u);
     } else {
-      u=x+Math::MathFunctions::changeSign(tol1,d);
+      u=x+Math::MathFunctions::change_sign(tol1,d);
       fu=funcd(u);
       if (fu > fx) {
       fmin=fx;
