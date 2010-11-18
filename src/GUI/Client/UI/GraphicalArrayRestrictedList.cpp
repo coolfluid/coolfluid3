@@ -20,7 +20,8 @@ using namespace CF::GUI::ClientUI;
 GraphicalArrayRestrictedList::GraphicalArrayRestrictedList(Option::ConstPtr opt,
                                                            QWidget * parent)
 {
-  QStringList list;
+  QStringList restrList;
+  QStringList valList;
 
   m_listView = new QListView(parent);
   m_model = new QStandardItemModel(parent);
@@ -28,6 +29,9 @@ GraphicalArrayRestrictedList::GraphicalArrayRestrictedList(Option::ConstPtr opt,
   m_listView->setModel(m_model);
 
   m_layout->addWidget(m_listView);
+
+  connect(m_model, SIGNAL(itemChanged(QStandardItem*)),
+          this, SLOT(itemChanged(QStandardItem*)));
 
   if(opt.get() != nullptr && std::strcmp(opt->tag(), "array") == 0 &&
      opt->has_restricted_list())
@@ -49,21 +53,40 @@ GraphicalArrayRestrictedList::GraphicalArrayRestrictedList(Option::ConstPtr opt,
     type = array->elem_type();
 
     if(type.compare(XmlTag<bool>::type()) == 0)              // bool option
-      vectToStringList<bool>(vect, list);
+    {
+      vectToStringList<bool>(vect, restrList);
+      anyToStringList<bool>(opt->value(), valList);
+    }
     else if(type.compare(XmlTag<CF::Real>::type()) == 0)     // Real option
-      vectToStringList<CF::Real>(vect, list);
+    {
+      vectToStringList<CF::Real>(vect, restrList);
+      anyToStringList<CF::Real>(opt->value(), valList);
+    }
     else if(type.compare(XmlTag<int>::type()) == 0)          // int option
-      vectToStringList<int>(vect, list);
+    {
+      vectToStringList<int>(vect, restrList);
+      anyToStringList<int>(opt->value(), valList);
+    }
     else if(type.compare(XmlTag<CF::Uint>::type()) == 0)     // Uint option
-      vectToStringList<CF::Uint>(vect, list);
+    {
+      vectToStringList<CF::Uint>(vect, restrList);
+      anyToStringList<CF::Uint>(opt->value(), valList);
+    }
     else if(type.compare(XmlTag<std::string>::type()) == 0)  // string option
-      vectToStringList<std::string>(vect, list);
+    {
+      vectToStringList<std::string>(vect, restrList);
+      anyToStringList<std::string>(opt->value(), valList);
+    }
     else if(type.compare(XmlTag<URI>::type()) == 0)          // URI option
-      vectToStringList<URI>(vect, list);
+    {
+      vectToStringList<URI>(vect, restrList);
+      anyToStringList<URI>(opt->value(), valList);
+    }
     else
       throw CastingFailed(FromHere(), type + ": Unknown type");
 
-    setRestrictedList(list);
+    setRestrictedList(restrList);
+    setValue(valList);
   }
 }
 
@@ -72,7 +95,8 @@ GraphicalArrayRestrictedList::GraphicalArrayRestrictedList(Option::ConstPtr opt,
 
 GraphicalArrayRestrictedList::~GraphicalArrayRestrictedList()
 {
-
+  delete m_listView;
+  delete m_model;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -107,12 +131,13 @@ bool GraphicalArrayRestrictedList::setValue(const QVariant & value)
     for( ; it != list.end() ; it++)
     {
       QList<QStandardItem*> items = m_model->findItems(*it);
+      QList<QStandardItem*>::const_iterator itItems = items.begin();
 
-      if(items.size() == 1)
-      {
-
-      }
+      for( ; itItems != items.end() ; itItems++)
+        (*itItems)->setCheckState(Qt::Checked);
     }
+
+    m_originalValue = value;
 
   }
 
@@ -124,6 +149,24 @@ bool GraphicalArrayRestrictedList::setValue(const QVariant & value)
 
 QVariant GraphicalArrayRestrictedList::value() const
 {
-  return QVariant();
+  QStringList values;
+  int rowCount = m_model->rowCount();
+
+  for(int i = 0 ; i != rowCount ; i++)
+  {
+    QStandardItem *item = m_model->item(i);
+
+    if(item != nullptr && item->checkState() == Qt::Checked)
+      values << item->text();
+  }
+
+  return values;
 }
 
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void GraphicalArrayRestrictedList::itemChanged(QStandardItem * item)
+{
+  emit valueChanged();
+}

@@ -13,6 +13,7 @@
 #include "GUI/Client/UI/GraphicalValue.hpp"
 
 class QListView;
+class QStandardItem;
 class QStandardItemModel;
 
 ////////////////////////////////////////////////////////////////////////////
@@ -42,7 +43,7 @@ namespace ClientUI {
 
   private slots:
 
-    // clicked checkbox
+    void itemChanged(QStandardItem * item);
 
   private:
 
@@ -63,10 +64,32 @@ namespace ClientUI {
       }
       catch(boost::bad_any_cast & bac)
       {
-        throw CF::Common::CastingFailed(FromHere(), "Unable to cast [" +
-                                        CF::Common::demangle(it->type().name())
-                                        + "] to [" +
-                                        std::string(CF::Common::XmlTag<TYPE>::type())+"]");
+        std::string realType = CF::Common::demangle(it->type().name());
+        std::string typeToCast = CF::Common::XmlTag<TYPE>::type();
+
+        throw CF::Common::CastingFailed(FromHere(), "Unable to cast [" + realType
+                                        + "] to [" + typeToCast +"]");
+      }
+    }
+
+    template<typename TYPE>
+    void anyToStringList(const boost::any & value, QStringList & list) const
+    {
+      try
+      {
+        std::vector<TYPE> vect = boost::any_cast<std::vector<TYPE> >(value);
+        typename std::vector<TYPE>::const_iterator it = vect.begin();
+
+        for( ; it != vect.end() ; it++)
+          list << CF::Common::from_value(*it).c_str();
+      }
+      catch(boost::bad_any_cast & bac)
+      {
+        std::string realType = CF::Common::demangle(value.type().name());
+        std::string typeToCast = CF::Common::XmlTag<TYPE>::type();
+
+        throw CF::Common::CastingFailed(FromHere(), "Unable to cast [" + realType
+                                        + "] to [" + typeToCast +"]");
       }
     }
   }; // class GraphicalArrayRestrictedList
