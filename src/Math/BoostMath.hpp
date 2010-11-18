@@ -15,7 +15,7 @@
 #  endif
 #endif
 
-// for finite() isnan() isinf()
+// for is_finite() is_nan() is_inf()
 #include <boost/math/special_functions/fpclassify.hpp>
 
 #ifdef CF_HAVE_BOOST_ERFC

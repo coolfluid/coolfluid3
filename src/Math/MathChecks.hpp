@@ -31,70 +31,70 @@ namespace MathChecks
   /// @param x
   /// @param y
   /// @return true if equal or almost equal within the accepted error fuzz.
-  bool isEqual(const Real& x,  const Real& y);
+  bool is_equal(const Real& x,  const Real& y);
 
   /// Function to check if two Real numbers are not equal.
   /// @param x
   /// @param y
   /// @return true if not equal or almost unequal within the accepted error fuzz.
-  bool isNotEqual(const Real& x,  const Real& y);
+  bool is_not_equal(const Real& x,  const Real& y);
 
   /// Function to check if two Real numbers are equal.
   /// @param x
   /// @param y
   /// @param fuzz
   /// @return true if equal or almost equal within the accepted error fuzz.
-  bool isEqualWithError(const Real& x, const Real& y, const Real& fuzz);
+  bool is_equal_with_error(const Real& x, const Real& y, const Real& fuzz);
 	
   /// Function to check if two Real numbers are not equal.
   /// @param x
   /// @param y
   /// @param fuzz
   /// @return true if not equal or almost unequal within the accepted error fuzz.
-  bool isNotEqualWithError(const Real& x, const Real& y, const Real& fuzz);
+  bool is_not_equal_with_error(const Real& x, const Real& y, const Real& fuzz);
 
   /// Function to check if a Real number is finite number. This means is not a NaN neither a INF
   /// @param x
   /// @return true if x is finite
-  bool isFinite(const Real& x);
+  bool is_finite(const Real& x);
 
   /// Function to check if a Real number is either minus or plus INF
   /// @param x
   /// @return true if x is finite
-  bool isInf(const Real& x);
+  bool is_inf(const Real& x);
 
   /// Function to check if a Real number is a NaN (Not a Number)
   /// @param x
   /// @return true if x is a NaN
-  bool isNaN(const Real& x);
+  bool is_nan(const Real& x);
 
   /// Function to check if a Real number is zero or very close.
   /// @param x
   /// @return true if equal to zero or almost equal within the accepted error fuzz.
-  bool isZeroWithError(const Real& x, const Real& fuzz);
+  bool is_zero_with_error(const Real& x, const Real& fuzz);
 
   /// Function to check if a Real number is not zero or very close.
   /// @param x
   /// @return true if not equal to zero or not almost equal within the accepted error fuzz.
-  bool isNotZeroWithError(const Real& x, const Real& fuzz);
+  bool is_not_zero_with_error(const Real& x, const Real& fuzz);
 
   /// Function to check if a Real number is zero or very close.
   /// @param x
   /// @return true if equal to zero or almost equal within the accepted error fuzz.
-  bool isZero(const Real& x);
+  bool is_zero(const Real& x);
 
   /// Function to check if a Real number is not zero or very close.
   /// @param x
   /// @return true if not equal to zero or not almost equal within the accepted error fuzz.
-  bool isNotZero(const Real& x);
+  bool is_not_zero(const Real& x);
 
   /// Checks is real is positive.
   /// Kind of a sign function returning a bool.
-  bool isPositive(const Real& value);
+  bool is_pos(const Real& value);
 
   /// Checks is real is negative.
   /// Kind of a sign function returning a bool.
-  bool isNegative(const Real& value);
+  bool is_neg(const Real& value);
 
 	
 	////////////////////////////////////////////////////////////////////////////////
@@ -104,18 +104,18 @@ namespace MathChecks
   /// @param x
   /// @param y
   /// @return true if equal or almost equal within the accepted error fuzz.
-  inline bool isEqual(const Real& x,  const Real& y)
+  inline bool is_equal(const Real& x,  const Real& y)
   {
-    return isEqualWithError(x,y,MathConsts::RealMin);
+    return is_equal_with_error(x,y,MathConsts::Real_min());
   }
 	
   /// Function to check if two Real numbers are not equal.
   /// @param x
   /// @param y
   /// @return true if not equal or almost unequal within the accepted error fuzz.
-  inline bool isNotEqual(const Real& x,  const Real& y)
+  inline bool is_not_equal(const Real& x,  const Real& y)
   {
-    return isNotEqualWithError(x,y,MathConsts::RealMin);
+    return is_not_equal_with_error(x,y,MathConsts::Real_min());
   }
 	
   /// Function to check if two Real numbers are equal.
@@ -123,7 +123,7 @@ namespace MathChecks
   /// @param y
   /// @param fuzz
   /// @return true if equal or almost equal within the accepted error fuzz.
-  inline bool isEqualWithError(const Real& x, const Real& y, const Real& fuzz)
+  inline bool is_equal_with_error(const Real& x, const Real& y, const Real& fuzz)
   {
     // see Knuth section 4.2.2 pages 217-218
     return std::abs(x - y) <= fuzz * std::abs(x);
@@ -134,15 +134,15 @@ namespace MathChecks
   /// @param y
   /// @param fuzz
   /// @return true if not equal or almost unequal within the accepted error fuzz.
-  inline bool isNotEqualWithError(const Real& x, const Real& y, const Real& fuzz)
+  inline bool is_not_equal_with_error(const Real& x, const Real& y, const Real& fuzz)
   {
-    return !isEqualWithError(x,y,fuzz);
+    return !is_equal_with_error(x,y,fuzz);
   }
 	
   /// Function to check if a Real number is finite number. This means is not a NaN neither a INF
   /// @param x
   /// @return true if x is finite
-  inline bool isFinite(const Real& x)
+  inline bool is_finite(const Real& x)
   {
     return (boost::math::isfinite)(x);
   }
@@ -150,7 +150,7 @@ namespace MathChecks
   /// Function to check if a Real number is either minus or plus INF
   /// @param x
   /// @return true if x is finite
-  inline bool isInf(const Real& x)
+  inline bool is_inf(const Real& x)
   {
     return (boost::math::isinf)(x);
   }
@@ -158,7 +158,7 @@ namespace MathChecks
   /// Function to check if a Real number is a NaN (Not a Number)
   /// @param x
   /// @return true if x is a NaN
-  inline bool isNaN(const Real& x)
+  inline bool is_nan(const Real& x)
   {
     return (boost::math::isnan)(x);
   }
@@ -166,7 +166,7 @@ namespace MathChecks
   /// Function to check if a Real number is zero or very close.
   /// @param x
   /// @return true if equal to zero or almost equal within the accepted error fuzz.
-  inline bool isZeroWithError(const Real& x, const Real& fuzz)
+  inline bool is_zero_with_error(const Real& x, const Real& fuzz)
   {
     return std::abs(x) <= fuzz;
   }
@@ -175,39 +175,39 @@ namespace MathChecks
   /// Function to check if a Real number is not zero or very close.
   /// @param x
   /// @return true if not equal to zero or not almost equal within the accepted error fuzz.
-  inline bool isNotZeroWithError(const Real& x, const Real& fuzz)
+  inline bool is_not_zero_with_error(const Real& x, const Real& fuzz)
   {
-    return !isZeroWithError(x,fuzz);
+    return !is_zero_with_error(x,fuzz);
   }
 	
   /// Function to check if a Real number is zero or very close.
   /// @param x
   /// @return true if equal to zero or almost equal within the accepted error fuzz.
-  inline bool isZero(const Real& x)
+  inline bool is_zero(const Real& x)
   {
-    return isZeroWithError(x,MathConsts::RealMin);
+    return is_zero_with_error(x,MathConsts::Real_min());
   }
 	
   /// Function to check if a Real number is not zero or very close.
   /// @param x
   /// @return true if not equal to zero or not almost equal within the accepted error fuzz.
-  inline bool isNotZero(const Real& x)
+  inline bool is_not_zero(const Real& x)
   {
-    return isNotZeroWithError(x,MathConsts::RealMin);
+    return is_not_zero_with_error(x,MathConsts::Real_min());
   }
 	
   /// Checks is real is positive.
   /// Kind of a sign function returning a bool.
-  inline bool isPositive(const Real& value)
+  inline bool is_pos(const Real& value)
   {
     return (value < 0.0) ? false : true;
   }
 	
   /// Checks is real is negative.
   /// Kind of a sign function returning a bool.
-  inline bool isNegative(const Real& value)
+  inline bool is_neg(const Real& value)
   {
-    return !isPositive(value);
+    return !is_pos(value);
   }
 	
 } // namespace MathChecks

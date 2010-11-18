@@ -26,29 +26,29 @@ namespace Math {
 /// Provides an a set of static functions for mathematical constants
 /// @author Tiago Quintino, Willem Deconinck
 namespace MathConsts
-{	
-	/// Returns the maximum number representable with the chosen precision
-  const Real intMax = std::numeric_limits<int>::max();
-  /// Definition of the minimum number representable with the chosen precision.
-  const Real intMin = std::numeric_limits<int>::min();
+{ 
   /// Returns the maximum number representable with the chosen precision
-  const Uint UintMax = std::numeric_limits<Uint>::max();
+  inline Real int_max() { return std::numeric_limits<int>::max(); }
   /// Definition of the minimum number representable with the chosen precision.
-  const Uint UintMin = std::numeric_limits<Uint>::min();
+  inline Real int_min() { return std::numeric_limits<int>::min(); }
   /// Returns the maximum number representable with the chosen precision
-  const Real RealMax = std::numeric_limits<Real>::max();
+  inline Uint Uint_max() { return std::numeric_limits<Uint>::max(); }
   /// Definition of the minimum number representable with the chosen precision.
-  const Real RealMin = std::numeric_limits<Real>::min();
+  inline Uint Uint_min() { return std::numeric_limits<Uint>::min(); }
+  /// Returns the maximum number representable with the chosen precision
+  inline Real Real_max() { return std::numeric_limits<Real>::max(); }
+  /// Definition of the minimum number representable with the chosen precision.
+  inline Real Real_min() { return std::numeric_limits<Real>::min(); }
   /// Definition of the maximum difference recognazible between two numbers with
   /// the chosen precision. Usefull for comparisons to zero  with real numbers:
-  /// @code std::abs(x) > Math::MathConsts::RealEps  @endcode
-	const Real RealEps = std::numeric_limits<Real>::epsilon();
+  /// @code std::abs(x) > Math::MathConsts::eps()  @endcode
+  inline Real eps() { return std::numeric_limits<Real>::epsilon(); }
   /// Definition of Infinity
-	const Real RealInf = std::numeric_limits<Real>::infinity();
+  inline Real inf() { return std::numeric_limits<Real>::infinity(); }
   /// Definition of the Pi constant.
-	const Real RealPi = M_PI;
-	// /// Definition of the imaginary constant i = sqrt(-1)
-	// const Complex complexI = Complex(0.0,1.0);
+  inline Real pi() { return M_PI; }
+  // /// Definition of the imaginary constant i = sqrt(-1)
+  // const Complex complexI = Complex(0.0,1.0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

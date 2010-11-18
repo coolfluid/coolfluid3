@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE( SVDInverterTest )
 		
 	RealVector s_inv = svd.singularValues();
 	for (Uint i=0; i<3; ++i)
-		s_inv[i] = isNotZeroWithError(s_inv[i],RealEps*10.)? 1./s_inv[i] : 0.;
+		s_inv[i] = is_not_zero_with_error(s_inv[i],eps()*10.)? 1./s_inv[i] : 0.;
 	
 	RealMatrix A_pinv = svd.matrixV()*s_inv.asDiagonal()*svd.matrixU().transpose();
 	RealVector3 x = A_pinv * b;

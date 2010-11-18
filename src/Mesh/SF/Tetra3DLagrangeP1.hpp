@@ -181,9 +181,9 @@ static bool in_element(const CoordsT& coord, const NodesT& nodes)
 {
   MappedCoordsT mapped_coord;
   mapped_coordinates(coord, nodes, mapped_coord);
-  if((mapped_coord[KSI] >= -RealEps) &&
-    (mapped_coord[ETA] >= -RealEps) &&
-    (mapped_coord[ZTA] >= -RealEps) &&
+  if((mapped_coord[KSI] >= -eps()) &&
+    (mapped_coord[ETA] >= -eps()) &&
+    (mapped_coord[ZTA] >= -eps()) &&
     (mapped_coord.sum() <= 1.))
   {
     return true;

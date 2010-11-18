@@ -57,7 +57,7 @@ struct LagrangeSFLine3DLagrangeP1Fixture
     const Uint dim = Line3DLagrangeP1::dimension;
     const Uint nb_nodes = Line3DLagrangeP1::nb_nodes;
     const Real start_angle = 0.;
-    const Real end_angle = tours*2.*MathConsts::RealPi;
+    const Real end_angle = tours*2.*MathConsts::pi();
 
     coordinates.initialize(dim);
     CArray::ArrayT& coord_array = coordinates.array();
@@ -238,7 +238,7 @@ BOOST_AUTO_TEST_CASE( LineIntegral )
   // Check the length, using the line integral of one times the norm of the tangent vector
   Real length = 0.;
   integrate_region(length, TangentVectorNorm(), coordinates, connectivity);
-  BOOST_CHECK_CLOSE(length, tours*sqrt((square(2.*MathConsts::RealPi*radius)+square(height/tours))), 0.01);
+  BOOST_CHECK_CLOSE(length, tours*sqrt((square(2.*MathConsts::pi()*radius)+square(height/tours))), 0.01);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

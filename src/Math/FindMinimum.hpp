@@ -42,7 +42,7 @@ class BracketMethod {
 public:
 
   /// Default constructor
-  BracketMethod() : m_maxStep(MathConsts::RealMax()) {}
+  BracketMethod() : m_maxStep(MathConsts::Real_max()) {}
 
   /// Bracket the minimum in a given function,
   /// starting with 2 values pointing downwards
@@ -244,7 +244,7 @@ public:
   {
     const Uint ITMAX=100;
     const Real CGOLD=0.3819660;
-    const Real ZEPS=Math::MathConsts::RealEps*1.0e-3;
+    const Real ZEPS=Math::MathConsts::eps()*1.0e-3;
     Real a,b,d=0.0,etemp,fu,fv,fw,fx;
     Real p,q,r,tol1,tol2,u,v,w,x,xm;
     Real e=0.0;
@@ -343,7 +343,7 @@ public:
   Real minimize(T &funcd)
   {
     const Uint ITMAX=100;
-    const Real ZEPS=Math::MathConsts::RealEps*1.0e-3;
+    const Real ZEPS=Math::MathConsts::eps()*1.0e-3;
     bool ok1,ok2;
     Real a,b,d=0.0,d1,d2,du,dv,dw,dx,e=0.0;
     Real fu,fv,fw,fx,olde,tol1,tol2,u,u1,u2,v,w,x,xm;

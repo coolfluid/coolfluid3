@@ -165,8 +165,8 @@ struct MESH_SF_API Triag2DLagrangeP2  : public Triag2D
 
     MappedCoordsT mapped_coord;
     mapped_coordinates(coord, nodes, mapped_coord);
-    if( (mapped_coord[KSI] >= -RealEps) &&
-        (mapped_coord[ETA] >= -RealEps) &&
+    if( (mapped_coord[KSI] >= -eps()) &&
+        (mapped_coord[ETA] >= -eps()) &&
         (mapped_coord.sum() <= 1.))
     {
       return true;

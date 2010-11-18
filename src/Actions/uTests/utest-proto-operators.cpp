@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE( RotatingCylinder )
       (
         pow<2>
         (
-          2. * u * _sin(_atan_vec(nodes(_mapped_coord))) + circulation / (2. * RealPi * radius)
+          2. * u * _sin(_atan_vec(nodes(_mapped_coord))) + circulation / (2. * pi() * radius)
         )  * 0.5 * rho * normal(nodes) 
       )
   );
@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE( RotatingCylinderField )
   for_each_node(recursive_get_named_component_typed<CRegion>(*mesh, "region"),
     p = pow<2>
     (
-      2. * u * _sin(_atan2(nodes[YY], nodes[XX])) + circulation / (2. * RealPi * radius)
+      2. * u * _sin(_atan2(nodes[YY], nodes[XX])) + circulation / (2. * pi() * radius)
     )  * 0.5 * rho);
 
   for_each_element<SurfaceTypes>(recursive_get_named_component_typed<CRegion>(*mesh, "region")
