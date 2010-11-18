@@ -14,6 +14,7 @@
 
 #include "Solver/CMethod.hpp"
 #include "Solver/ScalarAdvection.hpp"
+#include "Solver/LoadMesh.hpp"
 
 #include "GUI/Server/Notifier.hpp"
 #include "GUI/Server/ProcessingThread.hpp"
@@ -73,9 +74,10 @@ CRoot::Ptr ServerRoot::getRoot()
 
     created = true;
 
-    Component::Ptr wizs = root->get_child("Tools");
+    Component::Ptr tools = root->get_child("Tools");
 
-    wizs->create_component_type<Solver::ScalarAdvection>( "ScalarAdvection" )->mark_basic();
+    tools->create_component_type<Solver::ScalarAdvection>( "SetupScalarAdvection" )->mark_basic();
+    tools->create_component_type<Solver::LoadMesh>( "LoadMesh" )->mark_basic();
   }
 
   return root;

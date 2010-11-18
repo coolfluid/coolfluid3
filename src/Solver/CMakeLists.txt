@@ -40,11 +40,13 @@ list( APPEND coolfluid_rdm_files
   ResidualDistribution.cpp
   ScalarAdvection.hpp
   ScalarAdvection.cpp
+  LoadMesh.hpp
+  LoadMesh.cpp
 )
 
 set( coolfluid_rdm_kernellib TRUE )
 
-list(APPEND coolfluid_rdm_libs coolfluid_mesh coolfluid_mesh_sf )
+list(APPEND coolfluid_rdm_cflibs coolfluid_mesh coolfluid_mesh_sf coolfluid_gmsh coolfluid_neutral )
 
 coolfluid_add_library( coolfluid_rdm )
 
