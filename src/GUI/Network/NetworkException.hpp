@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_network_Network_h
-#define CF_network_Network_h
+#ifndef CF_GUI_Network_Network_h
+#define CF_GUI_Network_Network_h
 
 ////////////////////////////////////////////////////////////////////////////////
 
