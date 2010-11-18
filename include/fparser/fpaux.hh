@@ -21,6 +21,8 @@
 
 #include "fptypes.hh"
 
+#include "fparser/LibFParser.hpp"
+
 #ifdef FP_SUPPORT_MPFR_FLOAT_TYPE
 #include "mpfr/MpfrFloat.hh"
 #endif
@@ -830,7 +832,7 @@ namespace FUNCTIONPARSERTYPES
    containing FunctionParserBase implementations.
  */
 #define FUNCTIONPARSER_INSTANTIATE_BASE(type) \
-    template class FunctionParserBase<type>;
+    FParser_TEMPLATE template class FunctionParserBase<type>;
 
 #define FUNCTIONPARSER_INSTANTIATE_TYPES \
     FUNCTIONPARSER_INSTANTIATE_D(FUNCTIONPARSER_INSTANTIATE_BASE) \

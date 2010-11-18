@@ -14,6 +14,8 @@
 #include <string>
 #include <vector>
 
+#include "fparser/LibFParser.hpp"
+
 #ifdef FUNCTIONPARSER_SUPPORT_DEBUGGING
 #include <iostream>
 #endif
