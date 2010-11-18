@@ -20,7 +20,6 @@
 #include "Common/CEnv.hpp"
 
 #include "GUI/Network/NetworkException.hpp"
-#include "GUI/Network/HostInfos.hpp"
 #include "GUI/Server/ServerRoot.hpp"
 #include "GUI/Server/SimulationWorker.hpp"
 
@@ -54,8 +53,6 @@ int main(int argc, char *argv[])
       ("hostfile", program_options::value<std::string>(&hostfile)->default_value(hostfile),
            "MPI hostfile.");
 
-
-  QList<HostInfos> list;
 
   AssertionManager::instance().AssertionDumps = true;
   AssertionManager::instance().AssertionThrows = true;
@@ -106,7 +103,6 @@ int main(int argc, char *argv[])
       QString message("Server successfully launched on machine %1 (%2) on port %3!");
 
       sk->listenToNetwork(hostInfo.addresses().last().toString(), port);
-      sk->setHostList(list);
 
       message = message.arg(hostInfo.addresses().at(0).toString())
                 .arg(QHostInfo::localHostName())

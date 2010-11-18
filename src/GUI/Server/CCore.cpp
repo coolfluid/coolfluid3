@@ -17,7 +17,6 @@
 #include "Common/XmlHelpers.hpp"
 
 #include "GUI/Network/ComponentNames.hpp"
-#include "GUI/Network/HostInfos.hpp"
 
 #include "GUI/Server/RemoteClientAppender.hpp"
 #include "GUI/Server/ServerNetworkComm.hpp"
@@ -78,22 +77,6 @@ CCore::~CCore()
 bool CCore::listenToNetwork(const QString & hostname, quint16 portNumber)
 {
   return m_commServer->openPort(hostname, portNumber);
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void CCore::setHostList(const QList<HostInfos> & hostList)
-{
-  m_hostList = hostList;
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-QList<HostInfos> CCore::getHostList() const
-{
-  return m_hostList;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

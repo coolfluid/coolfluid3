@@ -19,7 +19,6 @@
 #include "Common/Component.hpp"
 #include "Common/MPI/PE.hpp"
 
-#include "GUI/Network/HostInfos.hpp"
 #include "GUI/Server/SimulationManager.hpp"
 
 ////////////////////////////////////////////////////////////////////////////
@@ -62,10 +61,6 @@ namespace Server {
      /// @param portNumber Port number
      /// @throw NetworkException
      bool listenToNetwork(const QString & hostname, quint16 portNumber);
-
-     void setHostList(const QList<CF::GUI::Network::HostInfos> & hostList);
-
-     QList<CF::GUI::Network::HostInfos> getHostList() const;
 
      void sendSignal(const CF::Common::XmlNode & signal);
 
@@ -145,9 +140,6 @@ namespace Server {
 
     /// @brief Simulation manager
     SimulationManager m_simulationManager;
-
-    /// @brief Host list
-    QList<CF::GUI::Network::HostInfos> m_hostList;
 
     /// @brief Reads a directory contents.
 

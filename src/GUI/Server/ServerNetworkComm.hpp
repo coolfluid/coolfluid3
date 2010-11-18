@@ -15,7 +15,6 @@
 #include <QList>
 #include <QMutex>
 
-#include "GUI/Network/HostInfos.hpp"
 #include "GUI/Network/ComponentType.hpp"
 #include "GUI/Network/LogMessage.hpp"
 

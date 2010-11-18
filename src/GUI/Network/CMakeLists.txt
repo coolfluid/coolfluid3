@@ -4,8 +4,6 @@ list( APPEND coolfluid_network_files
   ComponentNames.hpp
   ComponentType.cpp
   ComponentType.hpp
-  HostInfos.cpp
-  HostInfos.hpp
   LibNetwork.cpp
   LibNetwork.hpp
   LogMessage.cpp
