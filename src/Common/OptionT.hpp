@@ -31,7 +31,7 @@ namespace Common {
   ///   - CF::Common::URI
   /// @author Tiago Quintino
   template < typename TYPE >
-      class OptionT : public Option  {
+      class Common_API OptionT : public Option  {
 
   public:
 

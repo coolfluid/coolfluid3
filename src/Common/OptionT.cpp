@@ -64,13 +64,13 @@ const char* OptionT<TYPE>::tag () const
 ////////////////////////////////////////////////////////////////////////////////
 
 /// explicit instantiation to avoid missing symbols in certain compilers
-template class OptionT< bool >;
-template class OptionT< int >;
-template class OptionT< std::string >;
-template class OptionT< CF::Uint >;
-template class OptionT< CF::Real >;
-template class OptionT< CF::Common::URI >;
-template class OptionT< boost::filesystem::path >;
+Common_TEMPLATE template class OptionT< bool >;
+Common_TEMPLATE template class OptionT< int >;
+Common_TEMPLATE template class OptionT< std::string >;
+Common_TEMPLATE template class OptionT< CF::Uint >;
+Common_TEMPLATE template class OptionT< CF::Real >;
+Common_TEMPLATE template class OptionT< CF::Common::URI >;
+Common_TEMPLATE template class OptionT< boost::filesystem::path >;
 
 ////////////////////////////////////////////////////////////////////////////////
 

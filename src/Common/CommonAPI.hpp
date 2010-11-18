@@ -22,8 +22,10 @@ namespace CF {
   /// @note build system defines COOLFLUID_COMMON_EXPORTS when compiling Common files
   #ifdef COOLFLUID_COMMON_EXPORTS
   #   define Common_API CF_EXPORT_API
+  #   define Common_TEMPLATE
   #else
   #   define Common_API CF_IMPORT_API
+  #   define Common_TEMPLATE CF_TEMPLATE_EXTERN
   #endif
 
 } // Common

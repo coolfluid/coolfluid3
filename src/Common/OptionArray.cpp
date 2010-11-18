@@ -126,13 +126,13 @@ std::vector<TYPE> OptionArrayT<TYPE>::value_vect() const
 
 
 /// explicit instantiation to avoid missing symbols in certain compilers
-template class OptionArrayT< bool >;
-template class OptionArrayT< int >;
-template class OptionArrayT< std::string >;
-template class OptionArrayT< CF::Uint >;
-template class OptionArrayT< CF::Real >;
-template class OptionArrayT< CF::Common::URI >;
-template class OptionArrayT< boost::filesystem::path >;
+Common_TEMPLATE template class OptionArrayT< bool >;
+Common_TEMPLATE template class OptionArrayT< int >;
+Common_TEMPLATE template class OptionArrayT< std::string >;
+Common_TEMPLATE template class OptionArrayT< CF::Uint >;
+Common_TEMPLATE template class OptionArrayT< CF::Real >;
+Common_TEMPLATE template class OptionArrayT< CF::Common::URI >;
+Common_TEMPLATE template class OptionArrayT< boost::filesystem::path >;
 
 ////////////////////////////////////////////////////////////////////////////////
 
