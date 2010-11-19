@@ -25,10 +25,10 @@ if(UNIX)
     coolfluid_add_c_flags("-fno-common")
     coolfluid_add_cxx_flags("-fno-common")
 
-    coolfluid_add_cxx_flags("-Wall")
     
     if( CF_ENABLE_WARNINGS )
       # use many warnings
+      coolfluid_add_cxx_flags("-Wall")
       coolfluid_add_cxx_flags("-W")
       coolfluid_add_cxx_flags("-Wextra")
       coolfluid_add_cxx_flags("-Woverloaded-virtual")
@@ -47,10 +47,12 @@ if(UNIX)
 
       # Don't warn when using functors in boost::bind
       coolfluid_add_cxx_flags("-Wno-strict-aliasing")
-      # this is temporary until we all move to using openmpi
+
+      # this was temporary until we all move to using openmpi
       # must turn off non-virtual-dtor because many mpi implementations use it
       # KDE uses -Wnon-virtual-dtor
-      coolfluid_add_cxx_flags("-Wno-non-virtual-dtor")
+      # coolfluid_add_cxx_flags("-Wno-non-virtual-dtor")
+
       # must turn long long off because many mpi implementations use it
       coolfluid_add_cxx_flags("-Wno-long-long")
       # be pedantic but issue warnings instead of errors
@@ -61,8 +63,6 @@ if(UNIX)
       coolfluid_add_cxx_flags("-Wno-empty-body")    # Problem in boost
       coolfluid_add_cxx_flags("-Wno-uninitialized") # Problem with boost accumulators
 
-      # could add even these
-      #
     endif()
 
     if( CF_ENABLE_CODECOVERAGE )
