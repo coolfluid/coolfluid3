@@ -50,7 +50,10 @@ namespace Common {
       if ( factory != nullptr )
         return boost::dynamic_pointer_cast< CFactoryT<CBase> >(factory);
       else
+      {
+        CF::TypeInfo::instance().regist< CFactoryT<CBase> >( CFactoryT<CBase>::type_name() );
         return create_component_type< CFactoryT<CBase> >(tname);
+      }
     }
 
   private: // helper functions

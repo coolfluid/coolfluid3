@@ -16,6 +16,7 @@ RegistTypeInfo<CFactories> CFactories_TypeInfo();
 CFactories::CFactories ( const CName& name) : Component ( name )
 {
   BUILD_COMPONENT;
+  TypeInfo::instance().regist<CFactories>(CFactories::type_name());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

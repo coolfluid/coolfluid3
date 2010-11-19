@@ -10,6 +10,7 @@
 #include <boost/filesystem/convenience.hpp>
 
 #include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/ComponentPredicates.hpp"
 #include "Common/BasicExceptions.hpp"
@@ -35,6 +36,8 @@ ObjectProvider < CReader,
                  LibCGNS,
                  NB_ARGS_1 >
 aCGNSReader_Provider ( "CGNS" );
+
+ComponentBuilder< CReader, CMeshReader, LibCGNS > aCGNSReader_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 

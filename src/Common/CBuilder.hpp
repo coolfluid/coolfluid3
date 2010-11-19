@@ -140,6 +140,7 @@ struct ComponentBuilder
   {
     // regist the concrete type in TypeInfo
     CF::TypeInfo::instance().regist<CONCRETE>( CONCRETE::type_name() );
+    CF::TypeInfo::instance().regist< CBuilderT<BASE,CONCRETE> >(  CBuilderT<BASE,CONCRETE>::type_name() );
 
     // put builder in correct factory
     CFactories::Ptr factories = Core::instance().root()->get_child_type< CFactories >("Factories");
