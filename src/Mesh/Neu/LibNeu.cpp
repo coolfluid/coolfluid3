@@ -12,7 +12,7 @@ namespace CF {
 namespace Mesh {
 namespace Neu {
 
-  CF::Common::ForceLibRegist<LibNeu> libNeu;
+CF::Common::ForceLibRegist<LibNeu> libNeu;
 
 ////////////////////////////////////////////////////////////////////////////////
 

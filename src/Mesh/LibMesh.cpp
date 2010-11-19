@@ -11,7 +11,7 @@
 namespace CF {
 namespace Mesh {
 
-  CF::Common::ForceLibRegist<LibMesh> libMesh;
+CF::Common::ForceLibRegist<LibMesh> libMesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 

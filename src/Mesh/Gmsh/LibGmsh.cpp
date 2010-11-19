@@ -12,7 +12,7 @@ namespace CF {
 namespace Mesh {
 namespace Gmsh {
 
-  CF::Common::ForceLibRegist<LibGmsh> libGmsh;
+CF::Common::ForceLibRegist<LibGmsh> libGmsh;
 
 ////////////////////////////////////////////////////////////////////////////////
 

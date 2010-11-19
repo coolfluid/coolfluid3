@@ -12,7 +12,7 @@ namespace CF {
 namespace GUI {
 namespace ClientCore {
 
-  CF::Common::ForceLibRegist<LibClientCore> libClientCore;
+CF::Common::ForceLibRegist<LibClientCore> libClientCore;
 
 ////////////////////////////////////////////////////////////////////////////////
 

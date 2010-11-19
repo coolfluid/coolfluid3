@@ -12,7 +12,7 @@ namespace CF {
 namespace Mesh {
 namespace SF {
 
-  CF::Common::ForceLibRegist<LibSF> libSF;
+CF::Common::ForceLibRegist<LibSF> libSF;
 
 ////////////////////////////////////////////////////////////////////////////////
 

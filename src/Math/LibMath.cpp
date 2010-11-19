@@ -11,7 +11,7 @@
 namespace CF {
 namespace Math {
 
-  CF::Common::ForceLibRegist<LibMath> libMath;
+CF::Common::ForceLibRegist<LibMath> libMath;
 
 ////////////////////////////////////////////////////////////////////////////////
 

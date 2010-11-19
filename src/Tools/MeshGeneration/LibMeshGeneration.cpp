@@ -12,7 +12,7 @@ namespace CF {
 namespace Tools {
 namespace MeshGeneration {
 
-  CF::Common::ForceLibRegist<LibMeshGeneration> libMeshGeneration;
+CF::Common::ForceLibRegist<LibMeshGeneration> libMeshGeneration;
 
 ////////////////////////////////////////////////////////////////////////////////
 

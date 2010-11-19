@@ -12,7 +12,7 @@ namespace CF {
 namespace Tools {
 namespace MeshDiff {
 
-  CF::Common::ForceLibRegist<LibMeshDiff> libMeshDiff;
+CF::Common::ForceLibRegist<LibMeshDiff> libMeshDiff;
 
 ////////////////////////////////////////////////////////////////////////////////
 

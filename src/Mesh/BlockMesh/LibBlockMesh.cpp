@@ -12,7 +12,7 @@ namespace CF {
 namespace Mesh {
 namespace BlockMesh {
 
-  CF::Common::ForceLibRegist<LibBlockMesh> libBlockMesh;
+CF::Common::ForceLibRegist<LibBlockMesh> libBlockMesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 

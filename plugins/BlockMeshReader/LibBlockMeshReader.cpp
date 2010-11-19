@@ -11,7 +11,7 @@
 namespace CF {
 namespace BlockMeshReader {
 
-  CF::Common::ForceLibRegist<LibBlockMeshReader> libBlockMeshReader;
+CF::Common::ForceLibRegist<LibBlockMeshReader> libBlockMeshReader;
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -15,7 +15,7 @@ namespace CF {
 namespace Tools {
 namespace GooglePerf {
 
-  CF::Common::ForceLibRegist<LibGooglePerfTools> libGooglePerfTools;
+CF::Common::ForceLibRegist<LibGooglePerfTools> libGooglePerfTools;
 
 
 LibGooglePerfTools::LibGooglePerfTools()
