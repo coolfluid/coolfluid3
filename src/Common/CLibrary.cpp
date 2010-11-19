@@ -37,7 +37,7 @@ void CLibrary::set_library(LibraryRegisterBase *lib)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CLibrary::defineConfigProperties ( CF::Common::PropertyList& props )
+void CLibrary::define_config_properties ( CF::Common::PropertyList& props )
 {
 
 }

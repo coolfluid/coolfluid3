@@ -29,7 +29,8 @@ public: // methods
 
   /// Returns the description of the module.
   /// Must be implemented by the LibraryRegister
-  /// @return descripton of the module
+  /// @return description of the library
+
   virtual std::string description() const;
 
 protected: // methods
