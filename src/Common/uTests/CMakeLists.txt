@@ -23,6 +23,7 @@ list( APPEND utest-component_files
   utest-component.cpp
   TestCPath.cpp
   TestComponent.cpp
+  DummyComponents.hpp
   TestConfig.cpp
   TestProperties.cpp
   TestSignals.cpp
@@ -31,6 +32,17 @@ list( APPEND utest-component_files
 )
 
 coolfluid_add_unittest( utest-component )
+
+################################################################################
+# Test Factory
+
+list( APPEND utest-factory_cflibs coolfluid_common )
+list( APPEND utest-factory_files
+  DummyComponents.hpp
+  utest-factory.cpp
+)
+
+coolfluid_add_unittest( utest-factory )
 
 ################################################################################
 # Test Component iterators

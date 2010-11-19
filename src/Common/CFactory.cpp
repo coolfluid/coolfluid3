@@ -6,16 +6,27 @@
 
 #include "Common/CFactory.hpp"
 
-using namespace CF::Common;
+/////////////////////////////////////////////////////////////////////////////////
 
-CFactory::CFactory(const std::string & name):
-    Component(name)
+namespace CF {
+namespace Common {
+
+/////////////////////////////////////////////////////////////////////////////////
+
+CFactory::CFactory(const std::string& name): Component(name)
 {
   BUILD_COMPONENT;
 }
 
-CFactory::~CFactory() {}
+CFactory::~CFactory()
+{
+}
 
 void CFactory::define_config_properties ( CF::Common::PropertyList& props )
 {
 }
+
+/////////////////////////////////////////////////////////////////////////////////
+
+} // Common
+} // CF

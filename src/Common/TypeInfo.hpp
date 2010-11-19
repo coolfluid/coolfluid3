@@ -70,6 +70,15 @@ Common_API std::string demangle (const char* type);
 
   std::string class_name_from_typeinfo (const std::type_info & info);
 
+  /// @brief Helper class to force TypeInfo registration
+  /// @author Tiago Quintino
+  template< typename TYPE >
+  struct RegistTypeInfo
+  {
+    /// @brief Registers this type into the TypeInfo registry
+    RegistTypeInfo( const std::string& name) { TypeInfo::instance().regist<TYPE>(TYPE::type_name()); }
+  };
+
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////

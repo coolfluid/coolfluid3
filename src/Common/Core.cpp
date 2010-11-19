@@ -11,6 +11,7 @@
 #include "Common/CGroup.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/CEnv.hpp"
+#include "Common/CFactories.hpp"
 
 #include "Common/BuildInfo.hpp"
 #include "Common/LibraryRegistry.hpp"
@@ -53,7 +54,7 @@ Core::Core() :
 
   m_root->create_component_type<CGroup>("Libraries");
 
-  m_root->create_component_type<CGroup>("Types")->mark_basic();
+  m_root->create_component_type<CFactories>("Factories")->mark_basic();
 
   m_root->create_component_type<CGroup>("Tools")->mark_basic();
 

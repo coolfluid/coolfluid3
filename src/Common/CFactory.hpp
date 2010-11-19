@@ -34,7 +34,7 @@ public:
 
   /// @brief Contructor
   /// @param name of component
-  CFactory(const std::string & name);
+  CFactory(const std::string& name);
 
   /// @brief Virtual destructor.
   virtual ~CFactory();
@@ -47,13 +47,6 @@ public:
 
   /// @return the name of the type of this factory
   virtual std::string factory_type_name() const = 0;
-
-  /// @return all the providers in this Factory in a std::vector
-  virtual std::vector<Common::ProviderBase*> get_all_providers() const = 0;
-
-  /// Get a given Provider
-  /// @throw Common::ValueNotFound if the Provider is not registered
-  virtual ProviderBase* get_provider_base (const std::string& name) const = 0;
 
 private: // methods
 
@@ -78,7 +71,7 @@ public:
 
   /// @brief Contructor
   /// @param name of component
-  CFactoryT(const std::string & lib_name) : CFactory(name)
+  CFactoryT(const std::string& name) : CFactory(name)
   {
     BUILD_COMPONENT;
   }
@@ -91,6 +84,9 @@ public:
 
   /// Configuration properties
   static void define_config_properties ( CF::Common::PropertyList& props ) {}
+
+  /// @return the name of the type of this factory
+  virtual std::string factory_type_name() const { return TYPE::type_name(); }
 
 private: // methods
 

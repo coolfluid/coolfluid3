@@ -23,6 +23,8 @@ list( APPEND coolfluid_common_files
     CEnv.hpp
     CFactory.hpp
     CFactory.cpp
+    CFactories.hpp
+    CFactories.cpp
     CPath.hpp
     CPath.cpp
     CRoot.hpp
