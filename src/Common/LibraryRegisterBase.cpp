@@ -39,7 +39,7 @@ LibraryRegisterBase::~LibraryRegisterBase()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::SelfRegistry& LibraryRegisterBase::getSelfRegistry()
+Common::SelfRegistry& LibraryRegisterBase::self_registry()
 {
   return m_selfRegistry;
 }

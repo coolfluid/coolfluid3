@@ -24,7 +24,7 @@ Common_API std::string demangle (const char* type);
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  } // namespace Common
+  } // Common
 
 
   /// @brief Handles type information
@@ -70,7 +70,7 @@ Common_API std::string demangle (const char* type);
 
   std::string class_name_from_typeinfo (const std::type_info & info);
 
-} // namespace CF
+} // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
