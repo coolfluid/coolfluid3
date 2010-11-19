@@ -582,9 +582,9 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, CPath> & lin
         }
       }
     }
-    catch (ShouldNotBeHere & snbh)
+    catch (Exception & e)
     {
-      ClientRoot::log()->addException(snbh.msg().c_str());
+      ClientRoot::log()->addException(e.msg().c_str());
     }
 
     child = child->next_sibling();
@@ -632,20 +632,24 @@ Option::Ptr CNode::makeOption(const CF::Common::XmlNode & node)
         else if(std::strcmp(typeVal, "uri") == 0)
         {
           URI value;
-          Option::Ptr option;
-          OptionURI::Ptr opt;
-          //XmlAttr * attr = node->first_attribute(XmlParams::tag_attr_protocol());
-          to_value(*type_node, value);
-//          opt = m_property_list.add_option<OptionURI>(keyVal, descrVal, value);
+          OptionURI::Ptr optURI;
+          XmlAttr * attr = node.first_attribute(XmlParams::tag_attr_protocol());
 
-//          for( ; attr != nullptr ; attr = attr->next_attribute(XmlParams::tag_attr_protocol()))
-//          {
-//            opt->supported_protocol(attr->value());
-//          }
+          to_value(*type_node, value);
+          optURI = OptionURI::Ptr( new OptionURI(keyVal, descrVal, value) );
+
+          for( ; attr != nullptr ; attr = attr->next_attribute(XmlParams::tag_attr_protocol()))
+          {
+            optURI->supported_protocol(attr->value());
+          }
+
+          option = optURI;
         }
         else
           throw ShouldNotBeHere(FromHere(), std::string(typeVal) + ": Unknown type");
       }
+      else
+        throw XmlError(FromHere(), "No type node found for option [" + std::string(keyVal) + "] .");
     }
     else if(std::strcmp(node.name(), "array")  == 0)
     {
@@ -670,11 +674,17 @@ Option::Ptr CNode::makeOption(const CF::Common::XmlNode & node)
         else
           throw ShouldNotBeHere(FromHere(), std::string(typeVal) + ": Unknown array type");
       }
+      else
+        throw XmlError(FromHere(), "No type found for option array [" + std::string(keyVal) + "] .");
     }
+    else
+      throw XmlError(FromHere(), "Node [" + std::string(node.name()) +"] could not be processed.");
 
-    if(!advanced)
+    if(!advanced && option.get() != nullptr)
       option->mark_basic();
   }
+  else
+    throw XmlError(FromHere(), "No [" + std::string(XmlParams::tag_attr_key()) +"] attribute found.");
 
   return option;
 }

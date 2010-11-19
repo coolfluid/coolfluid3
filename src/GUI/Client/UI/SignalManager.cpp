@@ -117,9 +117,9 @@ void SignalManager::actionTriggered()
 
       delete sg;
     }
-    catch( ValueNotFound & vnf)
+    catch( Exception & e)
     {
-      ClientRoot::log()->addException(vnf.what());
+      ClientRoot::log()->addException(e.what());
     }
   }
 }
