@@ -35,7 +35,7 @@ namespace Common {
 
   public: // methods
 
-    /// virutal destructor
+    /// destructor
     virtual ~FactoryBase() {}
 
     /// @return the name of the type of this factory

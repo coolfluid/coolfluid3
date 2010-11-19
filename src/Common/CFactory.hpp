@@ -23,36 +23,83 @@ namespace Common {
 
 /////////////////////////////////////////////////////////////////////////////////
 
-  /// @brief Component class for a library
-  /// @author Quentin Gasper
-  class Common_API CFactory : public Component
+/// @brief Component class for a factory which builds other components
+/// @author Tiago Quintino
+class Common_API CFactory : public Component
+{
+public:
+
+  typedef boost::shared_ptr<CFactory> Ptr;
+  typedef boost::shared_ptr<CFactory const> ConstPtr;
+
+  /// @brief Contructor
+  /// @param name of component
+  CFactory(const std::string & name);
+
+  /// @brief Virtual destructor.
+  virtual ~CFactory();
+
+  /// @returns the class name
+  static std::string type_name() { return "CFactory"; }
+
+  /// Configuration properties
+  static void define_config_properties ( CF::Common::PropertyList& props );
+
+  /// @return the name of the type of this factory
+  virtual std::string factory_type_name() const = 0;
+
+  /// @return all the providers in this Factory in a std::vector
+  virtual std::vector<Common::ProviderBase*> get_all_providers() const = 0;
+
+  /// Get a given Provider
+  /// @throw Common::ValueNotFound if the Provider is not registered
+  virtual ProviderBase* get_provider_base (const std::string& name) const = 0;
+
+private: // methods
+
+  /// regists all the signals declared in this class
+  static void regist_signals ( CFactory* self ) { }
+
+private: // data
+
+}; // CFactory
+
+/////////////////////////////////////////////////////////////////////////////////
+
+/// @brief Component class for a factory which builds other components
+/// @author Tiago Quintino
+template < typename TYPE >
+class CFactoryT : public CFactory
+{
+public:
+
+  typedef boost::shared_ptr< CFactoryT<TYPE> > Ptr;
+  typedef boost::shared_ptr< CFactoryT<TYPE> const> ConstPtr;
+
+  /// @brief Contructor
+  /// @param name of component
+  CFactoryT(const std::string & lib_name) : CFactory(name)
   {
-  public:
+    BUILD_COMPONENT;
+  }
 
-    typedef boost::shared_ptr<CFactory> Ptr;
-    typedef boost::shared_ptr<CFactory const> ConstPtr;
+  /// @brief Virtual destructor.
+  virtual ~CFactoryT();
 
-    /// @brief Contructor
-    /// @param lib_name Library name
-    CFactory(const std::string & lib_name);
+  /// @returns the class name
+  static std::string type_name() { return "CFactory<" + TYPE::type_name() + ">"; }
 
-    /// @brief Virtual destructor.
-    virtual ~CFactory();
+  /// Configuration properties
+  static void define_config_properties ( CF::Common::PropertyList& props ) {}
 
-    /// Get the class name
-    static std::string type_name() { return "CFactory"; }
+private: // methods
 
-    /// Configuration properties
-    static void define_config_properties ( CF::Common::PropertyList& props );
+  /// regists all the signals declared in this class
+  static void regist_signals ( CFactory* self ) {}
 
-  private: // methods
+private: // data
 
-    /// regists all the signals declared in this class
-    static void regist_signals ( CFactory* self ) { }
-
-  private: // data
-
-  }; // CFactory
+}; // CFactoryT
 
 /////////////////////////////////////////////////////////////////////////////////
 
