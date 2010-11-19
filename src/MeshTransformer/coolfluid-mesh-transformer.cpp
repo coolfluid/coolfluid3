@@ -10,6 +10,7 @@
 #include "Common/Log.hpp"
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
+#include "Common/BuildInfo.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CMeshReader.hpp"
@@ -150,7 +151,7 @@ int main(int argc, char * argv[])
   
   if (vm.count("version"))
   {
-    CFinfo << Core::instance().version_header () << "\n"; 
+    CFinfo << Core::instance().build_info().lock()->version_header () << "\n";
   }
   
   // create mesh object

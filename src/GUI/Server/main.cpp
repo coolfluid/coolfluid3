@@ -76,10 +76,8 @@ int main(int argc, char *argv[])
     }
 
     // setup COOLFluiD environment
-   // cf_env.set_mpi_hostfile("./machine.txt"); // must be called before MPI_Init !
+    // cf_env.set_mpi_hostfile("./machine.txt"); // must be called before MPI_Init !
     cf_env.initiate ( argc, argv );        // initiate the environemnt
-    cf_env.setup();
-
 
     // set dso directory as module directory
     moduleDirs.push_back("../../../dso/");
@@ -113,9 +111,6 @@ int main(int argc, char *argv[])
       return_value = app.exec();
     }
 
-
-    // unsetup the runtime environment
-    cf_env.unsetup();
     // terminate the runtime environment
     cf_env.terminate();
 
