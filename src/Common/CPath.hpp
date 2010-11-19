@@ -45,7 +45,7 @@ namespace Common {
     /// Constructor from const char*
     /// @param c C string with path
     CPath ( const char* c );
-    /// Copy constructor from other path object
+    /// Copy constructor from an URI
     /// @param path object
     CPath ( const URI& uri );
     

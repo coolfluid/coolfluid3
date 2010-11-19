@@ -103,7 +103,9 @@ CPath& CPath::operator=  (const CPath& p)
 bool CPath::is_valid_element ( const std::string& str )
 {
   return boost::algorithm::all(str, boost::algorithm::is_alnum() ||
-                                    boost::algorithm::is_any_of("-_"));
+                                    boost::algorithm::is_any_of(".-_"))
+         && ( str.size() )
+         && ( str[0] != '.' ); // cannot start with "."
 }
 
 bool CPath::is_valid ( const std::string& str )
@@ -115,7 +117,9 @@ bool CPath::is_valid ( const std::string& str )
 
 bool CPath::is_complete () const
 {
-  return ! boost::algorithm::contains( m_path, "." );
+  return !( boost::algorithm::starts_with( m_path, "." )  ||
+            boost::algorithm::contains( m_path, "./" )    ||
+            boost::algorithm::contains( m_path, "/." )    );
 }
 
 bool CPath::is_relative () const

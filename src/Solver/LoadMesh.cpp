@@ -69,7 +69,7 @@ void LoadMesh::run_wizard ( Common::XmlNode& node )
 
    XmlParams params (node);
 
-   CFinfo << params.get_option<std::string>("blabla") << CFendl;
+   CFinfo << params.get_option<std::string>("mesh name") << CFendl;
 
 }
 

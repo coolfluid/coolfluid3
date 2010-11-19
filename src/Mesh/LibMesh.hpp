@@ -57,6 +57,9 @@ namespace CF {
     /// Gets the Class name
     static std::string type_name() { return "LibMesh"; }
 
+    /// @return string of the library namespace
+    static std::string library_namespace() { return "CF.Mesh"; }
+
     /// initiate library
     virtual void initiate();
 

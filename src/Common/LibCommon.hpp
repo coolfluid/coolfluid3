@@ -41,6 +41,9 @@ public:
   /// Gets the Class name
   static std::string type_name() { return "LibCommon"; }
 
+  /// @return string of the library namespace
+  static std::string library_namespace() { return "CF.Common"; }
+
   /// initiate library
   virtual void initiate();
 

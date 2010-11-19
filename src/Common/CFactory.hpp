@@ -11,15 +11,12 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/Component.hpp"
-
 #include "Common/CommonAPI.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace Common {
-
-  class LibraryRegisterBase;
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -80,7 +77,7 @@ public:
   virtual ~CFactoryT() {};
 
   /// @returns the class name
-  static std::string type_name() { return "CFactory<" + TYPE::type_name() + ">"; }
+  static std::string type_name() { return "CFactoryT<" + TYPE::type_name() + ">"; }
 
   /// Configuration properties
   static void define_config_properties ( CF::Common::PropertyList& props ) {}
