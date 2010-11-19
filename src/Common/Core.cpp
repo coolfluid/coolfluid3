@@ -53,6 +53,8 @@ Core::Core() :
 
   m_root->create_component_type<CGroup>("Libraries");
 
+  m_root->create_component_type<CGroup>("Types")->mark_basic();
+
   m_root->create_component_type<CGroup>("Tools")->mark_basic();
 
   m_root->mark_basic(); // root should always be basic

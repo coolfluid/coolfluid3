@@ -21,6 +21,8 @@ list( APPEND coolfluid_common_files
     ComponentPredicates.hpp
     CEnv.cpp
     CEnv.hpp
+    CFactory.hpp
+    CFactory.cpp
     CPath.hpp
     CPath.cpp
     CRoot.hpp

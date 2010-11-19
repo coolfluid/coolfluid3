@@ -97,7 +97,7 @@ private: // data
   /// @brief The component tree root
   boost::shared_ptr<CRoot> m_root;
 
-}; // CoreEnv
+}; // Core
 
 ////////////////////////////////////////////////////////////////////////////////
 
