@@ -18,15 +18,15 @@ namespace Common {
 
 void LibraryRegistry::regist(Common::LibraryRegisterBase* module)
 {
-  if ( !m_store.checkEntry( module->getName()) )
+  if ( !m_store.checkEntry( module->name()) )
   {
-    m_store.addEntry(module->getName(),module);
-    //    CFLogInfo ( "Module " + module->getName() + " registered\n");
-//    CFinfo << "Module " << module->getName() << " registered\n" << CFendl ;
+    m_store.addEntry(module->name(),module);
+    //    CFLogInfo ( "Module " + module->name() + " registered\n");
+//    CFinfo << "Module " << module->name() << " registered\n" << CFendl ;
   }
   else
   {
-    CFLogWarn("Module " + module->getName() + " already registered : skipping registration\n");
+    CFLogWarn("Module " + module->name() + " already registered : skipping registration\n");
   }
 }
 

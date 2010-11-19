@@ -32,13 +32,13 @@ public:
 
   /// Gets the name of the object.
   /// @return std::string with the object name.
-  std::string getName() const { return m_name; }
+  std::string name() const { return m_name; }
 
 protected: // functions
 
   /// Sets the object name
   /// @param name std::string with object name
-  void setName(const std::string& name) {  m_name = name;  }
+  void set_name(const std::string& name) {  m_name = name;  }
 
 private: // data
 

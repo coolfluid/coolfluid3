@@ -140,14 +140,14 @@ Factory<BASE>::~Factory()
 template <class BASE>
 void Factory<BASE>::regist(Provider<BASE>* provider)
 {
-  if (exists(provider->getName()))
+  if (exists(provider->name()))
   {
     throw Common::ValueExists (FromHere(),
       "In factory of [" + BASE::type_name() +
-      "] a provider with the name [" + provider->getName() +
+      "] a provider with the name [" + provider->name() +
       "] was found when trying to regist it" );
   }
-  provider_map()[provider->getName()] = provider;
+  provider_map()[provider->name()] = provider;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -115,7 +115,7 @@ struct ForceLibRegist
 template < typename LIB >
 ForceLibRegist<LIB>::ForceLibRegist()
 {
-  CFinfo << VERBOSE << "Library [" << LIB::instance().getName() << "] loaded." << CFendl;
+  CFinfo << VERBOSE << "Library [" << LIB::instance().name() << "] loaded." << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
