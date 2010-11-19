@@ -596,9 +596,9 @@ inline void Component::partial_build_component(TYPE* meself)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#define BUILD_COMPONENT             \
-    partial_build_component(this);  \
-    regist_signals(this)
+#define BUILD_COMPONENT \
+  this->partial_build_component(this);  \
+  this->regist_signals(this); \
 
 ////////////////////////////////////////////////////////////////////////////////
 
