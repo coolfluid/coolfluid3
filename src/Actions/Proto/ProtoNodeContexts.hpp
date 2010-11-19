@@ -154,8 +154,8 @@ struct NodeMeshContext
   };
 };
 
-} // namespace Proto
-} // namespace Actions
-} // namespace CF
+} // Proto
+} // Actions
+} // CF
 
 #endif // CF_Actions_ProtoNodeContexts_hpp

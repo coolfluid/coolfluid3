@@ -61,6 +61,6 @@ const CF::Mesh::ElementType& Point1DLagrangeP1::face_type(const CF::Uint face) c
   return facetype;
 }
 
-} // namespace SF
-} // namespace Mesh
-} // namespace CF
+} // SF
+} // Mesh
+} // CF

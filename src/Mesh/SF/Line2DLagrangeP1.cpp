@@ -63,6 +63,6 @@ const CF::Mesh::ElementType& Line2DLagrangeP1::face_type(const CF::Uint face) co
 
 
 
-} // namespace SF
-} // namespace Mesh
-} // namespace CF
+} // SF
+} // Mesh
+} // CF

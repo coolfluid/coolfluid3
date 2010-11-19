@@ -105,13 +105,13 @@ namespace ClientUI {
     /// regists all the signals declared in this class
     static void regist_signals ( Common::Component* self ) {}
 
-  }; // namespace NRemoteOpen
+  }; // NRemoteOpen
 
   /////////////////////////////////////////////////////////////////////////////
 
-} // namespace ClientUI
-} // namespace GUI
-} // namespace CF
+} // ClientUI
+} // GUI
+} // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 

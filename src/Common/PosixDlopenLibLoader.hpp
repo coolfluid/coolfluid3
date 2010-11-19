@@ -42,13 +42,13 @@ public: // functions
     /// paths where to search for the libraries to load
     std::vector< boost::filesystem::path > m_search_paths;
 
-}; // end of class PosixDlopenLibLoader
+}; // PosixDlopenLibLoader
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  } // namespace Common
+  } // Common
 
-} // namespace CF
+} // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 

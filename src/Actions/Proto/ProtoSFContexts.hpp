@@ -171,8 +171,8 @@ private:
   typename SF::ShapeFunctionsT m_shape_function;
 };
 
-} // namespace Proto
-} // namespace Actions
-} // namespace CF
+} // Proto
+} // Actions
+} // CF
 
 #endif // CF_Actions_ProtoSFContexts_hpp

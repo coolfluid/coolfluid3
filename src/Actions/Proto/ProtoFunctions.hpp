@@ -160,8 +160,8 @@ transpose(EigenExprT const &expr)
   return boost::proto::make_expr<eigen_function_tag<transpose_tag>, MeshDomain>(boost::ref(expr));
 }
 
-} // namespace Proto
-} // namespace Actions
-} // namespace CF
+} // Proto
+} // Actions
+} // CF
 
 #endif // CF_Actions_ProtoFunctions_hpp

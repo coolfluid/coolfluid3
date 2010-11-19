@@ -135,6 +135,6 @@ NotEnoughMemory::NotEnoughMemory ( const Common::CodeLocation& where, const std:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  } // namespace Common
-} // namespace CF
+  } // Common
+} // CF
 

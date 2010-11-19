@@ -151,7 +151,7 @@ bool TimePolicy_gettimeofday::subTimeval (timeval & Res, const timeval & X1, con
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  } // namespace Common
+  } // Common
 
-} // namespace CF
+} // CF
 

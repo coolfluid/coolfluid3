@@ -56,10 +56,10 @@ namespace Testing {
     /// Gets the Class name
     static std::string type_name() { return "LibTesting"; }
 
-    /// Start profiling
+    /// initiate library
     virtual void initiate();
 
-    /// Stop profiling
+    /// terminate library
     virtual void terminate();
 
   }; // LibTesting

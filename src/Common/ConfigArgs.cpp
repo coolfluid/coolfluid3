@@ -87,7 +87,7 @@ void ConfigArgs::pass_filter(const ConfigKey& filtkey)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  } // namespace Common
+  } // Common
 
-} // namespace CF
+} // CF
 

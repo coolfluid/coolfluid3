@@ -44,8 +44,8 @@ private:
   VariablesT m_variables;
 };
 
-} // namespace Proto
-} // namespace Actions
-} // namespace CF
+} // Proto
+} // Actions
+} // CF
 
 #endif // CF_Actions_CProtoElementsAction_hpp

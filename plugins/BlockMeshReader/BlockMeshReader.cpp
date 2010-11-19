@@ -66,5 +66,5 @@ void BlockMeshReader::read_from_to(boost::filesystem::path& path, const CMesh::P
   build_mesh(block_data, *mesh, unused);
 }
 
-} // namespace BlockMeshReader
-} // namespace CF
+} // BlockMeshReader
+} // CF

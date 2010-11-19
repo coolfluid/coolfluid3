@@ -40,7 +40,7 @@ public:
   /// @return boost::shared_ptr olding the created object
   virtual boost::shared_ptr<BASE> create() = 0;
 
-}; // end of class ConcreteProvider
+}; // ConcreteProvider
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -65,7 +65,7 @@ public:
   /// @return boost::shared_ptr olding the created object
   virtual boost::shared_ptr<BASE> create(BASE_ARG1 arg1) = 0;
 
-}; // end of class ConcreteProvider
+}; // ConcreteProvider
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -92,13 +92,13 @@ public:
   /// @return boost::shared_ptr olding the created object
   virtual boost::shared_ptr<BASE> create(BASE_ARG1 arg1, BASE_ARG2 arg2) = 0;
 
-}; // end of class ConcreteProvider
+}; // ConcreteProvider
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  } // namespace Common
+  } // Common
 
-} // namespace CF
+} // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 

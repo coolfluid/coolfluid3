@@ -145,7 +145,7 @@ namespace Common {
 
   ///////////////////////////////////////////////////////////////////////////////
 
-} // namespace Common
-} // namespace CF
+} // Common
+} // CF
 
 #endif // CF_Common_NotificationQueue_hpp

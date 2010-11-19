@@ -49,8 +49,8 @@ struct IsVolumeElement
 /// List of all supported shapefunctions for volume elements, 
 typedef boost::mpl::filter_view<Types, IsVolumeElement<boost::mpl::_> > VolumeTypes;
 
-} // namespace LagrangeSF
-} // namespace Mesh
-} // namespace CF
+} // LagrangeSF
+} // Mesh
+} // CF
 
 #endif // CF_Mesh_SF_Types_hpp

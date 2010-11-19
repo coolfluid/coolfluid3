@@ -37,7 +37,7 @@ public:
   /// Start profiling when a test starts
   void test_unit_start( boost::unit_test::test_unit const& );
 
-  /// Stop profiling when a test ends and process the file
+  /// terminate library when a test ends and process the file
   void test_unit_finish( boost::unit_test::test_unit const& );
 
 protected:

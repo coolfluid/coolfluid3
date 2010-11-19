@@ -216,8 +216,8 @@ struct JacobianCoefficients
 
 };
 
-} // namespace SF
-} // namespace Mesh
-} // namespace CF
+} // SF
+} // Mesh
+} // CF
 
 #endif /* CF_Mesh_SF_Quad2DLagrangeP1 */

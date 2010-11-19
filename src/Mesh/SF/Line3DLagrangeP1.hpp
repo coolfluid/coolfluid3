@@ -118,8 +118,8 @@ struct MESH_SF_API Line3DLagrangeP1  : public Line3D
   virtual const CF::Mesh::ElementType& face_type(const CF::Uint face) const;
 };
 
-} // namespace SF
-} // namespace Mesh
-} // namespace CF
+} // SF
+} // Mesh
+} // CF
 
 #endif /* CF_Mesh_SF_Line3DLagrangeP1 */

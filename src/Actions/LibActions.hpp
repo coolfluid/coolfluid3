@@ -55,18 +55,18 @@ public:
   /// Gets the Class name
   static std::string type_name() { return "LibActions"; }
 
-  /// Start profiling
+  /// initiate library
   virtual void initiate();
 
-  /// Stop profiling
+  /// terminate library
   virtual void terminate();
 
 }; // end LibActions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace Actions
-} // namespace CF
+} // Actions
+} // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 

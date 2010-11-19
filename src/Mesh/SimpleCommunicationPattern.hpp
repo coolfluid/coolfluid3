@@ -202,7 +202,7 @@ void apply_pattern_clist(const SimpleCommunicationPattern& pattern, RangeT range
 // Stream output
 Mesh_API std::ostream& operator<<(std::ostream& os, const SimpleCommunicationPattern& pattern);
 
-} // namespace Mesh
-} // namespace CF
+} // Mesh
+} // CF
 
 #endif /* CF_Mesh_SimpleCommunicationPattern_hpp */

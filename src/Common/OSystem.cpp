@@ -136,5 +136,5 @@ boost::shared_ptr<CodeProfiler> OSystem::profiler() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  } // namespace Common
-} // namespace CF
+  } // Common
+} // CF

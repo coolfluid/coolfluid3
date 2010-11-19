@@ -23,8 +23,8 @@ BlockMesh_API std::ostream& operator<<(std::ostream& os, const BlockData& block_
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace BlockMesh
-} // namespace Mesh
-} // namespace CF
+} // BlockMesh
+} // Mesh
+} // CF
 
 #endif /* CF_Mesh_BlockMesh_WriteDict_hpp */

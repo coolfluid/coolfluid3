@@ -163,9 +163,9 @@ struct VarValue :
   };
 };
 
-} // namespace Proto
-} // namespace Actions
-} // namespace CF
+} // Proto
+} // Actions
+} // CF
 
 namespace boost {
 namespace proto {
@@ -409,8 +409,8 @@ struct TestGrammar :
 {
 };
 
-} // namespace Proto
-} // namespace Actions
-} // namespace CF
+} // Proto
+} // Actions
+} // CF
 
 #endif // CF_Actions_ProtoTransforms_hpp

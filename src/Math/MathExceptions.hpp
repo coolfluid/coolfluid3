@@ -40,9 +40,9 @@ struct ZeroDeterminant  : public Common::Exception {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  } // namespace Math
+  } // Math
 
-} // namespace CF
+} // CF
 
 #endif // CF_Math_MathExceptions_hpp
 

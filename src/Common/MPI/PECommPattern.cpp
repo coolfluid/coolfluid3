@@ -115,6 +115,6 @@ void PECommPattern::setup(std::vector<Uint> gid, std::vector<Uint> rank)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  }  // namespace Common
-} // namespace CF
+  }  // Common
+} // CF
 

@@ -44,8 +44,8 @@ PECommPattern2::PECommPattern2(std::vector<Uint> gid, std::vector<Uint> rank)
 
 
 
-  }  // namespace Common
-} // namespace CF
+  }  // Common
+} // CF
 
 
 
@@ -169,6 +169,6 @@ void PECommPattern2::setup(std::vector<Uint> gid, std::vector<Uint> rank)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  }  // namespace Common
-} // namespace CF
+  }  // Common
+} // CF
 */

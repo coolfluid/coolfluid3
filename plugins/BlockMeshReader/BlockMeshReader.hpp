@@ -42,7 +42,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace BlockMeshReader
-} // namespace CF
+} // BlockMeshReader
+} // CF
 
 #endif /* CF_BlockMeshReader_BlockMeshReader_hpp */

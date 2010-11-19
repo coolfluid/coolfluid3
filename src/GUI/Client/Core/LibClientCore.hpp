@@ -57,19 +57,19 @@ namespace ClientCore {
     /// Gets the Class name
     static std::string type_name() { return "LibClientCore"; }
 
-    /// Start profiling
+    /// initiate library
     virtual void initiate();
 
-    /// Stop profiling
+    /// terminate library
     virtual void terminate();
 
   }; // end LibClientCore
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace ClientCore
-} // namespace GUI
-} // namespace CF
+} // ClientCore
+} // GUI
+} // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 

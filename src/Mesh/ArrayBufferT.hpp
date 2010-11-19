@@ -168,7 +168,7 @@ private: // data
   /// storage of buffer rows where rows can be added
   std::deque<Uint> m_newBufferRows;
 
-}; // end of class ConnectivityTable
+}; // ConnectivityTable
 
 //////////////////////////////////////////////////////////////////////////////
 

@@ -100,5 +100,5 @@ bool SignalHandler::is_signal_read_only( const Signal::id_t& sname ) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace Common
-} // namespace CF
+} // Common
+} // CF

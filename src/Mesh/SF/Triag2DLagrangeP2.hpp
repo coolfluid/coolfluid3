@@ -207,8 +207,8 @@ static Real jacobian_determinant(const NodesT& nodes)
 
 };
 
-} // namespace SF
-} // namespace Mesh
-} // namespace CF
+} // SF
+} // Mesh
+} // CF
 
 #endif /* CF_Mesh_SF_Triag2DLagrangeP2 */

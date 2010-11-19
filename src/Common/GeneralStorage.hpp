@@ -219,8 +219,8 @@ GeneralStorage<TYPE>::~GeneralStorage()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-    } // namespace Common
+    } // Common
 
-} // namespace CF
+} // CF
 
 #endif // CF_Common_GeneralStorage_hpp

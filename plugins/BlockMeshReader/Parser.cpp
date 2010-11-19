@@ -189,5 +189,5 @@ void parse_blockmesh_dict(std::istream& file, BlockData& blockData)
   blockData.block_distribution.push_back(blockData.block_points.size());
 }
 
-} // namespace BlockMeshReader
-} // namespace CF
+} // BlockMeshReader
+} // CF

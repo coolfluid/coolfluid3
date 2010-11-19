@@ -164,8 +164,8 @@ void for_each_element(Common::Component& root, const Expr& expr)
   }
 }
 
-} // namespace Proto
-} // namespace Actions
-} // namespace CF
+} // Proto
+} // Actions
+} // CF
 
 #endif // CF_Actions_ProtoElementLooper_hpp

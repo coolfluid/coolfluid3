@@ -224,8 +224,8 @@ void assign_dirichlet(MatrixT& matrix, RhsT& rhs, const Real value, const Uint n
   rhs[node_idx] = value;
 }
 
-} // namespace Proto
-} // namespace Actions
-} // namespace CF
+} // Proto
+} // Actions
+} // CF
 
 #endif // CF_Actions_ProtoVariables_hpp

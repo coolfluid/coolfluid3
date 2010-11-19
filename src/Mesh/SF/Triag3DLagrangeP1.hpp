@@ -147,8 +147,8 @@ struct MESH_SF_API Triag3DLagrangeP1  : public Triag3D
 
 };
 
-} // namespace SF
-} // namespace Mesh
-} // namespace CF
+} // SF
+} // Mesh
+} // CF
 
 #endif /* CF_Mesh_SF_Triag3DLagrangeP1 */

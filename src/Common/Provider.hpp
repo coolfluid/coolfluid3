@@ -51,13 +51,13 @@ public: // methods
   /// @return the BASE of this provider
   virtual std::string provider_type () const { return BASE::type_name(); }
 
-}; // end of class Provider
+}; // Provider
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  } // namespace Common
+  } // Common
 
-} // namespace CF
+} // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 #endif // CF_Common_Provider_hpp

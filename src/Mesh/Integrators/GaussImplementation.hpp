@@ -265,8 +265,8 @@ struct GaussIntegrator<Order, GeoShape::HEXA>
 };
 
 
-} // namespace Gauss
-} // namespace Mesh
-} // namespace CF
+} // Gauss
+} // Mesh
+} // CF
 
 #endif /* CF_Mesh_Integrators_Gauss_HH */

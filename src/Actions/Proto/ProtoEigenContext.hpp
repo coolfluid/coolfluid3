@@ -58,7 +58,7 @@ struct ei_nested< NestByValue<T> >
   typedef NestByValue<T> const type;
 };
 
-} // namespace Eigen
+} // Eigen
 
 namespace CF {
 namespace Actions {
@@ -162,8 +162,8 @@ struct EigenMultiplier<Real, Real>
   }
 };
 
-} // namespace Proto
-} // namespace Actions
-} // namespace CF
+} // Proto
+} // Actions
+} // CF
 
 #endif // CF_Actions_ProtoEigenContext_hpp

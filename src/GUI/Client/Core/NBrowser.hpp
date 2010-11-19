@@ -59,8 +59,8 @@ namespace ClientCore {
 
   ////////////////////////////////////////////////////////////////////////////
 
-} // namespace ClientCore
-} // namespace GUI
-} // namespace CF
+} // ClientCore
+} // GUI
+} // CF
 
 #endif // NBrowser_HPP

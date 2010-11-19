@@ -41,8 +41,8 @@ void gauss_integrate(const FunctorT& functor, MappedCoordsT& mapped_coords, Resu
   GaussIntegrator<Order, Shape>::integrate(functor, mapped_coords, result);
 }
 
-} // namespace Integrators
-} // namespace Mesh
-} // namespace CF
+} // Integrators
+} // Mesh
+} // CF
 
 #endif /* CF_Mesh_Integrators_Gauss_hpp */

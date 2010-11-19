@@ -32,10 +32,10 @@ namespace Common {
 
   public:
 
-    /// Constructor is private to allow only the friend classes to build it
+    /// Constructor
     SelfRegistry();
 
-    /// Default destructor is private to allow only the friend classes to destroy it
+    /// Destructor
     ~SelfRegistry();
 
     /// Register a Object provider

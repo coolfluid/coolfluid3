@@ -17,8 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-
-  namespace Common {
+namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -37,10 +36,7 @@ class Common_API LibraryRegisterBase :
 public: // methods
 
   /// Gets the SelfRegistry of this Module Register
-  SelfRegistry& getSelfRegistry();
-
-  /// Gets the ConfigRegistry of this Module Register
-//  ConfigRegistry& getConfigRegistry();
+  SelfRegistry& self_registry();
 
   /// Returns the description of the module.
   /// Must be implemented by the LibraryRegister
@@ -73,9 +69,6 @@ protected: // data
 
   /// the SelfRegistry object is only held by the LibraryRegisterBase's
   Common::SelfRegistry    m_selfRegistry;
-
-  /// the ConfigRegistry object is only held by the LibraryRegisterBase's
-//  Common::ConfigRegistry  m_configRegistry;
 
   /// is this module initialized
   bool m_init;

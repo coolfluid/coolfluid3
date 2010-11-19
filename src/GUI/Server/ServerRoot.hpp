@@ -77,9 +77,9 @@ namespace Server {
   }; // class ServerRoot
 
 
-} // namespace Server
-} // namespace GUI
-} // namespace CF
+} // Server
+} // GUI
+} // CF
 
 /////////////////////////////////////////////////////////////////////////////
 

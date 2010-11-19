@@ -75,6 +75,6 @@ const CF::Mesh::ElementType& Triag2DLagrangeP2B::face_type(const CF::Uint face) 
 }
 
 
-} // namespace SF
-} // namespace Mesh
-} // namespace CF
+} // SF
+} // Mesh
+} // CF

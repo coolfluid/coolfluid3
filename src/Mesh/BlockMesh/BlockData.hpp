@@ -75,8 +75,8 @@ void BlockMesh_API create_block_mesh(const BlockData& block_data, CMesh& mesh);
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace BlockMesh
-} // namespace Mesh
-} // namespace CF
+} // BlockMesh
+} // Mesh
+} // CF
 
 #endif /* CF_Mesh_BlockMesh_BlockData_hpp */

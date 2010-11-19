@@ -70,10 +70,10 @@ public:
   /// Gets the Class name
   static std::string type_name() { return "LibGooglePerfTools"; }
 
-  /// Start profiling
+  /// initiate library
   virtual void initiate();
 
-  /// Stop profiling
+  /// terminate library
   virtual void terminate();
 
 }; // LibGooglePerfTools

@@ -83,6 +83,6 @@ std::ostream& operator<<(std::ostream& os, const BlockData& block_data)
   return os;
 }
   
-} // namespace BlockMesh
-} // namespace Mesh
-} // namespace CF
+} // BlockMesh
+} // Mesh
+} // CF

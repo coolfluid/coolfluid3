@@ -387,8 +387,8 @@ static bool is_orientation_inside(const CoordsT& coord, const NodeMatrixT& nodes
 
 };
 
-} // namespace SF
-} // namespace Mesh
-} // namespace CF
+} // SF
+} // Mesh
+} // CF
 
 #endif /* CF_Mesh_SF_Hexa3DLagrangeP1 */

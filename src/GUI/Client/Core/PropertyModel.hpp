@@ -132,8 +132,8 @@ namespace ClientCore {
 
   }; // class PropertyModel
 
-} // namespace ClientCore
-} // namespace GUI
-} // namespace CF
+} // ClientCore
+} // GUI
+} // CF
 
 #endif // CF_GUI_Client_Core_PropertyModel_hpp

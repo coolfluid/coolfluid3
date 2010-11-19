@@ -126,6 +126,6 @@ bool Hexa3DLagrangeP1::is_orientation_inside(const CoordsT& coord, const NodeMat
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace SF
-} // namespace Mesh
-} // namespace CF
+} // SF
+} // Mesh
+} // CF

@@ -24,7 +24,6 @@ namespace CF {
 LibraryRegisterBase::LibraryRegisterBase(const std::string& name) :
 NamedObject(name),
 m_selfRegistry(),
-//m_configRegistry(),
 m_init(false)
 {
   CLibrary::Ptr lib(new CLibrary(name));
@@ -44,13 +43,6 @@ Common::SelfRegistry& LibraryRegisterBase::getSelfRegistry()
 {
   return m_selfRegistry;
 }
-
-////////////////////////////////////////////////////////////////////////////////
-
-//Common::ConfigRegistry& LibraryRegisterBase::getConfigRegistry()
-//{
-//  return m_configRegistry;
-//}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -76,8 +68,7 @@ void LibraryRegisterBase::terminate()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  } // namespace Common
-
-} // namespace CF
+} // Common
+} // CF
 
 ////////////////////////////////////////////////////////////////////////////////

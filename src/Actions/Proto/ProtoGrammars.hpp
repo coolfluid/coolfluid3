@@ -35,8 +35,8 @@ namespace Proto {
 /// For now, we accept anything, since the commented attempt above is incomplete
 struct MeshGrammar : boost::proto::_ {};
 
-} // namespace Proto
-} // namespace Actions
-} // namespace CF
+} // Proto
+} // Actions
+} // CF
 
 #endif // CF_Actions_ProtoGrammars_hpp

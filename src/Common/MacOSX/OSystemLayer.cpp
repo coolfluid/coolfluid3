@@ -199,6 +199,6 @@ int OSystemLayer::handleSIGSEGV(int signal)
 ////////////////////////////////////////////////////////////////////////////////
 
     } // MacOSX
-  } // namespace Common
-} // namespace CF
+  } // Common
+} // CF
 

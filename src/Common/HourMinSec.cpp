@@ -68,7 +68,7 @@ void HourMinSec::set(const CF::Real& total)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  } // namespace Common
+  } // Common
 
-} // namespace CF
+} // CF
 

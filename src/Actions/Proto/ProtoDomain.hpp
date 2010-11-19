@@ -35,8 +35,8 @@ struct MeshExpr : boost::proto::extends<Expr, MeshExpr<Expr>, MeshDomain>
   BOOST_PROTO_EXTENDS_USING_ASSIGN(MeshExpr)
 };
 
-} // namespace Proto
-} // namespace Actions
-} // namespace CF
+} // Proto
+} // Actions
+} // CF
 
 #endif // CF_Actions_ProtoDomain_hpp

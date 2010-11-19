@@ -73,6 +73,6 @@ const CF::Mesh::ElementType& Tetra3DLagrangeP1::face_type(const CF::Uint face) c
 
 
 
-} // namespace SF
-} // namespace Mesh
-} // namespace CF
+} // SF
+} // Mesh
+} // CF

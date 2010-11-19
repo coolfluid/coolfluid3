@@ -787,7 +787,7 @@ namespace FUNCTIONPARSERTYPES
         return value%2 != 0;
     }
 #endif
-} // namespace FUNCTIONPARSERTYPES
+} // FUNCTIONPARSERTYPES
 
 #endif // ONCE_FPARSER_H_
 

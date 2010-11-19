@@ -102,8 +102,8 @@ virtual const CF::Mesh::ElementType& face_type(const CF::Uint face) const;
 
 };
 
-} // namespace SF
-} // namespace Mesh
-} // namespace CF
+} // SF
+} // Mesh
+} // CF
 
 #endif /* CF_Mesh_SF_Point1DLagrangeP1 */

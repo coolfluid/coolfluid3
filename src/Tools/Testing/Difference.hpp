@@ -150,9 +150,9 @@ void vector_test(const Eigen::Matrix<Real, NbRows, NbCols>& A, const Eigen::Matr
   Result.exact(A.rows() == B.rows() && A.cols() == B.cols());
 };
 
-} // namespace Testing
-} // namespace Tools
-} // namespace CF
+} // Testing
+} // Tools
+} // CF
 
 #endif // !CF_Tools_Tests_Difference_hpp
 

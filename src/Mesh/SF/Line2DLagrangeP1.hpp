@@ -121,8 +121,8 @@ struct MESH_SF_API Line2DLagrangeP1  : public Line2D
 
 };
 
-} // namespace SF
-} // namespace Mesh
-} // namespace CF
+} // SF
+} // Mesh
+} // CF
 
 #endif /* CF_Mesh_SF_Line2DLagrangeP1 */

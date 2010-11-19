@@ -27,6 +27,6 @@ ZeroDeterminant::ZeroDeterminant ( const Common::CodeLocation& where, const std:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  } // namespace Math
-} // namespace CF
+  } // Math
+} // CF
 

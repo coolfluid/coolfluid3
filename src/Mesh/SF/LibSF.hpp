@@ -55,18 +55,18 @@ namespace SF {
     /// Gets the Class name
     static std::string type_name() { return "LibSF"; }
 
-    /// Start profiling
+    /// initiate library
     virtual void initiate();
 
-    /// Stop profiling
+    /// terminate library
     virtual void terminate();
   }; // end LibSF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace SF
-} // namespace Mesh
-} // namespace CF
+} // SF
+} // Mesh
+} // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 

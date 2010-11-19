@@ -61,6 +61,6 @@ const CF::Mesh::ElementType& Triag3DLagrangeP1::face_type(const CF::Uint face) c
   return facetype;
 }
 
-} // namespace SF
-} // namespace Mesh
-} // namespace CF
+} // SF
+} // Mesh
+} // CF

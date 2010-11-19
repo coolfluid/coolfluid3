@@ -182,8 +182,8 @@ private:
 
 };
 
-} // namespace SF
-} // namespace Mesh
-} // namespace CF
+} // SF
+} // Mesh
+} // CF
 
 #endif /* CF_Mesh_SF_Quad3DLagrangeP1 */

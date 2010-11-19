@@ -482,7 +482,7 @@ void create_mapped_coords(const Uint segments, BlockData::GradingT::const_iterat
   }
 }
   
-} // namespace detail
+} // detail
 
 void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPattern::IndicesT& nodes_dist)
 {
@@ -1244,6 +1244,6 @@ void create_block_mesh(const BlockData& block_data, CMesh& mesh)
 }
 
 
-} // namespace BlockMesh
-} // namespace Mesh
-} // namespace CF
+} // BlockMesh
+} // Mesh
+} // CF

@@ -170,6 +170,6 @@ void DirPaths::setResultsDir(const std::string& resultsDir)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  } // namespace Common
+  } // Common
 
-} // namespace CF
+} // CF

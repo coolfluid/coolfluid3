@@ -207,8 +207,8 @@ void for_each_node(Mesh::CRegion& region, const Expr& expr)
   }
 }
 
-} // namespace Proto
-} // namespace Actions
-} // namespace CF
+} // Proto
+} // Actions
+} // CF
 
 #endif // CF_Actions_ProtoNodeLooper_hpp

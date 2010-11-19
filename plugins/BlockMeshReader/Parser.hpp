@@ -24,7 +24,7 @@ void BlockMeshReader_API parse_blockmesh_dict(std::istream& file, Mesh::BlockMes
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace BlockMeshReader
-} // namespace CF
+} // BlockMeshReader
+} // CF
 
 #endif /* CF_BlockMeshReader_Parser_hpp */

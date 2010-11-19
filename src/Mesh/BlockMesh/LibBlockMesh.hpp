@@ -55,18 +55,18 @@ public:
   /// Gets the Class name
   static std::string type_name() { return "LibBlockMesh"; }
 
-  /// Start profiling
+  /// initiate library
   virtual void initiate();
 
-  /// Stop profiling
+  /// terminate library
   virtual void terminate();
 }; // end LibBlockMesh
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace BlockMesh
-} // namespace Mesh
-} // namespace CF
+} // BlockMesh
+} // Mesh
+} // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 

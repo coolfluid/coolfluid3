@@ -33,8 +33,8 @@ namespace ClientTest {
 
   //////////////////////////////////////////////////////////////////////////
 
-} // namespace ClientTest
-} // namespace GUI
-} // namespace CF
+} // ClientTest
+} // GUI
+} // CF
 
 #endif // CF_GUI_Client_uTests_NLinkTest_hpp

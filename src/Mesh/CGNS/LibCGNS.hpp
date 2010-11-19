@@ -55,19 +55,19 @@ public:
   /// Gets the Class name
   static std::string type_name() { return "LibCGNS"; }
 
-  /// Start profiling
+  /// initiate library
   virtual void initiate();
 
-  /// Stop profiling
+  /// terminate library
   virtual void terminate();
 
 }; // end LibCGNS
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace CGNS
-} // namespace Mesh
-} // namespace CF
+} // CGNS
+} // Mesh
+} // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 

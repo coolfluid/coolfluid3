@@ -151,5 +151,5 @@ std::ostream& operator<<(std::ostream& os, const SimpleCommunicationPattern& pat
   return os;
 }
 
-} // namespace Mesh
-} // namespace CF
+} // Mesh
+} // CF

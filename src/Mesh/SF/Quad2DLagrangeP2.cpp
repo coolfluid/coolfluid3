@@ -85,6 +85,6 @@ const CF::Mesh::ElementType& Quad2DLagrangeP2::face_type(const CF::Uint face) co
 }
 
 
-} // namespace SF
-} // namespace Mesh
-} // namespace CF
+} // SF
+} // Mesh
+} // CF

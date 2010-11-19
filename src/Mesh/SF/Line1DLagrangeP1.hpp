@@ -119,8 +119,8 @@ inline Real Line1DLagrangeP1::volume(const NodesType& nodes)
 }
 
 
-} // namespace SF
-} // namespace Mesh
-} // namespace CF
+} // SF
+} // Mesh
+} // CF
 
 #endif /* CF_Mesh_SF_Line1DLagrangeP1 */

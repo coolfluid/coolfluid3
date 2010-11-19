@@ -367,8 +367,8 @@ void for_each_element_new(const ExprT& expr)
   }
 };
 
-} // namespace Proto
-} // namespace Actions
-} // namespace CF
+} // Proto
+} // Actions
+} // CF
 
 #endif // CF_Actions_ProtoElementData_hpp
