@@ -49,18 +49,18 @@ void CMeshReader::regist_signals ( CMeshReader* self )
 
 void CMeshReader::define_config_properties(Common::PropertyList& options)
 {
-  std::vector<boost::filesystem::path> dummy;
+  std::vector< URI > dummy;
   Option::Ptr option;
   OptionURI::Ptr option_uri;
 
-  options.add_option< OptionArrayT<boost::filesystem::path> >  ( "Files",  "Files to read" , dummy );
+  options.add_option< OptionArrayT<URI> > ( "Files",  "Files to read" , dummy );
   option = options.add_option<OptionURI> ( "Mesh",  "Mesh to construct" , "" );
-
-  options["Files"].as_option().mark_basic();
-  options["Mesh"].as_option().mark_basic();
 
   option_uri = boost::dynamic_pointer_cast<OptionURI> (option);
   option_uri->supported_protocol("cpath");
+
+  options["Files"].as_option().mark_basic();
+  options["Mesh"].as_option().mark_basic();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -71,9 +71,17 @@ void CMeshReader::read( XmlNode& node  )
   CMesh::Ptr mesh = look_component_type<CMesh>( property("Mesh").value<std::string>() );
 
   // Get the file paths
-  std::vector<boost::filesystem::path> files;
-  BOOST_FOREACH(boost::filesystem::path file, property("Files").value<std::vector<boost::filesystem::path> >())
-    read_from_to(file,mesh);
+  std::vector<URI> files;
+  BOOST_FOREACH(URI file, property("Files").value<std::vector<URI> >())
+  {
+    if(!file.empty() && file.has_protocol("file"))
+    {
+      boost::filesystem::path fpath(file.string());
+      read_from_to(fpath, mesh);
+    }
+    else
+      CFerror << "\"" << file << "\" is not a valid file path." << CFendl;
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -116,17 +124,17 @@ void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
   BOOST_FOREACH(CElements& region, recursive_range_typed<CElements>(parent_region))
   {
     // find the empty regions
-		bool empty_on_this_rank = region.connectivity_table().array().empty();
-		bool empty_on_all_ranks = empty_on_this_rank;
-		if (PE::instance().is_init())
-			empty_on_all_ranks = boost::mpi::all_reduce(PE::instance(), empty_on_this_rank, std::logical_and<bool>());
+    bool empty_on_this_rank = region.connectivity_table().array().empty();
+    bool empty_on_all_ranks = empty_on_this_rank;
+    if (PE::instance().is_init())
+      empty_on_all_ranks = boost::mpi::all_reduce(PE::instance(), empty_on_this_rank, std::logical_and<bool>());
     if ( empty_on_all_ranks )
-		{
-			// no elements in connectivity table --> remove this region
-			//CFinfo << "remove: " << region->full_path().string() << "\n" << CFflush;
-			CElements::Ptr removed = boost::dynamic_pointer_cast<CElements>(region.get_parent()->remove_component(region.name()));
-			removed.reset();
-		}
+    {
+      // no elements in connectivity table --> remove this region
+      //CFinfo << "remove: " << region->full_path().string() << "\n" << CFflush;
+      CElements::Ptr removed = boost::dynamic_pointer_cast<CElements>(region.get_parent()->remove_component(region.name()));
+      removed.reset();
+    }
   }
 
   // loop over regions
@@ -145,7 +153,7 @@ void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
 
 void CMeshReader::collect_from_other_ranks()
 {
-	throw NotImplemented(FromHere(),"");
+  throw NotImplemented(FromHere(),"");
 }
 
 } // Mesh

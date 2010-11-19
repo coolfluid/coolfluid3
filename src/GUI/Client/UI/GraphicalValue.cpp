@@ -21,6 +21,7 @@
 #include "GUI/Client/UI/GraphicalRestrictedList.hpp"
 #include "GUI/Client/UI/GraphicalString.hpp"
 #include "GUI/Client/UI/GraphicalUri.hpp"
+#include "GUI/Client/UI/GraphicalUriArray.hpp"
 #include "GUI/Client/UI/GraphicalUrlArray.hpp"
 
 #include "GUI/Client/UI/GraphicalValue.hpp"
@@ -52,6 +53,10 @@ GraphicalValue * GraphicalValue::createFromOption(CF::Common::Option::ConstPtr o
                                         QWidget * parent)
 {
   GraphicalValue * value = nullptr;
+
+  if(option.get() == nullptr)
+    return value;
+
   std::string tag(option->tag());
 
   if(tag.compare("array") != 0)
@@ -80,35 +85,39 @@ GraphicalValue * GraphicalValue::createFromOption(CF::Common::Option::ConstPtr o
   }
   else
   {
-//    if(option->has_restricted_list())
+    if(option->has_restricted_list())
       value = new GraphicalArrayRestrictedList(option, parent);
-//    else
-//    {
-//      OptionArray::ConstPtr array = boost::dynamic_pointer_cast<OptionArray const>(option);
+    else
+    {
+      OptionArray::ConstPtr array = boost::dynamic_pointer_cast<OptionArray const>(option);
 
-//      tag = array->elem_type();
+      tag = array->elem_type();
 
-//      if(tag.compare(XmlTag<bool>::type()) == 0)               // bool option
-//        value = new GraphicalArray(new QRegExpValidator(QRegExp("(true)|(false)|(1)|(0)"), parent), parent);
-//      else if(tag.compare(XmlTag<CF::Real>::type()) == 0)      // Real option
-//      {
-//        QDoubleValidator * val = new QDoubleValidator(nullptr);
-//        val->setNotation(QDoubleValidator::ScientificNotation);
-//        value = new GraphicalArray(val, parent);
-//      }
-//      else if(tag.compare(XmlTag<int>::type()) == 0)           // int option
-//        value = new GraphicalArray(new QIntValidator(), parent);
-//      else if(tag.compare(XmlTag<CF::Uint>::type()) == 0)      // Uint option
-//        value = new GraphicalArray(new QIntValidator(0, INT_MAX, parent), parent);
-//      else if(tag.compare(XmlTag<std::string>::type()) == 0)   // string option
-//        value = new GraphicalArray(nullptr, parent);
-//      else if(tag.compare(XmlTag<URI>::type()) == 0)           // URI option
-//        throw CastingFailed(FromHere(), tag + ": This type is not supported yet for arrays");
-//      //    else if(tag.compare(XmlTag<boost::filesystem::path>::type()) == 0)           // path option
-//      //      value = new GraphicalUrlArray() GraphicalUrlArray(parent);
-//      else
-//        throw CastingFailed(FromHere(), tag + ": Unknown type");
-//    }
+      if(tag.compare(XmlTag<bool>::type()) == 0)               // bool option
+        value = new GraphicalArray(new QRegExpValidator(QRegExp("(true)|(false)|(1)|(0)"), parent), parent);
+      else if(tag.compare(XmlTag<CF::Real>::type()) == 0)      // Real option
+      {
+        QDoubleValidator * val = new QDoubleValidator(nullptr);
+        val->setNotation(QDoubleValidator::ScientificNotation);
+        value = new GraphicalArray(val, parent);
+      }
+      else if(tag.compare(XmlTag<int>::type()) == 0)           // int option
+        value = new GraphicalArray(new QIntValidator(), parent);
+      else if(tag.compare(XmlTag<CF::Uint>::type()) == 0)      // Uint option
+        value = new GraphicalArray(new QIntValidator(0, INT_MAX, parent), parent);
+      else if(tag.compare(XmlTag<std::string>::type()) == 0)   // string option
+        value = new GraphicalArray(nullptr, parent);
+      else if(tag.compare(XmlTag<URI>::type()) == 0)           // URI option
+      {
+        std::string value_str = array->value_str();
+
+        value = new GraphicalUriArray(parent);
+
+        value->setValue( QString(value_str.c_str()).split("_") );
+      }
+      else
+        throw CastingFailed(FromHere(), tag + ": Unknown type");
+    }
   }
   return value;
 }
@@ -121,7 +130,7 @@ QString GraphicalValue::valueString() const
   QVariant value = this->value();
 
   if(value.type() == QVariant::StringList)
-    return value.toStringList().join(":");
+    return value.toStringList().join("_");
 
   return value.toString();
 }
@@ -140,7 +149,7 @@ QVariant GraphicalValue::originalValue() const
 QString GraphicalValue::originalValueString() const
 {
   if(m_originalValue.type() == QVariant::StringList)
-    return m_originalValue.toStringList().join(":");
+    return m_originalValue.toStringList().join("_");
 
   return m_originalValue.toString();
 }

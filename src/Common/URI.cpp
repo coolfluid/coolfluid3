@@ -57,7 +57,7 @@ URI& URI::operator/= (const std::string& s)
 
   return *this;
 }
-  
+
 URI& URI::operator/= ( const char* c )
 {
   std::string s(c);
@@ -99,6 +99,41 @@ const std::string& URI::separator ()
 {
   static std::string sep ( "/" );
   return sep;
+}
+
+bool URI::has_protocol(const std::string & protocol) const
+{
+  bool has_it = !protocol.empty();
+
+  if(!has_it)
+  {
+    size_t colon_pos = m_path.find_first_of(':');
+
+    has_it = colon_pos != std::string::npos && m_path.substr(0, colon_pos) == protocol;
+  }
+
+  return has_it;
+}
+
+std::string URI::protocol() const
+{
+  size_t colon_pos = m_path.find_first_of(':');
+
+  if(colon_pos != std::string::npos)
+    return m_path.substr(0, colon_pos);
+
+  return std::string();
+}
+
+std::string URI::string_without_protocol() const
+{
+  size_t colon_pos = m_path.find_first_of(':');
+  return m_path.substr(colon_pos + 1, m_path.length() - colon_pos - 1);
+}
+
+std::string URI::string() const
+{
+  return m_path;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

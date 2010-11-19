@@ -59,8 +59,10 @@ void OptionArrayT<TYPE>::configure ( XmlNode& node )
 
   for (XmlNode * itr = node.first_node(); itr ; itr = itr->next_sibling() )
   {
+    CFinfo << *itr->name() << " " << itr->value() << " from ----> " << to_value<TYPE>(*itr) << CFendl;
     val.push_back(to_value<TYPE>(*itr));
   }
+
 
   XmlAttr *size_attr = node.first_attribute( "size" );
   if ( !size_attr )
@@ -72,6 +74,7 @@ void OptionArrayT<TYPE>::configure ( XmlNode& node )
     throw ParsingFailed (FromHere(), "OptionArray \'size\' did not match number of entries" );
 
   m_value = val;
+
   copy_to_linked_params(val);
 }
 
@@ -106,11 +109,11 @@ std::string OptionArrayT<TYPE>::dump_to_str ( const boost::any& c ) const
   BOOST_FOREACH ( TYPE v, values )
   {
     result += from_value ( v );
-    result += ":";
+    result += "_";
   }
 
 
-  if ( !result.empty() ) // remove last ":"
+  if ( !result.empty() ) // remove last "_"
     result.erase(result.size()-1);
 
   return result;

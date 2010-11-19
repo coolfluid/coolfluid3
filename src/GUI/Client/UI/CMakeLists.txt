@@ -19,6 +19,7 @@ list( APPEND coolfluid_client_ui_moc_classes
   GraphicalRestrictedList.hpp
   GraphicalString.hpp
   GraphicalUri.hpp
+  GraphicalUriArray.hpp
   GraphicalUrlArray.hpp
   GraphicalValue.hpp
   LoggingList.hpp
@@ -70,6 +71,8 @@ list( APPEND coolfluid_client_ui_files
   GraphicalString.cpp
   GraphicalUri.cpp
   GraphicalUri.hpp
+  GraphicalUriArray.cpp
+  GraphicalUriArray.hpp
   GraphicalUrlArray.cpp
   GraphicalUrlArray.hpp
   GraphicalValue.cpp

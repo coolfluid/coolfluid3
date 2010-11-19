@@ -14,7 +14,7 @@
 
 namespace CF {
 namespace Common {
-  
+
   using namespace String;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -40,7 +40,7 @@ Common_API const char * XmlTag<boost::filesystem::path>::type() { return "file";
 template<>
 Common_API const char * XmlTag<URI>::type() { return "uri"; }
 
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 template <>
@@ -154,23 +154,23 @@ Common_API URI to_value<URI> (XmlBase& node)
 {
   return from_str<URI>(node.value());
 }
-  
+
 ////////////////////////////////////////////////////////////////////////////////
-  
-  
+
+
 /// @todo Temporary, should GO!!!
 template <>
 Common_API boost::filesystem::path to_value<boost::filesystem::path> (XmlBase& node)
 {
   return boost::filesystem::path(node.value());
 }
-  
+
 template <>
 Common_API void to_value<boost::filesystem::path> (XmlBase& node, boost::filesystem::path& val)
 {
   val = boost::filesystem::path(node.value());
 }
-  
+
 template <>
 Common_API std::string from_value<boost::filesystem::path> (const boost::filesystem::path& val)
 {

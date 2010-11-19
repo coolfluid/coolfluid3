@@ -92,7 +92,7 @@ bool GraphicalArray::setValue(const QVariant & value)
       invalidValues << valueStr;
     else
     {
-      list = value.toString().split(":");
+      list = value.toString().split("_");
       list.removeAll(QString());
       m_originalValue = list;
       m_model->setStringList(list);

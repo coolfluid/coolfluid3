@@ -651,8 +651,8 @@ void Component::list_properties( XmlNode& node )
         add_array_to_xml< CF::Uint >(p, name, optArray);
       else if(strcmp(elem_type, "real") == 0 || strcmp(elem_type, "double") == 0)
         add_array_to_xml< CF::Real >(p, name, optArray);
-      else if(strcmp(elem_type, "file") == 0)
-        add_array_to_xml< boost::filesystem::path >(p, name, optArray);
+      else if(strcmp(elem_type, "uri") == 0)
+        add_array_to_xml< URI >(p, name, optArray);
       else
         throw ShouldNotBeHere(FromHere(),
              std::string("Don't know how the manage OptionArrayT<") +

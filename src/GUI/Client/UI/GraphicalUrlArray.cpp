@@ -75,7 +75,7 @@ bool GraphicalUrlArray::setValue(const QVariant & value)
   }
   else if(value.type() == QVariant::String)
   {
-    QStringList list = value.toString().split(":");
+    QStringList list = value.toString().split("_");
     list.removeAll(QString());
     m_originalValue = list;
     m_model->setStringList(list);

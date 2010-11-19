@@ -34,9 +34,9 @@ boost::shared_ptr<OptionArrayT<type> > array;\
 array = boost::dynamic_pointer_cast<OptionArrayT<type> >(array);\
         \
 for( ; itList != list.end() ; itList++)\
-  data.push_back(itList->toStdString());\
-  \
-p.add_array(it.key().toStdString(), data);\
+ data.push_back( from_str<type>(itList->toStdString()) );\
+\
+ p.add_array(it.key().toStdString(), data);\
 }
 
 
@@ -265,15 +265,15 @@ void CNode::modifyOptions(const QMap<QString, QString> & options)
           p.add_option(name, value.toDouble());
         else if(prop->type() == "string")
           p.add_option(name, value.toStdString());
-        else if(prop->type() == "file")
-          p.add_option(name, boost::filesystem::path(value.toStdString()));
+        else if(prop->type() == "uri")
+          p.add_option(name, URI(value.toStdString()));
         else
           throw ValueNotFound(FromHere(), prop->type() + ": Unknown type for option " + name );
       }
       else if( prop != nullptr && !strcmp ( prop->tag() , "array" ))
       {
         OptionArray * optArray;
-        QStringList list = it.value().split(":");
+        QStringList list = it.value().split("_");
         QStringList::iterator itList = list.begin();
 
         optArray = static_cast<OptionArray*>(prop);
@@ -282,8 +282,40 @@ void CNode::modifyOptions(const QMap<QString, QString> & options)
 
         const char * elemType = optArray->elem_type();
 
-        if(std::strcmp(elemType, "file") == 0)
-          ADD_ARRAY_TO_XML(boost::filesystem::path)
+        if(std::strcmp(elemType, "bool") == 0)
+          ADD_ARRAY_TO_XML(bool)
+        else if(std::strcmp(elemType, "integer") == 0)
+          ADD_ARRAY_TO_XML(int)
+        else if(std::strcmp(elemType, "unsigned") == 0)
+          ADD_ARRAY_TO_XML(CF::Uint)
+        else if(std::strcmp(elemType, "real") == 0)
+          ADD_ARRAY_TO_XML(CF::Real)
+        else if(std::strcmp(elemType, "string") == 0)
+        {
+          std::vector<std::string> data;
+          boost::shared_ptr<OptionArrayT<std::string> > array;
+
+          array = boost::dynamic_pointer_cast<OptionArrayT<std::string> >(array);
+
+          for( ; itList != list.end() ; itList++)
+            data.push_back( itList->toStdString() );
+
+          p.add_array(it.key().toStdString(), data);
+        }
+        else if(std::strcmp(elemType, "uri") == 0)
+        {
+          std::vector<URI> data;
+          boost::shared_ptr<OptionArrayT<URI> > array;
+
+          array = boost::dynamic_pointer_cast<OptionArrayT<URI> >(array);
+
+          for( ; itList != list.end() ; itList++)
+          {
+            data.push_back( URI(itList->toStdString()) );
+          }
+
+          p.add_array(it.key().toStdString(), data);
+        }
         else
           throw ValueNotFound(FromHere(), std::string(elemType) + ": Unknown type for option array " + optArray->name());
       }
@@ -555,9 +587,10 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, CPath> & lin
   else
     rootNode = boost::shared_ptr<NGeneric>(new NGeneric(nodeName, typeName));
 
-
   if(modeAttr != nullptr && std::strcmp(modeAttr->value(), "basic") == 0)
     rootNode->mark_basic();
+
+  ClientRoot::log()->addMessage(nodeName);
 
   while(child != nullptr)
   {
@@ -669,8 +702,8 @@ Option::Ptr CNode::makeOption(const CF::Common::XmlNode & node)
           option = CNode::makeOptionArrayT<CF::Real>(keyVal, descrVal, node);
         else if(std::strcmp(typeVal, "string") == 0)
           option = CNode::makeOptionArrayT<std::string>(keyVal, descrVal, node);
-        else if(std::strcmp(typeVal, "file") == 0)
-          option = CNode::makeOptionArrayT<boost::filesystem::path>(keyVal, descrVal, node);
+        else if(std::strcmp(typeVal, "uri") == 0)
+          option = CNode::makeOptionArrayT<URI>(keyVal, descrVal, node);
         else
           throw ShouldNotBeHere(FromHere(), std::string(typeVal) + ": Unknown array type");
       }

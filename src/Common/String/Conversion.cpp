@@ -27,31 +27,31 @@ namespace String {
   /// Typical use is to convert to numbers.
   /// @param str string to convert from
   /// @return converter type
-  
+
   template <>
   Common_API std::string to_str<bool> (const bool & v)
   {
     return v ? "true" : "false";
   }
-  
+
   template <>
   Common_API std::string to_str<int> (const int & v)
   {
     return boost::lexical_cast<std::string>(v);
   }
-  
+
   template <>
   Common_API std::string to_str<unsigned long> (const unsigned long & v)
   {
     return boost::lexical_cast<std::string>(v);
   }
-  
+
   template <>
   Common_API std::string to_str<Uint> (const Uint & v)
   {
     return boost::lexical_cast<std::string>(v);
   }
-  
+
   template <>
   Common_API std::string to_str<Real> (const Real & v)
   {
@@ -65,9 +65,9 @@ namespace String {
   {
     return v.string();
   }
-  
+
   ////////////////////////////////////////////////////////////////////////////////
-  
+
   /// Converts from std::string
   /// Don't use this to convert to a char, use c_str for that.
   /// Typical use is to convert to numbers.
@@ -97,7 +97,7 @@ namespace String {
       throw ParsingFailed (FromHere(), "Incorrect option conversion to bool of string [" + str + "]" );
     return true;
   }
-  
+
   template <>
   Common_API int from_str<int> (const std::string& str)
   {
@@ -109,7 +109,7 @@ namespace String {
   {
     return boost::lexical_cast<unsigned long> ( str );
   }
-  
+
   template <>
   Common_API Uint from_str<Uint> (const std::string& str)
   {

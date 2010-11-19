@@ -80,7 +80,7 @@ namespace Common {
     bool empty() const { return m_path.empty(); }
 
     /// @return the path as a string
-    std::string string() const { return m_path; }
+    std::string string() const;
 
     /// @return the base path
     URI base_path() const;
@@ -88,19 +88,34 @@ namespace Common {
     /// separator for path tokens
     static const std::string& separator ();
 
+    /// Checks whether the specified protocol is present in this URI.
+    /// @param protocol The protocol to check
+    /// @return Returns @c true if the protocol is present or if it is empty.
+    /// Otherwise, returns @c false.
+    bool has_protocol(const std::string & protocol) const;
+
+    /// Gives the protocol (if any).
+    /// @return Returns the protocol. May return an empty string if there is no
+    /// protocol.
+    std::string protocol() const;
+
+    /// Gives the string value without the protocol
+    /// @return Returns the string without the protocol
+    std::string string_without_protocol() const;
+
     /// Overloading of the stream operator "<<" for the output.
     /// No "\n"ine introduced.
-    /// @param [in] out the out stream 
+    /// @param [in] out the out stream
     /// @param [in] path the path to output
     /// @return the out stream
     friend std::ostream& operator<< (std::ostream& out, const URI& path);
-    
+
     /// Overloading of the stream operator ">>" for the input
     /// @param [in] in the in stream
     /// @param [out] path the path to read
     /// @return the in stream
     friend std::istream& operator>> (std::istream& in, URI& path);
-    
+
   private:
 
     /// path string
