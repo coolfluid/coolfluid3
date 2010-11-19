@@ -66,25 +66,28 @@ void ScalarAdvection::run_wizard ( Common::XmlNode& node )
 //  // access the CModel
 //  CModel::Ptr model = look_component_type<CModel>( property("Model").value<std::string>() );
 
-  CModel::Ptr model =
-    Core::instance().root()->create_component_type<CModel>("ScalarAdvection");
+  CModel::Ptr model = Core::instance().root()->create_component_type<CModel>("ScalarAdvection");
+  model->mark_basic();
 
-  // set the CDomain
-  // CDomain::Ptr domain =
-      model->create_component_type<CDomain>("Domain")->mark_basic();;
+  // create the CDomain
+  CDomain::Ptr domain = model->create_component_type<CDomain>("Domain");
+  domain->mark_basic();
 
-  // setup the Physical Model
+  // create the Physical Model
   CPhysicalModel::Ptr pm = model->create_component_type<CPhysicalModel>("Physics");
+  pm->mark_basic();
 
   pm->configure_property( "DOFs", 1u );
   pm->configure_property( "Dimensions", 2u );
 
   // setup discretization method
   CDiscretization::Ptr cdm = create_component_abstract_type<CDiscretization>("ResidualDistribution", "Discretization");
+  cdm->mark_basic();
   model->add_component( cdm );
 
   // setup iterative solver
   CIterativeSolver::Ptr solver = create_component_abstract_type<CIterativeSolver>("ForwardEuler", "IterativeSolver");
+  solver->mark_basic();
   model->add_component( solver );
 
 //  CMeshReader::Ptr mesh_reader = create_component_abstract_type<CMeshReader>( "Neu", "NeutralReader" );
@@ -92,11 +95,6 @@ void ScalarAdvection::run_wizard ( Common::XmlNode& node )
 //  mesh_reader->mark_basic();
 //  model->add_component( mesh_reader );
 
-  // mark the new components as basic
-  model->mark_basic();
-  pm->mark_basic();
-  cdm->mark_basic();
-  solver->mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
