@@ -627,8 +627,8 @@ void Component::list_properties( XmlNode& node )
         add_prop_to_xml<CF::Real>(p, name, prop);
       else if(type == "uri")
         add_prop_to_xml<URI>(p, name, prop);
-      else if(type == "file")
-        add_prop_to_xml<boost::filesystem::path>(p, name, prop);
+//      else if(type == "file")
+//        add_prop_to_xml<boost::filesystem::path>(p, name, prop);
       else
         throw ShouldNotBeHere(FromHere(),
              std::string("Don't know how the manage \"") + type + "\" type.");

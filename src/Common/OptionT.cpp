@@ -70,7 +70,6 @@ Common_TEMPLATE template class OptionT< std::string >;
 Common_TEMPLATE template class OptionT< CF::Uint >;
 Common_TEMPLATE template class OptionT< CF::Real >;
 Common_TEMPLATE template class OptionT< CF::Common::URI >;
-Common_TEMPLATE template class OptionT< boost::filesystem::path >;
 
 ////////////////////////////////////////////////////////////////////////////////
 

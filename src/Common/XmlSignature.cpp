@@ -103,8 +103,6 @@ bool XmlSignature::validate(const XmlNode & node) const
         valid = XmlParams::check_value_in<CF::Real>(node, name);
       else if(type == "string")
         valid = XmlParams::check_value_in<std::string>(node, name);
-      else if(type == "file")
-        valid = XmlParams::check_value_in<boost::filesystem::path>(node, name);
       else if(type == "uri")
         valid = XmlParams::check_value_in<URI>(node, name);
     }
@@ -122,8 +120,6 @@ bool XmlSignature::validate(const XmlNode & node) const
         valid = XmlParams::check_array_in<CF::Real>(node, name);
       else if(type == "string")
         valid = XmlParams::check_array_in<std::string>(node, name);
-      else if(type == "file")
-        valid = XmlParams::check_array_in<boost::filesystem::path>(node, name);
       else if(type == "uri")
         valid = XmlParams::check_array_in<URI>(node, name);
     }

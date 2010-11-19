@@ -135,7 +135,6 @@ Common_TEMPLATE template class OptionArrayT< std::string >;
 Common_TEMPLATE template class OptionArrayT< CF::Uint >;
 Common_TEMPLATE template class OptionArrayT< CF::Real >;
 Common_TEMPLATE template class OptionArrayT< CF::Common::URI >;
-Common_TEMPLATE template class OptionArrayT< boost::filesystem::path >;
 
 ////////////////////////////////////////////////////////////////////////////////
 
