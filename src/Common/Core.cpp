@@ -4,24 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <fstream>
-
-#ifdef CF_HAVE_CONFIG_H
-  #include "coolfluid_config.h"
-#endif
-
-#include "coolfluid_svnversion.h"
-
 #include "Common/MPI/PE.hpp"
 
 #include "Common/EventHandler.hpp"
-#include "Common/Log.hpp"
 #include "Common/OSystem.hpp"
 #include "Common/CGroup.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/CEnv.hpp"
 
-#include "Common/DirPaths.hpp"
+#include "Common/BuildInfo.hpp"
 #include "Common/LibraryRegistry.hpp"
 #include "Common/FactoryRegistry.hpp"
 #include "Common/LibraryRegisterBase.hpp"
@@ -31,7 +22,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-  namespace Common {
+namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -53,7 +44,8 @@ CRoot::Ptr Core::root()
 Core::Core() :
   m_event_handler(new Common::EventHandler()),
   m_module_registry(new Common::LibraryRegistry()),
-  m_factory_registry(new Common::FactoryRegistry())
+  m_factory_registry(new Common::FactoryRegistry()),
+  m_build_info(new Common::BuildInfo())
 {
   m_root = CRoot::create("Root");
 
@@ -64,146 +56,31 @@ Core::Core() :
   m_root->create_component_type<CGroup>("Tools")->mark_basic();
 
   m_root->mark_basic(); // root should always be basic
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Core::setup()
-{
-  SetupObject::setup();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void Core::unsetup()
-{
-  SetupObject::unsetup();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-std::string Core::getBuildType () const
-{
-  return CF_BUILD_TYPE;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-std::string Core::getSvnVersion () const
-{
-  return CF_SVNVERSION;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-std::string Core::getReleaseVersion () const
-{
-  return CF_VERSION_STR;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-std::string Core::getKernelVersion () const
-{
-  return CF_KERNEL_VERSION_STR;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-std::string Core::getBuildProcessor () const
-{
-  return CF_BUILD_PROCESSOR;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-std::string Core::getBuildSystem () const
-{
-  std::string ret;
-#ifdef CF_CMAKE_VERSION
-  ret += "CMake ";
-  ret += CF_CMAKE_VERSION;
-#else
-  ret += "UNKNOWN";
-#endif
-  return ret;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-std::string Core::getSystemName() const
-{
-  return CF_OS_NAME;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-std::string Core::getLongSystemName() const
-{
-  return CF_OS_LONGNAME;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-std::string Core::getSystemVersion() const
-{
-  return CF_OS_VERSION;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-std::string Core::getSystemBits() const
-{
-  return CF_OS_BITS;
-}
-////////////////////////////////////////////////////////////////////////////////
-
-std::string Core::getVersionHeader() const
-{
-  std::ostringstream out;
-
-  out << "Release      : " << getReleaseVersion() << "\n";
-  out << "Kernel       : " << getKernelVersion()  << "\n";
-  out << "Build System : " << getBuildSystem()    << "\n";
-  out << "Build Type   : " << getBuildType()      << "\n";
-  out << "Build OS     : " << getLongSystemName() << " [" << getSystemBits() << "bits]\n";
-  out << "Build CPU    : " << getBuildProcessor() << "\n";
-
-  return out.str();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-Core::~Core()
-{
-  delete m_module_registry;     m_module_registry = nullptr;
-  delete m_factory_registry;    m_factory_registry = nullptr;
-
-/// @todo should be done like this and these classes probably
-///       should be nested and private inside this class
-//   delete_ptr(m_LibraryRegistry);
-//   delete_ptr(m_factoryRegistry);
-}
+Core::~Core() {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void Core::initiate ( int argc, char** argv )
 {
-  PE::instance().init(argc,argv); // this might modify argc and argv
+  if ( !PE::instance().is_init() )
+    PE::instance().init(argc,argv); // this might modify argc and argv
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void Core::terminate()
 {
-//  CFinfo << "Terminating Hook Modules ...\n" << CFflush;
-  PE::instance().finalize();
+  if ( PE::instance().is_init() )
+    PE::instance().finalize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::SafePtr<Common::LibraryRegistry> Core::getLibraryRegistry()
+boost::weak_ptr< Common::LibraryRegistry > Core::library_registry()
 {
   cf_assert(m_module_registry != nullptr);
   return m_module_registry;
@@ -211,7 +88,7 @@ Common::SafePtr<Common::LibraryRegistry> Core::getLibraryRegistry()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::SafePtr<Common::FactoryRegistry> Core::getFactoryRegistry()
+boost::weak_ptr< Common::FactoryRegistry > Core::factory_registry()
 {
   cf_assert(m_factory_registry != nullptr);
   return m_factory_registry;
@@ -219,10 +96,18 @@ Common::SafePtr<Common::FactoryRegistry> Core::getFactoryRegistry()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::SafePtr<Common::EventHandler> Core::getEventHandler()
+boost::weak_ptr< Common::EventHandler > Core::event_handler()
 {
-  cf_assert(m_event_handler.isNotNull());
-  return m_event_handler.getPtr();
+  cf_assert(m_event_handler != nullptr);
+  return m_event_handler;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+boost::weak_ptr< Common::BuildInfo > Core::build_info()
+{
+  cf_assert(m_build_info != nullptr);
+  return m_build_info;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

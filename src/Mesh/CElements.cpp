@@ -62,7 +62,7 @@ void CElements::initialize(const std::string& element_type_name, CArray& coords_
 void CElements::set_element_type(const std::string& etype_name)
 {
   Common::SafePtr< ElementType::PROVIDER > prov =
-      Factory<ElementType>::instance().getProvider( etype_name );
+      Factory<ElementType>::instance().get_provider( etype_name );
 
   m_element_type = prov->create();
 }

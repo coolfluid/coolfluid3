@@ -14,8 +14,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-
-  namespace Common {
+namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -31,7 +30,7 @@ public: // methods
   /// Returns the description of the module.
   /// Must be implemented by the LibraryRegister
   /// @return descripton of the module
-  virtual std::string getDescription() const;
+  virtual std::string description() const;
 
 protected: // methods
 
@@ -70,7 +69,7 @@ LibraryRegister<MODULE>::~LibraryRegister()
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename MODULE >
-std::string LibraryRegister<MODULE>::getDescription() const
+std::string LibraryRegister<MODULE>::description() const
 {
   return MODULE::library_description();
 }

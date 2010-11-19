@@ -39,7 +39,7 @@ int main(int argc, char * argv[])
   typedef std::pair<std::string,std::string> transformers_description_t;
   std::map<std::string,std::string> transformers_description;
     
-  std::vector<CMeshReader::PROVIDER*> allmeshreaders = Factory<CMeshReader>::instance().getAllConcreteProviders();
+  std::vector<CMeshReader::PROVIDER*> allmeshreaders = Factory<CMeshReader>::instance().get_all_concrete_providers();
   BOOST_FOREACH(CMeshReader::PROVIDER* prov, allmeshreaders)
   {
     CMeshReader::Ptr reader = dynamic_pointer_cast<CMeshReader>(prov->create("reader"));
@@ -48,7 +48,7 @@ int main(int argc, char * argv[])
     extensions_to_readers[extension].push_back(reader);
   }
   
-  std::vector<CMeshWriter::PROVIDER*> allmeshwriters = Factory<CMeshWriter>::instance().getAllConcreteProviders();
+  std::vector<CMeshWriter::PROVIDER*> allmeshwriters = Factory<CMeshWriter>::instance().get_all_concrete_providers();
   BOOST_FOREACH(CMeshWriter::PROVIDER* prov, allmeshwriters)
   {
     CMeshWriter::Ptr writer = dynamic_pointer_cast<CMeshWriter>(prov->create("writer"));
@@ -57,11 +57,11 @@ int main(int argc, char * argv[])
     extensions_to_writers[extension].push_back(writer);
   }
   
-  std::vector<CMeshTransformer::PROVIDER*> allmeshtransformers = Factory<CMeshTransformer>::instance().getAllConcreteProviders();
+  std::vector<CMeshTransformer::PROVIDER*> allmeshtransformers = Factory<CMeshTransformer>::instance().get_all_concrete_providers();
   BOOST_FOREACH(CMeshTransformer::PROVIDER* prov, allmeshtransformers)
   {
     CMeshTransformer::Ptr transformer = dynamic_pointer_cast<CMeshTransformer>(prov->create("transformer"));
-    transformers_description[prov->getProviderName()] = transformer->brief_description();
+    transformers_description[prov->provider_name()] = transformer->brief_description();
   }
   
   options_description desc("General Options");
@@ -150,7 +150,7 @@ int main(int argc, char * argv[])
   
   if (vm.count("version"))
   {
-    CFinfo << Core::instance().getVersionHeader () << "\n"; 
+    CFinfo << Core::instance().version_header () << "\n"; 
   }
   
   // create mesh object

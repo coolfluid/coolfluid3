@@ -7,6 +7,8 @@ list( APPEND coolfluid_common_files
     BasicExceptions.hpp
     BoostIostreams.hpp
     BoostArray.hpp
+    BuildInfo.hpp
+    BuildInfo.cpp
     CF.hpp
     CodeLocation.cpp
     CodeLocation.hpp
@@ -93,16 +95,12 @@ list( APPEND coolfluid_common_files
     ConfigObject.cpp
     OSystem.cpp
     OSystem.hpp
-    OwnedObject.hpp
     OSystemLayer.cpp
     OSystemLayer.hpp
     Provider.hpp
     ProviderBase.cpp
     ProviderBase.hpp
     SafePtr.hpp
-    SharedPtr.hpp
-    SetupObject.hpp
-    SetupObject.cpp
     SelfRegistry.cpp
     SelfRegistry.hpp
     Stopwatch.hpp

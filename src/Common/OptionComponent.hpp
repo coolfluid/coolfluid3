@@ -66,7 +66,7 @@ namespace Common {
     if (def_name!="")
     {
       Common::SafePtr< typename BASETYPE::PROVIDER > prov =
-          Common::Factory<BASETYPE>::instance().getProvider( def_name );
+          Common::Factory<BASETYPE>::instance().get_provider( def_name );
       m_component = boost::dynamic_pointer_cast<BASETYPE>( prov->create(name) );
       m_value = m_component;
     }
@@ -100,7 +100,7 @@ namespace Common {
     m_component.reset();                       // delete previous pointee
 
     Common::SafePtr< typename BASETYPE::PROVIDER > prov =
-        Common::Factory<BASETYPE>::instance().getProvider( ctype );
+        Common::Factory<BASETYPE>::instance().get_provider( ctype );
     m_component = boost::dynamic_pointer_cast<BASETYPE>( prov->create(name) );
     m_value = m_component;
   }

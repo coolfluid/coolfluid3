@@ -469,9 +469,9 @@ void Component::create_component ( XmlNode& node  )
 
 
   SafePtr< FactoryBase > factory =
-      Core::instance().getFactoryRegistry()->getFactory(atype);
+      Core::instance().factory_registry().lock()->getFactory(atype);
 
-  SafePtr< ProviderBase > prov = factory->getProviderBase(ctype);
+  SafePtr< ProviderBase > prov = factory->get_provider_base(ctype);
 
   /// @todo finish implementation of create_component:
   ///      * how to create a Component without specifying the type?

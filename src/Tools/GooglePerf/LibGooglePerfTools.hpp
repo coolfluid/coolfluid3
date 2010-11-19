@@ -9,7 +9,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/OwnedObject.hpp"
 #include "Common/ConcreteProvider.hpp"
 #include "Common/LibraryRegister.hpp"
 

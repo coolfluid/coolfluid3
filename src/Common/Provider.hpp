@@ -46,10 +46,10 @@ public: // methods
   virtual ~Provider() {}
 
   /// @return the name of this provider
-  virtual std::string getProviderName () const { return getName(); }
+  virtual std::string provider_name () const { return getName(); }
 
   /// @return the BASE of this provider
-  virtual std::string getProviderType () const { return BASE::type_name(); }
+  virtual std::string provider_type () const { return BASE::type_name(); }
 
 }; // end of class Provider
 

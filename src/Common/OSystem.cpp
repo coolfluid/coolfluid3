@@ -123,7 +123,7 @@ void OSystem::executeCommand(const std::string& call)
 
 void OSystem::set_profiler(const std::string & profiler_name)
 {
-  m_profiler = Factory<CodeProfiler>::instance().getProvider(profiler_name)->create();
+  m_profiler = Factory<CodeProfiler>::instance().get_provider(profiler_name)->create();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -45,7 +45,7 @@ public: // methods
   /// Returns the description of the module.
   /// Must be implemented by the LibraryRegister
   /// @return descripton of the module
-  virtual std::string getDescription() const = 0;
+  virtual std::string description() const = 0;
 
   /// If needed initiates the module environment
   /// By default does nothing, it is meant to be overriden by the concrete classes

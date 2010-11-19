@@ -10,7 +10,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/SignalHandler.hpp"
-#include "Common/OwnedObject.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -22,7 +21,6 @@ namespace Common {
 /// Global Event Handler class
 /// @author Tiago Quintino
 class Common_API EventHandler :
-    public Common::OwnedObject,
     public Common::SignalHandler,
     public boost::noncopyable
 {

@@ -17,7 +17,7 @@ namespace Common {
 
 void FactoryRegistry::regist(Common::FactoryBase* factory)
 {
-  const std::string type_name = factory->getTypeName();
+  const std::string type_name = factory->factory_type_name();
   if ( ! m_store.checkEntry(type_name) )
   {
     m_store.addEntry(type_name, factory);
@@ -25,7 +25,7 @@ void FactoryRegistry::regist(Common::FactoryBase* factory)
   }
   else
   {
-    CFLogWarn("Factory " + factory->getTypeName() + " already registered : skipping registration\n");
+    CFLogWarn("Factory " + factory->factory_type_name() + " already registered : skipping registration\n");
   }
 }
 

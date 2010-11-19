@@ -9,7 +9,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "boost/checked_delete.hpp"
 #include <boost/shared_ptr.hpp>
 
 #include "Common/CF.hpp"
@@ -17,8 +16,6 @@
 
 #include "Common/LibraryRegistry.hpp"
 #include "Common/SafePtr.hpp"
-#include "Common/SetupObject.hpp"
-#include "Common/SharedPtr.hpp"
 
 #include "Common/CommonAPI.hpp"
 
@@ -29,27 +26,15 @@ namespace Common {
 
   class EventHandler;
   class FactoryRegistry;
+  class BuildInfo;
   class CRoot;
-
-////////////////////////////////////////////////////////////////////////////////
-
-/// @brief Struct to force library registration
-/// @author Quentin Gasper
-template< typename LIB >
-struct ForceLibRegist
-{
-  /// @brief Registers the library LIB in the registry.
-  ForceLibRegist();
-};
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// This class represents a singleton object where
 /// which is used to initialize the CF runtime environment.
 /// @author Tiago Quintino
-class Common_API  Core :
-    public boost::noncopyable,
-    public Common::SetupObject {
+class Common_API  Core : public boost::noncopyable {
 
 public: // methods
 
@@ -59,13 +44,6 @@ public: // methods
   /// @brief Gives the root component.
   /// @return Returns the root component.
   boost::shared_ptr<CRoot> root();
-
-  /// Setup the environment
-  /// @pre called after configure
-  virtual void setup();
-  /// Unsetup the object
-  /// @pre called after setup
-  virtual void unsetup();
 
   /// Initializes the CF runtime enviroment.
   /// @pre Must be called prior to any CF runtime function,
@@ -81,43 +59,19 @@ public: // methods
 
   /// Gets the LibraryRegistry
   /// @note Does not need to be initialized before
-  Common::SafePtr<Common::LibraryRegistry> getLibraryRegistry();
+  boost::weak_ptr<Common::LibraryRegistry> library_registry();
 
   /// Gets the FactoryRegistry
   /// @note Does not need to be initialized before
-  Common::SafePtr<Common::FactoryRegistry> getFactoryRegistry();
+  boost::weak_ptr<Common::FactoryRegistry> factory_registry();
 
   /// Gets the EventHandler of the CF runtime environment
   /// @note Does not need to be initialized before
-  Common::SafePtr<Common::EventHandler> getEventHandler();
+  boost::weak_ptr<Common::EventHandler> event_handler();
 
-  /// Return the subversion version string of this build
-  std::string getVersionHeader() const;
-  /// Return the subversion version string of this build
-  std::string getSvnVersion() const;
-  /// Return the CF version string
-  std::string getReleaseVersion() const;
-  /// Return the CF Kernel version string
-  std::string getKernelVersion() const;
-  /// Return the CF build type
-  std::string getBuildType() const;
-  /// Return the CMake version
-  std::string getBuildSystem() const;
-  /// Return the build processor
-  std::string getBuildProcessor() const;
-  /// OS short name. Examples: "Linux" or "Windows"
-  /// @return string with short OS name
-  std::string getSystemName() const;
-  /// OS short name. Examples: "Linux-2.6.23" or "Windows 5.1"
-  /// @return string with long OS name
-  std::string getLongSystemName() const;
-  /// OS version. Examples: "2.6.23" or "5.1"
-  /// @return string with OS version
-  std::string getSystemVersion() const;
-  /// OS bits. Examples: "32" or "64"
-  /// @post should be equal to 8 * size_of(void*) but it given by the build system
-  /// @return string with OS addressing size
-  std::string getSystemBits() const;
+  /// Gets the BuildInfo
+  /// @note Does not need to be initialized before
+  boost::weak_ptr<Common::BuildInfo> build_info();
 
 private: // methods
 
@@ -129,32 +83,45 @@ private: // methods
 private: // data
 
   /// the EventHandler object is only held by the CoreEnv singleton object
-  Common::SharedPtr<Common::EventHandler> m_event_handler;
+  boost::shared_ptr< Common::EventHandler > m_event_handler;
 
   /// the LibraryRegistry singleton object is only held by the CoreEnv singleton object
-  Common::LibraryRegistry* m_module_registry;
+  boost::shared_ptr< Common::LibraryRegistry > m_module_registry;
 
   /// the FactoryRegistry singleton object is only held by the CoreEnv singleton object
-  Common::FactoryRegistry* m_factory_registry;
+  boost::shared_ptr< Common::FactoryRegistry > m_factory_registry;
+
+  /// the BuildInfo object
+  boost::shared_ptr< Common::BuildInfo > m_build_info;
 
   /// @brief The component tree root
   boost::shared_ptr<CRoot> m_root;
 
-}; // end of class CoreEnv
+}; // CoreEnv
+
+////////////////////////////////////////////////////////////////////////////////
+
+/// @brief Struct to force library registration
+/// @author Quentin Gasper
+template< typename LIB >
+struct ForceLibRegist
+{
+  /// @brief Registers the library LIB in the registry.
+  ForceLibRegist();
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename LIB >
 ForceLibRegist<LIB>::ForceLibRegist()
 {
-  CFinfo << VERBOSE << "Library [" << LIB::instance().getName()
-      << "] loaded." << CFendl;
+  CFinfo << VERBOSE << "Library [" << LIB::instance().getName() << "] loaded." << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace Common
-} // namespace CF
+} // Common
+} // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 

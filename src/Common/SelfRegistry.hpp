@@ -53,18 +53,18 @@ namespace Common {
     /// Get a given provider by his name
     /// @param name of the provider
     /// @return a SafePtr to the provider
-    SafePtr<ProviderBase> getProvider(const std::string& name, const std::string& type);
+    SafePtr<ProviderBase> get_provider(const std::string& name, const std::string& type);
 
   private: // data
 
     std::map<std::string, GeneralStorage<ProviderBase> > m_store;
 
-}; // class SelfRegistry
+}; // SelfRegistry
 
 //////////////////////////////////////////////////////////////////////////////
 
-} // namespace Common
-} // namespace CF
+} // Common
+} // CF
 
 //////////////////////////////////////////////////////////////////////////////
 

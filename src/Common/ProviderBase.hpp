@@ -34,10 +34,10 @@ public: // methods
   virtual ~ProviderBase ();
 
   /// @return the name of this provider
-  virtual std::string getProviderName () const = 0;
+  virtual std::string provider_name () const = 0;
 
   /// @return the type of this provider
-  virtual std::string getProviderType () const = 0;
+  virtual std::string provider_type () const = 0;
 
 }; // end ProviderBase
 

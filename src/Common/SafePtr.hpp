@@ -17,8 +17,6 @@
 namespace CF {
 namespace Common {
 
-  template < class TYPE > class SharedPtr;
-
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Class that defines a pointer that allows pass onto
@@ -29,8 +27,6 @@ namespace Common {
 /// @author Tiago Quintino
 template < typename TYPE >
 class SafePtr {
-
-  friend class SharedPtr<TYPE>;
 
 public: // functions
 

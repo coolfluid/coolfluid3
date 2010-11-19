@@ -32,16 +32,16 @@ SelfRegistry::~SelfRegistry()
 
 void SelfRegistry::regist(ProviderBase* provider)
 {
-  const std::string& name = provider->getProviderName();
-  const std::string& type = provider->getProviderType();
+  const std::string& name = provider->provider_name();
+  const std::string& type = provider->provider_type();
   if ( !m_store[type].checkEntry(name) )
   {
     m_store[type].addEntry(name,provider);
   }
   else
   {
-    CFwarn << "Provider [" << provider->getProviderName()
-        << "] of type [" << provider->getProviderType()
+    CFwarn << "Provider [" << provider->provider_name()
+        << "] of type [" << provider->provider_type()
         << "] already registered : skipping registration\n";
   }
 }
@@ -66,16 +66,16 @@ void SelfRegistry::unregist(const std::string& name, const std::string& type)
 void SelfRegistry::unregist(ProviderBase* provider)
 {
 
-  const std::string& name = provider->getProviderName();
-  const std::string& type = provider->getProviderType();
+  const std::string& name = provider->provider_name();
+  const std::string& type = provider->provider_type();
   if ( m_store[type].checkEntry(name) )
   {
     unregist(name,type);
   }
   else
   {
-    CFwarn << "Provider ["  << provider->getProviderName()
-        << "] of type [" << provider->getProviderType()
+    CFwarn << "Provider ["  << provider->provider_name()
+        << "] of type [" << provider->provider_type()
         << "] not registered : skipping removal\n";
   }
 }
@@ -83,7 +83,7 @@ void SelfRegistry::unregist(ProviderBase* provider)
 //////////////////////////////////////////////////////////////////////////////
 
 SafePtr<ProviderBase>
-SelfRegistry::getProvider(const std::string& name, const std::string& type)
+SelfRegistry::get_provider(const std::string& name, const std::string& type)
 {
   if ( m_store[type].checkEntry(name) )
   {
