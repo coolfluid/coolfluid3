@@ -41,7 +41,7 @@ public: // functions
   static std::string type_name () { return "CAction"; }
 
   /// Configuration Options
-  static void defineConfigProperties ( Common::PropertyList& options ) {}
+  static void define_config_properties ( Common::PropertyList& options ) {}
 
   /// execute the action
   virtual void execute () = 0;

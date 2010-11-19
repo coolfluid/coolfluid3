@@ -86,7 +86,7 @@ public:
   static std::string type_name () { return "CFlexTable"; }
 
   /// Configuration Options
-  static void defineConfigProperties ( Common::PropertyList& options ) {}
+  static void define_config_properties ( Common::PropertyList& options ) {}
 
   Uint size() const {return m_array.size();}
   

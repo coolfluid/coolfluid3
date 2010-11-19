@@ -34,7 +34,7 @@ CInterpolator::~CInterpolator()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CInterpolator::defineConfigProperties(Common::PropertyList& options)
+void CInterpolator::define_config_properties(Common::PropertyList& options)
 {
 }
 

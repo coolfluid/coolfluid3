@@ -28,7 +28,7 @@ CArray::CArray ( const CName& name  ) :
 	
 ////////////////////////////////////////////////////////////////////////////////
 
-void CArray::defineConfigProperties ( Common::PropertyList& options )
+void CArray::define_config_properties ( Common::PropertyList& options )
 {
 }
 	

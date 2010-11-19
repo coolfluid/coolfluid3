@@ -43,7 +43,7 @@ public: // functions
   static std::string type_name () { return "CTakeStep"; }
 
   /// Configuration Options
-  static void defineConfigProperties ( PropertyList& options );
+  static void define_config_properties ( PropertyList& options );
 
   /// Set the loop_helper
   void set_loophelper (CElements& geometry_elements );

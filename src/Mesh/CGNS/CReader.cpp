@@ -55,7 +55,7 @@ std::vector<std::string> CReader::get_extensions()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CReader::defineConfigProperties ( PropertyList& options )
+void CReader::define_config_properties ( PropertyList& options )
 {
   options.add_option< OptionT<bool> >
       ( "SectionsAreBCs",

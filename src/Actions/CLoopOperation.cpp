@@ -21,7 +21,7 @@ namespace Actions {
 
 ///////////////////////////////////////////////////////////////////////////////////////
   
-void CLoopOperation::defineConfigProperties( Common::PropertyList& options )
+void CLoopOperation::define_config_properties( Common::PropertyList& options )
 {
 }
 

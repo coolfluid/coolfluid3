@@ -43,7 +43,7 @@ namespace Common {
     static std::string type_name () { return "CGroup"; }
 
     /// Configuration Options
-    static void defineConfigProperties ( Common::PropertyList& options );
+    static void define_config_properties ( Common::PropertyList& options );
   private: // helper functions
 
     /// regists all the signals declared in this class

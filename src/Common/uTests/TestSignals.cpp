@@ -48,7 +48,7 @@ public: // functions
   static std::string type_name () { return "CSmall"; }
 
   /// Configuration Options
-  static void defineConfigProperties ( Common::PropertyList& options ) {}
+  static void define_config_properties ( Common::PropertyList& options ) {}
 
   void trigger_signal_print_message ( Component& receiver )
   {

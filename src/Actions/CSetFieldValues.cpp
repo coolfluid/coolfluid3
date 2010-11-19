@@ -22,7 +22,7 @@ Common::ObjectProvider < CSetFieldValues, CLoopOperation, LibActions, NB_ARGS_1 
 
 ///////////////////////////////////////////////////////////////////////////////////////
   
-void CSetFieldValues::defineConfigProperties( Common::PropertyList& options )
+void CSetFieldValues::define_config_properties( Common::PropertyList& options )
 {
   options.add_option< OptionT<std::string> > ("Field","Field to output", "")->mark_basic();
 }

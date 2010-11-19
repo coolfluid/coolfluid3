@@ -49,7 +49,7 @@ public: // functions
   static std::string type_name () { return "COperation"; }
 
   /// Configuration Options
-  static void defineConfigProperties ( Common::PropertyList& options ) {}
+  static void define_config_properties ( Common::PropertyList& options ) {}
 
   virtual void set_loophelper (CElements& geometry_elements );
 
@@ -118,7 +118,7 @@ public: // functions
   static std::string type_name () { return "COutputField"; }
 
   /// Configuration Options
-  static void defineConfigProperties ( Common::PropertyList& options ) {}
+  static void define_config_properties ( Common::PropertyList& options ) {}
 
   void set_loophelper (CElements& geometry_elements )
   {
@@ -215,7 +215,7 @@ public: // functions
   static std::string type_name () { return "COutputField"; }
 
   /// Configuration Options
-  static void defineConfigProperties ( Common::PropertyList& options )
+  static void define_config_properties ( Common::PropertyList& options )
   {
     options.add_option< OptionT<URI> > ("Field","Field URI to output", URI("cpath://"))->mark_basic();
   }
@@ -292,7 +292,7 @@ public: // functions
   static std::string type_name () { return "CComputeVolume"; }
 
   /// Configuration Options
-  static void defineConfigProperties ( Common::PropertyList& options )
+  static void define_config_properties ( Common::PropertyList& options )
   {
     options.add_option< OptionT<URI> > ("Field","Field URI to output", URI("cpath://"))->mark_basic();
   }
@@ -375,7 +375,7 @@ public: // functions
   static std::string type_name () { return "CComputeVolume"; }
 
   /// Configuration Options
-  static void defineConfigProperties ( Common::PropertyList& options )
+  static void define_config_properties ( Common::PropertyList& options )
   {
     options.add_option< OptionT<URI> > ("Field","Field URI to output", URI("cpath://"))->mark_basic();
   }

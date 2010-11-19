@@ -64,7 +64,7 @@ public: // functions
 
   // --------- Configuration ---------
 
-  static void defineConfigProperties ( Common::PropertyList& options ) {}
+  static void define_config_properties ( Common::PropertyList& options ) {}
 
   // --------- Specific functions to this component ---------
 
@@ -103,7 +103,7 @@ public: // functions
 
   // --------- Configuration ---------
 
-  static void defineConfigProperties ( Common::PropertyList& options )
+  static void define_config_properties ( Common::PropertyList& options )
   {
     URI def_path("cpath://");
     options.add_option< OptionT<URI> > ( "MyRelativeFriend", "a path to another component"   , def_path  );
@@ -147,7 +147,7 @@ public: // functions
 
   // --------- Configuration ---------
 
-  static void defineConfigProperties ( Common::PropertyList& options ) {}
+  static void define_config_properties ( Common::PropertyList& options ) {}
 
   // --------- Specific functions to this component ---------
 
@@ -178,7 +178,7 @@ class MyC : public ConfigObject {
 
   public: // functions
 
-  static void defineConfigProperties ( PropertyList& options )
+  static void define_config_properties ( PropertyList& options )
   {
 
     // POD's (plain old data)
@@ -286,7 +286,7 @@ BOOST_AUTO_TEST_CASE( addConfigOptionsTo )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( defineConfigProperties )
+BOOST_AUTO_TEST_CASE( define_config_properties )
 {
   boost::gregorian::date today = boost::gregorian::day_clock::local_day();
   boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
@@ -295,7 +295,7 @@ BOOST_AUTO_TEST_CASE( defineConfigProperties )
 
   PropertyList ll;
 
-  MyC::defineConfigProperties(ll);
+  MyC::define_config_properties(ll);
 
 //  CFinfo << "ending\n" << CFendl;
 }

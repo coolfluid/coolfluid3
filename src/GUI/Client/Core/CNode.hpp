@@ -297,7 +297,7 @@ namespace ClientCore {
     void listChildPaths(QStringList & list, bool recursive, bool clientNode = true) const;
 
     /// Lists configuration properties
-    static void defineConfigProperties ( CF::Common::PropertyList& props );
+    static void define_config_properties ( CF::Common::PropertyList& props );
 
     /// @brief Creates an option from an XML node.
 

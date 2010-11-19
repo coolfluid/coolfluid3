@@ -23,13 +23,13 @@ namespace Common {
 
   public:
 
-    /// Sets the config options by calling the defineConfigProperties
+    /// Sets the config options by calling the define_config_properties
     /// This will add nested names to the options as opposed to addOptionsTo
     /// @param prt pass the this pointer to help identify callee CLASS type
     template <typename CLASS>
         void addConfigOptionsTo()
     {
-      CLASS::defineConfigProperties(m_property_list);
+      CLASS::define_config_properties(m_property_list);
     }
 
     /// configures all the options on this class

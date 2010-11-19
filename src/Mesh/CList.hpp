@@ -47,7 +47,7 @@ public:
   static std::string type_name () { return "CList<"+class_name<ValueT>()+">"; }
 
   /// Configuration Options
-  static void defineConfigProperties ( Common::PropertyList& options ) {}
+  static void define_config_properties ( Common::PropertyList& options ) {}
 
 private: // helper functions
 

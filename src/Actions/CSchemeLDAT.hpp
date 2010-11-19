@@ -44,7 +44,7 @@ public: // functions
   static std::string type_name () { return "CSchemeLDAT"; }
 
   /// Configuration Options
-  static void defineConfigProperties ( Common::PropertyList& options );
+  static void define_config_properties ( Common::PropertyList& options );
 
   /// Set the loop_helper
   void set_loophelper (CElements& geometry_elements );
@@ -87,7 +87,7 @@ private: // data
 /////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SHAPEFUNC>
-void CSchemeLDAT<SHAPEFUNC>::defineConfigProperties( Common::PropertyList& options )
+void CSchemeLDAT<SHAPEFUNC>::define_config_properties( Common::PropertyList& options )
 {
   using namespace CF::Common;
 //  using namespace CF::Mesh;

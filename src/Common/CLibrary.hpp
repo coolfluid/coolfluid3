@@ -44,7 +44,7 @@ namespace Common {
     static std::string type_name() { return "CLibrary"; }
 
     /// Configuration properties
-    static void defineConfigProperties ( CF::Common::PropertyList& props );
+    static void define_config_properties ( CF::Common::PropertyList& props );
 
   private: // methods
 

@@ -47,7 +47,7 @@ void CMeshReader::regist_signals ( CMeshReader* self )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMeshReader::defineConfigProperties(Common::PropertyList& options)
+void CMeshReader::define_config_properties(Common::PropertyList& options)
 {
   std::vector<boost::filesystem::path> dummy;
   Option::Ptr option;

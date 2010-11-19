@@ -45,7 +45,7 @@ public: // functions
 
   static std::string type_name () { return std::string("Part"); }
 
-  static void defineConfigProperties ( Common::PropertyList& options ) {}
+  static void define_config_properties ( Common::PropertyList& options ) {}
 
 private: // helper functions
 
@@ -78,7 +78,7 @@ public: // functions
 
   static std::string type_name () { return std::string("HolderT_") + SubCompT::type_name(); }
 
-  static void defineConfigProperties ( Common::PropertyList& options ) {}
+  static void define_config_properties ( Common::PropertyList& options ) {}
 
 private: // helper functions
 

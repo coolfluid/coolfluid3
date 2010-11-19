@@ -45,7 +45,7 @@ LoadMesh::~LoadMesh()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LoadMesh::defineConfigProperties(Common::PropertyList& options)
+void LoadMesh::define_config_properties(Common::PropertyList& options)
 {
 //  options.add_option< OptionT<std::string> >  ( "Model",  "Model to fill, if empty a new model will be created in the root" , "" );
 //  options["Model"].as_option().mark_basic();

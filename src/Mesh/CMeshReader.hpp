@@ -57,7 +57,7 @@ public: // functions
 
   // --------- Configuration ---------
 
-  static void defineConfigProperties ( Common::PropertyList& options );
+  static void define_config_properties ( Common::PropertyList& options );
 
   // --------- Signals ---------
 

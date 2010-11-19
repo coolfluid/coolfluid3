@@ -24,7 +24,7 @@ Common::ObjectProvider < CTakeStep, CLoopOperation, LibActions, NB_ARGS_1 > CTak
 
 ///////////////////////////////////////////////////////////////////////////////////////
   
-void CTakeStep::defineConfigProperties( Common::PropertyList& options )
+void CTakeStep::define_config_properties( Common::PropertyList& options )
 {
   options.add_option< OptionT<std::string> > ("SolutionField","Solution Field for calculation", "")->mark_basic();
   options.add_option< OptionT<std::string> > ("ResidualField","Residual Field updated after calculation", "")->mark_basic();

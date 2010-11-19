@@ -51,7 +51,7 @@ Component::~Component()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::defineConfigProperties ( Common::PropertyList& props )
+void Component::define_config_properties ( Common::PropertyList& props )
 {
 }
 

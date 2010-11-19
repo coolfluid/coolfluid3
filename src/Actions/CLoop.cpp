@@ -18,7 +18,7 @@ namespace Actions {
   
 /////////////////////////////////////////////////////////////////////////////////////
 
-void CLoop::defineConfigProperties ( Common::PropertyList& options )
+void CLoop::define_config_properties ( Common::PropertyList& options )
 {
   std::vector< URI > dummy;
   options.add_option< OptionArrayT < URI > > ("Regions", "Regions to loop over", dummy)->mark_basic();

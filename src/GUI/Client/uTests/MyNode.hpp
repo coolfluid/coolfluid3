@@ -25,7 +25,7 @@ namespace ClientTest {
 
     QString toolTip() const;
 
-    static void defineConfigProperties ( CF::Common::PropertyList& options )
+    static void define_config_properties ( CF::Common::PropertyList& options )
     {
       options.add_option< CF::Common::OptionT<int> >("theAnswer", "The answer to the ultimate "
                                   "question of Life, the Universe, and Everything", 42);

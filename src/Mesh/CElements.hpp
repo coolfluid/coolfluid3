@@ -51,7 +51,7 @@ public: // functions
   static std::string type_name () { return "CElements"; }
 
   /// Configuration Options
-  static void defineConfigProperties ( Common::PropertyList& options ) {}
+  static void define_config_properties ( Common::PropertyList& options ) {}
 
   /// set the element type
   void set_element_type(const std::string& etype_name);

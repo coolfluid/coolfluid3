@@ -28,7 +28,7 @@ Common::ObjectProvider < CSchemeLDA, CLoopOperation, LibActions, NB_ARGS_1 > CSc
 
 ///////////////////////////////////////////////////////////////////////////////////////
   
-void CSchemeLDA::defineConfigProperties( Common::PropertyList& options )
+void CSchemeLDA::define_config_properties( Common::PropertyList& options )
 {
   options.add_option< OptionT<std::string> > ("SolutionField","Solution Field for calculation", "solution")->mark_basic();
   options.add_option< OptionT<std::string> > ("ResidualField","Residual Field updated after calculation", "residual")->mark_basic();

@@ -29,7 +29,7 @@ CMeshWriter::~CMeshWriter()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void CMeshWriter::defineConfigProperties(Common::PropertyList& options)
+void CMeshWriter::define_config_properties(Common::PropertyList& options)
 {
   //options.add_option< OptionT<std::string> >  ( "File",  "File to read" , "" );
   //options.add_option< OptionT<std::string> >  ( "Mesh",  "Mesh to construct" , "" );

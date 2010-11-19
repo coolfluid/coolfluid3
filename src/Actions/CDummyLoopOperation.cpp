@@ -22,7 +22,7 @@ Common::ObjectProvider < CDummyLoopOperation, CLoopOperation, LibActions, NB_ARG
 
 ///////////////////////////////////////////////////////////////////////////////////////
   
-void CDummyLoopOperation::defineConfigProperties( Common::PropertyList& options )
+void CDummyLoopOperation::define_config_properties( Common::PropertyList& options )
 {
 }
 

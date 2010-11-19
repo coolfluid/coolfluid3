@@ -50,7 +50,7 @@ CHoneycombInterpolator::CHoneycombInterpolator( const CName& name )
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CHoneycombInterpolator::defineConfigProperties ( CF::Common::PropertyList& options )
+void CHoneycombInterpolator::define_config_properties ( CF::Common::PropertyList& options )
 {
   options.add_option< OptionT<Uint> >
   ( "ApproximateNbElementsPerCell",

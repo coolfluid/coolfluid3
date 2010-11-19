@@ -61,7 +61,7 @@ public: // functions
   static std::string type_name () { return "CForAllNodes"; }
 
   /// Configuration Options
-  static void defineConfigProperties ( Common::PropertyList& options )
+  static void define_config_properties ( Common::PropertyList& options )
   {
     std::vector< URI > dummy;
     options.add_option< OptionArrayT < URI > > ("Regions", "Regions to loop over", dummy)->mark_basic();

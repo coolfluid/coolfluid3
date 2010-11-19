@@ -47,7 +47,7 @@ public: // functions
   static std::string type_name () { return "CLoopOperation"; }
 
   /// Configuration Options
-  static void defineConfigProperties ( Common::PropertyList& options );
+  static void define_config_properties ( Common::PropertyList& options );
   
   virtual void set_loophelper ( CElements& geometry_elements ) = 0;
   

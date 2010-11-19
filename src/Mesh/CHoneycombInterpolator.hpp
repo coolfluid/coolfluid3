@@ -43,7 +43,7 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "CHoneycombInterpolator"; }
   
-  static void defineConfigProperties ( CF::Common::PropertyList& options );
+  static void define_config_properties ( CF::Common::PropertyList& options );
 
 private: // functions
 
