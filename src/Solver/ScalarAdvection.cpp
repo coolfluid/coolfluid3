@@ -90,10 +90,10 @@ void ScalarAdvection::run_wizard ( Common::XmlNode& node )
   solver->mark_basic();
   model->add_component( solver );
 
-//  CMeshReader::Ptr mesh_reader = create_component_abstract_type<CMeshReader>( "Neu", "NeutralReader" );
+  CMeshReader::Ptr mesh_reader = create_component_abstract_type<CMeshReader>( "Neu", "NeutralReader" );
 //  CMeshReader::Ptr mesh_reader = create_component_abstract_type<CMeshReader>( "CGNS", "CGNSReader" );
-//  mesh_reader->mark_basic();
-//  model->add_component( mesh_reader );
+  mesh_reader->mark_basic();
+  model->add_component( mesh_reader );
 
 }
 
