@@ -56,6 +56,10 @@ void LoadMesh::define_config_properties(Common::PropertyList& options)
 void LoadMesh::regist_signals ( LoadMesh* self )
 {
   self->regist_signal ( "run_wizard" , "runs the wizard ", "Run Wizard" )->connect ( boost::bind ( &LoadMesh::run_wizard, self, _1 ) );
+
+  self->signal("run_wizard").m_signature.insert<std::string>("mesh name", "name for created mesh component")
+                                        .insert<URI>("path to domain", "path to the domain to hold the mesh");
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -63,7 +67,9 @@ void LoadMesh::regist_signals ( LoadMesh* self )
 void LoadMesh::run_wizard ( Common::XmlNode& node )
 {
 
+   XmlParams params (node);
 
+   CFinfo << params.get_option<std::string>("blabla") << CFendl;
 
 }
 
