@@ -41,12 +41,13 @@ namespace SF {
 
     /// Static function that returns the module name.
     /// Must be implemented for the LibraryRegister template
-    /// @return name of the module
+    /// @return name of the library
     static std::string library_name() { return "SF"; }
 
     /// Static function that returns the description of the module.
     /// Must be implemented for the LibraryRegister template
-    /// @return descripton of the module
+    /// @return description of the library
+
     static std::string library_description()
     {
       return "This library implements the shape functions.";
