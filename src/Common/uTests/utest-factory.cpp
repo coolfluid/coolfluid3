@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE( component_builder )
   BOOST_CHECK( cabstract_factory != nullptr );
   BOOST_CHECK_EQUAL( cabstract_factory->factory_type_name() , std::string("CAbstract") );
 
-  CBuilder<CAbstract>::Ptr cconcrete1_builder = cabstract_factory->get_child_type< CBuilder<CAbstract> >( "CF.Common.CConcrete1" );
+  CBuilder::Ptr cconcrete1_builder = cabstract_factory->get_child_type< CBuilder >( "CF.Common.CConcrete1" );
   BOOST_CHECK( cconcrete1_builder != nullptr );
   BOOST_CHECK_EQUAL( cconcrete1_builder->builder_concrete_type_name() , std::string("CConcrete1") );
 }

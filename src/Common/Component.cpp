@@ -10,11 +10,10 @@
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "Common/Component.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/XmlHelpers.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/Log.hpp"
-#include "Common/CRoot.hpp"
 #include "Common/ComponentIterator.hpp"
 #include "Common/OptionArray.hpp"
 #include "Common/String/Conversion.hpp"
@@ -440,6 +439,11 @@ Component::Ptr Component::look_component ( const CPath& path )
 void Component::regist_signals ( Component* self  )
 {
   self->regist_signal ( "create_component" , "creates a component", "Create component" )->connect ( boost::bind ( &Component::create_component, self, _1 ) );
+  self->signal("create_component").m_signature
+      .insert<std::string>("Component name", "Name for created component" )
+      .insert<std::string>("Generic type",   "Generic type of the component" )
+      .insert<std::string>("Concrete type",  "Concrete type of the component" );
+
 
   self->regist_signal ( "list_tree" , "lists the component tree inside this component", "" )->connect ( boost::bind ( &Component::list_tree, self, _1 ) );
 
@@ -463,21 +467,15 @@ void Component::create_component ( XmlNode& node  )
 {
   XmlParams p ( node );
 
-  std::string name  = p.get_option<std::string>("name");
-  std::string atype = p.get_option<std::string>("atype");
-  std::string ctype = p.get_option<std::string>("ctype");
+  std::string name  = p.get_option<std::string>("Component name");
+  std::string atype = p.get_option<std::string>("Generic type");
+  std::string ctype = p.get_option<std::string>("Concrete type");
 
+  CFactories::Ptr factories = Core::instance().root()->get_child_type< CFactories >("Factories");
+  CFactory::Ptr factory = factories->get_child_type< CFactory >( atype );
+  CBuilder::Ptr builder = factory->get_child_type< CBuilder >( ctype );
 
-  SafePtr< FactoryBase > factory =
-      Core::instance().factory_registry().lock()->getFactory(atype);
-
-  SafePtr< ProviderBase > prov = factory->get_provider_base(ctype);
-
-  /// @todo finish implementation of create_component:
-  ///      * how to create a Component without specifying the type?
-  ///      * how to pass the constructor parameters?
-
-  throw NotImplemented( FromHere(), "" );
+  add_component( builder->build( name ) );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

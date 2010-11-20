@@ -20,15 +20,14 @@ namespace Common {
 
 /////////////////////////////////////////////////////////////////////////////////
 
-/// @brief Component that builds other components of a given abstract type
+/// @brief Component that builds other components
 /// @author Tiago Quintino
-template < typename BASE >
 class CBuilder : public Component
 {
 public:
 
-  typedef boost::shared_ptr< CBuilder<BASE> > Ptr;
-  typedef boost::shared_ptr< CBuilder<BASE> const> ConstPtr;
+  typedef boost::shared_ptr< CBuilder > Ptr;
+  typedef boost::shared_ptr< CBuilder const> ConstPtr;
 
   /// @brief Contructor
   /// @param name of component
@@ -41,7 +40,7 @@ public:
   virtual ~CBuilder() {}
 
   /// @returns the class name
-  static std::string type_name() { return  "CBuilder<" + BASE::type_name() + ">"; }
+  static std::string type_name() { return  "CBuilder"; }
 
   /// Configuration properties
   static void define_config_properties ( CF::Common::PropertyList& props ) {}
@@ -49,18 +48,18 @@ public:
   /// Returns the name of the type of what abstract type it builds.
   /// Should match the name of the CFactory holding the builder.
   /// @return name of type
-  virtual std::string builder_abstract_type_name() const { return  BASE::type_name(); }
+  virtual std::string builder_abstract_type_name() const = 0;
 
   /// @return the name of the type of what concrete type it builds
   virtual std::string builder_concrete_type_name() const = 0;
 
   /// @return the name of the type of what concrete type it builds
-  virtual typename BASE::Ptr build ( const std::string& name ) const = 0;
+  virtual Component::Ptr build ( const std::string& name ) const = 0;
 
 private: // methods
 
   /// regists all the signals declared in this class
-  static void regist_signals ( CBuilder<BASE>* self ) { }
+  static void regist_signals ( CBuilder* self ) { }
 
 }; // CBuilder
 
@@ -70,7 +69,7 @@ private: // methods
 /// This is the actual builder for one concrete type.
 /// @author Tiago Quintino
 template < typename BASE, typename CONCRETE >
-class CBuilderT : public CBuilder<BASE>
+class CBuilderT : public CBuilder
 {
 public:
 
@@ -79,7 +78,7 @@ public:
 
   /// @brief Contructor
   /// @param name of component
-  CBuilderT(const std::string& name) : CBuilder<BASE>(name)
+  CBuilderT(const std::string& name) : CBuilder(name)
   {
     BUILD_COMPONENT;
   }
@@ -93,12 +92,23 @@ public:
   /// Configuration properties
   static void define_config_properties ( CF::Common::PropertyList& props ) {}
 
+  /// builds the component cast to the correct base
+  typename BASE::Ptr build_component_typed ( const std::string& name ) const
+  {
+    return typename BASE::Ptr ( new CONCRETE(name), Deleter<BASE>() );
+  }
+
+  /// Returns the name of the type of what abstract type it builds.
+  /// Should match the name of the CFactory holding the builder.
+  /// @return name of type
+  virtual std::string builder_abstract_type_name() const { return  BASE::type_name(); }
+
   /// @return the name of the type of this factory
   virtual std::string builder_concrete_type_name() const { return CONCRETE::type_name(); }
 
-  virtual typename BASE::Ptr build ( const std::string& name ) const
+  virtual Component::Ptr build ( const std::string& name ) const
   {
-    return typename BASE::Ptr ( new CONCRETE(name), Deleter<BASE>() );
+    return this->build_component_typed(name);
   }
 
   /// @name SIGNALS
@@ -108,7 +118,7 @@ public:
   void build_component ( XmlNode& xml )
   {
     XmlParams params (xml);
-    typename BASE::Ptr comp = this->build ( params.get_option<std::string>("Component name") );
+    typename BASE::Ptr comp = this->build_component_typed ( params.get_option<std::string>("Component name") );
     CPath parent_path ( params.get_option<URI>("Parent component") );
     Component::Ptr parent = this->look_component( parent_path );
     parent->add_component( comp );
@@ -122,8 +132,8 @@ private: // methods
   static void regist_signals ( CBuilderT<BASE,CONCRETE>* self )
   {
       self->regist_signal ( "build_component" , "builds a component", "Build component" )->connect ( boost::bind ( &CBuilderT<BASE,CONCRETE>::build_component, self, _1 ) );
-//      self->signal("build_component").m_signature.insert<std::string>("Component name", "Name for created component" )
-//                                                 .insert<URI>("Parent component", "Path to component where place the newly built component");
+      self->signal("build_component").m_signature.template insert<std::string>("Component name", "Name for created component" )
+                                                 .template insert<URI>("Parent component", "Path to component where place the newly built component");
   }
 
 }; // CBuilderT
