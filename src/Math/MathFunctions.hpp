@@ -60,10 +60,10 @@ namespace MathFunctions
   template <class T1, class T2>
   Real get_distance(const T1& n1, const T2& n2);
 
-  /// Calculate the faculty
-  /// @param   n   calculate faculty of this number
-  /// @return  faculty of n
-  Uint faculty(const Uint& n);
+  /// Calculate the factorial
+  /// @param   n   calculate factorial of this number
+  /// @return  factorial of n
+  Uint factorial(const Uint& n);
 
   /// Mixed Product of three vectors
   /// @pre size() == 3 == v1.size() == v2.size() == v3.size() == temp.size()
@@ -154,12 +154,12 @@ namespace MathFunctions
   }
   
   
-  inline Uint faculty(const Uint& n)
+  inline Uint factorial(const Uint& n)
   {
     if (n<2)
       return 1;
     else
-      return (n*faculty(n-1));
+      return (n*factorial(n-1));
   }
   
   
