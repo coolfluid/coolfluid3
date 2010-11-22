@@ -13,8 +13,9 @@
 #include "GUI/Client/UI/GraphicalValue.hpp"
 
 class QListView;
-class QStandardItem;
-class QStandardItemModel;
+class QPushButton;
+class QStringListModel;
+class QVBoxLayout;
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -43,13 +44,25 @@ namespace ClientUI {
 
   private slots:
 
-    void itemChanged(QStandardItem * item);
+    void btAddClicked();
+
+    void btRemoveClicked();
 
   private:
 
-    QListView * m_listView;
+    QListView * m_allowedListView;
 
-    QStandardItemModel * m_model;
+    QListView * m_selectedListView;
+
+    QStringListModel * m_allowedModel;
+
+    QStringListModel * m_selectedModel;
+
+    QVBoxLayout * m_buttonsLayout;
+
+    QPushButton * m_btAdd;
+
+    QPushButton * m_btRemove;
 
     template<typename TYPE>
     void vectToStringList(const std::vector<boost::any> & vect,

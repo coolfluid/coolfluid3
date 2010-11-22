@@ -5,16 +5,19 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <QListView>
-#include <QStandardItemModel>
-#include <QDebug>
 #include <QHBoxLayout>
+#include <QPushButton>
+#include <QStringListModel>
 
 #include "Common/OptionArray.hpp"
 #include "Common/URI.hpp"
 
+#include "GUI/Client/Core/ClientRoot.hpp"
+
 #include "GUI/Client/UI/GraphicalArrayRestrictedList.hpp"
 
 using namespace CF::Common;
+using namespace CF::GUI::ClientCore;
 using namespace CF::GUI::ClientUI;
 
 GraphicalArrayRestrictedList::GraphicalArrayRestrictedList(Option::ConstPtr opt,
@@ -23,15 +26,31 @@ GraphicalArrayRestrictedList::GraphicalArrayRestrictedList(Option::ConstPtr opt,
   QStringList restrList;
   QStringList valList;
 
-  m_listView = new QListView(parent);
-  m_model = new QStandardItemModel(parent);
+  m_allowedListView = new QListView(parent);
+  m_allowedModel = new QStringListModel(parent);
+  m_selectedListView = new QListView(parent);
+  m_selectedModel = new QStringListModel(parent);
+  m_btAdd = new QPushButton("Add ->", parent);
+  m_btRemove = new QPushButton("<- Remove", parent);
 
-  m_listView->setModel(m_model);
+  m_buttonsLayout = new QVBoxLayout(parent);
 
-  m_layout->addWidget(m_listView);
+  m_allowedListView->setModel(m_allowedModel);
+  m_selectedListView->setModel(m_selectedModel);
 
-  connect(m_model, SIGNAL(itemChanged(QStandardItem*)),
-          this, SLOT(itemChanged(QStandardItem*)));
+  // allow multiple selection
+  m_allowedListView->setSelectionMode(QAbstractItemView::MultiSelection);
+  m_selectedListView->setSelectionMode(QAbstractItemView::MultiSelection);
+
+  m_buttonsLayout->addWidget(m_btAdd);
+  m_buttonsLayout->addWidget(m_btRemove);
+
+  m_layout->addWidget(m_allowedListView);
+  m_layout->addLayout(m_buttonsLayout);;
+  m_layout->addWidget(m_selectedListView);
+
+  connect(m_btAdd, SIGNAL(clicked()), this, SLOT(btAddClicked()));
+  connect(m_btRemove, SIGNAL(clicked()), this, SLOT(btRemoveClicked()));
 
   if(opt.get() != nullptr && std::strcmp(opt->tag(), "array") == 0 &&
      opt->has_restricted_list())
@@ -95,8 +114,11 @@ GraphicalArrayRestrictedList::GraphicalArrayRestrictedList(Option::ConstPtr opt,
 
 GraphicalArrayRestrictedList::~GraphicalArrayRestrictedList()
 {
-  delete m_listView;
-  delete m_model;
+  delete m_allowedListView;
+  delete m_selectedListView;
+  delete m_allowedModel;
+  delete m_selectedModel;
+  delete m_buttonsLayout;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -104,16 +126,7 @@ GraphicalArrayRestrictedList::~GraphicalArrayRestrictedList()
 
 void GraphicalArrayRestrictedList::setRestrictedList(const QStringList & list)
 {
-  QStringList::const_iterator it = list.begin();
-
-  m_model->clear();
-
-  for( ; it != list.end() ; it++)
-  {
-    QStandardItem * item = new QStandardItem(*it);
-    item->setCheckable(true);
-    m_model->appendRow(item);
-  }
+  m_allowedModel->setStringList(list);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -125,20 +138,8 @@ bool GraphicalArrayRestrictedList::setValue(const QVariant & value)
 
   if(value.type() == QVariant::StringList)
   {
-    QStringList list = value.toStringList();
-    QStringList::const_iterator it = list.begin();
-
-    for( ; it != list.end() ; it++)
-    {
-      QList<QStandardItem*> items = m_model->findItems(*it);
-      QList<QStandardItem*>::const_iterator itItems = items.begin();
-
-      for( ; itItems != items.end() ; itItems++)
-        (*itItems)->setCheckState(Qt::Checked);
-    }
-
+    m_selectedModel->setStringList(value.toStringList());
     m_originalValue = value;
-
   }
 
   return valid;
@@ -149,24 +150,61 @@ bool GraphicalArrayRestrictedList::setValue(const QVariant & value)
 
 QVariant GraphicalArrayRestrictedList::value() const
 {
-  QStringList values;
-  int rowCount = m_model->rowCount();
-
-  for(int i = 0 ; i != rowCount ; i++)
-  {
-    QStandardItem *item = m_model->item(i);
-
-    if(item != nullptr && item->checkState() == Qt::Checked)
-      values << item->text();
-  }
-
-  return values;
+  return m_selectedModel->stringList();
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void GraphicalArrayRestrictedList::itemChanged(QStandardItem * item)
+void GraphicalArrayRestrictedList::btAddClicked()
 {
-  emit valueChanged();
+  QItemSelectionModel * selectionModel = m_allowedListView->selectionModel();
+  QModelIndexList list = selectionModel->selectedIndexes();
+
+  if( !list.empty() )
+  {
+    QStringList stringList = m_selectedModel->stringList();
+    const QAbstractItemModel * model = selectionModel->model();
+    QModelIndexList::const_iterator it = list.begin();
+
+    for( ; it != list.end() ; it++)
+      stringList << model->data(*it).toString();
+
+    m_selectedModel->setStringList(stringList);
+
+    m_allowedListView->clearSelection();
+
+    emit valueChanged();
+  }
 }
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void GraphicalArrayRestrictedList::btRemoveClicked()
+{
+  QItemSelectionModel * selectionModel = m_selectedListView->selectionModel();
+  QModelIndexList list = selectionModel->selectedIndexes();
+
+  if( !list.empty() )
+  {
+    QStringList stringList = m_selectedModel->stringList();
+    const QAbstractItemModel * model = selectionModel->model();
+    QModelIndexList::const_iterator it = list.end();
+
+    for( ; it >= list.begin() ; it--)
+    {
+      if(it != list.end())
+        stringList.removeAt( it->row() );
+    }
+
+    m_selectedModel->setStringList(stringList);
+
+    m_allowedListView->clearSelection();
+
+    emit valueChanged();
+  }
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
