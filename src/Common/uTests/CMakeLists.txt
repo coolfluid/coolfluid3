@@ -55,7 +55,7 @@ list( APPEND utest-component-iterator_files
 coolfluid_add_unittest( utest-component-iterator )
 
 ################################################################################
-# Test PE
+# Test PE - environment
 
 list( APPEND utest-parallel-environment_cflibs coolfluid_common )
 list( APPEND utest-parallel-environment_files
@@ -63,4 +63,25 @@ list( APPEND utest-parallel-environment_files
 )
 
 coolfluid_add_unittest( utest-parallel-environment )
+
+################################################################################
+# Test PE - collective communications
+
+list( APPEND utest-parallel-collective_cflibs coolfluid_common )
+list( APPEND utest-parallel-collective_files
+  utest-parallel-collective.cpp
+#   utest-parallel-alltoall.cpp
+)
+
+coolfluid_add_unittest( utest-parallel-collective )
+
+################################################################################
+# Test PE - commpattern and objectwrapper
+
+list( APPEND utest-parallel-commpattern_cflibs coolfluid_common )
+list( APPEND utest-parallel-commpattern_files
+  utest-parallel-commpattern.cpp
+)
+
+coolfluid_add_unittest( utest-parallel-commpattern )
 

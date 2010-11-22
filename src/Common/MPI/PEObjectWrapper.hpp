@@ -34,7 +34,7 @@ namespace CF {
   namespace Common {
 
 /// Base wrapper class serving as interface.
-class ObjectWrapper{
+class PEObjectWrapper{
   public:
 
     /// accessor to m_data
@@ -64,28 +64,29 @@ class ObjectWrapper{
 /// Wrapper class for raw ptr arrays allocated by new[]/malloc/calloc.
 /// @todo realloc technically passes through, but since the new size is unknown to object wrapper, therefore it will complain.
 /// @todo maybe provide boost::shared_array version too.
-template<typename T> class ObjectWrapperPtr: public ObjectWrapper{
+template<typename T> class PEObjectWrapperPtr: public PEObjectWrapper{
 
   public:
 
     /// constructor
     /// @param data pointer to data
     /// @param size length of the data
-    /// @param
-    ObjectWrapperPtr(T* data, const int size, const unsigned int stride=1)
+    /// @param stride array element grouping
+    PEObjectWrapperPtr(T* data, const int size, const unsigned int stride=1)
     {
-      m_data=(void*)(&data);
+      m_data=new T*;
+      m_data[0]=data;
       m_stride=(int)stride;
       if (size%m_stride!=0) throw CF::Common::BadValue(FromHere(),"Nonzero remainder of size()/stride().");
       m_size=size/m_stride;
     }
 
     /// destructor
-    ~ObjectWrapperPtr(){};
+    ~PEObjectWrapperPtr() { delete m_data; };
 
     /// accessor to the linear memory of the data
     /// @return pointer to the raw data
-    const void* data() { return (void*)(*((T**)m_data)); };
+    const void* data() { return (void*)(*m_data); };
 
     /// acts like a sizeof() operator
     /// @return size of the data members in bytes
@@ -102,7 +103,7 @@ template<typename T> class ObjectWrapperPtr: public ObjectWrapper{
   private:
 
     /// holder of the pointer
-    void *m_data;
+    T** m_data;
 
     /// holder of the element size
     int m_size;
@@ -111,23 +112,23 @@ template<typename T> class ObjectWrapperPtr: public ObjectWrapper{
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Wrapper class for raw ptr arrays allocated by new[]/malloc/calloc.
-template<typename T> class ObjectWrapperVector: public ObjectWrapperBase{
+/// Wrapper class for std::vectors.
+template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
 
   public:
 
     /// constructor
-    /// @param data pointer to data
-    /// @param size length of the data
-    /// @param
-    ObjectWrapperVector(std::vector<T> data, const unsigned int stride=1){
+    /// @param std::vector of data
+    /// @param stride array element grouping
+    PEObjectWrapperVector(std::vector<T> data, const unsigned int stride=1){
+//      m_data=new std::vector<T>;
       m_data=&data;
       m_stride=(int)stride;
       if (data.size()%stride!=0) throw CF::Common::BadValue(FromHere(),"Nonzero remainder of size()/stride().");
     }
 
     /// destructor
-    ~ObjectWrapperVector();
+    ~PEObjectWrapperVector() { delete m_data; };
 
     /// accessor to the linear memory of the data
     /// @return pointer to the raw data
@@ -140,8 +141,8 @@ template<typename T> class ObjectWrapperVector: public ObjectWrapperBase{
     /// accessor to the size of the array (without divided by stride)
     /// @return length of the array
     const int size() {
-      if (m_data->size()%stride!=0) throw CF::Common::BadValue(FromHere(),"Nonzero remainder of size()/stride().");
-      return (*m_data).size()/m_stride;
+      if (m_data->size()%m_stride!=0) throw CF::Common::BadValue(FromHere(),"Nonzero remainder of size()/stride().");
+      return m_data->size()/m_stride;
     };
 
     /// accessor to the stride which tells how many array elements count as one  in the communication pattern
@@ -150,38 +151,10 @@ template<typename T> class ObjectWrapperVector: public ObjectWrapperBase{
 
   private:
 
+    /// pointer to std::vector
     std::vector<T>* m_data;
 
 };
-
-
-/*
-int main(void){
-
-  // different pointer types
-  int *ia=new int[10];
-  ObjectWrapperBase *ai=new ObjectWrapperPtr<int>(ia,10);
-  double *da=new double[11];
-  ObjectWrapperBase *ad=new ObjectWrapperPtr<double>(da,11);
-
-  // different vector template types
-  std::vector<int> iv(12,0);
-  ObjectWrapperBase *vi=new ObjectWrapperVector<int>(iv,3);
-  std::vector<double> dv(13,0.);
-  ObjectWrapperBase *vd=new ObjectWrapperVector<double>(dv);
-
-  // output properties
-  std::cout << " what | count | itemsize | stride\n";
-  std::cout << "---------------------------------\n";
-  std::cout << " ai   | " << ai->count() << " | " << ai->size() << " | " << ai->stride() << "\n";
-  std::cout << " ad   | " << ad->count() << " | " << ad->size() << " | " << ad->stride() << "\n";
-  std::cout << " vi   | " << vi->count() << " | " << vi->size() << " | " << vi->stride() << "\n";
-  std::cout << " vd   | " << vd->count() << " | " << vd->size() << " | " << vd->stride() << "\n";
-
-  return 0;
-}
-
-*/
 
 ////////////////////////////////////////////////////////////////////////////////
 
