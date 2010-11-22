@@ -28,12 +28,12 @@ namespace boost { namespace mpi {
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
-  mpiProcessSortedExecute is a macro for executing something ensured that the execution order is 0..nproc-1.
+  Macro for executing something ensured that the execution order is 0..nproc-1.
   @param comm communicator of the mpi environment
   @param irank rank of the process where the command is executed (-1 for all processes)
   @param expression stuff to execute
 **/
-#define ProcessSortedExecute(comm,irank,expression) {                                                                           \
+#define PEProcessSortedExecute(comm,irank,expression) {                                                                         \
   if (irank<0){                                                                                                                 \
     int _process_sorted_execute_i_;                                                                                             \
     int _process_sorted_execute_n_=(int)comm.size();                                                                            \
@@ -50,6 +50,28 @@ namespace boost { namespace mpi {
   } else if (irank==(int)comm.rank()){                                                                                          \
     expression;                                                                                                                 \
   }                                                                                                                             \
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+  Macro for a checkpoint, all possible effort is made to have a non-aliased, rank ordered message output.
+  @param msec milliseconds to wait, called before and after so overall delay is 2*msec
+  @param msg message to print on stdout
+**/
+#define  PECheckPoint(msec,msg) {                                                                                               \
+  PE::instance().barrier();                                                                                                     \
+  std::cout << std::flush;                                                                                                      \
+  boost::this_thread::sleep(boost::posix_time::milliseconds(msec));                                                             \
+  PE::instance().barrier();                                                                                                     \
+  PEProcessSortedExecute(-1,                                                                                                    \
+    std::cout << std::flush;                                                                                                    \
+    std::cout << PE::instance().rank() << " " << msg << "\n";                                                                   \
+    std::cout << std::flush;                                                                                                    \
+  );                                                                                                                            \
+  PE::instance().barrier();                                                                                                     \
+  std::cout << std::flush;                                                                                                      \
+  boost::this_thread::sleep(boost::posix_time::milliseconds(msec));                                                             \
 }
 
 ////////////////////////////////////////////////////////////////////////////////
