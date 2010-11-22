@@ -196,48 +196,49 @@ void CWriter::write_connectivity(std::fstream& file)
     nbElems += region.recursive_elements_count();
   }
 
-  file << "$Elements\n";
-  file << nbElems << "\n";
-  std::string group_name("");
-  Uint group_number;
-  Uint elm_type;
-  Uint number_of_tags=2;
-  Uint elm_number=0;
+    file << "$Elements\n";
+    file << nbElems << "\n";
+    std::string group_name("");
+    Uint group_number;
+    Uint elm_type;
+    Uint number_of_tags=3; // 1 for physical entity,  1 for elementary geometrical entity,  1 for mesh partition
+    Uint elm_number=0;
+    Uint partition_number = PE::instance().rank();
 
-//  BOOST_FOREACH(const CRegion& region, recursive_range_typed<CRegion>(*m_mesh))
-//  {
-//      group_name = region.name();
-//      group_number = m_groups[group_name].number;
-//  }
+  //  BOOST_FOREACH(const CRegion& region, recursive_range<CRegion>(*m_mesh))
+  //  {
+  //      group_name = region.name();
+  //      group_number = m_groups[group_name].number;
+  //  }
 
-  BOOST_FOREACH(const CoordinatesElementsMap::value_type& coord, m_all_coordinates)
-  {
-    BOOST_FOREACH(CElements* elements, coord.second)
+    BOOST_FOREACH(const CoordinatesElementsMap::value_type& coord, m_all_coordinates)
     {
-      if (!elements->has_tag("CFieldElements"))
+      BOOST_FOREACH(CElements* elements, coord.second)
       {
-        group_name = elements->get_parent()->full_path().string();
-        group_number = m_groups[group_name].number;
-
-        m_element_start_idx[elements]=elm_number;
-
-        //file << "// Region " << elements.full_path().string() << "\n";
-        elm_type = m_elementTypes[elements->element_type().getElementTypeName()];
-        Uint node_start_idx = m_node_start_idx[elements];
-        BOOST_FOREACH(const CTable::ConstRow& row, elements->connectivity_table().array())
+        if (!elements->has_tag("CFieldElements"))
         {
-          elm_number++;
-          file << elm_number << " " << elm_type << " " << number_of_tags << " " << group_number << " " << group_number;
-          BOOST_FOREACH(const Uint local_node_idx, row)
+          group_name = elements->get_parent()->full_path().string();
+          group_number = m_groups[group_name].number;
+
+          m_element_start_idx[elements]=elm_number;
+
+          //file << "// Region " << elements.full_path().string() << "\n";
+          elm_type = m_elementTypes[elements->element_type().getElementTypeName()];
+          Uint node_start_idx = m_node_start_idx[elements];
+          BOOST_FOREACH(const CTable::ConstRow& row, elements->connectivity_table().array())
           {
-            file << " " << node_start_idx+local_node_idx+1;
+            elm_number++;
+            file << elm_number << " " << elm_type << " " << number_of_tags << " " << group_number << " " << group_number << " " << partition_number;
+            BOOST_FOREACH(const Uint local_node_idx, row)
+            {
+              file << " " << node_start_idx+local_node_idx+1;
+            }
+            file << "\n";
           }
-          file << "\n";
         }
       }
     }
-  }
-  file << "$EndElements\n";
+    file << "$EndElements\n";
 }
 
 //////////////////////////////////////////////////////////////////////
