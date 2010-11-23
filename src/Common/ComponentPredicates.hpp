@@ -135,6 +135,20 @@ struct ComponentPtr {
   typedef typename boost::mpl::if_c<boost::is_const<ParentT>::value, boost::shared_ptr<ComponentT const>, boost::shared_ptr<ComponentT> >::type type;
 };
 
+
+////////////////////////////////////////////////////////////////////////////////
+// Utility functions
+////////////////////////////////////////////////////////////////////////////////
+
+/// Count the elements in a range
+template<typename RangeT>
+Uint count(const RangeT& range) {
+  Uint result = 0;
+  for(typename RangeT::const_iterator it = range.begin(); it != range.end(); ++it)
+    ++result;
+  return result;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Wrappers to make iterating easy
 ////////////////////////////////////////////////////////////////////////////////
@@ -431,18 +445,624 @@ recursive_get_tagged_component_ptr(ParentT& parent, const std::string& tag) {
   return get_tagged_component_typed_ptr<Component>(parent, tag);
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Utility functions
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
-/// Count the elements in a range
-template<typename RangeT>
-Uint count(const RangeT& range) {
-  Uint result = 0;
-  for(typename RangeT::const_iterator it = range.begin(); it != range.end(); ++it)
-    ++result;
-  return result;
+//////////////////////////////////////////////////////////////////////////////
+
+inline ComponentIteratorRange<Component, Component>::type
+find_components(Component& parent)
+{
+  return boost::make_iterator_range(parent.begin(),parent.end());
 }
+
+inline ComponentIteratorRange<const Component, Component>::type
+find_components(const Component& parent)
+{
+  return boost::make_iterator_range(parent.begin(),parent.end());
+}
+
+template <typename ComponentT, typename ParentT>
+inline typename ComponentIteratorRange<ParentT, ComponentT>::type
+find_components(ParentT& parent)
+{
+  return boost::make_iterator_range(parent.template begin<ComponentT>(),parent.template end<ComponentT>());
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+template <typename Predicate>
+inline typename ComponentIteratorRange<Component, Component, Predicate>::type
+find_components_with_filter(Component& parent, const Predicate& pred)
+{
+  return make_filtered_range(parent.begin(),parent.end(),pred);
+}
+
+template <typename Predicate>
+inline typename ComponentIteratorRange<Component const, Component, Predicate>::type
+find_components_with_filter(const Component& parent, const Predicate& pred)
+{
+  return make_filtered_range(parent.begin(),parent.end(),pred);
+}
+
+
+template <typename ComponentT, typename ParentT, typename Predicate>
+inline typename ComponentIteratorRange<ParentT, ComponentT, Predicate>::type
+find_components_with_filter(ParentT& parent, const Predicate& pred)
+{
+  return make_filtered_range(parent.template begin<ComponentT>(),parent.template end<ComponentT>(),pred);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+inline ComponentIteratorRange<Component, Component, IsComponentName>::type
+find_components_with_name(Component& parent, const Component::CName& name)
+{
+  return make_filtered_range(parent.begin(),parent.end(),IsComponentName(name));
+}
+
+inline ComponentIteratorRange<Component const, Component, IsComponentName>::type
+find_components_with_name(const Component& parent, const Component::CName& name)
+{
+  return make_filtered_range(parent.begin(),parent.end(),IsComponentName(name));
+}
+
+template <typename ComponentT, typename ParentT>
+inline typename ComponentIteratorRange<ParentT, ComponentT, IsComponentName>::type
+find_components_with_name(ParentT& parent, const Component::CName& name)
+{
+  return make_filtered_range(parent.template begin<ComponentT>(),parent.template end<ComponentT>(),IsComponentName(name));
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+inline ComponentIteratorRange<Component, Component, IsComponentTag>::type
+find_components_with_tag(Component& parent, const std::string& tag)
+{
+  return make_filtered_range(parent.begin(),parent.end(),IsComponentTag(tag));
+}
+
+inline ComponentIteratorRange<Component const, Component, IsComponentTag>::type
+find_components_with_tag(const Component& parent, const std::string& tag)
+{
+  return make_filtered_range(parent.begin(),parent.end(),IsComponentTag(tag));
+}
+
+template <typename ComponentT, typename ParentT>
+inline typename ComponentIteratorRange<ParentT, ComponentT, IsComponentTag>::type
+find_components_with_tag(ParentT& parent, const std::string& tag)
+{
+  return make_filtered_range(parent.template begin<ComponentT>(),parent.template end<ComponentT>(),IsComponentTag(tag));
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+inline ComponentIteratorRange<Component, Component>::type
+find_components_recursively(Component& parent)
+{
+  return boost::make_iterator_range(parent.recursive_begin(),parent.recursive_end());
+}
+
+inline ComponentIteratorRange<Component const, Component>::type
+find_components_recursively(const Component& parent)
+{
+  return boost::make_iterator_range(parent.recursive_begin(),parent.recursive_end());
+}
+
+template <typename ComponentT, typename ParentT>
+inline typename ComponentIteratorRange<ParentT, ComponentT>::type
+find_components_recursively(ParentT& parent)
+{
+  return boost::make_iterator_range(parent.template recursive_begin<ComponentT>(),parent.template recursive_end<ComponentT>());
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+template <typename Predicate>
+inline typename ComponentIteratorRange<Component, Component, Predicate>::type
+find_components_recursively_with_filter(Component& parent, const Predicate& pred)
+{
+  return make_filtered_range(parent.recursive_begin(),parent.recursive_end(),pred);
+}
+
+template <typename Predicate>
+inline typename ComponentIteratorRange<Component const, Component, Predicate>::type
+find_components_recursively_with_filter(const Component& parent, const Predicate& pred)
+{
+  return make_filtered_range(parent.recursive_begin(),parent.recursive_end(),pred);
+}
+
+template <typename ComponentT, typename ParentT, typename Predicate>
+inline typename ComponentIteratorRange<ParentT, ComponentT, Predicate>::type
+find_components_recursively_with_filter(ParentT& parent, const Predicate& pred)
+{
+  return make_filtered_range(parent.template recursive_begin<ComponentT>(),parent.template recursive_end<ComponentT>(),pred);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+inline ComponentIteratorRange<Component, Component, IsComponentName>::type
+find_components_recursively_with_name(Component& parent, const Component::CName& name)
+{
+  return find_components_recursively_with_filter(parent,IsComponentName(name));
+}
+
+inline ComponentIteratorRange<Component const, Component, IsComponentName>::type
+find_components_recursively_with_name(const Component& parent, const Component::CName& name)
+{
+  return find_components_recursively_with_filter(parent,IsComponentName(name));
+}
+
+template <typename ComponentT, typename ParentT>
+inline typename ComponentIteratorRange<ParentT, ComponentT, IsComponentName>::type
+find_components_recursively_with_name(ParentT& parent, const Component::CName& name)
+{
+  return find_components_recursively_with_filter<ComponentT>(parent,IsComponentName(name));
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+inline ComponentIteratorRange<Component, Component, IsComponentTag>::type
+find_components_recursively_with_tag(Component& parent, const std::string& tag)
+{
+  return find_components_recursively_with_filter(parent,IsComponentTag(tag));
+}
+
+inline ComponentIteratorRange<Component const, Component, IsComponentTag>::type
+find_components_recursively_with_tag(const Component& parent, const std::string& tag)
+{
+  return find_components_recursively_with_filter(parent,IsComponentTag(tag));
+}
+
+template <typename ComponentT, typename ParentT>
+inline typename ComponentIteratorRange<ParentT, ComponentT, IsComponentTag>::type
+find_components_recursively_with_tag(ParentT& parent, const std::string& tag)
+{
+  return find_components_recursively_with_filter<ComponentT>(parent,IsComponentTag(tag));
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+inline ComponentReference<Component>::type
+find_component (Component& parent)
+{
+  ComponentIteratorRange<Component>::type r = find_components(parent);
+  if(r.begin() == r.end())
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : 0 matches");
+  else if(count(r) > 1)
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : more than 1 match");
+  else
+    return *r.begin();
+}
+
+inline ComponentReference<Component const>::type
+find_component (const Component& parent)
+{
+  ComponentIteratorRange<Component const>::type r = find_components(parent);
+  if(r.begin() == r.end())
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : 0 matches");
+  else if(count(r) > 1)
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : more than 1 match");
+  else
+    return *r.begin();
+}
+
+template<typename ComponentT, typename ParentT >
+inline typename ComponentReference<ParentT, ComponentT>::type
+find_component (ParentT& parent)
+{
+  typename ComponentIteratorRange<ParentT, ComponentT>::type r = find_components<ComponentT>(parent);
+  if(r.begin() == r.end())
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : 0 matches");
+  else if(count(r) > 1)
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : more than 1 match");
+  else
+    return *r.begin();
+}
+
+inline ComponentPtr<Component>::type
+find_component_ptr (Component& parent)
+{
+  ComponentIteratorRange<Component>::type r = find_components(parent);
+  typedef ComponentPtr<Component>::type ResultT;
+  if(r.begin() == r.end() || count(r) > 1)
+    return ResultT();
+  return r.begin().base().get();
+}
+
+inline ComponentPtr<Component const>::type
+find_component_ptr (const Component& parent)
+{
+  ComponentIteratorRange<Component const>::type r = find_components(parent);
+  typedef ComponentPtr<Component const>::type ResultT;
+  if(r.begin() == r.end() || count(r) > 1)
+    return ResultT();
+  return r.begin().base().get();
+}
+
+template<typename ComponentT, typename ParentT>
+inline typename ComponentPtr<ParentT, ComponentT>::type
+find_component_ptr (ParentT& parent)
+{
+  typename ComponentIteratorRange<ParentT, ComponentT>::type r = find_components<ComponentT>(parent);
+  typedef typename ComponentPtr<ParentT, ComponentT>::type ResultT;
+  if(r.begin() == r.end() || count(r) > 1)
+    return ResultT();
+  return r.begin().base().get();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+template<typename Predicate>
+inline ComponentReference<Component>::type
+find_component_with_filter (Component& parent, const Predicate& pred)
+{
+  typename ComponentIteratorRange<Component, Component, Predicate>::type r = find_components_with_filter(parent, pred);
+  if(r.begin() == r.end())
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : 0 matches");
+  else if(count(r) > 1)
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : more than 1 match");
+  else
+    return *r.begin();
+}
+
+template<typename Predicate>
+inline ComponentReference<Component const>::type
+find_component_with_filter (const Component& parent, const Predicate& pred)
+{
+  typename ComponentIteratorRange<Component const, Component, Predicate>::type r = find_components_with_filter(parent, pred);
+  if(r.begin() == r.end())
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : 0 matches");
+  else if(count(r) > 1)
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : more than 1 match");
+  else
+    return *r.begin();
+}
+
+template<typename ComponentT, typename ParentT, typename Predicate>
+inline typename ComponentReference<ParentT, ComponentT>::type
+find_component_with_filter (ParentT& parent, const Predicate& pred)
+{
+  typename ComponentIteratorRange<ParentT, ComponentT, Predicate>::type r = find_components_with_filter<ComponentT>(parent, pred);
+  if(r.begin() == r.end())
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : 0 matches");
+  else if(count(r) > 1)
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : more than 1 match");
+  else
+    return *r.begin();
+}
+
+template<typename Predicate>
+inline ComponentPtr<Component>::type
+find_component_ptr_with_filter (Component& parent, const Predicate& pred)
+{
+  typename ComponentIteratorRange<Component, Component, Predicate>::type r = find_components_with_filter(parent, pred);
+  typedef ComponentPtr<Component>::type ResultT;
+  if(r.begin() == r.end() || count(r) > 1)
+    return ResultT();
+  return r.begin().base().get();
+}
+
+template<typename Predicate>
+inline ComponentPtr<Component const>::type
+find_component_ptr_with_filter (const Component& parent, const Predicate& pred)
+{
+  typename ComponentIteratorRange<Component const, Component, Predicate>::type r = find_components_with_filter(parent, pred);
+  typedef ComponentPtr<Component const>::type ResultT;
+  if(r.begin() == r.end() || count(r) > 1)
+    return ResultT();
+  return r.begin().base().get();
+}
+
+template<typename ComponentT, typename ParentT, typename Predicate>
+inline typename ComponentPtr<ParentT, ComponentT>::type
+find_component_ptr_with_filter (ParentT& parent, const Predicate& pred)
+{
+  typename ComponentIteratorRange<ParentT, ComponentT, Predicate>::type r = find_components_with_filter<ComponentT>(parent, pred);
+  typedef typename ComponentPtr<ParentT, ComponentT>::type ResultT;
+  if(r.begin() == r.end() || count(r) > 1)
+    return ResultT();
+  return r.begin().base().get();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+inline ComponentReference<Component>::type
+find_component_with_name (Component& parent, const Component::CName& name) {
+  return find_component_with_filter(parent, IsComponentName(name));
+}
+
+inline ComponentReference<Component const>::type
+find_component_with_name (const Component& parent, const Component::CName& name) {
+  return find_component_with_filter(parent, IsComponentName(name));
+}
+template<typename ComponentT, typename ParentT>
+inline typename ComponentReference<ParentT, ComponentT>::type
+find_component_with_name (ParentT& parent, const Component::CName& name) {
+  return find_component_with_filter<ComponentT>(parent, IsComponentName(name));
+}
+
+inline ComponentPtr<Component>::type
+find_component_ptr_with_name (Component& parent, const Component::CName& name)
+{
+  return find_component_ptr_with_filter(parent,IsComponentName(name));
+}
+
+inline ComponentPtr<Component const>::type
+find_component_ptr_with_name (const Component& parent, const Component::CName& name)
+{
+  return find_component_ptr_with_filter(parent,IsComponentName(name));
+}
+
+template<typename ComponentT, typename ParentT>
+inline typename ComponentPtr<ParentT, ComponentT>::type
+find_component_ptr_with_name (ParentT& parent, const Component::CName& name)
+{
+  return find_component_ptr_with_filter<ComponentT>(parent,IsComponentName(name));
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+inline ComponentReference<Component>::type
+find_component_with_tag (Component& parent, const std::string& tag) {
+  return find_component_with_filter(parent, IsComponentTag(tag));
+}
+
+inline ComponentReference<Component const>::type
+find_component_with_tag (const Component& parent, const std::string& tag) {
+  return find_component_with_filter(parent, IsComponentTag(tag));
+}
+
+template<typename ComponentT, typename ParentT>
+inline typename ComponentReference<ParentT, ComponentT>::type
+find_component_with_tag (ParentT& parent, const std::string& tag) {
+  return find_component_with_filter<ComponentT>(parent, IsComponentTag(tag));
+}
+
+inline ComponentPtr<Component>::type
+find_component_ptr_with_tag (Component& parent, const std::string& tag)
+{
+  return find_component_ptr_with_filter(parent,IsComponentTag(tag));
+}
+
+inline ComponentPtr<Component const>::type
+find_component_ptr_with_tag (const Component& parent, const std::string& tag)
+{
+  return find_component_ptr_with_filter(parent,IsComponentTag(tag));
+}
+
+template<typename ComponentT, typename ParentT>
+inline typename ComponentPtr<ParentT, ComponentT>::type
+find_component_ptr_with_tag (ParentT& parent, const std::string& tag)
+{
+  return find_component_ptr_with_filter<ComponentT>(parent,IsComponentTag(tag));
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+inline ComponentReference<Component>::type
+find_component_recursively (Component& parent )
+{
+  ComponentIteratorRange<Component>::type r = find_components_recursively(parent);
+  if(r.begin() == r.end())
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : 0 matches");
+  else if(count(r) > 1)
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : more than 1 match");
+  else
+    return *r.begin();
+}
+
+inline ComponentReference<Component const>::type
+find_component_recursively (const Component& parent )
+{
+  ComponentIteratorRange<Component const>::type r = find_components_recursively(parent);
+  if(r.begin() == r.end())
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : 0 matches");
+  else if(count(r) > 1)
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : more than 1 match");
+  else
+    return *r.begin();
+}
+
+template<typename ComponentT, typename ParentT >
+inline typename ComponentReference<ParentT, ComponentT>::type
+find_component_recursively (ParentT& parent )
+{
+  typename ComponentIteratorRange<ParentT, ComponentT>::type r = find_components_recursively<ComponentT>(parent);
+  if(r.begin() == r.end())
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : 0 matches");
+  else if(count(r) > 1)
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : more than 1 match");
+  else
+    return *r.begin();
+}
+
+inline ComponentPtr<Component>::type
+find_component_ptr_recursively (Component& parent)
+{
+  ComponentIteratorRange<Component>::type r = find_components_recursively(parent);
+  typedef ComponentPtr<Component>::type ResultT;
+  if(r.begin() == r.end() || count(r) > 1)
+    return ResultT();
+  return r.begin().base().get();
+}
+
+inline ComponentPtr<Component const>::type
+find_component_ptr_recursively (const Component& parent)
+{
+  ComponentIteratorRange<Component const>::type r = find_components_recursively(parent);
+  typedef ComponentPtr<Component const>::type ResultT;
+  if(r.begin() == r.end() || count(r) > 1)
+    return ResultT();
+  return r.begin().base().get();
+}
+
+template<typename ComponentT, typename ParentT>
+inline typename ComponentPtr<ParentT, ComponentT>::type
+find_component_ptr_recursively (ParentT& parent)
+{
+  typename ComponentIteratorRange<ParentT, ComponentT>::type r = find_components_recursively<ComponentT>(parent);
+  typedef typename ComponentPtr<ParentT, ComponentT>::type ResultT;
+  if(r.begin() == r.end() || count(r) > 1)
+    return ResultT();
+  return r.begin().base().get();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+template<typename Predicate>
+inline ComponentReference<Component>::type
+find_component_recursively_with_filter(Component& parent, const Predicate& pred)
+{
+  typename ComponentIteratorRange<Component, Component, Predicate>::type r = find_components_recursively_with_filter(parent, pred);
+  if(r.begin() == r.end())
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : 0 matches");
+  else if(count(r) > 1)
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : more than 1 match");
+  else
+    return *r.begin();
+}
+
+template<typename Predicate>
+inline ComponentReference<Component const>::type
+find_component_recursively_with_filter(const Component& parent, const Predicate& pred)
+{
+  typename ComponentIteratorRange<Component const, Component, Predicate>::type r = find_components_recursively_with_filter(parent, pred);
+  if(r.begin() == r.end())
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : 0 matches");
+  else if(count(r) > 1)
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : more than 1 match");
+  else
+    return *r.begin();
+}
+
+template<typename ComponentT, typename ParentT, typename Predicate>
+inline typename ComponentReference<ParentT, ComponentT>::type
+find_component_recursively_with_filter(ParentT& parent, const Predicate& pred )
+{
+  typename ComponentIteratorRange<ParentT, ComponentT, Predicate>::type r = find_components_recursively_with_filter<ComponentT>(parent, pred);
+  if(r.begin() == r.end())
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : 0 matches");
+  else if(count(r) > 1)
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : more than 1 match");
+  else
+    return *r.begin();
+}
+
+template<typename Predicate>
+inline ComponentPtr<Component>::type
+find_component_ptr_recursively_with_filter(Component& parent, const Predicate& pred)
+{
+  typename ComponentIteratorRange<Component, Component, Predicate>::type r = find_components_recursively_with_filter(parent, pred);
+  typedef ComponentPtr<Component>::type ResultT;
+  if(r.begin() == r.end() || count(r) > 1)
+    return ResultT();
+  return r.begin().base().get();
+}
+
+template<typename Predicate>
+inline ComponentPtr<Component const>::type
+find_component_ptr_recursively_with_filter(const Component& parent, const Predicate& pred)
+{
+  typename ComponentIteratorRange<Component const, Component, Predicate>::type r = find_components_recursively_with_filter(parent, pred);
+  typedef ComponentPtr<Component const>::type ResultT;
+  if(r.begin() == r.end() || count(r) > 1)
+    return ResultT();
+  return r.begin().base().get();
+}
+
+template<typename ComponentT, typename ParentT, typename Predicate>
+inline typename ComponentPtr<ParentT, ComponentT>::type
+find_component_ptr_recursively_with_filter(ParentT& parent, const Predicate& pred)
+{
+  typename ComponentIteratorRange<ParentT, ComponentT, Predicate>::type r = find_components_recursively_with_filter<ComponentT>(parent, pred);
+  typedef typename ComponentPtr<ParentT, ComponentT>::type ResultT;
+  if(r.begin() == r.end() || count(r) > 1)
+    return ResultT();
+  return r.begin().base().get();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+inline ComponentReference<Component>::type
+find_component_recursively_with_name(Component& parent, const Component::CName& name) {
+  return find_component_recursively_with_filter(parent, IsComponentName(name));
+}
+
+inline ComponentReference<Component const>::type
+find_component_recursively_with_name(const Component& parent, const Component::CName& name) {
+  return find_component_recursively_with_filter(parent, IsComponentName(name));
+}
+
+template<typename ComponentT, typename ParentT>
+inline typename ComponentReference<ParentT, ComponentT>::type
+find_component_recursively_with_name(ParentT& parent, const Component::CName& name) {
+  return find_component_recursively_with_filter<ComponentT>(parent, IsComponentName(name));
+}
+
+inline ComponentPtr<Component>::type
+find_component_ptr_recursively_with_name(Component& parent, const Component::CName& name)
+{
+  return find_component_ptr_recursively_with_filter(parent,IsComponentName(name));
+}
+
+inline ComponentPtr<Component const>::type
+find_component_ptr_recursively_with_name(const Component& parent, const Component::CName& name)
+{
+  return find_component_ptr_recursively_with_filter(parent,IsComponentName(name));
+}
+
+template<typename ComponentT, typename ParentT>
+inline typename ComponentPtr<ParentT, ComponentT>::type
+find_component_ptr_recursively_with_name(ParentT& parent, const Component::CName& name)
+{
+  return find_component_ptr_recursively_with_filter<ComponentT>(parent,IsComponentName(name));
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+inline ComponentReference<Component>::type
+find_component_recursively_with_tag(Component& parent, const std::string& tag) {
+  return find_component_recursively_with_filter(parent, IsComponentTag(tag));
+}
+
+inline ComponentReference<Component const>::type
+find_component_recursively_with_tag(const Component& parent, const std::string& tag) {
+  return find_component_recursively_with_filter(parent, IsComponentTag(tag));
+}
+
+template<typename ComponentT, typename ParentT>
+inline typename ComponentReference<ParentT, ComponentT>::type
+find_component_recursively_with_tag(ParentT& parent, const std::string& tag) {
+  return find_component_recursively_with_filter<ComponentT>(parent, IsComponentTag(tag));
+}
+
+inline ComponentPtr<Component>::type
+find_component_ptr_recursively_with_tag(Component& parent, const std::string& tag)
+{
+  return find_component_ptr_recursively_with_filter(parent,IsComponentTag(tag));
+}
+
+inline ComponentPtr<Component const>::type
+find_component_ptr_recursively_with_tag(const Component& parent, const std::string& tag)
+{
+  return find_component_ptr_recursively_with_filter(parent,IsComponentTag(tag));
+}
+
+template<typename ComponentT, typename ParentT>
+inline typename ComponentPtr<ParentT, ComponentT>::type
+find_component_ptr_recursively_with_tag(ParentT& parent, const std::string& tag)
+{
+  return find_component_ptr_recursively_with_filter<ComponentT>(parent,IsComponentTag(tag));
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
 
 } // Common
 } // CF
