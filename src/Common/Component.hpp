@@ -530,7 +530,7 @@ inline ComponentIterator<ComponentT const> Component::end() const
 
 inline Component::const_iterator Component::end() const
 {
-  return begin<Component>();
+  return end<Component>();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -582,7 +582,7 @@ inline ComponentIterator<ComponentT const> Component::recursive_end() const
 
 inline Component::const_iterator Component::recursive_end() const
 {
-  return recursive_begin<Component>();
+  return recursive_end<Component>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
