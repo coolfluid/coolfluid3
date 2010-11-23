@@ -10,8 +10,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/BoostArray.hpp"
-
 #include "Common/CF.hpp"
+#include "Common/Component.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -33,19 +33,19 @@ namespace Common {
 // 1.: make possible to use compattern on non-registered data
 // 2.: when adding, how to give values to the newly createable elements?
 
-class Common_API PECommPattern2 {
+class Common_API PECommPattern2: public Component {
 
 public:
 
   /// constructor
-  PECommPattern2();
+  PECommPattern2(const CName& name);
 
   /// constructor with settting up communication pattern
   /// don't forget to commit changes by using setup
   /// @param gid vector of global ids
   /// @param rank vector of ranks where given global ids are updatable
   /// @see setup for committing changes
-  PECommPattern2(std::vector<Uint> gid, std::vector<Uint> rank);
+  PECommPattern2(const CName& name, std::vector<Uint> gid, std::vector<Uint> rank);
 
   /// destructor
   ~PECommPattern2();

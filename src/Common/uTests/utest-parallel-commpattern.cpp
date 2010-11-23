@@ -15,6 +15,8 @@
 
 #include <vector>
 #include <boost/test/unit_test.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -48,7 +50,6 @@ struct PECommPatternFixture
   /// common params
   int m_argc;
   char** m_argv;
-
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -69,13 +70,13 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperPtr )
 {
   int i,j;
   double *d1=new double[16];
-  double d2[12];
+  double *d2=new double[12];
 
   for(i=0; i<16; i++) d1[i]=16+i;
   for(i=0; i<12; i++) d2[i]=12+i;
 
-  PEObjectWrapper *w1=new PEObjectWrapperPtr<double>(d1,16,2);
-  PEObjectWrapper *w2=new PEObjectWrapperPtr<double>(d2,12,3);
+  PEObjectWrapper *w1=new PEObjectWrapperPtr<double>("Array1",d1,16,2);
+  PEObjectWrapper *w2=new PEObjectWrapperPtr<double>("Array2",d2,12,3);
 
   BOOST_CHECK_EQUAL( w1->size() , 8 );
   BOOST_CHECK_EQUAL( w2->size() , 4 );
@@ -96,14 +97,13 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperPtr )
   for(i=0; i<w2->size()*w2->stride(); i++) BOOST_CHECK_EQUAL( dtest2[i] , 12+i );
 
   delete[] d1;
-
+  delete[] d2;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( ObjectWrapperVector )
 {
-
   int i,j;
   std::vector<double> d1(16);
   std::vector<double> d2(12);
@@ -111,9 +111,9 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVector )
   for(i=0; i<16; i++) d1[i]=16+i;
   for(i=0; i<12; i++) d2[i]=12+i;
 
-  PEObjectWrapper *w1=new PEObjectWrapperVector<double>(d1,2);
-  PEObjectWrapper *w2=new PEObjectWrapperVector<double>(d2,3);
-/*
+  PEObjectWrapper *w1=new PEObjectWrapperVector<double>("Vector1",d1,2);
+  PEObjectWrapper *w2=new PEObjectWrapperVector<double>("Vector2",d2,3);
+
   BOOST_CHECK_EQUAL( w1->size() , 8 );
   BOOST_CHECK_EQUAL( w2->size() , 4 );
 
@@ -126,14 +126,47 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVector )
   double *dtest1=(double*)w1->data();
   double *dtest2=(double*)w2->data();
 
-std::cout << &d1[0] << "\n";
+  BOOST_CHECK_EQUAL( dtest1 , &d1[0] );
+  BOOST_CHECK_EQUAL( dtest2 , &d2[0] );
 
-//  BOOST_CHECK_EQUAL( dtest1 , &d1[0] );
-//  BOOST_CHECK_EQUAL( dtest2 , &d2[0] );
+  for(i=0; i<w1->size()*w1->stride(); i++) BOOST_CHECK_EQUAL( dtest1[i] , 16+i );
+  for(i=0; i<w2->size()*w2->stride(); i++) BOOST_CHECK_EQUAL( dtest2[i] , 12+i );
+}
 
-//  for(i=0; i<w1->size()*w1->stride(); i++) BOOST_CHECK_EQUAL( dtest1[i] , 16+i );
-//  for(i=0; i<w2->size()*w2->stride(); i++) BOOST_CHECK_EQUAL( dtest2[i] , 12+i );
-*/
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( ObjectWrapperVectorWeakPtr )
+{
+  int i,j;
+  boost::shared_ptr< std::vector<double> > d1( new std::vector<double>(16) );
+  boost::shared_ptr< std::vector<double> > d2( new std::vector<double>(12) );
+
+  for(i=0; i<16; i++) (*d1)[i]=16+i;
+  for(i=0; i<12; i++) (*d2)[i]=12+i;
+
+  PEObjectWrapper *w1=new PEObjectWrapperVectorWeakPtr<double>("VectorWeakPtr1",d1,2);
+  PEObjectWrapper *w2=new PEObjectWrapperVectorWeakPtr<double>("VectorWeakPtr2",d2,3);
+
+  BOOST_CHECK_EQUAL( w1->size() , 8 );
+  BOOST_CHECK_EQUAL( w2->size() , 4 );
+
+  BOOST_CHECK_EQUAL( w1->stride() , 2 );
+  BOOST_CHECK_EQUAL( w2->stride() , 3 );
+
+  BOOST_CHECK_EQUAL( w1->size_of() , sizeof(double) );
+  BOOST_CHECK_EQUAL( w2->size_of() , sizeof(double) );
+
+  double *dtest1=(double*)w1->data();
+  double *dtest2=(double*)w2->data();
+
+  BOOST_CHECK_EQUAL( dtest1 , &(*d1)[0] );
+  BOOST_CHECK_EQUAL( dtest2 , &(*d2)[0] );
+
+  for(i=0; i<w1->size()*w1->stride(); i++) BOOST_CHECK_EQUAL( dtest1[i] , 16+i );
+  for(i=0; i<w2->size()*w2->stride(); i++) BOOST_CHECK_EQUAL( dtest2[i] , 12+i );
+
+  BOOST_CHECK_EQUAL( d1.use_count() , 1 );
+  BOOST_CHECK_EQUAL( d2.use_count() , 1 );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
