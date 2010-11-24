@@ -93,7 +93,7 @@ public: // functions
   
   /// Insert pair
   /// @param[in] key   new key to be inserted
-  /// @param[out] data new data to be inserted, corresponding to the given key
+  /// @param[in] data  new data to be inserted, corresponding to the given key
   /// @post a new std::pair<KEY, DATA> will be created and pushed back in the map
   /// @post the capacity of the map will increase only if the memory hasn't been
   ///       reserved properly at start up.
@@ -103,7 +103,7 @@ public: // functions
   /// @note WARNING: this will cause a costly std::sort on the internal structure
   ///                if sorting did not happen yet.
   /// @param[in] v   std::pair<KEY,DATA> type to 
-  /// @returns The first version returns a pair, with its member pair::first set to an 
+  /// @returns a pair, with its member pair::first set to an 
   ///          iterator pointing to either the newly inserted element or to the element
   ///          that already had its same value in the map. The pair::second element in 
   ///          the pair is set to true if a new element was inserted or false if an element
@@ -132,6 +132,34 @@ public: // functions
   ///         if no match is found
   /// @exception IllegalCall is thrown if the CMap is not sorted beforehand
   const_iterator find(const key_type& key) const;
+  
+  /// Erase the given iterator from the map
+  /// @param[in] itr The iterator to delete
+  /// @pre the map must be sorted
+  /// @exception IllegalCall is thrown when map is not sorted
+  void erase (iterator itr)
+  {
+    if (!m_sorted)
+      throw IllegalCall(FromHere(), "Map internal structure must be sorted");
+    
+    m_vectorMap.erase(itr);
+    m_sorted = false;
+  }
+  
+  /// Erase the entry wit given key from the map
+  /// @note WARNING: This operation will call the costly sort_keys() function
+  ///                if it the internal structure is not sorted.
+  /// @param[in] itr The iterator to delete
+  /// @returns true if element is erased, false if no element was erased
+  bool erase (const key_type& key)
+  {
+    iterator itr = find(key);
+    if (itr == end())
+      return false;
+    m_vectorMap.erase(itr);
+    m_sorted = false;
+    return true;
+  }
   
   /// Check if the given KEY is existing in the CMap
   /// @param[in] key  key to be looked-up

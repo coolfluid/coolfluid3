@@ -96,6 +96,12 @@ BOOST_AUTO_TEST_CASE ( test_CMap_looping )
   BOOST_CHECK_EQUAL(ret.first->first, "fifth");
   BOOST_CHECK_EQUAL(ret.first->second, 5);  // --> value did not change
   
+  BOOST_CHECK(map.erase("first"));
+  BOOST_CHECK(map.find("first") == map.end());
+  
+  map.erase( map.find("fourth") );
+  BOOST_CHECK(map.find("fourth") == map.end());
+  
   const CMap<std::string,Uint>& const_map = *map_ptr;
   BOOST_CHECK(const_map.find("second") != const_map.end());
   
@@ -107,10 +113,10 @@ BOOST_AUTO_TEST_CASE ( test_CMap_exceptions )
   CMap<int,int>::Ptr map_ptr ( new CMap<int,int> ("map"));
   CMap<int,int>& map = *map_ptr;
   
-  
   map.insert_blindly(1,1);
   map.insert_blindly(2,2);
-  map.insert_blindly(3,4);
+  map.insert_blindly(3,3);
+  map.insert_blindly(4,4);
   
   const CMap<int,int>& const_map = *map_ptr;
   BOOST_CHECK_THROW(const_map.find(2),IllegalCall);
@@ -118,9 +124,10 @@ BOOST_AUTO_TEST_CASE ( test_CMap_exceptions )
   
   map.sort_keys();
   BOOST_CHECK_THROW(const_map[6],ValueNotFound);
-  
+    
   map.insert_blindly(2,3);  // adding another entry with key 2 should not be allowed
   BOOST_CHECK_THROW(map.sort_keys(),ValueExists);
+    
 }
 
 BOOST_AUTO_TEST_CASE ( test_CMap_copy_std_map )
