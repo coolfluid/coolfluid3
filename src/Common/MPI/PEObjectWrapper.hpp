@@ -179,7 +179,7 @@ template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
     {
       m_data=*data;
       m_stride=(int)stride;
-      if (data.size()%stride!=0) throw CF::Common::BadValue(FromHere(),"Nonzero remainder of size()/stride().");
+      if (data->size()%stride!=0) throw CF::Common::BadValue(FromHere(),"Nonzero remainder of size()/stride().");
     }
 
     /// destructor
