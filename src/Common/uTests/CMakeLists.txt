@@ -95,3 +95,12 @@ list( APPEND utest-foreach_files
 
 coolfluid_add_unittest( utest-foreach )
 
+################################################################################
+# Test CMap - boost_CMap etc.
+
+list( APPEND utest-CMap_cflibs coolfluid_common )
+list( APPEND utest-CMap_files
+  utest-CMap.cpp
+)
+
+coolfluid_add_unittest( utest-CMap )

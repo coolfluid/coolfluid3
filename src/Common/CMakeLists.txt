@@ -36,6 +36,7 @@ list( APPEND coolfluid_common_files
     CLibrary.hpp
     CLink.hpp
     CLink.cpp
+    CMap.hpp
     ConcreteProvider.hpp
     ConfigArgs.cpp
     ConfigArgs.hpp
