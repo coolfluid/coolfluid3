@@ -20,6 +20,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "Common/ComponentPredicates.hpp"
 #include "Common/MPI/PE.hpp"
 #include "Common/MPI/PEObjectWrapper.hpp"
 #include "Common/MPI/PECommPattern2.hpp"
@@ -194,10 +195,16 @@ BOOST_AUTO_TEST_CASE( data_registration_related )
   pecp.add_component( dir21 );
   pecp.add_component( dir22 );
 
-  BOOST_FOREACH(Component &iter, pecp ) {
-    CFinfo << iter.name() << " "
-           << iter.type_name() << CFendl;
+
+  BOOST_FOREACH( PEObjectWrapper& pobj, find_components_recursively<PEObjectWrapper>(pecp) )
+  {
+    CFinfo << pobj.type_name() << CFendl;
   }
+
+//  BOOST_FOREACH(Component& iter, pecp ) {
+//    CFinfo << iter.name() << " "
+//           << iter.type_name() << CFendl;
+//  }
 
 /*
   BOOST_CHECK_EQUAL( pecp.get_child_count() , 2 );
