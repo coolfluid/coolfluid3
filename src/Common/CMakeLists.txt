@@ -52,6 +52,7 @@ list( APPEND coolfluid_common_files
     Factory.hpp
     FactoryRegistry.hpp
     FactoryRegistry.cpp
+    Foreach.hpp
     GeneralStorage.hpp
     HourMinSec.cpp
     HourMinSec.hpp

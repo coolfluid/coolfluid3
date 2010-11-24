@@ -85,3 +85,13 @@ list( APPEND utest-parallel-commpattern_files
 
 coolfluid_add_unittest( utest-parallel-commpattern )
 
+################################################################################
+# Test Foreach - boost_foreach etc.
+
+list( APPEND utest-foreach_cflibs coolfluid_common )
+list( APPEND utest-foreach_files
+  utest-foreach.cpp
+)
+
+coolfluid_add_unittest( utest-foreach )
+
