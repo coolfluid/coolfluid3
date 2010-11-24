@@ -8,6 +8,8 @@
 
 #include <vector>
 
+#include <boost/bind.hpp>
+
 #include "Common/ObjectProvider.hpp"
 #include "Common/LibCommon.hpp"
 #include "Common/MPI/PECommPattern2.hpp"
@@ -33,9 +35,10 @@ PECommPattern2::PECommPattern2(const CName& name): Component(name)
 {
   BUILD_COMPONENT;
   m_isUpToDate=false;
+  m_isFreeze=false;
   std::vector<Uint> gid(0);
   std::vector<Uint> rank(0);
-  // call add and setup
+  setup(gid,rank);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -44,7 +47,8 @@ PECommPattern2::PECommPattern2(const CName& name, std::vector<Uint> gid, std::ve
 {
   BUILD_COMPONENT;
   m_isUpToDate=false;
-  // call add and setup
+  m_isFreeze=false;
+  setup(gid,rank);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -55,8 +59,64 @@ PECommPattern2::~PECommPattern2()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// Data registration stuff
+// Commpattern handling
 ////////////////////////////////////////////////////////////////////////////////
+
+void PECommPattern2::setup(std::vector<Uint> gid, std::vector<Uint> rank)
+{
+  BOOST_ASSERT( gid.size()==rank.size() );
+  if (gid.size()!=0) {
+    std::vector<Uint>::iterator igid=gid.begin();
+    std::vector<Uint>::iterator irank=rank.begin();
+    for (;igid!=gid.end();igid++,irank++)
+    {
+      add(*igid,*irank);
+    }
+    setup();
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void PECommPattern2::setup()
+{
+  // first dealing with add, always goes to the end
+  BOOST_FOREACH(temp_buffer_item &iadd, m_add_buffer)
+  {
+
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void PECommPattern2::update()
+{
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void PECommPattern2::add(Uint gid, Uint rank)
+{
+  if (m_isFreeze) throw Common::ShouldNotBeHere(FromHere(),"Wanted to add nodes to commpattern '" + name() + "' which is freezed.");
+  m_add_buffer.push_back(temp_buffer_item(gid,rank,false));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void PECommPattern2::move(Uint gid, Uint rank, bool keep_as_ghost)
+{
+  if (m_isFreeze) throw Common::ShouldNotBeHere(FromHere(),"Wanted to moves nodes of commpattern '" + name() + "' which is freezed.");
+  m_mov_buffer.push_back(temp_buffer_item(gid,rank,keep_as_ghost));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void PECommPattern2::remove(Uint gid, Uint rank, bool on_all_ranks)
+{
+  if (m_isFreeze) throw Common::ShouldNotBeHere(FromHere(),"Wanted to delete nodes from commpattern '" + name() + "' which is freezed.");
+  m_rem_buffer.push_back(temp_buffer_item(gid,rank,on_all_ranks));
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Component related
@@ -64,7 +124,7 @@ PECommPattern2::~PECommPattern2()
 
 void PECommPattern2::regist_signals ( Component* self )
 {
-  //self->regist_signal ( "update" , "Executes communication patterns on all the registered data.", "" )->connect ( boost::bind ( &CommPattern2::update, self, _1 ) );
+//  self->regist_signal ( "update" , "Executes communication patterns on all the registered data not marked as readonly.", "" )->connect ( boost::bind ( &PECommPattern2::update, self, _1 ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
