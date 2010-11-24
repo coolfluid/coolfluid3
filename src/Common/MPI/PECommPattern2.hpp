@@ -37,6 +37,7 @@ namespace Common {
   @todo when adding, how to give values to the newly createable elements?
   @todo add readonly properties (for example for coordinates, you want to keep it synchronous with commpattern but don't actually want to update it every time)
   @todo propagate CPint through mpiwrapper
+  @todo gid registration: must be more straightforward to check if its really a CFuint single stride data
 **/
 
 class Common_API PECommPattern2: public Component {
@@ -78,14 +79,6 @@ public:
   /// constructor
   /// @param name under this name will the component be registered
   PECommPattern2(const CName& name);
-
-  /// constructor with settting up communication pattern
-  /// don't forget to commit changes by using setup
-  /// @param name under this name will the component be registered
-  /// @param gid vector of global ids
-  /// @param rank vector of ranks where given global ids are updatable
-  /// @see setup for committing changes
-  PECommPattern2(const CName& name, std::vector<Uint> gid, std::vector<Uint> rank);
 
   /// destructor
   ~PECommPattern2();
@@ -165,9 +158,9 @@ public:
   /// build and/or modify communication pattern - add nodes
   /// this function sets actually up the communication pattern
   /// beware: interprocess communication heavy
-  /// @param gid vector of global ids to add
+  /// @param gid PEObjectWrapper to a Uint tpye of data array
   /// @param rank vector of ranks where given global ids are updatable to add
-  void setup(std::vector<Uint> gid, std::vector<Uint> rank);
+  void setup(PEObjectWrapper::Ptr gid, std::vector<Uint>& rank);
 
   /// build and/or modify communication pattern - only incorporate actual buffers
   /// this function sets actually up the communication pattern

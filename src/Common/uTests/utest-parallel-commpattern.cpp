@@ -183,40 +183,39 @@ BOOST_AUTO_TEST_CASE( data_registration_related )
   boost::shared_ptr< std::vector<double> > d1( new std::vector<double>(16) );
   boost::shared_ptr< std::vector<double> > d2( new std::vector<double>(12) );
 
+  // register data to PECommPattern2
   pecp.insert<double>("VectorWeakPtr1",d1,2);
   pecp.insert<double>("VectorWeakPtr2",d2,3);
 
+  // these are just dummies to see the selective iteration
   Component::Ptr dir1  ( new CGroup ( "dir1" ) );
   Component::Ptr dir2  ( new CGroup ( "dir2" ) );
-  Component::Ptr dir21 ( new CGroup ( "dir21" ) );
-  Component::Ptr dir22 ( new CGroup ( "dir22" ) );
   pecp.add_component( dir1 );
   pecp.add_component( dir2 );
-  pecp.add_component( dir21 );
-  pecp.add_component( dir22 );
 
+  // count all child
+  BOOST_CHECK_EQUAL( pecp.get_child_count() , 4 );
 
+  // count recursively childs but only of type PEObjectWrapper
+  //BOOST_CHECK_EQUAL( find_components_recursively<PEObjectWrapper>(pecp).size() , 2 );
+
+  // iterate recursively childs but only of type PEObjectWrapper
   BOOST_FOREACH( PEObjectWrapper& pobj, find_components_recursively<PEObjectWrapper>(pecp) )
   {
-    CFinfo << pobj.type_name() << CFendl;
+    BOOST_CHECK_EQUAL( pobj.type_name() , "PEObjectWrapper" );
+    BOOST_CHECK_EQUAL( pobj.size_of() , sizeof(double) );
+    if (pobj.name()=="VectorWeakPtr1"){
+      BOOST_CHECK_EQUAL( pobj.size() , 8 );
+      BOOST_CHECK_EQUAL( pobj.stride() , 2 );
+      BOOST_CHECK_EQUAL( pobj.data() , &(*d1)[0] );
+    }
+    if (pobj.name()=="VectorWeakPtr2"){
+      BOOST_CHECK_EQUAL( pobj.size() , 4 );
+      BOOST_CHECK_EQUAL( pobj.stride() , 3 );
+      BOOST_CHECK_EQUAL( pobj.data() , &(*d2)[0] );
+    }
   }
 
-//  BOOST_FOREACH(Component& iter, pecp ) {
-//    CFinfo << iter.name() << " "
-//           << iter.type_name() << CFendl;
-//  }
-
-/*
-  BOOST_CHECK_EQUAL( pecp.get_child_count() , 2 );
-
-  BOOST_FOREACH(Component &iter, pecp ) {
-    CFinfo << iter.name() << " "
-           << iter.type_name() << " "
-           << ((PEObjectWrapper&)(iter)).size() << " "
-           << ((PEObjectWrapper&)(iter)).stride() << " "
-           << ((PEObjectWrapper&)(iter)).size_of() << CFendl;
-  }
-*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////

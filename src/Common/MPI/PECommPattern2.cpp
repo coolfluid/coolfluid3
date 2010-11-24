@@ -36,19 +36,6 @@ PECommPattern2::PECommPattern2(const CName& name): Component(name)
   BUILD_COMPONENT;
   m_isUpToDate=false;
   m_isFreeze=false;
-  std::vector<Uint> gid(0);
-  std::vector<Uint> rank(0);
-  setup(gid,rank);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-PECommPattern2::PECommPattern2(const CName& name, std::vector<Uint> gid, std::vector<Uint> rank): Component(name)
-{
-  BUILD_COMPONENT;
-  m_isUpToDate=false;
-  m_isFreeze=false;
-  setup(gid,rank);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -62,18 +49,24 @@ PECommPattern2::~PECommPattern2()
 // Commpattern handling
 ////////////////////////////////////////////////////////////////////////////////
 
-void PECommPattern2::setup(std::vector<Uint> gid, std::vector<Uint> rank)
+void PECommPattern2::setup(PEObjectWrapper::Ptr gid, std::vector<Uint>& rank)
 {
-  BOOST_ASSERT( gid.size()==rank.size() );
-  if (gid.size()!=0) {
-    std::vector<Uint>::iterator igid=gid.begin();
+  // basic check
+  BOOST_ASSERT( gid->size()==rank.size() );
+  BOOST_ASSERT( gid->stride()==1 );
+  BOOST_ASSERT( gid->size_of()==sizeof(Uint) ); // type-check must be more straightforward
+
+  // add to add buffer
+  if (gid->size()!=0) {
+    Uint *igid=(Uint*)gid->data();
     std::vector<Uint>::iterator irank=rank.begin();
-    for (;igid!=gid.end();igid++,irank++)
+    for (;irank!=rank.end();irank++,igid++)
     {
       add(*igid,*irank);
     }
     setup();
   }
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -83,7 +76,6 @@ void PECommPattern2::setup()
   // first dealing with add, always goes to the end
   BOOST_FOREACH(temp_buffer_item &iadd, m_add_buffer)
   {
-
   }
 }
 
