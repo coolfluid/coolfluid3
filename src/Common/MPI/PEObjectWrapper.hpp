@@ -13,9 +13,16 @@
 
 #include <boost/weak_ptr.hpp>
 
-#include <Common/BasicExceptions.hpp>
-#include <Common/CodeLocation.hpp>
-#include <Common/Component.hpp>
+#include "Common/ObjectProvider.hpp"
+#include "Common/LibCommon.hpp"
+#include "Common/BasicExceptions.hpp"
+#include "Common/CodeLocation.hpp"
+#include "Common/Component.hpp"
+
+////////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+  namespace Common  {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -31,11 +38,18 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-  namespace Common {
-
 /// Base wrapper class serving as interface.
 class PEObjectWrapper: public Component{
+
+  public:
+
+    /// provider
+    typedef Common::ConcreteProvider < PEObjectWrapper,1 > PROVIDER;
+    /// pointer to this type
+    typedef boost::shared_ptr<PEObjectWrapper> Ptr;
+    /// const pointer to this type
+    typedef boost::shared_ptr<PEObjectWrapper const> ConstPtr;
+
   public:
 
     /// constructor
@@ -47,19 +61,22 @@ class PEObjectWrapper: public Component{
 
     /// accessor to m_data
     /// @return pointer to the raw data
-    virtual const void* data()=0;
+    virtual const void* data(){};
 
     /// acts like a sizeof() operator
     /// @return size of the data members in bytes
-    virtual const int size_of()=0;
+    virtual const int size_of(){};
 
     /// accessor to the size of the array (without divided by stride)
     /// @return length of the array
-    virtual const int size()=0;
+    virtual const int size(){};
 
     /// accessor to the stride which tells how many array elements count as one  in the communication pattern
     /// @return number of items to be treated as one
-    virtual const int stride()=0;
+    virtual const int stride(){};
+
+    /// Get the class name
+    static std::string type_name () { return "PEObjectWrapper"; }
 
   private:
 
@@ -86,7 +103,7 @@ template<typename T> class PEObjectWrapperPtr: public PEObjectWrapper{
     /// @param data pointer to data
     /// @param size length of the data
     /// @param stride number of array element grouping
-    PEObjectWrapperPtr(const CName& name, T*& data, const int size, const unsigned int stride=1) : PEObjectWrapper(name)
+    PEObjectWrapperPtr(const CName& name, T*& data, const int size, const unsigned int stride) : PEObjectWrapper(name)
     {
       m_data=&data;
       m_stride=(int)stride;
@@ -99,7 +116,7 @@ template<typename T> class PEObjectWrapperPtr: public PEObjectWrapper{
     /// @param data pointer to data
     /// @param size length of the data
     /// @param stride number of array element grouping
-    PEObjectWrapperPtr(const CName& name, T** data, const int size, const unsigned int stride=1) : PEObjectWrapper(name)
+    PEObjectWrapperPtr(const CName& name, T** data, const int size, const unsigned int stride) : PEObjectWrapper(name)
     {
       m_data=data;
       m_stride=(int)stride;
@@ -147,7 +164,7 @@ template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
     /// @param name the component will appear under this name
     /// @param std::vector of data
     /// @param stride number of array element grouping
-    PEObjectWrapperVector(const CName& name, std::vector<T>& data, const unsigned int stride=1) : PEObjectWrapper(name)
+    PEObjectWrapperVector(const CName& name, std::vector<T>& data, const unsigned int stride) : PEObjectWrapper(name)
     {
       m_data=&data;
       m_stride=(int)stride;
@@ -158,7 +175,7 @@ template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
     /// @param name the component will appear under this name
     /// @param std::vector of data
     /// @param stride number of array element grouping
-    PEObjectWrapperVector(const CName& name, std::vector<T>* data, const unsigned int stride=1) : PEObjectWrapper(name)
+    PEObjectWrapperVector(const CName& name, std::vector<T>* data, const unsigned int stride) : PEObjectWrapper(name)
     {
       m_data=*data;
       m_stride=(int)stride;
@@ -205,7 +222,7 @@ template<typename T> class PEObjectWrapperVectorWeakPtr: public PEObjectWrapper{
     /// @param name the component will appear under this name
     /// @param std::vector of data
     /// @param stride number of array element grouping
-    PEObjectWrapperVectorWeakPtr(const CName& name, boost::weak_ptr< std::vector<T> > data, const unsigned int stride=1) : PEObjectWrapper(name)
+    PEObjectWrapperVectorWeakPtr(const CName& name, boost::weak_ptr< std::vector<T> > data, const unsigned int stride) : PEObjectWrapper(name)
     {
       m_data=data;
       m_stride=(int)stride;

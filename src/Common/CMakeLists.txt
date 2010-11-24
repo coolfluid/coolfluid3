@@ -138,11 +138,12 @@ if(CF_HAVE_MPI)
 list( APPEND coolfluid_common_files
       MPI/PE.hpp
       MPI/PE.cpp
+      MPI/PEObjectWrapper.cpp
+      MPI/PEObjectWrapper.hpp
       MPI/PECommPattern.hpp
       MPI/PECommPattern.cpp
       MPI/PECommPattern2.hpp
       MPI/PECommPattern2.cpp
-      MPI/PEObjectWrapper.hpp
       MPI/tools.hpp
       MPI/scatter.hpp
       MPI/all_to_all.hpp

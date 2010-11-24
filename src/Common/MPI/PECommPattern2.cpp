@@ -4,45 +4,70 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+////////////////////////////////////////////////////////////////////////////////
+
+#include <vector>
+
+#include "Common/ObjectProvider.hpp"
+#include "Common/LibCommon.hpp"
+#include "Common/MPI/PECommPattern2.hpp"
+#include "Common/MPI/PEObjectWrapper.hpp"
+
+////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
   namespace Common  {
 
 ////////////////////////////////////////////////////////////////////////////////
-/*
-PECommPattern2::PECommPattern2()
-{
-  m_isCommPatternPrepared=false;
-  m_sendCount.resize(PE::instance().size(),0);
-  m_sendMap.resize(0);
-  m_receiveCount.resize(PE::instance().size(),0);
-  m_receiveMap.resize(0);
-  m_updatable.resize(0);
-}
-*/
-////////////////////////////////////////////////////////////////////////////////
-/*
-PECommPattern2::PECommPattern2(std::vector<Uint> gid, std::vector<Uint> rank)
-{
-  m_isCommPatternPrepared=false;
-  m_sendCount.resize(PE::instance().size(),0);
-  m_sendMap.resize(0);
-  m_receiveCount.resize(PE::instance().size(),0);
-  m_receiveMap.resize(0);
-  m_updatable.resize(0);
-  setup(gid,rank);
-}
-*/
+// Provider
 ////////////////////////////////////////////////////////////////////////////////
 
+Common::ObjectProvider < PECommPattern2, Component, LibCommon, NB_ARGS_1 >
+PECommPattern2_Provider ( PECommPattern2::type_name() );
 
+////////////////////////////////////////////////////////////////////////////////
+// Consstructor & destructor
+////////////////////////////////////////////////////////////////////////////////
 
+PECommPattern2::PECommPattern2(const CName& name): Component(name)
+{
+  BUILD_COMPONENT;
+  m_isUpToDate=false;
+  std::vector<Uint> gid(0);
+  std::vector<Uint> rank(0);
+  // call add and setup
+}
 
+////////////////////////////////////////////////////////////////////////////////
 
+PECommPattern2::PECommPattern2(const CName& name, std::vector<Uint> gid, std::vector<Uint> rank): Component(name)
+{
+  BUILD_COMPONENT;
+  m_isUpToDate=false;
+  // call add and setup
+}
 
+////////////////////////////////////////////////////////////////////////////////
 
+PECommPattern2::~PECommPattern2()
+{
 
+}
 
+////////////////////////////////////////////////////////////////////////////////
+// Data registration stuff
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+// Component related
+////////////////////////////////////////////////////////////////////////////////
+
+void PECommPattern2::regist_signals ( Component* self )
+{
+  //self->regist_signal ( "update" , "Executes communication patterns on all the registered data.", "" )->connect ( boost::bind ( &CommPattern2::update, self, _1 ) );
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
   }  // Common
 } // CF

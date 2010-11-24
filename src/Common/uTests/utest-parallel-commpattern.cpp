@@ -22,6 +22,8 @@
 
 #include "Common/MPI/PE.hpp"
 #include "Common/MPI/PEObjectWrapper.hpp"
+#include "Common/MPI/PECommPattern2.hpp"
+#include "Common/CGroup.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -167,6 +169,47 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVectorWeakPtr )
 
   BOOST_CHECK_EQUAL( d1.use_count() , 1 );
   BOOST_CHECK_EQUAL( d2.use_count() , 1 );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( data_registration_related )
+{
+
+  PECommPattern2 pecp("CommPattern2");
+  BOOST_CHECK_EQUAL( pecp.isUpToDate() , false );
+
+  boost::shared_ptr< std::vector<double> > d1( new std::vector<double>(16) );
+  boost::shared_ptr< std::vector<double> > d2( new std::vector<double>(12) );
+
+  pecp.insert<double>("VectorWeakPtr1",d1,2);
+  pecp.insert<double>("VectorWeakPtr2",d2,3);
+
+  Component::Ptr dir1  ( new CGroup ( "dir1" ) );
+  Component::Ptr dir2  ( new CGroup ( "dir2" ) );
+  Component::Ptr dir21 ( new CGroup ( "dir21" ) );
+  Component::Ptr dir22 ( new CGroup ( "dir22" ) );
+  pecp.add_component( dir1 );
+  pecp.add_component( dir2 );
+  pecp.add_component( dir21 );
+  pecp.add_component( dir22 );
+
+  BOOST_FOREACH(Component &iter, pecp ) {
+    CFinfo << iter.name() << " "
+           << iter.type_name() << CFendl;
+  }
+
+/*
+  BOOST_CHECK_EQUAL( pecp.get_child_count() , 2 );
+
+  BOOST_FOREACH(Component &iter, pecp ) {
+    CFinfo << iter.name() << " "
+           << iter.type_name() << " "
+           << ((PEObjectWrapper&)(iter)).size() << " "
+           << ((PEObjectWrapper&)(iter)).stride() << " "
+           << ((PEObjectWrapper&)(iter)).size_of() << CFendl;
+  }
+*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////

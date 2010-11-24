@@ -4,14 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_PECommPattern2_hpp
-#define CF_Common_PECommPattern2_hpp
+#ifndef CF_Common_MPI_PECommPattern2_hpp
+#define CF_Common_MPI_PECommPattern2_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/BoostArray.hpp"
-#include "Common/CF.hpp"
+#include <vector>
 #include "Common/Component.hpp"
+#include "Common/MPI/PEObjectWrapper.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -37,11 +37,30 @@ class Common_API PECommPattern2: public Component {
 
 public:
 
+  /// @name TYPEDEFS
+  //@{
+
+  /// provider
+  typedef Common::ConcreteProvider < PECommPattern2,1 > PROVIDER;
+  /// pointer to this type
+  typedef boost::shared_ptr<PECommPattern2> Ptr;
+    /// const pointer to this type
+  typedef boost::shared_ptr<PECommPattern2 const> ConstPtr;
+
+  //@} TYPEDEFS
+
+public:
+
+  /// @name CONSTRUCTORS, DESTRUCTORS & OTHER BELONGINGS
+  //@{
+
   /// constructor
+  /// @param name under this name will the component be registered
   PECommPattern2(const CName& name);
 
   /// constructor with settting up communication pattern
   /// don't forget to commit changes by using setup
+  /// @param name under this name will the component be registered
   /// @param gid vector of global ids
   /// @param rank vector of ranks where given global ids are updatable
   /// @see setup for committing changes
@@ -49,6 +68,76 @@ public:
 
   /// destructor
   ~PECommPattern2();
+
+  /// Get the class name
+  static std::string type_name () { return "PECommPattern2"; }
+
+  //@} END CONSTRUCTORS/DESTRUCTORS
+
+  /// @name DATA REGISTRATION
+  //@{
+
+  /// register data coming from naked pointer by reference
+  /// @param name the component will appear under this name
+  /// @param data pointer to data
+  /// @param size length of the data
+  /// @param stride number of array element grouping
+  template<typename T> void insert(const CName& name, T*& data, const int size, const unsigned int stride=1)
+  {
+    boost::shared_ptr< PEObjectWrapper > ow( new PEObjectWrapperPtr<T>(name,data,size,stride) );
+    add_component ( ow );
+  }
+
+  /// register data coming from pointer to naked pointer
+  /// @param name the component will appear under this name
+  /// @param data pointer to data
+  /// @param size length of the data
+  /// @param stride number of array element grouping
+  template<typename T> void insert(const CName& name, T** data, const int size, const unsigned int stride=1)
+  {
+    boost::shared_ptr< PEObjectWrapper > ow( new PEObjectWrapperPtr<T>(name,data,size,stride) );
+    add_component ( ow );
+  }
+
+  /// register data coming from std::vector by reference
+  /// @param name the component will appear under this name
+  /// @param pointer to std::vector of data
+  /// @param stride number of array element grouping
+  template<typename T> void insert(const CName& name, std::vector<T>& data, const unsigned int stride=1)
+  {
+    boost::shared_ptr< PEObjectWrapper > ow( new PEObjectWrapperVector<T>(name,data,stride) );
+    add_component ( ow );
+  }
+
+  /// register data coming from pointer to std::vector
+  /// @param name the component will appear under this name
+  /// @param pointer to std::vector of data
+  /// @param stride number of array element grouping
+  template<typename T> void insert(const CName& name, std::vector<T>* data, const unsigned int stride=1)
+  {
+    boost::shared_ptr< PEObjectWrapper > ow( new PEObjectWrapperVector<T>(name,data,stride) );
+    add_component ( ow );
+  }
+
+  /// register data coming from std::vector wrapped into weak_ptr (also works with shared_ptr)
+  /// @param name the component will appear under this name
+  /// @param std::vector of data
+  /// @param stride number of array element grouping
+  template<typename T> void insert(const CName& name, boost::weak_ptr< std::vector<T> > data, const unsigned int stride=1)
+  {
+    boost::shared_ptr< PEObjectWrapper > ow( new PEObjectWrapperVectorWeakPtr<T>(name,data,stride) );
+    add_component ( ow );
+  }
+
+  /// removes data by name
+  void clear( const CName& name)
+  {
+    remove_component(name);
+  }
+
+  //@} END DATA REGISTRATION
+
+/*
 
   /// build and/or modify communication pattern
   /// this function sets actually up the communication pattern
@@ -98,7 +187,23 @@ public:
   /// accessor to the bool telling if there are modifications pending for the commpattern, which needs to be committed by calling setup
   const bool isCommPatternSetupNeeded() { return (const bool)m_isCommPatternSetupNeeded; }
 
+*/
+
+  /// accessor to check if setup is needed to call or not
+  /// @return true or false, respectively
+  const bool isUpToDate() { return m_isUpToDate; }
+
 private:
+
+  /// regists all the signals declared in this class
+  static void regist_signals ( Component* self );
+
+private:
+
+  /// flag telling if communication pattern is up-to-date (there are no items )
+  bool m_isUpToDate;
+
+/*
 
   /// Storing updatable information.
   /// Note that this is not containing the full length of the array, only the part is involved in the communication.
@@ -123,6 +228,8 @@ private:
   /// flag telling if communication pattern is up-to-date (there are no items )
   bool m_isCommPatternSetupNeeded;
 
+*/
+
 };
 
 
@@ -133,4 +240,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_PECommPattern2_hpp
+#endif // CF_Common_MPI_PECommPattern2_hpp
