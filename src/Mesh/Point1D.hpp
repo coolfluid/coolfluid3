@@ -26,7 +26,7 @@ struct Mesh_API Point1D : public ElementType
 {
 
   /// constructor
-  Point1D();
+  Point1D(const std::string& name);
   
   /// Gets the Class name
   static std::string type_name() { return "Point1D"; }

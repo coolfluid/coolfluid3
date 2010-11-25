@@ -9,7 +9,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/LibInfo.hpp"
 #include "Common/CLibrary.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -40,6 +39,15 @@ class Gmsh_API LibGmsh :
     public Common::CLibrary
 {
 public:
+
+  typedef boost::shared_ptr<LibGmsh> Ptr;
+  typedef boost::shared_ptr<LibGmsh const> ConstPtr;
+
+  /// Constructor
+  LibGmsh ( const std::string& name) : Common::CLibrary(name) { BuildComponent<none>().build(this); }
+
+  /// @return string of the library namespace
+  static std::string library_namespace() { return "CF.Mesh.Gmsh"; }
 
   /// Static function that returns the module name.
   /// Must be implemented for CLibrary registration

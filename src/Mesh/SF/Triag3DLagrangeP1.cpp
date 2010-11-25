@@ -22,8 +22,10 @@ aTriag3DLagrangeP1_Builder ( "Triag3DLagrangeP1" );
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Triag3DLagrangeP1::Triag3DLagrangeP1() : Triag3D()
+Triag3DLagrangeP1::Triag3DLagrangeP1(const std::string& name) : Triag3D(name)
 {
+  add_tag( type_name() );
+
   m_nb_nodes = nb_nodes;
   m_order = order;
 }

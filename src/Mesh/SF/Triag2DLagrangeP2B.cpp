@@ -23,8 +23,10 @@ aTriag2DLagrangeP2B_Builder ( "Triag2DLagrangeP2B" );
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Triag2DLagrangeP2B::Triag2DLagrangeP2B()
+Triag2DLagrangeP2B::Triag2DLagrangeP2B(const std::string& name) : Triag2D(name)
 {
+  add_tag( type_name() );
+
   m_nb_nodes = nb_nodes;
   m_order = order;
 }

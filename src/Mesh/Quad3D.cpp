@@ -16,8 +16,10 @@ namespace Mesh {
   
 ////////////////////////////////////////////////////////////////////////////////
 
-  Quad3D::Quad3D() : ElementType()
+  Quad3D::Quad3D(const std::string& name) : ElementType(name)
   {
+    add_tag( type_name() );
+
     m_shape = shape;
     m_dimension = dimension;
     m_dimensionality = dimensionality;

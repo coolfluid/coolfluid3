@@ -26,7 +26,7 @@ struct Mesh_API Quad3D : public ElementType
 {
 
   /// constructor
-  Quad3D();
+  Quad3D(const std::string& name);
   
   /// Gets the Class name
   static std::string type_name() { return "Quad3D"; }

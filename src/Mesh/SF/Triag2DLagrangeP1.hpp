@@ -29,6 +29,9 @@ namespace SF {
 /// @author Bart Janssens
 struct MESH_SF_API Triag2DLagrangeP1  : public Triag2D {
 
+  Triag2DLagrangeP1(const std::string& name = type_name());
+
+  static std::string type_name() { return "Triag2DLagrangeP1"; }
   
 /// Number of nodes
 static const Uint nb_nodes = 3;
@@ -142,7 +145,6 @@ static bool in_element(const CoordsT& coord, const NodesT& nodes)
 
 static const FaceConnectivity& faces();
 
-Triag2DLagrangeP1();
 virtual std::string getElementTypeName() const;
 virtual Real computeVolume(const NodesT& coord) const;
 virtual bool is_coord_in_element(const RealVector& coord, const NodesT& nodes) const;

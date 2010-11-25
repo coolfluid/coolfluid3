@@ -8,6 +8,7 @@
 
 #include "MeshDiff.hpp"
 
+#include "Common/Log.hpp"
 #include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/CRegion.hpp"

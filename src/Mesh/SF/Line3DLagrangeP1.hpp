@@ -25,7 +25,11 @@ namespace SF {
 /// @author Bart Janssens
 struct MESH_SF_API Line3DLagrangeP1  : public Line3D
 {
-  
+
+  Line3DLagrangeP1(const std::string& name = type_name());
+
+  static std::string type_name() { return "Line3DLagrangeP1"; }
+
   /// Number of nodes
   static const Uint nb_nodes = 2;
 
@@ -40,7 +44,6 @@ struct MESH_SF_API Line3DLagrangeP1  : public Line3D
   typedef Eigen::Matrix<Real, dimensionality, nb_nodes> MappedGradientT;
   typedef Eigen::Matrix<Real, dimensionality, dimension> JacobianT;
   
-  Line3DLagrangeP1();
 
   /// Compute the shape functions corresponding to the given
   /// mapped coordinates

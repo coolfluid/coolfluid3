@@ -31,6 +31,10 @@ using namespace Math::MathConsts;
 struct MESH_SF_API Tetra3DLagrangeP1  : public Tetra3D
 {
 
+  Tetra3DLagrangeP1(const std::string& name = type_name());
+
+  static std::string type_name() { return "Tetra3DLagrangeP1"; }
+
 /// Number of nodes
 static const Uint nb_nodes = 4;
 
@@ -196,7 +200,6 @@ static bool in_element(const CoordsT& coord, const NodesT& nodes)
 
 static const FaceConnectivity& faces();
 
-Tetra3DLagrangeP1();
 virtual std::string getElementTypeName() const;
 virtual Real computeVolume(const NodesT& coord) const;
 virtual bool is_coord_in_element(const RealVector& coord, const NodesT& nodes) const;

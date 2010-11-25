@@ -26,7 +26,7 @@ struct Mesh_API Tetra3D : public ElementType
 {
 
   /// constructor
-  Tetra3D();
+  Tetra3D(const std::string& name);
   
   /// Gets the Class name
   static std::string type_name() { return "Tetra3D"; }

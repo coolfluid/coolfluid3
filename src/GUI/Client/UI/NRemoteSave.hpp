@@ -122,9 +122,6 @@ namespace ClientUI {
     /// @brief Dialog used to ask the new file name
     TypeAndNameDialog * m_fileNameDialog;
 
-    /// regists all the signals declared in this class
-    virtual void define_signals () {}
-
   }; // class NRemoteSave
 
   /////////////////////////////////////////////////////////////////////////////

@@ -25,7 +25,7 @@ struct Mesh_API Line2D : public ElementType
 {
 
   /// constructor
-  Line2D();
+  Line2D(const std::string& name);
   
   /// Gets the Class name
   static std::string type_name() { return "Line2D"; }

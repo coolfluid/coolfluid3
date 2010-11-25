@@ -27,6 +27,10 @@ namespace SF {
 /// @author Bart Janssens
 struct MESH_SF_API Quad3DLagrangeP1  : public Quad3D
 {
+
+  Quad3DLagrangeP1(const std::string& name = type_name());
+
+  static std::string type_name() { return "Quad3DLagrangeP1"; }
   
   /// Number of nodes
   static const Uint nb_nodes = 4;
@@ -42,8 +46,6 @@ struct MESH_SF_API Quad3DLagrangeP1  : public Quad3D
   typedef Eigen::Matrix<Real, dimensionality, nb_nodes> MappedGradientT;
   typedef Eigen::Matrix<Real, dimensionality, dimension> JacobianT;
   
-  Quad3DLagrangeP1();
-
   /// Compute the shape functions corresponding to the given
   /// mapped coordinates
   /// @param mappedCoord The mapped coordinates

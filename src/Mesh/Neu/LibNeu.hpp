@@ -9,7 +9,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/LibInfo.hpp"
 #include "Common/CLibrary.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -23,8 +22,6 @@
 #   define Neu_API      CF_IMPORT_API
 #   define Neu_TEMPLATE CF_TEMPLATE_EXTERN
 #endif
-
-////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -46,8 +43,6 @@ public:
 
   /// Constructor
   LibNeu ( const std::string& name) : Common::CLibrary(name) { BuildComponent<none>().build(this); }
-
-public: // functions
 
   /// @return string of the library namespace
   static std::string library_namespace() { return "CF.Mesh.Neu"; }

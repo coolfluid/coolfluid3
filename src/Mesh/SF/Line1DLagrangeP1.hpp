@@ -27,6 +27,10 @@ namespace SF {
 /// @author Bart Janssens
 struct MESH_SF_API Line1DLagrangeP1  : public Line1D {
   
+  Line1DLagrangeP1(const std::string& name = type_name());
+
+  static std::string type_name() { return "Line1DLagrangeP1"; }
+
 /// Number of nodes
 static const Uint nb_nodes = 2;
 
@@ -103,7 +107,6 @@ static void jacobian_adjoint(const MappedCoordsT& mappedCoord, const NodesT& nod
 template<typename NodesType>
 static Real volume(const NodesType& nodes); // inline because of multiple definition at link time
 
-Line1DLagrangeP1();
 virtual std::string getElementTypeName() const;
 virtual Real computeVolume(const NodesT& coord) const;
 virtual bool is_coord_in_element( const RealVector& coord, const NodesT& nodes) const;

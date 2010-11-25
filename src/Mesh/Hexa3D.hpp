@@ -25,10 +25,10 @@ struct Mesh_API Hexa3D : public ElementType
 {
 
   /// constructor
-  Hexa3D();
+  Hexa3D(const std::string& name);
   
   /// Gets the Class name
-  static std::string getClassName() { return "Hexa3D"; }
+  static std::string type_name() { return "Hexa3D"; }
 
   /// @return m_geoShape
   static const GeoShape::Type shape = GeoShape::HEXA;

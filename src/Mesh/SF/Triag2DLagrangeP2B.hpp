@@ -32,6 +32,10 @@ namespace SF {
 struct MESH_SF_API Triag2DLagrangeP2B  : public Triag2D
 {
 
+  Triag2DLagrangeP2B(const std::string& name = type_name());
+
+  static std::string type_name() { return "Triag2DLagrangeP2B"; }
+
   /// Number of nodes
   static const Uint nb_nodes = 7;
 
@@ -181,8 +185,6 @@ struct MESH_SF_API Triag2DLagrangeP2B  : public Triag2D
   }
 
   static const FaceConnectivity& faces();
-
-  Triag2DLagrangeP2B();
 
   virtual std::string getElementTypeName() const;
   virtual Real computeVolume(const NodesT& coord) const;

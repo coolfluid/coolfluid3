@@ -31,6 +31,9 @@ namespace SF {
 /// @author Bart Janssens
 struct MESH_SF_API Triag2DLagrangeP2  : public Triag2D
 {
+  Triag2DLagrangeP2(const std::string& name = type_name());
+
+  static std::string type_name() { return "Triag2DLagrangeP2"; }
 
   /// typedef for the supporting geometry
   typedef Triag2D Support;
@@ -178,8 +181,6 @@ struct MESH_SF_API Triag2DLagrangeP2  : public Triag2D
   }
 
   static const FaceConnectivity& faces();
-
-  Triag2DLagrangeP2();
 
   virtual std::string getElementTypeName() const;
   virtual Real computeVolume(const NodesT& coord) const;

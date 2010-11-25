@@ -26,7 +26,7 @@ struct Mesh_API Triag3D : public ElementType
 {
 
   /// constructor
-  Triag3D();
+  Triag3D(const std::string& name);
   
   /// Gets the Class name
   static std::string type_name() { return "Triag3D"; }

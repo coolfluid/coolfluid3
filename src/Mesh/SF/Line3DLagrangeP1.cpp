@@ -22,8 +22,10 @@ aLine3DLagrangeP1_Builder ( "Line3DLagrangeP1" );
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Line3DLagrangeP1::Line3DLagrangeP1() : Line3D()
+Line3DLagrangeP1::Line3DLagrangeP1(const std::string& name) : Line3D(name)
 {
+  add_tag( type_name() );
+
   m_nb_nodes = nb_nodes;
   m_order = order;
 }

@@ -26,9 +26,8 @@ namespace CGNS {
 
 Common::ComponentBuilder < Mesh::CGNS::CWriter,
                          Mesh::CMeshWriter,
-                         Mesh::CGNS::LibCGNS,
-                         1 >
-aCGNSWriter_Builder ( "CGNS" );
+                         Mesh::CGNS::LibCGNS >
+aCGNSWriter_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
