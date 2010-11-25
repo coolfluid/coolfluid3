@@ -15,8 +15,7 @@ namespace Solver {
 using namespace Common;
 using namespace Common::String;
 
-Common::ComponentBuilder < CMethod, Component, LibSolver >
-CMethod_Builder ( CMethod::type_name() );
+Common::ComponentBuilder < CMethod, Component, LibSolver > CMethod_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

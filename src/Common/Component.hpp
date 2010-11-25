@@ -219,7 +219,7 @@ public: // functions
     typename T::ConstPtr get_type() const;
 
   /// Modify the parent of this component
-  void change_parent ( Component* new_parent );
+  void change_parent ( Component* to_parent );
 
   /// Create a (sub)component of this component automatically cast to the specified type
   template < typename T >
@@ -232,8 +232,8 @@ public: // functions
   Ptr remove_component ( const std::string& name );
 
   /// Move this component to within another one
-  /// @param new_parent will be the new parent of this component
-  void move_component ( Ptr new_parent );
+  /// @param to_parent will be the new parent of this component
+  void move_component ( Ptr to_parent );
 
   /// @returns a string representation of the tree below this component
   std::string tree(Uint level=0) const;
@@ -336,11 +336,22 @@ protected: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// Stand-alone function to allocate components of a given type
+template < typename T >
+boost::shared_ptr<T> allocate_component_type ( const std::string& name )
+{
+  typename boost::shared_ptr<T> comp ( new T(name), Deleter<T>() );
+  return comp ;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 template < typename T >
 inline typename T::Ptr Component::create_component_type ( const std::string& name )
 {
-  typename T::Ptr new_component ( new T(name), Deleter<T>() );
-  return boost::dynamic_pointer_cast<T>( add_component( new_component ) );
+  typename T::Ptr comp = allocate_component_type<T>(name);
+  add_component( comp );
+  return comp ;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -351,7 +362,7 @@ inline typename T::Ptr Component::get_child_type(const std::string& name)
   const CompStorage_t::iterator found = m_components.find(name);
   if(found != m_components.end())
     return boost::dynamic_pointer_cast<T>(found->second);
-  return boost::dynamic_pointer_cast<T>(Ptr());
+  return typename T::Ptr();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -362,7 +373,7 @@ inline typename T::ConstPtr Component::get_child_type(const std::string& name) c
   const CompStorage_t::const_iterator found = m_components.find(name);
   if(found != m_components.end())
     return boost::dynamic_pointer_cast<T const>(found->second);
-  return boost::dynamic_pointer_cast<T const>(ConstPtr());
+  return typename T::ConstPtr();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -388,9 +399,9 @@ inline void Component::put_components(std::vector<typename ComponentT::Ptr >& ve
 {
   for(CompStorage_t::iterator it=m_components.begin(); it!=m_components.end(); ++it)
   {
-    if(typename ComponentT::Ptr componentPtr = boost::dynamic_pointer_cast<ComponentT>(it->second))
+    if(typename ComponentT::Ptr p = boost::dynamic_pointer_cast<ComponentT>(it->second))
     {
-      vec.push_back(componentPtr);
+      vec.push_back(p);
     }
     if(recurse)
       it->second->put_components<ComponentT>(vec, true);
@@ -404,9 +415,9 @@ void Component::put_components(std::vector<boost::shared_ptr<ComponentT const> >
 {
   for(CompStorage_t::const_iterator it=m_components.begin(); it!=m_components.end(); ++it)
   {
-    if(boost::shared_ptr<ComponentT const> componentPtr = boost::dynamic_pointer_cast<ComponentT const>(it->second))
+    if(boost::shared_ptr<ComponentT const> p = boost::dynamic_pointer_cast<ComponentT const>(it->second))
     {
-      vec.push_back(componentPtr);
+      vec.push_back(p);
     }
     if(recurse)
       it->second->put_components<ComponentT>(vec, true);

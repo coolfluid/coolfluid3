@@ -26,10 +26,7 @@ using namespace CF::Mesh::BlockMesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CF::Common::ComponentBuilder < BlockMeshReader,
-                             Mesh::CMeshReader,
-                             LibBlockMeshReader >
-aBlockMeshReader_Builder;
+CF::Common::ComponentBuilder < BlockMeshReader, Mesh::CMeshReader, LibBlockMeshReader > aBlockMeshReader_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 

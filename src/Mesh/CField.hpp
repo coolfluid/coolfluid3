@@ -19,10 +19,12 @@
 
 
 namespace CF {
+
 namespace Common 
 {
   class CLink;
 }
+
 namespace Mesh {
   
   class CRegion;
@@ -54,9 +56,6 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "CField"; }
-
-  /// Configuration Options
-  virtual void define_config_properties ();
 
   // functions specific to the CField component
   
@@ -128,9 +127,6 @@ public: // functions
   /// Return the length (in number of Real values occupied in the data row) of the variable of the given name
   Uint var_length(const std::string& vname) const;
   
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
-
 private:
   
   std::string m_field_name;

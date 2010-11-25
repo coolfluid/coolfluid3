@@ -19,7 +19,7 @@ namespace SF {
 Common::ComponentBuilder < Triag2DLagrangeP2B,
                          ElementType,
                          LibSF >
-aTriag2DLagrangeP2B_Builder ( "Triag2DLagrangeP2B" );
+aTriag2DLagrangeP2B_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +33,7 @@ Triag2DLagrangeP2B::Triag2DLagrangeP2B(const std::string& name) : Triag2D(name)
 
 std::string Triag2DLagrangeP2B::getElementTypeName() const
 {
-  return "Triag2DLagrangeP2B";
+  return LibSF::library_namespace() + "." + type_name();
 }
 
 Real Triag2DLagrangeP2B::computeVolume(const NodesT& coord) const

@@ -14,7 +14,7 @@ namespace Solver {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CForAllElements, COperation, LibSolver > CForAllElements_Builder( "CForAllElements" );
+Common::ComponentBuilder < CForAllElements, Mesh::COperation, LibSolver > CForAllElements_Builder;
 
 /////////////////////////////////////////////////////////////////////////////////////
 } // Solver

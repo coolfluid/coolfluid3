@@ -13,15 +13,15 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Mesh;
-
 namespace CF {
 	
-	namespace Mesh {
+  namespace Mesh
+  {
 		class CArray;
 		class CFieldElements;
 	}
-namespace Actions {
+
+  namespace Actions {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -45,22 +45,22 @@ public: // functions
   static std::string type_name () { return "CDummyLoopOperation"; }
 
   /// Set the loop_helper
-  void set_loophelper (CElements& geometry_elements );
+  void set_loophelper (Mesh::CElements& geometry_elements );
 	
   /// execute the action
   virtual void execute ();
 	
 	/// @return the nodes to loop over
-	virtual CList<Uint>& loop_list ();
+  virtual Mesh::CList<Uint>& loop_list ();
 		
 private: // data
 	
   struct LoopHelper
   {
-    LoopHelper(CElements& geometry_elements) :
+    LoopHelper(Mesh::CElements& geometry_elements) :
 		node_list(geometry_elements.node_list())
     { }
-		CList<Uint>& node_list;
+    Mesh::CList<Uint>& node_list;
   };
 	
   boost::shared_ptr<LoopHelper> data;

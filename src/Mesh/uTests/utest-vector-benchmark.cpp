@@ -121,9 +121,9 @@ BOOST_AUTO_TEST_SUITE( VectorBenchmarkSuite )
 // Must be run  before the next tests
 BOOST_FIXTURE_TEST_CASE( CreateMesh, VectorBenchmarkFixture )
 {
-  grid_2d.reset(new CMesh("grid_2d"));
+  grid_2d = allocate_component_type<CMesh>("grid_2d");
   Tools::MeshGeneration::create_rectangle(*grid_2d, 1., 1., 2000, 2000);
-  channel_3d.reset(new CMesh("channel_3d"));
+  channel_3d = allocate_component_type<CMesh>("channel_3d");
   BlockData block_data;
   Tools::MeshGeneration::create_channel_3d(block_data, 10., 0.5, 5., 160, 80, 120, 0.1);
   std::vector<Uint> nodes_dist;
@@ -184,7 +184,7 @@ BOOST_FIXTURE_TEST_CASE( RealVector3D, VectorBenchmarkFixture )
   RealVector c7(3);
   RealVector result(3);
   
-  const CElements& elems = recursive_get_named_component_typed<CElements>(*channel_3d, "elements_Hexa3DLagrangeP1");
+  const CElements& elems = recursive_get_named_component_typed<CElements>(*channel_3d, "elements_CF.Mesh.SF.Hexa3DLagrangeP1");
   const CArray& coords = elems.coordinates();
   
   centroid_3d(elems.connectivity_table().array(), coords.array(), c0, c1, c2, c3, c4, c5, c6, c7, result);
@@ -206,7 +206,7 @@ BOOST_FIXTURE_TEST_CASE( UblasVector3DStatic, VectorBenchmarkFixture )
   boost::numeric::ublas::c_vector<Real, 3> c7(3);
   boost::numeric::ublas::c_vector<Real, 3> result(3);
   
-  const CElements& elems = recursive_get_named_component_typed<CElements>(*channel_3d, "elements_Hexa3DLagrangeP1");
+  const CElements& elems = recursive_get_named_component_typed<CElements>(*channel_3d, "elements_CF.Mesh.SF.Hexa3DLagrangeP1");
   const CArray& coords = elems.coordinates();
   
   centroid_3d(elems.connectivity_table().array(), coords.array(), c0, c1, c2, c3, c4, c5, c6, c7, result);
@@ -228,7 +228,7 @@ BOOST_FIXTURE_TEST_CASE( UblasVector3DDynamic, VectorBenchmarkFixture )
   boost::numeric::ublas::vector<Real> c7(3);
   boost::numeric::ublas::vector<Real> result(3);
   
-  const CElements& elems = recursive_get_named_component_typed<CElements>(*channel_3d, "elements_Hexa3DLagrangeP1");
+  const CElements& elems = recursive_get_named_component_typed<CElements>(*channel_3d, "elements_CF.Mesh.SF.Hexa3DLagrangeP1");
   const CArray& coords = elems.coordinates();
   
   centroid_3d(elems.connectivity_table().array(), coords.array(), c0, c1, c2, c3, c4, c5, c6, c7, result);
@@ -278,7 +278,7 @@ BOOST_FIXTURE_TEST_CASE( EigenVector3DStatic, VectorBenchmarkFixture )
   Eigen::Vector3d c7(3);
   Eigen::Vector3d result(3);
   
-  const CElements& elems = recursive_get_named_component_typed<CElements>(*channel_3d, "elements_Hexa3DLagrangeP1");
+  const CElements& elems = recursive_get_named_component_typed<CElements>(*channel_3d, "elements_CF.Mesh.SF.Hexa3DLagrangeP1");
   const CArray& coords = elems.coordinates();
   
   centroid_3d(elems.connectivity_table().array(), coords.array(), c0, c1, c2, c3, c4, c5, c6, c7, result);
@@ -300,7 +300,7 @@ BOOST_FIXTURE_TEST_CASE( EigenVector3DDynamic, VectorBenchmarkFixture )
   Eigen::VectorXd c7(3);
   Eigen::VectorXd result(3);
   
-  const CElements& elems = recursive_get_named_component_typed<CElements>(*channel_3d, "elements_Hexa3DLagrangeP1");
+  const CElements& elems = recursive_get_named_component_typed<CElements>(*channel_3d, "elements_CF.Mesh.SF.Hexa3DLagrangeP1");
   const CArray& coords = elems.coordinates();
   
   centroid_3d(elems.connectivity_table().array(), coords.array(), c0, c1, c2, c3, c4, c5, c6, c7, result);

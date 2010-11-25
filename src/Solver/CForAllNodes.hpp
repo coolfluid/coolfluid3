@@ -38,7 +38,7 @@ public: // functions
   /// @param name of the component
   CForAllNodesT ( const std::string& name ) :
     COperation(name),
-    m_operation(new COp("operation"), Deleter<COp>())
+    m_operation(Common::allocate_component_type<COp>("operation"))
   {
     BuildComponent<nosignals>().build(this);
     m_properties["Regions"].as_option().attach_trigger ( boost::bind ( &CForAllNodesT::trigger_Regions,   this ) );
@@ -46,8 +46,8 @@ public: // functions
 
   void trigger_Regions()
   {
-    std::vector<URI> vec; property("Regions").put_value(vec);
-    BOOST_FOREACH(const CPath region_path, vec)
+    std::vector<Common::URI> vec; property("Regions").put_value(vec);
+    BOOST_FOREACH(const Common::CPath region_path, vec)
     {
       m_loop_regions.push_back(look_component_type<CRegion>(region_path));
     }
@@ -58,13 +58,13 @@ public: // functions
   virtual ~CForAllNodesT() {}
 
   /// Get the class name
-  static std::string type_name () { return "CForAllNodes"; }
+  static std::string type_name () { return "CForAllNodes<" + COp::type_name() +">"; }
 
   /// Configuration Options
   virtual void define_config_properties ()
   {
-    std::vector< URI > dummy;
-    m_properties.add_option< OptionArrayT < URI > > ("Regions", "Regions to loop over", dummy)->mark_basic();
+    std::vector< Common::URI > dummy;
+    m_properties.add_option< Common::OptionArrayT < Common::URI > > ("Regions", "Regions to loop over", dummy)->mark_basic();
   }
 
   // functions specific to the CForAllNodes component
@@ -94,14 +94,14 @@ public: // functions
       std::set<CArray*> coordinates_set;
       BOOST_FOREACH(CRegion::Ptr& region, m_loop_regions)
       {
-        BOOST_FOREACH(CArray& coordinates, recursive_filtered_range_typed<CArray>(*region, IsComponentTag("coordinates")))
+        BOOST_FOREACH(CArray& coordinates, Common::recursive_filtered_range_typed<CArray>(*region, Common::IsComponentTag("coordinates")))
         {
           coordinates_set.insert(&coordinates);
           Component::Ptr parent = coordinates.get_parent();
-          if (range_typed<CNodeConnectivity>(*parent).empty())
+          if (Common::range_typed<CNodeConnectivity>(*parent).empty())
           {
             CNodeConnectivity::Ptr node_connectivity = parent->create_component_type<CNodeConnectivity>("node_connectivity");
-            node_connectivity->initialize(recursive_filtered_range_typed<CElements>(*region, IsElementsVolume()));
+            node_connectivity->initialize(Common::recursive_filtered_range_typed<CElements>(*region, IsElementsVolume()));
           }
         }
       }
@@ -110,7 +110,7 @@ public: // functions
       {
         //const CNodeConnectivity& node_connectivity = *coordinates->look_component_type<CNodeConnectivity>("../node_connectivity");
         // Execute all child operations
-        BOOST_FOREACH(COperation& operation, range_typed<COperation>(*this))
+        BOOST_FOREACH(COperation& operation, Common::range_typed<COperation>(*this))
         {
           operation.set_loophelper( *coordinates );
           for (Uint iNode = 0; iNode!= coordinates->size(); ++iNode)

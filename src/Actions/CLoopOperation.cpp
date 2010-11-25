@@ -15,6 +15,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace CF::Common;
+using namespace CF::Mesh;
 
 namespace CF {
 namespace Actions {
@@ -24,7 +25,7 @@ namespace Actions {
 CLoopOperation::CLoopOperation ( const std::string& name ) : 
   CAction(name)
 {
-  BuildComponent<none>().build(this);
+  add_tag( type_name() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

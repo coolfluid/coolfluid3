@@ -17,17 +17,14 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-
 namespace CF {
 namespace Mesh {
-
-using namespace Common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Stores connectivity data between nodes and their adjacent elements
 /// and provides a convenient API to access the data
-class Mesh_API CNodeConnectivity : public Component
+class Mesh_API CNodeConnectivity : public Common::Component
 {
 public:
 
@@ -95,7 +92,7 @@ private: // data
 
 /// Stores connectivity data between element faces and their adjacent elements
 /// and provides a convenient API to access the data
-class Mesh_API CFaceConnectivity : public Component
+class Mesh_API CFaceConnectivity : public Common::Component
 {
 public:
 

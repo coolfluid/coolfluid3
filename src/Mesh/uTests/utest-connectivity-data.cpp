@@ -43,10 +43,10 @@ typedef MeshSourceGlobalFixture<1000> MeshSource;
 struct NeuFixture
 {
   /// common setup for each test case
-  NeuFixture() : mesh2d(new CMesh  ( "mesh2d" )), mesh3d(new CMesh  ( "mesh3d" ))
+  NeuFixture() : mesh2d(allocate_component_type<CMesh>  ( "mesh2d" )), mesh3d(allocate_component_type<CMesh>  ( "mesh3d" ))
   {
     // Read the a .neu mesh as 2D mixed mesh
-    CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
+    CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
 
     // the file to read from
     boost::filesystem::path fp_in_2d ("quadtriag.neu");

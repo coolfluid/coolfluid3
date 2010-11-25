@@ -59,16 +59,16 @@ BOOST_AUTO_TEST_CASE( Channel3D )
 {
   // files should be in current working directory
   boost::filesystem::path dict_path = base_dir / boost::filesystem::path("channel3d.dict");
-  CMeshReader::Ptr dict_reader = create_component_abstract_type<CMeshReader>("blockMeshDict","meshreader");
+  CMeshReader::Ptr dict_reader = create_component_abstract_type<CMeshReader>("CF.BlockMeshReader.BlockMeshReader","meshreader");
   
   // Read the dict mesh
-  CMesh::Ptr dict_mesh(new CMesh("dict_mesh"));
+  CMesh::Ptr dict_mesh( allocate_component_type< CMesh >("dict_mesh"));
   dict_reader->read_from_to(dict_path, dict_mesh);
   
   // Read the reference mesh
   boost::filesystem::path ref_path = base_dir / boost::filesystem::path("uTestBlockMeshReader-Channel3D-reference.neu");
-  CMeshReader::Ptr ref_reader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
-  CMesh::Ptr ref_mesh(new CMesh("reference"));
+  CMeshReader::Ptr ref_reader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  CMesh::Ptr ref_mesh(allocate_component_type<CMesh>("reference"));
   ref_reader->read_from_to(ref_path, ref_mesh);
   
   // Check if they are equal
@@ -79,16 +79,16 @@ BOOST_AUTO_TEST_CASE( Cavity2D )
 {
   // files should be in current working directory
   boost::filesystem::path dict_path = base_dir / boost::filesystem::path("cavity2d.dict");
-  CMeshReader::Ptr dict_reader = create_component_abstract_type<CMeshReader>("blockMeshDict","meshreader");
+  CMeshReader::Ptr dict_reader = create_component_abstract_type<CMeshReader>("CF.BlockMeshReader.BlockMeshReader","meshreader");
   
   // Read the dict mesh
-  CMesh::Ptr dict_mesh(new CMesh("dict_mesh"));
+  CMesh::Ptr dict_mesh(allocate_component_type<CMesh>("dict_mesh"));
   dict_reader->read_from_to(dict_path, dict_mesh);
   
     // Read the reference mesh
   boost::filesystem::path ref_path = base_dir / boost::filesystem::path("uTestBlockMeshReader-Cavity2D-reference.neu");
-  CMeshReader::Ptr ref_reader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
-  CMesh::Ptr ref_mesh(new CMesh("reference"));
+  CMeshReader::Ptr ref_reader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  CMesh::Ptr ref_mesh(allocate_component_type<CMesh>("reference"));
   ref_reader->read_from_to(ref_path, ref_mesh);
   
   CFinfo << dict_mesh->tree() << CFendl;
@@ -102,16 +102,16 @@ BOOST_AUTO_TEST_CASE( PitzDaily )
 {
   // files should be in current working directory
   boost::filesystem::path dict_path = base_dir / boost::filesystem::path("pitzdaily.dict");
-  CMeshReader::Ptr dict_reader = create_component_abstract_type<CMeshReader>("blockMeshDict","meshreader");
+  CMeshReader::Ptr dict_reader = create_component_abstract_type<CMeshReader>("CF.BlockMeshReader.BlockMeshReader","meshreader");
   
   // Read the dict mesh
-  CMesh::Ptr dict_mesh(new CMesh("dict_mesh"));
+  CMesh::Ptr dict_mesh(allocate_component_type<CMesh>("dict_mesh"));
   dict_reader->read_from_to(dict_path, dict_mesh);
   
     // Read the reference mesh
   boost::filesystem::path ref_path = base_dir / boost::filesystem::path("uTestBlockMeshReader-PitzDaily-reference.neu");
-  CMeshReader::Ptr ref_reader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
-  CMesh::Ptr ref_mesh(new CMesh("reference"));
+  CMeshReader::Ptr ref_reader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  CMesh::Ptr ref_mesh(allocate_component_type<CMesh>("reference"));
   ref_reader->read_from_to(ref_path, ref_mesh);
   
   // Check if they are equal
@@ -159,14 +159,14 @@ BOOST_AUTO_TEST_CASE( PartitionBlocks )
   }
   
   BlockData partitioned_blocks;
-  partition_blocks(block_data, nb_procs, CF::Mesh::XX, partitioned_blocks);
+  partition_blocks(block_data, nb_procs, XX, partitioned_blocks);
   
   // create a mesh with the blocks only
-  CMesh::Ptr block_mesh(new CMesh("block_mesh"));
+  CMesh::Ptr block_mesh(allocate_component_type<CMesh>("block_mesh"));
   create_block_mesh(partitioned_blocks, *block_mesh);
   
   // Write msh for verification in gmsh
-//   CMeshWriter::Ptr msh_writer = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
+//   CMeshWriter::Ptr msh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
 //   boost::filesystem::path outf("PartitionBlocks.msh");
 //   msh_writer->write_from_to(block_mesh, outf);
   
@@ -178,13 +178,13 @@ BOOST_AUTO_TEST_CASE( GenerateChannel )
 {
   // files should be in current working directory
   boost::filesystem::path dict_path = base_dir / boost::filesystem::path("channel3d.dict");
-  CMeshReader::Ptr dict_reader = create_component_abstract_type<CMeshReader>("blockMeshDict","meshreader");
+  CMeshReader::Ptr dict_reader = create_component_abstract_type<CMeshReader>("CF.BlockMeshReader.BlockMeshReader","meshreader");
   
   // Read the dict mesh
-  CMesh::Ptr dict_mesh(new CMesh("dict_mesh"));
+  CMesh::Ptr dict_mesh(allocate_component_type<CMesh>("dict_mesh"));
   dict_reader->read_from_to(dict_path, dict_mesh);
   
-  CMesh::Ptr gen_mesh(new CMesh("gen_mesh"));
+  CMesh::Ptr gen_mesh(allocate_component_type<CMesh>("gen_mesh"));
   BlockData blocks;
   Tools::MeshGeneration::create_channel_3d(blocks, 12.5663706144, 0.5, 6.28318530718, 16, 8, 12, 0.1);
   std::vector<Uint> nodes_dist;

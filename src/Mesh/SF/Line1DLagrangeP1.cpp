@@ -18,7 +18,7 @@ namespace SF {
 Common::ComponentBuilder < Line1DLagrangeP1,
                          ElementType,
                          LibSF >
-aLine1DLagrangeP1_Builder ( "Line1DLagrangeP1" );
+aLine1DLagrangeP1_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -32,7 +32,7 @@ Line1DLagrangeP1::Line1DLagrangeP1(const std::string& name) : Line1D(name)
 
 std::string Line1DLagrangeP1::getElementTypeName() const
 {
-  return "Line1DLagrangeP1";
+  return LibSF::library_namespace() + "." + type_name();
 }
 
 Real Line1DLagrangeP1::computeVolume(const NodesT& coord) const

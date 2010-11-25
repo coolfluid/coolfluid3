@@ -10,6 +10,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
+using namespace CF::Common;
+
 namespace CF {
 namespace Mesh {
 
@@ -25,12 +27,12 @@ COperation::COperation ( const std::string& name ) :
 
 void COperation::set_loophelper (CElements& geometry_elements )
 {
-  throw NotImplemented(FromHere(), "Must create child that overloads this function");
+  throw Common::NotImplemented(FromHere(), "Must create child that overloads this function");
 }
   
 void COperation::set_loophelper ( CArray& coordinates )
 {
-  throw NotImplemented(FromHere(), "Must create child that overloads this function");
+  throw Common::NotImplemented(FromHere(), "Must create child that overloads this function");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -62,13 +64,13 @@ COperation& COperation::create_operation(const std::string operation_type)
 
 ///////////////////////////////////////////////////////////////////////////////////////
   
-Common::ComponentBuilder < COperationMerge, COperation, LibMesh > COperationMerge_Builder( "COperationMerge" );
+Common::ComponentBuilder < COperationMerge, COperation, LibMesh > COperationMerge_Builder;
 
-Common::ComponentBuilder < COutputField,    COperation, LibMesh > COutputField_Builder( "COutputField" );
+Common::ComponentBuilder < COutputField,    COperation, LibMesh > COutputField_Builder;
 
-Common::ComponentBuilder < CComputeVolumes, COperation, LibMesh > CComputeVolume_Builder( "CComputeVolumes" );
+Common::ComponentBuilder < CComputeVolumes, COperation, LibMesh > CComputeVolume_Builder;
 
-Common::ComponentBuilder < CSetValue,       COperation, LibMesh > CSetValue_Builder( "CSetValue" );
+Common::ComponentBuilder < CSetValue,       COperation, LibMesh > CSetValue_Builder;
 
 //
 //struct SetX

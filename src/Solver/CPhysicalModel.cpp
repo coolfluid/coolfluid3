@@ -16,8 +16,7 @@ using namespace CF::Common;
 namespace CF {
 namespace Solver {
 
-Common::ComponentBuilder < CPhysicalModel, Component, LibSolver >
-CPhysicalModel_Builder ( CPhysicalModel::type_name() );
+Common::ComponentBuilder < CPhysicalModel, Component, LibSolver > CPhysicalModel_Builder;
   
 ////////////////////////////////////////////////////////////////////////////////
 

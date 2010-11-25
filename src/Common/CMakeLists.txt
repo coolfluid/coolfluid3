@@ -12,6 +12,7 @@ list( APPEND coolfluid_common_files
     BuildComponent.hpp
     CF.hpp
     CBuilder.hpp
+    CBuilder.cpp
     CodeLocation.cpp
     CodeLocation.hpp
     CodeProfiler.cpp

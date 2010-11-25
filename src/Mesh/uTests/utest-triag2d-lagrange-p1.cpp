@@ -21,6 +21,7 @@
 
 using namespace boost::assign;
 using namespace CF;
+using namespace CF::Common;
 using namespace CF::Mesh;
 using namespace CF::Mesh::Integrators;
 using namespace CF::Mesh::SF;
@@ -80,11 +81,11 @@ BOOST_AUTO_TEST_CASE( Volume )
 
 BOOST_AUTO_TEST_CASE( Element )
 {
-  CArray::Ptr coordinates (new CArray("coordinates"));
+  CArray::Ptr coordinates ( allocate_component_type<CArray>("coordinates") );
   // Create a CElements component
-  CElements::Ptr comp (new CElements("comp")) ;
+  CElements::Ptr comp ( allocate_component_type<CElements>("comp") ) ;
 
-  comp->initialize("Triag2DLagrangeP1",*coordinates);
+  comp->initialize("CF.Mesh.SF.Triag2DLagrangeP1",*coordinates);
   BOOST_CHECK_EQUAL(comp->element_type().shape(), GeoShape::TRIAG);
   BOOST_CHECK_EQUAL(comp->element_type().nb_nodes(), (Uint) 3);
 

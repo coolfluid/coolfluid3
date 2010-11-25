@@ -15,15 +15,14 @@ namespace Mesh {
 
 using namespace Common;
 
-Common::ComponentBuilder < CTable, Component, LibMesh >
-CTable_Builder ( CTable::type_name() );
+Common::ComponentBuilder < CTable, Component, LibMesh > CTable_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 CTable::CTable ( const std::string& name  ) :
   Component ( name )
 {
-  BuildComponent<none>().build(this);
+  add_tag( type_name() );
 }
 
 std::ostream& operator<<(std::ostream& os, const CTable::ConstRow& row)

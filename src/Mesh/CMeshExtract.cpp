@@ -36,10 +36,7 @@ namespace Mesh {
   
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Mesh::CMeshExtract,
-                           Mesh::CMeshTransformer,
-                           Mesh::LibMesh >
-CMeshExtract_Builder;
+Common::ComponentBuilder < Mesh::CMeshExtract, Mesh::CMeshTransformer, Mesh::LibMesh > CMeshExtract_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 

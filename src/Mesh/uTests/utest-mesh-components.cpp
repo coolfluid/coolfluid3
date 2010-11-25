@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
   // Create root and mesh component
   boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
 
-  boost::shared_ptr<Component> mesh ( new CMesh  ( "mesh" ) );
+  boost::shared_ptr<Component> mesh ( allocate_component_type<CMesh>  ( "mesh" ) );
 
   root->add_component( mesh );
 
@@ -246,7 +246,7 @@ BOOST_AUTO_TEST_CASE( CTableTest )
   // Create mesh component
   boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
 
-  boost::shared_ptr<Component> mesh ( new CMesh  ( "mesh" ) );
+  boost::shared_ptr<Component> mesh ( allocate_component_type<CMesh>  ( "mesh" ) );
 
   root->add_component( mesh );
   

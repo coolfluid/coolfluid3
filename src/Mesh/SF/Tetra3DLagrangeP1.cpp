@@ -19,7 +19,7 @@ namespace SF {
 Common::ComponentBuilder < Tetra3DLagrangeP1,
                          ElementType,
                          LibSF >
-aTetra3DLagrangeP1_Builder ( "Tetra3DLagrangeP1" );
+aTetra3DLagrangeP1_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +33,7 @@ Tetra3DLagrangeP1::Tetra3DLagrangeP1(const std::string& name) : Tetra3D(name)
 
 std::string Tetra3DLagrangeP1::getElementTypeName() const
 {
-  return "Tetra3DLagrangeP1";
+  return LibSF::library_namespace() + "." + type_name();
 }
 
 Real Tetra3DLagrangeP1::computeVolume(const NodesT& coord) const

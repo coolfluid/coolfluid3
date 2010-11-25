@@ -13,8 +13,7 @@ namespace Solver {
 
 using namespace Common;
 
-Common::ComponentBuilder < ForwardEuler, CIterativeSolver, LibSolver >
-ForwardEuler_Builder ( ForwardEuler::type_name() );
+Common::ComponentBuilder < ForwardEuler, CIterativeSolver, LibSolver > ForwardEuler_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

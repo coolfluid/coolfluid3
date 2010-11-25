@@ -77,20 +77,31 @@ BOOST_AUTO_TEST_CASE( Constructors)
 
 BOOST_AUTO_TEST_CASE( Interpolation )
 {
-  // build meshes
-  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
+  BOOST_CHECK( true );
+
+  // create meshreader
+  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+
+  BOOST_CHECK( true );
+
   boost::filesystem::path fp_source ("hextet.neu");
   CMesh::Ptr source = meshreader->create_mesh_from(fp_source);
+
+  BOOST_CHECK( true );
+
   boost::filesystem::path fp_target ("quadtriag.neu");
-	CMesh::Ptr target = meshreader->create_mesh_from(fp_target);
-                     
-//  boost::filesystem::path fp_target ("grid_c.cgns");	
-//	CMeshReader::Ptr cgns_meshreader = create_component_abstract_type<CMeshReader>("CGNS","cgns_meshreader");
+  CMesh::Ptr target = meshreader->create_mesh_from(fp_target);
+
+
+  BOOST_CHECK( true );
+
+  //  boost::filesystem::path fp_target ("grid_c.cgns");
+//	CMeshReader::Ptr cgns_meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.CGNS.CReader","cgns_meshreader");
 //  CMesh::Ptr target = cgns_meshreader->create_mesh_from(fp_target);
 
 
 	// Create and configure interpolator.
-  CInterpolator::Ptr interpolator = create_component_abstract_type<CInterpolator>("Honeycomb","interpolator");
+  CInterpolator::Ptr interpolator = create_component_abstract_type<CInterpolator>("CF.Mesh.CHoneycombInterpolator","interpolator");
 	interpolator->configure_property("ApproximateNbElementsPerCell", (Uint) 1 );
 	// Following configuration option has priority over the the previous one.
 	std::vector<Uint> divisions = boost::assign::list_of(3)(2)(2);
@@ -138,6 +149,8 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 		}
   }
 
+  BOOST_CHECK(true);
+
   // Interpolate the source field data to the target field. Note it can be in same or different meshes
   interpolator->interpolate_field_from_to(source->field("nodebased"),target->field("nodebased"));
 	interpolator->interpolate_field_from_to(source->field("nodebased"),target->field("elementbased"));
@@ -148,9 +161,10 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 	BOOST_CHECK(true);
 	
 	// Write the fields to file.
-	CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
+  CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
 	boost::filesystem::path fp_source_out("source.msh");
 	boost::filesystem::path fp_interpolated("interpolated.msh");
+
 	BOOST_CHECK(true);
 
 	meshwriter->write_from_to(source,fp_source_out);

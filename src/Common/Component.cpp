@@ -10,7 +10,7 @@
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "Common/Log.hpp"
+// #include "Common/Log.hpp" // temporary
 #include "Common/CBuilder.hpp"
 #include "Common/XmlHelpers.hpp"
 #include "Common/BasicExceptions.hpp"
@@ -123,6 +123,8 @@ Component::ConstPtr Component::get_parent() const
 
 Component::Ptr Component::add_component ( Component::Ptr subcomp )
 {
+  cf_assert( subcomp != nullptr );
+
   std::string unique_name = ensure_unique_name(subcomp);
 
   m_components[unique_name] = subcomp;           // add to all component list
@@ -130,10 +132,10 @@ Component::Ptr Component::add_component ( Component::Ptr subcomp )
 
   raise_path_changed();
 
-	subcomp->change_parent( this );
+  subcomp->change_parent( this );
 	subcomp->rename( unique_name );
 
-	return subcomp;
+  return subcomp;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

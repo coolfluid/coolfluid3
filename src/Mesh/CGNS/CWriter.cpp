@@ -18,16 +18,16 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
+using namespace CF::Common;
+using namespace CF::Mesh;
+
 namespace CF {
 namespace Mesh {
 namespace CGNS {
   
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Mesh::CGNS::CWriter,
-                         Mesh::CMeshWriter,
-                         Mesh::CGNS::LibCGNS >
-aCGNSWriter_Builder;
+Common::ComponentBuilder < CGNS::CWriter, CMeshWriter, LibCGNS > aCGNSWriter_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 

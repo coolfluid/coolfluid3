@@ -350,7 +350,7 @@ void for_each_element_new(const ExprT& expr)
   Mesh::CRegion& root_region = *(*boost::fusion::find<ConstNodes>(vars)).region;
   
   // Traverse all CElements under the root and evaluate the expression
-  BOOST_FOREACH(Mesh::CElements& elements, Mesh::recursive_range_typed<Mesh::CElements>(root_region))
+  BOOST_FOREACH(Mesh::CElements& elements, Common::recursive_range_typed<Mesh::CElements>(root_region))
   {
     // Create an expression runner, taking rather many template arguments, and use it to run the expression.
     // This recurses through the variables, selecting the appropriate shape function for each variable

@@ -10,6 +10,9 @@
 
 /////////////////////////////////////////////////////////////////////////////////
 
+#include <boost/static_assert.hpp>
+#include <boost/type_traits/is_base_of.hpp>
+
 #include "Common/CFactories.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/CLink.hpp"
@@ -28,7 +31,7 @@ namespace Common {
 
 /// @brief Component that builds other components
 /// @author Tiago Quintino
-class CBuilder : public Component
+class Common_API CBuilder : public Component
 {
 public:
 
@@ -37,13 +40,10 @@ public:
 
   /// @brief Contructor
   /// @param name of component
-  CBuilder(const std::string& name) : Component(name)
-  {
-    add_tag( type_name() );
-  }
+  CBuilder(const std::string& name);
 
   /// @brief Virtual destructor.
-  virtual ~CBuilder() {}
+  virtual ~CBuilder();
 
   /// @returns the class name
   static std::string type_name() { return  "CBuilder"; }
@@ -79,6 +79,11 @@ public:
   CBuilderT(const std::string& name) : CBuilder(name)
   {
     add_tag( type_name() );
+
+    // verify that BASE derives or is same type of Component
+    BOOST_STATIC_ASSERT( (boost::is_base_of<Common::Component,BASE>::value) );
+    // verify that CONCRETE derives from BASE
+    BOOST_STATIC_ASSERT( (boost::is_base_of<BASE,CONCRETE>::value) );
 
     this->regist_signal ( "build_component" , "builds a component", "Build component" )->connect ( boost::bind ( &CBuilderT<BASE,CONCRETE>::build_component, this, _1 ) );
     this->signal("build_component").m_signature.template insert<std::string>("Component name", "Name for created component" )
@@ -137,25 +142,39 @@ struct ComponentBuilder
   /// @brief creates the CBuilder and places it into the correct factory
   ComponentBuilder( const std::string& name = std::string( LIB::library_namespace() + "." + CONCRETE::type_name()) )
   {
+
+    // verify that LIB derives from CLibrary
+    BOOST_STATIC_ASSERT( (boost::is_base_of<Common::CLibrary,LIB>::value) );
+    // verify that BASE derives or is same type of Component
+    BOOST_STATIC_ASSERT( (boost::is_base_of<Common::Component,BASE>::value) );
+    // verify that CONCRETE derives from BASE
+    BOOST_STATIC_ASSERT( (boost::is_base_of<BASE,CONCRETE>::value) );
+
     // give some info
-    CFinfo << "lib [" << LIB::type_name() << "] : factory of \'" << BASE::type_name() << "\' registering builder of \'" << CONCRETE::type_name() << "\' with name \'" << name << "\' ... " << CFendl;
+    CFinfo << "lib [" << LIB::type_name() << "] : factory of \'" << BASE::type_name() << "\' registering builder of \'" << CONCRETE::type_name() << "\' with name \'" << name << "\'" << CFendl;
 
     // regist the concrete type in TypeInfo
     CF::TypeInfo::instance().regist<CONCRETE>( CONCRETE::type_name() );
     CF::TypeInfo::instance().regist< CBuilderT<BASE,CONCRETE> >(  CBuilderT<BASE,CONCRETE>::type_name() );
 
-    // put builder in correct factory
+    // get the factories
     Common::CFactories::Ptr factories = Common::Core::instance().root()->get_child_type< CFactories >("Factories");
+
+    // put builder in correct factory
     Common::CFactory::Ptr   factory = factories->get_factory< BASE >();
+    cf_assert ( factory != nullptr );
+
     CBuilder::Ptr builder = factory->create_component_type< Common::CBuilderT<BASE,CONCRETE> >( name );
+    cf_assert ( builder != nullptr );
 
     // put a CLink to the builder in the respective CLibrary
     CLibrary::Ptr lib = Core::instance().libraries()->get_library<LIB>();
-    CLink::Ptr liblink = lib->create_component_type<CLink>( name );
-    liblink->link_to( builder );
+    cf_assert ( lib != nullptr );
 
-    // give some info
-    CFinfo << "lib [" << LIB::type_name() << "] : factory of \'" << BASE::type_name() << "\' registering builder of \'" << CONCRETE::type_name() << "\' with name \'" << name << "\' ... DONE" << CFendl;
+    CLink::Ptr liblink = lib->create_component_type<CLink>( name );
+    cf_assert ( liblink != nullptr );
+
+    liblink->link_to( builder );
   }
 
 }; // ComponentBuilder

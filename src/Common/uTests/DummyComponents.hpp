@@ -107,11 +107,9 @@ public: // functions
 };
 
 
-CF::Common::ComponentBuilder < CConcrete1, CAbstract, LibCommon >
-aConcrete1Component_Builder ( "Concrete1" );
+CF::Common::ComponentBuilder < CConcrete1, CAbstract, LibCommon > aConcrete1Component_Builder;
 
-CF::Common::ComponentBuilder < CConcrete2, CAbstract, LibCommon >
-aConcrete2Component_Builder ( "Concrete2" );
+CF::Common::ComponentBuilder < CConcrete2, CAbstract, LibCommon > aConcrete2Component_Builder;
 
 } // Common
 } // CF

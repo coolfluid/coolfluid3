@@ -18,7 +18,7 @@ namespace SF {
 Common::ComponentBuilder < Point1DLagrangeP1,
                          ElementType,
                          LibSF >
-aPoint1DLagrangeP1_Builder ( "Point1DLagrangeP1" );
+aPoint1DLagrangeP1_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -32,7 +32,7 @@ Point1DLagrangeP1::Point1DLagrangeP1(const std::string& name) : Point1D(name)
 
 std::string Point1DLagrangeP1::getElementTypeName() const
 {
-  return "Point1DLagrangeP1";
+  return LibSF::library_namespace() + "." + type_name();
 }
 
 Real Point1DLagrangeP1::computeVolume(const NodesT& coord) const

@@ -23,10 +23,10 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-	
-	using namespace Common::String;
-	
+using namespace CF::Common;
+using namespace CF::Common::String;
+
+namespace CF {	
 namespace Mesh {
 namespace Gmsh {
 
@@ -42,20 +42,20 @@ CWriter::CWriter( const std::string& name )
   BuildComponent<none>().build(this);
 
   // gmsh types: http://www.geuz.org/gmsh/doc/texinfo/gmsh.html#MSH-ASCII-file-format
-  m_elementTypes["Line1DLagrangeP1" ]=1;
-	m_elementTypes["Line2DLagrangeP1" ]=1;
-	m_elementTypes["Line3DLagrangeP1" ]=1;
-	m_elementTypes["Triag2DLagrangeP1"]=2;
-	m_elementTypes["Triag3DLagrangeP1"]=2;
-	m_elementTypes["Quad2DLagrangeP1" ]=3;
-	m_elementTypes["Quad3DLagrangeP1" ]=3;
-	m_elementTypes["Tetra3DLagrangeP1"]=4;
-	m_elementTypes["Hexa3DLagrangeP1" ]=5;
+  m_elementTypes["CF.Mesh.SF.Line1DLagrangeP1" ]=1;
+  m_elementTypes["CF.Mesh.SF.Line2DLagrangeP1" ]=1;
+  m_elementTypes["CF.Mesh.SF.Line3DLagrangeP1" ]=1;
+  m_elementTypes["CF.Mesh.SF.Triag2DLagrangeP1"]=2;
+  m_elementTypes["CF.Mesh.SF.Triag3DLagrangeP1"]=2;
+  m_elementTypes["CF.Mesh.SF.Quad2DLagrangeP1" ]=3;
+  m_elementTypes["CF.Mesh.SF.Quad3DLagrangeP1" ]=3;
+  m_elementTypes["CF.Mesh.SF.Tetra3DLagrangeP1"]=4;
+  m_elementTypes["CF.Mesh.SF.Hexa3DLagrangeP1" ]=5;
 
-	m_elementTypes["Triag2DLagrangeP2"]=9;
-	m_elementTypes["Triag3DLagrangeP2"]=9;
-	m_elementTypes["Quad2DLagrangeP2" ]=10;
-	m_elementTypes["Quad3DLagrangeP2" ]=10;
+  m_elementTypes["CF.Mesh.SF.Triag2DLagrangeP2"]=9;
+  m_elementTypes["CF.Mesh.SF.Triag3DLagrangeP2"]=9;
+  m_elementTypes["CF.Mesh.SF.Quad2DLagrangeP2" ]=10;
+  m_elementTypes["CF.Mesh.SF.Quad3DLagrangeP2" ]=10;
 
 }
 

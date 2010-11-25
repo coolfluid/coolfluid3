@@ -14,11 +14,6 @@
 
 #include "Tools/MeshGeneration/LibMeshGeneration.hpp"
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Math::MathConsts;
-
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -28,14 +23,14 @@ namespace MeshGeneration {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Create a 1D line mesh
-void MeshGeneration_API create_line(CMesh& mesh, const Real x_len, const Uint x_segments);
+void MeshGeneration_API create_line(Mesh::CMesh& mesh, const Real x_len, const Uint x_segments);
 
 /// Create a rectangular, 2D, quad-only mesh. No buffer for creation
-void MeshGeneration_API create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments);
+void MeshGeneration_API create_rectangle(Mesh::CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments);
 
 /// Creates a 2D circular arc
-void MeshGeneration_API create_circle_2d(CArray& coordinates, CTable& connectivity, const Real radius, const Uint segments, const Real start_angle = 0., const Real end_angle = 2.*pi());
-void MeshGeneration_API create_circle_2d(CMesh& mesh, const Real radius, const Uint segments, const Real start_angle = 0., const Real end_angle = 2.*pi());
+void MeshGeneration_API create_circle_2d(Mesh::CArray& coordinates, Mesh::CTable& connectivity, const Real radius, const Uint segments, const Real start_angle = 0., const Real end_angle = 2.*Math::MathConsts::pi());
+void MeshGeneration_API create_circle_2d(Mesh::CMesh& mesh, const Real radius, const Uint segments, const Real start_angle = 0., const Real end_angle = 2.*Math::MathConsts::pi());
 
 /// Create block data for a 3D periodic channel (flow between infinite flat plates)
 /// @param length: Total distance between the streamwise periodic boundaries (X-direction)
@@ -61,11 +56,11 @@ struct MeshSourceGlobalFixture {
   }
 
   /// Returns a 2D square grid, with side MeshSize
-  static const CMesh& grid2()
+  static const Mesh::CMesh& grid2()
   {
-    static CMesh::Ptr grid2D;
+    static Mesh::CMesh::Ptr grid2D;
     if(!grid2D) {
-      grid2D.reset(new CMesh("grid2D"));
+      grid2D.reset(new Mesh::CMesh("grid2D"));
       create_rectangle(*grid2D, 1., 1., MeshSize, MeshSize);
     }
     return *grid2D;

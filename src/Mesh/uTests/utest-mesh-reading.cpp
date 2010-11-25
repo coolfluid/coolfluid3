@@ -66,15 +66,15 @@ BOOST_FIXTURE_TEST_SUITE( MeshReading_TestSuite, MeshReading_Fixture )
 
 BOOST_AUTO_TEST_CASE( Constructors )
 {
-  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
+  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
   BOOST_CHECK_EQUAL(meshreader->name(),"meshreader");
   BOOST_CHECK_EQUAL(meshreader->get_format(),"Neu");
 
-  CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
+  CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   BOOST_CHECK_EQUAL(meshwriter->name(),"meshwriter");
   BOOST_CHECK_EQUAL(meshwriter->get_format(),"Gmsh");
 
-  CMeshWriter::Ptr neu_writer = create_component_abstract_type<CMeshWriter>("Neu","meshwriter");
+  CMeshWriter::Ptr neu_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Neu.CWriter","meshwriter");
   BOOST_CHECK_EQUAL(neu_writer->name(),"meshwriter");
   BOOST_CHECK_EQUAL(neu_writer->get_format(),"Neu");
  
@@ -84,13 +84,13 @@ BOOST_AUTO_TEST_CASE( Constructors )
 
 BOOST_AUTO_TEST_CASE( quadtriag_readNeu_writeGmsh_writeNeu )
 {
-  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
+  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
 		
   // the file to read from
   boost::filesystem::path fp_in ("quadtriag.neu");
 
   // the mesh to store in
-  CMesh::Ptr mesh ( new CMesh  ( "mesh" ) );
+  CMesh::Ptr mesh ( allocate_component_type<CMesh>  ( "mesh" ) );
   
   meshreader->read_from_to(fp_in,mesh);
   
@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE( quadtriag_readNeu_writeGmsh_writeNeu )
                       "  regions\n"
                       "    coordinates\n"
                       "    gas\n"
-                      "      elements_Quad2DLagrangeP1\n"
+                      "      elements_CF.Mesh.SF.Quad2DLagrangeP1\n"
                       "        connectivity_table\n"
                       "        coordinates\n"
                       "      elements_Triag2DLagrangeP1\n"
@@ -126,10 +126,10 @@ BOOST_AUTO_TEST_CASE( quadtriag_readNeu_writeGmsh_writeNeu )
   //BOOST_CHECK_EQUAL(text,mesh->tree());
 	
   boost::filesystem::path fp_out ("quadtriag.msh");
-  CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
+  CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->write_from_to(mesh,fp_out);
   boost::filesystem::path fp_out_neu ("quadtriag_write.neu");
-  CMeshWriter::Ptr neu_writer = create_component_abstract_type<CMeshWriter>("Neu","meshwriter");
+  CMeshWriter::Ptr neu_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Neu.CWriter","meshwriter");
   neu_writer->write_from_to(mesh,fp_out_neu);
   
   BOOST_CHECK_EQUAL(mesh->domain().recursive_nodes_count(), (Uint) 16);
@@ -155,15 +155,15 @@ BOOST_AUTO_TEST_CASE( quadtriag_readNeu_writeGmsh_writeNeu )
 
 BOOST_AUTO_TEST_CASE( quadtriag_read_NewNeu_writeGmsh )
 {
-  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
-  CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
+  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
 	
   // the file to read from and to
   boost::filesystem::path fp_in ("quadtriag_write.neu");
   boost::filesystem::path fp_out("quadtriag_write.msh");
 
   // the mesh to store in
-  CMesh::Ptr mesh ( new CMesh  ( "mesh" ) );
+  CMesh::Ptr mesh ( allocate_component_type<CMesh>  ( "mesh" ) );
 
   //CFinfo << "ready to read" << CFendl;
   meshreader->read_from_to(fp_in,mesh);
@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE( quadtriag_read_NewNeu_writeGmsh )
                       "  regions\n"
                       "    coordinates\n"
                       "    gas\n"
-                      "      elements_Quad2DLagrangeP1\n"
+                      "      elements_CF.Mesh.SF.Quad2DLagrangeP1\n"
                       "        connectivity_table\n"
                       "        coordinates\n"
                       "      elements_Triag2DLagrangeP1\n"
@@ -213,13 +213,13 @@ BOOST_AUTO_TEST_CASE( quadtriag_read_NewNeu_writeGmsh )
 
 BOOST_AUTO_TEST_CASE( hextet_readNeu_writeGmsh_writeNeu )
 {
-  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
+  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
   	
   // the file to read from
   boost::filesystem::path fp_in ("hextet.neu");
   
   // the mesh to store in
-  CMesh::Ptr mesh ( new CMesh  ( "mesh" ) );
+  CMesh::Ptr mesh ( allocate_component_type<CMesh>  ( "mesh" ) );
   
   meshreader->read_from_to(fp_in,mesh);
     
@@ -235,7 +235,7 @@ BOOST_AUTO_TEST_CASE( hextet_readNeu_writeGmsh_writeNeu )
                       "        connectivity_table\n"
                       "        coordinates\n"
                       "    inlet\n"
-                      "      elements_Quad3DLagrangeP1\n"
+                      "      elements_CF.Mesh.SF.Quad3DLagrangeP1\n"
                       "        connectivity_table\n"
                       "        coordinates\n"
                       "    outlet\n"
@@ -243,7 +243,7 @@ BOOST_AUTO_TEST_CASE( hextet_readNeu_writeGmsh_writeNeu )
                       "        connectivity_table\n"
                       "        coordinates\n"
                       "    wall\n"
-                      "      elements_Quad3DLagrangeP1\n"
+                      "      elements_CF.Mesh.SF.Quad3DLagrangeP1\n"
                       "        connectivity_table\n"
                       "        coordinates\n"
                       "      elements_Triag3DLagrangeP1\n"
@@ -256,10 +256,10 @@ BOOST_AUTO_TEST_CASE( hextet_readNeu_writeGmsh_writeNeu )
   
   
   boost::filesystem::path fp_out ("hextet.msh");
-  CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
+  CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->write_from_to(mesh,fp_out);
   boost::filesystem::path fp_out_neu ("hextet_write.neu");
-  CMeshWriter::Ptr neu_writer = create_component_abstract_type<CMeshWriter>("Neu","meshwriter");
+  CMeshWriter::Ptr neu_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Neu.CWriter","meshwriter");
   neu_writer->write_from_to(mesh,fp_out_neu);
   BOOST_CHECK_EQUAL(mesh->domain().recursive_nodes_count(), (Uint) 35);
   BOOST_CHECK_EQUAL(mesh->domain().recursive_elements_count(), (Uint) 44);
@@ -269,15 +269,15 @@ BOOST_AUTO_TEST_CASE( hextet_readNeu_writeGmsh_writeNeu )
 
 BOOST_AUTO_TEST_CASE( hextet_read_NewNeu_writeGmsh )
 {
-  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
-  CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
+  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   	
   // the file to read from and to
   boost::filesystem::path fp_in ("hextet_write.neu");
   boost::filesystem::path fp_out("hextet_write.msh");
   
   // the mesh to store in
-  CMesh::Ptr mesh ( new CMesh  ( "mesh" ) );
+  CMesh::Ptr mesh ( allocate_component_type<CMesh>  ( "mesh" ) );
   
   //CFinfo << "ready to read" << CFendl;
   meshreader->read_from_to(fp_in,mesh);
@@ -294,7 +294,7 @@ BOOST_AUTO_TEST_CASE( hextet_read_NewNeu_writeGmsh )
                       "        connectivity_table\n"
                       "        coordinates\n"
                       "    inlet\n"
-                      "      elements_Quad3DLagrangeP1\n"
+                      "      elements_CF.Mesh.SF.Quad3DLagrangeP1\n"
                       "        connectivity_table\n"
                       "        coordinates\n"
                       "    outlet\n"
@@ -302,7 +302,7 @@ BOOST_AUTO_TEST_CASE( hextet_read_NewNeu_writeGmsh )
                       "        connectivity_table\n"
                       "        coordinates\n"
                       "    wall\n"
-                      "      elements_Quad3DLagrangeP1\n"
+                      "      elements_CF.Mesh.SF.Quad3DLagrangeP1\n"
                       "        connectivity_table\n"
                       "        coordinates\n"
                       "      elements_Triag3DLagrangeP1\n"
@@ -325,13 +325,13 @@ BOOST_AUTO_TEST_CASE( hextet_read_NewNeu_writeGmsh )
 /*
 BOOST_AUTO_TEST_CASE( read_multiple )
 {
-  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
+  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
   
   // the file to read from
   boost::filesystem::path fp_in ("quadtriag.neu");
   
   // the mesh to store in
-  CMesh::Ptr mesh ( new CMesh  ( "mesh" ) );
+  CMesh::Ptr mesh ( allocate_component_type<CMesh>  ( "mesh" ) );
     
   for (Uint count=1; count<=4; ++count)
   {

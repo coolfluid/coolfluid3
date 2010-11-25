@@ -130,7 +130,7 @@ CField& CMesh::create_field( const std::string& name , CRegion& support, const s
 	{ 
     boost::regex e_variable("([[:word:]]+)?[[:space:]]*\\[[[:space:]]*([[:word:]]+)[[:space:]]*\\]");
     
-		boost::match_results<std::string::const_iterator> what; 
+    boost::match_results<std::string::const_iterator> what;
 		if (regex_search(var,what,e_variable))
 		{
 			names.push_back(what[1]);
@@ -138,11 +138,13 @@ CField& CMesh::create_field( const std::string& name , CRegion& support, const s
 		}
     else
       throw ShouldNotBeHere(FromHere(), "No match found for VarType " + var);
-	}
-	field.configure_property("VarNames",names);
+  }
+
+  field.configure_property("VarNames",names);
 	field.configure_property("VarTypes",types);
 	field.create_data_storage(basis);
-	return field;
+
+  return field;
 }
 	
 CField& CMesh::create_field( const std::string& name , const std::vector<std::string>& variables, const CField::DataBasis basis)

@@ -47,7 +47,7 @@ namespace Testing {
   public: // functions
 
     /// @return string of the library namespace
-    static std::string library_namespace() { return "CF.Testing"; }
+    static std::string library_namespace() { return "CF.Tools.Testing"; }
 
     /// Static function that returns the module name.
     /// Must be implemented for CLibrary registration

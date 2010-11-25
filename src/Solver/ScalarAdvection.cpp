@@ -26,8 +26,7 @@ using namespace Common;
 using namespace Mesh;
 using namespace Common::String;
 
-Common::ComponentBuilder < ScalarAdvection, Component, LibSolver >
-ScalarAdvection_Builder ( ScalarAdvection::type_name() );
+Common::ComponentBuilder < ScalarAdvection, Component, LibSolver > ScalarAdvection_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -65,7 +64,7 @@ void ScalarAdvection::run_wizard ( Common::XmlNode& node )
 //  // access the CModel
 //  CModel::Ptr model = look_component_type<CModel>( property("Model").value<std::string>() );
 
-  CModel::Ptr model = Core::instance().root()->create_component_type<CModel>("ScalarAdvection");
+  CModel::Ptr model = Core::instance().root()->create_component_type<CModel>("CF.Solver.ScalarAdvection");
   model->mark_basic();
 
   // create the CDomain
@@ -80,17 +79,17 @@ void ScalarAdvection::run_wizard ( Common::XmlNode& node )
   pm->configure_property( "Dimensions", 2u );
 
   // setup discretization method
-  CDiscretization::Ptr cdm = create_component_abstract_type<CDiscretization>("ResidualDistribution", "Discretization");
+  CDiscretization::Ptr cdm = create_component_abstract_type<CDiscretization>("CF.Solver.ResidualDistribution", "Discretization");
   cdm->mark_basic();
   model->add_component( cdm );
 
   // setup iterative solver
-  CIterativeSolver::Ptr solver = create_component_abstract_type<CIterativeSolver>("ForwardEuler", "IterativeSolver");
+  CIterativeSolver::Ptr solver = create_component_abstract_type<CIterativeSolver>("CF.Solver.ForwardEuler", "IterativeSolver");
   solver->mark_basic();
   model->add_component( solver );
 
-  CMeshReader::Ptr mesh_reader = create_component_abstract_type<CMeshReader>( "Neu", "NeutralReader" );
-//  CMeshReader::Ptr mesh_reader = create_component_abstract_type<CMeshReader>( "CGNS", "CGNSReader" );
+  CMeshReader::Ptr mesh_reader = create_component_abstract_type<CMeshReader>( "CF.Mesh.Neu.CReader", "NeutralReader" );
+//  CMeshReader::Ptr mesh_reader = create_component_abstract_type<CMeshReader>( "CF.Mesh.CGNS.CReader", "CGNSReader" );
   mesh_reader->mark_basic();
   model->add_component( mesh_reader );
 

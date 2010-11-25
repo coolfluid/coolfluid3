@@ -12,8 +12,6 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Mesh;
-using namespace CF::Common::String;
 namespace CF {
 namespace Actions {
 

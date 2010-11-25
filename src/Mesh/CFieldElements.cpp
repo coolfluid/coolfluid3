@@ -22,7 +22,8 @@ using namespace Common;
 CFieldElements::CFieldElements ( const std::string& name ) :
   CElements (name)
 {
-  BuildComponent<full>().build(this);
+  add_tag( type_name() );
+
   properties()["element_based"] = false;
   properties()["node_based"] = false;
 }

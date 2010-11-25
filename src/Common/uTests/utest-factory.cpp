@@ -51,8 +51,8 @@ BOOST_AUTO_TEST_CASE( get_factory )
 
 BOOST_AUTO_TEST_CASE( component_builder )
 {
-  ComponentBuilder< CConcrete1, CAbstract, LibCommon >();
-  ComponentBuilder< CConcrete2, CAbstract, LibCommon >();
+  ComponentBuilder< CConcrete1, CAbstract, LibCommon > cc1;
+  ComponentBuilder< CConcrete2, CAbstract, LibCommon > cc2;
 
   CFactories::Ptr factories = Core::instance().root()->get_child_type< CFactories >("Factories");
 

@@ -5,30 +5,26 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/CBuilder.hpp"
-#include "Solver/CModel.hpp"
 
 namespace CF {
-namespace Solver {
+namespace Common {
 
-using namespace Common;
-
-Common::ComponentBuilder < CModel, Component, LibSolver > CModel_Builder;
+RegistTypeInfo<CBuilder> CBuilder_TypeRegistration();
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CModel::CModel( const std::string& name  ) :
-  Component ( name )
+CBuilder::CBuilder ( const std::string& name) : Component ( name )
 {
-  BuildComponent<none>().build(this);
+  add_tag( type_name() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CModel::~CModel()
+CBuilder::~CBuilder()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Solver
+} // Common
 } // CF

@@ -13,14 +13,13 @@
 
 namespace CF {
   
-namespace Mesh {
-  class CElements;
-	template <typename T> class CList;
-}
+  namespace Mesh
+  {
+    class CElements;
+    template <typename T> class CList;
+  }
 
-namespace Actions {
-
-  using namespace CF::Mesh;
+  namespace Actions {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -43,11 +42,11 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CLoopOperation"; }
   
-  virtual void set_loophelper ( CElements& geometry_elements ) = 0;
+  virtual void set_loophelper ( Mesh::CElements& geometry_elements ) = 0;
   
   void set_loop_idx ( const Uint idx ) { m_idx = idx; }
 	
-	virtual CList<Uint>& loop_list();
+  virtual Mesh::CList<Uint>& loop_list();
   
 protected: // data
 

@@ -37,7 +37,7 @@ int main(int argc, char * argv[])
   {
 
     // read the mesh
-    CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
+    CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
 
     // the file to read from
     boost::filesystem::path inputfile ("quadtriag.neu");
@@ -166,7 +166,7 @@ int main(int argc, char * argv[])
 
     CFinfo << mesh->tree() << CFendl;
 
-    CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
+    CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
     boost::filesystem::path fp("field.msh");
     meshwriter->write_from_to(mesh,fp);
 

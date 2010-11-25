@@ -158,7 +158,7 @@ void for_each_element(Common::Component& root, const Expr& expr)
   boost::proto::eval(expr, ctx);
   
   // Evaluate the expression
-  BOOST_FOREACH(Mesh::CElements& elements, Mesh::recursive_range_typed<Mesh::CElements>(root))
+  BOOST_FOREACH(Mesh::CElements& elements, Common::recursive_range_typed<Mesh::CElements>(root))
   {
     boost::mpl::for_each<ETypesT>(ElementLooper<Expr, FusionVarsT, nb_vars::value>(expr, vars, elements));
   }

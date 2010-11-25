@@ -16,9 +16,6 @@
 #include "Mesh/COperation.hpp"
 #include "Mesh/SF/Types.hpp"
 
-using namespace CF::Mesh;
-
-
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -30,16 +27,16 @@ namespace Solver {
 template < typename TYPE >
 struct IsComponentElementType
 {
-  bool operator()(const CElements& component)
+  bool operator()(const Mesh::CElements& component)
   {
-    return IsElementType<TYPE>()( component.element_type() );
+    return Mesh::IsElementType<TYPE>()( component.element_type() );
   }
 }; // IsElementRegion
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 template<typename COp>
-class CForAllElementsT : public COperation
+class CForAllElementsT : public Mesh::COperation
 {
 public: // typedefs
 
@@ -52,19 +49,23 @@ public: // functions
   /// Contructor
   /// @param name of the component
   CForAllElementsT ( const std::string& name ) :
-    COperation(name),
-    m_operation(new COp("operation"), Deleter<COp>())
+    Mesh::COperation(name),
+    m_operation(Common::allocate_component_type<COp>("operation"))
   {
-    BuildComponent<nosignals>().build(this);
+    add_tag( type_name() );
+
+    std::vector< Common::URI > dummy;
+    m_properties.add_option< Common::OptionArrayT < Common::URI > > ("Regions", "Regions to loop over", dummy)->mark_basic();
+
     m_properties["Regions"].as_option().attach_trigger ( boost::bind ( &CForAllElementsT::trigger_Regions,   this ) );
   }
 
   void trigger_Regions()
   {
-    std::vector<URI> vec; property("Regions").put_value(vec);
-    BOOST_FOREACH(const CPath region_path, vec)
+    std::vector<Common::URI> vec; property("Regions").put_value(vec);
+    BOOST_FOREACH(const Common::CPath region_path, vec)
     {
-      m_loop_regions.push_back(look_component_type<CRegion>(region_path));
+      m_loop_regions.push_back(look_component_type<Mesh::CRegion>(region_path));
     }
   }
 
@@ -73,14 +74,7 @@ public: // functions
   virtual ~CForAllElementsT() {}
 
   /// Get the class name
-  static std::string type_name () { return "CForAllElements"; }
-
-  /// Configuration Options
-  virtual void define_config_properties ()
-  {
-    std::vector< URI > dummy;
-    m_properties.add_option< OptionArrayT < URI > > ("Regions", "Regions to loop over", dummy)->mark_basic();
-  }
+  static std::string type_name () { return "CForAllElements<" + COp::type_name() + ">"; }
 
   // functions specific to the CForAllElements component
 
@@ -101,11 +95,11 @@ public: // functions
     // child component of "this_class", and should be set accordingly.
     if (m_operation->type_name() == "COperation")
     {
-      BOOST_FOREACH(CRegion::Ptr& region, m_loop_regions)
-        BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*region))
+      BOOST_FOREACH(Mesh::CRegion::Ptr& region, m_loop_regions)
+        BOOST_FOREACH(Mesh::CElements& elements, Common::recursive_range_typed<Mesh::CElements>(*region))
       {
         // Setup all child operations
-        BOOST_FOREACH(COperation& operation, range_typed<COperation>(*this))
+        BOOST_FOREACH(Mesh::COperation& operation, Common::range_typed<Mesh::COperation>(*this))
         {
           operation.set_loophelper( elements );
           const Uint elem_count = elements.elements_count();
@@ -117,10 +111,10 @@ public: // functions
     else
     // Use now the templated version defined below
     {
-      BOOST_FOREACH(CRegion::Ptr& region, m_loop_regions)
+      BOOST_FOREACH(Mesh::CRegion::Ptr& region, m_loop_regions)
       {
         Looper looper(*this,*region);
-        boost::mpl::for_each< SF::Types >(looper);
+        boost::mpl::for_each< Mesh::SF::Types >(looper);
       }
     }
   }
@@ -134,13 +128,13 @@ private:
   public: // functions
 
     /// Constructor
-    Looper(CForAllElementsT& this_class, CRegion& region_in ) : region(region_in) , op(*this_class.m_operation) { }
+    Looper(CForAllElementsT& this_class, Mesh::CRegion& region_in ) : region(region_in) , op(*this_class.m_operation) { }
 
     /// Operator
     template < typename SFType >
     void operator() ( SFType& T )
     {
-      BOOST_FOREACH(CElements& elements, recursive_filtered_range_typed<CElements>(region,IsComponentElementType<SFType>()))
+      BOOST_FOREACH(Mesh::CElements& elements, Common::recursive_filtered_range_typed<Mesh::CElements>(region,IsComponentElementType<SFType>()))
       {
         op.set_loophelper( elements );
 
@@ -156,7 +150,7 @@ private:
   private: // data
 
     /// Region to loop on
-    CRegion& region;
+    Mesh::CRegion& region;
 
     /// Operation to perform
     COp& op;
@@ -169,11 +163,11 @@ private:
   typename COp::Ptr m_operation;
 
   /// Regions to loop over
-  std::vector<CRegion::Ptr> m_loop_regions;
+  std::vector<Mesh::CRegion::Ptr> m_loop_regions;
 
 };
 
-typedef CForAllElementsT<COperation> CForAllElements;
+typedef CForAllElementsT<Mesh::COperation> CForAllElements;
 
 /////////////////////////////////////////////////////////////////////////////////////
 

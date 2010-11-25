@@ -43,23 +43,17 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CSchemeLDAT"; }
 
-  /// Configuration Options
-  virtual void define_config_properties ();
-
   /// Set the loop_helper
-  void set_loophelper (CElements& geometry_elements );
+  void set_loophelper (Mesh::CElements& geometry_elements );
 	
   /// execute the action
   virtual void execute ();
     
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
-
 private: // data
 
   struct LoopHelper
   {
-    LoopHelper(CElements& geometry_elements, CLoopOperation& op) :
+    LoopHelper(Mesh::CElements& geometry_elements, CLoopOperation& op) :
 			solution(geometry_elements.get_field_elements(op.properties()["SolutionField"].value<std::string>()).data()),
       residual(geometry_elements.get_field_elements(op.properties()["ResidualField"].value<std::string>()).data()),
       inverse_updatecoeff(geometry_elements.get_field_elements(op.properties()["InverseUpdateCoeff"].value<std::string>()).data()),
@@ -67,11 +61,11 @@ private: // data
       coordinates(geometry_elements.get_field_elements(op.properties()["SolutionField"].value<std::string>()).coordinates()),
       connectivity_table(geometry_elements.get_field_elements(op.properties()["SolutionField"].value<std::string>()).connectivity_table())
     { }
-    CArray& solution;
-    CArray& residual;
-    CArray& inverse_updatecoeff;
-    CArray& coordinates;
-    CTable& connectivity_table;
+    Mesh::CArray& solution;
+    Mesh::CArray& residual;
+    Mesh::CArray& inverse_updatecoeff;
+    Mesh::CArray& coordinates;
+    Mesh::CTable& connectivity_table;
   };
 
   boost::shared_ptr<LoopHelper> data;
@@ -82,24 +76,10 @@ private: // data
 
 };
 
-/////////////////////////////////////////////////////////////////////////////////////
-
-template<typename SHAPEFUNC>
-void CSchemeLDAT<SHAPEFUNC>::define_config_properties()
-{
-  using namespace CF::Common;
-//  using namespace CF::Mesh;
-//  using namespace boost::assign;
-
-  m_properties.add_option< OptionT<std::string> > ("SolutionField","Solution Field for calculation", "solution")->mark_basic();
-  m_properties.add_option< OptionT<std::string> > ("ResidualField","Residual Field updated after calculation", "residual")->mark_basic();
-  m_properties.add_option< OptionT<std::string> > ("InverseUpdateCoeff","Inverse update coefficient Field updated after calculation", "inv_updateCoeff")->mark_basic();
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SHAPEFUNC>
-void CSchemeLDAT<SHAPEFUNC>::set_loophelper (CElements& geometry_elements )
+void CSchemeLDAT<SHAPEFUNC>::set_loophelper (Mesh::CElements& geometry_elements )
 {
   data = boost::shared_ptr<LoopHelper> ( new LoopHelper(geometry_elements , *this ) );
 }
@@ -110,9 +90,14 @@ template<typename SHAPEFUNC>
 CSchemeLDAT<SHAPEFUNC>::CSchemeLDAT ( const std::string& name ) :
   CLoopOperation(name)
 {
-  BuildComponent<full>().build(this);
+  add_tag( type_name() );
+
   properties()["brief"] = std::string("Element Loop component that computes the residual and update coefficient using the LDA scheme");
   properties()["description"] = std::string("Write here the full description of this component");
+
+  m_properties.add_option< Common::OptionT<std::string> > ("SolutionField","Solution Field for calculation", "solution")->mark_basic();
+  m_properties.add_option< Common::OptionT<std::string> > ("ResidualField","Residual Field updated after calculation", "residual")->mark_basic();
+  m_properties.add_option< Common::OptionT<std::string> > ("InverseUpdateCoeff","Inverse update coefficient Field updated after calculation", "inv_updateCoeff")->mark_basic();
 
 #if 0
 
@@ -157,7 +142,7 @@ void CSchemeLDAT<SHAPEFUNC>::execute()
 {
   // inside element with index m_idx
 
-  const CTable::ConstRow node_idx = data->connectivity_table[m_idx];
+  const Mesh::CTable::ConstRow node_idx = data->connectivity_table[m_idx];
   typename SHAPEFUNC::NodeMatrixT nodes;
   fill(nodes, data->coordinates, data->connectivity_table[m_idx]);
 

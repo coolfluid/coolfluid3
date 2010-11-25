@@ -14,8 +14,6 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Mesh;
-
 namespace CF {
 namespace Actions {
 
@@ -25,9 +23,9 @@ namespace Actions {
 template < typename TYPE >
 struct IsComponentElementType
 {
-  bool operator()(const CElements& component)
+  bool operator()(const Mesh::CElements& component)
   {
-    return IsElementType<TYPE>()( component.element_type() );
+    return Mesh::IsElementType<TYPE>()( component.element_type() );
   }
 }; // IsElementRegion
 
@@ -48,7 +46,7 @@ public: // functions
   /// @param name of the component
   CForAllElementsT ( const std::string& name ) :
     CLoop(name),
-    m_action(new ActionT(ActionT::type_name()), Deleter<ActionT>())
+    m_action( Common::allocate_component_type<ActionT>(ActionT::type_name()) )
   {
     BuildComponent<none>().build(this);
 
@@ -75,10 +73,10 @@ public: // functions
   
   virtual void execute()
   {
-    BOOST_FOREACH(CRegion::Ptr& region, m_loop_regions)
+    BOOST_FOREACH(Mesh::CRegion::Ptr& region, m_loop_regions)
     {
       Looper looper(*this,*region);
-      boost::mpl::for_each< SF::Types >(looper);
+      boost::mpl::for_each< Mesh::SF::Types >(looper);
     }
   }
 
@@ -91,13 +89,13 @@ private:
   public: // functions
 
     /// Constructor
-    Looper(CForAllElementsT& this_class, CRegion& region_in ) : region(region_in) , op(*this_class.m_action) { }
+    Looper(CForAllElementsT& this_class, Mesh::CRegion& region_in ) : region(region_in) , op(*this_class.m_action) { }
 
     /// Operator
     template < typename SFType >
     void operator() ( SFType& T )
     {
-      BOOST_FOREACH(CElements& elements, recursive_filtered_range_typed<CElements>(region,IsComponentElementType<SFType>()))
+      BOOST_FOREACH(Mesh::CElements& elements, Common::recursive_filtered_range_typed<Mesh::CElements>(region,IsComponentElementType<SFType>()))
       {
         op.set_loophelper( elements );
 
@@ -114,7 +112,7 @@ private:
   private: // data
 
     /// Region to loop on
-    CRegion& region;
+    Mesh::CRegion& region;
 
     /// Operation to perform
     ActionT& op;

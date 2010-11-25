@@ -10,6 +10,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/CBuilder.hpp"
+#include "Common/BasicExceptions.hpp"
 
 namespace CF {
 namespace Common {
@@ -28,13 +29,17 @@ template < typename ATYPE >
 
   CBuilder::Ptr builder = factory->get_child_type< CBuilder >( builder_name );
 
-  cf_assert ( builder != nullptr ); /// @todo maybe this should be an exception
+  if ( !builder ) throw ValueNotFound( FromHere(), "CBuilder \'" + builder_name + "\' not found in factory \'" + ATYPE::type_name() + "\'" );
 
   Component::Ptr comp = builder->build ( name );
 
-  cf_assert ( comp != nullptr ); /// @todo maybe this should be an exception
+  if ( !comp ) throw NotEnoughMemory ( FromHere(), "CBuilder \'" + builder_name + "\' failed to allocate component with name \'" + name + "\'" );
 
-  return boost::dynamic_pointer_cast<ATYPE>( comp );
+  typename ATYPE::Ptr ccomp = boost::dynamic_pointer_cast<ATYPE>( comp );
+
+  if ( !ccomp ) throw CastingFailed ( FromHere(), "Pointer created by CBuilder \'" + builder_name + "\' could not be casted to \'" + ATYPE::type_name() + "\' pointer" );
+
+  return ccomp;
 }
 
 /////////////////////////////////////////////////////////////////////////////////

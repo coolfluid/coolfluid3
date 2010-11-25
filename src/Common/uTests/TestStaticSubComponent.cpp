@@ -61,7 +61,7 @@ public: // functions
 
   HolderT ( const std::string& name ) :
       Component(name),
-      m_subcomp ( new SubCompT( "subc" ), Deleter<SubCompT>())
+      m_subcomp (allocate_component_type<SubCompT>("subc"))
   {
     add_tag( type_name() );
 

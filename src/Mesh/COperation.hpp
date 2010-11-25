@@ -51,14 +51,14 @@ public: // functions
 
   virtual void execute (Uint index = 0 )
   {
-    throw NotImplemented(FromHere(), "Must create child that overloads this function");
+    throw Common::NotImplemented(FromHere(), "Must create child that overloads this function");
   }
 
   /// Templated version for high efficiency
   template < typename EType >
   void executeT ( Uint index=0 )
   {
-    throw NotImplemented(FromHere(), "Must create child that overloads this function");
+    throw Common::NotImplemented(FromHere(), "Must create child that overloads this function");
   }
 
   virtual COperation& operation();
@@ -94,8 +94,8 @@ public: // functions
   /// @param name of the component
   COperationMergeT ( const std::string& name ) :
     COperation(name),
-    m_op1(new OP1("operation_1"), Deleter<OP1>()),
-    m_op2(new OP2("operation_2"), Deleter<OP2>())
+    m_op1(Common::allocate_component_type<OP1>("operation_1") ),
+    m_op2(Common::allocate_component_type<OP2>("operation_2") )
   {
     BuildComponent<none>().build(this);
   }
@@ -182,7 +182,7 @@ public: // functions
 
   void trigger_Field()
   {
-    CPath field_path (property("Field").value<URI>());
+    Common::CPath field_path (property("Field").value<Common::URI>());
     CFdebug << "field_path = " << field_path.string() << CFendl;
     scalar_field = look_component_type<CField>(field_path);
     scalar_name = scalar_field->field_name();
@@ -197,7 +197,7 @@ public: // functions
   /// Configuration Options
   virtual void define_config_properties ()
   {
-    m_properties.add_option< OptionT<URI> > ("Field","Field URI to output", URI("cpath://"))->mark_basic();
+    m_properties.add_option< Common::OptionT<Common::URI> > ("Field","Field URI to output", Common::URI("cpath://"))->mark_basic();
   }
 
   void set_loophelper (CElements& geometry_elements )
@@ -255,7 +255,7 @@ public: // functions
 
   void trigger_Field()
   {
-    CPath field_path (property("Field").value<URI>());
+    Common::CPath field_path (property("Field").value<Common::URI>());
     CFdebug << "field_path = " << field_path.string() << CFendl;
     volume_field = look_component_type<CField>(field_path);
   }
@@ -269,7 +269,7 @@ public: // functions
   /// Configuration Options
   virtual void define_config_properties ()
   {
-    m_properties.add_option< OptionT<URI> > ("Field","Field URI to output", URI("cpath://"))->mark_basic();
+    m_properties.add_option< Common::OptionT<Common::URI> > ("Field","Field URI to output", Common::URI("cpath://"))->mark_basic();
   }
 
   void set_loophelper (CElements& geometry_elements )
@@ -333,7 +333,7 @@ public: // functions
 
   void trigger_Field()
   {
-    CPath field_path (property("Field").value<URI>());
+    Common::CPath field_path (property("Field").value<Common::URI>());
     CFdebug << "field_path = " << field_path.string() << CFendl;
     field = look_component_type<CField>(field_path);
   }
@@ -347,7 +347,7 @@ public: // functions
   /// Configuration Options
   virtual void define_config_properties ()
   {
-    m_properties.add_option< OptionT<URI> > ("Field","Field URI to output", URI("cpath://"))->mark_basic();
+    m_properties.add_option< Common::OptionT<Common::URI> > ("Field","Field URI to output", Common::URI("cpath://"))->mark_basic();
   }
 
   virtual void set_loophelper (CArray& coordinates )
@@ -376,7 +376,7 @@ private: // data
       coordinates(coords),
       node_connectivity(*coords.look_component_type<CNodeConnectivity>("../node_connectivity")),
       local_field(coords.get_parent()->get_type<CRegion>()->get_field(field.name())),
-      field_data(get_tagged_component_typed<CArray>(local_field, "field_data"))
+      field_data(Common::get_tagged_component_typed<CArray>(local_field, "field_data"))
     { }
     const CArray& coordinates;
     const CNodeConnectivity& node_connectivity;

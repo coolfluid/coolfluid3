@@ -18,7 +18,7 @@ namespace SF {
 Common::ComponentBuilder < Triag3DLagrangeP1,
                          ElementType,
                          LibSF >
-aTriag3DLagrangeP1_Builder ( "Triag3DLagrangeP1" );
+aTriag3DLagrangeP1_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -32,7 +32,7 @@ Triag3DLagrangeP1::Triag3DLagrangeP1(const std::string& name) : Triag3D(name)
 
 std::string Triag3DLagrangeP1::getElementTypeName() const
 {
-  return "Triag3DLagrangeP1";
+  return LibSF::library_namespace() + "." + type_name();
 }
 
 Real Triag3DLagrangeP1::computeVolume(const NodesT& coord) const

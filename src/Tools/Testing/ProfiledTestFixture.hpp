@@ -15,9 +15,6 @@
 #include "Common/CodeProfiler.hpp"
 #include "Tools/Testing/LibTesting.hpp"
 
-using namespace CF;
-using namespace CF::Common;
-
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {

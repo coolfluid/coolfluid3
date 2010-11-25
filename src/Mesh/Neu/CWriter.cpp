@@ -24,8 +24,10 @@
 #include "Mesh/ConnectivityData.hpp"
 #include "Mesh/ElementData.hpp"
 
-
 //////////////////////////////////////////////////////////////////////////////
+
+using namespace CF::Common;
+using namespace CF::Mesh;
 
 namespace CF {
 namespace Mesh {
@@ -36,7 +38,7 @@ namespace Neu {
 Common::ComponentBuilder < Mesh::Neu::CWriter,
                            Mesh::CMeshWriter,
                            Mesh::Neu::LibNeu>
-aNeuWriter_Builder ( "Neu" );
+aNeuWriter_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 

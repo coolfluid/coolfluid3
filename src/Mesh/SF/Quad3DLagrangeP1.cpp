@@ -18,7 +18,7 @@ namespace SF {
 Common::ComponentBuilder < Quad3DLagrangeP1,
                          ElementType,
                          LibSF >
-aQuad3DLagrangeP1_Builder ( "Quad3DLagrangeP1" );
+aQuad3DLagrangeP1_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -32,7 +32,7 @@ Quad3DLagrangeP1::Quad3DLagrangeP1(const std::string& name) : Quad3D(name)
 
 std::string Quad3DLagrangeP1::getElementTypeName() const
 {
-  return "Quad3DLagrangeP1";
+  return LibSF::library_namespace() + "." + type_name();
 }
 
 Real Quad3DLagrangeP1::computeVolume(const NodesT& coord) const

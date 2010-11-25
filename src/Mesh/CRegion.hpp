@@ -24,8 +24,6 @@ namespace Mesh {
   class CField; 
   class CTable;
   
-  using namespace Common;
-
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Region component class
@@ -106,7 +104,7 @@ template <typename Predicate>
 inline Uint CRegion::recursive_filtered_elements_count(const Predicate& pred) const
 {
   Uint elem_count = 0;
-  BOOST_FOREACH(const CElements& elements, recursive_filtered_range_typed<CElements>(*this,pred))
+  BOOST_FOREACH(const CElements& elements, Common::recursive_filtered_range_typed<CElements>(*this,pred))
     elem_count += elements.elements_count();
 
   return elem_count;
@@ -116,7 +114,7 @@ template <typename Predicate>
 inline Uint CRegion::recursive_filtered_nodes_count(const Predicate& pred) const
 {
   std::set<const CArray*> coordinates_set;
-  BOOST_FOREACH(const CElements& elements, recursive_filtered_range_typed<CElements>(*this,pred))
+  BOOST_FOREACH(const CElements& elements, Common::recursive_filtered_range_typed<CElements>(*this,pred))
   coordinates_set.insert(&elements.coordinates());
   
   // Total number of nodes in the mesh

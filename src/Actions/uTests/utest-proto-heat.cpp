@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_SUITE( ProtoHeatSuite )
 
 BOOST_AUTO_TEST_CASE( Laplacian1D )
 {
-  CMesh::Ptr mesh(new CMesh("line"));
+  CMesh::Ptr mesh(allocate_component_type<CMesh>("line"));
   Tools::MeshGeneration::create_line(*mesh, 5., 5);
   
   MeshTerm<0, ConstNodes> nodes;
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE( Heat1D )
   const Uint nb_segments = 20;
 
   // build the mesh
-  CMesh::Ptr mesh(new CMesh("line"));
+  CMesh::Ptr mesh(allocate_component_type<CMesh>("line"));
   Tools::MeshGeneration::create_line(*mesh, lenght, nb_segments);
   
   // Build the system matrix
@@ -133,7 +133,7 @@ BOOST_AUTO_TEST_CASE( Heat1D )
 BOOST_AUTO_TEST_CASE( GrammarEval )
 {
   // build the mesh
-  CMesh::Ptr mesh(new CMesh("line"));
+  CMesh::Ptr mesh(allocate_component_type<CMesh>("line"));
   const Uint nb_segments = 5;
   Tools::MeshGeneration::create_line(*mesh, 1., nb_segments);
   

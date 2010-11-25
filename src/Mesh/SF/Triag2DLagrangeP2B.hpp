@@ -19,8 +19,6 @@
 namespace CF {
 namespace Mesh {
 namespace SF {
-
-	using namespace Math::MathConsts;
 	
 /// This class provides the lagrangian shape function describing the
 /// representation of the solution and/or the geometry in a P1 (linear)
@@ -172,8 +170,8 @@ struct MESH_SF_API Triag2DLagrangeP2B  : public Triag2D
 
     MappedCoordsT mapped_coord;
     mapped_coordinates(coord, nodes, mapped_coord);
-    if( (mapped_coord[KSI] >= -eps()) &&
-        (mapped_coord[ETA] >= -eps()) &&
+    if( (mapped_coord[KSI] >= -Math::MathConsts::eps()) &&
+        (mapped_coord[ETA] >= -Math::MathConsts::eps()) &&
         (mapped_coord.sum() <= 1.))
     {
       return true;

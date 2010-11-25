@@ -13,6 +13,8 @@
 #include <CGAL/Handle_hash_function.h>
 #include <CGAL/number_utils.h>
 
+#include "Common/Log.hpp"
+
 #include "Mesh/CArray.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CTable.hpp"
@@ -56,7 +58,7 @@ void cgal_to_coolfluid(const TriangulationComplexT& complex, CMesh& mesh) {
   Uint coord_row_count = 0;
   
   // connectivity storage
-  CElements& elements = region.create_elements("Tetra3DLagrangeP1",coordinates);
+  CElements& elements = region.create_elements("CF.Mesh.SF.Tetra3DLagrangeP1",coordinates);
   CTable::Buffer connBuffer = elements.connectivity_table().create_buffer(complex.number_of_cells());
   std::vector<Uint> cell_row(4);
 

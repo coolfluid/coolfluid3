@@ -13,12 +13,11 @@
 #include "Mesh/CArray.hpp"
 #include "Mesh/CTable.hpp"
 
-
-using namespace CF;
 using namespace CF::Common;
 using namespace CF::Mesh;
 using namespace CF::Mesh::BlockMesh;
 using namespace CF::Math;
+using namespace CF::Math::MathConsts;
 
 using namespace boost::assign;
 
@@ -43,7 +42,7 @@ void create_line(CMesh& mesh, const Real x_len, const Uint x_segments)
     coord_array[i][XX] = static_cast<Real>(i) * x_step;
   }
   
-  CTable::ArrayT& conn_array = region.create_elements("Line1DLagrangeP1",coordinates).connectivity_table().array();
+  CTable::ArrayT& conn_array = region.create_elements("CF.Mesh.SF.Line1DLagrangeP1",coordinates).connectivity_table().array();
   conn_array.resize(boost::extents[x_segments][2]);
   for(Uint i = 0; i < x_segments; ++i)
   {
@@ -53,13 +52,13 @@ void create_line(CMesh& mesh, const Real x_len, const Uint x_segments)
   }
   
   // Left boundary
-  CElements& xneg_elements = region.create_region("xneg").create_elements("Point1DLagrangeP1", coordinates);
+  CElements& xneg_elements = region.create_region("xneg").create_elements("CF.Mesh.SF.Point1DLagrangeP1", coordinates);
   CTable::ArrayT& xneg_connectivity = xneg_elements.connectivity_table().array();
   xneg_connectivity.resize(boost::extents[1][1]);
   xneg_connectivity[0][0] = 0;
   
   // right boundary
-  CElements& xpos_elements = region.create_region("xpos").create_elements("Point1DLagrangeP1", coordinates);
+  CElements& xpos_elements = region.create_region("xpos").create_elements("CF.Mesh.SF.Point1DLagrangeP1", coordinates);
   CTable::ArrayT& xpos_connectivity = xpos_elements.connectivity_table().array();
   xpos_connectivity.resize(boost::extents[1][1]);
   xpos_connectivity[0][0] = x_segments;
@@ -87,7 +86,7 @@ void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uin
       row[YY] = y;
     }
   }
-  CTable::ArrayT& conn_array = region.create_elements("Quad2DLagrangeP1",coordinates).connectivity_table().array();
+  CTable::ArrayT& conn_array = region.create_elements("CF.Mesh.SF.Quad2DLagrangeP1",coordinates).connectivity_table().array();
   conn_array.resize(boost::extents[(x_segments)*(y_segments)][4]);
   for(Uint j = 0; j < y_segments; ++j)
   {
@@ -143,7 +142,7 @@ void create_circle_2d ( CMesh& mesh, const Real radius, const Uint segments, con
 {
   CRegion& region = mesh.create_region("region");
   CArray& coordinates = region.create_coordinates(DIM_2D);
-  CTable& conn = region.create_elements("Line2DLagrangeP1",coordinates).connectivity_table();
+  CTable& conn = region.create_elements("CF.Mesh.SF.Line2DLagrangeP1",coordinates).connectivity_table();
   create_circle_2d(coordinates, conn, radius, segments, start_angle, end_angle);
 }
 

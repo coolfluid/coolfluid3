@@ -9,8 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/LibraryRegister.hpp"
-#include "Common/ExportAPI.hpp"
+#include "Common/CLibrary.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -34,10 +33,20 @@ namespace CGAL {
 
 /// Class defines the CGAL mesh format operations
 /// @author Bart Janssens
-class CGAL_API LibCGAL :
-    public CF::Common::LibraryRegister<LibCGAL>
+class CGAL_API LibCGAL : public CF::Common::CLibrary
 {
 public:
+
+  typedef boost::shared_ptr<LibCGAL> Ptr;
+  typedef boost::shared_ptr<LibCGAL const> ConstPtr;
+
+  /// Constructor
+  LibCGAL ( const std::string& name) : Common::CLibrary(name) { BuildComponent<none>().build(this); }
+
+public: // functions
+
+  /// @return string of the library namespace
+  static std::string library_namespace() { return "CF.Mesh.CGAL"; }
 
   /// Static function that returns the module name.
   /// Must be implemented for the LibraryRegister template

@@ -37,9 +37,6 @@ namespace Common {
     /// Get the class name
     static std::string type_name () { return "CFactories"; }
 
-    /// Configuration Options
-    virtual void define_config_properties ();
-
     /// gives access to the factory of supplied type,
     /// insuring that in case it does not exist it gets built.
     template < typename CBase >

@@ -13,12 +13,14 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Mesh {
-  class CRegion;
-}
-namespace Actions {
 
-  using namespace CF::Mesh;
+  namespace Mesh
+  {
+    class CRegion;
+  }
+
+  namespace Actions {
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -60,7 +62,7 @@ public: // functions
 protected:
 
   /// Regions to loop over
-  std::vector<boost::shared_ptr<CRegion> > m_loop_regions;
+  std::vector<boost::shared_ptr<Mesh::CRegion> > m_loop_regions;
 
 };
 

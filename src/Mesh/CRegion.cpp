@@ -24,8 +24,7 @@ namespace Mesh {
 
 using namespace Common;
 
-Common::ComponentBuilder < CRegion, Component, LibMesh >
-CRegion_Builder ( CRegion::type_name() );
+Common::ComponentBuilder < CRegion, Component, LibMesh > CRegion_Builder;
 
 
 ////////////////////////////////////////////////////////////////////////////////

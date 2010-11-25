@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_SUITE( ProtoOperatorsSuite )
 
 BOOST_AUTO_TEST_CASE( ProtoBasics )
 {
-  CMesh::Ptr mesh(new CMesh("rect"));
+  CMesh::Ptr mesh( allocate_component_type<CMesh>("rect") );
   Tools::MeshGeneration::create_rectangle(*mesh, 5, 5, 5, 5);
   
   // Create the variables
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE( ProtoBasics )
 BOOST_AUTO_TEST_CASE( VertexValence )
 {
   // Create a 3x3 rectangle
-  CMesh::Ptr mesh(new CMesh("rect"));
+  CMesh::Ptr mesh( allocate_component_type<CMesh>("rect") );
   Tools::MeshGeneration::create_rectangle(*mesh, 5., 5., 2, 2);
   
   // Set up a node-based field to store the number of cells that are adjacent to each node
@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE( RotatingCylinder )
   const Real circulation = 975.;
   const Real rho = 1.225;
   
-  CMesh::Ptr mesh(new CMesh("circle"));
+  CMesh::Ptr mesh(allocate_component_type<CMesh>("circle"));
   Tools::MeshGeneration::create_circle_2d(*mesh, radius, segments);
   
   MeshTerm<0, ConstNodes> nodes;
@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE( RotatingCylinderField )
   const Real circulation = 975.;
   const Real rho = 1.225;
   
-  CMesh::Ptr mesh(new CMesh("circle"));
+  CMesh::Ptr mesh( allocate_component_type<CMesh>("circle") );
   Tools::MeshGeneration::create_circle_2d(*mesh, radius, segments);
   
   const std::vector<std::string> vars(1, "p[1]");
@@ -187,7 +187,7 @@ BOOST_AUTO_TEST_CASE( RotatingCylinderField )
 // Must be run  before the next tests
 BOOST_FIXTURE_TEST_CASE( CreateMesh2D, ProtoOperatorsFixture )
 {
-  ProtoOperatorsFixture::grid_2d.reset(new CMesh("grid_2d"));
+  ProtoOperatorsFixture::grid_2d = allocate_component_type<CMesh>("grid_2d");
   Tools::MeshGeneration::create_rectangle(*grid_2d, 1., 1., 2000, 2000);
 }
 
@@ -251,7 +251,7 @@ BOOST_FIXTURE_TEST_CASE( IntegralOrder4, ProtoOperatorsFixture )
 
 BOOST_FIXTURE_TEST_CASE( CreateMesh3D, ProtoOperatorsFixture )
 {
-  channel_3d.reset(new CMesh("channel_3d"));
+  channel_3d = allocate_component_type<CMesh>("channel_3d");
   BlockMesh::BlockData block_data;
   Tools::MeshGeneration::create_channel_3d(block_data, 10., 0.5, 5., 160, 80, 120, 0.1);
   std::vector<Uint> nodes_dist;
@@ -279,7 +279,7 @@ BOOST_FIXTURE_TEST_CASE( Integral3D, ProtoOperatorsFixture )
 /// Non-proto calculation, as reference
 BOOST_FIXTURE_TEST_CASE( VolumeDirect3D, ProtoOperatorsFixture ) // timed and profiled
 {
-  const CElements& elems = recursive_get_named_component_typed<CElements>(*channel_3d, "elements_Hexa3DLagrangeP1");
+  const CElements& elems = recursive_get_named_component_typed<CElements>(*channel_3d, "elements_CF.Mesh.SF.Hexa3DLagrangeP1");
   const CArray& coords = elems.coordinates();
   const CTable::ArrayT conn = elems.connectivity_table().array();
   const Uint nb_elems = conn.size();

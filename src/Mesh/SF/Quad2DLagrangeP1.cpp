@@ -19,7 +19,7 @@ namespace SF {
 Common::ComponentBuilder < Quad2DLagrangeP1,
                          ElementType,
                          LibSF >
-aQuad2DLagrangeP1_Builder ( "Quad2DLagrangeP1" );
+aQuad2DLagrangeP1_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +33,7 @@ Quad2DLagrangeP1::Quad2DLagrangeP1(const std::string& name) : Quad2D(name)
 
 std::string Quad2DLagrangeP1::getElementTypeName() const
 {
-  return "Quad2DLagrangeP1";
+  return LibSF::library_namespace() + "." + type_name();
 }
 
 Real Quad2DLagrangeP1::computeVolume(const NodesT& coord) const

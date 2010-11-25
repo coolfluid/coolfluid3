@@ -42,7 +42,7 @@ struct FieldTests_Fixture
      //int*    argc = &boost::unit_test::framework::master_test_suite().argc;
      //char*** argv = &boost::unit_test::framework::master_test_suite().argv;
 
-    CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
+    CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
 
     // the file to read from
     boost::filesystem::path fp_in ("quadtriag.neu");
@@ -81,8 +81,8 @@ BOOST_AUTO_TEST_CASE( FieldTest )
 	CFinfo << mesh.tree() << CFendl;
 	
   // Check if the fields have been created inside the mesh
-  BOOST_CHECK_EQUAL(mesh.field("Volume").full_path().string(),"mesh/Volume");
-  BOOST_CHECK_EQUAL(mesh.field("Solution").full_path().string(),"mesh/Solution");
+  BOOST_CHECK_EQUAL(mesh.field("Volume").full_path().string(),"Mesh/Volume");
+  BOOST_CHECK_EQUAL(mesh.field("Solution").full_path().string(),"Mesh/Solution");
 
   // Check if support is filled in correctly
   BOOST_CHECK_EQUAL(mesh.field("Volume").support().name(), "quadtriag");
@@ -90,25 +90,25 @@ BOOST_AUTO_TEST_CASE( FieldTest )
   BOOST_CHECK_EQUAL(mesh.field("Volume").subfield("gas").support().recursive_elements_count(), (Uint) 6);
 
   // Check if connectivity_table is properly linked to the support ones
-  BOOST_CHECK_EQUAL(mesh.field("Volume").subfield("gas").elements("elements_Quad2DLagrangeP1").connectivity_table().size(), (Uint) 2);
-  BOOST_CHECK_EQUAL(&mesh.field("Volume").subfield("gas").elements("elements_Quad2DLagrangeP1").connectivity_table(),
-                    &mesh.domain().subregion("gas").elements("elements_Quad2DLagrangeP1").connectivity_table());
+  BOOST_CHECK_EQUAL(mesh.field("Volume").subfield("gas").elements("elements_CF.Mesh.SF.Quad2DLagrangeP1").connectivity_table().size(), (Uint) 2);
+  BOOST_CHECK_EQUAL(&mesh.field("Volume").subfield("gas").elements("elements_CF.Mesh.SF.Quad2DLagrangeP1").connectivity_table(),
+                    &mesh.domain().subregion("gas").elements("elements_CF.Mesh.SF.Quad2DLagrangeP1").connectivity_table());
 
   // test the CRegion::get_field function, to return the matching field
-  BOOST_CHECK_EQUAL(mesh.domain().get_field("Volume").full_path().string(),"mesh/Volume");
-  BOOST_CHECK_EQUAL(mesh.domain().subregion("gas").get_field("Volume").full_path().string(),"mesh/Volume/gas");
+  BOOST_CHECK_EQUAL(mesh.domain().get_field("Volume").full_path().string(),"Mesh/Volume");
+  BOOST_CHECK_EQUAL(mesh.domain().subregion("gas").get_field("Volume").full_path().string(),"Mesh/Volume/gas");
 
-  BOOST_CHECK_EQUAL(mesh.look_component("quadtriag/gas")->full_path().string(),"mesh/quadtriag/gas");
-  BOOST_CHECK_EQUAL(mesh.look_component("quadtriag/gas/../liquid")->full_path().string(),"mesh/quadtriag/liquid");
-  BOOST_CHECK_EQUAL(mesh.look_component_type<CRegion>("quadtriag/gas/../liquid")->get_field("Volume").full_path().string(),"mesh/Volume/liquid");
+  BOOST_CHECK_EQUAL(mesh.look_component("quadtriag/gas")->full_path().string(),"Mesh/quadtriag/gas");
+  BOOST_CHECK_EQUAL(mesh.look_component("quadtriag/gas/../liquid")->full_path().string(),"Mesh/quadtriag/liquid");
+  BOOST_CHECK_EQUAL(mesh.look_component_type<CRegion>("quadtriag/gas/../liquid")->get_field("Volume").full_path().string(),"Mesh/Volume/liquid");
 
 
   // Check if element based data is correctly created
-  BOOST_CHECK_EQUAL(mesh.look_component_type<CFieldElements>("Volume/gas/elements_Quad2DLagrangeP1")->data().size(), (Uint) 2);
-  BOOST_CHECK_EQUAL(mesh.look_component_type<CFieldElements>("Volume/gas/elements_Quad2DLagrangeP1")->data().row_size(), (Uint) 1);
+  BOOST_CHECK_EQUAL(mesh.look_component_type<CFieldElements>("Volume/gas/elements_CF.Mesh.SF.Quad2DLagrangeP1")->data().size(), (Uint) 2);
+  BOOST_CHECK_EQUAL(mesh.look_component_type<CFieldElements>("Volume/gas/elements_CF.Mesh.SF.Quad2DLagrangeP1")->data().row_size(), (Uint) 1);
 
   // Check if node based data is correctly created
-  BOOST_CHECK_EQUAL(mesh.look_component_type<CFieldElements>("Solution/gas/elements_Quad2DLagrangeP1")->data().row_size(), (Uint) 5);
+  BOOST_CHECK_EQUAL(mesh.look_component_type<CFieldElements>("Solution/gas/elements_CF.Mesh.SF.Quad2DLagrangeP1")->data().row_size(), (Uint) 5);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

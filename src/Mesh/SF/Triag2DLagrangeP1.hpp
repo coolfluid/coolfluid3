@@ -17,8 +17,6 @@
 namespace CF {
 namespace Mesh {
 namespace SF {
-
-	using namespace Math::MathConsts;
 	
 /// This class provides the lagrangian shape function describing the
 /// representation of the solution and/or the geometry in a P1 (linear)
@@ -130,9 +128,9 @@ static bool in_element(const CoordsT& coord, const NodesT& nodes)
 {
 	MappedCoordsT mapped_coord;
 	mapped_coordinates(coord, nodes, mapped_coord);
-	if( (mapped_coord[KSI] >= -eps()) &&
-		 (mapped_coord[ETA] >= -eps()) &&
-		 (mapped_coord.sum() <= 1.))
+  if( (mapped_coord[KSI] >= -Math::MathConsts::eps()) &&
+      (mapped_coord[ETA] >= -Math::MathConsts::eps()) &&
+      (mapped_coord.sum() <= 1.))
 	{
 		return true;
 	}

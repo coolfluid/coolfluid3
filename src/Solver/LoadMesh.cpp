@@ -23,7 +23,7 @@ using namespace Common;
 using namespace Common::String;
 using namespace CF::Mesh;
 
-Common::ComponentBuilder < LoadMesh, Component, LibSolver > LoadMesh_Builder ( LoadMesh::type_name() );
+Common::ComponentBuilder < LoadMesh, Component, LibSolver > LoadMesh_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -32,7 +32,7 @@ LoadMesh::LoadMesh ( const std::string& name  ) :
 {
   BuildComponent<full>().build(this);
 
-//  add_component ( create_component_abstract_type<CMeshReader>( "Neu", "NeutralReader" ) );
+//  add_component ( create_component_abstract_type<CMeshReader>( "CF.Mesh.Neu.CReader", "NeutralReader" ) );
 
 }
 

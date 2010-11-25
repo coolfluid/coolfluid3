@@ -14,15 +14,13 @@ namespace Solver {
 using namespace Common;
 using namespace Common::String;
 
-Common::ComponentBuilder < CDomain, Component, LibSolver >
-CDomain_Builder ( CDomain::type_name() );
+Common::ComponentBuilder < CDomain, Component, LibSolver > CDomain_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CDomain::CDomain( const std::string& name  ) :
-  Component ( name )
+CDomain::CDomain( const std::string& name  ) : Component ( name )
 {
-  BuildComponent<none>().build(this);
+  add_tag( type_name() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

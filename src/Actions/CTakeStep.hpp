@@ -15,9 +15,6 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Mesh;
-using namespace CF::Common;
-
 namespace CF {
 namespace Actions {
 
@@ -46,10 +43,10 @@ public: // functions
   virtual void define_config_properties ();
 
   /// Set the loop_helper
-  void set_loophelper (CElements& geometry_elements );
+  void set_loophelper (Mesh::CElements& geometry_elements );
 	
 	/// @return the nodes to loop over
-	virtual CList<Uint>& loop_list ();
+  virtual Mesh::CList<Uint>& loop_list ();
 	
   /// execute the action
   virtual void execute ();
@@ -61,16 +58,16 @@ private: // data
 	
   struct LoopHelper
   {
-    LoopHelper(CElements& geometry_elements, CLoopOperation& op) :
+    LoopHelper(Mesh::CElements& geometry_elements, CLoopOperation& op) :
 		solution(geometry_elements.get_field_elements(op.properties()["SolutionField"].value<std::string>()).data()),
 		residual(geometry_elements.get_field_elements(op.properties()["ResidualField"].value<std::string>()).data()),
 		inverse_updatecoeff(geometry_elements.get_field_elements(op.properties()["InverseUpdateCoeff"].value<std::string>()).data()),
 		node_list(geometry_elements.get_field_elements(op.properties()["SolutionField"].value<std::string>()).node_list())
     { }
-    CArray& solution;
-    CArray& residual;
-    CArray& inverse_updatecoeff;
-		CList<Uint>& node_list;
+    Mesh::CArray& solution;
+    Mesh::CArray& residual;
+    Mesh::CArray& inverse_updatecoeff;
+    Mesh::CList<Uint>& node_list;
   };
 	
   boost::shared_ptr<LoopHelper> data;

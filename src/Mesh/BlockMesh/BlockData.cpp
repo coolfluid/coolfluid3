@@ -68,7 +68,7 @@ void create_block_mesh(const BlockData& block_data, CMesh& mesh, std::map<std::s
   }
   
   // Define the volume cells, i.e. the blocks
-  CElements& block_elements = block_mesh_region.create_region("blocks").create_elements("Hexa3DLagrangeP1", block_coordinates);
+  CElements& block_elements = block_mesh_region.create_region("blocks").create_elements("CF.Mesh.SF.Hexa3DLagrangeP1", block_coordinates);
   CTable::ArrayT& block_connectivity = block_elements.connectivity_table().array();
   const Uint nb_blocks = block_data.block_points.size();
   block_connectivity.resize(boost::extents[nb_blocks][8]);
@@ -82,7 +82,7 @@ void create_block_mesh(const BlockData& block_data, CMesh& mesh, std::map<std::s
   const Uint nb_patches = block_data.patch_names.size();
   for(Uint patch_idx = 0 ; patch_idx != nb_patches; ++patch_idx)
   {
-    CElements& patch_elements = block_mesh_region.create_region(block_data.patch_names[patch_idx]).create_elements("Quad3DLagrangeP1", block_coordinates);
+    CElements& patch_elements = block_mesh_region.create_region(block_data.patch_names[patch_idx]).create_elements("CF.Mesh.SF.Quad3DLagrangeP1", block_coordinates);
     patch_types[block_data.patch_names[patch_idx]] = block_data.patch_types[patch_idx];
     CTable::ArrayT& patch_connectivity = patch_elements.connectivity_table().array();
     const BlockData::IndicesT patch_points = block_data.patch_points[patch_idx];
@@ -493,11 +493,11 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
   // This is a "dummy" mesh, in which each element corresponds to a block in the blockMeshDict file.
   // The final mesh will in fact be a refinement of this mesh. Using a CMesh allows us to use the
   // coolfluid connectivity functions to determine inter-block connectivity and the relation to boundary patches.
-  CMesh::Ptr block_mesh(new CMesh("block_mesh"));
+  CMesh::Ptr block_mesh(allocate_component_type<CMesh>("block_mesh"));
   std::map<std::string, std::string> patch_types;
   detail::create_block_mesh(block_data, *block_mesh, patch_types);
   
-  const CElements& block_elements = recursive_get_named_component_typed<CElements>(*block_mesh, "elements_Hexa3DLagrangeP1");
+  const CElements& block_elements = recursive_get_named_component_typed<CElements>(*block_mesh, "elements_CF.Mesh.SF.Hexa3DLagrangeP1");
   const CTable::ArrayT& block_connectivity = block_elements.connectivity_table().array();
   const CArray& block_coordinates = block_elements.coordinates();
   
@@ -542,7 +542,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
   const std::pair<Uint,Uint> dims = detail::dimensionality(block_data.block_distribution.back(), volume_to_face_connectivity, patch_types);
   
   // 3D helper mesh in case we have a non-3D problem
-  CMesh::Ptr tmp_mesh3d(dims.first == DIM_3D ? 0 : new CMesh("tmp_mesh3d"));
+  CMesh::Ptr tmp_mesh3d = dims.first == DIM_3D ? CMesh::Ptr() : allocate_component_type<CMesh>("tmp_mesh3d");
   
   // Create the node coordinates
   CRegion& root_region = tmp_mesh3d ? tmp_mesh3d->create_region("root_region") : mesh.create_region("root_region");
@@ -551,7 +551,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
   mesh_coords_comp.resize(nodes_end - nodes_begin);
   
   // Create the volume cells connectivity
-  CElements& volume_elements = root_region.create_region("volume").create_elements("Hexa3DLagrangeP1", mesh_coords_comp);
+  CElements& volume_elements = root_region.create_region("volume").create_elements("CF.Mesh.SF.Hexa3DLagrangeP1", mesh_coords_comp);
   volume_elements.connectivity_table().resize(elements_dist[rank+1]-elements_dist[rank]);
   CTable::ArrayT& volume_connectivity = volume_elements.connectivity_table().array();
   
@@ -652,7 +652,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
     const CFaceConnectivity& adjacency_data = get_component_typed<CFaceConnectivity>(patch_block);
     // Create the volume cells connectivity
     const std::string& patch_name = patch_block.get_parent()->name();
-    CElements& patch_elements = root_region.create_region(patch_name).create_elements("Quad3DLagrangeP1", mesh_coords_comp);
+    CElements& patch_elements = root_region.create_region(patch_name).create_elements("CF.Mesh.SF.Quad3DLagrangeP1", mesh_coords_comp);
     CTable::ArrayT& patch_connectivity = patch_elements.connectivity_table().array();
     
     const Uint nb_patches = patch_block.connectivity_table().array().size();
@@ -744,7 +744,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
     CArray::ArrayT& mesh_coords_2d = mesh_coords_comp_2d.array();
     
     // Create the volume cells connectivity
-    CElements& volume_elements_2d = root_region_2d.create_region("volume").create_elements("Quad2DLagrangeP1", mesh_coords_comp_2d);
+    CElements& volume_elements_2d = root_region_2d.create_region("volume").create_elements("CF.Mesh.SF.Quad2DLagrangeP1", mesh_coords_comp_2d);
     CTable::ArrayT& volume_connectivity_2d = volume_elements_2d.connectivity_table().array();
     volume_connectivity_2d.resize(boost::extents[elements_dist[rank+1]-elements_dist[rank]][4]);
     
@@ -787,7 +787,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
       
       const CTable::ArrayT& patch_connectivity_3d = patch_celements_3d.connectivity_table().array();
       
-      CElements& patch_celements_2d = root_region_2d.create_region(block_data.patch_names[patch]).create_elements("Line2DLagrangeP1", mesh_coords_comp_2d);
+      CElements& patch_celements_2d = root_region_2d.create_region(block_data.patch_names[patch]).create_elements("CF.Mesh.SF.Line2DLagrangeP1", mesh_coords_comp_2d);
       CTable::ArrayT& patch_connectivity_2d = patch_celements_2d.connectivity_table().array();
       
       const Uint patch_nb_subpatches = subpatches.size();
@@ -935,12 +935,12 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
 void partition_blocks(const BlockData& blocks_in, const Uint nb_partitions, const CoordXYZ direction, BlockData& blocks_out)
 {
   // Create a mesh for the serial blocks
-  CMesh::Ptr block_mesh(new CMesh("block_mesh"));
+  CMesh::Ptr block_mesh(allocate_component_type<CMesh>("block_mesh"));
   std::map<std::string, std::string> patch_types;
   detail::create_block_mesh(blocks_in, *block_mesh, patch_types);
   const Uint nb_blocks = blocks_in.block_points.size();
   
-  CElements& block_elements = recursive_get_named_component_typed<CElements>(*block_mesh, "elements_Hexa3DLagrangeP1");
+  CElements& block_elements = recursive_get_named_component_typed<CElements>(*block_mesh, "elements_CF.Mesh.SF.Hexa3DLagrangeP1");
   CArray::ArrayT& block_coordinates = get_component_typed<CArray>(*block_elements.get_parent()->get_parent()).array();
   const CFaceConnectivity& volume_to_face_connectivity = get_component_typed<CFaceConnectivity>(block_elements);
   

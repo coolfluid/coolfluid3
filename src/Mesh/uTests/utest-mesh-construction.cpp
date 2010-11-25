@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   // Create root and mesh component
   CRoot::Ptr root = CRoot::create ( "root" );
 
-  Component::Ptr mesh ( new CMesh  ( "mesh" ) );
+  Component::Ptr mesh ( allocate_component_type<CMesh>  ( "mesh" ) );
 
   root->add_component( mesh );
 
@@ -124,8 +124,8 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   // create regions
   CRegion& superRegion = p_mesh->create_region("superRegion");
   CArray& coordinates = superRegion.create_coordinates(dim);
-  CElements& quadRegion = superRegion.create_elements("Quad2DLagrangeP1",coordinates);
-  CElements& triagRegion = superRegion.create_elements("Triag2DLagrangeP1",coordinates);
+  CElements& quadRegion = superRegion.create_elements("CF.Mesh.SF.Quad2DLagrangeP1",coordinates);
+  CElements& triagRegion = superRegion.create_elements("CF.Mesh.SF.Triag2DLagrangeP1",coordinates);
 
   CTable::Buffer qTableBuffer = quadRegion.connectivity_table().create_buffer();
   CTable::Buffer tTableBuffer = triagRegion.connectivity_table().create_buffer();
@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
 //    CFinfo << "\n" << CFflush;
 //  }
 	
-	CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
+  CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
 	boost::filesystem::path fp_out("p1-mesh.msh");
 	meshwriter->write_from_to(p_mesh,fp_out);
 	
@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
   // Create root and mesh component
   CRoot::Ptr root = CRoot::create ( "root" );
 	
-  Component::Ptr mesh ( new CMesh  ( "mesh" ) );
+  Component::Ptr mesh ( allocate_component_type<CMesh>  ( "mesh" ) );
 	
   root->add_component( mesh );
 	
@@ -242,8 +242,8 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
   // create regions
   CRegion& superRegion = p_mesh->create_region("superRegion");
   CArray& coordinates = superRegion.create_coordinates(dim);
-  CElements& quadRegion = superRegion.create_elements("Quad2DLagrangeP2",coordinates);
-  CElements& triagRegion = superRegion.create_elements("Triag2DLagrangeP2",coordinates);
+  CElements& quadRegion = superRegion.create_elements("CF.Mesh.SF.Quad2DLagrangeP2",coordinates);
+  CElements& triagRegion = superRegion.create_elements("CF.Mesh.SF.Triag2DLagrangeP2",coordinates);
 	
   CTable::Buffer qTableBuffer = quadRegion.connectivity_table().create_buffer();
   CTable::Buffer tTableBuffer = triagRegion.connectivity_table().create_buffer();
@@ -362,7 +362,7 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
 //	//  }
 	
 	
-	CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
+  CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
 	boost::filesystem::path fp_out("p2-mesh.msh");
 	meshwriter->write_from_to(p_mesh,fp_out);
 	

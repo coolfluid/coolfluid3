@@ -21,7 +21,7 @@ namespace SF {
 Common::ComponentBuilder < Hexa3DLagrangeP1,
                            ElementType,
                            LibSF >
-aHexa3DLagrangeP1_Builder ( "Hexa3DLagrangeP1" );
+aHexa3DLagrangeP1_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +35,7 @@ Hexa3DLagrangeP1::Hexa3DLagrangeP1(const std::string& name) : Hexa3D(name)
 
 std::string Hexa3DLagrangeP1::getElementTypeName() const
 {
-  return "Hexa3DLagrangeP1";
+  return LibSF::library_namespace() + "." + type_name();
 }
 
 Real Hexa3DLagrangeP1::computeVolume(const NodesT& coord) const

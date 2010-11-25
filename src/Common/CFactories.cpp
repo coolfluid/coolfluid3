@@ -9,23 +9,18 @@
 namespace CF {
 namespace Common {
 
+RegistTypeInfo<CFactories> CBuilder_TypeRegistration();
+
 ////////////////////////////////////////////////////////////////////////////////
 
 CFactories::CFactories ( const std::string& name) : Component ( name )
 {
-  BuildComponent<nosignals>().build(this);
-  TypeInfo::instance().regist<CFactories>(CFactories::type_name());
+  add_tag( type_name() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 CFactories::~CFactories()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void CFactories::define_config_properties ()
 {
 }
 

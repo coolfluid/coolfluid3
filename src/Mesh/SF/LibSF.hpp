@@ -46,7 +46,7 @@ namespace SF {
   public: // functions
 
     /// @return string of the library namespace
-    static std::string library_namespace() { return "CF.Common"; }
+    static std::string library_namespace() { return "CF.Mesh.SF"; }
 
 
     /// Static function that returns the module name.
