@@ -33,8 +33,7 @@ namespace Neu {
 
 /// Class defines the Neutral mesh format operations
 /// @author Willem Deconinck
-class Neu_API LibNeu :
-    public Common::CLibrary
+class Neu_API LibNeu : public Common::CLibrary
 {
 public:
 

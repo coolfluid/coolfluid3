@@ -30,7 +30,6 @@ template < typename ATYPE >
 
   cf_assert ( builder != nullptr ); /// @todo maybe this should be an exception
 
-
   Component::Ptr comp = builder->build ( name );
 
   cf_assert ( comp != nullptr ); /// @todo maybe this should be an exception

@@ -39,7 +39,7 @@ public:
   /// @param name of component
   CBuilder(const std::string& name) : Component(name)
   {
-    BuildComponent<none>().build(this);
+    add_tag( type_name() );
   }
 
   /// @brief Virtual destructor.
@@ -78,7 +78,11 @@ public:
   /// @param name of component
   CBuilderT(const std::string& name) : CBuilder(name)
   {
-    BuildComponent<noprops>().build(this);
+    add_tag( type_name() );
+
+    this->regist_signal ( "build_component" , "builds a component", "Build component" )->connect ( boost::bind ( &CBuilderT<BASE,CONCRETE>::build_component, this, _1 ) );
+    this->signal("build_component").m_signature.template insert<std::string>("Component name", "Name for created component" )
+                                               .template insert<URI>("Parent component", "Path to component where place the newly built component");
   }
 
   /// @brief Virtual destructor.
@@ -121,14 +125,6 @@ public:
 
   //@} END SIGNALS
 
-  /// regists all the signals declared in this class
-  virtual void define_signals ()
-  {
-      this->regist_signal ( "build_component" , "builds a component", "Build component" )->connect ( boost::bind ( &CBuilderT<BASE,CONCRETE>::build_component, this, _1 ) );
-      this->signal("build_component").m_signature.template insert<std::string>("Component name", "Name for created component" )
-                                                 .template insert<URI>("Parent component", "Path to component where place the newly built component");
-  }
-
 }; // CBuilderT
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -141,6 +137,9 @@ struct ComponentBuilder
   /// @brief creates the CBuilder and places it into the correct factory
   ComponentBuilder( const std::string& name = std::string( LIB::library_namespace() + "." + CONCRETE::type_name()) )
   {
+    // give some info
+    CFinfo << "lib [" << LIB::type_name() << "] : factory of \'" << BASE::type_name() << "\' registering builder of \'" << CONCRETE::type_name() << "\' with name \'" << name << "\' ... " << CFendl;
+
     // regist the concrete type in TypeInfo
     CF::TypeInfo::instance().regist<CONCRETE>( CONCRETE::type_name() );
     CF::TypeInfo::instance().regist< CBuilderT<BASE,CONCRETE> >(  CBuilderT<BASE,CONCRETE>::type_name() );
@@ -156,7 +155,7 @@ struct ComponentBuilder
     liblink->link_to( builder );
 
     // give some info
-    CFinfo << "lib [" << LIB::type_name() << "] : factory of \'" << BASE::type_name() << "\' registering builder of \'" << CONCRETE::type_name() << "\' with name \'" << name << "\'" << CFendl;
+    CFinfo << "lib [" << LIB::type_name() << "] : factory of \'" << BASE::type_name() << "\' registering builder of \'" << CONCRETE::type_name() << "\' with name \'" << name << "\' ... DONE" << CFendl;
   }
 
 }; // ComponentBuilder

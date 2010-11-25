@@ -16,20 +16,15 @@ using namespace Common;
 
 //////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CList<bool>, Component, LibMesh >
-CList_bool_Builder ( CList<bool>::type_name() );
+Common::ComponentBuilder < CList<bool>, Component, LibMesh > CList_bool_Builder;
 
-Common::ComponentBuilder < CList<Uint>, Component, LibMesh >
-CList_Uint_Builder ( CList<Uint>::type_name() );
+Common::ComponentBuilder < CList<Uint>, Component, LibMesh > CList_Uint_Builder;
 
-Common::ComponentBuilder < CList<int>, Component, LibMesh >
-CList_int_Builder ( CList<int>::type_name() );
+Common::ComponentBuilder < CList<int>, Component, LibMesh >  CList_int_Builder;
 
-Common::ComponentBuilder < CList<Real>, Component, LibMesh >
-CList_Real_Builder ( CList<Real>::type_name() );
+Common::ComponentBuilder < CList<Real>, Component, LibMesh > CList_Real_Builder;
 
-Common::ComponentBuilder < CList<std::string>, Component, LibMesh >
-CList_string_Builder ( CList<std::string>::type_name() );
+Common::ComponentBuilder < CList<std::string>, Component, LibMesh > CList_string_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

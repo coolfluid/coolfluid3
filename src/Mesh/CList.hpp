@@ -28,9 +28,10 @@ namespace Mesh {
 /// @author Willem Deconinck Tiago Quintino
 	
 template <typename ValueT>
-class Mesh_API CList : public Common::Component, public ListBase<ValueT> {
-
+class Mesh_API CList : public Common::Component, public ListBase<ValueT>
+{
 public:
+
   typedef boost::shared_ptr<CList> Ptr;
   typedef boost::shared_ptr<CList const> ConstPtr;
   
@@ -40,7 +41,7 @@ public:
 		Component ( name ),
 		ListBase<ValueT>()
 	{
-    BuildComponent<none>().build(this);
+    add_tag( type_name() );
 	}
 
   /// Get the class name

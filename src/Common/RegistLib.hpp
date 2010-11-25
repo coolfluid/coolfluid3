@@ -27,7 +27,8 @@ struct ForceLibRegist
   /// @brief Registers the library LIB in the registry.
   ForceLibRegist()
   {
-    CFinfo << VERBOSE << "Library [" << Core::instance().libraries()->get_library<LIB>()->type_name() << "] loaded." << CFendl;
+    CFinfo << "Library [" << Core::instance().libraries()->get_library<LIB>()->type_name() << "] loaded." << CFendl;
+
     Core::instance().libraries()->get_library<LIB>();
   }
 };
