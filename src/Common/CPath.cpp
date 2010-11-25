@@ -102,7 +102,7 @@ CPath& CPath::operator=  (const CPath& p)
 bool CPath::is_valid_element ( const std::string& str )
 {
   return boost::algorithm::all(str, boost::algorithm::is_alnum() ||
-                                    boost::algorithm::is_any_of(".-_"))
+                                    boost::algorithm::is_any_of(".-_<>[]()"))
          && ( str.size() )
          && ( str[0] != '.' ); // cannot start with "."
 }
