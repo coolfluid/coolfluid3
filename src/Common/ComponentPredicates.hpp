@@ -657,9 +657,9 @@ find_component (ParentT& parent)
 {
   typename ComponentIteratorRange<ParentT, ComponentT>::type r = find_components<ComponentT>(parent);
   if(r.begin() == r.end())
-    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : 0 matches");
+    throw ValueNotFound(FromHere(), "Component with type " + ComponentT::type_name() + " not found in " + parent.full_path().string() + " : 0 matches");
   else if(count(r) > 1)
-    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : more than 1 match");
+    throw ValueNotFound(FromHere(), "Component with type " + ComponentT::type_name() + " not found in " + parent.full_path().string() + " : more than 1 match");
   else
     return *r.begin();
 }
@@ -703,9 +703,9 @@ find_component_with_filter (Component& parent, const Predicate& pred)
 {
   typename ComponentIteratorRange<Component, Component, Predicate>::type r = find_components_with_filter(parent, pred);
   if(r.begin() == r.end())
-    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : 0 matches");
+    throw ValueNotFound(FromHere(), "Unique component with filter not found in " + parent.full_path().string() + " : 0 matches");
   else if(count(r) > 1)
-    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : more than 1 match");
+    throw ValueNotFound(FromHere(), "Unique component with filter not found in " + parent.full_path().string() + " : more than 1 match");
   else
     return *r.begin();
 }
@@ -716,9 +716,9 @@ find_component_with_filter (const Component& parent, const Predicate& pred)
 {
   typename ComponentIteratorRange<Component const, Component, Predicate>::type r = find_components_with_filter(parent, pred);
   if(r.begin() == r.end())
-    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : 0 matches");
+    throw ValueNotFound(FromHere(), "Unique component with filter not found in " + parent.full_path().string() + " : 0 matches");
   else if(count(r) > 1)
-    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : more than 1 match");
+    throw ValueNotFound(FromHere(), "Unique component with filter not found in " + parent.full_path().string() + " : more than 1 match");
   else
     return *r.begin();
 }
@@ -729,9 +729,9 @@ find_component_with_filter (ParentT& parent, const Predicate& pred)
 {
   typename ComponentIteratorRange<ParentT, ComponentT, Predicate>::type r = find_components_with_filter<ComponentT>(parent, pred);
   if(r.begin() == r.end())
-    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : 0 matches");
+    throw ValueNotFound(FromHere(), "Unique component with filter and type " + ComponentT::type_name() + " not found in " + parent.full_path().string() + " : 0 matches");
   else if(count(r) > 1)
-    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : more than 1 match");
+    throw ValueNotFound(FromHere(), "Unique component with filter and type " + ComponentT::type_name() + " not found in " + parent.full_path().string() + " : more than 1 match");
   else
     return *r.begin();
 }
@@ -772,18 +772,40 @@ find_component_ptr_with_filter (ParentT& parent, const Predicate& pred)
 //////////////////////////////////////////////////////////////////////////////
 
 inline ComponentReference<Component>::type
-find_component_with_name (Component& parent, const std::string& name) {
-  return find_component_with_filter(parent, IsComponentName(name));
+find_component_with_name (Component& parent, const std::string& name) 
+{
+  try
+  {
+    return find_component_with_filter(parent, IsComponentName(name));
+  }
+  catch (ValueNotFound& e)
+  {
+    throw ValueNotFound(FromHere(), "Unique component with name \""+name+"\" not found in " + parent.full_path().string());
+  }
 }
 
 inline ComponentReference<Component const>::type
 find_component_with_name (const Component& parent, const std::string& name) {
-  return find_component_with_filter(parent, IsComponentName(name));
+  try
+  {
+    return find_component_with_filter(parent, IsComponentName(name));
+  }
+  catch (ValueNotFound& e)
+  {
+    throw ValueNotFound(FromHere(), "Unique component with name \""+name+"\" not found in " + parent.full_path().string());
+  }
 }
 template<typename ComponentT, typename ParentT>
 inline typename ComponentReference<ParentT, ComponentT>::type
 find_component_with_name (ParentT& parent, const std::string& name) {
-  return find_component_with_filter<ComponentT>(parent, IsComponentName(name));
+  try
+  {
+    return find_component_with_filter<ComponentT>(parent, IsComponentName(name));
+  }
+  catch (ValueNotFound& e)
+  {
+    throw ValueNotFound(FromHere(), "Unique component with name \""+name+"\" and type " + ComponentT::type_name() + " not found in " + parent.full_path().string());
+  }
 }
 
 inline ComponentPtr<Component>::type
@@ -808,19 +830,44 @@ find_component_ptr_with_name (ParentT& parent, const std::string& name)
 //////////////////////////////////////////////////////////////////////////////
 
 inline ComponentReference<Component>::type
-find_component_with_tag (Component& parent, const std::string& tag) {
-  return find_component_with_filter(parent, IsComponentTag(tag));
+find_component_with_tag (Component& parent, const std::string& tag) 
+{
+  try
+  {
+    return find_component_with_filter(parent, IsComponentTag(tag));
+  }
+  catch (ValueNotFound& e)
+  {
+    throw ValueNotFound(FromHere(), "Unique component with tag \""+tag+"\" not found in " + parent.full_path().string());
+  }
 }
 
 inline ComponentReference<Component const>::type
-find_component_with_tag (const Component& parent, const std::string& tag) {
-  return find_component_with_filter(parent, IsComponentTag(tag));
+find_component_with_tag (const Component& parent, const std::string& tag) 
+{
+  try
+  {
+    return find_component_with_filter(parent, IsComponentTag(tag));
+  }
+  catch (ValueNotFound& e)
+  {
+    throw ValueNotFound(FromHere(), "Unique component with tag \""+tag+"\" not found in " + parent.full_path().string());
+  }
 }
 
 template<typename ComponentT, typename ParentT>
 inline typename ComponentReference<ParentT, ComponentT>::type
-find_component_with_tag (ParentT& parent, const std::string& tag) {
-  return find_component_with_filter<ComponentT>(parent, IsComponentTag(tag));
+find_component_with_tag (ParentT& parent, const std::string& tag) 
+{
+  try
+  {
+    return find_component_with_filter<ComponentT>(parent, IsComponentTag(tag));
+  }
+  catch (ValueNotFound& e)
+  {
+    throw ValueNotFound(FromHere(), "Unique component with tag \""+tag+"\" and type " + ComponentT::type_name() + " not found in " + parent.full_path().string());
+  }
+  
 }
 
 inline ComponentPtr<Component>::type
@@ -874,9 +921,9 @@ find_component_recursively (ParentT& parent )
 {
   typename ComponentIteratorRange<ParentT, ComponentT>::type r = find_components_recursively<ComponentT>(parent);
   if(r.begin() == r.end())
-    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : 0 matches");
+    throw ValueNotFound(FromHere(), "Component not found recursively with type " + ComponentT::type_name() + " in " + parent.full_path().string() + " : 0 matches");
   else if(count(r) > 1)
-    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : more than 1 match");
+    throw ValueNotFound(FromHere(), "Component not found recursively with type " + ComponentT::type_name() + " in " + parent.full_path().string() + " : more than 1 match");
   else
     return *r.begin();
 }
@@ -920,9 +967,9 @@ find_component_recursively_with_filter(Component& parent, const Predicate& pred)
 {
   typename ComponentIteratorRange<Component, Component, Predicate>::type r = find_components_recursively_with_filter(parent, pred);
   if(r.begin() == r.end())
-    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : 0 matches");
+    throw ValueNotFound(FromHere(), "Component not found recursively with filter in " + parent.full_path().string() + " : 0 matches");
   else if(count(r) > 1)
-    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : more than 1 match");
+    throw ValueNotFound(FromHere(), "Component not found recursively with filter in " + parent.full_path().string() + " : more than 1 match");
   else
     return *r.begin();
 }
@@ -933,9 +980,9 @@ find_component_recursively_with_filter(const Component& parent, const Predicate&
 {
   typename ComponentIteratorRange<Component const, Component, Predicate>::type r = find_components_recursively_with_filter(parent, pred);
   if(r.begin() == r.end())
-    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : 0 matches");
+    throw ValueNotFound(FromHere(), "Component not found recursively wth filter in " + parent.full_path().string() + " : 0 matches");
   else if(count(r) > 1)
-    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : more than 1 match");
+    throw ValueNotFound(FromHere(), "Component not found recursively with filter in " + parent.full_path().string() + " : more than 1 match");
   else
     return *r.begin();
 }
@@ -946,9 +993,9 @@ find_component_recursively_with_filter(ParentT& parent, const Predicate& pred )
 {
   typename ComponentIteratorRange<ParentT, ComponentT, Predicate>::type r = find_components_recursively_with_filter<ComponentT>(parent, pred);
   if(r.begin() == r.end())
-    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : 0 matches");
+    throw ValueNotFound(FromHere(), "Component not found recursively with filter and with type " + ComponentT::type_name() + " in " + parent.full_path().string() + " : 0 matches");
   else if(count(r) > 1)
-    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : more than 1 match");
+    throw ValueNotFound(FromHere(), "Component not found recursively with filter and with type " + ComponentT::type_name() + " in " + parent.full_path().string() + " : more than 1 match");
   else
     return *r.begin();
 }
@@ -989,19 +1036,43 @@ find_component_ptr_recursively_with_filter(ParentT& parent, const Predicate& pre
 //////////////////////////////////////////////////////////////////////////////
 
 inline ComponentReference<Component>::type
-find_component_recursively_with_name(Component& parent, const std::string& name) {
-  return find_component_recursively_with_filter(parent, IsComponentName(name));
+find_component_recursively_with_name(Component& parent, const std::string& name) 
+{
+  try
+  {
+    return find_component_recursively_with_filter(parent, IsComponentName(name));
+  }
+  catch (ValueNotFound& e)
+  {
+    throw ValueNotFound(FromHere(), "Unique component not found recursively with name " + name + " in " + parent.full_path().string());
+  }
 }
 
 inline ComponentReference<Component const>::type
-find_component_recursively_with_name(const Component& parent, const std::string& name) {
-  return find_component_recursively_with_filter(parent, IsComponentName(name));
+find_component_recursively_with_name(const Component& parent, const std::string& name) 
+{
+  try
+  {
+    return find_component_recursively_with_filter(parent, IsComponentName(name));
+  }
+  catch (ValueNotFound& e)
+  {
+    throw ValueNotFound(FromHere(), "Unique component not found recursively with name " + name + " in " + parent.full_path().string());
+  }
 }
 
 template<typename ComponentT, typename ParentT>
 inline typename ComponentReference<ParentT, ComponentT>::type
-find_component_recursively_with_name(ParentT& parent, const std::string& name) {
-  return find_component_recursively_with_filter<ComponentT>(parent, IsComponentName(name));
+find_component_recursively_with_name(ParentT& parent, const std::string& name) 
+{
+  try
+  {
+    return find_component_recursively_with_filter<ComponentT>(parent, IsComponentName(name));
+  }
+  catch (ValueNotFound& e)
+  {
+    throw ValueNotFound(FromHere(), "Unique component not found recursively with name \"" + name + "\" and with type " + ComponentT::type_name() + " in " + parent.full_path().string());
+  }
 }
 
 inline ComponentPtr<Component>::type
@@ -1026,19 +1097,43 @@ find_component_ptr_recursively_with_name(ParentT& parent, const std::string& nam
 //////////////////////////////////////////////////////////////////////////////
 
 inline ComponentReference<Component>::type
-find_component_recursively_with_tag(Component& parent, const std::string& tag) {
-  return find_component_recursively_with_filter(parent, IsComponentTag(tag));
+find_component_recursively_with_tag(Component& parent, const std::string& tag) 
+{
+  try
+  {
+    return find_component_recursively_with_filter(parent, IsComponentTag(tag));
+  }
+  catch (ValueNotFound& e)
+  {
+    throw ValueNotFound(FromHere(), "Unique component not found recursively with tag \"" + tag + "\" in " + parent.full_path().string());
+  }
 }
 
 inline ComponentReference<Component const>::type
-find_component_recursively_with_tag(const Component& parent, const std::string& tag) {
-  return find_component_recursively_with_filter(parent, IsComponentTag(tag));
+find_component_recursively_with_tag(const Component& parent, const std::string& tag) 
+{
+  try
+  {
+    return find_component_recursively_with_filter(parent, IsComponentTag(tag));
+  }
+  catch (ValueNotFound& e)
+  {
+    throw ValueNotFound(FromHere(), "Unique component not found recursively with tag \"" + tag + "\" in " + parent.full_path().string());
+  }
 }
 
 template<typename ComponentT, typename ParentT>
 inline typename ComponentReference<ParentT, ComponentT>::type
-find_component_recursively_with_tag(ParentT& parent, const std::string& tag) {
-  return find_component_recursively_with_filter<ComponentT>(parent, IsComponentTag(tag));
+find_component_recursively_with_tag(ParentT& parent, const std::string& tag) 
+{
+  try
+  {
+    return find_component_recursively_with_filter<ComponentT>(parent, IsComponentTag(tag));
+  }
+  catch (ValueNotFound& e)
+  {
+    throw ValueNotFound(FromHere(), "Unique component not found recursively with tag \"" + tag + "\" and with type " + ComponentT::type_name() + " in " + parent.full_path().string());
+  }
 }
 
 inline ComponentPtr<Component>::type
