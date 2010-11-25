@@ -17,7 +17,6 @@
 #include "Common/CreateComponent.hpp"
 #include "Common/Log.hpp"
 
-#include "Mesh/CArray.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CTable.hpp"
@@ -86,10 +85,10 @@ struct LoopElems
     if( !IsElementType<EType>()(region.element_type()) )
       return;
 
-    typename CTable::ArrayT const& conn_table = region.connectivity_table().array();
-    const CArray& coords = region.coordinates();
+    typename CTable<Uint>::ArrayT const& conn_table = region.connectivity_table().array();
+    const CTable<Real>& coords = region.coordinates();
     // loop on elements
-    BOOST_FOREACH(const CTable::ConstRow& elem, conn_table)
+    BOOST_FOREACH(const CTable<Uint>::ConstRow& elem, conn_table)
     {
       typename EType::NodeMatrixT nodes;
       fill(nodes, coords, elem );
