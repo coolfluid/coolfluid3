@@ -104,7 +104,7 @@ public: // functions
   virtual ~COperationMergeT() {};
 
   /// Get the class name
-  static std::string type_name () { return "COutputField"; }
+  static std::string type_name () { return "COperationMergeT"; }
 
   void set_loophelper (CElements& geometry_elements )
   {
@@ -264,7 +264,7 @@ public: // functions
   virtual ~CComputeVolumes() {};
 
   /// Get the class name
-  static std::string type_name () { return "CComputeVolume"; }
+  static std::string type_name () { return "CComputeVolumes"; }
 
   /// Configuration Options
   virtual void define_config_properties ()
@@ -342,7 +342,7 @@ public: // functions
   virtual ~CSetValue() {};
 
   /// Get the class name
-  static std::string type_name () { return "CComputeVolume"; }
+  static std::string type_name () { return "CSetValue"; }
 
   /// Configuration Options
   virtual void define_config_properties ()

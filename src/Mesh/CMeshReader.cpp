@@ -89,7 +89,7 @@ void CMeshReader::read( XmlNode& node  )
 CMesh::Ptr CMeshReader::create_mesh_from(boost::filesystem::path& file)
 {
   // Create the mesh
-  CMesh::Ptr mesh ( allocate_component_type<CMesh>("Mesh") );
+  CMesh::Ptr mesh ( allocate_component_type<CMesh>("mesh") );
 
   // Call implementation
   read_from_to(file,mesh);

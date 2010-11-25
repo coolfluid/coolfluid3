@@ -49,7 +49,11 @@ int main(int argc, char * argv[])
 
     mesh->create_field("volumes",1, CField::ELEMENT_BASED);
 
-    std::vector<URI> regions_to_loop = boost::assign::list_of(URI("cpath://root/mesh/Base"));
+    std::vector<URI> regions_to_loop = boost::assign::list_of(URI("cpath://root/mesh/quadtriag"));
+
+    CFinfo << CFendl << CFendl;
+
+    std::cout << mesh->tree() << std::endl;
 
     CFinfo << CFendl << CFendl;
 
@@ -129,11 +133,11 @@ int main(int argc, char * argv[])
     virtual_operator->configure_property(    "Regions"   , regions_to_loop );
 
     // Create a virtual operation_1, and configure (can be done through xml)
-    COperation& volume_op = virtual_operator->create_operation("CComputeVolumes");
+    COperation& volume_op = virtual_operator->create_operation("CF.Mesh.CComputeVolumes");
     volume_op.configure_property(   "Field"   ,   URI("cpath://root/mesh/volumes"   ));
 
     // Create a virtual operation_2, and configure (can be done through xml)
-    COperation& output_op = virtual_operator->create_operation("COutputField");
+    COperation& output_op = virtual_operator->create_operation("CF.Mesh.COutputField");
     output_op.configure_property(   "Field"   ,   URI("cpath://root/mesh/volumes"   ));
 
     // Execute all
@@ -159,7 +163,7 @@ int main(int argc, char * argv[])
     node_loop->configure_property(    "Regions"   , regions_to_loop );
 
     // Create a virtual operation_1, and configure (can be done through xml)
-    COperation& setval_op = node_loop->create_operation("CSetValue");
+    COperation& setval_op = node_loop->create_operation("CF.Mesh.CSetValue");
     setval_op.configure_property(   "Field"   ,   URI("cpath://root/mesh/linear"   ));
     CFinfo << "before execution" << CFendl;
     node_loop->execute();
@@ -197,7 +201,7 @@ int main(int argc, char * argv[])
     //Loop( ForAllRegions< OperationMerge< ComputeVolumes, ComputeVolumes > > ( *mesh ) );
 
     CFinfo << CFendl << CFendl << CFendl;
-    CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("Info","transformer");
+    CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("CF.Mesh.CMeshInfo","transformer");
     info->transform(mesh);
 
     //Loop( ForAllVolumes< ComputeVolumes > ( volumes ) );
