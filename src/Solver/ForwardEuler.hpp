@@ -38,17 +38,9 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "ForwardEuler"; }
 
-  /// Configuration Options
-  virtual void define_config_properties () {}
-
   // functions specific to the ForwardEuler component
   
   virtual void do_stuff();
-
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
 
 };
 

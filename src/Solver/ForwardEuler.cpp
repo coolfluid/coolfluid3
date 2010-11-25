@@ -21,7 +21,7 @@ ForwardEuler_Builder ( ForwardEuler::type_name() );
 ForwardEuler::ForwardEuler ( const std::string& name  ) :
   CIterativeSolver ( name )
 {
-  BuildComponent<full>().build(this);
+  BuildComponent<none>().build(this);
   
   properties()["brief"] = std::string("Iterative Solver component");
   properties()["description"] = std::string("Forward Euler Time Stepper");

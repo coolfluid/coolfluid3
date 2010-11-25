@@ -22,7 +22,7 @@ ElementType::~ElementType()
 {
 }
 
-void ElementType::define_config_properties ( Common::PropertyList& options )
+void ElementType::define_config_properties ()
 {
 }
 

@@ -41,18 +41,10 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CDiscretization"; }
 
-  /// Configuration Options
-  virtual void define_config_properties () {}
-
   // functions specific to the CDiscretization component
 
   virtual void do_whatever() = 0;
   
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
-
 };
 
 ////////////////////////////////////////////////////////////////////////////////

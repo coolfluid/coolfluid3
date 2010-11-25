@@ -28,7 +28,7 @@ CArray::CArray ( const std::string& name  ) :
 	
 ////////////////////////////////////////////////////////////////////////////////
 
-void CArray::define_config_properties ( Common::PropertyList& options )
+void CArray::define_config_properties ()
 {
 }
 	

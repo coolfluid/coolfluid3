@@ -44,15 +44,7 @@ namespace ClientCore {
     typedef boost::shared_ptr<LibClientCore const> ConstPtr;
 
     /// Constructor
-    LibClientCore ( const std::string& name) : Common::CLibrary(name) { BuildComponent<full>().build(this); }
-
-    /// Configuration options
-    virtual void define_config_properties () {}
-
-  private: // helper functions
-
-    /// regists all the signals declared in this class
-    virtual void define_signals () {}
+    LibClientCore ( const std::string& name) : Common::CLibrary(name) { BuildComponent<none>().build(this); }
 
   public: // functions
 

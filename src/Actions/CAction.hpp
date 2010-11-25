@@ -36,9 +36,6 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CAction"; }
 
-  /// Configuration Options
-  virtual void define_config_properties () {}
-
   /// execute the action
   virtual void execute () = 0;
 
@@ -48,13 +45,6 @@ public: // functions
   {
     execute();
   }
-
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
-
-private: // data
 
 };
 

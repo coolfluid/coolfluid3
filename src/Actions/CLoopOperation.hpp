@@ -42,9 +42,6 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "CLoopOperation"; }
-
-  /// Configuration Options
-  virtual void define_config_properties ();
   
   virtual void set_loophelper ( CElements& geometry_elements ) = 0;
   
@@ -52,11 +49,6 @@ public: // functions
 	
 	virtual CList<Uint>& loop_list();
   
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
-
 protected: // data
 
   Uint m_idx;

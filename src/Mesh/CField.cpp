@@ -43,7 +43,7 @@ CField::CField ( const std::string& name  ) :
 	
 ////////////////////////////////////////////////////////////////////////////////
 
-void CField::define_config_properties ( Common::PropertyList& options )
+void CField::define_config_properties ()
 {
 	std::vector<std::string> var_names;
 	std::vector<std::string> var_types;

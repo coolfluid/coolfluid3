@@ -25,7 +25,7 @@ CLibraries::~CLibraries()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CLibraries::define_config_properties ( Common::PropertyList& options )
+void CLibraries::define_config_properties ()
 {
 }
 

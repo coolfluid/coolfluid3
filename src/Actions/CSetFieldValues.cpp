@@ -22,7 +22,7 @@ Common::ComponentBuilder < CSetFieldValues, CLoopOperation, LibActions > CSetFie
 
 ///////////////////////////////////////////////////////////////////////////////////////
   
-void CSetFieldValues::define_config_properties( Common::PropertyList& options )
+void CSetFieldValues::define_config_properties()
 {
   m_properties.add_option< OptionT<std::string> > ("Field","Field to output", "")->mark_basic();
 }

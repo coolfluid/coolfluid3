@@ -78,7 +78,7 @@ CNode::CNode(const QString & name, const QString & componentType, CNode::Type ty
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CNode::define_config_properties ( CF::Common::PropertyList& props )
+void CNode::define_config_properties ()
 {
 }
 

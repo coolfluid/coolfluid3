@@ -45,7 +45,7 @@ ScalarAdvection::~ScalarAdvection()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ScalarAdvection::define_config_properties(Common::PropertyList& options)
+void ScalarAdvection::define_config_properties()
 {
 //  m_properties.add_option< OptionT<std::string> >  ( "Model",  "Model to fill, if empty a new model will be created in the root" , "" );
 //  m_properties["Model"].as_option().mark_basic();

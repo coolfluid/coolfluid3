@@ -42,7 +42,7 @@ class MyC : public ConfigObject {
 
   public: // functions
 
-  static void define_config_properties ( PropertyList& options )
+  virtual void define_config_properties ()
   {
 
     // POD's (plain old data)
@@ -140,22 +140,6 @@ BOOST_AUTO_TEST_CASE( add_options_to )
 //  CFinfo << "starting [" << today << "] [" << now << "]\n" << CFendl;
 
   boost::shared_ptr<MyC> pm ( new MyC );
-
-//  CFinfo << "ending\n" << CFendl;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-BOOST_AUTO_TEST_CASE( define_config_properties )
-{
-  boost::gregorian::date today = boost::gregorian::day_clock::local_day();
-  boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
-
-//  CFinfo << "starting [" << today << "] [" << now << "]\n" << CFendl;
-
-  PropertyList ll;
-
-  MyC::define_config_properties(ll);
 
 //  CFinfo << "ending\n" << CFendl;
 }

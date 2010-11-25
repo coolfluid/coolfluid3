@@ -19,14 +19,10 @@ namespace Actions {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void CForAllNodes::define_config_properties ( Common::PropertyList& options ) {}
-
-/////////////////////////////////////////////////////////////////////////////////////
-
 CForAllNodes::CForAllNodes ( const std::string& name ) :
   CLoop(name)
 {
-  BuildComponent<full>().build(this);
+  BuildComponent<none>().build(this);
 }
 	
 void CForAllNodes::execute()

@@ -21,17 +21,11 @@ namespace Actions {
 Common::ComponentBuilder < CDummyLoopOperation, CLoopOperation, LibActions > CDummyLoopOperationProvider( "CDummyLoopOperation" );
 
 ///////////////////////////////////////////////////////////////////////////////////////
-  
-void CDummyLoopOperation::define_config_properties( Common::PropertyList& options )
-{
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
 
 CDummyLoopOperation::CDummyLoopOperation ( const std::string& name ) : 
   CLoopOperation(name)
 {
-  BuildComponent<full>().build(this);
+  BuildComponent<none>().build(this);
 }
 	
 /////////////////////////////////////////////////////////////////////////////////////

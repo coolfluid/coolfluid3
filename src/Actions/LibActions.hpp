@@ -42,15 +42,7 @@ public:
   typedef boost::shared_ptr<LibActions const> ConstPtr;
 
   /// Constructor
-  LibActions ( const std::string& name) : Common::CLibrary(name) { BuildComponent<full>().build(this); }
-
-  /// Configuration options
-  virtual void define_config_properties () {}
-
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
+  LibActions ( const std::string& name) : Common::CLibrary(name) { BuildComponent<none>().build(this); }
 
 public: // functions
 

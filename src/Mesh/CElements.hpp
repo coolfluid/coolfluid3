@@ -50,9 +50,6 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CElements"; }
 
-  /// Configuration Options
-  virtual void define_config_properties () {}
-
   /// set the element type
   void set_element_type(const std::string& etype_name);
 
@@ -102,11 +99,6 @@ public: // functions
 	/// @param name of a field
   const CFieldElements& get_field_elements(const std::string& field_name) const;
     
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
-
 protected: // data
   
   ElementType::Ptr m_element_type;

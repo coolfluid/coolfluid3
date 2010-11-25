@@ -34,9 +34,8 @@ namespace Neu {
 ////////////////////////////////////////////////////////////////////////////////
 
 Common::ComponentBuilder < Mesh::Neu::CWriter,
-                         Mesh::CMeshWriter,
-                         Mesh::Neu::LibNeu,
-                         1 >
+                           Mesh::CMeshWriter,
+                           Mesh::Neu::LibNeu>
 aNeuWriter_Builder ( "Neu" );
 
 //////////////////////////////////////////////////////////////////////////////
@@ -45,7 +44,7 @@ CWriter::CWriter( const std::string& name )
 : CMeshWriter(name),
   Shared()
 {
-  BuildComponent<full>().build(this);
+  BuildComponent<none>().build(this);
 }
 
 /////////////////////////////////////////////////////////////////////////////

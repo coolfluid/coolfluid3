@@ -31,7 +31,8 @@ CMesh_Builder ( CMesh::type_name() );
 CMesh::CMesh ( const std::string& name  ) :
   Component ( name )
 {
-  BuildComponent<full>().build(this);
+  BuildComponent<none>().build(this);
+
 	m_properties.add_property("nb_cells",Uint(0));
 	m_properties.add_property("nb_nodes",Uint(0));
 	m_properties.add_property("dimensionality",Uint(0));

@@ -56,9 +56,6 @@ public:
   /// Get the class name
   static std::string type_name () { return "CNodeConnectivity"; }
 
-  /// Configuration Options
-  virtual void define_config_properties () {}
-
   // functions specific to the CNodeConnectivity component
   
   /// Initialize the connectivity arrays, based on a range of CElements to consider
@@ -85,11 +82,6 @@ public:
   const IndicesT& node_first_elements() const { return m_node_first_elements; }
   const CountsT& node_element_counts() const { return m_node_element_counts; }
   const IndicesT& node_elements() const { return m_node_elements; }
-  
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
 
 private: // data
   ElementsT m_celements_vector;
@@ -135,9 +127,6 @@ public:
   /// Get the class name
   static std::string type_name () { return "CFaceConnectivity"; }
 
-  /// Configuration Options
-  virtual void define_config_properties () {}
-
   // functions specific to the CFaceConnectivity component
   
   /// Initialize the connectivity arrays so the adjacent face- and element lookups are defined for celements
@@ -159,12 +148,6 @@ public:
   
   /// Get the face that is adjacent to the given face of the given element
   Uint adjacent_face(const Uint element, const Uint face) const;
-  
-  
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
 
 private: // data
   const CNodeConnectivity* m_node_connectivity; // normal pointer for performance reasons

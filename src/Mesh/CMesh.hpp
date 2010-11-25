@@ -46,9 +46,6 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CMesh"; }
 
-  /// Configuration Options
-  virtual void define_config_properties () {}
-
   // functions specific to the CMesh component
 
   /// create a region
@@ -87,13 +84,6 @@ public: // functions
   
   void update_statistics();
   
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
-
-private:
-
 };
 
 ////////////////////////////////////////////////////////////////////////////////

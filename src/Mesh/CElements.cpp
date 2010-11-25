@@ -28,7 +28,7 @@ CElements_Builder ( CElements::type_name() );
 CElements::CElements ( const std::string& name ) :
   Component ( name )
 {
-  BuildComponent<full>().build(this);
+  BuildComponent<none>().build(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

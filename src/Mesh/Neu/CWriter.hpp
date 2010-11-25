@@ -47,8 +47,6 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "CWriter"; }
 
-  static void define_config_properties ( CF::Common::PropertyList& options ) {}
-
   virtual void write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& path);
 
   virtual std::string get_format() { return "Neu"; }
@@ -68,11 +66,6 @@ private: // functions
   void write_boundaries(std::fstream& file);
 
   void create_nodes_to_element_connectivity();
-
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
 
 private: // data
   

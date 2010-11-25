@@ -562,7 +562,7 @@ void NTree::list_tree_reply(XmlNode & node)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NTree::define_config_properties ( CF::Common::PropertyList& props )
+void NTree::define_config_properties ()
 {
   std::vector<int> vectInt;
   std::vector<bool> vectBool;

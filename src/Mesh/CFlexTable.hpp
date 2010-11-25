@@ -85,10 +85,7 @@ public:
   /// Get the class name
   static std::string type_name () { return "CFlexTable"; }
 
-  /// Configuration Options
-  virtual void define_config_properties () {}
-
-  Uint size() const {return m_array.size();}
+  Uint size() const { return m_array.size(); }
   
   Uint row_size(const Uint i) const {return m_array[i].size();}
   

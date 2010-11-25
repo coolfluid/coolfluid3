@@ -42,6 +42,9 @@ public: // functions
   /// Configuration Options
   virtual void define_config_properties ();
   
+  /// regists all the signals declared in this class
+  virtual void define_signals () {}
+
   //////////////////////////////////
   // CPhysicalModel specific
   /////////////////////////////////
@@ -54,9 +57,6 @@ public: // functions
   Uint nb_dof() const { return m_nbdofs; }
 
 private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
 
   /// trigger for configuration of dimensions
   void trigger_dimensionality();

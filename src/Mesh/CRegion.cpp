@@ -33,7 +33,7 @@ CRegion_Builder ( CRegion::type_name() );
 CRegion::CRegion ( const std::string& name  ) :
   Component ( name )
 {
-  BuildComponent<full>().build(this);
+  BuildComponent<none>().build(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

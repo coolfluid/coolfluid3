@@ -12,8 +12,8 @@
 #include "Common/Component.hpp"
 
 #include "Mesh/ArrayBase.hpp"
-#include "Mesh/LibMesh.hpp"
 #include "Mesh/ArrayBufferT.hpp"
+#include "Mesh/LibMesh.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -40,13 +40,6 @@ public:
   /// Get the class name
   static std::string type_name () { return "CTable"; }
 
-  /// Configuration Options
-  virtual void define_config_properties () {}
-
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}  
 };
 
 std::ostream& operator<<(std::ostream& os, const CTable::ConstRow& row);

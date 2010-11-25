@@ -39,9 +39,6 @@ public:
   /// @returns the class name
   static std::string type_name() { return "CFactory"; }
 
-  /// Configuration properties
-  static void define_config_properties ( CF::Common::PropertyList& props );
-
   /// @return the name of the type of this factory
   virtual std::string factory_type_name() const = 0;
 

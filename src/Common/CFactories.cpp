@@ -25,7 +25,7 @@ CFactories::~CFactories()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CFactories::define_config_properties ( Common::PropertyList& options )
+void CFactories::define_config_properties ()
 {
 }
 

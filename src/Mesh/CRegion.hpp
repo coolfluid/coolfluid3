@@ -50,9 +50,6 @@ public:
   /// Get the class name
   static std::string type_name () { return "CRegion"; }
 
-  /// Configuration Options
-  virtual void define_config_properties () {}
-
   // functions specific to the CRegion component
 
   /// create a CRegion component
@@ -99,11 +96,6 @@ public:
   /// @return the elements with given name
   CElements& elements (const std::string& element_type_name);
   
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
-
 private: // data
 
 }; // CRegion

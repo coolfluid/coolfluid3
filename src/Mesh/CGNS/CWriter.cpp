@@ -36,7 +36,7 @@ CWriter::CWriter( const std::string& name )
 : CMeshWriter(name),
   Shared()
 {
-  BuildComponent<full>().build(this);
+  BuildComponent<none>().build(this);
 }
 
 /////////////////////////////////////////////////////////////////////////////

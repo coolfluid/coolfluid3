@@ -49,15 +49,14 @@ namespace Mesh {
   
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Mesh::CMeshInfo, Mesh::CMeshTransformer, Mesh::LibMesh>
-CMeshInfo_Builder ( "Info" );
+Common::ComponentBuilder < CMeshInfo, CMeshTransformer, LibMesh> CMeshInfo_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
 CMeshInfo::CMeshInfo( const std::string& name )
 : CMeshTransformer(name)
 {
-  BuildComponent<full>().build(this);
+  BuildComponent<none>().build(this);
 	properties()["brief"] = std::string("Print information of the mesh");
 	std::string desc;
 	desc = 

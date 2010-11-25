@@ -57,11 +57,6 @@ public: // functions
 
   virtual void execute() = 0;
 
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
-
 protected:
 
   /// Regions to loop over

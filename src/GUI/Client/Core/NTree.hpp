@@ -293,7 +293,7 @@ namespace ClientCore {
     /// @} END Signals
 
     /// Configuration properties
-    static void define_config_properties ( CF::Common::PropertyList& props );
+    static void define_config_properties ();
 
   public slots:
 

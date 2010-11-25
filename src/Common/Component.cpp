@@ -439,22 +439,22 @@ Component::Ptr Component::look_component ( const CPath& path )
 
 void Component::define_signals()
 {
-  this->regist_signal ( "create_component" , "creates a component", "Create component" )->connect ( boost::bind ( &Component::create_component, self, _1 ) );
+  this->regist_signal ( "create_component" , "creates a component", "Create component" )->connect ( boost::bind ( &Component::create_component, this, _1 ) );
   this->signal("create_component").m_signature
       .insert<std::string>("Component name", "Name for created component" )
       .insert<std::string>("Generic type",   "Generic type of the component" )
       .insert<std::string>("Concrete type",  "Concrete type of the component" );
 
 
-  this->regist_signal ( "list_tree" , "lists the component tree inside this component", "" )->connect ( boost::bind ( &Component::list_tree, self, _1 ) );
+  this->regist_signal ( "list_tree" , "lists the component tree inside this component", "" )->connect ( boost::bind ( &Component::list_tree, this, _1 ) );
 
-  this->regist_signal ( "list_properties" , "lists the options of this component", "" )->connect ( boost::bind ( &Component::list_properties, self, _1 ) );
+  this->regist_signal ( "list_properties" , "lists the options of this component", "" )->connect ( boost::bind ( &Component::list_properties, this, _1 ) );
 
-  this->regist_signal ( "list_signals" , "lists the options of this component", "" )->connect ( boost::bind ( &Component::list_signals, self, _1 ) );
+  this->regist_signal ( "list_signals" , "lists the options of this component", "" )->connect ( boost::bind ( &Component::list_signals, this, _1 ) );
 
-  this->regist_signal ( "configure" , "configures this component", "" )->connect ( boost::bind ( &Component::configure, self, _1 ) );
+  this->regist_signal ( "configure" , "configures this component", "" )->connect ( boost::bind ( &Component::configure, this, _1 ) );
 
-  this->regist_signal ( "rename_component" , "Renames this component", "Rename" )->connect ( boost::bind ( &Component::rename_component, self, _1 ) );
+  this->regist_signal ( "rename_component" , "Renames this component", "Rename" )->connect ( boost::bind ( &Component::rename_component, this, _1 ) );
 
   this->signal("rename_component").m_signature.insert<std::string>("newName", "Component new name");
 

@@ -87,7 +87,7 @@ private: // data
 /////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SHAPEFUNC>
-void CSchemeLDAT<SHAPEFUNC>::define_config_properties( Common::PropertyList& options )
+void CSchemeLDAT<SHAPEFUNC>::define_config_properties()
 {
   using namespace CF::Common;
 //  using namespace CF::Mesh;

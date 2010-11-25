@@ -40,11 +40,6 @@ namespace Common {
     /// Configuration Options
     virtual void define_config_properties ();
 
-  private: // helper functions
-
-    /// regists all the signals declared in this class
-    virtual void define_signals () {}
-
   private: // data
 
     /// this is a Env to the component

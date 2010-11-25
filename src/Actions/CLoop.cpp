@@ -20,7 +20,7 @@ namespace Actions {
   
 /////////////////////////////////////////////////////////////////////////////////////
 
-void CLoop::define_config_properties ( Common::PropertyList& options )
+void CLoop::define_config_properties ()
 {
   std::vector< URI > dummy;
   m_properties.add_option< OptionArrayT < URI > > ("Regions", "Regions to loop over", dummy)->mark_basic();
@@ -31,7 +31,7 @@ void CLoop::define_config_properties ( Common::PropertyList& options )
 CLoop::CLoop ( const std::string& name ) :
   CAction(name)
 {
-  BuildComponent<full>().build(this);
+  BuildComponent<no_signals>().build(this);
   m_properties["Regions"].as_option().attach_trigger ( boost::bind ( &CLoop::trigger_Regions,   this ) );
 }
 

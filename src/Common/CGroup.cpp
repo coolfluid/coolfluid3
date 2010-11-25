@@ -37,7 +37,7 @@ CGroup::~CGroup()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CGroup::define_config_properties ( Common::PropertyList& options )
+void CGroup::define_config_properties ()
 {
   m_properties.add_option< OptionT<CF::Real> >("pi", "Pi in a CGroup", 3.141592);
 

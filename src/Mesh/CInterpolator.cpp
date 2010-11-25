@@ -23,18 +23,12 @@ using namespace Common;
 CInterpolator::CInterpolator ( const std::string& name  ) :
   Component ( name )
 {
-  BuildComponent<full>().build(this);
+  BuildComponent<none>().build(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 CInterpolator::~CInterpolator()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void CInterpolator::define_config_properties(Common::PropertyList& options)
 {
 }
 

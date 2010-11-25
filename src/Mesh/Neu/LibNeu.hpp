@@ -45,20 +45,12 @@ public:
   typedef boost::shared_ptr<LibNeu const> ConstPtr;
 
   /// Constructor
-  LibNeu ( const std::string& name) : Common::CLibrary(name) { BuildComponent<full>().build(this); }
-
-  /// Configuration options
-  virtual void define_config_properties () {}
-
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
+  LibNeu ( const std::string& name) : Common::CLibrary(name) { BuildComponent<none>().build(this); }
 
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.Neu"; }
+  static std::string library_namespace() { return "CF.Mesh.Neu"; }
 
   /// Static function that returns the module name.
   /// Must be implemented for CLibrary registration

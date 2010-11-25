@@ -47,7 +47,7 @@ void CMeshReader::define_signals ( Component* self )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMeshReader::define_config_properties(Common::PropertyList& options)
+void CMeshReader::define_config_properties()
 {
   std::vector< URI > dummy;
   Option::Ptr option;

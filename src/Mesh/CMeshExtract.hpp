@@ -38,7 +38,7 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "CMeshExtract"; }
 
-  static void define_config_properties ( CF::Common::PropertyList& options ) {}
+  static void define_config_properties () {}
 
   virtual void transform(const CMesh::Ptr& mesh, const std::vector<std::string>& args);
   

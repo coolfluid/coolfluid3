@@ -20,7 +20,7 @@ CModel_Builder ( CModel::type_name() );
 CModel::CModel( const std::string& name  ) :
   Component ( name )
 {
-  BuildComponent<full>().build(this);
+  BuildComponent<none>().build(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

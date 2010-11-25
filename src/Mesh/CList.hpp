@@ -40,19 +40,12 @@ public:
 		Component ( name ),
 		ListBase<ValueT>()
 	{
-		BuildComponent<full>().build(this);
+    BuildComponent<none>().build(this);
 	}
 
   /// Get the class name
   static std::string type_name () { return "CList<"+class_name<ValueT>()+">"; }
 
-  /// Configuration Options
-  virtual void define_config_properties () {}
-
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}  
 };
 	
 ////////////////////////////////////////////////////////////////////////////////

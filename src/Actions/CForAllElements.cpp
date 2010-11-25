@@ -15,14 +15,10 @@ namespace Actions {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void CForAllElements::define_config_properties ( Common::PropertyList& options ) {}
-
-/////////////////////////////////////////////////////////////////////////////////////
-
 CForAllElements::CForAllElements ( const std::string& name ) :
   CLoop(name)
 {
-  BuildComponent<full>().build(this);
+  BuildComponent<none>().build(this);
 }
 
 void CForAllElements::execute()

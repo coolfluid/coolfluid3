@@ -28,15 +28,7 @@ public:
   typedef boost::shared_ptr<LibCommon const> ConstPtr;
 
   /// Constructor
-  LibCommon ( const std::string& name) : Common::CLibrary(name) { BuildComponent<full>().build(this); }
-
-  /// Configuration options
-  virtual void define_config_properties () {}
-
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
+  LibCommon ( const std::string& name) : Common::CLibrary(name) { BuildComponent<none>().build(this); }
 
 public: // functions
 

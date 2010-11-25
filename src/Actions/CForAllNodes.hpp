@@ -41,18 +41,9 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CForAllNodes"; }
 
-  /// Configuration Options
-  virtual void define_config_properties ();
-
   // functions specific to the CForAllNodes component
 
   virtual void execute();
-
-	
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
 
 };
 

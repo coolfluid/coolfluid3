@@ -50,7 +50,8 @@ public: // functions
     CLoop(name),
     m_action(new ActionT(ActionT::type_name()), Deleter<ActionT>())
   {
-    BuildComponent<full>().build(this);    
+    BuildComponent<none>().build(this);
+
     add_static_component ( m_action );
   }
 
@@ -59,11 +60,6 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "CForAllElements"; }
-
-  /// Configuration Options
-  virtual void define_config_properties ()
-  {
-  }
 
   // functions specific to the CForAllElements component
 
@@ -125,12 +121,7 @@ private:
 
   }; // Looper
 
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
-
-private:
+private: // data
 
   /// Operation to perform
   typename ActionT::Ptr m_action;

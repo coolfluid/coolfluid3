@@ -36,7 +36,7 @@ CPhysicalModel::~CPhysicalModel()
 {
 }
 
-void CPhysicalModel::define_config_properties(PropertyList& options)
+void CPhysicalModel::define_config_properties()
 {
   m_properties.add_option<OptionT <Uint> >("Dimensions", "Dimensionality of the problem, i.e. the number of components for the spatial coordinates", 0u);
   m_properties.add_option<OptionT <Uint> >("DOFs", "Degrees of freedom", 0u);

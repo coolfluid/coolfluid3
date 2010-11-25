@@ -49,10 +49,6 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CInterpolator"; }
   
-  // --------- Configuration ---------
-
-  virtual void define_config_properties ();
-
   // --------- Signals ---------
 
   void interpolate( Common::XmlNode& node  );
@@ -62,13 +58,6 @@ public: // functions
   virtual void construct_internal_storage(const CMesh::Ptr& source) = 0;
   
   virtual void interpolate_field_from_to(const CField& source, CField& target) = 0;
-
-protected: // functions
-
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
 
 };
 

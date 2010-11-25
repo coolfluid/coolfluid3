@@ -40,8 +40,6 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "CMeshInfo"; }
 
-  static void define_config_properties ( CF::Common::PropertyList& options ) {}
-
   virtual void transform(const CMesh::Ptr& mesh, const std::vector<std::string>& args);
   
   /// brief description, typically one line
@@ -55,12 +53,6 @@ private: // functions
   std::string print_region_tree(const CRegion& region, Uint level=0);
   std::string print_field_tree(const CField& field, Uint level=0);
   std::string print_elements(const Component& region, Uint level=0);
-
-  
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
 
 private: // data
 

@@ -74,7 +74,7 @@ void CReader::config_repartition()
   
 //////////////////////////////////////////////////////////////////////////////
 
-void CReader::define_config_properties ( CF::Common::PropertyList& options )
+void CReader::define_config_properties ()
 {
   m_properties.add_option<OptionT <bool> >("Serial Merge","New mesh will be merged with existing if mesh-names match",true);
   m_properties.add_option<OptionT <bool> >("Unified Zones","Reads Neu Groups and splits the mesh in these subgroups",false);

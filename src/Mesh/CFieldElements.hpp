@@ -48,9 +48,6 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CFieldElements"; }
 
-  /// Configuration Options
-  virtual void define_config_properties () {}
-  
   /// Mutable access to the nodal data (e.g. node coordinates);
   CArray& data();
   
@@ -66,11 +63,6 @@ public: // functions
   CElements& get_geometry_elements();
   const CElements& get_geometry_elements() const;
   
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
-
 protected: // data
     
   std::string m_data_name;

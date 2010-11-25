@@ -33,7 +33,7 @@ CMeshTransformer::~CMeshTransformer()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMeshTransformer::define_config_properties(Common::PropertyList& options)
+void CMeshTransformer::define_config_properties()
 {
   //options.add_option OptionT<std::string> >  ( "File",  "File to read" , "" );
   //options.add_option Common::OptionT<std::string> >  ( "Mesh",  "Mesh to construct" , "" );

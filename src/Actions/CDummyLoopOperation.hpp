@@ -44,9 +44,6 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CDummyLoopOperation"; }
 
-  /// Configuration Options
-  virtual void define_config_properties ();
-
   /// Set the loop_helper
   void set_loophelper (CElements& geometry_elements );
 	
@@ -55,12 +52,7 @@ public: // functions
 	
 	/// @return the nodes to loop over
 	virtual CList<Uint>& loop_list ();
-	
-private: // helper functions
-	
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
-	
+		
 private: // data
 	
   struct LoopHelper

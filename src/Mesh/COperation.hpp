@@ -45,9 +45,6 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "COperation"; }
 
-  /// Configuration Options
-  virtual void define_config_properties () {}
-
   virtual void set_loophelper (CElements& geometry_elements );
 
   virtual void set_loophelper (CArray& coordinates );
@@ -76,11 +73,6 @@ public: // functions
     add_component(operation().get());
   }
 
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
-
 private: // data
 
   Uint m_counter;
@@ -105,7 +97,7 @@ public: // functions
     m_op1(new OP1("operation_1"), Deleter<OP1>()),
     m_op2(new OP2("operation_2"), Deleter<OP2>())
   {
-    BuildComponent<full>().build(this);
+    BuildComponent<none>().build(this);
   }
 
   /// Virtual destructor
@@ -113,9 +105,6 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "COutputField"; }
-
-  /// Configuration Options
-  virtual void define_config_properties () {}
 
   void set_loophelper (CElements& geometry_elements )
   {
@@ -164,12 +153,6 @@ public: // functions
     add_component(operation1().get());
     add_component(operation2().get());
   }
-
-
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
 
 private: // data
 

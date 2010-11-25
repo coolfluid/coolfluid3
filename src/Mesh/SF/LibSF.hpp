@@ -41,15 +41,7 @@ namespace SF {
     typedef boost::shared_ptr<LibSF const> ConstPtr;
 
     /// Constructor
-    LibSF ( const std::string& name) : Common::CLibrary(name) { BuildComponent<full>().build(this); }
-
-    /// Configuration options
-    virtual void define_config_properties () {}
-
-  private: // helper functions
-
-    /// regists all the signals declared in this class
-    virtual void define_signals () {}
+    LibSF ( const std::string& name) : Common::CLibrary(name) { BuildComponent<none>().build(this); }
 
   public: // functions
 
