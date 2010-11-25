@@ -4,9 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Core.hpp"
+#include "Common/RegistLib.hpp"
 
-#include "LibBlockMeshReader.hpp"
+#include "BlockMeshReader/LibBlockMeshReader.hpp"
 
 namespace CF {
 namespace BlockMeshReader {

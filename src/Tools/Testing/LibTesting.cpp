@@ -4,11 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Core.hpp"
 #include "Common/RegistLib.hpp"
-#include "Common/OSystem.hpp"
-
-#include "Tools/GooglePerf/GooglePerfProfiling.hpp"
 
 #include "Tools/Testing/LibTesting.hpp"
 
