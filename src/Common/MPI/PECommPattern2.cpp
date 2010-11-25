@@ -68,6 +68,9 @@ void PECommPattern2::setup(PEObjectWrapper::Ptr gid, std::vector<Uint>& rank)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// OK: how this works:
+// the move is splitted out to
+
 void PECommPattern2::setup()
 {
   // first dealing with add, always goes to the end

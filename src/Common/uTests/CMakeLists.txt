@@ -86,6 +86,16 @@ list( APPEND utest-parallel-commpattern_files
 coolfluid_add_unittest( utest-parallel-commpattern )
 
 ################################################################################
+# Test PE - memcheck
+
+list( APPEND utest-parallel-memcheck_cflibs coolfluid_common )
+list( APPEND utest-parallel-memcheck_files
+  utest-parallel-memcheck.cpp
+)
+
+coolfluid_add_unittest( utest-parallel-memcheck )
+
+################################################################################
 # Test Foreach - boost_foreach etc.
 
 list( APPEND utest-foreach_cflibs coolfluid_common )
