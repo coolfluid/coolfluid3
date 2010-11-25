@@ -36,11 +36,6 @@ BOOST_AUTO_TEST_CASE( constructors )
       "    <value  key=\"OptUint\" > <unsigned> 134 </unsigned> </value>"
       "    <value  key=\"OptReal\" > <real> 6.4564E+5 </real> </value>"
       "    <value  key=\"OptStr\" > <string> lolo </string> </value>"
-      "    <component  key=\"OptComp\" >"
-      "     <value key=\"name\"> <string> MyNewton </string> </value>"
-      "     <value key=\"atype\"> <string> CIterativeMethod </string> </value>"
-      "     <value key=\"ctype\"> <string> Newton </string> </value>"
-      "    </component>"
       "   </map>"
       "  </value>"
       " </map>"
@@ -100,11 +95,6 @@ BOOST_AUTO_TEST_CASE( get_option )
       "    <value  key=\"OptUint\" > <unsigned> 134 </unsigned> </value>"
       "    <value  key=\"OptReal\" > <real> 6.4564E+5 </real> </value>"
       "    <value  key=\"OptStr\" > <string> lolo </string> </value>"
-      "    <component  key=\"OptComp\" >"
-      "     <value key=\"name\"> <string> MyNewton </string> </value>"
-      "     <value key=\"atype\"> <string> CIterativeMethod </string> </value>"
-      "     <value key=\"ctype\"> <string> Newton </string> </value>"
-      "    </component>"
       "   </map>"
       "  </value>"
       " </map>"
@@ -132,9 +122,6 @@ BOOST_AUTO_TEST_CASE( get_option )
 //  BOOST_CHECK_EQUAL_COLLECTIONS( v.begin(), v.end(), cv.begin(), cv.end() );
 
   /// @todo how to access the nexted params?
-
-//  BOOST_REQUIRE_EQUAL ( params.get_option<std::string>("OptComp") , "CGroup" );
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

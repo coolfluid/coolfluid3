@@ -205,10 +205,6 @@ BOOST_AUTO_TEST_CASE( configure )
 
 //  CFinfo << "FRAME [" << frame.name() << "]" << CFendl;
 
-
-  // By default the OptComp is set to a Concrete1 specialization of CAbstract
-  BOOST_CHECK_EQUAL ( pm->property("OptComp").value<CAbstract::Ptr>()->type(), "CConcrete1" );
-
   pm->configure( frame );
 
   BOOST_CHECK_EQUAL ( pm->property("OptBool").value<bool>(), true  );
@@ -236,9 +232,6 @@ BOOST_AUTO_TEST_CASE( configure )
   vecstr[0]="aabbcc";
   vecstr[1]="ddeeff";
   BOOST_CHECK ( pm->property("VecStr").value<std::vector<std::string> >() ==  vecstr);
-
-  // After configuring the OptComp is set to a Concrete2 specialization of CAbstract
-//  BOOST_CHECK_EQUAL ( pm->option("OptComp")->value<CAbstract::Ptr>()->type(), "CConcrete2" );
 
   CFinfo << "ending" << CFendl;
 
