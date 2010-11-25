@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <sstream>
+
 #include <QFileIconProvider>
 
 #include <boost/uuid/random_generator.hpp>
@@ -65,7 +67,7 @@ bool NRoot::pathExists() const
 
 std::string NRoot::uuid() const
 {
-  std::stringstream ss;
+  std::ostringstream ss;
   ss << m_uuid;
   return ss.str();
 }
