@@ -38,11 +38,11 @@ class BlockMesh_API LibBlockMesh :
 {
 public:
 
-  typedef boost::shared_ptr<LibMath> Ptr;
-  typedef boost::shared_ptr<LibMath const> ConstPtr;
+  typedef boost::shared_ptr<LibBlockMesh> Ptr;
+  typedef boost::shared_ptr<LibBlockMesh const> ConstPtr;
 
   /// Constructor
-  LibMath ( const std::string& name) : Common::CLibrary(name) { BUILD_COMPONENT; }
+  LibBlockMesh ( const std::string& name) : Common::CLibrary(name) { BUILD_COMPONENT; }
 
   /// Configuration options
   static void define_config_properties ( Common::PropertyList& options ) {}
@@ -55,7 +55,7 @@ private: // helper functions
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.Math"; }
+  static std::string library_namespace() { return "CF.Mesh.BlockMesh"; }
 
   /// Static function that returns the module name.
   /// Must be implemented for CLibrary registration
@@ -79,6 +79,7 @@ public: // functions
 
   /// terminate library
   virtual void terminate();
+
 }; // end LibBlockMesh
 
 ////////////////////////////////////////////////////////////////////////////////
