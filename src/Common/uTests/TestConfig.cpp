@@ -112,12 +112,6 @@ class MyC : public ConfigObject {
 //        CFinfo << "config vi [" << i << "]\n" << CFendl;
   }
 
-  void config_comp ()
-  {
-    CAbstract::Ptr abstract_component;
-    property("OptComp").put_value(abstract_component);
-  }
-
   void config_uri ()
   {
     URI uri; property("OptURI").put_value(uri);
@@ -196,13 +190,6 @@ BOOST_AUTO_TEST_CASE( configure )
       "  <e> aabbcc </e>"
       "  <e> ddeeff </e>"
       "</array>"
-      ""
-//      "<map key=\"OptComp\" >"
-//      "  <value key=\"name\"> <string> Abstract </string> </value>"
-//      "  <value key=\"atype\"> <string> CAbstract </string> </value>"
-//      "  <value key=\"ctype\"> <string> Concrete2 </string> </value>"
-
-//      "</map>"
       ""
       "   </map>"
       "  </value>"
