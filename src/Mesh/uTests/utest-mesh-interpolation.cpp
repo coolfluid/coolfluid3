@@ -69,7 +69,7 @@ BOOST_FIXTURE_TEST_SUITE( MeshInterpolation_TestSuite, MeshInterpolation_Fixture
 
 BOOST_AUTO_TEST_CASE( Constructors)
 {
-  CInterpolator::Ptr interpolator = create_component_abstract_type<CInterpolator>("Honeycomb","interpolator");
+  CInterpolator::Ptr interpolator = create_component_abstract_type<CInterpolator>("CF.Mesh.CHoneycombInterpolator","interpolator");
   BOOST_CHECK_EQUAL(interpolator->name(),"interpolator");
 }
 
