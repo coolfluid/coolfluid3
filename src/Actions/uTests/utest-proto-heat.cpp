@@ -14,7 +14,6 @@
 #include "Actions/Proto/ProtoNodeLooper.hpp"
 #include "Actions/Proto/ProtoElementData.hpp"
 
-#include "Common/ConfigObject.hpp"
 #include "Common/Log.hpp"
 
 #include "Mesh/CMesh.hpp"

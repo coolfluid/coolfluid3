@@ -10,7 +10,6 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/filesystem/path.hpp>
 
-#include "Common/ConfigObject.hpp"
 #include "Common/Log.hpp"
 
 #include "Mesh/CMesh.hpp"

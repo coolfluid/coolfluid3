@@ -13,7 +13,6 @@
 #include "Actions/Proto/ProtoElementLooper.hpp"
 #include "Actions/Proto/ProtoNodeLooper.hpp"
 
-#include "Common/ConfigObject.hpp"
 #include "Common/Log.hpp"
 
 #include "Math/MatrixTypes.hpp"

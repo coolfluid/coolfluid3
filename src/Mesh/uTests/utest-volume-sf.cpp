@@ -11,7 +11,6 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Common/ConfigObject.hpp"
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/ComponentPredicates.hpp"

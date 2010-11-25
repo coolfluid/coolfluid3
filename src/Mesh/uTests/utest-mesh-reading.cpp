@@ -13,7 +13,6 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/regex.hpp>
 
-#include "Common/ConfigObject.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/Log.hpp"
 #include "Common/CreateComponent.hpp"

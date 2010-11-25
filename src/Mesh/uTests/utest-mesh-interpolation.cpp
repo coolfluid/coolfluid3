@@ -13,7 +13,6 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/assign/std/vector.hpp>
 
-#include "Common/ConfigObject.hpp"
 #include "Common/OptionArray.hpp"
 #include "Common/XmlHelpers.hpp"
 
