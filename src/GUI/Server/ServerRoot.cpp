@@ -107,7 +107,7 @@ void ServerRoot::processSignal(const string & target,
     {
       Component::Ptr comp = getRoot()->access_component(receiver);
 
-      if(comp->is_signal_read_only(target))
+      if( comp->signal(target).is_read_only )
       {
         comp->call_signal(target, *node.first_node() );
 

@@ -56,7 +56,7 @@ void LoadMesh::define_signals ()
 {
   this->regist_signal ( "run_wizard" , "runs the wizard ", "Run Wizard" )->connect ( boost::bind ( &LoadMesh::run_wizard, this, _1 ) );
 
-  this->signal("run_wizard").m_signature.insert<std::string>("mesh name", "name for created mesh component")
+  this->signal("run_wizard").signature.insert<std::string>("mesh name", "name for created mesh component")
                                         .insert<URI>("path to domain", "path to the domain to hold the mesh");
 
 }

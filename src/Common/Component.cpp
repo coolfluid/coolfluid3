@@ -442,7 +442,7 @@ Component::Ptr Component::look_component ( const CPath& path )
 void Component::define_signals()
 {
   this->regist_signal ( "create_component" , "creates a component", "Create component" )->connect ( boost::bind ( &Component::create_component, this, _1 ) );
-  this->signal("create_component").m_signature
+  this->signal("create_component").signature
       .insert<std::string>("Component name", "Name for created component" )
       .insert<std::string>("Generic type",   "Generic type of the component" )
       .insert<std::string>("Concrete type",  "Concrete type of the component" );
@@ -458,9 +458,9 @@ void Component::define_signals()
 
   this->regist_signal ( "rename_component" , "Renames this component", "Rename" )->connect ( boost::bind ( &Component::rename_component, this, _1 ) );
 
-  this->signal("rename_component").m_signature.insert<std::string>("newName", "Component new name");
+  this->signal("rename_component").signature.insert<std::string>("NewName", "Component new name");
 
-  this->signal("list_tree").m_is_read_only = true;
+  this->signal("list_tree").is_read_only = true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -674,9 +674,9 @@ void Component::list_signals( XmlNode& node )
 
   for( ; it != m_signals.end() ; it++)
   {
-    XmlNode & map = *XmlParams::add_map_to(value_node, it->first, it->second.m_description);
-    XmlOps::add_attribute_to(map, "name", it->second.m_readable_name);
-    it->second.m_signature.put_signature(map);
+    XmlNode & map = *XmlParams::add_map_to(value_node, it->first, it->second.description);
+    XmlOps::add_attribute_to(map, "name", it->second.readable_name);
+    it->second.signature.put_signature(map);
   }
 }
 
@@ -686,7 +686,7 @@ void Component::rename_component ( XmlNode& xml )
 {
   XmlParams p(xml);
 
-  std::string new_name = p.get_option<std::string>("newName");
+  std::string new_name = p.get_option<std::string>("NewName");
 
   rename(new_name);
 }

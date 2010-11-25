@@ -539,9 +539,9 @@ void CNode::actions(QList<ActionInfo> & actions) const
       const Signal & sig = m_signals.find(it->toStdString())->second;
 
       ai.m_name = it->toStdString().c_str();
-      ai.m_description = sig.m_description.c_str();
-      ai.m_readableName = sig.m_readable_name.c_str();
-      ai.m_signature = sig.m_signature;
+      ai.m_description = sig.description.c_str();
+      ai.m_readableName = sig.readable_name.c_str();
+      ai.m_signature = sig.signature;
       ai.m_isLocal = true;
 
       actions.append(ai);

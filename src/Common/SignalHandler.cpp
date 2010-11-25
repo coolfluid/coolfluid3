@@ -31,12 +31,12 @@ std::vector < Signal > SignalHandler::list_signals () const
 
 Signal::return_t SignalHandler::call_signal ( const Signal::id_t& sname, Signal::arg_t& sinput )
 {
-  return ( *signal ( sname ).m_signal ) ( sinput );
+  return ( *signal ( sname ).signal_ptr ) ( sinput );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Signal & SignalHandler::signal ( const Signal::id_t& sname )
+Signal& SignalHandler::signal ( const Signal::id_t& sname )
 {
   sigmap_t::iterator itr = m_signals.find(sname);
   if ( itr != m_signals.end() )
@@ -47,20 +47,38 @@ Signal & SignalHandler::signal ( const Signal::id_t& sname )
 
 ////////////////////////////////////////////////////////////////////////////////
 
+const Signal& SignalHandler::signal ( const Signal::id_t& sname ) const
+{
+  sigmap_t::const_iterator itr = m_signals.find(sname);
+  if ( itr != m_signals.end() )
+    return itr->second;
+  else
+    throw SignalError ( FromHere(), "Signal with name \'" + sname + "\' does not exist" );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool SignalHandler::check_signal ( const Signal::id_t& sname )
+{
+  return ( m_signals.find(sname) != m_signals.end() );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 Signal::Ptr SignalHandler::create_signal ( const Signal::id_t& sname,  const Signal::desc_t& desc, const Signal::readable_t& readable_name )
 {
   sigmap_t::iterator itr = m_signals.find (sname);
+
   if ( itr == m_signals.end() )
   {
-    Signal signal;
+    Signal& sig = m_signals[sname];
 
-    signal.m_signal = Signal::Ptr( new Signal::type() );
-    signal.m_description = desc;
-    signal.m_readable_name = readable_name;
-    signal.m_is_read_only = false;
+    sig.signal_ptr = Signal::Ptr( new Signal::type() );
+    sig.description = desc;
+    sig.readable_name = readable_name;
+    sig.is_read_only = false;
 
-    m_signals.insert ( make_pair ( sname , signal ) );
-    return signal.m_signal;
+    return sig.signal_ptr;
   }
   else
     throw SignalError ( FromHere(), "Signal with name \'" + sname + "\' already exists" );
@@ -71,31 +89,20 @@ Signal::Ptr SignalHandler::create_signal ( const Signal::id_t& sname,  const Sig
 Signal::Ptr SignalHandler::regist_signal ( const Signal::id_t& sname,  const Signal::desc_t& desc, const Signal::readable_t& readable_name )
 {
   sigmap_t::iterator itr = m_signals.find (sname);
+
   if ( itr == m_signals.end() )
   {
-    Signal signal;
+    Signal& sig = m_signals[sname];
 
-    signal.m_signal = Signal::Ptr( new Signal::type() );
-    signal.m_description = desc;
-    signal.m_readable_name = readable_name;
-    signal.m_is_read_only = false;
+    sig.signal_ptr = Signal::Ptr( new Signal::type() );
+    sig.description = desc;
+    sig.readable_name = readable_name;
+    sig.is_read_only = false;
 
-    m_signals.insert ( make_pair ( sname , signal ) );
-    return signal.m_signal;
+    return sig.signal_ptr;
   }
   else
-    return itr->second.m_signal;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-bool SignalHandler::is_signal_read_only( const Signal::id_t& sname ) const
-{
-  sigmap_t::const_iterator itr = m_signals.find(sname);
-  if ( itr != m_signals.end() )
-    return itr->second.m_is_read_only;
-  else
-    throw SignalError ( FromHere(), "Signal with name \'" + sname + "\' does not exist" );
+    return itr->second.signal_ptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

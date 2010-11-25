@@ -55,17 +55,17 @@ struct Signal
     /// signal pointer
     typedef boost::shared_ptr<type> Ptr;
     /// the boost signal object
-    Ptr m_signal;
+    Ptr signal_ptr;
     /// signal description
-    desc_t m_description;
+    desc_t description;
     /// signal xml signature
-    XmlSignature m_signature;
+    XmlSignature signature;
     /// signal readable name (used by the GUI). For exemple, if key is
     /// "set_options", readable should be "Set options".
-    readable_t m_readable_name;
+    readable_t readable_name;
     /// if @c true, the signal is considered as read-only and might be called
     /// during another signal execution. Default value is @c false.
-    bool m_is_read_only;
+    bool is_read_only;
 
 }; // Signal
 
@@ -87,20 +87,24 @@ class Common_API SignalHandler
     /// Get the list of signals and respective descriptions
     std::vector < Signal > list_signals () const;
 
+    /// Const access to a signal by providing its name
+    /// @throw SignalError if signal with name does not exist
+    const Signal& signal ( const Signal::id_t& sname ) const;
+
     /// Calls the signal by providing its name and input
     Signal::return_t call_signal ( const Signal::id_t& sname, Signal::arg_t& sinput );
+
+    /// Checks if a signal exists or not
+    bool check_signal ( const Signal::id_t& sname );
 
     /// Regist signal
     Signal::Ptr regist_signal ( const Signal::id_t& sname, const Signal::desc_t& desc, const Signal::readable_t& readable_name = Signal::readable_t() );
 
-    /// Checks whether a signal is read-only
-    /// @throw SignalError if the signal does not exist
-    bool is_signal_read_only( const Signal::id_t& sname ) const;
-
   protected: // functions
 
-    /// Get a signal by providing its name
-    Signal & signal ( const Signal::id_t& sname );
+    /// Access to signal by providing its name
+    /// @throw SignalError if signal with name does not exist
+    Signal& signal ( const Signal::id_t& sname );
 
     /// Create a signal
     Signal::Ptr create_signal ( const Signal::id_t& sname,  const Signal::desc_t& desc, const Signal::readable_t& readable_name = Signal::readable_t() );

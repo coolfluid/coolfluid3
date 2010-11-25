@@ -86,7 +86,7 @@ public:
     BOOST_STATIC_ASSERT( (boost::is_base_of<BASE,CONCRETE>::value) );
 
     this->regist_signal ( "build_component" , "builds a component", "Build component" )->connect ( boost::bind ( &CBuilderT<BASE,CONCRETE>::build_component, this, _1 ) );
-    this->signal("build_component").m_signature.template insert<std::string>("Component name", "Name for created component" )
+    this->signal("build_component").signature.template insert<std::string>("Component name", "Name for created component" )
                                                .template insert<URI>("Parent component", "Path to component where place the newly built component");
   }
 
