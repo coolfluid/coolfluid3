@@ -35,11 +35,7 @@ namespace Neu {
   
 ////////////////////////////////////////////////////////////////////////////////
 
-CF::Common::ComponentBuilder < Mesh::Neu::CReader,
-                             Mesh::CMeshReader,
-                             Mesh::Neu::LibNeu,
-                             1 >
-aNeuReader_Builder ( "Neu" );
+CF::Common::ComponentBuilder < Neu::CReader, CMeshReader, LibNeu > aNeuReader_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -48,7 +44,7 @@ CReader::CReader( const std::string& name )
   Shared(),
   m_repartition(false)
 {
-  BuildComponent<full>().build(this);
+  BuildComponent<nosignals>().build(this);
   m_properties["Repartition"].as_option().attach_trigger ( boost::bind ( &CReader::config_repartition,   this ) );
   
   m_properties["brief"] = std::string("Gambit Neutral file mesh reader component");

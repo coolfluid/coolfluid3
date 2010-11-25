@@ -297,7 +297,7 @@ namespace ClientCore {
     void listChildPaths(QStringList & list, bool recursive, bool clientNode = true) const;
 
     /// Lists configuration properties
-    static void define_config_properties ();
+    virtual void define_config_properties ();
 
     /// @brief Creates an option from an XML node.
 

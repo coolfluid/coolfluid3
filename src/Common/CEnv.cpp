@@ -18,14 +18,13 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CEnv, Component, LibCommon >
-CEnv_Builder ( CEnv::type_name() );
+Common::ComponentBuilder < CEnv, Component, LibCommon > aCEnv_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 CEnv::CEnv ( const std::string& name) : Component ( name )
 {
-  BuildComponent<no_signals>().build(this);
+  BuildComponent<nosignals>().build(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

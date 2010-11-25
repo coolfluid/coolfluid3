@@ -34,9 +34,9 @@ CMethod::~CMethod()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMethod::define_signals ( Component* self )
+void CMethod::define_signals ()
 {
-  this->regist_signal ( "run_operation" , "run an operation", "Run Operation" )->connect ( boost::bind ( &CMethod::run_operation, self, _1 ) );
+  this->regist_signal ( "run_operation" , "run an operation", "Run Operation" )->connect ( boost::bind ( &CMethod::run_operation, this, _1 ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

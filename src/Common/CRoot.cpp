@@ -36,7 +36,7 @@ namespace Common {
 
   CRoot::CRoot ( const std::string& name ) : Component ( name )
   {
-    BuildComponent<full>().build(this);
+    BuildComponent<nosignals>().build(this);
 
     // we need to manually register the type name since CRoot cannot be
     // put into ComponentBuilder because the constructor is private

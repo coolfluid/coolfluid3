@@ -13,7 +13,7 @@ namespace Common {
 
 CFactories::CFactories ( const std::string& name) : Component ( name )
 {
-  BuildComponent<full>().build(this);
+  BuildComponent<nosignals>().build(this);
   TypeInfo::instance().regist<CFactories>(CFactories::type_name());
 }
 

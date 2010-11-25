@@ -293,7 +293,11 @@ namespace ClientCore {
     /// @} END Signals
 
     /// Configuration properties
-    static void define_config_properties ();
+    virtual void define_config_properties ();
+
+    /// regists all the signals declared in this class
+    virtual void define_signals () {}
+
 
   public slots:
 
@@ -359,9 +363,6 @@ namespace ClientCore {
     /// @param index Node index.
     /// @param path Intermediate retrieved path
     void buildNodePathRec(const QModelIndex & index, QString & path) const;
-
-    /// regists all the signals declared in this class
-    virtual void define_signals () {}
 
     /// @brief Recursively checks whether a node name or one of its children
     /// matches a provided regular expression.

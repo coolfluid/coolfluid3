@@ -88,9 +88,6 @@ namespace Common {
 
     typedef std::map< std::string , Component::Ptr > CompStorage_t;
 
-    /// regists all the signals declared in this class
-    virtual void define_signals () {}
-
     /// Private constructor forces creation via the create() funtion
     /// @param name of the component
     CRoot ( const std::string& name );

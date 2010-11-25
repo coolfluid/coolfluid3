@@ -32,18 +32,14 @@ namespace Gmsh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Mesh::Gmsh::CWriter,
-                         Mesh::CMeshWriter,
-                         Mesh::Gmsh::LibGmsh,
-                         1 >
-aGmshWriter_Builder ( "Gmsh" );
+Common::ComponentBuilder < Gmsh::CWriter, CMeshWriter, LibGmsh> aGmshWriter_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
 CWriter::CWriter( const std::string& name )
 : CMeshWriter(name)
 {
-  BuildComponent<full>().build(this);
+  BuildComponent<none>().build(this);
 
   // gmsh types: http://www.geuz.org/gmsh/doc/texinfo/gmsh.html#MSH-ASCII-file-format
   m_elementTypes["Line1DLagrangeP1" ]=1;

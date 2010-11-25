@@ -46,7 +46,7 @@ CMeshExtract_Builder;
 CMeshExtract::CMeshExtract( const std::string& name )
 : CMeshTransformer(name)
 {
-  BuildComponent<full>().build(this);
+  BuildComponent<none>().build(this);
 }
 
 /////////////////////////////////////////////////////////////////////////////

@@ -17,7 +17,7 @@ using namespace CF::GUI::ClientUI;
 NRemoteOpen::NRemoteOpen(QMainWindow * parent)
 : NRemoteBrowser("NRemoteOpen", parent)
 {
-  BuildComponent<no_signals>().build(this);
+  BuildComponent<nosignals>().build(this);
 
   this->setIncludeFiles(true);
   this->setIncludeNoExtension(true);

@@ -37,7 +37,7 @@ Common::ComponentBuilder< CReader, CMeshReader, LibCGNS > aCGNSReader_Builder;
 CReader::CReader(const std::string& name)
 : CMeshReader(name), Shared()
 {
-  BuildComponent<full>().build(this);
+  BuildComponent<no_signal>().build(this);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -58,6 +58,7 @@ void CReader::define_config_properties ()
         ("Treat Sections of lower dimensionality as BC. "
         "This means no BCs from cgns will be read"),
         false );
+
   m_properties.add_option< OptionT<bool> >
   ( "SharedCoordinates",
    ("Store all the coordinates in 1 table. "

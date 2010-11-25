@@ -38,8 +38,6 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "CMeshExtract"; }
 
-  static void define_config_properties () {}
-
   virtual void transform(const CMesh::Ptr& mesh, const std::vector<std::string>& args);
   
   /// brief description, typically one line
@@ -47,14 +45,6 @@ public: // functions
   
   /// extended help that user can query
   virtual std::string help() const;
-  
-private: // functions
- 
-  
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
 
 private: // data
 

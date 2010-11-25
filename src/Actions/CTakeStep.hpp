@@ -43,7 +43,7 @@ public: // functions
   static std::string type_name () { return "CTakeStep"; }
 
   /// Configuration Options
-  static void define_config_properties ();
+  virtual void define_config_properties ();
 
   /// Set the loop_helper
   void set_loophelper (CElements& geometry_elements );
@@ -53,9 +53,7 @@ public: // functions
 	
   /// execute the action
   virtual void execute ();
-	
-private: // helper functions
-	
+		
   /// regists all the signals declared in this class
   virtual void define_signals () {}
 	

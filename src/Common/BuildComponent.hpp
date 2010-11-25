@@ -16,9 +16,9 @@ namespace Common {
 ////////////////////////////////////////////////////////////////////////////////
 
 const int full       = 0x0;
-const int no_props   = 0x1;
-const int no_signals = 0x2;
-const int none       = no_props | no_signals;
+const int noprops   = 0x1;
+const int nosignals = 0x2;
+const int none       = noprops | nosignals;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -40,7 +40,7 @@ void BuildComponent< full >::build( TYPE* self )
 
 template <>
 template < typename TYPE >
-void BuildComponent< no_props >::build( TYPE* self )
+void BuildComponent< noprops >::build( TYPE* self )
 {
   self->add_tag( TYPE::type_name() );
   self->define_signals();
@@ -48,7 +48,7 @@ void BuildComponent< no_props >::build( TYPE* self )
 
 template <>
 template < typename TYPE >
-void BuildComponent< no_signals >::build( TYPE* self )
+void BuildComponent< nosignals >::build( TYPE* self )
 {
   self->add_tag( TYPE::type_name() );
   self->define_config_properties();

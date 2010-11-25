@@ -51,7 +51,7 @@ public: // functions
 
   virtual std::vector<std::string> get_extensions();
 
-  static void define_config_properties ();
+  virtual void define_config_properties ();
 
 private: // functions
 
@@ -73,11 +73,6 @@ private: // functions
   {
     return i + j*(m_zone.nbVertices[XX]-1) + k*(m_zone.nbVertices[XX]-1)*(m_zone.nbVertices[YY]-1);
   }
-
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
 
 private: // data
 

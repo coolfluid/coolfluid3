@@ -78,7 +78,7 @@ public:
   /// @param name of component
   CBuilderT(const std::string& name) : CBuilder(name)
   {
-    BuildComponent<no_props>().build(this);
+    BuildComponent<noprops>().build(this);
   }
 
   /// @brief Virtual destructor.
@@ -122,9 +122,9 @@ public:
   //@} END SIGNALS
 
   /// regists all the signals declared in this class
-  virtual void regist_signals ( Component* self )
+  virtual void define_signals ()
   {
-      this->regist_signal ( "build_component" , "builds a component", "Build component" )->connect ( boost::bind ( &CBuilderT<BASE,CONCRETE>::build_component, self, _1 ) );
+      this->regist_signal ( "build_component" , "builds a component", "Build component" )->connect ( boost::bind ( &CBuilderT<BASE,CONCRETE>::build_component, this, _1 ) );
       this->signal("build_component").m_signature.template insert<std::string>("Component name", "Name for created component" )
                                                  .template insert<URI>("Parent component", "Path to component where place the newly built component");
   }

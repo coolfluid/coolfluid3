@@ -48,7 +48,7 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "CReader"; }
 
-  static void define_config_properties ();
+  virtual void define_config_properties ();
 
   virtual std::string get_format() { return "Neu"; }
 
@@ -75,13 +75,6 @@ private: // functions
   virtual void read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh);
 	
 	std::string element_type(const Uint neu_type, const Uint nb_nodes);
-
-	
-	
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
 
 private: // data
 

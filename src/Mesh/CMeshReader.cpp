@@ -40,9 +40,9 @@ CMeshReader::~CMeshReader()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMeshReader::define_signals ( Component* self )
+void CMeshReader::define_signals ()
 {
-  this->regist_signal ( "read" , "reads a mesh", "Read mesh" )->connect ( boost::bind ( &CMeshReader::read, self, _1 ) );
+  this->regist_signal ( "read" , "reads a mesh", "Read mesh" )->connect ( boost::bind ( &CMeshReader::read, this, _1 ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

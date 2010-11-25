@@ -58,7 +58,7 @@ public: // functions
   /// @param name of the component
   CConcrete1 ( const std::string& name ) : CAbstract(name)
   {
-    BuildComponent<no_signals>().build(this);
+    BuildComponent<nosignals>().build(this);
   }
 
   /// Virtual destructor

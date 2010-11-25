@@ -61,7 +61,7 @@ public: // functions
   static std::string type_name () { return "Component"; }
 
   /// Configuration properties
-  static void define_config_properties ( Common::PropertyList& props );
+  virtual void define_config_properties ();
 
   /// Contructor
   /// @param name of the component

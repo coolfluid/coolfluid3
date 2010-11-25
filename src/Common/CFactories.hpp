@@ -56,13 +56,6 @@ namespace Common {
       }
     }
 
-  private: // helper functions
-
-    /// regists all the signals declared in this class
-    virtual void define_signals () {}
-
-  private: // data
-
 }; // CFactories
 
 ////////////////////////////////////////////////////////////////////////////////

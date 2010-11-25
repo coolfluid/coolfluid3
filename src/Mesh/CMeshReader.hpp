@@ -102,7 +102,7 @@ protected: // functions
 private: // helper functions
 
   /// regists all the signals declared in this class
-  virtual void define_signals ( Component* self );
+  virtual void define_signals ();
 	
 protected: // data
 	

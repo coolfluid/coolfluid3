@@ -35,11 +35,7 @@ namespace Gmsh {
   
 ////////////////////////////////////////////////////////////////////////////////
 
-CF::Common::ComponentBuilder < Mesh::Gmsh::CReader,
-                             Mesh::CMeshReader,
-                             Mesh::Gmsh::LibGmsh,
-                             1 >
-aGmshReader_Builder ( "Gmsh" );
+CF::Common::ComponentBuilder < Gmsh::CReader, CMeshReader, LibGmsh> aGmshReader_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -50,7 +46,7 @@ CReader::CReader( const std::string& name )
 {
   CF_DEBUG_POINT;
 
-  BuildComponent<full>().build(this);
+  BuildComponent<nosignals>().build(this);
 
   CF_DEBUG_POINT;
 
