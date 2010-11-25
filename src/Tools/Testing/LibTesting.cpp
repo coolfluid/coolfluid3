@@ -9,7 +9,6 @@
 #include "Tools/Testing/LibTesting.hpp"
 
 using namespace CF::Common;
-using namespace CF::Tools::GooglePerf;
 
 namespace CF {
 namespace Tools {
