@@ -10,6 +10,9 @@
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/BuildInfo.hpp"
+#include "Common/CFactory.hpp"
+#include "Common/CBuilder.hpp"
+#include "Common/CreateComponent.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CMeshReader.hpp"
@@ -40,33 +43,33 @@ int main(int argc, char * argv[])
   std::map<std::string,std::string> transformers_description;
     
 
-  CFactory::Ptr meshreader_fac = Core::instance().factories()->get_factory<CMeshReader>();
+//  CFactory::Ptr meshreader_fac = Core::instance().factories()->get_factory<CMeshReader>();
 
-  BOOST_FOREACH(CBuilder& builder, recursive_filtered_range_typed<CBuilder>( meshreader_fac, IsComponentTrue() ) );
-  {
-    CMeshReader::Ptr reader = dynamic_pointer_cast<CMeshReader>(builder->build_component_typed("reader"));
-    readers.push_back(reader);
-    BOOST_FOREACH(const std::string& extension, reader->get_extensions())
-    extensions_to_readers[extension].push_back(reader);
-  }
+//  BOOST_FOREACH(CBuilder& bdr, recursive_filtered_range_typed<CBuilder>( meshreader_fac, IsComponentTrue() ) )
+//  {
+//    CMeshReader::Ptr reader = dynamic_pointer_cast<CMeshReader>(bdr.build("reader"));
+//    readers.push_back(reader);
+//    BOOST_FOREACH(const std::string& extension, reader->get_extensions())
+//    extensions_to_readers[extension].push_back(reader);
+//  }
   
-  CFactory::Ptr meshwriter_fac = Core::instance().factories()->get_factory<CMeshWriter>();
+//  CFactory::Ptr meshwriter_fac = Core::instance().factories()->get_factory<CMeshWriter>();
 
-  BOOST_FOREACH(CBuilder& builder, recursive_filtered_range_typed<CBuilder>( meshwriter_fac, IsComponentTrue() ) )
-  {
-    CMeshWriter::Ptr writer = dynamic_pointer_cast<CMeshWriter>(builder->build_component_typed("writer"));
-    writers.push_back(writer);
-    BOOST_FOREACH(const std::string& extension, writer->get_extensions())
-    extensions_to_writers[extension].push_back(writer);
-  }
+//  BOOST_FOREACH(CBuilder& bdw, recursive_filtered_range_typed<CBuilder>( meshwriter_fac, IsComponentTrue() ) )
+//  {
+//    CMeshWriter::Ptr writer = dynamic_pointer_cast<CMeshWriter>(bdw.build("writer"));
+//    writers.push_back(writer);
+//    BOOST_FOREACH(const std::string& extension, writer->get_extensions())
+//    extensions_to_writers[extension].push_back(writer);
+//  }
   
-  CFactory::Ptr meshtrans_fac = Core::instance().factories()->get_factory<CMeshTransformer>();
+//  CFactory::Ptr meshtrans_fac = Core::instance().factories()->get_factory<CMeshTransformer>();
 
-  BOOST_FOREACH(CBuilder& builder, recursive_filtered_range_typed<CBuilder>( meshtrans_fac, IsComponentTrue() ))
-  {
-    CMeshTransformer::Ptr transformer = dynamic_pointer_cast<CMeshTransformer>(builder->build_component_typed("transformer"));
-    transformers_description[builder->builder_concrete_type_name()] = transformer->brief_description();
-  }
+//  BOOST_FOREACH(CBuilder& bdt, recursive_filtered_range_typed<CBuilder>( meshtrans_fac, IsComponentTrue() ))
+//  {
+//    CMeshTransformer::Ptr transformer = dynamic_pointer_cast<CMeshTransformer>(bdt.build("transformer"));
+//    transformers_description[bdt.builder_concrete_type_name()] = transformer->brief_description();
+//  }
   
   options_description desc("General Options");
   desc.add_options()
@@ -154,7 +157,7 @@ int main(int argc, char * argv[])
   
   if (vm.count("version"))
   {
-    CFinfo << Core::instance().build_info().lock()->version_header () << "\n";
+    CFinfo << Core::instance().build_info()->version_header () << "\n";
   }
   
   // create mesh object

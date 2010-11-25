@@ -16,6 +16,7 @@
 #include <vector>
 #include <string>
 
+#include "Common/Log.hpp"       // temporary
 #include "Common/Component.hpp"
 #include "Common/MPI/PE.hpp"
 
@@ -165,9 +166,6 @@ namespace Server {
                        std::vector<std::string> & filesList) const;
 
     void setStatus(CF::Common::WorkerStatus::Type status);
-
-    /// regists all the signals declared in this class
-    virtual void define_signals () {}
 
     CF::Common::Signal::return_t read_dir(CF::Common::Signal::arg_t & node);
 

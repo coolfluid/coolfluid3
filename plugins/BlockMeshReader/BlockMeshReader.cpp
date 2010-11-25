@@ -28,9 +28,8 @@ using namespace CF::Mesh::BlockMesh;
 
 CF::Common::ComponentBuilder < BlockMeshReader,
                              Mesh::CMeshReader,
-                             LibBlockMeshReader,
-                             1 >
-aBlockMeshReader_Builder ( "blockMeshDict" );
+                             LibBlockMeshReader >
+aBlockMeshReader_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 

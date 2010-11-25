@@ -9,6 +9,7 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include "Common/CreateComponent.hpp"
 #include "Solver/CPhysicalModel.hpp"
 
 using namespace CF;

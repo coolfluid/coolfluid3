@@ -55,7 +55,7 @@ void ScalarAdvection::define_config_properties()
 
 void ScalarAdvection::define_signals ()
 {
-  this->regist_signal ( "run_wizard" , "runs the wizard ", "Run Wizard" )->connect ( boost::bind ( &ScalarAdvection::run_wizard, self, _1 ) );
+  this->regist_signal ( "run_wizard" , "runs the wizard ", "Run Wizard" )->connect ( boost::bind ( &ScalarAdvection::run_wizard, this, _1 ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -8,6 +8,7 @@
 
 #include "GUI/Network/ComponentNames.hpp"
 
+#include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/NotificationQueue.hpp"
 #include "Common/XmlHelpers.hpp"
