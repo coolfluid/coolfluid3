@@ -124,9 +124,9 @@ class Common_API LogStream
 					{
 						if (!this->getFilterRankZero(it->first))
 						{
-							PE::instance().barrier();
-						}						
-						if(i == PE::instance().rank())
+               				PE::instance().barrier();
+            			}
+						if (i == PE::instance().rank())
 						{
 							*(it->second) << t;
 							m_flushed = false;
