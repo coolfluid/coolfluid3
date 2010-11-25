@@ -25,8 +25,6 @@ public:
 
   /// Gets the Class name
   static std::string type_name() { return "BlockMeshReader"; }
-  
-  static void define_config_properties ( CF::Common::PropertyList& options ) {}
 
   virtual std::string get_format() { return "blockMeshDict"; }
 
@@ -34,9 +32,6 @@ public:
   
   virtual void read_from_to(boost::filesystem::path& path, const Mesh::CMesh::Ptr& mesh);
   
-private:
-  static void regist_signals ( BlockMeshReader* self ) {}
-
 }; // end BlockMeshReader
 
 

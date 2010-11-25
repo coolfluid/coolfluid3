@@ -45,14 +45,6 @@ namespace Common {
     /// define the path of the file where to dump profiling information
     virtual void set_file_path(const boost::filesystem::path & path) = 0;
 
-    /// Configuration Options
-    virtual void define_config_properties () {}
-
-  private: // helper functions
-
-    /// regists all the signals declared in this class
-    virtual void define_signals () {}
-
   }; // class CodeProfiler
 
   //////////////////////////////////////////////////////////////////////////////

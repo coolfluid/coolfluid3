@@ -49,9 +49,9 @@ CReader::CReader( const std::string& name )
   m_repartition(false)
 {
   BuildComponent<full>().build(this);
-  m_property_list["Repartition"].as_option().attach_trigger ( boost::bind ( &CReader::config_repartition,   this ) );
+  m_properties["Repartition"].as_option().attach_trigger ( boost::bind ( &CReader::config_repartition,   this ) );
   
-  m_property_list["brief"] = std::string("Gambit Neutral file mesh reader component");
+  m_properties["brief"] = std::string("Gambit Neutral file mesh reader component");
   
   std::string desc;
   desc += "This component can read in parallel.\n";
@@ -59,7 +59,7 @@ CReader::CReader( const std::string& name )
   desc += "Available coolfluid-element types are:\n";
   BOOST_FOREACH(const std::string& supported_type, m_supported_types)
   desc += "  - " + supported_type + "\n";
-  m_property_list["description"] = desc;
+  m_properties["description"] = desc;
 }
 
 void CReader::config_repartition()
@@ -71,15 +71,15 @@ void CReader::config_repartition()
 
 void CReader::define_config_properties ( CF::Common::PropertyList& options )
 {
-  options.add_option<OptionT <bool> >("Serial Merge","New mesh will be merged with existing if mesh-names match",true);
-  options.add_option<OptionT <bool> >("Unified Zones","Reads Neu Groups and splits the mesh in these subgroups",false);
-  options.add_option<OptionT <Uint> >("Part","Number of the part of the mesh to read. (e.g. rank of processor)",PE::instance().is_init()?PE::instance().rank():0);
-  options.add_option<OptionT <Uint> >("Number of Parts","Total number of parts. (e.g. number of processors)",PE::instance().is_init()?PE::instance().size():1);
-	options.add_option<OptionT <bool> >("Read Boundaries","Read the surface elements for the boundary",true);
+  m_properties.add_option<OptionT <bool> >("Serial Merge","New mesh will be merged with existing if mesh-names match",true);
+  m_properties.add_option<OptionT <bool> >("Unified Zones","Reads Neu Groups and splits the mesh in these subgroups",false);
+  m_properties.add_option<OptionT <Uint> >("Part","Number of the part of the mesh to read. (e.g. rank of processor)",PE::instance().is_init()?PE::instance().rank():0);
+  m_properties.add_option<OptionT <Uint> >("Number of Parts","Total number of parts. (e.g. number of processors)",PE::instance().is_init()?PE::instance().size():1);
+	m_properties.add_option<OptionT <bool> >("Read Boundaries","Read the surface elements for the boundary",true);
 
   
-  options.add_option<OptionT <bool> >("Repartition","setting this to true, puts global indexes, for repartitioning later",false);
-  options.add_option<OptionT <Uint> >("OutputRank","shows output for the specified rank",0);
+  m_properties.add_option<OptionT <bool> >("Repartition","setting this to true, puts global indexes, for repartitioning later",false);
+  m_properties.add_option<OptionT <Uint> >("OutputRank","shows output for the specified rank",0);
 }
   
 //////////////////////////////////////////////////////////////////////////////

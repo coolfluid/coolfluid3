@@ -342,11 +342,6 @@ namespace ClientCore {
     /// @brief List of signals that can be remotely executed
     QList<ActionInfo> m_actionSigs;
 
-    /// regists all the signals declared in this class
-    static void regist_signals ( CNode* self )
-    {
-    }
-
     /// @brief Creates an @c #OptionT option with a value of type TYPE.
     /// @param name Option name
     /// @param descr Option description

@@ -194,7 +194,7 @@ public: // functions
   COutputField ( const std::string& name ) : COperation(name)
   {
     BuildComponent<full>().build(this);
-    m_property_list["Field"].as_option().attach_trigger ( boost::bind ( &COutputField::trigger_Field,   this ) );
+    m_properties["Field"].as_option().attach_trigger ( boost::bind ( &COutputField::trigger_Field,   this ) );
   }
 
   void trigger_Field()
@@ -214,7 +214,7 @@ public: // functions
   /// Configuration Options
   virtual void define_config_properties ()
   {
-    options.add_option< OptionT<URI> > ("Field","Field URI to output", URI("cpath://"))->mark_basic();
+    m_properties.add_option< OptionT<URI> > ("Field","Field URI to output", URI("cpath://"))->mark_basic();
   }
 
   void set_loophelper (CElements& geometry_elements )
@@ -272,7 +272,7 @@ public: // functions
   CComputeVolumes ( const std::string& name ) : COperation(name)
   {
     BuildComponent<full>().build(this);
-    m_property_list["Field"].as_option().attach_trigger ( boost::bind ( &CComputeVolumes::trigger_Field,   this ) );
+    m_properties["Field"].as_option().attach_trigger ( boost::bind ( &CComputeVolumes::trigger_Field,   this ) );
   }
 
   void trigger_Field()
@@ -291,7 +291,7 @@ public: // functions
   /// Configuration Options
   virtual void define_config_properties ()
   {
-    options.add_option< OptionT<URI> > ("Field","Field URI to output", URI("cpath://"))->mark_basic();
+    m_properties.add_option< OptionT<URI> > ("Field","Field URI to output", URI("cpath://"))->mark_basic();
   }
 
   void set_loophelper (CElements& geometry_elements )
@@ -355,7 +355,7 @@ public: // functions
   CSetValue ( const std::string& name ) : COperation(name)
   {
     BuildComponent<full>().build(this);
-    m_property_list["Field"].as_option().attach_trigger ( boost::bind ( &CSetValue::trigger_Field,   this ) );
+    m_properties["Field"].as_option().attach_trigger ( boost::bind ( &CSetValue::trigger_Field,   this ) );
   }
 
   void trigger_Field()
@@ -374,7 +374,7 @@ public: // functions
   /// Configuration Options
   virtual void define_config_properties ()
   {
-    options.add_option< OptionT<URI> > ("Field","Field URI to output", URI("cpath://"))->mark_basic();
+    m_properties.add_option< OptionT<URI> > ("Field","Field URI to output", URI("cpath://"))->mark_basic();
   }
 
   virtual void set_loophelper (CArray& coordinates )

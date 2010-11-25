@@ -67,12 +67,12 @@ CNode::CNode(const QString & name, const QString & componentType, CNode::Type ty
     m_componentType(componentType)
 {
 
-  BuildComponent<full>().build(this);
+  BuildComponent<no_signals>().build(this);
 
   regist_signal("configure", "Update component options")->connect(boost::bind(&CNode::configure_reply, this, _1));
   regist_signal("tree_updated", "Event that notifies a path has changed")->connect(boost::bind(&CNode::update_tree, this, _1));
 
-  m_property_list.add_property("originalComponentType", m_componentType.toStdString());
+  m_properties.add_property("originalComponentType", m_componentType.toStdString());
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -112,7 +112,7 @@ void CNode::setOptions(XmlNode & options)
     for ( ; node != nullptr ; node = node->next_sibling() )
     {
       Option::Ptr opt = makeOption(*node);
-      m_property_list.m_properties[ opt->name() ] = opt;
+      m_properties.m_properties[ opt->name() ] = opt;
     }
   }
 }
@@ -144,7 +144,7 @@ void CNode::setProperties(XmlNode & options)
           {
             const char * typeVal = type_node->name(); // type name
 
-            if(m_property_list.check(keyVal))
+            if(m_properties.check(keyVal))
             {
               if(std::strcmp(typeVal, "bool") == 0)
                 configure_property(keyVal, from_str<bool>(type_node->value()));
@@ -165,17 +165,17 @@ void CNode::setProperties(XmlNode & options)
             {
               const char * value = type_node->value();
               if(std::strcmp(typeVal, "bool") == 0)
-                m_property_list.add_property(keyVal, from_str<bool>(value));
+                m_properties.add_property(keyVal, from_str<bool>(value));
               else if(std::strcmp(typeVal, "integer") == 0)
-                m_property_list.add_property(keyVal, from_str<int>(value));
+                m_properties.add_property(keyVal, from_str<int>(value));
               else if(std::strcmp(typeVal, "unsigned") == 0)
-                m_property_list.add_property(keyVal, from_str<CF::Uint>(value));
+                m_properties.add_property(keyVal, from_str<CF::Uint>(value));
               else if(std::strcmp(typeVal, "real") == 0)
-                m_property_list.add_property(keyVal, from_str<CF::Real>(value));
+                m_properties.add_property(keyVal, from_str<CF::Real>(value));
               else if(std::strcmp(typeVal, "string") == 0)
-                m_property_list.add_property(keyVal, std::string(value));
+                m_properties.add_property(keyVal, std::string(value));
               else if(std::strcmp(typeVal, "uri") == 0)
-                m_property_list.add_property(keyVal, from_str<URI>(value));
+                m_properties.add_property(keyVal, from_str<URI>(value));
               else
                 throw ShouldNotBeHere(FromHere(), std::string(typeVal) + ": Unknown type parent is " + node->name());
 
@@ -249,7 +249,7 @@ void CNode::modifyOptions(const QMap<QString, QString> & options)
 
     for ( ; it != options.end() ; it++)
     {
-      Property * prop = &m_property_list[it.key().toStdString()].as_option();
+      Property * prop = &m_properties[it.key().toStdString()].as_option();
 
       if( prop != nullptr && strcmp( prop->tag() , "array" ) )
       {
@@ -467,9 +467,9 @@ void CNode::options(QList<Option::ConstPtr> & list) const
 {
   PropertyList::PropertyStorage_t::const_iterator it;
 
-  it = m_property_list.m_properties.begin();
+  it = m_properties.m_properties.begin();
 
-  for( ; it != m_property_list.m_properties.end() ; it++)
+  for( ; it != m_properties.m_properties.end() ; it++)
   {
     Property::Ptr prop = it->second;
 
@@ -483,13 +483,13 @@ void CNode::options(QList<Option::ConstPtr> & list) const
 
 void CNode::properties(QMap<QString, QString> & props) const
 {
-  PropertyList::PropertyStorage_t::const_iterator it = m_property_list.m_properties.begin();
+  PropertyList::PropertyStorage_t::const_iterator it = m_properties.m_properties.begin();
 
   boost::any val = int(120);
 
   props.clear();
 
-  for( ; it != m_property_list.m_properties.end() ; it++)
+  for( ; it != m_properties.m_properties.end() ; it++)
   {
     Property::Ptr prop = it->second;
     std::string valueStr;

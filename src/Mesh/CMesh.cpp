@@ -32,10 +32,10 @@ CMesh::CMesh ( const std::string& name  ) :
   Component ( name )
 {
   BuildComponent<full>().build(this);
-	m_property_list.add_property("nb_cells",Uint(0));
-	m_property_list.add_property("nb_nodes",Uint(0));
-	m_property_list.add_property("dimensionality",Uint(0));
-	m_property_list.add_property("dimension",Uint(0));
+	m_properties.add_property("nb_cells",Uint(0));
+	m_properties.add_property("nb_nodes",Uint(0));
+	m_properties.add_property("dimensionality",Uint(0));
+	m_properties.add_property("dimension",Uint(0));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

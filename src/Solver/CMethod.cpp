@@ -7,7 +7,6 @@
 #include "Common/CBuilder.hpp"
 
 #include "Solver/LibSolver.hpp"
-
 #include "Solver/CMethod.hpp"
 
 namespace CF {
@@ -35,7 +34,7 @@ CMethod::~CMethod()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMethod::regist_signals ( CMethod* self )
+void CMethod::define_signals ( Component* self )
 {
   this->regist_signal ( "run_operation" , "run an operation", "Run Operation" )->connect ( boost::bind ( &CMethod::run_operation, self, _1 ) );
 }

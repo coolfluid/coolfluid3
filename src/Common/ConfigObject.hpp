@@ -33,9 +33,9 @@ namespace Common {
     template < typename TYPE >
         void link_to_parameter ( const std::string& pname, TYPE* par )
     {
-      cf_assert(m_property_list.check(pname));
+      cf_assert(m_properties.check(pname));
 
-      m_property_list[pname].as_option().link_to(par);
+      m_properties[pname].as_option().link_to(par);
     }
 
     /// get the pointer to the option
@@ -46,18 +46,18 @@ namespace Common {
     /// @param [in] val      The new value assigned to the option
     void configure_property(const std::string& optname, const boost::any& val)
     {
-      m_property_list.configure_property(optname,val);
+      m_properties.configure_property(optname,val);
     }
 
     bool check_property(const std::string & prop_name)
     {
-      return m_property_list.check(prop_name);
+      return m_properties.check(prop_name);
     }
 
   protected:
 
     /// storage of the option list
-    PropertyList m_property_list;
+    PropertyList m_properties;
 
   }; // ConfigObject
 

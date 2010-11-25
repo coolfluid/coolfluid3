@@ -39,7 +39,7 @@ NLog::NLog()
   Option::Ptr option;
   std::vector<std::string> vect;
 
-  option = m_property_list.add_option< OptionT<std::string> >("MonthsOne", "Month names", std::string("January"));
+  option = m_properties.add_option< OptionT<std::string> >("MonthsOne", "Month names", std::string("January"));
 
     option->restricted_list() += std::string("March"),
                                  std::string("April"),
@@ -57,7 +57,7 @@ NLog::NLog()
   vect.push_back("January");
   vect.push_back("February");
 
-  option = m_property_list.add_option< OptionArrayT<std::string> >("MonthsTwo", "Month names", vect);
+  option = m_properties.add_option< OptionArrayT<std::string> >("MonthsTwo", "Month names", vect);
 
   option->restricted_list() += std::string("March"),
                                std::string("April"),

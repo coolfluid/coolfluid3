@@ -40,7 +40,7 @@ CMeshReader::~CMeshReader()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMeshReader::regist_signals ( CMeshReader* self )
+void CMeshReader::define_signals ( Component* self )
 {
   this->regist_signal ( "read" , "reads a mesh", "Read mesh" )->connect ( boost::bind ( &CMeshReader::read, self, _1 ) );
 }
@@ -53,14 +53,14 @@ void CMeshReader::define_config_properties(Common::PropertyList& options)
   Option::Ptr option;
   OptionURI::Ptr option_uri;
 
-  options.add_option< OptionArrayT<URI> > ( "Files",  "Files to read" , dummy );
-  option = options.add_option<OptionURI> ( "Mesh",  "Mesh to construct" , "" );
+  m_properties.add_option< OptionArrayT<URI> > ( "Files",  "Files to read" , dummy );
+  option = m_properties.add_option<OptionURI> ( "Mesh",  "Mesh to construct" , "" );
 
   option_uri = boost::dynamic_pointer_cast<OptionURI> (option);
   option_uri->supported_protocol("cpath");
 
-  options["Files"].as_option().mark_basic();
-  options["Mesh"].as_option().mark_basic();
+  m_properties["Files"].as_option().mark_basic();
+  m_properties["Mesh"].as_option().mark_basic();
 }
 
 //////////////////////////////////////////////////////////////////////////////

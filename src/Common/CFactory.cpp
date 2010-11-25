@@ -15,14 +15,10 @@ namespace Common {
 
 CFactory::CFactory(const std::string& name): Component(name)
 {
-  BuildComponent<full>().build(this);
+  BuildComponent<none>().build(this);
 }
 
 CFactory::~CFactory()
-{
-}
-
-void CFactory::define_config_properties ( CF::Common::PropertyList& props )
 {
 }
 

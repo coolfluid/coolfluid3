@@ -30,7 +30,7 @@ public: // functions
   /// @param name of the component
   CAbstract ( const std::string& name ) : Component(name)
   {
-    BuildComponent<full>().build(this);
+    BuildComponent<none>().build(this);
   }
 
   /// Virtual destructor
@@ -39,18 +39,7 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CAbstract"; }
 
-  // --------- Configuration ---------
-
-  virtual void define_config_properties () {}
-
-  // --------- Specific functions to this component ---------
-
   virtual std::string type() { return type_name(); }
-
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  static void regist_signals ( CAbstract* self ) {}
 
 };
 
@@ -69,7 +58,7 @@ public: // functions
   /// @param name of the component
   CConcrete1 ( const std::string& name ) : CAbstract(name)
   {
-    BuildComponent<full>().build(this);
+    BuildComponent<no_signals>().build(this);
   }
 
   /// Virtual destructor
@@ -78,23 +67,14 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CConcrete1"; }
 
-  // --------- Configuration ---------
-
   virtual void define_config_properties ()
   {
     URI def_path("cpath://");
-    options.add_option< OptionT<URI> > ( "MyRelativeFriend", "a path to another component"   , def_path  );
-    options.add_option< OptionT<URI> > ( "MyAbsoluteFriend", "a path to another component"   , def_path  );
+    m_properties.add_option< OptionT<URI> > ( "MyRelativeFriend", "a path to another component"   , def_path  );
+    m_properties.add_option< OptionT<URI> > ( "MyAbsoluteFriend", "a path to another component"   , def_path  );
   }
 
-  // --------- Specific functions to this component ---------
-
   virtual std::string type() { return type_name(); }
-
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  static void regist_signals ( CConcrete1* self ) {}
 
 };
 
@@ -113,7 +93,7 @@ public: // functions
   /// @param name of the component
   CConcrete2 ( const std::string& name ) : CAbstract(name)
   {
-    BuildComponent<full>().build(this);
+    BuildComponent<none>().build(this);
   }
 
   /// Virtual destructor
@@ -122,18 +102,7 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CConcrete2"; }
 
-  // --------- Configuration ---------
-
-  virtual void define_config_properties () {}
-
-  // --------- Specific functions to this component ---------
-
   virtual std::string type() { return type_name(); }
-
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  static void regist_signals ( CConcrete2* self ) {}
 
 };
 

@@ -25,16 +25,13 @@ namespace ClientTest {
 
     QString toolTip() const;
 
-    static void define_config_properties ( CF::Common::PropertyList& options )
+    virtual void define_config_properties ()
     {
-      options.add_option< CF::Common::OptionT<int> >("theAnswer", "The answer to the ultimate "
+      m_properties.add_option< CF::Common::OptionT<int> >("theAnswer", "The answer to the ultimate "
                                   "question of Life, the Universe, and Everything", 42);
-      options.add_option< CF::Common::OptionT<bool> >("someBool", "The bool value", true);
+      m_properties.add_option< CF::Common::OptionT<bool> >("someBool", "The bool value", true);
     }
 
-  private: // helper functions
-
-    static void regist_signals ( CF::Common::Component* self ) {}
   };
 
 }

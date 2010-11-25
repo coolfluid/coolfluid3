@@ -53,12 +53,12 @@ std::vector<std::string> CReader::get_extensions()
 
 void CReader::define_config_properties ( PropertyList& options )
 {
-  options.add_option< OptionT<bool> >
+  m_properties.add_option< OptionT<bool> >
       ( "SectionsAreBCs",
         ("Treat Sections of lower dimensionality as BC. "
         "This means no BCs from cgns will be read"),
         false );
-  options.add_option< OptionT<bool> >
+  m_properties.add_option< OptionT<bool> >
   ( "SharedCoordinates",
    ("Store all the coordinates in 1 table. "
     "This means that there will be no coordinates per region"),

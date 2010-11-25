@@ -17,6 +17,7 @@
 #include "Common/CPath.hpp"
 #include "Common/ComponentIterator.hpp"
 #include "Common/XmlHelpers.hpp"
+#include "Common/BuildComponent.hpp"
 
 namespace CF {
 namespace Common {
@@ -248,10 +249,10 @@ public: // functions
   }
 
   /// @return Returns a reference to the property list
-  PropertyList & properties() { return m_property_list; }
+  PropertyList & properties() { return m_properties; }
 
   /// @return Returns a constant referent to the property list
-  const PropertyList & properties() const { return m_property_list; }
+  const PropertyList & properties() const { return m_properties; }
 
   /// @name SIGNALS
   //@{
@@ -276,6 +277,9 @@ public: // functions
   /// marks this component as basic.
   void mark_basic();
 
+  /// regists all the signals declared in this class
+  virtual void define_signals ();
+
 protected: // functions
 
  /// Add a static (sub)component of this component
@@ -288,9 +292,6 @@ private: // helper functions
 
   /// writes the underlying component tree to the xml node
   void write_xml_tree( XmlNode& node );
-
-  /// regists all the signals declared in this class
-  virtual void define_signals ();
 
   /// Put all subcomponents in a given vector, optionally recursive
   /// @param [out] vec  A vector of all (recursive) subcomponents

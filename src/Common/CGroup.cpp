@@ -26,7 +26,7 @@ Common::ComponentBuilder < CGroup, Component, LibCommon > CGroup_Builder;
 
 CGroup::CGroup ( const std::string& name ) : Component ( name )
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -39,9 +39,9 @@ CGroup::~CGroup()
 
 void CGroup::define_config_properties ( Common::PropertyList& options )
 {
-  options.add_option< OptionT<CF::Real> >("pi", "Pi in a CGroup", 3.141592);
+  m_properties.add_option< OptionT<CF::Real> >("pi", "Pi in a CGroup", 3.141592);
 
-  Option::Ptr opt = options.add_option< OptionT<std::string> >("count", "From one to ten", std::string("One"));
+  Option::Ptr opt = m_properties.add_option< OptionT<std::string> >("count", "From one to ten", std::string("One"));
 
   opt->restricted_list() += std::string("Two"),
                             std::string("Three"),

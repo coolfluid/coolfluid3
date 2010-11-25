@@ -21,7 +21,7 @@ namespace Common {
       throw  Common::XmlError( FromHere(), "ConfigObject received  XML without a \'" + std::string(XmlParams::tag_node_map()) + "\' node" );
 
     // get the list of options
-    PropertyList::PropertyStorage_t& options = m_property_list.m_properties;
+    PropertyList::PropertyStorage_t& options = m_properties.m_properties;
 
     // loop on the param nodes
     for (XmlNode* itr =  pn.option_map->first_node(); itr; itr = itr->next_sibling() )
@@ -47,7 +47,7 @@ namespace Common {
 
   const Property & ConfigObject::property( const std::string& optname ) const
   {
-    return m_property_list.property(optname);
+    return m_properties.property(optname);
   }
 
 /////////////////////////////////////////////////////////////////////////////////////

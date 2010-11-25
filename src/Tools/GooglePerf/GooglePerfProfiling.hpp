@@ -44,14 +44,6 @@ public: // functions
 
     virtual void set_file_path(const boost::filesystem::path & path);
 
-    /// Configuration Options
-    virtual void define_config_properties () {}
-
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  static void regist_signals ( Common::Component* self ) {}
-
 private:
 
     bool m_profiling;

@@ -102,7 +102,7 @@ protected: // functions
 private: // helper functions
 
   /// regists all the signals declared in this class
-  static void regist_signals ( CMeshReader* self );
+  virtual void define_signals ( Component* self );
 	
 protected: // data
 	

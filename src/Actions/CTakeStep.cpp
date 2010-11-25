@@ -26,9 +26,9 @@ Common::ComponentBuilder < CTakeStep, CLoopOperation, LibActions > CTakeStep_Bui
   
 void CTakeStep::define_config_properties( Common::PropertyList& options )
 {
-  options.add_option< OptionT<std::string> > ("SolutionField","Solution Field for calculation", "")->mark_basic();
-  options.add_option< OptionT<std::string> > ("ResidualField","Residual Field updated after calculation", "")->mark_basic();
-  options.add_option< OptionT<std::string> > ("InverseUpdateCoeff","Inverse update coefficient Field updated after calculation", "")->mark_basic();
+  m_properties.add_option< OptionT<std::string> > ("SolutionField","Solution Field for calculation", "")->mark_basic();
+  m_properties.add_option< OptionT<std::string> > ("ResidualField","Residual Field updated after calculation", "")->mark_basic();
+  m_properties.add_option< OptionT<std::string> > ("InverseUpdateCoeff","Inverse update coefficient Field updated after calculation", "")->mark_basic();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

@@ -51,13 +51,13 @@ CHoneycombInterpolator::CHoneycombInterpolator( const std::string& name )
 
 void CHoneycombInterpolator::define_config_properties ( CF::Common::PropertyList& options )
 {
-  options.add_option< OptionT<Uint> >
+  m_properties.add_option< OptionT<Uint> >
   ( "ApproximateNbElementsPerCell",
     "The approximate amount of elements that are stored in a structured" ,
     1 );
 
   std::vector<Uint> dummy;
-  options.add_option< OptionArrayT<Uint> >
+  m_properties.add_option< OptionArrayT<Uint> >
   ( "Divisions",
     "The number of divisions in each direction of the comb. Takes precedence over \"ApproximateNbElementsPerCell\". " ,
     dummy);

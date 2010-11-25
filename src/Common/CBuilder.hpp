@@ -39,7 +39,7 @@ public:
   /// @param name of component
   CBuilder(const std::string& name) : Component(name)
   {
-    BUILD_COMPONENT;
+    BuildComponent<none>().build(this);
   }
 
   /// @brief Virtual destructor.
@@ -47,9 +47,6 @@ public:
 
   /// @returns the class name
   static std::string type_name() { return  "CBuilder"; }
-
-  /// Configuration properties
-  static void define_config_properties ( CF::Common::PropertyList& props ) {}
 
   /// Returns the name of the type of what abstract type it builds.
   /// Should match the name of the CFactory holding the builder.
@@ -61,11 +58,6 @@ public:
 
   /// @return the name of the type of what concrete type it builds
   virtual Component::Ptr build ( const std::string& name ) const = 0;
-
-private: // methods
-
-  /// regists all the signals declared in this class
-  static void regist_signals ( CBuilder* self ) { }
 
 }; // CBuilder
 
@@ -86,7 +78,7 @@ public:
   /// @param name of component
   CBuilderT(const std::string& name) : CBuilder(name)
   {
-    BUILD_COMPONENT;
+    BuildComponent<no_props>().build(this);
   }
 
   /// @brief Virtual destructor.
@@ -94,9 +86,6 @@ public:
 
   /// @returns the class name
   static std::string type_name() { return "CBuilderT<" + CONCRETE::type_name() + ">"; }
-
-  /// Configuration properties
-  static void define_config_properties ( CF::Common::PropertyList& props ) {}
 
   /// builds the component cast to the correct base
   typename BASE::Ptr build_component_typed ( const std::string& name ) const
@@ -132,10 +121,8 @@ public:
 
   //@} END SIGNALS
 
-private: // methods
-
   /// regists all the signals declared in this class
-  static void regist_signals ( CBuilderT<BASE,CONCRETE>* self )
+  virtual void regist_signals ( Component* self )
   {
       this->regist_signal ( "build_component" , "builds a component", "Build component" )->connect ( boost::bind ( &CBuilderT<BASE,CONCRETE>::build_component, self, _1 ) );
       this->signal("build_component").m_signature.template insert<std::string>("Component name", "Name for created component" )

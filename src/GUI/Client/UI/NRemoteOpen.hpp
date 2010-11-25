@@ -102,9 +102,6 @@ namespace ClientUI {
     /// Contains at most one item if the dialog is in single selection mode.
     QStringList m_fileList;
 
-    /// regists all the signals declared in this class
-    static void regist_signals ( Common::Component* self ) {}
-
   }; // NRemoteOpen
 
   /////////////////////////////////////////////////////////////////////////////

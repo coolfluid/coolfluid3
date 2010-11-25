@@ -46,22 +46,22 @@ class MyC : public ConfigObject {
   {
 
     // POD's (plain old data)
-    options.add_option< OptionT<bool> >            ( "OptBool", "bool option"   , false  );
-    options.add_option< OptionT<int> >             ( "OptInt",  "int option"    , -5     );
-    options.add_option< OptionT<Uint> >            ( "OptUInt", "int option"    , 10     );
-    options.add_option< OptionT<Real> >            ( "OptReal", "real option"   , 0.0   );
-    options.add_option< OptionT<std::string> >     ( "OptStr",  "string option" , "LOLO" );
-    options.add_option< OptionT<URI> >             ( "OptURI",  "URI option"    , "cpath://lolo" );
+    m_properties.add_option< OptionT<bool> >            ( "OptBool", "bool option"   , false  );
+    m_properties.add_option< OptionT<int> >             ( "OptInt",  "int option"    , -5     );
+    m_properties.add_option< OptionT<Uint> >            ( "OptUInt", "int option"    , 10     );
+    m_properties.add_option< OptionT<Real> >            ( "OptReal", "real option"   , 0.0   );
+    m_properties.add_option< OptionT<std::string> >     ( "OptStr",  "string option" , "LOLO" );
+    m_properties.add_option< OptionT<URI> >             ( "OptURI",  "URI option"    , "cpath://lolo" );
 
     // vector of POD's
     std::vector<int> def;
     def += 1,2,3,4,5,6,7,8,9; /* uses boost::assign */
-    options.add_option< OptionArrayT< int >  >  ( "VecInt",  "vector ints option" , def );
+    m_properties.add_option< OptionArrayT< int >  >  ( "VecInt",  "vector ints option" , def );
 
     // vector of POD's
     std::vector< std::string > defs;
     defs += "lolo","koko";     /* uses boost::assign */
-    options.add_option< OptionArrayT< std::string >  >   ( "VecStr",  "vector strs option" , defs );
+    m_properties.add_option< OptionArrayT< std::string >  >   ( "VecStr",  "vector strs option" , defs );
   }
 
   MyC ()
@@ -70,15 +70,15 @@ class MyC : public ConfigObject {
 
 //    option("OptInt").set_value(10);
 
-    m_property_list["OptInt"].as_option().link_to( &m_i );
+    m_properties["OptInt"].as_option().link_to( &m_i );
 
     link_to_parameter ( "OptStr", &m_str );
 
-    m_property_list["OptBool"].as_option().attach_trigger( boost::bind ( &MyC::config_bool,  this ) );
-    m_property_list["OptInt"].as_option().attach_trigger ( boost::bind ( &MyC::config_int,   this ) );
-    m_property_list["OptStr"].as_option().attach_trigger ( boost::bind ( &MyC::config_str,   this ) );
-    m_property_list["VecInt"].as_option().attach_trigger ( boost::bind ( &MyC::config_vecint,this ) );
-    m_property_list["OptURI"].as_option().attach_trigger ( boost::bind ( &MyC::config_uri,   this ) );
+    m_properties["OptBool"].as_option().attach_trigger( boost::bind ( &MyC::config_bool,  this ) );
+    m_properties["OptInt"].as_option().attach_trigger ( boost::bind ( &MyC::config_int,   this ) );
+    m_properties["OptStr"].as_option().attach_trigger ( boost::bind ( &MyC::config_str,   this ) );
+    m_properties["VecInt"].as_option().attach_trigger ( boost::bind ( &MyC::config_vecint,this ) );
+    m_properties["OptURI"].as_option().attach_trigger ( boost::bind ( &MyC::config_uri,   this ) );
 
     std::vector<int> vi = property("VecInt").value< std::vector<int> >();
 //    for (Uint i = 0; i < vi.size(); ++i)

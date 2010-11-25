@@ -27,8 +27,8 @@ m_nbdofs(0u)
 {
   BuildComponent<full>().build(this);
 
-  m_property_list["Dimensions"].as_option().attach_trigger ( boost::bind ( &CPhysicalModel::trigger_dimensionality, this ) );
-  m_property_list["DOFs"].as_option().attach_trigger ( boost::bind ( &CPhysicalModel::trigger_nbdofs, this ) );
+  m_properties["Dimensions"].as_option().attach_trigger ( boost::bind ( &CPhysicalModel::trigger_dimensionality, this ) );
+  m_properties["DOFs"].as_option().attach_trigger ( boost::bind ( &CPhysicalModel::trigger_nbdofs, this ) );
 
 }
 
@@ -38,11 +38,11 @@ CPhysicalModel::~CPhysicalModel()
 
 void CPhysicalModel::define_config_properties(PropertyList& options)
 {
-  options.add_option<OptionT <Uint> >("Dimensions", "Dimensionality of the problem, i.e. the number of components for the spatial coordinates", 0u);
-  options.add_option<OptionT <Uint> >("DOFs", "Degrees of freedom", 0u);
+  m_properties.add_option<OptionT <Uint> >("Dimensions", "Dimensionality of the problem, i.e. the number of components for the spatial coordinates", 0u);
+  m_properties.add_option<OptionT <Uint> >("DOFs", "Degrees of freedom", 0u);
 
-  options["Dimensions"].as_option().mark_basic();
-  options["DOFs"].as_option().mark_basic();
+  m_properties["Dimensions"].as_option().mark_basic();
+  m_properties["DOFs"].as_option().mark_basic();
 }
 
 void CPhysicalModel::trigger_dimensionality()

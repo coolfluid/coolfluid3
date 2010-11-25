@@ -11,7 +11,7 @@ namespace Common {
 
 CodeProfiler::CodeProfiler(const std::string& name) : Component (name)
 {
-  BuildComponent<full>().build(this);
+  BuildComponent<none>().build(this);
 }
 
 CodeProfiler::~CodeProfiler()

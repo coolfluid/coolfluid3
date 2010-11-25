@@ -25,6 +25,7 @@ ComponentBuilder < GooglePerfProfiling, CodeProfiler, LibGooglePerfTools > Googl
 GooglePerfProfiling::GooglePerfProfiling( const std::string& name) : CodeProfiler(name),
     m_profiling(false)
 {
+   BuildComponent<none>().build(this);
   m_path = Common::DirPaths::instance().getResultsDir() / boost::filesystem::path("perftools-profile.pprof");
 }
 

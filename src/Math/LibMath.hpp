@@ -44,7 +44,7 @@ namespace CF {
       typedef boost::shared_ptr<LibMath const> ConstPtr;
 
       /// Constructor
-      LibMath ( const std::string& name) : Common::CLibrary(name) { BUILD_COMPONENT; }
+      LibMath ( const std::string& name) : Common::CLibrary(name) { BuildComponent<full>().build(this); }
 
       /// Configuration options
       virtual void define_config_properties () {}

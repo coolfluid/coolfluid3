@@ -52,7 +52,7 @@ public: // functions
 private: // helper functions
 
   /// regists all the signals declared in this class
-  static void regist_signals ( ScalarAdvection* self );
+  static void define_signals ();
 
 };
 

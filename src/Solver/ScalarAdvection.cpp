@@ -47,13 +47,13 @@ ScalarAdvection::~ScalarAdvection()
 
 void ScalarAdvection::define_config_properties(Common::PropertyList& options)
 {
-//  options.add_option< OptionT<std::string> >  ( "Model",  "Model to fill, if empty a new model will be created in the root" , "" );
-//  options["Model"].as_option().mark_basic();
+//  m_properties.add_option< OptionT<std::string> >  ( "Model",  "Model to fill, if empty a new model will be created in the root" , "" );
+//  m_properties["Model"].as_option().mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ScalarAdvection::regist_signals ( ScalarAdvection* self )
+void ScalarAdvection::define_signals ()
 {
   this->regist_signal ( "run_wizard" , "runs the wizard ", "Run Wizard" )->connect ( boost::bind ( &ScalarAdvection::run_wizard, self, _1 ) );
 }

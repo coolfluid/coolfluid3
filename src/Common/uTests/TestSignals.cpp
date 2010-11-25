@@ -37,7 +37,7 @@ public: // functions
   /// @param name of the component
   CSmall ( const std::string& name ) : Component ( name )
   {
-    BUILD_COMPONENT;
+    BuildComponent<no_props>().build(this);
   }
 
   /// Virtual destructor
@@ -45,9 +45,6 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "CSmall"; }
-
-  /// Configuration Options
-  virtual void define_config_properties () {}
 
   void trigger_signal_print_message ( Component& receiver )
   {
@@ -99,7 +96,7 @@ public: // functions
 private: // helper functions
 
   /// regists all the signals declared in this class
-  static void regist_signals ( CSmall* self )
+  virtual void regist_signals ( Component* self )
   {
     this->regist_signal ( "print_message" , "prints" )->connect ( boost::bind ( &CSmall::print_message, self, _1 ) );
   }
@@ -107,7 +104,6 @@ private: // helper functions
 }; // CSmall
 
 Common::ComponentBuilder < CSmall, Component, LibCommon > CSmall_Builder;
-
 
 ////////////////////////////////////////////////////////////////////////////////
 

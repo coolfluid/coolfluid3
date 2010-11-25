@@ -18,19 +18,12 @@ CF::RegistTypeInfo<CLibrary> sCLibrary_regist();
 CLibrary::CLibrary(const std::string & lib_name):
     Component(lib_name)
 {
-  BuildComponent<full>().build(this);
+  BuildComponent<none>().build(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 CLibrary::~CLibrary()
-{
-
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void CLibrary::define_config_properties ( CF::Common::PropertyList& props )
 {
 }
 

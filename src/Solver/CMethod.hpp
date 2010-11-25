@@ -47,9 +47,9 @@ public: // functions
   /// Configuration Options
   virtual void define_config_properties ()
   {
-    options.add_option< Common::OptionT<bool> >("myBoolMeth", "A boolean value in a CMethod", true);
-    options.add_option< Common::OptionT<int> >("fourtyTwo", "An integer value in a CMethod", 42);
-    options.add_option< Common::OptionT<CF::Real> >("euler", "Euler number in a CMethod", 2.71);
+    m_properties.add_option< Common::OptionT<bool> >("myBoolMeth", "A boolean value in a CMethod", true);
+    m_properties.add_option< Common::OptionT<int> >("fourtyTwo", "An integer value in a CMethod", 42);
+    m_properties.add_option< Common::OptionT<CF::Real> >("euler", "Euler number in a CMethod", 2.71);
   }
 
   // functions specific to the CMethod component
@@ -62,7 +62,7 @@ public: // functions
 private: // helper functions
 
   /// regists all the signals declared in this class
-  static void regist_signals ( CMethod* self );
+  static void regist_signals ( Component* self );
 
 };
 

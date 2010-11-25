@@ -45,13 +45,6 @@ public:
   /// @return the name of the type of this factory
   virtual std::string factory_type_name() const = 0;
 
-private: // methods
-
-  /// regists all the signals declared in this class
-  static void regist_signals ( CFactory* self ) { }
-
-private: // data
-
 }; // CFactory
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -70,7 +63,7 @@ public:
   /// @param name of component
   CFactoryT(const std::string& name) : CFactory(name)
   {
-    BuildComponent<full>().build(this);
+    BuildComponent<none>().build(this);
   }
 
   /// @brief Virtual destructor.
@@ -79,18 +72,8 @@ public:
   /// @returns the class name
   static std::string type_name() { return "CFactoryT<" + TYPE::type_name() + ">"; }
 
-  /// Configuration properties
-  static void define_config_properties ( CF::Common::PropertyList& props ) {}
-
   /// @return the name of the type of this factory
   virtual std::string factory_type_name() const { return TYPE::type_name(); }
-
-private: // methods
-
-  /// regists all the signals declared in this class
-  static void regist_signals ( CFactory* self ) {}
-
-private: // data
 
 }; // CFactoryT
 

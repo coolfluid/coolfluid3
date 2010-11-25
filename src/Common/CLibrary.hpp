@@ -37,19 +37,11 @@ namespace Common {
     /// Get the class name
     static std::string type_name() { return "CLibrary"; }
 
-    /// Configuration properties
-    static void define_config_properties ( CF::Common::PropertyList& props );
-
     /// initiate library
     virtual void initiate() = 0;
 
     /// terminate library
     virtual void terminate() = 0;
-
-  private: // methods
-
-    /// regists all the signals declared in this class
-    static void regist_signals ( CLibrary* self ) { }
 
   }; // CLibrary
 

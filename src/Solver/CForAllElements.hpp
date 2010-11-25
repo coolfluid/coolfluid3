@@ -56,7 +56,7 @@ public: // functions
     m_operation(new COp("operation"), Deleter<COp>())
   {
     BuildComponent<full>().build(this);
-    m_property_list["Regions"].as_option().attach_trigger ( boost::bind ( &CForAllElementsT::trigger_Regions,   this ) );
+    m_properties["Regions"].as_option().attach_trigger ( boost::bind ( &CForAllElementsT::trigger_Regions,   this ) );
   }
 
   void trigger_Regions()
@@ -79,7 +79,7 @@ public: // functions
   virtual void define_config_properties ()
   {
     std::vector< URI > dummy;
-    options.add_option< OptionArrayT < URI > > ("Regions", "Regions to loop over", dummy)->mark_basic();
+    m_properties.add_option< OptionArrayT < URI > > ("Regions", "Regions to loop over", dummy)->mark_basic();
   }
 
   // functions specific to the CForAllElements component

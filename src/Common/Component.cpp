@@ -18,7 +18,6 @@
 #include "Common/OptionArray.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/String/Conversion.hpp"
-#include "Common/BuildComponent.hpp"
 
 namespace CF {
 namespace Common {
@@ -40,9 +39,9 @@ Component::Component ( const std::string& name ) :
 
   m_name = name;
 
-  m_property_list.add_property("brief",
+  m_properties.add_property("brief",
                                std::string("No brief description available"));
-  m_property_list.add_property("description",
+  m_properties.add_property("description",
                                std::string("This component has not a long description"));
 }
 
@@ -438,7 +437,7 @@ Component::Ptr Component::look_component ( const CPath& path )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::regist_signals ( Component* self  )
+void Component::define_signals()
 {
   this->regist_signal ( "create_component" , "creates a component", "Create component" )->connect ( boost::bind ( &Component::create_component, self, _1 ) );
   this->signal("create_component").m_signature
@@ -602,11 +601,11 @@ void add_prop_to_xml(XmlParams & params, const std::string & name,
 
 void Component::list_properties( XmlNode& node )
 {
-  PropertyList::PropertyStorage_t::iterator it = m_property_list.m_properties.begin();
+  PropertyList::PropertyStorage_t::iterator it = m_properties.m_properties.begin();
 
   XmlParams p(*node.parent());
 
-  for( ; it != m_property_list.m_properties.end() ; it++)
+  for( ; it != m_properties.m_properties.end() ; it++)
   {
     std::string name = it->first;
     Property::Ptr prop = it->second;

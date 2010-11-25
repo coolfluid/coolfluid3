@@ -35,9 +35,9 @@ CField::CField ( const std::string& name  ) :
   Component ( name )
 {
   BuildComponent<full>().build(this);
-	m_property_list["VarNames"].as_option().attach_trigger ( boost::bind ( &CField::config_var_names,   this ) );
-	m_property_list["VarSizes"].as_option().attach_trigger ( boost::bind ( &CField::config_var_sizes,   this ) );	
-	m_property_list["VarTypes"].as_option().attach_trigger ( boost::bind ( &CField::config_var_types,   this ) );
+	m_properties["VarNames"].as_option().attach_trigger ( boost::bind ( &CField::config_var_names,   this ) );
+	m_properties["VarSizes"].as_option().attach_trigger ( boost::bind ( &CField::config_var_sizes,   this ) );	
+	m_properties["VarTypes"].as_option().attach_trigger ( boost::bind ( &CField::config_var_types,   this ) );
 	
 }
 	
@@ -48,9 +48,9 @@ void CField::define_config_properties ( Common::PropertyList& options )
 	std::vector<std::string> var_names;
 	std::vector<std::string> var_types;
 	std::vector<Uint> var_sizes;
-	options.add_option<OptionArrayT<std::string> >("VarNames","Names of the variables",var_names)->mark_basic();
-	options.add_option<OptionArrayT<std::string> >("VarTypes","Types of the variables",var_names)->mark_basic();
-	options.add_option<OptionArrayT<Uint>        >("VarSizes","Sizes of the variables",var_sizes)->mark_basic();
+	m_properties.add_option<OptionArrayT<std::string> >("VarNames","Names of the variables",var_names)->mark_basic();
+	m_properties.add_option<OptionArrayT<std::string> >("VarTypes","Types of the variables",var_names)->mark_basic();
+	m_properties.add_option<OptionArrayT<Uint>        >("VarSizes","Sizes of the variables",var_sizes)->mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

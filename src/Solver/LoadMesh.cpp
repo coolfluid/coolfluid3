@@ -44,15 +44,15 @@ LoadMesh::~LoadMesh()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LoadMesh::define_config_properties(Common::PropertyList& options)
+void LoadMesh::define_config_properties()
 {
-//  options.add_option< OptionT<std::string> >  ( "Model",  "Model to fill, if empty a new model will be created in the root" , "" );
-//  options["Model"].as_option().mark_basic();
+//  m_properties.add_option< OptionT<std::string> >  ( "Model",  "Model to fill, if empty a new model will be created in the root" , "" );
+//  m_properties["Model"].as_option().mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LoadMesh::regist_signals ( LoadMesh* self )
+void LoadMesh::define_signals ( Component* self )
 {
   this->regist_signal ( "run_wizard" , "runs the wizard ", "Run Wizard" )->connect ( boost::bind ( &LoadMesh::run_wizard, self, _1 ) );
 
