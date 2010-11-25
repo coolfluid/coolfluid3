@@ -11,8 +11,6 @@
 
 #include "Common/Component.hpp"
 
-#include "Common/OptionT.hpp"
-
 namespace CF {
 namespace Common {
 

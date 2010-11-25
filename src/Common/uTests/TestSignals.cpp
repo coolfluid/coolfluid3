@@ -106,7 +106,7 @@ private: // helper functions
 
 }; // CSmall
 
-Common::ComponentBuilder < CSmall, Component, LibCommon, 1 > CSmall_Builder ( CSmall::type_name() );
+Common::ComponentBuilder < CSmall, Component, LibCommon > CSmall_Builder;
 
 
 ////////////////////////////////////////////////////////////////////////////////

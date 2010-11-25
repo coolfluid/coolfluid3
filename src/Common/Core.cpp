@@ -9,9 +9,10 @@
 #include "Common/EventHandler.hpp"
 #include "Common/OSystem.hpp"
 #include "Common/CGroup.hpp"
+#include "Common/CLibraries.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/CEnv.hpp"
-#include "Common/CFactories.hpp"
+#include "Common/CreateComponent.hpp"
 #include "Common/BuildInfo.hpp"
 #include "Common/CodeProfiler.hpp"
 #include "Common/Core.hpp"
@@ -33,30 +34,27 @@ Core& Core::instance()
 
 CRoot::Ptr Core::root()
 {
-  return Core::instance().m_root;
+  return m_root;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 Core::Core() :
-  m_event_handler(new Common::EventHandler()),
-  m_module_registry(new Common::LibraryRegistry()),
-  m_build_info(new Common::BuildInfo())
+  m_event_handler    ( new EventHandler() ),
+  m_build_info       ( new BuildInfo() ),
+  m_environment      ( new CEnv("Environment") ),
+  m_libraries        ( new CLibraries("Libraries") ),
+  m_factories        ( new CFactories("Factories") )
 {
   m_root = CRoot::create("Root");
+  m_root->mark_basic();
 
-  /// @todo this components should be static and access provided from the Core
-  ///       via dedicated functions that do not imply searching
+  m_root->add_component( m_environment )->mark_basic();
 
-  m_root->create_component_type<CEnv>("Environment");
-
-  m_root->create_component_type<CGroup>("Libraries");
-
-  m_root->create_component_type<CFactories>("Factories")->mark_basic();
+  m_root->add_component( m_libraries )->mark_basic();
+  m_root->add_component( m_factories )->mark_basic();
 
   m_root->create_component_type<CGroup>("Tools")->mark_basic();
-
-  m_root->mark_basic(); // root should always be basic
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -81,7 +79,7 @@ void Core::terminate()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::weak_ptr< Common::EventHandler > Core::event_handler()
+boost::shared_ptr< Common::EventHandler > Core::event_handler() const
 {
   cf_assert(m_event_handler != nullptr);
   return m_event_handler;
@@ -89,7 +87,7 @@ boost::weak_ptr< Common::EventHandler > Core::event_handler()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::weak_ptr< Common::BuildInfo > Core::build_info()
+boost::shared_ptr< Common::BuildInfo > Core::build_info() const
 {
   cf_assert(m_build_info != nullptr);
   return m_build_info;
@@ -97,17 +95,40 @@ boost::weak_ptr< Common::BuildInfo > Core::build_info()
 
 ////////////////////////////////////////////////////////////////////////////////
 
+boost::shared_ptr< Common::CEnv > Core::environment() const
+{
+  cf_assert(m_environment != nullptr);
+  return m_environment;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+boost::shared_ptr< Common::CLibraries>  Core::libraries() const
+{
+  cf_assert(m_libraries != nullptr);
+  return m_libraries;
+}
+////////////////////////////////////////////////////////////////////////////////
+
+boost::shared_ptr< Common::CFactories > Core::factories() const
+{
+  cf_assert(m_factories != nullptr);
+  return m_factories;
+}
+////////////////////////////////////////////////////////////////////////////////
+
 void Core::set_profiler(const std::string & builder_name)
 {
-  create_component_abstract_type<CodeProfiler>(builder_name, builder_name);
-  m_root->add_component(m_profiler);
+  CodeProfiler::Ptr profiler =
+    create_component_abstract_type<CodeProfiler>(builder_name, "Profiler");
+  m_root->add_component( profiler );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 boost::shared_ptr<CodeProfiler> Core::profiler() const
 {
-  return m_root->get_child_type<CodeProfiler>();
+  return m_root->get_child_type<CodeProfiler>("Profiler");
 }
 ////////////////////////////////////////////////////////////////////////////////
 

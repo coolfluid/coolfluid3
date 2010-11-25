@@ -9,8 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/LibraryRegister.hpp"
-#include "Common/ExportAPI.hpp"
+#include "Common/LibInfo.hpp"
+#include "Common/CLibrary.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +37,7 @@ namespace Gmsh {
 /// Class defines the Gmshtral mesh format operations
 /// @author Willem Deconinck
 class Gmsh_API LibGmsh :
-    public Common::LibraryRegister<LibGmsh>
+    public Common::CLibrary
 {
 public:
 

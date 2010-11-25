@@ -47,7 +47,7 @@ namespace Common {
 
   const Property & ConfigObject::property( const std::string& optname ) const
   {
-    return m_property_list.getProperty(optname);
+    return m_property_list.property(optname);
   }
 
 /////////////////////////////////////////////////////////////////////////////////////

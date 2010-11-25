@@ -9,8 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/LibraryRegister.hpp"
-#include "Common/ExportAPI.hpp"
+#include "Common/LibInfo.hpp"
+#include "Common/CLibrary.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -37,9 +37,28 @@ namespace Neu {
 /// Class defines the Neutral mesh format operations
 /// @author Willem Deconinck
 class Neu_API LibNeu :
-    public Common::LibraryRegister<LibNeu>
+    public Common::CLibrary
 {
 public:
+
+  typedef boost::shared_ptr<LibNeu> Ptr;
+  typedef boost::shared_ptr<LibNeu const> ConstPtr;
+
+  /// Constructor
+  LibNeu ( const std::string& name) : Common::CLibrary(name) {}
+
+  /// Configuration options
+  static void define_config_properties ( Common::PropertyList& options ) {}
+
+private: // helper functions
+
+  /// regists all the signals declared in this class
+  static void regist_signals ( Component* self ) {}
+
+public: // functions
+
+  /// @return string of the library namespace
+  static std::string library_namespace() { return "CF.Neu"; }
 
   /// Static function that returns the module name.
   /// Must be implemented for CLibrary registration

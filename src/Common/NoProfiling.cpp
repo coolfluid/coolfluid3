@@ -9,18 +9,22 @@
 
 #include "Common/NoProfiling.hpp"
 
-using namespace CF::Common;
+namespace CF {
+namespace Common {
 
-Common::ComponentBuilder < NoProfiling, CodeProfiler, LibCommon, NB_ARGS_0 >
-NoProfiling_Builder ( NoProfiling::type_name() );
+/////////////////////////////////////////////////////////////////////////////////
 
+Common::ComponentBuilder < NoProfiling, CodeProfiler, LibCommon > NoProfiling_Builder;
 
-NoProfiling::NoProfiling()
+NoProfiling::NoProfiling(const std::string& name) : CodeProfiler(name)
 {
-
 }
 
 NoProfiling::~NoProfiling()
 {
-
 }
+
+/////////////////////////////////////////////////////////////////////////////////
+
+} // Common
+} // CF

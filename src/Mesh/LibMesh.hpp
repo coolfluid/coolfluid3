@@ -9,8 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/ExportAPI.hpp"
-#include "Common/LibraryRegister.hpp"
+#include "Common/CLibrary.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -35,10 +34,29 @@ namespace CF {
 
   /// Class defines the initialization and termination of the library Mesh
   /// @author Tiago Quintino
-  class Mesh_API LibMesh :
-      public Common::LibraryRegister<LibMesh>
+  class Mesh_API LibMesh :  public Common::CLibrary
   {
   public:
+
+    typedef boost::shared_ptr<LibMesh> Ptr;
+    typedef boost::shared_ptr<LibMesh const> ConstPtr;
+
+    /// Constructor
+    LibMesh ( const std::string& name) : Common::CLibrary(name) {}
+
+    /// Configuration options
+    static void define_config_properties ( Common::PropertyList& options ) {}
+
+  private: // helper functions
+
+    /// regists all the signals declared in this class
+    static void regist_signals ( Component* self ) {}
+
+  public: // functions
+
+    /// @return string of the library namespace
+    static std::string library_namespace() { return "CF.Mesh"; }
+
 
     /// Static function that returns the module name.
     /// Must be implemented for CLibrary registration
@@ -56,9 +74,6 @@ namespace CF {
 
     /// Gets the Class name
     static std::string type_name() { return "LibMesh"; }
-
-    /// @return string of the library namespace
-    static std::string library_namespace() { return "CF.Mesh"; }
 
     /// initiate library
     virtual void initiate();

@@ -36,6 +36,11 @@ template <typename T> class VolumeComputer;
 /// @author Willem Deconinck
 class Mesh_API ElementType : public Common::Component {
 
+public: // typedefs
+
+  typedef boost::shared_ptr< ElementType > Ptr;
+  typedef boost::shared_ptr< ElementType const> ConstPtr;
+
 public: // functions
 
   /// Type used to pass node coordinates of an element.

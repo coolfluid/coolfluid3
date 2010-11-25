@@ -24,6 +24,9 @@ namespace Common {
   {
   public:
 
+    typedef boost::shared_ptr<CodeProfiler> Ptr;
+    typedef boost::shared_ptr<CodeProfiler const> ConstPtr;
+
     /// constructor
     CodeProfiler(const std::string& name);
 

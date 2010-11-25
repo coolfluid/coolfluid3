@@ -11,6 +11,7 @@
 #include "Common/CGroup.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/LibCommon.hpp"
+#include "Common/OptionT.hpp"
 
 using namespace boost::assign; // for operator+=()
 

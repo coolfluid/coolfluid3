@@ -62,14 +62,11 @@ class MyC : public ConfigObject {
     std::vector< std::string > defs;
     defs += "lolo","koko";     /* uses boost::assign */
     options.add_option< OptionArrayT< std::string >  >   ( "VecStr",  "vector strs option" , defs );
-
-    // option for componets
-    options.add_option< OptionComponent<CAbstract > > ( "OptComp",  "abstract specialization" , "Concrete1" );
   }
 
   MyC ()
   {
-    addConfigOptionsTo<MyC>();
+    add_options_to<MyC>();
 
 //    option("OptInt").set_value(10);
 
@@ -135,7 +132,7 @@ BOOST_AUTO_TEST_SUITE( Config_TestSuite )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( addConfigOptionsTo )
+BOOST_AUTO_TEST_CASE( add_options_to )
 {
   boost::gregorian::date today = boost::gregorian::day_clock::local_day();
   boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();

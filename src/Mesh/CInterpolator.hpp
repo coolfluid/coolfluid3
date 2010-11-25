@@ -12,7 +12,6 @@
 #include <boost/filesystem/path.hpp>
 
 #include "Common/Component.hpp"
-#include "Common/ConcreteProvider.hpp"
 
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CMesh.hpp"
@@ -34,8 +33,6 @@ class Mesh_API CInterpolator : public Common::Component {
 
 public: // typedefs
 
-  /// provider
-  typedef Common::ConcreteProvider < CInterpolator,1 > PROVIDER;
   /// pointer to this type
   typedef boost::shared_ptr<CInterpolator> Ptr;
   typedef boost::shared_ptr<CInterpolator const> ConstPtr;

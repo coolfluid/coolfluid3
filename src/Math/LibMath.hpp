@@ -11,8 +11,7 @@
 
 #include <cmath>  // all sorts of mathematical functions and constants
 
-#include "Common/ExportAPI.hpp"
-#include "Common/LibraryRegister.hpp"
+#include "Common/CLibrary.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -37,10 +36,28 @@ namespace CF {
 
     /// Class defines the initialization and termination of the library MeshDiff
     /// @author Tiago Quintino
-    class Math_API LibMath :
-        public Common::LibraryRegister<LibMath>
+    class Math_API LibMath :  public Common::CLibrary
     {
     public:
+
+      typedef boost::shared_ptr<LibMath> Ptr;
+      typedef boost::shared_ptr<LibMath const> ConstPtr;
+
+      /// Constructor
+      LibMath ( const std::string& name) : Common::CLibrary(name) {}
+
+      /// Configuration options
+      static void define_config_properties ( Common::PropertyList& options ) {}
+
+    private: // helper functions
+
+      /// regists all the signals declared in this class
+      static void regist_signals ( Component* self ) {}
+
+    public: // functions
+
+      /// @return string of the library namespace
+      static std::string library_namespace() { return "CF.Math"; }
 
       /// Static function that returns the module name.
       /// Must be implemented for CLibrary registration

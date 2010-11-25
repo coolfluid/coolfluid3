@@ -26,7 +26,7 @@ template < typename ATYPE >
   CFactory::Ptr factory = factories->get_child_type< CFactory >( ATYPE::type_name() );
   CBuilder::Ptr builder = factory->get_child_type< CBuilder >( builder_name );
 
-  return boost::dynamic_pointer_cast<ATYPE>( builder->build_component ( name ) );
+  return boost::dynamic_pointer_cast<ATYPE>( builder->build ( name ) );
 }
 
 /////////////////////////////////////////////////////////////////////////////////

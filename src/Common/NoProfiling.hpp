@@ -22,7 +22,12 @@ namespace Common {
   class Common_API NoProfiling : public CodeProfiler
   {
   public:
-    NoProfiling();
+
+    typedef boost::shared_ptr<NoProfiling> Ptr;
+    typedef boost::shared_ptr<NoProfiling const> ConstPtr;
+
+    /// constructor
+    NoProfiling(const std::string& name);
 
     virtual ~NoProfiling();
 

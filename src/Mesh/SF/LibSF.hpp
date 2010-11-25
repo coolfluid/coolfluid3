@@ -9,8 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/ExportAPI.hpp"
-#include "Common/LibraryRegister.hpp"
+#include "Common/CLibrary.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -34,10 +33,29 @@ namespace SF {
 
   /// Shape functions module
   /// @author Tiago Quintino, Willem Deconinck, Bart Janssens
-  class MESH_SF_API LibSF :
-      public Common::LibraryRegister<LibSF>
+  class MESH_SF_API LibSF : public Common::CLibrary
   {
   public:
+
+    typedef boost::shared_ptr<LibSF> Ptr;
+    typedef boost::shared_ptr<LibSF const> ConstPtr;
+
+    /// Constructor
+    LibSF ( const std::string& name) : Common::CLibrary(name) {}
+
+    /// Configuration options
+    static void define_config_properties ( Common::PropertyList& options ) {}
+
+  private: // helper functions
+
+    /// regists all the signals declared in this class
+    static void regist_signals ( Component* self ) {}
+
+  public: // functions
+
+    /// @return string of the library namespace
+    static std::string library_namespace() { return "CF.Common"; }
+
 
     /// Static function that returns the module name.
     /// Must be implemented for CLibrary registration
@@ -61,6 +79,7 @@ namespace SF {
 
     /// terminate library
     virtual void terminate();
+
   }; // end LibSF
 
 ////////////////////////////////////////////////////////////////////////////////

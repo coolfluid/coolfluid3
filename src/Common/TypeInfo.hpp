@@ -76,7 +76,7 @@ Common_API std::string demangle (const char* type);
   struct RegistTypeInfo
   {
     /// @brief Registers this type into the TypeInfo registry
-    RegistTypeInfo( const std::string& name) { TypeInfo::instance().regist<TYPE>(TYPE::type_name()); }
+    RegistTypeInfo( const std::string& name = TYPE::type_name() ) { TypeInfo::instance().regist<TYPE>(name); }
   };
 
 } // CF

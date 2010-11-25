@@ -9,8 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/ExportAPI.hpp"
-#include "Common/LibraryRegister.hpp"
+#include "Common/CLibrary.hpp"
+#include "Common/LibInfo.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -36,7 +36,7 @@ namespace MeshDiff {
   /// Class defines the initialization and termination of the library MeshDiff
   /// @author Tiago Quintino
   class MeshDiff_API LibMeshDiff :
-      public Common::LibraryRegister<LibMeshDiff>
+      public Common::CLibrary
   {
   public:
 

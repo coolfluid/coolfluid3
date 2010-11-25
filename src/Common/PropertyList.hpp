@@ -45,10 +45,10 @@ namespace Common {
     }
 
     /// get a property from the list
-    const Property & getProperty( const std::string& pname ) const;
+    const Property & property( const std::string& pname ) const;
 
     /// get an option from the list
-    const Option & getOption( const std::string& pname ) const;
+    const Option & option( const std::string& pname ) const;
 
     Property & operator [] (const std::string & pname);
 		

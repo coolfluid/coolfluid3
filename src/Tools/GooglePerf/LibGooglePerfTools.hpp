@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/ExportAPI.hpp"
+#include "Common/CLibrary.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -43,20 +43,33 @@ namespace GooglePerf {
 /// More examples are given on the google perftools website:
 /// http://google-perftools.googlecode.com/svn/trunk/doc/cpuprofile.html
 /// @author Bart Janssens
-class GooglePerfTools_API LibGooglePerfTools :
-    public Common::LibraryRegister<LibGooglePerfTools>
+class GooglePerfTools_API LibGooglePerfTools : public Common::CLibrary
 {
 public:
-  /// Default constructor constructs as uninited
-  LibGooglePerfTools();
+
+  typedef boost::shared_ptr<LibGooglePerfTools> Ptr;
+  typedef boost::shared_ptr<LibGooglePerfTools const> ConstPtr;
+
+  /// Constructor
+  LibGooglePerfTools ( const std::string& name) : Common::CLibrary(name) {}
+
+  /// Configuration options
+  static void define_config_properties ( Common::PropertyList& options ) {}
+
+private: // helper functions
+
+  /// regists all the signals declared in this class
+  static void regist_signals ( Component* self ) {}
+
+public: // functions
+
+  /// @return string of the library namespace
+  static std::string library_namespace() { return "CF.Tools.GooglePerf"; }
 
   /// Static function that returns the module name.
   /// Must be implemented for CLibrary registration
   /// @return name of the library
-  static std::string library_name()
-  {
-    return "GooglePerfTools";
-  }
+  static std::string library_name() {  return "GooglePerfTools"; }
 
   /// Static function that returns the description of the module.
   /// Must be implemented for CLibrary registration

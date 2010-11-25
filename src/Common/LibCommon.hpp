@@ -11,7 +11,7 @@
 
 #include "Common/CF.hpp"
 #include "Common/CommonAPI.hpp"
-#include "Common/LibraryRegister.hpp"
+#include "Common/CLibrary.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -20,19 +20,37 @@ namespace Common {
 
 /// Class defines the initialization and termination of the library Mesh
 /// @author Tiago Quintino
-class Common_API LibCommon : public Common::LibraryRegister<LibCommon>
+class Common_API LibCommon : public Common::CLibrary
 {
 public:
 
+  typedef boost::shared_ptr<LibCommon> Ptr;
+  typedef boost::shared_ptr<LibCommon const> ConstPtr;
+
+  /// Constructor
+  LibCommon ( const std::string& name) : Common::CLibrary(name) {}
+
+  /// Configuration options
+  static void define_config_properties ( Common::PropertyList& options ) {}
+
+private: // helper functions
+
+  /// regists all the signals declared in this class
+  static void regist_signals ( Component* self ) {}
+
+public: // functions
+
+  /// @return string of the library namespace
+  static std::string library_namespace() { return "CF.Common"; }
+
   /// Static function that returns the module name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for CLibrary rCFegistration
   /// @return name of the library
   static std::string library_name() { return "Common"; }
 
   /// Static function that returns the description of the module.
   /// Must be implemented for CLibrary registration
   /// @return description of the library
-
   static std::string library_description()
   {
     return "This library implements the Common API.";
@@ -40,9 +58,6 @@ public:
 
   /// Gets the Class name
   static std::string type_name() { return "LibCommon"; }
-
-  /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.Common"; }
 
   /// initiate library
   virtual void initiate();

@@ -15,19 +15,14 @@ using namespace CF::Common;
 
 BOOST_AUTO_TEST_SUITE( OSystem_TestSuite )
 
-BOOST_AUTO_TEST_CASE( getProcessInfo )
+BOOST_AUTO_TEST_CASE( system_layer_ptr )
 {
-  BOOST_CHECK( OSystem::instance().OSystemLayer().isNotNull() );
+  BOOST_CHECK( OSystem::instance().OSystemLayer() != nullptr );
 }
 
-BOOST_AUTO_TEST_CASE( getSignalHandler )
+BOOST_AUTO_TEST_CASE( libloader_ptr )
 {
-  BOOST_CHECK( OSystem::instance().OSystemLayer().isNotNull() );
-}
-
-BOOST_AUTO_TEST_CASE( getLibLoader )
-{
-  BOOST_CHECK( OSystem::instance().LibLoader().isNotNull() );
+  BOOST_CHECK( OSystem::instance().LibLoader() != nullptr  );
 }
 
 BOOST_AUTO_TEST_CASE( execute_command )

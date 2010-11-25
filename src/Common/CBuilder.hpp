@@ -12,7 +12,12 @@
 
 #include "Common/CFactories.hpp"
 #include "Common/CRoot.hpp"
+#include "Common/CLink.hpp"
 #include "Common/Core.hpp"
+#include "Common/CLibrary.hpp"
+#include "Common/CLibraries.hpp"
+
+#include "Common/Log.hpp" // temporary
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -155,11 +160,16 @@ struct ComponentBuilder
 
     // put builder in correct factory
     Common::CFactories::Ptr factories = Common::Core::instance().root()->get_child_type< CFactories >("Factories");
-    Common::CFactory::Ptr the_factory = factories->get_factory< BASE >();
-    the_factory->create_component_type< Common::CBuilderT<BASE,CONCRETE> >( name );
+    Common::CFactory::Ptr   factory = factories->get_factory< BASE >();
+    CBuilder::Ptr builder = factory->create_component_type< Common::CBuilderT<BASE,CONCRETE> >( name );
+
+    // put a CLink to the builder in the respective CLibrary
+    CLibrary::Ptr lib = Core::instance().libraries()->get_library<LIB>();
+    CLink::Ptr liblink = lib->create_component_type<CLink>( name );
+    liblink->link_to( builder );
 
     // give some info
-//    CFinfo << "factory of \'" << BASE::type_name() << "\' registering builder of \'" << CONCRETE::type_name() << "\' with name \'" << name << "\'" << CFendl;
+    CFinfo << "lib [" << LIB::type_name() << "] : factory of \'" << BASE::type_name() << "\' registering builder of \'" << CONCRETE::type_name() << "\' with name \'" << name << "\'" << CFendl;
   }
 
 }; // ComponentBuilder

@@ -9,8 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/ExportAPI.hpp"
-#include "Common/LibraryRegister.hpp"
+#include "Common/CLibrary.hpp"
+#include "Common/LibInfo.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +37,7 @@ namespace CF {
   /// Class defines the initialization and termination of the library ClientUI
   /// @author Tiago Quintino
   class ClientUI_API LibClientUI :
-      public Common::LibraryRegister<LibClientUI>
+      public Common::CLibrary
   {
   public:
 

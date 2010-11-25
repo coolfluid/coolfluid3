@@ -9,8 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/ExportAPI.hpp"
-#include "Common/LibraryRegister.hpp"
+#include "Common/CLibrary.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -37,9 +36,29 @@ namespace ClientCore {
   /// Class defines the initialization and termination of the library ClientCore
   /// @author Tiago Quintino
   class ClientCore_API LibClientCore :
-      public Common::LibraryRegister<LibClientCore>
+      public Common::CLibrary
   {
   public:
+
+    typedef boost::shared_ptr<LibClientCore> Ptr;
+    typedef boost::shared_ptr<LibClientCore const> ConstPtr;
+
+    /// Constructor
+    LibClientCore ( const std::string& name) : Common::CLibrary(name) {}
+
+    /// Configuration options
+    static void define_config_properties ( Common::PropertyList& options ) {}
+
+  private: // helper functions
+
+    /// regists all the signals declared in this class
+    static void regist_signals ( Component* self ) {}
+
+  public: // functions
+
+    /// @return string of the library namespace
+    static std::string library_namespace() { return "CF.GUI.ClientCore"; }
+
 
     /// Static function that returns the module name.
     /// Must be implemented for CLibrary registration

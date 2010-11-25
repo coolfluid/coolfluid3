@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/Core.hpp"
+#include "Common/RegistLib.hpp"
 
 #include "GUI/Network/LibNetwork.hpp"
 

@@ -9,6 +9,8 @@
 
 #include <boost/foreach.hpp>
 
+#include "Common/Log.hpp" // temporary
+
 #include "Common/CF.hpp"
 #include "Common/MPI/PE.hpp"
 

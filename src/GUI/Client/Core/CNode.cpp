@@ -15,6 +15,7 @@
 #include <cstring>
 
 #include "Common/CF.hpp"
+#include "Common/OptionURI.hpp"
 #include "Common/XmlHelpers.hpp"
 #include "Common/String/Conversion.hpp"
 

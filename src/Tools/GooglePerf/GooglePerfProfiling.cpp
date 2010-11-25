@@ -18,12 +18,11 @@ using namespace CF::Tools::GooglePerf;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < GooglePerfProfiling, CodeProfiler, LibGooglePerfTools >
-GooglePerfProfiling_Builder ( GooglePerfProfiling::type_name() );
+ComponentBuilder < GooglePerfProfiling, CodeProfiler, LibGooglePerfTools > GooglePerfProfiling_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-GooglePerfProfiling::GooglePerfProfiling() :
+GooglePerfProfiling::GooglePerfProfiling( const std::string& name) : CodeProfiler(name),
     m_profiling(false)
 {
   m_path = Common::DirPaths::instance().getResultsDir() / boost::filesystem::path("perftools-profile.pprof");

@@ -23,6 +23,9 @@ namespace Common {
   class BuildInfo;
   class CodeProfiler;
   class CRoot;
+  class CEnv;
+  class CLibraries;
+  class CFactories;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -36,15 +39,10 @@ public: // methods
   /// @return the instance of this singleton
   static Core& instance();
 
-  /// @brief Gives the root component.
-  /// @return Returns the root component.
-  boost::shared_ptr<CRoot> root();
-
   /// Initializes the CF runtime enviroment.
   /// @pre Must be called prior to any CF runtime function,
   ///      only module registration procedures are allowed beforehand.
-  /// @TODO This is still broken for mpi as it doesn't allow modification
-  ///  of argc & argv
+  /// @todo This is still broken for mpi as it doesn't allow modification of argc & argv
   void initiate(int argc, char** argv);
 
   /// Closes the CF runtime environment.
@@ -52,13 +50,34 @@ public: // methods
   ///       only destruction procedures ar allowed afterwards.
   void terminate();
 
+  /// @brief Gives the root component.
+  /// @return Returns the root component.
+  boost::shared_ptr<CRoot> root();
+
   /// Gets the EventHandler of the CF runtime environment
-  /// @note Does not need to be initialized before
-  boost::weak_ptr<Common::EventHandler> event_handler();
+  /// @pre Core does not need to be initialized before
+  /// @post never nullptr
+  boost::shared_ptr<Common::EventHandler> event_handler() const;
 
   /// Gets the BuildInfo
-  /// @note Does not need to be initialized before
-  boost::weak_ptr<Common::BuildInfo> build_info();
+  /// @pre Core does not need to be initialized before
+  /// @post never nullptr
+  boost::shared_ptr<Common::BuildInfo> build_info() const;
+
+  /// Gets the CEnv
+  /// @pre Core does not need to be initialized before
+  /// @post never nullptr
+  boost::shared_ptr<Common::CEnv> environment() const;
+
+  /// Gets the CLibraries
+  /// @pre Core does not need to be initialized before
+  /// @post never nullptr
+  boost::shared_ptr<Common::CLibraries> libraries() const;
+
+  /// Gets the CFactories
+  /// @pre Core does not need to be initialized before
+  /// @post never nullptr
+  boost::shared_ptr<Common::CFactories> factories() const;
 
   /// @brief Sets the profiler.
   /// @param profiler_name Profiler name
@@ -72,43 +91,32 @@ public: // methods
 
 private: // methods
 
-  /// Default contructor
+  /// Contructor
   Core();
-  /// Default destructor
+  /// Destructor
   ~Core();
 
 private: // data
 
-  /// the EventHandler object is only held by the CoreEnv singleton object
+  /// the EventHandler unique object
   boost::shared_ptr< Common::EventHandler > m_event_handler;
 
-  /// the BuildInfo object
+  /// the BuildInfo unique object
   boost::shared_ptr< Common::BuildInfo > m_build_info;
 
+  /// the CEnv unique object
+  boost::shared_ptr< Common::CEnv > m_environment;
+
+  /// the CLibraries unique object
+  boost::shared_ptr< Common::CLibraries > m_libraries;
+
+  /// the CFactories unique object
+  boost::shared_ptr< Common::CFactories > m_factories;
+
   /// @brief The component tree root
-  CRoot::Ptr m_root;
+  boost::shared_ptr< Common::CRoot > m_root;
 
 }; // Core
-
-////////////////////////////////////////////////////////////////////////////////
-
-/// @brief Struct to force library registration
-/// @author Quentin Gasper
-template< typename LIB >
-struct ForceLibRegist
-{
-  /// @brief Registers the library LIB in the registry.
-  ForceLibRegist();
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-template < typename LIB >
-ForceLibRegist<LIB>::ForceLibRegist()
-{
-  // CFinfo << VERBOSE << "Library [" << LIB::instance().name() << "] loaded." << CFendl;
-  LIB::instance();
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 

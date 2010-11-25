@@ -26,8 +26,6 @@ namespace Common {
 
     typedef boost::shared_ptr<CRoot> Ptr;
     typedef boost::shared_ptr<CRoot const> ConstPtr;
-    typedef boost::signals2::signal< void (const std::string&, const CPath&) > signal_type_t;
-    typedef boost::shared_ptr< signal_type_t > signal_ptr_t;
 
   public: // functions
 

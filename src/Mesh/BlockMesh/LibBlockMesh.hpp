@@ -9,8 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/ExportAPI.hpp"
-#include "Common/LibraryRegister.hpp"
+#include "Common/CLibrary.hpp"
+#include "Common/LibInfo.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +35,7 @@ namespace BlockMesh {
 /// Class defines the BlockMeshtral mesh format operations
 /// @author Willem Deconinck
 class BlockMesh_API LibBlockMesh :
-    public Common::LibraryRegister<LibBlockMesh>
+    public Common::CLibrary
 {
 public:
 

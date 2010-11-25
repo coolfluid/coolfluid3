@@ -45,23 +45,25 @@ OSystemError::OSystemError ( const Common::CodeLocation& where, const std::strin
 ////////////////////////////////////////////////////////////////////////////////
 
 OSystem::OSystem() :
-  m_system_layer (nullptr),
-  m_lib_loader(nullptr)
+  m_system_layer(),
+  m_lib_loader()
 {
+  m_system_layer.reset();
+  m_lib_loader.reset();
 
 #ifdef CF_HAVE_DLOPEN
-    if ( m_lib_loader == nullptr )   m_lib_loader = new PosixDlopenLibLoader();
+    if ( m_lib_loader == nullptr )   m_lib_loader.reset( new PosixDlopenLibLoader() );
 #endif
 
 #ifdef CF_OS_LINUX
-    if ( m_system_layer == nullptr ) m_system_layer = new Linux::OSystemLayer();
+    if ( m_system_layer == nullptr ) m_system_layer.reset( new Linux::OSystemLayer() );
 #else
 #ifdef CF_OS_MACOSX
-    if ( m_system_layer == nullptr ) m_system_layer = new MacOSX::OSystemLayer();
+    if ( m_system_layer == nullptr ) m_system_layer.reset( new MacOSX::OSystemLayer() );
 #else
 #ifdef CF_OS_WINDOWS
-    if ( m_system_layer == nullptr ) m_system_layer = new Win32::OSystemLayer();
-    if ( m_lib_loader == nullptr )   m_lib_loader   = new Win32::LibLoader();
+    if ( m_system_layer == nullptr ) m_system_layer.reset( new Win32::OSystemLayer() );
+    if ( m_lib_loader == nullptr )   m_lib_loader.reset( new Win32::LibLoader() );
 #else
   #error "Unkown operating system: not Windows, MacOSX or Linux"
 #endif

@@ -22,16 +22,21 @@ namespace GooglePerf {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#error "Make CodeProfiler into a component"
-
-class GooglePerfTools_API GooglePerfProfiling : public CF::Common::CodeProfiler
+class GooglePerfTools_API GooglePerfProfiling : public Common::CodeProfiler
 {
-  public:
-    GooglePerfProfiling();
+public: // typedefs
 
-    static std::string type_name() { return "GooglePerfProfiling"; }
+  /// pointer to this type
+  typedef boost::shared_ptr<GooglePerfProfiling> Ptr;
+  typedef boost::shared_ptr<GooglePerfProfiling const> ConstPtr;
+
+public: // functions
+
+    GooglePerfProfiling( const std::string& name );
 
     virtual ~GooglePerfProfiling();
+
+    static std::string type_name() { return "GooglePerfProfiling"; }
 
     virtual void start_profiling();
 
@@ -39,7 +44,15 @@ class GooglePerfTools_API GooglePerfProfiling : public CF::Common::CodeProfiler
 
     virtual void set_file_path(const boost::filesystem::path & path);
 
-  private:
+    /// Configuration Options
+    static void define_config_properties ( Common::PropertyList& options ) {}
+
+private: // helper functions
+
+  /// regists all the signals declared in this class
+  static void regist_signals ( Common::Component* self ) {}
+
+private:
 
     bool m_profiling;
 

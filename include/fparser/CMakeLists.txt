@@ -18,7 +18,6 @@ endif()
 
 list( APPEND fparser_files 
   LibFParser.hpp
-  LibFParser.cpp
   fpconfig.hh
   fptypes.hh
   fparser.hh

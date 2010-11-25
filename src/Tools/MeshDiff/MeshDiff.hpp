@@ -11,9 +11,6 @@
 
 #include "Tools/Testing/Difference.hpp"
 
-#include "Common/ExportAPI.hpp"
-#include "Common/LibraryRegister.hpp"
-
 #include "Tools/MeshDiff/LibMeshDiff.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////

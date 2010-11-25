@@ -7,6 +7,8 @@
 #ifndef CF_Mesh_ConnectivityData_hpp
 #define CF_Mesh_ConnectivityData_hpp
 
+#include <set>
+
 #include <boost/shared_ptr.hpp>
 
 #include "Mesh/CElements.hpp"

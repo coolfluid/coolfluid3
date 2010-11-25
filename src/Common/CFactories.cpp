@@ -9,8 +9,6 @@
 namespace CF {
 namespace Common {
 
-RegistTypeInfo<CFactories> CFactories_TypeInfo();
-
 ////////////////////////////////////////////////////////////////////////////////
 
 CFactories::CFactories ( const std::string& name) : Component ( name )

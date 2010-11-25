@@ -11,14 +11,10 @@
 
 #include "Common/Component.hpp"
 
-#include "Common/CommonAPI.hpp"
-
 /////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace Common {
-
-  class LibraryRegisterBase;
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -31,14 +27,12 @@ namespace Common {
     typedef boost::shared_ptr<CLibrary> Ptr;
     typedef boost::shared_ptr<CLibrary const> ConstPtr;
 
-    /// @brief Contructor
-    /// @param lib_name Library name
-    CLibrary(const std::string & lib_name);
+    /// Contructor
+    /// @param name of Library
+    CLibrary( const std::string& name);
 
-    /// @brief Virtual destructor.
+    /// Virtual destructor.
     virtual ~CLibrary();
-
-    void set_library(LibraryRegisterBase * lib);
 
     /// Get the class name
     static std::string type_name() { return "CLibrary"; }
@@ -46,14 +40,16 @@ namespace Common {
     /// Configuration properties
     static void define_config_properties ( CF::Common::PropertyList& props );
 
+    /// initiate library
+    virtual void initiate() = 0;
+
+    /// terminate library
+    virtual void terminate() = 0;
+
   private: // methods
 
     /// regists all the signals declared in this class
     static void regist_signals ( CLibrary* self ) { }
-
-  private: // data
-
-      LibraryRegisterBase * m_library;
 
   }; // CLibrary
 

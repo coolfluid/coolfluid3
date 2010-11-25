@@ -9,8 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/LibraryRegister.hpp"
-#include "Common/ExportAPI.hpp"
+#include "Common/CLibrary.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -34,10 +33,28 @@ namespace CGNS {
 
 /// Class defines the CGNS mesh format operations
 /// @author Willem Deconinck
-class CGNS_API LibCGNS :
-    public CF::Common::LibraryRegister<LibCGNS>
+class CGNS_API LibCGNS : public CF::Common::CLibrary
 {
 public:
+
+  typedef boost::shared_ptr<LibCGNS> Ptr;
+  typedef boost::shared_ptr<LibCGNS const> ConstPtr;
+
+  /// Constructor
+  LibCGNS ( const std::string& name) : Common::CLibrary(name) {}
+
+  /// Configuration options
+  static void define_config_properties ( Common::PropertyList& options ) {}
+
+private: // helper functions
+
+  /// regists all the signals declared in this class
+  static void regist_signals ( Component* self ) {}
+
+public: // functions
+
+  /// @return string of the library namespace
+  static std::string library_namespace() { return "CF.Mesh.CGNS"; }
 
   /// Static function that returns the module name.
   /// Must be implemented for CLibrary registration
@@ -55,9 +72,6 @@ public:
 
   /// Gets the Class name
   static std::string type_name() { return "LibCGNS"; }
-
-  /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.Mesh.CGNS"; }
 
   /// initiate library
   virtual void initiate();

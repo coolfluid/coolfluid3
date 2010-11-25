@@ -79,13 +79,13 @@ BOOST_AUTO_TEST_CASE( assign )
 
   props.configure_property("name", std::string( "john" ));
 
-  BOOST_CHECK_EQUAL ( props.getProperty("name").value<std::string>(), "john" );
+  BOOST_CHECK_EQUAL ( props.property("name").value<std::string>(), "john" );
 
   // test re-assign
 
   props.configure_property("name", std::string( "joanna" ));
 
-  BOOST_CHECK_EQUAL ( props.getProperty("name").value<std::string>(), "joanna" );
+  BOOST_CHECK_EQUAL ( props.property("name").value<std::string>(), "joanna" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE( list )
   for ( ; itr != props.m_properties.end(); ++itr, ++counter )
   {
     const std::string& pname = itr->first;
-    BOOST_CHECK_EQUAL ( props.getProperty(pname).value<Uint>(), counter );
+    BOOST_CHECK_EQUAL ( props.property(pname).value<Uint>(), counter );
   }
 }
 

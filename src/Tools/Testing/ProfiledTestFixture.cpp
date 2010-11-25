@@ -13,6 +13,10 @@
 #include <boost/algorithm/string.hpp>
 
 #include "Common/OSystem.hpp"
+#include "Common/Core.hpp"
+#include "Common/CBuilder.hpp"
+#include "Common/CFactories.hpp"
+#include "Common/ComponentPredicates.hpp"
 #include "Common/MPI/PE.hpp"
 
 #include "Tools/Testing/ProfiledTestFixture.hpp"
@@ -23,23 +27,27 @@ namespace CF {
 namespace Tools {
 namespace Testing {
 
+using namespace Common;
+
 ////////////////////////////////////////////////////////////////////////////////
 
-ProfiledTestFixture::ProfiledTestFixture() :
-  m_using_google_perf(Factory<CodeProfiler>::instance().exists( "GooglePerfProfiling" ))
-
+ProfiledTestFixture::ProfiledTestFixture()
 {
+  CBuilder::Ptr bld =
+      recursive_get_component_typed_ptr< CBuilder >( *Core::instance().factories(), IsComponentTrue() );
+
+  m_using_google_perf = ( bld != nullptr );
 
   if(m_using_google_perf)
-    OSystem::instance().set_profiler("GooglePerfProfiling");
+    Core::instance().set_profiler("GooglePerfProfiling");
 
   char** argv = boost::unit_test::framework::master_test_suite().argv;
 
-  boost::filesystem::path commandPath(argv[0]);
+  boost::filesystem::path command_path(argv[0]);
   boost::char_separator<char> separator(".");
-  boost::tokenizer<boost::char_separator<char> > tokenizer(commandPath.leaf(), separator);
+  boost::tokenizer<boost::char_separator<char> > tokenizer(command_path.leaf(), separator);
   m_prefix = *tokenizer.begin();
-  m_profile_dir = commandPath.parent_path();
+  m_profile_dir = command_path.parent_path();
   m_command = std::string(argv[0]);
 
   test_unit_start(boost::unit_test::framework::current_test_case());
@@ -47,41 +55,49 @@ ProfiledTestFixture::ProfiledTestFixture() :
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ProfiledTestFixture::~ProfiledTestFixture() {
+ProfiledTestFixture::~ProfiledTestFixture()
+{
   test_unit_finish(boost::unit_test::framework::current_test_case());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ProfiledTestFixture::test_unit_start( boost::unit_test::test_unit const& unit ) {
+void ProfiledTestFixture::test_unit_start( boost::unit_test::test_unit const& unit )
+{
   std::stringstream job_suffix;
+
   if(PE::instance().is_init())
   {
     job_suffix << "-" << PE::instance().rank();
   }
 
-  if(m_using_google_perf)
+  if( m_using_google_perf )
   {
     m_current_filename = m_prefix + "-" + unit.p_name.get() + job_suffix.str() + ".pprof";
-    OSystem::instance().profiler()->set_file_path(boost::filesystem::path(m_profile_dir / m_current_filename));
-    OSystem::instance().profiler()->start_profiling();
+    Core::instance().profiler()->set_file_path(boost::filesystem::path(m_profile_dir / m_current_filename));
+    Core::instance().profiler()->start_profiling();
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ProfiledTestFixture::test_unit_finish( boost::unit_test::test_unit const& unit ) {
+void ProfiledTestFixture::test_unit_finish( boost::unit_test::test_unit const& unit )
+{
   if(m_using_google_perf)
   {
-    OSystem::instance().profiler()->stop_profiling();
+    Core::instance().profiler()->stop_profiling();
+
     if(PE::instance().rank() > 0)
       return;
+
     cf_assert(boost::algorithm::ends_with(m_current_filename, ".pprof"));
     boost::filesystem::path infile(m_profile_dir / m_current_filename);
     std::string basename = boost::algorithm::erase_last_copy(m_current_filename, ".pprof");
     boost::filesystem::path outfile(m_profile_dir / basename);
     std::string pprof_command(CF_PPROF_COMMAND);
-    if(pprof_command.size()) { // process the profile file, if the command exists
+
+    if(pprof_command.size()) // process the profile file, if the command exists
+    {
       try {
         // note: graph output is too heavy for the dashboard
         //std::string pprof_line(pprof_command + " --dot " + m_command + " " + infile.file_string() + " > " + outfile.file_string() + ".dot");

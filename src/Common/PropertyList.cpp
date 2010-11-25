@@ -23,7 +23,7 @@ namespace Common {
     return prop;
   }
 
-  const Property & PropertyList::getProperty( const std::string& pname) const
+  const Property & PropertyList::property( const std::string& pname) const
   {
     PropertyStorage_t::const_iterator itr = m_properties.find(pname);
     if ( itr != m_properties.end() )
@@ -40,9 +40,9 @@ namespace Common {
 		
 	}
 
-  const Option & PropertyList::getOption( const std::string& pname) const
+  const Option & PropertyList::option( const std::string& pname) const
   {
-    return getProperty(pname).as_option();
+    return property(pname).as_option();
   }
 
   void PropertyList::erase( const std::string& pname)

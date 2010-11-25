@@ -13,12 +13,10 @@
 
 #include "Common/ConfigObject.hpp"
 #include "Common/SignalHandler.hpp"
+#include "Common/TaggedObject.hpp"
 #include "Common/CPath.hpp"
 #include "Common/ComponentIterator.hpp"
 #include "Common/XmlHelpers.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/OptionURI.hpp"
-#include "Common/TaggedObject.hpp"
 
 namespace CF {
 namespace Common {
@@ -569,7 +567,7 @@ inline Component::const_iterator Component::recursive_end() const
 template <typename TYPE>
 inline void Component::partial_build_component(TYPE* meself)
 {
-  addConfigOptionsTo<TYPE>();
+  add_options_to<TYPE>();
   add_tag( TYPE::type_name() );
 }
 

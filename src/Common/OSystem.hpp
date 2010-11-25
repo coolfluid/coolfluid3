@@ -9,7 +9,6 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "Common/CodeProfiler.hpp"
 #include "Common/Exception.hpp"
 #include "Common/CommonAPI.hpp"
 
@@ -60,9 +59,9 @@ private: // functions
 private: // data
 
   /// memory usage object
-  Common::OSystemLayer * m_system_layer;
+  boost::shared_ptr<Common::OSystemLayer> m_system_layer;
   /// libloader object
-  Common::LibLoader * m_lib_loader;
+  boost::shared_ptr<Common::LibLoader> m_lib_loader;
 
 }; // class FileHandlerOutput
 

@@ -49,10 +49,7 @@ namespace Mesh {
   
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Mesh::CMeshInfo,
-                         Mesh::CMeshTransformer,
-                         Mesh::LibMesh,
-                         NB_ARGS_1 >
+Common::ComponentBuilder < Mesh::CMeshInfo, Mesh::CMeshTransformer, Mesh::LibMesh>
 CMeshInfo_Builder ( "Info" );
 
 //////////////////////////////////////////////////////////////////////////////

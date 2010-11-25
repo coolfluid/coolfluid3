@@ -7,6 +7,7 @@
 #include "Tools/GooglePerf/LibGooglePerfTools.hpp"
 
 #include "Common/Core.hpp"
+#include "Common/RegistLib.hpp"
 #include "Common/DirPaths.hpp"
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
@@ -17,18 +18,12 @@ namespace GooglePerf {
 
 CF::Common::ForceLibRegist<LibGooglePerfTools> libGooglePerfTools;
 
-
-LibGooglePerfTools::LibGooglePerfTools()
+void LibGooglePerfTools::initiate()
 {
-
 }
 
-void LibGooglePerfTools::initiate() {
-
-}
-
-void LibGooglePerfTools::terminate() {
-
+void LibGooglePerfTools::terminate()
+{
 }
 
 } // GooglePerf

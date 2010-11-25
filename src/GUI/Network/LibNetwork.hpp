@@ -9,8 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/ExportAPI.hpp"
-#include "Common/LibraryRegister.hpp"
+#include "Common/CLibrary.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -37,9 +36,28 @@ namespace Network {
   /// Class defines the initialization and termination of the library Network
   /// @author Tiago Quintino
   class Network_API LibNetwork :
-      public Common::LibraryRegister<LibNetwork>
+      public Common::CLibrary
   {
   public:
+
+    typedef boost::shared_ptr<LibNetwork> Ptr;
+    typedef boost::shared_ptr<LibNetwork const> ConstPtr;
+
+    /// Constructor
+    LibNetwork ( const std::string& name) : Common::CLibrary(name) {}
+
+    /// Configuration options
+    static void define_config_properties ( Common::PropertyList& options ) {}
+
+  private: // helper functions
+
+    /// regists all the signals declared in this class
+    static void regist_signals ( Component* self ) {}
+
+  public: // functions
+
+    /// @return string of the library namespace
+    static std::string library_namespace() { return "CF.GUI.Network"; }
 
     /// Static function that returns the module name.
     /// Must be implemented for CLibrary registration

@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <sstream>
+
 #include "Common/BasicExceptions.hpp"
 #include "Common/CF.hpp"
 #include "Common/NotificationQueue.hpp"
@@ -101,7 +103,7 @@ namespace Common {
 
   std::string CRoot::list_toc() const
   {
-    std::stringstream out;
+    std::ostringstream out;
 
     CompStorage_t::const_iterator itr = m_toc.begin();
     for ( ; itr != m_toc.end(); ++itr )

@@ -9,6 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <boost/range/sub_range.hpp>
 #include <boost/iterator/filter_iterator.hpp>
 #include <boost/foreach.hpp>
 #include <boost/mpl/if.hpp>
@@ -289,28 +290,28 @@ get_component_ptr(ParentT& parent, const Predicate& pred)
 /// Reference to the component with the given name
 template<typename ComponentT, typename ParentT>
 inline typename ComponentReference<ParentT, ComponentT>::type
-get_named_component_typed(ParentT& parent, const Component::std::string& name) {
+get_named_component_typed(ParentT& parent, const std::string& name) {
   return get_component_typed<ComponentT>(parent, IsComponentName(name));
 }
 
 /// Reference to the component with the given name
 template<typename ParentT>
 inline typename ComponentReference<ParentT>::type
-get_named_component(ParentT& parent, const Component::std::string& name) {
+get_named_component(ParentT& parent, const std::string& name) {
   return get_named_component_typed<Component>(parent, name);
 }
 
 /// Pointer to the component with the given name
 template<typename ComponentT, typename ParentT>
 inline typename ComponentPtr<ParentT, ComponentT>::type
-get_named_component_typed_ptr(ParentT& parent, const Component::std::string& name) {
+get_named_component_typed_ptr(ParentT& parent, const std::string& name) {
   return get_component_typed_ptr<ComponentT>(parent, IsComponentName(name));
 }
 
 /// Pointer to the component with the given name
 template<typename ParentT>
 inline typename ComponentPtr<ParentT>::type
-get_named_component_ptr(ParentT& parent, const Component::std::string& name) {
+get_named_component_ptr(ParentT& parent, const std::string& name) {
   return get_named_component_typed_ptr<Component>(parent, name);
 }
   

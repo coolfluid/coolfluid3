@@ -9,8 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/ExportAPI.hpp"
-#include "Common/LibraryRegister.hpp"
+#include "Common/CLibrary.hpp"
+#include "Common/LibInfo.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -36,9 +36,29 @@ namespace MeshGeneration {
   /// Class defines the initialization and termination of the library MeshGeneration
   /// @author Tiago Quintino
   class MeshGeneration_API LibMeshGeneration :
-      public Common::LibraryRegister<LibMeshGeneration>
+      public Common::CLibrary
   {
   public:
+
+    typedef boost::shared_ptr<LibMeshGeneration> Ptr;
+    typedef boost::shared_ptr<LibMeshGeneration const> ConstPtr;
+
+    /// Constructor
+    LibMeshGeneration ( const std::string& name) : Common::CLibrary(name) {}
+
+    /// Configuration options
+    static void define_config_properties ( Common::PropertyList& options ) {}
+
+  private: // helper functions
+
+    /// regists all the signals declared in this class
+    static void regist_signals ( Component* self ) {}
+
+  public: // functions
+
+    /// @return string of the library namespace
+    static std::string library_namespace() { return "CF.Tools.MeshGeneration"; }
+
 
     /// Static function that returns the module name.
     /// Must be implemented for CLibrary registration

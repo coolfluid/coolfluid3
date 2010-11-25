@@ -8,6 +8,7 @@
 
 #include "Common/OptionArray.hpp"
 #include "Common/URI.hpp"
+#include "Common/Log.hpp"
 
 namespace CF {
 namespace Common {

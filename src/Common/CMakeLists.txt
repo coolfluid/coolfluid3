@@ -32,6 +32,8 @@ list( APPEND coolfluid_common_files
     CRoot.cpp
     CGroup.hpp
     CGroup.cpp
+    CLibraries.cpp
+    CLibraries.hpp
     CLibrary.cpp
     CLibrary.hpp
     CLink.hpp
@@ -94,6 +96,7 @@ list( APPEND coolfluid_common_files
     OSystem.hpp
     OSystemLayer.cpp
     OSystemLayer.hpp
+    RegistLib.hpp
     Stopwatch.hpp
     StreamHelpers.hpp
     String/Conversion.hpp

@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/Core.hpp"
-#include "Common/Factory.hpp"
+#include "Common/RegistLib.hpp"
 #include "Common/OSystem.hpp"
 
 #include "Tools/GooglePerf/GooglePerfProfiling.hpp"
