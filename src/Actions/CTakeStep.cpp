@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 
 #include "Math/MathConsts.hpp"
@@ -20,7 +20,7 @@ namespace Actions {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ObjectProvider < CTakeStep, CLoopOperation, LibActions, NB_ARGS_1 > CTakeStepProvider( "CTakeStep" );
+Common::ComponentBuilder < CTakeStep, CLoopOperation, LibActions > CTakeStepProvider( "CTakeStep" );
 
 ///////////////////////////////////////////////////////////////////////////////////////
   
@@ -33,7 +33,7 @@ void CTakeStep::define_config_properties( Common::PropertyList& options )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-CTakeStep::CTakeStep ( const CName& name ) : 
+CTakeStep::CTakeStep ( const std::string& name ) : 
   CLoopOperation(name)
 {
   BUILD_COMPONENT;

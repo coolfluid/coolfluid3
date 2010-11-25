@@ -13,7 +13,7 @@ namespace Mesh {
 
 ///////////////////////////////////////////////////////////////////////////////////////
   
-COperation::COperation ( const CName& name ) : 
+COperation::COperation ( const std::string& name ) : 
   Component(name), m_counter(0)
 {
     BUILD_COMPONENT;
@@ -60,13 +60,13 @@ COperation& COperation::create_operation(const std::string operation_type)
 
 ///////////////////////////////////////////////////////////////////////////////////////
   
-Common::ObjectProvider < COperationMerge, COperation, LibMesh, NB_ARGS_1 > COperationMergeProvider( "COperationMerge" );
+Common::ComponentBuilder < COperationMerge, COperation, LibMesh > COperationMergeProvider( "COperationMerge" );
 
-Common::ObjectProvider < COutputField,    COperation, LibMesh, NB_ARGS_1 > COutputFieldProvider( "COutputField" );
+Common::ComponentBuilder < COutputField,    COperation, LibMesh > COutputFieldProvider( "COutputField" );
 
-Common::ObjectProvider < CComputeVolumes, COperation, LibMesh, NB_ARGS_1 > CComputeVolumeProvider( "CComputeVolumes" );
+Common::ComponentBuilder < CComputeVolumes, COperation, LibMesh > CComputeVolumeProvider( "CComputeVolumes" );
 
-Common::ObjectProvider < CSetValue,       COperation, LibMesh, NB_ARGS_1 > CSetValueProvider( "CSetValue" );
+Common::ComponentBuilder < CSetValue,       COperation, LibMesh > CSetValueProvider( "CSetValue" );
 
 //
 //struct SetX

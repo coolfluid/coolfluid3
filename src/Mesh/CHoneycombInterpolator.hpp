@@ -38,7 +38,7 @@ private: // typedefs
   
 public: // functions  
   /// constructor
-  CHoneycombInterpolator( const CName& name );
+  CHoneycombInterpolator( const std::string& name );
   
   /// Gets the Class name
   static std::string type_name() { return "CHoneycombInterpolator"; }

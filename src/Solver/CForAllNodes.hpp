@@ -36,7 +36,7 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  CForAllNodesT ( const CName& name ) :
+  CForAllNodesT ( const std::string& name ) :
     COperation(name),
     m_operation(new COp("operation"), Deleter<COp>())
   {

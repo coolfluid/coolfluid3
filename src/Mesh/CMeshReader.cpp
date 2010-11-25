@@ -25,7 +25,7 @@ using namespace Common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CMeshReader::CMeshReader ( const CName& name  ) :
+CMeshReader::CMeshReader ( const std::string& name  ) :
 	Component ( name )
 {
 	BUILD_COMPONENT;

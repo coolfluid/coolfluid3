@@ -6,7 +6,7 @@
 
 #include <boost/assign/list_of.hpp>
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 
 #include "LibSF.hpp"
 #include "Hexa3DLagrangeP1.hpp"
@@ -18,10 +18,10 @@ namespace SF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ObjectProvider < Hexa3DLagrangeP1,
+Common::ComponentBuilder < Hexa3DLagrangeP1,
                          ElementType,
                          LibSF >
-aHexa3DLagrangeP1_Provider ( "Hexa3DLagrangeP1" );
+aHexa3DLagrangeP1_Builder ( "Hexa3DLagrangeP1" );
 
 ////////////////////////////////////////////////////////////////////////////////
 

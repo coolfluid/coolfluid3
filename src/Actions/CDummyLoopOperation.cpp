@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Actions/CDummyLoopOperation.hpp"
 #include "Mesh/CFieldElements.hpp"
@@ -18,7 +18,7 @@ namespace Actions {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ObjectProvider < CDummyLoopOperation, CLoopOperation, LibActions, NB_ARGS_1 > CDummyLoopOperationProvider( "CDummyLoopOperation" );
+Common::ComponentBuilder < CDummyLoopOperation, CLoopOperation, LibActions > CDummyLoopOperationProvider( "CDummyLoopOperation" );
 
 ///////////////////////////////////////////////////////////////////////////////////////
   
@@ -28,7 +28,7 @@ void CDummyLoopOperation::define_config_properties( Common::PropertyList& option
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-CDummyLoopOperation::CDummyLoopOperation ( const CName& name ) : 
+CDummyLoopOperation::CDummyLoopOperation ( const std::string& name ) : 
   CLoopOperation(name)
 {
   BUILD_COMPONENT;

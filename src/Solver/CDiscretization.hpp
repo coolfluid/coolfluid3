@@ -35,7 +35,7 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  CDiscretization ( const CName& name );
+  CDiscretization ( const std::string& name );
 
   /// Virtual destructor
   virtual ~CDiscretization();

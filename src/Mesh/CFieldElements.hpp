@@ -32,7 +32,7 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  CFieldElements ( const CName& name );
+  CFieldElements ( const std::string& name );
   
   /// Initialize the CFieldElements using the given type
   //void initialize(const std::string& element_type_name, CArray& data);

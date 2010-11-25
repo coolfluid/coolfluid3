@@ -7,7 +7,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/OptionT.hpp"
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 
 #include "CPhysicalModel.hpp"
 
@@ -16,12 +16,12 @@ using namespace CF::Common;
 namespace CF {
 namespace Solver {
 
-Common::ObjectProvider < CPhysicalModel, Component, LibSolver, NB_ARGS_1 >
-CPhysicalModel_Provider ( CPhysicalModel::type_name() );
+Common::ComponentBuilder < CPhysicalModel, Component, LibSolver >
+CPhysicalModel_Builder ( CPhysicalModel::type_name() );
   
 ////////////////////////////////////////////////////////////////////////////////
 
-CPhysicalModel::CPhysicalModel(const CName& name) : Component(name),
+CPhysicalModel::CPhysicalModel(const std::string& name) : Component(name),
 m_dim(0u),
 m_nbdofs(0u)
 {

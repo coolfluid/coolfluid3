@@ -44,7 +44,7 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  CInterpolator ( const CName& name );
+  CInterpolator ( const std::string& name );
 
   /// Virtual destructor
   virtual ~CInterpolator();

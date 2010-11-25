@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
@@ -23,12 +23,11 @@ using namespace Common;
 using namespace Common::String;
 using namespace CF::Mesh;
 
-Common::ObjectProvider < LoadMesh, Component, LibSolver, NB_ARGS_1 >
-LoadMesh_Provider ( LoadMesh::type_name() );
+Common::ComponentBuilder < LoadMesh, Component, LibSolver > LoadMesh_Builder ( LoadMesh::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////
 
-LoadMesh::LoadMesh ( const CName& name  ) :
+LoadMesh::LoadMesh ( const std::string& name  ) :
   Component ( name )
 {
   BUILD_COMPONENT;

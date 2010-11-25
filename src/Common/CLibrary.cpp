@@ -6,14 +6,14 @@
 
 #include "Common/LibCommon.hpp"
 #include "Common/LibraryRegisterBase.hpp"
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 
 #include "Common/CLibrary.hpp"
 
 using namespace CF::Common;
 
-ObjectProvider < CLibrary, Component, LibCommon, NB_ARGS_1 >
-CLibrary_Provider ( CLibrary::type_name() );
+Common::ComponentBuilder < CLibrary, Component, LibCommon >
+CLibrary_Builder ( CLibrary::type_name() );
 
 CLibrary::CLibrary(const std::string & lib_name):
     Component(lib_name)

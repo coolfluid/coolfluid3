@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 
 #include "Solver/LibSolver.hpp"
 
@@ -16,12 +16,12 @@ namespace Solver {
 using namespace Common;
 using namespace Common::String;
 
-Common::ObjectProvider < CMethod, Component, LibSolver, NB_ARGS_1 >
-CMethod_Provider ( CMethod::type_name() );
+Common::ComponentBuilder < CMethod, Component, LibSolver >
+CMethod_Builder ( CMethod::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CMethod::CMethod ( const CName& name  ) :
+CMethod::CMethod ( const std::string& name  ) :
   Component ( name )
 {
   BUILD_COMPONENT;

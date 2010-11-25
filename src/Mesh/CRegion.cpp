@@ -9,7 +9,7 @@
 
 #include "Common/CGroup.hpp"
 #include "Common/CLink.hpp"
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CField.hpp"
@@ -24,13 +24,13 @@ namespace Mesh {
 
 using namespace Common;
 
-Common::ObjectProvider < CRegion, Component, LibMesh, NB_ARGS_1 >
-CRegion_Provider ( CRegion::type_name() );
+Common::ComponentBuilder < CRegion, Component, LibMesh >
+CRegion_Builder ( CRegion::type_name() );
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CRegion::CRegion ( const CName& name  ) :
+CRegion::CRegion ( const std::string& name  ) :
   Component ( name )
 {
   BUILD_COMPONENT;
@@ -44,7 +44,7 @@ CRegion::~CRegion()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CRegion& CRegion::create_region( const CName& name, bool ensure_unique )
+CRegion& CRegion::create_region( const std::string& name, bool ensure_unique )
 {
   if (ensure_unique)
   {
@@ -133,7 +133,7 @@ void CRegion::add_field_link(CField& field)
 
 //////////////////////////////////////////////////////////////////////////////
 
-CField& CRegion::get_field(const CName& field_name)
+CField& CRegion::get_field(const std::string& field_name)
 {
   Component::Ptr all_fields = get_child("fields");
   cf_assert(all_fields.get());
@@ -170,28 +170,28 @@ Uint CRegion::recursive_nodes_count() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CRegion& CRegion::subregion(const CName& name) const
+const CRegion& CRegion::subregion(const std::string& name) const
 {
   return get_named_component_typed<CRegion const>(*this,name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CRegion& CRegion::subregion(const CName& name)
+CRegion& CRegion::subregion(const std::string& name)
 {
   return get_named_component_typed<CRegion>(*this,name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CElements& CRegion::elements(const CName& name) const
+const CElements& CRegion::elements(const std::string& name) const
 {
   return get_named_component_typed<CElements const>(*this,name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CElements& CRegion::elements(const CName& name)
+CElements& CRegion::elements(const std::string& name)
 {
   return get_named_component_typed<CElements>(*this,name);
 }

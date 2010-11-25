@@ -35,7 +35,7 @@ public:
   
   /// Contructor
   /// @param name of the component
-  CTable ( const CName& name );
+  CTable ( const std::string& name );
 
   /// Get the class name
   static std::string type_name () { return "CTable"; }

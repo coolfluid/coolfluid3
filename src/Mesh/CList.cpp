@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CList.hpp"
@@ -16,20 +16,20 @@ using namespace Common;
 
 //////////////////////////////////////////////////////////////////////
 
-Common::ObjectProvider < CList<bool>, Component, LibMesh, NB_ARGS_1 >
-CList_bool_Provider ( CList<bool>::type_name() );
+Common::ComponentBuilder < CList<bool>, Component, LibMesh >
+CList_bool_Builder ( CList<bool>::type_name() );
 
-Common::ObjectProvider < CList<Uint>, Component, LibMesh, NB_ARGS_1 >
-CList_Uint_Provider ( CList<Uint>::type_name() );
+Common::ComponentBuilder < CList<Uint>, Component, LibMesh >
+CList_Uint_Builder ( CList<Uint>::type_name() );
 
-Common::ObjectProvider < CList<int>, Component, LibMesh, NB_ARGS_1 >
-CList_int_Provider ( CList<int>::type_name() );
+Common::ComponentBuilder < CList<int>, Component, LibMesh >
+CList_int_Builder ( CList<int>::type_name() );
 
-Common::ObjectProvider < CList<Real>, Component, LibMesh, NB_ARGS_1 >
-CList_Real_Provider ( CList<Real>::type_name() );
+Common::ComponentBuilder < CList<Real>, Component, LibMesh >
+CList_Real_Builder ( CList<Real>::type_name() );
 
-Common::ObjectProvider < CList<std::string>, Component, LibMesh, NB_ARGS_1 >
-CList_string_Provider ( CList<std::string>::type_name() );
+Common::ComponentBuilder < CList<std::string>, Component, LibMesh >
+CList_string_Builder ( CList<std::string>::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////
 

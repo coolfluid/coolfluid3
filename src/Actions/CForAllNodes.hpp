@@ -33,7 +33,7 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  CForAllNodes ( const CName& name );
+  CForAllNodes ( const std::string& name );
 
   /// Virtual destructor
   virtual ~CForAllNodes() {}

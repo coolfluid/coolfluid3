@@ -36,7 +36,7 @@ public: // typedefs
 
 public: // functions
 
-  Part ( const CName& name ) : Component(name)
+  Part ( const std::string& name ) : Component(name)
   {
     BUILD_COMPONENT;
   }
@@ -65,7 +65,7 @@ public: // typedefs
 
 public: // functions
 
-  HolderT ( const CName& name ) :
+  HolderT ( const std::string& name ) :
       Component(name),
       m_subcomp ( new SubCompT( "subc" ), Deleter<SubCompT>())
   {

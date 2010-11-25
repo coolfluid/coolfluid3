@@ -36,7 +36,7 @@ public:
   
   /// Contructor
   /// @param name of the component
-  CList ( const CName& name ) :
+  CList ( const std::string& name ) :
 		Component ( name ),
 		ListBase<ValueT>()
 	{

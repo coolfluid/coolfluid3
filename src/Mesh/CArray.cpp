@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/StreamHelpers.hpp"
 
 #include "Mesh/LibMesh.hpp"
@@ -15,12 +15,12 @@ namespace Mesh {
 
 using namespace Common;
 
-Common::ObjectProvider < CArray, Component, LibMesh, NB_ARGS_1 >
-CArray_Provider ( CArray::type_name() );
+Common::ComponentBuilder < CArray, Component, LibMesh >
+CArray_Builder ( CArray::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CArray::CArray ( const CName& name  ) :
+CArray::CArray ( const std::string& name  ) :
   Component ( name )
 {
   BUILD_COMPONENT;

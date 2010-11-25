@@ -47,7 +47,7 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  CField ( const CName& name );
+  CField ( const std::string& name );
 
   /// Virtual destructor
   virtual ~CField();
@@ -104,16 +104,16 @@ public: // functions
   void set_basis(const DataBasis& basis) { m_basis = basis;}
   
   /// @return the field with given name
-  const CField& subfield(const CName& name) const;
+  const CField& subfield(const std::string& name) const;
   
   /// @return the field with given name
-  CField& subfield(const CName& name);
+  CField& subfield(const std::string& name);
   
   /// @return the elements with given name
-  const CFieldElements& elements (const CName& element_type_name) const;
+  const CFieldElements& elements (const std::string& element_type_name) const;
   
   /// @return the elements with given name
-  CFieldElements& elements (const CName& element_type_name);
+  CFieldElements& elements (const std::string& element_type_name);
   
   std::string var_name(Uint i=0) const;
   VarType var_type(Uint i=0) const { return m_var_types[i]; }

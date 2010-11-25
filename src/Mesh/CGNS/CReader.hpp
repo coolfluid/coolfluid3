@@ -40,7 +40,7 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  CReader ( const CName& name );
+  CReader ( const std::string& name );
 
   /// Gets the Class name
   static std::string type_name() { return "CReader"; }

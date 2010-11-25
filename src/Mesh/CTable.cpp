@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/StreamHelpers.hpp"
 
 #include "Mesh/LibMesh.hpp"
@@ -15,12 +15,12 @@ namespace Mesh {
 
 using namespace Common;
 
-Common::ObjectProvider < CTable, Component, LibMesh, NB_ARGS_1 >
-CTable_Provider ( CTable::type_name() );
+Common::ComponentBuilder < CTable, Component, LibMesh >
+CTable_Builder ( CTable::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CTable::CTable ( const CName& name  ) :
+CTable::CTable ( const std::string& name  ) :
   Component ( name )
 {
   BUILD_COMPONENT;

@@ -7,7 +7,7 @@
 #include <boost/filesystem/convenience.hpp>
 #include <boost/filesystem/fstream.hpp>
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 
 #include "Mesh/SimpleCommunicationPattern.hpp"
 
@@ -26,15 +26,15 @@ using namespace CF::Mesh::BlockMesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CF::Common::ObjectProvider < BlockMeshReader,
+CF::Common::ComponentBuilder < BlockMeshReader,
                              Mesh::CMeshReader,
                              LibBlockMeshReader,
                              1 >
-aBlockMeshReader_Provider ( "blockMeshDict" );
+aBlockMeshReader_Builder ( "blockMeshDict" );
 
 //////////////////////////////////////////////////////////////////////////////
 
-BlockMeshReader::BlockMeshReader(const CName& name): CMeshReader(name)
+BlockMeshReader::BlockMeshReader(const std::string& name): CMeshReader(name)
 {
   BUILD_COMPONENT;
 }

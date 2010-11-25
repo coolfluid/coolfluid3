@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 
 #include "Solver/CDomain.hpp"
 
@@ -14,12 +14,12 @@ namespace Solver {
 using namespace Common;
 using namespace Common::String;
 
-Common::ObjectProvider < CDomain, Component, LibSolver, NB_ARGS_1 >
-CDomain_Provider ( CDomain::type_name() );
+Common::ComponentBuilder < CDomain, Component, LibSolver >
+CDomain_Builder ( CDomain::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CDomain::CDomain( const CName& name  ) :
+CDomain::CDomain( const std::string& name  ) :
   Component ( name )
 {
   BUILD_COMPONENT;

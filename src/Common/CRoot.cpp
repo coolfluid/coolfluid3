@@ -15,7 +15,7 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  boost::shared_ptr<CRoot> CRoot::create ( const CName& name )
+  boost::shared_ptr<CRoot> CRoot::create ( const std::string& name )
   {
     CRoot* raw_root = new CRoot(name);
     boost::shared_ptr<CRoot> root ( raw_root );
@@ -32,12 +32,12 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  CRoot::CRoot ( const CName& name ) : Component ( name )
+  CRoot::CRoot ( const std::string& name ) : Component ( name )
   {
     BUILD_COMPONENT;
 
     // we need to manually register the type name since CRoot cannot be
-    // put into ObjectProvider (because the constructor is private)
+    // put into ComponentBuilder because the constructor is private
     TypeInfo::instance().regist<CRoot>( type_name() );
 
     regist_signal("new_event", "Notifies new events.");

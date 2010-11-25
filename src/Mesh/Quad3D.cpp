@@ -6,7 +6,7 @@
 
 #include <boost/foreach.hpp>
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 #include "Quad3D.hpp"
 
 //////////////////////////////////////////////////////////////////////////////

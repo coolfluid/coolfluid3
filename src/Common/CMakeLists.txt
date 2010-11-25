@@ -37,7 +37,6 @@ list( APPEND coolfluid_common_files
     CLink.hpp
     CLink.cpp
     CMap.hpp
-    ConcreteProvider.hpp
     ConfigArgs.cpp
     ConfigArgs.hpp
     Core.hpp
@@ -50,9 +49,6 @@ list( APPEND coolfluid_common_files
     Exception.cpp
     Exception.hpp
     ExportAPI.hpp
-    Factory.hpp
-    FactoryRegistry.hpp
-    FactoryRegistry.cpp
     Foreach.hpp
     GeneralStorage.hpp
     HourMinSec.cpp
@@ -84,12 +80,10 @@ list( APPEND coolfluid_common_files
     NoProfiling.hpp
     NotificationQueue.cpp
     NotificationQueue.hpp
-    ObjectProvider.hpp
     Option.cpp
     Option.hpp
     OptionArray.cpp
     OptionArray.hpp
-    OptionComponent.hpp
     OptionT.hpp
     OptionT.cpp
     OptionURI.cpp
@@ -104,9 +98,6 @@ list( APPEND coolfluid_common_files
     OSystem.hpp
     OSystemLayer.cpp
     OSystemLayer.hpp
-    Provider.hpp
-    ProviderBase.cpp
-    ProviderBase.hpp
     SafePtr.hpp
     SelfRegistry.cpp
     SelfRegistry.hpp

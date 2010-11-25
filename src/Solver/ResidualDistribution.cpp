@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 
 #include "Solver/ResidualDistribution.hpp"
 
@@ -13,12 +13,12 @@ namespace Solver {
 
 using namespace Common;
 
-Common::ObjectProvider < ResidualDistribution, CDiscretization, LibSolver, NB_ARGS_1 >
-ResidualDistribution_Provider ( ResidualDistribution::type_name() );
+Common::ComponentBuilder < ResidualDistribution, CDiscretization, LibSolver >
+ResidualDistribution_Builder ( ResidualDistribution::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ResidualDistribution::ResidualDistribution ( const CName& name  ) :
+ResidualDistribution::ResidualDistribution ( const std::string& name  ) :
   CDiscretization ( name )
 {
   BUILD_COMPONENT;

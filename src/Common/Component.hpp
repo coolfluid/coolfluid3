@@ -32,8 +32,6 @@ namespace Common {
 /// Base class for defining CF components
 /// @author Tiago Quintino
 /// @author Willem Deconinck
-/// @todo add ownership of (sub) components
-
 class Common_API Component
   :
   public boost::enable_shared_from_this<Component>,
@@ -44,16 +42,11 @@ class Common_API Component
 
 public: // typedef
 
-  /// type for names of components
-  typedef std::string CName;
-  /// type of this class contruction provider
-  typedef Common::ConcreteProvider < Component, NB_ARGS_1 > PROVIDER;
-  /// type of first argument of constructor
-  typedef const CName& ARG1;
   /// type of pointer to Component
   typedef boost::shared_ptr<Component> Ptr;
   /// type of pointer to constant Component
   typedef boost::shared_ptr<Component const> ConstPtr;
+
   /// type of the iterator to Component
   typedef ComponentIterator<Component> iterator;
   /// type of the iterator to constant Component
@@ -62,7 +55,7 @@ public: // typedef
 private: // typedef
 
   /// type for storing the sub components
-  typedef std::map < CName , Component::Ptr > CompStorage_t;
+  typedef std::map < std::string , Component::Ptr > CompStorage_t;
 
 public: // functions
 
@@ -75,7 +68,7 @@ public: // functions
   /// Contructor
   /// @param name of the component
   /// @param parent path where this component will be placed
-  Component ( const CName& name );
+  Component ( const std::string& name );
 
   /// Virtual destructor
   virtual ~Component();
@@ -153,10 +146,10 @@ public: // functions
   bool is_link () const { return m_is_link; }
 
   /// Access the name of the component
-  CName name () const { return m_name.string(); }
+  std::string name () const { return m_name.string(); }
 
   /// Rename the component
-  void rename ( const CName& name );
+  void rename ( const std::string& name );
 
   /// Access the path of the component
   const CPath& path () const { return m_path; }
@@ -208,16 +201,16 @@ public: // functions
   ConstPtr get_parent() const;
 
   /// Get the named child from the direct subcomponents.
-  Ptr get_child(const CName& name);
-  ConstPtr get_child(const CName& name) const;
+  Ptr get_child(const std::string& name);
+  ConstPtr get_child(const std::string& name) const;
 
   /// @returns the named child from the direct subcomponents automatically cast to the specified type
   template < typename T >
-      typename T::Ptr get_child_type ( const CName& name );
+      typename T::Ptr get_child_type ( const std::string& name );
 
   /// @returns the named child from the direct subcomponents automatically cast to the specified type
   template < typename T >
-      typename T::ConstPtr get_child_type ( const CName& name ) const ;
+      typename T::ConstPtr get_child_type ( const std::string& name ) const ;
 
   /// @returns this component converted to type T shared pointer
   template < typename T >
@@ -232,13 +225,13 @@ public: // functions
 
   /// Create a (sub)component of this component automatically cast to the specified type
   template < typename T >
-      typename T::Ptr create_component_type ( const CName& name );
+      typename T::Ptr create_component_type ( const std::string& name );
 
   /// Add a dynamic (sub)component of this component
   Ptr add_component ( Ptr subcomp );
 
   /// Remove a (sub)component of this component
-  Ptr remove_component ( const CName& name );
+  Ptr remove_component ( const std::string& name );
 
   /// Move this component to within another one
   /// @param new_parent will be the new parent of this component
@@ -352,7 +345,7 @@ protected: // data
 /// @param provider_name the registry string of the provider of the concrete type
 /// @name name to give to the created omponent
 template < typename ATYPE >
-    typename ATYPE::Ptr create_component_abstract_type ( const std::string& provider_name, const Component::CName& name )
+    typename ATYPE::Ptr create_component_abstract_type ( const std::string& provider_name, const Component::std::string& name )
 {
   Common::SafePtr< typename ATYPE::PROVIDER > prov =
       Common::Factory<ATYPE>::instance().get_provider( provider_name );
@@ -362,7 +355,7 @@ template < typename ATYPE >
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename T >
-inline typename T::Ptr Component::create_component_type ( const CName& name )
+inline typename T::Ptr Component::create_component_type ( const std::string& name )
 {
   typename T::Ptr new_component ( new T(name), Deleter<T>() );
   return boost::dynamic_pointer_cast<T>( add_component( new_component ) );
@@ -371,7 +364,7 @@ inline typename T::Ptr Component::create_component_type ( const CName& name )
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename T >
-inline typename T::Ptr Component::get_child_type(const CName& name)
+inline typename T::Ptr Component::get_child_type(const std::string& name)
 {
   const CompStorage_t::iterator found = m_components.find(name);
   if(found != m_components.end())
@@ -382,7 +375,7 @@ inline typename T::Ptr Component::get_child_type(const CName& name)
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename T >
-inline typename T::ConstPtr Component::get_child_type(const CName& name) const
+inline typename T::ConstPtr Component::get_child_type(const std::string& name) const
 {
   const CompStorage_t::const_iterator found = m_components.find(name);
   if(found != m_components.end())

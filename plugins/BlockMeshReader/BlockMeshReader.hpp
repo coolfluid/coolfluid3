@@ -21,7 +21,7 @@ class BlockMeshReader : public CF::Mesh::CMeshReader
 public:
 
   /// constructor
-  BlockMeshReader(const CName& name);
+  BlockMeshReader(const std::string& name);
 
   /// Gets the Class name
   static std::string type_name() { return "BlockMeshReader"; }

@@ -13,7 +13,7 @@ using namespace Common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CDiscretization::CDiscretization ( const CName& name  ) :
+CDiscretization::CDiscretization ( const std::string& name  ) :
   CMethod ( name )
 {
   BUILD_COMPONENT;

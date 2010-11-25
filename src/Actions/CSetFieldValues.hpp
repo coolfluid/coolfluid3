@@ -36,7 +36,7 @@ public: // typedefs
 public: // functions
   /// Contructor
   /// @param name of the component
-  CSetFieldValues ( const CName& name );
+  CSetFieldValues ( const std::string& name );
 
   /// Virtual destructor
   virtual ~CSetFieldValues() {};

@@ -9,7 +9,7 @@
 #include <boost/assign/std/vector.hpp>
 
 #include "Common/CGroup.hpp"
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/LibCommon.hpp"
 
 using namespace boost::assign; // for operator+=()
@@ -19,12 +19,12 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ObjectProvider < CGroup, Component, LibCommon, NB_ARGS_1 >
-CGroup_Provider ( CGroup::type_name() );
+Common::ComponentBuilder < CGroup, Component, LibCommon >
+CGroup_Builder ( CGroup::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CGroup::CGroup ( const CName& name ) : Component ( name )
+CGroup::CGroup ( const std::string& name ) : Component ( name )
 {
   BUILD_COMPONENT;
 }

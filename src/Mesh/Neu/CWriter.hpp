@@ -42,7 +42,7 @@ private : // typedefs
 public: // functions
   
   /// constructor
-  CWriter( const CName& name );
+  CWriter( const std::string& name );
   
   /// Gets the Class name
   static std::string type_name() { return "CWriter"; }

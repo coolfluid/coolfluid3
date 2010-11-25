@@ -8,7 +8,7 @@
 #include <boost/algorithm/string/erase.hpp>
 #include <boost/filesystem/convenience.hpp>
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/ComponentPredicates.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/StreamHelpers.hpp"
@@ -35,15 +35,15 @@ namespace Gmsh {
   
 ////////////////////////////////////////////////////////////////////////////////
 
-CF::Common::ObjectProvider < Mesh::Gmsh::CReader,
+CF::Common::ComponentBuilder < Mesh::Gmsh::CReader,
                              Mesh::CMeshReader,
                              Mesh::Gmsh::LibGmsh,
                              1 >
-aGmshReader_Provider ( "Gmsh" );
+aGmshReader_Builder ( "Gmsh" );
 
 //////////////////////////////////////////////////////////////////////////////
 
-CReader::CReader( const CName& name )
+CReader::CReader( const std::string& name )
 : CMeshReader(name),
   Shared(),
   m_repartition(false)

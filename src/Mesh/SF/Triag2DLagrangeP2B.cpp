@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 
 #include "LibSF.hpp"
 #include "Triag2DLagrangeP2B.hpp"
@@ -16,10 +16,10 @@ namespace SF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ObjectProvider < Triag2DLagrangeP2B,
+Common::ComponentBuilder < Triag2DLagrangeP2B,
                          ElementType,
                          LibSF >
-aTriag2DLagrangeP2B_Provider ( "Triag2DLagrangeP2B" );
+aTriag2DLagrangeP2B_Builder ( "Triag2DLagrangeP2B" );
 
 ////////////////////////////////////////////////////////////////////////////////
 

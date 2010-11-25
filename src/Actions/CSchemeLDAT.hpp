@@ -35,7 +35,7 @@ public: // typedefs
 public: // functions
   /// Contructor
   /// @param name of the component
-  CSchemeLDAT ( const CName& name );
+  CSchemeLDAT ( const std::string& name );
 
   /// Virtual destructor
   virtual ~CSchemeLDAT() {};
@@ -109,7 +109,7 @@ void CSchemeLDAT<SHAPEFUNC>::set_loophelper (CElements& geometry_elements )
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SHAPEFUNC>
-CSchemeLDAT<SHAPEFUNC>::CSchemeLDAT ( const CName& name ) :
+CSchemeLDAT<SHAPEFUNC>::CSchemeLDAT ( const std::string& name ) :
   CLoopOperation(name)
 {
   BUILD_COMPONENT;

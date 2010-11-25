@@ -20,7 +20,7 @@ using namespace Common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CInterpolator::CInterpolator ( const CName& name  ) :
+CInterpolator::CInterpolator ( const std::string& name  ) :
   Component ( name )
 {
   BUILD_COMPONENT;

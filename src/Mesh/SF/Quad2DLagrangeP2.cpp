@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 
 #include "LibSF.hpp"
 #include "Line2DLagrangeP1.hpp"
@@ -16,10 +16,10 @@ namespace SF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ObjectProvider < Quad2DLagrangeP2,
+Common::ComponentBuilder < Quad2DLagrangeP2,
                          ElementType,
                          LibSF >
-aQuad2DLagrangeP2_Provider ( "Quad2DLagrangeP2" );
+aQuad2DLagrangeP2_Builder ( "Quad2DLagrangeP2" );
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 
 #include "LibSF.hpp"
 #include "Line3DLagrangeP1.hpp"
@@ -15,10 +15,10 @@ namespace SF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ObjectProvider < Line3DLagrangeP1,
+Common::ComponentBuilder < Line3DLagrangeP1,
                          ElementType,
                          LibSF >
-aLine3DLagrangeP1_Provider ( "Line3DLagrangeP1" );
+aLine3DLagrangeP1_Builder ( "Line3DLagrangeP1" );
 
 ////////////////////////////////////////////////////////////////////////////////
 

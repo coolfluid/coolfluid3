@@ -35,7 +35,7 @@ private: // typedefs
 public: // functions
   
   /// constructor
-  CMeshInfo( const CName& name );
+  CMeshInfo( const std::string& name );
   
   /// Gets the Class name
   static std::string type_name() { return "CMeshInfo"; }

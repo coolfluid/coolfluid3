@@ -13,7 +13,7 @@
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/progress.hpp>
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/Neu/CWriter.hpp"
@@ -33,15 +33,15 @@ namespace Neu {
   
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ObjectProvider < Mesh::Neu::CWriter,
+Common::ComponentBuilder < Mesh::Neu::CWriter,
                          Mesh::CMeshWriter,
                          Mesh::Neu::LibNeu,
                          1 >
-aNeuWriter_Provider ( "Neu" );
+aNeuWriter_Builder ( "Neu" );
 
 //////////////////////////////////////////////////////////////////////////////
 
-CWriter::CWriter( const CName& name )
+CWriter::CWriter( const std::string& name )
 : CMeshWriter(name),
   Shared()
 {

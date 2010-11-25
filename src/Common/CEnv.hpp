@@ -29,7 +29,7 @@ namespace Common {
 
     /// Contructor
     /// @param name of the component
-    CEnv ( const CName& name );
+    CEnv ( const std::string& name );
 
     /// Virtual destructor
     virtual ~CEnv();

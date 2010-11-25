@@ -34,7 +34,7 @@ public: // typedefs
 public: // functions
   /// Contructor
   /// @param name of the component
-  CSchemeLDA ( const CName& name );
+  CSchemeLDA ( const std::string& name );
 
   /// Virtual destructor
   virtual ~CSchemeLDA() {};

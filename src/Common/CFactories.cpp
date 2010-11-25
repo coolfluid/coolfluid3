@@ -13,7 +13,7 @@ RegistTypeInfo<CFactories> CFactories_TypeInfo();
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CFactories::CFactories ( const CName& name) : Component ( name )
+CFactories::CFactories ( const std::string& name) : Component ( name )
 {
   BUILD_COMPONENT;
   TypeInfo::instance().regist<CFactories>(CFactories::type_name());

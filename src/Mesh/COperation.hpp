@@ -7,7 +7,7 @@
 #ifndef CF_Mesh_COperation_hpp
 #define CF_Mesh_COperation_hpp
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/ComponentPredicates.hpp"
 
@@ -31,7 +31,7 @@ class Mesh_API COperation : public Common::Component
 public: // typedefs
 
   /// provider
-  typedef Common::ConcreteProvider < COperation , NB_ARGS_1 > PROVIDER;
+  typedef Common::ConcreteProvider < COperation  > PROVIDER;
 
   /// pointers
   typedef boost::shared_ptr<COperation> Ptr;
@@ -40,7 +40,7 @@ public: // typedefs
 public: // functions
   /// Contructor
   /// @param name of the component
-  COperation ( const CName& name );
+  COperation ( const std::string& name );
 
   /// Virtual destructor
   virtual ~COperation() {};
@@ -103,7 +103,7 @@ public: // typedefs
 public: // functions
   /// Contructor
   /// @param name of the component
-  COperationMergeT ( const CName& name ) :
+  COperationMergeT ( const std::string& name ) :
     COperation(name),
     m_op1(new OP1("operation_1"), Deleter<OP1>()),
     m_op2(new OP2("operation_2"), Deleter<OP2>())
@@ -194,7 +194,7 @@ public: // typedefs
 public: // functions
   /// Contructor
   /// @param name of the component
-  COutputField ( const CName& name ) : COperation(name)
+  COutputField ( const std::string& name ) : COperation(name)
   {
     BUILD_COMPONENT;
     m_property_list["Field"].as_option().attach_trigger ( boost::bind ( &COutputField::trigger_Field,   this ) );
@@ -272,7 +272,7 @@ public: // typedefs
 public: // functions
   /// Contructor
   /// @param name of the component
-  CComputeVolumes ( const CName& name ) : COperation(name)
+  CComputeVolumes ( const std::string& name ) : COperation(name)
   {
     BUILD_COMPONENT;
     m_property_list["Field"].as_option().attach_trigger ( boost::bind ( &CComputeVolumes::trigger_Field,   this ) );
@@ -355,7 +355,7 @@ public: // typedefs
 public: // functions
   /// Contructor
   /// @param name of the component
-  CSetValue ( const CName& name ) : COperation(name)
+  CSetValue ( const std::string& name ) : COperation(name)
   {
     BUILD_COMPONENT;
     m_property_list["Field"].as_option().attach_trigger ( boost::bind ( &CSetValue::trigger_Field,   this ) );

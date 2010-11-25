@@ -6,7 +6,7 @@
 
 #include <boost/regex.hpp>
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/CLink.hpp"
 #include "Common/ComponentPredicates.hpp"
 #include "Common/String/Conversion.hpp"
@@ -23,12 +23,12 @@ namespace Mesh {
 using namespace Common;
 using namespace Common::String;
 
-Common::ObjectProvider < CMesh, Component, LibMesh, NB_ARGS_1 >
-CMesh_Provider ( CMesh::type_name() );
+Common::ComponentBuilder < CMesh, Component, LibMesh >
+CMesh_Builder ( CMesh::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CMesh::CMesh ( const CName& name  ) :
+CMesh::CMesh ( const std::string& name  ) :
   Component ( name )
 {
   BUILD_COMPONENT;
@@ -46,7 +46,7 @@ CMesh::~CMesh()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CRegion& CMesh::create_region( const CName& name, bool ensure_unique )
+CRegion& CMesh::create_region( const std::string& name, bool ensure_unique )
 {
   CRegion::Ptr new_region;
   
@@ -105,7 +105,7 @@ CRegion& CMesh::create_region( const CName& name, bool ensure_unique )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CRegion& CMesh::create_domain( const CName& name )
+CRegion& CMesh::create_domain( const std::string& name )
 {
   CRegion::Ptr new_region = get_child_type<CRegion>(name);
   if (!new_region)
@@ -119,7 +119,7 @@ CRegion& CMesh::create_domain( const CName& name )
 ////////////////////////////////////////////////////////////////////////////////
 
 
-CField& CMesh::create_field( const CName& name , CRegion& support, const std::vector<std::string>& variables, const CField::DataBasis basis)
+CField& CMesh::create_field( const std::string& name , CRegion& support, const std::vector<std::string>& variables, const CField::DataBasis basis)
 {
 	CField& field = *create_component_type<CField>(name);
 	field.synchronize_with_region(support);
@@ -145,14 +145,14 @@ CField& CMesh::create_field( const CName& name , CRegion& support, const std::ve
 	return field;
 }
 	
-CField& CMesh::create_field( const CName& name , const std::vector<std::string>& variables, const CField::DataBasis basis)
+CField& CMesh::create_field( const std::string& name , const std::vector<std::string>& variables, const CField::DataBasis basis)
 {
   return create_field(name,domain(),variables,basis);
 }
 	
 ////////////////////////////////////////////////////////////////////////////////
   
-CField& CMesh::create_field( const CName& name , CRegion& support, const Uint size, const CField::DataBasis basis)
+CField& CMesh::create_field( const std::string& name , CRegion& support, const Uint size, const CField::DataBasis basis)
 {
 	std::vector<std::string> variables;
 	if (size==1)
@@ -169,7 +169,7 @@ CField& CMesh::create_field( const CName& name , CRegion& support, const Uint si
   
 ////////////////////////////////////////////////////////////////////////////////
 
-CField& CMesh::create_field( const CName& name, const Uint size, const CField::DataBasis basis )
+CField& CMesh::create_field( const std::string& name, const Uint size, const CField::DataBasis basis )
 {
   return create_field(name,domain(),size,basis);
 }
@@ -190,14 +190,14 @@ CRegion& CMesh::domain()
   
 ////////////////////////////////////////////////////////////////////////////////
 
-const CField& CMesh::field(const CName& name) const
+const CField& CMesh::field(const std::string& name) const
 {
   return get_named_component_typed<CField const>(*this,name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CField& CMesh::field(const CName& name)
+CField& CMesh::field(const std::string& name)
 {
   return get_named_component_typed<CField>(*this,name);
 }

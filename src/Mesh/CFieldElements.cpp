@@ -19,7 +19,7 @@ using namespace Common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CFieldElements::CFieldElements ( const CName& name ) :
+CFieldElements::CFieldElements ( const std::string& name ) :
   CElements (name)
 {
   BUILD_COMPONENT;

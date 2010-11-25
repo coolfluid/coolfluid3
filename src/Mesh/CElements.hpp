@@ -39,7 +39,7 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  CElements ( const CName& name );
+  CElements ( const std::string& name );
   
   /// Initialize the CElements using the given type
   void initialize(const std::string& element_type_name, CArray& data);
@@ -64,11 +64,11 @@ public: // functions
   
   /// create a CTable component and add it to the list of subcomponents
   /// @param name of the region
-  CTable& create_connectivity_table ( const CName& name = "connectivity_table");
+  CTable& create_connectivity_table ( const std::string& name = "connectivity_table");
 
 	/// create a CList<Uint> component and add it to the list of subcomponents
   /// @param name of the node list
-	virtual CList<Uint>& create_node_list( const CName& name = "node_list");
+	virtual CList<Uint>& create_node_list( const std::string& name = "node_list");
 
 	/// update the node list using the connectivity table
 	CList<Uint>& update_node_list();
@@ -96,11 +96,11 @@ public: // functions
   
 	/// Mutable access to a field by its elements
 	/// @param name of a field
-  CFieldElements& get_field_elements(const CName& field_name);
+  CFieldElements& get_field_elements(const std::string& field_name);
 	
 	/// Const access to a field by its elements
 	/// @param name of a field
-  const CFieldElements& get_field_elements(const CName& field_name) const;
+  const CFieldElements& get_field_elements(const std::string& field_name) const;
     
 private: // helper functions
 

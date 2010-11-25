@@ -46,7 +46,7 @@ public:
   
   /// Contructor
   /// @param name of the component
-  CNodeConnectivity ( const CName& name );
+  CNodeConnectivity ( const std::string& name );
 
   /// Virtual destructor
   virtual ~CNodeConnectivity();
@@ -125,7 +125,7 @@ public:
 
   /// Contructor
   /// @param name of the component
-  CFaceConnectivity ( const CName& name );
+  CFaceConnectivity ( const std::string& name );
 
   /// Virtual destructor
   virtual ~CFaceConnectivity();

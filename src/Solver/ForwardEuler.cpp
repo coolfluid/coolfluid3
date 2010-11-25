@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 
 #include "Solver/ForwardEuler.hpp"
 
@@ -13,12 +13,12 @@ namespace Solver {
 
 using namespace Common;
 
-Common::ObjectProvider < ForwardEuler, CIterativeSolver, LibSolver, NB_ARGS_1 >
-ForwardEuler_Provider ( ForwardEuler::type_name() );
+Common::ComponentBuilder < ForwardEuler, CIterativeSolver, LibSolver >
+ForwardEuler_Builder ( ForwardEuler::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ForwardEuler::ForwardEuler ( const CName& name  ) :
+ForwardEuler::ForwardEuler ( const std::string& name  ) :
   CIterativeSolver ( name )
 {
   BUILD_COMPONENT;

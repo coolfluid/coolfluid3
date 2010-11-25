@@ -30,7 +30,7 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  ForwardEuler ( const CName& name );
+  ForwardEuler ( const std::string& name );
 
   /// Virtual destructor
   virtual ~ForwardEuler();

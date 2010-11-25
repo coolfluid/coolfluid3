@@ -36,7 +36,7 @@ public: // typedefs
 public: // functions
   /// Contructor
   /// @param name of the component
-  CDummyLoopOperation ( const CName& name );
+  CDummyLoopOperation ( const std::string& name );
 
   /// Virtual destructor
   virtual ~CDummyLoopOperation() {};

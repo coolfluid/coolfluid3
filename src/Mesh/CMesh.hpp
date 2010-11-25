@@ -38,7 +38,7 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  CMesh ( const CName& name );
+  CMesh ( const std::string& name );
 
   /// Virtual destructor
   virtual ~CMesh();
@@ -53,11 +53,11 @@ public: // functions
 
   /// create a region
   /// @param name of the region
-  CRegion& create_region ( const CName& name, bool ensure_unique = false );
+  CRegion& create_region ( const std::string& name, bool ensure_unique = false );
 
   /// create a domain
   /// @param name of the domain
-  CRegion& create_domain( const CName& name );
+  CRegion& create_domain( const std::string& name );
 
   /// @return the geometry
   const CRegion& domain() const;
@@ -67,23 +67,23 @@ public: // functions
   
   /// create a field with a given support
   /// @param name of the field
-  CField& create_field( const CName& name , CRegion& support, const Uint size, const CField::DataBasis basis);
+  CField& create_field( const std::string& name , CRegion& support, const Uint size, const CField::DataBasis basis);
   
   /// create a field with the default support being the full mesh geometry
-  CField& create_field( const CName& name , const Uint size, const CField::DataBasis basis);
+  CField& create_field( const std::string& name , const Uint size, const CField::DataBasis basis);
 	
 	/// create a field with a given support
   /// @param name of the field
-  CField& create_field( const CName& name , CRegion& support, const std::vector<std::string>& variables, const CField::DataBasis basis);
+  CField& create_field( const std::string& name , CRegion& support, const std::vector<std::string>& variables, const CField::DataBasis basis);
   
   /// create a field with the default support being the full mesh geometry
-  CField& create_field( const CName& name , const std::vector<std::string>& variables, const CField::DataBasis basis);
+  CField& create_field( const std::string& name , const std::vector<std::string>& variables, const CField::DataBasis basis);
   
   /// @return the field with given name
-  const CField& field(const CName& name) const;
+  const CField& field(const std::string& name) const;
   
   /// @return the field with given name
-  CField& field(const CName& name);
+  CField& field(const std::string& name);
   
   void update_statistics();
   

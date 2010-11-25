@@ -31,7 +31,7 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  CDomain ( const CName& name );
+  CDomain ( const std::string& name );
 
   /// Virtual destructor
   virtual ~CDomain();

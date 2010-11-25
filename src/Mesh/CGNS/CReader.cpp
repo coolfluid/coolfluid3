@@ -9,7 +9,6 @@
 #include <boost/progress.hpp>
 #include <boost/filesystem/convenience.hpp>
 
-#include "Common/ObjectProvider.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/ComponentPredicates.hpp"
@@ -31,17 +30,11 @@ using namespace Common::String;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ObjectProvider < CReader,
-                 CMeshReader,
-                 LibCGNS,
-                 NB_ARGS_1 >
-aCGNSReader_Provider ( "CGNS" );
-
-ComponentBuilder< CReader, CMeshReader, LibCGNS > aCGNSReader_Builder;
+Common::ComponentBuilder< CReader, CMeshReader, LibCGNS > aCGNSReader_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
-CReader::CReader(const CName& name)
+CReader::CReader(const std::string& name)
 : CMeshReader(name), Shared()
 {
   BUILD_COMPONENT;
@@ -412,9 +405,9 @@ void CReader::read_section(CRegion& parent_region)
   {
     if (existing_region.check_property("cgns_section_name"))
     {
-      if (existing_region.property("cgns_section_name").value<CName>() == m_section.name)
+      if (existing_region.property("cgns_section_name").value<std::string>() == m_section.name)
       {
-        existing_region.rename(existing_region.property("cgns_section_name").value<CName>());
+        existing_region.rename(existing_region.property("cgns_section_name").value<std::string>());
         existing_region.properties()["previous_elem_count"] = existing_region.recursive_elements_count();
         break;
       }

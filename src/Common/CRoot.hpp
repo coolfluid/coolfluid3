@@ -32,7 +32,7 @@ namespace Common {
   public: // functions
 
     /// Get the class name
-    static CRoot::Ptr create ( const CName& name );
+    static CRoot::Ptr create ( const std::string& name );
 
     /// Virtual destructor
     virtual ~CRoot();
@@ -95,7 +95,7 @@ namespace Common {
 
     /// Private constructor forces creation via the create() funtion
     /// @param name of the component
-    CRoot ( const CName& name );
+    CRoot ( const std::string& name );
 
   private: // data
 

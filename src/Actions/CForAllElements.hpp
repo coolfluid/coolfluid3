@@ -30,7 +30,7 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  CForAllElements ( const CName& name );
+  CForAllElements ( const std::string& name );
 
   /// Virtual destructor
   virtual ~CForAllElements() {}

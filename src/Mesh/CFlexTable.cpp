@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/StreamHelpers.hpp"
 
 #include "Mesh/LibMesh.hpp"
@@ -15,8 +15,8 @@ namespace Mesh {
 
 using namespace Common;
 
-Common::ObjectProvider < CFlexTable, Component, LibMesh, NB_ARGS_1 >
-CFlexTable_Provider ( CFlexTable::type_name() );
+Common::ComponentBuilder < CFlexTable, Component, LibMesh >
+CFlexTable_Builder ( CFlexTable::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////
 

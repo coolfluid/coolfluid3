@@ -25,7 +25,6 @@ namespace CF {
 namespace Common {
 
   class EventHandler;
-  class FactoryRegistry;
   class BuildInfo;
   class CRoot;
 
@@ -60,10 +59,6 @@ public: // methods
   /// Gets the LibraryRegistry
   /// @note Does not need to be initialized before
   boost::weak_ptr<Common::LibraryRegistry> library_registry();
-
-  /// Gets the FactoryRegistry
-  /// @note Does not need to be initialized before
-  boost::weak_ptr<Common::FactoryRegistry> factory_registry();
 
   /// Gets the EventHandler of the CF runtime environment
   /// @note Does not need to be initialized before

@@ -47,7 +47,7 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  CMeshReader ( const CName& name );
+  CMeshReader ( const std::string& name );
 
   /// Virtual destructor
   virtual ~CMeshReader();

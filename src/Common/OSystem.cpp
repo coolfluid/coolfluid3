@@ -6,7 +6,6 @@
 
 #include <cstdlib>  // provides system call
 
-#include "Common/Factory.hpp"
 #include "Common/OSystemLayer.hpp"
 #include "Common/String/Conversion.hpp"
 
@@ -123,6 +122,7 @@ void OSystem::executeCommand(const std::string& call)
 
 void OSystem::set_profiler(const std::string & profiler_name)
 {
+#error "Factory no longer exists - update this code"
   m_profiler = Factory<CodeProfiler>::instance().get_provider(profiler_name)->create();
 }
 

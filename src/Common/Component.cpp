@@ -23,7 +23,7 @@ namespace Common {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-Component::Component ( const CName& name ) :
+Component::Component ( const std::string& name ) :
     m_name (),
     m_path (),
     m_components(),
@@ -69,7 +69,7 @@ Component::ConstPtr Component::get() const
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::rename ( const CName& name )
+void Component::rename ( const std::string& name )
 {
   std::string new_name = name;
   if ( new_name == m_name.string() ) // skip if name does not change
@@ -182,7 +182,7 @@ std::string Component::ensure_unique_name ( Component::Ptr subcomp )
 /////////////////////////////////////////////////////////////////////////////////////
 
 
-Component::Ptr Component::remove_component ( const CName& name )
+Component::Ptr Component::remove_component ( const std::string& name )
 {
   // find the component exists
   Component::CompStorage_t::iterator itr = m_dynamic_components.find(name);
@@ -274,7 +274,7 @@ void Component::complete_path ( CPath& path ) const
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr Component::get_child(const CName& name)
+Component::Ptr Component::get_child(const std::string& name)
 {
   const CompStorage_t::iterator found = m_components.find(name);
   if(found != m_components.end())
@@ -282,7 +282,7 @@ Component::Ptr Component::get_child(const CName& name)
   return Ptr();
 }
 
-Component::ConstPtr Component::get_child(const CName& name) const
+Component::ConstPtr Component::get_child(const std::string& name) const
 {
   const CompStorage_t::const_iterator found = m_components.find(name);
   if(found != m_components.end())

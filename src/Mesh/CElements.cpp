@@ -7,7 +7,7 @@
 #include "Common/Factory.hpp"
 #include "Common/CLink.hpp"
 #include "Common/CGroup.hpp"
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 
 #include "Mesh/CElements.hpp"
 #include "Mesh/CFieldElements.hpp"
@@ -21,12 +21,12 @@ namespace Mesh {
 
 using namespace Common;
 
-Common::ObjectProvider < CElements, Component, LibMesh, NB_ARGS_1 >
-CElements_Provider ( CElements::type_name() );
+Common::ComponentBuilder < CElements, Component, LibMesh >
+CElements_Builder ( CElements::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CElements::CElements ( const CName& name ) :
+CElements::CElements ( const std::string& name ) :
   Component ( name )
 {
   BUILD_COMPONENT;
@@ -69,7 +69,7 @@ void CElements::set_element_type(const std::string& etype_name)
 
 //////////////////////////////////////////////////////////////////////////////
 
-CList<Uint>& CElements::create_node_list( const CName& name )
+CList<Uint>& CElements::create_node_list( const std::string& name )
 {
   CList<Uint>::Ptr node_list = get_child_type< CList<Uint> >(name);
   if (!node_list)
@@ -102,7 +102,7 @@ CList<Uint>& CElements::update_node_list()
 
 //////////////////////////////////////////////////////////////////////////////
 
-CTable& CElements::create_connectivity_table( const CName& name )
+CTable& CElements::create_connectivity_table( const std::string& name )
 {
   return *create_component_type<CTable>(name);
 }
@@ -185,7 +185,7 @@ void CElements::add_field_elements_link(CElements& field_elements)
 
 //////////////////////////////////////////////////////////////////////////////
 
-CFieldElements& CElements::get_field_elements(const CName& field_name)
+CFieldElements& CElements::get_field_elements(const std::string& field_name)
 {
   Component::Ptr all_fields = get_child("fields");
   cf_assert(all_fields.get());
@@ -196,7 +196,7 @@ CFieldElements& CElements::get_field_elements(const CName& field_name)
   
 //////////////////////////////////////////////////////////////////////////////
 
-const CFieldElements& CElements::get_field_elements(const CName& field_name) const
+const CFieldElements& CElements::get_field_elements(const std::string& field_name) const
 {
   Component::ConstPtr all_fields = get_child("fields");
   cf_assert(all_fields.get());

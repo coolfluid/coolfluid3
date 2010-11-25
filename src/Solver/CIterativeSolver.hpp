@@ -36,7 +36,7 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  CIterativeSolver ( const CName& name );
+  CIterativeSolver ( const std::string& name );
 
   /// Virtual destructor
   virtual ~CIterativeSolver();

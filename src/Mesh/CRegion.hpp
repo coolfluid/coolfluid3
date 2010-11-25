@@ -40,7 +40,7 @@ public:
 
   /// Contructor
   /// @param name of the component
-  CRegion ( const CName& name );
+  CRegion ( const std::string& name );
 
   /// Virtual destructor
   virtual ~CRegion();
@@ -55,7 +55,7 @@ public:
 
   /// create a CRegion component
   /// @param name of the region
-  CRegion& create_region ( const CName& name, bool ensure_unique = false );
+  CRegion& create_region ( const std::string& name, bool ensure_unique = false );
   
   /// create a CElements component, initialized to take connectivity data for the given type
   /// @param name of the region
@@ -83,19 +83,19 @@ public:
     Uint recursive_filtered_nodes_count(const Predicate& pred) const;
   
   
-  CField& get_field(const CName& field_name);
+  CField& get_field(const std::string& field_name);
   
   /// @return the subregion with given name
-  const CRegion& subregion(const CName& name) const;
+  const CRegion& subregion(const std::string& name) const;
   
   /// @return the subregion with given name
-  CRegion& subregion(const CName& name);
+  CRegion& subregion(const std::string& name);
   
   /// @return the elements with given name
-  const CElements& elements (const CName& element_type_name) const;
+  const CElements& elements (const std::string& element_type_name) const;
   
   /// @return the elements with given name
-  CElements& elements (const CName& element_type_name);
+  CElements& elements (const std::string& element_type_name);
   
 private: // helper functions
 

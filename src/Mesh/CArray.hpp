@@ -35,7 +35,7 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  CArray ( const CName& name );
+  CArray ( const std::string& name );
 
   /// Get the class name
   static std::string type_name () { return "CArray"; }

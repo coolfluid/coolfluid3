@@ -34,7 +34,7 @@ namespace Common {
 
     /// Contructor
     /// @param name of the component
-    CGroup ( const CName& name );
+    CGroup ( const std::string& name );
 
     /// Virtual destructor
     virtual ~CGroup();
@@ -44,6 +44,7 @@ namespace Common {
 
     /// Configuration Options
     static void define_config_properties ( Common::PropertyList& options );
+
   private: // helper functions
 
     /// regists all the signals declared in this class

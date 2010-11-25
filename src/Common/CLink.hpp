@@ -29,7 +29,7 @@ namespace Common {
 
     /// Contructor
     /// @param name of the component
-    CLink ( const CName& name );
+    CLink ( const std::string& name );
 
     /// Virtual destructor
     virtual ~CLink();

@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/BasicExceptions.hpp"
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/LibCommon.hpp"
 #include "Common/XmlHelpers.hpp"
 
@@ -16,12 +16,12 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ObjectProvider < CLink, Component, LibCommon, NB_ARGS_1 >
-CLink_Provider ( CLink::type_name() );
+Common::ComponentBuilder < CLink, Component, LibCommon >
+CLink_Builder ( CLink::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CLink::CLink ( const CName& name) : Component ( name )
+CLink::CLink ( const std::string& name) : Component ( name )
 {
   BUILD_COMPONENT;
   m_is_link = true;

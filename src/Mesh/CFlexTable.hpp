@@ -74,7 +74,7 @@ public:
   */
   /// Contructor
   /// @param name of the component
-  CFlexArray ( const CName& name ) : Component(name)
+  CFlexArray ( const std::string& name ) : Component(name)
   {
     BUILD_COMPONENT;
   }

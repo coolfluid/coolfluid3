@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 #include "Solver/CModel.hpp"
 
 namespace CF {
@@ -12,12 +12,12 @@ namespace Solver {
 
 using namespace Common;
 
-Common::ObjectProvider < CModel, Component, LibSolver, NB_ARGS_1 >
-CModel_Provider ( CModel::type_name() );
+Common::ComponentBuilder < CModel, Component, LibSolver >
+CModel_Builder ( CModel::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CModel::CModel( const CName& name  ) :
+CModel::CModel( const std::string& name  ) :
   Component ( name )
 {
   BUILD_COMPONENT;

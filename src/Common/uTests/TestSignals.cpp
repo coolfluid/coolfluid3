@@ -9,7 +9,7 @@
 
 #include "Common/CRoot.hpp"
 #include "Common/LibCommon.hpp"
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/Log.hpp"
 #include "Common/XmlHelpers.hpp"
 
@@ -36,7 +36,7 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  CSmall ( const CName& name ) : Component ( name )
+  CSmall ( const std::string& name ) : Component ( name )
   {
     BUILD_COMPONENT;
   }
@@ -107,7 +107,7 @@ private: // helper functions
 
 }; // CSmall
 
-Common::ObjectProvider < CSmall, Component, LibCommon, 1 > CSmall_Provider ( CSmall::type_name() );
+Common::ComponentBuilder < CSmall, Component, LibCommon, 1 > CSmall_Builder ( CSmall::type_name() );
 
 
 ////////////////////////////////////////////////////////////////////////////////

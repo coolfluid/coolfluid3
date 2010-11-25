@@ -16,7 +16,6 @@
 
 #include "Common/ConfigObject.hpp"
 #include "Common/OptionArray.hpp"
-#include "Common/OptionComponent.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/Log.hpp"
 #include "Common/XmlHelpers.hpp"
@@ -88,7 +87,6 @@ class MyC : public ConfigObject {
 //    for (Uint i = 0; i < vi.size(); ++i)
 //      CFinfo << "vi[" << i << "] : " << vi[i] << "\n" << CFendl;
 
-    m_property_list["OptComp"].as_option().attach_trigger ( boost::bind ( &MyC::config_comp,this ) );
   };
 
   void config_bool ()

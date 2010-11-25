@@ -34,7 +34,7 @@ public: // typedefs
 public: // functions
   /// Contructor
   /// @param name of the component
-  CTakeStep ( const CName& name );
+  CTakeStep ( const std::string& name );
 
   /// Virtual destructor
   virtual ~CTakeStep() {};

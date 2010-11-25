@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 
 #include "Mesh/CList.hpp"
@@ -27,7 +27,7 @@ void CLoopOperation::define_config_properties( Common::PropertyList& options )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-CLoopOperation::CLoopOperation ( const CName& name ) : 
+CLoopOperation::CLoopOperation ( const std::string& name ) : 
   CAction(name)
 {
   BUILD_COMPONENT;

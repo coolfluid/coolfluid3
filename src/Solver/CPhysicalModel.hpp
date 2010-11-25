@@ -31,7 +31,7 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  CPhysicalModel ( const CName& name );
+  CPhysicalModel ( const std::string& name );
 
   /// Virtual destructor
   virtual ~CPhysicalModel();

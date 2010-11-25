@@ -31,7 +31,7 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  LoadMesh ( const CName& name );
+  LoadMesh ( const std::string& name );
 
   /// Virtual destructor
   virtual ~LoadMesh();

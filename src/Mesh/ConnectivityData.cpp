@@ -17,7 +17,7 @@ namespace Mesh {
 
 using namespace Common;
 
-CNodeConnectivity::CNodeConnectivity(const Component::CName& name): Component(name)
+CNodeConnectivity::CNodeConnectivity(const Component::std::string& name): Component(name)
 {
 }
 
@@ -38,7 +38,7 @@ CNodeConnectivity::ElementReferenceT CNodeConnectivity::element(const Uint globa
   return std::make_pair(m_celements_vector[celements_idx].get(), global_element_idx - m_celements_first_elements[celements_idx]) ;
 }
 
-CFaceConnectivity::CFaceConnectivity(const Component::CName& name): Component(name), m_node_connectivity(0)
+CFaceConnectivity::CFaceConnectivity(const Component::std::string& name): Component(name), m_node_connectivity(0)
 {
 }
 

@@ -19,7 +19,7 @@ using namespace Common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CMeshTransformer::CMeshTransformer ( const CName& name  ) :
+CMeshTransformer::CMeshTransformer ( const std::string& name  ) :
   Component ( name )
 {
   BUILD_COMPONENT;

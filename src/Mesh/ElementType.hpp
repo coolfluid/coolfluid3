@@ -9,13 +9,11 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <boost/noncopyable.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/range.hpp>
 
 #include "Common/String/Conversion.hpp"
-#include "Common/BasicExceptions.hpp"
-#include "Common/ConcreteProvider.hpp"
+#include "Common/Component.hpp"
 
 #include "Math/MatrixTypes.hpp"
 
@@ -34,13 +32,12 @@ template <typename T> class VolumeComputer;
 ////////////////////////////////////////////////////////////////////////////////
 
 /// This class represents the the data related to an ElementType
-/// @author Tiago Quintino, Willem Deconinck
-class Mesh_API ElementType : public boost::noncopyable {
+/// @author Tiago Quintino
+/// @author Willem Deconinck
+class Mesh_API ElementType : public Common::Component {
 
 public: // functions
 
-  typedef Common::ConcreteProvider < ElementType > PROVIDER;
-  
   /// Type used to pass node coordinates of an element.
   /// Each row of the matrix represents the coordinates of a node
   typedef RealMatrix NodesT;
@@ -74,7 +71,7 @@ public: // functions
   };
   
   /// Default constructor without arguments
-  ElementType();
+  ElementType( const std::string& name = type_name() );
 
   /// Default destructor
   virtual ~ElementType();
@@ -122,6 +119,14 @@ public: // functions
   /// @param [in] nodes  the nodes of the element
   virtual bool is_coord_in_element(const RealVector& coord, const NodesT& nodes) const = 0;
 
+  /// Configuration Options
+  static void define_config_properties ( Common::PropertyList& options );
+
+private: // helper functions
+
+  /// regists all the signals declared in this class
+  static void regist_signals ( Component* self ) {}
+
 protected: // data
 
   /// the GeoShape::Type corresponding to the shape
@@ -140,7 +145,6 @@ protected: // data
   Uint m_nb_faces;
 
 }; // ElementType
-  
 
 ////////////////////////////////////////////////////////////////////////////////
 

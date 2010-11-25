@@ -7,7 +7,7 @@
 #include "Common/LibCommon.hpp"
 #include "Common/Component.hpp"
 #include "Common/OptionT.hpp"
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 
 #ifndef DUMMYCOMPONENTS_HPP
 #define DUMMYCOMPONENTS_HPP
@@ -30,7 +30,7 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  CAbstract ( const CName& name ) : Component(name)
+  CAbstract ( const std::string& name ) : Component(name)
   {
     BUILD_COMPONENT;
   }
@@ -69,7 +69,7 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  CConcrete1 ( const CName& name ) : CAbstract(name)
+  CConcrete1 ( const std::string& name ) : CAbstract(name)
   {
     BUILD_COMPONENT;
   }
@@ -113,7 +113,7 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  CConcrete2 ( const CName& name ) : CAbstract(name)
+  CConcrete2 ( const std::string& name ) : CAbstract(name)
   {
     BUILD_COMPONENT;
   }
@@ -140,10 +140,10 @@ private: // helper functions
 };
 
 
-CF::Common::ObjectProvider < CConcrete1, CAbstract, LibCommon, NB_ARGS_1 >
+CF::Common::ComponentBuilder < CConcrete1, CAbstract, LibCommon >
 aConcrete1ComponentProvider ( "Concrete1" );
 
-CF::Common::ObjectProvider < CConcrete2, CAbstract, LibCommon, NB_ARGS_1 >
+CF::Common::ComponentBuilder < CConcrete2, CAbstract, LibCommon >
 aConcrete2ComponentProvider ( "Concrete2" );
 
 } // Common

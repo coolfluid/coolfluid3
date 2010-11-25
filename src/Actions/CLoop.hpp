@@ -37,7 +37,7 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  CLoop ( const CName& name );
+  CLoop ( const std::string& name );
 
   void trigger_Regions();
 
@@ -54,9 +54,9 @@ public: // functions
 
   CLoopOperation& create_action(const std::string action_provider);
 
-  virtual const CLoopOperation& action(const CName& name) const;
+  virtual const CLoopOperation& action(const std::string& name) const;
 
-  virtual CLoopOperation& action(const CName& name);
+  virtual CLoopOperation& action(const std::string& name);
 
   virtual void execute() = 0;
 

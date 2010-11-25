@@ -51,7 +51,7 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  CForAllElementsT ( const CName& name ) :
+  CForAllElementsT ( const std::string& name ) :
     COperation(name),
     m_operation(new COp("operation"), Deleter<COp>())
   {

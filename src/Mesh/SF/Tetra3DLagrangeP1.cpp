@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 
 #include "Mesh/SF/LibSF.hpp"
 #include "Mesh/SF/Tetra3DLagrangeP1.hpp"
@@ -16,10 +16,10 @@ namespace SF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ObjectProvider < Tetra3DLagrangeP1,
+Common::ComponentBuilder < Tetra3DLagrangeP1,
                          ElementType,
                          LibSF >
-aTetra3DLagrangeP1_Provider ( "Tetra3DLagrangeP1" );
+aTetra3DLagrangeP1_Builder ( "Tetra3DLagrangeP1" );
 
 ////////////////////////////////////////////////////////////////////////////////
 

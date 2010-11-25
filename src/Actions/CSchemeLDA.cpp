@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 
 #include "Math/MatrixTypes.hpp"
@@ -23,8 +23,8 @@ namespace Actions {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ObjectProvider < CSchemeLDA, CAction, LibActions, NB_ARGS_1 > CSchemeLDAProviderCAction( "CSchemeLDA" );
-Common::ObjectProvider < CSchemeLDA, CLoopOperation, LibActions, NB_ARGS_1 > CSchemeLDAProviderCLoopOperation( "CSchemeLDA" );
+Common::ComponentBuilder < CSchemeLDA, CAction, LibActions > CSchemeLDAProviderCAction( "CSchemeLDA" );
+Common::ComponentBuilder < CSchemeLDA, CLoopOperation, LibActions > CSchemeLDAProviderCLoopOperation( "CSchemeLDA" );
 
 ///////////////////////////////////////////////////////////////////////////////////////
   
@@ -44,7 +44,7 @@ void CSchemeLDA::set_loophelper (CElements& geometry_elements )
 	
 ///////////////////////////////////////////////////////////////////////////////////////
 
-CSchemeLDA::CSchemeLDA ( const CName& name ) : 
+CSchemeLDA::CSchemeLDA ( const std::string& name ) : 
   CLoopOperation(name)
 {
   BUILD_COMPONENT;

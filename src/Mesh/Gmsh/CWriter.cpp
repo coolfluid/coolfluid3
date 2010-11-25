@@ -8,7 +8,7 @@
 #include <boost/filesystem/fstream.hpp>
 #include <boost/filesystem/convenience.hpp>
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/ComponentPredicates.hpp"
 #include "Common/String/Conversion.hpp"
 
@@ -32,15 +32,15 @@ namespace Gmsh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ObjectProvider < Mesh::Gmsh::CWriter,
+Common::ComponentBuilder < Mesh::Gmsh::CWriter,
                          Mesh::CMeshWriter,
                          Mesh::Gmsh::LibGmsh,
                          1 >
-aGmshWriter_Provider ( "Gmsh" );
+aGmshWriter_Builder ( "Gmsh" );
 
 //////////////////////////////////////////////////////////////////////////////
 
-CWriter::CWriter( const CName& name )
+CWriter::CWriter( const std::string& name )
 : CMeshWriter(name)
 {
   BUILD_COMPONENT;

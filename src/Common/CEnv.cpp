@@ -6,7 +6,7 @@
 
 #include "Common/BasicExceptions.hpp"
 #include "Common/OptionT.hpp"
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/LibCommon.hpp"
 #include "Common/XmlHelpers.hpp"
 #include "Common/LogLevel.hpp"
@@ -18,12 +18,12 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ObjectProvider < CEnv, Component, LibCommon, NB_ARGS_1 >
-CEnv_Provider ( CEnv::type_name() );
+Common::ComponentBuilder < CEnv, Component, LibCommon >
+CEnv_Builder ( CEnv::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CEnv::CEnv ( const CName& name) : Component ( name )
+CEnv::CEnv ( const std::string& name) : Component ( name )
 {
   BUILD_COMPONENT;
 }

@@ -22,8 +22,10 @@ namespace GooglePerf {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  class GooglePerfTools_API GooglePerfProfiling : public CF::Common::CodeProfiler
-  {
+#error "Make CodeProfiler into a component"
+
+class GooglePerfTools_API GooglePerfProfiling : public CF::Common::CodeProfiler
+{
   public:
     GooglePerfProfiling();
 
@@ -43,14 +45,13 @@ namespace GooglePerf {
 
     boost::filesystem::path m_path;
 
-  };
-
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 
-}
-}
-}
+} // GooglePerf
+} // Tools
+} // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 

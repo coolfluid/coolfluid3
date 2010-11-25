@@ -19,7 +19,7 @@ void CForAllElements::define_config_properties ( Common::PropertyList& options )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-CForAllElements::CForAllElements ( const CName& name ) :
+CForAllElements::CForAllElements ( const std::string& name ) :
   CLoop(name)
 {
   BUILD_COMPONENT;

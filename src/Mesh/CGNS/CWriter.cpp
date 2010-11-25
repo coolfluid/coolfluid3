@@ -7,7 +7,7 @@
 #include <boost/filesystem/fstream.hpp>
 #include <boost/filesystem/convenience.hpp>
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/CGNS/CWriter.hpp"
@@ -24,15 +24,15 @@ namespace CGNS {
   
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ObjectProvider < Mesh::CGNS::CWriter,
+Common::ComponentBuilder < Mesh::CGNS::CWriter,
                          Mesh::CMeshWriter,
                          Mesh::CGNS::LibCGNS,
                          1 >
-aCGNSWriter_Provider ( "CGNS" );
+aCGNSWriter_Builder ( "CGNS" );
 
 //////////////////////////////////////////////////////////////////////////////
 
-CWriter::CWriter( const CName& name )
+CWriter::CWriter( const std::string& name )
 : CMeshWriter(name),
   Shared()
 {

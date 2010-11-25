@@ -26,7 +26,7 @@ void CLoop::define_config_properties ( Common::PropertyList& options )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-CLoop::CLoop ( const CName& name ) :
+CLoop::CLoop ( const std::string& name ) :
   CAction(name)
 {
   BUILD_COMPONENT;
@@ -59,14 +59,14 @@ void CLoop::trigger_Regions()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-const CLoopOperation& CLoop::action(const CName& name) const
+const CLoopOperation& CLoop::action(const std::string& name) const
 {
   return *get_child_type<CLoopOperation const>(name);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-CLoopOperation& CLoop::action(const CName& name)
+CLoopOperation& CLoop::action(const std::string& name)
 {
   return *get_child_type<CLoopOperation>(name);
 }

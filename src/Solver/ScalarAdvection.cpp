@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
@@ -27,12 +27,12 @@ using namespace Common;
 using namespace Mesh;
 using namespace Common::String;
 
-Common::ObjectProvider < ScalarAdvection, Component, LibSolver, NB_ARGS_1 >
-ScalarAdvection_Provider ( ScalarAdvection::type_name() );
+Common::ComponentBuilder < ScalarAdvection, Component, LibSolver >
+ScalarAdvection_Builder ( ScalarAdvection::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ScalarAdvection::ScalarAdvection ( const CName& name  ) :
+ScalarAdvection::ScalarAdvection ( const std::string& name  ) :
   Component ( name )
 {
   BUILD_COMPONENT;

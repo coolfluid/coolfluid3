@@ -46,7 +46,7 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  CForAllElementsT ( const CName& name ) :
+  CForAllElementsT ( const std::string& name ) :
     CLoop(name),
     m_action(new ActionT(ActionT::type_name()), Deleter<ActionT>())
   {
@@ -67,12 +67,12 @@ public: // functions
 
   // functions specific to the CForAllElements component
 
-  virtual const CLoopOperation& action(const CName& name = ActionT::type_name()) const
+  virtual const CLoopOperation& action(const std::string& name = ActionT::type_name()) const
   {
     return *m_action->get_type<CLoopOperation>();
   }
 
-  virtual CLoopOperation& action(const CName& name = ActionT::type_name())
+  virtual CLoopOperation& action(const std::string& name = ActionT::type_name())
   {
     return *m_action->get_type<CLoopOperation>();
   }

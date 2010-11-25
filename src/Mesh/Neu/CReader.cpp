@@ -8,7 +8,7 @@
 #include <boost/algorithm/string/erase.hpp>
 #include <boost/filesystem/convenience.hpp>
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/ComponentPredicates.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/StreamHelpers.hpp"
@@ -35,15 +35,15 @@ namespace Neu {
   
 ////////////////////////////////////////////////////////////////////////////////
 
-CF::Common::ObjectProvider < Mesh::Neu::CReader,
+CF::Common::ComponentBuilder < Mesh::Neu::CReader,
                              Mesh::CMeshReader,
                              Mesh::Neu::LibNeu,
                              1 >
-aNeuReader_Provider ( "Neu" );
+aNeuReader_Builder ( "Neu" );
 
 //////////////////////////////////////////////////////////////////////////////
 
-CReader::CReader( const CName& name )
+CReader::CReader( const std::string& name )
 : CMeshReader(name),
   Shared(),
   m_repartition(false)

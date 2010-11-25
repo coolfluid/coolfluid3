@@ -15,7 +15,7 @@ namespace Actions {
 
 ///////////////////////////////////////////////////////////////////////////////////////
   
-CAction::CAction ( const CName& name ) : 
+CAction::CAction ( const std::string& name ) : 
   Component(name)
 {
   BUILD_COMPONENT;

@@ -8,7 +8,7 @@
 #include <boost/algorithm/string/erase.hpp>
 #include <boost/tuple/tuple.hpp>
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/ComponentPredicates.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionArray.hpp"
@@ -34,7 +34,7 @@ namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CF::Common::ObjectProvider < Mesh::CHoneycombInterpolator,
+CF::Common::ComponentBuilder < Mesh::CHoneycombInterpolator,
                              Mesh::CInterpolator,
                              LibMesh,
                              NB_ARGS_1 >
@@ -42,7 +42,7 @@ aHoneyCombInterpolatorProvider ( "Honeycomb" );
 
 //////////////////////////////////////////////////////////////////////////////
 
-CHoneycombInterpolator::CHoneycombInterpolator( const CName& name )
+CHoneycombInterpolator::CHoneycombInterpolator( const std::string& name )
   : CInterpolator(name), m_dim(0), m_ranges(3), m_N(3), m_D(3), m_comb_idx(3), m_sufficient_nb_points(0)
 {
   BUILD_COMPONENT;

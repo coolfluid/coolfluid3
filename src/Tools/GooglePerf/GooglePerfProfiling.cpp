@@ -6,7 +6,7 @@
 
 #include <google/profiler.h>
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/DirPaths.hpp"
 
 #include "Tools/GooglePerf/LibGooglePerfTools.hpp"
@@ -18,8 +18,8 @@ using namespace CF::Tools::GooglePerf;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-ObjectProvider < GooglePerfProfiling, CodeProfiler, LibGooglePerfTools, NB_ARGS_0 >
-GooglePerfProfiling_Provider ( GooglePerfProfiling::type_name() );
+Common::ComponentBuilder < GooglePerfProfiling, CodeProfiler, LibGooglePerfTools >
+GooglePerfProfiling_Builder ( GooglePerfProfiling::type_name() );
 
 ///////////////////////////////////////////////////////////////////////////////
 

@@ -32,7 +32,7 @@ public: // typedefs
 public: // functions
   /// Contructor
   /// @param name of the component
-  CAction ( const CName& name );
+  CAction ( const std::string& name );
 
   /// Virtual destructor
   virtual ~CAction() {};

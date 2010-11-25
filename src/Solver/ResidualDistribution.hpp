@@ -30,7 +30,7 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  ResidualDistribution ( const CName& name );
+  ResidualDistribution ( const std::string& name );
 
   /// Virtual destructor
   virtual ~ResidualDistribution();

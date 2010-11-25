@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/LibCommon.hpp"
 
 #include "Common/NoProfiling.hpp"
 
 using namespace CF::Common;
 
-ObjectProvider < NoProfiling, CodeProfiler, LibCommon, NB_ARGS_0 >
-NoProfiling_Provider ( NoProfiling::type_name() );
+Common::ComponentBuilder < NoProfiling, CodeProfiler, LibCommon, NB_ARGS_0 >
+NoProfiling_Builder ( NoProfiling::type_name() );
 
 
 NoProfiling::NoProfiling()

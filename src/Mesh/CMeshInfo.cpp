@@ -6,7 +6,7 @@
 
 #include <boost/foreach.hpp>
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/CMeshInfo.hpp"
@@ -49,15 +49,15 @@ namespace Mesh {
   
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ObjectProvider < Mesh::CMeshInfo,
+Common::ComponentBuilder < Mesh::CMeshInfo,
                          Mesh::CMeshTransformer,
                          Mesh::LibMesh,
                          NB_ARGS_1 >
-CMeshInfo_Provider ( "Info" );
+CMeshInfo_Builder ( "Info" );
 
 //////////////////////////////////////////////////////////////////////////////
 
-CMeshInfo::CMeshInfo( const CName& name )
+CMeshInfo::CMeshInfo( const std::string& name )
 : CMeshTransformer(name)
 {
   BUILD_COMPONENT;

@@ -15,7 +15,6 @@
 
 #include "Common/BuildInfo.hpp"
 #include "Common/LibraryRegistry.hpp"
-#include "Common/FactoryRegistry.hpp"
 #include "Common/LibraryRegisterBase.hpp"
 
 #include "Common/Core.hpp"
@@ -45,7 +44,6 @@ CRoot::Ptr Core::root()
 Core::Core() :
   m_event_handler(new Common::EventHandler()),
   m_module_registry(new Common::LibraryRegistry()),
-  m_factory_registry(new Common::FactoryRegistry()),
   m_build_info(new Common::BuildInfo())
 {
   m_root = CRoot::create("Root");
@@ -87,14 +85,6 @@ boost::weak_ptr< Common::LibraryRegistry > Core::library_registry()
 {
   cf_assert(m_module_registry != nullptr);
   return m_module_registry;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-boost::weak_ptr< Common::FactoryRegistry > Core::factory_registry()
-{
-  cf_assert(m_factory_registry != nullptr);
-  return m_factory_registry;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

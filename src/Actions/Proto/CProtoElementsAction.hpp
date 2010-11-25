@@ -19,7 +19,7 @@ template<typename ExprT>
 class CProtoElementsAction : CAction
 {
 public:
-  CProtoElementsAction(const CName& name) : CAction(name) {}
+  CProtoElementsAction(const std::string& name) : CAction(name) {}
   
 private:
   // Number of variables

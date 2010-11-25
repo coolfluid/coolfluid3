@@ -8,7 +8,7 @@
 #include <boost/assign/std/vector.hpp>
 #include <boost/regex.hpp>
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 
 #include "Common/CLink.hpp"
 #include "Common/ComponentPredicates.hpp"
@@ -26,12 +26,12 @@ using namespace boost::assign;
 using namespace Common;
 using namespace Common::String;
 
-Common::ObjectProvider < CField, Component, LibMesh, NB_ARGS_1 >
-CField_Provider ( CField::type_name() );
+Common::ComponentBuilder < CField, Component, LibMesh >
+CField_Builder ( CField::type_name() );
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CField::CField ( const CName& name  ) :
+CField::CField ( const std::string& name  ) :
   Component ( name )
 {
   BUILD_COMPONENT;
@@ -314,28 +314,28 @@ CRegion& CField::support()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CField& CField::subfield(const CName& name) const
+const CField& CField::subfield(const std::string& name) const
 {
   return get_named_component_typed<CField const>(*this,name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CField& CField::subfield(const CName& name)
+CField& CField::subfield(const std::string& name)
 {
   return get_named_component_typed<CField>(*this,name);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-const CFieldElements& CField::elements(const CName& name) const
+const CFieldElements& CField::elements(const std::string& name) const
 {
   return get_named_component_typed<CFieldElements const>(*this,name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CFieldElements& CField::elements(const CName& name)
+CFieldElements& CField::elements(const std::string& name)
 {
   return get_named_component_typed<CFieldElements>(*this,name);
 }

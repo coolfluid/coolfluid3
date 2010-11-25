@@ -44,7 +44,7 @@ private: // typedefs
 
 public: // functions
   /// constructor
-  CReader( const CName& name );
+  CReader( const std::string& name );
 
   /// Gets the Class name
   static std::string type_name() { return "CReader"; }

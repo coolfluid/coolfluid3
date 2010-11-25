@@ -31,7 +31,7 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  ScalarAdvection ( const CName& name );
+  ScalarAdvection ( const std::string& name );
 
   /// Virtual destructor
   virtual ~ScalarAdvection();

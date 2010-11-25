@@ -38,7 +38,7 @@ public: // typedefs
 public: // functions
   /// Contructor
   /// @param name of the component
-  CLoopOperation ( const CName& name );
+  CLoopOperation ( const std::string& name );
 
   /// Virtual destructor
   virtual ~CLoopOperation() {};

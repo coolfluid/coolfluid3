@@ -29,7 +29,7 @@ namespace Common {
 
     /// Contructor
     /// @param name of the component
-    CFactories ( const CName& name );
+    CFactories ( const std::string& name );
 
     /// Virtual destructor
     virtual ~CFactories();

@@ -13,7 +13,7 @@ using namespace Common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CIterativeSolver::CIterativeSolver ( const CName& name  ) :
+CIterativeSolver::CIterativeSolver ( const std::string& name  ) :
   CMethod ( name )
 {
   BUILD_COMPONENT;

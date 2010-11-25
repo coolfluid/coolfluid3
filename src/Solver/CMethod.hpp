@@ -36,7 +36,7 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  CMethod ( const CName& name );
+  CMethod ( const std::string& name );
 
   /// Virtual destructor
   virtual ~CMethod();

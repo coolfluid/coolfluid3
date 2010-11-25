@@ -8,7 +8,7 @@
 #include <boost/regex.hpp>
 #include <boost/filesystem.hpp>
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/CMeshExtract.hpp"
@@ -36,15 +36,15 @@ namespace Mesh {
   
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ObjectProvider < Mesh::CMeshExtract,
+Common::ComponentBuilder < Mesh::CMeshExtract,
                          Mesh::CMeshTransformer,
                          Mesh::LibMesh,
                          1 >
-CMeshExtract_Provider ( "Extract" );
+CMeshExtract_Builder ( "Extract" );
 
 //////////////////////////////////////////////////////////////////////////////
 
-CMeshExtract::CMeshExtract( const CName& name )
+CMeshExtract::CMeshExtract( const std::string& name )
 : CMeshTransformer(name)
 {
   BUILD_COMPONENT;

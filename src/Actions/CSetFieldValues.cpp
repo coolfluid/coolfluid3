@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/ObjectProvider.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Actions/CSetFieldValues.hpp"
 #include "Mesh/CFieldElements.hpp"
@@ -18,7 +18,7 @@ namespace Actions {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ObjectProvider < CSetFieldValues, CLoopOperation, LibActions, NB_ARGS_1 > CSetFieldValuesProvider( "CSetFieldValues" );
+Common::ComponentBuilder < CSetFieldValues, CLoopOperation, LibActions > CSetFieldValuesProvider( "CSetFieldValues" );
 
 ///////////////////////////////////////////////////////////////////////////////////////
   
@@ -29,7 +29,7 @@ void CSetFieldValues::define_config_properties( Common::PropertyList& options )
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-CSetFieldValues::CSetFieldValues ( const CName& name ) : 
+CSetFieldValues::CSetFieldValues ( const std::string& name ) : 
   CLoopOperation(name)
 {
   BUILD_COMPONENT;

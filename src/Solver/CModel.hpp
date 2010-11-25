@@ -37,7 +37,7 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  CModel ( const CName& name );
+  CModel ( const std::string& name );
 
   /// Virtual destructor
   virtual ~CModel();
