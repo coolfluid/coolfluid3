@@ -498,20 +498,20 @@ find_components_with_filter(ParentT& parent, const Predicate& pred)
 //////////////////////////////////////////////////////////////////////////////
 
 inline ComponentIteratorRange<Component, Component, IsComponentName>::type
-find_components_with_name(Component& parent, const Component::CName& name)
+find_components_with_name(Component& parent, const std::string& name)
 {
   return make_filtered_range(parent.begin(),parent.end(),IsComponentName(name));
 }
 
 inline ComponentIteratorRange<Component const, Component, IsComponentName>::type
-find_components_with_name(const Component& parent, const Component::CName& name)
+find_components_with_name(const Component& parent, const std::string& name)
 {
   return make_filtered_range(parent.begin(),parent.end(),IsComponentName(name));
 }
 
 template <typename ComponentT, typename ParentT>
 inline typename ComponentIteratorRange<ParentT, ComponentT, IsComponentName>::type
-find_components_with_name(ParentT& parent, const Component::CName& name)
+find_components_with_name(ParentT& parent, const std::string& name)
 {
   return make_filtered_range(parent.template begin<ComponentT>(),parent.template end<ComponentT>(),IsComponentName(name));
 }
@@ -584,20 +584,20 @@ find_components_recursively_with_filter(ParentT& parent, const Predicate& pred)
 //////////////////////////////////////////////////////////////////////////////
 
 inline ComponentIteratorRange<Component, Component, IsComponentName>::type
-find_components_recursively_with_name(Component& parent, const Component::CName& name)
+find_components_recursively_with_name(Component& parent, const std::string& name)
 {
   return find_components_recursively_with_filter(parent,IsComponentName(name));
 }
 
 inline ComponentIteratorRange<Component const, Component, IsComponentName>::type
-find_components_recursively_with_name(const Component& parent, const Component::CName& name)
+find_components_recursively_with_name(const Component& parent, const std::string& name)
 {
   return find_components_recursively_with_filter(parent,IsComponentName(name));
 }
 
 template <typename ComponentT, typename ParentT>
 inline typename ComponentIteratorRange<ParentT, ComponentT, IsComponentName>::type
-find_components_recursively_with_name(ParentT& parent, const Component::CName& name)
+find_components_recursively_with_name(ParentT& parent, const std::string& name)
 {
   return find_components_recursively_with_filter<ComponentT>(parent,IsComponentName(name));
 }
@@ -772,35 +772,35 @@ find_component_ptr_with_filter (ParentT& parent, const Predicate& pred)
 //////////////////////////////////////////////////////////////////////////////
 
 inline ComponentReference<Component>::type
-find_component_with_name (Component& parent, const Component::CName& name) {
+find_component_with_name (Component& parent, const std::string& name) {
   return find_component_with_filter(parent, IsComponentName(name));
 }
 
 inline ComponentReference<Component const>::type
-find_component_with_name (const Component& parent, const Component::CName& name) {
+find_component_with_name (const Component& parent, const std::string& name) {
   return find_component_with_filter(parent, IsComponentName(name));
 }
 template<typename ComponentT, typename ParentT>
 inline typename ComponentReference<ParentT, ComponentT>::type
-find_component_with_name (ParentT& parent, const Component::CName& name) {
+find_component_with_name (ParentT& parent, const std::string& name) {
   return find_component_with_filter<ComponentT>(parent, IsComponentName(name));
 }
 
 inline ComponentPtr<Component>::type
-find_component_ptr_with_name (Component& parent, const Component::CName& name)
+find_component_ptr_with_name (Component& parent, const std::string& name)
 {
   return find_component_ptr_with_filter(parent,IsComponentName(name));
 }
 
 inline ComponentPtr<Component const>::type
-find_component_ptr_with_name (const Component& parent, const Component::CName& name)
+find_component_ptr_with_name (const Component& parent, const std::string& name)
 {
   return find_component_ptr_with_filter(parent,IsComponentName(name));
 }
 
 template<typename ComponentT, typename ParentT>
 inline typename ComponentPtr<ParentT, ComponentT>::type
-find_component_ptr_with_name (ParentT& parent, const Component::CName& name)
+find_component_ptr_with_name (ParentT& parent, const std::string& name)
 {
   return find_component_ptr_with_filter<ComponentT>(parent,IsComponentName(name));
 }
@@ -989,36 +989,36 @@ find_component_ptr_recursively_with_filter(ParentT& parent, const Predicate& pre
 //////////////////////////////////////////////////////////////////////////////
 
 inline ComponentReference<Component>::type
-find_component_recursively_with_name(Component& parent, const Component::CName& name) {
+find_component_recursively_with_name(Component& parent, const std::string& name) {
   return find_component_recursively_with_filter(parent, IsComponentName(name));
 }
 
 inline ComponentReference<Component const>::type
-find_component_recursively_with_name(const Component& parent, const Component::CName& name) {
+find_component_recursively_with_name(const Component& parent, const std::string& name) {
   return find_component_recursively_with_filter(parent, IsComponentName(name));
 }
 
 template<typename ComponentT, typename ParentT>
 inline typename ComponentReference<ParentT, ComponentT>::type
-find_component_recursively_with_name(ParentT& parent, const Component::CName& name) {
+find_component_recursively_with_name(ParentT& parent, const std::string& name) {
   return find_component_recursively_with_filter<ComponentT>(parent, IsComponentName(name));
 }
 
 inline ComponentPtr<Component>::type
-find_component_ptr_recursively_with_name(Component& parent, const Component::CName& name)
+find_component_ptr_recursively_with_name(Component& parent, const std::string& name)
 {
   return find_component_ptr_recursively_with_filter(parent,IsComponentName(name));
 }
 
 inline ComponentPtr<Component const>::type
-find_component_ptr_recursively_with_name(const Component& parent, const Component::CName& name)
+find_component_ptr_recursively_with_name(const Component& parent, const std::string& name)
 {
   return find_component_ptr_recursively_with_filter(parent,IsComponentName(name));
 }
 
 template<typename ComponentT, typename ParentT>
 inline typename ComponentPtr<ParentT, ComponentT>::type
-find_component_ptr_recursively_with_name(ParentT& parent, const Component::CName& name)
+find_component_ptr_recursively_with_name(ParentT& parent, const std::string& name)
 {
   return find_component_ptr_recursively_with_filter<ComponentT>(parent,IsComponentName(name));
 }
