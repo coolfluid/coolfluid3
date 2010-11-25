@@ -27,6 +27,10 @@ namespace SF {
 /// @author Bart Janssens
 struct MESH_SF_API Point1DLagrangeP1  : public Point1D {
   
+  Point1DLagrangeP1(const std::string& name = type_name());
+
+  static std::string type_name() { return "Point1DLagrangeP1"; }
+
 /// Number of nodes
 static const Uint nb_nodes = 1;
 
@@ -93,7 +97,6 @@ static Real volume(const NodesType& nodes)
   return 0.;
 }
 
-Point1DLagrangeP1();
 virtual std::string getElementTypeName() const;
 virtual Real computeVolume(const NodesT& coord) const;
 virtual bool is_coord_in_element( const RealVector& coord, const NodesT& nodes) const;

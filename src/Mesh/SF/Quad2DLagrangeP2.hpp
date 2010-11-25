@@ -176,7 +176,6 @@ inline static Real volume(const NodesT& nodes) {
 /// Connectivity info for the faces
 static const FaceConnectivity& faces();
 
-Quad2DLagrangeP2();
 virtual std::string getElementTypeName() const;
 virtual Real computeVolume(const NodesT& coord) const;
 virtual bool is_coord_in_element(const RealVector& coord, const NodesT& nodes) const;
