@@ -27,9 +27,6 @@ class Actions_API CLoop : public CAction
 public: // typedefs
 
   /// provider
-  typedef Common::ConcreteProvider < CAction , Common::NB_ARGS_1 > PROVIDER;
-
-  /// provider
   typedef boost::shared_ptr< CLoop > Ptr;
   typedef boost::shared_ptr< CLoop const > ConstPtr;
 

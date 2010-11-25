@@ -6,6 +6,7 @@
 
 #include <cstdlib>  // provides system call
 
+#include "Common/CreateComponent.hpp"
 #include "Common/OSystemLayer.hpp"
 #include "Common/String/Conversion.hpp"
 
@@ -76,8 +77,6 @@ OSystem::OSystem() :
 
 OSystem::~OSystem()
 {
-  delete_ptr (m_system_layer);
-  delete_ptr (m_lib_loader);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -90,21 +89,21 @@ OSystem& OSystem::instance()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SafePtr<OSystemLayer> OSystem::OSystemLayer()
+boost::shared_ptr<OSystemLayer> OSystem::OSystemLayer()
 {
   return m_system_layer;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SafePtr<LibLoader> OSystem::LibLoader()
+boost::shared_ptr<LibLoader> OSystem::LibLoader()
 {
   return m_lib_loader;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void OSystem::executeCommand(const std::string& call)
+void OSystem::execute_command(const std::string& call)
 {
   int return_value = system ( call.c_str() );
 
@@ -117,22 +116,6 @@ void OSystem::executeCommand(const std::string& call)
     throw OSystemError ( FromHere(), msg );
   }
 }
-
-////////////////////////////////////////////////////////////////////////////////
-
-void OSystem::set_profiler(const std::string & profiler_name)
-{
-#error "Factory no longer exists - update this code"
-  m_profiler = Factory<CodeProfiler>::instance().get_provider(profiler_name)->create();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-boost::shared_ptr<CodeProfiler> OSystem::profiler() const
-{
-  return m_profiler;
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -6,18 +6,18 @@
 
 #include "Common/CodeProfiler.hpp"
 
-using namespace CF::Common;
+namespace CF {
+namespace Common {
 
-CodeProfiler::CodeProfiler()
+CodeProfiler::CodeProfiler(const std::string& name) : Component (name)
 {
-
+  BUILD_COMPONENT;
 }
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 CodeProfiler::~CodeProfiler()
 {
-
 }
+
+} // Common
+} // CF
 

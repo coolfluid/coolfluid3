@@ -25,8 +25,6 @@ class Solver_API CIterativeSolver : public Solver::CMethod {
 
 public: // typedefs
 
-  /// type of this class contruction provider
-  typedef Common::ConcreteProvider < CIterativeSolver,1 > PROVIDER;
   /// type of pointer to Component
   typedef boost::shared_ptr<CIterativeSolver> Ptr;
   /// type of pointer to constant Component

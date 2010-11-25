@@ -24,8 +24,6 @@ namespace Common {
 
   public: // typedefs
 
-    /// provider
-    typedef Common::ConcreteProvider < CGroup,1 > PROVIDER;
     /// pointer to this type
     typedef boost::shared_ptr<CGroup> Ptr;
     typedef boost::shared_ptr<CGroup const> ConstPtr;

@@ -11,7 +11,7 @@
 
 #include <boost/filesystem/path.hpp>
 
-#include "Common/ConcreteProvider.hpp"
+#include "Common/Component.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -20,22 +20,35 @@ namespace Common {
 
   //////////////////////////////////////////////////////////////////////////////
 
-  class Common_API CodeProfiler
+  class Common_API CodeProfiler : public Component
   {
   public:
-    typedef ConcreteProvider < CodeProfiler, 0 > PROVIDER;
 
-    CodeProfiler();
+    /// constructor
+    CodeProfiler(const std::string& name);
 
+    /// virtual destructor
     virtual ~CodeProfiler();
 
+    /// this class type
     static std::string type_name() { return "CodeProfiler"; }
 
+    /// start profiling
     virtual void start_profiling() = 0;
 
+    /// sttop profiling
     virtual void stop_profiling() = 0;
 
+    /// define the path of the file where to dump profiling information
     virtual void set_file_path(const boost::filesystem::path & path) = 0;
+
+    /// Configuration Options
+    static void define_config_properties ( Common::PropertyList& options ) {}
+
+  private: // helper functions
+
+    /// regists all the signals declared in this class
+    static void regist_signals ( Component* self ) {}
 
   }; // class CodeProfiler
 

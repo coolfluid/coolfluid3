@@ -10,10 +10,10 @@
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 
+#include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/XmlHelpers.hpp"
 #include "Common/BasicExceptions.hpp"
-#include "Common/Log.hpp"
 #include "Common/ComponentIterator.hpp"
 #include "Common/OptionArray.hpp"
 #include "Common/String/Conversion.hpp"
@@ -486,7 +486,7 @@ void Component::write_xml_tree( XmlNode& node )
 
   if(type_name.empty())
     CFerror << "Unknown derived name for " << DEMANGLED_TYPEID(*this)
-        << ". Was this class added to the object provider?" << CFendl;
+        << ". Was this class added to the component builder?" << CFendl;
   else
   {
     XmlNode& this_node = *XmlOps::add_node_to(node, "node");

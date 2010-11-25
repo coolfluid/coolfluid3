@@ -12,7 +12,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Common/Log.hpp"
-#include "Common/CRoot.hpp"
+#include "Common/CreateComponent.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CMeshReader.hpp"

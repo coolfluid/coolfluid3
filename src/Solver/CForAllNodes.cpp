@@ -13,7 +13,7 @@ namespace Mesh {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CForAllNodes, COperation, LibMesh > CForAllNodesProvider( "CForAllNodes" );
+Common::ComponentBuilder < CForAllNodes, COperation, LibMesh > CForAllNodes_Builder( "CForAllNodes" );
 
 /////////////////////////////////////////////////////////////////////////////////////
 } // Mesh

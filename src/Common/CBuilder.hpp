@@ -12,6 +12,7 @@
 
 #include "Common/CFactories.hpp"
 #include "Common/CRoot.hpp"
+#include "Common/Core.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -153,12 +154,12 @@ struct ComponentBuilder
     CF::TypeInfo::instance().regist< CBuilderT<BASE,CONCRETE> >(  CBuilderT<BASE,CONCRETE>::type_name() );
 
     // put builder in correct factory
-    CFactories::Ptr factories = Core::instance().root()->get_child_type< CFactories >("Factories");
-    CFactory::Ptr the_factory = factories->get_factory< BASE >();
-    the_factory->create_component_type< CBuilderT<BASE,CONCRETE> >( name );
+    Common::CFactories::Ptr factories = Common::Core::instance().root()->get_child_type< CFactories >("Factories");
+    Common::CFactory::Ptr the_factory = factories->get_factory< BASE >();
+    the_factory->create_component_type< Common::CBuilderT<BASE,CONCRETE> >( name );
 
     // give some info
-    CFinfo << "factory of \'" << BASE::type_name() << "\' registering builder of \'" << CONCRETE::type_name() << "\' with name \'" << name << "\'" << CFendl;
+//    CFinfo << "factory of \'" << BASE::type_name() << "\' registering builder of \'" << CONCRETE::type_name() << "\' with name \'" << name << "\'" << CFendl;
   }
 
 }; // ComponentBuilder

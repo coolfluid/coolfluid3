@@ -15,11 +15,7 @@
 #include <boost/mpi/timer.hpp>
 
 #include "Common/BasicExceptions.hpp"
-#include "Common/Log.hpp"
 #include "Common/MPI/PE.hpp"
-
-#include <coolfluid_config.h>
-
 
 ////////////////////////////////////////////////////////////////////////////////
 

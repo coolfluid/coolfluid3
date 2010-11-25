@@ -30,9 +30,6 @@ class Mesh_API COperation : public Common::Component
 {
 public: // typedefs
 
-  /// provider
-  typedef Common::ConcreteProvider < COperation  > PROVIDER;
-
   /// pointers
   typedef boost::shared_ptr<COperation> Ptr;
   typedef boost::shared_ptr<COperation const> ConstPtr;

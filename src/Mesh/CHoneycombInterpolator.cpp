@@ -35,10 +35,9 @@ namespace Mesh {
 ////////////////////////////////////////////////////////////////////////////////
 
 CF::Common::ComponentBuilder < Mesh::CHoneycombInterpolator,
-                             Mesh::CInterpolator,
-                             LibMesh,
-                             NB_ARGS_1 >
-aHoneyCombInterpolatorProvider ( "Honeycomb" );
+                               Mesh::CInterpolator,
+                               LibMesh >
+aHoneyCombInterpolator_Builder ( "Honeycomb" );
 
 //////////////////////////////////////////////////////////////////////////////
 

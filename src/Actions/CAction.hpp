@@ -8,7 +8,6 @@
 #define CF_Mesh_CAction_hpp
 
 #include "Common/Component.hpp"
-#include "Common/ConcreteProvider.hpp"
 #include "Actions/LibActions.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -21,9 +20,6 @@ namespace Actions {
 class Actions_API CAction : public Common::Component
 {
 public: // typedefs
-
-  /// provider
-  typedef Common::ConcreteProvider < CAction , Common::NB_ARGS_1 > PROVIDER;
 
   /// pointers
   typedef boost::shared_ptr<CAction> Ptr;

@@ -41,6 +41,7 @@ list( APPEND coolfluid_common_files
     ConfigArgs.hpp
     Core.hpp
     Core.cpp
+    CreateComponent.hpp
     DirPaths.cpp
     DirPaths.hpp
     EnumT.hpp
@@ -57,11 +58,6 @@ list( APPEND coolfluid_common_files
     LibCommon.hpp
     LibLoader.cpp
     LibLoader.hpp
-    LibraryRegistry.hpp
-    LibraryRegisterBase.hpp
-    LibraryRegistry.cpp
-    LibraryRegister.hpp
-    LibraryRegisterBase.cpp
     Log.cpp
     Log.hpp
     LogLevel.hpp
@@ -98,9 +94,6 @@ list( APPEND coolfluid_common_files
     OSystem.hpp
     OSystemLayer.cpp
     OSystemLayer.hpp
-    SafePtr.hpp
-    SelfRegistry.cpp
-    SelfRegistry.hpp
     Stopwatch.hpp
     StreamHelpers.hpp
     String/Conversion.hpp

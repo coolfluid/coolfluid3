@@ -87,8 +87,8 @@ void ProfiledTestFixture::test_unit_finish( boost::unit_test::test_unit const& u
         //std::string pprof_line(pprof_command + " --dot " + m_command + " " + infile.file_string() + " > " + outfile.file_string() + ".dot");
         //std::string dot_line(std::string(CF_DOT_COMMAND) + " -Tpng " + outfile.file_string() + ".dot > " + outfile.file_string() + ".png");
         std::string pprof_line(pprof_command + " --text " + m_command + " " + infile.file_string() + " | head -n 10 > " + outfile.file_string() + ".txt");
-        OSystem::instance().executeCommand(pprof_line);
-        //OSystem::instance().executeCommand(dot_line);
+        OSystem::instance().execute_command(pprof_line);
+        //OSystem::instance().execute_command(dot_line);
 
         // Read the output text file for dasboard output
         std::string profile; // We will read the contents here.

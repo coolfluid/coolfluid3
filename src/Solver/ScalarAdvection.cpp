@@ -6,8 +6,7 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
+#include "Common/CreateComponent.hpp"
 
 #include "Mesh/CMeshReader.hpp"
 

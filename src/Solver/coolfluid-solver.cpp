@@ -8,7 +8,7 @@
 
 #include "Common/Log.hpp"
 #include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
+#include "Common/CreateComponent.hpp"
 
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"

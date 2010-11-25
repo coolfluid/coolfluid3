@@ -23,8 +23,8 @@ namespace Actions {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CSchemeLDA, CAction, LibActions > CSchemeLDAProviderCAction( "CSchemeLDA" );
-Common::ComponentBuilder < CSchemeLDA, CLoopOperation, LibActions > CSchemeLDAProviderCLoopOperation( "CSchemeLDA" );
+Common::ComponentBuilder < CSchemeLDA, CAction, LibActions > CSchemeLDACAction_Builder( "CSchemeLDA" );
+Common::ComponentBuilder < CSchemeLDA, CLoopOperation, LibActions > CSchemeLDACLoopOperation_Builder( "CSchemeLDA" );
 
 ///////////////////////////////////////////////////////////////////////////////////////
   

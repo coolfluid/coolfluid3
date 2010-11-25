@@ -12,11 +12,6 @@
 #include <boost/shared_ptr.hpp>
 
 #include "Common/CF.hpp"
-#include "Common/Log.hpp"
-
-#include "Common/LibraryRegistry.hpp"
-#include "Common/SafePtr.hpp"
-
 #include "Common/CommonAPI.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -26,6 +21,7 @@ namespace Common {
 
   class EventHandler;
   class BuildInfo;
+  class CodeProfiler;
   class CRoot;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -56,10 +52,6 @@ public: // methods
   ///       only destruction procedures ar allowed afterwards.
   void terminate();
 
-  /// Gets the LibraryRegistry
-  /// @note Does not need to be initialized before
-  boost::weak_ptr<Common::LibraryRegistry> library_registry();
-
   /// Gets the EventHandler of the CF runtime environment
   /// @note Does not need to be initialized before
   boost::weak_ptr<Common::EventHandler> event_handler();
@@ -67,6 +59,16 @@ public: // methods
   /// Gets the BuildInfo
   /// @note Does not need to be initialized before
   boost::weak_ptr<Common::BuildInfo> build_info();
+
+  /// @brief Sets the profiler.
+  /// @param profiler_name Profiler name
+  /// @throw ValueNotFound if no such profiler was found
+  /// @todo Checks if another profiler has been set before
+  void set_profiler(const std::string& profiler_name);
+
+  /// @brief Gives the current profiler
+  /// @return Returns the current profiler
+  boost::shared_ptr<CodeProfiler> profiler() const;
 
 private: // methods
 
@@ -80,17 +82,11 @@ private: // data
   /// the EventHandler object is only held by the CoreEnv singleton object
   boost::shared_ptr< Common::EventHandler > m_event_handler;
 
-  /// the LibraryRegistry singleton object is only held by the CoreEnv singleton object
-  boost::shared_ptr< Common::LibraryRegistry > m_module_registry;
-
-  /// the FactoryRegistry singleton object is only held by the CoreEnv singleton object
-  boost::shared_ptr< Common::FactoryRegistry > m_factory_registry;
-
   /// the BuildInfo object
   boost::shared_ptr< Common::BuildInfo > m_build_info;
 
   /// @brief The component tree root
-  boost::shared_ptr<CRoot> m_root;
+  CRoot::Ptr m_root;
 
 }; // Core
 
@@ -110,7 +106,8 @@ struct ForceLibRegist
 template < typename LIB >
 ForceLibRegist<LIB>::ForceLibRegist()
 {
-  CFinfo << VERBOSE << "Library [" << LIB::instance().name() << "] loaded." << CFendl;
+  // CFinfo << VERBOSE << "Library [" << LIB::instance().name() << "] loaded." << CFendl;
+  LIB::instance();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

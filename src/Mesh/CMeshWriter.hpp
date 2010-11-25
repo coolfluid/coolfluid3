@@ -12,7 +12,6 @@
 #include <boost/filesystem/path.hpp>
 
 #include "Common/ComponentPredicates.hpp"
-#include "Common/ConcreteProvider.hpp"
 
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CMesh.hpp"
@@ -32,9 +31,6 @@ namespace Mesh {
 class Mesh_API CMeshWriter : public Common::Component {
 
 public: // typedefs
-
-  /// provider
-  typedef Common::ConcreteProvider < CMeshWriter,1 > PROVIDER;
 
   /// pointer to this type
   typedef boost::shared_ptr<CMeshWriter> Ptr;

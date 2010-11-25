@@ -14,7 +14,6 @@
 #include <boost/function.hpp>
 #include <boost/any.hpp>
 
-#include "Common/Log.hpp"
 #include "Common/TaggedObject.hpp"
 #include "Common/XML.hpp"
 

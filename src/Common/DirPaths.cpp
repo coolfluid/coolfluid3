@@ -15,8 +15,7 @@ using namespace std;
 using namespace CF::Common;
 
 namespace CF {
-
-  namespace Common {
+namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -170,6 +169,5 @@ void DirPaths::setResultsDir(const std::string& resultsDir)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  } // Common
-
+} // Common
 } // CF

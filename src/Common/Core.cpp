@@ -12,11 +12,8 @@
 #include "Common/CRoot.hpp"
 #include "Common/CEnv.hpp"
 #include "Common/CFactories.hpp"
-
 #include "Common/BuildInfo.hpp"
-#include "Common/LibraryRegistry.hpp"
-#include "Common/LibraryRegisterBase.hpp"
-
+#include "Common/CodeProfiler.hpp"
 #include "Common/Core.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -47,6 +44,9 @@ Core::Core() :
   m_build_info(new Common::BuildInfo())
 {
   m_root = CRoot::create("Root");
+
+  /// @todo this components should be static and access provided from the Core
+  ///       via dedicated functions that do not imply searching
 
   m_root->create_component_type<CEnv>("Environment");
 
@@ -81,14 +81,6 @@ void Core::terminate()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::weak_ptr< Common::LibraryRegistry > Core::library_registry()
-{
-  cf_assert(m_module_registry != nullptr);
-  return m_module_registry;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 boost::weak_ptr< Common::EventHandler > Core::event_handler()
 {
   cf_assert(m_event_handler != nullptr);
@@ -103,6 +95,20 @@ boost::weak_ptr< Common::BuildInfo > Core::build_info()
   return m_build_info;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+void Core::set_profiler(const std::string & builder_name)
+{
+  create_component_abstract_type<CodeProfiler>(builder_name, builder_name);
+  m_root->add_component(m_profiler);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+boost::shared_ptr<CodeProfiler> Core::profiler() const
+{
+  return m_root->get_child_type<CodeProfiler>();
+}
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Common

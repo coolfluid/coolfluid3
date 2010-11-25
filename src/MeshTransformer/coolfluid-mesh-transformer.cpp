@@ -40,6 +40,8 @@ int main(int argc, char * argv[])
   typedef std::pair<std::string,std::string> transformers_description_t;
   std::map<std::string,std::string> transformers_description;
     
+#error "adapt this code from providers to builders"
+
   std::vector<CMeshReader::PROVIDER*> allmeshreaders = Factory<CMeshReader>::instance().get_all_concrete_providers();
   BOOST_FOREACH(CMeshReader::PROVIDER* prov, allmeshreaders)
   {

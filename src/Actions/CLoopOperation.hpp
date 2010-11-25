@@ -28,9 +28,6 @@ class Actions_API CLoopOperation : public CAction
 {
 public: // typedefs
 
-  /// provider
-  typedef Common::ConcreteProvider < CLoopOperation , Common::NB_ARGS_1 > PROVIDER;
-
   /// pointers
   typedef boost::shared_ptr<CLoopOperation> Ptr;
   typedef boost::shared_ptr<CLoopOperation const> ConstPtr;

@@ -14,7 +14,6 @@
 #include "Common/ConfigObject.hpp"
 #include "Common/SignalHandler.hpp"
 #include "Common/CPath.hpp"
-#include "Common/ConcreteProvider.hpp"
 #include "Common/ComponentIterator.hpp"
 #include "Common/XmlHelpers.hpp"
 #include "Common/OptionArray.hpp"
@@ -338,19 +337,6 @@ protected: // data
   void raise_event(const std::string & name );
 
 }; // Component
-
-////////////////////////////////////////////////////////////////////////////////
-
-/// Create a (sub)component of a given abstract type specified type
-/// @param provider_name the registry string of the provider of the concrete type
-/// @name name to give to the created omponent
-template < typename ATYPE >
-    typename ATYPE::Ptr create_component_abstract_type ( const std::string& provider_name, const Component::std::string& name )
-{
-  Common::SafePtr< typename ATYPE::PROVIDER > prov =
-      Common::Factory<ATYPE>::instance().get_provider( provider_name );
-  return boost::dynamic_pointer_cast<ATYPE>( prov->create(name) );
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 

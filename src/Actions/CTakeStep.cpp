@@ -20,7 +20,7 @@ namespace Actions {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CTakeStep, CLoopOperation, LibActions > CTakeStepProvider( "CTakeStep" );
+Common::ComponentBuilder < CTakeStep, CLoopOperation, LibActions > CTakeStep_Builder( "CTakeStep" );
 
 ///////////////////////////////////////////////////////////////////////////////////////
   

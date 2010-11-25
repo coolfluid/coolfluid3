@@ -5,6 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/URI.hpp"
+#include "Common/CreateComponent.hpp"
+
 #include "Actions/CLoop.hpp"
 
 #include "Mesh/CRegion.hpp"

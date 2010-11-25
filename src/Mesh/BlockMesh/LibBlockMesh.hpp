@@ -40,12 +40,12 @@ class BlockMesh_API LibBlockMesh :
 public:
 
   /// Static function that returns the module name.
-  /// Must be implemented for the LibraryRegister template
+  /// Must be implemented for CLibrary registration
   /// @return name of the library
   static std::string library_name() { return "BlockMesh"; }
 
   /// Static function that returns the description of the module.
-  /// Must be implemented for the LibraryRegister template
+  /// Must be implemented for CLibrary registration
   /// @return description of the library
 
   static std::string library_description()

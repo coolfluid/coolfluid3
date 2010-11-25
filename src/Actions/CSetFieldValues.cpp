@@ -18,7 +18,7 @@ namespace Actions {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CSetFieldValues, CLoopOperation, LibActions > CSetFieldValuesProvider( "CSetFieldValues" );
+Common::ComponentBuilder < CSetFieldValues, CLoopOperation, LibActions > CSetFieldValues_Builder( "CSetFieldValues" );
 
 ///////////////////////////////////////////////////////////////////////////////////////
   

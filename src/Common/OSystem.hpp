@@ -11,7 +11,6 @@
 
 #include "Common/CodeProfiler.hpp"
 #include "Common/Exception.hpp"
-#include "Common/SafePtr.hpp"
 #include "Common/CommonAPI.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -42,24 +41,14 @@ public: // methods
   static OSystem& instance();
 
   /// @return ProcessInfo object
-  Common::SafePtr<Common::OSystemLayer> OSystemLayer();
+  boost::shared_ptr<Common::OSystemLayer> OSystemLayer();
 
   /// @return LibLoader object
-  Common::SafePtr<Common::LibLoader> LibLoader();
+  boost::shared_ptr<Common::LibLoader> LibLoader();
 
   /// Executes the command passed in the string
   /// @todo should return the output of the command but not yet implemented.
-  void executeCommand (const std::string& call);
-
-  /// @brief Sets the profiler.
-  /// @param profiler_name Profiler name
-  /// @throw ValueNotFound if no such profiler was found
-  /// @todo Checks if another profiler has been set before
-  void set_profiler(const std::string & profiler_name);
-
-  /// @brief Gives the current profiler
-  /// @return Returns the current profiler
-  boost::shared_ptr<CodeProfiler> profiler() const;
+  void execute_command (const std::string& call);
 
 private: // functions
 
@@ -74,8 +63,6 @@ private: // data
   Common::OSystemLayer * m_system_layer;
   /// libloader object
   Common::LibLoader * m_lib_loader;
-
-  boost::shared_ptr<CodeProfiler> m_profiler;
 
 }; // class FileHandlerOutput
 

@@ -12,6 +12,7 @@
 
 #include "Common/ConfigObject.hpp"
 #include "Common/Log.hpp"
+#include "Common/CreateComponent.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"

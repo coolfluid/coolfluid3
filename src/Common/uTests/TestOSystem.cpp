@@ -30,14 +30,14 @@ BOOST_AUTO_TEST_CASE( getLibLoader )
   BOOST_CHECK( OSystem::instance().LibLoader().isNotNull() );
 }
 
-BOOST_AUTO_TEST_CASE( executeCommand )
+BOOST_AUTO_TEST_CASE( execute_command )
 {
   /// @todo this test is not cross-platform
   // should exit normally
-  BOOST_CHECK_NO_THROW( OSystem::instance().executeCommand("echo"));
+  BOOST_CHECK_NO_THROW( OSystem::instance().execute_command("echo"));
   // the command does *normally* not exist, should throw an exception
   /// @todo find a command that throws an exception
-  //BOOST_CHECK_THROW( OSystem::instance().executeCommand("cd /aDirThatDoesNotExist"), OSystemError);
+  //BOOST_CHECK_THROW( OSystem::instance().execute_command("cd /aDirThatDoesNotExist"), OSystemError);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

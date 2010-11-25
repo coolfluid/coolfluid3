@@ -4,10 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Factory.hpp"
 #include "Common/CLink.hpp"
 #include "Common/CGroup.hpp"
-#include "Common/CBuilder.hpp"
+#include "Common/CreateComponent.hpp"
 
 #include "Mesh/CElements.hpp"
 #include "Mesh/CFieldElements.hpp"
@@ -61,10 +60,8 @@ void CElements::initialize(const std::string& element_type_name, CArray& coords_
 
 void CElements::set_element_type(const std::string& etype_name)
 {
-  Common::SafePtr< ElementType::PROVIDER > prov =
-      Factory<ElementType>::instance().get_provider( etype_name );
-
-  m_element_type = prov->create();
+  m_element_type = create_component_abstract_type<ElementType>( etype_name, etype_name );
+  add_static_component( m_element_type );
 }
 
 //////////////////////////////////////////////////////////////////////////////

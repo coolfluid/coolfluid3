@@ -15,7 +15,7 @@
 #include <boost/filesystem/path.hpp>
 
 #include "Common/LibCommon.hpp"
-#include "Common/CRoot.hpp"
+#include "Common/CreateComponent.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CField.hpp"

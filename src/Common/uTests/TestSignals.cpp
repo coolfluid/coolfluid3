@@ -27,10 +27,9 @@ class CSmall : public Component {
 
 public: // typedefs
 
-  /// provider
-  typedef Common::ConcreteProvider < CSmall,1 > PROVIDER;
   /// pointer to this type
   typedef boost::shared_ptr<CSmall> Ptr;
+  typedef boost::shared_ptr<CSmall const> ConstPtr;
 
 public: // functions
 

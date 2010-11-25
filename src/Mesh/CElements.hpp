@@ -109,7 +109,7 @@ private: // helper functions
 
 protected: // data
   
-  boost::shared_ptr<ElementType> m_element_type;
+  ElementType::Ptr m_element_type;
     
 };
 

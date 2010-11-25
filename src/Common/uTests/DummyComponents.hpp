@@ -20,8 +20,6 @@ class CAbstract : public Component
 
 public: // typedefs
 
-  /// provider
-  typedef Common::ConcreteProvider < CAbstract,1 > PROVIDER;
   /// pointer to this type
   typedef boost::shared_ptr<CAbstract> Ptr;
   typedef boost::shared_ptr<CAbstract const> ConstPtr;
@@ -141,10 +139,10 @@ private: // helper functions
 
 
 CF::Common::ComponentBuilder < CConcrete1, CAbstract, LibCommon >
-aConcrete1ComponentProvider ( "Concrete1" );
+aConcrete1Component_Builder ( "Concrete1" );
 
 CF::Common::ComponentBuilder < CConcrete2, CAbstract, LibCommon >
-aConcrete2ComponentProvider ( "Concrete2" );
+aConcrete2Component_Builder ( "Concrete2" );
 
 } // Common
 } // CF

@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "Common/CreateComponent.hpp"
+
 #include "Mesh/COperation.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -60,13 +62,13 @@ COperation& COperation::create_operation(const std::string operation_type)
 
 ///////////////////////////////////////////////////////////////////////////////////////
   
-Common::ComponentBuilder < COperationMerge, COperation, LibMesh > COperationMergeProvider( "COperationMerge" );
+Common::ComponentBuilder < COperationMerge, COperation, LibMesh > COperationMerge_Builder( "COperationMerge" );
 
-Common::ComponentBuilder < COutputField,    COperation, LibMesh > COutputFieldProvider( "COutputField" );
+Common::ComponentBuilder < COutputField,    COperation, LibMesh > COutputField_Builder( "COutputField" );
 
-Common::ComponentBuilder < CComputeVolumes, COperation, LibMesh > CComputeVolumeProvider( "CComputeVolumes" );
+Common::ComponentBuilder < CComputeVolumes, COperation, LibMesh > CComputeVolume_Builder( "CComputeVolumes" );
 
-Common::ComponentBuilder < CSetValue,       COperation, LibMesh > CSetValueProvider( "CSetValue" );
+Common::ComponentBuilder < CSetValue,       COperation, LibMesh > CSetValue_Builder( "CSetValue" );
 
 //
 //struct SetX

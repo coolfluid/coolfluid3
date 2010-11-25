@@ -18,7 +18,7 @@
 #include "Common/XmlHelpers.hpp"
 
 #include "Common/Log.hpp"
-#include "Common/CRoot.hpp"
+#include "Common/CreateComponent.hpp"
 #include "Common/ComponentPredicates.hpp"
 #include "Common/CLink.hpp"
 

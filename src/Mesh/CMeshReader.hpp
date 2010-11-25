@@ -12,7 +12,6 @@
 #include <boost/filesystem/path.hpp>
 
 #include "Common/Component.hpp"
-#include "Common/ConcreteProvider.hpp"
 
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CMesh.hpp"
@@ -36,8 +35,6 @@ class Mesh_API CMeshReader : public Common::Component {
 
 public: // typedefs
 
-  /// type of this class contruction provider
-  typedef Common::ConcreteProvider < CMeshReader,1 > PROVIDER;
   /// type of pointer to Component
   typedef boost::shared_ptr<CMeshReader> Ptr;
   /// type of pointer to constant Component
