@@ -27,31 +27,31 @@ Common::ComponentBuilder < CTable<std::string>, Component, LibMesh > CTable_stri
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::ostream& operator<<(std::ostream& os, const CTable<bool>::ConstRow& row)
+std::ostream& operator<<(std::ostream& os, const CTable<bool>::ConstRow row)
 {
   print_vector(os, row);
   return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const CTable<Uint>::ConstRow& row)
+std::ostream& operator<<(std::ostream& os, const CTable<Uint>::ConstRow row)
 {
   print_vector(os, row);
   return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const CTable<int>::ConstRow& row)
+std::ostream& operator<<(std::ostream& os, const CTable<int>::ConstRow row)
 {
   print_vector(os, row);
   return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const CTable<Real>::ConstRow& row)
+std::ostream& operator<<(std::ostream& os, const CTable<Real>::ConstRow row)
 {
   print_vector(os, row);
   return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const CTable<std::string>::ConstRow& row)
+std::ostream& operator<<(std::ostream& os, const CTable<std::string>::ConstRow row)
 {
   print_vector(os, row);
   return os;
