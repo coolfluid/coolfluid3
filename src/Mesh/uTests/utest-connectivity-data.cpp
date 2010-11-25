@@ -45,7 +45,7 @@ struct NeuFixture
   NeuFixture() : mesh2d(new CMesh  ( "mesh2d" )), mesh3d(new CMesh  ( "mesh3d" ))
   {
     // Read the a .neu mesh as 2D mixed mesh
-    boost::shared_ptr<CMeshReader> meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
+    CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
 
     // the file to read from
     boost::filesystem::path fp_in_2d ("quadtriag.neu");

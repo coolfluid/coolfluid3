@@ -13,6 +13,7 @@
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/ComponentPredicates.hpp"
+#include "Common/CreateComponent.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -43,7 +44,7 @@ struct Nodes_Fixture
      //char*** argv = &boost::unit_test::framework::master_test_suite().argv;
 
     // Read the a .neu mesh as 2D mixed mesh
-    boost::shared_ptr<CMeshReader> meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
+    CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
 
     // the file to read from
     boost::filesystem::path fp_in ("quadtriag.neu");

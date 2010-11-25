@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <boost/range/sub_range.hpp>
+#include <boost/range.hpp>
 #include <boost/iterator/filter_iterator.hpp>
 #include <boost/foreach.hpp>
 #include <boost/mpl/if.hpp>

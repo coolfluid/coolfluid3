@@ -6,7 +6,6 @@
 
 #include <boost/program_options.hpp>
 
-#include "Common/Factory.hpp"
 #include "Common/Log.hpp"
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
@@ -40,31 +39,33 @@ int main(int argc, char * argv[])
   typedef std::pair<std::string,std::string> transformers_description_t;
   std::map<std::string,std::string> transformers_description;
     
-#error "adapt this code from providers to builders"
 
-  std::vector<CMeshReader::PROVIDER*> allmeshreaders = Factory<CMeshReader>::instance().get_all_concrete_providers();
-  BOOST_FOREACH(CMeshReader::PROVIDER* prov, allmeshreaders)
+  CFactory::Ptr meshreader_fac = Core::instance().factories()->get_factory<CMeshReader>();
+
+  BOOST_FOREACH(CBuilder& builder, recursive_filtered_range_typed<CBuilder>( meshreader_fac, IsComponentTrue() ) );
   {
-    CMeshReader::Ptr reader = dynamic_pointer_cast<CMeshReader>(prov->create("reader"));
+    CMeshReader::Ptr reader = dynamic_pointer_cast<CMeshReader>(builder->build_component_typed("reader"));
     readers.push_back(reader);
     BOOST_FOREACH(const std::string& extension, reader->get_extensions())
     extensions_to_readers[extension].push_back(reader);
   }
   
-  std::vector<CMeshWriter::PROVIDER*> allmeshwriters = Factory<CMeshWriter>::instance().get_all_concrete_providers();
-  BOOST_FOREACH(CMeshWriter::PROVIDER* prov, allmeshwriters)
+  CFactory::Ptr meshwriter_fac = Core::instance().factories()->get_factory<CMeshWriter>();
+
+  BOOST_FOREACH(CBuilder& builder, recursive_filtered_range_typed<CBuilder>( meshwriter_fac, IsComponentTrue() ) )
   {
-    CMeshWriter::Ptr writer = dynamic_pointer_cast<CMeshWriter>(prov->create("writer"));
+    CMeshWriter::Ptr writer = dynamic_pointer_cast<CMeshWriter>(builder->build_component_typed("writer"));
     writers.push_back(writer);
     BOOST_FOREACH(const std::string& extension, writer->get_extensions())
     extensions_to_writers[extension].push_back(writer);
   }
   
-  std::vector<CMeshTransformer::PROVIDER*> allmeshtransformers = Factory<CMeshTransformer>::instance().get_all_concrete_providers();
-  BOOST_FOREACH(CMeshTransformer::PROVIDER* prov, allmeshtransformers)
+  CFactory::Ptr meshtrans_fac = Core::instance().factories()->get_factory<CMeshTransformer>();
+
+  BOOST_FOREACH(CBuilder& builder, recursive_filtered_range_typed<CBuilder>( meshtrans_fac, IsComponentTrue() ))
   {
-    CMeshTransformer::Ptr transformer = dynamic_pointer_cast<CMeshTransformer>(prov->create("transformer"));
-    transformers_description[prov->provider_name()] = transformer->brief_description();
+    CMeshTransformer::Ptr transformer = dynamic_pointer_cast<CMeshTransformer>(builder->build_component_typed("transformer"));
+    transformers_description[builder->builder_concrete_type_name()] = transformer->brief_description();
   }
   
   options_description desc("General Options");

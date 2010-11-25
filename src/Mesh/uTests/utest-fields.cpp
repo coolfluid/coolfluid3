@@ -13,6 +13,7 @@
 #include <boost/filesystem/path.hpp>
 
 #include "Common/Log.hpp"
+#include "Common/CreateComponent.hpp"
 
 #include "Math/MatrixTypes.hpp"
 

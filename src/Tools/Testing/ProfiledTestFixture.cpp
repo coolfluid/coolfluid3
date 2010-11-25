@@ -33,13 +33,15 @@ using namespace Common;
 
 ProfiledTestFixture::ProfiledTestFixture()
 {
+  const std::string prof_name ( "GooglePerfProfiling" );
+
   CBuilder::Ptr bld =
-      recursive_get_component_typed_ptr< CBuilder >( *Core::instance().factories(), IsComponentTrue() );
+      recursive_get_component_typed_ptr< CBuilder >( *Core::instance().factories(), IsComponentName(prof_name) );
 
   m_using_google_perf = ( bld != nullptr );
 
   if(m_using_google_perf)
-    Core::instance().set_profiler("GooglePerfProfiling");
+    Core::instance().set_profiler( prof_name );
 
   char** argv = boost::unit_test::framework::master_test_suite().argv;
 
