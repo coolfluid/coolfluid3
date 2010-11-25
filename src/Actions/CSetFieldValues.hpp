@@ -56,8 +56,6 @@ public: // functions
 	/// @return the nodes to loop over
 	virtual CList<Uint>& loop_list ();
 	
-private: // helper functions
-	
   /// regists all the signals declared in this class
   virtual void define_signals () {}
 	

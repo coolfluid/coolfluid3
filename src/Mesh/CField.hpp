@@ -128,8 +128,6 @@ public: // functions
   /// Return the length (in number of Real values occupied in the data row) of the variable of the given name
   Uint var_length(const std::string& vname) const;
   
-private: // helper functions
-
   /// regists all the signals declared in this class
   virtual void define_signals () {}
 

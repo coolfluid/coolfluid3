@@ -176,7 +176,7 @@ public: // functions
   /// @param name of the component
   COutputField ( const std::string& name ) : COperation(name)
   {
-    BuildComponent<full>().build(this);
+    BuildComponent<nosignals>().build(this);
     m_properties["Field"].as_option().attach_trigger ( boost::bind ( &COutputField::trigger_Field,   this ) );
   }
 
@@ -217,11 +217,6 @@ public: // functions
     CFinfo << "   " << scalar_name << "["<<elem<<"] = " << data->scalars[elem][0] << CFendl;
   }
 
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
-
 private: // data
 
   struct LoopHelper
@@ -254,7 +249,7 @@ public: // functions
   /// @param name of the component
   CComputeVolumes ( const std::string& name ) : COperation(name)
   {
-    BuildComponent<full>().build(this);
+    BuildComponent<nosignals>().build(this);
     m_properties["Field"].as_option().attach_trigger ( boost::bind ( &CComputeVolumes::trigger_Field,   this ) );
   }
 
@@ -297,11 +292,6 @@ public: // functions
     data->volumes[elem][0] = data->field_elements.element_type().computeVolume( nodes );
   }
 
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
-
 private: // data
 
   struct LoopHelper
@@ -337,7 +327,7 @@ public: // functions
   /// @param name of the component
   CSetValue ( const std::string& name ) : COperation(name)
   {
-    BuildComponent<full>().build(this);
+    BuildComponent<nosignals>().build(this);
     m_properties["Field"].as_option().attach_trigger ( boost::bind ( &CSetValue::trigger_Field,   this ) );
   }
 
@@ -377,11 +367,6 @@ public: // functions
     CArray& field_data = data->field_data;
     field_data[node][0] = data->coordinates[node][XX]*data->coordinates[node][XX];
   }
-
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
 
 private: // data
 

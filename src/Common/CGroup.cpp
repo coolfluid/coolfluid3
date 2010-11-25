@@ -26,7 +26,7 @@ Common::ComponentBuilder < CGroup, Component, LibCommon > CGroup_Builder;
 
 CGroup::CGroup ( const std::string& name ) : Component ( name )
 {
-  BuildComponent<full>().build(this);
+  BuildComponent<nosignals>().build(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

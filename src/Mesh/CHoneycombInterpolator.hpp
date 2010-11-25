@@ -80,8 +80,6 @@ private: // functions
 	/// @param weights [out]  The weights corresponding for each source_point.  Q_t = sum( weight_i * Q_i )
 	void pseudo_laplacian_weighted_linear_interpolation(const std::vector<RealVector>& source_points, const RealVector& target_point, std::vector<Real>& weights);
 
-private: // helper functions
-
   /// regists all the signals declared in this class
   virtual void define_signals () {}
 

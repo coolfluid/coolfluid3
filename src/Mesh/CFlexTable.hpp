@@ -147,9 +147,6 @@ public:
   /// @return A const reference to the array data
   const ArrayT& array() const { return m_array; }
   
-  
-private: // helper functions
-
   /// regists all the signals declared in this class
   virtual void define_signals () {}
   

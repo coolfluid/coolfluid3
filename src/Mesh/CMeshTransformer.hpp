@@ -48,9 +48,9 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CMeshTransformer"; }
   
-  // --------- Configuration ---------
-
   virtual void define_config_properties ();
+
+  virtual void define_signals () {}
 
   // --------- Signals ---------
 
@@ -66,12 +66,6 @@ public: // functions
   /// extended help that user can query
   virtual std::string help() const = 0;
 
-protected: // functions
-
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
 
 };
 

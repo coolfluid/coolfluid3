@@ -43,8 +43,6 @@ public: // functions
   /// Configuration Options
   virtual void define_config_properties ();
 	
-private: // helper functions
-
   /// regists all the signals declared in this class
   virtual void define_signals () {}
 

@@ -23,20 +23,19 @@ CMethod_Builder ( CMethod::type_name() );
 CMethod::CMethod ( const std::string& name  ) :
   Component ( name )
 {
-  BuildComponent<full>().build(this);
+  add_tag( type_name() );
+
+  m_properties.add_option< Common::OptionT<bool> >("myBoolMeth", "A boolean value in a CMethod", true);
+  m_properties.add_option< Common::OptionT<int> >("fourtyTwo", "An integer value in a CMethod", 42);
+  m_properties.add_option< Common::OptionT<CF::Real> >("euler", "Euler number in a CMethod", 2.71);
+
+  this->regist_signal ( "run_operation" , "run an operation", "Run Operation" )->connect ( boost::bind ( &CMethod::run_operation, this, _1 ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 CMethod::~CMethod()
 {
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void CMethod::define_signals ()
-{
-  this->regist_signal ( "run_operation" , "run an operation", "Run Operation" )->connect ( boost::bind ( &CMethod::run_operation, this, _1 ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

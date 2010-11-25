@@ -51,11 +51,6 @@ namespace Common {
 
     void change_link( XmlNode & node );
 
-  private: // helper functions
-
-    /// regists all the signals declared in this class
-    virtual void define_signals () {}
-
   private: // data
 
     /// this is a link to the component

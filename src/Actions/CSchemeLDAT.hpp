@@ -52,8 +52,6 @@ public: // functions
   /// execute the action
   virtual void execute ();
     
-private: // helper functions
-
   /// regists all the signals declared in this class
   virtual void define_signals () {}
 

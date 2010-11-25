@@ -124,14 +124,6 @@ public: // functions
   /// @param [in] nodes  the nodes of the element
   virtual bool is_coord_in_element(const RealVector& coord, const NodesT& nodes) const = 0;
 
-  /// Configuration Options
-  virtual void define_config_properties ();
-
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
-
 protected: // data
 
   /// the GeoShape::Type corresponding to the shape

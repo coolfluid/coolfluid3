@@ -99,8 +99,6 @@ protected: // functions
   /// @param [in] parent_region  Region in which the removal will take place
   void remove_empty_element_regions(CRegion& parent_region);
 
-private: // helper functions
-
   /// regists all the signals declared in this class
   virtual void define_signals ();
 	

@@ -13,7 +13,7 @@ namespace Common {
 
 CLibraries::CLibraries ( const std::string& name) : Component ( name )
 {
-  BuildComponent<full>().build(this);
+  BuildComponent<nosignals>().build(this);
   TypeInfo::instance().regist<CLibraries>(CLibraries::type_name());
 }
 

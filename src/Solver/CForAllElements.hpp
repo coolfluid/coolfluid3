@@ -55,7 +55,7 @@ public: // functions
     COperation(name),
     m_operation(new COp("operation"), Deleter<COp>())
   {
-    BuildComponent<full>().build(this);
+    BuildComponent<nosignals>().build(this);
     m_properties["Regions"].as_option().attach_trigger ( boost::bind ( &CForAllElementsT::trigger_Regions,   this ) );
   }
 
@@ -162,11 +162,6 @@ private:
     COp& op;
 
   }; // Looper
-
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
 
 private:
 

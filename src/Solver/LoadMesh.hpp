@@ -42,6 +42,9 @@ public: // functions
   /// Configuration Options
   virtual void define_config_properties ();
 
+  /// regists all the signals declared in this class
+  virtual void define_signals ();
+
   // functions specific to the LoadMesh component
   
   /// Signal run_operation
@@ -49,11 +52,6 @@ public: // functions
   
   LoadMesh& operation(const std::string& name);
   
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  static void define_signals ();
-
 };
 
 ////////////////////////////////////////////////////////////////////////////////

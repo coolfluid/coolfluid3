@@ -44,14 +44,6 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CMethod"; }
 
-  /// Configuration Options
-  virtual void define_config_properties ()
-  {
-    m_properties.add_option< Common::OptionT<bool> >("myBoolMeth", "A boolean value in a CMethod", true);
-    m_properties.add_option< Common::OptionT<int> >("fourtyTwo", "An integer value in a CMethod", 42);
-    m_properties.add_option< Common::OptionT<CF::Real> >("euler", "Euler number in a CMethod", 2.71);
-  }
-
   // functions specific to the CMethod component
   
   // Signal run_operation
@@ -59,11 +51,6 @@ public: // functions
   
   CMethod& operation(const std::string& name);
   
-private: // helper functions
-
-  /// regists all the signals declared in this class
-  virtual void define_signals ();
-
 };
 
 ////////////////////////////////////////////////////////////////////////////////

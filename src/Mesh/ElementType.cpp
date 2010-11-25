@@ -15,14 +15,10 @@ namespace Mesh {
 
 ElementType::ElementType( const std::string& name ) : Common::Component(name)
 {
-  BuildComponent<full>().build(this);
+  BuildComponent<none>().build(this);
 }
 
 ElementType::~ElementType()
-{
-}
-
-void ElementType::define_config_properties ()
 {
 }
 
