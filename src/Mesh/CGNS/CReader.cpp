@@ -37,7 +37,7 @@ Common::ComponentBuilder< CReader, CMeshReader, LibCGNS > aCGNSReader_Builder;
 CReader::CReader(const std::string& name)
 : CMeshReader(name), Shared()
 {
-  BuildComponent<no_signal>().build(this);
+  BuildComponent<nosignals>().build(this);
 }
 
 //////////////////////////////////////////////////////////////////////////////

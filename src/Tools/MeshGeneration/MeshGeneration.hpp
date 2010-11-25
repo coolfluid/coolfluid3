@@ -7,6 +7,7 @@
 #ifndef CF_Tools_MeshGeneration_Tools_hpp
 #define CF_Tools_MeshGeneration_Tools_hpp
 
+#include "Common/Log.hpp"
 #include "Math/MathConsts.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/BlockMesh/BlockData.hpp"

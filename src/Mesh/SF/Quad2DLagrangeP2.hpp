@@ -28,6 +28,10 @@ namespace SF {
 struct MESH_SF_API Quad2DLagrangeP2  : public Quad2D {
   
 
+  Quad2DLagrangeP2(const std::string& name = type_name());
+
+  static std::string type_name() { return "Quad2DLagrangeP2"; }
+
 /// Number of nodes
 static const Uint nb_nodes = 9;
 

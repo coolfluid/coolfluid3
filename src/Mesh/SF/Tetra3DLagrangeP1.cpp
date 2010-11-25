@@ -23,7 +23,7 @@ aTetra3DLagrangeP1_Builder ( "Tetra3DLagrangeP1" );
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Tetra3DLagrangeP1::Tetra3DLagrangeP1(const std::string& name) : Hexa3D(name)
+Tetra3DLagrangeP1::Tetra3DLagrangeP1(const std::string& name) : Tetra3D(name)
 {
   add_tag( type_name() );
 

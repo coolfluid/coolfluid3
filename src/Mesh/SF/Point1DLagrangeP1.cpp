@@ -22,8 +22,10 @@ aPoint1DLagrangeP1_Builder ( "Point1DLagrangeP1" );
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Point1DLagrangeP1::Point1DLagrangeP1() : Point1D()
+Point1DLagrangeP1::Point1DLagrangeP1(const std::string& name) : Point1D(name)
 {
+  add_tag( type_name() );
+
   m_nb_nodes = nb_nodes;
   m_order = order;
 }
