@@ -70,7 +70,7 @@ public:
   /// @param name of component
   CFactoryT(const std::string& name) : CFactory(name)
   {
-    BUILD_COMPONENT;
+    BuildComponent<full>().build(this);
   }
 
   /// @brief Virtual destructor.

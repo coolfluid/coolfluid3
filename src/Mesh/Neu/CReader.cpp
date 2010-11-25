@@ -48,7 +48,7 @@ CReader::CReader( const std::string& name )
   Shared(),
   m_repartition(false)
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
   m_property_list["Repartition"].as_option().attach_trigger ( boost::bind ( &CReader::config_repartition,   this ) );
   
   m_property_list["brief"] = std::string("Gambit Neutral file mesh reader component");

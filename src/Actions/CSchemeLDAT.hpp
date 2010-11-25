@@ -44,7 +44,7 @@ public: // functions
   static std::string type_name () { return "CSchemeLDAT"; }
 
   /// Configuration Options
-  static void define_config_properties ( Common::PropertyList& options );
+  virtual void define_config_properties ();
 
   /// Set the loop_helper
   void set_loophelper (CElements& geometry_elements );
@@ -55,7 +55,7 @@ public: // functions
 private: // helper functions
 
   /// regists all the signals declared in this class
-  static void regist_signals ( Component* self ) {}
+  virtual void define_signals () {}
 
 private: // data
 
@@ -112,7 +112,7 @@ template<typename SHAPEFUNC>
 CSchemeLDAT<SHAPEFUNC>::CSchemeLDAT ( const std::string& name ) :
   CLoopOperation(name)
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
   properties()["brief"] = std::string("Element Loop component that computes the residual and update coefficient using the LDA scheme");
   properties()["description"] = std::string("Write here the full description of this component");
 

@@ -34,7 +34,7 @@ ScalarAdvection_Builder ( ScalarAdvection::type_name() );
 ScalarAdvection::ScalarAdvection ( const std::string& name  ) :
   Component ( name )
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -55,7 +55,7 @@ void ScalarAdvection::define_config_properties(Common::PropertyList& options)
 
 void ScalarAdvection::regist_signals ( ScalarAdvection* self )
 {
-  self->regist_signal ( "run_wizard" , "runs the wizard ", "Run Wizard" )->connect ( boost::bind ( &ScalarAdvection::run_wizard, self, _1 ) );
+  this->regist_signal ( "run_wizard" , "runs the wizard ", "Run Wizard" )->connect ( boost::bind ( &ScalarAdvection::run_wizard, self, _1 ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

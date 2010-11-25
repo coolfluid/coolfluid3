@@ -13,7 +13,7 @@ using namespace CF::GUI::ClientCore;
 NGeneric::NGeneric(const QString & name, const QString & type) :
     CNode(name, type, GENERIC_NODE)
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

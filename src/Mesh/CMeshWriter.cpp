@@ -17,7 +17,7 @@ using namespace Common;
 CMeshWriter::CMeshWriter ( const std::string& name  ) :
   Component ( name ), m_coord_dim(0), m_max_dimensionality(0)
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

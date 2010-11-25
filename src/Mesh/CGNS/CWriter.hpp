@@ -70,7 +70,7 @@ private: // functions
 private: // helper functions
 
   /// regists all the signals declared in this class
-  static void regist_signals ( Component* self ) {}
+  virtual void define_signals () {}
 
 private: // data
   

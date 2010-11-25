@@ -23,7 +23,7 @@ CTable_Builder ( CTable::type_name() );
 CTable::CTable ( const std::string& name  ) :
   Component ( name )
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
 }
 
 std::ostream& operator<<(std::ostream& os, const CTable::ConstRow& row)

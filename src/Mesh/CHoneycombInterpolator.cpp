@@ -44,7 +44,7 @@ aHoneyCombInterpolator_Builder ( "Honeycomb" );
 CHoneycombInterpolator::CHoneycombInterpolator( const std::string& name )
   : CInterpolator(name), m_dim(0), m_ranges(3), m_N(3), m_D(3), m_comb_idx(3), m_sufficient_nb_points(0)
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
 }
 
 /////////////////////////////////////////////////////////////////////////////

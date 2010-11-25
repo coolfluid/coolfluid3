@@ -21,7 +21,7 @@ ResidualDistribution_Builder ( ResidualDistribution::type_name() );
 ResidualDistribution::ResidualDistribution ( const std::string& name  ) :
   CDiscretization ( name )
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
   properties()["brief"] = std::string("Residual Distribution Method");
   properties()["description"] = std::string("Discretize the PDE's using the Residual Distribution Method");
 }

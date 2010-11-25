@@ -167,7 +167,7 @@ namespace Server {
     void setStatus(CF::Common::WorkerStatus::Type status);
 
     /// regists all the signals declared in this class
-    static void regist_signals ( Component* self ) {}
+    virtual void define_signals () {}
 
     CF::Common::Signal::return_t read_dir(CF::Common::Signal::arg_t & node);
 

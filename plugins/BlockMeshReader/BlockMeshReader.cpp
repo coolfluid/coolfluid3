@@ -36,7 +36,7 @@ aBlockMeshReader_Builder ( "blockMeshDict" );
 
 BlockMeshReader::BlockMeshReader(const std::string& name): CMeshReader(name)
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
 }
 
 std::vector< std::string > BlockMeshReader::get_extensions()

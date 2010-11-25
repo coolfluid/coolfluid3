@@ -76,7 +76,7 @@ public:
   /// @param name of the component
   CFlexArray ( const std::string& name ) : Component(name)
   {
-    BUILD_COMPONENT;
+    BuildComponent<full>().build(this);
   }
 
   ~CFlexArray ()
@@ -86,7 +86,7 @@ public:
   static std::string type_name () { return "CFlexTable"; }
 
   /// Configuration Options
-  static void define_config_properties ( Common::PropertyList& options ) {}
+  virtual void define_config_properties () {}
 
   Uint size() const {return m_array.size();}
   
@@ -154,7 +154,7 @@ public:
 private: // helper functions
 
   /// regists all the signals declared in this class
-  static void regist_signals ( Component* self ) {}
+  virtual void define_signals () {}
   
   
 private: // data

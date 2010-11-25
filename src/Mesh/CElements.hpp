@@ -51,7 +51,7 @@ public: // functions
   static std::string type_name () { return "CElements"; }
 
   /// Configuration Options
-  static void define_config_properties ( Common::PropertyList& options ) {}
+  virtual void define_config_properties () {}
 
   /// set the element type
   void set_element_type(const std::string& etype_name);
@@ -105,7 +105,7 @@ public: // functions
 private: // helper functions
 
   /// regists all the signals declared in this class
-  static void regist_signals ( Component* self ) {}
+  virtual void define_signals () {}
 
 protected: // data
   

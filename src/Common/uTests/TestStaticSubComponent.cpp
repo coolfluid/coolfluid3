@@ -38,18 +38,18 @@ public: // functions
 
   Part ( const std::string& name ) : Component(name)
   {
-    BUILD_COMPONENT;
+    BuildComponent<full>().build(this);
   }
 
   virtual ~Part() {}
 
   static std::string type_name () { return std::string("Part"); }
 
-  static void define_config_properties ( Common::PropertyList& options ) {}
+  virtual void define_config_properties () {}
 
 private: // helper functions
 
-  static void regist_signals ( Component* self ) {}
+  virtual void define_signals () {}
 
 }; // HolderT
 
@@ -69,7 +69,7 @@ public: // functions
       Component(name),
       m_subcomp ( new SubCompT( "subc" ), Deleter<SubCompT>())
   {
-    BUILD_COMPONENT;
+    BuildComponent<full>().build(this);
 
     add_static_component ( m_subcomp );
   }
@@ -78,11 +78,11 @@ public: // functions
 
   static std::string type_name () { return std::string("HolderT_") + SubCompT::type_name(); }
 
-  static void define_config_properties ( Common::PropertyList& options ) {}
+  virtual void define_config_properties () {}
 
 private: // helper functions
 
-  static void regist_signals ( Component* self ) {}
+  virtual void define_signals () {}
 
 private: // data
 

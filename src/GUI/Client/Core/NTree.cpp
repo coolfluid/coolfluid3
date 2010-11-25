@@ -29,7 +29,7 @@ NTree::NTree(NRoot::Ptr rootNode)
     m_advancedMode(false),
     m_debugModeEnabled(false)
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
 
   if(rootNode.get() == nullptr)
     m_rootNode = new TreeNode(ClientRoot::root(), nullptr, 0);

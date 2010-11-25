@@ -45,7 +45,7 @@ public: // functions
   static std::string type_name () { return "CMethod"; }
 
   /// Configuration Options
-  static void define_config_properties ( Common::PropertyList& options )
+  virtual void define_config_properties ()
   {
     options.add_option< Common::OptionT<bool> >("myBoolMeth", "A boolean value in a CMethod", true);
     options.add_option< Common::OptionT<int> >("fourtyTwo", "An integer value in a CMethod", 42);

@@ -41,12 +41,12 @@ public: // functions
   static std::string type_name () { return "CArray"; }
 
   /// Configuration Options
-  static void define_config_properties ( Common::PropertyList& options );
+  virtual void define_config_properties ();
 	
 private: // helper functions
 
   /// regists all the signals declared in this class
-  static void regist_signals ( Component* self ) {}
+  virtual void define_signals () {}
 
 };
 

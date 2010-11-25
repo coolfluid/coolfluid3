@@ -45,7 +45,7 @@ public: // functions
     virtual void set_file_path(const boost::filesystem::path & path);
 
     /// Configuration Options
-    static void define_config_properties ( Common::PropertyList& options ) {}
+    virtual void define_config_properties () {}
 
 private: // helper functions
 

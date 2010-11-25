@@ -137,8 +137,8 @@ private: // methods
   /// regists all the signals declared in this class
   static void regist_signals ( CBuilderT<BASE,CONCRETE>* self )
   {
-      self->regist_signal ( "build_component" , "builds a component", "Build component" )->connect ( boost::bind ( &CBuilderT<BASE,CONCRETE>::build_component, self, _1 ) );
-      self->signal("build_component").m_signature.template insert<std::string>("Component name", "Name for created component" )
+      this->regist_signal ( "build_component" , "builds a component", "Build component" )->connect ( boost::bind ( &CBuilderT<BASE,CONCRETE>::build_component, self, _1 ) );
+      this->signal("build_component").m_signature.template insert<std::string>("Component name", "Name for created component" )
                                                  .template insert<URI>("Parent component", "Path to component where place the newly built component");
   }
 

@@ -18,7 +18,7 @@ CF::RegistTypeInfo<CLibrary> sCLibrary_regist();
 CLibrary::CLibrary(const std::string & lib_name):
     Component(lib_name)
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -30,7 +30,7 @@ void CLoopOperation::define_config_properties( Common::PropertyList& options )
 CLoopOperation::CLoopOperation ( const std::string& name ) : 
   CAction(name)
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

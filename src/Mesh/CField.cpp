@@ -34,7 +34,7 @@ CField_Builder ( CField::type_name() );
 CField::CField ( const std::string& name  ) :
   Component ( name )
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
 	m_property_list["VarNames"].as_option().attach_trigger ( boost::bind ( &CField::config_var_names,   this ) );
 	m_property_list["VarSizes"].as_option().attach_trigger ( boost::bind ( &CField::config_var_sizes,   this ) );	
 	m_property_list["VarTypes"].as_option().attach_trigger ( boost::bind ( &CField::config_var_types,   this ) );

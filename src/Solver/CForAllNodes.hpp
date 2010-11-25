@@ -40,7 +40,7 @@ public: // functions
     COperation(name),
     m_operation(new COp("operation"), Deleter<COp>())
   {
-    BUILD_COMPONENT;
+    BuildComponent<full>().build(this);
     m_property_list["Regions"].as_option().attach_trigger ( boost::bind ( &CForAllNodesT::trigger_Regions,   this ) );
   }
 
@@ -61,7 +61,7 @@ public: // functions
   static std::string type_name () { return "CForAllNodes"; }
 
   /// Configuration Options
-  static void define_config_properties ( Common::PropertyList& options )
+  virtual void define_config_properties ()
   {
     std::vector< URI > dummy;
     options.add_option< OptionArrayT < URI > > ("Regions", "Regions to loop over", dummy)->mark_basic();
@@ -177,7 +177,7 @@ private:
 private: // helper functions
 
   /// regists all the signals declared in this class
-  static void regist_signals ( Component* self ) {}
+  virtual void define_signals () {}
 
 private:
 

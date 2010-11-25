@@ -40,7 +40,7 @@ public: // functions
   static std::string type_name () { return "CPhysicalModel"; }
 
   /// Configuration Options
-  static void define_config_properties ( Common::PropertyList& options );
+  virtual void define_config_properties ();
   
   //////////////////////////////////
   // CPhysicalModel specific
@@ -56,7 +56,7 @@ public: // functions
 private: // helper functions
 
   /// regists all the signals declared in this class
-  static void regist_signals ( Component* self ) {}
+  virtual void define_signals () {}
 
   /// trigger for configuration of dimensions
   void trigger_dimensionality();

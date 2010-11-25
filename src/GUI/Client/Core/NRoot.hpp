@@ -83,7 +83,7 @@ namespace ClientCore {
     boost::uuids::uuid m_uuid;
 
     /// regists all the signals declared in this class
-    static void regist_signals ( Component* self ) {}
+    virtual void define_signals () {}
 
 
   }; // class NRoot

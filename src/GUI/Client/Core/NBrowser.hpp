@@ -53,7 +53,7 @@ namespace ClientCore {
     CF::Uint m_counter;
 
     /// regists all the signals declared in this class
-    static void regist_signals ( Component* self ) {}
+    virtual void define_signals () {}
 
   }; // class NBrowser
 

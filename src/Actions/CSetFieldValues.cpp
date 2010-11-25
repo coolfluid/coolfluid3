@@ -32,7 +32,7 @@ void CSetFieldValues::define_config_properties( Common::PropertyList& options )
 CSetFieldValues::CSetFieldValues ( const std::string& name ) : 
   CLoopOperation(name)
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
 }
 	
 /////////////////////////////////////////////////////////////////////////////////////

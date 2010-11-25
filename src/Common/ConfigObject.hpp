@@ -23,14 +23,8 @@ namespace Common {
 
   public:
 
-    /// Sets the config options by calling the define_config_properties
-    /// This will add nested names to the options as opposed to addOptionsTo
-    /// @param prt pass the this pointer to help identify callee CLASS type
-    template <typename CLASS>
-        void add_options_to()
-    {
-      CLASS::define_config_properties(m_property_list);
-    }
+    /// Defines the properties which are configurable (options)
+    virtual void define_config_properties() {};
 
     /// configures all the options on this class
     void configure ( XmlNode& node );

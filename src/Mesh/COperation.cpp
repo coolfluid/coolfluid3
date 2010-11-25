@@ -18,7 +18,7 @@ namespace Mesh {
 COperation::COperation ( const std::string& name ) : 
   Component(name), m_counter(0)
 {
-    BUILD_COMPONENT;
+    BuildComponent<full>().build(this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

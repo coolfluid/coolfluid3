@@ -44,7 +44,7 @@ public: // functions
   static std::string type_name () { return "CLoopOperation"; }
 
   /// Configuration Options
-  static void define_config_properties ( Common::PropertyList& options );
+  virtual void define_config_properties ();
   
   virtual void set_loophelper ( CElements& geometry_elements ) = 0;
   
@@ -55,7 +55,7 @@ public: // functions
 private: // helper functions
 
   /// regists all the signals declared in this class
-  static void regist_signals ( Component* self ) {}
+  virtual void define_signals () {}
 
 protected: // data
 

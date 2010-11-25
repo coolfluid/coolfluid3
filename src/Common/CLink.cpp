@@ -23,7 +23,7 @@ CLink_Builder ( CLink::type_name() );
 
 CLink::CLink ( const std::string& name) : Component ( name )
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
   m_is_link = true;
 
   regist_signal("change_link", "Change link path", "Change target")->connect(boost::bind(&CLink::change_link, this, _1));

@@ -32,7 +32,7 @@ public:
   /// Constructor
   SignalError (const Common::CodeLocation& where, const std::string& what);
 
-}; // Signal
+}; // SignalError
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -66,7 +66,8 @@ struct Signal
     /// if @c true, the signal is considered as read-only and might be called
     /// during another signal execution. Default value is @c false.
     bool m_is_read_only;
-};
+
+}; // Signal
 
 /// SignalHandler executes calls received as string by issuing singals to the slots
 /// Slots may be:
@@ -109,9 +110,7 @@ class Common_API SignalHandler
     /// storage of the signals
     sigmap_t  m_signals;
 
-}; // class SignalHandler
-
-//#define ADD_SIGNAL_SLOT_TO_COMPONENT ( )
+}; // SignalHandler
 
 
 ////////////////////////////////////////////////////////////////////////////////

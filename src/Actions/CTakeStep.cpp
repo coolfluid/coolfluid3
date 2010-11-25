@@ -36,7 +36,7 @@ void CTakeStep::define_config_properties( Common::PropertyList& options )
 CTakeStep::CTakeStep ( const std::string& name ) : 
   CLoopOperation(name)
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

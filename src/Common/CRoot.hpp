@@ -39,7 +39,7 @@ namespace Common {
     static std::string type_name () { return "CRoot"; }
 
     /// Configuration Options
-    static void define_config_properties ( Common::PropertyList& options ) {}
+    virtual void define_config_properties () {}
 
     // functions specific to the CRoot component
 
@@ -89,7 +89,7 @@ namespace Common {
     typedef std::map< std::string , Component::Ptr > CompStorage_t;
 
     /// regists all the signals declared in this class
-    static void regist_signals ( Component* self ) {}
+    virtual void define_signals () {}
 
     /// Private constructor forces creation via the create() funtion
     /// @param name of the component

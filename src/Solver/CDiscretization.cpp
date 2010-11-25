@@ -16,7 +16,7 @@ using namespace Common;
 CDiscretization::CDiscretization ( const std::string& name  ) :
   CMethod ( name )
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
   properties()["brief"]=std::string("Discretization Method component");
   properties()["description"]=std::string("Handles the discretization of the PDE's");
 }

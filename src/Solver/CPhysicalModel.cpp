@@ -25,7 +25,7 @@ CPhysicalModel::CPhysicalModel(const std::string& name) : Component(name),
 m_dim(0u),
 m_nbdofs(0u)
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
 
   m_property_list["Dimensions"].as_option().attach_trigger ( boost::bind ( &CPhysicalModel::trigger_dimensionality, this ) );
   m_property_list["DOFs"].as_option().attach_trigger ( boost::bind ( &CPhysicalModel::trigger_nbdofs, this ) );

@@ -43,7 +43,7 @@ aGmshWriter_Builder ( "Gmsh" );
 CWriter::CWriter( const std::string& name )
 : CMeshWriter(name)
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
 
   // gmsh types: http://www.geuz.org/gmsh/doc/texinfo/gmsh.html#MSH-ASCII-file-format
   m_elementTypes["Line1DLagrangeP1" ]=1;

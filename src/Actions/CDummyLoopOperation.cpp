@@ -31,7 +31,7 @@ void CDummyLoopOperation::define_config_properties( Common::PropertyList& option
 CDummyLoopOperation::CDummyLoopOperation ( const std::string& name ) : 
   CLoopOperation(name)
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
 }
 	
 /////////////////////////////////////////////////////////////////////////////////////

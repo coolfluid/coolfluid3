@@ -24,7 +24,7 @@ CMethod_Builder ( CMethod::type_name() );
 CMethod::CMethod ( const std::string& name  ) :
   Component ( name )
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -37,7 +37,7 @@ CMethod::~CMethod()
 
 void CMethod::regist_signals ( CMethod* self )
 {
-  self->regist_signal ( "run_operation" , "run an operation", "Run Operation" )->connect ( boost::bind ( &CMethod::run_operation, self, _1 ) );
+  this->regist_signal ( "run_operation" , "run an operation", "Run Operation" )->connect ( boost::bind ( &CMethod::run_operation, self, _1 ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

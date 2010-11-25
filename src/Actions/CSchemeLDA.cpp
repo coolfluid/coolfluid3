@@ -47,7 +47,7 @@ void CSchemeLDA::set_loophelper (CElements& geometry_elements )
 CSchemeLDA::CSchemeLDA ( const std::string& name ) : 
   CLoopOperation(name)
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
 	properties()["brief"] = std::string("Element Loop component that computes the residual and update coefficient using the LDA scheme");
 	properties()["description"] = std::string("Write here the full description of this component");
   

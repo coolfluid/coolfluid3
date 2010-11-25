@@ -47,7 +47,7 @@ public: // functions
   static std::string type_name () { return "CSmall"; }
 
   /// Configuration Options
-  static void define_config_properties ( Common::PropertyList& options ) {}
+  virtual void define_config_properties () {}
 
   void trigger_signal_print_message ( Component& receiver )
   {
@@ -101,7 +101,7 @@ private: // helper functions
   /// regists all the signals declared in this class
   static void regist_signals ( CSmall* self )
   {
-    self->regist_signal ( "print_message" , "prints" )->connect ( boost::bind ( &CSmall::print_message, self, _1 ) );
+    this->regist_signal ( "print_message" , "prints" )->connect ( boost::bind ( &CSmall::print_message, self, _1 ) );
   }
 
 }; // CSmall

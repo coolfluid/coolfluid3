@@ -15,7 +15,7 @@ namespace Common {
 
 CFactory::CFactory(const std::string& name): Component(name)
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
 }
 
 CFactory::~CFactory()

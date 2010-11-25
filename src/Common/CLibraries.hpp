@@ -38,7 +38,7 @@ namespace Common {
     static std::string type_name () { return "CLibraries"; }
 
     /// Configuration options
-    static void define_config_properties ( Common::PropertyList& options );
+    virtual void define_config_properties ();
 
     /// gives access to the factory of supplied type,
     /// insuring that in case it does not exist it gets built.
@@ -59,7 +59,7 @@ namespace Common {
   private: // helper functions
 
     /// regists all the signals declared in this class
-    static void regist_signals ( Component* self ) {}
+    virtual void define_signals () {}
 
 }; // CLibraries
 

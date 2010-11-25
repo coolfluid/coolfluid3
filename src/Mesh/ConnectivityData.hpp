@@ -57,7 +57,7 @@ public:
   static std::string type_name () { return "CNodeConnectivity"; }
 
   /// Configuration Options
-  static void define_config_properties ( Common::PropertyList& options ) {}
+  virtual void define_config_properties () {}
 
   // functions specific to the CNodeConnectivity component
   
@@ -89,7 +89,7 @@ public:
 private: // helper functions
 
   /// regists all the signals declared in this class
-  static void regist_signals ( Component* self ) {}
+  virtual void define_signals () {}
 
 private: // data
   ElementsT m_celements_vector;
@@ -136,7 +136,7 @@ public:
   static std::string type_name () { return "CFaceConnectivity"; }
 
   /// Configuration Options
-  static void define_config_properties ( Common::PropertyList& options ) {}
+  virtual void define_config_properties () {}
 
   // functions specific to the CFaceConnectivity component
   
@@ -164,7 +164,7 @@ public:
 private: // helper functions
 
   /// regists all the signals declared in this class
-  static void regist_signals ( Component* self ) {}
+  virtual void define_signals () {}
 
 private: // data
   const CNodeConnectivity* m_node_connectivity; // normal pointer for performance reasons

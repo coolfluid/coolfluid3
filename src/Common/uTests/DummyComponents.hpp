@@ -30,7 +30,7 @@ public: // functions
   /// @param name of the component
   CAbstract ( const std::string& name ) : Component(name)
   {
-    BUILD_COMPONENT;
+    BuildComponent<full>().build(this);
   }
 
   /// Virtual destructor
@@ -41,7 +41,7 @@ public: // functions
 
   // --------- Configuration ---------
 
-  static void define_config_properties ( Common::PropertyList& options ) {}
+  virtual void define_config_properties () {}
 
   // --------- Specific functions to this component ---------
 
@@ -69,7 +69,7 @@ public: // functions
   /// @param name of the component
   CConcrete1 ( const std::string& name ) : CAbstract(name)
   {
-    BUILD_COMPONENT;
+    BuildComponent<full>().build(this);
   }
 
   /// Virtual destructor
@@ -80,7 +80,7 @@ public: // functions
 
   // --------- Configuration ---------
 
-  static void define_config_properties ( Common::PropertyList& options )
+  virtual void define_config_properties ()
   {
     URI def_path("cpath://");
     options.add_option< OptionT<URI> > ( "MyRelativeFriend", "a path to another component"   , def_path  );
@@ -113,7 +113,7 @@ public: // functions
   /// @param name of the component
   CConcrete2 ( const std::string& name ) : CAbstract(name)
   {
-    BUILD_COMPONENT;
+    BuildComponent<full>().build(this);
   }
 
   /// Virtual destructor
@@ -124,7 +124,7 @@ public: // functions
 
   // --------- Configuration ---------
 
-  static void define_config_properties ( Common::PropertyList& options ) {}
+  virtual void define_config_properties () {}
 
   // --------- Specific functions to this component ---------
 

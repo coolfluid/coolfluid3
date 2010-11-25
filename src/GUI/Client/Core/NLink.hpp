@@ -75,7 +75,7 @@ namespace ClientCore {
     CNode::Ptr m_target;
 
     /// regists all the signals declared in this class
-    static void regist_signals ( Component* self ) {}
+    virtual void define_signals () {}
 
     /// @name Signals
     //@{

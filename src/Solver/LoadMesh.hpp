@@ -40,7 +40,7 @@ public: // functions
   static std::string type_name () { return "LoadMesh"; }
 
   /// Configuration Options
-  static void define_config_properties ( Common::PropertyList& options );
+  virtual void define_config_properties ();
 
   // functions specific to the LoadMesh component
   

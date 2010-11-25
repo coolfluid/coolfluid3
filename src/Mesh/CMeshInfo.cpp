@@ -57,7 +57,7 @@ CMeshInfo_Builder ( "Info" );
 CMeshInfo::CMeshInfo( const std::string& name )
 : CMeshTransformer(name)
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
 	properties()["brief"] = std::string("Print information of the mesh");
 	std::string desc;
 	desc = 

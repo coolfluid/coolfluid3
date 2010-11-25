@@ -22,7 +22,7 @@ CDomain_Builder ( CDomain::type_name() );
 CDomain::CDomain( const std::string& name  ) :
   Component ( name )
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

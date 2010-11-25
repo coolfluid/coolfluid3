@@ -30,7 +30,7 @@ Common::ComponentBuilder < LoadMesh, Component, LibSolver > LoadMesh_Builder ( L
 LoadMesh::LoadMesh ( const std::string& name  ) :
   Component ( name )
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
 
 //  add_component ( create_component_abstract_type<CMeshReader>( "Neu", "NeutralReader" ) );
 
@@ -54,9 +54,9 @@ void LoadMesh::define_config_properties(Common::PropertyList& options)
 
 void LoadMesh::regist_signals ( LoadMesh* self )
 {
-  self->regist_signal ( "run_wizard" , "runs the wizard ", "Run Wizard" )->connect ( boost::bind ( &LoadMesh::run_wizard, self, _1 ) );
+  this->regist_signal ( "run_wizard" , "runs the wizard ", "Run Wizard" )->connect ( boost::bind ( &LoadMesh::run_wizard, self, _1 ) );
 
-  self->signal("run_wizard").m_signature.insert<std::string>("mesh name", "name for created mesh component")
+  this->signal("run_wizard").m_signature.insert<std::string>("mesh name", "name for created mesh component")
                                         .insert<URI>("path to domain", "path to the domain to hold the mesh");
 
 }

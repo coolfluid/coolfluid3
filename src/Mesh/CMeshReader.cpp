@@ -28,7 +28,7 @@ using namespace Common;
 CMeshReader::CMeshReader ( const std::string& name  ) :
 	Component ( name )
 {
-	BUILD_COMPONENT;
+	BuildComponent<full>().build(this);
 	comm_pattern = SimpleCommunicationPattern(); // must be created after MPI init
 }
 
@@ -42,7 +42,7 @@ CMeshReader::~CMeshReader()
 
 void CMeshReader::regist_signals ( CMeshReader* self )
 {
-  self->regist_signal ( "read" , "reads a mesh", "Read mesh" )->connect ( boost::bind ( &CMeshReader::read, self, _1 ) );
+  this->regist_signal ( "read" , "reads a mesh", "Read mesh" )->connect ( boost::bind ( &CMeshReader::read, self, _1 ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

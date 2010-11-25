@@ -23,7 +23,7 @@ CArray_Builder ( CArray::type_name() );
 CArray::CArray ( const std::string& name  ) :
   Component ( name )
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
 }
 	
 ////////////////////////////////////////////////////////////////////////////////

@@ -25,7 +25,7 @@ CEnv_Builder ( CEnv::type_name() );
 
 CEnv::CEnv ( const std::string& name) : Component ( name )
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

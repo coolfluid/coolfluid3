@@ -46,7 +46,7 @@ public: // functions
   static std::string type_name () { return "COperation"; }
 
   /// Configuration Options
-  static void define_config_properties ( Common::PropertyList& options ) {}
+  virtual void define_config_properties () {}
 
   virtual void set_loophelper (CElements& geometry_elements );
 
@@ -79,7 +79,7 @@ public: // functions
 private: // helper functions
 
   /// regists all the signals declared in this class
-  static void regist_signals ( Component* self ) {}
+  virtual void define_signals () {}
 
 private: // data
 
@@ -105,7 +105,7 @@ public: // functions
     m_op1(new OP1("operation_1"), Deleter<OP1>()),
     m_op2(new OP2("operation_2"), Deleter<OP2>())
   {
-    BUILD_COMPONENT;
+    BuildComponent<full>().build(this);
   }
 
   /// Virtual destructor
@@ -115,7 +115,7 @@ public: // functions
   static std::string type_name () { return "COutputField"; }
 
   /// Configuration Options
-  static void define_config_properties ( Common::PropertyList& options ) {}
+  virtual void define_config_properties () {}
 
   void set_loophelper (CElements& geometry_elements )
   {
@@ -169,7 +169,7 @@ public: // functions
 private: // helper functions
 
   /// regists all the signals declared in this class
-  static void regist_signals ( Component* self ) {}
+  virtual void define_signals () {}
 
 private: // data
 
@@ -193,7 +193,7 @@ public: // functions
   /// @param name of the component
   COutputField ( const std::string& name ) : COperation(name)
   {
-    BUILD_COMPONENT;
+    BuildComponent<full>().build(this);
     m_property_list["Field"].as_option().attach_trigger ( boost::bind ( &COutputField::trigger_Field,   this ) );
   }
 
@@ -212,7 +212,7 @@ public: // functions
   static std::string type_name () { return "COutputField"; }
 
   /// Configuration Options
-  static void define_config_properties ( Common::PropertyList& options )
+  virtual void define_config_properties ()
   {
     options.add_option< OptionT<URI> > ("Field","Field URI to output", URI("cpath://"))->mark_basic();
   }
@@ -237,7 +237,7 @@ public: // functions
 private: // helper functions
 
   /// regists all the signals declared in this class
-  static void regist_signals ( Component* self ) {}
+  virtual void define_signals () {}
 
 private: // data
 
@@ -271,7 +271,7 @@ public: // functions
   /// @param name of the component
   CComputeVolumes ( const std::string& name ) : COperation(name)
   {
-    BUILD_COMPONENT;
+    BuildComponent<full>().build(this);
     m_property_list["Field"].as_option().attach_trigger ( boost::bind ( &CComputeVolumes::trigger_Field,   this ) );
   }
 
@@ -289,7 +289,7 @@ public: // functions
   static std::string type_name () { return "CComputeVolume"; }
 
   /// Configuration Options
-  static void define_config_properties ( Common::PropertyList& options )
+  virtual void define_config_properties ()
   {
     options.add_option< OptionT<URI> > ("Field","Field URI to output", URI("cpath://"))->mark_basic();
   }
@@ -317,7 +317,7 @@ public: // functions
 private: // helper functions
 
   /// regists all the signals declared in this class
-  static void regist_signals ( Component* self ) {}
+  virtual void define_signals () {}
 
 private: // data
 
@@ -354,7 +354,7 @@ public: // functions
   /// @param name of the component
   CSetValue ( const std::string& name ) : COperation(name)
   {
-    BUILD_COMPONENT;
+    BuildComponent<full>().build(this);
     m_property_list["Field"].as_option().attach_trigger ( boost::bind ( &CSetValue::trigger_Field,   this ) );
   }
 
@@ -372,7 +372,7 @@ public: // functions
   static std::string type_name () { return "CComputeVolume"; }
 
   /// Configuration Options
-  static void define_config_properties ( Common::PropertyList& options )
+  virtual void define_config_properties ()
   {
     options.add_option< OptionT<URI> > ("Field","Field URI to output", URI("cpath://"))->mark_basic();
   }
@@ -398,7 +398,7 @@ public: // functions
 private: // helper functions
 
   /// regists all the signals declared in this class
-  static void regist_signals ( Component* self ) {}
+  virtual void define_signals () {}
 
 private: // data
 

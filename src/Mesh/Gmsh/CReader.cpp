@@ -50,7 +50,7 @@ CReader::CReader( const std::string& name )
 {
   CF_DEBUG_POINT;
 
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
 
   CF_DEBUG_POINT;
 

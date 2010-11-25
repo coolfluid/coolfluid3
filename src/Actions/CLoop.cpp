@@ -31,7 +31,7 @@ void CLoop::define_config_properties ( Common::PropertyList& options )
 CLoop::CLoop ( const std::string& name ) :
   CAction(name)
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
   m_property_list["Regions"].as_option().attach_trigger ( boost::bind ( &CLoop::trigger_Regions,   this ) );
 }
 

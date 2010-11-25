@@ -278,9 +278,6 @@ public: // functions
 
 protected: // functions
 
-  /// Must be called in constructor of each derived class
- template <typename TYPE> void partial_build_component (TYPE* meself);
-
  /// Add a static (sub)component of this component
  Ptr add_static_component ( Ptr subcomp );
 
@@ -293,7 +290,7 @@ private: // helper functions
   void write_xml_tree( XmlNode& node );
 
   /// regists all the signals declared in this class
-  static void regist_signals ( Component* self );
+  virtual void define_signals ();
 
   /// Put all subcomponents in a given vector, optionally recursive
   /// @param [out] vec  A vector of all (recursive) subcomponents
@@ -561,21 +558,6 @@ inline Component::const_iterator Component::recursive_end() const
 {
   return recursive_end<Component>();
 }
-
-////////////////////////////////////////////////////////////////////////////////
-
-template <typename TYPE>
-inline void Component::partial_build_component(TYPE* meself)
-{
-  add_options_to<TYPE>();
-  add_tag( TYPE::type_name() );
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-#define BUILD_COMPONENT \
-  this->partial_build_component(this);  \
-  this->regist_signals(this); \
 
 ////////////////////////////////////////////////////////////////////////////////
 

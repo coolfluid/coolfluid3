@@ -22,7 +22,7 @@ using namespace Common;
 CMeshTransformer::CMeshTransformer ( const std::string& name  ) :
   Component ( name )
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -26,7 +26,7 @@ void CForAllNodes::define_config_properties ( Common::PropertyList& options ) {}
 CForAllNodes::CForAllNodes ( const std::string& name ) :
   CLoop(name)
 {
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
 }
 	
 void CForAllNodes::execute()

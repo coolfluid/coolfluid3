@@ -67,7 +67,7 @@ CNode::CNode(const QString & name, const QString & componentType, CNode::Type ty
     m_componentType(componentType)
 {
 
-  BUILD_COMPONENT;
+  BuildComponent<full>().build(this);
 
   regist_signal("configure", "Update component options")->connect(boost::bind(&CNode::configure_reply, this, _1));
   regist_signal("tree_updated", "Event that notifies a path has changed")->connect(boost::bind(&CNode::update_tree, this, _1));
