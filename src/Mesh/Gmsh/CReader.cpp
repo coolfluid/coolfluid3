@@ -15,11 +15,11 @@
 #include "Common/String/Conversion.hpp"
 
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 #include "Mesh/CList.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/ConnectivityData.hpp"
-#include "Mesh/CFlexTable.hpp"
+#include "Mesh/CDynTable.hpp"
 
 #include "Mesh/Gmsh/CReader.hpp"
 
@@ -231,9 +231,9 @@ void CReader::read_coordinates()
   m_file.seekg(m_nodal_coordinates_position,std::ios::beg);
   
   // Create the coordinates array
-  m_coordinates = m_region->create_coordinates(m_headerData.NDFCD).get_type<CArray>();
+  m_coordinates = m_region->create_coordinates(m_headerData.NDFCD).get_type<CTable<Real> >();
   
-  CArray& coordinates = *m_coordinates;
+  CTable<Real>& coordinates = *m_coordinates;
   Uint coord_start_idx = coordinates.size();
   coordinates.resize(coordinates.size()+m_nodes_to_read.size());
 
@@ -352,13 +352,13 @@ void CReader::read_connectivity()
   m_global_to_tmp.clear();
   m_file.seekg(m_elements_cells_position,std::ios::beg);
     
-  CArray& coordinates = *m_coordinates;
+  CTable<Real>& coordinates = *m_coordinates;
   
-  CFlexTable& node_to_glb_elem_connectivity = get_tagged_component_typed<CFlexTable>(coordinates,"glb_elem_connectivity");
+  CDynTable<Uint>& node_to_glb_elem_connectivity = get_tagged_component_typed<CDynTable<Uint> >(coordinates,"glb_elem_connectivity");
   CList<bool>& is_ghost = *m_coordinates->get_child_type<CList<bool> >("is_ghost");
   
   m_node_to_glb_elements.resize(m_nodes_to_read.size());
-  std::map<std::string,boost::shared_ptr<CTable::Buffer> > buffer =
+  std::map<std::string,boost::shared_ptr<CTable<Uint>::Buffer> > buffer =
       create_element_regions_with_buffermap(*m_tmp,coordinates,m_supported_types);
 
   std::map<std::string,CElements::Ptr> element_regions;
@@ -479,7 +479,7 @@ void CReader::read_groups()
   std::string line;
   int dummy;
   
-  CArray& coordinates = *m_coordinates;
+  CTable<Real>& coordinates = *m_coordinates;
   std::set<Uint>::const_iterator it;
   
   for (Uint g=0; g<m_headerData.NGRPS; ++g)
@@ -535,7 +535,7 @@ void CReader::read_groups()
     
     //CFinfo << "region " << region.full_path().string() << " created" << CFendl;
     // Create regions for each element type in each group-region
-    std::map<std::string,boost::shared_ptr<CTable::Buffer> > buffer =
+    std::map<std::string,boost::shared_ptr<CTable<Uint>::Buffer> > buffer =
     create_element_regions_with_buffermap(region,coordinates,m_supported_types);
     
     std::map<std::string,CElements::Ptr> element_regions;
@@ -580,7 +580,7 @@ void CReader::read_boundaries()
   Uint glb_element_count = m_headerData.NELEM;
   cf_assert(m_boundary_condition_positions.size() == m_headerData.NBSETS)
   
-  CArray& coordinates = *m_coordinates;
+  CTable<Real>& coordinates = *m_coordinates;
   
   std::string line;
   for (Uint t=0; t<m_headerData.NBSETS; ++t) {
@@ -637,7 +637,7 @@ void CReader::read_boundaries()
         const ElementType::FaceConnectivity& face_connectivity = etype.face_connectivity();
         
         // make a row of nodes
-        const CTable::Row& elem_nodes = tmp_region->connectivity_table()[local_element];
+        const CTable<Uint>::Row& elem_nodes = tmp_region->connectivity_table()[local_element];
         std::vector<Uint> row;
         row.reserve(face_connectivity.face_node_counts[faceIdx]);
         BOOST_FOREACH(const Uint& node, face_connectivity.face_node_range(faceIdx))

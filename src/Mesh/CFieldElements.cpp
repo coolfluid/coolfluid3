@@ -8,7 +8,7 @@
 #include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/CFieldElements.hpp"
-#include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CList.hpp"
 
@@ -60,7 +60,7 @@ void CFieldElements::initialize(CElements& elements)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CFieldElements::add_node_based_storage(CArray& nodal_data)
+void CFieldElements::add_node_based_storage(CTable<Real>& nodal_data)
 {
   // Set the nodal data
   m_data_name = "node_data";
@@ -77,7 +77,7 @@ void CFieldElements::add_element_based_storage()
 {
   // Create elemental data
   m_data_name = "element_data";
-  CArray::Ptr elm_data = create_component_type<CArray>(m_data_name);
+  CTable<Real>::Ptr elm_data = create_component_type<CTable<Real> >(m_data_name);
   elm_data->add_tag(m_data_name);
 	elm_data->add_tag("field_data");
   properties()["element_based"] = true;
@@ -85,18 +85,18 @@ void CFieldElements::add_element_based_storage()
 
 //////////////////////////////////////////////////////////////////////////////
 
-CArray& CFieldElements::data()
+CTable<Real>& CFieldElements::data()
 {
   Component& data = get_component(*this,IsComponentTag(m_data_name));
-  return *data.get_type<CArray>();
+  return *data.get_type<CTable<Real> >();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-const CArray& CFieldElements::data() const
+const CTable<Real>& CFieldElements::data() const
 {
   const Component& data = get_component(*this,IsComponentTag(m_data_name));
-  return *data.get_type<CArray const>();
+  return *data.get_type<CTable<Real> const>();
 }
 
 //////////////////////////////////////////////////////////////////////////////

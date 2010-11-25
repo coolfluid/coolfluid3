@@ -12,7 +12,7 @@
 
 #include "Mesh/CGNS/CWriter.hpp"
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CTable.hpp"
 
@@ -94,7 +94,7 @@ void CWriter::write_zone(const CRegion& region)
   m_zone.coord_dim = m_coord_dim;
   
   m_zone.total_nbVertices = 0;
-  BOOST_FOREACH(const CArray& coordinates, recursive_filtered_range_typed<CArray>(region,IsComponentTag("coordinates")))
+  BOOST_FOREACH(const CTable<Real>& coordinates, recursive_filtered_range_typed<CTable<Real> >(region,IsComponentTag("coordinates")))
     m_zone.total_nbVertices += coordinates.size();
 
   m_zone.nbElements = region.recursive_elements_count();
@@ -124,7 +124,7 @@ void CWriter::write_zone(const CRegion& region)
   }
   
   Uint idx=0;
-  BOOST_FOREACH(const CArray& coordinates, recursive_filtered_range_typed<CArray>(region,IsComponentTag("coordinates")))
+  BOOST_FOREACH(const CTable<Real>& coordinates, recursive_filtered_range_typed<CTable<Real> >(region,IsComponentTag("coordinates")))
   {
     m_global_start_idx[&coordinates] = idx;
     
@@ -132,7 +132,7 @@ void CWriter::write_zone(const CRegion& region)
     {
       case 3:
       {
-        BOOST_FOREACH(CArray::ConstRow node, coordinates.array())
+        BOOST_FOREACH(CTable<Real>::ConstRow node, coordinates.array())
         {
           xCoord[idx] = node[XX];
           yCoord[idx] = node[YY];        
@@ -143,7 +143,7 @@ void CWriter::write_zone(const CRegion& region)
       }
       case 2:
       {
-        BOOST_FOREACH(CArray::ConstRow node, coordinates.array())
+        BOOST_FOREACH(CTable<Real>::ConstRow node, coordinates.array())
         {
           xCoord[idx] = node[XX];
           yCoord[idx] = node[YY];
@@ -153,7 +153,7 @@ void CWriter::write_zone(const CRegion& region)
       }
       case 1:
       {
-        BOOST_FOREACH(CArray::ConstRow node, coordinates.array())
+        BOOST_FOREACH(CTable<Real>::ConstRow node, coordinates.array())
           xCoord[idx++] = node[XX];
         break;
       }
@@ -244,7 +244,7 @@ void CWriter::write_section(const GroupedElements& grouped_elements)
         m_section.nbBdry = 0; // unsorted boundary
         
         ElementType_t type = m_elemtype_CF_to_CGNS[elements->element_type().getElementTypeName()];
-        const CTable::ArrayT& connectivity_table = elements->connectivity_table().array();
+        const CTable<Uint>::ArrayT& connectivity_table = elements->connectivity_table().array();
         int start_idx = m_global_start_idx[&elements->coordinates()];
         
         int* elemNodes = new int [nbElems*(m_section.elemNodeCount+1)];
@@ -272,7 +272,7 @@ void CWriter::write_section(const GroupedElements& grouped_elements)
       m_section.elemEndIdx = m_section.elemEndIdx + nbElems;
       m_section.nbBdry = 0; // unsorted boundary
       
-      const CTable::ArrayT& connectivity_table = elements.connectivity_table().array();
+      const CTable<Uint>::ArrayT& connectivity_table = elements.connectivity_table().array();
       int start_idx = m_global_start_idx[&elements.coordinates()];
 
       int* elemNodes = new int [nbElems*m_section.elemNodeCount];

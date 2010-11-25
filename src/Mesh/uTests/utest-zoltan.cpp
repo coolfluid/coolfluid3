@@ -32,6 +32,8 @@
 // coolfluid
 #include "Common/ConfigObject.hpp"
 #include "Common/Log.hpp"
+#include "Common/CreateComponent.hpp"
+
 #include "Common/String/Conversion.hpp"
 
 #include "Common/MPI/PE.hpp"
@@ -46,7 +48,7 @@
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/ConnectivityData.hpp"
-#include "Mesh/CFlexTable.hpp"
+#include "Mesh/CDynTable.hpp"
 
 
 #define PE_SERIALIZE(func)                                \
@@ -624,7 +626,7 @@ struct ZoltanTests_Fixture
     Uint tot_nb_objects =  get_number_of_objects_mesh(data, &error);
   
     Uint zoltan_idx = 0;
-    BOOST_FOREACH(const CFlexTable& node_to_glb_elm, recursive_filtered_range_typed<CFlexTable>(mesh,IsComponentTag("glb_elem_connectivity")))
+    BOOST_FOREACH(const CDynTable<Uint>& node_to_glb_elm, recursive_filtered_range_typed<CDynTable<Uint> >(mesh,IsComponentTag("glb_elem_connectivity")))
     {
       if (zoltan_idx >= tot_nb_objects)
 			{
@@ -638,7 +640,7 @@ struct ZoltanTests_Fixture
       {
         if (!is_ghost[i])
         {
-          CFlexTable::ConstRow glb_elms = node_to_glb_elm[i];
+          CDynTable<Uint>::ConstRow glb_elms = node_to_glb_elm[i];
           numEdges[zoltan_idx]=glb_elms.size();
           zoltan_idx++;
         }
@@ -647,8 +649,8 @@ struct ZoltanTests_Fixture
         
     BOOST_FOREACH(const CElements& elements, recursive_range_typed<CElements>(get_component_typed<CRegion>(mesh)))
     {
-      const CTable& conn_table = elements.connectivity_table();
-      BOOST_FOREACH(CTable::ConstRow local_nodes, conn_table.array())
+      const CTable<Uint>& conn_table = elements.connectivity_table();
+      BOOST_FOREACH(CTable<Uint>::ConstRow local_nodes, conn_table.array())
       {
         if (zoltan_idx >= tot_nb_objects)
 				{
@@ -737,14 +739,14 @@ struct ZoltanTests_Fixture
     Uint num_edges_from_nodes=0;
     Uint num_edges_from_elems=0;
 
-		BOOST_FOREACH(const CFlexTable& node_to_glb_elm, recursive_filtered_range_typed<CFlexTable>(mesh,IsComponentTag("glb_elem_connectivity")))
+		BOOST_FOREACH(const CDynTable<Uint>& node_to_glb_elm, recursive_filtered_range_typed<CDynTable<Uint> >(mesh,IsComponentTag("glb_elem_connectivity")))
     {
       const CList<bool>& is_ghost = *node_to_glb_elm.get_parent()->get_child_type<CList<bool> >("is_ghost");
       for (Uint i=0; i<node_to_glb_elm.size(); ++i)
       {
         if (!is_ghost[i])
         {
-          CFlexTable::ConstRow glb_elms = node_to_glb_elm[i];
+          CDynTable<Uint>::ConstRow glb_elms = node_to_glb_elm[i];
           for (Uint j=0; j<glb_elms.size(); ++j)
           {
 						num_edges_from_nodes++;
@@ -758,13 +760,13 @@ struct ZoltanTests_Fixture
 
     BOOST_FOREACH(const CElements& elements, recursive_range_typed<CElements>(get_component_typed<CRegion>(mesh)))
     {
-      const CArray& coordinates = elements.coordinates();
+      const CTable<Real>& coordinates = elements.coordinates();
       const CList<Uint>& glb_node_idx = get_tagged_component_typed< CList<Uint> > (coordinates,"global_node_indices");
 			//const CList<Uint>& glb_elm_idx = get_tagged_component_typed< CList<Uint> > (elements,"global_element_indices");
 
-      const CTable& conn_table = elements.connectivity_table();
+      const CTable<Uint>& conn_table = elements.connectivity_table();
 			Uint loc_elm_idx = 0;
-      BOOST_FOREACH(CTable::ConstRow local_nodes, conn_table.array())
+      BOOST_FOREACH(CTable<Uint>::ConstRow local_nodes, conn_table.array())
       {        
         BOOST_FOREACH(const Uint loc_node, local_nodes)
         {					
@@ -840,15 +842,15 @@ struct ZoltanTests_Fixture
 		*ierr = ZOLTAN_OK;
 		
 		std::vector<Component::ConstPtr> components;
-		BOOST_FOREACH(const CArray& coordinates, 
-									recursive_filtered_range_typed<CArray>(mesh,IsComponentTag("coordinates")))
+		BOOST_FOREACH(const CTable<Real>& coordinates, 
+									recursive_filtered_range_typed<CTable<Real> >(mesh,IsComponentTag("coordinates")))
 			components.push_back(coordinates.get());
     BOOST_FOREACH(const CElements& elements, recursive_range_typed<CElements>(mesh))
 			components.push_back(elements.get());
 		
-		std::vector<CFlexTable::ConstPtr> list_of_node_to_glb_elm;
-		BOOST_FOREACH(const CFlexTable& node_to_glb_elm, recursive_filtered_range_typed<CFlexTable>(mesh,IsComponentTag("glb_elem_connectivity")))
-      list_of_node_to_glb_elm.push_back(node_to_glb_elm.get_type<CFlexTable>());
+		std::vector<CDynTable<Uint>::ConstPtr> list_of_node_to_glb_elm;
+		BOOST_FOREACH(const CDynTable<Uint>& node_to_glb_elm, recursive_filtered_range_typed<CDynTable<Uint> >(mesh,IsComponentTag("glb_elem_connectivity")))
+      list_of_node_to_glb_elm.push_back(node_to_glb_elm.get_type<CDynTable<Uint> >());
 		
 		//Uint node_start_idx = mesh.get_child("temporary_partition_info")->property("node_start_idx").value<Uint>();
 		Uint elem_start_idx = mesh.get_child("temporary_partition_info")->property("elem_start_idx").value<Uint>();
@@ -861,7 +863,7 @@ struct ZoltanTests_Fixture
 			if (glb_id[IDX] < (int) elem_start_idx)
 			{
 				sizes[i] = sizeof(Uint) // component index
-				         + sizeof(Real) * components[loc_id[COMP]]->get_type<CArray>()->row_size() // coordinates
+				         + sizeof(Real) * components[loc_id[COMP]]->get_type<CTable<Real> >()->row_size() // coordinates
                  + sizeof(Uint) * (1+list_of_node_to_glb_elm[loc_id[COMP]]->row_size(loc_id[IDX])); // global element indices that need this node
 			}
 			else
@@ -892,13 +894,13 @@ struct ZoltanTests_Fixture
     Uint* glb_elm_idx_buf;
     
 		std::vector<Component::Ptr> components;
-		BOOST_FOREACH(CArray& coordinates, 
-									recursive_filtered_range_typed<CArray>(mesh,IsComponentTag("coordinates")))
+		BOOST_FOREACH(CTable<Real>& coordinates, 
+									recursive_filtered_range_typed<CTable<Real> >(mesh,IsComponentTag("coordinates")))
 			components.push_back(coordinates.get());
 			
-		std::vector<CFlexTable::ConstPtr> list_of_node_to_glb_elm;
-		BOOST_FOREACH(const CFlexTable& node_to_glb_elm, recursive_filtered_range_typed<CFlexTable>(mesh,IsComponentTag("glb_elem_connectivity")))
-      list_of_node_to_glb_elm.push_back(node_to_glb_elm.get_type<CFlexTable>());
+		std::vector<CDynTable<Uint>::ConstPtr> list_of_node_to_glb_elm;
+		BOOST_FOREACH(const CDynTable<Uint>& node_to_glb_elm, recursive_filtered_range_typed<CDynTable<Uint> >(mesh,IsComponentTag("glb_elem_connectivity")))
+      list_of_node_to_glb_elm.push_back(node_to_glb_elm.get_type<CDynTable<Uint> >());
 		
 		std::vector<CList<bool>::Ptr> list_of_is_ghost;
 		BOOST_FOREACH(CList<bool>& is_ghost, recursive_filtered_range_typed<CList<bool> >(mesh,IsComponentTag("is_ghost")))
@@ -924,9 +926,9 @@ struct ZoltanTests_Fixture
         component_number = (Uint *)(buf + idx[id]);
         *component_number++ = loc_id[COMP];
         CFinfo << " comp = " << loc_id[COMP] << "      coord_idx = " << CFflush;
-        CFinfo << loc_id[IDX] << "/" << components[loc_id[COMP]]->get_type<CArray>()->size() << "    coords = " << CFflush;
+        CFinfo << loc_id[IDX] << "/" << components[loc_id[COMP]]->get_type<CTable<Real> >()->size() << "    coords = " << CFflush;
 				coord_row_buf = (Real *)(component_number);
-				BOOST_FOREACH(const Real& coord, components[loc_id[COMP]]->get_type<CArray>()->array()[loc_id[IDX]])
+				BOOST_FOREACH(const Real& coord, components[loc_id[COMP]]->get_type<CTable<Real> >()->array()[loc_id[IDX]])
 				{
 				  *coord_row_buf++ = coord;
           CFinfo << coord << "  " ;
@@ -957,19 +959,19 @@ struct ZoltanTests_Fixture
 		CMesh& mesh = *(CMesh *)data;
 		*ierr = ZOLTAN_OK;
 
-		std::vector< boost::shared_ptr<CArray::Buffer> > coordinates_buffer;
+		std::vector< boost::shared_ptr<CTable<Real>::Buffer> > coordinates_buffer;
     std::vector< boost::shared_ptr<CList<bool>::Buffer> > is_ghost_buffer;
     std::vector< boost::shared_ptr<CList<Uint>::Buffer> > glb_node_indices_buffer;
-    std::vector< boost::shared_ptr<CFlexTable::Buffer> > node_to_glb_elms_buffer;
+    std::vector< boost::shared_ptr<CDynTable<Uint>::Buffer> > node_to_glb_elms_buffer;
 		
 		
-		BOOST_FOREACH(CArray& coords, 
-									recursive_filtered_range_typed<CArray>(mesh,IsComponentTag("coordinates")))
+		BOOST_FOREACH(CTable<Real>& coords, 
+									recursive_filtered_range_typed<CTable<Real> >(mesh,IsComponentTag("coordinates")))
 		{
-		  coordinates_buffer.push_back( boost::shared_ptr<CArray::Buffer> (new CArray::Buffer(coords.get_type<CArray>()->create_buffer())));
+		  coordinates_buffer.push_back( boost::shared_ptr<CTable<Real>::Buffer> (new CTable<Real>::Buffer(coords.get_type<CTable<Real> >()->create_buffer())));
 			is_ghost_buffer.push_back( boost::shared_ptr<CList<bool>::Buffer> (new CList<bool>::Buffer(get_tagged_component_typed<CList<bool> >(coords,"is_ghost").create_buffer())));
 			glb_node_indices_buffer.push_back( boost::shared_ptr<CList<Uint>::Buffer> (new CList<Uint>::Buffer(get_tagged_component_typed<CList<Uint> >(coords,"global_node_indices").create_buffer())));
-			node_to_glb_elms_buffer.push_back( boost::shared_ptr<CFlexTable::Buffer> (new CFlexTable::Buffer(get_tagged_component_typed<CFlexTable>(coords,"glb_elem_connectivity").create_buffer())));
+			node_to_glb_elms_buffer.push_back( boost::shared_ptr<CDynTable<Uint>::Buffer> (new CDynTable<Uint>::Buffer(get_tagged_component_typed<CDynTable<Uint> >(coords,"glb_elem_connectivity").create_buffer())));
 		}
 
     Uint comp_idx;
@@ -1014,11 +1016,11 @@ struct ZoltanTests_Fixture
 	
 	static void rm_ghost_nodes(CMesh& mesh)
   {
-    BOOST_FOREACH(CArray& coordinates, recursive_filtered_range_typed<CArray>(mesh,IsComponentTag("coordinates")))
+    BOOST_FOREACH(CTable<Real>& coordinates, recursive_filtered_range_typed<CTable<Real> >(mesh,IsComponentTag("coordinates")))
     {
       CList<bool>& is_ghost = get_tagged_component_typed< CList<bool> >(coordinates,"is_ghost");
       CList<Uint>& global_node_indices = get_tagged_component_typed< CList<Uint> >(coordinates,"global_node_indices");
-      CFlexTable& glb_elem_connectivity = get_named_component_typed< CFlexTable >(coordinates,"glb_elem_connectivity");
+      CDynTable<Uint>& glb_elem_connectivity = get_named_component_typed< CDynTable<Uint> >(coordinates,"glb_elem_connectivity");
 
       CFLogVar(coordinates.size());
       CFLogVar(is_ghost.size());
@@ -1028,9 +1030,9 @@ struct ZoltanTests_Fixture
 
       CList<bool>::Buffer buffer_is_ghost = is_ghost.create_buffer();
       CList<Uint>::Buffer buffer_global_node_indices = global_node_indices.create_buffer();
-      CFlexTable::Buffer buffer_glb_elem_connectivity = glb_elem_connectivity.create_buffer();
+      CDynTable<Uint>::Buffer buffer_glb_elem_connectivity = glb_elem_connectivity.create_buffer();
       
-      CArray::Buffer buffer_coordinates = coordinates.create_buffer();
+      CTable<Real>::Buffer buffer_coordinates = coordinates.create_buffer();
       for (Uint i=0; i<coordinates.size(); ++i)
       {
         if (is_ghost[i])
@@ -1043,11 +1045,11 @@ struct ZoltanTests_Fixture
       }
     }
     
-    BOOST_FOREACH(const CArray& coordinates, recursive_filtered_range_typed<CArray>(mesh,IsComponentTag("coordinates")))
+    BOOST_FOREACH(const CTable<Real>& coordinates, recursive_filtered_range_typed<CTable<Real> >(mesh,IsComponentTag("coordinates")))
     {
       const CList<bool>& is_ghost = get_tagged_component_typed< CList<bool> >(coordinates,"is_ghost");
       const CList<Uint>& global_node_indices = get_tagged_component_typed< CList<Uint> >(coordinates,"global_node_indices");
-      const CFlexTable& glb_elem_connectivity = get_named_component_typed< CFlexTable >(coordinates,"glb_elem_connectivity");
+      const CDynTable<Uint>& glb_elem_connectivity = get_named_component_typed< CDynTable<Uint> >(coordinates,"glb_elem_connectivity");
       
       
       CFLogVar(coordinates.size());
@@ -1064,11 +1066,11 @@ struct ZoltanTests_Fixture
     CFinfo << "++++++++++++++++++++++++++++++++++++++++++++ give_elems_global_node_numbers" << CFendl;
     BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(mesh))
     {
-      CTable& conn_table = elements.connectivity_table();
-      const CArray& coordinates = elements.coordinates();
+      CTable<Uint>& conn_table = elements.connectivity_table();
+      const CTable<Real>& coordinates = elements.coordinates();
       const CList<Uint>& global_node_indices = get_tagged_component_typed< CList<Uint> >(coordinates,"global_node_indices");
 
-      BOOST_FOREACH ( CTable::Row nodes, conn_table.array() )
+      BOOST_FOREACH ( CTable<Uint>::Row nodes, conn_table.array() )
       {
         BOOST_FOREACH ( Uint& node, nodes )
         {
@@ -1083,7 +1085,7 @@ struct ZoltanTests_Fixture
     CFinfo << "++++++++++++++++++++++++++++++++++++++++++++ give_elems_local_node_numbers" << CFendl;
     std::map<Uint,Uint> glb_to_loc;
     
-    BOOST_FOREACH(const CArray& coordinates, recursive_filtered_range_typed<CArray>(mesh,IsComponentTag("coordinates")))
+    BOOST_FOREACH(const CTable<Real>& coordinates, recursive_filtered_range_typed<CTable<Real> >(mesh,IsComponentTag("coordinates")))
     {
       const CList<Uint>& global_node_indices = get_tagged_component_typed< CList<Uint> >(coordinates,"global_node_indices");
       for (Uint i=0; i<coordinates.size(); ++i)
@@ -1094,9 +1096,9 @@ struct ZoltanTests_Fixture
     
     BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(mesh))
     {
-      CTable& conn_table = elements.connectivity_table();
+      CTable<Uint>& conn_table = elements.connectivity_table();
 
-      BOOST_FOREACH ( CTable::Row nodes, conn_table.array() )
+      BOOST_FOREACH ( CTable<Uint>::Row nodes, conn_table.array() )
       {
         BOOST_FOREACH ( Uint& node, nodes )
         {
@@ -1113,9 +1115,9 @@ struct ZoltanTests_Fixture
     std::set<Uint> nodes_needed_by_elems;
     BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(mesh))
     {
-      CTable& conn_table = elements.connectivity_table();
+      CTable<Uint>& conn_table = elements.connectivity_table();
       
-      BOOST_FOREACH ( CTable::Row nodes, conn_table.array() )
+      BOOST_FOREACH ( CTable<Uint>::Row nodes, conn_table.array() )
       {
         BOOST_FOREACH ( Uint& node, nodes )
         {
@@ -1123,7 +1125,7 @@ struct ZoltanTests_Fixture
         }
       }
     }
-    BOOST_FOREACH(const CArray& coordinates, recursive_filtered_range_typed<CArray>(mesh,IsComponentTag("coordinates")))
+    BOOST_FOREACH(const CTable<Real>& coordinates, recursive_filtered_range_typed<CTable<Real> >(mesh,IsComponentTag("coordinates")))
     {
       const CList<Uint>& global_node_indices = get_tagged_component_typed< CList<Uint> >(coordinates,"global_node_indices");
       
@@ -1156,8 +1158,8 @@ struct ZoltanTests_Fixture
 		*ierr = ZOLTAN_OK;
 		
 		std::vector<Component::Ptr> components;
-		BOOST_FOREACH(CArray& coordinates, 
-									recursive_filtered_range_typed<CArray>(mesh,IsComponentTag("coordinates")))
+		BOOST_FOREACH(CTable<Real>& coordinates, 
+									recursive_filtered_range_typed<CTable<Real> >(mesh,IsComponentTag("coordinates")))
 			components.push_back(coordinates.get());
     BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(mesh))
       components.push_back(elements.get());
@@ -1195,17 +1197,17 @@ struct ZoltanTests_Fixture
     Uint* component_number;
 		Uint* nodes_buf;
     
-    std::vector<boost::shared_ptr<CTable::Buffer> > elem_buffer;
+    std::vector<boost::shared_ptr<CTable<Uint>::Buffer> > elem_buffer;
 		std::vector<Component::Ptr> components;
-		BOOST_FOREACH(CArray& coordinates, 
-									recursive_filtered_range_typed<CArray>(mesh,IsComponentTag("coordinates")))
+		BOOST_FOREACH(CTable<Real>& coordinates, 
+									recursive_filtered_range_typed<CTable<Real> >(mesh,IsComponentTag("coordinates")))
 		{
-      elem_buffer.push_back(boost::shared_ptr<CTable::Buffer>());
+      elem_buffer.push_back(boost::shared_ptr<CTable<Uint>::Buffer>());
 		  components.push_back(coordinates.get());
 	  }
     BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(mesh))
     {
-      elem_buffer.push_back(boost::shared_ptr<CTable::Buffer> ( new CTable::Buffer(elements.connectivity_table().create_buffer())));
+      elem_buffer.push_back(boost::shared_ptr<CTable<Uint>::Buffer> ( new CTable<Uint>::Buffer(elements.connectivity_table().create_buffer())));
       components.push_back(elements.get());
     }
 
@@ -1259,17 +1261,17 @@ struct ZoltanTests_Fixture
 		Uint* nodes_buf;
     Uint comp_idx;
     
-    std::vector<boost::shared_ptr<CTable::Buffer> > elem_buffer;
+    std::vector<boost::shared_ptr<CTable<Uint>::Buffer> > elem_buffer;
 		std::vector<Component::Ptr> components;
-		BOOST_FOREACH(CArray& coordinates, 
-									recursive_filtered_range_typed<CArray>(mesh,IsComponentTag("coordinates")))
+		BOOST_FOREACH(CTable<Real>& coordinates, 
+									recursive_filtered_range_typed<CTable<Real> >(mesh,IsComponentTag("coordinates")))
 		{
-      elem_buffer.push_back(boost::shared_ptr<CTable::Buffer>());
+      elem_buffer.push_back(boost::shared_ptr<CTable<Uint>::Buffer>());
 		  components.push_back(coordinates.get());
 	  }
     BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(mesh))
     {
-      elem_buffer.push_back(boost::shared_ptr<CTable::Buffer> ( new CTable::Buffer(elements.connectivity_table().create_buffer())));
+      elem_buffer.push_back(boost::shared_ptr<CTable<Uint>::Buffer> ( new CTable<Uint>::Buffer(elements.connectivity_table().create_buffer())));
       components.push_back(elements.get());
     }
 
@@ -1326,9 +1328,9 @@ struct ZoltanTests_Fixture
     // 1) put in ghost_nodes initially ALL the nodes required by the migrated elements
     BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(mesh))
     {
-      CTable& conn_table = elements.connectivity_table();
+      CTable<Uint>& conn_table = elements.connectivity_table();
       
-      BOOST_FOREACH ( CTable::Row nodes, conn_table.array() )
+      BOOST_FOREACH ( CTable<Uint>::Row nodes, conn_table.array() )
       {
         BOOST_FOREACH ( Uint& node, nodes )
         {
@@ -1343,7 +1345,7 @@ struct ZoltanTests_Fixture
     CFinfo << CFendl;
     
     // 2) remove from ghost_nodes ALL the nodes that are present in the coordinate tables
-    BOOST_FOREACH(const CArray& coordinates, recursive_filtered_range_typed<CArray>(mesh,IsComponentTag("coordinates")))
+    BOOST_FOREACH(const CTable<Real>& coordinates, recursive_filtered_range_typed<CTable<Real> >(mesh,IsComponentTag("coordinates")))
     {
       const CList<Uint>& global_node_indices = get_tagged_component_typed< CList<Uint> >(coordinates,"global_node_indices");
       const CList<bool>& is_ghost = get_tagged_component_typed< CList<bool> >(coordinates,"is_ghost");      
@@ -1431,15 +1433,15 @@ struct ZoltanTests_Fixture
 		*ierr = ZOLTAN_OK;
 		
 		std::vector<Component::ConstPtr> components;
-		BOOST_FOREACH(const CArray& coordinates, 
-									recursive_filtered_range_typed<CArray>(mesh,IsComponentTag("coordinates")))
+		BOOST_FOREACH(const CTable<Real>& coordinates, 
+									recursive_filtered_range_typed<CTable<Real> >(mesh,IsComponentTag("coordinates")))
 			components.push_back(coordinates.get());
     BOOST_FOREACH(const CElements& elements, recursive_range_typed<CElements>(mesh))
 			components.push_back(elements.get());
 		
-		std::vector<CFlexTable::ConstPtr> list_of_node_to_glb_elm;
-		BOOST_FOREACH(const CFlexTable& node_to_glb_elm, recursive_filtered_range_typed<CFlexTable>(mesh,IsComponentTag("glb_elem_connectivity")))
-      list_of_node_to_glb_elm.push_back(node_to_glb_elm.get_type<CFlexTable>());
+		std::vector<CDynTable<Uint>::ConstPtr> list_of_node_to_glb_elm;
+		BOOST_FOREACH(const CDynTable<Uint>& node_to_glb_elm, recursive_filtered_range_typed<CDynTable<Uint> >(mesh,IsComponentTag("glb_elem_connectivity")))
+      list_of_node_to_glb_elm.push_back(node_to_glb_elm.get_type<CDynTable<Uint> >());
 		
 		//Uint node_start_idx = mesh.get_child("temporary_partition_info")->property("node_start_idx").value<Uint>();
 		Uint elem_start_idx = mesh.get_child("temporary_partition_info")->property("elem_start_idx").value<Uint>();
@@ -1452,7 +1454,7 @@ struct ZoltanTests_Fixture
 			if (glb_id[IDX] < (int) elem_start_idx)
 			{
 				sizes[i] = sizeof(Uint) // component index
-				         + sizeof(Real) * components[loc_id[COMP]]->get_type<CArray>()->row_size() // coordinates
+				         + sizeof(Real) * components[loc_id[COMP]]->get_type<CTable<Real> >()->row_size() // coordinates
                  + sizeof(Uint) * (1+list_of_node_to_glb_elm[loc_id[COMP]]->row_size(loc_id[IDX])); // global element indices that need this node
 			}
 			else
@@ -1484,13 +1486,13 @@ struct ZoltanTests_Fixture
     Uint* glb_elm_idx_buf;
     
 		std::vector<Component::Ptr> components;
-		BOOST_FOREACH(CArray& coordinates, 
-									recursive_filtered_range_typed<CArray>(mesh,IsComponentTag("coordinates")))
+		BOOST_FOREACH(CTable<Real>& coordinates, 
+									recursive_filtered_range_typed<CTable<Real> >(mesh,IsComponentTag("coordinates")))
 			components.push_back(coordinates.get());
 			
-		std::vector<CFlexTable::ConstPtr> list_of_node_to_glb_elm;
-		BOOST_FOREACH(const CFlexTable& node_to_glb_elm, recursive_filtered_range_typed<CFlexTable>(mesh,IsComponentTag("glb_elem_connectivity")))
-      list_of_node_to_glb_elm.push_back(node_to_glb_elm.get_type<CFlexTable>());
+		std::vector<CDynTable<Uint>::ConstPtr> list_of_node_to_glb_elm;
+		BOOST_FOREACH(const CDynTable<Uint>& node_to_glb_elm, recursive_filtered_range_typed<CDynTable<Uint> >(mesh,IsComponentTag("glb_elem_connectivity")))
+      list_of_node_to_glb_elm.push_back(node_to_glb_elm.get_type<CDynTable<Uint> >());
 		
 		std::vector<CList<bool>::Ptr> list_of_is_ghost;
 		BOOST_FOREACH(CList<bool>& is_ghost, recursive_filtered_range_typed<CList<bool> >(mesh,IsComponentTag("is_ghost")))
@@ -1516,9 +1518,9 @@ struct ZoltanTests_Fixture
         component_number = (Uint *)(buf + idx[id]);
         *component_number++ = loc_id[COMP];
         CFinfo << " comp = " << loc_id[COMP] << "      coord_idx = " << CFflush;
-        CFinfo << loc_id[IDX] << "/" << components[loc_id[COMP]]->get_type<CArray>()->size() << "    coords = " << CFflush;
+        CFinfo << loc_id[IDX] << "/" << components[loc_id[COMP]]->get_type<CTable<Real> >()->size() << "    coords = " << CFflush;
 				coord_row_buf = (Real *)(component_number);
-				BOOST_FOREACH(const Real& coord, components[loc_id[COMP]]->get_type<CArray>()->array()[loc_id[IDX]])
+				BOOST_FOREACH(const Real& coord, components[loc_id[COMP]]->get_type<CTable<Real> >()->array()[loc_id[IDX]])
 				{
 				  *coord_row_buf++ = coord;
           CFinfo << coord << "  " ;
@@ -1546,19 +1548,19 @@ struct ZoltanTests_Fixture
 		CMesh& mesh = *(CMesh *)data;
 		*ierr = ZOLTAN_OK;
 
-		std::vector< boost::shared_ptr<CArray::Buffer> > coordinates_buffer;
+		std::vector< boost::shared_ptr<CTable<Real>::Buffer> > coordinates_buffer;
     std::vector< boost::shared_ptr<CList<bool>::Buffer> > is_ghost_buffer;
     std::vector< boost::shared_ptr<CList<Uint>::Buffer> > glb_node_indices_buffer;
-    std::vector< boost::shared_ptr<CFlexTable::Buffer> > node_to_glb_elms_buffer;
+    std::vector< boost::shared_ptr<CDynTable<Uint>::Buffer> > node_to_glb_elms_buffer;
 		
 		
-		BOOST_FOREACH(CArray& coords, 
-									recursive_filtered_range_typed<CArray>(mesh,IsComponentTag("coordinates")))
+		BOOST_FOREACH(CTable<Real>& coords, 
+									recursive_filtered_range_typed<CTable<Real> >(mesh,IsComponentTag("coordinates")))
 		{
-		  coordinates_buffer.push_back( boost::shared_ptr<CArray::Buffer> (new CArray::Buffer(coords.get_type<CArray>()->create_buffer())));
+		  coordinates_buffer.push_back( boost::shared_ptr<CTable<Real>::Buffer> (new CTable<Real>::Buffer(coords.get_type<CTable<Real> >()->create_buffer())));
 			is_ghost_buffer.push_back( boost::shared_ptr<CList<bool>::Buffer> (new CList<bool>::Buffer(get_tagged_component_typed<CList<bool> >(coords,"is_ghost").create_buffer())));
 			glb_node_indices_buffer.push_back( boost::shared_ptr<CList<Uint>::Buffer> (new CList<Uint>::Buffer(get_tagged_component_typed<CList<Uint> >(coords,"global_node_indices").create_buffer())));
-			node_to_glb_elms_buffer.push_back( boost::shared_ptr<CFlexTable::Buffer> (new CFlexTable::Buffer(get_tagged_component_typed<CFlexTable>(coords,"glb_elem_connectivity").create_buffer())));
+			node_to_glb_elms_buffer.push_back( boost::shared_ptr<CDynTable<Uint>::Buffer> (new CDynTable<Uint>::Buffer(get_tagged_component_typed<CDynTable<Uint> >(coords,"glb_elem_connectivity").create_buffer())));
 		}
 
     Uint comp_idx;
@@ -1753,7 +1755,7 @@ BOOST_AUTO_TEST_CASE ( Zoltan_tutorial_construction )
 
 BOOST_AUTO_TEST_CASE ( zoltan_quadtriag_mesh)
 {
- 	CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("Neu","meshreader");
+  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
 	meshreader->configure_property("Read Boundaries",false);
 
 	// the file to read from
@@ -2088,7 +2090,7 @@ BOOST_AUTO_TEST_CASE ( zoltan_quadtriag_mesh)
 
   give_elems_local_node_numbers(mesh);
   
- 	CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("Gmsh","meshwriter");
+ 	CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
 
 	// the file to read from
 	boost::filesystem::path fp_out ("quadtriag.msh");

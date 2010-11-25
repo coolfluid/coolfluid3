@@ -198,8 +198,8 @@ BOOST_FIXTURE_TEST_CASE( VolumeDirect2D, ProtoOperatorsFixture ) // timed and pr
   Real volume = 0.0;
   BOOST_FOREACH(const CElements& region, recursive_range_typed<CElements>(*grid_2d))
   {
-    const CArray& coords = region.coordinates();
-    const CTable::ArrayT& ctbl = region.connectivity_table().array();
+    const CTable<Real>& coords = region.coordinates();
+    const CTable<Uint>::ArrayT& ctbl = region.connectivity_table().array();
     const Uint element_count = ctbl.size();
     SF::Quad2DLagrangeP1::NodeMatrixT nodes;
     for(Uint element = 0; element != element_count; ++element)
@@ -280,8 +280,8 @@ BOOST_FIXTURE_TEST_CASE( Integral3D, ProtoOperatorsFixture )
 BOOST_FIXTURE_TEST_CASE( VolumeDirect3D, ProtoOperatorsFixture ) // timed and profiled
 {
   const CElements& elems = recursive_get_named_component_typed<CElements>(*channel_3d, "elements_CF.Mesh.SF.Hexa3DLagrangeP1");
-  const CArray& coords = elems.coordinates();
-  const CTable::ArrayT conn = elems.connectivity_table().array();
+  const CTable<Real>& coords = elems.coordinates();
+  const CTable<Uint>::ArrayT conn = elems.connectivity_table().array();
   const Uint nb_elems = conn.size();
   Real volume = 0.0;
   SF::Hexa3DLagrangeP1::NodeMatrixT nodes;

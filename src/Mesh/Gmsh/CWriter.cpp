@@ -15,7 +15,7 @@
 #include "Mesh/Gmsh/CWriter.hpp"
 
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CField.hpp"
@@ -158,7 +158,7 @@ void CWriter::write_coordinates(std::fstream& file)
     BOOST_FOREACH(CElements* elements, coord.second)
       m_node_start_idx[elements] = node_number;
 
-    BOOST_FOREACH(CArray::ConstRow row, coord.first->array())
+    BOOST_FOREACH(CTable<Real>::ConstRow row, coord.first->array())
     {
       ++node_number;
       file << node_number << " ";
@@ -221,7 +221,7 @@ void CWriter::write_connectivity(std::fstream& file)
           //file << "// Region " << elements.full_path().string() << "\n";
           elm_type = m_elementTypes[elements->element_type().getElementTypeName()];
           Uint node_start_idx = m_node_start_idx[elements];
-          BOOST_FOREACH(const CTable::ConstRow& row, elements->connectivity_table().array())
+          BOOST_FOREACH(const CTable<Uint>::ConstRow& row, elements->connectivity_table().array())
           {
             elm_number++;
             file << elm_number << " " << elm_type << " " << number_of_tags << " " << group_number << " " << group_number << " " << partition_number;
@@ -296,11 +296,11 @@ void CWriter::write_elem_nodal_data(std::fstream& file)
 			
 			BOOST_FOREACH(CFieldElements& field_elements, recursive_range_typed<CFieldElements>(nodebased_field))
 			{
-				const CArray& field_data = field_elements.data();
+				const CTable<Real>& field_data = field_elements.data();
 				Uint nb_nodes_per_element = field_elements.element_type().nb_nodes();
 				
 				Uint elm_number = m_element_start_idx[&field_elements.get_geometry_elements()];
-				BOOST_FOREACH(const CTable::ConstRow& row, field_elements.connectivity_table().array())
+				BOOST_FOREACH(const CTable<Uint>::ConstRow& row, field_elements.connectivity_table().array())
 				{
 					elm_number++;
 					file << elm_number << " " << nb_nodes_per_element << " ";
@@ -405,7 +405,7 @@ void CWriter::write_nodal_data(std::fstream& file)
 			Uint nb_nodes=0;
 			BOOST_FOREACH(const CPath& field_data_path, field_data_paths)
 			{
-				const CArray& field_data = *m_mesh->look_component_type<CArray>(field_data_path);
+				const CTable<Real>& field_data = *m_mesh->look_component_type<CTable<Real> >(field_data_path);
 				
 				nb_nodes += field_data.size();
 			}
@@ -421,9 +421,9 @@ void CWriter::write_nodal_data(std::fstream& file)
 			Uint local_node_idx=1;   // +1 for gmsh base starting at 1
 			BOOST_FOREACH(const CPath& field_data_path, field_data_paths)
 			{
-				const CArray& field_data = *m_mesh->look_component_type<CArray>(field_data_path);
+				const CTable<Real>& field_data = *m_mesh->look_component_type<CTable<Real> >(field_data_path);
 
-				BOOST_FOREACH(CArray::ConstRow field_per_node, field_data.array())
+				BOOST_FOREACH(CTable<Real>::ConstRow field_per_node, field_data.array())
 				{
 					file << local_node_idx++ << " "; 
 
@@ -527,7 +527,7 @@ void CWriter::write_element_data(std::fstream& file)
 			file << 3 << "\n" << 0 << "\n" << datasize << "\n" << nb_elements <<"\n";
 			BOOST_FOREACH(CFieldElements& field_elements, recursive_range_typed<CFieldElements>(elementbased_field))
 			{
-				const CArray& field_data = field_elements.data();
+				const CTable<Real>& field_data = field_elements.data();
 				
 				Uint elm_number = m_element_start_idx[&field_elements.get_geometry_elements()];
 				Uint local_nb_elms = field_elements.connectivity_table().size();

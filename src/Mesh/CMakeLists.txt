@@ -4,16 +4,16 @@ list( APPEND coolfluid_mesh_files
   ArrayBase.hpp
   ArrayBufferT.hpp
   CMesh.cpp
-  CArray.hpp
-  CArray.cpp
+  CTable.hpp
+  CTable.cpp
   CElements.hpp
   CElements.cpp
   CField.hpp
   CField.cpp
   CFieldElements.hpp
   CFieldElements.cpp
-  CFlexTable.hpp
-  CFlexTable.cpp
+  CDynTable.hpp
+  CDynTable.cpp
   CHoneycombInterpolator.hpp
   CHoneycombInterpolator.cpp
   CInterpolator.hpp

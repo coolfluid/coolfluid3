@@ -17,7 +17,7 @@ namespace CF {
 	
   namespace Mesh
   {
-		class CArray;
+		template <typename T> class CTable;
 		class CFieldElements;
 	}
 
@@ -68,8 +68,8 @@ private: // data
 		coordinates(geometry_elements.get_field_elements(op.properties()["Field"].value<std::string>()).coordinates()),
 		node_list(geometry_elements.get_field_elements(op.properties()["Field"].value<std::string>()).node_list())
     { }
-    Mesh::CArray& field_data;
-    Mesh::CArray& coordinates;
+    Mesh::CTable<Real>& field_data;
+    Mesh::CTable<Real>& coordinates;
     Mesh::CList<Uint>& node_list;
   };
 	

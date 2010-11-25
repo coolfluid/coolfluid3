@@ -107,7 +107,7 @@ struct BlockAccumulator :
               , typename impl::data_param context // We assume data is a context
     ) const
     {
-      const Mesh::CTable::ConstRow conn_row = (*boost::fusion::at<I>(context.contexts).connectivity)[context.element_idx];
+      const Mesh::CTable<Uint>::ConstRow conn_row = (*boost::fusion::at<I>(context.contexts).connectivity)[context.element_idx];
       MatrixHolderT m = boost::proto::value(boost::proto::left(expr));
       BlockAssignmentOp<OpT>::assign(m.matrix(), boost::proto::eval(boost::proto::right(expr), context), conn_row);
     }

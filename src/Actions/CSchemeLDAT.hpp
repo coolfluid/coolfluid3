@@ -61,11 +61,11 @@ private: // data
       coordinates(geometry_elements.get_field_elements(op.properties()["SolutionField"].value<std::string>()).coordinates()),
       connectivity_table(geometry_elements.get_field_elements(op.properties()["SolutionField"].value<std::string>()).connectivity_table())
     { }
-    Mesh::CArray& solution;
-    Mesh::CArray& residual;
-    Mesh::CArray& inverse_updatecoeff;
-    Mesh::CArray& coordinates;
-    Mesh::CTable& connectivity_table;
+    Mesh::CTable<Real>& solution;
+    Mesh::CTable<Real>& residual;
+    Mesh::CTable<Real>& inverse_updatecoeff;
+    Mesh::CTable<Real>& coordinates;
+    Mesh::CTable<Uint>& connectivity_table;
   };
 
   boost::shared_ptr<LoopHelper> data;
@@ -142,7 +142,7 @@ void CSchemeLDAT<SHAPEFUNC>::execute()
 {
   // inside element with index m_idx
 
-  const Mesh::CTable::ConstRow node_idx = data->connectivity_table[m_idx];
+  const Mesh::CTable<Uint>::ConstRow node_idx = data->connectivity_table[m_idx];
   typename SHAPEFUNC::NodeMatrixT nodes;
   fill(nodes, data->coordinates, data->connectivity_table[m_idx]);
 

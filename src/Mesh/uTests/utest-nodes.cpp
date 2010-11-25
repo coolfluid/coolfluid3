@@ -18,7 +18,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
-#include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/ElementData.hpp"
@@ -80,8 +80,8 @@ BOOST_FIXTURE_TEST_SUITE( Nodes, Nodes_Fixture )
 BOOST_AUTO_TEST_CASE( FillVector )
 {
   const CElements& firstRegion = get_first_region();
-  const CArray& coords = firstRegion.coordinates();
-  const CTable& conn = firstRegion.connectivity_table();
+  const CTable<Real>& coords = firstRegion.coordinates();
+  const CTable<Uint>& conn = firstRegion.connectivity_table();
   const Uint element_count = conn.size();
   std::vector<RealVector> node_vector(conn.row_size(), RealVector(coords.row_size()));
   for(Uint element = 0; element != element_count; ++element)
@@ -100,8 +100,8 @@ BOOST_AUTO_TEST_CASE( FillVector )
 BOOST_AUTO_TEST_CASE( FillMatrix )
 {
   const CElements& firstRegion = get_first_region();
-  const CArray& coords = firstRegion.coordinates();
-  const CTable& conn = firstRegion.connectivity_table();
+  const CTable<Real>& coords = firstRegion.coordinates();
+  const CTable<Uint>& conn = firstRegion.connectivity_table();
   const Uint element_count = conn.size();
   RealMatrix node_matrix(conn.row_size(), coords.row_size());
   for(Uint element = 0; element != element_count; ++element)

@@ -75,7 +75,7 @@ struct FillNodeContexts
 };
 
 /// Creates a list of unique nodes in the region
-void make_node_list(const Mesh::CRegion& region, const Mesh::CArray& coordinates, std::vector<Uint>& nodes)
+void make_node_list(const Mesh::CRegion& region, const Mesh::CTable<Real>& coordinates, std::vector<Uint>& nodes)
 {
   std::vector<bool> node_is_used(coordinates.size(), false);
   
@@ -83,13 +83,13 @@ void make_node_list(const Mesh::CRegion& region, const Mesh::CArray& coordinates
   Uint nb_nodes = 0;
   BOOST_FOREACH(const Mesh::CElements& elements, Common::recursive_range_typed<Mesh::CElements>(region))
   {
-    const Mesh::CTable& conn_tbl = elements.connectivity_table();
+    const Mesh::CTable<Uint>& conn_tbl = elements.connectivity_table();
     const Uint nb_elems = conn_tbl.size();
     const Uint nb_elem_nodes = conn_tbl.row_size();
     
     for(Uint elem_idx = 0; elem_idx != nb_elems; ++elem_idx)
     {
-      const Mesh::CTable::ConstRow row = conn_tbl[elem_idx];
+      const Mesh::CTable<Uint>::ConstRow row = conn_tbl[elem_idx];
       for(Uint node_idx = 0; node_idx != nb_elem_nodes; ++node_idx)
       {
         const Uint node = row[node_idx];
@@ -110,13 +110,13 @@ void make_node_list(const Mesh::CRegion& region, const Mesh::CArray& coordinates
   node_is_used.assign(coordinates.size(), false);
   BOOST_FOREACH(const Mesh::CElements& elements, Common::recursive_range_typed<Mesh::CElements>(region))
   {
-    const Mesh::CTable& conn_tbl = elements.connectivity_table();
+    const Mesh::CTable<Uint>& conn_tbl = elements.connectivity_table();
     const Uint nb_elems = conn_tbl.size();
     const Uint nb_nodes = conn_tbl.row_size();
     
     for(Uint elem_idx = 0; elem_idx != nb_elems; ++elem_idx)
     {
-      const Mesh::CTable::ConstRow row = conn_tbl[elem_idx];
+      const Mesh::CTable<Uint>::ConstRow row = conn_tbl[elem_idx];
       for(Uint node_idx = 0; node_idx != nb_nodes; ++node_idx)
       {
         const Uint node = row[node_idx];
@@ -171,7 +171,7 @@ void for_each_node(Mesh::CRegion& region, const Expr& expr)
   // Create the global context
   NodeMeshContext<ContextsT> context(contexts);
   
-  Mesh::CArray* coordinates = Common::get_component_typed_ptr<Mesh::CArray>(region, Common::IsComponentTag("coordinates")).get();
+  Mesh::CTable<Real>* coordinates = Common::get_component_typed_ptr<Mesh::CTable<Real> >(region, Common::IsComponentTag("coordinates")).get();
   if(coordinates) // region owns coordinates, so we assume a loop over all nodes
   {
     // Evaluate the expression for each node

@@ -15,17 +15,43 @@ namespace Mesh {
 
 using namespace Common;
 
-Common::ComponentBuilder < CTable, Component, LibMesh > CTable_Builder;
+Common::ComponentBuilder < CTable<bool>, Component, LibMesh > CTable_bool_Builder;
+
+Common::ComponentBuilder < CTable<Uint>, Component, LibMesh > CTable_Uint_Builder;
+
+Common::ComponentBuilder < CTable<int>, Component, LibMesh >  CTable_int_Builder;
+
+Common::ComponentBuilder < CTable<Real>, Component, LibMesh > CTable_Real_Builder;
+
+Common::ComponentBuilder < CTable<std::string>, Component, LibMesh > CTable_string_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CTable::CTable ( const std::string& name  ) :
-  Component ( name )
+std::ostream& operator<<(std::ostream& os, const CTable<bool>::ConstRow& row)
 {
-  add_tag( type_name() );
+  print_vector(os, row);
+  return os;
 }
 
-std::ostream& operator<<(std::ostream& os, const CTable::ConstRow& row)
+std::ostream& operator<<(std::ostream& os, const CTable<Uint>::ConstRow& row)
+{
+  print_vector(os, row);
+  return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const CTable<int>::ConstRow& row)
+{
+  print_vector(os, row);
+  return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const CTable<Real>::ConstRow& row)
+{
+  print_vector(os, row);
+  return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const CTable<std::string>::ConstRow& row)
 {
   print_vector(os, row);
   return os;

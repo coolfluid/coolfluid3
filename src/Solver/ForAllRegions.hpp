@@ -68,15 +68,15 @@ struct ForAllRegions
 
       Operation op ( elements );
 
-      const CArray& coordinates = elements.coordinates();
-      const CTable& ctable = elements.connectivity_table();
+      const CTable<Real>& coordinates = elements.coordinates();
+      const CTable<Uint>& CTable<Uint> = elements.connectivity_table();
 
       // loop on elements
-      const Uint elem_count = ctable.size();
+      const Uint elem_count = CTable<Uint>.size();
       std::vector<RealVector> nodes;
       for ( Uint elem = 0; elem != elem_count; ++elem )
       {
-        fill_node_list( nodes, coordinates, ctable[elem] );
+        fill_node_list( nodes, coordinates, CTable<Uint>[elem] );
         op.template execute<EType>( elem, nodes );
       }
     }

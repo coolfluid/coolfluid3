@@ -13,7 +13,7 @@
 
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
-#include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 #include "Mesh/CTable.hpp"
 
 
@@ -68,17 +68,17 @@ void array2d_test(const ArrayT a, const ArrayT b, Accumulator& result, const std
 /// Compares CElements
 void test(const CElements& a, const CElements& b, Accumulator& result)
 {
-  const CTable::ArrayT& table_a = a.connectivity_table().array();
-  const CTable::ArrayT& table_b = b.connectivity_table().array();
+  const CTable<Uint>::ArrayT& table_a = a.connectivity_table().array();
+  const CTable<Uint>::ArrayT& table_b = b.connectivity_table().array();
 
   array2d_test<Uint>(table_a, table_b, result, "comparing " + a.full_path().string() + " and " + b.full_path().string());
 }
 
 /// Compares Arrays
-void test(const CArray& a, const CArray& b, Accumulator& result)
+void test(const CTable<Real>& a, const CTable<Real>& b, Accumulator& result)
 {
-  const CArray::ArrayT& array_a = a.array();
-  const CArray::ArrayT& array_b = b.array();
+  const CTable<Real>::ArrayT& array_a = a.array();
+  const CTable<Real>::ArrayT& array_b = b.array();
 
   array2d_test<Real>(array_a, array_b, result, "comparing " + a.full_path().string() + " and " + b.full_path().string());
 }
@@ -101,7 +101,7 @@ bool diff(const Mesh::CMesh& a, const Mesh::CMesh& b, const Uint max_ulps)
   Accumulator accumulator;
   accumulator.max_ulps = max_ulps;
   // Compare Array data TODO: filtered out only coords, because the neu reader always adds a global_indices table
-  compare_ranges(recursive_filtered_range_typed<CArray>(a, IsComponentName("coordinates")), recursive_filtered_range_typed<CArray>(b, IsComponentName("coordinates")), accumulator);
+  compare_ranges(recursive_filtered_range_typed<CTable<Real> >(a, IsComponentName("coordinates")), recursive_filtered_range_typed<CTable<Real> >(b, IsComponentName("coordinates")), accumulator);
   // Compare connectivity
   compare_ranges(recursive_range_typed<CElements>(a), recursive_range_typed<CElements>(b), accumulator);
 

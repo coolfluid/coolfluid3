@@ -15,7 +15,7 @@
 
 #include "Math/MathConsts.hpp"
 
-#include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/ElementData.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
@@ -152,7 +152,7 @@ const Real LagrangeSFLine2DLagrangeP1Fixture::RotatingCylinderPressure::m_rho = 
 
 /// Integral over a region
 template<typename ResultT, typename FunctorT>
-void integrate_region(ResultT& result, FunctorT functor, const CArray& coordinates, const CTable& connectivity)
+void integrate_region(ResultT& result, FunctorT functor, const CTable<Real>& coordinates, const CTable<Uint>& connectivity)
 {
   const Uint nb_elems = connectivity.array().size();
   for(Uint elem_idx = 0; elem_idx != nb_elems; ++ elem_idx)
@@ -258,8 +258,8 @@ BOOST_AUTO_TEST_CASE( SurfaceIntegral )
   //const Uint segments = 100;
 
   // complete circle
-  CArray coordinates("coordinates");
-  CTable connectivity("connectivity");
+  CTable<Real> coordinates("coordinates");
+  CTable<Uint> connectivity("connectivity");
   create_circle_2d(coordinates, connectivity, 1., 100);
 
   // Check the length, using the line integral of one times the norm of the tangent vector
@@ -277,8 +277,8 @@ BOOST_AUTO_TEST_CASE( SurfaceIntegral )
 BOOST_AUTO_TEST_CASE( ArcIntegral )
 {
   // half circle arc, so the flux of a uniform field of unit vectors should equal the diameter
-  CArray arc_coordinates("coordinates");
-  CTable arc_connectivity("connectivity");
+  CTable<Real> arc_coordinates("coordinates");
+  CTable<Uint> arc_connectivity("connectivity");
   create_circle_2d(arc_coordinates, arc_connectivity, 1., 100, 0., MathConsts::pi());
   Real arc_flux = 0.;
   const SFT::CoordsT y_vector(0., 1.);
@@ -294,8 +294,8 @@ BOOST_AUTO_TEST_CASE( RotatingCylinder )
   const Uint segments = 10000;
 
   // complete circle
-  CArray coordinates("coordinates");
-  CTable connectivity("connectivity");
+  CTable<Real> coordinates("coordinates");
+  CTable<Uint> connectivity("connectivity");
   create_circle_2d(coordinates, connectivity, 1., segments);
 
   // Rotating cylinder in uniform flow

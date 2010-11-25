@@ -13,7 +13,7 @@
 
 #include "Mesh/CElements.hpp"
 #include "Mesh/CTable.hpp"
-#include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -206,13 +206,13 @@ void Mesh_API create_face_face_connectivity( const CElements& own_celements, con
 template<typename RangeT>
 void CNodeConnectivity::initialize (const RangeT& celements_range )
 {
-  std::set<const CArray*> coordinates_set;
+  std::set<const CTable<Real>*> coordinates_set;
   BOOST_FOREACH(const CElements& elements, celements_range)
     coordinates_set.insert(&elements.coordinates());
   
   // Total number of nodes in the mesh
   Uint nb_nodes = 0;
-  BOOST_FOREACH(const CArray* coordinates, coordinates_set)
+  BOOST_FOREACH(const CTable<Real>* coordinates, coordinates_set)
     nb_nodes += coordinates->size();
     
   initialize(nb_nodes, celements_range);

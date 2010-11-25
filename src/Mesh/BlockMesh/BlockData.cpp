@@ -11,7 +11,7 @@
 #include "Mesh/BlockMesh/WriteDict.hpp"
 
 #include "Mesh/SimpleCommunicationPattern.hpp"
-#include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/ConnectivityData.hpp"
@@ -53,11 +53,11 @@ void create_block_mesh(const BlockData& block_data, CMesh& mesh, std::map<std::s
 {
   // root region and coordinates
   CRegion& block_mesh_region = mesh.create_region("block_mesh_region");
-  CArray& block_coordinates = block_mesh_region.create_coordinates(3);
+  CTable<Real>& block_coordinates = block_mesh_region.create_coordinates(3);
   
   // Fill the coordinates array
   const Uint nb_nodes = block_data.points.size();
-  CArray::ArrayT& coords_array = block_coordinates.array();
+  CTable<Real>::ArrayT& coords_array = block_coordinates.array();
   coords_array.resize(boost::extents[nb_nodes][3]);
   for(Uint node_idx = 0; node_idx != nb_nodes; ++node_idx)
   {
@@ -69,7 +69,7 @@ void create_block_mesh(const BlockData& block_data, CMesh& mesh, std::map<std::s
   
   // Define the volume cells, i.e. the blocks
   CElements& block_elements = block_mesh_region.create_region("blocks").create_elements("CF.Mesh.SF.Hexa3DLagrangeP1", block_coordinates);
-  CTable::ArrayT& block_connectivity = block_elements.connectivity_table().array();
+  CTable<Uint>::ArrayT& block_connectivity = block_elements.connectivity_table().array();
   const Uint nb_blocks = block_data.block_points.size();
   block_connectivity.resize(boost::extents[nb_blocks][8]);
   for(Uint block_idx = 0; block_idx != nb_blocks; ++block_idx)
@@ -84,7 +84,7 @@ void create_block_mesh(const BlockData& block_data, CMesh& mesh, std::map<std::s
   {
     CElements& patch_elements = block_mesh_region.create_region(block_data.patch_names[patch_idx]).create_elements("CF.Mesh.SF.Quad3DLagrangeP1", block_coordinates);
     patch_types[block_data.patch_names[patch_idx]] = block_data.patch_types[patch_idx];
-    CTable::ArrayT& patch_connectivity = patch_elements.connectivity_table().array();
+    CTable<Uint>::ArrayT& patch_connectivity = patch_elements.connectivity_table().array();
     const BlockData::IndicesT patch_points = block_data.patch_points[patch_idx];
     const Uint nb_patch_elements = patch_points.size() / 4;
     patch_connectivity.resize(boost::extents[nb_patch_elements][4]);
@@ -449,7 +449,7 @@ private:
 };
 
 /// Create the first step length and expansion rations in each direction
-void create_mapped_coords(const Uint segments, BlockData::GradingT::const_iterator gradings, CArray::ArrayT& mapped_coords)
+void create_mapped_coords(const Uint segments, BlockData::GradingT::const_iterator gradings, CTable<Real>::ArrayT& mapped_coords)
 {
   const Real eps = 150*std::numeric_limits<Real>::epsilon();
   mapped_coords.resize(boost::extents[segments+1][4]);
@@ -498,8 +498,8 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
   detail::create_block_mesh(block_data, *block_mesh, patch_types);
   
   const CElements& block_elements = recursive_get_named_component_typed<CElements>(*block_mesh, "elements_CF.Mesh.SF.Hexa3DLagrangeP1");
-  const CTable::ArrayT& block_connectivity = block_elements.connectivity_table().array();
-  const CArray& block_coordinates = block_elements.coordinates();
+  const CTable<Uint>::ArrayT& block_connectivity = block_elements.connectivity_table().array();
+  const CTable<Real>& block_coordinates = block_elements.coordinates();
   
   // Get the distribution of the elements across the CPUs
   detail::NodeIndices::IndicesT elements_dist;
@@ -546,14 +546,14 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
   
   // Create the node coordinates
   CRegion& root_region = tmp_mesh3d ? tmp_mesh3d->create_region("root_region") : mesh.create_region("root_region");
-  CArray& mesh_coords_comp = root_region.create_coordinates(3);
-  CArray::ArrayT& mesh_coords = mesh_coords_comp.array();
+  CTable<Real>& mesh_coords_comp = root_region.create_coordinates(3);
+  CTable<Real>::ArrayT& mesh_coords = mesh_coords_comp.array();
   mesh_coords_comp.resize(nodes_end - nodes_begin);
   
   // Create the volume cells connectivity
   CElements& volume_elements = root_region.create_region("volume").create_elements("CF.Mesh.SF.Hexa3DLagrangeP1", mesh_coords_comp);
   volume_elements.connectivity_table().resize(elements_dist[rank+1]-elements_dist[rank]);
-  CTable::ArrayT& volume_connectivity = volume_elements.connectivity_table().array();
+  CTable<Uint>::ArrayT& volume_connectivity = volume_elements.connectivity_table().array();
   
   // Fill the volume arrays
   Uint element_idx = 0; // global element index
@@ -565,7 +565,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
     const BlockData::IndicesT& segments = block_data.block_subdivisions[block];
     const BlockData::GradingT& gradings = block_data.block_gradings[block];
     
-    CArray::ArrayT ksi, eta, zta; // Mapped coordinates along each edge
+    CTable<Real>::ArrayT ksi, eta, zta; // Mapped coordinates along each edge
     detail::create_mapped_coords(segments[XX], gradings.begin(), ksi);
     detail::create_mapped_coords(segments[YY], gradings.begin() + 4, eta);
     detail::create_mapped_coords(segments[ZZ], gradings.begin() + 8, zta);
@@ -629,7 +629,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
       {
         for(Uint i = 0; i != segments[XX]; ++i)
         {
-          CTable::Row element_connectivity = volume_connectivity[element_idx++];
+          CTable<Uint>::Row element_connectivity = volume_connectivity[element_idx++];
           element_connectivity[0] = nodes(block, i  , j  , k  );
           element_connectivity[1] = nodes(block, i+1, j  , k  );
           element_connectivity[2] = nodes(block, i+1, j+1, k  );
@@ -653,7 +653,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
     // Create the volume cells connectivity
     const std::string& patch_name = patch_block.get_parent()->name();
     CElements& patch_elements = root_region.create_region(patch_name).create_elements("CF.Mesh.SF.Quad3DLagrangeP1", mesh_coords_comp);
-    CTable::ArrayT& patch_connectivity = patch_elements.connectivity_table().array();
+    CTable<Uint>::ArrayT& patch_connectivity = patch_elements.connectivity_table().array();
     
     const Uint nb_patches = patch_block.connectivity_table().array().size();
     for(Uint patch_idx = 0; patch_idx != nb_patches; ++patch_idx)
@@ -675,7 +675,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
         {
           for(Uint j = 0; j != segments[YY]; ++j)
           {
-            CTable::Row element_connectivity = patch_connectivity[patch_begin + k*segments[YY] + j];
+            CTable<Uint>::Row element_connectivity = patch_connectivity[patch_begin + k*segments[YY] + j];
             element_connectivity[0] = nodes(block.second, i  , j  , k  );
             element_connectivity[adjacent_face == Hexa3DLagrangeP1::XNEG ? 1 : 3] = nodes(block.second, i  , j  , k+1);
             element_connectivity[2] = nodes(block.second, i  , j+1, k+1);
@@ -695,7 +695,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
         {
           for(Uint i = 0; i != segments[XX]; ++i)
           {
-            CTable::Row element_connectivity = patch_connectivity[patch_begin + k*segments[XX] + i];
+            CTable<Uint>::Row element_connectivity = patch_connectivity[patch_begin + k*segments[XX] + i];
             element_connectivity[0] = nodes(block.second, i  , j  , k  );
             element_connectivity[adjacent_face == Hexa3DLagrangeP1::YNEG ? 3 : 1] = nodes(block.second, i  , j  , k+1);
             element_connectivity[2] = nodes(block.second, i+1, j  , k+1);
@@ -715,7 +715,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
         {
           for(Uint i = 0; i != segments[XX]; ++i)
           {
-            CTable::Row element_connectivity = patch_connectivity[patch_begin + j*segments[XX] + i];
+            CTable<Uint>::Row element_connectivity = patch_connectivity[patch_begin + j*segments[XX] + i];
             element_connectivity[0] = nodes(block.second, i  , j  , k  );
             element_connectivity[adjacent_face == Hexa3DLagrangeP1::ZNEG ? 1 : 3] = nodes(block.second, i  , j+1, k  );
             element_connectivity[2] = nodes(block.second, i+1, j+1, k  );
@@ -740,12 +740,12 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
     // Create the 2D mesh
     // Create the node coordinates
     CRegion& root_region_2d = mesh.create_region("root_region");
-    CArray& mesh_coords_comp_2d = root_region_2d.create_coordinates(3);
-    CArray::ArrayT& mesh_coords_2d = mesh_coords_comp_2d.array();
+    CTable<Real>& mesh_coords_comp_2d = root_region_2d.create_coordinates(3);
+    CTable<Real>::ArrayT& mesh_coords_2d = mesh_coords_comp_2d.array();
     
     // Create the volume cells connectivity
     CElements& volume_elements_2d = root_region_2d.create_region("volume").create_elements("CF.Mesh.SF.Quad2DLagrangeP1", mesh_coords_comp_2d);
-    CTable::ArrayT& volume_connectivity_2d = volume_elements_2d.connectivity_table().array();
+    CTable<Uint>::ArrayT& volume_connectivity_2d = volume_elements_2d.connectivity_table().array();
     volume_connectivity_2d.resize(boost::extents[elements_dist[rank+1]-elements_dist[rank]][4]);
     
     // Extract 2D data from the temporary 3D mesh
@@ -763,7 +763,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
       const std::string& adjacent_name = adjacent_patch.first->get_parent()->name();
       const CRegion& adjacent_region = get_named_component_typed<CRegion>(root_region, adjacent_name);
       const CElements& adjacent_celements = get_component_typed<CElements>(adjacent_region);
-      const CTable::ArrayT& adj_tbl = adjacent_celements.connectivity_table().array();
+      const CTable<Uint>::ArrayT& adj_tbl = adjacent_celements.connectivity_table().array();
       const Uint start_idx = patch_first_elements[adjacent_name][adjacent_patch.second];
       const Uint end_idx = start_idx + patch_elements_counts[adjacent_name][adjacent_patch.second];
       std::copy(adj_tbl.begin() + start_idx,
@@ -780,15 +780,15 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
       
       const CElements& patch_celements = get_component_typed<CElements>(*block_mesh_region.get_child(block_data.patch_names[patch]));
       const CFaceConnectivity& patch_adjacency = get_component_typed<CFaceConnectivity>(patch_celements);
-      const CTable::ArrayT& subpatches = patch_celements.connectivity_table().array();
+      const CTable<Uint>::ArrayT& subpatches = patch_celements.connectivity_table().array();
       
       const CRegion& patch_region_3d = get_named_component_typed<CRegion>(root_region, block_data.patch_names[patch]);
       const CElements& patch_celements_3d = get_component_typed<CElements>(patch_region_3d);
       
-      const CTable::ArrayT& patch_connectivity_3d = patch_celements_3d.connectivity_table().array();
+      const CTable<Uint>::ArrayT& patch_connectivity_3d = patch_celements_3d.connectivity_table().array();
       
       CElements& patch_celements_2d = root_region_2d.create_region(block_data.patch_names[patch]).create_elements("CF.Mesh.SF.Line2DLagrangeP1", mesh_coords_comp_2d);
-      CTable::ArrayT& patch_connectivity_2d = patch_celements_2d.connectivity_table().array();
+      CTable<Uint>::ArrayT& patch_connectivity_2d = patch_celements_2d.connectivity_table().array();
       
       const Uint patch_nb_subpatches = subpatches.size();
       patch_connectivity_2d.resize(boost::extents[patch_connectivity_3d.size()][2]);
@@ -799,8 +799,8 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
         const Uint patch_elems_end = patch_elems_begin + patch_elements_counts[block_data.patch_names[patch]][subpatch_idx];
         for(Uint patch_elem_idx = patch_elems_begin; patch_elem_idx != patch_elems_end; ++patch_elem_idx)
         {
-          CTable::ConstRow patch_element = patch_connectivity_3d[patch_elem_idx];
-          CTable::Row patch_element_2d = patch_connectivity_2d[patch_elem_idx];
+          CTable<Uint>::ConstRow patch_element = patch_connectivity_3d[patch_elem_idx];
+          CTable<Uint>::Row patch_element_2d = patch_connectivity_2d[patch_elem_idx];
           if(dims.second == Hexa3DLagrangeP1::XNEG)
           {
             switch(adjacent_face)
@@ -922,8 +922,8 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
     BOOST_FOREACH(CElements& celements, recursive_range_typed<CElements>(mesh))
     {
       const Uint element_nb_nodes = celements.element_type().nb_nodes();
-      CTable::ArrayT& ctable = celements.connectivity_table().array();
-      BOOST_FOREACH(CTable::Row element, ctable)
+      CTable<Uint>::ArrayT& conn_table = celements.connectivity_table().array();
+      BOOST_FOREACH(CTable<Uint>::Row element, conn_table)
       {
         for(Uint i = 0; i != element_nb_nodes; ++i)
           element[i] = node_index_map[element[i]];
@@ -941,7 +941,7 @@ void partition_blocks(const BlockData& blocks_in, const Uint nb_partitions, cons
   const Uint nb_blocks = blocks_in.block_points.size();
   
   CElements& block_elements = recursive_get_named_component_typed<CElements>(*block_mesh, "elements_CF.Mesh.SF.Hexa3DLagrangeP1");
-  CArray::ArrayT& block_coordinates = get_component_typed<CArray>(*block_elements.get_parent()->get_parent()).array();
+  CTable<Real>::ArrayT& block_coordinates = get_component_typed<CTable<Real> >(*block_elements.get_parent()->get_parent()).array();
   const CFaceConnectivity& volume_to_face_connectivity = get_component_typed<CFaceConnectivity>(block_elements);
   
   // Direction to search from
@@ -1082,7 +1082,7 @@ void partition_blocks(const BlockData& blocks_in, const Uint nb_partitions, cons
       {
         BOOST_FOREACH(const Uint block_idx, current_block_layer)
         {
-          CArray::ArrayT mapped_coords;
+          CTable<Real>::ArrayT mapped_coords;
           detail::create_mapped_coords(block_nb_slices, blocks_to_partition.block_gradings[block_idx].begin() + 4*direction, mapped_coords);
               
           //Adjust gradings and nodes

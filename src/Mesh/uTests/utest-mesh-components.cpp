@@ -17,10 +17,10 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
-#include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 #include "Mesh/CList.hpp"
 #include "Mesh/CTable.hpp"
-#include "Mesh/CFlexTable.hpp"
+#include "Mesh/CDynTable.hpp"
 #include "Mesh/ElementType.hpp"
 
 using namespace std;
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
   BOOST_CHECK_EQUAL ( subregion.full_path().string() , "//root/mesh/base/region2/subregion2" );
 
   // Create a connectivity table inside a subregion
-  subregion.create_component_type<CTable>("connTable");
+  subregion.create_component_type<CTable<Uint> >("connTable");
   BOOST_CHECK_EQUAL ( get_named_component(subregion, "connTable").full_path().string() , "//root/mesh/base/region2/subregion2/connTable" );
   
   // Create a elementsType component inside a subregion
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
   BOOST_CHECK_EQUAL ( get_named_component(subregion, "elementType").full_path().string() , "//root/mesh/base/region2/subregion2/elementType" );
   
   // Create an array of coordinates inside mesh
-  p_mesh->create_component_type<CArray>("coordinates");
+  p_mesh->create_component_type<CTable<Real> >("coordinates");
   BOOST_CHECK_EQUAL ( get_named_component(*p_mesh, "coordinates").full_path().string() , "//root/mesh/coordinates" );
   
   get_named_component_typed<CRegion>(region2, "subregion1").create_region("subsubregion1");
@@ -114,12 +114,12 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
 BOOST_AUTO_TEST_CASE( AddRemoveTest )
 {
   // create table
-  CTable::Ptr table (new CTable("table"));
+  CTable<Uint>::Ptr table (new CTable<Uint>("table"));
   // initialize with number of columns
   Uint nbCols = 3;
   table->initialize(nbCols);
   // create a buffer to interact with the table
-  CTable::Buffer buffer = table->create_buffer();
+  CTable<Uint>::Buffer buffer = table->create_buffer();
   
   // make a row
   std::vector<Uint> row(nbCols);
@@ -170,12 +170,12 @@ BOOST_AUTO_TEST_CASE( AddRemoveTest )
 BOOST_AUTO_TEST_CASE( FlushTest )
 {
   // create table
-  CTable::Ptr table (new CTable("table"));
+  CTable<Uint>::Ptr table (new CTable<Uint>("table"));
   // initialize with number of columns
   Uint nbCols = 3;
   table->initialize(nbCols);
   // create a buffer to interact with the table with buffersize 3 (if no argument, use default buffersize)
-  CTable::Buffer buffer = table->create_buffer(3);
+  CTable<Uint>::Buffer buffer = table->create_buffer(3);
   
   // make a row
   std::vector<Uint> row(nbCols);
@@ -239,9 +239,9 @@ BOOST_AUTO_TEST_CASE( FlushTest )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( CTableTest )
+BOOST_AUTO_TEST_CASE( CTable_Uint_Test )
 {
-  // CFinfo << "testing CTable \n" << CFflush;
+  // CFinfo << "testing CTable<Uint> \n" << CFflush;
   Logger::instance().getStream(Logger::DEBUG).setLogLevel(SILENT);
   // Create mesh component
   boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
@@ -256,7 +256,7 @@ BOOST_AUTO_TEST_CASE( CTableTest )
   CRegion& region = p_mesh->create_region("region");
 
   // Create connectivity table inside the region
-  CTable& connTable = *region.create_component_type<CTable>("connTable");
+  CTable<Uint>& connTable = *region.create_component_type<CTable<Uint> >("connTable");
   
   // check constructor
   BOOST_CHECK_EQUAL(connTable.size(),(Uint) 0);
@@ -266,7 +266,7 @@ BOOST_AUTO_TEST_CASE( CTableTest )
   // check initalization
   Uint nbCols = 5;
   connTable.initialize(nbCols);
-  CTable::Buffer tableBuffer = connTable.create_buffer();
+  CTable<Uint>::Buffer tableBuffer = connTable.create_buffer();
   
   BOOST_CHECK_EQUAL(connTable.size(),(Uint) 0);
   BOOST_CHECK_EQUAL(connTable.row_size(),(Uint) 5);
@@ -303,7 +303,7 @@ BOOST_AUTO_TEST_CASE( CTableTest )
   BOOST_CHECK_EQUAL(connTable[2][2], (Uint) 2);
   
   // check if a row can be accessed
-  CTable::Row rowRef = connTable[35];
+  CTable<Uint>::Row rowRef = connTable[35];
   for (Uint i=0; i<nbCols; ++i)
     BOOST_CHECK_EQUAL(rowRef[i], i);
   
@@ -311,16 +311,16 @@ BOOST_AUTO_TEST_CASE( CTableTest )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( CArrayTest )
+BOOST_AUTO_TEST_CASE( CTable_Real_Test )
 {
   // Create a CElements component
-  CArray::Ptr coordinates (new CArray("coords")) ;
+  CTable<Real>::Ptr coordinates (new CTable<Real>("coords")) ;
 
   // initialize the array
   Uint dim = 2;
   coordinates->initialize(dim);
 	BOOST_CHECK_EQUAL(coordinates->row_size(),dim);
-  CArray::Buffer coordinatesBuffer = coordinates->create_buffer();
+  CTable<Real>::Buffer coordinatesBuffer = coordinates->create_buffer();
   
   // Add coordinates to the array
   coordinatesBuffer.add_row(create_coord( 0.0 , 0.0 ));
@@ -336,13 +336,13 @@ BOOST_AUTO_TEST_CASE( CArrayTest )
 
 
 
-BOOST_AUTO_TEST_CASE( CArrayTemplates )
+BOOST_AUTO_TEST_CASE( CTable_Real_Templates )
 {
-  CArray vectorArray("vector");
+  CTable<Real> vectorArray("vector");
   vectorArray.initialize(3);
-  //CFinfo << "numdim = " << CArray<VECTOR>::Array::NumDims() << "\n" << CFflush;
+  //CFinfo << "numdim = " << CTable<Real><VECTOR>::Array::NumDims() << "\n" << CFflush;
 
-  // CArray<SCALAR> scalarArray("scalar");
+  // CTable<Real><SCALAR> scalarArray("scalar");
   // scalarArray.initialize(3);
   
 }
@@ -356,7 +356,7 @@ BOOST_AUTO_TEST_CASE( moving_mesh_components_around )
   CRegion& subregion1 = regions.create_region("subregion1");
   BOOST_CHECK_EQUAL(range_typed<CRegion>(subregion1).empty(),true);
 
-  subregion1.create_component_type<CTable>("table");
+  subregion1.create_component_type<CTable<Uint> >("table");
   BOOST_CHECK_EQUAL(range_typed<CRegion>(subregion1).empty(),true);
 
   // create subregion2 in the wrong place
@@ -431,12 +431,12 @@ BOOST_AUTO_TEST_CASE( CList_tests )
 BOOST_AUTO_TEST_CASE( ListAddRemoveTest )
 {
   // create table
-  CTable::Ptr table (new CTable("table"));
+  CTable<Uint>::Ptr table (new CTable<Uint>("table"));
   // initialize with number of columns
   Uint nbCols = 3;
   table->initialize(nbCols);
   // create a buffer to interact with the table
-  CTable::Buffer buffer = table->create_buffer();
+  CTable<Uint>::Buffer buffer = table->create_buffer();
   
   // make a row
   std::vector<Uint> row(nbCols);
@@ -546,10 +546,10 @@ BOOST_AUTO_TEST_CASE( ListFlushTest )
   
 }
 
-BOOST_AUTO_TEST_CASE ( CFlexTable_test )
+BOOST_AUTO_TEST_CASE ( CDynTable_test )
 {
-  CFlexTable table ("table");
-  CFlexTable::Buffer buffer = table.create_buffer();
+  CDynTable<Uint> table ("table");
+  CDynTable<Uint>::Buffer buffer = table.create_buffer();
   
   std::vector<Uint> row;
   

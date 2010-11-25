@@ -12,7 +12,7 @@
 #include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 #include "Mesh/CField.hpp"
 #include "Mesh/CFieldElements.hpp"
 #include "Mesh/ElementData.hpp"
@@ -47,7 +47,7 @@ public: // functions
 
   virtual void set_loophelper (CElements& geometry_elements );
 
-  virtual void set_loophelper (CArray& coordinates );
+  virtual void set_loophelper (CTable<Real>& coordinates );
 
   virtual void execute (Uint index = 0 )
   {
@@ -226,7 +226,7 @@ private: // data
       scalars(field_elements.data())
     { }
     CFieldElements& field_elements;
-    CArray& scalars;
+    CTable<Real>& scalars;
   };
 
   boost::shared_ptr<LoopHelper> data;
@@ -303,9 +303,9 @@ private: // data
       connectivity_table(field_elements.connectivity_table())
     { }
     CFieldElements& field_elements;
-    CArray& volumes;
-    CArray& coordinates;
-    CTable& connectivity_table;
+    CTable<Real>& volumes;
+    CTable<Real>& coordinates;
+    CTable<Uint>& connectivity_table;
   };
 
   boost::shared_ptr<LoopHelper> data;
@@ -350,7 +350,7 @@ public: // functions
     m_properties.add_option< Common::OptionT<Common::URI> > ("Field","Field URI to output", Common::URI("cpath://"))->mark_basic();
   }
 
-  virtual void set_loophelper (CArray& coordinates )
+  virtual void set_loophelper (CTable<Real>& coordinates )
   {
     data = boost::shared_ptr<LoopHelper> ( new LoopHelper(*field, coordinates ) );
   }
@@ -364,7 +364,7 @@ public: // functions
   void execute ( Uint node )
   {
 
-    CArray& field_data = data->field_data;
+    CTable<Real>& field_data = data->field_data;
     field_data[node][0] = data->coordinates[node][XX]*data->coordinates[node][XX];
   }
 
@@ -372,16 +372,16 @@ private: // data
 
   struct LoopHelper
   {
-    LoopHelper(CField& field, CArray& coords) :
+    LoopHelper(CField& field, CTable<Real>& coords) :
       coordinates(coords),
       node_connectivity(*coords.look_component_type<CNodeConnectivity>("../node_connectivity")),
       local_field(coords.get_parent()->get_type<CRegion>()->get_field(field.name())),
-      field_data(Common::get_tagged_component_typed<CArray>(local_field, "field_data"))
+      field_data(Common::get_tagged_component_typed<CTable<Real> >(local_field, "field_data"))
     { }
-    const CArray& coordinates;
+    const CTable<Real>& coordinates;
     const CNodeConnectivity& node_connectivity;
     CField& local_field;
-    CArray& field_data;
+    CTable<Real>& field_data;
   };
 
   boost::shared_ptr<LoopHelper> data;

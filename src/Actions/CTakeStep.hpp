@@ -9,7 +9,7 @@
 
 #include "Common/ComponentPredicates.hpp"
 #include "Mesh/CFieldElements.hpp"
-#include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 #include "Mesh/CList.hpp"
 #include "Actions/CLoopOperation.hpp"
 
@@ -64,9 +64,9 @@ private: // data
 		inverse_updatecoeff(geometry_elements.get_field_elements(op.properties()["InverseUpdateCoeff"].value<std::string>()).data()),
 		node_list(geometry_elements.get_field_elements(op.properties()["SolutionField"].value<std::string>()).node_list())
     { }
-    Mesh::CArray& solution;
-    Mesh::CArray& residual;
-    Mesh::CArray& inverse_updatecoeff;
+    Mesh::CTable<Real>& solution;
+    Mesh::CTable<Real>& residual;
+    Mesh::CTable<Real>& inverse_updatecoeff;
     Mesh::CList<Uint>& node_list;
   };
 	

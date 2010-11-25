@@ -13,7 +13,7 @@
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
 
-#include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/SF/Triag2DLagrangeP1.hpp"
 
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE( Volume )
 
 BOOST_AUTO_TEST_CASE( Element )
 {
-  CArray::Ptr coordinates ( allocate_component_type<CArray>("coordinates") );
+  CTable<Real>::Ptr coordinates ( allocate_component_type<CTable<Real> >("coordinates") );
   // Create a CElements component
   CElements::Ptr comp ( allocate_component_type<CElements>("comp") ) ;
 

@@ -18,7 +18,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
-#include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/ConnectivityData.hpp"
@@ -126,7 +126,7 @@ BOOST_FIXTURE_TEST_CASE( CreateNodeElementLink, NeuFixture )
   CFaceConnectivity::ElementsT celements_vector;
   CFaceConnectivity::IndicesT celements_first_elements;
   create_celements_vector(recursive_filtered_range_typed<CElements>(*mesh2d, IsElementsVolume()), celements_vector, celements_first_elements);
-  const CArray& coordinates = recursive_get_named_component_typed<CArray>(*mesh2d, "coordinates");
+  const CTable<Real>& coordinates = recursive_get_named_component_typed<CTable<Real> >(*mesh2d, "coordinates");
   CFaceConnectivity::IndicesT node_first_elements;
   CFaceConnectivity::CountsT node_element_counts;
   CFaceConnectivity::IndicesT node_elements;
@@ -162,7 +162,7 @@ BOOST_FIXTURE_TEST_CASE( CreateFaceConnectivity, NeuFixture )
   create_celements_vector(recursive_filtered_range_typed<CElements>(*mesh2d, IsElementsVolume()), celements_vector, celements_first_elements);
   
   // Get the coordinates array
-  const CArray& coordinates = recursive_get_named_component_typed<CArray>(*mesh2d, "coordinates");
+  const CTable<Real>& coordinates = recursive_get_named_component_typed<CTable<Real> >(*mesh2d, "coordinates");
   
   // Link nodes to the elements
   CFaceConnectivity::IndicesT node_first_elements;
@@ -220,7 +220,7 @@ BOOST_FIXTURE_TEST_CASE( CreateFaceConnectivity, NeuFixture )
 //   create_celements_vector(recursive_filtered_range_typed<CElements>(grid2D, IsElementsVolume()), celements_vector, celements_first_elements);
 //   
 //   // Get the coordinates array
-//   const CArray& coordinates = recursive_get_named_component_typed<CArray>(grid2D, "coordinates");
+//   const CTable<Real>& coordinates = recursive_get_named_component_typed<CTable<Real> >(grid2D, "coordinates");
 //   
 //   // Link nodes to the elements
 //   CFaceConnectivity::IndicesT node_first_elements;

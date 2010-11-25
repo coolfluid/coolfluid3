@@ -68,7 +68,7 @@ void CSchemeLDA::execute()
 
   typedef Triag2DLagrangeP1 SF;
 
-  const CTable::ConstRow node_idx = data->connectivity_table[m_idx];
+  const CTable<Uint>::ConstRow node_idx = data->connectivity_table[m_idx];
   SF::NodeMatrixT nodes;
   fill(nodes, data->coordinates, data->connectivity_table[m_idx]);
 

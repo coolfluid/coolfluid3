@@ -25,7 +25,7 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CFieldElements.hpp"
-#include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CInterpolator.hpp"
@@ -134,10 +134,10 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 	BOOST_CHECK(true);
 	
   // Set the field data of the source field
-  BOOST_FOREACH(CArray& node_data, recursive_filtered_range_typed<CArray>(*source,IsComponentTag("node_data")))
+  BOOST_FOREACH(CTable<Real>& node_data, recursive_filtered_range_typed<CTable<Real> >(*source,IsComponentTag("node_data")))
   {    
 		CFinfo << node_data.full_path().string() << CFendl;
-		CArray& coordinates = *node_data.get_child_type<CLink>("coordinates")->get_type<CArray>();
+		CTable<Real>& coordinates = *node_data.get_child_type<CLink>("coordinates")->get_type<CTable<Real> >();
 
     for (Uint i=0; i<coordinates.size(); ++i)
 		{

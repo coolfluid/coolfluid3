@@ -20,7 +20,7 @@
 namespace CF {
 namespace Mesh {
   
-  class CArray;
+  template <typename T> class CTable;
   
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -85,7 +85,7 @@ protected:
   
   CMesh::Ptr m_mesh;
   
-  typedef std::map<CArray*,std::list<CElements*> > CoordinatesElementsMap;
+  typedef std::map<CTable<Real>*,std::list<CElements*> > CoordinatesElementsMap;
   CoordinatesElementsMap m_all_coordinates;
   Uint m_coord_dim;
   Uint m_max_dimensionality;

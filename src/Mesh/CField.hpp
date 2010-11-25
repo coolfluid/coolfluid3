@@ -15,7 +15,7 @@
 #include "Mesh/LibMesh.hpp"
 
 #include "Mesh/CElements.hpp"
-#include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 
 
 namespace CF {

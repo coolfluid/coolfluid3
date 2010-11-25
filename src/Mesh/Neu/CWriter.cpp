@@ -18,7 +18,7 @@
 
 #include "Mesh/Neu/CWriter.hpp"
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/ConnectivityData.hpp"
@@ -164,7 +164,7 @@ void CWriter::write_coordinates(std::fstream& file)
   Uint node_number = 0;
   BOOST_FOREACH(const CoordinatesElementsMap::value_type& coord_array, m_all_coordinates)
   {
-      BOOST_FOREACH(CArray::ConstRow row, coord_array.first->array())
+      BOOST_FOREACH(CTable<Real>::ConstRow row, coord_array.first->array())
       {
         ++node_number;
         file << std::setw(10) << node_number;
@@ -211,7 +211,7 @@ void CWriter::write_connectivity(std::fstream& file)
         m_global_start_idx[elementregion]=elm_number;
 
         // write the nodes for each element of this region
-        BOOST_FOREACH(const CTable::ConstRow& cf_element , elementregion->connectivity_table().array())
+        BOOST_FOREACH(const CTable<Uint>::ConstRow& cf_element , elementregion->connectivity_table().array())
         {
           file << std::setw(8) << ++elm_number << std::setw(3) << elm_type << std::setw(3) << nb_nodes << " ";
           std::vector<Uint> neu_element(nb_nodes);
@@ -328,7 +328,7 @@ void CWriter::write_boundaries(std::fstream& file)
       
       BOOST_FOREACH(const CElements& elementregion, recursive_range_typed<CElements>(*group))  // for each element type in this BC
       {
-        const CTable& table = elementregion.connectivity_table();
+        const CTable<Uint>& table = elementregion.connectivity_table();
         const CFaceConnectivity& face_connectivity = get_component_typed<CFaceConnectivity>(elementregion);
         
         const Uint nb_elems = table.size();

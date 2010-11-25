@@ -58,11 +58,11 @@ private: // data
       coordinates(geometry_elements.get_field_elements(op.properties()["SolutionField"].value<std::string>()).coordinates()),
       connectivity_table(geometry_elements.get_field_elements(op.properties()["SolutionField"].value<std::string>()).connectivity_table())
     { }
-    Mesh::CArray& solution;
-    Mesh::CArray& residual;
-    Mesh::CArray& inverse_updatecoeff;
-    Mesh::CArray& coordinates;
-    Mesh::CTable& connectivity_table;
+    Mesh::CTable<Real>& solution;
+    Mesh::CTable<Real>& residual;
+    Mesh::CTable<Real>& inverse_updatecoeff;
+    Mesh::CTable<Real>& coordinates;
+    Mesh::CTable<Uint>& connectivity_table;
   };
 
   boost::shared_ptr<LoopHelper> data;

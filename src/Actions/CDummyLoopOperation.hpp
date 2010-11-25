@@ -17,7 +17,7 @@ namespace CF {
 	
   namespace Mesh
   {
-		class CArray;
+		template <typename T> class CTable;
 		class CFieldElements;
 	}
 

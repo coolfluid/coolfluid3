@@ -13,7 +13,7 @@
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
 
-#include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/SF/Quad2DLagrangeP1.hpp"
 
@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE( Element )
 {
   // Create a CElements component
   CElements::Ptr comp (new CElements("comp")) ;
-  CArray::Ptr coordinates (new CArray("coordinates"));
+  CTable<Real>::Ptr coordinates (new CTable<Real>("coordinates"));
   comp->initialize("CF.Mesh.SF.Quad2DLagrangeP1",*coordinates);
   BOOST_CHECK_EQUAL(comp->element_type().shape(), GeoShape::QUAD);
   BOOST_CHECK_EQUAL(comp->element_type().nb_faces(), (Uint) 4);

@@ -28,7 +28,7 @@ namespace Mesh {
     
     bool operator()(const Component& component)
     {
-      return !range_typed<CTable>(component).empty() && !range_typed<CElements>(component).empty();
+      return !range_typed<CTable<Uint> >(component).empty() && !range_typed<CElements>(component).empty();
     }
     
   }; // IsElementRegion

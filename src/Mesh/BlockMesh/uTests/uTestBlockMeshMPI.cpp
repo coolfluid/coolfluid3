@@ -16,7 +16,7 @@
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
 
-#include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CMesh.hpp"
 
@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE( UpdateSendLists )
 
 BOOST_AUTO_TEST_CASE( ApplyCommPattern )
 {
-  apply_pattern_carray(pattern, recursive_range_typed<CArray>(partitioned_mesh));
+  apply_pattern_CTable<Real>(pattern, recursive_range_typed<CTable<Real> >(partitioned_mesh));
 }
 
 BOOST_AUTO_TEST_CASE( ComputeVolume )
@@ -174,9 +174,9 @@ BOOST_AUTO_TEST_CASE( ComputeVolume )
   SF::Hexa3DLagrangeP1::NodeMatrixT nodes;
   BOOST_FOREACH(const CElements& celements, recursive_filtered_range_typed<CElements>(partitioned_mesh, IsElementsVolume()))
   {
-    const CArray& coords = celements.coordinates();
-    const CTable::ArrayT& conn_table = celements.connectivity_table().array();
-    BOOST_FOREACH(const CTable::ConstRow row, conn_table)
+    const CTable<Real>& coords = celements.coordinates();
+    const CTable<Uint>::ArrayT& conn_table = celements.connectivity_table().array();
+    BOOST_FOREACH(const CTable<Uint>::ConstRow row, conn_table)
     {
       fill(nodes, coords, row);
       const CF::Real elem_vol = SF::Hexa3DLagrangeP1::volume(nodes);

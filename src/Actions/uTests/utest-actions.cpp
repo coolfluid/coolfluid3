@@ -158,10 +158,10 @@ BOOST_AUTO_TEST_CASE( Templated_Looping_Test )
   {
     // update coefficient and residual to zero
     // Set the field data of the source field
-    BOOST_FOREACH(CArray& node_data, recursive_filtered_range_typed<CArray>(residual,IsComponentTag("node_data")))
+    BOOST_FOREACH(CTable<Real>& node_data, recursive_filtered_range_typed<CTable<Real> >(residual,IsComponentTag("node_data")))
       for (Uint i=0; i<node_data.size(); ++i)
   			node_data[i][0]=0;
-    BOOST_FOREACH(CArray& node_data, recursive_filtered_range_typed<CArray>(inv_update_coeff,IsComponentTag("node_data")))
+    BOOST_FOREACH(CTable<Real>& node_data, recursive_filtered_range_typed<CTable<Real> >(inv_update_coeff,IsComponentTag("node_data")))
       for (Uint i=0; i<node_data.size(); ++i)
   			node_data[i][0]=0;
 
@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE( Templated_Looping_Test )
   
     Real rhs_L2=0;
     Uint dof=0;
-    BOOST_FOREACH(CArray& node_data, recursive_filtered_range_typed<CArray>(residual,IsComponentTag("node_data")))
+    BOOST_FOREACH(CTable<Real>& node_data, recursive_filtered_range_typed<CTable<Real> >(residual,IsComponentTag("node_data")))
     {    
       for (Uint i=0; i<node_data.size(); ++i)
   		{

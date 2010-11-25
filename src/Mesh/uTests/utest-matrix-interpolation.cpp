@@ -17,7 +17,7 @@
 #include "Mesh/SF/Triag2DLagrangeP1.hpp"
 
 #include "Tools/Testing/Difference.hpp"
-#include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 #include "Mesh/SF/Triag2DLagrangeP1.hpp"
 
 using namespace boost::assign;
@@ -42,15 +42,15 @@ struct MatrixInterpolationFixture
   /// common setup for each test case
     MatrixInterpolationFixture()
     {
-  	CArray::Ptr      V (new CArray("V"));
+  	CTable<Real>::Ptr      V (new CTable<Real>("V"));
         V->initialize(NDOF);
         V->resize(nbQdPts);
 
-  	CArray::Ptr  dVdxi (new CArray("dVdxi"));
+  	CTable<Real>::Ptr  dVdxi (new CTable<Real>("dVdxi"));
         dVdxi->initialize(NDOF);
         dVdxi->resize(nbQdPts);
 
-  	CArray::Ptr dVdeta (new CArray("dVdeta"));
+  	CTable<Real>::Ptr dVdeta (new CTable<Real>("dVdeta"));
         dVdeta->initialize(NDOF);
         dVdeta->resize(nbQdPts);
 
@@ -86,7 +86,7 @@ struct MatrixInterpolationFixture
  	//Some printouts:
         //CFinfo << "Finished setting up the Vandermonde matrix" << CFendl;
         for(Uint i=0; i<nbQdPts; ++i) {
-	  CArray::ConstRow row = (*V)[i];
+	  CTable<Real>::ConstRow row = (*V)[i];
           for(Uint j=0; j<NDOF; ++j) {
           	CFinfo << row[j] << " ";
 	  }
@@ -96,7 +96,7 @@ struct MatrixInterpolationFixture
 
 	//Print the derivatives with respect to xi:
         for(Uint i=0; i<nbQdPts; ++i) {
-	  CArray::ConstRow row = (*dVdxi)[i];
+	  CTable<Real>::ConstRow row = (*dVdxi)[i];
           for(Uint j=0; j<NDOF; ++j) {
           	CFinfo << row[j] << " ";
 	  }
@@ -106,7 +106,7 @@ struct MatrixInterpolationFixture
 
 	//Print the derivatives with respect to eta:
         for(Uint i=0; i<nbQdPts; ++i) {
-	  CArray::ConstRow row = (*dVdeta)[i];
+	  CTable<Real>::ConstRow row = (*dVdeta)[i];
           for(Uint j=0; j<NDOF; ++j) {
           	CFinfo << row[j] << " ";
 	  }

@@ -66,8 +66,8 @@ struct SFVariableData<SF, ConstNodes>
   }
   
   typename SF::NodeMatrixT nodes;
-  const Mesh::CArray& coordinates;
-  const Mesh::CTable& connectivity;
+  const Mesh::CTable<Real>& coordinates;
+  const Mesh::CTable<Uint>& connectivity;
 };
 
 /// Stores data that is used when looping over elements to execut Proto expressions. "Data" is meant here in the boost::proto sense,

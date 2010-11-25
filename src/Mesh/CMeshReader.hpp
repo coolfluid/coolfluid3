@@ -16,7 +16,7 @@
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CTable.hpp"
-#include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 #include "Mesh/SimpleCommunicationPattern.hpp"
 
 namespace CF {
@@ -87,15 +87,15 @@ public: // functions
 
 protected: // functions
 
-  /// Map type from string to a CTable::Buffer
-  typedef std::map<std::string,boost::shared_ptr<CTable::Buffer> > BufferMap;
+  /// Map type from string to a CTable<Uint>::Buffer
+  typedef std::map<std::string,boost::shared_ptr<CTable<Uint>::Buffer> > BufferMap;
 
   /// Create element regions for each given type inside a given region
   /// @param [in] parent_region   Region in which the elementregions will be made
   /// @param [in] etypes          List of element type names that will be used
   /// @return a BufferMap with key an etype name and value a buffer for the region
   ///         with name of the etype
-  BufferMap create_element_regions_with_buffermap(CRegion& parent_region, CArray& coordinates,
+  BufferMap create_element_regions_with_buffermap(CRegion& parent_region, CTable<Real>& coordinates,
                                               const std::vector<std::string>& etypes);
 
   /// remove all regions with empty connectivity tables inside a given region

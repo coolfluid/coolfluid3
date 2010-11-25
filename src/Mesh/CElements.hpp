@@ -17,8 +17,7 @@
 namespace CF {
 namespace Mesh {
 
-  class CTable;
-  class CArray;
+  template <typename T> class CTable;
   class ElementType;
   class CFieldElements;
   template <typename T> class CList;
@@ -42,7 +41,7 @@ public: // functions
   CElements ( const std::string& name );
   
   /// Initialize the CElements using the given type
-  void initialize(const std::string& element_type_name, CArray& data);
+  void initialize(const std::string& element_type_name, CTable<Real>& data);
   
   /// Virtual destructor
   virtual ~CElements();
@@ -59,9 +58,9 @@ public: // functions
   /// return the number of elements
   Uint elements_count() const;
   
-  /// create a CTable component and add it to the list of subcomponents
+  /// create a CTable<Uint> component and add it to the list of subcomponents
   /// @param name of the region
-  CTable& create_connectivity_table ( const std::string& name = "connectivity_table");
+  CTable<Uint>& create_connectivity_table ( const std::string& name = "connectivity_table");
 
 	/// create a CList<Uint> component and add it to the list of subcomponents
   /// @param name of the node list
@@ -71,16 +70,16 @@ public: // functions
 	CList<Uint>& update_node_list();
 	
   /// Mutable access to the connectivity table
-  CTable& connectivity_table();
+  CTable<Uint>& connectivity_table();
   
   /// Const access to the connectivity table
-  const CTable& connectivity_table() const;
+  const CTable<Uint>& connectivity_table() const;
     
   /// Mutable access to the coordinates
-  virtual CArray& coordinates();
+  virtual CTable<Real>& coordinates();
   
   /// Const access to the coordinates
-  virtual const CArray& coordinates() const;
+  virtual const CTable<Real>& coordinates() const;
   
 	/// Mutable access to the list of nodes
 	CList<Uint>& node_list();

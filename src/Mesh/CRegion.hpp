@@ -16,13 +16,12 @@
 #include "Mesh/LibMesh.hpp"
 
 #include "Mesh/CElements.hpp"
-#include "Mesh/CArray.hpp"
 
 namespace CF {
 namespace Mesh {
   
   class CField; 
-  class CTable;
+  template <typename T> class CTable;
   
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -57,12 +56,12 @@ public:
   /// create a CElements component, initialized to take connectivity data for the given type
   /// @param name of the region
   /// @param element_type_name type of the elements
-  CElements& create_elements (const std::string& element_type_name, CArray& coordinates);
+  CElements& create_elements (const std::string& element_type_name, CTable<Real>& coordinates);
   
   /// create a coordinates component, initialized with the coordinate dimension
   /// @param name of the region
   /// @param element_type_name type of the elements  
-  CArray& create_coordinates(const Uint& dim);
+  CTable<Real>& create_coordinates(const Uint& dim);
   
   void add_field_link(CField& field);
 
@@ -113,13 +112,13 @@ inline Uint CRegion::recursive_filtered_elements_count(const Predicate& pred) co
 template <typename Predicate>
 inline Uint CRegion::recursive_filtered_nodes_count(const Predicate& pred) const
 {
-  std::set<const CArray*> coordinates_set;
+  std::set<const CTable<Real>*> coordinates_set;
   BOOST_FOREACH(const CElements& elements, Common::recursive_filtered_range_typed<CElements>(*this,pred))
   coordinates_set.insert(&elements.coordinates());
   
   // Total number of nodes in the mesh
   Uint nb_nodes = 0;
-  BOOST_FOREACH(const CArray* coordinates, coordinates_set)
+  BOOST_FOREACH(const CTable<Real>* coordinates, coordinates_set)
     nb_nodes += coordinates->size();
   
   return nb_nodes;

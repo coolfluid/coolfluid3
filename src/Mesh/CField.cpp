@@ -213,13 +213,13 @@ void CField::create_data_storage(const DataBasis basis)
       break;
     case NODE_BASED:
     {
-      std::map<std::string,CArray*> data_for_coordinates;
+      std::map<std::string,CTable<Real>*> data_for_coordinates;
 
       // Check if there are coordinates in this field, and add to map
-      if (! range_typed<CArray>(support()).empty() )
+      if (! range_typed<CTable<Real> >(support()).empty() )
       {
-        CArray& coordinates = get_component_typed<CArray>(support());
-				CArray& field_data = *create_component_type<CArray>("data");
+        CTable<Real>& coordinates = get_component_typed<CTable<Real> >(support());
+				CTable<Real>& field_data = *create_component_type<CTable<Real> >("data");
 				field_data.add_tag("field_data");
 				field_data.array().resize(boost::extents[coordinates.size()][row_size]);
         data_for_coordinates[coordinates.full_path().string()] = &field_data;
@@ -230,11 +230,11 @@ void CField::create_data_storage(const DataBasis basis)
       // Check if there are coordinates in all subfields and add to map
       BOOST_FOREACH(CField& subfield, recursive_range_typed<CField>(*this))
       {
-        if (! range_typed<CArray>(subfield.support()).empty() )
+        if (! range_typed<CTable<Real> >(subfield.support()).empty() )
         {
 					// Create data and store in a map
-          CArray& coordinates = get_component_typed<CArray>(subfield.support());
-					CArray& field_data = *subfield.create_component_type<CArray>("data");
+          CTable<Real>& coordinates = get_component_typed<CTable<Real> >(subfield.support());
+					CTable<Real>& field_data = *subfield.create_component_type<CTable<Real> >("data");
 					field_data.add_tag("field_data");
 					field_data.array().resize(boost::extents[coordinates.size()][row_size]);
 					data_for_coordinates[coordinates.full_path().string()] = &field_data;

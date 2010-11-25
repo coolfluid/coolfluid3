@@ -91,10 +91,10 @@ public: // functions
       // 2. Construct node-to-element-connectivity if not present yet
       // 2. For each node, that is part of a region, AND not processed yet, DO
 
-      std::set<CArray*> coordinates_set;
+      std::set<CTable<Real>*> coordinates_set;
       BOOST_FOREACH(CRegion::Ptr& region, m_loop_regions)
       {
-        BOOST_FOREACH(CArray& coordinates, Common::recursive_filtered_range_typed<CArray>(*region, Common::IsComponentTag("coordinates")))
+        BOOST_FOREACH(CTable<Real>& coordinates, Common::recursive_filtered_range_typed<CTable<Real> >(*region, Common::IsComponentTag("coordinates")))
         {
           coordinates_set.insert(&coordinates);
           Component::Ptr parent = coordinates.get_parent();
@@ -106,7 +106,7 @@ public: // functions
         }
       }
       // Now every region has node connectivity
-      BOOST_FOREACH(CArray* coordinates, coordinates_set)
+      BOOST_FOREACH(CTable<Real>* coordinates, coordinates_set)
       {
         //const CNodeConnectivity& node_connectivity = *coordinates->look_component_type<CNodeConnectivity>("../node_connectivity");
         // Execute all child operations

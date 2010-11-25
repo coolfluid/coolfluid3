@@ -14,7 +14,7 @@
 #include "Common/CF.hpp"
 #include "Common/MPI/PE.hpp"
 
-#include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 #include "Mesh/CList.hpp"
 
 #include "Mesh/LibMesh.hpp"
@@ -55,17 +55,17 @@ struct Mesh_API SimpleCommunicationPattern
 /// Given a mesh and the distribution of its nodes among CPUs, fill the receive lists in the communication pattern
 void Mesh_API make_node_receive_lists(const SimpleCommunicationPattern::IndicesT& nodes_dist, CMesh& mesh, SimpleCommunicationPattern& comms_pattern);
 
-/// Apply a communication pattern to the given range of CArrays.
+/// Apply a communication pattern to the given range of CTable<Real>s.
 /// RangeT must iterable by BOOST_FOREACH
 template<typename RangeT>
-void apply_pattern_carray(const SimpleCommunicationPattern& pattern, RangeT range)
+void apply_pattern_CTable(const SimpleCommunicationPattern& pattern, RangeT range)
 {
-	CFinfo << "applying pattern to carray" << CFendl;
+	CFinfo << "applying pattern to CTable<Real>" << CFendl;
   boost::mpi::communicator& world = CF::Common::PE::instance();
   const Uint nb_procs = world.size();
   
   Uint total_width = 0;
-  BOOST_FOREACH(CArray& array, range)
+  BOOST_FOREACH(CTable<Real>& array, range)
   {
     total_width += array.row_size();
   }
@@ -86,14 +86,14 @@ void apply_pattern_carray(const SimpleCommunicationPattern& pattern, RangeT rang
     const Uint proc_begin = pattern.send_dist[proc];
     const Uint proc_end = pattern.send_dist[proc+1];
     Uint receive_size = 0;
-    BOOST_FOREACH(CArray& array, range)
+    BOOST_FOREACH(CTable<Real>& array, range)
     {
       const Uint nb_cols = array.row_size();
       receive_size += nb_cols * (pattern.receive_dist[proc+1] - pattern.receive_dist[proc]);
       for(Uint i = proc_begin; i != proc_end; ++i)
       {
         cf_assert(pattern.send_list[i] < array.size());
-        CArray::ConstRow row = array[pattern.send_list[i]];
+        CTable<Real>::ConstRow row = array[pattern.send_list[i]];
         send_buffer.insert(send_buffer.end(), row.begin(), row.end());
       }
     }
@@ -114,13 +114,13 @@ void apply_pattern_carray(const SimpleCommunicationPattern& pattern, RangeT rang
   {
     const Uint proc_begin = pattern.receive_dist[proc];
     const Uint proc_end = pattern.receive_dist[proc+1];
-    BOOST_FOREACH(CArray& array, range)
+    BOOST_FOREACH(CTable<Real>& array, range)
     {
       const Uint nb_cols = array.row_size();
       for(Uint i = proc_begin; i != proc_end; ++i)
       {
         cf_assert(pattern.receive_targets[i] < array.size());
-        CArray::Row row = array[pattern.receive_targets[i]];
+        CTable<Real>::Row row = array[pattern.receive_targets[i]];
         std::copy(receive_buffer.begin() + buffer_idx, receive_buffer.begin() + buffer_idx + nb_cols, row.begin());
         buffer_idx += nb_cols;
       }
@@ -128,7 +128,7 @@ void apply_pattern_carray(const SimpleCommunicationPattern& pattern, RangeT rang
   }
 }
 
-/// Apply a communication pattern to the given range of CArrays.
+/// Apply a communication pattern to the given range of CTable<Real>s.
 /// RangeT must iterable by BOOST_FOREACH
 template<typename ValueT,typename RangeT>
 void apply_pattern_clist(const SimpleCommunicationPattern& pattern, RangeT range)

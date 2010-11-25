@@ -15,7 +15,7 @@
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
 
-#include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/SF/Hexa3DLagrangeP1.hpp"
 

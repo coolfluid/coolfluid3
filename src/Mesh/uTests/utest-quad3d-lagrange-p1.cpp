@@ -15,7 +15,7 @@
 
 #include "Math/MathConsts.hpp"
 
-#include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/SF/Quad3DLagrangeP1.hpp"
@@ -54,18 +54,18 @@ struct Quad3DLagrangeP1Fixture
   }
 
   /// Fills the given coordinate and connectivity data to create a cylinder along the Z-axis, consisting of Quad3DLagrangeP1 elements
-  void create_cylinder(CArray& coordinates, CTable& connectivity, const Real radius, const Uint u_segments, const Uint v_segments, const Real height, const Real start_angle = 0., const Real end_angle = 2.*MathConsts::pi())
+  void create_cylinder(CTable<Real>& coordinates, CTable<Uint>& connectivity, const Real radius, const Uint u_segments, const Uint v_segments, const Real height, const Real start_angle = 0., const Real end_angle = 2.*MathConsts::pi())
   {
     const Uint dim = Quad3DLagrangeP1::dimension;
     const Uint nb_nodes = Quad3DLagrangeP1::nb_nodes;
     const bool closed = std::abs(std::abs(end_angle - start_angle) - 2.0*MathConsts::pi()) < eps();
 
     coordinates.initialize(dim);
-    CArray::ArrayT& coord_array = coordinates.array();
+    CTable<Real>::ArrayT& coord_array = coordinates.array();
     coord_array.resize(boost::extents[(u_segments + (!closed)) * (v_segments+1)][dim]);
 
     connectivity.initialize(nb_nodes);
-    CTable::ArrayT& conn_array = connectivity.array();
+    CTable<Uint>::ArrayT& conn_array = connectivity.array();
     conn_array.resize(boost::extents[u_segments * v_segments][nb_nodes]);
     const Real v_step = height / v_segments;
 
@@ -77,7 +77,7 @@ struct Quad3DLagrangeP1Fixture
         for(Uint u = 0; u <= u_segments; ++u)
         {
           const Real theta = start_angle + (end_angle - start_angle) * (static_cast<Real>(u) / static_cast<Real>(u_segments));
-          CArray::Row coord_row = coord_array[v*(u_segments+1) + u];
+          CTable<Real>::Row coord_row = coord_array[v*(u_segments+1) + u];
 
           coord_row[XX] = radius * cos(theta);
           coord_row[YY] = radius * sin(theta);
@@ -90,7 +90,7 @@ struct Quad3DLagrangeP1Fixture
         // const Real z_coord = v_step * static_cast<Real>(v);
         for(Uint u = 0; u != u_segments; ++u)
         {
-          CTable::Row nodes = conn_array[v*u_segments + u];
+          CTable<Uint>::Row nodes = conn_array[v*u_segments + u];
           nodes[0] = v*(u_segments+1) + u;
           nodes[1] = nodes[0] + 1;
           nodes[3] = (v+1)*(u_segments+1) + u;
@@ -106,7 +106,7 @@ struct Quad3DLagrangeP1Fixture
         for(Uint u = 0; u != u_segments; ++u)
         {
           const Real theta = start_angle + (end_angle - start_angle) * (static_cast<Real>(u) / static_cast<Real>(u_segments));
-          CArray::Row coord_row = coord_array[v*u_segments + u];
+          CTable<Real>::Row coord_row = coord_array[v*u_segments + u];
 
           coord_row[XX] = radius * cos(theta);
           coord_row[YY] = radius * sin(theta);
@@ -119,7 +119,7 @@ struct Quad3DLagrangeP1Fixture
         //const Real z_coord = v_step * static_cast<Real>(v);
         for(Uint u = 0; u != u_segments; ++u)
         {
-          CTable::Row nodes = conn_array[v*u_segments + u];
+          CTable<Uint>::Row nodes = conn_array[v*u_segments + u];
           nodes[0] = v*u_segments + u;
           nodes[1] = nodes[0] + 1;
           nodes[3] = (v+1)*u_segments + u;
@@ -232,7 +232,7 @@ const Real Quad3DLagrangeP1Fixture::RotatingCylinderPressure::m_rho = 1.225;
 
 /// Integrate over a region
 template<typename ResultT, typename FunctorT>
-void integrate_region(ResultT& result, FunctorT functor, const CArray& coordinates, const CTable& connectivity)
+void integrate_region(ResultT& result, FunctorT functor, const CTable<Real>& coordinates, const CTable<Uint>& connectivity)
 {
   const Uint nb_elems = connectivity.array().size();
   for(Uint elem_idx = 0; elem_idx != nb_elems; ++ elem_idx)
@@ -359,8 +359,8 @@ BOOST_AUTO_TEST_CASE( SurfaceIntegral )
   const Real height = 3.;
 
   // complete circle
-  CArray coordinates("coordinates");
-  CTable connectivity("connectivity");
+  CTable<Real> coordinates("coordinates");
+  CTable<Uint> connectivity("connectivity");
   create_cylinder(coordinates, connectivity, radius, u_segments, v_segments, height);
 
   // Check the area
@@ -378,8 +378,8 @@ BOOST_AUTO_TEST_CASE( SurfaceIntegral )
 BOOST_AUTO_TEST_CASE( ArcIntegral )
 {
   // half cylinder arc
-  CArray arc_coordinates("coordinates");
-  CTable arc_connectivity("connectivity");
+  CTable<Real> arc_coordinates("coordinates");
+  CTable<Uint> arc_connectivity("connectivity");
   create_cylinder(arc_coordinates, arc_connectivity, 1., 100, 24, 3., 0., MathConsts::pi());
   Real arc_flux = 0.;
   const SFT::CoordsT y_vector(0., 1., 0.);
@@ -397,8 +397,8 @@ BOOST_AUTO_TEST_CASE( RotatingCylinder )
   const Real height = 3.;
 
   // complete cylinder
-  CArray coordinates("coordinates");
-  CTable connectivity("connectivity");
+  CTable<Real> coordinates("coordinates");
+  CTable<Uint> connectivity("connectivity");
   create_cylinder(coordinates, connectivity, radius, u_segments, v_segments, height);
 
   // Rotating cylinder in uniform flow

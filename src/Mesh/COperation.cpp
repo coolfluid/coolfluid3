@@ -30,7 +30,7 @@ void COperation::set_loophelper (CElements& geometry_elements )
   throw Common::NotImplemented(FromHere(), "Must create child that overloads this function");
 }
   
-void COperation::set_loophelper ( CArray& coordinates )
+void COperation::set_loophelper ( CTable<Real>& coordinates )
 {
   throw Common::NotImplemented(FromHere(), "Must create child that overloads this function");
 }
@@ -75,17 +75,17 @@ Common::ComponentBuilder < CSetValue,       COperation, LibMesh > CSetValue_Buil
 //
 //struct SetX
 //{
-//  CArray::Ptr x_coord;
-//  CArray::Ptr coordinates;
-//  CTable::Ptr connectivity_table;
+//  CTable<Real>::Ptr x_coord;
+//  CTable<Real>::Ptr coordinates;
+//  CTable<Uint>::Ptr connectivity_table;
 //  
 //  SetX () { }
 //  
 //  void setup (CFieldElements& field_elements )
 //  {
-//    coordinates = field_elements.get_geometry_elements().coordinates().get_type<CArray>();
-//    connectivity_table = field_elements.get_geometry_elements().connectivity_table().get_type<CTable>();
-//    x_coord = field_elements.elemental_data().get_type<CArray>();
+//    coordinates = field_elements.get_geometry_elements().coordinates().get_type<CTable<Real> >();
+//    connectivity_table = field_elements.get_geometry_elements().connectivity_table().get_type<CTable<Uint> >();
+//    x_coord = field_elements.elemental_data().get_type<CTable<Real> >();
 //  }
 //  
 //  template < typename SFType >
@@ -115,18 +115,18 @@ Common::ComponentBuilder < CSetValue,       COperation, LibMesh > CSetValue_Buil
 //  
 //struct ComputeGradient
 //{
-//  CArray::Ptr gradx;
-//  CArray::Ptr coordinates;
-//  CTable::Ptr connectivity_table;
+//  CTable<Real>::Ptr gradx;
+//  CTable<Real>::Ptr coordinates;
+//  CTable<Uint>::Ptr connectivity_table;
 //  
 //  ComputeGradient () { }
 //  
 //  void setup (CFieldElements& field_elements )
 //  {
-//    gradx = field_elements.elemental_data().get_type<CArray>();
+//    gradx = field_elements.elemental_data().get_type<CTable<Real> >();
 //    
-//    coordinates = field_elements.coordinates().get_type<CArray>();
-//    connectivity_table = field_elements.connectivity_table().get_type<CTable>();
+//    coordinates = field_elements.coordinates().get_type<CTable<Real> >();
+//    connectivity_table = field_elements.connectivity_table().get_type<CTable<Uint> >();
 //    
 //  }
 //  
@@ -170,19 +170,19 @@ Common::ComponentBuilder < CSetValue,       COperation, LibMesh > CSetValue_Buil
 //
 //struct ComputeVolumes
 //{
-//  CArray::Ptr volumes;
-//  CArray::Ptr coordinates;
-//  CTable::Ptr connectivity_table;
+//  CTable<Real>::Ptr volumes;
+//  CTable<Real>::Ptr coordinates;
+//  CTable<Uint>::Ptr connectivity_table;
 //
 //  ComputeVolumes () { }
 //  
 //  void setup (CFieldElements& field_elements )
 //  {
-//    volumes = field_elements.elemental_data().get_type<CArray>();
+//    volumes = field_elements.elemental_data().get_type<CTable<Real> >();
 //    volumes->array().resize(boost::extents[field_elements.elements_count()][1]);
 //    
-//    coordinates = field_elements.get_geometry_elements().coordinates().get_type<CArray>();
-//    connectivity_table = field_elements.get_geometry_elements().connectivity_table().get_type<CTable>();
+//    coordinates = field_elements.get_geometry_elements().coordinates().get_type<CTable<Real> >();
+//    connectivity_table = field_elements.get_geometry_elements().connectivity_table().get_type<CTable<Uint> >();
 //    
 //  }
 //  
@@ -201,7 +201,7 @@ Common::ComponentBuilder < CSetValue,       COperation, LibMesh > CSetValue_Buil
 //
 //struct OutputScalarField
 //{
-//  CArray::Ptr scalars;
+//  CTable<Real>::Ptr scalars;
 //  std::string scalar_name;
 //
 //  OutputScalarField () { }
@@ -209,7 +209,7 @@ Common::ComponentBuilder < CSetValue,       COperation, LibMesh > CSetValue_Buil
 //  void setup (CFieldElements& field_elements )
 //  {
 //    scalar_name = field_elements.get_parent()->get_type<CField>()->field_name();
-//    scalars = field_elements.elemental_data().get_type<CArray>();
+//    scalars = field_elements.elemental_data().get_type<CTable<Real> >();
 //    CFinfo << field_elements.full_path().string() << CFendl;
 //  }
 //  
@@ -225,7 +225,7 @@ Common::ComponentBuilder < CSetValue,       COperation, LibMesh > CSetValue_Buil
 //
 //struct OutputVectorField
 //{
-//  CArray::Ptr vectors;
+//  CTable<Real>::Ptr vectors;
 //  std::string vector_name;
 //  
 //  OutputVectorField () { }
@@ -233,7 +233,7 @@ Common::ComponentBuilder < CSetValue,       COperation, LibMesh > CSetValue_Buil
 //  void setup (CFieldElements& field_elements )
 //  {
 //    vector_name = field_elements.get_parent()->get_type<CField>()->field_name();
-//    vectors = field_elements.elemental_data().get_type<CArray>();
+//    vectors = field_elements.elemental_data().get_type<CTable<Real> >();
 //    CFinfo << field_elements.full_path().string() << CFendl;
 //  }
 //  

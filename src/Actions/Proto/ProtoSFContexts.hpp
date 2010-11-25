@@ -11,7 +11,7 @@
 #include "Actions/Proto/ProtoTransforms.hpp"
 #include "Actions/Proto/ProtoVariables.hpp"
 
-#include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CFieldElements.hpp"
 #include "Mesh/CTable.hpp"

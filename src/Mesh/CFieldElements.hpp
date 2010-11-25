@@ -14,7 +14,7 @@
 namespace CF {
 namespace Mesh {
 
-  class CArray;
+  template <typename T> class CTable;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -35,10 +35,10 @@ public: // functions
   CFieldElements ( const std::string& name );
   
   /// Initialize the CFieldElements using the given type
-  //void initialize(const std::string& element_type_name, CArray& data);
+  //void initialize(const std::string& element_type_name, CTable<Real>& data);
     
   void add_element_based_storage();
-  void add_node_based_storage(CArray& nodal_data);
+  void add_node_based_storage(CTable<Real>& nodal_data);
   
   void initialize(CElements& element_in);
 
@@ -49,16 +49,16 @@ public: // functions
   static std::string type_name () { return "CFieldElements"; }
 
   /// Mutable access to the nodal data (e.g. node coordinates);
-  CArray& data();
+  CTable<Real>& data();
   
   /// Const access to the nodal data (e.g. node coordinates)
-  const CArray& data() const;
+  const CTable<Real>& data() const;
   
   /// Mutable access to the coordinates
-  virtual CArray& coordinates() { return get_geometry_elements().coordinates(); }
+  virtual CTable<Real>& coordinates() { return get_geometry_elements().coordinates(); }
   
   /// Const access to the coordinates
-  virtual const CArray& coordinates() const { return get_geometry_elements().coordinates(); }
+  virtual const CTable<Real>& coordinates() const { return get_geometry_elements().coordinates(); }
     
   CElements& get_geometry_elements();
   const CElements& get_geometry_elements() const;

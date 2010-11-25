@@ -11,7 +11,7 @@
 #include "Actions/Proto/ProtoTransforms.hpp"
 #include "Actions/Proto/ProtoVariables.hpp"
 
-#include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CFieldElements.hpp"
 #include "Mesh/CTable.hpp"
@@ -51,7 +51,7 @@ struct NodeVarContext<ConstNodes>
   void init(const ConstNodes& placeholder, Mesh::CRegion& region)
   {
     // use a little hack to get to the coords
-    coordinates = Common::get_component_typed_ptr<Mesh::CArray>(region, Common::IsComponentTag("coordinates")).get();
+    coordinates = Common::get_component_typed_ptr<Mesh::CTable<Real> >(region, Common::IsComponentTag("coordinates")).get();
     if(!coordinates)
     {
       BOOST_FOREACH(Mesh::CElements& elements, Common::recursive_range_typed<Mesh::CElements>(region))
@@ -70,7 +70,7 @@ struct NodeVarContext<ConstNodes>
   
   void fill(const ConstNodes&, const Uint idx)
   {
-    Mesh::CArray::ConstRow row = (*coordinates)[idx];
+    Mesh::CTable<Real>::ConstRow row = (*coordinates)[idx];
     for(Uint i = 0; i != dim; ++i)
       nodes[i] = row[i];
   }
@@ -83,7 +83,7 @@ struct NodeVarContext<ConstNodes>
   
   RealVector nodes;
   Uint dim;
-  const Mesh::CArray* coordinates;
+  const Mesh::CTable<Real>* coordinates;
 };
 
 /// Evaluate scalar mutable nodal field data
@@ -96,7 +96,7 @@ struct NodeVarContext<Field<Real> >
   void init(const Field<Real>& placeholder, Mesh::CRegion& region)
   {
     Mesh::CField& field = region.get_field(placeholder.field_name);
-    data = &Common::get_component_typed<Mesh::CArray>(field, Common::IsComponentTag("field_data"));
+    data = &Common::get_component_typed<Mesh::CTable<Real> >(field, Common::IsComponentTag("field_data"));
 
     var_begin = field.var_index(placeholder.var_name);
     cf_assert(field.var_length(placeholder.var_name) == 1);
@@ -114,7 +114,7 @@ struct NodeVarContext<Field<Real> >
   }
   
   Uint var_begin;
-  Mesh::CArray* data;
+  Mesh::CTable<Real>* data;
   Real* value;
 };
 

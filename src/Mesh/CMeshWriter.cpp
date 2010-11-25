@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Mesh/CMeshWriter.hpp"
-#include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 
 namespace CF {
 namespace Mesh {

@@ -13,7 +13,7 @@
 #include "Actions/Proto/ProtoTransforms.hpp"
 #include "Actions/Proto/ProtoVariables.hpp"
 
-#include "Mesh/CArray.hpp"
+#include "Mesh/CTable.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CFieldElements.hpp"
 #include "Mesh/CTable.hpp"
@@ -111,8 +111,8 @@ struct ElementVarContext<SF, ConstNodes> : ShapeFunctionMatrix<SF>
   }
   
   NodeValueMatrixT nodes;
-  const Mesh::CArray* coordinates;
-  const Mesh::CTable* connectivity;
+  const Mesh::CTable<Real>* coordinates;
+  const Mesh::CTable<Uint>* connectivity;
   
 private:
   SFContextT* m_sf_context;
@@ -165,8 +165,8 @@ struct ElementVarContext< SF, Field<Real> >
   
   Uint var_begin;
   NodesViewT node_view;
-  Mesh::CArray* data;
-  const Mesh::CTable* connectivity;
+  Mesh::CTable<Real>* data;
+  const Mesh::CTable<Uint>* connectivity;
 private:
   NodeValueMatrixT m_node_matrix;
 };

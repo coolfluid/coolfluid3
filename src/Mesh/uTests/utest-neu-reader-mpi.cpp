@@ -19,7 +19,7 @@
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CMeshTransformer.hpp"
 
-#include "Mesh/CFlexTable.hpp"
+#include "Mesh/CDynTable.hpp"
 
 using namespace std;
 using namespace boost;
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
 	
 	CFinfo << mesh->tree() << CFendl;
 	
-	BOOST_FOREACH(CFlexTable& node_2_elems, recursive_filtered_range_typed<CFlexTable >(*mesh,IsComponentName("glb_elem_connectivity")))
+	BOOST_FOREACH(CDynTable<Uint>& node_2_elems, recursive_filtered_range_typed<CDynTable<Uint> >(*mesh,IsComponentName("glb_elem_connectivity")))
   {
     CList<bool>& is_ghost = *node_2_elems.look_component_type<CList <bool> >("../is_ghost").get();
     CList<Uint>& glb_indices = *node_2_elems.look_component_type<CList <Uint> >("../global_indices").get();

@@ -19,7 +19,7 @@
 namespace CF {
 namespace Mesh {
 
-  class CArray;
+  template <typename T> class CTable;
   class CRegion;
 
 namespace CGNS {
@@ -102,7 +102,7 @@ protected:
     int nbSections;
     int nbBocos;
     Uint total_nbElements;
-    CArray* coords;
+    CTable<Real>* coords;
     Uint coords_start_idx;
     //
   } m_zone;
@@ -142,7 +142,7 @@ protected:
   std::map<int,CRegion*> m_base_map;
   std::map<int,CRegion*> m_zone_map;
   std::map<int,CRegion*> m_section_map;
-  std::map<int,CArray* > m_coordinates_map;
+  std::map<int,CTable<Real>* > m_coordinates_map;
   std::map<int,CRegion*> m_boco_map;
 
 private:

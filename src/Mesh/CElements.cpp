@@ -11,7 +11,6 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CFieldElements.hpp"
 #include "Mesh/CField.hpp"
-#include "Mesh/CArray.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CList.hpp"
 
@@ -38,7 +37,7 @@ CElements::~CElements()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CElements::initialize(const std::string& element_type_name, CArray& coords_in)
+void CElements::initialize(const std::string& element_type_name, CTable<Real>& coords_in)
 {
   set_element_type(element_type_name);
   cf_assert(m_element_type);
@@ -81,8 +80,8 @@ CList<Uint>& CElements::update_node_list()
 {
   // Assemble all unique node numbers in a set
   std::set<Uint> node_set;
-  CTable& ctable = connectivity_table();
-  BOOST_FOREACH(CTable::Row row, ctable.array())
+  CTable<Uint>& conn_table = connectivity_table();
+  BOOST_FOREACH(CTable<Uint>::Row row, conn_table.array())
   BOOST_FOREACH(const Uint node, row)
   node_set.insert(node);
   
@@ -98,47 +97,47 @@ CList<Uint>& CElements::update_node_list()
 
 //////////////////////////////////////////////////////////////////////////////
 
-CTable& CElements::create_connectivity_table( const std::string& name )
+CTable<Uint>& CElements::create_connectivity_table( const std::string& name )
 {
-  return *create_component_type<CTable>(name);
+  return *create_component_type<CTable<Uint> >(name);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-CTable& CElements::connectivity_table()
+CTable<Uint>& CElements::connectivity_table()
 {
   Component::Ptr ptr = get_child("connectivity_table");
   cf_assert(ptr);
-  CTable* tab = dynamic_cast<CTable*>(ptr->get().get()); // first get() follows the CLink , second get returns a normal pointer
+  CTable<Uint>* tab = dynamic_cast<CTable<Uint>*>(ptr->get().get()); // first get() follows the CLink , second get returns a normal pointer
   cf_assert(tab);
   return *tab;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-const CTable& CElements::connectivity_table() const
+const CTable<Uint>& CElements::connectivity_table() const
 {
   Component::ConstPtr ptr = get_child("connectivity_table");
   cf_assert(ptr);
-  const CTable* tab = dynamic_cast<const CTable*>(ptr->get().get());
+  const CTable<Uint>* tab = dynamic_cast<const CTable<Uint>*>(ptr->get().get());
   cf_assert(tab);
   return *tab;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-CArray& CElements::coordinates()
+CTable<Real>& CElements::coordinates()
 {
   CLink& link = get_component_typed<CLink>(*this,IsComponentTag("coordinates"));
-  return *link.get_type<CArray>();
+  return *link.get_type<CTable<Real> >();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-const CArray& CElements::coordinates() const
+const CTable<Real>& CElements::coordinates() const
 {
   const CLink& link = get_component_typed<CLink const>(*this,IsComponentTag("coordinates"));
-  return *link.get_type<CArray const>();
+  return *link.get_type<CTable<Real> const>();
 
 }
   
