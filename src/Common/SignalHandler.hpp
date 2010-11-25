@@ -87,6 +87,10 @@ class Common_API SignalHandler
     /// Get the list of signals and respective descriptions
     std::vector < Signal > list_signals () const;
 
+    /// Access to signal by providing its name
+    /// @throw SignalError if signal with name does not exist
+    Signal& signal ( const Signal::id_t& sname );
+
     /// Const access to a signal by providing its name
     /// @throw SignalError if signal with name does not exist
     const Signal& signal ( const Signal::id_t& sname ) const;
@@ -99,15 +103,6 @@ class Common_API SignalHandler
 
     /// Regist signal
     Signal::Ptr regist_signal ( const Signal::id_t& sname, const Signal::desc_t& desc, const Signal::readable_t& readable_name = Signal::readable_t() );
-
-  protected: // functions
-
-    /// Access to signal by providing its name
-    /// @throw SignalError if signal with name does not exist
-    Signal& signal ( const Signal::id_t& sname );
-
-    /// Create a signal
-    Signal::Ptr create_signal ( const Signal::id_t& sname,  const Signal::desc_t& desc, const Signal::readable_t& readable_name = Signal::readable_t() );
 
   protected: // data
 

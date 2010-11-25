@@ -65,27 +65,6 @@ bool SignalHandler::check_signal ( const Signal::id_t& sname )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Signal::Ptr SignalHandler::create_signal ( const Signal::id_t& sname,  const Signal::desc_t& desc, const Signal::readable_t& readable_name )
-{
-  sigmap_t::iterator itr = m_signals.find (sname);
-
-  if ( itr == m_signals.end() )
-  {
-    Signal& sig = m_signals[sname];
-
-    sig.signal_ptr = Signal::Ptr( new Signal::type() );
-    sig.description = desc;
-    sig.readable_name = readable_name;
-    sig.is_read_only = false;
-
-    return sig.signal_ptr;
-  }
-  else
-    throw SignalError ( FromHere(), "Signal with name \'" + sname + "\' already exists" );
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 Signal::Ptr SignalHandler::regist_signal ( const Signal::id_t& sname,  const Signal::desc_t& desc, const Signal::readable_t& readable_name )
 {
   sigmap_t::iterator itr = m_signals.find (sname);
