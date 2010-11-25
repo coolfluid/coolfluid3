@@ -9,8 +9,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <map>
-
 #include "Common/Component.hpp"
 
 namespace CF {
@@ -43,7 +41,7 @@ namespace Common {
 /// @author Tiago Quintino  
 /// @author Willem Deconinck
 template <typename KEY, typename DATA>  
-class Common_API CMap : public Component {
+class CMap : public Component {
 
 public: // typedefs
 
@@ -67,9 +65,9 @@ public: // functions
 
   /// Contructor
   /// @param[in] name of the component
-  CMap ( const CName& name ) : Component(name)
+  CMap ( const std::string& name ) : Component(name)
   {
-    BUILD_COMPONENT;
+    add_tag( type_name() );
   }
 
   /// Virtual destructor
@@ -78,9 +76,6 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CMap"; }
 
-  /// Configuration Options
-  static void define_config_properties ( Common::PropertyList& options ) {}
-  
   /// Reserve memory
   /// @param[in] size of the map to be set before starting inserting pairs in the  map
   /// @post  the memory corresponding to the given size will be reserved for
@@ -279,9 +274,6 @@ private: // helper functions
   /// @param[in] val2 One of the two entries to compare the key of
   /// @returns true if duplicate keys are found
   static bool unique_key(const value_type& val1, const value_type& val2);
-
-  /// regists all the signals declared in this class
-  static void regist_signals ( Component* self ) {}
 
 private: //data
 

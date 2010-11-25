@@ -17,9 +17,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
-////////////////////////////////////////////////////////////////////////////////
-
 #include "Common/Log.hpp"
+#include "Common/ComponentPredicates.hpp"
 #include "Common/MPI/PE.hpp"
 #include "Common/MPI/PEObjectWrapper.hpp"
 #include "Common/MPI/PECommPattern2.hpp"
