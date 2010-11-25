@@ -6,6 +6,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "Common/CBuilder.hpp"
 #include "Common/MPI/PEObjectWrapper.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -18,13 +19,15 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-  namespace Common {
+namespace Common {
 
-Common::ObjectProvider < PEObjectWrapper, Component, LibCommon, NB_ARGS_1 >
-PEObjectWrapper_Provider ( PEObjectWrapper::type_name() );
+PEObjectWrapper::PEObjectWrapper(const std::string &name) : Component(name)
+{
+  add_tag( type_name() );
+}
 
-  } // namespace Common
-} // namespace CF
+} // Common
+} // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 

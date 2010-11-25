@@ -13,14 +13,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <vector>
 #include <boost/test/unit_test.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/ComponentPredicates.hpp"
+#include "Common/Log.hpp"
 #include "Common/MPI/PE.hpp"
 #include "Common/MPI/PEObjectWrapper.hpp"
 #include "Common/MPI/PECommPattern2.hpp"

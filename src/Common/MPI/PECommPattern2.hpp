@@ -47,8 +47,6 @@ public:
   /// @name TYPEDEFS
   //@{
 
-  /// provider
-  typedef Common::ConcreteProvider < PECommPattern2,1 > PROVIDER;
   /// pointer to this type
   typedef boost::shared_ptr<PECommPattern2> Ptr;
   /// const pointer to this type
@@ -78,7 +76,7 @@ public:
 
   /// constructor
   /// @param name under this name will the component be registered
-  PECommPattern2(const CName& name);
+  PECommPattern2(const std::string& name);
 
   /// destructor
   ~PECommPattern2();
@@ -96,9 +94,9 @@ public:
   /// @param data pointer to data
   /// @param size length of the data
   /// @param stride number of array element grouping
-  template<typename T> void insert(const CName& name, T*& data, const int size, const unsigned int stride=1)
+  template<typename T> void insert(const std::string& name, T*& data, const int size, const unsigned int stride=1)
   {
-    boost::shared_ptr< PEObjectWrapper > ow( new PEObjectWrapperPtr<T>(name,data,size,stride) );
+    boost::shared_ptr< PEObjectWrapper > ow ( new PEObjectWrapperPtr<T>(name,data,size,stride), Deleter< PEObjectWrapperPtr<T> >() );
     add_component ( ow );
   }
 
@@ -107,9 +105,9 @@ public:
   /// @param data pointer to data
   /// @param size length of the data
   /// @param stride number of array element grouping
-  template<typename T> void insert(const CName& name, T** data, const int size, const unsigned int stride=1)
+  template<typename T> void insert(const std::string& name, T** data, const int size, const unsigned int stride=1)
   {
-    boost::shared_ptr< PEObjectWrapper > ow( new PEObjectWrapperPtr<T>(name,data,size,stride) );
+    boost::shared_ptr< PEObjectWrapper > ow( new PEObjectWrapperPtr<T>(name,data,size,stride), Deleter< PEObjectWrapperPtr<T> >() );
     add_component ( ow );
   }
 
@@ -117,9 +115,9 @@ public:
   /// @param name the component will appear under this name
   /// @param pointer to std::vector of data
   /// @param stride number of array element grouping
-  template<typename T> void insert(const CName& name, std::vector<T>& data, const unsigned int stride=1)
+  template<typename T> void insert(const std::string& name, std::vector<T>& data, const unsigned int stride=1)
   {
-    boost::shared_ptr< PEObjectWrapper > ow( new PEObjectWrapperVector<T>(name,data,stride) );
+    boost::shared_ptr< PEObjectWrapper > ow( new PEObjectWrapperVector<T>(name,data,stride), Deleter< PEObjectWrapperVector<T> >() );
     add_component ( ow );
   }
 
@@ -127,9 +125,9 @@ public:
   /// @param name the component will appear under this name
   /// @param pointer to std::vector of data
   /// @param stride number of array element grouping
-  template<typename T> void insert(const CName& name, std::vector<T>* data, const unsigned int stride=1)
+  template<typename T> void insert(const std::string& name, std::vector<T>* data, const unsigned int stride=1)
   {
-    boost::shared_ptr< PEObjectWrapper > ow( new PEObjectWrapperVector<T>(name,data,stride) );
+    boost::shared_ptr< PEObjectWrapper > ow( new PEObjectWrapperVector<T>(name,data,stride), Deleter< PEObjectWrapperVector<T> >() );
     add_component ( ow );
   }
 
@@ -137,14 +135,14 @@ public:
   /// @param name the component will appear under this name
   /// @param std::vector of data
   /// @param stride number of array element grouping
-  template<typename T> void insert(const CName& name, boost::weak_ptr< std::vector<T> > data, const unsigned int stride=1)
+  template<typename T> void insert(const std::string& name, boost::weak_ptr< std::vector<T> > data, const unsigned int stride=1)
   {
-    boost::shared_ptr< PEObjectWrapper > ow( new PEObjectWrapperVectorWeakPtr<T>(name,data,stride) );
+    boost::shared_ptr< PEObjectWrapper > ow( new PEObjectWrapperVectorWeakPtr<T>(name,data,stride), Deleter< PEObjectWrapperVectorWeakPtr<T> >() );
     add_component ( ow );
   }
 
   /// removes data by name
-  void clear( const CName& name)
+  void clear( const std::string& name)
   {
     remove_component(name);
     // anything to be deallocated?
@@ -211,11 +209,6 @@ public:
 
 private:
 
-  /// regists all the signals declared in this class
-  static void regist_signals ( Component* self );
-
-private:
-
   /// @name PROPERTIES
   //@{
 
@@ -242,7 +235,6 @@ private:
   //@} END BUFFERS HOLDING TEMPORARY DATA
 
 /*
-
   /// Storing updatable information.
   /// Note that this is not containing the full length of the array, only the part is involved in the communication.
   std::vector<bool> m_updatable;
@@ -265,11 +257,9 @@ private:
 
   /// flag telling if communication pattern is up-to-date (there are no items )
   bool m_isCommPatternSetupNeeded;
-
 */
 
-};
-
+}; // PECommPattern2
 
 ////////////////////////////////////////////////////////////////////////////////
 

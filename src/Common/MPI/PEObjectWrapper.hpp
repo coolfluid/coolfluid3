@@ -9,20 +9,16 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <vector>
-
 #include <boost/weak_ptr.hpp>
 
-#include "Common/ObjectProvider.hpp"
 #include "Common/LibCommon.hpp"
-#include "Common/BasicExceptions.hpp"
-#include "Common/CodeLocation.hpp"
+#include "Common/CF.hpp"
 #include "Common/Component.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-  namespace Common  {
+namespace Common  {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -39,12 +35,11 @@ namespace CF {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Base wrapper class serving as interface.
-class PEObjectWrapper: public Component{
+/// @author Tamas Banyai
+class Common_API PEObjectWrapper : public Component {
 
   public:
 
-    /// provider
-    typedef Common::ConcreteProvider < PEObjectWrapper,1 > PROVIDER;
     /// pointer to this type
     typedef boost::shared_ptr<PEObjectWrapper> Ptr;
     /// const pointer to this type
@@ -54,34 +49,26 @@ class PEObjectWrapper: public Component{
 
     /// constructor
     /// @param name the component will appear under this name
-    PEObjectWrapper( const CName& name ) : Component(name)
-    {
-      BUILD_COMPONENT;
-    }
+    PEObjectWrapper( const std::string& name );
 
     /// accessor to m_data
     /// @return pointer to the raw data
-    virtual const void* data(){};
+    virtual const void* data() = 0;
 
     /// acts like a sizeof() operator
     /// @return size of the data members in bytes
-    virtual const int size_of(){};
+    virtual const int size_of() = 0;
 
     /// accessor to the size of the array (without divided by stride)
     /// @return length of the array
-    virtual const int size(){};
+    virtual const int size() = 0;
 
     /// accessor to the stride which tells how many array elements count as one  in the communication pattern
     /// @return number of items to be treated as one
-    virtual const int stride(){};
+    virtual const int stride() = 0;
 
     /// Get the class name
     static std::string type_name () { return "PEObjectWrapper"; }
-
-  private:
-
-    /// regists all the signals declared in this class
-    static void regist_signals ( Component* self ) {};
 
   protected:
 
@@ -92,6 +79,7 @@ class PEObjectWrapper: public Component{
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Wrapper class for raw ptr arrays allocated by new[]/malloc/calloc.
+/// @author Tamas Banyai
 /// @todo realloc technically passes through, but since the new size is unknown to object wrapper, therefore it will complain.
 /// @todo maybe provide boost::shared_array version too.
 template<typename T> class PEObjectWrapperPtr: public PEObjectWrapper{
@@ -103,8 +91,10 @@ template<typename T> class PEObjectWrapperPtr: public PEObjectWrapper{
     /// @param data pointer to data
     /// @param size length of the data
     /// @param stride number of array element grouping
-    PEObjectWrapperPtr(const CName& name, T*& data, const int size, const unsigned int stride) : PEObjectWrapper(name)
+    PEObjectWrapperPtr(const std::string& name, T*& data, const int size, const unsigned int stride) : PEObjectWrapper(name)
     {
+      add_tag( type_name() );
+
       m_data=&data;
       m_stride=(int)stride;
       if (size%m_stride!=0) throw CF::Common::BadValue(FromHere(),"Nonzero remainder of size()/stride().");
@@ -116,8 +106,10 @@ template<typename T> class PEObjectWrapperPtr: public PEObjectWrapper{
     /// @param data pointer to data
     /// @param size length of the data
     /// @param stride number of array element grouping
-    PEObjectWrapperPtr(const CName& name, T** data, const int size, const unsigned int stride) : PEObjectWrapper(name)
+    PEObjectWrapperPtr(const std::string& name, T** data, const int size, const unsigned int stride) : PEObjectWrapper(name)
     {
+      add_tag( type_name() );
+
       m_data=data;
       m_stride=(int)stride;
       if (size%m_stride!=0) throw CF::Common::BadValue(FromHere(),"Nonzero remainder of size()/stride().");
@@ -156,6 +148,7 @@ template<typename T> class PEObjectWrapperPtr: public PEObjectWrapper{
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Wrapper class for std::vectors.
+/// @author Tamas Banyai
 template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
 
   public:
@@ -164,8 +157,10 @@ template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
     /// @param name the component will appear under this name
     /// @param std::vector of data
     /// @param stride number of array element grouping
-    PEObjectWrapperVector(const CName& name, std::vector<T>& data, const unsigned int stride) : PEObjectWrapper(name)
+    PEObjectWrapperVector(const std::string& name, std::vector<T>& data, const unsigned int stride) : PEObjectWrapper(name)
     {
+      add_tag( type_name() );
+
       m_data=&data;
       m_stride=(int)stride;
       if (data.size()%stride!=0) throw CF::Common::BadValue(FromHere(),"Nonzero remainder of size()/stride().");
@@ -175,8 +170,10 @@ template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
     /// @param name the component will appear under this name
     /// @param std::vector of data
     /// @param stride number of array element grouping
-    PEObjectWrapperVector(const CName& name, std::vector<T>* data, const unsigned int stride) : PEObjectWrapper(name)
+    PEObjectWrapperVector(const std::string& name, std::vector<T>* data, const unsigned int stride) : PEObjectWrapper(name)
     {
+      add_tag( type_name() );
+
       m_data=*data;
       m_stride=(int)stride;
       if (data->size()%stride!=0) throw CF::Common::BadValue(FromHere(),"Nonzero remainder of size()/stride().");
@@ -214,6 +211,7 @@ template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Wrapper class for std::vectors via boost's weak pointer.
+/// @author Tamas Banyai
 template<typename T> class PEObjectWrapperVectorWeakPtr: public PEObjectWrapper{
 
   public:
@@ -222,8 +220,10 @@ template<typename T> class PEObjectWrapperVectorWeakPtr: public PEObjectWrapper{
     /// @param name the component will appear under this name
     /// @param std::vector of data
     /// @param stride number of array element grouping
-    PEObjectWrapperVectorWeakPtr(const CName& name, boost::weak_ptr< std::vector<T> > data, const unsigned int stride) : PEObjectWrapper(name)
+    PEObjectWrapperVectorWeakPtr(const std::string& name, boost::weak_ptr< std::vector<T> > data, const unsigned int stride) : PEObjectWrapper(name)
     {
+      add_tag( type_name() );
+
       m_data=data;
       m_stride=(int)stride;
       boost::shared_ptr< std::vector<T> > sp=data.lock();
@@ -274,8 +274,8 @@ template<typename T> class PEObjectWrapperVectorWeakPtr: public PEObjectWrapper{
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  } // namespace Common
-} // namespace CF
+} // Common
+} // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 

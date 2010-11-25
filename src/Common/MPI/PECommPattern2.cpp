@@ -6,34 +6,32 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <vector>
-
-#include <boost/bind.hpp>
-
-#include "Common/ObjectProvider.hpp"
 #include "Common/LibCommon.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/MPI/PECommPattern2.hpp"
 #include "Common/MPI/PEObjectWrapper.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-  namespace Common  {
+namespace Common  {
 
 ////////////////////////////////////////////////////////////////////////////////
 // Provider
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ObjectProvider < PECommPattern2, Component, LibCommon, NB_ARGS_1 >
-PECommPattern2_Provider ( PECommPattern2::type_name() );
+Common::ComponentBuilder < PECommPattern2, Component, LibCommon > PECommPattern2_Provider;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Consstructor & destructor
 ////////////////////////////////////////////////////////////////////////////////
 
-PECommPattern2::PECommPattern2(const CName& name): Component(name)
+PECommPattern2::PECommPattern2(const std::string& name): Component(name)
 {
-  BUILD_COMPONENT;
+  add_tag( type_name() );
+
+  //self->regist_signal ( "update" , "Executes communication patterns on all the registered data.", "" )->connect ( boost::bind ( &CommPattern2::update, self, _1 ) );
+
   m_isUpToDate=false;
   m_isFreeze=false;
 }
@@ -42,7 +40,6 @@ PECommPattern2::PECommPattern2(const CName& name): Component(name)
 
 PECommPattern2::~PECommPattern2()
 {
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -114,14 +111,9 @@ void PECommPattern2::remove(Uint gid, Uint rank, bool on_all_ranks)
 // Component related
 ////////////////////////////////////////////////////////////////////////////////
 
-void PECommPattern2::regist_signals ( Component* self )
-{
-//  self->regist_signal ( "update" , "Executes communication patterns on all the registered data not marked as readonly.", "" )->connect ( boost::bind ( &PECommPattern2::update, self, _1 ) );
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
-  }  // Common
+} // Common
 } // CF
 
 
