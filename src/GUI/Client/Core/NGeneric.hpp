@@ -44,11 +44,6 @@ namespace ClientCore {
     /// @return The name of the class.
     virtual QString toolTip() const;
 
-  private:
-
-    /// regists all the signals declared in this class
-    virtual void define_signals () {}
-
   }; // class NGeneric
 
   //////////////////////////////////////////////////////////////////////////

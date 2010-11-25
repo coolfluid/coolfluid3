@@ -27,7 +27,7 @@ using namespace CF::GUI::ClientCore;
 NLog::NLog()
   : CNode(CLIENT_LOG, "NLog", CNode::LOG_NODE)
 {
-  BuildComponent<full>().build(this);
+  add_tag( type_name() );
 
   m_typeNames[ LogMessage::INFO ]      = "  Info   ";
   m_typeNames[ LogMessage::EXCEPTION ] = "Exception";

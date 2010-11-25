@@ -38,7 +38,7 @@ public: // functions
 
   Part ( const std::string& name ) : Component(name)
   {
-    BuildComponent<none>().build(this);
+    add_tag( type_name() );
   }
 
   virtual ~Part() {}
@@ -63,7 +63,7 @@ public: // functions
       Component(name),
       m_subcomp ( new SubCompT( "subc" ), Deleter<SubCompT>())
   {
-    BuildComponent<none>().build(this);
+    add_tag( type_name() );
 
     add_static_component ( m_subcomp );
   }

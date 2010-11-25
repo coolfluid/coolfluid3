@@ -66,7 +66,7 @@ class MyC : public ConfigObject {
 
   MyC ()
   {
-    add_options_to<MyC>();
+    define_config_properties();
 
 //    option("OptInt").set_value(10);
 

@@ -66,14 +66,15 @@ namespace ClientCore {
     /// @brief Destructor
     ~NCore();
 
-    /// @brief Sends a signal to the network layer
+    /// regists all the signals declared in this class
+    virtual void define_signals () {}
 
+    /// @brief Sends a signal to the network layer
     /// @param signal The signal to send. Build the signal using @c #XmlOps and
     /// @c #XmlParams classes.
     void sendSignal(CF::Common::XmlDoc & signal);
 
     /// @brief Attempts to connect to a server.
-
     /// @param sshInfo Connection information
     void connectToServer(const TSshInformation & sshInfo);
 
@@ -121,9 +122,6 @@ namespace ClientCore {
 
     /// @brief The current connection information.
     TSshInformation m_commSshInfo;
-
-    /// regists all the signals declared in this class
-    virtual void define_signals () {}
 
     /// @name Signals
     //@{

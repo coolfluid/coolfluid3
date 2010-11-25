@@ -29,14 +29,26 @@ NTree::NTree(NRoot::Ptr rootNode)
     m_advancedMode(false),
     m_debugModeEnabled(false)
 {
-  BuildComponent<full>().build(this);
-
   if(rootNode.get() == nullptr)
     m_rootNode = new TreeNode(ClientRoot::root(), nullptr, 0);
   else
     m_rootNode = new TreeNode(rootNode, nullptr, 0);
 
   m_columns << "Name" << "Type";
+
+  add_tag( type_name() );
+
+  std::vector<int> vectInt;
+  std::vector<bool> vectBool;
+  std::vector<CF::Uint> vectUint;
+  std::vector<CF::Real> vectReal;
+  std::vector<std::string> vectString;
+
+  m_properties.add_option< OptionArrayT<int> >("intArray", "Array of ints", vectInt)->mark_basic();
+  m_properties.add_option< OptionArrayT<bool> >("boolArray", "Array of ints", vectBool)->mark_basic();
+  m_properties.add_option< OptionArrayT<CF::Uint> >("uIntArray", "Array of ints", vectUint)->mark_basic();
+  m_properties.add_option< OptionArrayT<CF::Real> >("realArray", "Array of ints", vectReal)->mark_basic();
+  m_properties.add_option< OptionArrayT<std::string> >("stringArray", "Array of ints", vectString)->mark_basic();
 
   regist_signal("list_tree", "New tree")->connect(boost::bind(&NTree::list_tree_reply, this, _1));
 }
@@ -557,24 +569,6 @@ void NTree::list_tree_reply(XmlNode & node)
   {
     ClientRoot::log()->addException(xe.what());
   }
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void NTree::define_config_properties ()
-{
-  std::vector<int> vectInt;
-  std::vector<bool> vectBool;
-  std::vector<CF::Uint> vectUint;
-  std::vector<CF::Real> vectReal;
-  std::vector<std::string> vectString;
-
-  props.add_option< OptionArrayT<int> >("intArray", "Array of ints", vectInt)->mark_basic();
-  props.add_option< OptionArrayT<bool> >("boolArray", "Array of ints", vectBool)->mark_basic();
-  props.add_option< OptionArrayT<CF::Uint> >("uIntArray", "Array of ints", vectUint)->mark_basic();
-  props.add_option< OptionArrayT<CF::Real> >("realArray", "Array of ints", vectReal)->mark_basic();
-  props.add_option< OptionArrayT<std::string> >("stringArray", "Array of ints", vectString)->mark_basic();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

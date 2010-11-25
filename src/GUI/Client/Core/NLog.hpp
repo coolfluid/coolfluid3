@@ -114,9 +114,6 @@ namespace ClientCore {
     void appendToLog(CF::GUI::Network::LogMessage::Type type, bool fromServer,
                      const QString & message);
 
-    /// regists all the signals declared in this class
-    virtual void define_signals () {}
-
   }; // class NLog
 
   ///////////////////////////////////////////////////////////////////////////

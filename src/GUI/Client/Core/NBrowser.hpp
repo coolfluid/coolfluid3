@@ -47,13 +47,13 @@ namespace ClientCore {
     /// @return The name of the class.
     virtual QString toolTip() const;
 
+    /// regists all the signals declared in this class
+    virtual void define_signals () {}
+
   private:
 
     /// @brief Browser counter.
     CF::Uint m_counter;
-
-    /// regists all the signals declared in this class
-    virtual void define_signals () {}
 
   }; // class NBrowser
 

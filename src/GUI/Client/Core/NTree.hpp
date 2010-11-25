@@ -292,13 +292,6 @@ namespace ClientCore {
 
     /// @} END Signals
 
-    /// Configuration properties
-    virtual void define_config_properties ();
-
-    /// regists all the signals declared in this class
-    virtual void define_signals () {}
-
-
   public slots:
 
     /// @brief Clears the tree.

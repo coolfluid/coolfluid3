@@ -54,6 +54,9 @@ public: // functions
 
   // --------- Configuration ---------
 
+  /// regists all the signals declared in this class
+  virtual void define_signals ();
+
   virtual void define_config_properties ();
 
   // --------- Signals ---------
@@ -98,9 +101,6 @@ protected: // functions
   /// remove all regions with empty connectivity tables inside a given region
   /// @param [in] parent_region  Region in which the removal will take place
   void remove_empty_element_regions(CRegion& parent_region);
-
-  /// regists all the signals declared in this class
-  virtual void define_signals ();
 	
 protected: // data
 	

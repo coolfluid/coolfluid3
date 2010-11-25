@@ -24,7 +24,7 @@ using namespace CF::GUI::ClientCore;
 NLink::NLink(const QString & name)
   : CNode(name, "CLink", LINK_NODE)
 {
-  BuildComponent<full>().build(this);
+  add_tag( type_name() );
 
   regist_signal("goToTarget", "Switch to the target node", "Go to target node")->connect(boost::bind(&NLink::goToTarget, this, _1));
 

@@ -24,7 +24,7 @@ NRoot::NRoot(const QString & name)
   : CNode(name, "CRoot", ROOT_NODE),
     m_uuid(boost::uuids::random_generator()())
 {
-  BuildComponent<full>().build(this);
+  add_tag( type_name() );
 
   m_root = CRoot::create(name.toStdString());
 }

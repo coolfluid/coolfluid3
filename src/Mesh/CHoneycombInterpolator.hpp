@@ -43,7 +43,10 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "CHoneycombInterpolator"; }
   
-  static void define_config_properties ();
+  /// regists all the signals declared in this class
+  virtual void define_signals () {}
+
+  virtual void define_config_properties ();
 
 private: // functions
 
@@ -79,9 +82,6 @@ private: // functions
 	/// @param target_points [in] The coordinate of the target point for interpolation
 	/// @param weights [out]  The weights corresponding for each source_point.  Q_t = sum( weight_i * Q_i )
 	void pseudo_laplacian_weighted_linear_interpolation(const std::vector<RealVector>& source_points, const RealVector& target_point, std::vector<Real>& weights);
-
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
 
 private: // data
   
