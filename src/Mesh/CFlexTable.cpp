@@ -15,8 +15,7 @@ namespace Mesh {
 
 using namespace Common;
 
-Common::ComponentBuilder < CFlexTable, Component, LibMesh >
-CFlexTable_Builder ( CFlexTable::type_name() );
+Common::ComponentBuilder < CFlexTable, Component, LibMesh >  CFlexTable_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

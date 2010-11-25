@@ -23,8 +23,7 @@ namespace Mesh {
 using namespace Common;
 using namespace Common::String;
 
-Common::ComponentBuilder < CMesh, Component, LibMesh >
-CMesh_Builder ( CMesh::type_name() );
+Common::ComponentBuilder < CMesh, Component, LibMesh > CMesh_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

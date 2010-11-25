@@ -37,20 +37,15 @@ namespace Mesh {
 CF::Common::ComponentBuilder < Mesh::CHoneycombInterpolator,
                                Mesh::CInterpolator,
                                LibMesh >
-aHoneyCombInterpolator_Builder ( "Honeycomb" );
+aHoneyCombInterpolator_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
 CHoneycombInterpolator::CHoneycombInterpolator( const std::string& name )
   : CInterpolator(name), m_dim(0), m_ranges(3), m_N(3), m_D(3), m_comb_idx(3), m_sufficient_nb_points(0)
 {
-  BuildComponent<full>().build(this);
-}
+  add_tag( type_name() );
 
-/////////////////////////////////////////////////////////////////////////////
-
-void CHoneycombInterpolator::define_config_properties ()
-{
   m_properties.add_option< OptionT<Uint> >
   ( "ApproximateNbElementsPerCell",
     "The approximate amount of elements that are stored in a structured" ,
@@ -61,6 +56,7 @@ void CHoneycombInterpolator::define_config_properties ()
   ( "Divisions",
     "The number of divisions in each direction of the comb. Takes precedence over \"ApproximateNbElementsPerCell\". " ,
     dummy);
+
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -20,8 +20,7 @@ namespace Mesh {
 
 using namespace Common;
 
-Common::ComponentBuilder < CElements, Component, LibMesh >
-CElements_Builder ( CElements::type_name() );
+Common::ComponentBuilder < CElements, Component, LibMesh > CElements_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

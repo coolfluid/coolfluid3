@@ -26,8 +26,7 @@ using namespace boost::assign;
 using namespace Common;
 using namespace Common::String;
 
-Common::ComponentBuilder < CField, Component, LibMesh >
-CField_Builder ( CField::type_name() );
+Common::ComponentBuilder < CField, Component, LibMesh >  CField_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

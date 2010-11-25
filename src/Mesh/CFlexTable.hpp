@@ -76,12 +76,11 @@ public:
   /// @param name of the component
   CFlexArray ( const std::string& name ) : Component(name)
   {
-    BuildComponent<full>().build(this);
+    add_tag( type_name() );
   }
 
-  ~CFlexArray ()
-  {
-  }
+  ~CFlexArray () {}
+
   /// Get the class name
   static std::string type_name () { return "CFlexTable"; }
 
@@ -145,15 +144,11 @@ public:
   ArrayT& array() { return m_array; }
 
   /// @return A const reference to the array data
-  const ArrayT& array() const { return m_array; }
-  
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
-  
+  const ArrayT& array() const { return m_array; }  
   
 private: // data
 
-std::deque< std::vector<T> > m_array;
+  std::deque< std::vector<T> > m_array;
 
 };
 

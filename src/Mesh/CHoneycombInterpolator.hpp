@@ -43,11 +43,6 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "CHoneycombInterpolator"; }
   
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
-
-  virtual void define_config_properties ();
-
 private: // functions
 
 	/// Construct internal storage for fast searching algorithm

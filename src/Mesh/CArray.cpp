@@ -15,8 +15,7 @@ namespace Mesh {
 
 using namespace Common;
 
-Common::ComponentBuilder < CArray, Component, LibMesh >
-CArray_Builder ( CArray::type_name() );
+Common::ComponentBuilder < CArray, Component, LibMesh > CArray_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
