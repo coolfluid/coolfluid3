@@ -45,7 +45,7 @@ public:
   typedef boost::shared_ptr<LibNeu const> ConstPtr;
 
   /// Constructor
-  LibNeu ( const std::string& name) : Common::CLibrary(name) {}
+  LibNeu ( const std::string& name) : Common::CLibrary(name) { BUILD_COMPONENT; }
 
   /// Configuration options
   static void define_config_properties ( Common::PropertyList& options ) {}

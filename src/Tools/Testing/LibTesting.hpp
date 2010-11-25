@@ -42,7 +42,7 @@ namespace Testing {
     typedef boost::shared_ptr<LibTesting const> ConstPtr;
 
     /// Constructor
-    LibTesting ( const std::string& name) : Common::CLibrary(name) {}
+    LibTesting ( const std::string& name) : Common::CLibrary(name) { BUILD_COMPONENT; }
 
     /// Configuration options
     static void define_config_properties ( Common::PropertyList& options ) {}

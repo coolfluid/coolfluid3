@@ -42,7 +42,7 @@ namespace CF {
     typedef boost::shared_ptr<LibMesh const> ConstPtr;
 
     /// Constructor
-    LibMesh ( const std::string& name) : Common::CLibrary(name) {}
+    LibMesh ( const std::string& name) : Common::CLibrary(name) { BUILD_COMPONENT; }
 
     /// Configuration options
     static void define_config_properties ( Common::PropertyList& options ) {}

@@ -41,7 +41,7 @@ namespace SF {
     typedef boost::shared_ptr<LibSF const> ConstPtr;
 
     /// Constructor
-    LibSF ( const std::string& name) : Common::CLibrary(name) {}
+    LibSF ( const std::string& name) : Common::CLibrary(name) { BUILD_COMPONENT; }
 
     /// Configuration options
     static void define_config_properties ( Common::PropertyList& options ) {}

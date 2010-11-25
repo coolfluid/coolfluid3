@@ -44,7 +44,7 @@ namespace Network {
     typedef boost::shared_ptr<LibNetwork const> ConstPtr;
 
     /// Constructor
-    LibNetwork ( const std::string& name) : Common::CLibrary(name) {}
+    LibNetwork ( const std::string& name) : Common::CLibrary(name) { BUILD_COMPONENT; }
 
     /// Configuration options
     static void define_config_properties ( Common::PropertyList& options ) {}

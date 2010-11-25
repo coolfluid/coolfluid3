@@ -28,7 +28,7 @@ public:
   typedef boost::shared_ptr<LibCommon const> ConstPtr;
 
   /// Constructor
-  LibCommon ( const std::string& name) : Common::CLibrary(name) {}
+  LibCommon ( const std::string& name) : Common::CLibrary(name) { BUILD_COMPONENT; }
 
   /// Configuration options
   static void define_config_properties ( Common::PropertyList& options ) {}

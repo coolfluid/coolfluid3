@@ -45,7 +45,7 @@ namespace CF {
     typedef boost::shared_ptr<LibSolver const> ConstPtr;
 
     /// Constructor
-    LibSolver ( const std::string& name) : Common::CLibrary(name) {}
+    LibSolver ( const std::string& name) : Common::CLibrary(name) { BUILD_COMPONENT; }
 
     /// Configuration options
     static void define_config_properties ( Common::PropertyList& options ) {}

@@ -42,7 +42,7 @@ public:
   typedef boost::shared_ptr<LibActions const> ConstPtr;
 
   /// Constructor
-  LibActions ( const std::string& name) : Common::CLibrary(name) {}
+  LibActions ( const std::string& name) : Common::CLibrary(name) { BUILD_COMPONENT; }
 
   /// Configuration options
   static void define_config_properties ( Common::PropertyList& options ) {}

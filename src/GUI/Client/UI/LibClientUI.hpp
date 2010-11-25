@@ -10,7 +10,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/CLibrary.hpp"
-#include "Common/LibInfo.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -40,6 +39,25 @@ namespace CF {
       public Common::CLibrary
   {
   public:
+
+    typedef boost::shared_ptr<LibClientUI> Ptr;
+    typedef boost::shared_ptr<LibClientUI const> ConstPtr;
+
+    /// Constructor
+    LibClientUI ( const std::string& name) : Common::CLibrary(name) { BUILD_COMPONENT; }
+
+    /// Configuration options
+    static void define_config_properties ( Common::PropertyList& options ) {}
+
+  private: // helper functions
+
+    /// regists all the signals declared in this class
+    static void regist_signals ( Component* self ) {}
+
+  public: // functions
+
+    /// @return string of the library namespace
+    static std::string library_namespace() { return "CF.GUI.ClientUI"; }
 
     /// Static function that returns the module name.
     /// Must be implemented for CLibrary registration
