@@ -48,7 +48,7 @@ public:
   ~CDynTable () {}
 
   /// Get the class name
-  static std::string type_name () { return "CDynTable<Uint>"; }
+  static std::string type_name () { return "CDynTable<"+class_name<T>()+">"; }
 
   Uint size() const { return m_array.size(); }
   
