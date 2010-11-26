@@ -46,6 +46,12 @@ Core::Core() :
   m_libraries        ( new CLibraries("Libraries") ),
   m_factories        ( new CFactories("Factories") )
 {
+  // this types must be registered immedietly on creation,
+  // registration could be defered to after the Core has been inialized.
+  RegistTypeInfo<CEnv>();
+  RegistTypeInfo<CLibraries>();
+  RegistTypeInfo<CFactories>();
+
   m_root = CRoot::create("Root");
   m_root->mark_basic();
 
