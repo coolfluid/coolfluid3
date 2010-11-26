@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE( UpdateSendLists )
 
 BOOST_AUTO_TEST_CASE( ApplyCommPattern )
 {
-  apply_pattern_CTable<Real>(pattern, recursive_range_typed<CTable<Real> >(partitioned_mesh));
+  apply_pattern_CTable(pattern, recursive_range_typed<CTable<Real> >(partitioned_mesh));
 }
 
 BOOST_AUTO_TEST_CASE( ComputeVolume )
