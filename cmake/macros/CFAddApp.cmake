@@ -14,6 +14,11 @@ macro( coolfluid_add_application APPNAME )
     set( ${APPNAME}_sandbox_app OFF )
   endif()
 
+  # by default, applications are built as Mac OS bundle
+  if( NOT DEFINED ${APPNAME}_sandbox_app )
+    set( ${APPNAME}_sandbox_app OFF )
+  endif()
+
 #   coolfluid_debug_var(CF_MODULES_LIST)
 
   # check if all required modules are present
@@ -52,16 +57,46 @@ macro( coolfluid_add_application APPNAME )
 
     coolfluid_log( " +++ APP   [${APPNAME}]" )
 
-    add_executable( ${APPNAME} ${${APPNAME}_sources} ${${APPNAME}_headers} ${${APPNAME}_moc_files} ${${APPNAME}_RCC})
+    # check if the application should be Mac OS bundle ("*.app" directory)
+    if( ${APPNAME}_make_bundle )
 
-    # add installation paths, if it not a sandbox application
-    if( NOT ${APPNAME}_sandbox_app )
-      INSTALL( TARGETS ${APPNAME}
-        RUNTIME DESTINATION ${CF_INSTALL_BIN_DIR}
-        LIBRARY DESTINATION ${CF_INSTALL_LIB_DIR}
-        ARCHIVE DESTINATION ${CF_INSTALL_LIB_DIR}
-      )
+      if( NOT APPLE )
+        message( WARNING "Bundle applications can only be built under Mac OS.")
+      endif()
+
+      # directories to look for dependencies
+      SET(DIRS ${BOOST_ROOT})
+
+
+      # tell cmake to creat a bundle
+      SET( ${APPNAME}_platform MACOSX_BUNDLE ${CMAKE_CURRENT_SOURCE_DIR}/coolfluid-logo.icns)
+
+      # system identifier (should be universally unique)
+      SET( MACOSX_BUNDLE_GUI_IDENTIFIER "be.ac.vki.${APPNAME}")
+
+      # tell cpack the destination of the bundle when generating the installer
+      # package
+      SET( ${APPNAME}_specific_destination BUNDLE DESTINATION ${CF_INSTALL_BIN_DIR} )
+
+      # set the long and short version strings
+      SET( MACOSX_BUNDLE_LONG_VERSION_STRING "${CF_VERSION} (Kernel ${CF_KERNEL_VERSION})")
+      SET( MACOSX_BUNDLE_SHORT_VERSION_STRING "${CF_VERSION}" )
+      #  SET( MACOSX_BUNDLE_BUNDLE_VERSION )
+
+      #  SET( MACOSX_BUNDLE_COPYRIGHT )
+
+      set( ${APPNAME}_fixup_bundle "include(BundleUtilities)
+        fixup_bundle(\"${CMAKE_INSTALL_PREFIX}/coolfluid-client.app\" \"${Boost_LIBRARIES}\"
+                     \"\")" )
+
+      coolfluid_log_verbose("${APPNAME} application will be built as a Mac OS bundle.")
+
+    INSTALL(FILES /Users/qt/workspace/coolfluid3/Builds/MacOSX/qtcreator-build/src/Common/libcoolfluid_common.dylib
+ DESTINATION  ${CF_INSTALL_BIN_DIR}/${APPNAME}.app/Contents/Resources)# ${APPNAME}_fixup_bundle COMPONENT Runtime)
+
     endif()
+
+    add_executable( ${APPNAME} ${${APPNAME}_platform} ${${APPNAME}_sources} ${${APPNAME}_headers} ${${APPNAME}_moc_files} ${${APPNAME}_RCC})
 
     # if mpi was found add it to the libraries
     if(CF_HAVE_MPI AND NOT CF_HAVE_MPI_COMPILER)
@@ -87,6 +122,35 @@ macro( coolfluid_add_application APPNAME )
     # internal dependencies
     if( DEFINED ${APPNAME}_cflibs )
         TARGET_LINK_LIBRARIES ( ${APPNAME} ${${APPNAME}_cflibs} )
+    endif()
+
+    if( ${APPNAME}_make_bundle )
+
+      SET(DIRS ${QT_LIBRARY_DIRS} /Users/qt/workspace/coolfluid3/Dependencies/MacOSX/lib)
+
+
+      if( NOT ${APPNAME}_sandbox_app )
+        INSTALL( TARGETS ${APPNAME}
+          RUNTIME DESTINATION ${CF_INSTALL_BIN_DIR} COMPONENT applications
+          LIBRARY DESTINATION ${CF_INSTALL_LIB_DIR} COMPONENT applications
+          ARCHIVE DESTINATION ${CF_INSTALL_LIB_DIR} COMPONENT applications
+          BUNDLE DESTINATION ${CF_INSTALL_BIN_DIR} COMPONENT applications
+        )
+
+      INSTALL( FILES "/Users/qt/workspace/coolfluid3/Builds/MacOSX/qtcreator-build/src/Common/libcoolfluid_common.dyld" DESTINATION . )
+
+      endif()
+
+    else()
+      # add installation paths, if it not a sandbox application
+      if( NOT ${APPNAME}_sandbox_app AND NOT ${APPNAME}_make_bundle )
+        INSTALL( TARGETS ${APPNAME}
+          RUNTIME DESTINATION ${CF_INSTALL_BIN_DIR} COMPONENT applications
+          LIBRARY DESTINATION ${CF_INSTALL_LIB_DIR} COMPONENT applications
+          ARCHIVE DESTINATION ${CF_INSTALL_LIB_DIR} COMPONENT applications
+        )
+      endif()
+
     endif()
 
   endif()

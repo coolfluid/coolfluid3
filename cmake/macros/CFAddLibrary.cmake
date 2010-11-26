@@ -87,9 +87,10 @@ macro( coolfluid_add_library LIBNAME )
 
     # add installation paths
     INSTALL ( TARGETS ${LIBNAME}
-      RUNTIME DESTINATION ${CF_INSTALL_BIN_DIR}
-      LIBRARY DESTINATION ${CF_INSTALL_LIB_DIR}
+      RUNTIME DESTINATION ${CF_INSTALL_BIN_DIR}       COMPONENT libraries
+      LIBRARY DESTINATION ${CF_INSTALL_LIB_DIR}      COMPONENT libraries
       ARCHIVE DESTINATION ${CF_INSTALL_LIB_DIR}
+      COMPONENT libraries
     )
 
     # install headers for the libraries but
@@ -99,7 +100,10 @@ macro( coolfluid_add_library LIBNAME )
       string( REPLACE ${CMAKE_BINARY_DIR} ${CF_INSTALL_INCLUDE_DIR} ${LIBNAME}_INSTALL_HEADERS ${CMAKE_CURRENT_BINARY_DIR} )
       string( REPLACE coolfluid/src  coolfluid ${LIBNAME}_INSTALL_HEADERS ${${LIBNAME}_INSTALL_HEADERS} )
 
-      install( FILES ${${LIBNAME}_headers} DESTINATION ${${LIBNAME}_INSTALL_HEADERS})
+      install( FILES ${${LIBNAME}_headers}
+        DESTINATION ${${LIBNAME}_INSTALL_HEADERS}
+        COMPONENT headers
+      )
 
       coolfluid_log_file("${LIBNAME}_INSTALL_HEADERS : [${${LIBNAME}_INSTALL_HEADERS}]")
     endif()
