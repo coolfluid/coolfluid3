@@ -12,7 +12,7 @@
 #include "Common/Core.hpp"
 #include "Common/CLibraries.hpp"
 
-#include "Common/Log.hpp" // temporary
+// #include "Common/Log.hpp" // temporary
 
 namespace CF {
 namespace Common {
@@ -27,7 +27,7 @@ struct ForceLibRegist
   /// @brief Registers the library LIB in the registry.
   ForceLibRegist()
   {
-    CFinfo << "Library [" << Core::instance().libraries()->get_library<LIB>()->type_name() << "] loaded." << CFendl;
+    // CFinfo << "Library [" << Core::instance().libraries()->get_library<LIB>()->type_name() << "] loaded." << CFendl;
 
     Core::instance().libraries()->get_library<LIB>();
   }

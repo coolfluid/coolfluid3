@@ -9,13 +9,16 @@
 namespace CF {
 namespace Common {
 
-RegistTypeInfo<CFactories> CBuilder_TypeRegistration();
-
 ////////////////////////////////////////////////////////////////////////////////
 
 CFactories::CFactories ( const std::string& name) : Component ( name )
 {
   add_tag( type_name() );
+
+  // this type must be registered immedietly on creation,
+  // registration could be defered to after the Core has been inialized.
+  RegistTypeInfo<CFactories> CBuilder_TypeRegistration();
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
