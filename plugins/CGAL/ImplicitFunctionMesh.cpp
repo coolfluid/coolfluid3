@@ -58,7 +58,7 @@ void cgal_to_coolfluid(const TriangulationComplexT& complex, CMesh& mesh) {
   
   // connectivity storage
   CElements& elements = region.create_elements("CF.Mesh.SF.Tetra3DLagrangeP1",coordinates);
-  CTable::Buffer connBuffer = elements.connectivity_table().create_buffer(complex.number_of_cells());
+  CTable<Uint>::Buffer connBuffer = elements.connectivity_table().create_buffer(complex.number_of_cells());
   std::vector<Uint> cell_row(4);
 
   CFinfo << "iterating over the cells" << CFendl;
