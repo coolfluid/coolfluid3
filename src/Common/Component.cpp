@@ -475,7 +475,11 @@ void Component::create_component ( XmlNode& node  )
 
   CFactories::Ptr factories = Core::instance().root()->get_child_type< CFactories >("Factories");
   CFactory::Ptr factory = factories->get_child_type< CFactory >( atype );
+  if (!factory)
+    throw ValueNotFound(FromHere(), "Factory of generic type " + atype + " not found");
   CBuilder::Ptr builder = factory->get_child_type< CBuilder >( ctype );
+  if (!builder)
+    throw ValueNotFound(FromHere(), "Builder of concrete type " + ctype + " not found in factory of generic type " + atype);
 
   Ptr comp = add_component( builder->build( name ) );
 
