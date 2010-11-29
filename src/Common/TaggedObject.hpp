@@ -28,13 +28,20 @@ namespace Common {
     TaggedObject();
 
     /// Check if this component has a given tag assigned
+    /// @param tag to check
+    /// @return if has it or not
     bool has_tag(const std::string& tag) const;
 
     /// add tag to this component
+    /// @param tag to add
     void add_tag(const std::string& tag);
 
     /// @return tags in a vector
     std::vector<std::string> get_tags();
+
+    /// removes tag
+    /// @param tag to remove
+    void remove_tag(const std::string& tag);
 
   private:
 

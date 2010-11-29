@@ -54,3 +54,19 @@ bool TaggedObject::has_tag(const std::string& tag) const
 
   return false;
 }
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+void TaggedObject::remove_tag(const std::string& tag)
+{
+  std::string tags;
+
+  typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
+  boost::char_separator<char> sep(":");
+  Tokenizer tokens(m_tags, sep);
+
+  for (Tokenizer::iterator tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter)
+    if (*tok_iter!=tag)
+      tags += *tok_iter + ":";
+  m_tags=tags;
+}
