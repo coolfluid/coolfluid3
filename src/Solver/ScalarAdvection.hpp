@@ -39,16 +39,10 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "ScalarAdvection"; }
 
-  /// Configuration Options
-  virtual void define_config_properties ();
-
-  /// regists all the signals declared in this class
-  virtual void define_signals ();
-
   // functions specific to the ScalarAdvection component
   
   /// Signal run_operation
-  void run_wizard ( Common::XmlNode& node );
+  void create_model ( Common::XmlNode& node );
   
   ScalarAdvection& operation(const std::string& name);
   

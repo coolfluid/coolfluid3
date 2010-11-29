@@ -33,7 +33,14 @@ Common::ComponentBuilder < ScalarAdvection, Component, LibSolver > ScalarAdvecti
 ScalarAdvection::ScalarAdvection ( const std::string& name  ) :
   Component ( name )
 {
-  tag_component(this); define_config_properties(); define_signals();
+  tag_component(this);
+
+  // signals
+
+  this->regist_signal ( "create_model" , "Creates a scalar advection model", "Create Model" )->connect ( boost::bind ( &ScalarAdvection::create_model, this, _1 ) );
+  signal("create_model").signature
+      .insert<std::string>("Model name", "Name for created model" );
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -44,27 +51,18 @@ ScalarAdvection::~ScalarAdvection()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void ScalarAdvection::define_config_properties()
+void ScalarAdvection::create_model ( Common::XmlNode& node )
 {
-//  m_properties.add_option< OptionT<std::string> >  ( "Model",  "Model to fill, if empty a new model will be created in the root" , "" );
-//  m_properties["Model"].as_option().mark_basic();
-}
+  XmlParams p ( node );
 
-////////////////////////////////////////////////////////////////////////////////
-
-void ScalarAdvection::define_signals ()
-{
-  this->regist_signal ( "run_wizard" , "runs the wizard ", "Run Wizard" )->connect ( boost::bind ( &ScalarAdvection::run_wizard, this, _1 ) );
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void ScalarAdvection::run_wizard ( Common::XmlNode& node )
-{
 //  // access the CModel
 //  CModel::Ptr model = look_component_type<CModel>( property("Model").value<std::string>() );
 
-  CModel::Ptr model = Core::instance().root()->create_component_type<CModel>("CF.Solver.ScalarAdvection");
+// create the model
+
+  std::string name  = p.get_option<std::string>("Model name");
+
+  CModel::Ptr model = Core::instance().root()->create_component_type<CModel>( name );
   model->mark_basic();
 
   // create the CDomain
