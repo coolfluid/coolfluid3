@@ -97,7 +97,6 @@ public:
   template<typename T> void insert(const std::string& name, T*& data, const int size, const unsigned int stride=1, const bool needs_update=true)
   {
     boost::shared_ptr< PEObjectWrapper > ow ( new PEObjectWrapperPtr<T>(name,data,size,stride,needs_update), Deleter< PEObjectWrapperPtr<T> >() );
-    if (ow->size()!=m_updatable.size()) throw CF::Common::BadValue(FromHere(),"Size does not match commpattern's size.");
     add_component ( ow );
   }
 
@@ -109,7 +108,6 @@ public:
   template<typename T> void insert(const std::string& name, T** data, const int size, const unsigned int stride=1, const bool needs_update=true)
   {
     boost::shared_ptr< PEObjectWrapper > ow( new PEObjectWrapperPtr<T>(name,data,size,stride,needs_update), Deleter< PEObjectWrapperPtr<T> >() );
-    if (ow->size()!=m_updatable.size()) throw CF::Common::BadValue(FromHere(),"Size does not match commpattern's size.");
     add_component ( ow );
   }
 
@@ -120,7 +118,6 @@ public:
   template<typename T> void insert(const std::string& name, std::vector<T>& data, const unsigned int stride=1, const bool needs_update=true)
   {
     boost::shared_ptr< PEObjectWrapper > ow( new PEObjectWrapperVector<T>(name,data,stride,needs_update), Deleter< PEObjectWrapperVector<T> >() );
-    if (ow->size()!=m_updatable.size()) throw CF::Common::BadValue(FromHere(),"Size does not match commpattern's size.");
     add_component ( ow );
   }
 
@@ -131,7 +128,6 @@ public:
   template<typename T> void insert(const std::string& name, std::vector<T>* data, const unsigned int stride=1, const bool needs_update=true)
   {
     boost::shared_ptr< PEObjectWrapper > ow( new PEObjectWrapperVector<T>(name,data,stride,needs_update), Deleter< PEObjectWrapperVector<T> >() );
-    if (ow->size()!=m_updatable.size()) throw CF::Common::BadValue(FromHere(),"Size does not match commpattern's size.");
     add_component ( ow );
   }
 
@@ -142,7 +138,6 @@ public:
   template<typename T> void insert(const std::string& name, boost::weak_ptr< std::vector<T> > data, const unsigned int stride=1, const bool needs_update=true)
   {
     boost::shared_ptr< PEObjectWrapper > ow( new PEObjectWrapperVectorWeakPtr<T>(name,data,stride,needs_update), Deleter< PEObjectWrapperVectorWeakPtr<T> >() );
-    if (ow->size()!=m_updatable.size()) throw CF::Common::BadValue(FromHere(),"Size does not match commpattern's size.");
     add_component ( ow );
   }
 

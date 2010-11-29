@@ -255,14 +255,14 @@ BOOST_AUTO_TEST_CASE( commpattern )
   for (int i=0; i<gid.size(); i++) gid[i]=i;
 
   // three additional arrays for testing
-  std::vector<int> v1(nproc);
-  for(int i=0;i<v1.size();i++) v1[i]=irank*10000+i+100;
+  std::vector<int> v1;
+  for(int i=0;i<nproc;i++) v1.push_back(irank*10000+i+100);
   pecp.insert("v1",v1,1,true);
-  std::vector<int> v2(2*nproc);
-  for(int i=0;i<v1.size();i++) v1[i]=irank*10000+(i/2)*100+i%2;
+  std::vector<int> v2;
+  for(int i=0;i<2*nproc;i++) v2.push_back(irank*10000+(i/2)*100+i%2);
   pecp.insert("v2",v2,2,true);
-  std::vector<int> v3(nproc);
-  for(int i=0;i<v1.size();i++) v1[i]=irank;
+  std::vector<int> v3;
+  for(int i=0;i<nproc;i++) v3.push_back(irank);
   pecp.insert("v3",v3,1,false);
 
   //
