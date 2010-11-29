@@ -35,23 +35,27 @@ void OptionURI::supported_protocol(const std::string & protocol)
 
 void OptionURI::configure ( XmlNode& node )
 {
-  std::string val;
-  XmlNode * type_node = node.first_node(XmlTag<std::string>::type());
+  URI val;
+  XmlNode * type_node = node.first_node(XmlTag<URI>::type());
 
   if(type_node != nullptr)
     to_value(*type_node, val);
   else
-    throw XmlError(FromHere(), "Could not find a stringvalue of this type.");
+    throw XmlError(FromHere(), "Could not find a string value of this type.");
 
-  size_t colon_pos = val.find_first_of(':');
 
-  if( colon_pos == std::string::npos ) // if ':' was not found
-    throw XmlError(FromHere(), "No protocol found in URI.");
+//  size_t colon_pos = val.find_first_of(':');
 
-  std::string protocol_str = val.substr(0, colon_pos);
+//  if( colon_pos == std::string::npos ) // if ':' was not found
+//    throw XmlError(FromHere(), "No protocol found in URI.");
 
-  if(std::find(m_protocols.begin(), m_protocols.end(), protocol_str) == m_protocols.end())
-    throw XmlError(FromHere(), protocol_str + ": unsupported protocol.");
+  std::string protocol_str = val.protocol(); //val.substr(0, colon_pos);
+
+  if(!m_protocols.empty())
+  {
+    if(std::find(m_protocols.begin(), m_protocols.end(), protocol_str) == m_protocols.end())
+      throw XmlError(FromHere(), protocol_str + ": unsupported protocol.");
+  }
 
   m_value = val;
 }

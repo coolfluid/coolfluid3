@@ -70,7 +70,15 @@ GraphicalUri::~GraphicalUri()
 
 QVariant GraphicalUri::value() const
 {
-  return m_editPath->text();
+  QString protocol = m_comboType->currentText();
+  QString path = m_editPath->text();
+
+  if(protocol == "cpath" && !path.startsWith("cpath"))
+    return QString("cpath:%1").arg(path);
+  else if(protocol == "file"  && !path.startsWith("file"))
+    return QString("file:%1").arg(path);
+  else
+    return path;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
