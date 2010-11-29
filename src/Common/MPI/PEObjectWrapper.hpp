@@ -10,6 +10,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <boost/weak_ptr.hpp>
+#include <boost/type_traits/is_pod.hpp>
+#include <boost/type_traits/is_same.hpp>
 
 #include "Common/LibCommon.hpp"
 #include "Common/CF.hpp"
@@ -67,6 +69,15 @@ class Common_API PEObjectWrapper : public Component {
     /// @return number of items to be treated as one
     virtual const int stride() = 0;
 
+    /// Check for Uint, necessary for cheking type of gid in commpattern
+    /// @return true or false depending if registered data's type was Uint or not
+    virtual const bool is_data_type_Uint() = 0;
+
+    /// accessor to lag telling if wrapped data needs to be synchronized,
+    /// if not then it will only be modified if commpattern changes (for example coordinates of a mesh)
+    /// @return true or false depending if to be synchronized
+    virtual const bool needs_update() = 0;
+
     /// Get the class name
     static std::string type_name () { return "PEObjectWrapper"; }
 
@@ -74,6 +85,9 @@ class Common_API PEObjectWrapper : public Component {
 
     /// number of elements to be groupped together and treat as once in communication pattern
     int m_stride;
+
+    /// bool holding the info if data to be synchronized&kept up-to-date with commpattern or only keep up-to-date
+    bool m_needs_update;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -91,14 +105,17 @@ template<typename T> class PEObjectWrapperPtr: public PEObjectWrapper{
     /// @param data pointer to data
     /// @param size length of the data
     /// @param stride number of array element grouping
-    PEObjectWrapperPtr(const std::string& name, T*& data, const int size, const unsigned int stride) : PEObjectWrapper(name)
+    PEObjectWrapperPtr(const std::string& name, T*& data, const int size, const unsigned int stride, const bool needs_update) : PEObjectWrapper(name)
     {
+      if (boost::is_pod<T>::value==false) throw CF::Common::BadValue(FromHere(),"Data is not POD (plain old datatype).");
+
       tag_component(this);
 
       m_data=&data;
       m_stride=(int)stride;
       if (size%m_stride!=0) throw CF::Common::BadValue(FromHere(),"Nonzero remainder of size()/stride().");
       m_size=size/m_stride;
+      m_needs_update=needs_update;
     }
 
     /// constructor of passing by pointer
@@ -106,14 +123,17 @@ template<typename T> class PEObjectWrapperPtr: public PEObjectWrapper{
     /// @param data pointer to data
     /// @param size length of the data
     /// @param stride number of array element grouping
-    PEObjectWrapperPtr(const std::string& name, T** data, const int size, const unsigned int stride) : PEObjectWrapper(name)
+    PEObjectWrapperPtr(const std::string& name, T** data, const int size, const unsigned int stride, const bool needs_update) : PEObjectWrapper(name)
     {
+      if (boost::is_pod<T>::value==false) throw CF::Common::BadValue(FromHere(),"Data is not POD (plain old datatype).");
+
       tag_component(this);
 
       m_data=data;
       m_stride=(int)stride;
       if (size%m_stride!=0) throw CF::Common::BadValue(FromHere(),"Nonzero remainder of size()/stride().");
       m_size=size/m_stride;
+      m_needs_update=needs_update;
     }
 
     /// destructor
@@ -134,6 +154,15 @@ template<typename T> class PEObjectWrapperPtr: public PEObjectWrapper{
     /// accessor to the stride which tells how many array elements count as one  in the communication pattern
     /// @return number of items to be treated as one
     const int stride() { return m_stride; };
+
+    /// Check for Uint, necessary for cheking type of gid in commpattern
+    /// @return true or false depending if registered data's type was Uint or not
+    const bool is_data_type_Uint() { return boost::is_same<T,Uint>::value; };
+
+    /// accessor to lag telling if wrapped data needs to be synchronized,
+    /// if not then it will only be modified if commpattern changes (for example coordinates of a mesh)
+    /// @return true or false depending if to be synchronized
+    const bool needs_update() { return m_needs_update; };
 
   private:
 
@@ -157,26 +186,32 @@ template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
     /// @param name the component will appear under this name
     /// @param std::vector of data
     /// @param stride number of array element grouping
-    PEObjectWrapperVector(const std::string& name, std::vector<T>& data, const unsigned int stride) : PEObjectWrapper(name)
+    PEObjectWrapperVector(const std::string& name, std::vector<T>& data, const unsigned int stride, const bool needs_update) : PEObjectWrapper(name)
     {
+      if (boost::is_pod<T>::value==false) throw CF::Common::BadValue(FromHere(),"Data is not POD (plain old datatype).");
+
       tag_component(this);
 
       m_data=&data;
       m_stride=(int)stride;
       if (data.size()%stride!=0) throw CF::Common::BadValue(FromHere(),"Nonzero remainder of size()/stride().");
+      m_needs_update=needs_update;
     }
 
     /// constructor of passing by pointer
     /// @param name the component will appear under this name
     /// @param std::vector of data
     /// @param stride number of array element grouping
-    PEObjectWrapperVector(const std::string& name, std::vector<T>* data, const unsigned int stride) : PEObjectWrapper(name)
+    PEObjectWrapperVector(const std::string& name, std::vector<T>* data, const unsigned int stride, const bool needs_update) : PEObjectWrapper(name)
     {
+      if (boost::is_pod<T>::value==false) throw CF::Common::BadValue(FromHere(),"Data is not POD (plain old datatype).");
+
       tag_component(this);
 
       m_data=*data;
       m_stride=(int)stride;
       if (data->size()%stride!=0) throw CF::Common::BadValue(FromHere(),"Nonzero remainder of size()/stride().");
+      m_needs_update=needs_update;
     }
 
     /// destructor
@@ -201,6 +236,15 @@ template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
     /// @return number of items to be treated as one
     const int stride() { return m_stride; };
 
+    /// Check for Uint, necessary for cheking type of gid in commpattern
+    /// @return true or false depending if registered data's type was Uint or not
+    const bool is_data_type_Uint() { return boost::is_same<T,Uint>::value; };
+
+    /// accessor to lag telling if wrapped data needs to be synchronized,
+    /// if not then it will only be modified if commpattern changes (for example coordinates of a mesh)
+    /// @return true or false depending if to be synchronized
+    const bool needs_update() { return m_needs_update; };
+
   private:
 
     /// pointer to std::vector
@@ -220,14 +264,17 @@ template<typename T> class PEObjectWrapperVectorWeakPtr: public PEObjectWrapper{
     /// @param name the component will appear under this name
     /// @param std::vector of data
     /// @param stride number of array element grouping
-    PEObjectWrapperVectorWeakPtr(const std::string& name, boost::weak_ptr< std::vector<T> > data, const unsigned int stride) : PEObjectWrapper(name)
+    PEObjectWrapperVectorWeakPtr(const std::string& name, boost::weak_ptr< std::vector<T> > data, const unsigned int stride, const bool needs_update) : PEObjectWrapper(name)
     {
+      if (boost::is_pod<T>::value==false) throw CF::Common::BadValue(FromHere(),"Data is not POD (plain old datatype).");
+
       tag_component(this);
 
       m_data=data;
       m_stride=(int)stride;
       boost::shared_ptr< std::vector<T> > sp=data.lock();
       if (sp->size()%stride!=0) throw CF::Common::BadValue(FromHere(),"Nonzero remainder of size()/stride().");
+      m_needs_update=needs_update;
     }
 
     /// destructor
@@ -264,6 +311,15 @@ template<typename T> class PEObjectWrapperVectorWeakPtr: public PEObjectWrapper{
     /// accessor to the stride which tells how many array elements count as one  in the communication pattern
     /// @return number of items to be treated as one
     const int stride() { return m_stride; };
+
+    /// Check for Uint, necessary for cheking type of gid in commpattern
+    /// @return true or false depending if registered data's type was Uint or not
+    const bool is_data_type_Uint() { return boost::is_same<T,Uint>::value; };
+
+    /// accessor to lag telling if wrapped data needs to be synchronized,
+    /// if not then it will only be modified if commpattern changes (for example coordinates of a mesh)
+    /// @return true or false depending if to be synchronized
+    const bool needs_update() { return m_needs_update; };
 
   private:
 

@@ -76,8 +76,14 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperPtr )
   for(i=0; i<16; i++) d1[i]=16+i;
   for(i=0; i<12; i++) d2[i]=12+i;
 
-  PEObjectWrapper *w1=new PEObjectWrapperPtr<double>("Array1",d1,16,2);
-  PEObjectWrapper *w2=new PEObjectWrapperPtr<double>("Array2",d2,12,3);
+  PEObjectWrapper *w1=new PEObjectWrapperPtr<double>("Array1",d1,16,2,true);
+  PEObjectWrapper *w2=new PEObjectWrapperPtr<double>("Array2",d2,12,3,false);
+
+  BOOST_CHECK_EQUAL( w1->needs_update() , true );
+  BOOST_CHECK_EQUAL( w2->needs_update() , false );
+
+  BOOST_CHECK_EQUAL( w1->is_data_type_Uint() , false );
+  BOOST_CHECK_EQUAL( w2->is_data_type_Uint() , false );
 
   BOOST_CHECK_EQUAL( w1->size() , 8 );
   BOOST_CHECK_EQUAL( w2->size() , 4 );
@@ -112,8 +118,14 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVector )
   for(i=0; i<16; i++) d1[i]=16+i;
   for(i=0; i<12; i++) d2[i]=12+i;
 
-  PEObjectWrapper *w1=new PEObjectWrapperVector<double>("Vector1",d1,2);
-  PEObjectWrapper *w2=new PEObjectWrapperVector<double>("Vector2",d2,3);
+  PEObjectWrapper *w1=new PEObjectWrapperVector<double>("Vector1",d1,2,true);
+  PEObjectWrapper *w2=new PEObjectWrapperVector<double>("Vector2",d2,3,false);
+
+  BOOST_CHECK_EQUAL( w1->needs_update() , true );
+  BOOST_CHECK_EQUAL( w2->needs_update() , false );
+
+  BOOST_CHECK_EQUAL( w1->is_data_type_Uint() , false );
+  BOOST_CHECK_EQUAL( w2->is_data_type_Uint() , false );
 
   BOOST_CHECK_EQUAL( w1->size() , 8 );
   BOOST_CHECK_EQUAL( w2->size() , 4 );
@@ -145,8 +157,14 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVectorWeakPtr )
   for(i=0; i<16; i++) (*d1)[i]=16+i;
   for(i=0; i<12; i++) (*d2)[i]=12+i;
 
-  PEObjectWrapper *w1=new PEObjectWrapperVectorWeakPtr<double>("VectorWeakPtr1",d1,2);
-  PEObjectWrapper *w2=new PEObjectWrapperVectorWeakPtr<double>("VectorWeakPtr2",d2,3);
+  PEObjectWrapper *w1=new PEObjectWrapperVectorWeakPtr<double>("VectorWeakPtr1",d1,2,true);
+  PEObjectWrapper *w2=new PEObjectWrapperVectorWeakPtr<double>("VectorWeakPtr2",d2,3,false);
+
+  BOOST_CHECK_EQUAL( w1->needs_update() , true );
+  BOOST_CHECK_EQUAL( w2->needs_update() , false );
+
+  BOOST_CHECK_EQUAL( w1->is_data_type_Uint() , false );
+  BOOST_CHECK_EQUAL( w2->is_data_type_Uint() , false );
 
   BOOST_CHECK_EQUAL( w1->size() , 8 );
   BOOST_CHECK_EQUAL( w2->size() , 4 );
@@ -182,8 +200,8 @@ BOOST_AUTO_TEST_CASE( data_registration_related )
   boost::shared_ptr< std::vector<double> > d2( new std::vector<double>(12) );
 
   // register data to PECommPattern2
-  pecp.insert<double>("VectorWeakPtr1",d1,2);
-  pecp.insert<double>("VectorWeakPtr2",d2,3);
+  pecp.insert<double>("VectorWeakPtr1",d1,2,true);
+  pecp.insert<double>("VectorWeakPtr2",d2,3,true);
 
   // these are just dummies to see the selective iteration
   Component::Ptr dir1  ( new CGroup ( "dir1" ) );
@@ -213,6 +231,41 @@ BOOST_AUTO_TEST_CASE( data_registration_related )
       BOOST_CHECK_EQUAL( pobj.data() , &(*d2)[0] );
     }
   }
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( commpattern )
+{
+
+  // general conts in this routine
+  const int nproc=PE::instance().size();
+  const int irank=PE::instance().rank();
+
+  // commpattern
+  PECommPattern2 pecp("CommPattern2");
+
+  // stupid global-reverse global indices
+  std::vector<Uint> gid(nproc);
+  for (int i=0; i<gid.size(); i++) gid[i]=(nproc*nproc-1)-(irank*nproc+i);
+
+  // rank is built such that total scatter
+  std::vector<int> rank(nproc);
+  for (int i=0; i<gid.size(); i++) gid[i]=i;
+
+  // three additional arrays for testing
+  std::vector<int> v1(nproc);
+  for(int i=0;i<v1.size();i++) v1[i]=irank*10000+i+100;
+  pecp.insert("v1",v1,1,true);
+  std::vector<int> v2(2*nproc);
+  for(int i=0;i<v1.size();i++) v1[i]=irank*10000+(i/2)*100+i%2;
+  pecp.insert("v2",v2,2,true);
+  std::vector<int> v3(nproc);
+  for(int i=0;i<v1.size();i++) v1[i]=irank;
+  pecp.insert("v3",v3,1,false);
+
+  //
 
 }
 

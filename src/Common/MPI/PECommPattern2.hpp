@@ -94,9 +94,10 @@ public:
   /// @param data pointer to data
   /// @param size length of the data
   /// @param stride number of array element grouping
-  template<typename T> void insert(const std::string& name, T*& data, const int size, const unsigned int stride=1)
+  template<typename T> void insert(const std::string& name, T*& data, const int size, const unsigned int stride=1, const bool needs_update=true)
   {
-    boost::shared_ptr< PEObjectWrapper > ow ( new PEObjectWrapperPtr<T>(name,data,size,stride), Deleter< PEObjectWrapperPtr<T> >() );
+    boost::shared_ptr< PEObjectWrapper > ow ( new PEObjectWrapperPtr<T>(name,data,size,stride,needs_update), Deleter< PEObjectWrapperPtr<T> >() );
+    if (ow->size()!=m_updatable.size()) throw CF::Common::BadValue(FromHere(),"Size does not match commpattern's size.");
     add_component ( ow );
   }
 
@@ -105,9 +106,10 @@ public:
   /// @param data pointer to data
   /// @param size length of the data
   /// @param stride number of array element grouping
-  template<typename T> void insert(const std::string& name, T** data, const int size, const unsigned int stride=1)
+  template<typename T> void insert(const std::string& name, T** data, const int size, const unsigned int stride=1, const bool needs_update=true)
   {
-    boost::shared_ptr< PEObjectWrapper > ow( new PEObjectWrapperPtr<T>(name,data,size,stride), Deleter< PEObjectWrapperPtr<T> >() );
+    boost::shared_ptr< PEObjectWrapper > ow( new PEObjectWrapperPtr<T>(name,data,size,stride,needs_update), Deleter< PEObjectWrapperPtr<T> >() );
+    if (ow->size()!=m_updatable.size()) throw CF::Common::BadValue(FromHere(),"Size does not match commpattern's size.");
     add_component ( ow );
   }
 
@@ -115,9 +117,10 @@ public:
   /// @param name the component will appear under this name
   /// @param pointer to std::vector of data
   /// @param stride number of array element grouping
-  template<typename T> void insert(const std::string& name, std::vector<T>& data, const unsigned int stride=1)
+  template<typename T> void insert(const std::string& name, std::vector<T>& data, const unsigned int stride=1, const bool needs_update=true)
   {
-    boost::shared_ptr< PEObjectWrapper > ow( new PEObjectWrapperVector<T>(name,data,stride), Deleter< PEObjectWrapperVector<T> >() );
+    boost::shared_ptr< PEObjectWrapper > ow( new PEObjectWrapperVector<T>(name,data,stride,needs_update), Deleter< PEObjectWrapperVector<T> >() );
+    if (ow->size()!=m_updatable.size()) throw CF::Common::BadValue(FromHere(),"Size does not match commpattern's size.");
     add_component ( ow );
   }
 
@@ -125,9 +128,10 @@ public:
   /// @param name the component will appear under this name
   /// @param pointer to std::vector of data
   /// @param stride number of array element grouping
-  template<typename T> void insert(const std::string& name, std::vector<T>* data, const unsigned int stride=1)
+  template<typename T> void insert(const std::string& name, std::vector<T>* data, const unsigned int stride=1, const bool needs_update=true)
   {
-    boost::shared_ptr< PEObjectWrapper > ow( new PEObjectWrapperVector<T>(name,data,stride), Deleter< PEObjectWrapperVector<T> >() );
+    boost::shared_ptr< PEObjectWrapper > ow( new PEObjectWrapperVector<T>(name,data,stride,needs_update), Deleter< PEObjectWrapperVector<T> >() );
+    if (ow->size()!=m_updatable.size()) throw CF::Common::BadValue(FromHere(),"Size does not match commpattern's size.");
     add_component ( ow );
   }
 
@@ -135,9 +139,10 @@ public:
   /// @param name the component will appear under this name
   /// @param std::vector of data
   /// @param stride number of array element grouping
-  template<typename T> void insert(const std::string& name, boost::weak_ptr< std::vector<T> > data, const unsigned int stride=1)
+  template<typename T> void insert(const std::string& name, boost::weak_ptr< std::vector<T> > data, const unsigned int stride=1, const bool needs_update=true)
   {
-    boost::shared_ptr< PEObjectWrapper > ow( new PEObjectWrapperVectorWeakPtr<T>(name,data,stride), Deleter< PEObjectWrapperVectorWeakPtr<T> >() );
+    boost::shared_ptr< PEObjectWrapper > ow( new PEObjectWrapperVectorWeakPtr<T>(name,data,stride,needs_update), Deleter< PEObjectWrapperVectorWeakPtr<T> >() );
+    if (ow->size()!=m_updatable.size()) throw CF::Common::BadValue(FromHere(),"Size does not match commpattern's size.");
     add_component ( ow );
   }
 
@@ -156,6 +161,7 @@ public:
   /// build and/or modify communication pattern - add nodes
   /// this function sets actually up the communication pattern
   /// beware: interprocess communication heavy
+  /// this overload of setup is designed for making no callback functions, so all the registered data should match the size of current size + number of additions
   /// @param gid PEObjectWrapper to a Uint tpye of data array
   /// @param rank vector of ranks where given global ids are updatable to add
   void setup(PEObjectWrapper::Ptr gid, std::vector<Uint>& rank);
@@ -233,6 +239,13 @@ private:
   temp_buffer_array m_rem_buffer;
 
   //@} END BUFFERS HOLDING TEMPORARY DATA
+
+
+  /// explicit shared_ptr to the gid wrapper
+  PEObjectWrapper::Ptr m_gid;
+
+  /// array holding the updatable info
+  std::vector<bool> m_updatable;
 
 /*
   /// Storing updatable information.

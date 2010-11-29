@@ -6,10 +6,20 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "boost/mpi/collectives.hpp"
+
 #include "Common/LibCommon.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/MPI/PECommPattern2.hpp"
 #include "Common/MPI/PEObjectWrapper.hpp"
+
+#include "Common/ComponentPredicates.hpp"
+
+/*
+TODO:
+1.: remove boost.mpi deps when pe ready
+2.: if 1. is done, remove &xxx[0] accessses
+*/
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -23,10 +33,10 @@ namespace Common  {
 Common::ComponentBuilder < PECommPattern2, Component, LibCommon > PECommPattern2_Provider;
 
 ////////////////////////////////////////////////////////////////////////////////
-// Consstructor & destructor
+// Constructor & destructor
 ////////////////////////////////////////////////////////////////////////////////
 
-PECommPattern2::PECommPattern2(const std::string& name): Component(name)
+PECommPattern2::PECommPattern2(const std::string& name): Component(name), m_updatable(0), m_gid(new PEObjectWrapperPtr<int>("dummy",0,0,0,false))
 {
   tag_component(this);
 
@@ -40,6 +50,7 @@ PECommPattern2::PECommPattern2(const std::string& name): Component(name)
 
 PECommPattern2::~PECommPattern2()
 {
+  m_gid->remove_tag("gid_of_"+this->name());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -50,11 +61,20 @@ void PECommPattern2::setup(PEObjectWrapper::Ptr gid, std::vector<Uint>& rank)
 {
   // basic check
   BOOST_ASSERT( gid->size()==rank.size() );
-  BOOST_ASSERT( gid->stride()==1 );
-  BOOST_ASSERT( gid->size_of()==sizeof(Uint) ); // type-check must be more straightforward
+  if (gid->stride()!=1) throw CF::Common::BadValue(FromHere(),"Data to be registered as gid is not of stride=1.");
+  if (gid->is_data_type_Uint()!=true) throw CF::Common::CastingFailed(FromHere(),"Data to be registered as gid is not of type Uint.");
+  m_gid=gid;
+  m_gid->add_tag("gid_of_"+this->name());
+  add_component(gid);
+
+  // sizesof datas matching
+  BOOST_FOREACH( PEObjectWrapper& pobj, find_components_recursively<PEObjectWrapper>(*this) )
+    if (pobj.size()!=m_updatable.size()+gid->size())
+      throw CF::Common::BadValue(FromHere(),"Size does not match commpattern's size.");
 
   // add to add buffer
   if (gid->size()!=0) {
+    m_isUpToDate=false;
     Uint *igid=(Uint*)gid->data();
     std::vector<Uint>::iterator irank=rank.begin();
     for (;irank!=rank.end();irank++,igid++)
@@ -68,15 +88,34 @@ void PECommPattern2::setup(PEObjectWrapper::Ptr gid, std::vector<Uint>& rank)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#define DEBUGVECTOR(v) { \
+  CFinfo << PE::instance().rank() << " " << #v << CFendl; \
+  for(int _tmp_i_=0; _tmp_i_<v.size(); _tmp_i_++)  CFinfo << v[_tmp_i_] << " "; \
+  CFinfo << CFendl; \
+}
+
 // OK: how this works:
-// the move is splitted out to
+// 0.: ??? lock and pre-flush data ???
+// 1.:
 
 void PECommPattern2::setup()
 {
-  // first dealing with add, always goes to the end
-  BOOST_FOREACH(temp_buffer_item &iadd, m_add_buffer)
-  {
-  }
+  // general constants
+  const int nproc=PE::instance().size();
+  const int irank=PE::instance().rank();
+
+  // STEP 1:  build ngid (size of the part of the updatable nodes stored on this rank) and gida (rank where item is updatable)
+  int nupdatable=0;
+  BOOST_FOREACH(bool is_updatable, m_updatable ) if (is_updatable) nupdatable++;
+  std::vector<int> ngid(nproc,-1);
+  ngid[irank]=nupdatable;
+  boost::mpi::all_reduce(PE::instance(),&ngid[0],nproc,&ngid[0],boost::mpi::maximum<int>());
+  std::vector<int> gida(ngid[irank],-1);
+
+DEBUGVECTOR(ngid);
+DEBUGVECTOR(gida);
+
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -92,6 +131,7 @@ void PECommPattern2::add(Uint gid, Uint rank)
 {
   if (m_isFreeze) throw Common::ShouldNotBeHere(FromHere(),"Wanted to add nodes to commpattern '" + name() + "' which is freezed.");
   m_add_buffer.push_back(temp_buffer_item(gid,rank,false));
+  m_isUpToDate=false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -100,6 +140,7 @@ void PECommPattern2::move(Uint gid, Uint rank, bool keep_as_ghost)
 {
   if (m_isFreeze) throw Common::ShouldNotBeHere(FromHere(),"Wanted to moves nodes of commpattern '" + name() + "' which is freezed.");
   m_mov_buffer.push_back(temp_buffer_item(gid,rank,keep_as_ghost));
+  m_isUpToDate=false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -108,6 +149,7 @@ void PECommPattern2::remove(Uint gid, Uint rank, bool on_all_ranks)
 {
   if (m_isFreeze) throw Common::ShouldNotBeHere(FromHere(),"Wanted to delete nodes from commpattern '" + name() + "' which is freezed.");
   m_rem_buffer.push_back(temp_buffer_item(gid,rank,on_all_ranks));
+  m_isUpToDate=false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
