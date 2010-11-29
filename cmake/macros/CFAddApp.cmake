@@ -91,9 +91,6 @@ macro( coolfluid_add_application APPNAME )
 
       coolfluid_log_verbose("${APPNAME} application will be built as a Mac OS bundle.")
 
-    INSTALL(FILES /Users/qt/workspace/coolfluid3/Builds/MacOSX/qtcreator-build/src/Common/libcoolfluid_common.dylib
- DESTINATION  ${CF_INSTALL_BIN_DIR}/${APPNAME}.app/Contents/Resources)# ${APPNAME}_fixup_bundle COMPONENT Runtime)
-
     endif()
 
     add_executable( ${APPNAME} ${${APPNAME}_platform} ${${APPNAME}_sources} ${${APPNAME}_headers} ${${APPNAME}_moc_files} ${${APPNAME}_RCC})
@@ -126,9 +123,6 @@ macro( coolfluid_add_application APPNAME )
 
     if( ${APPNAME}_make_bundle )
 
-      SET(DIRS ${QT_LIBRARY_DIRS} /Users/qt/workspace/coolfluid3/Dependencies/MacOSX/lib)
-
-
       if( NOT ${APPNAME}_sandbox_app )
         INSTALL( TARGETS ${APPNAME}
           RUNTIME DESTINATION ${CF_INSTALL_BIN_DIR} COMPONENT applications
@@ -137,13 +131,11 @@ macro( coolfluid_add_application APPNAME )
           BUNDLE DESTINATION ${CF_INSTALL_BIN_DIR} COMPONENT applications
         )
 
-      INSTALL( FILES "/Users/qt/workspace/coolfluid3/Builds/MacOSX/qtcreator-build/src/Common/libcoolfluid_common.dyld" DESTINATION . )
-
       endif()
 
     else()
       # add installation paths, if it not a sandbox application
-      if( NOT ${APPNAME}_sandbox_app AND NOT ${APPNAME}_make_bundle )
+      if( NOT ${APPNAME}_sandbox_app )
         INSTALL( TARGETS ${APPNAME}
           RUNTIME DESTINATION ${CF_INSTALL_BIN_DIR} COMPONENT applications
           LIBRARY DESTINATION ${CF_INSTALL_LIB_DIR} COMPONENT applications

@@ -87,10 +87,9 @@ macro( coolfluid_add_library LIBNAME )
 
     # add installation paths
     INSTALL ( TARGETS ${LIBNAME}
-      RUNTIME DESTINATION ${CF_INSTALL_BIN_DIR}       COMPONENT libraries
-      LIBRARY DESTINATION ${CF_INSTALL_LIB_DIR}      COMPONENT libraries
-      ARCHIVE DESTINATION ${CF_INSTALL_LIB_DIR}
-      COMPONENT libraries
+      RUNTIME DESTINATION ${CF_INSTALL_BIN_DIR} COMPONENT libraries
+      LIBRARY DESTINATION ${CF_INSTALL_LIB_DIR} COMPONENT libraries
+      ARCHIVE DESTINATION ${CF_INSTALL_LIB_DIR} COMPONENT libraries
     )
 
     # install headers for the libraries but
@@ -147,15 +146,15 @@ macro( coolfluid_add_library LIBNAME )
       endif()
     endif()
 
-		# if not kernel lib and static is set
-		# then this lib will be added to the list of kernel libs
-		if( NOT ${LIBNAME}_kernellib AND CF_ENABLE_STATIC )
-				coolfluid_append_cached_list( CF_KERNEL_STATIC_LIBS ${LIBNAME} )
-		endif()
+    # if not kernel lib and static is set
+    # then this lib will be added to the list of kernel libs
+    if( NOT ${LIBNAME}_kernellib AND CF_ENABLE_STATIC )
+        coolfluid_append_cached_list( CF_KERNEL_STATIC_LIBS ${LIBNAME} )
+    endif()
 
-	endif()
+  endif()
 
-	get_target_property( ${LIBNAME}_LINK_LIBRARIES  ${LIBNAME} LINK_LIBRARIES )
+  get_target_property( ${LIBNAME}_LINK_LIBRARIES  ${LIBNAME} LINK_LIBRARIES )
 
   # log some info about the library
   coolfluid_log_file("${LIBNAME} enabled         : [${CF_BUILD_${LIBNAME}}]")
