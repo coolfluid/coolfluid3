@@ -60,7 +60,6 @@ void OptionArrayT<TYPE>::configure ( XmlNode& node )
 
   for (XmlNode * itr = node.first_node(); itr ; itr = itr->next_sibling() )
   {
-    CFinfo << *itr->name() << " " << itr->value() << " from ----> " << to_value<TYPE>(*itr) << CFendl;
     val.push_back(to_value<TYPE>(*itr));
   }
 
@@ -110,11 +109,11 @@ std::string OptionArrayT<TYPE>::dump_to_str ( const boost::any& c ) const
   BOOST_FOREACH ( TYPE v, values )
   {
     result += from_value ( v );
-    result += "_";
+    result += "@@";
   }
 
 
-  if ( !result.empty() ) // remove last "_"
+  if ( !result.empty() ) // remove last "@@"
     result.erase(result.size()-1);
 
   return result;

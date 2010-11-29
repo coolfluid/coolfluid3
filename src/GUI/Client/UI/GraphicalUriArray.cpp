@@ -107,13 +107,13 @@ void GraphicalUriArray::setProtocols(const std::vector<std::string> & protocols)
 
 bool GraphicalUriArray::setValue(const QVariant & value)
 {
-  QStringList invalidValues;
+//  QStringList invalidValues;
   QStringList list;
   bool success = false;
 
   if(value.type() == QVariant::String)
   {
-    list = value.toString().split("_");
+    list = value.toString().split("@@");
     list.removeAll(QString());
     m_originalValue = list;
     m_model->setStringList(list);
@@ -131,26 +131,29 @@ bool GraphicalUriArray::setValue(const QVariant & value)
       if( !it->isEmpty() )
         list << *it;
     }
+
+    m_originalValue = values;
+
+    list.removeDuplicates();
+    m_model->setStringList(list);
   }
 
-  success = invalidValues.empty();
+//  success = invalidValues.empty();
 
-  list.removeDuplicates();
-  m_model->setStringList(list);
 
-  if(!success)
-  {
-    QString msg;
+//  if(!success)
+//  {
+//    QString msg;
 
-    if(invalidValues.count() == 1)
-      msg = "The following value is not valid: %1";
-    else
-      msg = "The following values are not valid: %1";
+//    if(invalidValues.count() == 1)
+//      msg = "The following value is not valid: %1";
+//    else
+//      msg = "The following values are not valid: %1";
 
-    msg = msg.arg(invalidValues.join("\"\n   \"").prepend("\n   \"").append("\""));
+//    msg = msg.arg(invalidValues.join("\"\n   \"").prepend("\n   \"").append("\""));
 
-    ClientRoot::log()->addError(msg);
-  }
+//    ClientRoot::log()->addError(msg);
+//  }
 
   return success;
 }

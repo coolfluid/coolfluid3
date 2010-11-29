@@ -274,7 +274,7 @@ void CNode::modifyOptions(const QMap<QString, QString> & options)
       else if( prop != nullptr && !strcmp ( prop->tag() , "array" ))
       {
         OptionArray * optArray;
-        QStringList list = it.value().split("_");
+        QStringList list = it.value().split("@@");
         QStringList::iterator itList = list.begin();
 
         optArray = static_cast<OptionArray*>(prop);

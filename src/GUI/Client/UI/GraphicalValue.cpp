@@ -113,7 +113,7 @@ GraphicalValue * GraphicalValue::createFromOption(CF::Common::Option::ConstPtr o
 
         value = new GraphicalUriArray(parent);
 
-        value->setValue( QString(value_str.c_str()).split("_") );
+        value->setValue( QString(value_str.c_str()).split("@@") );
       }
       else
         throw CastingFailed(FromHere(), tag + ": Unknown type");
@@ -130,7 +130,7 @@ QString GraphicalValue::valueString() const
   QVariant value = this->value();
 
   if(value.type() == QVariant::StringList)
-    return value.toStringList().join("_");
+    return value.toStringList().join("@@");
 
   return value.toString();
 }
@@ -149,7 +149,7 @@ QVariant GraphicalValue::originalValue() const
 QString GraphicalValue::originalValueString() const
 {
   if(m_originalValue.type() == QVariant::StringList)
-    return m_originalValue.toStringList().join("_");
+    return m_originalValue.toStringList().join("@@");
 
   return m_originalValue.toString();
 }
