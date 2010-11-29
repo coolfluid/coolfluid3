@@ -48,8 +48,8 @@ Component::Component ( const std::string& name ) :
     signal("create_component").signature
       .insert<std::string>("Component name", "Name for created component" )
       .insert<std::string>("Generic type",   "Generic type of the component" )
-      .insert<std::string>("Concrete type",  "Concrete type of the component" )
-      .insert<bool>("Basic mode",  "Component will be visible in basic mode" );
+      .insert<std::string>("Concrete type",  "Concrete type of the component" );
+//      .insert<bool>("Basic mode",  "Component will be visible in basic mode" )
 
 
   regist_signal ( "list_tree" , "lists the component tree inside this component", "" )->connect ( boost::bind ( &Component::list_tree, this, _1 ) );
@@ -470,7 +470,8 @@ void Component::create_component ( XmlNode& node  )
   std::string name  = p.get_option<std::string>("Component name");
   std::string atype = p.get_option<std::string>("Generic type");
   std::string ctype = p.get_option<std::string>("Concrete type");
-  bool basic = p.get_option<bool>("Basic mode");
+
+  //  bool basic = p.get_option<bool>("Basic mode");
 
   CFactories::Ptr factories = Core::instance().root()->get_child_type< CFactories >("Factories");
   CFactory::Ptr factory = factories->get_child_type< CFactory >( atype );
@@ -478,7 +479,7 @@ void Component::create_component ( XmlNode& node  )
 
   Ptr comp = add_component( builder->build( name ) );
 
-  if(basic) comp->mark_basic();
+  //  if(basic) comp->mark_basic();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
