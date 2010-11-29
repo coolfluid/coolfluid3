@@ -20,12 +20,12 @@
 
 namespace CF {
 namespace Common {
-
+/*
 PEObjectWrapper::PEObjectWrapper(const std::string &name) : Component(name)
 {
   tag_component(this);
 }
-
+*/
 } // Common
 } // CF
 

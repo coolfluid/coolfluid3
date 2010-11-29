@@ -36,7 +36,7 @@ Common::ComponentBuilder < PECommPattern2, Component, LibCommon > PECommPattern2
 // Constructor & destructor
 ////////////////////////////////////////////////////////////////////////////////
 
-PECommPattern2::PECommPattern2(const std::string& name): Component(name), m_updatable(0), m_gid(new PEObjectWrapperPtr<int>("dummy",0,0,0,false))
+PECommPattern2::PECommPattern2(const std::string& name): Component(name), m_updatable(0), m_gid(new PEObjectWrapperPtr<int>("dummy"))
 {
   tag_component(this);
 

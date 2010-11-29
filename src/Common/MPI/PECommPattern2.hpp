@@ -38,6 +38,7 @@ namespace Common {
   @todo add readonly properties (for example for coordinates, you want to keep it synchronous with commpattern but don't actually want to update it every time)
   @todo propagate CPint through mpiwrapper
   @todo gid registration: must be more straightforward to check if its really a CFuint single stride data
+  @todo introduce allocate_component
 **/
 
 class Common_API PECommPattern2: public Component {

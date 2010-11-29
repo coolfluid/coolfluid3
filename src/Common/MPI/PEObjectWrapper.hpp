@@ -51,7 +51,7 @@ class Common_API PEObjectWrapper : public Component {
 
     /// constructor
     /// @param name the component will appear under this name
-    PEObjectWrapper( const std::string& name );
+    PEObjectWrapper( const std::string& name ) : Component(name) {};
 
     /// accessor to m_data
     /// @return pointer to the raw data
@@ -76,7 +76,7 @@ class Common_API PEObjectWrapper : public Component {
     /// accessor to lag telling if wrapped data needs to be synchronized,
     /// if not then it will only be modified if commpattern changes (for example coordinates of a mesh)
     /// @return true or false depending if to be synchronized
-    virtual const bool needs_update() = 0;
+    const bool needs_update() { return m_needs_update; };
 
     /// Get the class name
     static std::string type_name () { return "PEObjectWrapper"; }
@@ -86,8 +86,9 @@ class Common_API PEObjectWrapper : public Component {
     /// number of elements to be groupped together and treat as once in communication pattern
     int m_stride;
 
-    /// bool holding the info if data to be synchronized&kept up-to-date with commpattern or only keep up-to-date
+    /// bool holding the info if data to be synchronized & kept up-to-date with commpattern or only keep up-to-date
     bool m_needs_update;
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -100,17 +101,20 @@ template<typename T> class PEObjectWrapperPtr: public PEObjectWrapper{
 
   public:
 
-    /// constructor of passing by reference
+    /// destructor
+    ~PEObjectWrapperPtr() { /*delete m_data;*/ };
+
+    /// constructor
     /// @param name the component will appear under this name
+    PEObjectWrapperPtr(const std::string& name) : PEObjectWrapper(name) { tag_component(this); }
+
+    /// setup of passing by reference
     /// @param data pointer to data
     /// @param size length of the data
     /// @param stride number of array element grouping
-    PEObjectWrapperPtr(const std::string& name, T*& data, const int size, const unsigned int stride, const bool needs_update) : PEObjectWrapper(name)
+    void setup(T*& data, const int size, const unsigned int stride, const bool needs_update)
     {
       if (boost::is_pod<T>::value==false) throw CF::Common::BadValue(FromHere(),"Data is not POD (plain old datatype).");
-
-      tag_component(this);
-
       m_data=&data;
       m_stride=(int)stride;
       if (size%m_stride!=0) throw CF::Common::BadValue(FromHere(),"Nonzero remainder of size()/stride().");
@@ -118,26 +122,19 @@ template<typename T> class PEObjectWrapperPtr: public PEObjectWrapper{
       m_needs_update=needs_update;
     }
 
-    /// constructor of passing by pointer
-    /// @param name the component will appear under this name
+    /// setup of passing by pointer
     /// @param data pointer to data
     /// @param size length of the data
     /// @param stride number of array element grouping
-    PEObjectWrapperPtr(const std::string& name, T** data, const int size, const unsigned int stride, const bool needs_update) : PEObjectWrapper(name)
+    void setup(T** data, const int size, const unsigned int stride, const bool needs_update)
     {
       if (boost::is_pod<T>::value==false) throw CF::Common::BadValue(FromHere(),"Data is not POD (plain old datatype).");
-
-      tag_component(this);
-
       m_data=data;
       m_stride=(int)stride;
       if (size%m_stride!=0) throw CF::Common::BadValue(FromHere(),"Nonzero remainder of size()/stride().");
       m_size=size/m_stride;
       m_needs_update=needs_update;
     }
-
-    /// destructor
-    ~PEObjectWrapperPtr() { /*delete m_data;*/ };
 
     /// accessor to the linear memory of the data
     /// @return pointer to the raw data
@@ -159,11 +156,6 @@ template<typename T> class PEObjectWrapperPtr: public PEObjectWrapper{
     /// @return true or false depending if registered data's type was Uint or not
     const bool is_data_type_Uint() { return boost::is_same<T,Uint>::value; };
 
-    /// accessor to lag telling if wrapped data needs to be synchronized,
-    /// if not then it will only be modified if commpattern changes (for example coordinates of a mesh)
-    /// @return true or false depending if to be synchronized
-    const bool needs_update() { return m_needs_update; };
-
   private:
 
     /// holder of the pointer
@@ -182,32 +174,28 @@ template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
 
   public:
 
-    /// constructor of passing by reference
+    /// constructor
     /// @param name the component will appear under this name
+    PEObjectWrapperVector(const std::string& name) : PEObjectWrapper(name) { tag_component(this); }
+
+    /// setup of passing by reference
     /// @param std::vector of data
     /// @param stride number of array element grouping
-    PEObjectWrapperVector(const std::string& name, std::vector<T>& data, const unsigned int stride, const bool needs_update) : PEObjectWrapper(name)
+    void setup(std::vector<T>& data, const unsigned int stride, const bool needs_update)
     {
       if (boost::is_pod<T>::value==false) throw CF::Common::BadValue(FromHere(),"Data is not POD (plain old datatype).");
-
-      tag_component(this);
-
       m_data=&data;
       m_stride=(int)stride;
       if (data.size()%stride!=0) throw CF::Common::BadValue(FromHere(),"Nonzero remainder of size()/stride().");
       m_needs_update=needs_update;
     }
 
-    /// constructor of passing by pointer
-    /// @param name the component will appear under this name
+    /// setup of passing by pointer
     /// @param std::vector of data
     /// @param stride number of array element grouping
-    PEObjectWrapperVector(const std::string& name, std::vector<T>* data, const unsigned int stride, const bool needs_update) : PEObjectWrapper(name)
+    void setup(std::vector<T>* data, const unsigned int stride, const bool needs_update)
     {
       if (boost::is_pod<T>::value==false) throw CF::Common::BadValue(FromHere(),"Data is not POD (plain old datatype).");
-
-      tag_component(this);
-
       m_data=*data;
       m_stride=(int)stride;
       if (data->size()%stride!=0) throw CF::Common::BadValue(FromHere(),"Nonzero remainder of size()/stride().");
@@ -240,11 +228,6 @@ template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
     /// @return true or false depending if registered data's type was Uint or not
     const bool is_data_type_Uint() { return boost::is_same<T,Uint>::value; };
 
-    /// accessor to lag telling if wrapped data needs to be synchronized,
-    /// if not then it will only be modified if commpattern changes (for example coordinates of a mesh)
-    /// @return true or false depending if to be synchronized
-    const bool needs_update() { return m_needs_update; };
-
   private:
 
     /// pointer to std::vector
@@ -262,14 +245,14 @@ template<typename T> class PEObjectWrapperVectorWeakPtr: public PEObjectWrapper{
 
     /// constructor
     /// @param name the component will appear under this name
+    PEObjectWrapperVectorWeakPtr(const std::string& name) : PEObjectWrapper(name) { tag_component(this); }
+
+    /// setup
     /// @param std::vector of data
     /// @param stride number of array element grouping
-    PEObjectWrapperVectorWeakPtr(const std::string& name, boost::weak_ptr< std::vector<T> > data, const unsigned int stride, const bool needs_update) : PEObjectWrapper(name)
+    void setup(const std::string& name, boost::weak_ptr< std::vector<T> > data, const unsigned int stride, const bool needs_update)
     {
       if (boost::is_pod<T>::value==false) throw CF::Common::BadValue(FromHere(),"Data is not POD (plain old datatype).");
-
-      tag_component(this);
-
       m_data=data;
       m_stride=(int)stride;
       boost::shared_ptr< std::vector<T> > sp=data.lock();
@@ -315,11 +298,6 @@ template<typename T> class PEObjectWrapperVectorWeakPtr: public PEObjectWrapper{
     /// Check for Uint, necessary for cheking type of gid in commpattern
     /// @return true or false depending if registered data's type was Uint or not
     const bool is_data_type_Uint() { return boost::is_same<T,Uint>::value; };
-
-    /// accessor to lag telling if wrapped data needs to be synchronized,
-    /// if not then it will only be modified if commpattern changes (for example coordinates of a mesh)
-    /// @return true or false depending if to be synchronized
-    const bool needs_update() { return m_needs_update; };
 
   private:
 
