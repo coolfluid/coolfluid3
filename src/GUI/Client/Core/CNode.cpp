@@ -591,8 +591,6 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, CPath> & lin
   if(modeAttr != nullptr && std::strcmp(modeAttr->value(), "basic") == 0)
     rootNode->mark_basic();
 
-  ClientRoot::log()->addMessage(nodeName);
-
   while(child != nullptr)
   {
     try
