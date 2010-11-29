@@ -36,7 +36,7 @@ NTree::NTree(NRoot::Ptr rootNode)
 
   m_columns << "Name" << "Type";
 
-  add_tag( type_name() );
+  tag_component(this);
 
   std::vector<int> vectInt;
   std::vector<bool> vectBool;

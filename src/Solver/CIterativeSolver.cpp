@@ -16,7 +16,7 @@ using namespace Common;
 CIterativeSolver::CIterativeSolver ( const std::string& name  ) :
   CMethod ( name )
 {
-  BuildComponent<none>().build(this);
+  tag_component(this);
   
   properties()["brief"]=std::string("Iterative Solver component");
   properties()["description"]=std::string("Handles time stepping and convergence operations");

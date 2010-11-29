@@ -67,7 +67,7 @@ public: // functions
   /// @param[in] name of the component
   CMap ( const std::string& name ) : Component(name)
   {
-    add_tag( type_name() );
+    tag_component(this);
   }
 
   /// Virtual destructor

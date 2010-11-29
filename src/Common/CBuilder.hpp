@@ -78,7 +78,7 @@ public:
   /// @param name of component
   CBuilderT(const std::string& name) : CBuilder(name)
   {
-    add_tag( type_name() );
+    tag_component(this);
 
     // verify that BASE derives or is same type of Component
     BOOST_STATIC_ASSERT( (boost::is_base_of<Common::Component,BASE>::value) );

@@ -39,7 +39,7 @@ Common::ComponentBuilder < Gmsh::CWriter, CMeshWriter, LibGmsh> aGmshWriter_Buil
 CWriter::CWriter( const std::string& name )
 : CMeshWriter(name)
 {
-  BuildComponent<none>().build(this);
+  tag_component(this);
 
   // gmsh types: http://www.geuz.org/gmsh/doc/texinfo/gmsh.html#MSH-ASCII-file-format
   m_elementTypes["CF.Mesh.SF.Line1DLagrangeP1" ]=1;

@@ -48,11 +48,6 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CMeshWriter"; }
 
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
-
-  virtual void define_config_properties ();
-
   // --------- Signals ---------
 
   void write( Common::XmlNode& node  );

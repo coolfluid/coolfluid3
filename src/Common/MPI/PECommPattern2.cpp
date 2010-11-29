@@ -28,7 +28,7 @@ Common::ComponentBuilder < PECommPattern2, Component, LibCommon > PECommPattern2
 
 PECommPattern2::PECommPattern2(const std::string& name): Component(name)
 {
-  add_tag( type_name() );
+  tag_component(this);
 
   //self->regist_signal ( "update" , "Executes communication patterns on all the registered data.", "" )->connect ( boost::bind ( &CommPattern2::update, self, _1 ) );
 

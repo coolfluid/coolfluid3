@@ -30,7 +30,7 @@ Common::ComponentBuilder < LoadMesh, Component, LibSolver > LoadMesh_Builder;
 LoadMesh::LoadMesh ( const std::string& name  ) :
   Component ( name )
 {
-  BuildComponent<full>().build(this);
+  tag_component(this); define_config_properties(); define_signals();
 
 //  add_component ( create_component_abstract_type<CMeshReader>( "CF.Mesh.Neu.CReader", "NeutralReader" ) );
 

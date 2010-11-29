@@ -41,7 +41,7 @@ public:
   typedef boost::shared_ptr<LibCGNS const> ConstPtr;
 
   /// Constructor
-  LibCGNS ( const std::string& name) : Common::CLibrary(name) { BuildComponent<none>().build(this); }
+  LibCGNS ( const std::string& name) : Common::CLibrary(name) { tag_component(this); }
 
 public: // functions
 

@@ -9,7 +9,6 @@ list( APPEND coolfluid_common_files
     BoostArray.hpp
     BuildInfo.hpp
     BuildInfo.cpp
-    BuildComponent.hpp
     CF.hpp
     CBuilder.hpp
     CBuilder.cpp

@@ -20,7 +20,7 @@ Common::ComponentBuilder < CDomain, Component, LibSolver > CDomain_Builder;
 
 CDomain::CDomain( const std::string& name  ) : Component ( name )
 {
-  add_tag( type_name() );
+  tag_component(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -14,7 +14,7 @@ using namespace CF::GUI::ClientTest;
 MyNode::MyNode(const QString & name)
   : CNode(name, "MyNode", CNode::GENERIC_NODE)
 {
-  BuildComponent<nosignals>().build(this);
+  tag_component(this); define_config_properties();
 }
 
 ////////////////////////////////////////////////////////////////////////////

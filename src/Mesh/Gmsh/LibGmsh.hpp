@@ -44,7 +44,7 @@ public:
   typedef boost::shared_ptr<LibGmsh const> ConstPtr;
 
   /// Constructor
-  LibGmsh ( const std::string& name) : Common::CLibrary(name) { BuildComponent<none>().build(this); }
+  LibGmsh ( const std::string& name) : Common::CLibrary(name) { tag_component(this); }
 
   /// @return string of the library namespace
   static std::string library_namespace() { return "CF.Mesh.Gmsh"; }

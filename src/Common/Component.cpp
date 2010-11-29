@@ -32,12 +32,40 @@ Component::Component ( const std::string& name ) :
     m_raw_parent(NULL),
     m_is_link (false)
 {
-  BuildComponent<full>().build(this);
+  tag_component(this);
+
+  // accept name
 
   if (!CPath::is_valid_element( name ))
     throw InvalidPath(FromHere(), "Component name ["+name+"] is invalid");
-
   m_name = name;
+
+
+  // signals
+
+  regist_signal ( "create_component" , "creates a component", "Create component" )->connect ( boost::bind ( &Component::create_component, this, _1 ) );
+
+    signal("create_component").signature
+      .insert<std::string>("Component name", "Name for created component" )
+      .insert<std::string>("Generic type",   "Generic type of the component" )
+      .insert<std::string>("Concrete type",  "Concrete type of the component" );
+
+
+  regist_signal ( "list_tree" , "lists the component tree inside this component", "" )->connect ( boost::bind ( &Component::list_tree, this, _1 ) );
+    signal("list_tree").is_read_only = true;
+
+  regist_signal ( "list_properties" , "lists the options of this component", "" )->connect ( boost::bind ( &Component::list_properties, this, _1 ) );
+
+  regist_signal ( "list_signals" , "lists the options of this component", "" )->connect ( boost::bind ( &Component::list_signals, this, _1 ) );
+
+  regist_signal ( "configure" , "configures this component", "" )->connect ( boost::bind ( &Component::configure, this, _1 ) );
+
+  regist_signal ( "rename_component" , "Renames this component", "Rename" )->connect ( boost::bind ( &Component::rename_component, this, _1 ) );
+
+    signal("rename_component").signature
+        .insert<std::string>("NewName", "Component new name");
+
+  // properties
 
   m_properties.add_property("brief",
                                std::string("No brief description available"));
@@ -46,12 +74,6 @@ Component::Component ( const std::string& name ) :
 }
 
 Component::~Component()
-{
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
-
-void Component::define_config_properties ()
 {
 }
 
@@ -435,32 +457,6 @@ Component::Ptr Component::look_component ( const CPath& path )
     }
     return look_comp;
   }
-}
-
-/////////////////////////////////////////////////////////////////////////////////////
-
-void Component::define_signals()
-{
-  this->regist_signal ( "create_component" , "creates a component", "Create component" )->connect ( boost::bind ( &Component::create_component, this, _1 ) );
-  this->signal("create_component").signature
-      .insert<std::string>("Component name", "Name for created component" )
-      .insert<std::string>("Generic type",   "Generic type of the component" )
-      .insert<std::string>("Concrete type",  "Concrete type of the component" );
-
-
-  this->regist_signal ( "list_tree" , "lists the component tree inside this component", "" )->connect ( boost::bind ( &Component::list_tree, this, _1 ) );
-
-  this->regist_signal ( "list_properties" , "lists the options of this component", "" )->connect ( boost::bind ( &Component::list_properties, this, _1 ) );
-
-  this->regist_signal ( "list_signals" , "lists the options of this component", "" )->connect ( boost::bind ( &Component::list_signals, this, _1 ) );
-
-  this->regist_signal ( "configure" , "configures this component", "" )->connect ( boost::bind ( &Component::configure, this, _1 ) );
-
-  this->regist_signal ( "rename_component" , "Renames this component", "Rename" )->connect ( boost::bind ( &Component::rename_component, this, _1 ) );
-
-  this->signal("rename_component").signature.insert<std::string>("NewName", "Component new name");
-
-  this->signal("list_tree").is_read_only = true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

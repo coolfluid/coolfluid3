@@ -18,7 +18,7 @@ namespace Mesh {
 
 Point1D::Point1D(const std::string& name) : ElementType(name)
 {
-  add_tag( type_name() );
+  tag_component(this);
 
   m_shape = shape;
   m_dimension = dimension;

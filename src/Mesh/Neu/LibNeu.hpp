@@ -41,7 +41,7 @@ public:
   typedef boost::shared_ptr<LibNeu const> ConstPtr;
 
   /// Constructor
-  LibNeu ( const std::string& name) : Common::CLibrary(name) { BuildComponent<none>().build(this); }
+  LibNeu ( const std::string& name) : Common::CLibrary(name) { tag_component(this); }
 
   /// @return string of the library namespace
   static std::string library_namespace() { return "CF.Mesh.Neu"; }

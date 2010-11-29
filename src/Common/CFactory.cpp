@@ -15,7 +15,7 @@ namespace Common {
 
 CFactory::CFactory(const std::string& name): Component(name)
 {
-  BuildComponent<none>().build(this);
+  tag_component(this);
 }
 
 CFactory::~CFactory()

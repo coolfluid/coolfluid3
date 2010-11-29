@@ -33,7 +33,7 @@ Common::ComponentBuilder < ScalarAdvection, Component, LibSolver > ScalarAdvecti
 ScalarAdvection::ScalarAdvection ( const std::string& name  ) :
   Component ( name )
 {
-  BuildComponent<full>().build(this);
+  tag_component(this); define_config_properties(); define_signals();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

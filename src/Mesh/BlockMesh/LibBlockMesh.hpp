@@ -42,7 +42,7 @@ public:
   typedef boost::shared_ptr<LibBlockMesh const> ConstPtr;
 
   /// Constructor
-  LibBlockMesh ( const std::string& name) : Common::CLibrary(name) { BuildComponent<none>().build(this); }
+  LibBlockMesh ( const std::string& name) : Common::CLibrary(name) { tag_component(this); }
 
 public: // functions
 

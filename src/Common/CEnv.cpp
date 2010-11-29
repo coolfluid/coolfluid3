@@ -24,7 +24,7 @@ Common::ComponentBuilder < CEnv, Component, LibCommon > aCEnv_Builder;
 
 CEnv::CEnv ( const std::string& name) : Component ( name )
 {
-  BuildComponent<nosignals>().build(this);
+  tag_component(this); define_config_properties();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

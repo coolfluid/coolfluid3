@@ -28,7 +28,7 @@ public:
   typedef boost::shared_ptr<LibCommon const> ConstPtr;
 
   /// Constructor
-  LibCommon ( const std::string& name) : Common::CLibrary(name) { BuildComponent<none>().build(this); }
+  LibCommon ( const std::string& name) : Common::CLibrary(name) { tag_component(this); }
 
 public: // functions
 

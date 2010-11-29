@@ -42,7 +42,7 @@ namespace Testing {
     typedef boost::shared_ptr<LibTesting const> ConstPtr;
 
     /// Constructor
-    LibTesting ( const std::string& name) : Common::CLibrary(name) { BuildComponent<none>().build(this); }
+    LibTesting ( const std::string& name) : Common::CLibrary(name) { tag_component(this); }
 
   public: // functions
 

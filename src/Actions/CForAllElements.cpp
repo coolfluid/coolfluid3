@@ -21,7 +21,7 @@ namespace Actions {
 CForAllElements::CForAllElements ( const std::string& name ) :
   CLoop(name)
 {
-  BuildComponent<none>().build(this);
+  tag_component(this);
 }
 
 void CForAllElements::execute()

@@ -24,7 +24,7 @@ aPoint1DLagrangeP1_Builder;
 
 Point1DLagrangeP1::Point1DLagrangeP1(const std::string& name) : Point1D(name)
 {
-  add_tag( type_name() );
+  tag_component(this);
 
   m_nb_nodes = nb_nodes;
   m_order = order;

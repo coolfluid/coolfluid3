@@ -19,7 +19,7 @@ Common::ComponentBuilder < CModel, Component, LibSolver > CModel_Builder;
 CModel::CModel( const std::string& name  ) :
   Component ( name )
 {
-  BuildComponent<none>().build(this);
+  tag_component(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -93,7 +93,7 @@ template<typename T> class PEObjectWrapperPtr: public PEObjectWrapper{
     /// @param stride number of array element grouping
     PEObjectWrapperPtr(const std::string& name, T*& data, const int size, const unsigned int stride) : PEObjectWrapper(name)
     {
-      add_tag( type_name() );
+      tag_component(this);
 
       m_data=&data;
       m_stride=(int)stride;
@@ -108,7 +108,7 @@ template<typename T> class PEObjectWrapperPtr: public PEObjectWrapper{
     /// @param stride number of array element grouping
     PEObjectWrapperPtr(const std::string& name, T** data, const int size, const unsigned int stride) : PEObjectWrapper(name)
     {
-      add_tag( type_name() );
+      tag_component(this);
 
       m_data=data;
       m_stride=(int)stride;
@@ -159,7 +159,7 @@ template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
     /// @param stride number of array element grouping
     PEObjectWrapperVector(const std::string& name, std::vector<T>& data, const unsigned int stride) : PEObjectWrapper(name)
     {
-      add_tag( type_name() );
+      tag_component(this);
 
       m_data=&data;
       m_stride=(int)stride;
@@ -172,7 +172,7 @@ template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
     /// @param stride number of array element grouping
     PEObjectWrapperVector(const std::string& name, std::vector<T>* data, const unsigned int stride) : PEObjectWrapper(name)
     {
-      add_tag( type_name() );
+      tag_component(this);
 
       m_data=*data;
       m_stride=(int)stride;
@@ -222,7 +222,7 @@ template<typename T> class PEObjectWrapperVectorWeakPtr: public PEObjectWrapper{
     /// @param stride number of array element grouping
     PEObjectWrapperVectorWeakPtr(const std::string& name, boost::weak_ptr< std::vector<T> > data, const unsigned int stride) : PEObjectWrapper(name)
     {
-      add_tag( type_name() );
+      tag_component(this);
 
       m_data=data;
       m_stride=(int)stride;

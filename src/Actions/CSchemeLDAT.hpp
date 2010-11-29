@@ -90,7 +90,7 @@ template<typename SHAPEFUNC>
 CSchemeLDAT<SHAPEFUNC>::CSchemeLDAT ( const std::string& name ) :
   CLoopOperation(name)
 {
-  add_tag( type_name() );
+  tag_component(this);
 
   properties()["brief"] = std::string("Element Loop component that computes the residual and update coefficient using the LDA scheme");
   properties()["description"] = std::string("Write here the full description of this component");

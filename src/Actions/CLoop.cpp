@@ -32,7 +32,7 @@ void CLoop::define_config_properties ()
 CLoop::CLoop ( const std::string& name ) :
   CAction(name)
 {
-  BuildComponent<nosignals>().build(this);
+  tag_component(this); define_config_properties();
   m_properties["Regions"].as_option().attach_trigger ( boost::bind ( &CLoop::trigger_Regions,   this ) );
 }
 

@@ -44,7 +44,7 @@ namespace ClientCore {
     typedef boost::shared_ptr<LibClientCore const> ConstPtr;
 
     /// Constructor
-    LibClientCore ( const std::string& name) : Common::CLibrary(name) { BuildComponent<none>().build(this); }
+    LibClientCore ( const std::string& name) : Common::CLibrary(name) { tag_component(this); }
 
   public: // functions
 

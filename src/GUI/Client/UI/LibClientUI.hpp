@@ -44,7 +44,7 @@ namespace CF {
     typedef boost::shared_ptr<LibClientUI const> ConstPtr;
 
     /// Constructor
-    LibClientUI ( const std::string& name) : Common::CLibrary(name) { BuildComponent<none>().build(this); }
+    LibClientUI ( const std::string& name) : Common::CLibrary(name) { tag_component(this); }
 
   public: // functions
 

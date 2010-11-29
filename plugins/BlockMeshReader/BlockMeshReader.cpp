@@ -32,7 +32,7 @@ CF::Common::ComponentBuilder < BlockMeshReader, Mesh::CMeshReader, LibBlockMeshR
 
 BlockMeshReader::BlockMeshReader(const std::string& name): CMeshReader(name)
 {
-  BuildComponent<none>().build(this);
+  tag_component(this);
 }
 
 std::vector< std::string > BlockMeshReader::get_extensions()

@@ -46,7 +46,7 @@ CReader::CReader( const std::string& name )
 {
   CF_DEBUG_POINT;
 
-  BuildComponent<nosignals>().build(this);
+  tag_component(this); define_config_properties();
 
   CF_DEBUG_POINT;
 

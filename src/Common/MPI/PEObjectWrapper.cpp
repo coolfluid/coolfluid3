@@ -23,7 +23,7 @@ namespace Common {
 
 PEObjectWrapper::PEObjectWrapper(const std::string &name) : Component(name)
 {
-  add_tag( type_name() );
+  tag_component(this);
 }
 
 } // Common

@@ -18,7 +18,7 @@ namespace Actions {
 CAction::CAction ( const std::string& name ) : 
   Component(name)
 {
-  BuildComponent<none>().build(this);
+  tag_component(this);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

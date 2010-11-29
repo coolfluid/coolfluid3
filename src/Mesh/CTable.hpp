@@ -70,7 +70,7 @@ public: // functions
   /// @param name of the component
   CTable ( const std::string& name )  : Component ( name )
   {
-    add_tag( type_name() );
+    tag_component(this);
   }
 
   /// Get the component type name

@@ -32,7 +32,7 @@ Common::ComponentBuilder < CRegion, Component, LibMesh > CRegion_Builder;
 CRegion::CRegion ( const std::string& name  ) :
   Component ( name )
 {
-  BuildComponent<none>().build(this);
+  tag_component(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

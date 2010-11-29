@@ -42,7 +42,7 @@ public:
   /// @param name of the component
   CDynTable ( const std::string& name ) : Component(name)
   {
-    add_tag( type_name() );
+    tag_component(this);
   }
 
   ~CDynTable () {}

@@ -25,7 +25,7 @@ namespace Actions {
 CLoopOperation::CLoopOperation ( const std::string& name ) : 
   CAction(name)
 {
-  add_tag( type_name() );
+  tag_component(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

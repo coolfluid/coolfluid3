@@ -24,7 +24,7 @@ aQuad3DLagrangeP1_Builder;
 
 Quad3DLagrangeP1::Quad3DLagrangeP1(const std::string& name) : Quad3D(name)
 {
-  add_tag( type_name() );
+  tag_component(this);
 
   m_nb_nodes = nb_nodes;
   m_order = order;

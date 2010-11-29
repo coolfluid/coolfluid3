@@ -20,7 +20,7 @@ Common::ComponentBuilder < ForwardEuler, CIterativeSolver, LibSolver > ForwardEu
 ForwardEuler::ForwardEuler ( const std::string& name  ) :
   CIterativeSolver ( name )
 {
-  BuildComponent<none>().build(this);
+  tag_component(this);
   
   properties()["brief"] = std::string("Iterative Solver component");
   properties()["description"] = std::string("Forward Euler Time Stepper");

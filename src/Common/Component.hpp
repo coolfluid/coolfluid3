@@ -17,7 +17,6 @@
 #include "Common/CPath.hpp"
 #include "Common/ComponentIterator.hpp"
 #include "Common/XmlHelpers.hpp"
-#include "Common/BuildComponent.hpp"
 
 namespace CF {
 namespace Common {
@@ -59,9 +58,6 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "Component"; }
-
-  /// Configuration properties
-  virtual void define_config_properties ();
 
   /// Contructor
   /// @param name of the component
@@ -277,13 +273,14 @@ public: // functions
   /// marks this component as basic.
   void mark_basic();
 
-  /// regists all the signals declared in this class
-  virtual void define_signals ();
-
 protected: // functions
 
- /// Add a static (sub)component of this component
- Ptr add_static_component ( Ptr subcomp );
+  /// Add a static (sub)component of this component
+  Ptr add_static_component ( Ptr subcomp );
+
+  /// Tags the
+  template < typename TYPE >
+  void tag_component ( TYPE* self ) { self->add_tag( TYPE::type_name() ); }
 
 private: // helper functions
 

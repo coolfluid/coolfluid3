@@ -25,7 +25,7 @@ aTetra3DLagrangeP1_Builder;
 
 Tetra3DLagrangeP1::Tetra3DLagrangeP1(const std::string& name) : Tetra3D(name)
 {
-  add_tag( type_name() );
+  tag_component(this);
 
   m_nb_nodes = nb_nodes;
   m_order = order;

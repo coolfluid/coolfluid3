@@ -40,7 +40,7 @@ public: // functions
     COperation(name),
     m_operation(Common::allocate_component_type<COp>("operation"))
   {
-    BuildComponent<nosignals>().build(this);
+    tag_component(this); define_config_properties();
     m_properties["Regions"].as_option().attach_trigger ( boost::bind ( &CForAllNodesT::trigger_Regions,   this ) );
   }
 

@@ -20,7 +20,7 @@ namespace Mesh {
 COperation::COperation ( const std::string& name ) : 
   Component(name), m_counter(0)
 {
-    BuildComponent<none>().build(this);
+    tag_component(this);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////

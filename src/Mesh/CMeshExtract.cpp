@@ -43,7 +43,7 @@ Common::ComponentBuilder < Mesh::CMeshExtract, Mesh::CMeshTransformer, Mesh::Lib
 CMeshExtract::CMeshExtract( const std::string& name )
 : CMeshTransformer(name)
 {
-  BuildComponent<none>().build(this);
+  tag_component(this);
 }
 
 /////////////////////////////////////////////////////////////////////////////

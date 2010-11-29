@@ -24,7 +24,7 @@ aLine1DLagrangeP1_Builder;
 
 Line1DLagrangeP1::Line1DLagrangeP1(const std::string& name) : Line1D(name)
 {
-  add_tag( type_name() );
+  tag_component(this);
 
   m_nb_nodes = nb_nodes;
   m_order = order;

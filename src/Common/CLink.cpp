@@ -22,7 +22,7 @@ Common::ComponentBuilder < CLink, Component, LibCommon > CLink_Builder;
 
 CLink::CLink ( const std::string& name) : Component ( name )
 {
-  BuildComponent<nosignals>().build(this);
+  tag_component(this); define_config_properties();
   m_is_link = true;
 
   regist_signal("change_link", "Change link path", "Change target")->connect(boost::bind(&CLink::change_link, this, _1));
