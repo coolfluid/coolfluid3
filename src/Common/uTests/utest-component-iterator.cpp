@@ -8,6 +8,7 @@
 #define BOOST_TEST_MODULE "Test module for iteration over components"
 
 #include <boost/test/unit_test.hpp>
+#include <boost/timer.hpp>
 
 #include "Common/Log.hpp"
 #include "Common/Component.hpp"
@@ -634,6 +635,43 @@ BOOST_AUTO_TEST_CASE( test_find_component_recursively_with_tag )
   BOOST_CHECK_EQUAL(find_component_ptr_recursively_with_tag<CGroup>(const_group2(),"very_special")->name() , "group2_1_1" );
 }
 
+BOOST_AUTO_TEST_CASE( speed_find_type )
+{
+    CGroup::Ptr mg = root().create_component_type<CGroup>("ManyGroup1");
+
+  // allocate 5000 components
+  for ( Uint i = 0; i < 250 ; ++i)
+  {
+    mg->create_component_type<CGroup>( std::string("ggg") + String::to_str(i) );
+  }
+
+  boost::timer timer;
+  Uint counter = 0;
+  BOOST_FOREACH(Component& comp, find_components_recursively<CGroup>(*mg) )
+  {
+    ++counter;
+  }
+  std::cout << "iterate by [type] over " << counter << " components in " << timer.elapsed() << " seconds" << std::endl;
+}
+
+BOOST_AUTO_TEST_CASE( speed_find_tag )
+{
+    CGroup::Ptr mg = root().create_component_type<CGroup>("ManyGroup2");
+
+  // allocate 5000 components
+  for ( Uint i = 0; i < 250 ; ++i)
+  {
+    mg->create_component_type<CGroup>( std::string("ggg") + String::to_str(i) );
+  }
+
+  boost::timer timer;
+  Uint counter = 0;
+  BOOST_FOREACH(Component& comp, find_components_recursively_with_tag(*mg, CGroup::type_name() ) )
+  {
+    ++counter;
+  }
+  std::cout << "iterate by [tag] over " << counter << " components in " << timer.elapsed() << " seconds" << std::endl;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
