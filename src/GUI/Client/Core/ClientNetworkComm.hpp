@@ -107,7 +107,7 @@ namespace ClientCore {
 
     /// The signal is not emitted if the user resquested a disconnection (if
     /// @c #m_requestDisc is @c true ).
-    void disconnectFromServer();
+    void disconnectedFromServer();
 
     /// @brief Signal emitted when a connection has been successfully
     /// established between the client and the server.

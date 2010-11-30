@@ -33,6 +33,7 @@ NCore::NCore()
   m_process = new QProcess(this);
 
   connect(m_networkComm, SIGNAL(connected()), this, SLOT(connected()));
+  connect(m_networkComm, SIGNAL(disconnectedFromServer()), this, SLOT(disconnected()));
 
   regist_signal("shutdown", "Server shutdown")->connect(boost::bind(&NCore::shutdown, this, _1));
   regist_signal("client_registration", "Registration confirmation")->connect(boost::bind(&NCore::client_registration, this, _1));
@@ -71,6 +72,16 @@ void NCore::connectToServer(const TSshInformation & sshInfo)
 void NCore::disconnectFromServer(bool shutdown)
 {
   m_networkComm->disconnectFromServer(shutdown);
+
+  disconnected();
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void NCore::disconnected()
+{
+  ClientRoot::tree()->setCurrentIndex(QModelIndex());
 
   ClientRoot::log()->addMessage("Disconnected from the server.");
 

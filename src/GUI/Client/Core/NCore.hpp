@@ -97,6 +97,9 @@ namespace ClientCore {
     /// @brief Slot called when the client is connected to the server.
     void connected();
 
+    /// @brief Slot called when the client is disconnected from the server.
+    void disconnected();
+
   signals:
 
     /// @brief Signal emitted when a connection between the client and the server

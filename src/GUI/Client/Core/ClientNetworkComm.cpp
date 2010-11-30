@@ -219,7 +219,7 @@ void ClientNetworkComm::disconnected()
   {
     ClientRoot::log()->addError("The connection has been closed");
   }
-  emit disconnectFromServer();
+  emit disconnectedFromServer();
 
   m_connectedToServer = false;
 }
