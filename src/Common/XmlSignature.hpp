@@ -15,6 +15,8 @@
 
 #include "Common/CommonAPI.hpp"
 
+#include "Common/Log.hpp"
+
 ////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -75,13 +77,27 @@ namespace Common {
     /// T should be a type supported by the Xml protocol.
     /// @param name The description name. Can not be empty.
     /// @param desc A description string. May be empty.
-    /// @param is_array If @c true, an array of T is inserted; otherwise, a single
-    /// value is inserted. Default value is @c false.
+    /// @param default_value Default value.
+    /// @param restr_list List of restricted values.
     /// @return Returns a reference to this object.
     template<typename T>
     XmlSignature & insert(const std::string & name,
                           const std::string & desc = std::string(),
-                          bool is_array = false);
+                          const T & default_value = T(),
+                          const std::vector<T> & restr_list = std::vector<T>());
+
+    /// @brief Adds a data description for an array with items of type T.
+    /// T should be a type supported by the Xml protocol.
+    /// @param name The description name. Can not be empty.
+    /// @param desc A description string. May be empty.
+    /// @param default_value Default value.
+    /// @param restr_list List of restricted values.
+    /// @return Returns a reference to this object.
+    template<typename T>
+    XmlSignature & insert_array(const std::string & name,
+                                const std::string & desc = std::string(),
+                                const std::vector<T> & default_value = std::vector<T>(),
+                                const std::vector<T> & restr_list = std::vector<T>());
 
   private:
 
@@ -119,7 +135,8 @@ namespace Common {
   template<typename TYPE>
   XmlSignature & XmlSignature::insert(const std::string & name,
                                       const std::string & desc,
-                                      bool is_array)
+                                      const TYPE & default_value,
+                                      const std::vector<TYPE> & restr_list)
   {
     cf_assert( !name.empty() );
 
@@ -130,12 +147,41 @@ namespace Common {
       throw ValueExists(FromHere(), "A value with name [" + name + "] already exists.");
     }
 
-    if( !is_array )
-      node = XmlParams::add_value_to(*m_data, name, TYPE());
-    else
-      node = XmlParams::add_array_to(*m_data, name, std::vector<TYPE>());
+    node = XmlParams::add_value_to(*m_data, name, default_value);
 
     XmlOps::add_attribute_to(*node, XmlParams::tag_attr_descr(), desc);
+
+    if( !restr_list.empty() )
+      XmlParams::add_array_to(*node, XmlParams::tag_attr_restricted_values(),
+                              restr_list);
+
+    return *this;
+  }
+
+  //////////////////////////////////////////////////////////////////////////
+
+  template<typename TYPE>
+  XmlSignature & XmlSignature::insert_array(const std::string & name,
+                                            const std::string & desc,
+                                            const std::vector<TYPE> & default_value,
+                                            const std::vector<TYPE> & restr_list)
+  {
+    cf_assert( !name.empty() );
+
+    XmlNode * node;
+
+    if( XmlParams::check_key_in(*m_data, name) )
+    {
+      throw ValueExists(FromHere(), "An array with name [" + name + "] already exists.");
+    }
+
+    node = XmlParams::add_array_to(*m_data, name, default_value);
+
+    XmlOps::add_attribute_to(*node, XmlParams::tag_attr_descr(), desc);
+
+    if( !restr_list.empty() )
+      XmlParams::add_array_to(*node, XmlParams::tag_attr_restricted_values(),
+                              restr_list);
 
     return *this;
   }
