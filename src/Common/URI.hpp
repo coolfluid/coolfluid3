@@ -92,7 +92,7 @@ namespace Common {
     /// @param protocol The protocol to check
     /// @return Returns @c true if the protocol is present or if it is empty.
     /// Otherwise, returns @c false.
-    bool has_protocol(const std::string & protocol) const;
+    bool is_protocol(const std::string & protocol) const;
 
     /// Gives the protocol (if any).
     /// @return Returns the protocol. May return an empty string if there is no

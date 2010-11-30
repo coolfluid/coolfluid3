@@ -101,7 +101,7 @@ const std::string& URI::separator ()
   return sep;
 }
 
-bool URI::has_protocol(const std::string & protocol) const
+bool URI::is_protocol(const std::string & protocol) const
 {
   bool has_it = !protocol.empty();
 
