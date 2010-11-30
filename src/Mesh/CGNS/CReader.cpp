@@ -404,7 +404,7 @@ void CReader::read_section(CRegion& parent_region)
   BOOST_FOREACH(CRegion& existing_region, range_typed<CRegion>(parent_region))
   if (existing_region.get())
   {
-    if (existing_region.check_property("cgns_section_name"))
+    if (existing_region.exists_property("cgns_section_name"))
     {
       if (existing_region.property("cgns_section_name").value<std::string>() == m_section.name)
       {
