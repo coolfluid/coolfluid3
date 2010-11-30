@@ -57,8 +57,10 @@ BOOST_AUTO_TEST_CASE( system_layer )
   BOOST_CHECK( OSystem::instance().system_layer() != nullptr );
 
   BOOST_CHECK( OSystem::instance().system_layer()->platform_name() != std::string() );
+
   BOOST_CHECK( OSystem::instance().system_layer()->back_trace() != std::string() );
-  BOOST_CHECK( OSystem::instance().system_layer()->process_id() == 0 );
+
+  BOOST_CHECK( OSystem::instance().system_layer()->process_id() > 0 );
 
   BOOST_CHECK( OSystem::instance().system_layer()->memory_usage() > 0 );
 }
