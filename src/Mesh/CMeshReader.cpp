@@ -26,7 +26,7 @@ using namespace Common;
 ////////////////////////////////////////////////////////////////////////////////
 
 CMeshReader::CMeshReader ( const std::string& name  ) :
-	Component ( name )
+  Component ( name )
 {
   // signals
   this->regist_signal ( "read" , "reads a mesh", "Read mesh" )->connect ( boost::bind ( &CMeshReader::read, this, _1 ) );
@@ -63,8 +63,8 @@ void CMeshReader::read( XmlNode& node  )
 
    URI path = property("Mesh").value<URI>();
 
-   if( !path.has_protocol("cpath") )
-     throw BadValue( FromHere(), "Wrong protocol to access the Mesh component, expecting a \'cpath\' but got" + path.string() );
+   if( !path.is_protocol("cpath") )
+     throw ProtocolError( FromHere(), "Wrong protocol to access the Mesh component, expecting a \'cpath\' but got" + path.string() );
 
   // Get the mesh
   CMesh::Ptr mesh = look_component_type<CMesh>( path.string_without_protocol() );
@@ -75,8 +75,8 @@ void CMeshReader::read( XmlNode& node  )
   // check protocol for file loading
   BOOST_FOREACH(URI file, property("Files").value<std::vector<URI> >())
   {
-    if( file.empty() || !file.has_protocol("file"))
-      throw BadValue( FromHere(), "Wrong protocol to access the file, expecting a \'file\' but got" + file.string() );
+    if( file.empty() || !file.is_protocol("file"))
+      throw ProtocolError( FromHere(), "Wrong protocol to access the file, expecting a \'file\' but got" + file.string() );
   }
 
   // Get the file paths

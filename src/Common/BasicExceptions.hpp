@@ -245,6 +245,18 @@ struct Common_API NotEnoughMemory: public Common::Exception {
 
 }; //  NotEnoughMemory
 
+
+////////////////////////////////////////////////////////////////////////////////
+
+/// Exception thrown when a protocol is not respected.
+/// @author Tamas Banyai
+struct Common_API ProtocolError: public Common::Exception {
+
+  /// Constructor
+  ProtocolError( const Common::CodeLocation& where, const std::string& what);
+
+}; //  NotEnoughMemory
+
 ////////////////////////////////////////////////////////////////////////////////
 
   } // Common
