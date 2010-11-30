@@ -48,7 +48,7 @@ public: // functions
     CLoop(name),
     m_action( Common::allocate_component_type<ActionT>(ActionT::type_name()) )
   {
-    tag_component(this);
+     
 
     add_static_component ( m_action );
   }

@@ -28,7 +28,7 @@ using namespace Common;
 CMeshReader::CMeshReader ( const std::string& name  ) :
 	Component ( name )
 {
-	tag_component(this); define_config_properties(); define_signals();
+	  define_config_properties(); define_signals();
 	comm_pattern = SimpleCommunicationPattern(); // must be created after MPI init
 }
 

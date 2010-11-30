@@ -25,7 +25,7 @@ aQuad2DLagrangeP1_Builder;
 
 Quad2DLagrangeP1::Quad2DLagrangeP1(const std::string& name) : Quad2D(name)
 {
-  tag_component(this);
+   
 
   m_nb_nodes = nb_nodes;
   m_order = order;

@@ -13,7 +13,7 @@ namespace Common {
 
 CFactories::CFactories ( const std::string& name) : Component ( name )
 {
-  tag_component(this);
+   
 }
 
 ////////////////////////////////////////////////////////////////////////////////

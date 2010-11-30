@@ -38,7 +38,7 @@ public: // functions
 
   Part ( const std::string& name ) : Component(name)
   {
-    tag_component(this);
+     
   }
 
   virtual ~Part() {}
@@ -63,7 +63,7 @@ public: // functions
       Component(name),
       m_subcomp (allocate_component_type<SubCompT>("subc"))
   {
-    tag_component(this);
+     
 
     add_static_component ( m_subcomp );
   }

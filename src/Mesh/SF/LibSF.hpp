@@ -41,7 +41,7 @@ namespace SF {
     typedef boost::shared_ptr<LibSF const> ConstPtr;
 
     /// Constructor
-    LibSF ( const std::string& name) : Common::CLibrary(name) { tag_component(this); }
+    LibSF ( const std::string& name) : Common::CLibrary(name) {   }
 
   public: // functions
 

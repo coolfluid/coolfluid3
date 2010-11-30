@@ -18,7 +18,7 @@ namespace Mesh {
 
 Triag3D::Triag3D(const std::string& name) : ElementType(name)
 {
-  tag_component(this);
+   
 
   m_shape = shape;
   m_dimension = dimension;

@@ -33,7 +33,7 @@ void CSetFieldValues::define_config_properties()
 CSetFieldValues::CSetFieldValues ( const std::string& name ) : 
   CLoopOperation(name)
 {
-  tag_component(this); define_config_properties(); define_signals();
+    define_config_properties(); define_signals();
 }
 	
 /////////////////////////////////////////////////////////////////////////////////////

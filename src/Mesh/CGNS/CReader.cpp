@@ -37,7 +37,7 @@ Common::ComponentBuilder< CReader, CMeshReader, LibCGNS > aCGNSReader_Builder;
 CReader::CReader(const std::string& name)
 : CMeshReader(name), Shared()
 {
-  tag_component(this); define_config_properties();
+    define_config_properties();
 }
 
 //////////////////////////////////////////////////////////////////////////////

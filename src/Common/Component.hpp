@@ -279,10 +279,6 @@ protected: // functions
   /// Add a static (sub)component of this component
   Ptr add_static_component ( Ptr subcomp );
 
-  /// Tags the
-  template < typename TYPE >
-  void tag_component ( TYPE* self ) { self->add_tag( TYPE::type_name() ); }
-
 private: // helper functions
 
   /// insures the sub component has a unique name within this component

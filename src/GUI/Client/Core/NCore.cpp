@@ -26,7 +26,7 @@ using namespace CF::GUI::Network;
 NCore::NCore()
   : CNode(CLIENT_CORE, "NCore", CNode::CORE_NODE)
 {
-  tag_component(this); define_config_properties(); define_signals();
+    define_config_properties(); define_signals();
 
   m_timer = new QTimer(this);
   m_networkComm = new ClientNetworkComm();

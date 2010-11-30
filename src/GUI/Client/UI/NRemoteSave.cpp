@@ -20,7 +20,7 @@ using namespace CF::GUI::ClientUI;
 NRemoteSave::NRemoteSave(QMainWindow * parent)
   : NRemoteBrowser("NRemoteSave", parent)
 {
-  tag_component(this);
+   
 
   this->setIncludeFiles(true);
   this->setIncludeNoExtension(false);

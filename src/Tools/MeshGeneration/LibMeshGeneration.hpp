@@ -43,7 +43,7 @@ namespace MeshGeneration {
     typedef boost::shared_ptr<LibMeshGeneration const> ConstPtr;
 
     /// Constructor
-    LibMeshGeneration ( const std::string& name) : Common::CLibrary(name) { tag_component(this); }
+    LibMeshGeneration ( const std::string& name) : Common::CLibrary(name) {   }
 
   public: // functions
 

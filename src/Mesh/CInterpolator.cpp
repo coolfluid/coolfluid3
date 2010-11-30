@@ -23,7 +23,7 @@ using namespace Common;
 CInterpolator::CInterpolator ( const std::string& name  ) :
   Component ( name )
 {
-  tag_component(this);
+   
 }
 
 ////////////////////////////////////////////////////////////////////////////////

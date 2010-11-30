@@ -661,12 +661,12 @@ BOOST_AUTO_TEST_CASE( speed_find_tag )
   // allocate 5000 components
   for ( Uint i = 0; i < 250 ; ++i)
   {
-    mg->create_component_type<CGroup>( std::string("ggg") + String::to_str(i) );
+    mg->create_component_type<CGroup>( std::string("ggg") + String::to_str(i) )->add_tag("CGroup");
   }
 
   boost::timer timer;
   Uint counter = 0;
-  BOOST_FOREACH(Component& comp, find_components_recursively_with_tag(*mg, CGroup::type_name() ) )
+  BOOST_FOREACH(Component& comp, find_components_recursively_with_tag(*mg, "CGroup" ) )
   {
     ++counter;
   }

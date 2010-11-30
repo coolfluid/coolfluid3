@@ -42,7 +42,7 @@ public:
   typedef boost::shared_ptr<LibActions const> ConstPtr;
 
   /// Constructor
-  LibActions ( const std::string& name) : Common::CLibrary(name) { tag_component(this); }
+  LibActions ( const std::string& name) : Common::CLibrary(name) {   }
 
 public: // functions
 

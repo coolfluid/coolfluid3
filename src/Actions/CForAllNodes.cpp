@@ -25,7 +25,7 @@ namespace Actions {
 CForAllNodes::CForAllNodes ( const std::string& name ) :
   CLoop(name)
 {
-  tag_component(this);
+   
 }
 	
 void CForAllNodes::execute()

@@ -19,7 +19,7 @@ using namespace Common;
 
 CNodeConnectivity::CNodeConnectivity(const std::string& name): Component(name)
 {
-  tag_component(this);
+   
 }
 
 CNodeConnectivity::~CNodeConnectivity()
@@ -41,7 +41,7 @@ CNodeConnectivity::ElementReferenceT CNodeConnectivity::element(const Uint globa
 
 CFaceConnectivity::CFaceConnectivity(const std::string& name): Component(name), m_node_connectivity(0)
 {
-  tag_component(this);
+   
 }
 
 CFaceConnectivity::~CFaceConnectivity()

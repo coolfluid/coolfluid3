@@ -33,7 +33,7 @@ Common::ComponentBuilder < CField, Component, LibMesh >  CField_Builder;
 CField::CField ( const std::string& name  ) :
   Component ( name )
 {
-  tag_component(this);
+   
 
   std::vector<std::string> var_names;
   std::vector<std::string> var_types;

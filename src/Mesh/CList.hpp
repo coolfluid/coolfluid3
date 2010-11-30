@@ -66,7 +66,7 @@ public: // functions
   CList ( const std::string& name ) :
     Component ( name )
   {
-    tag_component(this);
+     
   }
 
   /// Get the component type name

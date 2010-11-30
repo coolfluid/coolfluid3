@@ -40,8 +40,6 @@ void CSchemeLDA::set_loophelper (CElements& geometry_elements )
 CSchemeLDA::CSchemeLDA ( const std::string& name ) : 
   CLoopOperation(name)
 {
-  add_tag ( type_name() );
-
   m_properties.add_option< OptionT<std::string> > ("SolutionField","Solution Field for calculation", "solution")->mark_basic();
   m_properties.add_option< OptionT<std::string> > ("ResidualField","Residual Field updated after calculation", "residual")->mark_basic();
   m_properties.add_option< OptionT<std::string> > ("InverseUpdateCoeff","Inverse update coefficient Field updated after calculation", "inv_updateCoeff")->mark_basic();

@@ -22,7 +22,7 @@ using namespace Common;
 CMeshTransformer::CMeshTransformer ( const std::string& name  ) :
   Component ( name )
 {
-  tag_component(this); define_config_properties(); define_signals();
+    define_config_properties(); define_signals();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

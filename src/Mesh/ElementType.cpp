@@ -15,7 +15,7 @@ namespace Mesh {
 
 ElementType::ElementType( const std::string& name ) : Common::Component(name)
 {
-  tag_component(this);
+   
 }
 
 ElementType::~ElementType()

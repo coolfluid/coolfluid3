@@ -52,7 +52,7 @@ public: // functions
     Mesh::COperation(name),
     m_operation(Common::allocate_component_type<COp>("operation"))
   {
-    tag_component(this);
+     
 
     std::vector< Common::URI > dummy;
     m_properties.add_option< Common::OptionArrayT < Common::URI > > ("Regions", "Regions to loop over", dummy)->mark_basic();

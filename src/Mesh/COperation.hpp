@@ -97,7 +97,7 @@ public: // functions
     m_op1(Common::allocate_component_type<OP1>("operation_1") ),
     m_op2(Common::allocate_component_type<OP2>("operation_2") )
   {
-    tag_component(this);
+     
   }
 
   /// Virtual destructor
@@ -176,7 +176,7 @@ public: // functions
   /// @param name of the component
   COutputField ( const std::string& name ) : COperation(name)
   {
-    tag_component(this); define_config_properties();
+      define_config_properties();
     m_properties["Field"].as_option().attach_trigger ( boost::bind ( &COutputField::trigger_Field,   this ) );
   }
 
@@ -249,7 +249,7 @@ public: // functions
   /// @param name of the component
   CComputeVolumes ( const std::string& name ) : COperation(name)
   {
-    tag_component(this); define_config_properties();
+      define_config_properties();
     m_properties["Field"].as_option().attach_trigger ( boost::bind ( &CComputeVolumes::trigger_Field,   this ) );
   }
 
@@ -327,7 +327,7 @@ public: // functions
   /// @param name of the component
   CSetValue ( const std::string& name ) : COperation(name)
   {
-    tag_component(this); define_config_properties();
+      define_config_properties();
     m_properties["Field"].as_option().attach_trigger ( boost::bind ( &CSetValue::trigger_Field,   this ) );
   }
 

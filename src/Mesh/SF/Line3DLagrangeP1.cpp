@@ -24,7 +24,7 @@ aLine3DLagrangeP1_Builder;
 
 Line3DLagrangeP1::Line3DLagrangeP1(const std::string& name) : Line3D(name)
 {
-  tag_component(this);
+   
 
   m_nb_nodes = nb_nodes;
   m_order = order;

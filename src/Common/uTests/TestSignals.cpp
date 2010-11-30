@@ -37,7 +37,7 @@ public: // functions
   /// @param name of the component
   CSmall ( const std::string& name ) : Component ( name )
   {
-    tag_component(this); define_signals();
+      define_signals();
   }
 
   /// Virtual destructor

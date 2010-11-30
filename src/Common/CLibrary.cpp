@@ -17,7 +17,7 @@ CF::RegistTypeInfo<CLibrary> sCLibrary_regist();
 
 CLibrary::CLibrary(const std::string & lib_name) : Component(lib_name)
 {
-  tag_component(this);
+   
 }
 
 ////////////////////////////////////////////////////////////////////////////////

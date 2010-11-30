@@ -32,8 +32,6 @@ Component::Component ( const std::string& name ) :
     m_raw_parent(NULL),
     m_is_link (false)
 {
-  tag_component(this);
-
   // accept name
 
   if (!CPath::is_valid_element( name ))

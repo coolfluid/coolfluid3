@@ -25,7 +25,7 @@ aTriag2DLagrangeP1_Builder;
 
 Triag2DLagrangeP1::Triag2DLagrangeP1(const std::string& name) : Triag2D(name)
 {
-  tag_component(this);
+   
 
   m_nb_nodes = nb_nodes;
   m_order = order;

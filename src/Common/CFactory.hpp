@@ -60,7 +60,7 @@ public:
   /// @param name of component
   CFactoryT(const std::string& name) : CFactory(name)
   {
-    tag_component(this);
+     
   }
 
   /// @brief Virtual destructor.

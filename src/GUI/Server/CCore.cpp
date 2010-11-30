@@ -36,7 +36,7 @@ CCore::CCore()
     m_simRunning(false),
     m_active(false)
 {
-  tag_component(this);
+   
 
   TypeInfo::instance().regist<CCore>( type_name() );
 

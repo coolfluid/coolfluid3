@@ -30,7 +30,7 @@ Common::ComponentBuilder < CMesh, Component, LibMesh > CMesh_Builder;
 CMesh::CMesh ( const std::string& name  ) :
   Component ( name )
 {
-  tag_component(this);
+   
 
 	m_properties.add_property("nb_cells",Uint(0));
 	m_properties.add_property("nb_nodes",Uint(0));

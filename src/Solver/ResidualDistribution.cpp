@@ -20,7 +20,7 @@ Common::ComponentBuilder < ResidualDistribution, CDiscretization, LibSolver > Re
 ResidualDistribution::ResidualDistribution ( const std::string& name  ) :
   CDiscretization ( name )
 {
-  tag_component(this);
+   
   properties()["brief"] = std::string("Residual Distribution Method");
   properties()["description"] = std::string("Discretize the PDE's using the Residual Distribution Method");
 }

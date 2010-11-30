@@ -11,7 +11,7 @@ namespace Common {
 
 CodeProfiler::CodeProfiler(const std::string& name) : Component (name)
 {
-  tag_component(this);
+   
 }
 
 CodeProfiler::~CodeProfiler()

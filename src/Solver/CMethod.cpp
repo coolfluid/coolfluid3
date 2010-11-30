@@ -22,7 +22,7 @@ Common::ComponentBuilder < CMethod, Component, LibSolver > CMethod_Builder;
 CMethod::CMethod ( const std::string& name  ) :
   Component ( name )
 {
-  tag_component(this);
+   
 
   m_properties.add_option< Common::OptionT<bool> >("myBoolMeth", "A boolean value in a CMethod", true);
   m_properties.add_option< Common::OptionT<int> >("fourtyTwo", "An integer value in a CMethod", 42);

@@ -18,7 +18,7 @@ namespace Mesh {
 
 Triag2D::Triag2D(const std::string& name) : ElementType(name)
 {
-  tag_component(this);
+   
 
   m_shape = shape;
   m_dimension = dimension;

@@ -38,7 +38,7 @@ Common::ComponentBuilder < PECommPattern2, Component, LibCommon > PECommPattern2
 
 PECommPattern2::PECommPattern2(const std::string& name): Component(name), m_updatable(0), m_gid(new PEObjectWrapperPtr<int>("dummy"))
 {
-  tag_component(this);
+   
 
   //self->regist_signal ( "update" , "Executes communication patterns on all the registered data.", "" )->connect ( boost::bind ( &CommPattern2::update, self, _1 ) );
 

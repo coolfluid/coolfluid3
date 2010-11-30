@@ -17,7 +17,7 @@ using namespace Common;
 CMeshWriter::CMeshWriter ( const std::string& name  ) :
   Component ( name ), m_coord_dim(0), m_max_dimensionality(0)
 {
-  tag_component(this);
+   
 
   // m_properties.add_option< OptionT<std::string> >  ( "File",  "File to read" , "" );
   // m_properties.add_option< OptionT<std::string> >  ( "Mesh",  "Mesh to construct" , "" );

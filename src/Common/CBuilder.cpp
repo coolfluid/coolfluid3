@@ -15,7 +15,7 @@ RegistTypeInfo<CBuilder> CBuilder_TypeRegistration();
 
 CBuilder::CBuilder ( const std::string& name) : Component ( name )
 {
-  tag_component(this);
+   
 }
 
 ////////////////////////////////////////////////////////////////////////////////

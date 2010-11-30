@@ -27,7 +27,7 @@ aHexa3DLagrangeP1_Builder;
 
 Hexa3DLagrangeP1::Hexa3DLagrangeP1(const std::string& name) : Hexa3D(name)
 {
-  tag_component(this);
+   
 
   m_nb_nodes = nb_nodes;
   m_order = order;

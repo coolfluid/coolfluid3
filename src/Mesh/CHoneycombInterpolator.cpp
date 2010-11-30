@@ -41,7 +41,7 @@ CF::Common::ComponentBuilder < CHoneycombInterpolator, CInterpolator, LibMesh > 
 CHoneycombInterpolator::CHoneycombInterpolator( const std::string& name )
   : CInterpolator(name), m_dim(0), m_ranges(3), m_N(3), m_D(3), m_comb_idx(3), m_sufficient_nb_points(0)
 {
-  tag_component(this);
+   
 
   m_properties.add_option< OptionT<Uint> >
   ( "ApproximateNbElementsPerCell",

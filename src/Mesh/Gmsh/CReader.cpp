@@ -46,7 +46,7 @@ CReader::CReader( const std::string& name )
 {
   CF_DEBUG_POINT;
 
-  tag_component(this); define_config_properties();
+    define_config_properties();
 
   CF_DEBUG_POINT;
 

@@ -106,7 +106,7 @@ template<typename T> class PEObjectWrapperPtr: public PEObjectWrapper{
 
     /// constructor
     /// @param name the component will appear under this name
-    PEObjectWrapperPtr(const std::string& name) : PEObjectWrapper(name) { tag_component(this); }
+    PEObjectWrapperPtr(const std::string& name) : PEObjectWrapper(name) {   }
 
     /// setup of passing by reference
     /// @param data pointer to data
@@ -176,7 +176,7 @@ template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
 
     /// constructor
     /// @param name the component will appear under this name
-    PEObjectWrapperVector(const std::string& name) : PEObjectWrapper(name) { tag_component(this); }
+    PEObjectWrapperVector(const std::string& name) : PEObjectWrapper(name) {   }
 
     /// setup of passing by reference
     /// @param std::vector of data
@@ -245,7 +245,7 @@ template<typename T> class PEObjectWrapperVectorWeakPtr: public PEObjectWrapper{
 
     /// constructor
     /// @param name the component will appear under this name
-    PEObjectWrapperVectorWeakPtr(const std::string& name) : PEObjectWrapper(name) { tag_component(this); }
+    PEObjectWrapperVectorWeakPtr(const std::string& name) : PEObjectWrapper(name) {   }
 
     /// setup
     /// @param std::vector of data

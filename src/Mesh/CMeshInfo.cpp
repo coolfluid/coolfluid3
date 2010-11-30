@@ -56,7 +56,7 @@ Common::ComponentBuilder < CMeshInfo, CMeshTransformer, LibMesh> CMeshInfo_Build
 CMeshInfo::CMeshInfo( const std::string& name )
 : CMeshTransformer(name)
 {
-  tag_component(this);
+   
 	properties()["brief"] = std::string("Print information of the mesh");
 	std::string desc;
 	desc = 

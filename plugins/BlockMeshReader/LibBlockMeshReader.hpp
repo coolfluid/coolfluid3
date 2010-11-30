@@ -44,7 +44,7 @@ public:
   typedef boost::shared_ptr<LibBlockMeshReader const> ConstPtr;
 
   /// Constructor
-  LibBlockMeshReader ( const std::string& name) : Common::CLibrary(name) { tag_component(this); }
+  LibBlockMeshReader ( const std::string& name) : Common::CLibrary(name) {   }
 
 public: // functions
 

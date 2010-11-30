@@ -51,7 +51,7 @@ public:
   typedef boost::shared_ptr<LibGooglePerfTools const> ConstPtr;
 
   /// Constructor
-  LibGooglePerfTools ( const std::string& name) : Common::CLibrary(name) { tag_component(this); }
+  LibGooglePerfTools ( const std::string& name) : Common::CLibrary(name) {   }
 
 public: // functions
 

@@ -26,7 +26,7 @@ Common::ComponentBuilder < CDummyLoopOperation, CLoopOperation, LibActions > CDu
 CDummyLoopOperation::CDummyLoopOperation ( const std::string& name ) : 
   CLoopOperation(name)
 {
-  tag_component(this);
+   
 }
 	
 /////////////////////////////////////////////////////////////////////////////////////

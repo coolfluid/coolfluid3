@@ -30,7 +30,7 @@ public: // functions
   /// @param name of the component
   CAbstract ( const std::string& name ) : Component(name)
   {
-    tag_component(this);
+     
   }
 
   /// Virtual destructor
@@ -58,7 +58,7 @@ public: // functions
   /// @param name of the component
   CConcrete1 ( const std::string& name ) : CAbstract(name)
   {
-    tag_component(this); define_config_properties();
+      define_config_properties();
   }
 
   /// Virtual destructor
@@ -93,7 +93,7 @@ public: // functions
   /// @param name of the component
   CConcrete2 ( const std::string& name ) : CAbstract(name)
   {
-    tag_component(this);
+     
   }
 
   /// Virtual destructor

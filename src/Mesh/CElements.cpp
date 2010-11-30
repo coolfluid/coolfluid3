@@ -26,7 +26,7 @@ Common::ComponentBuilder < CElements, Component, LibMesh > CElements_Builder;
 CElements::CElements ( const std::string& name ) :
   Component ( name )
 {
-  tag_component(this);
+   
 }
 
 ////////////////////////////////////////////////////////////////////////////////
