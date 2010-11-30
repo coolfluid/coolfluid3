@@ -23,6 +23,7 @@ namespace Common {
 
   class XmlParams;
   class Option;
+  class CRoot;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -319,7 +320,7 @@ protected: // data
   /// list of dynamic sub-components
   CompStorage_t m_dynamic_components;
   /// pointer to the root of this tree
-  boost::weak_ptr<Component> m_root;
+  boost::weak_ptr<CRoot> m_root;
   /// pointer to parent, naked pointer because of static components
   Component * m_raw_parent;
   /// is this a link component

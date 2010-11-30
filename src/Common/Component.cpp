@@ -104,8 +104,7 @@ void Component::rename ( const std::string& name )
   if( !m_root.expired() )
   {
     // get the root and inform about the change in path
-    boost::shared_ptr<CRoot> root =
-        boost::dynamic_pointer_cast<CRoot>( m_root.lock() );
+   CRoot::Ptr root = m_root.lock();
 
     root->change_component_path( new_full_path , shared_from_this() );
   }
@@ -322,8 +321,7 @@ void Component::change_parent ( Component* new_parent )
 {
   if( !m_root.expired() )   // get the root and remove the current path
   {
-    boost::shared_ptr<CRoot> root =
-        boost::dynamic_pointer_cast<CRoot>( m_root.lock() );
+   CRoot::Ptr root = m_root.lock();
     root->remove_component_path(full_path());
   }
 
@@ -334,8 +332,7 @@ void Component::change_parent ( Component* new_parent )
 
     if( !m_root.expired() )   // get the root and set the new path
     {
-      boost::shared_ptr<CRoot> root =
-          boost::dynamic_pointer_cast<CRoot>( m_root.lock() );
+     CRoot::Ptr root = m_root.lock();
       root->change_component_path( full_path() , shared_from_this() );
     }
   }
@@ -378,7 +375,7 @@ Component::ConstPtr Component::look_component ( const CPath& path ) const
     complete_path(lpath); // ensure the path is complete
 
     // get the root
-    boost::shared_ptr<CRoot> root = boost::dynamic_pointer_cast<CRoot>( m_root.lock() );
+   CRoot::Ptr root = m_root.lock();
 
     return root->access_component(lpath);
   }
@@ -424,8 +421,7 @@ Component::Ptr Component::look_component ( const CPath& path )
     complete_path(lpath); // ensure the path is complete
 
     // get the root
-    boost::shared_ptr<CRoot> root =
-    boost::dynamic_pointer_cast<CRoot>( m_root.lock() );
+   CRoot::Ptr root = m_root.lock();
 
     return root->access_component(lpath);
   }
@@ -709,8 +705,7 @@ void Component::raise_event ( const std::string & name )
 {
   if( !m_root.expired() )
   {
-    boost::shared_ptr<CRoot> root =
-        boost::dynamic_pointer_cast<CRoot>( m_root.lock() );
+   CRoot::Ptr root = m_root.lock();
 
     root->raise_new_event(name, full_path());
   }
