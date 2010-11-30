@@ -38,20 +38,20 @@ BOOST_AUTO_TEST_CASE( constructors )
   BOOST_CHECK(!p2.empty());
   BOOST_CHECK(!p3.empty());
   BOOST_CHECK_EQUAL( std::strcmp( p2.string().c_str(), p2.string().c_str() ), 0 );
-  
+
   URI uri_absolute ( "cpath://hostname/root/component");
   URI uri_relative ( "../component");
-  
+
   CPath p4(uri_absolute);
   BOOST_CHECK(!p4.empty());
   BOOST_CHECK_EQUAL( p4.string(), "//hostname/root/component");
   BOOST_CHECK(p4.is_absolute());
-  
+
   CPath p5(uri_relative);
   BOOST_CHECK(!p5.empty());
   BOOST_CHECK_EQUAL( p5.string(), "../component");
   BOOST_CHECK(p5.is_relative());
-  
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -73,6 +73,30 @@ BOOST_AUTO_TEST_CASE( concatenation )
 
   CPath p6 = "/root/dir6";
   BOOST_CHECK_EQUAL( std::strcmp( p6.string().c_str(), "/root/dir6" ), 0 );
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( protocol_management )
+{
+  URI uri("//Root/Component");
+
+  // URI without any protocol
+  BOOST_CHECK( !uri.is_protocol("file") );
+  BOOST_CHECK( uri.is_protocol("") );
+  BOOST_CHECK_EQUAL( uri.protocol(), std::string() );
+  BOOST_CHECK_EQUAL( uri.string(), std::string("//Root/Component") );
+  BOOST_CHECK_EQUAL( uri.string_without_protocol(), std::string("//Root/Component") );
+
+  // URI without any protocol
+  uri = "cpath://Root/Component";
+  BOOST_CHECK( !uri.is_protocol("file") );
+  BOOST_CHECK( !uri.is_protocol("") );
+  BOOST_CHECK( uri.is_protocol("cpath") );
+  BOOST_CHECK_EQUAL( uri.protocol(), std::string("cpath") );
+  BOOST_CHECK_EQUAL( uri.string(), std::string("cpath://Root/Component") );
+  BOOST_CHECK_EQUAL( uri.string_without_protocol(), std::string("//Root/Component") );
 
 }
 
