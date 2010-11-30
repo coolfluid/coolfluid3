@@ -77,7 +77,7 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 		BOOST_FOREACH(CTable<Real>& t_data, recursive_filtered_range_typed<CTable<Real> >(target,IsComponentTag("field_data")))
 		{
 			// get the target coordinates table
-			const CTable<Real>& t_coords = *t_data.get_child_type<CLink>("coordinates")->get_type<CTable<Real> >();
+			const CTable<Real>& t_coords = *t_data.get_child_type<CLink>("coordinates")->as_type<CTable<Real> >();
 			
 			// Allocations
 			CElements::ConstPtr s_geom_elements;
@@ -132,7 +132,7 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 		BOOST_FOREACH(CTable<Real>& t_data, recursive_filtered_range_typed<CTable<Real> >(target,IsComponentTag("field_data")))
 		{
 			// get the target coordinates table
-			const CTable<Real>& t_coords = *t_data.get_child_type<CLink>("coordinates")->get_type<CTable<Real> >();
+			const CTable<Real>& t_coords = *t_data.get_child_type<CLink>("coordinates")->as_type<CTable<Real> >();
 			
 			// Allocations
 			Uint t_coords_dim = t_coords.row_size();
@@ -168,7 +168,7 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 								s_centroid[d] += s_node[d]/nb_nodes_per_element;
 						}
 						s_centroids.push_back(s_centroid);
-						CTable<Real>::ConstPtr field_data = point->first->get_field_elements(source.field_name()).data().get_type<CTable<Real> const>();
+						CTable<Real>::ConstPtr field_data = point->first->get_field_elements(source.field_name()).data().as_type<CTable<Real> const>();
 						s_data.push_back(boost::make_tuple(field_data,point->second));
 					}	
 					
@@ -294,7 +294,7 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 								s_centroid[d] += s_node[d]/nb_nodes_per_element;
 						}
 						s_centroids.push_back(s_centroid);
-						CTable<Real>::ConstPtr field_data = point->first->get_field_elements(source.field_name()).data().get_type<CTable<Real> const>();
+						CTable<Real>::ConstPtr field_data = point->first->get_field_elements(source.field_name()).data().as_type<CTable<Real> const>();
 						s_data.push_back(boost::make_tuple(field_data,point->second));
 					}	
 					
@@ -541,7 +541,7 @@ boost::tuple<CElements::ConstPtr,Uint> CHoneycombInterpolator::find_element(cons
 			if (etype.is_coord_in_element(target_coord,nodes))
 			{
 				//CFinfo << "found target in element" << point->first->full_path().string() << " [" << point->second << "]" <<CFendl;
-				return boost::make_tuple(point->first->get_type<CElements const>(),point->second);
+				return boost::make_tuple(point->first->as_type<CElements const>(),point->second);
 			}
 		}
 	}

@@ -209,11 +209,11 @@ public: // functions
 
   /// @returns this component converted to type T shared pointer
   template < typename T >
-    typename T::Ptr get_type();
+    typename T::Ptr as_type();
 
   /// @returns this component converted to type T shared const pointer
   template < typename T >
-    typename T::ConstPtr get_type() const;
+    typename T::ConstPtr as_type() const;
 
   /// Modify the parent of this component
   void change_parent ( Component* to_parent );
@@ -373,7 +373,7 @@ inline typename T::ConstPtr Component::get_child_type(const std::string& name) c
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename T >
-inline typename T::Ptr Component::get_type()
+inline typename T::Ptr Component::as_type()
 {
   return boost::dynamic_pointer_cast<T>(get());
 }
@@ -381,7 +381,7 @@ inline typename T::Ptr Component::get_type()
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename T >
-inline typename T::ConstPtr Component::get_type() const
+inline typename T::ConstPtr Component::as_type() const
 {
   return boost::dynamic_pointer_cast<T const>(get());
 }

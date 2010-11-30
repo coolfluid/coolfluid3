@@ -63,12 +63,12 @@ public: // functions
 
   virtual const CLoopOperation& action(const std::string& name = ActionT::type_name()) const
   {
-    return *m_action->get_type<CLoopOperation>();
+    return *m_action->as_type<CLoopOperation>();
   }
 
   virtual CLoopOperation& action(const std::string& name = ActionT::type_name())
   {
-    return *m_action->get_type<CLoopOperation>();
+    return *m_action->as_type<CLoopOperation>();
   }
   
   virtual void execute()

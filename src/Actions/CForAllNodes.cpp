@@ -41,7 +41,7 @@ void CForAllNodes::execute()
 				op.set_loophelper( elements );
 				
 				if (!loop_list)
-					loop_list = op.loop_list().get_type< CList<Uint> >();
+					loop_list = op.loop_list().as_type< CList<Uint> >();
 				else if (loop_list->size() != op.loop_list().size())
 					throw BadValue(FromHere(), "The number of nodes of CLoopOperation [" + op.name() + "] doesn't match with other operations in the same loop");
 			}

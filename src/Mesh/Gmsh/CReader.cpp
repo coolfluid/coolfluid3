@@ -120,7 +120,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   read_headerData();
   
   // Create a region component inside the mesh with the name mesh_name
-  m_region = m_mesh->create_region(m_headerData.mesh_name,!property("Serial Merge").value<bool>()).get_type<CRegion>();
+  m_region = m_mesh->create_region(m_headerData.mesh_name,!property("Serial Merge").value<bool>()).as_type<CRegion>();
 
   // partition the nodes
   partition_nodes();
@@ -231,7 +231,7 @@ void CReader::read_coordinates()
   m_file.seekg(m_nodal_coordinates_position,std::ios::beg);
   
   // Create the coordinates array
-  m_coordinates = m_region->create_coordinates(m_headerData.NDFCD).get_type<CTable<Real> >();
+  m_coordinates = m_region->create_coordinates(m_headerData.NDFCD).as_type<CTable<Real> >();
   
   CTable<Real>& coordinates = *m_coordinates;
   Uint coord_start_idx = coordinates.size();
@@ -347,7 +347,7 @@ void CReader::partition_nodes()
   
 void CReader::read_connectivity()
 {  
-  m_tmp = m_region->create_region("main").get_type<CRegion>();
+  m_tmp = m_region->create_region("main").as_type<CRegion>();
 
   m_global_to_tmp.clear();
   m_file.seekg(m_elements_cells_position,std::ios::beg);

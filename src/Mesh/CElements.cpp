@@ -129,7 +129,7 @@ const CTable<Uint>& CElements::connectivity_table() const
 CTable<Real>& CElements::coordinates()
 {
   CLink& link = get_component_typed<CLink>(*this,IsComponentTag("coordinates"));
-  return *link.get_type<CTable<Real> >();
+  return *link.as_type<CTable<Real> >();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -137,7 +137,7 @@ CTable<Real>& CElements::coordinates()
 const CTable<Real>& CElements::coordinates() const
 {
   const CLink& link = get_component_typed<CLink const>(*this,IsComponentTag("coordinates"));
-  return *link.get_type<CTable<Real> const>();
+  return *link.as_type<CTable<Real> const>();
 
 }
   
@@ -147,7 +147,7 @@ CList<Uint>& CElements::node_list()
 {
   Component::Ptr ptr = get_child("node_list");
   cf_assert(ptr);
-  return *ptr->get_type< CList<Uint> >();
+  return *ptr->as_type< CList<Uint> >();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -156,7 +156,7 @@ const CList<Uint>& CElements::node_list() const
 {
   Component::ConstPtr ptr = get_child("node_list");
   cf_assert(ptr);
-  return *ptr->get_type< CList<Uint> const >();
+  return *ptr->as_type< CList<Uint> const >();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -174,7 +174,7 @@ void CElements::add_field_elements_link(CElements& field_elements)
   if (!field_group.get())
     field_group = create_component_type<CGroup>("fields");
 
-  const std::string field_name = field_elements.get_parent()->get_type<CField>()->field_name();
+  const std::string field_name = field_elements.get_parent()->as_type<CField>()->field_name();
   field_group->create_component_type<CLink>(field_name)->link_to(field_elements.get());
 }
 
@@ -186,7 +186,7 @@ CFieldElements& CElements::get_field_elements(const std::string& field_name)
   cf_assert(all_fields.get());
   Component::Ptr field = all_fields->get_child(field_name);
   cf_assert(field.get());
-  return *field->get_type<CFieldElements>();
+  return *field->as_type<CFieldElements>();
 }
   
 //////////////////////////////////////////////////////////////////////////////
@@ -197,7 +197,7 @@ const CFieldElements& CElements::get_field_elements(const std::string& field_nam
   cf_assert(all_fields.get());
   Component::ConstPtr field = all_fields->get_child(field_name);
   cf_assert(field.get());
-  return *field->get_type<CFieldElements const>();
+  return *field->as_type<CFieldElements const>();
 }
 
 //////////////////////////////////////////////////////////////////////////////

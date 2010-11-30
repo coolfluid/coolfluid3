@@ -70,7 +70,7 @@ CRegion& CMesh::create_region( const std::string& name, bool ensure_unique )
 //          count++;
 //
 //      std::string append = (count == 0) ? "" : "_"+to_str(count);
-      new_region = existing_region.create_region(name,ensure_unique).get_type<CRegion>();
+      new_region = existing_region.create_region(name,ensure_unique).as_type<CRegion>();
 			new_region->add_tag("grid_zone");
     }
     else if (existing_region.has_tag("grid_zone"))
@@ -89,7 +89,7 @@ CRegion& CMesh::create_region( const std::string& name, bool ensure_unique )
 //        count++;
 //
 //      std::string append = (count == 0) ? "" : "_"+to_str(count);
-      new_region = base_region->create_region(name,ensure_unique).get_type<CRegion>();
+      new_region = base_region->create_region(name,ensure_unique).as_type<CRegion>();
       new_region->add_tag("grid_zone");
     }
     else

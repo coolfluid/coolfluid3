@@ -297,14 +297,14 @@ CElements& CField::create_elements(CElements& geometry_elements)
 
 const CRegion& CField::support() const
 {
-  return *get_child("support")->get_type<CRegion const>();  // get() because it is a link
+  return *get_child("support")->as_type<CRegion const>();  // get() because it is a link
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 CRegion& CField::support()
 {
-  return *get_child("support")->get_type<CRegion>();  // get() because it is a link
+  return *get_child("support")->as_type<CRegion>();  // get() because it is a link
 }
 
 ////////////////////////////////////////////////////////////////////////////////

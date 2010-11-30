@@ -375,7 +375,7 @@ private: // data
     LoopHelper(CField& field, CTable<Real>& coords) :
       coordinates(coords),
       node_connectivity(*coords.look_component_type<CNodeConnectivity>("../node_connectivity")),
-      local_field(coords.get_parent()->get_type<CRegion>()->get_field(field.name())),
+      local_field(coords.get_parent()->as_type<CRegion>()->get_field(field.name())),
       field_data(Common::get_tagged_component_typed<CTable<Real> >(local_field, "field_data"))
     { }
     const CTable<Real>& coordinates;

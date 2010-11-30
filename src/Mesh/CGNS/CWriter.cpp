@@ -188,7 +188,7 @@ void CWriter::write_zone(const CRegion& region)
   GroupsMapType grouped_elements_map;
   BOOST_FOREACH(const CElements& elements, recursive_range_typed<CElements>(region))
   {
-    grouped_elements_map[elements.get_parent()->full_path().string()].push_back(elements.get_type<CElements const>());
+    grouped_elements_map[elements.get_parent()->full_path().string()].push_back(elements.as_type<CElements const>());
   }
   
   m_section.elemStartIdx = 0;
@@ -204,7 +204,7 @@ void CWriter::write_zone(const CRegion& region)
 
 void CWriter::write_section(const GroupedElements& grouped_elements)
 {
-  CRegion::ConstPtr section_region = grouped_elements[0]->get_parent()->get_type<CRegion const>();
+  CRegion::ConstPtr section_region = grouped_elements[0]->get_parent()->as_type<CRegion const>();
 
   m_section.name = section_region->name();
   m_section.type = grouped_elements.size() != 1 ? MIXED : m_elemtype_CF_to_CGNS[grouped_elements[0]->element_type().getElementTypeName()];

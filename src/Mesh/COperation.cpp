@@ -83,9 +83,9 @@ Common::ComponentBuilder < CSetValue,       COperation, LibMesh > CSetValue_Buil
 //  
 //  void setup (CFieldElements& field_elements )
 //  {
-//    coordinates = field_elements.get_geometry_elements().coordinates().get_type<CTable<Real> >();
-//    connectivity_table = field_elements.get_geometry_elements().connectivity_table().get_type<CTable<Uint> >();
-//    x_coord = field_elements.elemental_data().get_type<CTable<Real> >();
+//    coordinates = field_elements.get_geometry_elements().coordinates().as_type<CTable<Real> >();
+//    connectivity_table = field_elements.get_geometry_elements().connectivity_table().as_type<CTable<Uint> >();
+//    x_coord = field_elements.elemental_data().as_type<CTable<Real> >();
 //  }
 //  
 //  template < typename SFType >
@@ -123,10 +123,10 @@ Common::ComponentBuilder < CSetValue,       COperation, LibMesh > CSetValue_Buil
 //  
 //  void setup (CFieldElements& field_elements )
 //  {
-//    gradx = field_elements.elemental_data().get_type<CTable<Real> >();
+//    gradx = field_elements.elemental_data().as_type<CTable<Real> >();
 //    
-//    coordinates = field_elements.coordinates().get_type<CTable<Real> >();
-//    connectivity_table = field_elements.connectivity_table().get_type<CTable<Uint> >();
+//    coordinates = field_elements.coordinates().as_type<CTable<Real> >();
+//    connectivity_table = field_elements.connectivity_table().as_type<CTable<Uint> >();
 //    
 //  }
 //  
@@ -178,11 +178,11 @@ Common::ComponentBuilder < CSetValue,       COperation, LibMesh > CSetValue_Buil
 //  
 //  void setup (CFieldElements& field_elements )
 //  {
-//    volumes = field_elements.elemental_data().get_type<CTable<Real> >();
+//    volumes = field_elements.elemental_data().as_type<CTable<Real> >();
 //    volumes->array().resize(boost::extents[field_elements.elements_count()][1]);
 //    
-//    coordinates = field_elements.get_geometry_elements().coordinates().get_type<CTable<Real> >();
-//    connectivity_table = field_elements.get_geometry_elements().connectivity_table().get_type<CTable<Uint> >();
+//    coordinates = field_elements.get_geometry_elements().coordinates().as_type<CTable<Real> >();
+//    connectivity_table = field_elements.get_geometry_elements().connectivity_table().as_type<CTable<Uint> >();
 //    
 //  }
 //  
@@ -208,8 +208,8 @@ Common::ComponentBuilder < CSetValue,       COperation, LibMesh > CSetValue_Buil
 //  
 //  void setup (CFieldElements& field_elements )
 //  {
-//    scalar_name = field_elements.get_parent()->get_type<CField>()->field_name();
-//    scalars = field_elements.elemental_data().get_type<CTable<Real> >();
+//    scalar_name = field_elements.get_parent()->as_type<CField>()->field_name();
+//    scalars = field_elements.elemental_data().as_type<CTable<Real> >();
 //    CFinfo << field_elements.full_path().string() << CFendl;
 //  }
 //  
@@ -232,8 +232,8 @@ Common::ComponentBuilder < CSetValue,       COperation, LibMesh > CSetValue_Buil
 //  
 //  void setup (CFieldElements& field_elements )
 //  {
-//    vector_name = field_elements.get_parent()->get_type<CField>()->field_name();
-//    vectors = field_elements.elemental_data().get_type<CTable<Real> >();
+//    vector_name = field_elements.get_parent()->as_type<CField>()->field_name();
+//    vectors = field_elements.elemental_data().as_type<CTable<Real> >();
 //    CFinfo << field_elements.full_path().string() << CFendl;
 //  }
 //  
