@@ -64,19 +64,19 @@ void CMeshReader::read( XmlNode& node  )
    URI path = property("Mesh").value<URI>();
 
    if( !path.is_protocol("cpath") )
-     throw ProtocolError( FromHere(), "Wrong protocol to access the Mesh component, expecting a \'cpath\' but got" + path.string() );
+     throw ProtocolError( FromHere(), "Wrong protocol to access the Mesh component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
   // Get the mesh
   CMesh::Ptr mesh = look_component_type<CMesh>( path.string_without_protocol() );
   if (!mesh)
-    throw CastingFailed( FromHere(), "Component in path \'" + path.string() + "\'" );
+    throw CastingFailed( FromHere(), "Component in path \'" + path.string() + "\' is not a valid CMesh." );
 
 
   // check protocol for file loading
   BOOST_FOREACH(URI file, property("Files").value<std::vector<URI> >())
   {
     if( file.empty() || !file.is_protocol("file"))
-      throw ProtocolError( FromHere(), "Wrong protocol to access the file, expecting a \'file\' but got" + file.string() );
+      throw ProtocolError( FromHere(), "Wrong protocol to access the file, expecting a \'file\' but got \'" + file.string() + "\'" );
   }
 
   // Get the file paths
