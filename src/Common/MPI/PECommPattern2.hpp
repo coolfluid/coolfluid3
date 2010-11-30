@@ -138,12 +138,11 @@ public:
   /// @param stride number of array element grouping
   template<typename T> void insert(const std::string& name, boost::weak_ptr< std::vector<T> > data, const unsigned int stride=1, const bool needs_update=true)
   {
-/*
-    PEObjectWrapperVectorWeakPtr<T>::Ptr ow=create_component_type< PEObjectWrapperVectorWeakPtr<T> >(name);
+
+    typename PEObjectWrapperVectorWeakPtr<T>::Ptr ow = create_component_type< PEObjectWrapperVectorWeakPtr<T> >(name);
+    add_component ( ow );
+
     ow->setup(data,stride,needs_update);
-*/
-//    boost::shared_ptr< PEObjectWrapper > ow( new PEObjectWrapperVectorWeakPtr<T>(name,data,stride,needs_update), Deleter< PEObjectWrapperVectorWeakPtr<T> >() );
-//    add_component ( ow );
   }
 
   /// removes data by name
