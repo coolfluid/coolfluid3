@@ -44,9 +44,9 @@ Component::Component ( const std::string& name ) :
 
     signal("create_component").signature
       .insert<std::string>("Component name", "Name for created component" )
-      .insert<std::string>("Generic type",   "Generic type of the component" )
-      .insert<std::string>("Concrete type",  "Concrete type of the component" );
-//      .insert<bool>("Basic mode",  "Component will be visible in basic mode" )
+      .insert<std::string>("Generic type", "Generic type of the component" )
+      .insert<std::string>("Concrete type", "Concrete type of the component" )
+      .insert<bool>("Basic mode", "Component will be visible in basic mode", false );
 
 
   regist_signal ( "list_tree" , "lists the component tree inside this component", "" )->connect ( boost::bind ( &Component::list_tree, this, _1 ) );
@@ -61,7 +61,7 @@ Component::Component ( const std::string& name ) :
   regist_signal ( "rename_component" , "Renames this component", "Rename" )->connect ( boost::bind ( &Component::rename_component, this, _1 ) );
 
     signal("rename_component").signature
-        .insert<std::string>("NewName", "Component new name");
+        .insert<std::string>("NewName", name, "Component new name");
 
   // properties
 
@@ -151,10 +151,10 @@ Component::Ptr Component::add_component ( Component::Ptr subcomp )
 
   raise_path_changed();
 
-  subcomp->change_parent( this );
+	subcomp->change_parent( this );
 	subcomp->rename( unique_name );
 
-  return subcomp;
+	return subcomp;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -464,7 +464,7 @@ void Component::create_component ( XmlNode& node  )
   std::string atype = p.get_option<std::string>("Generic type");
   std::string ctype = p.get_option<std::string>("Concrete type");
 
-  //  bool basic = p.get_option<bool>("Basic mode");
+  bool basic = p.get_option<bool>("Basic mode");
 
   CFactories::Ptr factories = Core::instance().root()->get_child_type< CFactories >("Factories");
   CFactory::Ptr factory = factories->get_child_type< CFactory >( atype );
@@ -476,7 +476,8 @@ void Component::create_component ( XmlNode& node  )
 
   Ptr comp = add_component( builder->build( name ) );
 
-  //  if(basic) comp->mark_basic();
+  if(basic)
+    comp->mark_basic();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
