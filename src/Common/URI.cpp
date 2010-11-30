@@ -103,13 +103,13 @@ const std::string& URI::separator ()
 
 bool URI::is_protocol(const std::string & protocol) const
 {
-  bool has_it = !protocol.empty();
+  bool has_it = protocol.empty();
 
   if(!has_it)
   {
     size_t colon_pos = m_path.find_first_of(':');
 
-    has_it = colon_pos != std::string::npos && m_path.substr(0, colon_pos) == protocol;
+    has_it = colon_pos == std::string::npos && m_path.substr(0, colon_pos) == protocol;
   }
 
   return has_it;
