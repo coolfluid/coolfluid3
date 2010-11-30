@@ -43,7 +43,7 @@ OSystemLayer::~OSystemLayer()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string OSystemLayer::getBackTrace () const
+std::string OSystemLayer::back_trace () const
 {
   return dumpBacktrace ();
 }
@@ -78,7 +78,7 @@ std::string OSystemLayer::dumpBacktrace ()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Uint OSystemLayer::getPID() const
+Uint OSystemLayer::process_id() const
 {
   pid_t pid = getpid();
   return static_cast<Uint> ( pid );
@@ -86,7 +86,7 @@ Uint OSystemLayer::getPID() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-double OSystemLayer::memoryUsageBytes() const
+double OSystemLayer::memory_usage() const
 {
   struct mallinfo info;
 
@@ -137,7 +137,7 @@ double OSystemLayer::memoryUsageBytes() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void OSystemLayer::registSignalHandlers()
+void OSystemLayer::regist_os_signal_handlers()
 {
   // register handler functions for the signals
   signal(SIGFPE,    (sighandler_t) Linux::OSystemLayer::handleSIGFPE);

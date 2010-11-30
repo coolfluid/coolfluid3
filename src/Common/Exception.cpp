@@ -49,7 +49,7 @@ Exception::Exception(CodeLocation where, std::string msg, std::string className)
 
   if ( ExceptionManager::instance().ExceptionDumps )
   {
-    std::string backtrace = OSystem::instance().OSystemLayer()->getBackTrace();
+    std::string backtrace = OSystem::instance().system_layer()->back_trace();
     CFinfo << CFendl << CFendl;
     CFinfo << "+++ Exception backtrace ++++++++++++++" << CFendl;
     CFinfo << backtrace << CFendl;

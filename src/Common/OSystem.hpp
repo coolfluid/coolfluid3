@@ -40,14 +40,14 @@ public: // methods
   static OSystem& instance();
 
   /// @return ProcessInfo object
-  boost::shared_ptr<Common::OSystemLayer> OSystemLayer();
+  boost::shared_ptr<Common::OSystemLayer> system_layer();
 
   /// @return LibLoader object
-  boost::shared_ptr<Common::LibLoader> LibLoader();
+  boost::shared_ptr<Common::LibLoader> lib_loader();
 
   /// Executes the command passed in the string
   /// @todo should return the output of the command but not yet implemented.
-  void execute_command (const std::string& call);
+  void execute_system_command (const std::string& call);
 
 private: // functions
 

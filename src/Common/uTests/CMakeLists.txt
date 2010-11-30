@@ -4,7 +4,6 @@
 list( APPEND utest-common_cflibs coolfluid_common )
 list( APPEND utest-common_files
   utest-common.cpp
-  TestOSystem.cpp
   TestStringOps.cpp
   TestHourMinSec.cpp
   TestLog.cpp
@@ -14,6 +13,16 @@ list( APPEND utest-common_files
 )
 
 coolfluid_add_unittest( utest-common )
+
+################################################################################
+# Test OSystem
+
+list( APPEND utest-osystem_cflibs coolfluid_common )
+list( APPEND utest-osystem_files
+  utest-osystem.cpp
+)
+
+coolfluid_add_unittest( utest-osystem )
 
 ################################################################################
 # Test Component

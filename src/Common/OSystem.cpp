@@ -91,21 +91,21 @@ OSystem& OSystem::instance()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::shared_ptr<OSystemLayer> OSystem::OSystemLayer()
+boost::shared_ptr<OSystemLayer> OSystem::system_layer()
 {
   return m_system_layer;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::shared_ptr<LibLoader> OSystem::LibLoader()
+boost::shared_ptr<LibLoader> OSystem::lib_loader()
 {
   return m_lib_loader;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void OSystem::execute_command(const std::string& call)
+void OSystem::execute_system_command(const std::string& call)
 {
   int return_value = system ( call.c_str() );
 

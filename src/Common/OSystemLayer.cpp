@@ -29,9 +29,9 @@ OSystemLayer::~OSystemLayer()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string OSystemLayer::memoryUsage () const
+std::string OSystemLayer::memory_usage_str () const
 {
-  const CF::Real bytes = memoryUsageBytes();
+  const CF::Real bytes = memory_usage();
 
   std::ostringstream out;
   if (  bytes/1024 <= 1 ) {
