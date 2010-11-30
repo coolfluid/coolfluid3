@@ -61,7 +61,7 @@ Component::Component ( const std::string& name ) :
   regist_signal ( "rename_component" , "Renames this component", "Rename" )->connect ( boost::bind ( &Component::rename_component, this, _1 ) );
 
     signal("rename_component").signature
-        .insert<std::string>("NewName", name, "Component new name");
+        .insert<std::string>("NewName", "Component new name", name);
 
   // properties
 
@@ -96,6 +96,9 @@ void Component::rename ( const std::string& name )
   if ( new_name == m_name.string() ) // skip if name does not change
     return;
 
+  // notification should be done before the real renaming since the path changes
+  raise_path_changed();
+
   CPath new_full_path = m_path / new_name;
 
   if( !m_root.expired() )
@@ -117,8 +120,6 @@ void Component::rename ( const std::string& name )
   }
 
   m_name = new_name;
-
-//  raise_path_changed();
 
   // loop on children and inform them of change in name
   /// @todo solve this, maybe putting finally uuid's in the comps and using the root to get the path
