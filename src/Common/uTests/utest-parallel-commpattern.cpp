@@ -74,7 +74,6 @@ BOOST_AUTO_TEST_CASE( init )
 
 BOOST_AUTO_TEST_CASE( ObjectWrapperPtr )
 {
-/*
   int i,j;
   double *d1=new double[16];
   double *d2=new double[12];
@@ -82,8 +81,11 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperPtr )
   for(i=0; i<16; i++) d1[i]=16+i;
   for(i=0; i<12; i++) d2[i]=12+i;
 
-  PEObjectWrapper *w1=new PEObjectWrapperPtr<double>("Array1",d1,16,2,true);
-  PEObjectWrapper *w2=new PEObjectWrapperPtr<double>("Array2",d2,12,3,false);
+  PEObjectWrapperPtr<double>::Ptr w1=allocate_component_type< PEObjectWrapperPtr<double> >("Ptr1");
+  PEObjectWrapperPtr<double>::Ptr w2=allocate_component_type< PEObjectWrapperPtr<double> >("Ptr1");
+
+  w1->setup(d1,16,2,true);
+  w2->setup(d2,12,3,false);
 
   BOOST_CHECK_EQUAL( w1->needs_update() , true );
   BOOST_CHECK_EQUAL( w2->needs_update() , false );
@@ -111,14 +113,12 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperPtr )
 
   delete[] d1;
   delete[] d2;
-*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( ObjectWrapperVector )
 {
-/*
   int i,j;
   std::vector<double> d1(16);
   std::vector<double> d2(12);
@@ -126,8 +126,11 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVector )
   for(i=0; i<16; i++) d1[i]=16+i;
   for(i=0; i<12; i++) d2[i]=12+i;
 
-  PEObjectWrapper *w1=new PEObjectWrapperVector<double>("Vector1",d1,2,true);
-  PEObjectWrapper *w2=new PEObjectWrapperVector<double>("Vector2",d2,3,false);
+  PEObjectWrapperVector<double>::Ptr w1=allocate_component_type< PEObjectWrapperVector<double> >("Vector1");
+  PEObjectWrapperVector<double>::Ptr w2=allocate_component_type< PEObjectWrapperVector<double> >("Vector2");
+
+  w1->setup(d1,2,true);
+  w2->setup(d2,3,false);
 
   BOOST_CHECK_EQUAL( w1->needs_update() , true );
   BOOST_CHECK_EQUAL( w2->needs_update() , false );
@@ -152,7 +155,6 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVector )
 
   for(i=0; i<w1->size()*w1->stride(); i++) BOOST_CHECK_EQUAL( dtest1[i] , 16+i );
   for(i=0; i<w2->size()*w2->stride(); i++) BOOST_CHECK_EQUAL( dtest2[i] , 12+i );
-*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -165,16 +167,12 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVectorWeakPtr )
 
   for(i=0; i<16; i++) (*d1)[i]=16+i;
   for(i=0; i<12; i++) (*d2)[i]=12+i;
-/*
-  PEObjectWrapperVectorWeakPtr<double> w1=allocate_component_type< PEObjectWrapperVectorWeakPtr<double> >("VectorWeakPtr1");
-  w1.setup(d1,2,true);
 
+  PEObjectWrapperVectorWeakPtr<double>::Ptr w1=allocate_component_type< PEObjectWrapperVectorWeakPtr<double> >("VectorWeakPtr1");
+  PEObjectWrapperVectorWeakPtr<double>::Ptr w2=allocate_component_type< PEObjectWrapperVectorWeakPtr<double> >("VectorWeakPtr2");
 
-  PEObjectWrapper::Ptr allocate_component_type<>
-
-  PEObjectWrapper *w1=new PEObjectWrapperVectorWeakPtr<double>("VectorWeakPtr1",d1,2,true);
-  w1
-  PEObjectWrapper *w2=new PEObjectWrapperVectorWeakPtr<double>("VectorWeakPtr2",d2,3,false);
+  w1->setup(d1,2,true);
+  w2->setup(d2,3,false);
 
   BOOST_CHECK_EQUAL( w1->needs_update() , true );
   BOOST_CHECK_EQUAL( w2->needs_update() , false );
@@ -202,7 +200,7 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVectorWeakPtr )
 
   BOOST_CHECK_EQUAL( d1.use_count() , 1 );
   BOOST_CHECK_EQUAL( d2.use_count() , 1 );
-*/
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

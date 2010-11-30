@@ -101,6 +101,13 @@ template<typename T> class PEObjectWrapperPtr: public PEObjectWrapper{
 
   public:
 
+    /// pointer to this type
+    typedef boost::shared_ptr< PEObjectWrapperPtr<T> > Ptr;
+    /// const pointer to this type
+    typedef boost::shared_ptr< PEObjectWrapperPtr<T> const> ConstPtr;
+
+  public:
+
     /// destructor
     ~PEObjectWrapperPtr() { /*delete m_data;*/ };
 
@@ -174,6 +181,13 @@ template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
 
   public:
 
+    /// pointer to this type
+    typedef boost::shared_ptr< PEObjectWrapperVector<T> > Ptr;
+    /// const pointer to this type
+    typedef boost::shared_ptr< PEObjectWrapperVector<T> const> ConstPtr;
+
+  public:
+
     /// constructor
     /// @param name the component will appear under this name
     PEObjectWrapperVector(const std::string& name) : PEObjectWrapper(name) {   }
@@ -243,6 +257,13 @@ template<typename T> class PEObjectWrapperVectorWeakPtr: public PEObjectWrapper{
 
   public:
 
+    /// pointer to this type
+    typedef boost::shared_ptr< PEObjectWrapperVectorWeakPtr<T> > Ptr;
+    /// const pointer to this type
+    typedef boost::shared_ptr< PEObjectWrapperVectorWeakPtr<T> const> ConstPtr;
+
+  public:
+
     /// constructor
     /// @param name the component will appear under this name
     PEObjectWrapperVectorWeakPtr(const std::string& name) : PEObjectWrapper(name) {   }
@@ -250,7 +271,7 @@ template<typename T> class PEObjectWrapperVectorWeakPtr: public PEObjectWrapper{
     /// setup
     /// @param std::vector of data
     /// @param stride number of array element grouping
-    void setup(const std::string& name, boost::weak_ptr< std::vector<T> > data, const unsigned int stride, const bool needs_update)
+    void setup(boost::weak_ptr< std::vector<T> > data, const unsigned int stride, const bool needs_update)
     {
       if (boost::is_pod<T>::value==false) throw CF::Common::BadValue(FromHere(),"Data is not POD (plain old datatype).");
       m_data=data;
