@@ -33,11 +33,12 @@ public:
   virtual ~OSystemLayer();
 
   /// @returns string with platform name
-  virtual std::string platform_name () const { return "MacOSX"; }
+  virtual std::string platform_name () const { return "MacOSX"; };
+
+  /// @returns string with platform name
+  static std::string dump_back_trace ();
 
   /// Dump backtrace
-  static std::string dumpBacktrace ();
-
   /// @returns a string with the backtrace dump
   virtual std::string back_trace () const;
 
@@ -47,7 +48,7 @@ public:
 
   /// Gets the memory usage
   /// @return a double with the memory usage
-  virtual CF::Real memory_usage() const;
+  virtual double memory_usage() const;
 
   /// Regists the signal handlers that will be handled by this class
   virtual void regist_os_signal_handlers();

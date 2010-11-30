@@ -45,12 +45,12 @@ OSystemLayer::~OSystemLayer()
 std::string OSystemLayer::back_trace () const
 {
   printf ("getBackTrace ...\n");
-  return dumpBacktrace();
+  return dump_back_trace ();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string OSystemLayer::dumpBacktrace ()
+std::string OSystemLayer::dump_back_trace ()
 {
   #define BUFFER_SIZE 500
 
@@ -91,7 +91,7 @@ Uint OSystemLayer::process_id() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CF::Real OSystemLayer::memory_usage() const
+double OSystemLayer::memory_usage() const
 {
 
   struct task_basic_info t_info;
@@ -181,7 +181,7 @@ void OSystemLayer::regist_os_signal_handlers()
 int OSystemLayer::handleSIGFPE (int signal)
 {
   printf("\nreceived signal SIGFPE [%d] - 'Floating Point Exception'\n",signal);
-  static std::string dump = MacOSX::OSystemLayer::dumpBacktrace();
+  static std::string dump = MacOSX::OSystemLayer::dump_back_trace();
   printf( "%s\n", dump.c_str() );
   throw Common::FloatingPointError (FromHere(), "Some floating point operation has given an invalid result");
 }
@@ -191,7 +191,7 @@ int OSystemLayer::handleSIGFPE (int signal)
 int OSystemLayer::handleSIGSEGV(int signal)
 {
   printf("\nreceived signal SIGSEGV [%d] - 'Segmentation violation'\n",signal);
-  static std::string dump = MacOSX::OSystemLayer::dumpBacktrace();
+  static std::string dump = MacOSX::OSystemLayer::dump_back_trace();
   printf( "%s\n", dump.c_str() );
   abort();
 }

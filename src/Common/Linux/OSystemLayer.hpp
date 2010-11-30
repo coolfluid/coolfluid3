@@ -36,7 +36,7 @@ public:
   virtual std::string platform_name () const { return "Linux"; };
 
   /// @returns string with platform name
-  static std::string dumpBacktrace ();
+  static std::string dump_back_trace ();
 
   /// Dump backtrace
   /// @returns a string with the backtrace dump

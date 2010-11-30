@@ -50,7 +50,7 @@ std::string OSystemLayer::back_trace () const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string OSystemLayer::dumpBacktrace ()
+std::string OSystemLayer::dump_back_trace ()
 {
 #define CF_BUFFER_SIZE 256
 

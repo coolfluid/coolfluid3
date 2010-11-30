@@ -261,7 +261,7 @@ OSystemLayer::~OSystemLayer()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string OSystemLayer::getBackTrace () const
+std::string OSystemLayer::back_trace () const
 {
   printf ("\n\nWin32 dumping backtrace ...\n");
 
@@ -318,14 +318,14 @@ void *array[max_callers];
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Uint OSystemLayer::getPID () const
+Uint OSystemLayer::process_id () const
 {
   return (Uint) GetCurrentProcessId();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-double OSystemLayer::memoryUsageBytes () const
+double OSystemLayer::memory_usage () const
 {
   double return_value = 0.;
 
@@ -360,7 +360,7 @@ double OSystemLayer::memoryUsageBytes () const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void OSystemLayer::registSignalHandlers()
+void OSystemLayer::regist_os_signal_handlers()
 {
 }
 
