@@ -207,7 +207,6 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVectorWeakPtr )
 
 BOOST_AUTO_TEST_CASE( data_registration_related )
 {
-/*
   PECommPattern2 pecp("CommPattern2");
   BOOST_CHECK_EQUAL( pecp.isUpToDate() , false );
 
@@ -246,21 +245,19 @@ BOOST_AUTO_TEST_CASE( data_registration_related )
       BOOST_CHECK_EQUAL( pobj.data() , &(*d2)[0] );
     }
   }
-*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( commpattern )
 {
-/*
   // general conts in this routine
   const int nproc=PE::instance().size();
   const int irank=PE::instance().rank();
 
   // commpattern
   PECommPattern2 pecp("CommPattern2");
-
+/*
   // stupid global-reverse global indices
   std::vector<Uint> gid(nproc);
   for (int i=0; i<gid.size(); i++) gid[i]=(nproc*nproc-1)-(irank*nproc+i);
@@ -282,7 +279,7 @@ BOOST_AUTO_TEST_CASE( commpattern )
   pecp.insert("v3",v3,1,false);
 
   // initial setup
-  pecp.setup(,rank);
+//  pecp.setup(,rank);
 */
 }
 

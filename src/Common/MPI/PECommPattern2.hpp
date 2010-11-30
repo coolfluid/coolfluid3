@@ -97,8 +97,8 @@ public:
   /// @param stride number of array element grouping
   template<typename T> void insert(const std::string& name, T*& data, const int size, const unsigned int stride=1, const bool needs_update=true)
   {
-    boost::shared_ptr< PEObjectWrapper > ow ( new PEObjectWrapperPtr<T>(name,data,size,stride,needs_update), Deleter< PEObjectWrapperPtr<T> >() );
-    add_component ( ow );
+    typename PEObjectWrapperPtr<T>::Ptr ow = create_component_type< PEObjectWrapperPtr<T> >(name);
+    ow->setup(data,stride,needs_update);
   }
 
   /// register data coming from pointer to naked pointer
@@ -108,8 +108,8 @@ public:
   /// @param stride number of array element grouping
   template<typename T> void insert(const std::string& name, T** data, const int size, const unsigned int stride=1, const bool needs_update=true)
   {
-    boost::shared_ptr< PEObjectWrapper > ow( new PEObjectWrapperPtr<T>(name,data,size,stride,needs_update), Deleter< PEObjectWrapperPtr<T> >() );
-    add_component ( ow );
+    typename PEObjectWrapperPtr<T>::Ptr ow = create_component_type< PEObjectWrapperPtr<T> >(name);
+    ow->setup(data,stride,needs_update);
   }
 
   /// register data coming from std::vector by reference
@@ -118,8 +118,8 @@ public:
   /// @param stride number of array element grouping
   template<typename T> void insert(const std::string& name, std::vector<T>& data, const unsigned int stride=1, const bool needs_update=true)
   {
-    boost::shared_ptr< PEObjectWrapper > ow( new PEObjectWrapperVector<T>(name,data,stride,needs_update), Deleter< PEObjectWrapperVector<T> >() );
-    add_component ( ow );
+    typename PEObjectWrapperVector<T>::Ptr ow = create_component_type< PEObjectWrapperVector<T> >(name);
+    ow->setup(data,stride,needs_update);
   }
 
   /// register data coming from pointer to std::vector
@@ -128,8 +128,8 @@ public:
   /// @param stride number of array element grouping
   template<typename T> void insert(const std::string& name, std::vector<T>* data, const unsigned int stride=1, const bool needs_update=true)
   {
-    boost::shared_ptr< PEObjectWrapper > ow( new PEObjectWrapperVector<T>(name,data,stride,needs_update), Deleter< PEObjectWrapperVector<T> >() );
-    add_component ( ow );
+    typename PEObjectWrapperVector<T>::Ptr ow = create_component_type< PEObjectWrapperVector<T> >(name);
+    ow->setup(data,stride,needs_update);
   }
 
   /// register data coming from std::vector wrapped into weak_ptr (also works with shared_ptr)
@@ -138,9 +138,7 @@ public:
   /// @param stride number of array element grouping
   template<typename T> void insert(const std::string& name, boost::weak_ptr< std::vector<T> > data, const unsigned int stride=1, const bool needs_update=true)
   {
-    typename PEObjectWrapperVectorWeakPtr<T>::Ptr ow =
-        create_component_type< PEObjectWrapperVectorWeakPtr<T> >(name);
-
+    typename PEObjectWrapperVectorWeakPtr<T>::Ptr ow = create_component_type< PEObjectWrapperVectorWeakPtr<T> >(name);
     ow->setup(data,stride,needs_update);
   }
 
