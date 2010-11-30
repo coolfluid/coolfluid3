@@ -38,10 +38,10 @@ namespace Common {
       m_properties[pname].as_option().link_to(par);
     }
 
-    /// get the pointer to the option
-    const Property & property(const std::string& optname ) const;
+    /// access to the property
+    const Property& property(const std::string& optname ) const;
 
-    /// Configure one option, and trigger its actions
+    /// Configure one property, and trigger its actions
     /// @param [in] optname  The option name
     /// @param [in] val      The new value assigned to the option
     void configure_property(const std::string& optname, const boost::any& val)
