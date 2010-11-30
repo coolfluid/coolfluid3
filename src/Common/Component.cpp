@@ -566,6 +566,8 @@ void add_array_to_xml(XmlParams & params, const std::string & name,
   params.add_array(name, boost::any_cast< std::vector<TYPE> >(optArray->value()), desc, basic);
 }
 
+/////////////////////////////////////////////////////////////////////////////////////
+
 /// Adds an array to XML tree
 /// @param params XmlParams object that manages the tree
 /// @param prop Property to add
@@ -599,6 +601,8 @@ void add_prop_to_xml(XmlParams & params, const std::string & name,
     }
   }
 }
+
+/////////////////////////////////////////////////////////////////////////////////////
 
 void Component::list_properties( XmlNode& node )
 {
