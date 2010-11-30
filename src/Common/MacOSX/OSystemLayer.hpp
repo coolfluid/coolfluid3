@@ -33,24 +33,24 @@ public:
   virtual ~OSystemLayer();
 
   /// @returns string with platform name
-  virtual std::string getPlatformName () const { return "MacOSX"; }
+  virtual std::string platform_name () const { return "MacOSX"; }
 
   /// Dump backtrace
-  static std::string dumpBackTrace ();
+  static std::string dumpBacktrace ();
 
   /// @returns a string with the backtrace dump
-  virtual std::string getBackTrace () const;
+  virtual std::string back_trace () const;
 
   /// Gets the current process ID
   /// @return a integer witht he current process ID
-  virtual Uint getPID () const;
+  virtual Uint process_id () const;
 
   /// Gets the memory usage
   /// @return a double with the memory usage
-  virtual double memoryUsageBytes() const;
+  virtual CF::Real memory_usage() const;
 
   /// Regists the signal handlers that will be handled by this class
-  virtual void registSignalHandlers();
+  virtual void regist_os_signal_handlers();
 
 protected:
 

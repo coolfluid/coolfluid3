@@ -42,15 +42,15 @@ OSystemLayer::~OSystemLayer()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string OSystemLayer::getBackTrace () const
+std::string OSystemLayer::back_trace () const
 {
   printf ("getBackTrace ...\n");
-  return dumpBackTrace ();
+  return dumpBacktrace();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string OSystemLayer::dumpBackTrace ()
+std::string OSystemLayer::dumpBacktrace ()
 {
   #define BUFFER_SIZE 500
 
@@ -83,7 +83,7 @@ std::string OSystemLayer::dumpBackTrace ()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Uint OSystemLayer::getPID() const
+Uint OSystemLayer::process_id() const
 {
   pid_t pid = getpid();
   return static_cast<Uint> ( pid );
@@ -91,7 +91,7 @@ Uint OSystemLayer::getPID() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-double OSystemLayer::memoryUsageBytes() const
+CF::Real OSystemLayer::memory_usage() const
 {
 
   struct task_basic_info t_info;
@@ -163,7 +163,7 @@ fedisableexcept (unsigned int excepts)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void OSystemLayer::registSignalHandlers()
+void OSystemLayer::regist_os_signal_handlers()
 {
   // register handler functions for the signals
   signal(SIGFPE,    (sighandler_t) MacOSX::OSystemLayer::handleSIGFPE);
@@ -181,7 +181,7 @@ void OSystemLayer::registSignalHandlers()
 int OSystemLayer::handleSIGFPE (int signal)
 {
   printf("\nreceived signal SIGFPE [%d] - 'Floating Point Exception'\n",signal);
-  static std::string dump = MacOSX::OSystemLayer::dumpBackTrace();
+  static std::string dump = MacOSX::OSystemLayer::dumpBacktrace();
   printf( "%s\n", dump.c_str() );
   throw Common::FloatingPointError (FromHere(), "Some floating point operation has given an invalid result");
 }
@@ -191,7 +191,7 @@ int OSystemLayer::handleSIGFPE (int signal)
 int OSystemLayer::handleSIGSEGV(int signal)
 {
   printf("\nreceived signal SIGSEGV [%d] - 'Segmentation violation'\n",signal);
-  static std::string dump = MacOSX::OSystemLayer::dumpBackTrace();
+  static std::string dump = MacOSX::OSystemLayer::dumpBacktrace();
   printf( "%s\n", dump.c_str() );
   abort();
 }
