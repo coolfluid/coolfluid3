@@ -19,7 +19,6 @@ list( APPEND coolfluid_common_files
     CommonAPI.hpp
     Component.hpp
     Component.cpp
-    ComponentIterator.hpp
     ComponentPredicates.hpp
     CEnv.cpp
     CEnv.hpp
@@ -72,7 +71,6 @@ list( APPEND coolfluid_common_files
     LogStringForwarder.cpp
     NamedObject.hpp
     NamedObject.cpp
-    NonInstantiable.hpp
     NoProfiling.cpp
     NoProfiling.hpp
     NotificationQueue.cpp

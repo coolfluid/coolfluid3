@@ -106,7 +106,16 @@ template <class TYPE>
 
 /// functor for deleting objects by calling the safer delete_ptr function
 template < typename BASE >
-  struct Deleter { void operator()( BASE * p ) { delete_ptr<BASE>(p); } };
+struct Deleter { void operator()( BASE * p ) { delete_ptr<BASE>(p); } };
+
+////////////////////////////////////////////////////////////////////////////////
+
+/// Derive from this class if you want a class that is not instantiable.
+template < class TYPE >
+class NonInstantiable {
+private:
+    NonInstantiable ();
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -7,10 +7,7 @@
 #ifndef CF_Common_EnumT_hpp
 #define CF_Common_EnumT_hpp
 
-#include <map>
-
 #include "Common/CF.hpp"
-#include "Common/NonInstantiable.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -20,7 +17,7 @@ namespace Common {
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename EClass >
-class EnumT : public Common::NonInstantiable< EnumT<EClass> >
+class EnumT : public NonInstantiable< EnumT<EClass> >
 {
   public: // typedefs
 

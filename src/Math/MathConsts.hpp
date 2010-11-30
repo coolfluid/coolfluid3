@@ -12,7 +12,6 @@
 #include <limits>    // for std::numeric_limits
 
 #include "Common/CF.hpp"
-#include "Common/NonInstantiable.hpp"
 
 #include "Math/LibMath.hpp"
 

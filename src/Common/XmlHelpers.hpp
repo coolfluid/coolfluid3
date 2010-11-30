@@ -12,7 +12,6 @@
 #include <boost/filesystem/path.hpp>
 
 #include "Common/XML.hpp"
-#include "Common/NonInstantiable.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/OptionArray.hpp"
 

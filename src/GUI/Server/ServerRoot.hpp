@@ -13,7 +13,6 @@
 #include <QDomDocument>
 
 #include "Common/CRoot.hpp"
-#include "Common/NonInstantiable.hpp"
 
 #include "GUI/Server/ServerRoot.hpp"
 
@@ -43,7 +42,7 @@ namespace Server {
 
   class ServerRoot :
       public boost::noncopyable,
-      public CF::Common::NonInstantiable<ServerRoot>
+      public CF::NonInstantiable<ServerRoot>
   {
   public:
 

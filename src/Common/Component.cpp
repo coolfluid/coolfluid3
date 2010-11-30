@@ -13,7 +13,6 @@
 #include "Common/CBuilder.hpp"
 #include "Common/XmlHelpers.hpp"
 #include "Common/BasicExceptions.hpp"
-#include "Common/ComponentIterator.hpp"
 #include "Common/OptionArray.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/String/Conversion.hpp"

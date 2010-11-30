@@ -13,7 +13,6 @@
 #include <boost/signals2/signal.hpp>
 
 #include "Common/Exception.hpp"
-#include "Common/NonInstantiable.hpp"
 #include "Common/XmlSignature.hpp"
 #include "Common/XML.hpp"
 

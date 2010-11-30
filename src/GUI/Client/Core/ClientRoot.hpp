@@ -11,8 +11,6 @@
 
 #include <QDomDocument>
 
-#include "Common/NonInstantiable.hpp"
-
 #include "GUI/Network/ComponentNames.hpp"
 #include "GUI/Client/Core/NBrowser.hpp"
 #include "GUI/Client/Core/NLog.hpp"
@@ -38,7 +36,7 @@ namespace ClientCore {
   /// @author Quentin Gasper.
 
   class ClientCore_API ClientRoot :
-      public CF::Common::NonInstantiable<ClientRoot>
+      public CF::NonInstantiable<ClientRoot>
   {
   public:
 

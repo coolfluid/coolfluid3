@@ -12,7 +12,7 @@
 #include "Common/CF.hpp"
 
 namespace CF {
-  namespace Common {
+namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +37,7 @@ private:
   /// @note will be empty if the compiler does not support it
   const char * m_function;
   /// from which line the exception was thrown
-  int      m_line;
+  int          m_line;
 
 }; // CodeLocation
 
@@ -47,7 +47,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  } // Common
+} // Common
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////
