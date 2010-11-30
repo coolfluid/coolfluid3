@@ -49,7 +49,7 @@ GraphicalUri::GraphicalUri(CF::Common::OptionURI::ConstPtr opt, QWidget *parent)
   }
 
   connect(m_btBrowse, SIGNAL(clicked()), this, SLOT(btBrowseClicked()));
-//  connect(m_editPath, SIGNAL(textChanged(QString)), this, SLOT(updateModel(QString)));
+  connect(m_editPath, SIGNAL(textChanged(QString)), this, SLOT(updateModel(QString)));
   connect(m_comboType, SIGNAL(activated(QString)), this, SLOT(changeType(QString)));
 
   this->updateModel("");
@@ -151,52 +151,6 @@ void GraphicalUri::btBrowseClicked()
 
 void GraphicalUri::updateModel(const QString & path)
 {
-  if(m_editPath->completer() == nullptr)
-    return;
-
-  int lastSlash = path.lastIndexOf(CPath::separator().c_str());
-  QString newPath;
-  QStringList list;
-  CNode::Ptr node;
-
-  CRoot::Ptr root = ClientRoot::tree()->treeRoot()->root();
-
-  try
-  {
-    node = root->access_component<CNode>(path.toStdString());
-  }
-  catch(InvalidPath & ip) {}
-
-  if(node != nullptr)
-    newPath = path;
-  else
-    newPath = path.left(lastSlash);
-
-  if(newPath == CPath::separator().c_str())
-    newPath = root->full_path().string().c_str();
-
-  try
-  {
-    if(root->full_path().string() == newPath.toStdString())
-      node = ClientRoot::tree()->treeRoot();
-    else
-      node = root->access_component<CNode>(newPath.toStdString());
-
-    if(node != nullptr)
-    {
-      QStringList list;
-      node->listChildPaths(list, false, false);
-
-      node = boost::dynamic_pointer_cast<CNode>(node->get_parent());
-
-      if(node != nullptr)
-        node->listChildPaths(list, false, false);
-
-      m_completerModel->setStringList(list);
-    }
-  }
-  catch(InvalidPath & ip) {}
-
   emit valueChanged();
 }
 
