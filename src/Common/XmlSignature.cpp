@@ -169,7 +169,7 @@ void XmlSignature::copy_node(const XmlNode & in, XmlNode & out) const
 
   while( node != nullptr )
   {
-    XmlNode * copy = XmlOps::add_node_to(out, node->name());
+    XmlNode * copy = XmlOps::add_node_to(out, node->name(), node->value());
     XmlAttr * attr = node->first_attribute();
 
     while( attr != nullptr )
