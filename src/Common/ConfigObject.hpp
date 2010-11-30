@@ -49,7 +49,8 @@ namespace Common {
       m_properties.configure_property(optname,val);
     }
 
-    bool check_property(const std::string & prop_name)
+    /// checkmthat a property exists
+    bool exists_property(const std::string & prop_name)
     {
       return m_properties.check(prop_name);
     }
