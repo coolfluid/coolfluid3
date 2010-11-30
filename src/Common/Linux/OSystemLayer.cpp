@@ -45,7 +45,7 @@ OSystemLayer::~OSystemLayer()
 
 std::string OSystemLayer::back_trace () const
 {
-  return dumpBacktrace ();
+  return dump_back_trace ();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -169,7 +169,7 @@ void OSystemLayer::regist_os_signal_handlers()
 int OSystemLayer::handleSIGFPE (int signal)
 {
   printf("\nreceived signal SIGFPE [%d] - 'Floating Point Exception'\n",signal);
-  static std::string dump = Linux::OSystemLayer::dumpBacktrace();
+  static std::string dump = Linux::OSystemLayer::dump_back_trace();
   printf( "%s\n", dump.c_str() );
   throw Common::FloatingPointError (FromHere(), "Some floating point operation has given an invalid result");
 }
@@ -179,7 +179,7 @@ int OSystemLayer::handleSIGFPE (int signal)
 int OSystemLayer::handleSIGSEGV(int signal)
 {
   printf("\nreceived signal SIGSEGV [%d] - 'Segmentation violation'\n",signal);
-  static std::string dump = Linux::OSystemLayer::dumpBacktrace();
+  static std::string dump = Linux::OSystemLayer::dump_back_trace();
   printf( "%s\n", dump.c_str() );
   abort();
 }
