@@ -13,7 +13,6 @@
 #include "Common/BasicExceptions.hpp"
 #include "Common/MPI/PE.hpp"
 #include "Common/Log.hpp"
-#include "Common/ConfigArgs.hpp"
 #include "Common/XmlHelpers.hpp"
 
 #include "GUI/Network/ComponentNames.hpp"

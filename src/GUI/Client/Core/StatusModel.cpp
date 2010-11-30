@@ -14,8 +14,6 @@
 
 #include "Common/MPI/PE.hpp"
 
-#include "Common/ConfigArgs.hpp"
-
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/StatusModel.hpp"
 

@@ -404,7 +404,7 @@ void CReader::read_section(CRegion& parent_region)
   BOOST_FOREACH(CRegion& existing_region, range_typed<CRegion>(parent_region))
   if (existing_region.get())
   {
-    if (existing_region.exists_property("cgns_section_name"))
+    if (existing_region.properties().check("cgns_section_name"))
     {
       if (existing_region.property("cgns_section_name").value<std::string>() == m_section.name)
       {
@@ -683,7 +683,7 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
       if (first_elements->get_parent() == last_elements->get_parent())
       {
         CRegion::Ptr group_region = first_elements->get_parent()->as_type<CRegion>();
-        Uint prev_elm_count = group_region->exists_property("previous_elem_count") ? group_region->property("previous_elem_count").value<Uint>() : 0;
+        Uint prev_elm_count = group_region->properties().check("previous_elem_count") ? group_region->property("previous_elem_count").value<Uint>() : 0;
         if (group_region->recursive_elements_count() == prev_elm_count + Uint(boco_elems[1]-boco_elems[0]+1))
         {
           group_region->properties()["cgns_section_name"] = group_region->name();
@@ -731,7 +731,7 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
       if (first_elements->get_parent() == last_elements->get_parent())
       {
         CRegion::Ptr group_region = first_elements->get_parent()->as_type<CRegion>();
-        Uint prev_elm_count = group_region->exists_property("previous_elem_count") ? group_region->property("previous_elem_count").value<Uint>() : 0;
+        Uint prev_elm_count = group_region->properties().check("previous_elem_count") ? group_region->property("previous_elem_count").value<Uint>() : 0;
         if (group_region->recursive_elements_count() == prev_elm_count + Uint(boco_elems[m_boco.nBC_elem-1]-boco_elems[0]+1))
         {
           group_region->properties()["cgns_section_name"] = group_region->name();

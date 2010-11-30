@@ -28,27 +28,10 @@ using namespace Common;
 CMeshReader::CMeshReader ( const std::string& name  ) :
 	Component ( name )
 {
-	  define_config_properties(); define_signals();
-	comm_pattern = SimpleCommunicationPattern(); // must be created after MPI init
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-CMeshReader::~CMeshReader()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void CMeshReader::define_signals ()
-{
+  // signals
   this->regist_signal ( "read" , "reads a mesh", "Read mesh" )->connect ( boost::bind ( &CMeshReader::read, this, _1 ) );
-}
 
-////////////////////////////////////////////////////////////////////////////////
-
-void CMeshReader::define_config_properties()
-{
+  // options
   std::vector< URI > dummy;
   Option::Ptr option;
   OptionURI::Ptr option_uri;
@@ -61,26 +44,46 @@ void CMeshReader::define_config_properties()
 
   m_properties["Files"].as_option().mark_basic();
   m_properties["Mesh"].as_option().mark_basic();
+
+  // comm pattern
+
+  comm_pattern = SimpleCommunicationPattern(); // must be created after MPI init
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CMeshReader::~CMeshReader()
+{
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 void CMeshReader::read( XmlNode& node  )
 {
-  // Get the mesh
-  CMesh::Ptr mesh = look_component_type<CMesh>( property("Mesh").value<std::string>() );
 
-  // Get the file paths
-  std::vector<URI> files;
+   URI path = property("Mesh").value<URI>();
+
+   if( !path.has_protocol("cpath") )
+     throw BadValue( FromHere(), "Wrong protocol to access the Mesh component, expecting a \'cpath\' but got" + path.string() );
+
+  // Get the mesh
+  CMesh::Ptr mesh = look_component_type<CMesh>( path.string_without_protocol() );
+  if (!mesh)
+    throw CastingFailed( FromHere(), "Component in path \'" + path.string() + "\'" );
+
+
+  // check protocol for file loading
   BOOST_FOREACH(URI file, property("Files").value<std::vector<URI> >())
   {
-    if(!file.empty() && file.has_protocol("file"))
-    {
-      boost::filesystem::path fpath(file.string());
+    if( file.empty() || !file.has_protocol("file"))
+      throw BadValue( FromHere(), "Wrong protocol to access the file, expecting a \'file\' but got" + file.string() );
+  }
+
+  // Get the file paths
+  BOOST_FOREACH(URI file, property("Files").value<std::vector<URI> >())
+  {
+      boost::filesystem::path fpath( file.string_without_protocol() );
       read_from_to(fpath, mesh);
-    }
-    else
-      CFerror << "\"" << file << "\" is not a valid file path." << CFendl;
   }
 }
 

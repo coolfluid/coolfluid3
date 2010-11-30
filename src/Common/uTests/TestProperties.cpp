@@ -102,8 +102,8 @@ BOOST_AUTO_TEST_CASE( list )
   props.add_property("count3", Uint(13));
 
   Uint counter = 10;
-  PropertyList::PropertyStorage_t::iterator itr = props.m_properties.begin();
-  for ( ; itr != props.m_properties.end(); ++itr, ++counter )
+  PropertyList::PropertyStorage_t::iterator itr = props.store.begin();
+  for ( ; itr != props.store.end(); ++itr, ++counter )
   {
     const std::string& pname = itr->first;
     BOOST_CHECK_EQUAL ( props.property(pname).value<Uint>(), counter );
@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE( remove )
   props.add_property("surname", std::string("doe"));
   props.add_property("size", int(99));
 
-  BOOST_CHECK_EQUAL ( props.m_properties.size(), (Uint) 4 );
+  BOOST_CHECK_EQUAL ( props.store.size(), (Uint) 4 );
 
   BOOST_CHECK_EQUAL ( props.check( "count" ),   true );
   BOOST_CHECK_EQUAL ( props.check( "name" ),    true );
@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE( remove )
   props.erase("count");
   props.erase("surname");
 
-  BOOST_CHECK_EQUAL ( props.m_properties.size(), (Uint) 2 );
+  BOOST_CHECK_EQUAL ( props.store.size(), (Uint) 2 );
 
   BOOST_CHECK_EQUAL ( props.check( "count" ),   false );
   BOOST_CHECK_EQUAL ( props.check( "surname" ), false );
@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_CASE( remove )
   BOOST_CHECK_THROW(props.erase("age"), ValueNotFound);
   BOOST_CHECK_EQUAL ( props.check( "age" ),     false );
 
-  BOOST_CHECK_EQUAL ( props.m_properties.size(), (Uint) 2 );
+  BOOST_CHECK_EQUAL ( props.store.size(), (Uint) 2 );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -17,23 +17,23 @@ namespace Common {
                                             const boost::any & value )
   {
     cf_assert_desc ( "Class has already property with same name",
-                     this->m_properties.find(name) == m_properties.end() );
+                     this->store.find(name) == store.end() );
     Property::Ptr prop ( new Property(value) );
-    m_properties.insert( std::make_pair(name, prop ) );
+    store.insert( std::make_pair(name, prop ) );
     return prop;
   }
 
   const Property & PropertyList::property( const std::string& pname) const
   {
-    PropertyStorage_t::const_iterator itr = m_properties.find(pname);
-    if ( itr != m_properties.end() )
+    PropertyStorage_t::const_iterator itr = store.find(pname);
+    if ( itr != store.end() )
       return *itr->second.get();
     else
 		{ 			
 			std::string msg;
 			msg += "Property with name ["+pname+"] not found. Available properties are:\n";
-			PropertyStorage_t::const_iterator it = m_properties.begin();
-			for (; it!=m_properties.end(); it++)
+      PropertyStorage_t::const_iterator it = store.begin();
+      for (; it!=store.end(); it++)
 				msg += "  - " + it->first + "\n";
 			throw ValueNotFound(FromHere(),msg);
 		}
@@ -47,9 +47,9 @@ namespace Common {
 
   void PropertyList::erase( const std::string& pname)
   {
-    PropertyStorage_t::iterator itr = m_properties.find(pname);
-    if ( itr != m_properties.end() )
-      m_properties.erase(itr);
+    PropertyStorage_t::iterator itr = store.find(pname);
+    if ( itr != store.end() )
+      store.erase(itr);
     else
       throw ValueNotFound(FromHere(), "Property with name [" + pname + "] not found" );
   }
@@ -57,9 +57,9 @@ namespace Common {
   Property & PropertyList::operator [] (const std::string & pname)
   {
     Property::Ptr prop;
-    PropertyStorage_t::iterator itr = m_properties.find(pname);
+    PropertyStorage_t::iterator itr = store.find(pname);
 
-    if ( itr != m_properties.end() )
+    if ( itr != store.end() )
       prop = itr->second;
     else
       prop = add_property(pname, boost::any());
@@ -70,16 +70,16 @@ namespace Common {
 	const Property & PropertyList::operator [] (const std::string & pname) const
   {
     Property::ConstPtr prop;
-    PropertyStorage_t::const_iterator itr = m_properties.find(pname);
+    PropertyStorage_t::const_iterator itr = store.find(pname);
 		
-    if ( itr != m_properties.end() )
+    if ( itr != store.end() )
       prop = itr->second;
     else
 		{
 			std::string msg;
 			msg += "Property with name ["+pname+"] not found. Available properties are:\n";
-			PropertyStorage_t::const_iterator it = m_properties.begin();
-			for (; it!=m_properties.end(); it++)
+      PropertyStorage_t::const_iterator it = store.begin();
+      for (; it!=store.end(); it++)
 				msg += "  - " + it->first + "\n";
 			throw	ValueNotFound(FromHere(),msg);
 		}
@@ -88,13 +88,13 @@ namespace Common {
 
 	void PropertyList::configure_property(const std::string& pname, const boost::any& val)
 	{
-		PropertyStorage_t::iterator itr = m_properties.find(pname);
-		if (itr == m_properties.end())
+    PropertyStorage_t::iterator itr = store.find(pname);
+    if (itr == store.end())
 		{
 			std::string msg;
 			msg += "Property with name ["+pname+"] not found. Available properties are:\n";
-			PropertyStorage_t::iterator it = m_properties.begin();
-			for (; it!=m_properties.end(); it++)
+      PropertyStorage_t::iterator it = store.begin();
+      for (; it!=store.end(); it++)
 				msg += "  - " + it->first + "\n";
 			throw ValueNotFound(FromHere(),msg);
 		}

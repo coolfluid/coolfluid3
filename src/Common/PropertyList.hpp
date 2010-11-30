@@ -38,21 +38,29 @@ namespace Common {
                               const typename OPTION_TYPE::value_type& def )
     {
       cf_assert_desc ( "Class has already property with same name",
-                       this->m_properties.find(name) == m_properties.end() );
+                       this->store.find(name) == store.end() );
       Option::Ptr opt ( new OPTION_TYPE(name, description, def) );
-      m_properties.insert( std::make_pair(name, opt ) );
+      store.insert( std::make_pair(name, opt ) );
       return opt;
     }
 
+    /// sets a link to the option
+    template < typename TYPE >
+        void link_to_parameter ( const std::string& pname, TYPE* par )
+    {
+      cf_assert( check(pname) );
+      store[pname]->as_option().link_to(par);
+    }
+
     /// get a property from the list
-    const Property & property( const std::string& pname ) const;
+    const Property& property( const std::string& pname ) const;
 
     /// get an option from the list
-    const Option & option( const std::string& pname ) const;
+    const Option& option( const std::string& pname ) const;
 
-    Property & operator [] (const std::string & pname);
+    Property& operator [] (const std::string & pname);
 		
-		const Property & operator [] (const std::string & pname) const;
+    const Property& operator [] (const std::string & pname) const;
 
     /// Configure one option, and trigger its actions
     /// @param [in] optname  The option name
@@ -63,17 +71,17 @@ namespace Common {
     /// @param prop_name the property name
     bool check ( const std::string& prop_name ) const
     {
-      return m_properties.find(prop_name) != m_properties.end();
+      return store.find(prop_name) != store.end();
     }
 
     /// erases a property
     /// @param prop_name the property name
-    void erase(const std::string & pname);
+    void erase (const std::string & pname);
 
   public:
 
     /// storage of options
-    PropertyStorage_t m_properties;
+    PropertyStorage_t store;
 
   }; // class PropertyList
 

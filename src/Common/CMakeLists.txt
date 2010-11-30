@@ -40,8 +40,6 @@ list( APPEND coolfluid_common_files
     CLink.hpp
     CLink.cpp
     CMap.hpp
-    ConfigArgs.cpp
-    ConfigArgs.hpp
     Core.hpp
     Core.cpp
     CreateComponent.hpp
@@ -91,8 +89,6 @@ list( APPEND coolfluid_common_files
     Property.cpp
     PropertyList.hpp
     PropertyList.cpp
-    ConfigObject.hpp
-    ConfigObject.cpp
     OSystem.cpp
     OSystem.hpp
     OSystemLayer.cpp

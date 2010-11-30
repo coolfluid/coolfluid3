@@ -39,8 +39,8 @@ BOOST_AUTO_TEST_CASE( constructors )
   BOOST_CHECK_EQUAL ( root->path().string() , "/" );
   BOOST_CHECK_EQUAL ( root->full_path().string() , "//root" );
 
-  BOOST_CHECK_EQUAL ( root->check_property("brief") , true );
-  BOOST_CHECK_EQUAL ( root->check_property("description") , true );
+  BOOST_CHECK_EQUAL ( root->properties().check("brief") , true );
+  BOOST_CHECK_EQUAL ( root->properties().check("description") , true );
 
   // constructor with empty path
   CGroup dir1 ( "dir1" );

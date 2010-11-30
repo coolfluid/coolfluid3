@@ -23,7 +23,6 @@
 #include <QDebug>
 
 #include "Common/Exception.hpp"
-#include "Common/ConfigArgs.hpp"
 
 #include "GUI/Client/UI/AboutCFDialog.hpp"
 #include "GUI/Client/Core/ClientRoot.hpp"

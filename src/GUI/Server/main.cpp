@@ -15,7 +15,6 @@
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
 
-#include "Common/ConfigArgs.hpp"
 #include "Common/MPI/PE.hpp"
 #include "Common/CEnv.hpp"
 

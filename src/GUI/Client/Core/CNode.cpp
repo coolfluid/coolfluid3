@@ -112,7 +112,7 @@ void CNode::setOptions(XmlNode & options)
     for ( ; node != nullptr ; node = node->next_sibling() )
     {
       Option::Ptr opt = makeOption(*node);
-      m_properties.m_properties[ opt->name() ] = opt;
+      m_properties.store[ opt->name() ] = opt;
     }
   }
 }
@@ -467,9 +467,9 @@ void CNode::options(QList<Option::ConstPtr> & list) const
 {
   PropertyList::PropertyStorage_t::const_iterator it;
 
-  it = m_properties.m_properties.begin();
+  it = m_properties.store.begin();
 
-  for( ; it != m_properties.m_properties.end() ; it++)
+  for( ; it != m_properties.store.end() ; it++)
   {
     Property::Ptr prop = it->second;
 
@@ -483,13 +483,13 @@ void CNode::options(QList<Option::ConstPtr> & list) const
 
 void CNode::properties(QMap<QString, QString> & props) const
 {
-  PropertyList::PropertyStorage_t::const_iterator it = m_properties.m_properties.begin();
+  PropertyList::PropertyStorage_t::const_iterator it = m_properties.store.begin();
 
   boost::any val = int(120);
 
   props.clear();
 
-  for( ; it != m_properties.m_properties.end() ; it++)
+  for( ; it != m_properties.store.end() ; it++)
   {
     Property::Ptr prop = it->second;
     std::string valueStr;

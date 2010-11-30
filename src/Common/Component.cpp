@@ -10,7 +10,6 @@
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 
-// #include "Common/Log.hpp" // temporary
 #include "Common/CBuilder.hpp"
 #include "Common/XmlHelpers.hpp"
 #include "Common/BasicExceptions.hpp"
@@ -27,6 +26,7 @@ namespace Common {
 Component::Component ( const std::string& name ) :
     m_name (),
     m_path (),
+    m_properties(),
     m_components(),
     m_dynamic_components(),
     m_raw_parent(NULL),
@@ -602,11 +602,11 @@ void add_prop_to_xml(XmlParams & params, const std::string & name,
 
 void Component::list_properties( XmlNode& node )
 {
-  PropertyList::PropertyStorage_t::iterator it = m_properties.m_properties.begin();
+  PropertyList::PropertyStorage_t::iterator it = m_properties.store.begin();
 
   XmlParams p(*node.parent());
 
-  for( ; it != m_properties.m_properties.end() ; it++)
+  for( ; it != m_properties.store.end() ; it++)
   {
     std::string name = it->first;
     Property::Ptr prop = it->second;
@@ -677,6 +677,47 @@ void Component::list_signals( XmlNode& node )
     XmlOps::add_attribute_to(map, "name", it->second.readable_name);
     it->second.signature.put_signature(map);
   }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+void Component::configure ( XmlNode& node )
+{
+  XmlParams pn ( node );
+
+  if ( pn.option_map == 0 )
+    throw  Common::XmlError( FromHere(), "ConfigObject received  XML without a \'" + std::string(XmlParams::tag_node_map()) + "\' node" );
+
+  // get the list of options
+  PropertyList::PropertyStorage_t& options = m_properties.store;
+
+  // loop on the param nodes
+  for (XmlNode* itr =  pn.option_map->first_node(); itr; itr = itr->next_sibling() )
+  {
+    // search for the attribute with key
+    XmlAttr* att = itr->first_attribute( XmlParams::tag_attr_key() );
+    if ( att )
+    {
+      PropertyList::PropertyStorage_t::iterator opt = options.find( att->value() );
+      if (opt != options.end() && opt->second->is_option())
+        opt->second->as_option().configure_option(*itr);
+    }
+  }
+
+  // add a reply frame
+  /// @todo adapt when the new XML layer is in place
+  XmlNode & reply_node = *XmlOps::add_reply_frame(node);
+  XmlParams p_reply(reply_node);
+  XmlNode & map_node = *p_reply.add_map(XmlParams::tag_key_options()); //XmlOps::add_node_to(reply_node, XmlParams::tag_node_map());
+
+  XmlOps::deep_copy(*pn.option_map, map_node);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+const Property& Component::property( const std::string& optname ) const
+{
+  return m_properties.property(optname);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

@@ -52,18 +52,14 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CMeshReader"; }
 
-  // --------- Configuration ---------
-
-  /// regists all the signals declared in this class
-  virtual void define_signals ();
-
-  virtual void define_config_properties ();
-
-  // --------- Signals ---------
+  /// @name SIGNALS
+  //@{
 
   /// @note: This doesn't read anything from the xml node argument.
   ///        It just reads the config options
   void read( Common::XmlNode& node  );
+
+  //@} END SIGNALS
 
   // --------- Direct access ---------
 

@@ -11,7 +11,6 @@
 
 #include <boost/enable_shared_from_this.hpp>
 
-#include "Common/ConfigObject.hpp"
 #include "Common/SignalHandler.hpp"
 #include "Common/TaggedObject.hpp"
 #include "Common/CPath.hpp"
@@ -33,7 +32,6 @@ namespace Common {
 class Common_API Component
   :
   public boost::enable_shared_from_this<Component>,
-  public ConfigObject,
   public SignalHandler,
   public TaggedObject,
   public boost::noncopyable {
@@ -172,6 +170,8 @@ public: // functions
 
   /// Looks for a component via its path
   /// @param path to the component
+  /// @throws ValueNotFound if the component is not found in the path
+  /// @post returns empty shared pointer if failed to cast to requested type
   /// @return constant Ptr to component cast to specific type
   template < typename T >
     typename T::ConstPtr look_component_type ( const CPath& path ) const
@@ -246,13 +246,27 @@ public: // functions
   }
 
   /// @return Returns a reference to the property list
-  PropertyList & properties() { return m_properties; }
+  PropertyList& properties() { return m_properties; }
 
   /// @return Returns a constant referent to the property list
-  const PropertyList & properties() const { return m_properties; }
+  const PropertyList& properties() const { return m_properties; }
+
+  /// access to the property
+  const Property& property(const std::string& optname ) const;
+
+  /// Configure one property, and trigger its actions
+  /// @param [in] optname  The option name
+  /// @param [in] val      The new value assigned to the option
+  void configure_property(const std::string& optname, const boost::any& val)
+  {
+    m_properties.configure_property(optname,val);
+  }
 
   /// @name SIGNALS
   //@{
+
+  /// configures all the options on this class
+  void configure ( XmlNode& node );
 
   /// creates a component from this component
   void create_component ( XmlNode& xml );
@@ -311,6 +325,8 @@ protected: // data
   CPath m_name;
   /// component current path
   CPath m_path;
+  /// storage of the option list
+  PropertyList m_properties;
   /// list of sub-components
   CompStorage_t m_components;
   /// list of dynamic sub-components

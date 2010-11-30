@@ -14,7 +14,6 @@
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-#include "Common/ConfigObject.hpp"
 #include "Common/OptionArray.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/Log.hpp"
@@ -33,7 +32,9 @@ using namespace CF::Common;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class MyC : public ConfigObject {
+class MyC : public Component {
+
+  static string type_name() { return "MyC"; }
 
   private: // data
 
@@ -42,9 +43,8 @@ class MyC : public ConfigObject {
 
   public: // functions
 
-  virtual void define_config_properties ()
+  MyC ( const std::string& name ) :  Component(name)
   {
-
     // POD's (plain old data)
     m_properties.add_option< OptionT<bool> >            ( "OptBool", "bool option"   , false  );
     m_properties.add_option< OptionT<int> >             ( "OptInt",  "int option"    , -5     );
@@ -62,17 +62,12 @@ class MyC : public ConfigObject {
     std::vector< std::string > defs;
     defs += "lolo","koko";     /* uses boost::assign */
     m_properties.add_option< OptionArrayT< std::string >  >   ( "VecStr",  "vector strs option" , defs );
-  }
-
-  MyC ()
-  {
-    define_config_properties();
 
 //    option("OptInt").set_value(10);
 
     m_properties["OptInt"].as_option().link_to( &m_i );
 
-    link_to_parameter ( "OptStr", &m_str );
+    m_properties.link_to_parameter ( "OptStr", &m_str );
 
     m_properties["OptBool"].as_option().attach_trigger( boost::bind ( &MyC::config_bool,  this ) );
     m_properties["OptInt"].as_option().attach_trigger ( boost::bind ( &MyC::config_int,   this ) );
@@ -133,7 +128,7 @@ BOOST_AUTO_TEST_CASE( add_options_to )
 
 //  CFinfo << "starting [" << today << "] [" << now << "]\n" << CFendl;
 
-  boost::shared_ptr<MyC> pm ( new MyC );
+  boost::shared_ptr<MyC> pm ( new MyC("LOLO") );
 
 //  CFinfo << "ending\n" << CFendl;
 }
@@ -150,7 +145,7 @@ BOOST_AUTO_TEST_CASE( configure )
     CFinfo << "starting [" << today << "] [" << now << "]" << CFendl;
 
 
-  boost::shared_ptr<MyC> pm ( new MyC );
+  boost::shared_ptr<MyC> pm ( new MyC("LOLO") );
 
   std::string text = (
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"

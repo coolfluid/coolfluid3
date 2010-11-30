@@ -12,8 +12,6 @@
 
 #include "Common/XmlHelpers.hpp"
 
-#include "Common/ConfigArgs.hpp"
-
 #include "GUI/Network/ComponentNames.hpp"
 #include "GUI/Network/LogMessage.hpp"
 #include "GUI/Network/NetworkException.hpp"
