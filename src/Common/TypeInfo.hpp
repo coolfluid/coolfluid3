@@ -7,7 +7,9 @@
 #ifndef CF_Common_TypeInfo_hpp
 #define CF_Common_TypeInfo_hpp
 
-/// @note This header should be included by including CF.hpp instead.
+#ifndef CF_hpp
+#error The header TypeInfo.hpp shouldnt be included directly rather by including CF.hpp instead
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 

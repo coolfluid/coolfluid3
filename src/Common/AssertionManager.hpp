@@ -7,7 +7,9 @@
 #ifndef CF_Common_CFASSERT_hpp
 #define CF_Common_CFASSERT_hpp
 
-/// @note This header should be included by including CF.hpp instead.
+#ifndef CF_hpp
+#error The header AssertionManager.hpp shouldnt be included directly rather by including CF.hpp instead
+#endif
 
 #ifndef CF_ENABLE_STDASSERT
   #include <cassert>

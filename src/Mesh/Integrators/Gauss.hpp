@@ -10,7 +10,6 @@
 #include <boost/mpl/for_each.hpp>
 #include <boost/foreach.hpp>
 
-#include "Common/AssertionManager.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/ComponentPredicates.hpp"
 

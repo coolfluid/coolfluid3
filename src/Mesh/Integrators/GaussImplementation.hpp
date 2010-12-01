@@ -9,7 +9,6 @@
 
 #include <boost/assign/list_of.hpp>
 
-#include "Common/AssertionManager.hpp"
 #include "Mesh/GeoShape.hpp"
 
 namespace CF {

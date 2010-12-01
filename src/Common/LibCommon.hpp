@@ -15,7 +15,10 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// COOLFluiD Classes
 namespace CF {
+
+/// Common Classes for Component Environment
 namespace Common {
 
 /// Class defines the initialization and termination of the library Mesh

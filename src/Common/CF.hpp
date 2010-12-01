@@ -46,12 +46,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// CF namespace contains some generic typedefs and helper functions
-/// @author Tiago Quintino
-/// @author Andrea Lani
 namespace CF {
-
-// Definition of the basic types for possible portability conflicts
 
 /// typedef for unsigned int
 typedef unsigned int Uint;
