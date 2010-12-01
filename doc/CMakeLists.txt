@@ -4,7 +4,7 @@ find_package(Doxygen)
 
 if( DOXYGEN_FOUND )
 
-  set( DOXYFILE doxygen.config.in CACHE INTERNAL "Doxygen filename" )
+  set( DOXYFILE doxygen.config CACHE INTERNAL "Doxygen filename" )
 
   # we need latex for doxygen because of the formulas
   find_package(LATEX)
@@ -20,11 +20,11 @@ if( DOXYGEN_FOUND )
   
   set(DOXY_CONFIG "${CMAKE_CURRENT_BINARY_DIR}/${DOXYFILE}")
 
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${DOXYFILE}   ${DOXY_CONFIG}  @ONLY )
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${DOXYFILE}.in   ${DOXY_CONFIG}  @ONLY )
 
   add_custom_target(doc ${DOXYGEN_EXECUTABLE} ${DOXY_CONFIG})
   
-  message(STATUS "Doxygen configuration ${CMAKE_CURRENT_SOURCE_DIR}/${DOXYFILE} --> ${DOXY_CONFIG}")
+  message(STATUS "Doxygen configuration ${CMAKE_CURRENT_SOURCE_DIR}/${DOXYFILE}.in --> ${DOXY_CONFIG}")
 
 endif(DOXYGEN_FOUND)
 
