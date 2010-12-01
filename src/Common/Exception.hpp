@@ -41,24 +41,11 @@ public:
 
 /// @brief Base class for all Exceptions in CF
 ///
-/// This type extends std::exception, only by providing an implementation for what().
-/// <p>what() should optionally describe the situation of the exception in
-///   more detail. Interesting information about the exception occurence
-///   should not be passed as a part of this string, but rather in separate
-///   data members, defined in an appropriate subtype of this class.</p>
-/// <p>This class is abstract. Only subclasses can be instantiated.</p>
-///
-/// @protected
-/// <p>Be very carefull with the data members you add in subclasses. There is a great
-///   potential for memory leaks. The execution context where the exception
-///   is thrown is lost, so if this context holds the only existing reference
-///   to objects on the heap, they can no longer be deleted.</p>
-///
-/// @private
-/// <p>The implementation of what() is based on the implementation of
-///   std::logic_error. We will not use std::logic_error itself, because the
-///   semantics of that type are different, so we do not want our type to be
-///   a subtype of std::logic_error.</p>
+/// This type extends std::exception by providing an implementation for what().
+/// It should optionally describe the situation of the exception in
+/// more detail. Information about the exception occurence may be added on the what()
+/// string or passed in separate data members defined in the derived subtypes of this class.
+/// This class is abstract. Only subclasses can be instantiated.
 ///
 /// @author Tiago Quintino
 /// @author Andrea Lani

@@ -20,8 +20,6 @@
 namespace CF {
 namespace Common {
 
-  class XmlParams;
-  class Option;
   class CRoot;
 
   template<class T> class ComponentIterator;
@@ -31,12 +29,12 @@ namespace Common {
 /// Base class for defining CF components
 /// @author Tiago Quintino
 /// @author Willem Deconinck
-class Common_API Component
-  :
+class Common_API Component :
   public boost::enable_shared_from_this<Component>,
+  public boost::noncopyable,
   public SignalHandler,
-  public TaggedObject,
-  public boost::noncopyable {
+  public TaggedObject
+{
 
 public: // typedef
 
@@ -373,10 +371,7 @@ private:
   template <class> friend class ComponentIterator;
 
   template <typename T2>
-  bool equal(ComponentIterator<T2> const& other) const
-  {
-    return (m_position == other.m_position);
-  }
+  bool equal(ComponentIterator<T2> const& other) const { return (m_position == other.m_position); }
 
   void increment()
   {

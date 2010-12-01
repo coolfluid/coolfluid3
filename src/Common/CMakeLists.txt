@@ -51,9 +51,6 @@ list( APPEND coolfluid_common_files
     Exception.hpp
     ExportAPI.hpp
     Foreach.hpp
-    GeneralStorage.hpp
-    HourMinSec.cpp
-    HourMinSec.hpp
     LibCommon.cpp
     LibCommon.hpp
     LibLoader.cpp
@@ -69,8 +66,6 @@ list( APPEND coolfluid_common_files
     LogStream.hpp
     LogStringForwarder.hpp
     LogStringForwarder.cpp
-    NamedObject.hpp
-    NamedObject.cpp
     NoProfiling.cpp
     NoProfiling.hpp
     NotificationQueue.cpp
@@ -92,7 +87,6 @@ list( APPEND coolfluid_common_files
     OSystemLayer.cpp
     OSystemLayer.hpp
     RegistLib.hpp
-    Stopwatch.hpp
     StreamHelpers.hpp
     String/Conversion.hpp
     String/Conversion.cpp
@@ -100,8 +94,6 @@ list( APPEND coolfluid_common_files
     SignalHandler.cpp
     TaggedObject.hpp
     TaggedObject.cpp
-    TimePolicies.cpp
-    TimePolicies.hpp
     TypeInfo.cpp
     TypeInfo.hpp
     URI.hpp

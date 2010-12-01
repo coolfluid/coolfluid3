@@ -5,7 +5,6 @@ list( APPEND utest-common_cflibs coolfluid_common )
 list( APPEND utest-common_files
   utest-common.cpp
   TestStringOps.cpp
-  TestHourMinSec.cpp
   TestLog.cpp
   TestLogLevelFilter.cpp
   TestLogStampFilter.cpp
