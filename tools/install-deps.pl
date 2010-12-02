@@ -1249,14 +1249,15 @@ sub install_zoltan()
         $ENV{CC}   = "mpicc";
         $ENV{CXX}  = "mpic++";
     }
-    
-    run_command_or_die("./configure --prefix=$opt_install_mpi_dir --with-gnumake --with-parmetis --with-parmetis-libdir=\"$opt_install_mpi_dir/lib\" --with-parmetis-incdir=\"$opt_install_mpi_dir/include\" --with-scotch --with-scotch-libdir=\"$opt_install_mpi_dir/lib\" --with-scotch-incdir=\"$opt_install_mpi_dir/include\"");
+ 
+# for the moment we do not have scotch installed via this script   
+#    run_command_or_die("./configure --prefix=$opt_install_mpi_dir --with-gnumake --with-parmetis --with-parmetis-libdir=\"$opt_install_mpi_dir/lib\" --with-parmetis-incdir=\"$opt_install_mpi_dir/include\" --with-scotch --with-scotch-libdir=\"$opt_install_mpi_dir/lib\" --with-scotch-incdir=\"$opt_install_mpi_dir/include\"");
+    run_command_or_die("./configure --prefix=$opt_install_mpi_dir --with-gnumake --with-parmetis --with-parmetis-libdir=\"$opt_install_mpi_dir/lib\" --with-parmetis-incdir=\"$opt_install_mpi_dir/include\"");
     run_command_or_die("make everything $opt_makeopts");
     run_command_or_die("make install");
     
     $ENV{CC}   = $old_cc;
     $ENV{CXX}  = $old_cxx;
-    
   }
 }
 
