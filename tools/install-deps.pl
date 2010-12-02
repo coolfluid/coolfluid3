@@ -164,7 +164,7 @@ options:
         --makeopts=        Options to pass to make [$opt_makeopts]
 
         --install          Comma separated list of packages to install. Example: --install=basic,hdf5,lam
-                           Special meta keywords for installation: [ basic | all ]
+                           Special meta keywords for installation: [ basic | recommended | all ]
 
 ZZZ
     exit(0);
@@ -1310,6 +1310,16 @@ sub set_install_basic()
   }
 }
 
+sub set_install_recommended()
+{
+  set_install_basic();
+
+  $packages{"hdf5"}[$ins] = 'on';
+  $packages{"cgns"}[$ins] = 'on';
+  $packages{"parmetis"}[$ins] = 'on';
+  $packages{"zoltan"}[$ins] = 'on';
+}
+
 sub set_install_all()
 {
   foreach my $pname (keys %packages) 
@@ -1334,6 +1344,7 @@ sub install_packages()
     {
         if ($opt_install_list[$i] eq 'basic') { set_install_basic(); }
         if ($opt_install_list[$i] eq 'all')   { set_install_all(); }
+        if ($opt_install_list[$i] eq 'recommended')   { set_install_recommended(); }
     }
 
     # if there is no package selected, then also copy the [$dft] to [$ins]
