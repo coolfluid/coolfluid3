@@ -226,6 +226,8 @@ coolfluid_log( " Explicit Templates    : [${CF_HAVE_CXX_EXPLICIT_TEMPLATES}]")
 coolfluid_log( "---------------------------------------------------------" )
 coolfluid_log( " Kernel libs           : [${CF_KERNEL_LIBS}]")
 coolfluid_log( " List Plugins          : [${CF_PLUGIN_LIST}]")
+coolfluid_log( " Sandbox               : [${CF_ENABLE_SANDBOX}]")
+coolfluid_log( " GUI                   : [${CF_ENABLE_GUI}]")
 coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 coolfluid_log( "")
 
