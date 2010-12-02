@@ -1479,7 +1479,7 @@ DOT_FONTNAME           = FreeSans.ttf
 # The DOT_FONTSIZE tag can be used to set the size of the font of dot graphs. 
 # The default size is 10pt.
 
-DOT_FONTSIZE           = 9
+DOT_FONTSIZE           = 10
 
 # By default doxygen will tell dot to use the output directory to look for the 
 # FreeSans.ttf font (which doxygen will put there itself). If you specify a 
