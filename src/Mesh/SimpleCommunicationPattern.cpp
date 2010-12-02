@@ -9,6 +9,7 @@
 #include "Mesh/SimpleCommunicationPattern.hpp"
 #include "Common/MPI/PE.hpp"
 
+#include "Common/Log.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CMesh.hpp"
 

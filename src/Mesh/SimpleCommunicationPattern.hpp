@@ -9,8 +9,6 @@
 
 #include <boost/foreach.hpp>
 
-#include "Common/Log.hpp" // temporary
-
 #include "Common/CF.hpp"
 #include "Common/MPI/PE.hpp"
 
@@ -60,7 +58,8 @@ void Mesh_API make_node_receive_lists(const SimpleCommunicationPattern::IndicesT
 template<typename RangeT>
 void apply_pattern_CTable(const SimpleCommunicationPattern& pattern, RangeT range)
 {
-	CFinfo << "applying pattern to CTable<Real>" << CFendl;
+  //	 CFinfo << "applying pattern to CTable<Real>" << CFendl;
+
   boost::mpi::communicator& world = CF::Common::PE::instance();
   const Uint nb_procs = world.size();
   
@@ -98,7 +97,8 @@ void apply_pattern_CTable(const SimpleCommunicationPattern& pattern, RangeT rang
       }
     }
     
-		CFinfo << "proc " << proc << " sending to " << CF::Common::PE::instance().rank() << CFendl;
+    // CFinfo << "proc " << proc << " sending to " << CF::Common::PE::instance().rank() << CFendl;
+
     // Schedule send and receive operations
     reqs.push_back(world.isend(proc, 0, &send_buffer[send_begin], send_buffer.size() - send_begin));
     reqs.push_back(world.irecv(proc, 0, &receive_buffer[receive_begin], receive_size));

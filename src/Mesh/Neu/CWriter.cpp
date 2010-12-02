@@ -13,6 +13,7 @@
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/progress.hpp>
 
+#include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/ComponentPredicates.hpp"
 

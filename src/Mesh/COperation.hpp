@@ -183,7 +183,7 @@ public: // functions
   void trigger_Field()
   {
     Common::CPath field_path (property("Field").value<Common::URI>());
-    CFdebug << "field_path = " << field_path.string() << CFendl;
+//    CFdebug << "field_path = " << field_path.string() << CFendl;
     scalar_field = look_component_type<CField>(field_path);
     scalar_name = scalar_field->field_name();
   }
@@ -203,7 +203,7 @@ public: // functions
   void set_loophelper (CElements& geometry_elements )
   {
     data = boost::shared_ptr<LoopHelper> ( new LoopHelper(*scalar_field, geometry_elements ) );
-    CFinfo << data->field_elements.full_path().string() << CFendl;
+//    CFinfo << data->field_elements.full_path().string() << CFendl;
   }
 
   template < typename SFType >
@@ -214,7 +214,7 @@ public: // functions
 
   void execute ( Uint elem )
   {
-    CFinfo << "   " << scalar_name << "["<<elem<<"] = " << data->scalars[elem][0] << CFendl;
+//    CFinfo << "   " << scalar_name << "["<<elem<<"] = " << data->scalars[elem][0] << CFendl;
   }
 
 private: // data
@@ -256,7 +256,7 @@ public: // functions
   void trigger_Field()
   {
     Common::CPath field_path (property("Field").value<Common::URI>());
-    CFdebug << "field_path = " << field_path.string() << CFendl;
+//    CFdebug << "field_path = " << field_path.string() << CFendl;
     volume_field = look_component_type<CField>(field_path);
   }
 
@@ -334,7 +334,7 @@ public: // functions
   void trigger_Field()
   {
     Common::CPath field_path (property("Field").value<Common::URI>());
-    CFdebug << "field_path = " << field_path.string() << CFendl;
+//    CFdebug << "field_path = " << field_path.string() << CFendl;
     field = look_component_type<CField>(field_path);
   }
 

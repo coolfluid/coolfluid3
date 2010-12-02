@@ -13,6 +13,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "Common/OSystem.hpp"
+#include "Common/Log.hpp"
 #include "Common/Core.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/CFactories.hpp"

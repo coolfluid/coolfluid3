@@ -110,10 +110,7 @@ private: // data
     // NDFVL    Number of velocity components (2 or 3)
     Uint NUMNP, NELEM, NGRPS, NBSETS, NDFCD, NDFVL;
 		std::string mesh_name;
-    void print()
-    {
-      CFinfo << NUMNP << " " << NELEM << " " << NGRPS << " " << NBSETS << " " << NDFCD << " " << NDFVL << CFendl;
-    }
+    void print();
   } m_headerData;
 
   struct GroupData
@@ -127,10 +124,7 @@ private: // data
     Uint NGP, NELGP, MTYP, NFLAGS;
     std::string ELMMAT;
     std::vector<Uint> ELEM;
-    void print ()
-    {
-      CFinfo << NGP << " " << NELGP << " " << MTYP << " " << NFLAGS << " " << ELMMAT << CFendl;
-    }
+    void print ();
   };
 
   struct BCData
@@ -142,10 +136,7 @@ private: // data
     // IBCODE1  (Optional) Boundary condition code 1
     std::string NAME;
     Uint ITYPE, NENTRY, NVALUES, IBCODE1;
-    void print ()
-    {
-      CFinfo << NAME << " " << ITYPE << " " << NENTRY << " " << NVALUES << " " << IBCODE1 << CFendl;
-    }
+    void print ();
   };
 
 }; // end CReader

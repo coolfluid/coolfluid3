@@ -14,8 +14,6 @@
 
 #include "Math/MatrixTypes.hpp"
 
-#include "Common/Log.hpp"
-
 namespace CF {
 namespace Actions {
 namespace Proto {

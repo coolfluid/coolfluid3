@@ -9,6 +9,7 @@
 #include <boost/progress.hpp>
 #include <boost/filesystem/convenience.hpp>
 
+#include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/ComponentPredicates.hpp"

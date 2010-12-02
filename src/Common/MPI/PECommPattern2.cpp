@@ -10,6 +10,7 @@
 
 #include "Common/LibCommon.hpp"
 #include "Common/CBuilder.hpp"
+#include "Common/Log.hpp"
 #include "Common/MPI/PECommPattern2.hpp"
 #include "Common/MPI/PEObjectWrapper.hpp"
 

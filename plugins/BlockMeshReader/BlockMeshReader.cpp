@@ -7,6 +7,7 @@
 #include <boost/filesystem/convenience.hpp>
 #include <boost/filesystem/fstream.hpp>
 
+#include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
 
 #include "Mesh/SimpleCommunicationPattern.hpp"

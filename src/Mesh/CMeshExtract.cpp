@@ -8,6 +8,7 @@
 #include <boost/regex.hpp>
 #include <boost/filesystem.hpp>
 
+#include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/ComponentPredicates.hpp"
 

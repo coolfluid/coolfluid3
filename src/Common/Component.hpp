@@ -15,7 +15,6 @@
 #include "Common/SignalHandler.hpp"
 #include "Common/TaggedObject.hpp"
 #include "Common/CPath.hpp"
-#include "Common/XmlHelpers.hpp"
 
 namespace CF {
 namespace Common {

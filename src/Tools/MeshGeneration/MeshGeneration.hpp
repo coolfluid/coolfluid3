@@ -7,7 +7,6 @@
 #ifndef CF_Tools_MeshGeneration_Tools_hpp
 #define CF_Tools_MeshGeneration_Tools_hpp
 
-#include "Common/Log.hpp"
 #include "Math/MathConsts.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/BlockMesh/BlockData.hpp"
@@ -52,7 +51,7 @@ struct MeshSourceGlobalFixture {
   /// Init all meshes at creation time
   MeshSourceGlobalFixture()
   {
-    CFinfo << "Created mesh " << grid2().name() << CFendl;
+    // CFinfo << "Created mesh " << grid2().name() << CFendl;
   }
 
   /// Returns a 2D square grid, with side MeshSize

@@ -20,8 +20,6 @@
 #include "Common/CLibrary.hpp"
 #include "Common/CLibraries.hpp"
 
-#include "Common/Log.hpp" // temporary
-
 /////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -151,7 +149,7 @@ struct ComponentBuilder
     BOOST_STATIC_ASSERT( (boost::is_base_of<BASE,CONCRETE>::value) );
 
     // give some info
-    CFinfo << "lib [" << LIB::type_name() << "] : factory of \'" << BASE::type_name() << "\' registering builder of \'" << CONCRETE::type_name() << "\' with name \'" << name << "\'" << CFendl;
+    // CFinfo << "lib [" << LIB::type_name() << "] : factory of \'" << BASE::type_name() << "\' registering builder of \'" << CONCRETE::type_name() << "\' with name \'" << name << "\'" << CFendl;
 
     // regist the concrete type in TypeInfo
     CF::TypeInfo::instance().regist<CONCRETE>( CONCRETE::type_name() );

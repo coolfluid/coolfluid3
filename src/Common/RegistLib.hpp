@@ -12,8 +12,6 @@
 #include "Common/Core.hpp"
 #include "Common/CLibraries.hpp"
 
-// #include "Common/Log.hpp" // temporary
-
 namespace CF {
 namespace Common {
 

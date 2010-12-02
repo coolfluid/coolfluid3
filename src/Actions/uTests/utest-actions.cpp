@@ -16,6 +16,7 @@
 
 #include "Common/LibCommon.hpp"
 #include "Common/CreateComponent.hpp"
+#include "Common/Log.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CField.hpp"

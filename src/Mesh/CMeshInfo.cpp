@@ -6,6 +6,7 @@
 
 #include <boost/foreach.hpp>
 
+#include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/ComponentPredicates.hpp"
 

@@ -8,6 +8,7 @@
 #include <boost/algorithm/string/erase.hpp>
 #include <boost/filesystem/convenience.hpp>
 
+#include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/ComponentPredicates.hpp"
 #include "Common/OptionT.hpp"
@@ -644,6 +645,20 @@ void CReader::read_boundaries()
   }
 }
 
+void CReader::HeaderData::print()
+{
+  CFinfo << NUMNP << " " << NELEM << " " << NGRPS << " " << NBSETS << " " << NDFCD << " " << NDFVL << CFendl;
+}
+
+void CReader::GroupData::print()
+{
+  CFinfo << NGP << " " << NELGP << " " << MTYP << " " << NFLAGS << " " << ELMMAT << CFendl;
+}
+
+void CReader::BCData::print()
+{
+  CFinfo << NAME << " " << ITYPE << " " << NENTRY << " " << NVALUES << " " << IBCODE1 << CFendl;
+}
 
 //////////////////////////////////////////////////////////////////////////////
 

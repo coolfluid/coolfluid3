@@ -9,8 +9,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/CF.hpp"
-#include "Common/Exception.hpp"
 #include "Common/URI.hpp"
 
 namespace CF {

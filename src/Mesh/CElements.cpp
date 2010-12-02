@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <set>
+
 #include "Common/CLink.hpp"
 #include "Common/CGroup.hpp"
 #include "Common/CreateComponent.hpp"
@@ -83,7 +85,9 @@ CList<Uint>& CElements::update_node_list()
   CTable<Uint>& conn_table = connectivity_table();
   BOOST_FOREACH(CTable<Uint>::Row row, conn_table.array())
   BOOST_FOREACH(const Uint node, row)
-  node_set.insert(node);
+  {
+    node_set.insert(node);
+  }
   
   // Copy the set to the node_list
   CList<Uint>& node_list = *get_child_type< CList<Uint> >("node_list");
