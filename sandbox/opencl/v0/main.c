@@ -5,7 +5,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include <OpenCL/OpenCL.h>
+#if defined __APPLE__ || defined(MACOSX)
+    #include <OpenCL/opencl.h>
+#else
+    #include <CL/opencl.h>
+#endif
 
 #pragma mark -
 #pragma mark Utilities

@@ -1,3 +1,5 @@
+#include <cstdio>
+#include <cstring>
 #include <sstream>
 #include <iostream>
 #include <sys/stat.h>
