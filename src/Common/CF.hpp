@@ -103,6 +103,14 @@ template <class TYPE>
 template < typename BASE >
 struct Deleter { void operator()( BASE * p ) { delete_ptr<BASE>(p); } };
 
+/// predicate for comparison to nullptr
+template < typename T >
+bool is_not_null ( T ptr ) { return ptr != nullptr; }
+
+/// predicate for comparison to nullptr
+template < typename T >
+bool is_null ( T ptr ) { return ptr == nullptr; }
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Derive from this class if you want a class that is not instantiable.

@@ -285,6 +285,9 @@ public: // functions
   /// lists the signals of this component
   void list_signals ( XmlNode& xml );
 
+  ///  gets info on this component
+  void print_info ( XmlNode& xml );
+
   /// renames this component
   void rename_component ( XmlNode& xml) ;
 

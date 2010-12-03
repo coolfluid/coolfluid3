@@ -29,7 +29,7 @@ Component::Component ( const std::string& name ) :
     m_properties(),
     m_components(),
     m_dynamic_components(),
-    m_raw_parent(NULL),
+    m_raw_parent( nullptr ),
     m_is_link (false)
 {
   // accept name
@@ -58,6 +58,8 @@ Component::Component ( const std::string& name ) :
   regist_signal ( "list_signals" , "lists the options of this component", "" )->connect ( boost::bind ( &Component::list_signals, this, _1 ) );
 
   regist_signal ( "configure" , "configures this component", "" )->connect ( boost::bind ( &Component::configure, this, _1 ) );
+
+  regist_signal ( "print_info" , "prints info on this component", "Info" )->connect ( boost::bind ( &Component::print_info, this, _1 ) );
 
   regist_signal ( "rename_component" , "Renames this component", "Rename" )->connect ( boost::bind ( &Component::rename_component, this, _1 ) );
   signal("rename_component").signature
@@ -101,50 +103,61 @@ Component::ConstPtr Component::get() const
 
 void Component::rename ( const std::string& name )
 {
-  std::string new_name = name;
+  const std::string new_name = name;
   if ( new_name == m_name.string() ) // skip if name does not change
     return;
+
+  const std::string old_name = m_name.string();
 
   // notification should be done before the real renaming since the path changes
   raise_path_changed();
 
   CPath new_full_path = m_path / new_name;
 
-  if( !m_root.expired() )
-  {
-    // get the root and inform about the change in path
-   CRoot::Ptr root = m_root.lock();
+  if( ! m_root.expired() ) // inform the root about the change in path
+    m_root.lock()->change_component_path( new_full_path , shared_from_this() );
 
-    root->change_component_path( new_full_path , shared_from_this() );
-  }
-
-  // inform parent of rename
-  if (!m_raw_parent)
+  if ( is_not_null(m_raw_parent) ) // rename via parent to insure unique names
   {
+    print_info( *XmlOps::create_doc() );
+
     Component::Ptr parent = m_raw_parent->self();
-    parent->remove_component(m_name.string());
+    parent->remove_component( old_name );
+
+    print_info( *XmlOps::create_doc() );
+
     m_name = new_name;
-    Component::Ptr this_component = parent->add_component( get() );
-    new_name = this_component->name();
+
+    parent->add_component( shared_from_this() );
+
+    print_info( *XmlOps::create_doc() );
+  }
+  else  // direct rename in case of no parent
+  {
+    m_name = new_name;
   }
 
-  m_name = new_name;
+  /// @todo solve this differently,
+  /// maybe putting finally uuid's in the comps and using the root to get the path
 
   // loop on children and inform them of change in name
-  /// @todo solve this, maybe putting finally uuid's in the comps and using the root to get the path
+  BOOST_FOREACH( CompStorage_t::value_type c, m_components )
+  {
+    c.second->change_parent( this );
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 Component::Ptr Component::get_parent()
 {
-  cf_assert( m_raw_parent != NULL );
+  cf_assert( is_not_null(m_raw_parent) );
   return m_raw_parent->self();
 }
 
 Component::ConstPtr Component::get_parent() const
 {
-  cf_assert( m_raw_parent != NULL );
+  cf_assert( is_not_null(m_raw_parent) );
   return m_raw_parent->self();
 }
 
@@ -154,17 +167,23 @@ Component::Ptr Component::add_component ( Component::Ptr subcomp )
 {
   cf_assert( subcomp != nullptr );
 
-  std::string unique_name = ensure_unique_name(subcomp);
+  const std::string name = subcomp->name();
+
+  const std::string unique_name = ensure_unique_name(subcomp);
+  if ( name != unique_name )
+  {
+    subcomp->m_name = unique_name; // change name to unique
+    CFinfo << "Component renamed from \'" << name  << "\' to unique name \'" << unique_name << "\'"  << CFendl;
+  }
 
   m_components[unique_name] = subcomp;           // add to all component list
   m_dynamic_components[unique_name] = subcomp;   // add to dynamic component list
 
+	subcomp->change_parent( this );
+
   raise_path_changed();
 
-	subcomp->change_parent( this );
-	subcomp->rename( unique_name );
-
-	return subcomp;
+  return subcomp;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -256,7 +275,7 @@ void Component::complete_path ( CPath& path ) const
 
 //  CFinfo << "PATH [" << path.string() << "]\n" << CFflush;
 
-  if (!m_raw_parent)
+  if ( is_null(m_raw_parent) )
     throw  InvalidPath(FromHere(), "Component \'" + name() + "\' has no parent");
 
   if (m_root.expired())
@@ -344,8 +363,7 @@ void Component::change_parent ( Component* new_parent )
 
     if( !m_root.expired() )   // get the root and set the new path
     {
-     CRoot::Ptr root = m_root.lock();
-      root->change_component_path( full_path() , shared_from_this() );
+      m_root.lock()->change_component_path( full_path() , shared_from_this() );
     }
   }
   else // new parent is invalid
@@ -363,8 +381,7 @@ void Component::change_parent ( Component* new_parent )
     c.second->change_parent( this );
   }
 
-  /// @bug event is raised for each child
-//  raise_path_changed();
+  // raise_path_changed() event is raised for each child
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -529,6 +546,24 @@ void Component::move_component ( XmlNode& node  )
   Component::Ptr new_parent = look_component( path.string_without_protocol() );
 
   this->move_to( new_parent );
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+void Component::print_info ( XmlNode& node  )
+{
+  CFinfo << "Info on component \'" << full_path() << "\'" << CFendl;
+
+  CFinfo << "  sub components:" << CFendl;
+  BOOST_FOREACH( CompStorage_t::value_type c, m_components )
+  {
+    if ( m_dynamic_components.find(c.first) == m_dynamic_components.end() )
+      CFinfo << "  + [static]  ";
+    else
+      CFinfo << "  + [dynamic] ";
+
+    CFinfo << c.second->name() << " / " << c.second->derived_type_name() << CFendl;
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
