@@ -4,23 +4,23 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_CDomain_hpp
-#define CF_Solver_CDomain_hpp
+#ifndef CF_Mesh_CDomain_hpp
+#define CF_Mesh_CDomain_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/Component.hpp"
-#include "Solver/LibSolver.hpp"
+#include "Mesh/LibMesh.hpp"
 
 namespace CF {
-namespace Solver {
+namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// CDomain component class
 /// CDomain stores the meshes
 /// @author Tiago Quintino
-class Solver_API CDomain : public Common::Component {
+class Mesh_API CDomain : public Common::Component {
 
 public: // typedefs
 
@@ -43,9 +43,9 @@ public: // functions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Solver
+} // Mesh
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Solver_CDomain_hpp
+#endif // CF_Mesh_CDomain_hpp

@@ -6,21 +6,21 @@
 
 #include "Common/CBuilder.hpp"
 
-#include "Solver/CDomain.hpp"
+#include "Mesh/CDomain.hpp"
 
 namespace CF {
-namespace Solver {
+namespace Mesh {
 
 using namespace Common;
 using namespace Common::String;
 
-Common::ComponentBuilder < CDomain, Component, LibSolver > CDomain_Builder;
+Common::ComponentBuilder < CDomain, Component, LibMesh > CDomain_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 CDomain::CDomain( const std::string& name  ) : Component ( name )
 {
-   
+  mark_basic(); // by default domains are visible
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -31,5 +31,5 @@ CDomain::~CDomain()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Solver
+} // Mesh
 } // CF

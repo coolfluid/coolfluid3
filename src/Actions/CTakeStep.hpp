@@ -39,9 +39,6 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CTakeStep"; }
 
-  /// Configuration Options
-  virtual void define_config_properties ();
-
   /// Set the loop_helper
   void set_loophelper (Mesh::CElements& geometry_elements );
 	
@@ -51,9 +48,6 @@ public: // functions
   /// execute the action
   virtual void execute ();
 		
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
-	
 private: // data
 	
   struct LoopHelper

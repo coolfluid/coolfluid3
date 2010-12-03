@@ -9,10 +9,10 @@
 #include "Common/CreateComponent.hpp"
 
 #include "Mesh/CMeshReader.hpp"
+#include "Mesh/CDomain.hpp"
 
 #include "Solver/CModel.hpp"
 #include "Solver/CPhysicalModel.hpp"
-#include "Solver/CDomain.hpp"
 #include "Solver/CIterativeSolver.hpp"
 #include "Solver/CDiscretization.hpp"
 
@@ -33,8 +33,6 @@ Common::ComponentBuilder < ScalarAdvection, Component, LibSolver > ScalarAdvecti
 ScalarAdvection::ScalarAdvection ( const std::string& name  ) :
   Component ( name )
 {
-   
-
   // signals
 
   this->regist_signal ( "create_model" , "Creates a scalar advection model", "Create Model" )->connect ( boost::bind ( &ScalarAdvection::create_model, this, _1 ) );
@@ -63,11 +61,10 @@ void ScalarAdvection::create_model ( Common::XmlNode& node )
   std::string name  = p.get_option<std::string>("Model name");
 
   CModel::Ptr model = Core::instance().root()->create_component_type<CModel>( name );
-  model->mark_basic();
 
   // create the CDomain
-  CDomain::Ptr domain = model->create_component_type<CDomain>("Domain");
-  domain->mark_basic();
+  // CDomain::Ptr domain =
+      model->create_component_type<CDomain>("Domain");
 
   // create the Physical Model
   CPhysicalModel::Ptr pm = model->create_component_type<CPhysicalModel>("Physics");
@@ -76,15 +73,14 @@ void ScalarAdvection::create_model ( Common::XmlNode& node )
   pm->configure_property( "DOFs", 1u );
   pm->configure_property( "Dimensions", 2u );
 
+  // setup iterative solver
+  CIterativeSolver::Ptr solver = create_component_abstract_type<CIterativeSolver>("CF.Solver.ForwardEuler", "IterativeSolver");
+  model->add_component( solver );
+
   // setup discretization method
   CDiscretization::Ptr cdm = create_component_abstract_type<CDiscretization>("CF.Solver.ResidualDistribution", "Discretization");
   cdm->mark_basic();
-  model->add_component( cdm );
-
-  // setup iterative solver
-  CIterativeSolver::Ptr solver = create_component_abstract_type<CIterativeSolver>("CF.Solver.ForwardEuler", "IterativeSolver");
-  solver->mark_basic();
-  model->add_component( solver );
+  solver->add_component( cdm );
 
   CMeshReader::Ptr mesh_reader = create_component_abstract_type<CMeshReader>( "CF.Mesh.Neu.CReader", "NeutralReader" );
 //  CMeshReader::Ptr mesh_reader = create_component_abstract_type<CMeshReader>( "CF.Mesh.CGNS.CReader", "CGNSReader" );

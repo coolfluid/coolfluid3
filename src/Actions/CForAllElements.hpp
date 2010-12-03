@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CForAllElements_hpp
-#define CF_Mesh_CForAllElements_hpp
+#ifndef CF_Actions_CForAllElements_hpp
+#define CF_Actions_CForAllElements_hpp
 
 
 #include "Actions/CLoop.hpp"
@@ -49,4 +49,4 @@ public: // functions
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CForAllElements_hpp
+#endif // CF_Actions_CForAllElements_hpp

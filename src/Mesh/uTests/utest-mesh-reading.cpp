@@ -19,6 +19,7 @@
 #include "Common/ComponentPredicates.hpp"
 #include "Common/CreateComponent.hpp"
 
+#include "Mesh/CDomain.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
@@ -349,8 +350,20 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal )
 {
   CRoot::Ptr root = CRoot::create("Root");
   CMeshReader::Ptr reader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","MyReader");
-  CMesh::Ptr mesh = root->create_component_type<CMesh>("MyMesh");
+  CDomain::Ptr domain = root->create_component_type<CDomain>("MyDom");
+
+  //////////////////////
+
   boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
+//  XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
+//  // XmlNode& frame = *XmlOps::add_signal_frame(node, "", "", "", true);
+
+//  XmlNode* mmap = XmlParams::add_map_to( node, "" );
+//  XmlNode* omap = XmlParams::add_value_to<>( mmap, "options" );
+
+//  XmlParams::add_value_to<URI>( *omap, "Domain", URI("cpath://Root/MyDom") );
+
+  //////////////////////
 
   std::vector<URI> files;
 
@@ -379,19 +392,16 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal )
   // Test the "Files" option
   //
 
-  // for the following tests, we put a right CPath to the CMesh
-  reader->configure_property("Mesh", URI("cpath://Root/MyMesh") );
-
-  // no file (no error and the mesh should be still empty afterwards)
+  // no file (no error and the domain should be still empty afterwards)
   BOOST_CHECK_NO_THROW( reader->read(*doc.get()) );
-  BOOST_CHECK_EQUAL( mesh->get_child_count(), (Uint) 0);
+  BOOST_CHECK_EQUAL( domain->get_child_count(), (Uint) 0);
 
   // first file is wrong (exception and the mesh should be empty afterwards)
   files.push_back( "http://www.google.com" );
   files.push_back( "file:hextet.neu" );
   reader->configure_property("Files", files );
   BOOST_CHECK_THROW( reader->read(*doc.get()), ProtocolError );
-  BOOST_CHECK_EQUAL( mesh->get_child_count(), (Uint) 0);
+  BOOST_CHECK_EQUAL( domain->get_child_count(), (Uint) 0);
 
   files.clear();
 
@@ -401,7 +411,7 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal )
   files.push_back( "file:hextet.neu" );
   reader->configure_property("Files", files );
   BOOST_CHECK_THROW( reader->read(*doc.get()), ProtocolError );
-  BOOST_CHECK_EQUAL( mesh->get_child_count(), (Uint) 0);
+  BOOST_CHECK_EQUAL( domain->get_child_count(), (Uint) 0);
 
   files.clear();
 
@@ -410,7 +420,7 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal )
   files.push_back( "file:quadtriag.neu" );
   reader->configure_property("Files", files );
   BOOST_CHECK_NO_THROW( reader->read(*doc.get()) );
-  BOOST_CHECK_NE( mesh->get_child_count(), (Uint) 0);
+  BOOST_CHECK_NE( domain->get_child_count(), (Uint) 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -40,11 +40,14 @@ public: // functions
   static std::string type_name () { return "ScalarAdvection"; }
 
   // functions specific to the ScalarAdvection component
-  
-  /// Signal run_operation
+
+  /// @name SIGNALS
+  //@{
+
+  /// Signal to create a model
   void create_model ( Common::XmlNode& node );
   
-  ScalarAdvection& operation(const std::string& name);
+  //@} END SIGNALS
   
 };
 

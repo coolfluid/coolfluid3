@@ -24,20 +24,14 @@ namespace Actions {
 Common::ComponentBuilder < CTakeStep, CLoopOperation, LibActions > CTakeStep_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
-  
-void CTakeStep::define_config_properties()
-{
-  m_properties.add_option< OptionT<std::string> > ("SolutionField","Solution Field for calculation", "")->mark_basic();
-  m_properties.add_option< OptionT<std::string> > ("ResidualField","Residual Field updated after calculation", "")->mark_basic();
-  m_properties.add_option< OptionT<std::string> > ("InverseUpdateCoeff","Inverse update coefficient Field updated after calculation", "")->mark_basic();
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
 
 CTakeStep::CTakeStep ( const std::string& name ) : 
   CLoopOperation(name)
 {
-    define_config_properties(); define_signals();
+  // actions
+  m_properties.add_option< OptionT<std::string> > ("SolutionField","Solution Field for calculation", "")->mark_basic();
+  m_properties.add_option< OptionT<std::string> > ("ResidualField","Residual Field updated after calculation", "")->mark_basic();
+  m_properties.add_option< OptionT<std::string> > ("InverseUpdateCoeff","Inverse update coefficient Field updated after calculation", "")->mark_basic();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

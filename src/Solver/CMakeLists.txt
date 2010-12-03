@@ -16,8 +16,6 @@ add_custom_command(TARGET coolfluid-solver
 
 list( APPEND coolfluid_rdm_files
   ForAllRegions.hpp
-  CDomain.hpp
-  CDomain.cpp
   CForAllElements.hpp
   CForAllElements.cpp
   CForAllNodes.hpp

@@ -79,6 +79,7 @@ public: // functions
   /// @return mesh          the created mesh
   CMesh::Ptr create_mesh_from(boost::filesystem::path& path);
 	
+  /// @todo missing documentation
 	virtual void collect_from_other_ranks();
 
 protected: // functions
