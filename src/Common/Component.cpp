@@ -63,7 +63,7 @@ Component::Component ( const std::string& name ) :
 
   regist_signal ( "rename_component" , "Renames this component", "Rename" )->connect ( boost::bind ( &Component::rename_component, this, _1 ) );
   signal("rename_component").signature
-      .insert<std::string>("New Name", "Component new name", name);
+      .insert<std::string>("New Name", "Component new name");
 
   regist_signal ( "delete_component" , "Deletes a component", "Delete" )->connect ( boost::bind ( &Component::delete_component, this, _1 ) );
 //  signal("delete_component").signature
