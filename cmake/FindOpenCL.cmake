@@ -50,6 +50,9 @@ if(UNIX)
 
     else() # Other UNIX, like Linux, etc
 
+      coolfluid_add_trial_include_path( /usr/local/cuda/include )
+      coolfluid_add_trial_library_path( /usr/local/cuda/lib )
+
       find_path(OPENCL_INCLUDE_DIR CL/cl.h  ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH )
       find_path(OPENCL_INCLUDE_DIR CL/cl.h  )
 
@@ -61,9 +64,9 @@ if(UNIX)
 endif()
 
 
-set( OPENCL_FOUND "NO" )
+set( OPENCL_FOUND "FALSE" )
 if( OPENCL_LIBRARIES AND OPENCL_INCLUDE_DIR )
-    set( OPENCL_FOUND "YES" )
+    set( OPENCL_FOUND "TRUE" )
 endif()
 
 mark_as_advanced( OPENCL_INCLUDE_DIR OPENCL_LIBRARIES )
