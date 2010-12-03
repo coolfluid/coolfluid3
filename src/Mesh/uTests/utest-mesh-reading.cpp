@@ -371,7 +371,7 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal )
   // Test the "Mesh" option
   //
 
-  // without CPath for the mesh
+  // without CPath for the CDomain
   BOOST_CHECK_THROW( reader->read(node), ProtocolError );
 
   // URI without any protocol
@@ -381,7 +381,7 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal )
   value_node->value("file://Root");
   BOOST_CHECK_THROW( reader->read(node), ProtocolError );
 
-  // CPath that does not point to a CMesh
+  // CPath that does not point to a CDomain
   value_node->value("cpath://Root");
   BOOST_CHECK_THROW( reader->read(node), CastingFailed );
 
@@ -392,14 +392,14 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal )
   // no file (no error and the domain should be still empty afterwards)
   value_node->value("cpath://Root/MyDom");
   BOOST_CHECK_NO_THROW( reader->read(node) );
-//  BOOST_CHECK_EQUAL( domain->get_child("Mesh")->get_child_count(), (Uint) 0);
+  BOOST_CHECK_EQUAL( domain->get_child_count(), (Uint) 0);
 
   // first file is wrong (exception and the mesh should be empty afterwards)
   files.push_back( "http://www.google.com" );
   files.push_back( "file:hextet.neu" );
   reader->configure_property("Files", files );
   BOOST_CHECK_THROW( reader->read(node), ProtocolError );
-//  BOOST_CHECK_EQUAL( domain->get_child("Mesh")->get_child_count(), (Uint) 0);
+  BOOST_CHECK_EQUAL( domain->get_child_count(), (Uint) 0);
 
   files.clear();
 
@@ -409,7 +409,7 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal )
   files.push_back( "file:hextet.neu" );
   reader->configure_property("Files", files );
   BOOST_CHECK_THROW( reader->read(node), ProtocolError );
-//  BOOST_CHECK_EQUAL( domain->get_child("Mesh")->get_child_count(), (Uint) 0);
+  BOOST_CHECK_EQUAL( domain->get_child_count(), (Uint) 0);
 
   files.clear();
 
@@ -418,7 +418,7 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal )
   files.push_back( "file:quadtriag.neu" );
   reader->configure_property("Files", files );
   BOOST_CHECK_NO_THROW( reader->read(node) );
-//  BOOST_CHECK_NE( domain->get_child("Mesh")->get_child_count(), (Uint) 0);
+  BOOST_CHECK_NE( domain->get_child_count(), (Uint) 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
