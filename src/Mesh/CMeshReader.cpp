@@ -61,32 +61,34 @@ void CMeshReader::read( XmlNode& xml  )
 
   URI path = p.get_option<URI>("Domain");
 
-//   URI path = property("Mesh").value<URI>();
-
-   if( ! path.is_protocol("cpath") )
-     throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
+  if( ! path.is_protocol("cpath") )
+    throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
   // get the domain
   CDomain::Ptr domain = look_component_type<CDomain>( path.string_without_protocol() );
   if (!domain)
     throw CastingFailed( FromHere(), "Component in path \'" + path.string() + "\' is not a valid CDomain." );
 
+  std::vector<URI> files = property("Files").value<std::vector<URI> >();
+
   // check protocol for file loading
-  BOOST_FOREACH(URI file, property("Files").value<std::vector<URI> >())
+  BOOST_FOREACH(URI file, files)
   {
     if( file.empty() || !file.is_protocol("file"))
       throw ProtocolError( FromHere(), "Wrong protocol to access the file, expecting a \'file\' but got \'" + file.string() + "\'" );
   }
 
   // create a mesh in the domain
-  CMesh::Ptr mesh = domain->create_component_type<CMesh>("Mesh");
-
-  // Get the file paths
-  BOOST_FOREACH(URI file, property("Files").value<std::vector<URI> >())
+  if( !files.empty() ) 
   {
-    CF_DEBUG_STR( file.string_without_protocol() );
-    boost::filesystem::path fpath( file.string_without_protocol() );
-    read_from_to(fpath, mesh);
+    CMesh::Ptr mesh = domain->create_component_type<CMesh>("Mesh");
+
+    // Get the file paths
+    BOOST_FOREACH(URI file, property("Files").value<std::vector<URI> >())
+    {
+      boost::filesystem::path fpath( file.string_without_protocol() );
+      read_from_to(fpath, mesh);
+    }
   }
 }
 

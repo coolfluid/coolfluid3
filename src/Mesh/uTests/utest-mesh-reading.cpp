@@ -135,7 +135,6 @@ BOOST_AUTO_TEST_CASE( quadtriag_readNeu_writeGmsh_writeNeu )
 
   BOOST_CHECK_EQUAL(mesh->domain().recursive_nodes_count(), (Uint) 16);
   BOOST_CHECK_EQUAL(mesh->domain().recursive_elements_count(), (Uint) 28);
-  BOOST_CHECK_EQUAL(1,1);
 
 
 
