@@ -355,13 +355,11 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal )
   //////////////////////
 
   boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
-//  XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
-//  // XmlNode& frame = *XmlOps::add_signal_frame(node, "", "", "", true);
+  XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
 
-//  XmlNode* mmap = XmlParams::add_map_to( node, "" );
-//  XmlNode* omap = XmlParams::add_value_to<>( mmap, "options" );
+  XmlParams p(node);
 
-//  XmlParams::add_value_to<URI>( *omap, "Domain", URI("cpath://Root/MyDom") );
+  XmlNode * value_node = p.add_option<URI>("Domain", URI("//Root"))->first_node();
 
   //////////////////////
 
@@ -374,34 +372,34 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal )
   //
 
   // without CPath for the mesh
-  BOOST_CHECK_THROW( reader->read(*doc.get()), ProtocolError );
+  BOOST_CHECK_THROW( reader->read(node), ProtocolError );
 
   // URI without any protocol
-  reader->configure_property("Mesh", URI("//Root") );
-  BOOST_CHECK_THROW( reader->read(*doc.get()), ProtocolError );
+  BOOST_CHECK_THROW( reader->read(node), ProtocolError );
 
   // URI with a wrong protocol
-  reader->configure_property("Mesh", URI("file://Root") );
-  BOOST_CHECK_THROW( reader->read(*doc.get()), ProtocolError );
+  value_node->value("file://Root");
+  BOOST_CHECK_THROW( reader->read(node), ProtocolError );
 
   // CPath that does not point to a CMesh
-  reader->configure_property("Mesh", URI("cpath://Root") );
-  BOOST_CHECK_THROW( reader->read(*doc.get()), CastingFailed );
+  value_node->value("cpath://Root");
+  BOOST_CHECK_THROW( reader->read(node), CastingFailed );
 
   //
   // Test the "Files" option
   //
 
   // no file (no error and the domain should be still empty afterwards)
-  BOOST_CHECK_NO_THROW( reader->read(*doc.get()) );
-  BOOST_CHECK_EQUAL( domain->get_child_count(), (Uint) 0);
+  value_node->value("cpath://Root/MyDom");
+  BOOST_CHECK_NO_THROW( reader->read(node) );
+//  BOOST_CHECK_EQUAL( domain->get_child("Mesh")->get_child_count(), (Uint) 0);
 
   // first file is wrong (exception and the mesh should be empty afterwards)
   files.push_back( "http://www.google.com" );
   files.push_back( "file:hextet.neu" );
   reader->configure_property("Files", files );
-  BOOST_CHECK_THROW( reader->read(*doc.get()), ProtocolError );
-  BOOST_CHECK_EQUAL( domain->get_child_count(), (Uint) 0);
+  BOOST_CHECK_THROW( reader->read(node), ProtocolError );
+//  BOOST_CHECK_EQUAL( domain->get_child("Mesh")->get_child_count(), (Uint) 0);
 
   files.clear();
 
@@ -410,8 +408,8 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal )
   files.push_back( "http://www.google.com" );
   files.push_back( "file:hextet.neu" );
   reader->configure_property("Files", files );
-  BOOST_CHECK_THROW( reader->read(*doc.get()), ProtocolError );
-  BOOST_CHECK_EQUAL( domain->get_child_count(), (Uint) 0);
+  BOOST_CHECK_THROW( reader->read(node), ProtocolError );
+//  BOOST_CHECK_EQUAL( domain->get_child("Mesh")->get_child_count(), (Uint) 0);
 
   files.clear();
 
@@ -419,8 +417,8 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal )
   files.push_back( "file:hextet.neu" );
   files.push_back( "file:quadtriag.neu" );
   reader->configure_property("Files", files );
-  BOOST_CHECK_NO_THROW( reader->read(*doc.get()) );
-  BOOST_CHECK_NE( domain->get_child_count(), (Uint) 0);
+  BOOST_CHECK_NO_THROW( reader->read(node) );
+//  BOOST_CHECK_NE( domain->get_child("Mesh")->get_child_count(), (Uint) 0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
