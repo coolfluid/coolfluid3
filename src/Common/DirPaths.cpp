@@ -109,9 +109,10 @@ void DirPaths::addModuleDirs(const vector<std::string>& modulesDir)
     boost::filesystem::path p (*itr);
     if(boost::filesystem::exists(p))
     {
-      if (boost::filesystem::is_directory(p)) {
+      if (boost::filesystem::is_directory(p))
+      {
         m_modulesDir.push_back(p);
-        CFinfo << "Adding Module Dir: " << "\'" << p.string() << "\'\n" << CFflush;
+//        CFinfo << "Adding Module Dir: " << "\'" << p.string() << "\'\n" << CFflush;
       }
       else {
         badPaths.push_back(p);
