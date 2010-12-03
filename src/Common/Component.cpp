@@ -43,7 +43,7 @@ Component::Component ( const std::string& name ) :
 
   regist_signal ( "create_component" , "creates a component", "Create component" )->connect ( boost::bind ( &Component::create_component, this, _1 ) );
 
-    signal("create_component").signature
+  signal("create_component").signature
       .insert<std::string>("Component name", "Name for created component" )
       .insert<std::string>("Generic type", "Generic type of the component" )
       .insert<std::string>("Concrete type", "Concrete type of the component" )
@@ -60,9 +60,16 @@ Component::Component ( const std::string& name ) :
   regist_signal ( "configure" , "configures this component", "" )->connect ( boost::bind ( &Component::configure, this, _1 ) );
 
   regist_signal ( "rename_component" , "Renames this component", "Rename" )->connect ( boost::bind ( &Component::rename_component, this, _1 ) );
+  signal("rename_component").signature
+      .insert<std::string>("New Name", "Component new name", name);
 
-    signal("rename_component").signature
-        .insert<std::string>("NewName", "Component new name", name);
+  regist_signal ( "delete_component" , "Deletes a component", "Delete" )->connect ( boost::bind ( &Component::delete_component, this, _1 ) );
+//  signal("delete_component").signature
+//          .insert< URI >("Component", "Path to the component to be deleted" );
+
+  regist_signal ( "move_component" , "Moves a component to another component", "Move" )->connect ( boost::bind ( &Component::move_component, this, _1 ) );
+  signal("move_component").signature
+          .insert< URI >("Path", "Path to the new component to which this one will move to" );
 
   // properties
 
@@ -74,6 +81,7 @@ Component::Component ( const std::string& name ) :
 
 Component::~Component()
 {
+  CFinfo << "deleting component \'" << name() << "\'" << CFendl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -214,13 +222,18 @@ Component::Ptr Component::remove_component ( const std::string& name )
   if ( itr != m_dynamic_components.end() )         // if exists
   {
     Component::Ptr comp = itr->second;             // get the component
+
+    // remove the component from the root
+    if( !m_root.expired() )
+      m_root.lock()->remove_component_path(comp->full_path());
+
     m_dynamic_components.erase(itr);               // remove it from the storage
 
-    // remove fromt the list of all components
+    // remove from the list of all components
     Component::CompStorage_t::iterator citr = m_components.find(name);
     m_components.erase(citr);
 
-    comp->change_parent( NULL );         // set parent to invalid
+    comp->change_parent( NULL );                   // set parent to invalid
 
     raise_path_changed();
 
@@ -356,7 +369,7 @@ void Component::change_parent ( Component* new_parent )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::move_component ( Component::Ptr new_parent )
+void Component::move_to ( Component::Ptr new_parent )
 {
   Component::Ptr this_ptr = get_parent()->remove_component( this->name() );
   new_parent->add_component( this_ptr );
@@ -457,7 +470,6 @@ Component::Ptr Component::look_component ( const CPath& path )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-
 void Component::create_component ( XmlNode& node  )
 {
   XmlParams p ( node );
@@ -484,6 +496,43 @@ void Component::create_component ( XmlNode& node  )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
+void Component::delete_component ( XmlNode& node  )
+{
+//  XmlParams p ( node );
+
+//  URI path = p.get_option<URI>("Component");
+//  if( ! path.is_protocol("cpath") )
+//    throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
+
+//  Component::Ptr comp = look_component( path.string_without_protocol() )->get_parent();
+//  Component::Ptr parent = comp->get_parent();
+//  parent->remove_component( comp->name() );
+
+  // when goes out of scope it gets deleted
+  // unless someone else shares it
+  Component::Ptr meself = self();
+  Component::Ptr parent = meself->get_parent();
+
+  parent->remove_component( meself->name() );
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+void Component::move_component ( XmlNode& node  )
+{
+  XmlParams p ( node );
+
+  URI path = p.get_option<URI>("Path");
+  if( ! path.is_protocol("cpath") )
+    throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
+
+  Component::Ptr new_parent = look_component( path.string_without_protocol() );
+
+  this->move_to( new_parent );
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
 void Component::write_xml_tree( XmlNode& node )
 {
   std::string type_name = derived_type_name();
@@ -493,7 +542,7 @@ void Component::write_xml_tree( XmlNode& node )
             << ". Was this class added to the component builder?" << CFendl;
   else
   {
-    XmlNode& this_node = *XmlOps::add_node_to(node, "node");
+    XmlNode& this_node = *XmlOps::add_node_to( node, "node");
     XmlOps::add_attribute_to( this_node, "name", name() );
     XmlOps::add_attribute_to( this_node, "atype", type_name);
     XmlOps::add_attribute_to( this_node, "mode", has_tag("basic") ? "basic" : "adv");
@@ -518,9 +567,9 @@ void Component::write_xml_tree( XmlNode& node )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::list_tree( XmlNode& xml )
+void Component::list_tree( XmlNode& node )
 {
-  XmlNode& reply = *XmlOps::add_reply_frame( xml );
+  XmlNode& reply = *XmlOps::add_reply_frame( node );
 
   XmlOps::add_attribute_to( reply, "sender", full_path().string() );
 
@@ -728,11 +777,11 @@ const Property& Component::property( const std::string& optname ) const
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::rename_component ( XmlNode& xml )
+void Component::rename_component ( XmlNode& node )
 {
-  XmlParams p(xml);
+  XmlParams p(node);
 
-  std::string new_name = p.get_option<std::string>("NewName");
+  std::string new_name = p.get_option<std::string>("New Name");
 
   rename(new_name);
 }

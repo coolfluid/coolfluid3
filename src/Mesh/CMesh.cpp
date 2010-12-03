@@ -78,7 +78,7 @@ CRegion& CMesh::create_region( const std::string& name, bool ensure_unique )
       // Create a parent region "base" for the existing region
       CRegion::Ptr base_region = create_component_type<CRegion>("base");
       base_region->add_tag("grid_base");
-      existing_region.move_component(base_region);
+      existing_region.move_to(base_region);
             
 //      //count howmany times the name "name(_[0-9]+)?" occurs (REGEX)
 //      Uint count = 0;

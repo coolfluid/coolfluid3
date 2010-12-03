@@ -229,7 +229,7 @@ public: // functions
 
   /// Move this component to within another one
   /// @param to_parent will be the new parent of this component
-  void move_component ( Ptr to_parent );
+  void move_to ( Ptr to_parent );
 
   /// @returns a string representation of the tree below this component
   std::string tree(Uint level=0) const;
@@ -265,10 +265,16 @@ public: // functions
   //@{
 
   /// configures all the options on this class
-  void configure ( XmlNode& node );
+  void configure ( XmlNode& xml );
 
   /// creates a component from this component
   void create_component ( XmlNode& xml );
+
+  /// deletes a component from this component
+  void delete_component ( XmlNode& xml );
+
+  /// moves a component from this component to another
+  void move_component ( XmlNode& xml );
 
   /// lists the sub components and puts them on the xml_tree
   void list_tree ( XmlNode& xml );
