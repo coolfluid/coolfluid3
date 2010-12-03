@@ -83,7 +83,7 @@ Component::Component ( const std::string& name ) :
 
 Component::~Component()
 {
-  CFinfo << "deleting component \'" << name() << "\'" << CFendl;
+//  CFinfo << "deleting component \'" << name() << "\'" << CFendl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -119,18 +119,12 @@ void Component::rename ( const std::string& name )
 
   if ( is_not_null(m_raw_parent) ) // rename via parent to insure unique names
   {
-    print_info( *XmlOps::create_doc() );
-
     Component::Ptr parent = m_raw_parent->self();
     parent->remove_component( old_name );
-
-    print_info( *XmlOps::create_doc() );
 
     m_name = new_name;
 
     parent->add_component( shared_from_this() );
-
-    print_info( *XmlOps::create_doc() );
   }
   else  // direct rename in case of no parent
   {
