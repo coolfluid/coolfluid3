@@ -188,6 +188,8 @@ Component::Ptr Component::add_static_component ( Component::Ptr subcomp )
 
   m_components[unique_name] = subcomp;
 
+  raise_path_changed();
+
 	subcomp->change_parent( this );
 	subcomp->rename( unique_name );
 
@@ -255,6 +257,38 @@ Component::Ptr Component::remove_component ( const std::string& name )
   else                                             // if does not exist
   {
     throw ValueNotFound(FromHere(), "Dynamic component with name '"
+                        + name + "' does not exist in component '"
+                        + this->name() + "' with path ["
+                        + m_path.string() + "]");
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+Component::Ptr Component::remove_static_component ( const std::string& name )
+{
+  // find the component exists
+  Component::CompStorage_t::iterator itr = m_components.find(name);
+
+  if ( itr != m_components.end() )         // if exists
+  {
+    Component::Ptr comp = itr->second;             // get the component
+    m_components.erase(itr);               // remove it from the storage
+
+    // remove fromt the list of all components
+    Component::CompStorage_t::iterator ditr = m_dynamic_components.find(name);
+    if (ditr != m_dynamic_components.end())
+    m_dynamic_components.erase(ditr);
+
+    comp->change_parent( NULL );         // set parent to invalid
+
+    raise_path_changed();
+
+    return comp;                                   // return it to client
+  }
+  else                                             // if does not exist
+  {
+    throw ValueNotFound(FromHere(), "Component with name '"
                         + name + "' does not exist in component '"
                         + this->name() + "' with path ["
                         + m_path.string() + "]");

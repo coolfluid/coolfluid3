@@ -73,6 +73,9 @@ public: // functions
   /// @return a shared pointer to self
   Component::Ptr self() { return shared_from_this(); }
 
+  /// @return a shared pointer to self
+  Component::ConstPtr self() const { return shared_from_this(); }
+
   /// @name ITERATORS
   //@{
 
@@ -300,6 +303,9 @@ protected: // functions
 
   /// Add a static (sub)component of this component
   Ptr add_static_component ( Ptr subcomp );
+
+  /// Remove a static (sub)component of this component
+  Ptr remove_static_component ( const std::string& name );
 
 private: // helper functions
 
