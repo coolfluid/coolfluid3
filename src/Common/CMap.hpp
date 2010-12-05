@@ -115,7 +115,6 @@ public: // functions
   /// @post If the key is not in the map, the end() iterator is returned.
   /// @return the iterator with key and value, the end() iterator is returned
   ///         if no match is found
-  /// @exception NoSuchValueException is thrown if key not in map
   iterator find(const key_type& key);
   
   /// Find the iterator matching with the given KEY
@@ -125,18 +124,14 @@ public: // functions
   /// @post If the key is not in the map, the end() iterator is returned.
   /// @return the iterator with key and value, the end() iterator is returned
   ///         if no match is found
-  /// @exception IllegalCall is thrown if the CMap is not sorted beforehand
   const_iterator find(const key_type& key) const;
   
   /// Erase the given iterator from the map
   /// @param[in] itr The iterator to delete
   /// @pre the map must be sorted
-  /// @exception IllegalCall is thrown when map is not sorted
   void erase (iterator itr)
   {
-    if (!m_sorted)
-      throw IllegalCall(FromHere(), "Map internal structure must be sorted");
-    
+    cf_assert_desc ( "Map internal structure must be sorted" , m_sorted);
     m_vectorMap.erase(itr);
     m_sorted = false;
   }
@@ -167,7 +162,6 @@ public: // functions
   /// @param[in] key  key to be looked-up
   /// @pre before using exists() the CFMap has to be sorted with sort_keys()
   /// @return flag to know if key exists
-  /// @exception IllecalCall is thrown if the CMap is not sorted beforehand
   bool exists(const key_type& key) const;
 
   /// Clear the content of the map
@@ -188,12 +182,9 @@ public: // functions
   /// @param[in] key The key to look for. If the key is not found,
   ///               it is inserted using insert_blindly().
   /// @return non-modifiable data for the given key
-  /// @exception IllegalCall is thrown when the map is unsorted.
-  /// @exception ValueNotFound is thrown when the key does not exist in the map, as it cannot be inserted.
   const data_type& operator[] (const key_type& key) const;
 
   /// Sort all the pairs in the map by key
-  /// @exception ValueExists is thrown when duplicate keys are discovered.
   void sort_keys();
   
   /// @return the iterator pointing at the first element
@@ -364,10 +355,15 @@ inline typename CMap<KEY,DATA>::const_iterator CMap<KEY,DATA>::find(const key_ty
   if(m_vectorMap.empty())
     return end();
    
-  if(!m_sorted)
-    throw IllegalCall(FromHere(), "Trying to sort CMap is not allowed in find() \"const\". use sort_keys() apriori");
+  cf_assert_desc ("Trying to sort CMap is not allowed in find() \"const\". use sort_keys() apriori", m_sorted );
    
-  return std::lower_bound(begin(),end(),key,Compare());
+  const_iterator itr = std::lower_bound(begin(),end(),key,Compare());
+
+  if (itr != end())       
+    if (itr->first != key)
+      return end();
+
+  return itr;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -422,10 +418,8 @@ template <typename KEY, typename DATA>
 inline const typename CMap<KEY,DATA>::data_type& CMap<KEY,DATA>::operator[] (const key_type& key) const
 {
   const_iterator itr = find(key);
-  if (itr != end())
-    return itr->second;
-  else
-    throw ValueNotFound(FromHere(), "The key is not found in the CMap, and can not be inserted in const version.");
+  cf_assert_desc( "The key is not found in the CMap, and can not be inserted in const version." , itr != end())
+  return itr->second;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -435,12 +429,11 @@ void CMap<KEY,DATA>::sort_keys()
 {
   if (!m_sorted)
   {
-    std::sort(m_vectorMap.begin(),m_vectorMap.end(), LessThan());
+    std::sort(begin(), end(), LessThan());
     m_sorted = true;
 
-    iterator itr = std::unique (m_vectorMap.begin(), m_vectorMap.end(), unique_key );    
-    if ( itr - begin() != size() )
-      throw ValueExists (FromHere(), "multiple keys in the map are detected. Not allowed in this map");      
+    cf_assert_desc ("multiple keys in the map are detected. Not allowed in this map" , 
+      std::unique (begin(), end(), unique_key ) - begin() == (int) size() );  
   }
 }
   
