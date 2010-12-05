@@ -11,6 +11,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <boost/mpi/communicator.hpp>
+#include <boost/thread/thread.hpp>
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -64,9 +65,9 @@ namespace boost { namespace mpi {
   std::cout << std::flush;                                                                                                      \
   boost::this_thread::sleep(boost::posix_time::milliseconds(msec));                                                             \
   PE::instance().barrier();                                                                                                     \
-  PEProcessSortedExecute(-1,                                                                                                    \
+  PEProcessSortedExecute(PE::instance(),-1,                                                                                                    \
     std::cout << std::flush;                                                                                                    \
-    std::cout << PE::instance().rank() << " " << msg << "\n";                                                                   \
+    std::cout << "["<<PE::instance().rank() << "] " << msg << "\n";                                                                   \
     std::cout << std::flush;                                                                                                    \
   );                                                                                                                            \
   PE::instance().barrier();                                                                                                     \
