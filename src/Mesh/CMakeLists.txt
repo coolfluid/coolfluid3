@@ -15,6 +15,8 @@ list( APPEND coolfluid_mesh_files
   CFieldElements.cpp
   CDynTable.hpp
   CDynTable.cpp
+  CHash.hpp
+  CHash.cpp
   CHoneycombInterpolator.hpp
   CHoneycombInterpolator.cpp
   CInterpolator.hpp
@@ -33,10 +35,14 @@ list( APPEND coolfluid_mesh_files
   CMeshTransformer.cpp
   CMeshWriter.hpp
   CMeshWriter.cpp
+  CMixedHash.hpp
+  CMixedHash.cpp
   COperation.hpp
   COperation.cpp
   ConnectivityData.cpp
   ConnectivityData.hpp
+  CMeshPartitioner.hpp
+  CMeshPartitioner.cpp
   CRegion.hpp
   CRegion.cpp
   CTable.hpp
@@ -93,6 +99,9 @@ add_subdirectory( Neu )           # Neutral file IO
 add_subdirectory( Gmsh )          # Gmsh file IO
 add_subdirectory( BlockMesh )     # Structured mesh generation
 add_subdirectory( CGNS )          # CGNS file IO
+
+#add_subdirectory( Zoltan )        # Zoltan mesh partitioning
+#add_subdirectory( PTScotch )      # PTScotch mesh partitioning
 
 # Must be after all the other subdirectories
 add_subdirectory( uTests )        # unit tests for Mesh
