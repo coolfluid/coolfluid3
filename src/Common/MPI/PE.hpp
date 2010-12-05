@@ -65,6 +65,9 @@ public:
 
   /// Free the PE, careful because some mpi-s fail upon re-init after a proper finalize
   void finalize();
+  
+  /// overload the barrier function
+  void barrier();
 
   /// Return rank, additionally, if is_init==0.
   Uint rank() const;

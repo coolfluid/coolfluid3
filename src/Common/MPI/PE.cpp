@@ -72,12 +72,22 @@ void PE::finalize()
 {
 	if ( is_init() )
 	{
-		barrier();
-        delete_ptr(m_environment);
+    barrier();
+    delete_ptr(m_environment);
 		
 		/// @TODO Communicator has no destructor, see boost/mpi/communicator.hpp, 
 		///       this is sort of dangerous.
 		///       Needs to be checked if it somehow realizes that
+	}	
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void PE::barrier()
+{
+	if ( is_init() )
+	{
+		mpi::communicator::barrier();
 	}	
 }
 
