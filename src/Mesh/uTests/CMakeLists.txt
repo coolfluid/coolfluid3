@@ -1,5 +1,12 @@
 ################################################################################
 
+list( APPEND utest-mesh-hash_cflibs coolfluid_mesh )
+list( APPEND utest-mesh-hash_files  utest-mesh-hash.cpp )
+
+coolfluid_add_unittest( utest-mesh-hash )
+
+################################################################################
+
 list( APPEND utest-mesh-interpolation_cflibs coolfluid_neutral coolfluid_gmsh coolfluid_mesh_sf )
 list( APPEND utest-mesh-interpolation_files  utest-mesh-interpolation.cpp )
 
