@@ -59,10 +59,8 @@ namespace Common {
     /// @param node XML node with data for this option
     virtual void configure ( XmlNode& node );
 
-  private: // helper functions
-
     /// copy the configured update value to all linked parameters
-    void copy_to_linked_params ( const TYPE& val );
+    virtual void copy_to_linked_params ( const boost::any& val );
 
   }; // class OptionT
 

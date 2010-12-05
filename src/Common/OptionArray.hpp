@@ -88,9 +88,9 @@ namespace Common {
     /// @param node XML node with data for this option
     virtual void configure ( XmlNode& node );
 
-  private: // helper functions
+    virtual void copy_to_linked_params ( const boost::any& val );
 
-    void copy_to_linked_params ( const value_type& val );
+  private: // helper functions
 
     std::string dump_to_str ( const boost::any& c ) const;
 

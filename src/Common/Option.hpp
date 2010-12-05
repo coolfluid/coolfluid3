@@ -135,6 +135,9 @@ namespace Common {
     /// updates the option value using the xml configuration
     /// @param node XML node with data for this option
     virtual void configure ( XmlNode& node ) = 0;
+    
+    /// copy the configured update value to all linked parameters
+    virtual void copy_to_linked_params ( const boost::any& val ) = 0;
 
   }; // class Option
 

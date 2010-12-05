@@ -5,9 +5,10 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <boost/assign/std/vector.hpp>
-#include <boost/foreach.hpp>
 
 #include "Common/Option.hpp"
+#include "Common/BasicExceptions.hpp"
+#include "Common/Foreach.hpp"
 
 using namespace boost::assign;
 using namespace CF::Common;
@@ -35,7 +36,7 @@ void Option::configure_option ( XmlNode& node )
   this->configure(node); // update the value
 
   // call all process functors
-  BOOST_FOREACH( Option::Trigger_t& process, m_triggers )
+  boost_foreach( Option::Trigger_t& process, m_triggers )
       process();
 }
 
@@ -58,6 +59,10 @@ void Option::change_value ( const boost::any& value )
   Property::change_value(value);
 
   // call all process functors
-  BOOST_FOREACH( Option::Trigger_t& process, m_triggers )
+  boost_foreach( Option::Trigger_t& process, m_triggers )
     process();
+    
+  copy_to_linked_params(value);
 };
+
+//////////////////////////////////////////////////////////////////////////////

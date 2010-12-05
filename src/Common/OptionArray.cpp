@@ -79,12 +79,12 @@ void OptionArrayT<TYPE>::configure ( XmlNode& node )
 }
 
 template < typename TYPE >
-void OptionArrayT<TYPE>::copy_to_linked_params ( const value_type& val )
+void OptionArrayT<TYPE>::copy_to_linked_params ( const boost::any& val )
 {
   BOOST_FOREACH ( void* v, this->m_linked_params )
   {
     value_type* cv = static_cast<value_type*>(v);
-    *cv = val;
+    *cv = boost::any_cast<value_type>(val);
   }
 }
 

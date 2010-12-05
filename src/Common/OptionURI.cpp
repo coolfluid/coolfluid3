@@ -59,3 +59,17 @@ void OptionURI::configure ( XmlNode& node )
 
   m_value = val;
 }
+
+//////////////////////////////////////////////////////////////////////////////
+
+void OptionURI::copy_to_linked_params ( const boost::any& val )
+{
+  BOOST_FOREACH ( void* v, this->m_linked_params )
+  {
+    value_type* cv = static_cast<value_type*>(v);
+    *cv = boost::any_cast<value_type>(val);
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
