@@ -13,30 +13,14 @@
 #include <boost/foreach.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/mpi/collectives.hpp>
-
-/*// for boost graph example
-#include <boost/config.hpp>
-#include <boost/graph/adjacency_list.hpp>
 #include <boost/tuple/tuple.hpp>
-
-#include <boost/graph/use_mpi.hpp>
-#include <boost/graph/distributed/mpi_process_group.hpp>
-#include <boost/graph/distributed/adjacency_list.hpp>
-#include <boost/graph/distributed/local_subgraph.hpp>
-#include <boost/graph/parallel/distribution.hpp>
-*/
-// zoltan
-#include <mpi.h>
-#include <zoltan_cpp.h>
-
 // coolfluid
-#include "Common/ConfigObject.hpp"
 #include "Common/Log.hpp"
 #include "Common/CreateComponent.hpp"
+#include "Common/Foreach.hpp"
 
+#include "Common/StreamHelpers.hpp"
 #include "Common/String/Conversion.hpp"
-
-#include "Common/MPI/PE.hpp"
 
 #include "Math/MatrixTypes.hpp"
 
@@ -49,12 +33,13 @@
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/ConnectivityData.hpp"
 #include "Mesh/CDynTable.hpp"
-
+#include "Mesh/CMeshPartitioner.hpp"
+#include "Mesh/Zoltan/LibZoltan.hpp"
 
 #define PE_SERIALIZE(func)                                \
-{																													\
-	PE::instance().barrier();																\
-	CFinfo.setFilterRankZero(false);												\
+{                                                          \
+ PE::instance().barrier();                               \
+ CFinfo.setFilterRankZero(false);                        \
   for (Uint proc=0; proc<PE::instance().size(); ++proc)   \
   {                                                       \
     if (proc == PE::instance().rank())                    \
@@ -63,8 +48,8 @@
     }                                                     \
     PE::instance().barrier();                             \
   }                                                       \
-	CFinfo.setFilterRankZero(true);													\
-	PE::instance().barrier();																\
+ CFinfo.setFilterRankZero(true);                         \
+ PE::instance().barrier();                               \
 }
         
 using namespace std;
@@ -850,7 +835,7 @@ struct ZoltanTests_Fixture
 		
 		std::vector<CDynTable<Uint>::ConstPtr> list_of_node_to_glb_elm;
 		BOOST_FOREACH(const CDynTable<Uint>& node_to_glb_elm, recursive_filtered_range_typed<CDynTable<Uint> >(mesh,IsComponentTag("glb_elem_connectivity")))
-      list_of_node_to_glb_elm.push_back(node_to_glb_elm.get_type<CDynTable<Uint> >());
+      list_of_node_to_glb_elm.push_back(node_to_glb_elm.as_type<CDynTable<Uint> >());
 		
 		//Uint node_start_idx = mesh.get_child("temporary_partition_info")->property("node_start_idx").value<Uint>();
 		Uint elem_start_idx = mesh.get_child("temporary_partition_info")->property("elem_start_idx").value<Uint>();
@@ -863,7 +848,7 @@ struct ZoltanTests_Fixture
 			if (glb_id[IDX] < (int) elem_start_idx)
 			{
 				sizes[i] = sizeof(Uint) // component index
-				         + sizeof(Real) * components[loc_id[COMP]]->get_type<CTable<Real> >()->row_size() // coordinates
+				         + sizeof(Real) * components[loc_id[COMP]]->as_type<CTable<Real> >()->row_size() // coordinates
                  + sizeof(Uint) * (1+list_of_node_to_glb_elm[loc_id[COMP]]->row_size(loc_id[IDX])); // global element indices that need this node
 			}
 			else
@@ -900,11 +885,11 @@ struct ZoltanTests_Fixture
 			
 		std::vector<CDynTable<Uint>::ConstPtr> list_of_node_to_glb_elm;
 		BOOST_FOREACH(const CDynTable<Uint>& node_to_glb_elm, recursive_filtered_range_typed<CDynTable<Uint> >(mesh,IsComponentTag("glb_elem_connectivity")))
-      list_of_node_to_glb_elm.push_back(node_to_glb_elm.get_type<CDynTable<Uint> >());
+      list_of_node_to_glb_elm.push_back(node_to_glb_elm.as_type<CDynTable<Uint> >());
 		
 		std::vector<CList<bool>::Ptr> list_of_is_ghost;
 		BOOST_FOREACH(CList<bool>& is_ghost, recursive_filtered_range_typed<CList<bool> >(mesh,IsComponentTag("is_ghost")))
-      list_of_is_ghost.push_back(is_ghost.get_type<CList<bool> >());		
+      list_of_is_ghost.push_back(is_ghost.as_type<CList<bool> >());		
 		
 		//Uint node_start_idx = mesh.get_child("temporary_partition_info")->property("node_start_idx").value<Uint>();
 		Uint elem_start_idx = mesh.get_child("temporary_partition_info")->property("elem_start_idx").value<Uint>();
@@ -926,9 +911,9 @@ struct ZoltanTests_Fixture
         component_number = (Uint *)(buf + idx[id]);
         *component_number++ = loc_id[COMP];
         CFinfo << " comp = " << loc_id[COMP] << "      coord_idx = " << CFflush;
-        CFinfo << loc_id[IDX] << "/" << components[loc_id[COMP]]->get_type<CTable<Real> >()->size() << "    coords = " << CFflush;
+        CFinfo << loc_id[IDX] << "/" << components[loc_id[COMP]]->as_type<CTable<Real> >()->size() << "    coords = " << CFflush;
 				coord_row_buf = (Real *)(component_number);
-				BOOST_FOREACH(const Real& coord, components[loc_id[COMP]]->get_type<CTable<Real> >()->array()[loc_id[IDX]])
+				BOOST_FOREACH(const Real& coord, components[loc_id[COMP]]->as_type<CTable<Real> >()->array()[loc_id[IDX]])
 				{
 				  *coord_row_buf++ = coord;
           CFinfo << coord << "  " ;
@@ -968,7 +953,7 @@ struct ZoltanTests_Fixture
 		BOOST_FOREACH(CTable<Real>& coords, 
 									recursive_filtered_range_typed<CTable<Real> >(mesh,IsComponentTag("coordinates")))
 		{
-		  coordinates_buffer.push_back( boost::shared_ptr<CTable<Real>::Buffer> (new CTable<Real>::Buffer(coords.get_type<CTable<Real> >()->create_buffer())));
+		  coordinates_buffer.push_back( boost::shared_ptr<CTable<Real>::Buffer> (new CTable<Real>::Buffer(coords.as_type<CTable<Real> >()->create_buffer())));
 			is_ghost_buffer.push_back( boost::shared_ptr<CList<bool>::Buffer> (new CList<bool>::Buffer(get_tagged_component_typed<CList<bool> >(coords,"is_ghost").create_buffer())));
 			glb_node_indices_buffer.push_back( boost::shared_ptr<CList<Uint>::Buffer> (new CList<Uint>::Buffer(get_tagged_component_typed<CList<Uint> >(coords,"global_node_indices").create_buffer())));
 			node_to_glb_elms_buffer.push_back( boost::shared_ptr<CDynTable<Uint>::Buffer> (new CDynTable<Uint>::Buffer(get_tagged_component_typed<CDynTable<Uint> >(coords,"glb_elem_connectivity").create_buffer())));
@@ -1176,7 +1161,7 @@ struct ZoltanTests_Fixture
 			if (glb_id[IDX] >= (int) elem_start_idx)
 			{
 				sizes[i] = sizeof(Uint) // component index
-                 + sizeof(Uint) * components[loc_id[COMP]]->get_type<CElements>()->connectivity_table().row_size(); // nodes
+                 + sizeof(Uint) * components[loc_id[COMP]]->as_type<CElements>()->connectivity_table().row_size(); // nodes
 			}
 			else
 			{
@@ -1229,7 +1214,7 @@ struct ZoltanTests_Fixture
 
         nodes_buf = (Uint *)(component_number);
 
-			  BOOST_FOREACH(const Uint node, components[loc_id[COMP]]->get_type<CElements>()->connectivity_table()[loc_id[IDX]])
+			  BOOST_FOREACH(const Uint node, components[loc_id[COMP]]->as_type<CElements>()->connectivity_table()[loc_id[IDX]])
 			  {
           CFinfo << " " << node;
 			    *nodes_buf++ = node;
@@ -1291,7 +1276,7 @@ struct ZoltanTests_Fixture
         component_number = (Uint *)(buf + idx[id]);
         comp_idx = *component_number;
 
-        Uint nb_nodes = components[comp_idx]->get_type<CElements>()->connectivity_table().row_size();
+        Uint nb_nodes = components[comp_idx]->as_type<CElements>()->connectivity_table().row_size();
         std::vector<Uint> nodes(nb_nodes);
                 
         nodes_buf = (Uint *)(++component_number);
@@ -1441,7 +1426,7 @@ struct ZoltanTests_Fixture
 		
 		std::vector<CDynTable<Uint>::ConstPtr> list_of_node_to_glb_elm;
 		BOOST_FOREACH(const CDynTable<Uint>& node_to_glb_elm, recursive_filtered_range_typed<CDynTable<Uint> >(mesh,IsComponentTag("glb_elem_connectivity")))
-      list_of_node_to_glb_elm.push_back(node_to_glb_elm.get_type<CDynTable<Uint> >());
+      list_of_node_to_glb_elm.push_back(node_to_glb_elm.as_type<CDynTable<Uint> >());
 		
 		//Uint node_start_idx = mesh.get_child("temporary_partition_info")->property("node_start_idx").value<Uint>();
 		Uint elem_start_idx = mesh.get_child("temporary_partition_info")->property("elem_start_idx").value<Uint>();
@@ -1454,7 +1439,7 @@ struct ZoltanTests_Fixture
 			if (glb_id[IDX] < (int) elem_start_idx)
 			{
 				sizes[i] = sizeof(Uint) // component index
-				         + sizeof(Real) * components[loc_id[COMP]]->get_type<CTable<Real> >()->row_size() // coordinates
+				         + sizeof(Real) * components[loc_id[COMP]]->as_type<CTable<Real> >()->row_size() // coordinates
                  + sizeof(Uint) * (1+list_of_node_to_glb_elm[loc_id[COMP]]->row_size(loc_id[IDX])); // global element indices that need this node
 			}
 			else
@@ -1492,11 +1477,11 @@ struct ZoltanTests_Fixture
 			
 		std::vector<CDynTable<Uint>::ConstPtr> list_of_node_to_glb_elm;
 		BOOST_FOREACH(const CDynTable<Uint>& node_to_glb_elm, recursive_filtered_range_typed<CDynTable<Uint> >(mesh,IsComponentTag("glb_elem_connectivity")))
-      list_of_node_to_glb_elm.push_back(node_to_glb_elm.get_type<CDynTable<Uint> >());
+      list_of_node_to_glb_elm.push_back(node_to_glb_elm.as_type<CDynTable<Uint> >());
 		
 		std::vector<CList<bool>::Ptr> list_of_is_ghost;
 		BOOST_FOREACH(CList<bool>& is_ghost, recursive_filtered_range_typed<CList<bool> >(mesh,IsComponentTag("is_ghost")))
-      list_of_is_ghost.push_back(is_ghost.get_type<CList<bool> >());		
+      list_of_is_ghost.push_back(is_ghost.as_type<CList<bool> >());		
 		
 		//Uint node_start_idx = mesh.get_child("temporary_partition_info")->property("node_start_idx").value<Uint>();
 		Uint elem_start_idx = mesh.get_child("temporary_partition_info")->property("elem_start_idx").value<Uint>();
@@ -1518,9 +1503,9 @@ struct ZoltanTests_Fixture
         component_number = (Uint *)(buf + idx[id]);
         *component_number++ = loc_id[COMP];
         CFinfo << " comp = " << loc_id[COMP] << "      coord_idx = " << CFflush;
-        CFinfo << loc_id[IDX] << "/" << components[loc_id[COMP]]->get_type<CTable<Real> >()->size() << "    coords = " << CFflush;
+        CFinfo << loc_id[IDX] << "/" << components[loc_id[COMP]]->as_type<CTable<Real> >()->size() << "    coords = " << CFflush;
 				coord_row_buf = (Real *)(component_number);
-				BOOST_FOREACH(const Real& coord, components[loc_id[COMP]]->get_type<CTable<Real> >()->array()[loc_id[IDX]])
+				BOOST_FOREACH(const Real& coord, components[loc_id[COMP]]->as_type<CTable<Real> >()->array()[loc_id[IDX]])
 				{
 				  *coord_row_buf++ = coord;
           CFinfo << coord << "  " ;
@@ -1557,7 +1542,7 @@ struct ZoltanTests_Fixture
 		BOOST_FOREACH(CTable<Real>& coords, 
 									recursive_filtered_range_typed<CTable<Real> >(mesh,IsComponentTag("coordinates")))
 		{
-		  coordinates_buffer.push_back( boost::shared_ptr<CTable<Real>::Buffer> (new CTable<Real>::Buffer(coords.get_type<CTable<Real> >()->create_buffer())));
+		  coordinates_buffer.push_back( boost::shared_ptr<CTable<Real>::Buffer> (new CTable<Real>::Buffer(coords.as_type<CTable<Real> >()->create_buffer())));
 			is_ghost_buffer.push_back( boost::shared_ptr<CList<bool>::Buffer> (new CList<bool>::Buffer(get_tagged_component_typed<CList<bool> >(coords,"is_ghost").create_buffer())));
 			glb_node_indices_buffer.push_back( boost::shared_ptr<CList<Uint>::Buffer> (new CList<Uint>::Buffer(get_tagged_component_typed<CList<Uint> >(coords,"global_node_indices").create_buffer())));
 			node_to_glb_elms_buffer.push_back( boost::shared_ptr<CDynTable<Uint>::Buffer> (new CDynTable<Uint>::Buffer(get_tagged_component_typed<CDynTable<Uint> >(coords,"glb_elem_connectivity").create_buffer())));
@@ -1627,6 +1612,8 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 	PE::instance().init(m_argc,m_argv);
 }
 
+
+/*
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE ( Zoltan_tutorial_construction )
@@ -1645,7 +1632,7 @@ BOOST_AUTO_TEST_CASE ( Zoltan_tutorial_construction )
 		
 		
 		
-		Zoltan *zz = new Zoltan(PE::instance());
+		ZoltanObject *zz = new ZoltanObject(PE::instance());
 		if (zz == NULL)
 			throw BadValue(FromHere(),"Zoltan error");
 
@@ -1669,11 +1656,11 @@ BOOST_AUTO_TEST_CASE ( Zoltan_tutorial_construction )
 		zz->Set_Param( "RETURN_LISTS", "ALL");
 		zz->Set_Param( "GRAPH_SYMMETRIZE","NONE");
 
-		/* Graph parameters */
+		// Graph parameters 
 
 		zz->Set_Param( "NUM_GLOBAL_PARTS", "3");
 		zz->Set_Param( "CHECK_GRAPH", "2"); 
-		zz->Set_Param( "PHG_EDGE_SIZE_THRESHOLD", ".35");  /* 0-remove all, 1-remove none */
+		zz->Set_Param( "PHG_EDGE_SIZE_THRESHOLD", ".35");  // 0-remove all, 1-remove none 
 
 		// Query functions 
 
@@ -1742,17 +1729,17 @@ BOOST_AUTO_TEST_CASE ( Zoltan_tutorial_construction )
 			
 		showGraphPartitions(graph,parts);
 			
-		Zoltan::LB_Free_Part(&importGlobalIds, &importLocalIds, &importProcs, &importToPart);
-		Zoltan::LB_Free_Part(&exportGlobalIds, &exportLocalIds, &exportProcs, &exportToPart);  
+		ZoltanObject::LB_Free_Part(&importGlobalIds, &importLocalIds, &importProcs, &importToPart);
+		ZoltanObject::LB_Free_Part(&exportGlobalIds, &exportLocalIds, &exportProcs, &exportToPart);  
 		
 		delete zz;
   }
 	
 }
 
-
+*/
 //////////////////////////////////////////////////////////////////////////////
-
+/*
 BOOST_AUTO_TEST_CASE ( zoltan_quadtriag_mesh)
 {
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
@@ -1766,7 +1753,7 @@ BOOST_AUTO_TEST_CASE ( zoltan_quadtriag_mesh)
   CMesh& mesh = *mesh_ptr;
 
 	// Zoltan
-  Zoltan *zz = new Zoltan(PE::instance());
+  ZoltanObject *zz = new ZoltanObject(PE::instance());
   if (zz == NULL)
     throw BadValue(FromHere(),"Zoltan error");
 
@@ -1789,7 +1776,7 @@ BOOST_AUTO_TEST_CASE ( zoltan_quadtriag_mesh)
   // Graph parameters
   //zz->Set_Param( "NUM_GLOBAL_PARTS", "2");
   zz->Set_Param( "CHECK_GRAPH", "2"); 
-  //zz->Set_Param( "PHG_EDGE_SIZE_THRESHOLD", ".35");  /* 0-remove all, 1-remove none */
+  //zz->Set_Param( "PHG_EDGE_SIZE_THRESHOLD", ".35");  // 0-remove all, 1-remove none
 
 	// Query functions 
   zz->Set_Num_Obj_Fn(get_number_of_objects_mesh, &mesh);
@@ -2040,14 +2027,14 @@ BOOST_AUTO_TEST_CASE ( zoltan_quadtriag_mesh)
     )
 
 
-/*
-  PE_SERIALIZE(
-  for (int i=0; i<num_found; ++i)
-  {
-    CFinfo << "["<<proc<<"]  global id " << found_global_ids[i] << " must be sent to proc " << found_procs[i] << " to part " << found_to_part[i] << CFendl;
-    CFinfo << "      it is located in " << found_local_ids[2*i+COMP] << " ("<<found_local_ids[2*i+IDX]<<")"<<CFendl;
-  }
-  )*/
+
+  // PE_SERIALIZE(
+  // for (int i=0; i<num_found; ++i)
+  // {
+  //   CFinfo << "["<<proc<<"]  global id " << found_global_ids[i] << " must be sent to proc " << found_procs[i] << " to part " << found_to_part[i] << CFendl;
+  //   CFinfo << "      it is located in " << found_local_ids[2*i+COMP] << " ("<<found_local_ids[2*i+IDX]<<")"<<CFendl;
+  // }
+  // )
 
 
     CFinfo << "before ghost nodes migration\n";
@@ -2075,11 +2062,11 @@ BOOST_AUTO_TEST_CASE ( zoltan_quadtriag_mesh)
 	partition_info.reset();
 
 
-  Zoltan::LB_Free_Part(&known_global_ids, &known_local_ids, &known_procs, &known_to_part);
-  Zoltan::LB_Free_Part(&found_global_ids, &found_local_ids, &found_procs, &found_to_part);  
+  ZoltanObject::LB_Free_Part(&known_global_ids, &known_local_ids, &known_procs, &known_to_part);
+  ZoltanObject::LB_Free_Part(&found_global_ids, &found_local_ids, &found_procs, &found_to_part);  
 
-  Zoltan::LB_Free_Part(&importGlobalIds, &importLocalIds, &importProcs, &importToPart);
-  Zoltan::LB_Free_Part(&exportGlobalIds, &exportLocalIds, &exportProcs, &exportToPart);  
+  ZoltanObject::LB_Free_Part(&importGlobalIds, &importLocalIds, &importProcs, &importToPart);
+  ZoltanObject::LB_Free_Part(&exportGlobalIds, &exportLocalIds, &exportProcs, &exportToPart);  
 
   delete globalID;
   delete localID;  
@@ -2088,7 +2075,7 @@ BOOST_AUTO_TEST_CASE ( zoltan_quadtriag_mesh)
 	BOOST_CHECK(true);
 
 
-  give_elems_local_node_numbers(mesh);
+  give_elems_local_node_numbersl_node_numbers(mesh);
   
  	CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
 
@@ -2098,9 +2085,36 @@ BOOST_AUTO_TEST_CASE ( zoltan_quadtriag_mesh)
 	meshwriter->write_from_to(mesh_ptr,fp_out);
 
 } 
-
+*/
 ////////////////////////////////////////////////////////////////////////////////
 
+BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
+{
+
+  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+	meshreader->configure_property("Read Boundaries",false);
+
+	// the file to read from
+	boost::filesystem::path fp_in ("quadtriag.neu");
+
+	// the mesh to store in
+	CMesh::Ptr mesh_ptr = meshreader->create_mesh_from(fp_in);
+  CMesh& mesh = *mesh_ptr;
+  
+  
+  CMeshPartitioner::Ptr partitioner_ptr = create_component_abstract_type<CMeshPartitioner>("CF.Mesh.Zoltan.CPartitioner","partitioner");
+  
+  CMeshPartitioner& p = *partitioner_ptr;
+  
+  //p.configure_property("Number of Partitions", (Uint) 4);
+  //p.configure_property("Graph Package", std::string("Parmetis"));
+  
+  p.initialize(mesh);
+	p.build_graph();
+  p.partition_graph();
+  p.show_changes();
+
+}
 
 BOOST_AUTO_TEST_CASE( finalize_mpi )
 {
