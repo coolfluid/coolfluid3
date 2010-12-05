@@ -24,6 +24,7 @@ namespace CF {
 namespace Mesh {
   class CElements;
   class CRegion;
+	class CMixedHash;
 namespace Neu {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -76,6 +77,9 @@ private: // functions
 
 private: // data
 
+  enum HashType { NODES=0, ELEMS=1 };  
+  boost::shared_ptr<CMixedHash> m_hash;
+	
   // map< global index , pair< temporary table, index in temporary table > >
   std::map<Uint,Region_TableIndex_pair> m_global_to_tmp;
 
@@ -87,9 +91,6 @@ private: // data
   std::string m_file_basename;
 	
 	std::set<Uint> m_ghost_nodes;
-	std::set<Uint> m_ghost_elems;
-	std::set<Uint> m_nodes_to_read;
-	std::set<Uint> m_elements_to_read;
 	std::map<Uint,Uint> m_node_to_coord_idx;
 	bool m_repartition;
 	

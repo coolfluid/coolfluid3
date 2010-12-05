@@ -21,6 +21,8 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/ConnectivityData.hpp"
 #include "Mesh/CDynTable.hpp"
+#include "Mesh/CMixedHash.hpp"
+#include "Mesh/CHash.hpp"
 
 #include "Mesh/Neu/CReader.hpp"
 
@@ -109,7 +111,14 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   
   // Read mesh information
   read_headerData();
-  
+
+	// Create a hash 
+	m_hash = create_component_type<CMixedHash>("hash");
+  std::vector<Uint> num_obj(2);
+  num_obj[0] = m_headerData.NUMNP;
+  num_obj[1] = m_headerData.NELEM;
+	m_hash->configure_property("Number of Objects",num_obj);
+	
   // Create a region component inside the mesh with the name mesh_name
   m_region = m_mesh->create_region(m_headerData.mesh_name,!property("Serial Merge").value<bool>()).as_type<CRegion>();
 
@@ -178,7 +187,7 @@ void CReader::read_headerData()
   m_headerData.NBSETS = NBSETS;
   m_headerData.NDFCD  = NDFCD;
   m_headerData.NDFVL  = NDFVL;
-  
+	
   getline(m_file,line);
 }
 
@@ -226,14 +235,14 @@ void CReader::read_coordinates()
   
   CTable<Real>& coordinates = *m_coordinates;
   Uint coord_start_idx = coordinates.size();
-  coordinates.resize(coordinates.size()+m_nodes_to_read.size());
+  coordinates.resize(coordinates.size()+m_hash->subhash(NODES)->nb_objects_in_part(PE::instance().rank()) + m_ghost_nodes.size());
 
   
   CList<Uint>& global_node_idx = get_tagged_component_typed<CList<Uint> >(*m_coordinates,"global_node_indices");
-  global_node_idx.resize(global_node_idx.size()+m_nodes_to_read.size());
+  global_node_idx.resize(global_node_idx.size()+m_hash->subhash(NODES)->nb_objects_in_part(PE::instance().rank()) + m_ghost_nodes.size());
 
   CList<bool>& is_ghost = *m_coordinates->get_child_type<CList<bool> >("is_ghost");
-  is_ghost.resize(is_ghost.size()+m_nodes_to_read.size());
+  is_ghost.resize(is_ghost.size()+m_hash->subhash(NODES)->nb_objects_in_part(PE::instance().rank()) + m_ghost_nodes.size());
 
   
   std::string line;
@@ -254,22 +263,36 @@ void CReader::read_coordinates()
         CFinfo << 100*node_idx/m_headerData.NUMNP << "% " << CFendl;
     }
     getline(m_file,line);
-    it = m_nodes_to_read.find(node_idx);
-    if (it != m_nodes_to_read.end())
-    {
-      // add global node index
+		if (m_hash->subhash(NODES)->owns(node_idx-1))
+		{
       global_node_idx[coord_idx] = global_start_idx + node_idx - 1; // -1 because base zero
-      bool is_ghost_node = !(m_ghost_nodes.find(node_idx) == m_ghost_nodes.end());
-      is_ghost[coord_idx] = is_ghost_node;
+      is_ghost[coord_idx] = false;
       m_node_to_coord_idx[node_idx]=coord_idx;
       std::stringstream ss(line);
       Uint nodeNumber;
       ss >> nodeNumber;
-      //CFinfo << "reading node " << nodeNumber << CFendl;
       for (Uint dim=0; dim<m_headerData.NDFCD; ++dim)
         ss >> coordinates[coord_idx][dim];
       coord_idx++;
-    }
+		}
+		else
+		{
+			it = m_ghost_nodes.find(node_idx);
+			if (it != m_ghost_nodes.end())
+			{
+				// add global node index
+				global_node_idx[coord_idx] = global_start_idx + node_idx - 1; // -1 because base zero
+				is_ghost[coord_idx] = true;
+				m_node_to_coord_idx[node_idx]=coord_idx;
+				std::stringstream ss(line);
+				Uint nodeNumber;
+				ss >> nodeNumber;
+				for (Uint dim=0; dim<m_headerData.NDFCD; ++dim)
+					ss >> coordinates[coord_idx][dim];
+				coord_idx++;
+			}			
+		}
+
   }
   
   getline(m_file,line);
@@ -279,12 +302,6 @@ void CReader::read_coordinates()
 
 void CReader::partition_nodes()
 {
-  Uint p=property("Part").value<Uint>();
-  Uint np=property("Number of Parts").value<Uint>();
-  std::pair<Uint,Uint> node_range = std::make_pair(m_headerData.NUMNP/np * p ,(p == np-1 ? m_headerData.NUMNP : m_headerData.NUMNP/np*(p+1)));  
-  std::pair<Uint,Uint> elem_range = std::make_pair(m_headerData.NELEM/np * p ,(p == np-1 ? m_headerData.NELEM : m_headerData.NELEM/np*(p+1)));  
-  m_nodes_to_read.clear();
-  m_elements_to_read.clear();
   m_ghost_nodes.clear();
   
   m_file.seekg(m_elements_cells_position,std::ios::beg);
@@ -292,11 +309,6 @@ void CReader::partition_nodes()
   std::string line;
   getline(m_file,line);
   
-  
-  for (Uint i=node_range.first+1; i<node_range.second+1; ++i)
-  {
-    m_nodes_to_read.insert(i);
-  }
   
   // read every line and store the connectivity in the correct region through the buffer
   Uint elementNumber, elementType, nbElementNodes;
@@ -308,30 +320,26 @@ void CReader::partition_nodes()
         CFinfo << 100*i/m_headerData.NELEM << "% " << CFendl;
     }
 
-    if (i>=elem_range.first && i<elem_range.second)
-    {
-      // element description
+		if (m_hash->subhash(ELEMS)->owns(i))
+		{
+			// element description
       m_file >> elementNumber >> elementType >> nbElementNodes;
-    
-      m_elements_to_read.insert(elementNumber);
-    
+						
       // check if element nodes are ghost
       std::vector<Uint> neu_element_nodes(nbElementNodes);
       for (Uint j=0; j<nbElementNodes; ++j)
       {
         m_file >> neu_element_nodes[j];
-        if (neu_element_nodes[j]<node_range.first+1 || neu_element_nodes[j]>=node_range.second+1)
-        {
+        if (!m_hash->subhash(NODES)->owns(neu_element_nodes[j]-1))
+				{
           m_ghost_nodes.insert(neu_element_nodes[j]);
-          m_nodes_to_read.insert(neu_element_nodes[j]);
         }
-      }
-    }
+      }		
+		}
     // finish the line
     getline(m_file,line);
   }
   getline(m_file,line);  // ENDOFSECTION
-
 }
     
 //////////////////////////////////////////////////////////////////////////////
@@ -342,13 +350,13 @@ void CReader::read_connectivity()
 
   m_global_to_tmp.clear();
   m_file.seekg(m_elements_cells_position,std::ios::beg);
-    
+
   CTable<Real>& coordinates = *m_coordinates;
   
   CDynTable<Uint>& node_to_glb_elem_connectivity = get_tagged_component_typed<CDynTable<Uint> >(coordinates,"glb_elem_connectivity");
   CList<bool>& is_ghost = *m_coordinates->get_child_type<CList<bool> >("is_ghost");
   
-  m_node_to_glb_elements.resize(m_nodes_to_read.size());
+  m_node_to_glb_elements.resize(coordinates.size());
   std::map<std::string,boost::shared_ptr<CTable<Uint>::Buffer> > buffer =
       create_element_regions_with_buffermap(*m_tmp,coordinates,m_supported_types);
 
@@ -384,11 +392,9 @@ void CReader::read_connectivity()
     // element description
     Uint elementNumber, elementType, nbElementNodes;
     m_file >> elementNumber >> elementType >> nbElementNodes;
-    
-    bool read_this_elem = ( m_elements_to_read.find(elementNumber) != m_elements_to_read.end() );
-      
+          
     // get element nodes
-    if (read_this_elem)
+    if (m_hash->subhash(ELEMS)->owns(i))
     {
       cf_element.resize(nbElementNodes);
       for (Uint j=0; j<nbElementNodes; ++j)
@@ -399,7 +405,7 @@ void CReader::read_connectivity()
         cf_element[cf_idx] = cf_node_number;
         if (!is_ghost[cf_node_number])
         {
-          if (m_nodes_to_read.find(neu_node_number) != m_nodes_to_read.end() )
+          //if (m_nodes_to_read.find(neu_node_number) != m_nodes_to_read.end() )
             m_node_to_glb_elements[cf_node_number].insert(elementNumber-1); 
         }
       }
@@ -413,12 +419,11 @@ void CReader::read_connectivity()
       for (Uint j=0; j<nbElementNodes; ++j)
       {
         m_file >> neu_node_number;
-        cf_node_number = m_node_to_coord_idx[neu_node_number];
-        if (!is_ghost[cf_node_number])
-        {
-          if (m_nodes_to_read.find(neu_node_number) != m_nodes_to_read.end() )
-            m_node_to_glb_elements[cf_node_number].insert(elementNumber-1);
-        }   
+				if (m_hash->subhash(NODES)->owns(neu_node_number-1))
+				{
+					cf_node_number = m_node_to_coord_idx[neu_node_number];
+					m_node_to_glb_elements[cf_node_number].insert(elementNumber-1);
+				}
       }
     }
 
@@ -505,14 +510,25 @@ void CReader::read_groups()
     //    and the elements from the tmp region have to be distributed among
     //    these new regions.
     
-    //groups[g].ELEM.reserve(NELGP);
+		// Read first to see howmany elements to allocate
+		int p = m_file.tellg();
+		Uint nb_elems_in_group = 0;
     for (Uint i=0; i<NELGP; ++i) 
     {
       m_file >> I;
-      it = m_elements_to_read.find(I);
-      if (it != m_elements_to_read.end())
-        groups[g].ELEM.push_back(I);     // set element index
+			if (m_hash->subhash(ELEMS)->owns(I-1))
+				nb_elems_in_group++;
     }
+		// now allocate and read again
+		groups[g].ELEM.reserve(nb_elems_in_group);
+		m_file.seekg(p,std::ios::beg);
+    for (Uint i=0; i<NELGP; ++i) 
+    {
+      m_file >> I;
+			if (m_hash->subhash(ELEMS)->owns(I-1))
+				groups[g].ELEM.push_back(I);     // set element index
+    }
+		
     getline(m_file,line);  // finish the line (read new line)
     getline(m_file,line);  // ENDOFSECTION
   }
