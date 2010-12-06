@@ -206,17 +206,22 @@ void CNode::setSignals(CF::Common::XmlNode & node)
       XmlAttr * key_attr = map->first_attribute( XmlParams::tag_attr_key() );
       XmlAttr * desc_attr = map->first_attribute( XmlParams::tag_attr_descr() );
       XmlAttr * name_attr = map->first_attribute( "name" );
+      XmlAttr * hidden_attr = map->first_attribute( "hidden" );
 
-      cf_assert( key_attr != nullptr );
-      cf_assert( key_attr->value_size() > 0 );
+      if(hidden_attr == nullptr || std::strcmp(hidden_attr->value(), "false") == 0)
+      {
+        cf_assert( key_attr != nullptr );
+        cf_assert( key_attr->value_size() > 0 );
 
-      si.m_name = key_attr->value();
-      si.m_readableName = name_attr != nullptr ? name_attr->value() : "";
-      si.m_description = desc_attr != nullptr ? desc_attr->value() : "";
-      si.m_signature = XmlSignature(*map);
-      si.m_isLocal = false;
+        si.m_name = key_attr->value();
+        si.m_readableName = name_attr != nullptr ? name_attr->value() : "";
+        si.m_description = desc_attr != nullptr ? desc_attr->value() : "";
+        si.m_signature = XmlSignature(*map);
+        si.m_isLocal = false;
 
-      m_actionSigs.append(si);
+        m_actionSigs.append(si);
+
+      }
 
       map = map->next_sibling();
     }
