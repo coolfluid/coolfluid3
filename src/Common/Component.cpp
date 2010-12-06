@@ -50,14 +50,14 @@ Component::Component ( const std::string& name ) :
       .insert<bool>("Basic mode", "Component will be visible in basic mode", false );
 
 
-  regist_signal ( "list_tree" , "lists the component tree inside this component", "" )->connect ( boost::bind ( &Component::list_tree, this, _1 ) );
+  regist_signal ( "list_tree" , "lists the component tree inside this component", "List tree" )->connect ( boost::bind ( &Component::list_tree, this, _1 ) );
     signal("list_tree").is_read_only = true;
 
-  regist_signal ( "list_properties" , "lists the options of this component", "" )->connect ( boost::bind ( &Component::list_properties, this, _1 ) );
+  regist_signal ( "list_properties" , "lists the options of this component", "List properties" )->connect ( boost::bind ( &Component::list_properties, this, _1 ) );
 
-  regist_signal ( "list_signals" , "lists the options of this component", "" )->connect ( boost::bind ( &Component::list_signals, this, _1 ) );
+  regist_signal ( "list_signals" , "lists the options of this component", "List signals" )->connect ( boost::bind ( &Component::list_signals, this, _1 ) );
 
-  regist_signal ( "configure" , "configures this component", "" )->connect ( boost::bind ( &Component::configure, this, _1 ) );
+  regist_signal ( "configure" , "configures this component", "Configure" )->connect ( boost::bind ( &Component::configure, this, _1 ) );
 
   regist_signal ( "print_info" , "prints info on this component", "Info" )->connect ( boost::bind ( &Component::print_info, this, _1 ) );
 
@@ -72,6 +72,12 @@ Component::Component ( const std::string& name ) :
   regist_signal ( "move_component" , "Moves a component to another component", "Move" )->connect ( boost::bind ( &Component::move_component, this, _1 ) );
   signal("move_component").signature
           .insert< URI >("Path", "Path to the new component to which this one will move to" );
+
+  // these signals should not be seen from the GUI
+  signal("list_tree").is_hidden = true;
+  signal("list_properties").is_hidden = true;
+  signal("list_signals").is_hidden = true;
+  signal("configure").is_hidden = true;
 
   // properties
 
@@ -173,7 +179,7 @@ Component::Ptr Component::add_component ( Component::Ptr subcomp )
   m_components[unique_name] = subcomp;           // add to all component list
   m_dynamic_components[unique_name] = subcomp;   // add to dynamic component list
 
-	subcomp->change_parent( this );
+  subcomp->change_parent( this );
 
   raise_path_changed();
 
@@ -793,6 +799,7 @@ void Component::list_signals( XmlNode& node )
   {
     XmlNode & map = *XmlParams::add_map_to(value_node, it->first, it->second.description);
     XmlOps::add_attribute_to(map, "name", it->second.readable_name);
+    XmlOps::add_attribute_to(map, "hidden", it->second.is_hidden ? "true" : "false");
     it->second.signature.put_signature(map);
   }
 }

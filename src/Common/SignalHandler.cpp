@@ -77,6 +77,7 @@ Signal::Ptr SignalHandler::regist_signal ( const Signal::id_t& sname,  const Sig
     sig.description = desc;
     sig.readable_name = readable_name;
     sig.is_read_only = false;
+    sig.is_hidden = false;
 
     return sig.signal_ptr;
   }

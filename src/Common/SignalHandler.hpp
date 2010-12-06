@@ -64,6 +64,8 @@ struct Signal
     /// during another signal execution. Default value is @c false.
     bool is_read_only;
 
+    bool is_hidden;
+
 }; // Signal
 
 /// SignalHandler executes calls received as string by issuing singals to the slots
