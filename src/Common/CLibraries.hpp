@@ -37,9 +37,6 @@ namespace Common {
     /// Get the class name
     static std::string type_name () { return "CLibraries"; }
 
-    /// Configuration options
-    virtual void define_config_properties ();
-
     /// gives access to the factory of supplied type,
     /// insuring that in case it does not exist it gets built.
     template < typename LIB >
@@ -55,6 +52,15 @@ namespace Common {
       cf_assert( lib != nullptr );
       return lib;
     }
+
+    /// @name SIGNALS
+    //@{
+
+    /// creates a component from this component
+    void load_library ( XmlNode& node );
+
+    //@} END SIGNALS
+
 
 }; // CLibraries
 

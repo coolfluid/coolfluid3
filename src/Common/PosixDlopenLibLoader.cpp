@@ -47,56 +47,66 @@ void PosixDlopenLibLoader::set_search_paths(std::vector< boost::filesystem::path
 
 void PosixDlopenLibLoader::load_library(const std::string& lib)
 {
-  CFLog( VERBOSE, "LinuxLibtoolLibLoader: Attempting to load " << lib << "\n" );
+  if (lib.empty()) return;
 
-  using boost::filesystem::path;
+  CFinfo << "PosixDlopenLibLoader: attempting to load \'" << lib << "\'" << CFendl;
 
-// library name
-std::string libname = "lib" + lib;
-// add library extention
-#ifdef CF_OS_LINUX
-libname += ".so";
-#endif
-#ifdef CF_OS_MACOSX
-  	libname += ".dylib";
-#endif
-#ifdef CF_OS_WINDOWS
-  	libname += ".dll";
-#endif
+  using namespace boost::filesystem;
 
+  // library path
+  boost::filesystem::path fpath ( lib );
   // library handler
   void* hdl = NULL;
 
 
-  // loop over the searhc paths ans
-  // attempt to load the library
-  std::vector< path >::const_iterator itr = m_search_paths.begin();
-
-  for (; itr != m_search_paths.end() ; ++itr)
+  // library name
+  if ( fpath.is_complete() )
   {
-//    CFout << "searching in [" << *itr << "]\n" << CFflush;
-    path fullqname = *itr / path(libname);
-//    CFout << "fullqname [" << fullqname.string() << "]\n" << CFflush;
-    hdl = dlopen (fullqname.string().c_str(), RTLD_LAZY|RTLD_GLOBAL);
-    if( hdl != NULL ) break;
+    hdl = dlopen (fpath.string().c_str(), RTLD_LAZY|RTLD_GLOBAL);
   }
+  else
+  {
+    std::string libname = "lib" + lib;
+    // add library extention
+  #ifdef CF_OS_LINUX
+    libname += ".so";
+  #endif
+  #ifdef CF_OS_MACOSX
+    libname += ".dylib";
+  #endif
+  #ifdef CF_OS_WINDOWS
+    libname += ".dll";
+  #endif
+
+    // loop over the searhc paths and attempt to load the library
+    std::vector< path >::const_iterator itr = m_search_paths.begin();
+    for (; itr != m_search_paths.end() ; ++itr)
+    {
+      //    CFout << "searching in [" << *itr << "]\n" << CFflush;
+      path fullqname = *itr / path(libname);
+      //    CFout << "fullqname [" << fullqname.string() << "]\n" << CFflush;
+      hdl = dlopen (fullqname.string().c_str(), RTLD_LAZY|RTLD_GLOBAL);
+      if( hdl != NULL ) break;
+    }
+  }
+
 
   // check for success
   if(hdl != NULL)
   {
-    CFLog( NORMAL, "PosixDlopenLibLoader: Loaded " << libname  << "\n" );
+    CFinfo << "PosixDlopenLibLoader: Loaded \'" << lib  << "\'" << CFendl;
   }
   else
   {
-    CFLog( NORMAL, "dlopen() failed to load module : " << libname  << "\n" );
+    CFinfo << "dlopen() failed to load module : \'" << lib << "\'" << CFendl;
     const char * msg = dlerror();
     if (msg != NULL)
     {
-      CFLog( NORMAL, "dlerror() says : " << msg  << "\n" );
+      CFinfo << "dlerror() says : " << msg  <<  CFendl;
     }
     else
     {
-      CFLog( NORMAL, "dlerror() said nothing." << "\n" );
+      CFinfo << "dlerror() said nothing." << CFendl;
     }
     throw LibLoadingError (FromHere(),"Module failed to load");
   }

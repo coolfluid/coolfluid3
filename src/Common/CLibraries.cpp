@@ -5,6 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/CLibraries.hpp"
+#include "Common/OSystem.hpp"
+#include "Common/LibLoader.hpp"
 
 namespace CF {
 namespace Common {
@@ -13,8 +15,14 @@ namespace Common {
 
 CLibraries::CLibraries ( const std::string& name) : Component ( name )
 {
-    define_config_properties();
   TypeInfo::instance().regist<CLibraries>(CLibraries::type_name());
+
+  // signals
+  regist_signal ( "load_library" , "loads a library", "Load Library" )->connect ( boost::bind ( &CLibraries::load_library, this, _1 ) );
+
+  signal("load_library").signature
+      .insert<URI>("Lib", "Library to load" );
+//      .insert_array<URI>( "Files" , "Libraries to load" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -23,10 +31,41 @@ CLibraries::~CLibraries()
 {
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-void CLibraries::define_config_properties ()
+void CLibraries::load_library ( XmlNode& node )
 {
+  XmlParams p ( node );
+
+  URI file = p.get_option<URI>("Lib");
+  boost::filesystem::path fpath( file.string_without_protocol() );
+
+  OSystem::instance().lib_loader()->load_library( fpath.string() );
+
+#if 0
+  std::vector<URI> files = p.get_array<URI>("Libraries");
+
+  // check protocol for file loading
+  BOOST_FOREACH(URI file, files)
+  {
+    if( file.empty() || !file.is_protocol("file"))
+      throw ProtocolError( FromHere(), "Wrong protocol to access the file, expecting a \'file\' but got \'" + file.string() + "\'" );
+  }
+
+  // create a mesh in the domain
+  if( !files.empty() )
+  {
+    // Get the file paths
+    BOOST_FOREACH(URI file, files)
+    {
+      boost::filesystem::path fpath( file.string_without_protocol() );
+
+      OSystem::instance().lib_loader()->load_library( fpath.string() );
+    }
+  }
+  else
+  {
+    throw BadValue( FromHere(), "No library was loaded because no files were selected." );
+  }
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
