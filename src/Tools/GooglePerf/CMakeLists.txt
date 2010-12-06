@@ -1,3 +1,5 @@
+if( CF_HAVE_GOOGLE_PERFTOOLS )
+
   coolfluid_find_orphan_files()
 
   list( APPEND coolfluid_google_perftools_files
@@ -13,3 +15,4 @@
 
   coolfluid_add_library( coolfluid_google_perftools )
 
+endif()

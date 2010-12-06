@@ -1,7 +1,5 @@
-if( CF_HAVE_GOOGLE_PERFTOOLS )
-  add_subdirectory( GooglePerf )
-endif()
-
+add_subdirectory( MeshTransformer )
+add_subdirectory( GooglePerf )
 add_subdirectory( Testing )
 add_subdirectory( MeshGeneration )
 add_subdirectory( MeshDiff )
