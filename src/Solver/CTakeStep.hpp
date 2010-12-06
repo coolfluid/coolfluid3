@@ -8,19 +8,23 @@
 #define CF_Mesh_CTakeStep_hpp
 
 #include "Common/ComponentPredicates.hpp"
+
 #include "Mesh/CFieldElements.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CList.hpp"
+
 #include "Actions/CLoopOperation.hpp"
+
+#include "Solver/LibSolver.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Actions {
+namespace Solver {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class Actions_API CTakeStep : public CLoopOperation
+class Solver_API CTakeStep : public Actions::CLoopOperation
 {
 public: // typedefs
 
@@ -69,7 +73,7 @@ private: // data
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-} // Actions
+} // Solver
 } // CF
 
 /////////////////////////////////////////////////////////////////////////////////////

@@ -7,6 +7,8 @@
 #ifndef CF_Mesh_CForAllElementsT_hpp
 #define CF_Mesh_CForAllElementsT_hpp
 
+#include <boost/mpl/for_each.hpp>
+
 #include "Mesh/SF/Types.hpp"
 #include "Mesh/CRegion.hpp"
 

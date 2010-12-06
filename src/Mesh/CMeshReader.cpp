@@ -37,10 +37,10 @@ CMeshReader::CMeshReader ( const std::string& name  ) :
 
   // options
 
-  std::vector< URI > dummy;
-  m_properties.add_option< OptionArrayT<URI> > ( "Files",  "Files to read" , dummy );
+//  std::vector< URI > dummy;
+//  m_properties.add_option< OptionArrayT<URI> > ( "Files",  "Files to read" , dummy );
 
-  m_properties["Files"].as_option().mark_basic();
+//  m_properties["Files"].as_option().mark_basic();
 
   // comm pattern
 
@@ -69,8 +69,8 @@ void CMeshReader::read( XmlNode& xml  )
   if (!domain)
     throw CastingFailed( FromHere(), "Component in path \'" + path.string() + "\' is not a valid CDomain." );
 
-  std::vector<URI> files = property("Files").value<std::vector<URI> >();
-  // std::vector<URI> files = p.get_array<URI>("Files");
+  // std::vector<URI> files = property("Files").value<std::vector<URI> >();
+  std::vector<URI> files = p.get_array<URI>("Files");
 
   // check protocol for file loading
   BOOST_FOREACH(URI file, files)

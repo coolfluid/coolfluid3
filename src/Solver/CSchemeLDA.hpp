@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CSchemeLDA_hpp
-#define CF_Mesh_CSchemeLDA_hpp
+#ifndef CF_Solver_CSchemeLDA_hpp
+#define CF_Solver_CSchemeLDA_hpp
 
 #include <boost/assign.hpp>
 
@@ -14,14 +14,16 @@
 
 #include "Actions/CLoopOperation.hpp"
 
+#include "Solver/LibSolver.hpp"
+
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Actions {
+namespace Solver {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class Actions_API CSchemeLDA : public CLoopOperation
+class Solver_API CSchemeLDA : public Actions::CLoopOperation
 {
 public: // typedefs
 
@@ -75,9 +77,9 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-} // Actions
+} // Solver
 } // CF
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CSchemeLDA_hpp
+#endif // CF_Solver_CSchemeLDA_hpp

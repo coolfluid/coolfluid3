@@ -4,27 +4,29 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CSchemeLDAT_hpp
-#define CF_Mesh_CSchemeLDAT_hpp
+#ifndef CF_Solver_CSchemeLDAT_hpp
+#define CF_Solver_CSchemeLDAT_hpp
 
 #include <boost/assign.hpp>
+
+#include "Common/OptionT.hpp"
 
 #include "Mesh/CField.hpp"
 #include "Mesh/CFieldElements.hpp"
 
 #include "Actions/CLoopOperation.hpp"
 
-#include "Common/OptionT.hpp"
+#include "Solver/LibSolver.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Actions {
+namespace Solver {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SHAPEFUNC>
-class Actions_API CSchemeLDAT : public CLoopOperation
+class Actions_API CSchemeLDAT : public Actions::CLoopOperation
 {
 public: // typedefs
 
@@ -287,13 +289,11 @@ void CSchemeLDAT<SHAPEFUNC>::execute()
 
 }
 
-
-
 ////////////////////////////////////////////////////////////////////////////////////
 
-} // Actions
+} // Solver
 } // CF
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CSchemeLDAT_hpp
+#endif // CF_Solver_CSchemeLDAT_hpp

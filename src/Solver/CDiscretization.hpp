@@ -42,10 +42,8 @@ public: // functions
   static std::string type_name () { return "CDiscretization"; }
 
   // functions specific to the CDiscretization component
-
-  virtual void do_whatever() = 0;
   
-  virtual void compute_RHS() = 0;
+  virtual void compute_rhs() = 0;
   
 };
 

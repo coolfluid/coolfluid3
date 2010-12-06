@@ -12,20 +12,22 @@
 
 #include "Mesh/ElementData.hpp"
 #include "Mesh/SF/Triag2DLagrangeP1.hpp"
-#include "Actions/CSchemeLDA.hpp"
+
+#include "Solver/CSchemeLDA.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace CF::Common;
 using namespace CF::Mesh;
+using namespace CF::Actions;
 using namespace CF::Mesh::SF;
 
 namespace CF {
-namespace Actions {
+namespace Solver {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CSchemeLDA, CLoopOperation, LibActions > CSchemeLDACLoopOperation_Builder;
+Common::ComponentBuilder < CSchemeLDA, CLoopOperation, LibSolver > CSchemeLDACLoopOperation_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -144,7 +146,7 @@ void CSchemeLDA::execute()
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-} // Actions
+} // Solver
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////////

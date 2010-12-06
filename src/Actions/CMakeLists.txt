@@ -14,13 +14,8 @@ list( APPEND coolfluid_actions_files
   CForAllNodes.cpp
   CLoop.hpp
   CLoop.cpp
-  CSchemeLDA.hpp
-  CSchemeLDA.cpp
-  CSchemeLDAT.hpp
   CSetFieldValues.hpp
   CSetFieldValues.cpp
-  CTakeStep.hpp
-  CTakeStep.cpp
   LibActions.hpp
   LibActions.cpp
 )

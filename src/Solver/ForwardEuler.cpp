@@ -101,7 +101,7 @@ void ForwardEuler::solve()
     			node_data[i][0]=0;
 
       // compute RHS
-      discretization_method().compute_RHS();  
+      discretization_method().compute_rhs();
 
       // explicit update
       take_step->execute();

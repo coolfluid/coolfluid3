@@ -3,22 +3,27 @@ list( APPEND coolfluid_solver_files
   CModel.cpp
   CPhysicalModel.cpp
   CPhysicalModel.hpp
-  LibSolver.hpp
-  LibSolver.cpp
+  CTakeStep.hpp
+  CTakeStep.cpp
   CDiscretization.hpp
   CDiscretization.cpp
   CIterativeSolver.hpp
   CIterativeSolver.cpp
+  CSchemeLDA.hpp
+  CSchemeLDA.cpp
+  CSchemeLDAT.hpp
   CMethod.hpp
   CMethod.cpp
   ForwardEuler.hpp
   ForwardEuler.cpp
+  LoadMesh.hpp
+  LoadMesh.cpp
+  LibSolver.hpp
+  LibSolver.cpp
   ResidualDistribution.hpp
   ResidualDistribution.cpp
   ScalarAdvection.hpp
   ScalarAdvection.cpp
-  LoadMesh.hpp
-  LoadMesh.cpp
 )
 
 set( coolfluid_solver_kernellib TRUE )
