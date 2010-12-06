@@ -13,6 +13,7 @@
 #include <QDomDocument>
 
 #include "Common/CRoot.hpp"
+#include "Common/CJournal.hpp"
 
 #include "GUI/Server/ServerRoot.hpp"
 
@@ -46,7 +47,7 @@ namespace Server {
   {
   public:
 
-    static CF::Common::CRoot::Ptr getRoot();
+    static CF::Common::CRoot::Ptr root();
 
     static void processSignal(const std::string & target,
                               const CF::Common::CPath & receiver,
@@ -55,7 +56,9 @@ namespace Server {
                               CF::Common::XmlNode & node,
                               boost::shared_ptr<CF::Common::XmlDoc> doc);
 
-    static CCore::Ptr getCore();
+    static CCore::Ptr core();
+
+    static CF::Common::CJournal::Ptr journal();
 
   private:
 

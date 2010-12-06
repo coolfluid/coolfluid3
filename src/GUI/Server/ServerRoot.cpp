@@ -40,7 +40,10 @@ void SignalCatcher::finished()
   XmlNode& frameNode = *nodedoc.first_node();
 
   if(frameNode.next_sibling() != nullptr)
-    ServerRoot::getCore()->sendSignal(*ServerRoot::m_doc.get());
+  {
+    ServerRoot::core()->sendSignal(*ServerRoot::m_doc.get());
+    ServerRoot::journal()->add_signal(*frameNode.next_sibling());
+  }
 
   delete ServerRoot::m_thread;
   ServerRoot::m_thread = nullptr;
@@ -53,7 +56,7 @@ void SignalCatcher::finished()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CRoot::Ptr ServerRoot::getRoot()
+CRoot::Ptr ServerRoot::root()
 {
   static bool created = false;
   CRoot::Ptr root = Core::instance().root();
@@ -79,6 +82,7 @@ CRoot::Ptr ServerRoot::getRoot()
 
     tools->create_component_type<Solver::ScalarAdvection>( "SetupScalarAdvection" )->mark_basic();
     tools->create_component_type<Solver::LoadMesh>( "LoadMesh" )->mark_basic();
+    tools->create_component_type<CJournal>("Journal")->mark_basic();
   }
 
   return root;
@@ -96,16 +100,17 @@ void ServerRoot::processSignal(const string & target,
   if(m_mutex.tryLock())
   {
     m_doc.swap(doc);
-    Component::Ptr receivingCompo = getRoot()->access_component(receiver);
+    Component::Ptr receivingCompo = root()->access_component(receiver);
     m_thread = new ProcessingThread(node, target, receivingCompo);
     QObject::connect(m_thread, SIGNAL(finished()), m_catcher, SLOT(finished()));
     m_thread->start();
+    journal()->add_signal(node);
   }
   else
   {
     try
     {
-      Component::Ptr comp = getRoot()->access_component(receiver);
+      Component::Ptr comp = root()->access_component(receiver);
 
       if( comp->signal(target).is_read_only )
       {
@@ -115,18 +120,18 @@ void ServerRoot::processSignal(const string & target,
         XmlNode& frameNode = *nodedoc.first_node();
 
         if(frameNode.next_sibling() != nullptr)
-          getCore()->sendSignal(*doc.get());
+          core()->sendSignal(*doc.get());
       }
       else
-        getCore()->sendFrameRejected(clientid, frameid, SERVER_CORE_PATH, "Server is busy.");
+        core()->sendFrameRejected(clientid, frameid, SERVER_CORE_PATH, "Server is busy.");
     }
     catch(CF::Common::Exception & cfe)
     {
-      getCore()->sendException(cfe.what());
+      core()->sendException(cfe.what());
     }
     catch(std::exception & stde)
     {
-      getCore()->sendException(stde.what());
+      core()->sendException(stde.what());
     }
     catch(...)
     {
@@ -139,7 +144,15 @@ void ServerRoot::processSignal(const string & target,
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CCore::Ptr ServerRoot::getCore()
+CCore::Ptr ServerRoot::core()
 {
-  return getRoot()->access_component<CCore>(SERVER_CORE_PATH);
+  return root()->access_component<CCore>(SERVER_CORE_PATH);
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+CJournal::Ptr ServerRoot::journal()
+{
+  return root()->access_component<CJournal>(SERVER_JOURNAL_PATH);
 }

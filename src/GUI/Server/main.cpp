@@ -56,6 +56,9 @@ int main(int argc, char *argv[])
   AssertionManager::instance().AssertionDumps = true;
   AssertionManager::instance().AssertionThrows = true;
 
+  // tell the CF core the the server is running
+  Core::instance().network_info().start_server();
+
   try
   {
 
@@ -95,8 +98,13 @@ int main(int argc, char *argv[])
       errorString = "Port number must be an integer between 49153 and 65535\n";
     else
     {
+      Core::instance().network_info().set_hostname( QHostInfo::localHostName().toStdString() );
+      Core::instance().network_info().set_port( port );
+
+
+
       QHostInfo hostInfo = QHostInfo::fromName(QHostInfo::localHostName());
-      CCore::Ptr sk = ServerRoot::getCore();
+      CCore::Ptr sk = ServerRoot::core();
       QString message("Server successfully launched on machine %1 (%2) on port %3!");
 
       sk->listenToNetwork(hostInfo.addresses().last().toString(), port);
@@ -133,7 +141,6 @@ int main(int argc, char *argv[])
   catch (...)
   {
     errorString = "Unknown exception thrown and not caught !!!\n";
-    errorString += "Aborting ... \n";
   }
 
   if(!errorString.isEmpty())
@@ -144,6 +151,9 @@ int main(int argc, char *argv[])
     std::cerr << "Aborting ..." << std::endl << std::endl << std::endl;
     return_value = -1;
   }
+
+  // tell the CF core that the server is about to exit
+  Core::instance().network_info().stop_server();
 
   return return_value;
 }

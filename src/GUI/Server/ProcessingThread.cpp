@@ -35,11 +35,11 @@ void ProcessingThread::run()
   }
   catch(CF::Common::Exception & cfe)
   {
-    ServerRoot::getCore()->sendException(cfe.what());
+    ServerRoot::core()->sendException(cfe.what());
   }
   catch(std::exception & stde)
   {
-    ServerRoot::getCore()->sendException(stde.what());
+    ServerRoot::core()->sendException(stde.what());
   }
   catch(...)
   {
