@@ -31,9 +31,8 @@ GraphicalUriArray::GraphicalUriArray(QWidget * parent)
   m_editAdd = new QLineEdit(this);
   m_model = new QStringListModel(this);
   m_listView = new QListView(this);
-  m_btAdd = new QPushButton("Add"/*, this*/);
-  m_btRemove = new QPushButton("Remove", this);
-  m_btBrowse = new QPushButton("Browse", this);
+  m_btAdd = new QPushButton("+", this);
+  m_btRemove = new QPushButton("-", this);
   m_comboType = new QComboBox(this);
 
   m_buttonsLayout = new QVBoxLayout();
@@ -43,16 +42,16 @@ GraphicalUriArray::GraphicalUriArray(QWidget * parent)
   m_listView->setModel(m_model);
   m_listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-  setProtocols(std::vector<std::string>());
+//  m_btAdd->setFlat(true);
+//  m_btRemove->setFlat(true);
 
-//  m_buttonsLayout->addWidget(m_btAdd);
-  m_buttonsLayout->addWidget(m_btRemove);
+  setProtocols(std::vector<std::string>());
 
   m_topLayout->addWidget(m_comboType);
   m_topLayout->addWidget(m_editAdd);
-  m_topLayout->addWidget(m_btBrowse);
+  m_topLayout->addWidget(m_btAdd);
+  m_topLayout->addWidget(m_btRemove);
 
-//  m_leftLayout->addWidget(m_editAdd);
   m_leftLayout->addLayout(m_topLayout);
   m_leftLayout->addWidget(m_listView);
 
@@ -61,7 +60,6 @@ GraphicalUriArray::GraphicalUriArray(QWidget * parent)
 
   connect(m_btAdd, SIGNAL(clicked()), this, SLOT(btAddClicked()));
   connect(m_btRemove, SIGNAL(clicked()), this, SLOT(btRemoveClicked()));
-  connect(m_btBrowse, SIGNAL(clicked()), this, SLOT(btBrowseClicked()));
   connect(m_comboType, SIGNAL(activated(QString)), this, SLOT(changeType(QString)));
 }
 
@@ -107,7 +105,6 @@ void GraphicalUriArray::setProtocols(const std::vector<std::string> & protocols)
 
 bool GraphicalUriArray::setValue(const QVariant & value)
 {
-//  QStringList invalidValues;
   QStringList list;
   bool success = false;
 
@@ -138,23 +135,6 @@ bool GraphicalUriArray::setValue(const QVariant & value)
     m_model->setStringList(list);
   }
 
-//  success = invalidValues.empty();
-
-
-//  if(!success)
-//  {
-//    QString msg;
-
-//    if(invalidValues.count() == 1)
-//      msg = "The following value is not valid: %1";
-//    else
-//      msg = "The following values are not valid: %1";
-
-//    msg = msg.arg(invalidValues.join("\"\n   \"").prepend("\n   \"").append("\""));
-
-//    ClientRoot::log()->addError(msg);
-//  }
-
   return success;
 }
 
@@ -171,6 +151,43 @@ QVariant GraphicalUriArray::value() const
 
 void GraphicalUriArray::btAddClicked()
 {
+
+  if(m_editAdd->text().isEmpty())
+  {
+    if(m_comboType->currentText() == "cpath")
+    {
+      SelectPathDialog spd;
+      QString modified_path = m_editAdd->text();
+
+      CPath path = spd.show(modified_path.toStdString());
+
+      if(!path.empty())
+        m_editAdd->setText( path.string().c_str() );
+    }
+    else if(m_comboType->currentText() == "file")
+    {
+      NRemoteOpen::Ptr nro = NRemoteOpen::create();
+      bool canceled;
+
+      QString filename = nro->show("", &canceled);
+
+      if(!canceled && !filename.isEmpty())
+      {
+        m_editAdd->setText(filename);
+      }
+    }
+  }
+
+  if(!m_editAdd->text().isEmpty())
+  {
+    QString pathStr = m_editAdd->text();
+
+    if( !pathStr.startsWith(m_comboType->currentText()) )
+      pathStr.prepend(m_comboType->currentText() + ':');
+
+    m_model->setStringList( m_model->stringList() << pathStr );
+    m_editAdd->clear();
+  }
 
   emit valueChanged();
 }
@@ -197,40 +214,9 @@ void GraphicalUriArray::btRemoveClicked()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void GraphicalUriArray::keyPressEvent(QKeyEvent * event)
-{
-  GraphicalValue::keyPressEvent(event);
-
-  // if the path line edit has the focus
-  if(m_editAdd->hasFocus())
-  {
-    // key code for the pressed key
-    int pressedKey = event->key();
-
-    // Qt::Key_Enter : enter key located on the keypad
-    // Qt::Key_Return : return key
-    if(pressedKey == Qt::Key_Enter || pressedKey == Qt::Key_Return)
-    {
-      QString text(  m_editAdd->text() );
-
-      if( !text.startsWith(m_comboType->currentText()) )
-        text.prepend(m_comboType->currentText() + ':');
-
-      m_model->setStringList( m_model->stringList() << text);
-
-      m_editAdd->clear();
-
-      emit valueChanged();
-    }
-  }
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 void GraphicalUriArray::changeType(const QString & type)
 {
-  m_btBrowse->setVisible(type == "cpath" || type == "file");
+//  m_btBrowse->setVisible(type == "cpath" || type == "file");
   m_editAdd->setVisible(!type.isEmpty());
 }
 
@@ -239,32 +225,4 @@ void GraphicalUriArray::changeType(const QString & type)
 
 void GraphicalUriArray::btBrowseClicked()
 {
-  if(m_comboType->currentText() == "cpath")
-  {
-    SelectPathDialog spd;
-    QString modified_path = m_editAdd->text();
-
-    CPath path = spd.show(modified_path.toStdString());
-
-    if(!path.empty())
-    {
-      m_editAdd->setText(path.string().c_str());
-      m_editAdd->setFocus(Qt::OtherFocusReason);
-      m_editAdd->selectAll();
-    }
-  }
-  else if(m_comboType->currentText() == "file")
-  {
-    NRemoteOpen::Ptr nro = NRemoteOpen::create();
-    bool canceled;
-
-    QString filename = nro->show("", &canceled);
-
-    if(!canceled && !filename.isEmpty())
-    {
-      m_editAdd->setText(filename);
-      m_editAdd->setFocus(Qt::OtherFocusReason);
-      m_editAdd->selectAll();
-    }
-  }
 }

@@ -45,10 +45,6 @@ namespace ClientUI {
 
     virtual QVariant value() const;
 
-  protected:
-
-    void keyPressEvent(QKeyEvent * event);
-
   private slots:
 
     void btBrowseClicked();
@@ -78,8 +74,6 @@ namespace ClientUI {
     QComboBox * m_comboType;
 
     QHBoxLayout * m_topLayout;
-
-    QPushButton * m_btBrowse;
 
   }; // class GraphicalArray
 

@@ -80,10 +80,25 @@ bool SignatureDialog::show(XmlNode & sig, const QString & title)
 
       for( ; it != m_nodes.end() ; it++)
       {
-        XmlNode * node = it.value()->first_node();
-        const char * value = options[it.key()].toStdString().c_str();
+        XmlNode & optionNode = *it.value();
+        if(std::strcmp((*it)->name(), "array") != 0)
+        {
+          XmlNode * node = optionNode.first_node();
+          const char * value = options[it.key()].toStdString().c_str();
 
-        node->value( node->document()->allocate_string(value) );
+          node->value( node->document()->allocate_string(value) );
+        }
+        else
+        {
+          QStringList value = options[it.key()].split("@@");
+          QStringList::iterator itValue = value.begin();
+
+          optionNode.remove_all_nodes();
+
+          for( ; itValue != value.end() ; itValue++)
+            XmlOps::add_node_to(optionNode, "e", itValue->toStdString());
+
+        }
       }
     }
 
