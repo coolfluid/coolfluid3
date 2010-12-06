@@ -176,7 +176,7 @@ void TreeView::mousePressEvent(QMouseEvent * event)
   {
     if(m_contextMenuAllowed && indexInModel.isValid())
     {
-      if(button == Qt::RightButton)
+      if(button == Qt::RightButton && this->confirmChangeOptions(index))
       {
         QList<ActionInfo> actions;
         CPath path;
