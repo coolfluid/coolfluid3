@@ -14,12 +14,14 @@
 #define CLIENT_TREE      "Tree"
 #define CLIENT_CORE      "Core"
 #define CLIENT_BROWSERS  "Browsers"
+#define CLIENT_JOURNAL   "Local Journal"
 
 #define CLIENT_ROOT_PATH      "//" CLIENT_ROOT
 #define CLIENT_LOG_PATH       CLIENT_ROOT_PATH "/" CLIENT_LOG
 #define CLIENT_TREE_PATH      CLIENT_ROOT_PATH "/" CLIENT_TREE
 #define CLIENT_CORE_PATH      CLIENT_ROOT_PATH "/" CLIENT_CORE
 #define CLIENT_BROWSERS_PATH  CLIENT_ROOT_PATH "/" CLIENT_BROWSERS
+#define CLIENT_JOURNAL_PATH   CLIENT_ROOT_PATH "/" CLIENT_JOURNAL
 
 //===========================================================================
 
