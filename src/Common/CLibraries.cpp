@@ -22,7 +22,11 @@ CLibraries::CLibraries ( const std::string& name) : Component ( name )
 
   signal("load_library").signature
       .insert<URI>("Lib", "Library to load" );
-//      .insert_array<URI>( "Files" , "Libraries to load" );
+
+  signal("create_component").is_hidden = true;
+  signal("rename_component").is_hidden = true;
+  signal("move_component").is_hidden = true;
+  signal("delete_component").is_hidden = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

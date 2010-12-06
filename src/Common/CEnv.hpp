@@ -37,15 +37,6 @@ namespace Common {
     /// Get the class name
     static std::string type_name () { return "CEnv"; }
 
-    /// Configuration Options
-    virtual void define_config_properties ();
-
-  private: // data
-
-    /// this is a Env to the component
-    /// using weak_ptr means it might become invalid so we should test for expire()
-    boost::weak_ptr<Component> m_Env_component;
-
   }; // CEnv
 
 ////////////////////////////////////////////////////////////////////////////////

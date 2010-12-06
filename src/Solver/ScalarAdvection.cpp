@@ -39,6 +39,10 @@ ScalarAdvection::ScalarAdvection ( const std::string& name  ) :
   signal("create_model").signature
       .insert<std::string>("Model name", "Name for created model" );
 
+  signal("create_component").is_hidden = true;
+  signal("rename_component").is_hidden = true;
+  signal("delete_component").is_hidden = true;
+  signal("move_component").is_hidden   = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

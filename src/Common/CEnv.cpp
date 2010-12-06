@@ -4,12 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/BasicExceptions.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/LibCommon.hpp"
-#include "Common/XmlHelpers.hpp"
-#include "Common/LogLevel.hpp"
+#include "Common/Log.hpp"
 
 #include "Common/CEnv.hpp"
 
@@ -24,19 +22,7 @@ Common::ComponentBuilder < CEnv, Component, LibCommon > aCEnv_Builder;
 
 CEnv::CEnv ( const std::string& name) : Component ( name )
 {
-    define_config_properties();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-CEnv::~CEnv()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void CEnv::define_config_properties ()
-{
+  // properties
   m_properties.add_option< OptionT<bool> >("OnlyCP0Writes", "If true, only processor P0 writes the log info to files. If false, all processors write.", true);
   m_properties.add_option< OptionT<bool> >("AssertionThrows", "If true, failed assertions throw exceptions instead of abording.", false); /// @todo is it ok ?
   m_properties.add_option< OptionT<bool> >("RegistRignalHandlers", "If true, regist signal handlers", true);
@@ -56,6 +42,18 @@ void CEnv::define_config_properties ()
   m_properties["ErrorOnUnusedConfig"].as_option().mark_basic();
   m_properties["MainLoggerFileName"].as_option().mark_basic();
   m_properties["ExceptionLogLevel"].as_option().mark_basic();
+
+  // signals
+  signal("create_component").is_hidden = true;
+  signal("rename_component").is_hidden = true;
+  signal("delete_component").is_hidden = true;
+  signal("move_component").is_hidden   = true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CEnv::~CEnv()
+{
 }
 
 ////////////////////////////////////////////////////////////////////////////////

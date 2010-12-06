@@ -13,7 +13,10 @@ namespace Common {
 
 CFactories::CFactories ( const std::string& name) : Component ( name )
 {
-   
+  signal("create_component").is_hidden = true;
+  signal("rename_component").is_hidden = true;
+  signal("delete_component").is_hidden = true;
+  signal("move_component").is_hidden   = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

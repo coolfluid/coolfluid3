@@ -39,16 +39,10 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "LoadMesh"; }
 
-  /// Configuration Options
-  virtual void define_config_properties ();
-
-  /// regists all the signals declared in this class
-  virtual void define_signals ();
-
   // functions specific to the LoadMesh component
   
   /// Signal run_operation
-  void run_wizard ( Common::XmlNode& node );
+  void load_mesh ( Common::XmlNode& node );
   
   LoadMesh& operation(const std::string& name);
   

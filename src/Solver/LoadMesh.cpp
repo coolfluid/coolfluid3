@@ -31,10 +31,24 @@ Common::ComponentBuilder < LoadMesh, Component, LibSolver > LoadMesh_Builder;
 LoadMesh::LoadMesh ( const std::string& name  ) :
   Component ( name )
 {
-    define_config_properties(); define_signals();
 
-//  add_component ( create_component_abstract_type<CMeshReader>( "CF.Mesh.Neu.CReader", "NeutralReader" ) );
+  //  add_component ( create_component_abstract_type<CMeshReader>( "CF.Mesh.Neu.CReader", "NeutralReader" ) );
 
+  // options
+  //  m_properties.add_option< OptionT<std::string> >  ( "Model",  "Model to fill, if empty a new model will be created in the root" , "" );
+  //  m_properties["Model"].as_option().mark_basic();
+
+  // signals
+
+  regist_signal ( "load_mesh" , "Loads meshes, guessing automatically the format", "Load meshes" )->connect ( boost::bind ( &LoadMesh::load_mesh, this, _1 ) );
+
+  signal("load_mesh").signature
+      .insert<URI>("Path to domain", "Path to the domain to hold the mesh");
+
+  signal("create_component").is_hidden = true;
+  signal("rename_component").is_hidden = true;
+  signal("delete_component").is_hidden = true;
+  signal("move_component").is_hidden   = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -45,32 +59,9 @@ LoadMesh::~LoadMesh()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LoadMesh::define_config_properties()
+void LoadMesh::load_mesh ( Common::XmlNode& node )
 {
-//  m_properties.add_option< OptionT<std::string> >  ( "Model",  "Model to fill, if empty a new model will be created in the root" , "" );
-//  m_properties["Model"].as_option().mark_basic();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void LoadMesh::define_signals ()
-{
-  this->regist_signal ( "run_wizard" , "runs the wizard ", "Run Wizard" )->connect ( boost::bind ( &LoadMesh::run_wizard, this, _1 ) );
-
-  this->signal("run_wizard").signature.insert<std::string>("mesh name", "name for created mesh component")
-                                        .insert<URI>("path to domain", "path to the domain to hold the mesh");
-
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void LoadMesh::run_wizard ( Common::XmlNode& node )
-{
-
    XmlParams params (node);
-
-   CFinfo << params.get_option<std::string>("mesh name") << CFendl;
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
