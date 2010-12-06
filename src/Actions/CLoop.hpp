@@ -46,9 +46,6 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CLoop"; }
 
-  /// Configuration Options
-  virtual void define_config_properties ();
-
   // functions specific to the CLoop component
 
   CLoopOperation& create_action(const std::string action_provider);

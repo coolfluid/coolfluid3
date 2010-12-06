@@ -45,6 +45,8 @@ public: // functions
 
   virtual void do_whatever() = 0;
   
+  virtual void compute_RHS() = 0;
+  
 };
 
 ////////////////////////////////////////////////////////////////////////////////

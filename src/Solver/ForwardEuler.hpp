@@ -9,11 +9,15 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "Common/CLink.hpp"
+
 #include "Solver/CIterativeSolver.hpp"
 
 namespace CF {
 namespace Solver {
 
+  class CDiscretization;
+  
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Solver component class
@@ -40,8 +44,17 @@ public: // functions
 
   // functions specific to the ForwardEuler component
   
-  virtual void do_stuff();
-
+  virtual void solve();
+  
+  CDiscretization& discretization_method();
+  
+private: // data
+  
+  Common::CLink::Ptr m_solution_field;
+  
+  Common::CLink::Ptr m_residual_field;
+  
+  Common::CLink::Ptr m_update_coeff_field;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -44,8 +44,13 @@ public: // functions
 
   // functions specific to the CIterativeSolver component
 
-  virtual void do_stuff() = 0;
+  virtual void solve() = 0;
 
+protected: // data
+
+  /// Maximum number of iterations
+  Uint m_nb_iter;
+  
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -23,7 +23,7 @@ list( APPEND coolfluid_solver_files
 
 set( coolfluid_solver_kernellib TRUE )
 
-list(APPEND coolfluid_solver_cflibs coolfluid_mesh coolfluid_mesh_sf coolfluid_gmsh coolfluid_neutral )
+list(APPEND coolfluid_solver_cflibs coolfluid_mesh coolfluid_mesh_sf coolfluid_gmsh coolfluid_neutral coolfluid_actions)
 
 if( CF_HAVE_CGNS )
   list(APPEND coolfluid_solver_cflibs coolfluid_cgns3 )

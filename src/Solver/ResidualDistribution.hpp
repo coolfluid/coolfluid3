@@ -41,6 +41,8 @@ public: // functions
   // functions specific to the ResidualDistribution component
   
   virtual void do_whatever();
+  
+  virtual void compute_RHS() {}
 
 };
 
