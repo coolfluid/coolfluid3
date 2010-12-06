@@ -1,3 +1,4 @@
+add_subdirectory( Command )
 add_subdirectory( MeshTransformer )
 add_subdirectory( GooglePerf )
 add_subdirectory( Testing )

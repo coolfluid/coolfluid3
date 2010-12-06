@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_SUITE( CPhysicalModelSuite )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( ElementNodeTest )
+BOOST_AUTO_TEST_CASE( constructor )
 {
   Component::Ptr comp = create_component_abstract_type<Component>("CF.Solver.CPhysicalModel", "CPhysicalModel");
   CPhysicalModel::Ptr model = boost::dynamic_pointer_cast<CPhysicalModel>(comp);
