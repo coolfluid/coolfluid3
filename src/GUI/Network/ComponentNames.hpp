@@ -23,11 +23,13 @@
 
 //===========================================================================
 
-#define SERVER_ROOT  CLIENT_ROOT
-#define SERVER_CORE  "Core"
+#define SERVER_ROOT     CLIENT_ROOT
+#define SERVER_CORE     "Core"
+#define SERVER_JOURNAL  "Journal"
 
-#define SERVER_ROOT_PATH  "//" SERVER_ROOT
-#define SERVER_CORE_PATH  SERVER_ROOT_PATH "/" SERVER_CORE
+#define SERVER_ROOT_PATH     "//" SERVER_ROOT
+#define SERVER_CORE_PATH     SERVER_ROOT_PATH "/" SERVER_CORE
+#define SERVER_JOURNAL_PATH  SERVER_ROOT_PATH "/Tools/" SERVER_JOURNAL
 
 /////////////////////////////////////////////////////////////////////////////
 
