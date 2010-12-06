@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_MPI_PECommPattern2_hpp
-#define CF_Common_MPI_PECommPattern2_hpp
+#ifndef CF_Common_MPI_PECommPattern_hpp
+#define CF_Common_MPI_PECommPattern_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -22,7 +22,7 @@ namespace Common {
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
-  @file PECommPattern2.hpp
+  @file PECommPattern.hpp
   @author Tamas Banyai
   Parallel Communication Pattern.
   This class provides functionality to collect communication.
@@ -41,7 +41,7 @@ namespace Common {
   @todo introduce allocate_component
 **/
 
-class Common_API PECommPattern2: public Component {
+class Common_API PECommPattern: public Component {
 
 public:
 
@@ -49,9 +49,9 @@ public:
   //@{
 
   /// pointer to this type
-  typedef boost::shared_ptr<PECommPattern2> Ptr;
+  typedef boost::shared_ptr<PECommPattern> Ptr;
   /// const pointer to this type
-  typedef boost::shared_ptr<PECommPattern2 const> ConstPtr;
+  typedef boost::shared_ptr<PECommPattern const> ConstPtr;
 
   /// type of integer to use internally in commpattern, to avoid mess of changing type when mpi allows unsigned ints
   typedef int CPint;
@@ -77,13 +77,13 @@ public:
 
   /// constructor
   /// @param name under this name will the component be registered
-  PECommPattern2(const std::string& name);
+  PECommPattern(const std::string& name);
 
   /// destructor
-  ~PECommPattern2();
+  ~PECommPattern();
 
   /// Get the class name
-  static std::string type_name () { return "PECommPattern2"; }
+  static std::string type_name () { return "PECommPattern"; }
 
   //@} END CONSTRUCTORS/DESTRUCTORS
 
@@ -268,7 +268,7 @@ private:
   bool m_isCommPatternSetupNeeded;
 */
 
-}; // PECommPattern2
+}; // PECommPattern
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -277,4 +277,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_MPI_PECommPattern2_hpp
+#endif // CF_Common_MPI_PECommPattern_hpp

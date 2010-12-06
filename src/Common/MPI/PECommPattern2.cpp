@@ -11,7 +11,7 @@
 #include "Common/LibCommon.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/Log.hpp"
-#include "Common/MPI/PECommPattern2.hpp"
+#include "Common/MPI/PECommPattern.hpp"
 #include "Common/MPI/PEObjectWrapper.hpp"
 
 #include "Common/ComponentPredicates.hpp"
@@ -31,13 +31,13 @@ namespace Common  {
 // Provider
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < PECommPattern2, Component, LibCommon > PECommPattern2_Provider;
+Common::ComponentBuilder < PECommPattern, Component, LibCommon > PECommPattern_Provider;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Constructor & destructor
 ////////////////////////////////////////////////////////////////////////////////
 
-PECommPattern2::PECommPattern2(const std::string& name): Component(name), m_updatable(0), m_gid(new PEObjectWrapperPtr<int>("dummy"))
+PECommPattern::PECommPattern(const std::string& name): Component(name), m_updatable(0), m_gid(new PEObjectWrapperPtr<int>("dummy"))
 {
    
 
@@ -49,7 +49,7 @@ PECommPattern2::PECommPattern2(const std::string& name): Component(name), m_upda
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PECommPattern2::~PECommPattern2()
+PECommPattern::~PECommPattern()
 {
   m_gid->remove_tag("gid_of_"+this->name());
 }
@@ -58,7 +58,7 @@ PECommPattern2::~PECommPattern2()
 // Commpattern handling
 ////////////////////////////////////////////////////////////////////////////////
 
-void PECommPattern2::setup(PEObjectWrapper::Ptr gid, std::vector<Uint>& rank)
+void PECommPattern::setup(PEObjectWrapper::Ptr gid, std::vector<Uint>& rank)
 {
   // basic check
   BOOST_ASSERT( gid->size()==rank.size() );
@@ -99,7 +99,7 @@ void PECommPattern2::setup(PEObjectWrapper::Ptr gid, std::vector<Uint>& rank)
 // 0.: ??? lock and pre-flush data ???
 // 1.:
 
-void PECommPattern2::setup()
+void PECommPattern::setup()
 {
   // general constants
   const int nproc=PE::instance().size();
@@ -121,14 +121,14 @@ DEBUGVECTOR(gida);
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PECommPattern2::update()
+void PECommPattern::update()
 {
 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PECommPattern2::add(Uint gid, Uint rank)
+void PECommPattern::add(Uint gid, Uint rank)
 {
   if (m_isFreeze) throw Common::ShouldNotBeHere(FromHere(),"Wanted to add nodes to commpattern '" + name() + "' which is freezed.");
   m_add_buffer.push_back(temp_buffer_item(gid,rank,false));
@@ -137,7 +137,7 @@ void PECommPattern2::add(Uint gid, Uint rank)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PECommPattern2::move(Uint gid, Uint rank, bool keep_as_ghost)
+void PECommPattern::move(Uint gid, Uint rank, bool keep_as_ghost)
 {
   if (m_isFreeze) throw Common::ShouldNotBeHere(FromHere(),"Wanted to moves nodes of commpattern '" + name() + "' which is freezed.");
   m_mov_buffer.push_back(temp_buffer_item(gid,rank,keep_as_ghost));
@@ -146,7 +146,7 @@ void PECommPattern2::move(Uint gid, Uint rank, bool keep_as_ghost)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PECommPattern2::remove(Uint gid, Uint rank, bool on_all_ranks)
+void PECommPattern::remove(Uint gid, Uint rank, bool on_all_ranks)
 {
   if (m_isFreeze) throw Common::ShouldNotBeHere(FromHere(),"Wanted to delete nodes from commpattern '" + name() + "' which is freezed.");
   m_rem_buffer.push_back(temp_buffer_item(gid,rank,on_all_ranks));
@@ -176,7 +176,7 @@ void PECommPattern2::remove(Uint gid, Uint rank, bool on_all_ranks)
 #include <boost/lambda/lambda.hpp>
 
 #include "Common/MPI/PE.hpp"
-#include "Common/MPI/PECommPattern2.hpp"
+#include "Common/MPI/PECommPattern.hpp"
 #include "Common/MPI/all_to_all.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -188,7 +188,7 @@ namespace CF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PECommPattern2::PECommPattern2()
+PECommPattern::PECommPattern()
 {
   m_isCommPatternPrepared=false;
   m_sendCount.resize(PE::instance().size(),0);
@@ -200,7 +200,7 @@ PECommPattern2::PECommPattern2()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PECommPattern2::PECommPattern2(std::vector<Uint> gid, std::vector<Uint> rank)
+PECommPattern::PECommPattern(std::vector<Uint> gid, std::vector<Uint> rank)
 {
   m_isCommPatternPrepared=false;
   m_sendCount.resize(PE::instance().size(),0);
@@ -213,13 +213,13 @@ PECommPattern2::PECommPattern2(std::vector<Uint> gid, std::vector<Uint> rank)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PECommPattern2::~PECommPattern2()
+PECommPattern::~PECommPattern()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PECommPattern2::setup(std::vector<Uint> gid, std::vector<Uint> rank)
+void PECommPattern::setup(std::vector<Uint> gid, std::vector<Uint> rank)
 {
 
   const Uint irank=PE::instance().rank();
