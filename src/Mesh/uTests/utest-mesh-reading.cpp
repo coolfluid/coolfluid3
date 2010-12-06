@@ -390,7 +390,7 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal )
 
   // no file (no error and the domain should be still empty afterwards)
   value_node->value("cpath://Root/MyDom");
-  BOOST_CHECK_NO_THROW( reader->read(node) );
+  BOOST_CHECK_THROW( reader->read(node), BadValue );
   BOOST_CHECK_EQUAL( domain->get_child_count(), (Uint) 0);
 
   // first file is wrong (exception and the mesh should be empty afterwards)

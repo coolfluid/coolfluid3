@@ -32,8 +32,8 @@ CMeshReader::CMeshReader ( const std::string& name  ) :
   // signals
   this->regist_signal ( "read" , "reads a mesh", "Read mesh" )->connect ( boost::bind ( &CMeshReader::read, this, _1 ) );
   signal("read").signature
-      .insert<URI>("Domain", "Domain to load mesh into" );
-//      .insert_array<URI>( "Files" , "Files to read" )
+      .insert<URI>("Domain", "Domain to load mesh into" )
+      .insert_array<URI>( "Files" , "Files to read" );
 
   // options
 
@@ -70,6 +70,7 @@ void CMeshReader::read( XmlNode& xml  )
     throw CastingFailed( FromHere(), "Component in path \'" + path.string() + "\' is not a valid CDomain." );
 
   std::vector<URI> files = property("Files").value<std::vector<URI> >();
+  // std::vector<URI> files = p.get_array<URI>("Files");
 
   // check protocol for file loading
   BOOST_FOREACH(URI file, files)
@@ -89,6 +90,10 @@ void CMeshReader::read( XmlNode& xml  )
       boost::filesystem::path fpath( file.string_without_protocol() );
       read_from_to(fpath, mesh);
     }
+  }
+  else
+  {
+    throw BadValue( FromHere(), "No mesh was read because no files were selected." );
   }
 }
 
