@@ -22,7 +22,7 @@
 #include "Common/Component.hpp"
 #include "Common/MPI/PE.hpp"
 #include "Common/MPI/PEObjectWrapper.hpp"
-#include "Common/MPI/PECommPattern2.hpp"
+#include "Common/MPI/PECommPattern.hpp"
 #include "Common/CGroup.hpp"
 
 /*
@@ -207,13 +207,13 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVectorWeakPtr )
 
 BOOST_AUTO_TEST_CASE( data_registration_related )
 {
-  PECommPattern2 pecp("CommPattern2");
+  PECommPattern pecp("CommPattern2");
   BOOST_CHECK_EQUAL( pecp.isUpToDate() , false );
 
   boost::shared_ptr< std::vector<double> > d1( new std::vector<double>(16) );
   boost::shared_ptr< std::vector<double> > d2( new std::vector<double>(12) );
 
-  // register data to PECommPattern2
+  // register data to PECommPattern
   pecp.insert<double>("VectorWeakPtr1",d1,2,true);
   pecp.insert<double>("VectorWeakPtr2",d2,3,true);
 
@@ -256,7 +256,7 @@ BOOST_AUTO_TEST_CASE( commpattern )
   const int irank=PE::instance().rank();
 
   // commpattern
-  PECommPattern2 pecp("CommPattern2");
+  PECommPattern pecp("CommPattern2");
 /*
   // stupid global-reverse global indices
   std::vector<Uint> gid(nproc);
