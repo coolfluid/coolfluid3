@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "Common/CBuilder.hpp"
+
 #include "Common/OptionT.hpp"
 #include "Common/OptionArray.hpp"
 #include "Common/MPI/PE.hpp"
@@ -20,6 +22,8 @@ namespace Mesh {
   using namespace Common;
   using namespace Common::String;
   
+Common::ComponentBuilder < CMixedHash, Component, LibMesh > CMixedHash_Builder;
+
 //////////////////////////////////////////////////////////////////////////////
 
 CMixedHash::CMixedHash ( const std::string& name ) : 
@@ -28,7 +32,6 @@ CMixedHash::CMixedHash ( const std::string& name ) :
     m_base(0),
     m_nb_parts(PE::instance().size())
 {
-  add_tag( type_name() );
   m_properties.add_option<OptionArrayT <Uint> >("Number of Objects","Total number of objects of each subhash. Subhashes will be created upon configuration with names hash_0 hash_1, ...",m_nb_obj);
   m_properties.add_option<OptionT <Uint> >("Number of Partitions","Total number of partitions (e.g. number of processors)",m_nb_parts);
   m_properties.add_option<OptionT <Uint> >("Base","Start index for global numbering",m_base);

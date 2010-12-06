@@ -14,6 +14,8 @@ namespace Mesh {
 
   using namespace Common;
   
+Common::ComponentBuilder < CHash, Component, LibMesh > CHash_Builder;
+
 //////////////////////////////////////////////////////////////////////////////
 
 CHash::CHash ( const std::string& name ) : 
@@ -22,7 +24,6 @@ CHash::CHash ( const std::string& name ) :
     m_base(0),
     m_nb_parts(PE::instance().size())
 {
-  add_tag( type_name() );
   m_properties.add_option<OptionT <Uint> >("Number of Objects","Total number of objects",m_nb_obj)->mark_basic();
   m_properties.add_option<OptionT <Uint> >("Number of Partitions","Total number of partitions (e.g. number of processors)",m_nb_parts);
   m_properties.add_option<OptionT <Uint> >("Base","Start index for global numbering",m_base);
