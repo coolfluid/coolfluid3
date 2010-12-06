@@ -85,7 +85,7 @@ void CMeshReader::read( XmlNode& xml  )
     CMesh::Ptr mesh = domain->create_component_type<CMesh>("Mesh");
 
     // Get the file paths
-    BOOST_FOREACH(URI file, property("Files").value<std::vector<URI> >())
+    BOOST_FOREACH(URI file, files)
     {
       boost::filesystem::path fpath( file.string_without_protocol() );
       read_from_to(fpath, mesh);
