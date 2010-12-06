@@ -6,11 +6,13 @@
 
 #include <QByteArray>
 #include <QDataStream>
+#include <QHostInfo>
 #include <QTcpSocket>
 
 #include <string>
 
 #include "Common/CF.hpp"
+#include "Common/Core.hpp"
 #include "Common/CPath.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/XmlHelpers.hpp"
@@ -145,6 +147,17 @@ bool ClientNetworkComm::send(XmlDoc & signal)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+void ClientNetworkComm::saveNetworkInfo () const
+{
+  NetworkInfo & info = Core::instance().network_info();
+
+  info.set_hostname( QHostInfo::localHostName().toStdString() );
+  info.set_port( m_socket->peerPort() );
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 bool ClientNetworkComm::checkConnected()
 {
   if(!m_connectedToServer)
@@ -167,7 +180,7 @@ void ClientNetworkComm::newData()
 
   // if the server sends two messages very close in time, it is possible that
   // the client never gets the second one.
-  // So, it is useful to explicitly read the m_socket until the end is reached.
+  // So, it is useful to explicitly read the socket until the end is reached.
   while(!m_socket->atEnd())
   {
     // if the data size is not known

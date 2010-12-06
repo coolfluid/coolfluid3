@@ -9,6 +9,7 @@
 #include <QApplication>
 
 #include "Common/CF.hpp"
+#include "Common/Core.hpp"
 #include "Common/Exception.hpp"
 
 #include "GUI/Client/UI/MainWindow.hpp"
@@ -24,6 +25,9 @@ int main(int argc, char *argv[])
   CF::AssertionManager::instance().AssertionThrows = true;
   CF::AssertionManager::instance().AssertionDumps = true;
 
+  // tell CF core that the client is running
+  Core::instance().network_info().start_client();
+
   try
   {
    MainWindow window;
@@ -36,6 +40,10 @@ int main(int argc, char *argv[])
     std::cerr << e.what() << std::endl;
     returnValue = -1;
   }
+
+  // tell CF core that the client is about to exit
+  Core::instance().network_info().stop_client();
+
 
   return returnValue;
 }

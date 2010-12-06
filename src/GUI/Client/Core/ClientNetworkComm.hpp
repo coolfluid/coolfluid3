@@ -87,6 +87,8 @@ namespace ClientCore {
 
     bool send(CF::Common::XmlDoc & signal);
 
+    void saveNetworkInfo () const;
+
   private slots :
 
     /// @brief Slot called when there is an error on the socket.

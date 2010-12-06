@@ -157,6 +157,7 @@ void NCore::client_registration(XmlNode & node)
   if(p.get_option<bool>("accepted"))
   {
     ClientRoot::log()->addMessage("Registration was successful.");
+    m_networkComm->saveNetworkInfo();
     emit connectedToServer();
     this->updateTree();
   }
