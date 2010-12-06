@@ -21,7 +21,7 @@
 #include "Common/ComponentPredicates.hpp"
 #include "Common/MPI/PE.hpp"
 #include "Common/MPI/PEObjectWrapper.hpp"
-#include "Common/MPI/PECommPattern2.hpp"
+#include "Common/MPI/PECommPattern.hpp"
 #include "Common/CGroup.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
