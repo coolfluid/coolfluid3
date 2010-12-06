@@ -32,6 +32,8 @@ list( APPEND coolfluid_common_files
     CRoot.cpp
     CGroup.hpp
     CGroup.cpp
+    CJournal.cpp
+    CJournal.hpp
     CLibraries.cpp
     CLibraries.hpp
     CLibrary.cpp
@@ -66,6 +68,8 @@ list( APPEND coolfluid_common_files
     LogStream.hpp
     LogStringForwarder.hpp
     LogStringForwarder.cpp
+    NetworkInfo.cpp
+    NetworkInfo.hpp
     NoProfiling.cpp
     NoProfiling.hpp
     NotificationQueue.cpp

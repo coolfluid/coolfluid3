@@ -13,6 +13,7 @@
 
 #include "Common/CF.hpp"
 #include "Common/CommonAPI.hpp"
+#include "Common/NetworkInfo.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -89,6 +90,10 @@ public: // methods
   /// @return Returns the current profiler
   boost::shared_ptr<CodeProfiler> profiler() const;
 
+  /// Gets the network information.
+  /// @return Returns the network information.
+  NetworkInfo& network_info ();
+
 private: // methods
 
   /// Contructor
@@ -115,6 +120,9 @@ private: // data
 
   /// @brief The component tree root
   boost::shared_ptr< Common::CRoot > m_root;
+
+  /// The network information.
+  NetworkInfo m_network_info;
 
 }; // Core
 
