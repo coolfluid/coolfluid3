@@ -22,7 +22,6 @@ Common::ComponentBuilder < CLink, Component, LibCommon > CLink_Builder;
 
 CLink::CLink ( const std::string& name) : Component ( name )
 {
-    define_config_properties();
   m_is_link = true;
 
   regist_signal("change_link", "Change link path", "Change target")->connect(boost::bind(&CLink::change_link, this, _1));
@@ -50,6 +49,9 @@ Component::ConstPtr CLink::get () const
 
 void CLink::link_to ( Component::Ptr lnkto )
 {
+  if ( is_null(lnkto) )
+    throw BadValue(FromHere(), "Cannot link to null component");
+
   if (lnkto->is_link())
     throw SetupError(FromHere(), "Cannot link a CLink to another CLink");
 
