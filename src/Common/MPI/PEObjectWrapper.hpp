@@ -125,6 +125,9 @@ template<typename T> class PEObjectWrapperPtr: public PEObjectWrapper{
     /// @param name the component will appear under this name
     PEObjectWrapperPtr(const std::string& name) : PEObjectWrapper(name) {   }
 
+    /// Get the class name
+    static std::string type_name () { return "PEObjectWrapperPtr<"+class_name<T>()+">"; }
+
     /// setup of passing by reference
     /// @param data pointer to data
     /// @param size length of the data
@@ -227,6 +230,9 @@ template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
     /// @param name the component will appear under this name
     PEObjectWrapperVector(const std::string& name) : PEObjectWrapper(name) {   }
 
+    /// Get the class name
+    static std::string type_name () { return "PEObjectWrapperVector<"+class_name<T>()+">"; }
+
     /// setup of passing by reference
     /// @param std::vector of data
     /// @param stride number of array element grouping
@@ -262,11 +268,10 @@ template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
       if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       T* tbuf=new T[map.size()*m_stride+1];
       if ( tbuf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
-      T* data=&(*m_data)[0];
       std::vector<int>::iterator imap=map.begin();
       for (T* itbuf=tbuf; imap!=map.end(); imap++)
         for (int i=0; i<(const int)m_stride; i++)
-          *itbuf++=data[*imap*m_stride + i];
+          *itbuf++=(*m_data)[*imap*m_stride + i];
       return (void*)tbuf;
     }
 
@@ -276,11 +281,10 @@ template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
     virtual const void unpack(std::vector<int>& map, void* buf)
     {
       if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
-      T* data=&(*m_data)[0];
       std::vector<int>::iterator imap=map.begin();
       for (T* itbuf=(T*)buf; imap!=map.end(); imap++)
         for (int i=0; i<(const int)m_stride; i++)
-          data[*imap*m_stride + i]=*itbuf++;
+          (*m_data)[*imap*m_stride + i]=*itbuf++;
     }
 
     /// acts like a sizeof() operator
@@ -329,6 +333,9 @@ template<typename T> class PEObjectWrapperVectorWeakPtr: public PEObjectWrapper{
     /// @param name the component will appear under this name
     PEObjectWrapperVectorWeakPtr(const std::string& name) : PEObjectWrapper(name) {   }
 
+    /// Get the class name
+    static std::string type_name () { return "PEObjectWrapperVectorWeakPtr<"+class_name<T>()+">"; }
+
     /// setup
     /// @param std::vector of data
     /// @param stride number of array element grouping
@@ -354,11 +361,10 @@ template<typename T> class PEObjectWrapperVectorWeakPtr: public PEObjectWrapper{
       T* tbuf=new T[map.size()*m_stride+1];
       if ( tbuf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
       boost::shared_ptr< std::vector<T> > sp=m_data.lock();
-      T* data=&(*sp)[0];
       std::vector<int>::iterator imap=map.begin();
       for (T* itbuf=tbuf; imap!=map.end(); imap++)
         for (int i=0; i<(const int)m_stride; i++)
-          *itbuf++=data[*imap*m_stride + i];
+          *itbuf++=(*sp)[*imap*m_stride + i];
       return (void*)tbuf;
     }
 
@@ -369,11 +375,10 @@ template<typename T> class PEObjectWrapperVectorWeakPtr: public PEObjectWrapper{
     {
       if (m_data.expired()) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       boost::shared_ptr< std::vector<T> > sp=m_data.lock();
-      T* data=&(*sp)[0];
       std::vector<int>::iterator imap=map.begin();
       for (T* itbuf=(T*)buf; imap!=map.end(); imap++)
         for (int i=0; i<(const int)m_stride; i++)
-          data[*imap*m_stride + i]=*itbuf++;
+          (*sp)[*imap*m_stride + i]=*itbuf++;
     }
 
     /// acts like a sizeof() operator

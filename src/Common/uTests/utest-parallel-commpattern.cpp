@@ -26,7 +26,7 @@
 #include "Common/MPI/PECommPattern.hpp"
 #include "Common/MPI/tools.hpp"
 #include "Common/CGroup.hpp"
-
+#include "Common/CreateComponent.hpp"
 /*
   TODO: move to allocate_component
 */
@@ -211,6 +211,9 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperMultiArray )
 
   PEObjectWrapperMultiArray<Uint,1>::Ptr w1=allocate_component_type< PEObjectWrapperMultiArray<Uint,1> >("array1d");
   PEObjectWrapperMultiArray<Uint,2>::Ptr w2=allocate_component_type< PEObjectWrapperMultiArray<Uint,2> >("array2d");
+
+  PEObjectWrapper::Ptr w3= create_component_abstract_type<PEObjectWrapper>("CF.Common.PEObjectWrapperMultiArray<unsigned,1>","array1d");
+  PEObjectWrapper::Ptr w4= create_component_abstract_type<PEObjectWrapper>("CF.Common.PEObjectWrapperMultiArray<unsigned,2>","array2d");
 
   w1->setup(array1d,true);
   w2->setup(array2d,false);

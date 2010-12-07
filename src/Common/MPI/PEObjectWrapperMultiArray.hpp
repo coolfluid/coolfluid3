@@ -54,6 +54,10 @@ class PEObjectWrapperMultiArray<T,1>: public PEObjectWrapper{
     /// @param name the component will appear under this name
     PEObjectWrapperMultiArray(const std::string& name) : PEObjectWrapper(name) {   }
 
+    /// Get the class name
+    static std::string type_name () { return "PEObjectWrapperMultiArray<"+class_name<T>()+",1>"; }
+
+
     /// setup of passing by reference
     /// @param std::vector of data
     /// @param stride number of array element grouping
@@ -140,6 +144,9 @@ class PEObjectWrapperMultiArray<T,2>: public PEObjectWrapper{
     /// constructor
     /// @param name the component will appear under this name
     PEObjectWrapperMultiArray(const std::string& name) : PEObjectWrapper(name) {   }
+
+    /// Get the class name
+    static std::string type_name () { return "PEObjectWrapperMultiArray<"+class_name<T>()+",2>"; }
 
     /// setup of passing by reference
     /// @param std::vector of data
