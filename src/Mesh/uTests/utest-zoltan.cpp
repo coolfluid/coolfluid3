@@ -34,6 +34,7 @@
 #include "Mesh/ConnectivityData.hpp"
 #include "Mesh/CDynTable.hpp"
 #include "Mesh/CMeshPartitioner.hpp"
+#include "Mesh/Zoltan/CPartitioner.hpp"
 #include "Mesh/Zoltan/LibZoltan.hpp"
 
 #define PE_SERIALIZE(func)                                \
@@ -1758,7 +1759,7 @@ BOOST_AUTO_TEST_CASE ( zoltan_quadtriag_mesh)
     throw BadValue(FromHere(),"Zoltan error");
 
 	
-	std::string graph_package = "SCOTCH";
+	std::string graph_package = "Parmetis";
 	if (graph_package == "PHG" && PE::instance().size() != 2)
 	{
 		throw NotImplemented(FromHere(),"PHG graph package needs processor information for each object. It assumes now 2 processors. Run with 2 processors.");
@@ -1774,7 +1775,7 @@ BOOST_AUTO_TEST_CASE ( zoltan_quadtriag_mesh)
   zz->Set_Param( "GRAPH_SYMMETRIZE","NONE");
 
   // Graph parameters
-  //zz->Set_Param( "NUM_GLOBAL_PARTS", "2");
+  zz->Set_Param( "NUM_GLOBAL_PARTS", "4");
   zz->Set_Param( "CHECK_GRAPH", "2"); 
   //zz->Set_Param( "PHG_EDGE_SIZE_THRESHOLD", ".35");  // 0-remove all, 1-remove none
 
@@ -2075,7 +2076,7 @@ BOOST_AUTO_TEST_CASE ( zoltan_quadtriag_mesh)
 	BOOST_CHECK(true);
 
 
-  give_elems_local_node_numbersl_node_numbers(mesh);
+  give_elems_local_node_numbers(mesh);
   
  	CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
 
@@ -2090,7 +2091,6 @@ BOOST_AUTO_TEST_CASE ( zoltan_quadtriag_mesh)
 
 BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
 {
-
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
 	meshreader->configure_property("Read Boundaries",false);
 
@@ -2100,19 +2100,21 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
 	// the mesh to store in
 	CMesh::Ptr mesh_ptr = meshreader->create_mesh_from(fp_in);
   CMesh& mesh = *mesh_ptr;
-  
-  
+
   CMeshPartitioner::Ptr partitioner_ptr = create_component_abstract_type<CMeshPartitioner>("CF.Mesh.Zoltan.CPartitioner","partitioner");
-  
+
   CMeshPartitioner& p = *partitioner_ptr;
   
   //p.configure_property("Number of Partitions", (Uint) 4);
-  //p.configure_property("Graph Package", std::string("Parmetis"));
-  
+  //p.configure_property("Graph Package", std::string("Scotch"));
   p.initialize(mesh);
-	p.build_graph();
   p.partition_graph();
   p.show_changes();
+  
+  CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+	boost::filesystem::path fp_out ("quadtriag.msh");
+	meshwriter->write_from_to(mesh_ptr,fp_out);
+ 	
 
 }
 

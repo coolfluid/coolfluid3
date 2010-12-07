@@ -29,7 +29,8 @@ CPartitioner::CPartitioner ( const std::string& name ) :
     CMeshPartitioner(name)
 {
   
-  m_properties.add_option<OptionT <std::string> >("Graph Package","External library zoltan will use for graph partitioning","SCOTCH");
+  m_properties.add_option<OptionT <std::string> >("Graph Package","External library zoltan will use for graph partitioning","Parmetis");
+  m_properties.add_option<OptionT <std::string> >("Debug Level","Internal Zoltan debug level (0 to 6)","0");
   
   m_zz = new ZoltanObject(PE::instance());
   cf_assert (m_zz != NULL);
@@ -83,7 +84,7 @@ void CPartitioner::partition_graph()
 void CPartitioner::set_partitioning_params()
 {
 	/// Zoltan parameters
-  m_zz->Set_Param( "DEBUG_LEVEL", "0");
+  m_zz->Set_Param( "DEBUG_LEVEL", property("Debug Level").value<std::string>());
   m_zz->Set_Param( "LB_METHOD", "GRAPH");
   m_zz->Set_Param( "GRAPH_PACKAGE",property("Graph Package").value<std::string>());
   m_zz->Set_Param( "LB_APPROACH", "PARTITION");

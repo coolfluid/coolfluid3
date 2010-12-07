@@ -218,12 +218,12 @@ void CMeshPartitioner::nb_connected_objects(VectorT& nb_connections_per_obj) con
       boost::tie(component_idx,loc_idx) = to_local_indices_from_loc_obj(loc_obj);
       if (is_node(glb_obj))
       {
-        const CDynTable<Uint>& node_to_glb_elm = Common::find_component_with_tag<CDynTable<Uint> >(*m_local_components[component_idx],"glb_elem_connectivity");
+        const CDynTable<Uint>& node_to_glb_elm = *m_connectivity_components[component_idx]->as_type<CDynTable<Uint> >();
         nb_connections_per_obj[idx] = node_to_glb_elm.row_size(loc_idx);
       }
       else
       {
-        const CTable<Uint>& connectivity_table = m_local_components[component_idx]->as_type<CElements>()->connectivity_table();
+        const CTable<Uint>& connectivity_table = *m_connectivity_components[component_idx]->as_type<CTable<Uint> >();
         nb_connections_per_obj[idx] = connectivity_table.row_size(loc_idx);
       }
 			++idx;

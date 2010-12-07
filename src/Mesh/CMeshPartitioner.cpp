@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/mpi/collectives.hpp>
+
 #include "Common/Foreach.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/MPI/PE.hpp"
@@ -33,8 +35,8 @@ CMeshPartitioner::CMeshPartitioner ( const std::string& name ) :
   m_properties.add_option<OptionT <Uint> >("Number of Partitions","Total number of partitions (e.g. number of processors)",m_nb_parts);
   
   m_properties["Number of Partitions"].as_option().attach_trigger ( boost::bind ( &CMeshPartitioner::config_nb_parts,   this ) );
-  	
-	m_hash = allocate_component_type<CMixedHash>("hash");
+  
+  m_hash = allocate_component_type<CMixedHash>("hash");
   add_static_component(m_hash);
 
   m_global_to_local = allocate_component_type<CMap<Uint,Uint> >("global_to_local");
@@ -83,6 +85,8 @@ void CMeshPartitioner::build_global_to_local_index(CMesh& mesh)
 //        ++m_nb_owned_obj;
     const CList<Uint>& global_indices = find_component_with_tag<CList<Uint> >(coordinates,"global_node_indices");
     const CDynTable<Uint>& glb_elem_connectivity = find_component_with_tag<CDynTable<Uint> >(coordinates,"glb_elem_connectivity");
+    cf_assert(coordinates.size() == global_indices.size());
+    cf_assert(coordinates.size() == glb_elem_connectivity.size());
     boost_foreach (Uint glb_idx, global_indices.array())
     {
       if (m_hash->owns(from_node_glb(glb_idx)))
@@ -104,6 +108,8 @@ void CMeshPartitioner::build_global_to_local_index(CMesh& mesh)
 
     const CList<Uint>& global_node_indices = find_component_with_tag<CList<Uint> >(elements.coordinates(),"global_node_indices");    
     const CList<Uint>& global_elem_indices = find_component_with_tag<CList<Uint> >(elements,"global_element_indices");
+    cf_assert(connectivity_table.size() == global_elem_indices.size());
+   
     // boost_foreach (Uint glb_idx, global_elem_indices.array())
     // {
     //   if (m_hash->subhash(ELEMS)->owns(glb_idx))
@@ -148,10 +154,11 @@ void CMeshPartitioner::build_global_to_local_index(CMesh& mesh)
   }
   
   m_global_to_local->sort_keys();
+
+  // check validity
   cf_assert(loc_idx == tot_nb_obj);
-  
-//  CFinfo << mesh.tree() << CFendl;
-  
+  Uint glb_nb_owned_obj = boost::mpi::all_reduce(PE::instance(), m_nb_owned_obj, std::plus<Uint>());
+  cf_assert(glb_nb_owned_obj == mesh.property("nb_nodes").value<Uint>() + mesh.property("nb_cells").value<Uint>());  
 }
 
 //////////////////////////////////////////////////////////////////////////////
