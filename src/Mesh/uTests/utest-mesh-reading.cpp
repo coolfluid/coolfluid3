@@ -95,37 +95,6 @@ BOOST_AUTO_TEST_CASE( quadtriag_readNeu_writeGmsh_writeNeu )
 
   meshreader->read_from_to(fp_in,mesh);
 
-  std::string text = (
-                      "mesh\n"
-                      "  regions\n"
-                      "    coordinates\n"
-                      "    gas\n"
-                      "      elements_CF.Mesh.SF.Quad2DLagrangeP1\n"
-                      "        connectivity_table\n"
-                      "        coordinates\n"
-                      "      elements_Triag2DLagrangeP1\n"
-                      "        connectivity_table\n"
-                      "        coordinates\n"
-                      "    inlet\n"
-                      "      elements_Line2DLagrangeP1\n"
-                      "        connectivity_table\n"
-                      "        coordinates\n"
-                      "    liquid\n"
-                      "      elements_Triag2DLagrangeP1\n"
-                      "        connectivity_table\n"
-                      "        coordinates\n"
-                      "    outlet\n"
-                      "      elements_Line2DLagrangeP1\n"
-                      "        connectivity_table\n"
-                      "        coordinates\n"
-                      "    wall\n"
-                      "      elements_Line2DLagrangeP1\n"
-                      "        connectivity_table\n"
-                      "        coordinates\n"
-                      );
-  // test if tree matches
-  //BOOST_CHECK_EQUAL(text,mesh->tree());
-
   boost::filesystem::path fp_out ("quadtriag.msh");
   CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->write_from_to(mesh,fp_out);
@@ -135,20 +104,6 @@ BOOST_AUTO_TEST_CASE( quadtriag_readNeu_writeGmsh_writeNeu )
 
   BOOST_CHECK_EQUAL(mesh->domain().recursive_nodes_count(), (Uint) 16);
   BOOST_CHECK_EQUAL(mesh->domain().recursive_elements_count(), (Uint) 28);
-
-
-
-	BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*mesh))
-	{
-		CList<Uint>& nodes = elements.node_list();
-
-		CFinfo << elements.full_path().string() << CFendl;
-		for (Uint i=0; i<nodes.size(); ++i)
-		{
-			CFinfo << "  " << nodes[i] << CFendl;
-		}
-	}
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -167,38 +122,6 @@ BOOST_AUTO_TEST_CASE( quadtriag_read_NewNeu_writeGmsh )
 
   //CFinfo << "ready to read" << CFendl;
   meshreader->read_from_to(fp_in,mesh);
-
-  std::string text = (
-                      "mesh\n"
-                      "  regions\n"
-                      "    coordinates\n"
-                      "    gas\n"
-                      "      elements_CF.Mesh.SF.Quad2DLagrangeP1\n"
-                      "        connectivity_table\n"
-                      "        coordinates\n"
-                      "      elements_Triag2DLagrangeP1\n"
-                      "        connectivity_table\n"
-                      "        coordinates\n"
-                      "    inlet\n"
-                      "      elements_Line2DLagrangeP1\n"
-                      "        connectivity_table\n"
-                      "        coordinates\n"
-                      "    liquid\n"
-                      "      elements_Triag2DLagrangeP1\n"
-                      "        connectivity_table\n"
-                      "        coordinates\n"
-                      "    outlet\n"
-                      "      elements_Line2DLagrangeP1\n"
-                      "        connectivity_table\n"
-                      "        coordinates\n"
-                      "    wall\n"
-                      "      elements_Line2DLagrangeP1\n"
-                      "        connectivity_table\n"
-                      "        coordinates\n"
-                      );
-  // test if tree matches
-  //BOOST_CHECK_EQUAL(text,mesh->tree());
-
 
   //CFinfo << "ready to write" << CFendl;
   meshwriter->write_from_to(mesh,fp_out);
@@ -222,38 +145,6 @@ BOOST_AUTO_TEST_CASE( hextet_readNeu_writeGmsh_writeNeu )
   CMesh::Ptr mesh ( allocate_component_type<CMesh>  ( "mesh" ) );
 
   meshreader->read_from_to(fp_in,mesh);
-
-  std::string text = (
-                      "mesh\n"
-                      "  regions\n"
-                      "    coordinates\n"
-                      "    fluid\n"
-                      "      elements_Hexa3DLagrangeP1\n"
-                      "        connectivity_table\n"
-                      "        coordinates\n"
-                      "      elements_Tetra3DLagrangeP1\n"
-                      "        connectivity_table\n"
-                      "        coordinates\n"
-                      "    inlet\n"
-                      "      elements_CF.Mesh.SF.Quad3DLagrangeP1\n"
-                      "        connectivity_table\n"
-                      "        coordinates\n"
-                      "    outlet\n"
-                      "      elements_Triag3DLagrangeP1\n"
-                      "        connectivity_table\n"
-                      "        coordinates\n"
-                      "    wall\n"
-                      "      elements_CF.Mesh.SF.Quad3DLagrangeP1\n"
-                      "        connectivity_table\n"
-                      "        coordinates\n"
-                      "      elements_Triag3DLagrangeP1\n"
-                      "        connectivity_table\n"
-                      "        coordinates\n"
-                      );
-  // test if tree matches
-  //BOOST_CHECK_EQUAL(text,mesh->tree());
-
-
 
   boost::filesystem::path fp_out ("hextet.msh");
   CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
@@ -281,37 +172,6 @@ BOOST_AUTO_TEST_CASE( hextet_read_NewNeu_writeGmsh )
 
   //CFinfo << "ready to read" << CFendl;
   meshreader->read_from_to(fp_in,mesh);
-
-  std::string text = (
-                      "mesh\n"
-                      "  regions\n"
-                      "    coordinates\n"
-                      "    fluid\n"
-                      "      elements_Hexa3DLagrangeP1\n"
-                      "        connectivity_table\n"
-                      "        coordinates\n"
-                      "      elements_Tetra3DLagrangeP1\n"
-                      "        connectivity_table\n"
-                      "        coordinates\n"
-                      "    inlet\n"
-                      "      elements_CF.Mesh.SF.Quad3DLagrangeP1\n"
-                      "        connectivity_table\n"
-                      "        coordinates\n"
-                      "    outlet\n"
-                      "      elements_Triag3DLagrangeP1\n"
-                      "        connectivity_table\n"
-                      "        coordinates\n"
-                      "    wall\n"
-                      "      elements_CF.Mesh.SF.Quad3DLagrangeP1\n"
-                      "        connectivity_table\n"
-                      "        coordinates\n"
-                      "      elements_Triag3DLagrangeP1\n"
-                      "        connectivity_table\n"
-                      "        coordinates\n"
-                      );
-  // test if tree matches
-  //BOOST_CHECK_EQUAL(text,mesh->tree());
-
 
   //CFinfo << "ready to write" << CFendl;
   meshwriter->write_from_to(mesh,fp_out);
