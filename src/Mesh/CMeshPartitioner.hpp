@@ -66,6 +66,8 @@ public: // functions
   
   void show_changes();
   
+  void migrate();
+  
   /// location finding functions
     
   void build_global_to_local_index(CMesh& mesh);

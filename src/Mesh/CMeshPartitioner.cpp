@@ -250,5 +250,20 @@ boost::tuple<Component::Ptr,Uint> CMeshPartitioner::to_local(const Uint glb_obj)
 
 //////////////////////////////////////////////////////////////////////////////
 
+void CMeshPartitioner::migrate()
+{
+  // 1) wrap components to send
+  // 2) pack
+  // 3) remove from table
+  // 4) mpi magic
+  // 5) unpack
+  // 6) request ghost nodes
+  // 7) pack ghost nodes
+  // 8) mpi magic
+  // 9) unpack ghost nodes
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 } // Mesh
 } // CF

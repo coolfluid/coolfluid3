@@ -9,7 +9,7 @@ list( APPEND coolfluid_neutral_files
   Shared.cpp
 )
 
-list( APPEND coolfluid_neutral_cflibs coolfluid_mesh )
+list( APPEND coolfluid_neutral_cflibs coolfluid_mesh_sf)
 
 set( coolfluid_neutral_kernellib TRUE )
 

@@ -34,7 +34,6 @@
 #include "Mesh/ConnectivityData.hpp"
 #include "Mesh/CDynTable.hpp"
 #include "Mesh/CMeshPartitioner.hpp"
-#include "Mesh/Zoltan/CPartitioner.hpp"
 #include "Mesh/Zoltan/LibZoltan.hpp"
 
 #define PE_SERIALIZE(func)                                \
