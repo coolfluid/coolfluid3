@@ -120,6 +120,8 @@ list( APPEND coolfluid_common_files
       MPI/PE.cpp
       MPI/PEObjectWrapper.cpp
       MPI/PEObjectWrapper.hpp
+      MPI/PEObjectWrapperMultiArray.hpp
+      MPI/PEObjectWrapperMultiArray.cpp
       MPI/PECommPattern.hpp
       MPI/PECommPattern.cpp
       MPI/tools.hpp

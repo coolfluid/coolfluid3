@@ -22,6 +22,7 @@
 #include "Common/Component.hpp"
 #include "Common/MPI/PE.hpp"
 #include "Common/MPI/PEObjectWrapper.hpp"
+#include "Common/MPI/PEObjectWrapperMultiArray.hpp"
 #include "Common/MPI/PECommPattern.hpp"
 #include "Common/CGroup.hpp"
 
@@ -176,6 +177,68 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVector )
 
   for(i=0; i<8; i++) { BOOST_CHECK_EQUAL( dtesttest1[i] , -32-4-i ); }
   for(i=0; i<12; i++) { BOOST_CHECK_EQUAL( dtesttest2[i] , -64-6-i ); }
+
+  delete[] dtest1;
+  delete[] dtest2;
+  delete[] dtesttest1;
+  delete[] dtesttest2;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( ObjectWrapperMultiArray )
+{
+
+  int i,j;
+  boost::multi_array<Uint,1> array1d;
+  boost::multi_array<Uint,2> array2d;
+  
+  array1d.resize(boost::extents[32]);
+  array2d.resize(boost::extents[24][4]);
+  
+  std::vector<int> map(4);
+
+  for(i=0; i<32; i++) array1d[i]=i;
+  for(i=0; i<24; i++)
+    for (j=0; j<4; j++)
+      array2d[i][j]=i;
+  for(i=0; i<4; i++) map[i]=2*i;
+
+  PEObjectWrapperMultiArray<Uint,1>::Ptr w1=allocate_component_type< PEObjectWrapperMultiArray<Uint,1> >("array1d");
+  PEObjectWrapperMultiArray<Uint,2>::Ptr w2=allocate_component_type< PEObjectWrapperMultiArray<Uint,2> >("array2d");
+
+  w1->setup(array1d,true);
+  w2->setup(array2d,false);
+
+  BOOST_CHECK_EQUAL( w1->needs_update() , true );
+  BOOST_CHECK_EQUAL( w2->needs_update() , false );
+
+  BOOST_CHECK_EQUAL( w1->is_data_type_Uint() , true );
+  BOOST_CHECK_EQUAL( w2->is_data_type_Uint() , true );
+
+  BOOST_CHECK_EQUAL( w1->size() , 32 );
+  BOOST_CHECK_EQUAL( w2->size() , 24 );
+
+  BOOST_CHECK_EQUAL( w1->stride() , 1 );
+  BOOST_CHECK_EQUAL( w2->stride() , 4 );
+
+  BOOST_CHECK_EQUAL( w1->size_of() , sizeof(Uint) );
+  BOOST_CHECK_EQUAL( w2->size_of() , sizeof(Uint) );
+
+  Uint *dtest1=(Uint*)w1->pack(map);
+  Uint *dtest2=(Uint*)w2->pack(map);
+
+  for(i=0; i<4*1; i++) { BOOST_CHECK_EQUAL( dtest1[i] , 2*i ); dtest1[i]+=1; }
+  for(i=0; i<4*4; i++) { BOOST_CHECK_EQUAL( dtest2[i] , 2*(i/4) ); dtest2[i]+=1; }
+
+  w1->unpack(map,dtest1);
+  w2->unpack(map,dtest2);
+
+  Uint *dtesttest1=(Uint*)w1->pack(map);
+  Uint *dtesttest2=(Uint*)w2->pack(map);
+
+  for(i=0; i<4*1; i++) { BOOST_CHECK_EQUAL( dtesttest1[i] , 2*i+1 ); }
+  for(i=0; i<4*4; i++) { BOOST_CHECK_EQUAL( dtesttest2[i] , 2*(i/4)+1 ); }
 
   delete[] dtest1;
   delete[] dtest2;
