@@ -13,6 +13,9 @@
 #include <boost/mpi/communicator.hpp>
 #include <boost/thread/thread.hpp>
 
+#include <Common/Log.hpp>
+#include <Common/LogStream.hpp>
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -35,22 +38,29 @@ namespace boost { namespace mpi {
   @param expression stuff to execute
 **/
 #define PEProcessSortedExecute(comm,irank,expression) {                                                                         \
+  CFinfo.setFilterRankZero(false);                                                                                              \
   if (irank<0){                                                                                                                 \
     int _process_sorted_execute_i_;                                                                                             \
     int _process_sorted_execute_n_=(int)comm.size();                                                                            \
     int _process_sorted_execute_r_=(int)comm.rank();                                                                            \
     comm.barrier();                                                                                                             \
+    CFinfo << CFflush;                                                                                                          \
+    comm.barrier();                                                                                                             \
     for(_process_sorted_execute_i_=0; _process_sorted_execute_i_<_process_sorted_execute_n_; _process_sorted_execute_i_++){     \
       comm.barrier();                                                                                                           \
       if(_process_sorted_execute_i_ == _process_sorted_execute_r_){                                                             \
         expression;                                                                                                             \
+        CFinfo << CFflush;                                                                                                      \
         comm.barrier();                                                                                                         \
       }                                                                                                                         \
     }                                                                                                                           \
     comm.barrier();                                                                                                             \
+    CFinfo << CFflush;                                                                                                          \
+    comm.barrier();                                                                                                             \
   } else if (irank==(int)comm.rank()){                                                                                          \
     expression;                                                                                                                 \
   }                                                                                                                             \
+  CFinfo.setFilterRankZero(true);                                                                                               \
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -73,6 +83,17 @@ namespace boost { namespace mpi {
   PE::instance().barrier();                                                                                                     \
   std::cout << std::flush;                                                                                                      \
   boost::this_thread::sleep(boost::posix_time::milliseconds(msec));                                                             \
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+ Macro for printing an std::Vector
+**/
+#define PEDebugVector(v,size) { \
+  CFinfo << PE::instance().rank() << "/" << PE::instance().rank() << ": " << #v << CFendl; \
+  for(int _tmp_i_=0; _tmp_i_<size; _tmp_i_++)  CFinfo << v[_tmp_i_] << " "; \
+  CFinfo << CFendl; \
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -18,6 +18,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "Common/Log.hpp"
+#include "Common/MPI/tools.hpp"
 #include "Common/MPI/PE.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -71,6 +73,7 @@ BOOST_AUTO_TEST_CASE( init )
 {
 	PE::instance().init(m_argc,m_argv);
   BOOST_CHECK_EQUAL( PE::instance().is_init() , true );
+  PEProcessSortedExecute(PE::instance(),-1,CFinfo << "Proccess " << PE::instance().rank() << "/" << PE::instance().size() << " reports in." << CFendl;);
 }
 
 BOOST_AUTO_TEST_CASE( rank_and_size )
@@ -80,6 +83,7 @@ BOOST_AUTO_TEST_CASE( rank_and_size )
 
 BOOST_AUTO_TEST_CASE( finalize )
 {
+  PEProcessSortedExecute(PE::instance(),-1,CFinfo << "Proccess " << PE::instance().rank() << "/" << PE::instance().size() << " says good bye." << CFendl;);
   PE::instance().finalize();
   BOOST_CHECK_EQUAL( PE::instance().is_init() , false );
 }

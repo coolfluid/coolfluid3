@@ -24,6 +24,7 @@
 #include "Common/MPI/PEObjectWrapper.hpp"
 #include "Common/MPI/PEObjectWrapperMultiArray.hpp"
 #include "Common/MPI/PECommPattern.hpp"
+#include "Common/MPI/tools.hpp"
 #include "Common/CGroup.hpp"
 
 /*
@@ -65,16 +66,20 @@ BOOST_FIXTURE_TEST_SUITE( PECommPatternSuite, PECommPatternFixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( init )
+BOOST_AUTO_TEST_CASE( mpi_init )
 {
   PE::instance().init(m_argc,m_argv);
   BOOST_CHECK_EQUAL( PE::instance().is_init() , true );
+  PEProcessSortedExecute(PE::instance(),-1,CFinfo << "Proccess " << PE::instance().rank() << "/" << PE::instance().size() << " reports in." << CFendl;);
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( ObjectWrapperPtr )
 {
+  PEProcessSortedExecute(PE::instance(),-1,CFinfo << FromHere() << " " << PE::instance().rank() << "/" << PE::instance().size() << " reports in." << CFendl;);
+
   int i,j;
   double *d1=new double[32];
   double *d2=new double[24];
@@ -336,14 +341,20 @@ BOOST_AUTO_TEST_CASE( data_registration_related )
     if (pobj.name()=="VectorWeakPtr1"){
       BOOST_CHECK_EQUAL( pobj.size() , 16 );
       BOOST_CHECK_EQUAL( pobj.stride() , 2 );
-//      BOOST_CHECK_EQUAL( pobj.data() , &(*d1)[0] );
     }
     if (pobj.name()=="VectorWeakPtr2"){
       BOOST_CHECK_EQUAL( pobj.size() , 8 );
       BOOST_CHECK_EQUAL( pobj.stride() , 3 );
-//      BOOST_CHECK_EQUAL( pobj.data() , &(*d2)[0] );
     }
   }
+
+const int nproc=PE::instance().size();
+const int irank=PE::instance().rank();
+PEProcessSortedExecute(PE::instance(),-1,CFinfo << "const int " << nproc << "/" << irank <<CFendl;);
+int nproc_=PE::instance().size();
+int irank_=PE::instance().rank();
+PEProcessSortedExecute(PE::instance(),-1,CFinfo << "      int " << nproc_ << "/" << irank_ <<CFendl;);
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -356,12 +367,15 @@ BOOST_AUTO_TEST_CASE( commpattern )
 
   // commpattern
   PECommPattern pecp("CommPattern2");
-/*
+
   // stupid global-reverse global indices
   std::vector<Uint> gid(nproc);
   for (int i=0; i<gid.size(); i++) gid[i]=(nproc*nproc-1)-(irank*nproc+i);
-  boost::shared_ptr< PEObjectWrapper > ow ( new PEObjectWrapperVector<Uint>("gid",data,size,stride,needs_update), Deleter< PEObjectWrapperPtr<T> >() );
+  pecp.insert("gid",gid,1,false);
 
+PEProcessSortedExecute(PE::instance(),-1,PEDebugVector(gid,gid.size()));
+
+/*
   // rank is built such that total scatter
   std::vector<int> rank(nproc);
   for (int i=0; i<gid.size(); i++) rank[i]=i;
@@ -386,6 +400,7 @@ BOOST_AUTO_TEST_CASE( commpattern )
 
 BOOST_AUTO_TEST_CASE( finalize )
 {
+  PEProcessSortedExecute(PE::instance(),-1,CFinfo << "Proccess " << PE::instance().rank() << "/" << PE::instance().size() << " says good bye." << CFendl;);
   PE::instance().finalize();
   BOOST_CHECK_EQUAL( PE::instance().is_init() , false );
 }

@@ -14,15 +14,16 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <vector>
+
 #include <boost/test/unit_test.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/foreach.hpp>
 #include <boost/thread/thread.hpp>
 
-////////////////////////////////////////////////////////////////////////////////
-
+#include "Common/Log.hpp"
 #include "Common/MPI/PE.hpp"
 #include "Common/MPI/all_to_all.hpp"
+#include "Common/MPI/tools.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -61,6 +62,7 @@ BOOST_AUTO_TEST_CASE( init )
 {
   PE::instance().init(m_argc,m_argv);
   BOOST_CHECK_EQUAL( PE::instance().is_init() , true );
+  PEProcessSortedExecute(PE::instance(),-1,CFinfo << "Proccess " << PE::instance().rank() << "/" << PE::instance().size() << " reports in." << CFendl;);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -70,6 +72,9 @@ BOOST_AUTO_TEST_CASE( all_to_all )
   int i,j,k,l;
   const int nproc=PE::instance().size();
   const int irank=PE::instance().rank();
+
+PEProcessSortedExecute(PE::instance(),-1,CFinfo << "const int " << nproc << "/" << irank <<CFendl;);
+
 
   // data
   int sndcnt=0;
@@ -420,6 +425,7 @@ BOOST_AUTO_TEST_CASE( all_to_all )
 
 BOOST_AUTO_TEST_CASE( finalize )
 {
+  PEProcessSortedExecute(PE::instance(),-1,CFinfo << "Proccess " << PE::instance().rank() << "/" << PE::instance().size() << " says good bye." << CFendl;);
   PE::instance().finalize();
   BOOST_CHECK_EQUAL( PE::instance().is_init() , false );
 }

@@ -39,10 +39,7 @@ Common::ComponentBuilder < PECommPattern, Component, LibCommon > PECommPattern_P
 
 PECommPattern::PECommPattern(const std::string& name): Component(name), m_updatable(0), m_gid(new PEObjectWrapperPtr<int>("dummy"))
 {
-   
-
   //self->regist_signal ( "update" , "Executes communication patterns on all the registered data.", "" )->connect ( boost::bind ( &CommPattern2::update, self, _1 ) );
-
   m_isUpToDate=false;
   m_isFreeze=false;
 }
@@ -60,7 +57,6 @@ PECommPattern::~PECommPattern()
 
 void PECommPattern::setup(PEObjectWrapper::Ptr gid, std::vector<Uint>& rank)
 {
-/*
   // basic check
   BOOST_ASSERT( gid->size()==rank.size() );
   if (gid->stride()!=1) throw CF::Common::BadValue(FromHere(),"Data to be registered as gid is not of stride=1.");
@@ -77,24 +73,18 @@ void PECommPattern::setup(PEObjectWrapper::Ptr gid, std::vector<Uint>& rank)
   // add to add buffer
   if (gid->size()!=0) {
     m_isUpToDate=false;
-    Uint *igid=(Uint*)gid->data();
+    std::vector<int> map(gid->size());
+    for(int i=0; i<(const int)map.size(); i++) map[i]=i;
+    Uint *igid=(Uint*)gid->pack(map);
     std::vector<Uint>::iterator irank=rank.begin();
     for (;irank!=rank.end();irank++,igid++)
-    {
       add(*igid,*irank);
-    }
+    delete[] igid;
     setup();
   }
-*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-#define DEBUGVECTOR(v) { \
-  CFinfo << PE::instance().rank() << " " << #v << CFendl; \
-  for(int _tmp_i_=0; _tmp_i_<v.size(); _tmp_i_++)  CFinfo << v[_tmp_i_] << " "; \
-  CFinfo << CFendl; \
-}
 
 // OK: how this works:
 // 0.: ??? lock and pre-flush data ???
@@ -102,6 +92,7 @@ void PECommPattern::setup(PEObjectWrapper::Ptr gid, std::vector<Uint>& rank)
 
 void PECommPattern::setup()
 {
+
   // general constants
   const int nproc=PE::instance().size();
   const int irank=PE::instance().rank();
@@ -114,8 +105,8 @@ void PECommPattern::setup()
   boost::mpi::all_reduce(PE::instance(),&ngid[0],nproc,&ngid[0],boost::mpi::maximum<int>());
   std::vector<int> gida(ngid[irank],-1);
 
-DEBUGVECTOR(ngid);
-DEBUGVECTOR(gida);
+//DEBUGVECTOR(ngid);
+//DEBUGVECTOR(gida);
 
 
 }
