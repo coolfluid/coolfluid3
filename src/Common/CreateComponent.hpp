@@ -24,20 +24,19 @@ template < typename ATYPE >
     typename ATYPE::Ptr create_component_abstract_type ( const std::string& builder_name, const std::string& name )
 {
   CFactories::Ptr factories = Core::instance().root()->get_child_type< CFactories >("Factories");
+  if ( is_null(factories) ) throw ValueNotFound( FromHere(), "CFactories \'Factories\' not found in //root" );
 
   CFactory::Ptr factory = factories->get_child_type< CFactory >( ATYPE::type_name() );
+  if ( is_null(factory) ) throw ValueNotFound( FromHere(), "CFactory \'" + ATYPE::type_name() + "\' not found in " + factories->full_path().string() + ". Probably forgot to load a library." );
 
   CBuilder::Ptr builder = factory->get_child_type< CBuilder >( builder_name );
-
-  if ( !builder ) throw ValueNotFound( FromHere(), "CBuilder \'" + builder_name + "\' not found in factory \'" + ATYPE::type_name() + "\'" );
+  if ( is_null(builder) ) throw ValueNotFound( FromHere(), "CBuilder \'" + builder_name + "\' not found in factory \'" + ATYPE::type_name() + "\'. Probably forgot to load a library." );
 
   Component::Ptr comp = builder->build ( name );
-
-  if ( !comp ) throw NotEnoughMemory ( FromHere(), "CBuilder \'" + builder_name + "\' failed to allocate component with name \'" + name + "\'" );
+  if ( is_null(comp) ) throw NotEnoughMemory ( FromHere(), "CBuilder \'" + builder_name + "\' failed to allocate component with name \'" + name + "\'" );
 
   typename ATYPE::Ptr ccomp = boost::dynamic_pointer_cast<ATYPE>( comp );
-
-  if ( !ccomp ) throw CastingFailed ( FromHere(), "Pointer created by CBuilder \'" + builder_name + "\' could not be casted to \'" + ATYPE::type_name() + "\' pointer" );
+  if ( is_null(ccomp) ) throw CastingFailed ( FromHere(), "Pointer created by CBuilder \'" + builder_name + "\' could not be casted to \'" + ATYPE::type_name() + "\' pointer" );
 
   return ccomp;
 }
