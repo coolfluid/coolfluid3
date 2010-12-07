@@ -60,6 +60,7 @@ PECommPattern::~PECommPattern()
 
 void PECommPattern::setup(PEObjectWrapper::Ptr gid, std::vector<Uint>& rank)
 {
+/*
   // basic check
   BOOST_ASSERT( gid->size()==rank.size() );
   if (gid->stride()!=1) throw CF::Common::BadValue(FromHere(),"Data to be registered as gid is not of stride=1.");
@@ -84,7 +85,7 @@ void PECommPattern::setup(PEObjectWrapper::Ptr gid, std::vector<Uint>& rank)
     }
     setup();
   }
-
+*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////

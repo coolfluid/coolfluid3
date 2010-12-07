@@ -249,13 +249,24 @@ struct Common_API NotEnoughMemory: public Common::Exception {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Exception thrown when a protocol is not respected.
-/// @author Tamas Banyai
+/// @author Quentin Gasper
 struct Common_API ProtocolError: public Common::Exception {
 
   /// Constructor
   ProtocolError( const Common::CodeLocation& where, const std::string& what);
 
-}; //  NotEnoughMemory
+}; //  ProtocolError
+
+////////////////////////////////////////////////////////////////////////////////
+
+/// Exception thrown when pointer issues detected (mostly smart_ptr.expired==true or stg becomes nullptr)
+/// @author Tamas Banyai
+struct Common_API BadPointer: public Common::Exception {
+
+  /// Constructor
+  BadPointer( const Common::CodeLocation& where, const std::string& what);
+
+}; //  BadPointer
 
 ////////////////////////////////////////////////////////////////////////////////
 

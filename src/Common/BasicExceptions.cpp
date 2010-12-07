@@ -135,9 +135,14 @@ NotEnoughMemory::NotEnoughMemory ( const Common::CodeLocation& where, const std:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-
 ProtocolError::ProtocolError ( const Common::CodeLocation& where, const std::string& what)
 : Common::Exception(where, what, "ProtocolError")
+{}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BadPointer::BadPointer ( const Common::CodeLocation& where, const std::string& what)
+: Common::Exception(where, what, "BadPointer")
 {}
 
 ////////////////////////////////////////////////////////////////////////////////

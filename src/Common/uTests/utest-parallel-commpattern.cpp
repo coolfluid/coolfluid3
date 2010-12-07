@@ -75,17 +75,19 @@ BOOST_AUTO_TEST_CASE( init )
 BOOST_AUTO_TEST_CASE( ObjectWrapperPtr )
 {
   int i,j;
-  double *d1=new double[16];
-  double *d2=new double[12];
+  double *d1=new double[32];
+  double *d2=new double[24];
+  std::vector<int> map(4);
 
-  for(i=0; i<16; i++) d1[i]=16+i;
-  for(i=0; i<12; i++) d2[i]=12+i;
+  for(i=0; i<32; i++) d1[i]=32.+(double)i;
+  for(i=0; i<24; i++) d2[i]=64.+(double)i;
+  for(i=0; i<4; i++) map[i]=2+i;
 
   PEObjectWrapperPtr<double>::Ptr w1=allocate_component_type< PEObjectWrapperPtr<double> >("Ptr1");
-  PEObjectWrapperPtr<double>::Ptr w2=allocate_component_type< PEObjectWrapperPtr<double> >("Ptr1");
+  PEObjectWrapperPtr<double>::Ptr w2=allocate_component_type< PEObjectWrapperPtr<double> >("Ptr2");
 
-  w1->setup(d1,16,2,true);
-  w2->setup(d2,12,3,false);
+  w1->setup(d1,32,2,true);
+  w2->setup(d2,24,3,false);
 
   BOOST_CHECK_EQUAL( w1->needs_update() , true );
   BOOST_CHECK_EQUAL( w2->needs_update() , false );
@@ -93,8 +95,8 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperPtr )
   BOOST_CHECK_EQUAL( w1->is_data_type_Uint() , false );
   BOOST_CHECK_EQUAL( w2->is_data_type_Uint() , false );
 
-  BOOST_CHECK_EQUAL( w1->size() , 8 );
-  BOOST_CHECK_EQUAL( w2->size() , 4 );
+  BOOST_CHECK_EQUAL( w1->size() , 16 );
+  BOOST_CHECK_EQUAL( w2->size() , 8 );
 
   BOOST_CHECK_EQUAL( w1->stride() , 2 );
   BOOST_CHECK_EQUAL( w2->stride() , 3 );
@@ -102,15 +104,25 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperPtr )
   BOOST_CHECK_EQUAL( w1->size_of() , sizeof(double) );
   BOOST_CHECK_EQUAL( w2->size_of() , sizeof(double) );
 
-  double *dtest1=(double*)w1->data();
-  double *dtest2=(double*)w2->data();
+  double *dtest1=(double*)w1->pack(map);
+  double *dtest2=(double*)w2->pack(map);
 
-  BOOST_CHECK_EQUAL( dtest1 , d1 );
-  BOOST_CHECK_EQUAL( dtest2 , d2 );
+  for(i=0; i<8; i++) { BOOST_CHECK_EQUAL( dtest1[i] , 32+4+i ); dtest1[i]*=-1.; }
+  for(i=0; i<12; i++) { BOOST_CHECK_EQUAL( dtest2[i] , 64+6+i ); dtest2[i]*=-1.; }
 
-  for(i=0; i<w1->size()*w1->stride(); i++) BOOST_CHECK_EQUAL( dtest1[i] , 16+i );
-  for(i=0; i<w2->size()*w2->stride(); i++) BOOST_CHECK_EQUAL( dtest2[i] , 12+i );
+  w1->unpack(map,dtest1);
+  w2->unpack(map,dtest2);
 
+  double *dtesttest1=(double*)w1->pack(map);
+  double *dtesttest2=(double*)w2->pack(map);
+
+  for(i=0; i<8; i++) { BOOST_CHECK_EQUAL( dtesttest1[i] , -32-4-i ); }
+  for(i=0; i<12; i++) { BOOST_CHECK_EQUAL( dtesttest2[i] , -64-6-i ); }
+
+  delete[] dtest1;
+  delete[] dtest2;
+  delete[] dtesttest1;
+  delete[] dtesttest2;
   delete[] d1;
   delete[] d2;
 }
@@ -119,12 +131,15 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperPtr )
 
 BOOST_AUTO_TEST_CASE( ObjectWrapperVector )
 {
-  int i,j;
-  std::vector<double> d1(16);
-  std::vector<double> d2(12);
 
-  for(i=0; i<16; i++) d1[i]=16+i;
-  for(i=0; i<12; i++) d2[i]=12+i;
+  int i,j;
+  std::vector<double> d1(32);
+  std::vector<double> d2(24);
+  std::vector<int> map(4);
+
+  for(i=0; i<32; i++) d1[i]=32.+(double)i;
+  for(i=0; i<24; i++) d2[i]=64.+(double)i;
+  for(i=0; i<4; i++) map[i]=2+i;
 
   PEObjectWrapperVector<double>::Ptr w1=allocate_component_type< PEObjectWrapperVector<double> >("Vector1");
   PEObjectWrapperVector<double>::Ptr w2=allocate_component_type< PEObjectWrapperVector<double> >("Vector2");
@@ -138,8 +153,8 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVector )
   BOOST_CHECK_EQUAL( w1->is_data_type_Uint() , false );
   BOOST_CHECK_EQUAL( w2->is_data_type_Uint() , false );
 
-  BOOST_CHECK_EQUAL( w1->size() , 8 );
-  BOOST_CHECK_EQUAL( w2->size() , 4 );
+  BOOST_CHECK_EQUAL( w1->size() , 16 );
+  BOOST_CHECK_EQUAL( w2->size() , 8 );
 
   BOOST_CHECK_EQUAL( w1->stride() , 2 );
   BOOST_CHECK_EQUAL( w2->stride() , 3 );
@@ -147,26 +162,40 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVector )
   BOOST_CHECK_EQUAL( w1->size_of() , sizeof(double) );
   BOOST_CHECK_EQUAL( w2->size_of() , sizeof(double) );
 
-  double *dtest1=(double*)w1->data();
-  double *dtest2=(double*)w2->data();
+  double *dtest1=(double*)w1->pack(map);
+  double *dtest2=(double*)w2->pack(map);
 
-  BOOST_CHECK_EQUAL( dtest1 , &d1[0] );
-  BOOST_CHECK_EQUAL( dtest2 , &d2[0] );
+  for(i=0; i<8; i++) { BOOST_CHECK_EQUAL( dtest1[i] , 32+4+i ); dtest1[i]*=-1.; }
+  for(i=0; i<12; i++) { BOOST_CHECK_EQUAL( dtest2[i] , 64+6+i ); dtest2[i]*=-1.; }
 
-  for(i=0; i<w1->size()*w1->stride(); i++) BOOST_CHECK_EQUAL( dtest1[i] , 16+i );
-  for(i=0; i<w2->size()*w2->stride(); i++) BOOST_CHECK_EQUAL( dtest2[i] , 12+i );
+  w1->unpack(map,dtest1);
+  w2->unpack(map,dtest2);
+
+  double *dtesttest1=(double*)w1->pack(map);
+  double *dtesttest2=(double*)w2->pack(map);
+
+  for(i=0; i<8; i++) { BOOST_CHECK_EQUAL( dtesttest1[i] , -32-4-i ); }
+  for(i=0; i<12; i++) { BOOST_CHECK_EQUAL( dtesttest2[i] , -64-6-i ); }
+
+  delete[] dtest1;
+  delete[] dtest2;
+  delete[] dtesttest1;
+  delete[] dtesttest2;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( ObjectWrapperVectorWeakPtr )
 {
-  int i,j;
-  boost::shared_ptr< std::vector<double> > d1( new std::vector<double>(16) );
-  boost::shared_ptr< std::vector<double> > d2( new std::vector<double>(12) );
 
-  for(i=0; i<16; i++) (*d1)[i]=16+i;
-  for(i=0; i<12; i++) (*d2)[i]=12+i;
+  int i,j;
+  boost::shared_ptr< std::vector<double> > d1( new std::vector<double>(32) );
+  boost::shared_ptr< std::vector<double> > d2( new std::vector<double>(24) );
+  std::vector<int> map(5);
+
+  for(i=0; i<32; i++) (*d1)[i]=32.+(double)i;
+  for(i=0; i<24; i++) (*d2)[i]=64.+(double)i;
+  for(i=0; i<4; i++) map[i]=2+i;
 
   PEObjectWrapperVectorWeakPtr<double>::Ptr w1=allocate_component_type< PEObjectWrapperVectorWeakPtr<double> >("VectorWeakPtr1");
   PEObjectWrapperVectorWeakPtr<double>::Ptr w2=allocate_component_type< PEObjectWrapperVectorWeakPtr<double> >("VectorWeakPtr2");
@@ -180,8 +209,8 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVectorWeakPtr )
   BOOST_CHECK_EQUAL( w1->is_data_type_Uint() , false );
   BOOST_CHECK_EQUAL( w2->is_data_type_Uint() , false );
 
-  BOOST_CHECK_EQUAL( w1->size() , 8 );
-  BOOST_CHECK_EQUAL( w2->size() , 4 );
+  BOOST_CHECK_EQUAL( w1->size() , 16 );
+  BOOST_CHECK_EQUAL( w2->size() , 8 );
 
   BOOST_CHECK_EQUAL( w1->stride() , 2 );
   BOOST_CHECK_EQUAL( w2->stride() , 3 );
@@ -189,18 +218,25 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVectorWeakPtr )
   BOOST_CHECK_EQUAL( w1->size_of() , sizeof(double) );
   BOOST_CHECK_EQUAL( w2->size_of() , sizeof(double) );
 
-  double *dtest1=(double*)w1->data();
-  double *dtest2=(double*)w2->data();
+  double *dtest1=(double*)w1->pack(map);
+  double *dtest2=(double*)w2->pack(map);
 
-  BOOST_CHECK_EQUAL( dtest1 , &(*d1)[0] );
-  BOOST_CHECK_EQUAL( dtest2 , &(*d2)[0] );
+  for(i=0; i<8; i++) { BOOST_CHECK_EQUAL( dtest1[i] , 32+4+i ); dtest1[i]*=-1.; }
+  for(i=0; i<12; i++) { BOOST_CHECK_EQUAL( dtest2[i] , 64+6+i ); dtest2[i]*=-1.; }
 
-  for(i=0; i<w1->size()*w1->stride(); i++) BOOST_CHECK_EQUAL( dtest1[i] , 16+i );
-  for(i=0; i<w2->size()*w2->stride(); i++) BOOST_CHECK_EQUAL( dtest2[i] , 12+i );
+  w1->unpack(map,dtest1);
+  w2->unpack(map,dtest2);
 
-  BOOST_CHECK_EQUAL( d1.use_count() , 1 );
-  BOOST_CHECK_EQUAL( d2.use_count() , 1 );
+  double *dtesttest1=(double*)w1->pack(map);
+  double *dtesttest2=(double*)w2->pack(map);
 
+  for(i=0; i<8; i++) { BOOST_CHECK_EQUAL( dtesttest1[i] , -32-4-i ); }
+  for(i=0; i<12; i++) { BOOST_CHECK_EQUAL( dtesttest2[i] , -64-6-i ); }
+
+  delete[] dtest1;
+  delete[] dtest2;
+  delete[] dtesttest1;
+  delete[] dtesttest2;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -210,8 +246,8 @@ BOOST_AUTO_TEST_CASE( data_registration_related )
   PECommPattern pecp("CommPattern2");
   BOOST_CHECK_EQUAL( pecp.isUpToDate() , false );
 
-  boost::shared_ptr< std::vector<double> > d1( new std::vector<double>(16) );
-  boost::shared_ptr< std::vector<double> > d2( new std::vector<double>(12) );
+  boost::shared_ptr< std::vector<double> > d1( new std::vector<double>(32) );
+  boost::shared_ptr< std::vector<double> > d2( new std::vector<double>(24) );
 
   // register data to PECommPattern
   pecp.insert<double>("VectorWeakPtr1",d1,2,true);
@@ -235,14 +271,14 @@ BOOST_AUTO_TEST_CASE( data_registration_related )
     BOOST_CHECK_EQUAL( pobj.type_name() , "PEObjectWrapper" );
     BOOST_CHECK_EQUAL( pobj.size_of() , sizeof(double) );
     if (pobj.name()=="VectorWeakPtr1"){
-      BOOST_CHECK_EQUAL( pobj.size() , 8 );
+      BOOST_CHECK_EQUAL( pobj.size() , 16 );
       BOOST_CHECK_EQUAL( pobj.stride() , 2 );
-      BOOST_CHECK_EQUAL( pobj.data() , &(*d1)[0] );
+//      BOOST_CHECK_EQUAL( pobj.data() , &(*d1)[0] );
     }
     if (pobj.name()=="VectorWeakPtr2"){
-      BOOST_CHECK_EQUAL( pobj.size() , 4 );
+      BOOST_CHECK_EQUAL( pobj.size() , 8 );
       BOOST_CHECK_EQUAL( pobj.stride() , 3 );
-      BOOST_CHECK_EQUAL( pobj.data() , &(*d2)[0] );
+//      BOOST_CHECK_EQUAL( pobj.data() , &(*d2)[0] );
     }
   }
 }

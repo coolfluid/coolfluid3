@@ -9,6 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <iostream>
+
 #include <boost/weak_ptr.hpp>
 #include <boost/type_traits/is_pod.hpp>
 #include <boost/type_traits/is_same.hpp>
@@ -34,6 +36,8 @@ namespace Common  {
   Note that interface complies to the following relation: size of the data in bytes equal to size_of()*stride()*size().
 **/
 
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Base wrapper class serving as interface.
@@ -53,9 +57,15 @@ class Common_API PEObjectWrapper : public Component {
     /// @param name the component will appear under this name
     PEObjectWrapper( const std::string& name ) : Component(name) {};
 
-    /// accessor to m_data
-    /// @return pointer to the raw data
-    virtual const void* data() = 0;
+    /// extraction of sub-data from data wrapped by the objectwrapper, pattern specified by map
+    /// @param map vector of map
+    /// @return pointer to the newly allocated data which is of size size_of()*stride()*map.size()
+    virtual const void* pack(std::vector<int>& map) = 0;
+
+    /// returning back values into the data wrapped by objectwrapper
+    /// @param map vector of map
+    /// @param pointer to the data to be committed back
+    virtual const void unpack(std::vector<int>& map, void* buf) = 0;
 
     /// acts like a sizeof() operator
     /// @return size of the data members in bytes
@@ -121,10 +131,10 @@ template<typename T> class PEObjectWrapperPtr: public PEObjectWrapper{
     /// @param stride number of array element grouping
     void setup(T*& data, const int size, const unsigned int stride, const bool needs_update)
     {
-      if (boost::is_pod<T>::value==false) throw CF::Common::BadValue(FromHere(),"Data is not POD (plain old datatype).");
+      if (boost::is_pod<T>::value==false) throw CF::Common::BadValue(FromHere(),name()+": Data is not POD (plain old datatype).");
       m_data=&data;
       m_stride=(int)stride;
-      if (size%m_stride!=0) throw CF::Common::BadValue(FromHere(),"Nonzero remainder of size()/stride().");
+      if (size%m_stride!=0) throw CF::Common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
       m_size=size/m_stride;
       m_needs_update=needs_update;
     }
@@ -135,17 +145,42 @@ template<typename T> class PEObjectWrapperPtr: public PEObjectWrapper{
     /// @param stride number of array element grouping
     void setup(T** data, const int size, const unsigned int stride, const bool needs_update)
     {
-      if (boost::is_pod<T>::value==false) throw CF::Common::BadValue(FromHere(),"Data is not POD (plain old datatype).");
+      if (boost::is_pod<T>::value==false) throw CF::Common::BadValue(FromHere(),name()+": Data is not POD (plain old datatype).");
       m_data=data;
       m_stride=(int)stride;
-      if (size%m_stride!=0) throw CF::Common::BadValue(FromHere(),"Nonzero remainder of size()/stride().");
+      if (size%m_stride!=0) throw CF::Common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
       m_size=size/m_stride;
       m_needs_update=needs_update;
     }
 
-    /// accessor to the linear memory of the data
-    /// @return pointer to the raw data
-    const void* data() { return (void*)(*m_data); };
+    /// extraction of sub-data from data wrapped by the objectwrapper, pattern specified by map
+    /// @param map vector of map
+    /// @return pointer to the newly allocated data which is of size size_of()*stride()*map.size()
+    virtual const void* pack(std::vector<int>& map)
+    {
+      if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      T* tbuf=new T[map.size()*m_stride+1];
+      if ( tbuf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
+      T* data=&(*m_data)[0];
+      std::vector<int>::iterator imap=map.begin();
+      for (T* itbuf=tbuf; imap!=map.end(); imap++)
+        for (int i=0; i<(const int)m_stride; i++)
+          *itbuf++=data[*imap*m_stride + i];
+      return (void*)tbuf;
+    }
+
+    /// returning back values into the data wrapped by objectwrapper
+    /// @param map vector of map
+    /// @param pointer to the data to be committed back
+    virtual const void unpack(std::vector<int>& map, void* buf)
+    {
+      if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      std::vector<int>::iterator imap=map.begin();
+      T* data=&(*m_data)[0];
+      for (T* itbuf=(T*)buf; imap!=map.end(); imap++)
+        for (int i=0; i<(const int)m_stride; i++)
+          data[*imap*m_stride + i]=*itbuf++;
+    }
 
     /// acts like a sizeof() operator
     /// @return size of the data members in bytes
@@ -197,10 +232,10 @@ template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
     /// @param stride number of array element grouping
     void setup(std::vector<T>& data, const unsigned int stride, const bool needs_update)
     {
-      if (boost::is_pod<T>::value==false) throw CF::Common::BadValue(FromHere(),"Data is not POD (plain old datatype).");
+      if (boost::is_pod<T>::value==false) throw CF::Common::BadValue(FromHere(),name()+": Data is not POD (plain old datatype).");
       m_data=&data;
       m_stride=(int)stride;
-      if (data.size()%stride!=0) throw CF::Common::BadValue(FromHere(),"Nonzero remainder of size()/stride().");
+      if (data.size()%stride!=0) throw CF::Common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
       m_needs_update=needs_update;
     }
 
@@ -209,19 +244,44 @@ template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
     /// @param stride number of array element grouping
     void setup(std::vector<T>* data, const unsigned int stride, const bool needs_update)
     {
-      if (boost::is_pod<T>::value==false) throw CF::Common::BadValue(FromHere(),"Data is not POD (plain old datatype).");
+      if (boost::is_pod<T>::value==false) throw CF::Common::BadValue(FromHere(),name()+": Data is not POD (plain old datatype).");
       m_data=*data;
       m_stride=(int)stride;
-      if (data->size()%stride!=0) throw CF::Common::BadValue(FromHere(),"Nonzero remainder of size()/stride().");
+      if (data->size()%stride!=0) throw CF::Common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
       m_needs_update=needs_update;
     }
 
     /// destructor
     ~PEObjectWrapperVector() { /*delete m_data;*/ };
 
-    /// accessor to the linear memory of the data
-    /// @return pointer to the raw data
-    const void* data() { return (void*)(&(*m_data)[0]); };
+    /// extraction of sub-data from data wrapped by the objectwrapper, pattern specified by map
+    /// @param map vector of map
+    /// @return pointer to the newly allocated data which is of size size_of()*stride()*map.size()
+    virtual const void* pack(std::vector<int>& map)
+    {
+      if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      T* tbuf=new T[map.size()*m_stride+1];
+      if ( tbuf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
+      T* data=&(*m_data)[0];
+      std::vector<int>::iterator imap=map.begin();
+      for (T* itbuf=tbuf; imap!=map.end(); imap++)
+        for (int i=0; i<(const int)m_stride; i++)
+          *itbuf++=data[*imap*m_stride + i];
+      return (void*)tbuf;
+    }
+
+    /// returning back values into the data wrapped by objectwrapper
+    /// @param map vector of map
+    /// @param pointer to the data to be committed back
+    virtual const void unpack(std::vector<int>& map, void* buf)
+    {
+      if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      T* data=&(*m_data)[0];
+      std::vector<int>::iterator imap=map.begin();
+      for (T* itbuf=(T*)buf; imap!=map.end(); imap++)
+        for (int i=0; i<(const int)m_stride; i++)
+          data[*imap*m_stride + i]=*itbuf++;
+    }
 
     /// acts like a sizeof() operator
     /// @return size of the data members in bytes
@@ -230,7 +290,8 @@ template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
     /// accessor to the size of the array (without divided by stride)
     /// @return length of the array
     const int size() {
-      if (m_data->size()%m_stride!=0) throw CF::Common::BadValue(FromHere(),"Nonzero remainder of size()/stride().");
+      if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      if (m_data->size()%m_stride!=0) throw CF::Common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
       return m_data->size()/m_stride;
     };
 
@@ -273,28 +334,47 @@ template<typename T> class PEObjectWrapperVectorWeakPtr: public PEObjectWrapper{
     /// @param stride number of array element grouping
     void setup(boost::weak_ptr< std::vector<T> > data, const unsigned int stride, const bool needs_update)
     {
-      if (boost::is_pod<T>::value==false) throw CF::Common::BadValue(FromHere(),"Data is not POD (plain old datatype).");
+      if (boost::is_pod<T>::value==false) throw CF::Common::BadValue(FromHere(),name()+": Data is not POD (plain old datatype).");
       m_data=data;
       m_stride=(int)stride;
       boost::shared_ptr< std::vector<T> > sp=data.lock();
-      if (sp->size()%stride!=0) throw CF::Common::BadValue(FromHere(),"Nonzero remainder of size()/stride().");
+      if (sp->size()%stride!=0) throw CF::Common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
       m_needs_update=needs_update;
     }
 
     /// destructor
     ~PEObjectWrapperVectorWeakPtr() { /*delete m_data;*/ };
 
-    /// accessor to the linear memory of the data
-    /// @return pointer to the raw data, if pointer is invalid then returns null pointer
-    const void* data()
+    /// extraction of sub-data from data wrapped by the objectwrapper, pattern specified by map
+    /// @param map vector of map
+    /// @return pointer to the newly allocated data which is of size size_of()*stride()*map.size()
+    virtual const void* pack(std::vector<int>& map)
     {
-      if (!m_data.expired())
-      {
-        boost::shared_ptr< std::vector<T> > sp=m_data.lock();
-        return (void*)(&(*sp)[0]);
-      }
-      return nullptr;
-    };
+      if (m_data.expired()) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      T* tbuf=new T[map.size()*m_stride+1];
+      if ( tbuf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
+      boost::shared_ptr< std::vector<T> > sp=m_data.lock();
+      T* data=&(*sp)[0];
+      std::vector<int>::iterator imap=map.begin();
+      for (T* itbuf=tbuf; imap!=map.end(); imap++)
+        for (int i=0; i<(const int)m_stride; i++)
+          *itbuf++=data[*imap*m_stride + i];
+      return (void*)tbuf;
+    }
+
+    /// returning back values into the data wrapped by objectwrapper
+    /// @param map vector of map
+    /// @param pointer to the data to be committed back
+    virtual const void unpack(std::vector<int>& map, void* buf)
+    {
+      if (m_data.expired()) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      boost::shared_ptr< std::vector<T> > sp=m_data.lock();
+      T* data=&(*sp)[0];
+      std::vector<int>::iterator imap=map.begin();
+      for (T* itbuf=(T*)buf; imap!=map.end(); imap++)
+        for (int i=0; i<(const int)m_stride; i++)
+          data[*imap*m_stride + i]=*itbuf++;
+    }
 
     /// acts like a sizeof() operator
     /// @return size of the data members in bytes
@@ -303,13 +383,10 @@ template<typename T> class PEObjectWrapperVectorWeakPtr: public PEObjectWrapper{
     /// accessor to the size of the array (without divided by stride)
     /// @return length of the array, if pointer is invalid then returns zero
     const int size() {
-      if (!m_data.expired())
-      {
-        boost::shared_ptr< std::vector<T> > sp=m_data.lock();
-        if (sp->size()%m_stride!=0) throw CF::Common::BadValue(FromHere(),"Nonzero remainder of size()/stride().");
-        return sp->size()/m_stride;
-      }
-      return 0;
+      if (m_data.expired()) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      boost::shared_ptr< std::vector<T> > sp=m_data.lock();
+      if (sp->size()%m_stride!=0) throw CF::Common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
+      return sp->size()/m_stride;
     };
 
     /// accessor to the stride which tells how many array elements count as one  in the communication pattern
