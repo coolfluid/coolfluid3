@@ -249,7 +249,7 @@ endif()
 ################################################################################
 
 if( ${CF_HAVE_ZOLTAN} )
-  list( APPEND utest-zoltan_cflibs coolfluid_neutral coolfluid_mesh_sf coolfluid_gmsh )
+  list( APPEND utest-zoltan_cflibs coolfluid_neutral coolfluid_mesh_sf coolfluid_gmsh coolfluid_zoltan coolfluid_ptscotch )
   list( APPEND utest-zoltan_libs ${ZOLTAN_LIBRARIES} )
   list( APPEND utest-zoltan_files  utest-zoltan.cpp )
   list( APPEND utest-zoltan_includedirs ${ZOLTAN_INCLUDE_DIR} )
