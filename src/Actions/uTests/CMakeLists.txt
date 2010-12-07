@@ -29,7 +29,7 @@ if(CF_ENABLE_PROTO)
   ################################################################################
 # test Proto operations
 
-list( APPEND utest-proto-operators_cflibs coolfluid_mesh coolfluid_actions coolfluid_mesh_sf coolfluid_blockmesh coolfluid_testing coolfluid_mesh_generation )
+list( APPEND utest-proto-operators_cflibs coolfluid_mesh coolfluid_actions coolfluid_mesh_sf coolfluid_blockmesh coolfluid_testing coolfluid_mesh_generation coolfluid_solver )
 list( APPEND utest-proto-operators_files
   utest-proto-operators.cpp )
 set( utest-proto-operators_profile ON )
@@ -37,7 +37,7 @@ coolfluid_add_unittest( utest-proto-operators )
 
 ################################################################################
 
-list( APPEND utest-proto-heat_cflibs coolfluid_mesh coolfluid_actions coolfluid_mesh_sf coolfluid_mesh_generation )
+list( APPEND utest-proto-heat_cflibs coolfluid_mesh coolfluid_actions coolfluid_mesh_sf coolfluid_mesh_generation coolfluid_solver )
 list( APPEND utest-proto-heat_files
   utest-proto-heat.cpp )
 coolfluid_add_unittest( utest-proto-heat )

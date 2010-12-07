@@ -24,34 +24,43 @@ option( CF_ENABLE_PROTO            "Build boost::proto related code for expressi
 
 if(CF_ENABLE_PROTO)
   list( APPEND coolfluid_actions_files 
+    Proto/BlockAccumulator.hpp
     Proto/CProtoElementsAction.hpp
-    Proto/ProtoContexts.hpp
-    Proto/ProtoDomain.hpp
-    Proto/ProtoEigenContext.hpp
-    Proto/ProtoElementData.hpp
-    Proto/ProtoElementLooper.hpp
-    Proto/ProtoFunctions.hpp
-    Proto/ProtoGrammars.hpp
-    Proto/ProtoNodeContexts.hpp
-    Proto/ProtoNodeLooper.hpp
-    Proto/ProtoSFContexts.hpp
-    Proto/ProtoTransforms.hpp
-    Proto/ProtoVariables.hpp
+    Proto/CProtoNodesAction.hpp
+    Proto/CProtoLSS.hpp
+    Proto/DirichletBC.hpp
+    Proto/EigenTransforms.hpp
+    Proto/ElementData.hpp
+    Proto/ElementGrammar.hpp
+    Proto/ElementLooper.hpp
+    Proto/ElementTransforms.hpp
+    Proto/ElementVariables.hpp
+    Proto/Functions.hpp
+    Proto/NodeData.hpp
+    Proto/NodeGrammar.hpp
+    Proto/NodeLooper.hpp
+    Proto/Terminals.hpp
+    Proto/Transforms.hpp
   )
 else()
   coolfluid_mark_not_orphan(
+    Proto/BlockAccumulator.hpp
     Proto/CProtoElementsAction.hpp
-    Proto/ProtoContexts.hpp
-    Proto/ProtoDomain.hpp
-    Proto/ProtoElementData.hpp
-    Proto/ProtoElementLooper.hpp
-    Proto/ProtoFunctions.hpp
-    Proto/ProtoGrammars.hpp
-    Proto/ProtoNodeContexts.hpp
-    Proto/ProtoNodeLooper.hpp
-    Proto/ProtoSFContexts.hpp
-    Proto/ProtoTransforms.hpp
-    Proto/ProtoVariables.hpp
+    Proto/CProtoNodesAction.hpp
+    Proto/CProtoLSS.hpp
+    Proto/DirichletBC.hpp
+    Proto/EigenTransforms.hpp
+    Proto/ElementData.hpp
+    Proto/ElementGrammar.hpp
+    Proto/ElementLooper.hpp
+    Proto/ElementTransforms.hpp
+    Proto/ElementVariables.hpp
+    Proto/Functions.hpp
+    Proto/NodeData.hpp
+    Proto/NodeGrammar.hpp
+    Proto/NodeLooper.hpp
+    Proto/Terminals.hpp
+    Proto/Transforms.hpp
   )
 endif()
 

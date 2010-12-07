@@ -10,10 +10,13 @@
 #include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Actions/Proto/ProtoElementLooper.hpp"
-#include "Actions/Proto/ProtoNodeLooper.hpp"
-#include "Actions/Proto/ProtoElementData.hpp"
+#include "Actions/Proto/CProtoElementsAction.hpp"
+#include "Actions/Proto/CProtoNodesAction.hpp"
+#include "Actions/Proto/ElementLooper.hpp"
+#include "Actions/Proto/NodeLooper.hpp"
+#include "Actions/Proto/Terminals.hpp"
 
+#include "Common/CRoot.hpp"
 #include "Common/Log.hpp"
 
 #include "Mesh/CMesh.hpp"
@@ -27,6 +30,7 @@
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/SF/Types.hpp"
 
+#include "Solver/CPhysicalModel.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
@@ -44,36 +48,39 @@ BOOST_AUTO_TEST_SUITE( ProtoHeatSuite )
 
 BOOST_AUTO_TEST_CASE( Laplacian1D )
 {
-  CMesh::Ptr mesh(allocate_component_type<CMesh>("line"));
-  Tools::MeshGeneration::create_line(*mesh, 5., 5);
+  const Uint nb_segments = 5;
   
-  MeshTerm<0, ConstNodes> nodes;
+  CMesh::Ptr mesh(allocate_component_type<CMesh>("line"));
+  Tools::MeshGeneration::create_line(*mesh, 5., nb_segments);
+  
+  // Geometric suport
+  MeshTerm<0, ConstNodes> nodes( "ConductivityRegion", find_component_ptr_recursively_with_name<CRegion>(*mesh, "region") );
   
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (
-    recursive_get_named_component_typed<CRegion>(*mesh, "region"),
-    _cout << "elem result:\n" << integral<1>(laplacian(nodes)) << "\n"
+    _cout << "elem result:\n" << integral<1>( laplacian(nodes, nodes) * jacobian_determinant(nodes) ) << "\n"
   );
   
-  RealMatrix M(6, 6);
-  M.setZero();
-  MeshTerm<1, EigenDenseMatrix<RealMatrix> > blocks(M);
+  // Linear system
+  CProtoLSS::Ptr lss(allocate_component_type<CProtoLSS>("LSS"));
+  lss->matrix().resize(nb_segments+1, nb_segments+1);
+  lss->matrix().setZero();
+  lss->rhs().resize(nb_segments+1);
+  lss->rhs().setZero();
+  MeshTerm<1, LSS> blocks("system", lss);
   
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (
-    recursive_get_named_component_typed<CRegion>(*mesh, "region"),
-    blocks += integral<1>
+    
+    blocks +=integral<1>
     (
-      (
-        transpose(mapped_gradient(nodes)) * transpose(jacobian_adjoint(nodes)) *
-        jacobian_adjoint(nodes) * mapped_gradient(nodes)
-      ) / jacobian_determinant(nodes)
+      transpose( gradient(nodes, nodes) ) * gradient(nodes, nodes) * jacobian_determinant(nodes)
     )
   );
   
-  std::cout << M << std::endl;
-  
+  std::cout << lss->matrix() << std::endl;
 }
+
 
 BOOST_AUTO_TEST_CASE( Heat1D )
 {
@@ -87,39 +94,38 @@ BOOST_AUTO_TEST_CASE( Heat1D )
   CMesh::Ptr mesh(allocate_component_type<CMesh>("line"));
   Tools::MeshGeneration::create_line(*mesh, lenght, nb_segments);
   
-  // Build the system matrix
-  MeshTerm<0, ConstNodes> nodes;
-  RealMatrix M(nb_segments+1, nb_segments+1);
-  M.setZero();
-  MeshTerm<1, EigenDenseMatrix<RealMatrix> > blocks(M);
+  // Geometric suport
+  MeshTerm<0, ConstNodes> nodes( "ConductivityRegion", find_component_ptr_recursively_with_name<CRegion>(*mesh, "region") );
+  
+  // Linear system
+  CProtoLSS::Ptr lss(allocate_component_type<CProtoLSS>("LSS"));
+  lss->matrix().resize(nb_segments+1, nb_segments+1);
+  lss->matrix().setZero();
+  lss->rhs().resize(nb_segments+1);
+  lss->rhs().setZero();
+  MeshTerm<1, LSS> blocks("system", lss);
   
   for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
   (
-    recursive_get_named_component_typed<CRegion>(*mesh, "region"),
-    blocks += integral<1>(laplacian(nodes))
+    blocks += integral<1>(laplacian(nodes, nodes))
   );
   
-  // Set boundary conditions
-  RealVector rhs(nb_segments+1);
-  rhs = RealVector::Constant(nb_segments+1, 1, 0.);
-  MeshTerm<0, EigenDenseDirichletBC<RealMatrix, RealVector> > bc(M, rhs); // as long as we don't mix expressions, we can reuse index 0
-  
-  // Left boundary at 10 degrees
+  // Left boundary at temp_start
   for_each_node
   (
     recursive_get_named_component_typed<CRegion>(*mesh, "xneg"),
-    bc = temp_start
+    dirichlet(blocks) = temp_start
   );
   
-  // Right boundary at 25 degrees
+  // Right boundary at temp_stop
   for_each_node
   (
     recursive_get_named_component_typed<CRegion>(*mesh, "xpos"),
-    bc = temp_stop
+    dirichlet(blocks) = temp_stop
   );
   
   // Solve the system!
-  const RealVector solution = M.colPivHouseholderQr().solve(rhs);
+  const RealVector solution = lss->matrix().colPivHouseholderQr().solve(lss->rhs());
   
   // Check solution
   for(int i = 0; i != solution.rows(); ++i)
@@ -127,25 +133,50 @@ BOOST_AUTO_TEST_CASE( Heat1D )
     Real x = i * lenght / static_cast<Real>(nb_segments);
     CFinfo << "T(" << x << ") = " << solution[i] << CFendl;
     BOOST_CHECK_CLOSE(solution[i],temp_start + i * ( temp_stop - temp_start ) / static_cast<Real>(nb_segments), 1e-6);
-  }
+  } 
 }
 
-BOOST_AUTO_TEST_CASE( GrammarEval )
+BOOST_AUTO_TEST_CASE( Heat1DComponent )
 {
-  // build the mesh
-  CMesh::Ptr mesh(allocate_component_type<CMesh>("line"));
+  // Parameters
+  Real lenght     =     5.;
+  Real temp_start =   100.;
+  Real temp_stop  =   500.;
   const Uint nb_segments = 5;
-  Tools::MeshGeneration::create_line(*mesh, 1., nb_segments);
   
-  // Build the system matrix
-  MeshTerm<0, ConstNodes> nodes( recursive_get_named_component_typed_ptr<CRegion>(*mesh, "region") );
+  // Create a document structure
+  CRoot::Ptr root = CRoot::create("Root");
+  CMesh::Ptr mesh = root->create_component_type<CMesh>("mesh");
+  root->create_component_type<Solver::CPhysicalModel>("PhysicalModel");
+  Tools::MeshGeneration::create_line(*mesh, lenght, nb_segments);
+  CProtoLSS::Ptr lss = root->create_component_type<CProtoLSS>("LSS");
   
-  for_each_element_new< boost::mpl::vector<SF::Line1DLagrangeP1> >
-  (
-    _cout << nodes << "\n"
-  );
+  // Variable holding the geometric support
+  MeshTerm<0, ConstNodes> nodes("ConductivityRegion");
   
-  std::cout << std::endl;
+  // Variable holding the LSS
+  MeshTerm<1, LSS> blocks("LSS");
+  
+  // Create a CAction executing the expression
+  CAction::Ptr heat1d_action = build_elements_action("Heat1D", *root, blocks += integral<1>( laplacian(nodes, nodes) * jacobian_determinant(nodes) ));
+  
+  // Configure the CAction
+  heat1d_action->configure_property("ConductivityRegion", std::string("//Root/mesh/region"));
+  heat1d_action->configure_property("LSS", std::string("//Root/LSS"));
+  
+  // Run the expression
+  heat1d_action->execute();
+  
+  // Left boundary condition
+  CAction::Ptr xmin_action = build_nodes_action("xmin", *root, dirichlet(blocks) = temp_start );
+  
+  xmin_action->configure_property("Region", std::string("//Root/mesh/xpos"));
+  xmin_action->configure_property("LSS", std::string("//Root/LSS"));
+  
+  //xmin_action->execute();
+  
+  // print result
+  std::cout << lss->matrix() << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
