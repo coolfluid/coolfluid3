@@ -304,9 +304,6 @@ protected: // functions
   /// Add a static (sub)component of this component
   Ptr add_static_component ( Ptr subcomp );
 
-  /// Remove a static (sub)component of this component
-  Ptr remove_static_component ( const std::string& name );
-
 private: // helper functions
 
   /// insures the sub component has a unique name within this component

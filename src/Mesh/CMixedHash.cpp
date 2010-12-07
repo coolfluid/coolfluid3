@@ -47,12 +47,11 @@ void CMixedHash::config_nb_obj ()
 {
   property("Number of Objects").put_value(m_nb_obj);
   boost_foreach(CHash::Ptr hash, m_subhash)
-    remove_static_component(hash->name());
+    remove_component(hash->name());
   m_subhash.resize(0);
   index_foreach(i, Uint nb_obj, m_nb_obj)
   {
-    CHash::Ptr hash = allocate_component_type<CHash>("hash_"+to_str(i));
-    add_static_component(hash);
+    CHash::Ptr hash = create_component_type<CHash>("hash_"+to_str(i));
     m_subhash.push_back(hash);
     hash->configure_property("Number of Objects", nb_obj);
     hash->configure_property("Number of Partitions", m_nb_parts);
@@ -174,6 +173,8 @@ Uint CMixedHash::subhash_of_obj(const Uint obj) const
     if (offset < psize)
       return i;
   }
+  cf_assert_desc("Should not be here", false);
+  return 0;
 }
 
 //////////////////////////////////////////////////////////////////////////////
