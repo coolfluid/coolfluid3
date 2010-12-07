@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleName</key>
-	<string>Gmsh</string>
+	<string>coolfluid</string>
 	<key>CFBundleExecutable</key>
-	<string>gmsh</string>
+	<string>coolfluid</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleVersion</key>
@@ -13,9 +13,9 @@
 	<key>CFBundleShortVersionString</key>
 	<string>CF_VERSION</string>
 	<key>CFBundleIconFile</key>
-	<string>coolfluid-logo.icns</string>
+	<string>coolfluid.icns</string>
 	<key>CFBundleSignature</key>
-	<string>COOLFluiD</string>
+	<string>COOLFLUID</string>
 	<key>CFBundleGetInfoString</key>
 	<string>COOLFluiD CF_VERSION, Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium</string>
 	<key>CFBundleIdentifier</key>
