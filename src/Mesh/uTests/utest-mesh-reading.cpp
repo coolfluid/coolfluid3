@@ -43,6 +43,12 @@ struct MeshReading_Fixture
   {
     m_argc = boost::unit_test::framework::master_test_suite().argc;
     m_argv = boost::unit_test::framework::master_test_suite().argv;
+
+    root = CRoot::create("Root");
+    reader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","MyReader");
+    domain = root->create_component_type<CDomain>("MyDom");
+
+    root->add_component( reader );
   }
 
   /// common tear-down for each test case
@@ -51,7 +57,9 @@ struct MeshReading_Fixture
   }
 
   /// possibly common functions used on the tests below
-
+  CRoot::Ptr root;
+  CMeshReader::Ptr reader;
+  CDomain::Ptr domain;
 
   /// common values accessed by all tests goes here
   int    m_argc;
@@ -205,77 +213,99 @@ BOOST_AUTO_TEST_CASE( read_multiple )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( read_mesh_signal )
+BOOST_AUTO_TEST_CASE( read_mesh_signal_1 )
 {
-  CRoot::Ptr root = CRoot::create("Root");
-  CMeshReader::Ptr reader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","MyReader");
-  CDomain::Ptr domain = root->create_component_type<CDomain>("MyDom");
-
-  //////////////////////
-
   boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
   XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
-
   XmlParams p(node);
 
-  XmlNode * value_node = p.add_option<URI>("Domain", URI("//Root"))->first_node();
-
-  //////////////////////
-
-  std::vector<URI> files;
-
-  root->add_component( reader );
-
-  //
-  // Test the "Mesh" option
-  //
-
   // without CPath for the CDomain
+  p.add_option<URI>("Domain", URI("//Root"));
   BOOST_CHECK_THROW( reader->read(node), ProtocolError );
+}
 
-  // URI without any protocol
-  BOOST_CHECK_THROW( reader->read(node), ProtocolError );
+BOOST_AUTO_TEST_CASE( read_mesh_signal_2 )
+{
+  boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
+  XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
+  XmlParams p(node);
 
   // URI with a wrong protocol
-  value_node->value("file://Root");
+  p.add_option<URI>("Domain", URI("file://Root"));
   BOOST_CHECK_THROW( reader->read(node), ProtocolError );
+}
+
+BOOST_AUTO_TEST_CASE( read_mesh_signal_3 )
+{
+  boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
+  XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
+  XmlParams p(node);
 
   // CPath that does not point to a CDomain
-  value_node->value("cpath://Root");
+  p.add_option<URI>("Domain", URI("cpath://Root"));
   BOOST_CHECK_THROW( reader->read(node), CastingFailed );
+}
 
-  //
-  // Test the "Files" option
-  //
+
+BOOST_AUTO_TEST_CASE( read_mesh_signal_4 )
+{
+  boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
+  XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
+  XmlParams p(node);
 
   // no file (no error and the domain should be still empty afterwards)
-  value_node->value("cpath://Root/MyDom");
+  std::vector<URI> files;
+  p.add_option<URI>("Domain", URI("cpath://Root/MyDom"));
+  p.add_array("Files", files);
   BOOST_CHECK_THROW( reader->read(node), BadValue );
   BOOST_CHECK_EQUAL( domain->get_child_count(), (Uint) 0);
+}
+
+BOOST_AUTO_TEST_CASE( read_mesh_signal_5 )
+{
+  boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
+  XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
+  XmlParams p(node);
 
   // first file is wrong (exception and the mesh should be empty afterwards)
+  std::vector<URI> files;
   files.push_back( "http://www.google.com" );
   files.push_back( "file:hextet.neu" );
-  reader->configure_property("Files", files );
+  p.add_option<URI>("Domain", URI("cpath://Root/MyDom"));
+  p.add_array("Files", files);
   BOOST_CHECK_THROW( reader->read(node), ProtocolError );
   BOOST_CHECK_EQUAL( domain->get_child_count(), (Uint) 0);
+}
 
-  files.clear();
+BOOST_AUTO_TEST_CASE( read_mesh_signal_6 )
+{
+  boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
+  XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
+  XmlParams p(node);
 
   // a file in the middle is wrong (exception and the mesh should be empty afterwards)
+  std::vector<URI> files;
   files.push_back( "file:hextet.neu" );
   files.push_back( "http://www.google.com" );
   files.push_back( "file:hextet.neu" );
-  reader->configure_property("Files", files );
+  p.add_option<URI>("Domain", URI("cpath://Root/MyDom"));
+  p.add_array("Files", files);
   BOOST_CHECK_THROW( reader->read(node), ProtocolError );
   BOOST_CHECK_EQUAL( domain->get_child_count(), (Uint) 0);
+}
 
-  files.clear();
+BOOST_AUTO_TEST_CASE( read_mesh_signal_7 )
+{
+  boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
+  XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
+  XmlParams p(node);
 
-  // everything is ok
+  // a file in the middle is wrong (exception and the mesh should be empty afterwards)
+  std::vector<URI> files;
   files.push_back( "file:hextet.neu" );
   files.push_back( "file:quadtriag.neu" );
-  reader->configure_property("Files", files );
+  p.add_option<URI>("Domain", URI("cpath://Root/MyDom"));
+  p.add_array("Files", files);
   BOOST_CHECK_NO_THROW( reader->read(node) );
   BOOST_CHECK_NE( domain->get_child_count(), (Uint) 0);
 }
