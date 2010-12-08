@@ -34,15 +34,11 @@ using namespace Common;
 
 ProfiledTestFixture::ProfiledTestFixture()
 {
-  const std::string prof_name ( "GooglePerfProfiling" );
-
-  CBuilder::Ptr bld =
-      recursive_get_component_typed_ptr< CBuilder >( *Core::instance().factories(), IsComponentName(prof_name) );
-
-  m_using_google_perf = ( bld != nullptr );
-
-  if(m_using_google_perf)
+  if(!Core::instance().profiler())
+  {
+    const std::string prof_name ( "CF.Tools.GooglePerf.GooglePerfProfiling" );
     Core::instance().set_profiler( prof_name );
+  }
 
   char** argv = boost::unit_test::framework::master_test_suite().argv;
 
@@ -74,7 +70,7 @@ void ProfiledTestFixture::test_unit_start( boost::unit_test::test_unit const& un
     job_suffix << "-" << PE::instance().rank();
   }
 
-  if( m_using_google_perf )
+  if( Core::instance().profiler() )
   {
     m_current_filename = m_prefix + "-" + unit.p_name.get() + job_suffix.str() + ".pprof";
     Core::instance().profiler()->set_file_path(boost::filesystem::path(m_profile_dir / m_current_filename));
@@ -86,7 +82,7 @@ void ProfiledTestFixture::test_unit_start( boost::unit_test::test_unit const& un
 
 void ProfiledTestFixture::test_unit_finish( boost::unit_test::test_unit const& unit )
 {
-  if(m_using_google_perf)
+  if( Core::instance().profiler() )
   {
     Core::instance().profiler()->stop_profiling();
 

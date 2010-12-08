@@ -45,13 +45,14 @@ void GooglePerfProfiling::start_profiling()
   }
   else
   {
-    CFwarn << type_name() << "Was already profiling!" << CFendl;
+    CFwarn << type_name() << ":  Was already profiling!" << CFendl;
   }
 }
 
 void GooglePerfProfiling::stop_profiling()
 {
   ProfilerStop();
+  m_profiling = false;
   CFinfo << type_name() << ": Stopping profiling" << CFendl;
 }
 

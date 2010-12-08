@@ -208,7 +208,7 @@ BOOST_AUTO_TEST_CASE( RotatingCylinderField )
     
 
   BOOST_CHECK_CLOSE(force[YY], rho*u*circulation, 0.001); // lift according to theory
-  BOOST_CHECK_SMALL(force[XX], 1e-8); // Drag should be zero*/
+  BOOST_CHECK_SMALL(force[XX], 1e-8); // Drag should be zero
 }
 
 

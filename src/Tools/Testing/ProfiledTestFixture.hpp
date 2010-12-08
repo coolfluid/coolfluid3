@@ -47,8 +47,6 @@ private:
   std::string m_current_filename;
   /// The full command that was ran
   std::string m_command;
-  /// @c true if GooglePerfTools was found
-  bool m_using_google_perf;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

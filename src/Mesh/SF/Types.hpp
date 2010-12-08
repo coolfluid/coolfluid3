@@ -39,15 +39,18 @@ typedef boost::mpl::vector< Line1DLagrangeP1,
 > Types;
 
 /// Compile-time predicate to determine if the given shape function represents a volume element, i.e. dimensions == dimensionality
-template<typename ShapeFunctionT>
 struct IsVolumeElement
 {
-  typedef typename boost::mpl::equal_to<boost::mpl::int_<ShapeFunctionT::dimension>,boost::mpl::int_<ShapeFunctionT::dimensionality> >::type type;
+  template<typename ShapeFunctionT>
+  struct apply
+  {
+    typedef typename boost::mpl::equal_to<boost::mpl::int_<ShapeFunctionT::dimension>,boost::mpl::int_<ShapeFunctionT::dimensionality> >::type type;
+  };
 };
 
 
 /// List of all supported shapefunctions for volume elements, 
-typedef boost::mpl::filter_view<Types, IsVolumeElement<boost::mpl::_> > VolumeTypes;
+typedef boost::mpl::filter_view<Types, IsVolumeElement> VolumeTypes;
 
 } // LagrangeSF
 } // Mesh
