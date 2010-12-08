@@ -15,12 +15,11 @@ if(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
 #       set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/Copyright.txt")
       set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/doc/lgpl.txt")
       set(CPACK_PACKAGE_VERSION "${CF_KERNEL_VERSION}")
-      set(CPACK_PACKAGE_ICON "${coolfluid_SOURCE_DIR}/tools/MacOSX_Bundle/coolfluid.icns")
       set(CPACK_PACKAGE_VERSION_MAJOR ${CF_KERNEL_VERSION_MAJOR})
       set(CPACK_PACKAGE_VERSION_MINOR ${CF_KERNEL_VERSION_MINOR})
       set(CPACK_PACKAGE_VERSION_PATCH ${CF_KERNEL_VERSION_PATCH})
-      set(CPACK_PACKAGE_INSTALL_DIRECTORY "coolfluid-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}")
-      set(CPACK_PACKAGE_RELOCATABLE "true")
+      #set(CPACK_PACKAGE_INSTALL_DIRECTORY "coolfluid-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}")
+      set(CPACK_PACKAGE_RELOCATABLE "false")
 
 
       set(CPACK_SOURCE_GENERATOR TGZ)
@@ -32,23 +31,35 @@ if(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
       set(CPACK_COMPONENT_LIBRARIES_DISPLAY_NAME "Kernel Libraries")
       set(CPACK_COMPONENT_HEADERS_DISPLAY_NAME "Kernel C++ Headers")
 
-      # FIXME : CPack considers Boost and MPI as system dependencies and does
+      # FIXME : CPack considers Third party libraries such as 
+      # Boost and MPI as system dependencies and does
       # not copy the files into the installer, so we copy them manually
-      install(FILES ${Boost_LIBRARIES} ${MPI_LIBRARIES}
+      # install(FILES ${CF_TP_LIBRARIES}
+      #         DESTINATION ${CF_INSTALL_LIB_DIR}
+      #         COMPONENT libraries)
+
+      install(DIRECTORY ${DEPS_ROOT}/lib/
               DESTINATION ${CF_INSTALL_LIB_DIR}
-              COMPONENT libraries)
+              COMPONENT libraries
+              FILES_MATCHING REGEX "^.*\\.(so|dylib|dll)$")
 
       # platform specific configuration
       #(shamefully copied from gsmh build system for the Apple part)
       if(APPLE)
         set(CPACK_GENERATOR Bundle)
+        set(CPACK_PACKAGE_ICON "${coolfluid_SOURCE_DIR}/tools/MacOSX_Bundle/coolfluid_package.icns")
         set(CPACK_BUNDLE_NAME "coolfluid")
         set(CPACK_BUNDLE_ICON "${coolfluid_SOURCE_DIR}/tools/MacOSX_Bundle/coolfluid.icns")
-        set(CPACK_BUNDLE_STARTUP_COMMAND "${coolfluid_SOURCE_DIR}/tools/MacOSX_Bundle/start_coolfluid.sh")
-        file(READ ${CMAKE_SOURCE_DIR}/tools/MacOSX_Bundle/coolfluid-macos.plist F0)
+
+        file(READ ${CMAKE_SOURCE_DIR}/tools/MacOSX_Bundle/start_coolfluid.sh F0)
+        string(REPLACE CF_VERSION "${CF_KERNEL_VERSION}" F1 "${F0}")
+        file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/start_coolfluid.sh "${F1}")
+        set(CPACK_BUNDLE_STARTUP_COMMAND "${CMAKE_CURRENT_BINARY_DIR}/start_coolfluid.sh")
+        
+        file(READ ${CMAKE_SOURCE_DIR}/tools/MacOSX_Bundle/coolfluid-Info.plist F0)
         string(REPLACE CF_VERSION "${CF_KERNEL_VERSION}" F1 "${F0}")
         file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/Info.plist "${F1}")
-        set(CPACK_BUNDLE_PLIST ${CMAKE_BINARY_DIR}/Info.plist)
+        set(CPACK_BUNDLE_PLIST ${CMAKE_CURRENT_BINARY_DIR}/Info.plist)
       elseif(UNIX)
          # RPM & DEB config
       elseif(WIN32)

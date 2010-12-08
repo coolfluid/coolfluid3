@@ -10,7 +10,7 @@ if( CF_HAVE_CGAL )
   )
 
   list( APPEND coolfluid_cgal_includedirs ${CGAL_INCLUDE_DIR} )
-  list( APPEND coolfluid_cgal_libs        ${CGAL_LIBRARY} ${Boost_THREAD_LIBRARY} )
+  list( APPEND coolfluid_cgal_libs        ${CGAL_LIBRARIES} ${Boost_THREAD_LIBRARY} )
   list( APPEND coolfluid_cgal_cflibs coolfluid_mesh )
 
   set( coolfluid_cgal_kernellib TRUE )

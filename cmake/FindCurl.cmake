@@ -1,6 +1,6 @@
 #Sets:
 # CURL_INCLUDE_DIR  = where curl.h can be found
-# CURL_LIBRARY      = the library to link against (curl etc)
+# CURL_LIBRARIES      = the library to link against (curl etc)
 # CF_HAVE_CURL        = set to true after finding the library
 
 option( CF_SKIP_CURL "Skip search for Curl library" OFF )
@@ -18,10 +18,10 @@ if( NOT CF_SKIP_CURL )
 
   coolfluid_add_trial_library_path( ${CURL_HOME}/bin ${CURL_HOME}/lib $ENV{CURL_HOME}/bin ${CURL_HOME}/lib )
 
-  find_library(CURL_LIBRARY curl ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
-  find_library(CURL_LIBRARY curl )
+  find_library(CURL_LIBRARIES curl ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
+  find_library(CURL_LIBRARIES curl )
 
-  if(CURL_INCLUDE_DIR AND CURL_LIBRARY)
+  if(CURL_INCLUDE_DIR AND CURL_LIBRARIES)
     set(CF_HAVE_CURL 1 CACHE BOOL "Found curl library")
   else()
     set(CF_HAVE_CURL 0 CACHE BOOL "Not fount curl library")
@@ -33,12 +33,15 @@ endif()
 
   mark_as_advanced(
     CURL_INCLUDE_DIR
-    CURL_LIBRARY
+    CURL_LIBRARIES
     CF_HAVE_CURL
   )
-
+  
+  if ( ${CF_HAVE_CURL} )
+      list( APPEND CF_TP_LIBRARIES ${CURL_LIBRARIES} )
+  endif()
   coolfluid_log( "CF_HAVE_CURL: [${CF_HAVE_CURL}]" )
   if(CF_HAVE_CURL)
     coolfluid_log( "  CURL_INCLUDE_DIR:  [${CURL_INCLUDE_DIR}]" )
-    coolfluid_log( "  CURL_LIBRARY:      [${CURL_LIBRARY}]" )
+    coolfluid_log( "  CURL_LIBRARIES:      [${CURL_LIBRARIES}]" )
   endif(CF_HAVE_CURL)

@@ -11,9 +11,11 @@ echo "running $0"
 echo "CF3_BUNDLE: $CF3_BUNDLE"
 echo "CF3_RESOURCES: $CF3_RESOURCES"
 
-export "DYLD_LIBRARY_PATH=$CF3_RESOURCES/lib"
-export "PATH=$CF3_RESOURCES/bin:$PATH"
+export "DYLD_LIBRARY_PATH=$CF3_RESOURCES/coolfluid-CF_VERSION/lib"
+export "PATH=$CF3_RESOURCES/coolfluid-CF_VERSION/bin:$PATH"
 
 #export
-$CF3_RESOURCES/bin/coolfluid-server &
-$CF3_RESOURCES/bin/coolfluid-client
+$CF3_RESOURCES/coolfluid-CF_VERSION/bin/coolfluid-server &
+server_pid=$!
+$CF3_RESOURCES/coolfluid-CF_VERSION/bin/coolfluid-client
+kill $server_pid

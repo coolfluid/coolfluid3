@@ -34,7 +34,7 @@ list( APPEND fparser_files
 # mpfr/MpfrFloat.cc
 )
 
-list( APPEND fparser_libs ${CMATH_LIBRARY} )
+list( APPEND fparser_libs ${CMATH_LIBRARIES} )
 set( fparser_kernellib TRUE )
 
 coolfluid_add_library( fparser )

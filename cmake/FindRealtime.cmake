@@ -1,5 +1,5 @@
 #Sets:
-# RT_LIBRARY      = the library to link against (RT etc)
+# RT_LIBRARIES      = the library to link against (RT etc)
 # CF_HAVE_RT        = set to true after finding the library
 
 option( CF_SKIP_RT "Skip search for RT library" OFF )
@@ -19,10 +19,10 @@ if( NOT CF_SKIP_RT )
     coolfluid_add_trial_library_path( ${RT_HOME}/lib )
   endif()
 
-  find_library(RT_LIBRARY rt ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
-  find_library(RT_LIBRARY rt )
+  find_library(RT_LIBRARIES rt ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
+  find_library(RT_LIBRARIES rt )
 
-  if( RT_LIBRARY)
+  if( RT_LIBRARIES)
     set(CF_HAVE_RT 1 CACHE BOOL "Found RT library")
   else()
     set(CF_HAVE_RT 0 CACHE BOOL "Not fount RT library")
@@ -32,9 +32,13 @@ else()
     set(CF_HAVE_RT 0 CACHE BOOL "Skipped RT library")
 endif()
 
-mark_as_advanced( RT_LIBRARY CF_HAVE_RT )
+mark_as_advanced( RT_LIBRARIES CF_HAVE_RT )
+
+if ( ${CF_HAVE_RT} )
+    list( APPEND CF_TP_LIBRARIES ${RT_LIBRARIES} )
+endif()
 
 coolfluid_log( "CF_HAVE_RT: [${CF_HAVE_RT}]" )
 if(CF_HAVE_RT)
-    coolfluid_log( "  RT_LIBRARY:      [${RT_LIBRARY}]" )
+    coolfluid_log( "  RT_LIBRARIES:      [${RT_LIBRARIES}]" )
 endif()

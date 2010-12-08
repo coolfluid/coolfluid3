@@ -46,6 +46,10 @@ mark_as_advanced(
   CF_HAVE_ZOLTAN
 )
 
+if ( ${CF_HAVE_ZOLTAN} )
+    list( APPEND CF_TP_LIBRARIES ${ZOLTAN_LIBRARIES} )
+endif()
+
 coolfluid_log( "CF_HAVE_ZOLTAN: [${CF_HAVE_ZOLTAN}]" )
 if(CF_HAVE_ZOLTAN)
    coolfluid_log( "  ZOLTAN_INCLUDE_DIR: [${ZOLTAN_INCLUDE_DIR}]" )

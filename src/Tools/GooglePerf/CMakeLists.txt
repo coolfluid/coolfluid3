@@ -11,7 +11,7 @@ if( CF_HAVE_GOOGLE_PERFTOOLS )
 
   list( APPEND coolfluid_google_perftools_includedirs ${GOOGLE_PERFTOOLS_INCLUDE_DIR} )
   list( APPEND coolfluid_google_perftools_cflibs coolfluid_common )
-  list( APPEND coolfluid_google_perftools_libs ${GOOGLE_PERFTOOLS_PROFILER_LIB} )
+  list( APPEND coolfluid_google_perftools_libs ${GOOGLE_PERFTOOLS_PROFILER_LIBRARIES} )
 
   coolfluid_add_library( coolfluid_google_perftools )
 

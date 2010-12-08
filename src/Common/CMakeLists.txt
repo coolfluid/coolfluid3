@@ -190,12 +190,12 @@ list( APPEND coolfluid_common_libs ${Boost_LIBRARIES})
 
 # explicit linking of all libraries for modern linkers (gcc4.5)
 if( CF_HAVE_RT )
-  list( APPEND coolfluid_common_libs ${RT_LIBRARY})
+  list( APPEND coolfluid_common_libs ${RT_LIBRARIES})
 endif()
 
 # faster allocation and memory porfiling
 if( CF_USE_TCMALLOC )
-  list(APPEND coolfluid_common_libs ${GOOGLE_PERFTOOLS_TCMALLOC_LIB} )
+  list(APPEND coolfluid_common_libs ${GOOGLE_PERFTOOLS_TCMALLOC_LIBRARIES} )
 endif()
 
 set( coolfluid_common_kernellib TRUE )

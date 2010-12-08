@@ -9,7 +9,7 @@ list( APPEND sandbox-bounding-ellipse_files
 )
 
 list( APPEND sandbox-bounding-ellipse_includedirs ${CGAL_INCLUDE_DIR} )
-list( APPEND sandbox-bounding-ellipse_libs ${CGAL_LIBRARY} ${Boost_THREAD_LIBRARY} )
+list( APPEND sandbox-bounding-ellipse_libs ${CGAL_LIBRARIES} ${Boost_THREAD_LIBRARY} )
 list( APPEND sandbox-bounding-ellipse_cflibs coolfluid_mesh )
 
 set( sandbox-bounding-ellipse_sandbox_app TRUE )

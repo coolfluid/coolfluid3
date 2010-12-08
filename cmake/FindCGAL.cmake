@@ -3,7 +3,7 @@
 # it will define the following values
 #
 # CGAL_INCLUDE_DIR  = where parmetis.h can be found
-# CGAL_LIBRARY      = the library to link against (parmetis etc)
+# CGAL_LIBRARIES      = the library to link against (parmetis etc)
 # CF_HAVE_CGAL        = set to true after finding the library
 #
 
@@ -23,10 +23,10 @@ if( NOT CF_SKIP_CGAL )
   coolfluid_add_trial_library_path(${CGAL_ROOT}/lib )
   coolfluid_add_trial_library_path($ENV{CGAL_ROOT}/lib )
 
-  find_library(CGAL_LIBRARY CGAL ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
-  find_library(CGAL_LIBRARY CGAL )
+  find_library(CGAL_LIBRARIES CGAL ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
+  find_library(CGAL_LIBRARIES CGAL )
 
-  if(CGAL_INCLUDE_DIR AND CGAL_LIBRARY)
+  if(CGAL_INCLUDE_DIR AND CGAL_LIBRARIES)
     set(CF_HAVE_CGAL 1)
   endif()
 
@@ -38,9 +38,13 @@ endif()
 
 mark_as_advanced(
   CGAL_INCLUDE_DIR
-  CGAL_LIBRARY
+  CGAL_LIBRARIES
   CF_HAVE_CGAL
 )
+
+if ( ${CF_HAVE_CGAL} )
+    list( APPEND CF_TP_LIBRARIES ${CGAL_LIBRARIES} )
+endif()
 
 coolfluid_log( "CF_HAVE_CGAL: [${CF_HAVE_CGAL}]" )
 if(CF_HAVE_CGAL)

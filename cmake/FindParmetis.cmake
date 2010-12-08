@@ -3,7 +3,7 @@
 # it will define the following values
 #
 # PARMETIS_INCLUDE_DIR  = where parmetis.h can be found
-# PARMETIS_LIBRARY      = the library to link against (parmetis etc)
+# PARMETIS_LIBRARIES      = the library to link against (parmetis etc)
 # CF_HAVE_PARMETIS        = set to true after finding the library
 #
 
@@ -49,6 +49,10 @@ mark_as_advanced(
   PARMETIS_LIBRARIES
   CF_HAVE_PARMETIS
 )
+
+if ( ${CF_HAVE_PARMETIS} )
+    list( APPEND CF_TP_LIBRARIES ${PARMETIS_LIBRARIES} )
+endif()
 
 coolfluid_log( "CF_HAVE_PARMETIS: [${CF_HAVE_PARMETIS}]" )
 if(CF_HAVE_PARMETIS)

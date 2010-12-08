@@ -13,7 +13,7 @@ if(CF_HAVE_CGNS)
   )
 
   list( APPEND coolfluid_cgns3_includedirs ${CGNS_INCLUDE_DIR} )
-  list( APPEND coolfluid_cgns3_libs ${CGNS_LIBRARY} )
+  list( APPEND coolfluid_cgns3_libs ${CGNS_LIBRARIES} )
   list( APPEND coolfluid_cgns3_cflibs coolfluid_mesh )
 
   set( coolfluid_cgns3_kernellib TRUE )

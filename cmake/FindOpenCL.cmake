@@ -20,49 +20,50 @@ if( NOT CF_SKIP_OPENCL )
   coolfluid_add_trial_library_path( ${OPENCL_ROOT}/lib )
   coolfluid_add_trial_library_path( $ENV{OPENCL_ROOT}/lib )
 
-if(WIN32)
+    if(WIN32)
 
-   # this section is not tested
+       # this section is not tested
 
-    find_path(OPENCL_INCLUDE_DIR CL/cl.h  ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH)
-    find_path(OPENCL_INCLUDE_DIR CL/cl.h  )
+        find_path(OPENCL_INCLUDE_DIR CL/cl.h  ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH)
+        find_path(OPENCL_INCLUDE_DIR CL/cl.h  )
 
-    string( COMPARE EQUAL CF_OS_BITS "64" OPENCL_64 )
-    if(OPENCL_64)
-      find_library(OPENCL_LIBRARIES opencl64 ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
-      find_library(OPENCL_LIBRARIES opencl64 )
-    else()
-      find_library(OPENCL_LIBRARIES opencl32 ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
-      find_library(OPENCL_LIBRARIES opencl32 )
+        string( COMPARE EQUAL CF_OS_BITS "64" OPENCL_64 )
+        if(OPENCL_64)
+          find_library(OPENCL_LIBRARIES opencl64 ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
+          find_library(OPENCL_LIBRARIES opencl64 )
+        else()
+          find_library(OPENCL_LIBRARIES opencl32 ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
+          find_library(OPENCL_LIBRARIES opencl32 )
+        endif()
+
+    endif()
+
+    if(UNIX)
+
+      if(APPLE)
+
+          find_path(OPENCL_INCLUDE_DIR OpenCL/cl.h  ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH)
+          find_path(OPENCL_INCLUDE_DIR OpenCL/cl.h  )
+
+          find_library(OPENCL_LIBRARIES OpenCL ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
+          find_library(OPENCL_LIBRARIES OpenCL )
+
+        else() # Other UNIX, like Linux, etc
+
+          coolfluid_add_trial_include_path( /usr/local/cuda/include )
+          coolfluid_add_trial_library_path( /usr/local/cuda/lib )
+
+          find_path(OPENCL_INCLUDE_DIR CL/cl.h  ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH )
+          find_path(OPENCL_INCLUDE_DIR CL/cl.h  )
+
+          find_library(OPENCL_LIBRARIES OpenCL ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
+          find_library(OPENCL_LIBRARIES OpenCL  )
+
+      endif()
+
     endif()
 
 endif()
-
-if(UNIX)
-
-  if(APPLE)
-
-      find_path(OPENCL_INCLUDE_DIR OpenCL/cl.h  ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH)
-      find_path(OPENCL_INCLUDE_DIR OpenCL/cl.h  )
-
-      find_library(OPENCL_LIBRARIES OpenCL ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
-      find_library(OPENCL_LIBRARIES OpenCL )
-
-    else() # Other UNIX, like Linux, etc
-
-      coolfluid_add_trial_include_path( /usr/local/cuda/include )
-      coolfluid_add_trial_library_path( /usr/local/cuda/lib )
-
-      find_path(OPENCL_INCLUDE_DIR CL/cl.h  ${TRIAL_INCLUDE_PATHS}  NO_DEFAULT_PATH )
-      find_path(OPENCL_INCLUDE_DIR CL/cl.h  )
-
-      find_library(OPENCL_LIBRARIES OpenCL ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
-      find_library(OPENCL_LIBRARIES OpenCL  )
-
-  endif()
-
-endif()
-
 
 set( OPENCL_FOUND "FALSE" )
 if( OPENCL_LIBRARIES AND OPENCL_INCLUDE_DIR )
@@ -70,8 +71,6 @@ if( OPENCL_LIBRARIES AND OPENCL_INCLUDE_DIR )
 endif()
 
 mark_as_advanced( OPENCL_INCLUDE_DIR OPENCL_LIBRARIES )
-
-endif()
 
 coolfluid_log( "OPENCL_FOUND: [${OPENCL_FOUND}]" )
 if(OPENCL_FOUND)

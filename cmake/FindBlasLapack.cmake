@@ -3,7 +3,7 @@
 #   CF_HAVE_LAPACK
 #   CF_HAVE_BLAS
 #   CF_HAVE_BLASLAPACK
-#   CF_BLASLAPACK_LIBRARIES
+#   BLASLAPACK_LIBRARIES
 # Require both lapack and blas
 
 if( NOT LAPACK_LIBRARIES )
@@ -21,10 +21,10 @@ if( NOT LAPACK_LIBRARIES )
       coolfluid_add_trial_library_path( $ENV{BLAS_HOME}/lib )
     endif()
 
-    find_library(BLAS_LIBRARY blas ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
-    find_library(BLAS_LIBRARY blas )
+    find_library(BLAS_LIBRARIES blas ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
+    find_library(BLAS_LIBRARIES blas )
 
-    if( BLAS_LIBRARY )
+    if( BLAS_LIBRARIES )
       set( CF_HAVE_BLAS 1 CACHE BOOL "Found BLAS library" )
     else()
       set( CF_HAVE_BLAS 0 )
@@ -34,7 +34,7 @@ if( NOT LAPACK_LIBRARIES )
 
   coolfluid_log( "CF_HAVE_BLAS: [${CF_HAVE_BLAS}]" )
   if(CF_HAVE_BLAS)
-     coolfluid_log( "  BLAS_LIBRARY:     [${BLAS_LIBRARY}]" )
+     coolfluid_log( "  BLAS_LIBRARIES:     [${BLAS_LIBRARIES}]" )
   endif(CF_HAVE_BLAS)
 
 # LAPACK #########################
@@ -55,12 +55,12 @@ if( NOT LAPACK_LIBRARIES )
       coolfluid_add_trial_library_path( $ENV{LAPACK_HOME}/lib )
     endif()
 
-    find_library(LAPACK_LIBRARY lapack ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
-    find_library(LAPACK_LIBRARY lapack )
+    find_library(LAPACK_LIBRARIES lapack ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
+    find_library(LAPACK_LIBRARIES lapack )
 
   endif()
 
-  if( LAPACK_LIBRARY )
+  if( LAPACK_LIBRARIES )
     set( CF_HAVE_LAPACK 1 CACHE BOOL "Found LAPACK library")
   else()
     set( CF_HAVE_LAPACK 0 )
@@ -69,17 +69,21 @@ if( NOT LAPACK_LIBRARIES )
 
   coolfluid_log( "CF_HAVE_LAPACK: [${CF_HAVE_LAPACK}]" )
   if(CF_HAVE_LAPACK)
-    coolfluid_log( "  LAPACK_LIBRARY:   [${LAPACK_LIBRARY}]" )
+    coolfluid_log( "  LAPACK_LIBRARIES:   [${LAPACK_LIBRARIES}]" )
   endif(CF_HAVE_LAPACK)
 
 # BOTH ###########################
 
   if( CF_HAVE_BLAS AND CF_HAVE_LAPACK )
-    set( CF_BLASLAPACK_LIBRARIES   "${LAPACK_LIBRARY} ${BLAS_LIBRARY}" CACHE STRING "BLAS and LAPACK libraries")
-    set( CF_HAVE_BLASLAPACK ON CACHE BOOL "Found BLAS and LAPACK libraries")
+    set( BLASLAPACK_LIBRARIES   "${LAPACK_LIBRARIES} ${BLAS_LIBRARIES}" CACHE STRING "BLAS and LAPACK libraries")
+    set( CF_HAVE_BLASLAPACK 1 CACHE BOOL "Found BLAS and LAPACK libraries")
+    
+    coolfluid_log( "CF_HAVE_BLASLAPACK: [${CF_HAVE_BLASLAPACK}]" )
+    coolfluid_log( "  BLASLAPACK_LIBRARIES: [${BLASLAPACK_LIBRARIES}]" )
+    
   endif()
 
-  mark_as_advanced( LAPACK_LIBRARY BLAS_LIBRARY )
+  mark_as_advanced( LAPACK_LIBRARIES BLAS_LIBRARIES )
 
 #################################
 
@@ -92,14 +96,19 @@ else()
   set(CF_HAVE_BLAS         ON CACHE BOOL "Found BLAS   library")
   set(CF_HAVE_BLASLAPACK   ON CACHE BOOL "Found BLAS and LAPACK libraries")
 
-  set( CF_BLASLAPACK_LIBRARIES   "${LAPACK_LIBRARIES}" CACHE STRING "BLAS and LAPACK libraries")
+  set( BLASLAPACK_LIBRARIES   "${LAPACK_LIBRARIES}" CACHE STRING "BLAS and LAPACK libraries")
 
-  mark_as_advanced( CF_BLASLAPACK_LIBRARIES LAPACK_LIBRARIES )
+  mark_as_advanced( BLASLAPACK_LIBRARIES LAPACK_LIBRARIES )
 
   coolfluid_log( "CF_HAVE_BLASLAPACK: [${CF_HAVE_BLASLAPACK}]" )
-  coolfluid_log( "  LAPACK_LIBRARIES: [${LAPACK_LIBRARIES}]" )
+  coolfluid_log( "  BLASLAPACK_LIBRARIES: [${BLASLAPACK_LIBRARIES}]" )
 
 endif()
 
-mark_as_advanced( CF_HAVE_LAPACK CF_HAVE_BLAS CF_HAVE_BLASLAPACK CF_BLASLAPACK_LIBRARIES )
+mark_as_advanced( CF_HAVE_LAPACK CF_HAVE_BLAS CF_HAVE_BLASLAPACK BLASLAPACK_LIBRARIES )
+
+#if ( ${CF_HAVE_BLASLAPACK} )
+#    list( APPEND CF_TP_LIBRARIES ${BLASLAPACK_LIBRARIES} )
+#endif()
+
 

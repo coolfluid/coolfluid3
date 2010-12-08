@@ -71,4 +71,7 @@ mark_as_advanced( CF_HAVE_MPI )
 # if mpi was found add it to the include path if needed
 if( CF_HAVE_MPI AND NOT CF_HAVE_MPI_COMPILER )
         include_directories( ${MPI_INCLUDE_PATH} )
+        
+        list( APPEND CF_TP_LIBRARIES ${MPI_LIBRARIES} )
+        
 endif()

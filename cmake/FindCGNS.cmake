@@ -5,7 +5,7 @@
 #   CGNS_HOME
 # Sets
 #   CGNS_INCLUDE_DIR
-#   CGNS_LIBRARY
+#   CGNS_LIBRARIES
 #   CF_HAVE_CGNS
 #
 
@@ -21,26 +21,31 @@ find_path( CGNS_INCLUDE_DIR cgnslib.h )
 coolfluid_add_trial_library_path(${CGNS_HOME}/lib )
 coolfluid_add_trial_library_path($ENV{CGNS_HOME}/lib)
 
-find_library(CGNS_LIBRARY cgns  PATHS  ${TRIAL_LIBRARY_PATHS}  NO_DEFAULT_PATH)
-find_library(CGNS_LIBRARY cgns )
+find_library(CGNS_LIBRARIES cgns  PATHS  ${TRIAL_LIBRARY_PATHS}  NO_DEFAULT_PATH)
+find_library(CGNS_LIBRARIES cgns )
 
-if(CGNS_INCLUDE_DIR AND CGNS_LIBRARY)
-  set(CF_HAVE_CGNS 1 CACHE BOOL "Found CGNS library")
+if(CGNS_INCLUDE_DIR AND CGNS_LIBRARIES)
+  set(CF_HAVE_CGNS 1)
 else()
-  set(CF_HAVE_CGNS 0 CACHE BOOL "Not fount CGNS library")
+  set(CF_HAVE_CGNS 0)
 endif()
 
 mark_as_advanced(
   CGNS_INCLUDE_DIR
-  CGNS_LIBRARY
+  CGNS_LIBRARIES
   CF_HAVE_CGNS
 )
+
+if ( ${CF_HAVE_CGNS} )
+    list( APPEND CF_TP_LIBRARIES ${CGNS_LIBRARIES} )
+endif()
+
 
 coolfluid_log( "CF_HAVE_CGNS: [${CF_HAVE_CGNS}]" )
 if(CF_HAVE_CGNS)
    coolfluid_log( "  CGNS_INCLUDE_DIR: [${CGNS_INCLUDE_DIR}]" )
-   coolfluid_log( "  CGNS_LIBRARY:     [${CGNS_LIBRARY}]" )
+   coolfluid_log( "  CGNS_LIBRARIES:     [${CGNS_LIBRARIES}]" )
 else()
    coolfluid_log_file( "  CGNS_INCLUDE_DIR: [${CGNS_INCLUDE_DIR}]" )
-   coolfluid_log_file( "  CGNS_LIBRARY:     [${CGNS_LIBRARY}]" )
+   coolfluid_log_file( "  CGNS_LIBRARIES:     [${CGNS_LIBRARIES}]" )
 endif()

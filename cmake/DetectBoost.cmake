@@ -27,6 +27,10 @@ endif()
 # add boost include path
 include_directories( ${Boost_INCLUDE_DIR} )
 
+# add boost libraries to list of third party libraries
+list( APPEND CF_TP_LIBRARIES ${Boost_LIBRARIES} )
+
+
 #######################################################################################
 
 coolfluid_log( "+++++  Checking for boost erfc function" )

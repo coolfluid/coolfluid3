@@ -3,7 +3,7 @@
 # it will define the following values
 #
 # METIS_INCLUDE_DIR  = where metis.h can be found
-# METIS_LIBRARY      = the library to link against (metis etc)
+# METIS_LIBRARIES      = the library to link against (metis etc)
 # CF_HAVE_METIS        = set to true after finding the library
 #
 
@@ -22,10 +22,10 @@ if( NOT CF_SKIP_METIS )
   coolfluid_add_trial_library_path(${METIS_HOME}/lib )
   coolfluid_add_trial_library_path($ENV{METIS_HOME}/lib )
 
-  find_library(METIS_LIBRARY metis ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
-  find_library(METIS_LIBRARY metis )
+  find_library(METIS_LIBRARIES metis ${TRIAL_LIBRARY_PATHS} NO_DEFAULT_PATH)
+  find_library(METIS_LIBRARIES metis )
 
-  if(METIS_INCLUDE_DIR AND METIS_LIBRARY)
+  if(METIS_INCLUDE_DIR AND METIS_LIBRARIES)
     set(CF_HAVE_METIS 1 CACHE BOOL "Found metis library")
   else()
     set(CF_HAVE_METIS 0 CACHE BOOL "Not fount metis library")
@@ -37,12 +37,16 @@ endif()
 
 mark_as_advanced(
   METIS_INCLUDE_DIR
-  METIS_LIBRARY
+  METIS_LIBRARIES
   CF_HAVE_METIS
 )
+
+if ( ${CF_HAVE_METIS} )
+    list( APPEND CF_TP_LIBRARIES ${METIS_LIBRARIES} )
+endif()
 
 coolfluid_log( "CF_HAVE_METIS: [${CF_HAVE_METIS}]" )
 if(CF_HAVE_METIS)
   coolfluid_log_file( "  METIS_INCLUDE_DIR: [${METIS_INCLUDE_DIR}]" )
-  coolfluid_log_file( "  METIS_LIBRARY: [${METIS_LIBRARY}]" )
+  coolfluid_log_file( "  METIS_LIBRARIES: [${METIS_LIBRARIES}]" )
 endif()
