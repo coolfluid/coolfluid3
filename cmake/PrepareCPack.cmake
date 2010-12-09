@@ -18,8 +18,8 @@ if(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
       set(CPACK_PACKAGE_VERSION_MAJOR ${CF_KERNEL_VERSION_MAJOR})
       set(CPACK_PACKAGE_VERSION_MINOR ${CF_KERNEL_VERSION_MINOR})
       set(CPACK_PACKAGE_VERSION_PATCH ${CF_KERNEL_VERSION_PATCH})
-      #set(CPACK_PACKAGE_INSTALL_DIRECTORY "coolfluid-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}")
-      set(CPACK_PACKAGE_RELOCATABLE "false")
+      set(CPACK_PACKAGE_INSTALL_DIRECTORY "coolfluid-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}")
+      set(CPACK_PACKAGE_RELOCATABLE "true")
 
 
       set(CPACK_SOURCE_GENERATOR TGZ)
@@ -34,14 +34,13 @@ if(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
       # FIXME : CPack considers Third party libraries such as 
       # Boost and MPI as system dependencies and does
       # not copy the files into the installer, so we copy them manually
-      # install(FILES ${CF_TP_LIBRARIES}
-      #         DESTINATION ${CF_INSTALL_LIB_DIR}
-      #         COMPONENT libraries)
 
-      install(DIRECTORY ${DEPS_ROOT}/lib/
-              DESTINATION ${CF_INSTALL_LIB_DIR}
-              COMPONENT libraries
-              FILES_MATCHING REGEX "^.*\\.(so|dylib|dll)$")
+      foreach ( TP_LIB ${CF_TP_LIBRARIES} )
+        coolfluid_log (" +++ installing ${TP_LIB}")
+        THIRD_PARTY_INSTALL_LIBRARY( ${TP_LIB} )
+      endforeach( TP_LIB )
+ 
+      THIRD_PARTY_INSTALL_LIBRARY(${QT_LIBRARIES})
 
       # platform specific configuration
       #(shamefully copied from gsmh build system for the Apple part)

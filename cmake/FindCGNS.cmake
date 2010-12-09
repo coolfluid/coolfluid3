@@ -24,6 +24,13 @@ coolfluid_add_trial_library_path($ENV{CGNS_HOME}/lib)
 find_library(CGNS_LIBRARIES cgns  PATHS  ${TRIAL_LIBRARY_PATHS}  NO_DEFAULT_PATH)
 find_library(CGNS_LIBRARIES cgns )
 
+find_library(HDF5_LIBRARIES hdf5  PATHS  ${TRIAL_LIBRARY_PATHS}  NO_DEFAULT_PATH)
+find_library(HDF5_LIBRARIES hdf5 )
+
+if ( HDF5_LIBRARIES )
+    set( CGNS_LIBRARIES ${CGNS_LIBRARIES} ${HDF5_LIBRARIES} )
+endif()
+
 if(CGNS_INCLUDE_DIR AND CGNS_LIBRARIES)
   set(CF_HAVE_CGNS 1)
 else()

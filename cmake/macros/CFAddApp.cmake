@@ -67,9 +67,8 @@ macro( coolfluid_add_application APPNAME )
       # directories to look for dependencies
       SET(DIRS ${BOOST_ROOT})
 
-
       # tell cmake to creat a bundle
-      SET( ${APPNAME}_platform MACOSX_BUNDLE ${CMAKE_CURRENT_SOURCE_DIR}/coolfluid-logo.icns)
+      SET( ${APPNAME}_platform MACOSX_BUNDLE ${coolfluid_SOURCE_DIR}/tools/MacOSX_Bundle/coolfluid.icns)
 
       # system identifier (should be universally unique)
       SET( MACOSX_BUNDLE_GUI_IDENTIFIER "be.ac.vki.${APPNAME}")

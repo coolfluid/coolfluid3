@@ -13,7 +13,11 @@ include( DetectBoost )
 ##############################################################################
 # Find Qt - defines QT_USE_FILE and QT_LIBRARIES used below
 find_package( Qt4 4.6.0 COMPONENTS QtCore QtGui QtXml QtNetwork QtTest )
-
+include(${QT_USE_FILE})
+coolfluid_log ("QT_FOUND: [${QT_FOUND}]")
+if ( ${QT_FOUND} )
+    coolfluid_log ("  QT_LIBRARIES: ${QT_LIBRARIES}")
+endif()
 ##############################################################################
 # find non essential packages
 
