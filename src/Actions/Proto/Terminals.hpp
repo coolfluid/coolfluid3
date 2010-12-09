@@ -211,13 +211,13 @@ private:
   /// Called when the field name option is changed
   void on_field_changed()
   {
-    field_name = m_field_option.lock()->value<std::string>();
+    field_name = m_field_option.lock()->template value<std::string>();
   }
   
   /// Called when the var name option is changed
   void on_var_changed()
   {
-    var_name = m_var_option.lock()->value<std::string>();
+    var_name = m_var_option.lock()->template value<std::string>();
   }
   
   /// Option for the field name

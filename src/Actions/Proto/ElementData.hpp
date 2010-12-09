@@ -155,7 +155,7 @@ public:
   /// Interpolation at the given mapped coordinates
   EvalT eval(const typename SF::MappedCoordsT& mapped_coords)
   {
-    m_eval_result = shape_function(mapped_coords) * m_nodes;
+    m_eval_result = SFData<SF>::shape_function(mapped_coords) * m_nodes;
     return m_eval_result;
   }
   
@@ -289,7 +289,7 @@ public:
   /// Interpolation at the given mapped coordinates
   EvalT eval(const typename SF::MappedCoordsT& mapped_coords)
   {
-    return shape_function(mapped_coords) * m_element_values;
+    return SFData<SF>::shape_function(mapped_coords) * m_element_values;
   }
   
   const Mesh::CTable<Uint>::ConstRow element_connectivity()

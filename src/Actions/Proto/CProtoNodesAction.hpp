@@ -46,7 +46,7 @@ public:
   /// Run the expression, looping over all nodes
   virtual void execute()
   {
-    Mesh::CRegion& root_region = *look_component_type<Mesh::CRegion>( m_region_path.lock()->value<std::string>() );
+    Mesh::CRegion& root_region = *look_component_type<Mesh::CRegion>( m_region_path.lock()->template value<std::string>() );
     
     // Create data used for the evaluation
     NodeData<VariablesT> node_data(m_variables, root_region);
