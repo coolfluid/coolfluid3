@@ -97,7 +97,12 @@ void opencl_setup(CLEnv& env)
      /*****************************************/
      /* Initialize OpenCL */
      /*****************************************/
-     env.context = clCreateContextFromType(0,  CL_DEVICE_TYPE_GPU,NULL, NULL, &env.errcode);
+     clGetPlatformIDs(1, &env.cpPlatform, NULL);
+     clGetDeviceIDs(env.cpPlatform, CL_DEVICE_TYPE_GPU, 1, &env.devices[0], NULL);
+
+     env.context = clCreateContext(0, 1, &env.devices[0], NULL, NULL, &env.errcode);
+
+
      opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
 
      // get the list of GPU devices associated with context

@@ -94,36 +94,41 @@ void opencl_check_error(cl_int& error_code, cl_int accept_code, const char * fil
 
 void opencl_setup(CLEnv& env)
 {
-     /*****************************************/
-     /* Initialize OpenCL */
-     /*****************************************/
-     env.context = clCreateContextFromType(0,  CL_DEVICE_TYPE_GPU,NULL, NULL, &env.errcode);
-     opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
+    /*****************************************/
+    /* Initialize OpenCL */
+    /*****************************************/
+    clGetPlatformIDs(1, &env.cpPlatform, NULL);
+    clGetDeviceIDs(env.cpPlatform, CL_DEVICE_TYPE_GPU, 1, &env.devices[0], NULL);
 
-     // get the list of GPU devices associated with context
-     env.errcode = clGetContextInfo(env.context, CL_CONTEXT_DEVICES, 0, NULL,&env.device_size);
-     env.devices = (cl_device_id *) malloc(env.device_size);
+    env.context = clCreateContext(0, 1, &env.devices[0], NULL, NULL, &env.errcode);
 
-     env.errcode |= clGetContextInfo(env.context, CL_CONTEXT_DEVICES, env.device_size, env.devices, NULL);
-     opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
 
-     //Create a command-queue
-     env.command_queue = clCreateCommandQueue(env.context, env.devices[0], 0, &env.errcode);
-     opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
+    opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
 
-     // Load and build OpenCL kernel
-     const char * filename = "kernel.cl";
-     char* kernel_source = load_program_source(filename);
-     env.program = clCreateProgramWithSource(env.context, 1, (const char**)&kernel_source, NULL, &env.errcode);
-     opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
+    // get the list of GPU devices associated with context
+    env.errcode = clGetContextInfo(env.context, CL_CONTEXT_DEVICES, 0, NULL,&env.device_size);
+    env.devices = (cl_device_id *) malloc(env.device_size);
 
-     env.errcode = clBuildProgram(env.program, 0,  NULL, NULL, NULL, NULL);
-     opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
+    env.errcode |= clGetContextInfo(env.context, CL_CONTEXT_DEVICES, env.device_size, env.devices, NULL);
+    opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
 
-     env.kernel = clCreateKernel(env.program, "matrix_mul", &env.errcode);
-     opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
+    //Create a command-queue
+    env.command_queue = clCreateCommandQueue(env.context, env.devices[0], 0, &env.errcode);
+    opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
 
-     free(kernel_source);
+    // Load and build OpenCL kernel
+    const char * filename = "kernel.cl";
+    char* kernel_source = load_program_source(filename);
+    env.program = clCreateProgramWithSource(env.context, 1, (const char**)&kernel_source, NULL, &env.errcode);
+    opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
+
+    env.errcode = clBuildProgram(env.program, 0,  NULL, NULL, NULL, NULL);
+    opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
+
+    env.kernel = clCreateKernel(env.program, "matrix_mul", &env.errcode);
+    opencl_check_error(env.errcode, CL_SUCCESS, __FILE__ , __LINE__ );
+
+    free(kernel_source);
 
 }
 

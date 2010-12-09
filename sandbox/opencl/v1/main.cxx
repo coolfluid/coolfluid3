@@ -22,8 +22,8 @@ void random_init(float* data, int size)
 int main(int argc, char * argv[])
 {
 
-  // Declare the supported options.
-  boost::program_options::options_description desc("allowed options");
+ // Declare the supported options.
+    boost::program_options::options_description desc("allowed options");
   desc.add_options()
       ("help", "produce help message")
       ("file", boost::program_options::value<std::string>() , "naem of the file to create" )

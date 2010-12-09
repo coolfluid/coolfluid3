@@ -43,6 +43,7 @@ int runCL(float * a, float * b, float * results, int n)
 	cl_context   context;
 	
 	cl_device_id cpu = NULL, device = NULL;
+        cl_platform_id    cpPlatform;
 
 	cl_int err = 0;
 	size_t returned_size = 0;
@@ -53,12 +54,13 @@ int runCL(float * a, float * b, float * results, int n)
 #pragma mark Device Information
 	{
 		/* Find the CPU CL device, as a fallback */
-		err = clGetDeviceIDs(NULL, CL_DEVICE_TYPE_CPU, 1, &cpu, NULL);
+                clGetPlatformIDs(1, &cpPlatform, NULL);
+                err = clGetDeviceIDs(cpPlatform, CL_DEVICE_TYPE_CPU, 1, &cpu, NULL);
 		assert(err == CL_SUCCESS);
 		
 		/* Find the GPU CL device, this is what we really want       */
 		/* If there is no GPU device is CL capable, fall back to CPU */
-		err = clGetDeviceIDs(NULL, CL_DEVICE_TYPE_GPU, 1, &device, NULL);
+                err = clGetDeviceIDs(cpPlatform, CL_DEVICE_TYPE_GPU, 1, &device, NULL);
 		if (err != CL_SUCCESS) device = cpu;
 		assert(device);
 	

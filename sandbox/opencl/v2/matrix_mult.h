@@ -18,6 +18,7 @@ struct CLEnv
      cl_device_id*     devices;
      size_t            device_size;
      cl_int            errcode;
+     cl_platform_id    cpPlatform;
 };
 
 void opencl_setup( CLEnv& env);
