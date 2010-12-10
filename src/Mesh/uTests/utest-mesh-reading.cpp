@@ -300,7 +300,7 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_7 )
   XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
   XmlParams p(node);
 
-  // a file in the middle is wrong (exception and the mesh should be empty afterwards)
+  // everything is OK
   std::vector<URI> files;
   files.push_back( "file:hextet.neu" );
   files.push_back( "file:quadtriag.neu" );
