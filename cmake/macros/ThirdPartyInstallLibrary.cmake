@@ -253,6 +253,7 @@ FUNCTION(THIRD_PARTY_INSTALL_INCLUDE pkg incdir)
                 CONFIGURATIONS "";None;Debug;Release;RelWithDebInfo;MinSizeRel
                 FILES_MATCHING 
                 PATTERN "*.h"
+                PATTERN "*.hh"
                 PATTERN "*.H"
                 PATTERN "*.hpp"
                 PATTERN "*.HPP"
