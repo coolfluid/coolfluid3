@@ -341,9 +341,9 @@ void CReader::partition_nodes()
   }
   getline(m_file,line);  // ENDOFSECTION
 }
-    
+
 //////////////////////////////////////////////////////////////////////////////
-  
+
 void CReader::read_connectivity()
 {  
   m_tmp = m_region->create_region("main").as_type<CRegion>();

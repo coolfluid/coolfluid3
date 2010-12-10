@@ -15,10 +15,13 @@
 #include "Mesh/ElementType.hpp"
 
 namespace CF {
+  namespace Common
+  {
+    class CLink;
+  }
 namespace Mesh {
 
   template <typename T> class CTable;
-  class ElementType;
   class CFieldElements;
   template <typename T> class CList;
 	
@@ -53,19 +56,11 @@ public: // functions
   void set_element_type(const std::string& etype_name);
 
   /// return the elementType
-  const ElementType& element_type() const { return *m_element_type; }
+  const ElementType& element_type() const;
   
   /// return the number of elements
   Uint elements_count() const;
   
-  /// create a CTable<Uint> component and add it to the list of subcomponents
-  /// @param name of the region
-  CTable<Uint>& create_connectivity_table ( const std::string& name = "connectivity_table");
-
-	/// create a CList<Uint> component and add it to the list of subcomponents
-  /// @param name of the node list
-	virtual CList<Uint>& create_node_list( const std::string& name = "node_list");
-
 	/// update the node list using the connectivity table
 	CList<Uint>& update_node_list();
 	
@@ -99,9 +94,15 @@ public: // functions
   const CFieldElements& get_field_elements(const std::string& field_name) const;
     
 protected: // data
-  
-  ElementType::Ptr m_element_type;
-    
+
+  boost::shared_ptr<ElementType> m_element_type;
+
+  boost::shared_ptr<CTable<Uint> > m_connectivity_table;
+
+  boost::shared_ptr<CList<Uint> > m_node_list;
+
+  boost::shared_ptr<Common::CLink> m_coordinates;
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////
