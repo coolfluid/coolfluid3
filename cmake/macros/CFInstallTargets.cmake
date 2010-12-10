@@ -8,7 +8,7 @@ macro (coolfluid_install_targets)
                     RUNTIME DESTINATION ${CF_INSTALL_BIN_DIR}
                     BUNDLE  DESTINATION ${CF_INSTALL_BIN_DIR}
                     LIBRARY DESTINATION ${CF_INSTALL_LIB_DIR}
-                    ARCHIVE DESTINATION ${CF_INSTALL_LIB_DIR}
+                    ARCHIVE DESTINATION ${CF_INSTALL_ARCHIVE_DIR}
                     PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE 
                                 GROUP_READ GROUP_WRITE GROUP_EXECUTE 
                                 WORLD_READ             WORLD_EXECUTE
@@ -21,7 +21,7 @@ macro (coolfluid_install_targets)
             RUNTIME DESTINATION ${CF_INSTALL_BIN_DIR}
             BUNDLE  DESTINATION ${CF_INSTALL_BIN_DIR}
             LIBRARY DESTINATION ${CF_INSTALL_LIB_DIR}
-            ARCHIVE DESTINATION ${CF_INSTALL_LIB_DIR}
+            ARCHIVE DESTINATION ${CF_INSTALL_ARCHIVE_DIR}
             PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE 
                         GROUP_READ GROUP_WRITE GROUP_EXECUTE 
                         WORLD_READ             WORLD_EXECUTE

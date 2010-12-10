@@ -171,7 +171,7 @@ macro( coolfluid_add_library LIBNAME )
   coolfluid_log_file("${LIBNAME}_sources         : [${${LIBNAME}_sources}]")
   coolfluid_log_file("${LIBNAME}_LINK_LIBRARIES  : [${${LIBNAME}_LINK_LIBRARIES}]")
 
-  coolfluid_install_targets( ${LIBNAME} )
+  #coolfluid_install_targets( ${LIBNAME} )
 
 endmacro( coolfluid_add_library )
 ##############################################################################

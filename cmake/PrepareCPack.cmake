@@ -40,13 +40,16 @@ if(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
       # COMPONENT libraries
       # FILES_MATCHING REGEX "^.*\\.(so|dylib|dll)$")
       
-      foreach ( TP_LIB ${CF_TP_LIBRARIES} )
-        coolfluid_log (" +++ installing ${TP_LIB}")
-        coolfluid_install_third_party_library( ${TP_LIB} )
-      endforeach( TP_LIB )
+      #foreach ( TP_LIB ${CF_TP_LIBRARIES} )
+      #  coolfluid_log (" +++ installing ${TP_LIB}")
+      #  coolfluid_install_third_party_library( ${TP_LIB} )
+      #endforeach()
  
-      coolfluid_install_third_party_library(${QT_LIBRARIES})
-
+      #foreach ( CF_QT_LIB ${QT_LIBRARIES} )
+      #  coolfluid_log (" +++ installing ${CF_QT_LIB}")
+      #  coolfluid_install_third_party_library( ${CF_QT_LIB} )
+      #endforeach()
+ 
       # platform specific configuration
       #(shamefully copied from gsmh build system for the Apple part)
       if(APPLE)

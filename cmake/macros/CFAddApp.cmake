@@ -164,7 +164,7 @@ macro( coolfluid_add_application APPNAME )
   coolfluid_log_file("${APPNAME}_LINK_FLAGS      : [${${APPNAME}_LINK_FLAGS}]")
   coolfluid_log_file("${APPNAME}_TYPE            : [${${APPNAME}_TYPE}]")
 
-  coolfluid_install_targets( ${APPNAME} )
+  #coolfluid_install_targets( ${APPNAME} )
   
 endmacro( coolfluid_add_application )
 ##############################################################################
