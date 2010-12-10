@@ -16,7 +16,6 @@ set (QT_USE_FRAMEWORKS 1)
 find_package( Qt4 4.6.0 COMPONENTS QtCore QtGui QtXml QtNetwork QtTest )
 coolfluid_log("QT_FOUND: [${QT_FOUND}]")
 if( ${QT_FOUND} )
-  include( ${QT_USE_FILE} )  
   coolfluid_log("  QT_LIBRARIES: ${QT_LIBRARIES}")
 endif()
 
