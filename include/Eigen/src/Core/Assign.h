@@ -39,7 +39,7 @@ public:
     DstIsAligned = Derived::Flags & AlignedBit,
     DstHasDirectAccess = Derived::Flags & DirectAccessBit,
     SrcIsAligned = OtherDerived::Flags & AlignedBit,
-    JointAlignment = DstIsAligned && SrcIsAligned ? Aligned : Unaligned
+    JointAlignment = DstIsAligned & SrcIsAligned ? Aligned : Unaligned
   };
 
 private:
@@ -104,7 +104,7 @@ public:
                                              : int(NoUnrolling)
                   )
               : int(Traversal) == int(LinearVectorizedTraversal)
-                ? ( int(MayUnrollCompletely) && int(DstIsAligned) ? int(CompleteUnrolling) : int(NoUnrolling) )
+                ? ( int(MayUnrollCompletely) & int(DstIsAligned) ? int(CompleteUnrolling) : int(NoUnrolling) )
               : int(Traversal) == int(LinearTraversal)
                 ? ( int(MayUnrollCompletely) ? int(CompleteUnrolling) : int(NoUnrolling) )
               : int(NoUnrolling)
