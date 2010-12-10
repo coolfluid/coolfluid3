@@ -41,7 +41,7 @@ Component::Component ( const std::string& name ) :
 
   // signals
 
-  regist_signal ( "create_component" , "creates a component", "Create component" )->connect ( boost::bind ( &Component::create_component, this, _1 ) );
+  regist_signal ( "create_component" , "creates a component", "Create component" )->connect ( boost::bind ( &Component::create_component_signal, this, _1 ) );
 
   signal("create_component").signature
       .insert<std::string>("Component name", "Name for created component" )
@@ -489,7 +489,7 @@ Component::Ptr Component::look_component ( const CPath& path )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void Component::create_component ( XmlNode& node  )
+void Component::create_component_signal ( XmlNode& node  )
 {
   XmlParams p ( node );
 
