@@ -39,8 +39,11 @@ if(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
         # coolfluid_log(" +++ installing ${TP_LIB}")
         THIRD_PARTY_INSTALL_LIBRARY( ${TP_LIB} )
       endforeach()
- 
-      THIRD_PARTY_INSTALL_LIBRARY(${QT_LIBRARIES})
+
+      foreach( TP_LIB ${QT_LIBRARIES} )
+        # coolfluid_log(" +++ installing ${TP_LIB}")
+        THIRD_PARTY_INSTALL_LIBRARY( ${TP_LIB} )
+      endforeach()
 
       # platform specific configuration
       #(shamefully copied from gsmh build system for the Apple part)
