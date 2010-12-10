@@ -156,8 +156,8 @@ public: // functions
   /// The path may be relative to this component or absolute.
   /// This is strictly a path operation so the path may not actually point anywhere
   /// @param path to a component
-  /// @post path statisfies CPath::is_complete()
-  /// @post path statisfies CPath::is_absolute()
+  /// @post path statisfies URI::is_complete()
+  /// @post path statisfies URI::is_absolute()
   void complete_path ( URI& path ) const;
 
   /// Looks for a component via its path
@@ -182,7 +182,7 @@ public: // functions
     return boost::dynamic_pointer_cast<T const>(look_component(path));
   }
   template < typename T >
-    typename T::ConstPtr look_component ( const CPath& path ) const
+    typename T::ConstPtr look_component ( const URI& path ) const
   {
     return boost::dynamic_pointer_cast<T const>(look_component(path));
   }
@@ -197,7 +197,7 @@ public: // functions
     return boost::dynamic_pointer_cast<T>(look_component(path));
   }
   template < typename T >
-  typename T::Ptr look_component ( const CPath& path )
+  typename T::Ptr look_component ( const URI& path )
   {
     return boost::dynamic_pointer_cast<T>(look_component(path));
   }
