@@ -35,10 +35,10 @@ if(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
       # Boost and MPI as system dependencies and does
       # not copy the files into the installer, so we copy them manually
 
-      foreach ( TP_LIB ${CF_TP_LIBRARIES} )
-        coolfluid_log (" +++ installing ${TP_LIB}")
+      foreach( TP_LIB ${CF_TP_LIBRARIES} )
+        # coolfluid_log(" +++ installing ${TP_LIB}")
         THIRD_PARTY_INSTALL_LIBRARY( ${TP_LIB} )
-      endforeach( TP_LIB )
+      endforeach()
  
       THIRD_PARTY_INSTALL_LIBRARY(${QT_LIBRARIES})
 
