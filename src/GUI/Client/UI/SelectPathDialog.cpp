@@ -11,7 +11,7 @@
 #include <QStringListModel>
 #include <QVBoxLayout>
 
-#include "Common/CPath.hpp"
+#include "Common/URI.hpp"
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/UI/TreeView.hpp"
@@ -60,7 +60,7 @@ SelectPathDialog::SelectPathDialog(QWidget *parent) :
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CPath SelectPathDialog::show(const CPath & path)
+URI SelectPathDialog::show(const URI & path)
 {
   m_treeView->selectItem(path);
   m_editPath->setText(path.string().c_str());
@@ -72,7 +72,7 @@ CPath SelectPathDialog::show(const CPath & path)
   if(m_okClicked)
     return m_treeView->selectedPath();
   else
-    return CPath();
+    return URI();
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -107,7 +107,7 @@ void SelectPathDialog::itemClicked(const QModelIndex & index)
 
 void SelectPathDialog::pathChanged(const QString & path)
 {
-  int lastSlash = path.lastIndexOf(CPath::separator().c_str());
+  int lastSlash = path.lastIndexOf(URI::separator().c_str());
   QString newPath;
   QStringList list;
   CNode::Ptr node;
@@ -140,6 +140,6 @@ void SelectPathDialog::pathChanged(const QString & path)
         m_treeView->selectItem(newPath.toStdString());
       }
     }
-    catch(InvalidPath & ip) {}
+    catch(InvalidURI & ip) {}
   }
 }

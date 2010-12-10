@@ -36,11 +36,11 @@ namespace Server {
 
     void begin_notify();
 
-    void newEvent(const std::string & name, const CF::Common::CPath & raiserPath);
+    void newEvent(const std::string & name, const CF::Common::URI & raiserPath);
 
   signals:
 
-    void eventOccured(const std::string & name, const CF::Common::CPath & raiserPath);
+    void eventOccured(const std::string & name, const CF::Common::URI & raiserPath);
 
   private:
 

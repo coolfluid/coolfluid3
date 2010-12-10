@@ -134,37 +134,37 @@ BOOST_AUTO_TEST_CASE( complete_path )
   dir2->add_component( dir3 );
 
   // test absolute & complete path
-  CPath p0 ( "//root/dir1" );
+  URI p0 ( "//root/dir1" );
   dir2->complete_path( p0 );
   BOOST_CHECK_EQUAL ( p0.string(), "//root/dir1" );
 
   // test relative
-  CPath p10 ( ".." );
+  URI p10 ( ".." );
   dir2->complete_path( p10 );
   BOOST_CHECK_EQUAL ( p10.string(), "//root/dir1" );
 
   // test relative
-  CPath p11 ( "./" );
+  URI p11 ( "./" );
   dir2->complete_path( p11 );
   BOOST_CHECK_EQUAL ( p11.string(), "//root/dir1/dir2" );
 
   // test relative & complete path
-  CPath p12 ( "../../dir2" );
+  URI p12 ( "../../dir2" );
   dir3->complete_path( p12 );
   BOOST_CHECK_EQUAL ( p12.string(), "//root/dir1/dir2" );
 
   // test absolute & incomplete path
-  CPath p2 ( "//root/dir1/dir2/../dir2" );
+  URI p2 ( "//root/dir1/dir2/../dir2" );
   dir2->complete_path( p2 );
   BOOST_CHECK_EQUAL ( p2.string(), "//root/dir1/dir2" );
 
   // test absolute & multiple incomplete path
-  CPath p3 ( "//root/dir1/../dir2/../dir1/../dir2/dir3" );
+  URI p3 ( "//root/dir1/../dir2/../dir1/../dir2/dir3" );
   dir2->complete_path( p3 );
   BOOST_CHECK_EQUAL ( p3.string(), "//root/dir2/dir3" );
 
   // test absolute & multiple incomplete path at end
-  CPath p4 ( "//root/dir1/dir2/dir3/../../" );
+  URI p4 ( "//root/dir1/dir2/dir3/../../" );
   dir2->complete_path( p4 );
   BOOST_CHECK_EQUAL ( p4.string(), "//root/dir1" );
 
@@ -188,12 +188,12 @@ BOOST_AUTO_TEST_CASE( look_component )
   dir2->add_component( dir22 );
 
   // test relative & complete path
-  CPath p0 ( "../dir21" );
+  URI p0 ( "../dir21" );
   Component::Ptr cp0 = dir22->look_component( p0 );
   BOOST_CHECK_EQUAL ( cp0->full_path().string(), "//root/dir1/dir2/dir21" );
 
   // test relative & complete path
-  CPath p1 ( "//root/dir1" );
+  URI p1 ( "//root/dir1" );
   Component::Ptr cp1 = dir22->look_component( p1 );
   BOOST_CHECK_EQUAL ( cp1->full_path().string(), "//root/dir1" );
 }

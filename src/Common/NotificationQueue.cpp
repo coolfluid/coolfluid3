@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CPath.hpp"
+#include "Common/URI.hpp"
 #include "Common/NotificationQueue.hpp"
 
 using namespace CF::Common;
@@ -28,11 +28,11 @@ NotificationQueue::~NotificationQueue()
 ////////////////////////////////////////////////////////////////////////////////
 
 void NotificationQueue::add_notification ( const std::string & name,
-                                           const CPath & sender_path )
+                                           const URI & sender_path )
 {
   cf_assert( !name.empty() );
 
-  m_notifications.push_back( std::pair<std::string, CPath>(name, sender_path) );
+  m_notifications.push_back( std::pair<std::string, URI>(name, sender_path) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -45,7 +45,7 @@ CF::Uint NotificationQueue::nb_notifications ( const std::string & name ) const
     count = m_notifications.size();
   else
   {
-    std::vector< std::pair<std::string, CPath> >::const_iterator it;
+    std::vector< std::pair<std::string, URI> >::const_iterator it;
 
     for (it = m_notifications.begin() ; it != m_notifications.end() ; it++)
     {
@@ -61,7 +61,7 @@ CF::Uint NotificationQueue::nb_notifications ( const std::string & name ) const
 
 void NotificationQueue::flush()
 {
-  std::vector< std::pair<std::string, CPath> >::iterator it;
+  std::vector< std::pair<std::string, URI> >::iterator it;
 
   if( !m_notifications.empty() )
   {

@@ -7,7 +7,7 @@
 #include <QtTest>
 #include <QModelIndex>
 
-#include "Common/CPath.hpp"
+#include "Common/URI.hpp"
 #include "Common/XmlHelpers.hpp"
 
 #include "GUI/Client/Core/ClientRoot.hpp"

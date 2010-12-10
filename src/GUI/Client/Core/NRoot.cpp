@@ -12,7 +12,7 @@
 #include <boost/uuid/uuid_io.hpp>
 
 #include "Common/CF.hpp"
-#include "Common/CPath.hpp"
+#include "Common/URI.hpp"
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/NRoot.hpp"
@@ -24,7 +24,7 @@ NRoot::NRoot(const QString & name)
   : CNode(name, "CRoot", ROOT_NODE),
     m_uuid(boost::uuids::random_generator()())
 {
-   
+
 
   m_root = CRoot::create(name.toStdString());
 }

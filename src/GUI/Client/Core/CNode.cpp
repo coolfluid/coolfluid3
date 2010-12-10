@@ -328,8 +328,8 @@ void CNode::modifyOptions(const QMap<QString, QString> & options)
 
 CNode::Ptr CNode::createFromXml(CF::Common::XmlNode & node)
 {
-  QMap<NLink::Ptr, CPath> linkTargets;
-  QMap<NLink::Ptr, CPath>::iterator it;
+  QMap<NLink::Ptr, URI> linkTargets;
+  QMap<NLink::Ptr, URI>::iterator it;
   CNode::Ptr rootNode;
 
   rootNode = createFromXmlRec(node, linkTargets);
@@ -550,7 +550,7 @@ void CNode::actions(QList<ActionInfo> & actions) const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, CPath> & linkTargets)
+CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, URI> & linkTargets)
 {
   XmlAttr * typeAttr = node.first_attribute("atype");
   XmlAttr * nameAttr = node.first_attribute("name");

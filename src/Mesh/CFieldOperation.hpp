@@ -148,7 +148,7 @@ public: // functions
 
   void trigger_Field()
   {
-    Common::CPath field_path (property("Field").value<Common::URI>());
+    Common::URI field_path (property("Field").value<Common::URI>());
     scalar_field = look_component_type<CField>(field_path);
     scalar_name = scalar_field->field_name();
   }
@@ -212,7 +212,7 @@ public: // functions
 
   void trigger_Field()
   {
-    Common::CPath field_path (property("Field").value<Common::URI>());
+    Common::URI field_path (property("Field").value<Common::URI>());
 //    CFdebug << "field_path = " << field_path.string() << CFendl;
     volume_field = look_component_type<CField>(field_path);
   }
@@ -284,7 +284,7 @@ public: // functions
 
   void trigger_Field()
   {
-    Common::CPath field_path (property("Field").value<Common::URI>());
+    Common::URI field_path (property("Field").value<Common::URI>());
 //    CFdebug << "field_path = " << field_path.string() << CFendl;
     field = look_component_type<CField>(field_path);
   }

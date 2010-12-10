@@ -49,13 +49,14 @@ void OptionURI::configure ( XmlNode& node )
 //  if( colon_pos == std::string::npos ) // if ':' was not found
 //    throw XmlError(FromHere(), "No protocol found in URI.");
 
-  std::string protocol_str = val.protocol(); //val.substr(0, colon_pos);
+  throw NotImplemented(FromHere(), "adapt to the new protocol system");
+//  std::string protocol_str = val.protocol(); //val.substr(0, colon_pos);
 
-  if(!m_protocols.empty())
-  {
-    if(std::find(m_protocols.begin(), m_protocols.end(), protocol_str) == m_protocols.end())
-      throw XmlError(FromHere(), protocol_str + ": unsupported protocol.");
-  }
+//  if(!m_protocols.empty())
+//  {
+//    if(std::find(m_protocols.begin(), m_protocols.end(), protocol_str) == m_protocols.end())
+//      throw XmlError(FromHere(), protocol_str + ": unsupported protocol.");
+//  }
 
   m_value = val;
 }

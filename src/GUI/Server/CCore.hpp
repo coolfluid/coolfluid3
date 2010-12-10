@@ -69,7 +69,7 @@ namespace Server {
 
      void sendFrameRejected(const std::string & clientid,
                             const std::string & frameid,
-                            const CF::Common::CPath & sender,
+                            const CF::Common::URI & sender,
                             const QString & reason);
 
      void sendException(const char * what,
@@ -110,7 +110,7 @@ namespace Server {
 
   public slots:
 
-    void newEvent(const std::string & name, const CF::Common::CPath & path);
+    void newEvent(const std::string & name, const CF::Common::URI & path);
 
   private:
     /// @brief The default path for the file browsing.

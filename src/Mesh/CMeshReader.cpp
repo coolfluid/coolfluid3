@@ -61,7 +61,7 @@ void CMeshReader::read( XmlNode& xml  )
 
   URI path = p.get_option<URI>("Domain");
 
-  if( ! path.is_protocol("cpath") )
+  if( path.protocol() != URIProtocol::CPATH )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
   // get the domain
@@ -75,12 +75,12 @@ void CMeshReader::read( XmlNode& xml  )
   // check protocol for file loading
   BOOST_FOREACH(URI file, files)
   {
-    if( file.empty() || !file.is_protocol("file"))
+    if( file.empty() || file.protocol() != URIProtocol::FILE )
       throw ProtocolError( FromHere(), "Wrong protocol to access the file, expecting a \'file\' but got \'" + file.string() + "\'" );
   }
 
   // create a mesh in the domain
-  if( !files.empty() ) 
+  if( !files.empty() )
   {
     CMesh::Ptr mesh = domain->create_component_type<CMesh>("Mesh");
 

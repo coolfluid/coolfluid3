@@ -29,7 +29,7 @@ class QSortFilterProxyModel;
 
 namespace CF {
 
-namespace Common { class CPath; }
+namespace Common { class URI; }
 
 namespace GUI {
 
@@ -91,13 +91,13 @@ namespace ClientUI {
     /// Otherwise, returns @c false.
     bool isReadOnly() const;
 
-    CF::Common::CPath selectedPath() const;
+    CF::Common::URI selectedPath() const;
 
-    CF::Common::CPath pathFromIndex(const QModelIndex & index);
+    CF::Common::URI pathFromIndex(const QModelIndex & index);
 
     QIcon iconFromIndex(const QModelIndex & index);
 
-    void selectItem(const CF::Common::CPath & path);
+    void selectItem(const CF::Common::URI & path);
 
     void setFilter(const QString & pattern);
 

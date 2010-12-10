@@ -11,7 +11,7 @@
 
 #include "Common/CF.hpp"
 #include "Common/CRoot.hpp"
-#include "Common/CPath.hpp"
+#include "Common/URI.hpp"
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 //#include "GUI/Client/Core/SelectPathDialog.hpp"
@@ -24,7 +24,7 @@ using namespace CF::GUI::ClientCore;
 NLink::NLink(const QString & name)
   : CNode(name, "CLink", LINK_NODE)
 {
-   
+
 
   regist_signal("goToTarget", "Switch to the target node", "Go to target node")->connect(boost::bind(&NLink::goToTarget, this, _1));
 
@@ -59,10 +59,10 @@ QString NLink::toolTip() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CPath NLink::targetPath() const
+URI NLink::targetPath() const
 {
   if(m_target.get() == nullptr)
-    return CPath();
+    return URI();
 
   return m_target->full_path();
 }
@@ -70,7 +70,7 @@ CPath NLink::targetPath() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NLink::setTargetPath(const CPath & path)
+void NLink::setTargetPath(const URI & path)
 {
   CNode::Ptr target = boost::dynamic_pointer_cast<CRoot>(m_root.lock())->access_component<CNode>(path);
   this->setTargetNode(target);
@@ -140,7 +140,7 @@ void NLink::change_link(CF::Common::XmlNode & node)
                                      .arg(full_path().string().c_str()).arg(path.c_str()));
 
   }
-  catch(InvalidPath & ip)
+  catch(InvalidURI & ip)
   {
     ClientRoot::log()->addError(ip.msg().c_str());
   }

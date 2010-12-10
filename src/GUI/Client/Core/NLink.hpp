@@ -17,7 +17,7 @@
 
 namespace CF {
 
-namespace Common { class CPath; }
+namespace Common { class URI; }
 
 namespace GUI {
 namespace ClientCore {
@@ -49,12 +49,12 @@ namespace ClientCore {
 
     /// @brief Gives the target path
     /// @return Returns the target path.
-    CF::Common::CPath targetPath() const;
+    CF::Common::URI targetPath() const;
 
     /// @brief Sets new target from its path.
     /// @param path New target path.
     /// @throw InvalidPath If the path does exist.
-    void setTargetPath(const CF::Common::CPath & path);
+    void setTargetPath(const CF::Common::URI & path);
 
     /// @brief Sets new target.
     /// If the node is null, nothing is done.

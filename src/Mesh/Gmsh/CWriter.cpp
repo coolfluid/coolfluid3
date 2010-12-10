@@ -405,7 +405,7 @@ void CWriter::write_nodal_data(std::fstream& file)
 			}
 			
 			Uint nb_nodes=0;
-			BOOST_FOREACH(const CPath& field_data_path, field_data_paths)
+			BOOST_FOREACH(const URI& field_data_path, field_data_paths)
 			{
 				const CTable<Real>& field_data = *m_mesh->look_component_type<CTable<Real> >(field_data_path);
 				
@@ -421,7 +421,7 @@ void CWriter::write_nodal_data(std::fstream& file)
 			
 			
 			Uint local_node_idx=1;   // +1 for gmsh base starting at 1
-			BOOST_FOREACH(const CPath& field_data_path, field_data_paths)
+			BOOST_FOREACH(const URI& field_data_path, field_data_paths)
 			{
 				const CTable<Real>& field_data = *m_mesh->look_component_type<CTable<Real> >(field_data_path);
 

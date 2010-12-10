@@ -247,11 +247,11 @@ BOOST_AUTO_TEST_CASE( configure_component_path )
   component1->configure_property("MyAbsoluteFriend",URI("cpath://root/component2"));
 
   // Check if everything worked OK.
-  CPath absolute_friend_path = component1->property("MyAbsoluteFriend").value<URI>();
+  URI absolute_friend_path = component1->property("MyAbsoluteFriend").value<URI>();
   CConcrete1::Ptr absolute_friend = component1->look_component_type<CConcrete1>(absolute_friend_path);
   BOOST_CHECK_EQUAL(absolute_friend->name(),"component2");
 
-  CPath relative_friend_path = component1->property("MyRelativeFriend").value<URI>();
+  URI relative_friend_path = component1->property("MyRelativeFriend").value<URI>();
   CConcrete1::Ptr relative_friend = component1->look_component_type<CConcrete1>(relative_friend_path);
   BOOST_CHECK_EQUAL(relative_friend->name(),"component2");
 }

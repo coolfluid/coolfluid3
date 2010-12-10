@@ -169,7 +169,7 @@ void ServerNetworkComm::sendSignalToClient(const XmlNode & signal, const string 
 
 void ServerNetworkComm::sendFrameRejectedToClient(const string clientid,
                                                   const string & frameid,
-                                                  const CPath & sender,
+                                                  const URI & sender,
                                                   const QString & reason)
 {
   QTcpSocket * socket = this->getSocket(clientid);
@@ -200,7 +200,7 @@ void ServerNetworkComm::sendMessageToClient(const QString & message,
 
 bool ServerNetworkComm::sendFrameRejected(QTcpSocket * clientId,
                                           const string & frameid,
-                                          const CPath & sender,
+                                          const URI & sender,
                                           const QString & reason)
 {
   boost::shared_ptr<XmlNode> doc = XmlOps::create_doc();

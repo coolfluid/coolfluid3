@@ -44,27 +44,27 @@ namespace Common {
     /// The path should be absolute
     /// @param path to the component
     /// @return pointer to Component
-    Component::Ptr access_component ( const CPath& path );
+    Component::Ptr access_component ( const URI& path );
 
     /// Access the component described by the path
     /// The path should be absolute
     /// @param path to the component
     /// @return pointer to Component cast to the sepcified TYPE
     template < typename TYPE >
-        typename TYPE::Ptr access_component ( const CPath& path );
+        typename TYPE::Ptr access_component ( const URI& path );
 
     /// define the component path
     /// @param path to the component
     /// @param comp the component for which to define the path
-    void change_component_path ( const CPath& path, Component::Ptr comp );
+    void change_component_path ( const URI& path, Component::Ptr comp );
 
     /// remove a component path
     /// @param path to the component
-    void remove_component_path ( const CPath& path );
+    void remove_component_path ( const URI& path );
 
     /// check that a component path actually points to a component
     /// @param path to the component
-    bool exists_component_path ( const CPath& path ) const;
+    bool exists_component_path ( const URI& path ) const;
 
     /// dump to string table of contents of the component list
     /// @return string with list of components in the root
@@ -75,7 +75,7 @@ namespace Common {
     /// @param raiser_path Path of the component that raised the event. The path
     /// must exist under this root.
     void raise_new_event ( const std::string & event_name,
-                           const CPath & raiser_path );
+                           const URI & raiser_path );
 
     /// @brief Adds a listener to the events
     /// @param queue The queue object. Cannot be null.
@@ -101,7 +101,7 @@ namespace Common {
 ////////////////////////////////////////////////////////////////////////////////
 
   template < typename TYPE >
-  inline typename TYPE::Ptr CRoot::access_component ( const CPath& path )
+  inline typename TYPE::Ptr CRoot::access_component ( const URI& path )
   {
     return boost::dynamic_pointer_cast<TYPE>( this->access_component (path) );
   }

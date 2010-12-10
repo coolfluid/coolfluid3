@@ -13,7 +13,7 @@
 
 #include "Common/CF.hpp"
 #include "Common/Core.hpp"
-#include "Common/CPath.hpp"
+#include "Common/URI.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/XmlHelpers.hpp"
 

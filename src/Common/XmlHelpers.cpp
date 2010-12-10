@@ -11,7 +11,7 @@
 
 #include <rapidxml/rapidxml_print.hpp>
 
-#include "Common/CPath.hpp"
+#include "Common/URI.hpp"
 #include "Common/Log.hpp"
 
 #include "Common/XmlHelpers.hpp"
@@ -448,8 +448,8 @@ namespace Common {
 
   XmlNode* XmlOps::add_signal_frame( XmlNode& xmlnode,
                                      const std::string & target,
-                                     const CPath & sender,
-                                     const CPath & receiver,
+                                     const URI & sender,
+                                     const URI & receiver,
                                      bool userTrans)
   {
     std::stringstream ss;

@@ -25,7 +25,7 @@ template<typename T> class QList;
 
 namespace CF {
 
-namespace Common { class CPath; }
+namespace Common { class URI; }
 
 namespace GUI {
 namespace ClientCore {
@@ -87,7 +87,7 @@ namespace ClientCore {
     /// @brief Gives the path of the current index.
     /// @return Returns the path of the index returned by @c #getCurrentIndex()
     /// or an empty path if not valid current index is set.
-    CF::Common::CPath currentPath() const;
+    CF::Common::URI currentPath() const;
 
     /// @brief Gets node options
 
@@ -151,20 +151,20 @@ namespace ClientCore {
     /// @param path The node path
     /// @return Returns the found node, or a null shared pointer if
     /// the node does not exist.
-    CNode::Ptr nodeByPath(const CF::Common::CPath & path) const;
+    CNode::Ptr nodeByPath(const CF::Common::URI & path) const;
 
     /// @brief Retrieves a node index from its path.
 
     /// @param path The node index path
     /// @return Returns the found node index, or a invalid index if
     /// it does not exist.
-    QModelIndex indexByPath(const CF::Common::CPath & path) const;
+    QModelIndex indexByPath(const CF::Common::URI & path) const;
 
     /// @brief Gives the path of the provided index.
     /// @param index Index of which we want to know the path.
     /// @return Returns the index path, or an empty path if the index is not
     /// valid.
-    CF::Common::CPath pathFromIndex(const QModelIndex & index) const;
+    CF::Common::URI pathFromIndex(const QModelIndex & index) const;
 
     /// @brief Retrieves an index frome a node
 
@@ -261,7 +261,7 @@ namespace ClientCore {
     void updateRootChildren();
 
     /// @todo Remove this method. CNode should emit a signal.
-    void optionsChanged(const CF::Common::CPath & path);
+    void optionsChanged(const CF::Common::URI & path);
 
     /// @brief Checks whether a node name or one of its children matches a
     /// provided regular expression.

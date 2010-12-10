@@ -13,7 +13,7 @@
 #include <QValidator>
 #include <QVBoxLayout>
 
-#include "Common/CPath.hpp"
+#include "Common/URI.hpp"
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 
@@ -159,7 +159,7 @@ void GraphicalUriArray::btAddClicked()
       SelectPathDialog spd;
       QString modified_path = m_editAdd->text();
 
-      CPath path = spd.show(modified_path.toStdString());
+      URI path = spd.show(modified_path.toStdString());
 
       if(!path.empty())
         m_editAdd->setText( path.string().c_str() );

@@ -80,7 +80,7 @@ void ClientRoot::processSignal(const QDomDocument & signal)
       else
         root()->root()->access_component(receiver)->call_signal(type, *nodeToProcess);
     }
-    catch(InvalidPath ip)
+    catch(InvalidURI ip)
     {
       log()->addException(ip.what());
     }

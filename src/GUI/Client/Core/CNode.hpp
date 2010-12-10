@@ -419,7 +419,7 @@ namespace ClientCore {
     /// @return Retuns a shared pointer to the created node.
     /// @throw XmlError If the tree could not be built.
     static CNode::Ptr createFromXmlRec(CF::Common::XmlNode & node,
-               QMap<boost::shared_ptr<NLink>, CF::Common::CPath> & linkTargets);
+               QMap<boost::shared_ptr<NLink>, CF::Common::URI> & linkTargets);
 
     /// @brief Converts a std::vector<boost::any> to a string list.
 

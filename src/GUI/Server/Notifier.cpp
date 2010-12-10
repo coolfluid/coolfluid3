@@ -51,7 +51,7 @@ void Notifier::begin_notify()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void Notifier::newEvent(const std::string & name, const CPath & raiserPath)
+void Notifier::newEvent(const std::string & name, const URI & raiserPath)
 {
   QMap<std::string, bool>::iterator it = m_onceNotifyingEvents.find(name);
 

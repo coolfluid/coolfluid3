@@ -51,7 +51,7 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  boost::shared_ptr<Component> CRoot::access_component( const CPath& path )
+  boost::shared_ptr<Component> CRoot::access_component( const URI& path )
   {
     cf_assert ( path.is_complete() );
 
@@ -59,12 +59,12 @@ namespace Common {
     if ( itr != m_toc.end() )
       return itr->second;
     else
-      throw InvalidPath(FromHere(), "No component exists with path [" + path.string() + "]");
+      throw InvalidURI(FromHere(), "No component exists with path [" + path.string() + "]");
   }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  void CRoot::change_component_path( const CPath& path , boost::shared_ptr<Component> comp )
+  void CRoot::change_component_path( const URI& path , boost::shared_ptr<Component> comp )
   {
     remove_component_path( comp->full_path().string() );
 
@@ -78,7 +78,7 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  void CRoot::remove_component_path( const CPath& path )
+  void CRoot::remove_component_path( const URI& path )
   {
     cf_assert ( path.is_complete() );
 
@@ -90,7 +90,7 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  bool CRoot::exists_component_path( const CPath& path ) const
+  bool CRoot::exists_component_path( const URI& path ) const
   {
     cf_assert ( path.is_complete() );
 
@@ -115,7 +115,7 @@ namespace Common {
 ////////////////////////////////////////////////////////////////////////////////
 
   void CRoot::raise_new_event ( const std::string & event_name,
-                                const CPath & raiser_path )
+                                const URI & raiser_path )
   {
     cf_assert( exists_component_path(raiser_path) );
 

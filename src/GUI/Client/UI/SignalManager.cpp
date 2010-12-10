@@ -43,7 +43,7 @@ SignalManager::~SignalManager()
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void SignalManager::showMenu(const QPoint & pos, const CF::Common::CPath & path,
+void SignalManager::showMenu(const QPoint & pos, const CF::Common::URI & path,
                              const QList<ActionInfo> & sigs)
 {
   QList<ActionInfo>::const_iterator it = sigs.begin();
@@ -106,7 +106,7 @@ void SignalManager::actionTriggered()
             else
               ClientRoot::root()->root()->access_component(m_path)->call_signal(info.m_name.toStdString(), frame);
           }
-          catch(InvalidPath ip)
+          catch(InvalidURI ip)
           {
             ClientRoot::log()->addException(ip.what());
           }

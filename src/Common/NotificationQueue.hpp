@@ -22,7 +22,7 @@ namespace Common {
 
   ///////////////////////////////////////////////////////////////////////////////
 
-  class CPath;
+  class URI;
 
   /// @brief Manages a notification queue.
 
@@ -59,7 +59,7 @@ namespace Common {
     /// created.
     /// @param name Event name
     /// @param sender_path Path of the component that emitted the event
-    void add_notification ( const std::string & name, const CPath & sender_path );
+    void add_notification ( const std::string & name, const URI & sender_path );
 
     /// @brief Counts the notifications for a speficied event.
 
@@ -81,13 +81,13 @@ namespace Common {
     /// @param receiver The object that will receive the event.
     template<class NOTIFIER>
     void add_notifier( const std::string & name,
-                       void (NOTIFIER::*fcnt)(const std::string & name, const CPath & sender_path),
+                       void (NOTIFIER::*fcnt)(const std::string & name, const URI & sender_path),
                        NOTIFIER * receiver);
 
   private: // typedefs
 
     /// @brief Typedef for event signals
-    typedef boost::signals2::signal< void (const std::string&, const CPath&) > SignalType_t;
+    typedef boost::signals2::signal< void (const std::string&, const URI&) > SignalType_t;
 
     /// @brief Boost shared pointer for a signal
     typedef boost::shared_ptr<SignalType_t> SignalPtr_t;
@@ -107,7 +107,7 @@ namespace Common {
 
     /// For each pair, the @c first if the event name, and the @c second is
     /// the path to the component that emitted the event.
-    std::vector< std::pair<std::string, CPath> > m_notifications;
+    std::vector< std::pair<std::string, URI> > m_notifications;
 
     /// @brief Signal used to raise events when #flush() method is called.
     boost::shared_ptr< SignalTypeFlush_t > m_sig_begin_flush;
@@ -124,7 +124,7 @@ namespace Common {
 
   template<class NOTIFIER>
   void NotificationQueue::add_notifier( const std::string & name,
-                                        void (NOTIFIER::*fcnt)(const std::string & name, const CPath & sender_path),
+                                        void (NOTIFIER::*fcnt)(const std::string & name, const URI & sender_path),
                                         NOTIFIER * receiver)
   {
     cf_assert( receiver != nullptr );

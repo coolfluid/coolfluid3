@@ -97,7 +97,7 @@ namespace Server {
 
     void sendFrameRejectedToClient(const std::string clientid,
                                    const std::string & frameid,
-                                   const CF::Common::CPath & sender,
+                                   const CF::Common::URI & sender,
                                    const QString & reason);
 
     void disconnectAll();
@@ -183,7 +183,7 @@ namespace Server {
 
 		bool sendFrameRejected(QTcpSocket * client,
 													 const std::string & frameid,
-													 const CF::Common::CPath & sender,
+													 const CF::Common::URI & sender,
 													 const QString & reason);
 
 		/// @brief Retrieves a client socket from its UUID.

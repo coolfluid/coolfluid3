@@ -10,7 +10,7 @@
 
 #include <QDebug>
 
-#include "Common/CPath.hpp"
+#include "Common/URI.hpp"
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/UI/TreeView.hpp"

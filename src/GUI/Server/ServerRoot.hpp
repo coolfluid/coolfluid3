@@ -50,7 +50,7 @@ namespace Server {
     static CF::Common::CRoot::Ptr root();
 
     static void processSignal(const std::string & target,
-                              const CF::Common::CPath & receiver,
+                              const CF::Common::URI & receiver,
                               const std::string & clientid,
                               const std::string & frameid,
                               CF::Common::XmlNode & node,

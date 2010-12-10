@@ -14,7 +14,7 @@
 
 #include "Common/SignalHandler.hpp"
 #include "Common/TaggedObject.hpp"
-#include "Common/CPath.hpp"
+#include "Common/URI.hpp"
 
 namespace CF {
 namespace Common {
@@ -147,10 +147,10 @@ public: // functions
   void rename ( const std::string& name );
 
   /// Access the path of the component
-  const CPath& path () const { return m_path; }
+  const URI& path () const { return m_path; }
 
   /// Construct the full path
-  CPath full_path () const { return m_path / m_name; }
+  URI full_path () const { return m_path / m_name; }
 
   /// Resolves relative elements within a path to complete it.
   /// The path may be relative to this component or absolute.
@@ -158,17 +158,17 @@ public: // functions
   /// @param path to a component
   /// @post path statisfies CPath::is_complete()
   /// @post path statisfies CPath::is_absolute()
-  void complete_path ( CPath& path ) const;
+  void complete_path ( URI& path ) const;
 
   /// Looks for a component via its path
   /// @param path to the component
   /// @return constant Ptr to component
-  ConstPtr look_component ( const CPath& path ) const;
+  ConstPtr look_component ( const URI& path ) const;
 
   /// Looks for a component via its path
   /// @param path to the component
   /// @return Ptr to component
-  Ptr look_component ( const CPath& path );
+  Ptr look_component ( const URI& path );
 
   /// Looks for a component via its path
   /// @param path to the component
@@ -177,7 +177,7 @@ public: // functions
   /// @return constant Ptr to component cast to specific type
   /// @todo to be replaced by look_component<T>
   template < typename T >
-    typename T::ConstPtr look_component_type ( const CPath& path ) const
+    typename T::ConstPtr look_component_type ( const URI& path ) const
   {
     return boost::dynamic_pointer_cast<T const>(look_component(path));
   }
@@ -192,7 +192,7 @@ public: // functions
   /// @return Ptr to component cast to specific type
   /// @todo to be replaced by look_component<T>
   template < typename T >
-  typename T::Ptr look_component_type ( const CPath& path )
+  typename T::Ptr look_component_type ( const URI& path )
   {
     return boost::dynamic_pointer_cast<T>(look_component(path));
   }
@@ -358,9 +358,9 @@ private: // helper functions
 protected: // data
 
   /// component name (stored as path to ensure validity)
-  CPath m_name;
+  URI m_name;
   /// component current path
-  CPath m_path;
+  URI m_path;
   /// storage of the option list
   PropertyList m_properties;
   /// list of sub-components

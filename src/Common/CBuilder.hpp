@@ -121,7 +121,7 @@ public:
   {
     XmlParams params (xml);
     typename BASE::Ptr comp = this->build_component_typed ( params.get_option<std::string>("Component name") );
-    CPath parent_path ( params.get_option<URI>("Parent component") );
+    URI parent_path ( params.get_option<URI>("Parent component") );
     Component::Ptr parent = this->look_component( parent_path );
     parent->add_component( comp );
   }

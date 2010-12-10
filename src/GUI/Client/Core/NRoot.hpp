@@ -19,7 +19,7 @@
 
 namespace CF {
 
-namespace Common { class CPath; }
+namespace Common { class URI; }
 
 namespace GUI {
 namespace ClientCore {

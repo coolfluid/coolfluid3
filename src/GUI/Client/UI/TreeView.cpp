@@ -95,10 +95,10 @@ bool TreeView::isReadOnly() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CPath TreeView::selectedPath() const
+URI TreeView::selectedPath() const
 {
   QModelIndex currentPath = this->selectionModel()->currentIndex();
-  CPath path;
+  URI path;
 
   if(currentPath.isValid())
   {
@@ -113,7 +113,7 @@ CPath TreeView::selectedPath() const
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CPath TreeView::pathFromIndex(const QModelIndex & index)
+URI TreeView::pathFromIndex(const QModelIndex & index)
 {
   return ClientRoot::tree()->pathFromIndex(m_modelFilter->mapToSource(index));
 }
@@ -130,7 +130,7 @@ QIcon TreeView::iconFromIndex(const QModelIndex & index)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void TreeView::selectItem(const CPath & path)
+void TreeView::selectItem(const URI & path)
 {
   QModelIndex index = ClientRoot::tree()->indexByPath(path);
 
@@ -179,7 +179,7 @@ void TreeView::mousePressEvent(QMouseEvent * event)
       if(button == Qt::RightButton && this->confirmChangeOptions(index))
       {
         QList<ActionInfo> actions;
-        CPath path;
+        URI path;
 
         tree->setCurrentIndex(indexInModel);
         tree->listNodeActions(indexInModel, actions);

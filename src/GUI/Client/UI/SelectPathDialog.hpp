@@ -24,7 +24,7 @@ class QVBoxLayout;
 
 namespace CF {
 
-  namespace Common { class CPath; }
+  namespace Common { class URI; }
 
 namespace GUI {
 namespace ClientUI {
@@ -40,7 +40,7 @@ namespace ClientUI {
 
       SelectPathDialog(QWidget *parent = 0);
 
-      CF::Common::CPath show(const CF::Common::CPath & path);
+      CF::Common::URI show(const CF::Common::URI & path);
 
   private slots:
 

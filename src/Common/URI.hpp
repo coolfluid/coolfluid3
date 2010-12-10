@@ -11,6 +11,7 @@
 
 #include "Common/CF.hpp"
 #include "Common/Exception.hpp"
+#include "Common/URIProtocol.hpp"
 
 namespace CF {
 namespace Common {
@@ -85,19 +86,16 @@ namespace Common {
     /// @return the base path
     URI base_path() const;
 
+    /// check that the passed string is a valid path element
+    static bool is_valid_element ( const std::string& str);
+
     /// separator for path tokens
     static const std::string& separator ();
 
-    /// Checks whether the specified protocol is present in this URI.
-    /// @param protocol The protocol to check
-    /// @return Returns @c true if the protocol is present or if it is empty.
-    /// Otherwise, returns @c false.
-    bool is_protocol(const std::string & protocol) const;
-
     /// Gives the protocol (if any).
-    /// @return Returns the protocol. May return an empty string if there is no
-    /// protocol.
-    std::string protocol() const;
+    /// @return Returns the protocol. May return @c URIProtocol::INVALID if no
+    /// protocol has been specified.
+    URIProtocol::Type protocol() const;
 
     /// Gives the string value without the protocol
     /// @return Returns the string without the protocol
@@ -116,10 +114,15 @@ namespace Common {
     /// @return the in stream
     friend std::istream& operator>> (std::istream& in, URI& path);
 
+    static void split_path(const std::string & path, URIProtocol::Type & protocol,
+                      std::string & real_path);
+
   private:
 
     /// path string
     std::string m_path;
+    /// Current URI protocol
+    URIProtocol::Type m_protocol;
 
   }; // URI
 

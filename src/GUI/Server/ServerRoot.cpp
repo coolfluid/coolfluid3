@@ -70,8 +70,8 @@ CRoot::Ptr ServerRoot::root()
 
     m_notifier->listenToEvent("tree_updated", true);
 
-    QObject::connect(m_notifier, SIGNAL(eventOccured(std::string,CF::Common::CPath)),
-                     core.get(), SLOT(newEvent(std::string,CF::Common::CPath)));
+    QObject::connect(m_notifier, SIGNAL(eventOccured(std::string,CF::Common::URI)),
+                     core.get(), SLOT(newEvent(std::string,CF::Common::URI)));
 
     m_thread = nullptr;
     root->add_component(core);
@@ -92,7 +92,7 @@ CRoot::Ptr ServerRoot::root()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 void ServerRoot::processSignal(const string & target,
-                               const CPath & receiver,
+                               const URI & receiver,
                                const string & clientid,
                                const string & frameid,
                                XmlNode & node, boost::shared_ptr<XmlDoc> doc)

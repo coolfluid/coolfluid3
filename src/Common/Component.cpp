@@ -34,8 +34,8 @@ Component::Component ( const std::string& name ) :
 {
   // accept name
 
-  if (!CPath::is_valid_element( name ))
-    throw InvalidPath(FromHere(), "Component name ["+name+"] is invalid");
+  if (!URI::is_valid_element( name ))
+    throw InvalidURI(FromHere(), "Component name ["+name+"] is invalid");
   m_name = name;
 
 
@@ -118,7 +118,7 @@ void Component::rename ( const std::string& name )
   // notification should be done before the real renaming since the path changes
   raise_path_changed();
 
-  CPath new_full_path = m_path / new_name;
+  URI new_full_path = m_path / new_name;
 
   if( ! m_root.expired() ) // inform the root about the change in path
     m_root.lock()->change_component_path( new_full_path , shared_from_this() );
@@ -271,22 +271,22 @@ Component::Ptr Component::remove_component ( const std::string& name )
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Component::complete_path ( CPath& path ) const
+void Component::complete_path ( URI& path ) const
 {
   using namespace boost::algorithm;
 
 //  CFinfo << "PATH [" << path.string() << "]\n" << CFflush;
 
   if ( is_null(m_raw_parent) )
-    throw  InvalidPath(FromHere(), "Component \'" + name() + "\' has no parent");
+    throw  InvalidURI(FromHere(), "Component \'" + name() + "\' has no parent");
 
   if (m_root.expired())
-    throw  InvalidPath(FromHere(), "Component \'" + name() + "\' has no root");
+    throw  InvalidURI(FromHere(), "Component \'" + name() + "\' has no root");
 
   boost::shared_ptr<Component> parent = m_raw_parent->self();
   boost::shared_ptr<Component> root   = m_root.lock();
 
-  std::string sp = path.string();
+  std::string sp = path.string_without_protocol();
 
   if ( path.is_relative() ) // transform it to absolute
   {
@@ -296,17 +296,17 @@ void Component::complete_path ( CPath& path ) const
     // substitute leading "../" for full_path() of parent
     if (starts_with(sp,".."))
     {
-      std::string pfp = parent->full_path().string();
+      std::string pfp = parent->full_path().string_without_protocol();
       boost::algorithm::replace_first(sp, "..", pfp);
     }
     else // substitute leading "./" for full_path() of this component
       if (starts_with(sp,"."))
       {
-        boost::algorithm::replace_first(sp, ".", full_path().string());
+        boost::algorithm::replace_first(sp, ".", full_path().string_without_protocol());
       }
   }
 
-  cf_assert ( CPath(sp).is_absolute() );
+  cf_assert ( URI(sp).is_absolute() );
 
   // break path in tokens and loop on them, while concatenaitng to a new path
   boost::char_separator<char> sep("/");
@@ -397,11 +397,11 @@ void Component::move_to ( Component::Ptr new_parent )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-Component::ConstPtr Component::look_component ( const CPath& path ) const
+Component::ConstPtr Component::look_component ( const URI& path ) const
 {
   if (!m_root.expired())  // root is available. This is a faster method.
   {
-    CPath lpath = path;
+    URI lpath = path;
 
     complete_path(lpath); // ensure the path is complete
 
@@ -414,7 +414,7 @@ Component::ConstPtr Component::look_component ( const CPath& path ) const
   {
     using namespace boost::algorithm;
 
-    std::string sp = path.string();
+    std::string sp = path.string_without_protocol();
 
     // break path in tokens and loop on them, while concatenaitng to a new path
     boost::char_separator<char> sep("/");
@@ -443,11 +443,11 @@ Component::ConstPtr Component::look_component ( const CPath& path ) const
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr Component::look_component ( const CPath& path )
+Component::Ptr Component::look_component ( const URI& path )
 {
   if (!m_root.expired())  // root is available. This is a faster method.
   {
-    CPath lpath = path;
+    URI lpath = path;
 
     complete_path(lpath); // ensure the path is complete
 
@@ -542,7 +542,7 @@ void Component::move_component ( XmlNode& node  )
   XmlParams p ( node );
 
   URI path = p.get_option<URI>("Path");
-  if( ! path.is_protocol("cpath") )
+  if( path.protocol() != URIProtocol::CPATH )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
   Component::Ptr new_parent = look_component( path.string_without_protocol() );

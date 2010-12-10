@@ -11,7 +11,7 @@
 
 #include <QObject>
 
-#include "Common/CPath.hpp"
+#include "Common/URI.hpp"
 
 #include "GUI/Client/Core/CNode.hpp"
 
@@ -39,7 +39,7 @@ namespace ClientUI {
 
     ~SignalManager();
 
-    void showMenu(const QPoint & pos, const CF::Common::CPath & path,
+    void showMenu(const QPoint & pos, const CF::Common::URI & path,
                   const QList<CF::GUI::ClientCore::ActionInfo> & sigs);
 
   private slots:
@@ -52,7 +52,7 @@ namespace ClientUI {
 
     QMenu * m_menu;
 
-    CF::Common::CPath m_path;
+    CF::Common::URI m_path;
 
     QMap<QAction *, CF::GUI::ClientCore::ActionInfo> m_signals;
 

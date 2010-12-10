@@ -48,7 +48,7 @@ CLoopOperation& CLoop::create_action(const std::string action_provider)
 void CLoop::trigger_Regions()
 {
   std::vector<URI> vec; property("Regions").put_value(vec);
-  BOOST_FOREACH(const CPath region_path, vec)
+  BOOST_FOREACH(const URI region_path, vec)
   {
     m_loop_regions.push_back(look_component_type<CRegion>(region_path));
   }

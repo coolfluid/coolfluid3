@@ -91,7 +91,7 @@ void CCore::sendSignal( const CF::Common::XmlNode & signal )
 
 void CCore::sendFrameRejected(const std::string & clientid,
                               const std::string & frameid,
-                              const CF::Common::CPath & sender,
+                              const CF::Common::URI & sender,
                               const QString & reason)
 {
   m_commServer->sendFrameRejectedToClient(clientid, frameid, sender, reason);
@@ -254,7 +254,7 @@ Signal::return_t CCore::read_dir(Signal::arg_t & node)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void CCore::newEvent(const std::string & name, const CPath & path)
+void CCore::newEvent(const std::string & name, const URI & path)
 {
   boost::shared_ptr<XmlDoc> docnode = XmlOps::create_doc();
   XmlNode * rootNode = XmlOps::goto_doc_node(*docnode.get());

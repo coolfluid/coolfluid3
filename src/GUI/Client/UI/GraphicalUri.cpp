@@ -11,7 +11,7 @@
 #include <QPushButton>
 #include <QStringListModel>
 
-#include "Common/CPath.hpp"
+#include "Common/URI.hpp"
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/UI/SelectPathDialog.hpp"
@@ -129,7 +129,7 @@ void GraphicalUri::btBrowseClicked()
     SelectPathDialog spd;
     QString modified_path = m_editPath->text();
 
-    CPath path = spd.show(modified_path.toStdString());
+    URI path = spd.show(modified_path.toStdString());
 
     if(!path.empty())
       m_editPath->setText(path.string().c_str());

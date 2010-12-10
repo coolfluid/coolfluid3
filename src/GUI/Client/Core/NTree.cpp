@@ -102,10 +102,10 @@ QModelIndex NTree::currentIndex() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CPath NTree::currentPath() const
+URI NTree::currentPath() const
 {
   TreeNode * node = this->indexToTreeNode(m_currentIndex);
-  CPath path;
+  URI path;
 
   if(node != nullptr)
   {
@@ -218,7 +218,7 @@ bool NTree::areFromSameNode(const QModelIndex & left, const QModelIndex & right)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CNode::Ptr NTree::nodeByPath(const CPath & path) const
+CNode::Ptr NTree::nodeByPath(const URI & path) const
 {
   QString pathStr = path.string().c_str();
   QStringList comps;
@@ -227,7 +227,7 @@ CNode::Ptr NTree::nodeByPath(const CPath & path) const
 
   if(path.is_absolute())
   {
-    comps = pathStr.split(CPath::separator().c_str(), QString::SkipEmptyParts);
+    comps = pathStr.split(URI::separator().c_str(), QString::SkipEmptyParts);
 
     if(comps.first().toStdString() == node->name())
       comps.removeFirst();
@@ -247,7 +247,7 @@ CNode::Ptr NTree::nodeByPath(const CPath & path) const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QModelIndex NTree::indexByPath(const CPath & path) const
+QModelIndex NTree::indexByPath(const URI & path) const
 {
   QModelIndex index = this->index(0,0);
   QString pathStr = path.string().c_str();
@@ -259,7 +259,7 @@ QModelIndex NTree::indexByPath(const CPath & path) const
 
   if(path.is_absolute())
   {
-    comps = pathStr.split(CPath::separator().c_str(), QString::SkipEmptyParts);
+    comps = pathStr.split(URI::separator().c_str(), QString::SkipEmptyParts);
 
     if(comps.first() == treeNode->nodeName())
       comps.removeFirst();
@@ -284,10 +284,10 @@ QModelIndex NTree::indexByPath(const CPath & path) const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-CPath NTree::pathFromIndex(const QModelIndex & index) const
+URI NTree::pathFromIndex(const QModelIndex & index) const
 {
   TreeNode * treeNode = this->indexToTreeNode(index);
-  CPath path;
+  URI path;
 
   if(treeNode != nullptr)
   {
@@ -335,7 +335,7 @@ void NTree::updateRootChildren()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NTree::optionsChanged(const CPath & path)
+void NTree::optionsChanged(const URI & path)
 {
   QModelIndex index = this->indexByPath(path);
 
@@ -512,7 +512,7 @@ void NTree::list_tree_reply(XmlNode & node)
     NRoot::Ptr treeRoot = m_rootNode->node()->castTo<NRoot>();
     NRoot::Ptr rootNode = CNode::createFromXml(*node.first_node())->castTo<NRoot>();
     ComponentIterator<CNode> it = rootNode->root()->begin<CNode>();
-    CPath currentIndexPath;
+    URI currentIndexPath;
 
     if(m_currentIndex.isValid())
     {

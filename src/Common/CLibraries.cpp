@@ -50,7 +50,7 @@ void CLibraries::load_library ( XmlNode& node )
   // check protocol for file loading
   BOOST_FOREACH(URI file, files)
   {
-    if( file.empty() || !file.is_protocol("file"))
+    if( file.empty() || file.protocol() != URIProtocol::FILE )
       throw ProtocolError( FromHere(), "Wrong protocol to access the file, expecting a \'file\' but got \'" + file.string() + "\'" );
   }
 
