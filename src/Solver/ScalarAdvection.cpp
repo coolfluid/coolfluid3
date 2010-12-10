@@ -79,6 +79,7 @@ void ScalarAdvection::create_model ( Common::XmlNode& node )
 
   // setup iterative solver
   CIterativeSolver::Ptr solver = create_component_abstract_type<CIterativeSolver>("CF.Solver.ForwardEuler", "IterativeSolver");
+  solver->mark_basic();
   model->add_component( solver );
 
   // setup discretization method

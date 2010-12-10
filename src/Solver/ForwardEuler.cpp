@@ -38,14 +38,24 @@ ForwardEuler::ForwardEuler ( const std::string& name  ) :
   properties()["brief"] = std::string("Iterative Solver component");
   properties()["description"] = std::string("Forward Euler Time Stepper");
   
-  std::vector< URI > dummy;
-  m_properties.add_option< OptionArrayT < URI > > ("Regions", "Regions to solve for", dummy)->mark_basic();
   
   this->regist_signal ( "solve" , "Solve", "Solve" )->connect ( boost::bind ( &ForwardEuler::solve, this ) );
   // signal("solve").signature
   //     .insert<URI>("Domain", "Domain to load mesh into" )
   //     .insert_array<URI>( "Files" , "Files to read" );
   
+  m_take_step = allocate_component_type<CForAllNodes>("take_step");
+  m_take_step->create_action("CF.Solver.CTakeStep");  
+  add_static_component(m_take_step);
+  
+  m_solution_field = allocate_component_type<CLink>("solution_field");
+  add_static_component(m_solution_field);
+  
+  m_residual_field = allocate_component_type<CLink>("residual_field");
+  add_static_component(m_residual_field);
+  
+  m_update_coeff_field = allocate_component_type<CLink>("update_coeff_field");
+  add_static_component(m_update_coeff_field);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -65,7 +75,8 @@ CDiscretization& ForwardEuler::discretization_method()
 
 void ForwardEuler::solve()
 {
-    CMesh& mesh = find_component<CMesh>(*Core::instance().root());
+    CFinfo << "Setting up links" << CFendl;
+    CMesh& mesh = find_component_recursively<CMesh>(*Core::instance().root());
     
     CField::Ptr solution = find_component_ptr_with_name<CField>(mesh,"solution");
     if ( is_null(solution) )
@@ -82,13 +93,7 @@ void ForwardEuler::solve()
       inverse_updatecoeff = mesh.create_field("inverse_updatecoeff",1,CField::NODE_BASED).as_type<CField>();
     m_update_coeff_field->link_to(inverse_updatecoeff);
 
-    CLoop::Ptr take_step = create_component_type<CForAllNodes>("take_step");
-    take_step->create_action("CF.Actions.CTakeStep");
-  	take_step->configure_property("Regions",property("Regions").value<URI>());
-    take_step->action("CF.Actions.CTakeStep").configure_property("SolutionField",std::string("solution"));
-    take_step->action("CF.Actions.CTakeStep").configure_property("ResidualField",std::string("residual"));
-    take_step->action("CF.Actions.CTakeStep").configure_property("InverseUpdateCoeff",std::string("inverse_updatecoeff"));
-
+    CFinfo << "Starting Iterative loop" << CFendl;
     for ( Uint iter = 0; iter < m_nb_iter;  ++iter)
     {
       // update coefficient and residual to zero
@@ -104,7 +109,7 @@ void ForwardEuler::solve()
       discretization_method().compute_rhs();
 
       // explicit update
-      take_step->execute();
+      m_take_step->execute();
 
       // compute norm
       Real rhs_L2=0;

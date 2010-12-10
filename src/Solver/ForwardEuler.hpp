@@ -14,10 +14,13 @@
 #include "Solver/CIterativeSolver.hpp"
 
 namespace CF {
+namespace Actions {
+  class CLoop;
+}
 namespace Solver {
 
   class CDiscretization;
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Solver component class
@@ -55,6 +58,8 @@ private: // data
   Common::CLink::Ptr m_residual_field;
   
   Common::CLink::Ptr m_update_coeff_field;
+  
+  boost::shared_ptr<Actions::CLoop> m_take_step;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

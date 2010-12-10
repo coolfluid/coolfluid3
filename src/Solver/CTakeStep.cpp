@@ -30,9 +30,9 @@ CTakeStep::CTakeStep ( const std::string& name ) :
   CNodeOperation(name)
 {
   // actions
-  m_properties.add_option<OptionT<std::string> > ("SolutionField","Solution Field for calculation", "")->mark_basic();
-  m_properties.add_option< OptionT<std::string> > ("ResidualField","Residual Field updated after calculation", "")->mark_basic();
-  m_properties.add_option< OptionT<std::string> > ("InverseUpdateCoeff","Inverse update coefficient Field updated after calculation", "")->mark_basic();
+  m_properties.add_option< OptionT<std::string> > ("Solution Field","Solution Field for calculation", "solution")->mark_basic();
+  m_properties.add_option< OptionT<std::string> > ("Residual Field","Residual Field updated after calculation", "residual")->mark_basic();
+  m_properties.add_option< OptionT<std::string> > ("Inverse Update Coefficient","Inverse update coefficient Field updated after calculation", "inverse_updatecoeff")->mark_basic();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

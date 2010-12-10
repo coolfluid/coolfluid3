@@ -18,7 +18,7 @@ namespace Actions {
 CAction::CAction ( const std::string& name ) : 
   Component(name)
 {
-   
+   this->regist_signal ( "execute" , "Execute the action", "Execute" )->connect ( boost::bind ( &CAction::execute, this ) );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

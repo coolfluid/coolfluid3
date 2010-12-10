@@ -185,7 +185,7 @@ private: // data
 
 //////////////////////////////////////////////////////////////////////////////
 
-Uint CMeshPartitioner::nb_owned_objects() const
+inline Uint CMeshPartitioner::nb_owned_objects() const
 {
   return m_nb_owned_obj;
 }
