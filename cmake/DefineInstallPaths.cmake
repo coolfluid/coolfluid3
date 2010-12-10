@@ -8,7 +8,7 @@ set( CF_INSTALL_BIN_DIR      ${CF_INSTALL_ROOT_DIR}/bin                 CACHE ST
 set( CF_INSTALL_LIB_DIR      ${CF_INSTALL_ROOT_DIR}/lib                 CACHE STRING "Installation path for libraries" )
 set( CF_INSTALL_INCLUDE_DIR  ${CF_INSTALL_ROOT_DIR}/include/coolfluid   CACHE STRING "Installation path for API header files" )
 set( CF_INSTALL_SHARE_DIR    ${CF_INSTALL_ROOT_DIR}/share/coolfluid     CACHE STRING "Installation path for shared files" )
-
+set( CF_INSTALL_ARCHIVE_DIR  ${CF_INSTALL_ROOT_DIR}/archive             CACHE STRING "Installation path for archive files")
 mark_as_advanced( CF_INSTALL_BIN_DIR CF_INSTALL_LIB_DIR CF_INSTALL_INCLUDE_DIR CF_INSTALL_SHARE_DIR)
 
 # setup library building rpaths

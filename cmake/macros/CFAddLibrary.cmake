@@ -1,6 +1,7 @@
 ##############################################################################
 # macro for adding a library in the project
 ##############################################################################
+
 macro( coolfluid_add_library LIBNAME )
 
   # option to build it or not
@@ -169,6 +170,8 @@ macro( coolfluid_add_library LIBNAME )
   coolfluid_log_file("${LIBNAME}_requires_mods   : [${${LIBNAME}_requires_mods}]")
   coolfluid_log_file("${LIBNAME}_sources         : [${${LIBNAME}_sources}]")
   coolfluid_log_file("${LIBNAME}_LINK_LIBRARIES  : [${${LIBNAME}_LINK_LIBRARIES}]")
+
+  coolfluid_install_targets( ${LIBNAME} )
 
 endmacro( coolfluid_add_library )
 ##############################################################################

@@ -126,7 +126,7 @@ macro( coolfluid_add_application APPNAME )
         INSTALL( TARGETS ${APPNAME}
           RUNTIME DESTINATION ${CF_INSTALL_BIN_DIR} COMPONENT applications
           LIBRARY DESTINATION ${CF_INSTALL_LIB_DIR} COMPONENT applications
-          ARCHIVE DESTINATION ${CF_INSTALL_LIB_DIR} COMPONENT applications
+          ARCHIVE DESTINATION ${CF_INSTALL_ARCHIVE_DIR} COMPONENT applications
           BUNDLE DESTINATION ${CF_INSTALL_BIN_DIR} COMPONENT applications
         )
 
@@ -138,7 +138,7 @@ macro( coolfluid_add_application APPNAME )
         INSTALL( TARGETS ${APPNAME}
           RUNTIME DESTINATION ${CF_INSTALL_BIN_DIR} COMPONENT applications
           LIBRARY DESTINATION ${CF_INSTALL_LIB_DIR} COMPONENT applications
-          ARCHIVE DESTINATION ${CF_INSTALL_LIB_DIR} COMPONENT applications
+          ARCHIVE DESTINATION ${CF_INSTALL_ARCHIVE_DIR} COMPONENT applications
         )
       endif()
 
@@ -164,6 +164,7 @@ macro( coolfluid_add_application APPNAME )
   coolfluid_log_file("${APPNAME}_LINK_FLAGS      : [${${APPNAME}_LINK_FLAGS}]")
   coolfluid_log_file("${APPNAME}_TYPE            : [${${APPNAME}_TYPE}]")
 
-
+  coolfluid_install_targets( ${APPNAME} )
+  
 endmacro( coolfluid_add_application )
 ##############################################################################

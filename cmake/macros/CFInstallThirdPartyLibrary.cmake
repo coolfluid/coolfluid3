@@ -53,7 +53,7 @@
 # This function installs a library and any of its needed symlink variants.
 #
 
-FUNCTION(THIRD_PARTY_INSTALL_LIBRARY LIBFILE)
+function ( coolfluid_install_third_party_library LIBFILE )
   IF(WIN32)
         IF(NOT EXISTS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/ThirdParty)
             FILE(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/ThirdParty)
@@ -113,7 +113,7 @@ FUNCTION(THIRD_PARTY_INSTALL_LIBRARY LIBFILE)
 
     IF(${isSHAREDLIBRARY} STREQUAL "YES")
         GET_FILENAME_COMPONENT(LIBREALPATH ${tmpLIBFILE} REALPATH)
-#        MESSAGE("***tmpLIBFILE=${tmpLIBFILE}, LIBREALPATH=${LIBREALPATH}")
+        coolfluid_log("***tmpLIBFILE=${tmpLIBFILE}, LIBREALPATH=${LIBREALPATH}")
         IF(NOT ${tmpLIBFILE} STREQUAL ${LIBREALPATH})
             # We need to install a library and its symlinks
             GET_FILENAME_COMPONENT(curPATH ${LIBREALPATH} PATH)
@@ -136,7 +136,7 @@ FUNCTION(THIRD_PARTY_INSTALL_LIBRARY LIBFILE)
                 # Add the names that exist to the install.
                 FOREACH(curNAMEWithExt ${allNAMES})
                     IF(EXISTS ${curNAMEWithExt})
-                        #MESSAGE("** Need to install ${curNAMEWithExt}")
+                        coolfluid_log("** Need to install ${curNAMEWithExt}")
                         IF(IS_DIRECTORY ${curNAMEWithExt})
                             # It is a framework, install as a directory
                             INSTALL(DIRECTORY ${curNAMEWithExt}
@@ -219,14 +219,14 @@ FUNCTION(THIRD_PARTY_INSTALL_LIBRARY LIBFILE)
                         ")
                 ENDIF(APPLE)
             ENDIF(IS_DIRECTORY ${tmpLIBFILE})
-#            MESSAGE("**We need to install lib ${tmpLIBFILE}")
+            coolfluid_log("**We need to install lib ${tmpLIBFILE}")
         ENDIF(NOT ${tmpLIBFILE} STREQUAL ${LIBREALPATH})
     ELSE(${isSHAREDLIBRARY} STREQUAL "YES")
         # We have a .a that we need to install to archives.
         # IF(VISIT_INSTALL_THIRD_PARTY)
-#            MESSAGE("***INSTALL ${LIBFILE} to ${VISIT_INSTALLED_VERSION_ARCHIVES}")
+            coolfluid_log("***INSTALL ${LIBFILE} to ${CF_INSTALL_ARCHIVE_DIR}")
             INSTALL(FILES ${tmpLIBFILE}
-                DESTINATION ${CF_INSTALL_LIB_DIR}
+                DESTINATION ${CF_INSTALL_ARCHIVE_DIR}
                 PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ GROUP_WRITE WORLD_READ
                 CONFIGURATIONS "";None;Debug;Release;RelWithDebInfo;MinSizeRel
             )
@@ -236,16 +236,16 @@ FUNCTION(THIRD_PARTY_INSTALL_LIBRARY LIBFILE)
         # ENDIF(VISIT_INSTALL_THIRD_PARTY)
     ENDIF(${isSHAREDLIBRARY} STREQUAL "YES")
   ENDIF(WIN32)
-ENDFUNCTION(THIRD_PARTY_INSTALL_LIBRARY)
+endfunction (coolfluid_install_third_party_library)
 
 #
 # This function installs a library's includes.
 #
 
-FUNCTION(THIRD_PARTY_INSTALL_INCLUDE pkg incdir)
+function ( coolfluid_install_third_party_include  pkg incdir)
 #        IF(VISIT_INSTALL_THIRD_PARTY)
             STRING(TOLOWER ${pkg} lcpkg)
-#            MESSAGE("***INSTALL ${incdir} -> ${VISIT_INSTALLED_VERSION_INCLUDE}/${lcpkg}")
+            coolfluid_log("***INSTALL ${incdir} -> ${CF_INSTALL_INCLUDE_DIR}/${lcpkg}")
             INSTALL(DIRECTORY ${incdir}
                 DESTINATION ${CF_INSTALL_INCLUDE_DIR}/${lcpkg}
                 DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
@@ -262,4 +262,4 @@ FUNCTION(THIRD_PARTY_INSTALL_INCLUDE pkg incdir)
                 PATTERN ".svn" EXCLUDE
             )
  #       ENDIF(VISIT_INSTALL_THIRD_PARTY)
-ENDFUNCTION(THIRD_PARTY_INSTALL_INCLUDE)
+endfunction(coolfluid_install_third_party_include)

@@ -17,7 +17,13 @@ if( CF_MPI_COMPILER_AVAILABLE )
   coolfluid_log( "MPI: Already using MPI C++ compiler, no need to search for MPI libraries" )
   set( CF_HAVE_MPI 1 CACHE BOOL "Found MPI compiler" )
 
+  find_package(MPI)
+
   coolfluid_log( "     MPI CXX COMPILER   : [${CMAKE_CXX_COMPILER}]")
+  
+  coolfluid_log( "     MPI_INCLUDE_PATH   : [${MPI_INCLUDE_PATH}]")
+  coolfluid_log( "     MPI_LIBRARIES      : [${MPI_LIBRARIES}]")
+  
 
 else()
 

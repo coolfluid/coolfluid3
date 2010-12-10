@@ -35,15 +35,17 @@ if(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
       # Boost and MPI as system dependencies and does
       # not copy the files into the installer, so we copy them manually
 
-      foreach( TP_LIB ${CF_TP_LIBRARIES} )
-        # coolfluid_log(" +++ installing ${TP_LIB}")
-        THIRD_PARTY_INSTALL_LIBRARY( ${TP_LIB} )
-      endforeach()
-
-      foreach( TP_LIB ${QT_LIBRARIES} )
-        # coolfluid_log(" +++ installing ${TP_LIB}")
-        THIRD_PARTY_INSTALL_LIBRARY( ${TP_LIB} )
-      endforeach()
+      #install(DIRECTORY ${DEPS_ROOT}/lib/
+      # DESTINATION ${CF_INSTALL_LIB_DIR}
+      # COMPONENT libraries
+      # FILES_MATCHING REGEX "^.*\\.(so|dylib|dll)$")
+      
+      foreach ( TP_LIB ${CF_TP_LIBRARIES} )
+        coolfluid_log (" +++ installing ${TP_LIB}")
+        coolfluid_install_third_party_library( ${TP_LIB} )
+      endforeach( TP_LIB )
+ 
+      coolfluid_install_third_party_library(${QT_LIBRARIES})
 
       # platform specific configuration
       #(shamefully copied from gsmh build system for the Apple part)

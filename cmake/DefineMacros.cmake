@@ -19,6 +19,8 @@ include(CheckCXXCompilerFlag)
 # include coolfluid macros
 ##############################################################################
 
+include(macros/CFInstallTargets)
+include(macros/CFInstallThirdPartyLibrary)
 include(macros/CFVariables)
 include(macros/CFSearchPaths)
 include(macros/CFFindProjectFiles)
@@ -30,4 +32,3 @@ include(macros/CFAddLibrary)
 include(macros/CFAddApp)
 include(macros/CFAddUnitTest)
 include(macros/CFAddCompilationFlags)
-include(macros/ThirdPartyInstallLibrary)

@@ -12,6 +12,7 @@ include( DetectBoost )
 
 ##############################################################################
 # Find Qt - defines QT_USE_FILE and QT_LIBRARIES used below
+set (QT_USE_FRAMEWORKS 1)
 find_package( Qt4 4.6.0 COMPONENTS QtCore QtGui QtXml QtNetwork QtTest )
 
 coolfluid_log("QT_FOUND: [${QT_FOUND}]")

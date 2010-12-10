@@ -52,13 +52,13 @@ function fixup_dylib
         thisLibraryName1=$(echo "$1" | sed "s/^\/[A-Za-z0-9_. \/-]*\/lib/lib/g")
         thisLibraryName2=$(echo "$thisLibrary" | sed "s/^\/[A-Za-z0-9_. \/-]*\/lib/lib/g")
     fi
-#    echo "thisLibrary = $thisLibrary"
-#    echo "thisLibraryFixed = $thisLibraryFixed"
-#    echo "thisLibraryName1 = $thisLibraryName1"
-#    echo "thisLibraryName2 = $thisLibraryName2"
+    echo "thisLibrary = $thisLibrary"
+    echo "thisLibraryFixed = $thisLibraryFixed"
+    echo "thisLibraryName1 = $thisLibraryName1"
+    echo "thisLibraryName2 = $thisLibraryName2"
 
     sharedLibs=$(otool -L $1 | grep -v "/usr/lib" | grep -v "$thisLibraryName1" | grep -v "$thisLibraryName2" | grep -v "libmpi" | grep -v "libopen-rte" | grep -v "libopen-pal")
-#    echo "sharedLibs = $sharedLibs"
+    echo "sharedLibs = $sharedLibs"
     command=""
     for library in $sharedLibs ; do
         s=$(echo $library | fgrep -v "/usr/lib")
@@ -69,7 +69,7 @@ function fixup_dylib
             else
                 newlibrary=$(echo $library | sed "s/^\/[A-Za-z0-9_. \/-]*\/lib/@executable_path\/..\/lib\/lib/g")
             fi
-#            echo "$library -> $newlibrary"
+            echo "$library -> $newlibrary"
             command="$command -change $library $newlibrary"
         fi
     done
@@ -101,8 +101,8 @@ function fixup_exe
     # what's in $1 because of version number differences.
     thisLibrary=$(otool -D $1 | tail -n 1 | sed "s/\://g")
     thisLibraryFixed=$(echo "$thisLibrary" | sed "s/^\/[A-Za-z0-9_. \/-]*\/bin/@executable_path\/..\/bin/g")
-#    echo "thisLibrary = $thisLibrary"
-#    echo "thisLibraryFixed = $thisLibraryFixed"
+    echo "thisLibrary = $thisLibrary"
+    echo "thisLibraryFixed = $thisLibraryFixed"
 
     sharedLibs=$(otool -L $1 | grep -v ":" | grep "/" | grep -v "libmpi" | grep -v "libopen-rte" | grep -v "libopen-pal")
     command=""
@@ -115,7 +115,7 @@ function fixup_exe
             else
                 newlibrary=$(echo $library | sed "s/^\/[A-Za-z0-9_. \/-]*\/lib/@executable_path\/..\/lib\/lib/g")
             fi
-#            echo "$library -> $newlibrary"
+            echo "$library -> $newlibrary"
             command="$command -change $library $newlibrary"
         fi
     done
