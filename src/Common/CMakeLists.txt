@@ -26,8 +26,6 @@ list( APPEND coolfluid_common_files
     CFactory.cpp
     CFactories.hpp
     CFactories.cpp
-    CPath.hpp
-    CPath.cpp
     CRoot.hpp
     CRoot.cpp
     CGroup.hpp
