@@ -22,11 +22,15 @@ add_subdirectory( cgal )
 
 ###############################################################################
 ### test for CUDA
-add_subdirectory( cuda )
+if( CF_ENABLE_GPU AND CF_ENABLE_CUDA )
+  add_subdirectory( cuda )
+endif()
 
 ###############################################################################
 ### test for OpenCL
-add_subdirectory( opencl )
+if( CF_ENABLE_GPU AND CF_ENABLE_OPENCL )
+  add_subdirectory( opencl )
+endif()
 
 ###############################################################################
 ### test for nullptr

@@ -23,6 +23,9 @@ option( CF_ENABLE_SANDBOX            "Enable build of sandbox projects"         
 
 option( CF_ENABLE_VECTORIZATION      "Enable floating point vectorization"            ON  )
 
+option( CF_ENABLE_GPU                "Enable GPU computing  (if available)"           ON  )
+option( CF_ENABLE_CUDA               "Enable CUDA for GPGPU (if available)"           ON  )
+option( CF_ENABLE_OPENCL             "Enable OpenCL for GPGPU (if available)"         ON  )
 
 # option to do code coverage
 # note that it runs off optimization
@@ -46,9 +49,11 @@ mark_as_advanced( CF_CHECK_ORPHAN_FILES )
 # MPI testing options
 option( CF_MPI_TESTS_RUN "Run the MPI tests" OFF)
 option( CF_MPI_TESTS_RUN_SCALABILITY "Run the MPI scalability tests" OFF)
+
 set( CF_MPI_TESTS_NB_PROCS "4" CACHE STRING "Number of processes for the regular MPI tests")
 set( CF_MPI_TESTS_MAX_NB_PROCS "4" CACHE STRING "Maximum number of processes for the MPI scalability tests")
-set(CF_MPI_TESTS_SIZE "4" CACHE STRING "Size description of the MPI tests. Interpretation is test-dependent, but higher numbers mean more RAM. 4 should be safe on a regular PC")
+set( CF_MPI_TESTS_SIZE "4" CACHE STRING "Size description of the MPI tests. Interpretation is test-dependent, but higher numbers mean more RAM. 4 should be safe on a regular PC")
+
 mark_as_advanced(CF_MPI_TESTS_RUN)
 mark_as_advanced(CF_MPI_TESTS_RUN_SCALABILITY)
 mark_as_advanced(CF_MPI_TESTS_NB_PROCS)

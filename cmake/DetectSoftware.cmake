@@ -13,11 +13,12 @@ include( DetectBoost )
 ##############################################################################
 # Find Qt - defines QT_USE_FILE and QT_LIBRARIES used below
 find_package( Qt4 4.6.0 COMPONENTS QtCore QtGui QtXml QtNetwork QtTest )
-include(${QT_USE_FILE})
-coolfluid_log ("QT_FOUND: [${QT_FOUND}]")
-if ( ${QT_FOUND} )
-    coolfluid_log ("  QT_LIBRARIES: ${QT_LIBRARIES}")
+
+coolfluid_log("QT_FOUND: [${QT_FOUND}]")
+if( ${QT_FOUND} )
+  coolfluid_log("  QT_LIBRARIES: ${QT_LIBRARIES}")
 endif()
+
 ##############################################################################
 # find non essential packages
 
@@ -37,13 +38,17 @@ find_package(CGNS)            # CGNS library
 find_package(CGAL)            # CGAL library
 find_package(PythonInterp)    # Python interpreter
 find_package(Realtime)        # POSIX Realtime library
-find_package(OpenCL)          # opencl support
+
+if( CF_ENAGLE_OPENCL AND CF_ENABLE_GPU )
+  find_package(OpenCL)          # opencl support
+endif()
 
 # using cmake find macros
 
-find_package(CUDA)            # cuda support
-
-coolfluid_log( "CUDA_FOUND: [${CUDA_FOUND}]" )
+if( CF_ENAGLE_CUDA AND CF_ENABLE_GPU )
+  find_package(CUDA)            # cuda support
+  coolfluid_log( "CUDA_FOUND: [${CUDA_FOUND}]" )
+endif()
 
 # find_package(ZLIB)            # file compression support
 
