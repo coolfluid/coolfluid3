@@ -66,7 +66,7 @@ public: // functions
 
 CF::Common::ForceLibRegist<LibTestActions> libTestActions;
 
-Common::ComponentBuilder < CDummyLoopOperation, CNodeOperation, LibTestActions > CDummyLoopOperation_Builder;
+Common::ComponentBuilder < CDummyLoopOperation, CLoopOperation, LibTestActions > CDummyLoopOperation_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
