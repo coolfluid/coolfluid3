@@ -5,22 +5,68 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/Log.hpp"
+#include "Common/RegistLib.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
-#include "Actions/CDummyLoopOperation.hpp"
 #include "Mesh/CFieldElements.hpp"
+
+#include "CDummyLoopOperation.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace CF::Common;
 using namespace CF::Mesh;
+using namespace CF::Actions;
 
 namespace CF {
-namespace Actions {
+
+/// Class defines the initialization and termination of the library Actions
+class LibTestActions : public Common::CLibrary
+{
+public:
+
+  typedef boost::shared_ptr<LibTestActions> Ptr;
+  typedef boost::shared_ptr<LibTestActions const> ConstPtr;
+
+  /// Constructor
+  LibTestActions ( const std::string& name) : Common::CLibrary(name) {   }
+
+public: // functions
+
+  /// @return string of the library namespace
+  static std::string library_namespace() { return "CF.TestActions"; }
+
+
+  /// Static function that returns the module name.
+  /// Must be implemented for CLibrary registration
+  /// @return name of the library
+  static std::string library_name() { return "TestActions"; }
+
+  /// Static function that returns the description of the module.
+  /// Must be implemented for CLibrary registration
+  /// @return description of the library
+
+  static std::string library_description()
+  {
+    return "This library implements the TestActions API.";
+  }
+
+  /// Gets the Class name
+  static std::string type_name() { return "LibTestActions"; }
+
+  /// initiate library
+  virtual void initiate() {}
+
+  /// terminate library
+  virtual void terminate() {}
+
+}; // end LibTestActions
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CDummyLoopOperation, CLoopOperation, LibActions > CDummyLoopOperationProvider;
+CF::Common::ForceLibRegist<LibTestActions> libTestActions;
+
+Common::ComponentBuilder < CDummyLoopOperation, CLoopOperation, LibTestActions > CDummyLoopOperation_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -54,7 +100,6 @@ CList<Uint>& CDummyLoopOperation::loop_list()
 	
 ////////////////////////////////////////////////////////////////////////////////////
 
-} // Actions
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////////

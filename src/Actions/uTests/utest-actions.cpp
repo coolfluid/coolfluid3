@@ -69,13 +69,13 @@ BOOST_AUTO_TEST_CASE( Node_Looping_Test )
   
   // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
 	CLoop::Ptr node_loop = root->create_component_type< CForAllNodes >("node_loop");
-  node_loop->create_action("CF.Actions.CDummyLoopOperation");
+  node_loop->create_action("CF.TestActions.CDummyLoopOperation");
 	node_loop->configure_property("Regions",regions);
 	CFinfo << "\n\n\nNode loop" << CFendl;
   node_loop->execute();
 
 	CLoop::Ptr elem_loop = root->create_component_type< CForAllElements >("elem_loop");
-  elem_loop->create_action("CF.Actions.CDummyLoopOperation");
+  elem_loop->create_action("CF.TestActions.CDummyLoopOperation");
 	elem_loop->configure_property("Regions",regions);
 	CFinfo << "\n\n\nElement loop" << CFendl;
   elem_loop->execute();

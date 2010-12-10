@@ -21,11 +21,9 @@ namespace CF {
 		class CFieldElements;
 	}
 
-  namespace Actions {
-
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class Actions_API CDummyLoopOperation : public CLoopOperation
+class CDummyLoopOperation : public Actions::CLoopOperation
 {
 public: // typedefs
 
@@ -45,7 +43,7 @@ public: // functions
   static std::string type_name () { return "CDummyLoopOperation"; }
 
   /// Set the loop_helper
-  void set_loophelper (Mesh::CElements& geometry_elements );
+  void set_loophelper (CF::Mesh::CElements& geometry_elements );
 	
   /// execute the action
   virtual void execute ();
@@ -67,9 +65,6 @@ private: // data
 
 };
 
-/////////////////////////////////////////////////////////////////////////////////////
-
-} // Actions
 } // CF
 
 /////////////////////////////////////////////////////////////////////////////////////

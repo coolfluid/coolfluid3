@@ -3,6 +3,8 @@
 
 list( APPEND utest-actions_cflibs coolfluid_actions coolfluid_mesh_sf coolfluid_gmsh coolfluid_neutral)
 list( APPEND utest-actions_files
+  CDummyLoopOperation.hpp
+  CDummyLoopOperation.cpp
   utest-actions.cpp )
 
 coolfluid_add_unittest( utest-actions )
