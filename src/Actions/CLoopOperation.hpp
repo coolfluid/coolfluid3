@@ -42,11 +42,12 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CLoopOperation"; }
   
-  virtual void set_loophelper ( Mesh::CElements& geometry_elements ) = 0;
-  
-  void set_loop_idx ( const Uint idx ) { m_idx = idx; }
-	
-  virtual Mesh::CList<Uint>& loop_list();
+  void select_loop_idx ( const Uint idx ) { m_idx = idx; }
+
+  /// Called before looping to prepare a helper object that caches entries
+  /// needed by this operation to perform the loop efficiently.
+  /// Typically accesses components and stores their address, since they are not expected to change over looping.
+  virtual void create_loop_helper ( Mesh::CElements& geometry_elements ) = 0;
   
 protected: // data
 

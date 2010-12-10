@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_COperation_hpp
-#define CF_Mesh_COperation_hpp
+#ifndef CF_Mesh_CFieldOperation_hpp
+#define CF_Mesh_CFieldOperation_hpp
 
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
@@ -26,52 +26,39 @@ namespace Mesh {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class Mesh_API COperation : public Common::Component
+/// @todo missing documentation
+class Mesh_API CFieldOperation : public Common::Component
 {
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<COperation> Ptr;
-  typedef boost::shared_ptr<COperation const> ConstPtr;
+  typedef boost::shared_ptr<CFieldOperation> Ptr;
+  typedef boost::shared_ptr<CFieldOperation const> ConstPtr;
 
 public: // functions
   /// Contructor
   /// @param name of the component
-  COperation ( const std::string& name );
+  CFieldOperation ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~COperation() {};
+  virtual ~CFieldOperation() {};
 
   /// Get the class name
-  static std::string type_name () { return "COperation"; }
+  static std::string type_name () { return "CFieldOperation"; }
 
   virtual void set_loophelper (CElements& geometry_elements );
 
   virtual void set_loophelper (CTable<Real>& coordinates );
 
-  virtual void execute (Uint index = 0 )
-  {
-    throw Common::NotImplemented(FromHere(), "Must create child that overloads this function");
-  }
+  virtual void execute ( Uint index = 0 );
 
   /// Templated version for high efficiency
-  template < typename EType >
-  void executeT ( Uint index=0 )
-  {
-    throw Common::NotImplemented(FromHere(), "Must create child that overloads this function");
-  }
+  template < typename EType > void executeT ( Uint index = 0 );
 
-  virtual COperation& operation();
+  virtual CFieldOperation& operation();
 
   /// Only for use in non-templatized version
-  COperation& create_operation(const std::string operation_type);
-
-
-  ///@todo this function is temporary until statically linked childs are available.
-  virtual void bind()
-  {
-    add_component(operation().get());
-  }
+  CFieldOperation& create_operation(const std::string operation_type);
 
 private: // data
 
@@ -82,29 +69,30 @@ private: // data
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template < typename OP1, typename OP2 >
-class COperationMergeT : public COperation
+class CFieldOperationMergeT : public CFieldOperation
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<COperationMergeT> Ptr;
-  typedef boost::shared_ptr<COperationMergeT const> ConstPtr;
+  typedef boost::shared_ptr<CFieldOperationMergeT> Ptr;
+  typedef boost::shared_ptr<CFieldOperationMergeT const> ConstPtr;
 
 public: // functions
   /// Contructor
   /// @param name of the component
-  COperationMergeT ( const std::string& name ) :
-    COperation(name),
+  CFieldOperationMergeT ( const std::string& name ) :
+    CFieldOperation(name),
     m_op1(Common::allocate_component_type<OP1>("operation_1") ),
     m_op2(Common::allocate_component_type<OP2>("operation_2") )
   {
-     
+    add_static_component(m_op1);
+    add_static_component(m_op2);
   }
 
   /// Virtual destructor
-  virtual ~COperationMergeT() {};
+  virtual ~CFieldOperationMergeT() {};
 
   /// Get the class name
-  static std::string type_name () { return "COperationMergeT"; }
+  static std::string type_name () { return "CFieldOperationMergeT"; }
 
   void set_loophelper (CElements& geometry_elements )
   {
@@ -112,26 +100,13 @@ public: // functions
     m_op2->set_loophelper(geometry_elements);
   }
 
-  const OP1& operation1() const
-  {
-    return *m_op1;
-  }
+  const OP1& operation1() const {  return *m_op1; }
 
-  OP1& operation1()
-  {
-    return *m_op1;
-  }
+  OP1& operation1() { return *m_op1; }
 
+  const OP2& operation2() const { return *m_op2; }
 
-  const OP2& operation2() const
-  {
-    return *m_op2;
-  }
-
-  OP2& operation2()
-  {
-    return *m_op2;
-  }
+  OP2& operation2() {  return *m_op2; }
 
   template < typename EType >
   void executeT (  Uint elem )
@@ -140,18 +115,10 @@ public: // functions
     m_op2->template executeT<EType>( elem );
   }
 
-  void execute (  Uint elem )
+  virtual void execute ( Uint index )
   {
-    m_op1->execute( elem );
-    m_op2->execute( elem );
-  }
-
-
-  ///@todo this function is temporary until statically linked childs are available.
-  virtual void bind()
-  {
-    add_component(operation1().get());
-    add_component(operation2().get());
+    m_op1->execute( index );
+    m_op2->execute( index );
   }
 
 private: // data
@@ -160,11 +127,11 @@ private: // data
   typename OP2::Ptr m_op2;
 };
 
-typedef COperationMergeT<COperation,COperation> COperationMerge;
+typedef CFieldOperationMergeT<CFieldOperation,CFieldOperation> CFieldOperationMerge;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class Mesh_API COutputField : public COperation
+class Mesh_API COutputField : public CFieldOperation
 {
 public: // typedefs
 
@@ -174,16 +141,14 @@ public: // typedefs
 public: // functions
   /// Contructor
   /// @param name of the component
-  COutputField ( const std::string& name ) : COperation(name)
+  COutputField ( const std::string& name ) : CFieldOperation(name)
   {
-      define_config_properties();
     m_properties["Field"].as_option().attach_trigger ( boost::bind ( &COutputField::trigger_Field,   this ) );
   }
 
   void trigger_Field()
   {
     Common::CPath field_path (property("Field").value<Common::URI>());
-//    CFdebug << "field_path = " << field_path.string() << CFendl;
     scalar_field = look_component_type<CField>(field_path);
     scalar_name = scalar_field->field_name();
   }
@@ -194,16 +159,9 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "COutputField"; }
 
-  /// Configuration Options
-  virtual void define_config_properties ()
-  {
-    m_properties.add_option< Common::OptionT<Common::URI> > ("Field","Field URI to output", Common::URI("cpath://"))->mark_basic();
-  }
-
   void set_loophelper (CElements& geometry_elements )
   {
     data = boost::shared_ptr<LoopHelper> ( new LoopHelper(*scalar_field, geometry_elements ) );
-//    CFinfo << data->field_elements.full_path().string() << CFendl;
   }
 
   template < typename SFType >
@@ -212,7 +170,7 @@ public: // functions
     execute(elem);
   }
 
-  void execute ( Uint elem )
+  virtual void execute ( Uint elem )
   {
 //    CFinfo << "   " << scalar_name << "["<<elem<<"] = " << data->scalars[elem][0] << CFendl;
   }
@@ -237,7 +195,7 @@ private: // data
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class Mesh_API CComputeVolumes : public COperation
+class Mesh_API CComputeVolumes : public CFieldOperation
 {
 public: // typedefs
 
@@ -247,9 +205,8 @@ public: // typedefs
 public: // functions
   /// Contructor
   /// @param name of the component
-  CComputeVolumes ( const std::string& name ) : COperation(name)
+  CComputeVolumes ( const std::string& name ) : CFieldOperation(name)
   {
-      define_config_properties();
     m_properties["Field"].as_option().attach_trigger ( boost::bind ( &CComputeVolumes::trigger_Field,   this ) );
   }
 
@@ -266,12 +223,6 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CComputeVolumes"; }
 
-  /// Configuration Options
-  virtual void define_config_properties ()
-  {
-    m_properties.add_option< Common::OptionT<Common::URI> > ("Field","Field URI to output", Common::URI("cpath://"))->mark_basic();
-  }
-
   void set_loophelper (CElements& geometry_elements )
   {
     data = boost::shared_ptr<LoopHelper> ( new LoopHelper(*volume_field, geometry_elements ) );
@@ -285,7 +236,7 @@ public: // functions
     data->volumes[elem][0] = SFType::volume( nodes );
   }
 
-  void execute ( Uint elem )
+  virtual void execute ( Uint elem )
   {
     ElementType::NodesT nodes(data->connectivity_table.row_size(), data->coordinates.row_size());
     fill(nodes, data->coordinates, data->connectivity_table[elem]);
@@ -315,7 +266,7 @@ private: // data
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class Mesh_API CSetValue : public COperation
+class Mesh_API CSetValue : public CFieldOperation
 {
 public: // typedefs
 
@@ -325,9 +276,9 @@ public: // typedefs
 public: // functions
   /// Contructor
   /// @param name of the component
-  CSetValue ( const std::string& name ) : COperation(name)
+  CSetValue ( const std::string& name ) : CFieldOperation(name)
   {
-      define_config_properties();
+    m_properties.add_option< Common::OptionT<Common::URI> > ("Field","Field URI to output", Common::URI("cpath://"))->mark_basic();
     m_properties["Field"].as_option().attach_trigger ( boost::bind ( &CSetValue::trigger_Field,   this ) );
   }
 
@@ -344,12 +295,6 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CSetValue"; }
 
-  /// Configuration Options
-  virtual void define_config_properties ()
-  {
-    m_properties.add_option< Common::OptionT<Common::URI> > ("Field","Field URI to output", Common::URI("cpath://"))->mark_basic();
-  }
-
   virtual void set_loophelper (CTable<Real>& coordinates )
   {
     data = boost::shared_ptr<LoopHelper> ( new LoopHelper(*field, coordinates ) );
@@ -361,7 +306,7 @@ public: // functions
     execute(node);
   }
 
-  void execute ( Uint node )
+  virtual void execute ( Uint node )
   {
 
     CTable<Real>& field_data = data->field_data;
@@ -396,4 +341,4 @@ private: // data
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_COperation_hpp
+#endif // CF_Mesh_CFieldOperation_hpp

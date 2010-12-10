@@ -24,15 +24,7 @@ namespace Actions {
 
 CLoopOperation::CLoopOperation ( const std::string& name ) : 
   CAction(name)
-{
-   
-}
-
-////////////////////////////////////////////////////////////////////////////////////
-
-CList<Uint>& CLoopOperation::loop_list()
-{
-	throw NotImplemented(FromHere(), "Your operation did not implement the loop_list() function");
+{  
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

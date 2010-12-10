@@ -43,7 +43,7 @@ public: // functions
   static std::string type_name () { return "CSchemeLDA"; }
 
   /// Set the loop_helper
-  void set_loophelper (Mesh::CElements& geometry_elements );
+  void create_loop_helper (Mesh::CElements& geometry_elements );
 	
   /// execute the action
   virtual void execute ();
@@ -67,7 +67,7 @@ private: // data
     Mesh::CTable<Uint>& connectivity_table;
   };
 
-  boost::shared_ptr<LoopHelper> data;
+  boost::shared_ptr<LoopHelper> m_loop_helper;
   
   Uint nb_q;
   Real w;

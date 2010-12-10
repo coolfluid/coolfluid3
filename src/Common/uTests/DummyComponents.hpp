@@ -58,7 +58,10 @@ public: // functions
   /// @param name of the component
   CConcrete1 ( const std::string& name ) : CAbstract(name)
   {
-      define_config_properties();
+    // options
+    URI def_path("cpath://");
+    m_properties.add_option< OptionT<URI> > ( "MyRelativeFriend", "a path to another component"   , def_path  );
+    m_properties.add_option< OptionT<URI> > ( "MyAbsoluteFriend", "a path to another component"   , def_path  );
   }
 
   /// Virtual destructor
@@ -66,13 +69,6 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "CConcrete1"; }
-
-  virtual void define_config_properties ()
-  {
-    URI def_path("cpath://");
-    m_properties.add_option< OptionT<URI> > ( "MyRelativeFriend", "a path to another component"   , def_path  );
-    m_properties.add_option< OptionT<URI> > ( "MyAbsoluteFriend", "a path to another component"   , def_path  );
-  }
 
   virtual std::string type() { return type_name(); }
 

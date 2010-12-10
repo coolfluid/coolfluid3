@@ -14,7 +14,9 @@ using namespace CF::GUI::ClientTest;
 MyNode::MyNode(const QString & name)
   : CNode(name, "MyNode", CNode::GENERIC_NODE)
 {
-    define_config_properties();
+  m_properties.add_option< CF::Common::OptionT<int> >("theAnswer", "The answer to the ultimate "
+                              "question of Life, the Universe, and Everything", 42);
+  m_properties.add_option< CF::Common::OptionT<bool> >("someBool", "The bool value", true);
 }
 
 ////////////////////////////////////////////////////////////////////////////

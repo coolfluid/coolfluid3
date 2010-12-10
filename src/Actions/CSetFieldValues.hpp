@@ -9,7 +9,7 @@
 
 #include "Mesh/CFieldElements.hpp"
 
-#include "Actions/CLoopOperation.hpp"
+#include "Actions/CNodeOperation.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -25,7 +25,7 @@ namespace CF {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class Actions_API CSetFieldValues : public CLoopOperation
+class Actions_API CSetFieldValues : public CNodeOperation
 {
 public: // typedefs
 
@@ -44,20 +44,14 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CSetFieldValues"; }
 
-  /// Configuration Options
-  virtual void define_config_properties ();
-
   /// Set the loop_helper
-  void set_loophelper (Mesh::CElements& geometry_elements );
+  void create_loop_helper (Mesh::CElements& geometry_elements );
 	
   /// execute the action
   virtual void execute ();
 	
 	/// @return the nodes to loop over
-  virtual Mesh::CList<Uint>& loop_list ();
-	
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
+  virtual Mesh::CList<Uint>& loop_list () const;
 	
 private: // data
 	
@@ -73,7 +67,7 @@ private: // data
     Mesh::CList<Uint>& node_list;
   };
 	
-  boost::shared_ptr<LoopHelper> data;
+  boost::shared_ptr<LoopHelper> m_loop_helper;
 
 };
 

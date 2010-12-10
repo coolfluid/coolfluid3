@@ -51,8 +51,6 @@ public: // functions
 
   virtual std::vector<std::string> get_extensions();
 
-  virtual void define_config_properties ();
-
 private: // functions
 
   void read_base(CMesh& parent_region);

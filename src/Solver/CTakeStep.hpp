@@ -13,7 +13,7 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/CList.hpp"
 
-#include "Actions/CLoopOperation.hpp"
+#include "Actions/CNodeOperation.hpp"
 
 #include "Solver/LibSolver.hpp"
 
@@ -24,7 +24,7 @@ namespace Solver {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class Solver_API CTakeStep : public Actions::CLoopOperation
+class Solver_API CTakeStep : public Actions::CNodeOperation
 {
 public: // typedefs
 
@@ -44,10 +44,10 @@ public: // functions
   static std::string type_name () { return "CTakeStep"; }
 
   /// Set the loop_helper
-  void set_loophelper (Mesh::CElements& geometry_elements );
+  void create_loop_helper (Mesh::CElements& geometry_elements );
 	
-	/// @return the nodes to loop over
-  virtual Mesh::CList<Uint>& loop_list ();
+  /// @return the list to loop over, in this case the list of nodes.
+  virtual Mesh::CList<Uint>& loop_list() const;
 	
   /// execute the action
   virtual void execute ();
@@ -65,10 +65,11 @@ private: // data
     Mesh::CTable<Real>& solution;
     Mesh::CTable<Real>& residual;
     Mesh::CTable<Real>& inverse_updatecoeff;
-    Mesh::CList<Uint>& node_list;
+    Mesh::CList<Uint>&  node_list;
   };
 	
-  boost::shared_ptr<LoopHelper> data;
+  boost::shared_ptr<LoopHelper> m_loop_helper;
+
 };
 
 /////////////////////////////////////////////////////////////////////////////////////

@@ -45,14 +45,19 @@ CReader::CReader( const std::string& name )
   Shared(),
   m_repartition(false)
 {
-  CF_DEBUG_POINT;
+  // options
+  m_properties.add_option<OptionT <bool> >("Serial Merge","New mesh will be merged with existing if mesh-names match",true);
+  m_properties.add_option<OptionT <bool> >("Unified Zones","Reads Neu Groups and splits the mesh in these subgroups",false);
+  m_properties.add_option<OptionT <Uint> >("Part","Number of the part of the mesh to read. (e.g. rank of processor)",PE::instance().is_init()?PE::instance().rank():0);
+  m_properties.add_option<OptionT <Uint> >("Number of Parts","Total number of parts. (e.g. number of processors)",PE::instance().is_init()?PE::instance().size():1);
+  m_properties.add_option<OptionT <bool> >("Read Boundaries","Read the surface elements for the boundary",true);
 
-    define_config_properties();
 
-  CF_DEBUG_POINT;
+  m_properties.add_option<OptionT <bool> >("Repartition","setting this to true, puts global indexes, for repartitioning later",false);
+  m_properties.add_option<OptionT <Uint> >("OutputRank","shows output for the specified rank",0);
 
+  // other properties
   m_properties["Repartition"].as_option().attach_trigger ( boost::bind ( &CReader::config_repartition,   this ) );
-  
   m_properties["brief"] = std::string("Gmsh file reader component");
   
   std::string desc;
@@ -67,21 +72,6 @@ CReader::CReader( const std::string& name )
 void CReader::config_repartition()
 {
   property("Repartition").put_value(m_repartition);
-}
-  
-//////////////////////////////////////////////////////////////////////////////
-
-void CReader::define_config_properties ()
-{
-  m_properties.add_option<OptionT <bool> >("Serial Merge","New mesh will be merged with existing if mesh-names match",true);
-  m_properties.add_option<OptionT <bool> >("Unified Zones","Reads Neu Groups and splits the mesh in these subgroups",false);
-  m_properties.add_option<OptionT <Uint> >("Part","Number of the part of the mesh to read. (e.g. rank of processor)",PE::instance().is_init()?PE::instance().rank():0);
-  m_properties.add_option<OptionT <Uint> >("Number of Parts","Total number of parts. (e.g. number of processors)",PE::instance().is_init()?PE::instance().size():1);
-	m_properties.add_option<OptionT <bool> >("Read Boundaries","Read the surface elements for the boundary",true);
-
-  
-  m_properties.add_option<OptionT <bool> >("Repartition","setting this to true, puts global indexes, for repartitioning later",false);
-  m_properties.add_option<OptionT <Uint> >("OutputRank","shows output for the specified rank",0);
 }
   
 //////////////////////////////////////////////////////////////////////////////

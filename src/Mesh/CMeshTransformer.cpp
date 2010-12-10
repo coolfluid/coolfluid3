@@ -22,7 +22,8 @@ using namespace Common;
 CMeshTransformer::CMeshTransformer ( const std::string& name  ) :
   Component ( name )
 {
-    define_config_properties(); define_signals();
+  //options.add_option OptionT<std::string> >  ( "File",  "File to read" , "" );
+  //options.add_option Common::OptionT<std::string> >  ( "Mesh",  "Mesh to construct" , "" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -32,14 +33,6 @@ CMeshTransformer::~CMeshTransformer()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
-void CMeshTransformer::define_config_properties()
-{
-  //options.add_option OptionT<std::string> >  ( "File",  "File to read" , "" );
-  //options.add_option Common::OptionT<std::string> >  ( "Mesh",  "Mesh to construct" , "" );
-}
-
-//////////////////////////////////////////////////////////////////////////////
 
 void CMeshTransformer::transform( XmlNode& node  )
 {

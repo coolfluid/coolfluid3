@@ -23,48 +23,42 @@ Common::ComponentBuilder < CSetFieldValues, CLoopOperation, LibActions > CSetFie
 
 ///////////////////////////////////////////////////////////////////////////////////////
   
-void CSetFieldValues::define_config_properties()
-{
-  m_properties.add_option< OptionT<std::string> > ("Field","Field to output", "")->mark_basic();
-}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
 CSetFieldValues::CSetFieldValues ( const std::string& name ) : 
-  CLoopOperation(name)
+  CNodeOperation(name)
 {
-    define_config_properties(); define_signals();
+  // options
+  m_properties.add_option< OptionT<std::string> > ("Field","Field to output", "")->mark_basic();
 }
 	
 /////////////////////////////////////////////////////////////////////////////////////
 
 void CSetFieldValues::execute()
 {
-	const CF::Real x = data->coordinates[m_idx][XX];
+	const CF::Real x = m_loop_helper->coordinates[m_idx][XX];
 	//const CF::Real y = coordinates[n][YY];
 	
-	const Uint row_size = data->field_data.row_size();
+	const Uint row_size = m_loop_helper->field_data.row_size();
 	for (Uint i = 0; i != row_size; ++i)
 	{
 		if (x >= -1.4 && x <= -0.6)
-			data->field_data[m_idx][i] = 0.5*(cos(3.141592*(x+1.0)/0.4)+1.0);
+			m_loop_helper->field_data[m_idx][i] = 0.5*(cos(3.141592*(x+1.0)/0.4)+1.0);
 		else
-			data->field_data[m_idx][i] = 0.0;
+			m_loop_helper->field_data[m_idx][i] = 0.0;
 	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void CSetFieldValues::set_loophelper (CElements& geometry_elements )
+void CSetFieldValues::create_loop_helper (CElements& geometry_elements )
 {
-	data = boost::shared_ptr<LoopHelper> ( new LoopHelper(geometry_elements , *this ) );
+	m_loop_helper = boost::shared_ptr<LoopHelper> ( new LoopHelper(geometry_elements , *this ) );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-CList<Uint>& CSetFieldValues::loop_list()
+CList<Uint>& CSetFieldValues::loop_list() const
 {
-	return data->node_list;
+	return m_loop_helper->node_list;
 }
 	
 ////////////////////////////////////////////////////////////////////////////////////

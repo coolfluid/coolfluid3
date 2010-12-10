@@ -46,7 +46,7 @@ public: // functions
   static std::string type_name () { return "CSchemeLDAT"; }
 
   /// Set the loop_helper
-  void set_loophelper (Mesh::CElements& geometry_elements );
+  void create_loop_helper (Mesh::CElements& geometry_elements );
 	
   /// execute the action
   virtual void execute ();
@@ -70,7 +70,7 @@ private: // data
     Mesh::CTable<Uint>& connectivity_table;
   };
 
-  boost::shared_ptr<LoopHelper> data;
+  boost::shared_ptr<LoopHelper> m_loop_helper;
 
   Uint nb_q;
   Real w;
@@ -81,9 +81,9 @@ private: // data
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SHAPEFUNC>
-void CSchemeLDAT<SHAPEFUNC>::set_loophelper (Mesh::CElements& geometry_elements )
+void CSchemeLDAT<SHAPEFUNC>::create_loop_helper (Mesh::CElements& geometry_elements )
 {
-  data = boost::shared_ptr<LoopHelper> ( new LoopHelper(geometry_elements , *this ) );
+  m_loop_helper.reset( new LoopHelper(geometry_elements , *this ) );
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -144,9 +144,9 @@ void CSchemeLDAT<SHAPEFUNC>::execute()
 {
   // inside element with index m_idx
 
-  const Mesh::CTable<Uint>::ConstRow node_idx = data->connectivity_table[m_idx];
+  const Mesh::CTable<Uint>::ConstRow node_idx = m_loop_helper->connectivity_table[m_idx];
   typename SHAPEFUNC::NodeMatrixT nodes;
-  fill(nodes, data->coordinates, data->connectivity_table[m_idx]);
+  fill(nodes, m_loop_helper->coordinates, m_loop_helper->connectivity_table[m_idx]);
 
   typename SHAPEFUNC::MappedGradientT mapped_grad; //Gradient of the shape functions in reference space
   typename SHAPEFUNC::ShapeFunctionsT shapefunc;     //Values of shape functions in reference space
@@ -197,8 +197,8 @@ void CSchemeLDAT<SHAPEFUNC>::execute()
       const Real dNdx = 1.0/jacobian * (  grad_y[YY]*mapped_grad(XX,n) - grad_y[XX]*mapped_grad(YY,n) );
       const Real dNdy = 1.0/jacobian * ( -grad_x[YY]*mapped_grad(XX,n) + grad_x[XX]*mapped_grad(YY,n) );
 
-      grad_solution[XX] += dNdx*data->solution[node_idx[n]][0];
-      grad_solution[YY] += dNdy*data->solution[node_idx[n]][0];
+      grad_solution[XX] += dNdx*m_loop_helper->solution[node_idx[n]][0];
+      grad_solution[YY] += dNdy*m_loop_helper->solution[node_idx[n]][0];
 
       nominator[n] = std::max(0.0,y*dNdx - x*dNdy);
       denominator += nominator[n];
@@ -217,7 +217,7 @@ void CSchemeLDAT<SHAPEFUNC>::execute()
   // Loop over quadrature nodes
 
   for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
-    data->residual[node_idx[n]][0] += phi[n];
+    m_loop_helper->residual[node_idx[n]][0] += phi[n];
 
   // computing average advection speed on element
 
@@ -280,7 +280,7 @@ void CSchemeLDAT<SHAPEFUNC>::execute()
 
   for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
   {
-    data->inverse_updatecoeff[node_idx[n]][0] +=
+    m_loop_helper->inverse_updatecoeff[node_idx[n]][0] +=
         std::sqrt( dx*dx+dy*dy) *
         std::sqrt( centroid[XX]*centroid[XX] + centroid[YY]*centroid[YY] );
   }

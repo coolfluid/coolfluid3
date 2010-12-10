@@ -99,13 +99,13 @@ private:
     {
       BOOST_FOREACH(Mesh::CElements& elements, Common::recursive_filtered_range_typed<Mesh::CElements>(region,IsComponentElementType<SFType>()))
       {
-        op.set_loophelper( elements );
+        op.create_loop_helper( elements );
 
         // loop on elements. Nothing may be virtual starting from here!
         const Uint elem_count = elements.elements_count();
         for ( Uint elem = 0; elem != elem_count; ++elem )
         {
-          op.set_loop_idx(elem);
+          op.select_loop_idx(elem);
           op.template executeT<SFType>( );
         }
       }

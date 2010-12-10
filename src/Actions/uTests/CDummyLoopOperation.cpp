@@ -66,12 +66,12 @@ public: // functions
 
 CF::Common::ForceLibRegist<LibTestActions> libTestActions;
 
-Common::ComponentBuilder < CDummyLoopOperation, CLoopOperation, LibTestActions > CDummyLoopOperation_Builder;
+Common::ComponentBuilder < CDummyLoopOperation, CNodeOperation, LibTestActions > CDummyLoopOperation_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 CDummyLoopOperation::CDummyLoopOperation ( const std::string& name ) : 
-  CLoopOperation(name)
+  CNodeOperation(name)
 {
    
 }
@@ -85,17 +85,17 @@ void CDummyLoopOperation::execute()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void CDummyLoopOperation::set_loophelper (CElements& geometry_elements )
+void CDummyLoopOperation::create_loop_helper (CElements& geometry_elements )
 {
   CFinfo << type_name() << " set to loop over " << geometry_elements.full_path().string() << CFendl;
-	data = boost::shared_ptr<LoopHelper> ( new LoopHelper(geometry_elements) );
+  m_loop_helper = boost::shared_ptr<LoopHelper> ( new LoopHelper(geometry_elements) );
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-CList<Uint>& CDummyLoopOperation::loop_list()
+CList<Uint>& CDummyLoopOperation::loop_list() const
 {
-	return data->node_list;
+  return m_loop_helper->node_list;
 }
 	
 ////////////////////////////////////////////////////////////////////////////////////

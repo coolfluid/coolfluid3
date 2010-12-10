@@ -48,10 +48,6 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CMeshTransformer"; }
   
-  virtual void define_config_properties ();
-
-  virtual void define_signals () {}
-
   // --------- Signals ---------
 
   void transform( Common::XmlNode& node  );

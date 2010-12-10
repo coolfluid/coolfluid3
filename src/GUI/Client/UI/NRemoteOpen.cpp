@@ -17,8 +17,6 @@ using namespace CF::GUI::ClientUI;
 NRemoteOpen::NRemoteOpen(QMainWindow * parent)
 : NRemoteBrowser("NRemoteOpen", parent)
 {
-    define_config_properties();
-
   this->setIncludeFiles(true);
   this->setIncludeNoExtension(true);
 }

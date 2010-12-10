@@ -38,22 +38,6 @@ Common::ComponentBuilder< CReader, CMeshReader, LibCGNS > aCGNSReader_Builder;
 CReader::CReader(const std::string& name)
 : CMeshReader(name), Shared()
 {
-    define_config_properties();
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-std::vector<std::string> CReader::get_extensions()
-{
-  std::vector<std::string> extensions;
-  extensions.push_back(".cgns");
-  return extensions;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-void CReader::define_config_properties ()
-{
   m_properties.add_option< OptionT<bool> >
       ( "SectionsAreBCs",
         ("Treat Sections of lower dimensionality as BC. "
@@ -65,6 +49,15 @@ void CReader::define_config_properties ()
    ("Store all the coordinates in 1 table. "
     "This means that there will be no coordinates per region"),
    true );
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+std::vector<std::string> CReader::get_extensions()
+{
+  std::vector<std::string> extensions;
+  extensions.push_back(".cgns");
+  return extensions;
 }
 
 //////////////////////////////////////////////////////////////////////////////

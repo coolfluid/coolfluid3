@@ -39,12 +39,6 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CPhysicalModel"; }
 
-  /// Configuration Options
-  virtual void define_config_properties ();
-  
-  /// regists all the signals declared in this class
-  virtual void define_signals () {}
-
   //////////////////////////////////
   // CPhysicalModel specific
   /////////////////////////////////

@@ -16,7 +16,6 @@ NBrowser::NBrowser()
   : CNode(CLIENT_BROWSERS, "NBrowser", CNode::BROWSER_NODE),
     m_counter(0)
 {
-    define_config_properties(); define_signals();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

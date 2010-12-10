@@ -31,9 +31,9 @@ Common::ComponentBuilder < CSchemeLDA, CLoopOperation, LibSolver > CSchemeLDACLo
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void CSchemeLDA::set_loophelper (CElements& geometry_elements )
+void CSchemeLDA::create_loop_helper (CElements& geometry_elements )
 {
-	data = boost::shared_ptr<LoopHelper> ( new LoopHelper(geometry_elements , *this ) );
+  m_loop_helper = boost::shared_ptr<LoopHelper> ( new LoopHelper(geometry_elements , *this ) );
 }
 	
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -67,9 +67,9 @@ void CSchemeLDA::execute()
 
   typedef Triag2DLagrangeP1 SF;
 
-  const CTable<Uint>::ConstRow node_idx = data->connectivity_table[m_idx];
+  const CTable<Uint>::ConstRow node_idx = m_loop_helper->connectivity_table[m_idx];
   SF::NodeMatrixT nodes;
-  fill(nodes, data->coordinates, data->connectivity_table[m_idx]);
+  fill(nodes, m_loop_helper->coordinates, m_loop_helper->connectivity_table[m_idx]);
 
   SF::MappedGradientT mapped_grad; //Gradient of the shape functions in reference space
   SF::ShapeFunctionsT shapefunc;     //Values of shape functions in reference space
@@ -101,8 +101,8 @@ void CSchemeLDA::execute()
       const Real dNdx = 1.0/jacobian * (  grad_xy(YY, YY)*mapped_grad(XX,n) - grad_xy(XX, YY)*mapped_grad(YY,n) );
       const Real dNdy = 1.0/jacobian * ( -grad_xy(YY, XX)*mapped_grad(XX,n) + grad_xy(XX, XX)*mapped_grad(YY,n) );
       
-      grad_solution[XX] += dNdx*data->solution[node_idx[n]][0];
-      grad_solution[YY] += dNdy*data->solution[node_idx[n]][0];
+      grad_solution[XX] += dNdx*m_loop_helper->solution[node_idx[n]][0];
+      grad_solution[YY] += dNdy*m_loop_helper->solution[node_idx[n]][0];
     
       nominator[n] = std::max(0.0,xy[YY]*dNdx - xy[XX]*dNdy);
       denominator += nominator[n];
@@ -119,7 +119,7 @@ void CSchemeLDA::execute()
   // Loop over quadrature nodes
   
   for (Uint n=0; n<3; ++n)
-    data->residual[node_idx[n]][0] += phi[n];
+    m_loop_helper->residual[node_idx[n]][0] += phi[n];
   
   // For time marching scheme  
   SF::CoordsT centroid = nodes.colwise().sum() / 3.;
@@ -140,7 +140,7 @@ void CSchemeLDA::execute()
   for (Uint n=0; n<3; ++n)
   {
     // Real kplus = 0.5*std::max(0.0,centroid[YY]*nodal_normals(XX,i)-centroid[XX]*nodal_normals(YY,i));
-    data->inverse_updatecoeff[node_idx[n]][0] += sum_kplus; 
+    m_loop_helper->inverse_updatecoeff[node_idx[n]][0] += sum_kplus;
   } 
 }
 

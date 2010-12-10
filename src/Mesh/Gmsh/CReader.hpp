@@ -49,8 +49,6 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "CReader"; }
 
-  virtual void define_config_properties ();
-
   virtual std::string get_format() { return "Gmsh"; }
 
   virtual std::vector<std::string> get_extensions();

@@ -66,9 +66,6 @@ namespace ClientCore {
     /// @brief Destructor
     ~NCore();
 
-    /// regists all the signals declared in this class
-    virtual void define_signals () {}
-
     /// @brief Sends a signal to the network layer
     /// @param signal The signal to send. Build the signal using @c #XmlOps and
     /// @c #XmlParams classes.

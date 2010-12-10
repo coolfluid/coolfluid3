@@ -38,10 +38,7 @@ namespace Common {
     /// Get the class name
     static std::string type_name () { return "CGroup"; }
 
-    /// Configuration Options
-    virtual void define_config_properties ();
-
-  };
+}; // CGroup
 
 ////////////////////////////////////////////////////////////////////////////////
 

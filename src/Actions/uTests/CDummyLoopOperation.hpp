@@ -9,7 +9,7 @@
 
 #include "Mesh/CFieldElements.hpp"
 
-#include "Actions/CLoopOperation.hpp"
+#include "Actions/CNodeOperation.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -23,7 +23,7 @@ namespace CF {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class CDummyLoopOperation : public Actions::CLoopOperation
+class CDummyLoopOperation : public Actions::CNodeOperation
 {
 public: // typedefs
 
@@ -43,13 +43,13 @@ public: // functions
   static std::string type_name () { return "CDummyLoopOperation"; }
 
   /// Set the loop_helper
-  void set_loophelper (CF::Mesh::CElements& geometry_elements );
+  void create_loop_helper (CF::Mesh::CElements& geometry_elements );
 	
   /// execute the action
   virtual void execute ();
 	
 	/// @return the nodes to loop over
-  virtual Mesh::CList<Uint>& loop_list ();
+  virtual Mesh::CList<Uint>& loop_list () const;
 		
 private: // data
 	
@@ -61,7 +61,7 @@ private: // data
     Mesh::CList<Uint>& node_list;
   };
 	
-  boost::shared_ptr<LoopHelper> data;
+  boost::shared_ptr<LoopHelper> m_loop_helper;
 
 };
 

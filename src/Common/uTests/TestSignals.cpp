@@ -37,7 +37,7 @@ public: // functions
   /// @param name of the component
   CSmall ( const std::string& name ) : Component ( name )
   {
-      define_signals();
+    this->regist_signal ( "print_message" , "prints" )->connect ( boost::bind ( &CSmall::print_message, this, _1 ) );
   }
 
   /// Virtual destructor
@@ -92,12 +92,6 @@ public: // functions
   }
 
   //@} END SIGNALS
-
-  /// regists all the signals declared in this class
-  virtual void define_signals ()
-  {
-    this->regist_signal ( "print_message" , "prints" )->connect ( boost::bind ( &CSmall::print_message, this, _1 ) );
-  }
 
 }; // CSmall
 

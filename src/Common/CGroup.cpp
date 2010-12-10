@@ -26,19 +26,6 @@ Common::ComponentBuilder < CGroup, Component, LibCommon > CGroup_Builder;
 
 CGroup::CGroup ( const std::string& name ) : Component ( name )
 {
-    define_config_properties();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-CGroup::~CGroup()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void CGroup::define_config_properties ()
-{
   m_properties.add_option< OptionT<CF::Real> >("pi", "Pi in a CGroup", 3.141592);
 
   Option::Ptr opt = m_properties.add_option< OptionT<std::string> >("count", "From one to ten", std::string("One"));
@@ -54,6 +41,12 @@ void CGroup::define_config_properties ()
                             std::string("Ten");
 
   opt->mark_basic();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CGroup::~CGroup()
+{
 }
 
 ////////////////////////////////////////////////////////////////////////////////

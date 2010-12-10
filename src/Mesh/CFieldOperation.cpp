@@ -6,7 +6,7 @@
 
 #include "Common/CreateComponent.hpp"
 
-#include "Mesh/COperation.hpp"
+#include "Mesh/CFieldOperation.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -17,60 +17,58 @@ namespace Mesh {
 
 ///////////////////////////////////////////////////////////////////////////////////////
   
-COperation::COperation ( const std::string& name ) : 
+CFieldOperation::CFieldOperation ( const std::string& name ) :
   Component(name), m_counter(0)
 {
-     
+  m_properties.add_option< Common::OptionT<Common::URI> > ("Field","Field URI to output", Common::URI("cpath://"))->mark_basic();
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-void COperation::set_loophelper (CElements& geometry_elements )
-{
-  throw Common::NotImplemented(FromHere(), "Must create child that overloads this function");
-}
-  
-void COperation::set_loophelper ( CTable<Real>& coordinates )
+void CFieldOperation:: execute ( Uint index )
 {
   throw Common::NotImplemented(FromHere(), "Must create child that overloads this function");
 }
 
+void CFieldOperation::set_loophelper (CElements& geometry_elements )
+{
+  throw Common::NotImplemented(FromHere(), "Must create child that overloads this function");
+}
+
+void CFieldOperation::set_loophelper ( CTable<Real>& coordinates )
+{
+  throw Common::NotImplemented(FromHere(), "Must create child that overloads this function");
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
-//void COperation::execute (  Uint index )
-//{
-//  throw NotImplemented(FromHere(), "Must create child that overloads this function");
-//}
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-COperation& COperation::operation()
+CFieldOperation& CFieldOperation::operation()
 {
   throw NotImplemented(FromHere(), "Must create child that overloads this function");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-COperation& COperation::create_operation(const std::string operation_type)
+CFieldOperation& CFieldOperation::create_operation(const std::string operation_type)
 {
   // The execuation of operations must be in chronological order, hence
   // they get an alphabetical name
   std::string name = "operation_"+String::to_str(++m_counter);
-  COperation::Ptr sub_operation = 
-    create_component_abstract_type<COperation>(operation_type,name);
+  CFieldOperation::Ptr sub_operation =
+    create_component_abstract_type<CFieldOperation>(operation_type,name);
   add_component(sub_operation);
   return *sub_operation;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
   
-Common::ComponentBuilder < COperationMerge, COperation, LibMesh > COperationMerge_Builder;
+Common::ComponentBuilder < CFieldOperationMerge, CFieldOperation, LibMesh > CFieldOperationMerge_Builder;
 
-Common::ComponentBuilder < COutputField,    COperation, LibMesh > COutputField_Builder;
+Common::ComponentBuilder < COutputField,    CFieldOperation, LibMesh > COutputField_Builder;
 
-Common::ComponentBuilder < CComputeVolumes, COperation, LibMesh > CComputeVolume_Builder;
+Common::ComponentBuilder < CComputeVolumes, CFieldOperation, LibMesh > CComputeVolume_Builder;
 
-Common::ComponentBuilder < CSetValue,       COperation, LibMesh > CSetValue_Builder;
+Common::ComponentBuilder < CSetValue,       CFieldOperation, LibMesh > CSetValue_Builder;
 
 //
 //struct SetX

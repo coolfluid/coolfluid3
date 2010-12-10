@@ -37,8 +37,8 @@ list( APPEND coolfluid_mesh_files
   CMeshWriter.cpp
   CMixedHash.hpp
   CMixedHash.cpp
-  COperation.hpp
-  COperation.cpp
+  CFieldOperation.hpp
+  CFieldOperation.cpp
   ConnectivityData.cpp
   ConnectivityData.hpp
   CMeshPartitioner.hpp

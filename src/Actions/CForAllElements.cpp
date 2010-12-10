@@ -32,11 +32,11 @@ void CForAllElements::execute()
     // Setup all child operations
     BOOST_FOREACH(CLoopOperation& op, range_typed<CLoopOperation>(*this))
     {
-      op.set_loophelper( elements );
+      op.create_loop_helper( elements );
       const Uint elem_count = elements.elements_count();
       for ( Uint elem = 0; elem != elem_count; ++elem )
       {
-        op.set_loop_idx(elem);
+        op.select_loop_idx(elem);
         op.execute();
       }
     }

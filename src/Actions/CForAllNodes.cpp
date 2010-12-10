@@ -9,7 +9,7 @@
 #include "Mesh/CFieldElements.hpp"
 #include "Mesh/CList.hpp"
 
-#include "Actions/CLoopOperation.hpp"
+#include "Actions/CNodeOperation.hpp"
 #include "Actions/CForAllNodes.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,6 @@ namespace Actions {
 CForAllNodes::CForAllNodes ( const std::string& name ) :
   CLoop(name)
 {
-   
 }
 	
 void CForAllNodes::execute()
@@ -35,21 +34,21 @@ void CForAllNodes::execute()
 		BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*region))
 		{
 			// Setup all child operations
-			CList<Uint>::Ptr loop_list;
-			BOOST_FOREACH(CLoopOperation& op, range_typed<CLoopOperation>(*this))
+      CList<Uint>::Ptr loop_list;
+      BOOST_FOREACH(CNodeOperation& op, range_typed<CNodeOperation>(*this))
 			{
-				op.set_loophelper( elements );
-				
-				if (!loop_list)
-					loop_list = op.loop_list().as_type< CList<Uint> >();
-				else if (loop_list->size() != op.loop_list().size())
-					throw BadValue(FromHere(), "The number of nodes of CLoopOperation [" + op.name() + "] doesn't match with other operations in the same loop");
-			}
+        op.create_loop_helper( elements );
+
+        if ( is_null(loop_list) )
+          loop_list = op.loop_list().as_type< CList<Uint> >();
+        else if (loop_list->size() != op.loop_list().size())
+          throw BadValue(FromHere(), "The number of nodes of CNodeOperation [" + op.name() + "] doesn't match with other operations in the same loop");
+      }
 			BOOST_FOREACH(const Uint node, loop_list->array())
 			{
-				BOOST_FOREACH(CLoopOperation& op, range_typed<CLoopOperation>(*this))
+        BOOST_FOREACH(CNodeOperation& op, range_typed<CNodeOperation>(*this))
 				{
-					op.set_loop_idx(node);
+          op.select_loop_idx(node);
 					op.execute();
 				}
 			}
