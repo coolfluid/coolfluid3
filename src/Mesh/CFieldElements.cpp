@@ -46,16 +46,9 @@ void CFieldElements::initialize(CElements& elements)
   CLink::Ptr support = create_component_type<CLink>("support");
   support->link_to(elements.get());
   support->add_tag("support");
-
-  // create the connectivity table as a CLink to another one.
-  CLink::Ptr connectivity_table = create_component_type<CLink>(elements.connectivity_table().name());
-  connectivity_table->link_to(elements.connectivity_table().get());
-	
-	// create the node list as a CLink to another one.
-  CLink::Ptr node_list = create_component_type<CLink>(elements.node_list().name());
-  node_list->link_to(elements.node_list().get());
-	
-
+  
+  m_connectivity_table = boost::dynamic_pointer_cast< CTable<Uint> >(elements.connectivity_table().shared_from_this());
+  m_node_list = boost::dynamic_pointer_cast< CList<Uint> >(elements.node_list().shared_from_this());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

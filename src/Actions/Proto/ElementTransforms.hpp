@@ -424,31 +424,15 @@ public:
     
     typedef typename ValueT::type result_type;
     
-    struct integration_ftor
-    {
-      integration_ftor(ChildT expr, const MappedCoordsT& mapped_coords, typename impl::data_param data) :
-        m_expr(expr),
-        m_mapped_coords(mapped_coords),
-        m_data(data)
-      {
-      }
-      
-      inline EigenExprT operator()() const
-      {
-        return ElementMath()(m_expr, m_mapped_coords, m_data);
-      }
-      
-      ChildT m_expr;
-      const MappedCoordsT& m_mapped_coords;
-      typename impl::data_param m_data;
-    };
-       
     result_type operator ()(typename impl::expr_param expr, typename impl::state_param, typename impl::data_param data) const
     {
-      MappedCoordsT mapped_coords;
-      result_type r;
-      ValueT::set_zero(r);
-      Mesh::Integrators::gauss_integrate<order, ShapeFunctionT::shape>(integration_ftor(boost::proto::child_c<1>(expr), mapped_coords, data), mapped_coords, r);
+      typedef Mesh::Integrators::GaussMappedCoords<order, ShapeFunctionT::shape> GaussT;
+      static const typename GaussT::CoordsT mapped_coords = GaussT::coords();
+      static const typename GaussT::WeightsT weights = GaussT::weights();
+      ChildT e = boost::proto::child_c<1>(expr); // expression to integrate
+      result_type r = weights[0] * ElementMath()(e, mapped_coords.col(0), data);
+      for(Uint i = 1; i != GaussT::nb_points; ++i)
+        r += weights[i] * ElementMath()(e, mapped_coords.col(i), data);
       return r;
     }
   };  

@@ -13,8 +13,6 @@
 #include "Common/BasicExceptions.hpp"
 #include "Common/ComponentPredicates.hpp"
 
-#include "Math/MatrixTypes.hpp"
-
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CTable.hpp"

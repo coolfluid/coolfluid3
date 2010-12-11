@@ -28,6 +28,18 @@ Common::ComponentBuilder < CElements, Component, LibMesh > CElements_Builder;
 CElements::CElements ( const std::string& name ) :
   Component ( name )
 {
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CElements::~CElements()
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CElements::initialize(const std::string& element_type_name, CTable<Real>& coords_in)
+{
   m_connectivity_table = create_static_component<CTable<Uint> >("connectivity_table");
   m_connectivity_table->add_tag("connectivity_table");
   m_connectivity_table->properties()["brief"] = std::string("The connectivity table specifying for each element the nodes in the coordinates table");
@@ -41,18 +53,7 @@ CElements::CElements ( const std::string& name ) :
   CList<Uint>::Ptr global_indices = create_static_component<CList<Uint> >("global_indices");
   global_indices->add_tag("global_element_indices");
   global_indices->properties()["brief"] = std::string("The global element indices (inter processor)");
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-CElements::~CElements()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void CElements::initialize(const std::string& element_type_name, CTable<Real>& coords_in)
-{
+  
   set_element_type(element_type_name);
 
   const Uint nb_nodes = m_element_type->nb_nodes();

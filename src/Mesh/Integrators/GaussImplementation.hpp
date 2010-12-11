@@ -5,9 +5,11 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #ifndef CF_Mesh_Integrators_GaussImplementation_HH
-#define CF_Mesh_Integrators_Gauss_HH
+#define CF_Mesh_Integrators_GaussImplementation_HH
 
 #include <boost/assign/list_of.hpp>
+
+#include "Math/MatrixTypes.hpp"
 
 #include "Mesh/GeoShape.hpp"
 
@@ -73,6 +75,263 @@ struct GaussPoints<32>
 const double GaussPoints<32>::x[16] = {0.0483076656877383162348126,0.1444719615827964934851864,0.2392873622521370745446032,0.3318686022821276497799168,0.4213512761306353453641194,0.5068999089322293900237475,0.5877157572407623290407455,0.6630442669302152009751152,0.7321821187402896803874267,0.7944837959679424069630973,0.8493676137325699701336930,0.8963211557660521239653072,0.9349060759377396891709191,0.9647622555875064307738119,0.9856115115452683354001750,0.9972638618494815635449811};
 const double GaussPoints<32>::w[16] = {0.0965400885147278005667648,0.0956387200792748594190820,0.0938443990808045656391802,0.0911738786957638847128686,0.0876520930044038111427715,0.0833119242269467552221991,0.0781938957870703064717409,0.0723457941088485062253994,0.0658222227763618468376501,0.0586840934785355471452836,0.0509980592623761761961632,0.0428358980222266806568786,0.0342738629130214331026877,0.0253920653092620594557526,0.0162743947309056706051706,0.0070186100094700966004071};
 
+/// Stores pre-computed mapped coords and weights for all gauss point locations
+template<Uint Order, GeoShape::Type Shape>
+struct GaussMappedCoords;
+
+template<>
+struct GaussMappedCoords<1, GeoShape::LINE>
+{
+  static const Uint nb_points = 1;
+  
+  typedef Eigen::Matrix<Real, 1, 1> CoordsT;
+  typedef Eigen::Matrix<Real, 1, 1> WeightsT;
+  
+  static CoordsT coords()
+  {
+    return CoordsT::Zero();
+  }
+  
+  static WeightsT weights()
+  {
+    return 2. * WeightsT::Ones();
+  }
+};
+
+template<>
+struct GaussMappedCoords<1, GeoShape::QUAD>
+{
+  static const Uint nb_points = 1;
+  
+  typedef Eigen::Matrix<Real, 2, 1> CoordsT;
+  typedef Eigen::Matrix<Real, 1, 1> WeightsT;
+  
+  static CoordsT coords()
+  {
+    return CoordsT::Zero();
+  }
+  
+  static WeightsT weights()
+  {
+    return 4. * WeightsT::Ones();
+  }
+};
+
+template<>
+struct GaussMappedCoords<1, GeoShape::HEXA>
+{
+  static const Uint nb_points = 1;
+  
+  typedef Eigen::Matrix<Real, 3, 1> CoordsT;
+  typedef Eigen::Matrix<Real, 1, 1> WeightsT;
+  
+  static CoordsT coords()
+  {
+    return CoordsT::Zero();
+  }
+  
+  static WeightsT weights()
+  {
+    return 8. * WeightsT::Ones();
+  }
+};
+
+template<>
+struct GaussMappedCoords<1, GeoShape::TRIAG>
+{
+  static const Uint nb_points = 1;
+  
+  typedef Eigen::Matrix<Real, 2, 1> CoordsT;
+  typedef Eigen::Matrix<Real, 1, 1> WeightsT;
+  
+  static CoordsT coords()
+  {
+    static const Real mu = 0.3333333333333333333333333;
+    
+    CoordsT result(mu, mu);
+    return result;
+  }
+  
+  static WeightsT weights()
+  {
+    WeightsT result;
+    result << 0.5;
+    return result;
+  }
+};
+
+template<>
+struct GaussMappedCoords<1, GeoShape::TETRA>
+{
+  static const Uint nb_points = 1;
+  
+  typedef Eigen::Matrix<Real, 3, 1> CoordsT;
+  typedef Eigen::Matrix<Real, 1, 1> WeightsT;
+  
+  static CoordsT coords()
+  {
+    static const double mu = 0.3333333333333333333333333;
+    
+    CoordsT result;
+    result << mu, mu, mu;
+    return result;
+  }
+  
+  static WeightsT weights()
+  {
+    WeightsT result;
+    result << 0.25;
+    return result;
+  }
+};
+
+template<Uint Order>
+struct GaussMappedCoords<Order, GeoShape::LINE>
+{
+  static const Uint nb_points = Order;
+  
+  typedef Eigen::Matrix<Real, 1, nb_points> CoordsT;
+  typedef Eigen::Matrix<Real, 1, nb_points> WeightsT;
+  
+  static CoordsT coords()
+  {
+    CoordsT result;
+    const static Uint npoints = Order/2;
+    Uint n = 0;
+    for(Uint i = 0; i != npoints; ++i)
+    {
+      result.col(n++) << GaussPoints<Order>::x[i];
+      result.col(n++) << -GaussPoints<Order>::x[i];
+    }
+    
+    return result;
+  }
+  
+  static WeightsT weights()
+  {
+    WeightsT result;
+    const static Uint npoints = Order/2;
+    Uint n = 0;
+    for(Uint i = 0; i != npoints; ++i)
+    {
+      const Real w = (GaussPoints<Order>::w[i]);
+      result.col(n++) << w;
+      result.col(n++) << w;
+    }
+    
+    return result;
+  }
+};
+
+template<Uint Order>
+struct GaussMappedCoords<Order, GeoShape::QUAD>
+{
+  static const Uint nb_points = Order*Order;
+  
+  typedef Eigen::Matrix<Real, 2, nb_points> CoordsT;
+  typedef Eigen::Matrix<Real, 1, nb_points> WeightsT;
+  
+  static CoordsT coords()
+  {
+    CoordsT result;
+    const static Uint npoints = Order/2;
+    Uint n = 0;
+    for(Uint i = 0; i != npoints; ++i)
+    {
+      for(Uint j = 0; j != npoints; ++j)
+      {
+        result.col(n++) <<  GaussPoints<Order>::x[i],  GaussPoints<Order>::x[j];
+        result.col(n++) << -GaussPoints<Order>::x[i],  GaussPoints<Order>::x[j];
+        result.col(n++) <<  GaussPoints<Order>::x[i], -GaussPoints<Order>::x[j];
+        result.col(n++) << -GaussPoints<Order>::x[i], -GaussPoints<Order>::x[j];
+      }
+    }
+    
+    return result;
+  }
+  
+  static WeightsT weights()
+  {
+    WeightsT result;
+    const static Uint npoints = Order/2;
+    Uint n = 0;
+    for(Uint i = 0; i != npoints; ++i)
+    { 
+      for(Uint j = 0; j != npoints; ++j)
+      {
+        const Real w = GaussPoints<Order>::w[i] * GaussPoints<Order>::w[j];
+        result.col(n++) << w;
+        result.col(n++) << w;
+        result.col(n++) << w;
+        result.col(n++) << w;
+      }
+    }
+    
+    return result;
+  }
+};
+
+template<Uint Order>
+struct GaussMappedCoords<Order, GeoShape::HEXA>
+{
+  static const Uint nb_points = Order*Order*Order;
+  
+  typedef Eigen::Matrix<Real, 3, nb_points> CoordsT;
+  typedef Eigen::Matrix<Real, 1, nb_points> WeightsT;
+  
+  static CoordsT coords()
+  {
+    CoordsT result;
+    const static Uint npoints = Order/2;
+    Uint n = 0;
+    for(Uint i = 0; i != npoints; ++i)
+    {
+      for(Uint j = 0; j != npoints; ++j)
+      {
+        for(Uint k = 0; k != npoints; ++k)
+        {
+          result.col(n++) <<  GaussPoints<Order>::x[i],  GaussPoints<Order>::x[j],  GaussPoints<Order>::x[k];
+          result.col(n++) << -GaussPoints<Order>::x[i],  GaussPoints<Order>::x[j],  GaussPoints<Order>::x[k];
+          result.col(n++) <<  GaussPoints<Order>::x[i], -GaussPoints<Order>::x[j],  GaussPoints<Order>::x[k];
+          result.col(n++) <<  GaussPoints<Order>::x[i],  GaussPoints<Order>::x[j], -GaussPoints<Order>::x[k];
+          result.col(n++) <<  GaussPoints<Order>::x[i], -GaussPoints<Order>::x[j], -GaussPoints<Order>::x[k];
+          result.col(n++) << -GaussPoints<Order>::x[i],  GaussPoints<Order>::x[j], -GaussPoints<Order>::x[k];
+          result.col(n++) << -GaussPoints<Order>::x[i], -GaussPoints<Order>::x[j],  GaussPoints<Order>::x[k];
+          result.col(n++) << -GaussPoints<Order>::x[i], -GaussPoints<Order>::x[j], -GaussPoints<Order>::x[k];
+        }
+      }
+    }
+    
+    return result;
+  }
+  
+  static WeightsT weights()
+  {
+    WeightsT result;
+    const static Uint npoints = Order/2;
+    Uint n = 0;
+    for(Uint i = 0; i != npoints; ++i)
+    {
+      for(Uint j = 0; j != npoints; ++j)
+      {
+        for(Uint k = 0; k != npoints; ++k)
+        {
+          const Real w = GaussPoints<Order>::w[i] * GaussPoints<Order>::w[j] * GaussPoints<Order>::w[k];
+          result.col(n++) << w;
+          result.col(n++) << w;
+          result.col(n++) << w;
+          result.col(n++) << w;
+          result.col(n++) << w;
+          result.col(n++) << w;
+          result.col(n++) << w;
+          result.col(n++) << w;
+        }
+      }
+    }
+    
+    return result;
+  }
+};
 
 template<Uint Order, GeoShape::Type Shape>
 struct GaussIntegrator;
@@ -268,4 +527,4 @@ struct GaussIntegrator<Order, GeoShape::HEXA>
 } // Mesh
 } // CF
 
-#endif /* CF_Mesh_Integrators_Gauss_HH */
+#endif /* CF_Mesh_Integrators_Gaussimplementation_HH */
