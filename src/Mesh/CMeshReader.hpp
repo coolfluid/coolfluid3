@@ -17,7 +17,6 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CTable.hpp"
-#include "Mesh/SimpleCommunicationPattern.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -78,9 +77,6 @@ public: // functions
   /// @param [in]   path    the file to read in
   /// @return mesh          the created mesh
   CMesh::Ptr create_mesh_from(boost::filesystem::path& path);
-	
-  /// @todo missing documentation
-	virtual void collect_from_other_ranks();
 
 protected: // functions
 
@@ -100,9 +96,6 @@ protected: // functions
   void remove_empty_element_regions(CRegion& parent_region);
 	
 protected: // data
-	
-  SimpleCommunicationPattern comm_pattern;
-  SimpleCommunicationPattern::IndicesT nodes_dist;	
 
 };
 

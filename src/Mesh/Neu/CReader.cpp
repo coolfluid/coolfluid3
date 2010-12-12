@@ -4,7 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <boost/foreach.hpp>
 #include <boost/algorithm/string/erase.hpp>
 #include <boost/filesystem/convenience.hpp>
 
@@ -13,13 +12,13 @@
 #include "Common/ComponentPredicates.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/StreamHelpers.hpp"
+#include "Common/Foreach.hpp"
 #include "Common/String/Conversion.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CList.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/ConnectivityData.hpp"
 #include "Mesh/CDynTable.hpp"
 #include "Mesh/CMixedHash.hpp"
 #include "Mesh/CHash.hpp"
@@ -60,13 +59,13 @@ CReader::CReader( const std::string& name )
 
   m_properties["Repartition"].as_option().attach_trigger ( boost::bind ( &CReader::config_repartition,   this ) );
   
-  m_properties["brief"] = std::string("Gambit Neutral file mesh reader component");
+  m_properties["brief"] = std::string("Neutral file mesh reader component");
   
   std::string desc;
   desc += "This component can read in parallel.\n";
   desc += "It can also read multiple files in serial, combining them in one large mesh.\n";
   desc += "Available coolfluid-element types are:\n";
-  BOOST_FOREACH(const std::string& supported_type, m_supported_types)
+  boost_foreach(const std::string& supported_type, m_supported_types)
   desc += "  - " + supported_type + "\n";
   m_properties["description"] = desc;
 }
@@ -122,12 +121,8 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   // Create a region component inside the mesh with the name mesh_name
   m_region = m_mesh->create_region(m_headerData.mesh_name,!property("Serial Merge").value<bool>()).as_type<CRegion>();
 
-  // partition the nodes
-  partition_nodes();
-  
-  //CFinfo << "nodes to read = " << m_nodes_to_read.size() << CFendl;
-  //CFinfo << "elements to read = " << m_elements_to_read.size() << CFendl;
-  
+  find_ghost_nodes();
+    
   read_coordinates();
   
   read_connectivity();
@@ -145,7 +140,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   remove_empty_element_regions(get_component_typed<CRegion>(*m_mesh));
 
   // update the node lists contained by the element regions
-  BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*m_region))
+  boost_foreach(CElements& elements, recursive_range_typed<CElements>(*m_region))
     elements.update_node_list();
 
   // update the number of cells and nodes in the mesh
@@ -154,7 +149,37 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 
   // close the file
   m_file.close();
+}
 
+//////////////////////////////////////////////////////////////////////////////
+  
+void CReader::get_file_positions()
+{   
+  std::string nodal_coordinates("NODAL COORDINATES");
+  std::string elements_cells("ELEMENTS/CELLS");
+  std::string element_group("ELEMENT GROUP");
+  std::string boundary_condition("BOUNDARY CONDITIONS");
+  
+  m_element_group_positions.resize(0);
+  m_boundary_condition_positions.resize(0);
+  
+  int p;
+  std::string line;
+  while (!m_file.eof())
+  {
+    p = m_file.tellg();
+    getline(m_file,line);
+    if (line.find(nodal_coordinates)!=std::string::npos)
+      m_nodal_coordinates_position=p;
+    else if (line.find(elements_cells)!=std::string::npos)
+      m_elements_cells_position=p;
+    else if (line.find(element_group)!=std::string::npos)
+      m_element_group_positions.push_back(p);
+    else if (line.find(boundary_condition)!=std::string::npos)
+      m_boundary_condition_positions.push_back(p);
+  }
+  m_file.clear();
+  
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -192,34 +217,51 @@ void CReader::read_headerData()
 }
 
 //////////////////////////////////////////////////////////////////////////////
+
+void CReader::find_ghost_nodes()
+{
+  m_ghost_nodes.clear();
   
-void CReader::get_file_positions()
-{   
-  std::string nodal_coordinates("NODAL COORDINATES");
-  std::string elements_cells("ELEMENTS/CELLS");
-  std::string element_group("ELEMENT GROUP");
-  std::string boundary_condition("BOUNDARY CONDITIONS");
-  
-  m_element_group_positions.resize(0);
-  m_boundary_condition_positions.resize(0);
-  
-  int p;
-  std::string line;
-  while (!m_file.eof())
+  // Only find ghost nodes if the domain is split up
+  if (property("Number of Parts").value<Uint>() > 1)
   {
-    p = m_file.tellg();
+    m_file.seekg(m_elements_cells_position,std::ios::beg);
+    // skip next line
+    std::string line;
     getline(m_file,line);
-    if (line.find(nodal_coordinates)!=std::string::npos)
-      m_nodal_coordinates_position=p;
-    else if (line.find(elements_cells)!=std::string::npos)
-      m_elements_cells_position=p;
-    else if (line.find(element_group)!=std::string::npos)
-      m_element_group_positions.push_back(p);
-    else if (line.find(boundary_condition)!=std::string::npos)
-      m_boundary_condition_positions.push_back(p);
+
+
+    // read every line and store the connectivity in the correct region through the buffer
+    Uint elementNumber, elementType, nbElementNodes;
+    for (Uint i=0; i<m_headerData.NELEM; ++i) 
+    {
+      if (m_headerData.NELEM > 100000)
+      {
+        if(i%(m_headerData.NELEM/20)==0)
+          CFinfo << 100*i/m_headerData.NELEM << "% " << CFendl;
+      }
+
+      if (m_hash->subhash(ELEMS)->owns(i))
+      {
+        // element description
+        m_file >> elementNumber >> elementType >> nbElementNodes;
+
+        // check if element nodes are ghost
+        std::vector<Uint> neu_element_nodes(nbElementNodes);
+        for (Uint j=0; j<nbElementNodes; ++j)
+        {
+          m_file >> neu_element_nodes[j];
+          if (!m_hash->subhash(NODES)->owns(neu_element_nodes[j]-1))
+          {
+            m_ghost_nodes.insert(neu_element_nodes[j]);
+          }
+        }
+      }
+      // finish the line
+      getline(m_file,line);
+    }
+    getline(m_file,line);  // ENDOFSECTION
   }
-  m_file.clear();
-  
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -244,7 +286,6 @@ void CReader::read_coordinates()
   CList<bool>& is_ghost = *m_coordinates->get_child_type<CList<bool> >("is_ghost");
   is_ghost.resize(is_ghost.size()+m_hash->subhash(NODES)->nb_objects_in_part(PE::instance().rank()) + m_ghost_nodes.size());
 
-  
   std::string line;
   // skip one line
   getline(m_file,line);
@@ -292,55 +333,10 @@ void CReader::read_coordinates()
 				coord_idx++;
 			}			
 		}
-
   }
-  
   getline(m_file,line);
 }
 
-//////////////////////////////////////////////////////////////////////////////
-
-void CReader::partition_nodes()
-{
-  m_ghost_nodes.clear();
-  
-  m_file.seekg(m_elements_cells_position,std::ios::beg);
-  // skip next line
-  std::string line;
-  getline(m_file,line);
-  
-  
-  // read every line and store the connectivity in the correct region through the buffer
-  Uint elementNumber, elementType, nbElementNodes;
-  for (Uint i=0; i<m_headerData.NELEM; ++i) 
-  {
-    if (m_headerData.NELEM > 100000)
-    {
-      if(i%(m_headerData.NELEM/20)==0)
-        CFinfo << 100*i/m_headerData.NELEM << "% " << CFendl;
-    }
-
-		if (m_hash->subhash(ELEMS)->owns(i))
-		{
-			// element description
-      m_file >> elementNumber >> elementType >> nbElementNodes;
-						
-      // check if element nodes are ghost
-      std::vector<Uint> neu_element_nodes(nbElementNodes);
-      for (Uint j=0; j<nbElementNodes; ++j)
-      {
-        m_file >> neu_element_nodes[j];
-        if (!m_hash->subhash(NODES)->owns(neu_element_nodes[j]-1))
-				{
-          m_ghost_nodes.insert(neu_element_nodes[j]);
-        }
-      }		
-		}
-    // finish the line
-    getline(m_file,line);
-  }
-  getline(m_file,line);  // ENDOFSECTION
-}
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -361,11 +357,11 @@ void CReader::read_connectivity()
       create_element_regions_with_buffermap(*m_tmp,coordinates,m_supported_types);
 
   std::map<std::string,CElements::Ptr> element_regions;
-  BOOST_FOREACH(const std::string& etype, m_supported_types)
+  boost_foreach(const std::string& etype, m_supported_types)
     element_regions[etype] = get_named_component_typed_ptr<CElements>(*m_tmp, "elements_" + etype);
 
   std::map<std::string,boost::shared_ptr<CList<Uint>::Buffer> > glb_elm_indices;
-  BOOST_FOREACH(const std::string& etype, m_supported_types)
+  boost_foreach(const std::string& etype, m_supported_types)
     glb_elm_indices[etype] = boost::shared_ptr<CList<Uint>::Buffer> ( new CList<Uint>::Buffer(get_tagged_component_typed_ptr< CList<Uint> >(*element_regions[etype], "global_element_indices")->create_buffer()) );
 
   // skip next line
@@ -432,7 +428,6 @@ void CReader::read_connectivity()
   }
   getline(m_file,line);  // ENDOFSECTION
   
-  
   node_to_glb_elem_connectivity.add_rows(m_node_to_glb_elements);
   
   m_node_to_coord_idx.clear();
@@ -440,30 +435,6 @@ void CReader::read_connectivity()
   
 }
 
-//////////////////////////////////////////////////////////////////////////////
-
-std::string CReader::element_type(const Uint neu_type, const Uint nb_nodes)
-{
-  std::string cf_type;
-  std::string dim = to_str<int>(m_headerData.NDFCD);
-  if      (neu_type==LINE  && nb_nodes==2) cf_type = "CF.Mesh.SF.Line"  + dim + "DLagrangeP1";  // line
-  else if (neu_type==QUAD  && nb_nodes==4) cf_type = "CF.Mesh.SF.Quad"  + dim + "DLagrangeP1";  // quadrilateral
-  else if (neu_type==TRIAG && nb_nodes==3) cf_type = "CF.Mesh.SF.Triag" + dim + "DLagrangeP1";  // triangle
-  else if (neu_type==HEXA  && nb_nodes==8) cf_type = "CF.Mesh.SF.Hexa"  + dim + "DLagrangeP1";  // hexahedron
-  else if (neu_type==TETRA && nb_nodes==4) cf_type = "CF.Mesh.SF.Tetra" + dim + "DLagrangeP1";  // tetrahedron
-  /// @todo to be implemented
-  else if (neu_type==5 && nb_nodes==6) // wedge (prism)
-    throw Common::NotImplemented(FromHere(),"wedge or prism element not able to convert to COOLFluiD yet.");
-  else if (neu_type==7 && nb_nodes==5) // pyramid
-    throw Common::NotImplemented(FromHere(),"pyramid element not able to convert to COOLFluiD yet.");
-  else {
-    throw Common::NotSupported(FromHere(),"no support for element type/nodes "
-                               + to_str<int>(neu_type) + "/" + to_str<int>(nb_nodes) +
-                               " in Gambit Neutral format");
-  }
-  return cf_type;
-}
-  
 //////////////////////////////////////////////////////////////////////////////
 
 void CReader::read_groups()
@@ -506,6 +477,7 @@ void CReader::read_groups()
       m_tmp.reset();
       return;
     }
+    
     // 2) there are multiple groups --> New regions have to be created
     //    and the elements from the tmp region have to be distributed among
     //    these new regions.
@@ -535,7 +507,7 @@ void CReader::read_groups()
   
 
   // Create Region for each group
-  BOOST_FOREACH(GroupData& group, groups)
+  boost_foreach(GroupData& group, groups)
   {
     
     CRegion& region = m_region->create_region(group.ELMMAT);
@@ -546,16 +518,16 @@ void CReader::read_groups()
     create_element_regions_with_buffermap(region,coordinates,m_supported_types);
     
     std::map<std::string,CElements::Ptr> element_regions;
-    BOOST_FOREACH(const std::string& etype, m_supported_types)
+    boost_foreach(const std::string& etype, m_supported_types)
       element_regions[etype] = get_named_component_typed_ptr<CElements>(region, "elements_" + etype);
 
     std::map<std::string,boost::shared_ptr<CList<Uint>::Buffer> > glb_elm_indices;
-    BOOST_FOREACH(const std::string& etype, m_supported_types)
-      glb_elm_indices[etype] = boost::shared_ptr<CList<Uint>::Buffer> ( new CList<Uint>::Buffer(get_tagged_component_typed_ptr< CList<Uint> >(*element_regions[etype], "global_element_indices")->create_buffer()) );
+    boost_foreach(const std::string& etype, m_supported_types)
+      glb_elm_indices[etype] = boost::shared_ptr<CList<Uint>::Buffer> ( new CList<Uint>::Buffer(find_component_ptr_with_tag< CList<Uint> >(*element_regions[etype], "global_element_indices")->create_buffer()) );
     
     
     // Copy elements from tmp_region in the correct region
-    BOOST_FOREACH(Uint global_element, group.ELEM)
+    boost_foreach(Uint global_element, group.ELEM)
     {
       CElements::Ptr tmp_region = m_global_to_tmp[global_element].first;
       Uint local_element = m_global_to_tmp[global_element].second;
@@ -614,11 +586,11 @@ void CReader::read_boundaries()
 
 
     std::map<std::string,CElements::Ptr> element_regions;
-    BOOST_FOREACH(const std::string& etype, m_supported_types)
+    boost_foreach(const std::string& etype, m_supported_types)
       element_regions[etype] = get_named_component_typed_ptr<CElements>(bc_region, "elements_" + etype);
 
     std::map<std::string,boost::shared_ptr<CList<Uint>::Buffer> > glb_elm_indices;
-    BOOST_FOREACH(const std::string& etype, m_supported_types)
+    boost_foreach(const std::string& etype, m_supported_types)
       glb_elm_indices[etype] = boost::shared_ptr<CList<Uint>::Buffer> ( new CList<Uint>::Buffer(get_tagged_component_typed_ptr< CList<Uint> >(*element_regions[etype], "global_element_indices")->create_buffer()) );
 
     // read boundary elements connectivity
@@ -645,7 +617,7 @@ void CReader::read_boundaries()
         const CTable<Uint>::Row& elem_nodes = tmp_region->connectivity_table()[local_element];
         std::vector<Uint> row;
         row.reserve(face_connectivity.face_node_counts[faceIdx]);
-        BOOST_FOREACH(const Uint& node, face_connectivity.face_node_range(faceIdx))
+        boost_foreach(const Uint& node, face_connectivity.face_node_range(faceIdx))
           row.push_back(elem_nodes[node]);
 
         // add the row to the buffer of the face region
@@ -660,6 +632,32 @@ void CReader::read_boundaries()
 
   }
 }
+
+//////////////////////////////////////////////////////////////////////////////
+
+std::string CReader::element_type(const Uint neu_type, const Uint nb_nodes)
+{
+  std::string cf_type;
+  std::string dim = to_str<int>(m_headerData.NDFCD);
+  if      (neu_type==LINE  && nb_nodes==2) cf_type = "CF.Mesh.SF.Line"  + dim + "DLagrangeP1";  // line
+  else if (neu_type==QUAD  && nb_nodes==4) cf_type = "CF.Mesh.SF.Quad"  + dim + "DLagrangeP1";  // quadrilateral
+  else if (neu_type==TRIAG && nb_nodes==3) cf_type = "CF.Mesh.SF.Triag" + dim + "DLagrangeP1";  // triangle
+  else if (neu_type==HEXA  && nb_nodes==8) cf_type = "CF.Mesh.SF.Hexa"  + dim + "DLagrangeP1";  // hexahedron
+  else if (neu_type==TETRA && nb_nodes==4) cf_type = "CF.Mesh.SF.Tetra" + dim + "DLagrangeP1";  // tetrahedron
+  /// @todo to be implemented
+  else if (neu_type==5 && nb_nodes==6) // wedge (prism)
+    throw Common::NotImplemented(FromHere(),"wedge or prism element not able to convert to COOLFluiD yet.");
+  else if (neu_type==7 && nb_nodes==5) // pyramid
+    throw Common::NotImplemented(FromHere(),"pyramid element not able to convert to COOLFluiD yet.");
+  else {
+    throw Common::NotSupported(FromHere(),"no support for element type/nodes "
+                               + to_str<int>(neu_type) + "/" + to_str<int>(nb_nodes) +
+                               " in Neutral format");
+  }
+  return cf_type;
+}
+
+//////////////////////////////////////////////////////////////////////////////
 
 void CReader::HeaderData::print()
 {

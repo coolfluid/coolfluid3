@@ -20,6 +20,8 @@
 #include "Mesh/CMeshTransformer.hpp"
 
 #include "Mesh/CDynTable.hpp"
+#include "Mesh/CList.hpp"
+#include "Mesh/CTable.hpp"
 
 using namespace std;
 using namespace boost;
@@ -100,8 +102,8 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
 	
 	BOOST_FOREACH(CDynTable<Uint>& node_2_elems, recursive_filtered_range_typed<CDynTable<Uint> >(*mesh,IsComponentName("glb_elem_connectivity")))
   {
-    CList<bool>& is_ghost = *node_2_elems.look_component_type<CList <bool> >("../is_ghost").get();
-    CList<Uint>& glb_indices = *node_2_elems.look_component_type<CList <Uint> >("../global_indices").get();
+    CList<bool>& is_ghost = *node_2_elems.look_component<CList <bool> >("../is_ghost").get();
+    CList<Uint>& glb_indices = *node_2_elems.look_component<CList <Uint> >("../global_indices").get();
     
     for (Uint i=0; i<node_2_elems.size(); ++i)
     {

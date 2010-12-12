@@ -59,7 +59,7 @@ private: // functions
 
   void read_headerData();
 	
-	void partition_nodes();
+	void find_ghost_nodes();
 	
   void read_coordinates();
 

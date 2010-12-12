@@ -4,7 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <boost/foreach.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/mpi/collectives.hpp>
 
@@ -13,6 +12,7 @@
 #include "Common/OptionArray.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/ComponentPredicates.hpp"
+#include "Common/Foreach.hpp"
 #include "Common/MPI/PE.hpp"
 
 #include "Mesh/CMeshReader.hpp"
@@ -42,9 +42,6 @@ CMeshReader::CMeshReader ( const std::string& name  ) :
 
 //  m_properties["Files"].as_option().mark_basic();
 
-  // comm pattern
-
-  comm_pattern = SimpleCommunicationPattern(); // must be created after MPI init
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -73,7 +70,7 @@ void CMeshReader::read( XmlNode& xml  )
   std::vector<URI> files = p.get_array<URI>("Files");
 
   // check protocol for file loading
-  BOOST_FOREACH(URI file, files)
+  boost_foreach(URI file, files)
   {
     if( file.empty() || file.protocol() != URIProtocol::FILE )
       throw ProtocolError( FromHere(), "Wrong protocol to access the file, expecting a \'file\' but got \'" + file.string() + "\'" );
@@ -85,7 +82,7 @@ void CMeshReader::read( XmlNode& xml  )
     CMesh::Ptr mesh = domain->create_component_type<CMesh>("Mesh");
 
     // Get the file paths
-    BOOST_FOREACH(URI file, files)
+    boost_foreach(URI file, files)
     {
       boost::filesystem::path fpath( file.string_without_protocol() );
       read_from_to(fpath, mesh);
@@ -119,7 +116,7 @@ CMeshReader::BufferMap
 {
   // Create regions for each element type
   BufferMap buffermap;
-  BOOST_FOREACH(const std::string& etype, etypes)
+  boost_foreach(const std::string& etype, etypes)
   {
     CElements& etype_region = parent_region.create_elements(etype,coordinates);
     // CFinfo << "create: " << etype_region->full_path().string() << "\n" << CFflush;
@@ -134,39 +131,31 @@ CMeshReader::BufferMap
 void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
 {
 
-  BOOST_FOREACH(CElements& region, recursive_range_typed<CElements>(parent_region))
+  boost_foreach(CElements& region, recursive_range_typed<CElements>(parent_region))
   {
     // find the empty regions
     bool empty_on_this_rank = region.connectivity_table().array().empty();
     bool empty_on_all_ranks = empty_on_this_rank;
     if (PE::instance().is_init())
       empty_on_all_ranks = boost::mpi::all_reduce(PE::instance(), empty_on_this_rank, std::logical_and<bool>());
+
     if ( empty_on_all_ranks )
     {
-      // no elements in connectivity table --> remove this region
-      //CFinfo << "remove: " << region->full_path().string() << "\n" << CFflush;
       CElements::Ptr removed = boost::dynamic_pointer_cast<CElements>(region.get_parent()->remove_component(region.name()));
       removed.reset();
     }
   }
 
   // loop over regions
-  BOOST_FOREACH(CRegion& region, recursive_range_typed<CRegion>(parent_region))
+  boost_foreach(CRegion& region, recursive_range_typed<CRegion>(parent_region))
   {
     // find the empty regions
     if ( range_typed<CRegion>(region).empty() && range_typed<CElements>(region).empty() )
       {
-        // no elements in connectivity table --> remove this region
-        //CFinfo << "remove: " << region->full_path().string() << "\n" << CFflush;
         CRegion::Ptr removed = boost::dynamic_pointer_cast<CRegion>(region.get_parent()->remove_component(region.name()));
         removed.reset();
       }
   }
-}
-
-void CMeshReader::collect_from_other_ranks()
-{
-  throw NotImplemented(FromHere(),"");
 }
 
 } // Mesh
