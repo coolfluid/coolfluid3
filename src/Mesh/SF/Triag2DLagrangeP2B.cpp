@@ -31,12 +31,12 @@ Triag2DLagrangeP2B::Triag2DLagrangeP2B(const std::string& name) : Triag2D(name)
   m_order = order;
 }
 
-std::string Triag2DLagrangeP2B::getElementTypeName() const
+std::string Triag2DLagrangeP2B::element_type_name() const
 {
   return LibSF::library_namespace() + "." + type_name();
 }
 
-Real Triag2DLagrangeP2B::computeVolume(const NodesT& coord) const
+Real Triag2DLagrangeP2B::compute_volume(const NodesT& coord) const
 {
   return volume(coord);
 }

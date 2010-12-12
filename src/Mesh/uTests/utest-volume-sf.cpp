@@ -126,7 +126,7 @@ struct VolumeSFFixture
     {
       FunctorT functor;
       cf_assert(ShapeFunctionT::dimension == ShapeFunctionT::dimensionality);
-      CFinfo << "---------------------- Start " << T.getElementTypeName() << " test ----------------------" << CFendl;
+      CFinfo << "---------------------- Start " << T.element_type_name() << " test ----------------------" << CFendl;
       const Uint segments = 5; // number of segments in each direction for the mapped coord calculation
       const NodesMapT::const_iterator shape_nodes_it = m_nodes.find(ShapeFunctionT::shape);
       cf_assert(shape_nodes_it != m_nodes.end());

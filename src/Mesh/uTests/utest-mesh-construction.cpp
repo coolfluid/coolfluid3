@@ -195,7 +195,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
     {
       fill(elementCoordinates, region_coordinates, region_connTable[iElem]);
 
-      volumes[iElem]=elementType.computeVolume(elementCoordinates);
+      volumes[iElem]=elementType.compute_volume(elementCoordinates);
 
       // check
       if(elementType.shape() == GeoShape::QUAD)
@@ -342,7 +342,7 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
 //    {
 //      elementCoordinates.fill(region_coordinates, region_connTable[iElem]);
 //			
-//      volumes[iElem]=elementType.computeVolume(elementCoordinates);
+//      volumes[iElem]=elementType.compute_volume(elementCoordinates);
 //			
 //      // check
 //      if(elementType.shape() == GeoShape::QUAD)

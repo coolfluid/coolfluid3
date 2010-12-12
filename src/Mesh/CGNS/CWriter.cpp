@@ -208,7 +208,7 @@ void CWriter::write_section(const GroupedElements& grouped_elements)
   CRegion::ConstPtr section_region = grouped_elements[0]->get_parent()->as_type<CRegion const>();
 
   m_section.name = section_region->name();
-  m_section.type = grouped_elements.size() != 1 ? MIXED : m_elemtype_CF_to_CGNS[grouped_elements[0]->element_type().getElementTypeName()];
+  m_section.type = grouped_elements.size() != 1 ? MIXED : m_elemtype_CF_to_CGNS[grouped_elements[0]->element_type().element_type_name()];
 
   switch (m_section.type)
   {
@@ -244,7 +244,7 @@ void CWriter::write_section(const GroupedElements& grouped_elements)
         m_section.elemEndIdx = m_section.elemEndIdx + nbElems;
         m_section.nbBdry = 0; // unsorted boundary
         
-        ElementType_t type = m_elemtype_CF_to_CGNS[elements->element_type().getElementTypeName()];
+        ElementType_t type = m_elemtype_CF_to_CGNS[elements->element_type().element_type_name()];
         const CTable<Uint>::ArrayT& connectivity_table = elements->connectivity_table().array();
         int start_idx = m_global_start_idx[&elements->coordinates()];
         

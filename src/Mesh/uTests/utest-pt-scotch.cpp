@@ -16,7 +16,7 @@
 #include <mpi.h>
 #include <ptscotch.h>
 
-#include "Common/ConfigObject.hpp"
+//#include "Common/ConfigObject.hpp"
 #include "Common/Log.hpp"
 #include "Common/StreamHelpers.hpp"
 

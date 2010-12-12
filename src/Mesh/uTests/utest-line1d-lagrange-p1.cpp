@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE( Volume )
 {
   NodesT nodes_line1D(2.0, 1.0);
   Line1DLagrangeP1 line;
-  BOOST_CHECK_EQUAL(line.computeVolume(nodes_line1D),1.);
+  BOOST_CHECK_EQUAL(line.compute_volume(nodes_line1D),1.);
 }
 
 BOOST_AUTO_TEST_CASE( ShapeFunction )

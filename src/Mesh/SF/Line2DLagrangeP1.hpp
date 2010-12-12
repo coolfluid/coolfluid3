@@ -112,11 +112,11 @@ struct MESH_SF_API Line2DLagrangeP1  : public Line2D
 //     interpolation = 0.5 * ((1. - ksi) * nodal_values[0] + (1. + ksi) * nodal_values[1]);
 //   }
 
-  virtual std::string getElementTypeName() const;
+  virtual std::string element_type_name() const;
 
   /// The volume of an element with a dimensionality that is less than
   /// the dimension of the problem is 0.
-  virtual Real computeVolume(const NodesT& coord) const;
+  virtual Real compute_volume(const NodesT& coord) const;
 	virtual bool is_coord_in_element(const RealVector& coord, const NodesT& nodes) const;
   virtual const CF::Mesh::ElementType::FaceConnectivity& face_connectivity() const;
   virtual const CF::Mesh::ElementType& face_type(const CF::Uint face) const;

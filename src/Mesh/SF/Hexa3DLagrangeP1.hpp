@@ -374,8 +374,8 @@ enum FaceNumbering { ZNEG, ZPOS, YNEG, XPOS, YPOS, XNEG};
 
 static const FaceConnectivity& faces();
 
-virtual std::string getElementTypeName() const;
-virtual Real computeVolume(const NodesT& coord) const;
+virtual std::string element_type_name() const;
+virtual Real compute_volume(const NodesT& coord) const;
 virtual bool is_coord_in_element(const RealVector& coord, const NodesT& nodes) const;
 virtual const FaceConnectivity& face_connectivity() const;
 virtual const ElementType& face_type(const Uint face) const;

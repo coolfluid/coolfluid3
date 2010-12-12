@@ -531,10 +531,10 @@ void CReader::read_groups()
     {
       CElements::Ptr tmp_region = m_global_to_tmp[global_element].first;
       Uint local_element = m_global_to_tmp[global_element].second;
-      std::string etype = tmp_region->element_type().getElementTypeName();
+      std::string etype = tmp_region->element_type().element_type_name();
       
       Uint idx = buffer[etype]->add_row(tmp_region->connectivity_table().array()[local_element]);
-      std::string new_region_name = "elements_" + tmp_region->element_type().getElementTypeName();
+      std::string new_region_name = "elements_" + tmp_region->element_type().element_type_name();
       m_global_to_tmp[global_element] = std::make_pair(region.get_child_type<CElements>(new_region_name),idx);
       Uint local_elm_idx = glb_elm_indices[etype]->add_row(global_element-1);
       
@@ -621,7 +621,7 @@ void CReader::read_boundaries()
           row.push_back(elem_nodes[node]);
 
         // add the row to the buffer of the face region
-        std::string face_type = etype.face_type(faceIdx).getElementTypeName();
+        std::string face_type = etype.face_type(faceIdx).element_type_name();
         buffer[face_type]->add_row(row);
 
         glb_elm_indices[face_type]->add_row(glb_element_count++);

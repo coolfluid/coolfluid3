@@ -39,7 +39,7 @@ CFieldElements::~CFieldElements()
 void CFieldElements::initialize(CElements& elements)
 {
   // Set the shape function
-  set_element_type(elements.element_type().getElementTypeName());
+  set_element_type(elements.element_type().element_type_name());
   cf_assert(m_element_type);
 
   // create a link to the geometry elements.

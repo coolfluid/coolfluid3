@@ -221,7 +221,7 @@ void CWriter::write_connectivity(std::fstream& file)
           m_element_start_idx[elements]=elm_number;
 
           //file << "// Region " << elements.full_path().string() << "\n";
-          elm_type = m_elementTypes[elements->element_type().getElementTypeName()];
+          elm_type = m_elementTypes[elements->element_type().element_type_name()];
           Uint node_start_idx = m_node_start_idx[elements];
           BOOST_FOREACH(const CTable<Uint>::ConstRow& row, elements->connectivity_table().array())
           {

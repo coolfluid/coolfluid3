@@ -31,12 +31,12 @@ Tetra3DLagrangeP1::Tetra3DLagrangeP1(const std::string& name) : Tetra3D(name)
   m_order = order;
 }
 
-std::string Tetra3DLagrangeP1::getElementTypeName() const
+std::string Tetra3DLagrangeP1::element_type_name() const
 {
   return LibSF::library_namespace() + "." + type_name();
 }
 
-Real Tetra3DLagrangeP1::computeVolume(const NodesT& coord) const
+Real Tetra3DLagrangeP1::compute_volume(const NodesT& coord) const
 {
   return volume(coord);
 }

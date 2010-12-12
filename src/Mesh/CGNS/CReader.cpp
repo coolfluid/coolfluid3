@@ -703,7 +703,7 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
         Uint local_element = m_global_to_region[global_element].second;
 
         // Add the local element to the correct CElements component through its buffer
-        buffer[element_region->element_type().getElementTypeName()]->add_row(element_region->connectivity_table()[local_element]);
+        buffer[element_region->element_type().element_type_name()]->add_row(element_region->connectivity_table()[local_element]);
       }
 
       // Flush all buffers and remove empty element regions
@@ -752,7 +752,7 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
         Uint local_element = m_global_to_region[global_element].second;
 
         // Add the local element to the correct CElements component through its buffer
-        buffer[element_region->element_type().getElementTypeName()]->add_row(element_region->connectivity_table()[local_element]);
+        buffer[element_region->element_type().element_type_name()]->add_row(element_region->connectivity_table()[local_element]);
       }
 
       // Flush all buffers and remove empty element regions

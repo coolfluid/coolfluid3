@@ -240,7 +240,7 @@ public: // functions
   {
     ElementType::NodesT nodes(data->connectivity_table.row_size(), data->coordinates.row_size());
     fill(nodes, data->coordinates, data->connectivity_table[elem]);
-    data->volumes[elem][0] = data->field_elements.element_type().computeVolume( nodes );
+    data->volumes[elem][0] = data->field_elements.element_type().compute_volume( nodes );
   }
 
 private: // data
