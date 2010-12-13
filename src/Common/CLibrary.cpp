@@ -11,7 +11,7 @@
 namespace CF {
 namespace Common {
 
-CF::RegistTypeInfo<CLibrary> sCLibrary_regist();
+CF::RegistTypeInfo<CLibrary> CLibrary_TypeRegistration();
 
 /////////////////////////////////////////////////////////////////////////////////////
 

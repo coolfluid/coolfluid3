@@ -17,13 +17,13 @@ namespace Mesh {
 
 using namespace Common;
 
+CF::RegistTypeInfo<CFieldElements> CFieldElements_TypeRegistration();
+
 ////////////////////////////////////////////////////////////////////////////////
 
 CFieldElements::CFieldElements ( const std::string& name ) :
   CElements (name)
 {
-   
-
   properties()["element_based"] = false;
   properties()["node_based"] = false;
 }

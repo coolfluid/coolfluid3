@@ -44,6 +44,8 @@ namespace Common {
     // functions specific to the CLink component
 
     /// link to component
+    bool is_linked () const;
+
     void link_to ( Component::Ptr lnkto );
 
     void change_link( XmlNode & node );

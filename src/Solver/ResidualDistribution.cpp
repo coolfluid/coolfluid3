@@ -62,7 +62,6 @@ void ResidualDistribution::create_bc( XmlNode& xml )
   XmlParams p (xml);
 
   std::string name = p.get_option<std::string>("Name");
-
   
   CLoop::Ptr apply_bc = create_component< CForAllNodes >(name);
     apply_bc->create_action("CF.Actions.CSetFieldValues");

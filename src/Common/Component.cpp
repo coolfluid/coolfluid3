@@ -585,9 +585,10 @@ void Component::write_xml_tree( XmlNode& node )
     XmlOps::add_attribute_to( this_node, "atype", type_name);
     XmlOps::add_attribute_to( this_node, "mode", has_tag("basic") ? "basic" : "adv");
 
-    if( m_is_link ) // if it is a link, we put the target path as value
+    CLink::Ptr lnk = this->as_type<CLink>();
+    if( is_not_null(lnk) ) // if it is a link, we put the target path as value
     {
-      if (is_not_null(get()))
+      if ( lnk->is_linked() )
        this_node.value( this_node.document()->allocate_string( get()->full_path().string().c_str() ));
       else
         this_node.value( this_node.document()->allocate_string( "//Root" ));
