@@ -74,7 +74,7 @@ void PE::finalize()
 {
 	if ( is_init() )
 	{
-    barrier();
+    //barrier();
     boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
     delete_ptr(m_environment);
     m_environment=nullptr;
