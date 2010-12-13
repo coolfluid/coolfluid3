@@ -12,6 +12,10 @@
 #include "Solver/CDiscretization.hpp"
 
 namespace CF {
+  
+  namespace Actions {
+    class CLoop;
+  }
 namespace Solver {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -41,7 +45,12 @@ public: // functions
   // functions specific to the ResidualDistribution component
   
   virtual void compute_rhs();
+  
+  void create_bc( Common::XmlNode& xml );
 
+private:
+    
+  boost::shared_ptr<Actions::CLoop> m_elem_loop;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

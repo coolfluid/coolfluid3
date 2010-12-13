@@ -7,6 +7,7 @@
 #include <boost/assign/list_of.hpp>
 
 #include "Common/CBuilder.hpp"
+#include "Common/Foreach.hpp"
 
 #include "Actions/CLoop.hpp"
 #include "Actions/CForAllElementsT.hpp"
@@ -38,6 +39,14 @@ ResidualDistribution::ResidualDistribution ( const std::string& name  ) :
    
   properties()["brief"] = std::string("Residual Distribution Method");
   properties()["description"] = std::string("Discretize the PDE's using the Residual Distribution Method");
+  
+  // signals
+  this->regist_signal ( "create_bc" , "Create an apply bc action", "Create BC" )->connect ( boost::bind ( &ResidualDistribution::create_bc, this, _1) );
+  signal("create_bc").signature
+    .insert<std::string>("Name", "Name of the BC" );
+  
+  m_elem_loop = create_static_component< CForAllElementsT< CSchemeLDAT< SF::Quad2DLagrangeP1 > > >("loop_LDA");
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -46,31 +55,30 @@ ResidualDistribution::~ResidualDistribution()
 {
 }
 
+//////////////////////////////////////////////////////////////////////////////
+
+void ResidualDistribution::create_bc( XmlNode& xml )
+{
+  XmlParams p (xml);
+
+  std::string name = p.get_option<std::string>("Name");
+
+  
+  CLoop::Ptr apply_bc = create_component< CForAllNodes >(name);
+    apply_bc->create_action("CF.Actions.CSetFieldValues");
+  apply_bc->action("CF.Actions.CSetFieldValues").configure_property("Field",std::string("solution"));
+  apply_bc->add_tag("apply_bc_action");
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void ResidualDistribution::compute_rhs()
 {
-  // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
-  CLoop::Ptr apply_bc = create_component_type< CForAllNodes >("apply_bc");
-  apply_bc->create_action("CF.Actions.CSetFieldValues");
-
-  std::vector<URI> bc_regions = list_of(URI("cpath://Root/mesh/rotation/inlet"));
-  apply_bc->configure_property("Regions",bc_regions);
-  apply_bc->action("CF.Actions.CSetFieldValues").configure_property("Field",std::string("solution"));
-
-    CLoop::Ptr elem_loop;
-
-  // Static version, templates
-//  elem_loop =
-//      create_component_type< CForAllElementsT<CSchemeLDA> >("loop_LDA");
-
-  elem_loop =
-      create_component_type< CForAllElementsT< CSchemeLDAT< SF::Quad2DLagrangeP1 > > >("loop_LDA");
-
   // apply BC
-  apply_bc->execute();
+  boost_foreach (CLoop& apply_bc, find_components_with_tag<CLoop>(*this,"apply_bc_action"))
+    apply_bc.execute();
   // compute element residual distribution
-  elem_loop->execute();
+  m_elem_loop->execute();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
