@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE( rank_and_size )
 
 BOOST_AUTO_TEST_CASE( finalize )
 {
-  PEProcessSortedExecute(PE::instance(),-1,CFinfo << "Proccess " << PE::instance().rank() << "/" << PE::instance().size() << " says good bye." << CFendl;);
+//  PEProcessSortedExecute(PE::instance(),-1,CFinfo << "Proccess " << PE::instance().rank() << "/" << PE::instance().size() << " says good bye." << CFendl;);
   PE::instance().finalize();
   BOOST_CHECK_EQUAL( PE::instance().is_init() , false );
 }
