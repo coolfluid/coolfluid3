@@ -85,7 +85,7 @@ void ForwardEuler::trigger_Domain()
     boost_foreach( const CRegion& region, find_components<CRegion>(*mesh))
       all_regions.push_back(URI(region.full_path()));
     
-    m_take_step->configure_property( "Regions" , all_regions );
+    m_take_step->configure_property( "Regions" , volume_regions );
     discretization_method().configure_property( "Regions" , volume_regions );
   }
   else
@@ -124,16 +124,25 @@ void ForwardEuler::solve()
       inverse_updatecoeff = mesh.create_field("inverse_updatecoeff",1,CField::NODE_BASED).as_type<CField>();
     m_update_coeff_field->link_to(inverse_updatecoeff);
 
+
+    // initial condition
+    boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_solution_field->get(), "node_data"))
+    {
+      CFLogVar(node_data.size());
+       for (Uint i=0; i<node_data.size(); ++i)
+    			node_data[i][0]=0;
+    } 
+
     CFinfo << "Starting Iterative loop" << CFendl;
     for ( Uint iter = 0; iter < m_nb_iter;  ++iter)
     {
       CFinfo << "reset data" << CFendl;
       // update coefficient and residual to zero
       // Set the field data of the source field
-      BOOST_FOREACH(CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_solution_field->get(), "node_data"))
+      boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_residual_field->get(), "node_data"))
         for (Uint i=0; i<node_data.size(); ++i)
     			node_data[i][0]=0;
-      BOOST_FOREACH(CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_update_coeff_field->get(),"node_data"))
+      boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_update_coeff_field->get(),"node_data"))
         for (Uint i=0; i<node_data.size(); ++i)
     			node_data[i][0]=0;
         
@@ -143,13 +152,13 @@ void ForwardEuler::solve()
 
       CFinfo << "time march" << CFendl;
       // explicit update
-      m_take_step->execute();
+      //m_take_step->execute();
 
       CFinfo << "norm compute" << CFendl;
       // compute norm
       Real rhs_L2=0;
       Uint dof=0;
-      BOOST_FOREACH(CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_residual_field.get(),"node_data"))
+      boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_residual_field->get(),"node_data"))
       {    
         for (Uint i=0; i<node_data.size(); ++i)
     		{
@@ -158,7 +167,7 @@ void ForwardEuler::solve()
     		}
       }
       rhs_L2 = sqrt(rhs_L2)/dof;
-
+      
       // output convergence info
       CFinfo << "Iter [" << std::setw(4) << iter << "] L2(rhs) [" << std::setw(12) << rhs_L2 << "]" << CFendl;
     }

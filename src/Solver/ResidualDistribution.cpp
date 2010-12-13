@@ -86,7 +86,7 @@ void ResidualDistribution::compute_rhs()
   }
   CFinfo << "elem loop " << CFendl;
   // compute element residual distribution
-  m_elem_loop->execute();
+  //m_elem_loop->execute();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
