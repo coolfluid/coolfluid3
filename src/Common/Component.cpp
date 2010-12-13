@@ -94,7 +94,6 @@ Component::~Component()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-
 Component::Ptr Component::get()
 {
   return shared_from_this();
@@ -574,6 +573,8 @@ void Component::write_xml_tree( XmlNode& node )
 {
   std::string type_name = derived_type_name();
 
+  CFinfo << "xml tree for " << name() << CFendl;
+
   if(type_name.empty())
     CFerror << "Unknown derived name for " << DEMANGLED_TYPEID(*this)
             << ". Was this class added to the component builder?" << CFendl;
@@ -585,7 +586,12 @@ void Component::write_xml_tree( XmlNode& node )
     XmlOps::add_attribute_to( this_node, "mode", has_tag("basic") ? "basic" : "adv");
 
     if( m_is_link ) // if it is a link, we put the target path as value
-      this_node.value( this_node.document()->allocate_string( get()->full_path().string().c_str() ));
+    {
+      if (is_not_null(get()))
+       this_node.value( this_node.document()->allocate_string( get()->full_path().string().c_str() ));
+      else
+        this_node.value( this_node.document()->allocate_string( "//Root" ));
+    }
     else
     {
       XmlNode& options = *XmlOps::add_node_to( this_node, XmlParams::tag_node_map());
