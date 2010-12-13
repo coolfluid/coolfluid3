@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/thread/thread.hpp>
+
 #include "Common/MPI/PE.hpp"
 #include "Common/Log.hpp"
 
@@ -26,7 +28,7 @@ PE::PE(int argc, char** args):
 PE::PE(): 
 	boost::mpi::communicator()
 {
-  m_environment = 0;
+  m_environment = nullptr;
   m_current_status = WorkerStatus::NOT_RUNNING;
 }
 
@@ -62,7 +64,7 @@ void PE::init(int argc, char** args)
 
 bool PE::is_init() const
 {
-  if ( m_environment == 0 ) return false;
+  if ( m_environment == nullptr ) return false;
   return m_environment->initialized();
 }
 
@@ -73,7 +75,9 @@ void PE::finalize()
 	if ( is_init() )
 	{
     barrier();
+    boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
     delete_ptr(m_environment);
+    m_environment=nullptr;
 		
 		/// @TODO Communicator has no destructor, see boost/mpi/communicator.hpp, 
 		///       this is sort of dangerous.
