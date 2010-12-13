@@ -612,6 +612,7 @@ RECURSIVE              = YES
 # subdirectory from a directory tree whose root is specified with the INPUT tag.
 
 EXCLUDE                = @CMAKE_SOURCE_DIR@/include \
+                         @CMAKE_SOURCE_DIR@/sandbox \
                          @CMAKE_SOURCE_DIR@/.git \
                          @CMAKE_SOURCE_DIR@/.svn
 

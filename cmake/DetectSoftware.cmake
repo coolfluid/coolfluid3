@@ -12,11 +12,19 @@ include( DetectBoost )
 
 ##############################################################################
 # Find Qt - defines QT_USE_FILE and QT_LIBRARIES used below
-set (QT_USE_FRAMEWORKS 1)
+
+#  set( QT_USE_QTXML TRUE     )
+#  set( QT_USE_QTNETWORK TRUE )
+
+if(APPLE)
+  set(QT_USE_FRAMEWORKS TRUE)
+endif()
+
 find_package( Qt4 4.6.0 COMPONENTS QtCore QtGui QtXml QtNetwork QtTest )
+
 coolfluid_log("QT_FOUND: [${QT_FOUND}]")
-if( ${QT_FOUND} )
-  coolfluid_log("  QT_LIBRARIES: ${QT_LIBRARIES}")
+if(${QT_FOUND})
+  coolfluid_log("QT Libraries: [${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTXML_LIBRARY} ${QT_QTNETWORK_LIBRARY} ${QT_QTTEST_LIBRARY}]")
 endif()
 
 ##############################################################################
@@ -50,13 +58,13 @@ if( CF_ENAGLE_CUDA AND CF_ENABLE_GPU )
   coolfluid_log( "CUDA_FOUND: [${CUDA_FOUND}]" )
 endif()
 
-# find_package(ZLIB)            # file compression support
+find_package(ZLIB)            # file compression support
 
-# coolfluid_log( "ZLIB_FOUND: [${ZLIB_FOUND}]" )
-# if( ZLIB_FOUND )
-#  coolfluid_log_file( "  ZLIB_INCLUDE_DIRS: [${ZLIB_INCLUDE_DIRS}]" )
-#  coolfluid_log_file( "  ZLIB_LIBRARIES:    [${ZLIB_LIBRARIES}]" )
-# endif()
+coolfluid_log( "ZLIB_FOUND: [${ZLIB_FOUND}]" )
+if( ZLIB_FOUND )
+  coolfluid_log_file( "  ZLIB_INCLUDE_DIRS: [${ZLIB_INCLUDE_DIRS}]" )
+  coolfluid_log_file( "  ZLIB_LIBRARIES:    [${ZLIB_LIBRARIES}]" )
+endif()
 
 # find_package(BZip2)        # file compression support
 
