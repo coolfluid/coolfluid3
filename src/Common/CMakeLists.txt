@@ -127,6 +127,7 @@ list( APPEND coolfluid_common_files
       MPI/tools.hpp
       MPI/scatter.hpp
       MPI/all_to_all.hpp
+      MPI/all_reduce.hpp
 )
 endif()
 

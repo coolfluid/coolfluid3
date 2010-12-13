@@ -92,18 +92,28 @@ void PECommPattern::setup(PEObjectWrapper::Ptr gid, std::vector<Uint>& rank)
 
 void PECommPattern::setup()
 {
+  // data management internal to this function
+  // -----------------------------------------
+  // ngid: number of updatable nodes of all ranks
+  // gido: offset for easy navigation between processes in the global arrays
+  // gidr: rank where node is updatable
 
   // general constants
   const int nproc=PE::instance().size();
   const int irank=PE::instance().rank();
 
-  // STEP 1:  build ngid (size of the part of the updatable nodes stored on this rank) and gida (rank where item is updatable)
-  int nupdatable=0;
-  BOOST_FOREACH(bool is_updatable, m_updatable ) if (is_updatable) nupdatable++;
-  std::vector<int> ngid(nproc,-1);
-  ngid[irank]=nupdatable;
+  // build ngid and gido
+  std::vector<int> ngid(nproc,0);
+  BOOST_FOREACH(bool is_updatable, m_updatable ) if (is_updatable) ngid[irank]++;
+  ngid[irank]+=m_add_buffer.size();
   boost::mpi::all_reduce(PE::instance(),&ngid[0],nproc,&ngid[0],boost::mpi::maximum<int>());
-  std::vector<int> gida(ngid[irank],-1);
+  int ntotalnodes=0;
+  BOOST_FOREACH(int node,ngid) ntotalnodes+=node;
+//  std::vector<int> ngid(nproc,0);
+//  for(i=0;i<nproc;i++)
+
+
+
 
 //DEBUGVECTOR(ngid);
 //DEBUGVECTOR(gida);
