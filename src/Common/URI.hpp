@@ -114,6 +114,12 @@ namespace Common {
     /// @return the in stream
     friend std::istream& operator>> (std::istream& in, URI& path);
 
+    /// Splits a given path into the URI protocol and the real path.
+    /// @param path Path to split.
+    /// @param protocol Variable where to store the found protocol. The value is
+    /// set to @c URIProtocol::INVALID if no protocol found.
+    /// @param real_path Variable where to store the path.
+    /// @throw ProtocolError If a an unknown protocol is found.
     static void split_path(const std::string & path, URIProtocol::Type & protocol,
                       std::string & real_path);
 

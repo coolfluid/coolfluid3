@@ -40,39 +40,14 @@ URI::URI ( const std::string& s ):
   m_path ( s ),
   m_protocol(URIProtocol::INVALID)
 {
-  size_t colon_pos = m_path.find_first_of(':');
-
-  if(colon_pos != std::string::npos)
-  {
-    std::string protocol_str = m_path.substr(0, colon_pos);
-
-    m_path = m_path.substr(colon_pos + 1, m_path.length() - colon_pos - 1);
-
-    m_protocol = URIProtocol::Convert::to_enum(protocol_str);
-
-    if(m_protocol == URIProtocol::INVALID)
-      throw ProtocolError(FromHere(), "\'" + protocol_str + "\' is not a supported protocol");
-  }
+  split_path(s, m_protocol, m_path);
 }
 
 URI::URI ( const char* c ):
   m_path ( c ),
   m_protocol(URIProtocol::INVALID)
 {
-  size_t colon_pos = m_path.find_first_of(':');
-
-  if(colon_pos != std::string::npos)
-  {
-    std::string protocol_str = m_path.substr(0, colon_pos);
-
-    m_path = m_path.substr(colon_pos + 1, m_path.length() - colon_pos - 1);
-
-    m_protocol = URIProtocol::Convert::to_enum(protocol_str);
-
-    if(m_protocol == URIProtocol::INVALID)
-      throw ProtocolError(FromHere(), "\'" + protocol_str + "\' is not a supported protocol");
-  }
-
+  split_path(m_path, m_protocol, m_path);
 }
 
 URI& URI::operator/= (const URI& rhs)
@@ -152,12 +127,6 @@ const std::string& URI::separator ()
 URIProtocol::Type URI::protocol() const
 {
   return m_protocol;
-//  size_t colon_pos = m_path.find_first_of(':');
-
-//  if(colon_pos != std::string::npos)
-//    return m_path.substr(0, colon_pos);
-
-//  return std::string();
 }
 
 std::string URI::string_without_protocol() const
@@ -176,6 +145,23 @@ std::string URI::string() const
 void URI::split_path(const std::string & path, URIProtocol::Type & protocol,
                      std::string & real_path)
 {
+
+  protocol = URIProtocol::INVALID;
+  real_path = path;
+
+  size_t colon_pos = path.find_first_of(':');
+
+  if(colon_pos != std::string::npos)
+  {
+    std::string protocol_str = path.substr(0, colon_pos);
+
+    real_path = real_path.substr(colon_pos + 1, path.length() - colon_pos - 1);
+
+    protocol = URIProtocol::Convert::to_enum(protocol_str);
+
+    if(protocol == URIProtocol::INVALID)
+      throw ProtocolError(FromHere(), "\'" + protocol_str + "\' is not a supported protocol");
+  }
 
 }
 
