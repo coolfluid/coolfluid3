@@ -41,7 +41,7 @@ macro( coolfluid_prepare_unittest UTESTNAME )
 
   set( ${UTESTNAME}_dir ${CMAKE_CURRENT_SOURCE_DIR} )
 
-  if( CF_ENABLE_UNITTESTS AND CF_BUILD_${UTESTNAME} AND ${UTESTNAME}_all_cfdeps_ok AND ${UTESTNAME}_all_mods_pres)
+  if( CF_BUILD_${UTESTNAME} AND ${UTESTNAME}_all_cfdeps_ok AND ${UTESTNAME}_all_mods_pres)
     set( ${UTESTNAME}_will_compile ON )
   else()
     set( ${UTESTNAME}_will_compile OFF )

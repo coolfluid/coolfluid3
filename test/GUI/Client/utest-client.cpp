@@ -7,11 +7,11 @@
 #include <QCoreApplication>
 #include <QtTest>
 
-#include "GUI/Client/uTests/CNodeTest.hpp"
-#include "GUI/Client/uTests/CommonFunctions.hpp"
-#include "GUI/Client/uTests/NBrowserTest.hpp"
-#include "GUI/Client/uTests/NTreeTest.hpp"
-#include "GUI/Client/uTests/NLinkTest.hpp"
+#include "test/GUI/Client/CNodeTest.hpp"
+#include "test/GUI/Client/CommonFunctions.hpp"
+#include "test/GUI/Client/NBrowserTest.hpp"
+#include "test/GUI/Client/NTreeTest.hpp"
+#include "test/GUI/Client/NLinkTest.hpp"
 
 using namespace CF::GUI::ClientTest;
 

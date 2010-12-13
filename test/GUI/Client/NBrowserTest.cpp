@@ -9,7 +9,7 @@
 
 #include "GUI/Client/Core/NBrowser.hpp"
 
-#include "GUI/Client/uTests/NBrowserTest.hpp"
+#include "test/GUI/Client/NBrowserTest.hpp"
 
 using namespace CF::GUI::ClientCore;
 using namespace CF::GUI::ClientTest;

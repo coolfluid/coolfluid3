@@ -209,5 +209,3 @@ add_subdirectory( Win32  )   # support for Win32
 
 add_subdirectory( String  )  # std::string conversions
 
-add_subdirectory( uTests )    # unit tests for Common
-

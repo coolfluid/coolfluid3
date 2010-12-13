@@ -10,7 +10,7 @@
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 
-#include "GUI/Client/uTests/TreeHandler.hpp"
+#include "test/GUI/Client/TreeHandler.hpp"
 
 using namespace CF::Common;
 using namespace CF::GUI::ClientCore;

@@ -10,15 +10,9 @@ if( QT4_FOUND AND CF_ENABLE_GUI )
   # Add useful macros and variables
   include(${QT_USE_FILE})
 
-  # coolfluid_log("  QT_INCLUDES  : ${QT_INCLUDES}")
-  # coolfluid_log("  QT_LIBRARIES : ${QT_LIBRARIES}")
-
-  # maybe we don't need
-  # include_directories( ${CMAKE_SOURCE_DIR} ${QT_INCLUDES} )
-
-  add_subdirectory( Client  )
-  add_subdirectory( Network )
-  add_subdirectory( Server  )
+  add_subdirectory( Client )
+  # add_subdirectory( Network ) # no tests yet on network
+  # add_subdirectory( Server )  # no tests yet on server
 
 endif()
 

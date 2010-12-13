@@ -35,5 +35,3 @@ if( CF_HAVE_CGNS )
 endif()
 
 coolfluid_add_library( coolfluid_solver )
-
-add_subdirectory(uTests)

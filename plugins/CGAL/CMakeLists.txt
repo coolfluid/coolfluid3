@@ -35,15 +35,12 @@ if( CF_HAVE_CGAL )
 
   endif()
 
-add_subdirectory( uTests )
-
 else()
 
   coolfluid_mark_not_orphan(
     LibCGAL.hpp
     LibCGAL.cpp
     ImplicitFunctionMesh.cpp
-    ImplicitFunctionMesh.hpp
-    uTests/utest-tetra-sf.cpp  )
+    ImplicitFunctionMesh.hpp  )
 
 endif()

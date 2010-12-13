@@ -16,7 +16,3 @@ install( FILES ${EIGEN_FOUND_FILES}
          DESTINATION
          ${CF_INSTALL_INCLUDE_DIR}/Eigen )
 
-list( APPEND utest-eigen_files ${EIGEN_FOUND_FILES} utest-eigen.cpp )
-list( APPEND utest-eigen_libs  ${Boost_LIBRARIES} )
-
-coolfluid_add_unittest( utest-eigen )

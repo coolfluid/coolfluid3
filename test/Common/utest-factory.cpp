@@ -12,7 +12,7 @@
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
 
-#include "Common/uTests/DummyComponents.hpp"
+#include "test/Common/DummyComponents.hpp"
 
 #include "Common/CFactories.hpp"
 #include "Common/CBuilder.hpp"

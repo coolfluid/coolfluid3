@@ -10,9 +10,8 @@
 
 #include "GUI/Client/Core/CNode.hpp"
 
-#include "GUI/Client/uTests/ExceptionThrowHandler.hpp"
-
-#include "GUI/Client/uTests/CommonFunctions.hpp"
+#include "test/GUI/Client/ExceptionThrowHandler.hpp"
+#include "test/GUI/Client/CommonFunctions.hpp"
 
 using namespace CF::Common;
 using namespace CF::GUI::ClientCore;

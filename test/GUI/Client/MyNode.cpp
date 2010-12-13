@@ -7,7 +7,7 @@
 #include <QtCore>
 #include <QtGui>
 
-#include "GUI/Client/uTests/MyNode.hpp"
+#include "test/GUI/Client/MyNode.hpp"
 
 using namespace CF::GUI::ClientTest;
 

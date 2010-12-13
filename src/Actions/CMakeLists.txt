@@ -69,5 +69,3 @@ set( coolfluid_actions_kernellib TRUE )
 list( APPEND coolfluid_actions_cflibs coolfluid_mesh )
 
 coolfluid_add_library( coolfluid_actions )
-
-add_subdirectory(uTests)

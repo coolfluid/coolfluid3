@@ -15,11 +15,11 @@
 #include "GUI/Client/Core/NRoot.hpp"
 #include "GUI/Client/Core/NTree.hpp"
 
-#include "GUI/Client/uTests/CommonFunctions.hpp"
-#include "GUI/Client/uTests/ExceptionThrowHandler.hpp"
-#include "GUI/Client/uTests/MyNode.hpp"
+#include "test/GUI/Client/CommonFunctions.hpp"
+#include "test/GUI/Client/ExceptionThrowHandler.hpp"
+#include "test/GUI/Client/MyNode.hpp"
 
-#include "GUI/Client/uTests/NTreeTest.hpp"
+#include "test/GUI/Client/NTreeTest.hpp"
 
 using namespace CF::Common;
 using namespace CF::GUI::ClientCore;

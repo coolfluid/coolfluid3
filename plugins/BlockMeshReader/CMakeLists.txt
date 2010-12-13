@@ -28,5 +28,3 @@ if( CMAKE_COMPILER_IS_GNUCC )
   set_source_files_properties(Parser.cpp PROPERTIES COMPILE_FLAGS ${CF_BLOCKMESHREADER_COMPILE_FLAGS})
 
 endif()
-
-add_subdirectory( uTests )

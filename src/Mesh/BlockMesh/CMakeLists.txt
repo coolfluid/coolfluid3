@@ -12,6 +12,3 @@ list( APPEND coolfluid_blockmesh_cflibs coolfluid_mesh coolfluid_mesh_sf )
 set( coolfluid_blockmesh_kernellib TRUE )
 
 coolfluid_add_library( coolfluid_blockmesh )
-
-add_subdirectory(uTests)
-

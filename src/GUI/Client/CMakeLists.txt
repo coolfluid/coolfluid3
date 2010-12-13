@@ -29,5 +29,3 @@ add_subdirectory( UI )
 list( APPEND coolfluid-client_libs coolfluid_client_ui ${QT_LIBRARIES})
 
 coolfluid_add_application( coolfluid-client )
-
-add_subdirectory( uTests )

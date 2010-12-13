@@ -21,7 +21,7 @@
 #include "Common/CRoot.hpp"
 #include "Common/URI.hpp"
 
-#include "Common/uTests/DummyComponents.hpp"
+#include "test/Common/DummyComponents.hpp"
 
 using namespace std;
 using namespace boost;

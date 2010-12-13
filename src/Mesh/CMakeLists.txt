@@ -103,7 +103,4 @@ add_subdirectory( CGNS )          # CGNS file IO
 add_subdirectory( Zoltan )        # Zoltan mesh partitioning
 add_subdirectory( PTScotch )      # PTScotch mesh partitioning
 
-# Must be after all the other subdirectories
-add_subdirectory( uTests )        # unit tests for Mesh
-
 

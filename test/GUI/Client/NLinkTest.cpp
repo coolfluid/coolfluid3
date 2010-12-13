@@ -15,11 +15,11 @@
 #include "GUI/Client/Core/NGeneric.hpp"
 #include "GUI/Client/Core/NTree.hpp"
 
-#include "GUI/Client/uTests/CommonFunctions.hpp"
-#include "GUI/Client/uTests/ExceptionThrowHandler.hpp"
-#include "GUI/Client/uTests/TreeHandler.hpp"
+#include "test/GUI/Client/CommonFunctions.hpp"
+#include "test/GUI/Client/ExceptionThrowHandler.hpp"
+#include "test/GUI/Client/TreeHandler.hpp"
 
-#include "GUI/Client/uTests/NLinkTest.hpp"
+#include "test/GUI/Client/NLinkTest.hpp"
 
 using namespace CF::Common;
 using namespace CF::GUI::ClientCore;

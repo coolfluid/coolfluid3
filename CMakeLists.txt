@@ -116,6 +116,11 @@ add_subdirectory( src )
 # add dir with kernel plugins
 add_subdirectory( plugins )
 
+# add dir with unit tests
+if( CF_ENABLE_UNITTESTS )
+  add_subdirectory( test )
+endif()
+
 # sandbox is where we play around before putting stuff in the released code, off by default
 if( CF_ENABLE_SANDBOX )
   include_directories( ${coolfluid_SOURCE_DIR}/sandbox )
