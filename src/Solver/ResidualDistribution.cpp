@@ -8,6 +8,7 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/Foreach.hpp"
+#include "Common/Log.hpp"
 
 #include "Actions/CLoop.hpp"
 #include "Actions/CForAllElementsT.hpp"
@@ -40,11 +41,8 @@ ResidualDistribution::ResidualDistribution ( const std::string& name  ) :
   properties()["brief"] = std::string("Residual Distribution Method");
   properties()["description"] = std::string("Discretize the PDE's using the Residual Distribution Method");
   
-  // signals
-  this->regist_signal ( "create_bc" , "Create an apply bc action", "Create BC" )->connect ( boost::bind ( &ResidualDistribution::create_bc, this, _1) );
-  signal("create_bc").signature
-    .insert<std::string>("Name", "Name of the BC" );
-  
+  m_properties["Regions"].as_option().attach_trigger ( boost::bind ( &ResidualDistribution::trigger_Regions,   this ) );
+    
   m_elem_loop = create_static_component< CForAllElementsT< CSchemeLDAT< SF::Quad2DLagrangeP1 > > >("loop_LDA");
   
 }
@@ -55,6 +53,13 @@ ResidualDistribution::~ResidualDistribution()
 {
 }
 
+//////////////////////////////////////////////////////////////////////////////
+
+void ResidualDistribution::trigger_Regions()
+{
+  CFinfo << "elem_loop configuration" << CFendl;
+  m_elem_loop->configure_property("Regions" , property("Regions").value<std::vector<URI> >());
+}
 //////////////////////////////////////////////////////////////////////////////
 
 void ResidualDistribution::create_bc( XmlNode& xml )
@@ -75,7 +80,11 @@ void ResidualDistribution::compute_rhs()
 {
   // apply BC
   boost_foreach (CLoop& apply_bc, find_components_with_tag<CLoop>(*this,"apply_bc_action"))
+  {
+    CFinfo << apply_bc.name() << CFendl;
     apply_bc.execute();
+  }
+  CFinfo << "elem loop " << CFendl;
   // compute element residual distribution
   m_elem_loop->execute();
 }

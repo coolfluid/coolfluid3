@@ -51,6 +51,10 @@ public: // functions
   
   CDiscretization& discretization_method();
   
+private: // functions
+
+  void trigger_Domain();
+  
 private: // data
   
   Common::CLink::Ptr m_solution_field;

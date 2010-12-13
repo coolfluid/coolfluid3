@@ -81,6 +81,7 @@ void ScalarAdvection::create_model ( Common::XmlNode& node )
   CIterativeSolver::Ptr solver = create_component_abstract_type<CIterativeSolver>("CF.Solver.ForwardEuler", "IterativeSolver");
   solver->mark_basic();
   model->add_component( solver );
+  solver->configure_property("Domain" , URI("../Domain"));
 
   // setup discretization method
   CDiscretization::Ptr cdm = create_component_abstract_type<CDiscretization>("CF.Solver.ResidualDistribution", "Discretization");

@@ -6,7 +6,6 @@
 
 #include "Common/URI.hpp"
 #include "Common/CreateComponent.hpp"
-
 #include "Actions/CLoop.hpp"
 
 #include "Mesh/CRegion.hpp"
@@ -50,7 +49,12 @@ void CLoop::trigger_Regions()
   std::vector<URI> vec; property("Regions").put_value(vec);
   BOOST_FOREACH(const URI region_path, vec)
   {
-    m_loop_regions.push_back(look_component_type<CRegion>(region_path));
+    Component::Ptr comp = look_component<CRegion>(region_path);
+    if ( is_null(comp) )
+    {
+      throw ValueNotFound ( FromHere(), "Could not find region with path [" + region_path.string() +"]" );
+    }
+    m_loop_regions.push_back(look_component<CRegion>(region_path));
   }
 }
 
@@ -58,14 +62,14 @@ void CLoop::trigger_Regions()
 
 const CLoopOperation& CLoop::action(const std::string& name) const
 {
-  return *get_child_type<CLoopOperation const>(name);
+  return *get_child<CLoopOperation const>(name);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 CLoopOperation& CLoop::action(const std::string& name)
 {
-  return *get_child_type<CLoopOperation>(name);
+  return *get_child<CLoopOperation>(name);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

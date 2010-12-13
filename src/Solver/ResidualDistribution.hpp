@@ -48,8 +48,12 @@ public: // functions
   
   void create_bc( Common::XmlNode& xml );
 
-private:
-    
+private: // functions
+  
+  void trigger_Regions();
+  
+private: // data
+
   boost::shared_ptr<Actions::CLoop> m_elem_loop;
 };
 

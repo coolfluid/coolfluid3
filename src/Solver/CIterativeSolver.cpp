@@ -22,9 +22,11 @@ CIterativeSolver::CIterativeSolver ( const std::string& name  ) :
   properties()["brief"]=std::string("Iterative Solver component");
   properties()["description"]=std::string("Handles time stepping and convergence operations");
 
-  m_properties.add_option<OptionT <Uint> >("Number of Iterations","Maximum number of iterations",m_nb_iter);
+  m_properties.add_option<OptionT <Uint> >("Number of Iterations","Maximum number of iterations",m_nb_iter)->mark_basic();
   m_properties["Number of Iterations"].as_option().link_to( &m_nb_iter );
-  
+
+  m_properties.add_option< OptionT < URI > > ("Domain", "Domain to solve", URI("../Domain"));
+
   mark_basic();
 }
 

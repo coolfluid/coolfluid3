@@ -19,6 +19,10 @@ CDiscretization::CDiscretization ( const std::string& name  ) :
    
   properties()["brief"]=std::string("Discretization Method component");
   properties()["description"]=std::string("Handles the discretization of the PDE's");
+  
+  std::vector< URI > dummy;
+  m_properties.add_option< OptionArrayT < URI > > ("Regions", "Regions to loop over", dummy)->mark_basic();
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////

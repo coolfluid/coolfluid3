@@ -10,9 +10,11 @@
 #include <boost/assign.hpp>
 
 #include "Common/OptionT.hpp"
+#include "Common/BasicExceptions.hpp"
 
 #include "Mesh/CField.hpp"
 #include "Mesh/CFieldElements.hpp"
+#include "Mesh/ElementType.hpp"
 
 #include "Actions/CLoopOperation.hpp"
 
@@ -83,7 +85,10 @@ private: // data
 template<typename SHAPEFUNC>
 void CSchemeLDAT<SHAPEFUNC>::create_loop_helper (Mesh::CElements& geometry_elements )
 {
-  m_loop_helper.reset( new LoopHelper(geometry_elements , *this ) );
+  if ( Mesh::IsElementType<SHAPEFUNC>()(geometry_elements.element_type()) )
+    m_loop_helper.reset( new LoopHelper(geometry_elements , *this ) );
+  else
+   throw Common::BadValue ( FromHere() , "Tried to solve on elements with wrong type: [" + geometry_elements.full_path().string() + "]");
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -99,7 +104,7 @@ CSchemeLDAT<SHAPEFUNC>::CSchemeLDAT ( const std::string& name ) :
 
   m_properties.add_option< Common::OptionT<std::string> > ("SolutionField","Solution Field for calculation", "solution")->mark_basic();
   m_properties.add_option< Common::OptionT<std::string> > ("ResidualField","Residual Field updated after calculation", "residual")->mark_basic();
-  m_properties.add_option< Common::OptionT<std::string> > ("InverseUpdateCoeff","Inverse update coefficient Field updated after calculation", "inv_updateCoeff")->mark_basic();
+  m_properties.add_option< Common::OptionT<std::string> > ("InverseUpdateCoeff","Inverse update coefficient Field updated after calculation", "inverse_updatecoeff")->mark_basic();
 
 #if 0
 

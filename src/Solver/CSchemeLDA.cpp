@@ -43,7 +43,7 @@ CSchemeLDA::CSchemeLDA ( const std::string& name ) :
 {
   m_properties.add_option< OptionT<std::string> > ("SolutionField","Solution Field for calculation", "solution")->mark_basic();
   m_properties.add_option< OptionT<std::string> > ("ResidualField","Residual Field updated after calculation", "residual")->mark_basic();
-  m_properties.add_option< OptionT<std::string> > ("InverseUpdateCoeff","Inverse update coefficient Field updated after calculation", "inv_updateCoeff")->mark_basic();
+  m_properties.add_option< OptionT<std::string> > ("InverseUpdateCoeff","Inverse update coefficient Field updated after calculation", "inverse_updatecoeff")->mark_basic();
 
   properties()["brief"] = std::string("Element Loop component that computes the residual and update coefficient using the LDA scheme");
 	properties()["description"] = std::string("Write here the full description of this component");
