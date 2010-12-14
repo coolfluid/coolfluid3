@@ -24,11 +24,14 @@ namespace Network {
   {
   public:
     
-    /// Enumeration of the worker statuses recognized in CF
-    enum Type  { INVALID     =-1,
-      ROOT  = 0,
-      GROUP = 1,
-      LINK  = 2};
+    /// Enumeration of the Component types recognized in CF
+    enum Type
+    {
+      INVALID  = -1,
+      ROOT     =  0,
+      GROUP    =  1,
+      LINK     =  2
+    };
     
     typedef Common::EnumT< ComponentType > ConverterBase;
     
