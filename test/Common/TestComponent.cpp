@@ -236,9 +236,10 @@ BOOST_AUTO_TEST_CASE( problem )
 BOOST_AUTO_TEST_CASE( create_subcomponents )
 {
   CRoot::Ptr root = CRoot::create ( "root" );
-  Component::Ptr comp1 = root->create_component_type<Component>("comp1");
-  comp1->create_component_type<Component>("comp1_1");
-  comp1->create_component_type<Component>("comp1_2");
+  Component::Ptr comp1 = root->create_component<Component>("comp1");
+  comp1->create_component<Component>("comp1_1");
+  comp1->create_component<Component>("comp1_2");
+
   BOOST_CHECK_EQUAL(find_component_with_name(*root, "comp1").name(),"comp1");
   BOOST_CHECK_EQUAL(find_component_recursively_with_name(*root, "comp1_1").name(),"comp1_1");
 }

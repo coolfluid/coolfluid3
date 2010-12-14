@@ -239,8 +239,8 @@ BOOST_AUTO_TEST_CASE( configure_component_path )
 {
   // Setup a little data-structure
   CRoot::Ptr root = CRoot::create("root");
-  CConcrete1::Ptr component1 = root->create_component_type<CConcrete1>("component1");
-  CConcrete1::Ptr component2 = root->create_component_type<CConcrete1>("component2");
+  CConcrete1::Ptr component1 = root->create_component<CConcrete1>("component1");
+  CConcrete1::Ptr component2 = root->create_component<CConcrete1>("component2");
 
   // Configure component 1 without XML (It could also be done with xml)
   component1->configure_property("MyRelativeFriend",URI("../component2"));
@@ -248,11 +248,11 @@ BOOST_AUTO_TEST_CASE( configure_component_path )
 
   // Check if everything worked OK.
   URI absolute_friend_path = component1->property("MyAbsoluteFriend").value<URI>();
-  CConcrete1::Ptr absolute_friend = component1->look_component_type<CConcrete1>(absolute_friend_path);
+  CConcrete1::Ptr absolute_friend = component1->look_component<CConcrete1>(absolute_friend_path);
   BOOST_CHECK_EQUAL(absolute_friend->name(),"component2");
 
   URI relative_friend_path = component1->property("MyRelativeFriend").value<URI>();
-  CConcrete1::Ptr relative_friend = component1->look_component_type<CConcrete1>(relative_friend_path);
+  CConcrete1::Ptr relative_friend = component1->look_component<CConcrete1>(relative_friend_path);
   BOOST_CHECK_EQUAL(relative_friend->name(),"component2");
 }
 

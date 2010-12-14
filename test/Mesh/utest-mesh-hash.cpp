@@ -50,7 +50,7 @@ BOOST_FIXTURE_TEST_SUITE( TestCHash_TestSuite, TestCHash_Fixture )
 
 BOOST_AUTO_TEST_CASE( Constructors)
 {
-  CHash::Ptr hash = allocate_component_type<CHash>("hash");
+  CHash::Ptr hash = allocate_component<CHash>("hash");
   BOOST_CHECK_EQUAL(hash->name(),"hash");
 }
 
@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE( Constructors)
 
 BOOST_AUTO_TEST_CASE( SingleHash )
 {
-  CHash::Ptr hash = allocate_component_type<CHash>("hash");
+  CHash::Ptr hash = allocate_component<CHash>("hash");
   hash->configure_property("Number of Objects", (Uint) 11);
   hash->configure_property("Number of Partitions", (Uint) 3);
   
@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE( SingleHash )
 
 BOOST_AUTO_TEST_CASE( MixedHash )
 {
-  CMixedHash::Ptr hash = allocate_component_type<CMixedHash>("hash");
+  CMixedHash::Ptr hash = allocate_component<CMixedHash>("hash");
   std::vector<Uint> num_obj(2);
   num_obj[0] = 10;
   num_obj[1] = 8;

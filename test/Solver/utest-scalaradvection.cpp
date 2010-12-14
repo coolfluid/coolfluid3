@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE( constructor )
 {
 
 
-  ScalarAdvection::Ptr s = allocate_component_type<ScalarAdvection>("scalar_advection");
+  ScalarAdvection::Ptr s = allocate_component<ScalarAdvection>("scalar_advection");
   
   boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
   XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());

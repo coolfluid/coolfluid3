@@ -41,7 +41,7 @@ BOOST_FIXTURE_TEST_SUITE( CFactoryTest, CFactoryFixture )
 
 BOOST_AUTO_TEST_CASE( get_factory )
 {
-  CFactories::Ptr factories = Core::instance().root()->get_child_type< CFactories >("Factories");
+  CFactories::Ptr factories = Core::instance().root()->get_child< CFactories >("Factories");
 
   BOOST_CHECK( factories->get_factory< CAbstract >() != nullptr );
 
@@ -54,13 +54,13 @@ BOOST_AUTO_TEST_CASE( component_builder )
   ComponentBuilder< CConcrete1, CAbstract, LibCommon > cc1;
   ComponentBuilder< CConcrete2, CAbstract, LibCommon > cc2;
 
-  CFactories::Ptr factories = Core::instance().root()->get_child_type< CFactories >("Factories");
+  CFactories::Ptr factories = Core::instance().root()->get_child< CFactories >("Factories");
 
   CFactoryT<CAbstract>::Ptr cabstract_factory = factories->get_factory< CAbstract >();
   BOOST_CHECK( cabstract_factory != nullptr );
   BOOST_CHECK_EQUAL( cabstract_factory->factory_type_name() , std::string("CAbstract") );
 
-  CBuilder::Ptr cconcrete1_builder = cabstract_factory->get_child_type< CBuilder >( "CF.Common.CConcrete1" );
+  CBuilder::Ptr cconcrete1_builder = cabstract_factory->get_child< CBuilder >( "CF.Common.CConcrete1" );
   BOOST_CHECK( cconcrete1_builder != nullptr );
   BOOST_CHECK_EQUAL( cconcrete1_builder->builder_concrete_type_name() , std::string("CConcrete1") );
 }

@@ -37,7 +37,7 @@ using namespace CF::Common;
 struct Nodes_Fixture
 {
   /// common setup for each test case
-  Nodes_Fixture() : mesh2d(allocate_component_type<CMesh>  ( "mesh2d" ))
+  Nodes_Fixture() : mesh2d(allocate_component<CMesh>  ( "mesh2d" ))
   {
      // uncomment if you want to use arguments to the test executable
      //int*    argc = &boost::unit_test::framework::master_test_suite().argc;

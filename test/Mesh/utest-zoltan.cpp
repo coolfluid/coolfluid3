@@ -167,7 +167,7 @@ struct ZoltanTests_Fixture
     {
 			//CFinfo << "node comp #"<<component_idx<< " path = " << global_node_indices.get_parent()->full_path().string() << CFendl;
 
-      const CList<bool>& is_ghost = *global_node_indices.get_parent()->get_child_type<CList<bool> >("is_ghost");
+      const CList<bool>& is_ghost = *global_node_indices.get_parent()->get_child<CList<bool> >("is_ghost");
       
       Uint idx=0;
       BOOST_FOREACH(const Uint glb_node_idx, global_node_indices.array())
@@ -254,7 +254,7 @@ struct ZoltanTests_Fixture
 				return;
 			}
       
-      const CList<bool>& is_ghost = *node_to_glb_elm.get_parent()->get_child_type<CList<bool> >("is_ghost");
+      const CList<bool>& is_ghost = *node_to_glb_elm.get_parent()->get_child<CList<bool> >("is_ghost");
       for (Uint i=0; i<node_to_glb_elm.size(); ++i)
       {
         if (!is_ghost[i])
@@ -360,7 +360,7 @@ struct ZoltanTests_Fixture
 
 		BOOST_FOREACH(const CDynTable<Uint>& node_to_glb_elm, find_components_recursively_with_tag<CDynTable<Uint> >(mesh,"glb_elem_connectivity"))
     {
-      const CList<bool>& is_ghost = *node_to_glb_elm.get_parent()->get_child_type<CList<bool> >("is_ghost");
+      const CList<bool>& is_ghost = *node_to_glb_elm.get_parent()->get_child<CList<bool> >("is_ghost");
       for (Uint i=0; i<node_to_glb_elm.size(); ++i)
       {
         if (!is_ghost[i])
@@ -428,7 +428,7 @@ struct ZoltanTests_Fixture
     std::vector<int> part_assign_on_this_proc(tot_num_objs);
     std::vector<int> part_assign(tot_num_objs);
     
-    CList<Uint>& global_id = *mesh.get_child_type<CList<Uint> >("global_graph_id");
+    CList<Uint>& global_id = *mesh.get_child<CList<Uint> >("global_graph_id");
     for (Uint i=0; i < parts.size(); i++)
     {
       part_assign_on_this_proc[global_id[i]] = parts[i];
@@ -1308,7 +1308,7 @@ BOOST_AUTO_TEST_CASE ( zoltan_quadtriag_mesh)
   int *exportToPart;
 	
 	
-	Component::Ptr partition_info = mesh.create_component_type<Component>("temporary_partition_info");
+	Component::Ptr partition_info = mesh.create_component<Component>("temporary_partition_info");
 	partition_info->properties()["node_start_idx"]=Uint(0);
 	partition_info->properties()["elem_start_idx"]=mesh.property("nb_nodes").value<Uint>();
 	Uint node_start_idx = mesh.get_child("temporary_partition_info")->property("node_start_idx").value<Uint>();

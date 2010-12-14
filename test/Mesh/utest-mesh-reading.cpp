@@ -46,7 +46,7 @@ struct MeshReading_Fixture
 
     root = CRoot::create("Root");
     reader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","MyReader");
-    domain = root->create_component_type<CDomain>("MyDom");
+    domain = root->create_component<CDomain>("MyDom");
 
     root->add_component( reader );
   }
@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE( quadtriag_readNeu_writeGmsh_writeNeu )
   boost::filesystem::path fp_in ("quadtriag.neu");
 
   // the mesh to store in
-  CMesh::Ptr mesh ( allocate_component_type<CMesh>  ( "mesh" ) );
+  CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
 
   meshreader->read_from_to(fp_in,mesh);
 
@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE( quadtriag_read_NewNeu_writeGmsh )
   boost::filesystem::path fp_out("quadtriag_write.msh");
 
   // the mesh to store in
-  CMesh::Ptr mesh ( allocate_component_type<CMesh>  ( "mesh" ) );
+  CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
 
   //CFinfo << "ready to read" << CFendl;
   meshreader->read_from_to(fp_in,mesh);
@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE( hextet_readNeu_writeGmsh_writeNeu )
   boost::filesystem::path fp_in ("hextet.neu");
 
   // the mesh to store in
-  CMesh::Ptr mesh ( allocate_component_type<CMesh>  ( "mesh" ) );
+  CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
 
   meshreader->read_from_to(fp_in,mesh);
 
@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE( hextet_read_NewNeu_writeGmsh )
   boost::filesystem::path fp_out("hextet_write.msh");
 
   // the mesh to store in
-  CMesh::Ptr mesh ( allocate_component_type<CMesh>  ( "mesh" ) );
+  CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
 
   //CFinfo << "ready to read" << CFendl;
   meshreader->read_from_to(fp_in,mesh);
@@ -199,7 +199,7 @@ BOOST_AUTO_TEST_CASE( read_multiple )
   boost::filesystem::path fp_in ("quadtriag.neu");
 
   // the mesh to store in
-  CMesh::Ptr mesh ( allocate_component_type<CMesh>  ( "mesh" ) );
+  CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
 
   for (Uint count=1; count<=4; ++count)
   {

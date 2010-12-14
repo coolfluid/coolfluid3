@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   // Create root and mesh component
   CRoot::Ptr root = CRoot::create ( "root" );
 
-  Component::Ptr mesh ( allocate_component_type<CMesh>  ( "mesh" ) );
+  Component::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
 
   root->add_component( mesh );
 
@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
   // Create root and mesh component
   CRoot::Ptr root = CRoot::create ( "root" );
 	
-  Component::Ptr mesh ( allocate_component_type<CMesh>  ( "mesh" ) );
+  Component::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
 	
   root->add_component( mesh );
 	

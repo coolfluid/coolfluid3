@@ -62,7 +62,7 @@ void CMeshReader::read( XmlNode& xml  )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
   // get the domain
-  CDomain::Ptr domain = look_component_type<CDomain>( path.string_without_protocol() );
+  CDomain::Ptr domain = look_component<CDomain>( path.string_without_protocol() );
   if (!domain)
     throw CastingFailed( FromHere(), "Component in path \'" + path.string() + "\' is not a valid CDomain." );
 
@@ -79,7 +79,7 @@ void CMeshReader::read( XmlNode& xml  )
   // create a mesh in the domain
   if( !files.empty() )
   {
-    CMesh::Ptr mesh = domain->create_component_type<CMesh>("Mesh");
+    CMesh::Ptr mesh = domain->create_component<CMesh>("Mesh");
 
     // Get the file paths
     boost_foreach(URI file, files)
@@ -99,7 +99,7 @@ void CMeshReader::read( XmlNode& xml  )
 CMesh::Ptr CMeshReader::create_mesh_from(boost::filesystem::path& file)
 {
   // Create the mesh
-  CMesh::Ptr mesh ( allocate_component_type<CMesh>("mesh") );
+  CMesh::Ptr mesh ( allocate_component<CMesh>("mesh") );
 
   // Call implementation
   read_from_to(file,mesh);

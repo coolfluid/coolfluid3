@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE( Laplacian1D )
 {
   const Uint nb_segments = 5;
   
-  CMesh::Ptr mesh(allocate_component_type<CMesh>("line"));
+  CMesh::Ptr mesh(allocate_component<CMesh>("line"));
   Tools::MeshGeneration::create_line(*mesh, 5., nb_segments);
   
   // Geometric suport
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE( Laplacian1D )
   );
   
   // Linear system
-  CProtoLSS::Ptr lss(allocate_component_type<CProtoLSS>("LSS"));
+  CProtoLSS::Ptr lss(allocate_component<CProtoLSS>("LSS"));
   lss->matrix().resize(nb_segments+1, nb_segments+1);
   lss->matrix().setZero();
   lss->rhs().resize(nb_segments+1);
@@ -91,14 +91,14 @@ BOOST_AUTO_TEST_CASE( Heat1D )
   const Uint nb_segments = 20;
 
   // build the mesh
-  CMesh::Ptr mesh(allocate_component_type<CMesh>("line"));
+  CMesh::Ptr mesh(allocate_component<CMesh>("line"));
   Tools::MeshGeneration::create_line(*mesh, lenght, nb_segments);
   
   // Geometric suport
   MeshTerm<0, ConstNodes> nodes( "ConductivityRegion", find_component_ptr_recursively_with_name<CRegion>(*mesh, "region") );
   
   // Linear system
-  CProtoLSS::Ptr lss(allocate_component_type<CProtoLSS>("LSS"));
+  CProtoLSS::Ptr lss(allocate_component<CProtoLSS>("LSS"));
   lss->matrix().resize(nb_segments+1, nb_segments+1);
   lss->matrix().setZero();
   lss->rhs().resize(nb_segments+1);
@@ -146,10 +146,10 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   
   // Create a document structure
   CRoot::Ptr root = CRoot::create("Root");
-  CMesh::Ptr mesh = root->create_component_type<CMesh>("mesh");
-  root->create_component_type<Solver::CPhysicalModel>("PhysicalModel");
+  CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
+  root->create_component<Solver::CPhysicalModel>("PhysicalModel");
   Tools::MeshGeneration::create_line(*mesh, lenght, nb_segments);
-  CProtoLSS::Ptr lss = root->create_component_type<CProtoLSS>("LSS");
+  CProtoLSS::Ptr lss = root->create_component<CProtoLSS>("LSS");
   
   // Variable holding the geometric support
   MeshTerm<0, ConstNodes> nodes("ConductivityRegion");

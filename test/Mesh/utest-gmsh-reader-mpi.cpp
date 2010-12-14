@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
 //	boost::filesystem::path fp_in ("quadtriag.neu");
 	
 //  // the mesh to store in
-//  CMesh::Ptr mesh ( allocate_component_type<CMesh>  ( "mesh" ) );
+//  CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
   
 	
 //	//CFinfo.setFilterRankZero(false);
@@ -101,8 +101,8 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
 	
 //	BOOST_FOREACH(CDynTable<Uint>& node_2_elems, find_components_recursively_with_name<CDynTable<Uint> >(*mesh,"glb_elem_connectivity"))
 //  {
-//    CList<bool>& is_ghost = *node_2_elems.look_component_type<CList <bool> >("../is_ghost").get();
-//    CList<Uint>& glb_indices = *node_2_elems.look_component_type<CList <Uint> >("../global_indices").get();
+//    CList<bool>& is_ghost = *node_2_elems.look_component<CList <bool> >("../is_ghost").get();
+//    CList<Uint>& glb_indices = *node_2_elems.look_component<CList <Uint> >("../global_indices").get();
     
 //    for (Uint i=0; i<node_2_elems.size(); ++i)
 //    {
@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE( threeD_test )
   boost::filesystem::path fp_in ("hextet.neu");
 	
   // the mesh to store in
-  CMesh::Ptr mesh ( allocate_component_type<CMesh>  ( "mesh" ) );
+  CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
   
 	
 	CFinfo.setFilterRankZero(false);
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE( read_multiple_2D )
   boost::filesystem::path fp_in ("quadtriag.neu");
 	
   // the mesh to store in
-  CMesh::Ptr mesh ( allocate_component_type<CMesh>  ( "mesh" ) );
+  CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
   
 	
 	CFinfo.setFilterRankZero(false);	

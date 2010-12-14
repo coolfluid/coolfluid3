@@ -95,11 +95,11 @@ void create_block_mesh(const BlockData& block_data, CMesh& mesh, std::map<std::s
   }
   
   // Create connectivity data
-  CNodeConnectivity::Ptr node_connectivity = block_mesh_region.create_component_type<CNodeConnectivity>("node_connectivity");
+  CNodeConnectivity::Ptr node_connectivity = block_mesh_region.create_component<CNodeConnectivity>("node_connectivity");
   node_connectivity->initialize(find_components_recursively<CElements>(block_mesh_region));
   BOOST_FOREACH(CElements& celements, find_components_recursively<CElements>(block_mesh_region))
   {
-    celements.create_component_type<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
+    celements.create_component<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
   }
 }
   
@@ -493,7 +493,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
   // This is a "dummy" mesh, in which each element corresponds to a block in the blockMeshDict file.
   // The final mesh will in fact be a refinement of this mesh. Using a CMesh allows us to use the
   // coolfluid connectivity functions to determine inter-block connectivity and the relation to boundary patches.
-  CMesh::Ptr block_mesh(allocate_component_type<CMesh>("block_mesh"));
+  CMesh::Ptr block_mesh(allocate_component<CMesh>("block_mesh"));
   std::map<std::string, std::string> patch_types;
   detail::create_block_mesh(block_data, *block_mesh, patch_types);
   
@@ -542,7 +542,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
   const std::pair<Uint,Uint> dims = detail::dimensionality(block_data.block_distribution.back(), volume_to_face_connectivity, patch_types);
   
   // 3D helper mesh in case we have a non-3D problem
-  CMesh::Ptr tmp_mesh3d = dims.first == DIM_3D ? CMesh::Ptr() : allocate_component_type<CMesh>("tmp_mesh3d");
+  CMesh::Ptr tmp_mesh3d = dims.first == DIM_3D ? CMesh::Ptr() : allocate_component<CMesh>("tmp_mesh3d");
   
   // Create the node coordinates
   CRegion& root_region = tmp_mesh3d ? tmp_mesh3d->create_region("root_region") : mesh.create_region("root_region");
@@ -935,7 +935,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
 void partition_blocks(const BlockData& blocks_in, const Uint nb_partitions, const CoordXYZ direction, BlockData& blocks_out)
 {
   // Create a mesh for the serial blocks
-  CMesh::Ptr block_mesh(allocate_component_type<CMesh>("block_mesh"));
+  CMesh::Ptr block_mesh(allocate_component<CMesh>("block_mesh"));
   std::map<std::string, std::string> patch_types;
   detail::create_block_mesh(blocks_in, *block_mesh, patch_types);
   const Uint nb_blocks = blocks_in.block_points.size();

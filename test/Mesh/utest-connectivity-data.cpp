@@ -43,7 +43,7 @@ typedef MeshSourceGlobalFixture<1000> MeshSource;
 struct NeuFixture
 {
   /// common setup for each test case
-  NeuFixture() : mesh2d(allocate_component_type<CMesh>  ( "mesh2d" )), mesh3d(allocate_component_type<CMesh>  ( "mesh3d" ))
+  NeuFixture() : mesh2d(allocate_component<CMesh>  ( "mesh2d" )), mesh3d(allocate_component<CMesh>  ( "mesh3d" ))
   {
     // Read the a .neu mesh as 2D mixed mesh
     CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
@@ -247,14 +247,14 @@ BOOST_FIXTURE_TEST_CASE( CreateFaceConnectivity, NeuFixture )
 BOOST_FIXTURE_TEST_CASE( CreateVolumeToVolumeConnectivity, NeuFixture )
 {
   // Add node connectivity data at the mesh level
-  CNodeConnectivity::Ptr node_connectivity = mesh2d->create_component_type<CNodeConnectivity>("node_connectivity");
+  CNodeConnectivity::Ptr node_connectivity = mesh2d->create_component<CNodeConnectivity>("node_connectivity");
   node_connectivity->initialize(find_components_recursively_with_filter<CElements>(*mesh2d, IsElementsVolume()));
   
   // Add face connectivity data for each CElements. Note that we can choose any CElements here, we don't have to do this
   // for the same set as used in node_connectivity
   BOOST_FOREACH(CElements& celements, find_components_recursively_with_filter<CElements>(*mesh2d, IsElementsVolume()))
   {
-    celements.create_component_type<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
+    celements.create_component<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
   }
   
   print_connectivity(*mesh2d);
@@ -264,13 +264,13 @@ BOOST_FIXTURE_TEST_CASE( CreateVolumeToVolumeConnectivity, NeuFixture )
 BOOST_FIXTURE_TEST_CASE( CreateSurfaceToVolumeConnectivity, NeuFixture )
 {
   // Add node connectivity data at the mesh level
-  CNodeConnectivity::Ptr node_connectivity = mesh2d->create_component_type<CNodeConnectivity>("node_connectivity");
+  CNodeConnectivity::Ptr node_connectivity = mesh2d->create_component<CNodeConnectivity>("node_connectivity");
   node_connectivity->initialize(find_components_recursively_with_filter<CElements>(*mesh2d, IsElementsVolume()));
   
   // Add face connectivity data for surface elements
   BOOST_FOREACH(CElements& celements, find_components_recursively_with_filter<CElements>(*mesh2d, IsElementsSurface()))
   {
-    celements.create_component_type<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
+    celements.create_component<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
   }
   
   print_connectivity(*mesh2d);
@@ -282,13 +282,13 @@ BOOST_FIXTURE_TEST_CASE( CreateSurfaceToVolumeConnectivity, NeuFixture )
 BOOST_FIXTURE_TEST_CASE( CreateVolumeToSurfaceConnectivity, NeuFixture )
 {
   // Add node connectivity data at the mesh level, for surface elements only
-  CNodeConnectivity::Ptr node_connectivity = mesh2d->create_component_type<CNodeConnectivity>("node_connectivity");
+  CNodeConnectivity::Ptr node_connectivity = mesh2d->create_component<CNodeConnectivity>("node_connectivity");
   node_connectivity->initialize(find_components_recursively_with_filter<CElements>(*mesh2d, IsElementsSurface()));
   
   // Add face connectivity data for volume elements
   BOOST_FOREACH(CElements& celements, find_components_recursively_with_filter<CElements>(*mesh2d, IsElementsVolume()))
   {
-    celements.create_component_type<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
+    celements.create_component<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
   }
 
   print_connectivity(*mesh2d, false);
@@ -300,7 +300,7 @@ BOOST_FIXTURE_TEST_CASE( CreateVolumeToSurfaceConnectivity, NeuFixture )
 BOOST_FIXTURE_TEST_CASE( CreateSurfaceToVolumeConnectivity3D, NeuFixture )
 {
   // Add node connectivity data at the mesh level
-  CNodeConnectivity::Ptr node_connectivity = mesh3d->create_component_type<CNodeConnectivity>("node_connectivity");
+  CNodeConnectivity::Ptr node_connectivity = mesh3d->create_component<CNodeConnectivity>("node_connectivity");
   node_connectivity->initialize(find_components_recursively_with_filter<CElements>(*mesh3d, IsElementsVolume()));
   
   
@@ -328,7 +328,7 @@ BOOST_FIXTURE_TEST_CASE( CreateSurfaceToVolumeConnectivity3D, NeuFixture )
   BOOST_FOREACH(CElements& celements, find_components_recursively_with_filter<CElements>(*mesh3d, IsElementsSurface()))
   {
     CFinfo << "surface type = " << celements.full_path().string() << CFendl;
-    celements.create_component_type<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
+    celements.create_component<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
   }
   
   print_connectivity(*mesh3d);

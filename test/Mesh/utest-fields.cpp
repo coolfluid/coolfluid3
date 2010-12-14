@@ -100,15 +100,15 @@ BOOST_AUTO_TEST_CASE( FieldTest )
 
   BOOST_CHECK_EQUAL(mesh.look_component("quadtriag/gas")->full_path().string(),"mesh/quadtriag/gas");
   BOOST_CHECK_EQUAL(mesh.look_component("quadtriag/gas/../liquid")->full_path().string(),"mesh/quadtriag/liquid");
-  BOOST_CHECK_EQUAL(mesh.look_component_type<CRegion>("quadtriag/gas/../liquid")->get_field("Volume").full_path().string(),"mesh/Volume/liquid");
+  BOOST_CHECK_EQUAL(mesh.look_component<CRegion>("quadtriag/gas/../liquid")->get_field("Volume").full_path().string(),"mesh/Volume/liquid");
 
 
   // Check if element based data is correctly created
-  BOOST_CHECK_EQUAL(mesh.look_component_type<CFieldElements>("Volume/gas/elements_CF.Mesh.SF.Quad2DLagrangeP1")->data().size(), (Uint) 2);
-  BOOST_CHECK_EQUAL(mesh.look_component_type<CFieldElements>("Volume/gas/elements_CF.Mesh.SF.Quad2DLagrangeP1")->data().row_size(), (Uint) 1);
+  BOOST_CHECK_EQUAL(mesh.look_component<CFieldElements>("Volume/gas/elements_CF.Mesh.SF.Quad2DLagrangeP1")->data().size(), (Uint) 2);
+  BOOST_CHECK_EQUAL(mesh.look_component<CFieldElements>("Volume/gas/elements_CF.Mesh.SF.Quad2DLagrangeP1")->data().row_size(), (Uint) 1);
 
   // Check if node based data is correctly created
-  BOOST_CHECK_EQUAL(mesh.look_component_type<CFieldElements>("Solution/gas/elements_CF.Mesh.SF.Quad2DLagrangeP1")->data().row_size(), (Uint) 5);
+  BOOST_CHECK_EQUAL(mesh.look_component<CFieldElements>("Solution/gas/elements_CF.Mesh.SF.Quad2DLagrangeP1")->data().row_size(), (Uint) 5);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

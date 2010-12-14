@@ -78,7 +78,7 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 		BOOST_FOREACH(CTable<Real>& t_data, find_components_recursively_with_tag<CTable<Real> >(target,"field_data"))
 		{
 			// get the target coordinates table
-			const CTable<Real>& t_coords = *t_data.get_child_type<CLink>("coordinates")->as_type<CTable<Real> >();
+			const CTable<Real>& t_coords = *t_data.get_child<CLink>("coordinates")->as_type<CTable<Real> >();
 			
 			// Allocations
 			CElements::ConstPtr s_geom_elements;
@@ -133,7 +133,7 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 		BOOST_FOREACH(CTable<Real>& t_data, find_components_recursively_with_tag<CTable<Real> >(target,"field_data"))
 		{
 			// get the target coordinates table
-			const CTable<Real>& t_coords = *t_data.get_child_type<CLink>("coordinates")->as_type<CTable<Real> >();
+			const CTable<Real>& t_coords = *t_data.get_child<CLink>("coordinates")->as_type<CTable<Real> >();
 			
 			// Allocations
 			Uint t_coords_dim = t_coords.row_size();

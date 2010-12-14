@@ -498,11 +498,11 @@ void Component::create_component_signal ( XmlNode& node  )
 
   bool basic = p.get_option<bool>("Basic mode");
 
-  CFactories::Ptr factories = Core::instance().root()->get_child_type< CFactories >("Factories");
-  CFactory::Ptr factory = factories->get_child_type< CFactory >( atype );
+  CFactories::Ptr factories = Core::instance().root()->get_child< CFactories >("Factories");
+  CFactory::Ptr factory = factories->get_child< CFactory >( atype );
   if (!factory)
     throw ValueNotFound(FromHere(), "Factory of generic type " + atype + " not found");
-  CBuilder::Ptr builder = factory->get_child_type< CBuilder >( ctype );
+  CBuilder::Ptr builder = factory->get_child< CBuilder >( ctype );
   if (!builder)
     throw ValueNotFound(FromHere(), "Builder of concrete type " + ctype + " not found in factory of generic type " + atype);
 

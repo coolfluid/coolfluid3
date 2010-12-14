@@ -43,7 +43,7 @@ void CFieldElements::initialize(CElements& elements)
   cf_assert(m_element_type);
 
   // create a link to the geometry elements.
-  CLink::Ptr support = create_component_type<CLink>("support");
+  CLink::Ptr support = create_component<CLink>("support");
   support->link_to(elements.get());
   support->add_tag("support");
   
@@ -57,7 +57,7 @@ void CFieldElements::add_node_based_storage(CTable<Real>& nodal_data)
 {
   // Set the nodal data
   m_data_name = "node_data";
-  CLink::Ptr node_data = create_component_type<CLink>(m_data_name);
+  CLink::Ptr node_data = create_component<CLink>(m_data_name);
   nodal_data.add_tag(m_data_name);
 	node_data->add_tag(m_data_name);
   node_data->link_to(nodal_data.get());
@@ -70,7 +70,7 @@ void CFieldElements::add_element_based_storage()
 {
   // Create elemental data
   m_data_name = "element_data";
-  CTable<Real>::Ptr elm_data = create_component_type<CTable<Real> >(m_data_name);
+  CTable<Real>::Ptr elm_data = create_component<CTable<Real> >(m_data_name);
   elm_data->add_tag(m_data_name);
 	elm_data->add_tag("field_data");
   properties()["element_based"] = true;

@@ -301,12 +301,12 @@ void CWriter::write_groups(std::fstream& file)
 void CWriter::write_boundaries(std::fstream& file)
 { 
   // Add node connectivity data at the mesh level
-  CNodeConnectivity::Ptr node_connectivity = m_mesh->create_component_type<CNodeConnectivity>("node_connectivity");
+  CNodeConnectivity::Ptr node_connectivity = m_mesh->create_component<CNodeConnectivity>("node_connectivity");
   node_connectivity->initialize(find_components_recursively_with_filter<CElements>(*m_mesh, IsElementsVolume()));
 
   
   BOOST_FOREACH(CElements& elementregion, find_components_recursively_with_filter<CElements>(*m_mesh,IsElementsSurface()))
-    elementregion.create_component_type<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
+    elementregion.create_component<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
 
   // Find total number of boundary elements and store all bc groups
   Uint total_nbElements=0;

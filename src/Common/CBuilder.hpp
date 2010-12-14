@@ -156,20 +156,20 @@ struct ComponentBuilder
     CF::TypeInfo::instance().regist< CBuilderT<BASE,CONCRETE> >(  CBuilderT<BASE,CONCRETE>::type_name() );
 
     // get the factories
-    Common::CFactories::Ptr factories = Common::Core::instance().root()->get_child_type< CFactories >("Factories");
+    Common::CFactories::Ptr factories = Common::Core::instance().root()->get_child< CFactories >("Factories");
 
     // put builder in correct factory
     Common::CFactory::Ptr   factory = factories->get_factory< BASE >();
     cf_assert ( factory != nullptr );
 
-    CBuilder::Ptr builder = factory->create_component_type< Common::CBuilderT<BASE,CONCRETE> >( name );
+    CBuilder::Ptr builder = factory->create_component< Common::CBuilderT<BASE,CONCRETE> >( name );
     cf_assert ( builder != nullptr );
 
     // put a CLink to the builder in the respective CLibrary
     CLibrary::Ptr lib = Core::instance().libraries()->get_library<LIB>();
     cf_assert ( lib != nullptr );
 
-    CLink::Ptr liblink = lib->create_component_type<CLink>( name );
+    CLink::Ptr liblink = lib->create_component<CLink>( name );
     cf_assert ( liblink != nullptr );
 
     liblink->link_to( builder );

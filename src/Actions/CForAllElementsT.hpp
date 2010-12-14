@@ -50,7 +50,7 @@ public: // functions
   /// @param name of the component
   CForAllElementsT ( const std::string& name ) :
     CLoop(name),
-    m_action( Common::allocate_component_type<ActionT>(ActionT::type_name()) )
+    m_action( Common::allocate_component<ActionT>(ActionT::type_name()) )
   {
      
 

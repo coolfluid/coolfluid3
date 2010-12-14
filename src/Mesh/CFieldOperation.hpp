@@ -81,8 +81,8 @@ public: // functions
   /// @param name of the component
   CFieldOperationMergeT ( const std::string& name ) :
     CFieldOperation(name),
-    m_op1(Common::allocate_component_type<OP1>("operation_1") ),
-    m_op2(Common::allocate_component_type<OP2>("operation_2") )
+    m_op1(Common::allocate_component<OP1>("operation_1") ),
+    m_op2(Common::allocate_component<OP2>("operation_2") )
   {
     add_static_component(m_op1);
     add_static_component(m_op2);
@@ -149,7 +149,7 @@ public: // functions
   void trigger_Field()
   {
     Common::URI field_path (property("Field").value<Common::URI>());
-    scalar_field = look_component_type<CField>(field_path);
+    scalar_field = look_component<CField>(field_path);
     scalar_name = scalar_field->field_name();
   }
 
@@ -214,7 +214,7 @@ public: // functions
   {
     Common::URI field_path (property("Field").value<Common::URI>());
 //    CFdebug << "field_path = " << field_path.string() << CFendl;
-    volume_field = look_component_type<CField>(field_path);
+    volume_field = look_component<CField>(field_path);
   }
 
   /// Virtual destructor
@@ -286,7 +286,7 @@ public: // functions
   {
     Common::URI field_path (property("Field").value<Common::URI>());
 //    CFdebug << "field_path = " << field_path.string() << CFendl;
-    field = look_component_type<CField>(field_path);
+    field = look_component<CField>(field_path);
   }
 
   /// Virtual destructor
@@ -319,7 +319,7 @@ private: // data
   {
     LoopHelper(CField& field, CTable<Real>& coords) :
       coordinates(coords),
-      node_connectivity(*coords.look_component_type<CNodeConnectivity>("../node_connectivity")),
+      node_connectivity(*coords.look_component<CNodeConnectivity>("../node_connectivity")),
       local_field(coords.get_parent()->as_type<CRegion>()->get_field(field.name())),
       field_data(Common::find_component_with_tag<CTable<Real> >(local_field, "field_data"))
     { }

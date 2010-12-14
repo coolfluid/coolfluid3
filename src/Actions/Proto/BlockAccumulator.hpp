@@ -56,7 +56,7 @@ protected:
 private:
   void on_trigger()
   {
-    m_lss = m_owner.lock()->look_component_type<CProtoLSS>( m_lss_path.lock()->value<std::string>() );
+    m_lss = m_owner.lock()->look_component<CProtoLSS>( m_lss_path.lock()->value<std::string>() );
     reset();
   }
   

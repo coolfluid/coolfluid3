@@ -80,9 +80,9 @@ CRoot::Ptr ServerRoot::root()
 
     Component::Ptr tools = root->get_child("Tools");
 
-    tools->create_component_type<Solver::ScalarAdvection>( "SetupScalarAdvection" )->mark_basic();
-    tools->create_component_type<Solver::LoadMesh>( "LoadMesh" )->mark_basic();
-    tools->create_component_type<CJournal>("Journal")->mark_basic();
+    tools->create_component<Solver::ScalarAdvection>( "SetupScalarAdvection" )->mark_basic();
+    tools->create_component<Solver::LoadMesh>( "LoadMesh" )->mark_basic();
+    tools->create_component<CJournal>("Journal")->mark_basic();
   }
 
   return root;

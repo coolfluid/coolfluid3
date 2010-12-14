@@ -53,7 +53,7 @@ CRegion& CMesh::create_region( const std::string& name, bool ensure_unique )
   
   if ( find_components<CRegion>(*this).empty() )
   {
-    new_region = create_component_type<CRegion>(name);
+    new_region = create_component<CRegion>(name);
     new_region->add_tag("grid_zone");
   }
   else
@@ -76,7 +76,7 @@ CRegion& CMesh::create_region( const std::string& name, bool ensure_unique )
     else if (existing_region.has_tag("grid_zone"))
     {
       // Create a parent region "base" for the existing region
-      CRegion::Ptr base_region = create_component_type<CRegion>("base");
+      CRegion::Ptr base_region = create_component<CRegion>("base");
       base_region->add_tag("grid_base");
       existing_region.move_to(base_region);
             
@@ -107,10 +107,10 @@ CRegion& CMesh::create_region( const std::string& name, bool ensure_unique )
 
 CRegion& CMesh::create_domain( const std::string& name )
 {
-  CRegion::Ptr new_region = get_child_type<CRegion>(name);
+  CRegion::Ptr new_region = get_child<CRegion>(name);
   if (!new_region)
   {
-    new_region = create_component_type<CRegion>(name);
+    new_region = create_component<CRegion>(name);
     new_region->add_tag("grid_base");
   }
   return *new_region;
@@ -121,7 +121,7 @@ CRegion& CMesh::create_domain( const std::string& name )
 
 CField& CMesh::create_field( const std::string& name , CRegion& support, const std::vector<std::string>& variables, const CField::DataBasis basis)
 {
-	CField& field = *create_component_type<CField>(name);
+	CField& field = *create_component<CField>(name);
 	field.synchronize_with_region(support);
 
   std::vector<std::string> names;

@@ -232,7 +232,7 @@ void CReader::read_coordinates()
   CList<Uint>& global_node_idx = find_component_with_tag<CList<Uint> >(*m_coordinates,"global_node_indices");
   global_node_idx.resize(global_node_idx.size()+m_nodes_to_read.size());
 
-  CList<bool>& is_ghost = *m_coordinates->get_child_type<CList<bool> >("is_ghost");
+  CList<bool>& is_ghost = *m_coordinates->get_child<CList<bool> >("is_ghost");
   is_ghost.resize(is_ghost.size()+m_nodes_to_read.size());
 
   
@@ -346,7 +346,7 @@ void CReader::read_connectivity()
   CTable<Real>& coordinates = *m_coordinates;
   
   CDynTable<Uint>& node_to_glb_elem_connectivity = find_component_with_tag<CDynTable<Uint> >(coordinates,"glb_elem_connectivity");
-  CList<bool>& is_ghost = *m_coordinates->get_child_type<CList<bool> >("is_ghost");
+  CList<bool>& is_ghost = *m_coordinates->get_child<CList<bool> >("is_ghost");
   
   m_node_to_glb_elements.resize(m_nodes_to_read.size());
   std::map<std::string,boost::shared_ptr<CTable<Uint>::Buffer> > buffer =
@@ -547,7 +547,7 @@ void CReader::read_groups()
       
       Uint idx = buffer[etype]->add_row(tmp_region->connectivity_table().array()[local_element]);
       std::string new_region_name = "elements_" + tmp_region->element_type().element_type_name();
-      m_global_to_tmp[global_element] = std::make_pair(region.get_child_type<CElements>(new_region_name),idx);
+      m_global_to_tmp[global_element] = std::make_pair(region.get_child<CElements>(new_region_name),idx);
       Uint local_elm_idx = glb_elm_indices[etype]->add_row(global_element-1);
       
       if (local_elm_idx != idx)

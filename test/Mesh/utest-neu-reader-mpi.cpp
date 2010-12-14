@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
 	boost::filesystem::path fp_in ("quadtriag.neu");
 	
   // the mesh to store in
-  CMesh::Ptr mesh ( allocate_component_type<CMesh>  ( "mesh" ) );
+  CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
   
 	
 	//CFinfo.setFilterRankZero(false);
@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_CASE( threeD_test )
   boost::filesystem::path fp_in ("hextet.neu");
 	
   // the mesh to store in
-  CMesh::Ptr mesh ( allocate_component_type<CMesh>  ( "mesh" ) );
+  CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
   
 	
 	CFinfo.setFilterRankZero(false);
@@ -180,7 +180,7 @@ BOOST_AUTO_TEST_CASE( read_multiple_2D )
   boost::filesystem::path fp_in ("quadtriag.neu");
 	
   // the mesh to store in
-  CMesh::Ptr mesh ( allocate_component_type<CMesh>  ( "mesh" ) );
+  CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
   
 	
 	CFinfo.setFilterRankZero(false);	

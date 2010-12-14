@@ -167,7 +167,7 @@ CField& CField::synchronize_with_region(CRegion& support, const std::string& fie
   // Setup this field
   m_field_name = (field_name == "") ? name() : field_name;
   support.add_field_link(*this);
-  CLink::Ptr support_link = create_component_type<CLink>("support");
+  CLink::Ptr support_link = create_component<CLink>("support");
   support_link->add_tag("support");
   support_link->link_to(support.get());
 
@@ -178,7 +178,7 @@ CField& CField::synchronize_with_region(CRegion& support, const std::string& fie
   // Go down one level in the tree
   BOOST_FOREACH(CRegion& support_level_down, find_components<CRegion>(support))
   {
-    CField& subfield = *create_component_type<CField>(support_level_down.name());
+    CField& subfield = *create_component<CField>(support_level_down.name());
     subfield.synchronize_with_region(support_level_down,m_field_name);
   }
 
@@ -219,13 +219,13 @@ void CField::create_data_storage(const DataBasis basis)
       if (! find_components<CTable<Real> >(support()).empty() )
       {
         CTable<Real>& coordinates = find_component<CTable<Real> >(support());
-				CTable<Real>& field_data = *create_component_type<CTable<Real> >("data");
+				CTable<Real>& field_data = *create_component<CTable<Real> >("data");
 				field_data.add_tag("field_data");
 				field_data.array().resize(boost::extents[coordinates.size()][row_size]);
         data_for_coordinates[coordinates.full_path().string()] = &field_data;
         
         	// create a link to the coordinates in the data
-					field_data.create_component_type<CLink>("coordinates")->link_to(coordinates.get());
+					field_data.create_component<CLink>("coordinates")->link_to(coordinates.get());
       }
       // Check if there are coordinates in all subfields and add to map
       BOOST_FOREACH(CField& subfield, find_components_recursively<CField>(*this))
@@ -234,13 +234,13 @@ void CField::create_data_storage(const DataBasis basis)
         {
 					// Create data and store in a map
           CTable<Real>& coordinates = find_component<CTable<Real> >(subfield.support());
-					CTable<Real>& field_data = *subfield.create_component_type<CTable<Real> >("data");
+					CTable<Real>& field_data = *subfield.create_component<CTable<Real> >("data");
 					field_data.add_tag("field_data");
 					field_data.array().resize(boost::extents[coordinates.size()][row_size]);
 					data_for_coordinates[coordinates.full_path().string()] = &field_data;
 					
 					// create a link to the coordinates in the data
-					field_data.create_component_type<CLink>("coordinates")->link_to(coordinates.get());
+					field_data.create_component<CLink>("coordinates")->link_to(coordinates.get());
         }
       }
 
@@ -263,12 +263,12 @@ void CField::create_data_storage(const DataBasis basis)
 //{
 //  m_field_name = field_name;
 //  support.add_field_link(*this);
-//  create_component_type<CLink>("support")->link_to(support.get());
+//  create_component<CLink>("support")->link_to(support.get());
 //
 //  BOOST_FOREACH(CElements& geometry_elements, find_components<CElements>(support))
 //  {
 //    CFinfo << "creating elements element_based" << geometry_elements.name() << CFendl;
-//    CFieldElements& field_elements = *create_component_type<CFieldElements>(geometry_elements.name());
+//    CFieldElements& field_elements = *create_component<CFieldElements>(geometry_elements.name());
 //    field_elements.add_tag("FieldElements");
 //    field_elements.initialize(geometry_elements);
 //    field_elements.add_element_based_storage();
@@ -277,7 +277,7 @@ void CField::create_data_storage(const DataBasis basis)
 //
 //  BOOST_FOREACH(CRegion& support_level_down, find_components<CRegion>(support))
 //  {
-//    CField& field = *create_component_type<CField>(support_level_down.name());
+//    CField& field = *create_component<CField>(support_level_down.name());
 //    field.create_element_based_field(m_field_name,support_level_down);
 //  }
 //  return *this;
@@ -287,7 +287,7 @@ void CField::create_data_storage(const DataBasis basis)
 
 CElements& CField::create_elements(CElements& geometry_elements)
 {
-  CFieldElements& field_elements = *create_component_type<CFieldElements>(geometry_elements.name());
+  CFieldElements& field_elements = *create_component<CFieldElements>(geometry_elements.name());
   field_elements.initialize(geometry_elements);
   geometry_elements.add_field_elements_link(field_elements);
   return field_elements;

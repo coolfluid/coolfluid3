@@ -48,17 +48,17 @@ ForwardEuler::ForwardEuler ( const std::string& name  ) :
   //     .insert<URI>("Domain", "Domain to load mesh into" )
   //     .insert_array<URI>( "Files" , "Files to read" );
   
-  m_take_step = allocate_component_type<CForAllNodes>("take_step");
+  m_take_step = allocate_component<CForAllNodes>("take_step");
   m_take_step->create_action("CF.Solver.CTakeStep");  
   add_static_component(m_take_step);
   
-  m_solution_field = allocate_component_type<CLink>("solution_field");
+  m_solution_field = allocate_component<CLink>("solution_field");
   add_static_component(m_solution_field);
   
-  m_residual_field = allocate_component_type<CLink>("residual_field");
+  m_residual_field = allocate_component<CLink>("residual_field");
   add_static_component(m_residual_field);
   
-  m_update_coeff_field = allocate_component_type<CLink>("update_coeff_field");
+  m_update_coeff_field = allocate_component<CLink>("update_coeff_field");
   add_static_component(m_update_coeff_field);
 }
 

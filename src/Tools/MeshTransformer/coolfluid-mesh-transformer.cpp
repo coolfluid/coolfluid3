@@ -162,7 +162,7 @@ int main(int argc, char * argv[])
   
   // create mesh object
   CRoot::Ptr root = CRoot::create("root");
-  CMesh::Ptr mesh = root->create_component_type<CMesh>("mesh");
+  CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
   
   
   typedef basic_option<char> Option;

@@ -50,14 +50,14 @@ BOOST_AUTO_TEST_CASE( constructor )
 
   std::string name  = "scalar_advection";
 
-    CModel::Ptr model = Core::instance().root()->create_component_type<CModel>( name );
+    CModel::Ptr model = Core::instance().root()->create_component<CModel>( name );
 
     // create the CDomain
     // CDomain::Ptr domain =
-        model->create_component_type<CDomain>("Domain");
+        model->create_component<CDomain>("Domain");
 
     // create the Physical Model
-    CPhysicalModel::Ptr pm = model->create_component_type<CPhysicalModel>("Physics");
+    CPhysicalModel::Ptr pm = model->create_component<CPhysicalModel>("Physics");
     pm->mark_basic();
 
     pm->configure_property( "DOFs", 1u );

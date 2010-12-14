@@ -60,7 +60,7 @@ public: // functions
 
   HolderT ( const std::string& name ) :
       Component(name),
-      m_subcomp (allocate_component_type<SubCompT>("subc"))
+      m_subcomp (allocate_component<SubCompT>("subc"))
   {
      
 

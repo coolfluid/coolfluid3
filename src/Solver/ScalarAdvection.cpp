@@ -58,20 +58,20 @@ void ScalarAdvection::create_model ( Common::XmlNode& node )
   XmlParams p ( node );
 
 //  // access the CModel
-//  CModel::Ptr model = look_component_type<CModel>( property("Model").value<std::string>() );
+//  CModel::Ptr model = look_component<CModel>( property("Model").value<std::string>() );
 
 // create the model
 
   std::string name  = p.get_option<std::string>("Model name");
 
-  CModel::Ptr model = Core::instance().root()->create_component_type<CModel>( name );
+  CModel::Ptr model = Core::instance().root()->create_component<CModel>( name );
 
   // create the CDomain
   // CDomain::Ptr domain =
-      model->create_component_type<CDomain>("Domain");
+      model->create_component<CDomain>("Domain");
 
   // create the Physical Model
-  CPhysicalModel::Ptr pm = model->create_component_type<CPhysicalModel>("Physics");
+  CPhysicalModel::Ptr pm = model->create_component<CPhysicalModel>("Physics");
   pm->mark_basic();
 
   pm->configure_property( "DOFs", 1u );

@@ -36,13 +36,13 @@ CMeshPartitioner::CMeshPartitioner ( const std::string& name ) :
   
   m_properties["Number of Partitions"].as_option().attach_trigger ( boost::bind ( &CMeshPartitioner::config_nb_parts,   this ) );
   
-  m_hash = allocate_component_type<CMixedHash>("hash");
+  m_hash = allocate_component<CMixedHash>("hash");
   add_static_component(m_hash);
 
-  m_global_to_local = allocate_component_type<CMap<Uint,Uint> >("global_to_local");
+  m_global_to_local = allocate_component<CMap<Uint,Uint> >("global_to_local");
   add_static_component(m_global_to_local);
 
-  m_changes = allocate_component_type<CMap<Uint,Uint> >("changes");
+  m_changes = allocate_component<CMap<Uint,Uint> >("changes");
   add_static_component(m_changes);
   
 }

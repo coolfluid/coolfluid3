@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_SUITE( TestActionsSuite )
 
 BOOST_AUTO_TEST_CASE( ConstructorTest )
 {
-//  CForAllElementsT<CSchemeLDA>::Ptr elem_loop ( allocate_component_type< CForAllElementsT<CSchemeLDA> >("loop_LDA") );
+//  CForAllElementsT<CSchemeLDA>::Ptr elem_loop ( allocate_component< CForAllElementsT<CSchemeLDA> >("loop_LDA") );
 //  BOOST_CHECK(elem_loop);
 //  CLoopOperation::Ptr lda_scheme = create_component_abstract_type<CLoopOperation>("CF.Actions.CSchemeLDA","lda_scheme");
 //  BOOST_CHECK(lda_scheme);
@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE( ConstructorTest )
 BOOST_AUTO_TEST_CASE( Node_Looping_Test )
 {
   CRoot::Ptr root = CRoot::create("Root");
-  CMesh::Ptr mesh = root->create_component_type<CMesh>("mesh");
+  CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
 	
   // Read mesh from file
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
@@ -68,13 +68,13 @@ BOOST_AUTO_TEST_CASE( Node_Looping_Test )
 
   
   // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
-	CLoop::Ptr node_loop = root->create_component_type< CForAllNodes >("node_loop");
+	CLoop::Ptr node_loop = root->create_component< CForAllNodes >("node_loop");
   node_loop->create_action("CF.TestActions.CDummyLoopOperation");
 	node_loop->configure_property("Regions",regions);
 	CFinfo << "\n\n\nNode loop" << CFendl;
   node_loop->execute();
 
-	CLoop::Ptr elem_loop = root->create_component_type< CForAllElements >("elem_loop");
+	CLoop::Ptr elem_loop = root->create_component< CForAllElements >("elem_loop");
   elem_loop->create_action("CF.TestActions.CDummyLoopOperation");
 	elem_loop->configure_property("Regions",regions);
 	CFinfo << "\n\n\nElement loop" << CFendl;
@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE( Templated_Looping_Test )
 {
 #if 0
   CRoot::Ptr root = CRoot::create("Root");
-  CMesh::Ptr mesh = root->create_component_type<CMesh>("mesh");
+  CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
 
   // Read mesh from file
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE( Templated_Looping_Test )
   CField& inv_update_coeff = mesh->create_field("inverse_updatecoeff",1,CField::NODE_BASED);
   
   // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
-	CLoop::Ptr apply_bc = root->create_component_type< CForAllNodes >("apply_bc");
+	CLoop::Ptr apply_bc = root->create_component< CForAllNodes >("apply_bc");
   apply_bc->create_action("CF.Actions.CSetFieldValues");
 	
   std::vector<URI> bc_regions = list_of(URI("cpath://Root/mesh/rotation/inlet"));
@@ -121,13 +121,13 @@ BOOST_AUTO_TEST_CASE( Templated_Looping_Test )
   
   // Static version, templates
 //  elem_loop =
-//      root->create_component_type< CForAllElementsT<CSchemeLDA> >("loop_LDA");
+//      root->create_component< CForAllElementsT<CSchemeLDA> >("loop_LDA");
 
   elem_loop =
-    root->create_component_type< CForAllElementsT< CSchemeLDAT< SF::Quad2DLagrangeP1 > > >("loop_LDA");
+    root->create_component< CForAllElementsT< CSchemeLDAT< SF::Quad2DLagrangeP1 > > >("loop_LDA");
 
   // Dynamic version, virtual
-  //elem_loop = root->create_component_type< CForAllElements >("loop_LDA");
+  //elem_loop = root->create_component< CForAllElements >("loop_LDA");
   //elem_loop->create_action("CF.Actions.CSchemeLDA");
 
 	BOOST_CHECK(true);
@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE( Templated_Looping_Test )
   // Execute the loop
   
   
-  CLoop::Ptr take_step = root->create_component_type<CForAllNodes>("take_step");
+  CLoop::Ptr take_step = root->create_component<CForAllNodes>("take_step");
   take_step->create_action("CF.Actions.CTakeStep");
 	take_step->configure_property("Regions",regions_to_loop);
   take_step->action("CF.Actions.CTakeStep").configure_property("SolutionField",std::string("solution"));

@@ -60,7 +60,7 @@ Core::Core() :
   m_root->add_component( m_libraries )->mark_basic();
   m_root->add_component( m_factories )->mark_basic();
 
-  m_root->create_component_type<CGroup>("Tools")->mark_basic();
+  m_root->create_component<CGroup>("Tools")->mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -134,7 +134,7 @@ void Core::set_profiler(const std::string & builder_name)
 
 boost::shared_ptr<CodeProfiler> Core::profiler() const
 {
-  return m_root->get_child_type<CodeProfiler>("Profiler");
+  return m_root->get_child<CodeProfiler>("Profiler");
 }
 ////////////////////////////////////////////////////////////////////////////////
 

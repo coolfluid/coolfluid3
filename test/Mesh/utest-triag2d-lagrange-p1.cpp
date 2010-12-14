@@ -81,9 +81,9 @@ BOOST_AUTO_TEST_CASE( Volume )
 
 BOOST_AUTO_TEST_CASE( Element )
 {
-  CTable<Real>::Ptr coordinates ( allocate_component_type<CTable<Real> >("coordinates") );
+  CTable<Real>::Ptr coordinates ( allocate_component<CTable<Real> >("coordinates") );
   // Create a CElements component
-  CElements::Ptr comp ( allocate_component_type<CElements>("comp") ) ;
+  CElements::Ptr comp ( allocate_component<CElements>("comp") ) ;
 
   comp->initialize("CF.Mesh.SF.Triag2DLagrangeP1",*coordinates);
   BOOST_CHECK_EQUAL(comp->element_type().shape(), GeoShape::TRIAG);

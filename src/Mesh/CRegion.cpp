@@ -47,13 +47,13 @@ CRegion& CRegion::create_region( const std::string& name, bool ensure_unique )
 {
   if (ensure_unique)
   {
-    return *create_component_type<CRegion>(name);
+    return *create_component<CRegion>(name);
   }
   else
   {
-    CRegion::Ptr region = get_child_type<CRegion>(name);
+    CRegion::Ptr region = get_child<CRegion>(name);
     if (!region)
-      region = create_component_type<CRegion>(name);
+      region = create_component<CRegion>(name);
     
     return *region;
   }
@@ -65,10 +65,10 @@ CElements& CRegion::create_elements(const std::string& element_type_name, CTable
 {
   std::string name = "elements_" + element_type_name;
   
-  CElements::Ptr elements = get_child_type<CElements>(name);
+  CElements::Ptr elements = get_child<CElements>(name);
   if (!elements)
   {
-    elements = create_component_type<CElements>(name);
+    elements = create_component<CElements>(name);
     elements->add_tag("GeometryElements");
     elements->initialize(element_type_name,coordinates);
   }
@@ -79,42 +79,42 @@ CElements& CRegion::create_elements(const std::string& element_type_name, CTable
 
 CTable<Real>& CRegion::create_coordinates(const Uint& dim)
 {  
-  CTable<Real>::Ptr coordinates = get_child_type<CTable<Real> >("coordinates");
+  CTable<Real>::Ptr coordinates = get_child<CTable<Real> >("coordinates");
   if (!coordinates)
   {
-    coordinates = create_component_type<CTable<Real> >("coordinates");
+    coordinates = create_component<CTable<Real> >("coordinates");
     coordinates->add_tag("coordinates");
     coordinates->initialize(dim);
     
-    CList<Uint>::Ptr global_indices = get_child_type<CList<Uint> >("global_indices");
+    CList<Uint>::Ptr global_indices = get_child<CList<Uint> >("global_indices");
     if (!global_indices)
     {
-      global_indices = coordinates->create_component_type< CList<Uint> >("global_indices");
+      global_indices = coordinates->create_component< CList<Uint> >("global_indices");
       global_indices->add_tag("global_node_indices");
     }
     
-    CList<bool>::Ptr is_ghost = get_child_type<CList<bool> >("is_ghost");
+    CList<bool>::Ptr is_ghost = get_child<CList<bool> >("is_ghost");
     if (!is_ghost)
     {
-      is_ghost = coordinates->create_component_type< CList<bool> >("is_ghost");
+      is_ghost = coordinates->create_component< CList<bool> >("is_ghost");
       is_ghost->add_tag("is_ghost");
     }
     
-    CDynTable<Uint>::Ptr glb_elem_connectivity = get_child_type< CDynTable<Uint> >("glb_elem_connectivity");
+    CDynTable<Uint>::Ptr glb_elem_connectivity = get_child< CDynTable<Uint> >("glb_elem_connectivity");
     if (!glb_elem_connectivity)
     {
-      glb_elem_connectivity = coordinates->create_component_type< CDynTable<Uint> >("glb_elem_connectivity");
+      glb_elem_connectivity = coordinates->create_component< CDynTable<Uint> >("glb_elem_connectivity");
       glb_elem_connectivity->add_tag("glb_elem_connectivity");
     }
     
   }
   // else if (coordinates->row_size() != dim)
   //   {
-  //     coordinates = create_component_type<CTable<Real> >( "coordinates" );
+  //     coordinates = create_component<CTable<Real> >( "coordinates" );
   //     coordinates->add_tag("coordinates");
   //     coordinates->initialize(dim);
-  //    CList<Uint>::Ptr global_indices = coordinates->create_component_type< CList<Uint> >("global_indices");
-  //    CList<bool>::Ptr is_ghost = coordinates->create_component_type< CList<bool> >("is_ghost");
+  //    CList<Uint>::Ptr global_indices = coordinates->create_component< CList<Uint> >("global_indices");
+  //    CList<bool>::Ptr is_ghost = coordinates->create_component< CList<bool> >("is_ghost");
   // 
   //   }
   return *coordinates;
@@ -124,10 +124,10 @@ CTable<Real>& CRegion::create_coordinates(const Uint& dim)
 
 void CRegion::add_field_link(CField& field)
 {
-  CGroup::Ptr field_group = get_child_type<CGroup>("fields");
+  CGroup::Ptr field_group = get_child<CGroup>("fields");
   if (!field_group.get())
-    field_group = create_component_type<CGroup>("fields");
-  field_group->create_component_type<CLink>(field.field_name())->link_to(field.get());
+    field_group = create_component<CGroup>("fields");
+  field_group->create_component<CLink>(field.field_name())->link_to(field.get());
 }
 
 //////////////////////////////////////////////////////////////////////////////

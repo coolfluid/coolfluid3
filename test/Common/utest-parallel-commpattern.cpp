@@ -89,8 +89,8 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperPtr )
   for(i=0; i<24; i++) d2[i]=64.+(double)i;
   for(i=0; i<4; i++) map[i]=2+i;
 
-  PEObjectWrapperPtr<double>::Ptr w1=allocate_component_type< PEObjectWrapperPtr<double> >("Ptr1");
-  PEObjectWrapperPtr<double>::Ptr w2=allocate_component_type< PEObjectWrapperPtr<double> >("Ptr2");
+  PEObjectWrapperPtr<double>::Ptr w1=allocate_component< PEObjectWrapperPtr<double> >("Ptr1");
+  PEObjectWrapperPtr<double>::Ptr w2=allocate_component< PEObjectWrapperPtr<double> >("Ptr2");
 
   w1->setup(d1,32,2,true);
   w2->setup(d2,24,3,false);
@@ -147,8 +147,8 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVector )
   for(i=0; i<24; i++) d2[i]=64.+(double)i;
   for(i=0; i<4; i++) map[i]=2+i;
 
-  PEObjectWrapperVector<double>::Ptr w1=allocate_component_type< PEObjectWrapperVector<double> >("Vector1");
-  PEObjectWrapperVector<double>::Ptr w2=allocate_component_type< PEObjectWrapperVector<double> >("Vector2");
+  PEObjectWrapperVector<double>::Ptr w1=allocate_component< PEObjectWrapperVector<double> >("Vector1");
+  PEObjectWrapperVector<double>::Ptr w2=allocate_component< PEObjectWrapperVector<double> >("Vector2");
 
   w1->setup(d1,2,true);
   w2->setup(d2,3,false);
@@ -209,8 +209,8 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperMultiArray )
       array2d[i][j]=i;
   for(i=0; i<4; i++) map[i]=2*i;
 
-  PEObjectWrapperMultiArray<Uint,1>::Ptr w1=allocate_component_type< PEObjectWrapperMultiArray<Uint,1> >("array1d");
-  PEObjectWrapperMultiArray<Uint,2>::Ptr w2=allocate_component_type< PEObjectWrapperMultiArray<Uint,2> >("array2d");
+  PEObjectWrapperMultiArray<Uint,1>::Ptr w1=allocate_component< PEObjectWrapperMultiArray<Uint,1> >("array1d");
+  PEObjectWrapperMultiArray<Uint,2>::Ptr w2=allocate_component< PEObjectWrapperMultiArray<Uint,2> >("array2d");
 
   PEObjectWrapper::Ptr w3= create_component_abstract_type<PEObjectWrapper>("CF.Common.PEObjectWrapperMultiArray<unsigned,1>","array1d");
   PEObjectWrapper::Ptr w4= create_component_abstract_type<PEObjectWrapper>("CF.Common.PEObjectWrapperMultiArray<unsigned,2>","array2d");
@@ -268,8 +268,8 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVectorWeakPtr )
   for(i=0; i<24; i++) (*d2)[i]=64.+(double)i;
   for(i=0; i<4; i++) map[i]=2+i;
 
-  PEObjectWrapperVectorWeakPtr<double>::Ptr w1=allocate_component_type< PEObjectWrapperVectorWeakPtr<double> >("VectorWeakPtr1");
-  PEObjectWrapperVectorWeakPtr<double>::Ptr w2=allocate_component_type< PEObjectWrapperVectorWeakPtr<double> >("VectorWeakPtr2");
+  PEObjectWrapperVectorWeakPtr<double>::Ptr w1=allocate_component< PEObjectWrapperVectorWeakPtr<double> >("VectorWeakPtr1");
+  PEObjectWrapperVectorWeakPtr<double>::Ptr w2=allocate_component< PEObjectWrapperVectorWeakPtr<double> >("VectorWeakPtr2");
 
   w1->setup(d1,2,true);
   w2->setup(d2,3,false);
