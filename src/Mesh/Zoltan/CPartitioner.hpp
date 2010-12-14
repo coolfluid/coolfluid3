@@ -47,6 +47,8 @@ public: // functions
   virtual void build_graph() {}
 
   virtual void partition_graph();
+	
+	virtual void migrate();
 
 private: // functions
 
@@ -68,10 +70,51 @@ private: // functions
                                               int *num_edges,
                                               ZOLTAN_ID_PTR nborGID, int *nborProc,
                                               int wgt_dim, float *ewgts, int *ierr);
+	
+	
+	
+	//////////////////////////////////////////////////////////////////////
+
+	static 	void get_elems_sizes(void *data, int gidSize, int lidSize, int num_ids,
+															 ZOLTAN_ID_PTR globalIDs, ZOLTAN_ID_PTR localIDs, int *sizes, int *ierr);
+	
+	static 	void pack_elems_messages(void *data, int gidSize, int lidSize, int num_ids,
+																	 ZOLTAN_ID_PTR globalIDs, ZOLTAN_ID_PTR localIDs, int *dests, int *sizes, int *idx, char *buf, int *ierr);
+	
+	static	void unpack_elems_messages(void *data, int gidSize, int num_ids,
+																		 ZOLTAN_ID_PTR globalIDs, int *sizes, int *idx, char *buf, int *ierr);
+	
+	static	void post_migrate_elems(void *data, int gidSize, int lidSize,
+																	int numImport, ZOLTAN_ID_PTR importGlobalID, ZOLTAN_ID_PTR importLocalID, int *importProc, int *importPart,
+																	int numExport, ZOLTAN_ID_PTR exportGlobalID, ZOLTAN_ID_PTR exportLocalID, int *exportProc, int *exportPart,
+																	int *ierr);
+	
+	static std::set<Uint> m_ghost_nodes;
+
+
   
 private: // data
 
   ZoltanObject* m_zz;
+	
+	
+// following data should be local to partitioning function, but is now global
+// for access for temporary migration function
+private: // data
+	
+	int changes;
+  int numGidEntries;
+  int numLidEntries;
+  int numImport;
+  ZOLTAN_ID_PTR importGlobalIds;
+  ZOLTAN_ID_PTR importLocalIds;
+  int *importProcs;
+  int *importToPart;
+  int numExport;
+  ZOLTAN_ID_PTR exportGlobalIds;
+  ZOLTAN_ID_PTR exportLocalIds;
+  int *exportProcs;
+  int *exportToPart;
     
 };
 

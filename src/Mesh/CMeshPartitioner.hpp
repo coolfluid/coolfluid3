@@ -66,15 +66,16 @@ public: // functions
   
   void show_changes();
   
-  void migrate();
+	/// Migrate the elements and nodes to corresponding processors
+	/// @todo this is now virtual because Zoltan is used.
+  virtual void migrate();
   
   /// location finding functions
-    
-  void build_global_to_local_index(CMesh& mesh);
-  
+      
   boost::tuple<Component::Ptr,Uint> to_local(const Uint glb_obj) const;
-  
-  
+	
+	void build_global_to_local_index(CMesh& mesh);
+
   /// Graph building functions
   
   Uint nb_owned_objects() const;
@@ -142,13 +143,21 @@ public: // functions
 		}
 	}
 	
-private: // functions
+	Common::CMap<Uint,Uint>& changes() { return (*m_changes);	}
+	
+	std::vector<Common::Component::Ptr>& components_vector() { return m_local_components; }
+	
+public: // functions
 
   boost::tuple<Uint,Uint> to_local_indices_from_loc_obj(const Uint loc_obj) const;
 
   boost::tuple<Uint,Uint,bool> to_local_indices_from_glb_obj(const Uint glb_obj) const;
 
   void config_nb_parts();
+	
+	Uint proc_of_obj(const Uint obj) {
+		return m_hash->proc_of_obj(obj);
+	}
 
 protected: // data
 
@@ -163,7 +172,7 @@ private: // data
   Uint m_nb_owned_obj;
 
   bool m_map_built;
-
+	
   std::vector<Common::Component::Ptr> m_local_components;
 
   std::vector<Common::Component::ConstPtr> m_glb_idx_components;

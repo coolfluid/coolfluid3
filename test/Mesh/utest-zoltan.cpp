@@ -1617,6 +1617,8 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
   p.initialize(mesh);
   p.partition_graph();
   p.show_changes();
+	
+	p.migrate();
   
   CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
 	boost::filesystem::path fp_out ("quadtriag.msh");
