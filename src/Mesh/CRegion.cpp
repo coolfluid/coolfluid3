@@ -146,7 +146,7 @@ CField& CRegion::get_field(const std::string& field_name)
 Uint CRegion::recursive_elements_count() const
 {
   Uint elem_count = 0;
-  BOOST_FOREACH(const CElements& elements, recursive_range_typed<CElements>(*this))
+  BOOST_FOREACH(const CElements& elements, find_components_recursively<CElements>(*this))
     elem_count += elements.elements_count();
   return elem_count;
 }
@@ -156,7 +156,7 @@ Uint CRegion::recursive_elements_count() const
 Uint CRegion::recursive_nodes_count() const
 {
   std::set<const CTable<Real>*> coordinates_set;
-  BOOST_FOREACH(const CElements& elements, recursive_range_typed<CElements>(*this))
+  BOOST_FOREACH(const CElements& elements, find_components_recursively<CElements>(*this))
     coordinates_set.insert(&elements.coordinates());
 
   // Total number of nodes in the mesh
@@ -171,28 +171,28 @@ Uint CRegion::recursive_nodes_count() const
 
 const CRegion& CRegion::subregion(const std::string& name) const
 {
-  return get_named_component_typed<CRegion const>(*this,name);
+  return find_component_with_name<CRegion const>(*this,name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 CRegion& CRegion::subregion(const std::string& name)
 {
-  return get_named_component_typed<CRegion>(*this,name);
+  return find_component_with_name<CRegion>(*this,name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 const CElements& CRegion::elements(const std::string& name) const
 {
-  return get_named_component_typed<CElements const>(*this,name);
+  return find_component_with_name<CElements const>(*this,name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 CElements& CRegion::elements(const std::string& name)
 {
-  return get_named_component_typed<CElements>(*this,name);
+  return find_component_with_name<CElements>(*this,name);
 }
 
 //////////////////////////////////////////////////////////////////////////////

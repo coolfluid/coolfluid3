@@ -16,8 +16,8 @@ namespace Common {
 ////////////////////////////////////////////////////////////////////////////////
 
 NetworkInfo::NetworkInfo() :
-    m_is_client(false),
     m_is_server(false),
+		m_is_client(false),
     m_hostname(),
     m_port(62784)
 {

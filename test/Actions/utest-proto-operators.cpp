@@ -224,7 +224,7 @@ BOOST_FIXTURE_TEST_CASE( CreateMesh2D, ProtoOperatorsFixture )
 BOOST_FIXTURE_TEST_CASE( VolumeDirect2D, ProtoOperatorsFixture ) // timed and profiled
 {
   Real volume = 0.0;
-  BOOST_FOREACH(const CElements& region, recursive_range_typed<CElements>(*grid_2d))
+  BOOST_FOREACH(const CElements& region, find_components_recursively<CElements>(*grid_2d))
   {
     const CTable<Real>& coords = region.coordinates();
     const CTable<Uint>::ArrayT& ctbl = region.connectivity_table().array();

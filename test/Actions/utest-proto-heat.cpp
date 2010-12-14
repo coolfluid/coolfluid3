@@ -113,14 +113,14 @@ BOOST_AUTO_TEST_CASE( Heat1D )
   // Left boundary at temp_start
   for_each_node
   (
-    recursive_get_named_component_typed<CRegion>(*mesh, "xneg"),
+    find_component_recursively_with_name<CRegion>(*mesh, "xneg"),
     dirichlet(blocks) = temp_start
   );
   
   // Right boundary at temp_stop
   for_each_node
   (
-    recursive_get_named_component_typed<CRegion>(*mesh, "xpos"),
+    find_component_recursively_with_name<CRegion>(*mesh, "xpos"),
     dirichlet(blocks) = temp_stop
   );
   
@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   // Parameters
   Real lenght     =     5.;
   Real temp_start =   100.;
-  Real temp_stop  =   500.;
+  //Real temp_stop  =   500.;
   const Uint nb_segments = 5;
   
   // Create a document structure

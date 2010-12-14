@@ -27,10 +27,10 @@ CForAllElements::CForAllElements ( const std::string& name ) :
 void CForAllElements::execute()
 {
   BOOST_FOREACH(CRegion::Ptr& region, m_loop_regions)
-    BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*region))
+    BOOST_FOREACH(CElements& elements, find_components_recursively<CElements>(*region))
   {
     // Setup all child operations
-    BOOST_FOREACH(CLoopOperation& op, range_typed<CLoopOperation>(*this))
+    BOOST_FOREACH(CLoopOperation& op, find_components<CLoopOperation>(*this))
     {
       op.create_loop_helper( elements );
       const Uint elem_count = elements.elements_count();

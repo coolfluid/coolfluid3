@@ -54,7 +54,7 @@ public:
     // Grammar used for the evaluation
     NodeGrammar grammar;
     
-    Mesh::CTable<Real>* coordinates = Common::get_component_typed_ptr<Mesh::CTable<Real> >(root_region, Common::IsComponentTag("coordinates")).get();
+    Mesh::CTable<Real>* coordinates = Common::find_component_ptr_with_tag<Mesh::CTable<Real> >(root_region,"coordinates").get();
     if(coordinates) // region owns coordinates, so we assume a loop over all nodes
     {
       // Evaluate the expression for each node

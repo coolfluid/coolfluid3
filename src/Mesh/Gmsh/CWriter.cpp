@@ -121,7 +121,7 @@ void CWriter::write_header(std::fstream& file)
 
   // physical names
   Uint phys_name_counter(0);
-  BOOST_FOREACH(const CRegion& groupRegion, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
+  BOOST_FOREACH(const CRegion& groupRegion, find_components_recursively_with_filter<CRegion>(*m_mesh,IsGroup()))
   {
     ++phys_name_counter;
     PhysicalGroup group (m_coord_dim,phys_name_counter,groupRegion.full_path().string());
@@ -189,7 +189,7 @@ void CWriter::write_connectivity(std::fstream& file)
   // file << "elm-number elm-type number-of-tags < tag > ... node-number-list ...     \n";
   // file << "$EndElements\n";
   Uint nbElems = 0;
-  BOOST_FOREACH(const CRegion& region, range_typed<CRegion>(*m_mesh))
+  BOOST_FOREACH(const CRegion& region, find_components<CRegion>(*m_mesh))
   {
     nbElems += region.recursive_elements_count();
   }
@@ -203,7 +203,7 @@ void CWriter::write_connectivity(std::fstream& file)
     Uint elm_number=0;
     Uint partition_number = PE::instance().rank();
 
-  //  BOOST_FOREACH(const CRegion& region, recursive_range<CRegion>(*m_mesh))
+  //  BOOST_FOREACH(const CRegion& region, find_components_recursively<CRegion>(*m_mesh))
   //  {
   //      group_name = region.name();
   //      group_number = m_groups[group_name].number;
@@ -261,7 +261,7 @@ void CWriter::write_elem_nodal_data(std::fstream& file)
   Uint prec = file.precision();
   file.precision(8);
 
-  BOOST_FOREACH(CField& nodebased_field, filtered_range_typed<CField>(*m_mesh,IsFieldNodeBased()))
+  BOOST_FOREACH(CField& nodebased_field, find_components_with_filter<CField>(*m_mesh,IsFieldNodeBased()))
   {
     std::string field_name = nodebased_field.field_name();
     Uint nb_elements = nodebased_field.support().recursive_elements_count();
@@ -296,7 +296,7 @@ void CWriter::write_elem_nodal_data(std::fstream& file)
 			file << 1 << "\n" << 0.0 << "\n";
 			file << 3 << "\n" << 0 << "\n" << datasize << "\n" << nb_elements <<"\n";
 			
-			BOOST_FOREACH(CFieldElements& field_elements, recursive_range_typed<CFieldElements>(nodebased_field))
+			BOOST_FOREACH(CFieldElements& field_elements, find_components_recursively<CFieldElements>(nodebased_field))
 			{
 				const CTable<Real>& field_data = field_elements.data();
 				Uint nb_nodes_per_element = field_elements.element_type().nb_nodes();
@@ -373,7 +373,7 @@ void CWriter::write_nodal_data(std::fstream& file)
 	Uint prec = file.precision();
 	file.precision(8);
 	
-	BOOST_FOREACH(CField& nodebased_field, filtered_range_typed<CField>(*m_mesh,IsFieldNodeBased()))
+	BOOST_FOREACH(CField& nodebased_field, find_components_with_filter<CField>(*m_mesh,IsFieldNodeBased()))
 	{
 		std::string field_name = nodebased_field.field_name();		
 		
@@ -399,7 +399,7 @@ void CWriter::write_nodal_data(std::fstream& file)
 			RealVector data(0.0, datasize); 
 			
 			std::set<std::string> field_data_paths;
-			BOOST_FOREACH(CFieldElements& field_elements, recursive_range_typed<CFieldElements>(nodebased_field))
+			BOOST_FOREACH(CFieldElements& field_elements, find_components_recursively<CFieldElements>(nodebased_field))
 			{
 				field_data_paths.insert(field_elements.data().full_path().string());
 			}
@@ -495,7 +495,7 @@ void CWriter::write_element_data(std::fstream& file)
   Uint prec = file.precision();
   file.precision(8);
 
-  BOOST_FOREACH(CField& elementbased_field, filtered_range_typed<CField>(*m_mesh,IsFieldElementBased()))
+  BOOST_FOREACH(CField& elementbased_field, find_components_with_filter<CField>(*m_mesh,IsFieldElementBased()))
   {
     std::string field_name = elementbased_field.field_name();
     Uint nb_elements = elementbased_field.support().recursive_elements_count();
@@ -527,7 +527,7 @@ void CWriter::write_element_data(std::fstream& file)
 			file << "\"" << (var_name == "var" ? field_name+to_str(iVar) : var_name) << "\"\n";
 			file << 1 << "\n" << 0.0 << "\n";
 			file << 3 << "\n" << 0 << "\n" << datasize << "\n" << nb_elements <<"\n";
-			BOOST_FOREACH(CFieldElements& field_elements, recursive_range_typed<CFieldElements>(elementbased_field))
+			BOOST_FOREACH(CFieldElements& field_elements, find_components_recursively<CFieldElements>(elementbased_field))
 			{
 				const CTable<Real>& field_data = field_elements.data();
 				

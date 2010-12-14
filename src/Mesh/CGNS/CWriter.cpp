@@ -79,7 +79,7 @@ void CWriter::write_base()
   CFdebug << "Writing base " << m_base.name << CFendl;
   CALL_CGNS(cg_base_write(m_file.idx,m_base.name.c_str(),m_base.cell_dim,m_base.phys_dim,&m_base.idx));
   
-  BOOST_FOREACH(CRegion& zone_region, range_typed<CRegion>(base_region))
+  BOOST_FOREACH(CRegion& zone_region, find_components<CRegion>(base_region))
   {
     write_zone(zone_region);
   }
@@ -95,7 +95,7 @@ void CWriter::write_zone(const CRegion& region)
   m_zone.coord_dim = m_coord_dim;
   
   m_zone.total_nbVertices = 0;
-  BOOST_FOREACH(const CTable<Real>& coordinates, recursive_filtered_range_typed<CTable<Real> >(region,IsComponentTag("coordinates")))
+  BOOST_FOREACH(const CTable<Real>& coordinates, find_components_recursively_with_tag<CTable<Real> >(region,"coordinates"))
     m_zone.total_nbVertices += coordinates.size();
 
   m_zone.nbElements = region.recursive_elements_count();
@@ -125,7 +125,7 @@ void CWriter::write_zone(const CRegion& region)
   }
   
   Uint idx=0;
-  BOOST_FOREACH(const CTable<Real>& coordinates, recursive_filtered_range_typed<CTable<Real> >(region,IsComponentTag("coordinates")))
+  BOOST_FOREACH(const CTable<Real>& coordinates, find_components_recursively_with_tag<CTable<Real> >(region,"coordinates"))
   {
     m_global_start_idx[&coordinates] = idx;
     
@@ -187,7 +187,7 @@ void CWriter::write_zone(const CRegion& region)
   }
       
   GroupsMapType grouped_elements_map;
-  BOOST_FOREACH(const CElements& elements, recursive_range_typed<CElements>(region))
+  BOOST_FOREACH(const CElements& elements, find_components_recursively<CElements>(region))
   {
     grouped_elements_map[elements.get_parent()->full_path().string()].push_back(elements.as_type<CElements const>());
   }

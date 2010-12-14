@@ -153,7 +153,7 @@ protected:
   {
     m_region_path = add_option<Common::URI>(m_name, m_description, boost::bind(&ConstNodes::on_trigger, this));
     m_region_path.lock()->supported_protocol("cpath");
-    m_physical_model = Common::get_component_typed_ptr<Solver::CPhysicalModel>(*m_owner.lock()->get_parent(), Common::IsComponentTrue());
+    m_physical_model = Common::find_component_ptr<Solver::CPhysicalModel>(*m_owner.lock()->get_parent());
   }
 
 private:

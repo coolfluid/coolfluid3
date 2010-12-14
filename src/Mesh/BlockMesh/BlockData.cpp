@@ -96,8 +96,8 @@ void create_block_mesh(const BlockData& block_data, CMesh& mesh, std::map<std::s
   
   // Create connectivity data
   CNodeConnectivity::Ptr node_connectivity = block_mesh_region.create_component_type<CNodeConnectivity>("node_connectivity");
-  node_connectivity->initialize(recursive_range_typed<CElements>(block_mesh_region));
-  BOOST_FOREACH(CElements& celements, recursive_range_typed<CElements>(block_mesh_region))
+  node_connectivity->initialize(find_components_recursively<CElements>(block_mesh_region));
+  BOOST_FOREACH(CElements& celements, find_components_recursively<CElements>(block_mesh_region))
   {
     celements.create_component_type<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
   }
@@ -497,7 +497,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
   std::map<std::string, std::string> patch_types;
   detail::create_block_mesh(block_data, *block_mesh, patch_types);
   
-  const CElements& block_elements = recursive_get_named_component_typed<CElements>(*block_mesh, "elements_CF.Mesh.SF.Hexa3DLagrangeP1");
+  const CElements& block_elements = find_component_recursively_with_name<CElements>(*block_mesh, "elements_CF.Mesh.SF.Hexa3DLagrangeP1");
   const CTable<Uint>::ArrayT& block_connectivity = block_elements.connectivity_table().array();
   const CTable<Real>& block_coordinates = block_elements.coordinates();
   
@@ -520,7 +520,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
   ////////////////////////////////////
   
   // Helper data to get the inter-block connectivity right
-  const CFaceConnectivity& volume_to_face_connectivity = get_component_typed<CFaceConnectivity>(block_elements);
+  const CFaceConnectivity& volume_to_face_connectivity = find_component<CFaceConnectivity>(block_elements);
   detail::NodeIndices nodes(volume_to_face_connectivity, block_data);
   
   // Distribution of the nodes among CPUs
@@ -646,10 +646,10 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
   // Create the boundary elements
   std::map<std::string, std::vector<Uint> > patch_first_elements;
   std::map<std::string, std::vector<Uint> > patch_elements_counts;
-  const CRegion& block_mesh_region = get_component_typed<CRegion>(*block_mesh);
-  BOOST_FOREACH(const CElements& patch_block, recursive_filtered_range_typed<CElements>(block_mesh_region, IsElementsSurface()))
+  const CRegion& block_mesh_region = find_component<CRegion>(*block_mesh);
+  BOOST_FOREACH(const CElements& patch_block, find_components_recursively_with_filter<CElements>(block_mesh_region, IsElementsSurface()))
   {
-    const CFaceConnectivity& adjacency_data = get_component_typed<CFaceConnectivity>(patch_block);
+    const CFaceConnectivity& adjacency_data = find_component<CFaceConnectivity>(patch_block);
     // Create the volume cells connectivity
     const std::string& patch_name = patch_block.get_parent()->name();
     CElements& patch_elements = root_region.create_region(patch_name).create_elements("CF.Mesh.SF.Quad3DLagrangeP1", mesh_coords_comp);
@@ -761,8 +761,8 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
       const CFaceConnectivity::ElementReferenceT adjacent_patch = volume_to_face_connectivity.adjacent_element(block, dims.second);
       cf_assert(adjacent_patch.first->element_type().dimensionality() == DIM_2D);
       const std::string& adjacent_name = adjacent_patch.first->get_parent()->name();
-      const CRegion& adjacent_region = get_named_component_typed<CRegion>(root_region, adjacent_name);
-      const CElements& adjacent_celements = get_component_typed<CElements>(adjacent_region);
+      const CRegion& adjacent_region = find_component_with_name<CRegion>(root_region, adjacent_name);
+      const CElements& adjacent_celements = find_component<CElements>(adjacent_region);
       const CTable<Uint>::ArrayT& adj_tbl = adjacent_celements.connectivity_table().array();
       const Uint start_idx = patch_first_elements[adjacent_name][adjacent_patch.second];
       const Uint end_idx = start_idx + patch_elements_counts[adjacent_name][adjacent_patch.second];
@@ -778,12 +778,12 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
       if(block_data.patch_types[patch] == "empty")
         continue;
       
-      const CElements& patch_celements = get_component_typed<CElements>(*block_mesh_region.get_child(block_data.patch_names[patch]));
-      const CFaceConnectivity& patch_adjacency = get_component_typed<CFaceConnectivity>(patch_celements);
+      const CElements& patch_celements = find_component<CElements>(*block_mesh_region.get_child(block_data.patch_names[patch]));
+      const CFaceConnectivity& patch_adjacency = find_component<CFaceConnectivity>(patch_celements);
       const CTable<Uint>::ArrayT& subpatches = patch_celements.connectivity_table().array();
       
-      const CRegion& patch_region_3d = get_named_component_typed<CRegion>(root_region, block_data.patch_names[patch]);
-      const CElements& patch_celements_3d = get_component_typed<CElements>(patch_region_3d);
+      const CRegion& patch_region_3d = find_component_with_name<CRegion>(root_region, block_data.patch_names[patch]);
+      const CElements& patch_celements_3d = find_component<CElements>(patch_region_3d);
       
       const CTable<Uint>::ArrayT& patch_connectivity_3d = patch_celements_3d.connectivity_table().array();
       
@@ -880,7 +880,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
     // Copy only the nodes that are still needed
     const Uint nb_nodes_3d = nodes_end - nodes_begin;
     CNodeConnectivity node_connectivity_2d("nodes");
-    node_connectivity_2d.initialize(nb_nodes_3d, recursive_range_typed<CElements>(root_region_2d));
+    node_connectivity_2d.initialize(nb_nodes_3d, find_components_recursively<CElements>(root_region_2d));
     
     // Count 2D nodes
     Uint nb_nodes_2d = 0;
@@ -919,7 +919,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, SimpleCommunicationPat
     }
     
     // Adapt CElements connectivity tables
-    BOOST_FOREACH(CElements& celements, recursive_range_typed<CElements>(mesh))
+    BOOST_FOREACH(CElements& celements, find_components_recursively<CElements>(mesh))
     {
       const Uint element_nb_nodes = celements.element_type().nb_nodes();
       CTable<Uint>::ArrayT& conn_table = celements.connectivity_table().array();
@@ -940,9 +940,9 @@ void partition_blocks(const BlockData& blocks_in, const Uint nb_partitions, cons
   detail::create_block_mesh(blocks_in, *block_mesh, patch_types);
   const Uint nb_blocks = blocks_in.block_points.size();
   
-  CElements& block_elements = recursive_get_named_component_typed<CElements>(*block_mesh, "elements_CF.Mesh.SF.Hexa3DLagrangeP1");
-  CTable<Real>::ArrayT& block_coordinates = get_component_typed<CTable<Real> >(*block_elements.get_parent()->get_parent()).array();
-  const CFaceConnectivity& volume_to_face_connectivity = get_component_typed<CFaceConnectivity>(block_elements);
+  CElements& block_elements = find_component_recursively_with_name<CElements>(*block_mesh, "elements_CF.Mesh.SF.Hexa3DLagrangeP1");
+  CTable<Real>::ArrayT& block_coordinates = find_component<CTable<Real> >(*block_elements.get_parent()->get_parent()).array();
+  const CFaceConnectivity& volume_to_face_connectivity = find_component<CFaceConnectivity>(block_elements);
   
   // Direction to search from
   const Uint start_direction = direction == XX ? Hexa3DLagrangeP1::XNEG : (direction == YY ? Hexa3DLagrangeP1::YNEG : Hexa3DLagrangeP1::ZNEG);

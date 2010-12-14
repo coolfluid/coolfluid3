@@ -189,7 +189,7 @@ class PEObjectWrapperMultiArray<T,2>: public PEObjectWrapper{
       T* itbuf=(T*)buf;
       boost_foreach( int local_idx, map)
       {
-        for (Uint i=0; i<m_stride; ++i)
+        for (int i=0; i<m_stride; ++i)
           (*m_data)[local_idx][i] = *itbuf++;
       }
     }

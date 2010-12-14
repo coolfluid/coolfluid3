@@ -131,7 +131,7 @@ CMeshReader::BufferMap
 void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
 {
 
-  boost_foreach(CElements& region, recursive_range_typed<CElements>(parent_region))
+  boost_foreach(CElements& region, find_components_recursively<CElements>(parent_region))
   {
     // find the empty regions
     bool empty_on_this_rank = region.connectivity_table().array().empty();
@@ -147,10 +147,10 @@ void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
   }
 
   // loop over regions
-  boost_foreach(CRegion& region, recursive_range_typed<CRegion>(parent_region))
+  boost_foreach(CRegion& region, find_components_recursively<CRegion>(parent_region))
   {
     // find the empty regions
-    if ( range_typed<CRegion>(region).empty() && range_typed<CElements>(region).empty() )
+    if ( find_components<CRegion>(region).empty() && find_components<CElements>(region).empty() )
       {
         CRegion::Ptr removed = boost::dynamic_pointer_cast<CRegion>(region.get_parent()->remove_component(region.name()));
         removed.reset();

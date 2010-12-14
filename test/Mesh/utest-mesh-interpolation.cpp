@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 	BOOST_CHECK(true);
 	
   // Set the field data of the source field
-  BOOST_FOREACH(CTable<Real>& node_data, recursive_filtered_range_typed<CTable<Real> >(*source,IsComponentTag("node_data")))
+  BOOST_FOREACH(CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*source,"node_data"))
   {    
 		CFinfo << node_data.full_path().string() << CFendl;
 		CTable<Real>& coordinates = *node_data.get_child_type<CLink>("coordinates")->as_type<CTable<Real> >();

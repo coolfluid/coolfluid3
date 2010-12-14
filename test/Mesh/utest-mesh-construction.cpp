@@ -182,7 +182,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   BOOST_CHECK_EQUAL(coordRef[1],1.0);
 
   // calculate all volumes of a region
-  BOOST_FOREACH( CElements& region, recursive_range_typed<CElements>(superRegion))
+  BOOST_FOREACH( CElements& region, find_components_recursively<CElements>(superRegion))
   {
     const ElementType& elementType = region.element_type();
     const Uint nbRows = region.connectivity_table().size();
@@ -329,7 +329,7 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
   BOOST_CHECK_EQUAL(coordRef[1],1.0);
 	
 //  // calculate all volumes of a region
-//  BOOST_FOREACH( CElements& region, recursive_range_typed<CElements>(superRegion))
+//  BOOST_FOREACH( CElements& region, find_components_recursively<CElements>(superRegion))
 //  {
 //    const ElementType& elementType = region.element_type();
 //    const Uint nbRows = region.connectivity_table().size();

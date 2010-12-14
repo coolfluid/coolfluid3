@@ -62,7 +62,7 @@ struct Nodes_Fixture
 
   CElements& get_first_region()
   {
-    BOOST_FOREACH(CElements& region, recursive_range_typed<CElements>(*mesh2d))
+    BOOST_FOREACH(CElements& region, find_components_recursively<CElements>(*mesh2d))
     {
         return (region);
     }

@@ -178,7 +178,7 @@ void CReader::read_zone(CRegion& parent_region)
         read_boco_unstructured(this_region);
 //
 //      // Remove regions flagged as bc
-//      BOOST_FOREACH(CRegion& region, recursive_filtered_range_typed<CRegion>(this_region,IsComponentTag("remove_this_tmp_component")))
+//      BOOST_FOREACH(CRegion& region, find_components_recursively_with_tag<CRegion>(this_region,"remove_this_tmp_component"))
 //      {
 //        region.get_parent()->remove_component(region.name());
 //      }
@@ -395,7 +395,7 @@ void CReader::read_section(CRegion& parent_region)
   boost::algorithm::replace_all(m_section.name,".","_");
 
 
-  BOOST_FOREACH(CRegion& existing_region, range_typed<CRegion>(parent_region))
+  BOOST_FOREACH(CRegion& existing_region, find_components<CRegion>(parent_region))
   if (existing_region.get())
   {
     if (existing_region.properties().check("cgns_section_name"))
@@ -452,7 +452,7 @@ void CReader::read_section(CRegion& parent_region)
       Uint table_idx = buffer[etype_CF]->add_row(row);
 
       // Store the global element number to a pair of (region , local element number)
-      m_global_to_region.push_back(Region_TableIndex_pair(get_named_component_typed_ptr<CElements>(this_region, etype_CF),table_idx));
+      m_global_to_region.push_back(Region_TableIndex_pair(find_component_ptr_with_name<CElements>(this_region, etype_CF),table_idx));
     } // for elem
   } // if mixed
   else // Single element type in this section
@@ -547,7 +547,7 @@ void CReader::read_section(CRegion& parent_region)
 //  if (!option("SectionsAreBCs")->value<bool>() && option("SharedCoordinates")->value<bool>())
 //  {
 //    bool is_bc_region = false;
-//    BOOST_FOREACH(const CElements& element_region, range_typed<CElements>(this_region))
+//    BOOST_FOREACH(const CElements& element_region, find_components<CElements>(this_region))
 //    {
 //      if (element_region.element_type().dimensionality() < static_cast<Uint>(m_base.cell_dim))
 //        is_bc_region = is_bc_region || true;

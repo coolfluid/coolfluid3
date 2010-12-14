@@ -29,7 +29,7 @@ namespace Mesh {
     
     bool operator()(const Component& component)
     {
-      return !range_typed<CTable<Uint> >(component).empty() && !range_typed<CElements>(component).empty();
+      return !find_components<CTable<Uint> >(component).empty() && !find_components<CElements>(component).empty();
     }
     
   }; // IsElementRegion
@@ -41,7 +41,7 @@ namespace Mesh {
     
     bool operator()(const Component& component)
     {
-      return count(filtered_range_typed<CRegion>(component,m_isElement));
+      return count(find_components_with_filter<CRegion>(component,m_isElement));
     }
     
   private:
@@ -90,13 +90,13 @@ void CMeshInfo::transform(const CMesh::Ptr& mesh, const std::vector<std::string>
   m_mesh = mesh;
 
   CFinfo << "Element distribution:" << CFendl;
-  BOOST_FOREACH( const CRegion& region, filtered_range_typed<CRegion>(*m_mesh,IsComponentTrue()))
+  BOOST_FOREACH( const CRegion& region, find_components_with_filter<CRegion>(*m_mesh,IsComponentTrue()))
   {
     CFinfo << print_region_tree(region) << CFflush;
   }  
 
   CFinfo << "Fields:" << CFendl;
-  BOOST_FOREACH( const CField& region, filtered_range_typed<CField>(*m_mesh,IsComponentTrue()))
+  BOOST_FOREACH( const CField& region, find_components_with_filter<CField>(*m_mesh,IsComponentTrue()))
   {
     CFinfo << print_field_tree(region) << CFflush;
   }  
@@ -114,7 +114,7 @@ std::string CMeshInfo::print_region_tree(const CRegion& region, Uint level)
   
   tree += print_elements(region,level+1);
   
-  BOOST_FOREACH( const CRegion& subregion, filtered_range_typed<CRegion>(region,IsComponentTrue()))
+  BOOST_FOREACH( const CRegion& subregion, find_components_with_filter<CRegion>(region,IsComponentTrue()))
   {
     tree += print_region_tree(subregion,level+1);
   }
@@ -133,7 +133,7 @@ std::string CMeshInfo::print_field_tree(const CField& field, Uint level)
   
   tree += print_elements(field,level+1);
   
-  BOOST_FOREACH( const CField& subfield, filtered_range_typed<CField>(field,IsComponentTrue()))
+  BOOST_FOREACH( const CField& subfield, find_components_with_filter<CField>(field,IsComponentTrue()))
   {
     tree += print_field_tree(subfield,level+1);
   }
@@ -145,7 +145,7 @@ std::string CMeshInfo::print_field_tree(const CField& field, Uint level)
 std::string CMeshInfo::print_elements(const Component& region, Uint level)
 {
   std::string tree;
-  BOOST_FOREACH( const CElements& elements_region, range_typed<CElements>(region))
+  BOOST_FOREACH( const CElements& elements_region, find_components<CElements>(region))
   {
     for (Uint i=0; i<level; i++)
       tree += "    ";

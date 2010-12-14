@@ -163,7 +163,7 @@ void CPartitioner::partition_graph()
   Uint nb_changes = 0;
   for (int i=0; i<vertlocnbr; ++i)
   {
-    if (partloctab[i] != PE::instance().rank())
+    if ((Uint) partloctab[i] != PE::instance().rank())
     {
       ++nb_changes;
     }
@@ -172,7 +172,7 @@ void CPartitioner::partition_graph()
   m_changes->reserve(nb_changes);
   for (int i=0; i<vertlocnbr; ++i)
   {
-    if (partloctab[i] != PE::instance().rank())
+    if ((Uint)partloctab[i] != PE::instance().rank())
     {
       m_changes->insert_blindly(owned_objects[i],partloctab[i]);
     }

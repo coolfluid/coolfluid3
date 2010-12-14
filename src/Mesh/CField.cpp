@@ -79,7 +79,7 @@ void CField::config_var_types()
 	std::vector<Uint> var_sizes(m_var_types.size());
 	for (Uint i=0; i<m_var_types.size(); ++i)
 		var_sizes[i]=Uint(m_var_types[i]);
-	BOOST_FOREACH(CField& subfield, range_typed<CField>(*this))
+	BOOST_FOREACH(CField& subfield, find_components<CField>(*this))
     subfield.configure_property("VarSizes",var_sizes);
 	
 }
@@ -90,7 +90,7 @@ void CField::config_var_names()
 {
 	property("VarNames").put_value(m_var_names);
 	
-	BOOST_FOREACH(CField& subfield, range_typed<CField>(*this))
+	BOOST_FOREACH(CField& subfield, find_components<CField>(*this))
     subfield.configure_property("VarNames",m_var_names);
 }
 
@@ -104,7 +104,7 @@ void CField::config_var_sizes()
 	BOOST_FOREACH(Uint var_type, var_sizes)
 	m_var_types[iVar++]=VarType(var_type);
 	
-	BOOST_FOREACH(CField& subfield, range_typed<CField>(*this))
+	BOOST_FOREACH(CField& subfield, find_components<CField>(*this))
     subfield.configure_property("VarSizes",var_sizes);	
 }
 
@@ -172,11 +172,11 @@ CField& CField::synchronize_with_region(CRegion& support, const std::string& fie
   support_link->link_to(support.get());
 
   // Create FieldElements if the support has them
-  BOOST_FOREACH(CElements& geometry_elements, range_typed<CElements>(support))
+  BOOST_FOREACH(CElements& geometry_elements, find_components<CElements>(support))
     create_elements(geometry_elements);
 
   // Go down one level in the tree
-  BOOST_FOREACH(CRegion& support_level_down, range_typed<CRegion>(support))
+  BOOST_FOREACH(CRegion& support_level_down, find_components<CRegion>(support))
   {
     CField& subfield = *create_component_type<CField>(support_level_down.name());
     subfield.synchronize_with_region(support_level_down,m_field_name);
@@ -191,7 +191,7 @@ CField& CField::synchronize_with_region(CRegion& support, const std::string& fie
 void CField::create_data_storage(const DataBasis basis)
 {
   m_basis = basis;
-  BOOST_FOREACH(CField& subfield, recursive_range_typed<CField>(*this))
+  BOOST_FOREACH(CField& subfield, find_components_recursively<CField>(*this))
   {
     subfield.set_basis(m_basis);
   }
@@ -205,7 +205,7 @@ void CField::create_data_storage(const DataBasis basis)
   switch (m_basis)
   {
     case ELEMENT_BASED:
-      BOOST_FOREACH(CFieldElements& field_elements, recursive_range_typed<CFieldElements>(*this))
+      BOOST_FOREACH(CFieldElements& field_elements, find_components_recursively<CFieldElements>(*this))
       {
         field_elements.add_element_based_storage();
         field_elements.data().array().resize(boost::extents[field_elements.elements_count()][row_size]);
@@ -216,9 +216,9 @@ void CField::create_data_storage(const DataBasis basis)
       std::map<std::string,CTable<Real>*> data_for_coordinates;
 
       // Check if there are coordinates in this field, and add to map
-      if (! range_typed<CTable<Real> >(support()).empty() )
+      if (! find_components<CTable<Real> >(support()).empty() )
       {
-        CTable<Real>& coordinates = get_component_typed<CTable<Real> >(support());
+        CTable<Real>& coordinates = find_component<CTable<Real> >(support());
 				CTable<Real>& field_data = *create_component_type<CTable<Real> >("data");
 				field_data.add_tag("field_data");
 				field_data.array().resize(boost::extents[coordinates.size()][row_size]);
@@ -228,12 +228,12 @@ void CField::create_data_storage(const DataBasis basis)
 					field_data.create_component_type<CLink>("coordinates")->link_to(coordinates.get());
       }
       // Check if there are coordinates in all subfields and add to map
-      BOOST_FOREACH(CField& subfield, recursive_range_typed<CField>(*this))
+      BOOST_FOREACH(CField& subfield, find_components_recursively<CField>(*this))
       {
-        if (! range_typed<CTable<Real> >(subfield.support()).empty() )
+        if (! find_components<CTable<Real> >(subfield.support()).empty() )
         {
 					// Create data and store in a map
-          CTable<Real>& coordinates = get_component_typed<CTable<Real> >(subfield.support());
+          CTable<Real>& coordinates = find_component<CTable<Real> >(subfield.support());
 					CTable<Real>& field_data = *subfield.create_component_type<CTable<Real> >("data");
 					field_data.add_tag("field_data");
 					field_data.array().resize(boost::extents[coordinates.size()][row_size]);
@@ -245,7 +245,7 @@ void CField::create_data_storage(const DataBasis basis)
       }
 
       // Add the correct data according to the map in every field elements component
-      BOOST_FOREACH(CFieldElements& field_elements, recursive_range_typed<CFieldElements>(*this))
+      BOOST_FOREACH(CFieldElements& field_elements, find_components_recursively<CFieldElements>(*this))
       {
         field_elements.add_node_based_storage(*data_for_coordinates[field_elements.coordinates().full_path().string()]);
       }
@@ -265,7 +265,7 @@ void CField::create_data_storage(const DataBasis basis)
 //  support.add_field_link(*this);
 //  create_component_type<CLink>("support")->link_to(support.get());
 //
-//  BOOST_FOREACH(CElements& geometry_elements, range_typed<CElements>(support))
+//  BOOST_FOREACH(CElements& geometry_elements, find_components<CElements>(support))
 //  {
 //    CFinfo << "creating elements element_based" << geometry_elements.name() << CFendl;
 //    CFieldElements& field_elements = *create_component_type<CFieldElements>(geometry_elements.name());
@@ -275,7 +275,7 @@ void CField::create_data_storage(const DataBasis basis)
 //    geometry_elements.add_field_elements_link(field_elements);
 //  }
 //
-//  BOOST_FOREACH(CRegion& support_level_down, range_typed<CRegion>(support))
+//  BOOST_FOREACH(CRegion& support_level_down, find_components<CRegion>(support))
 //  {
 //    CField& field = *create_component_type<CField>(support_level_down.name());
 //    field.create_element_based_field(m_field_name,support_level_down);
@@ -311,28 +311,28 @@ CRegion& CField::support()
 
 const CField& CField::subfield(const std::string& name) const
 {
-  return get_named_component_typed<CField const>(*this,name);
+  return find_component_with_name<CField const>(*this,name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 CField& CField::subfield(const std::string& name)
 {
-  return get_named_component_typed<CField>(*this,name);
+  return find_component_with_name<CField>(*this,name);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 const CFieldElements& CField::elements(const std::string& name) const
 {
-  return get_named_component_typed<CFieldElements const>(*this,name);
+  return find_component_with_name<CFieldElements const>(*this,name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 CFieldElements& CField::elements(const std::string& name)
 {
-  return get_named_component_typed<CFieldElements>(*this,name);
+  return find_component_with_name<CFieldElements>(*this,name);
 }
 
 Uint CField::find_var ( const std::string& vname ) const

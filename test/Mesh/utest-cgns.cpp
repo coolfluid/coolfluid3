@@ -736,7 +736,7 @@ BOOST_AUTO_TEST_CASE( ReadCGNS_multiple )
   {
     meshreader->read_from_to(fp_in,mesh);
     //info->transform(mesh);
-    BOOST_CHECK_EQUAL(get_component_typed<CRegion>(*mesh).recursive_elements_count(), (1+count)*3776);
+    BOOST_CHECK_EQUAL(find_component<CRegion>(*mesh).recursive_elements_count(), (1+count)*3776);
   }
   info->transform(mesh);
   

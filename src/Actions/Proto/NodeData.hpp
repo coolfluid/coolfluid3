@@ -27,10 +27,10 @@ namespace Proto {
 const Mesh::CTable<Real>& extract_coordinates(const Mesh::CRegion& region)
 {
   const Mesh::CTable<Real>* coordinates = nullptr;
-  coordinates = Common::get_component_typed_ptr<Mesh::CTable<Real> >(region, Common::IsComponentTag("coordinates")).get();
+  coordinates = Common::find_component_ptr_with_tag<Mesh::CTable<Real> >(region, "coordinates").get();
   if(!coordinates)
   {
-    BOOST_FOREACH(const Mesh::CElements& elements, Common::recursive_range_typed<Mesh::CElements>(region))
+    BOOST_FOREACH(const Mesh::CElements& elements, Common::find_components_recursively<Mesh::CElements>(region))
     {
       if(coordinates)
       {
@@ -104,7 +104,7 @@ struct NodeVarData< Field<Real> >
 {
   NodeVarData(const Field<Real>& placeholder, Mesh::CRegion& region) :
     m_field(region.get_field(placeholder.field_name)),
-    m_data(Common::get_component_typed<Mesh::CTable<Real> >(m_field, Common::IsComponentTag("field_data")))
+    m_data(Common::find_component_with_tag<Mesh::CTable<Real> >(m_field,"field_data"))
   {
     m_var_begin = m_field.var_index(placeholder.var_name);
     cf_assert(m_field.var_length(placeholder.var_name) == 1);
@@ -270,7 +270,7 @@ void make_node_list(const Mesh::CRegion& region, const Mesh::CTable<Real>& coord
   
   // First count the number of unique nodes
   Uint nb_nodes = 0;
-  BOOST_FOREACH(const Mesh::CElements& elements, Common::recursive_range_typed<Mesh::CElements>(region))
+  BOOST_FOREACH(const Mesh::CElements& elements, Common::find_components_recursively<Mesh::CElements>(region))
   {
     const Mesh::CTable<Uint>& conn_tbl = elements.connectivity_table();
     const Uint nb_elems = conn_tbl.size();
@@ -297,7 +297,7 @@ void make_node_list(const Mesh::CRegion& region, const Mesh::CTable<Real>& coord
   
   // Add the unique node indices
   node_is_used.assign(coordinates.size(), false);
-  BOOST_FOREACH(const Mesh::CElements& elements, Common::recursive_range_typed<Mesh::CElements>(region))
+  BOOST_FOREACH(const Mesh::CElements& elements, Common::find_components_recursively<Mesh::CElements>(region))
   {
     const Mesh::CTable<Uint>& conn_tbl = elements.connectivity_table();
     const Uint nb_elems = conn_tbl.size();

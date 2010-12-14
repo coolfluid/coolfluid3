@@ -92,7 +92,7 @@ namespace boost { namespace mpi {
 **/
 #define PEDebugVector(v,size) { \
   CFinfo << PE::instance().rank() << "/" << PE::instance().rank() << ": " << #v << CFendl; \
-  for(int _tmp_i_=0; _tmp_i_<size; _tmp_i_++)  CFinfo << v[_tmp_i_] << " "; \
+  for(int _tmp_i_=0; _tmp_i_<(int)size; _tmp_i_++)  CFinfo << v[_tmp_i_] << " "; \
   CFinfo << CFendl; \
 }
 

@@ -35,11 +35,11 @@ void CForAllNodes::execute()
 {
 	BOOST_FOREACH(CRegion::Ptr& region, m_loop_regions)
 	{
-		BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*region))
+		BOOST_FOREACH(CElements& elements, find_components_recursively<CElements>(*region))
 		{
 			// Setup all child operations
       CList<Uint>::Ptr loop_list;
-      BOOST_FOREACH(CNodeOperation& op, range_typed<CNodeOperation>(*this))
+      BOOST_FOREACH(CNodeOperation& op, find_components<CNodeOperation>(*this))
 			{
         op.create_loop_helper( elements );
 
@@ -50,7 +50,7 @@ void CForAllNodes::execute()
       }
 			BOOST_FOREACH(const Uint node, loop_list->array())
 			{
-        BOOST_FOREACH(CNodeOperation& op, range_typed<CNodeOperation>(*this))
+        BOOST_FOREACH(CNodeOperation& op, find_components<CNodeOperation>(*this))
 				{
           op.select_loop_idx(node);
 					op.execute();

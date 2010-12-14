@@ -109,10 +109,10 @@ void CWriter::write_headerData(std::fstream& file)
     node_counter += coord_array.first->size();
   
 
-  BOOST_FOREACH(const CRegion& group, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
+  BOOST_FOREACH(const CRegion& group, find_components_recursively_with_filter<CRegion>(*m_mesh,IsGroup()))
   {
     bool isGroupBC(false);
-    BOOST_FOREACH(const CElements& elementregion, recursive_range_typed<CElements>(group))
+    BOOST_FOREACH(const CElements& elementregion, find_components_recursively<CElements>(group))
     {
       bool isElementBC(false);
       Uint dimensionality = elementregion.element_type().dimensionality();
@@ -252,10 +252,10 @@ void CWriter::write_groups(std::fstream& file)
 {
   Uint group_counter(0);
   
-  BOOST_FOREACH(const CRegion& group, recursive_filtered_range_typed<CRegion>(*m_mesh,IsGroup()))
+  BOOST_FOREACH(const CRegion& group, find_components_recursively_with_filter<CRegion>(*m_mesh,IsGroup()))
   {
     bool isBC(false);
-    BOOST_FOREACH(const CElements& elementregion, recursive_range_typed <CElements>(group))
+    BOOST_FOREACH(const CElements& elementregion, find_components_recursively <CElements>(group))
     {
       Uint dimensionality = elementregion.element_type().dimensionality();
       if (dimensionality < m_max_dimensionality) // is bc
@@ -266,7 +266,7 @@ void CWriter::write_groups(std::fstream& file)
     if (!isBC)
     {
       Uint element_counter(0);
-      BOOST_FOREACH(const CElements& elementregion, recursive_range_typed<CElements>(group))
+      BOOST_FOREACH(const CElements& elementregion, find_components_recursively<CElements>(group))
       {
         element_counter += elementregion.connectivity_table().size();
       }
@@ -274,7 +274,7 @@ void CWriter::write_groups(std::fstream& file)
       file << "GROUP:" << std::setw(11) << ++group_counter << " ELEMENTS:" << std::setw(11) << element_counter << " MATERIAL:" << std::setw(11) << 2 << " NFLAGS:" << std::setw(11) << 1 << std::endl;
       file << std::setw(32) << group.name() << std::endl << std::setw(8) << 0 << std::endl;
       Uint line_counter=0;
-      BOOST_FOREACH(const CElements& elementregion, recursive_range_typed <CElements>(group))
+      BOOST_FOREACH(const CElements& elementregion, find_components_recursively <CElements>(group))
       {
         Uint elm_global_start_idx = m_global_start_idx[&elementregion]+1;
         Uint elm_global_end_idx = elementregion.connectivity_table().size() + elm_global_start_idx;
@@ -302,16 +302,16 @@ void CWriter::write_boundaries(std::fstream& file)
 { 
   // Add node connectivity data at the mesh level
   CNodeConnectivity::Ptr node_connectivity = m_mesh->create_component_type<CNodeConnectivity>("node_connectivity");
-  node_connectivity->initialize(recursive_filtered_range_typed<CElements>(*m_mesh, IsElementsVolume()));
+  node_connectivity->initialize(find_components_recursively_with_filter<CElements>(*m_mesh, IsElementsVolume()));
 
   
-  BOOST_FOREACH(CElements& elementregion, recursive_filtered_range_typed<CElements>(*m_mesh,IsElementsSurface()))
+  BOOST_FOREACH(CElements& elementregion, find_components_recursively_with_filter<CElements>(*m_mesh,IsElementsSurface()))
     elementregion.create_component_type<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
 
   // Find total number of boundary elements and store all bc groups
   Uint total_nbElements=0;
   std::set<CRegion::ConstPtr> bc_regions;
-  BOOST_FOREACH(const CElements& elementregion, recursive_filtered_range_typed<CElements>(*m_mesh,IsElementsSurface()))
+  BOOST_FOREACH(const CElements& elementregion, find_components_recursively_with_filter<CElements>(*m_mesh,IsElementsSurface()))
   {
     bc_regions.insert(elementregion.get_parent()->as_type<CRegion const>());
     total_nbElements += elementregion.connectivity_table().size();
@@ -327,10 +327,10 @@ void CWriter::write_boundaries(std::fstream& file)
       file << " BOUNDARY CONDITIONS 2.3.16\n";
       file << std::setw(32) << group->name() << std::setw(8) << 1 << std::setw(8) << group->recursive_elements_count() << std::setw(8) << 0 << std::setw(8) << 6 << std::endl;
       
-      BOOST_FOREACH(const CElements& elementregion, recursive_range_typed<CElements>(*group))  // for each element type in this BC
+      BOOST_FOREACH(const CElements& elementregion, find_components_recursively<CElements>(*group))  // for each element type in this BC
       {
         const CTable<Uint>& table = elementregion.connectivity_table();
-        const CFaceConnectivity& face_connectivity = get_component_typed<CFaceConnectivity>(elementregion);
+        const CFaceConnectivity& face_connectivity = find_component<CFaceConnectivity>(elementregion);
         
         const Uint nb_elems = table.size();
         const Uint nb_faces = elementregion.element_type().nb_faces();

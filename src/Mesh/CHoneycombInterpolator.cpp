@@ -75,7 +75,7 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 	if (source.basis() == CField::NODE_BASED && target.basis() == CField::NODE_BASED)
 	{
 		// Loop over all target data
-		BOOST_FOREACH(CTable<Real>& t_data, recursive_filtered_range_typed<CTable<Real> >(target,IsComponentTag("field_data")))
+		BOOST_FOREACH(CTable<Real>& t_data, find_components_recursively_with_tag<CTable<Real> >(target,"field_data"))
 		{
 			// get the target coordinates table
 			const CTable<Real>& t_coords = *t_data.get_child_type<CLink>("coordinates")->as_type<CTable<Real> >();
@@ -130,7 +130,7 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 	else if (source.basis() == CField::ELEMENT_BASED && target.basis() == CField::NODE_BASED)
 	{
 		// Loop over all target data
-		BOOST_FOREACH(CTable<Real>& t_data, recursive_filtered_range_typed<CTable<Real> >(target,IsComponentTag("field_data")))
+		BOOST_FOREACH(CTable<Real>& t_data, find_components_recursively_with_tag<CTable<Real> >(target,"field_data"))
 		{
 			// get the target coordinates table
 			const CTable<Real>& t_coords = *t_data.get_child_type<CLink>("coordinates")->as_type<CTable<Real> >();
@@ -188,7 +188,7 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 	}
 	else if (source.basis() == CField::NODE_BASED && target.basis() == CField::ELEMENT_BASED)
 	{
-		BOOST_FOREACH(CFieldElements& t_elems, recursive_range_typed<CFieldElements>(target))
+		BOOST_FOREACH(CFieldElements& t_elems, find_components_recursively<CFieldElements>(target))
 		{
 			RealVector t_centroid(m_dim);
       t_centroid.setZero();
@@ -247,7 +247,7 @@ void CHoneycombInterpolator::interpolate_field_from_to(const CField& source, CFi
 	}
 	else if (source.basis() == CField::ELEMENT_BASED && target.basis() == CField::ELEMENT_BASED)
 	{
-		BOOST_FOREACH(CFieldElements& t_elems, recursive_range_typed<CFieldElements>(target))
+		BOOST_FOREACH(CFieldElements& t_elems, find_components_recursively<CFieldElements>(target))
 		{
 			RealVector t_centroid(m_dim);
       t_centroid.setZero();
@@ -326,7 +326,7 @@ void CHoneycombInterpolator::create_honeycomb()
 {
   m_dim=0;
   std::set<const CTable<Real>*> all_coordinates;
-  BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*m_source_mesh))
+  BOOST_FOREACH(CElements& elements, find_components_recursively<CElements>(*m_source_mesh))
   {
     m_dim = std::max(elements.element_type().dimensionality() , m_dim);
     all_coordinates.insert(&elements.coordinates());
@@ -352,7 +352,7 @@ void CHoneycombInterpolator::create_honeycomb()
     V*=L[d];
   }
 
-  m_nb_elems = get_component_typed<CRegion>(*m_source_mesh).recursive_filtered_elements_count(IsElementsVolume());
+  m_nb_elems = find_component<CRegion>(*m_source_mesh).recursive_filtered_elements_count(IsElementsVolume());
 
 
   if (property("Divisions").value<std::vector<Uint> >().size() > 0)
@@ -387,7 +387,7 @@ void CHoneycombInterpolator::create_honeycomb()
 
 
   Uint total_nb_elems=0;
-  BOOST_FOREACH(const CElements& elements, recursive_filtered_range_typed<CElements>(*m_source_mesh,IsElementsVolume()))
+  BOOST_FOREACH(const CElements& elements, find_components_recursively_with_filter<CElements>(*m_source_mesh,IsElementsVolume()))
   {
     const CTable<Real>& coordinates = elements.coordinates();
     Uint nb_nodes_per_element = elements.connectivity_table().row_size();

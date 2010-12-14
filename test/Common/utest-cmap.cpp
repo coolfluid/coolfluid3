@@ -50,19 +50,19 @@ BOOST_AUTO_TEST_CASE ( test_CMap )
   BOOST_CHECK(map.find("first") == map.end());
   
   map.insert_blindly(std::string("first"), (Uint) 1);
-  BOOST_CHECK_EQUAL(map.size() , 1);
-  BOOST_CHECK_EQUAL(map["first"] , 1);
+  BOOST_CHECK_EQUAL(map.size() , 1u);
+  BOOST_CHECK_EQUAL(map["first"] , 1u);
   map.insert_blindly(std::string("second"), (Uint) 2);
-  BOOST_CHECK_EQUAL(map.size() , 2);
-  BOOST_CHECK_EQUAL(map["second"] , 2);
+  BOOST_CHECK_EQUAL(map.size() , 2u);
+  BOOST_CHECK_EQUAL(map["second"] , 2u);
   map["third"] = 3;
-  BOOST_CHECK_EQUAL(map.size() , 3);
-  BOOST_CHECK_EQUAL(map["third"] , 3);
+  BOOST_CHECK_EQUAL(map.size() , 3u);
+  BOOST_CHECK_EQUAL(map["third"] , 3u);
   
   BOOST_CHECK(map.find("fourth") == map.end());
   map["fourth"] = 4;
-  BOOST_CHECK_EQUAL(map.find("fourth")->second,4);
-  BOOST_CHECK_EQUAL(map.size() , 4);
+  BOOST_CHECK_EQUAL(map.find("fourth")->second,4u);
+  BOOST_CHECK_EQUAL(map.size() , 4u);
   
 
 }
@@ -85,16 +85,16 @@ BOOST_AUTO_TEST_CASE ( test_CMap_looping )
     BOOST_CHECK_EQUAL( map[key] , data );
   
   std::pair<CMap<std::string,Uint>::iterator,bool> ret;
-  ret = map.insert(std::make_pair("fifth",5));
+  ret = map.insert(std::make_pair("fifth",5u));
   BOOST_CHECK_EQUAL(ret.second, true);  // --> new element
   BOOST_CHECK_EQUAL(ret.first->first, "fifth");
-  BOOST_CHECK_EQUAL(ret.first->second, 5);
+  BOOST_CHECK_EQUAL(ret.first->second, 5u);
   
   // try to insert one that is already there
   ret = map.insert(std::make_pair("fifth",1000));
   BOOST_CHECK_EQUAL(ret.second, false); // --> already exists
   BOOST_CHECK_EQUAL(ret.first->first, "fifth");
-  BOOST_CHECK_EQUAL(ret.first->second, 5);  // --> value did not change
+  BOOST_CHECK_EQUAL(ret.first->second, 5u);  // --> value did not change
   
   BOOST_CHECK(map.erase("first"));
   BOOST_CHECK(map.find("first") == map.end());
@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE ( test_CMap_exceptions )
   map.insert_blindly(3,3);
   map.insert_blindly(4,4);
   
-  const CMap<int,int>& const_map = *map_ptr;
+  // const CMap<int,int>& const_map = *map_ptr;
   // BOOST_CHECK_THROW(const_map.find(2),IllegalCall);
   // BOOST_CHECK_THROW(const_map[2],IllegalCall);
   
@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE ( test_CMap_copy_std_map )
   stl_map["fourth"] = 4;
   
   map.copy_std_map(stl_map);
-  BOOST_CHECK_EQUAL(map.size(), 4);
+  BOOST_CHECK_EQUAL(map.size(), 4u);
   BOOST_CHECK_EQUAL(map["third"], 3);
 }
 

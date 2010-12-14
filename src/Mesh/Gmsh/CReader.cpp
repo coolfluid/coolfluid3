@@ -133,10 +133,10 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   // clean-up
   // --------
   // Remove regions with empty connectivity tables
-  remove_empty_element_regions(get_component_typed<CRegion>(*m_mesh));
+  remove_empty_element_regions(find_component<CRegion>(*m_mesh));
 
   // update the node lists contained by the element regions
-  BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*m_region))
+  BOOST_FOREACH(CElements& elements, find_components_recursively<CElements>(*m_region))
     elements.update_node_list();
 
   // update the number of cells and nodes in the mesh
@@ -229,7 +229,7 @@ void CReader::read_coordinates()
   coordinates.resize(coordinates.size()+m_nodes_to_read.size());
 
   
-  CList<Uint>& global_node_idx = get_tagged_component_typed<CList<Uint> >(*m_coordinates,"global_node_indices");
+  CList<Uint>& global_node_idx = find_component_with_tag<CList<Uint> >(*m_coordinates,"global_node_indices");
   global_node_idx.resize(global_node_idx.size()+m_nodes_to_read.size());
 
   CList<bool>& is_ghost = *m_coordinates->get_child_type<CList<bool> >("is_ghost");
@@ -345,7 +345,7 @@ void CReader::read_connectivity()
     
   CTable<Real>& coordinates = *m_coordinates;
   
-  CDynTable<Uint>& node_to_glb_elem_connectivity = get_tagged_component_typed<CDynTable<Uint> >(coordinates,"glb_elem_connectivity");
+  CDynTable<Uint>& node_to_glb_elem_connectivity = find_component_with_tag<CDynTable<Uint> >(coordinates,"glb_elem_connectivity");
   CList<bool>& is_ghost = *m_coordinates->get_child_type<CList<bool> >("is_ghost");
   
   m_node_to_glb_elements.resize(m_nodes_to_read.size());
@@ -354,11 +354,11 @@ void CReader::read_connectivity()
 
   std::map<std::string,CElements::Ptr> element_regions;
   BOOST_FOREACH(const std::string& etype, m_supported_types)
-    element_regions[etype] = get_named_component_typed_ptr<CElements>(*m_tmp, "elements_" + etype);
+    element_regions[etype] = find_component_ptr_with_name<CElements>(*m_tmp, "elements_" + etype);
 
   std::map<std::string,boost::shared_ptr<CList<Uint>::Buffer> > glb_elm_indices;
   BOOST_FOREACH(const std::string& etype, m_supported_types)
-    glb_elm_indices[etype] = boost::shared_ptr<CList<Uint>::Buffer> ( new CList<Uint>::Buffer(get_tagged_component_typed_ptr< CList<Uint> >(*element_regions[etype], "global_element_indices")->create_buffer()) );
+    glb_elm_indices[etype] = boost::shared_ptr<CList<Uint>::Buffer> ( new CList<Uint>::Buffer(find_component_ptr_with_tag< CList<Uint> >(*element_regions[etype], "global_element_indices")->create_buffer()) );
 
   // skip next line
   std::string line;
@@ -531,11 +531,11 @@ void CReader::read_groups()
     
     std::map<std::string,CElements::Ptr> element_regions;
     BOOST_FOREACH(const std::string& etype, m_supported_types)
-      element_regions[etype] = get_named_component_typed_ptr<CElements>(region, "elements_" + etype);
+      element_regions[etype] = find_component_ptr_with_name<CElements>(region, "elements_" + etype);
 
     std::map<std::string,boost::shared_ptr<CList<Uint>::Buffer> > glb_elm_indices;
     BOOST_FOREACH(const std::string& etype, m_supported_types)
-      glb_elm_indices[etype] = boost::shared_ptr<CList<Uint>::Buffer> ( new CList<Uint>::Buffer(get_tagged_component_typed_ptr< CList<Uint> >(*element_regions[etype], "global_element_indices")->create_buffer()) );
+      glb_elm_indices[etype] = boost::shared_ptr<CList<Uint>::Buffer> ( new CList<Uint>::Buffer(find_component_ptr_with_tag< CList<Uint> >(*element_regions[etype], "global_element_indices")->create_buffer()) );
     
     
     // Copy elements from tmp_region in the correct region
@@ -601,11 +601,11 @@ void CReader::read_boundaries()
 
     std::map<std::string,CElements::Ptr> element_regions;
     BOOST_FOREACH(const std::string& etype, m_supported_types)
-      element_regions[etype] = get_named_component_typed_ptr<CElements>(bc_region, "elements_" + etype);
+      element_regions[etype] = find_component_ptr_with_name<CElements>(bc_region, "elements_" + etype);
 
     std::map<std::string,boost::shared_ptr<CList<Uint>::Buffer> > glb_elm_indices;
     BOOST_FOREACH(const std::string& etype, m_supported_types)
-      glb_elm_indices[etype] = boost::shared_ptr<CList<Uint>::Buffer> ( new CList<Uint>::Buffer(get_tagged_component_typed_ptr< CList<Uint> >(*element_regions[etype], "global_element_indices")->create_buffer()) );
+      glb_elm_indices[etype] = boost::shared_ptr<CList<Uint>::Buffer> ( new CList<Uint>::Buffer(find_component_ptr_with_tag< CList<Uint> >(*element_regions[etype], "global_element_indices")->create_buffer()) );
 
     // read boundary elements connectivity
     for (int i=0; i<NENTRY; ++i) 

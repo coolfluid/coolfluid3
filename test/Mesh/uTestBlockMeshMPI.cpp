@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE( UpdateSendLists )
 
 BOOST_AUTO_TEST_CASE( ApplyCommPattern )
 {
-  apply_pattern_CTable(pattern, recursive_range_typed<CTable<Real> >(partitioned_mesh));
+  apply_pattern_CTable(pattern, find_components_recursively<CTable<Real> >(partitioned_mesh));
 }
 
 BOOST_AUTO_TEST_CASE( ComputeVolume )
@@ -172,7 +172,7 @@ BOOST_AUTO_TEST_CASE( ComputeVolume )
   const Uint elem_length = ( (mesh_length % nb_procs) == 0 || rank != (nb_procs-1) ) ? mesh_length / nb_procs : mesh_length % nb_procs;
   
   SF::Hexa3DLagrangeP1::NodeMatrixT nodes;
-  BOOST_FOREACH(const CElements& celements, recursive_filtered_range_typed<CElements>(partitioned_mesh, IsElementsVolume()))
+  BOOST_FOREACH(const CElements& celements, find_components_recursively_with_filter<CElements>(partitioned_mesh, IsElementsVolume()))
   {
     const CTable<Real>& coords = celements.coordinates();
     const CTable<Uint>::ArrayT& conn_table = celements.connectivity_table().array();

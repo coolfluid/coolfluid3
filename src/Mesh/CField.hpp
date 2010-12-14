@@ -77,7 +77,7 @@ public: // functions
   Uint recursive_elements_count() const
   {
     Uint elem_count = 0;
-    BOOST_FOREACH(const CElements& elements, Common::recursive_range_typed<CElements>(*this))
+    BOOST_FOREACH(const CElements& elements, Common::find_components_recursively<CElements>(*this))
     {
       elem_count += elements.elements_count();
     }
@@ -89,7 +89,7 @@ public: // functions
   Uint recursive_filtered_elements_count(const Predicate& pred) const
   {
     Uint elem_count = 0;
-    BOOST_FOREACH(const CElements& elements, Common::recursive_filtered_range_typed<CElements>(*this,pred))
+    BOOST_FOREACH(const CElements& elements, Common::find_components_recursively_with_filter<CElements>(*this,pred))
     {
       elem_count += elements.elements_count();
     }

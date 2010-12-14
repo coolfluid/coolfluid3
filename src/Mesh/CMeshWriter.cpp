@@ -68,7 +68,7 @@ void CMeshWriter::compute_mesh_specifics()
   m_all_coordinates.clear();
   m_max_dimensionality = 0;
   m_coord_dim = 0;
-  BOOST_FOREACH(CElements& elements, recursive_range_typed<CElements>(*m_mesh))
+  BOOST_FOREACH(CElements& elements, find_components_recursively<CElements>(*m_mesh))
   {
     m_all_coordinates[&elements.coordinates()].push_back(&elements);
     m_max_dimensionality = std::max(elements.element_type().dimensionality() , m_max_dimensionality);

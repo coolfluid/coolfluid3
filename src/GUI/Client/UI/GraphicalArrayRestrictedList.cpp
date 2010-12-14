@@ -189,7 +189,7 @@ void GraphicalArrayRestrictedList::btRemoveClicked()
   if( !list.empty() )
   {
     QStringList stringList = m_selectedModel->stringList();
-    const QAbstractItemModel * model = selectionModel->model();
+    //const QAbstractItemModel * model = selectionModel->model();
     QModelIndexList::const_iterator it = list.end();
 
     for( ; it >= list.begin() ; it--)

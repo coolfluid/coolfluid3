@@ -87,8 +87,8 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
   meshreader->read_from_to(fp_in,mesh);
 	//CFinfo.setFilterRankZero(true);
 	
-  CFinfo << "elements count = " << get_component_typed<CRegion>(*mesh).recursive_elements_count() << CFendl;
-  CFinfo << "nodes count    = " << get_component_typed<CRegion>(*mesh).recursive_nodes_count() << CFendl;
+  CFinfo << "elements count = " << find_component<CRegion>(*mesh).recursive_elements_count() << CFendl;
+  CFinfo << "nodes count    = " << find_component<CRegion>(*mesh).recursive_nodes_count() << CFendl;
   
   Uint nb_ghosts=0;
 
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
 	
 	CFinfo << mesh->tree() << CFendl;
 	
-	BOOST_FOREACH(CDynTable<Uint>& node_2_elems, recursive_filtered_range_typed<CDynTable<Uint> >(*mesh,IsComponentName("glb_elem_connectivity")))
+	BOOST_FOREACH(CDynTable<Uint>& node_2_elems, find_components_recursively_with_name<CDynTable<Uint> >(*mesh,"glb_elem_connectivity"))
   {
     CList<bool>& is_ghost = *node_2_elems.look_component<CList <bool> >("../is_ghost").get();
     CList<Uint>& glb_indices = *node_2_elems.look_component<CList <Uint> >("../global_indices").get();
@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
     CFinfo << "ghost node count = " << nb_ghosts << CFendl;
   }
   
-  BOOST_FOREACH(const CList<Uint>& global_element_indices, recursive_filtered_range_typed<CList<Uint> >(*mesh,IsComponentName("global_element_indices")))
+  BOOST_FOREACH(const CList<Uint>& global_element_indices, find_components_recursively_with_name<CList<Uint> >(*mesh,"global_element_indices"))
   {
     Uint local_idx = 0;
     BOOST_FOREACH(Uint glb_idx, global_element_indices.array())

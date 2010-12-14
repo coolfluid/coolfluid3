@@ -51,21 +51,21 @@ CRegion& CMesh::create_region( const std::string& name, bool ensure_unique )
   CRegion::Ptr new_region;
   
   
-  if ( range_typed<CRegion>(*this).empty() )
+  if ( find_components<CRegion>(*this).empty() )
   {
     new_region = create_component_type<CRegion>(name);
     new_region->add_tag("grid_zone");
   }
   else
   {
-    CRegion& existing_region = get_component_typed<CRegion>(*this);
+    CRegion& existing_region = find_component<CRegion>(*this);
     if (existing_region.has_tag("grid_base"))
     {
 //      //count howmany times the name "name(_[0-9]+)?" occurs (REGEX)
 //      Uint count = 0;
 //      boost::regex e(name+"(_[0-9]+)?");
 //      
-//      BOOST_FOREACH(const CRegion& region, range_typed<CRegion>(existing_region))
+//      BOOST_FOREACH(const CRegion& region, find_components<CRegion>(existing_region))
 //        if (boost::regex_match(region.name(), e))
 //          count++;
 //
@@ -84,7 +84,7 @@ CRegion& CMesh::create_region( const std::string& name, bool ensure_unique )
 //      Uint count = 0;
 //      boost::regex e(name+"(_[0-9]+)?");
 //      
-//      BOOST_FOREACH(const CRegion& region, range_typed<CRegion>(*base_region))
+//      BOOST_FOREACH(const CRegion& region, find_components<CRegion>(*base_region))
 //      if (boost::regex_match(region.name(), e))
 //        count++;
 //
@@ -180,28 +180,28 @@ CField& CMesh::create_field( const std::string& name, const Uint size, const CFi
 
 const CRegion& CMesh::domain() const
 {
-  return get_component_typed<CRegion const>(*this);
+  return find_component<CRegion const>(*this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 CRegion& CMesh::domain()
 {
-  return get_component_typed<CRegion>(*this);
+  return find_component<CRegion>(*this);
 }
   
 ////////////////////////////////////////////////////////////////////////////////
 
 const CField& CMesh::field(const std::string& name) const
 {
-  return get_named_component_typed<CField const>(*this,name);
+  return find_component_with_name<CField const>(*this,name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 CField& CMesh::field(const std::string& name)
 {
-  return get_named_component_typed<CField>(*this,name);
+  return find_component_with_name<CField>(*this,name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

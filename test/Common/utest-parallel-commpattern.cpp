@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperPtr )
 {
   PEProcessSortedExecute(PE::instance(),-1,CFinfo << FromHere() << " " << PE::instance().rank() << "/" << PE::instance().size() << " reports in." << CFendl;);
 
-  int i,j;
+  int i;
   double *d1=new double[32];
   double *d2=new double[24];
   std::vector<int> map(4);
@@ -107,8 +107,8 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperPtr )
   BOOST_CHECK_EQUAL( w1->stride() , 2 );
   BOOST_CHECK_EQUAL( w2->stride() , 3 );
 
-  BOOST_CHECK_EQUAL( w1->size_of() , sizeof(double) );
-  BOOST_CHECK_EQUAL( w2->size_of() , sizeof(double) );
+  BOOST_CHECK_EQUAL( w1->size_of() , (int)sizeof(double) );
+  BOOST_CHECK_EQUAL( w2->size_of() , (int)sizeof(double) );
 
   double *dtest1=(double*)w1->pack(map);
   double *dtest2=(double*)w2->pack(map);
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperPtr )
 BOOST_AUTO_TEST_CASE( ObjectWrapperVector )
 {
 
-  int i,j;
+  int i;
   std::vector<double> d1(32);
   std::vector<double> d2(24);
   std::vector<int> map(4);
@@ -165,8 +165,8 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVector )
   BOOST_CHECK_EQUAL( w1->stride() , 2 );
   BOOST_CHECK_EQUAL( w2->stride() , 3 );
 
-  BOOST_CHECK_EQUAL( w1->size_of() , sizeof(double) );
-  BOOST_CHECK_EQUAL( w2->size_of() , sizeof(double) );
+  BOOST_CHECK_EQUAL( w1->size_of() , (int)sizeof(double) );
+  BOOST_CHECK_EQUAL( w2->size_of() , (int)sizeof(double) );
 
   double *dtest1=(double*)w1->pack(map);
   double *dtest2=(double*)w2->pack(map);
@@ -230,14 +230,14 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperMultiArray )
   BOOST_CHECK_EQUAL( w1->stride() , 1 );
   BOOST_CHECK_EQUAL( w2->stride() , 4 );
 
-  BOOST_CHECK_EQUAL( w1->size_of() , sizeof(Uint) );
-  BOOST_CHECK_EQUAL( w2->size_of() , sizeof(Uint) );
+  BOOST_CHECK_EQUAL( w1->size_of() , (int)sizeof(Uint) );
+  BOOST_CHECK_EQUAL( w2->size_of() , (int)sizeof(Uint) );
 
   Uint *dtest1=(Uint*)w1->pack(map);
   Uint *dtest2=(Uint*)w2->pack(map);
 
-  for(i=0; i<4*1; i++) { BOOST_CHECK_EQUAL( dtest1[i] , 2*i ); dtest1[i]+=1; }
-  for(i=0; i<4*4; i++) { BOOST_CHECK_EQUAL( dtest2[i] , 2*(i/4) ); dtest2[i]+=1; }
+  for(i=0; i<4*1; i++) { BOOST_CHECK_EQUAL( dtest1[i] , (Uint) 2*i ); dtest1[i]+=1; }
+  for(i=0; i<4*4; i++) { BOOST_CHECK_EQUAL( dtest2[i] , (Uint) 2*(i/4) ); dtest2[i]+=1; }
 
   w1->unpack(map,dtest1);
   w2->unpack(map,dtest2);
@@ -245,8 +245,8 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperMultiArray )
   Uint *dtesttest1=(Uint*)w1->pack(map);
   Uint *dtesttest2=(Uint*)w2->pack(map);
 
-  for(i=0; i<4*1; i++) { BOOST_CHECK_EQUAL( dtesttest1[i] , 2*i+1 ); }
-  for(i=0; i<4*4; i++) { BOOST_CHECK_EQUAL( dtesttest2[i] , 2*(i/4)+1 ); }
+  for(i=0; i<4*1; i++) { BOOST_CHECK_EQUAL( dtesttest1[i] , (Uint) 2*i+1 ); }
+  for(i=0; i<4*4; i++) { BOOST_CHECK_EQUAL( dtesttest2[i] , (Uint) 2*(i/4)+1 ); }
 
   delete[] dtest1;
   delete[] dtest2;
@@ -259,7 +259,7 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperMultiArray )
 BOOST_AUTO_TEST_CASE( ObjectWrapperVectorWeakPtr )
 {
 
-  int i,j;
+  int i;
   boost::shared_ptr< std::vector<double> > d1( new std::vector<double>(32) );
   boost::shared_ptr< std::vector<double> > d2( new std::vector<double>(24) );
   std::vector<int> map(5);
@@ -331,7 +331,7 @@ BOOST_AUTO_TEST_CASE( data_registration_related )
   pecp.add_component( dir2 );
 
   // count all child
-  BOOST_CHECK_EQUAL( pecp.get_child_count() , 4 );
+  BOOST_CHECK_EQUAL( pecp.get_child_count() , 4u );
 
   // count recursively childs but only of type PEObjectWrapper
   //BOOST_CHECK_EQUAL( find_components_recursively<PEObjectWrapper>(pecp).size() , 2 );
@@ -373,7 +373,7 @@ BOOST_AUTO_TEST_CASE( commpattern )
 
   // stupid global-reverse global indices
   std::vector<Uint> gid(nproc);
-  for (int i=0; i<gid.size(); i++) gid[i]=(nproc*nproc-1)-(irank*nproc+i);
+  for (Uint i=0; i<gid.size(); i++) gid[i]=(nproc*nproc-1)-(irank*nproc+i);
   pecp.insert("gid",gid,1,false);
 
 PEProcessSortedExecute(PE::instance(),-1,PEDebugVector(gid,gid.size()));

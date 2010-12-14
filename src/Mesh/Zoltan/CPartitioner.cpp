@@ -63,12 +63,12 @@ void CPartitioner::partition_graph()
   int *exportProcs;
   int *exportToPart;
 
-  int rc = m_zz->LB_Partition(changes, numGidEntries, numLidEntries,
+  m_zz->LB_Partition(changes, numGidEntries, numLidEntries,
     numImport, importGlobalIds, importLocalIds, importProcs, importToPart,
     numExport, exportGlobalIds, exportLocalIds, exportProcs, exportToPart);
-
+	
   m_changes->reserve(numExport);
-  for (Uint i=0; i<numExport; ++i)
+  for (Uint i=0; i<(Uint)numExport; ++i)
   {
     m_changes->insert_blindly(exportGlobalIds[i],exportToPart[i]);
   }

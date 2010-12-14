@@ -37,7 +37,7 @@ Common::ComponentBuilder < PECommPattern, Component, LibCommon > PECommPattern_P
 // Constructor & destructor
 ////////////////////////////////////////////////////////////////////////////////
 
-PECommPattern::PECommPattern(const std::string& name): Component(name), m_updatable(0), m_gid(new PEObjectWrapperPtr<int>("dummy"))
+PECommPattern::PECommPattern(const std::string& name): Component(name), m_gid(new PEObjectWrapperPtr<int>("dummy")), m_updatable(0)
 {
   //self->regist_signal ( "update" , "Executes communication patterns on all the registered data.", "" )->connect ( boost::bind ( &CommPattern2::update, self, _1 ) );
   m_isUpToDate=false;
@@ -58,7 +58,7 @@ PECommPattern::~PECommPattern()
 void PECommPattern::setup(PEObjectWrapper::Ptr gid, std::vector<Uint>& rank)
 {
   // basic check
-  BOOST_ASSERT( gid->size()==rank.size() );
+  BOOST_ASSERT( (Uint) gid->size()==rank.size() );
   if (gid->stride()!=1) throw CF::Common::BadValue(FromHere(),"Data to be registered as gid is not of stride=1.");
   if (gid->is_data_type_Uint()!=true) throw CF::Common::CastingFailed(FromHere(),"Data to be registered as gid is not of type Uint.");
   m_gid=gid;
@@ -67,7 +67,7 @@ void PECommPattern::setup(PEObjectWrapper::Ptr gid, std::vector<Uint>& rank)
 
   // sizesof datas matching
   BOOST_FOREACH( PEObjectWrapper& pobj, find_components_recursively<PEObjectWrapper>(*this) )
-    if (pobj.size()!=m_updatable.size()+gid->size())
+    if ((Uint) pobj.size()!=m_updatable.size()+gid->size())
       throw CF::Common::BadValue(FromHere(),"Size does not match commpattern's size.");
 
   // add to add buffer

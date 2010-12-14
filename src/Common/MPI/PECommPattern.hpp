@@ -58,7 +58,7 @@ public:
   /// typedef for the temporary buffer
   class temp_buffer_item{
     public:
-      temp_buffer_item(Uint _gid, Uint _rank, bool _option) { gid=(CPint)_gid; rank=(CPint)_rank; bool option=_option; }
+      temp_buffer_item(Uint _gid, Uint _rank, bool _option) { gid=(CPint)_gid; rank=(CPint)_rank; option=_option; }
       CPint gid;
       CPint rank;
       bool option;

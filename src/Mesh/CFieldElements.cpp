@@ -80,7 +80,7 @@ void CFieldElements::add_element_based_storage()
 
 CTable<Real>& CFieldElements::data()
 {
-  Component& data = get_component(*this,IsComponentTag(m_data_name));
+  Component& data = find_component_with_filter(*this,IsComponentTag(m_data_name));
   return *data.as_type<CTable<Real> >();
 }
 
@@ -88,7 +88,7 @@ CTable<Real>& CFieldElements::data()
 
 const CTable<Real>& CFieldElements::data() const
 {
-  const Component& data = get_component(*this,IsComponentTag(m_data_name));
+  const Component& data = find_component_with_filter(*this,IsComponentTag(m_data_name));
   return *data.as_type<CTable<Real> const>();
 }
 
@@ -96,7 +96,7 @@ const CTable<Real>& CFieldElements::data() const
 
 CElements& CFieldElements::get_geometry_elements()
 {
-  Component& geometry_elements = get_component(*this,IsComponentTag("support"));
+  Component& geometry_elements = find_component_with_filter(*this,IsComponentTag("support"));
   return *geometry_elements.as_type<CElements>();
 }
 
@@ -104,7 +104,7 @@ CElements& CFieldElements::get_geometry_elements()
 
 const CElements& CFieldElements::get_geometry_elements() const
 {
-  const Component& geometry_elements = get_component(*this,IsComponentTag("support"));
+  const Component& geometry_elements = find_component_with_filter(*this,IsComponentTag("support"));
   return *geometry_elements.as_type<CElements const>();
 }
 

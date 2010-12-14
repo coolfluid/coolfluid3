@@ -45,7 +45,7 @@ int main(int argc, char * argv[])
 
 //  CFactory::Ptr meshreader_fac = Core::instance().factories()->get_factory<CMeshReader>();
 
-//  BOOST_FOREACH(CBuilder& bdr, recursive_filtered_range_typed<CBuilder>( meshreader_fac, IsComponentTrue() ) )
+//  BOOST_FOREACH(CBuilder& bdr, find_components_recursively_with_filter<CBuilder>( meshreader_fac, IsComponentTrue() ) )
 //  {
 //    CMeshReader::Ptr reader = dynamic_pointer_cast<CMeshReader>(bdr.build("reader"));
 //    readers.push_back(reader);
@@ -55,7 +55,7 @@ int main(int argc, char * argv[])
   
 //  CFactory::Ptr meshwriter_fac = Core::instance().factories()->get_factory<CMeshWriter>();
 
-//  BOOST_FOREACH(CBuilder& bdw, recursive_filtered_range_typed<CBuilder>( meshwriter_fac, IsComponentTrue() ) )
+//  BOOST_FOREACH(CBuilder& bdw, find_components_recursively_with_filter<CBuilder>( meshwriter_fac, IsComponentTrue() ) )
 //  {
 //    CMeshWriter::Ptr writer = dynamic_pointer_cast<CMeshWriter>(bdw.build("writer"));
 //    writers.push_back(writer);
@@ -65,7 +65,7 @@ int main(int argc, char * argv[])
   
 //  CFactory::Ptr meshtrans_fac = Core::instance().factories()->get_factory<CMeshTransformer>();
 
-//  BOOST_FOREACH(CBuilder& bdt, recursive_filtered_range_typed<CBuilder>( meshtrans_fac, IsComponentTrue() ))
+//  BOOST_FOREACH(CBuilder& bdt, find_components_recursively_with_filter<CBuilder>( meshtrans_fac, IsComponentTrue() ))
 //  {
 //    CMeshTransformer::Ptr transformer = dynamic_pointer_cast<CMeshTransformer>(bdt.build("transformer"));
 //    transformers_description[bdt.builder_concrete_type_name()] = transformer->brief_description();

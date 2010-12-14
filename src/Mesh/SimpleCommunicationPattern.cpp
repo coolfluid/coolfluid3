@@ -62,7 +62,7 @@ void make_node_receive_lists(const SimpleCommunicationPattern::IndicesT& nodes_d
   const Uint nodes_end = nodes_dist[PE::instance().rank()+1];
   
   // Find the nodes that are not stored locally
-  BOOST_FOREACH(const CElements& celements, recursive_range_typed<CElements>(mesh))
+  BOOST_FOREACH(const CElements& celements, find_components_recursively<CElements>(mesh))
   {
     const CTable<Uint>::ArrayT& connectivity_table = celements.connectivity_table().array();
     BOOST_FOREACH(const CTable<Uint>::ConstRow row, connectivity_table)
@@ -110,7 +110,7 @@ void make_node_receive_lists(const SimpleCommunicationPattern::IndicesT& nodes_d
   
   // Update connectivity data to point to ghosts where data is missing
   const Uint nb_nodes = nodes_end - nodes_begin + comms_pattern.receive_list.size();
-  BOOST_FOREACH(CElements& celements, recursive_range_typed<CElements>(mesh))
+  BOOST_FOREACH(CElements& celements, find_components_recursively<CElements>(mesh))
   {
     CTable<Real>& coords = celements.coordinates();
 		coords.resize(nb_nodes);

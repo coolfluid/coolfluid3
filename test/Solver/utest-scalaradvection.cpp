@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE( configuration )
   std::vector<URI> bc_regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"inlet"))
     bc_regions.push_back(URI(region.full_path()));
-  BOOST_CHECK_EQUAL( bc_regions.size() , 1);
+  BOOST_CHECK_EQUAL( bc_regions.size() , 1u);
   apply_inlet->configure_property("Regions", bc_regions);
   CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
   

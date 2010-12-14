@@ -47,7 +47,7 @@ protected:
   {
     m_lss_path = add_option<Common::URI>(m_name, m_description, boost::bind(&LSS::on_trigger, this));
     m_lss_path.lock()->supported_protocol("cpath");
-    m_physical_model = Common::get_component_typed_ptr<Solver::CPhysicalModel>(*m_owner.lock()->get_parent(), Common::IsComponentTrue());
+    m_physical_model = Common::find_component_ptr<Solver::CPhysicalModel>(*m_owner.lock()->get_parent());
     if(!m_physical_model.expired())
       m_physical_model.lock()->properties()["DOFs"].as_option().attach_trigger( boost::bind(&LSS::trigger_dofs, this) );
   }
