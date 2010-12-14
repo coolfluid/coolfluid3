@@ -33,6 +33,10 @@ if( CF_ENABLE_GPU AND CF_ENABLE_OPENCL )
 endif()
 
 ###############################################################################
+### test for Zoltan
+add_subdirectory( zoltan )
+
+###############################################################################
 ### test for nullptr
 add_subdirectory( nullptr )
 
