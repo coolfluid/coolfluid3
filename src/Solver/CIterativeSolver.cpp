@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/OptionT.hpp"
+#include "Common/OptionURI.hpp"
 
 #include "Solver/CIterativeSolver.hpp"
 
@@ -25,7 +26,7 @@ CIterativeSolver::CIterativeSolver ( const std::string& name  ) :
   m_properties.add_option<OptionT <Uint> >("Number of Iterations","Maximum number of iterations",m_nb_iter)->mark_basic();
   m_properties["Number of Iterations"].as_option().link_to( &m_nb_iter );
 
-  m_properties.add_option< OptionT < URI > > ("Domain", "Domain to solve", URI("../Domain"));
+  m_properties.add_option< OptionURI > ("Domain", "Domain to solve", URI("../Domain"));
 
   mark_basic();
 }

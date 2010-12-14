@@ -45,16 +45,25 @@ BOOST_AUTO_TEST_SUITE( ForwardEulerSuite )
 
 BOOST_AUTO_TEST_CASE( constructor )
 {
-
-
   ScalarAdvection::Ptr s = allocate_component<ScalarAdvection>("scalar_advection");
-  
+
   boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
   XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
   XmlParams p(node);
   p.add_option<std::string>("Model name","scalar_advection");
 
   s->create_model(node);
+
+  //--------------------------------------------
+
+  CFinfo << Core::instance().root()->tree() << CFendl;
+
+  //--------------------------------------------
+
+  boost::shared_ptr<XmlDoc> tree_doc = XmlOps::create_doc();
+  XmlNode& tree_node  = *XmlOps::goto_doc_node(*doc.get());
+
+  Core::instance().root()->list_tree(tree_node);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -88,7 +97,7 @@ BOOST_AUTO_TEST_CASE( configuration )
   CIterativeSolver& solver = find_component_recursively<CIterativeSolver>(*Core::instance().root());
 
   solver.configure_property("Domain",URI("../Domain"));
-  solver.configure_property("Number of Iterations", 1u);
+  solver.configure_property("Number of Iterations", 5u);
   
   CDiscretization::Ptr discretization = solver.get_child<CDiscretization>("Discretization");
   BOOST_CHECK ( is_not_null(discretization) );

@@ -134,7 +134,7 @@ void ForwardEuler::solve()
     } 
 
     CFinfo << "Starting Iterative loop" << CFendl;
-    for ( Uint iter = 0; iter < m_nb_iter;  ++iter)
+    for ( Uint iter = 1; iter <= m_nb_iter;  ++iter)
     {
       CFinfo << "reset data" << CFendl;
       // update coefficient and residual to zero
@@ -152,7 +152,7 @@ void ForwardEuler::solve()
 
       CFinfo << "time march" << CFendl;
       // explicit update
-      //m_take_step->execute();
+      m_take_step->execute();
 
       CFinfo << "norm compute" << CFendl;
       // compute norm
