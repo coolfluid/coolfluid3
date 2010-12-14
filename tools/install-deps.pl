@@ -37,22 +37,18 @@ my $opt_debug         = 0;
 my $opt_nompi         = 0;
 my $opt_mpi           = "openmpi";
 my $opt_mpi_dir       = "";
-my $opt_dependencies  = 0;
 my $opt_fetchonly     = 0;
 my $opt_many_mpi      = 0;
 my $opt_no_fortran    = 0;
 my $opt_install_dir   = "$home/local/$arch";
 my $opt_install_mpi_dir = "";
 my $opt_cmake_dir     = "";
-my $opt_confile       = "coolfluid.conf";
 my $opt_tmp_dir       = "$home/tmp";
-my $opt_build         = "optim";
 my $opt_dwnldsrc      = "http://coolfluidsrv.vki.ac.be/webfiles/coolfluid/packages";
 my $opt_wgetprog      = "wget -nc -nd";
 my $opt_curlprog      = "curl -O -nc -nv --progress-bar";
 my $opt_dwnldprog     = $opt_wgetprog;
 my $opt_makeopts      = "-j2";
-my $opt_svnrevision       = 0;
 my @opt_install_list = ();
 
 # list of packages, and their associated values
@@ -121,7 +117,6 @@ sub parse_commandline() # Parse command line
         'cmake-dir=s'           => \$opt_cmake_dir,
         'tmp-dir=s'             => \$opt_tmp_dir,
         'dwnldsrc=s'            => \$opt_dwnldsrc,
-        'build=s'               => \$opt_build,
         'makeopts=s'            => \$opt_makeopts,
         'install=s'             => \@opt_install_list,
     );
@@ -447,7 +442,7 @@ sub download_src ($) {
 		$gotit = 1;
 	  }
     }
-    else { print my_colored("file $cfile alreadyexists, not downloading.\n",$OKCOLOR); $gotit = 1; }
+    else { print my_colored("file $cfile already exists, not downloading.\n",$OKCOLOR); $gotit = 1; }
   }
 
   die "Could not get source file '$stem' with neither extension [". join(',',@extensions) ."]" if ( not $gotit );
@@ -1117,22 +1112,36 @@ sub install_boost()
   	my $bjampath = run_command("which bjam");
     chomp $bjampath;
 
-	if ($bjampath eq "") 
-	{
-	  # assume that bjam source came with boost
+    my $boost_arch = boost_arch();
+
+    if ($bjampath eq "" and -d "tools/jam/src" ) # older builds of boost <= 1.44
+    {
+      print "building tools/jam/src\n";
+
       safe_chdir("tools/jam/src");
-
-      my $boost_arch = boost_arch();
-
+      
       run_command_or_die("sh build.sh $toolset");
-  
-	  $bjampath="$opt_tmp_dir/$pack/tools/jam/src/bin.$boost_arch/bjam";
-	  if ( not -e $bjampath ) { die "Cannot find bjam in $bjampath" }
+
+      $bjampath="$opt_tmp_dir/$pack/tools/jam/src/bin.$boost_arch/bjam";
+      if ( not -e $bjampath ) { die "Cannot find bjam in $bjampath" }
     }
 
-    # disable compression filters in boost because some systems like ubuntu
-    # dont have the zlib-dev installed by default
-    # $ENV{NO_COMPRESSION} = "1";
+    if ($bjampath eq "" and -d "tools/build/v2/engine/src" ) # newer builds of boost >= 1.45
+    {
+      print "building tools/build/v2/engine/src\n";
+
+      safe_chdir("tools/build/v2/engine/src");
+
+      run_command_or_die("sh build.sh $toolset");
+
+      $bjampath="$opt_tmp_dir/$pack/tools/build/v2/engine/src/bin.$boost_arch/bjam";
+      if ( not -e $bjampath ) { die "Cannot find bjam in $bjampath" }
+    }
+
+    if ($bjampath eq "") # still empty so something went wrong
+    {
+      die ("did not find bjam in path and could not find bjam to build in boost sources\n");
+    }
 
     # build boost libs
     safe_chdir("$opt_tmp_dir/$pack");
@@ -1155,7 +1164,6 @@ ZZZ
       $boostmpiopt=" --with-mpi cxxflags=-DBOOST_MPI_HOMOGENEOUS ";
       open  ( USERCONFIGJAM, ">>$bjamcfg") || die("Cannot open file $bjamcfg") ;
       print   USERCONFIGJAM <<ZZZ;
-
 
 # ----------------------
 # mpi configuration.
