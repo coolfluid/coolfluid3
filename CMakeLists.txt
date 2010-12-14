@@ -124,16 +124,16 @@ if( CF_ENABLE_SANDBOX )
   add_subdirectory( sandbox )
 endif()
 
-# add dir with kernel plugins
-# these are independent source trees that happen to be distributedwith the kernel for convinience
-add_subdirectory( plugins )
-
 coolfluid_log( "" )
 ##############################################################################
 coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 coolfluid_log( "Plugin's Configuration ")
 coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 ##############################################################################
+
+# add dir with kernel plugins
+# these are independent source trees that happen to be distributedwith the kernel for convinience
+add_subdirectory( plugins )
 
 # find plugins
 # developer may set several base directories that host multiple plugins each
