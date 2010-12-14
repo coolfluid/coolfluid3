@@ -140,7 +140,7 @@ function ( coolfluid_install_third_party_library LIBFILE )
                 # Add the names that exist to the install.
                 FOREACH(curNAMEWithExt ${allNAMES})
                     IF(EXISTS ${curNAMEWithExt})
-                        coolfluid_log("** Need to install ${curNAMEWithExt}")
+#                        coolfluid_log("** Need to install ${curNAMEWithExt}")
                         IF(IS_DIRECTORY ${curNAMEWithExt})
                             # It is a framework, install as a directory
                             INSTALL(DIRECTORY ${curNAMEWithExt}
@@ -228,7 +228,7 @@ function ( coolfluid_install_third_party_library LIBFILE )
     ELSE(${isSHAREDLIBRARY} STREQUAL "YES")
         # We have a .a that we need to install to archives.
         # IF(VISIT_INSTALL_THIRD_PARTY)
-            coolfluid_log("***INSTALL ${LIBFILE} to ${CF_INSTALL_ARCHIVE_DIR}")
+#            coolfluid_log("***INSTALL ${LIBFILE} to ${CF_INSTALL_ARCHIVE_DIR}")
             INSTALL(FILES ${tmpLIBFILE}
                 DESTINATION ${CF_INSTALL_ARCHIVE_DIR}
                 PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ GROUP_WRITE WORLD_READ
