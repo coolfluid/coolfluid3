@@ -105,6 +105,10 @@ if( DEFINED MPI_EXTRA_LIBRARY_NAMES )
 
 endif()
 
+if ( ${CF_HAVE_MPI} )
+    list( APPEND CF_TP_LIBRARIES ${MPI_LIBRARIES} )
+endif()
+
 if( MPI_INCLUDE_PATH AND MPI_LIBRARY )
   set(CF_MPI_LIBS_FOUND 1 CACHE BOOL "Found MPI libraries")
 else()

@@ -3,7 +3,7 @@ set( PROJECT_LOG_FILE ${PROJECT_BINARY_DIR}/CMakeLogInfo.txt )
 file( WRITE ${PROJECT_LOG_FILE} "coolfluid cmake log file\n")
 
 # set installation paths
-set( CF_INSTALL_ROOT_DIR     coolfluid-${CF_KERNEL_VERSION} )
+set( CF_INSTALL_ROOT_DIR     coolfluid-${CF_KERNEL_VERSION}             CACHE STRING "Installation root directory path")
 set( CF_INSTALL_BIN_DIR      ${CF_INSTALL_ROOT_DIR}/bin                 CACHE STRING "Installation path for application binaries" )
 set( CF_INSTALL_LIB_DIR      ${CF_INSTALL_ROOT_DIR}/lib                 CACHE STRING "Installation path for libraries" )
 set( CF_INSTALL_INCLUDE_DIR  ${CF_INSTALL_ROOT_DIR}/include/coolfluid   CACHE STRING "Installation path for API header files" )

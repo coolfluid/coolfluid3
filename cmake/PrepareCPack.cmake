@@ -31,7 +31,7 @@ if(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
       set(CPACK_COMPONENT_LIBRARIES_DISPLAY_NAME "Kernel Libraries")
       set(CPACK_COMPONENT_HEADERS_DISPLAY_NAME "Kernel C++ Headers")
 
-      # FIXME : CPack considers Third party libraries such as 
+      # FIXME : CPack considers Third party libraries such as
       # Boost and MPI as system dependencies and does
       # not copy the files into the installer, so we copy them manually
 
@@ -39,17 +39,17 @@ if(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
       # DESTINATION ${CF_INSTALL_LIB_DIR}
       # COMPONENT libraries
       # FILES_MATCHING REGEX "^.*\\.(so|dylib|dll)$")
-      
-      #foreach ( TP_LIB ${CF_TP_LIBRARIES} )
+
+      foreach ( TP_LIB ${CF_TP_LIBRARIES} )
       #  coolfluid_log (" +++ installing ${TP_LIB}")
-      #  coolfluid_install_third_party_library( ${TP_LIB} )
-      #endforeach()
- 
+        coolfluid_install_third_party_library( ${TP_LIB} )
+      endforeach()
+
       #foreach ( CF_QT_LIB ${QT_LIBRARIES} )
       #  coolfluid_log (" +++ installing ${CF_QT_LIB}")
       #  coolfluid_install_third_party_library( ${CF_QT_LIB} )
       #endforeach()
- 
+
       # platform specific configuration
       #(shamefully copied from gsmh build system for the Apple part)
       if(APPLE)
@@ -62,13 +62,14 @@ if(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
         string(REPLACE CF_VERSION "${CF_KERNEL_VERSION}" F1 "${F0}")
         file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/start_coolfluid.sh "${F1}")
         set(CPACK_BUNDLE_STARTUP_COMMAND "${CMAKE_CURRENT_BINARY_DIR}/start_coolfluid.sh")
-        
+
         file(READ ${CMAKE_SOURCE_DIR}/tools/MacOSX_Bundle/coolfluid-Info.plist F0)
         string(REPLACE CF_VERSION "${CF_KERNEL_VERSION}" F1 "${F0}")
         file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/Info.plist "${F1}")
         set(CPACK_BUNDLE_PLIST ${CMAKE_CURRENT_BINARY_DIR}/Info.plist)
       elseif(UNIX)
          # RPM & DEB config
+         set(CPACK_RPM_PACKAGE_PROVIDES "libpthread.so.0(GLIBC_PRIVATE)(64bit) libc.so.6(GLIBC_PRIVATE)(64bit)")
       elseif(WIN32)
         set(CPACK_GENERATOR NSIS)
         # Windows config

@@ -67,12 +67,12 @@ function ( coolfluid_install_third_party_library LIBFILE )
         SET(dllNAME "${curNAME}.dll")
         SET(libNAME "${curNAME}.lib")
         IF(EXISTS ${dllNAME})
-            INSTALL(FILES ${dllNAME} 
+            INSTALL(FILES ${dllNAME}
                 DESTINATION ${CF_INSTALL_BIN_DIR}
                 PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
                 CONFIGURATIONS "";None;Debug;Release;RelWithDebInfo;MinSizeRel
                 )
-            # On Windows, we also need to copy the file to the 
+            # On Windows, we also need to copy the file to the
             # binary dir so our out of source builds can run.
             EXECUTE_PROCESS(COMMAND ${CMAKE_COMMAND} -E copy
                             ${dllNAME}
@@ -113,11 +113,15 @@ function ( coolfluid_install_third_party_library LIBFILE )
 
     IF(${isSHAREDLIBRARY} STREQUAL "YES")
         GET_FILENAME_COMPONENT(LIBREALPATH ${tmpLIBFILE} REALPATH)
-        coolfluid_log("***tmpLIBFILE=${tmpLIBFILE}, LIBREALPATH=${LIBREALPATH}")
+       # coolfluid_log("***tmpLIBFILE=${tmpLIBFILE}, LIBREALPATH=${LIBREALPATH}")
         IF(NOT ${tmpLIBFILE} STREQUAL ${LIBREALPATH})
             # We need to install a library and its symlinks
             GET_FILENAME_COMPONENT(curPATH ${LIBREALPATH} PATH)
-            IF((NOT ${curPATH} STREQUAL "/usr/lib") AND (NOT ${curPATH} MATCHES "^\\/System\\/Library\\/Frameworks\\/.*") AND (NOT ${curPATH} MATCHES "^\\/Library\\/Frameworks\\/.*"))
+
+            set( TP_SYSTEM_PATHS_LINUX "/lib" "/lib64" "/usr/lib" "/usr/lib64" )
+            list( FIND TP_SYSTEM_PATHS_LINUX ${curPATH} TP_PATH_INDEX )
+
+            IF((TP_PATH_INDEX EQUAL -1) AND (NOT ${curPATH} MATCHES "^\\/System\\/Library\\/Frameworks\\/.*") AND  (NOT ${curPATH} MATCHES "^\\/Library\\/Frameworks\\/.*"))
                 GET_FILENAME_COMPONENT(curNAMEWE ${LIBREALPATH} NAME_WE)
                 GET_FILENAME_COMPONENT(curEXT ${LIBREALPATH} EXT)
                 STRING(REPLACE "." ";" extList ${curEXT})
@@ -150,7 +154,7 @@ function ( coolfluid_install_third_party_library LIBFILE )
                             GET_FILENAME_COMPONENT(frameworkNameWE ${curNAMEWithExt} NAME_WE)
                             GET_FILENAME_COMPONENT(realFramework ${curNAMEWithExt}/${frameworkNameWE} REALPATH)
                             STRING(REGEX MATCH "${frameworkNameWE}[A-Za-z0-9._/-]*" frameworkMatch ${realFramework})
-                            INSTALL(CODE 
+                            INSTALL(CODE
                                 "EXECUTE_PROCESS(WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}
                                     COMMAND /bin/sh ${coolfluid_SOURCE_DIR}/tools/MacOSX_Bundle/osxfixup -lib \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CF_INSTALL_LIB_DIR}/${frameworkMatch}\"
                                     OUTPUT_VARIABLE OSXOUT)
@@ -166,7 +170,7 @@ function ( coolfluid_install_third_party_library LIBFILE )
                             # On Apple, we need to make the library be executable relative.
                             IF(APPLE)
                                 GET_FILENAME_COMPONENT(libName ${curNAMEWithExt} NAME)
-                                INSTALL(CODE 
+                                INSTALL(CODE
                                     "EXECUTE_PROCESS(WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}
                                         COMMAND /bin/sh ${coolfluid_SOURCE_DIR}/tools/MacOSX_Bundle/osxfixup -lib \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CF_INSTALL_LIB_DIR}/${libName}\"
                                         OUTPUT_VARIABLE OSXOUT)
@@ -177,7 +181,7 @@ function ( coolfluid_install_third_party_library LIBFILE )
                     ENDIF(EXISTS ${curNAMEWithExt})
                 ENDFOREACH(curNAMEWithExt)
             # ENDIF((NOT ${curPATH} STREQUAL "/usr/lib") AND (NOT ${curPATH} MATCHES "^\\/System\\/Library\\/Frameworks\\/.*"))
-            ENDIF((NOT ${curPATH} STREQUAL "/usr/lib") AND (NOT ${curPATH} MATCHES "^\\/System\\/Library\\/Frameworks\\/.*") AND (NOT ${curPATH} MATCHES "^\\/Library\\/Frameworks\\/.*"))
+            ENDIF((TP_PATH_INDEX EQUAL -1) AND (NOT ${curPATH} MATCHES "^\\/System\\/Library\\/Frameworks\\/.*") AND  (NOT ${curPATH} MATCHES "^\\/Library\\/Frameworks\\/.*"))
         ELSE(NOT ${tmpLIBFILE} STREQUAL ${LIBREALPATH})
             # We need to install just the library
             IF(IS_DIRECTORY ${tmpLIBFILE})
@@ -194,7 +198,7 @@ function ( coolfluid_install_third_party_library LIBFILE )
                 GET_FILENAME_COMPONENT(frameworkNameWE ${tmpLIBFILE} NAME_WE)
                 GET_FILENAME_COMPONENT(realFramework ${tmpLIBFILE}/${frameworkNameWE} REALPATH)
                 STRING(REGEX MATCH "${frameworkNameWE}[A-Za-z0-9._/-]*" frameworkMatch ${realFramework})
-                INSTALL(CODE 
+                INSTALL(CODE
                     "EXECUTE_PROCESS(WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}
                         COMMAND /bin/sh ${coolfluid_SOURCE_DIR}/tools/MacOSX_Bundle/osxfixup -lib \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CF_INSTALL_LIB_DIR}/${frameworkMatch}\"
                         OUTPUT_VARIABLE OSXOUT)
@@ -211,7 +215,7 @@ function ( coolfluid_install_third_party_library LIBFILE )
                 # On Apple, we need to make the library be executable relative.
                 IF(APPLE)
                     GET_FILENAME_COMPONENT(libName ${tmpLIBFILE} NAME)
-                    INSTALL(CODE 
+                    INSTALL(CODE
                         "EXECUTE_PROCESS(WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}
                             COMMAND /bin/sh ${coolfluid_SOURCE_DIR}/tools/MacOSX_Bundle/osxfixup -lib \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CF_INSTALL_LIB_DIR}/${libName}\"
                             OUTPUT_VARIABLE OSXOUT)
@@ -250,8 +254,9 @@ function ( coolfluid_install_third_party_include  pkg incdir)
                 DESTINATION ${CF_INSTALL_INCLUDE_DIR}/${lcpkg}
                 DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
                 FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+                COMPONENT headers
                 CONFIGURATIONS "";None;Debug;Release;RelWithDebInfo;MinSizeRel
-                FILES_MATCHING 
+                FILES_MATCHING
                 PATTERN "*.h"
                 PATTERN "*.hh"
                 PATTERN "*.H"
