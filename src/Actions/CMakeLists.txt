@@ -27,7 +27,6 @@ if(CF_ENABLE_PROTO)
     Proto/BlockAccumulator.hpp
     Proto/CProtoElementsAction.hpp
     Proto/CProtoNodesAction.hpp
-    Proto/CProtoLSS.hpp
     Proto/DirichletBC.hpp
     Proto/EigenTransforms.hpp
     Proto/ElementData.hpp
@@ -47,7 +46,6 @@ else()
     Proto/BlockAccumulator.hpp
     Proto/CProtoElementsAction.hpp
     Proto/CProtoNodesAction.hpp
-    Proto/CProtoLSS.hpp
     Proto/DirichletBC.hpp
     Proto/EigenTransforms.hpp
     Proto/ElementData.hpp

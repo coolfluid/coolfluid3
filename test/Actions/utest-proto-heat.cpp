@@ -31,6 +31,7 @@
 #include "Mesh/SF/Types.hpp"
 
 #include "Solver/CPhysicalModel.hpp"
+#include "Solver/CEigenLSS.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
@@ -39,6 +40,7 @@ using namespace CF::Actions;
 using namespace CF::Actions::Proto;
 using namespace CF::Mesh;
 using namespace CF::Common;
+using namespace CF::Solver;
 
 using namespace boost;
 
@@ -62,7 +64,7 @@ BOOST_AUTO_TEST_CASE( Laplacian1D )
   );
   
   // Linear system
-  CProtoLSS::Ptr lss(allocate_component<CProtoLSS>("LSS"));
+  CEigenLSS::Ptr lss(allocate_component<CEigenLSS>("LSS"));
   lss->matrix().resize(nb_segments+1, nb_segments+1);
   lss->matrix().setZero();
   lss->rhs().resize(nb_segments+1);
@@ -98,7 +100,7 @@ BOOST_AUTO_TEST_CASE( Heat1D )
   MeshTerm<0, ConstNodes> nodes( "ConductivityRegion", find_component_ptr_recursively_with_name<CRegion>(*mesh, "region") );
   
   // Linear system
-  CProtoLSS::Ptr lss(allocate_component<CProtoLSS>("LSS"));
+  CEigenLSS::Ptr lss(allocate_component<CEigenLSS>("LSS"));
   lss->matrix().resize(nb_segments+1, nb_segments+1);
   lss->matrix().setZero();
   lss->rhs().resize(nb_segments+1);
@@ -139,26 +141,32 @@ BOOST_AUTO_TEST_CASE( Heat1D )
 BOOST_AUTO_TEST_CASE( Heat1DComponent )
 {
   // Parameters
-  Real lenght     =     5.;
-  Real temp_start =   100.;
-  //Real temp_stop  =   500.;
-  const Uint nb_segments = 5;
+  Real length            = 5.;
+  const Uint nb_segments = 5 ;
   
   // Create a document structure
   CRoot::Ptr root = CRoot::create("Root");
   CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
   root->create_component<Solver::CPhysicalModel>("PhysicalModel");
-  Tools::MeshGeneration::create_line(*mesh, lenght, nb_segments);
-  CProtoLSS::Ptr lss = root->create_component<CProtoLSS>("LSS");
+  Tools::MeshGeneration::create_line(*mesh, length, nb_segments);
+  CEigenLSS::Ptr lss = root->create_component<CEigenLSS>("LSS");
+  
+  // Create output field
+  const std::vector<std::string> vars(1, "T[1]");
+  mesh->create_field("Temperature", vars, CField::NODE_BASED);
+  lss->configure_property("SolutionField", std::string("//Root/mesh/Temperature"));
   
   // Variable holding the geometric support
   MeshTerm<0, ConstNodes> nodes("ConductivityRegion");
   
+  // Variable holding the field
+  MeshTerm<1, ConstField<Real> > temperature("Temperature", "T");
+  
   // Variable holding the LSS
-  MeshTerm<1, LSS> blocks("LSS");
+  MeshTerm<2, LSS> blocks("LSS");
   
   // Create a CAction executing the expression
-  CAction::Ptr heat1d_action = build_elements_action("Heat1D", *root, blocks += integral<1>( laplacian(nodes, nodes) * jacobian_determinant(nodes) ));
+  CAction::Ptr heat1d_action = build_elements_action("Heat1D", *root, blocks += integral<1>( laplacian(nodes, temperature) * jacobian_determinant(nodes) ));
   
   // Configure the CAction
   heat1d_action->configure_property("ConductivityRegion", std::string("//Root/mesh/region"));
@@ -168,15 +176,30 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   heat1d_action->execute();
   
   // Left boundary condition
-  CAction::Ptr xmin_action = build_nodes_action("xmin", *root, dirichlet(blocks) = temp_start );
+  MeshTerm<3, ConfigurableConstant<Real> > xneg_temp("XnegTemp", "Temperature at the start of the domain");
+  CAction::Ptr xneg_action = build_nodes_action("xneg", *root, dirichlet(blocks) = xneg_temp );  
+  xneg_action->configure_property("Region", std::string("//Root/mesh/region/xneg"));
+  xneg_action->configure_property("LSS", std::string("//Root/LSS"));
+  xneg_action->configure_property("XnegTemp", 10.);
+  xneg_action->execute();
   
-  xmin_action->configure_property("Region", std::string("//Root/mesh/xpos"));
-  xmin_action->configure_property("LSS", std::string("//Root/LSS"));
+  // Right boundary condition
+  MeshTerm<4, ConfigurableConstant<Real> > xpos_temp("XposTemp", "Temperature at the end of the domain");
+  CAction::Ptr xpos_action = build_nodes_action("xpos", *root, dirichlet(blocks) = xpos_temp );  
+  xpos_action->configure_property("Region", std::string("//Root/mesh/region/xpos"));
+  xpos_action->configure_property("LSS", std::string("//Root/LSS"));
+  xpos_action->configure_property("XposTemp", 35.);
+  xpos_action->execute();
   
-  //xmin_action->execute();
+  // Solve system
+  lss->solve();
   
-  // print result
-  std::cout << lss->matrix() << std::endl;
+  // Print solution field
+  for_each_node
+  (
+    get_named_component_typed<CRegion>(*mesh, "region"),
+    _cout << "T(" << nodes << ") = " << temperature << "\n"
+  );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

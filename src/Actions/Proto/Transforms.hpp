@@ -7,6 +7,7 @@
 #ifndef CF_Actions_Proto_Transforms_hpp
 #define CF_Actions_Proto_Transforms_hpp
 
+#include <boost/mpl/max.hpp>
 #include <boost/proto/proto.hpp>
 
 #include "Terminals.hpp"
@@ -92,13 +93,13 @@ struct AddVariableOptions
   }
   
   template<typename T>
-  void operator()(T& t) const;
+  inline void operator()(T& t) const;
 
   Common::Component::Ptr owner;
 };
 
 template<typename T>
-void AddVariableOptions::operator()(T& var) const
+inline void AddVariableOptions::operator()(T& var) const
 {
   // Add options in case we derive from OptionVariableBase
   if(boost::is_base_of<OptionVariable, T>::value)
@@ -108,7 +109,7 @@ void AddVariableOptions::operator()(T& var) const
 }
 
 template<>
-void AddVariableOptions::operator()<boost::mpl::void_>(boost::mpl::void_&) const
+inline void AddVariableOptions::operator()<boost::mpl::void_>(boost::mpl::void_&) const
 {
 }
 

@@ -131,6 +131,62 @@ private:
   Real* m_value;
 };
 
+template<>
+struct NodeVarData< ConstField<Real> >
+{
+  NodeVarData(const ConstField<Real>& placeholder, Mesh::CRegion& region) :
+    m_field(region.get_field(placeholder.field_name)),
+    m_data(Common::find_component_with_filter<Mesh::CTable<Real> >(m_field, Common::IsComponentTag("field_data")))
+  {
+    m_var_begin = m_field.var_index(placeholder.var_name);
+    cf_assert(m_field.var_length(placeholder.var_name) == 1);
+  }
+  
+  void set_node(const Uint idx)
+  {
+    m_value = m_data[idx][m_var_begin];
+  }
+  
+  typedef Real ValueT;
+  typedef Real ValueResultT;
+  
+  /// Value is intended to be const, so we return a copy
+  ValueResultT value() const
+  {
+    return m_value;
+  }
+  
+private:
+  Mesh::CField& m_field;
+  Uint m_var_begin;
+  Mesh::CTable<Real>& m_data;
+  Real m_value;
+};
+
+template<typename T>
+struct NodeVarData< ConfigurableConstant<T> >
+{
+  NodeVarData(const ConfigurableConstant<T>& placeholder, Mesh::CRegion& region) :
+    m_value(placeholder.stored_value)
+  {
+  }
+  
+  void set_node(const Uint)
+  {
+  }
+  
+  typedef T ValueT;
+  typedef const T& ValueResultT;
+  
+  ValueResultT value() const
+  {
+    return m_value;
+  }
+  
+private:
+  ValueResultT m_value;
+};
+
 /// MPL transform operator to wrap a variable in its data type
 template<typename VarT>
 struct AddNodeData

@@ -105,6 +105,36 @@ private:
   T& m_var;
 };
 
+/// Storage for per-variable data
+template<typename T>
+struct VariableData< ConfigurableConstant<T> >
+{
+  /// Stored value type
+  typedef T ValueT;
+ 
+  /// Return type of the value() method
+  typedef const ValueT& ValueResultT;
+  
+  /// Constructor must take the associated type and CElements as arguments
+  VariableData(const ConfigurableConstant<T>& var, const Mesh::CElements&) : m_value(var.stored_value)
+  { 
+  }
+  
+  /// Set element method must be provided
+  void set_element(const Uint)
+  {
+  }
+  
+  /// By default, value just returns the supplied value
+  ValueResultT value()
+  {
+    return m_value;
+  }
+  
+private:
+  const T& m_value;
+};
+
 /// Storage for per-variable data for variables that depend on a shape function
 template<typename SF, typename T>
 struct SFVariableData;

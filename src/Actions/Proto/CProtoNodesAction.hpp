@@ -41,12 +41,13 @@ public:
     CopyNumberedVars<VariablesT> ctx(m_variables);
     boost::proto::eval(expr, ctx);
     boost::fusion::for_each(m_variables, AddVariableOptions(get()));
+    raise_event("tree_updated");
   }
   
   /// Run the expression, looping over all nodes
   virtual void execute()
   {
-    Mesh::CRegion& root_region = *look_component<Mesh::CRegion>( m_region_path.lock()->template value<std::string>() );
+    Mesh::CRegion& root_region = *look_component<Mesh::CRegion>( m_region_path.lock()->value_str() );
     
     // Create data used for the evaluation
     NodeData<VariablesT> node_data(m_variables, root_region);
@@ -115,6 +116,7 @@ private:
 template<typename ExprT>
 CAction::Ptr build_nodes_action(const std::string& name, Common::Component& parent, const ExprT& expr)
 {
+  CF::Common::ComponentBuilder < CProtoNodesAction<ExprT>, CAction, LibActions > builder;
   boost::shared_ptr< CProtoNodesAction<ExprT> > result = parent.create_component< CProtoNodesAction<ExprT> >(name);
   result->set_expression(expr);
   return boost::static_pointer_cast<CAction>(result);

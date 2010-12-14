@@ -7,6 +7,7 @@
 #ifndef CF_Mesh_SF_Types_hpp
 #define CF_Mesh_SF_Types_hpp
 
+#include <boost/mpl/and.hpp>
 #include <boost/mpl/equal_to.hpp>
 #include <boost/mpl/filter_view.hpp>
 #include <boost/mpl/int.hpp>
@@ -48,6 +49,29 @@ struct IsVolumeElement
   };
 };
 
+/// Compile-time predicate to determine if the given shape function is compatible with the shape function given as template argument
+/// i.e. when dimension and shape are equal
+template<typename ShapeFunctionT>
+struct IsCompatibleWith
+{
+  template<typename OtherShapeFunctionT>
+  struct apply
+  {
+    typedef typename boost::mpl::and_
+    <
+      boost::mpl::equal_to
+      <
+        boost::mpl::int_<ShapeFunctionT::dimension>,
+        boost::mpl::int_<OtherShapeFunctionT::dimension>
+      >,
+      boost::mpl::equal_to
+      <
+        boost::mpl::int_<ShapeFunctionT::shape>,
+        boost::mpl::int_<OtherShapeFunctionT::shape>
+      >
+    >::type type;
+  };
+};
 
 /// List of all supported shapefunctions for volume elements, 
 typedef boost::mpl::filter_view<Types, IsVolumeElement> VolumeTypes;

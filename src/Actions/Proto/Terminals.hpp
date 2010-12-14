@@ -27,35 +27,8 @@
 /// Some commonly used, statically defined terminal types
 
 namespace CF {
-namespace Common {
-
-/// Specialize OptionT for URI so it can be used uniformy with other types
-template<>
-class OptionT<URI> : public OptionURI
-{
-public:
-  OptionT(const std::string & name, const std::string & desc,
-              const URI & def) : OptionURI(name, desc, def)
-  {
-  }
-};
-
-} // Common
-} // CF
-
-namespace CF {
 namespace Actions {
 namespace Proto {
-
-// Placeholders for different types of data
-struct ElementIdxHolder {};
-boost::proto::terminal<ElementIdxHolder>::type const _elem = {{}}; // Represents an element index ({{{}}} makes this a static initialization)
-
-struct ElementNodeIdxHolder {};
-boost::proto::terminal<ElementNodeIdxHolder>::type const _elem_node = {{}}; // Represents a node index relative to the element
-
-struct MappedCoordHolder {};
-boost::proto::terminal<MappedCoordHolder>::type const _mapped_coord = {{}};
 
 /// Creates a variable that has unique ID I
 template<typename I, typename T>
@@ -81,6 +54,19 @@ struct Var : T
   Var(T1& par1, T2& par2) : T(par1, par2) {}
 };
 
+/// Compute the return type of OptionVariable::add_option
+template<typename T>
+struct OptionType
+{
+  typedef boost::shared_ptr< Common::OptionT<T> > type;
+};
+
+template<>
+struct OptionType<Common::URI>
+{
+  typedef boost::shared_ptr< Common::OptionURI > type;
+};
+
 /// Base class for variables that expose a user-controllable option
 class OptionVariable
 {
@@ -103,13 +89,7 @@ public:
 protected:
   
   template< typename OptionValueT >
-  typename boost::shared_ptr< Common::OptionT<OptionValueT> > add_option(const std::string& name, const std::string& description, Common::Option::Trigger_t trigger)
-  {
-    Common::Option::Ptr option = m_owner.lock()->properties().add_option< Common::OptionT<OptionValueT> >(m_name, m_description, OptionValueT());
-    option->mark_basic();
-    option->attach_trigger( trigger );
-    return boost::dynamic_pointer_cast< Common::OptionT<OptionValueT> >(option);
-  }
+  inline typename OptionType<OptionValueT>::type add_option(const std::string& name, const std::string& description, Common::Option::Trigger_t trigger);
   
   /// Implement this to add the required options
   virtual void add_options() = 0;
@@ -123,6 +103,24 @@ protected:
   /// Component that owns this variable, or null if it doesn't exist
   boost::weak_ptr<Common::Component> m_owner;
 };
+
+template< typename OptionValueT >
+inline typename OptionType<OptionValueT>::type OptionVariable::add_option(const std::string& name, const std::string& description, Common::Option::Trigger_t trigger)
+{
+  Common::Option::Ptr option = m_owner.lock()->properties().add_option< Common::OptionT<OptionValueT> >(name, description, OptionValueT());
+  option->mark_basic();
+  option->attach_trigger( trigger );
+  return boost::dynamic_pointer_cast< Common::OptionT<OptionValueT> >(option);
+}
+
+template<>
+inline OptionType<Common::URI>::type OptionVariable::add_option<Common::URI>(const std::string& name, const std::string& description, Common::Option::Trigger_t trigger)
+{
+  Common::Option::Ptr option = m_owner.lock()->properties().add_option< Common::OptionURI >(name, description, std::string());
+  option->mark_basic();
+  option->attach_trigger( trigger );
+  return boost::dynamic_pointer_cast< Common::OptionURI >(option);
+}
 
 /// Represent const element nodes. Using this in an expression is like passing the nodes of the current element
 struct ConstNodes : OptionVariable
@@ -166,7 +164,7 @@ private:
   
   void on_trigger()
   {
-    m_region = m_owner.lock()->look_component<Mesh::CRegion>( m_region_path.lock()->value<std::string>() );
+    m_region = m_owner.lock()->look_component<Mesh::CRegion>(m_region_path.lock()->value_str());
     m_physical_model.lock()->configure_property("DOFs", region().recursive_nodes_count());
   }
 };
@@ -185,7 +183,7 @@ struct ConstField : OptionVariable
   }
   
   ConstField(const std::string& field_nm, const std::string varname) :
-    OptionVariable(varname, "Field name for variable " + varname),
+    OptionVariable(field_nm, "Field name for variable " + varname),
     field_name(field_nm),
     var_name(varname)
   {
@@ -203,8 +201,8 @@ struct ConstField : OptionVariable
 protected:
   virtual void add_options()
   {
-    m_field_option = add_option<std::string>( m_name + "FieldName", "Field name", boost::bind(&ConstField::on_field_changed, this) );
-    m_var_option = add_option<std::string>( m_name + "VariableName", "Variable name", boost::bind(&ConstField::on_var_changed, this) );
+    m_field_option = add_option<std::string>( m_name + std::string("FieldName"), "Field name", boost::bind(&ConstField::on_field_changed, this) );
+    m_var_option = add_option<std::string>( m_name + std::string("VariableName"), "Variable name", boost::bind(&ConstField::on_var_changed, this) );
   }
   
 private:
@@ -235,6 +233,39 @@ struct Field : ConstField<T>
   Field() : ConstField<T>() {}
   Field(const std::string& name) : ConstField<T>(name) {}
   Field(const std::string& field_nm, const std::string var_nm) : ConstField<T>(field_nm, var_nm) {}
+};
+
+/// Store a user-configurable constant value, used i.e. for constant boundary conditions or model constants
+template<typename T>
+struct ConfigurableConstant : OptionVariable
+{
+  ConfigurableConstant() : OptionVariable("aConfigurableConstant", "Configurable constant")
+  {
+  }
+  
+  ConfigurableConstant(const std::string& name, const std::string& description, const T& value = T()) :
+    OptionVariable(name, description),
+    stored_value(value)
+  {
+  }
+  
+  T stored_value;
+  
+protected:
+  virtual void add_options()
+  {
+    m_value_option = add_option<T>( m_name, "Option to set constant", boost::bind(&ConfigurableConstant::on_value_changed, this) );
+  }
+  
+private:
+  /// Called when the field name option is changed
+  void on_value_changed()
+  {
+    stored_value = m_value_option.lock()->template value<T>();
+  }
+  
+  /// Option for the field name
+  boost::weak_ptr< Common::OptionT<T> > m_value_option;
 };
 
 /// Shorthand for terminals containing a numbered variable
@@ -273,18 +304,32 @@ struct MeshTerm :
 
   
 /// Wrap std::cout
-boost::proto::terminal< std::ostream & >::type _cout = {std::cout};
+static boost::proto::terminal< std::ostream & >::type _cout = {std::cout};
 
 /// Accept a 2D realvector for atan2
-Real atan_vec(const RealVector2& vec)
+inline Real atan_vec(const RealVector2& vec)
 {
   return atan2(vec[1], vec[0]);
 }
 
+/// Store the given type by value
+template<typename Arg>
+typename boost::proto::result_of::make_expr<
+    boost::proto::tag::terminal
+  , Arg const
+>::type const
+val(Arg arg)
+{
+    return boost::proto::make_expr<boost::proto::tag::terminal>
+    (
+      arg   // Second child (by reference)
+    );
+}
+
 // Wrap some math functions
-boost::proto::terminal< double(*)(double) >::type const _sin = {&sin};
-boost::proto::terminal< double(*)(double, double) >::type const _atan2 = {&atan2};
-boost::proto::terminal< double(*)(const RealVector2&) >::type const _atan_vec = {&atan_vec};
+static boost::proto::terminal< double(*)(double) >::type const _sin = {&sin};
+static boost::proto::terminal< double(*)(double, double) >::type const _atan2 = {&atan2};
+static boost::proto::terminal< double(*)(const RealVector2&) >::type const _atan_vec = {&atan_vec};
 
 } // namespace Proto
 } // namespace Actions

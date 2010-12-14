@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Actions_Proto_CProtoLSS_hpp
-#define CF_Actions_Proto_CProtoLSS_hpp
+#ifndef CF_Solver_CEigenLSS_hpp
+#define CF_Solver_CEigenLSS_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,56 +13,45 @@
 
 #include "Math/MatrixTypes.hpp"
 
+#include "LibSolver.hpp"
+
 namespace CF {
-namespace Actions {
-namespace Proto {
+namespace Solver {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// CProtoLSS component class
+/// CEigenLSS component class
 /// This class stores a linear system for use by proto expressions
 /// @author Bart Janssens
-class Mesh_API CProtoLSS : public Common::Component {
+class Solver_API CEigenLSS : public Common::Component {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<CProtoLSS> Ptr;
-  typedef boost::shared_ptr<CProtoLSS const> ConstPtr;
+  typedef boost::shared_ptr<CEigenLSS> Ptr;
+  typedef boost::shared_ptr<CEigenLSS const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  CProtoLSS ( const std::string& name ) : Component(name)
-  {
-  }
+  CEigenLSS ( const std::string& name );
 
   /// Get the class name
-  static std::string type_name () { return "CProtoLSS"; }    
+  static std::string type_name () { return "CEigenLSS"; }    
   
   /// Set the number of equations
-  void resize ( Uint nb_dofs )
-  {
-    m_system_matrix.resize(nb_dofs, nb_dofs);
-    m_rhs.resize(nb_dofs);
-  }
+  void resize ( Uint nb_dofs );
   
-  Uint size() const
-  {
-    return m_system_matrix.cols();
-  }
+  Uint size() const;
   
   /// Reference to the system matrix
-  RealMatrix& matrix()
-  {
-    return m_system_matrix;
-  }
+  RealMatrix& matrix();
   
   /// Reference to the RHS vector
-  RealVector& rhs()
-  {
-    return m_rhs;
-  }
+  RealVector& rhs();
+  
+  /// Solve the system and store the result in the field that is set in the SolutionField option
+  void solve();
   
 private:
   /// System matrix
@@ -75,11 +64,10 @@ private:
   
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace Proto
-} // namespace Actions
-} // namespace CF
+} // Solver
+} // CF
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Actions_Proto_CProtoLSS_hpp
+#endif // CF_Solver_CEigenLSS_hpp

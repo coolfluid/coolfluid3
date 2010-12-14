@@ -142,10 +142,9 @@ struct ExpressionRunner<ShapeFunctionsT, ExprT, SupportIdxT, VariablesT, Variabl
       ConstNodes
     > SupportTypesT;
 
-    
     ExpressionRunner
     <
-      ShapeFunctionsT,
+      boost::mpl::filter_view< ShapeFunctionsT, Mesh::SF::IsCompatibleWith<SF> >, // This ensures we only choose shape functions compatible with those found already
       ExprT,
       typename boost::mpl::if_<boost::mpl::contains<SupportTypesT, VarT>, VarIdxT, SupportIdxT>::type,
       VariablesT,

@@ -14,7 +14,8 @@
 
 #include "Math/MatrixTypes.hpp"
 
-#include "CProtoLSS.hpp"
+#include "Solver/CEigenLSS.hpp"
+
 #include "Terminals.hpp"
 #include "Transforms.hpp"
 
@@ -32,12 +33,12 @@ struct LSS : OptionVariable
   {
   }
   
-  LSS(const std::string& aname, CProtoLSS::Ptr l = CProtoLSS::Ptr()) : OptionVariable(aname, "Linear System Solver"), m_lss(l)
+  LSS(const std::string& aname, Solver::CEigenLSS::Ptr l = Solver::CEigenLSS::Ptr()) : OptionVariable(aname, "Linear System Solver"), m_lss(l)
   {
   }
   
   /// Linear system
-  CProtoLSS& lss()
+  Solver::CEigenLSS& lss()
   {
     return *m_lss.lock();
   }
@@ -56,7 +57,7 @@ protected:
 private:
   void on_trigger()
   {
-    m_lss = m_owner.lock()->look_component<CProtoLSS>( m_lss_path.lock()->value<std::string>() );
+    m_lss = m_owner.lock()->look_component<Solver::CEigenLSS>(m_lss_path.lock()->value_str());
     reset();
   }
   
@@ -75,7 +76,7 @@ private:
   }
   
   /// Linear system
-  boost::weak_ptr<CProtoLSS> m_lss;
+  boost::weak_ptr<Solver::CEigenLSS> m_lss;
   boost::weak_ptr<Solver::CPhysicalModel> m_physical_model;
   
   /// Option with the path to the LSS

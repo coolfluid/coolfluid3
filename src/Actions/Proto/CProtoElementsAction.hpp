@@ -9,6 +9,10 @@
 
 #include "Actions/CAction.hpp"
 
+#include "Common/CBuilder.hpp"
+
+#include "Mesh/SF/Types.hpp"
+
 #include "ElementLooper.hpp"
 
 namespace CF {
@@ -39,6 +43,7 @@ public:
     CopyNumberedVars<VariablesT> ctx(m_variables);
     boost::proto::eval(expr, ctx);
     boost::fusion::for_each(m_variables, AddVariableOptions(get()));
+    raise_event("tree_updated");
   }
   
   /// Return the root region
@@ -57,7 +62,7 @@ public:
       // This recurses through the variables, selecting the appropriate shape function for each variable
       ExpressionRunner
       <
-        boost::mpl::vector<Mesh::SF::Line1DLagrangeP1>, // We consider volume functions for element expressions
+        Mesh::SF::VolumeTypes, // We consider volume functions for element expressions
         CopiedExprT, // type of the expression
         boost::mpl::void_, // No support by default
         VariablesT, // type of the fusion vector with the variables
@@ -102,6 +107,7 @@ private:
 template<typename ExprT>
 CAction::Ptr build_elements_action(const std::string& name, Common::Component& parent, const ExprT& expr)
 {
+  CF::Common::ComponentBuilder < CProtoElementsAction<ExprT>, CAction, LibActions > builder;
   boost::shared_ptr< CProtoElementsAction<ExprT> > result = parent.create_component< CProtoElementsAction<ExprT> >(name);
   result->set_expression(expr);
   return boost::static_pointer_cast<CAction>(result);

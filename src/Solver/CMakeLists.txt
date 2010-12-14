@@ -7,6 +7,8 @@ list( APPEND coolfluid_solver_files
   CTakeStep.cpp
   CDiscretization.hpp
   CDiscretization.cpp
+  CEigenLSS.cpp
+  CEigenLSS.hpp
   CIterativeSolver.hpp
   CIterativeSolver.cpp
   CSchemeLDA.hpp

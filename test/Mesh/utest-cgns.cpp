@@ -11,6 +11,7 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/regex.hpp>
 
+#include "Common/CreateComponent.hpp"
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/OSystem.hpp"
