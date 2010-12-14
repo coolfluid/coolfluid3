@@ -41,7 +41,7 @@ struct GlobalFixture {
 
   GlobalFixture() {
     if(!sphere) {
-      sphere = allocate_component_type<CMesh>("sphere");
+      sphere = allocate_component<CMesh>("sphere");
       MeshParameters params;
       create_mesh(SphereFunction(1.), *sphere, params);
       CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
@@ -132,7 +132,7 @@ BOOST_FIXTURE_TEST_SUITE( TetraSF, TetraSFFixture )
 BOOST_AUTO_TEST_CASE( MeshStats )
 {
   Real volume = 0.;
-  loop_over_regions(recursive_range_typed<CElements>(sphere), VolumeFunctor(volume));
+  loop_over_regions(find_components_recursively<CElements>(sphere), VolumeFunctor(volume));
   CFinfo << "calculated volume: " << volume << CFendl;
 }
 
