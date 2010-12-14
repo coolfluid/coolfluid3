@@ -1,6 +1,4 @@
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )  # add dir to include path
+#list of plugins distributed with the kernel
 
-add_subdirectory( BlockMeshReader ) # reader of OpenFOAM block mesh format
-add_subdirectory( CGAL )            # CGAL mesh generator
-
-
+add_subdirectory( BlockMeshReader )      # reader of OpenFOAM block mesh format
+add_subdirectory( CGAL )                 # CGAL mesh generator

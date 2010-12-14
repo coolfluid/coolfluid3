@@ -43,7 +43,6 @@ find_package(Curl)            # curl downloads files on the fly
 find_package(Valgrind)        # valgrind for profiling and memmory leak detection
 find_package(GooglePerftools) # dynamic profiler and memory checker
 find_package(CGNS)            # CGNS library
-find_package(CGAL)            # CGAL library
 find_package(PythonInterp)    # Python interpreter
 find_package(Realtime)        # POSIX Realtime library
 

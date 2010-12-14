@@ -1,5 +1,3 @@
-################################################################################
-
 list( APPEND utest-tetra-sf_cflibs coolfluid_mesh_sf coolfluid_cgal coolfluid_gmsh )
 list( APPEND utest-tetra-sf_files  utest-tetra-sf.cpp )
 

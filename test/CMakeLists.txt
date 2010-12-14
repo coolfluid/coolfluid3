@@ -12,8 +12,3 @@ add_subdirectory( Solver )
 add_subdirectory( GUI )
 
 add_subdirectory( Tools )
-
-# from plugins
-
-add_subdirectory( CGAL )
-add_subdirectory( BlockMeshReader )

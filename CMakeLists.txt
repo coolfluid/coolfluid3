@@ -113,9 +113,6 @@ add_subdirectory( include )
 # add dir with kernel sources
 add_subdirectory( src )
 
-# add dir with kernel plugins
-add_subdirectory( plugins )
-
 # add dir with unit tests
 if( CF_ENABLE_UNITTESTS )
   add_subdirectory( test )
@@ -126,6 +123,10 @@ if( CF_ENABLE_SANDBOX )
   include_directories( ${coolfluid_SOURCE_DIR}/sandbox )
   add_subdirectory( sandbox )
 endif()
+
+# add dir with kernel plugins
+# these are independent source trees that happen to be distributedwith the kernel for convinience
+add_subdirectory( plugins )
 
 coolfluid_log( "" )
 ##############################################################################

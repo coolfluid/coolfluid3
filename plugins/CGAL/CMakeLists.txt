@@ -1,24 +1,22 @@
+##############################################################################
+# CGAL Plugin
+##############################################################################
+
+cmake_minimum_required( VERSION 2.8 FATAL_ERROR )
+
+project( CGAL CXX )
+
+find_package(CGAL)
+
+option(CF_STRIP_CGAL_COMPILE_FLAGS "Strip optimization and compile flags for CGAL, to avoid the long compilation" ON)
+
+# avoid a conflict between boost and CGAL
+add_definitions(-DCGAL_CFG_NO_TR1_ARRAY -DCGAL_CFG_NO_TR1_TUPLE)
+
+
 if( CF_HAVE_CGAL )
 
-  option(CF_STRIP_CGAL_COMPILE_FLAGS "Strip optimization and compile flags for CGAL, to avoid the long compilation" ON)
-
-  list( APPEND coolfluid_cgal_files
-    LibCGAL.cpp
-    LibCGAL.hpp
-    ImplicitFunctionMesh.cpp
-    ImplicitFunctionMesh.hpp
-  )
-
-  list( APPEND coolfluid_cgal_includedirs ${CGAL_INCLUDE_DIR} )
-  list( APPEND coolfluid_cgal_libs        ${CGAL_LIBRARIES} ${Boost_THREAD_LIBRARY} )
-  list( APPEND coolfluid_cgal_cflibs coolfluid_mesh )
-
-  set( coolfluid_cgal_kernellib TRUE )
-
-  # avoid a conflict between boost and CGAL
-  add_definitions(-DCGAL_CFG_NO_TR1_ARRAY -DCGAL_CFG_NO_TR1_TUPLE)
-
-  coolfluid_add_library( coolfluid_cgal )
+  include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 
   set( coolfluid_cgal_COMPILE_FLAGS "" )
   if( CMAKE_COMPILER_IS_GNUCC )
@@ -31,16 +29,24 @@ if( CF_HAVE_CGAL )
       set(coolfluid_cgal_COMPILE_FLAGS "${coolfluid_cgal_COMPILE_FLAGS} -g0 -O0")
     endif()
 
-    set_source_files_properties(ImplicitFunctionMesh.cpp PROPERTIES COMPILE_FLAGS ${coolfluid_cgal_COMPILE_FLAGS})
+  endif()
 
+  # add dir with CGAL sources
+  add_subdirectory( CGAL )
+
+  # add dir with CGAL unit tests
+  if( CF_ENABLE_UNITTESTS )
+    add_subdirectory( test )
   endif()
 
 else()
 
   coolfluid_mark_not_orphan(
-    LibCGAL.hpp
-    LibCGAL.cpp
-    ImplicitFunctionMesh.cpp
-    ImplicitFunctionMesh.hpp  )
+    test/utest-tetra-sf.cpp
+    CGAL/LibCGAL.hpp
+    CGAL/LibCGAL.cpp
+    CGAL/ImplicitFunctionMesh.cpp
+    CGAL/ImplicitFunctionMesh.hpp  )
 
 endif()
+
