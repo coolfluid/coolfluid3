@@ -47,7 +47,7 @@ URI::URI ( const char* c ):
   m_path ( c ),
   m_protocol(URIProtocol::INVALID)
 {
-  string s(c);
+  std::string s (c);
   split_path(s, m_protocol, m_path);
 }
 
