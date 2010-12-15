@@ -8,6 +8,7 @@ project( CGAL CXX )
 
 find_package(CGAL)
 
+# disable optimizations to avoid enormous compilation times and memory usage
 option(CF_STRIP_CGAL_COMPILE_FLAGS "Strip optimization and compile flags for CGAL, to avoid the long compilation" ON)
 
 # avoid a conflict between boost and CGAL
@@ -23,9 +24,7 @@ if( CF_HAVE_CGAL )
 
     set(coolfluid_cgal_COMPILE_FLAGS "${coolfluid_cgal_COMPILE_FLAGS} -frounding-math")
 
-    # just for this library, disable optimizations
-    # to avoid enormous compilation times and memory usage
-    if(CF_STRIP_CGAL_COMPILE_FLAGS)
+    if(coolfluid_cgal_COMPILE_FLAGS)
       set(coolfluid_cgal_COMPILE_FLAGS "${coolfluid_cgal_COMPILE_FLAGS} -g0 -O0")
     endif()
 
