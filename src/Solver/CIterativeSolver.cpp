@@ -46,7 +46,7 @@ CIterativeSolver::~CIterativeSolver()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CIterativeSolver::create_model ( Common::XmlNode& node )
+void CIterativeSolver::solve ( Common::XmlNode& node )
 {
   // XmlParams p ( node );
 
