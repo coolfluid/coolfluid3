@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   // Print solution field
   for_each_node
   (
-    get_named_component_typed<CRegion>(*mesh, "region"),
+    find_component_with_name<CRegion>(*mesh, "region"),
     _cout << "T(" << nodes << ") = " << temperature << "\n"
   );
 }
