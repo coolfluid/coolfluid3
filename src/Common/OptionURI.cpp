@@ -41,7 +41,7 @@ void OptionURI::configure ( XmlNode& node )
   if(type_node != nullptr)
     to_value(*type_node, val);
   else
-    throw XmlError(FromHere(), "Could not find a string value of this type.");
+    throw XmlError(FromHere(), "Could not find a value for this option.");
 
   URIProtocol::Type protocol = val.protocol();
 
