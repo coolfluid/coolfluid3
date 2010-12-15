@@ -47,7 +47,15 @@ URI::URI ( const char* c ):
   m_path ( c ),
   m_protocol(URIProtocol::INVALID)
 {
-  split_path(m_path, m_protocol, m_path);
+  string s(c);
+  split_path(s, m_protocol, m_path);
+}
+
+URI::URI ( const std::string& s, URIProtocol::Type p ):
+  m_path ( s ),
+  m_protocol( p )
+{
+   throw NotImplemented(FromHere(), "Implement this");
 }
 
 URI& URI::operator/= (const URI& rhs)

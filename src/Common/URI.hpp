@@ -45,6 +45,10 @@ namespace Common {
     /// Constructor from const char*
     /// @param c C string with path
     URI ( const char* c );
+    /// Constructor from string object and separate protocol
+    /// @pre assumes that string does not have a protocol, just the path
+    /// @param s string with path
+    URI ( const std::string& s, URIProtocol::Type p );
 
     // operators
 

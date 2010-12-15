@@ -52,8 +52,7 @@ public: // functions
     CLoop(name),
     m_action( Common::allocate_component<ActionT>(ActionT::type_name()) )
   {
-     
-
+    regist_typeinfo(this);
     add_static_component ( m_action );
   }
 
@@ -61,7 +60,7 @@ public: // functions
   virtual ~CForAllElementsT() {}
 
   /// Get the class name
-  static std::string type_name () { return "CForAllElements"; }
+  static std::string type_name () { return "CForAllElementsT<" + ActionT::type_name() + ">"; }
 
   // functions specific to the CForAllElements component
 

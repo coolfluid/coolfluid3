@@ -45,7 +45,7 @@ public: // functions
   virtual ~CSchemeLDAT() {};
 
   /// Get the class name
-  static std::string type_name () { return "CSchemeLDAT"; }
+  static std::string type_name () { return "CSchemeLDAT<" + SHAPEFUNC::type_name() + ">"; }
 
   /// Set the loop_helper
   void create_loop_helper (Mesh::CElements& geometry_elements );
@@ -80,6 +80,8 @@ private: // data
 
 };
 
+#define USE_Q1
+
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SHAPEFUNC>
@@ -97,7 +99,7 @@ template<typename SHAPEFUNC>
 CSchemeLDAT<SHAPEFUNC>::CSchemeLDAT ( const std::string& name ) :
   CLoopOperation(name)
 {
-   
+  regist_typeinfo(this);
 
   properties()["brief"] = std::string("Element Loop component that computes the residual and update coefficient using the LDA scheme");
   properties()["description"] = std::string("Write here the full description of this component");
@@ -106,7 +108,7 @@ CSchemeLDAT<SHAPEFUNC>::CSchemeLDAT ( const std::string& name ) :
   m_properties.add_option< Common::OptionT<std::string> > ("ResidualField","Residual Field updated after calculation", "residual")->mark_basic();
   m_properties.add_option< Common::OptionT<std::string> > ("InverseUpdateCoeff","Inverse update coefficient Field updated after calculation", "inverse_updatecoeff")->mark_basic();
 
-#if 0
+#ifndef USE_Q1
 
   nb_q=3;
   mapped_coords.resize(nb_q);
@@ -238,7 +240,7 @@ void CSchemeLDAT<SHAPEFUNC>::execute()
   centroid /= SHAPEFUNC::nb_nodes;
 
 
-#if 0
+#ifndef USE_Q1
 
   RealMatrix nodal_normals( SHAPEFUNC::Support::dimension, SHAPEFUNC::nb_nodes );
 

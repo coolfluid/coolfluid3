@@ -81,6 +81,15 @@ Common_API std::string demangle (const char* type);
     RegistTypeInfo( const std::string& name = TYPE::type_name() ) { TypeInfo::instance().regist<TYPE>(name); }
   };
 
+  /// @brief Helper function to regist a type in the TypeInfo registry
+  /// Typically used within the constructor of a template class
+  /// @author Tiago Quintino
+  template< typename TYPE >
+  void regist_typeinfo( TYPE* self )
+  {
+    TypeInfo::instance().regist<TYPE>( TYPE::type_name() );
+  }
+
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////
