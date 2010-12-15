@@ -20,6 +20,10 @@ CIterativeSolver::CIterativeSolver ( const std::string& name  ) :
   CMethod ( name ),
   m_nb_iter(0)
 {
+  mark_basic();
+
+  // properties
+
   properties()["brief"]=std::string("Iterative Solver component");
   properties()["description"]=std::string("Handles time stepping and convergence operations");
 
@@ -28,7 +32,10 @@ CIterativeSolver::CIterativeSolver ( const std::string& name  ) :
 
   m_properties.add_option< OptionURI > ("Domain", "Domain to solve", URI("../Domain"));
 
-  mark_basic();
+  // signals
+
+  this->regist_signal ( "solve" , "Solves by executing a number of iterations", "Solve" )
+      ->connect ( boost::bind ( &CIterativeSolver::solve, this, _1 ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -37,6 +44,14 @@ CIterativeSolver::~CIterativeSolver()
 {
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+void CIterativeSolver::create_model ( Common::XmlNode& node )
+{
+  // XmlParams p ( node );
+
+  this->solve(); // dispatch to the virtual function
+}
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Solver

@@ -46,6 +46,14 @@ public: // functions
 
   virtual void solve() = 0;
 
+  /// @name SIGNALS
+  //@{
+
+  /// Signal to start solving
+  void solve ( Common::XmlNode& node );
+
+  //@} END SIGNALS
+
 protected: // data
 
   /// Maximum number of iterations
