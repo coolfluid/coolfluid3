@@ -28,15 +28,15 @@ namespace Proto {
 
 /// Encapsulate a system matrix
 struct LSS : OptionVariable
-{ 
+{
   LSS() : OptionVariable("aLSS", "Linear System Solver")
   {
   }
-  
+
   LSS(const std::string& aname, Solver::CEigenLSS::Ptr l = Solver::CEigenLSS::Ptr()) : OptionVariable(aname, "Linear System Solver"), m_lss(l)
   {
   }
-  
+
   /// Linear system
   Solver::CEigenLSS& lss()
   {
@@ -47,7 +47,7 @@ protected:
   virtual void add_options()
   {
     m_lss_path = add_option<Common::URI>(m_name, m_description, boost::bind(&LSS::on_trigger, this));
-    m_lss_path.lock()->supported_protocol("cpath");
+    m_lss_path.lock()->supported_protocol(CF::Common::URIProtocol::CPATH);
     m_physical_model = Common::find_component_ptr<Solver::CPhysicalModel>(*m_owner.lock()->get_parent());
     if(!m_physical_model.expired())
       m_physical_model.lock()->properties()["DOFs"].as_option().attach_trigger( boost::bind(&LSS::trigger_dofs, this) );
@@ -60,12 +60,12 @@ private:
     m_lss = m_owner.lock()->look_component<Solver::CEigenLSS>(m_lss_path.lock()->value_str());
     reset();
   }
-  
+
   void trigger_dofs()
   {
     reset();
   }
-  
+
   void reset()
   {
     if(m_lss.expired() || m_lss.lock()->size() == m_physical_model.lock()->nb_dof())
@@ -74,11 +74,11 @@ private:
     lss().matrix().setZero();
     lss().rhs().setZero();
   }
-  
+
   /// Linear system
   boost::weak_ptr<Solver::CEigenLSS> m_lss;
   boost::weak_ptr<Solver::CPhysicalModel> m_physical_model;
-  
+
   /// Option with the path to the LSS
   boost::weak_ptr<Common::OptionURI> m_lss_path;
 };
@@ -126,10 +126,10 @@ struct BlockAccumulator :
   {
     /// Contrary to general C++ assignment, assigning to a system matrix doesn't return anything
     typedef void result_type;
-    
+
     /// Tag type represents the actual operation type
     typedef typename boost::proto::tag_of<ExprT>::type OpT;
-    
+
     result_type operator ()(
                 typename impl::expr_param expr // The complete expression
               , typename impl::state_param state // should be the element matrix, i.e. RHS already evaluated
@@ -151,7 +151,7 @@ struct BlockAccumulation
   : boost::proto::switch_<MatrixAssignOpsCases>
 {
 };
-  
+
 } // namespace Proto
 } // namespace Actions
 } // namespace CF

@@ -195,26 +195,26 @@ Component::Ptr Component::add_static_component ( Component::Ptr subcomp )
 
   raise_path_changed();
 
-	subcomp->change_parent( this );
-	subcomp->rename( unique_name );
+  subcomp->change_parent( this );
+  subcomp->rename( unique_name );
 
-	return subcomp;
+  return subcomp;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 std::string Component::ensure_unique_name ( Component::Ptr subcomp )
 {
-	const std::string name = subcomp->name();
-	std::string new_name = name;
-	boost::regex e(name+"(_[0-9]+)?");
-	BOOST_FOREACH(CompStorage_t::value_type subcomp_pair, m_components)
-	{
-		if (boost::regex_match(subcomp_pair.first,e))
-		{
-			Uint count = 1;
+  const std::string name = subcomp->name();
+  std::string new_name = name;
+  boost::regex e(name+"(_[0-9]+)?");
+  BOOST_FOREACH(CompStorage_t::value_type subcomp_pair, m_components)
+  {
+    if (boost::regex_match(subcomp_pair.first,e))
+    {
+      Uint count = 1;
 
-			new_name = name + "_" + String::to_str(count);
+      new_name = name + "_" + String::to_str(count);
 
       // make sure constructed name does not exist
       while ( m_components.find(new_name) != m_components.end() )
@@ -688,11 +688,11 @@ void add_prop_to_xml(XmlParams & params, const std::string & name,
 
     if(std::strcmp(opt.tag(), "uri") == 0)
     {
-      std::vector<std::string> prots = static_cast<OptionURI*>(&opt)->supported_protocols();
-      std::vector<std::string>::iterator it = prots.begin();
+      std::vector<URIProtocol::Type> prots = static_cast<OptionURI*>(&opt)->supported_protocols();
+      std::vector<URIProtocol::Type>::iterator it = prots.begin();
 
       for( ; it != prots.end() ; it++)
-        XmlOps::add_attribute_to(*node, XmlParams::tag_attr_protocol(), *it);
+        XmlOps::add_attribute_to(*node, XmlParams::tag_attr_protocol(), URIProtocol::Convert::to_str(*it));
     }
   }
 }

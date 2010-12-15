@@ -34,9 +34,9 @@ namespace Common {
 
     virtual ~OptionURI();
 
-    void supported_protocol(const std::string & protocol);
+    void supported_protocol(URIProtocol::Type protocol);
 
-    std::vector<std::string> supported_protocols() const { return m_protocols; }
+    std::vector<URIProtocol::Type> supported_protocols() const { return m_protocols; }
 
     /// @name VIRTUAL FUNCTIONS
     //@{
@@ -57,13 +57,13 @@ namespace Common {
     /// updates the option value using the xml configuration
     /// @param node XML node with data for this option
     virtual void configure ( XmlNode& node );
-    
+
     /// copy the configured update value to all linked parameters
     virtual void copy_to_linked_params ( const boost::any& val );
 
   private:
 
-    std::vector<std::string> m_protocols;
+    std::vector<URIProtocol::Type> m_protocols;
 
   }; // class OptionURI
 

@@ -43,7 +43,7 @@ namespace ClientUI {
 
     virtual QVariant value() const;
 
-    void setProtocols(const std::vector<std::string> & list);
+    void setProtocols(const std::vector<Common::URIProtocol::Type> & list);
 
   private slots:
 

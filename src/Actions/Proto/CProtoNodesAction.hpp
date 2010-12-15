@@ -22,17 +22,17 @@ class CProtoNodesAction : public CAction
 public:
   typedef boost::shared_ptr< CProtoNodesAction<ExprT> > Ptr;
   typedef boost::shared_ptr< CProtoNodesAction<ExprT> const> ConstPtr;
-  
+
   CProtoNodesAction(const std::string& name) :
     CAction(name)
   {
     m_region_path = boost::dynamic_pointer_cast<Common::OptionURI>( properties().template add_option<Common::OptionURI>("Region", "Region to loop over", std::string()) );
-    m_region_path.lock()->supported_protocol("cpath");
+    m_region_path.lock()->supported_protocol(CF::Common::URIProtocol::CPATH);
     m_region_path.lock()->mark_basic();
   }
-  
+
   static std::string type_name() { return "CProtoNodesAction"; }
-  
+
   /// Set the expression
   void set_expression(const ExprT& expr)
   {
@@ -43,18 +43,18 @@ public:
     boost::fusion::for_each(m_variables, AddVariableOptions(get()));
     raise_event("tree_updated");
   }
-  
+
   /// Run the expression, looping over all nodes
   virtual void execute()
   {
     Mesh::CRegion& root_region = *look_component<Mesh::CRegion>( m_region_path.lock()->value_str() );
-    
+
     // Create data used for the evaluation
     NodeData<VariablesT> node_data(m_variables, root_region);
-    
+
     // Grammar used for the evaluation
     NodeGrammar grammar;
-    
+
     Mesh::CTable<Real>* coordinates = Common::find_component_ptr_with_tag<Mesh::CTable<Real> >(root_region,"coordinates").get();
     if(coordinates) // region owns coordinates, so we assume a loop over all nodes
     {
@@ -79,35 +79,35 @@ public:
       }
     }
   }
-  
+
 private:
   // Number of variables (integral constant)
   typedef typename boost::result_of<ExprVarArity(ExprT)>::type NbVarsT;
-  
+
   // init empty vector that will store variable indices
   typedef boost::mpl::vector_c<Uint> EmptyRangeT;
-  
+
   // Fill the vector with indices 0 to 9, so we allow 10 different (field or node related) variables in an expression
   typedef typename boost::mpl::copy<
       boost::mpl::range_c<int,0,NbVarsT::value>
     , boost::mpl::back_inserter< EmptyRangeT >
     >::type NbVarsRangeT;
-  
+
   // Get the type for each variable that is used, or set to boost::mpl::void_ for unused indices
   typedef typename boost::mpl::transform<NbVarsRangeT, DefineTypeOp<boost::mpl::_1, ExprT > >::type VarTypesT;
-  
+
   // Type of a fusion vector that can contain a copy of each variable that is used in the expression
   typedef typename boost::fusion::result_of::as_vector<VarTypesT>::type VariablesT;
-  
+
   // type of the copied expression
   typedef typename boost::proto::result_of::deep_copy<ExprT>::type CopiedExprT;
-  
+
   /// Copy of each variable in the expression
   VariablesT m_variables;
-  
+
   /// Copy of the expression
   CopiedExprT m_expr;
-  
+
   /// Link to the option with the path to the region to loop over
   boost::weak_ptr<Common::OptionURI> m_region_path;
 };
@@ -122,7 +122,7 @@ CAction::Ptr build_nodes_action(const std::string& name, Common::Component& pare
   return boost::static_pointer_cast<CAction>(result);
 }
 
-  
+
 } // namespace Proto
 } // namespace Actions
 } // namespace CF
