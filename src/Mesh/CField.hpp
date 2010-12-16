@@ -96,9 +96,9 @@ public: // functions
     return elem_count;
   }
   
-  const std::string field_name() const { return m_field_name; }
+  std::string field_name() const { return m_field_name; }
   
-  const DataBasis basis() const { return m_basis; }
+  DataBasis basis() const { return m_basis; }
   
   void set_basis(const DataBasis& basis) { m_basis = basis;}
   
