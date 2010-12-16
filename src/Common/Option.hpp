@@ -116,6 +116,10 @@ namespace Common {
     /// @c false.
     bool has_restricted_list() const { return m_restricted_list.size() > 1; }
 
+    /// updates the option value using the xml configuration
+    /// @param node XML node with data for this option
+    virtual void configure ( XmlNode& node ) = 0;
+
   protected: // data
     /// storage of the default value of the option
     const boost::any m_default;
@@ -132,10 +136,6 @@ namespace Common {
 
   protected: // function
 
-    /// updates the option value using the xml configuration
-    /// @param node XML node with data for this option
-    virtual void configure ( XmlNode& node ) = 0;
-    
     /// copy the configured update value to all linked parameters
     virtual void copy_to_linked_params ( const boost::any& val ) = 0;
 

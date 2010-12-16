@@ -51,13 +51,13 @@ namespace Common {
     /// @returns the default value as a sd::string
     virtual std::string def_str () const  { return from_value ( def<TYPE>() ); }
 
-    //@} END VIRTUAL FUNCTIONS
-
-  protected: // functions
-
     /// updates the option value using the xml configuration
     /// @param node XML node with data for this option
     virtual void configure ( XmlNode& node );
+
+    //@} END VIRTUAL FUNCTIONS
+
+  protected: // functions
 
     /// copy the configured update value to all linked parameters
     virtual void copy_to_linked_params ( const boost::any& val );

@@ -82,11 +82,11 @@ namespace Common {
 
     //@} END VIRTUAL FUNCTIONS
 
-  protected:
-
     /// updates the option value using the xml configuration
     /// @param node XML node with data for this option
     virtual void configure ( XmlNode& node );
+
+  protected:
 
     virtual void copy_to_linked_params ( const boost::any& val );
 
