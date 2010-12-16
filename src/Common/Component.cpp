@@ -276,6 +276,8 @@ void Component::complete_path ( URI& path ) const
 
 //  CFinfo << "PATH [" << path.string() << "]\n" << CFflush;
 
+  cf_assert( path.protocol() != URI::Protocol::CPATH );
+
   if ( is_null(m_raw_parent) )
     throw  InvalidURI(FromHere(), "Component \'" + name() + "\' has no parent");
 
