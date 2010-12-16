@@ -11,7 +11,7 @@
 
 #include "Common/CF.hpp"
 #include "Common/Exception.hpp"
-#include "Common/EnumT.hpp"
+#include "Common/URIProtocol.hpp"
 
 namespace CF {
 namespace Common {
@@ -31,30 +31,30 @@ namespace Common {
   class Common_API URI {
 
   public:
-
+    
     class Common_API Protocol
     {
     public:
 
-     /// Enumeration of the Shapes recognized in CF
-     enum Type  { INVALID = -1,
-                  HTTP    = 0,
-                  HTTPS   = 1,
-                  CPATH   = 2,
-                  FILE    = 3
-                };
+        /// Enumeration of the Shapes recognized in CF
+        enum Type  { INVALID = -1,
+                     HTTP    = 0,
+                     HTTPS   = 1,
+                     CPATH   = 2,
+                     FILE    = 3
+                   };
 
-     typedef EnumT< Protocol > ConverterBase;
+        typedef Common::EnumT< Protocol > ConverterBase;
 
-     struct Common_API Convert : public ConverterBase
-     {
-       /// storage of the enum forward map
-       static ConverterBase::FwdMap_t all_fwd;
-       /// storage of the enum reverse map
-       static ConverterBase::BwdMap_t all_rev;
-     };
+        struct Common_API Convert : public ConverterBase
+        {
+            /// storage of the enum forward map
+            static ConverterBase::FwdMap_t all_fwd;
+            /// storage of the enum reverse map
+            static ConverterBase::BwdMap_t all_rev;
+        };
 
-    }; // Protocol
+    }; // class URIProtocol
 
     // constructors
 
@@ -72,7 +72,7 @@ namespace Common {
     /// Constructor from string object and separate protocol
     /// @pre assumes that string does not have a protocol, just the path
     /// @param s string with path
-    URI ( const std::string& s, URI::Protocol::Type p );
+    URI ( const std::string& s, URIProtocol::Type p );
 
     // operators
 
@@ -121,9 +121,9 @@ namespace Common {
     static const std::string& separator ();
 
     /// Gives the protocol (if any).
-    /// @return Returns the protocol. May return @c URI::Protocol::INVALID if no
+    /// @return Returns the protocol. May return @c URIProtocol::INVALID if no
     /// protocol has been specified.
-    Protocol::Type protocol() const;
+    URIProtocol::Type protocol() const;
 
     /// Gives the string value without the protocol
     /// @return Returns the string without the protocol
@@ -145,10 +145,10 @@ namespace Common {
     /// Splits a given path into the URI protocol and the real path.
     /// @param path Path to split.
     /// @param protocol Variable where to store the found protocol. The value is
-    /// set to @c URI::Protocol::INVALID if no protocol found.
+    /// set to @c URIProtocol::INVALID if no protocol found.
     /// @param real_path Variable where to store the path.
     /// @throw ProtocolError If a an unknown protocol is found.
-    static void split_path(const std::string & path, URI::Protocol::Type & protocol,
+    static void split_path(const std::string & path, URIProtocol::Type & protocol,
                       std::string & real_path);
 
   private:
@@ -156,7 +156,7 @@ namespace Common {
     /// path string
     std::string m_path;
     /// Current URI protocol
-    Protocol::Type m_protocol;
+    URIProtocol::Type m_protocol;
 
   }; // URI
 

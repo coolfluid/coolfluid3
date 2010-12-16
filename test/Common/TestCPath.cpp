@@ -84,13 +84,13 @@ BOOST_AUTO_TEST_CASE( protocol_management )
   URI uri("//Root/Component");
 
   // URI without any protocol
-  BOOST_CHECK_EQUAL( uri.protocol(), URIProtocol::INVALID );
+  BOOST_CHECK_EQUAL( uri.protocol(), URI::Protocol::INVALID );
   BOOST_CHECK_EQUAL( uri.string(), std::string("//Root/Component") );
   BOOST_CHECK_EQUAL( uri.string_without_protocol(), std::string("//Root/Component") );
 
   // URI with a protocol
   URI uri2("cpath://Root/Component");
-  BOOST_CHECK_EQUAL( uri2.protocol(), URIProtocol::CPATH );
+  BOOST_CHECK_EQUAL( uri2.protocol(), URI::Protocol::CPATH );
   BOOST_CHECK_EQUAL( uri2.string(), std::string("cpath://Root/Component") );
   BOOST_CHECK_EQUAL( uri2.string_without_protocol(), std::string("//Root/Component") );
 

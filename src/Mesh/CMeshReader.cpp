@@ -58,7 +58,7 @@ void CMeshReader::read( XmlNode& xml  )
 
   URI path = p.get_option<URI>("Domain");
 
-  if( path.protocol() != URIProtocol::CPATH )
+  if( path.protocol() != URI::Protocol::CPATH )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
   // get the domain
@@ -72,7 +72,7 @@ void CMeshReader::read( XmlNode& xml  )
   // check protocol for file loading
   boost_foreach(URI file, files)
   {
-    if( file.empty() || file.protocol() != URIProtocol::FILE )
+    if( file.empty() || file.protocol() != URI::Protocol::FILE )
       throw ProtocolError( FromHere(), "Wrong protocol to access the file, expecting a \'file\' but got \'" + file.string() + "\'" );
   }
 

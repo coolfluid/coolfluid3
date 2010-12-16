@@ -27,7 +27,7 @@ public:
     CAction(name)
   {
     m_region_path = boost::dynamic_pointer_cast<Common::OptionURI>( properties().template add_option<Common::OptionURI>("Region", "Region to loop over", std::string()) );
-    m_region_path.lock()->supported_protocol(CF::Common::URIProtocol::CPATH);
+    m_region_path.lock()->supported_protocol(CF::Common::URI::Protocol::CPATH);
     m_region_path.lock()->mark_basic();
   }
 

@@ -34,9 +34,9 @@ namespace Common {
 
     virtual ~OptionURI();
 
-    void supported_protocol(URIProtocol::Type protocol);
+    void supported_protocol(URI::Protocol::Type protocol);
 
-    std::vector<URIProtocol::Type> supported_protocols() const { return m_protocols; }
+    std::vector<URI::Protocol::Type> supported_protocols() const { return m_protocols; }
 
     /// @name VIRTUAL FUNCTIONS
     //@{
@@ -63,7 +63,7 @@ namespace Common {
 
   private:
 
-    std::vector<URIProtocol::Type> m_protocols;
+    std::vector<URI::Protocol::Type> m_protocols;
 
   }; // class OptionURI
 

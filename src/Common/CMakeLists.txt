@@ -100,8 +100,6 @@ list( APPEND coolfluid_common_files
     TypeInfo.hpp
     URI.hpp
     URI.cpp
-    URIProtocol.cpp
-    URIProtocol.hpp
     WorkerStatus.cpp
     WorkerStatus.hpp
     XmlHelpers.hpp

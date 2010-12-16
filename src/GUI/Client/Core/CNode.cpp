@@ -668,9 +668,9 @@ Option::Ptr CNode::makeOption(const CF::Common::XmlNode & node)
 
           for( ; attr != nullptr ; attr = attr->next_attribute(XmlParams::tag_attr_protocol()))
           {
-            URIProtocol::Type protocol = URIProtocol::Convert::to_enum(attr-> value());
+            URI::Protocol::Type protocol = URI::Protocol::Convert::to_enum(attr-> value());
 
-            if(protocol == URIProtocol::INVALID)
+            if(protocol == URI::Protocol::INVALID)
               throw ProtocolError(FromHere(), std::string(attr->value()) + ": unknown protocol.");
 
             optURI->supported_protocol(protocol);

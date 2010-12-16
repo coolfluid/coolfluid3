@@ -541,7 +541,7 @@ void Component::move_component ( XmlNode& node  )
   XmlParams p ( node );
 
   URI path = p.get_option<URI>("Path");
-  if( path.protocol() != URIProtocol::CPATH )
+  if( path.protocol() != URI::Protocol::CPATH )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
   Component::Ptr new_parent = look_component( path.string_without_protocol() );
@@ -688,11 +688,11 @@ void add_prop_to_xml(XmlParams & params, const std::string & name,
 
     if(std::strcmp(opt.tag(), "uri") == 0)
     {
-      std::vector<URIProtocol::Type> prots = static_cast<OptionURI*>(&opt)->supported_protocols();
-      std::vector<URIProtocol::Type>::iterator it = prots.begin();
+      std::vector<URI::Protocol::Type> prots = static_cast<OptionURI*>(&opt)->supported_protocols();
+      std::vector<URI::Protocol::Type>::iterator it = prots.begin();
 
       for( ; it != prots.end() ; it++)
-        XmlOps::add_attribute_to(*node, XmlParams::tag_attr_protocol(), URIProtocol::Convert::to_str(*it));
+        XmlOps::add_attribute_to(*node, XmlParams::tag_attr_protocol(), URI::Protocol::Convert::to_str(*it));
     }
   }
 }

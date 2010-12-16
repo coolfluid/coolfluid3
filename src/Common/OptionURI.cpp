@@ -25,7 +25,7 @@ OptionURI::~OptionURI()
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void OptionURI::supported_protocol(URIProtocol::Type protocol)
+void OptionURI::supported_protocol(URI::Protocol::Type protocol)
 {
   if(std::find(m_protocols.begin(), m_protocols.end(), protocol) != m_protocols.end())
     m_protocols.push_back(protocol);
@@ -43,10 +43,10 @@ void OptionURI::configure ( XmlNode& node )
   else
     throw XmlError(FromHere(), "Could not find a value for this option.");
 
-  URIProtocol::Type protocol = val.protocol();
+  URI::Protocol::Type protocol = val.protocol();
 
   if(std::find(m_protocols.begin(), m_protocols.end(), protocol) == m_protocols.end())
-    throw XmlError(FromHere(), URIProtocol::Convert::to_str(protocol) + ": unsupported protocol.");
+    throw XmlError(FromHere(), URI::Protocol::Convert::to_str(protocol) + ": unsupported protocol.");
 
   m_value = val;
 }
