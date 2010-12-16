@@ -43,37 +43,41 @@ if( EXISTS ${coolfluid_SOURCE_DIR}/.svn )
 endif() # svn check
 
 #########################################################################################
-# git support
+# git support ( if cmake has it )
 
-find_package(Git)
+if( COMMAND FindGit )
 
-# check git svn version if .git is present
-if( EXISTS ${coolfluid_SOURCE_DIR}/.git )
+  find_package(Git)
+
+  # check git svn version if .git is present
+  if( EXISTS ${coolfluid_SOURCE_DIR}/.git )
     
     # Check if this is a git repository, and get revision number through "git-svn"
-    if(Git_FOUND)
-        EXECUTE_PROCESS(COMMAND ${Git_EXECUTABLE} svn info
+    if(GIT_FOUND)
+        execute_process(COMMAND ${GIT_EXECUTABLE} svn info
           WORKING_DIRECTORY ${coolfluid_SOURCE_DIR}
-          OUTPUT_VARIABLE Git_svn_WC_INFO
-          ERROR_VARIABLE Git_svn_info_error
-          RESULT_VARIABLE Git_svn_info_result
+          OUTPUT_VARIABLE GIT_svn_WC_INFO
+          ERROR_VARIABLE GIT_svn_info_error
+          RESULT_VARIABLE GIT_svn_info_result
           OUTPUT_STRIP_TRAILING_WHITESPACE)
-        if(${Git_svn_info_result} EQUAL 0)
+        if(${GIT_svn_info_result} EQUAL 0)
           # This means it is a git repository
-          EXECUTE_PROCESS(COMMAND ${Git_EXECUTABLE} svn find-rev HEAD^
+          execute_process(COMMAND ${GIT_EXECUTABLE} svn find-rev HEAD^
               WORKING_DIRECTORY ${coolfluid_SOURCE_DIR}
               OUTPUT_VARIABLE coolfluid_svnversion
               OUTPUT_STRIP_TRAILING_WHITESPACE)
         endif()
 
-coolfluid_debug_var(Git_svn_WC_INFO)
-coolfluid_debug_var(Git_svn_info_result)
-coolfluid_debug_var(coolfluid_svnversion)
-
     endif()
-endif()  # git check
 
+  endif()  # git check
+
+endif() # FindGit
+
+#########################################################################################
 # finally set version
+
 if( NOT coolfluid_svnversion )
-  set(coolfluid_svnversion "NOVERSION-FOUND")
+  set(coolfluid_svnversion "CF-VERSION-NOTFOUND")
 endif()
+
