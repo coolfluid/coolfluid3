@@ -12,6 +12,7 @@
 #include "Common/CF.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/URI.hpp"
+#include "Common/BasicExceptions.hpp"
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 //#include "GUI/Client/Core/SelectPathDialog.hpp"
@@ -95,13 +96,16 @@ void NLink::setTargetNode(const CNode::Ptr & node)
 
 void NLink::goToTarget(XmlNode & node)
 {
-  QModelIndex index = ClientRoot::tree()->indexByPath(m_target->full_path());
-
-  if(index.isValid())
-    ClientRoot::tree()->setCurrentIndex(index);
-  else
-    ClientRoot::log()->addError(QString("%1: path does not exist")
-                                   .arg(m_target->full_path().string().c_str()));
+	if ( is_null(m_target) )
+		throw ValueNotFound (FromHere(), "Target of this link is not set or not valid");
+	
+	QModelIndex index = ClientRoot::tree()->indexByPath(m_target->full_path());
+	
+	if(index.isValid())
+		ClientRoot::tree()->setCurrentIndex(index);
+	else
+		ClientRoot::log()->addError(QString("%1: path does not exist")
+																.arg(m_target->full_path().string().c_str()));		
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
