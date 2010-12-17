@@ -36,7 +36,7 @@ class Mesh_API GeoShape
 
   typedef Common::EnumT< GeoShape > ConverterBase;
 
-  struct Common_API Convert : public ConverterBase
+  struct Mesh_API Convert : public ConverterBase
   {
     /// constructor where all the converting maps are built
     Convert();
