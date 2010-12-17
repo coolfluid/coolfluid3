@@ -297,7 +297,7 @@ public:
     rhs = tmp;
   }
   
-  
+  Array_t& get_appointed() { return m_array; }
   
 private:
   
