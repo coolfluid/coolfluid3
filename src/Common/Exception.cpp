@@ -10,6 +10,8 @@
 #include "Common/Exception.hpp"
 #include "Common/OSystem.hpp"
 #include "Common/OSystemLayer.hpp"
+#include "Common/MPI/PE.hpp"
+#include "Common/String/Conversion.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -20,9 +22,12 @@ namespace CF {
 ////////////////////////////////////////////////////////////////////////////////
 
 ExceptionManager::ExceptionManager() :
-  ExceptionOutputs ( false ),
+  ExceptionOutputs ( true ),
   ExceptionDumps   ( false ),
-  ExceptionAborts  ( false ) {}
+  ExceptionAborts  ( false ) 
+	{
+		std::set_terminate(std::abort);
+	}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -38,28 +43,24 @@ Exception::Exception(CodeLocation where, std::string msg, std::string className)
   : m_where(where), m_msg(msg), m_class_name(className)
 {
   m_what = full_description();
-
   if ( ExceptionManager::instance().ExceptionOutputs )
   {
-    CFinfo << CFendl << CFendl;
-    CFinfo << "+++ Exception thrown +++++++++++++++++" << CFendl;
-    CFinfo << m_what << CFendl;
-    CFinfo << "++++++++++++++++++++++++++++++++++++++" << CFendl;
+    CFerror << m_what << CFendl;
   }
 
   if ( ExceptionManager::instance().ExceptionDumps )
   {
     std::string backtrace = OSystem::instance().system_layer()->back_trace();
-    CFinfo << CFendl << CFendl;
-    CFinfo << "+++ Exception backtrace ++++++++++++++" << CFendl;
-    CFinfo << backtrace << CFendl;
-    CFinfo << "++++++++++++++++++++++++++++++++++++++" << CFendl;
+    CFerror << "\n\n";
+    CFerror << "+++ Exception backtrace on rank " << PE::instance().rank() << " ++++\n";
+    CFerror << backtrace << "\n";
+    CFerror << "++++++++++++++++++++++++++++++++++++++" << CFendl;
   }
 
   if ( ExceptionManager::instance().ExceptionAborts )
   {
-    CFinfo << CFendl << CFendl;
-    CFinfo << "+++ Exception aborting ... " << CFendl;
+    CFerror << CFendl << CFendl;
+    CFerror << "+++ Exception aborting on rank " << PE::instance().rank() << " ... " << CFendl;
     abort();
   }
 }
@@ -95,9 +96,10 @@ const char* Exception::what() const throw()
 
 std::string Exception::full_description () const throw ()
 {
+	using namespace String;
   std::string desc;
   desc += "\n\n";
-  desc += "+++ Exception thrown ++++++++++++++++\n";
+  desc += "+++ Exception thrown on rank "+ to_str(PE::instance().rank()) + " ++++++++\n";
   desc += "From : \'";
   desc += m_where.str();
   desc += "\'\n";

@@ -12,6 +12,7 @@
 #include <execinfo.h>    // for backtrace() from glibc
 #include <sys/types.h>   // for getting the PID of the process
 
+
 #include <mach/mach_types.h>
 #include <mach/mach_init.h>
 #include <mach/task.h>
@@ -19,6 +20,12 @@
 #include "Common/BasicExceptions.hpp"
 #include "Common/CommonAPI.hpp"
 #include "Common/MacOSX/OSystemLayer.hpp"
+
+
+#ifdef CF_HAVE_CXXABI_H
+#include <cxxabi.h>
+#include <boost/regex.hpp>
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -44,7 +51,6 @@ OSystemLayer::~OSystemLayer()
 
 std::string OSystemLayer::back_trace () const
 {
-  printf ("getBackTrace ...\n");
   return dump_back_trace ();
 }
 
@@ -57,26 +63,58 @@ std::string OSystemLayer::dump_back_trace ()
   static int i = 0;
   ++i;
 
-  printf ("dumping %d backtrace ...\n", i);
-
-  std::ostringstream oss;
+	
+	std::ostringstream oss;
   int j, nptrs;
   void *buffer[BUFFER_SIZE];
-  char **strings;
-
+  char **strings;	
+	
+  //printf ("dumping %d backtrace ...\n", i);
+	oss << "dumping " << i << " backtrace ...\n";
   nptrs = backtrace(buffer, BUFFER_SIZE);
   oss << "\nbacktrace() returned " << nptrs << " addresses\n";
 
   strings = backtrace_symbols(buffer, nptrs);
   if (strings == NULL)
     oss << "\nno backtrace_symbols found\n";
-  for (j = 0; j < nptrs; j++)
-    oss << strings[j] << "\n";
-  free(strings);
+	
+#ifdef CF_HAVE_CXXABI_H
+
+	boost::regex e("([0-9]+)[[:space:]]+(.+)[[:space:]]+(.+)[[:space:]]+(.+)[[:space:]]+\\+[[:space:]]+(.+)");
+	boost::match_results<std::string::const_iterator> what;
+	
+	// iterate over the returned symbol lines. skip the first, it is the
+	// address of this function.
+	for (j = 1; j < nptrs; j++)
+	{
+		std::string trace(strings[j]);
+		
+		if (boost::regex_search(trace,what,e))
+		{
+			trace = std::string(what[4].first,what[4].second);
+			size_t maxName = 1024;
+			int demangleStatus;
+			
+			char* demangledName = (char*) malloc(maxName);
+			if ((demangledName = abi::__cxa_demangle(trace.c_str(), demangledName, &maxName,
+																							 &demangleStatus)) && demangleStatus == 0) 
+			{
+				trace = demangledName; // the demangled name is now in our trace string
+			}
+			free(demangledName);
+		}
+		oss << trace << "\n";
+	}
+#else
+	for (j = 0; j < nptrs; j++)
+	  oss << strings[j] << "\n";
+#endif
+	
+	free(strings);
 
   #undef BUFFER_SIZE
 
-  printf ("exit dumping backtrace ...\n\n");
+  oss << "\nexit dumping backtrace ...";
 
   return oss.str();
 }

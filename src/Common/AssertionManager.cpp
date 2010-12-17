@@ -8,6 +8,7 @@
 #include <iostream>
 
 #include "Common/CF.hpp"
+#include "Common/Log.hpp"
 
 #include "Common/BasicExceptions.hpp"
 #include "Common/OSystemLayer.hpp"
@@ -16,7 +17,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-using namespace std;
 using namespace CF::Common;
 
 namespace CF {
@@ -25,7 +25,7 @@ namespace CF {
 
 AssertionManager::AssertionManager() :
   DoAssertions    ( true ),
-  AssertionDumps  ( false ),
+  AssertionDumps  ( true ),
   AssertionThrows ( false ) {}
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -47,29 +47,27 @@ void AssertionManager::do_assert ( bool condition,
 {
   if ( (!condition) && AssertionManager::instance().DoAssertions )
   {
-
     CodeLocation code_position (file,line,func);
 
-    std::ostringstream out;
-    out << "Assertion failed: [" << cond_str << "] ";
+		std::ostringstream oss;
+    oss << "Assertion failed: [" << cond_str << "] ";
 
     if (desc)
-      out << "'" << desc << "' ";
+      oss << "'" << desc << "' ";
 
-    out << "at " << code_position.str();
+    oss << "at " << code_position.str();
 
     if ( AssertionManager::instance().AssertionDumps )
-      out << "\n" << OSystem::instance().system_layer()->back_trace();
+      oss << "\n" << OSystem::instance().system_layer()->back_trace();
 
     if ( AssertionManager::instance().AssertionThrows )
     {
-      throw FailedAssertion ( code_position, out.str());
+      throw FailedAssertion ( code_position, oss.str());
     }
     else
     {
-      std::cerr << out << std::endl;
-      std::cerr << "aborting..." << std::endl;
-      cerr.flush ();
+      CFerror << oss.str() << CFendl;
+      CFerror << "aborting..." << CFendl;
       abort ();
     }
   }
