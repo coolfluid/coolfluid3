@@ -17,7 +17,7 @@ namespace Common {
 ////////////////////////////////////////////////////////////////////////////////
 
 template < typename EClass >
-class EnumT : public NonInstantiable< EnumT<EClass> >
+class EnumT : public boost::noncopyable
 {
   public: // typedefs
 
@@ -29,17 +29,22 @@ class EnumT : public NonInstantiable< EnumT<EClass> >
     /// type for reverse map
     typedef std::map < std::string, EnumType > BwdMap_t;
 
+    /// storage of the enum forward map
+    FwdMap_t all_fwd;
+    /// storage of the enum reverse map
+    BwdMap_t all_rev;
+
   public:
 
   /// conversion from enum to string
-  static bool is_valid ( const EnumType& in )
+  bool is_valid ( const EnumType& in )
   {
     FwdMap_t& all_fwd = EClass::Convert::all_fwd;
     return !( in == EClass::INVALID || all_fwd.find(in) == all_fwd.end() );
   }
 
   /// conversion from enum to string
-  static std::string to_str ( const EnumType& in )
+  std::string to_str ( const EnumType& in )
   {
     FwdMap_t& all_fwd = EClass::Convert::all_fwd;
     typename FwdMap_t::const_iterator fitr = all_fwd.find(in);
@@ -47,7 +52,7 @@ class EnumT : public NonInstantiable< EnumT<EClass> >
   }
 
   /// conversion from int to enum then to string
-  static std::string to_str ( const int& in )
+  std::string to_str ( const int& in )
   {
     FwdMap_t& all_fwd = EClass::Convert::all_fwd;
     EnumType ft = static_cast< EnumType >( in );
@@ -56,7 +61,7 @@ class EnumT : public NonInstantiable< EnumT<EClass> >
   }
 
   /// conversion from int to enum (with validity check)
-  static EnumType to_enum ( const int& in )
+  EnumType to_enum ( const int& in )
   {
     FwdMap_t& all_fwd = EClass::Convert::all_fwd;
     EnumType ft = static_cast< EnumType >( in );
@@ -65,7 +70,7 @@ class EnumT : public NonInstantiable< EnumT<EClass> >
   }
 
   /// conversion from string to enum
-  static EnumType to_enum ( const std::string& in )
+  EnumType to_enum ( const std::string& in )
   {
     BwdMap_t& all_rev = EClass::Convert::all_rev;
     typename BwdMap_t::const_iterator fitr = all_rev.find(in);

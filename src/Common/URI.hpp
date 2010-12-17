@@ -36,23 +36,23 @@ namespace Common {
     {
     public:
 
-     /// Enumeration of the Shapes recognized in CF
-     enum Type  { INVALID = -1,
-                  HTTP    = 0,
-                  HTTPS   = 1,
-                  CPATH   = 2,
-                  FILE    = 3
-                };
+      /// Enumeration of the Shapes recognized in CF
+      enum Type  { INVALID = -1,
+                   HTTP    = 0,
+                   HTTPS   = 1,
+                   CPATH   = 2,
+                   FILE    = 3
+                 };
 
-     typedef EnumT< Protocol > ConverterBase;
+      typedef EnumT< Protocol > ConverterBase;
 
-     struct Common_API Convert : public ConverterBase
-     {
-       /// storage of the enum forward map
-       static ConverterBase::FwdMap_t all_fwd;
-       /// storage of the enum reverse map
-       static ConverterBase::BwdMap_t all_rev;
-     };
+      struct Common_API Convert : public ConverterBase
+      {
+        /// constructor where all the converting maps are built
+        Convert();
+        /// get the unique instance of the converter class
+        static Convert& instance();
+      };
 
     }; // Protocol
 

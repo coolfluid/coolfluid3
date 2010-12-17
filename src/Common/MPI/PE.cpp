@@ -116,7 +116,7 @@ Uint PE::size() const
 
 void PE::change_status(WorkerStatus::Type status) 
 {
-  cf_assert ( WorkerStatus::Convert::is_valid(status) );
+  cf_assert ( WorkerStatus::Convert::instance().is_valid(status) );
   m_current_status = status;
 }
 

@@ -46,7 +46,7 @@ void OptionURI::configure ( XmlNode& node )
   URI::Protocol::Type protocol = val.protocol();
 
   if(std::find(m_protocols.begin(), m_protocols.end(), protocol) == m_protocols.end())
-    throw XmlError(FromHere(), URI::Protocol::Convert::to_str(protocol) + ": unsupported protocol.");
+    throw XmlError(FromHere(), URI::Protocol::Convert::instance().to_str(protocol) + ": unsupported protocol.");
 
   m_value = val;
 }

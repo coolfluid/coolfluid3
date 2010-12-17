@@ -152,7 +152,7 @@ void NLog::message(XmlNode & node)
 
   std::string typeStr = p.get_option<std::string>("type");
   std::string message = p.get_option<std::string>("text");
-  LogMessage::Type type = LogMessage::Convert::to_enum(typeStr);
+  LogMessage::Type type = LogMessage::Convert::instance().to_enum(typeStr);
 
   cf_assert(type != LogMessage::INVALID);
 

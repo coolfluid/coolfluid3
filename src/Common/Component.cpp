@@ -694,7 +694,7 @@ void add_prop_to_xml(XmlParams & params, const std::string & name,
       std::vector<URI::Protocol::Type>::iterator it = prots.begin();
 
       for( ; it != prots.end() ; it++)
-        XmlOps::add_attribute_to(*node, XmlParams::tag_attr_protocol(), URI::Protocol::Convert::to_str(*it));
+        XmlOps::add_attribute_to(*node, XmlParams::tag_attr_protocol(), URI::Protocol::Convert::instance().to_str(*it));
     }
   }
 }

@@ -15,7 +15,15 @@ namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-GeoShape::Convert::FwdMap_t GeoShape::Convert::all_fwd = boost::assign::map_list_of
+GeoShape::Convert& GeoShape::Convert::instance()
+{
+  static GeoShape::Convert instance;
+  return instance;
+}
+
+GeoShape::Convert::Convert()
+{
+  all_fwd = boost::assign::map_list_of
     ( GeoShape::INVALID, "Invalid" )
     ( GeoShape::POINT,   "Point"   )
     ( GeoShape::LINE,    "Line"    )
@@ -26,7 +34,7 @@ GeoShape::Convert::FwdMap_t GeoShape::Convert::all_fwd = boost::assign::map_list
     ( GeoShape::PRISM,   "Prism"   )
     ( GeoShape::HEXA,    "Hexa"    );
 
-GeoShape::Convert::BwdMap_t GeoShape::Convert::all_rev = boost::assign::map_list_of
+  all_rev = boost::assign::map_list_of
     ("Invalid",  GeoShape::INVALID )
     ("Point",    GeoShape::POINT   )
     ("Line",     GeoShape::LINE    )
@@ -36,12 +44,13 @@ GeoShape::Convert::BwdMap_t GeoShape::Convert::all_rev = boost::assign::map_list
     ("Pyram",    GeoShape::PYRAM   )
     ("Prism",    GeoShape::PRISM   )
     ("Hexa",     GeoShape::HEXA    );
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
 std::ostream& operator<< ( std::ostream& os, const GeoShape::Type& in )
 {
-  os << GeoShape::Convert::to_str(in);
+  os << GeoShape::Convert::instance().to_str(in);
   return os;
 }
 
@@ -49,7 +58,7 @@ std::istream& operator>> (std::istream& is, GeoShape::Type& in )
 {
   std::string tmp;
   is >> tmp;
-  in = GeoShape::Convert::to_enum(tmp);
+  in = GeoShape::Convert::instance().to_enum(tmp);
   return is;
 }
 

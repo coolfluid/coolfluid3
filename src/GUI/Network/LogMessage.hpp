@@ -33,13 +33,14 @@ class Network_API LogMessage
 
   typedef Common::EnumT< LogMessage > ConverterBase;
 
-  struct Network_API Convert : public ConverterBase
+  struct Common_API Convert : public ConverterBase
   {
-    /// storage of the enum forward map
-    static ConverterBase::FwdMap_t all_fwd;
-    /// storage of the enum reverse map
-    static ConverterBase::BwdMap_t all_rev;
+    /// constructor where all the converting maps are built
+    Convert();
+    /// get the unique instance of the converter class
+    static Convert& instance();
   };
+
 
 }; // class LogMessage
 

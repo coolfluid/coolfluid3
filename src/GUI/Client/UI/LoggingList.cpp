@@ -75,7 +75,7 @@ void LoggingList::newMessage(const QString & message, LogMessage::Type type)
   QString imgTag = "<img src=\":/Icons/%1.png\" height=\"%2\" width=\"%2\"> ";
   QString color;
   QString msg = message;
-  QString typeName = LogMessage::Convert::to_str(type).c_str();
+  QString typeName = LogMessage::Convert::instance().to_str(type).c_str();
   int size = 14;
 
   msg.replace(" ", "&nbsp;");

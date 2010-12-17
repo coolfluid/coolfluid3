@@ -26,25 +26,36 @@ InvalidURI::InvalidURI( const Common::CodeLocation& where, const std::string& wh
 
 ////////////////////////////////////////////////////////////////////////////////
 
-URI::Protocol::Convert::FwdMap_t URI::Protocol::Convert::all_fwd = boost::assign::map_list_of
-    ( URI::Protocol::INVALID, "Invalid" )
-    ( URI::Protocol::HTTP,    "http"    )
-    ( URI::Protocol::HTTPS,   "https"   )
-    ( URI::Protocol::CPATH,   "cpath"   )
-    ( URI::Protocol::FILE,    "file"    );
+URI::Protocol::Convert& URI::Protocol::Convert::instance()
+{
+  static URI::Protocol::Convert instance;
+  return instance;
+}
 
-URI::Protocol::Convert::BwdMap_t URI::Protocol::Convert::all_rev = boost::assign::map_list_of
-    ("Invalid",  URI::Protocol::INVALID )
-    ("http",     URI::Protocol::HTTP    )
-    ("https",    URI::Protocol::HTTPS   )
-    ("cpath",    URI::Protocol::CPATH   )
-    ("file",     URI::Protocol::FILE    );
+////////////////////////////////////////////////////////////////////////////////
+
+URI::Protocol::Convert::Convert()
+{
+  all_fwd = boost::assign::map_list_of
+      ( URI::Protocol::INVALID, "Invalid" )
+      ( URI::Protocol::HTTP,    "http"    )
+      ( URI::Protocol::HTTPS,   "https"   )
+      ( URI::Protocol::CPATH,   "cpath"   )
+      ( URI::Protocol::FILE,    "file"    );
+
+  all_rev = boost::assign::map_list_of
+      ("Invalid",  URI::Protocol::INVALID )
+      ("http",     URI::Protocol::HTTP    )
+      ("https",    URI::Protocol::HTTPS   )
+      ("cpath",    URI::Protocol::CPATH   )
+      ("file",     URI::Protocol::FILE    );
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
 std::ostream& operator<< ( std::ostream& os, const URI::Protocol::Type& in )
 {
-  os << URI::Protocol::Convert::to_str(in);
+  os << URI::Protocol::Convert::instance().to_str(in);
   return os;
 }
 
@@ -52,7 +63,7 @@ std::istream& operator>> (std::istream& is, URI::Protocol::Type& in )
 {
   std::string tmp;
   is >> tmp;
-  in = URI::Protocol::Convert::to_enum(tmp);
+  in = URI::Protocol::Convert::instance().to_enum(tmp);
   return is;
 }
 
@@ -178,7 +189,7 @@ std::string URI::string_without_protocol() const
 std::string URI::string() const
 {
   if(m_protocol != URI::Protocol::INVALID)
-    return URI::Protocol::Convert::to_str(m_protocol) + ':' + m_path;
+    return URI::Protocol::Convert::instance().to_str(m_protocol) + ':' + m_path;
 
   return m_path;
 }
@@ -198,7 +209,7 @@ void URI::split_path(const std::string & path, URI::Protocol::Type & protocol,
 
     real_path = real_path.substr(colon_pos + 1, path.length() - colon_pos - 1);
 
-    protocol = URI::Protocol::Convert::to_enum(protocol_str);
+    protocol = URI::Protocol::Convert::instance().to_enum(protocol_str);
 
     if(protocol == URI::Protocol::INVALID)
       throw ProtocolError(FromHere(), "\'" + protocol_str + "\' is not a supported protocol");

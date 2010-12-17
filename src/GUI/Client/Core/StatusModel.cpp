@@ -146,7 +146,7 @@ void StatusModel::addSubSystem(const QString & subSysName, unsigned int size)
 //      QDomElement workerNode = m_domDocument.createElement("worker");
 
 //      workerNode.setAttribute("rank", i);
-//      workerNode.setAttribute("status", WorkerStatus::Convert::to_str(WorkerStatus::NOT_RUNNING).c_str());
+//      workerNode.setAttribute("status", WorkerStatus::Convert::instance().to_str(WorkerStatus::NOT_RUNNING).c_str());
 //      node.appendChild(workerNode);
 //    }
 

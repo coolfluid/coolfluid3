@@ -230,7 +230,7 @@ bool ServerNetworkComm::sendMessage(QTcpSocket * client, const QString & message
   if(type == LogMessage::INVALID)
     type = LogMessage::INFO;
 
-  p.add_option("type", LogMessage::Convert::to_str(type));
+  p.add_option("type", LogMessage::Convert::instance().to_str(type));
   p.add_option("text", message.toStdString());
 
   return this->send(client, *doc) != 0;

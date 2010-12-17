@@ -98,7 +98,7 @@ void GraphicalUri::setProtocols(const std::vector<URI::Protocol::Type> & list)
   {
     std::vector<URI::Protocol::Type>::const_iterator it;
     for(it = list.begin() ; it != list.end() ; it++)
-      m_comboType->addItem(URI::Protocol::Convert::to_str(*it).c_str());
+      m_comboType->addItem(URI::Protocol::Convert::instance().to_str(*it).c_str());
   }
 
   changeType(m_comboType->currentText());

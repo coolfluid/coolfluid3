@@ -312,7 +312,7 @@ void CCore::message(const QString & message)
 {
   QString typeStr = message.split(" ").first();
   QString copy(message);
-  LogMessage::Type type = LogMessage::Convert::to_enum(typeStr.toStdString());
+  LogMessage::Type type = LogMessage::Convert::instance().to_enum(typeStr.toStdString());
 
   m_commServer->sendMessageToClient(copy.remove(0, typeStr.length() + 1), type);
 }
