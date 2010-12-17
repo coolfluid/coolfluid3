@@ -146,15 +146,16 @@ void ForwardEuler::solve()
         for (Uint i=0; i<node_data.size(); ++i)
     			node_data[i][0]=0;
         
-        CFinfo << "compute rhs" << CFendl;
+
+      CF_DEBUG_STR("computing rhs");
       // compute RHS
       discretization_method().compute_rhs();
 
-      CFinfo << "time march" << CFendl;
+      CF_DEBUG_STR("time march");
       // explicit update
       m_take_step->execute();
 
-      CFinfo << "norm compute" << CFendl;
+      CF_DEBUG_STR("computing norm");
       // compute norm
       Real rhs_L2=0;
       Uint dof=0;
