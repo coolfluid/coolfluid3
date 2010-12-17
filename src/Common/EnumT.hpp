@@ -39,14 +39,14 @@ class EnumT : public boost::noncopyable
   /// conversion from enum to string
   bool is_valid ( const EnumType& in )
   {
-    FwdMap_t& all_fwd = EClass::Convert::all_fwd;
+    FwdMap_t& all_fwd = EClass::Convert::instance().all_fwd;
     return !( in == EClass::INVALID || all_fwd.find(in) == all_fwd.end() );
   }
 
   /// conversion from enum to string
   std::string to_str ( const EnumType& in )
   {
-    FwdMap_t& all_fwd = EClass::Convert::all_fwd;
+    FwdMap_t& all_fwd = EClass::Convert::instance().all_fwd;
     typename FwdMap_t::const_iterator fitr = all_fwd.find(in);
     return ( fitr == all_fwd.end() ) ? all_fwd[EClass::INVALID] : fitr->second;
   }
@@ -54,7 +54,7 @@ class EnumT : public boost::noncopyable
   /// conversion from int to enum then to string
   std::string to_str ( const int& in )
   {
-    FwdMap_t& all_fwd = EClass::Convert::all_fwd;
+    FwdMap_t& all_fwd = EClass::Convert::instance().all_fwd;
     EnumType ft = static_cast< EnumType >( in );
     typename FwdMap_t::const_iterator fitr = all_fwd.find(ft);
     return ( fitr == all_fwd.end() ) ? all_fwd[EClass::INVALID] : fitr->second;
@@ -63,7 +63,7 @@ class EnumT : public boost::noncopyable
   /// conversion from int to enum (with validity check)
   EnumType to_enum ( const int& in )
   {
-    FwdMap_t& all_fwd = EClass::Convert::all_fwd;
+    FwdMap_t& all_fwd = EClass::Convert::instance().all_fwd;
     EnumType ft = static_cast< EnumType >( in );
     typename FwdMap_t::const_iterator fitr = all_fwd.find(ft);
     return ( fitr == all_fwd.end() ) ? EClass::INVALID : ft;
@@ -72,7 +72,7 @@ class EnumT : public boost::noncopyable
   /// conversion from string to enum
   EnumType to_enum ( const std::string& in )
   {
-    BwdMap_t& all_rev = EClass::Convert::all_rev;
+    BwdMap_t& all_rev = EClass::Convert::instance().all_rev;
     typename BwdMap_t::const_iterator fitr = all_rev.find(in);
     return ( fitr == all_rev.end() ) ? EClass::INVALID : fitr->second;
   }
