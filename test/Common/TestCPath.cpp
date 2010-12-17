@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE( protocol_management )
 
 BOOST_AUTO_TEST_CASE( memory_failure )
 {
-  BOOST_CHECK_EQUAL( URI::Protocol::Convert::to_str(URI::Protocol::CPATH), std::string("cpath") );
+  BOOST_CHECK_EQUAL( URI::Protocol::Convert::instance().to_str(URI::Protocol::CPATH), std::string("cpath") );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

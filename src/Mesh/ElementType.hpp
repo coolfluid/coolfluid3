@@ -84,7 +84,7 @@ public: // functions
   static std::string type_name() { return "ElementType"; }
   
   /// @return m_nameShape
-  std::string shape_name() const { return Common::EnumT<GeoShape>::to_str( m_shape ); }
+  std::string shape_name() const { return Mesh::GeoShape::Convert::instance().to_str( m_shape ); }
 
   /// @return m_geoShape
   GeoShape::Type shape() const  {  return m_shape; }

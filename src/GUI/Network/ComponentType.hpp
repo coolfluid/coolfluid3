@@ -35,7 +35,7 @@ namespace Network {
     
     typedef Common::EnumT< ComponentType > ConverterBase;
 
-    struct Common_API Convert : public ConverterBase
+    struct Network_API Convert : public ConverterBase
     {
       /// constructor where all the converting maps are built
       Convert();
