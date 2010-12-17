@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE( configuration )
   CIterativeSolver& solver = find_component_recursively<CIterativeSolver>(*Core::instance().root());
 
   solver.configure_property("Domain",URI("../Domain"));
-  solver.configure_property("Number of Iterations", 5u);
+  solver.configure_property("Number of Iterations", 50u);
   
   CDiscretization::Ptr discretization = solver.get_child<CDiscretization>("Discretization");
   BOOST_CHECK ( is_not_null(discretization) );
@@ -115,7 +115,9 @@ BOOST_AUTO_TEST_CASE( configuration )
   std::vector<URI> bc_regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"inlet"))
     bc_regions.push_back(URI(region.full_path()));
+
   BOOST_CHECK_EQUAL( bc_regions.size() , 1u);
+
   apply_inlet->configure_property("Regions", bc_regions);
   CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
   
@@ -138,7 +140,6 @@ BOOST_AUTO_TEST_CASE( output )
   CMeshWriter::Ptr mesh_writer = create_component_abstract_type<CMeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
   boost::filesystem::path file ("scalar_advection.msh");
   mesh_writer->write_from_to(mesh,file);
-  
 }
 
 //////////////////////////////////////////////////////////////////////////////
