@@ -294,11 +294,15 @@ boost::shared_ptr< std::vector<Uint> > ArrayBufferT<T>::flush()
 
         // 1) find next full row
         while(is_empty(m_array[full_row_idx]))
-          full_row_idx++; 
+        { 
+					full_row_idx++; 
+					cf_assert(full_row_idx<m_array.size());
+				}
         
-        // 2) swap them  
+        // 2) swap them
+				cf_assert(empty_row_idx < m_array.size());
+				cf_assert(full_row_idx < m_array.size());
         swap(m_array[empty_row_idx],m_array[full_row_idx]);
-				
 				// 3) add to change_set
 				new_idx = empty_row_idx;
 				old_idx = full_row_idx;

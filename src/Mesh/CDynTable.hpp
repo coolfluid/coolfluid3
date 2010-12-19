@@ -181,7 +181,6 @@ public:
   /// @return true if the given row is empty
   bool is_empty(const Row row) const  
   { 
-    CF_DEBUG_POINT;
     return row.size()==0 ? false : row[0]==INVALID; 
   }
 
