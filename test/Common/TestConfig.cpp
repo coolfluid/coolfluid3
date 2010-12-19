@@ -243,7 +243,7 @@ BOOST_AUTO_TEST_CASE( configure_component_path )
   CConcrete1::Ptr component2 = root->create_component<CConcrete1>("component2");
 
   // Configure component 1 without XML (It could also be done with xml)
-  component1->configure_property("MyRelativeFriend",URI("../component2"));
+  component1->configure_property("MyRelativeFriend",URI("cpath:../component2"));
   component1->configure_property("MyAbsoluteFriend",URI("cpath://root/component2"));
 
   // Check if everything worked OK.
