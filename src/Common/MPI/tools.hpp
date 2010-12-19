@@ -70,21 +70,33 @@ namespace boost { namespace mpi {
   @param msec milliseconds to wait, called before and after so overall delay is 2*msec
   @param msg message to print on stdout
 **/
+
 #define  PECheckPoint(msec,msg) {                                                                                               \
-  PE::instance().barrier();                                                                                                     \
-  std::cout << std::flush;                                                                                                      \
-  boost::this_thread::sleep(boost::posix_time::milliseconds(msec));                                                             \
-  PE::instance().barrier();                                                                                                     \
-  PEProcessSortedExecute(PE::instance(),-1,                                                                                                    \
-    std::cout << std::flush;                                                                                                    \
-    std::cout << "["<<PE::instance().rank() << "] " << msg << "\n";                                                                   \
-    std::cout << std::flush;                                                                                                    \
-  );                                                                                                                            \
-  PE::instance().barrier();                                                                                                     \
-  std::cout << std::flush;                                                                                                      \
-  boost::this_thread::sleep(boost::posix_time::milliseconds(msec));                                                             \
+PE::instance().barrier();                                                                                                     \
+std::cout << std::flush;                                                                                                      \
+boost::this_thread::sleep(boost::posix_time::milliseconds(msec));                                                             \
+PE::instance().barrier();                                                                                                     \
+PEProcessSortedExecute(PE::instance(),-1,                                                                                                    \
+std::cout << std::flush;                                                                                                    \
+std::cout << "["<<PE::instance().rank() << "] " << msg << "\n";                                                                   \
+std::cout << std::flush;                                                                                                    \
+);                                                                                                                            \
+PE::instance().barrier();                                                                                                     \
+std::cout << std::flush;                                                                                                      \
+boost::this_thread::sleep(boost::posix_time::milliseconds(msec));                                                             \
+}
+	
+////////////////////////////////////////////////////////////////////////////////
+
+#define  PECheckArrivePoint(msec,msg) {                                                                                               \
+std::cout << std::flush;                                                                                                      \
+std::cout << "["<<PE::instance().rank() << "] " << msg << "\n";                                                                   \
+std::cout << std::flush;                                                                                                    \
+PE::instance().barrier();                                                                                                     \
+boost::this_thread::sleep(boost::posix_time::milliseconds(msec));                                                             \
 }
 
+	
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
