@@ -152,6 +152,8 @@ void CPartitioner::query_list_of_connected_objects(void *data, int sizeGID, int 
 void CPartitioner::migrate()
 {
 	
+	if (property("Number of Partitions").value<Uint>() == 1)
+		return;
 	
   // ++++++++++++++++++++++++++++++++++++++++++++ give_elems_global_node_numbers 
 	
