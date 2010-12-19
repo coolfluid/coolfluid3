@@ -11,7 +11,9 @@
 
 #include <deque>
 #include "Common/Component.hpp"
-
+#include "Common/Log.hpp"
+#include "Common/BasicExceptions.hpp"
+#include "Common/Foreach.hpp"
 #include "Mesh/LibMesh.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -65,24 +67,15 @@ public:
     m_array.push_back(std::vector<T>(row.size()));
     Uint array_idx = m_array.size()-1;
     Uint j=0;
-    BOOST_FOREACH(const T row_elem, row)
+    boost_foreach(const T row_elem, row)
       m_array[array_idx][j++] = row_elem;
     return array_idx;
   }
-  
-  void rm_rows_buffer(std::vector<Uint> row_indices)
-  {
-    Uint shrink_size=0;
-    BOOST_FOREACH(const Uint row_to_rm, row_indices)
-    {
-      shrink_size += row_size(row_to_rm);
-    }
-  }
-  
+
   template<typename DoubleVectorT>
   void add_rows(const DoubleVectorT& rows)
   {
-    BOOST_FOREACH(const typename DoubleVectorT::value_type& row, rows)
+    boost_foreach(const typename DoubleVectorT::value_type& row, rows)
     {
       add_row(row);
     }
@@ -126,6 +119,12 @@ std::ostream& operator<<(std::ostream& os, const CDynTable<int>::ConstRow row);
 std::ostream& operator<<(std::ostream& os, const CDynTable<Real>::ConstRow row);
 std::ostream& operator<<(std::ostream& os, const CDynTable<std::string>::ConstRow row);
 
+std::ostream& operator<<(std::ostream& os, const CDynTable<bool>& table);
+std::ostream& operator<<(std::ostream& os, const CDynTable<Uint>& table);
+std::ostream& operator<<(std::ostream& os, const CDynTable<int>& table);
+std::ostream& operator<<(std::ostream& os, const CDynTable<Real>& table);
+std::ostream& operator<<(std::ostream& os, const CDynTable<std::string>& table);
+  
 ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -149,7 +148,7 @@ public:
     m_buffer.push_back(std::vector<T>(row.size()));
     Uint buffer_idx = m_buffer.size()-1;
     Uint j=0;
-    BOOST_FOREACH(const T row_elem, row)
+    boost_foreach(const T row_elem, row)
       m_buffer[buffer_idx][j++] = row_elem;
     return m_array.size() + buffer_idx;
   }
@@ -175,15 +174,20 @@ public:
       if (idx<array_size+m_buffer.size())
         return m_buffer[idx-array_size];
     }
-    throw Common::BadValue(FromHere(),"Trying to access index that is not allocated");
+		cf_assert_desc("Trying to access index that is not allocated",false);
+		return m_array[0];
   }
   
   /// @return true if the given row is empty
-  bool is_empty(const Row row) const  { return row.size()==0; }
+  bool is_empty(const Row row) const  
+  { 
+    CF_DEBUG_POINT;
+    return row.size()==0 ? false : row[0]==INVALID; 
+  }
 
   /// mark the given row as empty
   /// @param [in] row the row to be marked as empty
-  void set_empty(Row row) { row.resize(0); }  
+  void set_empty(Row row) { row.resize(1); row[0]=INVALID; }  
   
   boost::shared_ptr< std::vector<Uint> > flush()
   {
@@ -210,14 +214,14 @@ public:
 
       // copy each buffer into the array
       Uint array_idx=old_array_size;
-      BOOST_FOREACH (Row row, m_buffer)
+      boost_foreach (Row row, m_buffer)
   		{
   			if (!is_empty(row))   // for each non-empty row from all buffers
-  			{      
+  			{
   				// first find empty rows inside the old part array
   				if (!m_emptyArrayRows.empty()) 
   				{
-  					new_idx = m_emptyArrayRows.front();
+						new_idx = m_emptyArrayRows.front();
   					m_emptyArrayRows.pop_front();
 
   					Row empty_array_row = get_row(new_idx);
@@ -228,7 +232,9 @@ public:
   				else // then select the new array rows to be filled
   				{
   					Row empty_array_row=m_array[array_idx++];
-            empty_array_row = row;
+            empty_array_row.resize(row.size());
+            for (Uint j=0; j<row.size(); ++j)
+              empty_array_row[j] = row[j];
   				}
   			}
   			++old_idx;
@@ -237,7 +243,7 @@ public:
     else // More rows to be removed than added, now we need to swap rows
     {
       // copy all buffer rows in the m_array
-			BOOST_FOREACH (Row row, m_buffer)
+			boost_foreach (Row row, m_buffer)
 			if (!is_empty(row))   // for each non-empty row from all buffers
 			{     
 				new_idx = m_emptyArrayRows.front();
@@ -254,7 +260,7 @@ public:
       // The part of the table with rows > new_size will be deallocated
       // The empty rows from the allocated part must be swapped with filled 
       // rows from the part that will be deallocated
-      BOOST_FOREACH(Uint empty_row_idx, m_emptyArrayRows)
+      boost_foreach(Uint empty_row_idx, m_emptyArrayRows)
       {
         // swap only necessary if it the empty row is in the allocated part
         if (empty_row_idx < new_size)
@@ -262,17 +268,16 @@ public:
           // swap this empty row with a full one in the part that will be deallocated
 
           // 1) find next full row
+					cf_assert_desc("Index out of bounds",full_row_idx < m_array.size()); 
           while(is_empty(m_array[full_row_idx]))
             full_row_idx++; 
-
-          // 2) swap them  
+          // 2) swap them 
+					cf_assert_desc("Index out of bounds",full_row_idx < m_array.size()); 
           swap(m_array[empty_row_idx],m_array[full_row_idx]);
-
   				// 3) add to change_set
   				new_idx = empty_row_idx;
   				old_idx = full_row_idx;
   				old_indexes[new_idx]=old_idx;
-
           full_row_idx++;
         }
       }
@@ -316,7 +321,15 @@ private:
   /// buffer storage;
   std::deque< std::vector<T> > m_buffer;
   
+  /// definition of an invalid element
+  static const T INVALID;
+  
 };
+
+//////////////////////////////////////////////////////////////////////////////
+
+template<typename T>
+const T DynArrayBufferT<T>::INVALID = std::numeric_limits<T>::max();
 
 //////////////////////////////////////////////////////////////////////////////
 

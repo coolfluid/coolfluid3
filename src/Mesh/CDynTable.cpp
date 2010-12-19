@@ -6,6 +6,7 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/StreamHelpers.hpp"
+#include "Common/Foreach.hpp"
 
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CDynTable.hpp"
@@ -55,6 +56,103 @@ std::ostream& operator<<(std::ostream& os, const CDynTable<std::string>::ConstRo
 {
   print_vector(os, row);
   return os;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+std::ostream& operator<<(std::ostream& os, const CDynTable<bool>& table)
+{
+	if (table.size())
+		os << "\n";
+	index_foreach(i,CDynTable<bool>::ConstRow row, table.array())
+	{
+		os << "  " << i << ":  ";
+		if (row.size() == 0)
+			os << "~";
+		else
+		{
+			boost_foreach(const bool entry, row)
+			os << entry << " ";
+		}
+		os << "\n";
+	}
+	return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const CDynTable<Uint>& table)
+{
+	if (table.size())
+		os << "\n";
+	index_foreach(i,CDynTable<Uint>::ConstRow row, table.array())
+	{
+		os << "  " << i << ":  ";
+		if (row.size() == 0)
+			os << "~";
+		else
+		{
+			boost_foreach(const Uint entry, row)
+				os << entry << " ";
+		}
+		os << "\n";
+	}
+	return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const CDynTable<int>& table)
+{
+	if (table.size())
+		os << "\n";
+	index_foreach(i,CDynTable<int>::ConstRow row, table.array())
+	{
+		os << "  " << i << ":  ";
+		if (row.size() == 0)
+			os << "~";
+		else
+		{
+			boost_foreach(const int entry, row)
+				os << entry << " ";
+		}
+		os << "\n";
+	}
+	return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const CDynTable<Real>& table)
+{
+	if (table.size())
+		os << "\n";
+	index_foreach(i,CDynTable<Real>::ConstRow row, table.array())
+	{
+		os << "  " << i << ":  ";
+		if (row.size() == 0)
+			os << "~";
+		else
+		{
+			boost_foreach(const Real& entry, row)
+				os << entry << " ";
+		}
+		os << "\n";
+	}
+	return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const CDynTable<std::string>& table)
+{
+	if (table.size())
+		os << "\n";
+	index_foreach(i,CDynTable<std::string>::ConstRow row, table.array())
+	{
+		os << "  " << i << ":  ";
+		if (row.size() == 0)
+			os << "~";
+		else
+		{
+			boost_foreach(const std::string& entry, row)
+				os << entry << " ";
+		}
+		os << "\n";
+	}
+	return os;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

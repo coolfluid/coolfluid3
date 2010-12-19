@@ -9,6 +9,7 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/foreach.hpp>
+#include <boost/assign/list_of.hpp>
 
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
@@ -25,6 +26,7 @@
 
 using namespace std;
 using namespace boost;
+using namespace boost::assign;
 using namespace CF;
 using namespace CF::Mesh;
 using namespace CF::Common;
@@ -605,6 +607,7 @@ BOOST_AUTO_TEST_CASE ( CDynTable_test )
   for(Uint i=0; i<row.size(); i++) row[i] = 5;
   buffer.add_row(row);
   
+	BOOST_CHECK(true);
   buffer.flush();
 
   // the table should have grown with 1 as the buffer with 1 item was flushed
@@ -645,6 +648,63 @@ BOOST_AUTO_TEST_CASE ( CDynTable_test )
   
   
 }
+
+
+BOOST_AUTO_TEST_CASE ( CDynTable_test_hard )
+{
+	
+//	0:  0 
+//  1:  1 
+//  2:  0 1 
+//  3:  1 4 5 
+//  4:  0 3 
+//  5:  ~
+//  6:  ~
+//  7:  4294967295 
+//  8:  ~
+	CDynTable<Uint> table ("table");
+  CDynTable<Uint>::Buffer buffer = table.create_buffer();
+	
+	std::vector<Uint> row;
+	
+	row = list_of(0);
+	buffer.add_row(row);
+	
+	row = list_of(1);
+	buffer.add_row(row);
+	
+	row = list_of(0)(1);
+	buffer.add_row(row);
+
+	row = list_of(1)(4)(5);
+	buffer.add_row(row);
+
+	row = list_of(0)(3);
+	buffer.add_row(row);
+
+	row.resize(0);
+	buffer.add_row(row);
+	
+	row.resize(0);
+	buffer.add_row(row);
+	
+	row.resize(0);
+	buffer.add_row(row);
+	
+	row.resize(0);
+	buffer.add_row(row);
+	
+	BOOST_CHECK(true);
+	
+	buffer.flush();
+	
+	buffer.rm_row(7);
+	
+	buffer.flush();
+
+
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()

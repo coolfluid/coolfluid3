@@ -155,6 +155,12 @@ std::ostream& operator<<(std::ostream& os, const CTable<int>::ConstRow row);
 std::ostream& operator<<(std::ostream& os, const CTable<Real>::ConstRow row);
 std::ostream& operator<<(std::ostream& os, const CTable<std::string>::ConstRow row);
 
+std::ostream& operator<<(std::ostream& os, const CTable<bool>& table);
+std::ostream& operator<<(std::ostream& os, const CTable<Uint>& table);
+std::ostream& operator<<(std::ostream& os, const CTable<int>& table);
+std::ostream& operator<<(std::ostream& os, const CTable<Real>& table);
+std::ostream& operator<<(std::ostream& os, const CTable<std::string>& table);
+	
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh

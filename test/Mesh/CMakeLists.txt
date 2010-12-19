@@ -28,7 +28,7 @@ coolfluid_add_unittest( utest-mesh-reading )
 
 ################################################################################
 
-list( APPEND utest-mesh-components_cflibs coolfluid_neutral coolfluid_gmsh coolfluid_mesh_sf )
+list( APPEND utest-mesh-components_cflibs coolfluid_mesh)
 list( APPEND utest-mesh-components_files  utest-mesh-components.cpp  )
 
 coolfluid_add_unittest( utest-mesh-components )
