@@ -1598,6 +1598,7 @@ BOOST_AUTO_TEST_CASE ( zoltan_quadtriag_mesh)
 
 BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
 {
+	CFinfo << "CMeshPartitioner_test" << CFendl;
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
 	meshreader->configure_property("Read Boundaries",false);
 
@@ -1613,7 +1614,8 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
   CMeshPartitioner& p = *partitioner_ptr;
   
   //p.configure_property("Number of Partitions", (Uint) 4);
-  //p.configure_property("Graph Package", std::string("Scotch"));
+  p.configure_property("Graph Package", std::string("PHG"));
+	p.configure_property("Debug Level", 0u);
   p.initialize(mesh);
   p.partition_graph();
   p.show_changes();

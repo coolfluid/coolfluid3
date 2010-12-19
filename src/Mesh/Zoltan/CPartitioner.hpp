@@ -75,6 +75,8 @@ private: // functions
 	
 	//////////////////////////////////////////////////////////////////////
 
+	// Functions for migration
+	
 	static 	void get_elems_sizes(void *data, int gidSize, int lidSize, int num_ids,
 															 ZOLTAN_ID_PTR globalIDs, ZOLTAN_ID_PTR localIDs, int *sizes, int *ierr);
 	
@@ -83,14 +85,15 @@ private: // functions
 	
 	static	void unpack_elems_messages(void *data, int gidSize, int num_ids,
 																		 ZOLTAN_ID_PTR globalIDs, int *sizes, int *idx, char *buf, int *ierr);
+		
+	static 	void get_nodes_sizes(void *data, int gidSize, int lidSize, int num_ids,
+															 ZOLTAN_ID_PTR globalIDs, ZOLTAN_ID_PTR localIDs, int *sizes, int *ierr);
 	
-	static	void post_migrate_elems(void *data, int gidSize, int lidSize,
-																	int numImport, ZOLTAN_ID_PTR importGlobalID, ZOLTAN_ID_PTR importLocalID, int *importProc, int *importPart,
-																	int numExport, ZOLTAN_ID_PTR exportGlobalID, ZOLTAN_ID_PTR exportLocalID, int *exportProc, int *exportPart,
-																	int *ierr);
+	static 	void pack_nodes_messages(void *data, int gidSize, int lidSize, int num_ids,
+																	 ZOLTAN_ID_PTR globalIDs, ZOLTAN_ID_PTR localIDs, int *dests, int *sizes, int *idx, char *buf, int *ierr);
 	
-	static std::set<Uint> m_ghost_nodes;
-
+	static	void unpack_nodes_messages(void *data, int gidSize, int num_ids,
+																		 ZOLTAN_ID_PTR globalIDs, int *sizes, int *idx, char *buf, int *ierr);
 
   
 private: // data

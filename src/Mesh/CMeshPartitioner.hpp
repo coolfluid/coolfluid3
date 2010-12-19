@@ -70,6 +70,8 @@ public: // functions
 	/// @todo this is now virtual because Zoltan is used.
   virtual void migrate();
   
+	void load_balance ( Common::XmlNode& xml );
+	
   /// location finding functions
       
   boost::tuple<Component::Ptr,Uint> to_local(const Uint glb_obj) const;
@@ -144,9 +146,8 @@ public: // functions
 	}
 	
 	Common::CMap<Uint,Uint>& changes() { return (*m_changes);	}
-	
-	std::vector<Common::Component::Ptr>& components_vector() { return m_local_components; }
-	
+		
+/// @todo must be protected when migration is moved to this class
 public: // functions
 
   boost::tuple<Uint,Uint> to_local_indices_from_loc_obj(const Uint loc_obj) const;
@@ -158,6 +159,9 @@ public: // functions
 	Uint proc_of_obj(const Uint obj) {
 		return m_hash->proc_of_obj(obj);
 	}
+
+	std::vector<Common::Component::Ptr>& components_vector() { return m_local_components; }
+	std::vector<Common::Component::ConstPtr>& connectivity_components_vector() { return m_connectivity_components; }
 
 protected: // data
 
@@ -205,7 +209,7 @@ template <typename VectorT>
 void CMeshPartitioner::list_of_owned_objects(VectorT& obj_list) const
 {
   Uint idx=0;
-  foreach_container((const Uint glb_obj)(const Uint loc_obj),*m_global_to_local)
+  foreach_container((const Uint glb_obj),*m_global_to_local)
   {
     if (m_hash->owns(glb_obj))
       obj_list[idx++] = glb_obj;

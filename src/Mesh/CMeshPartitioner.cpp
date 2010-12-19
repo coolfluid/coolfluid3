@@ -44,6 +44,10 @@ CMeshPartitioner::CMeshPartitioner ( const std::string& name ) :
 
   m_changes = allocate_component<CMap<Uint,Uint> >("changes");
   add_static_component(m_changes);
+	
+	this->regist_signal ( "load_balance" , "partitions and migrates elements between processors", "Load Balance" )->connect ( boost::bind ( &CMeshPartitioner::load_balance,this, _1 ) );
+  signal("load_balance").signature
+	.insert<URI>("Mesh", "Mesh to load balance" );	
   
 }
 
@@ -56,6 +60,29 @@ void CMeshPartitioner::config_nb_parts()
 }
 
 //////////////////////////////////////////////////////////////////////////////
+
+void CMeshPartitioner::load_balance( XmlNode& xml  )
+{
+	XmlParams p (xml);
+	
+	URI path = p.get_option<URI>("Mesh");
+	
+	if( path.protocol() != URI::Protocol::CPATH )
+		throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
+	
+	// get the domain
+	CMesh::Ptr mesh = look_component<CMesh>( path.string_without_protocol() );
+	if ( is_null(mesh) )
+		throw CastingFailed( FromHere(), "Component in path \'" + path.string() + "\' is not a valid CMesh." );
+	
+	initialize(*mesh);
+	
+	partition_graph();
+	
+	migrate();
+}
+
+//////////////////////////////////////////////////////////////////////
 
 void CMeshPartitioner::initialize(CMesh& mesh)
 {
