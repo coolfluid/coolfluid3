@@ -30,7 +30,7 @@ CIterativeSolver::CIterativeSolver ( const std::string& name  ) :
   m_properties.add_option<OptionT <Uint> >("Number of Iterations","Maximum number of iterations",m_nb_iter)->mark_basic();
   m_properties["Number of Iterations"].as_option().link_to( &m_nb_iter );
 
-  m_properties.add_option< OptionURI > ("Domain", "Domain to solve", URI("../Domain"));
+  m_properties.add_option< OptionURI > ("Domain", "Domain to solve", URI("cpath:../Domain"));
 
   // signals
 

@@ -62,7 +62,7 @@ void CMeshReader::read( XmlNode& xml  )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
   // get the domain
-  CDomain::Ptr domain = look_component<CDomain>( path.string_without_protocol() );
+  CDomain::Ptr domain = look_component<CDomain>( path );
   if (!domain)
     throw CastingFailed( FromHere(), "Component in path \'" + path.string() + "\' is not a valid CDomain." );
 

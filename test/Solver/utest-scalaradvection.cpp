@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE( configuration )
   CDomain& domain = find_component_recursively<CDomain>(*Core::instance().root());
   CIterativeSolver& solver = find_component_recursively<CIterativeSolver>(*Core::instance().root());
 
-  solver.configure_property("Domain",URI("../Domain"));
+  solver.configure_property("Domain",URI("cpath:../Domain"));
   solver.configure_property("Number of Iterations", 50u);
   
   CDiscretization::Ptr discretization = solver.get_child<CDiscretization>("Discretization");
@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE( configuration )
 
   std::vector<URI> bc_regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"inlet"))
-    bc_regions.push_back(URI(region.full_path()));
+    bc_regions.push_back(URI("cpath:"+region.full_path().string()));
 
   BOOST_CHECK_EQUAL( bc_regions.size() , 1u);
 
