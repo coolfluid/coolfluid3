@@ -575,7 +575,7 @@ void Component::write_xml_tree( XmlNode& node )
 {
   std::string type_name = derived_type_name();
 
-  CFinfo << "xml tree for " << name() << CFendl;
+//  CFinfo << "xml tree for " << name() << CFendl;
 
   if(type_name.empty())
     CFerror << "Unknown derived name for " << DEMANGLED_TYPEID(*this)
