@@ -52,7 +52,6 @@ struct PECommPatternFixture
   /// common tear-down for each test case
   ~PECommPatternFixture()
   {
-    PE::instance().finalize();
   }
 
   /// common params
@@ -66,12 +65,11 @@ BOOST_FIXTURE_TEST_SUITE( PECommPatternSuite, PECommPatternFixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( mpi_init )
+BOOST_AUTO_TEST_CASE( init )
 {
   PE::instance().init(m_argc,m_argv);
   BOOST_CHECK_EQUAL( PE::instance().is_init() , true );
   PEProcessSortedExecute(PE::instance(),-1,CFinfo << "Proccess " << PE::instance().rank() << "/" << PE::instance().size() << " reports in." << CFendl;);
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -378,26 +376,27 @@ BOOST_AUTO_TEST_CASE( commpattern )
 
 PEProcessSortedExecute(PE::instance(),-1,PEDebugVector(gid,gid.size()));
 
-/*
-  // rank is built such that total scatter
-  std::vector<int> rank(nproc);
-  for (int i=0; i<gid.size(); i++) rank[i]=i;
 
-  // three additional arrays for testing
-  std::vector<int> v1;
-  for(int i=0;i<nproc;i++) v1.push_back(irank*10000+i+100);
-  pecp.insert("v1",v1,1,true);
-  std::vector<int> v2;
-  for(int i=0;i<2*nproc;i++) v2.push_back(irank*10000+(i/2)*100+i%2);
-  pecp.insert("v2",v2,2,true);
-  std::vector<int> v3;
-  for(int i=0;i<nproc;i++) v3.push_back(irank);
-  pecp.insert("v3",v3,1,false);
+//  // rank is built such that total scatter
+//  std::vector<int> rank(nproc);
+//  for (int i=0; i<gid.size(); i++) rank[i]=i;
+//
+//  // three additional arrays for testing
+//  std::vector<int> v1;
+//  for(int i=0;i<nproc;i++) v1.push_back(irank*10000+i+100);
+//  pecp.insert("v1",v1,1,true);
+//  std::vector<int> v2;
+//  for(int i=0;i<2*nproc;i++) v2.push_back(irank*10000+(i/2)*100+i%2);
+//  pecp.insert("v2",v2,2,true);
+//  std::vector<int> v3;
+//  for(int i=0;i<nproc;i++) v3.push_back(irank);
+//  pecp.insert("v3",v3,1,false);
 
   // initial setup
 //  pecp.setup(,rank);
-*/
+
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
