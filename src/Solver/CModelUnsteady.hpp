@@ -11,6 +11,7 @@
 
 #include "Solver/CModel.hpp"
 #include "Solver/LibSolver.hpp"
+#include "Solver/CTime.hpp"
 
 namespace CF {
 namespace Solver {
@@ -40,6 +41,11 @@ public: // functions
 
   /// Simulates this model
   virtual void simulate();
+
+ protected: // data
+
+  /// the time component
+  CTime::Ptr m_time;
 
 };
 

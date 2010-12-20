@@ -21,8 +21,11 @@ Common::ComponentBuilder < CModelUnsteady, Component, LibSolver > CModelUnsteady
 ////////////////////////////////////////////////////////////////////////////////
 
 CModelUnsteady::CModelUnsteady( const std::string& name  ) :
-  CModel ( name )
+  CModel ( name ),
+  m_time()
 {
+   m_time = create_static_component<CTime>("Time");
+
    properties()["steady"] = bool(false);
 }
 
@@ -35,17 +38,22 @@ CModelUnsteady::~CModelUnsteady()
 ////////////////////////////////////////////////////////////////////////////////
 
 void CModelUnsteady::simulate ()
-{
-  Real ti  = 0.0;
-  Real dt  = 0.1;
-  Real ct  = 0.0;
-  Real tf  = 1.0;
+{  
+  const Real ti  = m_time->time();
+  const Real tf  = m_time->property("End Time").value<Real>();
+
+  Real dt  = m_time->dt();
+  Real ct  = m_time->time();
 
   // loop over time
   while( ct < tf )
   {
     // compute which dt to take
-    if( ct + dt > tf ) dt = tf - ct;
+    if( ct + dt > tf )
+    {
+      dt = tf - ct;
+      m_time->dt() = dt;
+    }
 
     // call all (non-linear) iterative solvers
     // to solve this dt step
