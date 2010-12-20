@@ -1626,7 +1626,9 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
 	boost::filesystem::path fp_out ("quadtriag.msh");
 	meshwriter->write_from_to(mesh_ptr,fp_out);
  	
-
+	
+	CFinfo << p.tree() << CFendl;
+	
 }
 
 BOOST_AUTO_TEST_CASE( finalize_mpi )

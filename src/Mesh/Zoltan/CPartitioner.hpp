@@ -105,6 +105,7 @@ private: // data
 // for access for temporary migration function
 private: // data
 	
+	bool m_partitioned;
 	int changes;
   int numGidEntries;
   int numLidEntries;

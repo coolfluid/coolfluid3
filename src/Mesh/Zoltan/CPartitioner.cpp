@@ -30,7 +30,8 @@ CF::Common::ComponentBuilder < CPartitioner, CMeshPartitioner, LibZoltan > zolta
 //////////////////////////////////////////////////////////////////////////////
 
 CPartitioner::CPartitioner ( const std::string& name ) : 
-    CMeshPartitioner(name)
+	CMeshPartitioner(name),
+	m_partitioned(false)
 {
   
   m_properties.add_option<OptionT <std::string> >("Graph Package","External library zoltan will use for graph partitioning","PHG")->mark_basic();
@@ -44,9 +45,11 @@ CPartitioner::CPartitioner ( const std::string& name ) :
 
 CPartitioner::~CPartitioner ( )
 {  
-	
-	ZoltanObject::LB_Free_Part(&importGlobalIds, &importLocalIds, &importProcs, &importToPart);
-  ZoltanObject::LB_Free_Part(&exportGlobalIds, &exportLocalIds, &exportProcs, &exportToPart);  
+	if (m_partitioned)
+	{
+		ZoltanObject::LB_Free_Part(&importGlobalIds, &importLocalIds, &importProcs, &importToPart);
+		ZoltanObject::LB_Free_Part(&exportGlobalIds, &exportLocalIds, &exportProcs, &exportToPart);  		
+	}
 
   delete m_zz;
 }
@@ -54,10 +57,11 @@ CPartitioner::~CPartitioner ( )
 //////////////////////////////////////////////////////////////////////////////
 
 void CPartitioner::partition_graph()
-{  
+{ 
+	CFdebug.setFilterRankZero(false);
+
+	m_partitioned = true;
   set_partitioning_params();
-
-
 
   m_zz->LB_Partition(changes, numGidEntries, numLidEntries,
     numImport, importGlobalIds, importLocalIds, importProcs, importToPart,
@@ -70,6 +74,9 @@ void CPartitioner::partition_graph()
   }
   
   m_changes->sort_keys();
+	
+	CFdebug.setFilterRankZero(true);
+
   
 }
 
@@ -118,6 +125,17 @@ void CPartitioner::query_list_of_objects(void *data, int sizeGID, int sizeLID,
   *ierr = ZOLTAN_OK;
   
   p.list_of_owned_objects(globalID);
+	
+	
+	
+//	std::vector<Uint> glbID(p.nb_owned_objects());
+//	p.list_of_owned_objects(glbID);
+//	
+//	CFdebug << RANK << "glbID =";
+//	boost_foreach(const Uint g, glbID)
+//		CFdebug << " " << g;
+//	CFdebug << CFendl;
+
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -126,6 +144,7 @@ void CPartitioner::query_nb_connected_objects(void *data, int sizeGID, int sizeL
                                               ZOLTAN_ID_PTR globalID, ZOLTAN_ID_PTR localID,
                                               int *numEdges, int *ierr)
 {
+	PECheckArrivePoint(5,"query_nb_connected_objects()");
   CMeshPartitioner& p = *(CMeshPartitioner *)data;
   *ierr = ZOLTAN_OK;
   
@@ -140,11 +159,37 @@ void CPartitioner::query_list_of_connected_objects(void *data, int sizeGID, int 
                                                    ZOLTAN_ID_PTR nborGID, int *nborProc,
                                                    int wgt_dim, float *ewgts, int *ierr)
 {
+	PECheckArrivePoint(5,"query_list_of_connected_objects()");
   CMeshPartitioner& p = *(CMeshPartitioner *)data;
   *ierr = ZOLTAN_OK;
   
   p.list_of_connected_objects(nborGID);
   p.list_of_connected_procs(nborProc);
+	
+//	
+//	std::vector<Uint> numEdges(p.nb_owned_objects());
+//	p.nb_connected_objects(numEdges);
+//	
+//	std::vector<Uint> conn_glbID(p.nb_owned_objects());
+//	p.list_of_connected_objects(conn_glbID);
+//	
+//	
+//	PEProcessSortedExecute(PE::instance(),-1,
+//	CFdebug << RANK << "conn_glbID =\n";
+//	Uint cnt = 0;
+//	index_foreach( e, const Uint nbEdge, numEdges)
+//	{
+//		CFdebug << "  " << e << ": ";
+//		for (Uint c=cnt; c<cnt+nbEdge; ++c)
+//		{
+//			CFdebug << " " << conn_glbID[c];
+//		}
+//		CFdebug << CFendl;
+//		cnt += nbEdge;
+//	}
+//	CFdebug << CFendl;
+//												 )
+	
 }
 	
 //////////////////////////////////////////////////////////////////////
