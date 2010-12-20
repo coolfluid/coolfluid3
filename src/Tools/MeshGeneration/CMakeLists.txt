@@ -8,7 +8,7 @@ list(APPEND coolfluid_mesh_generation_files
 )
 
 list( APPEND coolfluid_mesh_generation_cflibs coolfluid_mesh )
-if( CF_BUILD_GooglePerfTools )
+if( CF_BUILD_GooglePerfTools AND CF_ENABLE_PROFILING )
   list( APPEND coolfluid_mesh_generation_cflibs coolfluid_google_perftools )
 endif()
 

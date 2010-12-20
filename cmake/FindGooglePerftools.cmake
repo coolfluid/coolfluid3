@@ -52,7 +52,7 @@ mark_as_advanced( GOOGLE_PERFTOOLS_INCLUDE_DIR
                    CF_PPROF_COMMAND
                    CF_DOT_COMMAND )
   
-if ( ${CF_HAVE_GOOGLE_PERFTOOLS} )
+if( ${CF_HAVE_GOOGLE_PERFTOOLS} )
     list( APPEND CF_TP_LIBRARIES ${GOOGLE_PERFTOOLS_LIBRARIES} )
 endif()
 
