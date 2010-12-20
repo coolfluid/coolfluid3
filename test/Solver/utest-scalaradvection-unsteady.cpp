@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Solver::ForwardEuler"
+#define BOOST_TEST_MODULE "Test module for CF::Solver::ScalarAdvection"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/filesystem/path.hpp>
@@ -39,7 +39,7 @@ using namespace CF::Actions;
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_SUITE( ForwardEulerSuite )
+BOOST_AUTO_TEST_SUITE( ScalarAdvection_unsteady_Suite )
 
 //////////////////////////////////////////////////////////////////////////////
 
