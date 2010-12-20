@@ -15,7 +15,7 @@
 #include "Common/CLink.hpp"
 
 #include "Solver/CIterativeSolver.hpp"
-#include "Solver/CModel.hpp"
+#include "Solver/CModelSteady.hpp"
 #include "Solver/CDiscretization.hpp"
 #include "Solver/CPhysicalModel.hpp"
 
@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE( constructor )
 
   std::string name  = "scalar_advection";
 
-    CModel::Ptr model = Core::instance().root()->create_component<CModel>( name );
+    CModel::Ptr model = Core::instance().root()->create_component<CModelSteady>( name );
 
     // create the CDomain
     // CDomain::Ptr domain =

@@ -4,41 +4,35 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Solver/CModel.hpp"
+#include "Common/CBuilder.hpp"
+#include "Solver/CModelSteady.hpp"
 
 namespace CF {
 namespace Solver {
 
 using namespace Common;
 
+Common::ComponentBuilder < CModelSteady, Component, LibSolver > CModelSteady_Builder;
+
 ////////////////////////////////////////////////////////////////////////////////
 
-CModel::CModel( const std::string& name  ) :
-  Component ( name )
+CModelSteady::CModelSteady( const std::string& name  ) :
+  CModel ( name )
 {
-   mark_basic();
-
    properties()["steady"] = bool(true);
-
-   // signals
-
-   this->regist_signal ( "simulate" , "Simulates this model", "Simulate" )
-       ->connect ( boost::bind ( &CModel::signal_simulate, this, _1 ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CModel::~CModel()
+CModelSteady::~CModelSteady()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CModel::signal_simulate ( Common::XmlNode& node )
+void CModelSteady::simulate ()
 {
-  // XmlParams p ( node );
-
-  this->simulate(); // dispatch to the virtual function
+  /// @todo implement it
 }
 
 ////////////////////////////////////////////////////////////////////////////////

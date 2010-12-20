@@ -15,6 +15,7 @@
 #include <cstring>
 
 #include "Common/CF.hpp"
+#include "Common/Log.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/XmlHelpers.hpp"
 #include "Common/String/Conversion.hpp"
@@ -332,6 +333,10 @@ CNode::Ptr CNode::createFromXml(CF::Common::XmlNode & node)
   QMap<NLink::Ptr, URI>::iterator it;
   CNode::Ptr rootNode;
 
+#ifndef NDEBUG
+  XmlOps::write_xml_node(node, "last_tree_received.xml");
+#endif
+
   rootNode = createFromXmlRec(node, linkTargets);
 
   it = linkTargets.begin();
@@ -603,11 +608,14 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, URI> & linkT
 
         if(node.get() != nullptr)
         {
+          // CF_DEBUG_OBJ( node->full_path().string() );
+
           if(rootNode->checkType(ROOT_NODE))
             rootNode->castTo<NRoot>()->root()->add_component(node);
           else
             rootNode->add_component(node);
         }
+
       }
     }
     catch (Exception & e)

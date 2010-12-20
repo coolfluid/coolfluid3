@@ -14,7 +14,7 @@
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CDomain.hpp"
 
-#include "Solver/CModel.hpp"
+#include "Solver/CModelSteady.hpp"
 #include "Solver/CPhysicalModel.hpp"
 #include "Solver/CIterativeSolver.hpp"
 #include "Solver/CDiscretization.hpp"
@@ -51,7 +51,7 @@ void SetupHeatConductionLinearSteady::create_model(Common::XmlNode& node)
   // create the model
   std::string name  = p.get_option<std::string>("Model name");
 
-  CModel::Ptr model = Core::instance().root()->create_component<CModel>( name );
+  CModel::Ptr model = Core::instance().root()->create_component<CModelSteady>( name );
 
   // create the CDomain
   // CDomain::Ptr domain =

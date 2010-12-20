@@ -44,13 +44,14 @@ public: // functions
 
   // functions specific to the CIterativeSolver component
 
+  /// Solves a non-linear problem by converging its solution
   virtual void solve() = 0;
 
   /// @name SIGNALS
   //@{
 
   /// Signal to start solving
-  void solve ( Common::XmlNode& node );
+  void signal_solve ( Common::XmlNode& node );
 
   //@} END SIGNALS
 

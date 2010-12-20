@@ -1,6 +1,10 @@
 list( APPEND coolfluid_solver_files
   CModel.hpp
   CModel.cpp
+  CModelSteady.hpp
+  CModelSteady.cpp
+  CModelUnsteady.hpp
+  CModelUnsteady.cpp
   CPhysicalModel.cpp
   CPhysicalModel.hpp
   CTakeStep.hpp

@@ -35,7 +35,7 @@ CIterativeSolver::CIterativeSolver ( const std::string& name  ) :
   // signals
 
   this->regist_signal ( "solve" , "Solves by executing a number of iterations", "Solve" )
-      ->connect ( boost::bind ( &CIterativeSolver::solve, this, _1 ) );
+      ->connect ( boost::bind ( &CIterativeSolver::signal_solve, this, _1 ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -46,7 +46,7 @@ CIterativeSolver::~CIterativeSolver()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CIterativeSolver::solve ( Common::XmlNode& node )
+void CIterativeSolver::signal_solve ( Common::XmlNode& node )
 {
   // XmlParams p ( node );
 

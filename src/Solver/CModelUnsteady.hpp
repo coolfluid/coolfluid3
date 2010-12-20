@@ -4,12 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_CModel_hpp
-#define CF_Solver_CModel_hpp
+#ifndef CF_Solver_CModelUnsteady_hpp
+#define CF_Solver_CModelUnsteady_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/Component.hpp"
+#include "Solver/CModel.hpp"
 #include "Solver/LibSolver.hpp"
 
 namespace CF {
@@ -17,41 +17,30 @@ namespace Solver {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// CModel is the top most component on a simulation structure
-/// CModel now stores:
-/// - Physical model
-/// - Iterative solver
-/// - Discretization
-/// @author Martin Vymazal
-class Solver_API CModel : public Common::Component {
+/// CModelUnsteady models a Unsteady PDE problem
+/// @author Tiago Quintino
+class Solver_API CModelUnsteady : public Solver::CModel {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<CModel> Ptr;
-  typedef boost::shared_ptr<CModel const> ConstPtr;
+  typedef boost::shared_ptr<CModelUnsteady> Ptr;
+  typedef boost::shared_ptr<CModelUnsteady const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  CModel ( const std::string& name );
+  CModelUnsteady ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CModel();
+  virtual ~CModelUnsteady();
 
   /// Get the class name
-  static std::string type_name () { return "CModel"; }
+  static std::string type_name () { return "CModelUnsteady"; }
 
   /// Simulates this model
-  virtual void simulate() = 0;
+  virtual void simulate();
 
-  /// @name SIGNALS
-  //@{
-
-  /// Signal to start solving
-  void signal_simulate ( Common::XmlNode& node );
-
-  //@} END SIGNALS
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -61,4 +50,4 @@ public: // functions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Solver_CModel_hpp
+#endif // CF_Solver_CModelUnsteady_hpp
