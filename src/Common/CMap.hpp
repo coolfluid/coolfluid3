@@ -67,19 +67,19 @@ public: // functions
   /// @param[in] name of the component
   CMap ( const std::string& name ) : Component(name)
   {
-     
+		regist_typeinfo(this);
   }
 
   /// Virtual destructor
   virtual ~CMap() {}
 
   /// Get the class name
-  static std::string type_name () { return "CMap"; }
+  static std::string type_name () { return "CMap<"+class_name<KEY>()+","+class_name<DATA>()+">"; }
 
   /// Reserve memory
   /// @param[in] size of the map to be set before starting inserting pairs in the  map
   /// @post  the memory corresponding to the given size will be reserved for
-  ///        the future insertions.
+  ///        the future insertions
   void reserve (size_t max_size);
 
   /// Copy a std::map into the CMap
