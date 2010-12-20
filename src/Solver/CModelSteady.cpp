@@ -5,7 +5,11 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/CBuilder.hpp"
+#include "Common/Foreach.hpp"
+#include "Common/ComponentPredicates.hpp"
+
 #include "Solver/CModelSteady.hpp"
+#include "Solver/CIterativeSolver.hpp"
 
 namespace CF {
 namespace Solver {
@@ -32,7 +36,8 @@ CModelSteady::~CModelSteady()
 
 void CModelSteady::simulate ()
 {
-  /// @todo implement it
+  boost_foreach(CIterativeSolver& is, find_components<CIterativeSolver>(*this))
+    is.solve();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
