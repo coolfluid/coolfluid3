@@ -18,6 +18,8 @@ list( APPEND coolfluid_solver_files
   CSchemeLDA.hpp
   CSchemeLDA.cpp
   CSchemeLDAT.hpp
+  CTime.hpp
+  CTime.cpp
   CMethod.hpp
   CMethod.cpp
   ForwardEuler.hpp
