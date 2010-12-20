@@ -105,7 +105,7 @@ if( DEFINED MPI_EXTRA_LIBRARY_NAMES )
 
 endif()
 
-if ( ${CF_HAVE_MPI} )
+if( ${CF_HAVE_MPI} )
     list( APPEND CF_TP_LIBRARIES ${MPI_LIBRARIES} )
 endif()
 

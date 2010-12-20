@@ -21,10 +21,6 @@ if( CF_MPI_COMPILER_AVAILABLE )
 
   coolfluid_log( "     MPI CXX COMPILER   : [${CMAKE_CXX_COMPILER}]")
   
-  coolfluid_log( "     MPI_INCLUDE_PATH   : [${MPI_INCLUDE_PATH}]")
-  coolfluid_log( "     MPI_LIBRARIES      : [${MPI_LIBRARIES}]")
-  
-
 else()
 
   coolfluid_log( "MPI: No MPI C++ compiler was set. Searching for MPI libraries..." )
