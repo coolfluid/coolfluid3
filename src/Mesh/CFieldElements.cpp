@@ -6,6 +6,7 @@
 
 #include "Common/CLink.hpp"
 #include "Common/ComponentPredicates.hpp"
+#include "Common/CBuilder.hpp"
 
 #include "Mesh/CFieldElements.hpp"
 #include "Mesh/CTable.hpp"
@@ -17,7 +18,7 @@ namespace Mesh {
 
 using namespace Common;
 
-CF::RegistTypeInfo<CFieldElements> CFieldElements_TypeRegistration();
+Common::ComponentBuilder < CFieldElements, Component, LibMesh > CFieldElements_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
