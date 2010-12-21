@@ -399,9 +399,9 @@ void CNode::listChildPaths(QStringList & list, bool recursive, bool clientNodes)
     itEnd = root->end<const CNode>();
 
     if(it->get_child_count() > 0)
-      list << QString(root->full_path().string_without_protocol().c_str()) /*+ '/'*/;
+      list << QString(root->full_path().string_without_scheme().c_str()) /*+ '/'*/;
     else
-      list << root->full_path().string_without_protocol().c_str();
+      list << root->full_path().string_without_scheme().c_str();
   }
 
   for( ; it != itEnd ; it++)
@@ -458,7 +458,7 @@ void CNode::removeNode(const QString & nodeName)
 void CNode::configure_reply(CF::Common::XmlNode & node)
 {
   ClientRoot::tree()->optionsChanged(this->full_path());
-  ClientRoot::log()->addMessage(QString("Node \"%1\" options updated.").arg(full_path().string_without_protocol().c_str()));
+  ClientRoot::log()->addMessage(QString("Node \"%1\" options updated.").arg(full_path().string_without_scheme().c_str()));
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -676,9 +676,9 @@ Option::Ptr CNode::makeOption(const CF::Common::XmlNode & node)
 
           for( ; attr != nullptr ; attr = attr->next_attribute(XmlParams::tag_attr_protocol()))
           {
-            URI::Protocol::Type protocol = URI::Protocol::Convert::instance().to_enum(attr-> value());
+            URI::Scheme::Type protocol = URI::Scheme::Convert::instance().to_enum(attr-> value());
 
-            if(protocol == URI::Protocol::INVALID)
+            if(protocol == URI::Scheme::INVALID)
               throw ProtocolError(FromHere(), std::string(attr->value()) + ": unknown protocol.");
 
             optURI->supported_protocol(protocol);

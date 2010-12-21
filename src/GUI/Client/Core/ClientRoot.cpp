@@ -75,7 +75,7 @@ void ClientRoot::processSignal(const QDomDocument & signal)
 
     try
     {
-      if(root()->root()->full_path().string_without_protocol() == receiver)
+      if(root()->root()->full_path().string_without_scheme() == receiver)
         root()->call_signal(type, *nodeToProcess);
       else
         root()->root()->access_component(receiver)->call_signal(type, *nodeToProcess);

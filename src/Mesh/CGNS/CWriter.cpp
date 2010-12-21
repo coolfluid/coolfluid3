@@ -189,7 +189,7 @@ void CWriter::write_zone(const CRegion& region)
   GroupsMapType grouped_elements_map;
   BOOST_FOREACH(const CElements& elements, find_components_recursively<CElements>(region))
   {
-    grouped_elements_map[elements.get_parent()->full_path().string_without_protocol()].push_back(elements.as_type<CElements const>());
+    grouped_elements_map[elements.get_parent()->full_path().string_without_scheme()].push_back(elements.as_type<CElements const>());
   }
 
   m_section.elemStartIdx = 0;

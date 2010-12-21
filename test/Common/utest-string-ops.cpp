@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE( URI_test )
   BOOST_CHECK_EQUAL(uri.string(),"file://hostname/file_name.txt");
   BOOST_CHECK_EQUAL(uri.base_path().string(),"file://hostname");
 
-  URI uri2("file_name.txt", URI::Protocol::FILE);
+  URI uri2("file_name.txt", URI::Scheme::FILE);
   BOOST_CHECK(uri2.is_relative());
   BOOST_CHECK_EQUAL(uri2.string(),"file:file_name.txt");
 

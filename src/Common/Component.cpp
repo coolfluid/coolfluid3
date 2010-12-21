@@ -108,10 +108,10 @@ Component::ConstPtr Component::get() const
 void Component::rename ( const std::string& name )
 {
   const std::string new_name = name;
-  if ( new_name == m_name.string_without_protocol() ) // skip if name does not change
+  if ( new_name == m_name.string_without_scheme() ) // skip if name does not change
     return;
 
-  const std::string old_name = m_name.string_without_protocol();
+  const std::string old_name = m_name.string_without_scheme();
 
   // notification should be done before the real renaming since the path changes
   raise_path_changed();
@@ -263,7 +263,7 @@ Component::Ptr Component::remove_component ( const std::string& name )
     throw ValueNotFound(FromHere(), "Dynamic component with name '"
                         + name + "' does not exist in component '"
                         + this->name() + "' with path ["
-                        + m_path.string_without_protocol() + "]");
+                        + m_path.string_without_scheme() + "]");
   }
 }
 
@@ -275,7 +275,7 @@ void Component::complete_path ( URI& path ) const
 
 //  CFinfo << "PATH [" << path.string() << "]\n" << CFflush;
 
-  cf_assert( path.protocol() == URI::Protocol::CPATH );
+  cf_assert( path.scheme() == URI::Scheme::CPATH );
 
   if ( is_null(m_raw_parent) )
     throw  InvalidURI(FromHere(), "Component \'" + name() + "\' has no parent");
@@ -286,7 +286,7 @@ void Component::complete_path ( URI& path ) const
   boost::shared_ptr<Component> parent = m_raw_parent->self();
   boost::shared_ptr<Component> root   = m_root.lock();
 
-  std::string sp = path.string_without_protocol();
+  std::string sp = path.string_without_scheme();
 
   if ( path.is_relative() ) // transform it to absolute
   {
@@ -296,13 +296,13 @@ void Component::complete_path ( URI& path ) const
     // substitute leading "../" for full_path() of parent
     if (starts_with(sp,".."))
     {
-      std::string pfp = parent->full_path().string_without_protocol();
+      std::string pfp = parent->full_path().string_without_scheme();
       boost::algorithm::replace_first(sp, "..", pfp);
     }
     else // substitute leading "./" for full_path() of this component
       if (starts_with(sp,"."))
       {
-        boost::algorithm::replace_first(sp, ".", full_path().string_without_protocol());
+        boost::algorithm::replace_first(sp, ".", full_path().string_without_scheme());
       }
   }
 
@@ -414,7 +414,7 @@ Component::ConstPtr Component::look_component ( const URI& path ) const
   {
     using namespace boost::algorithm;
 
-    std::string sp = path.string_without_protocol();
+    std::string sp = path.string_without_scheme();
 
     // break path in tokens and loop on them, while concatenaitng to a new path
     boost::char_separator<char> sep("/");
@@ -434,7 +434,7 @@ Component::ConstPtr Component::look_component ( const URI& path ) const
         Component::ConstPtr parent = look_comp;
         look_comp = look_comp->get_child(*el);
         if(!look_comp.get())
-          throw ValueNotFound (FromHere(), "Component with name " + *el + " was not found in " + parent->full_path().string_without_protocol());
+          throw ValueNotFound (FromHere(), "Component with name " + *el + " was not found in " + parent->full_path().string_without_scheme());
       }
     }
     return look_comp;
@@ -460,7 +460,7 @@ Component::Ptr Component::look_component ( const URI& path )
   {
     using namespace boost::algorithm;
 
-    std::string sp = path.string_without_protocol();
+    std::string sp = path.string_without_scheme();
 
     // break path in tokens and loop on them, while concatenaitng to a new path
     boost::char_separator<char> sep("/");
@@ -480,7 +480,7 @@ Component::Ptr Component::look_component ( const URI& path )
         Component::Ptr parent = look_comp;
         look_comp = look_comp->get_child(*el);
         if(!look_comp.get())
-          throw ValueNotFound (FromHere(), "Component with name " + *el + " was not found in " + parent->full_path().string_without_protocol());
+          throw ValueNotFound (FromHere(), "Component with name " + *el + " was not found in " + parent->full_path().string_without_scheme());
       }
     }
     return look_comp;
@@ -542,10 +542,10 @@ void Component::move_component ( XmlNode& node  )
   XmlParams p ( node );
 
   URI path = p.get_option<URI>("Path");
-  if( path.protocol() != URI::Protocol::CPATH )
+  if( path.scheme() != URI::Scheme::CPATH )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
-  Component::Ptr new_parent = look_component( path.string_without_protocol() );
+  Component::Ptr new_parent = look_component( path.string_without_scheme() );
 
   this->move_to( new_parent );
 }
@@ -590,7 +590,7 @@ void Component::write_xml_tree( XmlNode& node )
     if( is_not_null(lnk) ) // if it is a link, we put the target path as value
     {
       if ( lnk->is_linked() )
-       this_node.value( this_node.document()->allocate_string( get()->full_path().string_without_protocol().c_str() ));
+       this_node.value( this_node.document()->allocate_string( get()->full_path().string_without_scheme().c_str() ));
 //      else
 //        this_node.value( this_node.document()->allocate_string( "//Root" ));
     }
@@ -616,7 +616,7 @@ void Component::list_tree( XmlNode& node )
 {
   XmlNode& reply = *XmlOps::add_reply_frame( node );
 
-  XmlOps::add_attribute_to( reply, "sender", full_path().string_without_protocol() );
+  XmlOps::add_attribute_to( reply, "sender", full_path().string_without_scheme() );
 
   write_xml_tree(reply);
 }
@@ -689,11 +689,11 @@ void add_prop_to_xml(XmlParams & params, const std::string & name,
 
     if(std::strcmp(opt.tag(), "uri") == 0)
     {
-      std::vector<URI::Protocol::Type> prots = static_cast<OptionURI*>(&opt)->supported_protocols();
-      std::vector<URI::Protocol::Type>::iterator it = prots.begin();
+      std::vector<URI::Scheme::Type> prots = static_cast<OptionURI*>(&opt)->supported_protocols();
+      std::vector<URI::Scheme::Type>::iterator it = prots.begin();
 
       for( ; it != prots.end() ; it++)
-        XmlOps::add_attribute_to(*node, XmlParams::tag_attr_protocol(), URI::Protocol::Convert::instance().to_str(*it));
+        XmlOps::add_attribute_to(*node, XmlParams::tag_attr_protocol(), URI::Scheme::Convert::instance().to_str(*it));
     }
   }
 }

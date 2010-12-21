@@ -79,11 +79,11 @@ void ForwardEuler::trigger_Domain()
   {
     std::vector<URI> volume_regions;
     boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(*mesh,"fluid"))
-      volume_regions.push_back(URI("cpath:"+region.full_path().string_without_protocol()));
+      volume_regions.push_back(URI("cpath:"+region.full_path().string_without_scheme()));
 
     std::vector<URI> all_regions;
     boost_foreach( const CRegion& region, find_components<CRegion>(*mesh))
-      all_regions.push_back(URI("cpath:"+region.full_path().string_without_protocol()));
+      all_regions.push_back(URI("cpath:"+region.full_path().string_without_scheme()));
 
     m_take_step->configure_property( "Regions" , volume_regions );
     discretization_method().configure_property( "Regions" , volume_regions );

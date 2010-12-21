@@ -171,12 +171,12 @@ void TreeBrowser::updateButtons()
     for(int i = 0 ; i < m_history.size() ; i++)
     {
       QPersistentModelIndex index = m_history.at(i);
-      QString path = m_treeView->pathFromIndex(index).string_without_protocol().c_str();
+      QString path = m_treeView->pathFromIndex(index).string_without_scheme().c_str();
       QIcon icon = m_treeView->iconFromIndex(index);
 
       if(path.isEmpty())
       {
-        path = ClientRoot::tree()->treeRoot()->root()->full_path().string_without_protocol().c_str();
+        path = ClientRoot::tree()->treeRoot()->root()->full_path().string_without_scheme().c_str();
         //icon = ClientRoot::tree()->getRoot()->getIcon();
       }
 

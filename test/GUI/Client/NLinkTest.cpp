@@ -60,7 +60,7 @@ void NLinkTest::test_getTargetPath()
 
   l1->setTargetPath("//Root/Target");
 
-  QCOMPARE(QString(l1->targetPath().string_without_protocol().c_str()), QString("//Root/Target"));
+  QCOMPARE(QString(l1->targetPath().string_without_scheme().c_str()), QString("//Root/Target"));
   QCOMPARE(QString(l2->targetPath().string().c_str()), QString(""));
 }
 

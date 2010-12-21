@@ -84,7 +84,7 @@ QVariant GraphicalUri::value() const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void GraphicalUri::setProtocols(const std::vector<URI::Protocol::Type> & list)
+void GraphicalUri::setProtocols(const std::vector<URI::Scheme::Type> & list)
 {
   m_comboType->clear();
 
@@ -96,9 +96,9 @@ void GraphicalUri::setProtocols(const std::vector<URI::Protocol::Type> & list)
   }
   else
   {
-    std::vector<URI::Protocol::Type>::const_iterator it;
+    std::vector<URI::Scheme::Type>::const_iterator it;
     for(it = list.begin() ; it != list.end() ; it++)
-      m_comboType->addItem(URI::Protocol::Convert::instance().to_str(*it).c_str());
+      m_comboType->addItem(URI::Scheme::Convert::instance().to_str(*it).c_str());
   }
 
   changeType(m_comboType->currentText());

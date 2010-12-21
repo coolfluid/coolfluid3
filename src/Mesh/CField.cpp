@@ -222,7 +222,7 @@ void CField::create_data_storage(const DataBasis basis)
         CTable<Real>& field_data = *create_component<CTable<Real> >("data");
         field_data.add_tag("field_data");
         field_data.array().resize(boost::extents[coordinates.size()][row_size]);
-        data_for_coordinates[coordinates.full_path().string_without_protocol()] = &field_data;
+        data_for_coordinates[coordinates.full_path().string_without_scheme()] = &field_data;
 
 					// create a link to the coordinates in the data
 					field_data.create_component<CLink>("coordinates")->link_to(coordinates.get());
@@ -237,7 +237,7 @@ void CField::create_data_storage(const DataBasis basis)
 					CTable<Real>& field_data = *subfield.create_component<CTable<Real> >("data");
 					field_data.add_tag("field_data");
 					field_data.array().resize(boost::extents[coordinates.size()][row_size]);
-					data_for_coordinates[coordinates.full_path().string_without_protocol()] = &field_data;
+					data_for_coordinates[coordinates.full_path().string_without_scheme()] = &field_data;
 
 					// create a link to the coordinates in the data
 					field_data.create_component<CLink>("coordinates")->link_to(coordinates.get());

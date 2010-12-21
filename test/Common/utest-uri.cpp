@@ -87,31 +87,31 @@ BOOST_AUTO_TEST_CASE( protocol_management )
   URI uri("//Root/Component");
 
   // URI without any protocol
-  BOOST_CHECK_EQUAL( uri.protocol(), URI::Protocol::CPATH );
+  BOOST_CHECK_EQUAL( uri.protocol(), URI::Scheme::CPATH );
   BOOST_CHECK_EQUAL( uri.string(), std::string("cpath://Root/Component") );
   BOOST_CHECK_EQUAL( uri.string_without_protocol(), std::string("//Root/Component") );
 
   // URI with a cpath
   URI uri2("cpath://Root/Component");
-  BOOST_CHECK_EQUAL( uri2.protocol(), URI::Protocol::CPATH );
+  BOOST_CHECK_EQUAL( uri2.protocol(), URI::Scheme::CPATH );
   BOOST_CHECK_EQUAL( uri2.string(), std::string("cpath://Root/Component") );
   BOOST_CHECK_EQUAL( uri2.string_without_protocol(), std::string("//Root/Component") );
 
   // URI with a file
   URI uri3("file:///etc/fstab");
-  BOOST_CHECK_EQUAL( uri3.protocol(), URI::Protocol::FILE );
+  BOOST_CHECK_EQUAL( uri3.protocol(), URI::Scheme::FILE );
   BOOST_CHECK_EQUAL( uri3.string(), std::string("file:///etc/fstab") );
   BOOST_CHECK_EQUAL( uri3.string_without_protocol(), std::string("///etc/fstab") );
 
   // URI with an http address
   URI uri4("http://coolfluidsrv.vki.ac.be");
-  BOOST_CHECK_EQUAL( uri4.protocol(), URI::Protocol::HTTP );
+  BOOST_CHECK_EQUAL( uri4.protocol(), URI::Scheme::HTTP );
   BOOST_CHECK_EQUAL( uri4.string(), std::string("http://coolfluidsrv.vki.ac.be") );
   BOOST_CHECK_EQUAL( uri4.string_without_protocol(), std::string("//coolfluidsrv.vki.ac.be") );
 
   // URI with an https address
   URI uri5("https://coolfluidsrv.vki.ac.be");
-  BOOST_CHECK_EQUAL( uri5.protocol(), URI::Protocol::HTTPS );
+  BOOST_CHECK_EQUAL( uri5.protocol(), URI::Scheme::HTTPS );
   BOOST_CHECK_EQUAL( uri5.string(), std::string("https://coolfluidsrv.vki.ac.be") );
   BOOST_CHECK_EQUAL( uri5.string_without_protocol(), std::string("//coolfluidsrv.vki.ac.be") );
 
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE( protocol_management )
   URI uri6("http://coolfluidsrv.vki.ac.be/redmine/projects/activity/coolfluid3?"
            "show_issues=1&show_changesets=1&show_news=1&show_documents=1&"
            "show_files=1&show_wiki_edits=1");
-  BOOST_CHECK_EQUAL( uri6.protocol(), URI::Protocol::HTTP );
+  BOOST_CHECK_EQUAL( uri6.protocol(), URI::Scheme::HTTP );
   BOOST_CHECK_EQUAL( uri6.string(),
                      std::string("http://coolfluidsrv.vki.ac.be/redmine/projects/activity/"
                                  "coolfluid3?show_issues=1&show_changesets=1&show_news=1&"
@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE( protocol_management )
 
 BOOST_AUTO_TEST_CASE( memory_failure )
 {
-  BOOST_CHECK_EQUAL( URI::Protocol::Convert::instance().to_str(URI::Protocol::CPATH), std::string("cpath") );
+  BOOST_CHECK_EQUAL( URI::Scheme::Convert::instance().to_str(URI::Scheme::CPATH), std::string("cpath") );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -107,7 +107,7 @@ void CJournal::load_journal ( XmlNode & node )
 void CJournal::dump_journal ( XmlNode & node )
 {
   URI file_path("file:./server-journal.xml"); // temporary
-  boost::filesystem::path path(file_path.string_without_protocol());
+  boost::filesystem::path path(file_path.string_without_scheme());
 
   XmlOps::write_xml_node(*m_xmldoc.get(), path);
 

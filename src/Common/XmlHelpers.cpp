@@ -460,8 +460,8 @@ namespace Common {
 
     XmlOps::add_attribute_to( *signalnode, "type", XmlParams::tag_node_signal() );
     XmlOps::add_attribute_to( *signalnode, "target", target );
-    XmlOps::add_attribute_to( *signalnode, "sender", sender.string_without_protocol() );
-    XmlOps::add_attribute_to( *signalnode, "receiver", receiver.string_without_protocol() );
+    XmlOps::add_attribute_to( *signalnode, "sender", sender.string_without_scheme() );
+    XmlOps::add_attribute_to( *signalnode, "receiver", receiver.string_without_scheme() );
     XmlOps::add_attribute_to( *signalnode, "transaction", userTrans ? "user" : "auto" );
     XmlOps::add_attribute_to( *signalnode, "frameid", ss.str() );
 

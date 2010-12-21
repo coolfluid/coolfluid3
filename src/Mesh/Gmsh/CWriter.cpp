@@ -124,7 +124,7 @@ void CWriter::write_header(std::fstream& file)
   BOOST_FOREACH(const CRegion& groupRegion, find_components_recursively_with_filter<CRegion>(*m_mesh,IsGroup()))
   {
     ++phys_name_counter;
-    PhysicalGroup group (m_coord_dim,phys_name_counter,groupRegion.full_path().string_without_protocol());
+    PhysicalGroup group (m_coord_dim,phys_name_counter,groupRegion.full_path().string_without_scheme());
     m_groups.insert(PhysicalGroupMap::value_type(group.name,group));
   }
 

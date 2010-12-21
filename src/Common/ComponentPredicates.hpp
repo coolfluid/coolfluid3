@@ -347,9 +347,9 @@ find_component (Component& parent)
 {
   ComponentIteratorRange<Component>::type r = find_components(parent);
   if(r.begin() == r.end())
-    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string_without_protocol() + " : 0 matches");
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string_without_scheme() + " : 0 matches");
   else if(count(r) > 1)
-    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string_without_protocol() + " : more than 1 match");
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string_without_scheme() + " : more than 1 match");
   else
     return *r.begin();
 }
@@ -359,9 +359,9 @@ find_component (const Component& parent)
 {
   ComponentIteratorRange<Component const>::type r = find_components(parent);
   if(r.begin() == r.end())
-    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string_without_protocol() + " : 0 matches");
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string_without_scheme() + " : 0 matches");
   else if(count(r) > 1)
-    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string_without_protocol() + " : more than 1 match");
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string_without_scheme() + " : more than 1 match");
   else
     return *r.begin();
 }

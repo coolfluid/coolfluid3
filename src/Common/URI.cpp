@@ -26,44 +26,44 @@ InvalidURI::InvalidURI( const Common::CodeLocation& where, const std::string& wh
 
 ////////////////////////////////////////////////////////////////////////////////
 
-URI::Protocol::Convert& URI::Protocol::Convert::instance()
+URI::Scheme::Convert& URI::Scheme::Convert::instance()
 {
-  static URI::Protocol::Convert instance;
+  static URI::Scheme::Convert instance;
   return instance;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-URI::Protocol::Convert::Convert()
+URI::Scheme::Convert::Convert()
 {
   all_fwd = boost::assign::map_list_of
-      ( URI::Protocol::INVALID, "Invalid" )
-      ( URI::Protocol::HTTP,    "http"    )
-      ( URI::Protocol::HTTPS,   "https"   )
-      ( URI::Protocol::CPATH,   "cpath"   )
-      ( URI::Protocol::FILE,    "file"    );
+      ( URI::Scheme::INVALID, "Invalid" )
+      ( URI::Scheme::HTTP,    "http"    )
+      ( URI::Scheme::HTTPS,   "https"   )
+      ( URI::Scheme::CPATH,   "cpath"   )
+      ( URI::Scheme::FILE,    "file"    );
 
   all_rev = boost::assign::map_list_of
-      ("Invalid",  URI::Protocol::INVALID )
-      ("http",     URI::Protocol::HTTP    )
-      ("https",    URI::Protocol::HTTPS   )
-      ("cpath",    URI::Protocol::CPATH   )
-      ("file",     URI::Protocol::FILE    );
+      ("Invalid",  URI::Scheme::INVALID )
+      ("http",     URI::Scheme::HTTP    )
+      ("https",    URI::Scheme::HTTPS   )
+      ("cpath",    URI::Scheme::CPATH   )
+      ("file",     URI::Scheme::FILE    );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::ostream& operator<< ( std::ostream& os, const URI::Protocol::Type& in )
+std::ostream& operator<< ( std::ostream& os, const URI::Scheme::Type& in )
 {
-  os << URI::Protocol::Convert::instance().to_str(in);
+  os << URI::Scheme::Convert::instance().to_str(in);
   return os;
 }
 
-std::istream& operator>> (std::istream& is, URI::Protocol::Type& in )
+std::istream& operator>> (std::istream& is, URI::Scheme::Type& in )
 {
   std::string tmp;
   is >> tmp;
-  in = URI::Protocol::Convert::instance().to_enum(tmp);
+  in = URI::Scheme::Convert::instance().to_enum(tmp);
   return is;
 }
 
@@ -71,7 +71,7 @@ std::istream& operator>> (std::istream& is, URI::Protocol::Type& in )
 
 URI::URI () :
   m_path (),
-  m_protocol(URI::Protocol::CPATH)
+  m_scheme(URI::Scheme::CPATH)
 {
 }
 
@@ -82,22 +82,22 @@ URI::URI ( const URI& path )
 
 URI::URI ( const std::string& s ):
   m_path ( s ),
-  m_protocol(URI::Protocol::CPATH)
+  m_scheme(URI::Scheme::CPATH)
 {
-  split_path(s, m_protocol, m_path);
+  split_path(s, m_scheme, m_path);
 }
 
 URI::URI ( const char* c ):
   m_path ( c ),
-  m_protocol(URI::Protocol::CPATH)
+  m_scheme(URI::Scheme::CPATH)
 {
   std::string s (c);
-  split_path(s, m_protocol, m_path);
+  split_path(s, m_scheme, m_path);
 }
 
-URI::URI ( const std::string& s, URI::Protocol::Type p ):
+URI::URI ( const std::string& s, URI::Scheme::Type p ):
   m_path ( s ),
-  m_protocol( p )
+  m_scheme( p )
 {
   /// @todo check path
   // throw NotImplemented(FromHere(), "Implement this");
@@ -134,7 +134,7 @@ URI  URI::operator/  (const URI& p) const
 URI& URI::operator=  (const URI& p)
 {
   m_path = p.m_path;
-  m_protocol = p.m_protocol;
+  m_scheme = p.m_scheme;
   return *this;
 }
 
@@ -177,12 +177,12 @@ const std::string& URI::separator ()
   return sep;
 }
 
-URI::Protocol::Type URI::protocol() const
+URI::Scheme::Type URI::scheme() const
 {
-  return m_protocol;
+  return m_scheme;
 }
 
-std::string URI::string_without_protocol() const
+std::string URI::string_without_scheme() const
 {
   return m_path;
 }
@@ -191,16 +191,16 @@ std::string URI::string() const
 {
   // if the path is not empty, we prepend the protocol
   if(!m_path.empty())
-    return URI::Protocol::Convert::instance().to_str(m_protocol) + ':' + m_path;
+    return URI::Scheme::Convert::instance().to_str(m_scheme) + ':' + m_path;
 
   return m_path;
 }
 
-void URI::split_path(const std::string & path, URI::Protocol::Type & protocol,
+void URI::split_path(const std::string & path, URI::Scheme::Type & protocol,
                      std::string & real_path)
 {
   // by default the protocol is CPATH
-  protocol = URI::Protocol::CPATH;
+  protocol = URI::Scheme::CPATH;
   real_path = path;
 
   size_t colon_pos = path.find_first_of(':');
@@ -215,9 +215,9 @@ void URI::split_path(const std::string & path, URI::Protocol::Type & protocol,
     real_path = real_path.substr(colon_pos + 1, path.length() - colon_pos - 1);
 
     // check that the protocol is valid
-    protocol = URI::Protocol::Convert::instance().to_enum(protocol_str);
+    protocol = URI::Scheme::Convert::instance().to_enum(protocol_str);
 
-    if(protocol == URI::Protocol::INVALID)
+    if(protocol == URI::Scheme::INVALID)
       throw ProtocolError(FromHere(), "\'" + protocol_str + "\' is not a supported protocol");
   }
 

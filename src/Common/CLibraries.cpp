@@ -40,7 +40,7 @@ void CLibraries::load_library ( XmlNode& node )
   XmlParams p ( node );
 
   URI file = p.get_option<URI>("Lib");
-  boost::filesystem::path fpath( file.string_without_protocol() );
+  boost::filesystem::path fpath( file.string_without_scheme() );
 
   OSystem::instance().lib_loader()->load_library( fpath.string() );
 

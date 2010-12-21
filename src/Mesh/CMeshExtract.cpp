@@ -102,14 +102,14 @@ void CMeshExtract::transform(const CMesh::Ptr& mesh, const std::vector<std::stri
     {
       BOOST_FOREACH( const CElements& elements, find_components_recursively_with_filter<CElements>(*m_mesh,IsElementsSurface()))
       {
-        keep_region_paths.push_back(elements.get_parent()->full_path().string_without_protocol());
+        keep_region_paths.push_back(elements.get_parent()->full_path().string_without_scheme());
       }
     }
     else if (boost::regex_match(region_name,boost::regex("[Vv]olume(s)?"))) // Volume, Volumes, volume, volumes
     {
       BOOST_FOREACH( const CElements& elements, find_components_recursively_with_filter<CElements>(*m_mesh,IsElementsVolume()))
       {
-        keep_region_paths.push_back(elements.get_parent()->full_path().string_without_protocol());
+        keep_region_paths.push_back(elements.get_parent()->full_path().string_without_scheme());
       }
     }
   }

@@ -52,7 +52,7 @@ void CLoop::trigger_Regions()
     Component::Ptr comp = look_component<CRegion>(region_path);
     if ( is_null(comp) )
     {
-      throw ValueNotFound ( FromHere(), "Could not find region with path [" + region_path.string_without_protocol() +"]" );
+      throw ValueNotFound ( FromHere(), "Could not find region with path [" + region_path.string_without_scheme() +"]" );
     }
     m_loop_regions.push_back(look_component<CRegion>(region_path));
   }

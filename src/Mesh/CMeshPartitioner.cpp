@@ -67,11 +67,11 @@ void CMeshPartitioner::load_balance( XmlNode& xml  )
 
 	URI path = p.get_option<URI>("Mesh");
 
-	if( path.protocol() != URI::Protocol::CPATH )
+	if( path.scheme() != URI::Scheme::CPATH )
 		throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
 	// get the domain
-	CMesh::Ptr mesh = look_component<CMesh>( path.string_without_protocol() );
+	CMesh::Ptr mesh = look_component<CMesh>( path.string_without_scheme() );
 	if ( is_null(mesh) )
 		throw CastingFailed( FromHere(), "Component in path \'" + path.string() + "\' is not a valid CMesh." );
 
@@ -214,7 +214,7 @@ void CMeshPartitioner::show_changes()
         }
         std::cout << "  to proc " << m_hash->proc_of_part(part) << std::endl;
         std::cout << "  to part " << part << std::endl;
-        std::cout << "  from " << component->full_path().string_without_protocol() << "["<<index<<"]" << std::endl;
+        std::cout << "  from " << component->full_path().string_without_scheme() << "["<<index<<"]" << std::endl;
       }
     )
   }

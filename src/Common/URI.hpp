@@ -32,7 +32,7 @@ namespace Common {
 
   public:
 
-    class Common_API Protocol
+    class Common_API Scheme
     {
     public:
 
@@ -44,7 +44,7 @@ namespace Common {
                    FILE    = 3
                  };
 
-      typedef EnumT< Protocol > ConverterBase;
+      typedef EnumT< Scheme > ConverterBase;
 
       struct Common_API Convert : public ConverterBase
       {
@@ -72,7 +72,7 @@ namespace Common {
     /// Constructor from string object and separate protocol
     /// @pre assumes that string does not have a protocol, just the path
     /// @param s string with path
-    URI ( const std::string& s, URI::Protocol::Type p );
+    URI ( const std::string& s, URI::Scheme::Type p );
 
     // operators
 
@@ -123,11 +123,11 @@ namespace Common {
     /// Gives the protocol (if any).
     /// @return Returns the protocol. May return @c URI::Protocol::INVALID if no
     /// protocol has been specified.
-    Protocol::Type protocol() const;
+    Scheme::Type scheme() const;
 
     /// Gives the string value without the protocol
     /// @return Returns the string without the protocol
-    std::string string_without_protocol() const;
+    std::string string_without_scheme() const;
 
     /// Overloading of the stream operator "<<" for the output.
     /// No "\n"ine introduced.
@@ -148,7 +148,7 @@ namespace Common {
     /// set to @c URI::Protocol::INVALID if no protocol found.
     /// @param real_path Variable where to store the path.
     /// @throw ProtocolError If a an unknown protocol is found.
-    static void split_path(const std::string & path, URI::Protocol::Type & protocol,
+    static void split_path(const std::string & path, URI::Scheme::Type & protocol,
                       std::string & real_path);
 
   private:
@@ -156,14 +156,14 @@ namespace Common {
     /// path string
     std::string m_path;
     /// Current URI protocol
-    Protocol::Type m_protocol;
+    Scheme::Type m_scheme;
 
   }; // URI
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common_API std::ostream& operator<< ( std::ostream& os, const URI::Protocol::Type& in );
-Common_API std::istream& operator>> ( std::istream& is, URI::Protocol::Type& in );
+Common_API std::ostream& operator<< ( std::ostream& os, const URI::Scheme::Type& in );
+Common_API std::istream& operator>> ( std::istream& is, URI::Scheme::Type& in );
 
 ////////////////////////////////////////////////////////////////////////////////
 

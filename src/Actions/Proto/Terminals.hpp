@@ -150,7 +150,7 @@ protected:
   virtual void add_options()
   {
     m_region_path = add_option<Common::URI>(m_name, m_description, boost::bind(&ConstNodes::on_trigger, this));
-    m_region_path.lock()->supported_protocol(CF::Common::URI::Protocol::CPATH);
+    m_region_path.lock()->supported_protocol(CF::Common::URI::Scheme::CPATH);
     m_physical_model = Common::find_component_ptr<Solver::CPhysicalModel>(*m_owner.lock()->get_parent());
   }
 

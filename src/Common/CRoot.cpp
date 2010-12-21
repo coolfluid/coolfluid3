@@ -29,7 +29,7 @@ namespace Common {
     root->m_raw_parent = raw_root;
 
     // put himself in the database
-    root->m_toc[root->full_path().string_without_protocol()] = root;
+    root->m_toc[root->full_path().string_without_scheme()] = root;
 
     return root;
   }
@@ -57,25 +57,25 @@ namespace Common {
   {
     cf_assert ( path.is_complete() );
 
-    CompStorage_t::iterator itr = m_toc.find(path.string_without_protocol());
+    CompStorage_t::iterator itr = m_toc.find(path.string_without_scheme());
     if ( itr != m_toc.end() )
       return itr->second;
     else
-      throw InvalidURI(FromHere(), "No component exists with path [" + path.string_without_protocol() + "]");
+      throw InvalidURI(FromHere(), "No component exists with path [" + path.string_without_scheme() + "]");
   }
 
 ////////////////////////////////////////////////////////////////////////////////
 
   void CRoot::change_component_path( const URI& path , boost::shared_ptr<Component> comp )
   {
-    remove_component_path( comp->full_path().string_without_protocol() );
+    remove_component_path( comp->full_path().string_without_scheme() );
 
     // set the new path
-    CompStorage_t::iterator itr = m_toc.find(path.string_without_protocol());
+    CompStorage_t::iterator itr = m_toc.find(path.string_without_scheme());
     if ( itr != m_toc.end() )
-      throw ValueExists(FromHere(), "A component exists with path [" + path.string_without_protocol() + "]");
+      throw ValueExists(FromHere(), "A component exists with path [" + path.string_without_scheme() + "]");
 
-    m_toc[path.string_without_protocol()] = comp;
+    m_toc[path.string_without_scheme()] = comp;
   }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -83,10 +83,10 @@ namespace Common {
   void CRoot::remove_component_path( const URI& path )
   {
     cf_assert ( path.is_complete() );
-    cf_assert ( path.protocol() == URI::Protocol::CPATH );
+    cf_assert ( path.scheme() == URI::Scheme::CPATH );
 
     // remove the current path of the component, if exists
-    CompStorage_t::iterator old = m_toc.find( path.string_without_protocol() );
+    CompStorage_t::iterator old = m_toc.find( path.string_without_scheme() );
     if ( old != m_toc.end() )
       m_toc.erase(old);
   }
@@ -96,9 +96,9 @@ namespace Common {
   bool CRoot::exists_component_path( const URI& path ) const
   {
     cf_assert ( path.is_complete() );
-    cf_assert ( path.protocol() == URI::Protocol::CPATH );
+    cf_assert ( path.scheme() == URI::Scheme::CPATH );
 
-    return ( m_toc.find( path.string_without_protocol() ) != m_toc.end() );
+    return ( m_toc.find( path.string_without_scheme() ) != m_toc.end() );
   }
 
 ////////////////////////////////////////////////////////////////////////////////
