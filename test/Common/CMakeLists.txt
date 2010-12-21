@@ -1,17 +1,27 @@
 ################################################################################
-# Test Common
+# Test Log
 
-list( APPEND utest-common_cflibs coolfluid_common )
-list( APPEND utest-common_files
-  utest-common.cpp
-  TestStringOps.cpp
+list( APPEND utest-log_cflibs coolfluid_common )
+list( APPEND utest-log_files
+  utest-log.cpp
   TestLog.cpp
   TestLogLevelFilter.cpp
   TestLogStampFilter.cpp
   TestLogStream.cpp
 )
 
-coolfluid_add_unittest( utest-common )
+coolfluid_add_unittest( utest-log )
+
+################################################################################
+# Test Common
+
+list( APPEND utest-string_cflibs coolfluid_common )
+list( APPEND utest-string_files
+  utest-string.cpp
+  TestStringOps.cpp
+)
+
+coolfluid_add_unittest( utest-string )
 
 ################################################################################
 # Test OSystem

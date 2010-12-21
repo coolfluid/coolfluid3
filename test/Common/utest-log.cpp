@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Common"
+#define BOOST_TEST_MODULE "Test module for CF log facility"
 
 #include <boost/test/unit_test.hpp>
 
