@@ -39,7 +39,7 @@ coolfluid_add_unittest( utest-osystem )
 list( APPEND utest-component_cflibs coolfluid_common )
 list( APPEND utest-component_files
   utest-component.cpp
-  TestCPath.cpp
+  TestURI.cpp
   TestComponent.cpp
   DummyComponents.hpp
   TestConfig.cpp
