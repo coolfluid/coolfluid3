@@ -247,7 +247,7 @@ void CField::create_data_storage(const DataBasis basis)
       // Add the correct data according to the map in every field elements component
       BOOST_FOREACH(CFieldElements& field_elements, find_components_recursively<CFieldElements>(*this))
       {
-        field_elements.add_node_based_storage(*data_for_coordinates[field_elements.coordinates().full_path().string_without_protocol()]);
+        field_elements.add_node_based_storage(*data_for_coordinates[field_elements.coordinates().full_path().string_without_scheme()]);
       }
     }
       break;

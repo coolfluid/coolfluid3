@@ -523,7 +523,7 @@ void Component::delete_component ( XmlNode& node  )
 //  if( ! path.is_protocol("cpath") )
 //    throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
-//  Component::Ptr comp = look_component( path.string_without_protocol() )->get_parent();
+//  Component::Ptr comp = look_component( path.string_without_scheme() )->get_parent();
 //  Component::Ptr parent = comp->get_parent();
 //  parent->remove_component( comp->name() );
 
@@ -554,7 +554,7 @@ void Component::move_component ( XmlNode& node  )
 
 void Component::print_info ( XmlNode& node  )
 {
-  CFinfo << "Info on component \'" << full_path() << "\'" << CFendl;
+  CFinfo << "Info on component \'" << full_path().string_without_scheme() << "\'" << CFendl;
 
   CFinfo << "  sub components:" << CFendl;
   BOOST_FOREACH( CompStorage_t::value_type c, m_components )

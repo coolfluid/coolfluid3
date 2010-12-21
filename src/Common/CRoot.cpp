@@ -110,7 +110,7 @@ namespace Common {
     CompStorage_t::const_iterator itr = m_toc.begin();
     for ( ; itr != m_toc.end(); ++itr )
     {
-      out << itr->first << " " << itr->second->full_path() << "\n";
+      out << itr->first << " " << itr->second->full_path().string_without_scheme() << "\n";
     }
 
     return out.str();

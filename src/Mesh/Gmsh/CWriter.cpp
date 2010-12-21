@@ -215,7 +215,7 @@ void CWriter::write_connectivity(std::fstream& file)
       {
         if (!elements->has_tag("CFieldElements"))
         {
-          group_name = elements->get_parent()->full_path().string_without_protocol();
+          group_name = elements->get_parent()->full_path().string_without_scheme();
           group_number = m_groups[group_name].number;
 
           m_element_start_idx[elements]=elm_number;
@@ -401,7 +401,7 @@ void CWriter::write_nodal_data(std::fstream& file)
 			std::set<std::string> field_data_paths;
 			BOOST_FOREACH(CFieldElements& field_elements, find_components_recursively<CFieldElements>(nodebased_field))
 			{
-				field_data_paths.insert(field_elements.data().full_path().string_without_protocol());
+				field_data_paths.insert(field_elements.data().full_path().string_without_scheme());
 			}
 
 			Uint nb_nodes=0;

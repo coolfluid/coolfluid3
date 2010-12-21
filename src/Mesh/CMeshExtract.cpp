@@ -121,10 +121,10 @@ void CMeshExtract::transform(const CMesh::Ptr& mesh, const std::vector<std::stri
     bool found = false;
     BOOST_FOREACH(const std::string& expression, args)
     {
-      if (boost::regex_match(region.full_path().string_without_protocol(),boost::regex(".*"+expression+".*")))
+      if (boost::regex_match(region.full_path().string_without_scheme(),boost::regex(".*"+expression+".*")))
       {
         found = true;
-        keep_region_paths.push_back(region.full_path().string_without_protocol());
+        keep_region_paths.push_back(region.full_path().string_without_scheme());
         break;
       }
     }

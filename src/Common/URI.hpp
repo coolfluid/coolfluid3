@@ -162,29 +162,6 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common_API std::ostream& operator<< ( std::ostream& os, const URI::Scheme::Type& in );
-Common_API std::istream& operator>> ( std::istream& is, URI::Scheme::Type& in );
-
-////////////////////////////////////////////////////////////////////////////////
-
-inline std::ostream& operator<< (std::ostream& out, const URI& path)
-{
-  out << path.string();
-  return out;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-inline std::istream& operator>> (std::istream& in, URI& path)
-{
-  std::string path_str;
-  in >> path_str;
-  path = URI(path_str);
-  return in;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 } // Common
 } // CF
 

@@ -409,9 +409,9 @@ void CNode::listChildPaths(QStringList & list, bool recursive, bool clientNodes)
     if(!it->isClientComponent() || clientNodes)
     {
       if(it->get_child_count() > 0)
-        list << QString(it->full_path().string_without_protocol().c_str()) /*+ '/'*/;
+        list << QString(it->full_path().string_without_scheme().c_str()) /*+ '/'*/;
       else
-        list << it->full_path().string_without_protocol().c_str();
+        list << it->full_path().string_without_scheme().c_str();
     }
 
     if(recursive)

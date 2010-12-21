@@ -72,7 +72,7 @@ void CMeshReader::read( XmlNode& xml  )
   // check protocol for file loading
   boost_foreach(URI file, files)
   {
-    if( file.empty() || file.protocol() != URI::Scheme::FILE )
+    if( file.empty() || file.scheme() != URI::Scheme::FILE )
       throw ProtocolError( FromHere(), "Wrong protocol to access the file, expecting a \'file\' but got \'" + file.string() + "\'" );
   }
 
@@ -84,7 +84,7 @@ void CMeshReader::read( XmlNode& xml  )
     // Get the file paths
     boost_foreach(URI file, files)
     {
-      boost::filesystem::path fpath( file.string_without_protocol() );
+      boost::filesystem::path fpath( file.string_without_scheme() );
       read_from_to(fpath, mesh);
     }
   }
