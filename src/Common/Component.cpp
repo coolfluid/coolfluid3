@@ -38,7 +38,6 @@ Component::Component ( const std::string& name ) :
     throw InvalidURI(FromHere(), "Component name ["+name+"] is invalid");
   m_name = name;
 
-
   // signals
 
   regist_signal ( "create_component" , "creates a component", "Create component" )->connect ( boost::bind ( &Component::create_component_signal, this, _1 ) );
@@ -109,10 +108,10 @@ Component::ConstPtr Component::get() const
 void Component::rename ( const std::string& name )
 {
   const std::string new_name = name;
-  if ( new_name == m_name.string() ) // skip if name does not change
+  if ( new_name == m_name.string_without_protocol() ) // skip if name does not change
     return;
 
-  const std::string old_name = m_name.string();
+  const std::string old_name = m_name.string_without_protocol();
 
   // notification should be done before the real renaming since the path changes
   raise_path_changed();
@@ -264,7 +263,7 @@ Component::Ptr Component::remove_component ( const std::string& name )
     throw ValueNotFound(FromHere(), "Dynamic component with name '"
                         + name + "' does not exist in component '"
                         + this->name() + "' with path ["
-                        + m_path.string() + "]");
+                        + m_path.string_without_protocol() + "]");
   }
 }
 
@@ -435,7 +434,7 @@ Component::ConstPtr Component::look_component ( const URI& path ) const
         Component::ConstPtr parent = look_comp;
         look_comp = look_comp->get_child(*el);
         if(!look_comp.get())
-          throw ValueNotFound (FromHere(), "Component with name " + *el + " was not found in " + parent->full_path().string());
+          throw ValueNotFound (FromHere(), "Component with name " + *el + " was not found in " + parent->full_path().string_without_protocol());
       }
     }
     return look_comp;
@@ -461,7 +460,7 @@ Component::Ptr Component::look_component ( const URI& path )
   {
     using namespace boost::algorithm;
 
-    std::string sp = path.string();
+    std::string sp = path.string_without_protocol();
 
     // break path in tokens and loop on them, while concatenaitng to a new path
     boost::char_separator<char> sep("/");
@@ -481,7 +480,7 @@ Component::Ptr Component::look_component ( const URI& path )
         Component::Ptr parent = look_comp;
         look_comp = look_comp->get_child(*el);
         if(!look_comp.get())
-          throw ValueNotFound (FromHere(), "Component with name " + *el + " was not found in " + parent->full_path().string());
+          throw ValueNotFound (FromHere(), "Component with name " + *el + " was not found in " + parent->full_path().string_without_protocol());
       }
     }
     return look_comp;
@@ -591,7 +590,7 @@ void Component::write_xml_tree( XmlNode& node )
     if( is_not_null(lnk) ) // if it is a link, we put the target path as value
     {
       if ( lnk->is_linked() )
-       this_node.value( this_node.document()->allocate_string( get()->full_path().string().c_str() ));
+       this_node.value( this_node.document()->allocate_string( get()->full_path().string_without_protocol().c_str() ));
 //      else
 //        this_node.value( this_node.document()->allocate_string( "//Root" ));
     }
@@ -617,7 +616,7 @@ void Component::list_tree( XmlNode& node )
 {
   XmlNode& reply = *XmlOps::add_reply_frame( node );
 
-  XmlOps::add_attribute_to( reply, "sender", full_path().string() );
+  XmlOps::add_attribute_to( reply, "sender", full_path().string_without_protocol() );
 
   write_xml_tree(reply);
 }

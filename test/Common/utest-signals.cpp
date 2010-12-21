@@ -5,6 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE "Test module for CF signals"
+
 #include <boost/test/unit_test.hpp>
 
 #include "Common/CRoot.hpp"
@@ -135,5 +137,3 @@ BOOST_AUTO_TEST_CASE( simple_signal )
 BOOST_AUTO_TEST_SUITE_END()
 
 ////////////////////////////////////////////////////////////////////////////////
-
-

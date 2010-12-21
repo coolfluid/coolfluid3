@@ -24,7 +24,7 @@
 
 namespace CF {
 namespace UFEM {
-  
+
 using namespace Actions;
 using namespace Common;
 using namespace Mesh;
@@ -56,7 +56,7 @@ void SetupHeatConductionLinearSteady::create_model(Common::XmlNode& node)
   // create the CDomain
   // CDomain::Ptr domain =
   model->create_component<CDomain>("Domain");
-  
+
   // The linear system solver
   CEigenLSS::Ptr lss = model->create_component<CEigenLSS>("LSS");
   lss->mark_basic();
@@ -66,7 +66,7 @@ void SetupHeatConductionLinearSteady::create_model(Common::XmlNode& node)
   hc->create_component<CPhysicalModel>("Physics")->mark_basic();
   hc->initialize();
   hc->mark_basic();
-  hc->get_child("HeatEquation")->configure_property( "LSS", URI("cpath:" + lss->full_path().string()) );
+  hc->get_child("HeatEquation")->configure_property( "LSS", URI(lss->full_path().string()) );
 
   CMeshReader::Ptr mesh_reader = create_component_abstract_type<CMeshReader>( "CF.Mesh.Neu.CReader", "NeutralReader" );
   mesh_reader->mark_basic();

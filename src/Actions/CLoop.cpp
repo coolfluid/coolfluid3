@@ -36,7 +36,7 @@ CLoopOperation& CLoop::create_action(const std::string action_provider)
   // The execuation of operations must be in chronological order, hence
   // they get an alphabetical name
   std::string name = action_provider;
-  CLoopOperation::Ptr sub_operation = 
+  CLoopOperation::Ptr sub_operation =
     (create_component_abstract_type<CLoopOperation>(action_provider,name));
   add_component(sub_operation);
   return *sub_operation;
@@ -52,7 +52,7 @@ void CLoop::trigger_Regions()
     Component::Ptr comp = look_component<CRegion>(region_path);
     if ( is_null(comp) )
     {
-      throw ValueNotFound ( FromHere(), "Could not find region with path [" + region_path.string() +"]" );
+      throw ValueNotFound ( FromHere(), "Could not find region with path [" + region_path.string_without_protocol() +"]" );
     }
     m_loop_regions.push_back(look_component<CRegion>(region_path));
   }

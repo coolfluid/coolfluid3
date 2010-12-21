@@ -5,6 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE "Test module for string operations"
+
 #include <boost/test/unit_test.hpp>
 
 #include <boost/algorithm/string.hpp>
@@ -101,16 +103,16 @@ BOOST_AUTO_TEST_CASE( URI_test )
   BOOST_CHECK(uri.is_absolute());
   BOOST_CHECK_EQUAL(uri.string(),"file://hostname/file_name.txt");
   BOOST_CHECK_EQUAL(uri.base_path().string(),"file://hostname");
-  
-  URI uri2("file_name.txt");
+
+  URI uri2("file_name.txt", URI::Protocol::FILE);
   BOOST_CHECK(uri2.is_relative());
-  BOOST_CHECK_EQUAL(uri2.string(),"file_name.txt");
-  
+  BOOST_CHECK_EQUAL(uri2.string(),"file:file_name.txt");
+
   URI uri3("cpath://hostname");
   uri3 /= "component";
   BOOST_CHECK(uri3.is_absolute());
   BOOST_CHECK_EQUAL(uri3.string(),"cpath://hostname/component");
   BOOST_CHECK_EQUAL(uri3.base_path().string(),"cpath://hostname");
-  
+
 }
 BOOST_AUTO_TEST_SUITE_END()

@@ -76,7 +76,7 @@ public:
   /// @param name of component
   CBuilderT(const std::string& name) : CBuilder(name)
   {
-     
+
 
     // verify that BASE derives or is same type of Component
     BOOST_STATIC_ASSERT( (boost::is_base_of<Common::Component,BASE>::value) );
@@ -156,7 +156,7 @@ struct ComponentBuilder
     CF::TypeInfo::instance().regist< CBuilderT<BASE,CONCRETE> >(  CBuilderT<BASE,CONCRETE>::type_name() );
 
     // get the factories
-    Common::CFactories::Ptr factories = Common::Core::instance().root()->get_child< CFactories >("Factories");
+    Common::CFactories::Ptr factories = Common::Core::instance().factories();
 
     // put builder in correct factory
     Common::CFactory::Ptr   factory = factories->get_factory< BASE >();

@@ -20,21 +20,21 @@
 
 namespace CF {
 namespace Mesh {
-  
+
   using namespace Common;
-  
+
   class IsGroup
   {
   public:
     IsGroup () {}
-    
+
     bool operator()(const Component& component)
     {
       return count(find_components<CElements>(component));
     }
   }; // IsGroup
-  
-  
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
 Common::ComponentBuilder < Mesh::CMeshExtract, Mesh::CMeshTransformer, Mesh::LibMesh > CMeshExtract_Builder;
@@ -44,11 +44,11 @@ Common::ComponentBuilder < Mesh::CMeshExtract, Mesh::CMeshTransformer, Mesh::Lib
 CMeshExtract::CMeshExtract( const std::string& name )
 : CMeshTransformer(name)
 {
-   
+
 }
 
 /////////////////////////////////////////////////////////////////////////////
-  
+
 std::string CMeshExtract::brief_description() const
 {
   return "Extract given regions from the mesh";
@@ -62,9 +62,9 @@ std::string CMeshExtract::help() const
   out << "  " << brief_description() << "\n";
   out << "  Usage: Extract [region_name1 region_name2 ...]\n\n";
   out << "          Special cases: \"surfaces\", \"volumes\" as region_name.\n";
-  out << "      A region_name can be a regular expression matched with the full path.\n"; 
-  out << "  Example:\n"; 
-  out << "          Given a mesh with data organized in the following way:\n"; 
+  out << "      A region_name can be a regular expression matched with the full path.\n";
+  out << "  Example:\n";
+  out << "          Given a mesh with data organized in the following way:\n";
   out << "      mesh\n";
   out << "            zone_1\n";
   out << "                  region_1\n";
@@ -78,11 +78,11 @@ std::string CMeshExtract::help() const
   out << "\n";
   out << "           If you want to select only region \"mesh/zone_1/region_1\"\n";
   out << "       select or instance the regex \"zone_1/region_1\"\n";
-  
-  
+
+
   return out.str();
 }
-  
+
 /////////////////////////////////////////////////////////////////////////////
 
 void CMeshExtract::transform(const CMesh::Ptr& mesh, const std::vector<std::string>& args)
@@ -90,11 +90,11 @@ void CMeshExtract::transform(const CMesh::Ptr& mesh, const std::vector<std::stri
 
   m_mesh = mesh;
 
-  
+
   // Storage of regions to keep
   std::list<std::string> keep_region_paths;
 
-  
+
   // special cases "volumes" and "surfaces" as arg
   BOOST_FOREACH(const std::string region_name, args)
   {
@@ -102,18 +102,18 @@ void CMeshExtract::transform(const CMesh::Ptr& mesh, const std::vector<std::stri
     {
       BOOST_FOREACH( const CElements& elements, find_components_recursively_with_filter<CElements>(*m_mesh,IsElementsSurface()))
       {
-        keep_region_paths.push_back(elements.get_parent()->full_path().string());
+        keep_region_paths.push_back(elements.get_parent()->full_path().string_without_protocol());
       }
     }
     else if (boost::regex_match(region_name,boost::regex("[Vv]olume(s)?"))) // Volume, Volumes, volume, volumes
     {
       BOOST_FOREACH( const CElements& elements, find_components_recursively_with_filter<CElements>(*m_mesh,IsElementsVolume()))
       {
-        keep_region_paths.push_back(elements.get_parent()->full_path().string());
+        keep_region_paths.push_back(elements.get_parent()->full_path().string_without_protocol());
       }
     }
   }
-  
+
   // For every region, see if its path matches the regex, and store it in a list
   BOOST_FOREACH( CRegion& region, find_components_recursively<CRegion>(*m_mesh))
   {
@@ -121,15 +121,15 @@ void CMeshExtract::transform(const CMesh::Ptr& mesh, const std::vector<std::stri
     bool found = false;
     BOOST_FOREACH(const std::string& expression, args)
     {
-      if (boost::regex_match(region.full_path().string(),boost::regex(".*"+expression+".*")))
+      if (boost::regex_match(region.full_path().string_without_protocol(),boost::regex(".*"+expression+".*")))
       {
         found = true;
-        keep_region_paths.push_back(region.full_path().string());
+        keep_region_paths.push_back(region.full_path().string_without_protocol());
         break;
       }
     }
   }
-  
+
   // Parse the list into individual regions that will not be removed
   std::set<std::string> keep_region;
   BOOST_FOREACH(const boost::filesystem::path& region_path, keep_region_paths)
@@ -144,8 +144,8 @@ void CMeshExtract::transform(const CMesh::Ptr& mesh, const std::vector<std::stri
     bool found = (std::find(keep_region.begin(),keep_region.end(),region.name()) != keep_region.end());
     if (!found)  region.get_parent()->remove_component(region.name());
   }
-  
-  
+
+
   // remove regions that have no elements
   BOOST_FOREACH( CRegion& region, find_components_recursively<CRegion>(*m_mesh))
   {
@@ -155,7 +155,7 @@ void CMeshExtract::transform(const CMesh::Ptr& mesh, const std::vector<std::stri
       region.get_parent()->remove_component(region.name());
     }
   }
-  
+
 }
 
 //////////////////////////////////////////////////////////////////////////////

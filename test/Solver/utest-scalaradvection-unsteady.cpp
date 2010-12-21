@@ -70,9 +70,9 @@ BOOST_AUTO_TEST_CASE( constructor )
 
 BOOST_AUTO_TEST_CASE( read_mesh )
 {
-  
+
   CDomain& domain = find_component_recursively<CDomain>(*Core::instance().root());
-    
+
   boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
   XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
   XmlParams p(node);
@@ -80,12 +80,12 @@ BOOST_AUTO_TEST_CASE( read_mesh )
   // everything is OK
   std::vector<URI> files;
   files.push_back( "file:rotation-qd.neu" );
-  p.add_option<URI>("Domain", URI("cpath:"+domain.full_path().string()));
+  p.add_option<URI>("Domain", URI(domain.full_path().string()));
   p.add_array("Files", files);
-  
+
   CMeshReader& reader = find_component_recursively<CMeshReader>(*Core::instance().root());
   reader.read(node);
-  
+
   BOOST_CHECK_NE( domain.get_child_count(), (Uint) 0);
 }
 
@@ -98,10 +98,10 @@ BOOST_AUTO_TEST_CASE( configuration )
 
   solver.configure_property("Domain",URI("cpath:../Domain"));
   solver.configure_property("Number of Iterations", 50u);
-  
+
   CDiscretization::Ptr discretization = solver.get_child<CDiscretization>("Discretization");
   BOOST_CHECK ( is_not_null(discretization) );
-  
+
   boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
   XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
   XmlParams p(node);
@@ -109,18 +109,18 @@ BOOST_AUTO_TEST_CASE( configuration )
   p.add_option<std::string>("Name","apply_inlet");
 
   discretization->as_type<ResidualDistribution>()->create_bc(node);
-  
+
   CLoop::Ptr apply_inlet = discretization->get_child<CLoop>("apply_inlet");
 
   std::vector<URI> bc_regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"inlet"))
-    bc_regions.push_back(URI("cpath:"+region.full_path().string()));
+    bc_regions.push_back(URI(region.full_path().string()));
 
   BOOST_CHECK_EQUAL( bc_regions.size() , 1u);
 
   apply_inlet->configure_property("Regions", bc_regions);
   CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
-  
+
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -219,9 +219,9 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_1 )
   XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
   XmlParams p(node);
 
-  // without CPath for the CDomain
+  // with a wrong CPath for the CDomain
   p.add_option<URI>("Domain", URI("//Root"));
-  BOOST_CHECK_THROW( reader->read(node), ProtocolError );
+  BOOST_CHECK_THROW( reader->read(node), CastingFailed );
 }
 
 BOOST_AUTO_TEST_CASE( read_mesh_signal_2 )

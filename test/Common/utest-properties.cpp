@@ -5,9 +5,9 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#include <boost/test/unit_test.hpp>
+#define BOOST_TEST_MODULE "Test module for properties facility"
 
-#include <iostream>
+#include <boost/test/unit_test.hpp>
 
 #include "Common/BasicExceptions.hpp"
 #include "Common/PropertyList.hpp"
@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE( remove )
   // test removal of non-existing properties
   // should not throw or crash
 
-  BOOST_CHECK_THROW(props.erase("address"), ValueNotFound);
+  BOOST_CHECK_THROW ( props.erase("address"), ValueNotFound);
   BOOST_CHECK_EQUAL ( props.check( "address" ), false );
 
   BOOST_CHECK_THROW(props.erase("age"), ValueNotFound);

@@ -62,7 +62,7 @@ void CLibraries::load_library ( XmlNode& node )
     {
       boost::filesystem::path fpath( file.string_without_protocol() );
 
-      OSystem::instance().lib_loader()->load_library( fpath.string() );
+      OSystem::instance().lib_loader()->load_library( fpath.string_without_protocol() );
     }
   }
   else

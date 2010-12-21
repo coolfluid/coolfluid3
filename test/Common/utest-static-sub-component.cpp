@@ -5,6 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE "Test module for static sub-components"
+
 #include <boost/test/unit_test.hpp>
 
 #include <boost/foreach.hpp>
@@ -37,7 +39,6 @@ public: // functions
 
   Part ( const std::string& name ) : Component(name)
   {
-     
   }
 
   virtual ~Part() {}
@@ -62,8 +63,6 @@ public: // functions
       Component(name),
       m_subcomp (allocate_component<SubCompT>("subc"))
   {
-     
-
     add_static_component ( m_subcomp );
   }
 
@@ -87,9 +86,15 @@ BOOST_AUTO_TEST_CASE( add_component )
 {
   CRoot::Ptr root = CRoot::create ( "root" );
 
-  Component::Ptr hc ( new HolderT<Part> ( "holder_part" ) );
+  Component::Ptr cp = root->create_component< HolderT<Part> >( "myHolderT_Part" );
 
   BOOST_CHECK_EQUAL ( HolderT<Part>::type_name() , "HolderT_Part" );
+
+  /// @todo makes the utest crash (bat_weak_ptr)
+//  BOOST_CHECK_NO_THROW ( cp->get_child("subc").get() );
+
+  BOOST_CHECK_EQUAL ( cp->name(), std::string("myHolderT_Part"));
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

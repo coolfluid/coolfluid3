@@ -71,7 +71,7 @@ std::istream& operator>> (std::istream& is, URI::Protocol::Type& in )
 
 URI::URI () :
   m_path (),
-  m_protocol(URI::Protocol::INVALID)
+  m_protocol(URI::Protocol::CPATH)
 {
 }
 
@@ -82,14 +82,14 @@ URI::URI ( const URI& path )
 
 URI::URI ( const std::string& s ):
   m_path ( s ),
-  m_protocol(URI::Protocol::INVALID)
+  m_protocol(URI::Protocol::CPATH)
 {
   split_path(s, m_protocol, m_path);
 }
 
 URI::URI ( const char* c ):
   m_path ( c ),
-  m_protocol(URI::Protocol::INVALID)
+  m_protocol(URI::Protocol::CPATH)
 {
   std::string s (c);
   split_path(s, m_protocol, m_path);
@@ -99,7 +99,8 @@ URI::URI ( const std::string& s, URI::Protocol::Type p ):
   m_path ( s ),
   m_protocol( p )
 {
-   throw NotImplemented(FromHere(), "Implement this");
+  /// @todo check path
+  // throw NotImplemented(FromHere(), "Implement this");
 }
 
 URI& URI::operator/= (const URI& rhs)
@@ -188,7 +189,8 @@ std::string URI::string_without_protocol() const
 
 std::string URI::string() const
 {
-  if(m_protocol != URI::Protocol::INVALID)
+  // if the path is not empty, we prepend the protocol
+  if(!m_path.empty())
     return URI::Protocol::Convert::instance().to_str(m_protocol) + ':' + m_path;
 
   return m_path;
@@ -197,18 +199,22 @@ std::string URI::string() const
 void URI::split_path(const std::string & path, URI::Protocol::Type & protocol,
                      std::string & real_path)
 {
-
-  protocol = URI::Protocol::INVALID;
+  // by default the protocol is CPATH
+  protocol = URI::Protocol::CPATH;
   real_path = path;
 
   size_t colon_pos = path.find_first_of(':');
 
+  // if the colon has been found
   if(colon_pos != std::string::npos)
   {
+    // extract the procotol
     std::string protocol_str = path.substr(0, colon_pos);
 
+    // extract the path
     real_path = real_path.substr(colon_pos + 1, path.length() - colon_pos - 1);
 
+    // check that the protocol is valid
     protocol = URI::Protocol::Convert::instance().to_enum(protocol_str);
 
     if(protocol == URI::Protocol::INVALID)

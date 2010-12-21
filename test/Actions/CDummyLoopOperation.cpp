@@ -70,12 +70,12 @@ Common::ComponentBuilder < CDummyLoopOperation, CLoopOperation, LibTestActions >
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-CDummyLoopOperation::CDummyLoopOperation ( const std::string& name ) : 
+CDummyLoopOperation::CDummyLoopOperation ( const std::string& name ) :
   CNodeOperation(name)
 {
-   
+
 }
-	
+
 /////////////////////////////////////////////////////////////////////////////////////
 
 void CDummyLoopOperation::execute()
@@ -87,7 +87,7 @@ void CDummyLoopOperation::execute()
 
 void CDummyLoopOperation::create_loop_helper (CElements& geometry_elements )
 {
-  CFinfo << type_name() << " set to loop over " << geometry_elements.full_path().string() << CFendl;
+  CFinfo << type_name() << " set to loop over " << geometry_elements.full_path().string_without_protocol() << CFendl;
   m_loop_helper = boost::shared_ptr<LoopHelper> ( new LoopHelper(geometry_elements) );
 }
 
@@ -95,9 +95,9 @@ void CDummyLoopOperation::create_loop_helper (CElements& geometry_elements )
 
 CList<Uint>& CDummyLoopOperation::loop_list() const
 {
-  return m_loop_helper->node_list;
+	return m_loop_helper->node_list;
 }
-	
+
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // CF

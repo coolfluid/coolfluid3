@@ -5,6 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE "Test module for CF log level filter"
+
 #include <boost/test/unit_test.hpp>
 
 #include <boost/iostreams/device/back_inserter.hpp>
@@ -24,20 +26,20 @@ struct LogLevelFilterFixture
   LogLevelFilterFixture() :
   m_buffer(),
   m_sink(iostreams::back_inserter(m_buffer))
-  { 
-    m_filter = new LogLevelFilter(NORMAL); 
+  {
+    m_filter = new LogLevelFilter(NORMAL);
   }
-  
+
   /// common tear-down for each test case
   ~LogLevelFilterFixture() { delete m_filter; }
-  
+
   /// possibly common functions used on the tests below
-  
+
   /// common values accessed by all tests goes here
   LogLevelFilter * m_filter;
-  
+
   string m_buffer;
-  
+
   iostreams::back_insert_device<string> m_sink;
 };
 
@@ -68,7 +70,7 @@ BOOST_AUTO_TEST_CASE( write )
   /// test whether the string is forwarded
   LogLevelFilterFixture f;
   string str = "Hello world!";
-  
+
   f.m_filter->setLogLevel(SILENT);
   f.m_filter->write(f.m_sink, str.c_str(), str.length());
   BOOST_CHECK_EQUAL(f.m_buffer, std::string(""));
@@ -81,7 +83,7 @@ BOOST_AUTO_TEST_CASE( write )
   f.m_filter->setLogLevel(VERBOSE);
   f.m_buffer.clear();
   f.m_filter->write(f.m_sink, str.c_str(), str.length());
-  BOOST_CHECK_EQUAL(str, f.m_buffer);  
+  BOOST_CHECK_EQUAL(str, f.m_buffer);
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

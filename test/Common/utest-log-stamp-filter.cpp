@@ -5,6 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE "Test module for CF log stamp filter"
+
 #include <boost/test/unit_test.hpp>
 
 #include <boost/iostreams/device/back_inserter.hpp>
@@ -24,8 +26,8 @@ struct LogStampFilter_Fixture
   LogStampFilter_Fixture() :
   m_buffer(),
   m_sink(iostreams::back_inserter(m_buffer))
-  { 
-    m_filter = new LogStampFilter("TestStream"); 
+  {
+    m_filter = new LogStampFilter("TestStream");
   }
 
   /// common tear-down for each test case
@@ -35,9 +37,9 @@ struct LogStampFilter_Fixture
 
   /// common values accessed by all tests goes here
   LogStampFilter * m_filter;
-  
+
   string m_buffer;
-  
+
   iostreams::back_insert_device<string> m_sink;
 };
 
@@ -54,30 +56,30 @@ BOOST_AUTO_TEST_CASE( write )
   LogStampFilter_Fixture f;
   string str = "Hello world!";
   Uint nbbytes_wrtitten;
-  
+
   nbbytes_wrtitten = f.m_filter->write(f.m_sink, str.c_str(), str.length());
   f.m_filter->endMessage();
   BOOST_CHECK_EQUAL(str, f.m_buffer);
   BOOST_CHECK_EQUAL(nbbytes_wrtitten, f.m_buffer.length());
-  
+
   f.m_buffer.clear();
-  
+
   // test the stamps ("TestStream" is the name of the filter created by
   // LogStampFilter_Fixture class)
   f.m_filter->setStamp("<%type%> ");
   nbbytes_wrtitten = f.m_filter->write(f.m_sink, str.c_str(), str.length());
-  f.m_filter->endMessage(); 
+  f.m_filter->endMessage();
   BOOST_CHECK_EQUAL(string("<TestStream> ") + str, f.m_buffer);
   // below : +13 because of the stamp size
   BOOST_CHECK_EQUAL(nbbytes_wrtitten, str.length() + 13);
-  
+
   f.m_buffer.clear();
 
   // test the stamps ("TestStream" is the name of the filter created by
   // LogStampFilter_Fixture class)
   f.m_filter->setStamp("<%tpye%> ");
   nbbytes_wrtitten = f.m_filter->write(f.m_sink, str.c_str(), str.length());
-  f.m_filter->endMessage(); 
+  f.m_filter->endMessage();
   BOOST_CHECK_EQUAL(string("<%tpye%> ") + str, f.m_buffer);
   // below : +9 because of the stamp size
   BOOST_CHECK_EQUAL(nbbytes_wrtitten, str.length() + 9);
@@ -93,7 +95,7 @@ BOOST_AUTO_TEST_CASE( setPlace )
   CodeLocation cl = FromHere();
   string str = "Hello world!";
   unsigned int nbbytes_wrtitten;
-  
+
   f.m_filter->setStamp("--%place%-- ");
   f.m_filter->setPlace(cl);
   nbbytes_wrtitten = f.m_filter->write(f.m_sink, str.c_str(), str.length());

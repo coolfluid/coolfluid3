@@ -52,7 +52,7 @@ QString NLink::toolTip() const
   QString path = "<No target>";
 
   if(m_target.get() != nullptr)
-    path = m_target->full_path().string().c_str();
+    path = m_target->full_path().string_without_protocol().c_str();
 
   return QString("Target: %1").arg(path);
 }
@@ -98,14 +98,14 @@ void NLink::goToTarget(XmlNode & node)
 {
 	if ( is_null(m_target) )
 		throw ValueNotFound (FromHere(), "Target of this link is not set or not valid");
-	
+
 	QModelIndex index = ClientRoot::tree()->indexByPath(m_target->full_path());
-	
+
 	if(index.isValid())
 		ClientRoot::tree()->setCurrentIndex(index);
 	else
 		ClientRoot::log()->addError(QString("%1: path does not exist")
-																.arg(m_target->full_path().string().c_str()));		
+																.arg(m_target->full_path().string_without_protocol().c_str()));
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -113,7 +113,7 @@ void NLink::goToTarget(XmlNode & node)
 
 void NLink::changeTarget()
 {
-  throw NotImplemented(FromHere(), "This feature uses GUI");
+	throw NotImplemented(FromHere(), "This feature uses GUI");
 //  SelectPathDialog spd;
 
 //  CPath path = spd.show(m_target->full_path());
@@ -144,7 +144,7 @@ void NLink::change_link(CF::Common::XmlNode & node)
     this->setTargetPath(p.get_option<std::string>("target_path"));
 
     ClientRoot::log()->addMessage(QString("Link '%1' now points to '%2'.")
-                                     .arg(full_path().string().c_str()).arg(path.c_str()));
+                                     .arg(full_path().string_without_protocol().c_str()).arg(path.c_str()));
 
   }
   catch(InvalidURI & ip)

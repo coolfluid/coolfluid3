@@ -347,9 +347,9 @@ find_component (Component& parent)
 {
   ComponentIteratorRange<Component>::type r = find_components(parent);
   if(r.begin() == r.end())
-    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : 0 matches");
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string_without_protocol() + " : 0 matches");
   else if(count(r) > 1)
-    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : more than 1 match");
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string_without_protocol() + " : more than 1 match");
   else
     return *r.begin();
 }
@@ -359,9 +359,9 @@ find_component (const Component& parent)
 {
   ComponentIteratorRange<Component const>::type r = find_components(parent);
   if(r.begin() == r.end())
-    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : 0 matches");
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string_without_protocol() + " : 0 matches");
   else if(count(r) > 1)
-    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string() + " : more than 1 match");
+    throw ValueNotFound(FromHere(), "Component not found in " + parent.full_path().string_without_protocol() + " : more than 1 match");
   else
     return *r.begin();
 }
@@ -487,7 +487,7 @@ find_component_ptr_with_filter (ParentT& parent, const Predicate& pred)
 //////////////////////////////////////////////////////////////////////////////
 
 inline ComponentReference<Component>::type
-find_component_with_name (Component& parent, const std::string& name) 
+find_component_with_name (Component& parent, const std::string& name)
 {
   try
   {
@@ -545,7 +545,7 @@ find_component_ptr_with_name (ParentT& parent, const std::string& name)
 //////////////////////////////////////////////////////////////////////////////
 
 inline ComponentReference<Component>::type
-find_component_with_tag (Component& parent, const std::string& tag) 
+find_component_with_tag (Component& parent, const std::string& tag)
 {
   try
   {
@@ -558,7 +558,7 @@ find_component_with_tag (Component& parent, const std::string& tag)
 }
 
 inline ComponentReference<Component const>::type
-find_component_with_tag (const Component& parent, const std::string& tag) 
+find_component_with_tag (const Component& parent, const std::string& tag)
 {
   try
   {
@@ -572,7 +572,7 @@ find_component_with_tag (const Component& parent, const std::string& tag)
 
 template<typename ComponentT, typename ParentT>
 inline typename ComponentReference<ParentT, ComponentT>::type
-find_component_with_tag (ParentT& parent, const std::string& tag) 
+find_component_with_tag (ParentT& parent, const std::string& tag)
 {
   try
   {
@@ -582,7 +582,7 @@ find_component_with_tag (ParentT& parent, const std::string& tag)
   {
     throw ValueNotFound(FromHere(), "Unique component with tag \""+tag+"\" and type " + ComponentT::type_name() + " not found in " + parent.full_path().string());
   }
-  
+
 }
 
 inline ComponentPtr<Component>::type
@@ -751,7 +751,7 @@ find_component_ptr_recursively_with_filter(ParentT& parent, const Predicate& pre
 //////////////////////////////////////////////////////////////////////////////
 
 inline ComponentReference<Component>::type
-find_component_recursively_with_name(Component& parent, const std::string& name) 
+find_component_recursively_with_name(Component& parent, const std::string& name)
 {
   try
   {
@@ -764,7 +764,7 @@ find_component_recursively_with_name(Component& parent, const std::string& name)
 }
 
 inline ComponentReference<Component const>::type
-find_component_recursively_with_name(const Component& parent, const std::string& name) 
+find_component_recursively_with_name(const Component& parent, const std::string& name)
 {
   try
   {
@@ -778,7 +778,7 @@ find_component_recursively_with_name(const Component& parent, const std::string&
 
 template<typename ComponentT, typename ParentT>
 inline typename ComponentReference<ParentT, ComponentT>::type
-find_component_recursively_with_name(ParentT& parent, const std::string& name) 
+find_component_recursively_with_name(ParentT& parent, const std::string& name)
 {
   try
   {
@@ -812,7 +812,7 @@ find_component_ptr_recursively_with_name(ParentT& parent, const std::string& nam
 //////////////////////////////////////////////////////////////////////////////
 
 inline ComponentReference<Component>::type
-find_component_recursively_with_tag(Component& parent, const std::string& tag) 
+find_component_recursively_with_tag(Component& parent, const std::string& tag)
 {
   try
   {
@@ -825,7 +825,7 @@ find_component_recursively_with_tag(Component& parent, const std::string& tag)
 }
 
 inline ComponentReference<Component const>::type
-find_component_recursively_with_tag(const Component& parent, const std::string& tag) 
+find_component_recursively_with_tag(const Component& parent, const std::string& tag)
 {
   try
   {
@@ -839,7 +839,7 @@ find_component_recursively_with_tag(const Component& parent, const std::string& 
 
 template<typename ComponentT, typename ParentT>
 inline typename ComponentReference<ParentT, ComponentT>::type
-find_component_recursively_with_tag(ParentT& parent, const std::string& tag) 
+find_component_recursively_with_tag(ParentT& parent, const std::string& tag)
 {
   try
   {

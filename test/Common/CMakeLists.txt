@@ -4,24 +4,39 @@
 list( APPEND utest-log_cflibs coolfluid_common )
 list( APPEND utest-log_files
   utest-log.cpp
-  TestLog.cpp
-  TestLogLevelFilter.cpp
-  TestLogStampFilter.cpp
-  TestLogStream.cpp
 )
 
 coolfluid_add_unittest( utest-log )
 
 ################################################################################
-# Test Common
+# Test Log level filter
 
-list( APPEND utest-string_cflibs coolfluid_common )
-list( APPEND utest-string_files
-  utest-string.cpp
-  TestStringOps.cpp
+list( APPEND utest-log-level-filter_cflibs coolfluid_common )
+list( APPEND utest-log-level-filter_files
+  utest-log-level-filter.cpp
 )
 
-coolfluid_add_unittest( utest-string )
+coolfluid_add_unittest( utest-log-level-filter )
+
+################################################################################
+# Test Log stamp filter
+
+list( APPEND utest-log-stamp-filter_cflibs coolfluid_common )
+list( APPEND utest-log-stamp-filter_files
+  utest-log-stamp-filter.cpp
+)
+
+coolfluid_add_unittest( utest-log-stamp-filter )
+
+################################################################################
+# Test string ops
+
+list( APPEND utest-string-ops_cflibs coolfluid_common )
+list( APPEND utest-string-ops_files
+  utest-string-ops.cpp
+)
+
+coolfluid_add_unittest( utest-string-ops )
 
 ################################################################################
 # Test OSystem
@@ -39,17 +54,70 @@ coolfluid_add_unittest( utest-osystem )
 list( APPEND utest-component_cflibs coolfluid_common )
 list( APPEND utest-component_files
   utest-component.cpp
-  TestURI.cpp
-  TestComponent.cpp
-  DummyComponents.hpp
-  TestConfig.cpp
-  TestProperties.cpp
-  TestSignals.cpp
-  TestXmlParams.cpp
-  TestStaticSubComponent.cpp
 )
 
 coolfluid_add_unittest( utest-component )
+
+################################################################################
+# Test Component
+
+list( APPEND utest-config_cflibs coolfluid_common )
+list( APPEND utest-config_files
+  DummyComponents.hpp
+  utest-config.cpp
+)
+
+coolfluid_add_unittest( utest-config )
+
+################################################################################
+# Test Component
+
+list( APPEND utest-uri_cflibs coolfluid_common )
+list( APPEND utest-uri_files
+  utest-uri.cpp
+)
+
+coolfluid_add_unittest( utest-uri )
+
+################################################################################
+# Test Component
+
+list( APPEND utest-properties_cflibs coolfluid_common )
+list( APPEND utest-properties_files
+  utest-properties.cpp
+)
+
+coolfluid_add_unittest( utest-properties )
+
+################################################################################
+# Test Component
+
+list( APPEND utest-signals_cflibs coolfluid_common )
+list( APPEND utest-signals_files
+  utest-signals.cpp
+)
+
+coolfluid_add_unittest( utest-signals )
+
+################################################################################
+# Test Component
+
+list( APPEND utest-xml-params_cflibs coolfluid_common )
+list( APPEND utest-xml-params_files
+  utest-xml-params.cpp
+)
+
+coolfluid_add_unittest( utest-xml-params )
+
+################################################################################
+# Test Component
+
+list( APPEND utest-static-sub-component_cflibs coolfluid_common )
+list( APPEND utest-static-sub-component_files
+  utest-static-sub-component.cpp
+)
+
+coolfluid_add_unittest( utest-static-sub-component )
 
 ################################################################################
 # Test Factory

@@ -141,7 +141,7 @@ public: // functions
   bool is_link () const { return m_is_link; }
 
   /// Access the name of the component
-  std::string name () const { return m_name.string(); }
+  std::string name () const { return m_name.string_without_protocol(); }
 
   /// Rename the component
   void rename ( const std::string& name );

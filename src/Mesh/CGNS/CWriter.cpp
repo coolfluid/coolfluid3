@@ -25,7 +25,7 @@ using namespace CF::Mesh;
 namespace CF {
 namespace Mesh {
 namespace CGNS {
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 Common::ComponentBuilder < CGNS::CWriter, CMeshWriter, LibCGNS > aCGNSWriter_Builder;
@@ -36,7 +36,7 @@ CWriter::CWriter( const std::string& name )
 : CMeshWriter(name),
   Shared()
 {
-   
+
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -57,12 +57,12 @@ void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& pat
   m_fileBasename = boost::filesystem::basename(path);
 
   compute_mesh_specifics();
-    
+
   CFdebug << "Opening file " << path.string() << CFendl;
   CALL_CGNS(cg_open(path.string().c_str(),CG_MODE_WRITE,&m_file.idx));
-  
+
   write_base();
-  
+
   CFdebug << "Closing file " << path.string() << CFendl;
   CALL_CGNS(cg_close(m_file.idx));
 
@@ -78,42 +78,42 @@ void CWriter::write_base()
   m_base.phys_dim = m_coord_dim;
   CFdebug << "Writing base " << m_base.name << CFendl;
   CALL_CGNS(cg_base_write(m_file.idx,m_base.name.c_str(),m_base.cell_dim,m_base.phys_dim,&m_base.idx));
-  
+
   BOOST_FOREACH(CRegion& zone_region, find_components<CRegion>(base_region))
   {
     write_zone(zone_region);
   }
-  
+
 }
-  
+
 /////////////////////////////////////////////////////////////////////////////
 
 void CWriter::write_zone(const CRegion& region)
 {
   m_zone.name = region.name();
-  
+
   m_zone.coord_dim = m_coord_dim;
-  
+
   m_zone.total_nbVertices = 0;
   BOOST_FOREACH(const CTable<Real>& coordinates, find_components_recursively_with_tag<CTable<Real> >(region,"coordinates"))
     m_zone.total_nbVertices += coordinates.size();
 
   m_zone.nbElements = region.recursive_elements_count();
-  
+
   m_zone.nbBdryVertices = 0;
-  
+
   int size[3][1];
-  size[0][0] = m_zone.total_nbVertices; 
-  size[1][0] = m_zone.nbElements; 
-  size[2][0] = m_zone.nbBdryVertices; 
-  
+  size[0][0] = m_zone.total_nbVertices;
+  size[1][0] = m_zone.nbElements;
+  size[2][0] = m_zone.nbBdryVertices;
+
   CFdebug << "Writing zone " << m_zone.name << CFendl;
   CALL_CGNS(cg_zone_write(m_file.idx,m_base.idx,m_zone.name.c_str(),size[0],Unstructured,&m_zone.idx));
-    
+
   Real* xCoord(NULL);
   Real* yCoord(NULL);
   Real* zCoord(NULL);
-  
+
   switch (m_zone.coord_dim)
   {
     case 3:
@@ -123,12 +123,12 @@ void CWriter::write_zone(const CRegion& region)
     case 1:
       xCoord = new Real[m_zone.total_nbVertices];
   }
-  
+
   Uint idx=0;
   BOOST_FOREACH(const CTable<Real>& coordinates, find_components_recursively_with_tag<CTable<Real> >(region,"coordinates"))
   {
     m_global_start_idx[&coordinates] = idx;
-    
+
     switch (m_zone.coord_dim)
     {
       case 3:
@@ -136,7 +136,7 @@ void CWriter::write_zone(const CRegion& region)
         BOOST_FOREACH(CTable<Real>::ConstRow node, coordinates.array())
         {
           xCoord[idx] = node[XX];
-          yCoord[idx] = node[YY];        
+          yCoord[idx] = node[YY];
           zCoord[idx] = node[ZZ];
           idx++;
         }
@@ -160,8 +160,8 @@ void CWriter::write_zone(const CRegion& region)
       }
     }
   }
-  
-  
+
+
   int cgns_coord_idx;
 
   switch (m_zone.coord_dim)
@@ -185,13 +185,13 @@ void CWriter::write_zone(const CRegion& region)
       delete_ptr(xCoord);
     }
   }
-      
+
   GroupsMapType grouped_elements_map;
   BOOST_FOREACH(const CElements& elements, find_components_recursively<CElements>(region))
   {
-    grouped_elements_map[elements.get_parent()->full_path().string()].push_back(elements.as_type<CElements const>());
+    grouped_elements_map[elements.get_parent()->full_path().string_without_protocol()].push_back(elements.as_type<CElements const>());
   }
-  
+
   m_section.elemStartIdx = 0;
   m_section.elemEndIdx = 0;
   BOOST_FOREACH(const GroupsMapType::value_type& grouped_elements, grouped_elements_map)
@@ -200,7 +200,7 @@ void CWriter::write_zone(const CRegion& region)
   }
 
 }
-  
+
 /////////////////////////////////////////////////////////////////////////////
 
 void CWriter::write_section(const GroupedElements& grouped_elements)
@@ -213,13 +213,13 @@ void CWriter::write_section(const GroupedElements& grouped_elements)
   switch (m_section.type)
   {
     case MIXED:
-    { 
+    {
       CGNS_Section mixed_section;
       int total_nbElems = section_region->recursive_elements_count();
       mixed_section.elemStartIdx = m_section.elemEndIdx + 1;
       mixed_section.elemEndIdx = m_section.elemEndIdx + total_nbElems;
       mixed_section.nbBdry = 0; // unsorted boundary
-            
+
       // If this region is a surface, it must be a boundary condition.
       // Thus create the boundary condition as an element range (no extra storage)
       if (IsElementsSurface()(*grouped_elements[0]))
@@ -230,10 +230,10 @@ void CWriter::write_section(const GroupedElements& grouped_elements)
         range[0] = m_section.elemStartIdx;
         range[1] = m_section.elemEndIdx;
         CFdebug << "Writing boco " << m_boco.name << CFendl;
-        cg_boco_write(m_file.idx,m_base.idx,m_zone.idx,m_boco.name.c_str(),BCTypeNull,ElementRange,2,range,&m_boco.idx);        
+        cg_boco_write(m_file.idx,m_base.idx,m_zone.idx,m_boco.name.c_str(),BCTypeNull,ElementRange,2,range,&m_boco.idx);
       }
-      
-      
+
+
       CALL_CGNS(cg_section_partial_write(m_file.idx,m_base.idx,m_zone.idx,m_section.name.c_str(),m_section.type,mixed_section.elemStartIdx,mixed_section.elemEndIdx,mixed_section.nbBdry,&m_section.idx));
 
       BOOST_FOREACH(CElements::ConstPtr elements, grouped_elements)
@@ -243,11 +243,11 @@ void CWriter::write_section(const GroupedElements& grouped_elements)
         m_section.elemStartIdx = m_section.elemEndIdx + 1;
         m_section.elemEndIdx = m_section.elemEndIdx + nbElems;
         m_section.nbBdry = 0; // unsorted boundary
-        
+
         ElementType_t type = m_elemtype_CF_to_CGNS[elements->element_type().element_type_name()];
         const CTable<Uint>::ArrayT& connectivity_table = elements->connectivity_table().array();
         int start_idx = m_global_start_idx[&elements->coordinates()];
-        
+
         int* elemNodes = new int [nbElems*(m_section.elemNodeCount+1)];
         for (int iElem=0; iElem<nbElems; ++iElem)
         {
@@ -257,9 +257,9 @@ void CWriter::write_section(const GroupedElements& grouped_elements)
             elemNodes[1+iNode+ iElem*(m_section.elemNodeCount+1)] = start_idx+connectivity_table[iElem][iNode]+1;
           }
         }
-        
+
         CALL_CGNS(cg_elements_partial_write(m_file.idx,m_base.idx,m_zone.idx,m_section.idx,m_section.elemStartIdx,m_section.elemEndIdx,elemNodes));
-        
+
         delete_ptr(elemNodes);
       }
       break;
@@ -272,7 +272,7 @@ void CWriter::write_section(const GroupedElements& grouped_elements)
       m_section.elemStartIdx = m_section.elemEndIdx + 1;
       m_section.elemEndIdx = m_section.elemEndIdx + nbElems;
       m_section.nbBdry = 0; // unsorted boundary
-      
+
       const CTable<Uint>::ArrayT& connectivity_table = elements.connectivity_table().array();
       int start_idx = m_global_start_idx[&elements.coordinates()];
 
@@ -284,7 +284,7 @@ void CWriter::write_section(const GroupedElements& grouped_elements)
           elemNodes[iNode+iElem*m_section.elemNodeCount] = start_idx + connectivity_table[iElem][iNode]+1;
         }
       }
-      
+
       // If this region is a surface, it must be a boundary condition.
       // Thus create the boundary condition as an element range (no extra storage)
       if (IsElementsSurface()(elements))
@@ -295,20 +295,20 @@ void CWriter::write_section(const GroupedElements& grouped_elements)
         range[0] = m_section.elemStartIdx;
         range[1] = m_section.elemEndIdx;
         CFdebug << "Writing boco " << m_boco.name << CFendl;
-        cg_boco_write(m_file.idx,m_base.idx,m_zone.idx,m_boco.name.c_str(),BCTypeNull,ElementRange,2,range,&m_boco.idx);        
+        cg_boco_write(m_file.idx,m_base.idx,m_zone.idx,m_boco.name.c_str(),BCTypeNull,ElementRange,2,range,&m_boco.idx);
       }
-      
+
       CFdebug << "Writing section " << m_section.name << " of type " << m_elemtype_CGNS_to_CF[m_section.type] << CFendl;
       CALL_CGNS(cg_section_write(m_file.idx,m_base.idx,m_zone.idx,m_section.name.c_str(),m_section.type,m_section.elemStartIdx,  \
                                  m_section.elemEndIdx,m_section.nbBdry,elemNodes,&m_section.idx));
       delete_ptr(elemNodes);
     }
   }
-  
+
 
 
 }
-  
+
 //////////////////////////////////////////////////////////////////////////////
 
 

@@ -5,6 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE "Test module for XML parameters manipulation"
+
 #include <boost/test/unit_test.hpp>
 
 #include "Common/Log.hpp"

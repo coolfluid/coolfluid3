@@ -71,7 +71,7 @@ void test(const CElements& a, const CElements& b, Accumulator& result)
   const CTable<Uint>::ArrayT& table_a = a.connectivity_table().array();
   const CTable<Uint>::ArrayT& table_b = b.connectivity_table().array();
 
-  array2d_test<Uint>(table_a, table_b, result, "comparing " + a.full_path().string() + " and " + b.full_path().string());
+  array2d_test<Uint>(table_a, table_b, result, "comparing " + a.full_path().string_without_protocol() + " and " + b.full_path().string_without_protocol());
 }
 
 /// Compares Arrays
@@ -80,7 +80,7 @@ void test(const CTable<Real>& a, const CTable<Real>& b, Accumulator& result)
   const CTable<Real>::ArrayT& array_a = a.array();
   const CTable<Real>::ArrayT& array_b = b.array();
 
-  array2d_test<Real>(array_a, array_b, result, "comparing " + a.full_path().string() + " and " + b.full_path().string());
+  array2d_test<Real>(array_a, array_b, result, "comparing " + a.full_path().string_without_protocol() + " and " + b.full_path().string_without_protocol());
 }
 
 }

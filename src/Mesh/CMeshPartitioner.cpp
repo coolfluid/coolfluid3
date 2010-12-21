@@ -23,19 +23,19 @@ namespace Mesh {
 
   using namespace Common;
   using namespace Common::String;
-  
+
 //////////////////////////////////////////////////////////////////////////////
 
-CMeshPartitioner::CMeshPartitioner ( const std::string& name ) : 
+CMeshPartitioner::CMeshPartitioner ( const std::string& name ) :
     Component(name),
     m_base(0),
     m_nb_parts(PE::instance().size()),
     m_map_built(false)
 {
   m_properties.add_option<OptionT <Uint> >("Number of Partitions","Total number of partitions (e.g. number of processors)",m_nb_parts);
-  
+
   m_properties["Number of Partitions"].as_option().attach_trigger ( boost::bind ( &CMeshPartitioner::config_nb_parts,   this ) );
-  
+
   m_hash = allocate_component<CMixedHash>("hash");
   add_static_component(m_hash);
 
@@ -44,18 +44,18 @@ CMeshPartitioner::CMeshPartitioner ( const std::string& name ) :
 
   m_changes = allocate_component<CMap<Uint,Uint> >("changes");
   add_static_component(m_changes);
-	
-	this->regist_signal ( "load_balance" , "partitions and migrates elements between processors", "Load Balance" )->connect ( boost::bind ( &CMeshPartitioner::load_balance,this, _1 ) );
+
+  this->regist_signal ( "load_balance" , "partitions and migrates elements between processors", "Load Balance" )->connect ( boost::bind ( &CMeshPartitioner::load_balance,this, _1 ) );
   signal("load_balance").signature
-	.insert<URI>("Mesh", "Mesh to load balance" );	
-  
+  .insert<URI>("Mesh", "Mesh to load balance" );
+
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 void CMeshPartitioner::config_nb_parts()
 {
-  property("Number of Partitions").put_value(m_nb_parts); 
+  property("Number of Partitions").put_value(m_nb_parts);
 //	m_hash->configure_property("Number of Partitions",m_nb_parts);
 }
 
@@ -64,21 +64,21 @@ void CMeshPartitioner::config_nb_parts()
 void CMeshPartitioner::load_balance( XmlNode& xml  )
 {
 	XmlParams p (xml);
-	
+
 	URI path = p.get_option<URI>("Mesh");
-	
+
 	if( path.protocol() != URI::Protocol::CPATH )
 		throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
-	
+
 	// get the domain
 	CMesh::Ptr mesh = look_component<CMesh>( path.string_without_protocol() );
 	if ( is_null(mesh) )
 		throw CastingFailed( FromHere(), "Component in path \'" + path.string() + "\' is not a valid CMesh." );
-	
+
 	initialize(*mesh);
-	
+
 	partition_graph();
-	
+
 	migrate();
 }
 
@@ -86,7 +86,7 @@ void CMeshPartitioner::load_balance( XmlNode& xml  )
 
 void CMeshPartitioner::initialize(CMesh& mesh)
 {
-  
+
   std::vector<Uint> num_obj(2);
   num_obj[0]= mesh.property("nb_nodes").value<Uint>();
   num_obj[1]= mesh.property("nb_cells").value<Uint>();
@@ -127,16 +127,16 @@ void CMeshPartitioner::build_global_to_local_index(CMesh& mesh)
     m_connectivity_components.push_back(glb_elem_connectivity.self());
     m_local_start_index.push_back(coordinates.size()+m_local_start_index.back());
   }
-  
+
   boost_foreach ( CElements& elements, find_components_recursively<CElements>(mesh))
   {
     CTable<Uint>& connectivity_table = elements.connectivity_table();
     m_nb_owned_obj += connectivity_table.size();
 
-    const CList<Uint>& global_node_indices = find_component_with_tag<CList<Uint> >(elements.coordinates(),"global_node_indices");    
+    const CList<Uint>& global_node_indices = find_component_with_tag<CList<Uint> >(elements.coordinates(),"global_node_indices");
     const CList<Uint>& global_elem_indices = find_component_with_tag<CList<Uint> >(elements,"global_element_indices");
     cf_assert(connectivity_table.size() == global_elem_indices.size());
-   
+
     // boost_foreach (Uint glb_idx, global_elem_indices.array())
     // {
     //   if (m_hash->subhash(ELEMS)->owns(glb_idx))
@@ -151,11 +151,11 @@ void CMeshPartitioner::build_global_to_local_index(CMesh& mesh)
     m_local_components.push_back(elements.self());
     m_glb_idx_components.push_back(global_node_indices.self());
     m_connectivity_components.push_back(connectivity_table.self());
-    
+
     m_local_start_index.push_back(connectivity_table.size()+m_local_start_index.back());
-    
+
   }
-  
+
   Uint tot_nb_obj = m_local_start_index.back();
   m_global_to_local->reserve(tot_nb_obj);
   Uint loc_idx=0;
@@ -179,13 +179,13 @@ void CMeshPartitioner::build_global_to_local_index(CMesh& mesh)
       //CFinfo << "  adding element with glb " << from_elem_glb(glb_idx) << CFendl;
     }
   }
-  
+
   m_global_to_local->sort_keys();
 
   // check validity
   cf_assert(loc_idx == tot_nb_obj);
   Uint glb_nb_owned_obj = boost::mpi::all_reduce(PE::instance(), m_nb_owned_obj, std::plus<Uint>());
-  cf_assert(glb_nb_owned_obj == mesh.property("nb_nodes").value<Uint>() + mesh.property("nb_cells").value<Uint>());  
+  cf_assert(glb_nb_owned_obj == mesh.property("nb_nodes").value<Uint>() + mesh.property("nb_cells").value<Uint>());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -203,7 +203,7 @@ void CMeshPartitioner::show_changes()
       foreach_container((const Uint glb_obj) (const Uint part), *m_changes)
       {
         boost::tie(component,index) = to_local(glb_obj);
-        
+
         if (is_node(glb_obj))
         {
           std::cout << "export node " << to_node_glb(glb_obj) << std::endl;
@@ -214,7 +214,7 @@ void CMeshPartitioner::show_changes()
         }
         std::cout << "  to proc " << m_hash->proc_of_part(part) << std::endl;
         std::cout << "  to part " << part << std::endl;
-        std::cout << "  from " << component->full_path().string() << "["<<index<<"]" << std::endl;
+        std::cout << "  from " << component->full_path().string_without_protocol() << "["<<index<<"]" << std::endl;
       }
     )
   }
@@ -246,7 +246,7 @@ boost::tuple<Uint,Uint,bool> CMeshPartitioner::to_local_indices_from_glb_obj(con
 
 boost::tuple<Uint,Uint> CMeshPartitioner::to_local_indices_from_loc_obj(const Uint loc_obj) const
 {
-	cf_assert_desc("loc_obj out of bounds" , loc_obj < m_local_start_index.back());
+  cf_assert_desc("loc_obj out of bounds" , loc_obj < m_local_start_index.back());
   for (Uint i=0; i<m_local_start_index.size()-1; ++i)
   {
     if (loc_obj < m_local_start_index[i+1])
@@ -254,7 +254,7 @@ boost::tuple<Uint,Uint> CMeshPartitioner::to_local_indices_from_loc_obj(const Ui
       return boost::make_tuple(i,loc_obj-m_local_start_index[i]);
     }
   }
-	return boost::make_tuple(0,0);
+  return boost::make_tuple(0,0);
 }
 
 
