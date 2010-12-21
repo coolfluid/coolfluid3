@@ -44,7 +44,8 @@ void ProcessingThread::run()
   catch(...)
   {
     CFerror << "Unknown exception thrown during execution of action [" << m_target
-        << "] on component " << " [" << m_receiver->full_path() << "]." << CFendl;
+        << "] on component " << " [" << m_receiver->full_path().string_without_scheme()
+        << "]." << CFendl;
   }
 }
 

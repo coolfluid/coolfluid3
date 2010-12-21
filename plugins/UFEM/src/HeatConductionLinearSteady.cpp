@@ -90,7 +90,7 @@ void HeatConductionLinearSteady::run(XmlNode& node)
   // Create output field
   const std::vector<std::string> vars(1, var_name + "[1]");
   CField& field = mesh->create_field(field_name, vars, CField::NODE_BASED);
-  lss->configure_property("SolutionField", URI(field.full_path().string) );
+  lss->configure_property("SolutionField", URI(field.full_path()) );
 
   // Build the system
   CAction::Ptr heat_equation = get_child<CAction>("HeatEquation");

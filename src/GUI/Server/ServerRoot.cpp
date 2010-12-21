@@ -136,7 +136,7 @@ void ServerRoot::processSignal(const string & target,
     catch(...)
     {
       CFerror << "Unknown exception thrown during execution of action [" << target
-          << "] on component " << " [" << receiver << "]." << CFendl;
+          << "] on component " << " [" << receiver.string_without_scheme() << "]." << CFendl;
     }
   }
 }
