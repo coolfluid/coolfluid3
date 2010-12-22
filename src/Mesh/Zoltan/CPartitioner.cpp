@@ -35,7 +35,7 @@ CPartitioner::CPartitioner ( const std::string& name ) :
 {
   
   m_properties.add_option<OptionT <std::string> >("Graph Package","External library zoltan will use for graph partitioning","PHG")->mark_basic();
-  m_properties.add_option<OptionT <Uint> >("Debug Level","Internal Zoltan debug level (0 to 6)",0);
+  m_properties.add_option<OptionT <Uint> >("Debug Level","Internal Zoltan debug level (0 to 10)",0);
   
   m_zz = new ZoltanObject(PE::instance());
   cf_assert (m_zz != NULL);
@@ -127,14 +127,14 @@ void CPartitioner::query_list_of_objects(void *data, int sizeGID, int sizeLID,
   p.list_of_owned_objects(globalID);
 	
 	
-	
-//	std::vector<Uint> glbID(p.nb_owned_objects());
-//	p.list_of_owned_objects(glbID);
-//	
-//	CFdebug << RANK << "glbID =";
-//	boost_foreach(const Uint g, glbID)
-//		CFdebug << " " << g;
-//	CFdebug << CFendl;
+	// for debugging
+  std::vector<Uint> glbID(p.nb_owned_objects());
+  p.list_of_owned_objects(glbID);
+  
+  CFdebug << RANK << "glbID =";
+  boost_foreach(const Uint g, glbID)
+    CFdebug << " " << g;
+  CFdebug << CFendl;
 
 }
 
@@ -166,30 +166,44 @@ void CPartitioner::query_list_of_connected_objects(void *data, int sizeGID, int 
   p.list_of_connected_objects(nborGID);
   p.list_of_connected_procs(nborProc);
 	
-//	
-//	std::vector<Uint> numEdges(p.nb_owned_objects());
-//	p.nb_connected_objects(numEdges);
-//	
-//	std::vector<Uint> conn_glbID(p.nb_owned_objects());
-//	p.list_of_connected_objects(conn_glbID);
-//	
-//	
-//	PEProcessSortedExecute(PE::instance(),-1,
-//	CFdebug << RANK << "conn_glbID =\n";
-//	Uint cnt = 0;
-//	index_foreach( e, const Uint nbEdge, numEdges)
-//	{
-//		CFdebug << "  " << e << ": ";
-//		for (Uint c=cnt; c<cnt+nbEdge; ++c)
-//		{
-//			CFdebug << " " << conn_glbID[c];
-//		}
-//		CFdebug << CFendl;
-//		cnt += nbEdge;
-//	}
-//	CFdebug << CFendl;
-//												 )
 	
+	
+	// for debugging
+  const Uint nb_obj = p.nb_owned_objects();
+  std::vector<Uint> numEdges(nb_obj);
+  Uint tot_nb_edges = p.nb_connected_objects(numEdges);
+
+  std::vector<Uint> conn_glbID(tot_nb_edges);
+  p.list_of_connected_objects(conn_glbID);
+  
+  std::vector<Uint> glbID(nb_obj);
+  p.list_of_owned_objects(glbID);
+  
+  PEProcessSortedExecute(PE::instance(),-1,
+  CFdebug << RANK << "conn_glbID =\n";
+  Uint cnt = 0;
+  index_foreach( e, const Uint nbEdge, numEdges)
+  {
+		if (p.is_node(glbID[e]))
+			CFdebug << "  N" << p.to_node_glb(glbID[e]) << ": ";
+		else
+			CFdebug << "  E" << p.to_elem_glb(glbID[e]) << ": ";
+		
+    for (Uint c=cnt; c<cnt+nbEdge; ++c)
+		{
+			if (p.is_node(conn_glbID[c]))
+				CFdebug << " N" << p.to_node_glb(conn_glbID[c]);
+			else
+				CFdebug << " E" << p.to_elem_glb(conn_glbID[c]);
+		}
+    CFdebug << "\n";
+    cnt += nbEdge;
+  }
+  CFdebug << CFendl;
+  cf_assert( cnt == tot_nb_edges );
+  CFdebug << RANK << "total nb_edges = " << cnt << CFendl;
+  )
+  PECheckArrivePoint(5,"end queries");
 }
 	
 //////////////////////////////////////////////////////////////////////

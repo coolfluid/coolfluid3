@@ -1604,27 +1604,32 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
 
 	// the file to read from
 	boost::filesystem::path fp_in ("quadtriag.neu");
-
+	
 	// the mesh to store in
 	CMesh::Ptr mesh_ptr = meshreader->create_mesh_from(fp_in);
   CMesh& mesh = *mesh_ptr;
 
+	
+	CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+	boost::filesystem::path fp_out_1 ("quadtriag.msh");
+	meshwriter->write_from_to(mesh_ptr,fp_out_1);
+	
+	
   CMeshPartitioner::Ptr partitioner_ptr = create_component_abstract_type<CMeshPartitioner>("CF.Mesh.Zoltan.CPartitioner","partitioner");
 
   CMeshPartitioner& p = *partitioner_ptr;
   
   //p.configure_property("Number of Partitions", (Uint) 4);
   p.configure_property("Graph Package", std::string("PHG"));
-	p.configure_property("Debug Level", 0u);
+	p.configure_property("Debug Level", 10u);
   p.initialize(mesh);
   p.partition_graph();
   p.show_changes();
 	
 	p.migrate();
   
-  CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
-	boost::filesystem::path fp_out ("quadtriag.msh");
-	meshwriter->write_from_to(mesh_ptr,fp_out);
+	boost::filesystem::path fp_out_2 ("quadtriag_repartitioned.msh");
+	meshwriter->write_from_to(mesh_ptr,fp_out_2);
  	
 	
 	CFinfo << p.tree() << CFendl;
