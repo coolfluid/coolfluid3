@@ -54,7 +54,7 @@ void PE::init(int argc, char** args)
 // The mpi::environment object is initialized with the program arguments
 // (which it may modify) in your main program. The creation of this object
 // initializes MPI, and its destruction will finalize MPI.
-	
+
   if (!m_environment)
     delete_ptr(m_environment);
   m_environment = new mpi::environment(argc,args);

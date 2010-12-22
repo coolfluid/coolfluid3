@@ -71,6 +71,8 @@ Core::~Core() {}
 
 void Core::initiate ( int argc, char** argv )
 {
+  m_argc = argc;
+  m_argv = argv;
   if ( !PE::instance().is_init() )
     PE::instance().init(argc,argv); // this might modify argc and argv
 }

@@ -93,6 +93,14 @@ public: // methods
   /// Gets the network information.
   /// @return Returns the network information.
   NetworkInfo& network_info ();
+  
+  /// command-line arguments count
+  /// @return count of arguments
+  int argc() const { return m_argc; }
+  
+  /// command-line arguments values
+  /// @return values of arguments
+  char** argv() const { return m_argv; }
 
 private: // methods
 
@@ -123,6 +131,12 @@ private: // data
 
   /// The network information.
   NetworkInfo m_network_info;
+
+  /// command-line arguments count
+  int m_argc;
+  
+  /// command-line arguments values
+  char** m_argv;
 
 }; // Core
 
