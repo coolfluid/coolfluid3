@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE( constructor )
 
   //--------------------------------------------
 
-  CFinfo << Core::instance().root()->tree() << CFendl;
+  // CFinfo << Core::instance().root()->tree() << CFendl;
 
   //--------------------------------------------
 

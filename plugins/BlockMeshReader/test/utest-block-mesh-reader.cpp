@@ -57,6 +57,9 @@ BOOST_FIXTURE_TEST_SUITE( BlockMeshReader, BlockMeshReaderFixture )
 
 BOOST_AUTO_TEST_CASE( Channel3D )
 {
+
+  BOOST_CHECK(true);
+
   // files should be in current working directory
   boost::filesystem::path dict_path = base_dir / boost::filesystem::path("channel3d.dict");
   CMeshReader::Ptr dict_reader = create_component_abstract_type<CMeshReader>("CF.BlockMeshReader.BlockMeshReader","meshreader");
@@ -77,6 +80,8 @@ BOOST_AUTO_TEST_CASE( Channel3D )
 
 BOOST_AUTO_TEST_CASE( Cavity2D )
 {
+  BOOST_CHECK(true);
+
   // files should be in current working directory
   boost::filesystem::path dict_path = base_dir / boost::filesystem::path("cavity2d.dict");
   CMeshReader::Ptr dict_reader = create_component_abstract_type<CMeshReader>("CF.BlockMeshReader.BlockMeshReader","meshreader");
@@ -100,6 +105,8 @@ BOOST_AUTO_TEST_CASE( Cavity2D )
 
 BOOST_AUTO_TEST_CASE( PitzDaily )
 {
+  BOOST_CHECK(true);
+
   // files should be in current working directory
   boost::filesystem::path dict_path = base_dir / boost::filesystem::path("pitzdaily.dict");
   CMeshReader::Ptr dict_reader = create_component_abstract_type<CMeshReader>("CF.BlockMeshReader.BlockMeshReader","meshreader");
@@ -120,6 +127,8 @@ BOOST_AUTO_TEST_CASE( PitzDaily )
 
 BOOST_AUTO_TEST_CASE( WriteDict )
 {
+  BOOST_CHECK(true);
+
   boost::filesystem::path path = base_dir/boost::filesystem::path("pitzdaily.dict");
   boost::filesystem::fstream file;
   file.open(path,std::ios_base::in);
@@ -176,6 +185,8 @@ BOOST_AUTO_TEST_CASE( PartitionBlocks )
 
 BOOST_AUTO_TEST_CASE( GenerateChannel )
 {
+  BOOST_CHECK(true);
+
   // files should be in current working directory
   boost::filesystem::path dict_path = base_dir / boost::filesystem::path("channel3d.dict");
   CMeshReader::Ptr dict_reader = create_component_abstract_type<CMeshReader>("CF.BlockMeshReader.BlockMeshReader","meshreader");
