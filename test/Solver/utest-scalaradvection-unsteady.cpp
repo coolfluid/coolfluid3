@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( read_mesh )
   // everything is OK
   std::vector<URI> files;
   files.push_back( "file:rotation-qd.neu" );
-  p.add_option<URI>("Domain", URI(domain.full_path().string()));
+  p.add_option<URI>("Domain", URI( domain.full_path() ));
   p.add_array("Files", files);
 
   CMeshReader& reader = find_component_recursively<CMeshReader>(*Core::instance().root());
@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE( configuration )
 
   std::vector<URI> bc_regions;
   boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"inlet"))
-    bc_regions.push_back(URI(region.full_path().string()));
+    bc_regions.push_back( region.full_path() );
 
   BOOST_CHECK_EQUAL( bc_regions.size() , 1u);
 
