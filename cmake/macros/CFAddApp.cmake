@@ -85,7 +85,7 @@ macro( coolfluid_add_application APPNAME )
       #  SET( MACOSX_BUNDLE_COPYRIGHT )
 
       set( ${APPNAME}_fixup_bundle "include(BundleUtilities)
-        fixup_bundle(\"${CMAKE_INSTALL_PREFIX}/coolfluid-client.app\" \"${Boost_LIBRARIES}\"
+        fixup_bundle(\"${CMAKE_INSTALL_PREFIX}/coolfluid-client.app\" \"${CF_BOOST_LIBRARIES}\"
                      \"\")" )
 
       coolfluid_log_verbose("${APPNAME} application will be built as a Mac OS bundle.")

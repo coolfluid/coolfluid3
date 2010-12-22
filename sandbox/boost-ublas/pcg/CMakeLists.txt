@@ -1,4 +1,4 @@
-list( APPEND sandbox-boost-ublas-pcg_libs ${Boost_LIBRARIES} )
+list( APPEND sandbox-boost-ublas-pcg_libs ${CF_BOOST_LIBRARIES} )
 list( APPEND sandbox-boost-ublas-pcg_files pcg.cpp pcg.hpp precond.hpp cholesky.hpp )
 
 set( sandbox-boost-ublas-pcg_sandbox_app TRUE )

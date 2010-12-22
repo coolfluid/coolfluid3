@@ -30,6 +30,14 @@ include_directories( ${Boost_INCLUDE_DIR} )
 # add boost libraries to list of third party libraries
 list( APPEND CF_TP_LIBRARIES ${Boost_LIBRARIES} )
 
+# filter out the unit test libs from the boost libraries
+# only unit testslink to this
+set(CF_BOOST_LIBRARIES "" )
+foreach( blib ${Boost_LIBRARIES} )
+  if( NOT ${blib} MATCHES "[a-zA-Z0-9]*unit_test_framework[a-zA-Z0-9]*" )
+    list( APPEND CF_BOOST_LIBRARIES ${blib} )
+  endif()
+endforeach()
 
 #######################################################################################
 

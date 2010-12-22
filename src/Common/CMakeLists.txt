@@ -185,7 +185,7 @@ coolfluid_mark_not_orphan(
 
 ###############################################################################
 
-list( APPEND coolfluid_common_libs ${Boost_LIBRARIES})
+list( APPEND coolfluid_common_libs ${CF_BOOST_LIBRARIES})
 
 # explicit linking of all libraries for modern linkers (gcc4.5)
 if( CF_HAVE_RT )

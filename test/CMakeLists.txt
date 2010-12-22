@@ -1,6 +1,7 @@
 
 include_directories( ${CMAKE_SOURCE_DIR} ) # include base dir of project
 
+add_subdirectory( rapidxml )
 add_subdirectory( Eigen )
 
 add_subdirectory( Common )

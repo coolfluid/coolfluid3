@@ -1,9 +1,22 @@
+// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+//
+// This software is distributed under the terms of the
+// GNU Lesser General Public License version 3 (LGPLv3).
+// See doc/lgpl.txt and doc/gpl.txt for the license text.
+
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MODULE "Test module for rapidxml"
+
 #include <string>
 #include <iostream>
 
+#include <boost/test/unit_test.hpp>
 #include <boost/algorithm/string.hpp>
 
 #include "rapidxml/rapidxml.hpp"
+
+using namespace std;
+using namespace boost;
 
 /// prints the xml node to screen
 void print_xml_node(rapidxml::xml_node<> *node)
@@ -78,7 +91,24 @@ void deep_copy ( rapidxml::xml_node<>& in, rapidxml::xml_node<>& out )
   deep_copy_names_values(in,out);
 }
 
-int main(int argc, char * argv[])
+////////////////////////////////////////////////////////////////////////////////
+
+struct RapidXML_Test_Fixture
+{
+  /// common setup for each test case
+  RapidXML_Test_Fixture() {}
+
+  /// common tear-down for each test case
+  ~RapidXML_Test_Fixture() {}
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_FIXTURE_TEST_SUITE( RapidXML_TestSuite, RapidXML_Test_Fixture )
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( parsing )
 {
   using namespace rapidxml;
 
@@ -110,7 +140,10 @@ int main(int argc, char * argv[])
 
   // print document
   print_xml_node(adoc.first_node());
-
-  return 0;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_SUITE_END()
+
+////////////////////////////////////////////////////////////////////////////////

@@ -56,11 +56,7 @@ struct FieldTests_Fixture
   {
   }
 
-  /// possibly common functions used on the tests below
-
-
-  /// common values accessed by all tests goes here
-
+  /// common mesh accessed by all tests
   CMesh::Ptr m_mesh;
 };
 

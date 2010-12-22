@@ -89,7 +89,7 @@ macro( coolfluid_prepare_unittest UTESTNAME )
 
     # add external dependency libraries if defined
     if( DEFINED ${UTESTNAME}_libs )
-      TARGET_LINK_LIBRARIES( ${UTESTNAME} ${${UTESTNAME}_libs} )
+      target_link_libraries( ${UTESTNAME} ${${UTESTNAME}_libs} )
     endif(DEFINED ${UTESTNAME}_libs)
 
     # profiling gloabally selected
@@ -104,8 +104,11 @@ macro( coolfluid_prepare_unittest UTESTNAME )
 
     # internal dependencies
     if( DEFINED ${UTESTNAME}_cflibs )
-        TARGET_LINK_LIBRARIES ( ${UTESTNAME} ${${UTESTNAME}_cflibs} )
+        target_link_libraries( ${UTESTNAME} ${${UTESTNAME}_cflibs} )
     endif()
+
+    # add boost unit test lib
+    target_link_libraries( ${UTESTNAME} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} )
 
   endif()
 
