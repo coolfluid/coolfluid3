@@ -144,6 +144,7 @@ BOOST_AUTO_TEST_CASE( WriteDict )
   BOOST_CHECK_EQUAL(ref_block_data, out_block_data);
 }
 
+#if 0
 BOOST_AUTO_TEST_CASE( PartitionBlocks )
 {
   BOOST_CHECK(true);
@@ -183,6 +184,7 @@ BOOST_AUTO_TEST_CASE( PartitionBlocks )
   if( PE::instance().rank() == 0)
     std::cout << "-------------- Partitioned blocks ----------------\n" << partitioned_blocks << std::endl;
 }
+#endif
 
 BOOST_AUTO_TEST_CASE( GenerateChannel )
 {
