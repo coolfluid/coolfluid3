@@ -57,7 +57,6 @@ BOOST_FIXTURE_TEST_SUITE( BlockMeshReader, BlockMeshReaderFixture )
 
 BOOST_AUTO_TEST_CASE( Channel3D )
 {
-
   BOOST_CHECK(true);
 
   // files should be in current working directory
@@ -147,6 +146,8 @@ BOOST_AUTO_TEST_CASE( WriteDict )
 
 BOOST_AUTO_TEST_CASE( PartitionBlocks )
 {
+  BOOST_CHECK(true);
+
   if(!PE::instance().is_init())
     PE::instance().init(0,0);
   
