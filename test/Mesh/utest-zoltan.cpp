@@ -301,7 +301,7 @@ struct ZoltanTests_Fixture
     Real nb_nodes = mesh.property("nb_nodes").value<Uint>();
     Real part_size = std::floor(nb_nodes/np);
     
-    return std::min(np-1,std::floor(glb_idx/part_size));
+    return static_cast<Uint>(std::min(np-1.,std::floor(static_cast<Real>(glb_idx)/part_size)));
 	}
 	
 	static Uint hash_proc_elems(CMesh& mesh, Uint glb_idx)
@@ -310,7 +310,7 @@ struct ZoltanTests_Fixture
     Real nb_cells = mesh.property("nb_cells").value<Uint>();
     Real part_size = std::floor(nb_cells/np);
     
-    return std::min(np-1,std::floor(glb_idx/part_size));
+    return static_cast<Uint>(std::min(np-1.,std::floor(static_cast<Real>(glb_idx)/part_size)));
 	}
 	
 	
