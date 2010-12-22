@@ -47,41 +47,41 @@ CField::CField ( const std::string& name  ) :
   m_properties["VarTypes"].as_option().attach_trigger ( boost::bind ( &CField::config_var_types,   this ) );
 
 }
-
+  
 ////////////////////////////////////////////////////////////////////////////////
 
 void CField::config_var_types()
 {
-	std::vector<std::string> var_types; property("VarTypes").put_value(var_types);
-
-	boost::regex e_scalar  ("(s(cal(ar)?)?)|1"     ,boost::regex::perl|boost::regex::icase);
-	boost::regex e_vector2d("(v(ec(tor)?)?.?2d?)|2",boost::regex::perl|boost::regex::icase);
-	boost::regex e_vector3d("(v(ec(tor)?)?.?3d?)|3",boost::regex::perl|boost::regex::icase);
-	boost::regex e_tensor2d("(t(ens(or)?)?.?2d?)|4",boost::regex::perl|boost::regex::icase);
-	boost::regex e_tensor3d("(t(ens(or)?)?.?3d?)|9",boost::regex::perl|boost::regex::icase);
-
-	m_var_types.resize(var_types.size());
-	Uint iVar = 0;
-	BOOST_FOREACH (const std::string& var_type, var_types)
-	{
-		if (boost::regex_match(var_type,e_scalar))
-			m_var_types[iVar++]=SCALAR;
-		else if (boost::regex_match(var_type,e_vector2d))
-			m_var_types[iVar++]=VECTOR_2D;
-		else if (boost::regex_match(var_type,e_vector3d))
-			m_var_types[iVar++]=VECTOR_3D;
-		else if (boost::regex_match(var_type,e_tensor2d))
-			m_var_types[iVar++]=TENSOR_2D;
-		else if (boost::regex_match(var_type,e_tensor3d))
-			m_var_types[iVar++]=TENSOR_3D;
-	}
-
-	std::vector<Uint> var_sizes(m_var_types.size());
-	for (Uint i=0; i<m_var_types.size(); ++i)
-		var_sizes[i]=Uint(m_var_types[i]);
-	BOOST_FOREACH(CField& subfield, find_components<CField>(*this))
-		subfield.configure_property("VarSizes",var_sizes);
-
+  std::vector<std::string> var_types; property("VarTypes").put_value(var_types);
+  
+  boost::regex e_scalar  ("(s(cal(ar)?)?)|1"     ,boost::regex::perl|boost::regex::icase);
+  boost::regex e_vector2d("(v(ec(tor)?)?.?2d?)|2",boost::regex::perl|boost::regex::icase);
+  boost::regex e_vector3d("(v(ec(tor)?)?.?3d?)|3",boost::regex::perl|boost::regex::icase);
+  boost::regex e_tensor2d("(t(ens(or)?)?.?2d?)|4",boost::regex::perl|boost::regex::icase);
+  boost::regex e_tensor3d("(t(ens(or)?)?.?3d?)|9",boost::regex::perl|boost::regex::icase);
+  
+  m_var_types.resize(var_types.size());
+  Uint iVar = 0;
+  BOOST_FOREACH (const std::string& var_type, var_types)
+  {
+    if (boost::regex_match(var_type,e_scalar))
+      m_var_types[iVar++]=SCALAR;
+    else if (boost::regex_match(var_type,e_vector2d))
+      m_var_types[iVar++]=VECTOR_2D;
+    else if (boost::regex_match(var_type,e_vector3d))
+      m_var_types[iVar++]=VECTOR_3D;
+    else if (boost::regex_match(var_type,e_tensor2d))
+      m_var_types[iVar++]=TENSOR_2D;
+    else if (boost::regex_match(var_type,e_tensor3d))
+      m_var_types[iVar++]=TENSOR_3D;
+  }
+  
+  std::vector<Uint> var_sizes(m_var_types.size());
+  for (Uint i=0; i<m_var_types.size(); ++i)
+    var_sizes[i]=Uint(m_var_types[i]);
+  BOOST_FOREACH(CField& subfield, find_components<CField>(*this))
+    subfield.configure_property("VarSizes",var_sizes);
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -89,7 +89,7 @@ void CField::config_var_types()
 void CField::config_var_names()
 {
   property("VarNames").put_value(m_var_names);
-
+  
   BOOST_FOREACH(CField& subfield, find_components<CField>(*this))
     subfield.configure_property("VarNames",m_var_names);
 }
@@ -98,60 +98,61 @@ void CField::config_var_names()
 
 void CField::config_var_sizes()
 {
-	std::vector<Uint> var_sizes; property("VarSizes").put_value(var_sizes);
-	Uint iVar=0;
-	m_var_types.resize(var_sizes.size());
-	BOOST_FOREACH(Uint var_type, var_sizes)
-	m_var_types[iVar++]=VarType(var_type);
-
+  std::vector<Uint> var_sizes; property("VarSizes").put_value(var_sizes);
+  Uint iVar=0;
+  m_var_types.resize(var_sizes.size());
+  BOOST_FOREACH(Uint var_type, var_sizes)
+  m_var_types[iVar++]=VarType(var_type);
+  
   BOOST_FOREACH(CField& subfield, find_components<CField>(*this))
-    subfield.configure_property("VarSizes",var_sizes);
+    subfield.configure_property("VarSizes",var_sizes);  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 std::string CField::var_name(Uint i) const
 {
-	cf_assert(i<m_var_types.size());
-	return m_var_names.size() ? m_var_names[i] : "var";
-
-	//	std::vector<std::string> names;
-	//	switch (m_var_types[i])
-	//	{
-	//		case SCALAR:
-	//			names += name;
-	//			break;
-	//		case VECTOR_2D:
-	//			names += name+"x";
-	//			names += name+"y";
-	//			break;
-	//		case VECTOR_3D:
-	//			names += name+"x";
-	//			names += name+"y";
-	//			names += name+"z";
-	//			break;
-	//		case TENSOR_2D:
-	//			names += name+"xx";
-	//			names += name+"xy";
-	//			names += name+"yx";
-	//			names += name+"yy";
-	//			break;
-	//		case TENSOR_3D:
-	//			names += name+"xx";
-	//			names += name+"xy";
-	//			names += name+"xz";
-	//			names += name+"yx";
-	//			names += name+"yy";
-	//			names += name+"yz";
-	//			names += name+"zx";
-	//			names += name+"zy";
-	//			names += name+"zz";
-	//			break;
-	//		default:
-	//			break;
-	//	}
-	//	return names;
+  cf_assert(i<m_var_types.size());
+  return m_var_names.size() ? m_var_names[i] : "var";
+  
+  //  std::vector<std::string> names;
+  //  switch (m_var_types[i])
+  //  {
+  //    case SCALAR:
+  //      names += name;
+  //      break;
+  //    case VECTOR_2D:
+  //      names += name+"x";
+  //      names += name+"y";
+  //      break;
+  //    case VECTOR_3D:
+  //      names += name+"x";
+  //      names += name+"y";
+  //      names += name+"z";
+  //      break;
+  //    case TENSOR_2D:
+  //      names += name+"xx";
+  //      names += name+"xy";
+  //      names += name+"yx";
+  //      names += name+"yy";
+  //      break;
+  //    case TENSOR_3D:
+  //      names += name+"xx";
+  //      names += name+"xy";
+  //      names += name+"xz";
+  //      names += name+"yx";
+  //      names += name+"yy";
+  //      names += name+"yz";
+  //      names += name+"zx";
+  //      names += name+"zy";
+  //      names += name+"zz";
+  //      break;
+  //    default:
+  //      break;
+  //  }
+  //  return names;
 }
+  
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -184,7 +185,7 @@ CField& CField::synchronize_with_region(CRegion& support, const std::string& fie
 
   return *this;
 }
-
+  
 ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -197,11 +198,11 @@ void CField::create_data_storage(const DataBasis basis)
   }
 
   cf_assert(m_var_types.size()!=0);
-
-	Uint row_size(0);
-	BOOST_FOREACH(const VarType var_size, m_var_types)
-		row_size += Uint(var_size);
-
+  
+  Uint row_size(0);
+  BOOST_FOREACH(const VarType var_size, m_var_types)
+    row_size += Uint(var_size);
+  
   switch (m_basis)
   {
     case ELEMENT_BASED:
@@ -216,31 +217,38 @@ void CField::create_data_storage(const DataBasis basis)
       std::map<std::string,CTable<Real>*> data_for_coordinates;
 
       // Check if there are coordinates in this field, and add to map
+      CTable<Real>::Ptr field_data;
       if (! find_components<CTable<Real> >(support()).empty() )
       {
         CTable<Real>& coordinates = find_component<CTable<Real> >(support());
-        CTable<Real>& field_data = *create_component<CTable<Real> >("data");
-        field_data.add_tag("field_data");
-        field_data.array().resize(boost::extents[coordinates.size()][row_size]);
-        data_for_coordinates[coordinates.full_path().string_without_scheme()] = &field_data;
-
-					// create a link to the coordinates in the data
-					field_data.create_component<CLink>("coordinates")->link_to(coordinates.get());
+        field_data = create_component<CTable<Real> >("data");
+        field_data->add_tag("field_data");
+        field_data->array().resize(boost::extents[coordinates.size()][row_size]);
+        data_for_coordinates[coordinates.full_path().string_without_scheme()] = field_data.get();
+        
+        // create a link to the coordinates in the data
+        field_data->create_component<CLink>("coordinates")->link_to(coordinates.get());
 			}
 			// Check if there are coordinates in all subfields and add to map
 			BOOST_FOREACH(CField& subfield, find_components_recursively<CField>(*this))
 			{
 				if (! find_components<CTable<Real> >(subfield.support()).empty() )
 				{
-					// Create data and store in a map
+          // Create data and store in a map
 					CTable<Real>& coordinates = find_component<CTable<Real> >(subfield.support());
-					CTable<Real>& field_data = *subfield.create_component<CTable<Real> >("data");
-					field_data.add_tag("field_data");
-					field_data.array().resize(boost::extents[coordinates.size()][row_size]);
-					data_for_coordinates[coordinates.full_path().string_without_scheme()] = &field_data;
-
-					// create a link to the coordinates in the data
-					field_data.create_component<CLink>("coordinates")->link_to(coordinates.get());
+          CTable<Real>& field_data = *subfield.create_component<CTable<Real> >("data");
+          field_data.add_tag("field_data");
+          field_data.array().resize(boost::extents[coordinates.size()][row_size]);
+          data_for_coordinates[coordinates.full_path().string()] = &field_data;
+          
+          // create a link to the coordinates in the data
+          field_data.create_component<CLink>("coordinates")->link_to(coordinates.get());
+        }
+        else // if no coordinates are found, link to the data in the top field instead
+        {
+          CLink::Ptr data_link = subfield.create_component<CLink>("data");
+          data_link->add_tag("field_data");
+          data_link->link_to(field_data);
 				}
 			}
 
@@ -360,8 +368,27 @@ Uint CField::var_length ( const std::string& vname ) const
   return var_type(find_var(vname));
 }
 
+//////////////////////////////////////////////////////////////////////////////  
 
-//////////////////////////////////////////////////////////////////////////////
+CTable<Real>& CField::data_table()
+{
+  Component::Ptr data = find_component_ptr_with_filter(*this, IsComponentTag("field_data"));
+  if(!data)
+    throw ValueNotFound(FromHere(), "Field " + name() + " has no associated data");
+  CTable<Real>::Ptr result = boost::dynamic_pointer_cast< CTable<Real> >(data->get());
+  cf_assert(result);
+  return *result;
+}
+
+const CF::Mesh::CTable< Real >& CField::data_table() const
+{
+  Component::ConstPtr data = find_component_ptr_with_filter(*this, IsComponentTag("field_data"));
+  if(!data)
+    throw ValueNotFound(FromHere(), "Field " + name() + " has no associated data");
+  CTable<Real>::ConstPtr result = boost::dynamic_pointer_cast< CTable<Real> const >(data->get());
+  cf_assert(result);
+  return *result;
+}
 
 } // Mesh
 } // CF

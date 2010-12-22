@@ -26,6 +26,14 @@ namespace CF {
 namespace Actions {
 namespace Proto {
 
+/// Tag for RHS
+struct AccumulateRHSTag
+{
+};
+  
+/// Placeholder to indicate that we want to change the rhs of the system
+static boost::proto::terminal<AccumulateRHSTag>::type const accumulate_rhs = {{}};
+  
 /// Encapsulate a system matrix
 struct LSS : OptionVariable
 {
@@ -98,11 +106,11 @@ struct MatrixAssignOpsCases
 template<> \
 struct BlockAssignmentOp<boost::proto::tag::__tagname> \
 { \
-  template<typename MatrixT, int NbRows, int NbCols, typename ConnectivityT> \
-  static void assign(MatrixT& matrix, const Eigen::Matrix<Real, NbRows, NbCols>& rhs, const ConnectivityT& connectivity) \
+  template<typename MatrixT, typename ElementMatrixT, typename ConnectivityT> \
+  static void assign(MatrixT& matrix, const ElementMatrixT& rhs, const ConnectivityT& connectivity) \
   { \
-    for(Uint i = 0; i != NbRows; ++i) \
-      for(Uint j = 0; j != NbCols; ++j) \
+    for(Uint i = 0; i != ElementMatrixT::RowsAtCompileTime; ++i) \
+      for(Uint j = 0; j != ElementMatrixT::ColsAtCompileTime; ++j) \
         matrix(connectivity[i], connectivity[j]) __op rhs(i, j); \
   } \
 }; \
@@ -146,9 +154,63 @@ struct BlockAccumulator :
   };
 };
 
+template<typename VectorT, typename ElementVectorT, typename ConnectivityT>
+void rhs_plus_assign(VectorT& system_rhs, const ElementVectorT& elem_rhs_contrib, const ConnectivityT& connectivity)
+{
+  for(Uint i = 0; i != ElementVectorT::RowsAtCompileTime; ++i)
+    system_rhs[connectivity[i]] += elem_rhs_contrib[i];
+}
+
+/// Primitive transform to handle assignment to an LSS matrix
+struct RHSAccumulator :
+  boost::proto::transform< RHSAccumulator >
+{
+  template<typename ExprT, typename State, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, State, DataT>
+  {
+    /// Contrary to general C++ assignment, assigning to a system matrix doesn't return anything
+    typedef void result_type;
+
+    result_type operator ()(
+                typename impl::expr_param expr // The complete expression
+              , typename impl::state_param state // should be the element RHS contribution, i.e. RHS already evaluated
+              , typename impl::data_param data // data associated with element loop
+    ) const
+    {
+      rhs_plus_assign
+      (
+        VarValue()(expr, state, NumberedData()(expr, state, data)).lss().rhs(),
+        state,
+        data.support().element_connectivity()
+      );
+    }
+  };
+};
+
 /// Grammar matching block accumulation expressions
-struct BlockAccumulation
-  : boost::proto::switch_<MatrixAssignOpsCases>
+template<typename GrammarT>
+struct BlockAccumulation : 
+  boost::proto::or_
+  <
+    boost::proto::when
+    <
+      boost::proto::switch_<MatrixAssignOpsCases>,
+      BlockAccumulator(boost::proto::_expr, GrammarT(boost::proto::_right), boost::proto::_data)
+    >,
+    boost::proto::when
+    <
+      boost::proto::plus_assign
+      <
+        boost::proto::function
+        <
+          boost::proto::terminal<AccumulateRHSTag>,
+          boost::proto::terminal< Var< boost::proto::_, LSS > >
+        >,
+        GrammarT
+      >,
+      RHSAccumulator(boost::proto::_child_c<1>(boost::proto::_left), GrammarT(boost::proto::_right))
+    >
+  >
 {
 };
 

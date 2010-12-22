@@ -43,6 +43,7 @@ struct JacobianDeterminantTag {};
 struct NormalTag {};
 struct GradientTag {};
 struct LaplacianTag {};
+struct SFOuterProductTag {};
 
 /// Static terminals that can be used in proto expressions
 boost::proto::terminal< SFGlobalFunction<VolumeTag> >::type const volume = {{}};
@@ -53,6 +54,8 @@ boost::proto::terminal< SFSupportFunction<NormalTag> >::type const normal = {{}}
 
 boost::proto::terminal< SFFieldFunction<GradientTag> >::type const gradient = {{}};
 boost::proto::terminal< SFFieldFunction<LaplacianTag> >::type const laplacian = {{}};
+
+boost::proto::terminal< SFOuterProductTag >::type const sf_outer_product = {{}};
 
 /// Tag for an integral, wit the order provided as an MPL integral constant
 template<typename OrderT>

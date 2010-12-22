@@ -127,6 +127,12 @@ public: // functions
   /// Return the length (in number of Real values occupied in the data row) of the variable of the given name
   Uint var_length(const std::string& vname) const;
   
+  /// Return the table that holds the data for this field
+  Mesh::CTable<Real>& data_table();
+  
+  /// Return the const table that holds the data for this field
+  const Mesh::CTable<Real>& data_table() const;
+  
 private:
   
   std::string m_field_name;

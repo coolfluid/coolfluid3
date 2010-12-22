@@ -104,7 +104,7 @@ struct NodeVarData< Field<Real> >
 {
   NodeVarData(const Field<Real>& placeholder, Mesh::CRegion& region) :
     m_field(region.get_field(placeholder.field_name)),
-    m_data(Common::find_component_with_tag<Mesh::CTable<Real> >(m_field,"field_data"))
+    m_data(m_field.data_table())
   {
     m_var_begin = m_field.var_index(placeholder.var_name);
     cf_assert(m_field.var_length(placeholder.var_name) == 1);
@@ -136,7 +136,7 @@ struct NodeVarData< ConstField<Real> >
 {
   NodeVarData(const ConstField<Real>& placeholder, Mesh::CRegion& region) :
     m_field(region.get_field(placeholder.field_name)),
-    m_data(Common::find_component_with_filter<Mesh::CTable<Real> >(m_field, Common::IsComponentTag("field_data")))
+    m_data(m_field.data_table())
   {
     m_var_begin = m_field.var_index(placeholder.var_name);
     cf_assert(m_field.var_length(placeholder.var_name) == 1);

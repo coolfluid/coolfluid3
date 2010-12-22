@@ -173,17 +173,26 @@ private:
 template<typename T>
 struct ConstField : OptionVariable
 {
-  ConstField() : OptionVariable("aConstField", "Const access to a field")
+  ConstField() : OptionVariable("aConstField", "Const access to a field"), is_const(false)
   {
   }
 
   ConstField(const std::string& name) :
-    OptionVariable(name, "Const access to a field")
+    OptionVariable(name, "Const access to a field"),
+    is_const(false)
+  {
+  }
+  
+  ConstField(const std::string& name, const T& val) :
+    OptionVariable(name, "Const access to a field"),
+    is_const(true),
+    value(val)
   {
   }
 
   ConstField(const std::string& field_nm, const std::string varname) :
     OptionVariable(field_nm, "Field name for variable " + varname),
+    is_const(false),
     field_name(field_nm),
     var_name(varname)
   {
@@ -192,20 +201,36 @@ struct ConstField : OptionVariable
   /// Get the element type, based on the CElements currently traversed.
   const Mesh::ElementType& element_type(const Mesh::CElements& elements) const
   {
-    return elements.get_field_elements(field_name).element_type();
+    return is_const ? elements.element_type() : elements.get_field_elements(field_name).element_type();
   }
 
+  bool is_const;
+  T value;
   std::string field_name;
   std::string var_name;
 
 protected:
   virtual void add_options()
   {
+    m_is_const_option = add_option<bool>( m_name + std::string("IsConst"), "True if this field is just a constant value", boost::bind(&ConstField::on_is_const_changed, this) );
+    m_value_option = add_option<T>( m_name + std::string("Value"), "Value to use if the field is to be treated as constant", boost::bind(&ConstField::on_value_changed, this) );
     m_field_option = add_option<std::string>( m_name + std::string("FieldName"), "Field name", boost::bind(&ConstField::on_field_changed, this) );
     m_var_option = add_option<std::string>( m_name + std::string("VariableName"), "Variable name", boost::bind(&ConstField::on_var_changed, this) );
   }
 
 private:
+  /// Called when the IsConst option is changed
+  void on_is_const_changed()
+  {
+    is_const = m_is_const_option.lock()->template value<bool>();
+  }
+  
+  /// Called when the Value option is changed
+  void on_value_changed()
+  {
+    value = m_value_option.lock()->template value<T>();
+  }
+  
   /// Called when the field name option is changed
   void on_field_changed()
   {
@@ -218,6 +243,12 @@ private:
     var_name = m_var_option.lock()->template value<std::string>();
   }
 
+  /// Option to indicate the field really is a constant that has the same value everywhere
+  boost::weak_ptr< Common::OptionT<bool> > m_is_const_option;
+
+  /// Value to store
+  boost::weak_ptr< Common::OptionT<T> > m_value_option;
+  
   /// Option for the field name
   boost::weak_ptr< Common::OptionT<std::string> > m_field_option;
 

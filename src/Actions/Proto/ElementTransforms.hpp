@@ -22,15 +22,82 @@ namespace CF {
 namespace Actions {
 namespace Proto {
 
+/// Matches types that represent geometry
+struct SFSupportVariables :
+  boost::proto::terminal< Var< boost::proto::_, ConstNodes > >
+{
+};
+
+/// Matches types that represent field data
+struct SFFieldVariables :
+  boost::proto::or_
+  <
+    SFSupportVariables, // all support variables also can be used as fields
+    boost::proto::terminal< Var< boost::proto::_, ConstField<boost::proto::_> > >,
+    boost::proto::terminal< Var< boost::proto::_, Field<boost::proto::_> > >
+  >
+{
+};
+  
 /// Evaluate a shape function at the supplied mapped coordinates
 struct EvalSF :
   boost::proto::transform< EvalSF >
 {
+  /// Determine the type of evaluation for EvalSF
+  struct EvalType
+  {
+    /// Perform evaluation
+    struct Eval {};
+    
+    /// Get shape functions outer product
+    struct SFOuterProduct {};
+    
+    template<typename ExprT>
+    struct GetType
+    {
+      typedef typename boost::mpl::if_
+      <
+        boost::proto::matches
+        <
+          typename boost::proto::result_of::child<ExprT>::type,
+          SFFieldVariables
+        >,
+        Eval,
+        SFOuterProduct
+      >::type type;
+    };
+  };
+  
+  template<typename EvalT, typename MappedCoordsT, typename DataT>
+  struct evaluator;
+  
+  template<typename MappedCoordsT, typename DataT>
+  struct evaluator<EvalType::Eval, MappedCoordsT, DataT>
+  {
+    typedef typename boost::remove_reference<DataT>::type::EvalT result_type;
+    
+    result_type operator()(MappedCoordsT mapped_coords, DataT data)
+    {
+      return data.eval(mapped_coords);
+    }
+  };
+  
+  template<typename MappedCoordsT, typename DataT>
+  struct evaluator<EvalType::SFOuterProduct, MappedCoordsT, DataT>
+  {
+    typedef const typename boost::remove_reference<DataT>::type::LaplacianT& result_type;
+    
+    result_type operator()(MappedCoordsT mapped_coords, DataT data)
+    {
+      return data.sf_outer_product(mapped_coords);
+    }
+  };
+  
   template<typename ExprT, typename MappedCoordsT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, MappedCoordsT, DataT>
   { 
-    
-    typedef typename boost::remove_reference<DataT>::type::EvalT result_type;
+    typedef evaluator<typename EvalType::GetType<ExprT>::type, MappedCoordsT, DataT> EvaluationT;
+    typedef typename EvaluationT::result_type result_type;
   
     result_type operator ()(
                 typename impl::expr_param expr
@@ -38,9 +105,10 @@ struct EvalSF :
               , typename impl::data_param data
     ) const
     {
-      return data.eval(mapped_coords);
+      return EvaluationT()(mapped_coords, data);
     }
   };
+  
 };
 
 /// Get the tag type from an SFFunction
@@ -145,23 +213,6 @@ struct MappedCoordinate :
 {
 };
 
-/// Matches types that represent geometry
-struct SFSupportVariables :
-  boost::proto::terminal< Var< boost::proto::_, ConstNodes > >
-{
-};
-
-/// Matches types that represent field data
-struct SFFieldVariables :
-  boost::proto::or_
-  <
-    SFSupportVariables, // all support variables also can be used as fields
-    boost::proto::terminal< Var< boost::proto::_, ConstField<boost::proto::_> > >,
-    boost::proto::terminal< Var< boost::proto::_, Field<boost::proto::_> > >
-  >
-{
-};
-
 /// Evaluate shape function member functions pertaining to fields and mapped coordinates
 struct EvalSFFieldFunction :
   boost::proto::transform< EvalSFFieldFunction >
@@ -175,6 +226,9 @@ struct EvalSFFieldFunction :
     
     /// Laplacian type
     typedef typename FieldDataT::LaplacianT LaplacianT;
+    
+    /// Matrix type for the outer product of shape functions
+    typedef LaplacianT OuterProductT;
     
     /// Mapped coords
     typedef typename FieldDataT::ShapeFunctionT::MappedCoordsT MappedCoordsT;
@@ -272,8 +326,13 @@ struct SFFunctionsExplicit :
     // Evaluation of fields in terms of mapped coordinates (explicit)
     boost::proto::when
     <
-      boost::proto::function<boost::proto::or_<SFSupportVariables, SFFieldVariables>, MappedCoordinate>,
+      boost::proto::function<SFFieldVariables, MappedCoordinate>,
       EvalSF( boost::proto::_expr, boost::proto::_value(boost::proto::_right), NumberedData(boost::proto::_left) )
+    >,
+    boost::proto::when
+    <
+      boost::proto::function<boost::proto::terminal<SFOuterProductTag>, SFFieldVariables, MappedCoordinate>,
+      EvalSF( boost::proto::_expr, boost::proto::_value(boost::proto::_child_c<2>), NumberedData(boost::proto::_child_c<1>) )
     >,
     SFFunctionsGlobal,
     // Evaluation of support shape functions. Mapped coords explicit.
@@ -309,8 +368,13 @@ struct SFFunctionsImplicit :
     // Evaluation of fields in terms of mapped coordinates (implict)
     boost::proto::when
     <
-      boost::proto::function< boost::proto::or_<SFSupportVariables, SFFieldVariables> >,
+      boost::proto::function<SFFieldVariables>,
       EvalSF( boost::proto::_expr, boost::proto::_state, NumberedData(boost::proto::_left) )
+    >,
+    boost::proto::when
+    <
+      boost::proto::function<boost::proto::terminal<SFOuterProductTag>, SFFieldVariables>,
+      EvalSF( boost::proto::_expr, boost::proto::_state, NumberedData(boost::proto::_child_c<1>) )
     >,
     SFFunctionsGlobal,
     // Evaluation of support shape functions. Mapped coords implicit.
@@ -431,8 +495,8 @@ public:
       static const typename GaussT::WeightsT weights = GaussT::weights();
       ChildT e = boost::proto::child_c<1>(expr); // expression to integrate
       result_type r = weights[0] * ElementMath()(e, mapped_coords.col(0), data);
-      for(Uint i = 1; i != GaussT::nb_points; ++i)
-        r += weights[i] * ElementMath()(e, mapped_coords.col(i), data);
+       for(Uint i = 1; i != GaussT::nb_points; ++i)
+         r += weights[i] * ElementMath()(e, mapped_coords.col(i), data);
       return r;
     }
   };  

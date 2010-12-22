@@ -26,11 +26,7 @@ struct ElementGrammar :
   boost::proto::or_
   <
     // Assignment to system matrix
-    boost::proto::when
-    <
-      BlockAccumulation,
-      BlockAccumulator(boost::proto::_expr, ElementMath(boost::proto::_right), boost::proto::_data)
-    >,
+    BlockAccumulation<ElementMath>,
     ElementMath, // Math expressions
     // Stream output
     boost::proto::when

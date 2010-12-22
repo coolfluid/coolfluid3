@@ -64,6 +64,13 @@ struct SFData
     return m_mapped_gradient_matrix;
   }
   
+  /// Outer product of the shape function with itself
+  const LaplacianT& sf_outer_product(const MappedCoordsT& mapped_coords)
+  {
+    SF::shape_function(mapped_coords, m_sf);
+    m_sf_outer_product.noalias() = m_sf.transpose() * m_sf;
+  }
+  
   /// Storage for the gradient. It is calculated in a primitive transform.
   GradientT gradient;
   
@@ -73,6 +80,7 @@ struct SFData
 private:
   typename SF::ShapeFunctionsT m_sf;
   typename SF::MappedGradientT m_mapped_gradient_matrix;
+  LaplacianT m_sf_outer_product;
 };
   
 /// Storage for per-variable data
@@ -293,21 +301,35 @@ public:
   /// We store data as a fixed-size Eigen matrix, so we need to make sure alignment is respected
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-  SFVariableData(const ConstField<Real>& placeholder, const Mesh::CElements& elements) :
-    m_data(elements.get_field_elements(placeholder.field_name).data()),
-    m_connectivity(elements.get_field_elements(placeholder.field_name).connectivity_table())
+  SFVariableData(const ConstField<Real>& placeholder, const Mesh::CElements& elements) : m_data(0), m_connectivity(0)
   {
-    Mesh::CField::ConstPtr field = boost::dynamic_pointer_cast<Mesh::CField const>(elements.get_field_elements(placeholder.field_name).get_parent());
-    cf_assert(field);
-    var_begin = field->var_index(placeholder.var_name);
-    cf_assert(field->var_length(placeholder.var_name) == 1);
+    if(placeholder.is_const)
+    {
+      m_element_values.setConstant(placeholder.value);
+    }
+    else
+    {
+      m_data = &elements.get_field_elements(placeholder.field_name).data();
+      cf_assert(m_data);
+      
+      m_connectivity = &elements.get_field_elements(placeholder.field_name).connectivity_table();
+      cf_assert(m_connectivity);
+      
+      Mesh::CField::ConstPtr field = boost::dynamic_pointer_cast<Mesh::CField const>(elements.get_field_elements(placeholder.field_name).get_parent());
+      cf_assert(field);
+      
+      var_begin = field->var_index(placeholder.var_name);
+      cf_assert(field->var_length(placeholder.var_name) == 1);
+    }
   }
 
   /// Update nodes for the current element
   void set_element(const Uint element_idx)
   {
+    if(!m_data)
+      return;
     m_element_idx = element_idx;
-    Mesh::fill(m_element_values, m_data, m_connectivity[element_idx], var_begin);
+    Mesh::fill(m_element_values, *m_data, (*m_connectivity)[element_idx], var_begin);
   }
   
   /// Reference to the stored data
@@ -332,10 +354,10 @@ private:
   ValueT m_element_values;
   
   /// Coordinates table
-  const Mesh::CTable<Real>& m_data;
+  Mesh::CTable<Real> const* m_data;
   
   /// Connectivity table
-  const Mesh::CTable<Uint>& m_connectivity;
+  Mesh::CTable<Uint> const* m_connectivity;
   
   Uint m_element_idx;
   

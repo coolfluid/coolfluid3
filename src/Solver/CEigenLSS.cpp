@@ -61,7 +61,7 @@ void CEigenLSS::solve()
   {
     const Uint row = i / row_size;
     const Uint col = i % row_size;
-    output_data[row][col] = solution[i];
+    output_data[row][col] += solution[i];
   }
 }
 

@@ -107,8 +107,8 @@ private:
 template<typename ExprT>
 CAction::Ptr build_elements_action(const std::string& name, Common::Component& parent, const ExprT& expr)
 {
-  CF::Common::ComponentBuilder < CProtoElementsAction<ExprT>, CAction, LibActions > builder;
   boost::shared_ptr< CProtoElementsAction<ExprT> > result = parent.create_component< CProtoElementsAction<ExprT> >(name);
+  regist_typeinfo(result.get());
   result->set_expression(expr);
   return boost::static_pointer_cast<CAction>(result);
 }

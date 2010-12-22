@@ -74,12 +74,6 @@ static void mapped_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& r
   result(XX, 0) = 0.;
 }
 
-/// Compute the jacobian determinant at the given mapped coordinates
-template<typename NodesT>
-static Real jacobian_determinant(const MappedCoordsT& mappedCoord, const NodesT& nodes)
-{
-  return 0.;
-}
 
 /// Compute the Jacobian matrix
 /// @param mappedCoord The mapped coordinates where the Jacobian should be calculated
@@ -87,7 +81,24 @@ static Real jacobian_determinant(const MappedCoordsT& mappedCoord, const NodesT&
 template<typename NodesT>
 static void jacobian(const MappedCoordsT& mappedCoord, const NodesT& nodes, JacobianT& result)
 {
-  result(KSI,XX) = 0.;
+  result(KSI,XX) = 1.;
+}
+
+/// Normal vector to the surface. Length equals the jacobian norm.
+/// @param mappedCoord The mapped coordinates where the Jacobian should be calculated
+/// @param result Storage for the resulting Jacobian matrix
+template<typename NodesT>
+static void normal(const MappedCoordsT& mappedCoord, const NodesT& nodes, CoordsT& result)
+{
+  result[XX] = 1.;
+}
+
+/// The area of an element that represents a surface in the solution space, i.e.
+/// 1D elements in 2D space or 2D elements in 3D space
+template<typename NodesT>
+static Real area(const NodesT& nodes)
+{
+  return 1.;
 }
 
 /// Volume of the cell
@@ -96,6 +107,8 @@ static Real volume(const NodesType& nodes)
 {
   return 0.;
 }
+
+
 
 virtual std::string element_type_name() const;
 virtual Real compute_volume(const NodesT& coord) const;
