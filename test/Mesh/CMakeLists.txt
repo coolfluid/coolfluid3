@@ -66,7 +66,7 @@ list( APPEND utest-neu-reader-mpi_cflibs coolfluid_neutral coolfluid_gmsh coolfl
 list( APPEND utest-neu-reader-mpi_files  utest-neu-reader-mpi.cpp )
   
 # Add the target
-coolfluid_add_unittest( utest-neu-reader-mpi )
+coolfluid_add_mpi_unittest( utest-neu-reader-mpi )
 
 # Custom post-build rule (must be defined after adding target):
 # Copy the file quadtriag.neu from source dir to binary dir.
@@ -254,7 +254,7 @@ if( ${CF_HAVE_ZOLTAN} )
   list( APPEND utest-zoltan_files  utest-zoltan.cpp )
   list( APPEND utest-zoltan_includedirs ${ZOLTAN_INCLUDE_DIR} )
 
-  coolfluid_add_unittest( utest-zoltan )
+  coolfluid_add_mpi_unittest( utest-zoltan )
 
   # Custom post-build rule (must be defined after adding target):
   # Copy the file quadtriag.neu from source dir to binary dir.
