@@ -419,9 +419,6 @@ void CReader::read_connectivity()
 				{
 					cf_node_number = m_node_to_coord_idx[neu_node_number];
 					m_node_to_glb_elements[cf_node_number].insert(elementNumber-1);
-					
-					etype_CF = element_type(elementType,nbElementNodes);
-					glb_elm_indices[etype_CF]->add_row(elementNumber-1);
 				}
       }
     }
