@@ -86,7 +86,7 @@ public: // functions
   void list_of_owned_objects(VectorT& obj_list) const;
   
   template <typename VectorT>
-  void nb_connected_objects(VectorT& nb_connections_per_obj) const;
+  Uint nb_connected_objects(VectorT& nb_connections_per_obj) const;
 
   template <typename VectorT>  
   void list_of_connected_objects(VectorT& connections_per_obj) const;
@@ -219,12 +219,12 @@ void CMeshPartitioner::list_of_owned_objects(VectorT& obj_list) const
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename VectorT>
-void CMeshPartitioner::nb_connected_objects(VectorT& nb_connections_per_obj) const
+Uint CMeshPartitioner::nb_connected_objects(VectorT& nb_connections_per_obj) const
 {
   // declaration for boost::tie
   Uint component_idx;
   Uint loc_idx;
-
+	Uint size = 0;
   Uint idx = 0;
   foreach_container((const Uint glb_obj)(const Uint loc_obj),*m_global_to_local)
   {
@@ -241,10 +241,12 @@ void CMeshPartitioner::nb_connected_objects(VectorT& nb_connections_per_obj) con
         const CTable<Uint>& connectivity_table = *m_connectivity_components[component_idx]->as_type<CTable<Uint> >();
         nb_connections_per_obj[idx] = connectivity_table.row_size(loc_idx);
       }
+			size += nb_connections_per_obj[idx];
 			++idx;
     }
   }
   cf_assert(idx == nb_owned_objects());
+	return size;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -277,6 +279,9 @@ void CMeshPartitioner::list_of_connected_objects(VectorT& connected_objects) con
       }
     }
   }
+	
+	std::vector<Uint> edges(m_nb_owned_obj);
+	cf_assert( idx == nb_connected_objects(edges) );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -298,21 +303,19 @@ void CMeshPartitioner::list_of_connected_procs(VectorT& connected_procs) const
       {
         const CDynTable<Uint>& node_to_glb_elm = *m_connectivity_components[component_idx]->as_type<CDynTable<Uint> >();
         boost_foreach (const Uint glb_elm , node_to_glb_elm[loc_idx])
-        {
           connected_procs[idx++] = m_hash->subhash(ELEMS)->proc_of_obj(glb_elm);
-        }
       }
       else
       {
         const CTable<Uint>& connectivity_table = *m_connectivity_components[component_idx]->as_type<CTable<Uint> >();
         const CList<Uint>& glb_node_indices = *m_glb_idx_components[component_idx]->as_type<CList<Uint> >();
         boost_foreach (const Uint loc_node , connectivity_table[loc_idx])
-        {
           connected_procs[idx++] = m_hash->subhash(NODES)->proc_of_obj( glb_node_indices[loc_node] );
-        }
       }
     }
   }
+	std::vector<Uint> edges(m_nb_owned_obj);
+	cf_assert( idx == nb_connected_objects(edges) );
 }
 
 //////////////////////////////////////////////////////////////////////////////

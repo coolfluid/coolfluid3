@@ -135,8 +135,8 @@ void CMeshPartitioner::build_global_to_local_index(CMesh& mesh)
 
     const CList<Uint>& global_node_indices = find_component_with_tag<CList<Uint> >(elements.coordinates(),"global_node_indices");
     const CList<Uint>& global_elem_indices = find_component_with_tag<CList<Uint> >(elements,"global_element_indices");
-    cf_assert(connectivity_table.size() == global_elem_indices.size());
-
+    cf_assert_desc(to_str(connectivity_table.size())+" != "+to_str(global_elem_indices.size()),connectivity_table.size() == global_elem_indices.size());
+   
     // boost_foreach (Uint glb_idx, global_elem_indices.array())
     // {
     //   if (m_hash->subhash(ELEMS)->owns(glb_idx))
