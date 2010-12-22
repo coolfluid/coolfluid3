@@ -990,7 +990,7 @@ sub install_trilinos() {
 -D Trilinos_ENABLE_Thyra:BOOL=ON \\
 -D Trilinos_ENABLE_Triutils:BOOL=ON \\
 -D Trilinos_ENABLE_Stratimikos:BOOL=ON \\
--D Trilinos_ENABLE_Zoltan:BOOL=OFF \\
+-D Trilinos_ENABLE_.:BOOL=OFF \\
 -D TPL_ENABLE_BLAS:BOOL=ON \\
 -D TPL_ENABLE_LAPACK:BOOL=ON \\
 $mpiopt \\
@@ -1237,36 +1237,57 @@ sub install_hdf5() {
 
 sub install_zoltan()
 {
-  my ($lib)="zoltan";
-  my $version = $packages{$lib}[0];
-
-  print my_colored("Installing $lib-$version\n",$HIGHLIGHTCOLOR);
-
-  print my_colored("WARNING: This installation assumes pt-scotch and parmetis are installed\n",$ERRORCOLOR);
+  my $lib = "trilinos";
+  my $version = $packages{$lib}[$vrs];
+  print my_colored("Installing Zoltan as part of $lib-$version\n",$HIGHLIGHTCOLOR);
 
   safe_chdir($opt_tmp_dir);
   download_src("$lib-$version");
-  unless ($opt_fetchonly) {
-    rmtree "$opt_tmp_dir/$lib-$version";
-    untar_src("$lib-$version");
-    safe_chdir("$opt_tmp_dir/$lib-$version/");
-    
-    my $old_cc  = $ENV{CC};
-    my $old_cxx = $ENV{CXX};
-    unless ($opt_nompi) {
-        $ENV{CC}   = "mpicc";
-        $ENV{CXX}  = "mpic++";
-    }
+
+  my $mpi_opt;
+  unless ($opt_nompi) {
+      $mpi_opt = "-D TPL_ENABLE_MPI:BOOL=ON \\
+-D MPI_BASE_DIR_PATH:PATH=$opt_mpi_dir \\
+-D CMAKE_C_COMPILER:FILEPATH=$opt_mpi_dir/bin/mpicc \\
+-D CMAKE_CXX_COMPILER:FILEPATH=$opt_mpi_dir/bin/mpic++ \\
+-D CMAKE_Fortran_COMPILER:FILEPATH=$opt_mpi_dir/bin/mpif77 " 
+ }
+
+ my $parmetis_opt = "-D Zoltan_ENABLE_ParMETIS:BOOL=ON \\
+-D ParMETIS_INCLUDE_DIRS:FILEPATH=\"$opt_install_mpi_dir/include\" \\
+-D ParMETIS_LIBRARY_DIRS:FILEPATH=\"$opt_install_mpi_dir/lib\"";
+ my $scotch_opt = "-D Zoltan_ENABLE_Scotch:BOOL=ON \\
+-D Scotch_INCLUDE_DIRS:FILEPATH=\"$opt_install_mpi_dir/include\" \\
+-D Scotch_LIBRARY_DIRS:FILEPATH=\"$opt_install_mpi_dir/lib\"";
+ my $patoh_opt = "-D Zoltan_ENABLE_PaToH:BOOL=ON \\
+-D PaToH_LIBRARY_DIRS:FILEPATH=\"$opt_install_mpi_dir/include\" \\
+-D PaToH_INCLUDE_DIRS:FILEPATH=\"$opt_install_mpi_dir/lib\"";
  
-# for the moment we do not have scotch installed via this script   
-#    run_command_or_die("./configure --prefix=$opt_install_mpi_dir --with-gnumake --with-parmetis --with-parmetis-libdir=\"$opt_install_mpi_dir/lib\" --with-parmetis-incdir=\"$opt_install_mpi_dir/include\" --with-scotch --with-scotch-libdir=\"$opt_install_mpi_dir/lib\" --with-scotch-incdir=\"$opt_install_mpi_dir/include\"");
-    run_command_or_die("./configure --prefix=$opt_install_mpi_dir --with-gnumake --with-parmetis --with-parmetis-libdir=\"$opt_install_mpi_dir/lib\" --with-parmetis-incdir=\"$opt_install_mpi_dir/include\"");
-    run_command_or_die("make everything $opt_makeopts");
+  unless ($opt_fetchonly) 
+  {
+    my $build_dir =  "$opt_tmp_dir/$lib-$version-Source/build"; 
+
+    rmtree "$opt_tmp_dir/$lib-$version-Source";
+    untar_src("$lib-$version");
+    # make build dir - newer versions dont support in-source builds
+    mkpath $build_dir or die ("could not create dir $build_dir\n");
+    safe_chdir($build_dir);
+    run_command_or_die("$opt_cmake_dir/bin/cmake \\
+-D CMAKE_INSTALL_PREFIX:PATH=$opt_install_mpi_dir -D CMAKE_BUILD_TYPE:STRING=RELEASE \\
+-D Trilinos_ENABLE_ALL_PACKAGES:BOOL=OFF \\
+-D Trilinos_ENABLE_EXAMPLES:BOOL=ON \\
+-D Trilinos_VERBOSE_CONFIGURE:BOOL=ON \\
+-D Trilinos_ENABLE_Zoltan:BOOL=ON \\
+-D Zoltan_ENABLE_EXAMPLES:BOOL=ON \\
+-D Zoltan_ENABLE_TESTS:BOOL=ON \\
+$parmetis_opt \\
+$mpi_opt \\
+$opt_tmp_dir/$lib-$version-Source"
+);
+    run_command_or_die("make $opt_makeopts");
     run_command_or_die("make install");
-    
-    $ENV{CC}   = $old_cc;
-    $ENV{CXX}  = $old_cxx;
   }
+
 }
 
 #==========================================================================
