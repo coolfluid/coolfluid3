@@ -8,7 +8,14 @@ list( APPEND utest-block-mesh-reader_args ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CF
 
 coolfluid_add_unittest( utest-block-mesh-reader )
 
-list( APPEND dict_files  cavity2d.dict  pitzdaily.dict channel3d.dict )
+list( APPEND dict_files
+  cavity2d.dict
+  pitzdaily.dict
+  channel3d.dict
+  uTestBlockMeshReader-Channel3D-reference.neu
+  uTestBlockMeshReader-Cavity2D-reference.neu
+  uTestBlockMeshReader-PitzDaily-reference.neu
+ )
 foreach( dfile ${dict_files} )
   add_custom_command(TARGET utest-block-mesh-reader
                      POST_BUILD
