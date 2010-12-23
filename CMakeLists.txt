@@ -132,7 +132,7 @@ coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 ##############################################################################
 
 # add dir with kernel plugins
-# these are independent source trees that happen to be distributedwith the kernel for convinience
+# these are independent source trees that happen to be distributed with the kernel for convinience
 add_subdirectory( plugins )
 
 # find plugins
