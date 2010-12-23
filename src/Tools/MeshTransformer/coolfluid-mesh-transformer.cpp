@@ -22,17 +22,18 @@
 
 using namespace boost;
 using namespace boost::program_options;
+
 using namespace CF;
 using namespace CF::Common;
 using namespace CF::Mesh;
 
 int main(int argc, char * argv[])
 {
-  CFinfo << "COOLFLUID K3 Mesh Transformer\n" << CFflush;
-  
   Core::instance().initiate(argc, argv);
+
   ExceptionManager::instance().ExceptionDumps = true;
 	ExceptionManager::instance().ExceptionAborts = true;
+
 	try
   {
 		
@@ -93,15 +94,16 @@ int main(int argc, char * argv[])
 		store(parsed, vm);
 		notify(vm);
 		
-		
-		
+    if (vm.count("version"))
+      CFinfo << Core::instance().build_info()->version_header() << CFendl;
+
 		if (vm.count("help") || vm.size()==0)
 		{
 			std::string submodule = std::string();
 			if (vm.size() != 0)
 				submodule = vm["help"].as<std::string>();
 
-			if (submodule == std::string())
+      if( submodule.empty() )
 			{
 				// Default help
 				CFinfo << CFendl << "Usage: " << argv[0] << " [options]" << CFendl << CFendl;
@@ -160,7 +162,7 @@ int main(int argc, char * argv[])
 
 			}
 
-
+      Core::instance().terminate();
 			exit(0);
 		}
 		
@@ -169,11 +171,6 @@ int main(int argc, char * argv[])
 		{
 			CFinfo << "\nThis is what would happen without the dryrun option:" << CFendl << CFendl;
 			dryrun=true;
-		}
-		
-		if (vm.count("version"))
-		{
-			CFinfo << Core::instance().build_info()->version_header () << "\n";
 		}
 		
 		// create mesh object
@@ -287,6 +284,7 @@ int main(int argc, char * argv[])
 				}
 			}
 		}
+
   }
   catch ( std::exception& ex )
   {
