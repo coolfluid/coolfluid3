@@ -106,7 +106,7 @@ void PECommPattern::setup()
   std::vector<int> ngid(nproc,0);
   BOOST_FOREACH(bool is_updatable, m_updatable ) if (is_updatable) ngid[irank]++;
   ngid[irank]+=m_add_buffer.size();
-  boost::mpi::all_reduce(PE::instance(),&ngid[0],nproc,&ngid[0],boost::mpi::maximum<int>());
+//  boost::mpi::all_reduce(PE::instance(),&ngid[0],nproc,&ngid[0],boost::mpi::maximum<int>());
   int ntotalnodes=0;
   BOOST_FOREACH(int node,ngid) ntotalnodes+=node;
 //  std::vector<int> ngid(nproc,0);

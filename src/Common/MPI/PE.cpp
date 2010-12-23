@@ -16,25 +16,23 @@ namespace Common  {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PE::PE(int argc, char** args):
-	boost::mpi::communicator()
+PE::PE(int argc, char** args)
 {
-  m_environment=new mpi::environment(argc,args);
+  init();
   m_current_status=WorkerStatus::NOT_RUNNING;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PE::PE(): 
-	boost::mpi::communicator()
+PE::PE()
 {
-  m_environment = nullptr;
+  m_comm = nullptr;
   m_current_status = WorkerStatus::NOT_RUNNING;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PE::~PE () 
+PE::~PE()
 {
   finalize();
 }
@@ -51,64 +49,55 @@ PE& PE::instance()
 
 void PE::init(int argc, char** args) 
 {
-// The mpi::environment object is initialized with the program arguments
-// (which it may modify) in your main program. The creation of this object
-// initializes MPI, and its destruction will finalize MPI.
-
-  if (!m_environment)
-    delete_ptr(m_environment);
-  m_environment = new mpi::environment(argc,args);
+  //if (m_comm!=nullptr) throw THROW ALREADY INITIALIZED
+  MPI_Init(&argc,&args);
+  m_comm=MPI_COMM_WORLD;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 bool PE::is_init() const
 {
-  if ( m_environment == nullptr ) return false;
-  return m_environment->initialized();
+  if ( m_comm == nullptr ) return false;
+  return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void PE::finalize()
 {
-	if ( is_init() )
-	{
-    //barrier();
-    boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
-    delete_ptr(m_environment);
-    m_environment=nullptr;
-		
-		/// @TODO Communicator has no destructor, see boost/mpi/communicator.hpp, 
-		///       this is sort of dangerous.
-		///       Needs to be checked if it somehow realizes that
-	}	
+  if ( is_init() )
+  {
+    MPI_Finalize();
+    m_comm=nullptr;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void PE::barrier()
 {
-	if ( is_init() )
-	{
-		mpi::communicator::barrier();
-	}	
+  if ( is_init() ) MPI_Barrier(m_comm);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Uint PE::rank() const 
+Uint PE::rank() const
 {
   if ( !is_init() ) return 0;
-  return static_cast<Uint>(mpi::communicator::rank());
+  int irank;
+  MPI_Comm_rank(m_comm,&irank);
+  return static_cast<Uint>(irank);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 Uint PE::size() const
 {
-  if ( !is_init() ) return 1;
-  return static_cast<Uint>(mpi::communicator::size());
+    if ( !is_init() ) return 1;
+    int nproc;
+    MPI_Comm_size(m_comm,&nproc);
+    return static_cast<Uint>(nproc);
 }
 
 

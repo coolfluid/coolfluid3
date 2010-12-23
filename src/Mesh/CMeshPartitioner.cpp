@@ -184,7 +184,8 @@ void CMeshPartitioner::build_global_to_local_index(CMesh& mesh)
 
   // check validity
   cf_assert(loc_idx == tot_nb_obj);
-  Uint glb_nb_owned_obj = boost::mpi::all_reduce(PE::instance(), m_nb_owned_obj, std::plus<Uint>());
+  boost::mpi::communicator world;
+  Uint glb_nb_owned_obj = boost::mpi::all_reduce(world, m_nb_owned_obj, std::plus<Uint>());
   cf_assert(glb_nb_owned_obj == mesh.property("nb_nodes").value<Uint>() + mesh.property("nb_cells").value<Uint>());
 }
 

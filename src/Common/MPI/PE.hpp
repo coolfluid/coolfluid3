@@ -7,10 +7,12 @@
 #ifndef CF_Common_PE_hpp
 #define CF_Common_PE_hpp
 
-#include <boost/mpi/communicator.hpp>
-#include <boost/mpi/environment.hpp>
-#include <boost/mpi/graph_communicator.hpp>
-#include <boost/mpi/nonblocking.hpp>
+#include <mpi.h>
+//#include <boost/mpi/communicator.hpp>
+//#include <boost/mpi/environment.hpp>
+//#include <boost/mpi/graph_communicator.hpp>
+//#include <boost/mpi/nonblocking.hpp>
+#include <boost/noncopyable.hpp>
 
 #include "Common/WorkerStatus.hpp"
 
@@ -42,8 +44,7 @@ namespace Common {
  * of the communicator-1 (i.e., the "rank" of the process)
 **/
 class Common_API PE :
-    public boost::noncopyable,
-    public boost::mpi::communicator 
+    public boost::noncopyable
 {
 
 public:
@@ -85,20 +86,20 @@ public:
   WorkerStatus::Type status();
 
   /// Operator to boost.mpi environment, environment is noncopyable
-  operator boost::mpi::environment&() { return *m_environment; }
-  operator boost::mpi::environment*() { return m_environment; }
+  operator const MPI_Comm() { return m_comm; }
 
 private:
 
   /// private constructor
   PE();
 
+  /// comm_world
+  MPI_Comm m_comm;
+
   /// Current status.
   /// Default value is @c #NOT_RUNNING.
   WorkerStatus::Type m_current_status;
 
-  /// mpi environment
-  boost::mpi::environment *m_environment;
 
 }; // PE
 

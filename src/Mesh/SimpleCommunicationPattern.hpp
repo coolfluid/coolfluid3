@@ -7,6 +7,8 @@
 #ifndef CF_Mesh_SimpleCommunicationPattern_hpp
 #define CF_Mesh_SimpleCommunicationPattern_hpp
 
+#include <boost/mpi.hpp>
+
 #include <boost/foreach.hpp>
 
 #include "Common/CF.hpp"

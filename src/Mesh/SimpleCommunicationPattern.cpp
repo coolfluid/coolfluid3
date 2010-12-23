@@ -26,8 +26,8 @@ SimpleCommunicationPattern::SimpleCommunicationPattern()  :
 
 void SimpleCommunicationPattern::update_send_lists()
 {
-  boost::mpi::communicator& world = PE::instance();
-  const Uint nb_procs = world.size();
+  boost::mpi::communicator world;
+  const Uint nb_procs = PE::instance().size();
   
   IndicesT receive_counts(nb_procs);
   IndicesT send_counts(nb_procs);
