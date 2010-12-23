@@ -20,4 +20,6 @@ if( CF_OS_LINUX AND CF_HAVE_RT )
 
 endif()
 
+list( APPEND coolfluid_testing_libs ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} )
+
 coolfluid_add_library( coolfluid_testing )
