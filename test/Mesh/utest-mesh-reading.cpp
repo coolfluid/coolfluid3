@@ -221,7 +221,7 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_1 )
 
   // with a wrong CPath for the CDomain
   p.add_option<URI>("Domain", URI("//Root"));
-  BOOST_CHECK_THROW( reader->read(node), CastingFailed );
+  BOOST_CHECK_THROW( reader->signal_read(node), CastingFailed );
 }
 
 BOOST_AUTO_TEST_CASE( read_mesh_signal_2 )
@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_2 )
 
   // URI with a wrong protocol
   p.add_option<URI>("Domain", URI("file://Root"));
-  BOOST_CHECK_THROW( reader->read(node), ProtocolError );
+  BOOST_CHECK_THROW( reader->signal_read(node), ProtocolError );
 }
 
 BOOST_AUTO_TEST_CASE( read_mesh_signal_3 )
@@ -243,7 +243,7 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_3 )
 
   // CPath that does not point to a CDomain
   p.add_option<URI>("Domain", URI("cpath://Root"));
-  BOOST_CHECK_THROW( reader->read(node), CastingFailed );
+  BOOST_CHECK_THROW( reader->signal_read(node), CastingFailed );
 }
 
 
@@ -257,7 +257,7 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_4 )
   std::vector<URI> files;
   p.add_option<URI>("Domain", URI("cpath://Root/MyDom"));
   p.add_array("Files", files);
-  BOOST_CHECK_THROW( reader->read(node), BadValue );
+  BOOST_CHECK_THROW( reader->signal_read(node), BadValue );
   BOOST_CHECK_EQUAL( domain->get_child_count(), (Uint) 0);
 }
 
@@ -273,7 +273,7 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_5 )
   files.push_back( "file:hextet.neu" );
   p.add_option<URI>("Domain", URI("cpath://Root/MyDom"));
   p.add_array("Files", files);
-  BOOST_CHECK_THROW( reader->read(node), ProtocolError );
+  BOOST_CHECK_THROW( reader->signal_read(node), ProtocolError );
   BOOST_CHECK_EQUAL( domain->get_child_count(), (Uint) 0);
 }
 
@@ -290,7 +290,7 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_6 )
   files.push_back( "file:hextet.neu" );
   p.add_option<URI>("Domain", URI("cpath://Root/MyDom"));
   p.add_array("Files", files);
-  BOOST_CHECK_THROW( reader->read(node), ProtocolError );
+  BOOST_CHECK_THROW( reader->signal_read(node), ProtocolError );
   BOOST_CHECK_EQUAL( domain->get_child_count(), (Uint) 0);
 }
 
@@ -306,7 +306,7 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_7 )
   files.push_back( "file:quadtriag.neu" );
   p.add_option<URI>("Domain", URI("cpath://Root/MyDom"));
   p.add_array("Files", files);
-  BOOST_CHECK_NO_THROW( reader->read(node) );
+  BOOST_CHECK_NO_THROW( reader->signal_read(node) );
   BOOST_CHECK_NE( domain->get_child_count(), (Uint) 0);
 }
 

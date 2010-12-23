@@ -56,7 +56,7 @@ public: // functions
 
   /// @note: This doesn't read anything from the xml node argument.
   ///        It just reads the config options
-  void read( Common::XmlNode& node  );
+  void signal_read( Common::XmlNode& node  );
 
   //@} END SIGNALS
 

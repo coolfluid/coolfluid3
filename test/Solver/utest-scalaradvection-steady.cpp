@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE( read_mesh )
   p.add_array("Files", files);
   
   CMeshReader& reader = find_component_recursively<CMeshReader>(*Core::instance().root());
-  reader.read(node);
+  reader.signal_read(node);
   
   BOOST_CHECK_NE( domain.get_child_count(), (Uint) 0);
 }

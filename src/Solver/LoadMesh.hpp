@@ -11,6 +11,8 @@
 
 #include "Common/Component.hpp"
 
+#include "Mesh/CMeshReader.hpp"
+
 #include "Solver/LibSolver.hpp"
 
 namespace CF {
@@ -18,7 +20,6 @@ namespace Solver {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Wizard to setup a scalar advection simulation
 /// @author Tiago Quintino
 class Solver_API LoadMesh : public Common::Component {
 
@@ -42,10 +43,14 @@ public: // functions
   // functions specific to the LoadMesh component
   
   /// Signal run_operation
-  void load_mesh ( Common::XmlNode& node );
+  void signal_load_mesh ( Common::XmlNode& node );
   
   LoadMesh& operation(const std::string& name);
   
+private:
+
+  std::map<std::string,std::vector<Mesh::CMeshReader::Ptr> > m_extensions_to_readers;
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

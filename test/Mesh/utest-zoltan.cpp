@@ -83,7 +83,6 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
 	boost::filesystem::path fp_out_1 ("quadtriag.msh");
 	meshwriter->write_from_to(mesh_ptr,fp_out_1);
 	
-	
   CMeshPartitioner::Ptr partitioner_ptr = create_component_abstract_type<CMeshPartitioner>("CF.Mesh.Zoltan.CPartitioner","partitioner");
   CMeshPartitioner& p = *partitioner_ptr;
   

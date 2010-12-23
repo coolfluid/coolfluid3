@@ -30,7 +30,7 @@ CMeshReader::CMeshReader ( const std::string& name  ) :
   Component ( name )
 {
   // signals
-  this->regist_signal ( "read" , "reads a mesh", "Read mesh" )->connect ( boost::bind ( &CMeshReader::read, this, _1 ) );
+  this->regist_signal ( "read" , "reads a mesh", "Read mesh" )->connect ( boost::bind ( &CMeshReader::signal_read, this, _1 ) );
   signal("read").signature
       .insert<URI>("Domain", "Domain to load mesh into" )
       .insert_array<URI>( "Files" , "Files to read" );
@@ -52,7 +52,7 @@ CMeshReader::~CMeshReader()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CMeshReader::read( XmlNode& xml  )
+void CMeshReader::signal_read( XmlNode& xml  )
 {
   XmlParams p (xml);
 

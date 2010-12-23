@@ -56,3 +56,21 @@ add_custom_command(TARGET utest-scalaradvection-unsteady
                  POST_BUILD
                  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/rotation-qd.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                 )
+
+##########################################################################
+
+list( APPEND utest-loadmesh_cflibs coolfluid_solver )
+list( APPEND utest-loadmesh_files
+utest-loadmesh.cpp )
+
+coolfluid_add_unittest( utest-loadmesh )
+
+add_custom_command(TARGET utest-loadmesh
+                   POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/rotation-tg.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                  )
+
+add_custom_command(TARGET utest-loadmesh
+                   POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/rotation-qd.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                  )
