@@ -24,8 +24,6 @@ using namespace CF::Mesh;
 
 int main(int argc, char * argv[])
 {
-  CFinfo << "COOLFLUID K3 Solver" << CFendl;
-
   Core::instance().initiate(argc, argv);
 
   try
