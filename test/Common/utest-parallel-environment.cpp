@@ -19,8 +19,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/Log.hpp"
-#include "Common/MPI/tools.hpp"
 #include "Common/MPI/PE.hpp"
+#include "Common/MPI/tools.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -61,31 +61,31 @@ BOOST_FIXTURE_TEST_SUITE( PESuite, PEFixture )
 
 BOOST_AUTO_TEST_CASE( isinit_preinit )
 {
-  BOOST_CHECK_EQUAL( PE::instance().is_init() , false );
+  BOOST_CHECK_EQUAL( mpi::PE::instance().is_init() , false );
 }
 
 BOOST_AUTO_TEST_CASE( allrankzero_preinit )
 {
-  BOOST_CHECK_EQUAL( PE::instance().rank() , (Uint)0 );
+  BOOST_CHECK_EQUAL( mpi::PE::instance().rank() , (Uint)0 );
 }
 
 BOOST_AUTO_TEST_CASE( init )
 {
-  PE::instance().init(m_argc,m_argv);
-  BOOST_CHECK_EQUAL( PE::instance().is_init() , true );
-  PEProcessSortedExecute(PE::instance(),-1,CFinfo << "Proccess " << PE::instance().rank() << "/" << PE::instance().size() << " reports in." << CFendl;);
+  mpi::PE::instance().init(m_argc,m_argv);
+  BOOST_CHECK_EQUAL( mpi::PE::instance().is_init() , true );
+  PEProcessSortedExecute(mpi::PE::instance(),-1,CFinfo << "Proccess " << mpi::PE::instance().rank() << "/" << mpi::PE::instance().size() << " reports in." << CFendl;);
 }
 
 BOOST_AUTO_TEST_CASE( rank_and_size )
 {
-  BOOST_CHECK_LT( PE::instance().rank() , PE::instance().size() );
+  BOOST_CHECK_LT( mpi::PE::instance().rank() , mpi::PE::instance().size() );
 }
 
 BOOST_AUTO_TEST_CASE( finalize )
 {
-  PEProcessSortedExecute(PE::instance(),-1,CFinfo << "Proccess " << PE::instance().rank() << "/" << PE::instance().size() << " says good bye." << CFendl;);
-  PE::instance().finalize();
-  BOOST_CHECK_EQUAL( PE::instance().is_init() , false );
+  PEProcessSortedExecute(mpi::PE::instance(),-1,CFinfo << "Proccess " << mpi::PE::instance().rank() << "/" << mpi::PE::instance().size() << " says good bye." << CFendl;);
+  mpi::PE::instance().finalize();
+  BOOST_CHECK_EQUAL( mpi::PE::instance().is_init() , false );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

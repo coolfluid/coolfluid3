@@ -4,21 +4,18 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <boost/thread/thread.hpp>
-
 #include "Common/MPI/PE.hpp"
-#include "Common/Log.hpp"
-
-using namespace boost;
+#include "Common/BasicExceptions.hpp"
 
 namespace CF {
-namespace Common  {
+namespace Common {
+namespace mpi {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 PE::PE(int argc, char** args)
 {
-  init();
+  init(argc,args);
   m_current_status=WorkerStatus::NOT_RUNNING;
 }
 
@@ -49,7 +46,7 @@ PE& PE::instance()
 
 void PE::init(int argc, char** args) 
 {
-  //if (m_comm!=nullptr) throw THROW ALREADY INITIALIZED
+  if (m_comm!=nullptr) throw SetupError(FromHere(),"Trying to re-initialize PE (parallel environment) without calling finalize.");
   MPI_Init(&argc,&args);
   m_comm=MPI_COMM_WORLD;
 }
@@ -94,10 +91,10 @@ Uint PE::rank() const
 
 Uint PE::size() const
 {
-    if ( !is_init() ) return 1;
-    int nproc;
-    MPI_Comm_size(m_comm,&nproc);
-    return static_cast<Uint>(nproc);
+  if ( !is_init() ) return 1;
+  int nproc;
+  MPI_Comm_size(m_comm,&nproc);
+  return static_cast<Uint>(nproc);
 }
 
 
@@ -118,5 +115,6 @@ WorkerStatus::Type PE::status()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  }  // common
-} // CF
+    } // namespace mpi
+  } // namespace Common
+} // namespace CF

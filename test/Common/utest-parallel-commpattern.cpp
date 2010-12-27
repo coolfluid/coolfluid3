@@ -33,8 +33,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-using namespace std;
-using namespace boost;
 using namespace CF;
 using namespace CF::Common;
 
@@ -67,16 +65,16 @@ BOOST_FIXTURE_TEST_SUITE( PECommPatternSuite, PECommPatternFixture )
 
 BOOST_AUTO_TEST_CASE( init )
 {
-  PE::instance().init(m_argc,m_argv);
-  BOOST_CHECK_EQUAL( PE::instance().is_init() , true );
-  PEProcessSortedExecute(PE::instance(),-1,CFinfo << "Proccess " << PE::instance().rank() << "/" << PE::instance().size() << " reports in." << CFendl;);
+  mpi::PE::instance().init(m_argc,m_argv);
+  BOOST_CHECK_EQUAL( mpi::PE::instance().is_init() , true );
+  PEProcessSortedExecute(mpi::PE::instance(),-1,CFinfo << "Proccess " << mpi::PE::instance().rank() << "/" << mpi::PE::instance().size() << " reports in." << CFendl;);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( ObjectWrapperPtr )
 {
-  PEProcessSortedExecute(PE::instance(),-1,CFinfo << FromHere() << " " << PE::instance().rank() << "/" << PE::instance().size() << " reports in." << CFendl;);
+  PEProcessSortedExecute(mpi::PE::instance(),-1,CFinfo << FromHere() << " " << mpi::PE::instance().rank() << "/" << mpi::PE::instance().size() << " reports in." << CFendl;);
 
   int i;
   double *d1=new double[32];
@@ -349,12 +347,12 @@ BOOST_AUTO_TEST_CASE( data_registration_related )
     }
   }
 
-const int nproc=PE::instance().size();
-const int irank=PE::instance().rank();
-PEProcessSortedExecute(PE::instance(),-1,CFinfo << "const int " << nproc << "/" << irank <<CFendl;);
-int nproc_=PE::instance().size();
-int irank_=PE::instance().rank();
-PEProcessSortedExecute(PE::instance(),-1,CFinfo << "      int " << nproc_ << "/" << irank_ <<CFendl;);
+const int nproc=mpi::PE::instance().size();
+const int irank=mpi::PE::instance().rank();
+PEProcessSortedExecute(mpi::PE::instance(),-1,CFinfo << "const int " << nproc << "/" << irank <<CFendl;);
+int nproc_=mpi::PE::instance().size();
+int irank_=mpi::PE::instance().rank();
+PEProcessSortedExecute(mpi::PE::instance(),-1,CFinfo << "      int " << nproc_ << "/" << irank_ <<CFendl;);
 
 }
 
@@ -363,8 +361,8 @@ PEProcessSortedExecute(PE::instance(),-1,CFinfo << "      int " << nproc_ << "/"
 BOOST_AUTO_TEST_CASE( commpattern )
 {
   // general conts in this routine
-  const int nproc=PE::instance().size();
-  const int irank=PE::instance().rank();
+  const int nproc=mpi::PE::instance().size();
+  const int irank=mpi::PE::instance().rank();
 
   // commpattern
   PECommPattern pecp("CommPattern2");
@@ -374,7 +372,7 @@ BOOST_AUTO_TEST_CASE( commpattern )
   for (Uint i=0; i<gid.size(); i++) gid[i]=(nproc*nproc-1)-(irank*nproc+i);
   pecp.insert("gid",gid,1,false);
 
-PEProcessSortedExecute(PE::instance(),-1,PEDebugVector(gid,gid.size()));
+//PEProcessSortedExecute(mpi::PE::instance(),-1,PEDebugVector(gid,gid.size()));
 
 
 //  // rank is built such that total scatter
@@ -402,9 +400,9 @@ PEProcessSortedExecute(PE::instance(),-1,PEDebugVector(gid,gid.size()));
 
 BOOST_AUTO_TEST_CASE( finalize )
 {
-  PEProcessSortedExecute(PE::instance(),-1,CFinfo << "Proccess " << PE::instance().rank() << "/" << PE::instance().size() << " says good bye." << CFendl;);
-  PE::instance().finalize();
-  BOOST_CHECK_EQUAL( PE::instance().is_init() , false );
+  PEProcessSortedExecute(mpi::PE::instance(),-1,CFinfo << "Proccess " << mpi::PE::instance().rank() << "/" << mpi::PE::instance().size() << " says good bye." << CFendl;);
+  mpi::PE::instance().finalize();
+  BOOST_CHECK_EQUAL( mpi::PE::instance().is_init() , false );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

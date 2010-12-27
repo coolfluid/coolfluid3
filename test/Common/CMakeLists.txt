@@ -151,21 +151,22 @@ list( APPEND utest-parallel-environment_files
 coolfluid_add_unittest( utest-parallel-environment )
 
 ################################################################################
-# Test PE - all_to_all communication
+# Test PE - all_reduce communication
 
-list( APPEND utest-parallel-all_to_all_cflibs coolfluid_common )
-list( APPEND utest-parallel-all_to_all_files
-  utest-parallel-collective.cpp
+list( APPEND utest-parallel-all_reduce_cflibs coolfluid_common )
+list( APPEND utest-parallel-all_reduce_files
+  utest-parallel-all_reduce.cpp
 )
 
-coolfluid_add_unittest( utest-parallel-all_to_all )
+coolfluid_add_unittest( utest-parallel-all_reduce )
 
 ################################################################################
-# Test PE - all_reduce communication
+# Test PE - collective type of communications
 
 list( APPEND utest-parallel-collective_cflibs coolfluid_common )
 list( APPEND utest-parallel-collective_files
-  utest-parallel-all_reduce.cpp
+  utest-parallel-collective.cpp
+  utest-parallel-collective-all_to_all.hpp
 )
 
 coolfluid_add_unittest( utest-parallel-collective )

@@ -30,7 +30,7 @@ CMixedHash::CMixedHash ( const std::string& name ) :
     Component(name),
     m_nb_obj(),
     m_base(0),
-    m_nb_parts(PE::instance().size())
+    m_nb_parts(mpi::PE::instance().size())
 {
   m_properties.add_option<OptionArrayT <Uint> >("Number of Objects","Total number of objects of each subhash. Subhashes will be created upon configuration with names hash_0 hash_1, ...",m_nb_obj);
   m_properties.add_option<OptionT <Uint> >("Number of Partitions","Total number of partitions (e.g. number of processors)",m_nb_parts);
@@ -81,7 +81,7 @@ Uint CMixedHash::part_of_obj(const Uint obj) const
 
 Uint CMixedHash::proc_of_part(const Uint part) const
 {
-  return std::min(PE::instance().size()-1, part / (m_nb_parts/PE::instance().size()));
+  return std::min(mpi::PE::instance().size()-1, part / (m_nb_parts/mpi::PE::instance().size()));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -105,7 +105,7 @@ Uint CMixedHash::proc_of_obj(const Uint obj) const
 
 bool CMixedHash::owns(const Uint obj) const
 {
-  if (proc_of_obj(obj) == PE::instance().rank())
+  if (proc_of_obj(obj) == mpi::PE::instance().rank())
     return true;
   else
     return false;
@@ -122,8 +122,8 @@ Uint CMixedHash::nb_objects_in_part(const Uint part) const
 
 Uint CMixedHash::nb_objects_in_proc(const Uint proc) const
 {
-	Uint part_begin = m_nb_parts/PE::instance().size()*proc;
-	Uint part_end = (proc == PE::instance().size()-1) ? m_nb_parts : m_nb_parts/PE::instance().size()*(proc+1);
+  Uint part_begin = m_nb_parts/mpi::PE::instance().size()*proc;
+  Uint part_end = (proc == mpi::PE::instance().size()-1) ? m_nb_parts : m_nb_parts/mpi::PE::instance().size()*(proc+1);
 	Uint nb_obj = 0;
 	for (Uint part = part_begin ; part < part_end; ++part)
 		nb_obj += nb_objects_in_part(part);
@@ -154,7 +154,7 @@ Uint CMixedHash::end_idx_in_part(const Uint part) const
 
 Uint CMixedHash::start_idx_in_proc(const Uint proc) const
 {
-	Uint part_begin = m_nb_parts/PE::instance().size()*proc;
+  Uint part_begin = m_nb_parts/mpi::PE::instance().size()*proc;
 	return start_idx_in_part(part_begin);
 }
 

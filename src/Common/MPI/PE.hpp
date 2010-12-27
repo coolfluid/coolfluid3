@@ -8,10 +8,7 @@
 #define CF_Common_PE_hpp
 
 #include <mpi.h>
-//#include <boost/mpi/communicator.hpp>
-//#include <boost/mpi/environment.hpp>
-//#include <boost/mpi/graph_communicator.hpp>
-//#include <boost/mpi/nonblocking.hpp>
+
 #include <boost/noncopyable.hpp>
 
 #include "Common/WorkerStatus.hpp"
@@ -31,6 +28,7 @@
 
 namespace CF {
 namespace Common {
+namespace mpi {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -49,6 +47,10 @@ class Common_API PE :
 
 public:
 
+  typedef MPI_Comm Communicator;
+
+public:
+
   /// public constructor
   PE(int argc, char** args);
 
@@ -57,6 +59,9 @@ public:
 
   /// Return a reference to the current PE
   static PE& instance();
+
+  /// Operator to boost.mpi environment, environment is noncopyable
+  operator const Communicator() { return m_comm; }
 
   /// Initialise the PE
   void init(int argc=0, char** args=0);
@@ -85,16 +90,13 @@ public:
   /// @return Returns the current process status
   WorkerStatus::Type status();
 
-  /// Operator to boost.mpi environment, environment is noncopyable
-  operator const MPI_Comm() { return m_comm; }
-
 private:
 
   /// private constructor
   PE();
 
   /// comm_world
-  MPI_Comm m_comm;
+  Communicator m_comm;
 
   /// Current status.
   /// Default value is @c #NOT_RUNNING.
@@ -105,8 +107,9 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  } // Common
-} // CF
+    } // namespace mpi
+  } // namespace Common
+} // namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////
 

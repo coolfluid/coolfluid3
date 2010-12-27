@@ -80,9 +80,9 @@ void CWriter::write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& pat
 
   // if the file is present open it
   boost::filesystem::fstream file;
-  if (PE::instance().size() > 1)
+  if (mpi::PE::instance().size() > 1)
   {
-    path = boost::filesystem::basename(path) + "_P" + to_str(PE::instance().rank()) + boost::filesystem::extension(path);
+    path = boost::filesystem::basename(path) + "_P" + to_str(mpi::PE::instance().rank()) + boost::filesystem::extension(path);
   }
   CFLog(VERBOSE, "Opening file " <<  path.string() << "\n");
   file.open(path,std::ios_base::out);
@@ -201,7 +201,7 @@ void CWriter::write_connectivity(std::fstream& file)
     Uint elm_type;
     Uint number_of_tags=3; // 1 for physical entity,  1 for elementary geometrical entity,  1 for mesh partition
     Uint elm_number=0;
-    Uint partition_number = PE::instance().rank();
+    Uint partition_number = mpi::PE::instance().rank();
 
   //  BOOST_FOREACH(const CRegion& region, find_components_recursively<CRegion>(*m_mesh))
   //  {

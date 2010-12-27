@@ -4,123 +4,163 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-////////////////////////////////////////////////////////////////////////////////
-
-/**
-  @file utest-parallel-all_reduce.cpp
-  @author Tamas Banyai
-  Unit test of all_reduce type communication.
-**/
+// this file is en-block included into utest-parallel-collective.cpp
+// do not include anything here, rather in utest-parallel-collective.cpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
-//
-// This software is distributed under the terms of the
-// GNU Lesser General Public License version 3 (LGPLv3).
-// See doc/lgpl.txt and doc/gpl.txt for the license text.
-//
-// IMPORTANT:
-// run it both on 1 and many cores
-// for example: mpirun -np 4 ./test-parallel-environment --report_level=confirm or --report_level=detailed
-
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Common 's parallel environment - part of testing collective all_reduce communication."
-
-////////////////////////////////////////////////////////////////////////////////
-
-#include <vector>
-#include <boost/test/unit_test.hpp>
-#include <boost/lambda/lambda.hpp>
-#include <boost/foreach.hpp>
-#include <boost/thread/thread.hpp>
-
-////////////////////////////////////////////////////////////////////////////////
-
-#include "Common/MPI/PE.hpp"
-#include "Common/MPI/all_reduce.hpp"
-
-////////////////////////////////////////////////////////////////////////////////
-
-using namespace CF;
-using namespace CF::Common;
-
-////////////////////////////////////////////////////////////////////////////////
-
-struct PEAllReduceFixture
+struct PEAllToAllFixture
 {
   /// common setup for each test case
-  PEAllReduceFixture()
+  PEAllToAllFixture()
   {
-    m_argc = boost::unit_test::framework::master_test_suite().argc;
-    m_argv = boost::unit_test::framework::master_test_suite().argv;
+    // rank and proc
+    nproc=mpi::PE::instance().size();
+    irank=mpi::PE::instance().rank();
+
+    // ptr helpers
+    sndcnt=0;
+    rcvcnt=0;
+    ptr_sndcnt=new int[nproc];
+    ptr_rcvcnt=new int[nproc];
+    ptr_snddat=new double[nproc*nproc];
+    ptr_rcvdat=new double[nproc*nproc];
+    ptr_sndmap=new int[nproc*nproc];
+    ptr_rcvmap=new int[nproc*nproc];
+    ptr_tmprcv=new double[nproc*nproc];
+    ptr_tmpcnt=new int[nproc];
+
+    // std::Vector helpers
+    vec_sndcnt.resize(nproc);
+    vec_rcvcnt.resize(nproc);
+    vec_snddat.resize(nproc*nproc);
+    vec_rcvdat.resize(nproc*nproc);
+    vec_sndmap.resize(nproc*nproc);
+    vec_rcvmap.resize(nproc*nproc);
+    vec_tmprcv.resize(0);
+    vec_tmpcnt.resize(nproc);
+    vec_tmprcvchr.resize(nproc*nproc*sizeof(double));
+    vec_snddatchr.resize(nproc*nproc*sizeof(double));
   }
 
   /// common tear-down for each test case
-  ~PEAllReduceFixture() { }
+  ~PEAllToAllFixture()
+  {
+    delete[] ptr_sndcnt;
+    delete[] ptr_rcvcnt;
+    delete[] ptr_snddat;
+    delete[] ptr_rcvdat;
+    delete[] ptr_sndmap;
+    delete[] ptr_rcvmap;
+    delete[] ptr_tmprcv;
+    delete[] ptr_tmpcnt;
+  }
 
-  /// common data
-  int m_argc;
-  char** m_argv;
+  /// number of processes
+  int nproc;
+  /// rank of process
+  int irank;
+
+  /// data for raw pointers
+  int     sndcnt;
+  int     rcvcnt;
+  int*    ptr_sndcnt;
+  int*    ptr_rcvcnt;
+  double* ptr_snddat;
+  double* ptr_rcvdat;
+  int*    ptr_sndmap;
+  int*    ptr_rcvmap;
+  double* ptr_tmprcv;
+  int*    ptr_tmpcnt;
+
+  /// data for std::vectors
+  std::vector<int>    vec_sndcnt;
+  std::vector<int>    vec_rcvcnt;
+  std::vector<double> vec_snddat;
+  std::vector<double> vec_rcvdat;
+  std::vector<int>    vec_sndmap;
+  std::vector<int>    vec_rcvmap;
+  std::vector<double> vec_tmprcv;
+  std::vector<int>    vec_tmpcnt;
+  std::vector<char>   vec_tmprcvchr;
+  std::vector<char>   vec_snddatchr;
+
+  /// helper function for constant size data - setting up input and verification data
+  void setup_data_constant()
+  {
+    int i,j;
+    for (i=0; i<nproc; i++)
+      for (j=0; j<nproc; j++){
+        ptr_snddat[i*nproc+j]=(irank+1)*1000000+(i+1)*10000+(j+1);
+        ptr_rcvdat[i*nproc+j]=(i+1)*1000000+(irank+1)*10000+(j+1);
+      }
+    sndcnt=nproc*nproc;
+    rcvcnt=nproc*nproc;
+    vec_snddat.assign(ptr_snddat,ptr_snddat+nproc*nproc);
+    vec_rcvdat.assign(ptr_rcvdat,ptr_rcvdat+nproc*nproc);
+    vec_snddatchr.assign((char*)(ptr_snddat),(char*)(ptr_snddat+nproc*nproc));
+  }
+
+  /// helper function for variable size data - setting up input and verification data
+  void setup_data_variable()
+  {
+    int i,j,k,l;
+    for (i=0; i<nproc; i++){
+      ptr_sndcnt[i]=(i+irank*irank)%nproc;
+      ptr_rcvcnt[i]=(i*i+irank)%nproc;
+    }
+    for(i=0; i<nproc*nproc; i++) { // making debugger shut up for uninitialized values
+      ptr_snddat[i]=0.;
+      ptr_rcvdat[i]=0.;
+      ptr_sndmap[i]=0;
+      ptr_rcvmap[i]=0;
+    }
+    for(i=0, k=0; i<nproc; i++)
+      for(j=0; j<ptr_sndcnt[i]; j++, k++)
+        ptr_snddat[k]=(irank+1)*1000000+(i+1)*10000+(j+1);
+    for(i=0, k=0; i<nproc; i++)
+      for(j=0; j<ptr_rcvcnt[i]; j++, k++)
+        ptr_rcvdat[k]=(i+1)*1000000+(irank+1)*10000+(j+1);
+    for (i=0, k=0,l=0; i<nproc; k+=ptr_sndcnt[i], i++)
+      for (j=0; j<ptr_sndcnt[i]; j++,l++)
+        ptr_sndmap[l]=k+ptr_sndcnt[i]-1-j; // flipping all sets for each process
+    for (i=0, k=0, l=0; i<nproc; k+=ptr_rcvcnt[i], i++)
+      for (j=0; j<ptr_rcvcnt[i]; j++, l++)
+        ptr_rcvmap[l]=i*nproc+ptr_rcvcnt[i]-1-j; // redirecting to align start with nproc numbers
+    for(i=0, sndcnt=0, rcvcnt=0; i<nproc; i++){
+      sndcnt+=ptr_sndcnt[i];
+      rcvcnt+=ptr_rcvcnt[i];
+    }
+    vec_sndcnt.assign(ptr_sndcnt,ptr_sndcnt+nproc);
+    vec_rcvcnt.assign(ptr_rcvcnt,ptr_rcvcnt+nproc);
+    vec_snddat.assign(ptr_snddat,ptr_snddat+nproc*nproc);
+    vec_rcvdat.assign(ptr_rcvdat,ptr_rcvdat+nproc*nproc);
+    vec_sndmap.assign(ptr_sndmap,ptr_sndmap+nproc*nproc);
+    vec_rcvmap.assign(ptr_rcvmap,ptr_rcvmap+nproc*nproc);
+    vec_snddatchr.assign((char*)(ptr_snddat),(char*)(ptr_snddat+nproc*nproc));
+  }
 
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_SUITE( PECollectiveSuite, PEAllReduceFixture )
-
-////////////////////////////////////////////////////////////////////////////////
-
-BOOST_AUTO_TEST_CASE( init )
-{
-  mpi::PE::instance().init(m_argc,m_argv);
-  BOOST_CHECK_EQUAL( mpi::PE::instance().is_init() , true );
-}
+BOOST_FIXTURE_TEST_SUITE( PEAllToAllSuite, PEAllToAllFixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( all_to_all )
 {
-/*
-  int i,j,k,l;
-  const int nproc=mpi::PE::instance().size();
-  const int irank=mpi::PE::instance().rank();
+  PEProcessSortedExecute(mpi::PE::instance(),-1,CFinfo << "Testing all_to_all " << irank << "/" << nproc << CFendl; );
+}
 
-  // data
-  int sndcnt=0;
-  int rcvcnt=0;
-  int* ptr_sndcnt=new int[nproc];
-  int* ptr_rcvcnt=new int[nproc];
-  double* ptr_snddat=new double[nproc*nproc];
-  double* ptr_rcvdat=new double[nproc*nproc];
-  int* ptr_sndmap=new int[nproc*nproc];
-  int* ptr_rcvmap=new int[nproc*nproc];
-  double* ptr_tmprcv=new double[nproc*nproc];
-  int* ptr_tmpcnt=new int[nproc];
-  std::vector<int> vec_sndcnt(nproc);
-  std::vector<int> vec_rcvcnt(nproc);
-  std::vector<double> vec_snddat(nproc*nproc);
-  std::vector<double> vec_rcvdat(nproc*nproc);
-  std::vector<int> vec_sndmap(nproc*nproc);
-  std::vector<int> vec_rcvmap(nproc*nproc);
-  std::vector<double> vec_tmprcv(0);
-  std::vector<int> vec_tmpcnt(nproc);
-  std::vector<char> vec_tmprcvchr(nproc*nproc);
-  std::vector<char> vec_snddatchr(nproc*nproc);
+////////////////////////////////////////////////////////////////////////////////
 
-  // constant size - setting up input and verification data
-  for (i=0; i<nproc; i++)
-    for (j=0; j<nproc; j++){
-      ptr_snddat[i*nproc+j]=(irank+1)*1000000+(i+1)*10000+(j+1);
-      ptr_rcvdat[i*nproc+j]=(i+1)*1000000+(irank+1)*10000+(j+1);
-    }
-  sndcnt=nproc*nproc;
-  rcvcnt=nproc*nproc;
-  vec_snddat.assign(ptr_snddat,ptr_snddat+nproc*nproc);
-  vec_rcvdat.assign(ptr_rcvdat,ptr_rcvdat+nproc*nproc);
-  vec_snddatchr.assign((char*)(ptr_snddat),(char*)(ptr_snddat+nproc*nproc));
+BOOST_AUTO_TEST_CASE( all_to_all_ptr_constant )
+{
+  int i;
 
-  // constant size - pointers
+  setup_data_constant();
+
   delete[] ptr_tmprcv;
   ptr_tmprcv=0;
 
@@ -147,9 +187,16 @@ BOOST_AUTO_TEST_CASE( all_to_all )
   for (i=0; i<nproc*nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
   mpi::all_to_all(mpi::PE::instance(), (char*)ptr_tmprcv, nproc, (char*)ptr_tmprcv, sizeof(double));
   for (i=0; i<nproc*nproc; i++)  BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[i] );
+}
 
+////////////////////////////////////////////////////////////////////////////////
 
-  // constant size - std vectors
+BOOST_AUTO_TEST_CASE( all_to_all_vector_constant )
+{
+  int i;
+
+  setup_data_constant();
+
   vec_tmprcv.resize(0);
   vec_tmprcv.reserve(0);
   mpi::all_to_all(mpi::PE::instance(), vec_snddat, vec_tmprcv);
@@ -177,43 +224,16 @@ BOOST_AUTO_TEST_CASE( all_to_all )
   vec_tmprcvchr.assign((char*)(ptr_snddat),(char*)(ptr_snddat+nproc*nproc));
   mpi::all_to_all(mpi::PE::instance(), vec_tmprcvchr, vec_tmprcvchr );
   for (i=0; i<nproc*nproc; i++) BOOST_CHECK_EQUAL( ((double*)(&vec_tmprcvchr[0]))[i], vec_rcvdat[i] );
+}
 
-  // variable size - setting up input and verification data
-  for (i=0; i<nproc; i++){
-    ptr_sndcnt[i]=(i+irank*irank)%nproc;
-    ptr_rcvcnt[i]=(i*i+irank)%nproc;
-  }
-  for(i=0; i<nproc*nproc; i++) { // making debugger shut up for uninitialized values
-    ptr_snddat[i]=0.;
-    ptr_rcvdat[i]=0.;
-    ptr_sndmap[i]=0;
-    ptr_rcvmap[i]=0;
-  }
-  for(i=0, k=0; i<nproc; i++)
-    for(j=0; j<ptr_sndcnt[i]; j++, k++)
-      ptr_snddat[k]=(irank+1)*1000000+(i+1)*10000+(j+1);
-  for(i=0, k=0; i<nproc; i++)
-    for(j=0; j<ptr_rcvcnt[i]; j++, k++)
-      ptr_rcvdat[k]=(i+1)*1000000+(irank+1)*10000+(j+1);
-  for (i=0, k=0,l=0; i<nproc; k+=ptr_sndcnt[i], i++)
-    for (j=0; j<ptr_sndcnt[i]; j++,l++)
-      ptr_sndmap[l]=k+ptr_sndcnt[i]-1-j; // flipping all sets for each process
-  for (i=0, k=0, l=0; i<nproc; k+=ptr_rcvcnt[i], i++)
-    for (j=0; j<ptr_rcvcnt[i]; j++, l++)
-      ptr_rcvmap[l]=i*nproc+ptr_rcvcnt[i]-1-j; // redirecting to align start with nproc numbers
-  for(i=0, sndcnt=0, rcvcnt=0; i<nproc; i++){
-    sndcnt+=ptr_sndcnt[i];
-    rcvcnt+=ptr_rcvcnt[i];
-  }
-  vec_sndcnt.assign(ptr_sndcnt,ptr_sndcnt+nproc);
-  vec_rcvcnt.assign(ptr_rcvcnt,ptr_rcvcnt+nproc);
-  vec_snddat.assign(ptr_snddat,ptr_snddat+nproc*nproc);
-  vec_rcvdat.assign(ptr_rcvdat,ptr_rcvdat+nproc*nproc);
-  vec_sndmap.assign(ptr_sndmap,ptr_sndmap+nproc*nproc);
-  vec_rcvmap.assign(ptr_rcvmap,ptr_rcvmap+nproc*nproc);
-  vec_snddatchr.assign((char*)(ptr_snddat),(char*)(ptr_snddat+nproc*nproc));
+////////////////////////////////////////////////////////////////////////////////
 
-  // variable size - pointers
+BOOST_AUTO_TEST_CASE( all_to_all_ptr_variable )
+{
+  int i,j,k,l;
+
+  setup_data_variable();
+
   delete[] ptr_tmprcv;
   ptr_tmprcv=0;
   ptr_tmprcv=mpi::all_to_all(mpi::PE::instance(), ptr_snddat, ptr_sndcnt, (double*)0, ptr_rcvcnt);
@@ -315,9 +335,16 @@ BOOST_AUTO_TEST_CASE( all_to_all )
   for (i=0; i<nproc*nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
   mpi::all_to_all(mpi::PE::instance(), (char*)ptr_tmprcv, ptr_sndcnt, ptr_sndmap, (char*)ptr_tmprcv, ptr_rcvcnt, ptr_rcvmap, sizeof(double));
   for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ptr_tmprcv[i*nproc+j] , ptr_rcvdat[k] ); // i*nproc+j is not a bug, check reason at init
+}
 
+////////////////////////////////////////////////////////////////////////////////
 
-  // variable size - std vectors
+BOOST_AUTO_TEST_CASE( all_to_all_vector_variable )
+{
+  int i,j,k,l;
+
+  setup_data_variable();
+
   vec_tmprcv.resize(0);
   vec_tmprcv.reserve(0);
   mpi::all_to_all(mpi::PE::instance(), vec_snddat, vec_sndcnt, vec_tmprcv, vec_rcvcnt);
@@ -378,8 +405,8 @@ BOOST_AUTO_TEST_CASE( all_to_all )
   mpi::all_to_all(mpi::PE::instance(), vec_snddatchr, vec_sndcnt, vec_tmprcvchr, vec_rcvcnt, sizeof(double));
   for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ((double*)(&vec_tmprcvchr[0]))[k] , vec_rcvdat[k] );
 
-  vec_tmprcv.resize(nproc*nproc);
-  vec_tmprcv.reserve(nproc*nproc);
+  vec_tmprcvchr.resize(nproc*nproc*sizeof(double));
+  vec_tmprcvchr.reserve(nproc*nproc*sizeof(double));
   for (i=0; i<nproc*nproc; i++) ((double*)(&vec_tmprcvchr[0]))[i]=vec_snddat[i];
   mpi::all_to_all(mpi::PE::instance(), vec_tmprcvchr, vec_sndcnt, vec_tmprcvchr, vec_rcvcnt, sizeof(double));
   for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ((double*)(&vec_tmprcvchr[0]))[k] , vec_rcvdat[k] );
@@ -397,8 +424,8 @@ BOOST_AUTO_TEST_CASE( all_to_all )
   for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmpcnt[i] , vec_rcvcnt[i] );
   for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ((double*)(&vec_tmprcvchr[0]))[k] , vec_rcvdat[k] );
 
-  vec_tmprcvchr.resize(nproc*nproc);
-  vec_tmprcvchr.reserve(nproc*nproc);
+  vec_tmprcvchr.resize(nproc*nproc*sizeof(double));
+  vec_tmprcvchr.reserve(nproc*nproc*sizeof(double));
   for (i=0; i<nproc*nproc; i++) ((double*)(&vec_tmprcvchr[0]))[i]=vec_snddat[i];
   for(i=0; i<nproc; i++) vec_tmpcnt[i]=-1;
   mpi::all_to_all(mpi::PE::instance(), vec_tmprcvchr, vec_sndcnt, vec_tmprcvchr, vec_tmpcnt, sizeof(double));
@@ -414,30 +441,12 @@ BOOST_AUTO_TEST_CASE( all_to_all )
   mpi::all_to_all(mpi::PE::instance(), vec_snddatchr, vec_sndcnt, vec_sndmap, vec_tmprcvchr, vec_rcvcnt, vec_rcvmap, sizeof(double));
   for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ((double*)(&vec_tmprcvchr[0]))[i*nproc+j] , vec_rcvdat[k] ); // i*nproc+j is not a bug, check reason at init
 
-  vec_tmprcvchr.resize(nproc*nproc);
-  vec_tmprcvchr.reserve(nproc*nproc);
+  vec_tmprcvchr.resize(nproc*nproc*sizeof(double));
+  vec_tmprcvchr.reserve(nproc*nproc*sizeof(double));
   for (i=0; i<nproc*nproc; i++) ((double*)(&vec_tmprcvchr[0]))[i]=vec_snddat[i];
   mpi::all_to_all(mpi::PE::instance(), vec_tmprcvchr, vec_sndcnt, vec_sndmap, vec_tmprcvchr, vec_rcvcnt, vec_rcvmap, sizeof(double));
   for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ((double*)(&vec_tmprcvchr[0]))[i*nproc+j] , vec_rcvdat[k] ); // i*nproc+j is not a bug, check reason at init
 
-  // free data
-  delete[] ptr_sndcnt;
-  delete[] ptr_rcvcnt;
-  delete[] ptr_snddat;
-  delete[] ptr_rcvdat;
-  delete[] ptr_sndmap;
-  delete[] ptr_rcvmap;
-  delete[] ptr_tmprcv;
-  delete[] ptr_tmpcnt;
-*/
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-BOOST_AUTO_TEST_CASE( finalize )
-{
-  mpi::PE::instance().finalize();
-  BOOST_CHECK_EQUAL( mpi::PE::instance().is_init() , false );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -445,4 +454,3 @@ BOOST_AUTO_TEST_CASE( finalize )
 BOOST_AUTO_TEST_SUITE_END()
 
 ////////////////////////////////////////////////////////////////////////////////
-

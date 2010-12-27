@@ -4,18 +4,18 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-
-#ifndef BOOST_MPI_ALL_REDUCE_HPP
-#define BOOST_MPI_ALL_REDUCE_HPP
+#ifndef CF_Common_mpi_all_reduce_hpp
+#define CF_Common_mpi_all_reduce_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <vector>
-#include <boost/mpi/datatype.hpp>
-#include <boost/mpi/communicator.hpp>
-#include <boost/mpi/operations.hpp>
+
 #include <boost/assert.hpp>
 #include <boost/foreach.hpp>
+#include <boost/mpi/datatype.hpp>
+
+#include "Common/MPI/PE.hpp"
 #include <Common/BasicExceptions.hpp>
 #include <Common/CodeLocation.hpp>
 
@@ -33,7 +33,9 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace boost { namespace mpi {
+namespace CF {
+  namespace Common {
+    namespace mpi {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -56,11 +58,11 @@ namespace detail {
   **/
   template<typename T, typename Op>
   inline void
-  all_reduce_impl(const communicator& comm,  Op& op, const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_map, const int stride)
-  {
+  all_reduce_impl(const PE& pe,  Op& op, const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_map, const int stride)
+  { 
     // get data type and number of processors
-    MPI_Datatype type = get_mpi_datatype<T>(*in_values);
-    const int nproc=comm.size();
+    MPI_Datatype type = boost::mpi::get_mpi_datatype<T>(*in_values);
+    const int nproc=pe.size();
 
     // if stride is greater than one and unsupported functionality
     BOOST_ASSERT( stride>0 );
@@ -80,7 +82,7 @@ namespace detail {
     }
 
     // do the communication
-    BOOST_MPI_CHECK_RESULT(MPI_Allreduce, ( in_buf, out_buf, in_n*stride, type, op, comm ));
+    BOOST_MPI_CHECK_RESULT(MPI_Allreduce, ( in_buf, out_buf, in_n*stride, type, op, pe ));
 
     // re-populate out_values
     if (out_map!=0) {
@@ -113,7 +115,7 @@ namespace detail {
 **/
 template<typename T, typename Op>
 inline T*
-all_reduce(const communicator& comm, const Op& op, const T* in_values, const int in_n, T* out_values, const int stride=1)
+all_reduce(const PE& pe, const Op& op, const T* in_values, const int in_n, T* out_values, const int stride=1)
 {
   // allocate out_buf if incoming pointer is null
   T* out_buf=out_values;
@@ -123,7 +125,7 @@ all_reduce(const communicator& comm, const Op& op, const T* in_values, const int
   }
 
   // call impl
-  detail::all_reduce_impl(comm,op,in_values,in_n,0,out_buf,0,stride);
+  detail::all_reduce_impl(pe,op,in_values,in_n,0,out_buf,0,stride);
   return out_buf;
 }
 
@@ -138,7 +140,7 @@ all_reduce(const communicator& comm, const Op& op, const T* in_values, const int
 **/
 template<typename T, typename Op>
 inline void
-all_reduce(const communicator& comm, const Op& op, const std::vector<T>& in_values, std::vector<T>& out_values, const int stride=1)
+all_reduce(const PE& pe, const Op& op, const std::vector<T>& in_values, std::vector<T>& out_values, const int stride=1)
 {
   // set out_values's sizes
   BOOST_ASSERT( in_values.size() % stride == 0 );
@@ -146,7 +148,7 @@ all_reduce(const communicator& comm, const Op& op, const std::vector<T>& in_valu
   out_values.reserve(in_values.size());
 
   // call impl
-  detail::all_reduce_impl(comm, op, (T*)(&in_values[0]), in_values.size()/stride, 0, (T*)(&out_values[0]), 0, stride);
+  detail::all_reduce_impl(pe, op, (T*)(&in_values[0]), in_values.size()/stride, 0, (T*)(&out_values[0]), 0, stride);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -167,7 +169,7 @@ all_reduce(const communicator& comm, const Op& op, const std::vector<T>& in_valu
 **/
 template<typename T, typename Op>
 inline T*
-all_reduce(const communicator& comm, const Op& op, const T* in_values, const int in_n, const int *in_map, T* out_values, int *out_n, const int *out_map, const int stride=1)
+all_reduce(const PE& pe, const Op& op, const T* in_values, const int in_n, const int *in_map, T* out_values, int *out_n, const int *out_map, const int stride=1)
 {
   // allocate out_buf if incoming pointer is null
   int out_sum=in_n;
@@ -182,7 +184,7 @@ all_reduce(const communicator& comm, const Op& op, const T* in_values, const int
   }
 
   // call impl
-  detail::all_reduce_impl(comm, op, in_values, in_n, in_map, out_buf, out_map, stride);
+  detail::all_reduce_impl(pe, op, in_values, in_n, in_map, out_buf, out_map, stride);
   return out_buf;
 }
 
@@ -205,7 +207,7 @@ all_reduce(const communicator& comm, const Op& op, const T* in_values, const int
 **/
 template<typename T, typename Op>
 inline void
-all_reduce(const communicator& comm, Op& op, const std::vector<T>& in_values, const std::vector<int>& in_map, std::vector<T>& out_values, const std::vector<int>& out_map, const int stride=1)
+all_reduce(const PE& pe, Op& op, const std::vector<T>& in_values, const std::vector<int>& in_map, std::vector<T>& out_values, const std::vector<int>& out_map, const int stride=1)
 {
   // number of processes and checking in_n and out_n (out_n deliberately throws exception because the vector can arrive from arbitrary previous usage)
   BOOST_ASSERT( in_values.size() % stride == 0 );
@@ -225,14 +227,15 @@ all_reduce(const communicator& comm, Op& op, const std::vector<T>& in_values, co
   out_values.reserve(stride*out_sum);
 
   // call impl
-  detail::all_reduce_impl(comm, op, (T*)(&in_values[0]), (int)in_values.size(), &in_map[0], (T*)(&out_values[0]), &out_map[0], stride);
+  detail::all_reduce_impl(pe, op, (T*)(&in_values[0]), (int)in_values.size(), &in_map[0], (T*)(&out_values[0]), &out_map[0], stride);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // end namespace mpi
-} // end namespace boost
+    } // end namespace mpi
+  } // end namespace Common
+} // end namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // BOOST_MPI_ALL_REDUCE_HPP
+#endif // CF_Common_mpi_all_reduce_hpp

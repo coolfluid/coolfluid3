@@ -10,11 +10,14 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <boost/mpi/communicator.hpp>
+#include <iostream>
+
 #include <boost/thread/thread.hpp>
 
 #include <Common/Log.hpp>
 #include <Common/LogStream.hpp>
+#include <Common/BasicExceptions.hpp>
+#include <Common/CodeLocation.hpp>
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -27,7 +30,25 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace boost { namespace mpi {
+namespace CF {
+  namespace Common {
+    namespace mpi {
+
+////////////////////////////////////////////////////////////////////////////////
+
+/**
+  Macro for checking return values of any mpi calls and throws exception on error.
+**/
+#define MPI_CHECK_RESULT( MPIFunc, Args )                                                                         \
+ {                                                                                                                \
+   int _check_result = MPIFunc Args;                                                                              \
+   if (_check_result != MPI_SUCCESS)                                                                              \
+   {                                                                                                              \
+     std::stringstream errmsg;                                                                                    \
+     errmsg << "Function: " << #MPIFunc << " did not return MPI_SUCCESS (" << _check_result << ").";              \
+     throw Common::ParallelError(FromHere(),errmsg.str() );                                                       \
+   }                                                                                                              \
+ }
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -37,27 +58,27 @@ namespace boost { namespace mpi {
   @param irank rank of the process where the command is executed (-1 for all processes)
   @param expression stuff to execute
 **/
-#define PEProcessSortedExecute(comm,irank,expression) {                                                                         \
+#define PEProcessSortedExecute(pe,irank,expression) {                                                                           \
   CFinfo.setFilterRankZero(false);                                                                                              \
   if (irank<0){                                                                                                                 \
     int _process_sorted_execute_i_;                                                                                             \
-    int _process_sorted_execute_n_=(int)comm.size();                                                                            \
-    int _process_sorted_execute_r_=(int)comm.rank();                                                                            \
-    comm.barrier();                                                                                                             \
+    int _process_sorted_execute_n_=(int)(pe.size());                                                                            \
+    int _process_sorted_execute_r_=(int)(pe.rank());                                                                            \
+    pe.barrier();                                                                                                               \
     CFinfo << CFflush;                                                                                                          \
-    comm.barrier();                                                                                                             \
+    pe.barrier();                                                                                                               \
     for(_process_sorted_execute_i_=0; _process_sorted_execute_i_<_process_sorted_execute_n_; _process_sorted_execute_i_++){     \
-      comm.barrier();                                                                                                           \
+      pe.barrier();                                                                                                             \
       if(_process_sorted_execute_i_ == _process_sorted_execute_r_){                                                             \
         expression;                                                                                                             \
         CFinfo << CFflush;                                                                                                      \
-        comm.barrier();                                                                                                         \
+        pe.barrier();                                                                                                           \
       }                                                                                                                         \
     }                                                                                                                           \
-    comm.barrier();                                                                                                             \
+    pe.barrier();                                                                                                               \
     CFinfo << CFflush;                                                                                                          \
-    comm.barrier();                                                                                                             \
-  } else if (irank==(int)comm.rank()){                                                                                          \
+    pe.barrier();                                                                                                               \
+  } else if (irank==(int)(pe.rank())){                                                                                          \
     expression;                                                                                                                 \
   }                                                                                                                             \
   CFinfo.setFilterRankZero(true);                                                                                               \
@@ -110,8 +131,9 @@ boost::this_thread::sleep(boost::posix_time::milliseconds(msec));               
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // end namespace mpi
-} // end namespace boost
+    } // end namespace mpi
+  } // end namespace Common
+} // end namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////
 

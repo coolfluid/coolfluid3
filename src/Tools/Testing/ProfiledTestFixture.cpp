@@ -65,9 +65,9 @@ void ProfiledTestFixture::test_unit_start( boost::unit_test::test_unit const& un
 {
   std::stringstream job_suffix;
 
-  if(PE::instance().is_init())
+  if(mpi::PE::instance().is_init())
   {
-    job_suffix << "-" << PE::instance().rank();
+    job_suffix << "-" << mpi::PE::instance().rank();
   }
 
   if( Core::instance().profiler() )
@@ -86,7 +86,7 @@ void ProfiledTestFixture::test_unit_finish( boost::unit_test::test_unit const& u
   {
     Core::instance().profiler()->stop_profiling();
 
-    if(PE::instance().rank() > 0)
+    if(mpi::PE::instance().rank() > 0)
       return;
 
     cf_assert(boost::algorithm::ends_with(m_current_filename, ".pprof"));

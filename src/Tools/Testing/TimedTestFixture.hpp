@@ -93,16 +93,16 @@ public:
   void restart_timer()
   {
     m_timer.restart();
-    if(Common::PE::instance().is_init())
+    if(Common::mpi::PE::instance().is_init())
       m_mpi_timer.restart();
   };
 
   /// Stop timing when a test ends
   void test_unit_finish( boost::unit_test::test_unit const& unit ) {
-    if(Common::PE::instance().rank() > 0)
+    if(Common::mpi::PE::instance().rank() > 0)
       return;
     // TODO: Provide more generic support for output in CDash format
-    std::cout << "<DartMeasurement name=\"" << unit.p_name.get() << " time\" type=\"numeric/double\">" << (Common::PE::instance().is_init() ? m_mpi_timer.elapsed() : m_timer.elapsed()) << "</DartMeasurement>" << std::endl;
+    std::cout << "<DartMeasurement name=\"" << unit.p_name.get() << " time\" type=\"numeric/double\">" << (Common::mpi::PE::instance().is_init() ? m_mpi_timer.elapsed() : m_timer.elapsed()) << "</DartMeasurement>" << std::endl;
   }
 private:
   Timer m_timer;

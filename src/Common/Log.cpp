@@ -110,7 +110,7 @@ LogStream & Logger::getStream(Logger::StreamType type)
 
 void Logger::openFiles()
 {
-  if(PE::instance().is_init())
+  if(mpi::PE::instance().is_init())
   {
     std::ostringstream logFile;
     std::ostringstream traceFile;
@@ -118,7 +118,7 @@ void Logger::openFiles()
     iostreams::file_descriptor_sink fdLogFile;
     iostreams::file_descriptor_sink fdTraceFile;
 
-    int rank = PE::instance().rank();
+    int rank = mpi::PE::instance().rank();
 
     filesystem::remove(logFile.str());
     filesystem::remove(traceFile.str());

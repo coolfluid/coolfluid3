@@ -49,8 +49,8 @@ CReader::CReader( const std::string& name )
   // options
   m_properties.add_option<OptionT <bool> >("Serial Merge","New mesh will be merged with existing if mesh-names match",true);
   m_properties.add_option<OptionT <bool> >("Unified Zones","Reads Neu Groups and splits the mesh in these subgroups",false);
-  m_properties.add_option<OptionT <Uint> >("Part","Number of the part of the mesh to read. (e.g. rank of processor)",PE::instance().is_init()?PE::instance().rank():0);
-  m_properties.add_option<OptionT <Uint> >("Number of Parts","Total number of parts. (e.g. number of processors)",PE::instance().is_init()?PE::instance().size():1);
+  m_properties.add_option<OptionT <Uint> >("Part","Number of the part of the mesh to read. (e.g. rank of processor)",mpi::PE::instance().is_init()?mpi::PE::instance().rank():0);
+  m_properties.add_option<OptionT <Uint> >("Number of Parts","Total number of parts. (e.g. number of processors)",mpi::PE::instance().is_init()?mpi::PE::instance().size():1);
   m_properties.add_option<OptionT <bool> >("Read Boundaries","Read the surface elements for the boundary",true);
 
 
@@ -277,14 +277,14 @@ void CReader::read_coordinates()
   
   CTable<Real>& coordinates = *m_coordinates;
   Uint coord_start_idx = coordinates.size();
-  coordinates.resize(coordinates.size()+m_hash->subhash(NODES)->nb_objects_in_part(PE::instance().rank()) + m_ghost_nodes.size());
+  coordinates.resize(coordinates.size()+m_hash->subhash(NODES)->nb_objects_in_part(mpi::PE::instance().rank()) + m_ghost_nodes.size());
 
   
   CList<Uint>& global_node_idx = find_component_with_tag<CList<Uint> >(*m_coordinates,"global_node_indices");
-  global_node_idx.resize(global_node_idx.size()+m_hash->subhash(NODES)->nb_objects_in_part(PE::instance().rank()) + m_ghost_nodes.size());
+  global_node_idx.resize(global_node_idx.size()+m_hash->subhash(NODES)->nb_objects_in_part(mpi::PE::instance().rank()) + m_ghost_nodes.size());
 
   CList<bool>& is_ghost = *m_coordinates->get_child<CList<bool> >("is_ghost");
-  is_ghost.resize(is_ghost.size()+m_hash->subhash(NODES)->nb_objects_in_part(PE::instance().rank()) + m_ghost_nodes.size());
+  is_ghost.resize(is_ghost.size()+m_hash->subhash(NODES)->nb_objects_in_part(mpi::PE::instance().rank()) + m_ghost_nodes.size());
 
   std::string line;
   // skip one line

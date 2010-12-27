@@ -73,16 +73,16 @@ void Core::initiate ( int argc, char** argv )
 {
   m_argc = argc;
   m_argv = argv;
-  if ( !PE::instance().is_init() )
-    PE::instance().init(argc,argv); // this might modify argc and argv
+  if ( !mpi::PE::instance().is_init() )
+    mpi::PE::instance().init(argc,argv); // this might modify argc and argv
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void Core::terminate()
 {
-  if ( PE::instance().is_init() )
-    PE::instance().finalize();
+  if ( mpi::PE::instance().is_init() )
+    mpi::PE::instance().finalize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -62,7 +62,7 @@ void apply_pattern_CTable(const SimpleCommunicationPattern& pattern, RangeT rang
 {
   //	 CFinfo << "applying pattern to CTable<Real>" << CFendl;
 
-  boost::mpi::communicator& world = CF::Common::PE::instance();
+  boost::mpi::communicator& world = CF::Common::mpi::PE::instance();
   const Uint nb_procs = world.size();
   
   Uint total_width = 0;
@@ -99,7 +99,7 @@ void apply_pattern_CTable(const SimpleCommunicationPattern& pattern, RangeT rang
       }
     }
     
-    // CFinfo << "proc " << proc << " sending to " << CF::Common::PE::instance().rank() << CFendl;
+    // CFinfo << "proc " << proc << " sending to " << CF::Common::mpi::PE::instance().rank() << CFendl;
 
     // Schedule send and receive operations
     reqs.push_back(world.isend(proc, 0, &send_buffer[send_begin], send_buffer.size() - send_begin));
@@ -137,7 +137,7 @@ void apply_pattern_clist(const SimpleCommunicationPattern& pattern, RangeT range
 {
 	typedef CList<ValueT> CListT;
 
-  boost::mpi::communicator& world = CF::Common::PE::instance();
+  boost::mpi::communicator& world = CF::Common::mpi::PE::instance();
   const Uint nb_procs = world.size();
   
 	Uint total_width = 0;

@@ -29,7 +29,7 @@ namespace Mesh {
 CMeshPartitioner::CMeshPartitioner ( const std::string& name ) :
     Component(name),
     m_base(0),
-    m_nb_parts(PE::instance().size()),
+    m_nb_parts(mpi::PE::instance().size()),
     m_map_built(false)
 {
   m_properties.add_option<OptionT <Uint> >("Number of Partitions","Total number of partitions (e.g. number of processors)",m_nb_parts);
@@ -197,9 +197,9 @@ void CMeshPartitioner::show_changes()
   {
     Component::Ptr component;
     Uint index;
-    PEProcessSortedExecute(PE::instance(),-1,
+    PEProcessSortedExecute(mpi::PE::instance(),-1,
       std::cout << std::endl;
-      std::cout << "proc #" << PE::instance().rank() << std::endl;
+      std::cout << "proc #" << mpi::PE::instance().rank() << std::endl;
       std::cout << "-------" << std::endl;
       foreach_container((const Uint glb_obj) (const Uint part), *m_changes)
       {

@@ -136,7 +136,7 @@ void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
     // find the empty regions
     bool empty_on_this_rank = region.connectivity_table().array().empty();
     bool empty_on_all_ranks = empty_on_this_rank;
-    if (PE::instance().is_init()) {
+    if (mpi::PE::instance().is_init()) {
       boost::mpi::communicator world;
       empty_on_all_ranks = boost::mpi::all_reduce(world, empty_on_this_rank, std::logical_and<bool>());
     }

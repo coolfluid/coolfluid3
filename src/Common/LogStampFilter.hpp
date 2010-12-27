@@ -94,7 +94,7 @@ public:
       boost::algorithm::replace_all(stamp, "%time%", "TIME");
       boost::algorithm::replace_all(stamp, "%type%", m_streamName);
       boost::algorithm::replace_all(stamp, "%place%", m_place.short_str());
-      boost::algorithm::replace_all(stamp, "%rank%", String::to_str( PE::instance().rank() ));
+      boost::algorithm::replace_all(stamp, "%rank%", String::to_str( mpi::PE::instance().rank() ));
       
       m_newMessage = false;
       

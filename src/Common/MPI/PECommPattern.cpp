@@ -11,6 +11,7 @@
 #include "Common/LibCommon.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/Log.hpp"
+#include "Common/MPI/PE.hpp"
 #include "Common/MPI/PECommPattern.hpp"
 #include "Common/MPI/PEObjectWrapper.hpp"
 
@@ -99,14 +100,14 @@ void PECommPattern::setup()
   // gidr: rank where node is updatable
 
   // general constants
-  const int nproc=PE::instance().size();
-  const int irank=PE::instance().rank();
+  const int nproc=mpi::PE::instance().size();
+  const int irank=mpi::PE::instance().rank();
 
   // build ngid and gido
   std::vector<int> ngid(nproc,0);
   BOOST_FOREACH(bool is_updatable, m_updatable ) if (is_updatable) ngid[irank]++;
   ngid[irank]+=m_add_buffer.size();
-//  boost::mpi::all_reduce(PE::instance(),&ngid[0],nproc,&ngid[0],boost::mpi::maximum<int>());
+//  boost::mpi::all_reduce(mpi::PE::instance(),&ngid[0],nproc,&ngid[0],boost::mpi::maximum<int>());
   int ntotalnodes=0;
   BOOST_FOREACH(int node,ngid) ntotalnodes+=node;
 //  std::vector<int> ngid(nproc,0);
@@ -193,9 +194,9 @@ namespace CF {
 PECommPattern::PECommPattern()
 {
   m_isCommPatternPrepared=false;
-  m_sendCount.resize(PE::instance().size(),0);
+  m_sendCount.resize(mpi::PE::instance().size(),0);
   m_sendMap.resize(0);
-  m_receiveCount.resize(PE::instance().size(),0);
+  m_receiveCount.resize(mpi::PE::instance().size(),0);
   m_receiveMap.resize(0);
   m_updatable.resize(0);
 }
@@ -205,9 +206,9 @@ PECommPattern::PECommPattern()
 PECommPattern::PECommPattern(std::vector<Uint> gid, std::vector<Uint> rank)
 {
   m_isCommPatternPrepared=false;
-  m_sendCount.resize(PE::instance().size(),0);
+  m_sendCount.resize(mpi::PE::instance().size(),0);
   m_sendMap.resize(0);
-  m_receiveCount.resize(PE::instance().size(),0);
+  m_receiveCount.resize(mpi::PE::instance().size(),0);
   m_receiveMap.resize(0);
   m_updatable.resize(0);
   setup(gid,rank);
@@ -224,8 +225,8 @@ PECommPattern::~PECommPattern()
 void PECommPattern::setup(std::vector<Uint> gid, std::vector<Uint> rank)
 {
 
-  const Uint irank=PE::instance().rank();
-  const Uint nproc=(Uint)PE::instance().size();
+  const Uint irank=mpi::PE::instance().rank();
+  const Uint nproc=(Uint)mpi::PE::instance().size();
 
   assert(gid.size()==rank.size());
 
@@ -247,7 +248,7 @@ void PECommPattern::setup(std::vector<Uint> gid, std::vector<Uint> rank)
       m_sendMap.push_back(*j);
 
   // fill receive count
-  boost::mpi::all_to_all(PE::instance(),m_sendCount,m_receiveCount);
+  boost::mpi::all_to_all(mpi::PE::instance(),m_sendCount,m_receiveCount);
 
   // fill receive map
   Uint total_m_receiveCount=0;
@@ -261,7 +262,7 @@ void PECommPattern::setup(std::vector<Uint> gid, std::vector<Uint> rank)
     rcvdisp[i]=rcvdisp[i-1]+m_receiveCount[i-1];
 
   for(Uint i=0; i<nproc; i++)
-    MPI_Gatherv(&(sendmap[i])[0], sendmap[i].size(), MPI_INT, &m_receiveMap[0], &m_receiveCount[0], &rcvdisp[0], MPI_INT, i, PE::instance());
+    MPI_Gatherv(&(sendmap[i])[0], sendmap[i].size(), MPI_INT, &m_receiveMap[0], &m_receiveCount[0], &rcvdisp[0], MPI_INT, i, mpi::PE::instance());
 
   std::cout << "m_updatable: ";
   std::for_each(m_updatable.begin(), m_updatable.end(), std::cout << _1 << ' ');

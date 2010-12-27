@@ -114,8 +114,8 @@ PRIVATE METHODS
 
 void CCore::setStatus(WorkerStatus::Type status)
 {
-  PE::instance().change_status(status);
-  //  this->commServer->sendStatus(-1, PE::getStatusString(status).c_str());
+  mpi::PE::instance().change_status(status);
+  //  this->commServer->sendStatus(-1, mpi::PE::getStatusString(status).c_str());
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -48,8 +48,8 @@ CReader::CReader( const std::string& name )
   // options
   m_properties.add_option<OptionT <bool> >("Serial Merge","New mesh will be merged with existing if mesh-names match",true);
   m_properties.add_option<OptionT <bool> >("Unified Zones","Reads Neu Groups and splits the mesh in these subgroups",false);
-  m_properties.add_option<OptionT <Uint> >("Part","Number of the part of the mesh to read. (e.g. rank of processor)",PE::instance().is_init()?PE::instance().rank():0);
-  m_properties.add_option<OptionT <Uint> >("Number of Parts","Total number of parts. (e.g. number of processors)",PE::instance().is_init()?PE::instance().size():1);
+  m_properties.add_option<OptionT <Uint> >("Part","Number of the part of the mesh to read. (e.g. rank of processor)",mpi::PE::instance().is_init()?mpi::PE::instance().rank():0);
+  m_properties.add_option<OptionT <Uint> >("Number of Parts","Total number of parts. (e.g. number of processors)",mpi::PE::instance().is_init()?mpi::PE::instance().size():1);
   m_properties.add_option<OptionT <bool> >("Read Boundaries","Read the surface elements for the boundary",true);
 
 
@@ -625,7 +625,7 @@ void CReader::read_boundaries()
         Uint faceIdx = m_faces_gmsh_to_cf[ETYPE][FACE];
 
         const ElementType& etype = tmp_region->element_type();
-        const ElementType::FaceConnectivity& face_connectivity = etype.face_connectivity();
+        const ElementTympi::PE::FaceConnectivity& face_connectivity = etype.face_connectivity();
         
         // make a row of nodes
         const CTable<Uint>::Row& elem_nodes = tmp_region->connectivity_table()[local_element];

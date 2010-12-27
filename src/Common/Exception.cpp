@@ -52,7 +52,7 @@ Exception::Exception(CodeLocation where, std::string msg, std::string className)
   {
     std::string backtrace = OSystem::instance().system_layer()->back_trace();
     CFerror << "\n\n";
-    CFerror << "+++ Exception backtrace on rank " << PE::instance().rank() << " ++++\n";
+    CFerror << "+++ Exception backtrace on rank " << mpi::PE::instance().rank() << " ++++\n";
     CFerror << backtrace << "\n";
     CFerror << "++++++++++++++++++++++++++++++++++++++" << CFendl;
   }
@@ -60,7 +60,7 @@ Exception::Exception(CodeLocation where, std::string msg, std::string className)
   if ( ExceptionManager::instance().ExceptionAborts )
   {
     CFerror << CFendl << CFendl;
-    CFerror << "+++ Exception aborting on rank " << PE::instance().rank() << " ... " << CFendl;
+    CFerror << "+++ Exception aborting on rank " << mpi::PE::instance().rank() << " ... " << CFendl;
     abort();
   }
 }
@@ -99,7 +99,7 @@ std::string Exception::full_description () const throw ()
 	using namespace String;
   std::string desc;
   desc += "\n\n";
-  desc += "+++ Exception thrown on rank "+ to_str(PE::instance().rank()) + " ++++++++\n";
+  desc += "+++ Exception thrown on rank "+ to_str(mpi::PE::instance().rank()) + " ++++++++\n";
   desc += "From : \'";
   desc += m_where.str();
   desc += "\'\n";
