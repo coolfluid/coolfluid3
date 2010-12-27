@@ -45,7 +45,7 @@ template <typename T> inline bool is_mpi_datatype(const T& ref_of_type) { return
 /// Function to obtain MPI_Datatype from type
 template <typename T> inline MPI_Datatype get_mpi_datatype(const T& ref_of_type)
 {
-
+  return get_mpi_datatype_impl<T>(ref_of_type);
 }
 
 /// @}
