@@ -1,12 +1,15 @@
 ################################################################################
 
 list( APPEND utest-block-mesh-reader_cflibs coolfluid_blockmesh coolfluid_blockmesh_reader coolfluid_neutral coolfluid_meshdiff coolfluid_mesh_sf )
-list( APPEND utest-block-mesh-reader_files
-    utest-block-mesh-reader.cpp )
+list( APPEND utest-block-mesh-reader_files   utest-block-mesh-reader.cpp )
 
 list( APPEND utest-block-mesh-reader_args ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} )
 
-coolfluid_add_unittest( utest-block-mesh-reader )
+if(CF_TMP_HAVE_SIMPLECOMM)
+  coolfluid_add_unittest( utest-block-mesh-reader )
+else()
+  coolfluid_mark_not_orphan( ${utest-block-mesh-reader_files} )
+endif()
 
 list( APPEND dict_files
   cavity2d.dict

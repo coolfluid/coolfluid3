@@ -1,7 +1,7 @@
 #ifndef coolfluid_profiling_config_h
 #define coolfluid__profiling_config_h
 
-#cmakedefine CF_BUILD_GooglePerfTools
+#cmakedefine CF_BUILD_coolfluid_google_perftools
 #define CF_PPROF_COMMAND "${CF_PPROF_COMMAND}"
 #define CF_DOT_COMMAND "${CF_DOT_COMMAND}"
 

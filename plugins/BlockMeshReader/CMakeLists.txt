@@ -16,6 +16,7 @@ if( CF_STRIP_BLOCKMESHREADER_COMPILE_FLAGS AND CMAKE_COMPILER_IS_GNUCC )
     set(CF_BLOCKMESHREADER_COMPILE_FLAGS "${CF_BLOCKMESHREADER_COMPILE_FLAGS} -g0 -O0")
 endif()
 
+coolfluid_find_orphan_files()
 
 ##############################################################################
 # library
@@ -31,7 +32,11 @@ list( APPEND coolfluid_blockmesh_reader_files
 
 list( APPEND coolfluid_blockmesh_reader_cflibs coolfluid_mesh coolfluid_mesh_generation coolfluid_blockmesh coolfluid_mesh_sf )
 
-coolfluid_add_library( coolfluid_blockmesh_reader )
+if(CF_TMP_HAVE_SIMPLECOMM)
+  coolfluid_add_library( coolfluid_blockmesh_reader )
+else()
+  coolfluid_mark_not_orphan( ${coolfluid_blockmesh_reader_files} )
+endif()
 
 if( CF_BLOCKMESHREADER_COMPILE_FLAGS )
   set_source_files_properties(Parser.cpp PROPERTIES COMPILE_FLAGS ${CF_BLOCKMESHREADER_COMPILE_FLAGS})
@@ -43,4 +48,3 @@ endif()
 if( CF_ENABLE_UNITTESTS )
   add_subdirectory( test )
 endif()
-

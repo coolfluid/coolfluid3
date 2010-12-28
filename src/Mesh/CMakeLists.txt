@@ -72,8 +72,6 @@ list( APPEND coolfluid_mesh_files
   Quad2D.cpp
   Quad3D.hpp
   Quad3D.cpp
-  SimpleCommunicationPattern.hpp
-  SimpleCommunicationPattern.cpp
   Tetra3D.hpp
   Tetra3D.cpp
   Triag2D.hpp
@@ -86,11 +84,25 @@ list( APPEND coolfluid_mesh_files
   Integrators/GaussImplementation.hpp
 )
 
+list( APPEND simplecomm_files
+  SimpleCommunicationPattern.hpp
+  SimpleCommunicationPattern.cpp
+)
+
+if(CF_TMP_HAVE_SIMPLECOMM)
+  list( APPEND coolfluid_mesh_files ${simplecomm_files} )
+else()
+  coolfluid_mark_not_orphan( ${simplecomm_files} )
+endif()
+
 list( APPEND coolfluid_mesh_cflibs coolfluid_math )  # Math includes coolfluid_common
 
 set( coolfluid_mesh_kernellib TRUE )
 
 coolfluid_add_library( coolfluid_mesh )
+
+############################################################################################
+# sub modules of CF.Mesh
 
 add_subdirectory( SF )            # Shape functions
 

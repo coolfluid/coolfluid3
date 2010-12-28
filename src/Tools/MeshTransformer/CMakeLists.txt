@@ -2,11 +2,15 @@ coolfluid_find_orphan_files()
 
 list( APPEND coolfluid-mesh-transformer_files coolfluid-mesh-transformer.cpp )
 
-list( APPEND coolfluid-mesh-transformer_libs coolfluid_mesh_sf coolfluid_neutral coolfluid_gmsh )
-if(CF_HAVE_CGNS)
+list( APPEND coolfluid-mesh-transformer_libs  coolfluid_mesh_sf coolfluid_neutral coolfluid_gmsh )
+
+# add blockmesh reader if built
+if(CF_BUILD_coolfluid_cgns3)
   list( APPEND coolfluid-mesh-transformer_libs coolfluid_cgns3 )
 endif()
-if(CF_BUILD_BlockMeshReader)
+
+# add blockmesh reader if built
+if(CF_BUILD_coolfluid_blockmesh_reader)
   list( APPEND coolfluid-mesh-transformer_libs coolfluid_blockmesh_reader )
 endif()
 
