@@ -69,6 +69,7 @@ struct SFData
   {
     SF::shape_function(mapped_coords, m_sf);
     m_sf_outer_product.noalias() = m_sf.transpose() * m_sf;
+    return m_sf_outer_product;
   }
   
   /// Storage for the gradient. It is calculated in a primitive transform.
