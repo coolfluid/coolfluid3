@@ -308,7 +308,7 @@ all_to_all(const PE::Communicator& comm, const std::vector<T>& in_values, const 
 **/
 template<typename T>
 inline T*
-all_to_all(const PE::Communicator& comm, const T* in_values, const int *in_n, const int *in_map, T* out_values, int *out_n, const int *out_map, const int stride=1)
+all_to_all(const PE::Communicator& comm, const T* in_values, const int *in_n, const int *in_map, T* out_values, int *out_n, const int *out_map, const int stride)
 {
   // number of processes
   int nproc;
@@ -359,7 +359,7 @@ all_to_all(const PE::Communicator& comm, const T* in_values, const int *in_n, co
 **/
 template<typename T>
 inline void
-all_to_all(const PE::Communicator& comm, const std::vector<T>& in_values, const std::vector<int>& in_n, const std::vector<int>& in_map, std::vector<T>& out_values, std::vector<int>& out_n, const std::vector<int>& out_map, const int stride=1)
+all_to_all(const PE::Communicator& comm, const std::vector<T>& in_values, const std::vector<int>& in_n, const std::vector<int>& in_map, std::vector<T>& out_values, std::vector<int>& out_n, const std::vector<int>& out_map, const int stride)
 {
   // number of processes and checking in_n and out_n (out_n deliberately throws exception because the vector can arrive from arbitrary previous usage)
   int nproc;

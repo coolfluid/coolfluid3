@@ -187,7 +187,7 @@ namespace mpi {                               \
 template<>                                    \
 struct is_mpi_datatype< T > : mpl::true_ {};  \
 }}                                            \
-/**/
+*/
 
 
 //#endif // BOOST_MPI_MPI_DATATYPE_HPP
