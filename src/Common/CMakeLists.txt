@@ -42,6 +42,7 @@ list( APPEND coolfluid_common_files
     Core.hpp
     Core.cpp
     CreateComponent.hpp
+    CreateComponentDataType.hpp
     DirPaths.cpp
     DirPaths.hpp
     EnumT.hpp

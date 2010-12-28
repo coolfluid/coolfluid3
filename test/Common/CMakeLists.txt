@@ -202,7 +202,7 @@ list( APPEND utest-foreach_files
 coolfluid_add_unittest( utest-foreach )
 
 ################################################################################
-# Test cmap - boost_cmap etc.
+# Test cmap
 
 list( APPEND utest-cmap_cflibs coolfluid_common )
 list( APPEND utest-cmap_files
@@ -210,3 +210,13 @@ list( APPEND utest-cmap_files
 )
 
 coolfluid_add_unittest( utest-cmap )
+
+################################################################################
+# Test DataComponentWrapper
+
+list( APPEND utest-create-component-datatype_cflibs coolfluid_common )
+list( APPEND utest-create-component-datatype_files
+  utest-create-component-datatype.cpp
+)
+
+coolfluid_add_unittest( utest-create-component-datatype )
