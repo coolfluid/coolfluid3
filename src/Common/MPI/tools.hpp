@@ -5,8 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 
-#ifndef BOOST_MPI_tools_HPP
-#define BOOST_MPI_tools_HPP
+#ifndef CF_Common_mpi_tools_HPP
+#define CF_Common_mpi_tools_HPP
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -14,10 +14,10 @@
 
 #include <boost/thread/thread.hpp>
 
-#include <Common/Log.hpp>
-#include <Common/LogStream.hpp>
-#include <Common/BasicExceptions.hpp>
-#include <Common/CodeLocation.hpp>
+#include "Common/Log.hpp"
+#include "Common/LogStream.hpp"
+#include "Common/BasicExceptions.hpp"
+#include "Common/CodeLocation.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -121,7 +121,7 @@ boost::this_thread::sleep(boost::posix_time::milliseconds(msec));               
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
- Macro for printing an std::Vector
+ Macro for printing an std::vector
 **/
 #define PEDebugVector(v,size) { \
   CFinfo << PE::instance().rank() << "/" << PE::instance().rank() << ": " << #v << CFendl; \
@@ -137,4 +137,4 @@ boost::this_thread::sleep(boost::posix_time::milliseconds(msec));               
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // BOOST_MPI_tools_HPP
+#endif // CF_Common_mpi_tools_HPP

@@ -11,9 +11,7 @@
 
 #include <vector>
 
-#include <boost/assert.hpp>
-#include <boost/foreach.hpp>
-
+#include "Common/Foreach.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/CodeLocation.hpp"
 #include "Common/MPI/PE.hpp"
@@ -67,7 +65,7 @@ namespace detail {
     MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
 
     // if stride is greater than one
-    BOOST_ASSERT( stride>0 );
+    cf_assert( stride>0 );
 
     // set up out_buf
     T* out_buf=0;
@@ -112,7 +110,7 @@ namespace detail {
     MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
 
     // if stride is greater than one and unsupported functionality
-    BOOST_ASSERT( stride>0 );
+    cf_assert( stride>0 );
 
     // compute displacements both on send an receive side
     // also compute stride-multiplied send and receive counts
@@ -227,7 +225,7 @@ all_to_all(const PE::Communicator& comm, const std::vector<T>& in_values, std::v
   MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
 
   // set out_values's sizes
-  BOOST_ASSERT( in_values.size() % (nproc*stride) == 0 );
+  cf_assert( in_values.size() % (nproc*stride) == 0 );
   out_values.resize(in_values.size());
   out_values.reserve(in_values.size());
 
@@ -364,28 +362,28 @@ all_to_all(const PE::Communicator& comm, const std::vector<T>& in_values, const 
   // number of processes and checking in_n and out_n (out_n deliberately throws exception because the vector can arrive from arbitrary previous usage)
   int nproc;
   MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
-  BOOST_ASSERT( (int)in_n.size() == nproc );
+  cf_assert( (int)in_n.size() == nproc );
   if ((int)out_n.size()!=nproc) CF::Common::BadValue(FromHere(),"Size of vector for number of items to be received does not match to number of processes.");
 
   // compute number of send and receive
   int in_sum=0;
   int out_sum=0;
-  BOOST_FOREACH( int i, in_n ) in_sum+=i;
-  BOOST_FOREACH( int i, out_n ) out_sum+=i;
+  boost_foreach( int i, in_n ) in_sum+=i;
+  boost_foreach( int i, out_n ) out_sum+=i;
 
   // if necessary, do communication for out_n
   if (out_sum == -nproc){
     if (out_map.size()!=0) throw CF::Common::ParallelError(FromHere(),"Trying to perform communication with receive map while receive counts are unknown, this is bad usage of parallel environment.");
     detail::all_to_allc_impl(comm,&in_n[0],1,&out_n[0],1);
     out_sum=0;
-    BOOST_FOREACH( int & i, out_n ) out_sum+=i;
+    boost_foreach( int & i, out_n ) out_sum+=i;
   }
 
   // resize out_values if vector size is zero
   if (out_values.size() == 0 ){
     if (out_map.size()!=0) {
       out_sum=0;
-      BOOST_FOREACH( int i, out_map ) out_sum=i>out_sum?i:out_sum;
+      boost_foreach( int i, out_map ) out_sum=i>out_sum?i:out_sum;
       if (out_sum!=0) out_sum++;
     }
     out_values.resize(stride*out_sum);

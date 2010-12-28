@@ -11,13 +11,12 @@
 
 #include <vector>
 
-#include <boost/assert.hpp>
-#include <boost/foreach.hpp>
 #include <boost/mpi/datatype.hpp>
 
 #include "Common/MPI/PE.hpp"
-#include <Common/BasicExceptions.hpp>
-#include <Common/CodeLocation.hpp>
+#include "Common/Foreach.hpp"
+#include "Common/BasicExceptions.hpp"
+#include "Common/CodeLocation.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -210,7 +209,7 @@ inline void
 all_reduce(const PE& pe, Op& op, const std::vector<T>& in_values, const std::vector<int>& in_map, std::vector<T>& out_values, const std::vector<int>& out_map, const int stride=1)
 {
   // number of processes and checking in_n and out_n (out_n deliberately throws exception because the vector can arrive from arbitrary previous usage)
-  BOOST_ASSERT( in_values.size() % stride == 0 );
+  cf_assert( in_values.size() % stride == 0 );
   if (in_values.size()/stride!=in_map.size()) CF::Common::BadValue(FromHere(),"Size of vector for send values does not match the size of send map.");
   if (in_values.size()/stride!=out_map.size()) CF::Common::BadValue(FromHere(),"Size of vector for send values does not match the size of receive map.");
 
@@ -219,7 +218,7 @@ all_reduce(const PE& pe, Op& op, const std::vector<T>& in_values, const std::vec
   if (out_values.size() == 0 ){
     if (out_map.size()!=0) {
       out_sum=0;
-      BOOST_FOREACH( int i, out_map ) out_sum=i>out_sum?i:out_sum;
+      boost_foreach( int i, out_map ) out_sum=i>out_sum?i:out_sum;
       if (out_sum!=0) out_sum++;
     }
   }

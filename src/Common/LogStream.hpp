@@ -21,7 +21,6 @@ class LogToStream;
 class LogLevelFilter;
 class LogStampFilter;
 class LogStringForwarder;
-class PE;
 
 ////////////////////////////////////////////////////////////////////////////////
 

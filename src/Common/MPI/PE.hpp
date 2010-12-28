@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_PE_hpp
-#define CF_Common_PE_hpp
+#ifndef CF_Common_mpi_PE_hpp
+#define CF_Common_mpi_PE_hpp
 
 #include <mpi.h>
 
@@ -113,4 +113,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_PE_hpp
+#endif // CF_Common_mpi_PE_hpp

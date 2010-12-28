@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <set>
+
 // coolfluid
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
@@ -20,6 +22,7 @@ namespace Zoltan {
 
   using namespace Common;
   using namespace Common::String;
+  using namespace Common::mpi;
   
 #define RANK "[" << PE::instance().rank() << "] "
 

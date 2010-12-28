@@ -32,7 +32,6 @@
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/ConnectivityData.hpp"
 
-using namespace std;
 using namespace boost;
 using namespace CF;
 using namespace CF::Mesh;
@@ -102,16 +101,18 @@ struct PTScotchTests_Fixture
                       &edgeglbnbr,
                       &edgelocnbr);
     
-    proccnttab.resize(PE::instance().size());
-    procvrttab.resize(PE::instance().size()+1);
-    boost::mpi::all_gather(PE::instance(), vertlocnbr, proccnttab);
+    proccnttab.resize(Common::mpi::PE::instance().size());
+    procvrttab.resize(Common::mpi::PE::instance().size()+1);
+    
+    boost::mpi::communicator world;
+    boost::mpi::all_gather(world, vertlocnbr, proccnttab);
     Uint cnt=0;
     for (Uint p=0; p<proccnttab.size(); ++p)
     {
       procvrttab[p] = cnt;
       cnt += proccnttab[p];
     }
-    procvrttab[PE::instance().size()] = cnt;
+    procvrttab[Common::mpi::PE::instance().size()] = cnt;
     
     
     if (SCOTCH_dgraphGhst(&graph))
@@ -143,7 +144,7 @@ struct PTScotchTests_Fixture
   {
     SCOTCH_dgraphFree(&graph);
     
-    if (SCOTCH_dgraphInit(&graph, PE::instance()))
+    if (SCOTCH_dgraphInit(&graph, Common::mpi::PE::instance()))
       throw BadValue(FromHere(),"ptscotch error");
 
     if (SCOTCH_dgraphBuild(&graph, 
@@ -169,7 +170,7 @@ struct PTScotchTests_Fixture
   
   void output_graph_info()
   {
-    if (PE::instance().rank() == 0)
+    if (Common::mpi::PE::instance().rank() == 0)
     {
       CFinfo << "\n" << CFendl;
       CFinfo << "global graph info" << CFendl;
@@ -177,11 +178,11 @@ struct PTScotchTests_Fixture
       CFLogVar(vertglbnbr);
       CFLogVar(edgeglbnbr);
       CFinfo << "proccnttab = [ ";
-      for (Uint i=0; i<PE::instance().size(); ++i)
+      for (Uint i=0; i<Common::mpi::PE::instance().size(); ++i)
         CFinfo << proccnttab[i] << " ";
       CFinfo << "]" << CFendl;
       CFinfo << "procvrttab = [ ";
-      for (Uint i=0; i<PE::instance().size()+1; ++i)
+      for (Uint i=0; i<Common::mpi::PE::instance().size()+1; ++i)
         CFinfo << procvrttab[i] << " ";
       CFinfo << "]" << CFendl;
       
@@ -190,9 +191,9 @@ struct PTScotchTests_Fixture
     
     bool original_filter = CFinfo.getFilterRankZero(LogStream::SCREEN);
     CFinfo.setFilterRankZero(LogStream::SCREEN,false);
-    for (Uint proc=0; proc<PE::instance().size(); ++proc)
+    for (Uint proc=0; proc<Common::mpi::PE::instance().size(); ++proc)
     {
-      if (PE::instance().rank() == proc)
+      if (Common::mpi::PE::instance().rank() == proc)
       {
         CFinfo << "proc #"<<proc << CFendl;
         CFinfo << "-------" << CFendl;
@@ -219,9 +220,9 @@ struct PTScotchTests_Fixture
         
         CFinfo << CFendl;         
       }
-      PE::instance().barrier();
+      Common::mpi::PE::instance().barrier();
     }
-    PE::instance().barrier();
+    Common::mpi::PE::instance().barrier();
     CFinfo.setFilterRankZero(LogStream::SCREEN,original_filter);
   }
   
@@ -246,9 +247,9 @@ struct PTScotchTests_Fixture
   {
     bool original_filter = CFinfo.getFilterRankZero(LogStream::SCREEN);
     CFinfo.setFilterRankZero(LogStream::SCREEN,false);
-    for (Uint proc=0; proc<PE::instance().size(); ++proc)
+    for (Uint proc=0; proc<Common::mpi::PE::instance().size(); ++proc)
     {
-      if (PE::instance().rank() == proc)
+      if (Common::mpi::PE::instance().rank() == proc)
       {
         CFinfo << "proc #"<<proc << CFendl;
         CFinfo << "-------" << CFendl;
@@ -261,9 +262,9 @@ struct PTScotchTests_Fixture
         
         CFinfo << CFendl;         
       }
-      PE::instance().barrier();
+      Common::mpi::PE::instance().barrier();
     }
-    PE::instance().barrier();
+    Common::mpi::PE::instance().barrier();
     CFinfo.setFilterRankZero(LogStream::SCREEN,original_filter);
     CFinfo << CFendl<< CFendl;    
   }
@@ -280,7 +281,7 @@ BOOST_FIXTURE_TEST_SUITE( PTScotchTests_TestSuite, PTScotchTests_Fixture )
 
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
-  PE::instance().init(m_argc,m_argv);
+  Common::mpi::PE::instance().init(m_argc,m_argv);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -288,12 +289,12 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 BOOST_AUTO_TEST_CASE( PTSCOTCH_tutorial_construction )
 {
   
-  if (PE::instance().size() == 3)
+  if (Common::mpi::PE::instance().size() == 3)
   {
     
     CFinfo << "+++++++++++++++++++ building graph ++++++++++++++++++++ \n" << CFendl;
     
-    switch (PE::instance().rank())
+    switch (Common::mpi::PE::instance().rank())
     {
       case 0:
       {
@@ -361,7 +362,7 @@ BOOST_AUTO_TEST_CASE( PTSCOTCH_tutorial_construction )
 
 BOOST_AUTO_TEST_CASE( finalize_mpi )
 {
-  PE::instance().finalize();
+  Common::mpi::PE::instance().finalize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
