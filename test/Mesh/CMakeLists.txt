@@ -36,9 +36,9 @@ coolfluid_add_unittest( utest-mesh-components )
 ################################################################################
 
 # Only add TestCGNS.cpp if the CGNS library is available
-if( ${CF_COMPILES_CGNS3} )
+if( ${CF_COMPILES_coolfluid_cgns3} )
 
-  list( APPEND utest-cgns_cflibs coolfluid_cgns3 )
+  list( APPEND utest-cgns_cflibs coolfluid_cgns3 coolfluid_neutral coolfluid_gmsh )
   list( APPEND utest-cgns_files  utest-cgns.cpp )
   list( APPEND utest-cgns_includedirs ${CGNS_INCLUDE_DIR} )
 
@@ -228,7 +228,7 @@ endif()
 
 ################################################################################
 
-if( ${CF_HAVE_PTSCOTCH} )
+if(  ${CF_COMPILES_coolfluid_ptscotch} )
   list( APPEND utest-pt-scotch_cflibs coolfluid_neutral coolfluid_mesh_sf coolfluid_gmsh )
   list( APPEND utest-pt-scotch_libs ${PTSCOTCH_LIBRARIES} )
 
@@ -252,7 +252,7 @@ endif()
 
 ################################################################################
 
-if( ${CF_HAVE_ZOLTAN} )
+if( ${CF_COMPILES_coolfluid_zoltan} )
   list( APPEND utest-zoltan_cflibs coolfluid_neutral coolfluid_gmsh coolfluid_zoltan )
   list( APPEND utest-zoltan_libs ${ZOLTAN_LIBRARIES} )
   list( APPEND utest-zoltan_files  utest-zoltan.cpp )

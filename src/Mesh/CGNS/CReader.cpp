@@ -567,13 +567,13 @@ void CReader::create_structured_elements(CRegion& parent_region)
   switch (m_base.cell_dim)
   {
     case 3: // Hexahedrons
-      etype_CF = "Hexa"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
+      etype_CF = "CF.Mesh.SF.Hexa"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
       break;
     case 2: // Quadrilaterals
-      etype_CF = "Quad"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
+      etype_CF = "CF.Mesh.SF.Quad"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
       break;
     case 1: // Segments
-      etype_CF = "Line"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
+      etype_CF = "CF.Mesh.SF.Line"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
     default:
       break;
   }
@@ -800,16 +800,16 @@ void CReader::read_boco_structured(CRegion& parent_region)
   switch (m_base.cell_dim)
   {
     case 3: // Hexahedrons
-      etype_CF = "Hexa"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
-      etypeBC_CF = "Quad"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
+      etype_CF = "CF.Mesh.SF.Hexa"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
+      etypeBC_CF = "CF.Mesh.SF.Quad"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
       break;
     case 2: // Quadrilaterals
-      etype_CF = "Quad"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
-      etypeBC_CF = "Line"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
+      etype_CF = "CF.Mesh.SF.Quad"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
+      etypeBC_CF = "CF.Mesh.SF.Line"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
       break;
     case 1: // Segments
-      etype_CF = "Line"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
-      etypeBC_CF = "Point"+to_str<int>(m_base.phys_dim)+"D";
+      etype_CF = "CF.Mesh.SF.Line"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
+      etypeBC_CF = "CF.Mesh.SF.Point"+to_str<int>(m_base.phys_dim)+"D";
     default:
       break;
   }

@@ -27,11 +27,11 @@ Shared::Shared()
   m_supported_element_types.push_back("CF.Mesh.SF.Tetra3DLagrangeP1");
   m_supported_element_types.push_back("CF.Mesh.SF.Hexa3DLagrangeP1");
 
-  m_elemtype_CGNS_to_CF[BAR_2  ] = "Line";
-  m_elemtype_CGNS_to_CF[TRI_3  ] = "Triag";
-  m_elemtype_CGNS_to_CF[QUAD_4 ] = "Quad";
-  m_elemtype_CGNS_to_CF[TETRA_4] = "Tetra";
-  m_elemtype_CGNS_to_CF[HEXA_8 ] = "Hexa";
+  m_elemtype_CGNS_to_CF[BAR_2  ] = "CF.Mesh.SF.Line";
+  m_elemtype_CGNS_to_CF[TRI_3  ] = "CF.Mesh.SF.Triag";
+  m_elemtype_CGNS_to_CF[QUAD_4 ] = "CF.Mesh.SF.Quad";
+  m_elemtype_CGNS_to_CF[TETRA_4] = "CF.Mesh.SF.Tetra";
+  m_elemtype_CGNS_to_CF[HEXA_8 ] = "CF.Mesh.SF.Hexa";
 
   m_elemtype_CF_to_CGNS["CF.Mesh.SF.Line1DLagrangeP1" ] = BAR_2;
   m_elemtype_CF_to_CGNS["CF.Mesh.SF.Line2DLagrangeP1" ] = BAR_2;

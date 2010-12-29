@@ -95,7 +95,7 @@ void CWriter::write_zone(const CRegion& region)
   m_zone.coord_dim = m_coord_dim;
 
   m_zone.total_nbVertices = 0;
-  BOOST_FOREACH(const CTable<Real>& coordinates, find_components_recursively_with_tag<CTable<Real> >(region,"coordinates"))
+  BOOST_FOREACH(const CTable<Real>& coordinates, find_components_recursively_with_tag<CTable<Real> >(*region.get_parent(),"coordinates"))
     m_zone.total_nbVertices += coordinates.size();
 
   m_zone.nbElements = region.recursive_elements_count();
