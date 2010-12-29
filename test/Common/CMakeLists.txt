@@ -182,6 +182,16 @@ list( APPEND utest-parallel-commpattern_files
 coolfluid_add_unittest( utest-parallel-commpattern )
 
 ################################################################################
+# Test PE - datatype
+
+list( APPEND utest-parallel-datatype_cflibs coolfluid_common )
+list( APPEND utest-parallel-datatype_files
+  utest-parallel-datatype.cpp
+)
+
+coolfluid_add_unittest( utest-parallel-datatype )
+
+################################################################################
 # Test PE - memcheck
 
 list( APPEND utest-parallel-memcheck_cflibs coolfluid_common )

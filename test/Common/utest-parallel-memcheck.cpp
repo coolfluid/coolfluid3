@@ -43,10 +43,7 @@ struct PEMemcheckFixture
   }
 
   /// common tear-down for each test case
-  ~PEMemcheckFixture()
-  {
-    mpi::PE::instance().finalize();
-  }
+  ~PEMemcheckFixture() { }
 
   /// common params
   int m_argc;
@@ -62,7 +59,6 @@ BOOST_FIXTURE_TEST_SUITE( PEMemcheckSuite, PEMemcheckFixture )
 BOOST_AUTO_TEST_CASE( init )
 {
   mpi::PE::instance().init(m_argc,m_argv);
-  mpi::PE::instance().finalize();
   BOOST_CHECK_EQUAL( mpi::PE::instance().is_init() , true );
 }
 
@@ -74,13 +70,13 @@ BOOST_AUTO_TEST_CASE( single_component_creation )
 }
 */
 ////////////////////////////////////////////////////////////////////////////////
-/*
+
 BOOST_AUTO_TEST_CASE( finalize )
 {
   mpi::PE::instance().finalize();
   BOOST_CHECK_EQUAL( mpi::PE::instance().is_init() , false );
 }
-*/
+
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()
