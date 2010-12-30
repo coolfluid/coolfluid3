@@ -19,6 +19,7 @@ namespace PTScotch {
 
   using namespace Common;
   using namespace Common::String;
+  using namespace Common::mpi;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -107,7 +108,10 @@ void CPartitioner::build_graph()
 
     proccnttab.resize(PE::instance().size());
     procvrttab.resize(PE::instance().size()+1);
-    boost::mpi::all_gather(PE::instance(), vertlocnbr, proccnttab);
+
+    /// @todo replace boost::mpi::communicator by CF instructions
+    boost::mpi::communicator world;
+    boost::mpi::all_gather(world, vertlocnbr, proccnttab);
     Uint cnt=0;
     for (Uint p=0; p<proccnttab.size(); ++p)
     {
