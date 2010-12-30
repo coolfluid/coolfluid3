@@ -58,11 +58,11 @@ void Mesh_API make_node_receive_lists(const SimpleCommunicationPattern::IndicesT
 /// Apply a communication pattern to the given range of CTable<Real>s.
 /// RangeT must iterable by BOOST_FOREACH
 template<typename RangeT>
-void apply_pattern_CTable(const SimpleCommunicationPattern& pattern, RangeT range)
+inline void apply_pattern_CTable(const SimpleCommunicationPattern& pattern, RangeT range)
 {
   //	 CFinfo << "applying pattern to CTable<Real>" << CFendl;
 
-  boost::mpi::communicator& world = CF::Common::mpi::PE::instance();
+  boost::mpi::communicator world;// = CF::Common::mpi::PE::instance();
   const Uint nb_procs = world.size();
   
   Uint total_width = 0;
@@ -133,11 +133,11 @@ void apply_pattern_CTable(const SimpleCommunicationPattern& pattern, RangeT rang
 /// Apply a communication pattern to the given range of CTable<Real>s.
 /// RangeT must iterable by BOOST_FOREACH
 template<typename ValueT,typename RangeT>
-void apply_pattern_clist(const SimpleCommunicationPattern& pattern, RangeT range)
+inline void apply_pattern_clist(const SimpleCommunicationPattern& pattern, RangeT range)
 {
 	typedef CList<ValueT> CListT;
 
-  boost::mpi::communicator& world = CF::Common::mpi::PE::instance();
+  boost::mpi::communicator world;// = CF::Common::mpi::PE::instance();
   const Uint nb_procs = world.size();
   
 	Uint total_width = 0;

@@ -273,28 +273,37 @@ endif()
 
 ################################################################################
 
-list( APPEND utest-blockmesh-mpi_cflibs coolfluid_blockmesh coolfluid_mesh_generation coolfluid_mesh_sf )
-list( APPEND utest-blockmesh-mpi_files  uTestBlockMeshMPI.cpp )
+if( CF_TMP_HAVE_SIMPLECOMM )
+    list( APPEND utest-blockmesh-mpi_cflibs coolfluid_mesh coolfluid_blockmesh coolfluid_mesh_generation coolfluid_mesh_sf )
+    list( APPEND utest-blockmesh-mpi_files  uTestBlockMeshMPI.cpp )
 
-set( utest-blockmesh-mpi_args ${CF_MPI_TESTS_SIZE} )
-set( utest-blockmesh-mpi_scaling ON )
+    set( utest-blockmesh-mpi_args ${CF_MPI_TESTS_SIZE} )
+    set( utest-blockmesh-mpi_scaling ON )
 
-set( utest-blockmesh-mpi_condition ${CF_TMP_HAVE_SIMPLECOMM})
+    set( utest-blockmesh-mpi_condition ${CF_TMP_HAVE_SIMPLECOMM})
 
-coolfluid_add_mpi_unittest( utest-blockmesh-mpi )
+    coolfluid_add_mpi_unittest( utest-blockmesh-mpi )
+
+else()
+    coolfluid_mark_not_orphan( uTestBlockMeshMPI.cpp )
+endif()
 
 ################################################################################
 
-list( APPEND utest-blockmesh-mpi-scale_cflibs coolfluid_blockmesh coolfluid_mesh_generation coolfluid_mesh_sf )
-list( APPEND utest-blockmesh-mpi-scale_files  uTestBlockMeshMPI.cpp )
+if( CF_TMP_HAVE_SIMPLECOMM )
+    list( APPEND utest-blockmesh-mpi-scale_cflibs coolfluid_blockmesh coolfluid_mesh_generation coolfluid_mesh_sf )
+    list( APPEND utest-blockmesh-mpi-scale_files  uTestBlockMeshMPI.cpp )
 
-set( utest-blockmesh-mpi-scale_args "${CF_MPI_TESTS_SIZE} scale" )
+    set( utest-blockmesh-mpi-scale_args "${CF_MPI_TESTS_SIZE} scale" )
 
-set( utest-blockmesh-mpi-scale_scaling ON )
+    set( utest-blockmesh-mpi-scale_scaling ON )
 
-set( utest-blockmesh-mpi-scale_condition ${CF_TMP_HAVE_SIMPLECOMM})
+    set( utest-blockmesh-mpi-scale_condition ${CF_TMP_HAVE_SIMPLECOMM})
 
-coolfluid_add_mpi_unittest( utest-blockmesh-mpi-scale )
+    coolfluid_add_mpi_unittest( utest-blockmesh-mpi-scale )
+else()
+    coolfluid_mark_not_orphan( uTestBlockMeshMPI.cpp )
+endif()
 
 
 

@@ -32,6 +32,7 @@
 
 using namespace CF;
 using namespace CF::Common;
+using namespace CF::Common::mpi;
 using namespace CF::Mesh;
 using namespace CF::Mesh::BlockMesh;
 using namespace CF::Tools::Testing;
@@ -194,12 +195,17 @@ BOOST_AUTO_TEST_CASE( ComputeVolume )
   if (PE::instance().rank() == 0)
   {
     Real total_volume;
-    boost::mpi::reduce(PE::instance(), volume, total_volume, std::plus<Real>(), 0);
+    ///@todo remove boost::mpi calls
+    boost::mpi::communicator world;
+    boost::mpi::reduce(world, volume, total_volume, std::plus<Real>(), 0);
     BOOST_CHECK_CLOSE(total_volume, 78.9568, 0.5);
   }
   else
   {
-    boost::mpi::reduce(PE::instance(), volume, std::plus<Real>(), 0);
+    Real total_volume;
+    ///@todo remove boost::mpi calls
+    boost::mpi::communicator world;
+    boost::mpi::reduce(world, volume, std::plus<Real>(), 0);
   }
 }
 
