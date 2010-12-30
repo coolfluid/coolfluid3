@@ -32,11 +32,9 @@ list( APPEND coolfluid_blockmesh_reader_files
 
 list( APPEND coolfluid_blockmesh_reader_cflibs coolfluid_mesh coolfluid_mesh_generation coolfluid_blockmesh coolfluid_mesh_sf )
 
-if(CF_TMP_HAVE_SIMPLECOMM)
-  coolfluid_add_library( coolfluid_blockmesh_reader )
-else()
-  coolfluid_mark_not_orphan( ${coolfluid_blockmesh_reader_files} )
-endif()
+set( coolfluid_blockmesh_reader_condition ${CF_TMP_HAVE_SIMPLECOMM})
+
+coolfluid_add_library( coolfluid_blockmesh_reader )
 
 if( CF_BLOCKMESHREADER_COMPILE_FLAGS )
   set_source_files_properties(Parser.cpp PROPERTIES COMPILE_FLAGS ${CF_BLOCKMESHREADER_COMPILE_FLAGS})

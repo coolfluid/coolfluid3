@@ -31,12 +31,13 @@ if(CF_ENABLE_PROTO)
 
   list( APPEND utest-proto-operators_cflibs coolfluid_mesh coolfluid_actions coolfluid_mesh_sf coolfluid_blockmesh coolfluid_testing coolfluid_mesh_generation coolfluid_solver )
   list( APPEND utest-proto-operators_files  utest-proto-operators.cpp )
+
   set( utest-proto-operators_profile ON )
-if(CF_TMP_HAVE_SIMPLECOMM)
+
+  set( utest-proto-operators_condition ${CF_TMP_HAVE_SIMPLECOMM})
+
   coolfluid_add_unittest( utest-proto-operators )
-else()
-  coolfluid_mark_not_orphan( ${utest-proto-operators_files} )
-endif()
+
   ################################################################################
 
   list( APPEND utest-proto-heat_cflibs coolfluid_mesh coolfluid_actions coolfluid_mesh_sf coolfluid_mesh_generation coolfluid_solver )

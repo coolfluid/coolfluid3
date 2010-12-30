@@ -220,11 +220,9 @@ list( APPEND utest-vector-benchmark_files  utest-vector-benchmark.cpp )
 
 set( utest-vector-benchmark_profile ON )
 
-if(CF_TMP_HAVE_SIMPLECOMM)
-  coolfluid_add_unittest( utest-vector-benchmark )
-else()
-  coolfluid_mark_not_orphan( ${utest-vector-benchmark_files} )
-endif()
+set( utest-vector-benchmark_condition ${CF_TMP_HAVE_SIMPLECOMM})
+
+coolfluid_add_unittest( utest-vector-benchmark )
 
 ################################################################################
 
@@ -281,11 +279,9 @@ list( APPEND utest-blockmesh-mpi_files  uTestBlockMeshMPI.cpp )
 set( utest-blockmesh-mpi_args ${CF_MPI_TESTS_SIZE} )
 set( utest-blockmesh-mpi_scaling ON )
 
-if(CF_TMP_HAVE_SIMPLECOMM)
-  coolfluid_add_mpi_unittest( utest-blockmesh-mpi )
-else()
-  coolfluid_mark_not_orphan( ${utest-blockmesh-mpi_files} )
-endif()
+set( utest-blockmesh-mpi_condition ${CF_TMP_HAVE_SIMPLECOMM})
+
+coolfluid_add_mpi_unittest( utest-blockmesh-mpi )
 
 ################################################################################
 
@@ -293,13 +289,12 @@ list( APPEND utest-blockmesh-mpi-scale_cflibs coolfluid_blockmesh coolfluid_mesh
 list( APPEND utest-blockmesh-mpi-scale_files  uTestBlockMeshMPI.cpp )
 
 set( utest-blockmesh-mpi-scale_args "${CF_MPI_TESTS_SIZE} scale" )
+
 set( utest-blockmesh-mpi-scale_scaling ON )
 
-if(CF_TMP_HAVE_SIMPLECOMM)
-  coolfluid_add_mpi_unittest( utest-blockmesh-mpi-scale )
-else()
-  coolfluid_mark_not_orphan( ${utest-blockmesh-mpi-scale_files} )
-endif()
+set( utest-blockmesh-mpi-scale_condition ${CF_TMP_HAVE_SIMPLECOMM})
+
+coolfluid_add_mpi_unittest( utest-blockmesh-mpi-scale )
 
 
 
