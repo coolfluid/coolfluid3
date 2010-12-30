@@ -57,7 +57,7 @@ void CElements::initialize(const std::string& element_type_name, CTable<Real>& c
   set_element_type(element_type_name);
 
   const Uint nb_nodes = m_element_type->nb_nodes();
-  m_connectivity_table->initialize(nb_nodes);
+  m_connectivity_table->set_row_size(nb_nodes);
   
   m_coordinates->link_to(coords_in.get());
 }

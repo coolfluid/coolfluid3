@@ -84,7 +84,7 @@ CTable<Real>& CRegion::create_coordinates(const Uint& dim)
   {
     coordinates = create_component<CTable<Real> >("coordinates");
     coordinates->add_tag("coordinates");
-    coordinates->initialize(dim);
+    coordinates->set_row_size(dim);
     
     CList<Uint>::Ptr global_indices = get_child<CList<Uint> >("global_indices");
     if (!global_indices)

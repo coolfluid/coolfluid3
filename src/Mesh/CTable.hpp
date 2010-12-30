@@ -80,9 +80,9 @@ public: // functions
   /// Initialize the array with a fixed column size and remove all existing rows, if any.
   /// The number of rows can be changed dynamically.
   /// @param[in] nb_cols number of columns in the table.
-  void initialize(const Uint nb_cols)
+  void set_row_size(const Uint nb_cols)
   {
-    m_array.resize(boost::extents[0][nb_cols]); 
+    m_array.resize(boost::extents[size()][nb_cols]); 
   }
 
   /// Resize the array to the given number of rows

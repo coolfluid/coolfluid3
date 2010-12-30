@@ -42,10 +42,7 @@ public:
   
   /// Contructor
   /// @param name of the component
-  CDynTable ( const std::string& name ) : Component(name)
-  {
-     
-  }
+  CDynTable ( const std::string& name ) : Component(name) { }
 
   ~CDynTable () {}
 
@@ -53,6 +50,22 @@ public:
   static std::string type_name () { return "CDynTable<"+class_name<T>()+">"; }
 
   Uint size() const { return m_array.size(); }
+  
+  void resize(const Uint new_size)
+  {
+    Uint difference = new_size - size();
+    if (difference > 0)
+    {
+      for (Uint i=0; i<difference; ++i)
+        m_array.push_back(std::vector<T>());
+    }
+    else
+    {
+      difference = -difference;
+      for (Uint i=0; i<difference; ++i)
+        m_array.pop_back();
+    }
+  }
   
   Uint row_size(const Uint i) const {return m_array[i].size();}
   
@@ -84,7 +97,9 @@ public:
   template<typename VectorT>
   void set_row(const Uint array_idx, const VectorT& row)
   {
-    cf_assert(row.size() == row_size(array_idx));
+    if (row.size() != row_size(array_idx))
+      m_array[array_idx].resize(row.size());
+
     for(Uint j=0; j<row.size(); ++j)
       m_array[array_idx][j] = row[j];
   }
@@ -103,7 +118,7 @@ public:
   ArrayT& array() { return m_array; }
 
   /// @return A const reference to the array data
-  const ArrayT& array() const { return m_array; }  
+  const ArrayT& array() const { return m_array; }
   
 private: // data
 

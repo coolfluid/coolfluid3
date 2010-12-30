@@ -59,11 +59,11 @@ struct Triag3DLagrangeP1Fixture
     const Uint nb_nodes = Triag3DLagrangeP1::nb_nodes;
     const bool closed = std::abs(std::abs(end_angle - start_angle) - 2.0*MathConsts::pi()) < eps();
 
-    coordinates.initialize(dim);
+    coordinates.set_row_size(dim);
     CTable<Real>::ArrayT& coord_array = coordinates.array();
     coord_array.resize(boost::extents[(u_segments + (!closed)) * (v_segments+1)][dim]);
 
-    connectivity.initialize(nb_nodes);
+    connectivity.set_row_size(nb_nodes);
     CTable<Uint>::ArrayT& conn_array = connectivity.array();
     conn_array.resize(boost::extents[2 * u_segments * v_segments][nb_nodes]);
     const Real v_step = height / v_segments;

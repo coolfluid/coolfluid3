@@ -59,11 +59,11 @@ struct LagrangeSFLine3DLagrangeP1Fixture
     const Real start_angle = 0.;
     const Real end_angle = tours*2.*MathConsts::pi();
 
-    coordinates.initialize(dim);
+    coordinates.set_row_size(dim);
     CTable<Real>::ArrayT& coord_array = coordinates.array();
     coord_array.resize(boost::extents[segments + 1][dim]);
 
-    connectivity.initialize(nb_nodes);
+    connectivity.set_row_size(nb_nodes);
     CTable<Uint>::ArrayT& conn_array = connectivity.array();
     conn_array.resize(boost::extents[segments][nb_nodes]);
     const Real height_step = height / segments;

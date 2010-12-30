@@ -107,11 +107,11 @@ void create_circle_2d(CTable<Real>& coordinates, CTable<Uint>& connectivity, con
   const Uint nb_nodes = 2;
   const bool closed = std::abs(std::abs(end_angle - start_angle) - 2.0*pi()) < eps();
 
-  coordinates.initialize(dim);
+  coordinates.set_row_size(dim);
   CTable<Real>::ArrayT& coord_array = coordinates.array();
   coord_array.resize(boost::extents[segments + (!closed)][dim]);
 
-  connectivity.initialize(nb_nodes);
+  connectivity.set_row_size(nb_nodes);
   CTable<Uint>::ArrayT& conn_array = connectivity.array();
   conn_array.resize(boost::extents[segments][nb_nodes]);
   for(Uint u = 0; u != segments; ++u)

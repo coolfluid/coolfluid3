@@ -43,15 +43,15 @@ struct MatrixInterpolationFixture
     MatrixInterpolationFixture()
     {
   	CTable<Real>::Ptr      V (new CTable<Real>("V"));
-        V->initialize(NDOF);
+        V->set_row_size(NDOF);
         V->resize(nbQdPts);
 
   	CTable<Real>::Ptr  dVdxi (new CTable<Real>("dVdxi"));
-        dVdxi->initialize(NDOF);
+        dVdxi->set_row_size(NDOF);
         dVdxi->resize(nbQdPts);
 
   	CTable<Real>::Ptr dVdeta (new CTable<Real>("dVdeta"));
-        dVdeta->initialize(NDOF);
+        dVdeta->set_row_size(NDOF);
         dVdeta->resize(nbQdPts);
 
         ShapeFunc::CoordsT ref_coord;

@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE( AddRemoveTest )
   CTable<Uint>::Ptr table (new CTable<Uint>("table"));
   // initialize with number of columns
   Uint nbCols = 3;
-  table->initialize(nbCols);
+  table->set_row_size(nbCols);
   // create a buffer to interact with the table
   CTable<Uint>::Buffer buffer = table->create_buffer();
 
@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE( FlushTest )
   CTable<Uint>::Ptr table (new CTable<Uint>("table"));
   // initialize with number of columns
   Uint nbCols = 3;
-  table->initialize(nbCols);
+  table->set_row_size(nbCols);
   // create a buffer to interact with the table with buffersize 3 (if no argument, use default buffersize)
   CTable<Uint>::Buffer buffer = table->create_buffer(3);
 
@@ -267,7 +267,7 @@ BOOST_AUTO_TEST_CASE( CTable_Uint_Test )
 
   // check initalization
   Uint nbCols = 5;
-  connTable.initialize(nbCols);
+  connTable.set_row_size(nbCols);
   CTable<Uint>::Buffer tableBuffer = connTable.create_buffer();
 
   BOOST_CHECK_EQUAL(connTable.size(),(Uint) 0);
@@ -320,7 +320,7 @@ BOOST_AUTO_TEST_CASE( CTable_Real_Test )
 
   // initialize the array
   Uint dim = 2;
-  coordinates->initialize(dim);
+  coordinates->set_row_size(dim);
   BOOST_CHECK_EQUAL(coordinates->row_size(),dim);
   CTable<Real>::Buffer coordinatesBuffer = coordinates->create_buffer();
 
@@ -341,7 +341,7 @@ BOOST_AUTO_TEST_CASE( CTable_Real_Test )
 BOOST_AUTO_TEST_CASE( CTable_Real_Templates )
 {
   CTable<Real> vectorArray("vector");
-  vectorArray.initialize(3);
+  vectorArray.set_row_size(3);
   //CFinfo << "numdim = " << CTable<Real><VECTOR>::Array::NumDims() << "\n" << CFflush;
 
   // CTable<Real><SCALAR> scalarArray("scalar");
@@ -436,7 +436,7 @@ BOOST_AUTO_TEST_CASE( ListAddRemoveTest )
   CTable<Uint>::Ptr table (new CTable<Uint>("table"));
   // initialize with number of columns
   Uint nbCols = 3;
-  table->initialize(nbCols);
+  table->set_row_size(nbCols);
   // create a buffer to interact with the table
   CTable<Uint>::Buffer buffer = table->create_buffer();
 

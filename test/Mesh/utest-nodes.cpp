@@ -22,6 +22,7 @@
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/ElementData.hpp"
+#include "Mesh/CNodes.hpp"
 
 #include "Mesh/Integrators/Gauss.hpp"
 
@@ -115,6 +116,20 @@ BOOST_AUTO_TEST_CASE( FillMatrix )
       }
     }
   }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( Construct_CNodes )
+{
+  CNodes::Ptr nodes = allocate_component<CNodes>("nodes");
+  BOOST_CHECK( is_not_null(nodes) );
+  
+  nodes->resize(10);
+  BOOST_CHECK_EQUAL(nodes->coordinates().size() , 10);
+  BOOST_CHECK_EQUAL(nodes->glb_elem_connectivity().size() , 10);
+  BOOST_CHECK_EQUAL(nodes->is_ghost().size() , 10);
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
