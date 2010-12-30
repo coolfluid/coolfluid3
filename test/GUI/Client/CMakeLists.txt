@@ -1,7 +1,7 @@
 ################################################################################
 # Test Client
 
-if( QT_QTTEST_FOUND )
+if( QT_QTTEST_FOUND AND CF_ENABLE_GUI)
 
 set(utest-client_moc_classes
   CommonFunctions.hpp
@@ -45,5 +45,28 @@ add_custom_command(TARGET utest-client
                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/tree.xml ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                   )
 
-
+else()
+    coolfluid_mark_not_orphan(
+        CommonFunctions.hpp
+        NTreeTest.hpp
+        NBrowserTest.hpp
+        NLinkTest.hpp
+        CNodeTest.hpp
+        utest-client.cpp
+        ExceptionThrowHandler.hpp
+        NTreeTest.hpp
+        NTreeTest.cpp
+        CommonFunctions.cpp
+        CommonFunctions.hpp
+        CNodeTest.hpp
+        CNodeTest.cpp
+        MyNode.cpp
+        MyNode.hpp
+        NBrowserTest.cpp
+        NBrowserTest.hpp
+        NLinkTest.cpp
+        NLinkTest.hpp
+        TreeHandler.cpp
+        TreeHandler.hpp
+        )
 endif()
