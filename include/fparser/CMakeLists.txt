@@ -16,7 +16,7 @@ if( CF_HAVE_MATH_HYPOT )
   add_definitions( -DFP_SUPPORT_HYPOT )
 endif()
 
-list( APPEND fparser_files 
+list( APPEND coolfluid_fparser_files
   LibFParser.hpp
   fpconfig.hh
   fptypes.hh
@@ -34,19 +34,19 @@ list( APPEND fparser_files
 # mpfr/MpfrFloat.cc
 )
 
-list( APPEND fparser_libs ${CMATH_LIBRARIES} )
-set( fparser_kernellib TRUE )
+list( APPEND coolfluid_fparser_libs ${CMATH_LIBRARIES} )
+set( coolfluid_fparser_kernellib TRUE )
 
-coolfluid_add_library( fparser )
+coolfluid_add_library( coolfluid_fparser )
 
 # first example
 # list( APPEND utest-fparser-1_files examples/example.cc )
-# list( APPEND utest-fparser-1_cflibs fparser )
+# list( APPEND utest-fparser-1_cflibs coolfluid_fparser )
 
 # coolfluid_add_unittest( utest-fparser-1 )
 
 # second example
 # list( APPEND utest-fparser-2_files examples/example2.cc )
-# list( APPEND utest-fparser-2_cflibs fparser )
+# list( APPEND utest-fparser-2_cflibs coolfluid_fparser )
 
 # coolfluid_add_unittest( utest-fparser-2 )

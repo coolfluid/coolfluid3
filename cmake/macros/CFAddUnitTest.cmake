@@ -8,43 +8,33 @@ macro( coolfluid_prepare_unittest UTESTNAME )
   option( CF_BUILD_${UTESTNAME} "Build the ${UTESTNAME} testing application" ON )
   mark_as_advanced(CF_BUILD_${UTESTNAME})
 
+  #
+  #
+  #
+  #
+  #
+  #
+  #
+  #
+  #
+  #
+  #
+
   # check if all required modules are present
-  set( ${UTESTNAME}_all_mods_pres ON )
-  foreach( reqmod ${${UTESTNAME}_requires_mods} )
-    list( FIND CF_MODULES_LIST ${reqmod} pos )
+  set( ${UTESTNAME}_has_all_plugins TRUE )
+  foreach( req_plugin ${${UTESTNAME}_requires_plugins} )
+    list( FIND CF_PLUGIN_LIST ${req_plugin} pos )
     if( ${pos} EQUAL -1 )
-      set( ${UTESTNAME}_all_mods_pres OFF )
+      set( ${UTESTNAME}_has_all_plugins FALSE )
       if( CF_BUILD_${UTESTNAME} )
-          coolfluid_log_verbose( "     \# utest [${UTESTNAME}] requires module [${reqmod}] which is not present")
+          coolfluid_log_verbose( "     \# UTEST [${UTESTNAME}] requires plugin [${req_plugin}] which is not present")
       endif()
     endif()
   endforeach()
 
-  # check that all CF dependencies will be compiling
-  # else skip this uTest
-  set( ${UTESTNAME}_all_cfdeps_ok ON )
-  foreach( reqlib ${${UTESTNAME}_cflibs} )
-    if( NOT ${${reqlib}_will_compile} )
-       set( ${UTESTNAME}_all_cfdeps_ok OFF )
-       if( CF_BUILD_${UTESTNAME} )
-           coolfluid_log_verbose( "     \# utest [${UTESTNAME}] requires cflib [${reqlib}] which will not compile")
-       endif()
-    endif()
-  endforeach()
-  mark_as_advanced( ${UTESTNAME}_all_cfdeps_ok )
-
   set( ${UTESTNAME}_dir ${CMAKE_CURRENT_SOURCE_DIR} )
 
-  if( CF_BUILD_${UTESTNAME} AND ${UTESTNAME}_all_cfdeps_ok AND ${UTESTNAME}_all_mods_pres)
-    set( ${UTESTNAME}_will_compile ON )
-  else()
-    set( ${UTESTNAME}_will_compile OFF )
-  endif()
-
-  coolfluid_log_verbose("${UTESTNAME} = ${${UTESTNAME}_will_compile}")
-
-  # separate the source files
-  # and remove them from the orphan list
+  # separate the source files and remove them from the orphan list
 
   coolfluid_separate_sources("${${UTESTNAME}_files}" ${UTESTNAME})
 
@@ -58,14 +48,20 @@ macro( coolfluid_prepare_unittest UTESTNAME )
     set( ${UTESTNAME}_condition TRUE )
   endif()
 
-  # compile if selected and all required modules are present
-  if( ${UTESTNAME}_will_compile AND ${UTESTNAME}_condition )
+  if( CF_BUILD_${UTESTNAME} AND ${UTESTNAME}_all_cfdeps_ok AND ${UTESTNAME}_has_all_plugins AND ${UTESTNAME}_condition )
+    set( ${UTESTNAME}_builds YES CACHE BOOL INTERNAL "" )
+  else()
+    set( ${UTESTNAME}_builds NO  CACHE BOOL INTERNAL "" )
+  endif()
 
-    if( DEFINED ${UTESTNAME}_includedirs )
-      INCLUDE_DIRECTORIES(${${UTESTNAME}_includedirs})
-    endif()
+  # compile if selected and all required modules are present
+  if( ${UTESTNAME}_builds )
 
     coolfluid_log( " +++ UTEST [${UTESTNAME}]" )
+
+    if( DEFINED ${UTESTNAME}_includedirs )
+      include_directories(${${UTESTNAME}_includedirs})
+    endif()
 
     if( DEFINED ${UTESTNAME}_moc_files )
       add_executable( ${UTESTNAME} ${${UTESTNAME}_sources} ${${UTESTNAME}_headers}  ${${UTESTNAME}_moc_files})
@@ -73,9 +69,8 @@ macro( coolfluid_prepare_unittest UTESTNAME )
       add_executable( ${UTESTNAME} ${${UTESTNAME}_sources} ${${UTESTNAME}_headers})
     endif()
 
-    if(CF_INSTALL_TESTS)
-      # add installation paths
-      INSTALL( TARGETS ${UTESTNAME}
+    if(CF_INSTALL_TESTS)  # add installation paths
+      install( TARGETS ${UTESTNAME}
         RUNTIME DESTINATION ${CF_INSTALL_BIN_DIR}
         LIBRARY DESTINATION ${CF_INSTALL_LIB_DIR}
         ARCHIVE DESTINATION ${CF_INSTALL_LIB_DIR}
@@ -117,15 +112,15 @@ macro( coolfluid_prepare_unittest UTESTNAME )
   get_target_property( ${UTESTNAME}_LINK_FLAGS       ${UTESTNAME} LINK_FLAGS )
   get_target_property( ${UTESTNAME}_TYPE             ${UTESTNAME} TYPE )
 
-  # log some info about the app
-  coolfluid_log_file("${UTESTNAME} : [${CF_BUILD_${UTESTNAME}}]")
-  coolfluid_log_file("${UTESTNAME} : [${${UTESTNAME}_will_compile}]")
+  # log some info about the unit test
+  coolfluid_log_file("${UTESTNAME} user option     : [${CF_BUILD_${UTESTNAME}}]")
+  coolfluid_log_file("${UTESTNAME}_builds          : [${${UTESTNAME}_builds}]")
   coolfluid_log_file("${UTESTNAME}_dir             : [${${UTESTNAME}_dir}]")
   coolfluid_log_file("${UTESTNAME}_includedirs     : [${${UTESTNAME}_includedirs}]")
   coolfluid_log_file("${UTESTNAME}_libs            : [${${UTESTNAME}_libs}]")
   coolfluid_log_file("${UTESTNAME}_cflibs          : [${${UTESTNAME}_cflibs}]")
-  coolfluid_log_file("${UTESTNAME}_all_mods_pres   : [${${UTESTNAME}_all_mods_pres}]")
-  coolfluid_log_file("${UTESTNAME}_requires_mods   : [${${UTESTNAME}_requires_mods}]")
+  coolfluid_log_file("${UTESTNAME}_has_all_plugins : [${${UTESTNAME}_has_all_plugins}]")
+  coolfluid_log_file("${UTESTNAME}_requires_plugins: [${${UTESTNAME}_requires_plugins}]")
   coolfluid_log_file("${UTESTNAME}_P_SOURCES       : [${${UTESTNAME}_P_SOURCES}]")
   coolfluid_log_file("${UTESTNAME}_LINK_FLAGS      : [${${UTESTNAME}_LINK_FLAGS}]")
   coolfluid_log_file("${UTESTNAME}_TYPE            : [${${UTESTNAME}_TYPE}]")
@@ -133,18 +128,27 @@ macro( coolfluid_prepare_unittest UTESTNAME )
 
 endmacro( coolfluid_prepare_unittest )
 
+##############################################################################
+##############################################################################
+
 macro( coolfluid_add_unittest UTESTNAME )
+
 coolfluid_prepare_unittest(${UTESTNAME})
-if(${UTESTNAME}_will_compile)
+if(${UTESTNAME}_builds)
   # add to the test database
   add_test( ${UTESTNAME} ${UTESTNAME} ${${UTESTNAME}_args})
 endif()
+
 endmacro( coolfluid_add_unittest )
 
+##############################################################################
+##############################################################################
+
 macro( coolfluid_add_mpi_unittest UTESTNAME )
+
 if(CF_MPI_TESTS_RUN)
   coolfluid_prepare_unittest(${UTESTNAME})
-  if(${UTESTNAME}_will_compile)
+  if(${UTESTNAME}_builds)
     # add to the test database
     add_test( ${UTESTNAME} ${CF_MPIRUN_PROGRAM} "-np" ${CF_MPI_TESTS_NB_PROCS} ${UTESTNAME} ${${UTESTNAME}_args})
     if(CF_MPI_TESTS_RUN_SCALABILITY AND ${UTESTNAME}_scaling)
@@ -154,4 +158,8 @@ if(CF_MPI_TESTS_RUN)
 else(CF_MPI_TESTS_RUN)
   coolfluid_mark_not_orphan(${${UTESTNAME}_files})
 endif(CF_MPI_TESTS_RUN)
+
 endmacro( coolfluid_add_mpi_unittest )
+
+##############################################################################
+##############################################################################

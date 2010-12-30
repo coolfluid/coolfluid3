@@ -15,7 +15,7 @@ VectorialFunction.hpp
 VectorialFunction.cpp
 )
 
-list( APPEND coolfluid_math_cflibs fparser coolfluid_common )
+list( APPEND coolfluid_math_cflibs coolfluid_fparser coolfluid_common )
 
 set( coolfluid_math_kernellib TRUE )
 

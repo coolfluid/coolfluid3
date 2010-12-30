@@ -1,11 +1,17 @@
 # list of plugins distributed with the kernel
 
-add_subdirectory( BlockMeshReader ) # reader of OpenFOAM block mesh format
+# reader of OpenFOAM block mesh format
+coolfluid_define_plugin( BlockMeshReader "${CMAKE_CURRENT_SOURCE_DIR}/BlockMeshReader" )
+add_subdirectory( BlockMeshReader )
 
-add_subdirectory( CGAL )            # CGAL mesh generator
+# CGAL mesh generator
+coolfluid_define_plugin( CGAL "${CMAKE_CURRENT_SOURCE_DIR}/CGAL" )
+add_subdirectory( CGAL )
 
-add_subdirectory( UFEM )            # UFEM Finite Element solver
+# UFEM Finite Element solver
+coolfluid_define_plugin( UFEM "${CMAKE_CURRENT_SOURCE_DIR}/UFEM" )
+add_subdirectory( UFEM )
 
-add_subdirectory( RDM  )            # Residual Distribution solver
-
-
+# Residual Distribution solver
+coolfluid_define_plugin( RDM "${CMAKE_CURRENT_SOURCE_DIR}/RDM" )
+add_subdirectory( RDM  )

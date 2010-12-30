@@ -120,8 +120,7 @@ endif()
 
 # sandbox is where we play around before putting stuff in the released code, off by default
 if( CF_ENABLE_SANDBOX )
-  include_directories( ${coolfluid_SOURCE_DIR}/sandbox )
-  add_subdirectory( sandbox )
+  add_subdirectory( sandbox EXCLUDE_FROM_ALL )
 endif()
 
 coolfluid_log( "" )
@@ -158,9 +157,7 @@ foreach( EXDIR ${CF_PLUGIN_DIRS} )
 
       get_filename_component( aPluginName ${aPluginDir} NAME )
 
-      list( APPEND CF_PLUGIN_LIST ${aPluginName} )
-
-      coolfluid_log( " + PLUGIN [${aPluginName}]" )
+      coolfluid_define_plugin( ${aPluginName} ${aPluginDir} )
 
       add_subdirectory( ${aPluginDir} plugins/${aPluginName} )
 

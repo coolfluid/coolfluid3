@@ -1,7 +1,7 @@
 ################################################################################
 # test Component CAction
 
-list( APPEND utest-actions_cflibs coolfluid_actions coolfluid_mesh_sf coolfluid_gmsh coolfluid_neutral)
+list( APPEND utest-actions_cflibs coolfluid_actions coolfluid_mesh_sf coolfluid_mesh_gmsh coolfluid_mesh_neutral)
 list( APPEND utest-actions_files
   CDummyLoopOperation.hpp
   CDummyLoopOperation.cpp

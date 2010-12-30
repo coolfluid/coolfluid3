@@ -1,4 +1,4 @@
-list( APPEND coolfluid_gmsh_files
+list( APPEND coolfluid_mesh_gmsh_files
   CWriter.hpp
   CWriter.cpp
   CReader.hpp
@@ -9,8 +9,8 @@ list( APPEND coolfluid_gmsh_files
   Shared.hpp
 )
 
-list( APPEND coolfluid_gmsh_cflibs coolfluid_mesh )
+list( APPEND coolfluid_mesh_gmsh_cflibs coolfluid_mesh )
 
-set( coolfluid_gmsh_kernellib TRUE )
+set( coolfluid_mesh_gmsh_kernellib TRUE )
 
-coolfluid_add_library( coolfluid_gmsh )
+coolfluid_add_library( coolfluid_mesh_gmsh )

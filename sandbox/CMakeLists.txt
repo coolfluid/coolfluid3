@@ -1,5 +1,7 @@
 # coolfluid_find_orphan_files()
 
+include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
+
 ###############################################################################
 ### test for boost::lambda
 add_subdirectory( boost-lambda )

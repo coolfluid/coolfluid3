@@ -20,41 +20,49 @@ macro( coolfluid_add_library LIBNAME )
     set( ${LIBNAME}_buildtype STATIC )
   endif()
 
-  # do we still need this in CF3???
-
-  # check if all required modules are present
-  set( ${LIBNAME}_all_mods_pres ON )
-  foreach( reqmod ${${LIBNAME}_requires_mods} )
-    list( FIND CF_MODULES_LIST ${reqmod} pos )
+  # check if all required plugins are present
+  set( ${LIBNAME}_has_all_plugins TRUE )
+  foreach( req_plugin ${${LIBNAME}_requires_plugins} )
+    list( FIND CF_PLUGIN_LIST ${req_plugin} pos )
     if( ${pos} EQUAL -1 )
-      set( ${LIBNAME}_all_mods_pres OFF )
+      set( ${LIBNAME}_has_all_plugins FALSE )
       if( CF_BUILD_${LIBNAME} )
-          coolfluid_log_verbose( "\# lib [${LIBNAME}] requires module [${reqmod}] which is not present")
+          coolfluid_log_verbose( "\# LIB [${LIBNAME}] requires plugin [${req_plugin}] which is not present")
       endif()
     endif()
   endforeach()
 
-  if(CF_BUILD_${LIBNAME} AND ${LIBNAME}_all_mods_pres)
-    set( ${LIBNAME}_will_compile ON )
-  else()
-    set( ${LIBNAME}_will_compile OFF )
-  endif()
-
   set( ${LIBNAME}_dir ${CMAKE_CURRENT_SOURCE_DIR} )
-  set( CF_COMPILES_${LIBNAME} ${${LIBNAME}_will_compile} CACHE INTERNAL "" )
 
-  coolfluid_log_verbose("lib_${LIBNAME} = ${${LIBNAME}_will_compile}")
-
-  # separate the source files
-  # and remove them from the orphan list
+  # separate the source files and remove them from the orphan list
 
   coolfluid_separate_sources("${${LIBNAME}_files}" ${LIBNAME})
 
   source_group( Headers FILES ${${LIBNAME}_headers} )
   source_group( Sources FILES ${${LIBNAME}_sources} )
 
+  # set condition if not set outside, default is TRUE
+  if( DEFINED  ${LIBNAME}_condition )
+    coolfluid_log_verbose("${LIBNAME} has condition [${${LIBNAME}_condition}]")
+  else()
+    set( ${LIBNAME}_condition TRUE )
+  endif()
+
+  if(CF_BUILD_${LIBNAME} AND ${LIBNAME}_has_all_plugins AND ${LIBNAME}_condition)
+    set( ${LIBNAME}_builds YES CACHE BOOL INTERNAL "" )
+  else()
+    set( ${LIBNAME}_builds NO  CACHE BOOL INTERNAL "" )
+  endif()
+
   # compile if selected and all required modules are present
-  if(${LIBNAME}_will_compile)
+  if(${LIBNAME}_builds )
+
+    coolfluid_log( " +++ LIB   [${LIBNAME}]" )
+
+    # add include dirs if defined
+    if( DEFINED ${LIBNAME}_includedirs )
+      include_directories(${${LIBNAME}_includedirs})
+    endif()
 
     # if is kernel library
     # add the library to the list of kernel libs
@@ -63,28 +71,20 @@ macro( coolfluid_add_library LIBNAME )
     # default for plugin libs is not to install
     if( ${LIBNAME}_kernellib )
         option( CF_BUILD_${LIBNAME}_API "Publish the ${LIBNAME} (kernel) library API" ON )
-        coolfluid_append_cached_list( CF_KERNEL_LIBS ${LIBNAME} )
+        set( CF_KERNEL_LIBS ${CF_KERNEL_LIBS} ${LIBNAME} CACHE INTERNAL "" )
     else()
         option( CF_BUILD_${LIBNAME}_API "Publish the ${LIBNAME} (plugin) library API" OFF )
     endif()
     mark_as_advanced( CF_BUILD_${LIBNAME}_API )	# and mark the option advanced
 
-
-    # add include dirs if defined
-    if( DEFINED ${LIBNAME}_includedirs )
-      INCLUDE_DIRECTORIES(${${LIBNAME}_includedirs})
-    endif()
-
-    coolfluid_log( " +++ LIB   [${LIBNAME}]" )
-
-    ADD_LIBRARY(${LIBNAME} ${${LIBNAME}_buildtype} ${${LIBNAME}_sources} ${${LIBNAME}_headers}  ${${LIBNAME}_moc_files} ${${LIBNAME}_RCC})
+    add_library(${LIBNAME} ${${LIBNAME}_buildtype} ${${LIBNAME}_sources} ${${LIBNAME}_headers}  ${${LIBNAME}_moc_files} ${${LIBNAME}_RCC})
 
     SET_TARGET_PROPERTIES( ${LIBNAME} PROPERTIES LINK_FLAGS "${CF_LIBRARY_LINK_FLAGS}" )
     string( TOUPPER ${LIBNAME} LIBNAME_CAPS )
     SET_TARGET_PROPERTIES( ${LIBNAME} PROPERTIES DEFINE_SYMBOL ${LIBNAME_CAPS}_EXPORTS )
 
     # add installation paths
-    INSTALL ( TARGETS ${LIBNAME}
+    install( TARGETS ${LIBNAME}
       RUNTIME DESTINATION ${CF_INSTALL_BIN_DIR} COMPONENT libraries
       LIBRARY DESTINATION ${CF_INSTALL_LIB_DIR} COMPONENT libraries
       ARCHIVE DESTINATION ${CF_INSTALL_LIB_DIR} COMPONENT libraries
@@ -114,13 +114,13 @@ macro( coolfluid_add_library LIBNAME )
     # add external dependency libraries if defined
     if( DEFINED ${LIBNAME}_libs )
       #	message( STATUS "${LIBNAME} has ${${LIBNAME}_libs}}" )
-      TARGET_LINK_LIBRARIES( ${LIBNAME} ${${LIBNAME}_libs} )
+      target_link_libraries( ${LIBNAME} ${${LIBNAME}_libs} )
     endif()
 
     # if mpi was found add it to the libraries
     if(CF_HAVE_MPI AND NOT CF_HAVE_MPI_COMPILER)
     #           message( STATUS "${LIBNAME} links to ${MPI_LIBRARIES}" )
-        TARGET_LINK_LIBRARIES( ${LIBNAME} ${MPI_LIBRARIES} )
+        target_link_libraries( ${LIBNAME} ${MPI_LIBRARIES} )
     endif()
 
     # only add link in dso library if building shared libs
@@ -155,18 +155,20 @@ macro( coolfluid_add_library LIBNAME )
   get_target_property( ${LIBNAME}_LINK_LIBRARIES  ${LIBNAME} LINK_LIBRARIES )
 
   # log some info about the library
-  coolfluid_log_file("${LIBNAME} enabled         : [${CF_BUILD_${LIBNAME}}]")
-  coolfluid_log_file("${LIBNAME} will compile    : [${${LIBNAME}_will_compile}]")
-  coolfluid_log_file("${LIBNAME} install dir     : [${${LIBNAME}_INSTALL_HEADERS}]")
-  coolfluid_log_file("${LIBNAME} install API     : [${CF_BUILD_${LIBNAME}_API}]")
+  coolfluid_log_file("${LIBNAME} user option     : [${CF_BUILD_${LIBNAME}}]")
+  coolfluid_log_file("${LIBNAME}_builds          : [${${LIBNAME}_builds}]")
   coolfluid_log_file("${LIBNAME}_dir             : [${${LIBNAME}_dir}]")
   coolfluid_log_file("${LIBNAME}_kernellib       : [${${LIBNAME}_kernellib}]")
   coolfluid_log_file("${LIBNAME}_includedirs     : [${${LIBNAME}_includedirs}]")
   coolfluid_log_file("${LIBNAME}_libs            : [${${LIBNAME}_libs}]")
-  coolfluid_log_file("${LIBNAME}_all_mods_pres   : [${${LIBNAME}_all_mods_pres}]")
-  coolfluid_log_file("${LIBNAME}_requires_mods   : [${${LIBNAME}_requires_mods}]")
+  coolfluid_log_file("${LIBNAME}_cflibs          : [${${UTESTNAME}_cflibs}]")
+  coolfluid_log_file("${LIBNAME}_has_all_plugins : [${${LIBNAME}_has_all_plugins}]")
+  coolfluid_log_file("${LIBNAME}_requires_plugins: [${${LIBNAME}_requires_plugins}]")
   coolfluid_log_file("${LIBNAME}_sources         : [${${LIBNAME}_sources}]")
   coolfluid_log_file("${LIBNAME}_LINK_LIBRARIES  : [${${LIBNAME}_LINK_LIBRARIES}]")
+
+  coolfluid_log_file("${LIBNAME} install dir     : [${${LIBNAME}_INSTALL_HEADERS}]")
+  coolfluid_log_file("${LIBNAME} install API     : [${CF_BUILD_${LIBNAME}_API}]")
 
   #coolfluid_install_targets( ${LIBNAME} )
 

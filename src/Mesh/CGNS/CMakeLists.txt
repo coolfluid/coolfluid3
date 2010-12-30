@@ -1,6 +1,6 @@
 if(CF_HAVE_CGNS)
 
-  list( APPEND coolfluid_cgns3_files
+  list( APPEND coolfluid_mesh_cgns3_files
     LibCGNS.cpp
     LibCGNS.hpp
     Shared.hpp
@@ -12,13 +12,13 @@ if(CF_HAVE_CGNS)
     CGNSExceptions.hpp
   )
 
-  list( APPEND coolfluid_cgns3_includedirs ${CGNS_INCLUDE_DIR} )
-  list( APPEND coolfluid_cgns3_libs ${CGNS_LIBRARIES} )
-  list( APPEND coolfluid_cgns3_cflibs coolfluid_mesh )
+  list( APPEND coolfluid_mesh_cgns3_includedirs ${CGNS_INCLUDE_DIR} )
+  list( APPEND coolfluid_mesh_cgns3_libs ${CGNS_LIBRARIES} )
+  list( APPEND coolfluid_mesh_cgns3_cflibs coolfluid_mesh )
 
-  set( coolfluid_cgns3_kernellib TRUE )
+  set( coolfluid_mesh_cgns3_kernellib TRUE )
 
-  coolfluid_add_library( coolfluid_cgns3 )
+  coolfluid_add_library( coolfluid_mesh_cgns3 )
 
 else()
 
