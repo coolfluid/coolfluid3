@@ -4,15 +4,9 @@
 
 macro( coolfluid_prepare_unittest UTESTNAME )
 
-  # option to build it or not
+  # option to build it or not (option is advanced and does not appear in the cmake gui)
   option( CF_BUILD_${UTESTNAME} "Build the ${UTESTNAME} testing application" ON )
-  # this option is advanced (does not appear in the cmake gui)
   mark_as_advanced(CF_BUILD_${UTESTNAME})
-
-  # add to list of local apps
-  list( APPEND CF_LOCAL_UTESTNAMES ${UTESTNAME} )
-
-#   coolfluid_debug_var(CF_MODULES_LIST)
 
   # check if all required modules are present
   set( ${UTESTNAME}_all_mods_pres ON )
@@ -47,7 +41,7 @@ macro( coolfluid_prepare_unittest UTESTNAME )
     set( ${UTESTNAME}_will_compile OFF )
   endif()
 
-  coolfluid_log_verbose("test_${UTESTNAME} = ${${UTESTNAME}_will_compile}")
+  coolfluid_log_verbose("${UTESTNAME} = ${${UTESTNAME}_will_compile}")
 
   # separate the source files
   # and remove them from the orphan list
@@ -57,8 +51,15 @@ macro( coolfluid_prepare_unittest UTESTNAME )
   source_group( Headers FILES ${${UTESTNAME}_headers} )
   source_group( Sources FILES ${${UTESTNAME}_sources} )
 
+  # set condition if not set outside, default is TRUE
+  if( DEFINED  ${UTESTNAME}_condition )
+    coolfluid_log_verbose("${UTESTNAME} has condition [${${UTESTNAME}_condition}]")
+  else()
+    set( ${UTESTNAME}_condition TRUE )
+  endif()
+
   # compile if selected and all required modules are present
-  if(${UTESTNAME}_will_compile)
+  if( ${UTESTNAME}_will_compile AND ${UTESTNAME}_condition )
 
     if( DEFINED ${UTESTNAME}_includedirs )
       INCLUDE_DIRECTORIES(${${UTESTNAME}_includedirs})

@@ -30,7 +30,7 @@ macro( coolfluid_mark_not_orphan )
   endforeach()
 
   # rewrite the orphan file list in cache
-  set( CF_ORPHAN_FILES ${CF_ORPHAN_FILES} CACHE INTERNAL "" FORCE )
+  set( CF_ORPHAN_FILES ${CF_ORPHAN_FILES} CACHE INTERNAL "" )
 
 endmacro()
 ##############################################################################
@@ -43,10 +43,10 @@ function( coolfluid_find_orphan_files )
 	coolfluid_list_project_files( cwdFiles )
 
 	# append found files to orphan files (will be removed later as they are used)
-	set( CF_PROJECT_FILES ${CF_PROJECT_FILES} ${cwdFiles} CACHE INTERNAL "" FORCE )
+  set( CF_PROJECT_FILES ${CF_PROJECT_FILES} ${cwdFiles} CACHE INTERNAL "" )
 
 	# append found files to orphan files (will be removed later as they are used)
-	set( CF_ORPHAN_FILES ${CF_ORPHAN_FILES} ${cwdFiles} CACHE INTERNAL "" FORCE )
+  set( CF_ORPHAN_FILES ${CF_ORPHAN_FILES} ${cwdFiles} CACHE INTERNAL "" )
 
 endfunction()
 ##############################################################################

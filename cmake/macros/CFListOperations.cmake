@@ -13,6 +13,6 @@ endmacro()
 ##############################################################################
 macro( coolfluid_append_cached_list THELIST THEVAR )
   coolfluid_remove_cached_list(${THELIST} ${THEVAR})
-  set( ${THELIST} ${${THELIST}} ${THEVAR} CACHE INTERNAL "" FORCE )
+  set( ${THELIST} ${${THELIST}} ${THEVAR} CACHE INTERNAL "" )
 endmacro()
 ##############################################################################

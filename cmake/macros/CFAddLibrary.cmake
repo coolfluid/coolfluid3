@@ -4,9 +4,9 @@
 
 macro( coolfluid_add_library LIBNAME )
 
-  # option to build it or not
+  # option to build it or not (option is advanced and does not appear in the cmake gui)
   option( CF_BUILD_${LIBNAME} "Build the ${LIBNAME} library" ON )
-  mark_as_advanced( CF_BUILD_${LIBNAME}_API )	# and mark the option advanced
+  mark_as_advanced( CF_BUILD_${LIBNAME} )
 
   # by default libraries are not part of the kernel
   if( NOT DEFINED ${LIBNAME}_kernellib )
@@ -19,9 +19,6 @@ macro( coolfluid_add_library LIBNAME )
   else()
     set( ${LIBNAME}_buildtype STATIC )
   endif()
-
-  # add to list of local libs
-  list( APPEND CF_LOCAL_LIBNAMES ${LIBNAME} )
 
   # do we still need this in CF3???
 
@@ -44,7 +41,7 @@ macro( coolfluid_add_library LIBNAME )
   endif()
 
   set( ${LIBNAME}_dir ${CMAKE_CURRENT_SOURCE_DIR} )
-  set( CF_COMPILES_${LIBNAME} ${${LIBNAME}_will_compile} CACHE INTERNAL "" FORCE )
+  set( CF_COMPILES_${LIBNAME} ${${LIBNAME}_will_compile} CACHE INTERNAL "" )
 
   coolfluid_log_verbose("lib_${LIBNAME} = ${${LIBNAME}_will_compile}")
 

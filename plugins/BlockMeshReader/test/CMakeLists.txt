@@ -5,11 +5,11 @@ list( APPEND utest-block-mesh-reader_files   utest-block-mesh-reader.cpp )
 
 list( APPEND utest-block-mesh-reader_args ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} )
 
-if(CF_TMP_HAVE_SIMPLECOMM)
-  coolfluid_add_unittest( utest-block-mesh-reader )
-else()
-  coolfluid_mark_not_orphan( ${utest-block-mesh-reader_files} )
-endif()
+set( utest-block-mesh-reader_condition ${CF_TMP_HAVE_SIMPLECOMM} )
+
+coolfluid_add_unittest( utest-block-mesh-reader )
+
+################################################################################
 
 list( APPEND dict_files
   cavity2d.dict
@@ -19,6 +19,7 @@ list( APPEND dict_files
   uTestBlockMeshReader-Cavity2D-reference.neu
   uTestBlockMeshReader-PitzDaily-reference.neu
  )
+
 foreach( dfile ${dict_files} )
   add_custom_command(TARGET utest-block-mesh-reader
                      POST_BUILD

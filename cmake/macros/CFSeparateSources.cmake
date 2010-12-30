@@ -33,7 +33,7 @@ macro( coolfluid_separate_sources FILELIST TGTNAME )
     endif()
 
     # rewrite the orphan file list in cache
-    set( CF_ORPHAN_FILES ${CF_ORPHAN_FILES} CACHE INTERNAL "" FORCE )
+    set( CF_ORPHAN_FILES ${CF_ORPHAN_FILES} CACHE INTERNAL "" )
   
   endforeach()
 
