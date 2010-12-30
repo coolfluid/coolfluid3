@@ -53,7 +53,7 @@ LoadMesh::LoadMesh ( const std::string& name  ) :
   regist_signal ( "load_mesh" , "Loads meshes, guessing automatically the format", "Load Mesh" )->connect ( boost::bind ( &LoadMesh::signal_load_mesh, this, _1 ) );
 
   signal("load_mesh").signature
-      .insert<URI>("Path to domain", "Path to the domain to hold the mesh")
+      .insert<URI>("Domain", "Path to the domain to hold the mesh")
       .insert_array<URI>( "Files" , "Files to read" );
 
   signal("create_component").is_hidden = true;
