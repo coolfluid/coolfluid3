@@ -14,11 +14,6 @@ macro( coolfluid_add_application APPNAME )
     set( ${APPNAME}_sandbox_app OFF )
   endif()
 
-  # by default, applications are built as Mac OS bundle
-  if( NOT DEFINED ${APPNAME}_sandbox_app )
-    set( ${APPNAME}_sandbox_app OFF )
-  endif()
-
 #   coolfluid_debug_var(CF_MODULES_LIST)
 
   # check if all required modules are present
@@ -146,9 +141,9 @@ macro( coolfluid_add_application APPNAME )
 
   endif()
 
-  get_target_property ( ${APPNAME}_P_SOURCES        ${APPNAME} SOURCES )
-  get_target_property ( ${APPNAME}_LINK_FLAGS       ${APPNAME} LINK_FLAGS )
-  get_target_property ( ${APPNAME}_TYPE             ${APPNAME} TYPE )
+  get_target_property( ${APPNAME}_P_SOURCES        ${APPNAME} SOURCES )
+  get_target_property( ${APPNAME}_LINK_FLAGS       ${APPNAME} LINK_FLAGS )
+  get_target_property( ${APPNAME}_TYPE             ${APPNAME} TYPE )
 
   # log some info about the app
   coolfluid_log_file("${APPNAME} : [${CF_BUILD_${APPNAME}}]")
