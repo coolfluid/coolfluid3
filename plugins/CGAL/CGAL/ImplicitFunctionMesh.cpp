@@ -51,7 +51,7 @@ void cgal_to_coolfluid(const TriangulationComplexT& complex, CMesh& mesh) {
   
   // coordinate storage
   CTable<Real>& coordinates = *region.create_component<CTable<Real> >("coordinates");
-  coordinates.initialize(3);
+  coordinates.set_row_size(3);
   CTable<Real>::Buffer coordinatesBuffer = coordinates.create_buffer(complex.number_of_cells());
   std::vector<Real> coords_row(3);
   Uint coord_row_count = 0;
