@@ -953,12 +953,18 @@ sub install_trilinos() {
 
   my $mpiopt;
   unless ($opt_nompi) {
-      $mpiopt = " -D TPL_ENABLE_MPI:BOOL=ON \\
--D MPI_BASE_DIR_PATH:PATH=$opt_mpi_dir \\
--D CMAKE_C_COMPILER:FILEPATH=$opt_mpi_dir/bin/mpicc \\
--D CMAKE_CXX_COMPILER:FILEPATH=$opt_mpi_dir/bin/mpic++ \\
--D CMAKE_Fortran_COMPILER:FILEPATH=$opt_mpi_dir/bin/mpif77 " 
+	
+	      $mpi_opt = "-D TPL_ENABLE_MPI:BOOL=ON \\
+	-D MPI_BASE_DIR_PATH:PATH=$opt_mpi_dir \\
+	-D CMAKE_C_COMPILER:FILEPATH=$opt_mpi_dir/bin/mpicc \\
+	-D CMAKE_CXX_COMPILER:FILEPATH=$opt_mpi_dir/bin/mpic++ ";
+
+	     $mpi_opt .= "-D CMAKE_Fortran_COMPILER:FILEPATH=$opt_mpi_dir/bin/mpif77 " unless ($opt_no_fortran);
  }
+
+ 
+ my $fortran_opt = "";
+ if ($opt_no_fortran) { $fortran_opt = "-D Trilinos_ENABLE_Fortran:BOOL=OFF " };
 
   unless ($opt_fetchonly) 
   {
@@ -993,6 +999,7 @@ sub install_trilinos() {
 -D Trilinos_ENABLE_.:BOOL=OFF \\
 -D TPL_ENABLE_BLAS:BOOL=ON \\
 -D TPL_ENABLE_LAPACK:BOOL=ON \\
+$fortran_opt \\
 $mpiopt \\
 -D CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE \\
 -D BUILD_SHARED_LIBS:BOOL=ON\\
@@ -1245,12 +1252,14 @@ sub install_zoltan()
   download_src("$lib-$version");
 
   my $mpi_opt;
-  unless ($opt_nompi) {
+  unless ($opt_nompi) 
+  {
       $mpi_opt = "-D TPL_ENABLE_MPI:BOOL=ON \\
 -D MPI_BASE_DIR_PATH:PATH=$opt_mpi_dir \\
 -D CMAKE_C_COMPILER:FILEPATH=$opt_mpi_dir/bin/mpicc \\
--D CMAKE_CXX_COMPILER:FILEPATH=$opt_mpi_dir/bin/mpic++ \\
--D CMAKE_Fortran_COMPILER:FILEPATH=$opt_mpi_dir/bin/mpif77 " 
+-D CMAKE_CXX_COMPILER:FILEPATH=$opt_mpi_dir/bin/mpic++ ";
+
+     $mpi_opt .= "-D CMAKE_Fortran_COMPILER:FILEPATH=$opt_mpi_dir/bin/mpif77 " unless ($opt_no_fortran);
  }
 
  my $parmetis_opt = "-D Zoltan_ENABLE_ParMETIS:BOOL=ON \\
@@ -1263,6 +1272,9 @@ sub install_zoltan()
 -D PaToH_LIBRARY_DIRS:FILEPATH=\"$opt_install_mpi_dir/include\" \\
 -D PaToH_INCLUDE_DIRS:FILEPATH=\"$opt_install_mpi_dir/lib\"";
  
+ my $fortran_opt = "";
+ if ($opt_no_fortran) { $fortran_opt = "-D Trilinos_ENABLE_Fortran:BOOL=OFF " };
+
   unless ($opt_fetchonly) 
   {
     my $build_dir =  "$opt_tmp_dir/$lib-$version-Source/build"; 
@@ -1280,6 +1292,7 @@ sub install_zoltan()
 -D Trilinos_ENABLE_Zoltan:BOOL=ON \\
 -D Zoltan_ENABLE_EXAMPLES:BOOL=ON \\
 -D Zoltan_ENABLE_TESTS:BOOL=ON \\
+$fortran_opt \\
 $parmetis_opt \\
 $mpi_opt \\
 $opt_tmp_dir/$lib-$version-Source"
