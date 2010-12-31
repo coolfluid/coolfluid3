@@ -20,5 +20,5 @@ if(CF_STRIP_CGAL_COMPILE_FLAGS)
   set(sandbox-bounding-ellipse_COMPILE_FLAGS "${CGAL_CF_COMPILE_FLAGS} -g0 -O0")
 endif()
 
-SET_SOURCE_FILES_PROPERTIES(linear_interpolation.cpp
+set_source_files_properties(linear_interpolation.cpp
     PROPERTIES COMPILE_FLAGS ${sandbox-bounding-ellipse_COMPILE_FLAGS})
