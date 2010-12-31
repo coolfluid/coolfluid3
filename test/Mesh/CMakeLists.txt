@@ -215,7 +215,7 @@ coolfluid_add_unittest( utest-volume-sf )
 
 ################################################################################
 
-list( APPEND utest-vector-benchmark_cflibs coolfluid_mesh_sf coolfluid_mesh_generation coolfluid_blockmesh )
+list( APPEND utest-vector-benchmark_cflibs coolfluid_mesh_sf coolfluid_mesh_generation coolfluid_mesh_block )
 list( APPEND utest-vector-benchmark_files  utest-vector-benchmark.cpp )
 
 set( utest-vector-benchmark_profile ON )
@@ -226,7 +226,7 @@ coolfluid_add_unittest( utest-vector-benchmark )
 
 ################################################################################
 
-if( coolfluid_ptscotch_builds )
+if( coolfluid_mesh_ptscotch_builds )
   list( APPEND utest-pt-scotch_cflibs coolfluid_mesh_neutral coolfluid_mesh_sf coolfluid_mesh_gmsh )
   list( APPEND utest-pt-scotch_libs ${PTSCOTCH_LIBRARIES} )
 
@@ -250,8 +250,8 @@ endif()
 
 ################################################################################
 
-if( coolfluid_zoltan_builds )
-  list( APPEND utest-zoltan_cflibs coolfluid_mesh_neutral coolfluid_mesh_gmsh coolfluid_zoltan )
+if( coolfluid_mesh_zoltan_builds )
+  list( APPEND utest-zoltan_cflibs coolfluid_mesh_neutral coolfluid_mesh_gmsh coolfluid_mesh_zoltan )
   list( APPEND utest-zoltan_libs ${ZOLTAN_LIBRARIES} )
   list( APPEND utest-zoltan_files  utest-zoltan.cpp )
   list( APPEND utest-zoltan_includedirs ${ZOLTAN_INCLUDE_DIR} )
@@ -274,7 +274,7 @@ endif()
 ################################################################################
 
 if( CF_TMP_HAVE_SIMPLECOMM )
-    list( APPEND utest-blockmesh-mpi_cflibs coolfluid_mesh coolfluid_blockmesh coolfluid_mesh_generation coolfluid_mesh_sf )
+    list( APPEND utest-blockmesh-mpi_cflibs coolfluid_mesh coolfluid_mesh_block coolfluid_mesh_generation coolfluid_mesh_sf )
     list( APPEND utest-blockmesh-mpi_files  uTestBlockMeshMPI.cpp )
 
     set( utest-blockmesh-mpi_args ${CF_MPI_TESTS_SIZE} )
@@ -291,7 +291,7 @@ endif()
 ################################################################################
 
 if( CF_TMP_HAVE_SIMPLECOMM )
-    list( APPEND utest-blockmesh-mpi-scale_cflibs coolfluid_blockmesh coolfluid_mesh_generation coolfluid_mesh_sf )
+    list( APPEND utest-blockmesh-mpi-scale_cflibs coolfluid_mesh_block coolfluid_mesh_generation coolfluid_mesh_sf )
     list( APPEND utest-blockmesh-mpi-scale_files  uTestBlockMeshMPI.cpp )
 
     set( utest-blockmesh-mpi-scale_args "${CF_MPI_TESTS_SIZE} scale" )

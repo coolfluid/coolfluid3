@@ -10,8 +10,8 @@ if(CF_BUILD_coolfluid_mesh_cgns3)
 endif()
 
 # add blockmesh reader if built
-if(CF_BUILD_coolfluid_blockmesh_reader)
-  list( APPEND coolfluid-mesh-transformer_libs coolfluid_blockmesh_reader )
+if(CF_BUILD_coolfluid_mesh_block_reader)
+  list( APPEND coolfluid-mesh-transformer_libs coolfluid_mesh_block_reader )
 endif()
 
 coolfluid_add_application( coolfluid-mesh-transformer )

@@ -7,7 +7,9 @@ list( APPEND coolfluid_cgal_files
 
 list( APPEND coolfluid_cgal_includedirs ${CGAL_INCLUDE_DIR} )
 list( APPEND coolfluid_cgal_libs        ${CGAL_LIBRARIES} ${Boost_THREAD_LIBRARY} )
-list( APPEND coolfluid_cgal_cflibs coolfluid_mesh )
+list( APPEND coolfluid_cgal_cflibs      coolfluid_mesh )
+
+set( coolfluid_cgal_condition  ${CF_HAVE_CGAL} )
 
 coolfluid_add_library( coolfluid_cgal )
 

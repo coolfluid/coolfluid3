@@ -21,7 +21,7 @@ coolfluid_find_orphan_files()
 ##############################################################################
 # library
 
-list( APPEND coolfluid_blockmesh_reader_files
+list( APPEND coolfluid_mesh_block_reader_files
   BlockMeshReader.cpp
   BlockMeshReader.hpp
   LibBlockMeshReader.cpp
@@ -30,11 +30,11 @@ list( APPEND coolfluid_blockmesh_reader_files
   Parser.hpp
 )
 
-list( APPEND coolfluid_blockmesh_reader_cflibs coolfluid_mesh coolfluid_mesh_generation coolfluid_blockmesh coolfluid_mesh_sf )
+list( APPEND coolfluid_mesh_block_reader_cflibs coolfluid_mesh coolfluid_mesh_generation coolfluid_mesh_block coolfluid_mesh_sf )
 
-set( coolfluid_blockmesh_reader_condition ${CF_TMP_HAVE_SIMPLECOMM})
+set( coolfluid_mesh_block_reader_condition ${CF_TMP_HAVE_SIMPLECOMM})
 
-coolfluid_add_library( coolfluid_blockmesh_reader )
+coolfluid_add_library( coolfluid_mesh_block_reader )
 
 if( CF_BLOCKMESHREADER_COMPILE_FLAGS )
   set_source_files_properties(Parser.cpp PROPERTIES COMPILE_FLAGS ${CF_BLOCKMESHREADER_COMPILE_FLAGS})

@@ -1,4 +1,4 @@
-list( APPEND coolfluid_blockmesh_files
+list( APPEND coolfluid_mesh_block_files
   BlockData.cpp
   BlockData.hpp
   LibBlockMesh.cpp
@@ -7,10 +7,10 @@ list( APPEND coolfluid_blockmesh_files
   WriteDict.hpp
 )
 
-list( APPEND coolfluid_blockmesh_cflibs coolfluid_mesh coolfluid_mesh_sf )
+list( APPEND coolfluid_mesh_block_cflibs coolfluid_mesh coolfluid_mesh_sf )
 
-set( coolfluid_blockmesh_kernellib TRUE )
+set( coolfluid_mesh_block_kernellib TRUE )
 
-set( coolfluid_blockmesh_condition ${CF_TMP_HAVE_SIMPLECOMM})
+set( coolfluid_mesh_block_condition ${CF_TMP_HAVE_SIMPLECOMM})
 
-coolfluid_add_library( coolfluid_blockmesh )
+coolfluid_add_library( coolfluid_mesh_block )
