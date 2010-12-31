@@ -1,4 +1,3 @@
-if( ${CF_HAVE_ZOLTAN} )
     list( APPEND coolfluid_zoltan_files
       CPartitioner.hpp
       CPartitioner.cpp
@@ -12,12 +11,6 @@ if( ${CF_HAVE_ZOLTAN} )
 
     set( coolfluid_zoltan_kernellib TRUE )
 
-    coolfluid_add_library( coolfluid_zoltan )
-    
-else()
-  coolfluid_mark_not_orphan( CPartitioner.hpp
-                             CPartitioner.cpp
-                             LibZoltan.cpp
-                             LibZoltan.hpp )
-endif()
+    set( coolfluid_zoltan_condition ${CF_HAVE_ZOLTAN} )
 
+    coolfluid_add_library( coolfluid_zoltan )

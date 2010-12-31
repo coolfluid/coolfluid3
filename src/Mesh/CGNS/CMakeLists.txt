@@ -1,5 +1,3 @@
-if(CF_HAVE_CGNS)
-
   list( APPEND coolfluid_mesh_cgns3_files
     LibCGNS.cpp
     LibCGNS.hpp
@@ -18,20 +16,6 @@ if(CF_HAVE_CGNS)
 
   set( coolfluid_mesh_cgns3_kernellib TRUE )
 
+  set( coolfluid_mesh_cgns3_condition ${CF_HAVE_CGNS} )
+
   coolfluid_add_library( coolfluid_mesh_cgns3 )
-
-else()
-
-  coolfluid_mark_not_orphan(
-    LibCGNS.cpp
-    LibCGNS.hpp
-    Shared.hpp
-    Shared.cpp
-    CReader.hpp
-    CReader.cpp
-    CWriter.hpp
-    CWriter.cpp
-    CGNSExceptions.hpp
-  )
-
-endif()
