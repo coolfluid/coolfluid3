@@ -24,15 +24,11 @@ add_subdirectory( cgal )
 
 ###############################################################################
 ### test for CUDA
-if( CF_ENABLE_GPU AND CF_ENABLE_CUDA )
-  add_subdirectory( cuda )
-endif()
+add_subdirectory( cuda )
 
 ###############################################################################
 ### test for OpenCL
-if( CF_ENABLE_GPU AND CF_ENABLE_OPENCL )
-  add_subdirectory( opencl )
-endif()
+add_subdirectory( opencl )
 
 ###############################################################################
 ### test for Zoltan

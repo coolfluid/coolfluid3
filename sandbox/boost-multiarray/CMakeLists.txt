@@ -1,4 +1,5 @@
 add_definitions( -DNDEBUG )
+
 list( APPEND sandbox-boost-multiarray_libs ${CF_BOOST_LIBRARIES} )
 list( APPEND sandbox-boost-multiarray_files multiarray.cpp )
 

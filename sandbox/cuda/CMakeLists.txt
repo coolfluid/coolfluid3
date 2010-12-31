@@ -1,9 +1,4 @@
-if(CUDA_FOUND)
-
-#  set( CUDA_VERBOSE_BUILD 1)
-#  coolfluid_debug_var(CUDA_VERSION_STRING)
-#  coolfluid_debug_var(CUDA_TOOLKIT_ROOT_DIR)
-#  coolfluid_debug_var(CUDA_INCLUDE_DIRS)
+if( CF_ENABLE_GPU AND CF_ENABLE_CUDA AND CUDA_FOUND )
 
 add_subdirectory( v1 )
 

@@ -14,6 +14,7 @@ set( sandbox-bounding-ellipse_sandbox_app TRUE )
 set( sandbox-bounding-ellipse_condition ${CF_HAVE_CGAL} )
 
 coolfluid_add_application( sandbox-bounding-ellipse )
+
 #avoid a conflict between boost and CGAL
 set(sandbox-bounding-ellipse_COMPILE_FLAGS "-frounding-math -DCGAL_CFG_NO_TR1_ARRAY -DCGAL_CFG_NO_TR1_TUPLE")
 if(CF_STRIP_CGAL_COMPILE_FLAGS)
