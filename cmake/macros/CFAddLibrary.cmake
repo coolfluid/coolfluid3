@@ -49,13 +49,13 @@ macro( coolfluid_add_library LIBNAME )
   endif()
 
   if(CF_BUILD_${LIBNAME} AND ${LIBNAME}_has_all_plugins AND ${LIBNAME}_condition)
-    set( ${LIBNAME}_builds YES CACHE BOOL INTERNAL "" )
+    set( ${LIBNAME}_builds YES CACHE INTERNAL "" )
   else()
-    set( ${LIBNAME}_builds NO  CACHE BOOL INTERNAL "" )
+    set( ${LIBNAME}_builds NO  CACHE INTERNAL "" )
   endif()
 
   # compile if selected and all required modules are present
-  if(${LIBNAME}_builds )
+  if( ${LIBNAME}_builds )
 
     coolfluid_log( " +++ LIB   [${LIBNAME}]" )
 

@@ -49,9 +49,9 @@ macro( coolfluid_prepare_unittest UTESTNAME )
   endif()
 
   if( CF_BUILD_${UTESTNAME} AND ${UTESTNAME}_all_cfdeps_ok AND ${UTESTNAME}_has_all_plugins AND ${UTESTNAME}_condition )
-    set( ${UTESTNAME}_builds YES CACHE BOOL INTERNAL "" )
+    set( ${UTESTNAME}_builds YES CACHE INTERNAL "" )
   else()
-    set( ${UTESTNAME}_builds NO  CACHE BOOL INTERNAL "" )
+    set( ${UTESTNAME}_builds NO  CACHE INTERNAL "" )
   endif()
 
   # compile if selected and all required modules are present
