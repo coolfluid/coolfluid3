@@ -1,7 +1,5 @@
 coolfluid_find_orphan_files()
 
-if(CF_HAVE_CGAL)
-
 option(CF_STRIP_CGAL_COMPILE_FLAGS "Strip optimization and compile flags for CGAL, to avoid the long compilation" ON)
 
 list( APPEND sandbox-bounding-ellipse_files
@@ -13,6 +11,7 @@ list( APPEND sandbox-bounding-ellipse_libs ${CGAL_LIBRARIES} ${Boost_THREAD_LIBR
 list( APPEND sandbox-bounding-ellipse_cflibs coolfluid_mesh )
 
 set( sandbox-bounding-ellipse_sandbox_app TRUE )
+set( sandbox-bounding-ellipse_condition ${CF_HAVE_CGAL} )
 
 coolfluid_add_application( sandbox-bounding-ellipse )
 #avoid a conflict between boost and CGAL
@@ -23,11 +22,3 @@ endif()
 
 SET_SOURCE_FILES_PROPERTIES(linear_interpolation.cpp
     PROPERTIES COMPILE_FLAGS ${sandbox-bounding-ellipse_COMPILE_FLAGS})
-
-else()
-
-  coolfluid_mark_not_orphan(
-      linear_interpolation.cpp
-  )
-
-endif()
