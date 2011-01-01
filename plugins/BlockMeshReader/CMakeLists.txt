@@ -43,6 +43,4 @@ endif()
 ##############################################################################
 # unit tests
 
-if( CF_ENABLE_UNITTESTS )
-  add_subdirectory( test )
-endif()
+add_subdirectory( test )
