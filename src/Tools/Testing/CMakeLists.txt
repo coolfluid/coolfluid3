@@ -1,5 +1,3 @@
-coolfluid_find_orphan_files()
-
 list( APPEND coolfluid_testing_files
   Difference.hpp
   LibTesting.cpp
@@ -10,7 +8,7 @@ list( APPEND coolfluid_testing_files
 )
 
 list( APPEND coolfluid_testing_cflibs coolfluid_common )
-if( CF_BUILD_coolfluid_google_perftools AND CF_ENABLE_PROFILING )
+if( coolfluid_google_perftools_builds AND CF_ENABLE_PROFILING )
   list( APPEND coolfluid_testing_cflibs coolfluid_google_perftools )
 endif()
 

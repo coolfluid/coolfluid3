@@ -14,6 +14,7 @@ option(CF_STRIP_CGAL_COMPILE_FLAGS "Strip optimization and compile flags for CGA
 # avoid a conflict between boost and CGAL
 add_definitions(-DCGAL_CFG_NO_TR1_ARRAY -DCGAL_CFG_NO_TR1_TUPLE)
 
+coolfluid_find_orphan_files()
 
 include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 

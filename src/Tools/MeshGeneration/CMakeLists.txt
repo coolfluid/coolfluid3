@@ -1,5 +1,3 @@
-coolfluid_find_orphan_files()
-
 list(APPEND coolfluid_mesh_generation_files
   LibMeshGeneration.cpp
   LibMeshGeneration.hpp
@@ -9,7 +7,7 @@ list(APPEND coolfluid_mesh_generation_files
 
 list( APPEND coolfluid_mesh_generation_cflibs coolfluid_mesh )
 
-if( CF_ENABLE_PROFILING AND CF_BUILD_coolfluid_google_perftools )
+if( CF_ENABLE_PROFILING AND coolfluid_google_perftools_builds )
   list( APPEND coolfluid_mesh_generation_cflibs coolfluid_google_perftools )
 endif()
 

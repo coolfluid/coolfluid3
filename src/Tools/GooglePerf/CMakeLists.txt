@@ -1,7 +1,3 @@
-if( CF_HAVE_GOOGLE_PERFTOOLS )
-
-  coolfluid_find_orphan_files()
-
   list( APPEND coolfluid_google_perftools_files
     GooglePerfProfiling.cpp
     GooglePerfProfiling.hpp
@@ -14,6 +10,6 @@ if( CF_HAVE_GOOGLE_PERFTOOLS )
   list( APPEND coolfluid_google_perftools_includedirs ${GOOGLE_PERFTOOLS_INCLUDE_DIR} )
   list( APPEND coolfluid_google_perftools_libs ${GOOGLE_PERFTOOLS_PROFILER_LIBRARY} )
 
-  coolfluid_add_library( coolfluid_google_perftools )
+  set( coolfluid_google_perftools_condition ${CF_HAVE_GOOGLE_PERFTOOLS} )
 
-endif()
+  coolfluid_add_library( coolfluid_google_perftools )

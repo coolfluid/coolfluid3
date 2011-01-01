@@ -1,5 +1,3 @@
-coolfluid_find_orphan_files()
-
 list( APPEND coolfluid-command_files  coolfluid-command.cpp  )
 
 list(APPEND coolfluid-command_libs coolfluid_mesh_neutral coolfluid_mesh_gmsh coolfluid_solver )

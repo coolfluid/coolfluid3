@@ -1,3 +1,5 @@
+coolfluid_find_orphan_files()
+
 list( APPEND coolfluid_solver_files
   CModel.hpp
   CModel.cpp

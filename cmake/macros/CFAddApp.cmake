@@ -118,7 +118,7 @@ macro( coolfluid_add_application APPNAME )
     endif()
 
     # profiling selected for specific target
-    if( ${APPNAME}_profile AND CF_BUILD_coolfluid_google_perftools )
+    if( ${APPNAME}_profile AND coolfluid_google_perftools_builds )
       list( APPEND ${APPNAME}_cflibs coolfluid_google_perftools )
     endif()
 
