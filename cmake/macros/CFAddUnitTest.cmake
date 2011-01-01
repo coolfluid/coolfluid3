@@ -48,7 +48,7 @@ macro( coolfluid_prepare_unittest UTESTNAME )
     set( ${UTESTNAME}_condition TRUE )
   endif()
 
-  if( CF_ENABLE_UNITTESTS AND CF_BUILD_${UTESTNAME} AND ${UTESTNAME}_all_cfdeps_ok AND ${UTESTNAME}_has_all_plugins AND ${UTESTNAME}_condition )
+  if( CF_ENABLE_UNITTESTS AND CF_BUILD_${UTESTNAME} AND ${UTESTNAME}_has_all_plugins AND ${UTESTNAME}_condition )
     set( ${UTESTNAME}_builds YES CACHE INTERNAL "" )
   else()
     set( ${UTESTNAME}_builds NO  CACHE INTERNAL "" )
