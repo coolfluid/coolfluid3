@@ -45,8 +45,13 @@ if(CF_ENABLE_PROTO)
     utest-proto-heat.cpp )
   coolfluid_add_unittest( utest-proto-heat )
 
+  list( APPEND utest-proto-unsteady_cflibs coolfluid_mesh coolfluid_actions coolfluid_mesh_sf coolfluid_mesh_generation coolfluid_solver )
+  list( APPEND utest-proto-unsteady_files
+    utest-proto-unsteady.cpp )
+  coolfluid_add_unittest( utest-proto-unsteady )
+
 else()
 
-  coolfluid_mark_not_orphan(utest-proto-heat.cpp utest-proto-operators.cpp)
+  coolfluid_mark_not_orphan(utest-proto-heat.cpp utest-proto-operators.cpp utest-proto-unsteady.cpp)
 
 endif()

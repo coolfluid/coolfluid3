@@ -8,6 +8,7 @@
 #define CF_Actions_Proto_NodeGrammar_hpp
 
 #include "DirichletBC.hpp"
+#include "EigenTransforms.hpp"
 #include "NodeData.hpp"
 #include "Transforms.hpp"
 
@@ -26,6 +27,7 @@ struct NodeMath :
   boost::proto::or_
   <
     MathTerminals, // Scalars and matrices
+    EigenMath<NodeMath>, // Special Eigen functions and Eigen multiplication (overrides default product)
     // Default evaluation of certain math expressions
     MathOpDefault<NodeMath>
   >

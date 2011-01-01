@@ -8,6 +8,7 @@
 #define CF_Actions_Proto_Functions_hpp
 
 #include <boost/proto/proto.hpp>
+#include <boost/test/test_tools.hpp>
 
 #include "Common/CF.hpp"
 
@@ -41,6 +42,14 @@ pow(Arg const &arg)
     , boost::ref(arg)   // Second child (by reference)
   );
 }
+
+/// Check close, fo testing purposes
+inline void check_close(const Real a, const Real b, const Real threshold)
+{
+  BOOST_CHECK_CLOSE(a, b, threshold);
+}
+
+static boost::proto::terminal< void(*)(Real, Real, Real) >::type const _check_close = {&check_close};
 
 } // namespace Proto
 } // namespace Actions

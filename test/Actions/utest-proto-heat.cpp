@@ -13,6 +13,7 @@
 #include "Actions/Proto/CProtoElementsAction.hpp"
 #include "Actions/Proto/CProtoNodesAction.hpp"
 #include "Actions/Proto/ElementLooper.hpp"
+#include "Actions/Proto/Functions.hpp"
 #include "Actions/Proto/NodeLooper.hpp"
 #include "Actions/Proto/Terminals.hpp"
 
@@ -38,8 +39,9 @@
 using namespace CF;
 using namespace CF::Actions;
 using namespace CF::Actions::Proto;
-using namespace CF::Mesh;
 using namespace CF::Common;
+using namespace CF::Math::MathConsts;
+using namespace CF::Mesh;
 using namespace CF::Solver;
 
 using namespace boost;
@@ -338,96 +340,11 @@ BOOST_AUTO_TEST_CASE( Heat1DVolumeTerm )
     BOOST_CHECK_CLOSE
     (
       solution[i],
-      -q/(2.*k)*x*x + q*length/(2.*k)*x + ambient_temp, // analytical solution
+      -q/(2.*k)*x*x + q*length/(2.*k)*x + ambient_temp, // analytical solution, see "A Heat transfer textbook, section 2.2
       1e-6
     );
   }
   CFinfo << CFendl;
-}
-
-/// 1D unsteady heat conduction: heating of a slab
-BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
-{
-  Real length              = 5.;
-  Real ambient_temp        = 500.;
-  Real initial_temp        = 298.;
-  const Uint nb_segments   = 20;
-  const Real k             = 1.; // thermal conductivity
-  const Real alpha         = 1.; // thermal diffusivity
-  
-  const Real start_time = 0.;
-  const Real end_time = 10.;
-  const Real dt = 0.1;
-  const Real invdt = 1. / dt;
-
-  CRoot::Ptr root = CRoot::create("Root");
-  CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
-  root->create_component<Solver::CPhysicalModel>("PhysicalModel");
-  Tools::MeshGeneration::create_line(*mesh, length, nb_segments);
-  
-  // Geometric suport
-  MeshTerm<0, ConstNodes> nodes( "ConductivityRegion", find_component_ptr_recursively_with_name<CRegion>(*mesh, "region") );
-  
-  // Linear system
-  CEigenLSS::Ptr lss = root->create_component<CEigenLSS>("LSS");
-  lss->matrix().resize(nb_segments+1, nb_segments+1);
-  lss->matrix().setZero();
-  lss->rhs().resize(nb_segments+1);
-  lss->rhs().setZero();
-  MeshTerm<1, LSS> blocks("system", lss);
-  
-  // Create output field
-  const std::vector<std::string> vars(1, "T[1]");
-  mesh->create_field("Temperature", vars, CField::NODE_BASED);
-  lss->configure_property("SolutionField", URI("cpath://Root/mesh/Temperature"));
-  
-  // Variable holding the field
-  MeshTerm<2, ConstField<Real> > temperature("Temperature", "T");
-  
-  // Initialize the temperature
-  MeshTerm<3, Field<Real> > temperature_writable("Temperature", "T");
-  for_each_node
-  (
-    find_component_recursively_with_name<CRegion>(*mesh, "region"),
-    temperature_writable = initial_temp
-  );
-  
-  // System matrix
-  for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
-  (
-    blocks += integral<1>( ( invdt * sf_outer_product(temperature) + 0.5 * alpha * laplacian(nodes, temperature) ) * jacobian_determinant(nodes) )
-  );
-  
-  // RHS
-  for_each_element< boost::mpl::vector<SF::Line1DLagrangeP1> >
-  (
-    accumulate_rhs(blocks) += integral<1>( ( laplacian(nodes, temperature) ) * ( jacobian_determinant(nodes) * (-alpha) ) * temperature) 
-  );
-  
-  // Left boundary at ambient temperature
-  for_each_node
-  (
-    find_component_recursively_with_name<CRegion>(*mesh, "xneg"),
-    dirichlet(blocks) = ambient_temp - temperature
-  );
-  
-  // Right boundary at ambient temperature
-  for_each_node
-  (
-    find_component_recursively_with_name<CRegion>(*mesh, "xpos"),
-    dirichlet(blocks) = ambient_temp - temperature
-  );
-  
-  // Solve the system!
-  lss->solve();
-  
-  // Print solution field
-  for_each_node
-  (
-    find_component_with_name<CRegion>(*mesh, "region"),
-    _cout << "T(" << nodes << ") = " << temperature << "\n"
-  );
-  std::cout << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

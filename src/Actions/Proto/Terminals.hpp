@@ -361,6 +361,7 @@ val(Arg arg)
 static boost::proto::terminal< double(*)(double) >::type const _sin = {&sin};
 static boost::proto::terminal< double(*)(double, double) >::type const _atan2 = {&atan2};
 static boost::proto::terminal< double(*)(const RealVector2&) >::type const _atan_vec = {&atan_vec};
+static boost::proto::terminal< double(*)(double) >::type const _exp = {&exp};
 
 } // namespace Proto
 } // namespace Actions
