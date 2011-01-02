@@ -122,7 +122,7 @@ void CWriter::write_header(std::fstream& file)
 
   // physical names
   Uint phys_name_counter(0);
-  boost_foreach(const CRegion& groupRegion, find_components_recursively_with_filter<CRegion>(*m_mesh,IsGroup()))
+	boost_foreach(const CRegion& groupRegion, find_components_recursively_with_filter<CRegion>(*m_mesh,IsGroup()))
   {
 		std::string name = groupRegion.full_path().string_without_scheme();
     m_groupnumber[name] = phys_name_counter++;
@@ -147,9 +147,9 @@ void CWriter::write_coordinates(std::fstream& file)
   file.precision(8);
 
   Uint nb_nodes(0);
-  boost_foreach(NodesElementsMap::value_type& coord, m_all_nodes)
+  foreach_container( (const CNodes* nodes) , m_all_nodes)
   {
-    nb_nodes += coord.first->size();
+    nb_nodes += nodes->size();
   }
 
 
@@ -158,12 +158,12 @@ void CWriter::write_coordinates(std::fstream& file)
 
   Uint node_number = 0;
 
-  boost_foreach(NodesElementsMap::value_type& nodes, m_all_nodes)
+	foreach_container( (const CNodes* nodes) (std::list<CElements*> elements_list) , m_all_nodes)
   {
-    boost_foreach(CElements* elements, nodes.second)
+		boost_foreach(CElements* elements, elements_list)
       m_node_start_idx[elements] = node_number;
 
-    boost_foreach(CTable<Real>::ConstRow row, nodes.first->coordinates().array())
+		boost_foreach(CTable<Real>::ConstRow row, nodes->coordinates().array())
     {
       ++node_number;
       file << node_number << " ";
@@ -197,50 +197,44 @@ void CWriter::write_connectivity(std::fstream& file)
     nbElems += region.recursive_elements_count();
   }
 
-    file << "$Elements\n";
-    file << nbElems << "\n";
-    std::string group_name("");
-    Uint group_number;
-    Uint elm_type;
-    Uint number_of_tags=3; // 1 for physical entity,  1 for elementary geometrical entity,  1 for mesh partition
-    Uint elm_number=0;
-    Uint partition_number = mpi::PE::instance().rank();
+	file << "$Elements\n";
+	file << nbElems << "\n";
+	std::string group_name("");
+	Uint group_number;
+	Uint elm_type;
+	Uint number_of_tags=3; // 1 for physical entity,  1 for elementary geometrical entity,  1 for mesh partition
+	Uint elm_number=0;
+	Uint partition_number = mpi::PE::instance().rank();
 
-  //  boost_foreach(const CRegion& region, find_components_recursively<CRegion>(*m_mesh))
-  //  {
-  //      group_name = region.name();
-  //      group_number = m_groups[group_name].number;
-  //  }
+	foreach_container( (const CNodes* nodes) (std::list<CElements*> elements_list) , m_all_nodes)
+	{
+		nodes->get();
+		boost_foreach(CElements* elements, elements_list)
+		{
+			if ( is_null(elements->as_type<CFieldElements>()) )
+			{
+				group_name = elements->get_parent()->full_path().string_without_scheme();
+				group_number = m_groupnumber[group_name];
 
-    foreach_container( (const CNodes* nodes) (std::list<CElements*> elements_list) , m_all_nodes)
-    {
-			nodes->get();
-      boost_foreach(CElements* elements, elements_list)
-      {
-        if ( is_null(elements->as_type<CFieldElements>()) )
-        {
-          group_name = elements->get_parent()->full_path().string_without_scheme();
-          group_number = m_groupnumber[group_name];
+				m_element_start_idx[elements]=elm_number;
 
-          m_element_start_idx[elements]=elm_number;
-
-          //file << "// Region " << elements.full_path().string() << "\n";
-          elm_type = m_elementTypes[elements->element_type().element_type_name()];
-          Uint node_start_idx = m_node_start_idx[elements];
-          boost_foreach(const CTable<Uint>::ConstRow& row, elements->connectivity_table().array())
-          {
-            elm_number++;
-            file << elm_number << " " << elm_type << " " << number_of_tags << " " << group_number << " " << group_number << " " << partition_number;
-            boost_foreach(const Uint local_node_idx, row)
-            {
-              file << " " << node_start_idx+local_node_idx+1;
-            }
-            file << "\n";
-          }
-        }
-      }
-    }
-    file << "$EndElements\n";
+				//file << "// Region " << elements.full_path().string() << "\n";
+				elm_type = m_elementTypes[elements->element_type().element_type_name()];
+				Uint node_start_idx = m_node_start_idx[elements];
+				boost_foreach(const CTable<Uint>::ConstRow& row, elements->connectivity_table().array())
+				{
+					elm_number++;
+					file << elm_number << " " << elm_type << " " << number_of_tags << " " << group_number << " " << group_number << " " << partition_number;
+					boost_foreach(const Uint local_node_idx, row)
+					{
+						file << " " << node_start_idx+local_node_idx+1;
+					}
+					file << "\n";
+				}
+			}
+		}
+	}
+	file << "$EndElements\n";
 }
 
 //////////////////////////////////////////////////////////////////////
