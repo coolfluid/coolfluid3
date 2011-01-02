@@ -66,7 +66,7 @@ list( APPEND utest-neu-reader-mpi_cflibs coolfluid_mesh_neutral coolfluid_mesh_g
 list( APPEND utest-neu-reader-mpi_files  utest-neu-reader-mpi.cpp )
   
 # Add the target
-coolfluid_add_mpi_unittest( utest-neu-reader-mpi )
+coolfluid_add_mpi_unittest( utest-neu-reader-mpi 3 )
 
 # Custom post-build rule (must be defined after adding target):
 # Copy the file quadtriag.neu from source dir to binary dir.
@@ -233,7 +233,7 @@ if( coolfluid_mesh_ptscotch_builds )
   list( APPEND utest-pt-scotch_files  utest-pt-scotch.cpp )
   list( APPEND utest-pt-scotch_includedirs ${PTSCOTCH_INCLUDE_DIR} )
 
-  coolfluid_add_mpi_unittest( utest-pt-scotch )
+  coolfluid_add_mpi_unittest( utest-pt-scotch 3)
 
   # Custom post-build rule (must be defined after adding target):
   # Copy the file quadtriag.neu from source dir to binary dir.
@@ -256,7 +256,7 @@ if( coolfluid_mesh_zoltan_builds )
   list( APPEND utest-zoltan_files  utest-zoltan.cpp )
   list( APPEND utest-zoltan_includedirs ${ZOLTAN_INCLUDE_DIR} )
 
-  coolfluid_add_mpi_unittest( utest-zoltan )
+  coolfluid_add_mpi_unittest( utest-zoltan 2)
 
   # Custom post-build rule (must be defined after adding target):
   # Copy the file quadtriag.neu from source dir to binary dir.
@@ -282,7 +282,7 @@ if( CF_TMP_HAVE_SIMPLECOMM )
 
     set( utest-blockmesh-mpi_condition ${CF_TMP_HAVE_SIMPLECOMM})
 
-    coolfluid_add_mpi_unittest( utest-blockmesh-mpi )
+    coolfluid_add_mpi_unittest( utest-blockmesh-mpi ${CF_MPI_TESTS_NB_PROCS})
 
 else()
     coolfluid_mark_not_orphan( uTestBlockMeshMPI.cpp )
@@ -300,7 +300,7 @@ if( CF_TMP_HAVE_SIMPLECOMM )
 
     set( utest-blockmesh-mpi-scale_condition ${CF_TMP_HAVE_SIMPLECOMM})
 
-    coolfluid_add_mpi_unittest( utest-blockmesh-mpi-scale )
+    coolfluid_add_mpi_unittest( utest-blockmesh-mpi-scale ${CF_MPI_TESTS_NB_PROCS} )
 else()
     coolfluid_mark_not_orphan( uTestBlockMeshMPI.cpp )
 endif()

@@ -144,13 +144,14 @@ endmacro( coolfluid_add_unittest )
 ##############################################################################
 ##############################################################################
 
-macro( coolfluid_add_mpi_unittest UTESTNAME )
+macro( coolfluid_add_mpi_unittest UTESTNAME NUMBER_PROC)
 
 if(CF_MPI_TESTS_RUN)
   coolfluid_prepare_unittest(${UTESTNAME})
   if(${UTESTNAME}_builds)
     # add to the test database
-    add_test( ${UTESTNAME} ${CF_MPIRUN_PROGRAM} "-np" ${CF_MPI_TESTS_NB_PROCS} ${UTESTNAME} ${${UTESTNAME}_args})
+    #${CF_MPI_TESTS_NB_PROCS}
+    add_test( ${UTESTNAME} ${CF_MPIRUN_PROGRAM} "-np" ${NUMBER_PROC} ${UTESTNAME} ${${UTESTNAME}_args})
     if(CF_MPI_TESTS_RUN_SCALABILITY AND ${UTESTNAME}_scaling)
       add_test("${UTESTNAME}-scaling" ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/test-mpi-scalability.py ${CF_MPIRUN_PROGRAM} ${CMAKE_CURRENT_BINARY_DIR}/${UTESTNAME} ${CF_MPI_TESTS_MAX_NB_PROCS} ${${UTESTNAME}_args})
     endif()
@@ -160,6 +161,7 @@ else(CF_MPI_TESTS_RUN)
 endif(CF_MPI_TESTS_RUN)
 
 endmacro( coolfluid_add_mpi_unittest )
+
 
 ##############################################################################
 ##############################################################################
