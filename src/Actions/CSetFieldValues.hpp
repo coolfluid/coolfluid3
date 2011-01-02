@@ -8,6 +8,7 @@
 #define CF_Actions_CSetFieldValues_hpp
 
 #include "Mesh/CFieldElements.hpp"
+#include "Mesh/CNodes.hpp"
 
 #include "Actions/CNodeOperation.hpp"
 
@@ -59,12 +60,12 @@ private: // data
   {
     LoopHelper(Mesh::CElements& geometry_elements, CLoopOperation& op) :
 		field_data(geometry_elements.get_field_elements(op.properties()["Field"].value<std::string>()).data()),
-		coordinates(geometry_elements.get_field_elements(op.properties()["Field"].value<std::string>()).coordinates()),
-		node_list(geometry_elements.get_field_elements(op.properties()["Field"].value<std::string>()).node_list())
+		coordinates(geometry_elements.get_field_elements(op.properties()["Field"].value<std::string>()).nodes().coordinates()),
+		used_nodes(geometry_elements.get_field_elements(op.properties()["Field"].value<std::string>()).used_nodes())
     { }
     Mesh::CTable<Real>& field_data;
     Mesh::CTable<Real>& coordinates;
-    Mesh::CList<Uint>& node_list;
+    Mesh::CList<Uint>& used_nodes;
   };
 	
   boost::shared_ptr<LoopHelper> m_loop_helper;

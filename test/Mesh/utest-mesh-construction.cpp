@@ -20,6 +20,7 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CTable.hpp"
+#include "Mesh/CNodes.hpp"
 #include "Mesh/ElementData.hpp"
 #include "Mesh/ElementType.hpp"
 
@@ -114,7 +115,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   // Create root and mesh component
   CRoot::Ptr root = CRoot::create ( "root" );
 
-  Component::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
+  Component::Ptr mesh = allocate_component<CMesh>  ( "mesh" ) ;
 
   root->add_component( mesh );
 
@@ -123,13 +124,13 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
 
   // create regions
   CRegion& superRegion = p_mesh->create_region("superRegion");
-  CTable<Real>& coordinates = superRegion.create_coordinates(dim);
-  CElements& quadRegion = superRegion.create_elements("CF.Mesh.SF.Quad2DLagrangeP1",coordinates);
-  CElements& triagRegion = superRegion.create_elements("CF.Mesh.SF.Triag2DLagrangeP1",coordinates);
+  CNodes& nodes = superRegion.create_nodes(dim);
+  CElements& quadRegion = superRegion.create_elements("CF.Mesh.SF.Quad2DLagrangeP1",nodes);
+  CElements& triagRegion = superRegion.create_elements("CF.Mesh.SF.Triag2DLagrangeP1",nodes);
 
   CTable<Uint>::Buffer qTableBuffer = quadRegion.connectivity_table().create_buffer();
   CTable<Uint>::Buffer tTableBuffer = triagRegion.connectivity_table().create_buffer();
-  CTable<Real>::Buffer coordinatesBuffer = coordinates.create_buffer();
+  CTable<Real>::Buffer coordinatesBuffer = nodes.coordinates().create_buffer();
 
   //  Mesh of quads and triangles with node and element numbering:
   //
@@ -177,7 +178,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   Uint node=2;
 
   CTable<Uint>::ConstRow nodesRef = triagRegion.connectivity_table()[elem];
-  CTable<Real>::Row coordRef = triagRegion.coordinates()[nodesRef[node]];
+  CTable<Real>::Row coordRef = triagRegion.nodes().coordinates()[nodesRef[node]];
   BOOST_CHECK_EQUAL(coordRef[0],1.0);
   BOOST_CHECK_EQUAL(coordRef[1],1.0);
 
@@ -187,7 +188,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
     const ElementType& elementType = region.element_type();
     const Uint nbRows = region.connectivity_table().size();
     std::vector<Real> volumes(nbRows);
-    const CTable<Real>& region_coordinates = region.coordinates();
+    const CTable<Real>& region_coordinates = region.nodes().coordinates();
     const CTable<Uint>& region_connTable = region.connectivity_table();
     // the loop
     ElementType::NodesT elementCoordinates(elementType.nb_nodes(), elementType.dimension());
@@ -241,13 +242,13 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
 	
   // create regions
   CRegion& superRegion = p_mesh->create_region("superRegion");
-  CTable<Real>& coordinates = superRegion.create_coordinates(dim);
-  CElements& quadRegion = superRegion.create_elements("CF.Mesh.SF.Quad2DLagrangeP2",coordinates);
-  CElements& triagRegion = superRegion.create_elements("CF.Mesh.SF.Triag2DLagrangeP2",coordinates);
+  CNodes& nodes = superRegion.create_nodes(dim);
+  CElements& quadRegion = superRegion.create_elements("CF.Mesh.SF.Quad2DLagrangeP2",nodes);
+  CElements& triagRegion = superRegion.create_elements("CF.Mesh.SF.Triag2DLagrangeP2",nodes);
 	
   CTable<Uint>::Buffer qTableBuffer = quadRegion.connectivity_table().create_buffer();
   CTable<Uint>::Buffer tTableBuffer = triagRegion.connectivity_table().create_buffer();
-  CTable<Real>::Buffer coordinatesBuffer = coordinates.create_buffer();
+  CTable<Real>::Buffer coordinatesBuffer = nodes.coordinates().create_buffer();
 	
   //  Mesh of quads and triangles with node numbering and element numbering in brackets:
   //
@@ -324,7 +325,7 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
   Uint node=2;
 	
   CTable<Uint>::ConstRow nodesRef = triagRegion.connectivity_table()[elem];
-  CTable<Real>::Row coordRef = triagRegion.coordinates()[nodesRef[node]];
+  CTable<Real>::Row coordRef = triagRegion.nodes().coordinates()[nodesRef[node]];
   BOOST_CHECK_EQUAL(coordRef[0],1.0);
   BOOST_CHECK_EQUAL(coordRef[1],1.0);
 	

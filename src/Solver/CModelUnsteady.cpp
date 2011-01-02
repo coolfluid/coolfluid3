@@ -43,7 +43,7 @@ void CModelUnsteady::simulate ()
   const Real tf  = m_time->property("End Time").value<Real>();
 
   Real dt  = m_time->dt();
-  Real ct  = m_time->time();
+  Real ct  = ti;
 
   // loop over time
   while( ct < tf )

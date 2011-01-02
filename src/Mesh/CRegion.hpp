@@ -22,6 +22,7 @@ namespace Mesh {
   
   class CField; 
   template <typename T> class CTable;
+  class CNodes;
   
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -56,12 +57,11 @@ public:
   /// create a CElements component, initialized to take connectivity data for the given type
   /// @param name of the region
   /// @param element_type_name type of the elements
-  CElements& create_elements (const std::string& element_type_name, CTable<Real>& coordinates);
+  CElements& create_elements (const std::string& element_type_name, CNodes& nodes);
   
-  /// create a coordinates component, initialized with the coordinate dimension
-  /// @param name of the region
-  /// @param element_type_name type of the elements  
-  CTable<Real>& create_coordinates(const Uint& dim);
+  /// create a nodes component, initialized with the coordinate dimension
+  /// @param dim dimension of the node coordinates
+  CNodes& create_nodes(const Uint& dim);
   
   void add_field_link(CField& field);
 
@@ -74,11 +74,6 @@ public:
 
   Uint recursive_nodes_count() const;
 
-  /// @return the number of elements stored in this region, including any subregions
-  template <typename Predicate>
-    Uint recursive_filtered_nodes_count(const Predicate& pred) const;
-  
-  
   CField& get_field(const std::string& field_name);
   
   /// @return the subregion with given name
@@ -108,22 +103,7 @@ inline Uint CRegion::recursive_filtered_elements_count(const Predicate& pred) co
 
   return elem_count;
 }
-  
-template <typename Predicate>
-inline Uint CRegion::recursive_filtered_nodes_count(const Predicate& pred) const
-{
-  std::set<const CTable<Real>*> coordinates_set;
-  BOOST_FOREACH(const CElements& elements, Common::find_components_recursively_with_filter<CElements>(*this,pred))
-  coordinates_set.insert(&elements.coordinates());
-  
-  // Total number of nodes in the mesh
-  Uint nb_nodes = 0;
-  BOOST_FOREACH(const CTable<Real>* coordinates, coordinates_set)
-    nb_nodes += coordinates->size();
-  
-  return nb_nodes;
-}
-  
+
 } // Mesh
 } // CF
 

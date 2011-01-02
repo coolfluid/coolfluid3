@@ -14,6 +14,7 @@
 #include "Common/CRoot.hpp"
 
 #include "Mesh/CTable.hpp"
+#include "Mesh/CNodes.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/SF/Quad2DLagrangeP1.hpp"
 
@@ -21,6 +22,7 @@
 
 using namespace boost::assign;
 using namespace CF;
+using namespace CF::Common;
 using namespace CF::Mesh;
 using namespace CF::Mesh::Integrators;
 using namespace CF::Mesh::SF;
@@ -84,9 +86,9 @@ BOOST_AUTO_TEST_CASE( Volume )
 BOOST_AUTO_TEST_CASE( Element )
 {
   // Create a CElements component
-  CElements::Ptr comp (new CElements("comp")) ;
-  CTable<Real>::Ptr coordinates (new CTable<Real>("coordinates"));
-  comp->initialize("CF.Mesh.SF.Quad2DLagrangeP1",*coordinates);
+  CElements::Ptr comp = allocate_component<CElements>("comp");
+  CNodes::Ptr nodes = allocate_component<CNodes>("nodes");
+  comp->initialize("CF.Mesh.SF.Quad2DLagrangeP1",*nodes);
   BOOST_CHECK_EQUAL(comp->element_type().shape(), GeoShape::QUAD);
   BOOST_CHECK_EQUAL(comp->element_type().nb_faces(), (Uint) 4);
 

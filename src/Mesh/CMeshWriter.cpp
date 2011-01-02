@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Mesh/CMeshWriter.hpp"
-#include "Mesh/CTable.hpp"
+#include "Mesh/CNodes.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -65,14 +65,14 @@ void CMeshWriter::compute_mesh_specifics()
 {
   // - Assemble the map that gives a list of elementregions for each coordinate component
   // - Find maximal dimensionality of the whole mesh
-  m_all_coordinates.clear();
+  m_all_nodes.clear();
   m_max_dimensionality = 0;
   m_coord_dim = 0;
   BOOST_FOREACH(CElements& elements, find_components_recursively<CElements>(*m_mesh))
   {
-    m_all_coordinates[&elements.coordinates()].push_back(&elements);
+    m_all_nodes[&elements.nodes()].push_back(&elements);
     m_max_dimensionality = std::max(elements.element_type().dimensionality() , m_max_dimensionality);
-    m_coord_dim = std::max((Uint) elements.coordinates().row_size() , m_coord_dim);
+    m_coord_dim = std::max((Uint) elements.nodes().coordinates().row_size() , m_coord_dim);
   }
 }
 

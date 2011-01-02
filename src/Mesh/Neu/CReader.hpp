@@ -13,7 +13,7 @@
 
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CTable.hpp"
-#include "Mesh/CTable.hpp"
+#include "Mesh/CNodes.hpp"
 
 #include "Mesh/Neu/LibNeu.hpp"
 #include "Mesh/Neu/Shared.hpp"
@@ -86,7 +86,7 @@ private: // data
 	boost::filesystem::fstream m_file;
   CMesh::Ptr m_mesh;
   CRegion::Ptr m_region;
-  CTable<Real>::Ptr m_coordinates;
+  CNodes::Ptr m_nodes;
   CRegion::Ptr m_tmp;
   std::string m_file_basename;
 	

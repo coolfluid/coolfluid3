@@ -53,10 +53,12 @@ public: // functions
   CDynTable<Uint>& glb_elem_connectivity() { return *m_glb_elem_connectivity; }
   const CDynTable<Uint>& glb_elem_connectivity() const { return *m_glb_elem_connectivity; }
 
-  CList<Uint>& global_numbering() { return *m_global_numbering; }
-  const CList<Uint>& global_numbering() const { return *m_global_numbering; }
+  CList<Uint>& glb_idx() { return *m_global_numbering; }
+  const CList<Uint>& glb_idx() const { return *m_global_numbering; }
   
   virtual void resize(const Uint size);
+  
+  Uint size() const { return m_coordinates->size(); }
   
 private: // data
 

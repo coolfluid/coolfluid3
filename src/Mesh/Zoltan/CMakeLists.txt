@@ -1,9 +1,9 @@
- list( APPEND coolfluid_mesh_zoltan_files
+list( APPEND coolfluid_mesh_zoltan_files
       CPartitioner.hpp
       CPartitioner.cpp
       LibZoltan.cpp
       LibZoltan.hpp
- )
+    )
 
 list( APPEND coolfluid_mesh_zoltan_cflibs coolfluid_mesh )
 list( APPEND coolfluid_mesh_zoltan_libs ${ZOLTAN_LIBRARIES} )

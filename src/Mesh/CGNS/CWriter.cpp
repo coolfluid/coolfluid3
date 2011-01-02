@@ -15,7 +15,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CTable.hpp"
+#include "Mesh/CNodes.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -246,7 +246,7 @@ void CWriter::write_section(const GroupedElements& grouped_elements)
 
         ElementType_t type = m_elemtype_CF_to_CGNS[elements->element_type().element_type_name()];
         const CTable<Uint>::ArrayT& connectivity_table = elements->connectivity_table().array();
-        int start_idx = m_global_start_idx[&elements->coordinates()];
+        int start_idx = m_global_start_idx[&elements->nodes().coordinates()];
 
         int* elemNodes = new int [nbElems*(m_section.elemNodeCount+1)];
         for (int iElem=0; iElem<nbElems; ++iElem)
@@ -274,7 +274,7 @@ void CWriter::write_section(const GroupedElements& grouped_elements)
       m_section.nbBdry = 0; // unsorted boundary
 
       const CTable<Uint>::ArrayT& connectivity_table = elements.connectivity_table().array();
-      int start_idx = m_global_start_idx[&elements.coordinates()];
+      int start_idx = m_global_start_idx[&elements.nodes().coordinates()];
 
       int* elemNodes = new int [nbElems*m_section.elemNodeCount];
       for (int iElem=0; iElem<nbElems; ++iElem)

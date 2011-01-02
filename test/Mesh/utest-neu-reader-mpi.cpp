@@ -22,6 +22,7 @@
 #include "Mesh/CDynTable.hpp"
 #include "Mesh/CList.hpp"
 #include "Mesh/CTable.hpp"
+#include "Mesh/CNodes.hpp"
 
 using namespace std;
 using namespace boost;
@@ -100,27 +101,20 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
 	
 	CFinfo << mesh->tree() << CFendl;
 	
-	BOOST_FOREACH(CDynTable<Uint>& node_2_elems, find_components_recursively_with_name<CDynTable<Uint> >(*mesh,"glb_elem_connectivity"))
+  CNodes& nodes = find_component_recursively<CNodes>(*mesh);
+  for (Uint n=0; n<nodes.size(); ++n)
   {
-    CList<bool>& is_ghost = *node_2_elems.look_component<CList <bool> >("../is_ghost").get();
-    CList<Uint>& glb_indices = *node_2_elems.look_component<CList <Uint> >("../global_indices").get();
-    
-    for (Uint i=0; i<node_2_elems.size(); ++i)
+    if (!nodes.is_ghost()[n])
     {
-      if (!is_ghost[i])
-      {
-        CFinfo << "node " << glb_indices[i] << " connected to:" << CFflush;
-        for (Uint j=0; j<node_2_elems.row_size(i); ++j)
-        {
-          CFinfo << " " << node_2_elems[i][j] << CFflush;
-        }
-        CFinfo << CFendl;
-      }
-      else
-      {
-        CFinfo << "node " << glb_indices[i] << " is a ghost node" << CFendl;
-        nb_ghosts++;
-      }
+      CFinfo << "node " << nodes.glb_idx()[n] << " connected to:" << CFflush;
+      boost_foreach (const Uint glb_elem, nodes.glb_elem_connectivity()[n])
+        CFinfo << " " << glb_elem << CFflush;
+      CFinfo << CFendl;
+    }
+    else
+    {
+      CFinfo << "node " << nodes.glb_idx()[n] << " is a ghost node" << CFendl;
+      nb_ghosts++;
     }
     CFinfo << "ghost node count = " << nb_ghosts << CFendl;
   }

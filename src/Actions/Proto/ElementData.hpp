@@ -26,6 +26,7 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CField.hpp"
 #include "Mesh/CRegion.hpp"
+#include "Mesh/CNodes.hpp"
 
 #include "ElementVariables.hpp"
 #include "Terminals.hpp"
@@ -173,7 +174,7 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   SFVariableData(const ConstNodes&, const Mesh::CElements& elements) :
-    m_coordinates(elements.coordinates()),
+    m_coordinates(elements.nodes().coordinates()),
     m_connectivity(elements.connectivity_table())
   {
   }

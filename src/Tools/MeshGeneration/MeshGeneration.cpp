@@ -11,7 +11,7 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CTable.hpp"
-#include "Mesh/CTable.hpp"
+#include "Mesh/CNodes.hpp"
 
 using namespace CF::Common;
 using namespace CF::Mesh;
@@ -32,35 +32,31 @@ namespace MeshGeneration {
 void create_line(CMesh& mesh, const Real x_len, const Uint x_segments)
 {
   CRegion& region = mesh.create_region("region");
-  CTable<Real>& coordinates = region.create_coordinates(1);
-  CTable<Real>::ArrayT& coord_array = coordinates.array();
-  
-  coord_array.resize(boost::extents[(x_segments+1)][1]);
+  CNodes& nodes = region.create_nodes(DIM_1D);
+  nodes.resize(x_segments+1);
   const Real x_step = x_len / static_cast<Real>(x_segments);
   for(Uint i = 0; i <= x_segments; ++i)
   {
-    coord_array[i][XX] = static_cast<Real>(i) * x_step;
+    nodes.coordinates()[i][XX] = static_cast<Real>(i) * x_step;
   }
   
-  CTable<Uint>::ArrayT& conn_array = region.create_elements("CF.Mesh.SF.Line1DLagrangeP1",coordinates).connectivity_table().array();
-  conn_array.resize(boost::extents[x_segments][2]);
+  CTable<Uint>& connectivity = region.create_elements("CF.Mesh.SF.Line1DLagrangeP1",nodes).connectivity_table();
+  connectivity.resize(x_segments);
   for(Uint i = 0; i < x_segments; ++i)
   {
-    CTable<Uint>::Row nodes = conn_array[i];
+    CTable<Uint>::Row nodes = connectivity[i];
     nodes[0] = i;
     nodes[1] = i+1;
   }
   
-  // Left boundary
-  CElements& xneg_elements = region.create_region("xneg").create_elements("CF.Mesh.SF.Point1DLagrangeP1", coordinates);
-  CTable<Uint>::ArrayT& xneg_connectivity = xneg_elements.connectivity_table().array();
-  xneg_connectivity.resize(boost::extents[1][1]);
+  // Left boundary point
+  CTable<Uint>& xneg_connectivity = region.create_region("xneg").create_elements("CF.Mesh.SF.Point1DLagrangeP1", nodes).connectivity_table();
+  xneg_connectivity.resize(1);
   xneg_connectivity[0][0] = 0;
   
-  // right boundary
-  CElements& xpos_elements = region.create_region("xpos").create_elements("CF.Mesh.SF.Point1DLagrangeP1", coordinates);
-  CTable<Uint>::ArrayT& xpos_connectivity = xpos_elements.connectivity_table().array();
-  xpos_connectivity.resize(boost::extents[1][1]);
+  // right boundary point
+  CTable<Uint>& xpos_connectivity = region.create_region("xpos").create_elements("CF.Mesh.SF.Point1DLagrangeP1", nodes).connectivity_table();
+  xpos_connectivity.resize(1);
   xpos_connectivity[0][0] = x_segments;
 }
 
@@ -68,11 +64,9 @@ void create_line(CMesh& mesh, const Real x_len, const Uint x_segments)
 void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments)
 {
   CRegion& region = mesh.create_region("region");
+  CNodes& nodes = region.create_nodes(DIM_2D);
+  nodes.resize((x_segments+1)*(y_segments+1));
   
-  const Uint dim = 2;
-  CTable<Real>& coordinates = region.create_coordinates(dim);
-  CTable<Real>::ArrayT& coord_array = coordinates.array();
-  coord_array.resize(boost::extents[(x_segments+1)*(y_segments+1)][dim]);
   const Real x_step = x_len / static_cast<Real>(x_segments);
   const Real y_step = y_len / static_cast<Real>(y_segments);
   Real y;
@@ -81,18 +75,18 @@ void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uin
     y = static_cast<Real>(j) * y_step;
     for(Uint i = 0; i <= x_segments; ++i)
     {
-      CTable<Real>::Row row = coord_array[j*(x_segments+1)+i];
+      CTable<Real>::Row row = nodes.coordinates()[j*(x_segments+1)+i];
       row[XX] = static_cast<Real>(i) * x_step;
       row[YY] = y;
     }
   }
-  CTable<Uint>::ArrayT& conn_array = region.create_elements("CF.Mesh.SF.Quad2DLagrangeP1",coordinates).connectivity_table().array();
-  conn_array.resize(boost::extents[(x_segments)*(y_segments)][4]);
+  CTable<Uint>& connectivity = region.create_elements("CF.Mesh.SF.Quad2DLagrangeP1",nodes).connectivity_table();
+  connectivity.resize((x_segments)*(y_segments));
   for(Uint j = 0; j < y_segments; ++j)
   {
     for(Uint i = 0; i < x_segments; ++i)
     {
-      CTable<Uint>::Row nodes = conn_array[j*(x_segments)+i];
+      CTable<Uint>::Row nodes = connectivity[j*(x_segments)+i];
       nodes[0] = j * (x_segments+1) + i;
       nodes[1] = nodes[0] + 1;
       nodes[3] = (j+1) * (x_segments+1) + i;
@@ -101,12 +95,13 @@ void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uin
   }
 }
 
+/*
 void create_circle_2d(CTable<Real>& coordinates, CTable<Uint>& connectivity, const Real radius, const Uint segments, const Real start_angle, const Real end_angle)
 {
   const Uint dim = 2;
   const Uint nb_nodes = 2;
   const bool closed = std::abs(std::abs(end_angle - start_angle) - 2.0*pi()) < eps();
-
+  
   coordinates.set_row_size(dim);
   CTable<Real>::ArrayT& coord_array = coordinates.array();
   coord_array.resize(boost::extents[segments + (!closed)][dim]);
@@ -136,14 +131,41 @@ void create_circle_2d(CTable<Real>& coordinates, CTable<Uint>& connectivity, con
     coord_row[XX] = radius * cos(end_angle);
     coord_row[YY] = radius * sin(end_angle);
   }
-}
+}*/
 
 void create_circle_2d ( CMesh& mesh, const Real radius, const Uint segments, const Real start_angle, const Real end_angle )
 {
   CRegion& region = mesh.create_region("region");
-  CTable<Real>& coordinates = region.create_coordinates(DIM_2D);
-  CTable<Uint>& conn = region.create_elements("CF.Mesh.SF.Line2DLagrangeP1",coordinates).connectivity_table();
-  create_circle_2d(coordinates, conn, radius, segments, start_angle, end_angle);
+  CNodes& nodes = region.create_nodes(DIM_2D);
+  CTable<Uint>& connectivity = region.create_elements("CF.Mesh.SF.Line2DLagrangeP1",nodes).connectivity_table();
+  
+  const bool closed = std::abs(std::abs(end_angle - start_angle) - 2.0*pi()) < eps();
+  
+  nodes.resize(segments + Uint(!closed));
+  connectivity.resize(segments);
+  
+  for(Uint u = 0; u != segments; ++u)
+  {
+    const Real theta = start_angle + (end_angle - start_angle) * (static_cast<Real>(u) / static_cast<Real>(segments));
+    CTable<Real>::Row coord_row = nodes.coordinates()[u];
+
+    coord_row[XX] = radius * cos(theta);
+    coord_row[YY] = radius * sin(theta);
+
+    CTable<Uint>::Row nodes = connectivity[u];
+    nodes[0] = u;
+    nodes[1] = u+1;
+  }
+  if(closed)
+  {
+    connectivity[segments-1][1] = 0;
+  }
+  else
+  {
+    CTable<Real>::Row coord_row = nodes.coordinates()[segments];
+    coord_row[XX] = radius * cos(end_angle);
+    coord_row[YY] = radius * sin(end_angle);
+  }  
 }
 
 void create_channel_3d(BlockData& blocks, const Real length, const Real half_height, const Real width, const Uint x_segs, const Uint y_segs_half, const Uint z_segs, const Real ratio)

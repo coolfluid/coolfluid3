@@ -250,7 +250,7 @@ private: // data
     LoopHelper(CField& volume_field, CElements& geometry_elements) :
       field_elements(geometry_elements.get_field_elements(volume_field.field_name())),
       volumes(field_elements.data()),
-      coordinates(field_elements.coordinates()),
+      coordinates(field_elements.nodes().coordinates()),
       connectivity_table(field_elements.connectivity_table())
     { }
     CFieldElements& field_elements;

@@ -4,9 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <boost/foreach.hpp>
 #include <boost/algorithm/string.hpp>
 
+#include "Common/Foreach.hpp"
 #include "Common/CGroup.hpp"
 #include "Common/CLink.hpp"
 #include "Common/CBuilder.hpp"
@@ -18,6 +18,7 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/CList.hpp"
 #include "Mesh/CDynTable.hpp"
+#include "Mesh/CNodes.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -61,7 +62,7 @@ CRegion& CRegion::create_region( const std::string& name, bool ensure_unique )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CElements& CRegion::create_elements(const std::string& element_type_name, CTable<Real>& coordinates)
+CElements& CRegion::create_elements(const std::string& element_type_name, CNodes& nodes)
 {
   std::string name = "elements_" + element_type_name;
   
@@ -70,54 +71,23 @@ CElements& CRegion::create_elements(const std::string& element_type_name, CTable
   {
     elements = create_component<CElements>(name);
     elements->add_tag("GeometryElements");
-    elements->initialize(element_type_name,coordinates);
+    elements->initialize(element_type_name,nodes);
   }
   return *elements;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-CTable<Real>& CRegion::create_coordinates(const Uint& dim)
+CNodes& CRegion::create_nodes(const Uint& dim)
 {  
-  CTable<Real>::Ptr coordinates = get_child<CTable<Real> >("coordinates");
-  if (!coordinates)
+  CNodes::Ptr nodes = find_component_ptr_with_tag<CNodes>(*this,"nodes");
+  if ( is_null(nodes) )
   {
-    coordinates = create_component<CTable<Real> >("coordinates");
-    coordinates->add_tag("coordinates");
-    coordinates->set_row_size(dim);
-    
-    CList<Uint>::Ptr global_indices = get_child<CList<Uint> >("global_indices");
-    if (!global_indices)
-    {
-      global_indices = coordinates->create_component< CList<Uint> >("global_indices");
-      global_indices->add_tag("global_node_indices");
-    }
-    
-    CList<bool>::Ptr is_ghost = get_child<CList<bool> >("is_ghost");
-    if (!is_ghost)
-    {
-      is_ghost = coordinates->create_component< CList<bool> >("is_ghost");
-      is_ghost->add_tag("is_ghost");
-    }
-    
-    CDynTable<Uint>::Ptr glb_elem_connectivity = get_child< CDynTable<Uint> >("glb_elem_connectivity");
-    if (!glb_elem_connectivity)
-    {
-      glb_elem_connectivity = coordinates->create_component< CDynTable<Uint> >("glb_elem_connectivity");
-      glb_elem_connectivity->add_tag("glb_elem_connectivity");
-    }
-    
+    nodes = create_component<CNodes>("nodes");
+    nodes->coordinates().set_row_size(dim);    
   }
-  // else if (coordinates->row_size() != dim)
-  //   {
-  //     coordinates = create_component<CTable<Real> >( "coordinates" );
-  //     coordinates->add_tag("coordinates");
-  //     coordinates->initialize(dim);
-  //    CList<Uint>::Ptr global_indices = coordinates->create_component< CList<Uint> >("global_indices");
-  //    CList<bool>::Ptr is_ghost = coordinates->create_component< CList<bool> >("is_ghost");
-  // 
-  //   }
-  return *coordinates;
+  cf_assert(nodes->coordinates().row_size() == dim);
+  return *nodes;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -155,16 +125,13 @@ Uint CRegion::recursive_elements_count() const
 
 Uint CRegion::recursive_nodes_count() const
 {
-  std::set<const CTable<Real>*> coordinates_set;
-  BOOST_FOREACH(const CElements& elements, find_components_recursively<CElements>(*this))
-    coordinates_set.insert(&elements.coordinates());
-
-  // Total number of nodes in the mesh
-  Uint nb_nodes = 0;
-  BOOST_FOREACH(const CTable<Real>* coordinates, coordinates_set)
-    nb_nodes += coordinates->size();
-  
-  return nb_nodes;
+  std::set<Uint> nodes;
+  boost_foreach (const CElements& elements, find_components_recursively<CElements>(*this))
+  {
+    boost_foreach (const Uint node, elements.used_nodes().array())
+      nodes.insert(node);
+  }
+  return nodes.size();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

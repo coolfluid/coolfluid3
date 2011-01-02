@@ -233,7 +233,7 @@ if( coolfluid_mesh_ptscotch_builds )
   list( APPEND utest-pt-scotch_files  utest-pt-scotch.cpp )
   list( APPEND utest-pt-scotch_includedirs ${PTSCOTCH_INCLUDE_DIR} )
 
-  coolfluid_add_unittest( utest-pt-scotch )
+  coolfluid_add_mpi_unittest( utest-pt-scotch )
 
   # Custom post-build rule (must be defined after adding target):
   # Copy the file quadtriag.neu from source dir to binary dir.

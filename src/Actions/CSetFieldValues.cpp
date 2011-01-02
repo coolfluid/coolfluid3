@@ -7,7 +7,6 @@
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Actions/CSetFieldValues.hpp"
-#include "Mesh/CFieldElements.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -58,7 +57,7 @@ void CSetFieldValues::create_loop_helper (CElements& geometry_elements )
 
 CList<Uint>& CSetFieldValues::loop_list() const
 {
-	return m_loop_helper->node_list;
+	return m_loop_helper->used_nodes;
 }
 	
 ////////////////////////////////////////////////////////////////////////////////////

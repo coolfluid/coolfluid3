@@ -649,6 +649,7 @@ BOOST_AUTO_TEST_CASE( speed_find_type )
   Uint counter = 0;
   BOOST_FOREACH(Component& comp, find_components_recursively<CGroup>(*mg) )
   {
+		comp.is_link(); // to disable unused variable warning
     ++counter;
   }
   std::cout << "iterate by [type] over " << counter << " components in " << timer.elapsed() << " seconds" << std::endl;
@@ -668,6 +669,7 @@ BOOST_AUTO_TEST_CASE( speed_find_tag )
   Uint counter = 0;
   BOOST_FOREACH(Component& comp, find_components_recursively_with_tag(*mg, "CGroup" ) )
   {
+		comp.is_link(); // to disable unused variable warning
     ++counter;
   }
   std::cout << "iterate by [tag] over " << counter << " components in " << timer.elapsed() << " seconds" << std::endl;

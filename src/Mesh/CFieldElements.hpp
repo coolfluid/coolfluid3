@@ -12,9 +12,13 @@
 #include "Mesh/CElements.hpp"
 
 namespace CF {
+namespace Common {
+  class CLink;
+}
 namespace Mesh {
 
   template <typename T> class CTable;
+  class CNodes;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -55,18 +59,22 @@ public: // functions
   const CTable<Real>& data() const;
   
   /// Mutable access to the coordinates
-  virtual CTable<Real>& coordinates() { return get_geometry_elements().coordinates(); }
+  virtual CNodes& nodes() { return get_geometry_elements().nodes(); }
   
   /// Const access to the coordinates
-  virtual const CTable<Real>& coordinates() const { return get_geometry_elements().coordinates(); }
-    
+  virtual const CNodes& nodes() const { return get_geometry_elements().nodes(); }
+
   CElements& get_geometry_elements();
   const CElements& get_geometry_elements() const;
-  
+
 protected: // data
-    
+
   std::string m_data_name;
-  
+
+private:
+
+  boost::shared_ptr<Common::CLink> m_support;
+
 };
   
 ////////////////////////////////////////////////////////////////////////////////

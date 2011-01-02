@@ -7,18 +7,19 @@
 #include <iostream>
 #include <iomanip>
 
-#include <boost/foreach.hpp>
 #include <boost/filesystem/fstream.hpp>
 #include <boost/filesystem/convenience.hpp>
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/progress.hpp>
 
+#include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/ComponentPredicates.hpp"
 
 #include "Mesh/Neu/CWriter.hpp"
 #include "Mesh/CMesh.hpp"
+#include "Mesh/CNodes.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
@@ -105,14 +106,14 @@ void CWriter::write_headerData(std::fstream& file)
     
   
   
-  BOOST_FOREACH(const CoordinatesElementsMap::value_type& coord_array, m_all_coordinates)
+  boost_foreach(const NodesElementsMap::value_type& coord_array, m_all_nodes)
     node_counter += coord_array.first->size();
   
 
-  BOOST_FOREACH(const CRegion& group, find_components_recursively_with_filter<CRegion>(*m_mesh,IsGroup()))
+  boost_foreach(const CRegion& group, find_components_recursively_with_filter<CRegion>(*m_mesh,IsGroup()))
   {
     bool isGroupBC(false);
-    BOOST_FOREACH(const CElements& elementregion, find_components_recursively<CElements>(group))
+    boost_foreach(const CElements& elementregion, find_components_recursively<CElements>(group))
     {
       bool isElementBC(false);
       Uint dimensionality = elementregion.element_type().dimensionality();
@@ -163,9 +164,9 @@ void CWriter::write_coordinates(std::fstream& file)
   file << "   NODAL COORDINATES 2.3.16" << std::endl;
   file.setf(std::ios::fixed);
   Uint node_number = 0;
-  BOOST_FOREACH(const CoordinatesElementsMap::value_type& coord_array, m_all_coordinates)
+  boost_foreach(const NodesElementsMap::value_type& nodes_array, m_all_nodes)
   {
-      BOOST_FOREACH(CTable<Real>::ConstRow row, coord_array.first->array())
+      boost_foreach(CTable<Real>::ConstRow row, nodes_array.first->coordinates().array())
       {
         ++node_number;
         file << std::setw(10) << node_number;
@@ -191,9 +192,9 @@ void CWriter::write_connectivity(std::fstream& file)
 
   // loop over all element regions
   Uint global_node_idx=0;
-  BOOST_FOREACH(const CoordinatesElementsMap::value_type& coord_array, m_all_coordinates)
+  boost_foreach(const NodesElementsMap::value_type& nodes_array, m_all_nodes)
   {
-    BOOST_FOREACH(const CElements* elementregion, coord_array.second)
+    boost_foreach(const CElements* elementregion, nodes_array.second)
     {
       bool isBC = false;
       Uint dimensionality = elementregion->element_type().dimensionality();
@@ -212,7 +213,7 @@ void CWriter::write_connectivity(std::fstream& file)
         m_global_start_idx[elementregion]=elm_number;
 
         // write the nodes for each element of this region
-        BOOST_FOREACH(const CTable<Uint>::ConstRow& cf_element , elementregion->connectivity_table().array())
+        boost_foreach(const CTable<Uint>::ConstRow& cf_element , elementregion->connectivity_table().array())
         {
           file << std::setw(8) << ++elm_number << std::setw(3) << elm_type << std::setw(3) << nb_nodes << " ";
           std::vector<Uint> neu_element(nb_nodes);
@@ -227,7 +228,7 @@ void CWriter::write_connectivity(std::fstream& file)
           }
           
           Uint eol_counter=0;
-          BOOST_FOREACH(Uint neu_node, neu_element)
+          boost_foreach(Uint neu_node, neu_element)
           {
             if (eol_counter == 7)
             {
@@ -241,7 +242,7 @@ void CWriter::write_connectivity(std::fstream& file)
         }
       }
     }
-    global_node_idx += coord_array.first->size();
+    global_node_idx += nodes_array.first->size();
   }
   file << "ENDOFSECTION" << std::endl;
 }
@@ -252,10 +253,10 @@ void CWriter::write_groups(std::fstream& file)
 {
   Uint group_counter(0);
   
-  BOOST_FOREACH(const CRegion& group, find_components_recursively_with_filter<CRegion>(*m_mesh,IsGroup()))
+  boost_foreach(const CRegion& group, find_components_recursively_with_filter<CRegion>(*m_mesh,IsGroup()))
   {
     bool isBC(false);
-    BOOST_FOREACH(const CElements& elementregion, find_components_recursively <CElements>(group))
+    boost_foreach(const CElements& elementregion, find_components_recursively <CElements>(group))
     {
       Uint dimensionality = elementregion.element_type().dimensionality();
       if (dimensionality < m_max_dimensionality) // is bc
@@ -266,7 +267,7 @@ void CWriter::write_groups(std::fstream& file)
     if (!isBC)
     {
       Uint element_counter(0);
-      BOOST_FOREACH(const CElements& elementregion, find_components_recursively<CElements>(group))
+      boost_foreach(const CElements& elementregion, find_components_recursively<CElements>(group))
       {
         element_counter += elementregion.connectivity_table().size();
       }
@@ -274,7 +275,7 @@ void CWriter::write_groups(std::fstream& file)
       file << "GROUP:" << std::setw(11) << ++group_counter << " ELEMENTS:" << std::setw(11) << element_counter << " MATERIAL:" << std::setw(11) << 2 << " NFLAGS:" << std::setw(11) << 1 << std::endl;
       file << std::setw(32) << group.name() << std::endl << std::setw(8) << 0 << std::endl;
       Uint line_counter=0;
-      BOOST_FOREACH(const CElements& elementregion, find_components_recursively <CElements>(group))
+      boost_foreach(const CElements& elementregion, find_components_recursively <CElements>(group))
       {
         Uint elm_global_start_idx = m_global_start_idx[&elementregion]+1;
         Uint elm_global_end_idx = elementregion.connectivity_table().size() + elm_global_start_idx;
@@ -305,13 +306,13 @@ void CWriter::write_boundaries(std::fstream& file)
   node_connectivity->initialize(find_components_recursively_with_filter<CElements>(*m_mesh, IsElementsVolume()));
 
   
-  BOOST_FOREACH(CElements& elementregion, find_components_recursively_with_filter<CElements>(*m_mesh,IsElementsSurface()))
+  boost_foreach(CElements& elementregion, find_components_recursively_with_filter<CElements>(*m_mesh,IsElementsSurface()))
     elementregion.create_component<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
 
   // Find total number of boundary elements and store all bc groups
   Uint total_nbElements=0;
   std::set<CRegion::ConstPtr> bc_regions;
-  BOOST_FOREACH(const CElements& elementregion, find_components_recursively_with_filter<CElements>(*m_mesh,IsElementsSurface()))
+  boost_foreach(const CElements& elementregion, find_components_recursively_with_filter<CElements>(*m_mesh,IsElementsSurface()))
   {
     bc_regions.insert(elementregion.get_parent()->as_type<CRegion const>());
     total_nbElements += elementregion.connectivity_table().size();
@@ -322,12 +323,12 @@ void CWriter::write_boundaries(std::fstream& file)
     /// @todo pass a CFLogStream to progress_display instead of std::cout
     boost::progress_display progress(total_nbElements,std::cout,"writing boundary conditions\n");
     
-    BOOST_FOREACH(CRegion::ConstPtr group, bc_regions) // For each boundary condition
+    boost_foreach(CRegion::ConstPtr group, bc_regions) // For each boundary condition
     {
       file << " BOUNDARY CONDITIONS 2.3.16\n";
       file << std::setw(32) << group->name() << std::setw(8) << 1 << std::setw(8) << group->recursive_elements_count() << std::setw(8) << 0 << std::setw(8) << 6 << std::endl;
       
-      BOOST_FOREACH(const CElements& elementregion, find_components_recursively<CElements>(*group))  // for each element type in this BC
+      boost_foreach(const CElements& elementregion, find_components_recursively<CElements>(*group))  // for each element type in this BC
       {
         const CTable<Uint>& table = elementregion.connectivity_table();
         const CFaceConnectivity& face_connectivity = find_component<CFaceConnectivity>(elementregion);

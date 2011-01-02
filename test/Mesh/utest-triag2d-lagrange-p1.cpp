@@ -13,7 +13,7 @@
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
 
-#include "Mesh/CTable.hpp"
+#include "Mesh/CNodes.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/SF/Triag2DLagrangeP1.hpp"
 
@@ -81,11 +81,11 @@ BOOST_AUTO_TEST_CASE( Volume )
 
 BOOST_AUTO_TEST_CASE( Element )
 {
-  CTable<Real>::Ptr coordinates ( allocate_component<CTable<Real> >("coordinates") );
+  CNodes::Ptr nodes = allocate_component<CNodes>("nodes") ;
   // Create a CElements component
-  CElements::Ptr comp ( allocate_component<CElements>("comp") ) ;
+  CElements::Ptr comp = allocate_component<CElements>("comp");
 
-  comp->initialize("CF.Mesh.SF.Triag2DLagrangeP1",*coordinates);
+  comp->initialize("CF.Mesh.SF.Triag2DLagrangeP1",*nodes);
   BOOST_CHECK_EQUAL(comp->element_type().shape(), GeoShape::TRIAG);
   BOOST_CHECK_EQUAL(comp->element_type().nb_nodes(), (Uint) 3);
 

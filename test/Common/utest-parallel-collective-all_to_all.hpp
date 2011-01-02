@@ -230,7 +230,7 @@ BOOST_AUTO_TEST_CASE( all_to_all_vector_constant )
 
 BOOST_AUTO_TEST_CASE( all_to_all_ptr_variable )
 {
-  int i,j,k,l;
+  int i,j,k;
 
   setup_data_variable();
 
@@ -341,7 +341,7 @@ BOOST_AUTO_TEST_CASE( all_to_all_ptr_variable )
 
 BOOST_AUTO_TEST_CASE( all_to_all_vector_variable )
 {
-  int i,j,k,l;
+  int i,j,k;
 
   setup_data_variable();
 

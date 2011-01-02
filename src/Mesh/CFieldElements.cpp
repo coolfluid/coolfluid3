@@ -27,6 +27,9 @@ CFieldElements::CFieldElements ( const std::string& name ) :
 {
   properties()["element_based"] = false;
   properties()["node_based"] = false;
+  
+  m_support = create_static_component<CLink>("support");
+  m_support->add_tag("support");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -44,12 +47,10 @@ void CFieldElements::initialize(CElements& elements)
   cf_assert(m_element_type);
 
   // create a link to the geometry elements.
-  CLink::Ptr support = create_component<CLink>("support");
-  support->link_to(elements.get());
-  support->add_tag("support");
+  m_support->link_to(elements.get());
   
   m_connectivity_table = boost::dynamic_pointer_cast< CTable<Uint> >(elements.connectivity_table().shared_from_this());
-  m_node_list = boost::dynamic_pointer_cast< CList<Uint> >(elements.node_list().shared_from_this());
+  m_used_nodes = boost::dynamic_pointer_cast< CList<Uint> >(elements.used_nodes().shared_from_this());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -82,7 +83,7 @@ void CFieldElements::add_element_based_storage()
 CTable<Real>& CFieldElements::data()
 {
   Component& data = find_component_with_filter(*this,IsComponentTag(m_data_name));
-  return *data.as_type<CTable<Real> >();
+  return *data.get()->as_type<CTable<Real> >();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -90,23 +91,21 @@ CTable<Real>& CFieldElements::data()
 const CTable<Real>& CFieldElements::data() const
 {
   const Component& data = find_component_with_filter(*this,IsComponentTag(m_data_name));
-  return *data.as_type<CTable<Real> const>();
+  return *data.get()->as_type<CTable<Real> const>();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 CElements& CFieldElements::get_geometry_elements()
 {
-  Component& geometry_elements = find_component_with_filter(*this,IsComponentTag("support"));
-  return *geometry_elements.as_type<CElements>();
+  return *m_support->get()->as_type<CElements>();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 const CElements& CFieldElements::get_geometry_elements() const
 {
-  const Component& geometry_elements = find_component_with_filter(*this,IsComponentTag("support"));
-  return *geometry_elements.as_type<CElements const>();
+  return *m_support->get()->as_type<CElements>();
 }
 
 //////////////////////////////////////////////////////////////////////////////

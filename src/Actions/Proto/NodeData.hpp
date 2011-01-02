@@ -11,6 +11,7 @@
 #include <boost/mpl/range_c.hpp>
 
 #include "Mesh/CTable.hpp"
+#include "Mesh/CNodes.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
 
@@ -34,10 +35,10 @@ const Mesh::CTable<Real>& extract_coordinates(const Mesh::CRegion& region)
     {
       if(coordinates)
       {
-        cf_assert(coordinates == &elements.coordinates());
+        cf_assert(coordinates == &elements.nodes().coordinates());
         continue;
       }
-      coordinates = &elements.coordinates();
+      coordinates = &elements.nodes().coordinates();
     }
   }
   

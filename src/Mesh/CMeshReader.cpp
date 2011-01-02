@@ -111,14 +111,14 @@ CMesh::Ptr CMeshReader::create_mesh_from(boost::filesystem::path& file)
 //////////////////////////////////////////////////////////////////////////////
 
 CMeshReader::BufferMap
-  CMeshReader::create_element_regions_with_buffermap (CRegion& parent_region, CTable<Real>& coordinates,
+  CMeshReader::create_element_regions_with_buffermap (CRegion& parent_region, CNodes& nodes,
                                                     const std::vector<std::string>& etypes)
 {
   // Create regions for each element type
   BufferMap buffermap;
   boost_foreach(const std::string& etype, etypes)
   {
-    CElements& etype_region = parent_region.create_elements(etype,coordinates);
+    CElements& etype_region = parent_region.create_elements(etype,nodes);
     // CFinfo << "create: " << etype_region->full_path().string() << "\n" << CFflush;
 
     buffermap[etype] = boost::shared_ptr<CTable<Uint>::Buffer> (new CTable<Uint>::Buffer(etype_region.connectivity_table().create_buffer()));

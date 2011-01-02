@@ -88,7 +88,7 @@ protected: // functions
   /// @param [in] etypes          List of element type names that will be used
   /// @return a BufferMap with key an etype name and value a buffer for the region
   ///         with name of the etype
-  BufferMap create_element_regions_with_buffermap(CRegion& parent_region, CTable<Real>& coordinates,
+  BufferMap create_element_regions_with_buffermap(CRegion& parent_region, CNodes& nodes,
                                               const std::vector<std::string>& etypes);
 
   /// remove all regions with empty connectivity tables inside a given region

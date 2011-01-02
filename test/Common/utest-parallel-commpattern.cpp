@@ -282,8 +282,8 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVectorWeakPtr )
   BOOST_CHECK_EQUAL( w1->stride() , 2 );
   BOOST_CHECK_EQUAL( w2->stride() , 3 );
 
-  BOOST_CHECK_EQUAL( w1->size_of() , sizeof(double) );
-  BOOST_CHECK_EQUAL( w2->size_of() , sizeof(double) );
+  BOOST_CHECK_EQUAL( w1->size_of() , static_cast<int>(sizeof(double)) );
+  BOOST_CHECK_EQUAL( w2->size_of() , static_cast<int>(sizeof(double)) );
 
   double *dtest1=(double*)w1->pack(map);
   double *dtest2=(double*)w2->pack(map);
@@ -336,7 +336,7 @@ BOOST_AUTO_TEST_CASE( data_registration_related )
   BOOST_FOREACH( PEObjectWrapper& pobj, find_components_recursively<PEObjectWrapper>(pecp) )
   {
     BOOST_CHECK_EQUAL( pobj.type_name() , "PEObjectWrapper" );
-    BOOST_CHECK_EQUAL( pobj.size_of() , sizeof(double) );
+    BOOST_CHECK_EQUAL( pobj.size_of() , static_cast<int>(sizeof(double)) );
     if (pobj.name()=="VectorWeakPtr1"){
       BOOST_CHECK_EQUAL( pobj.size() , 16 );
       BOOST_CHECK_EQUAL( pobj.stride() , 2 );

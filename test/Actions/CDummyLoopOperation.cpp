@@ -95,7 +95,7 @@ void CDummyLoopOperation::create_loop_helper (CElements& geometry_elements )
 
 CList<Uint>& CDummyLoopOperation::loop_list() const
 {
-	return m_loop_helper->node_list;
+	return m_loop_helper->used_nodes;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

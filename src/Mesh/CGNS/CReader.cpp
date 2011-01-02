@@ -18,6 +18,7 @@
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
+#include "Mesh/CNodes.hpp"
 #include "Mesh/CGNS/CReader.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -258,9 +259,9 @@ void CReader::read_coordinates_unstructured(CRegion& parent_region)
 {
 
   CFinfo << "creating coordinates in " << parent_region.full_path().string() << CFendl;
-  CTable<Real>& coordinates = parent_region.create_coordinates(m_zone.coord_dim);
-  m_zone.coords = &coordinates;
-  m_zone.coords_start_idx = coordinates.size();
+  CNodes& nodes = parent_region.create_nodes(m_zone.coord_dim);
+  m_zone.nodes = &nodes;
+  m_zone.nodes_start_idx = nodes.size();
 
   // read coordinates
   int one = 1;
@@ -280,7 +281,7 @@ void CReader::read_coordinates_unstructured(CRegion& parent_region)
       CALL_CGNS(cg_coord_read(m_file.idx,m_base.idx,m_zone.idx, "CoordinateX", RealDouble, &one, &m_zone.total_nbVertices, xCoord));
   }
 
-  CTable<Real>::Buffer buffer = coordinates.create_buffer();
+  CTable<Real>::Buffer buffer = nodes.coordinates().create_buffer();
   buffer.increase_array_size(m_zone.total_nbVertices);
   std::vector<Real> row(m_zone.coord_dim);
   for (int i=0; i<m_zone.total_nbVertices; ++i)
@@ -312,9 +313,9 @@ void CReader::read_coordinates_unstructured(CRegion& parent_region)
 
 void CReader::read_coordinates_structured(CRegion& parent_region)
 {
-  CTable<Real>& coordinates = parent_region.create_coordinates(m_zone.coord_dim);
-  m_zone.coords = &coordinates;
-  m_zone.coords_start_idx = coordinates.size();
+  CNodes& nodes = parent_region.create_nodes(m_zone.coord_dim);
+  m_zone.nodes = &nodes;
+  m_zone.nodes_start_idx = nodes.size();
 
   int one[3];
   one[0]= 1;
@@ -338,7 +339,7 @@ void CReader::read_coordinates_structured(CRegion& parent_region)
       CALL_CGNS(cg_coord_read(m_file.idx,m_base.idx,m_zone.idx, "CoordinateX", RealDouble, one, m_zone.nbVertices, xCoord));
   }
 
-  CTable<Real>::Buffer buffer = coordinates.create_buffer();
+  CTable<Real>::Buffer buffer = nodes.coordinates().create_buffer();
   buffer.increase_array_size(m_zone.total_nbVertices);
   std::vector<Real> row(m_zone.coord_dim);
 
@@ -414,14 +415,14 @@ void CReader::read_section(CRegion& parent_region)
 
 
 
-  CTable<Real>& all_coordinates = *m_zone.coords;
-  Uint start_idx = m_zone.coords_start_idx;
+  CNodes& all_nodes = *m_zone.nodes;
+  Uint start_idx = m_zone.nodes_start_idx;
 
   if (m_section.type == MIXED)
   {
     // Create CElements component for each element type.
     BufferMap buffer = create_element_regions_with_buffermap(this_region,
-                                                             all_coordinates,
+                                                             all_nodes,
                                                              get_supported_element_types());
 
     // Handle each element of this section separately to see in which CElements component it will be written
@@ -473,19 +474,19 @@ void CReader::read_section(CRegion& parent_region)
 
     // Create element component in this region for this CF element type, automatically creates connectivity_table
     if (property("SharedCoordinates").value<bool>())
-      this_region.create_elements(etype_CF,all_coordinates);
+      this_region.create_elements(etype_CF,all_nodes);
     else
     {
       // Create coordinates component in this region for this CF element type
-      CTable<Real>& section_coordinates = this_region.create_coordinates(m_zone.coord_dim);
-      this_region.create_elements(etype_CF,section_coordinates); // no second argument defaults to the coordinates in this_region
+      CNodes& section_nodes = this_region.create_nodes(m_zone.coord_dim);
+      this_region.create_elements(etype_CF,section_nodes); // no second argument defaults to the coordinates in this_region
     }
 
     CElements& element_region= *this_region.get_child<CElements>("elements_"+etype_CF);
 
     // Create a buffer for this element component, to start filling in the elements we will read.
     CTable<Uint>::Buffer element_buffer = element_region.connectivity_table().create_buffer();
-    CTable<Real>::Buffer coord_buffer   = element_region.coordinates().create_buffer();
+    CTable<Real>::Buffer coord_buffer   = element_region.nodes().coordinates().create_buffer();
 
     // Create storage for element nodes
     int* elemNodes = new int [m_section.elemDataSize];
@@ -524,7 +525,7 @@ void CReader::read_section(CRegion& parent_region)
           // if not found in coords_added, it has to be added to the buffer
           if (local_coord_idx >= coords_added.size())
           {
-            local_coord_idx = coord_buffer.add_row_directly(all_coordinates[global_coord_idx]);
+            local_coord_idx = coord_buffer.add_row_directly(all_nodes.coordinates()[global_coord_idx]);
             coords_added.push_back(global_coord_idx);
           }
           row[node] = local_coord_idx;
@@ -532,7 +533,7 @@ void CReader::read_section(CRegion& parent_region)
         element_buffer.add_row_directly(row);
 
         // Store the global element number to a pair of (region , local element number)
-        m_global_to_region.push_back(Region_TableIndex_pair(boost::dynamic_pointer_cast<CElements>(element_region.shared_from_this()),elem));
+        m_global_to_region.push_back(Region_TableIndex_pair(element_region.as_type<CElements>(),elem));
       } // for elem
     }
 
@@ -561,7 +562,7 @@ void CReader::read_section(CRegion& parent_region)
 
 void CReader::create_structured_elements(CRegion& parent_region)
 {
-  CTable<Real>& coordinates = *m_zone.coords;
+  CNodes& nodes = *m_zone.nodes;
 
   std::string etype_CF;
   switch (m_base.cell_dim)
@@ -579,7 +580,7 @@ void CReader::create_structured_elements(CRegion& parent_region)
   }
 
   CRegion& this_region = parent_region.create_region("Inner");
-  CElements& element_region = this_region.create_elements(etype_CF,coordinates);
+  CElements& element_region = this_region.create_elements(etype_CF,nodes);
 
   // Create a buffer for this element component, to start filling in the elements we will read.
   CTable<Uint>::Buffer element_buffer = element_region.connectivity_table().create_buffer();
@@ -689,10 +690,10 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
 
       // Create a region inside mesh/regions/bc-regions with the name of the cgns boco.
       CRegion& this_region = parent_region.create_region(m_boco.name);
-      CTable<Real>& coordinates = *m_zone.coords;
+      CNodes& nodes = *m_zone.nodes;
 
       // Create CElements components for every possible element type supported.
-      BufferMap buffer = create_element_regions_with_buffermap(this_region,coordinates,get_supported_element_types());
+      BufferMap buffer = create_element_regions_with_buffermap(this_region,nodes,get_supported_element_types());
 
       for (int global_element=boco_elems[0]-1;global_element<boco_elems[1];++global_element)
       {
@@ -736,10 +737,10 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
 
       // Create a region inside mesh/regions/bc-regions with the name of the cgns boco.
       CRegion& this_region = parent_region.create_region(m_boco.name);
-      CTable<Real>& coordinates = *m_zone.coords;
+      CNodes& nodes = *m_zone.nodes;
 
       // Create CElements components for every possible element type supported.
-      BufferMap buffer = create_element_regions_with_buffermap(this_region,coordinates,get_supported_element_types());
+      BufferMap buffer = create_element_regions_with_buffermap(this_region,nodes,get_supported_element_types());
 
       for (int i=0; i<m_boco.nBC_elem; ++i)
       {
@@ -792,7 +793,7 @@ void CReader::read_boco_structured(CRegion& parent_region)
 
   // Create a region inside mesh/regions/bc-regions with the name of the cgns boco.
   CRegion& this_region = parent_region.create_region(m_boco.name);
-  CTable<Real>& coordinates = *m_zone.coords;
+  CNodes& nodes = *m_zone.nodes;
 
   // Which BC_element type will we need?
   std::string etype_CF;
@@ -814,7 +815,7 @@ void CReader::read_boco_structured(CRegion& parent_region)
       break;
   }
 
-  CElements& elements = this_region.create_elements(etypeBC_CF,coordinates);
+  CElements& elements = this_region.create_elements(etypeBC_CF,nodes);
   //CTable<Uint>& source_elements = parent_region.get_child("Inner")->get_child<CElements>("elements_"+etype_CF)->connectivity_table();
   CTable<Uint>::Buffer buffer = elements.connectivity_table().create_buffer();
 

@@ -17,8 +17,8 @@ namespace CF {
 	
   namespace Mesh
   {
-		template <typename T> class CTable;
 		class CFieldElements;
+    template <typename T> class CList;
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -56,9 +56,9 @@ private: // data
   struct LoopHelper
   {
     LoopHelper(Mesh::CElements& geometry_elements) :
-		node_list(geometry_elements.node_list())
+      used_nodes(geometry_elements.used_nodes())
     { }
-    Mesh::CList<Uint>& node_list;
+    Mesh::CList<Uint>& used_nodes;
   };
 	
   boost::shared_ptr<LoopHelper> m_loop_helper;

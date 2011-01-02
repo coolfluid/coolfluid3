@@ -148,6 +148,9 @@ private:
 	std::vector<VarType> m_var_types;
 	
 	
+  boost::shared_ptr<Common::CLink> m_support;
+	
+	
 };
 
 ////////////////////////////////////////////////////////////////////////////////

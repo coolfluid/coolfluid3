@@ -55,7 +55,7 @@ void CTakeStep::create_loop_helper (CElements& geometry_elements )
 CList<Uint>& CTakeStep::loop_list() const
 {
   cf_assert( is_not_null(m_loop_helper) );
-  return m_loop_helper->node_list;
+  return m_loop_helper->used_nodes;
 }
 	
 ////////////////////////////////////////////////////////////////////////////////////

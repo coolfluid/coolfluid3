@@ -17,6 +17,7 @@
 #include "Mesh/CList.hpp"
 #include "Mesh/CMeshPartitioner.hpp"
 #include "Mesh/CDynTable.hpp"
+#include "Mesh/CNodes.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -104,17 +105,14 @@ void CMeshPartitioner::build_global_to_local_index(CMesh& mesh)
   m_map_built = true;
   m_nb_owned_obj = 0;
   m_local_start_index.push_back(0);
-  boost_foreach ( CTable<Real>& coordinates, find_components_recursively_with_tag<CTable<Real> >(mesh,"coordinates"))
+  boost_foreach ( CNodes& nodes, find_components_recursively<CNodes>(mesh) )
   {
 //    const CList<bool>& is_ghost = find_component_with_tag<CList<bool> >(coordinates,"is_ghost");
 //    boost_foreach (bool is_ghost_entry, is_ghost.array())
 //      if (!is_ghost_entry)
 //        ++m_nb_owned_obj;
-    const CList<Uint>& global_indices = find_component_with_tag<CList<Uint> >(coordinates,"global_node_indices");
-    const CDynTable<Uint>& glb_elem_connectivity = find_component_with_tag<CDynTable<Uint> >(coordinates,"glb_elem_connectivity");
-    cf_assert(coordinates.size() == global_indices.size());
-    cf_assert(coordinates.size() == glb_elem_connectivity.size());
-    boost_foreach (Uint glb_idx, global_indices.array())
+
+    boost_foreach (Uint glb_idx, nodes.glb_idx().array())
     {
       if (m_hash->owns(from_node_glb(glb_idx)))
       {
@@ -122,20 +120,13 @@ void CMeshPartitioner::build_global_to_local_index(CMesh& mesh)
         ++m_nb_owned_obj;
       }
     }
-    m_local_components.push_back(coordinates.self());
-    m_glb_idx_components.push_back(global_indices.self());
-    m_connectivity_components.push_back(glb_elem_connectivity.self());
-    m_local_start_index.push_back(coordinates.size()+m_local_start_index.back());
+    m_local_components.push_back(nodes.self());
+    m_local_start_index.push_back(nodes.size()+m_local_start_index.back());
   }
 
   boost_foreach ( CElements& elements, find_components_recursively<CElements>(mesh))
   {
-    CTable<Uint>& connectivity_table = elements.connectivity_table();
-    m_nb_owned_obj += connectivity_table.size();
-
-    const CList<Uint>& global_node_indices = find_component_with_tag<CList<Uint> >(elements.coordinates(),"global_node_indices");
-    const CList<Uint>& global_elem_indices = find_component_with_tag<CList<Uint> >(elements,"global_element_indices");
-    cf_assert_desc(to_str(connectivity_table.size())+" != "+to_str(global_elem_indices.size()),connectivity_table.size() == global_elem_indices.size());
+    m_nb_owned_obj += elements.size();
    
     // boost_foreach (Uint glb_idx, global_elem_indices.array())
     // {
@@ -149,10 +140,7 @@ void CMeshPartitioner::build_global_to_local_index(CMesh& mesh)
     //   }
     // }
     m_local_components.push_back(elements.self());
-    m_glb_idx_components.push_back(global_node_indices.self());
-    m_connectivity_components.push_back(connectivity_table.self());
-
-    m_local_start_index.push_back(connectivity_table.size()+m_local_start_index.back());
+    m_local_start_index.push_back(elements.size()+m_local_start_index.back());
 
   }
 
@@ -160,10 +148,9 @@ void CMeshPartitioner::build_global_to_local_index(CMesh& mesh)
   m_global_to_local->reserve(tot_nb_obj);
   Uint loc_idx=0;
   //CFinfo << "adding nodes to map " << CFendl;
-  boost_foreach ( CTable<Real>& coordinates, find_components_recursively_with_tag<CTable<Real> >(mesh,"coordinates"))
+  boost_foreach ( CNodes& nodes, find_components_recursively<CNodes>(mesh) )
   {
-    const CList<Uint>& global_indices = find_component_with_tag<CList<Uint> >(coordinates,"global_node_indices");
-    boost_foreach (Uint glb_idx, global_indices.array())
+    boost_foreach (Uint glb_idx, nodes.glb_idx().array())
     {
       m_global_to_local->insert_blindly(from_node_glb(glb_idx),loc_idx++);
       //CFinfo << "  adding node with glb " << from_node_glb(glb_idx) << CFendl;
@@ -172,8 +159,7 @@ void CMeshPartitioner::build_global_to_local_index(CMesh& mesh)
   //CFinfo << "adding elements " << CFendl;
   boost_foreach ( CElements& elements, find_components_recursively<CElements>(mesh))
   {
-    const CList<Uint>& global_indices = find_component_with_tag<CList<Uint> >(elements,"global_element_indices");
-    boost_foreach (Uint glb_idx, global_indices.array())
+    boost_foreach (Uint glb_idx, elements.glb_idx().array())
     {
       m_global_to_local->insert_blindly(from_elem_glb(glb_idx),loc_idx++);
       //CFinfo << "  adding element with glb " << from_elem_glb(glb_idx) << CFendl;

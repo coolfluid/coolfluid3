@@ -12,8 +12,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "Mesh/CElements.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/CTable.hpp"
+#include "Mesh/CNodes.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -206,14 +205,14 @@ void Mesh_API create_face_face_connectivity( const CElements& own_celements, con
 template<typename RangeT>
 void CNodeConnectivity::initialize (const RangeT& celements_range )
 {
-  std::set<const CTable<Real>*> coordinates_set;
+  std::set<const CNodes*> nodes_set;
   BOOST_FOREACH(const CElements& elements, celements_range)
-    coordinates_set.insert(&elements.coordinates());
+    nodes_set.insert(&elements.nodes());
   
   // Total number of nodes in the mesh
   Uint nb_nodes = 0;
-  BOOST_FOREACH(const CTable<Real>* coordinates, coordinates_set)
-    nb_nodes += coordinates->size();
+  BOOST_FOREACH(const CNodes* nodes, nodes_set)
+    nb_nodes += nodes->size();
     
   initialize(nb_nodes, celements_range);
 }

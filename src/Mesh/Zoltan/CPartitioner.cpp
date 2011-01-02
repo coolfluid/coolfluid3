@@ -14,6 +14,7 @@
 #include "Common/MPI/tools.hpp"
 #include "Common/Log.hpp"
 
+#include "Mesh/CNodes.hpp"
 #include "Mesh/Zoltan/CPartitioner.hpp"
 
 namespace CF {
@@ -301,11 +302,9 @@ void CPartitioner::migrate()
 		// give the element to node connectivity global indices
 		if(CElements::Ptr elements = boost::dynamic_pointer_cast<CElements>(comp))
 		{
-			CTable<Uint>& conn_table = elements->connectivity_table();
-			const CTable<Real>& coordinates = elements->coordinates();
-			const CList<Uint>& global_node_indices = find_component_with_tag< CList<Uint> >(coordinates,"global_node_indices");
+			const CList<Uint>& global_node_indices = elements->nodes().glb_idx();
 			
-			boost_foreach ( CTable<Uint>::Row nodes, conn_table.array() )
+			boost_foreach ( CTable<Uint>::Row nodes, elements->connectivity_table().array() )
 			{
 				boost_foreach ( Uint& node, nodes )
 				{
@@ -372,11 +371,11 @@ void CPartitioner::migrate()
   boost_foreach (Component::Ptr comp, components_vector())
   {
     // give the element to node connectivity global indices
-    if(CTable<Real>::Ptr coordinates = boost::dynamic_pointer_cast<CTable<Real> >(comp))
+    if(CNodes::Ptr nodes = boost::dynamic_pointer_cast<CNodes>(comp))
     {
-      const CList<Uint>& global_node_indices = find_component_with_tag< CList<Uint> >(*coordinates,"global_node_indices");
-      CList<bool>& is_ghost = find_component_with_tag< CList<bool> >(*coordinates,"is_ghost");      
-      for (Uint i=0; i<coordinates->size(); ++i)
+      const CList<Uint>& global_node_indices = nodes->glb_idx();
+      CList<bool>& is_ghost = nodes->is_ghost();      
+      for (Uint i=0; i<nodes->size(); ++i)
       {
         it = required_nodes.find(global_node_indices[i]);
         // delete node from required_nodes if it is found, and mark as owned
@@ -502,11 +501,11 @@ void CPartitioner::migrate()
   boost_foreach (Component::Ptr comp, components_vector())
   {
     // give the element to node connectivity global indices
-    if(CTable<Real>::Ptr coordinates = boost::dynamic_pointer_cast<CTable<Real> >(comp))
+    if(CNodes::Ptr nodes = boost::dynamic_pointer_cast<CNodes>(comp))
     {
-      const CList<Uint>& global_node_indices = find_component_with_tag< CList<Uint> >(*coordinates,"global_node_indices");
-      cf_assert(global_node_indices.size() == coordinates->size());
-      for (Uint i=0; i<coordinates->size(); ++i)
+      const CList<Uint>& global_node_indices = nodes->glb_idx();
+      cf_assert(global_node_indices.size() == nodes->size());
+      for (Uint i=0; i<nodes->size(); ++i)
       {
         glb_to_loc[global_node_indices[i]]=i;
       }
@@ -518,11 +517,9 @@ void CPartitioner::migrate()
     // give the element to node connectivity global indices
     if(CElements::Ptr elements = boost::dynamic_pointer_cast<CElements>(comp))
     {
-      CTable<Uint>& conn_table = elements->connectivity_table();
-      
-      BOOST_FOREACH ( CTable<Uint>::Row nodes, conn_table.array() )
+      boost_foreach ( CTable<Uint>::Row nodes, elements->connectivity_table().array() )
       {
-        BOOST_FOREACH ( Uint& node, nodes )
+        boost_foreach ( Uint& node, nodes )
         {
           node = glb_to_loc[node];
         }
@@ -686,7 +683,7 @@ void CPartitioner::get_nodes_sizes(void *data, int gidSize, int lidSize, int num
 	CMeshPartitioner& p = *(CMeshPartitioner *)data;
 	*ierr = ZOLTAN_OK;
 	
-	Component::Ptr comp;
+	CNodes::Ptr comp;
 	Uint comp_idx;
 	Uint array_idx;
 	bool is_found;
@@ -695,12 +692,12 @@ void CPartitioner::get_nodes_sizes(void *data, int gidSize, int lidSize, int num
 		Uint glb_idx = *(int*)(globalIDs+i*gidSize);
 		
 		boost::tie(comp_idx,array_idx,is_found) = p.to_local_indices_from_glb_obj(glb_idx);
-		comp = p.components_vector()[comp_idx];
+		comp = p.components_vector()[comp_idx]->as_type<CNodes>();
 		sizes[i] = sizeof(Uint) // component index
 		+ sizeof(bool) // send_as_ghost true/false
 		+ sizeof(Uint) // gid
-		+ sizeof(Real) * comp->as_type<CTable<Real> >()->row_size() // coordinates
-		+ sizeof(Uint) * (1+p.connectivity_components_vector()[comp_idx]->as_type<CDynTable<Uint> >()->row_size(array_idx)); // global element indices that need this node
+		+ sizeof(Real) * comp->coordinates().row_size() // coordinates
+		+ sizeof(Uint) * (1+comp->glb_elem_connectivity().row_size(array_idx)); // global element indices that need this node
 	}		
 }
 
@@ -712,26 +709,13 @@ void CPartitioner::pack_nodes_messages(void *data, int gidSize, int lidSize, int
 	CMeshPartitioner& p = *(CMeshPartitioner *)data;
 	*ierr = ZOLTAN_OK;
 
-	std::vector<CTable<Real>::Ptr> nodes;
-	std::vector<CDynTable<Uint>::Ptr> connectivity;
-	std::vector<CList<bool>::Ptr> is_ghost;
-	std::vector<CList<Uint>::Ptr> gids;
+	std::vector<CNodes::Ptr> nodes_vec;
 	boost_foreach (Component::Ptr comp, p.components_vector())
 	{
-		if(CTable<Real>::Ptr coordinates = boost::dynamic_pointer_cast<CTable<Real> >(comp))
-		{
-			nodes.push_back(coordinates);
-			connectivity.push_back(find_component_ptr_with_tag<CDynTable<Uint> >(*coordinates,"glb_elem_connectivity"));
-			gids.push_back(find_component_ptr_with_tag< CList<Uint> >(*coordinates,"global_node_indices"));
-			is_ghost.push_back(find_component_ptr_with_tag< CList<bool> >(*coordinates,"is_ghost"));
-		}
+		if(CNodes::Ptr nodes = boost::dynamic_pointer_cast<CNodes>(comp))
+			nodes_vec.push_back(nodes);
 		else
-		{
-			nodes.push_back(CTable<Real>::Ptr());
-			connectivity.push_back(CDynTable<Uint>::Ptr());
-			gids.push_back(CList<Uint>::Ptr());
-			is_ghost.push_back(CList<bool>::Ptr());
-		}
+			nodes_vec.push_back(CNodes::Ptr());
 	}
 	
 	Component::Ptr comp;
@@ -760,17 +744,17 @@ void CPartitioner::pack_nodes_messages(void *data, int gidSize, int lidSize, int
 		*as_ghost_buf++ = send_as_ghost;
 		
 		gid_buf = (Uint *)(as_ghost_buf);
-		*gid_buf++ = gids[comp_idx]->array()[array_idx];
+		*gid_buf++ = nodes_vec[comp_idx]->glb_idx()[array_idx];
 		
 		coords_buf = (Real *)(gid_buf);
-		boost_foreach (const Real& node, nodes[comp_idx]->array()[array_idx])
+		boost_foreach (const Real& node, nodes_vec[comp_idx]->coordinates()[array_idx])
 		{
 			*coords_buf++ = node;
 		}
 		
 		elems_buf = (Uint *)(coords_buf);
-		*elems_buf++ = connectivity[comp_idx]->row_size(array_idx);
-		boost_foreach (const Uint elem, connectivity[comp_idx]->array()[array_idx])
+		*elems_buf++ = nodes_vec[comp_idx]->glb_elem_connectivity().row_size(array_idx);
+		boost_foreach (const Uint elem, nodes_vec[comp_idx]->glb_elem_connectivity()[array_idx])
 		{
 			*elems_buf++ = elem;
 		}
@@ -778,20 +762,21 @@ void CPartitioner::pack_nodes_messages(void *data, int gidSize, int lidSize, int
 		CFdebug << RANK << "packed node " << p.to_node_glb(glb_idx) << CFendl;
 	}
 			
-	for(Uint b=0; b<gids.size(); ++b)
+
+	boost_foreach (CNodes::Ptr nodes, nodes_vec)
 	{
-		if (is_not_null(gids[b]))
+		if (is_not_null(nodes))
 		{
-			CTable<Real>::Buffer node_buffer = nodes[b]->create_buffer();
-			CList<Uint>::Buffer gid_buffer = gids[b]->create_buffer();
-			CList<bool>::Buffer is_ghost_buffer = is_ghost[b]->create_buffer();
-			CDynTable<Uint>::Buffer connectivity_buffer = connectivity[b]->create_buffer();
-			for (Uint i=0; i<gids[b]->size(); ++i)
+			CTable<Real>::Buffer node_buffer    = nodes->coordinates().create_buffer();
+			CList<Uint>::Buffer gid_buffer      = nodes->glb_idx().create_buffer();
+			CList<bool>::Buffer is_ghost_buffer = nodes->is_ghost().create_buffer();
+			CDynTable<Uint>::Buffer connectivity_buffer = nodes->glb_elem_connectivity().create_buffer();
+			for (Uint i=0; i<nodes->size(); ++i)
 			{
 				// if this gid is not found in required nodes
-				if (is_ghost[b]->array()[i])
+				if (nodes->is_ghost()[i])
 				{
-					Uint gid = gids[b]->array()[i];
+					Uint gid = nodes->glb_idx()[i];
 					gid_buffer.rm_row(i);
 					node_buffer.rm_row(i);
 					is_ghost_buffer.rm_row(i);
@@ -823,16 +808,12 @@ void CPartitioner::unpack_nodes_messages(void *data, int gidSize, int num_ids,
 	std::vector<boost::shared_ptr<CList<Uint>::Buffer> > gid_buffer;
 	boost_foreach (Component::Ptr comp, p.components_vector())
 	{
-		if(CTable<Real>::Ptr coordinates = boost::dynamic_pointer_cast<CTable<Real> >(comp))
+		if(CNodes::Ptr nodes = boost::dynamic_pointer_cast<CNodes>(comp))
 		{
-			CDynTable<Uint>& conn_table = find_component_with_tag<CDynTable<Uint> >(*coordinates,"glb_elem_connectivity");
-			CList<Uint>& gid = find_component_with_tag< CList<Uint> >(*coordinates,"global_node_indices");
-			CList<bool>& is_ghost = find_component_with_tag< CList<bool> >(*coordinates,"is_ghost");
-			
-			node_buffer.push_back(boost::shared_ptr<CTable<Real>::Buffer> ( new CTable<Real>::Buffer(coordinates->create_buffer())) );
-			connectivity_buffer.push_back(boost::shared_ptr<CDynTable<Uint>::Buffer> ( new CDynTable<Uint>::Buffer(conn_table.create_buffer())) );
-			is_ghost_buffer.push_back(boost::shared_ptr<CList<bool>::Buffer> ( new CList<bool>::Buffer(is_ghost.create_buffer())) );
-			gid_buffer.push_back(boost::shared_ptr<CList<Uint>::Buffer> ( new CList<Uint>::Buffer(gid.create_buffer())) );
+			node_buffer.push_back(boost::shared_ptr<CTable<Real>::Buffer> ( new CTable<Real>::Buffer(nodes->coordinates().create_buffer())) );
+			connectivity_buffer.push_back(boost::shared_ptr<CDynTable<Uint>::Buffer> ( new CDynTable<Uint>::Buffer(nodes->glb_elem_connectivity().create_buffer())) );
+			is_ghost_buffer.push_back(boost::shared_ptr<CList<bool>::Buffer> ( new CList<bool>::Buffer(nodes->is_ghost().create_buffer())) );
+			gid_buffer.push_back(boost::shared_ptr<CList<Uint>::Buffer> ( new CList<Uint>::Buffer(nodes->glb_idx().create_buffer())) );
 		}
 		else
 		{
@@ -844,7 +825,7 @@ void CPartitioner::unpack_nodes_messages(void *data, int gidSize, int num_ids,
 	}
 
 	
-	Component::Ptr comp;
+	CNodes::Ptr comp;
 	Uint comp_idx;
 	Uint receive_as_ghost;
 	Uint gid;
@@ -863,7 +844,7 @@ void CPartitioner::unpack_nodes_messages(void *data, int gidSize, int num_ids,
 	{
 		comp_idx_buf = (Uint *)(buf + idx[i]);
 		comp_idx = *comp_idx_buf++ ;
-		comp = p.components_vector()[comp_idx];
+		comp = p.components_vector()[comp_idx]->as_type<CNodes>();
 		
 		as_ghost_buf = (bool *)(comp_idx_buf);
 		receive_as_ghost = *as_ghost_buf++ ;
@@ -872,7 +853,7 @@ void CPartitioner::unpack_nodes_messages(void *data, int gidSize, int num_ids,
 		gid = *gid_buf++;
 		
 		coords_buf = (Real *)(gid_buf);
-		std::vector<Real> coords(comp->as_type<CTable<Real> >()->row_size());
+		std::vector<Real> coords(comp->coordinates().row_size());
 		boost_foreach (Real& coord, coords)
 			coord = *coords_buf++;
 		

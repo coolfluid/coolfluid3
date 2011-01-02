@@ -47,11 +47,11 @@ BOOST_AUTO_TEST_CASE ( test_DataComponentWrapper )
   
   std::set<int>& wrapped_set = comp_set->data();
 
-  BOOST_CHECK_EQUAL(comp_set->data().size() , 0);
+  BOOST_CHECK_EQUAL(comp_set->data().size() , 0u);
   
   wrapped_set.insert(5);
   
-  BOOST_CHECK_EQUAL(comp_set->data().size() , 1);
+  BOOST_CHECK_EQUAL(comp_set->data().size() , 1u);
 }
 
 //////////////////////////////////////////////////////////////////////////////

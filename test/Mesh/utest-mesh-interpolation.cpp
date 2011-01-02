@@ -8,14 +8,13 @@
 #define BOOST_TEST_MODULE "Tests mesh interpolation"
 
 #include <boost/test/unit_test.hpp>
-#include <boost/foreach.hpp>
 #include <boost/filesystem/path.hpp>
 #include <boost/assign/list_of.hpp>
 #include <boost/assign/std/vector.hpp>
 
 #include "Common/OptionArray.hpp"
 #include "Common/XmlHelpers.hpp"
-
+#include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
 #include "Common/CreateComponent.hpp"
 #include "Common/ComponentPredicates.hpp"
@@ -26,11 +25,11 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CFieldElements.hpp"
 #include "Mesh/CTable.hpp"
+#include "Mesh/CNodes.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CInterpolator.hpp"
 
-using namespace std;
 using namespace boost;
 using namespace boost::assign;
 using namespace CF;
@@ -137,7 +136,7 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   BOOST_FOREACH(CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*source,"node_data"))
   {    
 		CFinfo << node_data.full_path().string() << CFendl;
-		CTable<Real>& coordinates = *node_data.get_child<CLink>("coordinates")->as_type<CTable<Real> >();
+		CTable<Real>& coordinates = find_component_with_tag(node_data,"nodes_link").get()->as_type<CNodes>()->coordinates();
 
     for (Uint i=0; i<coordinates.size(); ++i)
 		{
@@ -156,8 +155,8 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 	interpolator->interpolate_field_from_to(source->field("nodebased"),target->field("elementbased"));
 	interpolator->interpolate_field_from_to(source->field("nodebased"),source->field("elementbased"));
 	interpolator->interpolate_field_from_to(source->field("elementbased"),target->field("elementbased_2"));
-	interpolator->interpolate_field_from_to(source->field("elementbased"),target->field("nodebased_2"));
-	
+  interpolator->interpolate_field_from_to(source->field("elementbased"),target->field("nodebased_2"));
+  
 	BOOST_CHECK(true);
 	
 	// Write the fields to file.

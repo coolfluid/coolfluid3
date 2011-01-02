@@ -36,6 +36,11 @@ CNodes::CNodes ( const std::string& name ) :
   
   m_is_ghost = create_static_component< CList<bool> >("is_ghost");
   m_is_ghost->add_tag("is_ghost");
+  
+  m_global_numbering = create_static_component< CList<Uint> >("global_node_indices");
+  m_global_numbering->add_tag("global_node_indices");
+  
+  add_tag("nodes");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -51,6 +56,7 @@ void CNodes::resize(const Uint size)
   coordinates().resize(size);
   glb_elem_connectivity().resize(size);
   is_ghost().resize(size);
+  glb_idx().resize(size);
 }
 
 //////////////////////////////////////////////////////////////////////////////

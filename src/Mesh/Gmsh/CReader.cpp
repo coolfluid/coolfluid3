@@ -137,7 +137,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 
   // update the node lists contained by the element regions
   BOOST_FOREACH(CElements& elements, find_components_recursively<CElements>(*m_region))
-    elements.update_node_list();
+    elements.update_used_nodes();
 
   // update the number of cells and nodes in the mesh
   m_mesh->properties()["nb_cells"] = m_mesh->property("nb_cells").value<Uint>() + m_headerData.NELEM;
@@ -152,6 +152,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 
 void CReader::read_headerData()
 {
+  /*
   m_file.seekg(0,std::ios::beg);
   
   Uint NUMNP, NELEM, NGRPS, NBSETS, NDFCD, NDFVL;
@@ -180,6 +181,7 @@ void CReader::read_headerData()
   m_headerData.NDFVL  = NDFVL;
   
   getline(m_file,line);
+  */
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -217,6 +219,7 @@ void CReader::get_file_positions()
 
 void CReader::read_coordinates()
 {   
+  /*
   Uint global_start_idx = m_mesh->properties()["nb_nodes"].value<Uint>();
   
   m_file.seekg(m_nodal_coordinates_position,std::ios::beg);
@@ -273,12 +276,14 @@ void CReader::read_coordinates()
   }
   
   getline(m_file,line);
+  */
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 void CReader::partition_nodes()
 {
+  /*
   Uint p=property("Part").value<Uint>();
   Uint np=property("Number of Parts").value<Uint>();
   std::pair<Uint,Uint> node_range = std::make_pair(m_headerData.NUMNP/np * p ,(p == np-1 ? m_headerData.NUMNP : m_headerData.NUMNP/np*(p+1)));  
@@ -331,13 +336,14 @@ void CReader::partition_nodes()
     getline(m_file,line);
   }
   getline(m_file,line);  // ENDOFSECTION
-
+*/
 }
     
 //////////////////////////////////////////////////////////////////////////////
   
 void CReader::read_connectivity()
 {  
+  /*
   m_tmp = m_region->create_region("main").as_type<CRegion>();
 
   m_global_to_tmp.clear();
@@ -432,7 +438,7 @@ void CReader::read_connectivity()
   
   m_node_to_coord_idx.clear();
   m_node_to_glb_elements.clear();
-  
+  */
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -463,7 +469,7 @@ std::string CReader::element_type(const Uint gmsh_type, const Uint nb_nodes)
 
 void CReader::read_groups()
 {
-  
+  /*
   cf_assert(m_element_group_positions.size() == m_headerData.NGRPS)
   
   std::vector<GroupData> groups(m_headerData.NGRPS);
@@ -559,7 +565,7 @@ void CReader::read_groups()
 
   m_region->remove_component(m_tmp->name());
   m_tmp.reset();
-  
+  */
 }
   
 //////////////////////////////////////////////////////////////////////////////

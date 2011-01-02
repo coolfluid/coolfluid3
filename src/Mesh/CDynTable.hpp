@@ -74,26 +74,6 @@ public:
     return Buffer(m_array);
   }
   
-  template <typename VectorT>
-  Uint add_row(const VectorT& row)
-  {
-    m_array.push_back(std::vector<T>(row.size()));
-    Uint array_idx = m_array.size()-1;
-    Uint j=0;
-    boost_foreach(const T row_elem, row)
-      m_array[array_idx][j++] = row_elem;
-    return array_idx;
-  }
-
-  template<typename DoubleVectorT>
-  void add_rows(const DoubleVectorT& rows)
-  {
-    boost_foreach(const typename DoubleVectorT::value_type& row, rows)
-    {
-      add_row(row);
-    }
-  }
-  
   template<typename VectorT>
   void set_row(const Uint array_idx, const VectorT& row)
   {
@@ -101,7 +81,8 @@ public:
       m_array[array_idx].resize(row.size());
 
     for(Uint j=0; j<row.size(); ++j)
-      m_array[array_idx][j] = row[j];
+    index_foreach(j, const typename VectorT::value_type& v, row)
+      m_array[array_idx][j] = v;
   }
   
   Row operator[] (const Uint idx)

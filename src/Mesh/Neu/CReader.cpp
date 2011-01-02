@@ -141,7 +141,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 
   // update the node lists contained by the element regions
   boost_foreach(CElements& elements, find_components_recursively<CElements>(*m_region))
-    elements.update_node_list();
+    elements.update_used_nodes();
 
   // update the number of cells and nodes in the mesh
   m_mesh->properties()["nb_cells"] = m_mesh->property("nb_cells").value<Uint>() + m_headerData.NELEM;
@@ -272,20 +272,11 @@ void CReader::read_coordinates()
   
   m_file.seekg(m_nodal_coordinates_position,std::ios::beg);
   
-  // Create the coordinates array
-  m_coordinates = m_region->create_coordinates(m_headerData.NDFCD).as_type<CTable<Real> >();
+  // Create the nodes
+  m_nodes = m_region->create_nodes(m_headerData.NDFCD).as_type<CNodes>();
   
-  CTable<Real>& coordinates = *m_coordinates;
-  Uint coord_start_idx = coordinates.size();
-  coordinates.resize(coordinates.size()+m_hash->subhash(NODES)->nb_objects_in_part(mpi::PE::instance().rank()) + m_ghost_nodes.size());
-
-  
-  CList<Uint>& global_node_idx = find_component_with_tag<CList<Uint> >(*m_coordinates,"global_node_indices");
-  global_node_idx.resize(global_node_idx.size()+m_hash->subhash(NODES)->nb_objects_in_part(mpi::PE::instance().rank()) + m_ghost_nodes.size());
-
-  CList<bool>& is_ghost = *m_coordinates->get_child<CList<bool> >("is_ghost");
-  is_ghost.resize(is_ghost.size()+m_hash->subhash(NODES)->nb_objects_in_part(mpi::PE::instance().rank()) + m_ghost_nodes.size());
-
+  Uint nodes_start_idx = m_nodes->size();
+  m_nodes->resize(nodes_start_idx + m_hash->subhash(NODES)->nb_objects_in_part(mpi::PE::instance().rank()) + m_ghost_nodes.size());
   std::string line;
   // skip one line
   getline(m_file,line);
@@ -295,7 +286,7 @@ void CReader::read_coordinates()
 
   std::set<Uint>::const_iterator it;
 
-  Uint coord_idx=coord_start_idx;
+  Uint coord_idx=nodes_start_idx;
   for (Uint node_idx=1; node_idx<=m_headerData.NUMNP; ++node_idx) 
   {
     if (m_headerData.NUMNP > 100000)
@@ -306,14 +297,14 @@ void CReader::read_coordinates()
     getline(m_file,line);
 		if (m_hash->subhash(NODES)->owns(node_idx-1))
 		{
-      global_node_idx[coord_idx] = global_start_idx + node_idx - 1; // -1 because base zero
-      is_ghost[coord_idx] = false;
+      m_nodes->glb_idx()[coord_idx] = global_start_idx + node_idx - 1; // -1 because base zero
+      m_nodes->is_ghost()[coord_idx] = false;
       m_node_to_coord_idx[node_idx]=coord_idx;
       std::stringstream ss(line);
       Uint nodeNumber;
       ss >> nodeNumber;
       for (Uint dim=0; dim<m_headerData.NDFCD; ++dim)
-        ss >> coordinates[coord_idx][dim];
+        ss >> m_nodes->coordinates()[coord_idx][dim];
       coord_idx++;
 		}
 		else
@@ -322,14 +313,14 @@ void CReader::read_coordinates()
 			if (it != m_ghost_nodes.end())
 			{
 				// add global node index
-				global_node_idx[coord_idx] = global_start_idx + node_idx - 1; // -1 because base zero
-				is_ghost[coord_idx] = true;
+				m_nodes->glb_idx()[coord_idx] = global_start_idx + node_idx - 1; // -1 because base zero
+				m_nodes->is_ghost()[coord_idx] = true;
 				m_node_to_coord_idx[node_idx]=coord_idx;
 				std::stringstream ss(line);
 				Uint nodeNumber;
 				ss >> nodeNumber;
 				for (Uint dim=0; dim<m_headerData.NDFCD; ++dim)
-					ss >> coordinates[coord_idx][dim];
+					ss >> m_nodes->coordinates()[coord_idx][dim];
 				coord_idx++;
 			}			
 		}
@@ -347,14 +338,9 @@ void CReader::read_connectivity()
   m_global_to_tmp.clear();
   m_file.seekg(m_elements_cells_position,std::ios::beg);
 
-  CTable<Real>& coordinates = *m_coordinates;
-  
-  CDynTable<Uint>& node_to_glb_elem_connectivity = find_component_with_tag<CDynTable<Uint> >(coordinates,"glb_elem_connectivity");
-  CList<bool>& is_ghost = *m_coordinates->get_child<CList<bool> >("is_ghost");
-  
-  m_node_to_glb_elements.resize(coordinates.size());
+  m_node_to_glb_elements.resize(m_nodes->size());
   std::map<std::string,boost::shared_ptr<CTable<Uint>::Buffer> > buffer =
-      create_element_regions_with_buffermap(*m_tmp,coordinates,m_supported_types);
+      create_element_regions_with_buffermap(*m_tmp,*m_nodes,m_supported_types);
 
   std::map<std::string,CElements::Ptr> element_regions;
   boost_foreach(const std::string& etype, m_supported_types)
@@ -362,7 +348,7 @@ void CReader::read_connectivity()
 
   std::map<std::string,boost::shared_ptr<CList<Uint>::Buffer> > glb_elm_indices;
   boost_foreach(const std::string& etype, m_supported_types)
-    glb_elm_indices[etype] = boost::shared_ptr<CList<Uint>::Buffer> ( new CList<Uint>::Buffer(find_component_ptr_with_tag< CList<Uint> >(*element_regions[etype], "global_element_indices")->create_buffer()) );
+    glb_elm_indices[etype] = boost::shared_ptr<CList<Uint>::Buffer> ( new CList<Uint>::Buffer(element_regions[etype]->glb_idx().create_buffer()) );
 
   // skip next line
   std::string line;
@@ -399,7 +385,7 @@ void CReader::read_connectivity()
         m_file >> neu_node_number;
         cf_node_number = m_node_to_coord_idx[neu_node_number];
         cf_element[cf_idx] = cf_node_number;
-        if (!is_ghost[cf_node_number])
+        if (!m_nodes->is_ghost()[cf_node_number])
         {
           //if (m_nodes_to_read.find(neu_node_number) != m_nodes_to_read.end() )
             m_node_to_glb_elements[cf_node_number].insert(elementNumber-1); 
@@ -428,7 +414,8 @@ void CReader::read_connectivity()
   }
   getline(m_file,line);  // ENDOFSECTION
   
-  node_to_glb_elem_connectivity.add_rows(m_node_to_glb_elements);
+  index_foreach( node_idx ,  std::set<Uint>& glb_elems , m_node_to_glb_elements)
+    m_nodes->glb_elem_connectivity().set_row(node_idx,glb_elems);
   
   m_node_to_coord_idx.clear();
   m_node_to_glb_elements.clear();
@@ -446,7 +433,6 @@ void CReader::read_groups()
   std::string line;
   int dummy;
   
-  CTable<Real>& coordinates = *m_coordinates;
   std::set<Uint>::const_iterator it;
   
   for (Uint g=0; g<m_headerData.NGRPS; ++g)
@@ -515,7 +501,7 @@ void CReader::read_groups()
     //CFinfo << "region " << region.full_path().string() << " created" << CFendl;
     // Create regions for each element type in each group-region
     std::map<std::string,boost::shared_ptr<CTable<Uint>::Buffer> > buffer =
-    create_element_regions_with_buffermap(region,coordinates,m_supported_types);
+    create_element_regions_with_buffermap(region,*m_nodes,m_supported_types);
     
     std::map<std::string,CElements::Ptr> element_regions;
     boost_foreach(const std::string& etype, m_supported_types)
@@ -523,7 +509,7 @@ void CReader::read_groups()
 
     std::map<std::string,boost::shared_ptr<CList<Uint>::Buffer> > glb_elm_indices;
     boost_foreach(const std::string& etype, m_supported_types)
-      glb_elm_indices[etype] = boost::shared_ptr<CList<Uint>::Buffer> ( new CList<Uint>::Buffer(find_component_ptr_with_tag< CList<Uint> >(*element_regions[etype], "global_element_indices")->create_buffer()) );
+      glb_elm_indices[etype] = boost::shared_ptr<CList<Uint>::Buffer> ( new CList<Uint>::Buffer(element_regions[etype]->glb_idx().create_buffer()) ) ;
     
     
     // Copy elements from tmp_region in the correct region
@@ -556,9 +542,7 @@ void CReader::read_boundaries()
 {
   Uint glb_element_count = m_headerData.NELEM;
   cf_assert(m_boundary_condition_positions.size() == m_headerData.NBSETS)
-  
-  CTable<Real>& coordinates = *m_coordinates;
-  
+
   std::string line;
   for (Uint t=0; t<m_headerData.NBSETS; ++t) {
 
@@ -582,7 +566,7 @@ void CReader::read_boundaries()
     CRegion& bc_region = m_region->create_region(NAME);
 
     // create all kind of element type regions
-    BufferMap buffer = create_element_regions_with_buffermap (bc_region,coordinates,m_supported_types);
+    BufferMap buffer = create_element_regions_with_buffermap (bc_region,*m_nodes,m_supported_types);
 
 
     std::map<std::string,CElements::Ptr> element_regions;
@@ -591,7 +575,7 @@ void CReader::read_boundaries()
 
     std::map<std::string,boost::shared_ptr<CList<Uint>::Buffer> > glb_elm_indices;
     boost_foreach(const std::string& etype, m_supported_types)
-      glb_elm_indices[etype] = boost::shared_ptr<CList<Uint>::Buffer> ( new CList<Uint>::Buffer(find_component_ptr_with_tag< CList<Uint> >(*element_regions[etype], "global_element_indices")->create_buffer()) );
+      glb_elm_indices[etype] = boost::shared_ptr<CList<Uint>::Buffer> ( new CList<Uint>::Buffer(element_regions[etype]->glb_idx().create_buffer()) );
 
     // read boundary elements connectivity
     for (int i=0; i<NENTRY; ++i) 

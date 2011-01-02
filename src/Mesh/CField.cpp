@@ -9,7 +9,7 @@
 #include <boost/regex.hpp>
 
 #include "Common/CBuilder.hpp"
-
+#include "Common/Foreach.hpp"
 #include "Common/CLink.hpp"
 #include "Common/ComponentPredicates.hpp"
 #include "Common/String/Conversion.hpp"
@@ -17,6 +17,7 @@
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CField.hpp"
 #include "Mesh/CRegion.hpp"
+#include "Mesh/CNodes.hpp"
 #include "Mesh/CFieldElements.hpp"
 
 namespace CF {
@@ -46,6 +47,9 @@ CField::CField ( const std::string& name  ) :
   m_properties["VarSizes"].as_option().attach_trigger ( boost::bind ( &CField::config_var_sizes,   this ) );
   m_properties["VarTypes"].as_option().attach_trigger ( boost::bind ( &CField::config_var_types,   this ) );
 
+  m_support = create_static_component<CLink>("support");
+  m_support->add_tag("support");
+  
 }
   
 ////////////////////////////////////////////////////////////////////////////////
@@ -168,16 +172,14 @@ CField& CField::synchronize_with_region(CRegion& support, const std::string& fie
   // Setup this field
   m_field_name = (field_name == "") ? name() : field_name;
   support.add_field_link(*this);
-  CLink::Ptr support_link = create_component<CLink>("support");
-  support_link->add_tag("support");
-  support_link->link_to(support.get());
+  m_support->link_to(support.self());
 
   // Create FieldElements if the support has them
-  BOOST_FOREACH(CElements& geometry_elements, find_components<CElements>(support))
+  boost_foreach(CElements& geometry_elements, find_components<CElements>(support))
     create_elements(geometry_elements);
 
   // Go down one level in the tree
-  BOOST_FOREACH(CRegion& support_level_down, find_components<CRegion>(support))
+  boost_foreach(CRegion& support_level_down, find_components<CRegion>(support))
   {
     CField& subfield = *create_component<CField>(support_level_down.name());
     subfield.synchronize_with_region(support_level_down,m_field_name);
@@ -214,37 +216,43 @@ void CField::create_data_storage(const DataBasis basis)
       break;
     case NODE_BASED:
     {
-      std::map<std::string,CTable<Real>*> data_for_coordinates;
+      std::map<std::string,CTable<Real>*> data_for_nodes;
 
       // Check if there are coordinates in this field, and add to map
       CTable<Real>::Ptr field_data;
-      if (! find_components<CTable<Real> >(support()).empty() )
+      if ( is_not_null(find_component_ptr<CNodes>(support())) )
       {
-        CTable<Real>& coordinates = find_component<CTable<Real> >(support());
+        CNodes& nodes = find_component<CNodes>(support());
         field_data = create_component<CTable<Real> >("data");
         field_data->add_tag("field_data");
-        field_data->array().resize(boost::extents[coordinates.size()][row_size]);
-        data_for_coordinates[coordinates.full_path().string_without_scheme()] = field_data.get();
+        field_data->set_row_size(row_size);
+        field_data->resize(nodes.size());
+        data_for_nodes[nodes.full_path().string_without_scheme()] = field_data.get();
         
         // create a link to the coordinates in the data
-        field_data->create_component<CLink>("coordinates")->link_to(coordinates.get());
+        CLink::Ptr nodes_link = field_data->create_component<CLink>("nodes");
+        nodes_link->link_to(nodes.get());
+        nodes_link->add_tag("nodes_link");
 			}
 			// Check if there are coordinates in all subfields and add to map
-			BOOST_FOREACH(CField& subfield, find_components_recursively<CField>(*this))
+			boost_foreach(CField& subfield, find_components_recursively<CField>(*this))
 			{
-				if (! find_components<CTable<Real> >(subfield.support()).empty() )
+				if ( is_not_null(find_component_ptr<CNodes>(subfield.support())) )
 				{
           // Create data and store in a map
-					CTable<Real>& coordinates = find_component<CTable<Real> >(subfield.support());
+          CNodes& nodes = find_component<CNodes>(subfield.support());
           CTable<Real>& field_data = *subfield.create_component<CTable<Real> >("data");
           field_data.add_tag("field_data");
-          field_data.array().resize(boost::extents[coordinates.size()][row_size]);
-          data_for_coordinates[coordinates.full_path().string()] = &field_data;
+          field_data.set_row_size(row_size);
+          field_data.resize(nodes.size());
+          data_for_nodes[nodes.full_path().string()] = &field_data;
           
           // create a link to the coordinates in the data
-          field_data.create_component<CLink>("coordinates")->link_to(coordinates.get());
+          CLink::Ptr nodes_link = field_data.create_component<CLink>("nodes");
+          nodes_link->link_to(nodes.get());
+          nodes_link->add_tag("nodes_link");
         }
-        else // if no coordinates are found, link to the data in the top field instead
+        else // if no nodes are found, link to the data in the top field instead
         {
           CLink::Ptr data_link = subfield.create_component<CLink>("data");
           data_link->add_tag("field_data");
@@ -253,9 +261,9 @@ void CField::create_data_storage(const DataBasis basis)
 			}
 
       // Add the correct data according to the map in every field elements component
-      BOOST_FOREACH(CFieldElements& field_elements, find_components_recursively<CFieldElements>(*this))
+      boost_foreach(CFieldElements& field_elements, find_components_recursively<CFieldElements>(*this))
       {
-        field_elements.add_node_based_storage(*data_for_coordinates[field_elements.coordinates().full_path().string_without_scheme()]);
+        field_elements.add_node_based_storage(*data_for_nodes[field_elements.nodes().full_path().string_without_scheme()]);
       }
     }
       break;
@@ -305,14 +313,14 @@ CElements& CField::create_elements(CElements& geometry_elements)
 
 const CRegion& CField::support() const
 {
-  return *get_child("support")->as_type<CRegion const>();  // get() because it is a link
+  return *m_support->get()->as_type<CRegion>();  // get() because it is a link
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 CRegion& CField::support()
 {
-  return *get_child("support")->as_type<CRegion>();  // get() because it is a link
+  return *m_support->get()->as_type<CRegion>();  // get() because it is a link
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -375,8 +383,8 @@ CTable<Real>& CField::data_table()
   Component::Ptr data = find_component_ptr_with_filter(*this, IsComponentTag("field_data"));
   if(!data)
     throw ValueNotFound(FromHere(), "Field " + name() + " has no associated data");
-  CTable<Real>::Ptr result = boost::dynamic_pointer_cast< CTable<Real> >(data->get());
-  cf_assert(result);
+  CTable<Real>::Ptr result = data->get()->as_type<CTable<Real> >();
+  cf_assert( is_not_null(result) );
   return *result;
 }
 
@@ -385,8 +393,9 @@ const CF::Mesh::CTable< Real >& CField::data_table() const
   Component::ConstPtr data = find_component_ptr_with_filter(*this, IsComponentTag("field_data"));
   if(!data)
     throw ValueNotFound(FromHere(), "Field " + name() + " has no associated data");
-  CTable<Real>::ConstPtr result = boost::dynamic_pointer_cast< CTable<Real> const >(data->get());
-  cf_assert(result);
+  CTable<Real>::ConstPtr result = data->get()->as_type<CTable<Real> const>();
+  
+  cf_assert( is_not_null(result) );
   return *result;
 }
 

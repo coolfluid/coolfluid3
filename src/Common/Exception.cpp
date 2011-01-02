@@ -23,7 +23,7 @@ namespace CF {
 
 ExceptionManager::ExceptionManager() :
   ExceptionOutputs ( true ),
-  ExceptionDumps   ( false ),
+  ExceptionDumps   ( true ),
   ExceptionAborts  ( false ) 
 	{
 		std::set_terminate(std::abort);

@@ -62,7 +62,7 @@ private: // data
       residual(geometry_elements.get_field_elements(op.properties()["ResidualField"].value<std::string>()).data()),
       inverse_updatecoeff(geometry_elements.get_field_elements(op.properties()["InverseUpdateCoeff"].value<std::string>()).data()),
       // Assume coordinates and connectivity_table are the same for solution and residual (pretty safe)
-      coordinates(geometry_elements.get_field_elements(op.properties()["SolutionField"].value<std::string>()).coordinates()),
+      coordinates(geometry_elements.get_field_elements(op.properties()["SolutionField"].value<std::string>()).nodes().coordinates()),
       connectivity_table(geometry_elements.get_field_elements(op.properties()["SolutionField"].value<std::string>()).connectivity_table())
     { }
     Mesh::CTable<Real>& solution;

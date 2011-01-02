@@ -12,11 +12,12 @@
 
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
+#include "Common/ComponentPredicates.hpp"
 
 #include "Math/MathConsts.hpp"
 
 #include "Mesh/CTable.hpp"
-#include "Mesh/CTable.hpp"
+#include "Mesh/CNodes.hpp"
 #include "Mesh/ElementData.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/SF/Line2DLagrangeP1.hpp"
@@ -28,6 +29,7 @@
 
 using namespace boost::assign;
 using namespace CF;
+using namespace CF::Common;
 using namespace CF::Math;
 using namespace CF::Mesh;
 using namespace CF::Mesh::Integrators;
@@ -258,9 +260,11 @@ BOOST_AUTO_TEST_CASE( SurfaceIntegral )
   //const Uint segments = 100;
 
   // complete circle
-  CTable<Real> coordinates("coordinates");
-  CTable<Uint> connectivity("connectivity");
-  create_circle_2d(coordinates, connectivity, 1., 100);
+  CMesh::Ptr mesh = allocate_component<CMesh>("mesh");
+  create_circle_2d(*mesh, 1., 100);
+  CTable<Real>& coordinates = find_component_recursively<CNodes>(*mesh).coordinates();
+  CTable<Uint>& connectivity = find_component_recursively<CElements>(*mesh).connectivity_table();
+  
 
   // Check the length, using the line integral of one times the norm of the tangent vector
   Real length = 0.;
@@ -277,9 +281,10 @@ BOOST_AUTO_TEST_CASE( SurfaceIntegral )
 BOOST_AUTO_TEST_CASE( ArcIntegral )
 {
   // half circle arc, so the flux of a uniform field of unit vectors should equal the diameter
-  CTable<Real> arc_coordinates("coordinates");
-  CTable<Uint> arc_connectivity("connectivity");
-  create_circle_2d(arc_coordinates, arc_connectivity, 1., 100, 0., MathConsts::pi());
+  CMesh::Ptr mesh = allocate_component<CMesh>("mesh");  
+  create_circle_2d(*mesh, 1., 100, 0., MathConsts::pi());
+  CTable<Real>& arc_coordinates = find_component_recursively<CNodes>(*mesh).coordinates();
+  CTable<Uint>& arc_connectivity = find_component_recursively<CElements>(*mesh).connectivity_table();
   Real arc_flux = 0.;
   const SFT::CoordsT y_vector(0., 1.);
   integrate_region(arc_flux, ConstVectorField(y_vector), arc_coordinates, arc_connectivity);
@@ -294,9 +299,10 @@ BOOST_AUTO_TEST_CASE( RotatingCylinder )
   const Uint segments = 10000;
 
   // complete circle
-  CTable<Real> coordinates("coordinates");
-  CTable<Uint> connectivity("connectivity");
-  create_circle_2d(coordinates, connectivity, 1., segments);
+  CMesh::Ptr mesh = allocate_component<CMesh>("mesh");
+  create_circle_2d(*mesh, 1., segments);
+  CTable<Real>& coordinates = find_component_recursively<CNodes>(*mesh).coordinates();
+  CTable<Uint>& connectivity = find_component_recursively<CElements>(*mesh).connectivity_table();
 
   // Rotating cylinder in uniform flow
   const Real u = 300.;

@@ -23,6 +23,7 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/CList.hpp"
 #include "Mesh/CElements.hpp"
+#include "Mesh/CNodes.hpp"
 
 
 namespace CF {
@@ -161,7 +162,6 @@ public: // functions
 	}
 
 	std::vector<Common::Component::Ptr>& components_vector() { return m_local_components; }
-	std::vector<Common::Component::ConstPtr>& connectivity_components_vector() { return m_connectivity_components; }
 
 protected: // data
 
@@ -178,10 +178,6 @@ private: // data
   bool m_map_built;
 	
   std::vector<Common::Component::Ptr> m_local_components;
-
-  std::vector<Common::Component::ConstPtr> m_glb_idx_components;
-
-  std::vector<Common::Component::ConstPtr> m_connectivity_components;
 
   std::vector<Uint> m_local_start_index;
 
@@ -233,12 +229,12 @@ Uint CMeshPartitioner::nb_connected_objects(VectorT& nb_connections_per_obj) con
       boost::tie(component_idx,loc_idx) = to_local_indices_from_loc_obj(loc_obj);
       if (is_node(glb_obj))
       {
-        const CDynTable<Uint>& node_to_glb_elm = *m_connectivity_components[component_idx]->as_type<CDynTable<Uint> >();
+        const CDynTable<Uint>& node_to_glb_elm = m_local_components[component_idx]->as_type<CNodes>()->glb_elem_connectivity();
         nb_connections_per_obj[idx] = node_to_glb_elm.row_size(loc_idx);
       }
       else
       {
-        const CTable<Uint>& connectivity_table = *m_connectivity_components[component_idx]->as_type<CTable<Uint> >();
+        const CTable<Uint>& connectivity_table = m_local_components[component_idx]->as_type<CElements>()->connectivity_table();
         nb_connections_per_obj[idx] = connectivity_table.row_size(loc_idx);
       }
 			size += nb_connections_per_obj[idx];
@@ -266,14 +262,15 @@ void CMeshPartitioner::list_of_connected_objects(VectorT& connected_objects) con
       boost::tie(component_idx,loc_idx) = to_local_indices_from_loc_obj(loc_obj);
       if (is_node(glb_obj))
       {
-        const CDynTable<Uint>& node_to_glb_elm = *m_connectivity_components[component_idx]->as_type<CDynTable<Uint> >();
+        const CDynTable<Uint>& node_to_glb_elm = m_local_components[component_idx]->as_type<CNodes>()->glb_elem_connectivity();
         boost_foreach (const Uint glb_elm , node_to_glb_elm[loc_idx])
           connected_objects[idx++] = from_elem_glb(glb_elm);
       }
       else
       {
-        const CTable<Uint>& connectivity_table = *m_connectivity_components[component_idx]->as_type<CTable<Uint> >();
-        const CList<Uint>& glb_node_indices = *m_glb_idx_components[component_idx]->as_type<CList<Uint> >();
+        const CTable<Uint>& connectivity_table = m_local_components[component_idx]->as_type<CElements>()->connectivity_table();
+        const CList<Uint>& glb_node_indices    = m_local_components[component_idx]->as_type<CElements>()->nodes().glb_idx();
+
         boost_foreach (const Uint loc_node , connectivity_table[loc_idx])
           connected_objects[idx++] = from_node_glb(glb_node_indices[ loc_node ]);
       }
@@ -301,14 +298,14 @@ void CMeshPartitioner::list_of_connected_procs(VectorT& connected_procs) const
       boost::tie(component_idx,loc_idx) = to_local_indices_from_loc_obj(loc_obj);
       if (is_node(glb_obj))
       {
-        const CDynTable<Uint>& node_to_glb_elm = *m_connectivity_components[component_idx]->as_type<CDynTable<Uint> >();
+        const CDynTable<Uint>& node_to_glb_elm = m_local_components[component_idx]->as_type<CNodes>()->glb_elem_connectivity();
         boost_foreach (const Uint glb_elm , node_to_glb_elm[loc_idx])
           connected_procs[idx++] = m_hash->subhash(ELEMS)->proc_of_obj(glb_elm);
       }
       else
       {
-        const CTable<Uint>& connectivity_table = *m_connectivity_components[component_idx]->as_type<CTable<Uint> >();
-        const CList<Uint>& glb_node_indices = *m_glb_idx_components[component_idx]->as_type<CList<Uint> >();
+        const CTable<Uint>& connectivity_table = m_local_components[component_idx]->as_type<CElements>()->connectivity_table();
+        const CList<Uint>& glb_node_indices    = m_local_components[component_idx]->as_type<CElements>()->nodes().glb_idx();
         boost_foreach (const Uint loc_node , connectivity_table[loc_idx])
           connected_procs[idx++] = m_hash->subhash(NODES)->proc_of_obj( glb_node_indices[loc_node] );
       }
