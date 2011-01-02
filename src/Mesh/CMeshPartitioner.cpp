@@ -89,8 +89,8 @@ void CMeshPartitioner::initialize(CMesh& mesh)
 {
 
   std::vector<Uint> num_obj(2);
-  num_obj[0]= mesh.property("nb_nodes").value<Uint>();
-  num_obj[1]= mesh.property("nb_cells").value<Uint>();
+  num_obj[0] = mesh.property("nb_nodes").value<Uint>();
+  num_obj[1] = mesh.property("nb_cells").value<Uint>();
   m_hash->configure_property("Number of Objects", num_obj);
 
   build_global_to_local_index(mesh);

@@ -118,20 +118,23 @@ void CWriter::write_header(std::fstream& file)
   file << version << " " << file_type << " " << data_size << "\n";
   file << "$EndMeshFormat\n";
 
+  m_groupnumber.clear();
 
   // physical names
   Uint phys_name_counter(0);
   boost_foreach(const CRegion& groupRegion, find_components_recursively_with_filter<CRegion>(*m_mesh,IsGroup()))
   {
-    ++phys_name_counter;
-    PhysicalGroup group (m_coord_dim,phys_name_counter,groupRegion.full_path().string_without_scheme());
-    m_groups.insert(PhysicalGroupMap::value_type(group.name,group));
+		std::string name = groupRegion.full_path().string_without_scheme();
+    m_groupnumber[name] = phys_name_counter++;
   }
 
   file << "$PhysicalNames\n";
   file << phys_name_counter << "\n";
-  boost_foreach(PhysicalGroupMap::value_type& g, m_groups)
-    file << g.second.dimension << " " << g.second.number << " \"" << g.second.name << "\"\n";
+  foreach_container((const std::string& g_name)(const Uint g_number), m_groupnumber)
+	{
+		CFinfo << m_coord_dim << " " << g_number << " \"" << g_name << "\"\n" << CFflush;
+		file << m_coord_dim << " " << g_number << " \"" << g_name << "\"\n";
+	}
   file << "$EndPhysicalNames\n";
 }
 
@@ -209,14 +212,15 @@ void CWriter::write_connectivity(std::fstream& file)
   //      group_number = m_groups[group_name].number;
   //  }
 
-    boost_foreach(const NodesElementsMap::value_type& coord, m_all_nodes)
+    foreach_container( (const CNodes* nodes) (std::list<CElements*> elements_list) , m_all_nodes)
     {
-      boost_foreach(CElements* elements, coord.second)
+			nodes->get();
+      boost_foreach(CElements* elements, elements_list)
       {
-        if (!elements->has_tag("CFieldElements"))
+        if ( is_null(elements->as_type<CFieldElements>()) )
         {
           group_name = elements->get_parent()->full_path().string_without_scheme();
-          group_number = m_groups[group_name].number;
+          group_number = m_groupnumber[group_name];
 
           m_element_start_idx[elements]=elm_number;
 

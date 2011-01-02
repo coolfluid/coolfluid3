@@ -31,20 +31,6 @@ public: // typedefs
     typedef boost::shared_ptr<CWriter> Ptr;
     typedef boost::shared_ptr<CWriter const> ConstPtr;
 
-private: // typedefs
-
-  struct PhysicalGroup
-  {
-    PhysicalGroup() {}
-    PhysicalGroup(Uint phys_dim, Uint phys_number, std::string phys_name)
-     : dimension(phys_dim), number(phys_number), name(phys_name) {}
-    Uint dimension;
-    Uint number;
-    std::string name;
-  };
-
-  typedef std::map<std::string,PhysicalGroup> PhysicalGroupMap;
-
 public: // functions
 
   /// constructor
@@ -75,7 +61,7 @@ private: // functions
 
 private: // data
 
-  PhysicalGroupMap m_groups;
+  std::map<std::string,Uint> m_groupnumber;
 
   std::map<std::string,Uint> m_elementTypes;
 
