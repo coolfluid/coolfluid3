@@ -26,6 +26,7 @@
 
 #include "Common/CommonAPI.hpp"
 #include "Common/AssertionManager.hpp"
+#include "Common/BoostAssert.hpp"
 #include "Common/TypeInfo.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
