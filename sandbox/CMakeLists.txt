@@ -38,4 +38,8 @@ add_subdirectory( zoltan )
 ### test for nullptr
 add_subdirectory( nullptr )
 
+###############################################################################
+### test for mpi
+add_subdirectory( mpi )
+
 

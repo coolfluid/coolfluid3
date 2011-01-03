@@ -148,7 +148,7 @@ list( APPEND utest-parallel-environment_files
   utest-parallel-environment.cpp
 )
 
-coolfluid_add_unittest( utest-parallel-environment )
+coolfluid_add_mpi_unittest( utest-parallel-environment ${CF_MPI_TESTS_NB_PROCS} )
 
 ################################################################################
 # Test PE - all_reduce communication
@@ -158,7 +158,7 @@ list( APPEND utest-parallel-all_reduce_files
   utest-parallel-all_reduce.cpp
 )
 
-coolfluid_add_unittest( utest-parallel-all_reduce )
+coolfluid_add_mpi_unittest( utest-parallel-all_reduce ${CF_MPI_TESTS_NB_PROCS} )
 
 ################################################################################
 # Test PE - collective type of communications
@@ -169,7 +169,7 @@ list( APPEND utest-parallel-collective_files
   utest-parallel-collective-all_to_all.hpp
 )
 
-coolfluid_add_unittest( utest-parallel-collective )
+coolfluid_add_mpi_unittest( utest-parallel-collective ${CF_MPI_TESTS_NB_PROCS} )
 
 ################################################################################
 # Test PE - commpattern and objectwrapper
@@ -179,7 +179,7 @@ list( APPEND utest-parallel-commpattern_files
   utest-parallel-commpattern.cpp
 )
 
-coolfluid_add_unittest( utest-parallel-commpattern )
+coolfluid_add_mpi_unittest( utest-parallel-commpattern ${CF_MPI_TESTS_NB_PROCS} )
 
 ################################################################################
 # Test PE - datatype
@@ -189,7 +189,7 @@ list( APPEND utest-parallel-datatype_files
   utest-parallel-datatype.cpp
 )
 
-coolfluid_add_unittest( utest-parallel-datatype )
+coolfluid_add_mpi_unittest( utest-parallel-datatype ${CF_MPI_TESTS_NB_PROCS} )
 
 ################################################################################
 # Test PE - memcheck
@@ -199,7 +199,7 @@ list( APPEND utest-parallel-memcheck_files
   utest-parallel-memcheck.cpp
 )
 
-coolfluid_add_unittest( utest-parallel-memcheck )
+coolfluid_add_mpi_unittest( utest-parallel-memcheck ${CF_MPI_TESTS_NB_PROCS} )
 
 ################################################################################
 # Test Foreach - boost_foreach etc.
