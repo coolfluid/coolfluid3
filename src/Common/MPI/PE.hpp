@@ -61,7 +61,7 @@ public:
   static PE& instance();
 
   /// Operator to boost.mpi environment, environment is noncopyable
-  operator const Communicator() { return m_comm; }
+  operator Communicator() { return m_comm; }
 
   /// Initialise the PE
   void init(int argc=0, char** args=0);

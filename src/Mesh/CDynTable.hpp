@@ -130,6 +130,7 @@ class DynArrayBufferT
 public:
   typedef std::deque< std::vector<T> > Array_t;
   typedef std::vector<T>& Row;
+  typedef const std::vector<T>& ConstRow;
   
   DynArrayBufferT(Array_t& array) : m_array(array) {}
   
@@ -170,12 +171,12 @@ public:
       if (idx<array_size+m_buffer.size())
         return m_buffer[idx-array_size];
     }
-		cf_assert_desc("Trying to access index that is not allocated",false);
-		return m_array[0];
+    cf_assert_desc("Trying to access index that is not allocated",false);
+    return m_array[0];
   }
   
   /// @return true if the given row is empty
-  bool is_empty(const Row row) const  
+  bool is_empty(ConstRow row) const  
   { 
     return row.size()==0 ? false : row[0]==INVALID; 
   }
@@ -194,13 +195,13 @@ public:
     Uint nb_emptyRows = m_emptyArrayRows.size() + m_emptyBufferRows.size();
     Uint new_size = old_array_size + m_buffer.size() - nb_emptyRows;
 
-  	// a vector of index changes compared to before the flush
-  	boost::shared_ptr< std::vector<Uint> > old_indexes_sptr (new std::vector<Uint>(new_size));
-  	std::vector<Uint>& old_indexes = *old_indexes_sptr;
-  	for (Uint i=0; i<new_size; ++i)
-  		old_indexes[i]=i;
-  	Uint new_idx;
-  	Uint old_idx = old_array_size;
+    // a vector of index changes compared to before the flush
+    boost::shared_ptr< std::vector<Uint> > old_indexes_sptr (new std::vector<Uint>(new_size));
+    std::vector<Uint>& old_indexes = *old_indexes_sptr;
+    for (Uint i=0; i<new_size; ++i)
+      old_indexes[i]=i;
+    Uint new_idx;
+    Uint old_idx = old_array_size;
 
     if (new_size > old_array_size) 
     {
@@ -210,46 +211,46 @@ public:
       // copy each buffer into the array
       Uint array_idx=old_array_size;
       boost_foreach (Row row, m_buffer)
-  		{
-  			if (!is_empty(row))   // for each non-empty row from all buffers
-  			{
-  				// first find empty rows inside the old part array
-  				if (!m_emptyArrayRows.empty()) 
-  				{
-						new_idx = m_emptyArrayRows.front();
-  					m_emptyArrayRows.pop_front();
+      {
+        if (!is_empty(row))   // for each non-empty row from all buffers
+        {
+          // first find empty rows inside the old part array
+          if (!m_emptyArrayRows.empty()) 
+          {
+            new_idx = m_emptyArrayRows.front();
+            m_emptyArrayRows.pop_front();
 
-  					Row empty_array_row = get_row(new_idx);
-  					old_indexes[new_idx]=old_idx;
+            Row empty_array_row = get_row(new_idx);
+            old_indexes[new_idx]=old_idx;
 
             empty_array_row = row;
-  				}
-  				else // then select the new array rows to be filled
-  				{
-  					Row empty_array_row=m_array[array_idx++];
+          }
+          else // then select the new array rows to be filled
+          {
+            Row empty_array_row=m_array[array_idx++];
             empty_array_row.resize(row.size());
             for (Uint j=0; j<row.size(); ++j)
               empty_array_row[j] = row[j];
-  				}
-  			}
-  			++old_idx;
-  		}
-  	}
+          }
+        }
+        ++old_idx;
+      }
+    }
     else // More rows to be removed than added, now we need to swap rows
     {
       // copy all buffer rows in the m_array
-			boost_foreach (Row row, m_buffer)
-			if (!is_empty(row))   // for each non-empty row from all buffers
-			{     
-				new_idx = m_emptyArrayRows.front();
-				m_emptyArrayRows.pop_front();
+      boost_foreach (Row row, m_buffer)
+      if (!is_empty(row))   // for each non-empty row from all buffers
+      {     
+        new_idx = m_emptyArrayRows.front();
+        m_emptyArrayRows.pop_front();
 
-				Row empty_array_row = get_row(new_idx);
-				old_indexes[new_idx]=old_idx;
+        Row empty_array_row = get_row(new_idx);
+        old_indexes[new_idx]=old_idx;
 
-				empty_array_row = row;
-			}
-			++old_idx;
+        empty_array_row = row;
+      }
+      ++old_idx;
 
       Uint full_row_idx = new_size;
       // The part of the table with rows > new_size will be deallocated
@@ -263,16 +264,16 @@ public:
           // swap this empty row with a full one in the part that will be deallocated
 
           // 1) find next full row
-					cf_assert_desc("Index out of bounds",full_row_idx < m_array.size()); 
+          cf_assert_desc("Index out of bounds",full_row_idx < m_array.size()); 
           while(is_empty(m_array[full_row_idx]))
             full_row_idx++; 
           // 2) swap them 
-					cf_assert_desc("Index out of bounds",full_row_idx < m_array.size()); 
+          cf_assert_desc("Index out of bounds",full_row_idx < m_array.size()); 
           swap(m_array[empty_row_idx],m_array[full_row_idx]);
-  				// 3) add to change_set
-  				new_idx = empty_row_idx;
-  				old_idx = full_row_idx;
-  				old_indexes[new_idx]=old_idx;
+          // 3) add to change_set
+          new_idx = empty_row_idx;
+          old_idx = full_row_idx;
+          old_indexes[new_idx]=old_idx;
           full_row_idx++;
         }
       }
@@ -286,7 +287,7 @@ public:
     m_emptyArrayRows.clear();
     m_emptyBufferRows.clear();
 
-  	return old_indexes_sptr;
+    return old_indexes_sptr;
   }
   
   
