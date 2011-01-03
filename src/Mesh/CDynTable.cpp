@@ -6,7 +6,6 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/StreamHelpers.hpp"
-#include "Common/Foreach.hpp"
 
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CDynTable.hpp"

@@ -11,8 +11,6 @@
 
 #include <deque>
 #include "Common/Component.hpp"
-#include "Common/Log.hpp"
-#include "Common/BasicExceptions.hpp"
 #include "Common/Foreach.hpp"
 #include "Mesh/LibMesh.hpp"
 
