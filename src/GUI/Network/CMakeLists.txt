@@ -11,6 +11,8 @@ list( APPEND coolfluid_network_files
   NetworkException.cpp
   NetworkException.hpp)
 
+set( coolfluid_network_kernellib TRUE )
+
 # Use Qt Libraries
 list( APPEND coolfluid_network_libs ${QT_LIBRARIES} )
 list( APPEND coolfluid_network_cflibs coolfluid_common )

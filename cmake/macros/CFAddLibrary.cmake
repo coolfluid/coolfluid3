@@ -107,12 +107,14 @@ macro( coolfluid_add_library LIBNAME )
 
     # add coolfluid internal dependency libraries if defined
     if( DEFINED ${LIBNAME}_cflibs )
+        list(REMOVE_DUPLICATES ${LIBNAME}_cflibs)
         # message( STATUS "${LIBNAME} has ${${LIBNAME}_cflibs}}" )
         TARGET_LINK_LIBRARIES ( ${LIBNAME} ${${LIBNAME}_cflibs} )
     endif()
 
     # add external dependency libraries if defined
     if( DEFINED ${LIBNAME}_libs )
+      list(REMOVE_DUPLICATES ${LIBNAME}_libs)
       #	message( STATUS "${LIBNAME} has ${${LIBNAME}_libs}}" )
       target_link_libraries( ${LIBNAME} ${${LIBNAME}_libs} )
     endif()
@@ -161,7 +163,7 @@ macro( coolfluid_add_library LIBNAME )
   coolfluid_log_file("${LIBNAME}_kernellib       : [${${LIBNAME}_kernellib}]")
   coolfluid_log_file("${LIBNAME}_includedirs     : [${${LIBNAME}_includedirs}]")
   coolfluid_log_file("${LIBNAME}_libs            : [${${LIBNAME}_libs}]")
-  coolfluid_log_file("${LIBNAME}_cflibs          : [${${UTESTNAME}_cflibs}]")
+  coolfluid_log_file("${LIBNAME}_cflibs          : [${${LIBNAME}_cflibs}]")
   coolfluid_log_file("${LIBNAME}_has_all_plugins : [${${LIBNAME}_has_all_plugins}]")
   coolfluid_log_file("${LIBNAME}_requires_plugins: [${${LIBNAME}_requires_plugins}]")
   coolfluid_log_file("${LIBNAME}_sources         : [${${LIBNAME}_sources}]")

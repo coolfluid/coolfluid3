@@ -85,6 +85,7 @@ macro( coolfluid_prepare_unittest UTESTNAME )
 
     # add external dependency libraries if defined
     if( DEFINED ${UTESTNAME}_libs )
+      list(REMOVE_DUPLICATES ${UTESTNAME}_libs)
       target_link_libraries( ${UTESTNAME} ${${UTESTNAME}_libs} )
     endif(DEFINED ${UTESTNAME}_libs)
 
@@ -100,6 +101,7 @@ macro( coolfluid_prepare_unittest UTESTNAME )
 
     # internal dependencies
     if( DEFINED ${UTESTNAME}_cflibs )
+        list(REMOVE_DUPLICATES ${UTESTNAME}_cflibs)
         target_link_libraries( ${UTESTNAME} ${${UTESTNAME}_cflibs} )
     endif()
 

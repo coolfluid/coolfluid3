@@ -25,7 +25,9 @@ endif()
 add_subdirectory( Core )
 add_subdirectory( UI )
 
+list( APPEND coolfluid-client_cflibs coolfluid_client_ui)
+
 # Use Qt Libraries
-list( APPEND coolfluid-client_libs coolfluid_client_ui ${QT_LIBRARIES})
+list( APPEND coolfluid-client_libs ${QT_LIBRARIES})
 
 coolfluid_add_application( coolfluid-client )

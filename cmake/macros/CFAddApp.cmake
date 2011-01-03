@@ -109,6 +109,7 @@ macro( coolfluid_add_application APPNAME )
 
     # add external dependency libraries if defined
     if( DEFINED ${APPNAME}_libs )
+      list(REMOVE_DUPLICATES ${APPNAME}_libs)
       TARGET_LINK_LIBRARIES ( ${APPNAME} ${${APPNAME}_libs} )
     endif()
 
@@ -124,6 +125,7 @@ macro( coolfluid_add_application APPNAME )
 
     # internal dependencies
     if( DEFINED ${APPNAME}_cflibs )
+        list(REMOVE_DUPLICATES ${APPNAME}_cflibs)
         TARGET_LINK_LIBRARIES ( ${APPNAME} ${${APPNAME}_cflibs} )
     endif()
 

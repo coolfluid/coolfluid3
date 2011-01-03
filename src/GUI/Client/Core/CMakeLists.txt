@@ -57,7 +57,9 @@ TreeNode.cpp
 TreeNode.hpp
 )
 
+list( APPEND coolfluid_client_core_cflibs coolfluid_network )
+
 # Use Qt Libraries
-list( APPEND coolfluid_client_core_libs coolfluid_network ${QT_LIBRARIES})
+list( APPEND coolfluid_client_core_libs ${QT_LIBRARIES})
 
 coolfluid_add_library(coolfluid_client_core)
