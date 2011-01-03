@@ -13,9 +13,7 @@ if( coolfluid_google_perftools_builds AND CF_ENABLE_PROFILING )
 endif()
 
 if( CF_OS_LINUX AND CF_HAVE_RT )
-
   list( APPEND coolfluid_testing_libs ${RT_LIB} )
-
 endif()
 
 list( APPEND coolfluid_testing_libs ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} )

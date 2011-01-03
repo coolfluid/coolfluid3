@@ -35,20 +35,13 @@ coolfluid_add_unittest( utest-mesh-components )
 
 ################################################################################
 
-# Only add TestCGNS.cpp if the CGNS library is available
-if( coolfluid_mesh_cgns3_builds )
+list( APPEND utest-cgns_cflibs coolfluid_mesh_cgns3 coolfluid_mesh_neutral coolfluid_mesh_gmsh )
+list( APPEND utest-cgns_files  utest-cgns.cpp )
+list( APPEND utest-cgns_includedirs ${CGNS_INCLUDE_DIR} )
 
-  list( APPEND utest-cgns_cflibs coolfluid_mesh_cgns3 coolfluid_mesh_neutral coolfluid_mesh_gmsh )
-  list( APPEND utest-cgns_files  utest-cgns.cpp )
-  list( APPEND utest-cgns_includedirs ${CGNS_INCLUDE_DIR} )
+set( utest-cgns_condition ${coolfluid_mesh_cgns3_builds} )
 
-  coolfluid_add_unittest( utest-cgns )
-
-else()
-  coolfluid_mark_not_orphan( utest-cgns.cpp )
-endif()
-
-# Add the target
+coolfluid_add_unittest( utest-cgns )
 
 # Custom post-build rule (must be defined after adding target):
 # Copy the file quadtriag.neu from source dir to binary dir.
@@ -94,10 +87,6 @@ coolfluid_add_unittest( utest-gmsh-reader-mpi )
 #                   POST_BUILD
 #                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/quadtriag.neu #${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
 #                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/hextet.neu    #${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-
-
-
-
 
 ################################################################################
 
@@ -226,85 +215,69 @@ coolfluid_add_unittest( utest-vector-benchmark )
 
 ################################################################################
 
-if( coolfluid_mesh_ptscotch_builds )
-  list( APPEND utest-pt-scotch_cflibs coolfluid_mesh_neutral coolfluid_mesh_sf coolfluid_mesh_gmsh )
-  list( APPEND utest-pt-scotch_libs ${PTSCOTCH_LIBRARIES} )
+list( APPEND utest-pt-scotch_cflibs coolfluid_mesh_neutral coolfluid_mesh_sf coolfluid_mesh_gmsh )
+list( APPEND utest-pt-scotch_libs ${PTSCOTCH_LIBRARIES} )
 
-  list( APPEND utest-pt-scotch_files  utest-pt-scotch.cpp )
-  list( APPEND utest-pt-scotch_includedirs ${PTSCOTCH_INCLUDE_DIR} )
+list( APPEND utest-pt-scotch_files  utest-pt-scotch.cpp )
+list( APPEND utest-pt-scotch_includedirs ${PTSCOTCH_INCLUDE_DIR} )
 
-  coolfluid_add_mpi_unittest( utest-pt-scotch 3)
+set( utest-pt-scotch_condition ${coolfluid_mesh_ptscotch_builds} )
 
-  # Custom post-build rule (must be defined after adding target):
-  # Copy the file quadtriag.neu from source dir to binary dir.
-  # this must happen after building, as some IDE like Xcode define their
-  # build types internally, in which the binary dir exists
-  add_custom_command(TARGET utest-pt-scotch
-                     POST_BUILD
-                     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/hextet.neu    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                    )
-else()
-  coolfluid_mark_not_orphan( utest-pt-scotch.cpp )
-endif()
+coolfluid_add_mpi_unittest( utest-pt-scotch 3)
+
+# Custom post-build rule (must be defined after adding target):
+# Copy the file quadtriag.neu from source dir to binary dir.
+# this must happen after building, as some IDE like Xcode define their
+# build types internally, in which the binary dir exists
+add_custom_command(TARGET utest-pt-scotch
+                   POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/hextet.neu    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                  )
 
 ################################################################################
 
-if( coolfluid_mesh_zoltan_builds )
-  list( APPEND utest-zoltan_cflibs coolfluid_mesh_neutral coolfluid_mesh_gmsh coolfluid_mesh_zoltan )
-  list( APPEND utest-zoltan_libs ${ZOLTAN_LIBRARIES} )
-  list( APPEND utest-zoltan_files  utest-zoltan.cpp )
-  list( APPEND utest-zoltan_includedirs ${ZOLTAN_INCLUDE_DIR} )
+list( APPEND utest-zoltan_cflibs coolfluid_mesh_neutral coolfluid_mesh_gmsh coolfluid_mesh_zoltan )
+list( APPEND utest-zoltan_libs ${ZOLTAN_LIBRARIES} )
+list( APPEND utest-zoltan_files  utest-zoltan.cpp )
+list( APPEND utest-zoltan_includedirs ${ZOLTAN_INCLUDE_DIR} )
 
-  coolfluid_add_mpi_unittest( utest-zoltan 2)
+set( utest-zoltan_condition ${coolfluid_mesh_zoltan_builds} )
 
-  # Custom post-build rule (must be defined after adding target):
-  # Copy the file quadtriag.neu from source dir to binary dir.
-  # this must happen after building, as some IDE like Xcode define their
-  # build types internally, in which the binary dir exists
-  add_custom_command(TARGET utest-zoltan
-                     POST_BUILD
-                     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/hextet.neu    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                    )
-else()
-  coolfluid_mark_not_orphan( utest-zoltan.cpp )
-endif()
+coolfluid_add_mpi_unittest( utest-zoltan 2)
+
+# Custom post-build rule (must be defined after adding target):
+# Copy the file quadtriag.neu from source dir to binary dir.
+# this must happen after building, as some IDE like Xcode define their
+# build types internally, in which the binary dir exists
+add_custom_command(TARGET utest-zoltan
+                   POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/hextet.neu    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                  )
 
 ################################################################################
 
-if( CF_TMP_HAVE_SIMPLECOMM )
-    list( APPEND utest-blockmesh-mpi_cflibs coolfluid_mesh coolfluid_mesh_block coolfluid_mesh_generation coolfluid_mesh_sf )
-    list( APPEND utest-blockmesh-mpi_files  uTestBlockMeshMPI.cpp )
+list( APPEND utest-blockmesh-mpi_cflibs coolfluid_mesh coolfluid_mesh_block coolfluid_mesh_generation coolfluid_mesh_sf )
+list( APPEND utest-blockmesh-mpi_files  utest-blockmesh-mpi.cpp )
 
-    set( utest-blockmesh-mpi_args ${CF_MPI_TESTS_SIZE} )
-    set( utest-blockmesh-mpi_scaling ON )
+set( utest-blockmesh-mpi_args ${CF_MPI_TESTS_SIZE} )
+set( utest-blockmesh-mpi_scaling ON )
 
-    set( utest-blockmesh-mpi_condition ${CF_TMP_HAVE_SIMPLECOMM})
+set( utest-blockmesh-mpi_condition ${CF_TMP_HAVE_SIMPLECOMM})
 
-    coolfluid_add_mpi_unittest( utest-blockmesh-mpi ${CF_MPI_TESTS_NB_PROCS})
-
-else()
-    coolfluid_mark_not_orphan( uTestBlockMeshMPI.cpp )
-endif()
+coolfluid_add_mpi_unittest( utest-blockmesh-mpi ${CF_MPI_TESTS_NB_PROCS})
 
 ################################################################################
 
-if( CF_TMP_HAVE_SIMPLECOMM )
-    list( APPEND utest-blockmesh-mpi-scale_cflibs coolfluid_mesh_block coolfluid_mesh_generation coolfluid_mesh_sf )
-    list( APPEND utest-blockmesh-mpi-scale_files  uTestBlockMeshMPI.cpp )
+list( APPEND utest-blockmesh-mpi-scale_cflibs coolfluid_mesh_block coolfluid_mesh_generation coolfluid_mesh_sf )
+list( APPEND utest-blockmesh-mpi-scale_files  uTestBlockMeshMPI.cpp )
 
-    set( utest-blockmesh-mpi-scale_args "${CF_MPI_TESTS_SIZE} scale" )
+set( utest-blockmesh-mpi-scale_args "${CF_MPI_TESTS_SIZE} scale" )
 
-    set( utest-blockmesh-mpi-scale_scaling ON )
+set( utest-blockmesh-mpi-scale_scaling ON )
 
-    set( utest-blockmesh-mpi-scale_condition ${CF_TMP_HAVE_SIMPLECOMM})
+set( utest-blockmesh-mpi-scale_condition ${CF_TMP_HAVE_SIMPLECOMM})
 
-    coolfluid_add_mpi_unittest( utest-blockmesh-mpi-scale ${CF_MPI_TESTS_NB_PROCS} )
-else()
-    coolfluid_mark_not_orphan( uTestBlockMeshMPI.cpp )
-endif()
-
-
-
+coolfluid_add_mpi_unittest( utest-blockmesh-mpi-scale ${CF_MPI_TESTS_NB_PROCS} )
 
