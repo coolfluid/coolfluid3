@@ -951,20 +951,20 @@ sub install_trilinos() {
   safe_chdir($opt_tmp_dir);
   download_src("$lib-$version");
 
-  my $mpiopt;
+  my $tri_mpi_opt = "";
   unless ($opt_nompi) {
 	
-	      $mpi_opt = "-D TPL_ENABLE_MPI:BOOL=ON \\
+	      $tri_mpi_opt = "-D TPL_ENABLE_MPI:BOOL=ON \\
 	-D MPI_BASE_DIR_PATH:PATH=$opt_mpi_dir \\
 	-D CMAKE_C_COMPILER:FILEPATH=$opt_mpi_dir/bin/mpicc \\
 	-D CMAKE_CXX_COMPILER:FILEPATH=$opt_mpi_dir/bin/mpic++ ";
 
-	     $mpi_opt .= "-D CMAKE_Fortran_COMPILER:FILEPATH=$opt_mpi_dir/bin/mpif77 " unless ($opt_no_fortran);
+	     $tri_mpi_opt .= "-D CMAKE_Fortran_COMPILER:FILEPATH=$opt_mpi_dir/bin/mpif77 " unless ($opt_no_fortran);
  }
 
  
- my $fortran_opt = "";
- if ($opt_no_fortran) { $fortran_opt = "-D Trilinos_ENABLE_Fortran:BOOL=OFF " };
+ my $tri_fortran_opt = "";
+ if ($opt_no_fortran) { $tri_fortran_opt = "-D Trilinos_ENABLE_Fortran:BOOL=OFF " };
 
   unless ($opt_fetchonly) 
   {
@@ -999,8 +999,8 @@ sub install_trilinos() {
 -D Trilinos_ENABLE_.:BOOL=OFF \\
 -D TPL_ENABLE_BLAS:BOOL=ON \\
 -D TPL_ENABLE_LAPACK:BOOL=ON \\
-$fortran_opt \\
-$mpiopt \\
+$tri_fortran_opt \\
+$tri_mpi_opt \\
 -D CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE \\
 -D BUILD_SHARED_LIBS:BOOL=ON\\
 -D Trilinos_VERBOSE_CONFIGURE:BOOL=FALSE  $opt_tmp_dir/$lib-$version-Source"
@@ -1251,29 +1251,29 @@ sub install_zoltan()
   safe_chdir($opt_tmp_dir);
   download_src("$lib-$version");
 
-  my $mpi_opt;
+  my $tri_mpi_opt;
   unless ($opt_nompi) 
   {
-      $mpi_opt = "-D TPL_ENABLE_MPI:BOOL=ON \\
+      $tri_mpi_opt = "-D TPL_ENABLE_MPI:BOOL=ON \\
 -D MPI_BASE_DIR_PATH:PATH=$opt_mpi_dir \\
 -D CMAKE_C_COMPILER:FILEPATH=$opt_mpi_dir/bin/mpicc \\
 -D CMAKE_CXX_COMPILER:FILEPATH=$opt_mpi_dir/bin/mpic++ ";
 
-     $mpi_opt .= "-D CMAKE_Fortran_COMPILER:FILEPATH=$opt_mpi_dir/bin/mpif77 " unless ($opt_no_fortran);
+     $tri_mpi_opt .= "-D CMAKE_Fortran_COMPILER:FILEPATH=$opt_mpi_dir/bin/mpif77 " unless ($opt_no_fortran);
  }
 
- my $parmetis_opt = "-D Zoltan_ENABLE_ParMETIS:BOOL=ON \\
+ my $tri_parmetis_opt = "-D Zoltan_ENABLE_ParMETIS:BOOL=ON \\
 -D ParMETIS_INCLUDE_DIRS:FILEPATH=\"$opt_install_mpi_dir/include\" \\
 -D ParMETIS_LIBRARY_DIRS:FILEPATH=\"$opt_install_mpi_dir/lib\"";
- my $scotch_opt = "-D Zoltan_ENABLE_Scotch:BOOL=ON \\
+ my $tri_scotch_opt = "-D Zoltan_ENABLE_Scotch:BOOL=ON \\
 -D Scotch_INCLUDE_DIRS:FILEPATH=\"$opt_install_mpi_dir/include\" \\
 -D Scotch_LIBRARY_DIRS:FILEPATH=\"$opt_install_mpi_dir/lib\"";
- my $patoh_opt = "-D Zoltan_ENABLE_PaToH:BOOL=ON \\
+ my $tri_patoh_opt = "-D Zoltan_ENABLE_PaToH:BOOL=ON \\
 -D PaToH_LIBRARY_DIRS:FILEPATH=\"$opt_install_mpi_dir/include\" \\
 -D PaToH_INCLUDE_DIRS:FILEPATH=\"$opt_install_mpi_dir/lib\"";
  
- my $fortran_opt = "";
- if ($opt_no_fortran) { $fortran_opt = "-D Trilinos_ENABLE_Fortran:BOOL=OFF " };
+ my $tri_fortran_opt = "";
+ if ($opt_no_fortran) { $tri_fortran_opt = "-D Trilinos_ENABLE_Fortran:BOOL=OFF " };
 
   unless ($opt_fetchonly) 
   {
@@ -1292,9 +1292,9 @@ sub install_zoltan()
 -D Trilinos_ENABLE_Zoltan:BOOL=ON \\
 -D Zoltan_ENABLE_EXAMPLES:BOOL=ON \\
 -D Zoltan_ENABLE_TESTS:BOOL=ON \\
-$fortran_opt \\
-$parmetis_opt \\
-$mpi_opt \\
+$tri_fortran_opt \\
+$tri_parmetis_opt \\
+$tri_mpi_opt \\
 $opt_tmp_dir/$lib-$version-Source"
 );
     run_command_or_die("make $opt_makeopts");
