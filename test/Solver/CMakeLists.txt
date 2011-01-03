@@ -1,31 +1,27 @@
 
 list( APPEND utest-cphysical-model_cflibs coolfluid_solver )
-list( APPEND utest-cphysical-model_files
-  uTestCPhysicalModel.cpp )
+list( APPEND utest-cphysical-model_files  utest-cphysical-model.cpp )
 
 coolfluid_add_unittest( utest-cphysical-model )
 
 #########################################################################
 
 list( APPEND utest-forwardeuler_cflibs coolfluid_solver )
-list( APPEND utest-forwardeuler_files
-  utest-forwardeuler.cpp )
+list( APPEND utest-forwardeuler_files  utest-forwardeuler.cpp )
 
 coolfluid_add_unittest( utest-forwardeuler )
 
 #########################################################################
 
 list( APPEND utest-residualdistribution_cflibs coolfluid_solver )
-list( APPEND utest-residualdistribution_files
-  utest-residualdistribution.cpp )
+list( APPEND utest-residualdistribution_files  utest-residualdistribution.cpp )
 
 coolfluid_add_unittest( utest-residualdistribution )
 
 ##########################################################################
 
 list( APPEND utest-scalaradvection-steady_cflibs coolfluid_solver )
-list( APPEND utest-scalaradvection-steady_files
-  utest-scalaradvection-steady.cpp )
+list( APPEND utest-scalaradvection-steady_files  utest-scalaradvection-steady.cpp )
 
 coolfluid_add_unittest( utest-scalaradvection-steady )
 
@@ -42,8 +38,7 @@ add_custom_command(TARGET utest-scalaradvection-steady
 ##########################################################################
 
 list( APPEND utest-scalaradvection-unsteady_cflibs coolfluid_solver )
-list( APPEND utest-scalaradvection-unsteady_files
-utest-scalaradvection-unsteady.cpp )
+list( APPEND utest-scalaradvection-unsteady_files  utest-scalaradvection-unsteady.cpp )
 
 coolfluid_add_unittest( utest-scalaradvection-unsteady )
 
@@ -60,8 +55,7 @@ add_custom_command(TARGET utest-scalaradvection-unsteady
 ##########################################################################
 
 list( APPEND utest-loadmesh_cflibs coolfluid_solver )
-list( APPEND utest-loadmesh_files
-utest-loadmesh.cpp )
+list( APPEND utest-loadmesh_files  utest-loadmesh.cpp )
 
 coolfluid_add_unittest( utest-loadmesh )
 
