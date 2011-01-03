@@ -35,3 +35,6 @@ add_subdirectory( CGAL )
 
 # add dir with CGAL unit tests
 add_subdirectory( test )
+
+# add dir with CGAL sandbox
+add_subdirectory( sandbox EXCLUDE_FROM_ALL )

@@ -19,10 +19,6 @@ add_subdirectory( boost-multiarray )
 add_subdirectory( boost-ublas )
 
 ###############################################################################
-### test for CGAL functions
-add_subdirectory( cgal )
-
-###############################################################################
 ### test for CUDA
 add_subdirectory( cuda )
 
