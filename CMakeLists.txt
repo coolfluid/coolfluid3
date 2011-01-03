@@ -85,6 +85,8 @@ coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 
 add_subdirectory( cmake )         # dir with macros to be installed
 
+add_subdirectory( tools )         # dir with tools and scripts
+
 add_subdirectory( doc )           # dir with documentation to be installed
 
 include( DetectSoftware )         # find sofwtare dependencies
