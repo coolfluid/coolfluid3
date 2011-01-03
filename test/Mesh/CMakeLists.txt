@@ -271,7 +271,7 @@ coolfluid_add_mpi_unittest( utest-blockmesh-mpi ${CF_MPI_TESTS_NB_PROCS})
 ################################################################################
 
 list( APPEND utest-blockmesh-mpi-scale_cflibs coolfluid_mesh_block coolfluid_mesh_generation coolfluid_mesh_sf )
-list( APPEND utest-blockmesh-mpi-scale_files  uTestBlockMeshMPI.cpp )
+list( APPEND utest-blockmesh-mpi-scale_files   utest-blockmesh-mpi.cpp )
 
 set( utest-blockmesh-mpi-scale_args "${CF_MPI_TESTS_SIZE} scale" )
 
