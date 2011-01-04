@@ -38,4 +38,8 @@ add_subdirectory( nullptr )
 ### test for mpi
 add_subdirectory( mpi )
 
+###############################################################################
+### test for fexcept_t - currently some problems with clang in linux
+add_subdirectory( fexcept )
+
 
