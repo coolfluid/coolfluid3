@@ -22,7 +22,12 @@ endif()
 
 find_package( Qt4 4.6.0 COMPONENTS QtCore QtGui QtXml QtNetwork QtTest )
 
+if(NOT DEFINED QT_FOUND)
+  set(QT_FOUND NO)
+endif()
+
 coolfluid_log("QT_FOUND: [${QT_FOUND}]")
+
 if(${QT_FOUND})
   coolfluid_log("Qt version: [${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}]")
   coolfluid_log("Qt libs: [${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTXML_LIBRARY} ${QT_QTNETWORK_LIBRARY} ${QT_QTTEST_LIBRARY}]")
@@ -34,6 +39,7 @@ endif()
 # using our find macros
 
 coolfluid_log( "" )
+
 find_package(CMath)           # find the math library
 find_package(BlasLapack)      # search for Blas Lapack support
 find_package(PTScotch)        # parallel domain decomposition
