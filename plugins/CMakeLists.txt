@@ -8,6 +8,10 @@ add_subdirectory( BlockMeshReader )
 coolfluid_define_plugin( CGAL "${CMAKE_CURRENT_SOURCE_DIR}/CGAL" )
 add_subdirectory( CGAL )
 
+# Finite Volume solver
+coolfluid_define_plugin( FVM "${CMAKE_CURRENT_SOURCE_DIR}/FVM" )
+add_subdirectory( FVM  )
+
 # UFEM Finite Element solver
 coolfluid_define_plugin( UFEM "${CMAKE_CURRENT_SOURCE_DIR}/UFEM" )
 add_subdirectory( UFEM )
