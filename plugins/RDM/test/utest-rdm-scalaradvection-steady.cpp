@@ -46,6 +46,8 @@ BOOST_AUTO_TEST_SUITE( ScalarAdvection_steady_Suite )
 
 BOOST_AUTO_TEST_CASE( constructor )
 {
+  BOOST_CHECK(true);
+
   ScalarAdvection::Ptr s = allocate_component<ScalarAdvection>("scalar_advection");
 
   boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
@@ -54,6 +56,8 @@ BOOST_AUTO_TEST_CASE( constructor )
   p.add_option<std::string>("Model name","scalar_advection");
 
   s->create_model(node);
+
+  BOOST_CHECK(true);
 
   //--------------------------------------------
 
@@ -65,6 +69,8 @@ BOOST_AUTO_TEST_CASE( constructor )
   XmlNode& tree_node  = *XmlOps::goto_doc_node(*doc.get());
 
   Core::instance().root()->list_tree(tree_node);
+
+  BOOST_CHECK(true);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -72,12 +78,15 @@ BOOST_AUTO_TEST_CASE( constructor )
 BOOST_AUTO_TEST_CASE( read_mesh )
 {
   
+  BOOST_CHECK(true);
+
   CDomain& domain = find_component_recursively<CDomain>(*Core::instance().root());
     
   boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
   XmlNode& node  = *XmlOps::goto_doc_node(*doc.get());
   XmlParams p(node);
 
+  BOOST_CHECK(true);
   // everything is OK
   std::vector<URI> files;
   files.push_back( "file:rotation-qd.neu" );
