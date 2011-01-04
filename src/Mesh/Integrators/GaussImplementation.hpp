@@ -75,12 +75,12 @@ struct GaussPoints<32>
 const double GaussPoints<32>::x[16] = {0.0483076656877383162348126,0.1444719615827964934851864,0.2392873622521370745446032,0.3318686022821276497799168,0.4213512761306353453641194,0.5068999089322293900237475,0.5877157572407623290407455,0.6630442669302152009751152,0.7321821187402896803874267,0.7944837959679424069630973,0.8493676137325699701336930,0.8963211557660521239653072,0.9349060759377396891709191,0.9647622555875064307738119,0.9856115115452683354001750,0.9972638618494815635449811};
 const double GaussPoints<32>::w[16] = {0.0965400885147278005667648,0.0956387200792748594190820,0.0938443990808045656391802,0.0911738786957638847128686,0.0876520930044038111427715,0.0833119242269467552221991,0.0781938957870703064717409,0.0723457941088485062253994,0.0658222227763618468376501,0.0586840934785355471452836,0.0509980592623761761961632,0.0428358980222266806568786,0.0342738629130214331026877,0.0253920653092620594557526,0.0162743947309056706051706,0.0070186100094700966004071};
 
-/// Stores pre-computed mapped coords and weights for all gauss point locations
+/// Access to matrices with the mapped coords
 template<Uint Order, GeoShape::Type Shape>
-struct GaussMappedCoords;
+struct GaussMappedCoordsImpl;
 
 template<>
-struct GaussMappedCoords<1, GeoShape::LINE>
+struct GaussMappedCoordsImpl<1, GeoShape::LINE>
 {
   static const Uint nb_points = 1;
   
@@ -99,7 +99,7 @@ struct GaussMappedCoords<1, GeoShape::LINE>
 };
 
 template<>
-struct GaussMappedCoords<1, GeoShape::QUAD>
+struct GaussMappedCoordsImpl<1, GeoShape::QUAD>
 {
   static const Uint nb_points = 1;
   
@@ -118,7 +118,7 @@ struct GaussMappedCoords<1, GeoShape::QUAD>
 };
 
 template<>
-struct GaussMappedCoords<1, GeoShape::HEXA>
+struct GaussMappedCoordsImpl<1, GeoShape::HEXA>
 {
   static const Uint nb_points = 1;
   
@@ -137,7 +137,7 @@ struct GaussMappedCoords<1, GeoShape::HEXA>
 };
 
 template<>
-struct GaussMappedCoords<1, GeoShape::TRIAG>
+struct GaussMappedCoordsImpl<1, GeoShape::TRIAG>
 {
   static const Uint nb_points = 1;
   
@@ -161,7 +161,7 @@ struct GaussMappedCoords<1, GeoShape::TRIAG>
 };
 
 template<>
-struct GaussMappedCoords<1, GeoShape::TETRA>
+struct GaussMappedCoordsImpl<1, GeoShape::TETRA>
 {
   static const Uint nb_points = 1;
   
@@ -186,7 +186,7 @@ struct GaussMappedCoords<1, GeoShape::TETRA>
 };
 
 template<Uint Order>
-struct GaussMappedCoords<Order, GeoShape::LINE>
+struct GaussMappedCoordsImpl<Order, GeoShape::LINE>
 {
   static const Uint nb_points = Order;
   
@@ -224,7 +224,7 @@ struct GaussMappedCoords<Order, GeoShape::LINE>
 };
 
 template<Uint Order>
-struct GaussMappedCoords<Order, GeoShape::QUAD>
+struct GaussMappedCoordsImpl<Order, GeoShape::QUAD>
 {
   static const Uint nb_points = Order*Order;
   
@@ -272,7 +272,7 @@ struct GaussMappedCoords<Order, GeoShape::QUAD>
 };
 
 template<Uint Order>
-struct GaussMappedCoords<Order, GeoShape::HEXA>
+struct GaussMappedCoordsImpl<Order, GeoShape::HEXA>
 {
   static const Uint nb_points = Order*Order*Order;
   
@@ -330,6 +330,30 @@ struct GaussMappedCoords<Order, GeoShape::HEXA>
     }
     
     return result;
+  }
+};
+
+/// Stores pre-computed mapped coords and weights for all gauss point locations
+template<Uint Order, GeoShape::Type Shape>
+struct GaussMappedCoords
+{
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+  
+  static const Uint nb_points = GaussMappedCoordsImpl<Order, Shape>::nb_points;
+  const typename GaussMappedCoordsImpl<Order, Shape>::CoordsT coords;
+  const typename GaussMappedCoordsImpl<Order, Shape>::WeightsT weights;
+  
+  static const GaussMappedCoords<Order, Shape>& instance()
+  {
+    static GaussMappedCoords<Order, Shape> data;
+    return data;
+  }
+  
+private:
+  GaussMappedCoords() :
+    coords(GaussMappedCoordsImpl<Order, Shape>::coords()),
+    weights(GaussMappedCoordsImpl<Order, Shape>::weights())
+  {
   }
 };
 

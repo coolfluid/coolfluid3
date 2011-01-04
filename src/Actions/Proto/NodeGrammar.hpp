@@ -9,6 +9,7 @@
 
 #include "DirichletBC.hpp"
 #include "EigenTransforms.hpp"
+#include "NeumannBC.hpp"
 #include "NodeData.hpp"
 #include "Transforms.hpp"
 
@@ -43,6 +44,12 @@ struct NodeGrammar :
     <
       DirichletBCGrammar,
       DirichletBCSetter(boost::proto::_child_c<1>(boost::proto::_left), NodeMath(boost::proto::_right))
+    >,
+    // Neumann BC
+    boost::proto::when
+    <
+      NeumannBCGrammar,
+      NeumannBCSetter(boost::proto::_child_c<1>(boost::proto::_left), NodeMath(boost::proto::_right))
     >,
     NodeMath, // Math expressions
     boost::proto::when

@@ -193,15 +193,15 @@ struct EigenMath :
   boost::proto::or_
   <
     // Handle Eigen multiplication specially, in order to avoid dangling references
-    boost::proto::when
-    <
-      boost::proto::multiplies<GrammarT, GrammarT>,
-      EigenProduct
-      <
-        GrammarT(boost::proto::_left),
-        GrammarT(boost::proto::_right)
-      >(boost::proto::_default<GrammarT>)
-    >,
+//     boost::proto::when
+//     <
+//       boost::proto::multiplies<GrammarT, GrammarT>,
+//       EigenProduct
+//       <
+//         GrammarT(boost::proto::_left),
+//         GrammarT(boost::proto::_right)
+//       >(boost::proto::_default<GrammarT>)
+//     >,
     // Indexing
     boost::proto::when
     <

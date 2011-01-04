@@ -491,12 +491,10 @@ public:
     result_type operator ()(typename impl::expr_param expr, typename impl::state_param, typename impl::data_param data) const
     {
       typedef Mesh::Integrators::GaussMappedCoords<order, ShapeFunctionT::shape> GaussT;
-      static const typename GaussT::CoordsT mapped_coords = GaussT::coords();
-      static const typename GaussT::WeightsT weights = GaussT::weights();
       ChildT e = boost::proto::child_c<1>(expr); // expression to integrate
-      result_type r = weights[0] * ElementMath()(e, mapped_coords.col(0), data);
-       for(Uint i = 1; i != GaussT::nb_points; ++i)
-         r += weights[i] * ElementMath()(e, mapped_coords.col(i), data);
+      result_type r = GaussT::instance().weights[0] * ElementMath()(e, GaussT::instance().coords.col(0), data);
+      for(Uint i = 1; i != GaussT::nb_points; ++i)
+        r += GaussT::instance().weights[i] * ElementMath()(e, GaussT::instance().coords.col(i), data);
       return r;
     }
   };  
