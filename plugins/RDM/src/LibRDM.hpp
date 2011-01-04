@@ -14,9 +14,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro RDM_API
-/// @note build system defines COOLFLUID_BLOCKMESH_READER_EXPORTS when compiling
+/// @note build system defines COOLFLUID_RDM_EXPORTS when compiling
 /// RDM files
-#ifdef COOLFLUID_BLOCKMESH_READER_EXPORTS
+#ifdef COOLFLUID_RDM_EXPORTS
 #   define RDM_API      CF_EXPORT_API
 #   define RDM_TEMPLATE
 #else
@@ -32,7 +32,7 @@ namespace RDM {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Class defines the RDM finite elment method library
-/// @author Bart Janssens
+/// @author Tiago Quintino
 class RDM_API LibRDM :
     public Common::CLibrary
 {
