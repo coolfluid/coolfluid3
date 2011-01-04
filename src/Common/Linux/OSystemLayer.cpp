@@ -4,10 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifdef CF_HAVE_UNISTD_H
-  #include <unistd.h>
-#endif
-
 #include <cstdio>        // for printf()
 #include <cstdlib>       // for free() and abort()
 #include <csignal>       // POSIX signal(), SIGFPE and SIGSEGV
@@ -20,6 +16,10 @@
 #include "Common/BasicExceptions.hpp"
 #include "Common/Linux/OSystemLayer.hpp"
 #include "Common/Log.hpp"
+
+#ifdef CF_HAVE_UNISTD_H
+  #include <unistd.h>
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
