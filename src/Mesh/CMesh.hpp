@@ -14,10 +14,13 @@
 #include "Mesh/CField.hpp"
 
 namespace CF {
+  namespace Common {
+    class CLink;
+  }
 namespace Mesh {
 
+  class CNodes;
   class CRegion;
-  class ElementType;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -28,7 +31,6 @@ namespace Mesh {
 /// @author Tiago Quintino
 /// @author Willem Deconinck
 class Mesh_API CMesh : public Common::Component {
-
 public: // typedefs
 
   typedef boost::shared_ptr<CMesh> Ptr;
@@ -83,6 +85,16 @@ public: // functions
   CField& field(const std::string& name);
   
   void update_statistics();
+  
+  /// @return the nodes of the mesh , modifiable access
+  CNodes& nodes();
+  
+  /// @return the nodes of the mesh , non-modifiable access
+  const CNodes& nodes() const;
+  
+private:
+  
+  boost::shared_ptr<Common::CLink> m_nodes_link;
   
 };
 

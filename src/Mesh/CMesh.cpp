@@ -15,6 +15,7 @@
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
+#include "Mesh/CNodes.hpp"
 #include "Mesh/ElementType.hpp"
 
 namespace CF {
@@ -30,12 +31,14 @@ Common::ComponentBuilder < CMesh, Component, LibMesh > CMesh_Builder;
 CMesh::CMesh ( const std::string& name  ) :
   Component ( name )
 {
-	m_properties.add_property("nb_cells",Uint(0));
-	m_properties.add_property("nb_nodes",Uint(0));
-	m_properties.add_property("dimensionality",Uint(0));
-	m_properties.add_property("dimension",Uint(0));
+  m_properties.add_property("nb_cells",Uint(0));
+  m_properties.add_property("nb_nodes",Uint(0));
+  m_properties.add_property("dimensionality",Uint(0));
+  m_properties.add_property("dimension",Uint(0));
 
   mark_basic(); // by default meshes are visible
+  
+  m_nodes_link = create_static_component<CLink>("nodes");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -71,7 +74,7 @@ CRegion& CMesh::create_region( const std::string& name, bool ensure_unique )
 //
 //      std::string append = (count == 0) ? "" : "_"+to_str(count);
       new_region = existing_region.create_region(name,ensure_unique).as_type<CRegion>();
-			new_region->add_tag("grid_zone");
+      new_region->add_tag("grid_zone");
     }
     else if (existing_region.has_tag("grid_zone"))
     {
@@ -121,52 +124,52 @@ CRegion& CMesh::create_domain( const std::string& name )
 
 CField& CMesh::create_field( const std::string& name , CRegion& support, const std::vector<std::string>& variables, const CField::DataBasis basis)
 {
-	CField& field = *create_component<CField>(name);
-	field.synchronize_with_region(support);
+  CField& field = *create_component<CField>(name);
+  field.synchronize_with_region(support);
 
   std::vector<std::string> names;
-	std::vector<std::string> types;
+  std::vector<std::string> types;
   BOOST_FOREACH(std::string var, variables)
-	{ 
+  { 
     boost::regex e_variable("([[:word:]]+)?[[:space:]]*\\[[[:space:]]*([[:word:]]+)[[:space:]]*\\]");
     
     boost::match_results<std::string::const_iterator> what;
-		if (regex_search(var,what,e_variable))
-		{
-			names.push_back(what[1]);
-			types.push_back(what[2]);
-		}
+    if (regex_search(var,what,e_variable))
+    {
+      names.push_back(what[1]);
+      types.push_back(what[2]);
+    }
     else
       throw ShouldNotBeHere(FromHere(), "No match found for VarType " + var);
   }
 
   field.configure_property("VarNames",names);
-	field.configure_property("VarTypes",types);
-	field.create_data_storage(basis);
+  field.configure_property("VarTypes",types);
+  field.create_data_storage(basis);
 
   return field;
 }
-	
+  
 CField& CMesh::create_field( const std::string& name , const std::vector<std::string>& variables, const CField::DataBasis basis)
 {
   return create_field(name,domain(),variables,basis);
 }
-	
+  
 ////////////////////////////////////////////////////////////////////////////////
   
 CField& CMesh::create_field( const std::string& name , CRegion& support, const Uint size, const CField::DataBasis basis)
 {
-	std::vector<std::string> variables;
-	if (size==1)
-	{
-		variables.push_back(name+"[scalar]");
-	}
-	else
-	{
-		for (Uint iVar=0; iVar<size; ++iVar)
-			variables.push_back(name+to_str(iVar)+"[scalar]");
-	}
-	return create_field(name,support,variables,basis);
+  std::vector<std::string> variables;
+  if (size==1)
+  {
+    variables.push_back(name+"[scalar]");
+  }
+  else
+  {
+    for (Uint iVar=0; iVar<size; ++iVar)
+      variables.push_back(name+to_str(iVar)+"[scalar]");
+  }
+  return create_field(name,support,variables,basis);
 }
   
 ////////////////////////////////////////////////////////////////////////////////
@@ -205,6 +208,22 @@ CField& CMesh::field(const std::string& name)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+CNodes& CMesh::nodes() 
+{ 
+  cf_assert( is_not_null(m_nodes_link->get()) );
+  return *m_nodes_link->get()->as_type<CNodes>();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const CNodes& CMesh::nodes() const 
+{ 
+  cf_assert( is_not_null(m_nodes_link->get()) );
+  return *m_nodes_link->get()->as_type<CNodes>();
+}
+
+//////////////////////////////////////////////////////////////////////////////
 
 
 } // Mesh

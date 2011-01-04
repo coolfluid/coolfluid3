@@ -23,8 +23,8 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/CDynTable.hpp"
 #include "Mesh/ElementType.hpp"
+#include "Mesh/CNodes.hpp"
 
-using namespace std;
 using namespace boost;
 using namespace boost::assign;
 using namespace CF;
@@ -703,6 +703,18 @@ BOOST_AUTO_TEST_CASE ( CDynTable_test_hard )
 	buffer.flush();
 
 
+}
+
+
+BOOST_AUTO_TEST_CASE ( Mesh_test )
+{
+  CMesh::Ptr mesh = allocate_component<CMesh>("mesh");
+  CRegion& region = mesh->create_region("region");
+  CNodes& nodes = region.create_nodes(DIM_3D);
+  nodes.resize(2);
+  mesh->get_child<CLink>("nodes")->link_to(nodes.self());
+  
+  BOOST_CHECK_EQUAL(mesh->nodes().coordinates().row_size() , DIM_3D);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
