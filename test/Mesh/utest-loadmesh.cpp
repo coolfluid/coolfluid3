@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Solver::LoadMesh"
+#define BOOST_TEST_MODULE "Test module for CF::Mesh::LoadMesh"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/filesystem/path.hpp>
@@ -19,11 +19,10 @@
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CMeshWriter.hpp"
 
-#include "Solver/LoadMesh.hpp"
+#include "Mesh/LoadMesh.hpp"
 
 using namespace CF;
 using namespace CF::Common;
-using namespace CF::Solver;
 using namespace CF::Mesh;
 
 //////////////////////////////////////////////////////////////////////////////

@@ -8,6 +8,10 @@ list( APPEND coolfluid_rdm_files
   ResidualDistribution.hpp
   RungeKutta.cpp
   RungeKutta.hpp
+  ScalarAdvection.hpp
+  ScalarAdvection.cpp
+  CTakeStep.hpp
+  CTakeStep.cpp
 )
 
 list( APPEND coolfluid_rdm_cflibs coolfluid_mesh coolfluid_mesh_sf coolfluid_actions coolfluid_solver )

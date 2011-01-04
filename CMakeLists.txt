@@ -109,6 +109,9 @@ include_directories( ${coolfluid_SOURCE_DIR}/plugins )
 # add dir with kernel config (automatic generated headers)
 add_subdirectory( config )
 
+# define the resources directory
+add_subdirectory( resources )
+
 # add dir with external kernel dependencies but locally included
 add_subdirectory( include )
 

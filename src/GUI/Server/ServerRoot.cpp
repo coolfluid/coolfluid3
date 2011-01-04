@@ -14,8 +14,6 @@
 #include "Common/XmlHelpers.hpp"
 
 #include "Solver/CMethod.hpp"
-#include "Solver/ScalarAdvection.hpp"
-#include "Solver/LoadMesh.hpp"
 
 #include "GUI/Server/Notifier.hpp"
 #include "GUI/Server/ProcessingThread.hpp"
@@ -80,8 +78,6 @@ CRoot::Ptr ServerRoot::root()
 
     Component::Ptr tools = root->get_child("Tools");
 
-    tools->create_component<Solver::ScalarAdvection>( "SetupScalarAdvection" )->mark_basic();
-    tools->create_component<Solver::LoadMesh>( "LoadMesh" )->mark_basic();
     tools->create_component<CJournal>("Journal")->mark_basic();
   }
 

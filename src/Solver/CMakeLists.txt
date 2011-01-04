@@ -26,14 +26,10 @@ list( APPEND coolfluid_solver_files
   CMethod.cpp
   ForwardEuler.hpp
   ForwardEuler.cpp
-  LoadMesh.hpp
-  LoadMesh.cpp
   LibSolver.hpp
   LibSolver.cpp
   ResidualDistribution.hpp
   ResidualDistribution.cpp
-  ScalarAdvection.hpp
-  ScalarAdvection.cpp
 )
 
 set( coolfluid_solver_kernellib TRUE )

@@ -15,16 +15,16 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CDomain.hpp"
 
-#include "Solver/LoadMesh.hpp"
+#include "Mesh/LoadMesh.hpp"
 
 namespace CF {
-namespace Solver {
+namespace Mesh {
 
 using namespace Common;
 using namespace Common::String;
 using namespace CF::Mesh;
 
-Common::ComponentBuilder < LoadMesh, Component, LibSolver > LoadMesh_Builder;
+Common::ComponentBuilder < LoadMesh, Component, LibMesh > LoadMesh_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -139,5 +139,5 @@ void LoadMesh::signal_load_mesh ( Common::XmlNode& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Solver
+} // Mesh
 } // CF

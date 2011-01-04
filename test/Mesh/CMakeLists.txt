@@ -35,8 +35,8 @@ coolfluid_add_unittest( utest-mesh-components )
 
 ################################################################################
 
-list( APPEND utest-cgns_cflibs coolfluid_mesh_cgns3 coolfluid_mesh_neutral coolfluid_mesh_gmsh )
-list( APPEND utest-cgns_files  utest-cgns.cpp )
+list( APPEND utest-cgns_cflibs      coolfluid_mesh_cgns3 coolfluid_mesh_neutral coolfluid_mesh_gmsh )
+list( APPEND utest-cgns_files       utest-cgns.cpp )
 list( APPEND utest-cgns_includedirs ${CGNS_INCLUDE_DIR} )
 
 set( utest-cgns_condition ${coolfluid_mesh_cgns3_builds} )
@@ -49,8 +49,8 @@ coolfluid_add_unittest( utest-cgns )
 # build types internally, in which the binary dir exists
 add_custom_command(TARGET utest-mesh-components
                    POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/hextet.neu    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/hextet.neu    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                   )
 
 ################################################################################
@@ -67,8 +67,8 @@ coolfluid_add_mpi_unittest( utest-neu-reader-mpi 3 )
 # build types internally, in which the binary dir exists
 add_custom_command(TARGET utest-neu-reader-mpi
                    POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/hextet.neu    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/hextet.neu    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                   )
 
 ################################################################################
@@ -185,7 +185,7 @@ coolfluid_add_unittest( utest-nodes )
 # build types internally, in which the binary dir exists
 add_custom_command(TARGET utest-nodes
                    POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                   )
 
 ################################################################################
@@ -231,8 +231,8 @@ coolfluid_add_mpi_unittest( utest-pt-scotch 3)
 # build types internally, in which the binary dir exists
 add_custom_command(TARGET utest-pt-scotch
                    POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/hextet.neu    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/hextet.neu    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                   )
 
 ################################################################################
@@ -252,8 +252,8 @@ coolfluid_add_mpi_unittest( utest-zoltan 2)
 # build types internally, in which the binary dir exists
 add_custom_command(TARGET utest-zoltan
                    POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/hextet.neu    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/hextet.neu    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                   )
 
 ################################################################################
@@ -280,4 +280,21 @@ set( utest-blockmesh-mpi-scale_scaling ON )
 set( utest-blockmesh-mpi-scale_condition ${CF_TMP_HAVE_SIMPLECOMM})
 
 coolfluid_add_mpi_unittest( utest-blockmesh-mpi-scale ${CF_MPI_TESTS_NB_PROCS} )
+
+##########################################################################
+# test load mesh wizard
+list( APPEND utest-loadmesh_cflibs coolfluid_solver )
+list( APPEND utest-loadmesh_files  utest-loadmesh.cpp )
+
+coolfluid_add_unittest( utest-loadmesh )
+
+add_custom_command(TARGET utest-loadmesh
+                   POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-tg.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                  )
+
+add_custom_command(TARGET utest-loadmesh
+                   POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-qd.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                  )
 

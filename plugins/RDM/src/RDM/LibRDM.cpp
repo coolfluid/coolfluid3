@@ -5,11 +5,15 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/RegistLib.hpp"
+#include "Common/CRoot.hpp"
 
-#include "LibRDM.hpp"
+#include "RDM/LibRDM.hpp"
+#include "RDM/ScalarAdvection.hpp"
 
 namespace CF {
 namespace RDM {
+
+using namespace CF::Common;
 
 CF::Common::ForceLibRegist<LibRDM> libRDM;
 
@@ -17,10 +21,17 @@ CF::Common::ForceLibRegist<LibRDM> libRDM;
 
 void LibRDM::initiate()
 {
+  Core::instance().root()
+      ->get_child("Tools")
+      ->create_component<RDM::ScalarAdvection>( "SetupScalarAdvection" )
+      ->mark_basic();
 }
 
 void LibRDM::terminate()
 {
+  Core::instance().root()
+      ->get_child("Tools")
+      ->remove_component("SetupScalarAdvection");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

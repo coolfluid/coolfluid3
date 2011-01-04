@@ -4,58 +4,60 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_ScalarAdvection_hpp
-#define CF_Solver_ScalarAdvection_hpp
+#ifndef CF_Mesh_LoadMesh_hpp
+#define CF_Mesh_LoadMesh_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/Component.hpp"
 
-#include "Solver/LibSolver.hpp"
+#include "Mesh/CMeshReader.hpp"
+
+#include "Mesh/LibMesh.hpp"
 
 namespace CF {
-namespace Solver {
+namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Wizard to setup a scalar advection simulation
 /// @author Tiago Quintino
-class Solver_API ScalarAdvection : public Common::Component {
+class Mesh_API LoadMesh : public Common::Component {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<ScalarAdvection> Ptr;
-  typedef boost::shared_ptr<ScalarAdvection const> ConstPtr;
+  typedef boost::shared_ptr<LoadMesh> Ptr;
+  typedef boost::shared_ptr<LoadMesh const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  ScalarAdvection ( const std::string& name );
+  LoadMesh ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~ScalarAdvection();
+  virtual ~LoadMesh();
 
   /// Get the class name
-  static std::string type_name () { return "ScalarAdvection"; }
+  static std::string type_name () { return "LoadMesh"; }
 
-  // functions specific to the ScalarAdvection component
-
-  /// @name SIGNALS
-  //@{
-
-  /// Signal to create a model
-  void create_model ( Common::XmlNode& node );
+  // functions specific to the LoadMesh component
   
-  //@} END SIGNALS
+  /// Signal run_operation
+  void signal_load_mesh ( Common::XmlNode& node );
   
+  LoadMesh& operation(const std::string& name);
+  
+private:
+
+  std::map<std::string,std::vector<Mesh::CMeshReader::Ptr> > m_extensions_to_readers;
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Solver
+} // Mesh
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Solver_ScalarAdvection_hpp
+#endif // CF_Mesh_LoadMesh_hpp

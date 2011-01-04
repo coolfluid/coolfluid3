@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Solver::ScalarAdvection"
+#define BOOST_TEST_MODULE "Test module for CF::RDM::ScalarAdvection"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/filesystem/path.hpp>
@@ -26,16 +26,17 @@
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CRegion.hpp"
 
-#include "Solver/ScalarAdvection.hpp"
-#include "Solver/ResidualDistribution.hpp"
+#include "RDM/ScalarAdvection.hpp"
+#include "RDM/ResidualDistribution.hpp"
 
 #include "Actions/CLoop.hpp"
 
 using namespace CF;
 using namespace CF::Common;
-using namespace CF::Solver;
 using namespace CF::Mesh;
 using namespace CF::Actions;
+using namespace CF::Solver;
+using namespace CF::RDM;
 
 //////////////////////////////////////////////////////////////////////////////
 
