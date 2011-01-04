@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_SUITE( RDM_Suite )
 
 BOOST_AUTO_TEST_CASE( constructor )
 {
-  CDiscretization::Ptr comp = create_component_abstract_type<CDiscretization>("CF.Solver.ResidualDistribution", "ResidualDistribution");
+  CDiscretization::Ptr comp = create_component_abstract_type<CDiscretization>("CF.RDM.ResidualDistribution", "ResidualDistribution");
   BOOST_CHECK( is_not_null(comp) );
   CFinfo << comp->tree() << CFendl;
 }
