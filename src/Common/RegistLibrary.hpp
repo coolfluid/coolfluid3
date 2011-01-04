@@ -4,13 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_RegistLib_hpp
-#define CF_Common_RegistLib_hpp
+#ifndef CF_Common_RegistLibrary_hpp
+#define CF_Common_RegistLibrary_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/Core.hpp"
 #include "Common/CLibraries.hpp"
+
+#include "Common/Log.hpp"
 
 namespace CF {
 namespace Common {
@@ -20,14 +22,21 @@ namespace Common {
 /// @brief Struct to force library registration
 /// @author Quentin Gasper
 template< typename LIB >
-struct ForceLibRegist
+struct RegistLibrary
 {
   /// @brief Registers the library LIB in the registry.
-  ForceLibRegist()
+  RegistLibrary()
   {
-    // CFinfo << "Library [" << Core::instance().libraries()->get_library<LIB>()->type_name() << "] loaded." << CFendl;
+    CFinfo << "Library [" << Core::instance().libraries()->get_library<LIB>()->type_name() << "] loaded." << CFendl;
 
-    Core::instance().libraries()->get_library<LIB>();
+    Core::instance().libraries()->get_library<LIB>()->initiate();
+  }
+
+  ~RegistLibrary()
+  {
+    CFinfo << "Library [" << Core::instance().libraries()->get_library<LIB>()->type_name() << "] unloaded." << CFendl;
+
+    Core::instance().libraries()->get_library<LIB>()->terminate();
   }
 };
 
@@ -38,4 +47,4 @@ struct ForceLibRegist
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_RegistLib_hpp
+#endif // CF_Common_RegistLibrary_hpp

@@ -5,13 +5,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/RegistLib.hpp"
+#include "Common/RegistLibrary.hpp"
 #include "Common/LibCommon.hpp"
 
 namespace CF {
 namespace Common {
 
-CF::Common::ForceLibRegist<LibCommon> libCommon;
+CF::Common::RegistLibrary<LibCommon> libCommon;
 
 ////////////////////////////////////////////////////////////////////////////////
 

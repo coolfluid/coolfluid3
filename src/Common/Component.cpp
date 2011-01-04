@@ -80,10 +80,8 @@ Component::Component ( const std::string& name ) :
 
   // properties
 
-  m_properties.add_property("brief",
-                               std::string("No brief description available"));
-  m_properties.add_property("description",
-                               std::string("This component has not a long description"));
+  m_properties.add_property("brief", std::string("No brief description available"));
+  m_properties.add_property("description", std::string("This component has not a long description"));
 }
 
 Component::~Component()

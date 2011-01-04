@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/Log.hpp"
-#include "Common/RegistLib.hpp"
+#include "Common/RegistLibrary.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Mesh/CFieldElements.hpp"
@@ -64,7 +64,7 @@ public: // functions
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-CF::Common::ForceLibRegist<LibTestActions> libTestActions;
+CF::Common::RegistLibrary<LibTestActions> libTestActions;
 
 Common::ComponentBuilder < CDummyLoopOperation, CLoopOperation, LibTestActions > CDummyLoopOperation_Builder;
 

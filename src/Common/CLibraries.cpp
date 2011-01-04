@@ -40,6 +40,10 @@ void CLibraries::load_library ( XmlNode& node )
   XmlParams p ( node );
 
   URI file = p.get_option<URI>("Lib");
+
+  if( file.empty() || file.scheme() != URI::Scheme::FILE )
+    throw InvalidURI( FromHere(), "Expected a file:// got \'" + file.string() + "\'" );
+
   boost::filesystem::path fpath( file.string_without_scheme() );
 
   OSystem::instance().lib_loader()->load_library( fpath.string() );
@@ -50,11 +54,10 @@ void CLibraries::load_library ( XmlNode& node )
   // check protocol for file loading
   BOOST_FOREACH(URI file, files)
   {
-    if( file.empty() || file.scheme() != URI::Protocol::FILE )
+    if( file.empty() || file.scheme() != URI::Scheme::FILE )
       throw ProtocolError( FromHere(), "Wrong protocol to access the file, expecting a \'file\' but got \'" + file.string() + "\'" );
   }
 
-  // create a mesh in the domain
   if( !files.empty() )
   {
     // Get the file paths

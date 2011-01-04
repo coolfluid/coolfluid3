@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/RegistLib.hpp"
+#include "Common/RegistLibrary.hpp"
 
 #include "Tools/Testing/LibTesting.hpp"
 
@@ -14,7 +14,7 @@ namespace CF {
 namespace Tools {
 namespace Testing {
 
-CF::Common::ForceLibRegist<LibTesting> libTesting;
+CF::Common::RegistLibrary<LibTesting> libTesting;
 
 ////////////////////////////////////////////////////////////////////////////////
 

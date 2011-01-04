@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/RegistLib.hpp"
+#include "Common/RegistLibrary.hpp"
 
 #include "Tools/MeshDiff/LibMeshDiff.hpp"
 
@@ -12,7 +12,7 @@ namespace CF {
 namespace Tools {
 namespace MeshDiff {
 
-CF::Common::ForceLibRegist<LibMeshDiff> libMeshDiff;
+CF::Common::RegistLibrary<LibMeshDiff> libMeshDiff;
 
 ////////////////////////////////////////////////////////////////////////////////
 

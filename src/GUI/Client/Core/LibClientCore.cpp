@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/RegistLib.hpp"
+#include "Common/RegistLibrary.hpp"
 
 #include "GUI/Client/Core/LibClientCore.hpp"
 
@@ -12,7 +12,7 @@ namespace CF {
 namespace GUI {
 namespace ClientCore {
 
-CF::Common::ForceLibRegist<LibClientCore> libClientCore;
+CF::Common::RegistLibrary<LibClientCore> libClientCore;
 
 ////////////////////////////////////////////////////////////////////////////////
 

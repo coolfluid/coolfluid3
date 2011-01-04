@@ -90,7 +90,7 @@ list( APPEND coolfluid_common_files
     OSystem.hpp
     OSystemLayer.cpp
     OSystemLayer.hpp
-    RegistLib.hpp
+    RegistLibrary.hpp
     StreamHelpers.hpp
     String/Conversion.hpp
     String/Conversion.cpp

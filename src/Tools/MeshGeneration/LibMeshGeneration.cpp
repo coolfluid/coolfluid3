@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/RegistLib.hpp"
+#include "Common/RegistLibrary.hpp"
 
 #include "Tools/MeshGeneration/LibMeshGeneration.hpp"
 
@@ -12,7 +12,7 @@ namespace CF {
 namespace Tools {
 namespace MeshGeneration {
 
-CF::Common::ForceLibRegist<LibMeshGeneration> libMeshGeneration;
+CF::Common::RegistLibrary<LibMeshGeneration> libMeshGeneration;
 
 ////////////////////////////////////////////////////////////////////////////////
 

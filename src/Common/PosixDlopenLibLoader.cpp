@@ -49,7 +49,7 @@ void PosixDlopenLibLoader::load_library(const std::string& lib)
 {
   if (lib.empty()) return;
 
-  CFinfo << "PosixDlopenLibLoader: attempting to load \'" << lib << "\'" << CFendl;
+  CFinfo << "dlopen() loading library \'" << lib << "\'" << CFendl;
 
   using namespace boost::filesystem;
 
@@ -90,15 +90,14 @@ void PosixDlopenLibLoader::load_library(const std::string& lib)
     }
   }
 
-
   // check for success
   if(hdl != NULL)
   {
-    CFinfo << "PosixDlopenLibLoader: Loaded \'" << lib  << "\'" << CFendl;
+    CFinfo << "dlopen(): loaded library \'" << lib  << "\'" << CFendl;
   }
   else
   {
-    CFinfo << "dlopen() failed to load module : \'" << lib << "\'" << CFendl;
+    CFinfo << "dlopen() failed to load library : \'" << lib << "\'" << CFendl;
     const char * msg = dlerror();
     if (msg != NULL)
     {
@@ -108,7 +107,7 @@ void PosixDlopenLibLoader::load_library(const std::string& lib)
     {
       CFinfo << "dlerror() said nothing." << CFendl;
     }
-    throw LibLoadingError (FromHere(),"Module failed to load");
+    throw LibLoadingError (FromHere(),"Library failed to load");
   }
 }
 

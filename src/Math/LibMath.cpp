@@ -4,14 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/RegistLib.hpp"
+#include "Common/RegistLibrary.hpp"
 
 #include "Math/LibMath.hpp"
 
 namespace CF {
 namespace Math {
 
-CF::Common::ForceLibRegist<LibMath> libMath;
+CF::Common::RegistLibrary<LibMath> libMath;
 
 ////////////////////////////////////////////////////////////////////////////////
 
