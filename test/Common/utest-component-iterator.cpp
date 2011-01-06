@@ -703,6 +703,29 @@ BOOST_AUTO_TEST_CASE( speed_find_type )
   std::cout << "iterate by [type] over " << counter << " components in " << timer.elapsed() << " seconds" << std::endl;
 }
 
+//////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( test_range_to_vector )
+{
+    CGroup::Ptr mg = root().create_component<CGroup>("ManyGroup1");
+
+  // allocate 10 components
+  for ( Uint i = 0; i < 10 ; ++i)
+  {
+    mg->create_component<CGroup>( std::string("ggg") + String::to_str(i) );
+  }
+
+  std::vector<CGroup::Ptr> vector = range_to_vector(find_components_recursively<CGroup>(*mg));
+  BOOST_CHECK_EQUAL(vector.size() , 10u);
+
+  CGroup::ConstPtr const_mg (mg);
+  std::vector<CGroup::ConstPtr> const_vector = range_to_vector(find_components_recursively<CGroup>(*const_mg));
+  BOOST_CHECK_EQUAL(const_vector.size(), 10u);
+  
+  const_vector = range_to_const_vector(find_components_recursively<CGroup>(*mg));
+  BOOST_CHECK_EQUAL(const_vector.size(), 10u);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -122,6 +122,14 @@ BOOST_AUTO_TEST_CASE( get )
 
 ////////////////////////////////////////////////////////////////////////////////
 
+BOOST_AUTO_TEST_CASE( as_const )
+{
+  CRoot::Ptr root = CRoot::create ( "root" );
+  CRoot::ConstPtr const_root = root->as_const_type<CRoot>();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 BOOST_AUTO_TEST_CASE( complete_path )
 {
   CRoot::Ptr root = CRoot::create ( "root" );

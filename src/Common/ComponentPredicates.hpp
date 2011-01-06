@@ -146,6 +146,46 @@ Uint count(const RangeT& range) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+/// Create a vector of boost::shared_ptr of components, given an iterator_range
+template <typename T>
+inline std::vector< boost::shared_ptr<T> > range_to_vector( boost::iterator_range<ComponentIterator<T> > range)
+{
+  std::vector<boost::shared_ptr<T> > result (0);
+  BOOST_FOREACH ( T& val, range)
+    result.push_back(val.template as_type<T>());
+  return result;
+}
+
+template <typename T, typename Predicate>
+inline std::vector< boost::shared_ptr<T> > range_to_vector( boost::iterator_range<boost::filter_iterator<Predicate, ComponentIterator<T> > > range)
+{
+  std::vector<boost::shared_ptr<T> > result (0);
+  BOOST_FOREACH ( T& val, range)
+    result.push_back(val.template as_type<T>());
+  return result;
+}
+
+template <typename T>
+inline std::vector< boost::shared_ptr<const T> > range_to_const_vector( boost::iterator_range<ComponentIterator<T> > range)
+{
+  std::vector<boost::shared_ptr<const T> > result (0);
+  BOOST_FOREACH ( T& val, range)
+    result.push_back(val.template as_const_type<T>());
+  return result;
+}
+
+template <typename T, typename Predicate>
+inline std::vector< boost::shared_ptr<const T> > range_to_const_vector( boost::iterator_range<boost::filter_iterator<Predicate, ComponentIterator<T> > > range)
+{
+  std::vector<boost::shared_ptr<const T> > result (0);
+  BOOST_FOREACH ( T& val, range)
+    result.push_back(val.template as_const_type<T>());
+  return result;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
 // Wrappers to make iterating easy
 ////////////////////////////////////////////////////////////////////////////////
 

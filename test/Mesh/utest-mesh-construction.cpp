@@ -115,12 +115,9 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   // Create root and mesh component
   CRoot::Ptr root = CRoot::create ( "root" );
 
-  Component::Ptr mesh = allocate_component<CMesh>  ( "mesh" ) ;
+  Component::Ptr p_mesh = allocate_component<CMesh>  ( "mesh" ) ;
 
-  root->add_component( mesh );
-
-  // create a mesh pointer
-  CMesh::Ptr p_mesh = boost::dynamic_pointer_cast<CMesh>(mesh);
+  root->add_component( p_mesh );
 
   // create regions
   CRegion& superRegion = p_mesh->create_region("superRegion");

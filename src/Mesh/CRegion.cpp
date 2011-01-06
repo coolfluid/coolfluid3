@@ -114,7 +114,7 @@ CField& CRegion::get_field(const std::string& field_name)
   cf_assert(all_fields.get());
   Component::Ptr field = all_fields->get_child(field_name);
   cf_assert(field.get());
-  return *boost::dynamic_pointer_cast<CField>(field->get());
+  return *field->get()->as_type<CField>();
 }
 
 //////////////////////////////////////////////////////////////////////////////

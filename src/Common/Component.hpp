@@ -207,7 +207,7 @@ public: // functions
 
   /// @returns the named child from the direct subcomponents automatically cast to the specified type
   template < typename T >
-      typename T::ConstPtr get_child ( const std::string& name ) const ;
+      typename T::ConstPtr get_child ( const std::string& name ) const;
 
   /// @returns this component converted to type T shared pointer
   template < typename T >
@@ -216,6 +216,9 @@ public: // functions
   /// @returns this component converted to type T shared const pointer
   template < typename T >
     typename T::ConstPtr as_type() const;
+
+  template < typename T >
+    typename T::ConstPtr as_const_type() const;
 
   /// Create a (sub)component of this component automatically cast to the specified type
   template < typename T >
@@ -490,6 +493,14 @@ template < typename T >
 inline typename T::ConstPtr Component::as_type() const
 {
   return boost::dynamic_pointer_cast<T const>(self());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+template < typename T >
+inline typename T::ConstPtr Component::as_const_type() const
+{
+  return typename T::ConstPtr ( self()->as_type<T>() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

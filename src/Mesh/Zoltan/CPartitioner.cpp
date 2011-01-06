@@ -300,7 +300,7 @@ void CPartitioner::migrate()
 	boost_foreach (Component::Ptr comp, components_vector())
 	{
 		// give the element to node connectivity global indices
-		if(CElements::Ptr elements = boost::dynamic_pointer_cast<CElements>(comp))
+		if(CElements::Ptr elements = comp->as_type<CElements>())
 		{
 			const CList<Uint>& global_node_indices = elements->nodes().glb_idx();
 			
@@ -354,7 +354,7 @@ void CPartitioner::migrate()
   boost_foreach (Component::Ptr comp, components_vector())
   {
     // give the element to node connectivity global indices
-    if(CElements::Ptr elements = boost::dynamic_pointer_cast<CElements>(comp))
+    if(CElements::Ptr elements = comp->as_type<CElements>())
     {
       CTable<Uint>& conn_table = elements->connectivity_table();
       boost_foreach ( CTable<Uint>::Row nodes, conn_table.array() )
@@ -371,7 +371,7 @@ void CPartitioner::migrate()
   boost_foreach (Component::Ptr comp, components_vector())
   {
     // give the element to node connectivity global indices
-    if(CNodes::Ptr nodes = boost::dynamic_pointer_cast<CNodes>(comp))
+    if(CNodes::Ptr nodes = comp->as_type<CNodes>())
     {
       const CList<Uint>& global_node_indices = nodes->glb_idx();
       CList<bool>& is_ghost = nodes->is_ghost();      
@@ -501,7 +501,7 @@ void CPartitioner::migrate()
   boost_foreach (Component::Ptr comp, components_vector())
   {
     // give the element to node connectivity global indices
-    if(CNodes::Ptr nodes = boost::dynamic_pointer_cast<CNodes>(comp))
+    if(CNodes::Ptr nodes = comp->as_type<CNodes>())
     {
       const CList<Uint>& global_node_indices = nodes->glb_idx();
       cf_assert(global_node_indices.size() == nodes->size());
@@ -515,7 +515,7 @@ void CPartitioner::migrate()
   boost_foreach (Component::Ptr comp, components_vector())
   {
     // give the element to node connectivity global indices
-    if(CElements::Ptr elements = boost::dynamic_pointer_cast<CElements>(comp))
+    if(CElements::Ptr elements = comp->as_type<CElements>())
     {
       boost_foreach ( CTable<Uint>::Row nodes, elements->connectivity_table().array() )
       {
@@ -578,7 +578,7 @@ void CPartitioner::pack_elems_messages(void *data, int gidSize, int lidSize, int
 	std::vector<boost::shared_ptr<CTable<Uint>::Buffer> > elem_buffer;
 	boost_foreach (Component::Ptr comp, p.components_vector())
 	{
-		if(CElements::Ptr elements = boost::dynamic_pointer_cast<CElements>(comp))
+		if(CElements::Ptr elements = comp->as_type<CElements>())
 			elem_buffer.push_back(boost::shared_ptr<CTable<Uint>::Buffer> ( new CTable<Uint>::Buffer(elements->connectivity_table().create_buffer())));
 		else
 			elem_buffer.push_back(boost::shared_ptr<CTable<Uint>::Buffer>());
@@ -634,7 +634,7 @@ void CPartitioner::unpack_elems_messages(void *data, int gidSize, int num_ids,
 	std::vector<boost::shared_ptr<CTable<Uint>::Buffer> > elem_buffer;
 	boost_foreach (Component::Ptr comp, p.components_vector())
 	{
-		if(CElements::Ptr elements = boost::dynamic_pointer_cast<CElements>(comp))
+		if(CElements::Ptr elements = comp->as_type<CElements>())
 		{
 			elem_buffer.push_back(boost::shared_ptr<CTable<Uint>::Buffer> ( new CTable<Uint>::Buffer(elements->connectivity_table().create_buffer())));
 
@@ -712,7 +712,7 @@ void CPartitioner::pack_nodes_messages(void *data, int gidSize, int lidSize, int
 	std::vector<CNodes::Ptr> nodes_vec;
 	boost_foreach (Component::Ptr comp, p.components_vector())
 	{
-		if(CNodes::Ptr nodes = boost::dynamic_pointer_cast<CNodes>(comp))
+		if(CNodes::Ptr nodes = comp->as_type<CNodes>())
 			nodes_vec.push_back(nodes);
 		else
 			nodes_vec.push_back(CNodes::Ptr());
@@ -808,7 +808,7 @@ void CPartitioner::unpack_nodes_messages(void *data, int gidSize, int num_ids,
 	std::vector<boost::shared_ptr<CList<Uint>::Buffer> > gid_buffer;
 	boost_foreach (Component::Ptr comp, p.components_vector())
 	{
-		if(CNodes::Ptr nodes = boost::dynamic_pointer_cast<CNodes>(comp))
+		if(CNodes::Ptr nodes = comp->as_type<CNodes>())
 		{
 			node_buffer.push_back(boost::shared_ptr<CTable<Real>::Buffer> ( new CTable<Real>::Buffer(nodes->coordinates().create_buffer())) );
 			connectivity_buffer.push_back(boost::shared_ptr<CDynTable<Uint>::Buffer> ( new CDynTable<Uint>::Buffer(nodes->glb_elem_connectivity().create_buffer())) );

@@ -164,10 +164,11 @@ void create_celements_vector(const RangeT& range, CFaceConnectivity::ElementsT& 
 {
   celements_vector.clear();
 
-  for(typename RangeT::const_iterator elem = range.begin(); elem != range.end(); ++elem)
-  {
-    celements_vector.push_back(elem.base().get());
-  }
+  celements_vector = range_to_const_vector(range);
+  // for(typename RangeT::const_iterator elem = range.begin(); elem != range.end(); ++elem)
+  // {
+  //   celements_vector.push_back(elem.base().get());
+  // }
   
   /// Construct global index starts
   celements_first_elements.clear();

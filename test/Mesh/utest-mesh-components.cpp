@@ -73,17 +73,15 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
   // Create root and mesh component
   boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
 
-  boost::shared_ptr<Component> mesh ( allocate_component<CMesh>  ( "mesh" ) );
+  boost::shared_ptr<CMesh> p_mesh = allocate_component<CMesh>  ( "mesh" ) ;
 
-  root->add_component( mesh );
+  root->add_component( p_mesh );
 
-  BOOST_CHECK_EQUAL ( mesh->name() , "mesh" );
-  BOOST_CHECK_EQUAL ( mesh->path().string() , "cpath://root" );
-  BOOST_CHECK_EQUAL ( mesh->full_path().string() , "cpath://root/mesh" );
+  BOOST_CHECK_EQUAL ( p_mesh->name() , "mesh" );
+  BOOST_CHECK_EQUAL ( p_mesh->path().string() , "cpath://root" );
+  BOOST_CHECK_EQUAL ( p_mesh->full_path().string() , "cpath://root/mesh" );
 
   // Create one region inside mesh
-  CMesh::Ptr p_mesh = boost::dynamic_pointer_cast<CMesh>(mesh);
-
   CRegion& region1 = p_mesh->create_region("region1");
   BOOST_CHECK_EQUAL ( region1.full_path().string() , "cpath://root/mesh/region1" );
 
@@ -248,14 +246,12 @@ BOOST_AUTO_TEST_CASE( CTable_Uint_Test )
   // Create mesh component
   boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
 
-  boost::shared_ptr<Component> mesh ( allocate_component<CMesh>  ( "mesh" ) );
+  boost::shared_ptr<CMesh> mesh = allocate_component<CMesh>  ( "mesh" ) ;
 
   root->add_component( mesh );
 
   // Create one region inside mesh
-  CMesh::Ptr p_mesh = boost::dynamic_pointer_cast<CMesh>(mesh);
-
-  CRegion& region = p_mesh->create_region("region");
+  CRegion& region = mesh->create_region("region");
 
   // Create connectivity table inside the region
   CTable<Uint>& connTable = *region.create_component<CTable<Uint> >("connTable");
