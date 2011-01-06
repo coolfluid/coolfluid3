@@ -76,15 +76,23 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
 	
 //  // the file to read from
 //  //boost::filesystem::path fp_in ("hextet.neu");
-//	boost::filesystem::path fp_in ("quadtriag.neu");
+  boost::filesystem::path fp_in ("rectangle-tg-p1.msh");
 	
 //  // the mesh to store in
-//  CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
+  CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
   
 	
 //	//CFinfo.setFilterRankZero(false);
-//  meshreader->read_from_to(fp_in,mesh);
+    meshreader->read_from_to(fp_in,mesh);
 //	//CFinfo.setFilterRankZero(true);
+
+
+    CFinfo << mesh->tree() << CFendl;
+
+CMeshWriter::Ptr mesh_writer =
+    create_component_abstract_type<CMeshWriter> ("CF.Mesh.Gmsh.CWriter", "GmshWriter" );
+boost::filesystem::path file ("rectangle-tg-p1-out.msh");
+mesh_writer->write_from_to(mesh,file);
 	
 //  CFinfo << "elements count = " << find_component<CRegion>(*mesh).recursive_elements_count() << CFendl;
 //  CFinfo << "nodes count    = " << find_component<CRegion>(*mesh).recursive_nodes_count() << CFendl;

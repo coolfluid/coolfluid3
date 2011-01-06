@@ -42,6 +42,12 @@ protected:
   /// numbering of vertices of elements as described in gmsh reference manual:
   /// http://www.geuz.org/gmsh/doc/texinfo/gmsh.html#MSH-ASCII-file-format
 
+  static const Uint nb_gmsh_types = 31;
+
+  static const Uint m_nodes_in_gmsh_elem[nb_gmsh_types]; //For each element type, remember how many nodes it has
+  static const Uint m_gmsh_elem_dim[nb_gmsh_types];      //Store what is the geometrical dimension of each gmsh elem
+  static const Uint m_gmsh_elem_order[nb_gmsh_types];    //Store the order of each element type
+
   enum GmshElement {P1LINE=1,P1TRIAG=2,P1QUAD=3, P1TETRA=4, P1HEXA=5,
                     P2LINE=8,P2TRIAG=6,P2QUAD=10,P2TETRA=11,P2HEXA= 12};
   
