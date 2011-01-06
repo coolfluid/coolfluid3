@@ -21,6 +21,8 @@
 #include "Mesh/SF/Triag2DLagrangeP1.hpp"
 #include "Mesh/SF/Quad2DLagrangeP1.hpp"
 
+#include "Mesh/Integrators/Gauss.hpp"
+
 using namespace boost::assign;
 
 using namespace CF::Common;
@@ -44,7 +46,16 @@ ResidualDistribution::ResidualDistribution ( const std::string& name  ) :
   
   m_properties["Regions"].as_option().attach_trigger ( boost::bind ( &ResidualDistribution::trigger_Regions,   this ) );
     
-  m_elem_loop = create_static_component< CForAllElementsT< CSchemeLDAT< SF::Quad2DLagrangeP1 > > >("loop_LDA");
+
+  const Uint order = 1;
+
+    typedef SF::Quad2DLagrangeP1 ShapeFunctionT;
+//  typedef SF::Triag2DLagrangeP1 ShapeFunctionT;
+
+  typedef Mesh::Integrators::GaussMappedCoords<order,ShapeFunctionT::shape> QuadratureT;
+
+  m_elem_loop = create_static_component<
+      CForAllElementsT< CSchemeLDAT< ShapeFunctionT, QuadratureT > > >("loop_LDA");
   
 }
 

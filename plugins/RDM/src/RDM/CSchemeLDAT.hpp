@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_CSchemeLDAT_hpp
-#define CF_RDM_CSchemeLDAT_hpp
+#ifndef CF_Solver_CSchemeLDAT_hpp
+#define CF_Solver_CSchemeLDAT_hpp
 
 #include <boost/assign.hpp>
 
@@ -27,8 +27,8 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-template<typename SHAPEFUNC>
-class Actions_API CSchemeLDAT : public Actions::CLoopOperation
+template<typename SHAPEFUNC, typename QUADRATURE>
+class RDM_API CSchemeLDAT : public Actions::CLoopOperation
 {
 public: // typedefs
 
@@ -74,18 +74,14 @@ private: // data
 
   boost::shared_ptr<LoopHelper> m_loop_helper;
 
-  Uint nb_q;
-  Real w;
-  std::vector<RealVector> mapped_coords;
+  const QUADRATURE& m_quadrature;
 
 };
 
-#define USE_Q1
-
 ///////////////////////////////////////////////////////////////////////////////////////
 
-template<typename SHAPEFUNC>
-void CSchemeLDAT<SHAPEFUNC>::create_loop_helper (Mesh::CElements& geometry_elements )
+template<typename SHAPEFUNC, typename QUADRATURE>
+void CSchemeLDAT<SHAPEFUNC, QUADRATURE>::create_loop_helper (Mesh::CElements& geometry_elements )
 {
   if ( Mesh::IsElementType<SHAPEFUNC>()(geometry_elements.element_type()) )
     m_loop_helper.reset( new LoopHelper(geometry_elements , *this ) );
@@ -95,9 +91,10 @@ void CSchemeLDAT<SHAPEFUNC>::create_loop_helper (Mesh::CElements& geometry_eleme
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-template<typename SHAPEFUNC>
-CSchemeLDAT<SHAPEFUNC>::CSchemeLDAT ( const std::string& name ) :
-  CLoopOperation(name)
+template<typename SHAPEFUNC, typename QUADRATURE>
+CSchemeLDAT<SHAPEFUNC,QUADRATURE>::CSchemeLDAT ( const std::string& name ) :
+  CLoopOperation(name),
+  m_quadrature( QUADRATURE::instance() )
 {
   regist_typeinfo(this);
 
@@ -107,47 +104,12 @@ CSchemeLDAT<SHAPEFUNC>::CSchemeLDAT ( const std::string& name ) :
   m_properties.add_option< Common::OptionT<std::string> > ("SolutionField","Solution Field for calculation", "solution")->mark_basic();
   m_properties.add_option< Common::OptionT<std::string> > ("ResidualField","Residual Field updated after calculation", "residual")->mark_basic();
   m_properties.add_option< Common::OptionT<std::string> > ("InverseUpdateCoeff","Inverse update coefficient Field updated after calculation", "inverse_updatecoeff")->mark_basic();
-
-#ifndef USE_Q1
-
-  nb_q=3;
-  mapped_coords.resize(nb_q);
-  for(Uint q=0; q<nb_q; ++q)
-    mapped_coords[q].resize(DIM_2D);
-
-  mapped_coords[0][XX] = 0.5;  mapped_coords[0][YY] = 0.0;
-  mapped_coords[1][XX] = 0.5;  mapped_coords[1][YY] = 0.5;
-  mapped_coords[2][XX] = 0.0;  mapped_coords[2][YY] = 0.5;
-  w = 1./6.;
-
- # else
-
-  const Real ref = 1.0/std::sqrt(3);
-
-
-
-
-  nb_q=4;
-  mapped_coords.resize(nb_q);
-  for(Uint q=0; q<nb_q; ++q)
-    mapped_coords[q].resize(DIM_2D);
-
-  mapped_coords[0][XX] = -ref;  mapped_coords[0][YY] = -ref;
-  mapped_coords[1][XX] =  ref;  mapped_coords[1][YY] = -ref;
-  mapped_coords[2][XX] =  ref;  mapped_coords[2][YY] =  ref;
-  mapped_coords[3][XX] = -ref;  mapped_coords[3][YY] =  ref;
-
-  w = 1.0;
-
-#endif
-
-
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-template<typename SHAPEFUNC>
-void CSchemeLDAT<SHAPEFUNC>::execute()
+template<typename SHAPEFUNC,typename QUADRATURE>
+void CSchemeLDAT<SHAPEFUNC, QUADRATURE>::execute()
 {
   // inside element with index m_idx
 
@@ -166,10 +128,10 @@ void CSchemeLDAT<SHAPEFUNC>::execute()
 
   phi.setZero();
 
-  for (Uint q=0; q<nb_q; ++q) //Loop over quadrature points
+  for (Uint q=0; q<QUADRATURE::nb_points; ++q) //Loop over quadrature points
   {
-    SHAPEFUNC::mapped_gradient(mapped_coords[q],mapped_grad);
-    SHAPEFUNC::shape_function(mapped_coords[q], shapefunc);
+    SHAPEFUNC::mapped_gradient( m_quadrature.coords.col(q), mapped_grad );
+    SHAPEFUNC::shape_function ( m_quadrature.coords.col(q), shapefunc   );
 
     Real x=0;
     Real y=0;
@@ -216,7 +178,7 @@ void CSchemeLDAT<SHAPEFUNC>::execute()
 
     for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
     {
-      phi[n] += nominator[n]/denominator * nablaF * w * jacobian;
+      phi[n] += nominator[n]/denominator * nablaF * m_quadrature.weights[q] * jacobian;
     }
 
   }
@@ -238,30 +200,6 @@ void CSchemeLDAT<SHAPEFUNC>::execute()
     centroid[YY] += nodes(n, YY);
   }
   centroid /= SHAPEFUNC::nb_nodes;
-
-
-#ifndef USE_Q1
-
-  RealMatrix nodal_normals( SHAPEFUNC::Support::dimension, SHAPEFUNC::nb_nodes );
-
-  nodal_normals(XX,0) = nodes[1][YY] - nodes[2][YY];
-  nodal_normals(XX,1) = nodes[2][YY] - nodes[0][YY];
-  nodal_normals(XX,2) = nodes[0][YY] - nodes[1][YY];
-
-  nodal_normals(YY,0) = nodes[2][XX] - nodes[1][XX];
-  nodal_normals(YY,1) = nodes[0][XX] - nodes[2][XX];
-  nodal_normals(YY,2) = nodes[1][XX] - nodes[0][XX];
-
-  Real sum_kplus=0;
-  for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
-    sum_kplus += 0.5*std::max(0.0,centroid[YY]*nodal_normals(XX,n)-centroid[XX]*nodal_normals(YY,n));
-  for (Uint n=0; n<SHAPEFUNC::nb_nodes; ++n)
-  {
-    // Real kplus = 0.5*std::max(0.0,centroid[YY]*nodal_normals(XX,i)-centroid[XX]*nodal_normals(YY,i));
-    data->inverse_updatecoeff[node_idx[n]][0] += sum_kplus;
-  }
-
-#else
 
   // compute a bounding box of the element:
 
@@ -292,7 +230,6 @@ void CSchemeLDAT<SHAPEFUNC>::execute()
         std::sqrt( centroid[XX]*centroid[XX] + centroid[YY]*centroid[YY] );
   }
 
-#endif
 
 }
 

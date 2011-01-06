@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/RegistLibrary.hpp"
+#include "Common/RegistLib.hpp"
 #include "Common/CRoot.hpp"
 
 #include "RDM/LibRDM.hpp"
@@ -15,7 +15,7 @@ namespace RDM {
 
 using namespace CF::Common;
 
-CF::Common::RegistLibrary<LibRDM> libRDM;
+CF::Common::ForceLibRegist<LibRDM> libRDM;
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -89,6 +89,7 @@ BOOST_AUTO_TEST_CASE( read_mesh )
   BOOST_CHECK(true);
   // everything is OK
   std::vector<URI> files;
+//  files.push_back( "file:rotation-tg.neu" );
   files.push_back( "file:rotation-qd.neu" );
   p.add_option<URI>("Domain", URI( domain.full_path().string()) );
   p.add_array("Files", files);

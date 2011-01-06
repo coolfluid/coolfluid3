@@ -147,15 +147,16 @@ void RungeKutta::solve()
           node_data[i][0]=0;
 
 
-      CF_DEBUG_STR("computing rhs");
+//      CF_DEBUG_STR("computing rhs");
       // compute RHS
       discretization_method().compute_rhs();
 
-      CF_DEBUG_STR("time march");
+//      CF_DEBUG_STR("time march");
       // explicit update
       m_take_step->execute();
 
-      CF_DEBUG_STR("computing norm");
+//      CF_DEBUG_STR("computing norm");
+
       // compute norm
       Real rhs_L2=0;
       Uint dof=0;

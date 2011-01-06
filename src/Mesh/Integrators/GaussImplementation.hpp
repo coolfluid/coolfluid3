@@ -340,6 +340,7 @@ struct GaussMappedCoords
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
   
   static const Uint nb_points = GaussMappedCoordsImpl<Order, Shape>::nb_points;
+
   const typename GaussMappedCoordsImpl<Order, Shape>::CoordsT coords;
   const typename GaussMappedCoordsImpl<Order, Shape>::WeightsT weights;
   
@@ -350,11 +351,11 @@ struct GaussMappedCoords
   }
   
 private:
+
   GaussMappedCoords() :
     coords(GaussMappedCoordsImpl<Order, Shape>::coords()),
-    weights(GaussMappedCoordsImpl<Order, Shape>::weights())
-  {
-  }
+    weights(GaussMappedCoordsImpl<Order, Shape>::weights()) {}
+
 };
 
 template<Uint Order, GeoShape::Type Shape>
