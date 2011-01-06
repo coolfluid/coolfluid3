@@ -6,14 +6,6 @@ list( APPEND utest-rdm_files  utest-rdm.cpp )
 
 coolfluid_add_unittest( utest-rdm )
 
-#########################################################################
-# test rdm steady
-
-list( APPEND utest-rdm-steady_cflibs coolfluid_rdm coolfluid_mesh_neutral )
-list( APPEND utest-rdm-steady_files  utest-rdm-steady.cpp )
-
-coolfluid_add_unittest( utest-rdm-steady )
-
 ##########################################################################
 
 list( APPEND utest-rdm-scalaradvection-steady_cflibs coolfluid_rdm coolfluid_mesh_neutral )
