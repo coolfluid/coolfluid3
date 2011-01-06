@@ -217,9 +217,6 @@ public: // functions
   template < typename T >
     typename T::ConstPtr as_type() const;
 
-  /// Modify the parent of this component
-  void change_parent ( Component* to_parent );
-
   /// Create a (sub)component of this component automatically cast to the specified type
   template < typename T >
       typename T::Ptr create_component ( const std::string& name );
@@ -309,6 +306,9 @@ protected: // functions
   Ptr add_static_component ( Ptr subcomp );
 
 private: // helper functions
+
+  /// Modify the parent of this component
+  void change_parent ( Component* to_parent );
 
   /// insures the sub component has a unique name within this component
   std::string ensure_unique_name ( Ptr subcomp );

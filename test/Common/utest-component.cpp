@@ -202,7 +202,7 @@ BOOST_AUTO_TEST_CASE( look_component )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( change_parent )
+BOOST_AUTO_TEST_CASE( move_to )
 {
   CRoot::Ptr root = CRoot::create ( "root" );
 
@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE( change_parent )
 
   BOOST_CHECK_EQUAL ( dir2->full_path().string(), "cpath://root/dir1/dir2" );
 
-  dir2->change_parent( root.get() );
+  dir2->move_to( root );
 
   BOOST_CHECK_EQUAL ( dir2->full_path().string(), "cpath://root/dir2" );
 
