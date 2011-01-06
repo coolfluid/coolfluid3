@@ -17,9 +17,6 @@ list( APPEND coolfluid_solver_files
   CEigenLSS.hpp
   CIterativeSolver.hpp
   CIterativeSolver.cpp
-  CSchemeLDA.hpp
-  CSchemeLDA.cpp
-  CSchemeLDAT.hpp
   CTime.hpp
   CTime.cpp
   CMethod.hpp
@@ -28,8 +25,6 @@ list( APPEND coolfluid_solver_files
   ForwardEuler.cpp
   LibSolver.hpp
   LibSolver.cpp
-  ResidualDistribution.hpp
-  ResidualDistribution.cpp
 )
 
 set( coolfluid_solver_kernellib TRUE )
