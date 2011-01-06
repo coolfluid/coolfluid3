@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/RegistLib.hpp"
+#include "Common/RegistLibrary.hpp"
 
 #include "CGAL/LibCGAL.hpp"
 
@@ -12,7 +12,7 @@ namespace CF {
 namespace Mesh {
 namespace CGAL {
 
-CF::Common::ForceLibRegist<LibCGAL> libCGAL;
+CF::Common::RegistLibrary<LibCGAL> libCGAL;
 
 ////////////////////////////////////////////////////////////////////////////////
 
