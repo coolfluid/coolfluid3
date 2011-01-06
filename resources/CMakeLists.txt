@@ -5,6 +5,8 @@ list( APPEND resources_files
    quadtriag.neu
    rotation-qd.neu
    rotation-tg.neu
+   rectangle-tg-p1.msh
+   rectangle-tg-p2.msh
    )
 
 add_custom_target( resources SOURCES ${resources_files} )
