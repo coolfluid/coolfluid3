@@ -27,6 +27,10 @@ struct ComponentIterationFixture
   /// common setup for each test case
   ComponentIterationFixture()
   {
+    ExceptionManager::instance().ExceptionOutputs = false;
+    ExceptionManager::instance().ExceptionDumps = false;
+    ExceptionManager::instance().ExceptionAborts = false;
+    
     m_root = CRoot::create ( "root" );
     Component::Ptr comp1 = m_root->create_component<Component>("comp1");
     top_component_names.push_back(comp1->name());
@@ -149,12 +153,32 @@ struct ComponentIterationFixture
   std::vector<std::string> special_component_names;
 private:
   Component::Ptr m_root;
+
 };
 
+//////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
 BOOST_FIXTURE_TEST_SUITE( ComponentIteration, ComponentIterationFixture )
 
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( test_find_parent )
+{  
+  const CGroup& group2 = find_parent_component<CGroup>(const_group2_1());
+  BOOST_CHECK_EQUAL(group2.full_path().string() , "cpath://root/group2");
+
+  CRoot& root = find_parent_component<CRoot>(group2_1());
+  BOOST_CHECK_EQUAL(root.full_path().string() , "cpath://root");
+  
+  Component& group22 = find_parent_component_with_filter(group2_1(),IsComponentName("group2"));
+  BOOST_CHECK_EQUAL(group22.full_path().string() , "cpath://root/group2");
+  
+  CRoot& root2 = find_parent_component_with_filter<CRoot>(group2_1(),IsComponentType<CRoot>());
+  BOOST_CHECK_EQUAL(root2.full_path().string() , "cpath://root");
+  
+}
 //////////////////////////////////////////////////////////////////////////////
 
 // Iterator tests:
@@ -635,25 +659,7 @@ BOOST_AUTO_TEST_CASE( test_find_component_recursively_with_tag )
   BOOST_CHECK_EQUAL(find_component_ptr_recursively_with_tag<CGroup>(const_group2(),"very_special")->name() , "group2_1_1" );
 }
 
-BOOST_AUTO_TEST_CASE( speed_find_type )
-{
-    CGroup::Ptr mg = root().create_component<CGroup>("ManyGroup1");
-
-  // allocate 5000 components
-  for ( Uint i = 0; i < 250 ; ++i)
-  {
-    mg->create_component<CGroup>( std::string("ggg") + String::to_str(i) );
-  }
-
-  boost::timer timer;
-  Uint counter = 0;
-  BOOST_FOREACH(Component& comp, find_components_recursively<CGroup>(*mg) )
-  {
-		comp.is_link(); // to disable unused variable warning
-    ++counter;
-  }
-  std::cout << "iterate by [type] over " << counter << " components in " << timer.elapsed() << " seconds" << std::endl;
-}
+//////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( speed_find_tag )
 {
@@ -673,6 +679,28 @@ BOOST_AUTO_TEST_CASE( speed_find_tag )
     ++counter;
   }
   std::cout << "iterate by [tag] over " << counter << " components in " << timer.elapsed() << " seconds" << std::endl;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( speed_find_type )
+{
+    CGroup::Ptr mg = root().create_component<CGroup>("ManyGroup1");
+
+  // allocate 5000 components
+  for ( Uint i = 0; i < 250 ; ++i)
+  {
+    mg->create_component<CGroup>( std::string("ggg") + String::to_str(i) );
+  }
+
+  boost::timer timer;
+  Uint counter = 0;
+  BOOST_FOREACH(Component& comp, find_components_recursively<CGroup>(*mg) )
+  {
+		comp.is_link(); // to disable unused variable warning
+    ++counter;
+  }
+  std::cout << "iterate by [type] over " << counter << " components in " << timer.elapsed() << " seconds" << std::endl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -11,7 +11,6 @@
 
 #include <boost/range.hpp>
 #include <boost/iterator/filter_iterator.hpp>
-#include <boost/foreach.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/type_traits/is_const.hpp>
 
@@ -31,7 +30,7 @@ class IsComponentTrue
 public:
 
   template<typename T>
-  bool operator()(const T& component)
+  bool operator()(const T& component) const
   { return true; }
 
 };
@@ -44,10 +43,10 @@ public:
   IsComponentName () : m_name("undefined") {}
   IsComponentName (const std::string& name) : m_name(name) {}
 
-  bool operator()(const Component::Ptr& component)
+  bool operator()(Component::ConstPtr component) const
   { return boost::bind( std::equal_to<std::string>() , boost::bind(&Component::name , _1) , m_name )(component); }
 
-  bool operator()(const Component& component)
+  bool operator()(const Component& component) const
   { return boost::bind( std::equal_to<std::string>() , boost::bind(&Component::name , _1) , m_name )(component); }
 
 };
@@ -60,29 +59,25 @@ public:
   IsComponentTag () : m_tag("Component") {}
   IsComponentTag (const std::string& tag) : m_tag(tag) {}
 
-  bool operator()(const Component::Ptr& component)
+  bool operator()(Component::ConstPtr component) const
   { return boost::bind( &Component::has_tag , _1 , m_tag )(component); }
 
-  bool operator()(const Component& component)
+  bool operator()(const Component& component) const
   { return boost::bind( &Component::has_tag , _1 , m_tag )(component); }
 
 };
 
-template<class CType, class Predicate=IsComponentTrue>
+template<class CType>
 class IsComponentType
 {
-private:
-  std::string m_type;
-  Predicate m_pred;
 public:
-  IsComponentType (Predicate pred) : m_type(CType::type_name()), m_pred(pred) {}
-  IsComponentType () : m_type(CType::type_name()), m_pred() {}
+  IsComponentType () {}
 
-  bool operator()(const Component::Ptr& component)
-  { return boost::bind( &Component::has_tag , _1 , m_type )(component) && m_pred(component); }
+  bool operator()(Component::ConstPtr component) const
+  { return is_not_null( component->as_type<CType>() ); }
 
-  bool operator()(const Component& component)
-  { return boost::bind( &Component::has_tag , _1 , m_type )(component) && m_pred(component); }
+  bool operator()(const Component& component) const
+  { return is_not_null( component.as_type<CType>() ); }
 
 };
 
@@ -870,10 +865,64 @@ find_component_ptr_recursively_with_tag(ParentT& parent, const std::string& tag)
   return find_component_ptr_recursively_with_filter<ComponentT>(parent,IsComponentTag(tag));
 }
 
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
+template <typename ParentT, typename ComponentT, typename Predicate>
+typename ComponentReference<ComponentT,ParentT>::type find_parent_component_with_filter(ComponentT& comp, const Predicate& pred)
+{
+  bool not_found=true;
+  typename ComponentPtr<ComponentT>::type parent = comp.get_parent() ;
+  while (not_found)
+  {
+    if ( pred(parent) && IsComponentType<ParentT>()(parent) )
+      not_found = false;
+    else
+      parent = parent->get_parent();
+  }
+  return  *parent->template as_type<ParentT>();
+}
+
+template <typename ComponentT, typename Predicate>
+typename ComponentReference<ComponentT>::type find_parent_component_with_filter(ComponentT& comp, const Predicate& pred)
+{
+  return find_parent_component_with_filter<Component>(comp,pred);
+}
+
+template <typename ParentT, typename ComponentT>
+typename ComponentReference<ComponentT,ParentT>::type find_parent_component(ComponentT& comp)
+{
+  return find_parent_component_with_filter<ParentT>(comp,IsComponentTrue());
+}
+
+template <typename ParentT, typename ComponentT>
+typename ComponentReference<ComponentT,ParentT>::type find_parent_component_with_name(ComponentT& comp, const std::string& name)
+{
+  return find_parent_component_with_filter<ParentT>(comp,IsComponentName(name));
+}
+
+template <typename ComponentT>
+typename ComponentReference<ComponentT>::type find_parent_component_with_name(ComponentT& comp, const std::string& name)
+{
+  return find_parent_component_with_filter<Component>(comp,IsComponentName(name));
+}
+
+template <typename ParentT, typename ComponentT>
+typename ComponentReference<ComponentT,ParentT>::type find_parent_component_with_tag(ComponentT& comp, const std::string& tag)
+{
+  return find_parent_component_with_filter<ParentT>(comp,IsComponentTag(tag));
+}
+
+template <typename ComponentT>
+typename ComponentReference<ComponentT>::type find_parent_component_with_tag(ComponentT& comp, const std::string& tag)
+{
+  return find_parent_component_with_filter<Component>(comp,IsComponentTag(tag));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 } // Common
 } // CF
