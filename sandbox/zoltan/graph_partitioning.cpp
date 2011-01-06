@@ -30,10 +30,10 @@ typedef struct
 
 int* to_ptr(std::vector<int>& vec)
 {
-	if (vec.empty())
-		return NULL;
-	else
-		return &vec[0];
+  if (vec.empty())
+    return NULL;
+  else
+    return &vec[0];
 }
 
 boost::shared_ptr<GRAPH_DATA> build_graph()
@@ -389,120 +389,120 @@ void get_edges_list(void *data, int sizeGID, int sizeLID,
 int main(int argc, char** argv)
 {
   PE::instance().init(argc,argv);
-	if (PE::instance().size() != 3)
-	{
+  if (PE::instance().size() != 3)
+  {
     CFinfo << "must run this testcase with 3 processors" << CFendl;
-	}
-	else
-	{
-	  
-		boost::shared_ptr<GRAPH_DATA> graph_ptr = build_graph();
-		//boost::shared_ptr<GRAPH_DATA> graph_ptr = build_element_node_graph();
-		GRAPH_DATA& graph = *graph_ptr;
-		
-		
-		
-		Zoltan *zz = new Zoltan(PE::instance());
-		if (zz == NULL)
-			throw BadValue(FromHere(),"Zoltan error");
+  }
+  else
+  {
+    
+    boost::shared_ptr<GRAPH_DATA> graph_ptr = build_graph();
+    //boost::shared_ptr<GRAPH_DATA> graph_ptr = build_element_node_graph();
+    GRAPH_DATA& graph = *graph_ptr;
+    
+    
+    
+    Zoltan *zz = new Zoltan(PE::instance());
+    if (zz == NULL)
+      throw BadValue(FromHere(),"Zoltan error");
 
-		std::string graph_package = "PHG";
-		if (graph_package == "PHG" && PE::instance().size() != 3)
-		{
-			throw NotImplemented(FromHere(),"PHG graph package needs processor information for each object. It assumes now 3 processors. Run with 3 processors.");
-		}
-		
-			
-		zz->Set_Param( "DEBUG_LEVEL", "0");
-		zz->Set_Param( "LB_METHOD", "GRAPH");
-		zz->Set_Param( "GRAPH_PACKAGE",graph_package);
-		zz->Set_Param( "LB_APPROACH", "PARTITION");
-		zz->Set_Param( "NUM_GID_ENTRIES", "1 "); 
-		zz->Set_Param( "NUM_LID_ENTRIES", "1");
-		zz->Set_Param( "RETURN_LISTS", "ALL");
-		zz->Set_Param( "GRAPH_SYMMETRIZE","NONE");
-		
+    std::string graph_package = "PHG";
+    if (graph_package == "PHG" && PE::instance().size() != 3)
+    {
+      throw NotImplemented(FromHere(),"PHG graph package needs processor information for each object. It assumes now 3 processors. Run with 3 processors.");
+    }
+    
+      
+    zz->Set_Param( "DEBUG_LEVEL", "0");
+    zz->Set_Param( "LB_METHOD", "GRAPH");
+    zz->Set_Param( "GRAPH_PACKAGE",graph_package);
+    zz->Set_Param( "LB_APPROACH", "PARTITION");
+    zz->Set_Param( "NUM_GID_ENTRIES", "1 "); 
+    zz->Set_Param( "NUM_LID_ENTRIES", "1");
+    zz->Set_Param( "RETURN_LISTS", "ALL");
+    zz->Set_Param( "GRAPH_SYMMETRIZE","NONE");
+    
 
-		zz->Set_Param( "RETURN_LISTS", "ALL");
-		zz->Set_Param( "GRAPH_SYMMETRIZE","NONE");
+    zz->Set_Param( "RETURN_LISTS", "ALL");
+    zz->Set_Param( "GRAPH_SYMMETRIZE","NONE");
 
-		// Graph parameters 
+    // Graph parameters 
 
-		zz->Set_Param( "NUM_GLOBAL_PARTS", "3");
-		zz->Set_Param( "CHECK_GRAPH", "2"); 
-		zz->Set_Param( "PHG_EDGE_SIZE_THRESHOLD", ".35");  // 0-remove all, 1-remove none 
+    zz->Set_Param( "NUM_GLOBAL_PARTS", "3");
+    zz->Set_Param( "CHECK_GRAPH", "2"); 
+    zz->Set_Param( "PHG_EDGE_SIZE_THRESHOLD", ".35");  // 0-remove all, 1-remove none 
 
-		// Query functions 
+    // Query functions 
 
-		zz->Set_Num_Obj_Fn(get_number_of_objects, &graph);
-		zz->Set_Obj_List_Fn(get_object_list, &graph);
-		zz->Set_Num_Edges_Multi_Fn(get_num_edges_list, &graph);
-		zz->Set_Edge_List_Multi_Fn(get_edges_list, &graph);
-		
-		// partition
-		int changes;
-		int numGidEntries;
-		int numLidEntries;
-		int numImport;
-		ZOLTAN_ID_PTR importGlobalIds;
-		ZOLTAN_ID_PTR importLocalIds;
-		int *importProcs;
-		int *importToPart;
-		int numExport;
-		ZOLTAN_ID_PTR exportGlobalIds;
-		ZOLTAN_ID_PTR exportLocalIds;
-		int *exportProcs;
-		int *exportToPart;
+    zz->Set_Num_Obj_Fn(get_number_of_objects, &graph);
+    zz->Set_Obj_List_Fn(get_object_list, &graph);
+    zz->Set_Num_Edges_Multi_Fn(get_num_edges_list, &graph);
+    zz->Set_Edge_List_Multi_Fn(get_edges_list, &graph);
+    
+    // partition
+    int changes;
+    int numGidEntries;
+    int numLidEntries;
+    int numImport;
+    ZOLTAN_ID_PTR importGlobalIds;
+    ZOLTAN_ID_PTR importLocalIds;
+    int *importProcs;
+    int *importToPart;
+    int numExport;
+    ZOLTAN_ID_PTR exportGlobalIds;
+    ZOLTAN_ID_PTR exportLocalIds;
+    int *exportProcs;
+    int *exportToPart;
 
-		
-		
-		PE::instance().barrier();
-		CFinfo << "before partitioning\n";
-		CFinfo << "-------------------" << CFendl;
+    
+    
+    PE::instance().barrier();
+    CFinfo << "before partitioning\n";
+    CFinfo << "-------------------" << CFendl;
 
-		std::vector<int> parts (graph.globalID.size());
+    std::vector<int> parts (graph.globalID.size());
 
-		for (Uint i=0; i < parts.size(); i++){
-			parts[i] = PE::instance().rank();
-		}
-		
-		if(PE::instance().rank()==2)
-		{
-			CFinfo.setFilterRankZero(false);
-			for (Uint i=0; i<graph.globalID.size(); ++i)
-			CFinfo << graph.globalID[i] << CFendl;
-			CFinfo.setFilterRankZero(true);
-		}
-		PE::instance().barrier();
-		
-		
-		showGraphPartitions(graph,parts);
-		
-		
-		int rc = zz->LB_Partition(changes, numGidEntries, numLidEntries,
-			numImport, importGlobalIds, importLocalIds, importProcs, importToPart,
-			numExport, exportGlobalIds, exportLocalIds, exportProcs, exportToPart);
+    for (Uint i=0; i < parts.size(); i++){
+      parts[i] = PE::instance().rank();
+    }
+    
+    if(PE::instance().rank()==2)
+    {
+      CFinfo.setFilterRankZero(false);
+      for (Uint i=0; i<graph.globalID.size(); ++i)
+      CFinfo << graph.globalID[i] << CFendl;
+      CFinfo.setFilterRankZero(true);
+    }
+    PE::instance().barrier();
+    
+    
+    showGraphPartitions(graph,parts);
+    
+    
+    int rc = zz->LB_Partition(changes, numGidEntries, numLidEntries,
+      numImport, importGlobalIds, importLocalIds, importProcs, importToPart,
+      numExport, exportGlobalIds, exportLocalIds, exportProcs, exportToPart);
 
-		if (rc != (int)ZOLTAN_OK)
-		{
-			CFinfo << "Partitioning failed on process " << PE::instance().rank() << CFendl;
-		}
-		
-		PE::instance().barrier();
-		CFinfo << "after partitioning\n";
-		CFinfo << "------------------" << CFendl;
-		
-		
-		for (int i=0; i < numExport; i++){
-			parts[exportLocalIds[i]] = exportToPart[i];
-		}
-			
-		showGraphPartitions(graph,parts);
-			
-		Zoltan::LB_Free_Part(&importGlobalIds, &importLocalIds, &importProcs, &importToPart);
-		Zoltan::LB_Free_Part(&exportGlobalIds, &exportLocalIds, &exportProcs, &exportToPart);  
-		
-		delete zz;
+    if (rc != (int)ZOLTAN_OK)
+    {
+      CFinfo << "Partitioning failed on process " << PE::instance().rank() << CFendl;
+    }
+    
+    PE::instance().barrier();
+    CFinfo << "after partitioning\n";
+    CFinfo << "------------------" << CFendl;
+    
+    
+    for (int i=0; i < numExport; i++){
+      parts[exportLocalIds[i]] = exportToPart[i];
+    }
+      
+    showGraphPartitions(graph,parts);
+      
+    Zoltan::LB_Free_Part(&importGlobalIds, &importLocalIds, &importProcs, &importToPart);
+    Zoltan::LB_Free_Part(&exportGlobalIds, &exportLocalIds, &exportProcs, &exportToPart);  
+    
+    delete zz;
   }
   return 0;
 }
