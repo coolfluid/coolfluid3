@@ -712,9 +712,11 @@ BOOST_AUTO_TEST_CASE ( Mesh_test )
   CRegion& region = mesh->create_region("region");
   CNodes& nodes = region.create_nodes(DIM_3D);
   nodes.resize(2);
-  mesh->get_child<CLink>("nodes")->link_to(nodes.self());
   
   BOOST_CHECK_EQUAL(mesh->nodes().coordinates().row_size() , DIM_3D);
+  
+  BOOST_CHECK_EQUAL(&mesh->nodes(), &region.nodes() );
+  
 }
 
 ////////////////////////////////////////////////////////////////////////////////

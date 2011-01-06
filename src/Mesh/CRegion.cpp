@@ -19,6 +19,7 @@
 #include "Mesh/CList.hpp"
 #include "Mesh/CDynTable.hpp"
 #include "Mesh/CNodes.hpp"
+#include "Mesh/CMesh.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -80,13 +81,18 @@ CElements& CRegion::create_elements(const std::string& element_type_name, CNodes
 
 CNodes& CRegion::create_nodes(const Uint& dim)
 {  
+  ///@todo nodes have to be created in CMesh
   CNodes::Ptr nodes = find_component_ptr_with_tag<CNodes>(*this,"nodes");
   if ( is_null(nodes) )
   {
     nodes = create_component<CNodes>("nodes");
-    nodes->coordinates().set_row_size(dim);    
+    nodes->coordinates().set_row_size(dim);
+    
+    ///@todo when nodes in CMesh created, this can be linked inside CMesh
+    find_component_with_name<CLink>(find_parent_component<CMesh>(*this),"nodes").link_to(nodes);
   }
   cf_assert(nodes->coordinates().row_size() == dim);
+
   return *nodes;
 }
 
@@ -116,7 +122,7 @@ CField& CRegion::get_field(const std::string& field_name)
 Uint CRegion::recursive_elements_count() const
 {
   Uint elem_count = 0;
-  BOOST_FOREACH(const CElements& elements, find_components_recursively<CElements>(*this))
+  boost_foreach (const CElements& elements, elements_range() )
     elem_count += elements.elements_count();
   return elem_count;
 }
@@ -160,6 +166,34 @@ const CElements& CRegion::elements(const std::string& name) const
 CElements& CRegion::elements(const std::string& name)
 {
   return find_component_with_name<CElements>(*this,name);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const CNodes& CRegion::nodes() const
+{
+  return find_parent_component<CMesh>(*this).nodes();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CNodes& CRegion::nodes()
+{
+  return find_parent_component<CMesh>(*this).nodes();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CRegion::ConstElementsRange CRegion::elements_range() const
+{ 
+  return find_components_recursively<CElements>(*this); 
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CRegion::ElementsRange CRegion::elements_range()
+{ 
+  return find_components_recursively<CElements>(*this); 
 }
 
 //////////////////////////////////////////////////////////////////////////////

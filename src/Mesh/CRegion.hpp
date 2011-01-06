@@ -33,10 +33,15 @@ namespace Mesh {
 /// @author Tiago Quintino, Willem Deconinck
 class Mesh_API CRegion : public Common::Component {
 
-public:
+public: // typedefs
 
   typedef boost::shared_ptr<CRegion> Ptr;
   typedef boost::shared_ptr<CRegion const> ConstPtr;
+
+  typedef Common::FilteredIteratorRange<Common::ComponentIterator<CElements const> >::type ConstElementsRange;
+  typedef Common::FilteredIteratorRange<Common::ComponentIterator<CElements> >::type ElementsRange;
+
+public: // functions
 
   /// Contructor
   /// @param name of the component
@@ -87,6 +92,20 @@ public:
   
   /// @return the elements with given name
   CElements& elements (const std::string& element_type_name);
+
+  /// @return nodes of the mesh
+  CNodes& nodes();
+  
+  /// @return nodes of the mesh
+  const CNodes& nodes() const;
+  
+  /// @return non-modifiable range of elements that are searched for recursively
+  /// for use with boost_foreach(const CElements& elements, region.elements_range() )
+  ConstElementsRange elements_range() const;
+
+  /// @return modifiable range of elements that are searched for recursively
+  /// for use with boost_foreach(CElements& elements, region.elements_range() )  
+  ElementsRange elements_range();
   
 private: // data
 
