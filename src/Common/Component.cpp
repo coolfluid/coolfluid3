@@ -419,7 +419,7 @@ Component::ConstPtr Component::look_component ( const URI& path ) const
     typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
     tokenizer tok (sp,sep);
 
-    Component::ConstPtr look_comp = get() ;
+    Component::ConstPtr look_comp = self() ;
     std::string last;
     for(tokenizer::const_iterator el=tok.begin(); el!=tok.end(); ++el)
     {
@@ -431,7 +431,7 @@ Component::ConstPtr Component::look_component ( const URI& path ) const
       {
         Component::ConstPtr parent = look_comp;
         look_comp = look_comp->get_child(*el);
-        if(!look_comp.get())
+        if( is_null(look_comp) )
           throw ValueNotFound (FromHere(), "Component with name " + *el + " was not found in " + parent->full_path().string_without_scheme());
       }
     }
@@ -465,7 +465,7 @@ Component::Ptr Component::look_component ( const URI& path )
     typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
     tokenizer tok (sp,sep);
 
-    Component::Ptr look_comp = get() ;
+    Component::Ptr look_comp = self() ;
     std::string last;
     for(tokenizer::iterator el=tok.begin(); el!=tok.end(); ++el)
     {
@@ -477,7 +477,7 @@ Component::Ptr Component::look_component ( const URI& path )
       {
         Component::Ptr parent = look_comp;
         look_comp = look_comp->get_child(*el);
-        if(!look_comp.get())
+        if( is_null(look_comp) )
           throw ValueNotFound (FromHere(), "Component with name " + *el + " was not found in " + parent->full_path().string_without_scheme());
       }
     }
@@ -588,7 +588,7 @@ void Component::write_xml_tree( XmlNode& node )
     if( is_not_null(lnk) ) // if it is a link, we put the target path as value
     {
       if ( lnk->is_linked() )
-       this_node.value( this_node.document()->allocate_string( get()->full_path().string_without_scheme().c_str() ));
+       this_node.value( this_node.document()->allocate_string( self()->full_path().string_without_scheme().c_str() ));
 //      else
 //        this_node.value( this_node.document()->allocate_string( "//Root" ));
     }
