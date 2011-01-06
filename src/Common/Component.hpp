@@ -481,7 +481,7 @@ inline typename T::ConstPtr Component::get_child(const std::string& name) const
 template < typename T >
 inline typename T::Ptr Component::as_type()
 {
-  return boost::dynamic_pointer_cast<T>(get());
+  return boost::dynamic_pointer_cast<T>(self());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -489,7 +489,7 @@ inline typename T::Ptr Component::as_type()
 template < typename T >
 inline typename T::ConstPtr Component::as_type() const
 {
-  return boost::dynamic_pointer_cast<T const>(get());
+  return boost::dynamic_pointer_cast<T const>(self());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
