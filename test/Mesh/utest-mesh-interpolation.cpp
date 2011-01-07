@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   BOOST_FOREACH(CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*source,"node_data"))
   {    
 		CFinfo << node_data.full_path().string() << CFendl;
-		CTable<Real>& coordinates = find_component_with_tag(node_data,"nodes_link").get()->as_type<CNodes>()->coordinates();
+    CTable<Real>& coordinates = find_component_with_tag(node_data,"nodes_link").follow()->as_type<CNodes>()->coordinates();
 
     for (Uint i=0; i<coordinates.size(); ++i)
 		{

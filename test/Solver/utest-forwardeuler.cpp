@@ -40,11 +40,11 @@ BOOST_AUTO_TEST_CASE( constructor )
 
   BOOST_CHECK( find_component_with_name<CLink>(*comp, "solution_field").is_link() == true );  
   BOOST_CHECK( find_component_with_name<CLink>(*comp, "solution_field").is_linked() == false );
-  BOOST_CHECK( is_null(find_component_with_name<CLink>(*comp, "solution_field").get()) );
+  BOOST_CHECK( is_null(find_component_with_name<CLink>(*comp, "solution_field").follow()) );
 
   BOOST_CHECK( find_component_with_name<CLink>(*comp, "residual_field").is_link() == true );  
   BOOST_CHECK( find_component_with_name<CLink>(*comp, "residual_field").is_linked() == false );
-  BOOST_CHECK( is_null(find_component_with_name<CLink>(*comp, "residual_field").get()) );
+  BOOST_CHECK( is_null(find_component_with_name<CLink>(*comp, "residual_field").follow()) );
 
 
 

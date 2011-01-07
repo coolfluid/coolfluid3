@@ -83,7 +83,7 @@ void ResidualDistribution::create_bc( XmlNode& xml )
   CLoop::Ptr apply_bc = create_component< CForAllNodes >(name);
 
   apply_bc->create_action("CF.Actions.CSetFieldValues");
-  apply_bc->action("CF.Actions.CSetFieldValues").configure_property("Fielmd",std::string("solution"));
+  apply_bc->action("CF.Actions.CSetFieldValues").configure_property("Field",std::string("solution"));
   apply_bc->add_tag("apply_bc_action");
 }
 

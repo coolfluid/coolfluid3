@@ -208,7 +208,7 @@ void CWriter::write_connectivity(std::fstream& file)
 
 	foreach_container( (const CNodes* nodes) (std::list<CElements*> elements_list) , m_all_nodes)
 	{
-		nodes->get();
+    nodes->follow();
 		boost_foreach(CElements* elements, elements_list)
 		{
 			if ( is_null(elements->as_type<CFieldElements>()) )

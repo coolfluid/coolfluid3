@@ -397,7 +397,7 @@ void CReader::read_section(CRegion& parent_region)
 
 
   BOOST_FOREACH(CRegion& existing_region, find_components<CRegion>(parent_region))
-  if (existing_region.get())
+  if (existing_region.follow())
   {
     if (existing_region.properties().check("cgns_section_name"))
     {
