@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Tests CF::Mesh::CUnifiedData<T>"
+#define BOOST_TEST_MODULE "Tests CF::Mesh::CNodeElementConnectivity"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/filesystem/path.hpp>
@@ -18,7 +18,6 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CMeshReader.hpp"
-#include "Mesh/CUnifiedData.hpp"
 #include "Mesh/CNodeElementConnectivity.hpp"
 
 using namespace boost;
@@ -28,10 +27,10 @@ using namespace CF::Common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct UnifiedData_Fixture
+struct NodeElementConnectivity_Fixture
 {
   /// common setup for each test case
-  UnifiedData_Fixture()
+  NodeElementConnectivity_Fixture()
   {
      // uncomment if you want to use arguments to the test executable
      //int*    argc = &boost::unit_test::framework::master_test_suite().argc;
@@ -39,7 +38,7 @@ struct UnifiedData_Fixture
   }
 
   /// common tear-down for each test case
-  ~UnifiedData_Fixture()
+  ~NodeElementConnectivity_Fixture()
   {
   }
 
@@ -52,70 +51,48 @@ struct UnifiedData_Fixture
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_SUITE( UnifiedData_TestSuite, UnifiedData_Fixture )
+BOOST_FIXTURE_TEST_SUITE( NodeElementConnectivity_TestSuite, NodeElementConnectivity_Fixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( Constructors)
 {
-  CUnifiedData<CElements>::Ptr unified_elems = allocate_component<CUnifiedData<CElements> >("unified_elems");
-  BOOST_CHECK_EQUAL(unified_elems->name(),"unified_elems");
-  BOOST_CHECK_EQUAL(CUnifiedData<CElements>::type_name(), "CUnifiedData<CElements>");
-  BOOST_CHECK_EQUAL(CUnifiedData<CNodes>::type_name(), "CUnifiedData<CNodes>");
+  CNodeElementConnectivity::Ptr c = allocate_component<CNodeElementConnectivity>("nodes_to_elements");
+  BOOST_CHECK_EQUAL(c->name(),"nodes_to_elements");
+  BOOST_CHECK_EQUAL(CNodeElementConnectivity::type_name(), "CNodeElementConnectivity");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( data_location )
+BOOST_AUTO_TEST_CASE( node_elem_connectivity )
 {
   // create meshreader
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-
-  BOOST_CHECK( true );
-
   boost::filesystem::path fp_source ("quadtriag.neu");
   CMesh::Ptr mesh = meshreader->create_mesh_from(fp_source);
 
   BOOST_CHECK( true );
 
-  CUnifiedData<CElements>::Ptr unified_elems = allocate_component<CUnifiedData<CElements> >("unified_elems");
-
-
-
-  unified_elems->set_data(find_components_recursively<CElements>(*mesh));
+  // create and setup node to elements connectivity
+  CNodeElementConnectivity::Ptr c = mesh->create_component<CNodeElementConnectivity>("node_elem_connectivity");
+  c->setup( mesh->nodes() , find_components_recursively<CElements>(*mesh) );
   
-
-
-
-
-  CElements::Ptr elements;
-  CElements::ConstPtr const_elements;
-  Uint elem_idx;
+  BOOST_CHECK( true );
   
-  BOOST_CHECK_EQUAL( unified_elems->size() , 28u );
-  tie(elements,elem_idx) = unified_elems->data_location(25);
-
-  for (Uint i=0; i<unified_elems->size(); ++i)
+  // Output whole node to elements connectivity
+  CFinfo << c->connectivity() << CFendl;
+  
+  // Output connectivity of node 10
+  CDynTable<Uint>::ConstRow elements = c->elements(10);
+  CFinfo << CFendl << "node 10 is connected to elements: \n";  
+  boost_foreach(const Uint elem, elements)
   {
-    tie(elements,elem_idx) = unified_elems->data_location(i);
-    CFinfo << i << ": " << elements->full_path().string_without_scheme() << "    ["<<elem_idx<<"]" << CFendl;
+    CElements::Ptr connected_comp; 
+    Uint connected_idx;
+    tie(connected_comp,connected_idx) = c->element_location(elem);
+    CFinfo << "   " << connected_comp->full_path().string_without_scheme() << "  [" <<connected_idx <<  "] " << CFendl;
   }
-  
-  CUnifiedData<CNodes>::Ptr unified_nodes = allocate_component<CUnifiedData<CNodes> >("unified_nodes");
-  unified_nodes->set_data(find_components_recursively<CNodes>(*mesh));
-  
-  CNodes::Ptr nodes;
-  Uint node_idx;
-  
-  BOOST_CHECK_EQUAL( unified_nodes->size() , 16u );
-
-  CFinfo << CFendl;
-  for (Uint i=0; i<unified_nodes->size(); ++i)
-  {
-    tie(nodes,node_idx) = unified_nodes->data_location(i);
-    CFinfo << i << ": " << nodes->full_path().string_without_scheme() << "    ["<<node_idx<<"]" << CFendl;
-  }
-
+  CFinfo << CFendl;  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
