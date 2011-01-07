@@ -35,11 +35,9 @@ CSetFieldValues::CSetFieldValues ( const std::string& name ) :
 
 void CSetFieldValues::execute()
 {
-  CF_DEBUG_POINT;
 	const CF::Real x = m_loop_helper->coordinates[m_idx][XX];
 	//const CF::Real y = coordinates[n][YY];
 	
-  CF_DEBUG_POINT;
   const Uint row_size = m_loop_helper->field_data.row_size();
 	for (Uint i = 0; i != row_size; ++i)
 	{
@@ -48,7 +46,6 @@ void CSetFieldValues::execute()
 		else
 			m_loop_helper->field_data[m_idx][i] = 0.0;
 	}
-  CF_DEBUG_POINT;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

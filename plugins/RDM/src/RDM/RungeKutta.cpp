@@ -106,79 +106,68 @@ CDiscretization& RungeKutta::discretization_method()
 
 void RungeKutta::solve()
 {
-  CF_DEBUG_POINT;
+  CFinfo << "Setting up links" << CFendl;
+  CMesh& mesh = find_component_recursively<CMesh>(*Core::instance().root());
 
-    CFinfo << "Setting up links" << CFendl;
-    CMesh& mesh = find_component_recursively<CMesh>(*Core::instance().root());
+  CField::Ptr solution = find_component_ptr_with_name<CField>(mesh,"solution");
+  if ( is_null(solution) )
+    solution = mesh.create_field("solution",1,CField::NODE_BASED).as_type<CField>();
+  m_solution_field->link_to(solution);
 
-    CField::Ptr solution = find_component_ptr_with_name<CField>(mesh,"solution");
-    if ( is_null(solution) )
-      solution = mesh.create_field("solution",1,CField::NODE_BASED).as_type<CField>();
-    m_solution_field->link_to(solution);
+  CField::Ptr residual = find_component_ptr_with_name<CField>(mesh,"residual");
+  if ( is_null(residual) )
+    residual = mesh.create_field("residual",1,CField::NODE_BASED).as_type<CField>();
+  m_residual_field->link_to(residual);
 
-    CField::Ptr residual = find_component_ptr_with_name<CField>(mesh,"residual");
-    if ( is_null(residual) )
-      residual = mesh.create_field("residual",1,CField::NODE_BASED).as_type<CField>();
-    m_residual_field->link_to(residual);
-
-    CField::Ptr inverse_updatecoeff = find_component_ptr_with_name<CField>(mesh,"inverse_updatecoeff");
-    if ( is_null(inverse_updatecoeff) )
-      inverse_updatecoeff = mesh.create_field("inverse_updatecoeff",1,CField::NODE_BASED).as_type<CField>();
-    m_update_coeff_field->link_to(inverse_updatecoeff);
+  CField::Ptr inverse_updatecoeff = find_component_ptr_with_name<CField>(mesh,"inverse_updatecoeff");
+  if ( is_null(inverse_updatecoeff) )
+    inverse_updatecoeff = mesh.create_field("inverse_updatecoeff",1,CField::NODE_BASED).as_type<CField>();
+  m_update_coeff_field->link_to(inverse_updatecoeff);
 
 
-    CF_DEBUG_POINT;
+  // initial condition
+  boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_solution_field->follow(), "node_data"))
+  {
+    CFLogVar(node_data.size());
+    for (Uint i=0; i<node_data.size(); ++i)
+      node_data[i][0]=0;
+  }
 
-    // initial condition
-    boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_solution_field->follow(), "node_data"))
-    {
-      CFLogVar(node_data.size());
-       for (Uint i=0; i<node_data.size(); ++i)
-          node_data[i][0]=0;
-    }
-
-    CF_DEBUG_POINT;
-
-    CFinfo << "Starting Iterative loop" << CFendl;
-    for ( Uint iter = 1; iter <= m_nb_iter;  ++iter)
-    {
-      CFinfo << "reset data" << CFendl;
-      // update coefficient and residual to zero
-      // Set the field data of the source field
-      boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_residual_field->follow(), "node_data"))
+  CFinfo << "Starting Iterative loop" << CFendl;
+  for ( Uint iter = 1; iter <= m_nb_iter;  ++iter)
+  {
+    CFinfo << "reset data" << CFendl;
+    // update coefficient and residual to zero
+    // Set the field data of the source field
+    boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_residual_field->follow(), "node_data"))
         for (Uint i=0; i<node_data.size(); ++i)
-          node_data[i][0]=0;
-      boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_update_coeff_field->follow(),"node_data"))
+        node_data[i][0]=0;
+    boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_update_coeff_field->follow(),"node_data"))
         for (Uint i=0; i<node_data.size(); ++i)
-          node_data[i][0]=0;
+        node_data[i][0]=0;
 
+    // compute RHS
+    discretization_method().compute_rhs();
 
-      CF_DEBUG_STR("computing rhs");
-      // compute RHS
-      discretization_method().compute_rhs();
+    // explicit update
+    m_take_step->execute();
 
-      CF_DEBUG_STR("time march");
-      // explicit update
-      m_take_step->execute();
-
-      CF_DEBUG_STR("computing norm");
-
-      // compute norm
-      Real rhs_L2=0;
-      Uint dof=0;
-      boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_residual_field->follow(),"node_data"))
+    // compute norm
+    Real rhs_L2=0;
+    Uint dof=0;
+    boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_residual_field->follow(),"node_data"))
+    {
+      for (Uint i=0; i<node_data.size(); ++i)
       {
-        for (Uint i=0; i<node_data.size(); ++i)
-        {
-          rhs_L2 += node_data[i][0]*node_data[i][0];
-          dof++;
-        }
+        rhs_L2 += node_data[i][0]*node_data[i][0];
+        dof++;
       }
-      rhs_L2 = sqrt(rhs_L2)/dof;
-
-      // output convergence info
-      CFinfo << "Iter [" << std::setw(4) << iter << "] L2(rhs) [" << std::setw(12) << rhs_L2 << "]" << CFendl;
     }
+    rhs_L2 = sqrt(rhs_L2)/dof;
+
+    // output convergence info
+    CFinfo << "Iter [" << std::setw(4) << iter << "] L2(rhs) [" << std::setw(12) << rhs_L2 << "]" << CFendl;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
