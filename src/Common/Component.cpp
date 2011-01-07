@@ -419,7 +419,7 @@ Component::ConstPtr Component::look_component ( const URI& path ) const
     typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
     tokenizer tok (sp,sep);
 
-    Component::ConstPtr look_comp = self() ;
+    Component::ConstPtr look_comp = follow();
     std::string last;
     for(tokenizer::const_iterator el=tok.begin(); el!=tok.end(); ++el)
     {
@@ -465,7 +465,7 @@ Component::Ptr Component::look_component ( const URI& path )
     typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
     tokenizer tok (sp,sep);
 
-    Component::Ptr look_comp = self() ;
+    Component::Ptr look_comp = follow() ;
     std::string last;
     for(tokenizer::iterator el=tok.begin(); el!=tok.end(); ++el)
     {
