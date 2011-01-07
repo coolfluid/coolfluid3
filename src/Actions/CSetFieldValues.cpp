@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "Common/Log.hpp" // tmp
+
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Actions/CSetFieldValues.hpp"
@@ -33,10 +35,12 @@ CSetFieldValues::CSetFieldValues ( const std::string& name ) :
 
 void CSetFieldValues::execute()
 {
+  CF_DEBUG_POINT;
 	const CF::Real x = m_loop_helper->coordinates[m_idx][XX];
 	//const CF::Real y = coordinates[n][YY];
 	
-	const Uint row_size = m_loop_helper->field_data.row_size();
+  CF_DEBUG_POINT;
+  const Uint row_size = m_loop_helper->field_data.row_size();
 	for (Uint i = 0; i != row_size; ++i)
 	{
 		if (x >= -1.4 && x <= -0.6)
@@ -44,6 +48,7 @@ void CSetFieldValues::execute()
 		else
 			m_loop_helper->field_data[m_idx][i] = 0.0;
 	}
+  CF_DEBUG_POINT;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
