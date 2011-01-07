@@ -136,7 +136,8 @@ void ForwardEuler::solve()
     CFinfo << "Starting Iterative loop" << CFendl;
     for ( Uint iter = 1; iter <= m_nb_iter;  ++iter)
     {
-      CFinfo << "reset data" << CFendl;
+      /// @todo move this into an action
+
       // update coefficient and residual to zero
       // Set the field data of the source field
       boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_residual_field->follow(), "node_data"))
@@ -147,15 +148,12 @@ void ForwardEuler::solve()
           node_data[i][0]=0;
 
 
-      CF_DEBUG_STR("computing rhs");
       // compute RHS
       discretization_method().compute_rhs();
 
-      CF_DEBUG_STR("time march");
       // explicit update
       m_take_step->execute();
 
-      CF_DEBUG_STR("computing norm");
       // compute norm
       Real rhs_L2=0;
       Uint dof=0;

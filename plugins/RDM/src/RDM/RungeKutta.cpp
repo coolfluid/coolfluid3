@@ -136,7 +136,8 @@ void RungeKutta::solve()
   CFinfo << "Starting Iterative loop" << CFendl;
   for ( Uint iter = 1; iter <= m_nb_iter;  ++iter)
   {
-    CFinfo << "reset data" << CFendl;
+    /// @todo move this into an action
+
     // update coefficient and residual to zero
     // Set the field data of the source field
     boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_residual_field->follow(), "node_data"))
