@@ -211,16 +211,16 @@ CField& CMesh::field(const std::string& name)
 
 CNodes& CMesh::nodes() 
 { 
-  cf_assert( is_not_null(m_nodes_link->get()) );
-  return *m_nodes_link->get()->as_type<CNodes>();
+  cf_assert( is_not_null(m_nodes_link->follow()) );
+  return *m_nodes_link->follow()->as_type<CNodes>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 const CNodes& CMesh::nodes() const 
 { 
-  cf_assert( is_not_null(m_nodes_link->get()) );
-  return *m_nodes_link->get()->as_type<CNodes>();
+  cf_assert( is_not_null(m_nodes_link->follow()) );
+  return *m_nodes_link->follow()->as_type<CNodes>();
 }
 
 //////////////////////////////////////////////////////////////////////////////

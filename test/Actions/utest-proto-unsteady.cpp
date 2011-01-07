@@ -65,7 +65,7 @@ struct ProtoUnsteadyFixture
   /// Write the analytical solution, according to "A Heat transfer textbook", section 5.3
   void set_analytical_solution(CRegion& region, const std::string& field_name, const std::string& var_name)
   {
-    MeshTerm<0, ConstNodes> nodes( "ConductivityRegion", boost::dynamic_pointer_cast<CRegion>(region.get()) );
+    MeshTerm<0, ConstNodes> nodes( "ConductivityRegion", boost::dynamic_pointer_cast<CRegion>(region.follow()) );
     MeshTerm<1, Field<Real> > T(field_name, var_name);
     
     // Zero the field

@@ -40,7 +40,7 @@ public:
     // Store the variables
     CopyNumberedVars<VariablesT> ctx(m_variables);
     boost::proto::eval(expr, ctx);
-    boost::fusion::for_each(m_variables, AddVariableOptions(get()));
+    boost::fusion::for_each(m_variables, AddVariableOptions(follow()));
     raise_event("tree_updated");
   }
 

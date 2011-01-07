@@ -231,7 +231,7 @@ void CField::create_data_storage(const DataBasis basis)
         
         // create a link to the coordinates in the data
         CLink::Ptr nodes_link = field_data->create_component<CLink>("nodes");
-        nodes_link->link_to(nodes.get());
+        nodes_link->link_to(nodes.follow());
         nodes_link->add_tag("nodes_link");
 			}
 			// Check if there are coordinates in all subfields and add to map
@@ -249,7 +249,7 @@ void CField::create_data_storage(const DataBasis basis)
           
           // create a link to the coordinates in the data
           CLink::Ptr nodes_link = field_data.create_component<CLink>("nodes");
-          nodes_link->link_to(nodes.get());
+          nodes_link->link_to(nodes.follow());
           nodes_link->add_tag("nodes_link");
         }
         else // if no nodes are found, link to the data in the top field instead
@@ -313,14 +313,14 @@ CElements& CField::create_elements(CElements& geometry_elements)
 
 const CRegion& CField::support() const
 {
-  return *m_support->get()->as_type<CRegion>();  // get() because it is a link
+  return *m_support->follow()->as_type<CRegion>();  // get() because it is a link
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 CRegion& CField::support()
 {
-  return *m_support->get()->as_type<CRegion>();  // get() because it is a link
+  return *m_support->follow()->as_type<CRegion>();  // get() because it is a link
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -383,7 +383,7 @@ CTable<Real>& CField::data_table()
   Component::Ptr data = find_component_ptr_with_filter(*this, IsComponentTag("field_data"));
   if(!data)
     throw ValueNotFound(FromHere(), "Field " + name() + " has no associated data");
-  CTable<Real>::Ptr result = data->get()->as_type<CTable<Real> >();
+  CTable<Real>::Ptr result = data->follow()->as_type<CTable<Real> >();
   cf_assert( is_not_null(result) );
   return *result;
 }
@@ -393,7 +393,7 @@ const CF::Mesh::CTable< Real >& CField::data_table() const
   Component::ConstPtr data = find_component_ptr_with_filter(*this, IsComponentTag("field_data"));
   if(!data)
     throw ValueNotFound(FromHere(), "Field " + name() + " has no associated data");
-  CTable<Real>::ConstPtr result = data->get()->as_type<CTable<Real> const>();
+  CTable<Real>::ConstPtr result = data->follow()->as_type<CTable<Real> const>();
   
   cf_assert( is_not_null(result) );
   return *result;

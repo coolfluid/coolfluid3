@@ -66,9 +66,9 @@ public: // functions
   virtual ~Component();
 
   /// Get the component through the links to the actual components
-  virtual Component::Ptr  get();
+  virtual Component::Ptr  follow();
 
-  virtual Component::ConstPtr  get() const;
+  virtual Component::ConstPtr  follow() const;
 
   /// @return a shared pointer to self
   Component::Ptr self() { return shared_from_this(); }

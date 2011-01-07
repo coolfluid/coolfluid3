@@ -107,16 +107,16 @@ BOOST_AUTO_TEST_CASE( get )
   p_lnk1->link_to(dir1);
 
   // check that the root returns himself
-  BOOST_CHECK_EQUAL ( root->get()->name(), "root" );
-  BOOST_CHECK_EQUAL ( root->get()->full_path().string(), "cpath://root" );
+  BOOST_CHECK_EQUAL ( root->follow()->name(), "root" );
+  BOOST_CHECK_EQUAL ( root->follow()->full_path().string(), "cpath://root" );
 
   // check that the link is sane
   BOOST_CHECK_EQUAL ( lnk1->name(), "lnk1" );
   BOOST_CHECK_EQUAL ( lnk1->full_path().string(), "cpath://root/lnk1" );
 
   // check that the link returns the dir1
-  BOOST_CHECK_EQUAL ( lnk1->get()->name(), "dir1" );
-  BOOST_CHECK_EQUAL ( lnk1->get()->full_path().string(), "cpath://root/dir1" );
+  BOOST_CHECK_EQUAL ( lnk1->follow()->name(), "dir1" );
+  BOOST_CHECK_EQUAL ( lnk1->follow()->full_path().string(), "cpath://root/dir1" );
 
 }
 

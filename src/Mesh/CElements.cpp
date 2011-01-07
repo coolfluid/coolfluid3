@@ -89,7 +89,7 @@ void CElements::initialize(const std::string& element_type_name, CNodes& nodes)
   const Uint nb_nodes = m_element_type->nb_nodes();
   m_connectivity_table->set_row_size(nb_nodes);
   
-  m_nodes->link_to(nodes.get());
+  m_nodes->link_to(nodes.follow());
 }
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -146,14 +146,14 @@ const CTable<Uint>& CElements::connectivity_table() const
 
 CNodes& CElements::nodes()
 {
-  return *m_nodes->get()->as_type<CNodes>();
+  return *m_nodes->follow()->as_type<CNodes>();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 const CNodes& CElements::nodes() const
 {
-  return *m_nodes->get()->as_type<CNodes>();
+  return *m_nodes->follow()->as_type<CNodes>();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -186,7 +186,7 @@ void CElements::add_field_elements_link(CElements& field_elements)
     field_group = create_component<CGroup>("fields");
 
   const std::string field_name = field_elements.get_parent()->as_type<CField>()->field_name();
-  field_group->create_component<CLink>(field_name)->link_to(field_elements.get());
+  field_group->create_component<CLink>(field_name)->link_to(field_elements.follow());
 }
 
 //////////////////////////////////////////////////////////////////////////////

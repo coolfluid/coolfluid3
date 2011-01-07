@@ -38,8 +38,8 @@ namespace Common {
     static std::string type_name () { return "CLink"; }
 
     /// get the component through the links to the actual components
-    virtual Component::Ptr get ();
-    virtual Component::ConstPtr  get() const;
+    virtual Component::Ptr follow ();
+    virtual Component::ConstPtr  follow() const;
 
     // functions specific to the CLink component
 

@@ -126,7 +126,7 @@ void ForwardEuler::solve()
 
 
     // initial condition
-    boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_solution_field->get(), "node_data"))
+    boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_solgeton_field->get(), "node_data"))
     {
       CFLogVar(node_data.size());
        for (Uint i=0; i<node_data.size(); ++i)
@@ -139,10 +139,10 @@ void ForwardEuler::solve()
       CFinfo << "reset data" << CFendl;
       // update coefficient and residual to zero
       // Set the field data of the source field
-      boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_residual_field->get(), "node_data"))
+      boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_resgetal_field->get(), "node_data"))
         for (Uint i=0; i<node_data.size(); ++i)
           node_data[i][0]=0;
-      boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_update_coeff_field->get(),"node_data"))
+      boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_update_getff_field->get(),"node_data"))
         for (Uint i=0; i<node_data.size(); ++i)
           node_data[i][0]=0;
 
@@ -159,7 +159,7 @@ void ForwardEuler::solve()
       // compute norm
       Real rhs_L2=0;
       Uint dof=0;
-      boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_residual_field->get(),"node_data"))
+      boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_resgetal_field->get(),"node_data"))
       {
         for (Uint i=0; i<node_data.size(); ++i)
         {

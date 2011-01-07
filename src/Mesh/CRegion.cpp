@@ -103,7 +103,7 @@ void CRegion::add_field_link(CField& field)
   CGroup::Ptr field_group = get_child<CGroup>("fields");
   if (!field_group.get())
     field_group = create_component<CGroup>("fields");
-  field_group->create_component<CLink>(field.field_name())->link_to(field.get());
+  field_group->create_component<CLink>(field.field_name())->link_to(field.follow());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -114,7 +114,7 @@ CField& CRegion::get_field(const std::string& field_name)
   cf_assert(all_fields.get());
   Component::Ptr field = all_fields->get_child(field_name);
   cf_assert(field.get());
-  return *field->get()->as_type<CField>();
+  return *field->follow()->as_type<CField>();
 }
 
 //////////////////////////////////////////////////////////////////////////////

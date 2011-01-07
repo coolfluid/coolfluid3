@@ -35,13 +35,13 @@ CLink::~CLink()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr CLink::get ()
+Component::Ptr CLink::follow()
 {
 //  cf_assert_desc("Cannot retrieve linked component because it is null", is_not_null(m_link_component.lock()) );
   return m_link_component.lock();
 }
 
-Component::ConstPtr CLink::get () const
+Component::ConstPtr CLink::follow() const
 {
 //  cf_assert_desc("Cannot retrieve linked component because it is null", is_not_null(m_link_component.lock()) );
   return m_link_component.lock();

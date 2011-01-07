@@ -91,12 +91,12 @@ Component::~Component()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr Component::get()
+Component::Ptr Component::follow()
 {
   return shared_from_this();
 }
 
-Component::ConstPtr Component::get() const
+Component::ConstPtr Component::follow() const
 {
   return shared_from_this();
 }
