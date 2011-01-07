@@ -114,7 +114,7 @@ inline void CUnifiedData<DATA>::set_data(const DataRangeT& range )
   (*m_data_indices)[0] = sum;
   index_foreach(i,const typename CUnifiedData<DATA>::data_type& data_val, range)
   {
-    sum += data_val.template size(); 
+    sum += data_val.size();
     (*m_data_indices)[i+1] = sum;
   }
   m_size = sum;
