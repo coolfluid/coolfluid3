@@ -115,12 +115,12 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   // Create root and mesh component
   CRoot::Ptr root = CRoot::create ( "root" );
 
-  Component::Ptr p_mesh = allocate_component<CMesh>  ( "mesh" ) ;
+  CMesh::Ptr mesh = allocate_component<CMesh>  ( "mesh" ) ;
 
-  root->add_component( p_mesh );
+  root->add_component( mesh );
 
   // create regions
-  CRegion& superRegion = p_mesh->create_region("superRegion");
+  CRegion& superRegion = mesh->create_region("superRegion");
   CNodes& nodes = superRegion.create_nodes(dim);
   CElements& quadRegion = superRegion.create_elements("CF.Mesh.SF.Quad2DLagrangeP1",nodes);
   CElements& triagRegion = superRegion.create_elements("CF.Mesh.SF.Triag2DLagrangeP1",nodes);
@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
 	
   CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
 	boost::filesystem::path fp_out("p1-mesh.msh");
-	meshwriter->write_from_to(p_mesh,fp_out);
+	meshwriter->write_from_to(mesh,fp_out);
 	
 
 }
