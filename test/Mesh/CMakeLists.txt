@@ -14,6 +14,13 @@ coolfluid_add_unittest( utest-mesh-interpolation )
 
 ################################################################################
 
+list( APPEND utest-mesh-unified-data_cflibs coolfluid_mesh_neutral coolfluid_mesh_sf )
+list( APPEND utest-mesh-unified-data_files  utest-mesh-unified-data.cpp )
+
+coolfluid_add_unittest( utest-mesh-unified-data )
+
+################################################################################
+
 list( APPEND utest-mesh-construction_cflibs coolfluid_mesh_neutral coolfluid_mesh_gmsh coolfluid_mesh_sf )
 list( APPEND utest-mesh-construction_files  utest-mesh-construction.cpp )
 
