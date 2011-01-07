@@ -95,11 +95,8 @@ void ResidualDistribution::compute_rhs()
   boost_foreach (CLoop& apply_bc, find_components_with_tag<CLoop>(*this,"apply_bc_action"))
   {
     CFinfo << apply_bc.name() << CFendl;
-    CFinfo << "before execute " << CFendl;
     apply_bc.execute();
-    CFinfo << "after execute " << CFendl;
   }
-  CFinfo << "elem loop " << CFendl;
 
   // compute element residual distribution
   m_elem_loop->execute();
