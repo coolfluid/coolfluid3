@@ -81,8 +81,9 @@ void ResidualDistribution::create_bc( XmlNode& xml )
   std::string name = p.get_option<std::string>("Name");
   
   CLoop::Ptr apply_bc = create_component< CForAllNodes >(name);
-    apply_bc->create_action("CF.Actions.CSetFieldValues");
-  apply_bc->action("CF.Actions.CSetFieldValues").configure_property("Field",std::string("solution"));
+
+  apply_bc->create_action("CF.Actions.CSetFieldValues");
+  apply_bc->action("CF.Actions.CSetFieldValues").configure_property("Fielmd",std::string("solution"));
   apply_bc->add_tag("apply_bc_action");
 }
 
@@ -94,7 +95,9 @@ void ResidualDistribution::compute_rhs()
   boost_foreach (CLoop& apply_bc, find_components_with_tag<CLoop>(*this,"apply_bc_action"))
   {
     CFinfo << apply_bc.name() << CFendl;
+    CFinfo << "before execute " << CFendl;
     apply_bc.execute();
+    CFinfo << "after execute " << CFendl;
   }
   CFinfo << "elem loop " << CFendl;
 

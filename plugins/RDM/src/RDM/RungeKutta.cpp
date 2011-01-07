@@ -106,6 +106,8 @@ CDiscretization& RungeKutta::discretization_method()
 
 void RungeKutta::solve()
 {
+  CF_DEBUG_POINT;
+
     CFinfo << "Setting up links" << CFendl;
     CMesh& mesh = find_component_recursively<CMesh>(*Core::instance().root());
 
@@ -125,6 +127,8 @@ void RungeKutta::solve()
     m_update_coeff_field->link_to(inverse_updatecoeff);
 
 
+    CF_DEBUG_POINT;
+
     // initial condition
     boost_foreach (CTable<Real>& node_data, find_components_recursively_with_tag<CTable<Real> >(*m_solution_field->get(), "node_data"))
     {
@@ -132,6 +136,8 @@ void RungeKutta::solve()
        for (Uint i=0; i<node_data.size(); ++i)
           node_data[i][0]=0;
     }
+
+    CF_DEBUG_POINT;
 
     CFinfo << "Starting Iterative loop" << CFendl;
     for ( Uint iter = 1; iter <= m_nb_iter;  ++iter)
@@ -147,15 +153,15 @@ void RungeKutta::solve()
           node_data[i][0]=0;
 
 
-//      CF_DEBUG_STR("computing rhs");
+      CF_DEBUG_STR("computing rhs");
       // compute RHS
       discretization_method().compute_rhs();
 
-//      CF_DEBUG_STR("time march");
+      CF_DEBUG_STR("time march");
       // explicit update
       m_take_step->execute();
 
-//      CF_DEBUG_STR("computing norm");
+      CF_DEBUG_STR("computing norm");
 
       // compute norm
       Real rhs_L2=0;

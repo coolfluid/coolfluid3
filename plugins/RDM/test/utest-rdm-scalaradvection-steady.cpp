@@ -130,16 +130,23 @@ BOOST_AUTO_TEST_CASE( configuration )
   BOOST_CHECK_EQUAL( bc_regions.size() , 1u);
 
   apply_inlet->configure_property("Regions", bc_regions);
+
+  BOOST_CHECK(true);
+
   CFinfo << find_component_recursively<CModel>(*Core::instance().root()).tree() << CFendl;
   
+  BOOST_CHECK(true);
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( solve )
 {
+  BOOST_CHECK(true);
   CIterativeSolver& solver = find_component_recursively<CIterativeSolver>(*Core::instance().root());
+  BOOST_CHECK(true);
   solver.solve();
+  BOOST_CHECK(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
