@@ -65,9 +65,9 @@ public: // functions
   /// return the number of elements
   Uint elements_count() const;
   
-	/// update the node list using the connectivity table
-	CList<Uint>& update_used_nodes();
-	
+  /// update the node list using the connectivity table
+  CList<Uint>& update_used_nodes();
+  
   /// Mutable access to the connectivity table
   CTable<Uint>& connectivity_table();
   
@@ -80,30 +80,30 @@ public: // functions
   /// Const access to the coordinates
   virtual const CNodes& nodes() const;
   
-	/// Mutable access to the list of nodes
-	CList<Uint>& used_nodes();
-	
-	/// Const access to the list of nodes
-	const CList<Uint>& used_nodes() const;
+  /// Mutable access to the list of nodes
+  CList<Uint>& used_nodes();
+  
+  /// Const access to the list of nodes
+  const CList<Uint>& used_nodes() const;
 
-	/// Mutable access to the list of nodes
+  /// Mutable access to the list of nodes
   CList<Uint>& glb_idx() { return *m_global_numbering; }
-	
-	/// Const access to the list of nodes
-	const CList<Uint>& glb_idx() const { return *m_global_numbering; }
-	
-	/// Link a CFieldElements to this CElements
+  
+  /// Const access to the list of nodes
+  const CList<Uint>& glb_idx() const { return *m_global_numbering; }
+  
+  /// Link a CFieldElements to this CElements
   void add_field_elements_link(CElements& field_elements);
   
-	/// Mutable access to a field by its elements
-	/// @param name of a field
+  /// Mutable access to a field by its elements
+  /// @param name of a field
   CFieldElements& get_field_elements(const std::string& field_name);
-	
-	/// Const access to a field by its elements
-	/// @param name of a field
+  
+  /// Const access to a field by its elements
+  /// @param name of a field
   const CFieldElements& get_field_elements(const std::string& field_name) const;
-	
-	Uint size() {	return m_connectivity_table->size();	}
+  
+  Uint size() const { return m_connectivity_table->size(); }
     
 protected: // data
 
