@@ -94,7 +94,7 @@ void ResidualDistribution::compute_rhs()
   // apply BC
   boost_foreach (CLoop& apply_bc, find_components_with_tag<CLoop>(*this,"apply_bc_action"))
   {
-    CFinfo << apply_bc.name() << CFendl;
+//    CFinfo << apply_bc.name() << CFendl;
     apply_bc.execute();
   }
 

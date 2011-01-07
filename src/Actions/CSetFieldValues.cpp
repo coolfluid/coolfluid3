@@ -4,8 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Log.hpp" // tmp
-
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Actions/CSetFieldValues.hpp"
