@@ -5,11 +5,11 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <boost/cast.hpp>
-#include <boost/foreach.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 
+#include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/XmlHelpers.hpp"
@@ -600,7 +600,7 @@ void Component::write_xml_tree( XmlNode& node )
       list_properties(options);
       list_signals(options);
 
-      BOOST_FOREACH( CompStorage_t::value_type c, m_components )
+      boost_foreach( CompStorage_t::value_type c, m_components )
       {
         c.second->write_xml_tree( this_node );
       }
@@ -628,7 +628,7 @@ std::string Component::tree(Uint level) const
     tree += "  ";
   tree += name() + "\n";
 
-  BOOST_FOREACH( CompStorage_t::value_type c, m_components )
+  boost_foreach( CompStorage_t::value_type c, m_components )
   {
     tree += c.second->tree(level+1);
   }
