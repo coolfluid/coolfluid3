@@ -709,7 +709,7 @@ BOOST_AUTO_TEST_CASE ( Mesh_test )
   CNodes& nodes = region.create_nodes(DIM_3D);
   nodes.resize(2);
   
-  BOOST_CHECK_EQUAL(mesh->nodes().coordinates().row_size() , DIM_3D);
+  BOOST_CHECK_EQUAL(mesh->nodes().coordinates().row_size() , (Uint) DIM_3D);
   
   BOOST_CHECK_EQUAL(&mesh->nodes(), &region.nodes() );
   
