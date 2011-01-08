@@ -68,10 +68,10 @@ BOOST_AUTO_TEST_CASE( constructor )
     solver->mark_basic();
     model->add_component( solver );
 
-    // setup discretization method
-    CDiscretization::Ptr cdm = create_component_abstract_type<CDiscretization>("CF.Solver.ResidualDistribution", "Discretization");
-    cdm->mark_basic();
-    solver->add_component( cdm );
+//    // setup discretization method
+//    CDiscretization::Ptr cdm = create_component_abstract_type<CDiscretization>("CF.RDM.ResidualDistribution", "Discretization");
+//    cdm->mark_basic();
+//    solver->add_component( cdm );
 
     CMeshReader::Ptr mesh_reader = create_component_abstract_type<CMeshReader>( "CF.Mesh.Neu.CReader", "NeutralReader" );
   //  CMeshReader::Ptr mesh_reader = create_component_abstract_type<CMeshReader>( "CF.Mesh.CGNS.CReader", "CGNSReader" );
