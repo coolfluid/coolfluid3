@@ -40,12 +40,14 @@ Common::ComponentBuilder < ResidualDistribution, CDiscretization, LibRDM > Resid
 ResidualDistribution::ResidualDistribution ( const std::string& name  ) :
   CDiscretization ( name )
 {
-   
+  // properties
+
   properties()["brief"] = std::string("Residual Distribution Method");
   properties()["description"] = std::string("Discretize the PDE's using the Residual Distribution Method");
   
   m_properties["Regions"].as_option().attach_trigger ( boost::bind ( &ResidualDistribution::trigger_Regions,   this ) );
     
+  // setup of the static components
 
   const Uint order = 1;
 

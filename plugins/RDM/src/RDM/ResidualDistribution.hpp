@@ -45,12 +45,20 @@ public: // functions
 
   // functions specific to the ResidualDistribution component
   
+  /// computes the discrete rhs of the PDE
   virtual void compute_rhs();
-  
+
+  /// @name SIGNALS
+  //@{
+
+  /// creates a boundary condition
   void create_bc( Common::XmlNode& xml );
+
+  //@} END SIGNALS
 
 private: // functions
   
+  /// function triggered when regions option is updated
   void trigger_Regions();
   
 private: // data

@@ -10,3 +10,11 @@ list( APPEND resources_files
    )
 
 add_custom_target( resources SOURCES ${resources_files} )
+
+# copy files to build tree
+foreach( rfile ${resources_files} )
+  add_custom_command(TARGET resources
+                     POST_BUILD
+                     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/${mfile} ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                    )
+endforeach()

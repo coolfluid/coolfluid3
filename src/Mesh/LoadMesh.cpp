@@ -31,24 +31,12 @@ Common::ComponentBuilder < LoadMesh, Component, LibMesh > LoadMesh_Builder;
 LoadMesh::LoadMesh ( const std::string& name  ) :
   Component ( name )
 {
+  // properties
+
   m_properties["brief"] = std::string("Loads meshes, guessing automatically the format from the file extension");
   mark_basic();
   
-  CFactory::Ptr meshreader_factory = Core::instance().factories()->get_factory<CMeshReader>();
-
-  if ( is_null(meshreader_factory) )
-    throw ValueNotFound ( FromHere() , "Could not find factory for CMeshReader" );
-
-  boost_foreach(CBuilder& bdr, find_components_recursively<CBuilder>( *meshreader_factory ) )
-  {
-    CMeshReader::Ptr reader = bdr.build(bdr.name())->as_type<CMeshReader>();
-    if ( is_not_null(reader) )
-    {
-      add_static_component(reader);
-      boost_foreach(const std::string& extension, reader->get_extensions())
-        m_extensions_to_readers[extension].push_back(reader);
-    }
-  }
+  // signals
 
   regist_signal ( "load_mesh" , "Loads meshes, guessing automatically the format", "Load Mesh" )->connect ( boost::bind ( &LoadMesh::signal_load_mesh, this, _1 ) );
 
@@ -60,6 +48,8 @@ LoadMesh::LoadMesh ( const std::string& name  ) :
   signal("rename_component").is_hidden = true;
   signal("delete_component").is_hidden = true;
   signal("move_component").is_hidden   = true;
+
+  update_list_of_available_readers();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -70,8 +60,45 @@ LoadMesh::~LoadMesh()
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void LoadMesh::update_list_of_available_readers()
+{
+  CFactory::Ptr meshreader_factory = Core::instance().factories()->get_factory<CMeshReader>();
+
+  if ( is_null(meshreader_factory) )
+    throw ValueNotFound ( FromHere() , "Could not find factory for CMeshReader" );
+
+  m_extensions_to_readers.clear();
+
+  boost_foreach(CBuilder& bdr, find_components_recursively<CBuilder>( *meshreader_factory ) )
+  {
+    CMeshReader::Ptr reader;
+
+    Component::Ptr comp = get_child(bdr.name());
+    if( is_null(comp) )
+      comp = bdr.build(bdr.name());
+
+    if( is_not_null(comp) ) // convert to reader
+      reader = comp->as_type<CMeshReader>();
+    else
+      throw SetupError(FromHere(), "Builder \'" + bdr.name() + "\' failed to build the mesh reader" );
+
+    if ( is_not_null(reader) )
+    {
+      add_component(reader);
+      boost_foreach(const std::string& extension, reader->get_extensions())
+        m_extensions_to_readers[extension].push_back(reader);
+    }
+    else
+      throw SetupError(FromHere(), "Component with name \'" + bdr.name() + "\' is not a Mesh Reader" );
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void LoadMesh::signal_load_mesh ( Common::XmlNode& node )
 {
+  update_list_of_available_readers();
+
   XmlParams p (node);
 
   URI path = p.get_option<URI>("Domain");

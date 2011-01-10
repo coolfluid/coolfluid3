@@ -16,10 +16,13 @@ using namespace Common;
 CDiscretization::CDiscretization ( const std::string& name  ) :
   CMethod ( name )
 {
-   
+  // properties
+
   properties()["brief"]=std::string("Discretization Method component");
   properties()["description"]=std::string("Handles the discretization of the PDE's");
   
+  // options
+
   std::vector< URI > dummy;
   m_properties.add_option< OptionArrayT < URI > > ("Regions", "Regions to loop over", dummy)->mark_basic();
   

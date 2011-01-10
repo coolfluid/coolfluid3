@@ -9,10 +9,6 @@ list( APPEND utest-actions_files
 
 coolfluid_add_unittest( utest-actions )
 
-# Custom post-build rule (must be defined after adding target):
-# Copy the file rotation.neu from source dir to binary dir.
-# this must happen after building, as some IDE like Xcode define their
-# build types internally, in which the binary dir exists
 list( APPEND mesh_files  rotation-tg.neu  rotation-qd.neu  )
 foreach( mfile ${mesh_files} )
   add_custom_command(TARGET utest-actions

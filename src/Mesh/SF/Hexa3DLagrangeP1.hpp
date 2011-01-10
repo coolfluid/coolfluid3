@@ -153,7 +153,7 @@ static void mapped_coordinates(const CoordsT& coord, const NodesT& nodes, Mapped
   }
   
   if(nb_iters > 100)
-    throw Common::ConvergenceNotReached(FromHere(), "Failed to find Hexa3DLagrangeP1 mapped coordinates");
+    throw Common::FailedToConverge(FromHere(), "Failed to find Hexa3DLagrangeP1 mapped coordinates");
 }
   
 

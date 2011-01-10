@@ -47,7 +47,12 @@ public: // functions
   
   LoadMesh& operation(const std::string& name);
   
-private:
+protected: // helper functions
+
+  /// updates the list of avialable readers and regists each one to the extension it supports
+  void update_list_of_available_readers();
+
+private: // data
 
   std::map<std::string,std::vector<Mesh::CMeshReader::Ptr> > m_extensions_to_readers;
 

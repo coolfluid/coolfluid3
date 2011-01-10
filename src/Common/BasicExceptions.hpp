@@ -111,12 +111,12 @@ struct Common_API ValueNotFound: public Common::Exception {
 
 /// This exception is thrown when convergence cannot be reached
 /// @author Willem Deconinck
-struct Common_API ConvergenceNotReached : public Common::Exception {
+struct Common_API FailedToConverge : public Common::Exception {
 
   /// Constructor
-  ConvergenceNotReached(const Common::CodeLocation& where, const std::string& what);
+  FailedToConverge(const Common::CodeLocation& where, const std::string& what);
 
-}; // class ConvergenceNotReached
+}; // class FailedToConverge
 
 ////////////////////////////////////////////////////////////////////////////////
 
