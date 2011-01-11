@@ -8,6 +8,7 @@
 list( APPEND coolfluid_client_core_moc_classes
 CNode.hpp
 ClientNetworkComm.hpp
+NJournalBrowser.hpp
 NCore.hpp
 NLink.hpp
 NLog.hpp
@@ -32,6 +33,8 @@ CommitDetails.cpp
 CommitDetails.hpp
 CommitDetailsItem.cpp
 CommitDetailsItem.hpp
+NJournalBrowser.cpp
+NJournalBrowser.hpp
 LibClientCore.cpp
 LibClientCore.hpp
 NBrowser.cpp
@@ -50,6 +53,8 @@ NTree.cpp
 NTree.hpp
 PropertyModel.cpp
 PropertyModel.hpp
+SignalNode.cpp
+SignalNode.hpp
 StatusModel.cpp
 StatusModel.hpp
 TSshInformation.hpp
