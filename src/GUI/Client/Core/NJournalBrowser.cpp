@@ -26,7 +26,7 @@ namespace ClientCore {
 
 ////////////////////////////////////////////////////////////////////////////
 
-JournalBrowser::JournalBrowser(const XmlNode * rootNode, QObject *parent) :
+NJournalBrowser::NJournalBrowser(const XmlNode * rootNode, QObject *parent) :
     QAbstractItemModel(parent),
     CNode(ClientRoot::browser()->generateName(), "NJournalBrowser", CNode::JOURNAL_BROWSER_NODE),
     m_rootNode(rootNode)
@@ -44,7 +44,7 @@ JournalBrowser::JournalBrowser(const XmlNode * rootNode, QObject *parent) :
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QVariant JournalBrowser::data(const QModelIndex & index, int role) const
+QVariant NJournalBrowser::data(const QModelIndex & index, int role) const
 {
   QVariant data;
 
@@ -87,7 +87,7 @@ QVariant JournalBrowser::data(const QModelIndex & index, int role) const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QModelIndex JournalBrowser::index(int row, int column, const QModelIndex & parent) const
+QModelIndex NJournalBrowser::index(int row, int column, const QModelIndex & parent) const
 {
   SignalNode * childNode = nullptr;
   QModelIndex index;
@@ -109,7 +109,7 @@ QModelIndex JournalBrowser::index(int row, int column, const QModelIndex & paren
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QModelIndex JournalBrowser::parent(const QModelIndex &child) const
+QModelIndex NJournalBrowser::parent(const QModelIndex &child) const
 {
   QModelIndex index;
 
@@ -127,7 +127,7 @@ QModelIndex JournalBrowser::parent(const QModelIndex &child) const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-int JournalBrowser::rowCount(const QModelIndex & parent) const
+int NJournalBrowser::rowCount(const QModelIndex & parent) const
 {
 //  if (parent.column() > 0)
 //    return 0;
@@ -142,7 +142,7 @@ int JournalBrowser::rowCount(const QModelIndex & parent) const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-int JournalBrowser::columnCount(const QModelIndex & parent) const
+int NJournalBrowser::columnCount(const QModelIndex & parent) const
 {
   return m_columns.count();
 }
@@ -150,7 +150,7 @@ int JournalBrowser::columnCount(const QModelIndex & parent) const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QVariant JournalBrowser::headerData(int section, Qt::Orientation orientation,
+QVariant NJournalBrowser::headerData(int section, Qt::Orientation orientation,
                            int role) const
 {
   if(role == Qt::DisplayRole && orientation == Qt::Horizontal && section >= 0
@@ -163,7 +163,7 @@ QVariant JournalBrowser::headerData(int section, Qt::Orientation orientation,
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString JournalBrowser::toolTip() const
+QString NJournalBrowser::toolTip() const
 {
   return getComponentType();
 }

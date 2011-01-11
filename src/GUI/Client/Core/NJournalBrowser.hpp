@@ -29,7 +29,7 @@ namespace ClientCore {
 
 class SignalNode;
 
-class JournalBrowser :
+class NJournalBrowser :
     public QAbstractItemModel,
     public CNode
 {
@@ -37,7 +37,7 @@ class JournalBrowser :
 
 public:
 
-  JournalBrowser(const Common::XmlNode * rootNode, QObject * parent = 0);
+  NJournalBrowser(const Common::XmlNode * rootNode, QObject * parent = 0);
 
   /// @name VIRTUAL FUNCTIONS
   //@{
