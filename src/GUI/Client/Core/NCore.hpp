@@ -112,14 +112,6 @@ namespace ClientCore {
     /// @brief The network layer
     ClientNetworkComm * m_networkComm;
 
-    /// @brief Timer used on server launchin process.
-
-    /// On timeout, the client attemps to connect to the server.
-    QTimer * m_timer;
-
-    /// @brief The launching process.
-    QProcess * m_process;
-
     /// @brief The current connection information.
     TSshInformation m_commSshInfo;
 

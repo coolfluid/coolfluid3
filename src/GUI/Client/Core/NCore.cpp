@@ -26,9 +26,7 @@ using namespace CF::GUI::Network;
 NCore::NCore()
   : CNode(CLIENT_CORE, "NCore", CNode::CORE_NODE)
 {
-  m_timer = new QTimer(this);
   m_networkComm = new ClientNetworkComm();
-  m_process = new QProcess(this);
 
   connect(m_networkComm, SIGNAL(connected()), this, SLOT(connected()));
   connect(m_networkComm, SIGNAL(disconnectedFromServer()), this, SLOT(disconnected()));
@@ -43,9 +41,7 @@ NCore::NCore()
 
 NCore::~NCore()
 {
-  delete m_timer;
   delete m_networkComm;
-  delete m_process;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
