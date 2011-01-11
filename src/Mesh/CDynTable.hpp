@@ -66,6 +66,8 @@ public:
   }
   
   Uint row_size(const Uint i) const {return m_array[i].size();}
+
+  void set_row_size(const Uint i, const Uint s) { m_array[i].resize(s); }
   
   Buffer create_buffer()
   {
