@@ -28,7 +28,7 @@ namespace CGNS {
 
 /// This class defines CGNS mesh format writer
 /// @author Willem Deconinck
-class CGNS_API CWriter : public CMeshWriter, public Shared
+class Mesh_CGNS_API CWriter : public CMeshWriter, public Shared
 {
 
 public: // typedefs

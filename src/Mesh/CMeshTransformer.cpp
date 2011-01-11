@@ -20,7 +20,7 @@ using namespace Common;
 ////////////////////////////////////////////////////////////////////////////////
 
 CMeshTransformer::CMeshTransformer ( const std::string& name  ) :
-  Component ( name )
+  CAction ( name )
 {
   //options.add_option OptionT<std::string> >  ( "File",  "File to read" , "" );
   //options.add_option Common::OptionT<std::string> >  ( "Mesh",  "Mesh to construct" , "" );

@@ -42,7 +42,7 @@ namespace CGNS {
 
 /// This class defines CGNS mesh format common functionality
 /// @author Willem Deconinck
-class CGNS_API Shared
+class Mesh_CGNS_API Shared
 {
 public:
 

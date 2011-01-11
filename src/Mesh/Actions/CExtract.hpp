@@ -4,41 +4,42 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CMeshInfo_hpp
-#define CF_Mesh_CMeshInfo_hpp
+#ifndef CF_Mesh_Actions_CExtract_hpp
+#define CF_Mesh_Actions_CExtract_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Mesh/CMeshTransformer.hpp"
 
+#include "Mesh/Actions/LibActions.hpp"
+
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace Mesh {
-  
-  class CField;
+namespace Actions {
 
 //////////////////////////////////////////////////////////////////////////////
 
 /// This class defines a mesh transformer
 /// that returns information about the mesh
 /// @author Willem Deconinck
-class Mesh_API CMeshInfo : public CMeshTransformer
+class Mesh_Actions_API CExtract : public CMeshTransformer
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<CMeshInfo> Ptr;
-    typedef boost::shared_ptr<CMeshInfo const> ConstPtr;
+    typedef boost::shared_ptr<CExtract> Ptr;
+    typedef boost::shared_ptr<CExtract const> ConstPtr;
 
 private: // typedefs
   
 public: // functions
   
   /// constructor
-  CMeshInfo( const std::string& name );
+  CExtract( const std::string& name );
   
   /// Gets the Class name
-  static std::string type_name() { return "CMeshInfo"; }
+  static std::string type_name() { return "CExtract"; }
 
   virtual void transform(const CMesh::Ptr& mesh, const std::vector<std::string>& args);
   
@@ -47,25 +48,20 @@ public: // functions
   
   /// extended help that user can query
   virtual std::string help() const;
-  
-private: // functions
- 
-  std::string print_region_tree(const CRegion& region, Uint level=0);
-  std::string print_field_tree(const CField& field, Uint level=0);
-  std::string print_elements(const Component& region, Uint level=0);
 
 private: // data
 
   CMesh::Ptr m_mesh;
   
-}; // end CMeshInfo
+}; // end CExtract
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
+} // Actions
 } // Mesh
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CMeshInfo_hpp
+#endif // CF_Mesh_CExtract_hpp

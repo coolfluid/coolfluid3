@@ -1,6 +1,6 @@
 list( APPEND coolfluid-mesh-transformer_files coolfluid-mesh-transformer.cpp )
 
-list( APPEND coolfluid-mesh-transformer_cflibs  coolfluid_mesh_sf coolfluid_mesh_neutral coolfluid_mesh_gmsh )
+list( APPEND coolfluid-mesh-transformer_cflibs  coolfluid_mesh_sf coolfluid_mesh_actions coolfluid_mesh_neutral coolfluid_mesh_gmsh )
 
 # add blockmesh reader if built
 if(coolfluid_mesh_cgns3_builds)

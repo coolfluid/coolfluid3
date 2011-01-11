@@ -25,10 +25,6 @@ list( APPEND coolfluid_mesh_files
   CList.cpp
   CMesh.hpp
   CMesh.cpp
-  CMeshInfo.hpp
-  CMeshInfo.cpp
-  CMeshExtract.hpp
-  CMeshExtract.cpp
   CMeshReader.hpp
   CMeshReader.cpp
   CMeshTransformer.hpp
@@ -122,4 +118,5 @@ add_subdirectory( CGNS )          # CGNS file IO
 add_subdirectory( Zoltan )        # Zoltan mesh partitioning
 add_subdirectory( PTScotch )      # PTScotch mesh partitioning
 
+add_subdirectory( Actions )       # Actions that can be performed on the mesh
 

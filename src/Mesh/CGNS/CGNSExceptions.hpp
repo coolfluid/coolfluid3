@@ -21,7 +21,7 @@ namespace CGNS {
 
 /// Exception thrown when CGNS throws an exception.
 /// @author Willem Deconinck
-struct CGNS_API CGNSException : public Common::Exception {
+struct Mesh_CGNS_API CGNSException : public Common::Exception {
 
  /// Constructor
  CGNSException (const Common::CodeLocation& where, const std::string& what)

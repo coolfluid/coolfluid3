@@ -12,14 +12,16 @@
 #include "Common/CBuilder.hpp"
 #include "Common/ComponentPredicates.hpp"
 
-#include "Mesh/CMeshExtract.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
+
+#include "Mesh/Actions/CExtract.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace Mesh {
+namespace Actions{
 
   using namespace Common;
 
@@ -37,11 +39,11 @@ namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Mesh::CMeshExtract, Mesh::CMeshTransformer, Mesh::LibMesh > CMeshExtract_Builder;
+Common::ComponentBuilder < Mesh::Actions::CExtract, Mesh::CMeshTransformer, Mesh::Actions::LibActions > CExtract_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
-CMeshExtract::CMeshExtract( const std::string& name )
+CExtract::CExtract( const std::string& name )
 : CMeshTransformer(name)
 {
 
@@ -49,14 +51,14 @@ CMeshExtract::CMeshExtract( const std::string& name )
 
 /////////////////////////////////////////////////////////////////////////////
 
-std::string CMeshExtract::brief_description() const
+std::string CExtract::brief_description() const
 {
   return "Extract given regions from the mesh";
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-std::string CMeshExtract::help() const
+std::string CExtract::help() const
 {
   std::stringstream out;
   out << "  " << brief_description() << "\n";
@@ -85,7 +87,7 @@ std::string CMeshExtract::help() const
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CMeshExtract::transform(const CMesh::Ptr& mesh, const std::vector<std::string>& args)
+void CExtract::transform(const CMesh::Ptr& mesh, const std::vector<std::string>& args)
 {
 
   m_mesh = mesh;
@@ -160,5 +162,6 @@ void CMeshExtract::transform(const CMesh::Ptr& mesh, const std::vector<std::stri
 
 //////////////////////////////////////////////////////////////////////////////
 
+} // Actions
 } // Mesh
 } // CF

@@ -11,7 +11,7 @@
 
 #include <boost/filesystem/path.hpp>
 
-#include "Common/Component.hpp"
+#include "Common/CAction.hpp"
 
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CMesh.hpp"
@@ -28,8 +28,9 @@ namespace Mesh {
 /// CMeshTransformer component class
 /// This class serves as a component that that will operate on meshes
 /// @author Willem Deconinck
-class Mesh_API CMeshTransformer : public Common::Component {
-
+class Mesh_API CMeshTransformer : public Common::CAction 
+{
+  
 public: // typedefs
 
   /// pointer to this type
@@ -55,6 +56,8 @@ public: // functions
   // --------- Direct access ---------
 
   virtual void transform(const CMesh::Ptr& mesh, const std::vector<std::string>& args = std::vector<std::string>())= 0;
+  
+  void execute() {}
   
   /// brief description, typically one line
   virtual std::string brief_description() const = 0;

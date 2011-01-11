@@ -25,7 +25,7 @@ namespace CGNS {
 
 /// This class defines CGNS mesh format reader
 /// @author Willem Deconinck
-  class CGNS_API CReader : public CMeshReader, public CGNS::Shared
+  class Mesh_CGNS_API CReader : public CMeshReader, public CGNS::Shared
 {
 public: // typedefs
 

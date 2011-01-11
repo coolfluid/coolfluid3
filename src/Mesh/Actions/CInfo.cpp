@@ -10,15 +10,17 @@
 #include "Common/CBuilder.hpp"
 #include "Common/ComponentPredicates.hpp"
 
-#include "Mesh/CMeshInfo.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CField.hpp"
+
+#include "Mesh/Actions/CInfo.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace Mesh {
+namespace Actions {
   
   using namespace Common;
   
@@ -50,11 +52,11 @@ namespace Mesh {
   
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CMeshInfo, CMeshTransformer, LibMesh> CMeshInfo_Builder;
+Common::ComponentBuilder < CInfo, CMeshTransformer, LibActions> CInfo_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
-CMeshInfo::CMeshInfo( const std::string& name )
+CInfo::CInfo( const std::string& name )
 : CMeshTransformer(name)
 {
    
@@ -69,7 +71,7 @@ CMeshInfo::CMeshInfo( const std::string& name )
 
 /////////////////////////////////////////////////////////////////////////////
 
-std::string CMeshInfo::brief_description() const
+std::string CInfo::brief_description() const
 {
   return properties()["brief"].value<std::string>();
 }
@@ -77,14 +79,14 @@ std::string CMeshInfo::brief_description() const
 /////////////////////////////////////////////////////////////////////////////
 
   
-std::string CMeshInfo::help() const
+std::string CInfo::help() const
 {
   return "  " + properties()["brief"].value<std::string>() + "\n" + properties()["description"].value<std::string>();
 }  
   
 /////////////////////////////////////////////////////////////////////////////
 
-void CMeshInfo::transform(const CMesh::Ptr& mesh, const std::vector<std::string>& args)
+void CInfo::transform(const CMesh::Ptr& mesh, const std::vector<std::string>& args)
 {
 
   m_mesh = mesh;
@@ -104,7 +106,7 @@ void CMeshInfo::transform(const CMesh::Ptr& mesh, const std::vector<std::string>
 
 //////////////////////////////////////////////////////////////////////////////
 
-std::string CMeshInfo::print_region_tree(const CRegion& region, Uint level)
+std::string CInfo::print_region_tree(const CRegion& region, Uint level)
 {
   std::string tree;
     
@@ -123,7 +125,7 @@ std::string CMeshInfo::print_region_tree(const CRegion& region, Uint level)
 
 //////////////////////////////////////////////////////////////////////////////
 
-std::string CMeshInfo::print_field_tree(const CField& field, Uint level)
+std::string CInfo::print_field_tree(const CField& field, Uint level)
 {
   std::string tree;
   
@@ -142,7 +144,7 @@ std::string CMeshInfo::print_field_tree(const CField& field, Uint level)
 
 //////////////////////////////////////////////////////////////////////////////
 
-std::string CMeshInfo::print_elements(const Component& region, Uint level)
+std::string CInfo::print_elements(const Component& region, Uint level)
 {
   std::string tree;
   BOOST_FOREACH( const CElements& elements_region, find_components<CElements>(region))
@@ -157,5 +159,6 @@ std::string CMeshInfo::print_elements(const Component& region, Uint level)
 
 //////////////////////////////////////////////////////////////////////////////
 
+} // Actions
 } // Mesh
 } // CF

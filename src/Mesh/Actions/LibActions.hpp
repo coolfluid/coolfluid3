@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_LibCGNS_hpp
-#define CF_LibCGNS_hpp
+#ifndef CF_Mesh_Actions_LibActions_hpp
+#define CF_Mesh_Actions_LibActions_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,45 +13,46 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Define the macro CGNS_API
-/// @note build system defines COOLFLUID_CGNS3_EXPORTS when compiling CGNS files
-#ifdef COOLFLUID_MESH_CGNS3_EXPORTS
-#   define Mesh_CGNS_API      CF_EXPORT_API
-#   define Mesh_CGNS_TEMPLATE
+/// Define the macro Actions_API
+/// @note build system defines COOLFLUID_ACTIONS_EXPORTS when compiling MeshTools files
+#ifdef COOLFLUID_MESH_ACTIONS_EXPORTS
+#   define Mesh_Actions_API      CF_EXPORT_API
+#   define Mesh_Actions_TEMPLATE
 #else
-#   define Mesh_CGNS_API      CF_IMPORT_API
-#   define Mesh_CGNS_TEMPLATE CF_TEMPLATE_EXTERN
+#   define Mesh_Actions_API      CF_IMPORT_API
+#   define Mesh_Actions_TEMPLATE CF_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Mesh {
-namespace CGNS {
+namespace Mesh{
+namespace Actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Class defines the CGNS mesh format operations
-/// @author Willem Deconinck
-class Mesh_CGNS_API LibCGNS : public CF::Common::CLibrary
+/// Class defines the initialization and termination of the library Actions
+class Mesh_Actions_API LibActions :
+    public Common::CLibrary
 {
 public:
 
-  typedef boost::shared_ptr<LibCGNS> Ptr;
-  typedef boost::shared_ptr<LibCGNS const> ConstPtr;
+  typedef boost::shared_ptr<LibActions> Ptr;
+  typedef boost::shared_ptr<LibActions const> ConstPtr;
 
   /// Constructor
-  LibCGNS ( const std::string& name) : Common::CLibrary(name) {   }
+  LibActions ( const std::string& name) : Common::CLibrary(name) {   }
 
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.Mesh.CGNS"; }
+  static std::string library_namespace() { return "CF.Mesh.Actions"; }
+
 
   /// Static function that returns the module name.
   /// Must be implemented for CLibrary registration
   /// @return name of the library
-  static std::string library_name() { return "CGNS"; }
+  static std::string library_name() { return "Actions"; }
 
   /// Static function that returns the description of the module.
   /// Must be implemented for CLibrary registration
@@ -59,11 +60,11 @@ public: // functions
 
   static std::string library_description()
   {
-    return "This library implements the CGNS mesh format operations.";
+    return "This library implements the Actions API.";
   }
 
   /// Gets the Class name
-  static std::string type_name() { return "LibCGNS"; }
+  static std::string type_name() { return "LibActions"; }
 
   /// initiate library
   virtual void initiate();
@@ -71,14 +72,14 @@ public: // functions
   /// terminate library
   virtual void terminate();
 
-}; // end LibCGNS
+}; // end LibActions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // CGNS
+} // Actions
 } // Mesh
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_CGNS_hpp
+#endif // CF_Mesh_Actions_LibActions_hpp
