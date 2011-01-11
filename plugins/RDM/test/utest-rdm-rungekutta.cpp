@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Solver::ForwardEuler"
+#define BOOST_TEST_MODULE "Test module for CF::RDM::RungeKutta"
 
 #include <boost/test/unit_test.hpp>
 
@@ -29,13 +29,13 @@ using namespace CF::Mesh;
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_SUITE( ForwardEulerSuite )
+BOOST_AUTO_TEST_SUITE( RungeKuttaSuite )
 
 //////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( constructor )
 {
-  CIterativeSolver::Ptr comp = create_component_abstract_type<CIterativeSolver>("CF.Solver.ForwardEuler", "ForwardEuler");
+  CIterativeSolver::Ptr comp = create_component_abstract_type<CIterativeSolver>("CF.RDM.RungeKutta", "RungeKutta");
   BOOST_CHECK( is_not_null(comp) );
 
   BOOST_CHECK( find_component_with_name<CLink>(*comp, "solution_field").is_link() == true );  
@@ -64,14 +64,14 @@ BOOST_AUTO_TEST_CASE( constructor )
     pm->configure_property( "Dimensions", 2u );
 
     // setup iterative solver
-    CIterativeSolver::Ptr solver = create_component_abstract_type<CIterativeSolver>("CF.Solver.ForwardEuler", "IterativeSolver");
+    CIterativeSolver::Ptr solver = create_component_abstract_type<CIterativeSolver>("CF.RDM.RungeKutta", "IterativeSolver");
     solver->mark_basic();
     model->add_component( solver );
 
-//    // setup discretization method
-//    CDiscretization::Ptr cdm = create_component_abstract_type<CDiscretization>("CF.RDM.ResidualDistribution", "Discretization");
-//    cdm->mark_basic();
-//    solver->add_component( cdm );
+    // setup discretization method
+    CDiscretization::Ptr cdm = create_component_abstract_type<CDiscretization>("CF.RDM.ResidualDistribution", "Discretization");
+    cdm->mark_basic();
+    solver->add_component( cdm );
 
     CMeshReader::Ptr mesh_reader = create_component_abstract_type<CMeshReader>( "CF.Mesh.Neu.CReader", "NeutralReader" );
   //  CMeshReader::Ptr mesh_reader = create_component_abstract_type<CMeshReader>( "CF.Mesh.CGNS.CReader", "CGNSReader" );

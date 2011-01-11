@@ -31,3 +31,11 @@ add_custom_command(TARGET utest-rdm-scalaradvection-unsteady
                  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-tg.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-qd.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                 )
+
+#########################################################################
+# test runge kutta
+
+list( APPEND utest-rdm-rungekutta_cflibs coolfluid_solver coolfluid_rdm coolfluid_mesh_neutral )
+list( APPEND utest-rdm-rungekutta_files  utest-rdm-rungekutta.cpp )
+
+coolfluid_add_unittest( utest-rdm-rungekutta )
