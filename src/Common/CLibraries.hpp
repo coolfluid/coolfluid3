@@ -42,12 +42,12 @@ namespace Common {
     template < typename LIB >
     typename LIB::Ptr get_library ()
     {
-      const std::string tname = LIB::type_name();
-      typename LIB::Ptr lib = get_child<LIB>(tname);
+      const std::string lname = LIB::library_namespace(); //instead of LIB::type_name();
+      typename LIB::Ptr lib = get_child<LIB>(lname);
       if ( lib == nullptr )
       {
-        CF::TypeInfo::instance().regist< LIB >( LIB::type_name() );
-        lib = create_component< LIB >(tname);
+        CF::TypeInfo::instance().regist< LIB >( lname );
+        lib = create_component< LIB >(lname);
       }
       cf_assert( lib != nullptr );
       return lib;
