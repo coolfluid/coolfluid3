@@ -14,6 +14,7 @@
 #include "Common/XML.hpp"
 
 #include "GUI/Client/Core/NJournal.hpp"
+#include "GUI/Client/Core/NJournalBrowser.hpp"
 
 class QAbstractButton;
 class QDialogButtonBox;
@@ -38,6 +39,8 @@ public:
   static JournalBrowserBuilder & instance();
 
 private slots:
+
+  void journalRequest(bool local);
 
   void newJournal(/*CF::GUI::ClientCore::NJournal * journal, */Common::XmlNode * node);
 
@@ -76,6 +79,8 @@ private:
   QDialogButtonBox * m_buttons;
 
   QPushButton * m_btExecute;
+
+  ClientCore::NJournalBrowser::Ptr m_model;
 
 }; // JournalBrowserDialog
 

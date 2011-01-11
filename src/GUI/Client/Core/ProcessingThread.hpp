@@ -25,6 +25,8 @@ namespace ClientCore {
 
 class ClientCore_API ProcessingThread : public QThread
 {
+  Q_OBJECT
+  
 public:
 
   ProcessingThread(boost::shared_ptr<Common::XmlDoc> m_node);

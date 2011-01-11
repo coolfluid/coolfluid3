@@ -28,15 +28,12 @@ namespace ClientCore {
 
 NJournalBrowser::NJournalBrowser(const XmlNode * rootNode, QObject *parent) :
     QAbstractItemModel(parent),
-    CNode(ClientRoot::instance().browser()->generateName(), "NJournalBrowser", CNode::JOURNAL_BROWSER_NODE),
-    m_rootNode(rootNode)
+    CNode(ClientRoot::instance().browser()->generateName(), "NJournalBrowser", CNode::JOURNAL_BROWSER_NODE)
 {
-  cf_assert(rootNode);
+  setRootNode(rootNode);
 
-  const XmlNode * currNode = m_rootNode->first_node("frame");
-
-  for( ; currNode != nullptr ; currNode = currNode->next_sibling() )
-    m_children.append(new SignalNode(currNode));
+  regist_signal("list_journal", "List journal", "List journal")
+  ->connect(boost::bind(&NJournalBrowser::list_journal, this, _1));
 
   m_columns << "Target" << "Sender" << "Receiver" << "Type" << "Direction" << "Time" /*<< "Status" << "Excecute"*/;
 }
@@ -182,6 +179,51 @@ const SignalNode & NJournalBrowser::signal(const QModelIndex & index) const
   cf_assert(signal != nullptr);
 
   return *signal;
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void NJournalBrowser::setRootNode(const Common::XmlNode * rootNode)
+{
+  emit layoutAboutToBeChanged();
+
+  m_rootNode = rootNode;
+
+  m_children.clear();
+
+  if(m_rootNode != nullptr)
+  {
+    const XmlNode * currNode = m_rootNode->first_node("frame");
+
+    for( ; currNode != nullptr ; currNode = currNode->next_sibling() )
+      m_children.append(new SignalNode(currNode));
+  }
+
+  // the underlying data changed, so we tell the view(s) to update
+  emit layoutChanged();
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void NJournalBrowser::requestJournal()
+{
+  boost::shared_ptr<XmlDoc> root = XmlOps::create_doc();
+  XmlNode * docNode = XmlOps::goto_doc_node(*root.get());
+
+  XmlOps::add_signal_frame(*docNode, "list_journal", full_path(),
+                           SERVER_JOURNAL_PATH, true);
+
+  ClientRoot::instance().core()->sendSignal(*root.get());
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void NJournalBrowser::list_journal(XmlNode & node)
+{
+  setRootNode(node.first_node());
 }
 
 ////////////////////////////////////////////////////////////////////////////

@@ -42,9 +42,19 @@ JournalBrowserBuilder & JournalBrowserBuilder::instance()
 
 void JournalBrowserBuilder::newJournal(/*NJournal * journal,*/ XmlNode * node)
 {
-  JournalBrowserDialog * jbd = new JournalBrowserDialog();
+//  JournalBrowserDialog * jbd = new JournalBrowserDialog();
 
-  jbd->show(node);
+//  jbd->show(node);
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void JournalBrowserBuilder::journalRequest(bool local)
+{
+  JournalBrowserDialog jbd;
+
+  jbd.show(nullptr);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -52,23 +62,31 @@ void JournalBrowserBuilder::newJournal(/*NJournal * journal,*/ XmlNode * node)
 
 JournalBrowserBuilder::JournalBrowserBuilder()
 {
-  connect(&JournalNotifier::instance(), SIGNAL(newJournal(/*CF::GUI::ClientCore::NJournal*,*/Common::XmlNode*)),
-          this, SLOT(newJournal(/*CF::GUI::ClientCore::NJournal*,*/Common::XmlNode*)));
+  connect(&JournalNotifier::instance(), SIGNAL(journalRequest(bool)),
+          this, SLOT(journalRequest(bool)));
+
+//  connect(&JournalNotifier::instance(), SIGNAL(newJournal(/*CF::GUI::ClientCore::NJournal*,*/Common::XmlNode*)),
+//          this, SLOT(newJournal(/*CF::GUI::ClientCore::NJournal*,*/Common::XmlNode*)));
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
 JournalBrowserDialog::JournalBrowserDialog(QWidget *parent) :
-    QDialog(parent)
+    QDialog(parent),
+    m_model(new NJournalBrowser(nullptr, this))
 {
   m_view = new QTableView(this);
   m_buttons = new QDialogButtonBox(this);
 
   m_mainLayout = new QVBoxLayout(this);
 
-  m_view->setSelectionBehavior(QAbstractItemView::SelectRows);
+  ClientRoot::instance().browser()->add_component(m_model);
+
+  m_view->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
   m_view->horizontalHeader()->setStretchLastSection(true);
-  m_view->setModel(nullptr); // no model
+  m_view->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+  m_view->setSelectionBehavior(QAbstractItemView::SelectRows);
+  m_view->setModel(m_model.get());
   m_view->setAlternatingRowColors(true);
 
   m_buttons->addButton(QDialogButtonBox::Ok);
@@ -76,6 +94,11 @@ JournalBrowserDialog::JournalBrowserDialog(QWidget *parent) :
 
   m_mainLayout->addWidget(m_view);
   m_mainLayout->addWidget(m_buttons);
+
+  m_view->updateGeometry();
+  updateGeometry();
+  adjustSize();
+  resize(childrenRect().size());
 
   connect(m_buttons, SIGNAL(accepted()), this, SLOT(close()));
   connect(m_buttons, SIGNAL(clicked(QAbstractButton*)), this, SLOT(btClicked(QAbstractButton*)));
@@ -87,6 +110,7 @@ JournalBrowserDialog::JournalBrowserDialog(QWidget *parent) :
 
 JournalBrowserDialog::~JournalBrowserDialog()
 {
+  ClientRoot::instance().browser()->remove_component(m_model->name());
   delete m_view;
   delete m_buttons;
   delete m_mainLayout;
@@ -97,22 +121,11 @@ JournalBrowserDialog::~JournalBrowserDialog()
 
 void JournalBrowserDialog::show(const Common::XmlNode *rootNode)
 {
-  NJournalBrowser * model = new NJournalBrowser(rootNode->first_node(), this);
-
-  m_view->setModel(model);
-
-  m_view->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
-  m_view->verticalHeader()->resizeSections(QHeaderView::ResizeToContents);
-
-  m_view->updateGeometry();
-  updateGeometry();
-  adjustSize();
-  resize(childrenRect().size());
+  m_model->setRootNode(rootNode);
+  m_model->requestJournal();
 
   this->exec();
 //  this->setVisible(true);
-
-//  m_view->setModel(nullptr);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -141,25 +154,26 @@ void JournalBrowserDialog::btClicked(QAbstractButton *button)
 
     try
     {
-    if(index.isValid())
-    {
-      ClientRoot::instance().log()->addMessage("Re-executing the signal.");
-      boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
-      XmlNode & frameNode = *XmlOps::add_node_to(*XmlOps::goto_doc_node(*doc.get()), "tmp");
-      NJournalBrowser * model = (NJournalBrowser*)m_view->model();
-      XmlOps::deep_copy(*model->signal(index).node(), frameNode);
+      if(index.isValid())
+      {
+        ClientRoot::instance().log()->addMessage("Re-executing the signal.");
+        boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
+        XmlNode & frameNode = *XmlOps::add_node_to(*XmlOps::goto_doc_node(*doc.get()), "tmp");
+        NJournalBrowser * model = (NJournalBrowser*)m_view->model();
+        XmlOps::deep_copy(*model->signal(index).node(), frameNode);
 
-      std::string str;
-      XmlOps::xml_to_string(*doc.get(), str);
+        std::string str;
+        XmlOps::xml_to_string(*doc.get(), str);
 
-      ClientRoot::instance().log()->addMessage(QString("--->") + str.c_str());
+        ClientRoot::instance().log()->addMessage(QString("--->") + str.c_str());
 
-      ClientRoot::instance().core()->sendSignal(*doc.get());
+        ClientRoot::instance().core()->sendSignal(*doc.get());
+      }
     }
-  }catch(Exception & e)
+    catch(Exception & e)
     {
-    ClientRoot::instance().log()->addMessage(e.what());
-  }
+      ClientRoot::instance().log()->addMessage(e.what());
+    }
   }
 }
 

@@ -33,6 +33,7 @@ CJournal::CJournal (const std::string & name)
   regist_signal("dump_journal", "Dumps all journal entries.", "Dump journal")->
       connect( boost::bind( &CJournal::dump_journal, this, _1) );
 
+  signal("list_journal").is_hidden = true;
 
   /// @todo change this when the XML layer arrives
   XmlNode & doc_node = *XmlOps::goto_doc_node(*m_xmldoc.get());

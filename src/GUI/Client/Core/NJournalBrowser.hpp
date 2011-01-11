@@ -35,6 +35,11 @@ class NJournalBrowser :
 {
   Q_OBJECT
 
+public: // typedefs
+
+  typedef boost::shared_ptr<NJournalBrowser> Ptr;
+  typedef boost::shared_ptr<NJournalBrowser const> ConstPtr;
+
 public:
 
   NJournalBrowser(const Common::XmlNode * rootNode, QObject * parent = 0);
@@ -103,6 +108,16 @@ public:
   //@} END VIRTUAL FUNCTIONS
 
   const SignalNode & signal(const QModelIndex & index) const;
+
+  void setRootNode(const Common::XmlNode * rootNode);
+
+  void requestJournal();
+
+  void list_journal(Common::XmlNode & node);
+
+signals:
+
+  void updateView();
 
 private: // data
 
