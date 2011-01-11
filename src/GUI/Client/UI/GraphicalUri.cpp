@@ -44,7 +44,7 @@ GraphicalUri::GraphicalUri(CF::Common::OptionURI::ConstPtr opt, QWidget *parent)
 
   if(opt.get() != nullptr)
   {
-    this->setValue(opt->value<URI>().string_without_scheme().c_str());
+    this->setValue(opt->value_str().c_str());
     this->setProtocols(opt->supported_protocols());
   }
 
@@ -111,8 +111,10 @@ bool GraphicalUri::setValue(const QVariant & value)
 {
   if(value.type() == QVariant::String)
   {
-    m_originalValue = value;
-    m_editPath->setText(value.toString());
+    URI uriString(value.toString().toStdString());
+
+    m_originalValue = uriString.string().c_str();
+    m_editPath->setText(uriString.string_without_scheme().c_str());
     return true;
   }
 
