@@ -18,6 +18,16 @@ using namespace Common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
+CNodeElementConnectivity::CNodeElementConnectivity ( const std::string& name ) : 
+  Component(name)
+{
+  m_nodes = create_static_component<Common::CLink>("nodes");
+  m_elements = create_static_component<CUnifiedData<CElements> >("elements");
+  m_connectivity = create_static_component<CDynTable<Uint> >("connectivity_table");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void CNodeElementConnectivity::set_nodes(CNodes& nodes)
 {
   m_nodes->link_to(nodes.self());
