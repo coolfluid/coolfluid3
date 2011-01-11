@@ -4,12 +4,17 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <sstream>
+
 #include <QDialogButtonBox>
 #include <QHeaderView>
 #include <QTableView>
 #include <QVBoxLayout>
 
 #include <QMessageBox>
+
+#include <boost/uuid/random_generator.hpp>
+#include <boost/uuid/uuid_io.hpp>
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 
@@ -142,16 +147,27 @@ void JournalBrowserDialog::btClicked(QAbstractButton *button)
     {
       if(index.isValid())
       {
-//        ClientRoot::instance().log()->addMessage("Re-executing the signal.");
+        std::stringstream ss;
         boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
         XmlNode & frameNode = *XmlOps::add_node_to(*XmlOps::goto_doc_node(*doc.get()), "tmp");
         NJournalBrowser * model = (NJournalBrowser*)m_view->model();
         XmlOps::deep_copy(*model->signal(index).node(), frameNode);
 
-//        std::string str;
-//        XmlOps::xml_to_string(*doc.get(), str);
+        XmlAttr * clientIdAttr = frameNode.first_attribute( XmlParams::tag_attr_clientid() );
+        XmlAttr * frameIdAttr = frameNode.first_attribute( XmlParams::tag_attr_frameid() );
 
-//        ClientRoot::instance().log()->addMessage(QString("--->") + str.c_str());
+        // if found,  we remove the old client UUID.
+        // (sending the signal automatically adds the correct UUID)
+        if(clientIdAttr != nullptr)
+          frameNode.remove_attribute(clientIdAttr);
+
+        // if found,  we remove the old frame UUID...
+        if(frameIdAttr != nullptr)
+          frameNode.remove_attribute(frameIdAttr);
+
+        // ...and we add a newly generated one
+        ss << boost::uuids::random_generator()();
+        XmlOps::add_attribute_to(frameNode, XmlParams::tag_attr_frameid(), ss.str() );
 
         ClientRoot::instance().core()->sendSignal(*doc.get());
       }
