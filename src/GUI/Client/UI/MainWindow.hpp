@@ -45,7 +45,6 @@ namespace ClientUI {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  class ConnectionDialog;
   class LoggingList;
   class CentralPanel;
   class StatusPanel;

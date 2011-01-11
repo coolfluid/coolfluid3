@@ -26,13 +26,13 @@
 
 #include "GUI/Client/UI/AboutCFDialog.hpp"
 #include "GUI/Client/Core/ClientRoot.hpp"
-#include "GUI/Client/UI/ConnectionDialog.hpp"
 #include "GUI/Client/UI/LoggingList.hpp"
 #include "GUI/Client/UI/MenuActionInfo.hpp"
 #include "GUI/Client/UI/CentralPanel.hpp"
 #include "GUI/Client/UI/NRemoteSave.hpp"
 #include "GUI/Client/UI/NRemoteOpen.hpp"
 #include "GUI/Client/UI/SelectFileDialog.hpp"
+#include "GUI/Client/UI/SignatureDialog.hpp"
 //#include "GUI/Client/Core/StatusModel.hpp"
 #include "GUI/Client/UI/StatusPanel.hpp"
 #include "GUI/Client/UI/TreeBrowser.hpp"
@@ -666,11 +666,30 @@ void MainWindow::newException(const QString & msg)
 
 void MainWindow::connectToServer()
 {
-  ConnectionDialog dlg(this);
+  boost::shared_ptr<XmlDoc> xmldoc = XmlOps::create_doc();
+  XmlNode & docnode = *XmlOps::goto_doc_node(*xmldoc.get());
+  XmlNode & mainMapNode = *XmlOps::add_node_to(docnode, "map");
+  XmlNode & valnode = *XmlOps::add_node_to(mainMapNode, "value");
+  XmlNode & mapNode = *XmlOps::add_node_to(valnode, "map");
+  SignatureDialog dlg(this);
   TSshInformation sshInfo;
 
-  if(dlg.show(false, sshInfo))
+  XmlSignature sig;
+
+  XmlOps::add_attribute_to(valnode, "key", "options");
+
+  sig.insert<std::string>("Hostname", "Name of the computer that hosts the server", std::string("localhost"))
+      .insert<CF::Uint>("Port number", "The port number the server is listening to", CF::Uint(62784));
+
+  sig.put_signature(mapNode);
+
+  if(dlg.show(mapNode, "Connect to server"))
   {
+    XmlParams p(mainMapNode);
+
+    sshInfo.m_hostname = p.get_option<std::string>("Hostname").c_str();
+    sshInfo.m_port = p.get_option<CF::Uint>("Port number");
+
     ClientRoot::instance().core()->connectToServer(sshInfo);
   }
 }
