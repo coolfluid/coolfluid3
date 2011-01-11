@@ -34,6 +34,9 @@ SignalInspectorDialog::SignalInspectorDialog(QWidget *parent) :
 
   m_buttons->addButton(QDialogButtonBox::Ok);
 
+  m_textArea->setWordWrapMode(QTextOption::NoWrap);
+  m_textArea->setReadOnly(true);
+
   m_mainLayout->addWidget(m_textArea);
   m_mainLayout->addWidget(m_buttons);
 
@@ -59,7 +62,12 @@ void SignalInspectorDialog::show(const ClientCore::SignalNode & node)
 
   XmlOps::xml_to_string(*node.node(), str);
 
-  m_textArea->setText(str.c_str());
+  m_textArea->setText(QString(str.c_str()).replace('\t', "  "));
+
+  m_textArea->updateGeometry();
+  updateGeometry();
+  adjustSize();
+  resize(childrenRect().size());
 
   this->exec();
 }

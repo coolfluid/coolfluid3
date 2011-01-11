@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <QDialogButtonBox>
+#include <QHeaderView>
 #include <QTableView>
 #include <QVBoxLayout>
 
@@ -59,8 +60,8 @@ JournalBrowserBuilder::JournalBrowserBuilder()
 JournalBrowserDialog::JournalBrowserDialog(QWidget *parent) :
     QDialog(parent)
 {
-  m_view = new QTableView();
-  m_buttons = new QDialogButtonBox();
+  m_view = new QTableView(this);
+  m_buttons = new QDialogButtonBox(this);
 
   m_mainLayout = new QVBoxLayout(this);
 
@@ -73,6 +74,8 @@ JournalBrowserDialog::JournalBrowserDialog(QWidget *parent) :
 
   connect(m_buttons, SIGNAL(accepted()), this, SLOT(close()));
   connect(m_view, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(doubleClicked(QModelIndex)));
+
+  m_view->horizontalHeader()->setStretchLastSection(true);
 
   m_view->setModel(nullptr); // no model
 }
@@ -95,6 +98,14 @@ void JournalBrowserDialog::show(const Common::XmlNode *rootNode)
   NJournalBrowser model(rootNode->first_node(), this);
 
   m_view->setModel(&model);
+
+  m_view->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
+  m_view->verticalHeader()->resizeSections(QHeaderView::ResizeToContents);
+
+  m_view->updateGeometry();
+  updateGeometry();
+  adjustSize();
+  resize(childrenRect().size());
 
   this->exec();
 
