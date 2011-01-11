@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE( get )
 BOOST_AUTO_TEST_CASE( as_const )
 {
   CRoot::Ptr root = CRoot::create ( "root" );
-  CRoot::ConstPtr const_root = root->as_const_type<CRoot>();
+  CRoot::ConstPtr const_root = root->as_const()->as_type<CRoot>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
