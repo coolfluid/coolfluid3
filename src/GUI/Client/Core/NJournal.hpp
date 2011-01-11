@@ -58,8 +58,6 @@ signals:
 
   void journalRequest(bool local);
 
-  void newJournal(/*NJournal * journal, */Common::XmlNode * node);
-
 }; // NJournal
 
 /////////////////////////////////////////////////////////////////////////////
@@ -77,8 +75,6 @@ public:
 signals:
 
   void journalRequest(bool local);
-
-  void newJournal(/*const NJournal* journal, */Common::XmlNode * node);
 
 private:
 

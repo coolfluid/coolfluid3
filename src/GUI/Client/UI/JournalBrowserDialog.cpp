@@ -39,16 +39,6 @@ JournalBrowserBuilder & JournalBrowserBuilder::instance()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void JournalBrowserBuilder::newJournal(/*NJournal * journal,*/ XmlNode * node)
-{
-//  JournalBrowserDialog * jbd = new JournalBrowserDialog();
-
-//  jbd->show(node);
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 void JournalBrowserBuilder::journalRequest(bool local)
 {
   m_dialog->show(nullptr);
@@ -63,9 +53,6 @@ JournalBrowserBuilder::JournalBrowserBuilder()
 
   connect(&JournalNotifier::instance(), SIGNAL(journalRequest(bool)),
           this, SLOT(journalRequest(bool)));
-
-//  connect(&JournalNotifier::instance(), SIGNAL(newJournal(/*CF::GUI::ClientCore::NJournal*,*/Common::XmlNode*)),
-//          this, SLOT(newJournal(/*CF::GUI::ClientCore::NJournal*,*/Common::XmlNode*)));
 }
 
 ////////////////////////////////////////////////////////////////////////////

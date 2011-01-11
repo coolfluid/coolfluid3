@@ -44,8 +44,6 @@ private slots:
 
   void journalRequest(bool local);
 
-  void newJournal(/*CF::GUI::ClientCore::NJournal * journal, */Common::XmlNode * node);
-
 private:
 
   JournalBrowserDialog * m_dialog;

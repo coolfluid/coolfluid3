@@ -38,8 +38,6 @@ void JournalNotifier::regist(const NJournal * journal)
   cf_assert(journal != nullptr);
 
   connect(journal, SIGNAL(journalRequest(bool)), this, SIGNAL(journalRequest(bool)));
-//  connect(journal, SIGNAL(newJournal(/*NJournal*, */Common::XmlNode*)),
-//          this, SIGNAL(newJournal(/*NJournal*, */Common::XmlNode *)));
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -49,9 +47,9 @@ NJournal::NJournal(const QString & name)
 {
   regist_signal("list_journal", "List journal", "List journal")
       ->connect(boost::bind(&NJournal::list_journal, this, _1));
-  
+
   m_localSignals << "list_journal";
-  
+
   JournalNotifier::instance().regist(this);
 }
 
@@ -69,8 +67,6 @@ QString NJournal::toolTip() const
 void NJournal::list_journal(XmlNode & node)
 {
   emit journalRequest(false);
-
-//  emit newJournal(/*this, */&node);
 }
 
 /////////////////////////////////////////////////////////////////////////////
