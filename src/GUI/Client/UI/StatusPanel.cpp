@@ -8,14 +8,14 @@
 
 #include "Common/CF.hpp"
 
-#include "GUI/Client/Core/StatusModel.hpp"
+//#include "GUI/Client/Core/StatusModel.hpp"
 
 #include "GUI/Client/UI/StatusPanel.hpp"
 
-using namespace CF::GUI::ClientCore;
+//using namespace CF::GUI::ClientCore;
 using namespace CF::GUI::ClientUI;
 
-StatusPanel::StatusPanel(StatusModel * model, QWidget * parent)
+StatusPanel::StatusPanel(/*StatusModel*/QAbstractItemModel * model, QWidget * parent)
 : QTreeView(parent)
 {
   m_model = model;

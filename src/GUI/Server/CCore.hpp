@@ -12,7 +12,6 @@
 #include <QObject>
 #include <QThread>
 #include <QList>
-#include <QDomDocument>
 #include <vector>
 #include <string>
 
@@ -120,12 +119,6 @@ namespace Server {
 
     /// @brief The network communication
     ServerNetworkComm * m_commServer;
-
-    /// @brief XML tree with available types, their concrete and abstract
-    /// sub-types.
-
-    /// The content of this tree is read from "./TypesList.xml" file
-    QDomDocument m_types;
 
     /// @brief Indicates wether a file is already open.
 

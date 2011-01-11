@@ -33,7 +33,7 @@
 #include "GUI/Client/UI/NRemoteSave.hpp"
 #include "GUI/Client/UI/NRemoteOpen.hpp"
 #include "GUI/Client/UI/SelectFileDialog.hpp"
-#include "GUI/Client/Core/StatusModel.hpp"
+//#include "GUI/Client/Core/StatusModel.hpp"
 #include "GUI/Client/UI/StatusPanel.hpp"
 #include "GUI/Client/UI/TreeBrowser.hpp"
 #include "GUI/Client/UI/TreeView.hpp"

@@ -17,8 +17,6 @@
 
 #include "GUI/Client/UI/LibClientUI.hpp"
 
-class QDomDocument;
-class QDomNode;
 class QMainWindow;
 class QMenu;
 class QMenuBar;
@@ -67,17 +65,6 @@ namespace ClientUI {
     /// Frees all allocated memory. Neither the m_options panel nor the parent
     /// are destroyed.
     ~TreeView();
-
-    /// @brief Builds a new node.
-
-    /// This method calls @link ::TreeModel::newChildToNode()
-    /// TreeModel::newChildToNode() @endlink for the currently selected index.
-    /// @param newNode New node name.
-    /// @param doc The document the node will be added to. The presence of
-    /// this parameter is due to the fact that a node can not exist if it
-    /// does not belong to a document.
-    /// @return The built node.
-    QDomNode newChildNode(const QString & newNode, QDomDocument & doc) const;
 
     /// @brief Changes the read-only mode.
 

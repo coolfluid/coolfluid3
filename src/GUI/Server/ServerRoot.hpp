@@ -10,7 +10,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include <QObject>
-#include <QDomDocument>
 
 #include "Common/CRoot.hpp"
 #include "Common/CJournal.hpp"

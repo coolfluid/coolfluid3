@@ -11,7 +11,6 @@
 
 #include <QObject>
 #include <QAbstractSocket>
-#include <QDomDocument>
 #include <QList>
 #include <QMutex>
 

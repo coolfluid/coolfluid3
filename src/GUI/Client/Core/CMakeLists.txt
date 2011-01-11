@@ -17,7 +17,6 @@ NLog.hpp
 NTree.hpp
 ProcessingThread.hpp # moc'ed because the base class emits signals
 PropertyModel.hpp
-StatusModel.hpp
 TreeNode.hpp
 )
 
@@ -62,8 +61,6 @@ PropertyModel.cpp
 PropertyModel.hpp
 SignalNode.cpp
 SignalNode.hpp
-StatusModel.cpp
-StatusModel.hpp
 TSshInformation.hpp
 TreeNode.cpp
 TreeNode.hpp

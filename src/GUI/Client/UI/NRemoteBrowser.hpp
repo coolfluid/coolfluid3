@@ -18,7 +18,6 @@
 #include "GUI/Client/UI/LibClientUI.hpp"
 
 class QCompleter;
-class QDomDocument;
 class QEvent;
 class QHBoxLayout;
 class QIcon;

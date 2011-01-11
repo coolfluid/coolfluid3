@@ -9,7 +9,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <QDomNamedNodeMap>
 #include <QLabel>
 #include <QLineEdit>
 #include <QList>
@@ -20,7 +19,6 @@
 
 #include "GUI/Client/UI/LibClientUI.hpp"
 
-class QDomNodeList;
 class QGridLayout;
 class QGroupBox;
 class QHBoxLayout;

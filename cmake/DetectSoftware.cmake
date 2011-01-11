@@ -30,7 +30,7 @@ coolfluid_log("QT_FOUND: [${QT_FOUND}]")
 
 if(${QT_FOUND})
   coolfluid_log("Qt version: [${QT_VERSION_MAJOR}.${QT_VERSION_MINOR}.${QT_VERSION_PATCH}]")
-  coolfluid_log("Qt libs: [${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTXML_LIBRARY} ${QT_QTNETWORK_LIBRARY} ${QT_QTTEST_LIBRARY}]")
+  coolfluid_log("Qt libs: [${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTNETWORK_LIBRARY} ${QT_QTTEST_LIBRARY}]")
 endif()
 
 ##############################################################################

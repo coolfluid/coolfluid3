@@ -9,7 +9,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <QDomNamedNodeMap>
 #include <QLabel>
 #include <QLineEdit>
 #include <QList>
@@ -20,7 +19,6 @@
 
 #include "GUI/Client/UI/LibClientUI.hpp"
 
-class QDomNodeList;
 class QFormLayout;
 class QGridLayout;
 class QGroupBox;
@@ -130,18 +128,6 @@ namespace ClientUI {
     void btForgetClicked();
 
     void valueChanged();
-
-  signals:
-
-    /// @brief Signal emitted when user clicks on "Commit changes" button if
-    /// at least one option has been modified.
-
-    /// @param modOptions XML document representing all modified m_options.
-    /// Each document child is a modified option.
-    /// @param newOptions XML document representing all new m_options. Each
-    /// document child is a new option.
-    void changesMade(const QDomDocument & modOptions,
-                     const QDomDocument & newOptions) const;
 
   private:
 

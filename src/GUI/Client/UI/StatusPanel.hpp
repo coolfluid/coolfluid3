@@ -20,7 +20,7 @@
 namespace CF {
 namespace GUI {
 
-namespace ClientCore { class StatusModel; }
+//namespace ClientCore { class StatusModel; }
 
 namespace ClientUI {
 
@@ -32,7 +32,7 @@ namespace ClientUI {
 
   public:
 
-    StatusPanel(ClientCore::StatusModel * model, QWidget * parent = nullptr);
+    StatusPanel(/*ClientCore::StatusModel*/ QAbstractItemModel * model, QWidget * parent = nullptr);
 
     ~StatusPanel();
 
@@ -42,7 +42,7 @@ namespace ClientUI {
 
   private:
 
-    ClientCore::StatusModel * m_model;
+    /*ClientCore::StatusModel*/ QAbstractItemModel * m_model;
 
   }; // class StatusPanel
 
