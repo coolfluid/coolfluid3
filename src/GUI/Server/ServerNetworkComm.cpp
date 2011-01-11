@@ -312,6 +312,8 @@ void ServerNetworkComm::newClient()
   connect(socket, SIGNAL(readyRead()), this, SLOT(newData()));
 
   std::cout << "A new client is connected" << std::endl;
+
+  ServerRoot::listenToEvents();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

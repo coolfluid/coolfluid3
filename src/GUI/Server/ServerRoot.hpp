@@ -60,6 +60,8 @@ namespace Server {
 
     static CF::Common::CJournal::Ptr journal();
 
+    static void listenToEvents();
+
   private:
 
     static boost::shared_ptr<CF::Common::XmlDoc> m_doc;

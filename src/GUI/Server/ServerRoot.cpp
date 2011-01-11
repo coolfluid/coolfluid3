@@ -63,14 +63,8 @@ CRoot::Ptr ServerRoot::root()
   {
     CCore::Ptr core(new CCore());
 
-    m_queue = new NotificationQueue(root);
-    m_notifier = new Notifier(m_queue);
-
-    m_notifier->listenToEvent("tree_updated", true);
-
-    QObject::connect(m_notifier, SIGNAL(eventOccured(std::string,CF::Common::URI)),
-                     core.get(), SLOT(newEvent(std::string,CF::Common::URI)));
-
+    m_queue = nullptr;
+    m_notifier = nullptr;
     m_thread = nullptr;
     root->add_component(core);
 
@@ -100,7 +94,7 @@ void ServerRoot::processSignal(const string & target,
     m_thread = new ProcessingThread(node, target, receivingCompo);
     QObject::connect(m_thread, SIGNAL(finished()), m_catcher, SLOT(finished()));
     m_thread->start();
-    journal()->add_signal(node);
+    journal()->add_signal(*node.first_node());
   }
   else
   {
@@ -111,12 +105,16 @@ void ServerRoot::processSignal(const string & target,
       if( comp->signal(target).is_read_only )
       {
         comp->call_signal(target, *node.first_node() );
+        journal()->add_signal(node);
 
         XmlNode& nodedoc = *XmlOps::goto_doc_node(*doc.get());
         XmlNode& frameNode = *nodedoc.first_node();
 
         if(frameNode.next_sibling() != nullptr)
+        {
           core()->sendSignal(*doc.get());
+          journal()->add_signal(*frameNode.next_sibling());
+        }
       }
       else
         core()->sendFrameRejected(clientid, frameid, SERVER_CORE_PATH, "Server is busy.");
@@ -151,4 +149,21 @@ CCore::Ptr ServerRoot::core()
 CJournal::Ptr ServerRoot::journal()
 {
   return root()->access_component<CJournal>(SERVER_JOURNAL_PATH);
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void ServerRoot::listenToEvents()
+{
+  if(m_queue == nullptr)
+  {
+    m_queue = new NotificationQueue(root());
+    m_notifier = new Notifier(m_queue);
+
+    m_notifier->listenToEvent("tree_updated", true);
+
+    QObject::connect(m_notifier, SIGNAL(eventOccured(std::string,CF::Common::URI)),
+                     core().get(), SLOT(newEvent(std::string,CF::Common::URI)));
+  }
 }
