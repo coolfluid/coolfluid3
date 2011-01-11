@@ -17,8 +17,12 @@
 
 namespace CF {
 
-namespace Actions { class CLoop; }
-namespace Solver  { class CDiscretization; }
+namespace Solver { 
+  class CDiscretization; 
+  namespace Actions { 
+    class CLoop; 
+  }
+}
 
 namespace RDM {
 
@@ -65,7 +69,7 @@ private: // data
   
   Common::CLink::Ptr m_update_coeff_field;
   
-  boost::shared_ptr<Actions::CLoop> m_take_step;
+  boost::shared_ptr<Solver::Actions::CLoop> m_take_step;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

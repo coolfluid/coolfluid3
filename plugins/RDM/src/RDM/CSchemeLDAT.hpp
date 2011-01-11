@@ -16,7 +16,7 @@
 #include "Mesh/CFieldElements.hpp"
 #include "Mesh/ElementType.hpp"
 
-#include "Actions/CLoopOperation.hpp"
+#include "Solver/Actions/CLoopOperation.hpp"
 
 #include "RDM/LibRDM.hpp"
 
@@ -28,7 +28,7 @@ namespace RDM {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SHAPEFUNC, typename QUADRATURE>
-class RDM_API CSchemeLDAT : public Actions::CLoopOperation
+class RDM_API CSchemeLDAT : public Solver::Actions::CLoopOperation
 {
 public: // typedefs
 

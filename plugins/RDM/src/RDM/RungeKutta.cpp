@@ -20,16 +20,16 @@
 #include "Mesh/CField.hpp"
 #include "Mesh/CTable.hpp"
 
-#include "Actions/CLoop.hpp"
-#include "Actions/CForAllNodes.hpp"
+#include "Solver/Actions/CLoop.hpp"
+#include "Solver/Actions/CForAllNodes.hpp"
 
 namespace CF {
 namespace RDM {
 
 using namespace Common;
 using namespace Mesh;
-using namespace Actions;
 using namespace Solver;
+using namespace Solver::Actions;
 
 Common::ComponentBuilder < RungeKutta, CIterativeSolver, LibRDM > RungeKutta_Builder;
 

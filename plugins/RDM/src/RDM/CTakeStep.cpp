@@ -15,7 +15,7 @@
 
 using namespace CF::Common;
 using namespace CF::Mesh;
-using namespace CF::Actions;
+using namespace CF::Solver::Actions;
 
 namespace CF {
 namespace RDM {

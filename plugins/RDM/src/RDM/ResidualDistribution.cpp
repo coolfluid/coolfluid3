@@ -10,9 +10,9 @@
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
 
-#include "Actions/CLoop.hpp"
-#include "Actions/CForAllElementsT.hpp"
-#include "Actions/CForAllNodes.hpp"
+#include "Solver/Actions/CLoop.hpp"
+#include "Solver/Actions/CForAllElementsT.hpp"
+#include "Solver/Actions/CForAllNodes.hpp"
 
 #include "RDM/ResidualDistribution.hpp"
 #include "RDM/CSchemeLDA.hpp"
@@ -27,8 +27,8 @@ using namespace boost::assign;
 
 using namespace CF::Common;
 using namespace CF::Mesh;
-using namespace CF::Actions;
 using namespace CF::Solver;
+using namespace CF::Solver::Actions;
 
 namespace CF {
 namespace RDM {

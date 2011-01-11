@@ -15,7 +15,11 @@
 
 namespace CF {
   
-  namespace Actions { class CLoop; }
+  namespace Solver {
+  namespace Actions { 
+    class CLoop; 
+  }
+  }
 
 namespace RDM {
 
@@ -63,7 +67,7 @@ private: // functions
   
 private: // data
 
-  boost::shared_ptr<Actions::CLoop> m_elem_loop;
+  boost::shared_ptr<Solver::Actions::CLoop> m_elem_loop;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

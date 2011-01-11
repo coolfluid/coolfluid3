@@ -13,7 +13,7 @@
 #include "Mesh/CField.hpp"
 #include "Mesh/CFieldElements.hpp"
 
-#include "Actions/CLoopOperation.hpp"
+#include "Solver/Actions/CLoopOperation.hpp"
 
 #include "RDM/LibRDM.hpp"
 
@@ -24,7 +24,7 @@ namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API CSchemeLDA : public Actions::CLoopOperation
+class RDM_API CSchemeLDA : public Solver::Actions::CLoopOperation
 {
 public: // typedefs
 

@@ -13,7 +13,7 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/CList.hpp"
 
-#include "Actions/CNodeOperation.hpp"
+#include "Solver/Actions/CNodeOperation.hpp"
 
 #include "RDM/LibRDM.hpp"
 
@@ -24,7 +24,7 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API CTakeStep : public Actions::CNodeOperation
+class RDM_API CTakeStep : public Solver::Actions::CNodeOperation
 {
 public: // typedefs
 

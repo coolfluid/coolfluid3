@@ -20,6 +20,7 @@
 #include "Solver/CModel.hpp"
 #include "Solver/CDiscretization.hpp"
 #include "Solver/CPhysicalModel.hpp"
+#include "Solver/Actions/CLoop.hpp"
 
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
@@ -29,13 +30,11 @@
 #include "RDM/ScalarAdvection.hpp"
 #include "RDM/ResidualDistribution.hpp"
 
-#include "Actions/CLoop.hpp"
-
 using namespace CF;
 using namespace CF::Common;
 using namespace CF::Mesh;
-using namespace CF::Actions;
 using namespace CF::Solver;
+using namespace CF::Solver::Actions;
 using namespace CF::RDM;
 
 //////////////////////////////////////////////////////////////////////////////

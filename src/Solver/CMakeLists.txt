@@ -33,4 +33,4 @@ endif()
 
 coolfluid_add_library( coolfluid_solver )
 
-#add_subdirectory( Actions ) # actions the solver uses
+add_subdirectory( Actions ) # actions the solver uses
