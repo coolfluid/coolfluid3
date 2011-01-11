@@ -14,21 +14,37 @@ namespace Gmsh {
 
 //////////////////////////////////////////////////////////////////////////////
 
-const Uint Shared::m_nodes_in_gmsh_elem[nb_gmsh_types] = { 2,  3,  4,  4,  8, 6,  5,  3,  6,  9,
+const Uint Shared::m_nodes_in_gmsh_elem[nb_gmsh_types] = { 0, 2,  3,  4,  4,  8, 6,  5,  3,  6,  9,
                                                           10, 27, 18, 14,  1, 8, 20, 15, 13,  9,
                                                           10, 12, 15, 15, 21, 4,  5,  6, 20, 35,
                                                           56 };
 
-const Uint Shared::m_gmsh_elem_dim[nb_gmsh_types] = { DIM_1D, DIM_2D, DIM_2D, DIM_3D, DIM_3D, DIM_3D, DIM_3D, DIM_1D, DIM_2D, DIM_2D,
+const Uint Shared::m_gmsh_elem_dim[nb_gmsh_types] = { DIM_0D, DIM_1D, DIM_2D, DIM_2D, DIM_3D, DIM_3D, DIM_3D, DIM_3D, DIM_1D, DIM_2D, DIM_2D,
                                            DIM_3D, DIM_3D, DIM_3D, DIM_3D, DIM_1D, DIM_2D, DIM_2D, DIM_3D, DIM_3D, DIM_2D,
                                            DIM_2D, DIM_2D, DIM_2D, DIM_2D, DIM_2D, DIM_1D, DIM_1D, DIM_1D, DIM_3D, DIM_3D,
                                            DIM_3D };
 
-const Uint Shared::m_gmsh_elem_order[nb_gmsh_types] = { 1, 1, 1, 1, 1, 1, 1, 2, 2, 2,
-                                                        2, 2, 2, 2, 1, 2, 2, 2, 2, 3,
-                                                        3, 4, 4, 5, 5, 3, 4, 5, 3, 4,
-                                                        5 };
+const Uint Shared::m_gmsh_elem_order[nb_gmsh_types] = {  0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2,
+                                                           2, 2, 2, 2, 1, 2, 2, 2, 2, 3, 3,
+                                                           4, 4, 5, 5, 3, 4, 5, 3, 4, 5 };
 
+const std::string Shared::gmsh_elem_geo_name[nb_gmsh_types] = { "Empty", "Line" , "Triag"   , "Quad" , "Tetra"   , "Hexa",
+							        "Prism", "Pyramid" , "Line" , "Triag"   , "Quad",
+                                                                "Tetra", "Hexa"    , "Prism", "Pyramid" , "Point",  
+                                                                "Quad" , "Hexa"    , "Prism", "Pyramid" , "Triag", 
+                                                                "Triag", "Triag"   , "Triag", "Triag"   , "Triag", 
+                                                                "Line" , "Line"    , "Line" , "Tetra"   , "Tetra",
+                                                                "Tetra" 
+                                                            };  
+
+const std::string Shared::dim_name[4] = { "0D", "1D", "2D", "3D" };
+
+
+const std::string Shared::order_name[10] = { "P0", "P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9" }; 
+
+
+
+                                                            
 //////////////////////////////////////////////////////////////////////////////
 
 Shared::Shared() :
@@ -46,6 +62,7 @@ Shared::Shared() :
   m_supported_types.push_back("CF.Mesh.SF.Triag3DLagrangeP1");
   m_supported_types.push_back("CF.Mesh.SF.Hexa3DLagrangeP1");
   m_supported_types.push_back("CF.Mesh.SF.Tetra3DLagrangeP1");
+
 
   enum GmshElement { P1LINE=1, P1TRIAG=2, P1QUAD=3,  P1TETRA=4,  P1HEXA=5,
                      P2LINE=8, P2TRIAG=6, P21UAD=10, P2TETRA=11, P2HEXA=12 };
@@ -265,6 +282,17 @@ Shared::Shared() :
   m_nodes_gmsh_to_cf[P2HEXA][25]=25;
   m_nodes_gmsh_to_cf[P2HEXA][26]=26;
 
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+
+std::string Shared::gmsh_name_to_cf_name(const Uint dim, const Uint gmsh_type)
+{
+  //Compose the name of the form   "CF.Mesh.SF.Line1DLagrangeP1"
+  const Uint order = m_gmsh_elem_order[gmsh_type];
+  std::string name = "CF.Mesh.SF." + gmsh_elem_geo_name[gmsh_type] + dim_name[dim] + "Lagrange" + order_name[order];
+  return name;
 }
 
 //////////////////////////////////////////////////////////////////////////////

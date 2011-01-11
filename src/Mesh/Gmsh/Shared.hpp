@@ -2,8 +2,7 @@
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
-// See doc/lgpl.txt and doc/gpl.txt for the license text.
-
+// See doc/lgpl.txt and doc/gpl.txt for the license text  .
 #ifndef CF_Mesh_Gmsh_Shared_hpp
 #define CF_Mesh_Gmsh_Shared_hpp
 
@@ -36,17 +35,26 @@ public:
   
   std::vector<std::string>& get_supported_element_types() { return m_supported_types; }
 
+  static std::string gmsh_name_to_cf_name(const Uint dim, const Uint gmsh_type);
+
 protected:
 
   /// We use the same convention regarding the numbering of element types and local
   /// numbering of vertices of elements as described in gmsh reference manual:
   /// http://www.geuz.org/gmsh/doc/texinfo/gmsh.html#MSH-ASCII-file-format
+  /// NOTE THAT THE NUMBER OF GMSH TYPES LISTED HERE IS BY 1 BIGGER THAT THE ACTUAL NUMBER OF
+  /// GMSH TYPES. THIS IS BECAUSE WE START COUNTING FROM 1 AND END WITH nb_gmsh_types
+  /// (THE FIRST ELEMENT TYPE ON THE OFFICIAL GMSH LIST - P1 line - IS TAGGED AS '1')
 
-  static const Uint nb_gmsh_types = 31;
+
+  static const Uint nb_gmsh_types = 32;
 
   static const Uint m_nodes_in_gmsh_elem[nb_gmsh_types]; //For each element type, remember how many nodes it has
   static const Uint m_gmsh_elem_dim[nb_gmsh_types];      //Store what is the geometrical dimension of each gmsh elem
   static const Uint m_gmsh_elem_order[nb_gmsh_types];    //Store the order of each element type
+  static const std::string gmsh_elem_geo_name[nb_gmsh_types]; //Give names to the types
+  static const std::string dim_name[4];
+  static const std::string order_name[10];
 
   enum GmshElement {P1LINE=1,P1TRIAG=2,P1QUAD=3, P1TETRA=4, P1HEXA=5,
                     P2LINE=8,P2TRIAG=6,P2QUAD=10,P2TETRA=11,P2HEXA= 12};

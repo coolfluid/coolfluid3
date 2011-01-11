@@ -115,9 +115,6 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   // Read file once and store positions
   get_file_positions();
   
-  // Read mesh information
-//  read_headerData();
-
   //Create a hash
   m_hash = create_component<CMixedHash>("hash");
   std::vector<Uint> num_obj(2);
@@ -125,14 +122,14 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   num_obj[1] = m_total_nb_elements;
   m_hash->configure_property("Number of Objects",num_obj);
   
-  // Create a region component inside the mesh with the name mesh_name
+  // Create a region component inside the mesh with a generic mesh name
   // NOTE: since gmsh contains several 'physical entities' in one mesh, we create one region per physical entity
   m_region = m_mesh->create_region("main",!property("Serial Merge").value<bool>()).as_type<CRegion>();
 
 
   // partition the nodes
-  partition_nodes();
-  CFinfo << m_mesh->tree() << CFendl;
+  //partition_nodes();
+  //CFinfo << m_mesh->tree() << CFendl;
 
   CFinfo << "nodes to read = " << m_nodes_to_read.size() << CFendl;
   CFinfo << "elements to read = " << m_elements_to_read.size() << CFendl;
@@ -168,40 +165,6 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CReader::read_headerData()
-{
-//  m_file.seekg(0,std::ios::beg);
-  
-//  Uint NUMNP, NELEM, NGRPS, NBSETS, NDFCD, NDFVL;
-//  std::string line;
-
-//  // skip 2 lines
-//  for (Uint i=0; i<2; ++i)
-//    getline(m_file,line);
-  
-//  m_file >> m_headerData.mesh_name;   getline(m_file,line);
-  
-//  // skip 3 lines
-//  for (Uint i=0; i<3; ++i)
-//    getline(m_file,line);
-
-//  // read number of points, elements, groups, sets, dimensions, velocitycomponents
-//  getline(m_file,line);
-//  std::stringstream ss(line);
-//  ss >> NUMNP >> NELEM >> NGRPS >> NBSETS >> NDFCD >> NDFVL;
-
-//  m_headerData.NUMNP  = NUMNP;
-//  m_headerData.NELEM  = NELEM;
-//  m_headerData.NGRPS  = NGRPS;
-//  m_headerData.NBSETS = NBSETS;
-//  m_headerData.NDFCD  = NDFCD;
-//  m_headerData.NDFVL  = NDFVL;
-  
-//  getline(m_file,line);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-  
 void CReader::get_file_positions()
 {   
 
@@ -209,19 +172,9 @@ void CReader::get_file_positions()
   std::string nodes("$Nodes");
   std::string elements("$Elements");
 
-//  std::string nodal_coordinates("NODAL COORDINATES");
-//  std::string elements_cells("ELEMENTS/CELLS");
-//  std::string element_group("ELEMENT GROUP");
-//  std::string boundary_condition("BOUNDARY CONDITIONS");
-  
 //  m_element_group_positions.resize(0);
 //  m_boundary_condition_positions.resize(0);
 
-  for(Uint elem_type = 0; elem_type < Shared::nb_gmsh_types; ++elem_type)\
-  {
-      m_nb_elem_of_type[elem_type] = 0;
-  }
-  
   int p;
   std::string line;
   while (!m_file.eof())
@@ -232,6 +185,14 @@ void CReader::get_file_positions()
       m_region_names_position=p;
       m_file >> m_nb_regions;
       m_region_list.resize(m_nb_regions);
+
+      m_nb_gmsh_elem_in_region.resize(m_nb_regions);
+      for(Uint ir = 0; ir < m_nb_regions; ++ir)
+      {
+        m_nb_gmsh_elem_in_region[ir].resize(Shared::nb_gmsh_types);
+        for(Uint type = 0; type < Shared::nb_gmsh_types; ++ type)
+           (m_nb_gmsh_elem_in_region[ir])[type] = 0;
+      }
 
       std::string tempstr;
       m_mesh_dimension = DIM_1D;
@@ -246,7 +207,7 @@ void CReader::get_file_positions()
       }
     }
     else if (line.find(nodes)!=std::string::npos) {
-      m_nodal_coordinates_position=p;
+      m_coordinates_position=p;
       m_file >> m_total_nb_nodes;
       CFinfo << "The total number of nodes is " << m_total_nb_nodes << CFendl;
     }
@@ -257,16 +218,17 @@ void CReader::get_file_positions()
       CFinfo << "The total number of elements is " << m_total_nb_elements << CFendl;
       //std::cin.get();
 
-      Uint elem_idx, elem_type;
+      Uint elem_idx, elem_type, nb_tags, phys_tag;
 
       //Let's count how many elements of each type are present
       for(Uint ie = 0; ie < m_total_nb_elements; ++ie)
       {
           m_file >> elem_idx;
           m_file >> elem_type;
+          m_file >> nb_tags;
+          m_file >> phys_tag;
           getline(m_file,line);
-
-          m_nb_elem_of_type[elem_type-1]++;
+          (m_nb_gmsh_elem_in_region[phys_tag-1])[elem_type]++;
       }
     }
 
@@ -282,15 +244,22 @@ void CReader::get_file_positions()
     CFinfo << CFendl;
   }
 
-  CFinfo << "Element types present:" << CFendl;
-  for(Uint etype = 0; etype < Shared::nb_gmsh_types; ++etype)
-  {
-    if (m_nb_elem_of_type[etype] > 0)
-    {
-      CFinfo << m_nb_elem_of_type[etype] << " elements of type " << etype+1 << CFendl;
-    }
 
+  /*
+  CFinfo << "Element types present:" << CFendl;
+  for(Uint ir = 0; ir < m_nb_regions; ++ir)
+  {
+    CFinfo << "Region: " << m_region_list[ir].name << CFendl;
+    for(Uint etype = 0; etype < Shared::nb_gmsh_types; ++etype)
+    {
+      if ((m_nb_gmsh_elem_in_region[ir])[etype] > 0)
+      {
+        CFinfo << "\ttype: " << etype << ", number of elements: " << (m_nb_gmsh_elem_in_region[ir])[etype] << CFendl;
+      }
+
+    }
   }
+  */
 
 }
 
@@ -301,9 +270,9 @@ void CReader::read_coordinates()
 
   Uint global_start_idx = m_mesh->properties()["nb_nodes"].value<Uint>();
 
-  m_file.seekg(m_nodal_coordinates_position,std::ios::beg);
+  m_file.seekg(m_coordinates_position,std::ios::beg);
 
-  // Find the first region which has the highest dimensionality present in the mesh:
+  // Find the region which has the highest dimensionality present in the mesh:
   Uint master_region = 0;
   while((m_region_list[master_region].dim != m_mesh_dimension) && (master_region < m_nb_regions))
   {
@@ -319,18 +288,12 @@ void CReader::read_coordinates()
   m_nodes->resize(nodes_start_idx + m_hash->subhash(NODES)->nb_objects_in_part(mpi::PE::instance().rank()) + m_ghost_nodes.size());
   CFinfo << "The size of nodes array = " << m_nodes->size() << CFendl;
 
-  /*
-
-  CList<Uint>& global_node_idx = get_tagged_component_typed<CList<Uint> >(*m_nodes,"global_node_indices");
-  global_node_idx.resize(global_node_idx.size()+m_hash->subhash(NODES)->nb_objects_in_part(mpi::PE::instance().rank()) + m_ghost_nodes.size());
-
-  CList<bool>& is_ghost = *m_nodes->get_child_type<CList<bool> >("is_ghost");
-  is_ghost.resize(is_ghost.size()+m_hash->subhash(NODES)->nb_objects_in_part(mpi::PE::instance().rank()) + m_ghost_nodes.size());
-*/
-
   std::string line;
+  //Skip the line with keyword '$Nodes':
+  getline(m_file,line);
   // skip one line, which says how many (total) nodes are  present in the mesh
   getline(m_file,line);
+
 
   // declare and allocate one coordinate row
 //  std::vector<Real> rowVector(m_mesh_dimension);
@@ -338,6 +301,7 @@ void CReader::read_coordinates()
   std::set<Uint>::const_iterator it;
 
   Uint coord_idx=nodes_start_idx;
+
   for (Uint node_idx=1; node_idx<=m_total_nb_nodes; ++node_idx)
   {
     if (m_total_nb_nodes > 100000)
@@ -346,6 +310,7 @@ void CReader::read_coordinates()
         CFinfo << 100*node_idx/m_total_nb_nodes << "% " << CFendl;
     }
     getline(m_file,line);
+
     if (m_hash->subhash(NODES)->owns(node_idx-1))
     {
       m_nodes->glb_idx()[coord_idx] = global_start_idx + node_idx - 1; // -1 because base zero
@@ -356,7 +321,7 @@ void CReader::read_coordinates()
       ss >> nodeNumber;
       for (Uint dim=0; dim<m_mesh_dimension; ++dim)
         ss >> m_nodes->coordinates()[coord_idx][dim];
-      if(m_mesh_dimension < DIM_3D) getline(m_file,line); //Gmsh always stores 3 coordinates, even for 2D meshes
+      if(m_mesh_dimension < DIM_3D) getline(ss,line); //Gmsh always stores 3 coordinates, even for 2D meshes
       coord_idx++;
     }
     else
@@ -366,19 +331,38 @@ void CReader::read_coordinates()
       {
         // add global node index
         m_nodes->glb_idx()[coord_idx] = global_start_idx + node_idx - 1; // -1 because base zero
-        m_nodes->is_ghost()[coord_idx] = false;
+        m_nodes->is_ghost()[coord_idx] = true;
         m_node_to_coord_idx[node_idx]=coord_idx;
         std::stringstream ss(line);
         Uint nodeNumber;
         ss >> nodeNumber;
         for (Uint dim=0; dim<m_mesh_dimension; ++dim)
         ss >> m_nodes->coordinates()[coord_idx][dim];
-        if(m_mesh_dimension < DIM_3D) getline(m_file, line);
+        if(m_mesh_dimension < DIM_3D) getline(ss, line);
+
+        //CFinfo << "Read node " << node_idx
+
+
         coord_idx++;
       }
     }
 
   } //loop over nodes
+
+
+
+  /*
+  CFinfo << "Printing all nodal coordinates:" << CFendl;
+  for(Uint i = 0; i < m_total_nb_nodes; ++i)
+  {
+      CFinfo << "\t";
+      for(Uint dim = 0; dim < m_mesh_dimension; ++dim)
+        {
+            CFinfo << m_nodes->coordinates()[i][dim] << " ";
+        }
+      CFinfo << CFendl;
+  }
+  */
 
   getline(m_file,line);
 }
@@ -432,37 +416,84 @@ void CReader::partition_nodes()
 //////////////////////////////////////////////////////////////////////////////
   
 void CReader::read_connectivity()
-{  
-  m_tmp = m_region->create_region("main").as_type<CRegion>(); //This serves as buffer for each element type ???
+{
 
-  m_global_to_tmp.clear();
-  m_file.seekg(m_elements_position,std::ios::beg);
-    
-  m_node_to_glb_elements.resize(m_nodes->size());
-  std::map<std::string,boost::shared_ptr<CTable<Uint>::Buffer> > buffer =
-      create_element_regions_with_buffermap(*m_tmp,*m_nodes,m_supported_types);
+ //Each entry of this vector holds a map (gmsh_type_idx, pointer to connectivity table of this gmsh type).
+ //Each row corresponds to one region of the mesh
+ std::vector<std::map<Uint, CTable<Uint>* > > conn_table_idx;
+ conn_table_idx.resize(m_nb_regions);
+ for(Uint ir = 0; ir < m_nb_regions; ++ir)
+ {
+    conn_table_idx[ir].clear();
+ }
 
-  std::map<std::string,CElements::Ptr> element_regions;
-  boost_foreach(const std::string& etype, m_supported_types)
-    element_regions[etype] = find_component_ptr_with_name<CElements>(*m_tmp, "elements_" + etype);
+ std::map<Uint, CTable<Uint>*>::iterator conn_table_iter;
 
-  std::map<std::string,boost::shared_ptr<CList<Uint>::Buffer> > glb_elm_indices;
-  boost_foreach(const std::string& etype, m_supported_types)
-    glb_elm_indices[etype] = boost::shared_ptr<CList<Uint>::Buffer> ( new CList<Uint>::Buffer(element_regions[etype]->glb_idx().create_buffer()) );
+ //Loop over all regions and allocate a connectivity table of proper size for each element type that
+ //is present in each region. Counting of elements was done during the first pass in the function
+ //get_file_positions
 
-  // skip next line
-  std::string line;
-  getline(m_file,line);
+ for(Uint ir = 0; ir < m_nb_regions; ++ir)
+ {
+   // create new region
+   CRegion::Ptr new_region = m_region->create_region(m_region_list[ir].name).as_type<CRegion>();
+ 
+   // Take the gmsh element types present in this region and generate new names of elements which correspond
+   // to coolfuid naming:
+   for(Uint etype = 0; etype < Shared::nb_gmsh_types; ++etype)
+     if((m_nb_gmsh_elem_in_region[ir])[etype] > 0)
+     {
+       const std::string cf_elem_name = Shared::gmsh_name_to_cf_name(m_region_list[ir].dim,etype);
 
-  // read every line and store the connectivity in the correct region through the buffer
-  std::string etype_CF;
-  std::set<Uint>::const_iterator it;
-  std::vector<Uint> cf_element;
-  Uint gmsh_node_number, nb_tags, phys_tag, other_tag;
-  Uint cf_node_number;
-  Uint cf_idx;
-  Uint table_idx;
-  
+       CElements & elements = new_region->create_elements(cf_elem_name, *m_nodes);
+       CTable<Uint>& elem_table = elements.connectivity_table();
+       elem_table.set_row_size(Shared::m_nodes_in_gmsh_elem[etype]);
+       elem_table.resize((m_nb_gmsh_elem_in_region[ir])[etype]);
+
+       conn_table_idx[ir].insert(std::pair<Uint,CTable<Uint>*>(etype,&elem_table));
+     }
+ 
+
+  /*
+   std::map<std::string,boost::shared_ptr<CTable<Uint>::Buffer> > buffer =
+      create_element_regions_with_buffermap(*new_region,*m_nodes,types_in_region);
+
+   std::map<std::string,CElements::Ptr> element_regions;
+   boost_foreach(const std::string& etype, types_in_region)
+     element_regions[etype] = find_component_ptr_with_name<CElements>(*new_region, "elements_" + etype);
+
+   std::map<std::string,boost::shared_ptr<CList<Uint>::Buffer> > glb_elm_indices;
+   boost_foreach(const std::string& etype, types_in_region)
+     glb_elm_indices[etype] = boost::shared_ptr<CList<Uint>::Buffer> ( new CList<Uint>::Buffer(element_regions[etype]->glb_idx().create_buffer()) );
+   */
+ }
+
+
+
+   // read every line and store the connectivity in the correct region through the buffer
+   std::string etype_CF;
+   std::set<Uint>::const_iterator it;
+   std::vector<Uint> cf_element;
+   Uint gmsh_node_number, nb_tags, phys_tag, other_tag;
+   Uint cf_node_number;
+   Uint cf_idx;
+   Uint table_idx;
+
+   m_node_to_glb_elements.resize(m_nodes->size());
+   m_global_to_tmp.clear();
+   m_file.seekg(m_elements_position,std::ios::beg);
+   // skip next line
+   std::string line;
+   //Re-read the line that contains the keyword '$Elements':
+   getline(m_file,line);
+   //Parse the following line (containing the actual number of elements)
+   getline(m_file,line);
+   CFinfo << "THE FIRST LINE READ IN 'read_connectivity()' :" << line << CFendl;
+
+   for(Uint ir = 0; ir < m_nb_regions; ++ir)
+     for(Uint etype = 0; etype < Shared::nb_gmsh_types; ++etype)
+      (m_nb_gmsh_elem_in_region[ir])[etype] = 0;
+
   for (Uint i=0; i<m_total_nb_elements; ++i)
   {
     if (m_total_nb_elements > 100000)
@@ -474,11 +505,12 @@ void CReader::read_connectivity()
     // element description
     Uint element_number, gmsh_element_type, nb_element_nodes;
     m_file >> element_number >> gmsh_element_type;
-    nb_element_nodes = Shared::m_nodes_in_gmsh_elem[gmsh_element_type];
-//    CFinfo << "The number of element nodes is " << nb_element_nodes << CFendl;
 
-    bool read_this_elem = ( m_elements_to_read.find(element_number) != m_elements_to_read.end() );
-      
+    nb_element_nodes = Shared::m_nodes_in_gmsh_elem[gmsh_element_type];
+
+    //bool read_this_elem = ( m_elements_to_read.find(element_number) != m_elements_to_read.end() );
+    bool read_this_elem = true;
+
     // get element nodes
     if (read_this_elem)
     {
@@ -486,6 +518,9 @@ void CReader::read_connectivity()
       m_file >> phys_tag;
       for(Uint itag = 0; itag < (nb_tags-1); ++itag)
           m_file >> other_tag;
+
+      CFinfo << "Reading element " << element_number << " of type " << gmsh_element_type;
+      CFinfo << " in region " << phys_tag << " with " << nb_element_nodes << " nodes " << CFendl;
 
       cf_element.resize(nb_element_nodes);
       for (Uint j=0; j<nb_element_nodes; ++j)
@@ -500,11 +535,24 @@ void CReader::read_connectivity()
             m_node_to_glb_elements[cf_node_number].insert(element_number-1);
         }
       }
-      etype_CF = element_type(gmsh_element_type,nb_element_nodes);
-      table_idx = buffer[etype_CF]->add_row(cf_element);
-      m_global_to_tmp[element_number] = std::make_pair(element_regions[etype_CF],table_idx);
-      glb_elm_indices[etype_CF]->add_row(element_number-1);
+
+      //gmsh_idx_to_cf_name[phys_tag].find(gmsh_element_type-1);
+
+     conn_table_iter = conn_table_idx[phys_tag-1].find(gmsh_element_type);
+     const Uint row_idx = (m_nb_gmsh_elem_in_region[phys_tag-1])[gmsh_element_type];
+     CTable<Uint>::Row element_nodes = (*(conn_table_iter->second))[row_idx];
+
+     for(Uint node = 0; node < nb_element_nodes; ++node)
+     {
+         element_nodes[node] = cf_element[node];
+         CFinfo << cf_element[node] << " ";
+     }
+     CFinfo << CFendl;
+
+     (m_nb_gmsh_elem_in_region[phys_tag-1])[gmsh_element_type]++;
+
     }
+
     else
     {
       for (Uint j=0; j<nb_element_nodes; ++j)
@@ -529,7 +577,7 @@ void CReader::read_connectivity()
   
   m_node_to_coord_idx.clear();
   m_node_to_glb_elements.clear();
-  
+
 }
 
 //////////////////////////////////////////////////////////////////////////////

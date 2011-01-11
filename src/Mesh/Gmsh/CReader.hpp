@@ -56,11 +56,9 @@ public: // functions
 
 private: // functions
 	
-	void config_repartition();
-
-  void read_headerData();
+  void config_repartition();
 	
-	void partition_nodes();
+  void partition_nodes();
 	
   void read_coordinates();
 
@@ -84,7 +82,7 @@ private: // data
   // map< global index , pair< temporary table, index in temporary table > >
   std::map<Uint,Region_TableIndex_pair> m_global_to_tmp;
 
-	boost::filesystem::fstream m_file;
+  boost::filesystem::fstream m_file;
   CMesh::Ptr m_mesh;
   CRegion::Ptr m_region;
   CRegion::Ptr m_tmp;
@@ -92,7 +90,8 @@ private: // data
   CNodes::Ptr m_nodes;
   std::string m_file_basename;
 
-  struct RegionData {
+  struct RegionData 
+  {
     Uint dim;
     Uint index;
     std::string name;
@@ -115,12 +114,13 @@ private: // data
   std::vector<std::set<Uint> > m_node_to_glb_elements;
 	
   Uint m_region_names_position;
-  Uint m_nodal_coordinates_position;
+  Uint m_coordinates_position;
   Uint m_elements_position;
   //std::vector<Uint> m_element_group_positions;
   //std::vector<Uint> m_boundary_condition_positions;
 
-  Uint m_nb_elem_of_type[Shared::nb_gmsh_types];
+
+  std::vector<std::vector<Uint> > m_nb_gmsh_elem_in_region;
   Uint m_total_nb_elements;
   Uint m_total_nb_nodes;
 
