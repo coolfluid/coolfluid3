@@ -136,6 +136,9 @@ namespace ClientCore {
       /// @brief Core node
       CORE_NODE,
 
+      /// @brief Browser node
+      JOURNAL_NODE,
+
       /// @brief Journal browser node
       JOURNAL_BROWSER_NODE,
 

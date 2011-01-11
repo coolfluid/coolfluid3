@@ -10,6 +10,7 @@ CNode.hpp
 ClientNetworkComm.hpp
 NJournalBrowser.hpp
 NCore.hpp
+NJournal.hpp
 NLink.hpp
 NLog.hpp
 NTree.hpp
@@ -43,6 +44,8 @@ NCore.cpp
 NCore.hpp
 NGeneric.hpp
 NGeneric.cpp
+NJournal.cpp
+NJournal.hpp
 NLink.cpp
 NLink.hpp
 NLog.cpp

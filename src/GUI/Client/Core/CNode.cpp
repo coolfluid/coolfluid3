@@ -23,6 +23,7 @@
 #include "GUI/Client/Core/ClientRoot.hpp"
 #include "GUI/Client/Core/NCore.hpp"
 #include "GUI/Client/Core/NGeneric.hpp"
+#include "GUI/Client/Core/NJournal.hpp"
 #include "GUI/Client/Core/NLog.hpp"
 #include "GUI/Client/Core/NLink.hpp"
 #include "GUI/Client/Core/NRoot.hpp"
@@ -584,6 +585,8 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, URI> & linkT
     rootNode = link;
     linkTargets[link] = node.value();
   }
+  else if(std::strcmp(typeName, "CJournal") == 0)
+    rootNode = boost::shared_ptr<NJournal>(new NJournal(nodeName));
   else if(std::strcmp(typeName, "CRoot") == 0)
     rootNode = boost::shared_ptr<NRoot>(new NRoot(nodeName));
   else

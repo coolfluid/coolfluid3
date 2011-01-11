@@ -22,6 +22,7 @@ list( APPEND coolfluid_client_ui_moc_classes
   GraphicalUriArray.hpp
   GraphicalUrlArray.hpp
   GraphicalValue.hpp
+  JournalBrowserDialog.hpp
   LoggingList.hpp
   MainWindow.hpp
   NRemoteBrowser.hpp
@@ -77,6 +78,8 @@ list( APPEND coolfluid_client_ui_files
   GraphicalUrlArray.hpp
   GraphicalValue.cpp
   GraphicalValue.hpp
+  JournalBrowserDialog.cpp
+  JournalBrowserDialog.hpp
   LibClientUI.cpp
   LibClientUI.hpp
   LoggingList.cpp

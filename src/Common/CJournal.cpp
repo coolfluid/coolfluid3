@@ -90,9 +90,9 @@ void CJournal::add_signal ( const XmlNode & signal_node )
 
 void CJournal::list_journal ( XmlNode & node )
 {
-  //XmlNode & reply_node = *XmlOps::add_reply_frame(node);
+  XmlNode & reply_node = *XmlOps::add_reply_frame(node);
 
-  throw NotImplemented(FromHere(), "CJournal::list_journal()");
+  copy_node(*m_signals_map, reply_node);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

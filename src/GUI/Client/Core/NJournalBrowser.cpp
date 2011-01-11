@@ -38,7 +38,7 @@ NJournalBrowser::NJournalBrowser(const XmlNode * rootNode, QObject *parent) :
   for( ; currNode != nullptr ; currNode = currNode->next_sibling() )
     m_children.append(new SignalNode(currNode));
 
-  m_columns << "Target" << "Sender" << "Receiver" << "Type" << "Direction" << "Time" << "Status" << "Excecute";
+  m_columns << "Target" << "Sender" << "Receiver" << "Type" << "Direction" << "Time" /*<< "Status" << "Excecute"*/;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -48,7 +48,7 @@ QVariant NJournalBrowser::data(const QModelIndex & index, int role) const
 {
   QVariant data;
 
-  if(data.isValid() && role == Qt::DisplayRole)
+  if(index.isValid() && role == Qt::DisplayRole)
   {
     SignalNode * node = this->indexToSignalNode(index);
 
