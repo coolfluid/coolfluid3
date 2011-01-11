@@ -11,46 +11,92 @@
 #include "Common/XmlHelpers.hpp"
 
 #include "GUI/Client/Core/NCore.hpp"
+#include "GUI/Client/Core/ProcessingThread.hpp"
 
 #include "GUI/Network/ComponentNames.hpp"
 
 #include "GUI/Client/Core/ClientRoot.hpp"
 
 using namespace CF::Common;
-using namespace CF::GUI::ClientCore;
 using namespace CF::GUI::Network;
 
-NRoot::Ptr ClientRoot::root()
+////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace GUI {
+namespace ClientCore {
+
+////////////////////////////////////////////////////////////////////////////
+
+ClientRoot & ClientRoot::instance()
 {
-  static bool rootCreated = false;
-  static NRoot::Ptr root(new NRoot(CLIENT_ROOT));
-
-  static NLog::Ptr log(new NLog());
-  static NBrowser::Ptr browser(new NBrowser());
-  static NTree::Ptr tree(new NTree(root));
-  static NCore::Ptr core(new NCore());
-
-  // if the function is called for the first time, we add the components
-  if(!rootCreated)
-  {
-    rootCreated = true;
-    root->root()->add_component(core);
-    root->root()->add_component(log);
-    root->root()->add_component(browser);
-    root->root()->add_component(tree);
-
-    root->mark_basic();
-
-    core->mark_basic();
-    log->mark_basic();
-    browser->mark_basic();
-    tree->mark_basic();
-
-    tree->setRoot(root);
-  }
-
-  return root;
+  static ClientRoot cr;
+  return cr;
 }
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+ClientRoot::ClientRoot() :
+    m_root(new NRoot(CLIENT_ROOT)),
+    m_log(new NLog()),
+    m_browser(new NBrowser()),
+    m_tree(new NTree(m_root)),
+    m_core(new NCore())
+{
+  CRoot::Ptr realRoot = m_root->root();
+
+  // add components to the root
+  realRoot->add_component(m_core);
+  realRoot->add_component(m_log);
+  realRoot->add_component(m_browser);
+  realRoot->add_component(m_tree);
+
+  // mark all components as basic
+  m_root->mark_basic();
+  m_core->mark_basic();
+  m_log->mark_basic();
+  m_browser->mark_basic();
+  m_tree->mark_basic();
+
+  // set the root as model root
+  m_tree->setRoot(m_root);
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+//NRoot::Ptr ClientRoot::root()
+//{
+//  static bool rootCreated = false;
+//  static NRoot::Ptr root(new NRoot(CLIENT_ROOT));
+
+//  static NLog::Ptr log(new NLog());
+//  static NBrowser::Ptr browser(new NBrowser());
+//  static NTree::Ptr tree(new NTree(root));
+//  static NCore::Ptr core(new NCore());
+
+//  // if the function is called for the first time, we add the components
+//  if(!rootCreated)
+//  {
+//    rootCreated = true;
+//    root->root()->add_component(core);
+//    root->root()->add_component(log);
+//    root->root()->add_component(browser);
+//    root->root()->add_component(tree);
+
+//    root->mark_basic();
+
+//    core->mark_basic();
+//    log->mark_basic();
+//    browser->mark_basic();
+//    tree->mark_basic();
+
+//    tree->setRoot(root);
+//  }
+
+//  return root;
+//}
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -59,32 +105,45 @@ void ClientRoot::processSignal(const QDomDocument & signal)
 {
   boost::shared_ptr<XmlDoc> xmldoc = XmlOps::parse ( signal.toString().toStdString() );
 
-  XmlNode& nodedoc = *XmlOps::goto_doc_node(*xmldoc.get());
-  XmlNode * nodeToProcess = nodedoc.first_node(XmlParams::tag_node_frame());
+  std::string str;
 
-  if(nodeToProcess != nullptr)
-  {
-    XmlNode * tmpNode = nodeToProcess->next_sibling(XmlParams::tag_node_frame());
+  XmlOps::xml_to_string(*xmldoc.get(), str);
 
-    // check this is a reply
-    if(tmpNode != nullptr && std::strcmp(tmpNode->first_attribute("type")->value(), "reply") == 0)
-      nodeToProcess = tmpNode;
+  ProcessingThread * pt = new ProcessingThread(xmldoc);
 
-    std::string type = nodeToProcess->first_attribute("target")->value();
-    std::string receiver = nodeToProcess->first_attribute("receiver")->value();
+  m_threads[pt] = xmldoc;
 
-    try
-    {
-      if(root()->root()->full_path().string_without_scheme() == receiver)
-        root()->call_signal(type, *nodeToProcess);
-      else
-        root()->root()->access_component(receiver)->call_signal(type, *nodeToProcess);
-    }
-    catch(InvalidURI ip)
-    {
-      log()->addException(ip.what());
-    }
-  }
+  connect(pt, SIGNAL(finished()), this, SLOT(processingFinished()));
+
+  pt->start();
+
+
+//  XmlNode& nodedoc = *XmlOps::goto_doc_node(*xmldoc.get());
+//  XmlNode * nodeToProcess = nodedoc.first_node(XmlParams::tag_node_frame());
+
+//  if(nodeToProcess != nullptr)
+//  {
+//    XmlNode * tmpNode = nodeToProcess->next_sibling(XmlParams::tag_node_frame());
+
+//    // check this is a reply
+//    if(tmpNode != nullptr && std::strcmp(tmpNode->first_attribute("type")->value(), "reply") == 0)
+//      nodeToProcess = tmpNode;
+
+//    std::string type = nodeToProcess->first_attribute("target")->value();
+//    std::string receiver = nodeToProcess->first_attribute("receiver")->value();
+
+//    try
+//    {
+//      if(root()->root()->full_path().string_without_scheme() == receiver)
+//        root()->call_signal(type, *nodeToProcess);
+//      else
+//        root()->root()->access_component(receiver)->call_signal(type, *nodeToProcess);
+//    }
+//    catch(InvalidURI ip)
+//    {
+//      log()->addException(ip.what());
+//    }
+//  }
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -97,3 +156,23 @@ void ClientRoot::processSignalString(const QString & signal)
   doc.setContent(signal);
   processSignal(doc);
 }
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void ClientRoot::processingFinished()
+{
+  ProcessingThread * pt = static_cast<ProcessingThread*>(sender());
+
+  if(pt != nullptr && m_threads.contains(pt))
+  {
+    m_threads.remove(pt);
+    delete pt;
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+} // ClientCore
+} // GUI
+} // CF

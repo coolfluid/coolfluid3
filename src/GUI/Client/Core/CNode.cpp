@@ -321,7 +321,7 @@ void CNode::modifyOptions(const QMap<QString, QString> & options)
     }
 
     if(valid)
-      ClientRoot::core()->sendSignal(*docnode.get());
+      ClientRoot::instance().core()->sendSignal(*docnode.get());
   }
 }
 
@@ -458,8 +458,8 @@ void CNode::removeNode(const QString & nodeName)
 
 void CNode::configure_reply(CF::Common::XmlNode & node)
 {
-  ClientRoot::tree()->optionsChanged(this->full_path());
-  ClientRoot::log()->addMessage(QString("Node \"%1\" options updated.").arg(full_path().string_without_scheme().c_str()));
+  ClientRoot::instance().tree()->optionsChanged(this->full_path());
+  ClientRoot::instance().log()->addMessage(QString("Node \"%1\" options updated.").arg(full_path().string_without_scheme().c_str()));
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -549,7 +549,7 @@ void CNode::actions(QList<ActionInfo> & actions) const
       actions.append(ai);
     }
     else
-      ClientRoot::log()->addError(*it + ": local signal not found");
+      ClientRoot::instance().log()->addError(*it + ": local signal not found");
   }
 }
 
@@ -623,7 +623,7 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, URI> & linkT
     }
     catch (Exception & e)
     {
-      ClientRoot::log()->addException(e.msg().c_str());
+      ClientRoot::instance().log()->addException(e.msg().c_str());
     }
 
     child = child->next_sibling();
@@ -738,7 +738,7 @@ Option::Ptr CNode::makeOption(const CF::Common::XmlNode & node)
 
 Signal::return_t CNode::update_tree(XmlNode & node)
 {
-  ClientRoot::core()->updateTree();
+  ClientRoot::instance().core()->updateTree();
 }
 
 #undef ADD_ARRAY_TO_XML

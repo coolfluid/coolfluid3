@@ -62,7 +62,7 @@ NRemoteSave::Ptr NRemoteSave::create(QMainWindow * parent)
 {
   NRemoteSave::Ptr rsf(new NRemoteSave(parent));
 
-  ClientRoot::browser()->addNode(rsf);
+  ClientRoot::instance().browser()->addNode(rsf);
 
   return rsf;
 }

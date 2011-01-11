@@ -134,7 +134,7 @@ bool ClientNetworkComm::send(XmlDoc & signal)
     XmlNode * node = nodedoc.first_node(XmlParams::tag_node_frame());
     XmlParams p(*node);
 
-    p.set_clientid(ClientRoot::getUUID());
+    p.set_clientid(ClientRoot::instance().getUUID());
 
     XmlOps::xml_to_string(signal, str);
 
@@ -161,7 +161,7 @@ void ClientNetworkComm::saveNetworkInfo () const
 bool ClientNetworkComm::checkConnected()
 {
   if(!m_connectedToServer)
-    ClientRoot::log()->addError("Not connected to the server.");
+    ClientRoot::instance().log()->addError("Not connected to the server.");
 
   return m_connectedToServer;
 }
@@ -203,11 +203,11 @@ void ClientNetworkComm::newData()
 
     try
     {
-      ClientRoot::processSignalString(frame);
+      ClientRoot::instance().processSignalString(frame);
     }
     catch(Exception & e)
     {
-      ClientRoot::log()->addException(e.what());
+      ClientRoot::instance().log()->addException(e.what());
     }
 
     m_blockSize = 0;
@@ -230,7 +230,7 @@ void ClientNetworkComm::disconnected()
 {
   if(!m_requestDisc)
   {
-    ClientRoot::log()->addError("The connection has been closed");
+    ClientRoot::instance().log()->addError("The connection has been closed");
   }
   emit disconnectedFromServer();
 
@@ -242,7 +242,7 @@ void ClientNetworkComm::disconnected()
 
 void ClientNetworkComm::socketError(QAbstractSocket::SocketError err)
 {
-  NLog::Ptr log = ClientRoot::log();
+  NLog::Ptr log = ClientRoot::instance().log();
 
   if(m_requestDisc)
     return;

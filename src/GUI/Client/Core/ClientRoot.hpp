@@ -10,6 +10,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include <QDomDocument>
+#include <QObject>
 
 #include "GUI/Network/ComponentNames.hpp"
 #include "GUI/Client/Core/NBrowser.hpp"
@@ -23,86 +24,86 @@
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-
 namespace GUI {
 namespace ClientCore {
 
-  ////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////
 
-  /// @brief Manages the client root node
+class ProcessingThread;
 
-  /// This class ensures that the root node is available from anywhere, at
-  /// anytime.
-  /// @author Quentin Gasper.
+/// @brief Manages the client root node
 
-  class ClientCore_API ClientRoot :
-      public CF::NonInstantiable<ClientRoot>
-  {
-  public:
+/// This class ensures that the root node is available from anywhere, at
+/// anytime.
+/// @author Quentin Gasper.
 
-    /// @brief Gives the root node.
+class ClientCore_API ClientRoot : public QObject
+{
+  Q_OBJECT
 
-    /// @return Returns the root node.
-    static NRoot::Ptr root();
+public:
 
-    /// @brief Processes a signal from an Xml document
+  static ClientRoot & instance();
 
-    /// The receiver is called on the desired signal.
-    /// @param signal Xml document with the signal description
-    static void processSignal(const QDomDocument & signal);
+  /// @brief Processes a signal from an Xml document
 
-    /// @brief Processes a signal from a string
+  /// The receiver is called on the desired signal.
+  /// @param signal Xml document with the signal description
+  void processSignal(const QDomDocument & signal);
 
-    /// The receiver is called on the desired signal.
-    /// @param signal Xml document with the signal description
-    static void processSignalString(const QString & signal);
+  /// @brief Processes a signal from a string
 
-    /// @brief Gives the log node.
+  /// The receiver is called on the desired signal.
+  /// @param signal Xml document with the signal description
+  void processSignalString(const QString & signal);
 
-    /// If the node does not exist yet, it is created.
-    /// @return Returns the log node.
-    inline static NLog::Ptr log()
-    {
-      return root()->root()->access_component< NLog >(CLIENT_LOG_PATH);
-    }
+  /// @brief Gives the root node.
+  /// @return Returns the root node.
+  inline NRoot::Ptr root() { return m_root; }
 
-    /// @brief Gives the browser node.
+  /// @brief Gives the log node.
+  /// @return Returns the log node.
+  inline NLog::Ptr log() { return m_log; }
 
-    /// If the node does not exist yet, it is created.
-    /// @return Returns the browser node
-    inline static NBrowser::Ptr browser()
-    {
-      return root()->root()->access_component< NBrowser >(CLIENT_BROWSERS_PATH);
-    }
+  /// @brief Gives the browser node.
+  /// @return Returns the browser node
+  inline NBrowser::Ptr browser() { return m_browser; }
 
-    /// @brief Gives the tree node.
+  /// @brief Gives the tree node.
+  /// @return Returns the tree node.
+  inline NTree::Ptr tree() { return m_tree; }
 
-    /// If the node does not exist yet, it is created.
-    /// @return Returns the tree node.
-    inline static NTree::Ptr tree()
-    {
-      return root()->root()->access_component< NTree >(CLIENT_TREE_PATH);
-    }
+  /// @brief Gives the core node.
+  /// @return Returns the tree node.
+  inline NCore::Ptr core() { return m_core; }
 
-    /// @brief Gives the core node.
+  /// @brief Gives the root UUID.
+  /// @return Returns the root UUID.
+  inline std::string getUUID() { return m_root->uuid(); }
 
-    /// If the node does not exist yet, it is created.
-    /// @return Returns the tree node.
-    inline static NCore::Ptr core()
-    {
-      return root()->root()->access_component< NCore >(CLIENT_CORE_PATH);
-    }
+private slots:
 
-    /// @brief Gives the root UUID.
-    /// @return Returns the root UUID.
-    inline static std::string getUUID()
-    {
-      return root()->uuid();
-    }
+  void processingFinished();
 
-  }; // class ClientRoot
+private:
 
-  ////////////////////////////////////////////////////////////////////////////
+  ClientRoot();
+
+  NRoot::Ptr m_root;
+
+  NLog::Ptr m_log;
+
+  NBrowser::Ptr m_browser;
+
+  NTree::Ptr m_tree;
+
+  NCore::Ptr m_core;
+
+  QMap<ProcessingThread*, boost::shared_ptr<Common::XmlDoc> > m_threads;
+
+}; // ClientRoot
+
+////////////////////////////////////////////////////////////////////////////
 
 } // ClientCore
 } // GUI

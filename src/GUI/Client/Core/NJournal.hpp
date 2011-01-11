@@ -56,7 +56,7 @@ public:
 
 signals:
 
-  void newJournal(/*NJournal * journal, */Common::XmlNode & node);
+  void newJournal(/*NJournal * journal, */Common::XmlNode * node);
 
 }; // NJournal
 
@@ -74,7 +74,7 @@ public:
 
 signals:
 
-  void newJournal(/*const NJournal* journal, */Common::XmlNode & node);
+  void newJournal(/*const NJournal* journal, */Common::XmlNode * node);
 
 private:
 

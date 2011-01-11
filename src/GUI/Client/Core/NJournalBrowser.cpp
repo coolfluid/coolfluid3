@@ -28,7 +28,7 @@ namespace ClientCore {
 
 NJournalBrowser::NJournalBrowser(const XmlNode * rootNode, QObject *parent) :
     QAbstractItemModel(parent),
-    CNode(ClientRoot::browser()->generateName(), "NJournalBrowser", CNode::JOURNAL_BROWSER_NODE),
+    CNode(ClientRoot::instance().browser()->generateName(), "NJournalBrowser", CNode::JOURNAL_BROWSER_NODE),
     m_rootNode(rootNode)
 {
   cf_assert(rootNode);

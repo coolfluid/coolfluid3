@@ -176,8 +176,8 @@ void TreeBrowser::updateButtons()
 
       if(path.isEmpty())
       {
-        path = ClientRoot::tree()->treeRoot()->root()->full_path().string_without_scheme().c_str();
-        //icon = ClientRoot::tree()->getRoot()->getIcon();
+        path = ClientRoot::instance().tree()->treeRoot()->root()->full_path().string_without_scheme().c_str();
+        //icon = ClientRoot::instance().tree()->getRoot()->getIcon();
       }
 
       QAction * action = new QAction(icon, path, this);

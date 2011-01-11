@@ -101,25 +101,25 @@ void SignalManager::actionTriggered()
         {
           try
           {
-            if(ClientRoot::root()->root()->full_path().string() == m_path.string())
-              ClientRoot::root()->call_signal(info.m_name.toStdString(), frame);
+            if(ClientRoot::instance().root()->root()->full_path().string() == m_path.string())
+              ClientRoot::instance().root()->call_signal(info.m_name.toStdString(), frame);
             else
-              ClientRoot::root()->root()->access_component(m_path)->call_signal(info.m_name.toStdString(), frame);
+              ClientRoot::instance().root()->root()->access_component(m_path)->call_signal(info.m_name.toStdString(), frame);
           }
           catch(InvalidURI ip)
           {
-            ClientRoot::log()->addException(ip.what());
+            ClientRoot::instance().log()->addException(ip.what());
           }
         }
         else
-          ClientRoot::core()->sendSignal(*doc);
+          ClientRoot::instance().core()->sendSignal(*doc);
       }
 
       delete sg;
     }
     catch( Exception & e)
     {
-      ClientRoot::log()->addException(e.what());
+      ClientRoot::instance().log()->addException(e.what());
     }
   }
 }

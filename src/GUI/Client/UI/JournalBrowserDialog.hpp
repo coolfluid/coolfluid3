@@ -15,6 +15,7 @@
 
 #include "GUI/Client/Core/NJournal.hpp"
 
+class QAbstractButton;
 class QDialogButtonBox;
 class QModelIndex;
 class QTableView;
@@ -38,7 +39,7 @@ public:
 
 private slots:
 
-  void newJournal(/*CF::GUI::ClientCore::NJournal * journal, */Common::XmlNode & node);
+  void newJournal(/*CF::GUI::ClientCore::NJournal * journal, */Common::XmlNode * node);
 
 private:
 
@@ -64,6 +65,8 @@ private slots:
 
   void doubleClicked(const QModelIndex & index);
 
+  void btClicked(QAbstractButton * button);
+
 private:
 
   QTableView * m_view;
@@ -71,6 +74,8 @@ private:
   QVBoxLayout * m_mainLayout;
 
   QDialogButtonBox * m_buttons;
+
+  QPushButton * m_btExecute;
 
 }; // JournalBrowserDialog
 

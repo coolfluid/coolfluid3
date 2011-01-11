@@ -79,9 +79,9 @@ void NCore::disconnectFromServer(bool shutdown)
 
 void NCore::disconnected()
 {
-  ClientRoot::tree()->setCurrentIndex(QModelIndex());
+  ClientRoot::instance().tree()->setCurrentIndex(QModelIndex());
 
-  ClientRoot::log()->addMessage("Disconnected from the server.");
+  ClientRoot::instance().log()->addMessage("Disconnected from the server.");
 
   emit disconnectedFromServer();
 }
@@ -118,13 +118,13 @@ void NCore::connected()
   // get some reference (for better readability)
   QString & host = m_commSshInfo.m_hostname;
   quint16 & port = m_commSshInfo.m_port;
-  std::string uuid = ClientRoot::getUUID();
+  std::string uuid = ClientRoot::instance().getUUID();
 
   QString msg1 = "Now connected to server '%1' on port %2.";
   QString msg2 = "Attempting to register with UUID %1.";
 
-  ClientRoot::log()->addMessage(msg1.arg(host).arg(port));
-  ClientRoot::log()->addMessage(msg2.arg(uuid.c_str()));
+  ClientRoot::instance().log()->addMessage(msg1.arg(host).arg(port));
+  ClientRoot::instance().log()->addMessage(msg2.arg(uuid.c_str()));
 
   // build and send signal
   boost::shared_ptr<XmlDoc> root = XmlOps::create_doc();
@@ -141,7 +141,7 @@ void NCore::connected()
 
 void NCore::shutdown(XmlNode & node)
 {
-  ClientRoot::log()->addMessage("The server is shutting down. Disconnecting...");
+  ClientRoot::instance().log()->addMessage("The server is shutting down. Disconnecting...");
   this->disconnectFromServer(false);
 }
 
@@ -154,14 +154,14 @@ void NCore::client_registration(XmlNode & node)
 
   if(p.get_option<bool>("accepted"))
   {
-    ClientRoot::log()->addMessage("Registration was successful.");
+    ClientRoot::instance().log()->addMessage("Registration was successful.");
     m_networkComm->saveNetworkInfo();
     emit connectedToServer();
     this->updateTree();
   }
   else
   {
-    ClientRoot::log()->addError("Registration failed. Disconnecting...");
+    ClientRoot::instance().log()->addError("Registration failed. Disconnecting...");
     this->disconnectFromServer(false);
   }
 }
@@ -177,5 +177,5 @@ void NCore::frame_rejected(CF::Common::XmlNode & node)
 
   QString msg("Action %1 has been rejected by the server: %2");
 
-  ClientRoot::log()->addError(msg.arg(frameid.c_str()).arg(reason.c_str()));
+  ClientRoot::instance().log()->addError(msg.arg(frameid.c_str()).arg(reason.c_str()));
 }

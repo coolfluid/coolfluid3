@@ -19,10 +19,11 @@ LoggingList::LoggingList(QWidget * parent, unsigned int maxLogLines)
   : QTextEdit(parent),
     m_maxLogLines(maxLogLines)
 {
+  qRegisterMetaType<CF::GUI::Network::LogMessage::Type>("CF::GUI::Network::LogMessage::Type");
   this->setWordWrapMode(QTextOption::NoWrap);
   this->setReadOnly(true);
 
-  connect(ClientRoot::log().get(), SIGNAL(newMessage(QString,CF::GUI::Network::LogMessage::Type)),
+  connect(ClientRoot::instance().log().get(), SIGNAL(newMessage(QString,CF::GUI::Network::LogMessage::Type)),
            this, SLOT(newMessage(QString,CF::GUI::Network::LogMessage::Type)));
 }
 

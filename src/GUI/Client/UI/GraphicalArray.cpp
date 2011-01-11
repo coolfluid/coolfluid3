@@ -136,7 +136,7 @@ bool GraphicalArray::setValue(const QVariant & value)
 
     msg = msg.arg(invalidValues.join("\"\n   \"").prepend("\n   \"").append("\""));
 
-    ClientRoot::log()->addMessage(msg);
+    ClientRoot::instance().log()->addMessage(msg);
   }
 
   return success;

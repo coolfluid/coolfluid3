@@ -37,8 +37,8 @@ void JournalNotifier::regist(const NJournal * journal)
 {
   cf_assert(journal != nullptr);
 
-  connect(journal, SIGNAL(newJournal(/*NJournal*, */Common::XmlNode&)),
-          this, SIGNAL(newJournal(/*NJournal*, */Common::XmlNode &)));
+  connect(journal, SIGNAL(newJournal(/*NJournal*, */Common::XmlNode*)),
+          this, SIGNAL(newJournal(/*NJournal*, */Common::XmlNode *)));
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -65,7 +65,7 @@ QString NJournal::toolTip() const
 
 void NJournal::list_journal(XmlNode & node)
 {
-  emit newJournal(/*this, */node);
+  emit newJournal(/*this, */&node);
 }
 
 /////////////////////////////////////////////////////////////////////////////

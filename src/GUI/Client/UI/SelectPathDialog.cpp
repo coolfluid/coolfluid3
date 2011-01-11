@@ -116,7 +116,7 @@ void SelectPathDialog::pathChanged(const QString & path)
     m_nodeClicked = false;
   else
   {
-    CRoot::Ptr root = ClientRoot::tree()->treeRoot()->root();
+    CRoot::Ptr root = ClientRoot::instance().tree()->treeRoot()->root();
     try
     {
       if(root->access_component<CNode>(path.toStdString()) != nullptr)

@@ -30,7 +30,7 @@ NTree::NTree(NRoot::Ptr rootNode)
     m_debugModeEnabled(false)
 {
   if(rootNode.get() == nullptr)
-    m_rootNode = new TreeNode(ClientRoot::root(), nullptr, 0);
+    m_rootNode = new TreeNode(ClientRoot::instance().root(), nullptr, 0);
   else
     m_rootNode = new TreeNode(rootNode, nullptr, 0);
 
@@ -273,7 +273,7 @@ QModelIndex NTree::indexByPath(const URI & path) const
       else
       {
         index = QModelIndex();
-        ClientRoot::log()->addError("index not found");
+        ClientRoot::instance().log()->addError("index not found");
       }
     }
   }
@@ -393,7 +393,7 @@ void NTree::modifyOptions(const QModelIndex & index,
   if(node != nullptr)
     node->node()->modifyOptions(options);
   else
-    ClientRoot::log()->addError("Could not modify options! Invalid node.");
+    ClientRoot::instance().log()->addError("Could not modify options! Invalid node.");
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -563,11 +563,11 @@ void NTree::list_tree_reply(XmlNode & node)
 
     emit currentIndexChanged(m_currentIndex, QModelIndex());
 
-    ClientRoot::log()->addMessage("Tree updated.");
+    ClientRoot::instance().log()->addMessage("Tree updated.");
   }
   catch(XmlError & xe)
   {
-    ClientRoot::log()->addException(xe.what());
+    ClientRoot::instance().log()->addException(xe.what());
   }
 }
 

@@ -33,7 +33,7 @@ CentralPanel::CentralPanel(QWidget * parent)
   : QWidget(parent),
     m_modelReset(false)
 {
-  NTree::Ptr tree = ClientRoot::tree();
+  NTree::Ptr tree = ClientRoot::instance().tree();
 
   // create the components
   m_scrollBasicOptions = new QScrollArea();
@@ -136,7 +136,7 @@ CentralPanel::~CentralPanel()
 void CentralPanel::setOptions(const QList<Option::ConstPtr> & list)
 {
   QList<Option::ConstPtr>::const_iterator it = list.begin();
-  const NTree::Ptr & tree = ClientRoot::tree();
+  const NTree::Ptr & tree = ClientRoot::instance().tree();
 
   // delete old options
   m_basicOptionLayout->clearOptions();
@@ -168,7 +168,7 @@ void CentralPanel::setOptions(const QList<Option::ConstPtr> & list)
     }
     catch(Exception e)
     {
-      ClientRoot::log()->addException(e.what());
+      ClientRoot::instance().log()->addException(e.what());
     }
 
     it++;
@@ -255,16 +255,16 @@ void CentralPanel::btApplyClicked()
   {
     try
     {
-      QModelIndex currentIndex = ClientRoot::tree()->currentIndex();
+      QModelIndex currentIndex = ClientRoot::instance().tree()->currentIndex();
 
-      ClientRoot::tree()->modifyOptions(currentIndex, options);
+      ClientRoot::instance().tree()->modifyOptions(currentIndex, options);
 
       m_basicOptionLayout->commitOpions();
       m_advancedOptionLayout->commitOpions();
     }
     catch (ValueNotFound & vnf)
     {
-      ClientRoot::log()->addException(vnf.msg().c_str());
+      ClientRoot::instance().log()->addException(vnf.msg().c_str());
     }
   }
 }
@@ -275,7 +275,7 @@ void CentralPanel::btApplyClicked()
 void CentralPanel::currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex)
 {
   QList<Option::ConstPtr> options;
-  ClientRoot::tree()->listNodeOptions(newIndex, options);
+  ClientRoot::instance().tree()->listNodeOptions(newIndex, options);
 
   this->setOptions(options);
 }
@@ -285,7 +285,7 @@ void CentralPanel::currentIndexChanged(const QModelIndex & newIndex, const QMode
 
 void CentralPanel::advancedModeChanged(bool advanced)
 {
-  NTree::Ptr tree = ClientRoot::tree();
+  NTree::Ptr tree = ClientRoot::instance().tree();
 
   // if the node went to a hidden state, we clear everything
   /// @todo what if options are modified ???
@@ -311,7 +311,7 @@ void CentralPanel::advancedModeChanged(bool advanced)
 
 void CentralPanel::dataChanged(const QModelIndex & first, const QModelIndex & last)
 {
-  QModelIndex currIndex = ClientRoot::tree()->currentIndex();
+  QModelIndex currIndex = ClientRoot::instance().tree()->currentIndex();
 
   if(first == last && first.row() == currIndex.row() && first.parent() == currIndex.parent())
     this->currentIndexChanged(first, QModelIndex());
@@ -334,7 +334,7 @@ void CentralPanel::btSeeChangesClicked()
 
 void CentralPanel::btForgetClicked()
 {
-  this->currentIndexChanged(ClientRoot::tree()->currentIndex(), QModelIndex());
+  this->currentIndexChanged(ClientRoot::instance().tree()->currentIndex(), QModelIndex());
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -45,7 +45,7 @@ TreeView::TreeView(CentralPanel * optionsPanel, QMainWindow * parent,
   m_centralPanel = optionsPanel;
   m_signalManager = new SignalManager(parent);
 
-  m_modelFilter->setSourceModel(ClientRoot::tree().get());
+  m_modelFilter->setSourceModel(ClientRoot::instance().tree().get());
   m_modelFilter->setDynamicSortFilter(true);
 
   this->setModel(m_modelFilter);
@@ -61,7 +61,7 @@ TreeView::TreeView(CentralPanel * optionsPanel, QMainWindow * parent,
 
   if(m_contextMenuAllowed)
   {
-    connect(ClientRoot::tree().get(),
+    connect(ClientRoot::instance().tree().get(),
             SIGNAL(currentIndexChanged(QModelIndex, QModelIndex)),
             this,
             SLOT(currentIndexChanged(QModelIndex, QModelIndex)));
@@ -104,7 +104,7 @@ URI TreeView::selectedPath() const
   {
     QModelIndex indexInModel = m_modelFilter->mapToSource(currentPath);
 
-    path = ClientRoot::tree()->pathFromIndex(indexInModel);
+    path = ClientRoot::instance().tree()->pathFromIndex(indexInModel);
   }
 
   return path;
@@ -115,7 +115,7 @@ URI TreeView::selectedPath() const
 
 URI TreeView::pathFromIndex(const QModelIndex & index)
 {
-  return ClientRoot::tree()->pathFromIndex(m_modelFilter->mapToSource(index));
+  return ClientRoot::instance().tree()->pathFromIndex(m_modelFilter->mapToSource(index));
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -124,7 +124,7 @@ URI TreeView::pathFromIndex(const QModelIndex & index)
 QIcon TreeView::iconFromIndex(const QModelIndex & index)
 {
   QModelIndex indexInModel = m_modelFilter->mapToSource(index);
-  return ClientRoot::tree()->data(indexInModel, Qt::DecorationRole).value<QIcon>();
+  return ClientRoot::instance().tree()->data(indexInModel, Qt::DecorationRole).value<QIcon>();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -132,7 +132,7 @@ QIcon TreeView::iconFromIndex(const QModelIndex & index)
 
 void TreeView::selectItem(const URI & path)
 {
-  QModelIndex index = ClientRoot::tree()->indexByPath(path);
+  QModelIndex index = ClientRoot::instance().tree()->indexByPath(path);
 
   if(index.isValid())
   {
@@ -166,7 +166,7 @@ void TreeView::mousePressEvent(QMouseEvent * event)
   QPoint mousePosition = event->pos() + this->geometry().topLeft();
 
   QModelIndex index = this->indexAt(mousePosition);
-  NTree::Ptr tree = ClientRoot::tree();
+  NTree::Ptr tree = ClientRoot::instance().tree();
 
   QModelIndex indexInModel = m_modelFilter->mapToSource(this->currentIndex());
 
@@ -198,7 +198,7 @@ void TreeView::mousePressEvent(QMouseEvent * event)
   }
   catch(Exception & e)
   {
-    ClientRoot::log()->addException(e.what());
+    ClientRoot::instance().log()->addException(e.what());
   }
 }
 
@@ -216,7 +216,7 @@ void TreeView::mouseDoubleClickEvent(QMouseEvent * event)
 
 void TreeView::keyPressEvent(QKeyEvent * event)
 {
-  NTree::Ptr tree= ClientRoot::tree();
+  NTree::Ptr tree= ClientRoot::instance().tree();
   QModelIndex currentIndex = m_modelFilter->mapFromSource(tree->currentIndex());
 
   if(m_contextMenuAllowed)
@@ -257,7 +257,7 @@ void TreeView::keyPressEvent(QKeyEvent * event)
 bool TreeView::confirmChangeOptions(const QModelIndex & index, bool okIfSameIndex)
 {
   bool confirmed = true;
-  NTree::Ptr tree = ClientRoot::tree();
+  NTree::Ptr tree = ClientRoot::instance().tree();
 
   if(!okIfSameIndex &&  tree->areFromSameNode(tree->currentIndex(), index))
     return confirmed;
