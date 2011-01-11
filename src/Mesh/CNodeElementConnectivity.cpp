@@ -24,6 +24,7 @@ CNodeElementConnectivity::CNodeElementConnectivity ( const std::string& name ) :
   m_nodes = create_static_component<Common::CLink>("nodes");
   m_elements = create_static_component<CUnifiedData<CElements> >("elements");
   m_connectivity = create_static_component<CDynTable<Uint> >("connectivity_table");
+  mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

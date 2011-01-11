@@ -11,6 +11,9 @@
 
 #include "Common/Foreach.hpp"
 #include "Common/Component.hpp"
+#include "Common/CLink.hpp"
+#include "Common/CGroup.hpp"
+#include "Common/String/Conversion.hpp"
 
 #include "Mesh/CList.hpp"
 
@@ -52,8 +55,8 @@ public:
   /// using the find_components_recursively<data_type>() function
   /// @param [in] range  The range of data components to be unified
   template <typename DataRangeT>
-    void set_data(const DataRangeT& range );
-  
+    void set_data(DataRangeT range );
+
   /// Get the component and local index in the component
   /// given a continuous index spanning multiple components
   /// @param [in] data_glb_idx continuous index covering multiple components
@@ -78,13 +81,18 @@ public:
   /// @return vector of data components
   const std::vector<boost::shared_ptr<data_type> >& data_components() const;
   
+  Common::CGroup& data_links() { return *m_data_links; }
+  
 private: // data
 
   /// vector of components to view as continuous
-  std::vector<boost::shared_ptr<data_type> > m_data_vector; 
-  
+  std::vector<boost::shared_ptr<data_type> > m_data_vector;
+
   /// start index for each component in the continous view
   boost::shared_ptr<CList<Uint> > m_data_indices;
+
+  /// group with links to data components (links to elements of m_data_vector)
+  Common::CGroup::Ptr m_data_links;
   
   /// total number of indices spanning all components
   Uint m_size;
@@ -96,7 +104,8 @@ private: // data
 template <typename DATA>
 inline CUnifiedData<DATA>::CUnifiedData ( const std::string& name ) : Component(name)
 {
-  m_data_indices = create_static_component<CList<Uint> >("data_indices");
+  m_data_indices = create_static_component<CList<Uint> >  ("data_indices");
+  m_data_links   = create_static_component<Common::CGroup>("data_links");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -106,16 +115,21 @@ inline CUnifiedData<DATA>::CUnifiedData ( const std::string& name ) : Component(
 /// @param [in] range  The range of data components to be unified
 template <typename DATA>
 template <typename DataRangeT>
-inline void CUnifiedData<DATA>::set_data(const DataRangeT& range )
+inline void CUnifiedData<DATA>::set_data(DataRangeT range)
 {
-  m_data_vector = range_to_vector(range);
-  m_data_indices->resize(m_data_vector.size()+1);
+  m_data_vector.clear();
+  CList<Uint>::Buffer data_start_indices = m_data_indices->create_buffer();
   Uint sum = 0;
-  (*m_data_indices)[0] = sum;
-  index_foreach(i,const typename CUnifiedData<DATA>::data_type& data_val, range)
+  data_start_indices.add_row(sum);
+  index_foreach(i, Component& data_val, range)
   {
-    sum += data_val.size();
-    (*m_data_indices)[i+1] = sum;
+    Component::Ptr linked = data_val.self();
+    while (linked->is_link())
+      linked = linked->get();
+    m_data_vector.push_back(linked->as_type<typename CUnifiedData<DATA>::data_type>());
+    m_data_links->create_component<Common::CLink>("data_component_"+Common::String::to_str(i))->link_to(linked);
+    sum += linked->as_type<typename CUnifiedData<DATA>::data_type>()->template size(); 
+    data_start_indices.add_row(sum);
   }
   m_size = sum;
 }
@@ -143,7 +157,7 @@ template <typename DATA>
 inline typename CUnifiedData<DATA>::const_data_location_type CUnifiedData<DATA>::data_location(const Uint data_glb_idx) const
 {
   const Uint data_vector_idx = std::upper_bound(m_data_indices->array().begin(), m_data_indices->array().end(), data_glb_idx) - 1 - m_data_indices->array().begin();
-  return boost::make_tuple(m_data_vector[data_vector_idx].as_const_type<CUnifiedData<DATA>::data_type>(), data_glb_idx - m_data_indices->array()[data_vector_idx]);
+  return boost::make_tuple(m_data_vector[data_vector_idx].as_const().as_type<CUnifiedData<DATA>::data_type>(), data_glb_idx - m_data_indices->array()[data_vector_idx]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

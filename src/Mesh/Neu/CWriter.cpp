@@ -303,7 +303,7 @@ void CWriter::write_boundaries(std::fstream& file)
 { 
   // Add node connectivity data at the mesh level
   CNodeConnectivity::Ptr node_connectivity = m_mesh->create_component<CNodeConnectivity>("node_connectivity");
-  node_connectivity->initialize(find_components_recursively_with_filter<CElements>(*m_mesh->as_const_type<CMesh>(), IsElementsVolume()));
+  node_connectivity->initialize(find_components_recursively_with_filter<CElements>(*m_mesh->as_const(), IsElementsVolume()));
 
   
   boost_foreach(CElements& elementregion, find_components_recursively_with_filter<CElements>(*m_mesh,IsElementsSurface()))

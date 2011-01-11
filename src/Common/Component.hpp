@@ -217,8 +217,8 @@ public: // functions
   template < typename T >
     typename T::ConstPtr as_type() const;
 
-  template < typename T >
-    typename T::ConstPtr as_const_type() const;
+  /// @return a ConstPtr
+  ConstPtr as_const() const;
 
   /// Create a (sub)component of this component automatically cast to the specified type
   template < typename T >
@@ -497,10 +497,9 @@ inline typename T::ConstPtr Component::as_type() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-template < typename T >
-inline typename T::ConstPtr Component::as_const_type() const
+inline Component::ConstPtr Component::as_const() const
 {
-  return typename T::ConstPtr ( self()->as_type<T>() );
+  return ConstPtr ( self() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
