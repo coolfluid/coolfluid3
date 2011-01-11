@@ -4,14 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Actions/CAction.hpp"
+#include "Common/CAction.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
-
 namespace CF {
-namespace Actions {
+namespace Common {
 
 ///////////////////////////////////////////////////////////////////////////////////////
   

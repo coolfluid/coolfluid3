@@ -7,9 +7,10 @@
 #ifndef CF_Actions_CProtoNodesAction_hpp
 #define CF_Actions_CProtoNodesAction_hpp
 
-#include "Actions/CAction.hpp"
+#include "Common/CAction.hpp"
 
-#include "NodeLooper.hpp"
+#include "Actions/LibActions.hpp"
+#include "Actions/Proto/NodeLooper.hpp"
 
 namespace CF {
 namespace Actions {
@@ -17,14 +18,14 @@ namespace Proto {
 
 /// A CAction that runs a proto expression over all nodes in the configured region
 template<typename ExprT>
-class CProtoNodesAction : public CAction
+class CProtoNodesAction : public Common::CAction
 {
 public:
   typedef boost::shared_ptr< CProtoNodesAction<ExprT> > Ptr;
   typedef boost::shared_ptr< CProtoNodesAction<ExprT> const> ConstPtr;
 
   CProtoNodesAction(const std::string& name) :
-    CAction(name)
+    Common::CAction(name)
   {
     m_region_path = boost::dynamic_pointer_cast<Common::OptionURI>( properties().template add_option<Common::OptionURI>("Region", "Region to loop over", std::string()) );
     m_region_path.lock()->supported_protocol(CF::Common::URI::Scheme::CPATH);
@@ -114,12 +115,12 @@ private:
 
 /// Returns a configurable CAction object that will execute the supplied expression for all elements
 template<typename ExprT>
-CAction::Ptr build_nodes_action(const std::string& name, Common::Component& parent, const ExprT& expr)
+Common::CAction::Ptr build_nodes_action(const std::string& name, Common::Component& parent, const ExprT& expr)
 {
   boost::shared_ptr< CProtoNodesAction<ExprT> > result = parent.create_component< CProtoNodesAction<ExprT> >(name);
   regist_typeinfo(result.get());
   result->set_expression(expr);
-  return boost::static_pointer_cast<CAction>(result);
+  return boost::static_pointer_cast<Common::CAction>(result);
 }
 
 

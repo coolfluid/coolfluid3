@@ -4,10 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CLoop_hpp
-#define CF_Mesh_CLoop_hpp
+#ifndef CF_Actions_CLoop_hpp
+#define CF_Actions_CLoop_hpp
 
-#include "Actions/CAction.hpp"
+#include "Common/CAction.hpp"
+
+#include "Actions/LibActions.hpp"
 #include "Actions/CLoopOperation.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -24,7 +26,7 @@ namespace CF {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class Actions_API CLoop : public CAction
+class Actions_API CLoop : public Common::CAction
 {
 public: // typedefs
 
@@ -70,4 +72,4 @@ protected:
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CLoop_hpp
+#endif // CF_Actions_CLoop_hpp

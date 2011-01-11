@@ -4,20 +4,19 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CAction_hpp
-#define CF_Mesh_CAction_hpp
+#ifndef CF_Common_CAction_hpp
+#define CF_Common_CAction_hpp
 
 #include "Common/Component.hpp"
-#include "Actions/LibActions.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Actions {
+namespace Common {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class Actions_API CAction : public Common::Component
+class Common_API CAction : public Component
 {
 public: // typedefs
 
@@ -50,9 +49,9 @@ public: // functions
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-} // Actions
+} // Common
 } // CF
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CAction_hpp
+#endif // CF_Common_CAction_hpp

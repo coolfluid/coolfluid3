@@ -23,7 +23,7 @@ namespace Actions {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 CLoopOperation::CLoopOperation ( const std::string& name ) : 
-  CAction(name)
+  Common::CAction(name)
 {  
 }
 

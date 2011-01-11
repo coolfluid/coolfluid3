@@ -7,7 +7,7 @@
 #ifndef CF_Actions_CProtoElementsAction_hpp
 #define CF_Actions_CProtoElementsAction_hpp
 
-#include "Actions/CAction.hpp"
+#include "Common/CAction.hpp"
 
 #include "Common/CBuilder.hpp"
 
@@ -22,14 +22,14 @@ namespace Proto {
 /// A CAction that runs a proto expression over all cells referred to by the support.
 /// The support is deduced from the expression itself
 template<typename ExprT>
-class CProtoElementsAction : public CAction
+class CProtoElementsAction : public Common::CAction
 {
 public:
   typedef boost::shared_ptr< CProtoElementsAction<ExprT> > Ptr;
   typedef boost::shared_ptr< CProtoElementsAction<ExprT> const> ConstPtr;
   
   CProtoElementsAction(const std::string& name) :
-    CAction(name)
+    Common::CAction(name)
   {
   }
   
@@ -105,12 +105,12 @@ private:
 
 /// Returns a configurable CAction object that will execute the supplied expression for all elements
 template<typename ExprT>
-CAction::Ptr build_elements_action(const std::string& name, Common::Component& parent, const ExprT& expr)
+Common::CAction::Ptr build_elements_action(const std::string& name, Common::Component& parent, const ExprT& expr)
 {
   boost::shared_ptr< CProtoElementsAction<ExprT> > result = parent.create_component< CProtoElementsAction<ExprT> >(name);
   regist_typeinfo(result.get());
   result->set_expression(expr);
-  return boost::static_pointer_cast<CAction>(result);
+  return boost::static_pointer_cast<Common::CAction>(result);
 }
 
 } // namespace Proto

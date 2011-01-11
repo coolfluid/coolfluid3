@@ -7,7 +7,9 @@
 #ifndef CF_Actions_CLoopOperation_hpp
 #define CF_Actions_CLoopOperation_hpp
 
-#include "Actions/CAction.hpp"
+#include "Common/CAction.hpp"
+
+#include "Actions/LibActions.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -23,7 +25,7 @@ namespace CF {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class Actions_API CLoopOperation : public CAction
+class Actions_API CLoopOperation : public Common::CAction
 {
 public: // typedefs
 

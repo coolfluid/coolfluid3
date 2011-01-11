@@ -21,7 +21,7 @@ namespace Actions {
 /////////////////////////////////////////////////////////////////////////////////////
 
 CLoop::CLoop ( const std::string& name ) :
-  CAction(name)
+  Common::CAction(name)
 {
   std::vector< URI > dummy;
   m_properties.add_option< OptionArrayT < URI > > ("Regions", "Regions to loop over", dummy)->mark_basic();
