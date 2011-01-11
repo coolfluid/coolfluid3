@@ -123,12 +123,10 @@ inline void CUnifiedData<DATA>::set_data(DataRangeT range)
   data_start_indices.add_row(sum);
   index_foreach(i, Component& data_val, range)
   {
-    Component::Ptr linked = data_val.self();
-    while (linked->is_link())
-      linked = linked->get();
-    m_data_vector.push_back(linked->as_type<typename CUnifiedData<DATA>::data_type>());
+    typename CUnifiedData<DATA>::data_type::Ptr linked = data_val.follow()->as_type<typename CUnifiedData<DATA>::data_type>(); // in case it is a link
+    m_data_vector.push_back(linked);
     m_data_links->create_component<Common::CLink>("data_component_"+Common::String::to_str(i))->link_to(linked);
-    sum += linked->as_type<typename CUnifiedData<DATA>::data_type>()->template size(); 
+    sum += linked->size(); 
     data_start_indices.add_row(sum);
   }
   m_size = sum;

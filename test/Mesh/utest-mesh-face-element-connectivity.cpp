@@ -32,7 +32,7 @@ using namespace CF::Tools;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct FaceElementConnectivity_Fixture : public Testing::TimedTestFixture
+struct FaceElementConnectivity_Fixture //: public Testing::TimedTestFixture
 {
   /// common setup for each test case
   FaceElementConnectivity_Fixture()
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( create_mesh )
  // m_mesh = meshreader->create_mesh_from(fp_source);
  
   m_mesh = allocate_component<CMesh>("mesh");
-  Uint scale = 500;
+  Uint scale = 2;
   MeshGeneration::create_rectangle(*m_mesh, 4., 2., scale*2u, scale*2u);
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -92,6 +92,9 @@ BOOST_AUTO_TEST_CASE( face_elem_connectivity )
   CFaceElementConnectivity::Ptr c = m_mesh->create_component<CFaceElementConnectivity>("node_elem_connectivity");
   c->setup( find_components_recursively_with_filter<CElements>(*m_mesh,IsElementsVolume()) );
 
+  BOOST_CHECK_EQUAL(c->connectivity().size() , 40u);
+  BOOST_CHECK_EQUAL(c->connectivity()[36][0] , 14u);
+  BOOST_CHECK_EQUAL(c->connectivity()[36][1] , 15u);
   // Output whole node to elements connectivity
   //CFinfo << c->connectivity() << CFendl;
 }
