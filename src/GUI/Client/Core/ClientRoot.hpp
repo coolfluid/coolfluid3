@@ -49,7 +49,7 @@ public:
 
   /// The receiver is called on the desired signal.
   /// @param signal Xml document with the signal description
-  void processSignal(const QDomDocument & signal);
+//  void processSignal(const QDomDocument & signal);
 
   /// @brief Processes a signal from a string
 

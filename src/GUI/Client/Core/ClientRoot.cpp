@@ -66,61 +66,6 @@ ClientRoot::ClientRoot() :
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-//NRoot::Ptr ClientRoot::root()
-//{
-//  static bool rootCreated = false;
-//  static NRoot::Ptr root(new NRoot(CLIENT_ROOT));
-
-//  static NLog::Ptr log(new NLog());
-//  static NBrowser::Ptr browser(new NBrowser());
-//  static NTree::Ptr tree(new NTree(root));
-//  static NCore::Ptr core(new NCore());
-
-//  // if the function is called for the first time, we add the components
-//  if(!rootCreated)
-//  {
-//    rootCreated = true;
-//    root->root()->add_component(core);
-//    root->root()->add_component(log);
-//    root->root()->add_component(browser);
-//    root->root()->add_component(tree);
-
-//    root->mark_basic();
-
-//    core->mark_basic();
-//    log->mark_basic();
-//    browser->mark_basic();
-//    tree->mark_basic();
-
-//    tree->setRoot(root);
-//  }
-
-//  return root;
-//}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void ClientRoot::processSignal(const QDomDocument & signal)
-{
-  boost::shared_ptr<XmlDoc> xmldoc = XmlOps::parse ( signal.toString().toStdString() );
-
-  std::string str;
-
-  XmlOps::xml_to_string(*xmldoc.get(), str);
-
-  ProcessingThread * pt = new ProcessingThread(xmldoc);
-
-  m_threads[pt] = xmldoc;
-
-  connect(pt, SIGNAL(finished()), this, SLOT(processingFinished()));
-
-  pt->start();
-}
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 void ClientRoot::processSignalString(const QString & signal)
 {
   boost::shared_ptr<XmlDoc> xmldoc = XmlOps::parse ( signal.toStdString() );
