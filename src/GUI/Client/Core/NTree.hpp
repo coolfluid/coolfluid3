@@ -183,6 +183,9 @@ namespace ClientCore {
     void modifyOptions(const QModelIndex & index,
                        const QMap<QString, QString> & options);
 
+    /// @name VIRTUAL FUNCTIONS
+    //@{
+
     /// @brief Implementation of @c QAbstractItemModel::data().
 
     /// Only the role @c Qt::DisplayRole and @c Qt::DecorationRole are accepted.
@@ -240,6 +243,8 @@ namespace ClientCore {
     /// @brief Gives the tool tip text
     /// @return Returns The class name
     virtual QString toolTip() const;
+
+    //@} END VIRTUAL FUNCTIONS
 
     /// @brief Set the debug mode
 
