@@ -122,13 +122,11 @@ void JournalBrowserDialog::show(const Common::XmlNode *rootNode)
 
 void JournalBrowserDialog::doubleClicked(const QModelIndex & index)
 {
-  NJournalBrowser * model = (NJournalBrowser*)m_view->model();
-
-  if(index.isValid() && model != nullptr)
+  if(index.isValid())
   {
     SignalInspectorDialog sid;
 
-    sid.show(model->signal(index));
+    sid.show(m_model->signal(index));
   }
 }
 

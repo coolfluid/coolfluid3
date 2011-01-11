@@ -74,6 +74,8 @@ public:
   /// @return Returns the root UUID.
   inline std::string getUUID() { return m_root->uuid(); }
 
+  boost::shared_ptr<Common::XmlDoc> docFromPtr(const Common::XmlDoc * doc) const;
+
 private slots:
 
   void processingFinished();
@@ -93,6 +95,8 @@ private:
   NCore::Ptr m_core;
 
   QMap<ProcessingThread*, boost::shared_ptr<Common::XmlDoc> > m_threads;
+
+  QMap<const Common::XmlDoc *, boost::shared_ptr<Common::XmlDoc> > m_currentDocs;
 
 }; // ClientRoot
 

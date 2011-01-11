@@ -129,6 +129,8 @@ private: // data
 
   QList<SignalNode *> m_children;
 
+  boost::shared_ptr<Common::XmlDoc> m_doc;
+
   /// @brief Converts an index to a signal node
 
   /// @param index Node index to convert

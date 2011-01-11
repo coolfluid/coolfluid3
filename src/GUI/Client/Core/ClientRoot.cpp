@@ -78,6 +78,8 @@ void ClientRoot::processSignalString(const QString & signal)
 
   m_threads[pt] = xmldoc;
 
+  m_currentDocs[xmldoc.get()] = xmldoc;
+
   connect(pt, SIGNAL(finished()), this, SLOT(processingFinished()));
 
   pt->start();
@@ -92,9 +94,22 @@ void ClientRoot::processingFinished()
 
   if(pt != nullptr && m_threads.contains(pt))
   {
+    m_currentDocs.remove( m_threads[pt].get() );
     m_threads.remove(pt);
+
     delete pt;
   }
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+boost::shared_ptr<XmlDoc> ClientRoot::docFromPtr(const XmlDoc *doc) const
+{
+  if(m_currentDocs.contains(doc))
+    return m_currentDocs[doc];
+
+  return boost::shared_ptr<XmlDoc>();
 }
 
 ////////////////////////////////////////////////////////////////////////////
