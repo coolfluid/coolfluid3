@@ -30,6 +30,7 @@ list( APPEND coolfluid_client_ui_moc_classes
   OptionLayout.hpp
   SelectFileDialog.hpp
   SignalManager.hpp
+  SignalInspectorDialog.hpp
   SignatureDialog.hpp
   StatusPanel.hpp
   SelectPathDialog.hpp
@@ -100,6 +101,8 @@ list( APPEND coolfluid_client_ui_files
   SelectFileDialog.hpp
   SelectPathDialog.cpp
   SelectPathDialog.hpp
+  SignalInspectorDialog.cpp
+  SignalInspectorDialog.hpp
   SignalManager.cpp
   SignalManager.hpp
   SignatureDialog.cpp

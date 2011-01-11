@@ -577,7 +577,7 @@ namespace ClientUI {
     /// @param path The path. It will be prepended to all item. May be empty.
     /// @param dirs Directory list
     /// @param files File list
-    /// @param modelItems List where new m_items will be stored. This list
+    /// @param modelItems List where new items will be stored. This list
     /// is cleared before usage.
     void updateModel(QStandardItemModel * model, const QString & path,
                      const std::vector<std::string> & dirs,
@@ -595,12 +595,12 @@ namespace ClientUI {
 
   }; // class NRemoteBrowser
 
-  /////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
 
 } // ClientUI
 } // GUI
 } // CF
 
-////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_GUI_Client_UI_NRemoteBrowser_h
