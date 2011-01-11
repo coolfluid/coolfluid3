@@ -13,6 +13,7 @@
 #include "Common/Exception.hpp"
 
 #include "GUI/Client/UI/MainWindow.hpp"
+#include "GUI/Client/UI/JournalBrowserDialog.hpp"
 
 using namespace CF::Common;
 using namespace CF::GUI::ClientUI;
@@ -21,6 +22,8 @@ int main(int argc, char *argv[])
 {
   QApplication app(argc, argv);
   int returnValue;
+
+  JournalBrowserBuilder::instance();
 
   CF::AssertionManager::instance().AssertionThrows = true;
   CF::AssertionManager::instance().AssertionDumps = true;

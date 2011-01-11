@@ -30,6 +30,8 @@ namespace ClientUI {
 
 ////////////////////////////////////////////////////////////////////////////
 
+class JournalBrowserDialog;
+
 class JournalBrowserBuilder : public QObject
 {
   Q_OBJECT
@@ -45,6 +47,8 @@ private slots:
   void newJournal(/*CF::GUI::ClientCore::NJournal * journal, */Common::XmlNode * node);
 
 private:
+
+  JournalBrowserDialog * m_dialog;
 
   JournalBrowserBuilder();
 

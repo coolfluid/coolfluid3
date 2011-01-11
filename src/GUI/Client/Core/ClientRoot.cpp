@@ -116,34 +116,6 @@ void ClientRoot::processSignal(const QDomDocument & signal)
   connect(pt, SIGNAL(finished()), this, SLOT(processingFinished()));
 
   pt->start();
-
-
-//  XmlNode& nodedoc = *XmlOps::goto_doc_node(*xmldoc.get());
-//  XmlNode * nodeToProcess = nodedoc.first_node(XmlParams::tag_node_frame());
-
-//  if(nodeToProcess != nullptr)
-//  {
-//    XmlNode * tmpNode = nodeToProcess->next_sibling(XmlParams::tag_node_frame());
-
-//    // check this is a reply
-//    if(tmpNode != nullptr && std::strcmp(tmpNode->first_attribute("type")->value(), "reply") == 0)
-//      nodeToProcess = tmpNode;
-
-//    std::string type = nodeToProcess->first_attribute("target")->value();
-//    std::string receiver = nodeToProcess->first_attribute("receiver")->value();
-
-//    try
-//    {
-//      if(root()->root()->full_path().string_without_scheme() == receiver)
-//        root()->call_signal(type, *nodeToProcess);
-//      else
-//        root()->root()->access_component(receiver)->call_signal(type, *nodeToProcess);
-//    }
-//    catch(InvalidURI ip)
-//    {
-//      log()->addException(ip.what());
-//    }
-//  }
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -151,10 +123,19 @@ void ClientRoot::processSignal(const QDomDocument & signal)
 
 void ClientRoot::processSignalString(const QString & signal)
 {
-  QDomDocument doc;
+  boost::shared_ptr<XmlDoc> xmldoc = XmlOps::parse ( signal.toStdString() );
 
-  doc.setContent(signal);
-  processSignal(doc);
+  std::string str;
+
+  XmlOps::xml_to_string(*xmldoc.get(), str);
+
+  ProcessingThread * pt = new ProcessingThread(xmldoc);
+
+  m_threads[pt] = xmldoc;
+
+  connect(pt, SIGNAL(finished()), this, SLOT(processingFinished()));
+
+  pt->start();
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -19,9 +19,7 @@
 
 #include "GUI/Client/Core/LibClientCore.hpp"
 
-class QProcess;
 class QString;
-class QTimer;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -83,6 +81,8 @@ namespace ClientCore {
     /// @brief Gives the text to put on a tool tip
     /// @return The name of the class.
     virtual QString toolTip() const;
+
+    void run();
 
   public slots:
 

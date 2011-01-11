@@ -9,6 +9,8 @@
 #include <QTableView>
 #include <QVBoxLayout>
 
+#include <QMessageBox>
+
 #include "GUI/Client/Core/ClientRoot.hpp"
 
 #include "GUI/Client/Core/NJournal.hpp"
@@ -27,9 +29,6 @@ using namespace CF::GUI::ClientCore;
 namespace CF {
 namespace GUI {
 namespace ClientUI {
-
-JournalBrowserBuilder & tmp = JournalBrowserBuilder::instance();
-
 
 JournalBrowserBuilder & JournalBrowserBuilder::instance()
 {
@@ -52,9 +51,7 @@ void JournalBrowserBuilder::newJournal(/*NJournal * journal,*/ XmlNode * node)
 
 void JournalBrowserBuilder::journalRequest(bool local)
 {
-  JournalBrowserDialog jbd;
-
-  jbd.show(nullptr);
+  m_dialog->show(nullptr);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -62,6 +59,8 @@ void JournalBrowserBuilder::journalRequest(bool local)
 
 JournalBrowserBuilder::JournalBrowserBuilder()
 {
+  m_dialog = new JournalBrowserDialog();
+
   connect(&JournalNotifier::instance(), SIGNAL(journalRequest(bool)),
           this, SLOT(journalRequest(bool)));
 
@@ -148,7 +147,7 @@ void JournalBrowserDialog::doubleClicked(const QModelIndex & index)
 
 void JournalBrowserDialog::btClicked(QAbstractButton *button)
 {
-  if(button != (QAbstractButton*)m_btExecute)
+  if(button == (QAbstractButton*)m_btExecute)
   {
     QModelIndex index = m_view->currentIndex();
 
@@ -156,16 +155,16 @@ void JournalBrowserDialog::btClicked(QAbstractButton *button)
     {
       if(index.isValid())
       {
-        ClientRoot::instance().log()->addMessage("Re-executing the signal.");
+//        ClientRoot::instance().log()->addMessage("Re-executing the signal.");
         boost::shared_ptr<XmlDoc> doc = XmlOps::create_doc();
         XmlNode & frameNode = *XmlOps::add_node_to(*XmlOps::goto_doc_node(*doc.get()), "tmp");
         NJournalBrowser * model = (NJournalBrowser*)m_view->model();
         XmlOps::deep_copy(*model->signal(index).node(), frameNode);
 
-        std::string str;
-        XmlOps::xml_to_string(*doc.get(), str);
+//        std::string str;
+//        XmlOps::xml_to_string(*doc.get(), str);
 
-        ClientRoot::instance().log()->addMessage(QString("--->") + str.c_str());
+//        ClientRoot::instance().log()->addMessage(QString("--->") + str.c_str());
 
         ClientRoot::instance().core()->sendSignal(*doc.get());
       }
