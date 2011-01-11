@@ -31,17 +31,13 @@ CMeshReader::CMeshReader ( const std::string& name  ) :
 {
   // signals
   this->regist_signal ( "read" , "reads a mesh", "Read mesh" )->connect ( boost::bind ( &CMeshReader::signal_read, this, _1 ) );
+
+  /// @todo future way to handle signatures
+  // signal("read").regist_signature( &CMeshReader::signature_read );
+
   signal("read").signature
       .insert<URI>("Domain", "Domain to load mesh into" )
       .insert_array<URI>( "Files" , "Files to read" );
-
-  // options
-
-//  std::vector< URI > dummy;
-//  m_properties.add_option< OptionArrayT<URI> > ( "Files",  "Files to read" , dummy );
-
-//  m_properties["Files"].as_option().mark_basic();
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -66,7 +62,6 @@ void CMeshReader::signal_read( XmlNode& xml  )
   if (!domain)
     throw CastingFailed( FromHere(), "Component in path \'" + path.string() + "\' is not a valid CDomain." );
 
-  // std::vector<URI> files = property("Files").value<std::vector<URI> >();
   std::vector<URI> files = p.get_array<URI>("Files");
 
   // check protocol for file loading
