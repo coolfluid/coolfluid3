@@ -102,7 +102,7 @@ public:
 
   //@} END VIRTUAL FUNCTIONS
 
-signals:
+  const SignalNode & signal(const QModelIndex & index) const;
 
 private: // data
 

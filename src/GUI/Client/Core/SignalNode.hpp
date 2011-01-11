@@ -40,6 +40,8 @@ namespace ClientCore {
 
     QString time() const;
 
+    const Common::XmlNode * node() const;
+
   private:
 
     const Common::XmlNode * m_node;

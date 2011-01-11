@@ -168,6 +168,18 @@ QString NJournalBrowser::toolTip() const
   return getComponentType();
 }
 
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+const SignalNode & NJournalBrowser::signal(const QModelIndex & index) const
+{
+  SignalNode * signal = indexToSignalNode(index);
+
+  cf_assert(signal != nullptr);
+
+  return *signal;
+}
+
 ////////////////////////////////////////////////////////////////////////////
 
 } // namespace ClientCore

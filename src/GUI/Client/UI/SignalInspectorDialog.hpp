@@ -11,10 +11,17 @@
 
 #include <QDialog>
 
+class QDialogButtonBox;
+class QTextEdit;
+class QVBoxLayout;
+
 ////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace GUI {
+
+namespace ClientCore { class SignalNode; }
+
 namespace ClientUI {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -27,9 +34,19 @@ public:
 
   SignalInspectorDialog(QWidget *parent = 0);
 
-public slots:
+  ~SignalInspectorDialog();
 
-};
+  void show(const ClientCore::SignalNode & node);
+
+private:
+
+  QTextEdit * m_textArea;
+
+  QDialogButtonBox * m_buttons;
+
+  QVBoxLayout * m_mainLayout;
+
+}; // SignalInspectorDialog
 
 ////////////////////////////////////////////////////////////////////////////
 

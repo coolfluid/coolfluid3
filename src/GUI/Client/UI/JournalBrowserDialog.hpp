@@ -16,6 +16,7 @@
 #include "GUI/Client/Core/NJournal.hpp"
 
 class QDialogButtonBox;
+class QModelIndex;
 class QTableView;
 class QVBoxLayout;
 
@@ -43,7 +44,7 @@ private:
 
   JournalBrowserBuilder();
 
-};
+}; // JournalBrowserBuilder
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -55,7 +56,13 @@ public:
 
   JournalBrowserDialog(QWidget * parent = 0);
 
+  ~JournalBrowserDialog();
+
   void show(const Common::XmlNode * rootNode);
+
+private slots:
+
+  void doubleClicked(const QModelIndex & index);
 
 private:
 
@@ -65,7 +72,7 @@ private:
 
   QDialogButtonBox * m_buttons;
 
-};
+}; // JournalBrowserDialog
 
 ////////////////////////////////////////////////////////////////////////////
 

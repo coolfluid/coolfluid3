@@ -13,6 +13,8 @@
 #include "GUI/Client/Core/NJournal.hpp"
 #include "GUI/Client/Core/NJournalBrowser.hpp"
 
+#include "GUI/Client/UI/SignalInspectorDialog.hpp"
+
 #include "GUI/Client/UI/JournalBrowserDialog.hpp"
 
 ////////////////////////////////////////////////////////////////////////////
@@ -69,9 +71,20 @@ JournalBrowserDialog::JournalBrowserDialog(QWidget *parent) :
   m_mainLayout->addWidget(m_view);
   m_mainLayout->addWidget(m_buttons);
 
-  connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(close()));
+  connect(m_buttons, SIGNAL(accepted()), this, SLOT(close()));
+  connect(m_view, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(doubleClicked(QModelIndex)));
 
   m_view->setModel(nullptr); // no model
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+JournalBrowserDialog::~JournalBrowserDialog()
+{
+  delete m_view;
+  delete m_buttons;
+  delete m_mainLayout;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -86,6 +99,21 @@ void JournalBrowserDialog::show(const Common::XmlNode *rootNode)
   this->exec();
 
   m_view->setModel(nullptr);
+}
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void JournalBrowserDialog::doubleClicked(const QModelIndex & index)
+{
+  NJournalBrowser * model = (NJournalBrowser*)m_view->model();
+
+  if(index.isValid() && model != nullptr)
+  {
+    SignalInspectorDialog sid;
+
+    sid.show(model->signal(index));
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////
