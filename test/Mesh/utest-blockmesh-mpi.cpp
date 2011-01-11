@@ -19,6 +19,7 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CMesh.hpp"
+#include "Mesh/CNodes.hpp"
 
 #include "Mesh/BlockMesh/BlockData.hpp"
 #include "Mesh/SimpleCommunicationPattern.hpp"
@@ -175,7 +176,7 @@ BOOST_AUTO_TEST_CASE( ComputeVolume )
   SF::Hexa3DLagrangeP1::NodeMatrixT nodes;
   BOOST_FOREACH(const CElements& celements, find_components_recursively_with_filter<CElements>(partitioned_mesh, IsElementsVolume()))
   {
-    const CTable<Real>& coords = celements.coordinates();
+    const CTable<Real>& coords = celements.nodes().coordinates();
     const CTable<Uint>::ArrayT& conn_table = celements.connectivity_table().array();
     BOOST_FOREACH(const CTable<Uint>::ConstRow row, conn_table)
     {

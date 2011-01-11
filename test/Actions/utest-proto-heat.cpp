@@ -218,7 +218,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   // Create a document structure
   CRoot::Ptr root = CRoot::create("Root");
   CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
-  root->create_component<Solver::CPhysicalModel>("PhysicalModel");
+  CPhysicalModel::Ptr phys_mod = root->create_component<Solver::CPhysicalModel>("PhysicalModel");
   Tools::MeshGeneration::create_line(*mesh, length, nb_segments);
   CEigenLSS::Ptr lss = root->create_component<CEigenLSS>("LSS");
   
@@ -250,6 +250,8 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   // Configure the CAction
   heat1d_action->configure_property("ConductivityRegion", URI("cpath://Root/mesh/region"));
   heat1d_action->configure_property("LSS", URI("cpath://Root/LSS"));
+  
+  CFinfo << "Nb dofs: " << phys_mod->nb_dof() << CFendl;
   
   // Run the expression
   heat1d_action->execute();

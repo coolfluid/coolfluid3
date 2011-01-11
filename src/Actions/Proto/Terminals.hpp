@@ -165,7 +165,8 @@ private:
   void on_trigger()
   {
     m_region = m_owner.lock()->look_component<Mesh::CRegion>(m_region_path.lock()->value_str());
-    m_physical_model.lock()->configure_property("DOFs", region().recursive_nodes_count());
+    const Uint node_count = region().recursive_nodes_count();
+    m_physical_model.lock()->configure_property("DOFs", node_count);
   }
 };
 

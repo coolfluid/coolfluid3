@@ -25,5 +25,5 @@ endif()
 # temporary
 
 if( NOT DEFINED CF_TMP_HAVE_SIMPLECOMM )
-  set( CF_TMP_HAVE_SIMPLECOMM FALSE )
+  option( CF_TMP_HAVE_SIMPLECOMM "Use SimpleComm" OFF )
 endif()

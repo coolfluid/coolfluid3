@@ -58,6 +58,11 @@ void create_line(CMesh& mesh, const Real x_len, const Uint x_segments)
   CTable<Uint>& xpos_connectivity = region.create_region("xpos").create_elements("CF.Mesh.SF.Point1DLagrangeP1", nodes).connectivity_table();
   xpos_connectivity.resize(1);
   xpos_connectivity[0][0] = x_segments;
+  
+  BOOST_FOREACH(CElements& elements, find_components_recursively<CElements>(mesh))
+  {
+    elements.update_used_nodes();
+  }
 }
 
 
@@ -92,6 +97,11 @@ void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uin
       nodes[3] = (j+1) * (x_segments+1) + i;
       nodes[2] = nodes[3] + 1;
     }
+  }
+  
+  BOOST_FOREACH(CElements& elements, find_components_recursively<CElements>(mesh))
+  {
+    elements.update_used_nodes();
   }
 }
 
@@ -165,7 +175,12 @@ void create_circle_2d ( CMesh& mesh, const Real radius, const Uint segments, con
     CTable<Real>::Row coord_row = nodes.coordinates()[segments];
     coord_row[XX] = radius * cos(end_angle);
     coord_row[YY] = radius * sin(end_angle);
-  }  
+  }
+  
+  BOOST_FOREACH(CElements& elements, find_components_recursively<CElements>(mesh))
+  {
+    elements.update_used_nodes();
+  }
 }
 
 void create_channel_3d(BlockData& blocks, const Real length, const Real half_height, const Real width, const Uint x_segs, const Uint y_segs_half, const Uint z_segs, const Real ratio)

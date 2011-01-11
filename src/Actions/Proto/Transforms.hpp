@@ -165,18 +165,10 @@ struct VarValue :
 
 /// Matches scalar terminals
 struct Scalar :
-  boost::proto::or_
+  boost::proto::when
   <
-    boost::proto::when
-    <
-      boost::proto::terminal< Real >, // Plain scalar
-      boost::proto::_value
-    >,
-    boost::proto::when
-    <
-      boost::proto::terminal< Var< boost::proto::_, Field<Real> > >, // scalar field
-      VarValue(boost::proto::_expr, boost::proto::_state, NumberedData)
-    >
+    boost::proto::terminal< Real >, // Plain scalar
+    boost::proto::_value
   >
 {
 };

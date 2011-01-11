@@ -12,6 +12,7 @@
 #include "Mesh/SimpleCommunicationPattern.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CMesh.hpp"
+#include "Mesh/CNodes.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -112,7 +113,7 @@ void make_node_receive_lists(const SimpleCommunicationPattern::IndicesT& nodes_d
   const Uint nb_nodes = nodes_end - nodes_begin + comms_pattern.receive_list.size();
   BOOST_FOREACH(CElements& celements, find_components_recursively<CElements>(mesh))
   {
-    CTable<Real>& coords = celements.coordinates();
+    CTable<Real>& coords = celements.nodes().coordinates();
 		coords.resize(nb_nodes);
 		CList<Uint>::Ptr global_indices = coords.get_child<CList<Uint> >("global_indices");
 		if (global_indices)

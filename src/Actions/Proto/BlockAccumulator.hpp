@@ -144,9 +144,10 @@ struct BlockAccumulator :
               , typename impl::data_param data // data associated with element loop
     ) const
     {
+      Solver::CEigenLSS& lss = VarValue()(boost::proto::left(expr), state, NumberedData()(boost::proto::left(expr), state, data)).lss();
       BlockAssignmentOp<OpT>::assign
       (
-        VarValue()(boost::proto::left(expr), state, NumberedData()(boost::proto::left(expr), state, data)).lss().matrix(),
+        lss.matrix(),
         state,
         data.support().element_connectivity()
       );
