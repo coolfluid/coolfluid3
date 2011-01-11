@@ -115,6 +115,8 @@ public:
 
   void list_journal(Common::XmlNode & node);
 
+  void sendExecSignal(const QModelIndex & index);
+
 signals:
 
   void updateView();

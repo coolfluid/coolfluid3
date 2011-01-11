@@ -93,8 +93,8 @@ void ServerRoot::processSignal(const string & target,
     Component::Ptr receivingCompo = root()->access_component(receiver);
     m_thread = new ProcessingThread(node, target, receivingCompo);
     QObject::connect(m_thread, SIGNAL(finished()), m_catcher, SLOT(finished()));
-    m_thread->start();
     journal()->add_signal(*node.first_node());
+    m_thread->start();
   }
   else
   {

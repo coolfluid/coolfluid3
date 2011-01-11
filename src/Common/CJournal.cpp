@@ -93,6 +93,8 @@ void CJournal::list_journal ( XmlNode & node )
 {
   XmlNode & reply_node = *XmlOps::add_reply_frame(node);
 
+  XmlOps::add_attribute_to( reply_node, "sender", full_path().string_without_scheme() );
+
   copy_node(*m_signals_map, reply_node);
 }
 
@@ -136,25 +138,6 @@ void CJournal::copy_node(const XmlNode & in, XmlNode & out) const
 
     node = node->next_sibling();
   }
-
-
-//  XmlNode * node = in.first_node();
-
-//  while( node != nullptr )
-//  {
-//    XmlNode * copy = XmlOps::add_node_to(out, node->name(), node->value());
-//    XmlAttr * attr = node->first_attribute();
-
-//    while( attr != nullptr )
-//    {
-//      XmlOps::add_attribute_to(*copy, attr->name(), attr->value());
-//      attr = attr->next_attribute();
-//    }
-
-//    copy_node(*node, *copy);
-
-//    node = node->next_sibling();
-//  }
 }
 
 
