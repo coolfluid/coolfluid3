@@ -4,12 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include "Common/CBuilder.hpp"
 #include "Common/Core.hpp"
 #include "Common/Log.hpp"
 #include "Common/LibCommon.hpp"
 
 #include "Common/CJournal.hpp"
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -84,7 +86,10 @@ void CJournal::dump_journal_to ( const boost::filesystem::path & file_path ) con
 
 void CJournal::add_signal ( const XmlNode & signal_node )
 {
-  copy_node(signal_node, *m_signals_map);
+  XmlNode * copy = copy_node(signal_node, *m_signals_map);
+
+  boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
+  XmlOps::add_attribute_to(*copy, "time", boost::posix_time::to_simple_string(now));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -119,7 +124,7 @@ void CJournal::dump_journal ( XmlNode & node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CJournal::copy_node(const XmlNode & in, XmlNode & out) const
+XmlNode * CJournal::copy_node(const XmlNode & in, XmlNode & out) const
 {
   XmlNode * copy = XmlOps::add_node_to(out, in.name(), in.value());
   XmlAttr * attr = in.first_attribute();
@@ -138,6 +143,8 @@ void CJournal::copy_node(const XmlNode & in, XmlNode & out) const
 
     node = node->next_sibling();
   }
+
+  return copy;
 }
 
 

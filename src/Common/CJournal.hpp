@@ -92,8 +92,9 @@ namespace Common {
     /// modified.
     /// @param in Node to copy.
     /// @param out Node where the copy has to be appended to.
+    /// @return Returns the added node.
     /// @todo This method should be removed when the new Xml layer is in place.
-    void copy_node(const XmlNode & in, XmlNode & out) const;
+    XmlNode * copy_node(const XmlNode & in, XmlNode & out) const;
 
   }; // CJournal
 
