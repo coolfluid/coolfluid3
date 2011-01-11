@@ -66,6 +66,9 @@ JournalBrowserDialog::JournalBrowserDialog(QWidget *parent) :
   m_mainLayout = new QVBoxLayout(this);
 
   m_view->setSelectionBehavior(QAbstractItemView::SelectRows);
+  m_view->horizontalHeader()->setStretchLastSection(true);
+  m_view->setModel(nullptr); // no model
+  m_view->setAlternatingRowColors(true);
 
   m_buttons->addButton(QDialogButtonBox::Ok);
 
@@ -74,10 +77,6 @@ JournalBrowserDialog::JournalBrowserDialog(QWidget *parent) :
 
   connect(m_buttons, SIGNAL(accepted()), this, SLOT(close()));
   connect(m_view, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(doubleClicked(QModelIndex)));
-
-  m_view->horizontalHeader()->setStretchLastSection(true);
-
-  m_view->setModel(nullptr); // no model
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

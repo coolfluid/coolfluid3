@@ -153,9 +153,13 @@ int NJournalBrowser::columnCount(const QModelIndex & parent) const
 QVariant NJournalBrowser::headerData(int section, Qt::Orientation orientation,
                            int role) const
 {
-  if(role == Qt::DisplayRole && orientation == Qt::Horizontal && section >= 0
-     && section < m_columns.size())
-    return m_columns.at(section);
+  if(role == Qt::DisplayRole && section >= 0 )
+  {
+    if(orientation == Qt::Horizontal && section < m_columns.count())
+      return m_columns.at(section);
+    else if(orientation == Qt::Vertical && section < m_children.count())
+      return QString("#%1").arg(section + 1);
+  }
 
   return QVariant();
 }
