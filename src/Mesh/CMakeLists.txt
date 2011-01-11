@@ -9,6 +9,8 @@ list( APPEND coolfluid_mesh_files
   CDynTable.cpp
   CElements.hpp
   CElements.cpp
+  CFaceElementConnectivity.hpp
+  CFaceElementConnectivity.cpp
   CField.hpp
   CField.cpp
   CFieldElements.hpp

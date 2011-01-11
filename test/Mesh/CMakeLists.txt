@@ -28,6 +28,13 @@ coolfluid_add_unittest( utest-mesh-node-element-connectivity )
 
 ################################################################################
 
+list( APPEND utest-mesh-face-element-connectivity_cflibs coolfluid_testing coolfluid_mesh_generation coolfluid_mesh_neutral coolfluid_mesh_sf )
+list( APPEND utest-mesh-face-element-connectivity_files  utest-mesh-face-element-connectivity.cpp )
+
+coolfluid_add_unittest( utest-mesh-face-element-connectivity )
+
+################################################################################
+
 list( APPEND utest-mesh-construction_cflibs coolfluid_mesh_neutral coolfluid_mesh_gmsh coolfluid_mesh_sf )
 list( APPEND utest-mesh-construction_files  utest-mesh-construction.cpp )
 
