@@ -44,7 +44,7 @@ GraphicalUri::GraphicalUri(CF::Common::OptionURI::ConstPtr opt, QWidget *parent)
 
   if(opt.get() != nullptr)
   {
-    this->setValue(opt->value_str().c_str());
+    this->setValue(opt->value<URI>().string_without_scheme().c_str());
     this->setProtocols(opt->supported_protocols());
   }
 
@@ -128,8 +128,9 @@ void GraphicalUri::btBrowseClicked()
   {
     SelectPathDialog spd;
     QString modified_path = m_editPath->text();
+    URI completePath = ClientRoot::tree()->completeRelativePath(modified_path.toStdString());
 
-    URI path = spd.show(modified_path.toStdString());
+    URI path = spd.show(completePath);
 
     if(!path.empty())
       m_editPath->setText(path.string().c_str());

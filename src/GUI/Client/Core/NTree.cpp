@@ -600,6 +600,20 @@ void NTree::clearTree()
   }
 }
 
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+URI NTree::completeRelativePath(const URI & uri) const
+{
+  cf_assert(m_currentIndex.isValid());
+
+  URI completedPath(uri);
+
+  indexToNode(m_currentIndex)->complete_path(completedPath);
+
+  return completedPath;
+}
+
 /*============================================================================
 
                              PRIVATE METHODS

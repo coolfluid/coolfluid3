@@ -282,6 +282,13 @@ namespace ClientCore {
     /// @c false (i.e. the index is not valid).
     bool nodeIsVisible(const QModelIndex & index) const;
 
+    /// @brief Resolves the provided URI from the current index path.
+
+    /// The current index must be a valid index.
+    /// @param uri The URI to resolve. Must of scheme @c URI::Scheme::CPATH.
+    /// @return Returns the complete path.
+    Common::URI completeRelativePath(const Common::URI & uri) const;
+
     /// @name Signals
     /// @{
 
