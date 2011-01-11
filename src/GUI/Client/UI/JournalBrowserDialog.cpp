@@ -87,7 +87,7 @@ JournalBrowserDialog::JournalBrowserDialog(QWidget *parent) :
   m_view->updateGeometry();
   updateGeometry();
   adjustSize();
-  resize(childrenRect().size());
+  resize(childrenRect().size() * 1.33);
 
   connect(m_buttons, SIGNAL(accepted()), this, SLOT(close()));
   connect(m_buttons, SIGNAL(clicked(QAbstractButton*)), this, SLOT(btClicked(QAbstractButton*)));
