@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <QMenu>
+#include <QMutex>
 #include <QPoint>
 #include <QStringList>
 #include <QVariant>
@@ -68,6 +69,7 @@ CNode::CNode(const QString & name, const QString & componentType, CNode::Type ty
     m_notifier(new CNodeNotifier(this)),
     m_componentType(componentType)
 {
+  m_mutex = new QMutex();
 
   regist_signal("configure", "Update component options")->connect(boost::bind(&CNode::configure_reply, this, _1));
   regist_signal("tree_updated", "Event that notifies a path has changed")->connect(boost::bind(&CNode::update_tree, this, _1));
@@ -96,6 +98,8 @@ CNode::Type CNode::type() const
 
 void CNode::setOptions(XmlNode & options)
 {
+  QMutexLocker locker(m_mutex);
+
   XmlParams p(options);
 
   if(p.option_map != nullptr)
@@ -115,6 +119,8 @@ void CNode::setOptions(XmlNode & options)
 
 void CNode::setProperties(XmlNode & options)
 {
+  QMutexLocker locker(m_mutex);
+
   XmlParams p(options);
 
   if(p.property_map != nullptr)
@@ -185,6 +191,8 @@ void CNode::setProperties(XmlNode & options)
 
 void CNode::setSignals(CF::Common::XmlNode & node)
 {
+  QMutexLocker locker(m_mutex);
+
   XmlParams p(node);
 
   if(p.signal_map != nullptr)
@@ -227,6 +235,8 @@ void CNode::setSignals(CF::Common::XmlNode & node)
 
 void CNode::modifyOptions(const QMap<QString, QString> & options)
 {
+  QMutexLocker locker(m_mutex);
+
   QMap<QString, QString>::const_iterator it = options.begin();
 
   if(isClientComponent())
@@ -353,6 +363,8 @@ CNode::Ptr CNode::createFromXml(CF::Common::XmlNode & node)
 
 CNode::Ptr CNode::child(CF::Uint index)
 {
+  QMutexLocker locker(m_mutex);
+
   Component::Ptr compo = shared_from_this();
   CF::Uint i;
 
@@ -390,6 +402,8 @@ CNodeNotifier * CNode::notifier() const
 
 void CNode::listChildPaths(QStringList & list, bool recursive, bool clientNodes) const
 {
+  QMutexLocker locker(m_mutex);
+
   ComponentIterator<const CNode> it = this->begin<const CNode>();
   ComponentIterator<const CNode> itEnd = this->end<const CNode>();
 
@@ -425,12 +439,14 @@ void CNode::listChildPaths(QStringList & list, bool recursive, bool clientNodes)
 
 void CNode::addNode(CNode::Ptr node)
 {
-    if(checkType(ROOT_NODE))
-      ((NRoot *)this)->root()->add_component(node);
-    else
-      this->add_component(node);
+  QMutexLocker locker(m_mutex);
 
-    m_notifier->notifyChildCountChanged();
+  if(checkType(ROOT_NODE))
+    ((NRoot *)this)->root()->add_component(node);
+  else
+    this->add_component(node);
+
+  m_notifier->notifyChildCountChanged();
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -438,6 +454,8 @@ void CNode::addNode(CNode::Ptr node)
 
 void CNode::removeNode(const QString & nodeName)
 {
+  QMutexLocker locker(m_mutex);
+
   try
   {
     if(checkType(ROOT_NODE))
@@ -467,6 +485,8 @@ void CNode::configure_reply(CF::Common::XmlNode & node)
 
 void CNode::options(QList<Option::ConstPtr> & list) const
 {
+  QMutexLocker locker(m_mutex);
+
   PropertyList::PropertyStorage_t::const_iterator it;
 
   it = m_properties.store.begin();
@@ -485,6 +505,8 @@ void CNode::options(QList<Option::ConstPtr> & list) const
 
 void CNode::properties(QMap<QString, QString> & props) const
 {
+  QMutexLocker locker(m_mutex);
+
   PropertyList::PropertyStorage_t::const_iterator it = m_properties.store.begin();
 
   boost::any val = int(120);
@@ -528,6 +550,8 @@ void CNode::properties(QMap<QString, QString> & props) const
 
 void CNode::actions(QList<ActionInfo> & actions) const
 {
+  QMutexLocker locker(m_mutex);
+
   actions = m_actionSigs;
 
   QStringList::const_iterator it = m_localSignals.begin();

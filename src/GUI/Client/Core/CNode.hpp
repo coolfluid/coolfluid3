@@ -25,6 +25,7 @@
 class QString;
 class QAction;
 class QMenu;
+class QMutex;
 class QPoint;
 
 template<typename T> class QList;
@@ -336,6 +337,8 @@ namespace ClientCore {
 
     /// @brief Lists the names of the local signals.
     QStringList m_localSignals;
+
+    QMutex * m_mutex;
 
   private:
 
