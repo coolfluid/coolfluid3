@@ -25,11 +25,11 @@
 namespace CF {
 namespace UFEM {
 
-using namespace Actions;
 using namespace Common;
 using namespace Mesh;
 using namespace Solver;
-using namespace Actions::Proto;
+using namespace Solver::Actions;
+using namespace Solver::Actions::Proto;
 
 CF::Common::ComponentBuilder < UFEM::SetupHeatConductionLinearSteady, Component, LibUFEM > aSetupHeatConductionLinearSteady_Builder;
 

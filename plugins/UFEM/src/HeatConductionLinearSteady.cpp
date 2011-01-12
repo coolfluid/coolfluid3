@@ -7,8 +7,8 @@
 #include "Common/Foreach.hpp"
 #include "Common/CBuilder.hpp"
 
-#include "Actions/Proto/CProtoElementsAction.hpp"
-#include "Actions/Proto/CProtoNodesAction.hpp"
+#include "Solver/Actions/Proto/CProtoElementsAction.hpp"
+#include "Solver/Actions/Proto/CProtoNodesAction.hpp"
 
 #include "Solver/CEigenLSS.hpp"
 
@@ -21,8 +21,8 @@ using namespace Common;
 using namespace Common::String;
 using namespace Mesh;
 using namespace Solver;
-using namespace Actions;
-using namespace Actions::Proto;
+using namespace Solver::Actions;
+using namespace Solver::Actions::Proto;
 
 CF::Common::ComponentBuilder < UFEM::HeatConductionLinearSteady, CMethod, LibUFEM > aHeatConductionLinearSteady_Builder;
 

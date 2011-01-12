@@ -7,8 +7,8 @@
 #ifndef CF_UFEM_HeatConductionLinearSteady_hpp
 #define CF_UFEM_HeatConductionLinearSteady_hpp
 
-#include "Actions/Proto/BlockAccumulator.hpp"
-#include "Actions/Proto/Terminals.hpp"
+#include "Solver/Actions/Proto/BlockAccumulator.hpp"
+#include "Solver/Actions/Proto/Terminals.hpp"
 
 #include "Solver/CMethod.hpp"
 
@@ -50,7 +50,7 @@ public: // functions
   //@} END SIGNALS
 private:
   // LSS variable needs to be persistent
-  Actions::Proto::MeshTerm<2, Actions::Proto::LSS> m_blocks;
+  Solver::Actions::Proto::MeshTerm<2, Solver::Actions::Proto::LSS> m_blocks;
 };
 
 } // UFEM
