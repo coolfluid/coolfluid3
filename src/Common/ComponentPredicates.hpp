@@ -171,7 +171,7 @@ inline std::vector< boost::shared_ptr<const T> > range_to_const_vector( boost::i
 {
   std::vector<boost::shared_ptr<const T> > result (0);
   BOOST_FOREACH ( T& val, range)
-    result.push_back(val.template as_const()->template as_type<T>());
+    result.push_back(val.as_const()->template as_type<T>());
   return result;
 }
 
@@ -180,7 +180,7 @@ inline std::vector< boost::shared_ptr<const T> > range_to_const_vector( boost::i
 {
   std::vector<boost::shared_ptr<const T> > result (0);
   BOOST_FOREACH ( T& val, range)
-    result.push_back(val.template as_const()->template as_type<T>());
+    result.push_back(val.as_const()->template as_type<T>());
   return result;
 }
 
