@@ -56,19 +56,19 @@ coolfluid_add_unittest( utest-mesh-components )
 
 ################################################################################
 
-list( APPEND utest-cgns_cflibs      coolfluid_mesh_cgns3 coolfluid_mesh_neutral coolfluid_mesh_gmsh )
-list( APPEND utest-cgns_files       utest-cgns.cpp )
-list( APPEND utest-cgns_includedirs ${CGNS_INCLUDE_DIR} )
+list( APPEND utest-mesh-cgns_cflibs      coolfluid_mesh_actions coolfluid_mesh_cgns3 coolfluid_mesh_neutral coolfluid_mesh_gmsh )
+list( APPEND utest-mesh-cgns_files       utest-mesh-cgns.cpp )
+list( APPEND utest-mesh-cgns_includedirs ${CGNS_INCLUDE_DIR} )
 
 set( utest-cgns_condition ${coolfluid_mesh_cgns3_builds} )
 
-coolfluid_add_unittest( utest-cgns )
+coolfluid_add_unittest( utest-mesh-cgns )
 
 # Custom post-build rule (must be defined after adding target):
 # Copy the file quadtriag.neu from source dir to binary dir.
 # this must happen after building, as some IDE like Xcode define their
 # build types internally, in which the binary dir exists
-add_custom_command(TARGET utest-mesh-components
+add_custom_command(TARGET utest-mesh-cgns
                    POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/hextet.neu    ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}

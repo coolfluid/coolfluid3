@@ -692,7 +692,7 @@ BOOST_AUTO_TEST_CASE( ReadCGNS_Structured )
   // the mesh to store in
   CMesh::Ptr mesh = meshreader->create_mesh_from(fp_in);
     
-  CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("CF.Mesh.CMeshInfo", "info");
+  CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo", "info");
   info->transform(mesh);
   // Write to Gmsh
   boost::filesystem::path fp_out ("grid_str_2zones.msh");
@@ -724,7 +724,7 @@ BOOST_AUTO_TEST_CASE( ReadCGNS_multiple )
 {
   
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.CGNS.CReader","meshreader");
-  CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("CF.Mesh.CMeshInfo", "info");
+  CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo", "info");
 
   
   // the file to read from
@@ -762,7 +762,7 @@ BOOST_AUTO_TEST_CASE( WriteCNGS_unstructured )
   
   CMesh::Ptr mesh2 = meshreader->create_mesh_from(fp_out);
     
-  CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("CF.Mesh.CMeshInfo", "info");
+  CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo", "info");
   //info->transform(mesh2);
 
   // Write to Gmsh
@@ -794,7 +794,7 @@ BOOST_AUTO_TEST_CASE( WriteCNGS_mixed )
   
   CMesh::Ptr mesh2 = cgns_reader->create_mesh_from(fp_out);
     
-  CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("CF.Mesh.CMeshInfo", "info");
+  CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo", "info");
   //info->transform(mesh2);
   
   // Write to Gmsh
