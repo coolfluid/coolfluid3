@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/RegistLib.hpp"
+#include "Common/RegistLibrary.hpp"
 
 #include "Mesh/PTScotch/LibPTScotch.hpp"
 
@@ -12,7 +12,7 @@ namespace CF {
 namespace Mesh {
 namespace PTScotch {
 
-CF::Common::ForceLibRegist<LibPTScotch> libPTScotch;
+CF::Common::RegistLibrary<LibPTScotch> libPTScotch;
 
 ////////////////////////////////////////////////////////////////////////////////
 
