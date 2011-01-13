@@ -130,10 +130,7 @@ void GraphicalUri::btBrowseClicked()
   {
     SelectPathDialog spd;
     QString modified_path = m_editPath->text();
-    URI completePath;
-
-    if(!modified_path.isEmpty())
-      completePath = ClientRoot::instance().tree()->completeRelativePath(modified_path.toStdString());
+    URI completePath = ClientRoot::instance().tree()->completeRelativePath(modified_path.toStdString());
 
     URI path = spd.show(completePath);
 
