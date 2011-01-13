@@ -8,6 +8,8 @@
 #define BOOST_TEST_MODULE "Tests Mesh::Actions::CBuildFaces"
 
 #include <boost/test/unit_test.hpp>
+#include <boost/filesystem/path.hpp>
+
 #include "Common/Log.hpp"
 #include "Common/CreateComponent.hpp"
 
@@ -15,6 +17,7 @@
 #include "Mesh/CMeshTransformer.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
+#include "Mesh/CMeshReader.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -73,6 +76,25 @@ BOOST_AUTO_TEST_CASE( make_interfaces )
   R1.create_region("R4").create_component<CElements>("elements");
   R2.create_region("R1").create_component<CElements>("elements");
 
+  CBuildFaces::Ptr facebuilder = allocate_component<CBuildFaces>("facebuilder");
+  
+  std::vector<std::string> args;
+  //facebuilder->transform(mesh,args);
+  
+  CFinfo << mesh->tree() << CFendl;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( build_faces )
+{
+  
+  CMesh::Ptr mesh = allocate_component<CMesh>("mesh");
+  
+  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  boost::filesystem::path fp_out("quadtriag.neu");
+  meshreader->read_from_to(fp_out,mesh);
+  
   CBuildFaces::Ptr facebuilder = allocate_component<CBuildFaces>("facebuilder");
   
   std::vector<std::string> args;

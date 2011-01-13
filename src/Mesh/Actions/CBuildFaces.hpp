@@ -19,6 +19,7 @@ namespace CF {
 namespace Mesh {
   
   class CField;
+  class CFaceCellConnectivity;
 
 namespace Actions {
   
@@ -57,6 +58,8 @@ private: // functions
   void make_interfaces(Component::Ptr parent);
 
   void build_inner_faces_bottom_up(Component::Ptr parent);
+
+  void build_face_elements(CRegion& in_region, CFaceCellConnectivity& from_face_to_cell);
 
 private: // data
 

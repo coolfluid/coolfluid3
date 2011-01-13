@@ -55,7 +55,7 @@ public:
   /// using the find_components_recursively<data_type>() function
   /// @param [in] range  The range of data components to be unified
   template <typename DataRangeT>
-    void set_data(DataRangeT range );
+    void add_data(DataRangeT range );
 
   /// Get the component and local index in the component
   /// given a continuous index spanning multiple components
@@ -106,6 +106,9 @@ inline CUnifiedData<DATA>::CUnifiedData ( const std::string& name ) : Component(
 {
   m_data_indices = create_static_component<CList<Uint> >  ("data_indices");
   m_data_links   = create_static_component<Common::CGroup>("data_links");
+  m_data_indices->resize(1);
+  m_data_indices->array()[0]=0;
+  m_size=0;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -115,21 +118,21 @@ inline CUnifiedData<DATA>::CUnifiedData ( const std::string& name ) : Component(
 /// @param [in] range  The range of data components to be unified
 template <typename DATA>
 template <typename DataRangeT>
-inline void CUnifiedData<DATA>::set_data(DataRangeT range)
+inline void CUnifiedData<DATA>::add_data(DataRangeT range)
 {
-  m_data_vector.clear();
   CList<Uint>::Buffer data_start_indices = m_data_indices->create_buffer();
-  Uint sum = 0;
-  data_start_indices.add_row(sum);
-  index_foreach(i, Component& data_val, range)
+  boost_foreach(Component& data_val, range)
   {
     typename CUnifiedData<DATA>::data_type::Ptr linked = data_val.follow()->as_type<typename CUnifiedData<DATA>::data_type>(); // in case it is a link
+    m_data_links->create_component<Common::CLink>("data_component_"+Common::String::to_str(m_data_vector.size()))->link_to(linked);
     m_data_vector.push_back(linked);
-    m_data_links->create_component<Common::CLink>("data_component_"+Common::String::to_str(i))->link_to(linked);
-    sum += linked->size(); 
-    data_start_indices.add_row(sum);
+    m_size += linked->size();
+    data_start_indices.add_row(m_size);
   }
-  m_size = sum;
+  
+  data_start_indices.flush();
+  
+  cf_assert(m_data_vector.size()==m_data_indices->size()-1);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -141,7 +144,9 @@ inline void CUnifiedData<DATA>::set_data(DataRangeT range)
 template <typename DATA>
 inline typename CUnifiedData<DATA>::data_location_type CUnifiedData<DATA>::data_location(const Uint data_glb_idx)
 {
-  const Uint data_vector_idx = std::upper_bound(m_data_indices->array().begin(), m_data_indices->array().end(), data_glb_idx) - 1 - m_data_indices->array().begin();
+  cf_assert(data_glb_idx<m_size);
+  const Uint data_vector_idx = std::upper_bound(m_data_indices->array().begin(), m_data_indices->array().end(), data_glb_idx) - 1 -  m_data_indices->array().begin();
+  cf_assert(m_data_indices->array()[data_vector_idx] <= data_glb_idx );
   return boost::make_tuple(m_data_vector[data_vector_idx], data_glb_idx - m_data_indices->array()[data_vector_idx]);
 }
 
@@ -154,7 +159,9 @@ inline typename CUnifiedData<DATA>::data_location_type CUnifiedData<DATA>::data_
 template <typename DATA>
 inline typename CUnifiedData<DATA>::const_data_location_type CUnifiedData<DATA>::data_location(const Uint data_glb_idx) const
 {
-  const Uint data_vector_idx = std::upper_bound(m_data_indices->array().begin(), m_data_indices->array().end(), data_glb_idx) - 1 - m_data_indices->array().begin();
+  cf_assert(data_glb_idx<m_size);
+  const Uint data_vector_idx = std::upper_bound(m_data_indices->array().begin(), m_data_indices->array().end(), data_glb_idx) - 1 -  m_data_indices->array().begin();
+  cf_assert(data_vector_idx<m_data_vector.size());
   return boost::make_tuple(m_data_vector[data_vector_idx].as_const().as_type<CUnifiedData<DATA>::data_type>(), data_glb_idx - m_data_indices->array()[data_vector_idx]);
 }
 

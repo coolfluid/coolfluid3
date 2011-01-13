@@ -57,13 +57,15 @@ public:
   ///                            Can be made using "find_components_recursively<CElements>()" function
   void setup(CRegion& region);
 
+  void setup(CRegion& region1, CRegion& region2);
+
   /// Build the connectivity table
   /// Build the connectivity table as a CDynTable<Uint>
   /// @pre set_nodes() and set_elements() must have been called
   
   void build_connectivity();
 
-  void build_filtered_connectivity();
+  void build_interface_connectivity();
 
   /// Find the elements connected to a given node by its index
   /// The return type is CDynTable<Uint>::ConstRow which (or "std::vector<Uint> const&")
@@ -81,6 +83,8 @@ public:
   /// const access to the node to element connectivity table in unified indices
   const CDynTable<Uint>& connectivity() const { return *m_connectivity; }
   
+  Uint size() const { return connectivity().size(); }
+  
 private: // functions
 
   
@@ -97,8 +101,16 @@ private: // data
   /// unified view of the elements
   CUnifiedData<CElements>::Ptr m_elements;
 
+  /// unified view of the elements
+  CUnifiedData<CElements>::Ptr m_elements_1;
+
+  /// unified view of the elements
+  CUnifiedData<CElements>::Ptr m_elements_2;
+
   /// Actual connectivity table
   CDynTable<Uint>::Ptr m_connectivity;
+  
+  CList<Uint>::Ptr m_face_nb_in_first_elem;
 
 }; // CFaceCellConnectivity
 

@@ -72,7 +72,7 @@ public:
   template<typename ElementsRangeT>
       void set_elements( const ElementsRangeT& range)
   {
-    m_elements->set_data(range);
+    m_elements->add_data(range);
   }
   
   /// Build the connectivity table
