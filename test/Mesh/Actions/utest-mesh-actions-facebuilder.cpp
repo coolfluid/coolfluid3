@@ -65,12 +65,13 @@ BOOST_AUTO_TEST_CASE( make_interfaces )
   CMesh::Ptr mesh = allocate_component<CMesh>("mesh");
   CRegion& R1 = mesh->create_region("R1");
   CRegion& R2 = mesh->create_region("R2");
-  CRegion& R3 = mesh->create_region("R3");
-  CRegion& R11 = R1.create_region("R1");
-  CRegion& R12 = R1.create_region("R2");
-  CRegion& R13 = R1.create_region("R3");
-  CRegion& R14 = R1.create_region("R4");
-  CRegion& R21 = R2.create_region("R1");
+  mesh->create_region("R3").create_component<CElements>("elements");
+  R1.create_region("R1").create_component<CElements>("elements");
+  
+  R1.create_region("R2").create_component<CElements>("elements");
+  R1.create_region("R3").create_component<CElements>("elements");
+  R1.create_region("R4").create_component<CElements>("elements");
+  R2.create_region("R1").create_component<CElements>("elements");
 
   CBuildFaces::Ptr facebuilder = allocate_component<CBuildFaces>("facebuilder");
   

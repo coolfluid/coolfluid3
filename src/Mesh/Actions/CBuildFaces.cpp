@@ -9,11 +9,13 @@
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/ComponentPredicates.hpp"
+#include "Common/Foreach.hpp"
 
 #include "Mesh/Actions/CBuildFaces.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CField.hpp"
+#include "Mesh/CFaceCellConnectivity.hpp"
 
 #include "Math/MathFunctions.hpp"
 
@@ -68,7 +70,8 @@ void CBuildFaces::transform(const CMesh::Ptr& mesh, const std::vector<std::strin
   m_mesh = mesh;
 
   // traverse regions and make interface region between connected regions recursively
-  make_interfaces(m_mesh);
+  //make_interfaces(m_mesh);
+  build_inner_faces_bottom_up(m_mesh);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -90,9 +93,37 @@ void CBuildFaces::make_interfaces(Component::Ptr parent)
       interface.add_tag("interface");
     }
   }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CBuildFaces::build_inner_faces_bottom_up(Component::Ptr parent)
+{
+  cf_assert_desc("parent must be a CRegion or CMesh", 
+    is_not_null( parent->as_type<CMesh>() ) || is_not_null( parent->as_type<CRegion>() ) );
   
-  for (Uint i=0; i<n; ++i)
-    make_interfaces(regions[i]); 
+  boost_foreach( CRegion& region, find_components<CRegion>(*parent) )
+  {
+    build_inner_faces_bottom_up(region.self());
+    
+    if ( count( find_components<CElements>(region) ) != 0 )
+    {
+      // this region is the bottom region
+      // CFaceCellConnectivity::Ptr face_to_cell = region.create_component<CFaceCellConnectivity>("face_to_cell");
+      // build connectivity ==> 1) inner faces  2) bdry faces
+      // 1) make regions for inner faces
+      CRegion& inner_faces = region.create_region("inner_faces");
+      // 2) get bdry elements from bdry faces and store in a set
+    }
+    else
+    { 
+      // this region is connected to another region
+      make_interfaces(region.self());
+      
+      //CFaceCellConnectivity::Ptr face_to_cell = region.create_component<CFaceCellConnectivity>("face_to_cell");
+      // build connectivity
+    }
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////

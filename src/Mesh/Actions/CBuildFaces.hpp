@@ -56,6 +56,8 @@ private: // functions
  
   void make_interfaces(Component::Ptr parent);
 
+  void build_inner_faces_bottom_up(Component::Ptr parent);
+
 private: // data
 
   CMesh::Ptr m_mesh;

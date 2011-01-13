@@ -61,6 +61,9 @@ public:
   /// Build the connectivity table as a CDynTable<Uint>
   /// @pre set_nodes() and set_elements() must have been called
   void build_connectivity();
+  
+  void inner_face_connectivity();
+  
 
   /// Find the elements connected to a given node by its index
   /// The return type is CDynTable<Uint>::ConstRow which (or "std::vector<Uint> const&")
