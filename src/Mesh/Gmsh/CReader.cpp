@@ -602,6 +602,7 @@ std::string CReader::element_type(const Uint gmsh_type, const Uint nb_nodes)
 //                               " in Gambit Neutral format");
 //  }
 //  return cf_type;
+  return std::string("");
 }
   
 //////////////////////////////////////////////////////////////////////////////
