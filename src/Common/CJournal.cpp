@@ -38,6 +38,10 @@ CJournal::CJournal (const std::string & name)
 
   signal("list_journal").is_hidden = true;
 
+  m_properties.add_option< OptionT<bool> >("RecordReplies", "If true, both signal and reply frames are recorded. If false, only signal frames are recorded.\nRecording replies will significantly increase the journal size and the memory used.", false);
+
+  m_properties["RecordReplies"].as_option().mark_basic();
+
   /// @todo change this when the XML layer arrives
   XmlNode & doc_node = *XmlOps::goto_doc_node(*m_xmldoc.get());
 
@@ -94,10 +98,16 @@ void CJournal::dump_journal_to ( const boost::filesystem::path & file_path ) con
 
 void CJournal::add_signal ( const XmlNode & signal_node )
 {
-  XmlNode * copy = copy_node(signal_node, *m_signals_map);
+  XmlAttr * type_attr = signal_node.first_attribute("type");
 
-  boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
-  XmlOps::add_attribute_to(*copy, "time", boost::posix_time::to_simple_string(now));
+  if(m_properties["RecordReplies"].value<bool>() ||
+     (type_attr != nullptr && std::strcmp(type_attr->value(), "signal") == 0) )
+  {
+    XmlNode * copy = copy_node(signal_node, *m_signals_map);
+
+    boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
+    XmlOps::add_attribute_to(*copy, "time", boost::posix_time::to_simple_string(now));
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
