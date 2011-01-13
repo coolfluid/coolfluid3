@@ -7,6 +7,8 @@ list( APPEND coolfluid_mesh_sf_files
   Line1DLagrangeP1.hpp
   Line2DLagrangeP1.cpp
   Line2DLagrangeP1.hpp
+  Line2DLagrangeP2.cpp
+  Line2DLagrangeP2.hpp
   Line3DLagrangeP1.cpp
   Line3DLagrangeP1.hpp
   Point1DLagrangeP1.cpp
