@@ -60,10 +60,10 @@ public:
   /// Build the connectivity table
   /// Build the connectivity table as a CDynTable<Uint>
   /// @pre set_nodes() and set_elements() must have been called
+  
   void build_connectivity();
-  
-  void inner_face_connectivity();
-  
+
+  void build_filtered_connectivity();
 
   /// Find the elements connected to a given node by its index
   /// The return type is CDynTable<Uint>::ConstRow which (or "std::vector<Uint> const&")
@@ -81,8 +81,17 @@ public:
   /// const access to the node to element connectivity table in unified indices
   const CDynTable<Uint>& connectivity() const { return *m_connectivity; }
   
+private: // functions
+
+  
 private: // data
 
+  /// boolean set by configuration to see if 
+  /// "CList<Uint> is_bdry" gets stored in CElements
+  bool m_store_is_bdry;
+  bool m_filter_bdry;
+
+  /// nb_faces
   Uint m_nb_faces;
 
   /// unified view of the elements

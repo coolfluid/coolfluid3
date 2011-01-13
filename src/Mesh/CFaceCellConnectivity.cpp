@@ -7,8 +7,8 @@
 #include <set>
 #include <deque>
 
+#include "Common/OptionT.hpp"
 #include "Common/ComponentPredicates.hpp"
-
 #include "Common/CLink.hpp"
 #include "Common/Log.hpp"
 
@@ -16,8 +16,6 @@
 #include "Mesh/CDynTable.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CRegion.hpp"
-
-#include "Mesh/CNodeElementConnectivity.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -27,8 +25,22 @@ using namespace Common;
 ////////////////////////////////////////////////////////////////////////////////
 
 CFaceCellConnectivity::CFaceCellConnectivity ( const std::string& name ) : 
-  Component(name)
+  Component(name),
+  m_store_is_bdry(true),
+  m_filter_bdry(true)
 {
+  m_properties.add_option< OptionT<bool> >
+      ( "StoreIsBdry",
+        "Insert CList<bool> is_bdry in CElements, that are at the boundary",
+        true );
+  m_properties.link_to_parameter ( "StoreIsBdry", &m_store_is_bdry );
+  
+  m_properties.add_option< OptionT<bool> >
+      ( "FilterBdry",
+        "Only try to connect cells marked as boundary",
+        true );
+  m_properties.link_to_parameter ( "FilterBdry", &m_filter_bdry );
+  
   m_elements = create_static_component<CUnifiedData<CElements> >("elements");
   m_connectivity = create_static_component<CDynTable<Uint> >("connectivity_table");
   mark_basic();
@@ -97,6 +109,8 @@ void CFaceCellConnectivity::build_connectivity()
   Uint connected_face;
   Uint node;
   bool found_face = false;
+  CElements::Ptr elem_location_comp;
+  Uint elem_location_idx;
 
   // during the first big loop the following is done:
   // 1. set the element-faces connectivity
@@ -104,14 +118,31 @@ void CFaceCellConnectivity::build_connectivity()
   // 3. select which are the boundary faces and which are internal ones
 
   // loop over the types
-  boost_foreach ( CElements::Ptr& elements, m_elements->data_components() )
+  boost_foreach (CElements::Ptr& elements, m_elements->data_components() )
   {
     /// @todo for now all geoents have same geometric and solution polyorder
     const Uint nb_faces_in_elem = elements->element_type().nb_faces();
 
-    // loop over the elements of this type
-    boost_foreach( CTable<Uint>::ConstRow elem, elements->connectivity_table().array() )
+    CList<bool>::Ptr is_bdry = elements->get_child<CList<bool> >("is_bdry");
+    if (m_store_is_bdry)
     {
+      const Uint nb_elem = elements->size();
+      if (is_null(is_bdry))
+        is_bdry = elements->create_component<CList<bool> >("is_bdry");
+      is_bdry->resize(nb_elem);
+      for (Uint e=0; e<nb_elem; ++e)
+        (*is_bdry)[e] = true;
+    }
+    
+    // loop over the elements of this type
+    index_foreach(loc_elem_idx, CTable<Uint>::ConstRow elem, elements->connectivity_table().array() ) 
+    {
+      if (m_filter_bdry && !m_store_is_bdry)
+      {
+        cf_assert( is_not_null(is_bdry) );
+        if ( ! (*is_bdry)[loc_elem_idx] )
+          continue;
+      }
       // loop over the faces in the current element
       for (Uint face_idx = 0; face_idx != nb_faces_in_elem; ++face_idx)
       {
@@ -157,7 +188,11 @@ void CFaceCellConnectivity::build_connectivity()
                 found_face = true;
                 //(*m_connectivity)[elemID][iFace] = currFaceID;
                 (*m_connectivity)[face].push_back(elem_idx);
-
+                if (m_store_is_bdry)
+                {
+                  boost::tie(elem_location_comp,elem_location_idx) = m_elements->data_location(elem_idx);
+                  elem_location_comp->get_child<CList<bool> >("is_bdry")->array()[elem_location_idx]=false;
+                }
                 // since it has two neighbor cells,
                 // this face is surely NOT a boundary face
                 // m_isBFace[currFaceID] = false;
@@ -176,7 +211,11 @@ void CFaceCellConnectivity::build_connectivity()
             found_face = true;
             //(*elem_to_face)[elemID][iFace] = currFaceID;
             (*m_connectivity)[face].push_back(elem_idx);
-
+            if (m_store_is_bdry)
+            {
+              boost::tie(elem_location_comp,elem_location_idx) = m_elements->data_location(elem_idx);
+              elem_location_comp->get_child<CList<bool> >("is_bdry")->array()[elem_location_idx]=false;
+            }
             // since it has two neighbor cells,
             // this face is surely NOT a boundary face
             //m_isBFace[currFaceID] = false;
