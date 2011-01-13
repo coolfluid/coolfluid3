@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CFaceElementConnectivity_hpp
-#define CF_Mesh_CFaceElementConnectivity_hpp
+#ifndef CF_Mesh_CFaceCellConnectivity_hpp
+#define CF_Mesh_CFaceCellConnectivity_hpp
 
 #include "Mesh/CElements.hpp"
 #include "Mesh/CUnifiedData.hpp"
@@ -20,6 +20,7 @@ namespace Common {
 namespace Mesh {
   
   class CNodes;
+  class CRegion;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -27,22 +28,22 @@ namespace Mesh {
 /// and provides a convenient API to access the data
 /// @author Andrea Lani
 /// @author Willem Deconinck
-class Mesh_API CFaceElementConnectivity : public Common::Component
+class Mesh_API CFaceCellConnectivity : public Common::Component
 {
 public:
 
-  typedef boost::shared_ptr<CFaceElementConnectivity> Ptr;
-  typedef boost::shared_ptr<CFaceElementConnectivity const> ConstPtr;
+  typedef boost::shared_ptr<CFaceCellConnectivity> Ptr;
+  typedef boost::shared_ptr<CFaceCellConnectivity const> ConstPtr;
 
   /// Contructor
   /// @param name of the component
-  CFaceElementConnectivity ( const std::string& name );
+  CFaceCellConnectivity ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CFaceElementConnectivity() {}
+  virtual ~CFaceCellConnectivity() {}
 
   /// Get the class name
-  static std::string type_name () { return "CFaceElementConnectivity"; }
+  static std::string type_name () { return "CFaceCellConnectivity"; }
 
   /// setup the node to element connectivity
   /// This function calls 
@@ -54,24 +55,8 @@ public:
   /// @param [in] nodes the nodes component to find connected elements of
   /// @param [in] elements_range the elements range to see if they are connected to the nodes.
   ///                            Can be made using "find_components_recursively<CElements>()" function
-  template <typename ElementsRangeT>
-      void setup(const ElementsRangeT& elements_range)
-  {
-    set_elements(elements_range);
-    build_connectivity();
-  }
+  void setup(CRegion& region);
 
-  /// set the element for the node to element connectivity
-  /// Elements have a continuous index spanning all element components
-  /// stored in a CUnifiedData<CElements> component
-  /// @param [in] elements_range the elements range to see if they are connected to the nodes.
-  ///                            Can be made using "find_components_recursively<CElements>()" function
-  template<typename ElementsRangeT>
-      void set_elements(ElementsRangeT range)
-  {
-    m_elements->set_data(range);
-  }
-  
   /// Build the connectivity table
   /// Build the connectivity table as a CDynTable<Uint>
   /// @pre set_nodes() and set_elements() must have been called
@@ -103,7 +88,7 @@ private: // data
   /// Actual connectivity table
   CDynTable<Uint>::Ptr m_connectivity;
 
-}; // CFaceElementConnectivity
+}; // CFaceCellConnectivity
 
 ////////////////////////////////////////////////////////////////////////////////
 

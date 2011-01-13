@@ -54,6 +54,8 @@ public: // functions
   
 private: // functions
  
+  void make_interfaces(Component::Ptr parent);
+
 private: // data
 
   CMesh::Ptr m_mesh;

@@ -12,9 +12,10 @@
 #include "Common/CLink.hpp"
 #include "Common/Log.hpp"
 
-#include "Mesh/CFaceElementConnectivity.hpp"
+#include "Mesh/CFaceCellConnectivity.hpp"
 #include "Mesh/CDynTable.hpp"
 #include "Mesh/CNodes.hpp"
+#include "Mesh/CRegion.hpp"
 
 #include "Mesh/CNodeElementConnectivity.hpp"
 
@@ -25,7 +26,7 @@ using namespace Common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CFaceElementConnectivity::CFaceElementConnectivity ( const std::string& name ) : 
+CFaceCellConnectivity::CFaceCellConnectivity ( const std::string& name ) : 
   Component(name)
 {
   m_elements = create_static_component<CUnifiedData<CElements> >("elements");
@@ -35,7 +36,15 @@ CFaceElementConnectivity::CFaceElementConnectivity ( const std::string& name ) :
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CFaceElementConnectivity::build_connectivity()
+void CFaceCellConnectivity::setup(CRegion& region)
+{
+  m_elements->set_data(find_components_recursively_with_filter<CElements>(region,IsElementsVolume()));
+  build_connectivity();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CFaceCellConnectivity::build_connectivity()
 {
   /// variable that will count nb_faces;
   m_nb_faces=0;
@@ -235,21 +244,21 @@ void CFaceElementConnectivity::build_connectivity()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CDynTable<Uint>::ConstRow CFaceElementConnectivity::elements(const Uint unified_face_idx) const
+CDynTable<Uint>::ConstRow CFaceCellConnectivity::elements(const Uint unified_face_idx) const
 {
   return (*m_connectivity)[unified_face_idx];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CUnifiedData<CElements>::data_location_type CFaceElementConnectivity::element_location(const Uint unified_elem_idx)
+CUnifiedData<CElements>::data_location_type CFaceCellConnectivity::element_location(const Uint unified_elem_idx)
 {
   return m_elements->data_location(unified_elem_idx);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CUnifiedData<CElements>::const_data_location_type CFaceElementConnectivity::element_location(const Uint unified_elem_idx) const
+CUnifiedData<CElements>::const_data_location_type CFaceCellConnectivity::element_location(const Uint unified_elem_idx) const
 {
   return m_elements->data_location(unified_elem_idx);
 }

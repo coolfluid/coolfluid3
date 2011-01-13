@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Tests CF::Mesh::CFaceElementConnectivity"
+#define BOOST_TEST_MODULE "Tests CF::Mesh::CFaceCellConnectivity"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/filesystem/path.hpp>
@@ -20,8 +20,9 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CNodes.hpp"
+#include "Mesh/CRegion.hpp"
 #include "Mesh/CMeshReader.hpp"
-#include "Mesh/CFaceElementConnectivity.hpp"
+#include "Mesh/CFaceCellConnectivity.hpp"
 #include "Mesh/ConnectivityData.hpp"
 
 using namespace boost;
@@ -32,10 +33,10 @@ using namespace CF::Tools;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct FaceElementConnectivity_Fixture //: public Testing::TimedTestFixture
+struct FaceCellConnectivity_Fixture //: public Testing::TimedTestFixture
 {
   /// common setup for each test case
-  FaceElementConnectivity_Fixture()
+  FaceCellConnectivity_Fixture()
   {
      // uncomment if you want to use arguments to the test executable
      //int*    argc = &boost::unit_test::framework::master_test_suite().argc;
@@ -44,7 +45,7 @@ struct FaceElementConnectivity_Fixture //: public Testing::TimedTestFixture
   }
 
   /// common tear-down for each test case
-  ~FaceElementConnectivity_Fixture()
+  ~FaceCellConnectivity_Fixture()
   {
   }
 
@@ -55,18 +56,18 @@ struct FaceElementConnectivity_Fixture //: public Testing::TimedTestFixture
   static CMesh::Ptr m_mesh;
 };
 
-CMesh::Ptr FaceElementConnectivity_Fixture::m_mesh;
+CMesh::Ptr FaceCellConnectivity_Fixture::m_mesh;
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_SUITE( FaceElementConnectivity_TestSuite, FaceElementConnectivity_Fixture )
+BOOST_FIXTURE_TEST_SUITE( FaceCellConnectivity_TestSuite, FaceCellConnectivity_Fixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( Constructors )
 {
-  CFaceElementConnectivity::Ptr c = allocate_component<CFaceElementConnectivity>("faces_to_elements");
-  BOOST_CHECK_EQUAL(c->name(),"faces_to_elements");
-  BOOST_CHECK_EQUAL(CFaceElementConnectivity::type_name(), "CFaceElementConnectivity");
+  CFaceCellConnectivity::Ptr c = allocate_component<CFaceCellConnectivity>("faces_to_cells");
+  BOOST_CHECK_EQUAL(c->name(),"faces_to_cells");
+  BOOST_CHECK_EQUAL(CFaceCellConnectivity::type_name(), "CFaceCellConnectivity");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -89,8 +90,8 @@ BOOST_AUTO_TEST_CASE( face_elem_connectivity )
 {
 
   // create and setup node to elements connectivity  
-  CFaceElementConnectivity::Ptr c = m_mesh->create_component<CFaceElementConnectivity>("node_elem_connectivity");
-  c->setup( find_components_recursively_with_filter<CElements>(*m_mesh,IsElementsVolume()) );
+  CFaceCellConnectivity::Ptr c = m_mesh->create_component<CFaceCellConnectivity>("face_cell_connectivity");
+  c->setup( find_component<CRegion>(*m_mesh) );
 
   BOOST_CHECK_EQUAL(c->connectivity().size() , 40u);
   BOOST_CHECK_EQUAL(c->connectivity()[36][0] , 14u);

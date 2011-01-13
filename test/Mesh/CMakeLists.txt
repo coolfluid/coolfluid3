@@ -28,10 +28,10 @@ coolfluid_add_unittest( utest-mesh-node-element-connectivity )
 
 ################################################################################
 
-list( APPEND utest-mesh-face-element-connectivity_cflibs coolfluid_testing coolfluid_mesh_generation coolfluid_mesh_neutral coolfluid_mesh_sf )
-list( APPEND utest-mesh-face-element-connectivity_files  utest-mesh-face-element-connectivity.cpp )
+list( APPEND utest-mesh-face-cell-connectivity_cflibs coolfluid_testing coolfluid_mesh_generation coolfluid_mesh_neutral coolfluid_mesh_sf )
+list( APPEND utest-mesh-face-cell-connectivity_files  utest-mesh-face-cell-connectivity.cpp )
 
-coolfluid_add_unittest( utest-mesh-face-element-connectivity )
+coolfluid_add_unittest( utest-mesh-face-cell-connectivity )
 
 ################################################################################
 
@@ -316,3 +316,6 @@ add_custom_command(TARGET utest-loadmesh
                    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rotation-qd.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                   )
 
+##########################################################################
+# test Actions
+add_subdirectory( Actions )

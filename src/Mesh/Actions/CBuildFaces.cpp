@@ -15,6 +15,8 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CField.hpp"
 
+#include "Math/MathFunctions.hpp"
+
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -22,7 +24,8 @@ namespace Mesh {
 namespace Actions {
   
   using namespace Common;
-
+  using namespace Math::MathFunctions;
+  
 ////////////////////////////////////////////////////////////////////////////////
 
 Common::ComponentBuilder < CBuildFaces, CMeshTransformer, LibActions> CBuildFaces_Builder;
@@ -64,6 +67,32 @@ void CBuildFaces::transform(const CMesh::Ptr& mesh, const std::vector<std::strin
 
   m_mesh = mesh;
 
+  // traverse regions and make interface region between connected regions recursively
+  make_interfaces(m_mesh);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void CBuildFaces::make_interfaces(Component::Ptr parent)
+{
+  cf_assert_desc("parent must be a CRegion or CMesh", 
+    is_not_null( parent->as_type<CMesh>() ) || is_not_null( parent->as_type<CRegion>() ) );
+  
+  std::vector<CRegion::Ptr> regions = range_to_vector(find_components<CRegion>(*parent));
+  const Uint n=regions.size();
+  if (n>1)
+  {
+    Uint nb_interfaces = factorial(n) / (2*factorial(n-2));
+    for (Uint i=0; i<n; ++i)
+    for (Uint j=i+1; j<n; ++j)
+    {
+      CRegion& interface = *parent->create_component<CRegion>("interface_"+regions[i]->name()+"_to_"+regions[j]->name());
+      interface.add_tag("interface");
+    }
+  }
+  
+  for (Uint i=0; i<n; ++i)
+    make_interfaces(regions[i]); 
 }
 
 //////////////////////////////////////////////////////////////////////////////
