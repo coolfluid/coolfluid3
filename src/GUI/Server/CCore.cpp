@@ -35,7 +35,7 @@ CCore::CCore()
     m_simRunning(false),
     m_active(false)
 {
-   
+
 
   TypeInfo::instance().regist<CCore>( type_name() );
 
@@ -58,8 +58,6 @@ CCore::CCore()
 
   regist_signal("read_dir", "Read directory content")->connect(boost::bind(&CCore::read_dir, this, _1));
   regist_signal("shutdown", "Shutdown the server")->connect(boost::bind(&CCore::shutdown, this, _1));
-  regist_signal("heavy_compute", "Do hard work")->connect(boost::bind(&CCore::heavy_compute, this, _1));
-
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -202,15 +202,6 @@ void MainWindow::buildMenus()
 
   m_actions[MainWindow::ACTION_SHUTDOWN_SERVER] = actionInfo.buildAction(this);
 
-
-  actionInfo.initDefaults();
-  actionInfo.m_menu = m_mnuFile;
-  actionInfo.m_text = "&Do hard work";
-  actionInfo.m_slot = SLOT(hardWork());
-
-  m_actions[MainWindow::ACTION_SHUTDOWN_SERVER] = actionInfo.buildAction(this);
-
-
   //-----------------------------------------------
 
   m_mnuFile->addSeparator();
@@ -799,15 +790,4 @@ void MainWindow::currentIndexChanged(const QModelIndex & newIndex, const QModelI
 
   text = text.arg(data["brief"]).arg(data["description"]);
   m_labDescription->setText(text.replace("\n","<br>"));
-}
-
-void MainWindow::hardWork()
-{
-  NCore::Ptr core = ClientRoot::instance().core();
-  boost::shared_ptr<XmlDoc> xmldoc = XmlOps::create_doc();
-  XmlNode & xmlnode = *XmlOps::goto_doc_node(*xmldoc.get());
-
-  XmlOps::add_signal_frame(xmlnode, "heavy_compute", core->full_path(), SERVER_CORE_PATH, true);
-
-  core->sendSignal(*xmldoc.get());
 }

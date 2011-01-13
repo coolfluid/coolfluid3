@@ -158,8 +158,6 @@ namespace ClientUI {
 
     void currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex);
 
-    void hardWork();
-
   private:
 
     /// @brief Indicates that the user wants to disconnect from the server.
