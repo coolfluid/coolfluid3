@@ -10,6 +10,7 @@
 #include "Common/Core.hpp"
 #include "Common/CreateComponent.hpp"
 #include "Common/BuildInfo.hpp"
+#include "Common/CJournal.hpp"
 
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
@@ -32,12 +33,15 @@ int main(int argc, char * argv[])
 
   try
   {
+    std::string journal_file;
+
     // parse command line options
 
     options_description desc("General Options");
     desc.add_options()
     ("help,h",   value<std::string>()->implicit_value(std::string()), "show this help")
     ("scase,s",  value<std::vector<std::string> >()->multitoken(),    "list of scripts to execute in order")
+    ("exec_journal", value<std::string>(&journal_file)->implicit_value(std::string()), "load and execute a journal")
     ("version,v", "show version")
     ;
     variables_map vm;
@@ -58,6 +62,27 @@ int main(int argc, char * argv[])
 
       Core::instance().terminate();
       return 0;
+    }
+
+    if(vm.count("exec_journal") == 1)
+    {
+      try
+      {
+        CJournal::Ptr journal(new CJournal("Journal"));
+
+        Core::instance().root()->get_child("Tools")->add_component(journal);
+
+        journal->execute_signals(journal_file);
+
+        Core::instance().root()->dump_tree_to("./my-tree.xml");
+
+        return 0;
+      }
+      catch(Exception & e)
+      {
+        CFerror << e.what() << CFendl;
+        return 1;
+      }
     }
 
     //-------------------------------------------------------------------------------

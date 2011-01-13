@@ -65,6 +65,8 @@ namespace Common {
     /// @param signal_node Signal to add.
     void add_signal ( const XmlNode & signal_node );
 
+    void execute_signals (const boost::filesystem::path & filename);
+
     /// @name SIGNALS
     // @{
 

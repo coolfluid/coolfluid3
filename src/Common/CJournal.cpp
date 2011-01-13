@@ -9,6 +9,7 @@
 #include "Common/Core.hpp"
 #include "Common/Log.hpp"
 #include "Common/LibCommon.hpp"
+#include "Common/OptionT.hpp"
 
 #include "Common/CJournal.hpp"
 
@@ -43,6 +44,8 @@ CJournal::CJournal (const std::string & name)
   m_info_node = XmlOps::add_node_to(doc_node, XmlParams::tag_node_map());
   m_signals_map = XmlOps::add_node_to(doc_node, XmlParams::tag_node_map());
 
+  XmlOps::add_attribute_to(*m_signals_map, "key", "signals");
+
   XmlOps::add_attribute_to(*m_info_node, XmlParams::tag_attr_key(), "journalInfo");
 
   XmlParams::add_value_to(*m_info_node, "hostname", Core::instance().network_info().hostname());
@@ -72,14 +75,19 @@ CJournal::Ptr CJournal::create_from_file ( const std::string & name,
 
 void CJournal::load_journal_file ( const boost::filesystem::path & file_path )
 {
+  /// @todo handle m_info_node and m_signals_map
 
+  m_signals.clear();
+  m_xmldoc = XmlOps::parse(file_path);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CJournal::dump_journal_to ( const boost::filesystem::path & file_path ) const
 {
+  XmlOps::write_xml_node(*m_xmldoc.get(), file_path);
 
+  CFinfo << "Journal dumped to '" << file_path.string() << "'" << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -90,6 +98,73 @@ void CJournal::add_signal ( const XmlNode & signal_node )
 
   boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
   XmlOps::add_attribute_to(*copy, "time", boost::posix_time::to_simple_string(now));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CJournal::execute_signals (const boost::filesystem::path & filename)
+{
+
+
+  if (m_root.expired())
+    throw IllegalCall(FromHere(), "Component \'" + name() + "\' has no root");
+
+  boost::shared_ptr<XmlNode> xmldoc = XmlOps::parse(filename);
+  XmlNode & doc_node = *XmlOps::goto_doc_node(*xmldoc.get());
+  XmlNode * signals_map = doc_node.first_node();
+  bool found_map = false;
+  XmlNode * node = nullptr;
+  XmlAttr * key_attr = nullptr;
+  CRoot::Ptr root = Core::instance().root();
+
+  for( ; signals_map != nullptr ; signals_map = signals_map->next_sibling())
+  {
+    key_attr = signals_map->first_attribute("key");
+    found_map = key_attr != nullptr && std::strcmp(key_attr->value(), "signals") == 0;
+
+    if(found_map)
+      break;
+  }
+
+  if(!found_map)
+    throw XmlError(FromHere(), "Could not find \'signals\' map.");
+
+  node = signals_map->first_node("frame");
+
+  for( ; node != nullptr ; node = node->next_sibling("frame"))
+  {
+    XmlAttr * type_attr = node->first_attribute("type");
+
+    if(type_attr != nullptr && std::strcmp(type_attr->value(), "signal") == 0)
+    {
+      XmlAttr * target_attr = node->first_attribute("target");
+      XmlAttr * receiver_attr = node->first_attribute("receiver");
+
+      std::string target = target_attr != nullptr ? target_attr->value() : "";
+      std::string receiver = receiver_attr != nullptr ? receiver_attr->value() : "";
+
+      if(target.empty())
+        CFwarn << "Warning: missing or empty target. Skipping this signal." << CFendl;
+
+      if(receiver.empty())
+        CFwarn << "Warning: missing or empty receiver. Skipping this signal." << CFendl;
+
+      if(receiver == "//Root/Core") // server specific component
+        continue;
+
+      try
+      {
+        CFinfo << "Executing: '" << target << "'\t on '" << receiver << "'." << CFendl;
+        root->access_component(receiver)->call_signal(target, *node);
+      }
+      catch(Exception & e)
+      {
+        CFerror << e.what();
+      }
+
+    }
+  }
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
