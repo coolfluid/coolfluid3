@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE( data_location )
 
 
 
-  unified_elems->set_data(find_components_recursively<CElements>(*mesh));
+  unified_elems->add_data(find_components_recursively<CElements>(*mesh));
   
 
 
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE( data_location )
   }
   
   CUnifiedData<CNodes>::Ptr unified_nodes = allocate_component<CUnifiedData<CNodes> >("unified_nodes");
-  unified_nodes->set_data(find_components_recursively<CNodes>(*mesh));
+  unified_nodes->add_data(find_components_recursively<CNodes>(*mesh));
   
   CNodes::Ptr nodes;
   Uint node_idx;
