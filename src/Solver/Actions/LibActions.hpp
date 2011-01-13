@@ -46,7 +46,7 @@ public:
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.Actions"; }
+  static std::string library_namespace() { return "CF.Solver.Actions"; }
 
 
   /// Static function that returns the module name.
