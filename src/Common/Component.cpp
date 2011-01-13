@@ -79,6 +79,7 @@ Component::Component ( const std::string& name ) :
   signal("list_properties").is_hidden = true;
   signal("list_signals").is_hidden = true;
   signal("configure").is_hidden = true;
+  signal("dump_tree").is_hidden = true;
 
   // properties
 
