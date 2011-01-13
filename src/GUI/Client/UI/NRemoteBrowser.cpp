@@ -189,8 +189,8 @@ QString NRemoteBrowser::show(const QString & startingDir, bool * canceled)
   m_listView->setSelectionMode(QAbstractItemView::SingleSelection);
   m_listView->clearSelection();
 
-  connect(ClientRoot::instance().log().get(), SIGNAL(newMessage(const QString &, bool)),
-          this, SLOT(error(const QString &, bool)));
+  connect(ClientRoot::instance().log().get(), SIGNAL(newMessage(QString,CF::GUI::Network::LogMessage::Type)),
+          this, SLOT(message(QString,CF::GUI::Network::LogMessage::Type)));
 
   this->reinitValues();
 
@@ -550,12 +550,15 @@ void NRemoteBrowser::pathUpdated(const QString & text)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NRemoteBrowser::error(const QString & error, bool fromServer)
+void NRemoteBrowser::message(const QString &error, LogMessage::Type type)
 {
-  // restore mouse cursor
-  QApplication::restoreOverrideCursor();
+  if(type == LogMessage::ERROR || type == LogMessage::EXCEPTION)
+  {
+    // restore mouse cursor
+    QApplication::restoreOverrideCursor();
 
-  QMessageBox::critical(this, "Error", error);
+    QMessageBox::critical(this, "Error", error);
+  }
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

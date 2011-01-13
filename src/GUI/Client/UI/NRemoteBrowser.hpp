@@ -15,6 +15,8 @@
 
 #include "GUI/Client/Core/CNode.hpp"
 
+#include "GUI/Network/LogMessage.hpp"
+
 #include "GUI/Client/UI/LibClientUI.hpp"
 
 class QCompleter;
@@ -445,7 +447,7 @@ namespace ClientUI {
     /// @param error
     /// @param fromServer @c true if the error message comes from the server,
     /// otherwise @c false. This parameter is never used.
-    void error(const QString & error, bool fromServer);
+    void message(const QString & error, CF::GUI::Network::LogMessage::Type type);
 
     /// @brief Slot called when the user double-click on an item in the
     /// list m_view.
