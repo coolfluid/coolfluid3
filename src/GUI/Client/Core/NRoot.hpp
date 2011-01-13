@@ -73,6 +73,8 @@ namespace ClientCore {
     /// @return Returns the Client UUID
     std::string uuid() const;
 
+    void dump_tree_local ( Common::XmlNode & node);
+
   private :
 
     /// @brief The internal CRoot component

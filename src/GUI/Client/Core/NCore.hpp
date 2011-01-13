@@ -82,7 +82,11 @@ namespace ClientCore {
     /// @return The name of the class.
     virtual QString toolTip() const;
 
-    void run();
+    /// Indicates whether the client is connected to the server or not.
+
+    /// @return Returns @c true if the client is connected to a server;
+    /// otherwise returns @c false.
+    bool isConnected();
 
   public slots:
 
@@ -115,6 +119,7 @@ namespace ClientCore {
     /// @brief The current connection information.
     TSshInformation m_commSshInfo;
 
+  private: // helper functions
     /// @name Signals
     //@{
 

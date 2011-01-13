@@ -298,10 +298,15 @@ public: // functions
   /// renames this component
   void rename_component ( XmlNode& xml) ;
 
+  /// dumps the tree to a file
+  void dump_tree ( XmlNode &xml);
+
   //@} END SIGNALS
 
   /// marks this component as basic.
   void mark_basic();
+
+  void dump_tree_to( const boost::filesystem::path & path );
 
 protected: // functions
 

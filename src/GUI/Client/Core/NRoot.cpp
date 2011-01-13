@@ -24,7 +24,9 @@ NRoot::NRoot(const QString & name)
   : CNode(name, "CRoot", ROOT_NODE),
     m_uuid(boost::uuids::random_generator()())
 {
+  regist_signal( "dump_tree_local", "Dumps the server component tree.", "Dump server tree" )->connect( boost::bind(&NRoot::dump_tree_local, this, _1));
 
+  m_localSignals << "dump_tree_local";
 
   m_root = CRoot::create(name.toStdString());
 }
@@ -70,4 +72,29 @@ std::string NRoot::uuid() const
   std::ostringstream ss;
   ss << m_uuid;
   return ss.str();
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+void NRoot::dump_tree_local ( Common::XmlNode & node )
+{
+  if( !ClientRoot::instance().core()->isConnected() )
+    ClientRoot::instance().log()->addError("The client needs to be connected to a server to do that.");
+  else
+  {
+    boost::shared_ptr<XmlDoc> root = XmlOps::create_doc();
+    XmlNode * docNode = XmlOps::goto_doc_node(*root.get());
+    XmlNode * frameNode;
+    XmlNode * mapNode;
+
+    frameNode = XmlOps::add_signal_frame(*docNode, "dump_tree", CLIENT_ROOT_PATH,
+                                         SERVER_ROOT_PATH, true);
+
+    mapNode = XmlOps::add_node_to(*frameNode, XmlParams::tag_node_map());
+
+    XmlParams(*frameNode).add_option("filename", URI("./server-tree.xml", URI::Scheme::FILE));
+
+    ClientRoot::instance().core()->sendSignal(*root.get());
+  }
 }

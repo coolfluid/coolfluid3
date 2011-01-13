@@ -72,6 +72,8 @@ Component::Component ( const std::string& name ) :
   signal("move_component").signature
           .insert< URI >("Path", "Path to the new component to which this one will move to" );
 
+  regist_signal( "dump_tree", "Dumps the tree", "Dump tree")->connect( boost::bind(&Component::dump_tree, this, _1) );
+
   // these signals should not be seen from the GUI
   signal("list_tree").is_hidden = true;
   signal("list_properties").is_hidden = true;
@@ -829,6 +831,33 @@ void Component::rename_component ( XmlNode& node )
   std::string new_name = p.get_option<std::string>("New Name");
 
   rename(new_name);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+void Component::dump_tree ( XmlNode& node )
+{
+  XmlParams p(node);
+  URI filename = p.get_option<URI>("filename");
+
+  if(filename.scheme() != URI::Scheme::FILE)
+    throw InvalidURI(FromHere(), "A file was expected but got \'" + filename.string() + "\'");
+
+  dump_tree_to( filename.string_without_scheme() );
+}
+
+/////////////////////////////////////////////////////////////////////////////////////
+
+void Component::dump_tree_to( const boost::filesystem::path & path )
+{
+  boost::shared_ptr<XmlDoc> xmldoc = XmlOps::create_doc();
+  XmlNode & doc_node = *XmlOps::goto_doc_node(*xmldoc.get());
+
+  write_xml_tree(doc_node);
+
+  XmlOps::write_xml_node(*xmldoc.get(), path);
+
+  CFinfo << "Tree dumped to '" << path.string() << "'" << CFendl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
