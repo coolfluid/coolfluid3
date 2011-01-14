@@ -58,7 +58,7 @@ coolfluid_add_unittest( utest-mesh-components )
 
 list( APPEND utest-mesh-cgns_cflibs      coolfluid_mesh_actions coolfluid_mesh_cgns3 coolfluid_mesh_neutral coolfluid_mesh_gmsh )
 list( APPEND utest-mesh-cgns_files       utest-mesh-cgns.cpp )
-list( APPEND utest-mesh-cgns_includedirs ${CGNS_INCLUDE_DIR} )
+#list( APPEND utest-mesh-cgns_includedirs ${CGNS_INCLUDE_DIR} )
 
 set( utest-cgns_condition ${coolfluid_mesh_cgns3_builds} )
 
@@ -234,10 +234,10 @@ coolfluid_add_unittest( utest-vector-benchmark )
 ################################################################################
 
 list( APPEND utest-pt-scotch_cflibs coolfluid_mesh_neutral coolfluid_mesh_sf coolfluid_mesh_gmsh )
-list( APPEND utest-pt-scotch_libs ${PTSCOTCH_LIBRARIES} )
+#list( APPEND utest-pt-scotch_libs ${PTSCOTCH_LIBRARIES} )
 
 list( APPEND utest-pt-scotch_files  utest-pt-scotch.cpp )
-list( APPEND utest-pt-scotch_includedirs ${PTSCOTCH_INCLUDE_DIR} )
+#list( APPEND utest-pt-scotch_includedirs ${PTSCOTCH_INCLUDE_DIR} )
 
 set( utest-pt-scotch_condition ${coolfluid_mesh_ptscotch_builds} )
 
@@ -256,9 +256,9 @@ add_custom_command(TARGET utest-pt-scotch
 ################################################################################
 
 list( APPEND utest-zoltan_cflibs coolfluid_mesh_neutral coolfluid_mesh_gmsh coolfluid_mesh_zoltan )
-list( APPEND utest-zoltan_libs ${ZOLTAN_LIBRARIES} )
+#list( APPEND utest-zoltan_libs ${ZOLTAN_LIBRARIES} )
 list( APPEND utest-zoltan_files  utest-zoltan.cpp )
-list( APPEND utest-zoltan_includedirs ${ZOLTAN_INCLUDE_DIR} )
+#list( APPEND utest-zoltan_includedirs ${ZOLTAN_INCLUDE_DIR} )
 
 set( utest-zoltan_condition ${coolfluid_mesh_zoltan_builds} )
 
