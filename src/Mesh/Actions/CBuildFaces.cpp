@@ -10,6 +10,7 @@
 #include "Common/CBuilder.hpp"
 #include "Common/ComponentPredicates.hpp"
 #include "Common/Foreach.hpp"
+#include "Common/StreamHelpers.hpp"
 
 #include "Mesh/Actions/CBuildFaces.hpp"
 #include "Mesh/CElements.hpp"
@@ -97,7 +98,7 @@ void CBuildFaces::make_interfaces(Component::Ptr parent)
       CRegion& interface = *parent->create_component<CRegion>("interface_"+regions[i]->name()+"_to_"+regions[j]->name());
       interface.add_tag("interface");
       
-      CFaceCellConnectivity::Ptr face_to_cell = interface.create_component<CFaceCellConnectivity>("face_to_cell");
+      CFaceCellConnectivity::Ptr face_to_cell = allocate_component<CFaceCellConnectivity>("face_to_cell");
       face_to_cell->configure_property("StoreIsBdry",true);
       face_to_cell->configure_property("FilterBdry",true);
       CFinfo << "creating face to cell for interfaces for " << interface.full_path().string_without_scheme() << CFendl;
@@ -120,7 +121,6 @@ void CBuildFaces::make_interfaces(Component::Ptr parent)
         
         boost_foreach( CElements& elements, find_components<CElements>(interface) )
         {
-          elements.add_tag("inner_faces");
           elements.add_tag("interface_faces");
         }
         
@@ -163,7 +163,7 @@ void CBuildFaces::build_inner_faces_bottom_up(Component::Ptr parent)
       }
       
       CRegion& inner_faces = region.create_region("inner_faces");
-      CFaceCellConnectivity::Ptr face_to_cell = inner_faces.create_component<CFaceCellConnectivity>("face_to_cell");
+      CFaceCellConnectivity::Ptr face_to_cell = allocate_component<CFaceCellConnectivity>("face_to_cell");
       face_to_cell->configure_property("StoreIsBdry",true);
       face_to_cell->configure_property("FilterBdry",false);
       CFinfo << "creating face to cell for inner cells of " << region.full_path().string_without_scheme() << CFendl;
@@ -190,7 +190,6 @@ void CBuildFaces::build_inner_faces_bottom_up(Component::Ptr parent)
       build_face_elements(inner_faces,*face_to_cell);
       boost_foreach( CElements& elements, find_components<CElements>(inner_faces) )
         elements.add_tag("inner_faces");
-
     }
     else
     { 
@@ -210,6 +209,7 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
   std::set<std::string> face_types;
   std::map<std::string,boost::shared_ptr<CTable<Uint>::Buffer> > f2c_buffer_map;
   std::map<std::string,boost::shared_ptr<CList<Uint>::Buffer> > fnb_buffer_map; 
+  std::map<std::string,boost::shared_ptr<CTable<Uint>::Buffer> > f2n_buffer_map; 
   
   CElements::Ptr elem_comp;
   Uint elem_idx;
@@ -226,12 +226,16 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
   boost_foreach( const std::string& face_type , face_types)
   {
     CElements& elements = region.create_elements(face_type,m_mesh->nodes());
-    CTable<Uint>& f2c = elements.connectivity_table();
-    f2c.set_row_size(2);
-    f2c_buffer_map[face_type] = boost::shared_ptr<CTable<Uint>::Buffer> ( new CTable<Uint>::Buffer(f2c.create_buffer()) );
     
-    CList<Uint>& fnb = *elements.create_component<CList<Uint> >("face_number");
-    fnb_buffer_map[face_type] = boost::shared_ptr<CList<Uint>::Buffer> ( new CList<Uint>::Buffer(fnb.create_buffer()) );
+    CTable<Uint>& f2n = elements.connectivity_table();
+    f2n.set_row_size(2);
+    f2n_buffer_map[face_type] = boost::shared_ptr<CTable<Uint>::Buffer> ( new CTable<Uint>::Buffer(f2n.create_buffer()) );
+    
+    CFaceCellConnectivity& f2c = *elements.create_component<CFaceCellConnectivity>("cell_connectivity");
+    f2c.set_elements(face_to_cell.get_child<CUnifiedData<CElements> >("elements"));
+    f2c_buffer_map[face_type] = boost::shared_ptr<CTable<Uint>::Buffer> ( new CTable<Uint>::Buffer(f2c.get_child<CTable<Uint> >("connectivity_table")->create_buffer()) );
+
+    fnb_buffer_map[face_type] = boost::shared_ptr<CList<Uint>::Buffer>  ( new CList<Uint>::Buffer (f2c.get_child<CList<Uint> > ("face_number")->create_buffer()) );
   }
   
   for (Uint f=0; f<face_to_cell.size(); ++f)
@@ -244,6 +248,7 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
     {
       f2c_buffer_map[face_type]->add_row(face_to_cell.connectivity()[f]);
       fnb_buffer_map[face_type]->add_row(face_number[f]);
+      f2n_buffer_map[face_type]->add_row(face_to_cell.nodes(f));
     }
   }
   

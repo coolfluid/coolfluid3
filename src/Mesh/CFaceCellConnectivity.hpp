@@ -58,7 +58,7 @@ public:
   void setup(CRegion& region);
 
   void setup(CRegion& region1, CRegion& region2);
-
+  
   /// Build the connectivity table
   /// Build the connectivity table as a CDynTable<Uint>
   /// @pre set_nodes() and set_elements() must have been called
@@ -86,6 +86,8 @@ public:
   Uint size() const { return connectivity().size(); }
   
   std::vector<Uint> nodes(const Uint face) const;
+  
+  void set_elements(CUnifiedData<CElements>::Ptr elements);
   
 private: // data
 

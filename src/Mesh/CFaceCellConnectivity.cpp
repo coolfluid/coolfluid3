@@ -659,5 +659,12 @@ std::vector<Uint> CFaceCellConnectivity::nodes(const Uint face) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void CFaceCellConnectivity::set_elements( CUnifiedData<CElements>::Ptr elements )
+{
+  m_elements->add_data(find_components(elements->data_links()));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // Mesh
 } // CF
