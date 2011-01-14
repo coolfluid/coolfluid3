@@ -98,7 +98,7 @@ void CElements::set_element_type(const std::string& etype_name)
   m_element_type = create_component_abstract_type<ElementType>( etype_name, etype_name );
   add_static_component( m_element_type );
 }
-  
+
 //////////////////////////////////////////////////////////////////////////////
 
 CList<Uint>& CElements::update_used_nodes()

@@ -10,6 +10,7 @@
 #include "Mesh/CNodeElementConnectivity.hpp"
 #include "Mesh/CDynTable.hpp"
 #include "Mesh/CNodes.hpp"
+#include "Mesh/CRegion.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -25,6 +26,14 @@ CNodeElementConnectivity::CNodeElementConnectivity ( const std::string& name ) :
   m_elements = create_static_component<CUnifiedData<CElements> >("elements");
   m_connectivity = create_static_component<CDynTable<Uint> >("connectivity_table");
   mark_basic();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CNodeElementConnectivity::setup(CRegion& region)
+{
+  set_elements(find_components_recursively<CElements>(region));
+  build_connectivity();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -61,7 +70,7 @@ void CNodeElementConnectivity::build_connectivity()
   // fill m_connectivity->array()
   Uint glb_elem_idx = 0;  
   boost_foreach(CElements::ConstPtr elements, m_elements->data_components() )
-  {    
+  {
     boost_foreach (CTable<Uint>::ConstRow nodes, elements->connectivity_table().array() )
     {
       boost_foreach (const Uint node_idx, nodes)

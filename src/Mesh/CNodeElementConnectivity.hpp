@@ -19,6 +19,7 @@ namespace Common {
 }
 namespace Mesh {
   
+  class CRegion;
   class CNodes;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -44,25 +45,12 @@ public:
 
   /// setup the node to element connectivity
   /// This function calls 
-  /// - set_nodes(nodes)
   /// - set_elements(elements_range)
   /// - build_connectivity
   /// They could be called seperately if wanted
   /// @post all access functions can be used after setup
-  /// @param [in] nodes the nodes component to find connected elements of
-  /// @param [in] elements_range the elements range to see if they are connected to the nodes.
-  ///                            Can be made using "find_components_recursively<CElements>()" function
-  template <typename ElementsRangeT>
-      void setup(CNodes& nodes, const ElementsRangeT& elements_range)
-  {
-    set_nodes(nodes);
-    set_elements(elements_range);
-    build_connectivity();
-  }
-
-  /// set the nodes for the node to element connectivity
-  /// @param [in] nodes the nodes component to find connected elements of
-  void set_nodes(CNodes& nodes);
+  /// @param [in] regions in which the elements are connected to the nodes.
+  void setup(CRegion& region);
 
   /// set the element for the node to element connectivity
   /// Elements have a continuous index spanning all element components
@@ -73,6 +61,8 @@ public:
       void set_elements( const ElementsRangeT& range)
   {
     m_elements->add_data(range);
+    cf_assert(m_elements->size());
+    set_nodes(m_elements->data_components()[0]->nodes()); 
   }
   
   /// Build the connectivity table
@@ -95,7 +85,13 @@ public:
   
   /// const access to the node to element connectivity table in unified indices
   const CDynTable<Uint>& connectivity() const { return *m_connectivity; }
-  
+
+private: //functions
+
+  /// set the nodes for the node to element connectivity
+  /// @param [in] nodes the nodes component to find connected elements of
+  void set_nodes(CNodes& nodes);
+
 private: // data
 
   /// link to the nodes component

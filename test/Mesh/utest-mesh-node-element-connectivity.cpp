@@ -17,6 +17,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CNodes.hpp"
+#include "Mesh/CRegion.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CNodeElementConnectivity.hpp"
 
@@ -75,7 +76,7 @@ BOOST_AUTO_TEST_CASE( node_elem_connectivity )
 
   // create and setup node to elements connectivity
   CNodeElementConnectivity::Ptr c = mesh->create_component<CNodeElementConnectivity>("node_elem_connectivity");
-  c->setup( mesh->nodes() , find_components_recursively<CElements>(*mesh) );
+  c->setup( find_component<CRegion>(*mesh) );
   
   BOOST_CHECK( true );
   

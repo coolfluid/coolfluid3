@@ -22,12 +22,14 @@
 #include "Mesh/CField.hpp"
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CMeshReader.hpp"
+#include "Mesh/CMeshTransformer.hpp"
 
 #include "Solver/Actions/LibActions.hpp"
 #include "Solver/Actions/CSetFieldValues.hpp"
 #include "Solver/Actions/CForAllElementsT.hpp"
 #include "Solver/Actions/CForAllElements.hpp"
 #include "Solver/Actions/CForAllNodes.hpp"
+#include "Solver/Actions/CForAllFaces.hpp"
 #include "Solver/Actions/CLoopOperation.hpp"
 
 #include "Mesh/SF/Triag2DLagrangeP1.hpp"
@@ -84,6 +86,38 @@ BOOST_AUTO_TEST_CASE( Node_Looping_Test )
 	BOOST_CHECK(true);
 	
 }	
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( Face_Looping_Test )
+{
+  CRoot::Ptr root = CRoot::create("Root");
+  CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
+	
+  // Read mesh from file
+  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  boost::filesystem::path fp_in("rotation-tg.neu");
+  meshreader->read_from_to(fp_in,mesh);
+  std::vector<URI> regions = list_of(URI("cpath://Root/mesh/default_id1084"));
+
+  // Create inner_faces
+  CMeshTransformer::Ptr facebuilder = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBuildFaces","facebuilder");
+  std::vector<std::string> args;
+  facebuilder->transform(mesh,args);
+  
+  // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
+	CLoop::Ptr face_loop = root->create_component< CForAllFaces >("face_loop");
+  face_loop->create_action("CF.TestActions.CDummyLoopOperation");
+	face_loop->configure_property("Regions",regions);
+	CFinfo << "\n\n\nFace loop" << CFendl;
+  face_loop->execute();
+
+	BOOST_CHECK(true);
+
+  CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo","info");
+  info->transform(mesh,args);
+	
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

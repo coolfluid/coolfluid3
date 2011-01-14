@@ -313,14 +313,12 @@ void CFaceCellConnectivity::build_connectivity()
 
   }
   
-  CFinfo << "before = " << CFendl;
-  CFinfo << *m_connectivity << CFendl;
   // cleanup
   for (Uint f=0; f<m_connectivity->size(); ++f)
   {
     if ( (*m_is_bdry_face)[f] )
     {
-      CFinfo << "removing row " << f << CFendl;
+      //CFinfo << "removing row " << f << CFendl;
       f2c.rm_row(f);
       is_bdry_face.rm_row(f);
       face_number.rm_row(f);
@@ -331,8 +329,6 @@ void CFaceCellConnectivity::build_connectivity()
   is_bdry_face.flush();
   face_number.flush();
   
-  CFinfo << "after = " << CFendl;
-  CFinfo << *m_connectivity << CFendl;
 
   // 
   // m_nbInFacesNodes.resize(nbInnerFaces);

@@ -103,16 +103,16 @@ void CBuildFaces::make_interfaces(Component::Ptr parent)
       face_to_cell->configure_property("FilterBdry",true);
       CFinfo << "creating face to cell for interfaces for " << interface.full_path().string_without_scheme() << CFendl;
       face_to_cell->setup(*regions[i],*regions[j]);
-      for (Uint i=0; i<face_to_cell->size(); ++i)
-      {
-        CFinfo << "face ["<<i<<"] :  ";
-        boost_foreach( const Uint elem_idx, face_to_cell->connectivity()[i] )
-        { 
-          boost::tie(comp,idx_in_comp) = face_to_cell->element_location(elem_idx);
-          CFinfo << "   " << comp->glb_idx()[idx_in_comp];
-        }
-        CFinfo << CFendl;
-      }
+      // for (Uint i=0; i<face_to_cell->size(); ++i)
+      // {
+      //   CFinfo << "face ["<<i<<"] :  ";
+      //   boost_foreach( const Uint elem_idx, face_to_cell->connectivity()[i] )
+      //   { 
+      //     boost::tie(comp,idx_in_comp) = face_to_cell->element_location(elem_idx);
+      //     CFinfo << "   " << comp->glb_idx()[idx_in_comp];
+      //   }
+      //   CFinfo << CFendl;
+      // }
       if (face_to_cell->size() == 0) // no faces found --> no interface
         *parent->remove_component(interface.name()); 
       else
@@ -122,6 +122,7 @@ void CBuildFaces::make_interfaces(Component::Ptr parent)
         boost_foreach( CElements& elements, find_components<CElements>(interface) )
         {
           elements.add_tag("interface_faces");
+          elements.add_tag("inner_faces");
         }
         
       }
@@ -168,24 +169,24 @@ void CBuildFaces::build_inner_faces_bottom_up(Component::Ptr parent)
       face_to_cell->configure_property("FilterBdry",false);
       CFinfo << "creating face to cell for inner cells of " << region.full_path().string_without_scheme() << CFendl;
       face_to_cell->setup(cells);
-      for (Uint i=0; i<face_to_cell->size(); ++i)
-      {
-        CFinfo << "face ["<<i<<"] :  ";
-        boost_foreach( const Uint elem_idx, face_to_cell->connectivity()[i] )
-        { 
-          boost::tie(comp,idx_in_comp) = face_to_cell->element_location(elem_idx);
-          CFinfo << "   " << comp->glb_idx()[idx_in_comp];
-        }
-        CFinfo << CFendl;
-      }
-      boost_foreach(CElements& elements, find_components<CElements>(cells))
-      {
-        CList<bool>& is_bdry = *elements.get_child<CList<bool> >("is_bdry");
-        for (Uint i=0; i<elements.size(); ++i)
-        {
-          CFinfo << "elem ["<<elements.glb_idx()[i]<<"] : " << is_bdry[i] << CFendl;
-        }
-      }
+      // for (Uint i=0; i<face_to_cell->size(); ++i)
+      // {
+      //   CFinfo << "face ["<<i<<"] :  ";
+      //   boost_foreach( const Uint elem_idx, face_to_cell->connectivity()[i] )
+      //   { 
+      //     boost::tie(comp,idx_in_comp) = face_to_cell->element_location(elem_idx);
+      //     CFinfo << "   " << comp->glb_idx()[idx_in_comp];
+      //   }
+      //   CFinfo << CFendl;
+      // }
+      // boost_foreach(CElements& elements, find_components<CElements>(cells))
+      // {
+      //   CList<bool>& is_bdry = *elements.get_child<CList<bool> >("is_bdry");
+      //   for (Uint i=0; i<elements.size(); ++i)
+      //   {
+      //     CFinfo << "elem ["<<elements.glb_idx()[i]<<"] : " << is_bdry[i] << CFendl;
+      //   }
+      // }
       
       build_face_elements(inner_faces,*face_to_cell);
       boost_foreach( CElements& elements, find_components<CElements>(inner_faces) )

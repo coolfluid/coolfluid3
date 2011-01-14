@@ -5,10 +5,11 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/CBuilder.hpp"
+#include "Common/Foreach.hpp"
 
 #include "Mesh/CRegion.hpp"
 
-#include "Solver/Actions/CForAllElements.hpp"
+#include "Solver/Actions/CForAllFaces.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -19,23 +20,23 @@ namespace CF {
 namespace Solver {
 namespace Actions {
 
-ComponentBuilder < CForAllElements, CLoop, LibActions > CForAllElements_builder;
+ComponentBuilder < CForAllFaces, CLoop, LibActions > CForAllFaces_builder;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-CForAllElements::CForAllElements ( const std::string& name ) :
+CForAllFaces::CForAllFaces ( const std::string& name ) :
   CLoop(name)
 {
    
 }
 
-void CForAllElements::execute()
+void CForAllFaces::execute()
 {
-  BOOST_FOREACH(CRegion::Ptr& region, m_loop_regions)
-    BOOST_FOREACH(CElements& elements, find_components_recursively<CElements>(*region))
+  boost_foreach(CRegion::Ptr& region, m_loop_regions)
+    boost_foreach(CElements& elements, find_components_recursively_with_filter<CElements>(*region,IsElementsSurface()))
   {
     // Setup all child operations
-    BOOST_FOREACH(CLoopOperation& op, find_components<CLoopOperation>(*this))
+    boost_foreach(CLoopOperation& op, find_components<CLoopOperation>(*this))
     {
       op.create_loop_helper( elements );
       const Uint elem_count = elements.elements_count();
