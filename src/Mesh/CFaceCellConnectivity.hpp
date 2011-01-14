@@ -9,7 +9,7 @@
 
 #include "Mesh/CElements.hpp"
 #include "Mesh/CUnifiedData.hpp"
-#include "Mesh/CDynTable.hpp"
+#include "Mesh/CTable.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -70,7 +70,7 @@ public:
   /// Find the elements connected to a given node by its index
   /// The return type is CDynTable<Uint>::ConstRow which (or "std::vector<Uint> const&")
   /// @return continuous indices of the elments
-  CDynTable<Uint>::ConstRow elements(const Uint unified_face_idx) const;
+  CTable<Uint>::ConstRow elements(const Uint unified_face_idx) const;
 
   /// Find the element location given a unified element index
   /// @return boost::tuple<CElements::Ptr,Uint>(elem_component,elem_idx)
@@ -81,12 +81,11 @@ public:
   CUnifiedData<CElements>::const_data_location_type element_location(const Uint unified_elem_idx) const;
   
   /// const access to the node to element connectivity table in unified indices
-  const CDynTable<Uint>& connectivity() const { return *m_connectivity; }
+  const CTable<Uint>& connectivity() const { return *m_connectivity; }
   
   Uint size() const { return connectivity().size(); }
   
-private: // functions
-
+  std::vector<Uint> nodes(const Uint face) const;
   
 private: // data
 
@@ -108,9 +107,11 @@ private: // data
   CUnifiedData<CElements>::Ptr m_elements_2;
 
   /// Actual connectivity table
-  CDynTable<Uint>::Ptr m_connectivity;
+  CTable<Uint>::Ptr m_connectivity;
   
   CList<Uint>::Ptr m_face_nb_in_first_elem;
+  
+  CList<Uint>::Ptr m_is_bdry_face;
 
 }; // CFaceCellConnectivity
 

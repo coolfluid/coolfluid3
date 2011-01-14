@@ -44,8 +44,10 @@ CFaceCellConnectivity::CFaceCellConnectivity ( const std::string& name ) :
   m_elements = create_static_component<CUnifiedData<CElements> >("elements");
   m_elements_1 = create_static_component<CUnifiedData<CElements> >("elements_1");
   m_elements_2 = create_static_component<CUnifiedData<CElements> >("elements_2");
-  m_connectivity = create_static_component<CDynTable<Uint> >("connectivity_table");
+  m_connectivity = create_static_component<CTable<Uint> >("connectivity_table");
+  m_connectivity->set_row_size(2);
   m_face_nb_in_first_elem = create_static_component<CList<Uint> >("face_number");
+  m_is_bdry_face = create_static_component<CList<Uint> >("is_bdry_face");
   mark_basic();
 }
 
@@ -75,7 +77,9 @@ void CFaceCellConnectivity::build_connectivity()
 {
   /// variable that will count nb_faces;
   m_nb_faces=0;
-    
+  
+  CTable<Uint>::Buffer f2c = m_connectivity->create_buffer();
+  CList<Uint>::Buffer is_bdry_face = m_is_bdry_face->create_buffer();
   CList<Uint>::Buffer face_number = m_face_nb_in_first_elem->create_buffer();
   // create a table to store the connectivity element-face ID locally to this processor
   // and store the connectivity in MeshData
@@ -97,6 +101,7 @@ void CFaceCellConnectivity::build_connectivity()
   face_nodes.reserve(100);
   
   std::vector<Uint> empty_connectivity_row(0);
+  std::vector<Uint> dummy_row(2);
   
   Uint max_nb_faces = 0;
   
@@ -204,7 +209,8 @@ void CFaceCellConnectivity::build_connectivity()
                 // here you set the second element (==state) neighbor of the face
                 found_face = true;
                 //(*m_connectivity)[elemID][iFace] = currFaceID;
-                (*m_connectivity)[face].push_back(elem_idx);
+                f2c.get_row(face)[1]=elem_idx;
+                is_bdry_face.get_row(face)=0;
                 // since it has two neighbor cells,
                 // this face is surely NOT a boundary face
                 // m_isBFace[currFaceID] = false;
@@ -222,7 +228,9 @@ void CFaceCellConnectivity::build_connectivity()
             // here you set the second element (==state) neighbor of the face
             found_face = true;
             //(*elem_to_face)[elemID][iFace] = currFaceID;
-            (*m_connectivity)[face].push_back(elem_idx);
+            f2c.get_row(face)[1]=elem_idx;
+            is_bdry_face.get_row(face)=0;
+            
             // since it has two neighbor cells,
             // this face is surely NOT a boundary face
             //m_isBFace[currFaceID] = false;
@@ -250,18 +258,22 @@ void CFaceCellConnectivity::build_connectivity()
           //nbFaceNodes.push_back(nbNodesPerFace);
 
           // increment the number of faces
-          cf_assert(m_connectivity->size() == m_nb_faces);
-          m_connectivity->array().push_back(empty_connectivity_row);
-          (*m_connectivity)[m_nb_faces].reserve(2);
-          (*m_connectivity)[m_nb_faces].push_back(elem_idx);
+          
+          dummy_row[0]=elem_idx;
+          f2c.add_row(dummy_row);
+          is_bdry_face.add_row(1);
+          
           ++m_nb_faces;
-          cf_assert(m_connectivity->size() == m_nb_faces);
         }
       }
       ++elem_idx;
       ++loc_elem_idx;
     }
   }
+  
+  is_bdry_face.flush();
+  f2c.flush();
+  face_number.flush();
 
   CFinfo << "Total nb faces [" << m_nb_faces << "]" << CFendl;
   CFinfo << "Inner nb faces [" << nb_inner_faces << "]" << CFendl;
@@ -283,23 +295,44 @@ void CFaceCellConnectivity::build_connectivity()
       {
         is_bdry = elements->create_component<CList<bool> >("is_bdry");
         is_bdry->resize(nb_elem);
-      }  
+      }
 
       for (Uint e=0; e<nb_elem; ++e)
         (*is_bdry)[e]=false;
     }
     
-    boost_foreach (CDynTable<Uint>::ConstRow face_elems, connectivity().array() )
+    for (Uint f=0; f<m_connectivity->size(); ++f)
     {
-      boost_foreach (Uint elem, face_elems)
+      boost_foreach (Uint elem, (*m_connectivity)[f])
       {
         boost::tie(elem_location_comp,elem_location_idx) = m_elements->data_location(elem);
         CList<bool>::Ptr is_bdry = elem_location_comp->get_child<CList<bool> >("is_bdry");
-        (*is_bdry)[elem_location_idx] = (*is_bdry)[elem_location_idx] || (face_elems.size() == 1);
+        (*is_bdry)[elem_location_idx] = (*is_bdry)[elem_location_idx] || (*m_is_bdry_face)[f] ;
       }
     }
 
   }
+  
+  CFinfo << "before = " << CFendl;
+  CFinfo << *m_connectivity << CFendl;
+  // cleanup
+  for (Uint f=0; f<m_connectivity->size(); ++f)
+  {
+    if ( (*m_is_bdry_face)[f] )
+    {
+      CFinfo << "removing row " << f << CFendl;
+      f2c.rm_row(f);
+      is_bdry_face.rm_row(f);
+      face_number.rm_row(f);
+      --m_nb_faces;
+    }
+  }
+  f2c.flush();
+  is_bdry_face.flush();
+  face_number.flush();
+  
+  CFinfo << "after = " << CFendl;
+  CFinfo << *m_connectivity << CFendl;
 
   // 
   // m_nbInFacesNodes.resize(nbInnerFaces);
@@ -324,6 +357,9 @@ void CFaceCellConnectivity::build_connectivity()
 void CFaceCellConnectivity::build_interface_connectivity()
 {
   CList<Uint>::Buffer face_number = m_face_nb_in_first_elem->create_buffer();
+  CTable<Uint>::Buffer f2c = m_connectivity->create_buffer();
+  CList<Uint>::Buffer is_bdry_face = m_is_bdry_face->create_buffer();
+
 
   std::set<Uint> region1_bdry_nodes;
   std::set<Uint>::iterator not_found_in_region1 = region1_bdry_nodes.end();
@@ -370,6 +406,8 @@ void CFaceCellConnectivity::build_interface_connectivity()
   CNodes& nodes = m_elements->data_components()[0]->nodes(); 
   // allocate a table mapping node-face ID
   std::vector < std::deque<Uint> > mapNodeFace(nodes.size());
+
+  std::vector<Uint> dummy_row(2);
 
   // atomic number to indicate the maximum possible number
   // of nodes in a face
@@ -468,7 +506,7 @@ void CFaceCellConnectivity::build_interface_connectivity()
                 found_face = true;
                 
                 //(*m_connectivity)[elemID][iFace] = currFaceID;
-                (*m_connectivity)[face].push_back(elem_idx);
+                f2c.get_row(face)[1]=elem_idx;
                 // since it has two neighbor cells,
                 // this face is surely NOT a boundary face
                 // m_isBFace[currFaceID] = false;
@@ -488,7 +526,7 @@ void CFaceCellConnectivity::build_interface_connectivity()
             found_face = true;
             
             //(*elem_to_face)[elemID][iFace] = currFaceID;
-            (*m_connectivity)[face].push_back(elem_idx);
+            f2c.get_row(face)[1]=elem_idx;
             // since it has two neighbor cells,
             // this face is surely NOT a boundary face
             //m_isBFace[currFaceID] = false;
@@ -529,17 +567,17 @@ void CFaceCellConnectivity::build_interface_connectivity()
             //nbFaceNodes.push_back(nbNodesPerFace);
 
             // increment the number of faces
-            cf_assert(m_connectivity->size() == m_nb_faces);
-            m_connectivity->array().push_back(empty_connectivity_row);
-            (*m_connectivity)[m_nb_faces].reserve(2);
-            (*m_connectivity)[m_nb_faces].push_back(elem_idx);
+            dummy_row[0]=elem_idx;
+            f2c.add_row(dummy_row);
             ++m_nb_faces;
-            cf_assert(m_connectivity->size() == m_nb_faces);
           }
         }
       }        
     }
   }
+
+  is_bdry_face.flush();
+  f2c.flush();
 
   CFinfo << "Total nb faces [" << m_nb_faces << "]" << CFendl;
   CFinfo << "Inner nb faces [" << nb_inner_faces << "]" << CFendl;
@@ -551,7 +589,7 @@ void CFaceCellConnectivity::build_interface_connectivity()
   cf_assert(m_nb_faces <= max_nb_faces);
   cf_assert(nb_inner_faces <= m_nb_faces);
 
-  boost_foreach (CDynTable<Uint>::ConstRow face_elems, connectivity().array() )
+  boost_foreach (CTable<Uint>::ConstRow face_elems, connectivity().array() )
   {
     boost_foreach (Uint elem, face_elems)
     {
@@ -584,7 +622,7 @@ void CFaceCellConnectivity::build_interface_connectivity()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CDynTable<Uint>::ConstRow CFaceCellConnectivity::elements(const Uint unified_face_idx) const
+CTable<Uint>::ConstRow CFaceCellConnectivity::elements(const Uint unified_face_idx) const
 {
   return (*m_connectivity)[unified_face_idx];
 }
@@ -601,6 +639,22 @@ CUnifiedData<CElements>::data_location_type CFaceCellConnectivity::element_locat
 CUnifiedData<CElements>::const_data_location_type CFaceCellConnectivity::element_location(const Uint unified_elem_idx) const
 {
   return m_elements->data_location(unified_elem_idx);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+std::vector<Uint> CFaceCellConnectivity::nodes(const Uint face) const
+{
+  Uint unified_elem_idx = (*m_connectivity)[face][0];
+  CElements::Ptr elem_comp;
+  Uint elem_idx;
+  boost::tie(elem_comp,elem_idx) = m_elements->data_location(unified_elem_idx);
+  std::vector<Uint> nodes(elem_comp->element_type().face_type((*m_face_nb_in_first_elem)[face]).nb_nodes());
+  index_foreach (i, Uint node_in_face, elem_comp->element_type().face_connectivity().face_node_range((*m_face_nb_in_first_elem)[face]))
+  {
+    nodes[i] = elem_comp->connectivity_table()[elem_idx][node_in_face];
+  }
+  return nodes;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

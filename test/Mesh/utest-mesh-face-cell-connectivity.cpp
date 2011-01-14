@@ -93,9 +93,12 @@ BOOST_AUTO_TEST_CASE( face_elem_connectivity )
   CFaceCellConnectivity::Ptr c = m_mesh->create_component<CFaceCellConnectivity>("face_cell_connectivity");
   c->setup( find_component<CRegion>(*m_mesh) );
 
-  BOOST_CHECK_EQUAL(c->connectivity().size() , 40u);
-  BOOST_CHECK_EQUAL(c->connectivity()[36][0] , 14u);
-  BOOST_CHECK_EQUAL(c->connectivity()[36][1] , 15u);
+  BOOST_CHECK_EQUAL(c->connectivity().size() , 24u);
+  
+  CFinfo << "nodes of face 0 : ";
+  boost_foreach(const Uint node, c->nodes(0) )
+    CFinfo << "  " << node;
+  CFinfo << CFendl;
   // Output whole node to elements connectivity
   //CFinfo << c->connectivity() << CFendl;
 }
