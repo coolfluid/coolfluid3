@@ -7,6 +7,10 @@ list( APPEND resources_files
    rotation-tg.neu
    rectangle-tg-p1.msh
    rectangle-tg-p2.msh
+   rectangle-qd-p1.msh
+   rectangle-qd-p2.msh
+   rectangle-mix-p1.msh
+   rectangle-mix-p2.msh
    )
 
 add_custom_target( resources SOURCES ${resources_files} )

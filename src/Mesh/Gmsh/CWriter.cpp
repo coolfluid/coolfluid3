@@ -54,11 +54,19 @@ CWriter::CWriter( const std::string& name )
   m_elementTypes["CF.Mesh.SF.Tetra3DLagrangeP1"]=4;
   m_elementTypes["CF.Mesh.SF.Hexa3DLagrangeP1" ]=5;
 
+  m_elementTypes["CF.Mesh.SF.Line1DLagrangeP2" ]=8;
+  m_elementTypes["CF.Mesh.SF.Line2DLagrangeP2" ]=8;
+  m_elementTypes["CF.Mesh.SF.Line3DLagrangeP2" ]=8;
   m_elementTypes["CF.Mesh.SF.Triag2DLagrangeP2"]=9;
   m_elementTypes["CF.Mesh.SF.Triag3DLagrangeP2"]=9;
   m_elementTypes["CF.Mesh.SF.Quad2DLagrangeP2" ]=10;
   m_elementTypes["CF.Mesh.SF.Quad3DLagrangeP2" ]=10;
 
+  m_elementTypes["CF.Mesh.SF.Line1DLagrangeP3" ]=26;
+  m_elementTypes["CF.Mesh.SF.Line2DLagrangeP3" ]=26;
+  m_elementTypes["CF.Mesh.SF.Line3DLagrangeP3" ]=26;
+  m_elementTypes["CF.Mesh.SF.Triag2DLagrangeP3"]=21;
+  m_elementTypes["CF.Mesh.SF.Triag3DLagrangeP3"]=21;
 }
 
 /////////////////////////////////////////////////////////////////////////////

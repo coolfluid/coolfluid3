@@ -102,8 +102,12 @@ coolfluid_add_unittest( utest-gmsh-reader-mpi )
 
 add_custom_command(TARGET utest-gmsh-reader-mpi
                    POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rectangle-tg-p1.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rectangle-tg-p2.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rectangle-tg-p1.msh  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rectangle-tg-p2.msh  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rectangle-qd-p2.msh  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rectangle-qd-p2.msh  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rectangle-mix-p1.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/rectangle-mix-p2.msh ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                    )
 
 ################################################################################
