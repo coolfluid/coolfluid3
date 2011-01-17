@@ -17,6 +17,7 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/CList.hpp"
 #include "Mesh/CNodes.hpp"
+#include "Mesh/CField2.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -230,17 +231,6 @@ void CElements::add_field_elements_link(CElements& field_elements)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CElements::register_field(const std::string& field)
-{
-  CGroup::Ptr field_group = get_child<CGroup>("fields");
-  if ( is_null(field_group) )
-    field_group = create_component<CGroup>("fields");
-
-  field_group->create_component<CLink>(field);
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
 CFieldElements& CElements::get_field_elements(const std::string& field_name)
 {
   Component::Ptr all_fields = get_child("fields");
@@ -312,6 +302,24 @@ const RealMatrix& CElements::element_coordinates(const Uint idx)
 {
   fill(m_element_coordinates, nodes().coordinates() , connectivity_table()[idx]);
   return m_element_coordinates;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CFieldView& CElements::register_field( const CField2& field )
+{
+  if (is_null(m_field_views))
+    m_field_views = create_static_component<CGroup>("field_views");
+  return *m_field_views->create_component<CFieldView>(field.registration_name());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CFieldView& CElements::field_view( const CField2& field )
+{
+  cf_assert( is_not_null(m_field_views) );
+  cf_assert( &m_field_views->get_child<CFieldView>(field.registration_name())->field() == &field);
+  return *m_field_views->get_child<CFieldView>(field.registration_name());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

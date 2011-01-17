@@ -11,11 +11,13 @@
 
 #include "Common/Component.hpp"
 #include "Common/ComponentPredicates.hpp"
+#include "Common/Log.hpp"
 
 #include "Mesh/LibMesh.hpp"
 
 #include "Mesh/CElements.hpp"
 #include "Mesh/CTable.hpp"
+#include "Mesh/CList.hpp"
 
 
 namespace CF {
@@ -30,7 +32,8 @@ namespace Mesh {
   class CRegion;
   class CFieldRegion;
   class CNodes;
-  
+  class CFieldView;
+ 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Field component class
@@ -46,6 +49,15 @@ public: // typedefs
   
   enum DataBasis { ELEMENT_BASED=0,  NODE_BASED=1};
   enum VarType { SCALAR=1, VECTOR_2D=2, VECTOR_3D=3, TENSOR_2D=4, TENSOR_3D=9};
+  
+  // typedef CTable<Real>::ArrayT::array_view<2>::type View;
+  // typedef CTable<Real>::ArrayT::const_array_view<2>::type ConstView;
+  
+  typedef boost::array_view_gen<CTable<Real>::ArrayT,2>::type View;
+  
+  /// @typedef the const type of a row in the internal structure of the table
+  //typedef const boost::const_array_view_gen<CTable<Real>::ArrayT,2>::type ConstView;
+  
 
 public: // functions
 
@@ -104,9 +116,11 @@ public: // functions
   
   CTable<Real>::ConstRow coords(const Uint idx) const;
   
+  const std::string& registration_name() const { return m_registration_name; }
+  
 private:
   
-  std::string m_field_name;
+  std::string m_registration_name;
   
   DataBasis m_basis;
 
@@ -128,6 +142,7 @@ protected:
   boost::shared_ptr<CTable<Real> > m_coords;
   
   boost::shared_ptr<CList<Uint> > m_used_nodes;
+  
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -156,6 +171,81 @@ public:
   { return component.basis() == CField2::ELEMENT_BASED; }
 };
   
+////////////////////////////////////////////////////////////////////////////////
+
+class Mesh_API CFieldView : public Common::Component
+{
+public: // typedefs
+
+  typedef boost::shared_ptr<CFieldView> Ptr;
+  typedef boost::shared_ptr<CFieldView const> ConstPtr;
+
+private: // typedefs
+
+  typedef boost::multi_array_types::index_range Range;
+
+public: // functions
+
+  /// Contructor
+  /// @param name of the component
+  CFieldView ( const std::string& name ) : Common::Component (name)
+  {
+    m_size=0;
+    m_start_idx=0;
+    m_end_idx=0;
+    m_stride=0;
+  }
+
+  /// Virtual destructor
+  virtual ~CFieldView() {}
+
+  /// Get the class name
+  static std::string type_name () { return "CFieldView"; }
+
+  /// @return end_idx
+  Uint initialize(CField2& field, const Uint start_idx, CElements::Ptr elements = CElements::Ptr());
+  
+  CField2::View operator()()
+  {
+    return m_field_data.lock()->array()[ boost::indices[Range(m_start_idx,m_end_idx)][Range()] ];
+  }
+  
+  CField2::View operator()(const Uint idx)
+  {
+    cf_assert( idx < m_size );    
+    Uint data_idx = m_start_idx+idx;
+    Range range = Range().start(data_idx).finish(data_idx + m_stride);
+    return m_field_data.lock()->array()[ boost::indices[range][Range()] ];
+  }
+
+  CTable<Real>::Row operator[](const Uint idx)
+  {
+    cf_assert( idx < m_size );
+    Uint data_idx = m_start_idx+idx;
+    return m_field_data.lock()->array()[data_idx];
+  }
+  
+  CField2& field() { return *m_field.lock(); }
+  
+  CElements& elements() { return *m_elements.lock(); }
+  
+  Uint stride() const { return m_stride; }
+  
+  Uint size() const { return m_size; }
+  
+protected: 
+
+  Uint m_start_idx;
+  Uint m_end_idx;
+  Uint m_stride;
+  Uint m_size;
+
+  boost::weak_ptr<CField2>       m_field;
+  boost::weak_ptr<CTable<Real> > m_field_data;
+  boost::weak_ptr<CElements>     m_elements;
+
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 
   

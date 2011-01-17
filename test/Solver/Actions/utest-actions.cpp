@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
 	CFinfo << "\n\n\nFace loop" << CFendl;
   face_loop->execute();
 
-	BOOST_CHECK(true);
+  BOOST_CHECK(true);
 
   CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo","info");
   info->transform(mesh,args);
@@ -260,6 +260,8 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   CFieldRegion& field_topology = *mesh->create_component<CFieldRegion>("field_topology");
   field_topology.synchronize_with_region(mesh->topology());
 
+  BOOST_CHECK(true);
+
   CField2& field = *mesh->create_component<CField2>("field");
   field.configure_property("Topology",field_topology.full_path());
   field.configure_property("FieldType",std::string("NodeBased"));
@@ -274,19 +276,22 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   node_loop->action("CF.Solver.Actions.CSetFieldValues2").configure_property("Field",field.full_path());
   node_loop->execute();
   
+  BOOST_CHECK(true);
+  
   CField2& volumes = *mesh->create_component<CField2>("volumes");
   volumes.configure_property("Topology",field_topology.full_path());
   volumes.configure_property("FieldType",std::string("ElementBased"));
   volumes.create_data_storage();
 
+  BOOST_CHECK(true);
+
   CComputeVolume::Ptr compute_volume = root->create_component<CComputeVolume>("compute_volume");
   CElements& elems = *root->look_component<CElements>(URI("cpath://Root/mesh/field_topology/default_id1084/fluid/elements_CF.Mesh.SF.Triag2DLagrangeP1"));
-  CTable<Uint>& index = *elems.get_child("volumes")->get_child<CTable<Uint> >("index");
   compute_volume->configure_property("Volumes",volumes.full_path());
   compute_volume->configure_property("Elements",elems.full_path());
-  compute_volume->configure_property("LoopIndex",0u);
+  compute_volume->configure_property("LoopIndex",12u);
   compute_volume->execute();
-  BOOST_CHECK_EQUAL( volumes[ index[0][0] ][0] , 0.0035095825067150031);
+  BOOST_CHECK_EQUAL( elems.field_view(volumes)[12][0] , 0.0035918050864676932);
 
   CLoop::Ptr elem_loop = root->create_component< CForAllElements2 >("elem_loop");
   elem_loop->configure_property("Regions",regions);
@@ -303,9 +308,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->set_fields(fields);
   gmsh_writer->write_from_to(mesh,fp_out);
-  
-  
-  
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

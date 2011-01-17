@@ -18,6 +18,7 @@ namespace CF {
   namespace Common
   {
     class CLink;
+    class CGroup;
   }
 namespace Mesh {
 
@@ -25,6 +26,8 @@ namespace Mesh {
   class CFieldElements;
   template <typename T> class CList;
   class CNodes;
+  class CField2;
+  class CFieldView;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -107,14 +110,16 @@ public: // functions
   
   Uint size() const { return connectivity_table().size(); }
     
-  void register_field( const std::string& field );
-
   CElements& support();
   
   static CList<Uint>& used_nodes(Component& parent);
   
   const RealMatrix& element_coordinates(const Uint idx);
-  
+
+  CFieldView& register_field( const CField2& field );
+
+  CFieldView& field_view( const CField2& field);
+
 protected: // data
 
   boost::shared_ptr<ElementType> m_element_type;
@@ -128,6 +133,8 @@ protected: // data
   boost::shared_ptr<CList<Uint> > m_global_numbering;
 
   boost::shared_ptr<Common::CLink> m_support;
+  
+  boost::shared_ptr<Common::CGroup> m_field_views;
 
   /// dummy storage for element_coordinates
   RealMatrix m_element_coordinates;

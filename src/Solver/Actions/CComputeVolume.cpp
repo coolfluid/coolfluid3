@@ -56,7 +56,7 @@ void CComputeVolume::trigger_elements()
 {
   if ( is_null(m_field.lock()) )
     throw ValueNotFound (FromHere(),"Volumes option must be configured first");
-  m_index = elements().get_child(m_field.lock()->name())->get_child<CTable<Uint> >("index");
+  m_field_view = elements().field_view(*m_field.lock()).as_type<CFieldView>();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -64,14 +64,17 @@ void CComputeVolume::trigger_elements()
 void CComputeVolume::execute()
 {
   // idx() is the index that is set using the function set_loop_idx() or configuration LoopIndex
-
+  
   CElements& elems = elements();
-  CField2& volumes = volume_field();
   
-  CTable<Uint>::ConstRow& field_indexes = (*m_index.lock())[idx()];
+  volume()[idx()][0] = elems.element_type().compute_volume( elems.element_coordinates(idx()) );
+
+  // alternately the following is equivalent, and takes sub_elements into account!
   
-  boost_foreach (Uint field_idx, field_indexes)
-    volumes[field_idx][0] = elems.element_type().compute_volume( elems.element_coordinates(idx()) );
+  // CField2::View view = volume()(idx());
+  // boost_foreach (CTable<Real>::Row volume, view)
+  //   volume[0] = elems.element_type().compute_volume( elems.element_coordinates(idx()) );
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

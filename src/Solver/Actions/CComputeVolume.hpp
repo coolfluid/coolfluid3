@@ -20,6 +20,7 @@ namespace Mesh {
   template <typename T> class CTable;
   class CElements;
   class CField2;
+  class CFieldView;
 }
 namespace Solver {
 namespace Actions {
@@ -53,13 +54,13 @@ private: // helper functions
   void config_field();
 
   void trigger_elements();
-
-  Mesh::CField2& volume_field() { return *m_field.lock(); }
+  
+  Mesh::CFieldView& volume() { return *m_field_view; }
   
 private: // data
 
-  boost::weak_ptr<Mesh::CField2>       m_field;
-  boost::weak_ptr<Mesh::CTable<Uint> > m_index;
+  boost::weak_ptr<Mesh::CField2>         m_field;
+  boost::shared_ptr<Mesh::CFieldView>    m_field_view;
     
 };
 

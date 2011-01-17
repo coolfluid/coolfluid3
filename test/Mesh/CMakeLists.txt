@@ -219,10 +219,10 @@ coolfluid_add_unittest( utest-field )
 
 ################################################################################
 
-list( APPEND utest-mesh-field_cflibs coolfluid_mesh_neutral coolfluid_mesh_sf coolfluid_mesh_gmsh )
-list( APPEND utest-mesh-field_files  utest-mesh-fields.cpp )
+list( APPEND utest-mesh-fields_cflibs coolfluid_mesh_neutral coolfluid_mesh_sf coolfluid_mesh_gmsh )
+list( APPEND utest-mesh-fields_files  utest-mesh-fields.cpp )
 
-coolfluid_add_unittest( utest-mesh-field )
+coolfluid_add_unittest( utest-mesh-fields )
 
 ################################################################################
 

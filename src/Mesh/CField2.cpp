@@ -36,7 +36,8 @@ Common::ComponentBuilder < CField2, Component, LibMesh >  CField2_Builder;
 ////////////////////////////////////////////////////////////////////////////////
 
 CField2::CField2 ( const std::string& name  ) :
-  Component ( name )
+  Component ( name ),
+  m_registration_name ( name )
 {
   Option::Ptr uri_option;
   uri_option = m_properties.add_option<OptionURI>("Topology","The field tree this field will be registered in",URI("cpath:"));
@@ -238,18 +239,8 @@ void CField2::create_data_storage()
       Uint data_size = 0;
       boost_foreach(CElements& field_elements, find_components_recursively<CElements>(topology()))
       {
-        Component::Ptr element_data = field_elements.create_component<Component>(name());
-        element_data->create_component<CLink>("data_link")->link_to(m_data);
-        CTable<Uint>& index_in_data = *element_data->create_component<CTable<Uint> >("index");
-        Uint nb_sub_elem = 1; // 1 for finite volume, more for spectral volume
-        index_in_data.set_row_size(nb_sub_elem);
-        index_in_data.resize(field_elements.size());
-        for (Uint i=0; i<field_elements.size(); ++i)
-        {
-          for (Uint sub=0; sub<nb_sub_elem; ++sub)
-            index_in_data[i][sub] = data_size++;
-        }
-        //data_size += nb_sub_elem*field_elements.size();
+        CFieldView& field_view = field_elements.register_field(*this);
+        data_size = field_view.initialize(*this, data_size);
       }
       m_data->resize(data_size);
       break;      
@@ -321,5 +312,25 @@ CTable<Real>::ConstRow CField2::coords(const Uint idx) const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+Uint CFieldView::initialize(CField2& field, const Uint start_idx, CElements::Ptr elements)
+{
+
+  // If run-time error occurs in this if-statement, the default argument must be given a valid CElements::Ptr
+  if (is_null(elements))
+    elements = find_parent_component<CElements>(*this).as_type<CElements>();
+  
+  m_elements = elements;
+  m_field = field.as_type<CField2>();
+  m_field_data = field.data().as_type<CTable<Real> >();
+  m_stride = 1; // this is the number of states per element (high order methods)
+  m_start_idx = start_idx;
+  m_end_idx = start_idx + m_stride * elements->size();
+  m_size = m_end_idx - m_start_idx;
+  return m_end_idx;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // Mesh
 } // CF

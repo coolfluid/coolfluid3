@@ -636,7 +636,7 @@ void CWriter::write_element_data2(std::fstream& file)
         const CTable<Real>& field_data = elementbased_field.data();
         boost_foreach(CElements& field_elements, find_components_recursively<CElements>(elementbased_field.topology()))
         {
-          CTable<Uint>& index = *field_elements.get_child(field_name)->get_child<CTable<Uint> >("index");
+          CFieldView& field_view = field_elements.field_view(elementbased_field);
           Uint elm_number = m_element_start_idx[&field_elements];
           Uint local_nb_elms = field_elements.size();
           for (Uint local_elm_idx = 0; local_elm_idx<local_nb_elms; ++local_elm_idx)
@@ -644,17 +644,17 @@ void CWriter::write_element_data2(std::fstream& file)
             file << ++elm_number << " " ;
             if (var_type==CField2::TENSOR_2D)
             {
-              data[0]=field_data[index[local_elm_idx][0]][row_idx+0];
-              data[1]=field_data[index[local_elm_idx][0]][row_idx+1];
-              data[3]=field_data[index[local_elm_idx][0]][row_idx+2];
-              data[4]=field_data[index[local_elm_idx][0]][row_idx+3];
+              data[0]=field_view[local_elm_idx][row_idx+0];
+              data[1]=field_data[local_elm_idx][row_idx+1];
+              data[3]=field_data[local_elm_idx][row_idx+2];
+              data[4]=field_data[local_elm_idx][row_idx+3];
               for (Uint idx=0; idx<datasize; ++idx)
                 file << " " << data[idx];
             }
             else
             {
               for (Uint idx=row_idx; idx<row_idx+Uint(var_type); ++idx)
-                file << " " << field_data[index[local_elm_idx][0]][idx];
+                file << " " << field_view[local_elm_idx][idx];
               if (var_type == CField2::VECTOR_2D)
                 file << " " << 0.0;
             }
