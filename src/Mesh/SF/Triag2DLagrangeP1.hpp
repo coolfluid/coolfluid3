@@ -51,94 +51,37 @@ typedef Triag2D Support;
 /// mapped coordinates
 /// @param mappedCoord The mapped coordinates
 /// @param shapeFunc Vector storing the result
-static void shape_function(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc)
-{
-  shapeFunc[0] = 1.0 - mappedCoord[0] - mappedCoord[1];
-  shapeFunc[1] = mappedCoord[0];
-  shapeFunc[2] = mappedCoord[1];
-}
+static void shape_function(const MappedCoordsT& mappedCoord, ShapeFunctionsT& shapeFunc);
 
 /// Compute Mapped Coordinates
 /// @param coord contains the coordinates to be mapped
 /// @param nodes contains the nodes
 /// @param mappedCoord Store the output mapped coordinates
-template<typename NodesT>
-static void mapped_coordinates(const CoordsT& coord, const NodesT& nodes, MappedCoordsT& mappedCoord)
-{
-  const Real invDet = 1. / jacobian_determinant(nodes);
-
-  mappedCoord[KSI] = invDet * ((nodes(2, YY) - nodes(0, YY))*coord[XX] + (nodes(0, XX) - nodes(2, XX))*coord[YY] - nodes(0, XX)*nodes(2, YY) + nodes(2, XX)*nodes(0, YY));
-  mappedCoord[ETA] = invDet * ((nodes(0, YY) - nodes(1, YY))*coord[XX] + (nodes(1, XX) - nodes(0, XX))*coord[YY] + nodes(0, XX)*nodes(1, YY) - nodes(1, XX)*nodes(0, YY));
-}
+static void mapped_coordinates(const CoordsT& coord, const NodeMatrixT& nodes, MappedCoordsT& mappedCoord);
 
 /// Compute the gradient with respect to mapped coordinates, i.e. parial derivatives are in terms of the
 /// mapped coordinates. The result needs to be multiplied with the inverse jacobian to get the result in real
 /// coordinates.
 /// @param mappedCoord The mapped coordinates where the gradient should be calculated
 /// @param result Storage for the resulting gradient matrix
-static void mapped_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result)
-{
-  result(XX, 0) = -1.;
-  result(YY, 0) = -1.;
-  result(XX, 1) = 1.;
-  result(YY, 1) = 0.;
-  result(XX, 2) = 0.;
-  result(YY, 2) = 1.;
-}
+static void mapped_gradient(const MappedCoordsT& mappedCoord, MappedGradientT& result);
 
 /// Compute the jacobian determinant at the given mapped coordinates
-template<typename NodesT>
-static Real jacobian_determinant(const MappedCoordsT& mappedCoord, const NodesT& nodes) {
-  return jacobian_determinant(nodes);
-}
-
+static Real jacobian_determinant(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes);
 /// Compute the Jacobian matrix
 /// @param mappedCoord The mapped coordinates where the Jacobian should be calculated
 /// @param result Storage for the resulting Jacobian matrix
-template<typename NodesT>
-static void jacobian(const MappedCoordsT& mappedCoord, const NodesT& nodes, JacobianT& result)
-{
-  result(KSI,XX) = nodes(1, XX) - nodes(0, XX);
-  result(KSI,YY) = nodes(1, YY) - nodes(0, YY);
-  result(ETA,XX) = nodes(2, XX) - nodes(0, XX);
-  result(ETA,YY) = nodes(2, YY) - nodes(0, YY);
-}
+static void jacobian(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, JacobianT& result);
 
 /// Compute the adjoint of Jacobian matrix
 /// @param mappedCoord The mapped coordinates where the Jacobian should be calculated
 /// @param result Storage for the resulting adjoint
-template<typename NodesT>
-static void jacobian_adjoint(const MappedCoordsT& mappedCoord, const NodesT& nodes, JacobianT& result)
-{
-  result(KSI,XX) = nodes(2, YY) - nodes(0, YY);
-  result(KSI,YY) = nodes(0, YY) - nodes(1, YY);
-  result(ETA,XX) = nodes(0, XX) - nodes(2, XX);
-  result(ETA,YY) = nodes(1, XX) - nodes(0, XX);
-}
+static void jacobian_adjoint(const MappedCoordsT& mappedCoord, const NodeMatrixT& nodes, JacobianT& result);
 
 /// Volume of the cell
-template<typename NodesT>
-static Real volume(const NodesT& nodes)
-{
-  return 0.5 * jacobian_determinant(nodes);
-}
-	
-template<typename NodesT>
-static bool in_element(const CoordsT& coord, const NodesT& nodes)
-{
-	MappedCoordsT mapped_coord;
-	mapped_coordinates(coord, nodes, mapped_coord);
-  if( (mapped_coord[KSI] >= -Math::MathConsts::eps()) &&
-      (mapped_coord[ETA] >= -Math::MathConsts::eps()) &&
-      (mapped_coord.sum() <= 1.))
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
+static Real volume(const NodeMatrixT& nodes);
+
+static bool in_element(const CoordsT& coord, const NodeMatrixT& nodes);
 
 
 static const FaceConnectivity& faces();
@@ -152,16 +95,7 @@ virtual const CF::Mesh::ElementType& face_type(const CF::Uint face) const;
 private:
 
 /// Helper function for reuse in volume() and jacobian_determinant()
-template<typename NodesT>
-static Real jacobian_determinant(const NodesT& nodes) {
-  const Real x0 = nodes(0, XX);
-  const Real x1 = nodes(1, XX);
-  const Real x2 = nodes(2, XX);
-  const Real y0 = nodes(0, YY);
-  const Real y1 = nodes(1, YY);
-  const Real y2 = nodes(2, YY);
-  return (x1 - x0) * (y2 - y0) - (x2 - x0) * (y1 - y0);
-}
+  static Real jacobian_determinant(const NodeMatrixT& nodes) ;
 
 };
 
