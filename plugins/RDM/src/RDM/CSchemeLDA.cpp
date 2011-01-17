@@ -67,9 +67,9 @@ void CSchemeLDA::execute()
 
   typedef Triag2DLagrangeP1 SF;
 
-  const CTable<Uint>::ConstRow node_idx = m_loop_helper->connectivity_table[m_idx];
+  const CTable<Uint>::ConstRow node_idx = m_loop_helper->connectivity_table[idx()];
   SF::NodeMatrixT nodes;
-  fill(nodes, m_loop_helper->coordinates, m_loop_helper->connectivity_table[m_idx]);
+  fill(nodes, m_loop_helper->coordinates, m_loop_helper->connectivity_table[idx()]);
 
   SF::MappedGradientT mapped_grad; //Gradient of the shape functions in reference space
   SF::ShapeFunctionsT shapefunc;     //Values of shape functions in reference space

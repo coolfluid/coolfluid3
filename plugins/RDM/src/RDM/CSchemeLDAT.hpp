@@ -113,9 +113,9 @@ void CSchemeLDAT<SHAPEFUNC, QUADRATURE>::execute()
 {
   // inside element with index m_idx
 
-  const Mesh::CTable<Uint>::ConstRow node_idx = m_loop_helper->connectivity_table[m_idx];
+  const Mesh::CTable<Uint>::ConstRow node_idx = m_loop_helper->connectivity_table[idx()];
   typename SHAPEFUNC::NodeMatrixT nodes;
-  fill(nodes, m_loop_helper->coordinates, m_loop_helper->connectivity_table[m_idx]);
+  fill(nodes, m_loop_helper->coordinates, m_loop_helper->connectivity_table[idx()]);
 
   typename SHAPEFUNC::MappedGradientT mapped_grad; //Gradient of the shape functions in reference space
   typename SHAPEFUNC::ShapeFunctionsT shapefunc;     //Values of shape functions in reference space

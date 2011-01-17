@@ -244,7 +244,7 @@ coolfluid_add_unittest( utest-vector-benchmark )
 
 ################################################################################
 
-list( APPEND utest-pt-scotch_cflibs coolfluid_mesh_neutral coolfluid_mesh_sf coolfluid_mesh_gmsh )
+list( APPEND utest-pt-scotch_cflibs coolfluid_mesh_ptscotch coolfluid_mesh_neutral coolfluid_mesh_sf coolfluid_mesh_gmsh )
 #list( APPEND utest-pt-scotch_libs ${PTSCOTCH_LIBRARIES} )
 
 list( APPEND utest-pt-scotch_files  utest-pt-scotch.cpp )

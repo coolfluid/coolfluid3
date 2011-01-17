@@ -40,7 +40,7 @@ CTakeStep::CTakeStep ( const std::string& name ) :
 void CTakeStep::execute()
 {  
   cf_assert( is_not_null(m_loop_helper) );
-  m_loop_helper->solution[m_idx][0] += - ( 1./m_loop_helper->inverse_updatecoeff[m_idx][0] ) * m_loop_helper->residual[m_idx][0];
+  m_loop_helper->solution[idx()][0] += - ( 1./m_loop_helper->inverse_updatecoeff[idx()][0] ) * m_loop_helper->residual[idx()][0];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
