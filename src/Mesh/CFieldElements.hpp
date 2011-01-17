@@ -44,8 +44,6 @@ public: // functions
   void add_element_based_storage();
   void add_node_based_storage(CTable<Real>& nodal_data);
   
-  void initialize(CElements& element_in);
-
   /// Virtual destructor
   virtual ~CFieldElements();
 
@@ -72,9 +70,7 @@ protected: // data
   std::string m_data_name;
 
 private:
-
-  boost::shared_ptr<Common::CLink> m_support;
-
+  
 };
   
 ////////////////////////////////////////////////////////////////////////////////

@@ -13,6 +13,10 @@ list( APPEND coolfluid_mesh_files
   CFaceCellConnectivity.cpp
   CField.hpp
   CField.cpp
+  CField2.hpp
+  CField2.cpp
+  CFieldRegion.hpp
+  CFieldRegion.cpp
   CFieldElements.hpp
   CFieldElements.cpp
   CHash.hpp

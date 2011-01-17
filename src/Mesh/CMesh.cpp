@@ -39,6 +39,7 @@ CMesh::CMesh ( const std::string& name  ) :
   mark_basic(); // by default meshes are visible
   
   m_nodes_link = create_static_component<CLink>("nodes");
+  m_topology = create_static_component<CRegion>("topology");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -154,9 +155,9 @@ CField& CMesh::create_field( const std::string& name , const std::vector<std::st
 {
   return create_field(name,domain(),variables,basis);
 }
-  
+
 ////////////////////////////////////////////////////////////////////////////////
-  
+
 CField& CMesh::create_field( const std::string& name , CRegion& support, const Uint size, const CField::DataBasis basis)
 {
   std::vector<std::string> variables;
@@ -171,14 +172,14 @@ CField& CMesh::create_field( const std::string& name , CRegion& support, const U
   }
   return create_field(name,support,variables,basis);
 }
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 CField& CMesh::create_field( const std::string& name, const Uint size, const CField::DataBasis basis )
 {
   return create_field(name,domain(),size,basis);
 }
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 const CRegion& CMesh::domain() const
@@ -192,7 +193,7 @@ CRegion& CMesh::domain()
 {
   return find_component<CRegion>(*this);
 }
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 const CField& CMesh::field(const std::string& name) const

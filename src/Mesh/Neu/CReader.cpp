@@ -53,6 +53,8 @@ CReader::CReader( const std::string& name )
   m_properties.add_option<OptionT <Uint> >("Number of Parts","Total number of parts. (e.g. number of processors)",mpi::PE::instance().is_init()?mpi::PE::instance().size():1);
   m_properties.add_option<OptionT <bool> >("Read Boundaries","Read the surface elements for the boundary",true);
 
+  m_properties.add_option<OptionT <bool> >("new_api","new_api",false);
+
 
   m_properties.add_option<OptionT <bool> >("Repartition","setting this to true, puts global indexes, for repartitioning later",false);
   m_properties.add_option<OptionT <Uint> >("OutputRank","shows output for the specified rank",0);
@@ -119,7 +121,10 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
 	m_hash->configure_property("Number of Objects",num_obj);
 	
   // Create a region component inside the mesh with the name mesh_name
-  m_region = m_mesh->create_region(m_headerData.mesh_name,!property("Serial Merge").value<bool>()).as_type<CRegion>();
+  //if (property("new_api").value<bool>())
+    m_region = m_mesh->topology().create_region(m_headerData.mesh_name).as_type<CRegion>();
+  //else
+  //  m_region = m_mesh->create_region(m_headerData.mesh_name,!property("Serial Merge").value<bool>()).as_type<CRegion>();
 
   find_ghost_nodes();
     

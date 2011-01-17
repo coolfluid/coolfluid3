@@ -66,9 +66,9 @@ BOOST_AUTO_TEST_CASE( make_interfaces )
 {
   
   CMesh::Ptr mesh = allocate_component<CMesh>("mesh");
-  CRegion& R1 = mesh->create_region("R1");
-  CRegion& R2 = mesh->create_region("R2");
-  mesh->create_region("R3").create_component<CElements>("elements");
+  CRegion& R1 = mesh->topology().create_region("R1");
+  CRegion& R2 = mesh->topology().create_region("R2");
+  mesh->topology().create_region("R3").create_component<CElements>("elements");
   R1.create_region("R1").create_component<CElements>("elements");
   
   R1.create_region("R2").create_component<CElements>("elements");
@@ -97,8 +97,8 @@ BOOST_AUTO_TEST_CASE( build_faces )
   
   CBuildFaces::Ptr facebuilder = allocate_component<CBuildFaces>("facebuilder");
   
-  std::vector<std::string> args;
-  facebuilder->transform(mesh,args);
+  facebuilder->set_mesh(mesh);
+  facebuilder->execute();
   
   CFinfo << mesh->tree() << CFendl;
 }

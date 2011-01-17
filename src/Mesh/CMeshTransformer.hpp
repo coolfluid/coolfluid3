@@ -51,13 +51,12 @@ public: // functions
   
   // --------- Signals ---------
 
-  void transform( Common::XmlNode& node  );
 
   // --------- Direct access ---------
 
   virtual void transform(const CMesh::Ptr& mesh, const std::vector<std::string>& args = std::vector<std::string>())= 0;
   
-  void execute() {}
+  void execute();
   
   /// brief description, typically one line
   virtual std::string brief_description() const = 0;
@@ -65,6 +64,16 @@ public: // functions
   /// extended help that user can query
   virtual std::string help() const = 0;
 
+  void set_mesh(CMesh::Ptr mesh);
+
+private: // functions
+  
+  void config_mesh();
+  
+
+private: // data
+  
+  boost::shared_ptr<Common::CLink> m_mesh_link;
 
 };
 

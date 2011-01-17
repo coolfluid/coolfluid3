@@ -87,7 +87,7 @@ void CDummyLoopOperation::execute()
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void CDummyLoopOperation::create_loop_helper (CElements& geometry_elements )
+void CDummyLoopOperation::create_loop_helper ( CElements& geometry_elements )
 {
   CFinfo << type_name() << " set to loop over " << geometry_elements.full_path().string_without_scheme() << CFendl;
   m_loop_helper = boost::shared_ptr<LoopHelper> ( new LoopHelper(geometry_elements) );

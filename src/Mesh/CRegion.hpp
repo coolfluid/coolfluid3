@@ -20,7 +20,7 @@
 namespace CF {
 namespace Mesh {
   
-  class CField; 
+  class CField;
   template <typename T> class CTable;
   class CNodes;
   

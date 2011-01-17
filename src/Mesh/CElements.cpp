@@ -87,10 +87,39 @@ void CElements::initialize(const std::string& element_type_name, CNodes& nodes)
   set_element_type(element_type_name);
 
   const Uint nb_nodes = m_element_type->nb_nodes();
-  m_connectivity_table->set_row_size(nb_nodes);
+  connectivity_table().set_row_size(nb_nodes);
   
   m_nodes->link_to(nodes.follow());
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CElements::initialize(CElements& elements)
+{
+  m_support = create_static_component<CLink>("support");
+  m_support->link_to(elements.follow());
+  m_support->add_tag("support");
+  
+  // Set the shape function
+  set_element_type(elements.element_type().element_type_name());
+  cf_assert(m_element_type);
+  
+  m_connectivity_table = create_static_component<CLink>("connectivity_table");
+  boost::static_pointer_cast<CLink>(m_connectivity_table)->link_to(elements.connectivity_table().self());
+  
+  m_used_nodes = boost::dynamic_pointer_cast< CList<Uint> >(elements.used_nodes().shared_from_this());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CElements& CElements::support()
+{
+  if (is_null(m_support))
+    return *this;
+  else
+    return *m_support->follow()->as_type<CElements>();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void CElements::set_element_type(const std::string& etype_name)
@@ -105,7 +134,7 @@ CList<Uint>& CElements::update_used_nodes()
 {
   // Assemble all unique node numbers in a set
   std::set<Uint> node_set;
-  BOOST_FOREACH(CTable<Uint>::Row row, m_connectivity_table->array())
+  BOOST_FOREACH(CTable<Uint>::Row row, connectivity_table().array())
   BOOST_FOREACH(const Uint node, row)
   {
     node_set.insert(node);
@@ -132,14 +161,14 @@ const ElementType& CElements::element_type() const
 
 CTable<Uint>& CElements::connectivity_table()
 {
-  return *m_connectivity_table;
+  return *boost::static_pointer_cast<CTable<Uint> >(m_connectivity_table->follow());
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 const CTable<Uint>& CElements::connectivity_table() const
 {
-  return *m_connectivity_table;
+  return *boost::static_pointer_cast<CTable<Uint> >(m_connectivity_table->follow());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -174,7 +203,7 @@ const CList<Uint>& CElements::used_nodes() const
 
 Uint CElements::elements_count() const
 {
-  return m_connectivity_table->size();
+  return size();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -182,11 +211,22 @@ Uint CElements::elements_count() const
 void CElements::add_field_elements_link(CElements& field_elements)
 {
   CGroup::Ptr field_group = get_child<CGroup>("fields");
-  if (!field_group.get())
+  if ( is_null(field_group) )
     field_group = create_component<CGroup>("fields");
 
   const std::string field_name = field_elements.get_parent()->as_type<CField>()->field_name();
   field_group->create_component<CLink>(field_name)->link_to(field_elements.follow());
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void CElements::register_field(const std::string& field)
+{
+  CGroup::Ptr field_group = get_child<CGroup>("fields");
+  if ( is_null(field_group) )
+    field_group = create_component<CGroup>("fields");
+
+  field_group->create_component<CLink>(field);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -213,6 +253,50 @@ const CFieldElements& CElements::get_field_elements(const std::string& field_nam
 
 //////////////////////////////////////////////////////////////////////////////
 
+CList<Uint>& CElements::used_nodes(Component& parent)
+{
+  CList<Uint>::Ptr used_nodes = find_component_ptr_with_tag<CList<Uint> >(parent,"used_nodes");
+  if (is_null(used_nodes))
+  {
+    used_nodes = parent.create_component<CList<Uint> >("used_nodes");
+    used_nodes->add_tag("used_nodes");
+    // Assemble all unique node numbers in a set
+    std::set<Uint> node_set;
+    
+    if ( CElements::Ptr elements = parent.as_type<CElements>() )
+    {
+      boost_foreach(CTable<Uint>::ConstRow elem_nodes, elements->connectivity_table().array())
+      {
+        boost_foreach(const Uint node, elem_nodes)
+        {
+          node_set.insert(node);
+        }
+      }
+    }
+    else
+    {
+      boost_foreach(CElements& elements, find_components_recursively<CElements>(parent))
+      {
+        boost_foreach(CTable<Uint>::ConstRow elem_nodes, elements.connectivity_table().array())
+        {
+          boost_foreach(const Uint node, elem_nodes)
+          {
+            node_set.insert(node);
+          }
+        }
+      }
+    }
+    
+    // Copy the set to the node_list
+    used_nodes->resize(node_set.size());
+    CList<Uint>::ListT& nodes_array = used_nodes->array();
+    index_foreach(i,const Uint node, node_set)
+      nodes_array[i] = node;
+  }
+  return *used_nodes;
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
 } // CF

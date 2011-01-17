@@ -7,6 +7,8 @@ list( APPEND coolfluid_mesh_actions_files
   CExtract.cpp
   CBuildFaces.hpp
   CBuildFaces.cpp
+  CBuildCoordinatesField.hpp
+  CBuildCoordinatesField.cpp
   LibActions.hpp
   LibActions.cpp
 )

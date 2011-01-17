@@ -29,6 +29,7 @@
 #include "Solver/Actions/CForAllElementsT.hpp"
 #include "Solver/Actions/CForAllElements.hpp"
 #include "Solver/Actions/CForAllNodes.hpp"
+#include "Solver/Actions/CForAllNodes2.hpp"
 #include "Solver/Actions/CForAllFaces.hpp"
 #include "Solver/Actions/CLoopOperation.hpp"
 
@@ -67,7 +68,8 @@ BOOST_AUTO_TEST_CASE( Node_Looping_Test )
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
   boost::filesystem::path fp_in("rotation-tg.neu");
   meshreader->read_from_to(fp_in,mesh);
-  std::vector<URI> regions = list_of(URI("cpath://Root/mesh/default_id1084/inlet"))(URI("cpath://Root/mesh/default_id1084/outlet"));
+  std::vector<URI> regions = list_of(URI("cpath://Root/mesh/topology/default_id1084/inlet"))
+                                    (URI("cpath://Root/mesh/topology/default_id1084/outlet"));
 
   
   // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
@@ -76,6 +78,12 @@ BOOST_AUTO_TEST_CASE( Node_Looping_Test )
 	node_loop->configure_property("Regions",regions);
 	CFinfo << "\n\n\nNode loop" << CFendl;
   node_loop->execute();
+
+	CLoop::Ptr node_loop2 = root->create_component< CForAllNodes2 >("node_loop");
+  node_loop2->create_action("CF.TestActions.CDummyLoopOperation");
+	node_loop2->configure_property("Regions",regions);
+	CFinfo << "\n\n\nNode loop 2 " << CFendl;
+  node_loop2->execute();
 
 	CLoop::Ptr elem_loop = root->create_component< CForAllElements >("elem_loop");
   elem_loop->create_action("CF.TestActions.CDummyLoopOperation");
@@ -98,12 +106,12 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
   CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
   boost::filesystem::path fp_in("rotation-tg.neu");
   meshreader->read_from_to(fp_in,mesh);
-  std::vector<URI> regions = list_of(URI("cpath://Root/mesh/default_id1084"));
+  std::vector<URI> regions = list_of(URI("cpath://Root/mesh/topology"));
 
   // Create inner_faces
   CMeshTransformer::Ptr facebuilder = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBuildFaces","facebuilder");
   std::vector<std::string> args;
-  facebuilder->transform(mesh,args);
+  //facebuilder->transform(mesh,args);
   
   // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
 	CLoop::Ptr face_loop = root->create_component< CForAllFaces >("face_loop");

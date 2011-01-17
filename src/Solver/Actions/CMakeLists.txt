@@ -8,14 +8,20 @@ list( APPEND coolfluid_solver_actions_files
   CForAllElementsT.hpp
   CForAllElements.hpp
   CForAllElements.cpp
+  CForAllElements2.hpp
+  CForAllElements2.cpp
   CForAllNodes.hpp
   CForAllNodes.cpp
+  CForAllNodes2.hpp
+  CForAllNodes2.cpp
   CForAllFaces.hpp
   CForAllFaces.cpp
   CLoop.hpp
   CLoop.cpp
   CSetFieldValues.hpp
   CSetFieldValues.cpp
+  CSetFieldValues2.hpp
+  CSetFieldValues2.cpp
   LibActions.hpp
   LibActions.cpp
 )

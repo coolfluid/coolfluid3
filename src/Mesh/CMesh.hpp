@@ -64,6 +64,12 @@ public: // functions
   /// @return the geometry
   CRegion& domain();
   
+  /// @return the geometry topology
+  const CRegion& topology() const { return *m_topology; }
+  
+  /// @return the geometry topology
+  CRegion& topology() { return *m_topology; }
+  
   /// create a field with a given support
   /// @param name of the field
   CField& create_field( const std::string& name , CRegion& support, const Uint size, const CField::DataBasis basis);
@@ -91,10 +97,12 @@ public: // functions
   
   /// @return the nodes of the mesh , non-modifiable access
   const CNodes& nodes() const;
-  
+
 private:
   
   boost::shared_ptr<Common::CLink> m_nodes_link;
+  
+  boost::shared_ptr<CRegion> m_topology;
   
 };
 

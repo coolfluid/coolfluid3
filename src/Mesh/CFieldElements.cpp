@@ -4,6 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "Common/Log.hpp"
 #include "Common/CLink.hpp"
 #include "Common/ComponentPredicates.hpp"
 #include "Common/CBuilder.hpp"
@@ -36,21 +37,6 @@ CFieldElements::CFieldElements ( const std::string& name ) :
 
 CFieldElements::~CFieldElements()
 {
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void CFieldElements::initialize(CElements& elements)
-{
-  // Set the shape function
-  set_element_type(elements.element_type().element_type_name());
-  cf_assert(m_element_type);
-
-  // create a link to the geometry elements.
-  m_support->link_to(elements.follow());
-  
-  m_connectivity_table = boost::dynamic_pointer_cast< CTable<Uint> >(elements.connectivity_table().shared_from_this());
-  m_used_nodes = boost::dynamic_pointer_cast< CList<Uint> >(elements.used_nodes().shared_from_this());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

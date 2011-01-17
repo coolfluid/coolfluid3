@@ -4,13 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <boost/foreach.hpp>
-
-#include "Common/Log.hpp"
 #include "Common/ComponentPredicates.hpp"
+#include "Common/CLink.hpp"
+#include "Common/OptionURI.hpp"
+#include "Common/Core.hpp"
+#include "Common/CRoot.hpp"
 
 #include "Mesh/CMeshTransformer.hpp"
-#include "Mesh/CRegion.hpp"
+#include "Mesh/CMesh.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -22,8 +23,34 @@ using namespace Common;
 CMeshTransformer::CMeshTransformer ( const std::string& name  ) :
   CAction ( name )
 {
-  //options.add_option OptionT<std::string> >  ( "File",  "File to read" , "" );
-  //options.add_option Common::OptionT<std::string> >  ( "Mesh",  "Mesh to construct" , "" );
+  OptionURI::Ptr option;
+  option = boost::dynamic_pointer_cast<OptionURI>(m_properties.add_option<OptionURI>("Mesh","The mesh to be transformed",URI()));
+  option->supported_protocol(CF::Common::URI::Scheme::CPATH);
+  option->attach_trigger ( boost::bind ( &CMeshTransformer::config_mesh,   this ) );
+  option->mark_basic();
+
+
+  m_mesh_link = create_static_component<CLink>("mesh");
+  
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CMeshTransformer::config_mesh()
+{
+  URI mesh_uri;
+  property("Mesh").put_value(mesh_uri);
+  CMesh::Ptr mesh = Core::instance().root()->look_component<CMesh>(mesh_uri);
+  if ( is_null(mesh) )
+    throw CastingFailed (FromHere(), "Mesh must be of a CMesh type");
+  set_mesh(mesh);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CMeshTransformer::set_mesh(CMesh::Ptr mesh)
+{
+  m_mesh_link->link_to(mesh);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -34,18 +61,14 @@ CMeshTransformer::~CMeshTransformer()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMeshTransformer::transform( XmlNode& node  )
+void CMeshTransformer::execute()
 {
-  // Get the mesh component in the tree
-  /// @todo[1]: wait for Tiago for functionality
-
-  // Get the file path
-  // boost::filesystem::path file = option("File")->value<std::string>();
-
-  // Call implementation
-  /// @todo wait for todo[1]
-  // read_from_to(file,mesh);
-
+  std::vector<std::string> args;
+  if (is_null(m_mesh_link->follow()))
+    throw BadPointer(FromHere(),"Mesh option is not set");
+  if (is_null(m_mesh_link->follow()->as_type<CMesh>()))
+    throw CastingFailed (FromHere(), "Mesh must be of a CMesh type");
+  transform(m_mesh_link->follow()->as_type<CMesh>(),args);
 }
 
 //////////////////////////////////////////////////////////////////////////////

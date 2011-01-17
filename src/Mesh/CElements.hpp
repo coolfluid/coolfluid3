@@ -50,6 +50,8 @@ public: // functions
   /// Initialize the CElements using the given type
   void initialize(const std::string& element_type_name, CNodes& nodes);
   
+  void initialize(CElements& elements);
+  
   /// Virtual destructor
   virtual ~CElements();
 
@@ -103,13 +105,19 @@ public: // functions
   /// @param name of a field
   const CFieldElements& get_field_elements(const std::string& field_name) const;
   
-  Uint size() const { return m_connectivity_table->size(); }
+  Uint size() const { return connectivity_table().size(); }
     
+  void register_field( const std::string& field );
+
+  CElements& support();
+  
+  static CList<Uint>& used_nodes(Component& parent);
+  
 protected: // data
 
   boost::shared_ptr<ElementType> m_element_type;
 
-  boost::shared_ptr<CTable<Uint> > m_connectivity_table;
+  Component::Ptr m_connectivity_table;
 
   boost::shared_ptr<CList<Uint> > m_used_nodes;
 
@@ -117,6 +125,7 @@ protected: // data
   
   boost::shared_ptr<CList<Uint> > m_global_numbering;
 
+  boost::shared_ptr<Common::CLink> m_support;
 
 };
 
