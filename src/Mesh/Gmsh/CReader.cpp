@@ -121,7 +121,7 @@ void CReader::read_from_to(boost::filesystem::path& fp, const CMesh::Ptr& mesh)
   
   // Create a region component inside the mesh with a generic mesh name
   // NOTE: since gmsh contains several 'physical entities' in one mesh, we create one region per physical entity
-  m_region = m_mesh->create_region("main",!property("Serial Merge").value<bool>()).as_type<CRegion>();
+  m_region = m_mesh->topology().create_region("main",!property("Serial Merge").value<bool>()).as_type<CRegion>();
 
 
   find_ghost_nodes();

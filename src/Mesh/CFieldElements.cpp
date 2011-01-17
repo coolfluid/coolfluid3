@@ -29,8 +29,6 @@ CFieldElements::CFieldElements ( const std::string& name ) :
   properties()["element_based"] = false;
   properties()["node_based"] = false;
   
-  m_support = create_static_component<CLink>("support");
-  m_support->add_tag("support");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

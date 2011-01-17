@@ -48,7 +48,7 @@ void cgal_to_coolfluid(const TriangulationComplexT& complex, CMesh& mesh) {
   VertexMapT vertex_map(0, complex.number_of_cells()); // estimate the number of vertices equal to the cell count
 
 
-  CRegion& region = mesh.create_region("region");
+  CRegion& region = mesh.topology().create_region("region");
   
   // coordinate storage
   CNodes& nodes = region.create_nodes(DIM_3D);

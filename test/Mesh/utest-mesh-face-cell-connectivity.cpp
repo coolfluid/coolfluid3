@@ -83,6 +83,7 @@ BOOST_AUTO_TEST_CASE( create_mesh )
   m_mesh = allocate_component<CMesh>("mesh");
   Uint scale = 2;
   MeshGeneration::create_rectangle(*m_mesh, 4., 2., scale*2u, scale*2u);
+  BOOST_CHECK(true);
 }
 ////////////////////////////////////////////////////////////////////////////////
 

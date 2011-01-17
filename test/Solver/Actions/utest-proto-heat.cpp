@@ -170,7 +170,7 @@ BOOST_AUTO_TEST_CASE( Heat1DNeumannBC )
   lss->configure_property("SolutionField", URI("cpath://Root/mesh/Temperature"));
   
   // Term for the geometric suport
-  MeshTerm<0, ConstNodes> nodes( "ConductivityRegion", find_component_ptr_recursively_with_name<CRegion>(*mesh, "region") );
+  MeshTerm<0, ConstNodes> nodes( "ConductivityRegion", mesh->topology().as_type<CRegion>() );
   
   // Term for the linear system
   MeshTerm<1, LSS> blocks("system", lss);
@@ -202,7 +202,7 @@ BOOST_AUTO_TEST_CASE( Heat1DNeumannBC )
   // Check solution
   for_each_node
   (
-    find_component_with_name<CRegion>(*mesh, "region"),
+    mesh->topology(),
     _check_close(temp_start + q * nodes(0,0), temperature, 1e-6)
   );
 }
@@ -248,7 +248,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   BOOST_CHECK(true);
 
   // Configure the CAction
-  heat1d_action->configure_property("ConductivityRegion", URI("cpath://Root/mesh/region"));
+  heat1d_action->configure_property("ConductivityRegion", mesh->topology().full_path() );
   heat1d_action->configure_property("LSS", URI("cpath://Root/LSS"));
   
   CFinfo << "Nb dofs: " << phys_mod->nb_dof() << CFendl;
@@ -260,8 +260,8 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
 
   // Left boundary condition
   MeshTerm<3, ConfigurableConstant<Real> > xneg_temp("XnegTemp", "Temperature at the start of the domain");
-  CAction::Ptr xneg_action = build_nodes_action("xneg", *root, dirichlet(blocks) = xneg_temp );  
-  xneg_action->configure_property("Region", URI("cpath://Root/mesh/region/xneg"));
+  CAction::Ptr xneg_action = build_nodes_action("xneg", *root, dirichlet(blocks) = xneg_temp );
+  xneg_action->configure_property("Region", find_component_recursively_with_name<CRegion>(mesh->topology(), "xneg").full_path());
   xneg_action->configure_property("LSS", URI("cpath://Root/LSS"));
   xneg_action->configure_property("XnegTemp", 10.);
   xneg_action->execute();
@@ -271,7 +271,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   // Right boundary condition
   MeshTerm<4, ConfigurableConstant<Real> > xpos_temp("XposTemp", "Temperature at the end of the domain");
   CAction::Ptr xpos_action = build_nodes_action("xpos", *root, dirichlet(blocks) = xpos_temp );  
-  xpos_action->configure_property("Region", URI("//Root/mesh/region/xpos"));
+  xpos_action->configure_property("Region", find_component_recursively_with_name<CRegion>(mesh->topology(), "xpos").full_path());
   xpos_action->configure_property("LSS", URI("//Root/LSS"));
   xpos_action->configure_property("XposTemp", 35.);
   xpos_action->execute();
@@ -282,7 +282,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   // Print solution field
   for_each_node
   (
-    find_component_with_name<CRegion>(*mesh, "region"),
+    mesh->topology(),
     _cout << "T(" << nodes << ") = " << temperature << "\n"
   );
 }
@@ -301,7 +301,7 @@ BOOST_AUTO_TEST_CASE( Heat1DVolumeTerm )
   Tools::MeshGeneration::create_line(*mesh, length, nb_segments);
   
   // Geometric suport
-  MeshTerm<0, ConstNodes> nodes( "ConductivityRegion", find_component_ptr_recursively_with_name<CRegion>(*mesh, "region") );
+  MeshTerm<0, ConstNodes> nodes( "ConductivityRegion", mesh->topology().as_type<CRegion>() );
   
   // Linear system
   CEigenLSS::Ptr lss(allocate_component<CEigenLSS>("LSS"));
@@ -334,14 +334,14 @@ BOOST_AUTO_TEST_CASE( Heat1DVolumeTerm )
   // Left boundary at ambient temperature
   for_each_node
   (
-    find_component_recursively_with_name<CRegion>(*mesh, "xneg"),
+    find_component_recursively_with_name<CRegion>(mesh->topology(), "xneg"),
     dirichlet(blocks) = ambient_temp
   );
   
   // Right boundary at ambient temperature
   for_each_node
   (
-    find_component_recursively_with_name<CRegion>(*mesh, "xpos"),
+    find_component_recursively_with_name<CRegion>(mesh->topology(), "xpos"),
     dirichlet(blocks) = ambient_temp
   );
   // Solve the system!

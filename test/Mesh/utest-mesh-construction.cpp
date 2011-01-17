@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   root->add_component( mesh );
 
   // create regions
-  CRegion& superRegion = mesh->create_region("superRegion");
+  CRegion& superRegion = mesh->topology().create_region("superRegion");
   CNodes& nodes = superRegion.create_nodes(dim);
   CElements& quadRegion = superRegion.create_elements("CF.Mesh.SF.Quad2DLagrangeP1",nodes);
   CElements& triagRegion = superRegion.create_elements("CF.Mesh.SF.Triag2DLagrangeP1",nodes);
@@ -238,7 +238,7 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
   CMesh::Ptr p_mesh = boost::dynamic_pointer_cast<CMesh>(mesh);
 	
   // create regions
-  CRegion& superRegion = p_mesh->create_region("superRegion");
+  CRegion& superRegion = p_mesh->topology().create_region("superRegion");
   CNodes& nodes = superRegion.create_nodes(dim);
   CElements& quadRegion = superRegion.create_elements("CF.Mesh.SF.Quad2DLagrangeP2",nodes);
   CElements& triagRegion = superRegion.create_elements("CF.Mesh.SF.Triag2DLagrangeP2",nodes);

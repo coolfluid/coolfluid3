@@ -191,7 +191,7 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
     set_analytical_solution(fluid, "TemperatureAnalytical", "T");
     for_each_node
     (
-      find_component_with_name<CRegion>(*mesh, "region"),
+      find_component_recursively_with_name<CRegion>(*mesh, "region"),
       _check_close(temperature_analytical, temperature, 0.2)
     );
     

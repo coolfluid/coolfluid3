@@ -81,30 +81,30 @@ BOOST_AUTO_TEST_CASE( FieldTest )
   BOOST_CHECK_EQUAL(mesh.field("Solution").full_path().string_without_scheme(),"mesh/Solution");
 
   // Check if support is filled in correctly
-  BOOST_CHECK_EQUAL(mesh.field("Volume").support().name(), "quadtriag");
+  BOOST_CHECK_EQUAL(mesh.field("Volume").support().name(), "topology");
   BOOST_CHECK_EQUAL(mesh.field("Volume").support().recursive_filtered_elements_count(IsElementsVolume()), (Uint) 16);
-  BOOST_CHECK_EQUAL(mesh.field("Volume").subfield("gas").support().recursive_elements_count(), (Uint) 6);
+  BOOST_CHECK_EQUAL(mesh.field("Volume").subfield("quadtriag").subfield("gas").support().recursive_elements_count(), (Uint) 6);
 
   // Check if connectivity_table is properly linked to the support ones
-  BOOST_CHECK_EQUAL(mesh.field("Volume").subfield("gas").elements("elements_CF.Mesh.SF.Quad2DLagrangeP1").connectivity_table().size(), (Uint) 2);
-  BOOST_CHECK_EQUAL(&mesh.field("Volume").subfield("gas").elements("elements_CF.Mesh.SF.Quad2DLagrangeP1").connectivity_table(),
-                    &mesh.domain().subregion("gas").elements("elements_CF.Mesh.SF.Quad2DLagrangeP1").connectivity_table());
+  BOOST_CHECK_EQUAL(mesh.field("Volume").subfield("quadtriag").subfield("gas").elements("elements_CF.Mesh.SF.Quad2DLagrangeP1").connectivity_table().size(), (Uint) 2);
+  BOOST_CHECK_EQUAL(&mesh.field("Volume").subfield("quadtriag").subfield("gas").elements("elements_CF.Mesh.SF.Quad2DLagrangeP1").connectivity_table(),
+                    &mesh.domain().subregion("quadtriag").subregion("gas").elements("elements_CF.Mesh.SF.Quad2DLagrangeP1").connectivity_table());
 
   // test the CRegion::get_field function, to return the matching field
   BOOST_CHECK_EQUAL(mesh.domain().get_field("Volume").full_path().string_without_scheme(),"mesh/Volume");
-  BOOST_CHECK_EQUAL(mesh.domain().subregion("gas").get_field("Volume").full_path().string_without_scheme(),"mesh/Volume/gas");
+  BOOST_CHECK_EQUAL(mesh.domain().subregion("quadtriag").subregion("gas").get_field("Volume").full_path().string_without_scheme(),"mesh/Volume/quadtriag/gas");
 
-  BOOST_CHECK_EQUAL(mesh.look_component("quadtriag/gas")->full_path().string_without_scheme(),"mesh/quadtriag/gas");
-  BOOST_CHECK_EQUAL(mesh.look_component("quadtriag/gas/../liquid")->full_path().string_without_scheme(),"mesh/quadtriag/liquid");
-  BOOST_CHECK_EQUAL(mesh.look_component<CRegion>("quadtriag/gas/../liquid")->get_field("Volume").full_path().string_without_scheme(),"mesh/Volume/liquid");
+  BOOST_CHECK_EQUAL(mesh.look_component("topology/quadtriag/gas")->full_path().string_without_scheme(),"mesh/topology/quadtriag/gas");
+  BOOST_CHECK_EQUAL(mesh.look_component("topology/quadtriag/gas/../liquid")->full_path().string_without_scheme(),"mesh/topology/quadtriag/liquid");
+  BOOST_CHECK_EQUAL(mesh.look_component<CRegion>("topology/quadtriag/gas/../liquid")->get_field("Volume").full_path().string_without_scheme(),"mesh/Volume/quadtriag/liquid");
 
 
   // Check if element based data is correctly created
-  BOOST_CHECK_EQUAL(mesh.look_component<CFieldElements>("Volume/gas/elements_CF.Mesh.SF.Quad2DLagrangeP1")->data().size(), (Uint) 2);
-  BOOST_CHECK_EQUAL(mesh.look_component<CFieldElements>("Volume/gas/elements_CF.Mesh.SF.Quad2DLagrangeP1")->data().row_size(), (Uint) 1);
+  BOOST_CHECK_EQUAL(mesh.look_component<CFieldElements>("Volume/quadtriag/gas/elements_CF.Mesh.SF.Quad2DLagrangeP1")->data().size(), (Uint) 2);
+  BOOST_CHECK_EQUAL(mesh.look_component<CFieldElements>("Volume/quadtriag/gas/elements_CF.Mesh.SF.Quad2DLagrangeP1")->data().row_size(), (Uint) 1);
 
   // Check if node based data is correctly created
-  BOOST_CHECK_EQUAL(mesh.look_component<CFieldElements>("Solution/gas/elements_CF.Mesh.SF.Quad2DLagrangeP1")->data().row_size(), (Uint) 5);
+  BOOST_CHECK_EQUAL(mesh.look_component<CFieldElements>("Solution/quadtriag/gas/elements_CF.Mesh.SF.Quad2DLagrangeP1")->data().row_size(), (Uint) 5);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

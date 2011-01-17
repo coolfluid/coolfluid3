@@ -99,7 +99,7 @@ void CReader::read_base(CMesh& parent_region)
   boost::algorithm::replace_all(m_base.name,".","_");
 
   // Create basic region structure
-  CRegion& base_region = m_mesh->create_domain(m_base.name);
+  CRegion& base_region = m_mesh->topology();
   m_base_map[m_base.idx] = &base_region;
 
   // check how many zones we have

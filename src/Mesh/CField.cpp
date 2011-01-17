@@ -13,12 +13,14 @@
 #include "Common/CLink.hpp"
 #include "Common/ComponentPredicates.hpp"
 #include "Common/String/Conversion.hpp"
+#include "Common/Log.hpp"
 
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CField.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CFieldElements.hpp"
+#include "Mesh/CMesh.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -199,6 +201,9 @@ void CField::create_data_storage(const DataBasis basis)
     subfield.set_basis(m_basis);
   }
 
+  CNodes& nodes = find_parent_component<CMesh>(*this).nodes();
+
+
   cf_assert(m_var_types.size()!=0);
   
   Uint row_size(0);
@@ -219,51 +224,28 @@ void CField::create_data_storage(const DataBasis basis)
       std::map<std::string,CTable<Real>*> data_for_nodes;
 
       // Check if there are coordinates in this field, and add to map
-      CTable<Real>::Ptr field_data;
-      if ( is_not_null(find_component_ptr<CNodes>(support())) )
-      {
-        CNodes& nodes = find_component<CNodes>(support());
-        field_data = create_component<CTable<Real> >("data");
-        field_data->add_tag("field_data");
-        field_data->set_row_size(row_size);
-        field_data->resize(nodes.size());
-        data_for_nodes[nodes.full_path().string_without_scheme()] = field_data.get();
-        
-        // create a link to the coordinates in the data
-        CLink::Ptr nodes_link = field_data->create_component<CLink>("nodes");
-        nodes_link->link_to(nodes.follow());
-        nodes_link->add_tag("nodes_link");
-			}
-			// Check if there are coordinates in all subfields and add to map
+      CTable<Real>::Ptr field_data = create_component<CTable<Real> >("data");
+      field_data->add_tag("field_data");
+      field_data->set_row_size(row_size);
+      field_data->resize(nodes.size());
+      data_for_nodes[nodes.full_path().string_without_scheme()] = field_data.get();
+      
+      // create a link to the coordinates in the data
+      CLink::Ptr nodes_link = field_data->create_component<CLink>("nodes");
+      nodes_link->link_to(nodes.follow());
+      nodes_link->add_tag("nodes_link");
+
 			boost_foreach(CField& subfield, find_components_recursively<CField>(*this))
 			{
-				if ( is_not_null(find_component_ptr<CNodes>(subfield.support())) )
-				{
-          // Create data and store in a map
-          CNodes& nodes = find_component<CNodes>(subfield.support());
-          CTable<Real>& field_data = *subfield.create_component<CTable<Real> >("data");
-          field_data.add_tag("field_data");
-          field_data.set_row_size(row_size);
-          field_data.resize(nodes.size());
-          data_for_nodes[nodes.full_path().string()] = &field_data;
-          
-          // create a link to the coordinates in the data
-          CLink::Ptr nodes_link = field_data.create_component<CLink>("nodes");
-          nodes_link->link_to(nodes.follow());
-          nodes_link->add_tag("nodes_link");
-        }
-        else // if no nodes are found, link to the data in the top field instead
-        {
           CLink::Ptr data_link = subfield.create_component<CLink>("data");
           data_link->add_tag("field_data");
           data_link->link_to(field_data);
-				}
 			}
 
       // Add the correct data according to the map in every field elements component
       boost_foreach(CFieldElements& field_elements, find_components_recursively<CFieldElements>(*this))
       {
-        field_elements.add_node_based_storage(*data_for_nodes[field_elements.nodes().full_path().string_without_scheme()]);
+        field_elements.add_node_based_storage(*field_data);
       }
     }
       break;
@@ -380,9 +362,9 @@ Uint CField::var_length ( const std::string& vname ) const
 
 CTable<Real>& CField::data_table()
 {
-  Component::Ptr data = find_component_ptr_with_filter(*this, IsComponentTag("field_data"));
+  Component::Ptr data = find_component_ptr_with_tag(*this, "field_data");
   if(!data)
-    throw ValueNotFound(FromHere(), "Field " + name() + " has no associated data");
+    throw ValueNotFound(FromHere(), "Field " + full_path().string_without_scheme() + " has no associated data");
   CTable<Real>::Ptr result = data->follow()->as_type<CTable<Real> >();
   cf_assert( is_not_null(result) );
   return *result;
@@ -390,9 +372,9 @@ CTable<Real>& CField::data_table()
 
 const CF::Mesh::CTable< Real >& CField::data_table() const
 {
-  Component::ConstPtr data = find_component_ptr_with_filter(*this, IsComponentTag("field_data"));
+  Component::ConstPtr data = find_component_ptr_with_tag(*this, "field_data");
   if(!data)
-    throw ValueNotFound(FromHere(), "Field " + name() + " has no associated data");
+    throw ValueNotFound(FromHere(), "Field " + full_path().string_without_scheme() + " has no associated data");
   CTable<Real>::ConstPtr result = data->follow()->as_type<CTable<Real> const>();
   
   cf_assert( is_not_null(result) );

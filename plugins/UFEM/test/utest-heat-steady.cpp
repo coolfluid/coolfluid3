@@ -62,10 +62,11 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
   Component::Ptr heat_eq = ufem_method->get_child("HeatEquation");
   BOOST_CHECK(heat_eq);
   
-  heat_eq->configure_property("ConductivityRegion", URI("cpath://Root/UFEMHeat/Domain/Mesh/ring2d-quads"));
+  heat_eq->configure_property("ConductivityRegion", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology/ring2d-quads"));
   heat_eq->configure_property("TemperatureFieldName", std::string("Temperature"));
   heat_eq->configure_property("TemperatureVariableName", std::string("T"));
   
+  BOOST_CHECK(true);
   boost::shared_ptr<XmlDoc> inside_bc_root = XmlOps::create_doc();
   XmlNode& inside_bc_node = *XmlOps::goto_doc_node(*inside_bc_root.get());
   XmlNode& inside_bc_frame = *XmlOps::add_signal_frame(inside_bc_node, "", "", "", true );
@@ -75,7 +76,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
   ufem_method->call_signal("add_dirichlet_bc", inside_bc_frame);
   Component::Ptr inside_bc = ufem_method->get_child("Inside");
   BOOST_CHECK(inside_bc);
-  inside_bc->configure_property("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/ring2d-quads/inner"));
+  inside_bc->configure_property("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology/ring2d-quads/inner"));
   inside_bc->configure_property("Inside", 10.);
   
   boost::shared_ptr<XmlDoc> outside_bc_root = XmlOps::create_doc();
@@ -87,7 +88,7 @@ BOOST_AUTO_TEST_CASE( HeatLinearSteady )
   ufem_method->call_signal("add_dirichlet_bc", outside_bc_frame);
   Component::Ptr outside_bc = ufem_method->get_child("Outside");
   BOOST_CHECK(outside_bc);
-  outside_bc->configure_property("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/ring2d-quads/outer"));
+  outside_bc->configure_property("Region", URI("cpath://Root/UFEMHeat/Domain/Mesh/topology/ring2d-quads/outer"));
   outside_bc->configure_property("Outside", 35.);
   
   boost::shared_ptr<XmlDoc> run_root = XmlOps::create_doc();

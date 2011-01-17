@@ -82,24 +82,24 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
   BOOST_CHECK_EQUAL ( p_mesh->full_path().string() , "cpath://root/mesh" );
 
   // Create one region inside mesh
-  CRegion& region1 = p_mesh->create_region("region1");
-  BOOST_CHECK_EQUAL ( region1.full_path().string() , "cpath://root/mesh/region1" );
+  CRegion& region1 = p_mesh->topology().create_region("region1");
+  BOOST_CHECK_EQUAL ( region1.full_path().string() , "cpath://root/mesh/topology/region1" );
 
   // Create second region inside mesh, with 2 subregions inside
-  CRegion& region2 = p_mesh->create_region("region2");
+  CRegion& region2 = p_mesh->topology().create_region("region2");
 
   CFinfo << p_mesh->tree() << CFendl;
   region2.create_region("subregion1");
   CRegion& subregion = region2.create_region("subregion2");
-  BOOST_CHECK_EQUAL ( subregion.full_path().string() , "cpath://root/mesh/base/region2/subregion2" );
+  BOOST_CHECK_EQUAL ( subregion.full_path().string() , "cpath://root/mesh/topology/region2/subregion2" );
 
   // Create a connectivity table inside a subregion
   subregion.create_component<CTable<Uint> >("connTable");
-  BOOST_CHECK_EQUAL ( find_component_with_name(subregion, "connTable").full_path().string() , "cpath://root/mesh/base/region2/subregion2/connTable" );
+  BOOST_CHECK_EQUAL ( find_component_with_name(subregion, "connTable").full_path().string() , "cpath://root/mesh/topology/region2/subregion2/connTable" );
 
   // Create a elementsType component inside a subregion
   subregion.create_component<CElements>("elementType");
-  BOOST_CHECK_EQUAL ( find_component_with_name(subregion, "elementType").full_path().string() , "cpath://root/mesh/base/region2/subregion2/elementType" );
+  BOOST_CHECK_EQUAL ( find_component_with_name(subregion, "elementType").full_path().string() , "cpath://root/mesh/topology/region2/subregion2/elementType" );
 
   // Create an array of coordinates inside mesh
   p_mesh->create_component<CTable<Real> >("coordinates");
@@ -251,7 +251,7 @@ BOOST_AUTO_TEST_CASE( CTable_Uint_Test )
   root->add_component( mesh );
 
   // Create one region inside mesh
-  CRegion& region = mesh->create_region("region");
+  CRegion& region = mesh->topology().create_region("region");
 
   // Create connectivity table inside the region
   CTable<Uint>& connTable = *region.create_component<CTable<Uint> >("connTable");
@@ -349,7 +349,7 @@ BOOST_AUTO_TEST_CASE( moving_mesh_components_around )
 {
   CRoot::Ptr root = CRoot::create ( "root" );
   CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
-  CRegion& regions = mesh->create_region("regions");
+  CRegion& regions = mesh->topology().create_region("regions");
 
   CRegion& subregion1 = regions.create_region("subregion1");
   BOOST_CHECK_EQUAL(find_components<CRegion>(subregion1).empty(),true);
@@ -705,7 +705,7 @@ BOOST_AUTO_TEST_CASE ( CDynTable_test_hard )
 BOOST_AUTO_TEST_CASE ( Mesh_test )
 {
   CMesh::Ptr mesh = allocate_component<CMesh>("mesh");
-  CRegion& region = mesh->create_region("region");
+  CRegion& region = mesh->topology().create_region("region");
   CNodes& nodes = region.create_nodes(DIM_3D);
   nodes.resize(2);
   

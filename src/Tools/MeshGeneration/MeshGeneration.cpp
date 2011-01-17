@@ -31,7 +31,7 @@ namespace MeshGeneration {
 
 void create_line(CMesh& mesh, const Real x_len, const Uint x_segments)
 {
-  CRegion& region = mesh.create_region("region");
+  CRegion& region = mesh.topology().create_region("region");
   CNodes& nodes = region.create_nodes(DIM_1D);
   nodes.resize(x_segments+1);
   const Real x_step = x_len / static_cast<Real>(x_segments);
@@ -68,7 +68,7 @@ void create_line(CMesh& mesh, const Real x_len, const Uint x_segments)
 
 void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments)
 {
-  CRegion& region = mesh.create_region("region");
+  CRegion& region = mesh.topology().create_region("region");
   CNodes& nodes = region.create_nodes(DIM_2D);
   nodes.resize((x_segments+1)*(y_segments+1));
   
@@ -145,7 +145,7 @@ void create_circle_2d(CTable<Real>& coordinates, CTable<Uint>& connectivity, con
 
 void create_circle_2d ( CMesh& mesh, const Real radius, const Uint segments, const Real start_angle, const Real end_angle )
 {
-  CRegion& region = mesh.create_region("region");
+  CRegion& region = mesh.topology().create_region("region");
   CNodes& nodes = region.create_nodes(DIM_2D);
   CTable<Uint>& connectivity = region.create_elements("CF.Mesh.SF.Line2DLagrangeP1",nodes).connectivity_table();
   
