@@ -33,7 +33,7 @@ struct Mesh_API Triag2D : public ElementType
 
   /// @return m_geoShape
   static const GeoShape::Type shape = GeoShape::TRIAG;
-  
+
   /// @return number of faces
   static const Uint nb_faces = 3;
   

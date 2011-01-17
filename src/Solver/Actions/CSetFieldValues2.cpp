@@ -27,8 +27,7 @@ Common::ComponentBuilder < CSetFieldValues2, CLoopOperation, LibActions > CSetFi
 ///////////////////////////////////////////////////////////////////////////////////////
   
 CSetFieldValues2::CSetFieldValues2 ( const std::string& name ) : 
-  CLoopOperation(name),
-  m_field("Field")
+  CLoopOperation(name)
 {
   // options
   m_properties.add_option< OptionURI > ("Field","Field to set", URI("cpath:"))->mark_basic();
@@ -41,10 +40,9 @@ void CSetFieldValues2::config_field()
 {
   URI uri;
   property("Field").put_value(uri);
-  CField2::Ptr field = Core::instance().root()->look_component<CField2>(uri);
-  if ( is_null(field) )
+  m_field = Core::instance().root()->look_component<CField2>(uri);
+  if ( is_null(m_field.lock()) )
     throw CastingFailed (FromHere(), "Field must be of a CField2 or derived type");
-  m_field.link_to(field);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -52,9 +50,9 @@ void CSetFieldValues2::config_field()
 void CSetFieldValues2::execute()
 {
   // m_idx is the index that is set using the function set_loop_idx()
-  
-  CTable<Real>::Row data = m_field.field()[m_idx];
-  const Real x = m_field.field().coords(m_idx)[XX];
+  CField2& field = *m_field.lock();
+  CTable<Real>::Row data = field[idx()];
+  const Real x = field.coords(idx())[XX];
   //const CF::Real y =  m_field.field().coords(m_idx)[YY];
   
   const Uint row_size = data.size();

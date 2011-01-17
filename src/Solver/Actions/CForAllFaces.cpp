@@ -27,7 +27,7 @@ ComponentBuilder < CForAllFaces, CLoop, LibActions > CForAllFaces_builder;
 CForAllFaces::CForAllFaces ( const std::string& name ) :
   CLoop(name)
 {
-   
+
 }
 
 void CForAllFaces::execute()
@@ -39,8 +39,9 @@ void CForAllFaces::execute()
     boost_foreach(CLoopOperation& op, find_components<CLoopOperation>(*this))
     {
       op.create_loop_helper( elements );
-      const Uint elem_count = elements.elements_count();
-      for ( Uint elem = 0; elem != elem_count; ++elem )
+      op.configure_property("Elements",elements.full_path());
+      const Uint nb_elem = elements.size();
+      for ( Uint elem = 0; elem != nb_elem; ++elem )
       {
         op.select_loop_idx(elem);
         op.execute();

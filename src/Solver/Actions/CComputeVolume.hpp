@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Actions_CSetFieldValues2_hpp
-#define CF_Solver_Actions_CSetFieldValues2_hpp
+#ifndef CF_Solver_Actions_CComputeVolume_hpp
+#define CF_Solver_Actions_CComputeVolume_hpp
 
 #include "Mesh/CElements.hpp"
 #include "Mesh/CNodes.hpp"
@@ -26,33 +26,41 @@ namespace Actions {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class Solver_Actions_API CSetFieldValues2 : public CLoopOperation
+class Solver_Actions_API CComputeVolume : public CLoopOperation
 {
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<CSetFieldValues2> Ptr;
-  typedef boost::shared_ptr<CSetFieldValues2 const> ConstPtr;
+  typedef boost::shared_ptr<CComputeVolume> Ptr;
+  typedef boost::shared_ptr<CComputeVolume const> ConstPtr;
 
 public: // functions
   /// Contructor
   /// @param name of the component
-  CSetFieldValues2 ( const std::string& name );
+  CComputeVolume ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CSetFieldValues2() {};
+  virtual ~CComputeVolume() {};
 
   /// Get the class name
-  static std::string type_name () { return "CSetFieldValues2"; }
+  static std::string type_name () { return "CComputeVolume"; }
 
   /// execute the action
   virtual void execute ();
 
-private: // data
-
-  boost::weak_ptr<Mesh::CField2> m_field;
+private: // helper functions
 
   void config_field();
+
+  void trigger_elements();
+
+  Mesh::CField2& volume_field() { return *m_field.lock(); }
+  
+private: // data
+
+  boost::weak_ptr<Mesh::CField2>       m_field;
+  boost::weak_ptr<Mesh::CTable<Uint> > m_index;
+    
 };
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -63,4 +71,4 @@ private: // data
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Solver_Actions_CSetFieldValues2_hpp
+#endif // CF_Solver_Actions_CComputeVolume_hpp

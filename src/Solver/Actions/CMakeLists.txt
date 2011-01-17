@@ -22,6 +22,8 @@ list( APPEND coolfluid_solver_actions_files
   CSetFieldValues.cpp
   CSetFieldValues2.hpp
   CSetFieldValues2.cpp
+  CComputeVolume.hpp
+  CComputeVolume.cpp
   LibActions.hpp
   LibActions.cpp
 )

@@ -4,8 +4,11 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "Common/OptionURI.hpp"
+#include "Common/OptionArray.hpp"
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CNodes.hpp"
+#include "Mesh/CField2.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -17,10 +20,37 @@ using namespace Common;
 CMeshWriter::CMeshWriter ( const std::string& name  ) :
   Component ( name ), m_coord_dim(0), m_max_dimensionality(0)
 {
-   
-
+  std::vector<URI> fields;
+  m_properties.add_option< OptionArrayT<URI> > ("Fields","Fields to output",fields);
+  m_properties["Fields"].as_option().attach_trigger( boost::bind( &CMeshWriter::config_fields,   this ) );
+  
   // m_properties.add_option< OptionT<std::string> >  ( "File",  "File to read" , "" );
   // m_properties.add_option< OptionT<std::string> >  ( "Mesh",  "Mesh to construct" , "" );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CMeshWriter::config_fields()
+{
+  std::vector<URI> field_uris;
+  m_properties["Fields"].put_value(field_uris);
+  
+  m_fields.resize(0);
+  boost_foreach ( const URI& uri, field_uris)
+  {
+    m_fields.push_back(look_component<CField2>(uri));
+    if ( is_null(m_fields.back().lock()) )
+      throw ValueNotFound(FromHere(),"Invalid URI ["+uri.string()+"]");
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CMeshWriter::set_fields(const std::vector<boost::shared_ptr<CField2> >& fields)
+{
+  m_fields.resize(0);
+  boost_foreach( CField2::Ptr field, fields )
+    m_fields.push_back(field);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

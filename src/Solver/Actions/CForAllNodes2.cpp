@@ -6,12 +6,9 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/Foreach.hpp"
-#include "Common/Log.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CField.hpp"
-#include "Mesh/CFieldElements.hpp"
+#include "Mesh/CElements.hpp"
 #include "Mesh/CList.hpp"
-#include "Mesh/CMesh.hpp"
 
 #include "Solver/Actions/CNodeOperation.hpp"
 #include "Solver/Actions/CForAllNodes2.hpp"
@@ -30,8 +27,7 @@ ComponentBuilder < CForAllNodes2, CLoop, LibActions > CForAllNodes2_builder;
 /////////////////////////////////////////////////////////////////////////////////////
 
 CForAllNodes2::CForAllNodes2 ( const std::string& name ) :
-  CLoop(name),
-  m_update_nodes(false)
+  CLoop(name)
 {
 }
   

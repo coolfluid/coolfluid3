@@ -34,16 +34,16 @@ CSetFieldValues::CSetFieldValues ( const std::string& name ) :
 
 void CSetFieldValues::execute()
 {
-	const CF::Real x = m_loop_helper->coordinates[m_idx][XX];
+	const CF::Real x = m_loop_helper->coordinates[idx()][XX];
 	//const CF::Real y = coordinates[n][YY];
 	
   const Uint row_size = m_loop_helper->field_data.row_size();
 	for (Uint i = 0; i != row_size; ++i)
 	{
 		if (x >= -1.4 && x <= -0.6)
-			m_loop_helper->field_data[m_idx][i] = 0.5*(cos(3.141592*(x+1.0)/0.4)+1.0);
+			m_loop_helper->field_data[idx()][i] = 0.5*(cos(3.141592*(x+1.0)/0.4)+1.0);
 		else
-			m_loop_helper->field_data[m_idx][i] = 0.0;
+			m_loop_helper->field_data[idx()][i] = 0.0;
 	}
 }
 

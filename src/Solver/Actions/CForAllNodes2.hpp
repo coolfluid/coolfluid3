@@ -13,9 +13,6 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Mesh {
-    class CElements;
-}
 namespace Solver {
 namespace Actions {
 
@@ -43,10 +40,6 @@ public: // functions
   // functions specific to the CForAllNodes2 component
 
   virtual void execute();
-  
-private:
-  
-  bool m_update_nodes;
 
 };
 

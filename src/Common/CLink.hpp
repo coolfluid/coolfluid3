@@ -16,47 +16,47 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  /// Component for creating links between components
-  /// @author Tiago Quintino
-  class Common_API CLink : public Component {
+/// Component for creating links between components
+/// @author Tiago Quintino
+class Common_API CLink : public Component {
 
-  public: //typedefs
+public: //typedefs
 
-    typedef boost::shared_ptr<CLink> Ptr;
-    typedef boost::shared_ptr<CLink const> ConstPtr;
+  typedef boost::shared_ptr<CLink> Ptr;
+  typedef boost::shared_ptr<CLink const> ConstPtr;
 
-  public: // functions
+public: // functions
 
-    /// Contructor
-    /// @param name of the component
-    CLink ( const std::string& name );
+  /// Contructor
+  /// @param name of the component
+  CLink ( const std::string& name );
 
-    /// Virtual destructor
-    virtual ~CLink();
+  /// Virtual destructor
+  virtual ~CLink();
 
-    /// Get the class name
-    static std::string type_name () { return "CLink"; }
+  /// Get the class name
+  static std::string type_name () { return "CLink"; }
 
-    /// get the component through the links to the actual components
-    virtual Component::Ptr follow ();
-    virtual Component::ConstPtr  follow() const;
+  /// get the component through the links to the actual components
+  virtual Component::Ptr follow ();
+  virtual Component::ConstPtr  follow() const;
 
-    // functions specific to the CLink component
+  // functions specific to the CLink component
 
-    /// link to component
-    bool is_linked () const;
+  /// link to component
+  bool is_linked () const;
 
-    virtual void link_to ( Component::Ptr lnkto );
+  virtual void link_to ( Component::Ptr lnkto );
 
-    void change_link( XmlNode & node );
+  void change_link( XmlNode & node );
 
-  private: // data
+private: // data
 
-    /// this is a link to the component
-    /// using weak_ptr means it might become invalid so we should test for expire()
-    boost::weak_ptr<Component> m_link_component;
+  /// this is a link to the component
+  /// using weak_ptr means it might become invalid so we should test for expire()
+  boost::weak_ptr<Component> m_link_component;
 
-  }; // CLink
+}; // CLink
 
 ////////////////////////////////////////////////////////////////////////////////
 

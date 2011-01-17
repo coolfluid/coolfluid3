@@ -18,8 +18,6 @@ namespace Mesh {
 
 Triag2D::Triag2D(const std::string& name) : ElementType(name)
 {
-   
-
   m_shape = shape;
   m_dimension = dimension;
   m_dimensionality = dimensionality;

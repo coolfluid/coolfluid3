@@ -82,7 +82,7 @@ CDummyLoopOperation::CDummyLoopOperation ( const std::string& name ) :
 
 void CDummyLoopOperation::execute()
 {
-  CFinfo << "  looping index " << m_idx << CFendl;
+  CFinfo << "  looping index " << idx() << CFendl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

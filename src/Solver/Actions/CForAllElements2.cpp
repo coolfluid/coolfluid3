@@ -4,6 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/Foreach.hpp"
 
@@ -38,7 +39,7 @@ void CForAllElements2::execute()
     // Setup all child operations
     boost_foreach(CLoopOperation& op, find_components<CLoopOperation>(*this))
     {
-      op.create_loop_helper( elements );
+      op.configure_property("Elements",elements.full_path());
       const Uint nb_elem = elements.size();
       for ( Uint elem = 0; elem != nb_elem; ++elem )
       {

@@ -244,7 +244,12 @@ void CField2::create_data_storage()
         Uint nb_sub_elem = 1; // 1 for finite volume, more for spectral volume
         index_in_data.set_row_size(nb_sub_elem);
         index_in_data.resize(field_elements.size());
-        data_size += nb_sub_elem*field_elements.size();
+        for (Uint i=0; i<field_elements.size(); ++i)
+        {
+          for (Uint sub=0; sub<nb_sub_elem; ++sub)
+            index_in_data[i][sub] = data_size++;
+        }
+        //data_size += nb_sub_elem*field_elements.size();
       }
       m_data->resize(data_size);
       break;      

@@ -30,10 +30,12 @@
 #include "Solver/Actions/CSetFieldValues.hpp"
 #include "Solver/Actions/CForAllElementsT.hpp"
 #include "Solver/Actions/CForAllElements.hpp"
+#include "Solver/Actions/CForAllElements2.hpp"
 #include "Solver/Actions/CForAllNodes.hpp"
 #include "Solver/Actions/CForAllNodes2.hpp"
 #include "Solver/Actions/CForAllFaces.hpp"
 #include "Solver/Actions/CLoopOperation.hpp"
+#include "Solver/Actions/CComputeVolume.hpp"
 
 #include "Mesh/SF/Triag2DLagrangeP1.hpp"
 #include "Mesh/SF/Quad2DLagrangeP1.hpp"
@@ -101,7 +103,7 @@ BOOST_AUTO_TEST_CASE( Node_Looping_Test )
 
 BOOST_AUTO_TEST_CASE( Face_Looping_Test )
 {
-  CRoot::Ptr root = CRoot::create("Root");
+  CRoot::Ptr root = Core::instance().root();
   CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
 	
   // Read mesh from file
@@ -126,6 +128,8 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
 
   CMeshTransformer::Ptr info = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo","info");
   info->transform(mesh,args);
+  
+  root->remove_component(mesh->name());
 	
 }
 
@@ -253,17 +257,15 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   boost::filesystem::path fp_in("rotation-tg.neu");
   meshreader->read_from_to(fp_in,mesh);
   
-  CField2& field = *mesh->create_component<CField2>("field");
   CFieldRegion& field_topology = *mesh->create_component<CFieldRegion>("field_topology");
   field_topology.synchronize_with_region(mesh->topology());
 
+  CField2& field = *mesh->create_component<CField2>("field");
   field.configure_property("Topology",field_topology.full_path());
   field.configure_property("FieldType",std::string("NodeBased"));
   field.create_data_storage();
   
-  
-  std::vector<URI> regions = list_of(URI("cpath://Root/mesh/field_topology/default_id1084/inlet"))
-                                    (URI("cpath://Root/mesh/field_topology/default_id1084/outlet"));
+  std::vector<URI> regions = list_of(URI("cpath://Root/mesh/field_topology"));
   
 	CLoop::Ptr node_loop = root->create_component< CForAllNodes2 >("node_loop");
 	node_loop->configure_property("Regions",regions);
@@ -272,9 +274,40 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   node_loop->action("CF.Solver.Actions.CSetFieldValues2").configure_property("Field",field.full_path());
   node_loop->execute();
   
-  CFinfo << field.data() << CFendl;
+  CField2& volumes = *mesh->create_component<CField2>("volumes");
+  volumes.configure_property("Topology",field_topology.full_path());
+  volumes.configure_property("FieldType",std::string("ElementBased"));
+  volumes.create_data_storage();
 
+  CComputeVolume::Ptr compute_volume = root->create_component<CComputeVolume>("compute_volume");
+  CElements& elems = *root->look_component<CElements>(URI("cpath://Root/mesh/field_topology/default_id1084/fluid/elements_CF.Mesh.SF.Triag2DLagrangeP1"));
+  CTable<Uint>& index = *elems.get_child("volumes")->get_child<CTable<Uint> >("index");
+  compute_volume->configure_property("Volumes",volumes.full_path());
+  compute_volume->configure_property("Elements",elems.full_path());
+  compute_volume->configure_property("LoopIndex",0u);
+  compute_volume->execute();
+  BOOST_CHECK_EQUAL( volumes[ index[0][0] ][0] , 0.0035095825067150031);
+
+  CLoop::Ptr elem_loop = root->create_component< CForAllElements2 >("elem_loop");
+  elem_loop->configure_property("Regions",regions);
+  elem_loop->create_action("CF.Solver.Actions.CComputeVolume");
+  elem_loop->action("CF.Solver.Actions.CComputeVolume").configure_property("Volumes",volumes.full_path());
+  elem_loop->execute();
+
+  BOOST_CHECK(true);
+  
+  std::vector<CField2::Ptr> fields;
+  fields.push_back(volumes.as_type<CField2>());
+  fields.push_back(field.as_type<CField2>());
+  boost::filesystem::path fp_out ("quadtriag.msh");
+  CMeshWriter::Ptr gmsh_writer = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  gmsh_writer->set_fields(fields);
+  gmsh_writer->write_from_to(mesh,fp_out);
+  
+  
+  
 }
+
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()

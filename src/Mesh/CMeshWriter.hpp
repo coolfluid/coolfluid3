@@ -21,6 +21,7 @@ namespace CF {
 namespace Mesh {
   
   class CNodes;
+  class CField2;
   
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -61,6 +62,12 @@ public: // functions
   virtual void write_from_to(const CMesh::Ptr& mesh, boost::filesystem::path& path) = 0;
 
   boost::filesystem::path write_from(const CMesh::Ptr& mesh);
+  
+  void set_fields(const std::vector<boost::shared_ptr<CField2> >& fields);
+
+private: // functions
+
+  void config_fields();
 
 protected: // classes
   
@@ -87,6 +94,7 @@ protected:
   
   void compute_mesh_specifics();
 
+  std::vector<boost::weak_ptr<CField2> > m_fields;
 
 };
 
