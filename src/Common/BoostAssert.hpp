@@ -11,6 +11,12 @@
 #error The header BoostAssert.hpp shouldnt be included directly rather by including CF.hpp instead
 #endif
 
+// disable boost assertions if compiled with -DNDEBUG
+#ifdef NDEBUG
+  #define BOOST_DISABLE_ASSERTS
+#endif
+
+
 #define BOOST_ENABLE_ASSERT_HANDLER
 #include <boost/assert.hpp> 
 
