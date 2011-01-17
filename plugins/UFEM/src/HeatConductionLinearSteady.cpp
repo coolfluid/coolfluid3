@@ -74,7 +74,7 @@ void HeatConductionLinearSteady::run(XmlNode& node)
     throw ValueNotFound(FromHere(), "Region at path " + get_child("HeatEquation")->property("ConductivityRegion").value_str() + " not found when looking for ConductivityRegion.");
 
   // Mesh
-  CMesh::Ptr mesh = boost::dynamic_pointer_cast<CMesh>(region->get_parent());
+  CMesh::Ptr mesh = find_parent_component<CMesh>(*region).as_type<CMesh>();
   if(!mesh)
     throw InvalidStructure(FromHere(), "Parent of ConductivityRegion is not a mesh");
 
