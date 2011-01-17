@@ -7,8 +7,9 @@
 #ifndef CF_Solver_Actions_CSetFieldValues2_hpp
 #define CF_Solver_Actions_CSetFieldValues2_hpp
 
-#include "Mesh/CFieldElements.hpp"
+#include "Mesh/CElements.hpp"
 #include "Mesh/CNodes.hpp"
+#include "Mesh/CFieldLink.hpp"
 
 #include "Solver/Actions/CLoopOperation.hpp"
 
@@ -18,6 +19,7 @@ namespace CF {
 namespace Mesh {
   template <typename T> class CTable;
   class CElements;
+  class CField2;
 }
 namespace Solver {
 namespace Actions {
@@ -43,26 +45,14 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CSetFieldValues2"; }
 
-  /// Set the loop_helper
-  void create_loop_helper (Mesh::CElements& geometry_elements );
-
   /// execute the action
   virtual void execute ();
 
 private: // data
-	
-  struct LoopHelper
-  {
-    LoopHelper(Mesh::CElements& geometry_elements, CLoopOperation& op) :
-    field_data(geometry_elements.get_field_elements(op.properties()["Field"].value<std::string>()).data()),
-    coordinates(geometry_elements.get_field_elements(op.properties()["Field"].value<std::string>()).nodes().coordinates())
-    { }
-    Mesh::CTable<Real>& field_data;
-    Mesh::CTable<Real>& coordinates;
-  };
-	
-  boost::shared_ptr<LoopHelper> m_loop_helper;
 
+  Mesh::CFieldLink m_field;
+
+  void config_field();
 };
 
 /////////////////////////////////////////////////////////////////////////////////////

@@ -47,7 +47,7 @@ public: // functions
   /// Called before looping to prepare a helper object that caches entries
   /// needed by this operation to perform the loop efficiently.
   /// Typically accesses components and stores their address, since they are not expected to change over looping.
-  virtual void create_loop_helper ( Mesh::CElements& geometry_elements ) = 0;
+  virtual void create_loop_helper ( Mesh::CElements& geometry_elements ) {}
   
 protected: // data
 

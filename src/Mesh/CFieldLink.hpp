@@ -4,65 +4,62 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_CLink_hpp
-#define CF_Common_CLink_hpp
+#ifndef CF_Common_CFieldLink_hpp
+#define CF_Common_CFieldLink_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/Component.hpp"
+#include "Common/CLink.hpp"
 
 namespace CF {
-namespace Common {
-
+namespace Mesh {
+  class CField2;
 ////////////////////////////////////////////////////////////////////////////////
 
   /// Component for creating links between components
   /// @author Tiago Quintino
-  class Common_API CLink : public Component {
+  class Common_API CFieldLink : public Common::CLink {
 
   public: //typedefs
 
-    typedef boost::shared_ptr<CLink> Ptr;
-    typedef boost::shared_ptr<CLink const> ConstPtr;
+    typedef boost::shared_ptr<CFieldLink> Ptr;
+    typedef boost::shared_ptr<CFieldLink const> ConstPtr;
 
   public: // functions
 
     /// Contructor
     /// @param name of the component
-    CLink ( const std::string& name );
+    CFieldLink ( const std::string& name );
 
     /// Virtual destructor
-    virtual ~CLink();
+    virtual ~CFieldLink();
 
     /// Get the class name
-    static std::string type_name () { return "CLink"; }
+    static std::string type_name () { return "CFieldLink"; }
 
-    /// get the component through the links to the actual components
-    virtual Component::Ptr follow ();
-    virtual Component::ConstPtr  follow() const;
+    CField2& field () { return *m_link_component.lock(); }
+    const CField2& field () const { return *m_link_component.lock(); }
 
-    // functions specific to the CLink component
+    // functions specific to the CFieldLink component
 
     /// link to component
     bool is_linked () const;
 
     virtual void link_to ( Component::Ptr lnkto );
 
-    void change_link( XmlNode & node );
-
   private: // data
 
     /// this is a link to the component
     /// using weak_ptr means it might become invalid so we should test for expire()
-    boost::weak_ptr<Component> m_link_component;
+    boost::weak_ptr<CField2> m_link_component;
 
-  }; // CLink
+  }; // CFieldLink
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
+} // Mesh
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_CLink_hpp
+#endif // CF_Common_CFieldLink_hpp

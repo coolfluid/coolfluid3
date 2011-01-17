@@ -92,7 +92,7 @@ public: // functions
   
   Uint size() const { return m_data->size(); }
   
-  CList<Uint>& used_nodes();
+  const CList<Uint>& used_nodes() const;
   
   /// Operator to have modifiable access to a table-row
   /// @return A mutable row of the underlying array
@@ -101,7 +101,9 @@ public: // functions
   /// Operator to have non-modifiable access to a table-row
   /// @return A const row of the underlying array
   CTable<Real>::ConstRow operator[](const Uint idx) const { return m_data->array()[idx]; }
-    
+  
+  CTable<Real>::ConstRow coords(const Uint idx) const;
+  
 private:
   
   std::string m_field_name;
@@ -123,6 +125,9 @@ protected:
 
   boost::shared_ptr<CTable<Real> > m_data;
 
+  boost::shared_ptr<CTable<Real> > m_coords;
+  
+  boost::shared_ptr<CList<Uint> > m_used_nodes;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

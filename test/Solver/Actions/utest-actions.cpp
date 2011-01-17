@@ -23,6 +23,8 @@
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshTransformer.hpp"
+#include "Mesh/CField2.hpp"
+#include "Mesh/CFieldRegion.hpp"
 
 #include "Solver/Actions/LibActions.hpp"
 #include "Solver/Actions/CSetFieldValues.hpp"
@@ -239,6 +241,40 @@ BOOST_AUTO_TEST_CASE( Templated_Looping_Test )
 #endif
 }
 
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
+{
+  CRoot::Ptr root = Core::instance().root();//CRoot::create("Root");
+  CMesh::Ptr mesh = root->create_component<CMesh>("mesh");
+	
+  // Read mesh from file
+  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  boost::filesystem::path fp_in("rotation-tg.neu");
+  meshreader->read_from_to(fp_in,mesh);
+  
+  CField2& field = *mesh->create_component<CField2>("field");
+  CFieldRegion& field_topology = *mesh->create_component<CFieldRegion>("field_topology");
+  field_topology.synchronize_with_region(mesh->topology());
+
+  field.configure_property("Topology",field_topology.full_path());
+  field.configure_property("FieldType",std::string("NodeBased"));
+  field.create_data_storage();
+  
+  
+  std::vector<URI> regions = list_of(URI("cpath://Root/mesh/field_topology/default_id1084/inlet"))
+                                    (URI("cpath://Root/mesh/field_topology/default_id1084/outlet"));
+  
+	CLoop::Ptr node_loop = root->create_component< CForAllNodes2 >("node_loop");
+	node_loop->configure_property("Regions",regions);
+
+  node_loop->create_action("CF.Solver.Actions.CSetFieldValues2");
+  node_loop->action("CF.Solver.Actions.CSetFieldValues2").configure_property("Field",field.full_path());
+  node_loop->execute();
+  
+  CFinfo << field.data() << CFendl;
+
+}
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()

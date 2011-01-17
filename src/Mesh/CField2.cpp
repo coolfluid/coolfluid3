@@ -38,10 +38,9 @@ Common::ComponentBuilder < CField2, Component, LibMesh >  CField2_Builder;
 CField2::CField2 ( const std::string& name  ) :
   Component ( name )
 {
-  OptionURI::Ptr uri_option;
-  uri_option = boost::dynamic_pointer_cast<OptionURI>(m_properties.add_option<OptionURI>("Topology","The field tree this field will be registered in",URI()));
+  Option::Ptr uri_option;
+  uri_option = m_properties.add_option<OptionURI>("Topology","The field tree this field will be registered in",URI("cpath:"));
   uri_option->attach_trigger ( boost::bind ( &CField2::config_tree,   this ) );
-  uri_option->supported_protocol(CF::Common::URI::Scheme::CPATH);
   uri_option->mark_basic();
   
   Option::Ptr option;
@@ -224,7 +223,7 @@ void CField2::create_data_storage()
   
   
   // Check if there are coordinates in this field, and add to map
-  CNodes& nodes = find_parent_component<CMesh>(topology()).nodes();
+  m_coords = find_parent_component<CMesh>(topology()).nodes().coordinates().as_type<CTable<Real> >();
 
   Uint row_size(0);
   boost_foreach(const VarType var_size, m_var_types)
@@ -252,7 +251,8 @@ void CField2::create_data_storage()
     }
     case NODE_BASED:
     {
-      m_data->resize(used_nodes().size());
+      m_used_nodes = CElements::used_nodes(topology()).as_type<CList<Uint> >();
+      m_data->resize(m_used_nodes->size());
     }
       break;
     default:
@@ -304,11 +304,17 @@ CRegion& CField2::topology()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CList<Uint>& CField2::used_nodes()
+const CList<Uint>& CField2::used_nodes() const
 {
-  return CElements::used_nodes(topology());
+  return *m_used_nodes;
 }
 //////////////////////////////////////////////////////////////////////////////  
 
+CTable<Real>::ConstRow CField2::coords(const Uint idx) const
+{
+  return (*m_coords)[used_nodes()[idx]];
+}
+
+////////////////////////////////////////////////////////////////////////////////
 } // Mesh
 } // CF
